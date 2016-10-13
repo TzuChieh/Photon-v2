@@ -150,11 +150,17 @@
     <ClCompile Include="Source\Frame\Frame.cpp" />
     <ClCompile Include="Source\Frame\HdrRectFrame.cpp" />
     <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\Math\Matrix4f.cpp" />
+    <ClCompile Include="Source\Math\Quaternion.cpp" />
+    <ClCompile Include="Source\Math\Vector3f.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Common\type.h" />
     <ClInclude Include="Source\Frame\Frame.h" />
     <ClInclude Include="Source\Frame\HdrRectFrame.h" />
+    <ClInclude Include="Source\Math\Matrix4f.h" />
+    <ClInclude Include="Source\Math\Quaternion.h" />
+    <ClInclude Include="Source\Math\Vector3f.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
