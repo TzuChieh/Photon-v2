@@ -33,6 +33,9 @@
     <ClCompile Include="Source\Math\Vector3f.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\InterfaceImpl\ph_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Frame\Frame.h">
@@ -53,7 +56,13 @@
     <ClInclude Include="Source\Common\primitive_type.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\photon_api.h">
+    <ClInclude Include="Include\ph_core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ph_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ph_test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

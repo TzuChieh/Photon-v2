@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{39265984-2F17-427F-B05E-A007DD870BF2}</ProjectGuid>
+    <ProjectGuid>{9582D074-E4DA-4949-82C0-4A42C9E0057C}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Engine</RootNamespace>
+    <RootNamespace>TestApplication</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -39,7 +39,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -74,7 +74,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Photon-v2_library\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -104,16 +103,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)Include;$(ProjectDir)Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-    <PostBuildEvent>
-      <Command>call "$(SolutionDir)engine_vs_post_build_script.bat" $(SolutionDir)</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -152,24 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Frame\Frame.cpp" />
-    <ClCompile Include="Source\Frame\HdrRectFrame.cpp" />
-    <ClCompile Include="Source\InterfaceImpl\ph_test.cpp" />
-    <ClCompile Include="Source\main.cpp" />
-    <ClCompile Include="Source\Math\Matrix4f.cpp" />
-    <ClCompile Include="Source\Math\Quaternion.cpp" />
-    <ClCompile Include="Source\Math\Vector3f.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Include\ph_core.h" />
-    <ClInclude Include="Include\ph_frame.h" />
-    <ClInclude Include="Include\ph_test.h" />
-    <ClInclude Include="Source\Common\primitive_type.h" />
-    <ClInclude Include="Source\Frame\Frame.h" />
-    <ClInclude Include="Source\Frame\HdrRectFrame.h" />
-    <ClInclude Include="Source\Math\Matrix4f.h" />
-    <ClInclude Include="Source\Math\Quaternion.h" />
-    <ClInclude Include="Source\Math\Vector3f.h" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

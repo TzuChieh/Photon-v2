@@ -2,6 +2,8 @@
 
 #include "Frame/HdrRectFrame.h"
 
+#include "ph_test.h"
+
 int main(int argc, char* argv[])
 {
 	using namespace ph;

@@ -10,6 +10,3 @@ typedef int64_t        int64;
 typedef uint64_t       uint64;
 typedef float          float32;
 typedef double         float64;
-
-#define PHOTON_TRUE  1
-#define PHOTON_FALSE 0

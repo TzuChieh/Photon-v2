@@ -1,13 +1,19 @@
 #pragma once
 
+// HACK
+#define PH_EXPORT_API
+
 // Checking the compiling environment.
 #if defined(_MSC_VER)
 /**************************************************** Microsoft Visual Studio */
 
-	#ifdef EXPORT_PHOTON_API
-		#define PHOTON_API __declspec(dllexport)
+	// Note: The use of dllexport implies a definition, while dllimport implies a declaration. To force a declaration,
+	// an "extern" keyword with dllexport is needed; otherwise, a definition is implied.
+
+	#ifdef PH_EXPORT_API
+		#define PH_API __declspec(dllexport)
 	#else
-		#define PHOTON_API __declspec(dllimport)
+		#define PH_API __declspec(dllimport)
 	#endif
 
 #else
@@ -15,9 +21,9 @@
 
 	// TODO
 	#ifdef EXPORT_PHOTON_API
-		#define PHOTON_API
+		#define PH_API
 	#else
-		#define PHOTON_API
+		#define PH_API
 	#endif
 
 #endif
@@ -36,7 +42,5 @@ typedef uint64_t       PHuint64;
 typedef float          PHfloat32;
 typedef double         PHfloat64;
 
-// value definitions
-
-#define PH_TRUE  1
-#define PH_FALSE 0
+#define PH_TRUE  (1 == 1)
+#define PH_FALSE (1 != 1)
