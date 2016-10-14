@@ -5,4 +5,4 @@ rem arg1: vs solution directory
 
 set VS_SOLUTION_DIR=%~1
 
-xcopy %VS_SOLUTION_DIR%Engine\Include %VS_SOLUTION_DIR%Photon-v2_library\Include /e /y /i /r
+xcopy %VS_SOLUTION_DIR%Engine\Include %VS_SOLUTION_DIR%Photon-v2_library\Engine\Include /e /y /i /r
