@@ -2,7 +2,7 @@
 #include "Vector3f.h"
 #include "Matrix4f.h"
 
-namespace pho
+namespace ph
 {
 
 Quaternion::Quaternion(const Vector3f& normalizedAxis, const float32 angle)
@@ -96,4 +96,4 @@ Quaternion Quaternion::slerp(const Quaternion& dest, float32 lerpFactor, bool sh
 	return (*this).mul(srcFactor).add(correctedDest.mul(destFactor));
 }
 
-}// end namespace pho
+}// end namespace ph

@@ -41,9 +41,6 @@
     <ClInclude Include="Source\Frame\HdrRectFrame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Common\type.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Math\Matrix4f.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -51,6 +48,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Math\Vector3f.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Common\primitive_type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\photon_api.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

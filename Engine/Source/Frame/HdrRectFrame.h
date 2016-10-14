@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Common/type.h"
+#include "Common/primitive_type.h"
 #include "Frame/Frame.h"
 
 #include <vector>
 
-namespace pho
+namespace ph
 {
 
 class HdrRectFrame : public Frame
@@ -21,4 +21,4 @@ private:
 	std::vector<float32> m_pixelData;
 };
 
-}// end namespace pho
+}// end namespace ph

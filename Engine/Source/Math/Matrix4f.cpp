@@ -4,7 +4,7 @@
 
 #include <cmath>
 
-namespace pho
+namespace ph
 {
 
 Matrix4f::Matrix4f()
@@ -244,4 +244,4 @@ std::string Matrix4f::toStringFormal() const
 	return result;
 }
 
-}// end namespace pho
+}// end namespace ph

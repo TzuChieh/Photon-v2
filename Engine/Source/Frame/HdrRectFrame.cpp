@@ -1,6 +1,6 @@
 #include "Frame/HdrRectFrame.h"
 
-namespace pho
+namespace ph
 {
 
 HdrRectFrame::HdrRectFrame(const uint32 widthPx, const uint32 heightPx) : 
@@ -14,4 +14,4 @@ HdrRectFrame::~HdrRectFrame()
 
 }
 
-}// end namespace pho
+}// end namespace ph

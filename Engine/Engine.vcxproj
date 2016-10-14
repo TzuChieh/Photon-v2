@@ -103,7 +103,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Include;$(ProjectDir)Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -155,7 +155,8 @@
     <ClCompile Include="Source\Math\Vector3f.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Common\type.h" />
+    <ClInclude Include="Include\photon_api.h" />
+    <ClInclude Include="Source\Common\primitive_type.h" />
     <ClInclude Include="Source\Frame\Frame.h" />
     <ClInclude Include="Source\Frame\HdrRectFrame.h" />
     <ClInclude Include="Source\Math\Matrix4f.h" />

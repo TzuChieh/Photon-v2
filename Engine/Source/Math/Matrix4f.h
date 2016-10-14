@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Common/type.h"
+#include "Common/primitive_type.h"
 
 #include <string>
 
-namespace pho
+namespace ph
 {
 
 class Vector3f;
@@ -51,4 +51,4 @@ public:
 	}
 };// end class Matrix4f
 
-}// end namespace xe
+}// end namespace ph

@@ -1,7 +1,7 @@
 #include "Math/Vector3f.h"
 #include "Math/Quaternion.h"
 
-namespace pho
+namespace ph
 {
 
 const Vector3f Vector3f::UNIT_X_AXIS(1, 0, 0);
@@ -29,4 +29,4 @@ void Vector3f::rotate(const Quaternion& rotation, Vector3f* out_result) const
 	out_result->z = result.z;
 }
 
-}// end namespace pho
+}// end namespace ph

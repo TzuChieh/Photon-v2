@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Common/type.h"
+#include "Common/primitive_type.h"
 
 #include <cmath>
 #include <string>
 
-namespace pho
+namespace ph
 {
 
 class Quaternion;
@@ -493,4 +493,4 @@ public:
 	}
 };// end class Vector3f
 
-}// end namespace pho
+}// end namespace ph
