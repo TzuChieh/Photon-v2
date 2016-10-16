@@ -8,16 +8,13 @@
 namespace ph
 {
 
-class HdrRectFrame : public Frame
+class HdrFrame : public Frame
 {
 public:
-	HdrRectFrame(const uint32 widthPx, const uint32 heightPx);
-	virtual ~HdrRectFrame() override;
+	HdrFrame(const uint32 widthPx, const uint32 heightPx);
+	virtual ~HdrFrame() override;
 
 private:
-	const uint32 m_widthPx;
-	const uint32 m_heightPx;
-
 	std::vector<float32> m_pixelData;
 };
 

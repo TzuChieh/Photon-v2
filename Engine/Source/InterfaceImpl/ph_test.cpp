@@ -1,6 +1,6 @@
 #include "ph_test.h"
 
-#include "Frame/HdrRectFrame.h"
+#include "Frame/HdrFrame.h"
 #include "Utility/SharedData.h"
 #include "Utility/OwnedData.h"
 
@@ -65,7 +65,7 @@ void testRun()
 
 	std::cout << "Hello World!" << std::endl;
 
-	HdrRectFrame hdrFrame(1280, 720);
+	HdrFrame hdrFrame(1280, 720);
 
 	//Data data;
 	//func(data);
