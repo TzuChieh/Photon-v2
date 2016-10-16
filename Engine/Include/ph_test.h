@@ -7,6 +7,7 @@ extern "C" {
 #endif
 
 extern PH_API void printTestMessage();
+extern PH_API void testRun();
 
 #ifdef __cplusplus
 }

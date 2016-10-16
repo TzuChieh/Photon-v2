@@ -5,8 +5,7 @@
 int main(int argc, char* argv[])
 {
 	printTestMessage();
-
-	std::cout << "Hello world!" << std::endl;
+	testRun();
 
 	return 0;
 }

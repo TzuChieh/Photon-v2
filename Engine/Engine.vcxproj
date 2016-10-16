@@ -155,7 +155,6 @@
     <ClCompile Include="Source\Frame\Frame.cpp" />
     <ClCompile Include="Source\Frame\HdrRectFrame.cpp" />
     <ClCompile Include="Source\InterfaceImpl\ph_test.cpp" />
-    <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Math\Matrix4f.cpp" />
     <ClCompile Include="Source\Math\Quaternion.cpp" />
     <ClCompile Include="Source\Math\Vector3f.cpp" />
@@ -170,6 +169,8 @@
     <ClInclude Include="Source\Math\Matrix4f.h" />
     <ClInclude Include="Source\Math\Quaternion.h" />
     <ClInclude Include="Source\Math\Vector3f.h" />
+    <ClInclude Include="Source\Utility\OwnedData.h" />
+    <ClInclude Include="Source\Utility\SharedData.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
