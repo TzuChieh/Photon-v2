@@ -162,7 +162,6 @@
     <ClCompile Include="Source\Math\Vector3f.cpp" />
     <ClCompile Include="Source\Core\Ray.cpp" />
     <ClCompile Include="Source\Model\Primitive\Sphere.cpp" />
-    <ClCompile Include="Source\Utility\SharedData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\ph_core.h" />
@@ -182,7 +181,6 @@
     <ClInclude Include="Source\Core\Ray.h" />
     <ClInclude Include="Source\Model\Primitive\Sphere.h" />
     <ClInclude Include="Source\Utility\OwnedData.h" />
-    <ClInclude Include="Source\Utility\SharedData.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,7 +1,6 @@
 #include "ph_test.h"
 
 #include "Frame/HdrFrame.h"
-#include "Utility/SharedData.h"
 #include "Utility/OwnedData.h"
 
 #include <iostream>
@@ -70,7 +69,6 @@ void testRun()
 	//Data data;
 	//func(data);
 
-	SharedData<Data> data(1, 5.2f);
 	OwnedData<Data> data2(2, 7.77f);
 	data2->printSomething();
 }

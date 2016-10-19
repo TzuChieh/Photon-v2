@@ -45,9 +45,6 @@
     <ClCompile Include="Source\Model\Primitive\Sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Utility\SharedData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Frame\Frame.h">
@@ -72,9 +69,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\ph_test.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\SharedData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Utility\OwnedData.h">

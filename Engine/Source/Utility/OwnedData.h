@@ -46,6 +46,11 @@ public:
 	template<typename T>
 	OwnedData& operator = (const OwnedData<T>& rhs) = delete;
 
+	DataType* lend() const
+	{
+		return m_data;
+	}
+
 	DataType* operator -> () const
 	{
 		return m_data;
