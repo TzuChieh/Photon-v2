@@ -70,7 +70,7 @@ void testRun()
 	//Data data;
 	//func(data);
 
-	SharedData<Data> data = SharedData<Data>::create(1, 5.2f);
+	SharedData<Data> data(1, 5.2f);
 	OwnedData<Data> data2(2, 7.77f);
 	data2->printSomething();
 }

@@ -485,11 +485,9 @@ public:
 		return set(r.x, r.y, r.z);
 	}
 
-	inline void set(Vector3f* const out_value) const
+	inline void set(Vector3f* out_value) const
 	{
-		out_value->x = x;
-		out_value->y = y;
-		out_value->z = z;
+
 	}
 
 	inline bool equals(const Vector3f& r) const

@@ -152,23 +152,35 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Camera\Camera.cpp" />
+    <ClCompile Include="Source\Camera\DefaultCamera.cpp" />
     <ClCompile Include="Source\Frame\Frame.cpp" />
-    <ClCompile Include="Source\Frame\HdrRectFrame.cpp" />
+    <ClCompile Include="Source\Frame\HdrFrame.cpp" />
     <ClCompile Include="Source\InterfaceImpl\ph_test.cpp" />
     <ClCompile Include="Source\Math\Matrix4f.cpp" />
     <ClCompile Include="Source\Math\Quaternion.cpp" />
     <ClCompile Include="Source\Math\Vector3f.cpp" />
+    <ClCompile Include="Source\Core\Ray.cpp" />
+    <ClCompile Include="Source\Model\Primitive\Sphere.cpp" />
+    <ClCompile Include="Source\Utility\SharedData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\ph_core.h" />
     <ClInclude Include="Include\ph_frame.h" />
     <ClInclude Include="Include\ph_test.h" />
+    <ClInclude Include="Source\Camera\Camera.h" />
+    <ClInclude Include="Source\Camera\DefaultCamera.h" />
     <ClInclude Include="Source\Common\primitive_type.h" />
+    <ClInclude Include="Source\Core\Intersection.h" />
+    <ClInclude Include="Source\Core\World.h" />
     <ClInclude Include="Source\Frame\Frame.h" />
-    <ClInclude Include="Source\Frame\HdrRectFrame.h" />
+    <ClInclude Include="Source\Frame\HdrFrame.h" />
     <ClInclude Include="Source\Math\Matrix4f.h" />
     <ClInclude Include="Source\Math\Quaternion.h" />
     <ClInclude Include="Source\Math\Vector3f.h" />
+    <ClInclude Include="Source\Model\Primitive\Primitive.h" />
+    <ClInclude Include="Source\Core\Ray.h" />
+    <ClInclude Include="Source\Model\Primitive\Sphere.h" />
     <ClInclude Include="Source\Utility\OwnedData.h" />
     <ClInclude Include="Source\Utility\SharedData.h" />
   </ItemGroup>

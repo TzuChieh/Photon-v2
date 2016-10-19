@@ -33,10 +33,10 @@ private:
 
 public:
 	template<typename... DataArgTypes>
-	static SharedData<DataType> create(DataArgTypes&&... dataArgs)
+	SharedData(DataArgTypes&&... dataArgs) : 
+		m_refCountedData(new RefCountedData(std::forward<DataArgTypes>(dataArgs)...))
 	{
-		RefCountedData* refCountedData = new RefCountedData(std::forward<DataArgTypes>(dataArgs)...);
-		return SharedData<DataType>(refCountedData);
+
 	}
 
 	SharedData() : 
@@ -47,12 +47,6 @@ public:
 
 private:
 	RefCountedData* m_refCountedData;
-
-	SharedData(RefCountedData* const refCountedData) : 
-		m_refCountedData(refCountedData)
-	{
-
-	}
 };// end class SharedData<T>
 
 }// end namespace ph
