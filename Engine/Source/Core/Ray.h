@@ -9,6 +9,7 @@ class Ray final
 {
 public:
 	Ray(const Vector3f& origin, const Vector3f& direction);
+	Ray();
 
 	const Vector3f& getOrigin() const
 	{

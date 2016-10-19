@@ -154,6 +154,8 @@
   <ItemGroup>
     <ClCompile Include="Source\Camera\Camera.cpp" />
     <ClCompile Include="Source\Camera\DefaultCamera.cpp" />
+    <ClCompile Include="Source\Core\PathTracer.cpp" />
+    <ClCompile Include="Source\Core\World.cpp" />
     <ClCompile Include="Source\Frame\Frame.cpp" />
     <ClCompile Include="Source\Frame\HdrFrame.cpp" />
     <ClCompile Include="Source\InterfaceImpl\ph_test.cpp" />
@@ -171,6 +173,7 @@
     <ClInclude Include="Source\Camera\DefaultCamera.h" />
     <ClInclude Include="Source\Common\primitive_type.h" />
     <ClInclude Include="Source\Core\Intersection.h" />
+    <ClInclude Include="Source\Core\PathTracer.h" />
     <ClInclude Include="Source\Core\World.h" />
     <ClInclude Include="Source\Frame\Frame.h" />
     <ClInclude Include="Source\Frame\HdrFrame.h" />

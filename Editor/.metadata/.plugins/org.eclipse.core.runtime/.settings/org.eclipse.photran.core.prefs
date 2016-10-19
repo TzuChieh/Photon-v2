@@ -1,0 +1,8 @@
+eclipse.preferences.version=1
+rgb.comments=150,150,150
+rgb.identifiers=142,176,255
+rgb.intrinsics=255,255,0
+rgb.keywords=255,128,128
+rgb.nums_punc=255,255,255
+rgb.strings=255,255,0
+string.modelbuilder=defaultModelBilder
