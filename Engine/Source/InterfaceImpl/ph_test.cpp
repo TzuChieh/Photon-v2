@@ -5,6 +5,7 @@
 #include "Model/Primitive/Sphere.h"
 #include "Camera/DefaultCamera.h"
 #include "Core/PathTracer.h"
+#include "Math/random_number.h"
 
 #include <iostream>
 #include <memory>
@@ -76,13 +77,18 @@ void testRun()
 	OwnedData<Data> data2(2, 7.77f);
 	data2->printSomething();
 
-	World world;
+	for(int i = 0; i < 20; i++)
+	{
+		std::cout << genRandomFloat32_0_1_uniform() << std::endl;
+	}
+
+	/*World world;
 	DefaultCamera camera;
 
 	world.addPrimitive(std::make_shared<Sphere>(Vector3f(2, 0, -10), 1.5f));
 
 	PathTracer pathTracer;
-	pathTracer.trace(camera, world, &hdrFrame);
+	pathTracer.trace(camera, world, &hdrFrame);*/
 }
 
 static ph::HdrFrame testHdrFrame(1280, 720);

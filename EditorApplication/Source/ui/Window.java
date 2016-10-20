@@ -15,7 +15,7 @@ public class Window
 	
 	public Window(int widthPx, int heightPx)
 	{
-		m_jframe = new JFrame("Photon ver. 0.1");
+		m_jframe = new JFrame("Photon-v2 Editor");
 		m_jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		m_jframe.setBounds(0, 0, widthPx, heightPx);
 		m_jframe.setLocationRelativeTo(null);

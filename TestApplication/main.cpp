@@ -5,13 +5,13 @@
 int main(int argc, char* argv[])
 {
 	printTestMessage();
-	//testRun();
+	testRun();
 
-	const PHfloat32* pixelData;
+	/*const PHfloat32* pixelData;
 	PHuint32 width;
 	PHuint32 height;
 	
-	genTestHdrFrame(&pixelData, &width, &height);
+	genTestHdrFrame(&pixelData, &width, &height);*/
 
 	return 0;
 }
