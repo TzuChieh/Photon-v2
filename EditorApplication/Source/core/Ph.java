@@ -4,7 +4,7 @@ public final class Ph
 {
 	static
 	{
-		System.loadLibrary("./Library/JavaNativeInterface");
+		System.loadLibrary("JNI");
 	}
 	
 	public static native void printTestMessage();

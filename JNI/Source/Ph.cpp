@@ -7,7 +7,7 @@
 * Method:    printTestMessage
 * Signature: ()V
 */
-void Java_core_Ph_printTestMessage(JNIEnv *, jclass)
+void JNICALL Java_core_Ph_printTestMessage(JNIEnv *, jclass)
 {
 	std::cout << "hi from C++" << std::endl;
 }
@@ -17,7 +17,7 @@ void Java_core_Ph_printTestMessage(JNIEnv *, jclass)
 * Method:    genTestHdrFrame
 * Signature: (Lcore/FloatArrayRef;Lcore/IntRef;Lcore/IntRef;)V
 */
-void Java_core_Ph_genTestHdrFrame(JNIEnv *, jclass, jobject, jobject, jobject)
+void JNICALL Java_core_Ph_genTestHdrFrame(JNIEnv *, jclass, jobject, jobject, jobject)
 {
 
 }
