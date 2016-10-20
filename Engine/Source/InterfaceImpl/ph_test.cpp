@@ -100,4 +100,6 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	pathTracer.trace(camera, world, &testHdrFrame);
 
 	*out_data = testHdrFrame.getPixelData();
+	*out_widthPx = 1280;
+	*out_heightPx = 720;
 }

@@ -4,7 +4,8 @@ public final class Ph
 {
 	static
 	{
-		System.loadLibrary("JNI");
+		System.loadLibrary("Engine/Lib/Engine");
+		System.loadLibrary("JNI/JNI");
 	}
 	
 	public static native void printTestMessage();

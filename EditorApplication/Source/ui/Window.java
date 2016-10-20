@@ -2,6 +2,11 @@ package ui;
 import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+
+import core.FloatArrayRef;
+import core.HdrFrame;
+import core.Ph;
 
 public class Window
 {
@@ -23,10 +28,27 @@ public class Window
 		
 		m_jframe.pack();
 		m_jframe.revalidate();
+		
+		FloatArrayRef data = new FloatArrayRef();
+		Ph.genTestHdrFrame(data, null, null);
+		System.out.println("java: " + data.m_value.length);
+		
+		HdrFrame frame = new HdrFrame(1280, 720);
+		
+		for(int y = 0; y < 720; y++)
+		{
+			for(int x = 0; x < 1280; x++)
+			{
+				float pixelValue = data.m_value[y * 1280 + x];
+				frame.setPixelRgb(x, y, pixelValue, pixelValue, pixelValue);
+			}
+		}
+		
+		render(frame);
 	}
 	
-//	public void render(HdrFrame frame)
-//	{
-//		m_display.render(frame);
-//	}
+	public void render(HdrFrame frame)
+	{
+		m_display.render(frame);
+	}
 }
