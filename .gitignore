@@ -32,6 +32,12 @@ Photon-v2_library/
 # Visual Studio 2015 Cache/Options Directory
 .vs/
 
+# Eclipse Data
+.metadata/
+.recommenders/
+.settings/
+Library/
+
 # Visual C++ Cache Files
 ipch/
 *.aps

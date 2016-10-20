@@ -1,9 +1,0 @@
-eclipse.preferences.version=1
-environment/workspace/PATH/delimiter=;
-environment/workspace/PATH/operation=replace
-environment/workspace/PATH/value=C\:\\cygwin64\\bin;C\:\\cygwin64\\usr\\bin;C\:\\cygwin64\\usr\\local\\bin;C\:\\cygwin64\\lib;C\:\\cygwin64\\usr\\lib;
-environment/workspace/append=true
-environment/workspace/appendContributed=true
-errorparser.default.ids=org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.VCErrorParser;org.eclipse.photran.core.AbsoftErrorParser;org.eclipse.photran.core.CrayErrorParser;org.eclipse.photran.core.G95FortranErrorParser;org.eclipse.photran.core.GFortranErrorParser;org.eclipse.photran.core.IntelFortranErrorParser;org.eclipse.photran.core.LaheyFortranErrorParser;org.eclipse.photran.core.NAGErrorParser;org.eclipse.photran.core.Open64ErrorParser;org.eclipse.photran.core.PGIErrorParser;org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.MakeErrorParser
-language.settings.providers.workspace.prefs.toggle=true
-macros/workspace=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\r\n<macros/>\r\n

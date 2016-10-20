@@ -1,6 +1,0 @@
-package core;
-
-public final class Ph
-{
-	public static final native void genTestHdrFrame(int[] pixelData);
-}

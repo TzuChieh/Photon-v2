@@ -1,6 +1,0 @@
-package core;
-
-public class IntRef
-{
-	public int value;
-}
