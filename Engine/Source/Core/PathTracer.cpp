@@ -1,6 +1,6 @@
 #include "Core/PathTracer.h"
 #include "Common/primitive_type.h"
-#include "Frame/HdrFrame.h"
+#include "Frame/HDRFrame.h"
 #include "Core/World.h"
 #include "Camera/Camera.h"
 #include "Core/Ray.h"
@@ -9,7 +9,7 @@
 namespace ph
 {
 
-void PathTracer::trace(const Camera& camera, const World& world, HdrFrame* const out_hdrFrame) const
+void PathTracer::trace(const Camera& camera, const World& world, HDRFrame* const out_hdrFrame) const
 {
 	const uint32 widthPx = out_hdrFrame->getWidthPx();
 	const uint32 heightPx = out_hdrFrame->getHeightPx();

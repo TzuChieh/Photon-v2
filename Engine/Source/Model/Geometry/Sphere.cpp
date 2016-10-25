@@ -1,4 +1,4 @@
-#include "Model/Primitive/Sphere.h"
+#include "Model/Geometry/Sphere.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
 

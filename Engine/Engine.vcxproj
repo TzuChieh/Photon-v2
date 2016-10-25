@@ -157,14 +157,16 @@
     <ClCompile Include="Source\Core\PathTracer.cpp" />
     <ClCompile Include="Source\Core\World.cpp" />
     <ClCompile Include="Source\Frame\Frame.cpp" />
-    <ClCompile Include="Source\Frame\HdrFrame.cpp" />
+    <ClCompile Include="Source\Frame\HDRFrame.cpp" />
     <ClCompile Include="Source\InterfaceImpl\ph_test.cpp" />
     <ClCompile Include="Source\Math\Matrix4f.cpp" />
     <ClCompile Include="Source\Math\Quaternion.cpp" />
     <ClCompile Include="Source\Math\random_number.cpp" />
     <ClCompile Include="Source\Math\Vector3f.cpp" />
     <ClCompile Include="Source\Core\Ray.cpp" />
-    <ClCompile Include="Source\Model\Primitive\Sphere.cpp" />
+    <ClCompile Include="Source\Model\Material\Material.cpp" />
+    <ClCompile Include="Source\Model\Geometry\Sphere.cpp" />
+    <ClCompile Include="Source\Model\Material\RayIntegrand.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\ph_core.h" />
@@ -177,14 +179,17 @@
     <ClInclude Include="Source\Core\PathTracer.h" />
     <ClInclude Include="Source\Core\World.h" />
     <ClInclude Include="Source\Frame\Frame.h" />
-    <ClInclude Include="Source\Frame\HdrFrame.h" />
+    <ClInclude Include="Source\Frame\HDRFrame.h" />
     <ClInclude Include="Source\Math\Matrix4f.h" />
     <ClInclude Include="Source\Math\Quaternion.h" />
     <ClInclude Include="Source\Math\random_number.h" />
     <ClInclude Include="Source\Math\Vector3f.h" />
-    <ClInclude Include="Source\Model\Primitive\Primitive.h" />
+    <ClInclude Include="Source\Model\Material\LambertianBRDF.h" />
+    <ClInclude Include="Source\Model\Material\Material.h" />
+    <ClInclude Include="Source\Model\Geometry\Geometry.h" />
     <ClInclude Include="Source\Core\Ray.h" />
-    <ClInclude Include="Source\Model\Primitive\Sphere.h" />
+    <ClInclude Include="Source\Model\Geometry\Sphere.h" />
+    <ClInclude Include="Source\Model\Material\RayIntegrand.h" />
     <ClInclude Include="Source\Utility\OwnedData.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,15 +1,15 @@
-#include "Frame/HdrFrame.h"
+#include "Frame/HDRFrame.h"
 
 namespace ph
 {
 
-HdrFrame::HdrFrame(const uint32 widthPx, const uint32 heightPx) :
+HDRFrame::HDRFrame(const uint32 widthPx, const uint32 heightPx) :
 	Frame(widthPx, heightPx), m_pixelData(widthPx * heightPx, 0.0f)
 {
 
 }
 
-HdrFrame::~HdrFrame()
+HDRFrame::~HDRFrame()
 {
 
 }

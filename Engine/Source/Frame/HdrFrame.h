@@ -8,11 +8,11 @@
 namespace ph
 {
 
-class HdrFrame : public Frame
+class HDRFrame : public Frame
 {
 public:
-	HdrFrame(const uint32 widthPx, const uint32 heightPx);
-	virtual ~HdrFrame() override;
+	HDRFrame(const uint32 widthPx, const uint32 heightPx);
+	virtual ~HDRFrame() override;
 
 	inline float32 getPixel(const uint32 x, const uint32 y) const
 	{

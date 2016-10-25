@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Model/Primitive/Primitive.h"
+#include "Model/Geometry/Geometry.h"
 #include "Common/primitive_type.h"
 #include "Math/Vector3f.h"
 
 namespace ph
 {
 
-class Sphere : public Primitive
+class Sphere : public Geometry
 {
 public:
 	Sphere(const Vector3f& center, const float32 radius);

@@ -1,8 +1,8 @@
 #include "ph_test.h"
-#include "Frame/HdrFrame.h"
+#include "Frame/HDRFrame.h"
 #include "Utility/OwnedData.h"
 #include "Core/World.h"
-#include "Model/Primitive/Sphere.h"
+#include "Model/Geometry/Sphere.h"
 #include "Camera/DefaultCamera.h"
 #include "Core/PathTracer.h"
 #include "Math/random_number.h"
@@ -69,7 +69,7 @@ void testRun()
 
 	std::cout << "Hello World!" << std::endl;
 
-	HdrFrame hdrFrame(1280, 720);
+	HDRFrame hdrFrame(1280, 720);
 
 	//Data data;
 	//func(data);
@@ -91,7 +91,7 @@ void testRun()
 	pathTracer.trace(camera, world, &hdrFrame);*/
 }
 
-static ph::HdrFrame testHdrFrame(1280, 720);
+static ph::HDRFrame testHdrFrame(1280, 720);
 
 void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32* out_heightPx)
 {
@@ -100,7 +100,7 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	World world;
 	DefaultCamera camera;
 
-	world.addPrimitive(std::make_shared<Sphere>(Vector3f(2, 0, -10), 1.5f));
+	world.addGeometry(std::make_shared<Sphere>(Vector3f(2, 0, -10), 1.5f));
 
 	PathTracer pathTracer;
 	pathTracer.trace(camera, world, &testHdrFrame);
