@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Model/Geometry/Primitive.h"
+#include "Model/Model.h"
+
 #include <vector>
 #include <memory>
 
@@ -8,8 +11,6 @@ namespace ph
 
 class Intersection;
 class Ray;
-class Model;
-class Primitive;
 
 class World final
 {
@@ -20,7 +21,7 @@ public:
 	void cook();
 
 private:
-	std::vector<Model> m_models;
+	std::vector<std::unique_ptr<Model>> m_models;
 	std::vector<std::unique_ptr<Primitive>> m_primitives;
 };
 

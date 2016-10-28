@@ -1,4 +1,4 @@
-#include "Model/Geometry/Sphere.h"
+#include "Model/Geometry/PSphere.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
 
@@ -9,26 +9,23 @@
 namespace ph
 {
 
-Sphere::Sphere(const Vector3f& center, const float32 radius) :
+PSphere::PSphere(const Vector3f& center, const float32 radius, const Model* const parentModel) :
+	Primitive(parentModel), 
 	m_center(center), m_radius(radius)
 {
 
 }
 
-Sphere::Sphere(const Sphere& other) : 
+PSphere::PSphere(const PSphere& other) :
+	Primitive(other), 
 	m_center(other.m_center), m_radius(other.m_radius)
 {
 
 }
 
-Sphere::~Sphere() = default;
+PSphere::~PSphere() = default;
 
-void Sphere::genPrimitives(std::vector<std::unique_ptr<Primitive>>* const out_primitives) const
-{
-	out_primitives->push_back(std::make_unique<Sphere>(*this));
-}
-
-bool Sphere::isIntersecting(const Ray& ray, Intersection* const out_intersection) const
+bool PSphere::isIntersecting(const Ray& ray, Intersection* const out_intersection) const
 {
 	// ray origin:         o
 	// ray direction:      d
@@ -72,7 +69,7 @@ bool Sphere::isIntersecting(const Ray& ray, Intersection* const out_intersection
 	}
 }
 
-Sphere& Sphere::operator = (const Sphere& rhs)
+PSphere& PSphere::operator = (const PSphere& rhs)
 {
 	m_center.set(rhs.m_center);
 	m_radius = rhs.m_radius;

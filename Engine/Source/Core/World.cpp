@@ -13,7 +13,7 @@ namespace ph
 
 void World::addModel(const Model& model)
 {
-	m_models.push_back(model);
+	m_models.push_back(std::make_unique<Model>(model));
 }
 
 bool World::isIntersecting(const Ray& ray, Intersection* out_intersection) const
@@ -44,7 +44,7 @@ void World::cook()
 
 	for(const auto& model : m_models)
 	{
-		model.getGeometry()->genPrimitives(&m_primitives);
+		model->getGeometry()->genPrimitives(&m_primitives, model.get());
 	}
 }
 

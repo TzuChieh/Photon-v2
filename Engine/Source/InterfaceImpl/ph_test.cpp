@@ -1,7 +1,7 @@
 #include "ph_test.h"
 #include "Frame/HDRFrame.h"
 #include "Core/World.h"
-#include "Model/Geometry/Sphere.h"
+#include "Model/Geometry/GSphere.h"
 #include "Camera/DefaultCamera.h"
 #include "Core/PathTracer.h"
 #include "Math/random_number.h"
@@ -105,11 +105,11 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	
 
 	auto sphereMaterial = std::make_shared<MatteOpaque>();
-	auto sphereGeometry = std::make_shared<Sphere>(Vector3f(2, 0, -10), 1.5f);
+	auto sphereGeometry = std::make_shared<GSphere>(Vector3f(2, 0, -10), 1.5f);
 	world.addModel(Model(sphereGeometry, sphereMaterial));
 
 	auto lightMaterial = std::make_shared<LightMaterial>();
-	auto lightGeometry = std::make_shared<Sphere>(Vector3f(-2, 0, -10), 0.5f);
+	auto lightGeometry = std::make_shared<GSphere>(Vector3f(-2, 0, -10), 0.5f);
 	world.addModel(Model(lightGeometry, lightMaterial));
 
 
