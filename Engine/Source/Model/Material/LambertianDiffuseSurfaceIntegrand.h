@@ -1,0 +1,16 @@
+#pragma once
+
+#include "Model/Material/SurfaceIntegrand.h"
+
+namespace ph
+{
+
+class LambertianDiffuseSurfaceIntegrand : public SurfaceIntegrand
+{
+public:
+	virtual ~LambertianDiffuseSurfaceIntegrand() override;
+
+	virtual bool sampleLiWeight(const Vector3f& L, const Vector3f& V, const Vector3f& N, Ray& ray) const override;
+};
+
+}// end namespace ph

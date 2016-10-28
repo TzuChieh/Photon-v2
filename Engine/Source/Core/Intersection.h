@@ -31,6 +31,7 @@ public:
 private:
 	Vector3f m_hitPosition;
 	Vector3f m_hitNormal;
+
 };
 
 }// end namespace ph

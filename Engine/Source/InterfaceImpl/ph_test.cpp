@@ -1,11 +1,13 @@
 #include "ph_test.h"
 #include "Frame/HDRFrame.h"
-#include "Utility/OwnedData.h"
 #include "Core/World.h"
 #include "Model/Geometry/Sphere.h"
 #include "Camera/DefaultCamera.h"
 #include "Core/PathTracer.h"
 #include "Math/random_number.h"
+#include "Model/Material/MatteOpaque.h"
+#include "Model/Material/LightMaterial.h"
+#include "Model/Model.h"
 
 #include <iostream>
 #include <memory>
@@ -74,8 +76,8 @@ void testRun()
 	//Data data;
 	//func(data);
 
-	OwnedData<Data> data2(2, 7.77f);
-	data2->printSomething();
+	//OwnedData<Data> data2(2, 7.77f);
+	//data2->printSomething();
 
 	for(int i = 0; i < 20; i++)
 	{
@@ -100,7 +102,18 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	World world;
 	DefaultCamera camera;
 
-	world.addGeometry(std::make_shared<Sphere>(Vector3f(2, 0, -10), 1.5f));
+	
+
+	auto sphereMaterial = std::make_shared<MatteOpaque>();
+	auto sphereGeometry = std::make_shared<Sphere>(Vector3f(2, 0, -10), 1.5f);
+	world.addModel(Model(sphereGeometry, sphereMaterial));
+
+	auto lightMaterial = std::make_shared<LightMaterial>();
+	auto lightGeometry = std::make_shared<Sphere>(Vector3f(-2, 0, -10), 0.5f);
+	world.addModel(Model(lightGeometry, lightMaterial));
+
+
+	world.cook();
 
 	PathTracer pathTracer;
 	pathTracer.trace(camera, world, &testHdrFrame);

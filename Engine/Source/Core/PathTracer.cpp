@@ -14,13 +14,13 @@ void PathTracer::trace(const Camera& camera, const World& world, HDRFrame* const
 	const uint32 widthPx = out_hdrFrame->getWidthPx();
 	const uint32 heightPx = out_hdrFrame->getHeightPx();
 
-	Ray ray;
-	Intersection intersection;
-
 	for(uint32 y = 0; y < heightPx; y++)
 	{
 		for(uint32 x = 0; x < widthPx; x++)
 		{
+			Ray ray;
+			Intersection intersection;
+
 			camera.genSampleRay(&ray, widthPx, heightPx, x, y);
 
 			if(world.isIntersecting(ray, &intersection))

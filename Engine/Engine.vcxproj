@@ -164,9 +164,16 @@
     <ClCompile Include="Source\Math\random_number.cpp" />
     <ClCompile Include="Source\Math\Vector3f.cpp" />
     <ClCompile Include="Source\Core\Ray.cpp" />
+    <ClCompile Include="Source\Model\Geometry\Geometry.cpp" />
+    <ClCompile Include="Source\Model\Geometry\Primitive.cpp" />
+    <ClCompile Include="Source\Model\Material\LambertianDiffuseSurfaceIntegrand.cpp" />
+    <ClCompile Include="Source\Model\Material\LightMaterial.cpp" />
+    <ClCompile Include="Source\Model\Material\LightSurfaceIntegrand.cpp" />
     <ClCompile Include="Source\Model\Material\Material.cpp" />
     <ClCompile Include="Source\Model\Geometry\Sphere.cpp" />
-    <ClCompile Include="Source\Model\Material\RayIntegrand.cpp" />
+    <ClCompile Include="Source\Model\Material\MatteOpaque.cpp" />
+    <ClCompile Include="Source\Model\Material\SurfaceIntegrand.cpp" />
+    <ClCompile Include="Source\Model\Model.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\ph_core.h" />
@@ -184,13 +191,17 @@
     <ClInclude Include="Source\Math\Quaternion.h" />
     <ClInclude Include="Source\Math\random_number.h" />
     <ClInclude Include="Source\Math\Vector3f.h" />
-    <ClInclude Include="Source\Model\Material\LambertianBRDF.h" />
+    <ClInclude Include="Source\Model\Geometry\Primitive.h" />
+    <ClInclude Include="Source\Model\Material\LambertianDiffuseSurfaceIntegrand.h" />
+    <ClInclude Include="Source\Model\Material\LightMaterial.h" />
+    <ClInclude Include="Source\Model\Material\LightSurfaceIntegrand.h" />
     <ClInclude Include="Source\Model\Material\Material.h" />
     <ClInclude Include="Source\Model\Geometry\Geometry.h" />
     <ClInclude Include="Source\Core\Ray.h" />
     <ClInclude Include="Source\Model\Geometry\Sphere.h" />
-    <ClInclude Include="Source\Model\Material\RayIntegrand.h" />
-    <ClInclude Include="Source\Utility\OwnedData.h" />
+    <ClInclude Include="Source\Model\Material\MatteOpaque.h" />
+    <ClInclude Include="Source\Model\Material\SurfaceIntegrand.h" />
+    <ClInclude Include="Source\Model\Model.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

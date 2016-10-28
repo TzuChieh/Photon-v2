@@ -6,18 +6,22 @@
 namespace ph
 {
 
-class Geometry;
 class Intersection;
 class Ray;
+class Model;
+class Primitive;
 
 class World final
 {
 public:
-	void addGeometry(const std::shared_ptr<Geometry>& geometry);
+	void addModel(const Model& model);
 	bool isIntersecting(const Ray& ray, Intersection* out_intersection) const;
 
+	void cook();
+
 private:
-	std::vector<std::shared_ptr<Geometry>> m_geometries;
+	std::vector<Model> m_models;
+	std::vector<std::unique_ptr<Primitive>> m_primitives;
 };
 
 }// end namespace ph

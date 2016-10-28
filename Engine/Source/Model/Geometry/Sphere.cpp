@@ -15,6 +15,19 @@ Sphere::Sphere(const Vector3f& center, const float32 radius) :
 
 }
 
+Sphere::Sphere(const Sphere& other) : 
+	m_center(other.m_center), m_radius(other.m_radius)
+{
+
+}
+
+Sphere::~Sphere() = default;
+
+void Sphere::genPrimitives(std::vector<std::unique_ptr<Primitive>>* const out_primitives) const
+{
+	out_primitives->push_back(std::make_unique<Sphere>(*this));
+}
+
 bool Sphere::isIntersecting(const Ray& ray, Intersection* const out_intersection) const
 {
 	// ray origin:         o
@@ -57,6 +70,14 @@ bool Sphere::isIntersecting(const Ray& ray, Intersection* const out_intersection
 			return false;
 		}
 	}
+}
+
+Sphere& Sphere::operator = (const Sphere& rhs)
+{
+	m_center.set(rhs.m_center);
+	m_radius = rhs.m_radius;
+
+	return *this;
 }
 
 }// end namespace ph

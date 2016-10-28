@@ -11,6 +11,9 @@ public:
 	Ray(const Vector3f& origin, const Vector3f& direction);
 	Ray();
 
+	void accumulateLiWeight(const Vector3f& newLiWeight);
+	void addLiRadiance(const Vector3f& newLiRadiance);
+
 	const Vector3f& getOrigin() const
 	{
 		return m_origin;
@@ -44,6 +47,8 @@ public:
 private:
 	Vector3f m_origin;
 	Vector3f m_direction;
+	Vector3f m_LiWeight;
+	Vector3f m_LiRadiance;
 };
 
 }// end namespace ph
