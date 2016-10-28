@@ -59,6 +59,7 @@ bool PSphere::isIntersecting(const Ray& ray, Intersection* const out_intersectio
 		{
 			out_intersection->setHitPosition(ray.getDirection().mul(t).addLocal(ray.getOrigin()));
 			out_intersection->setHitNormal(out_intersection->getHitPosition().sub(m_center).divLocal(m_radius));
+			out_intersection->setHitPrimitive(this);
 
 			return true;
 		}

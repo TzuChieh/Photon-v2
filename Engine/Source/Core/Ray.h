@@ -13,6 +13,7 @@ public:
 
 	void accumulateLiWeight(const Vector3f& newLiWeight);
 	void addLiRadiance(const Vector3f& newLiRadiance);
+	void calcWeightedLiRadiance(Vector3f* out_weightLiRadiance);
 
 	const Vector3f& getOrigin() const
 	{

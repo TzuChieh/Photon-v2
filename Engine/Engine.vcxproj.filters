@@ -170,5 +170,8 @@
     <ClInclude Include="Source\Model\Geometry\PSphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Math\constant.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

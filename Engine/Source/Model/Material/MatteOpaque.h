@@ -12,7 +12,7 @@ public:
 	MatteOpaque();
 	virtual ~MatteOpaque() override;
 
-	virtual inline const SurfaceIntegrand* getSurfaceIntegrand() override
+	virtual inline const SurfaceIntegrand* getSurfaceIntegrand() const override
 	{
 		return &m_surfaceIntegrand;
 	}

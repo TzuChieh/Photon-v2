@@ -5,6 +5,8 @@
 namespace ph
 {
 
+class Primitive;
+
 class Intersection final
 {
 public:
@@ -18,6 +20,11 @@ public:
 		return m_hitNormal;
 	}
 
+	inline const Primitive* getHitPrimitive() const
+	{
+		return m_hitPrimitive;
+	}
+
 	inline void setHitPosition(const Vector3f& hitPosition)
 	{
 		m_hitPosition.set(hitPosition);
@@ -28,10 +35,15 @@ public:
 		m_hitNormal.set(hitNormal);
 	}
 
+	inline void setHitPrimitive(const Primitive* const hitPrimitive)
+	{
+		m_hitPrimitive = hitPrimitive;
+	}
+
 private:
 	Vector3f m_hitPosition;
 	Vector3f m_hitNormal;
-
+	const Primitive* m_hitPrimitive;
 };
 
 }// end namespace ph

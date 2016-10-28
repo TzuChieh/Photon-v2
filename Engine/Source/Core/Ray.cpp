@@ -25,4 +25,9 @@ void Ray::addLiRadiance(const Vector3f& newLiRadiance)
 	m_LiRadiance.addLocal(newLiRadiance);
 }
 
+void Ray::calcWeightedLiRadiance(Vector3f* out_weightLiRadiance)
+{
+	out_weightLiRadiance->set(m_LiRadiance.mul(m_LiWeight));
+}
+
 }// end namespace ph

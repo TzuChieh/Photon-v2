@@ -5,6 +5,8 @@
 #include "Camera/Camera.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
+#include "Model/Material/Material.h"
+#include "Model/Material/SurfaceIntegrand.h"
 
 namespace ph
 {
@@ -18,15 +20,61 @@ void PathTracer::trace(const Camera& camera, const World& world, HDRFrame* const
 	{
 		for(uint32 x = 0; x < widthPx; x++)
 		{
-			Ray ray;
-			Intersection intersection;
-
-			camera.genSampleRay(&ray, widthPx, heightPx, x, y);
-
-			if(world.isIntersecting(ray, &intersection))
+			Vector3f accuRadiance(0, 0, 0);
+			const uint32 spp = 16;
+			uint32 numSamples = 0;
+			
+			while(numSamples < spp)
 			{
-				out_hdrFrame->setPixel(x, y, 1.0f);
-			}
+				Ray ray;
+				Intersection intersection;
+				const uint32 maxBounces = 5;
+				uint32 numBounces = 0;
+
+				camera.genSampleRay(&ray, widthPx, heightPx, x, y);
+
+				while(numBounces <= maxBounces)
+				{
+					if(world.isIntersecting(ray, &intersection))
+					{
+						const Model* hitModel = intersection.getHitPrimitive()->getParentModel();
+						const Material* hitMaterial = hitModel->getMaterial();
+
+						Vector3f L;
+						Vector3f N(intersection.getHitNormal());
+						Vector3f V(camera.getPosition().sub(intersection.getHitPosition()));
+						V.normalizeLocal();
+
+						hitMaterial->getSurfaceIntegrand()->genUniformRandomLOverRegion(N, &L);
+
+						if(!hitMaterial->getSurfaceIntegrand()->sampleLiWeight(L, V, N, ray))
+						{
+							Vector3f radiance;
+							ray.calcWeightedLiRadiance(&radiance);
+							accuRadiance.addLocal(radiance);
+							
+							break;
+						}
+						else
+						{
+							Vector3f nextRayOrigin(intersection.getHitPosition().add(N.mul(0.0001f)));
+							Vector3f nextRayDirection(L);
+							ray.setOrigin(nextRayOrigin);
+							ray.setDirection(nextRayDirection);
+						}
+
+						numBounces++;
+					}
+					else
+					{
+						break;
+					}
+				}// end while
+
+				numSamples++;
+			}// end while
+
+			out_hdrFrame->setPixel(x, y, accuRadiance.x / static_cast<float32>(spp));
 		}
 	}
 }

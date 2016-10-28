@@ -188,6 +188,7 @@
     <ClInclude Include="Source\Core\World.h" />
     <ClInclude Include="Source\Frame\Frame.h" />
     <ClInclude Include="Source\Frame\HDRFrame.h" />
+    <ClInclude Include="Source\Math\constant.h" />
     <ClInclude Include="Source\Math\Matrix4f.h" />
     <ClInclude Include="Source\Math\Quaternion.h" />
     <ClInclude Include="Source\Math\random_number.h" />

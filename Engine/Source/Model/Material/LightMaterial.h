@@ -11,7 +11,7 @@ class LightMaterial : public Material
 public:
 	virtual ~LightMaterial() override;
 
-	virtual const SurfaceIntegrand* getSurfaceIntegrand() override
+	virtual const SurfaceIntegrand* getSurfaceIntegrand() const override
 	{
 		return &m_surfaceIntegrand;
 	}
