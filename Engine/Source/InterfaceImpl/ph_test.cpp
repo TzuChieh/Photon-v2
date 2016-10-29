@@ -109,7 +109,8 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	world.addModel(Model(sphereGeometry, sphereMaterial));
 
 	auto lightMaterial = std::make_shared<LightMaterial>();
-	auto lightGeometry = std::make_shared<GSphere>(Vector3f(-2, 0, -10), 0.5f);
+	auto lightGeometry = std::make_shared<GSphere>(Vector3f(-1, 2, -10), 0.8f);
+	lightMaterial->setEmittedRadiance(1.0f, 1.0f, 1.0f);
 	world.addModel(Model(lightGeometry, lightMaterial));
 
 

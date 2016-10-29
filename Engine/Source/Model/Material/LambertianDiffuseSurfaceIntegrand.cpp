@@ -3,11 +3,19 @@
 #include "Math/Vector3f.h"
 #include "Math/random_number.h"
 #include "Math/constant.h"
+#include "Model/Material/MatteOpaque.h"
+#include "Core/Intersection.h"
 
 #include <cmath>
 
 namespace ph
 {
+
+LambertianDiffuseSurfaceIntegrand::LambertianDiffuseSurfaceIntegrand(const MatteOpaque* const matteOpaque) : 
+	m_matteOpaque(matteOpaque)
+{
+
+}
 
 LambertianDiffuseSurfaceIntegrand::~LambertianDiffuseSurfaceIntegrand() = default;
 
@@ -16,9 +24,13 @@ void LambertianDiffuseSurfaceIntegrand::genUniformRandomLOverRegion(const Vector
 	const float32 rand1 = genRandomFloat32_0_1_uniform();
 	const float32 rand2 = genRandomFloat32_0_1_uniform();
 
-	out_L->x = 2.0f * cos(2.0 * PI_FLOAT32 * rand1) * sqrt(rand2 * (1.0f - rand2));
-	out_L->y = 1.0f - 2.0f * rand2;
-	out_L->z = 2.0f * sin(2.0 * PI_FLOAT32 * rand1) * sqrt(rand2 * (1.0f - rand2));
+	const float32 phi     = 2.0f * PI_FLOAT32 * rand1;
+	const float32 yValue  = rand2;
+	const float32 yRadius = sqrt(1.0f - yValue * yValue);
+
+	out_L->x = cos(phi) * yRadius;
+	out_L->y = yValue;
+	out_L->z = sin(phi) * yRadius;
 
 	Vector3f u;
 	Vector3f v(N);
@@ -35,10 +47,24 @@ void LambertianDiffuseSurfaceIntegrand::genUniformRandomLOverRegion(const Vector
 
 bool LambertianDiffuseSurfaceIntegrand::sampleLiWeight(const Vector3f& L, const Vector3f& V, const Vector3f& N, Ray& ray) const
 {
-	// HACK
-	ray.accumulateLiWeight(Vector3f(N.dot(L)));
+	Vector3f albedo;
+	m_matteOpaque->getAlbedo(&albedo);
+
+	albedo.mulLocal(2.0f);
+	//albedo.mulLocal(RECIPROCAL_PI_FLOAT32);
+	albedo.mulLocal(N.dot(L));
+
+	ray.accumulateLiWeight(albedo);
 
 	return true;
+}
+
+void LambertianDiffuseSurfaceIntegrand::sampleBRDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_BRDF) const
+{
+	Vector3f albedo;
+	m_matteOpaque->getAlbedo(&albedo);
+
+	out_BRDF->set(albedo.mulLocal(RECIPROCAL_PI_FLOAT32));
 }
 
 }// end namespace ph

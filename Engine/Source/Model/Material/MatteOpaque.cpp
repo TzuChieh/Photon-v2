@@ -4,7 +4,7 @@ namespace ph
 {
 
 MatteOpaque::MatteOpaque() : 
-	m_surfaceIntegrand()
+	m_surfaceIntegrand(this), m_albedo(1, 1, 1)
 {
 
 }
