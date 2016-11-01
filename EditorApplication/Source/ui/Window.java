@@ -4,9 +4,10 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import core.FloatArrayRef;
 import core.HdrFrame;
-import core.Ph;
+import photonApi.FloatArrayRef;
+import photonApi.IntRef;
+import photonApi.Ph;
 
 public class Window
 {
@@ -30,8 +31,11 @@ public class Window
 		m_jframe.revalidate();
 		
 		FloatArrayRef data = new FloatArrayRef();
-		Ph.genTestHdrFrame(data, null, null);
-		System.out.println("java: " + data.m_value.length);
+		IntRef frameWidthPx = new IntRef();
+		IntRef frameHeightPx = new IntRef();
+		Ph.genTestHdrFrame(data, frameWidthPx, frameHeightPx);
+		
+		System.out.println("frame width: " + frameWidthPx.m_value + " | frame height: " + frameHeightPx.m_value);
 		
 		HdrFrame frame = new HdrFrame(1280, 720);
 		

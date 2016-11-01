@@ -157,13 +157,15 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\ApiImpl\ph_frame.cpp" />
     <ClCompile Include="Source\Camera\Camera.cpp" />
     <ClCompile Include="Source\Camera\DefaultCamera.cpp" />
     <ClCompile Include="Source\Core\PathTracer.cpp" />
     <ClCompile Include="Source\Core\World.cpp" />
     <ClCompile Include="Source\Frame\Frame.cpp" />
     <ClCompile Include="Source\Frame\HDRFrame.cpp" />
-    <ClCompile Include="Source\InterfaceImpl\ph_test.cpp" />
+    <ClCompile Include="Source\ApiImpl\ApiDatabase.cpp" />
+    <ClCompile Include="Source\ApiImpl\ph_test.cpp" />
     <ClCompile Include="Source\Math\Matrix4f.cpp" />
     <ClCompile Include="Source\Math\Quaternion.cpp" />
     <ClCompile Include="Source\Math\random_number.cpp" />
@@ -193,6 +195,7 @@
     <ClInclude Include="Source\Core\World.h" />
     <ClInclude Include="Source\Frame\Frame.h" />
     <ClInclude Include="Source\Frame\HDRFrame.h" />
+    <ClInclude Include="Source\ApiImpl\ApiDatabase.h" />
     <ClInclude Include="Source\Math\constant.h" />
     <ClInclude Include="Source\Math\Matrix4f.h" />
     <ClInclude Include="Source\Math\Quaternion.h" />
@@ -211,6 +214,7 @@
     <ClInclude Include="Source\Model\Material\MatteOpaque.h" />
     <ClInclude Include="Source\Model\Material\SurfaceIntegrand.h" />
     <ClInclude Include="Source\Model\Model.h" />
+    <ClInclude Include="Source\Utility\TStableIndexDenseArray.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

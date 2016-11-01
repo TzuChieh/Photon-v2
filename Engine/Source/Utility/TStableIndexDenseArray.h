@@ -1,6 +1,7 @@
 #pragma once
 
 //#include "Common/logging.h"
+#include "Common/primitive_type.h"
 
 #include <vector>
 #include <utility>
@@ -8,7 +9,7 @@
 
 //DECLARE_LOG_SENDER_EXTERN(TStableIndexDenseArray);
 
-namespace ve
+namespace ph
 {
 
 // Notes on this container:
@@ -42,6 +43,7 @@ public:
 
 	// Add an object and returns a stable index.
 	std::size_t add(const T& object);
+	std::size_t add(const T&& object);
 
 	// Remove an object by its stable index.
 	bool remove(const std::size_t stableIndex);
@@ -69,8 +71,10 @@ public:
 private:
 	std::vector<T> m_objects;
 	std::vector<std::size_t> m_objectToIndexMap;
-	std::vector<std::pair<std::size_t, int8>> m_indexToObjectMapValidityPairs;
+	std::vector<std::pair<std::size_t, bool>> m_indexToObjectMapValidityPairs;
 	std::vector<std::size_t> m_freeIndices;
+
+	std::size_t dispatchStableIndex();
 };
 
 // Implementations:
@@ -93,28 +97,18 @@ TStableIndexDenseArray<T>::TStableIndexDenseArray(const std::size_t initialCapac
 template<typename T>
 std::size_t TStableIndexDenseArray<T>::add(const T& object)
 {
-	std::size_t stableIndex;
-
-	if(m_freeIndices.empty())
-	{
-		stableIndex = m_objects.size();
-		m_indexToObjectMapValidityPairs.push_back(std::make_pair(stableIndex, VGE_TRUE));
-	}
-	else
-	{
-		stableIndex = m_freeIndices.back();
-		m_freeIndices.pop_back();
-
-		m_indexToObjectMapValidityPairs[stableIndex].first = m_objects.size();
-		m_indexToObjectMapValidityPairs[stableIndex].second = VGE_TRUE;
-	}
+	const std::size_t stableIndex = dispatchStableIndex();
 
 	m_objects.push_back(object);
-	m_objectToIndexMap.push_back(stableIndex);
+	return stableIndex;
+}
 
-	//std::cout << m_indexToObjectMapValidityPairs.size() << std::endl;
-	//std::cout << length() << std::endl;
+template<typename T>
+std::size_t TStableIndexDenseArray<T>::add(const T&& object)
+{
+	const std::size_t stableIndex = dispatchStableIndex();
 
+	m_objects.push_back(std::move(object));
 	return stableIndex;
 }
 
@@ -123,7 +117,8 @@ bool TStableIndexDenseArray<T>::remove(const std::size_t stableIndex)
 {
 	if(!isStableIndexValid(stableIndex))
 	{
-		ENGINE_LOG(TStableIndexDenseArray, LogLevel::NOTE_WARNING, "at remove(), invalid stableIndex detected");
+		//ENGINE_LOG(TStableIndexDenseArray, LogLevel::NOTE_WARNING, "at remove(), invalid stableIndex detected");
+		std::cerr << "at remove(), invalid stableIndex detected" << std::endl;
 		return false;
 	}
 
@@ -136,7 +131,7 @@ bool TStableIndexDenseArray<T>::remove(const std::size_t stableIndex)
 	m_objectToIndexMap[objectIndex] = m_objectToIndexMap[lastIndex];
 
 	// Update target object's validity.
-	m_indexToObjectMapValidityPairs[stableIndex].second = VGE_FALSE;
+	m_indexToObjectMapValidityPairs[stableIndex].second = false;
 
 	// Update swapped object's stable index mapping.
 	m_indexToObjectMapValidityPairs[m_objectToIndexMap[objectIndex]].first = objectIndex;
@@ -158,7 +153,7 @@ bool TStableIndexDenseArray<T>::isStableIndexValid(const std::size_t stableIndex
 		return false;
 	}
 
-	return m_indexToObjectMapValidityPairs[stableIndex].second == VGE_TRUE;
+	return m_indexToObjectMapValidityPairs[stableIndex].second;
 }
 
 template<typename T>
@@ -209,4 +204,28 @@ typename std::vector<T>::const_iterator TStableIndexDenseArray<T>::end() const n
 	return m_objects.end();
 }
 
-}// end namespace ve
+template<typename T>
+std::size_t TStableIndexDenseArray<T>::dispatchStableIndex()
+{
+	std::size_t stableIndex;
+
+	if(m_freeIndices.empty())
+	{
+		stableIndex = m_objects.size();
+		m_indexToObjectMapValidityPairs.push_back(std::make_pair(stableIndex, true));
+	}
+	else
+	{
+		stableIndex = m_freeIndices.back();
+		m_freeIndices.pop_back();
+
+		m_indexToObjectMapValidityPairs[stableIndex].first = m_objects.size();
+		m_indexToObjectMapValidityPairs[stableIndex].second = true;
+	}
+
+	m_objectToIndexMap.push_back(stableIndex);
+
+	return stableIndex;
+}
+
+}// end namespace ph

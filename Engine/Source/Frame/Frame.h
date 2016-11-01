@@ -8,22 +8,12 @@ namespace ph
 class Frame
 {
 public:
-	Frame(const uint32 widthPx, const uint32 heightPx);
 	virtual ~Frame() = 0;
 
-	inline uint32 getWidthPx() const
-	{
-		return m_widthPx;
-	}
+	virtual void resize(const uint32 newWidthPx, const uint32 newHeightPx) = 0;
 
-	inline uint32 getHeightPx() const
-	{
-		return m_heightPx;
-	}
-
-private:
-	const uint32 m_widthPx;
-	const uint32 m_heightPx;
+	virtual uint32 getWidthPx() const = 0;
+	virtual uint32 getHeightPx() const = 0;
 };
 
 }// end namespace ph
