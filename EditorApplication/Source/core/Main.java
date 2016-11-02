@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import photonApi.LongRef;
 import photonApi.Ph;
 import ui.Display;
 import ui.Window;
@@ -16,6 +17,15 @@ public class Main
 		{
 			System.out.println("Photon API initialization failed");
 		}
+		
+
+		LongRef frameId = new LongRef();
+		frameId.m_value = 999;
+		System.out.println(frameId.m_value);
+		Ph.createHdrFrame(frameId, 300, 400);
+		System.out.println(frameId.m_value);
+		
+		Ph.deleteHdrFrame(frameId.m_value);
 		
 		SwingUtilities.invokeLater(new Runnable()
 		{
