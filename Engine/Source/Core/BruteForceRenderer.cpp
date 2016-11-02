@@ -1,4 +1,4 @@
-#include "Core/PathTracer.h"
+#include "Core/BruteForceRenderer.h"
 #include "Common/primitive_type.h"
 #include "Frame/HDRFrame.h"
 #include "Core/World.h"
@@ -16,10 +16,12 @@
 namespace ph
 {
 
-void PathTracer::trace(const Camera& camera, const World& world, HDRFrame* const out_hdrFrame) const
+BruteForceRenderer::~BruteForceRenderer() = default;
+
+void BruteForceRenderer::render(const World& world, const Camera& camera, HDRFrame* const out_frame) const
 {
-	const uint32 widthPx = out_hdrFrame->getWidthPx();
-	const uint32 heightPx = out_hdrFrame->getHeightPx();
+	const uint32 widthPx = out_frame->getWidthPx();
+	const uint32 heightPx = out_frame->getHeightPx();
 
 	for(uint32 y = 0; y < heightPx; y++)
 	{
@@ -28,7 +30,7 @@ void PathTracer::trace(const Camera& camera, const World& world, HDRFrame* const
 			Vector3f accuRadiance(0, 0, 0);
 			const uint32 spp = 64;
 			uint32 numSamples = 0;
-			
+
 			while(numSamples < spp)
 			{
 				Ray ray;
@@ -53,7 +55,7 @@ void PathTracer::trace(const Camera& camera, const World& world, HDRFrame* const
 					{
 						Vector3f radiance;
 						hitMaterial->getSurfaceIntegrand()->sampleEmittedRadiance(intersection, L, V, &radiance);
-							
+
 						ray.addLiRadiance(radiance);
 						ray.calcWeightedLiRadiance(&radiance);
 						accuRadiance.addLocal(radiance);
@@ -82,7 +84,7 @@ void PathTracer::trace(const Camera& camera, const World& world, HDRFrame* const
 				numSamples++;
 			}// end while
 
-			out_hdrFrame->setPixel(x, y, accuRadiance.x / static_cast<float32>(spp));
+			out_frame->setPixel(x, y, accuRadiance.x / static_cast<float32>(spp));
 		}
 	}
 }

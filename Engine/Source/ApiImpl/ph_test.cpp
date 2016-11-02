@@ -3,7 +3,7 @@
 #include "Core/World.h"
 #include "Model/Geometry/GSphere.h"
 #include "Camera/DefaultCamera.h"
-#include "Core/PathTracer.h"
+#include "Core/BruteForceRenderer.h"
 #include "Math/random_number.h"
 #include "Model/Material/MatteOpaque.h"
 #include "Model/Material/LightMaterial.h"
@@ -116,8 +116,8 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 
 	world.cook();
 
-	PathTracer pathTracer;
-	pathTracer.trace(camera, world, &testHdrFrame);
+	auto renderer = std::make_shared<BruteForceRenderer>();
+	renderer->render(world, camera, &testHdrFrame);
 
 	*out_data = testHdrFrame.getPixelData();
 	*out_widthPx = 1280;
