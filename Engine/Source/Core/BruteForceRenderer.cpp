@@ -49,7 +49,7 @@ void BruteForceRenderer::render(const World& world, const Camera& camera, HDRFra
 					Vector3f N(intersection.getHitNormal());
 					Vector3f V(ray.getDirection().mul(-1.0f));
 
-					hitMaterial->getSurfaceIntegrand()->genUniformRandomLOverRegion(N, &L);
+					hitMaterial->getSurfaceIntegrand()->genUniformRandomVOverRegion(N, &L);
 
 					if(hitMaterial->getSurfaceIntegrand()->isEmissive())
 					{

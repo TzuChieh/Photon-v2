@@ -12,7 +12,7 @@ public:
 	LightSurfaceIntegrand();
 	virtual ~LightSurfaceIntegrand() override;
 
-	virtual void genUniformRandomLOverRegion(const Vector3f& N, Vector3f* out_L) const override;
+	virtual void genUniformRandomVOverRegion(const Vector3f& N, Vector3f* out_V) const override;
 	virtual void sampleBRDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_BRDF) const override;
 
 	virtual inline bool isEmissive() const override

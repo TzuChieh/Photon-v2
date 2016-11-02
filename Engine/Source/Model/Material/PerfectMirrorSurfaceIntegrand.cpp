@@ -13,7 +13,7 @@ namespace ph
 
 PerfectMirrorSurfaceIntegrand::~PerfectMirrorSurfaceIntegrand() = default;
 
-void PerfectMirrorSurfaceIntegrand::genUniformRandomLOverRegion(const Vector3f& N, Vector3f* out_L) const
+void PerfectMirrorSurfaceIntegrand::genUniformRandomVOverRegion(const Vector3f& N, Vector3f* out_V) const
 {
 	const float32 rand1 = genRandomFloat32_0_1_uniform();
 	const float32 rand2 = genRandomFloat32_0_1_uniform();
@@ -22,9 +22,9 @@ void PerfectMirrorSurfaceIntegrand::genUniformRandomLOverRegion(const Vector3f& 
 	const float32 yValue = rand2;
 	const float32 yRadius = sqrt(1.0f - yValue * yValue);
 
-	out_L->x = cos(phi) * yRadius;
-	out_L->y = yValue;
-	out_L->z = sin(phi) * yRadius;
+	out_V->x = cos(phi) * yRadius;
+	out_V->y = yValue;
+	out_V->z = sin(phi) * yRadius;
 
 	Vector3f u;
 	Vector3f v(N);
@@ -32,11 +32,11 @@ void PerfectMirrorSurfaceIntegrand::genUniformRandomLOverRegion(const Vector3f& 
 
 	v.calcOrthBasisAsYaxis(&u, &w);
 
-	*out_L = u.mulLocal(out_L->x).
-	addLocal(v.mulLocal(out_L->y)).
-	addLocal(w.mulLocal(out_L->z));
+	*out_V = u.mulLocal(out_V->x).
+	addLocal(v.mulLocal(out_V->y)).
+	addLocal(w.mulLocal(out_V->z));
 
-	out_L->normalizeLocal();
+	out_V->normalizeLocal();
 }
 
 void PerfectMirrorSurfaceIntegrand::sampleBRDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_BRDF) const
