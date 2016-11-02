@@ -66,16 +66,10 @@
     <ClCompile Include="Source\Model\Material\LightMaterial.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Model\Geometry\Primitive.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Model\Geometry\Geometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Model\Geometry\GSphere.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Model\Geometry\PSphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\ApiImpl\ApiDatabase.cpp">
@@ -91,6 +85,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\BruteForceRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Model\Primitive\Primitive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Model\Primitive\PSphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -164,16 +164,10 @@
     <ClInclude Include="Source\Model\Geometry\Geometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Model\Geometry\Primitive.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Math\Transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Model\Geometry\GSphere.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Model\Geometry\PSphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Math\constant.h">
@@ -189,6 +183,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\BruteForceRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Model\Primitive\Primitive.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Model\Primitive\PSphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,4 +1,4 @@
-#include "Model/Geometry/Primitive.h"
+#include "Model/Primitive/Primitive.h"
 
 namespace ph
 {

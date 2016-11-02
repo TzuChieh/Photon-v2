@@ -1,4 +1,4 @@
-#include "Model/Geometry/PSphere.h"
+#include "Model/Primitive/PSphere.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
 

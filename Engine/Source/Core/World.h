@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Model/Geometry/Primitive.h"
+#include "Model/Primitive/Primitive.h"
 #include "Model/Model.h"
 
 #include <vector>

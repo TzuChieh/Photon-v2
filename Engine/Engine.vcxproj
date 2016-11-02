@@ -173,8 +173,8 @@
     <ClCompile Include="Source\Math\Vector3f.cpp" />
     <ClCompile Include="Source\Core\Ray.cpp" />
     <ClCompile Include="Source\Model\Geometry\Geometry.cpp" />
-    <ClCompile Include="Source\Model\Geometry\Primitive.cpp" />
-    <ClCompile Include="Source\Model\Geometry\PSphere.cpp" />
+    <ClCompile Include="Source\Model\Primitive\Primitive.cpp" />
+    <ClCompile Include="Source\Model\Primitive\PSphere.cpp" />
     <ClCompile Include="Source\Model\Material\LambertianDiffuseSurfaceIntegrand.cpp" />
     <ClCompile Include="Source\Model\Material\LightMaterial.cpp" />
     <ClCompile Include="Source\Model\Material\LightSurfaceIntegrand.cpp" />
@@ -204,8 +204,8 @@
     <ClInclude Include="Source\Math\random_number.h" />
     <ClInclude Include="Source\Math\Transform.h" />
     <ClInclude Include="Source\Math\Vector3f.h" />
-    <ClInclude Include="Source\Model\Geometry\Primitive.h" />
-    <ClInclude Include="Source\Model\Geometry\PSphere.h" />
+    <ClInclude Include="Source\Model\Primitive\Primitive.h" />
+    <ClInclude Include="Source\Model\Primitive\PSphere.h" />
     <ClInclude Include="Source\Model\Material\LambertianDiffuseSurfaceIntegrand.h" />
     <ClInclude Include="Source\Model\Material\LightMaterial.h" />
     <ClInclude Include="Source\Model\Material\LightSurfaceIntegrand.h" />

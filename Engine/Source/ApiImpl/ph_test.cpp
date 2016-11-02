@@ -106,6 +106,7 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 
 	auto sphereMaterial = std::make_shared<MatteOpaque>();
 	auto sphereGeometry = std::make_shared<GSphere>(Vector3f(2, 0, -10), 1.5f);
+	sphereMaterial->setAlbedo(1.0f, 0.1f, 0.1f);
 	world.addModel(Model(sphereGeometry, sphereMaterial));
 
 	auto lightMaterial = std::make_shared<LightMaterial>();

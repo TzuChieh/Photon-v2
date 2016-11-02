@@ -4,7 +4,7 @@
 #include "Common/primitive_type.h"
 #include "Core/Ray.h"
 #include "Model/Model.h"
-#include "Model/Geometry/Primitive.h"
+#include "Model/Primitive/Primitive.h"
 
 #include <limits>
 
