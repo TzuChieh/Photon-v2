@@ -45,20 +45,6 @@ void LambertianDiffuseSurfaceIntegrand::genUniformRandomLOverRegion(const Vector
 	out_L->normalizeLocal();
 }
 
-bool LambertianDiffuseSurfaceIntegrand::sampleLiWeight(const Vector3f& L, const Vector3f& V, const Vector3f& N, Ray& ray) const
-{
-	Vector3f albedo;
-	m_matteOpaque->getAlbedo(&albedo);
-
-	albedo.mulLocal(2.0f);
-	//albedo.mulLocal(RECIPROCAL_PI_FLOAT32);
-	albedo.mulLocal(N.dot(L));
-
-	ray.accumulateLiWeight(albedo);
-
-	return true;
-}
-
 void LambertianDiffuseSurfaceIntegrand::sampleBRDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_BRDF) const
 {
 	Vector3f albedo;

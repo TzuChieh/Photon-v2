@@ -43,13 +43,6 @@ void LightSurfaceIntegrand::genUniformRandomLOverRegion(const Vector3f& N, Vecto
 	out_L->normalizeLocal();
 }
 
-bool LightSurfaceIntegrand::sampleLiWeight(const Vector3f& L, const Vector3f& V, const Vector3f& N, Ray& ray) const
-{
-	ray.addLiRadiance(Vector3f(1.0f));
-
-	return false;
-}
-
 void LightSurfaceIntegrand::sampleBRDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_BRDF) const
 {
 

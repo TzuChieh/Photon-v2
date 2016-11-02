@@ -39,13 +39,6 @@ void PerfectMirrorSurfaceIntegrand::genUniformRandomLOverRegion(const Vector3f& 
 	out_L->normalizeLocal();
 }
 
-bool PerfectMirrorSurfaceIntegrand::sampleLiWeight(const Vector3f& L, const Vector3f& V, const Vector3f& N, Ray& ray) const
-{
-	std::cerr << "PerfectMirrorSurfaceIntegrand::sampleLiWeight() not implemented" << std::endl;
-
-	return false;
-}
-
 void PerfectMirrorSurfaceIntegrand::sampleBRDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_BRDF) const
 {
 	const Vector3f reflectDir = L.reflect(intersection.getHitNormal());
