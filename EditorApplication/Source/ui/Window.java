@@ -29,26 +29,6 @@ public class Window
 		
 		m_jframe.pack();
 		m_jframe.revalidate();
-		
-		FloatArrayRef data = new FloatArrayRef();
-		IntRef frameWidthPx = new IntRef();
-		IntRef frameHeightPx = new IntRef();
-		Ph.genTestHdrFrame(data, frameWidthPx, frameHeightPx);
-		
-		System.out.println("frame width: " + frameWidthPx.m_value + " | frame height: " + frameHeightPx.m_value);
-		
-		HdrFrame frame = new HdrFrame(1280, 720);
-		
-		for(int y = 0; y < 720; y++)
-		{
-			for(int x = 0; x < 1280; x++)
-			{
-				float pixelValue = data.m_value[y * 1280 + x];
-				frame.setPixelRgb(x, y, pixelValue, pixelValue, pixelValue);
-			}
-		}
-		
-		render(frame);
 	}
 	
 	public void render(HdrFrame frame)

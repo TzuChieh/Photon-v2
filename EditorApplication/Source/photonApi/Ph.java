@@ -2,6 +2,8 @@ package photonApi;
 
 public final class Ph
 {
+	// Notice: Photon-v2 library functions should not be called from threads other than the main thread.
+	
 	static
 	{
 		System.loadLibrary("Engine/Lib/Engine");
