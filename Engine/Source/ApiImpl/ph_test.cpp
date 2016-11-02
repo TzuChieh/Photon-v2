@@ -9,6 +9,7 @@
 #include "Model/Material/MatteOpaque.h"
 #include "Model/Material/LightMaterial.h"
 #include "Model/Model.h"
+#include "Model/Material/PerfectMirror.h"
 
 #include <iostream>
 #include <memory>
@@ -116,6 +117,10 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	auto triangleMaterial = std::make_shared<MatteOpaque>();
 	auto triangleGeometry = std::make_shared<GTriangle>(Vector3f(-4, 0, -10), Vector3f(0, 0, -10), Vector3f(-3, 5, -10));
 	world.addModel(Model(triangleGeometry, triangleMaterial));
+
+	auto sphere2Material = std::make_shared<PerfectMirror>();
+	auto sphere2Geometry = std::make_shared<GSphere>(Vector3f(-1, 0, -5), 0.4f);
+	world.addModel(Model(sphere2Geometry, sphere2Material));
 
 	world.cook();
 
