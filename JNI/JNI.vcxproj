@@ -157,6 +157,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\JIntRef.h" />
+    <ClInclude Include="Source\JObject.h" />
     <ClInclude Include="Source\photonApi_Ph.h" />
     <ClInclude Include="Source\java_type_signature.h" />
     <ClInclude Include="Source\JLongRef.h" />

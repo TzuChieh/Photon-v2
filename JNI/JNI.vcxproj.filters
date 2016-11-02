@@ -27,6 +27,9 @@
     <ClInclude Include="Source\JIntRef.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\JObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\JLongRef.cpp">

@@ -12,8 +12,8 @@ jboolean JNICALL Java_photonApi_Ph_init(JNIEnv* env, jclass thiz)
 	// TODO
 
 	std::cout << "initializing Photon JNI..." << std::endl;
-	ph::JIntRef::initNativeJavaClass(env);
-	ph::JLongRef::initNativeJavaClass(env);
+	//ph::JIntRef::initNativeJavaClass(env);
+	//ph::JLongRef::initNativeJavaClass(env);
 
 	// HACK
 	return JNI_TRUE;
@@ -36,10 +36,6 @@ void JNICALL Java_photonApi_Ph_genTestHdrFrame(JNIEnv* env, jclass thiz, jobject
 	ph::JIntRef jHeightPx(out_heightPx, env);
 	jWidthPx.setValue(static_cast<PHint32>(width));
 	jHeightPx.setValue(static_cast<PHint32>(height));
-
-	/*jclass localRef = env->GetObjectClass(out_widthPx);
-	jfieldID fieldId = env->GetFieldID(localRef, "m_value", "I");
-	env->SetIntField(out_widthPx, fieldId, static_cast<jint>(width));*/
 
 	jclass class_out_pixelData = env->GetObjectClass(out_pixelData);
 	jfieldID arrayField = env->GetFieldID(class_out_pixelData, "m_value", "[F");
