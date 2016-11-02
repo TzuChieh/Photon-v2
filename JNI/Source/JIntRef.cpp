@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#define JAVA_INTREF_CLASS_NAME "photonApi/IntRef"
 #define JAVA_INTREF_VALUE_NAME "m_value"
 
 namespace ph
@@ -14,7 +15,7 @@ JIntRef::JIntRef(const jobject javaObject, JNIEnv* const env) :
 	static bool isCached = false;
 	if(!isCached)
 	{
-		cacheJavaClass("photonApi/IntRef", env);
+		cacheJavaClass(JAVA_INTREF_CLASS_NAME, env);
 		cacheJavaFieldId(JAVA_INTREF_VALUE_NAME, JAVA_INT_SIGNATURE, env);
 	}
 }

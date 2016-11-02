@@ -6,30 +6,25 @@
 
 namespace ph
 {
-
-jclass   JLongRef::jclass_LongRef;
-jfieldID JLongRef::jfieldID_m_value;
-
-void JLongRef::initNativeJavaClass(JNIEnv* env)
+JLongRef::JLongRef(const jobject javaObject, JNIEnv* const env) :
+	JObject<JLongRef>(javaObject, env)
 {
-	jclass_LongRef   = env->FindClass(JAVA_LONGREF_CLASS_NAME);
-	jfieldID_m_value = env->GetFieldID(jclass_LongRef, JAVA_LONGREF_VALUE_NAME, JAVA_LONG_SIGNATURE);
-}
-
-JLongRef::JLongRef(const jobject javaObject, JNIEnv* const env) : 
-	m_jobject(javaObject), m_env(env)
-{
-
+	static bool isCached = false;
+	if(!isCached)
+	{
+		cacheJavaClass(JAVA_LONGREF_CLASS_NAME, env);
+		cacheJavaFieldId(JAVA_LONGREF_VALUE_NAME, JAVA_INT_SIGNATURE, env);
+	}
 }
 
 PHint64 JLongRef::getValue() const
 {
-	return static_cast<PHint64>(m_env->GetLongField(m_jobject, jfieldID_m_value));
+	return static_cast<PHint64>(m_env->GetLongField(m_jobject, getFieldId(JAVA_LONGREF_VALUE_NAME)));
 }
 
 void JLongRef::setValue(const PHint64 value)
 {
-	m_env->SetLongField(m_jobject, jfieldID_m_value, static_cast<jlong>(value));
+	m_env->SetLongField(m_jobject, getFieldId(JAVA_LONGREF_VALUE_NAME), static_cast<jlong>(value));
 }
 
 }// end namespace ph
