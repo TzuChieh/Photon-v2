@@ -18,7 +18,7 @@ public:
 	virtual ~HDRFrame() override;
 
 	virtual void resize(const uint32 newWidthPx, const uint32 newHeightPx) override;
-	virtual void setPixel(const uint32 x, const uint32 y, const float32 r, const float32 g, const float32 b) override;
+	virtual void setPixel(const uint32 x, const uint32 y, const float32 r, const float32 g, const float32 b) = 0;
 
 	virtual inline uint32 getWidthPx() const override
 	{
@@ -33,6 +33,11 @@ public:
 	inline float32 getPixel(const uint32 x, const uint32 y) const
 	{
 		return m_pixelData[y * getWidthPx() + x];
+	}
+
+	inline void setPixel(const uint32 x, const uint32 y, const float32 pixel)
+	{
+		m_pixelData[y * getWidthPx() + x] = pixel;
 	}
 
 	inline const float32* getPixelData() const

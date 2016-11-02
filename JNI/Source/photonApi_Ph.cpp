@@ -38,10 +38,10 @@ void JNICALL Java_photonApi_Ph_genTestHdrFrame(JNIEnv* env, jclass thiz, jobject
 	jWidthPx.setValue(static_cast<PHint32>(width));
 	jHeightPx.setValue(static_cast<PHint32>(height));
 
+	const jsize arrayLength = static_cast<jsize>(width * height * 3);
+
 	jclass class_out_pixelData = env->GetObjectClass(out_FloatArrayRef_pixelData);
 	jfieldID arrayField = env->GetFieldID(class_out_pixelData, "m_value", "[F");
-	
-	const jsize arrayLength = static_cast<jsize>(width * height);
 	jfloatArray arrayObject = env->NewFloatArray(arrayLength);
 	env->SetFloatArrayRegion(arrayObject, 0, arrayLength, static_cast<const jfloat*>(pixelData));
 	env->SetObjectField(out_FloatArrayRef_pixelData, arrayField, arrayObject);

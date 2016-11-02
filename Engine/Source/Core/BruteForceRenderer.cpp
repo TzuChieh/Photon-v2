@@ -84,7 +84,8 @@ void BruteForceRenderer::render(const World& world, const Camera& camera, HDRFra
 				numSamples++;
 			}// end while
 
-			out_frame->setPixel(x, y, accuRadiance.x / static_cast<float32>(spp));
+			accuRadiance.divLocal(static_cast<float32>(spp));
+			out_frame->setPixel(x, y, accuRadiance.x, accuRadiance.y, accuRadiance.z);
 		}
 	}
 }

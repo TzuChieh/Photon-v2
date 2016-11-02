@@ -56,14 +56,16 @@ public class Main
 		
 		System.out.println("frame width: " + frameWidthPx.m_value + " | frame height: " + frameHeightPx.m_value);
 		
-		HdrFrame frame = new HdrFrame(1280, 720);
-		
-		for(int y = 0; y < 720; y++)
+		HdrFrame frame = new HdrFrame(frameWidthPx.m_value, frameHeightPx.m_value);
+		for(int y = 0; y < frameHeightPx.m_value; y++)
 		{
-			for(int x = 0; x < 1280; x++)
+			for(int x = 0; x < frameWidthPx.m_value; x++)
 			{
-				float pixelValue = data.m_value[y * 1280 + x];
-				frame.setPixelRgb(x, y, pixelValue, pixelValue, pixelValue);
+				int baseIndex = (y * frameWidthPx.m_value + x) * 3;
+				float r = data.m_value[baseIndex + 0];
+				float g = data.m_value[baseIndex + 1];
+				float b = data.m_value[baseIndex + 2];
+				frame.setPixelRgb(x, y, r, g, b);
 			}
 		}
 		
@@ -73,6 +75,7 @@ public class Main
 			public void run()
 			{
 				window.render(frame);
+				System.out.println("rendering done");
 			}
 		});
 	}
