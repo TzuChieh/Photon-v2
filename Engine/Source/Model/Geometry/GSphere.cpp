@@ -1,9 +1,7 @@
 #include "Model/Geometry/GSphere.h"
-#include "Model/Geometry/PSphere.h"
+#include "Model/Primitive/PSphere.h"
 
 #include <cmath>
-
-#define SPHERE_EPSILON 0.0001f
 
 namespace ph
 {

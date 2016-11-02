@@ -173,6 +173,7 @@
     <ClCompile Include="Source\Math\Vector3f.cpp" />
     <ClCompile Include="Source\Core\Ray.cpp" />
     <ClCompile Include="Source\Model\Geometry\Geometry.cpp" />
+    <ClCompile Include="Source\Model\Geometry\GTriangle.cpp" />
     <ClCompile Include="Source\Model\Primitive\Primitive.cpp" />
     <ClCompile Include="Source\Model\Primitive\PSphere.cpp" />
     <ClCompile Include="Source\Model\Material\LambertianDiffuseSurfaceIntegrand.cpp" />
@@ -183,6 +184,7 @@
     <ClCompile Include="Source\Model\Material\MatteOpaque.cpp" />
     <ClCompile Include="Source\Model\Material\SurfaceIntegrand.cpp" />
     <ClCompile Include="Source\Model\Model.cpp" />
+    <ClCompile Include="Source\Model\Primitive\PTriangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\ph_core.h" />
@@ -204,6 +206,7 @@
     <ClInclude Include="Source\Math\random_number.h" />
     <ClInclude Include="Source\Math\Transform.h" />
     <ClInclude Include="Source\Math\Vector3f.h" />
+    <ClInclude Include="Source\Model\Geometry\GTriangle.h" />
     <ClInclude Include="Source\Model\Primitive\Primitive.h" />
     <ClInclude Include="Source\Model\Primitive\PSphere.h" />
     <ClInclude Include="Source\Model\Material\LambertianDiffuseSurfaceIntegrand.h" />
@@ -216,6 +219,7 @@
     <ClInclude Include="Source\Model\Material\MatteOpaque.h" />
     <ClInclude Include="Source\Model\Material\SurfaceIntegrand.h" />
     <ClInclude Include="Source\Model\Model.h" />
+    <ClInclude Include="Source\Model\Primitive\PTriangle.h" />
     <ClInclude Include="Source\Utility\TStableIndexDenseArray.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

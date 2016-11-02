@@ -10,7 +10,7 @@ class Model;
 class Primitive
 {
 public:
-	Primitive(const Model* parentModel);
+	Primitive(const Model* const parentModel);
 	virtual ~Primitive() = 0;
 
 	virtual bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const = 0;

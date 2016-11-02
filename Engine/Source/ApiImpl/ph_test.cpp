@@ -2,6 +2,7 @@
 #include "Frame/HDRFrame.h"
 #include "Core/World.h"
 #include "Model/Geometry/GSphere.h"
+#include "Model/Geometry/GTriangle.h"
 #include "Camera/DefaultCamera.h"
 #include "Core/BruteForceRenderer.h"
 #include "Math/random_number.h"
@@ -102,18 +103,19 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	World world;
 	DefaultCamera camera;
 
-	
-
-	auto sphereMaterial = std::make_shared<MatteOpaque>();
-	auto sphereGeometry = std::make_shared<GSphere>(Vector3f(2, 0, -10), 1.5f);
-	sphereMaterial->setAlbedo(1.0f, 0.1f, 0.1f);
-	world.addModel(Model(sphereGeometry, sphereMaterial));
-
 	auto lightMaterial = std::make_shared<LightMaterial>();
-	auto lightGeometry = std::make_shared<GSphere>(Vector3f(-1, 2, -10), 0.8f);
+	auto lightGeometry = std::make_shared<GSphere>(Vector3f(-1, 2, -9), 0.7f);
 	lightMaterial->setEmittedRadiance(1.0f, 1.0f, 0.2f);
 	world.addModel(Model(lightGeometry, lightMaterial));
 
+	auto sphereMaterial = std::make_shared<MatteOpaque>();
+	auto sphereGeometry = std::make_shared<GSphere>(Vector3f(2, 0, -10), 1.5f);
+	sphereMaterial->setAlbedo(0.8f, 1.0f, 0.9f);
+	world.addModel(Model(sphereGeometry, sphereMaterial));
+
+	auto triangleMaterial = std::make_shared<MatteOpaque>();
+	auto triangleGeometry = std::make_shared<GTriangle>(Vector3f(-4, 0, -10), Vector3f(0, 0, -10), Vector3f(-3, 5, -10));
+	world.addModel(Model(triangleGeometry, triangleMaterial));
 
 	world.cook();
 
