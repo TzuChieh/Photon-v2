@@ -5,6 +5,7 @@
 #include "Model/Geometry/GTriangle.h"
 #include "Camera/DefaultCamera.h"
 #include "Core/BruteForceRenderer.h"
+#include "Core/ImportanceRenderer.h"
 #include "Math/random_number.h"
 #include "Model/Material/MatteOpaque.h"
 #include "Model/Material/LightMaterial.h"
@@ -124,7 +125,8 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 
 	world.cook();
 
-	auto renderer = std::make_shared<BruteForceRenderer>();
+	//auto renderer = std::make_shared<BruteForceRenderer>();
+	auto renderer = std::make_shared<ImportanceRenderer>();
 	renderer->render(world, camera, &testHdrFrame);
 
 	*out_data = testHdrFrame.getPixelData();

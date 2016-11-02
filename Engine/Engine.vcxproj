@@ -161,6 +161,7 @@
     <ClCompile Include="Source\Camera\Camera.cpp" />
     <ClCompile Include="Source\Camera\DefaultCamera.cpp" />
     <ClCompile Include="Source\Core\BruteForceRenderer.cpp" />
+    <ClCompile Include="Source\Core\ImportanceRenderer.cpp" />
     <ClCompile Include="Source\Core\Renderer.cpp" />
     <ClCompile Include="Source\Core\World.cpp" />
     <ClCompile Include="Source\Frame\Frame.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="Source\Camera\DefaultCamera.h" />
     <ClInclude Include="Source\Common\primitive_type.h" />
     <ClInclude Include="Source\Core\BruteForceRenderer.h" />
+    <ClInclude Include="Source\Core\ImportanceRenderer.h" />
     <ClInclude Include="Source\Core\Intersection.h" />
     <ClInclude Include="Source\Core\Renderer.h" />
     <ClInclude Include="Source\Core\World.h" />

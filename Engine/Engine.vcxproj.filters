@@ -105,6 +105,9 @@
     <ClCompile Include="Source\Model\Material\PerfectMirrorSurfaceIntegrand.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\ImportanceRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Frame\Frame.h">
@@ -213,6 +216,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Model\Material\PerfectMirrorSurfaceIntegrand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\ImportanceRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
