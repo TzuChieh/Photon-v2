@@ -49,12 +49,12 @@ void BruteForceRenderer::render(const World& world, const Camera& camera, HDRFra
 					Vector3f N(intersection.getHitNormal());
 					Vector3f V(ray.getDirection().mul(-1.0f));
 
-					hitMaterial->getSurfaceIntegrand()->genUniformRandomVOverRegion(N, &L);
+					hitMaterial->getSurfaceIntegrand()->genUniformRandomV(intersection, N, &L);
 
 					if(hitMaterial->getSurfaceIntegrand()->isEmissive())
 					{
 						Vector3f radiance;
-						hitMaterial->getSurfaceIntegrand()->sampleEmittedRadiance(intersection, L, V, &radiance);
+						hitMaterial->getSurfaceIntegrand()->evaluateEmittedRadiance(intersection, L, V, &radiance);
 
 						ray.addLiRadiance(radiance);
 						ray.calcWeightedLiRadiance(&radiance);
@@ -63,15 +63,12 @@ void BruteForceRenderer::render(const World& world, const Camera& camera, HDRFra
 						break;
 					}
 
-					Vector3f BRDF;
-					hitMaterial->getSurfaceIntegrand()->sampleBRDF(intersection, L, V, &BRDF);
+					Vector3f liWeight;
+					Vector3f pdf;
+					hitMaterial->getSurfaceIntegrand()->evaluateLiWeight(intersection, L, V, &liWeight);
+					hitMaterial->getSurfaceIntegrand()->evaluateUniformRandomVPDF(intersection, L, V, &pdf);
 
-					//ray.accumulateLiWeight(BRDF.mulLocal(2.0f * PI_FLOAT32 * std::max(N.dot(L), 0.0f)));
-					ray.accumulateLiWeight(BRDF.mulLocal(2.0f * PI_FLOAT32 * N.dot(L)));
-					if(N.dot(L) < 0.0f)
-					{
-						std::cout << N.dot(L) << std::endl;
-					}
+					ray.accumulateLiWeight(liWeight.div(pdf));
 
 					Vector3f nextRayOrigin(intersection.getHitPosition().add(N.mul(0.0001f)));
 					Vector3f nextRayDirection(L);

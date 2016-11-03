@@ -49,12 +49,12 @@ void ImportanceRenderer::render(const World& world, const Camera& camera, HDRFra
 					Vector3f N(intersection.getHitNormal());
 					Vector3f V(ray.getDirection().mul(-1.0f));
 
-					hitMaterial->getSurfaceIntegrand()->genUniformRandomVOverRegion(N, &L);
+					hitMaterial->getSurfaceIntegrand()->genUniformRandomV(intersection, N, &L);
 
 					if(hitMaterial->getSurfaceIntegrand()->isEmissive())
 					{
 						Vector3f radiance;
-						hitMaterial->getSurfaceIntegrand()->sampleEmittedRadiance(intersection, L, V, &radiance);
+						hitMaterial->getSurfaceIntegrand()->evaluateEmittedRadiance(intersection, L, V, &radiance);
 
 						ray.addLiRadiance(radiance);
 						ray.calcWeightedLiRadiance(&radiance);
@@ -64,7 +64,7 @@ void ImportanceRenderer::render(const World& world, const Camera& camera, HDRFra
 					}
 
 					Vector3f BRDF;
-					hitMaterial->getSurfaceIntegrand()->sampleBRDF(intersection, L, V, &BRDF);
+					hitMaterial->getSurfaceIntegrand()->evaluateLiWeight(intersection, L, V, &BRDF);
 
 					//ray.accumulateLiWeight(BRDF.mulLocal(2.0f * PI_FLOAT32 * std::max(N.dot(L), 0.0f)));
 					ray.accumulateLiWeight(BRDF.mulLocal(2.0f * PI_FLOAT32 * N.dot(L)));

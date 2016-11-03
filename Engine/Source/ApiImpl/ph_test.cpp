@@ -119,14 +119,14 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	auto triangleGeometry = std::make_shared<GTriangle>(Vector3f(-4, 0, -10), Vector3f(0, 0, -10), Vector3f(-3, 5, -10));
 	world.addModel(Model(triangleGeometry, triangleMaterial));
 
-	auto sphere2Material = std::make_shared<PerfectMirror>();
+	/*auto sphere2Material = std::make_shared<PerfectMirror>();
 	auto sphere2Geometry = std::make_shared<GSphere>(Vector3f(-1, 0, -5), 0.4f);
-	world.addModel(Model(sphere2Geometry, sphere2Material));
+	world.addModel(Model(sphere2Geometry, sphere2Material));*/
 
 	world.cook();
 
-	//auto renderer = std::make_shared<BruteForceRenderer>();
-	auto renderer = std::make_shared<ImportanceRenderer>();
+	auto renderer = std::make_shared<BruteForceRenderer>();
+	//auto renderer = std::make_shared<ImportanceRenderer>();
 	renderer->render(world, camera, &testHdrFrame);
 
 	*out_data = testHdrFrame.getPixelData();

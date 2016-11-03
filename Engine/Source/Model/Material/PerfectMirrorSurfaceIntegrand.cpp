@@ -7,13 +7,16 @@
 
 #include <cmath>
 #include <iostream>
+#include <limits>
+
+#define DIRAC_DELTA_HEIGHT_APPROXIMATION 1000.0f
 
 namespace ph
 {
 
 PerfectMirrorSurfaceIntegrand::~PerfectMirrorSurfaceIntegrand() = default;
 
-void PerfectMirrorSurfaceIntegrand::genUniformRandomVOverRegion(const Vector3f& N, Vector3f* out_V) const
+void PerfectMirrorSurfaceIntegrand::genUniformRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
 {
 	const float32 rand1 = genRandomFloat32_0_1_uniform();
 	const float32 rand2 = genRandomFloat32_0_1_uniform();
@@ -27,7 +30,7 @@ void PerfectMirrorSurfaceIntegrand::genUniformRandomVOverRegion(const Vector3f& 
 	out_V->z = sin(phi) * yRadius;
 
 	Vector3f u;
-	Vector3f v(N);
+	Vector3f v(intersection.getHitNormal());
 	Vector3f w;
 
 	v.calcOrthBasisAsYaxis(&u, &w);
@@ -39,17 +42,32 @@ void PerfectMirrorSurfaceIntegrand::genUniformRandomVOverRegion(const Vector3f& 
 	out_V->normalizeLocal();
 }
 
-void PerfectMirrorSurfaceIntegrand::sampleBRDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_BRDF) const
+void PerfectMirrorSurfaceIntegrand::genImportanceRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
 {
-	const Vector3f reflectDir = L.reflect(intersection.getHitNormal());
+	*out_V = L.reflect(intersection.getHitNormal());
+}
 
-	if(reflectDir.equals(V))
+void PerfectMirrorSurfaceIntegrand::evaluateUniformRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
+{
+	out_PDF->set(1.0f / (2.0f * PI_FLOAT32));
+}
+
+void PerfectMirrorSurfaceIntegrand::evaluateImportanceRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
+{
+	out_PDF->set(DIRAC_DELTA_HEIGHT_APPROXIMATION);
+}
+
+void PerfectMirrorSurfaceIntegrand::evaluateLiWeight(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_LiWeight) const
+{
+	Vector3f reflectionDir = L.reflect(intersection.getHitNormal());
+
+	if(reflectionDir.equals(V))
 	{
-		out_BRDF->set(1, 1, 1);
+		out_LiWeight->set(DIRAC_DELTA_HEIGHT_APPROXIMATION);
 	}
 	else
 	{
-		out_BRDF->set(0, 0, 0);
+		out_LiWeight->set(0, 0, 0);
 	}
 }
 
