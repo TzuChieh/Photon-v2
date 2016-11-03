@@ -10,6 +10,7 @@
 #include <limits>
 
 #define DIRAC_DELTA_HEIGHT_APPROXIMATION 1000.0f
+#define REFLECTION_VECTOR_MARGIN 0.0005f
 
 namespace ph
 {
@@ -44,7 +45,7 @@ void PerfectMirrorSurfaceIntegrand::genUniformRandomV(const Intersection& inters
 
 void PerfectMirrorSurfaceIntegrand::genImportanceRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
 {
-	*out_V = L.reflect(intersection.getHitNormal());
+	*out_V = L.mul(-1.0f).reflect(intersection.getHitNormal());
 }
 
 void PerfectMirrorSurfaceIntegrand::evaluateUniformRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
@@ -59,9 +60,9 @@ void PerfectMirrorSurfaceIntegrand::evaluateImportanceRandomVPDF(const Intersect
 
 void PerfectMirrorSurfaceIntegrand::evaluateLiWeight(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_LiWeight) const
 {
-	Vector3f reflectionDir = L.reflect(intersection.getHitNormal());
+	Vector3f reflectionDir = L.mul(-1.0f).reflect(intersection.getHitNormal());
 
-	if(reflectionDir.equals(V))
+	if(reflectionDir.equals(V, REFLECTION_VECTOR_MARGIN))
 	{
 		out_LiWeight->set(DIRAC_DELTA_HEIGHT_APPROXIMATION);
 	}

@@ -110,23 +110,25 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	lightMaterial->setEmittedRadiance(1.0f, 1.0f, 0.2f);
 	world.addModel(Model(lightGeometry, lightMaterial));
 
+	//auto sphereMaterial = std::make_shared<PerfectMirror>();
 	auto sphereMaterial = std::make_shared<MatteOpaque>();
 	auto sphereGeometry = std::make_shared<GSphere>(Vector3f(2, 0, -10), 1.5f);
 	sphereMaterial->setAlbedo(0.8f, 1.0f, 0.9f);
 	world.addModel(Model(sphereGeometry, sphereMaterial));
 
-	auto triangleMaterial = std::make_shared<MatteOpaque>();
+	auto triangleMaterial = std::make_shared<PerfectMirror>();
+	//auto triangleMaterial = std::make_shared<MatteOpaque>();
 	auto triangleGeometry = std::make_shared<GTriangle>(Vector3f(-4, 0, -10), Vector3f(0, 0, -10), Vector3f(-3, 5, -10));
 	world.addModel(Model(triangleGeometry, triangleMaterial));
 
 	/*auto sphere2Material = std::make_shared<PerfectMirror>();
-	auto sphere2Geometry = std::make_shared<GSphere>(Vector3f(-1, 0, -5), 0.4f);
+	auto sphere2Geometry = std::make_shared<GSphere>(Vector3f(-1, 0, -10), 0.8f);
 	world.addModel(Model(sphere2Geometry, sphere2Material));*/
 
 	world.cook();
 
-	auto renderer = std::make_shared<BruteForceRenderer>();
-	//auto renderer = std::make_shared<ImportanceRenderer>();
+	//auto renderer = std::make_shared<BruteForceRenderer>();
+	auto renderer = std::make_shared<ImportanceRenderer>();
 	renderer->render(world, camera, &testHdrFrame);
 
 	*out_data = testHdrFrame.getPixelData();

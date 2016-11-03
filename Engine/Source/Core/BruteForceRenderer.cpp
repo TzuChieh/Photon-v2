@@ -10,7 +10,6 @@
 #include "Math/constant.h"
 
 #include <cmath>
-#include <algorithm>
 #include <iostream>
 
 namespace ph
@@ -49,7 +48,7 @@ void BruteForceRenderer::render(const World& world, const Camera& camera, HDRFra
 					Vector3f N(intersection.getHitNormal());
 					Vector3f V(ray.getDirection().mul(-1.0f));
 
-					hitMaterial->getSurfaceIntegrand()->genUniformRandomV(intersection, N, &L);
+					hitMaterial->getSurfaceIntegrand()->genUniformRandomV(intersection, V, &L);
 
 					if(hitMaterial->getSurfaceIntegrand()->isEmissive())
 					{

@@ -48,7 +48,7 @@ void LightSurfaceIntegrand::genUniformRandomV(const Intersection& intersection, 
 
 void LightSurfaceIntegrand::genImportanceRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
 {
-	std::cerr << "LightSurfaceIntegrand::genImportanceRandomV() not implemented" << std::endl;
+	genUniformRandomV(intersection, L, out_V);
 }
 
 void LightSurfaceIntegrand::evaluateUniformRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const

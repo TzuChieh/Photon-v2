@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <string>
+#include <cstdlib>
 
 namespace ph
 {
@@ -497,6 +498,13 @@ public:
 		return x == r.x &&
 		       y == r.y &&
 		       z == r.z;
+	}
+
+	inline bool equals(const Vector3f& r, const float32 margin) const
+	{
+		return (x - r.x) < std::abs(margin) &&
+		       (y - r.y) < std::abs(margin) &&
+		       (z - r.z) < std::abs(margin);
 	}
 };// end class Vector3f
 
