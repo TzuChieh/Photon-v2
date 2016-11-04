@@ -69,6 +69,13 @@ void ImportanceRenderer::render(const World& world, const Camera& camera, HDRFra
 					hitMaterial->getSurfaceIntegrand()->evaluateEmittedRadiance(intersection, L, V, &radiance);
 
 					ray.addLiRadiance(radiance);
+
+					Vector3f accumulatedLiWeight = ray.getAccumulatedLiWeight();
+
+					// avoid excessive weight, also handle negative weight
+					accumulatedLiWeight.clampLocal(0.0f, 1000.0f);
+					ray.setAccumulatedLiWeight(accumulatedLiWeight);
+
 					ray.calcWeightedLiRadiance(&radiance);
 					accuRadiance.addLocal(radiance);
 
@@ -94,7 +101,6 @@ void ImportanceRenderer::render(const World& world, const Camera& camera, HDRFra
 			uint32 x = static_cast<uint32>((sample.m_cameraX + 1.0f) / 2.0f * out_frame->getWidthPx());
 			uint32 y = static_cast<uint32>((sample.m_cameraY + 1.0f) / 2.0f * out_frame->getHeightPx());
 
-			//std::cout << x << ", " << y << std::endl;
 
 			out_frame->getPixel(x, y, &pixel);
 			pixel.addLocal(accuRadiance.div(static_cast<float32>(spp)));

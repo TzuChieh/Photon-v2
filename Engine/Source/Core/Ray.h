@@ -35,6 +35,11 @@ public:
 		m_direction.set(out_direction);
 	}
 
+	const Vector3f& getAccumulatedLiWeight() const
+	{
+		return m_LiWeight;
+	}
+
 	void setOrigin(const Vector3f& origin)
 	{
 		m_origin.set(origin);
@@ -43,6 +48,11 @@ public:
 	void setDirection(const Vector3f& direction)
 	{
 		m_direction.set(direction);
+	}
+
+	void setAccumulatedLiWeight(const Vector3f& accumulatedLiWeight)
+	{
+		m_LiWeight = accumulatedLiWeight;
 	}
 
 private:
