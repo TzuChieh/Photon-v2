@@ -152,7 +152,8 @@ void loadClassicCornellBoxScene(ph::World* out_world)
 	//auto leftWallMatl = std::make_shared<MatteOpaque>();
 	//leftWallMatl->setAlbedo(0.9f, 0.2f, 0.2f);
 	auto leftWallMatl = std::make_shared<AbradedOpaque>();
-	leftWallMatl->setRoughness(0.05f);
+	leftWallMatl->setRoughness(0.2f);
+	leftWallMatl->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));// gold
 	out_world->addModel(Model(leftWallBall, leftWallMatl));
 
 	auto rightWallBall = std::make_shared<GSphere>(Vector3f(wallRadius + boxHalfSize, 0, 0), wallRadius);

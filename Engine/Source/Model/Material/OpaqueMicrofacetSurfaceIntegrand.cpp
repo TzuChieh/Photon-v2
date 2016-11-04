@@ -66,13 +66,10 @@ void OpaqueMicrofacetSurfaceIntegrand::genImportanceRandomV(const Intersection& 
 
 	v.calcOrthBasisAsYaxis(&u, &w);
 
-	H = u.mulLocal(out_V->x).
-	addLocal(v.mulLocal(out_V->y)).
-	addLocal(w.mulLocal(out_V->z));
-
+	H = u.mulLocal(H.x).addLocal(v.mulLocal(H.y)).addLocal(w.mulLocal(H.z));
 	H.normalizeLocal();
 
-	*out_V = L.mul(-1.0f).reflect(intersection.getHitNormal()).normalizeLocal();
+	*out_V = L.mul(-1.0f).reflect(H).normalizeLocal();
 }
 
 void OpaqueMicrofacetSurfaceIntegrand::evaluateUniformRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
@@ -107,7 +104,7 @@ float32 OpaqueMicrofacetSurfaceIntegrand::calcNormalDistributionTerm(const Vecto
 {
 	// GGX (Trowbridge-Reitz) Normal Distribution Function
 
-	const float32 alpha  = m_abradedOpaqueMaterial->getRoughness();
+	const float32 alpha  = m_abradedOpaqueMaterial->getRoughness() * m_abradedOpaqueMaterial->getRoughness();
 	const float32 alpha2 = alpha * alpha;
 	const float32 NoH    = N.dot(H);
 	const float32 NoH2   = NoH * NoH;
