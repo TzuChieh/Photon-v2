@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Frame/Frame.h"
+#include "Image/Frame.h"
 
 #include <vector>
 

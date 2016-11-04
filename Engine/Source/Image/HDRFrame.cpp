@@ -1,4 +1,4 @@
-#include "Frame/HDRFrame.h"
+#include "Image/HDRFrame.h"
 
 #include <utility>
 

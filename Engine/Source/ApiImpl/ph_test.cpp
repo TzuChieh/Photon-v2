@@ -1,5 +1,5 @@
 #include "ph_test.h"
-#include "Frame/HDRFrame.h"
+#include "Image/HDRFrame.h"
 #include "Core/World.h"
 #include "Model/Geometry/GSphere.h"
 #include "Model/Geometry/GTriangle.h"

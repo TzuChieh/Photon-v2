@@ -2,24 +2,10 @@
 #include "ph_test.h"
 #include "JIntRef.h"
 #include "JLongRef.h"
-#include "ph_frame.h"
+#include "ph_image.h"
 #include "ph_core.h"
 
 #include <iostream>
-
-jboolean JNICALL Java_photonApi_Ph_init(JNIEnv* env, jclass thiz)
-{
-	std::cout << "initializing Photon..." << std::endl;
-
-	// TODO
-
-	std::cout << "initializing Photon JNI..." << std::endl;
-	//ph::JIntRef::initNativeJavaClass(env);
-	//ph::JLongRef::initNativeJavaClass(env);
-
-	// HACK
-	return JNI_TRUE;
-}
 
 jboolean JNICALL Java_photonApi_Ph_start(JNIEnv* env, jclass thiz)
 {

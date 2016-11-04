@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ph_frame.h"
+#include "ph_image.h"
 #include "ApiImpl/ApiDatabase.h"
-#include "Frame/HDRFrame.h"
+#include "Image/HDRFrame.h"
 
 #include <iostream>
 
