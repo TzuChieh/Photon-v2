@@ -10,13 +10,18 @@ public final class Ph
 		System.loadLibrary("JNI/JNI");
 	}
 	
+	// core
+	
 	public static native boolean start();
 	public static native void exit();
+	
+	// some tests
 	
 	public static native void printTestMessage();
 	public static native void genTestHdrFrame(FloatArrayRef out_pixelData, IntRef out_widthPx, IntRef out_heightPx);
 	
-	// frame
+	// image related
+	
 	public static native void createHdrFrame(LongRef out_frameId, int widthPx, int heightPx);
 	public static native void deleteHdrFrame(long frameId);
 }

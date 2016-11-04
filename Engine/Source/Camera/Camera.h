@@ -7,6 +7,7 @@ namespace ph
 {
 
 class Ray;
+class Sample;
 
 class Camera
 {
@@ -14,7 +15,8 @@ public:
 	Camera();
 	virtual ~Camera() = 0;
 
-	virtual void genSampleRay(Ray* const out_ray, const uint32 xRes, const uint32 yRes, float32 x, float32 y) const = 0;
+	// TODO: get aspect ratio info from camera film
+	virtual void genSampleRay(const Sample& sample, Ray* const out_ray, const float32 aspectRatio) const = 0;
 
 	inline const Vector3f& getPosition() const
 	{

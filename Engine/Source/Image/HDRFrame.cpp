@@ -1,4 +1,5 @@
 #include "Image/HDRFrame.h"
+#include "Math/Vector3f.h"
 
 #include <utility>
 
@@ -38,6 +39,15 @@ void HDRFrame::resize(const uint32 newWidthPx, const uint32 newHeightPx)
 	m_widthPx = newWidthPx;
 	m_heightPx = newHeightPx;
 	m_pixelData = std::vector<float32>(static_cast<std::size_t>(3) * newWidthPx * newHeightPx, 0.0f);
+}
+
+void HDRFrame::getPixel(const uint32 x, const uint32 y, Vector3f* const out_pixel) const
+{
+	const std::size_t baseIndex = (y * static_cast<std::size_t>(getWidthPx()) + x) * 3;
+
+	out_pixel->x = m_pixelData[baseIndex + 0];
+	out_pixel->y = m_pixelData[baseIndex + 1];
+	out_pixel->z = m_pixelData[baseIndex + 2];
 }
 
 void HDRFrame::setPixel(const uint32 x, const uint32 y, const float32 r, const float32 g, const float32 b)

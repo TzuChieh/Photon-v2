@@ -164,6 +164,8 @@
     <ClCompile Include="Source\Core\BruteForceRenderer.cpp" />
     <ClCompile Include="Source\Core\ImportanceRenderer.cpp" />
     <ClCompile Include="Source\Core\Renderer.cpp" />
+    <ClCompile Include="Source\Core\SampleGenerator.cpp" />
+    <ClCompile Include="Source\Core\StandardSampleGenerator.cpp" />
     <ClCompile Include="Source\Core\World.cpp" />
     <ClCompile Include="Source\Image\Frame.cpp" />
     <ClCompile Include="Source\Image\HDRFrame.cpp" />
@@ -201,6 +203,9 @@
     <ClInclude Include="Source\Core\ImportanceRenderer.h" />
     <ClInclude Include="Source\Core\Intersection.h" />
     <ClInclude Include="Source\Core\Renderer.h" />
+    <ClInclude Include="Source\Core\Sample.h" />
+    <ClInclude Include="Source\Core\SampleGenerator.h" />
+    <ClInclude Include="Source\Core\StandardSampleGenerator.h" />
     <ClInclude Include="Source\Core\World.h" />
     <ClInclude Include="Source\Image\Frame.h" />
     <ClInclude Include="Source\Image\HDRFrame.h" />

@@ -37,7 +37,7 @@ void BruteForceRenderer::render(const World& world, const Camera& camera, HDRFra
 				const uint32 maxBounces = 5;
 				uint32 numBounces = 0;
 
-				camera.genSampleRay(&ray, widthPx, heightPx, x, y);
+				//camera.genSampleRay(&ray, widthPx, heightPx, x, y);
 
 				while(numBounces <= maxBounces && world.isIntersecting(ray, &intersection))
 				{

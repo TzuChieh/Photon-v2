@@ -8,9 +8,12 @@
 #include "Model/Material/Material.h"
 #include "Model/Material/SurfaceIntegrand.h"
 #include "Math/constant.h"
+#include "Core/StandardSampleGenerator.h"
+#include "Core/Sample.h"
 
 #include <cmath>
 #include <iostream>
+#include <vector>
 
 namespace ph
 {
@@ -22,67 +25,83 @@ void ImportanceRenderer::render(const World& world, const Camera& camera, HDRFra
 	const uint32 widthPx = out_frame->getWidthPx();
 	const uint32 heightPx = out_frame->getHeightPx();
 
-	for(uint32 y = 0; y < heightPx; y++)
+	const float32 aspectRatio = static_cast<float32>(widthPx) / static_cast<float32>(heightPx);
+
+	const uint32 spp = 16;
+	const uint32 maxBounces = 5;
+	StandardSampleGenerator sampleGenerator(spp);
+	std::vector<Sample> samples;
+
+
+	int32 numSpp = 0;
+
+	while(sampleGenerator.hasMoreSamples())
 	{
-		for(uint32 x = 0; x < widthPx; x++)
+		samples.clear();
+		sampleGenerator.requestMoreSamples(*out_frame, &samples);
+
+		Sample sample;
+		while(!samples.empty())
 		{
+			uint32 numBounces = 0;
 			Vector3f accuRadiance(0, 0, 0);
-			const uint32 spp = 64;
-			uint32 numSamples = 0;
+			Ray ray;
+			Intersection intersection;
 
-			while(numSamples < spp)
+			sample = samples.back();
+			samples.pop_back();
+			camera.genSampleRay(sample, &ray, aspectRatio);
+
+			while(numBounces <= maxBounces && world.isIntersecting(ray, &intersection))
 			{
-				Ray ray;
-				Intersection intersection;
-				const uint32 maxBounces = 5;
-				uint32 numBounces = 0;
+				const Model* hitModel = intersection.getHitPrimitive()->getParentModel();
+				const Material* hitMaterial = hitModel->getMaterial();
 
-				camera.genSampleRay(&ray, widthPx, heightPx, x, y);
+				Vector3f L;
+				Vector3f N(intersection.getHitNormal());
+				Vector3f V(ray.getDirection().mul(-1.0f));
 
-				while(numBounces <= maxBounces && world.isIntersecting(ray, &intersection))
+				hitMaterial->getSurfaceIntegrand()->genImportanceRandomV(intersection, V, &L);
+
+				if(hitMaterial->getSurfaceIntegrand()->isEmissive())
 				{
-					const Model* hitModel = intersection.getHitPrimitive()->getParentModel();
-					const Material* hitMaterial = hitModel->getMaterial();
+					Vector3f radiance;
+					hitMaterial->getSurfaceIntegrand()->evaluateEmittedRadiance(intersection, L, V, &radiance);
 
-					Vector3f L;
-					Vector3f N(intersection.getHitNormal());
-					Vector3f V(ray.getDirection().mul(-1.0f));
+					ray.addLiRadiance(radiance);
+					ray.calcWeightedLiRadiance(&radiance);
+					accuRadiance.addLocal(radiance);
 
-					hitMaterial->getSurfaceIntegrand()->genImportanceRandomV(intersection, V, &L);
+					break;
+				}
 
-					if(hitMaterial->getSurfaceIntegrand()->isEmissive())
-					{
-						Vector3f radiance;
-						hitMaterial->getSurfaceIntegrand()->evaluateEmittedRadiance(intersection, L, V, &radiance);
+				Vector3f liWeight;
+				Vector3f pdf;
+				hitMaterial->getSurfaceIntegrand()->evaluateLiWeight(intersection, L, V, &liWeight);
+				hitMaterial->getSurfaceIntegrand()->evaluateImportanceRandomVPDF(intersection, L, V, &pdf);
 
-						ray.addLiRadiance(radiance);
-						ray.calcWeightedLiRadiance(&radiance);
-						accuRadiance.addLocal(radiance);
+				ray.accumulateLiWeight(liWeight.div(pdf));
 
-						break;
-					}
+				Vector3f nextRayOrigin(intersection.getHitPosition().add(N.mul(0.0001f)));
+				Vector3f nextRayDirection(L);
+				ray.setOrigin(nextRayOrigin);
+				ray.setDirection(nextRayDirection);
 
-					Vector3f liWeight;
-					Vector3f pdf;
-					hitMaterial->getSurfaceIntegrand()->evaluateLiWeight(intersection, L, V, &liWeight);
-					hitMaterial->getSurfaceIntegrand()->evaluateImportanceRandomVPDF(intersection, L, V, &pdf);
-
-					ray.accumulateLiWeight(liWeight.div(pdf));
-
-					Vector3f nextRayOrigin(intersection.getHitPosition().add(N.mul(0.0001f)));
-					Vector3f nextRayDirection(L);
-					ray.setOrigin(nextRayOrigin);
-					ray.setDirection(nextRayDirection);
-
-					numBounces++;
-				}// end while
-
-				numSamples++;
+				numBounces++;
 			}// end while
 
-			accuRadiance.divLocal(static_cast<float32>(spp));
-			out_frame->setPixel(x, y, accuRadiance.x, accuRadiance.y, accuRadiance.z);
-		}
+			Vector3f pixel;
+			uint32 x = static_cast<uint32>((sample.m_cameraX + 1.0f) / 2.0f * out_frame->getWidthPx());
+			uint32 y = static_cast<uint32>((sample.m_cameraY + 1.0f) / 2.0f * out_frame->getHeightPx());
+
+			//std::cout << x << ", " << y << std::endl;
+
+			out_frame->getPixel(x, y, &pixel);
+			pixel.addLocal(accuRadiance.div(static_cast<float32>(spp)));
+			out_frame->setPixel(x, y, pixel.x, pixel.y, pixel.z);
+		}// end while
+
+		std::cout << "SPP: " << ++numSpp << std::endl;
 	}
 }
 
