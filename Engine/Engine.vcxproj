@@ -178,6 +178,8 @@
     <ClCompile Include="Source\Core\Ray.cpp" />
     <ClCompile Include="Source\Model\Geometry\Geometry.cpp" />
     <ClCompile Include="Source\Model\Geometry\GTriangle.cpp" />
+    <ClCompile Include="Source\Model\Material\AbradedOpaque.cpp" />
+    <ClCompile Include="Source\Model\Material\OpaqueMicrofacetSurfaceIntegrand.cpp" />
     <ClCompile Include="Source\Model\Material\PerfectMirror.cpp" />
     <ClCompile Include="Source\Model\Material\PerfectMirrorSurfaceIntegrand.cpp" />
     <ClCompile Include="Source\Model\Primitive\Primitive.cpp" />
@@ -217,6 +219,7 @@
     <ClInclude Include="Source\Math\Transform.h" />
     <ClInclude Include="Source\Math\Vector3f.h" />
     <ClInclude Include="Source\Model\Geometry\GTriangle.h" />
+    <ClInclude Include="Source\Model\Material\AbradedOpaque.h" />
     <ClInclude Include="Source\Model\Material\OpaqueMicrofacetSurfaceIntegrand.h" />
     <ClInclude Include="Source\Model\Material\PerfectMirror.h" />
     <ClInclude Include="Source\Model\Material\PerfectMirrorSurfaceIntegrand.h" />

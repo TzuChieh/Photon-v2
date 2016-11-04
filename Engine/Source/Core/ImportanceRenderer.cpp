@@ -100,7 +100,8 @@ void ImportanceRenderer::render(const World& world, const Camera& camera, HDRFra
 			Vector3f pixel;
 			uint32 x = static_cast<uint32>((sample.m_cameraX + 1.0f) / 2.0f * out_frame->getWidthPx());
 			uint32 y = static_cast<uint32>((sample.m_cameraY + 1.0f) / 2.0f * out_frame->getHeightPx());
-
+			if(x >= out_frame->getWidthPx()) x = out_frame->getWidthPx() - 1;
+			if(y >= out_frame->getHeightPx()) y = out_frame->getHeightPx() - 1;
 
 			out_frame->getPixel(x, y, &pixel);
 			pixel.addLocal(accuRadiance.div(static_cast<float32>(spp)));

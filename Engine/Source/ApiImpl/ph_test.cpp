@@ -11,6 +11,7 @@
 #include "Model/Material/LightMaterial.h"
 #include "Model/Model.h"
 #include "Model/Material/PerfectMirror.h"
+#include "Model/Material/AbradedOpaque.h"
 
 #include <iostream>
 #include <memory>
@@ -148,8 +149,10 @@ void loadClassicCornellBoxScene(ph::World* out_world)
 	const float32 boxHalfSize = 5.0f;
 
 	auto leftWallBall = std::make_shared<GSphere>(Vector3f(-wallRadius - boxHalfSize, 0, 0), wallRadius);
-	auto leftWallMatl = std::make_shared<MatteOpaque>();
-	leftWallMatl->setAlbedo(0.9f, 0.2f, 0.2f);
+	//auto leftWallMatl = std::make_shared<MatteOpaque>();
+	//leftWallMatl->setAlbedo(0.9f, 0.2f, 0.2f);
+	auto leftWallMatl = std::make_shared<AbradedOpaque>();
+	leftWallMatl->setRoughness(0.05f);
 	out_world->addModel(Model(leftWallBall, leftWallMatl));
 
 	auto rightWallBall = std::make_shared<GSphere>(Vector3f(wallRadius + boxHalfSize, 0, 0), wallRadius);

@@ -10,7 +10,7 @@ class MatteOpaque;
 class LambertianDiffuseSurfaceIntegrand : public SurfaceIntegrand
 {
 public:
-	LambertianDiffuseSurfaceIntegrand(const MatteOpaque* const matteOpaque);
+	explicit LambertianDiffuseSurfaceIntegrand(const MatteOpaque* const matteOpaque);
 	virtual ~LambertianDiffuseSurfaceIntegrand() override;
 
 	virtual void genUniformRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const override;
