@@ -72,7 +72,7 @@ public class Display extends JPanel
 					if(r != r || g != g || b != b)
 					{
 						System.out.println("NaN!");
-						System.exit(1);
+						//System.exit(1);
 					}
 					
 					m_bufferedImage.setRGB(x, inversedY, Color.toARGBInt(0.0f, r, g, b));

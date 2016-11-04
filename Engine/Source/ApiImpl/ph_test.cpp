@@ -98,6 +98,8 @@ void testRun()
 
 static ph::HDRFrame testHdrFrame(1280, 720);
 
+void loadClassicCornellBoxScene(ph::World* out_world);
+
 void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32* out_heightPx)
 {
 	using namespace ph;
@@ -105,21 +107,23 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	World world;
 	DefaultCamera camera;
 
-	auto lightMaterial = std::make_shared<LightMaterial>();
-	auto lightGeometry = std::make_shared<GSphere>(Vector3f(-1, 2, -9), 0.7f);
-	lightMaterial->setEmittedRadiance(1.0f, 1.0f, 0.2f);
-	world.addModel(Model(lightGeometry, lightMaterial));
+	loadClassicCornellBoxScene(&world);
 
-	//auto sphereMaterial = std::make_shared<PerfectMirror>();
-	auto sphereMaterial = std::make_shared<MatteOpaque>();
-	auto sphereGeometry = std::make_shared<GSphere>(Vector3f(2, 0, -10), 1.5f);
-	sphereMaterial->setAlbedo(0.8f, 1.0f, 0.9f);
-	world.addModel(Model(sphereGeometry, sphereMaterial));
+	//auto lightMaterial = std::make_shared<LightMaterial>();
+	//auto lightGeometry = std::make_shared<GSphere>(Vector3f(-1, 2, -9), 0.7f);
+	//lightMaterial->setEmittedRadiance(1.0f, 1.0f, 0.2f);
+	//world.addModel(Model(lightGeometry, lightMaterial));
 
-	auto triangleMaterial = std::make_shared<PerfectMirror>();
-	//auto triangleMaterial = std::make_shared<MatteOpaque>();
-	auto triangleGeometry = std::make_shared<GTriangle>(Vector3f(-4, 0, -10), Vector3f(0, 0, -10), Vector3f(-3, 5, -10));
-	world.addModel(Model(triangleGeometry, triangleMaterial));
+	////auto sphereMaterial = std::make_shared<PerfectMirror>();
+	//auto sphereMaterial = std::make_shared<MatteOpaque>();
+	//auto sphereGeometry = std::make_shared<GSphere>(Vector3f(2, 0, -10), 1.5f);
+	//sphereMaterial->setAlbedo(0.8f, 1.0f, 0.9f);
+	//world.addModel(Model(sphereGeometry, sphereMaterial));
+
+	//auto triangleMaterial = std::make_shared<PerfectMirror>();
+	////auto triangleMaterial = std::make_shared<MatteOpaque>();
+	//auto triangleGeometry = std::make_shared<GTriangle>(Vector3f(-4, 0, -10), Vector3f(0, 0, -10), Vector3f(-3, 5, -10));
+	//world.addModel(Model(triangleGeometry, triangleMaterial));
 
 	/*auto sphere2Material = std::make_shared<PerfectMirror>();
 	auto sphere2Geometry = std::make_shared<GSphere>(Vector3f(-1, 0, -10), 0.8f);
@@ -134,4 +138,42 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	*out_data = testHdrFrame.getPixelData();
 	*out_widthPx = 1280;
 	*out_heightPx = 720;
+}
+
+void loadClassicCornellBoxScene(ph::World* out_world)
+{
+	using namespace ph;
+
+	const float32 wallRadius = 1000.0f;
+	const float32 boxHalfSize = 5.0f;
+
+	auto leftWallBall = std::make_shared<GSphere>(Vector3f(-wallRadius - boxHalfSize, 0, 0), wallRadius);
+	auto leftWallMatl = std::make_shared<MatteOpaque>();
+	leftWallMatl->setAlbedo(0.9f, 0.2f, 0.2f);
+	out_world->addModel(Model(leftWallBall, leftWallMatl));
+
+	auto rightWallBall = std::make_shared<GSphere>(Vector3f(wallRadius + boxHalfSize, 0, 0), wallRadius);
+	auto rightWallMatl = std::make_shared<MatteOpaque>();
+	rightWallMatl->setAlbedo(0.2f, 0.2f, 0.9f);
+	out_world->addModel(Model(rightWallBall, rightWallMatl));
+
+	auto backWallBall = std::make_shared<GSphere>(Vector3f(0, 0, -wallRadius - boxHalfSize - 10.0f), wallRadius);
+	auto backWallMatl = std::make_shared<MatteOpaque>();
+	backWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
+	out_world->addModel(Model(backWallBall, backWallMatl));
+
+	auto groundWallBall = std::make_shared<GSphere>(Vector3f(0, -wallRadius - boxHalfSize, 0), wallRadius);
+	auto groundWallMatl = std::make_shared<MatteOpaque>();
+	groundWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
+	out_world->addModel(Model(groundWallBall, groundWallMatl));
+
+	auto topWallBall = std::make_shared<GSphere>(Vector3f(0, wallRadius + boxHalfSize, 0), wallRadius);
+	auto topWallMatl = std::make_shared<LightMaterial>();
+	topWallMatl->setEmittedRadiance(1.0f, 1.0f, 1.0f);
+	out_world->addModel(Model(topWallBall, topWallMatl));
+
+	auto frontWallBall = std::make_shared<GSphere>(Vector3f(0, 0, wallRadius + boxHalfSize), wallRadius);
+	auto frontWallMatl = std::make_shared<MatteOpaque>();
+	frontWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
+	out_world->addModel(Model(frontWallBall, frontWallMatl));
 }
