@@ -42,5 +42,16 @@ typedef uint64_t       PHuint64;
 typedef float          PHfloat32;
 typedef double         PHfloat64;
 
-#define PH_TRUE  (1 == 1)
-#define PH_FALSE (1 != 1)
+#define PH_TRUE  1
+#define PH_FALSE 0
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern PH_API PHint32 phStart();
+extern PH_API void    phExit();
+
+#ifdef __cplusplus
+}
+#endif

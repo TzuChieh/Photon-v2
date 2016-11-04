@@ -157,6 +157,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\ApiImpl\ph_core.cpp" />
     <ClCompile Include="Source\ApiImpl\ph_frame.cpp" />
     <ClCompile Include="Source\Camera\Camera.cpp" />
     <ClCompile Include="Source\Camera\DefaultCamera.cpp" />
@@ -211,6 +212,7 @@
     <ClInclude Include="Source\Math\Transform.h" />
     <ClInclude Include="Source\Math\Vector3f.h" />
     <ClInclude Include="Source\Model\Geometry\GTriangle.h" />
+    <ClInclude Include="Source\Model\Material\OpaqueMicrofacetSurfaceIntegrand.h" />
     <ClInclude Include="Source\Model\Material\PerfectMirror.h" />
     <ClInclude Include="Source\Model\Material\PerfectMirrorSurfaceIntegrand.h" />
     <ClInclude Include="Source\Model\Primitive\Primitive.h" />

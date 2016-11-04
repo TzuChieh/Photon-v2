@@ -18,4 +18,9 @@ bool ApiDatabase::removeHdrFrame(const std::size_t frameIndex)
 	return hdrFrames.remove(frameIndex);
 }
 
+void ApiDatabase::releaseAllData()
+{
+	hdrFrames.removeAll();
+}
+
 }// end namespace ph

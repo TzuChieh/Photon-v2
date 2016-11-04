@@ -13,6 +13,8 @@ public:
 	static std::size_t addHdrFrame(HDRFrame&& hdrFrame);
 	static bool removeHdrFrame(const std::size_t frameIndex);
 
+	static void releaseAllData();
+
 private:
 	static TStableIndexDenseArray<HDRFrame> hdrFrames;
 };

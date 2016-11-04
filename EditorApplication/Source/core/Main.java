@@ -18,7 +18,7 @@ public class Main
 	
 	public static void main(String[] args)
 	{
-		if(!Ph.init())
+		if(!Ph.start())
 		{
 			System.out.println("Photon API initialization failed");
 		}

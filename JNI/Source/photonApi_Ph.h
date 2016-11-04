@@ -9,10 +9,18 @@ extern "C" {
 #endif
 	/*
 	* Class:     photonApi_Ph
-	* Method:    init
+	* Method:    start
 	* Signature: ()Z
 	*/
-	JNIEXPORT jboolean JNICALL Java_photonApi_Ph_init
+	JNIEXPORT jboolean JNICALL Java_photonApi_Ph_start
+	(JNIEnv *, jclass);
+
+	/*
+	* Class:     photonApi_Ph
+	* Method:    exit
+	* Signature: ()V
+	*/
+	JNIEXPORT void JNICALL Java_photonApi_Ph_exit
 	(JNIEnv *, jclass);
 
 	/*

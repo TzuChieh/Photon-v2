@@ -48,6 +48,9 @@ public:
 	// Remove an object by its stable index.
 	bool remove(const std::size_t stableIndex);
 
+	// Remove all elements.
+	void removeAll();
+
 	// Returns how many objects are there in this container.
 	std::size_t length() const;
 
@@ -143,6 +146,15 @@ bool TStableIndexDenseArray<T>::remove(const std::size_t stableIndex)
 	m_objectToIndexMap.pop_back();
 
 	return true;
+}
+
+template<typename T>
+void TStableIndexDenseArray<T>::removeAll()
+{
+	m_objects.clear();
+	m_objectToIndexMap.clear();
+	m_indexToObjectMapValidityPairs.clear();
+	m_freeIndices.clear();
 }
 
 template<typename T>

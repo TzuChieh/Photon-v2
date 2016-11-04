@@ -3,6 +3,7 @@
 #include "JIntRef.h"
 #include "JLongRef.h"
 #include "ph_frame.h"
+#include "ph_core.h"
 
 #include <iostream>
 
@@ -18,6 +19,20 @@ jboolean JNICALL Java_photonApi_Ph_init(JNIEnv* env, jclass thiz)
 
 	// HACK
 	return JNI_TRUE;
+}
+
+jboolean JNICALL Java_photonApi_Ph_start(JNIEnv* env, jclass thiz)
+{
+	std::cout << "initializing Photon..." << std::endl;
+
+	return phStart() == PH_TRUE ? JNI_TRUE : JNI_FALSE;
+}
+
+void JNICALL Java_photonApi_Ph_exit(JNIEnv* env, jclass thiz)
+{
+	std::cout << "exiting Photon..." << std::endl;
+
+	phExit();
 }
 
 void JNICALL Java_photonApi_Ph_printTestMessage(JNIEnv* env, jclass thiz)
