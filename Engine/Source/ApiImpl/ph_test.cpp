@@ -107,6 +107,7 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 
 	World world;
 	DefaultCamera camera;
+	camera.setPosition(Vector3f(0, 0, 4));
 
 	loadClassicCornellBoxScene(&world);
 
@@ -149,11 +150,11 @@ void loadClassicCornellBoxScene(ph::World* out_world)
 	const float32 boxHalfSize = 5.0f;
 
 	auto leftWallBall = std::make_shared<GSphere>(Vector3f(-wallRadius - boxHalfSize, 0, 0), wallRadius);
-	//auto leftWallMatl = std::make_shared<MatteOpaque>();
-	//leftWallMatl->setAlbedo(0.9f, 0.2f, 0.2f);
-	auto leftWallMatl = std::make_shared<AbradedOpaque>();
-	leftWallMatl->setRoughness(0.2f);
-	leftWallMatl->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));// gold
+	auto leftWallMatl = std::make_shared<MatteOpaque>();
+	leftWallMatl->setAlbedo(0.9f, 0.2f, 0.2f);
+	//auto leftWallMatl = std::make_shared<AbradedOpaque>();
+	//leftWallMatl->setRoughness(0.2f);
+	//leftWallMatl->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));// gold
 	out_world->addModel(Model(leftWallBall, leftWallMatl));
 
 	auto rightWallBall = std::make_shared<GSphere>(Vector3f(wallRadius + boxHalfSize, 0, 0), wallRadius);
@@ -180,4 +181,31 @@ void loadClassicCornellBoxScene(ph::World* out_world)
 	auto frontWallMatl = std::make_shared<MatteOpaque>();
 	frontWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
 	out_world->addModel(Model(frontWallBall, frontWallMatl));
+
+	// scene objects
+
+	auto sphere1Geometry = std::make_shared<GSphere>(Vector3f(-boxHalfSize + 0.25f, -boxHalfSize + 0.25f, -10.0f), 0.25f);
+	auto sphere1Matl = std::make_shared<MatteOpaque>();
+	sphere1Matl->setAlbedo(0.3f, 0.3f, 1.0f);
+	out_world->addModel(Model(sphere1Geometry, sphere1Matl));
+
+	auto sphere2Geometry = std::make_shared<GSphere>(Vector3f(-boxHalfSize + 1.5f, -boxHalfSize + 0.5f, -10.0f), 0.5f);
+	auto sphere2Matl = std::make_shared<MatteOpaque>();
+	sphere2Matl->setAlbedo(0.3f, 1.0f, 0.3f);
+	out_world->addModel(Model(sphere2Geometry, sphere2Matl));
+
+	auto sphere3Geometry = std::make_shared<GSphere>(Vector3f(-boxHalfSize + 4.0f, -boxHalfSize + 1.0f, -10.0f), 1.0f);
+	auto sphere3Matl = std::make_shared<MatteOpaque>();
+	sphere3Matl->setAlbedo(1.0f, 0.3f, 0.3f);
+	out_world->addModel(Model(sphere3Geometry, sphere3Matl));
+
+	auto sphere4Geometry = std::make_shared<GSphere>(Vector3f(boxHalfSize - 3.0f, -boxHalfSize + 3.0f, -boxHalfSize - 10.0f + 3.0f), 3.0f);
+	auto sphere4Matl = std::make_shared<MatteOpaque>();
+	sphere4Matl->setAlbedo(1.0f, 1.0f, 1.0f);
+	out_world->addModel(Model(sphere4Geometry, sphere4Matl));
+
+	auto sphere5Geometry = std::make_shared<GSphere>(Vector3f(boxHalfSize - 2.0f, -boxHalfSize + 0.8f, -8.5f), 0.8f);
+	auto sphere5Matl = std::make_shared<MatteOpaque>();
+	sphere5Matl->setAlbedo(1.0f, 1.0f, 1.0f);
+	out_world->addModel(Model(sphere5Geometry, sphere5Matl));
 }

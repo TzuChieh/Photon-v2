@@ -367,11 +367,14 @@ public:
 		out_zAxis->normalizeLocal();
 	}
 
+	// Clamp current vector's components to specific range. If a component is NaN, its value is
+	// clamped to lower bound. Either lower bound or upper bound shall not be NaN, or the method's 
+	// behavior is undefined.
 	inline Vector3f& clampLocal(const float32 lowerBound, const float32 upperBound)
 	{
-		x = fmax(lowerBound, fmin(x, upperBound));
-		y = fmax(lowerBound, fmin(y, upperBound));
-		z = fmax(lowerBound, fmin(z, upperBound));
+		x = fmin(upperBound, fmax(x, lowerBound));
+		y = fmin(upperBound, fmax(y, lowerBound));
+		z = fmin(upperBound, fmax(z, lowerBound));
 
 		return *this;
 	}

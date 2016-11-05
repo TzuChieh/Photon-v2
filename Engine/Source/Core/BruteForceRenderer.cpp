@@ -55,8 +55,8 @@ void BruteForceRenderer::render(const World& world, const Camera& camera, HDRFra
 						Vector3f radiance;
 						hitMaterial->getSurfaceIntegrand()->evaluateEmittedRadiance(intersection, L, V, &radiance);
 
-						ray.addLiRadiance(radiance);
-						ray.calcWeightedLiRadiance(&radiance);
+						//ray.addLiRadiance(radiance);
+						//ray.calcWeightedLiRadiance(&radiance);
 						accuRadiance.addLocal(radiance);
 
 						break;
@@ -67,7 +67,7 @@ void BruteForceRenderer::render(const World& world, const Camera& camera, HDRFra
 					hitMaterial->getSurfaceIntegrand()->evaluateLiWeight(intersection, L, V, &liWeight);
 					hitMaterial->getSurfaceIntegrand()->evaluateUniformRandomVPDF(intersection, L, V, &pdf);
 
-					ray.accumulateLiWeight(liWeight.div(pdf));
+					//ray.accumulateLiWeight(liWeight.div(pdf));
 
 					Vector3f nextRayOrigin(intersection.getHitPosition().add(N.mul(0.0001f)));
 					Vector3f nextRayDirection(L);

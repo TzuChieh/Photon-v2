@@ -11,10 +11,6 @@ public:
 	Ray(const Vector3f& origin, const Vector3f& direction);
 	Ray();
 
-	void accumulateLiWeight(const Vector3f& newLiWeight);
-	void addLiRadiance(const Vector3f& newLiRadiance);
-	void calcWeightedLiRadiance(Vector3f* out_weightLiRadiance);
-
 	const Vector3f& getOrigin() const
 	{
 		return m_origin;
@@ -35,11 +31,6 @@ public:
 		m_direction.set(out_direction);
 	}
 
-	const Vector3f& getAccumulatedLiWeight() const
-	{
-		return m_LiWeight;
-	}
-
 	void setOrigin(const Vector3f& origin)
 	{
 		m_origin.set(origin);
@@ -50,16 +41,9 @@ public:
 		m_direction.set(direction);
 	}
 
-	void setAccumulatedLiWeight(const Vector3f& accumulatedLiWeight)
-	{
-		m_LiWeight = accumulatedLiWeight;
-	}
-
 private:
 	Vector3f m_origin;
 	Vector3f m_direction;
-	Vector3f m_LiWeight;
-	Vector3f m_LiRadiance;
 };
 
 }// end namespace ph

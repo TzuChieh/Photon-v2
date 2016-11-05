@@ -45,6 +45,7 @@ void ImportanceRenderer::render(const World& world, const Camera& camera, HDRFra
 		{
 			uint32 numBounces = 0;
 			Vector3f accuRadiance(0, 0, 0);
+			Vector3f accuLiWeight(1, 1, 1);
 			Ray ray;
 			Intersection intersection;
 
@@ -65,19 +66,13 @@ void ImportanceRenderer::render(const World& world, const Camera& camera, HDRFra
 
 				if(hitMaterial->getSurfaceIntegrand()->isEmissive())
 				{
-					Vector3f radiance;
-					hitMaterial->getSurfaceIntegrand()->evaluateEmittedRadiance(intersection, L, V, &radiance);
+					Vector3f radianceLi;
+					hitMaterial->getSurfaceIntegrand()->evaluateEmittedRadiance(intersection, L, V, &radianceLi);
 
-					ray.addLiRadiance(radiance);
+					// avoid excessive, negative weight and possible NaNs
+					accuLiWeight.clampLocal(0.0f, 1000.0f);
 
-					Vector3f accumulatedLiWeight = ray.getAccumulatedLiWeight();
-
-					// avoid excessive weight, also handle negative weight
-					accumulatedLiWeight.clampLocal(0.0f, 1000.0f);
-					ray.setAccumulatedLiWeight(accumulatedLiWeight);
-
-					ray.calcWeightedLiRadiance(&radiance);
-					accuRadiance.addLocal(radiance);
+					accuRadiance.addLocal(radianceLi.mul(accuLiWeight));
 
 					break;
 				}
@@ -87,13 +82,13 @@ void ImportanceRenderer::render(const World& world, const Camera& camera, HDRFra
 				hitMaterial->getSurfaceIntegrand()->evaluateLiWeight(intersection, L, V, &liWeight);
 				hitMaterial->getSurfaceIntegrand()->evaluateImportanceRandomVPDF(intersection, L, V, &pdf);
 
-				ray.accumulateLiWeight(liWeight.div(pdf));
+				accuLiWeight.mulLocal(liWeight.div(pdf));
 
+				// prepare for next recursion
 				Vector3f nextRayOrigin(intersection.getHitPosition().add(N.mul(0.0001f)));
 				Vector3f nextRayDirection(L);
 				ray.setOrigin(nextRayOrigin);
 				ray.setDirection(nextRayDirection);
-
 				numBounces++;
 			}// end while
 
