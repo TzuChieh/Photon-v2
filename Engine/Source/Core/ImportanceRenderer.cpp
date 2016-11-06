@@ -27,11 +27,13 @@ void ImportanceRenderer::render(const World& world, const Camera& camera, HDRFra
 
 	const float32 aspectRatio = static_cast<float32>(widthPx) / static_cast<float32>(heightPx);
 
-	const uint32 spp = 16;
-	const uint32 maxBounces = 5;
+	const uint32 spp = 1024;
+	const uint32 maxBounces = 7;
 	StandardSampleGenerator sampleGenerator(spp);
 	std::vector<Sample> samples;
 
+	std::vector<Vector3f> accuRadiancePixels(out_frame->getWidthPx() * out_frame->getHeightPx());
+	std::vector<uint32> accuCountPixels(out_frame->getWidthPx() * out_frame->getHeightPx(), 0);
 
 	int32 numSpp = 0;
 
@@ -74,6 +76,11 @@ void ImportanceRenderer::render(const World& world, const Camera& camera, HDRFra
 
 					accuRadiance.addLocal(radianceLi.mul(accuLiWeight));
 
+
+
+					/*if(radianceLi.x != 1.0f || radianceLi.y != 1.0f || radianceLi.z != 1.0f) 
+						std::cout << radianceLi.toStringFormal() << std::endl;*/
+
 					break;
 				}
 
@@ -92,18 +99,28 @@ void ImportanceRenderer::render(const World& world, const Camera& camera, HDRFra
 				numBounces++;
 			}// end while
 
-			Vector3f pixel;
 			uint32 x = static_cast<uint32>((sample.m_cameraX + 1.0f) / 2.0f * out_frame->getWidthPx());
 			uint32 y = static_cast<uint32>((sample.m_cameraY + 1.0f) / 2.0f * out_frame->getHeightPx());
 			if(x >= out_frame->getWidthPx()) x = out_frame->getWidthPx() - 1;
 			if(y >= out_frame->getHeightPx()) y = out_frame->getHeightPx() - 1;
 
-			out_frame->getPixel(x, y, &pixel);
-			pixel.addLocal(accuRadiance.div(static_cast<float32>(spp)));
-			out_frame->setPixel(x, y, pixel.x, pixel.y, pixel.z);
+			accuRadiancePixels[y * out_frame->getWidthPx() + x].addLocal(accuRadiance);
+			accuCountPixels[y * out_frame->getWidthPx() + x] += 1;
 		}// end while
 
 		std::cout << "SPP: " << ++numSpp << std::endl;
+	}
+
+	Vector3f pixel;
+	for(uint32 y = 0; y < out_frame->getHeightPx(); y++)
+	{
+		for(uint32 x = 0; x < out_frame->getWidthPx(); x++)
+		{
+			pixel = accuRadiancePixels[y * out_frame->getWidthPx() + x];
+			pixel.divLocal(static_cast<float32>(accuCountPixels[y * out_frame->getWidthPx() + x]));
+
+			out_frame->setPixel(x, y, pixel.x, pixel.y, pixel.z);
+		}
 	}
 }
 

@@ -104,9 +104,15 @@ float32 OpaqueMicrofacetSurfaceIntegrand::calcNormalDistributionTerm(const Vecto
 {
 	// GGX (Trowbridge-Reitz) Normal Distribution Function
 
+	const float32 NoH = N.dot(H);
+
+	if(NoH <= 0.0f)
+	{
+		return 0.0f;
+	}
+
 	const float32 alpha  = m_abradedOpaqueMaterial->getRoughness() * m_abradedOpaqueMaterial->getRoughness();
 	const float32 alpha2 = alpha * alpha;
-	const float32 NoH    = N.dot(H);
 	const float32 NoH2   = NoH * NoH;
 
 	const float32 innerTerm = NoH2 * (alpha2 - 1.0f) + 1.0f;
@@ -115,26 +121,49 @@ float32 OpaqueMicrofacetSurfaceIntegrand::calcNormalDistributionTerm(const Vecto
 	return alpha2 / denominator;
 }
 
+//float32 OpaqueMicrofacetSurfaceIntegrand::calcGeometricShadowingTerm(const Vector3f& L, const Vector3f& V, const Vector3f& N, const Vector3f& H) const
+//{
+//	// Cook-Torrance Geometric Shadowing Function
+//
+//	const float32 VoH = V.dot(H);
+//	const float32 NoH = N.dot(H);
+//	const float32 NoV = N.dot(V);
+//	const float32 NoL = N.dot(L);
+//
+//	const float32 termA = 2.0f * NoH * NoV / VoH;
+//	const float32 termB = 2.0f * NoH * NoL / VoH;
+//
+//	return fmin(1.0f, fmin(termA, termB));
+//}
+
 float32 OpaqueMicrofacetSurfaceIntegrand::calcGeometricShadowingTerm(const Vector3f& L, const Vector3f& V, const Vector3f& N, const Vector3f& H) const
 {
-	// Cook-Torrance Geometric Shadowing Function
+	// Smith's GGX Geometry Shadowing Function
 
-	const float32 VoH = V.dot(H);
-	const float32 NoH = N.dot(H);
+	const float32 HoV = H.dot(V);
+	const float32 HoL = H.dot(L);
 	const float32 NoV = N.dot(V);
 	const float32 NoL = N.dot(L);
 
-	const float32 termA = 2.0f * NoH * NoV / VoH;
-	const float32 termB = 2.0f * NoH * NoL / VoH;
+	if(HoL / NoL <= 0.0f || HoV / NoL <= 0.0f)
+	{
+		return 0.0f;
+	}
 
-	return fmin(1.0f, fmin(termA, termB));
+	const float32 alpha  = m_abradedOpaqueMaterial->getRoughness() * m_abradedOpaqueMaterial->getRoughness();
+	const float32 alpha2 = alpha * alpha;
+
+	const float32 lightG = (2.0f * NoL) / (NoL + sqrt(alpha2 + (1.0f - alpha2) * NoL * NoL));
+	const float32 viewG  = (2.0f * NoV) / (NoV + sqrt(alpha2 + (1.0f - alpha2) * NoV * NoV));
+
+	return lightG * viewG;
 }
 
 Vector3f OpaqueMicrofacetSurfaceIntegrand::calcFresnelTerm(const Vector3f& V, const Vector3f& H) const
 {
 	// Schlick Approximated Fresnel Function
 
-	Vector3f F0 = m_abradedOpaqueMaterial->getF0();
+	const Vector3f F0 = m_abradedOpaqueMaterial->getF0();
 	const float32 VoH = V.dot(H);
 
 	return F0.add(F0.complement().mulLocal(pow(1.0f - VoH, 5)));

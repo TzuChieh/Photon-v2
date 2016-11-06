@@ -39,6 +39,11 @@ void StandardSampleGenerator::requestMoreSamples(const Frame& frame, std::vector
 			sample.m_cameraX = (static_cast<float32>(x) + genRandomFloat32_0_1_uniform() - halfWidthPx) / halfWidthPx;
 			sample.m_cameraY = (static_cast<float32>(y) + genRandomFloat32_0_1_uniform() - halfHeightPx) / halfHeightPx;
 			out_samples->push_back(sample);
+
+			/*if(sample.m_cameraX < -1.0f) std::cout << "x -1: " << sample.m_cameraX << std::endl;
+			if(sample.m_cameraY < -1.0f) std::cout << "y -1: " << sample.m_cameraY << std::endl;
+			if(sample.m_cameraX > 1.0f) std::cout << "x 1: " << sample.m_cameraX << std::endl;
+			if(sample.m_cameraY > 1.0f) std::cout << "y 1: " << sample.m_cameraY << std::endl;*/
 		}
 	}
 

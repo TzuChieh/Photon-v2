@@ -151,15 +151,15 @@ void loadClassicCornellBoxScene(ph::World* out_world)
 
 	auto leftWallBall = std::make_shared<GSphere>(Vector3f(-wallRadius - boxHalfSize, 0, 0), wallRadius);
 	auto leftWallMatl = std::make_shared<MatteOpaque>();
-	leftWallMatl->setAlbedo(0.9f, 0.2f, 0.2f);
+	leftWallMatl->setAlbedo(0.9f, 0.0f, 0.0f);
 	//auto leftWallMatl = std::make_shared<AbradedOpaque>();
-	//leftWallMatl->setRoughness(0.2f);
+	//leftWallMatl->setRoughness(1.0f);
 	//leftWallMatl->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));// gold
 	out_world->addModel(Model(leftWallBall, leftWallMatl));
 
 	auto rightWallBall = std::make_shared<GSphere>(Vector3f(wallRadius + boxHalfSize, 0, 0), wallRadius);
 	auto rightWallMatl = std::make_shared<MatteOpaque>();
-	rightWallMatl->setAlbedo(0.2f, 0.2f, 0.9f);
+	rightWallMatl->setAlbedo(0.0f, 0.0f, 0.9f);
 	out_world->addModel(Model(rightWallBall, rightWallMatl));
 
 	auto backWallBall = std::make_shared<GSphere>(Vector3f(0, 0, -wallRadius - boxHalfSize - 10.0f), wallRadius);
@@ -174,6 +174,7 @@ void loadClassicCornellBoxScene(ph::World* out_world)
 
 	auto topWallBall = std::make_shared<GSphere>(Vector3f(0, wallRadius + boxHalfSize, 0), wallRadius);
 	auto topWallMatl = std::make_shared<LightMaterial>();
+	//topWallMatl->setEmittedRadiance(1.5f, 1.5f, 1.5f);
 	topWallMatl->setEmittedRadiance(1.0f, 1.0f, 1.0f);
 	out_world->addModel(Model(topWallBall, topWallMatl));
 
@@ -200,8 +201,11 @@ void loadClassicCornellBoxScene(ph::World* out_world)
 	out_world->addModel(Model(sphere3Geometry, sphere3Matl));
 
 	auto sphere4Geometry = std::make_shared<GSphere>(Vector3f(boxHalfSize - 3.0f, -boxHalfSize + 3.0f, -boxHalfSize - 10.0f + 3.0f), 3.0f);
-	auto sphere4Matl = std::make_shared<MatteOpaque>();
-	sphere4Matl->setAlbedo(1.0f, 1.0f, 1.0f);
+	//auto sphere4Matl = std::make_shared<MatteOpaque>();
+	//sphere4Matl->setAlbedo(1.0f, 1.0f, 1.0f);
+	auto sphere4Matl = std::make_shared<AbradedOpaque>();
+	sphere4Matl->setRoughness(0.1f);
+	//sphere4Matl->setF0(Vector3f(1.0f, 1.0f, 1.0f));
 	out_world->addModel(Model(sphere4Geometry, sphere4Matl));
 
 	auto sphere5Geometry = std::make_shared<GSphere>(Vector3f(boxHalfSize - 2.0f, -boxHalfSize + 0.8f, -8.5f), 0.8f);

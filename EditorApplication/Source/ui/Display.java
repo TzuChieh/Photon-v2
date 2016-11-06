@@ -41,6 +41,11 @@ public class Display extends JPanel
 					
 					color.set(r, g, b);
 					
+					// clamp
+//					color.clampLocal(0.0f, 1.0f);
+//					r = color.x;
+//					g = color.y;
+//					b = color.z;
 					
 					// linear
 //					r = Func.clamp(frame.getPixelR(x, y), 0.0f, 1.0f);
