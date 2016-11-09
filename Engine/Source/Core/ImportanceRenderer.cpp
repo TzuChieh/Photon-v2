@@ -27,7 +27,7 @@ void ImportanceRenderer::render(const World& world, const Camera& camera, HDRFra
 
 	const float32 aspectRatio = static_cast<float32>(widthPx) / static_cast<float32>(heightPx);
 
-	const uint32 spp = 16384;
+	const uint32 spp = 3;
 	const uint32 maxBounces = 7;
 	StandardSampleGenerator sampleGenerator(spp);
 	std::vector<Sample> samples;

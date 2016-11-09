@@ -9,6 +9,7 @@ import photonApi.FloatArrayRef;
 import photonApi.IntRef;
 import photonApi.LongRef;
 import photonApi.Ph;
+import photonApi.PhTest;
 import ui.Display;
 import ui.Window;
 
@@ -18,18 +19,19 @@ public class Main
 	
 	public static void main(String[] args)
 	{
-		if(!Ph.start())
+		if(!Ph.phStart())
 		{
 			System.out.println("Photon API initialization failed");
 		}
 		
+		new PhTest();
 
 		LongRef frameId = new LongRef();
 		frameId.m_value = 999;
 		System.out.println(frameId.m_value);
-		Ph.createHdrFrame(frameId, 300, 400);
+		Ph.phCreateHdrFrame(frameId, 300, 400);
 		System.out.println(frameId.m_value);
-		Ph.deleteHdrFrame(frameId.m_value);
+		Ph.phDeleteHdrFrame(frameId.m_value);
 		
 		try
 		{

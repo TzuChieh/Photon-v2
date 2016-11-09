@@ -43,7 +43,7 @@ public:
 
 	// Add an object and returns a stable index.
 	std::size_t add(const T& object);
-	std::size_t add(const T&& object);
+	std::size_t add(T&& object);
 
 	// Remove an object by its stable index.
 	bool remove(const std::size_t stableIndex);
@@ -107,10 +107,12 @@ std::size_t TStableIndexDenseArray<T>::add(const T& object)
 }
 
 template<typename T>
-std::size_t TStableIndexDenseArray<T>::add(const T&& object)
+std::size_t TStableIndexDenseArray<T>::add(T&& object)
 {
-	const std::size_t stableIndex = dispatchStableIndex();
+	//std::cout << "move called" << std::endl;
 
+	const std::size_t stableIndex = dispatchStableIndex();
+	
 	m_objects.push_back(std::move(object));
 	return stableIndex;
 }

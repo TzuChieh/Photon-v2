@@ -12,8 +12,13 @@ public final class Ph
 	
 	// core
 	
-	public static native boolean start();
-	public static native void exit();
+	public static final int PH_BRUTE_FORCE_RENDERER_TYPE = 1;
+	public static final int PH_IMPORTANCE_RENDERER_TYPE  = 2;
+	
+	public static native boolean phStart();
+	public static native void    phExit();
+	public static native void    phCreateRenderer(LongRef out_rendererId, int rendererType);
+	public static native void    phDeleteRenderer(long rendererId);
 	
 	// some tests
 	
@@ -22,6 +27,6 @@ public final class Ph
 	
 	// image related
 	
-	public static native void createHdrFrame(LongRef out_frameId, int widthPx, int heightPx);
-	public static native void deleteHdrFrame(long frameId);
+	public static native void phCreateHdrFrame(LongRef out_frameId, int widthPx, int heightPx);
+	public static native void phDeleteHdrFrame(long frameId);
 }

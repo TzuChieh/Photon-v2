@@ -7,14 +7,14 @@
 
 #include <iostream>
 
-jboolean JNICALL Java_photonApi_Ph_start(JNIEnv* env, jclass thiz)
+jboolean JNICALL Java_photonApi_Ph_phStart(JNIEnv* env, jclass thiz)
 {
 	std::cout << "initializing Photon..." << std::endl;
 
 	return phStart() == PH_TRUE ? JNI_TRUE : JNI_FALSE;
 }
 
-void JNICALL Java_photonApi_Ph_exit(JNIEnv* env, jclass thiz)
+void JNICALL Java_photonApi_Ph_phExit(JNIEnv* env, jclass thiz)
 {
 	std::cout << "exiting Photon..." << std::endl;
 
@@ -48,15 +48,54 @@ void JNICALL Java_photonApi_Ph_genTestHdrFrame(JNIEnv* env, jclass thiz, jobject
 	env->SetObjectField(out_FloatArrayRef_pixelData, arrayField, arrayObject);
 }
 
-void JNICALL Java_photonApi_Ph_createHdrFrame(JNIEnv* env, jclass thiz, jobject out_IntRef_frameId, jint widthPx, jint heightPx)
+/*
+* Class:     photonApi_Ph
+* Method:    phCreateRenderer
+* Signature: (LphotonApi/LongRef;I)V
+*/
+JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateRenderer
+(JNIEnv* env, jclass thiz, jobject out_LongRef_rendererId, jint rendererType)
+{
+	ph::JLongRef jRendererId(out_LongRef_rendererId, env);
+	PHuint64 rendererId;
+
+	switch(rendererType)
+	{
+	case photonApi_Ph_PH_BRUTE_FORCE_RENDERER_TYPE:
+		phCreateRenderer(&rendererId, PH_BRUTE_FORCE_RENDERER_TYPE);
+		break;
+
+	case photonApi_Ph_PH_IMPORTANCE_RENDERER_TYPE:
+		phCreateRenderer(&rendererId, PH_IMPORTANCE_RENDERER_TYPE);
+		break;
+
+	default:
+		phCreateRenderer(&rendererId, static_cast<PHint32>(rendererType));
+	}
+
+	jRendererId.setValue(rendererId);
+}
+
+/*
+* Class:     photonApi_Ph
+* Method:    phDeleteRenderer
+* Signature: (J)V
+*/
+JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteRenderer
+(JNIEnv* env, jclass thiz, jlong rendererId)
+{
+	phDeleteRenderer(static_cast<PHuint64>(rendererId));
+}
+
+void JNICALL Java_photonApi_Ph_phCreateHdrFrame(JNIEnv* env, jclass thiz, jobject out_LongRef_frameId, jint widthPx, jint heightPx)
 {
 	PHuint64 frameId;
 	phCreateHdrFrame(&frameId, static_cast<PHuint32>(widthPx), static_cast<PHuint32>(heightPx));
-	ph::JLongRef jFrameId(out_IntRef_frameId, env);
+	ph::JLongRef jFrameId(out_LongRef_frameId, env);
 	jFrameId.setValue(frameId);
 }
 
-void JNICALL Java_photonApi_Ph_deleteHdrFrame(JNIEnv* env, jclass thiz, jlong frameId)
+void JNICALL Java_photonApi_Ph_phDeleteHdrFrame(JNIEnv* env, jclass thiz, jlong frameId)
 {
 	phDeleteHdrFrame(static_cast<PHuint64>(frameId));
 }

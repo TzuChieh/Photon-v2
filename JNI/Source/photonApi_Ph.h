@@ -7,53 +7,73 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-	/*
-	* Class:     photonApi_Ph
-	* Method:    start
-	* Signature: ()Z
-	*/
-	JNIEXPORT jboolean JNICALL Java_photonApi_Ph_start
-	(JNIEnv *, jclass);
+#undef photonApi_Ph_PH_BRUTE_FORCE_RENDERER_TYPE
+#define photonApi_Ph_PH_BRUTE_FORCE_RENDERER_TYPE 1L
+#undef photonApi_Ph_PH_IMPORTANCE_RENDERER_TYPE
+#define photonApi_Ph_PH_IMPORTANCE_RENDERER_TYPE 2L
+/*
+ * Class:     photonApi_Ph
+ * Method:    phStart
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_photonApi_Ph_phStart
+  (JNIEnv *, jclass);
 
-	/*
-	* Class:     photonApi_Ph
-	* Method:    exit
-	* Signature: ()V
-	*/
-	JNIEXPORT void JNICALL Java_photonApi_Ph_exit
-	(JNIEnv *, jclass);
+/*
+ * Class:     photonApi_Ph
+ * Method:    phExit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phExit
+  (JNIEnv *, jclass);
 
-	/*
-	* Class:     photonApi_Ph
-	* Method:    printTestMessage
-	* Signature: ()V
-	*/
-	JNIEXPORT void JNICALL Java_photonApi_Ph_printTestMessage
-	(JNIEnv *, jclass);
+/*
+ * Class:     photonApi_Ph
+ * Method:    phCreateRenderer
+ * Signature: (LphotonApi/LongRef;I)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateRenderer
+  (JNIEnv *, jclass, jobject, jint);
 
-	/*
-	* Class:     photonApi_Ph
-	* Method:    genTestHdrFrame
-	* Signature: (LphotonApi/FloatArrayRef;LphotonApi/IntRef;LphotonApi/IntRef;)V
-	*/
-	JNIEXPORT void JNICALL Java_photonApi_Ph_genTestHdrFrame
-	(JNIEnv *, jclass, jobject, jobject, jobject);
+/*
+ * Class:     photonApi_Ph
+ * Method:    phDeleteRenderer
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteRenderer
+  (JNIEnv *, jclass, jlong);
 
-	/*
-	* Class:     photonApi_Ph
-	* Method:    createHdrFrame
-	* Signature: (LphotonApi/LongRef;II)V
-	*/
-	JNIEXPORT void JNICALL Java_photonApi_Ph_createHdrFrame
-	(JNIEnv *, jclass, jobject, jint, jint);
+/*
+ * Class:     photonApi_Ph
+ * Method:    printTestMessage
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_printTestMessage
+  (JNIEnv *, jclass);
 
-	/*
-	* Class:     photonApi_Ph
-	* Method:    deleteHdrFrame
-	* Signature: (J)V
-	*/
-	JNIEXPORT void JNICALL Java_photonApi_Ph_deleteHdrFrame
-	(JNIEnv *, jclass, jlong);
+/*
+ * Class:     photonApi_Ph
+ * Method:    genTestHdrFrame
+ * Signature: (LphotonApi/FloatArrayRef;LphotonApi/IntRef;LphotonApi/IntRef;)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_genTestHdrFrame
+  (JNIEnv *, jclass, jobject, jobject, jobject);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phCreateHdrFrame
+ * Signature: (LphotonApi/LongRef;II)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateHdrFrame
+  (JNIEnv *, jclass, jobject, jint, jint);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phDeleteHdrFrame
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteHdrFrame
+  (JNIEnv *, jclass, jlong);
 
 #ifdef __cplusplus
 }

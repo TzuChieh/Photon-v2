@@ -45,12 +45,18 @@ typedef double         PHfloat64;
 #define PH_TRUE  1
 #define PH_FALSE 0
 
+#define PH_BRUTE_FORCE_RENDERER_TYPE 1
+#define PH_IMPORTANCE_RENDERER_TYPE  2
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 extern PH_API PHint32 phStart();
 extern PH_API void    phExit();
+
+extern PH_API void phCreateRenderer(PHuint64* out_rendererId, const PHint32 rendererType);
+extern PH_API void phDeleteRenderer(const PHuint64 rendererId);
 
 #ifdef __cplusplus
 }
