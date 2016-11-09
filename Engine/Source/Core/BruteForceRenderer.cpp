@@ -1,7 +1,7 @@
 #include "Core/BruteForceRenderer.h"
 #include "Common/primitive_type.h"
 #include "Image/HDRFrame.h"
-#include "Core/World.h"
+#include "World/World.h"
 #include "Camera/Camera.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"

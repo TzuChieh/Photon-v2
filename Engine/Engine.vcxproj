@@ -166,7 +166,7 @@
     <ClCompile Include="Source\Core\Renderer.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator.cpp" />
     <ClCompile Include="Source\Core\StandardSampleGenerator.cpp" />
-    <ClCompile Include="Source\Core\World.cpp" />
+    <ClCompile Include="Source\World\World.cpp" />
     <ClCompile Include="Source\Image\Film.cpp" />
     <ClCompile Include="Source\Image\Frame.cpp" />
     <ClCompile Include="Source\Image\HDRFrame.cpp" />
@@ -210,7 +210,7 @@
     <ClInclude Include="Source\Core\Sample.h" />
     <ClInclude Include="Source\Core\SampleGenerator.h" />
     <ClInclude Include="Source\Core\StandardSampleGenerator.h" />
-    <ClInclude Include="Source\Core\World.h" />
+    <ClInclude Include="Source\World\World.h" />
     <ClInclude Include="Source\Image\Frame.h" />
     <ClInclude Include="Source\Image\HDRFrame.h" />
     <ClInclude Include="Source\ApiImpl\ApiDatabase.h" />

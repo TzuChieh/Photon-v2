@@ -1,7 +1,7 @@
 #include "Core/ImportanceRenderer.h"
 #include "Common/primitive_type.h"
 #include "Image/HDRFrame.h"
-#include "Core/World.h"
+#include "World/World.h"
 #include "Camera/Camera.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
@@ -27,7 +27,7 @@ void ImportanceRenderer::render(const World& world, const Camera& camera, HDRFra
 
 	const float32 aspectRatio = static_cast<float32>(widthPx) / static_cast<float32>(heightPx);
 
-	const uint32 spp = 1024;
+	const uint32 spp = 16384;
 	const uint32 maxBounces = 7;
 	StandardSampleGenerator sampleGenerator(spp);
 	std::vector<Sample> samples;

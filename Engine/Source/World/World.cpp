@@ -1,4 +1,4 @@
-#include "Core/World.h"
+#include "World/World.h"
 #include "Model/Geometry/Geometry.h"
 #include "Core/Intersection.h"
 #include "Common/primitive_type.h"
