@@ -1,6 +1,6 @@
 #include "ph_test.h"
 #include "Image/HDRFrame.h"
-#include "Core/World.h"
+#include "World/World.h"
 #include "Model/Geometry/GSphere.h"
 #include "Model/Geometry/GTriangle.h"
 #include "Camera/DefaultCamera.h"

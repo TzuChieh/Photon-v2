@@ -63,12 +63,6 @@
     <ClCompile Include="Source\Model\Geometry\GSphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ApiImpl\ApiDatabase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ApiImpl\ph_test.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Core\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -96,16 +90,10 @@
     <ClCompile Include="Source\Core\ImportanceRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ApiImpl\ph_core.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Image\Frame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Image\HDRFrame.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ApiImpl\ph_image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\SampleGenerator.cpp">
@@ -124,6 +112,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\World\World.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Api\ApiDatabase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Api\ph_core.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Api\ph_image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Api\ph_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -197,9 +197,6 @@
     <ClInclude Include="Source\Utility\TStableIndexDenseArray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ApiImpl\ApiDatabase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -255,6 +252,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\World\World.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\RenderTask.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Api\ApiDatabase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -157,8 +157,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\ApiImpl\ph_core.cpp" />
-    <ClCompile Include="Source\ApiImpl\ph_image.cpp" />
+    <ClCompile Include="Source\Api\ph_core.cpp" />
+    <ClCompile Include="Source\Api\ph_image.cpp" />
     <ClCompile Include="Source\Camera\Camera.cpp" />
     <ClCompile Include="Source\Camera\DefaultCamera.cpp" />
     <ClCompile Include="Source\Core\BruteForceRenderer.cpp" />
@@ -170,8 +170,8 @@
     <ClCompile Include="Source\Image\Film.cpp" />
     <ClCompile Include="Source\Image\Frame.cpp" />
     <ClCompile Include="Source\Image\HDRFrame.cpp" />
-    <ClCompile Include="Source\ApiImpl\ApiDatabase.cpp" />
-    <ClCompile Include="Source\ApiImpl\ph_test.cpp" />
+    <ClCompile Include="Source\Api\ApiDatabase.cpp" />
+    <ClCompile Include="Source\Api\ph_test.cpp" />
     <ClCompile Include="Source\Math\Matrix4f.cpp" />
     <ClCompile Include="Source\Math\Quaternion.cpp" />
     <ClCompile Include="Source\Math\random_number.cpp" />
@@ -203,6 +203,7 @@
     <ClInclude Include="Source\Camera\DefaultCamera.h" />
     <ClInclude Include="Source\Common\primitive_type.h" />
     <ClInclude Include="Source\Core\BruteForceRenderer.h" />
+    <ClInclude Include="Source\Core\RenderTask.h" />
     <ClInclude Include="Source\Image\Film.h" />
     <ClInclude Include="Source\Core\ImportanceRenderer.h" />
     <ClInclude Include="Source\Core\Intersection.h" />
@@ -213,7 +214,7 @@
     <ClInclude Include="Source\World\World.h" />
     <ClInclude Include="Source\Image\Frame.h" />
     <ClInclude Include="Source\Image\HDRFrame.h" />
-    <ClInclude Include="Source\ApiImpl\ApiDatabase.h" />
+    <ClInclude Include="Source\Api\ApiDatabase.h" />
     <ClInclude Include="Source\Math\constant.h" />
     <ClInclude Include="Source\Math\Matrix4f.h" />
     <ClInclude Include="Source\Math\Quaternion.h" />
