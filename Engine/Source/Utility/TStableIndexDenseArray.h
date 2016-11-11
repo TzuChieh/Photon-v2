@@ -71,6 +71,10 @@ public:
 	T& operator [] (const std::size_t stableIndex);
 	const T& operator [] (const std::size_t stableIndex) const;
 
+	// Retrieve object (with index validity check).
+	T* get(const std::size_t stableIndex);
+	const T* get(const std::size_t stableIndex) const;
+
 private:
 	std::vector<T> m_objects;
 	std::vector<std::size_t> m_objectToIndexMap;
@@ -186,6 +190,18 @@ template<typename T>
 const T& TStableIndexDenseArray<T>::operator [] (const std::size_t stableIndex) const
 {
 	return m_objects[m_indexToObjectMapValidityPairs[stableIndex].first];
+}
+
+template<typename T>
+T* TStableIndexDenseArray<T>::get(const std::size_t stableIndex)
+{
+	return isStableIndexValid(stableIndex) ? &((*this)[stableIndex]) : nullptr;
+}
+
+template<typename T>
+const T* TStableIndexDenseArray<T>::get(const std::size_t stableIndex) const
+{
+	return isStableIndexValid(stableIndex) ? &((*this)[stableIndex]) : nullptr;
 }
 
 template<typename T>

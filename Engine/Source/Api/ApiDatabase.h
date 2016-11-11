@@ -16,12 +16,15 @@ class ApiDatabase final
 public:
 	static std::size_t addRenderTask(std::unique_ptr<RenderTask> renderTask);
 	static bool removeRenderTask(const std::size_t renderTaskId);
+	static RenderTask* getRenderTask(const std::size_t renderTaskId);
 
 	static std::size_t addRenderer(std::unique_ptr<Renderer> renderer);
 	static bool removeRenderer(const std::size_t rendererId);
+	static Renderer* getRenderer(const std::size_t rendererId);
 
 	static std::size_t addHdrFrame(std::unique_ptr<HDRFrame> hdrFrame);
 	static bool removeHdrFrame(const std::size_t frameId);
+	static HDRFrame* getHdrFrame(const std::size_t frameId);
 
 	static void releaseAllData();
 
