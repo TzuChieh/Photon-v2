@@ -236,9 +236,6 @@
     <ClInclude Include="Source\Image\HDRFrame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ph_image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\SampleGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>

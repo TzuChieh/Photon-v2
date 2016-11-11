@@ -1,27 +1,34 @@
 #pragma once
 
-#include "ph_image.h"
+#include "ph_core.h"
 #include "Api/ApiDatabase.h"
 #include "Image/HDRFrame.h"
 
 #include <iostream>
 #include <memory>
 
-void phCreateHdrFrame(PHuint64* out_frameId, const PHuint32 widthPx, const PHuint32 heightPx)
+void phCreateFrame(PHuint64* out_frameId, const PHint32 frameType)
 {
-	*out_frameId = ph::ApiDatabase::addHdrFrame(std::make_unique<ph::HDRFrame>(widthPx, heightPx));
+	switch(frameType)
+	{
+	case PH_HDR_FRAME_TYPE:
+		*out_frameId = ph::ApiDatabase::addFrame(std::make_unique<ph::HDRFrame>());
+		std::cout << "Frame<" << *out_frameId << "> created" << std::endl;
+		break;
 
-	std::cout << "HDRFrame<" << *out_frameId << "> created" << std::endl;
+	default:
+		std::cerr << "unidentified renderer type at phCreateFrame()" << std::endl;
+	}
 }
 
-void phDeleteHdrFrame(const PHuint64 frameId)
+void phDeleteFrame(const PHuint64 frameId)
 {
-	if(ph::ApiDatabase::removeHdrFrame(frameId))
+	if(ph::ApiDatabase::removeFrame(frameId))
 	{
-		std::cout << "HDRFrame<" << frameId << "> deleted" << std::endl;
+		std::cout << "Frame<" << frameId << "> deleted" << std::endl;
 	}
 	else
 	{
-		std::cout << "error while deleting HDRFrame<" << frameId << ">" << std::endl;
+		std::cout << "error while deleting Frame<" << frameId << ">" << std::endl;
 	}
 }

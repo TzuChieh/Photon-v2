@@ -48,6 +48,10 @@ typedef double         PHfloat64;
 #define PH_BRUTE_FORCE_RENDERER_TYPE 1
 #define PH_IMPORTANCE_RENDERER_TYPE  2
 
+#define PH_HDR_FRAME_TYPE 50
+
+#define PH_DEFAULT_CAMERA_TYPE 100
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -57,6 +61,19 @@ extern PH_API void    phExit();
 
 extern PH_API void phCreateRenderer(PHuint64* out_rendererId, const PHint32 rendererType);
 extern PH_API void phDeleteRenderer(const PHuint64 rendererId);
+
+extern PH_API void phCreateWorld(PHuint64* out_worldId);
+extern PH_API void phDeleteWorld(const PHuint64 worldId);
+
+extern PH_API void phCreateFrame(PHuint64* out_frameId, const PHint32 frameType);
+extern PH_API void phDeleteFrame(const PHuint64 frameId);
+
+extern PH_API void phCreateCamera(PHuint64* out_cameraId, const PHint32 cameraType);
+extern PH_API void phDeleteCamera(const PHuint64 cameraId);
+
+extern PH_API void phCreateRenderTask(PHuint64* out_renderTaskId, 
+                                      const PHuint64 worldId, const PHuint64 cameraId, const PHuint64 rendererId, const PHuint64 frameId);
+extern PH_API void phDeleteRenderTask(const PHuint64 renderTaskId);
 
 #ifdef __cplusplus
 }

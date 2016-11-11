@@ -7,7 +7,7 @@
 namespace ph
 {
 
-class HDRFrame;
+class Frame;
 class RenderTask;
 class Renderer;
 class World;
@@ -24,13 +24,13 @@ public:
 	static bool removeRenderer(const std::size_t rendererId);
 	static Renderer* getRenderer(const std::size_t rendererId);
 
-	static std::size_t addHdrFrame(std::unique_ptr<HDRFrame> hdrFrame);
-	static bool removeHdrFrame(const std::size_t frameId);
-	static HDRFrame* getHdrFrame(const std::size_t frameId);
+	static std::size_t addFrame(std::unique_ptr<Frame> frame);
+	static bool removeFrame(const std::size_t frameId);
+	static Frame* getFrame(const std::size_t frameId);
 
-	static std::size_t addWrold(std::unique_ptr<World> world);
-	static bool removeWrold(const std::size_t worldId);
-	static World* getWrold(const std::size_t worldId);
+	static std::size_t addWorld(std::unique_ptr<World> world);
+	static bool removeWorld(const std::size_t worldId);
+	static World* getWorld(const std::size_t worldId);
 
 	static std::size_t addCamera(std::unique_ptr<Camera> camera);
 	static bool removeCamera(const std::size_t cameraId);
@@ -41,7 +41,7 @@ public:
 private:
 	static TStableIndexDenseArray<std::unique_ptr<RenderTask>> renderTasks;
 	static TStableIndexDenseArray<std::unique_ptr<Renderer>>   renderers;
-	static TStableIndexDenseArray<std::unique_ptr<HDRFrame>>   hdrFrames;
+	static TStableIndexDenseArray<std::unique_ptr<Frame>>      frames;
 	static TStableIndexDenseArray<std::unique_ptr<World>>      worlds;
 	static TStableIndexDenseArray<std::unique_ptr<Camera>>     cameras;
 };

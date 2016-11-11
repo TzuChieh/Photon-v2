@@ -1,5 +1,5 @@
 #include "Api/ApiDatabase.h"
-#include "Image/HDRFrame.h"
+#include "Image/Frame.h"
 #include "Core/RenderTask.h"
 #include "Core/Renderer.h"
 #include "Camera/Camera.h"
@@ -13,7 +13,7 @@ namespace ph
 
 TStableIndexDenseArray<std::unique_ptr<RenderTask>> ApiDatabase::renderTasks;
 TStableIndexDenseArray<std::unique_ptr<Renderer>>   ApiDatabase::renderers;
-TStableIndexDenseArray<std::unique_ptr<HDRFrame>>   ApiDatabase::hdrFrames;
+TStableIndexDenseArray<std::unique_ptr<Frame>>      ApiDatabase::frames;
 TStableIndexDenseArray<std::unique_ptr<World>>      ApiDatabase::worlds;
 TStableIndexDenseArray<std::unique_ptr<Camera>>     ApiDatabase::cameras;
 
@@ -68,19 +68,19 @@ Renderer* ApiDatabase::getRenderer(const std::size_t rendererId)
 // ***************************************************************************
 // Frame
 
-std::size_t ApiDatabase::addHdrFrame(std::unique_ptr<HDRFrame> hdrFrame)
+std::size_t ApiDatabase::addFrame(std::unique_ptr<Frame> frame)
 {
-	return hdrFrames.add(std::move(hdrFrame));
+	return frames.add(std::move(frame));
 }
 
-bool ApiDatabase::removeHdrFrame(const std::size_t frameId)
+bool ApiDatabase::removeFrame(const std::size_t frameId)
 {
-	return hdrFrames.remove(frameId);
+	return frames.remove(frameId);
 }
 
-HDRFrame* ApiDatabase::getHdrFrame(const std::size_t frameId)
+Frame* ApiDatabase::getFrame(const std::size_t frameId)
 {
-	HDRFrame* frame = hdrFrames.get(frameId)->get();
+	Frame* frame = frames.get(frameId)->get();
 	if(frame == nullptr)
 	{
 		std::cerr << "Frame<" + frameId << "> does not exist" << std::endl;
@@ -92,17 +92,17 @@ HDRFrame* ApiDatabase::getHdrFrame(const std::size_t frameId)
 // ***************************************************************************
 // World
 
-std::size_t ApiDatabase::addWrold(std::unique_ptr<World> world)
+std::size_t ApiDatabase::addWorld(std::unique_ptr<World> world)
 {
 	return worlds.add(std::move(world));
 }
 
-bool ApiDatabase::removeWrold(const std::size_t worldId)
+bool ApiDatabase::removeWorld(const std::size_t worldId)
 {
 	return worlds.remove(worldId);
 }
 
-World* ApiDatabase::getWrold(const std::size_t worldId)
+World* ApiDatabase::getWorld(const std::size_t worldId)
 {
 	World* world = worlds.get(worldId)->get();
 	if(world == nullptr)
@@ -139,7 +139,11 @@ Camera* ApiDatabase::getCamera(const std::size_t cameraId)
 
 void ApiDatabase::releaseAllData()
 {
-	hdrFrames.removeAll();
+	frames.removeAll();
+	renderTasks.removeAll();
+	renderers.removeAll();
+	worlds.removeAll();
+	cameras.removeAll();
 }
 
 }// end namespace ph

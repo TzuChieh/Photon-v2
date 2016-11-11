@@ -2,7 +2,6 @@
 #include "ph_test.h"
 #include "JIntRef.h"
 #include "JLongRef.h"
-#include "ph_image.h"
 #include "ph_core.h"
 
 #include <iostream>
@@ -90,12 +89,13 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteRenderer
 void JNICALL Java_photonApi_Ph_phCreateHdrFrame(JNIEnv* env, jclass thiz, jobject out_LongRef_frameId, jint widthPx, jint heightPx)
 {
 	PHuint64 frameId;
-	phCreateHdrFrame(&frameId, static_cast<PHuint32>(widthPx), static_cast<PHuint32>(heightPx));
+	//phCreateFrame(&frameId, static_cast<PHuint32>(widthPx), static_cast<PHuint32>(heightPx));
+	phCreateFrame(&frameId, PH_HDR_FRAME_TYPE);
 	ph::JLongRef jFrameId(out_LongRef_frameId, env);
 	jFrameId.setValue(frameId);
 }
 
 void JNICALL Java_photonApi_Ph_phDeleteHdrFrame(JNIEnv* env, jclass thiz, jlong frameId)
 {
-	phDeleteHdrFrame(static_cast<PHuint64>(frameId));
+	phDeleteFrame(static_cast<PHuint64>(frameId));
 }

@@ -198,7 +198,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\ph_core.h" />
-    <ClInclude Include="Include\ph_image.h" />
     <ClInclude Include="Include\ph_test.h" />
     <ClInclude Include="Source\Camera\Camera.h" />
     <ClInclude Include="Source\Camera\DefaultCamera.h" />
