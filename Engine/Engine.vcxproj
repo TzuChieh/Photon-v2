@@ -164,6 +164,7 @@
     <ClCompile Include="Source\Core\BruteForceRenderer.cpp" />
     <ClCompile Include="Source\Core\ImportanceRenderer.cpp" />
     <ClCompile Include="Source\Core\Renderer.cpp" />
+    <ClCompile Include="Source\Core\RenderTask.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator.cpp" />
     <ClCompile Include="Source\Core\StandardSampleGenerator.cpp" />
     <ClCompile Include="Source\World\World.cpp" />

@@ -5,10 +5,11 @@
 #include "Image/HDRFrame.h"
 
 #include <iostream>
+#include <memory>
 
 void phCreateHdrFrame(PHuint64* out_frameId, const PHuint32 widthPx, const PHuint32 heightPx)
 {
-	*out_frameId = ph::ApiDatabase::addHdrFrame(ph::HDRFrame(widthPx, heightPx));
+	*out_frameId = ph::ApiDatabase::addHdrFrame(std::make_unique<ph::HDRFrame>(widthPx, heightPx));
 
 	std::cout << "HDRFrame<" << *out_frameId << "> created" << std::endl;
 }

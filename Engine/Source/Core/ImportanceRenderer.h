@@ -10,7 +10,7 @@ class ImportanceRenderer : public Renderer
 public:
 	virtual ~ImportanceRenderer() override;
 
-	virtual void render(const World& world, const Camera& camera, HDRFrame* const out_frame) const override;
+	virtual void render(const World& world, const Camera& camera, Frame* const out_frame) const override;
 };
 
 }// end namespace ph

@@ -1,6 +1,6 @@
 #include "Core/ImportanceRenderer.h"
 #include "Common/primitive_type.h"
-#include "Image/HDRFrame.h"
+#include "Image/Frame.h"
 #include "World/World.h"
 #include "Camera/Camera.h"
 #include "Core/Ray.h"
@@ -20,7 +20,7 @@ namespace ph
 
 ImportanceRenderer::~ImportanceRenderer() = default;
 
-void ImportanceRenderer::render(const World& world, const Camera& camera, HDRFrame* const out_frame) const
+void ImportanceRenderer::render(const World& world, const Camera& camera, Frame* const out_frame) const
 {
 	const uint32 widthPx = out_frame->getWidthPx();
 	const uint32 heightPx = out_frame->getHeightPx();
