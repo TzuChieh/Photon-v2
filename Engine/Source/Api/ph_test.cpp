@@ -12,57 +12,12 @@
 #include "Model/Model.h"
 #include "Model/Material/PerfectMirror.h"
 #include "Model/Material/AbradedOpaque.h"
+#include "Core/StandardSampleGenerator.h"
+#include "Image/Film.h"
+#include "Core/RenderTask.h"
 
 #include <iostream>
 #include <memory>
-
-class Data
-{
-public:
-	Data()
-	{
-		std::cout << "default ctor" << std::endl;
-	}
-
-	Data(const Data& other)
-	{
-		std::cout << "copy ctor" << std::endl;
-	}
-
-	Data(int a, float b)
-	{
-		std::cout << "int float ctor" << std::endl;
-	}
-
-	~Data()
-	{
-		std::cout << "dtor" << std::endl;
-	}
-
-	void printSomething() const
-	{
-		std::cout << "print print print something" << std::endl;
-	}
-};
-
-template<typename T>
-class Test
-{
-public:
-	Test(T t)
-	{
-		m_t = t;
-	}
-
-private:
-	T m_t;
-};
-
-template<typename T>
-static void func(T&& t)
-{
-
-}
 
 void printTestMessage()
 {
@@ -107,8 +62,15 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 {
 	using namespace ph;
 
+	//auto renderer = std::make_shared<BruteForceRenderer>();
+	ImportanceRenderer renderer;
+	StandardSampleGenerator sampleGenerator(8);
 	World world;
-	DefaultCamera camera(widthPx, 720);
+	DefaultCamera camera;
+	Film film(widthPx, heightPx);
+
+	renderer.setSampleGenerator(&sampleGenerator);
+	camera.setFilm(&film);
 	camera.setPosition(Vector3f(0, 0, 4));
 
 	loadClassicCornellBoxScene(&world);
@@ -135,9 +97,10 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 
 	world.cook();
 
-	//auto renderer = std::make_shared<BruteForceRenderer>();
-	auto renderer = std::make_shared<ImportanceRenderer>();
-	renderer->render(world, camera, &testHdrFrame);
+	RenderTask renderTask(&renderer, &world, &camera);
+	renderTask.run();
+
+	film.developFilm(&testHdrFrame);
 
 	*out_data = testHdrFrame.getPixelData();
 	*out_widthPx = 1280;

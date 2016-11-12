@@ -9,14 +9,13 @@ namespace ph
 class StandardSampleGenerator final : public SampleGenerator
 {
 public:
-	StandardSampleGenerator(const uint32 numSpp);
+	StandardSampleGenerator(const uint32 sppBudget);
 	virtual ~StandardSampleGenerator() override;
 
 	virtual bool hasMoreSamples() const override;
-	virtual void requestMoreSamples(const Frame& frame, std::vector<Sample>* out_samples) override;
+	virtual void requestMoreSamples(const Film& film, std::vector<Sample>* out_samples) override;
 
 private:
-	uint32 m_numSpp;
 	uint32 m_numDispatchedSpp;
 };
 

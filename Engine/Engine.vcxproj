@@ -204,6 +204,7 @@
     <ClInclude Include="Source\Common\primitive_type.h" />
     <ClInclude Include="Source\Core\BruteForceRenderer.h" />
     <ClInclude Include="Source\Core\RenderTask.h" />
+    <ClInclude Include="Source\Core\RenderWorker.h" />
     <ClInclude Include="Source\Image\Film.h" />
     <ClInclude Include="Source\Core\ImportanceRenderer.h" />
     <ClInclude Include="Source\Core\Intersection.h" />

@@ -1,6 +1,6 @@
 #include "Core/BruteForceRenderer.h"
 #include "Common/primitive_type.h"
-#include "Image/Frame.h"
+#include "Image/Film.h"
 #include "World/World.h"
 #include "Camera/Camera.h"
 #include "Core/Ray.h"
@@ -8,6 +8,7 @@
 #include "Model/Material/Material.h"
 #include "Model/Material/SurfaceIntegrand.h"
 #include "Math/constant.h"
+#include "Core/SampleGenerator.h"
 
 #include <cmath>
 #include <iostream>
@@ -17,10 +18,12 @@ namespace ph
 
 BruteForceRenderer::~BruteForceRenderer() = default;
 
-void BruteForceRenderer::render(const World& world, Camera& camera, Frame* const out_frame) const
+void BruteForceRenderer::render(const World& world, const Camera& camera) const
 {
-	const uint32 widthPx = out_frame->getWidthPx();
-	const uint32 heightPx = out_frame->getHeightPx();
+	Film* film = camera.getFilm();
+
+	const uint32 widthPx = film->getWidthPx();
+	const uint32 heightPx = film->getHeightPx();
 
 	for(uint32 y = 0; y < heightPx; y++)
 	{
@@ -80,8 +83,8 @@ void BruteForceRenderer::render(const World& world, Camera& camera, Frame* const
 				numSamples++;
 			}// end while
 
-			accuRadiance.divLocal(static_cast<float32>(spp));
-			out_frame->setPixel(x, y, accuRadiance.x, accuRadiance.y, accuRadiance.z);
+			//accuRadiance.divLocal(static_cast<float32>(spp));
+			//out_frame->setPixel(x, y, accuRadiance.x, accuRadiance.y, accuRadiance.z);
 		}
 	}
 }

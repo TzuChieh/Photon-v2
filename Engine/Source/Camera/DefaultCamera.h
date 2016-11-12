@@ -9,7 +9,7 @@ namespace ph
 class DefaultCamera final : public Camera
 {
 public:
-	DefaultCamera(const uint32 filmWidthPx, const uint32 filmHeightPx);
+	DefaultCamera();
 	virtual ~DefaultCamera() override;
 
 	virtual void genSampleRay(const Sample& sample, Ray* const out_ray, const float32 aspectRatio) const override;

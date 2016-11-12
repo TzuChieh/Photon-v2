@@ -98,7 +98,7 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateFrame
 	switch(frameType)
 	{
 	case photonApi_Ph_PH_HDR_FRAME_TYPE:
-		phCreateFrame(&frameId, frameWidthPx, frameHeightPx, PH_HDR_FRAME_TYPE);
+		phCreateFrame(&frameId, PH_HDR_FRAME_TYPE, frameWidthPx, frameHeightPx);
 		break;
 
 	default:

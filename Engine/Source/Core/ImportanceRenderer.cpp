@@ -1,6 +1,6 @@
 #include "Core/ImportanceRenderer.h"
 #include "Common/primitive_type.h"
-#include "Image/Frame.h"
+#include "Image/Film.h"
 #include "World/World.h"
 #include "Camera/Camera.h"
 #include "Core/Ray.h"
@@ -8,7 +8,7 @@
 #include "Model/Material/Material.h"
 #include "Model/Material/SurfaceIntegrand.h"
 #include "Math/constant.h"
-#include "Core/StandardSampleGenerator.h"
+#include "Core/SampleGenerator.h"
 #include "Core/Sample.h"
 
 #include <cmath>
@@ -20,24 +20,24 @@ namespace ph
 
 ImportanceRenderer::~ImportanceRenderer() = default;
 
-void ImportanceRenderer::render(const World& world, Camera& camera, Frame* const out_frame) const
+void ImportanceRenderer::render(const World& world, const Camera& camera) const
 {
-	const uint32 widthPx = out_frame->getWidthPx();
-	const uint32 heightPx = out_frame->getHeightPx();
+	Film* film = camera.getFilm();
+
+	const uint32 widthPx = film->getWidthPx();
+	const uint32 heightPx = film->getHeightPx();
 
 	const float32 aspectRatio = static_cast<float32>(widthPx) / static_cast<float32>(heightPx);
 
-	const uint32 spp = 16;
 	const uint32 maxBounces = 7;
-	StandardSampleGenerator sampleGenerator(spp);
 	std::vector<Sample> samples;
 
 	int32 numSpp = 0;
 
-	while(sampleGenerator.hasMoreSamples())
+	while(m_sampleGenerator->hasMoreSamples())
 	{
 		samples.clear();
-		sampleGenerator.requestMoreSamples(*out_frame, &samples);
+		m_sampleGenerator->requestMoreSamples(*film, &samples);
 
 		Sample sample;
 		while(!samples.empty())
@@ -96,18 +96,16 @@ void ImportanceRenderer::render(const World& world, Camera& camera, Frame* const
 				numBounces++;
 			}// end while
 
-			uint32 x = static_cast<uint32>((sample.m_cameraX + 1.0f) / 2.0f * out_frame->getWidthPx());
-			uint32 y = static_cast<uint32>((sample.m_cameraY + 1.0f) / 2.0f * out_frame->getHeightPx());
-			if(x >= out_frame->getWidthPx()) x = out_frame->getWidthPx() - 1;
-			if(y >= out_frame->getHeightPx()) y = out_frame->getHeightPx() - 1;
+			uint32 x = static_cast<uint32>((sample.m_cameraX + 1.0f) / 2.0f * film->getWidthPx());
+			uint32 y = static_cast<uint32>((sample.m_cameraY + 1.0f) / 2.0f * film->getHeightPx());
+			if(x >= film->getWidthPx()) x = film->getWidthPx() - 1;
+			if(y >= film->getHeightPx()) y = film->getHeightPx() - 1;
 
-			camera.acculumateRadiance(x, y, accuRadiance);
+			film->acculumateRadiance(x, y, accuRadiance);
 		}// end while
 
 		std::cout << "SPP: " << ++numSpp << std::endl;
 	}
-
-	camera.developFilm(out_frame);
 }
 
 }// end namespace ph

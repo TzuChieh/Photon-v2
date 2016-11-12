@@ -18,6 +18,16 @@ public:
 	void acculumateRadiance(const uint32 x, const uint32 y, const Vector3f& radiance);
 	void developFilm(Frame* const out_frame) const;
 
+	inline uint32 getWidthPx() const
+	{
+		return m_widthPx;
+	}
+
+	inline uint32 getHeightPx() const
+	{
+		return m_heightPx;
+	}
+
 private:
 	uint32 m_widthPx;
 	uint32 m_heightPx;

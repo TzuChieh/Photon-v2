@@ -9,8 +9,8 @@
 namespace ph
 {
 
-RenderTask::RenderTask(World* const world, Camera* const camera, Renderer* const renderer, Frame* const frame) :
-	m_world(world), m_camera(camera), m_renderer(renderer), m_frame(frame)
+RenderTask::RenderTask(Renderer* const renderer, World* const world, Camera* const camera) :
+	m_renderer(renderer), m_world(world), m_camera(camera)
 {
 
 }
@@ -19,7 +19,7 @@ void RenderTask::run() const
 {
 	if(isResourceGood())
 	{
-		m_renderer->render(*m_world, *m_camera, m_frame);
+		m_renderer->render(*m_world, *m_camera);
 	}
 }
 
@@ -42,12 +42,6 @@ bool RenderTask::isResourceGood() const
 	if(m_renderer == nullptr)
 	{
 		std::cerr << "Renderer is null" << std::endl;
-		isGood = false;
-	}
-
-	if(m_frame == nullptr)
-	{
-		std::cerr << "Frame is null" << std::endl;
 		isGood = false;
 	}
 

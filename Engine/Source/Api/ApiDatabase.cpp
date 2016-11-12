@@ -4,6 +4,8 @@
 #include "Core/Renderer.h"
 #include "Camera/Camera.h"
 #include "World/World.h"
+#include "Core/SampleGenerator.h"
+#include "Image/Film.h"
 
 #include <utility>
 #include <iostream>
@@ -11,11 +13,13 @@
 namespace ph
 {
 
-TStableIndexDenseArray<std::unique_ptr<RenderTask>> ApiDatabase::renderTasks;
-TStableIndexDenseArray<std::unique_ptr<Renderer>>   ApiDatabase::renderers;
-TStableIndexDenseArray<std::unique_ptr<Frame>>      ApiDatabase::frames;
-TStableIndexDenseArray<std::unique_ptr<World>>      ApiDatabase::worlds;
-TStableIndexDenseArray<std::unique_ptr<Camera>>     ApiDatabase::cameras;
+TStableIndexDenseArray<std::unique_ptr<RenderTask>>      ApiDatabase::renderTasks;
+TStableIndexDenseArray<std::unique_ptr<Renderer>>        ApiDatabase::renderers;
+TStableIndexDenseArray<std::unique_ptr<Frame>>           ApiDatabase::frames;
+TStableIndexDenseArray<std::unique_ptr<World>>           ApiDatabase::worlds;
+TStableIndexDenseArray<std::unique_ptr<Camera>>          ApiDatabase::cameras;
+TStableIndexDenseArray<std::unique_ptr<SampleGenerator>> ApiDatabase::sampleGenerators;
+TStableIndexDenseArray<std::unique_ptr<Film>>            ApiDatabase::films;
 
 // ***************************************************************************
 // RenderTask
@@ -137,6 +141,54 @@ Camera* ApiDatabase::getCamera(const std::size_t cameraId)
 	return camera;
 }
 
+// ***************************************************************************
+// SampleGenerator
+
+std::size_t ApiDatabase::addSampleGenerator(std::unique_ptr<SampleGenerator> sampleGenerator)
+{
+	return sampleGenerators.add(std::move(sampleGenerator));
+}
+
+bool ApiDatabase::removeSampleGenerator(const std::size_t sampleGeneratorId)
+{
+	return sampleGenerators.remove(sampleGeneratorId);
+}
+
+SampleGenerator* ApiDatabase::getSampleGenerator(const std::size_t sampleGeneratorId)
+{
+	SampleGenerator* sampleGenerator = sampleGenerators.get(sampleGeneratorId)->get();
+	if(sampleGenerator == nullptr)
+	{
+		std::cerr << "SampleGenerator<" + sampleGeneratorId << "> does not exist" << std::endl;
+	}
+
+	return sampleGenerator;
+}
+
+// ***************************************************************************
+// Film
+
+std::size_t ApiDatabase::addFilm(std::unique_ptr<Film> film)
+{
+	return films.add(std::move(film));
+}
+
+bool ApiDatabase::removeFilm(const std::size_t filmId)
+{
+	return films.remove(filmId);
+}
+
+Film* ApiDatabase::getFilm(const std::size_t filmId)
+{
+	Film* film = films.get(filmId)->get();
+	if(film == nullptr)
+	{
+		std::cerr << "Film<" + filmId << "> does not exist" << std::endl;
+	}
+
+	return film;
+}
+
 void ApiDatabase::releaseAllData()
 {
 	frames.removeAll();
@@ -144,6 +196,8 @@ void ApiDatabase::releaseAllData()
 	renderers.removeAll();
 	worlds.removeAll();
 	cameras.removeAll();
+	sampleGenerators.removeAll();
+	films.removeAll();
 }
 
 }// end namespace ph

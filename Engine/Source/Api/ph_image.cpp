@@ -7,7 +7,7 @@
 #include <iostream>
 #include <memory>
 
-void phCreateFrame(PHuint64* out_frameId, const PHuint32 frameWidthPx, const PHuint32 frameHeightPx, const PHint32 frameType)
+void phCreateFrame(PHuint64* out_frameId, const PHint32 frameType, const PHuint32 frameWidthPx, const PHuint32 frameHeightPx)
 {
 	switch(frameType)
 	{

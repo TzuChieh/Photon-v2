@@ -5,6 +5,7 @@
 #include "World/World.h"
 #include "Camera/DefaultCamera.h"
 #include "Core/RenderTask.h"
+#include "Core/StandardSampleGenerator.h"
 
 #include <memory>
 #include <iostream>
@@ -63,14 +64,14 @@ void phDeleteWorld(const PHuint64 worldId)
 	}
 }
 
-void phCreateCamera(PHuint64* out_cameraId, const PHint32 cameraType, const PHuint32 filmWidthPx, const PHuint32 filmHeightPx)
+void phCreateCamera(PHuint64* out_cameraId, const PHint32 cameraType)
 {
 	using namespace ph;
 
 	switch(cameraType)
 	{
 	case PH_DEFAULT_CAMERA_TYPE:
-		*out_cameraId = static_cast<std::size_t>(ApiDatabase::addCamera(std::make_unique<DefaultCamera>(filmWidthPx, filmHeightPx)));
+		*out_cameraId = static_cast<std::size_t>(ApiDatabase::addCamera(std::make_unique<DefaultCamera>()));
 		break;
 
 	default:
@@ -86,16 +87,15 @@ void phDeleteCamera(const PHuint64 cameraId)
 	}
 }
 
-void phCreateRenderTask(PHuint64* out_renderTaskId, const PHuint64 worldId, const PHuint64 cameraId, const PHuint64 rendererId, const PHuint64 frameId)
+void phCreateRenderTask(PHuint64* out_renderTaskId, const PHuint64 rendererId, const PHuint64 worldId, const PHuint64 cameraId)
 {
 	using namespace ph;
 
 	World*    world    = ApiDatabase::getWorld(worldId);
 	Camera*   camera   = ApiDatabase::getCamera(cameraId);
 	Renderer* renderer = ApiDatabase::getRenderer(rendererId);
-	Frame*    frame    = ApiDatabase::getFrame(frameId);
 
-	*out_renderTaskId = static_cast<std::size_t>(ApiDatabase::addRenderTask(std::make_unique<RenderTask>(world, camera, renderer, frame)));
+	*out_renderTaskId = static_cast<std::size_t>(ApiDatabase::addRenderTask(std::make_unique<RenderTask>(renderer, world, camera)));
 }
 
 void phDeleteRenderTask(const PHuint64 renderTaskId)
@@ -110,4 +110,27 @@ void phRunRenderTask(const PHuint64 renderTaskId)
 {
 	ph::RenderTask* renderTask = ph::ApiDatabase::getRenderTask(renderTaskId);
 	renderTask->run();
+}
+
+void phCreateSampleGenerator(PHuint64* out_sampleGeneratorId, const PHint32 sampleGeneratorType, const PHuint32 sppBudget)
+{
+	using namespace ph;
+
+	switch(sampleGeneratorType)
+	{
+	case PH_STANDARD_SAMPLE_GENERATOR_TYPE:
+		*out_sampleGeneratorId = static_cast<std::size_t>(ApiDatabase::addSampleGenerator(std::make_unique<StandardSampleGenerator>(sppBudget)));
+		break;
+
+	default:
+		std::cerr << "unidentified SampleGenerator type at phCreateSampleGenerator()" << std::endl;
+	}
+}
+
+void phDeleteSampleGenerator(const PHuint64 sampleGeneratorId)
+{
+	if(!ph::ApiDatabase::removeSampleGenerator(sampleGeneratorId))
+	{
+		std::cerr << "error while deleting SampleGenerator<" << sampleGeneratorId << ">" << std::endl;
+	}
 }
