@@ -20,6 +20,8 @@ private:
 	Camera*   m_camera;
 	Renderer* m_renderer;
 	Frame*    m_frame;
+
+	bool isResourceGood() const;
 };
 
 }// end namespace ph

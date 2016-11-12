@@ -29,9 +29,9 @@ public class Main
 		LongRef frameId = new LongRef();
 		frameId.m_value = 999;
 		System.out.println(frameId.m_value);
-		Ph.phCreateHdrFrame(frameId, 300, 400);
+		Ph.phCreateFrame(frameId, 300, 400, Ph.PH_HDR_FRAME_TYPE);
 		System.out.println(frameId.m_value);
-		Ph.phDeleteHdrFrame(frameId.m_value);
+		Ph.phDeleteFrame(frameId.m_value);
 		
 		try
 		{

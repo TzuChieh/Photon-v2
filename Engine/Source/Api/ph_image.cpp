@@ -7,12 +7,12 @@
 #include <iostream>
 #include <memory>
 
-void phCreateFrame(PHuint64* out_frameId, const PHint32 frameType)
+void phCreateFrame(PHuint64* out_frameId, const PHuint32 frameWidthPx, const PHuint32 frameHeightPx, const PHint32 frameType)
 {
 	switch(frameType)
 	{
 	case PH_HDR_FRAME_TYPE:
-		*out_frameId = ph::ApiDatabase::addFrame(std::make_unique<ph::HDRFrame>());
+		*out_frameId = ph::ApiDatabase::addFrame(std::make_unique<ph::HDRFrame>(frameWidthPx, frameHeightPx));
 		std::cout << "Frame<" << *out_frameId << "> created" << std::endl;
 		break;
 

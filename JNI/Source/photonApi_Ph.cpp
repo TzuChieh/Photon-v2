@@ -86,16 +86,36 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteRenderer
 	phDeleteRenderer(static_cast<PHuint64>(rendererId));
 }
 
-void JNICALL Java_photonApi_Ph_phCreateHdrFrame(JNIEnv* env, jclass thiz, jobject out_LongRef_frameId, jint widthPx, jint heightPx)
+/*
+* Class:     photonApi_Ph
+* Method:    phCreateFrame
+* Signature: (LphotonApi/LongRef;III)V
+*/
+JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateFrame
+(JNIEnv* env, jclass thiz, jobject out_LongRef_frameId, jint frameWidthPx, jint frameHeightPx, jint frameType)
 {
 	PHuint64 frameId;
-	//phCreateFrame(&frameId, static_cast<PHuint32>(widthPx), static_cast<PHuint32>(heightPx));
-	phCreateFrame(&frameId, PH_HDR_FRAME_TYPE);
+	switch(frameType)
+	{
+	case photonApi_Ph_PH_HDR_FRAME_TYPE:
+		phCreateFrame(&frameId, frameWidthPx, frameHeightPx, PH_HDR_FRAME_TYPE);
+		break;
+
+	default:
+		std::cerr << "unknown frame type in Java_photonApi_Ph_phCreateFrame()" << std::endl;
+	}
+
 	ph::JLongRef jFrameId(out_LongRef_frameId, env);
 	jFrameId.setValue(frameId);
 }
 
-void JNICALL Java_photonApi_Ph_phDeleteHdrFrame(JNIEnv* env, jclass thiz, jlong frameId)
+/*
+* Class:     photonApi_Ph
+* Method:    phDeleteFrame
+* Signature: (J)V
+*/
+JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteFrame
+(JNIEnv* env, jclass thiz, jlong frameId)
 {
 	phDeleteFrame(static_cast<PHuint64>(frameId));
 }

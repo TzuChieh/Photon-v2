@@ -4,6 +4,8 @@
 #include "World/World.h"
 #include "Camera/Camera.h"
 
+#include <iostream>
+
 namespace ph
 {
 
@@ -15,7 +17,41 @@ RenderTask::RenderTask(World* const world, Camera* const camera, Renderer* const
 
 void RenderTask::run() const
 {
-	m_renderer->render(*m_world, *m_camera, m_frame);
+	if(isResourceGood())
+	{
+		m_renderer->render(*m_world, *m_camera, m_frame);
+	}
+}
+
+bool RenderTask::isResourceGood() const
+{
+	bool isGood = true;
+
+	if(m_world == nullptr)
+	{
+		std::cerr << "World is null" << std::endl;
+		isGood = false;
+	}
+
+	if(m_camera == nullptr)
+	{
+		std::cerr << "Camera is null" << std::endl;
+		isGood = false;
+	}
+
+	if(m_renderer == nullptr)
+	{
+		std::cerr << "Renderer is null" << std::endl;
+		isGood = false;
+	}
+
+	if(m_frame == nullptr)
+	{
+		std::cerr << "Frame is null" << std::endl;
+		isGood = false;
+	}
+
+	return isGood;
 }
 
 }// end namespace ph
