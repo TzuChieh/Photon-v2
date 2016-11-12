@@ -20,20 +20,17 @@ namespace ph
 
 ImportanceRenderer::~ImportanceRenderer() = default;
 
-void ImportanceRenderer::render(const World& world, const Camera& camera, Frame* const out_frame) const
+void ImportanceRenderer::render(const World& world, Camera& camera, Frame* const out_frame) const
 {
 	const uint32 widthPx = out_frame->getWidthPx();
 	const uint32 heightPx = out_frame->getHeightPx();
 
 	const float32 aspectRatio = static_cast<float32>(widthPx) / static_cast<float32>(heightPx);
 
-	const uint32 spp = 3;
+	const uint32 spp = 16;
 	const uint32 maxBounces = 7;
 	StandardSampleGenerator sampleGenerator(spp);
 	std::vector<Sample> samples;
-
-	std::vector<Vector3f> accuRadiancePixels(out_frame->getWidthPx() * out_frame->getHeightPx());
-	std::vector<uint32> accuCountPixels(out_frame->getWidthPx() * out_frame->getHeightPx(), 0);
 
 	int32 numSpp = 0;
 
@@ -104,24 +101,13 @@ void ImportanceRenderer::render(const World& world, const Camera& camera, Frame*
 			if(x >= out_frame->getWidthPx()) x = out_frame->getWidthPx() - 1;
 			if(y >= out_frame->getHeightPx()) y = out_frame->getHeightPx() - 1;
 
-			accuRadiancePixels[y * out_frame->getWidthPx() + x].addLocal(accuRadiance);
-			accuCountPixels[y * out_frame->getWidthPx() + x] += 1;
+			camera.acculumateRadiance(x, y, accuRadiance);
 		}// end while
 
 		std::cout << "SPP: " << ++numSpp << std::endl;
 	}
 
-	Vector3f pixel;
-	for(uint32 y = 0; y < out_frame->getHeightPx(); y++)
-	{
-		for(uint32 x = 0; x < out_frame->getWidthPx(); x++)
-		{
-			pixel = accuRadiancePixels[y * out_frame->getWidthPx() + x];
-			pixel.divLocal(static_cast<float32>(accuCountPixels[y * out_frame->getWidthPx() + x]));
-
-			out_frame->setPixel(x, y, pixel.x, pixel.y, pixel.z);
-		}
-	}
+	camera.developFilm(out_frame);
 }
 
 }// end namespace ph

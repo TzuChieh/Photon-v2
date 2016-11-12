@@ -97,7 +97,9 @@ void testRun()
 	pathTracer.trace(camera, world, &hdrFrame);*/
 }
 
-static ph::HDRFrame testHdrFrame(1280, 720);
+static const ph::uint32 widthPx = 1280;
+static const ph::uint32 heightPx = 720;
+static ph::HDRFrame testHdrFrame(widthPx, heightPx);
 
 void loadClassicCornellBoxScene(ph::World* out_world);
 
@@ -106,7 +108,7 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	using namespace ph;
 
 	World world;
-	DefaultCamera camera;
+	DefaultCamera camera(widthPx, 720);
 	camera.setPosition(Vector3f(0, 0, 4));
 
 	loadClassicCornellBoxScene(&world);

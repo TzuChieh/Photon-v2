@@ -68,12 +68,13 @@ extern PH_API void phDeleteWorld(const PHuint64 worldId);
 extern PH_API void phCreateFrame(PHuint64* out_frameId, const PHint32 frameType);
 extern PH_API void phDeleteFrame(const PHuint64 frameId);
 
-extern PH_API void phCreateCamera(PHuint64* out_cameraId, const PHint32 cameraType);
+extern PH_API void phCreateCamera(PHuint64* out_cameraId, const PHint32 cameraType, const PHuint32 filmWidthPx, const PHuint32 filmHeightPx);
 extern PH_API void phDeleteCamera(const PHuint64 cameraId);
 
 extern PH_API void phCreateRenderTask(PHuint64* out_renderTaskId, 
                                       const PHuint64 worldId, const PHuint64 cameraId, const PHuint64 rendererId, const PHuint64 frameId);
 extern PH_API void phDeleteRenderTask(const PHuint64 renderTaskId);
+extern PH_API void phRunRenderTask(const PHuint64 renderTaskId);
 
 #ifdef __cplusplus
 }

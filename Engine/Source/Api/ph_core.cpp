@@ -63,14 +63,14 @@ void phDeleteWorld(const PHuint64 worldId)
 	}
 }
 
-void phCreateCamera(PHuint64* out_cameraId, const PHint32 cameraType)
+void phCreateCamera(PHuint64* out_cameraId, const PHint32 cameraType, const PHuint32 filmWidthPx, const PHuint32 filmHeightPx)
 {
 	using namespace ph;
 
 	switch(cameraType)
 	{
 	case PH_DEFAULT_CAMERA_TYPE:
-		*out_cameraId = static_cast<std::size_t>(ApiDatabase::addCamera(std::make_unique<DefaultCamera>()));
+		*out_cameraId = static_cast<std::size_t>(ApiDatabase::addCamera(std::make_unique<DefaultCamera>(filmWidthPx, filmHeightPx)));
 		break;
 
 	default:
@@ -104,4 +104,10 @@ void phDeleteRenderTask(const PHuint64 renderTaskId)
 	{
 		std::cerr << "error while deleting RenderTask<" << renderTaskId << ">" << std::endl;
 	}
+}
+
+void phRunRenderTask(const PHuint64 renderTaskId)
+{
+	ph::RenderTask* renderTask = ph::ApiDatabase::getRenderTask(renderTaskId);
+	renderTask->run();
 }

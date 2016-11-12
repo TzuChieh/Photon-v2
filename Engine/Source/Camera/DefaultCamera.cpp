@@ -5,8 +5,8 @@
 namespace ph
 {
 
-DefaultCamera::DefaultCamera() :
-	Camera(), 
+DefaultCamera::DefaultCamera(const uint32 filmWidthPx, const uint32 filmHeightPx) :
+	Camera(filmWidthPx, filmHeightPx),
 	m_fov(70.0f / 180.0f * 3.1415927f)
 {
 

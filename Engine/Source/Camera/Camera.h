@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/Vector3f.h"
+#include "Image/Film.h"
 
 namespace ph
 {
@@ -12,7 +13,7 @@ class Sample;
 class Camera
 {
 public:
-	Camera();
+	Camera(const uint32 filmWidthPx, const uint32 filmHeightPx);
 	virtual ~Camera() = 0;
 
 	// TODO: get aspect ratio info from camera film
@@ -48,9 +49,21 @@ public:
 		m_direction.set(direction);
 	}
 
+	inline void acculumateRadiance(const uint32 x, const uint32 y, const Vector3f& radiance)
+	{
+		m_film.acculumateRadiance(x, y, radiance);
+	}
+
+	inline void developFilm(Frame* const out_frame) const
+	{
+		m_film.developFilm(out_frame);
+	}
+
 private:
 	Vector3f m_position;
 	Vector3f m_direction;
+
+	Film m_film;
 };
 
 }// end namespace ph

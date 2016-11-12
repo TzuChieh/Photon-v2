@@ -1,6 +1,6 @@
 #include "Image/Film.h"
 #include "Math/Vector3f.h"
-#include "Image/HDRFrame.h"
+#include "Image/Frame.h"
 
 #include <cstddef>
 
@@ -26,34 +26,33 @@ void Film::acculumateRadiance(const uint32 x, const uint32 y, const Vector3f& ra
 	m_pixelSenseCounts[baseIndex / 3] += 1;
 }
 
-void Film::developFilm(HDRFrame* out_hdrFrame) const
+void Film::developFilm(Frame* const out_frame) const
 {
-	/*float64 sensorR;
+	float64 sensorR;
 	float64 sensorG;
 	float64 sensorB;
-	uint32 senseCount
+	double senseCount;
+	std::size_t baseIndex;
 
 	for(uint32 y = 0; y < m_heightPx; y++)
 	{
 		for(uint32 x = 0; x < m_widthPx; x++)
 		{
-			const std::size_t baseIndex = (y * static_cast<std::size_t>(m_widthPx) + x) * 3;
+			baseIndex = (y * static_cast<std::size_t>(m_widthPx) + x) * 3;
 
 			sensorR = m_pixelRadianceSensors[baseIndex + 0];
 			sensorG = m_pixelRadianceSensors[baseIndex + 1];
 			sensorB = m_pixelRadianceSensors[baseIndex + 2];
 
-			sensorR /= static_cast<double>()
+			senseCount = static_cast<double>(m_pixelSenseCounts[baseIndex / 3]);
 
-			pixelRadianceSensor 
+			sensorR /= senseCount;
+			sensorG /= senseCount;
+			sensorB /= senseCount;
 
-			out_hdrFrame->setPixel
-
-			out_frame->getPixel(x, y, &pixel);
-			pixel.addLocal(accuRadiance.div());
-			out_frame->setPixel(x, y, pixel.x, pixel.y, pixel.z);
+			out_frame->setPixel(x, y, sensorR, sensorG, sensorB);
 		}
-	}*/
+	}
 }
 
 }// end namespace ph

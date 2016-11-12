@@ -17,7 +17,7 @@ namespace ph
 
 BruteForceRenderer::~BruteForceRenderer() = default;
 
-void BruteForceRenderer::render(const World& world, const Camera& camera, Frame* const out_frame) const
+void BruteForceRenderer::render(const World& world, Camera& camera, Frame* const out_frame) const
 {
 	const uint32 widthPx = out_frame->getWidthPx();
 	const uint32 heightPx = out_frame->getHeightPx();
