@@ -370,6 +370,14 @@ public:
 	// Clamp current vector's components to specific range. If a component is NaN, its value is
 	// clamped to lower bound. Either lower bound or upper bound shall not be NaN, or the method's 
 	// behavior is undefined.
+
+	inline Vector3f clamp(const float32 lowerBound, const float32 upperBound)
+	{
+		return Vector3f(fmin(upperBound, fmax(x, lowerBound)), 
+		                fmin(upperBound, fmax(y, lowerBound)), 
+		                fmin(upperBound, fmax(z, lowerBound)));
+	}
+
 	inline Vector3f& clampLocal(const float32 lowerBound, const float32 upperBound)
 	{
 		x = fmin(upperBound, fmax(x, lowerBound));

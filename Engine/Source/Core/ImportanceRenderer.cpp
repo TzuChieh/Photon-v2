@@ -10,6 +10,7 @@
 #include "Math/constant.h"
 #include "Core/SampleGenerator.h"
 #include "Core/Sample.h"
+#include "Math/random_number.h"
 
 #include <cmath>
 #include <iostream>
@@ -86,7 +87,24 @@ void ImportanceRenderer::render(const World& world, const Camera& camera) const
 				hitMaterial->getSurfaceIntegrand()->evaluateLiWeight(intersection, L, V, &liWeight);
 				hitMaterial->getSurfaceIntegrand()->evaluateImportanceRandomVPDF(intersection, L, V, &pdf);
 
-				accuLiWeight.mulLocal(liWeight.div(pdf));
+				liWeight.divLocal(pdf);
+
+				const float32 rrSurviveRate = liWeight.clamp(0.0f, 1.0f).max();
+				const float32 rrSpin = genRandomFloat32_0_1_uniform();
+
+				// russian roulette >> survive
+				if(rrSurviveRate > rrSpin)
+				{
+					const float32 rrScale = 1.0f / rrSurviveRate;
+					liWeight.mulLocal(rrScale);
+				}
+				// russian roulette >> dead
+				else
+				{
+					break;
+				}
+
+				accuLiWeight.mulLocal(liWeight);
 
 				// prepare for next recursion
 				Vector3f nextRayOrigin(intersection.getHitPosition().add(N.mul(0.0001f)));
