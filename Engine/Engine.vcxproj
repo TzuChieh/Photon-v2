@@ -163,8 +163,10 @@
     <ClCompile Include="Source\Api\ph_image.cpp" />
     <ClCompile Include="Source\Camera\Camera.cpp" />
     <ClCompile Include="Source\Camera\DefaultCamera.cpp" />
+    <ClCompile Include="Source\Core\BackwardPathIntegrator.cpp" />
     <ClCompile Include="Source\Core\BruteForceRenderer.cpp" />
     <ClCompile Include="Source\Core\ImportanceRenderer.cpp" />
+    <ClCompile Include="Source\Core\Integrator.cpp" />
     <ClCompile Include="Source\Core\Renderer.cpp" />
     <ClCompile Include="Source\Core\RenderTask.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator.cpp" />
@@ -204,7 +206,9 @@
     <ClInclude Include="Source\Camera\Camera.h" />
     <ClInclude Include="Source\Camera\DefaultCamera.h" />
     <ClInclude Include="Source\Common\primitive_type.h" />
+    <ClInclude Include="Source\Core\BackwardPathIntegrator.h" />
     <ClInclude Include="Source\Core\BruteForceRenderer.h" />
+    <ClInclude Include="Source\Core\Integrator.h" />
     <ClInclude Include="Source\Core\RenderTask.h" />
     <ClInclude Include="Source\Core\RenderWorker.h" />
     <ClInclude Include="Source\Image\Film.h" />
