@@ -263,5 +263,11 @@
     <ClInclude Include="Source\Core\RenderWorker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Math\Color.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

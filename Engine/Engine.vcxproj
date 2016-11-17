@@ -145,6 +145,8 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)Source;$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -212,6 +214,8 @@
     <ClInclude Include="Source\Core\Sample.h" />
     <ClInclude Include="Source\Core\SampleGenerator.h" />
     <ClInclude Include="Source\Core\StandardSampleGenerator.h" />
+    <ClInclude Include="Source\Math\Color.h" />
+    <ClInclude Include="Source\Math\Math.h" />
     <ClInclude Include="Source\World\World.h" />
     <ClInclude Include="Source\Image\Frame.h" />
     <ClInclude Include="Source\Image\HDRFrame.h" />

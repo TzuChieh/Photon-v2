@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <memory>
+#include <windows.h>
 
 void printTestMessage()
 {
@@ -64,7 +65,7 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 
 	//auto renderer = std::make_shared<BruteForceRenderer>();
 	ImportanceRenderer renderer;
-	StandardSampleGenerator sampleGenerator(8);
+	StandardSampleGenerator sampleGenerator(16);
 	World world;
 	DefaultCamera camera;
 	Film film(widthPx, heightPx);
@@ -97,10 +98,28 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 
 	world.cook();
 
+	LARGE_INTEGER frequency;        // ticks per second
+	LARGE_INTEGER t1, t2;           // ticks
+	double elapsedTime;
+
+	// get ticks per second
+	QueryPerformanceFrequency(&frequency);
+
+	// start timer
+	QueryPerformanceCounter(&t1);
+
+	// do something
 	RenderTask renderTask(&renderer, &world, &camera);
 	renderTask.run();
-
 	film.developFilm(&testHdrFrame);
+
+	// stop timer
+	QueryPerformanceCounter(&t2);
+
+	// compute and print the elapsed time in millisec
+	elapsedTime = (t2.QuadPart - t1.QuadPart) * 1000.0 / frequency.QuadPart;
+
+	std::cout << "time elapsed: " << elapsedTime << " ms" << std::endl;
 
 	*out_data = testHdrFrame.getPixelData();
 	*out_widthPx = 1280;

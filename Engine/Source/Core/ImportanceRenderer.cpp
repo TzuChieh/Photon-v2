@@ -11,6 +11,8 @@
 #include "Core/SampleGenerator.h"
 #include "Core/Sample.h"
 #include "Math/random_number.h"
+#include "Math/Color.h"
+#include "Math/Math.h"
 
 #include <cmath>
 #include <iostream>
@@ -30,7 +32,7 @@ void ImportanceRenderer::render(const World& world, const Camera& camera) const
 
 	const float32 aspectRatio = static_cast<float32>(widthPx) / static_cast<float32>(heightPx);
 
-	const uint32 maxBounces = 7;
+	const uint32 maxBounces = 10000;
 	std::vector<Sample> samples;
 
 	int32 numSpp = 0;
@@ -58,9 +60,9 @@ void ImportanceRenderer::render(const World& world, const Camera& camera) const
 				const Model* hitModel = intersection.getHitPrimitive()->getParentModel();
 				const Material* hitMaterial = hitModel->getMaterial();
 
+				const Vector3f N(intersection.getHitNormal());
+				const Vector3f V(ray.getDirection().mul(-1.0f));
 				Vector3f L;
-				Vector3f N(intersection.getHitNormal());
-				Vector3f V(ray.getDirection().mul(-1.0f));
 
 				hitMaterial->getSurfaceIntegrand()->genImportanceRandomV(intersection, V, &L);
 
@@ -73,8 +75,6 @@ void ImportanceRenderer::render(const World& world, const Camera& camera) const
 					accuLiWeight.clampLocal(0.0f, 1000.0f);
 
 					accuRadiance.addLocal(radianceLi.mul(accuLiWeight));
-
-
 
 					/*if(radianceLi.x != 1.0f || radianceLi.y != 1.0f || radianceLi.z != 1.0f) 
 						std::cout << radianceLi.toStringFormal() << std::endl;*/
@@ -89,7 +89,9 @@ void ImportanceRenderer::render(const World& world, const Camera& camera) const
 
 				liWeight.divLocal(pdf);
 
-				const float32 rrSurviveRate = liWeight.clamp(0.0f, 1.0f).max();
+				//const float32 rrSurviveRate = liWeight.clamp(0.0f, 1.0f).max();
+				const float32 rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001f, 1.0f);
+				//const float32 rrSurviveRate = Math::clamp(Color::linearRgbLuminance(liWeight), 0.0001f, 1.0f);
 				const float32 rrSpin = genRandomFloat32_0_1_uniform();
 
 				// russian roulette >> survive
@@ -107,8 +109,8 @@ void ImportanceRenderer::render(const World& world, const Camera& camera) const
 				accuLiWeight.mulLocal(liWeight);
 
 				// prepare for next recursion
-				Vector3f nextRayOrigin(intersection.getHitPosition().add(N.mul(0.0001f)));
-				Vector3f nextRayDirection(L);
+				const Vector3f nextRayOrigin(intersection.getHitPosition().add(N.mul(0.0001f)));
+				const Vector3f nextRayDirection(L);
 				ray.setOrigin(nextRayOrigin);
 				ray.setDirection(nextRayDirection);
 				numBounces++;

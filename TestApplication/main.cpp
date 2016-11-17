@@ -4,8 +4,8 @@
 
 int main(int argc, char* argv[])
 {
-	printTestMessage();
-	testRun();
+	//printTestMessage();
+	//testRun();
 
 	const PHfloat32* pixelData;
 	PHuint32 width;
