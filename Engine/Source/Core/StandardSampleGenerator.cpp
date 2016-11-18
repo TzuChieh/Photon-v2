@@ -31,14 +31,16 @@ void StandardSampleGenerator::requestMoreSamples(const Film& film, std::vector<S
 
 	const float32 halfWidthPx = static_cast<float32>(film.getWidthPx()) / 2.0f;
 	const float32 halfHeightPx = static_cast<float32>(film.getHeightPx()) / 2.0f;
+	const float32 invWidthPx = 1.0f / halfWidthPx;
+	const float32 invHeightPx = 1.0f / halfHeightPx;
 
 	Sample sample;
 	for(uint32 y = 0; y < film.getHeightPx(); y++)
 	{
 		for(uint32 x = 0; x < film.getWidthPx(); x++)
 		{
-			sample.m_cameraX = (static_cast<float32>(x) + genRandomFloat32_0_1_uniform() - halfWidthPx) / halfWidthPx;
-			sample.m_cameraY = (static_cast<float32>(y) + genRandomFloat32_0_1_uniform() - halfHeightPx) / halfHeightPx;
+			sample.m_cameraX = (static_cast<float32>(x) + genRandomFloat32_0_1_uniform() - halfWidthPx) * invWidthPx;
+			sample.m_cameraY = (static_cast<float32>(y) + genRandomFloat32_0_1_uniform() - halfHeightPx) * invHeightPx;
 			out_samples->push_back(sample);
 
 			/*if(sample.m_cameraX < -1.0f) std::cout << "x -1: " << sample.m_cameraX << std::endl;

@@ -42,9 +42,9 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 		{
 		// ****************************** thread start ****************************** //
 
-		Film* film = camera.getFilm();
-		const uint32 widthPx = film->getWidthPx();
-		const uint32 heightPx = film->getHeightPx();
+		Film subFilm(camera.getFilm()->getWidthPx(), camera.getFilm()->getHeightPx());
+		const uint32 widthPx = subFilm.getWidthPx();
+		const uint32 heightPx = subFilm.getHeightPx();
 		const float32 aspectRatio = static_cast<float32>(widthPx) / static_cast<float32>(heightPx);
 
 		std::vector<Sample> samples;
@@ -60,7 +60,7 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 			const bool shouldRun = m_sampleGenerator->hasMoreSamples();
 			if(shouldRun)
 			{
-				m_sampleGenerator->requestMoreSamples(*film, &samples);
+				m_sampleGenerator->requestMoreSamples(subFilm, &samples);
 			}
 			m_mutex.unlock();
 
@@ -85,15 +85,17 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 				if(x >= widthPx) x = widthPx - 1;
 				if(y >= heightPx) y = heightPx - 1;
 
-				m_mutex.lock();
-				film->acculumateRadiance(x, y, radiance);
-				m_mutex.unlock();
+				subFilm.accumulateRadiance(x, y, radiance);
 			}// end while
 
 			m_mutex.lock();
 			std::cout << "SPP: " << ++numSpp << std::endl;
 			m_mutex.unlock();
 		}
+
+		m_mutex.lock();
+		camera.getFilm()->accumulateRadiance(subFilm);
+		m_mutex.unlock();
 
 		// ****************************** thread end ****************************** //
 		});

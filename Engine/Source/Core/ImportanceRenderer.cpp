@@ -61,7 +61,7 @@ void ImportanceRenderer::render(const World& world, const Camera& camera) const
 			if(x >= widthPx) x = widthPx - 1;
 			if(y >= heightPx) y = heightPx - 1;
 
-			film->acculumateRadiance(x, y, radiance);
+			film->accumulateRadiance(x, y, radiance);
 		}// end while
 
 		std::cout << "SPP: " << ++numSpp << std::endl;

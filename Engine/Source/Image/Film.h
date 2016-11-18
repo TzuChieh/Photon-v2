@@ -15,7 +15,8 @@ class Film
 public:
 	Film(const uint32 widthPx, const uint32 heightPx);
 
-	void acculumateRadiance(const uint32 x, const uint32 y, const Vector3f& radiance);
+	void accumulateRadiance(const uint32 x, const uint32 y, const Vector3f& radiance);
+	void accumulateRadiance(const Film& other);
 	void developFilm(Frame* const out_frame) const;
 
 	inline uint32 getWidthPx() const

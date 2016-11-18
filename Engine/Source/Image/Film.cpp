@@ -3,6 +3,7 @@
 #include "Image/Frame.h"
 
 #include <cstddef>
+#include <iostream>
 
 namespace ph
 {
@@ -15,7 +16,7 @@ Film::Film(const uint32 widthPx, const uint32 heightPx) :
 
 }
 
-void Film::acculumateRadiance(const uint32 x, const uint32 y, const Vector3f& radiance)
+void Film::accumulateRadiance(const uint32 x, const uint32 y, const Vector3f& radiance)
 {
 	const std::size_t baseIndex = (y * static_cast<std::size_t>(m_widthPx) + x) * 3;
 
@@ -24,6 +25,27 @@ void Film::acculumateRadiance(const uint32 x, const uint32 y, const Vector3f& ra
 	m_pixelRadianceSensors[baseIndex + 2] += static_cast<float64>(radiance.z);
 
 	m_pixelSenseCounts[baseIndex / 3] += 1;
+}
+
+void Film::accumulateRadiance(const Film& other)
+{
+	if(m_widthPx != other.m_widthPx || m_heightPx != other.m_heightPx)
+	{
+		std::cerr << "warning: at Film::accumulateRadiance(), film dimensions mismatch" << std::endl;
+		return;
+	}
+
+	const std::size_t nSensors = other.m_pixelRadianceSensors.size();
+	for(std::size_t i = 0; i < nSensors; i++)
+	{
+		m_pixelRadianceSensors[i] += other.m_pixelRadianceSensors[i];
+	}
+
+	const std::size_t nSenseCounts = other.m_pixelSenseCounts.size();
+	for(std::size_t i = 0; i < nSenseCounts; i++)
+	{
+		m_pixelSenseCounts[i] += other.m_pixelSenseCounts[i];
+	}
 }
 
 void Film::developFilm(Frame* const out_frame) const
