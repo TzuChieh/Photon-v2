@@ -6,7 +6,6 @@
 namespace ph
 {
 
-
 class PSphere : public Primitive
 {
 public:
@@ -15,6 +14,7 @@ public:
 	virtual ~PSphere() override;
 
 	virtual bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const override;
+	virtual void calcAABB(AABB* const out_aabb) const override;
 
 	PSphere& operator = (const PSphere& rhs);
 

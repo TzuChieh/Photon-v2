@@ -1,6 +1,7 @@
 #include "Model/Primitive/PSphere.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
+#include "Model/Primitive/BoundingVolume/AABB.h"
 
 #include <cmath>
 
@@ -68,6 +69,12 @@ bool PSphere::isIntersecting(const Ray& ray, Intersection* const out_intersectio
 			return false;
 		}
 	}
+}
+
+void PSphere::calcAABB(AABB* const out_aabb) const
+{
+	out_aabb->setMinVertex(m_center.sub(m_radius + SPHERE_EPSILON));
+	out_aabb->setMaxVertex(m_center.add(m_radius + SPHERE_EPSILON));
 }
 
 PSphere& PSphere::operator = (const PSphere& rhs)

@@ -172,8 +172,11 @@
     <ClCompile Include="Source\Core\RenderTask.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator.cpp" />
     <ClCompile Include="Source\Core\StandardSampleGenerator.cpp" />
+    <ClCompile Include="Source\Model\Primitive\BoundingVolume\AABB.cpp" />
+    <ClCompile Include="Source\Model\Primitive\BoundingVolume\BoundingVolume.cpp" />
     <ClCompile Include="Source\World\BruteForceIntersector.cpp" />
     <ClCompile Include="Source\World\Intersector.cpp" />
+    <ClCompile Include="Source\World\KdtreeIntersector.cpp" />
     <ClCompile Include="Source\World\World.cpp" />
     <ClCompile Include="Source\Image\Film.cpp" />
     <ClCompile Include="Source\Image\Frame.cpp" />
@@ -225,8 +228,11 @@
     <ClInclude Include="Source\Math\Math.h" />
     <ClInclude Include="Source\Model\Geometry\GTriangleMesh.h" />
     <ClInclude Include="Source\Model\ModelLoader.h" />
+    <ClInclude Include="Source\Model\Primitive\BoundingVolume\AABB.h" />
+    <ClInclude Include="Source\Model\Primitive\BoundingVolume\BoundingVolume.h" />
     <ClInclude Include="Source\World\BruteForceIntersector.h" />
     <ClInclude Include="Source\World\Intersector.h" />
+    <ClInclude Include="Source\World\KdtreeIntersector.h" />
     <ClInclude Include="Source\World\World.h" />
     <ClInclude Include="Source\Image\Frame.h" />
     <ClInclude Include="Source\Image\HDRFrame.h" />

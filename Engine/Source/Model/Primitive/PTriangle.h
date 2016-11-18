@@ -13,6 +13,7 @@ public:
 	virtual ~PTriangle() override;
 
 	virtual bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const override;
+	virtual void calcAABB(AABB* const out_aabb) const override;
 
 private:
 	Vector3f m_vA;
