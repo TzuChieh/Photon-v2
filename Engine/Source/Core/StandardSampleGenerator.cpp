@@ -22,7 +22,7 @@ bool StandardSampleGenerator::hasMoreSamples() const
 	return m_numDispatchedSpp < getSppBudget();
 }
 
-void StandardSampleGenerator::requestMoreSamples(const Film& film, std::vector<Sample>* out_samples)
+void StandardSampleGenerator::requestMoreSamples(const Film& film, std::vector<Sample>* const out_samples)
 {
 	if(!hasMoreSamples())
 	{

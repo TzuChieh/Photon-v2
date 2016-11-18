@@ -13,7 +13,7 @@ public:
 	virtual ~StandardSampleGenerator() override;
 
 	virtual bool hasMoreSamples() const override;
-	virtual void requestMoreSamples(const Film& film, std::vector<Sample>* out_samples) override;
+	virtual void requestMoreSamples(const Film& film, std::vector<Sample>* const out_samples) override;
 
 private:
 	uint32 m_numDispatchedSpp;

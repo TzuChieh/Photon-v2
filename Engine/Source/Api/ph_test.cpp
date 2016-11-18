@@ -6,6 +6,7 @@
 #include "Camera/DefaultCamera.h"
 #include "Core/BruteForceRenderer.h"
 #include "Core/ImportanceRenderer.h"
+#include "Core/MtImportanceRenderer.h"
 #include "Math/random_number.h"
 #include "Model/Material/MatteOpaque.h"
 #include "Model/Material/LightMaterial.h"
@@ -64,8 +65,9 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	using namespace ph;
 
 	//auto renderer = std::make_shared<BruteForceRenderer>();
-	ImportanceRenderer renderer;
-	StandardSampleGenerator sampleGenerator(16);
+	//ImportanceRenderer renderer;
+	MtImportanceRenderer renderer;
+	StandardSampleGenerator sampleGenerator(256);
 	World world;
 	DefaultCamera camera;
 	Film film(widthPx, heightPx);

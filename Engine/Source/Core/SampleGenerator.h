@@ -17,7 +17,7 @@ public:
 	virtual ~SampleGenerator() = 0;
 
 	virtual bool hasMoreSamples() const = 0;
-	virtual void requestMoreSamples(const Film& film, std::vector<Sample>* out_samples) = 0;
+	virtual void requestMoreSamples(const Film& film, std::vector<Sample>* const out_samples) = 0;
 
 	inline uint32 getSppBudget() const
 	{
