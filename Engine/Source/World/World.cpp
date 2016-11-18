@@ -5,11 +5,18 @@
 #include "Core/Ray.h"
 #include "Model/Model.h"
 #include "Model/Primitive/Primitive.h"
+#include "World/BruteForceIntersector.h"
 
 #include <limits>
 
 namespace ph
 {
+
+World::World() : 
+	m_intersector(std::make_unique<BruteForceIntersector>())
+{
+
+}
 
 void World::addModel(const Model& model)
 {
@@ -18,23 +25,7 @@ void World::addModel(const Model& model)
 
 bool World::isIntersecting(const Ray& ray, Intersection* out_intersection) const
 {
-	Intersection intersection;
-	float32 closestSquaredHitDist = std::numeric_limits<float32>::infinity();
-
-	for(const auto& primitive : m_primitives)
-	{
-		if(primitive->isIntersecting(ray, &intersection))
-		{
-			float32 squaredHitDist = intersection.getHitPosition().sub(ray.getOrigin()).squaredLength();
-			if(closestSquaredHitDist > squaredHitDist)
-			{
-				closestSquaredHitDist = squaredHitDist;
-				*out_intersection = intersection;
-			}
-		}
-	}
-
-	return closestSquaredHitDist != std::numeric_limits<float32>::infinity();
+	return m_intersector->isIntersecting(ray, out_intersection);
 }
 
 void World::cook()
@@ -46,6 +37,8 @@ void World::cook()
 	{
 		model->getGeometry()->genPrimitives(&m_primitives, model.get());
 	}
+
+	m_intersector->construct(m_primitives);
 }
 
 }// end namespace ph
