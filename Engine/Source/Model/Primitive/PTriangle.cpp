@@ -2,6 +2,7 @@
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
 #include "Model/Primitive/BoundingVolume/AABB.h"
+#include "Model/Geometry/GTriangle.h"
 
 #include <limits>
 #include <cmath>
@@ -11,12 +12,12 @@
 namespace ph
 {
 
-PTriangle::PTriangle(const Vector3f& vA, const Vector3f& vB, const Vector3f& vC, const Model* const parentModel) :
+PTriangle::PTriangle(const GTriangle* gTriangle, const Model* const parentModel) :
 	Primitive(parentModel), 
-	m_vA(vA), m_vB(vB), m_vC(vC)
+	m_gTriangle(gTriangle)
 {
-	m_eAB = vB.sub(vA);
-	m_eAC = vC.sub(vA);
+	m_eAB = gTriangle->getVb().sub(gTriangle->getVa());
+	m_eAC = gTriangle->getVc().sub(gTriangle->getVa());
 
 	m_faceNormal = m_eAB.cross(m_eAC).normalizeLocal();
 }
@@ -25,7 +26,8 @@ PTriangle::~PTriangle() = default;
 
 bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersection) const
 {
-	const float32 dist = ray.getOrigin().sub(m_vA).dot(m_faceNormal) / (-ray.getDirection().dot(m_faceNormal));
+	const Vector3f& vA = m_gTriangle->getVa();
+	const float32 dist = ray.getOrigin().sub(vA).dot(m_faceNormal) / (-ray.getDirection().dot(m_faceNormal));
 
 	// reject by distance
 	if(dist < TRIANGLE_EPSILON || dist > std::numeric_limits<float32>::max() || dist != dist)
@@ -43,8 +45,8 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 		// X dominant, projection plane is YZ
 		if(abs(m_faceNormal.x) > abs(m_faceNormal.z))
 		{
-			hitPu = dist * ray.getDirection().y + ray.getOrigin().y - m_vA.y;
-			hitPv = dist * ray.getDirection().z + ray.getOrigin().z - m_vA.z;
+			hitPu = dist * ray.getDirection().y + ray.getOrigin().y - vA.y;
+			hitPv = dist * ray.getDirection().z + ray.getOrigin().z - vA.z;
 			abPu = m_eAB.y;
 			abPv = m_eAB.z;
 			acPu = m_eAC.y;
@@ -53,8 +55,8 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 		// Z dominant, projection plane is XY
 		else
 		{
-			hitPu = dist * ray.getDirection().x + ray.getOrigin().x - m_vA.x;
-			hitPv = dist * ray.getDirection().y + ray.getOrigin().y - m_vA.y;
+			hitPu = dist * ray.getDirection().x + ray.getOrigin().x - vA.x;
+			hitPv = dist * ray.getDirection().y + ray.getOrigin().y - vA.y;
 			abPu = m_eAB.x;
 			abPv = m_eAB.y;
 			acPu = m_eAC.x;
@@ -64,8 +66,8 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	// Y dominant, projection plane is ZX
 	else if(abs(m_faceNormal.y) > abs(m_faceNormal.z))
 	{
-		hitPu = dist * ray.getDirection().z + ray.getOrigin().z - m_vA.z;
-		hitPv = dist * ray.getDirection().x + ray.getOrigin().x - m_vA.x;
+		hitPu = dist * ray.getDirection().z + ray.getOrigin().z - vA.z;
+		hitPv = dist * ray.getDirection().x + ray.getOrigin().x - vA.x;
 		abPu = m_eAB.z;
 		abPv = m_eAB.x;
 		acPu = m_eAC.z;
@@ -74,8 +76,8 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	// Z dominant, projection plane is XY
 	else
 	{
-		hitPu = dist * ray.getDirection().x + ray.getOrigin().x - m_vA.x;
-		hitPv = dist * ray.getDirection().y + ray.getOrigin().y - m_vA.y;
+		hitPu = dist * ray.getDirection().x + ray.getOrigin().x - vA.x;
+		hitPv = dist * ray.getDirection().y + ray.getOrigin().y - vA.y;
 		abPu = m_eAB.x;
 		abPv = m_eAB.y;
 		acPu = m_eAC.x;
@@ -105,23 +107,26 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 
 void PTriangle::calcAABB(AABB* const out_aabb) const
 {
-	float32 minX = m_vA.x, maxX = m_vA.x,
-	        minY = m_vA.y, maxY = m_vA.y,
-	        minZ = m_vA.z, maxZ = m_vA.z;
+	const Vector3f& vA = m_gTriangle->getVa();
+	const Vector3f& vB = m_gTriangle->getVb();
+	const Vector3f& vC = m_gTriangle->getVc();
+	float32 minX = vA.x, maxX = vA.x,
+	        minY = vA.y, maxY = vA.y,
+	        minZ = vA.z, maxZ = vA.z;
 
-	if(m_vB.x > maxX)      maxX = m_vB.x;
-	else if(m_vB.x < minX) minX = m_vB.x;
-	if(m_vB.y > maxY)      maxY = m_vB.y;
-	else if(m_vB.y < minY) minY = m_vB.y;
-	if(m_vB.z > maxZ)      maxZ = m_vB.z;
-	else if(m_vB.z < minZ) minZ = m_vB.z;
+	if(vB.x > maxX)      maxX = vB.x;
+	else if(vB.x < minX) minX = vB.x;
+	if(vB.y > maxY)      maxY = vB.y;
+	else if(vB.y < minY) minY = vB.y;
+	if(vB.z > maxZ)      maxZ = vB.z;
+	else if(vB.z < minZ) minZ = vB.z;
 
-	if(m_vC.x > maxX)      maxX = m_vC.x;
-	else if(m_vC.x < minX) minX = m_vC.x;
-	if(m_vC.y > maxY)      maxY = m_vC.y;
-	else if(m_vC.y < minY) minY = m_vC.y;
-	if(m_vC.z > maxZ)      maxZ = m_vC.z;
-	else if(m_vC.z < minZ) minZ = m_vC.z;
+	if(vC.x > maxX)      maxX = vC.x;
+	else if(vC.x < minX) minX = vC.x;
+	if(vC.y > maxY)      maxY = vC.y;
+	else if(vC.y < minY) minY = vC.y;
+	if(vC.z > maxZ)      maxZ = vC.z;
+	else if(vC.z < minZ) minZ = vC.z;
 
 	out_aabb->setMinVertex(Vector3f(minX - TRIANGLE_EPSILON, minY - TRIANGLE_EPSILON, minZ - TRIANGLE_EPSILON));
 	out_aabb->setMaxVertex(Vector3f(maxX + TRIANGLE_EPSILON, maxY + TRIANGLE_EPSILON, maxZ + TRIANGLE_EPSILON));

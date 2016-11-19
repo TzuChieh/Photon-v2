@@ -16,6 +16,7 @@
 #include "Core/StandardSampleGenerator.h"
 #include "Image/Film.h"
 #include "Core/RenderTask.h"
+#include "Model/ModelLoader.h"
 
 #include <iostream>
 #include <memory>
@@ -97,6 +98,14 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	/*auto sphere2Material = std::make_shared<PerfectMirror>();
 	auto sphere2Geometry = std::make_shared<GSphere>(Vector3f(-1, 0, -10), 0.8f);
 	world.addModel(Model(sphere2Geometry, sphere2Material));*/
+
+	ModelLoader modelLoader;
+	//auto loadedModel = modelLoader.load("../SceneResource/cube.obj");
+	auto loadedModel = modelLoader.load("../SceneResource/dragon.obj");
+	if(loadedModel != nullptr)
+	{
+		world.addModel(*loadedModel);
+	}
 
 	std::cout << "cooking world" << std::endl;
 	world.cook();

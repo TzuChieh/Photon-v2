@@ -9,7 +9,7 @@ namespace ph
 
 class Model;
 
-class GSphere : public Geometry
+class GSphere final : public Geometry
 {
 public:
 	GSphere(const Vector3f& center, const float32 radius);

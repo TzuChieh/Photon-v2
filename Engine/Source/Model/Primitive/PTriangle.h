@@ -6,19 +6,19 @@
 namespace ph
 {
 
+class GTriangle;
+
 class PTriangle : public Primitive
 {
 public:
-	PTriangle(const Vector3f& vA, const Vector3f& vB, const Vector3f& vC, const Model* const parentModel);
+	PTriangle(const GTriangle* gTriangle, const Model* const parentModel);
 	virtual ~PTriangle() override;
 
 	virtual bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const override;
 	virtual void calcAABB(AABB* const out_aabb) const override;
 
 private:
-	Vector3f m_vA;
-	Vector3f m_vB;
-	Vector3f m_vC;
+	const GTriangle* m_gTriangle;
 
 	Vector3f m_eAB;
 	Vector3f m_eAC;

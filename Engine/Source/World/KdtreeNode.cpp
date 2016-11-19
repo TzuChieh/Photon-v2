@@ -363,7 +363,7 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, Intersection
 {
 	if(!isLeaf())
 	{
-		std::cout << "not isLeaf()" << std::endl;
+		//std::cout << "not isLeaf()" << std::endl;
 
 		float32 splitAxisRayOrigin = 0.0f;
 		float32 splitAxisRayDir    = 0.0f;

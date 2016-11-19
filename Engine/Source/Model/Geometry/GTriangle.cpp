@@ -14,7 +14,7 @@ GTriangle::~GTriangle() = default;
 
 void GTriangle::genPrimitives(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const Model* const parentModel) const
 {
-	out_primitives->push_back(std::make_unique<PTriangle>(m_vA, m_vB, m_vC, parentModel));
+	out_primitives->push_back(std::make_unique<PTriangle>(this, parentModel));
 }
 
 }// end namespace ph

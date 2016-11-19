@@ -143,7 +143,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(ProjectDir)Include;$(SolutionDir)ThirdParty\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
@@ -153,6 +153,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)ThirdParty\assimp\lib\windows;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>call "$(SolutionDir)vs_engine_release_post_build_script.bat" $(SolutionDir)</Command>
@@ -173,6 +175,8 @@
     <ClCompile Include="Source\Core\RenderTask.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator.cpp" />
     <ClCompile Include="Source\Core\StandardSampleGenerator.cpp" />
+    <ClCompile Include="Source\Model\Geometry\GTriangleMesh.cpp" />
+    <ClCompile Include="Source\Model\ModelLoader.cpp" />
     <ClCompile Include="Source\Model\Primitive\BoundingVolume\AABB.cpp" />
     <ClCompile Include="Source\Model\Primitive\BoundingVolume\BoundingVolume.cpp" />
     <ClCompile Include="Source\World\BruteForceIntersector.cpp" />
