@@ -6,14 +6,17 @@
 #include "Model/Model.h"
 #include "Model/Primitive/Primitive.h"
 #include "World/BruteForceIntersector.h"
+#include "World/KdtreeIntersector.h"
 
 #include <limits>
+#include <iostream>
 
 namespace ph
 {
 
 World::World() : 
-	m_intersector(std::make_unique<BruteForceIntersector>())
+	//m_intersector(std::make_unique<BruteForceIntersector>())
+	m_intersector(std::make_unique<KdtreeIntersector>())
 {
 
 }

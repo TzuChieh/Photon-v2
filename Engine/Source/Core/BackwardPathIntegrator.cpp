@@ -89,6 +89,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world
 		tracingRay.setOrigin(nextRayOrigin);
 		tracingRay.setDirection(nextRayDirection);
 		numBounces++;
+		intersection.clear();
 	}// end while
 
 	*out_radiance = accuRadiance;

@@ -10,6 +10,15 @@ class Primitive;
 class Intersection final
 {
 public:
+	Intersection();
+
+	inline void clear()
+	{
+		m_hitPosition.set(0, 0, 0);
+		m_hitNormal.set(0, 0, -1);
+		m_hitPrimitive = nullptr;
+	}
+
 	inline const Vector3f& getHitPosition() const
 	{
 		return m_hitPosition;

@@ -167,6 +167,7 @@
     <ClCompile Include="Source\Core\BruteForceRenderer.cpp" />
     <ClCompile Include="Source\Core\ImportanceRenderer.cpp" />
     <ClCompile Include="Source\Core\Integrator.cpp" />
+    <ClCompile Include="Source\Core\Intersection.cpp" />
     <ClCompile Include="Source\Core\MtImportanceRenderer.cpp" />
     <ClCompile Include="Source\Core\Renderer.cpp" />
     <ClCompile Include="Source\Core\RenderTask.cpp" />
@@ -177,6 +178,7 @@
     <ClCompile Include="Source\World\BruteForceIntersector.cpp" />
     <ClCompile Include="Source\World\Intersector.cpp" />
     <ClCompile Include="Source\World\KdtreeIntersector.cpp" />
+    <ClCompile Include="Source\World\KdtreeNode.cpp" />
     <ClCompile Include="Source\World\World.cpp" />
     <ClCompile Include="Source\Image\Film.cpp" />
     <ClCompile Include="Source\Image\Frame.cpp" />
@@ -233,6 +235,7 @@
     <ClInclude Include="Source\World\BruteForceIntersector.h" />
     <ClInclude Include="Source\World\Intersector.h" />
     <ClInclude Include="Source\World\KdtreeIntersector.h" />
+    <ClInclude Include="Source\World\KdtreeNode.h" />
     <ClInclude Include="Source\World\World.h" />
     <ClInclude Include="Source\Image\Frame.h" />
     <ClInclude Include="Source\Image\HDRFrame.h" />

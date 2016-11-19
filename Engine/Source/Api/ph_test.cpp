@@ -98,6 +98,7 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	auto sphere2Geometry = std::make_shared<GSphere>(Vector3f(-1, 0, -10), 0.8f);
 	world.addModel(Model(sphere2Geometry, sphere2Material));*/
 
+	std::cout << "cooking world" << std::endl;
 	world.cook();
 
 	LARGE_INTEGER frequency;        // ticks per second
@@ -111,6 +112,7 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	QueryPerformanceCounter(&t1);
 
 	// do something
+	std::cout << "rendering world" << std::endl;
 	RenderTask renderTask(&renderer, &world, &camera);
 	renderTask.run();
 	film.developFilm(&testHdrFrame);
