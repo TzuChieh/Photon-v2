@@ -55,6 +55,21 @@ public:
 		m_material = material;
 	}
 
+	inline const Vector3f& getPosition() const
+	{
+		return m_transformInfo.getPosition();
+	}
+
+	inline const Quaternion& getRotation() const
+	{
+		return m_transformInfo.getRotation();
+	}
+
+	inline const Vector3f& getScale() const
+	{
+		return m_transformInfo.getScale();
+	}
+
 private:
 	std::shared_ptr<Geometry> m_geometry;
 	std::shared_ptr<Material> m_material;

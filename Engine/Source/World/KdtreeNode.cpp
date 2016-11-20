@@ -319,7 +319,7 @@ void KdtreeNode::buildChildrenNodes(const std::vector<const Primitive*>& primiti
 			break;
 		}
 
-		std::cout << "split" << std::endl;
+		//std::cout << "split" << std::endl;
 
 		m_positiveChild = buildChildNode(pChildAABB, primitives);
 		m_negativeChild = buildChildNode(nChildAABB, primitives);
@@ -327,8 +327,8 @@ void KdtreeNode::buildChildrenNodes(const std::vector<const Primitive*>& primiti
 	else
 	{
 		m_primitives = primitives;
-		std::cout << "size: " << primitives.size() << ", (" << minSplitCost << ", " << noSplitCost << ")" << std::endl;
-		std::cout << "--------------------" << std::endl;
+		//std::cout << "size: " << primitives.size() << ", (" << minSplitCost << ", " << noSplitCost << ")" << std::endl;
+		//std::cout << "--------------------" << std::endl;
 	}
 }
 
