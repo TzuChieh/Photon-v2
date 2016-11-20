@@ -7,6 +7,7 @@ class Ray;
 class Intersection;
 class Model;
 class AABB;
+class Transform;
 
 class Primitive
 {
@@ -16,6 +17,9 @@ public:
 
 	virtual bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const = 0;
 	virtual void calcAABB(AABB* const out_aabb) const = 0;
+
+	const Transform* getModelToWorldTransform() const;
+	const Transform* getWorldToModelTransform() const;
 
 	inline const Model* getParentModel() const
 	{

@@ -1,0 +1,38 @@
+#include "Math/Transform.h"
+#include "Model/Primitive/BoundingVolume/AABB.h"
+
+#include <iostream>
+
+namespace ph
+{
+
+Transform::Transform()
+{
+	m_transformMatrix.initIdentity();
+}
+
+Transform::Transform(const Matrix4f& transformMatrix) : 
+	m_transformMatrix(transformMatrix)
+{
+
+}
+
+void Transform::transformVector(const Vector3f& vector, Vector3f* const out_transformedVector) const
+{
+	// TODO: use quaternion
+	m_transformMatrix.mul(vector, 0.0f, out_transformedVector);
+}
+
+void Transform::transformPoint(const Vector3f& point, Vector3f* const out_transformedPoint) const
+{
+	m_transformMatrix.mul(point, 1.0f, out_transformedPoint);
+}
+
+void Transform::transform(const AABB& aabb, AABB* const out_aabb) const
+{
+	// TODO: below is wrong
+
+	std::cerr << "transforming AABB is not implemented" << std::endl;
+}
+
+}// end namespace ph

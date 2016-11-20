@@ -105,6 +105,9 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	bool isLoadingSuccess = modelLoader.load("../SceneResource/dragon.obj", &loadedModel);
 	if(isLoadingSuccess)
 	{
+		loadedModel.translate(0, -2, -3);
+		loadedModel.scale(2);
+		loadedModel.rotate(Vector3f(0, 1, 0), 180);
 		world.addModel(loadedModel);
 	}
 

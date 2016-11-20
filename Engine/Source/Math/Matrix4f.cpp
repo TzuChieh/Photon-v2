@@ -131,6 +131,13 @@ void Matrix4f::mul(const Matrix4f& r, Matrix4f* out_result) const
 	}
 }
 
+void Matrix4f::mul(const Vector3f& rhsXYZ, const float32 rhsW, Vector3f* const out_result) const
+{
+	out_result->x = m[0][0] * rhsXYZ.x + m[0][1] * rhsXYZ.y + m[0][2] * rhsXYZ.z + m[0][3] * rhsW;
+	out_result->y = m[1][0] * rhsXYZ.x + m[1][1] * rhsXYZ.y + m[1][2] * rhsXYZ.z + m[1][3] * rhsW;
+	out_result->z = m[2][0] * rhsXYZ.x + m[2][1] * rhsXYZ.y + m[2][2] * rhsXYZ.z + m[2][3] * rhsW;
+}
+
 Matrix4f& Matrix4f::mulLocal(const float32 r)
 {
 	m[0][0] *= r;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Math/TransformInfo.h"
 #include "Math/Transform.h"
 
 #include <memory>
@@ -17,7 +18,12 @@ public:
 	Model(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<Material>& material);
 	Model(const Model& other);
 
-	Model& operator = (const Model& rhs);
+	void translate(const Vector3f& translation);
+	void translate(const float32 x, const float32 y, const float32 z);
+	void rotate(const Vector3f& normalizedAxis, const float32 degrees);
+	void scale(const Vector3f& scaleFactor);
+	void scale(const float32 x, const float32 y, const float32 z);
+	void scale(const float32 scaleFactor);
 
 	inline const Geometry* getGeometry() const
 	{
@@ -29,9 +35,14 @@ public:
 		return m_material.get();
 	}
 
-	inline const Transform* getTransform() const
+	inline const Transform* getModelToWorldTransform() const
 	{
-		return &m_transform;
+		return &m_modelToWorld;
+	}
+
+	inline const Transform* getWorldToModelTransform() const
+	{
+		return &m_worldToModel;
 	}
 
 	inline void setGeometry(const std::shared_ptr<Geometry>& geometry)
@@ -48,7 +59,11 @@ private:
 	std::shared_ptr<Geometry> m_geometry;
 	std::shared_ptr<Material> m_material;
 
-	Transform m_transform;
+	TransformInfo m_transformInfo;
+	Transform m_modelToWorld;
+	Transform m_worldToModel;
+
+	void updateTransforms();
 };
 
 }// end namespace ph

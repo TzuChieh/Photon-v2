@@ -33,6 +33,7 @@ public:
 
 	Matrix4f mul(const Matrix4f& r);
 	void mul(const Matrix4f& r, Matrix4f* out_result) const;
+	void mul(const Vector3f& rhsXYZ, const float32 rhsW, Vector3f* const out_result) const;
 	Matrix4f& mulLocal(const float32 r);
 
 	Matrix4f& inverse(Matrix4f* result) const;

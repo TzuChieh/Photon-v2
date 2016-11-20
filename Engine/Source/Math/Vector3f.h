@@ -397,6 +397,11 @@ public:
 		return (x + y + z) / 3.0f;
 	}
 
+	inline Vector3f reciprocal() const
+	{
+		return Vector3f(1.0f / x, 1.0f / y, 1.0f / z);
+	}
+
 	inline Vector3f reflect(const Vector3f& normal) const
 	{
 		Vector3f result = normal.mul(-2.0f * normal.dot(*this));
