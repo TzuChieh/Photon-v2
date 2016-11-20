@@ -3,6 +3,12 @@
 namespace ph
 {
 
+Model::Model() : 
+	m_geometry(nullptr), m_material(nullptr)
+{
+
+}
+
 Model::Model(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<Material>& material) : 
 	m_geometry(geometry), m_material(material)
 {

@@ -24,7 +24,7 @@ public:
 	void cook();
 
 private:
-	std::vector<std::unique_ptr<Model>> m_models;
+	std::vector<Model> m_models;
 	std::vector<std::unique_ptr<Primitive>> m_primitives;
 
 	std::unique_ptr<Intersector> m_intersector;

@@ -13,6 +13,7 @@ class Material;
 class Model final
 {
 public:
+	Model();
 	Model(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<Material>& material);
 	Model(const Model& other);
 
@@ -31,6 +32,16 @@ public:
 	inline const Transform* getTransform() const
 	{
 		return &m_transform;
+	}
+
+	inline void setGeometry(const std::shared_ptr<Geometry>& geometry)
+	{
+		m_geometry = geometry;
+	}
+
+	inline void setMaterial(const std::shared_ptr<Material>& material)
+	{
+		m_material = material;
 	}
 
 private:

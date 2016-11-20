@@ -5,6 +5,7 @@ namespace ph
 
 class Transform final
 {
+private:
 
 };
 

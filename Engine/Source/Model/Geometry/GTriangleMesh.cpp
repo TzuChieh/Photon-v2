@@ -12,13 +12,13 @@ void GTriangleMesh::genPrimitives(std::vector<std::unique_ptr<Primitive>>* const
 {
 	for(const auto& gTriangle : m_gTriangles)
 	{
-		gTriangle->genPrimitives(out_primitives, parentModel);
+		gTriangle.genPrimitives(out_primitives, parentModel);
 	}
 }
 
-void GTriangleMesh::addTriangle(const std::shared_ptr<GTriangle>& triangle)
+void GTriangleMesh::addTriangle(const GTriangle gTriangle)
 {
-	m_gTriangles.push_back(triangle);
+	m_gTriangles.push_back(gTriangle);
 }
 
 }// end namespace ph

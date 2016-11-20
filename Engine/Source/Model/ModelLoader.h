@@ -13,7 +13,7 @@ class Model;
 class ModelLoader final
 {
 public:
-	std::unique_ptr<Model> load(const std::string& fullFilename);
+	bool load(const std::string& fullFilename, Model* const out_model);
 
 private:
 	Assimp::Importer m_assimpImporter;

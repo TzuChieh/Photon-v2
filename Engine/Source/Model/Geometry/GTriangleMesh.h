@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Model/Geometry/Geometry.h"
 #include "Model/Geometry/GTriangle.h"
 
 #include <vector>
@@ -9,8 +8,6 @@
 namespace ph
 {
 
-class GTriangle;
-
 class GTriangleMesh final : public Geometry
 {
 public:
@@ -18,10 +15,10 @@ public:
 
 	virtual void genPrimitives(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const Model* const parentModel) const override;
 
-	void addTriangle(const std::shared_ptr<GTriangle>& triangle);
+	void addTriangle(const GTriangle gTriangle);
 
 private:
-	std::vector<std::shared_ptr<GTriangle>> m_gTriangles;
+	std::vector<GTriangle> m_gTriangles;
 };
 
 }// end namespace ph

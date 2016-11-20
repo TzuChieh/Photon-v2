@@ -14,18 +14,18 @@
 namespace ph
 {
 
-std::unique_ptr<Model> ModelLoader::load(const std::string& fullFilename)
+bool ModelLoader::load(const std::string& fullFilename, Model* const out_model)
 {
 	const aiScene* assimpScene = m_assimpImporter.ReadFile(fullFilename, aiProcess_Triangulate);
 	if(!assimpScene)
 	{
 		std::cerr << m_assimpImporter.GetErrorString() << std::endl;
-		return nullptr;
+		return false;
 	}
 
 	std::vector<Vector3f> positions;
 	std::vector<Vector3f> normals;
-	std::vector<uint32>  indices;
+	std::vector<uint32>   indices;
 
 	// FIXME: mMeshes[N]
 	const aiMesh* mesh = assimpScene->mMeshes[0];
@@ -59,7 +59,7 @@ std::unique_ptr<Model> ModelLoader::load(const std::string& fullFilename)
 	if(positions.empty() || normals.empty() || indices.empty() || indices.size() % 3 != 0)
 	{
 		std::cerr << "ModelLoader error: unsupported format" << std::endl;
-		return nullptr;
+		return false;
 	}
 
 	auto geometry = std::make_shared<GTriangleMesh>();
@@ -67,10 +67,13 @@ std::unique_ptr<Model> ModelLoader::load(const std::string& fullFilename)
 
 	for(std::size_t i = 0; i < indices.size(); i += 3)
 	{
-		geometry->addTriangle(std::make_shared<GTriangle>(positions[indices[i]], positions[indices[i + 1]], positions[indices[i + 2]]));
+		geometry->addTriangle(GTriangle(positions[indices[i]], positions[indices[i + 1]], positions[indices[i + 2]]));
 	}
 
-	return std::make_unique<Model>(geometry, material);
+	out_model->setGeometry(geometry);
+	out_model->setMaterial(material);
+
+	return true;
 }
 
 }// end namespace ph

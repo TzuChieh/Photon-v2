@@ -101,10 +101,11 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 
 	ModelLoader modelLoader;
 	//auto loadedModel = modelLoader.load("../SceneResource/cube.obj");
-	auto loadedModel = modelLoader.load("../SceneResource/dragon.obj");
-	if(loadedModel != nullptr)
+	Model loadedModel;
+	bool isLoadingSuccess = modelLoader.load("../SceneResource/dragon.obj", &loadedModel);
+	if(isLoadingSuccess)
 	{
-		world.addModel(*loadedModel);
+		world.addModel(loadedModel);
 	}
 
 	std::cout << "cooking world" << std::endl;

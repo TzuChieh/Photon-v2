@@ -23,7 +23,13 @@ World::World() :
 
 void World::addModel(const Model& model)
 {
-	m_models.push_back(std::make_unique<Model>(model));
+	if(model.getGeometry() == nullptr || model.getMaterial() == nullptr)
+	{
+		std::cerr << "warning: at World::addModel(), model has no geometry or material" << std::endl;
+		return;
+	}
+
+	m_models.push_back(model);
 }
 
 bool World::isIntersecting(const Ray& ray, Intersection* out_intersection) const
@@ -38,7 +44,7 @@ void World::cook()
 
 	for(const auto& model : m_models)
 	{
-		model->getGeometry()->genPrimitives(&m_primitives, model.get());
+		model.getGeometry()->genPrimitives(&m_primitives, &model);
 	}
 
 	m_intersector->construct(m_primitives);
