@@ -1,4 +1,5 @@
 package core;
+
 import java.awt.BorderLayout;
 import java.lang.reflect.InvocationTargetException;
 
@@ -25,13 +26,15 @@ public class Main
 		}
 		
 		new PhTest();
+		
+		Ph.printTestMessage();
 
-		LongRef frameId = new LongRef();
-		frameId.m_value = 999;
-		System.out.println(frameId.m_value);
-		Ph.phCreateFrame(frameId, 300, 400, Ph.PH_HDR_FRAME_TYPE);
-		System.out.println(frameId.m_value);
-		Ph.phDeleteFrame(frameId.m_value);
+//		LongRef frameId = new LongRef();
+//		frameId.m_value = 999;
+//		System.out.println(frameId.m_value);
+//		Ph.phCreateFrame(frameId, 300, 400, Ph.PH_HDR_FRAME_TYPE);
+//		System.out.println(frameId.m_value);
+//		Ph.phDeleteFrame(frameId.m_value);
 		
 		try
 		{
@@ -49,25 +52,70 @@ public class Main
 			e.printStackTrace();
 		}
 		
-		Ph.printTestMessage();
+//		FloatArrayRef data = new FloatArrayRef();
+//		IntRef frameWidthPx = new IntRef();
+//		IntRef frameHeightPx = new IntRef();
+//		Ph.genTestHdrFrame(data, frameWidthPx, frameHeightPx);
+//		
+//		System.out.println("frame width: " + frameWidthPx.m_value + " | frame height: " + frameHeightPx.m_value);
+//		
+//		HdrFrame frame = new HdrFrame(frameWidthPx.m_value, frameHeightPx.m_value);
+//		for(int y = 0; y < frameHeightPx.m_value; y++)
+//		{
+//			for(int x = 0; x < frameWidthPx.m_value; x++)
+//			{
+//				int baseIndex = (y * frameWidthPx.m_value + x) * 3;
+//				float r = data.m_value[baseIndex + 0];
+//				float g = data.m_value[baseIndex + 1];
+//				float b = data.m_value[baseIndex + 2];
+//				frame.setPixelRgb(x, y, r, g, b);
+//			}
+//		}
 		
-		FloatArrayRef data = new FloatArrayRef();
-		IntRef frameWidthPx = new IntRef();
-		IntRef frameHeightPx = new IntRef();
-		Ph.genTestHdrFrame(data, frameWidthPx, frameHeightPx);
+		LongRef cameraId = new LongRef();
+		Ph.phCreateCamera(cameraId, Ph.PH_DEFAULT_CAMERA_TYPE);
 		
-		System.out.println("frame width: " + frameWidthPx.m_value + " | frame height: " + frameHeightPx.m_value);
+		LongRef worldId = new LongRef();
+		Ph.phCreateWorld(worldId);
 		
-		HdrFrame frame = new HdrFrame(frameWidthPx.m_value, frameHeightPx.m_value);
-		for(int y = 0; y < frameHeightPx.m_value; y++)
+		LongRef rendererId = new LongRef();
+		Ph.phCreateRenderer(rendererId, Ph.PH_IMPORTANCE_RENDERER_TYPE);
+		
+		LongRef filmId = new LongRef();
+		Ph.phCreateFilm(filmId, 1280, 720);
+		
+		LongRef sampleGeneratorId = new LongRef();
+		Ph.phCreateSampleGenerator(sampleGeneratorId, Ph.PH_STANDARD_SAMPLE_GENERATOR_TYPE, 16);
+		
+		Ph.phSetCameraFilm(cameraId.m_value, filmId.m_value);
+		Ph.phSetRendererSampleGenerator(rendererId.m_value, sampleGeneratorId.m_value);
+		Ph.phLoadTestScene(worldId.m_value);
+		Ph.phCookWorld(worldId.m_value);
+		
+		Ph.phRender(rendererId.m_value, worldId.m_value, cameraId.m_value);
+		
+		LongRef frameId = new LongRef();
+		Ph.phCreateFrame(frameId, Ph.PH_HDR_FRAME_TYPE, 1280, 720);
+		Ph.phDevelopFilm(filmId.m_value, frameId.m_value);
+		
+		FloatArrayRef pixelData = new FloatArrayRef();
+		IntRef widthPx = new IntRef();
+		IntRef heightPx = new IntRef();
+		IntRef nPixelComponents = new IntRef();
+		Ph.phGetFrameData(frameId.m_value, pixelData, widthPx, heightPx, nPixelComponents);
+		
+		System.out.println("frame width: " + widthPx.m_value + " | frame height: " + heightPx.m_value);
+		
+		HdrFrame hdrFrame = new HdrFrame(widthPx.m_value, heightPx.m_value);
+		for(int y = 0; y < heightPx.m_value; y++)
 		{
-			for(int x = 0; x < frameWidthPx.m_value; x++)
+			for(int x = 0; x < widthPx.m_value; x++)
 			{
-				int baseIndex = (y * frameWidthPx.m_value + x) * 3;
-				float r = data.m_value[baseIndex + 0];
-				float g = data.m_value[baseIndex + 1];
-				float b = data.m_value[baseIndex + 2];
-				frame.setPixelRgb(x, y, r, g, b);
+				int baseIndex = (y * widthPx.m_value + x) * 3;
+				float r = pixelData.m_value[baseIndex + 0];
+				float g = pixelData.m_value[baseIndex + 1];
+				float b = pixelData.m_value[baseIndex + 2];
+				hdrFrame.setPixelRgb(x, y, r, g, b);
 			}
 		}
 		
@@ -76,7 +124,7 @@ public class Main
 			@Override
 			public void run()
 			{
-				window.render(frame);
+				window.render(hdrFrame);
 				System.out.println("rendering done");
 			}
 		});

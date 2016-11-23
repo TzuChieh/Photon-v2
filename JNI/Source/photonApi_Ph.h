@@ -11,10 +11,14 @@ extern "C" {
 #define photonApi_Ph_PH_BRUTE_FORCE_RENDERER_TYPE 1L
 #undef photonApi_Ph_PH_IMPORTANCE_RENDERER_TYPE
 #define photonApi_Ph_PH_IMPORTANCE_RENDERER_TYPE 2L
+#undef photonApi_Ph_PH_MT_IMPORTANCE_RENDERER_TYPE
+#define photonApi_Ph_PH_MT_IMPORTANCE_RENDERER_TYPE 3L
 #undef photonApi_Ph_PH_HDR_FRAME_TYPE
 #define photonApi_Ph_PH_HDR_FRAME_TYPE 50L
 #undef photonApi_Ph_PH_DEFAULT_CAMERA_TYPE
 #define photonApi_Ph_PH_DEFAULT_CAMERA_TYPE 100L
+#undef photonApi_Ph_PH_STANDARD_SAMPLE_GENERATOR_TYPE
+#define photonApi_Ph_PH_STANDARD_SAMPLE_GENERATOR_TYPE 150L
 /*
  * Class:     photonApi_Ph
  * Method:    phStart
@@ -49,11 +53,27 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteRenderer
 
 /*
  * Class:     photonApi_Ph
+ * Method:    phCreateFilm
+ * Signature: (LphotonApi/LongRef;II)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateFilm
+  (JNIEnv *, jclass, jobject, jint, jint);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phDeleteFilm
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteFilm
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     photonApi_Ph
  * Method:    phCreateCamera
- * Signature: (LphotonApi/LongRef;III)V
+ * Signature: (LphotonApi/LongRef;I)V
  */
 JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateCamera
-  (JNIEnv *, jclass, jobject, jint, jint, jint);
+  (JNIEnv *, jclass, jobject, jint);
 
 /*
  * Class:     photonApi_Ph
@@ -61,6 +81,22 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateCamera
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteCamera
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phCreateFrame
+ * Signature: (LphotonApi/LongRef;III)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateFrame
+  (JNIEnv *, jclass, jobject, jint, jint, jint);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phDeleteFrame
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteFrame
   (JNIEnv *, jclass, jlong);
 
 /*
@@ -81,27 +117,75 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteWorld
 
 /*
  * Class:     photonApi_Ph
- * Method:    phCreateRenderTask
- * Signature: (LphotonApi/LongRef;JJJJ)V
+ * Method:    phCreateSampleGenerator
+ * Signature: (LphotonApi/LongRef;II)V
  */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateRenderTask
-  (JNIEnv *, jclass, jobject, jlong, jlong, jlong, jlong);
+JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateSampleGenerator
+  (JNIEnv *, jclass, jobject, jint, jint);
 
 /*
  * Class:     photonApi_Ph
- * Method:    phDeleteRenderTask
+ * Method:    phDeleteSampleGenerator
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteRenderTask
+JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteSampleGenerator
   (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     photonApi_Ph
- * Method:    phRunRenderTask
+ * Method:    phRender
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phRender
+  (JNIEnv *, jclass, jlong, jlong, jlong);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phLoadTestScene
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phRunRenderTask
+JNIEXPORT void JNICALL Java_photonApi_Ph_phLoadTestScene
   (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phSetCameraFilm
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phSetCameraFilm
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phSetRendererSampleGenerator
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phSetRendererSampleGenerator
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phCookWorld
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phCookWorld
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phDevelopFilm
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phDevelopFilm
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phGetFrameData
+ * Signature: (JLphotonApi/FloatArrayRef;LphotonApi/IntRef;LphotonApi/IntRef;LphotonApi/IntRef;)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phGetFrameData
+  (JNIEnv *, jclass, jlong, jobject, jobject, jobject, jobject);
 
 /*
  * Class:     photonApi_Ph
@@ -118,22 +202,6 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_printTestMessage
  */
 JNIEXPORT void JNICALL Java_photonApi_Ph_genTestHdrFrame
   (JNIEnv *, jclass, jobject, jobject, jobject);
-
-/*
- * Class:     photonApi_Ph
- * Method:    phCreateFrame
- * Signature: (LphotonApi/LongRef;III)V
- */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateFrame
-  (JNIEnv *, jclass, jobject, jint, jint, jint);
-
-/*
- * Class:     photonApi_Ph
- * Method:    phDeleteFrame
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteFrame
-  (JNIEnv *, jclass, jlong);
 
 #ifdef __cplusplus
 }

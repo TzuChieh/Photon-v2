@@ -34,13 +34,14 @@ bool ApiDatabase::removeRenderer(const std::size_t rendererId)
 
 Renderer* ApiDatabase::getRenderer(const std::size_t rendererId)
 {
-	Renderer* renderer = renderers.get(rendererId)->get();
+	auto* renderer = renderers.get(rendererId);
 	if(renderer == nullptr)
 	{
-		std::cerr << "Renderer<" + rendererId << "> does not exist" << std::endl;
+		std::cerr << "Renderer<" << rendererId << "> does not exist" << std::endl;
+		return nullptr;
 	}
 
-	return renderer;
+	return renderer->get();
 }
 
 // ***************************************************************************
@@ -58,13 +59,14 @@ bool ApiDatabase::removeFrame(const std::size_t frameId)
 
 Frame* ApiDatabase::getFrame(const std::size_t frameId)
 {
-	Frame* frame = frames.get(frameId)->get();
+	auto* frame = frames.get(frameId);
 	if(frame == nullptr)
 	{
-		std::cerr << "Frame<" + frameId << "> does not exist" << std::endl;
+		std::cerr << "Frame<" << frameId << "> does not exist" << std::endl;
+		return nullptr;
 	}
 
-	return frame;
+	return frame->get();
 }
 
 // ***************************************************************************
@@ -82,13 +84,14 @@ bool ApiDatabase::removeWorld(const std::size_t worldId)
 
 World* ApiDatabase::getWorld(const std::size_t worldId)
 {
-	World* world = worlds.get(worldId)->get();
+	auto* world = worlds.get(worldId);
 	if(world == nullptr)
 	{
-		std::cerr << "World<" + worldId << "> does not exist" << std::endl;
+		std::cerr << "World<" << worldId << "> does not exist" << std::endl;
+		return nullptr;
 	}
 
-	return world;
+	return world->get();
 }
 
 // ***************************************************************************
@@ -106,13 +109,14 @@ bool ApiDatabase::removeCamera(const std::size_t cameraId)
 
 Camera* ApiDatabase::getCamera(const std::size_t cameraId)
 {
-	Camera* camera = cameras.get(cameraId)->get();
+	auto* camera = cameras.get(cameraId);
 	if(camera == nullptr)
 	{
-		std::cerr << "Camera<" + cameraId << "> does not exist" << std::endl;
+		std::cerr << "Camera<" << cameraId << "> does not exist" << std::endl;
+		return nullptr;
 	}
 
-	return camera;
+	return camera->get();
 }
 
 // ***************************************************************************
@@ -130,13 +134,14 @@ bool ApiDatabase::removeSampleGenerator(const std::size_t sampleGeneratorId)
 
 SampleGenerator* ApiDatabase::getSampleGenerator(const std::size_t sampleGeneratorId)
 {
-	SampleGenerator* sampleGenerator = sampleGenerators.get(sampleGeneratorId)->get();
+	auto* sampleGenerator = sampleGenerators.get(sampleGeneratorId);
 	if(sampleGenerator == nullptr)
 	{
-		std::cerr << "SampleGenerator<" + sampleGeneratorId << "> does not exist" << std::endl;
+		std::cerr << "SampleGenerator<" << sampleGeneratorId << "> does not exist" << std::endl;
+		return nullptr;
 	}
 
-	return sampleGenerator;
+	return sampleGenerator->get();
 }
 
 // ***************************************************************************
@@ -154,13 +159,14 @@ bool ApiDatabase::removeFilm(const std::size_t filmId)
 
 Film* ApiDatabase::getFilm(const std::size_t filmId)
 {
-	Film* film = films.get(filmId)->get();
+	auto* film = films.get(filmId);
 	if(film == nullptr)
 	{
-		std::cerr << "Film<" + filmId << "> does not exist" << std::endl;
+		std::cerr << "Film<" << filmId << "> does not exist" << std::endl;
+		return nullptr;
 	}
 
-	return film;
+	return film->get();
 }
 
 void ApiDatabase::releaseAllData()

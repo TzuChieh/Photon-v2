@@ -31,14 +31,19 @@ public:
 		return m_heightPx;
 	}
 
+	virtual inline uint32 nPixelComponents() const override
+	{
+		return 3;
+	}
+
+	virtual inline const float32* getPixelData() const override
+	{
+		return m_pixelData.data();
+	}
+
 	inline float32 getPixel(const uint32 x, const uint32 y) const
 	{
 		return m_pixelData[y * getWidthPx() + x];
-	}
-
-	inline const float32* getPixelData() const
-	{
-		return m_pixelData.data();
 	}
 
 	HDRFrame& operator = (const HDRFrame& rhs);

@@ -2,9 +2,13 @@
 #include "Api/ApiDatabase.h"
 #include "Core/BruteForceRenderer.h"
 #include "Core/ImportanceRenderer.h"
+#include "Core/MtImportanceRenderer.h"
 #include "World/World.h"
 #include "Camera/DefaultCamera.h"
 #include "Core/StandardSampleGenerator.h"
+#include "Api/test_scene.h"
+#include "Image/Film.h"
+#include "Image/Frame.h"
 
 #include <memory>
 #include <iostream>
@@ -33,6 +37,10 @@ void phCreateRenderer(PHuint64* out_rendererId, const PHint32 rendererType)
 		*out_rendererId = static_cast<std::size_t>(ApiDatabase::addRenderer(std::make_unique<ImportanceRenderer>()));
 		break;
 
+	case PH_MT_IMPORTANCE_RENDERER_TYPE:
+		*out_rendererId = static_cast<std::size_t>(ApiDatabase::addRenderer(std::make_unique<MtImportanceRenderer>()));
+		break;
+
 	default:
 		std::cerr << "unidentified renderer type at phCreateRenderer()" << std::endl;
 	}
@@ -52,7 +60,7 @@ void phDeleteRenderer(const PHuint64 rendererId)
 
 void phCreateWorld(PHuint64* out_worldId)
 {
-	*out_worldId = static_cast<std::size_t>(ph::ApiDatabase::addWorld(std::make_unique<ph::World>()));
+	*out_worldId = static_cast<PHuint64>(ph::ApiDatabase::addWorld(std::make_unique<ph::World>()));
 }
 
 void phDeleteWorld(const PHuint64 worldId)
@@ -70,7 +78,7 @@ void phCreateCamera(PHuint64* out_cameraId, const PHint32 cameraType)
 	switch(cameraType)
 	{
 	case PH_DEFAULT_CAMERA_TYPE:
-		*out_cameraId = static_cast<std::size_t>(ApiDatabase::addCamera(std::make_unique<DefaultCamera>()));
+		*out_cameraId = static_cast<PHuint64>(ApiDatabase::addCamera(std::make_unique<DefaultCamera>()));
 		break;
 
 	default:
@@ -86,6 +94,33 @@ void phDeleteCamera(const PHuint64 cameraId)
 	}
 }
 
+void phSetCameraFilm(const PHuint64 cameraId, const PHuint64 filmId)
+{
+	using namespace ph;
+
+	Camera* camera = ApiDatabase::getCamera(cameraId);
+	Film*   film   = ApiDatabase::getFilm(filmId);
+	if(camera && film)
+	{
+		camera->setFilm(film);
+	}
+}
+
+void phCreateFilm(PHuint64* out_filmId, const PHuint32 filmWidthPx, const PHuint32 filmHeightPx)
+{
+	using namespace ph;
+
+	*out_filmId = static_cast<PHuint64>(ApiDatabase::addFilm(std::make_unique<Film>(static_cast<uint32>(filmWidthPx), static_cast<uint32>(filmHeightPx))));
+}
+
+void phDeleteFilm(const PHuint64 filmId)
+{
+	if(!ph::ApiDatabase::removeFilm(filmId))
+	{
+		std::cerr << "error while deleting film<" << filmId << ">" << std::endl;
+	}
+}
+
 void phCreateSampleGenerator(PHuint64* out_sampleGeneratorId, const PHint32 sampleGeneratorType, const PHuint32 sppBudget)
 {
 	using namespace ph;
@@ -93,7 +128,7 @@ void phCreateSampleGenerator(PHuint64* out_sampleGeneratorId, const PHint32 samp
 	switch(sampleGeneratorType)
 	{
 	case PH_STANDARD_SAMPLE_GENERATOR_TYPE:
-		*out_sampleGeneratorId = static_cast<std::size_t>(ApiDatabase::addSampleGenerator(std::make_unique<StandardSampleGenerator>(sppBudget)));
+		*out_sampleGeneratorId = static_cast<PHuint64>(ApiDatabase::addSampleGenerator(std::make_unique<StandardSampleGenerator>(sppBudget)));
 		break;
 
 	default:
@@ -106,5 +141,91 @@ void phDeleteSampleGenerator(const PHuint64 sampleGeneratorId)
 	if(!ph::ApiDatabase::removeSampleGenerator(sampleGeneratorId))
 	{
 		std::cerr << "error while deleting SampleGenerator<" << sampleGeneratorId << ">" << std::endl;
+	}
+}
+
+void phLoadTestScene(const PHuint64 worldId)
+{
+	using namespace ph;
+
+	World* world = ApiDatabase::getWorld(worldId);
+	if(world)
+	{
+		load5bScene(world);
+	}
+}
+
+void phRender(const PHuint64 rendererId, const PHuint64 worldId, const PHuint64 cameraId)
+{
+	using namespace ph;
+
+	Renderer* renderer = ApiDatabase::getRenderer(rendererId);
+	World*    world    = ApiDatabase::getWorld(worldId);
+	Camera*   camera   = ApiDatabase::getCamera(cameraId);
+	if(renderer && world && camera)
+	{
+		if(!camera->getFilm())
+		{
+			std::cerr << "warning: at phRender(), camera has no film" << std::endl;
+			return;
+		}
+
+		if(!renderer->isReady())
+		{
+			std::cerr << "warning: at phRender(), renderer is not ready" << std::endl;
+			return;
+		}
+
+		renderer->render(*world, *camera);
+	}
+}
+
+void phSetRendererSampleGenerator(const PHuint64 rendererId, const PHuint64 sampleGeneratorId)
+{
+	using namespace ph;
+
+	Renderer*        renderer        = ApiDatabase::getRenderer(rendererId);
+	SampleGenerator* sampleGenerator = ApiDatabase::getSampleGenerator(sampleGeneratorId);
+
+	if(renderer && sampleGenerator)
+	{
+		renderer->setSampleGenerator(sampleGenerator);
+	}
+}
+
+void phCookWorld(const PHuint64 worldId)
+{
+	using namespace ph;
+
+	World* world = ApiDatabase::getWorld(worldId);
+	if(world)
+	{
+		world->cook();
+	}
+}
+
+void phDevelopFilm(const PHuint64 filmId, const PHuint64 frameId)
+{
+	using namespace ph;
+
+	Film*  film  = ApiDatabase::getFilm(filmId);
+	Frame* frame = ApiDatabase::getFrame(frameId);
+	if(film && frame)
+	{
+		film->developFilm(frame);
+	}
+}
+
+void phGetFrameData(const PHuint64 frameId, const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32* out_heightPx, PHuint32* out_nPixelComponents)
+{
+	using namespace ph;
+
+	Frame* frame = ApiDatabase::getFrame(frameId);
+	if(frame)
+	{
+		*out_data             = frame->getPixelData();
+		*out_widthPx          = frame->getWidthPx();
+		*out_heightPx         = frame->getHeightPx();
+		*out_nPixelComponents = frame->nPixelComponents();
 	}
 }

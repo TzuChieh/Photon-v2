@@ -23,6 +23,7 @@ protected:
 	static void cacheJavaFieldId(const std::string& fieldName, const std::string& fieldSignature, JNIEnv* env);
 
 public:
+	// notice that we can't cache JNIEnv across multiple threads, hence it must be a parameter
 	JObject(jobject m_jobject, JNIEnv* m_env);
 	virtual ~JObject() = 0;
 
@@ -76,6 +77,8 @@ void JObject<T>::cacheJavaClass(const std::string& className, JNIEnv* env)
 		std::cerr << "error at NewGlobalRef()" << std::endl;
 		return;
 	}
+
+	// TODO: delete global references when the native library is garbage collected
 }
 
 template<typename T>

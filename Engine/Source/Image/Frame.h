@@ -18,6 +18,8 @@ public:
 
 	virtual uint32 getWidthPx() const = 0;
 	virtual uint32 getHeightPx() const = 0;
+	virtual uint32 nPixelComponents() const = 0;
+	virtual const float32* getPixelData() const = 0;
 };
 
 }// end namespace ph

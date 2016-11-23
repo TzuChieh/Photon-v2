@@ -73,7 +73,7 @@ void Film::developFilm(Frame* const out_frame) const
 			sensorG /= senseCount;
 			sensorB /= senseCount;
 
-			out_frame->setPixel(x, y, sensorR, sensorG, sensorB);
+			out_frame->setPixel(x, y, static_cast<float32>(sensorR), static_cast<float32>(sensorG), static_cast<float32>(sensorB));
 		}
 	}
 }
