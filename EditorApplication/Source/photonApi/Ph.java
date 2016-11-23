@@ -48,6 +48,9 @@ public final class Ph
 	public static native void    phDevelopFilm(long filmId, long frameId);
 	public static native void    phGetFrameData(long frameId, FloatArrayRef out_pixelData, IntRef out_widthPx, IntRef out_heightPx, IntRef out_nPixelComponents);
 	
+	public static native void    phSetCameraPosition(long cameraId, float x, float y, float z);
+	public static native void    phSetCameraDirection(long cameraId, float x, float y, float z);
+	
 	// some tests
 	
 	public static native void printTestMessage();

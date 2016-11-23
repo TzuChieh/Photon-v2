@@ -74,6 +74,7 @@ public class Main
 		
 		LongRef cameraId = new LongRef();
 		Ph.phCreateCamera(cameraId, Ph.PH_DEFAULT_CAMERA_TYPE);
+		Ph.phSetCameraPosition(cameraId.m_value, 0, 0, 4);
 		
 		LongRef worldId = new LongRef();
 		Ph.phCreateWorld(worldId);

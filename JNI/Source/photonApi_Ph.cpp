@@ -344,3 +344,25 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phGetFrameData
 	jHeightPx.setValue(static_cast<PHint32>(heightPx));
 	jnPixelComponents.setValue(static_cast<PHint32>(nPixelComponents));
 }
+
+/*
+* Class:     photonApi_Ph
+* Method:    phSetCameraPosition
+* Signature: (JFFF)V
+*/
+JNIEXPORT void JNICALL Java_photonApi_Ph_phSetCameraPosition
+(JNIEnv* env, jclass thiz, jlong cameraId, jfloat x, jfloat y, jfloat z)
+{
+	phSetCameraPosition(static_cast<PHuint64>(cameraId), x, y, z);
+}
+
+/*
+* Class:     photonApi_Ph
+* Method:    phSetCameraDirection
+* Signature: (JFFF)V
+*/
+JNIEXPORT void JNICALL Java_photonApi_Ph_phSetCameraDirection
+(JNIEnv* env, jclass thiz, jlong cameraId, jfloat x, jfloat y, jfloat z)
+{
+	phSetCameraDirection(static_cast<PHuint64>(cameraId), x, y, z);
+}

@@ -4,6 +4,7 @@
 #include "Core/ImportanceRenderer.h"
 #include "Core/MtImportanceRenderer.h"
 #include "World/World.h"
+#include "Camera/Camera.h"
 #include "Camera/DefaultCamera.h"
 #include "Core/StandardSampleGenerator.h"
 #include "Api/test_scene.h"
@@ -227,5 +228,27 @@ void phGetFrameData(const PHuint64 frameId, const PHfloat32** out_data, PHuint32
 		*out_widthPx          = frame->getWidthPx();
 		*out_heightPx         = frame->getHeightPx();
 		*out_nPixelComponents = frame->nPixelComponents();
+	}
+}
+
+void phSetCameraPosition(const PHuint64 cameraId, const PHfloat32 x, const PHfloat32 y, const PHfloat32 z)
+{
+	using namespace ph;
+
+	Camera* camera = ApiDatabase::getCamera(cameraId);
+	if(camera)
+	{
+		camera->setPosition(Vector3f(x, y, z));
+	}
+}
+
+void phSetCameraDirection(const PHuint64 cameraId, const PHfloat32 x, const PHfloat32 y, const PHfloat32 z)
+{
+	using namespace ph;
+
+	Camera* camera = ApiDatabase::getCamera(cameraId);
+	if(camera)
+	{
+		camera->setDirection(Vector3f(x, y, z).normalizeLocal());
 	}
 }

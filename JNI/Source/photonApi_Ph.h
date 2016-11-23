@@ -189,6 +189,22 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phGetFrameData
 
 /*
  * Class:     photonApi_Ph
+ * Method:    phSetCameraPosition
+ * Signature: (JFFF)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phSetCameraPosition
+  (JNIEnv *, jclass, jlong, jfloat, jfloat, jfloat);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phSetCameraDirection
+ * Signature: (JFFF)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phSetCameraDirection
+  (JNIEnv *, jclass, jlong, jfloat, jfloat, jfloat);
+
+/*
+ * Class:     photonApi_Ph
  * Method:    printTestMessage
  * Signature: ()V
  */

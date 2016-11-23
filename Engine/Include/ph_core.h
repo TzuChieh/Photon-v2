@@ -88,6 +88,9 @@ extern PH_API void phSetRendererSampleGenerator(const PHuint64 rendererId, const
 extern PH_API void phDevelopFilm(const PHuint64 filmId, const PHuint64 frameId);
 extern PH_API void phGetFrameData(const PHuint64 frameId, const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32* out_heightPx, PHuint32* out_nPixelComponents);
 
+extern PH_API void phSetCameraPosition(const PHuint64 cameraId, const PHfloat32 x, const PHfloat32 y, const PHfloat32 z);
+extern PH_API void phSetCameraDirection(const PHuint64 cameraId, const PHfloat32 x, const PHfloat32 y, const PHfloat32 z);
+
 #ifdef __cplusplus
 }
 #endif
