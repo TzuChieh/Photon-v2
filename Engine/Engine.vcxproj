@@ -172,7 +172,6 @@
     <ClCompile Include="Source\Core\Intersection.cpp" />
     <ClCompile Include="Source\Core\MtImportanceRenderer.cpp" />
     <ClCompile Include="Source\Core\Renderer.cpp" />
-    <ClCompile Include="Source\Core\RenderTask.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator.cpp" />
     <ClCompile Include="Source\Core\StandardSampleGenerator.cpp" />
     <ClCompile Include="Source\Math\Transform.cpp" />
@@ -224,7 +223,6 @@
     <ClInclude Include="Source\Core\BruteForceRenderer.h" />
     <ClInclude Include="Source\Core\Integrator.h" />
     <ClInclude Include="Source\Core\MtImportanceRenderer.h" />
-    <ClInclude Include="Source\Core\RenderTask.h" />
     <ClInclude Include="Source\Image\Film.h" />
     <ClInclude Include="Source\Core\ImportanceRenderer.h" />
     <ClInclude Include="Source\Core\Intersection.h" />

@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <iostream>
+#include <algorithm>
 
 namespace ph
 {
@@ -75,6 +76,12 @@ void Film::developFilm(Frame* const out_frame) const
 			out_frame->setPixel(x, y, sensorR, sensorG, sensorB);
 		}
 	}
+}
+
+void Film::clear()
+{
+	std::fill(m_pixelRadianceSensors.begin(), m_pixelRadianceSensors.end(), 0.0f);
+	std::fill(m_pixelSenseCounts.begin(), m_pixelSenseCounts.end(), 0);
 }
 
 }// end namespace ph

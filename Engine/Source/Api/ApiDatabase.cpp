@@ -1,6 +1,5 @@
 #include "Api/ApiDatabase.h"
 #include "Image/Frame.h"
-#include "Core/RenderTask.h"
 #include "Core/Renderer.h"
 #include "Camera/Camera.h"
 #include "World/World.h"
@@ -13,37 +12,12 @@
 namespace ph
 {
 
-TStableIndexDenseArray<std::unique_ptr<RenderTask>>      ApiDatabase::renderTasks;
 TStableIndexDenseArray<std::unique_ptr<Renderer>>        ApiDatabase::renderers;
 TStableIndexDenseArray<std::unique_ptr<Frame>>           ApiDatabase::frames;
 TStableIndexDenseArray<std::unique_ptr<World>>           ApiDatabase::worlds;
 TStableIndexDenseArray<std::unique_ptr<Camera>>          ApiDatabase::cameras;
 TStableIndexDenseArray<std::unique_ptr<SampleGenerator>> ApiDatabase::sampleGenerators;
 TStableIndexDenseArray<std::unique_ptr<Film>>            ApiDatabase::films;
-
-// ***************************************************************************
-// RenderTask
-
-std::size_t ApiDatabase::addRenderTask(std::unique_ptr<RenderTask> renderTask)
-{
-	return renderTasks.add(std::move(renderTask));
-}
-
-bool ApiDatabase::removeRenderTask(const std::size_t renderTaskId)
-{
-	return renderTasks.remove(renderTaskId);
-}
-
-RenderTask* ApiDatabase::getRenderTask(const std::size_t renderTaskId)
-{
-	RenderTask* renderTask = renderTasks.get(renderTaskId)->get();
-	if(renderTask == nullptr)
-	{
-		std::cerr << "RenderTesk<" + renderTaskId << "> does not exist" << std::endl;
-	}
-
-	return renderTask;
-}
 
 // ***************************************************************************
 // Renderer
@@ -192,7 +166,6 @@ Film* ApiDatabase::getFilm(const std::size_t filmId)
 void ApiDatabase::releaseAllData()
 {
 	frames.removeAll();
-	renderTasks.removeAll();
 	renderers.removeAll();
 	worlds.removeAll();
 	cameras.removeAll();

@@ -73,10 +73,6 @@ extern PH_API void phDeleteFrame(const PHuint64 frameId);
 extern PH_API void phCreateCamera(PHuint64* out_cameraId, const PHint32 cameraType);
 extern PH_API void phDeleteCamera(const PHuint64 cameraId);
 
-extern PH_API void phCreateRenderTask(PHuint64* out_renderTaskId, const PHuint64 rendererId, const PHuint64 worldId, const PHuint64 cameraId);
-extern PH_API void phDeleteRenderTask(const PHuint64 renderTaskId);
-extern PH_API void phRunRenderTask(const PHuint64 renderTaskId);
-
 extern PH_API void phCreateSampleGenerator(PHuint64* out_sampleGeneratorId, const PHint32 sampleGeneratorType, const PHuint32 sppBudget);
 extern PH_API void phDeleteSampleGenerator(const PHuint64 sampleGeneratorId);
 

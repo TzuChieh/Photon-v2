@@ -18,6 +18,7 @@ public:
 	void accumulateRadiance(const uint32 x, const uint32 y, const Vector3f& radiance);
 	void accumulateRadiance(const Film& other);
 	void developFilm(Frame* const out_frame) const;
+	void clear();
 
 	inline uint32 getWidthPx() const
 	{

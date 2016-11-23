@@ -126,9 +126,6 @@
     <ClCompile Include="Source\Api\ph_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\RenderTask.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Core\Integrator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -291,9 +288,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\World\World.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\RenderTask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Api\ApiDatabase.h">

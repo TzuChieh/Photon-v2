@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Common/primitive_type.h"
+
 #include <iostream>
 
 namespace ph
@@ -18,6 +20,9 @@ public:
 	virtual ~Renderer() = 0;
 
 	virtual void render(const World& world, const Camera& camera) const = 0;
+
+	virtual void queryIntermediateFilm(Film* const out_film) const = 0;
+	virtual float32 queryPercentageProgress() const = 0;
 
 	inline void setSampleGenerator(SampleGenerator* const sampleGenerator)
 	{

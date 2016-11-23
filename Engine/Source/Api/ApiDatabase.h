@@ -8,7 +8,6 @@ namespace ph
 {
 
 class Frame;
-class RenderTask;
 class Renderer;
 class World;
 class Camera;
@@ -18,10 +17,6 @@ class Film;
 class ApiDatabase final
 {
 public:
-	static std::size_t addRenderTask(std::unique_ptr<RenderTask> renderTask);
-	static bool removeRenderTask(const std::size_t renderTaskId);
-	static RenderTask* getRenderTask(const std::size_t renderTaskId);
-
 	static std::size_t addRenderer(std::unique_ptr<Renderer> renderer);
 	static bool removeRenderer(const std::size_t rendererId);
 	static Renderer* getRenderer(const std::size_t rendererId);
@@ -49,7 +44,6 @@ public:
 	static void releaseAllData();
 
 private:
-	static TStableIndexDenseArray<std::unique_ptr<RenderTask>>      renderTasks;
 	static TStableIndexDenseArray<std::unique_ptr<Renderer>>        renderers;
 	static TStableIndexDenseArray<std::unique_ptr<Frame>>           frames;
 	static TStableIndexDenseArray<std::unique_ptr<World>>           worlds;

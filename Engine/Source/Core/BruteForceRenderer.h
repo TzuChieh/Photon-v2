@@ -5,12 +5,14 @@
 namespace ph
 {
 
-class BruteForceRenderer : public Renderer
+class BruteForceRenderer final : public Renderer
 {
 public:
 	virtual ~BruteForceRenderer() override;
 
 	virtual void render(const World& world, const Camera& camera) const override;
+	virtual void queryIntermediateFilm(Film* const out_film) const override;
+	virtual float32 queryPercentageProgress() const override;
 };
 
 }// end namepace ph

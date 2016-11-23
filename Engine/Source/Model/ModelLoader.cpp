@@ -4,6 +4,7 @@
 #include "Model/Model.h"
 #include "Model/Material/MatteOpaque.h"
 #include "Model/Geometry/GTriangleMesh.h"
+#include "Model/Material/PerfectMirror.h"
 
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -64,7 +65,8 @@ bool ModelLoader::load(const std::string& fullFilename, Model* const out_model)
 
 	auto geometry = std::make_shared<GTriangleMesh>();
 	auto material = std::make_shared<MatteOpaque>();
-
+	//auto material = std::make_shared<PerfectMirror>();
+	
 	for(std::size_t i = 0; i < indices.size(); i += 3)
 	{
 		geometry->addTriangle(GTriangle(positions[indices[i]], positions[indices[i + 1]], positions[indices[i + 2]]));

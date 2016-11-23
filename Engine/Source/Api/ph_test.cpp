@@ -15,7 +15,6 @@
 #include "Model/Material/AbradedOpaque.h"
 #include "Core/StandardSampleGenerator.h"
 #include "Image/Film.h"
-#include "Core/RenderTask.h"
 #include "Model/ModelLoader.h"
 
 #include <iostream>
@@ -126,8 +125,7 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 
 	// do something
 	std::cout << "rendering world" << std::endl;
-	RenderTask renderTask(&renderer, &world, &camera);
-	renderTask.run();
+	renderer.render(world, camera);
 	film.developFilm(&testHdrFrame);
 
 	// stop timer
@@ -183,6 +181,7 @@ void loadClassicCornellBoxScene(ph::World* out_world)
 
 	auto topWallBall = std::make_shared<GSphere>(wallRadius);
 	auto topWallMatl = std::make_shared<LightMaterial>();
+	//auto topWallMatl = std::make_shared<MatteOpaque>();
 	//topWallMatl->setEmittedRadiance(1.5f, 1.5f, 1.5f);
 	topWallMatl->setEmittedRadiance(1.0f, 1.0f, 1.0f);
 	Model topWallModel(topWallBall, topWallMatl);
@@ -235,4 +234,11 @@ void loadClassicCornellBoxScene(ph::World* out_world)
 	Model sphere5Model(sphere5Geometry, sphere5Matl);
 	sphere5Model.translate(boxHalfSize - 2.0f, -boxHalfSize + 0.8f, -8.5f);
 	out_world->addModel(sphere5Model);
+
+	/*auto lightGeometry = std::make_shared<GSphere>(0.2f);
+	auto lightMatl = std::make_shared<LightMaterial>();
+	lightMatl->setEmittedRadiance(1600000, 2000000, 1000000);
+	Model lightModel(lightGeometry, lightMatl);
+	lightModel.translate(-2.5f, 2.0f, -5.0f);
+	out_world->addModel(lightModel);*/
 }

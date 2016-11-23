@@ -4,7 +4,6 @@
 #include "Core/ImportanceRenderer.h"
 #include "World/World.h"
 #include "Camera/DefaultCamera.h"
-#include "Core/RenderTask.h"
 #include "Core/StandardSampleGenerator.h"
 
 #include <memory>
@@ -85,31 +84,6 @@ void phDeleteCamera(const PHuint64 cameraId)
 	{
 		std::cerr << "error while deleting Camera<" << cameraId << ">" << std::endl;
 	}
-}
-
-void phCreateRenderTask(PHuint64* out_renderTaskId, const PHuint64 rendererId, const PHuint64 worldId, const PHuint64 cameraId)
-{
-	using namespace ph;
-
-	World*    world    = ApiDatabase::getWorld(worldId);
-	Camera*   camera   = ApiDatabase::getCamera(cameraId);
-	Renderer* renderer = ApiDatabase::getRenderer(rendererId);
-
-	*out_renderTaskId = static_cast<std::size_t>(ApiDatabase::addRenderTask(std::make_unique<RenderTask>(renderer, world, camera)));
-}
-
-void phDeleteRenderTask(const PHuint64 renderTaskId)
-{
-	if(!ph::ApiDatabase::removeRenderTask(renderTaskId))
-	{
-		std::cerr << "error while deleting RenderTask<" << renderTaskId << ">" << std::endl;
-	}
-}
-
-void phRunRenderTask(const PHuint64 renderTaskId)
-{
-	ph::RenderTask* renderTask = ph::ApiDatabase::getRenderTask(renderTaskId);
-	renderTask->run();
 }
 
 void phCreateSampleGenerator(PHuint64* out_sampleGeneratorId, const PHint32 sampleGeneratorType, const PHuint32 sppBudget)
