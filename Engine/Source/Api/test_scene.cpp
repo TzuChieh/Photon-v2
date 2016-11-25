@@ -20,52 +20,52 @@ void load5bScene(World* const out_world)
 	const float32 wallRadius = 1000.0f;
 	const float32 boxHalfSize = 5.0f;
 
-	auto leftWallBall = std::make_shared<GSphere>(wallRadius);
-	auto leftWallMatl = std::make_shared<MatteOpaque>();
-	leftWallMatl->setAlbedo(0.9f, 0.0f, 0.0f);
-	//auto leftWallMatl = std::make_shared<AbradedOpaque>();
-	//leftWallMatl->setRoughness(1.0f);
-	//leftWallMatl->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));// gold
-	Model leftWallModel(leftWallBall, leftWallMatl);
-	leftWallModel.translate(-wallRadius - boxHalfSize, 0, 0);
-	out_world->addModel(leftWallModel);
+	//auto leftWallBall = std::make_shared<GSphere>(wallRadius);
+	//auto leftWallMatl = std::make_shared<MatteOpaque>();
+	//leftWallMatl->setAlbedo(0.9f, 0.0f, 0.0f);
+	////auto leftWallMatl = std::make_shared<AbradedOpaque>();
+	////leftWallMatl->setRoughness(1.0f);
+	////leftWallMatl->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));// gold
+	//Model leftWallModel(leftWallBall, leftWallMatl);
+	//leftWallModel.translate(-wallRadius - boxHalfSize, 0, 0);
+	//out_world->addModel(leftWallModel);
 
-	auto rightWallBall = std::make_shared<GSphere>(wallRadius);
-	auto rightWallMatl = std::make_shared<MatteOpaque>();
-	rightWallMatl->setAlbedo(0.0f, 0.0f, 0.9f);
-	Model rightWallModel(rightWallBall, rightWallMatl);
-	rightWallModel.translate(wallRadius + boxHalfSize, 0, 0);
-	out_world->addModel(rightWallModel);
+	//auto rightWallBall = std::make_shared<GSphere>(wallRadius);
+	//auto rightWallMatl = std::make_shared<MatteOpaque>();
+	//rightWallMatl->setAlbedo(0.0f, 0.0f, 0.9f);
+	//Model rightWallModel(rightWallBall, rightWallMatl);
+	//rightWallModel.translate(wallRadius + boxHalfSize, 0, 0);
+	//out_world->addModel(rightWallModel);
 
-	auto backWallBall = std::make_shared<GSphere>(wallRadius);
-	auto backWallMatl = std::make_shared<MatteOpaque>();
-	backWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
-	Model backWallModel(backWallBall, backWallMatl);
-	backWallModel.translate(0, 0, -wallRadius - boxHalfSize - 10.0f);
-	out_world->addModel(backWallModel);
+	//auto backWallBall = std::make_shared<GSphere>(wallRadius);
+	//auto backWallMatl = std::make_shared<MatteOpaque>();
+	//backWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
+	//Model backWallModel(backWallBall, backWallMatl);
+	//backWallModel.translate(0, 0, -wallRadius - boxHalfSize - 10.0f);
+	//out_world->addModel(backWallModel);
 
-	auto groundWallBall = std::make_shared<GSphere>(wallRadius);
-	auto groundWallMatl = std::make_shared<MatteOpaque>();
-	groundWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
-	Model groundWallModel(groundWallBall, groundWallMatl);
-	groundWallModel.translate(0, -wallRadius - boxHalfSize, 0);
-	out_world->addModel(groundWallModel);
+	//auto groundWallBall = std::make_shared<GSphere>(wallRadius);
+	//auto groundWallMatl = std::make_shared<MatteOpaque>();
+	//groundWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
+	//Model groundWallModel(groundWallBall, groundWallMatl);
+	//groundWallModel.translate(0, -wallRadius - boxHalfSize, 0);
+	//out_world->addModel(groundWallModel);
 
-	auto topWallBall = std::make_shared<GSphere>(wallRadius);
-	auto topWallMatl = std::make_shared<LightMaterial>();
-	//auto topWallMatl = std::make_shared<MatteOpaque>();
-	//topWallMatl->setEmittedRadiance(1.5f, 1.5f, 1.5f);
-	topWallMatl->setEmittedRadiance(1.0f, 1.0f, 1.0f);
-	Model topWallModel(topWallBall, topWallMatl);
-	topWallModel.translate(0, wallRadius + boxHalfSize, 0);
-	out_world->addModel(topWallModel);
+	//auto topWallBall = std::make_shared<GSphere>(wallRadius);
+	//auto topWallMatl = std::make_shared<LightMaterial>();
+	////auto topWallMatl = std::make_shared<MatteOpaque>();
+	////topWallMatl->setEmittedRadiance(1.5f, 1.5f, 1.5f);
+	//topWallMatl->setEmittedRadiance(1.0f, 1.0f, 1.0f);
+	//Model topWallModel(topWallBall, topWallMatl);
+	//topWallModel.translate(0, wallRadius + boxHalfSize, 0);
+	//out_world->addModel(topWallModel);
 
-	auto frontWallBall = std::make_shared<GSphere>(wallRadius);
-	auto frontWallMatl = std::make_shared<MatteOpaque>();
-	frontWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
-	Model frontWallModel(frontWallBall, frontWallMatl);
-	frontWallModel.translate(0, 0, wallRadius + boxHalfSize);
-	out_world->addModel(frontWallModel);
+	//auto frontWallBall = std::make_shared<GSphere>(wallRadius);
+	//auto frontWallMatl = std::make_shared<MatteOpaque>();
+	//frontWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
+	//Model frontWallModel(frontWallBall, frontWallMatl);
+	//frontWallModel.translate(0, 0, wallRadius + boxHalfSize);
+	//out_world->addModel(frontWallModel);
 
 	// scene objects
 

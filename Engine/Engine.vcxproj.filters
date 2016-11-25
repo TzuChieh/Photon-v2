@@ -69,15 +69,6 @@
     <ClCompile Include="Source\Core\BruteForceRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Model\Primitive\Primitive.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Model\Primitive\PSphere.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Model\Primitive\PTriangle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Model\Geometry\GTriangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -144,12 +135,6 @@
     <ClCompile Include="Source\World\KdtreeIntersector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Model\Primitive\BoundingVolume\AABB.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Model\Primitive\BoundingVolume\BoundingVolume.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\World\KdtreeNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -178,6 +163,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Image\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Model\BoundingVolume\AABB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Model\BoundingVolume\BoundingVolume.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -254,15 +245,6 @@
     <ClInclude Include="Source\Core\BruteForceRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Model\Primitive\Primitive.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Model\Primitive\PSphere.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Model\Primitive\PTriangle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Model\Geometry\GTriangle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -335,12 +317,6 @@
     <ClInclude Include="Source\World\KdtreeIntersector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Model\Primitive\BoundingVolume\AABB.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Model\Primitive\BoundingVolume\BoundingVolume.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\World\KdtreeNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -365,10 +341,13 @@
     <ClInclude Include="Source\Math\Normal3f.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Model\Primitive\DifferentialPrimitive.h">
+    <ClInclude Include="Source\Model\Geometry\Triangle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Model\Geometry\Triangle.h">
+    <ClInclude Include="Source\Model\BoundingVolume\AABB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Model\BoundingVolume\BoundingVolume.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

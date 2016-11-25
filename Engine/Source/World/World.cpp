@@ -4,7 +4,6 @@
 #include "Common/primitive_type.h"
 #include "Core/Ray.h"
 #include "Model/Model.h"
-#include "Model/Primitive/Primitive.h"
 #include "World/BruteForceIntersector.h"
 #include "World/KdtreeIntersector.h"
 #include "Model/Geometry/Triangle.h"

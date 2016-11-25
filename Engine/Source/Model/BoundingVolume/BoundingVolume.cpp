@@ -1,4 +1,4 @@
-#include "Model/Primitive/BoundingVolume/BoundingVolume.h"
+#include "Model/BoundingVolume/BoundingVolume.h"
 
 namespace ph
 {

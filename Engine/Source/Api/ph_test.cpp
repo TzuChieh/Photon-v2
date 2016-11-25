@@ -66,7 +66,7 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	//auto renderer = std::make_shared<BruteForceRenderer>();
 	//ImportanceRenderer renderer;
 	MtImportanceRenderer renderer;
-	StandardSampleGenerator sampleGenerator(16);
+	StandardSampleGenerator sampleGenerator(128);
 	World world;
 	DefaultCamera camera;
 	Film film(widthPx, heightPx);

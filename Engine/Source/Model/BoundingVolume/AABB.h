@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Model/Primitive/BoundingVolume/BoundingVolume.h"
+#include "Model/BoundingVolume/BoundingVolume.h"
 #include "Math/Vector3f.h"
 
 namespace ph

@@ -182,8 +182,8 @@
     <ClCompile Include="Source\Model\Geometry\GTriangleMesh.cpp" />
     <ClCompile Include="Source\Model\Geometry\Triangle.cpp" />
     <ClCompile Include="Source\Model\ModelLoader.cpp" />
-    <ClCompile Include="Source\Model\Primitive\BoundingVolume\AABB.cpp" />
-    <ClCompile Include="Source\Model\Primitive\BoundingVolume\BoundingVolume.cpp" />
+    <ClCompile Include="Source\Model\BoundingVolume\AABB.cpp" />
+    <ClCompile Include="Source\Model\BoundingVolume\BoundingVolume.cpp" />
     <ClCompile Include="Source\World\BruteForceIntersector.cpp" />
     <ClCompile Include="Source\World\Intersector.cpp" />
     <ClCompile Include="Source\World\KdtreeIntersector.cpp" />
@@ -205,8 +205,6 @@
     <ClCompile Include="Source\Model\Material\OpaqueMicrofacetSurfaceIntegrand.cpp" />
     <ClCompile Include="Source\Model\Material\PerfectMirror.cpp" />
     <ClCompile Include="Source\Model\Material\PerfectMirrorSurfaceIntegrand.cpp" />
-    <ClCompile Include="Source\Model\Primitive\Primitive.cpp" />
-    <ClCompile Include="Source\Model\Primitive\PSphere.cpp" />
     <ClCompile Include="Source\Model\Material\LambertianDiffuseSurfaceIntegrand.cpp" />
     <ClCompile Include="Source\Model\Material\LightMaterial.cpp" />
     <ClCompile Include="Source\Model\Material\LightSurfaceIntegrand.cpp" />
@@ -215,7 +213,6 @@
     <ClCompile Include="Source\Model\Material\MatteOpaque.cpp" />
     <ClCompile Include="Source\Model\Material\SurfaceIntegrand.cpp" />
     <ClCompile Include="Source\Model\Model.cpp" />
-    <ClCompile Include="Source\Model\Primitive\PTriangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\ph_core.h" />
@@ -245,9 +242,8 @@
     <ClInclude Include="Source\Model\Geometry\GTriangleMesh.h" />
     <ClInclude Include="Source\Model\Geometry\Triangle.h" />
     <ClInclude Include="Source\Model\ModelLoader.h" />
-    <ClInclude Include="Source\Model\Primitive\BoundingVolume\AABB.h" />
-    <ClInclude Include="Source\Model\Primitive\BoundingVolume\BoundingVolume.h" />
-    <ClInclude Include="Source\Model\Primitive\DifferentialPrimitive.h" />
+    <ClInclude Include="Source\Model\BoundingVolume\AABB.h" />
+    <ClInclude Include="Source\Model\BoundingVolume\BoundingVolume.h" />
     <ClInclude Include="Source\World\BruteForceIntersector.h" />
     <ClInclude Include="Source\World\Intersector.h" />
     <ClInclude Include="Source\World\KdtreeIntersector.h" />
@@ -267,8 +263,6 @@
     <ClInclude Include="Source\Model\Material\OpaqueMicrofacetSurfaceIntegrand.h" />
     <ClInclude Include="Source\Model\Material\PerfectMirror.h" />
     <ClInclude Include="Source\Model\Material\PerfectMirrorSurfaceIntegrand.h" />
-    <ClInclude Include="Source\Model\Primitive\Primitive.h" />
-    <ClInclude Include="Source\Model\Primitive\PSphere.h" />
     <ClInclude Include="Source\Model\Material\LambertianDiffuseSurfaceIntegrand.h" />
     <ClInclude Include="Source\Model\Material\LightMaterial.h" />
     <ClInclude Include="Source\Model\Material\LightSurfaceIntegrand.h" />
@@ -279,7 +273,6 @@
     <ClInclude Include="Source\Model\Material\MatteOpaque.h" />
     <ClInclude Include="Source\Model\Material\SurfaceIntegrand.h" />
     <ClInclude Include="Source\Model\Model.h" />
-    <ClInclude Include="Source\Model\Primitive\PTriangle.h" />
     <ClInclude Include="Source\Utility\TStableIndexDenseArray.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

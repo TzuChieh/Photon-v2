@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Model/Primitive/BoundingVolume/AABB.h"
+#include "Model/BoundingVolume/AABB.h"
 
 #include <memory>
 #include <vector>

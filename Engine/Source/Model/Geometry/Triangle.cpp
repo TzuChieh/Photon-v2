@@ -2,7 +2,7 @@
 #include "Model/Model.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
-#include "Model/Primitive/BoundingVolume/AABB.h"
+#include "Model/BoundingVolume/AABB.h"
 
 #include <limits>
 

@@ -1,5 +1,4 @@
 #include "World/BruteForceIntersector.h"
-#include "Model/Primitive/Primitive.h"
 #include "Common/primitive_type.h"
 #include "Core/Intersection.h"
 #include "Core/Ray.h"
