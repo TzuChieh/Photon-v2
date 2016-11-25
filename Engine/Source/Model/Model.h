@@ -10,6 +10,7 @@ namespace ph
 
 class Geometry;
 class Material;
+class TextureMapper;
 
 class Model final
 {
@@ -35,6 +36,11 @@ public:
 		return m_material.get();
 	}
 
+	inline const TextureMapper* getTextureMapper() const
+	{
+		return m_textureMapper.get();
+	}
+
 	inline const Transform* getModelToWorldTransform() const
 	{
 		return &m_modelToWorld;
@@ -55,6 +61,11 @@ public:
 		m_material = material;
 	}
 
+	inline void setTextureMapper(const std::shared_ptr<TextureMapper>& textureMapper)
+	{
+		m_textureMapper = textureMapper;
+	}
+
 	inline const Vector3f& getPosition() const
 	{
 		return m_transformInfo.getPosition();
@@ -71,8 +82,9 @@ public:
 	}
 
 private:
-	std::shared_ptr<Geometry> m_geometry;
-	std::shared_ptr<Material> m_material;
+	std::shared_ptr<Geometry>      m_geometry;
+	std::shared_ptr<Material>      m_material;
+	std::shared_ptr<TextureMapper> m_textureMapper;
 
 	TransformInfo m_transformInfo;
 	Transform m_modelToWorld;

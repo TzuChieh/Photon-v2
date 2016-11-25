@@ -1,25 +1,26 @@
 #include "Model/Model.h"
 #include "Math/Math.h"
+#include "Model/TextureMapper/DefaultMapper.h"
 
 namespace ph
 {
 
 Model::Model() : 
-	m_geometry(nullptr), m_material(nullptr), 
+	m_geometry(nullptr), m_material(nullptr), m_textureMapper(nullptr), 
 	m_transformInfo(), m_modelToWorld(), m_worldToModel()
 {
 
 }
 
 Model::Model(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<Material>& material) : 
-	m_geometry(geometry), m_material(material), 
+	m_geometry(geometry), m_material(material), m_textureMapper(std::make_shared<DefaultMapper>()), 
 	m_transformInfo(), m_modelToWorld(), m_worldToModel()
 {
 
 }
 
 Model::Model(const Model& other) : 
-	m_geometry(other.m_geometry), m_material(other.m_material), 
+	m_geometry(other.m_geometry), m_material(other.m_material), m_textureMapper(other.m_textureMapper), 
 	m_transformInfo(other.m_transformInfo), m_modelToWorld(other.m_modelToWorld), m_worldToModel(other.m_worldToModel)
 {
 

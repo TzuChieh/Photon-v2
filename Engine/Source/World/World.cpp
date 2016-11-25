@@ -47,6 +47,8 @@ void World::cook()
 		model.getGeometry()->discretize(&m_triangles, &model);
 	}
 
+	std::cout << "world discretized into " << m_triangles.size() << " triangles" << std::endl;
+
 	m_intersector->construct(m_triangles);
 }
 

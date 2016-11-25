@@ -4,7 +4,7 @@
 namespace ph
 {
 
-ConstantTexture::ConstantTexture(const float32 value) : 
+ConstantTexture::ConstantTexture(const Vector3f& value) :
 	m_value(value)
 {
 

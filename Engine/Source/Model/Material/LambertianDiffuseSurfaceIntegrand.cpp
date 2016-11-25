@@ -84,7 +84,7 @@ void LambertianDiffuseSurfaceIntegrand::evaluateImportanceRandomVPDF(const Inter
 void LambertianDiffuseSurfaceIntegrand::evaluateLiWeight(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_LiWeight) const
 {
 	Vector3f brdf;
-	m_matteOpaque->getAlbedo(&brdf);
+	m_matteOpaque->getAlbedo(intersection.getHitUVW(), &brdf);
 
 	brdf.mulLocal(1.0f / PI_FLOAT32);
 

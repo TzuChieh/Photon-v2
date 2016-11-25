@@ -43,7 +43,7 @@ public class Main
 				@Override
 				public void run()
 				{
-					window = new Window(1280, 720);
+					window = new Window(900, 900);
 				}
 			});
 		}

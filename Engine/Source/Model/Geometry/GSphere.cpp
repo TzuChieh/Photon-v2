@@ -2,6 +2,7 @@
 #include "Math/Vector3f.h"
 #include "Model/Model.h"
 #include "Model/Geometry/Triangle.h"
+#include "Model/TextureMapper/TextureMapper.h"
 
 #include <cmath>
 #include <iostream>
@@ -122,10 +123,32 @@ void GSphere::discretize(std::vector<Triangle>* const out_triangles, const Model
 		indexedTriangles = refined;
 	}
 
+	const auto* const textureMapper = parentModel->getTextureMapper();
+
 	// construct actual triangles
-	for(const IndexedTriangle& triangle : indexedTriangles)
+	for(const IndexedTriangle& iTriangle : indexedTriangles)
 	{
-		out_triangles->push_back(Triangle(parentModel, vertices[triangle.iA], vertices[triangle.iB], vertices[triangle.iC]));
+		Vector3f vA(vertices[iTriangle.iA]);
+		Vector3f vB(vertices[iTriangle.iB]);
+		Vector3f vC(vertices[iTriangle.iC]);
+
+		Triangle triangle(parentModel, vA, vB, vC);
+		triangle.setNa(vA.normalize());
+		triangle.setNb(vB.normalize());
+		triangle.setNc(vC.normalize());
+
+		float32 s, t;
+
+		textureMapper->map(vA, 0, 0, &s, &t);
+		triangle.setUVWa(Vector3f(s, t, 0));
+
+		textureMapper->map(vB, 0, 0, &s, &t);
+		triangle.setUVWb(Vector3f(s, t, 0));
+
+		textureMapper->map(vC, 0, 0, &s, &t);
+		triangle.setUVWc(Vector3f(s, t, 0));
+
+		out_triangles->push_back(triangle);
 	}
 }
 

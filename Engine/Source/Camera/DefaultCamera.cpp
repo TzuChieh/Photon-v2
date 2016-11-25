@@ -7,7 +7,7 @@ namespace ph
 
 DefaultCamera::DefaultCamera() :
 	Camera(),
-	m_fov(70.0f / 180.0f * 3.1415927f)
+	m_fov(50.0f / 180.0f * 3.1415927f)
 {
 
 }

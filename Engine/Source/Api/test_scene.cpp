@@ -9,11 +9,66 @@
 #include "Model/Material/LightMaterial.h"
 #include "Model/Material/PerfectMirror.h"
 #include "World/World.h"
+#include "Model/Geometry/GRectangle.h"
 
 #include <memory>
 
 namespace ph
 {
+
+void loadCornellBox(World* const out_world, const float32 boxSize)
+{
+	const float32 halfBoxSize = boxSize * 0.5f;
+
+	auto unitRectangleGeom = std::make_shared<GRectangle>(1.0f, 1.0f);
+
+	auto lightMatl = std::make_shared<LightMaterial>();
+	lightMatl->setEmittedRadiance(3.0f, 3.0f, 3.0f);
+	Model lightModel(unitRectangleGeom, lightMatl);
+	lightModel.rotate(Vector3f(1, 0, 0), 90);
+	lightModel.scale(boxSize * 0.3f);
+	lightModel.translate(0, halfBoxSize - halfBoxSize * 0.05f, 0);
+	out_world->addModel(lightModel);
+
+	auto leftWallMatl = std::make_shared<MatteOpaque>();
+	leftWallMatl->setAlbedo(0.9f, 0.0f, 0.0f);
+	Model leftWallModel(unitRectangleGeom, leftWallMatl);
+	leftWallModel.rotate(Vector3f(0, 1, 0), 90);
+	leftWallModel.scale(boxSize);
+	leftWallModel.translate(-halfBoxSize, 0, 0);
+	out_world->addModel(leftWallModel);
+
+	auto rightWallMatl = std::make_shared<MatteOpaque>();
+	rightWallMatl->setAlbedo(0.0f, 0.0f, 0.9f);
+	Model rightWallModel(unitRectangleGeom, rightWallMatl);
+	rightWallModel.rotate(Vector3f(0, 1, 0), -90);
+	rightWallModel.scale(boxSize);
+	rightWallModel.translate(halfBoxSize, 0, 0);
+	out_world->addModel(rightWallModel);
+
+	auto backWallMatl = std::make_shared<MatteOpaque>();
+	backWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
+	Model backWallModel(unitRectangleGeom, backWallMatl);
+	backWallModel.scale(boxSize);
+	backWallModel.translate(0, 0, -halfBoxSize);
+	out_world->addModel(backWallModel);
+
+	auto topWallMatl = std::make_shared<MatteOpaque>();
+	backWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
+	Model topWallModel(unitRectangleGeom, topWallMatl);
+	topWallModel.rotate(Vector3f(1, 0, 0), 90);
+	topWallModel.scale(boxSize);
+	topWallModel.translate(0, halfBoxSize, 0);
+	out_world->addModel(topWallModel);
+
+	auto groundWallMatl = std::make_shared<MatteOpaque>();
+	groundWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
+	Model groundWallModel(unitRectangleGeom, groundWallMatl);
+	groundWallModel.rotate(Vector3f(1, 0, 0), -90);
+	groundWallModel.scale(boxSize);
+	groundWallModel.translate(0, -halfBoxSize, 0);
+	out_world->addModel(groundWallModel);
+}
 
 void load5bScene(World* const out_world)
 {

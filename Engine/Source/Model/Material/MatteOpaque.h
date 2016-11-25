@@ -3,6 +3,9 @@
 #include "Model/Material/Material.h"
 #include "Model/Material/LambertianDiffuseSurfaceIntegrand.h"
 #include "Math/Vector3f.h"
+#include "Image/ConstantTexture.h"
+
+#include <memory>
 
 namespace ph
 {
@@ -18,19 +21,24 @@ public:
 		return &m_surfaceIntegrand;
 	}
 
-	inline void getAlbedo(Vector3f* const out_albedo) const
+	inline void getAlbedo(const Vector3f& uvw, Vector3f* const out_albedo) const
 	{
-		out_albedo->set(m_albedo);
+		m_albedo->sample(uvw.x, uvw.y, out_albedo);
 	}
 
 	inline void setAlbedo(const float32 r, const float32 g, const float32 b)
 	{
-		m_albedo.set(r, g, b);
+		m_albedo = std::make_shared<ConstantTexture>(Vector3f(r, g, b));
+	}
+
+	inline void setAlbedo(const std::shared_ptr<Texture>& albedo)
+	{
+		m_albedo = albedo;
 	}
 
 private:
 	LambertianDiffuseSurfaceIntegrand m_surfaceIntegrand;
-	Vector3f m_albedo;
+	std::shared_ptr<Texture> m_albedo;
 };
 
 }// end namespace ph
