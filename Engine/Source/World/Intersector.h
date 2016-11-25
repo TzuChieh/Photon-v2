@@ -8,14 +8,14 @@ namespace ph
 
 class Ray;
 class Intersection;
-class Primitive;
+class Triangle;
 
 class Intersector
 {
 public:
 	virtual ~Intersector() = 0;
 
-	virtual void construct(const std::vector<std::unique_ptr<Primitive>>& primitives) = 0;
+	virtual void construct(const std::vector<Triangle>& triangles) = 0;
 	virtual bool isIntersecting(const Ray& ray, Intersection* out_intersection) const = 0;
 };
 

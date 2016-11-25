@@ -60,7 +60,7 @@ bool PSphere::isIntersecting(const Ray& ray, Intersection* const out_intersectio
 		{
 			out_intersection->setHitPosition(ray.getDirection().mul(t).addLocal(ray.getOrigin()));
 			out_intersection->setHitNormal(out_intersection->getHitPosition().sub(m_center).divLocal(m_radius));
-			out_intersection->setHitPrimitive(this);
+			//out_intersection->setHitTriangle(this);
 
 			return true;
 		}
@@ -76,6 +76,11 @@ void PSphere::calcAABB(AABB* const out_aabb) const
 	out_aabb->setMinVertex(m_center.sub(m_radius + SPHERE_EPSILON));
 	out_aabb->setMaxVertex(m_center.add(m_radius + SPHERE_EPSILON));
 }
+
+//void PSphere::calcDifferentialPrimitive(const Vector3f& hitPos, DifferentialPrimitive* const out_diffPrim) const
+//{
+//
+//}
 
 PSphere& PSphere::operator = (const PSphere& rhs)
 {

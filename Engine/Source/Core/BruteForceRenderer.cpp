@@ -9,6 +9,7 @@
 #include "Model/Material/SurfaceIntegrand.h"
 #include "Math/constant.h"
 #include "Core/SampleGenerator.h"
+#include "Model/Geometry/Triangle.h"
 
 #include <cmath>
 #include <iostream>
@@ -44,7 +45,7 @@ void BruteForceRenderer::render(const World& world, const Camera& camera) const
 
 				while(numBounces <= maxBounces && world.isIntersecting(ray, &intersection))
 				{
-					const Model* hitModel = intersection.getHitPrimitive()->getParentModel();
+					const Model* hitModel = intersection.getHitTriangle()->getParentModel();
 					const Material* hitMaterial = hitModel->getMaterial();
 
 					Vector3f L;

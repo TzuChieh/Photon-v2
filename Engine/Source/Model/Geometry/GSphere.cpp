@@ -2,6 +2,7 @@
 #include "Model/Primitive/PSphere.h"
 #include "Math/Vector3f.h"
 #include "Model/Model.h"
+#include "Model/Geometry/Triangle.h"
 
 #include <cmath>
 #include <iostream>
@@ -36,6 +37,11 @@ void GSphere::genPrimitives(std::vector<std::unique_ptr<Primitive>>* const out_p
 	}
 
 	out_primitives->push_back(std::make_unique<PSphere>(center, radius, parentModel));
+}
+
+void GSphere::discretize(std::vector<Triangle>* const out_triangles, const Model* const parentModel) const
+{
+	std::cerr << "warning: GSphere::discretize not implemented" << std::endl;
 }
 
 GSphere& GSphere::operator = (const GSphere& rhs)

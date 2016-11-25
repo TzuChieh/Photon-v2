@@ -13,6 +13,7 @@ public:
 	virtual ~GTriangle() override;
 
 	virtual void genPrimitives(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const Model* const parentModel) const override;
+	virtual void discretize(std::vector<Triangle>* const out_triangles, const Model* const parentModel) const override;
 
 	inline const Vector3f getVa() const
 	{

@@ -8,6 +8,7 @@ class Intersection;
 class Model;
 class AABB;
 class Transform;
+class DifferentialPrimitive;
 
 class Primitive
 {
@@ -17,6 +18,7 @@ public:
 
 	virtual bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const = 0;
 	virtual void calcAABB(AABB* const out_aabb) const = 0;
+	//virtual void calcDifferentialPrimitive(const Vector3f& hitPos, DifferentialPrimitive* const out_diffPrim) const = 0;
 
 	const Transform* getModelToWorldTransform() const;
 	const Transform* getWorldToModelTransform() const;

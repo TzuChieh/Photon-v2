@@ -3,6 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Core/Intersection.h"
 #include "Core/Ray.h"
+#include "Model/Geometry/Triangle.h"
 
 #include <limits>
 
@@ -11,14 +12,14 @@ namespace ph
 
 BruteForceIntersector::~BruteForceIntersector() = default;
 
-void BruteForceIntersector::construct(const std::vector<std::unique_ptr<Primitive>>& primitives)
+void BruteForceIntersector::construct(const std::vector<Triangle>& triangles)
 {
-	m_primitives.clear();
-	m_primitives.shrink_to_fit();
+	m_triangles.clear();
+	m_triangles.shrink_to_fit();
 
-	for(const auto& primitive : primitives)
+	for(const auto& triangle : triangles)
 	{
-		m_primitives.push_back(primitive.get());
+		m_triangles.push_back(&triangle);
 	}
 }
 
@@ -27,9 +28,9 @@ bool BruteForceIntersector::isIntersecting(const Ray& ray, Intersection* out_int
 	Intersection intersection;
 	float32 closestSquaredHitDist = std::numeric_limits<float32>::infinity();
 
-	for(const auto& primitive : m_primitives)
+	for(const auto& triangle : m_triangles)
 	{
-		if(primitive->isIntersecting(ray, &intersection))
+		if(triangle->isIntersecting(ray, &intersection))
 		{
 			float32 squaredHitDist = intersection.getHitPosition().sub(ray.getOrigin()).squaredLength();
 			if(closestSquaredHitDist > squaredHitDist)

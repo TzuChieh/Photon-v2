@@ -9,7 +9,7 @@
 namespace ph
 {
 
-class Primitive;
+class Triangle;
 class Intersection;
 
 class KdtreeNode final
@@ -17,21 +17,21 @@ class KdtreeNode final
 public:
 	KdtreeNode();
 
-	void buildTree(const std::vector<const Primitive*>& primitives);
+	void buildTree(const std::vector<const Triangle*>& triangles);
 	bool findClosestIntersection(const Ray& ray, Intersection* const out_intersection) const;
 
 private:
 	std::unique_ptr<KdtreeNode> m_positiveChild;
 	std::unique_ptr<KdtreeNode> m_negativeChild;
 
-	std::vector<const Primitive*> m_primitives;
+	std::vector<const Triangle*> m_triangles;
 	AABB m_aabb;
 
 	int32   m_splitAxis;
 	float32 m_splitPos;
 
-	void buildChildrenNodes(const std::vector<const Primitive*>& primitives);
-	std::unique_ptr<KdtreeNode> buildChildNode(const AABB& childAABB, const std::vector<const Primitive*>& parentPrimitives);
+	void buildChildrenNodes(const std::vector<const Triangle*>& triangles);
+	std::unique_ptr<KdtreeNode> buildChildNode(const AABB& childAABB, const std::vector<const Triangle*>& parentTriangles);
 	bool traverseAndFindClosestIntersection(const Ray& ray, Intersection* const out_intersection, 
 	                                        const float32 rayDistMin, const float32 rayDistMax) const;
 	bool isLeaf() const;

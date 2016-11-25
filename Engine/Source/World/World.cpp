@@ -7,6 +7,7 @@
 #include "Model/Primitive/Primitive.h"
 #include "World/BruteForceIntersector.h"
 #include "World/KdtreeIntersector.h"
+#include "Model/Geometry/Triangle.h"
 
 #include <limits>
 #include <iostream>
@@ -39,15 +40,15 @@ bool World::isIntersecting(const Ray& ray, Intersection* out_intersection) const
 
 void World::cook()
 {
-	m_primitives.clear();
-	m_primitives.shrink_to_fit();
+	m_triangles.clear();
+	m_triangles.shrink_to_fit();
 
 	for(const auto& model : m_models)
 	{
-		model.getGeometry()->genPrimitives(&m_primitives, &model);
+		model.getGeometry()->discretize(&m_triangles, &model);
 	}
 
-	m_intersector->construct(m_primitives);
+	m_intersector->construct(m_triangles);
 }
 
 }// end namespace ph

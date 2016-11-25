@@ -9,6 +9,7 @@
 #include "Math/Math.h"
 #include "Math/Color.h"
 #include "Math/random_number.h"
+#include "Model/Geometry/Triangle.h"
 
 #define MAX_RAY_BOUNCES 10000
 
@@ -32,7 +33,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world
 
 	while(numBounces <= MAX_RAY_BOUNCES && world.isIntersecting(tracingRay, &intersection))
 	{
-		const Model* hitModel = intersection.getHitPrimitive()->getParentModel();
+		const Model* hitModel = intersection.getHitTriangle()->getParentModel();
 		const Material* hitMaterial = hitModel->getMaterial();
 
 		const Vector3f N(intersection.getHitNormal());

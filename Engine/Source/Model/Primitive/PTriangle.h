@@ -16,6 +16,7 @@ public:
 
 	virtual bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const override;
 	virtual void calcAABB(AABB* const out_aabb) const override;
+	//virtual void calcDifferentialPrimitive(const Vector3f& hitPos, DifferentialPrimitive* const out_diffPrim) const override;
 
 private:
 	const GTriangle* m_gTriangle;

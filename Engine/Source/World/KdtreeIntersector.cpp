@@ -1,4 +1,5 @@
 #include "World/KdtreeIntersector.h"
+#include "Model/Geometry/Triangle.h"
 
 #include <iostream>
 
@@ -7,15 +8,15 @@ namespace ph
 
 KdtreeIntersector::~KdtreeIntersector() = default;
 
-void KdtreeIntersector::construct(const std::vector<std::unique_ptr<Primitive>>& primitives)
+void KdtreeIntersector::construct(const std::vector<Triangle>& triangles)
 {
-	std::vector<const Primitive*> primPtrs;
-	for(const auto& primitive : primitives)
+	std::vector<const Triangle*> trigPtrs;
+	for(const auto& triangle : triangles)
 	{
-		primPtrs.push_back(primitive.get());
+		trigPtrs.push_back(&triangle);
 	}
 
-	m_rootKdtreeNode.buildTree(primPtrs);
+	m_rootKdtreeNode.buildTree(trigPtrs);
 }
 
 bool KdtreeIntersector::isIntersecting(const Ray& ray, Intersection* out_intersection) const

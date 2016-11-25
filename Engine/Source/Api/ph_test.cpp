@@ -77,10 +77,10 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 
 	load5bScene(&world);
 
-	//auto lightMaterial = std::make_shared<LightMaterial>();
-	//auto lightGeometry = std::make_shared<GSphere>(Vector3f(-1, 2, -9), 0.7f);
-	//lightMaterial->setEmittedRadiance(1.0f, 1.0f, 0.2f);
-	//world.addModel(Model(lightGeometry, lightMaterial));
+	auto lightMaterial = std::make_shared<LightMaterial>();
+	auto lightGeometry = std::make_shared<GTriangle>(Vector3f(40, 10, -40), Vector3f(0, 10, 40), Vector3f(-40, 10, -40));
+	lightMaterial->setEmittedRadiance(1.0f, 1.0f, 1.0f);
+	world.addModel(Model(lightGeometry, lightMaterial));
 
 	////auto sphereMaterial = std::make_shared<PerfectMirror>();
 	//auto sphereMaterial = std::make_shared<MatteOpaque>();

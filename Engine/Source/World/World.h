@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Model/Primitive/Primitive.h"
+#include "Model/Geometry/Triangle.h"
 #include "Model/Model.h"
 #include "Intersector.h"
 
@@ -12,6 +12,7 @@ namespace ph
 
 class Intersection;
 class Ray;
+class Triangle;
 
 class World final
 {
@@ -25,7 +26,7 @@ public:
 
 private:
 	std::vector<Model> m_models;
-	std::vector<std::unique_ptr<Primitive>> m_primitives;
+	std::vector<Triangle> m_triangles;
 
 	std::unique_ptr<Intersector> m_intersector;
 };

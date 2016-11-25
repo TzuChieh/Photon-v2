@@ -1,7 +1,7 @@
 #include "World/KdtreeNode.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
-#include "Model/Primitive/Primitive.h"
+#include "Model/Geometry/Triangle.h"
 
 #include <iostream>
 #include <algorithm>
@@ -56,24 +56,24 @@ KdtreeNode::KdtreeNode() :
 
 }
 
-void KdtreeNode::buildTree(const std::vector<const Primitive*>& primitives)
+void KdtreeNode::buildTree(const std::vector<const Triangle*>& triangles)
 {
-	if(primitives.empty())
+	if(triangles.empty())
 	{
 		m_aabb.setMinVertex(Vector3f(0, 0, 0));
 		m_aabb.setMaxVertex(Vector3f(0, 0, 0));
 		return;
 	}
 
-	primitives[0]->calcAABB(&m_aabb);
+	triangles[0]->calcAABB(&m_aabb);
 	AABB primAABB;
-	for(int i = 1; i < primitives.size(); i++)
+	for(int i = 1; i < triangles.size(); i++)
 	{
-		primitives[i]->calcAABB(&primAABB);
+		triangles[i]->calcAABB(&primAABB);
 		m_aabb.unionWith(primAABB);
 	}
 
-	buildChildrenNodes(primitives);
+	buildChildrenNodes(triangles);
 }
 
 bool KdtreeNode::findClosestIntersection(const Ray& ray, Intersection* const out_intersection) const
@@ -93,18 +93,18 @@ bool KdtreeNode::findClosestIntersection(const Ray& ray, Intersection* const out
 	return traverseAndFindClosestIntersection(ray, out_intersection, nearHitDist, farHitDist);
 }
 
-void KdtreeNode::buildChildrenNodes(const std::vector<const Primitive*>& primitives)
+void KdtreeNode::buildChildrenNodes(const std::vector<const Triangle*>& triangles)
 {
 	// a SAH based spatial partitioning algorithm
 
-	std::vector<TestPoint> xPoints(primitives.size() * 2);
-	std::vector<TestPoint> yPoints(primitives.size() * 2);
-	std::vector<TestPoint> zPoints(primitives.size() * 2);
+	std::vector<TestPoint> xPoints(triangles.size() * 2);
+	std::vector<TestPoint> yPoints(triangles.size() * 2);
+	std::vector<TestPoint> zPoints(triangles.size() * 2);
 
 	AABB primAABB;
-	for(std::size_t i = 0; i < primitives.size(); i++)
+	for(std::size_t i = 0; i < triangles.size(); i++)
 	{
-		primitives[i]->calcAABB(&primAABB);
+		triangles[i]->calcAABB(&primAABB);
 
 		xPoints[2 * i]     = TestPoint(primAABB.getMinVertex().x, TestPoint::PRIMITIVE_MIN);
 		xPoints[2 * i + 1] = TestPoint(primAABB.getMaxVertex().x, TestPoint::PRIMITIVE_MAX);
@@ -123,7 +123,7 @@ void KdtreeNode::buildChildrenNodes(const std::vector<const Primitive*>& primiti
 	float64 yExtent = m_aabb.getMaxVertex().y - m_aabb.getMinVertex().y;
 	float64 zExtent = m_aabb.getMaxVertex().z - m_aabb.getMinVertex().z;
 	float64 noSplitSurfaceArea = 2.0 * (xExtent * yExtent + yExtent * zExtent + zExtent * xExtent);
-	float64 noSplitCost = COST_INTERSECTION * static_cast<float64>(primitives.size());
+	float64 noSplitCost = COST_INTERSECTION * static_cast<float64>(triangles.size());
 
 	//		noSplitCost = 0.0;
 
@@ -134,7 +134,7 @@ void KdtreeNode::buildChildrenNodes(const std::vector<const Primitive*>& primiti
 
 	// analyze x-axis
 	numNnodePrims = 0;
-	numPnodePrims = primitives.size();
+	numPnodePrims = triangles.size();
 	boundaryPrimPassed = false;
 
 	for(std::size_t i = 0; i < xPoints.size(); i++)
@@ -183,7 +183,7 @@ void KdtreeNode::buildChildrenNodes(const std::vector<const Primitive*>& primiti
 
 	// analyze y-axis
 	numNnodePrims = 0;
-	numPnodePrims = primitives.size();
+	numPnodePrims = triangles.size();
 	boundaryPrimPassed = false;
 
 	for(int i = 0; i < yPoints.size(); i++)
@@ -232,7 +232,7 @@ void KdtreeNode::buildChildrenNodes(const std::vector<const Primitive*>& primiti
 
 	// analyze z-axis
 	numNnodePrims = 0;
-	numPnodePrims = primitives.size();
+	numPnodePrims = triangles.size();
 	boundaryPrimPassed = false;
 
 	for(int i = 0; i < zPoints.size(); i++)
@@ -321,39 +321,39 @@ void KdtreeNode::buildChildrenNodes(const std::vector<const Primitive*>& primiti
 
 		//std::cout << "split" << std::endl;
 
-		m_positiveChild = buildChildNode(pChildAABB, primitives);
-		m_negativeChild = buildChildNode(nChildAABB, primitives);
+		m_positiveChild = buildChildNode(pChildAABB, triangles);
+		m_negativeChild = buildChildNode(nChildAABB, triangles);
 	}
 	else
 	{
-		m_primitives = primitives;
+		m_triangles = triangles;
 		//std::cout << "size: " << primitives.size() << ", (" << minSplitCost << ", " << noSplitCost << ")" << std::endl;
 		//std::cout << "--------------------" << std::endl;
 	}
 }
 
-std::unique_ptr<KdtreeNode> KdtreeNode::buildChildNode(const AABB& childAABB, const std::vector<const Primitive*>& parentPrimitives)
+std::unique_ptr<KdtreeNode> KdtreeNode::buildChildNode(const AABB& childAABB, const std::vector<const Triangle*>& parentTriangles)
 {
-	std::vector<const Primitive*> primitives;
+	std::vector<const Triangle*> triangles;
 
 	AABB primAABB;
-	for(std::size_t i = 0; i < parentPrimitives.size(); i++)
+	for(std::size_t i = 0; i < parentTriangles.size(); i++)
 	{
-		parentPrimitives[i]->calcAABB(&primAABB);
+		parentTriangles[i]->calcAABB(&primAABB);
 		if(primAABB.isIntersecting(childAABB))
 		{
-			primitives.push_back(parentPrimitives[i]);
+			triangles.push_back(parentTriangles[i]);
 		}	
 	}
 
-	if(primitives.empty())
+	if(triangles.empty())
 	{
 		return nullptr;
 	}
 
 	auto childNode = std::make_unique<KdtreeNode>();
 	childNode->m_aabb = childAABB;
-	childNode->buildChildrenNodes(primitives);
+	childNode->buildChildrenNodes(triangles);
 
 	return childNode;
 }
@@ -455,10 +455,10 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, Intersection
 		// TODO: infinity may be unsafe on some machine
 		float32 closestHitSquaredDist = std::numeric_limits<float32>::infinity();
 
-		if(closestIntersection.getHitPrimitive() != nullptr)
+		if(closestIntersection.getHitTriangle() != nullptr)
 			closestHitSquaredDist = closestIntersection.getHitPosition().sub(ray.getOrigin()).squaredLength();
 
-		for(const auto& primitive : m_primitives)
+		for(const auto& primitive : m_triangles)
 		{
 			out_intersection->clear();
 
@@ -488,7 +488,7 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, Intersection
 
 bool KdtreeNode::isLeaf() const
 {
-	return !m_primitives.empty();
+	return !m_triangles.empty();
 }
 
 }// end namespace ph

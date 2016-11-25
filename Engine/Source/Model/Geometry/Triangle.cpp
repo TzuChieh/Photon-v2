@@ -1,41 +1,34 @@
-#include "Model/Primitive/PTriangle.h"
+#include "Model/Geometry/Triangle.h"
+#include "Model/Model.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
 #include "Model/Primitive/BoundingVolume/AABB.h"
-#include "Model/Geometry/GTriangle.h"
-#include "Math/Transform.h"
 
 #include <limits>
-#include <cmath>
-#include <iostream>
 
 #define TRIANGLE_EPSILON 0.0001f
 
 namespace ph
 {
 
-PTriangle::PTriangle(const GTriangle* gTriangle, const Model* const parentModel) :
-	Primitive(parentModel), 
-	m_gTriangle(gTriangle)
+Triangle::Triangle(const Model* const parentModel, const Vector3f& vA, const Vector3f& vB, const Vector3f& vC) :
+	m_parentModel(parentModel), m_vA(vA), m_vB(vB), m_vC(vC)
 {
-	m_eAB = gTriangle->getVb().sub(gTriangle->getVa());
-	m_eAC = gTriangle->getVc().sub(gTriangle->getVa());
+	m_eAB = m_vB.sub(m_vA);
+	m_eAC = m_vC.sub(m_vA);
 
 	m_faceNormal = m_eAB.cross(m_eAC).normalizeLocal();
 }
 
-PTriangle::~PTriangle() = default;
-
-bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersection) const
+bool Triangle::isIntersecting(const Ray& ray, Intersection* const out_intersection) const
 {
 	Vector3f localOrigin;
 	Vector3f localDirection;
-	getWorldToModelTransform()->transformPoint(ray.getOrigin(), &localOrigin);
-	getWorldToModelTransform()->transformVector(ray.getDirection(), &localDirection);
+	m_parentModel->getWorldToModelTransform()->transformPoint(ray.getOrigin(), &localOrigin);
+	m_parentModel->getWorldToModelTransform()->transformVector(ray.getDirection(), &localDirection);
 	Ray localRay(localOrigin, localDirection.normalizeLocal());
 
-	const Vector3f& vA = m_gTriangle->getVa();
-	const float32 dist = localRay.getOrigin().sub(vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
+	const float32 dist = localRay.getOrigin().sub(m_vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
 
 	// reject by distance
 	if(dist < TRIANGLE_EPSILON || dist > std::numeric_limits<float32>::max() || dist != dist)
@@ -53,8 +46,8 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 		// X dominant, projection plane is YZ
 		if(abs(m_faceNormal.x) > abs(m_faceNormal.z))
 		{
-			hitPu = dist * localRay.getDirection().y + localRay.getOrigin().y - vA.y;
-			hitPv = dist * localRay.getDirection().z + localRay.getOrigin().z - vA.z;
+			hitPu = dist * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
+			hitPv = dist * localRay.getDirection().z + localRay.getOrigin().z - m_vA.z;
 			abPu = m_eAB.y;
 			abPv = m_eAB.z;
 			acPu = m_eAC.y;
@@ -63,8 +56,8 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 		// Z dominant, projection plane is XY
 		else
 		{
-			hitPu = dist * localRay.getDirection().x + localRay.getOrigin().x - vA.x;
-			hitPv = dist * localRay.getDirection().y + localRay.getOrigin().y - vA.y;
+			hitPu = dist * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
+			hitPv = dist * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
 			abPu = m_eAB.x;
 			abPv = m_eAB.y;
 			acPu = m_eAC.x;
@@ -74,8 +67,8 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	// Y dominant, projection plane is ZX
 	else if(abs(m_faceNormal.y) > abs(m_faceNormal.z))
 	{
-		hitPu = dist * localRay.getDirection().z + localRay.getOrigin().z - vA.z;
-		hitPv = dist * localRay.getDirection().x + localRay.getOrigin().x - vA.x;
+		hitPu = dist * localRay.getDirection().z + localRay.getOrigin().z - m_vA.z;
+		hitPv = dist * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
 		abPu = m_eAB.z;
 		abPv = m_eAB.x;
 		acPu = m_eAC.z;
@@ -84,8 +77,8 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	// Z dominant, projection plane is XY
 	else
 	{
-		hitPu = dist * localRay.getDirection().x + localRay.getOrigin().x - vA.x;
-		hitPv = dist * localRay.getDirection().y + localRay.getOrigin().y - vA.y;
+		hitPu = dist * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
+		hitPv = dist * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
 		abPu = m_eAB.x;
 		abPv = m_eAB.y;
 		acPu = m_eAC.x;
@@ -108,24 +101,24 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 
 	Vector3f hitPosition;
 	Vector3f hitNormal;
-	getModelToWorldTransform()->transformPoint(localRay.getDirection().mul(dist).addLocal(localRay.getOrigin()), &hitPosition);
-	getModelToWorldTransform()->transformVector(m_faceNormal, &hitNormal);
+	m_parentModel->getModelToWorldTransform()->transformPoint(localRay.getDirection().mul(dist).addLocal(localRay.getOrigin()), &hitPosition);
+	m_parentModel->getModelToWorldTransform()->transformVector(m_faceNormal, &hitNormal);
 
 	out_intersection->setHitPosition(hitPosition);
 	out_intersection->setHitNormal(hitNormal.normalizeLocal());
-	//out_intersection->setHitPrimitive(this);
+	out_intersection->setHitTriangle(this);
 
 	return true;
 }
 
-void PTriangle::calcAABB(AABB* const out_aabb) const
+void Triangle::calcAABB(AABB* const out_aabb) const
 {
 	Vector3f vA;
 	Vector3f vB;
 	Vector3f vC;
-	getModelToWorldTransform()->transformPoint(m_gTriangle->getVa(), &vA);
-	getModelToWorldTransform()->transformPoint(m_gTriangle->getVb(), &vB);
-	getModelToWorldTransform()->transformPoint(m_gTriangle->getVc(), &vC);
+	m_parentModel->getModelToWorldTransform()->transformPoint(m_vA, &vA);
+	m_parentModel->getModelToWorldTransform()->transformPoint(m_vB, &vB);
+	m_parentModel->getModelToWorldTransform()->transformPoint(m_vC, &vC);
 
 	float32 minX = vA.x, maxX = vA.x,
 	        minY = vA.y, maxY = vA.y,
@@ -148,10 +141,5 @@ void PTriangle::calcAABB(AABB* const out_aabb) const
 	out_aabb->setMinVertex(Vector3f(minX - TRIANGLE_EPSILON, minY - TRIANGLE_EPSILON, minZ - TRIANGLE_EPSILON));
 	out_aabb->setMaxVertex(Vector3f(maxX + TRIANGLE_EPSILON, maxY + TRIANGLE_EPSILON, maxZ + TRIANGLE_EPSILON));
 }
-
-//void PTriangle::calcDifferentialPrimitive(const Vector3f& hitPos, DifferentialPrimitive* const out_diffPrim) const
-//{
-//
-//}
 
 }// end namespace ph
