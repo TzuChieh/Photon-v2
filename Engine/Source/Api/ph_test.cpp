@@ -17,6 +17,7 @@
 #include "Image/Film.h"
 #include "Model/ModelLoader.h"
 #include "Api/test_scene.h"
+#include "Model/Geometry/GRectangle.h"
 
 #include <iostream>
 #include <memory>
@@ -66,7 +67,7 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	//auto renderer = std::make_shared<BruteForceRenderer>();
 	//ImportanceRenderer renderer;
 	MtImportanceRenderer renderer;
-	StandardSampleGenerator sampleGenerator(128);
+	StandardSampleGenerator sampleGenerator(16);
 	World world;
 	DefaultCamera camera;
 	Film film(widthPx, heightPx);
@@ -81,6 +82,10 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	auto lightGeometry = std::make_shared<GTriangle>(Vector3f(40, 10, -40), Vector3f(0, 10, 40), Vector3f(-40, 10, -40));
 	lightMaterial->setEmittedRadiance(1.0f, 1.0f, 1.0f);
 	world.addModel(Model(lightGeometry, lightMaterial));
+
+	auto recMaterial = std::make_shared<MatteOpaque>();
+	auto recGeometry = std::make_shared<GRectangle>(1.0f, 1.0f);
+	world.addModel(Model(recGeometry, recMaterial));
 
 	////auto sphereMaterial = std::make_shared<PerfectMirror>();
 	//auto sphereMaterial = std::make_shared<MatteOpaque>();

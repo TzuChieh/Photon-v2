@@ -179,6 +179,7 @@
     <ClCompile Include="Source\Image\Texture.cpp" />
     <ClCompile Include="Source\Math\Transform.cpp" />
     <ClCompile Include="Source\Math\TransformInfo.cpp" />
+    <ClCompile Include="Source\Model\Geometry\GRectangle.cpp" />
     <ClCompile Include="Source\Model\Geometry\GTriangleMesh.cpp" />
     <ClCompile Include="Source\Model\Geometry\Triangle.cpp" />
     <ClCompile Include="Source\Model\ModelLoader.cpp" />
@@ -239,6 +240,7 @@
     <ClInclude Include="Source\Math\Normal3f.h" />
     <ClInclude Include="Source\Math\Transform.h" />
     <ClInclude Include="Source\Math\vector_math.h" />
+    <ClInclude Include="Source\Model\Geometry\GRectangle.h" />
     <ClInclude Include="Source\Model\Geometry\GTriangleMesh.h" />
     <ClInclude Include="Source\Model\Geometry\Triangle.h" />
     <ClInclude Include="Source\Model\ModelLoader.h" />

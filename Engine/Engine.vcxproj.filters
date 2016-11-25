@@ -171,6 +171,9 @@
     <ClCompile Include="Source\Model\BoundingVolume\BoundingVolume.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Model\Geometry\GRectangle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Math\Matrix4f.h">
@@ -348,6 +351,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Model\BoundingVolume\BoundingVolume.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Model\Geometry\GRectangle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
