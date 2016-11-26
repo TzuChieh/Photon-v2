@@ -11,7 +11,7 @@ import photonApi.IntRef;
 import photonApi.LongRef;
 import photonApi.Ph;
 import photonApi.PhTest;
-import ui.Display;
+import ui.FramePanel;
 import ui.Window;
 
 public class Main

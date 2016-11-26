@@ -9,11 +9,11 @@ import core.Color;
 import core.HdrFrame;
 import core.Vector3f;
 
-public class Display extends JPanel
+public class FramePanel extends JPanel
 {
 	private BufferedImage m_bufferedImage;
 	
-	public Display(int widthPx, int heightPx)
+	public FramePanel(int widthPx, int heightPx)
 	{
 		super();
 		

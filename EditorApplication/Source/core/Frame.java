@@ -37,6 +37,12 @@ public abstract class Frame
 		m_heightPx = heightPx;
 	}
 	
+	public abstract float getPixelR(int x, int y);
+	public abstract float getPixelG(int x, int y);
+	public abstract float getPixelB(int x, int y);
+	public abstract void setPixelRgb(int x, int y, float r, float g, float b);
+	public abstract void set(Frame other);
+	
 	public int getWidthPx()
 	{
 		return m_widthPx;
@@ -46,10 +52,4 @@ public abstract class Frame
 	{
 		return m_heightPx;
 	}
-	
-	public abstract float getPixelR(int x, int y);
-	public abstract float getPixelG(int x, int y);
-	public abstract float getPixelB(int x, int y);
-	public abstract void setPixelRgb(int x, int y, float r, float g, float b);
-	public abstract void set(Frame other);
 }
