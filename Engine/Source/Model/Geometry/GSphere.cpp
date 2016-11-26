@@ -137,16 +137,16 @@ void GSphere::discretize(std::vector<Triangle>* const out_triangles, const Model
 		triangle.setNb(vB.normalize());
 		triangle.setNc(vC.normalize());
 
-		float32 s, t;
+		Vector3f mappedUVW;
 
-		textureMapper->map(vA, 0, 0, &s, &t);
-		triangle.setUVWa(Vector3f(s, t, 0));
+		textureMapper->map(vA, triangle.getUVWa(), &mappedUVW);
+		triangle.setUVWa(mappedUVW);
 
-		textureMapper->map(vB, 0, 0, &s, &t);
-		triangle.setUVWb(Vector3f(s, t, 0));
+		textureMapper->map(vB, triangle.getUVWb(), &mappedUVW);
+		triangle.setUVWb(mappedUVW);
 
-		textureMapper->map(vC, 0, 0, &s, &t);
-		triangle.setUVWc(Vector3f(s, t, 0));
+		textureMapper->map(vC, triangle.getUVWc(), &mappedUVW);
+		triangle.setUVWc(mappedUVW);
 
 		out_triangles->push_back(triangle);
 	}

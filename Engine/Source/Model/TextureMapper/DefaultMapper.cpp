@@ -6,10 +6,9 @@ namespace ph
 
 DefaultMapper::~DefaultMapper() = default;
 
-void DefaultMapper::map(const Vector3f& position, const float32 u, const float32 v, float32* const out_u, float32* const out_v) const
+void DefaultMapper::map(const Vector3f& position, const Vector3f& uvw, Vector3f* const out_uvw) const
 {
-	*out_u = u;
-	*out_v = v;
+	*out_uvw = uvw;
 }
 
 }// end namespace ph

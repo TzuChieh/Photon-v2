@@ -69,7 +69,7 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	//auto renderer = std::make_shared<BruteForceRenderer>();
 	//ImportanceRenderer renderer;
 	MtImportanceRenderer renderer;
-	StandardSampleGenerator sampleGenerator(16);
+	StandardSampleGenerator sampleGenerator(32);
 	World world;
 	DefaultCamera camera;
 	Film film(widthPx, heightPx);
@@ -116,16 +116,23 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 		loadedModel.translate(0, -5, 0);
 		loadedModel.scale(4);
 		loadedModel.rotate(Vector3f(0, 1, 0), 180);
+
+		/*loadedModel.setTextureMapper(std::make_shared<SphericalMapper>());
+		auto loadedModelMaterial = std::make_shared<MatteOpaque>();
+		loadedModelMaterial->setAlbedo(std::make_shared<CheckerboardTexture>(16.0f, 8.0f, Vector3f(0, 0, 0), Vector3f(1, 1, 1)));
+		loadedModel.setMaterial(loadedModelMaterial);*/
+
 		//world.addModel(loadedModel);
 	}
 
 	auto sphereMaterial = std::make_shared<MatteOpaque>();
 	auto sphereGeometry = std::make_shared<GSphere>(3.0f);
 	//sphereMaterial->setAlbedo(0.9f, 0.9f, 0.9f);
-	sphereMaterial->setAlbedo(std::make_shared<CheckerboardTexture>(16.0f, 8.0f, Vector3f(0, 0, 0), Vector3f(1, 1, 1)));
+	sphereMaterial->setAlbedo(std::make_shared<CheckerboardTexture>(128.0f, 64.0f, Vector3f(0, 0, 0), Vector3f(1, 1, 1)));
 	Model sphereModel(sphereGeometry, sphereMaterial);
 	sphereModel.setTextureMapper(std::make_shared<SphericalMapper>());
-	sphereModel.rotate(Vector3f(1, 0, 0), 45);
+	sphereModel.rotate(Vector3f(1, 1, 0).normalize(), 45);
+	sphereModel.translate(0, -2, 0);
 	world.addModel(sphereModel);
 
 	std::cout << "cooking world" << std::endl;

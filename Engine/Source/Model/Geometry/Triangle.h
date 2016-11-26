@@ -56,6 +56,21 @@ public:
 		m_uvwC = uvwC;
 	}
 
+	inline const Vector3f& getUVWa() const
+	{
+		return m_uvwA;
+	}
+
+	inline const Vector3f& getUVWb() const
+	{
+		return m_uvwB;
+	}
+
+	inline const Vector3f& getUVWc() const
+	{
+		return m_uvwC;
+	}
+
 private:
 	const Model* m_parentModel;
 

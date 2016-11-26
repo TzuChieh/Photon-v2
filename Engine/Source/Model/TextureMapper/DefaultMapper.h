@@ -10,7 +10,7 @@ class DefaultMapper final : public TextureMapper
 public:
 	virtual ~DefaultMapper() override;
 
-	virtual void map(const Vector3f& position, const float32 u, const float32 v, float32* const out_u, float32* const out_v) const override;
+	virtual void map(const Vector3f& position, const Vector3f& uvw, Vector3f* const out_uvw) const override;
 };
 
 }// end namespace ph
