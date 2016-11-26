@@ -25,9 +25,9 @@ public:
 
 private:
 	mutable std::vector<Film> m_subFilms;
-	mutable std::vector<std::unique_ptr<std::mutex>> m_subFilmMutices;
 
-	mutable std::mutex m_mutex;
+	mutable std::vector<std::unique_ptr<std::mutex>> m_renderWorkerMutices;
+	mutable std::mutex m_rendererMutex;
 };
 
 }// end namespace ph

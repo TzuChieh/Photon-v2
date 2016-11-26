@@ -186,6 +186,9 @@
     <ClCompile Include="Source\Image\CheckerboardTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Api\ph_query.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Math\Matrix4f.h">
@@ -381,6 +384,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Image\CheckerboardTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ph_query.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

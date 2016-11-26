@@ -163,6 +163,7 @@
   <ItemGroup>
     <ClCompile Include="Source\Api\ph_core.cpp" />
     <ClCompile Include="Source\Api\ph_image.cpp" />
+    <ClCompile Include="Source\Api\ph_query.cpp" />
     <ClCompile Include="Source\Api\test_scene.cpp" />
     <ClCompile Include="Source\Camera\Camera.cpp" />
     <ClCompile Include="Source\Camera\DefaultCamera.cpp" />
@@ -221,6 +222,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\ph_core.h" />
+    <ClInclude Include="Include\ph_query.h" />
     <ClInclude Include="Include\ph_test.h" />
     <ClInclude Include="Source\Api\test_scene.h" />
     <ClInclude Include="Source\Camera\Camera.h" />

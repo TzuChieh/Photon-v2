@@ -33,30 +33,32 @@ MtImportanceRenderer::~MtImportanceRenderer() = default;
 
 void MtImportanceRenderer::render(const World& world, const Camera& camera) const
 {
+	const uint32 nThreads = 4;
+
 	m_subFilms.clear();
 	m_subFilms.shrink_to_fit();
-	m_subFilmMutices.clear();
-	m_subFilmMutices.shrink_to_fit();
+	m_renderWorkerMutices.clear();
+	m_renderWorkerMutices.shrink_to_fit();
 
 	BackwardPathIntegrator integrator;
 	integrator.cook(world);
 
 	std::atomic<int32> numSpp = 0;
-
-	const uint32 nThreads = 4;
-
 	std::thread renderWorkers[nThreads];
-	std::size_t ti = 0;
-	m_subFilms = std::vector<Film>(4, Film(camera.getFilm()->getWidthPx(), camera.getFilm()->getHeightPx()));
-	for(std::size_t tid = 0; tid < nThreads; tid++)
-	{
-		m_subFilmMutices.push_back(std::make_unique<std::mutex>());
-	}
-	for(auto& renderWorker : renderWorkers)
-	{
-		const std::size_t threadIndex = ti++;
+	std::vector<std::unique_ptr<SampleGenerator>> subSampleGenerators;
 
-		renderWorker = std::thread([this, &camera, &integrator, &world, &numSpp, threadIndex]()
+	m_subFilms = std::vector<Film>(nThreads, Film(camera.getFilm()->getWidthPx(), camera.getFilm()->getHeightPx()));
+	m_sampleGenerator->split(nThreads, &subSampleGenerators);
+
+	for(std::size_t threadIndex = 0; threadIndex < nThreads; threadIndex++)
+	{
+		m_renderWorkerMutices.push_back(std::make_unique<std::mutex>());
+
+		std::mutex*      subFilmMutex       = m_renderWorkerMutices[threadIndex].get();
+		SampleGenerator* subSampleGenerator = subSampleGenerators[threadIndex].get();
+		Film*            subFilm            = &(m_subFilms[threadIndex]);
+
+		renderWorkers[threadIndex] = std::thread([this, &camera, &integrator, &world, &numSpp, subFilmMutex, subSampleGenerator, subFilm]()
 		{
 		// ****************************** thread start ****************************** //
 
@@ -69,24 +71,12 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 		Ray primaryRay;
 		Vector3f radiance;
 
-		while(true)
+		while(subSampleGenerator->hasMoreSamples())
 		{
-			m_subFilmMutices[threadIndex]->lock();
+			subFilmMutex->lock();
 
 			samples.clear();
-
-			m_mutex.lock();
-			const bool shouldRun = m_sampleGenerator->hasMoreSamples();
-			if(shouldRun)
-			{
-				m_sampleGenerator->requestMoreSamples(m_subFilms[threadIndex], &samples);
-			}
-			m_mutex.unlock();
-
-			if(!shouldRun)
-			{
-				break;
-			}
+			subSampleGenerator->requestMoreSamples(*subFilm, &samples);
 
 			Sample sample;
 			while(!samples.empty())
@@ -95,28 +85,26 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 				samples.pop_back();
 				camera.genSampleRay(sample, &primaryRay, aspectRatio);
 
-
 				integrator.radianceAlongRay(primaryRay, world, &radiance);
-
 
 				uint32 x = static_cast<uint32>((sample.m_cameraX + 1.0f) / 2.0f * widthPx);
 				uint32 y = static_cast<uint32>((sample.m_cameraY + 1.0f) / 2.0f * heightPx);
 				if(x >= widthPx) x = widthPx - 1;
 				if(y >= heightPx) y = heightPx - 1;
 
-				m_subFilms[threadIndex].accumulateRadiance(x, y, radiance);
+				subFilm->accumulateRadiance(x, y, radiance);
 			}// end while
 
-			m_mutex.lock();
+			m_rendererMutex.lock();
 			std::cout << "SPP: " << ++numSpp << std::endl;
-			m_mutex.unlock();
+			m_rendererMutex.unlock();
 
-			m_subFilmMutices[threadIndex]->unlock();
+			subFilmMutex->unlock();
 		}
 
-		m_mutex.lock();
-		camera.getFilm()->accumulateRadiance(m_subFilms[threadIndex]);
-		m_mutex.unlock();
+		m_rendererMutex.lock();
+		camera.getFilm()->accumulateRadiance(*subFilm);
+		m_rendererMutex.unlock();
 
 		// ****************************** thread end ****************************** //
 		});
@@ -138,11 +126,11 @@ void MtImportanceRenderer::queryIntermediateFilm(Film* const out_film) const
 
 	out_film->clear();
 
-	for(uint32 threadId = 0; threadId < m_subFilmMutices.size(); threadId++)
+	for(uint32 threadId = 0; threadId < m_renderWorkerMutices.size(); threadId++)
 	{
-		m_subFilmMutices[threadId]->lock();
+		m_renderWorkerMutices[threadId]->lock();
 		out_film->accumulateRadiance(m_subFilms[threadId]);
-		m_subFilmMutices[threadId]->unlock();
+		m_renderWorkerMutices[threadId]->unlock();
 	}
 }
 

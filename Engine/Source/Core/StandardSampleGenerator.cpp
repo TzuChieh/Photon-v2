@@ -42,15 +42,51 @@ void StandardSampleGenerator::requestMoreSamples(const Film& film, std::vector<S
 			sample.m_cameraX = (static_cast<float32>(x) + genRandomFloat32_0_1_uniform() - halfWidthPx) * invWidthPx;
 			sample.m_cameraY = (static_cast<float32>(y) + genRandomFloat32_0_1_uniform() - halfHeightPx) * invHeightPx;
 			out_samples->push_back(sample);
-
-			/*if(sample.m_cameraX < -1.0f) std::cout << "x -1: " << sample.m_cameraX << std::endl;
-			if(sample.m_cameraY < -1.0f) std::cout << "y -1: " << sample.m_cameraY << std::endl;
-			if(sample.m_cameraX > 1.0f) std::cout << "x 1: " << sample.m_cameraX << std::endl;
-			if(sample.m_cameraY > 1.0f) std::cout << "y 1: " << sample.m_cameraY << std::endl;*/
 		}
 	}
 
 	m_numDispatchedSpp++;
+}
+
+void StandardSampleGenerator::split(const uint32 nSplits, std::vector<std::unique_ptr<SampleGenerator>>* const out_sampleGenerators)
+{
+	if(!canSplit(nSplits))
+	{
+		return;
+	}
+
+	const uint32 splittedSppBudget = getSppBudget() / nSplits;
+	for(uint32 i = 0; i < nSplits; i++)
+	{
+		out_sampleGenerators->push_back(std::make_unique<StandardSampleGenerator>(splittedSppBudget));
+	}
+
+	// works are dispatched into splitted sample generators
+	m_numDispatchedSpp = getSppBudget();
+}
+
+bool StandardSampleGenerator::canSplit(const uint32 nSplits) const
+{
+	if(nSplits == 0)
+	{
+		std::cerr << "warning: at StandardSampleGenerator::canSplit(), number of splits is 0" << std::endl;
+		return false;
+	}
+
+	if(!hasMoreSamples())
+	{
+		std::cerr << "warning: at StandardSampleGenerator::canSplit(), generator already run out of samples" << std::endl;
+		return false;
+	}
+
+	if(getSppBudget() % nSplits != 0)
+	{
+		std::cerr << "warning: at StandardSampleGenerator::canSplit(), generator cannot evenly split into " << nSplits << " parts" << std::endl;
+		std::cerr << "(SPP budget: " << getSppBudget() << ")" << std::endl;
+		return false;
+	}
+
+	return true;
 }
 
 }// end namespace ph
