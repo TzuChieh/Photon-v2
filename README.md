@@ -3,14 +3,14 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
 
 ## Features
 * Material
-..* Lambertian diffuse
-..* perfect mirror
-..* microfacet-based model
-..* simple emission model
+ * Lambertian diffuse
+ * perfect mirror
+ * microfacet-based model
+ * simple emission model
 * Geometry
-..* sphere shape
-..* rectangular shape
-..* triangle mesh
+ * sphere shape
+ * rectangular shape
+ * triangle mesh
 
 ## Build
 Photon-v2 is being developed with cross-platformity in mind, but Windows is the only platform that has been tested, for now. <br />
