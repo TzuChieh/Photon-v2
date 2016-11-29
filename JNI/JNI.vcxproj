@@ -156,6 +156,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\JFloatRef.h" />
     <ClInclude Include="Source\JIntRef.h" />
     <ClInclude Include="Source\JObject.h" />
     <ClInclude Include="Source\photonApi_Ph.h" />
@@ -163,6 +164,7 @@
     <ClInclude Include="Source\JLongRef.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\JFloatRef.cpp" />
     <ClCompile Include="Source\JIntRef.cpp" />
     <ClCompile Include="Source\photonApi_Ph.cpp" />
     <ClCompile Include="Source\JLongRef.cpp" />

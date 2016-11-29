@@ -1,8 +1,11 @@
 #include "photonApi_Ph.h"
-#include "ph_test.h"
 #include "JIntRef.h"
 #include "JLongRef.h"
+#include "JFloatRef.h"
+
+#include "ph_test.h"
 #include "ph_core.h"
+#include "ph_query.h"
 
 #include <iostream>
 
@@ -365,4 +368,18 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phSetCameraDirection
 (JNIEnv* env, jclass thiz, jlong cameraId, jfloat x, jfloat y, jfloat z)
 {
 	phSetCameraDirection(static_cast<PHuint64>(cameraId), x, y, z);
+}
+
+/*
+* Class:     photonApi_Ph
+* Method:    phQueryRendererPercentageProgress
+* Signature: (JLphotonApi/FloatRef;)V
+*/
+JNIEXPORT void JNICALL Java_photonApi_Ph_phQueryRendererPercentageProgress
+(JNIEnv* env, jclass thiz, jlong rendererId, jobject out_FloatRef_progress)
+{
+	PHfloat32 progress;
+	phQueryRendererPercentageProgress(static_cast<PHuint64>(rendererId), &progress);
+	ph::JFloatRef jProgress(out_FloatRef_progress, env);
+	jProgress.setValue(progress);
 }

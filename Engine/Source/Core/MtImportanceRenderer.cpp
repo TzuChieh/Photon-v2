@@ -19,26 +19,27 @@
 #include <iostream>
 #include <vector>
 #include <thread>
-#include <atomic>
 
 namespace ph
 {
 
+const uint32 MtImportanceRenderer::nThreads;
+
 MtImportanceRenderer::MtImportanceRenderer()
 {
-
+	for(std::size_t threadIndex = 0; threadIndex < nThreads; threadIndex++)
+	{
+		m_renderWorkerMutices.push_back(std::make_unique<std::mutex>());
+		m_workerProgresses.push_back(std::make_unique<std::atomic<float32>>(0.0f));
+	}
 }
 
 MtImportanceRenderer::~MtImportanceRenderer() = default;
 
 void MtImportanceRenderer::render(const World& world, const Camera& camera) const
 {
-	const uint32 nThreads = 4;
-
 	m_subFilms.clear();
 	m_subFilms.shrink_to_fit();
-	m_renderWorkerMutices.clear();
-	m_renderWorkerMutices.shrink_to_fit();
 
 	BackwardPathIntegrator integrator;
 	integrator.cook(world);
@@ -52,13 +53,12 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 
 	for(std::size_t threadIndex = 0; threadIndex < nThreads; threadIndex++)
 	{
-		m_renderWorkerMutices.push_back(std::make_unique<std::mutex>());
+		std::mutex*           renderWorkerMutex  = m_renderWorkerMutices[threadIndex].get();
+		SampleGenerator*      subSampleGenerator = subSampleGenerators[threadIndex].get();
+		Film*                 subFilm            = &(m_subFilms[threadIndex]);
+		std::atomic<float32>* workerProgress     = m_workerProgresses[threadIndex].get();
 
-		std::mutex*      subFilmMutex       = m_renderWorkerMutices[threadIndex].get();
-		SampleGenerator* subSampleGenerator = subSampleGenerators[threadIndex].get();
-		Film*            subFilm            = &(m_subFilms[threadIndex]);
-
-		renderWorkers[threadIndex] = std::thread([this, &camera, &integrator, &world, &numSpp, subFilmMutex, subSampleGenerator, subFilm]()
+		renderWorkers[threadIndex] = std::thread([this, &camera, &integrator, &world, &numSpp, renderWorkerMutex, subSampleGenerator, subFilm, workerProgress]()
 		{
 		// ****************************** thread start ****************************** //
 
@@ -71,9 +71,12 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 		Ray primaryRay;
 		Vector3f radiance;
 
+		const uint32 totalSpp = subSampleGenerator->getSppBudget();
+		uint32 currentSpp = 0;
+
 		while(subSampleGenerator->hasMoreSamples())
 		{
-			subFilmMutex->lock();
+			renderWorkerMutex->lock();
 
 			samples.clear();
 			subSampleGenerator->requestMoreSamples(*subFilm, &samples);
@@ -95,11 +98,14 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 				subFilm->accumulateRadiance(x, y, radiance);
 			}// end while
 
+			currentSpp++;
+			*workerProgress = static_cast<float32>(currentSpp) / static_cast<float32>(totalSpp);
+
 			m_rendererMutex.lock();
 			std::cout << "SPP: " << ++numSpp << std::endl;
 			m_rendererMutex.unlock();
 
-			subFilmMutex->unlock();
+			renderWorkerMutex->unlock();
 		}
 
 		m_rendererMutex.lock();
@@ -136,7 +142,14 @@ void MtImportanceRenderer::queryIntermediateFilm(Film* const out_film) const
 
 float32 MtImportanceRenderer::queryPercentageProgress() const
 {
-	return 0.0f;
+	float32 avgWorkerProgress = 0.0f;
+	for(uint32 threadId = 0; threadId < m_workerProgresses.size(); threadId++)
+	{
+		avgWorkerProgress += *(m_workerProgresses[threadId]);
+	}
+	avgWorkerProgress /= static_cast<float32>(m_workerProgresses.size());
+
+	return avgWorkerProgress * 100.0f;
 }
 
 }// end namespace ph

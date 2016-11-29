@@ -12,7 +12,7 @@ ConstantTexture::ConstantTexture(const Vector3f& value) :
 
 ConstantTexture::~ConstantTexture() = default;
 
-void ConstantTexture::sample(const float32 u, const float32 v, Vector3f* const out_value) const
+void ConstantTexture::sample(const Vector3f& uvw, Vector3f* const out_value) const
 {
 	out_value->set(m_value);
 }

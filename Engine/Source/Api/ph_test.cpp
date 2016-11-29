@@ -78,62 +78,10 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	camera.setFilm(&film);
 	//camera.setPosition(Vector3f(0, 0, 4));
 	camera.setPosition(Vector3f(0, 0, 16));
-
-	loadCornellBox(&world, 10.0f);
+	
 
 	//load5bScene(&world);
-
-	/*auto lightMaterial = std::make_shared<LightMaterial>();
-	auto lightGeometry = std::make_shared<GTriangle>(Vector3f(40, 10, -40), Vector3f(0, 10, 40), Vector3f(-40, 10, -40));
-	lightMaterial->setEmittedRadiance(1.0f, 1.0f, 1.0f);
-	world.addModel(Model(lightGeometry, lightMaterial));
-
-	auto recMaterial = std::make_shared<MatteOpaque>();
-	auto recGeometry = std::make_shared<GRectangle>(1.0f, 1.0f);
-	world.addModel(Model(recGeometry, recMaterial));*/
-
-	////auto sphereMaterial = std::make_shared<PerfectMirror>();
-	//auto sphereMaterial = std::make_shared<MatteOpaque>();
-	//auto sphereGeometry = std::make_shared<GSphere>(Vector3f(2, 0, -10), 1.5f);
-	//sphereMaterial->setAlbedo(0.8f, 1.0f, 0.9f);
-	//world.addModel(Model(sphereGeometry, sphereMaterial));
-
-	//auto triangleMaterial = std::make_shared<PerfectMirror>();
-	////auto triangleMaterial = std::make_shared<MatteOpaque>();
-	//auto triangleGeometry = std::make_shared<GTriangle>(Vector3f(-4, 0, -10), Vector3f(0, 0, -10), Vector3f(-3, 5, -10));
-	//world.addModel(Model(triangleGeometry, triangleMaterial));
-
-	/*auto sphere2Material = std::make_shared<PerfectMirror>();
-	auto sphere2Geometry = std::make_shared<GSphere>(Vector3f(-1, 0, -10), 0.8f);
-	world.addModel(Model(sphere2Geometry, sphere2Material));*/
-
-	ModelLoader modelLoader;
-	//auto loadedModel = modelLoader.load("../SceneResource/cube.obj");
-	Model loadedModel;
-	bool isLoadingSuccess = modelLoader.load("../SceneResource/dragon.obj", &loadedModel);
-	if(isLoadingSuccess)
-	{
-		loadedModel.translate(0, -5, 0);
-		loadedModel.scale(4);
-		loadedModel.rotate(Vector3f(0, 1, 0), 180);
-
-		/*loadedModel.setTextureMapper(std::make_shared<SphericalMapper>());
-		auto loadedModelMaterial = std::make_shared<MatteOpaque>();
-		loadedModelMaterial->setAlbedo(std::make_shared<CheckerboardTexture>(16.0f, 8.0f, Vector3f(0, 0, 0), Vector3f(1, 1, 1)));
-		loadedModel.setMaterial(loadedModelMaterial);*/
-
-		//world.addModel(loadedModel);
-	}
-
-	auto sphereMaterial = std::make_shared<MatteOpaque>();
-	auto sphereGeometry = std::make_shared<GSphere>(3.0f);
-	//sphereMaterial->setAlbedo(0.9f, 0.9f, 0.9f);
-	sphereMaterial->setAlbedo(std::make_shared<CheckerboardTexture>(128.0f, 64.0f, Vector3f(0, 0, 0), Vector3f(1, 1, 1)));
-	Model sphereModel(sphereGeometry, sphereMaterial);
-	sphereModel.setTextureMapper(std::make_shared<SphericalMapper>());
-	sphereModel.rotate(Vector3f(1, 1, 0).normalize(), 45);
-	sphereModel.translate(0, -2, 0);
-	world.addModel(sphereModel);
+	loadTestScene(&world);
 
 	std::cout << "cooking world" << std::endl;
 	world.cook();

@@ -20,10 +20,10 @@ CheckerboardTexture::CheckerboardTexture(const float32 nUtiles, const float32 nV
 
 CheckerboardTexture::~CheckerboardTexture() = default;
 
-void CheckerboardTexture::sample(const float32 u, const float32 v, Vector3f* const out_value) const
+void CheckerboardTexture::sample(const Vector3f& uvw, Vector3f* const out_value) const
 {
-	const int32 uNumber = static_cast<int32>(std::floor(u / m_uTileSize));
-	const int32 vNumber = static_cast<int32>(std::floor(v / m_vTileSize));
+	const int32 uNumber = static_cast<int32>(std::floor(uvw.x / m_uTileSize));
+	const int32 vNumber = static_cast<int32>(std::floor(uvw.y / m_vTileSize));
 
 	if(std::abs(uNumber % 2) != std::abs(vNumber % 2))
 	{

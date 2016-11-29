@@ -1,8 +1,8 @@
 package photonApi;
 
-public class IntRef
+public class FloatRef
 {
-	public int m_value;
+	public float m_value;
 	
 	@Override
 	public String toString()

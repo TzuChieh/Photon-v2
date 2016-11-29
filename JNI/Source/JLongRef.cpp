@@ -14,6 +14,7 @@ JLongRef::JLongRef(const jobject javaObject, JNIEnv* const env) :
 	{
 		cacheJavaClass(JAVA_LONGREF_CLASS_NAME, env);
 		cacheJavaFieldId(JAVA_LONGREF_VALUE_NAME, JAVA_LONG_SIGNATURE, env);
+		isCached = true;
 	}
 }
 

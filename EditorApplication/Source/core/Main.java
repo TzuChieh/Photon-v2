@@ -7,10 +7,20 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import photonApi.FloatArrayRef;
+import photonApi.FloatRef;
 import photonApi.IntRef;
 import photonApi.LongRef;
 import photonApi.Ph;
 import photonApi.PhTest;
+import photonCore.FrameData;
+import photonCore.PhCamera;
+import photonCore.PhFilm;
+import photonCore.PhFrame;
+import photonCore.PhRenderer;
+import photonCore.PhSampleGenerator;
+import photonCore.PhUtility;
+import photonCore.PhWorld;
+import photonCore.exception.PhDataInconsistentException;
 import ui.FramePanel;
 import ui.Window;
 
@@ -28,13 +38,6 @@ public class Main
 		new PhTest();
 		
 		Ph.printTestMessage();
-
-//		LongRef frameId = new LongRef();
-//		frameId.m_value = 999;
-//		System.out.println(frameId.m_value);
-//		Ph.phCreateFrame(frameId, 300, 400, Ph.PH_HDR_FRAME_TYPE);
-//		System.out.println(frameId.m_value);
-//		Ph.phDeleteFrame(frameId.m_value);
 		
 		try
 		{
@@ -52,74 +55,68 @@ public class Main
 			e.printStackTrace();
 		}
 		
-		FloatArrayRef data = new FloatArrayRef();
-		IntRef frameWidthPx = new IntRef();
-		IntRef frameHeightPx = new IntRef();
-		Ph.genTestHdrFrame(data, frameWidthPx, frameHeightPx);
+		PhCamera camera = new PhCamera(PhCamera.Type.DEFAULT);
+		camera.setPosition(0, 0, 16);
 		
-		System.out.println("frame width: " + frameWidthPx.m_value + " | frame height: " + frameHeightPx.m_value);
+		PhWorld world = new PhWorld();
+		PhRenderer renderer = new PhRenderer(PhRenderer.Type.MT_IMPORTANCE);
+		PhFilm film = new PhFilm(900, 900);
+		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.STANDARD, 16);
 		
-		HdrFrame hdrFrame = new HdrFrame(frameWidthPx.m_value, frameHeightPx.m_value);
-		for(int y = 0; y < frameHeightPx.m_value; y++)
+		camera.setFilm(film);
+		
+		renderer.setSampleGenerator(sampleGenerator);
+		
+		PhUtility.loadTestScene(world);
+		world.cook();
+		
+//		Thread queryThread = new Thread((new Runnable()
+//		{
+//			@Override
+//			public void run()
+//			{
+//				while(true)
+//				{
+//					FloatRef progress = new FloatRef();
+//					Ph.phQueryRendererPercentageProgress(rendererId.m_value, progress);
+//					System.out.println("progress: " + progress.m_value + " %");
+//					//System.out.println("dassadadadadadad");
+//					try
+//					{
+//						Thread.sleep(3000);
+//					}
+//					catch(InterruptedException e)
+//					{
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//		}));
+//		queryThread.start();
+		
+		long t1 = System.currentTimeMillis();
+		renderer.render(world, camera);
+		long t2 = System.currentTimeMillis();
+		System.out.println("time elapsed: " + (double)(t2 - t1) + " ms");
+		
+		PhFrame frame = new PhFrame(PhFrame.Type.HDR, 900, 900);
+		film.develop(frame);
+		
+		FrameData frameData = new FrameData();
+		try
 		{
-			for(int x = 0; x < frameWidthPx.m_value; x++)
-			{
-				int baseIndex = (y * frameWidthPx.m_value + x) * 3;
-				float r = data.m_value[baseIndex + 0];
-				float g = data.m_value[baseIndex + 1];
-				float b = data.m_value[baseIndex + 2];
-				hdrFrame.setPixelRgb(x, y, r, g, b);
-			}
+			frame.getData(frameData);
+		}
+		catch(PhDataInconsistentException e)
+		{
+			e.printStackTrace();
+			System.exit(1);
 		}
 		
-//		LongRef cameraId = new LongRef();
-//		Ph.phCreateCamera(cameraId, Ph.PH_DEFAULT_CAMERA_TYPE);
-//		Ph.phSetCameraPosition(cameraId.m_value, 0, 0, 4);
-//		
-//		LongRef worldId = new LongRef();
-//		Ph.phCreateWorld(worldId);
-//		
-//		LongRef rendererId = new LongRef();
-////		Ph.phCreateRenderer(rendererId, Ph.PH_IMPORTANCE_RENDERER_TYPE);
-//		Ph.phCreateRenderer(rendererId, Ph.PH_MT_IMPORTANCE_RENDERER_TYPE);
-//		
-//		LongRef filmId = new LongRef();
-//		Ph.phCreateFilm(filmId, 1280, 720);
-//		
-//		LongRef sampleGeneratorId = new LongRef();
-//		Ph.phCreateSampleGenerator(sampleGeneratorId, Ph.PH_STANDARD_SAMPLE_GENERATOR_TYPE, 16);
-//		
-//		Ph.phSetCameraFilm(cameraId.m_value, filmId.m_value);
-//		Ph.phSetRendererSampleGenerator(rendererId.m_value, sampleGeneratorId.m_value);
-//		Ph.phLoadTestScene(worldId.m_value);
-//		Ph.phCookWorld(worldId.m_value);
-//		
-//		Ph.phRender(rendererId.m_value, worldId.m_value, cameraId.m_value);
-//		
-//		LongRef frameId = new LongRef();
-//		Ph.phCreateFrame(frameId, Ph.PH_HDR_FRAME_TYPE, 1280, 720);
-//		Ph.phDevelopFilm(filmId.m_value, frameId.m_value);
-//		
-//		FloatArrayRef pixelData = new FloatArrayRef();
-//		IntRef widthPx = new IntRef();
-//		IntRef heightPx = new IntRef();
-//		IntRef nPixelComponents = new IntRef();
-//		Ph.phGetFrameData(frameId.m_value, pixelData, widthPx, heightPx, nPixelComponents);
-//		
-//		System.out.println("frame width: " + widthPx.m_value + " | frame height: " + heightPx.m_value);
-//		
-//		HdrFrame hdrFrame = new HdrFrame(widthPx.m_value, heightPx.m_value);
-//		for(int y = 0; y < heightPx.m_value; y++)
-//		{
-//			for(int x = 0; x < widthPx.m_value; x++)
-//			{
-//				int baseIndex = (y * widthPx.m_value + x) * 3;
-//				float r = pixelData.m_value[baseIndex + 0];
-//				float g = pixelData.m_value[baseIndex + 1];
-//				float b = pixelData.m_value[baseIndex + 2];
-//				hdrFrame.setPixelRgb(x, y, r, g, b);
-//			}
-//		}
+		System.out.println("frame width: " + frameData.getWidthPx() + " | frame height: " + frameData.getHeightPx());
+		
+		HdrFrame hdrFrame = new HdrFrame(frameData);
+		
 		
 		SwingUtilities.invokeLater(new Runnable()
 		{

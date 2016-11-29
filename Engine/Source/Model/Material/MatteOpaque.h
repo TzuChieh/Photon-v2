@@ -23,7 +23,7 @@ public:
 
 	inline void getAlbedo(const Vector3f& uvw, Vector3f* const out_albedo) const
 	{
-		m_albedo->sample(uvw.x, uvw.y, out_albedo);
+		m_albedo->sample(uvw, out_albedo);
 	}
 
 	inline void setAlbedo(const float32 r, const float32 g, const float32 b)

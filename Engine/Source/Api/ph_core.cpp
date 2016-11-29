@@ -152,7 +152,8 @@ void phLoadTestScene(const PHuint64 worldId)
 	World* world = ApiDatabase::getWorld(worldId);
 	if(world)
 	{
-		load5bScene(world);
+		//load5bScene(world);
+		loadTestScene(world);
 	}
 }
 

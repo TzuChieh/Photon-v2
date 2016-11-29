@@ -10,6 +10,8 @@ int main(int argc, char* argv[])
 	const PHfloat32* pixelData;
 	PHuint32 width;
 	PHuint32 height;
+
+
 	
 	genTestHdrFrame(&pixelData, &width, &height);
 

@@ -17,6 +17,7 @@ JIntRef::JIntRef(const jobject javaObject, JNIEnv* const env) :
 	{
 		cacheJavaClass(JAVA_INTREF_CLASS_NAME, env);
 		cacheJavaFieldId(JAVA_INTREF_VALUE_NAME, JAVA_INT_SIGNATURE, env);
+		isCached = true;
 	}
 }
 

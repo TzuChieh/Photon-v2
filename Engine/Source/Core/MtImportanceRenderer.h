@@ -5,6 +5,7 @@
 #include <vector>
 #include <mutex>
 #include <memory>
+#include <atomic>
 
 namespace ph
 {
@@ -25,9 +26,12 @@ public:
 
 private:
 	mutable std::vector<Film> m_subFilms;
+	mutable std::vector<std::unique_ptr<std::atomic<float32>>> m_workerProgresses;
 
 	mutable std::vector<std::unique_ptr<std::mutex>> m_renderWorkerMutices;
 	mutable std::mutex m_rendererMutex;
+
+	static const uint32 nThreads = 4;
 };
 
 }// end namespace ph

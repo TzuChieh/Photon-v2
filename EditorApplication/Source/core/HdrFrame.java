@@ -22,6 +22,8 @@
 
 package core;
 
+import photonCore.FrameData;
+
 public class HdrFrame extends Frame
 {
 	private float[][][] m_pixelRgb;
@@ -31,6 +33,35 @@ public class HdrFrame extends Frame
 		super(widthPx, heightPx);
 		
 		m_pixelRgb = new float[widthPx][heightPx][3];
+	}
+	
+	public HdrFrame(FrameData frameData)
+	{
+		super(frameData.getWidthPx(), frameData.getHeightPx());
+		
+		if(!frameData.isDataGood())
+		{
+			System.err.println("warning: at HdrFrame(), input FrameData is not good");
+			return;
+		}
+		
+		if(frameData.getNumPixelComponents() != 3)
+		{
+			System.err.println("warning: at HdrFrame(), input FrameData's number of pixel components != 3");
+			return;
+		}
+		
+		m_pixelRgb = new float[frameData.getWidthPx()][frameData.getHeightPx()][3];
+		for(int x = 0; x < frameData.getWidthPx(); x++)
+		{
+			for(int y = 0; y < frameData.getHeightPx(); y++)
+			{
+				int baseIndex = (y * frameData.getWidthPx() + x) * 3;
+				m_pixelRgb[x][y][R] = frameData.getPixelData()[baseIndex + 0];
+				m_pixelRgb[x][y][G] = frameData.getPixelData()[baseIndex + 1];
+				m_pixelRgb[x][y][B] = frameData.getPixelData()[baseIndex + 2];
+			}
+		}
 	}
 	
 	@Override

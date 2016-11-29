@@ -219,6 +219,14 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_printTestMessage
 JNIEXPORT void JNICALL Java_photonApi_Ph_genTestHdrFrame
   (JNIEnv *, jclass, jobject, jobject, jobject);
 
+/*
+ * Class:     photonApi_Ph
+ * Method:    phQueryRendererPercentageProgress
+ * Signature: (JLphotonApi/FloatRef;)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phQueryRendererPercentageProgress
+  (JNIEnv *, jclass, jlong, jobject);
+
 #ifdef __cplusplus
 }
 #endif
