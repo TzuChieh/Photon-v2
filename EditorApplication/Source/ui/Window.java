@@ -11,29 +11,30 @@ import ui.taskStatus.TaskStatusPanel;
 import java.awt.Color;
 import java.awt.Font;
 
-public class Window
+@SuppressWarnings("serial")
+public class Window extends JFrame
 {
 	public static final int WIDTH_PX = 1280;
 	public static final int HEIGHT_PX = 700;
 	
-	private JFrame m_jframe;
 	private DisplayPanel m_displayPanel;
 	private LoggerTextPane m_loggerTextPane;
 	private TaskPanel m_taskPanel;
 	
 	public Window(int widthPx, int heightPx)
 	{
-		m_jframe = new JFrame("Photon-v2 Editor");
-		m_jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		m_jframe.setSize(WIDTH_PX, HEIGHT_PX);
-		m_jframe.setLocationRelativeTo(null);
-		m_jframe.setResizable(false);
-		m_jframe.setVisible(true);
-		m_jframe.getContentPane().setLayout(null);
+		super("Photon-v2 Editor");
+		
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(WIDTH_PX, HEIGHT_PX);
+		setLocationRelativeTo(null);
+		setResizable(false);
+		setVisible(true);
+		getContentPane().setLayout(null);
 		
 		m_displayPanel = new DisplayPanel(374, 0, 900, 500);
 		//m_displayPanel.setBounds(551, 0, 500, 421);
-		m_jframe.getContentPane().add(m_displayPanel);
+		getContentPane().add(m_displayPanel);
 		
 		
 		//m_jframe.add(m_display, BorderLayout.CENTER);
@@ -48,20 +49,25 @@ public class Window
 		m_loggerTextPane.setBounds(0, 448, 370, 224);
 		m_loggerTextPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		m_loggerTextPane.directSystemOutErrToThis();
-		m_jframe.getContentPane().add(m_loggerTextPane);
+		getContentPane().add(m_loggerTextPane);
 		
 		m_taskPanel = new TaskPanel();
 		m_taskPanel.setBounds(0, 0, 370, 443);
-		m_taskPanel.addTaskStatusPanel(new TaskStatusPanel("test task name"));
-		m_taskPanel.addTaskStatusPanel(new TaskStatusPanel("test task name"));
-		m_jframe.getContentPane().add(m_taskPanel);
+//		m_taskPanel.addTaskStatusPanel(new TaskStatusPanel("test task name"));
+//		m_taskPanel.addTaskStatusPanel(new TaskStatusPanel("test task name"));
+		getContentPane().add(m_taskPanel);
 		
 		
-		m_jframe.revalidate();
+		revalidate();
 	}
 	
-	public void render(HdrFrame frame)
+	public DisplayPanel getDisplayPanel()
 	{
-		m_displayPanel.render(frame);
+		return m_displayPanel;
+	}
+	
+	public TaskPanel getTaskPanel()
+	{
+		return m_taskPanel;
 	}
 }

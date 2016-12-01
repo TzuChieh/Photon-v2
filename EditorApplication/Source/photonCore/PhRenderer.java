@@ -1,5 +1,6 @@
 package photonCore;
 
+import photonApi.FloatRef;
 import photonApi.LongRef;
 import photonApi.Ph;
 
@@ -41,5 +42,12 @@ public final class PhRenderer
 	public void setSampleGenerator(PhSampleGenerator sampleGenerator)
 	{
 		Ph.phSetRendererSampleGenerator(m_rendererId, sampleGenerator.m_sampleGeneratorId);
+	}
+	
+	public float queryPercentageProgress()
+	{
+		FloatRef progress = new FloatRef();
+		Ph.phQueryRendererPercentageProgress(m_rendererId, progress);
+		return progress.m_value;
 	}
 }

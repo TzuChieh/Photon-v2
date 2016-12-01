@@ -23,6 +23,7 @@ import photonCore.PhWorld;
 import photonCore.exception.PhDataInconsistentException;
 import ui.FramePanel;
 import ui.Window;
+import ui.model.TaskStatusModel;
 
 public class Main
 {
@@ -39,6 +40,9 @@ public class Main
 		
 		Ph.printTestMessage();
 		
+		TaskStatusModel testTaskStatusModel = new TaskStatusModel();
+		TaskStatusModel dummyTaskStatusModel = new TaskStatusModel();
+		
 		try
 		{
 			SwingUtilities.invokeAndWait(new Runnable()
@@ -47,6 +51,8 @@ public class Main
 				public void run()
 				{
 					window = new Window(900, 900);
+					window.getTaskPanel().registerTaskStatusModel(testTaskStatusModel);
+					window.getTaskPanel().registerTaskStatusModel(dummyTaskStatusModel);
 				}
 			});
 		}
@@ -55,13 +61,16 @@ public class Main
 			e.printStackTrace();
 		}
 		
+		testTaskStatusModel.setTaskName("test render task");
+		dummyTaskStatusModel.setTaskName("dummy dummy dummy");
+		
 		PhCamera camera = new PhCamera(PhCamera.Type.DEFAULT);
 		camera.setPosition(0, 0, 16);
 		
 		PhWorld world = new PhWorld();
 		PhRenderer renderer = new PhRenderer(PhRenderer.Type.MT_IMPORTANCE);
 		PhFilm film = new PhFilm(900, 900);
-		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.STANDARD, 16);
+		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.STANDARD, 128);
 		
 		camera.setFilm(film);
 		
@@ -70,29 +79,34 @@ public class Main
 		PhUtility.loadTestScene(world);
 		world.cook();
 		
-		Thread queryThread = new Thread((new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				while(true)
-				{
-					FloatRef progress = new FloatRef();
-					//Ph.phQueryRendererPercentageProgress(rendererId.m_value, progress);
-					System.out.println("progress: " + progress.m_value + " %");
-					//System.out.println("dassadadadadadad");
-					try
-					{
-						Thread.sleep(3000);
-					}
-					catch(InterruptedException e)
-					{
-						e.printStackTrace();
-					}
-				}
-			}
-		}));
-		queryThread.start();
+//		Thread queryThread = new Thread((new Runnable()
+//		{
+//			@Override
+//			public void run()
+//			{
+//				while(true)
+//				{
+//					float progress = renderer.queryPercentageProgress();
+//					testTaskStatusModel.setPercentageProgress(progress);
+//					if(progress == 100.0f)
+//					{
+//						break;
+//					}
+//					
+//					try
+//					{
+//						Thread.sleep(3000);
+//					}
+//					catch(InterruptedException e)
+//					{
+//						e.printStackTrace();
+//					}
+//				}
+//				
+//				System.out.println("query thread end");
+//			}
+//		}));
+//		queryThread.start();
 		
 		long t1 = System.currentTimeMillis();
 		renderer.render(world, camera);
@@ -123,7 +137,7 @@ public class Main
 			@Override
 			public void run()
 			{
-				window.render(hdrFrame);
+				window.getDisplayPanel().render(hdrFrame);
 				System.out.println("rendering done");
 			}
 		});

@@ -11,6 +11,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 
+import ui.event.Event;
+import ui.event.EventListener;
+import ui.model.TaskStatusModel;
+
 @SuppressWarnings("serial")
 public class TaskPanel extends JPanel
 {
@@ -30,9 +34,32 @@ public class TaskPanel extends JPanel
 		add(m_taskStatusScrollPane, BorderLayout.CENTER);
 	}
 	
-	public void addTaskStatusPanel(TaskStatusPanel taskStatusPanel)
+	public void registerTaskStatusModel(TaskStatusModel taskStatusModel)
+	{
+		TaskStatusPanel taskStatusPanel = new TaskStatusPanel();
+		updateTaskStatusPanel(taskStatusPanel, taskStatusModel);
+		addTaskStatusPanel(taskStatusPanel);
+		
+		taskStatusModel.addEventListener(new EventListener()
+		{
+			@Override
+			public void eventTriggered(Event event)
+			{
+				updateTaskStatusPanel(taskStatusPanel, taskStatusModel);
+			}
+		});
+	}
+	
+	private void addTaskStatusPanel(TaskStatusPanel taskStatusPanel)
 	{
 		m_scrolledPanel.add(taskStatusPanel);
 		m_scrolledPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+	}
+	
+	private static void updateTaskStatusPanel(TaskStatusPanel taskStatusPanel, TaskStatusModel taskStatusModel)
+	{
+		taskStatusPanel.setTaskName(taskStatusModel.getTaskName());
+		taskStatusPanel.setSampleFrequency(taskStatusModel.getSampleFrequency());
+		taskStatusPanel.setPercentageProgress(taskStatusModel.getPercentageProgress());
 	}
 }
