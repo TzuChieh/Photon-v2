@@ -1,19 +1,15 @@
 package ui;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GraphicsEnvironment;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-
 import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
+import javax.swing.border.EtchedBorder;
 
 import core.HdrFrame;
-import photonApi.FloatArrayRef;
-import photonApi.IntRef;
-import photonApi.Ph;
+import ui.logger.LoggerTextPane;
+import ui.taskStatus.TaskPanel;
+import ui.taskStatus.TaskStatusPanel;
+
+import java.awt.Color;
+import java.awt.Font;
 
 public class Window
 {
@@ -22,6 +18,8 @@ public class Window
 	
 	private JFrame m_jframe;
 	private DisplayPanel m_displayPanel;
+	private LoggerTextPane m_loggerTextPane;
+	private TaskPanel m_taskPanel;
 	
 	public Window(int widthPx, int heightPx)
 	{
@@ -29,7 +27,6 @@ public class Window
 		m_jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		m_jframe.setSize(WIDTH_PX, HEIGHT_PX);
 		m_jframe.setLocationRelativeTo(null);
-		//m_jframe.setLayout(new AbsoluteLayout());
 		m_jframe.setResizable(false);
 		m_jframe.setVisible(true);
 		m_jframe.getContentPane().setLayout(null);
@@ -41,6 +38,23 @@ public class Window
 		
 		//m_jframe.add(m_display, BorderLayout.CENTER);
 		
+		
+		m_loggerTextPane = new LoggerTextPane();
+		m_loggerTextPane.setEnabled(true);
+		m_loggerTextPane.setEditable(false);
+		m_loggerTextPane.setForeground(Color.WHITE);
+		m_loggerTextPane.setFont(new Font("Consolas", Font.PLAIN, 12));
+		m_loggerTextPane.setBackground(Color.BLACK);
+		m_loggerTextPane.setBounds(0, 448, 370, 224);
+		m_loggerTextPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		m_loggerTextPane.directSystemOutErrToThis();
+		m_jframe.getContentPane().add(m_loggerTextPane);
+		
+		m_taskPanel = new TaskPanel();
+		m_taskPanel.setBounds(0, 0, 370, 443);
+		m_taskPanel.addTaskStatusPanel(new TaskStatusPanel("test task name"));
+		m_taskPanel.addTaskStatusPanel(new TaskStatusPanel("test task name"));
+		m_jframe.getContentPane().add(m_taskPanel);
 		
 		
 		m_jframe.revalidate();

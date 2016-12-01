@@ -70,29 +70,29 @@ public class Main
 		PhUtility.loadTestScene(world);
 		world.cook();
 		
-//		Thread queryThread = new Thread((new Runnable()
-//		{
-//			@Override
-//			public void run()
-//			{
-//				while(true)
-//				{
-//					FloatRef progress = new FloatRef();
-//					Ph.phQueryRendererPercentageProgress(rendererId.m_value, progress);
-//					System.out.println("progress: " + progress.m_value + " %");
-//					//System.out.println("dassadadadadadad");
-//					try
-//					{
-//						Thread.sleep(3000);
-//					}
-//					catch(InterruptedException e)
-//					{
-//						e.printStackTrace();
-//					}
-//				}
-//			}
-//		}));
-//		queryThread.start();
+		Thread queryThread = new Thread((new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				while(true)
+				{
+					FloatRef progress = new FloatRef();
+					//Ph.phQueryRendererPercentageProgress(rendererId.m_value, progress);
+					System.out.println("progress: " + progress.m_value + " %");
+					//System.out.println("dassadadadadadad");
+					try
+					{
+						Thread.sleep(3000);
+					}
+					catch(InterruptedException e)
+					{
+						e.printStackTrace();
+					}
+				}
+			}
+		}));
+		queryThread.start();
 		
 		long t1 = System.currentTimeMillis();
 		renderer.render(world, camera);

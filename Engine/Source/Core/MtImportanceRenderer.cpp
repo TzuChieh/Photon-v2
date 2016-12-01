@@ -29,7 +29,6 @@ MtImportanceRenderer::MtImportanceRenderer()
 {
 	for(std::size_t threadIndex = 0; threadIndex < nThreads; threadIndex++)
 	{
-		m_renderWorkerMutices.push_back(std::make_unique<std::mutex>());
 		m_workerProgresses.push_back(std::make_unique<std::atomic<float32>>(0.0f));
 	}
 }
@@ -53,12 +52,11 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 
 	for(std::size_t threadIndex = 0; threadIndex < nThreads; threadIndex++)
 	{
-		std::mutex*           renderWorkerMutex  = m_renderWorkerMutices[threadIndex].get();
 		SampleGenerator*      subSampleGenerator = subSampleGenerators[threadIndex].get();
 		Film*                 subFilm            = &(m_subFilms[threadIndex]);
 		std::atomic<float32>* workerProgress     = m_workerProgresses[threadIndex].get();
 
-		renderWorkers[threadIndex] = std::thread([this, &camera, &integrator, &world, &numSpp, renderWorkerMutex, subSampleGenerator, subFilm, workerProgress]()
+		renderWorkers[threadIndex] = std::thread([this, &camera, &integrator, &world, &numSpp, subSampleGenerator, subFilm, workerProgress]()
 		{
 		// ****************************** thread start ****************************** //
 
@@ -76,8 +74,6 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 
 		while(subSampleGenerator->hasMoreSamples())
 		{
-			renderWorkerMutex->lock();
-
 			samples.clear();
 			subSampleGenerator->requestMoreSamples(*subFilm, &samples);
 
@@ -104,8 +100,6 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 			m_rendererMutex.lock();
 			std::cout << "SPP: " << ++numSpp << std::endl;
 			m_rendererMutex.unlock();
-
-			renderWorkerMutex->unlock();
 		}
 
 		m_rendererMutex.lock();
@@ -119,24 +113,6 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 	for(auto& renderWorker : renderWorkers)
 	{
 		renderWorker.join();
-	}
-}
-
-void MtImportanceRenderer::queryIntermediateFilm(Film* const out_film) const
-{
-	if(out_film == nullptr)
-	{
-		std::cerr << "warning: at MtImportanceRenderer::queryIntermediateFilm(), input is null" << std::endl;
-		return;
-	}
-
-	out_film->clear();
-
-	for(uint32 threadId = 0; threadId < m_renderWorkerMutices.size(); threadId++)
-	{
-		m_renderWorkerMutices[threadId]->lock();
-		out_film->accumulateRadiance(m_subFilms[threadId]);
-		m_renderWorkerMutices[threadId]->unlock();
 	}
 }
 

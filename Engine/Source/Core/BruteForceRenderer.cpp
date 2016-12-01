@@ -90,11 +90,6 @@ void BruteForceRenderer::render(const World& world, const Camera& camera) const
 	}
 }
 
-void BruteForceRenderer::queryIntermediateFilm(Film* const out_film) const
-{
-	std::cerr << "warning: BruteForceRenderer::queryIntermediateFilm() not implemented" << std::endl;
-}
-
 float32 BruteForceRenderer::queryPercentageProgress() const
 {
 	return 0.0f;

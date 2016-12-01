@@ -68,11 +68,6 @@ void ImportanceRenderer::render(const World& world, const Camera& camera) const
 	}
 }
 
-void ImportanceRenderer::queryIntermediateFilm(Film* const out_film) const
-{
-	std::cerr << "warning: ImportanceRenderer::queryIntermediateFilm() not implemented" << std::endl;
-}
-
 float32 ImportanceRenderer::queryPercentageProgress() const
 {
 	return 0.0f;

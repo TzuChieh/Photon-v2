@@ -9,6 +9,7 @@ import core.Color;
 import core.HdrFrame;
 import core.Vector3f;
 
+@SuppressWarnings("serial")
 public class FramePanel extends JPanel
 {
 	private BufferedImage m_bufferedImage;
