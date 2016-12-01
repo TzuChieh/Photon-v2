@@ -70,7 +70,7 @@ public class Main
 		PhWorld world = new PhWorld();
 		PhRenderer renderer = new PhRenderer(PhRenderer.Type.MT_IMPORTANCE);
 		PhFilm film = new PhFilm(900, 900);
-		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.STANDARD, 128);
+		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.STANDARD, 4);
 		
 		camera.setFilm(film);
 		
@@ -79,34 +79,34 @@ public class Main
 		PhUtility.loadTestScene(world);
 		world.cook();
 		
-//		Thread queryThread = new Thread((new Runnable()
-//		{
-//			@Override
-//			public void run()
-//			{
-//				while(true)
-//				{
-//					float progress = renderer.queryPercentageProgress();
-//					testTaskStatusModel.setPercentageProgress(progress);
-//					if(progress == 100.0f)
-//					{
-//						break;
-//					}
-//					
-//					try
-//					{
-//						Thread.sleep(3000);
-//					}
-//					catch(InterruptedException e)
-//					{
-//						e.printStackTrace();
-//					}
-//				}
-//				
-//				System.out.println("query thread end");
-//			}
-//		}));
-//		queryThread.start();
+		Thread queryThread = new Thread((new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				while(true)
+				{
+					float progress = renderer.queryPercentageProgress();
+					testTaskStatusModel.setPercentageProgress(progress);
+					if(progress == 100.0f)
+					{
+						break;
+					}
+					
+					try
+					{
+						Thread.sleep(3000);
+					}
+					catch(InterruptedException e)
+					{
+						e.printStackTrace();
+					}
+				}
+				
+				System.out.println("query thread end");
+			}
+		}));
+		queryThread.start();
 		
 		long t1 = System.currentTimeMillis();
 		renderer.render(world, camera);
