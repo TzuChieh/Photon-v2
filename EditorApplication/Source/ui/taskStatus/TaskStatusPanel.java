@@ -13,7 +13,7 @@ import java.text.DecimalFormat;
 @SuppressWarnings("serial")
 public class TaskStatusPanel extends JPanel
 {
-	public static final Dimension PREFERRED_SIZE = new Dimension(350, 150);
+	public static final Dimension PREFERRED_SIZE = new Dimension(350, 100);
 	
 	private static final DecimalFormat PROGRESS_FORMAT  = new DecimalFormat("0.00");
 	//private static final DecimalFormat FREQUENCY_FORMAT = new DecimalFormat("0.00");

@@ -4,6 +4,7 @@ import javax.swing.JFrame;
 import javax.swing.border.EtchedBorder;
 
 import core.HdrFrame;
+import ui.display.DisplayPanel;
 import ui.logger.LoggerTextPane;
 import ui.taskStatus.TaskPanel;
 import ui.taskStatus.TaskStatusPanel;

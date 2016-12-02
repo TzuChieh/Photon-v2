@@ -1,10 +1,13 @@
-package ui;
+package ui.display;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import core.Color;
@@ -12,17 +15,17 @@ import core.HdrFrame;
 import core.Vector3f;
 
 @SuppressWarnings("serial")
-public class FramePanel extends JPanel
+public class ImagePanel extends JPanel
 {
 	private BufferedImage m_bufferedImage;
 	
-	public FramePanel()
+	public ImagePanel()
 	{
 		super();
 		
 		//this.setPreferredSize(new Dimension(widthPx, heightPx));
 		
-		//m_bufferedImage = new BufferedImage(widthPx, heightPx, BufferedImage.TYPE_INT_RGB);
+		m_bufferedImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
 	}
 	
 	public void render(HdrFrame frame)
@@ -109,37 +112,50 @@ public class FramePanel extends JPanel
 		repaint();
 	}
 	
+	public void saveImage(String fullFilename)
+	{
+		try 
+		{
+		    File outputfile = new File(fullFilename + ".png");
+		    ImageIO.write(m_bufferedImage, "png", outputfile);
+		    
+		    System.out.println("============ IMAGE SAVED ============");
+		} 
+		catch(IOException e)
+		{
+			System.out.println("============ IMAGE SAVING FAILED ============");
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	protected void paintComponent(Graphics graphics)
 	{
 		super.paintComponent(graphics);
 		
-		if(m_bufferedImage != null)
+		final int panelWidth  = getWidth();
+		final int panelHeight = getHeight();
+		final float panelAspectRatio = (float)(panelWidth) / (float)(panelHeight);
+		final float frameAspectRatio = (float)(m_bufferedImage.getWidth()) / (float)(m_bufferedImage.getHeight());
+		
+		int imageWidth;
+		int imageHeight;
+		if(frameAspectRatio > panelAspectRatio)
 		{
-			final int panelWidth  = getWidth();
-			final int panelHeight = getHeight();
-			final float panelAspectRatio = (float)(panelWidth) / (float)(panelHeight);
-			final float frameAspectRatio = (float)(m_bufferedImage.getWidth()) / (float)(m_bufferedImage.getHeight());
-			
-			int imageWidth;
-			int imageHeight;
-			if(frameAspectRatio > panelAspectRatio)
-			{
-				imageWidth = panelWidth;
-				imageHeight = (int)((float)(imageWidth) / frameAspectRatio);
-			}
-			else
-			{
-				imageHeight = panelHeight;
-				imageWidth = (int)((float)(imageHeight) * frameAspectRatio);
-			}
-			
-			BufferedImage scaledBufferedImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
-	        Graphics2D g2d = (Graphics2D)scaledBufferedImage.createGraphics();
-	        g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY));
-	        g2d.drawImage(m_bufferedImage, 0, 0, imageWidth, imageHeight, null);
-			
-			graphics.drawImage(scaledBufferedImage, (panelWidth - imageWidth) / 2, (panelHeight - imageHeight) / 2, null);
+			imageWidth = panelWidth;
+			imageHeight = (int)((float)(imageWidth) / frameAspectRatio);
 		}
+		else
+		{
+			imageHeight = panelHeight;
+			imageWidth = (int)((float)(imageHeight) * frameAspectRatio);
+		}
+		
+		BufferedImage scaledBufferedImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = (Graphics2D)scaledBufferedImage.createGraphics();
+        g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY));
+        g2d.drawImage(m_bufferedImage, 0, 0, imageWidth, imageHeight, null);
+		
+		graphics.drawImage(scaledBufferedImage, (panelWidth - imageWidth) / 2, (panelHeight - imageHeight) / 2, null);
 	}
 }

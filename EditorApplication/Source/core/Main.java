@@ -21,8 +21,8 @@ import photonCore.PhSampleGenerator;
 import photonCore.PhUtility;
 import photonCore.PhWorld;
 import photonCore.exception.PhDataInconsistentException;
-import ui.FramePanel;
 import ui.Window;
+import ui.display.ImagePanel;
 import ui.model.TaskStatusModel;
 
 public class Main
