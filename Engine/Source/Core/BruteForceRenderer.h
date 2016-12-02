@@ -12,6 +12,7 @@ public:
 
 	virtual void render(const World& world, const Camera& camera) const override;
 	virtual float32 queryPercentageProgress() const override;
+	virtual float32 querySampleFrequency() const override;
 };
 
 }// end namepace ph

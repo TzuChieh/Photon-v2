@@ -21,11 +21,14 @@ public:
 
 	virtual void render(const World& world, const Camera& camera) const override;
 	virtual float32 queryPercentageProgress() const override;
+	virtual float32 querySampleFrequency() const override;
 
 private:
 	mutable std::vector<Film> m_subFilms;
-	mutable std::vector<std::unique_ptr<std::atomic<float32>>> m_workerProgresses;
 	mutable std::mutex m_rendererMutex;
+
+	std::vector<std::unique_ptr<std::atomic<float32>>> m_workerProgresses;
+	std::vector<std::unique_ptr<std::atomic<float32>>> m_workerSampleFrequencies;
 
 	static const uint32 nThreads = 4;
 };

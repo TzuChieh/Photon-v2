@@ -50,4 +50,11 @@ public final class PhRenderer
 		Ph.phQueryRendererPercentageProgress(m_rendererId, progress);
 		return progress.m_value;
 	}
+	
+	public float querySampleFrequency()
+	{
+		FloatRef frequency = new FloatRef();
+		Ph.phQueryRendererSampleFrequency(m_rendererId, frequency);
+		return frequency.m_value;
+	}
 }

@@ -383,3 +383,17 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phQueryRendererPercentageProgress
 	ph::JFloatRef jProgress(out_FloatRef_progress, env);
 	jProgress.setValue(progress);
 }
+
+/*
+* Class:     photonApi_Ph
+* Method:    phQueryRendererSampleFrequency
+* Signature: (JLphotonApi/FloatRef;)V
+*/
+JNIEXPORT void JNICALL Java_photonApi_Ph_phQueryRendererSampleFrequency
+(JNIEnv* env, jclass thiz, jlong rendererId, jobject out_FloatRef_frequency)
+{
+	PHfloat32 frequency;
+	phQueryRendererSampleFrequency(static_cast<PHuint64>(rendererId), &frequency);
+	ph::JFloatRef jFrequency(out_FloatRef_frequency, env);
+	jFrequency.setValue(frequency);
+}

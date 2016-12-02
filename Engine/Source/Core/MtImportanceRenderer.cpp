@@ -19,6 +19,7 @@
 #include <iostream>
 #include <vector>
 #include <thread>
+#include <chrono>
 
 namespace ph
 {
@@ -30,6 +31,7 @@ MtImportanceRenderer::MtImportanceRenderer()
 	for(std::size_t threadIndex = 0; threadIndex < nThreads; threadIndex++)
 	{
 		m_workerProgresses.push_back(std::make_unique<std::atomic<float32>>(0.0f));
+		m_workerSampleFrequencies.push_back(std::make_unique<std::atomic<float32>>(0.0f));
 	}
 }
 
@@ -55,8 +57,9 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 		SampleGenerator*      subSampleGenerator = subSampleGenerators[threadIndex].get();
 		Film*                 subFilm            = &(m_subFilms[threadIndex]);
 		std::atomic<float32>* workerProgress     = m_workerProgresses[threadIndex].get();
+		std::atomic<float32>* workerSampleFreq   = m_workerSampleFrequencies[threadIndex].get();
 
-		renderWorkers[threadIndex] = std::thread([this, &camera, &integrator, &world, &numSpp, subSampleGenerator, subFilm, workerProgress]()
+		renderWorkers[threadIndex] = std::thread([this, &camera, &integrator, &world, &numSpp, subSampleGenerator, subFilm, workerProgress, workerSampleFreq]()
 		{
 		// ****************************** thread start ****************************** //
 
@@ -72,8 +75,13 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 		const uint32 totalSpp = subSampleGenerator->getSppBudget();
 		uint32 currentSpp = 0;
 
+		std::chrono::time_point<std::chrono::system_clock> t1;
+		std::chrono::time_point<std::chrono::system_clock> t2;
+
 		while(subSampleGenerator->hasMoreSamples())
 		{
+			t1 = std::chrono::system_clock::now();
+
 			samples.clear();
 			subSampleGenerator->requestMoreSamples(*subFilm, &samples);
 
@@ -100,6 +108,11 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 			m_rendererMutex.lock();
 			std::cout << "SPP: " << ++numSpp << std::endl;
 			m_rendererMutex.unlock();
+
+			t2 = std::chrono::system_clock::now();
+
+			auto msPassed = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+			*workerSampleFreq = static_cast<float32>(widthPx * heightPx) / static_cast<float32>(msPassed.count()) * 1000.0f;
 		}
 
 		m_rendererMutex.lock();
@@ -126,6 +139,18 @@ float32 MtImportanceRenderer::queryPercentageProgress() const
 	avgWorkerProgress /= static_cast<float32>(m_workerProgresses.size());
 
 	return avgWorkerProgress * 100.0f;
+}
+
+float32 MtImportanceRenderer::querySampleFrequency() const
+{
+	float32 avgWorkerSampleFreq = 0.0f;
+	for(uint32 threadId = 0; threadId < m_workerSampleFrequencies.size(); threadId++)
+	{
+		avgWorkerSampleFreq += *(m_workerSampleFrequencies[threadId]);
+	}
+	avgWorkerSampleFreq /= static_cast<float32>(m_workerSampleFrequencies.size());
+
+	return avgWorkerSampleFreq;
 }
 
 }// end namespace ph

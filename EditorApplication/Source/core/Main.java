@@ -70,7 +70,7 @@ public class Main
 		PhWorld world = new PhWorld();
 		PhRenderer renderer = new PhRenderer(PhRenderer.Type.MT_IMPORTANCE);
 		PhFilm film = new PhFilm(900, 900);
-		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.STANDARD, 4);
+		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.STANDARD, 128);
 		
 		camera.setFilm(film);
 		
@@ -87,7 +87,9 @@ public class Main
 				while(true)
 				{
 					float progress = renderer.queryPercentageProgress();
+					float frequency = renderer.querySampleFrequency();
 					testTaskStatusModel.setPercentageProgress(progress);
+					testTaskStatusModel.setSampleFrequency(frequency);
 					if(progress == 100.0f)
 					{
 						break;

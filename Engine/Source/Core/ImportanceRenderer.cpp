@@ -73,4 +73,9 @@ float32 ImportanceRenderer::queryPercentageProgress() const
 	return 0.0f;
 }
 
+float32 ImportanceRenderer::querySampleFrequency() const
+{
+	return 0.0f;
+}
+
 }// end namespace ph

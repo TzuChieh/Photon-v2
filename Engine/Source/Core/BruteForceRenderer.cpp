@@ -95,4 +95,9 @@ float32 BruteForceRenderer::queryPercentageProgress() const
 	return 0.0f;
 }
 
+float32 BruteForceRenderer::querySampleFrequency() const
+{
+	return 0.0f;
+}
+
 }// end namespace ph

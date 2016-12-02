@@ -57,5 +57,7 @@ public final class Ph
 	public static native void genTestHdrFrame(FloatArrayRef out_pixelData, IntRef out_widthPx, IntRef out_heightPx);
 	
 	// query
+	
 	public static native void phQueryRendererPercentageProgress(long rendererId, FloatRef out_progress);
+	public static native void phQueryRendererSampleFrequency(long rendererId, FloatRef out_frequency);
 }
