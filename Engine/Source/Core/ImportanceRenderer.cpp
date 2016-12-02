@@ -6,7 +6,7 @@
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
 #include "Model/Material/Material.h"
-#include "Model/Material/SurfaceIntegrand.h"
+#include "Model/Material/Integrand/SurfaceIntegrand.h"
 #include "Math/constant.h"
 #include "Core/SampleGenerator.h"
 #include "Core/Sample.h"

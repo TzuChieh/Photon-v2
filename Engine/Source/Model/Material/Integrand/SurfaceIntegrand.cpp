@@ -1,4 +1,4 @@
-#include "Model/Material/SurfaceIntegrand.h"
+#include "Model/Material/Integrand/SurfaceIntegrand.h"
 
 namespace ph
 {

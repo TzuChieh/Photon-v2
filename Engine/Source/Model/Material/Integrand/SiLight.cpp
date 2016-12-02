@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Model/Material/LightSurfaceIntegrand.h"
+#include "Model/Material/Integrand/SiLight.h"
 #include "Math/Vector3f.h"
 #include "Core/Ray.h"
 #include "Math/random_number.h"
@@ -12,15 +12,15 @@
 namespace ph
 {
 
-LightSurfaceIntegrand::LightSurfaceIntegrand() : 
+SiLight::SiLight() :
 	m_emittedRadiance(0, 0, 0)
 {
 
 }
 
-LightSurfaceIntegrand::~LightSurfaceIntegrand() = default;
+SiLight::~SiLight() = default;
 
-void LightSurfaceIntegrand::genUniformRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
+void SiLight::genUniformRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
 {
 	const float32 rand1 = genRandomFloat32_0_1_uniform();
 	const float32 rand2 = genRandomFloat32_0_1_uniform();
@@ -46,22 +46,22 @@ void LightSurfaceIntegrand::genUniformRandomV(const Intersection& intersection, 
 	out_V->normalizeLocal();
 }
 
-void LightSurfaceIntegrand::genImportanceRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
+void SiLight::genImportanceRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
 {
 	genUniformRandomV(intersection, L, out_V);
 }
 
-void LightSurfaceIntegrand::evaluateUniformRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
+void SiLight::evaluateUniformRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
 {
 	std::cerr << "LightSurfaceIntegrand::evaluateUniformRandomVPDF() not implemented" << std::endl;
 }
 
-void LightSurfaceIntegrand::evaluateImportanceRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
+void SiLight::evaluateImportanceRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
 {
 	std::cerr << "LightSurfaceIntegrand::evaluateImportanceRandomVPDF() not implemented" << std::endl;
 }
 
-void LightSurfaceIntegrand::evaluateLiWeight(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_LiWeight) const
+void SiLight::evaluateLiWeight(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_LiWeight) const
 {
 	std::cerr << "LightSurfaceIntegrand::evaluateLiWeight() not implemented" << std::endl;
 }

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Model/Material/Material.h"
-#include "Model/Material/LambertianDiffuseSurfaceIntegrand.h"
+#include "Model/Material/Integrand/SiLambertianDiffuse.h"
 #include "Math/Vector3f.h"
-#include "Image/ConstantTexture.h"
+#include "Image/Texture.h"
 
 #include <memory>
 
@@ -21,24 +21,12 @@ public:
 		return &m_surfaceIntegrand;
 	}
 
-	inline void getAlbedo(const Vector3f& uvw, Vector3f* const out_albedo) const
-	{
-		m_albedo->sample(uvw, out_albedo);
-	}
-
-	inline void setAlbedo(const float32 r, const float32 g, const float32 b)
-	{
-		m_albedo = std::make_shared<ConstantTexture>(Vector3f(r, g, b));
-	}
-
-	inline void setAlbedo(const std::shared_ptr<Texture>& albedo)
-	{
-		m_albedo = albedo;
-	}
+	void setAlbedo(const Vector3f& albedo);
+	void setAlbedo(const float32 r, const float32 g, const float32 b);
+	void setAlbedo(const std::shared_ptr<Texture>& albedo);
 
 private:
-	LambertianDiffuseSurfaceIntegrand m_surfaceIntegrand;
-	std::shared_ptr<Texture> m_albedo;
+	SiLambertianDiffuse m_surfaceIntegrand;
 };
 
 }// end namespace ph

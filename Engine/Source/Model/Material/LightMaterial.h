@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Model/Material/Material.h"
-#include "Model/Material/LightSurfaceIntegrand.h"
+#include "Model/Material/Integrand/SiLight.h"
 
 namespace ph
 {
@@ -23,7 +23,7 @@ public:
 	}
 
 private:
-	LightSurfaceIntegrand m_surfaceIntegrand;
+	SiLight m_surfaceIntegrand;
 };
 
 }// end namespace ph

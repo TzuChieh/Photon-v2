@@ -5,7 +5,7 @@
 #include "Core/Intersection.h"
 #include "Model/Model.h"
 #include "Model/Material/Material.h"
-#include "Model/Material/SurfaceIntegrand.h"
+#include "Model/Material/Integrand/SurfaceIntegrand.h"
 #include "Math/Math.h"
 #include "Math/Color.h"
 #include "Math/random_number.h"

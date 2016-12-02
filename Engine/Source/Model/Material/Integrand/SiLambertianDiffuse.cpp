@@ -1,4 +1,4 @@
-#include "Model/Material/LambertianDiffuseSurfaceIntegrand.h"
+#include "Model/Material/Integrand/SiLambertianDiffuse.h"
 #include "Core/Ray.h"
 #include "Math/Vector3f.h"
 #include "Math/random_number.h"
@@ -11,15 +11,15 @@
 namespace ph
 {
 
-LambertianDiffuseSurfaceIntegrand::LambertianDiffuseSurfaceIntegrand(const MatteOpaque* const matteOpaque) : 
-	m_matteOpaque(matteOpaque)
+SiLambertianDiffuse::SiLambertianDiffuse() :
+	m_albedo(std::make_shared<ConstantTexture>(Vector3f(0.5f, 0.5f, 0.5f)))
 {
 
 }
 
-LambertianDiffuseSurfaceIntegrand::~LambertianDiffuseSurfaceIntegrand() = default;
+SiLambertianDiffuse::~SiLambertianDiffuse() = default;
 
-void LambertianDiffuseSurfaceIntegrand::genUniformRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
+void SiLambertianDiffuse::genUniformRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
 {
 	const float32 rand1 = genRandomFloat32_0_1_uniform();
 	const float32 rand2 = genRandomFloat32_0_1_uniform();
@@ -45,7 +45,7 @@ void LambertianDiffuseSurfaceIntegrand::genUniformRandomV(const Intersection& in
 	out_V->normalizeLocal();
 }
 
-void LambertianDiffuseSurfaceIntegrand::genImportanceRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
+void SiLambertianDiffuse::genImportanceRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
 {
 	const float32 rand1 = genRandomFloat32_0_1_uniform();
 	const float32 rand2 = genRandomFloat32_0_1_uniform();
@@ -71,21 +71,20 @@ void LambertianDiffuseSurfaceIntegrand::genImportanceRandomV(const Intersection&
 	out_V->normalizeLocal();
 }
 
-void LambertianDiffuseSurfaceIntegrand::evaluateUniformRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
+void SiLambertianDiffuse::evaluateUniformRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
 {
 	out_PDF->set(1.0f / (2.0f * PI_FLOAT32));
 }
 
-void LambertianDiffuseSurfaceIntegrand::evaluateImportanceRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
+void SiLambertianDiffuse::evaluateImportanceRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
 {
 	out_PDF->set(intersection.getHitNormal().dot(L) / PI_FLOAT32);
 }
 
-void LambertianDiffuseSurfaceIntegrand::evaluateLiWeight(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_LiWeight) const
+void SiLambertianDiffuse::evaluateLiWeight(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_LiWeight) const
 {
 	Vector3f brdf;
-	m_matteOpaque->getAlbedo(intersection.getHitUVW(), &brdf);
-
+	m_albedo->sample(intersection.getHitUVW(), &brdf);
 	brdf.mulLocal(1.0f / PI_FLOAT32);
 
 	out_LiWeight->set(brdf.mulLocal(intersection.getHitNormal().dot(L)));

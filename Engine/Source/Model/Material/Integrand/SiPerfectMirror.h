@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Model/Material/SurfaceIntegrand.h"
+#include "Model/Material/Integrand/SurfaceIntegrand.h"
 
 namespace ph
 {
 
-class PerfectMirrorSurfaceIntegrand : public SurfaceIntegrand
+class SiPerfectMirror : public SurfaceIntegrand
 {
 public:
-	virtual ~PerfectMirrorSurfaceIntegrand() override;
+	virtual ~SiPerfectMirror() override;
 
 	virtual void genUniformRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const override;
 	virtual void genImportanceRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const override;

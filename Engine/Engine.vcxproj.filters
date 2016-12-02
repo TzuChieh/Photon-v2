@@ -39,16 +39,7 @@
     <ClCompile Include="Source\Model\Material\Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Model\Material\SurfaceIntegrand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Model\Material\LambertianDiffuseSurfaceIntegrand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Model\Material\MatteOpaque.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Model\Material\LightSurfaceIntegrand.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Model\Model.cpp">
@@ -75,9 +66,6 @@
     <ClCompile Include="Source\Model\Material\PerfectMirror.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Model\Material\PerfectMirrorSurfaceIntegrand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Core\ImportanceRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -91,9 +79,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\StandardSampleGenerator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Model\Material\OpaqueMicrofacetSurfaceIntegrand.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Model\Material\AbradedOpaque.cpp">
@@ -189,6 +174,27 @@
     <ClCompile Include="Source\Api\ph_query.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Model\Material\Integrand\SurfaceIntegrand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Model\Material\AbradedTranslucent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Model\Material\Integrand\SiPerfectMirror.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Model\Material\Integrand\SiOpaqueMicrofacet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Model\Material\Integrand\SiLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Model\Material\Integrand\SiLambertianDiffuse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Model\Material\Integrand\SiTranslucentMicrofacet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Math\Matrix4f.h">
@@ -227,16 +233,7 @@
     <ClInclude Include="Source\Model\Material\Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Model\Material\SurfaceIntegrand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Model\Material\LambertianDiffuseSurfaceIntegrand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Model\Material\MatteOpaque.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Model\Material\LightSurfaceIntegrand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Model\Model.h">
@@ -269,13 +266,7 @@
     <ClInclude Include="Source\Model\Material\PerfectMirror.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Model\Material\PerfectMirrorSurfaceIntegrand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\ImportanceRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Model\Material\OpaqueMicrofacetSurfaceIntegrand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Image\Frame.h">
@@ -387,6 +378,27 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\ph_query.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Model\Material\Integrand\SurfaceIntegrand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Model\Material\AbradedTranslucent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Model\Material\Integrand\SiTranslucentMicrofacet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Model\Material\Integrand\SiPerfectMirror.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Model\Material\Integrand\SiOpaqueMicrofacet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Model\Material\Integrand\SiLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Model\Material\Integrand\SiLambertianDiffuse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

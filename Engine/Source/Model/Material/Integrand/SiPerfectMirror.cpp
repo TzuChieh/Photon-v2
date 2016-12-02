@@ -1,4 +1,4 @@
-#include "Model/Material/PerfectMirrorSurfaceIntegrand.h"
+#include "Model/Material/Integrand/SiPerfectMirror.h"
 #include "Core/Ray.h"
 #include "Math/Vector3f.h"
 #include "Math/random_number.h"
@@ -15,9 +15,9 @@
 namespace ph
 {
 
-PerfectMirrorSurfaceIntegrand::~PerfectMirrorSurfaceIntegrand() = default;
+SiPerfectMirror::~SiPerfectMirror() = default;
 
-void PerfectMirrorSurfaceIntegrand::genUniformRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
+void SiPerfectMirror::genUniformRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
 {
 	const float32 rand1 = genRandomFloat32_0_1_uniform();
 	const float32 rand2 = genRandomFloat32_0_1_uniform();
@@ -43,22 +43,22 @@ void PerfectMirrorSurfaceIntegrand::genUniformRandomV(const Intersection& inters
 	out_V->normalizeLocal();
 }
 
-void PerfectMirrorSurfaceIntegrand::genImportanceRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
+void SiPerfectMirror::genImportanceRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
 {
 	*out_V = L.mul(-1.0f).reflect(intersection.getHitNormal());
 }
 
-void PerfectMirrorSurfaceIntegrand::evaluateUniformRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
+void SiPerfectMirror::evaluateUniformRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
 {
 	out_PDF->set(1.0f / (2.0f * PI_FLOAT32));
 }
 
-void PerfectMirrorSurfaceIntegrand::evaluateImportanceRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
+void SiPerfectMirror::evaluateImportanceRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
 {
 	out_PDF->set(DIRAC_DELTA_HEIGHT_APPROXIMATION);
 }
 
-void PerfectMirrorSurfaceIntegrand::evaluateLiWeight(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_LiWeight) const
+void SiPerfectMirror::evaluateLiWeight(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_LiWeight) const
 {
 	Vector3f reflectionDir = L.mul(-1.0f).reflect(intersection.getHitNormal());
 

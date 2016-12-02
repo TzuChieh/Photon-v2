@@ -1,4 +1,4 @@
-#include "Model/Material/OpaqueMicrofacetSurfaceIntegrand.h"
+#include "Model/Material/Integrand/SiOpaqueMicrofacet.h"
 #include "Core/Ray.h"
 #include "Math/Vector3f.h"
 #include "Math/random_number.h"
@@ -11,15 +11,17 @@
 namespace ph
 {
 
-OpaqueMicrofacetSurfaceIntegrand::OpaqueMicrofacetSurfaceIntegrand(const AbradedOpaque* const abradedOpaqueMaterial) : 
-	m_abradedOpaqueMaterial(abradedOpaqueMaterial)
+SiOpaqueMicrofacet::SiOpaqueMicrofacet() :
+	m_albedo   (std::make_shared<ConstantTexture>(Vector3f(0.5f, 0.5f, 0.5f))), 
+	m_roughness(std::make_shared<ConstantTexture>(Vector3f(0.5f, 0.5f, 0.5f))), 
+	m_F0       (std::make_shared<ConstantTexture>(Vector3f(0.04f, 0.04f, 0.04f)))
 {
 
 }
 
-OpaqueMicrofacetSurfaceIntegrand::~OpaqueMicrofacetSurfaceIntegrand() = default;
+SiOpaqueMicrofacet::~SiOpaqueMicrofacet() = default;
 
-void OpaqueMicrofacetSurfaceIntegrand::genUniformRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
+void SiOpaqueMicrofacet::genUniformRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
 {
 	const float32 phi = 2.0f * PI_FLOAT32 * genRandomFloat32_0_1_uniform();
 	const float32 yValue = genRandomFloat32_0_1_uniform();
@@ -42,14 +44,16 @@ void OpaqueMicrofacetSurfaceIntegrand::genUniformRandomV(const Intersection& int
 	out_V->normalizeLocal();
 }
 
-void OpaqueMicrofacetSurfaceIntegrand::genImportanceRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
+void SiOpaqueMicrofacet::genImportanceRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
 {
 	// for GGX (Trowbridge-Reitz) Normal Distribution Function
 
+	Vector3f roughness;
+	m_roughness->sample(intersection.getHitUVW(), &roughness);
+
 	const float32 phi       = 2.0f * PI_FLOAT32 * genRandomFloat32_0_1_uniform();
 	const float32 randNum   = genRandomFloat32_0_1_uniform();
-	const float32 roughness = m_abradedOpaqueMaterial->getRoughness();
-	const float32 theta     = atan(roughness * roughness * sqrt(randNum / (1.0f - randNum)));
+	const float32 theta     = atan(roughness.x * roughness.x * sqrt(randNum / (1.0f - randNum)));
 
 	const float32 sinTheta = sin(theta);
 	const float32 cosTheta = cos(theta);
@@ -72,37 +76,39 @@ void OpaqueMicrofacetSurfaceIntegrand::genImportanceRandomV(const Intersection& 
 	*out_V = L.mul(-1.0f).reflect(H).normalizeLocal();
 }
 
-void OpaqueMicrofacetSurfaceIntegrand::evaluateUniformRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
+void SiOpaqueMicrofacet::evaluateUniformRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
 {
 	out_PDF->set(1.0f / (2.0f * PI_FLOAT32));
 }
 
-void OpaqueMicrofacetSurfaceIntegrand::evaluateImportanceRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
+void SiOpaqueMicrofacet::evaluateImportanceRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
 {
 	const Vector3f N = intersection.getHitNormal();
 	const Vector3f H = V.add(L).normalizeLocal();
 
-	const float32 D = calcNormalDistributionTerm(N, H);
+	const float32 D = calcNormalDistributionTerm(intersection, H);
 
 	out_PDF->set(D * N.dot(H) / (4.0f * H.dot(L)));
 }
 
-void OpaqueMicrofacetSurfaceIntegrand::evaluateLiWeight(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_LiWeight) const
+void SiOpaqueMicrofacet::evaluateLiWeight(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_LiWeight) const
 {
-	const Vector3f N = intersection.getHitNormal();
-	const Vector3f H = V.add(L).normalizeLocal();
+	const Vector3f& N = intersection.getHitNormal();
+	const Vector3f& H = V.add(L).normalizeLocal();
 
-	const float32  D = calcNormalDistributionTerm(N, H);
-	const float32  G = calcGeometricShadowingTerm(L, V, N, H);
-	const Vector3f F = calcFresnelTerm(V, H);
+	const float32   D = calcNormalDistributionTerm(intersection, H);
+	const float32   G = calcGeometricShadowingTerm(intersection, L, V, H);
+	const Vector3f& F = calcFresnelTerm(intersection, V, H);
 
 	// notice that the (N dot L) term canceled out with the lambertian term
 	out_LiWeight->set(F.mul(D * G).divLocal(4.0f * N.dot(V)));
 }
 
-float32 OpaqueMicrofacetSurfaceIntegrand::calcNormalDistributionTerm(const Vector3f& N, const Vector3f& H) const
+float32 SiOpaqueMicrofacet::calcNormalDistributionTerm(const Intersection& intersection, const Vector3f& H) const
 {
 	// GGX (Trowbridge-Reitz) Normal Distribution Function
+
+	const Vector3f& N = intersection.getHitNormal();
 
 	const float32 NoH = N.dot(H);
 
@@ -111,7 +117,10 @@ float32 OpaqueMicrofacetSurfaceIntegrand::calcNormalDistributionTerm(const Vecto
 		return 0.0f;
 	}
 
-	const float32 alpha  = m_abradedOpaqueMaterial->getRoughness() * m_abradedOpaqueMaterial->getRoughness();
+	Vector3f roughness;
+	m_roughness->sample(intersection.getHitUVW(), &roughness);
+
+	const float32 alpha  = roughness.x * roughness.x;
 	const float32 alpha2 = alpha * alpha;
 	const float32 NoH2   = NoH * NoH;
 
@@ -121,7 +130,7 @@ float32 OpaqueMicrofacetSurfaceIntegrand::calcNormalDistributionTerm(const Vecto
 	return alpha2 / denominator;
 }
 
-//float32 OpaqueMicrofacetSurfaceIntegrand::calcGeometricShadowingTerm(const Vector3f& L, const Vector3f& V, const Vector3f& N, const Vector3f& H) const
+//float32 SiOpaqueMicrofacet::calcGeometricShadowingTerm(const Vector3f& L, const Vector3f& V, const Vector3f& N, const Vector3f& H) const
 //{
 //	// Cook-Torrance Geometric Shadowing Function
 //
@@ -136,9 +145,11 @@ float32 OpaqueMicrofacetSurfaceIntegrand::calcNormalDistributionTerm(const Vecto
 //	return fmin(1.0f, fmin(termA, termB));
 //}
 
-float32 OpaqueMicrofacetSurfaceIntegrand::calcGeometricShadowingTerm(const Vector3f& L, const Vector3f& V, const Vector3f& N, const Vector3f& H) const
+float32 SiOpaqueMicrofacet::calcGeometricShadowingTerm(const Intersection& intersection, const Vector3f& L, const Vector3f& V, const Vector3f& H) const
 {
 	// Smith's GGX Geometry Shadowing Function
+
+	const Vector3f& N = intersection.getHitNormal();
 
 	const float32 HoV = H.dot(V);
 	const float32 HoL = H.dot(L);
@@ -150,7 +161,10 @@ float32 OpaqueMicrofacetSurfaceIntegrand::calcGeometricShadowingTerm(const Vecto
 		return 0.0f;
 	}
 
-	const float32 alpha  = m_abradedOpaqueMaterial->getRoughness() * m_abradedOpaqueMaterial->getRoughness();
+	Vector3f roughness;
+	m_roughness->sample(intersection.getHitUVW(), &roughness);
+
+	const float32 alpha  = roughness.x * roughness.x;
 	const float32 alpha2 = alpha * alpha;
 
 	const float32 lightG = (2.0f * NoL) / (NoL + sqrt(alpha2 + (1.0f - alpha2) * NoL * NoL));
@@ -159,11 +173,12 @@ float32 OpaqueMicrofacetSurfaceIntegrand::calcGeometricShadowingTerm(const Vecto
 	return lightG * viewG;
 }
 
-Vector3f OpaqueMicrofacetSurfaceIntegrand::calcFresnelTerm(const Vector3f& V, const Vector3f& H) const
+Vector3f SiOpaqueMicrofacet::calcFresnelTerm(const Intersection& intersection, const Vector3f& V, const Vector3f& H) const
 {
 	// Schlick Approximated Fresnel Function
 
-	const Vector3f F0 = m_abradedOpaqueMaterial->getF0();
+	Vector3f F0;
+	m_F0->sample(intersection.getHitUVW(), &F0);
 	const float32 VoH = V.dot(H);
 
 	return F0.add(F0.complement().mulLocal(pow(1.0f - VoH, 5)));

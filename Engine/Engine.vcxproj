@@ -184,6 +184,8 @@
     <ClCompile Include="Source\Model\Geometry\GRectangle.cpp" />
     <ClCompile Include="Source\Model\Geometry\GTriangleMesh.cpp" />
     <ClCompile Include="Source\Model\Geometry\Triangle.cpp" />
+    <ClCompile Include="Source\Model\Material\AbradedTranslucent.cpp" />
+    <ClCompile Include="Source\Model\Material\Integrand\SiTranslucentMicrofacet.cpp" />
     <ClCompile Include="Source\Model\ModelLoader.cpp" />
     <ClCompile Include="Source\Model\BoundingVolume\AABB.cpp" />
     <ClCompile Include="Source\Model\BoundingVolume\BoundingVolume.cpp" />
@@ -208,16 +210,16 @@
     <ClCompile Include="Source\Model\Geometry\Geometry.cpp" />
     <ClCompile Include="Source\Model\Geometry\GTriangle.cpp" />
     <ClCompile Include="Source\Model\Material\AbradedOpaque.cpp" />
-    <ClCompile Include="Source\Model\Material\OpaqueMicrofacetSurfaceIntegrand.cpp" />
+    <ClCompile Include="Source\Model\Material\Integrand\SiOpaqueMicrofacet.cpp" />
     <ClCompile Include="Source\Model\Material\PerfectMirror.cpp" />
-    <ClCompile Include="Source\Model\Material\PerfectMirrorSurfaceIntegrand.cpp" />
-    <ClCompile Include="Source\Model\Material\LambertianDiffuseSurfaceIntegrand.cpp" />
+    <ClCompile Include="Source\Model\Material\Integrand\SiPerfectMirror.cpp" />
+    <ClCompile Include="Source\Model\Material\Integrand\SiLambertianDiffuse.cpp" />
     <ClCompile Include="Source\Model\Material\LightMaterial.cpp" />
-    <ClCompile Include="Source\Model\Material\LightSurfaceIntegrand.cpp" />
+    <ClCompile Include="Source\Model\Material\Integrand\SiLight.cpp" />
     <ClCompile Include="Source\Model\Material\Material.cpp" />
     <ClCompile Include="Source\Model\Geometry\GSphere.cpp" />
     <ClCompile Include="Source\Model\Material\MatteOpaque.cpp" />
-    <ClCompile Include="Source\Model\Material\SurfaceIntegrand.cpp" />
+    <ClCompile Include="Source\Model\Material\Integrand\SurfaceIntegrand.cpp" />
     <ClCompile Include="Source\Model\Model.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -251,6 +253,8 @@
     <ClInclude Include="Source\Model\Geometry\GRectangle.h" />
     <ClInclude Include="Source\Model\Geometry\GTriangleMesh.h" />
     <ClInclude Include="Source\Model\Geometry\Triangle.h" />
+    <ClInclude Include="Source\Model\Material\AbradedTranslucent.h" />
+    <ClInclude Include="Source\Model\Material\Integrand\SiTranslucentMicrofacet.h" />
     <ClInclude Include="Source\Model\ModelLoader.h" />
     <ClInclude Include="Source\Model\BoundingVolume\AABB.h" />
     <ClInclude Include="Source\Model\BoundingVolume\BoundingVolume.h" />
@@ -273,18 +277,18 @@
     <ClInclude Include="Source\Math\Vector3f.h" />
     <ClInclude Include="Source\Model\Geometry\GTriangle.h" />
     <ClInclude Include="Source\Model\Material\AbradedOpaque.h" />
-    <ClInclude Include="Source\Model\Material\OpaqueMicrofacetSurfaceIntegrand.h" />
+    <ClInclude Include="Source\Model\Material\Integrand\SiOpaqueMicrofacet.h" />
     <ClInclude Include="Source\Model\Material\PerfectMirror.h" />
-    <ClInclude Include="Source\Model\Material\PerfectMirrorSurfaceIntegrand.h" />
-    <ClInclude Include="Source\Model\Material\LambertianDiffuseSurfaceIntegrand.h" />
+    <ClInclude Include="Source\Model\Material\Integrand\SiPerfectMirror.h" />
+    <ClInclude Include="Source\Model\Material\Integrand\SiLambertianDiffuse.h" />
     <ClInclude Include="Source\Model\Material\LightMaterial.h" />
-    <ClInclude Include="Source\Model\Material\LightSurfaceIntegrand.h" />
+    <ClInclude Include="Source\Model\Material\Integrand\SiLight.h" />
     <ClInclude Include="Source\Model\Material\Material.h" />
     <ClInclude Include="Source\Model\Geometry\Geometry.h" />
     <ClInclude Include="Source\Core\Ray.h" />
     <ClInclude Include="Source\Model\Geometry\GSphere.h" />
     <ClInclude Include="Source\Model\Material\MatteOpaque.h" />
-    <ClInclude Include="Source\Model\Material\SurfaceIntegrand.h" />
+    <ClInclude Include="Source\Model\Material\Integrand\SurfaceIntegrand.h" />
     <ClInclude Include="Source\Model\Model.h" />
     <ClInclude Include="Source\Utility\TStableIndexDenseArray.h" />
   </ItemGroup>

@@ -10,6 +10,12 @@ ConstantTexture::ConstantTexture(const Vector3f& value) :
 
 }
 
+ConstantTexture::ConstantTexture(const float32 r, const float32 g, const float32 b) :
+	ConstantTexture(Vector3f(r, g, b))
+{
+
+}
+
 ConstantTexture::~ConstantTexture() = default;
 
 void ConstantTexture::sample(const Vector3f& uvw, Vector3f* const out_value) const
