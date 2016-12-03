@@ -5,6 +5,7 @@
 #include "Model/Material/MatteOpaque.h"
 #include "Model/Geometry/GTriangleMesh.h"
 #include "Model/Material/PerfectMirror.h"
+#include "Model/TextureMapper/DefaultMapper.h"
 
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -65,6 +66,7 @@ bool ModelLoader::load(const std::string& fullFilename, Model* const out_model)
 
 	auto geometry = std::make_shared<GTriangleMesh>();
 	auto material = std::make_shared<MatteOpaque>();
+	material->setAlbedo(1, 1, 1);
 	//auto material = std::make_shared<PerfectMirror>();
 	
 	for(std::size_t i = 0; i < indices.size(); i += 3)
@@ -74,6 +76,7 @@ bool ModelLoader::load(const std::string& fullFilename, Model* const out_model)
 
 	out_model->setGeometry(geometry);
 	out_model->setMaterial(material);
+	out_model->setTextureMapper(std::make_shared<DefaultMapper>());
 
 	return true;
 }

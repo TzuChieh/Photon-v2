@@ -38,18 +38,22 @@ void loadTestScene(World* const out_world)
 		loadedModelMaterial->setAlbedo(std::make_shared<CheckerboardTexture>(16.0f, 8.0f, Vector3f(0, 0, 0), Vector3f(1, 1, 1)));
 		loadedModel.setMaterial(loadedModelMaterial);*/
 
-		//out_world->addModel(loadedModel);
+		auto dragonMaterial = std::make_shared<AbradedOpaque>();
+		dragonMaterial->setRoughness(0.2f);
+		loadedModel.setMaterial(dragonMaterial);
+
+		out_world->addModel(loadedModel);
 	}
 
-	auto sphereMaterial = std::make_shared<MatteOpaque>();
-	auto sphereGeometry = std::make_shared<GSphere>(3.0f);
-	//sphereMaterial->setAlbedo(0.9f, 0.9f, 0.9f);
-	sphereMaterial->setAlbedo(std::make_shared<CheckerboardTexture>(128.0f, 64.0f, Vector3f(0, 0, 0), Vector3f(1, 1, 1)));
-	Model sphereModel(sphereGeometry, sphereMaterial);
-	sphereModel.setTextureMapper(std::make_shared<SphericalMapper>());
-	sphereModel.rotate(Vector3f(1, 1, 0).normalize(), 45);
-	sphereModel.translate(0, -2, 0);
-	out_world->addModel(sphereModel);
+	//auto sphereMaterial = std::make_shared<MatteOpaque>();
+	//auto sphereGeometry = std::make_shared<GSphere>(3.0f);
+	////sphereMaterial->setAlbedo(0.9f, 0.9f, 0.9f);
+	//sphereMaterial->setAlbedo(std::make_shared<CheckerboardTexture>(128.0f, 64.0f, Vector3f(0, 0, 0), Vector3f(1, 1, 1)));
+	//Model sphereModel(sphereGeometry, sphereMaterial);
+	//sphereModel.setTextureMapper(std::make_shared<SphericalMapper>());
+	//sphereModel.rotate(Vector3f(1, 1, 0).normalize(), 45);
+	//sphereModel.translate(0, -2, 0);
+	//out_world->addModel(sphereModel);
 
 	/*auto lightMaterial = std::make_shared<LightMaterial>();
 	auto lightGeometry = std::make_shared<GTriangle>(Vector3f(40, 10, -40), Vector3f(0, 10, 40), Vector3f(-40, 10, -40));
@@ -83,7 +87,7 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 	auto unitRectangleGeom = std::make_shared<GRectangle>(1.0f, 1.0f);
 
 	auto lightMatl = std::make_shared<LightMaterial>();
-	lightMatl->setEmittedRadiance(3.0f, 3.0f, 3.0f);
+	lightMatl->setEmittedRadiance(1.5f, 1.5f, 1.5f);
 	Model lightModel(unitRectangleGeom, lightMatl);
 	lightModel.rotate(Vector3f(1, 0, 0), 90);
 	lightModel.scale(boxSize * 0.3f);

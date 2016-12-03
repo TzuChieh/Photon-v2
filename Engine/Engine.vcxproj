@@ -179,6 +179,7 @@
     <ClCompile Include="Source\Image\CheckerboardTexture.cpp" />
     <ClCompile Include="Source\Image\ConstantTexture.cpp" />
     <ClCompile Include="Source\Image\Texture.cpp" />
+    <ClCompile Include="Source\Model\Material\Integrand\random_sample.cpp" />
     <ClCompile Include="Source\Math\Transform.cpp" />
     <ClCompile Include="Source\Math\TransformInfo.cpp" />
     <ClCompile Include="Source\Model\Geometry\GRectangle.cpp" />
@@ -247,6 +248,7 @@
     <ClInclude Include="Source\Math\Color.h" />
     <ClInclude Include="Source\Math\Math.h" />
     <ClInclude Include="Source\Math\Normal3f.h" />
+    <ClInclude Include="Source\Model\Material\Integrand\random_sample.h" />
     <ClInclude Include="Source\Math\Transform.h" />
     <ClInclude Include="Source\Math\vector_math.h" />
     <ClInclude Include="Source\Model\Geometry\DifferentialPatch.h" />
@@ -254,7 +256,9 @@
     <ClInclude Include="Source\Model\Geometry\GTriangleMesh.h" />
     <ClInclude Include="Source\Model\Geometry\Triangle.h" />
     <ClInclude Include="Source\Model\Material\AbradedTranslucent.h" />
+    <ClInclude Include="Source\Model\Material\Integrand\ESurfaceSampleType.h" />
     <ClInclude Include="Source\Model\Material\Integrand\SiTranslucentMicrofacet.h" />
+    <ClInclude Include="Source\Model\Material\Integrand\SurfaceSample.h" />
     <ClInclude Include="Source\Model\ModelLoader.h" />
     <ClInclude Include="Source\Model\BoundingVolume\AABB.h" />
     <ClInclude Include="Source\Model\BoundingVolume\BoundingVolume.h" />

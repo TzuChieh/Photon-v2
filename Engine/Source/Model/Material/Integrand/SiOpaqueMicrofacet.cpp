@@ -4,7 +4,7 @@
 #include "Math/random_number.h"
 #include "Math/constant.h"
 #include "Core/Intersection.h"
-#include "Model/Material/AbradedOpaque.h"
+#include "Model/Material/Integrand/random_sample.h"
 
 #include <cmath>
 
@@ -51,9 +51,9 @@ void SiOpaqueMicrofacet::genImportanceRandomV(const Intersection& intersection, 
 	Vector3f roughness;
 	m_roughness->sample(intersection.getHitUVW(), &roughness);
 
-	const float32 phi       = 2.0f * PI_FLOAT32 * genRandomFloat32_0_1_uniform();
-	const float32 randNum   = genRandomFloat32_0_1_uniform();
-	const float32 theta     = atan(roughness.x * roughness.x * sqrt(randNum / (1.0f - randNum)));
+	const float32 phi     = 2.0f * PI_FLOAT32 * genRandomFloat32_0_1_uniform();
+	const float32 randNum = genRandomFloat32_0_1_uniform();
+	const float32 theta   = atan(roughness.x * roughness.x * sqrt(randNum / (1.0f - randNum)));
 
 	const float32 sinTheta = sin(theta);
 	const float32 cosTheta = cos(theta);
@@ -104,6 +104,41 @@ void SiOpaqueMicrofacet::evaluateLiWeight(const Intersection& intersection, cons
 	out_LiWeight->set(F.mul(D * G).divLocal(4.0f * N.dot(V)));
 }
 
+void SiOpaqueMicrofacet::evaluateImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
+{
+	// Cook-Torrance microfacet specular BRDF is D(H)*F(V, H)*G(L, V, H) / (4*NoL*NoV).
+	// The importance sampling strategy is to generate a microfacet normal (H) which follows D(H)'s distribution, and
+	// generate L by reflecting -V using H.
+	// The PDF for this sampling scheme is D(H)*NoH / (4*HoL). The reason that (4*HoL) exists is because there's a 
+	// jacobian involved (from H's probability space to L's).
+
+	const Vector3f& N = intersection.getHitNormal();
+	Vector3f H;
+	Vector3f roughness;
+	m_roughness->sample(intersection.getHitUVW(), &roughness);
+
+	genUnitHemisphereGgxTrowbridgeReitzNdfSample(genRandomFloat32_0_1_uniform(), genRandomFloat32_0_1_uniform(), roughness.x, &H);
+	Vector3f u;
+	Vector3f v(N);
+	Vector3f w;
+	v.calcOrthBasisAsYaxis(&u, &w);
+	H = u.mulLocal(H.x).addLocal(v.mulLocal(H.y)).addLocal(w.mulLocal(H.z));
+	H.normalizeLocal();
+
+	const Vector3f V = ray.getDirection().mul(-1.0f);
+	const Vector3f L = ray.getDirection().reflect(H).normalizeLocal();
+	out_sample->m_direction = L;
+
+	const float32   G = calcGeometricShadowingTerm(intersection, L, V, H);
+	const Vector3f& F = calcFresnelTerm(intersection, V, H);
+
+	// notice that the (N dot L) term canceled out with the lambertian term
+	out_sample->m_LiWeight.set(F.mul(G * H.dot(L)).divLocal(N.dot(V) * N.dot(H)));
+
+	// this model reflects light
+	out_sample->m_type = ESurfaceSampleType::REFLECTION;
+}
+
 float32 SiOpaqueMicrofacet::calcNormalDistributionTerm(const Intersection& intersection, const Vector3f& H) const
 {
 	// GGX (Trowbridge-Reitz) Normal Distribution Function
@@ -130,21 +165,6 @@ float32 SiOpaqueMicrofacet::calcNormalDistributionTerm(const Intersection& inter
 	return alpha2 / denominator;
 }
 
-//float32 SiOpaqueMicrofacet::calcGeometricShadowingTerm(const Vector3f& L, const Vector3f& V, const Vector3f& N, const Vector3f& H) const
-//{
-//	// Cook-Torrance Geometric Shadowing Function
-//
-//	const float32 VoH = V.dot(H);
-//	const float32 NoH = N.dot(H);
-//	const float32 NoV = N.dot(V);
-//	const float32 NoL = N.dot(L);
-//
-//	const float32 termA = 2.0f * NoH * NoV / VoH;
-//	const float32 termB = 2.0f * NoH * NoL / VoH;
-//
-//	return fmin(1.0f, fmin(termA, termB));
-//}
-
 float32 SiOpaqueMicrofacet::calcGeometricShadowingTerm(const Intersection& intersection, const Vector3f& L, const Vector3f& V, const Vector3f& H) const
 {
 	// Smith's GGX Geometry Shadowing Function
@@ -156,7 +176,7 @@ float32 SiOpaqueMicrofacet::calcGeometricShadowingTerm(const Intersection& inter
 	const float32 NoV = N.dot(V);
 	const float32 NoL = N.dot(L);
 
-	if(HoL / NoL <= 0.0f || HoV / NoL <= 0.0f)
+	if(HoL / NoL <= 0.0f || HoV / NoV <= 0.0f)
 	{
 		return 0.0f;
 	}

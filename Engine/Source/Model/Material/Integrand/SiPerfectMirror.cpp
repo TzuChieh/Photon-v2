@@ -72,4 +72,11 @@ void SiPerfectMirror::evaluateLiWeight(const Intersection& intersection, const V
 	}
 }
 
+void SiPerfectMirror::evaluateImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
+{
+	out_sample->m_type = ESurfaceSampleType::REFLECTION;
+	out_sample->m_LiWeight.set(1.0f, 1.0f, 1.0f);
+	out_sample->m_direction = ray.getDirection().reflect(intersection.getHitNormal());
+}
+
 }// end namespace ph

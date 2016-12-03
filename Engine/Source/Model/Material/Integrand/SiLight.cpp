@@ -66,4 +66,13 @@ void SiLight::evaluateLiWeight(const Intersection& intersection, const Vector3f&
 	std::cerr << "LightSurfaceIntegrand::evaluateLiWeight() not implemented" << std::endl;
 }
 
+void SiLight::evaluateImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
+{
+	// This lighting model is simple: the surface emits constant amount of radiance to any direction on
+	// a specific point.
+
+	out_sample->m_emittedRadiance = m_emittedRadiance;
+	out_sample->m_type = ESurfaceSampleType::EMISSION;
+}
+
 }// end namespace ph

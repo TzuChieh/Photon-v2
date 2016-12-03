@@ -19,6 +19,10 @@ public:
 		return &m_surfaceIntegrand;
 	}
 
+	void setF0(const float32 r, const float32 g, const float32 b);
+	void setIOR(const float32 ior);
+	void setRoughness(const float32 roughness);
+
 private:
 	SiTranslucentMicrofacet m_surfaceIntegrand;
 };
