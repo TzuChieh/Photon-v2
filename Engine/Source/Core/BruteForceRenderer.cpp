@@ -52,24 +52,24 @@ void BruteForceRenderer::render(const World& world, const Camera& camera) const
 					Vector3f N(intersection.getHitNormal());
 					Vector3f V(ray.getDirection().mul(-1.0f));
 
-					hitMaterial->getSurfaceIntegrand()->genUniformRandomV(intersection, V, &L);
+					//hitMaterial->getSurfaceIntegrand()->genUniformRandomV(intersection, V, &L);
 
-					if(hitMaterial->getSurfaceIntegrand()->isEmissive())
-					{
-						Vector3f radiance;
-						hitMaterial->getSurfaceIntegrand()->evaluateEmittedRadiance(intersection, L, V, &radiance);
+					//if(hitMaterial->getSurfaceIntegrand()->isEmissive())
+					//{
+					//	Vector3f radiance;
+					//	hitMaterial->getSurfaceIntegrand()->evaluateEmittedRadiance(intersection, L, V, &radiance);
 
-						//ray.addLiRadiance(radiance);
-						//ray.calcWeightedLiRadiance(&radiance);
-						accuRadiance.addLocal(radiance);
+					//	//ray.addLiRadiance(radiance);
+					//	//ray.calcWeightedLiRadiance(&radiance);
+					//	accuRadiance.addLocal(radiance);
 
-						break;
-					}
+					//	break;
+					//}
 
-					Vector3f liWeight;
-					Vector3f pdf;
-					hitMaterial->getSurfaceIntegrand()->evaluateLiWeight(intersection, L, V, &liWeight);
-					hitMaterial->getSurfaceIntegrand()->evaluateUniformRandomVPDF(intersection, L, V, &pdf);
+					//Vector3f liWeight;
+					//Vector3f pdf;
+					//hitMaterial->getSurfaceIntegrand()->evaluateLiWeight(intersection, L, V, &liWeight);
+					//hitMaterial->getSurfaceIntegrand()->evaluateUniformRandomVPDF(intersection, L, V, &pdf);
 
 					//ray.accumulateLiWeight(liWeight.div(pdf));
 

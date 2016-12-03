@@ -6,6 +6,7 @@
 #include "Model/Geometry/GSphere.h"
 #include "Model/Material/MatteOpaque.h"
 #include "Model/Material/AbradedOpaque.h"
+#include "Model/Material/AbradedTranslucent.h"
 #include "Model/Material/LightMaterial.h"
 #include "Model/Material/PerfectMirror.h"
 #include "World/World.h"
@@ -39,7 +40,12 @@ void loadTestScene(World* const out_world)
 		loadedModel.setMaterial(loadedModelMaterial);*/
 
 		auto dragonMaterial = std::make_shared<AbradedOpaque>();
-		dragonMaterial->setRoughness(0.2f);
+		//auto dragonMaterial = std::make_shared<AbradedTranslucent>();
+		dragonMaterial->setRoughness(0.1f);
+		//dragonMaterial->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));// gold
+		//dragonMaterial->setF0(0.04f, 0.04f, 0.04f);
+		//dragonMaterial->setRoughness(0.05f);
+		//dragonMaterial->setIOR(1.5f);
 		loadedModel.setMaterial(dragonMaterial);
 
 		out_world->addModel(loadedModel);
@@ -87,6 +93,7 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 	auto unitRectangleGeom = std::make_shared<GRectangle>(1.0f, 1.0f);
 
 	auto lightMatl = std::make_shared<LightMaterial>();
+	//lightMatl->setEmittedRadiance(3, 3, 3);
 	lightMatl->setEmittedRadiance(1.5f, 1.5f, 1.5f);
 	Model lightModel(unitRectangleGeom, lightMatl);
 	lightModel.rotate(Vector3f(1, 0, 0), 90);

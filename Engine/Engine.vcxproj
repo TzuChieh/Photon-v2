@@ -248,6 +248,7 @@
     <ClInclude Include="Source\Math\Color.h" />
     <ClInclude Include="Source\Math\Math.h" />
     <ClInclude Include="Source\Math\Normal3f.h" />
+    <ClInclude Include="Source\Model\Material\Integrand\Microfacet.h" />
     <ClInclude Include="Source\Model\Material\Integrand\random_sample.h" />
     <ClInclude Include="Source\Math\Transform.h" />
     <ClInclude Include="Source\Math\vector_math.h" />

@@ -89,57 +89,12 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world
 			std::cerr << "warning: type TRANSMISSION_LI_WEIGHT not implemented" << std::endl;
 			keepSampling = false;
 			break;
-		}
+		}// end switch surface sample type
 
 		if(!keepSampling)
 		{
 			break;
 		}
-
-
-		//hitMaterial->getSurfaceIntegrand()->genImportanceRandomV(intersection, V, &L);
-
-		//if(hitMaterial->getSurfaceIntegrand()->isEmissive())
-		//{
-		//	Vector3f radianceLi;
-		//	hitMaterial->getSurfaceIntegrand()->evaluateEmittedRadiance(intersection, L, V, &radianceLi);
-
-		//	// avoid excessive, negative weight and possible NaNs
-		//	accuLiWeight.clampLocal(0.0f, 1000.0f);
-
-		//	accuRadiance.addLocal(radianceLi.mul(accuLiWeight));
-
-		//	/*if(radianceLi.x != 1.0f || radianceLi.y != 1.0f || radianceLi.z != 1.0f)
-		//	std::cout << radianceLi.toStringFormal() << std::endl;*/
-
-		//	break;
-		//}
-
-		//Vector3f liWeight;
-		//Vector3f pdf;
-		//hitMaterial->getSurfaceIntegrand()->evaluateLiWeight(intersection, L, V, &liWeight);
-		//hitMaterial->getSurfaceIntegrand()->evaluateImportanceRandomVPDF(intersection, L, V, &pdf);
-
-		//liWeight.divLocal(pdf);
-
-		////const float32 rrSurviveRate = liWeight.clamp(0.0f, 1.0f).max();
-		//const float32 rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001f, 1.0f);
-		////const float32 rrSurviveRate = Math::clamp(Color::linearRgbLuminance(liWeight), 0.0001f, 1.0f);
-		//const float32 rrSpin = genRandomFloat32_0_1_uniform();
-
-		//// russian roulette >> survive
-		//if(rrSurviveRate > rrSpin)
-		//{
-		//	const float32 rrScale = 1.0f / rrSurviveRate;
-		//	liWeight.mulLocal(rrScale);
-		//}
-		//// russian roulette >> dead
-		//else
-		//{
-		//	break;
-		//}
-
-		//accuLiWeight.mulLocal(liWeight);
 
 		// prepare for next recursion
 		const Vector3f L = surfaceSample.m_direction;

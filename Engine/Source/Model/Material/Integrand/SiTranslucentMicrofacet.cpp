@@ -5,6 +5,7 @@
 #include "Math/random_number.h"
 #include "Math/constant.h"
 #include "Core/Intersection.h"
+#include "Model/Material/Integrand/random_sample.h"
 
 #include <memory>
 
@@ -21,52 +22,93 @@ SiTranslucentMicrofacet::SiTranslucentMicrofacet() :
 
 SiTranslucentMicrofacet::~SiTranslucentMicrofacet() = default;
 
-void SiTranslucentMicrofacet::genUniformRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
-{
-	const float32 phi = 2.0f * PI_FLOAT32 * genRandomFloat32_0_1_uniform();
-	const float32 yValue = genRandomFloat32_0_1_uniform();
-	const float32 yRadius = sqrt(1.0f - yValue * yValue);
-
-	out_V->x = cos(phi) * yRadius;
-	out_V->y = yValue;
-	out_V->z = sin(phi) * yRadius;
-
-	Vector3f u;
-	Vector3f v(intersection.getHitNormal());
-	Vector3f w;
-
-	v.calcOrthBasisAsYaxis(&u, &w);
-
-	*out_V = u.mulLocal(out_V->x).
-	addLocal(v.mulLocal(out_V->y)).
-	addLocal(w.mulLocal(out_V->z));
-
-	out_V->normalizeLocal();
-}
-
-void SiTranslucentMicrofacet::genImportanceRandomV(const Intersection& intersection, const Vector3f& L, Vector3f* out_V) const
-{
-
-}
-
-void SiTranslucentMicrofacet::evaluateUniformRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
-{
-	out_PDF->set(1.0f / (2.0f * PI_FLOAT32));
-}
-
-void SiTranslucentMicrofacet::evaluateImportanceRandomVPDF(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_PDF) const
-{
-
-}
-
-void SiTranslucentMicrofacet::evaluateLiWeight(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_LiWeight) const
-{
-
-}
-
 void SiTranslucentMicrofacet::evaluateImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
 {
+	// Cook-Torrance microfacet specular BRDF is D(H)*F(V, H)*G(L, V, H) / (4*NoL*NoV).
+	// The importance sampling strategy is to generate a microfacet normal (H) which follows D(H)'s distribution, and
+	// generate L by reflecting/refracting -V using H.
+	// The PDF for this sampling scheme is D(H)*NoH / (4*HoL). The reason that (4*HoL) exists is because there's a 
+	// jacobian involved (from H's probability space to L's).
 
+	const Vector3f V = ray.getDirection().mul(-1.0f);
+	const Vector3f& N = intersection.getHitNormal();
+	Vector3f H;
+	Vector3f roughness;
+	m_roughness->sample(intersection.getHitUVW(), &roughness);
+
+	genUnitHemisphereGgxTrowbridgeReitzNdfSample(genRandomFloat32_0_1_uniform(), genRandomFloat32_0_1_uniform(), roughness.x, &H);
+	Vector3f u;
+	Vector3f v(N);
+	Vector3f w;
+	v.calcOrthBasisAsYaxis(&u, &w);
+	H = u.mulLocal(H.x).addLocal(v.mulLocal(H.y)).addLocal(w.mulLocal(H.z));
+	H.normalizeLocal();
+
+	Vector3f F = calcFresnelTerm(intersection, V, H);
+
+	// use Fresnel term to select which path to take and calculate L
+
+	Vector3f L;
+	const float32 dart = genRandomFloat32_0_1_uniform();
+	const float32 reflectProb = F.avg();
+
+	// reflect path
+	if(dart < reflectProb)
+	{
+		// calculate L
+		L = ray.getDirection().reflect(H).normalizeLocal();
+
+		// account for probability
+		F.divLocal(reflectProb);
+
+		// this path reflects light
+		out_sample->m_type = ESurfaceSampleType::REFLECTION;
+	}
+	// refract path
+	else
+	{
+		float32 signNoV = N.dot(V) < 0.0f ? -1.0f : 1.0f;
+		Vector3f ior;
+		m_IOR->sample(intersection.getHitUVW(), &ior);
+
+		// assume the outside medium has an IOR of 1.0 (which is true in most cases)
+		const float32 iorRatio = signNoV < 0.0f ? ior.x : 1.0f / ior.x;
+		const float32 sqrValue = 1.0f - iorRatio*iorRatio*(1.0f - V.dot(H)*V.dot(H));
+
+		Vector3f T;
+
+		// TIR (total internal reflection)
+		if(sqrValue < 0.0f)
+		{
+			T = V.mul(-1.0f).reflectLocal(H).normalizeLocal();
+
+			// this path reflects light
+			out_sample->m_type = ESurfaceSampleType::REFLECTION;
+		}
+		// refraction
+		else
+		{
+			const float32 Hfactor = iorRatio*V.dot(H) - signNoV * sqrt(sqrValue);
+			const float32 Vfactor = -iorRatio;
+			T = H.mul(Hfactor).addLocal(V.mul(Vfactor)).normalizeLocal();
+
+			// this path refracts light
+			out_sample->m_type = ESurfaceSampleType::REFLECTION;
+		}
+
+		// calculate L
+		L = T;
+
+		// account for probability
+		F = F.complement().divLocal(1.0f - reflectProb);
+	}
+
+	out_sample->m_direction = L;
+
+	const float32 G = calcGeometricShadowingTerm(intersection, L, V, H);
+
+	// notice that the (N dot L) term canceled out with the lambertian term
+	out_sample->m_LiWeight.set(F.mul(G * H.absDot(L)).divLocal(N.absDot(V) * N.absDot(H)));
 }
 
 float32 SiTranslucentMicrofacet::calcNormalDistributionTerm(const Intersection& intersection, const Vector3f& H) const
@@ -75,7 +117,7 @@ float32 SiTranslucentMicrofacet::calcNormalDistributionTerm(const Intersection& 
 
 	const Vector3f& N = intersection.getHitNormal();
 
-	const float32 NoH = N.dot(H);
+	const float32 NoH = N.absDot(H);
 
 	if(NoH <= 0.0f)
 	{
@@ -101,10 +143,10 @@ float32 SiTranslucentMicrofacet::calcGeometricShadowingTerm(const Intersection& 
 
 	const Vector3f& N = intersection.getHitNormal();
 
-	const float32 HoV = H.dot(V);
-	const float32 HoL = H.dot(L);
-	const float32 NoV = N.dot(V);
-	const float32 NoL = N.dot(L);
+	const float32 HoV = H.absDot(V);
+	const float32 HoL = H.absDot(L);
+	const float32 NoV = N.absDot(V);
+	const float32 NoL = N.absDot(L);
 
 	if(HoL / NoL <= 0.0f || HoV / NoL <= 0.0f)
 	{
@@ -129,7 +171,7 @@ Vector3f SiTranslucentMicrofacet::calcFresnelTerm(const Intersection& intersecti
 
 	Vector3f F0;
 	m_F0->sample(intersection.getHitUVW(), &F0);
-	const float32 VoH = V.dot(H);
+	const float32 VoH = V.absDot(H);
 
 	return F0.add(F0.complement().mulLocal(pow(1.0f - VoH, 5)));
 }

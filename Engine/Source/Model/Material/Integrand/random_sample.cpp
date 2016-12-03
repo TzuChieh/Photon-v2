@@ -5,6 +5,17 @@
 namespace ph
 {
 
+void genUnitHemisphereUniformSample(const float32 value_0_1_a, const float32 value_0_1_b, Vector3f* const out_sample)
+{
+	const float32 phi     = 2.0f * PI_FLOAT32 * value_0_1_a;
+	const float32 yValue  = value_0_1_b;
+	const float32 yRadius = sqrt(1.0f - yValue * yValue);
+
+	out_sample->x = cos(phi) * yRadius;
+	out_sample->y = yValue;
+	out_sample->z = sin(phi) * yRadius;
+}
+
 void genUnitHemisphereCosineThetaWeightedSample(const float32 value_0_1_a, const float32 value_0_1_b, Vector3f* const out_sample)
 {
 	const float32 phi     = 2.0f * PI_FLOAT32 * value_0_1_a;

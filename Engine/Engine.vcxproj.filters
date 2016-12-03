@@ -413,5 +413,8 @@
     <ClInclude Include="Source\Model\Material\Integrand\SurfaceSample.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Model\Material\Integrand\Microfacet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
