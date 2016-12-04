@@ -17,10 +17,8 @@ public:
 		return &m_surfaceIntegrand;
 	}
 
-	inline void setEmittedRadiance(const float32 r, const float32 g, const float32 b)
-	{
-		m_surfaceIntegrand.setEmittedRadiance(r, g, b);
-	}
+	void setEmittedRadiance(const Vector3f& radiance);
+	void setEmittedRadiance(const float32 r, const float32 g, const float32 b);
 
 private:
 	SiLight m_surfaceIntegrand;

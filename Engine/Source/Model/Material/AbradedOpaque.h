@@ -21,6 +21,7 @@ public:
 
 	void setRoughness(const float32 roughness);
 	void setF0(const Vector3f& f0);
+	void setF0(const float32 r, const float32 g, const float32 b);
 
 private:
 	SiOpaqueMicrofacet m_surfaceIntegrand;

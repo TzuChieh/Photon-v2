@@ -77,13 +77,13 @@ void SiTranslucentMicrofacet::evaluateImportanceSample(const Intersection& inter
 	// refract path
 	else
 	{
-		float32 signNoV = N.dot(V) < 0.0f ? -1.0f : 1.0f;
+		float32 signHoV = HoV < 0.0f ? -1.0f : 1.0f;
 		Vector3f ior;
 		m_IOR->sample(intersection.getHitUVW(), &ior);
 
 		// assume the outside medium has an IOR of 1.0 (which is true in most cases)
-		const float32 iorRatio = signNoV < 0.0f ? ior.x : 1.0f / ior.x;
-		const float32 sqrValue = 1.0f - iorRatio*iorRatio*(1.0f - V.dot(H)*V.dot(H));
+		const float32 iorRatio = signHoV < 0.0f ? ior.x : 1.0f / ior.x;
+		const float32 sqrValue = 1.0f - iorRatio*iorRatio*(1.0f - HoV * HoV);
 
 		// TIR (total internal reflection)
 		if(sqrValue < 0.0f)
@@ -101,7 +101,7 @@ void SiTranslucentMicrofacet::evaluateImportanceSample(const Intersection& inter
 		else
 		{
 			// calculate refracted L
-			const float32 Hfactor = signNoV * iorRatio * V.dot(H) - sqrt(sqrValue);
+			const float32 Hfactor = iorRatio * HoV - signHoV * sqrt(sqrValue);
 			const float32 Vfactor = -iorRatio;
 			out_sample->m_direction = H.mul(Hfactor).addLocal(V.mul(Vfactor)).normalizeLocal();
 

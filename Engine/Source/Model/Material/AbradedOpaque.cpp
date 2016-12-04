@@ -21,7 +21,12 @@ void AbradedOpaque::setRoughness(const float32 roughness)
 
 void AbradedOpaque::setF0(const Vector3f& f0)
 {
-	m_surfaceIntegrand.setF0(std::make_shared<ConstantTexture>(f0));
+	setF0(f0.x, f0.y, f0.z);
+}
+
+void AbradedOpaque::setF0(const float32 r, const float32 g, const float32 b)
+{
+	m_surfaceIntegrand.setF0(std::make_shared<ConstantTexture>(r, g, b));
 }
 
 }// end namespace ph
