@@ -60,6 +60,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world
 		break;
 
 		case ESurfaceSampleType::REFLECTION:
+		case ESurfaceSampleType::TRANSMISSION:
 		{
 			Vector3f liWeight = surfaceSample.m_LiWeight;
 
@@ -85,8 +86,8 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world
 		}
 		break;
 
-		case ESurfaceSampleType::TRANSMISSION:
-			std::cerr << "warning: type TRANSMISSION_LI_WEIGHT not implemented" << std::endl;
+		default:
+			std::cerr << "warning: unknown surface sample type in BackwardPathIntegrator detected" << std::endl;
 			keepSampling = false;
 			break;
 		}// end switch surface sample type

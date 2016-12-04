@@ -48,6 +48,7 @@ void World::cook()
 	}
 
 	std::cout << "world discretized into " << m_triangles.size() << " triangles" << std::endl;
+	std::cout << "constructing world intersector..." << std::endl;
 
 	m_intersector->construct(m_triangles);
 }

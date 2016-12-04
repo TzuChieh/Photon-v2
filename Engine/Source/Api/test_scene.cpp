@@ -27,11 +27,17 @@ void loadTestScene(World* const out_world)
 	ModelLoader modelLoader;
 	//auto loadedModel = modelLoader.load("../SceneResource/cube.obj");
 	Model loadedModel;
-	bool isLoadingSuccess = modelLoader.load("../SceneResource/dragon.obj", &loadedModel);
+	
+	//bool isLoadingSuccess = modelLoader.load("../SceneResource/dragon.obj", &loadedModel);
+	bool isLoadingSuccess = modelLoader.load("../SceneResource/GlassesAndCups.obj", &loadedModel);
 	if(isLoadingSuccess)
 	{
-		loadedModel.translate(0, -5, 0);
-		loadedModel.scale(4);
+		//loadedModel.translate(0, -5, 0);
+		//loadedModel.scale(4);
+		//loadedModel.rotate(Vector3f(0, 1, 0), 180);
+
+		loadedModel.translate(0, -5, 1.5f);
+		loadedModel.scale(1.1f);
 		loadedModel.rotate(Vector3f(0, 1, 0), 180);
 
 		/*loadedModel.setTextureMapper(std::make_shared<SphericalMapper>());
@@ -39,13 +45,15 @@ void loadTestScene(World* const out_world)
 		loadedModelMaterial->setAlbedo(std::make_shared<CheckerboardTexture>(16.0f, 8.0f, Vector3f(0, 0, 0), Vector3f(1, 1, 1)));
 		loadedModel.setMaterial(loadedModelMaterial);*/
 
-		auto dragonMaterial = std::make_shared<AbradedOpaque>();
-		//auto dragonMaterial = std::make_shared<AbradedTranslucent>();
-		dragonMaterial->setRoughness(0.1f);
-		//dragonMaterial->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));// gold
-		//dragonMaterial->setF0(0.04f, 0.04f, 0.04f);
-		//dragonMaterial->setRoughness(0.05f);
-		//dragonMaterial->setIOR(1.5f);
+		/*auto dragonMaterial = std::make_shared<AbradedOpaque>();
+		dragonMaterial->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));// gold
+		dragonMaterial->setRoughness(0.1f);*/
+
+		auto dragonMaterial = std::make_shared<AbradedTranslucent>();
+		dragonMaterial->setF0(0.04f, 0.04f, 0.04f);
+		dragonMaterial->setRoughness(0.05f);
+		dragonMaterial->setIOR(1.5f);
+
 		loadedModel.setMaterial(dragonMaterial);
 
 		out_world->addModel(loadedModel);

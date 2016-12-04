@@ -31,7 +31,9 @@ public:
 	// Smith's GGX Geometry Shadowing Function
 	inline static float32 geometryShadowingGgxSmith(const float32 NoV, const float32 NoL, const float32 HoV, const float32 HoL, const float32 roughness)
 	{
-		if(HoL / NoL <= 0.0f || HoV / NoV <= 0.0f)
+		// The back surface of the microsurface is never visible from directions on the front side 
+		// of the macrosurface and viceversa (sidedness agreement)
+		if(HoL * NoL <= 0.0f || HoV * NoV <= 0.0f)
 		{
 			return 0.0f;
 		}
@@ -39,8 +41,8 @@ public:
 		const float32 alpha = roughness * roughness;
 		const float32 alpha2 = alpha * alpha;
 
-		const float32 lightG = (2.0f * NoL) / (NoL + sqrt(alpha2 + (1.0f - alpha2) * NoL * NoL));
-		const float32 viewG  = (2.0f * NoV) / (NoV + sqrt(alpha2 + (1.0f - alpha2) * NoV * NoV));
+		const float32 lightG = 2.0f / (1.0f + sqrt(alpha2 * (1.0f / (NoL*NoL) - 1.0f) + 1.0f));
+		const float32 viewG  = 2.0f / (1.0f + sqrt(alpha2 * (1.0f / (NoV*NoV) - 1.0f) + 1.0f));
 
 		return lightG * viewG;
 	}

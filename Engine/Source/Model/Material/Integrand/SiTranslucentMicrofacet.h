@@ -35,10 +35,6 @@ private:
 	std::shared_ptr<Texture> m_F0;
 	std::shared_ptr<Texture> m_IOR;
 	std::shared_ptr<Texture> m_roughness;
-
-	float32 calcNormalDistributionTerm(const Intersection& intersection, const Vector3f& H) const;
-	float32 calcGeometricShadowingTerm(const Intersection& intersection, const Vector3f& L, const Vector3f& V, const Vector3f& H) const;
-	Vector3f calcFresnelTerm(const Intersection& intersection, const Vector3f& V, const Vector3f& H) const;
 };
 
 }// end namespace ph
