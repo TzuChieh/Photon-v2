@@ -21,8 +21,6 @@ public:
 	World();
 
 	void addModel(const Model& model);
-	bool isIntersecting(const Ray& ray, Intersection* out_intersection) const;
-
 	void update(const float32 deltaS);
 
 	const Intersector& getIntersector() const;

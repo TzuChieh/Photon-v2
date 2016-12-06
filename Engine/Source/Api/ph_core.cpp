@@ -1,6 +1,5 @@
 #include "ph_core.h"
 #include "Api/ApiDatabase.h"
-#include "Core/BruteForceRenderer.h"
 #include "Core/ImportanceRenderer.h"
 #include "Core/MtImportanceRenderer.h"
 #include "World/World.h"
@@ -31,7 +30,8 @@ void phCreateRenderer(PHuint64* out_rendererId, const PHint32 rendererType)
 	switch(rendererType)
 	{
 	case PH_BRUTE_FORCE_RENDERER_TYPE:
-		*out_rendererId = static_cast<std::size_t>(ApiDatabase::addRenderer(std::make_unique<BruteForceRenderer>()));
+		//*out_rendererId = static_cast<std::size_t>(ApiDatabase::addRenderer(std::make_unique<BruteForceRenderer>()));
+		std::cerr << "warning: phCreateRenderer(), Photon does not support brute-force renderer anymore" << std::endl;
 		break;
 
 	case PH_IMPORTANCE_RENDERER_TYPE:

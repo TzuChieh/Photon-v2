@@ -54,9 +54,6 @@
     <ClCompile Include="Source\Core\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\BruteForceRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Model\Geometry\GTriangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -276,9 +273,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\BruteForceRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Model\Geometry\GTriangle.h">

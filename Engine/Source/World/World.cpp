@@ -32,11 +32,6 @@ void World::addModel(const Model& model)
 	m_models.push_back(model);
 }
 
-bool World::isIntersecting(const Ray& ray, Intersection* out_intersection) const
-{
-	return m_intersector->isIntersecting(ray, out_intersection);
-}
-
 void World::update(const float32 deltaS)
 {
 	std::cout << "updating world..." << std::endl;
