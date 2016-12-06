@@ -25,9 +25,6 @@ public:
 
 private:
 	SiOpaqueMicrofacet m_surfaceIntegrand;
-
-	float32 m_roughness;
-	Vector3f m_f0;
 };
 
 }// end namespace ph

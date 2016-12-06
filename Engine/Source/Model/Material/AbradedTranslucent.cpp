@@ -14,7 +14,7 @@ AbradedTranslucent::AbradedTranslucent() :
 
 AbradedTranslucent::~AbradedTranslucent() = default;
 
-void AbradedTranslucent::setF0(const Vector3f f0)
+void AbradedTranslucent::setF0(const Vector3f& f0)
 {
 	setF0(f0.x, f0.y, f0.z);
 }

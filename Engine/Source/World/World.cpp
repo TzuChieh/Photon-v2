@@ -37,20 +37,37 @@ bool World::isIntersecting(const Ray& ray, Intersection* out_intersection) const
 	return m_intersector->isIntersecting(ray, out_intersection);
 }
 
-void World::cook()
+void World::update(const float32 deltaS)
 {
-	m_triangles.clear();
-	m_triangles.shrink_to_fit();
+	std::cout << "updating world..." << std::endl;
 
-	for(const auto& model : m_models)
+	updateIntersector(m_intersector.get(), m_models);
+}
+
+const Intersector& World::getIntersector() const
+{
+	return *m_intersector;
+}
+
+void World::updateIntersector(Intersector* const out_intersector, const std::vector<Model>& models)
+{
+	out_intersector->clearData();
+
+	std::vector<Triangle> triangles;
+	for(const auto& model : models)
 	{
-		model.getGeometry()->discretize(&m_triangles, &model);
+		model.getGeometry()->discretize(&triangles, &model);
 	}
 
-	std::cout << "world discretized into " << m_triangles.size() << " triangles" << std::endl;
+	std::cout << "world discretized into " << triangles.size() << " triangles" << std::endl;
 	std::cout << "constructing world intersector..." << std::endl;
 
-	m_intersector->construct(m_triangles);
+	for(const auto& triangle : triangles)
+	{
+		out_intersector->addTriangle(triangle);
+	}
+
+	out_intersector->construct();
 }
 
 }// end namespace ph

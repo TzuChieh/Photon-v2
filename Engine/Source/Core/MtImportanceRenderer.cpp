@@ -43,7 +43,7 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 	m_subFilms.shrink_to_fit();
 
 	BackwardPathIntegrator integrator;
-	integrator.cook(world);
+	integrator.update(world.getIntersector());
 
 	std::atomic<int32> numSpp = 0;
 	std::thread renderWorkers[nThreads];
@@ -63,6 +63,7 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 		{
 		// ****************************** thread start ****************************** //
 
+		const Intersector& intersector = world.getIntersector();
 		const uint32 widthPx = camera.getFilm()->getWidthPx();
 		const uint32 heightPx = camera.getFilm()->getHeightPx();
 		const float32 aspectRatio = static_cast<float32>(widthPx) / static_cast<float32>(heightPx);
@@ -92,7 +93,7 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 				samples.pop_back();
 				camera.genSampleRay(sample, &primaryRay, aspectRatio);
 
-				integrator.radianceAlongRay(primaryRay, world, &radiance);
+				integrator.radianceAlongRay(primaryRay, intersector, &radiance);
 
 				uint32 x = static_cast<uint32>((sample.m_cameraX + 1.0f) / 2.0f * widthPx);
 				uint32 y = static_cast<uint32>((sample.m_cameraY + 1.0f) / 2.0f * heightPx);

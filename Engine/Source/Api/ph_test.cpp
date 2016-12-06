@@ -84,7 +84,8 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	loadTestScene(&world);
 
 	std::cout << "cooking world" << std::endl;
-	world.cook();
+	// HACK
+	world.update(0.0f);
 
 	LARGE_INTEGER frequency;        // ticks per second
 	LARGE_INTEGER t1, t2;           // ticks

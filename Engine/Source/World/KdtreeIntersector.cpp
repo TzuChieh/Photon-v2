@@ -8,10 +8,10 @@ namespace ph
 
 KdtreeIntersector::~KdtreeIntersector() = default;
 
-void KdtreeIntersector::construct(const std::vector<Triangle>& triangles)
+void KdtreeIntersector::construct()
 {
 	std::vector<const Triangle*> trigPtrs;
-	for(const auto& triangle : triangles)
+	for(const auto& triangle : m_triangles)
 	{
 		trigPtrs.push_back(&triangle);
 	}
@@ -21,11 +21,7 @@ void KdtreeIntersector::construct(const std::vector<Triangle>& triangles)
 
 bool KdtreeIntersector::isIntersecting(const Ray& ray, Intersection* out_intersection) const
 {
-	//std::cout << "isIntersecting" << std::endl;
-	bool isFound = m_rootKdtreeNode.findClosestIntersection(ray, out_intersection);
-	//std::cout << "found? " << isFound << std::endl;
-
-	return isFound;
+	return m_rootKdtreeNode.findClosestIntersection(ray, out_intersection);
 }
 
 }// end namespace ph

@@ -5,8 +5,8 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
 * **Material**
  * Lambertian diffuse
  * perfect mirror
- * microfacet-based model
- * simple emission model
+ * microfacet-based opaque and translucent model
+ * simple pure emission model
 * **Geometry**
  * sphere shape
  * rectangular shape

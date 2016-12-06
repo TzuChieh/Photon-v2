@@ -54,6 +54,8 @@ void loadTestScene(World* const out_world)
 		dragonMaterial->setRoughness(0.05f);
 		dragonMaterial->setIOR(1.5f);
 
+		//auto dragonMaterial = std::make_shared<PerfectMirror>();
+
 		loadedModel.setMaterial(dragonMaterial);
 
 		out_world->addModel(loadedModel);
@@ -102,7 +104,8 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 
 	auto lightMatl = std::make_shared<LightMaterial>();
 	//lightMatl->setEmittedRadiance(3, 3, 3);
-	lightMatl->setEmittedRadiance(1.5f, 1.5f, 1.5f);
+	//lightMatl->setEmittedRadiance(1.5f, 1.5f, 1.5f);
+	lightMatl->setEmittedRadiance(1.0f, 1.0f, 1.0f);
 	Model lightModel(unitRectangleGeom, lightMatl);
 	lightModel.rotate(Vector3f(1, 0, 0), 90);
 	lightModel.scale(boxSize * 0.3f);

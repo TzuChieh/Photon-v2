@@ -202,7 +202,8 @@ void phCookWorld(const PHuint64 worldId)
 	World* world = ApiDatabase::getWorld(worldId);
 	if(world)
 	{
-		world->cook();
+		// HACK
+		world->update(0.0f);
 	}
 }
 

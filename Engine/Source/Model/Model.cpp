@@ -65,6 +65,26 @@ void Model::scale(const float32 scaleFactor)
 	scale(Vector3f(scaleFactor));
 }
 
+void Model::setGeometry(const std::shared_ptr<Geometry>& geometry)
+{
+	m_geometry = geometry;
+}
+
+void Model::setMaterial(const std::shared_ptr<Material>& material)
+{
+	m_material = material;
+}
+
+void Model::setTextureMapper(const std::shared_ptr<TextureMapper>& textureMapper)
+{
+	m_textureMapper = textureMapper;
+}
+
+bool Model::hasChildren() const
+{
+	return !(m_childrenModels.empty());
+}
+
 void Model::updateTransforms()
 {
 	m_modelToWorld = m_transformInfo.genTransform();

@@ -27,6 +27,7 @@ ImportanceRenderer::~ImportanceRenderer() = default;
 void ImportanceRenderer::render(const World& world, const Camera& camera) const
 {
 	Film* film = camera.getFilm();
+	const Intersector& intersector = world.getIntersector();
 	const uint32 widthPx = film->getWidthPx();
 	const uint32 heightPx = film->getHeightPx();
 	const float32 aspectRatio = static_cast<float32>(widthPx) / static_cast<float32>(heightPx);
@@ -34,7 +35,7 @@ void ImportanceRenderer::render(const World& world, const Camera& camera) const
 	std::vector<Sample> samples;
 
 	BackwardPathIntegrator integrator;
-	integrator.cook(world);
+	integrator.update(intersector);
 
 	Vector3f radiance;
 	Ray primaryRay;
@@ -53,8 +54,7 @@ void ImportanceRenderer::render(const World& world, const Camera& camera) const
 			camera.genSampleRay(sample, &primaryRay, aspectRatio);
 
 			
-			integrator.radianceAlongRay(primaryRay, world, &radiance);
-
+			integrator.radianceAlongRay(primaryRay, intersector, &radiance);
 
 			uint32 x = static_cast<uint32>((sample.m_cameraX + 1.0f) / 2.0f * widthPx);
 			uint32 y = static_cast<uint32>((sample.m_cameraY + 1.0f) / 2.0f * heightPx);

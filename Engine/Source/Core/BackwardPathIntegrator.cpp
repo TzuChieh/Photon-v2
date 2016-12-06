@@ -20,12 +20,12 @@ namespace ph
 
 BackwardPathIntegrator::~BackwardPathIntegrator() = default;
 
-void BackwardPathIntegrator::cook(const World& world)
+void BackwardPathIntegrator::update(const Intersector& intersector)
 {
-	// cook nothing
+	// update nothing
 }
 
-void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world, Vector3f* const out_radiance) const
+void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const Intersector& intersector, Vector3f* const out_radiance) const
 {
 	uint32 numBounces = 0;
 	Vector3f accuRadiance(0, 0, 0);
@@ -33,7 +33,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world
 	Intersection intersection;
 	Ray tracingRay(ray);
 
-	while(numBounces <= MAX_RAY_BOUNCES && world.isIntersecting(tracingRay, &intersection))
+	while(numBounces <= MAX_RAY_BOUNCES && intersector.isIntersecting(tracingRay, &intersection))
 	{
 		const Model* hitModel = intersection.getHitTriangle()->getParentModel();
 		const Material* hitMaterial = hitModel->getMaterial();

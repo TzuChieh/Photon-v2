@@ -11,15 +11,9 @@ namespace ph
 
 BruteForceIntersector::~BruteForceIntersector() = default;
 
-void BruteForceIntersector::construct(const std::vector<Triangle>& triangles)
+void BruteForceIntersector::construct()
 {
-	m_triangles.clear();
-	m_triangles.shrink_to_fit();
-
-	for(const auto& triangle : triangles)
-	{
-		m_triangles.push_back(&triangle);
-	}
+	// no need to construct anything
 }
 
 bool BruteForceIntersector::isIntersecting(const Ray& ray, Intersection* out_intersection) const
@@ -29,7 +23,7 @@ bool BruteForceIntersector::isIntersecting(const Ray& ray, Intersection* out_int
 
 	for(const auto& triangle : m_triangles)
 	{
-		if(triangle->isIntersecting(ray, &intersection))
+		if(triangle.isIntersecting(ray, &intersection))
 		{
 			float32 squaredHitDist = intersection.getHitPosition().sub(ray.getOrigin()).squaredLength();
 			if(closestSquaredHitDist > squaredHitDist)

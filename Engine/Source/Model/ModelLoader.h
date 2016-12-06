@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Model/ModelParser/AssimpModelParser.h"
+
 #include <assimp/importer.hpp>
 
 #include <memory>
@@ -16,7 +18,7 @@ public:
 	bool load(const std::string& fullFilename, Model* const out_model);
 
 private:
-	Assimp::Importer m_assimpImporter;
+	AssimpModelParser m_assimpModelParser;
 };
 
 }// end namespace ph

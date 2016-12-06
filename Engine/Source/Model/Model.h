@@ -4,6 +4,7 @@
 #include "Math/Transform.h"
 
 #include <memory>
+#include <vector>
 
 namespace ph
 {
@@ -25,6 +26,12 @@ public:
 	void scale(const Vector3f& scaleFactor);
 	void scale(const float32 x, const float32 y, const float32 z);
 	void scale(const float32 scaleFactor);
+
+	void setGeometry(const std::shared_ptr<Geometry>& geometry);
+	void setMaterial(const std::shared_ptr<Material>& material);
+	void setTextureMapper(const std::shared_ptr<TextureMapper>& textureMapper);
+
+	bool hasChildren() const;
 
 	inline const Geometry* getGeometry() const
 	{
@@ -51,21 +58,6 @@ public:
 		return &m_worldToModel;
 	}
 
-	inline void setGeometry(const std::shared_ptr<Geometry>& geometry)
-	{
-		m_geometry = geometry;
-	}
-
-	inline void setMaterial(const std::shared_ptr<Material>& material)
-	{
-		m_material = material;
-	}
-
-	inline void setTextureMapper(const std::shared_ptr<TextureMapper>& textureMapper)
-	{
-		m_textureMapper = textureMapper;
-	}
-
 	inline const Vector3f& getPosition() const
 	{
 		return m_transformInfo.getPosition();
@@ -89,6 +81,8 @@ private:
 	TransformInfo m_transformInfo;
 	Transform m_modelToWorld;
 	Transform m_worldToModel;
+
+	std::vector<Model> m_childrenModels;
 
 	void updateTransforms();
 };
