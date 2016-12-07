@@ -6,6 +6,8 @@
 namespace ph
 {
 
+const Transform Transform::EMPTY_TRANSFORM;
+
 Transform::Transform()
 {
 	m_transformMatrix.initIdentity();
@@ -33,6 +35,11 @@ void Transform::transform(const AABB& aabb, AABB* const out_aabb) const
 	// TODO: below is wrong
 
 	std::cerr << "transforming AABB is not implemented" << std::endl;
+}
+
+Transform Transform::transform(const Transform& rhs) const
+{
+	return Transform(m_transformMatrix.mul(rhs.m_transformMatrix));
 }
 
 }// end namespace ph

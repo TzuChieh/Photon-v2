@@ -19,6 +19,7 @@ public:
 	Model();
 	Model(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<Material>& material);
 	Model(const Model& other);
+	~Model();
 
 	void translate(const Vector3f& translation);
 	void translate(const float32 x, const float32 y, const float32 z);
@@ -32,6 +33,12 @@ public:
 	void setTextureMapper(const std::shared_ptr<TextureMapper>& textureMapper);
 
 	bool hasChildren() const;
+	std::vector<Model>& getChildren();
+	const std::vector<Model>& getChildren() const;
+	void addChild(const Model& child);
+
+	friend void swap(Model& first, Model& second);
+	Model& operator = (Model rhs);
 
 	inline const Geometry* getGeometry() const
 	{
@@ -60,17 +67,17 @@ public:
 
 	inline const Vector3f& getPosition() const
 	{
-		return m_transformInfo.getPosition();
+		return m_modelTransformInfo.getPosition();
 	}
 
 	inline const Quaternion& getRotation() const
 	{
-		return m_transformInfo.getRotation();
+		return m_modelTransformInfo.getRotation();
 	}
 
 	inline const Vector3f& getScale() const
 	{
-		return m_transformInfo.getScale();
+		return m_modelTransformInfo.getScale();
 	}
 
 private:
@@ -78,13 +85,16 @@ private:
 	std::shared_ptr<Material>      m_material;
 	std::shared_ptr<TextureMapper> m_textureMapper;
 
-	TransformInfo m_transformInfo;
+	TransformInfo m_modelTransformInfo;
 	Transform m_modelToWorld;
 	Transform m_worldToModel;
 
 	std::vector<Model> m_childrenModels;
+	const Model* m_parentModel;
 
+	void updateAllTransforms();
 	void updateTransforms();
+	void setParent(const Model* const parent);
 };
 
 }// end namespace ph

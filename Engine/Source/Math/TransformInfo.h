@@ -13,8 +13,8 @@ class TransformInfo final
 public:
 	TransformInfo();
 
-	Transform genTransform() const;
-	Transform genInverseTransform() const;
+	Transform genTransform(const Transform& parentTransform) const;
+	Transform genInverseTransform(const Transform& parentInverseTransform) const;
 
 	inline const Vector3f& getPosition() const
 	{

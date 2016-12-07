@@ -31,6 +31,7 @@ private:
 	std::unique_ptr<Intersector> m_intersector;
 
 	static void updateIntersector(Intersector* const out_intersector, const std::vector<Model>& models);
+	static void discretizeModelGeometry(const Model& model, std::vector<Triangle>* const out_triangles);
 };
 
 }// end namespace ph

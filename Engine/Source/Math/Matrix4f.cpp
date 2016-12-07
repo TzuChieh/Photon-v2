@@ -99,7 +99,7 @@ Matrix4f& Matrix4f::initPerspectiveProjection(const float32 fov,
 	return *this;
 }
 
-Matrix4f Matrix4f::mul(const Matrix4f& r)
+Matrix4f Matrix4f::mul(const Matrix4f& r) const
 {
 	Matrix4f res;
 

@@ -29,7 +29,8 @@ void loadTestScene(World* const out_world)
 	Model loadedModel;
 	
 	//bool isLoadingSuccess = modelLoader.load("../SceneResource/dragon.obj", &loadedModel);
-	bool isLoadingSuccess = modelLoader.load("../SceneResource/GlassesAndCups.obj", &loadedModel);
+	//bool isLoadingSuccess = modelLoader.load("../SceneResource/GlassesAndCups.obj", &loadedModel);
+	bool isLoadingSuccess = false;
 	if(isLoadingSuccess)
 	{
 		//loadedModel.translate(0, -5, 0);
@@ -61,15 +62,25 @@ void loadTestScene(World* const out_world)
 		out_world->addModel(loadedModel);
 	}
 
-	//auto sphereMaterial = std::make_shared<MatteOpaque>();
-	//auto sphereGeometry = std::make_shared<GSphere>(3.0f);
-	////sphereMaterial->setAlbedo(0.9f, 0.9f, 0.9f);
-	//sphereMaterial->setAlbedo(std::make_shared<CheckerboardTexture>(128.0f, 64.0f, Vector3f(0, 0, 0), Vector3f(1, 1, 1)));
-	//Model sphereModel(sphereGeometry, sphereMaterial);
-	//sphereModel.setTextureMapper(std::make_shared<SphericalMapper>());
+	auto sphereChildMaterial = std::make_shared<MatteOpaque>();
+	auto sphereChildGeometry = std::make_shared<GSphere>(1.0f);
+	sphereChildMaterial->setAlbedo(0.9f, 0.9f, 0.9f);
+	Model sphereChildModel(sphereChildGeometry, sphereChildMaterial);
+	sphereChildModel.translate(0, 2, 0);
+
+	auto sphereMaterial = std::make_shared<MatteOpaque>();
+	auto sphereGeometry = std::make_shared<GSphere>(1.0f);
+	//sphereMaterial->setAlbedo(0.9f, 0.9f, 0.9f);
+	sphereMaterial->setAlbedo(std::make_shared<CheckerboardTexture>(128.0f, 64.0f, Vector3f(0, 0, 0), Vector3f(1, 1, 1)));
+	Model sphereModel(sphereGeometry, sphereMaterial);
+	sphereModel.setTextureMapper(std::make_shared<SphericalMapper>());
 	//sphereModel.rotate(Vector3f(1, 1, 0).normalize(), 45);
-	//sphereModel.translate(0, -2, 0);
-	//out_world->addModel(sphereModel);
+	sphereModel.translate(0, -4, 0);
+
+	sphereModel.addChild(sphereChildModel);
+
+
+	out_world->addModel(sphereModel);
 
 	/*auto lightMaterial = std::make_shared<LightMaterial>();
 	auto lightGeometry = std::make_shared<GTriangle>(Vector3f(40, 10, -40), Vector3f(0, 10, 40), Vector3f(-40, 10, -40));

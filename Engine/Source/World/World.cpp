@@ -51,7 +51,7 @@ void World::updateIntersector(Intersector* const out_intersector, const std::vec
 	std::vector<Triangle> triangles;
 	for(const auto& model : models)
 	{
-		model.getGeometry()->discretize(&triangles, &model);
+		discretizeModelGeometry(model, &triangles);
 	}
 
 	std::cout << "world discretized into " << triangles.size() << " triangles" << std::endl;
@@ -63,6 +63,19 @@ void World::updateIntersector(Intersector* const out_intersector, const std::vec
 	}
 
 	out_intersector->construct();
+}
+
+void World::discretizeModelGeometry(const Model& model, std::vector<Triangle>* const out_triangles)
+{
+	if(model.getGeometry())
+	{
+		model.getGeometry()->discretize(out_triangles, &model);
+	}
+
+	for(const auto& model : model.getChildren())
+	{
+		discretizeModelGeometry(model, out_triangles);
+	}
 }
 
 }// end namespace ph
