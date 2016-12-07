@@ -10,7 +10,7 @@
 namespace ph
 {
 
-class AssimpModelParser final : ModelParser
+class AssimpModelParser final : public ModelParser
 {
 public:
 	virtual ~AssimpModelParser() override;

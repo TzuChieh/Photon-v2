@@ -5,15 +5,17 @@
 #include <assimp/scene.h>
 #include <assimp/mesh.h>
 
+#include <memory>
+
 namespace ph
 {
 
-class Model;
+class Geometry;
 
-class AiMeshParser
+class AiMeshParser final
 {
 public:
-	static bool parse(const aiMesh* const mesh, Model* const out_model);
+	static std::shared_ptr<Geometry> parse(const aiMesh* const mesh);
 };
 
 }// end namespace ph

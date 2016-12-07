@@ -213,6 +213,9 @@
     <ClCompile Include="Source\Model\ModelParser\AiMeshParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Model\ModelParser\AiMaterialParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Math\Matrix4f.h">
@@ -444,6 +447,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Model\ModelParser\AiMeshParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Model\ModelParser\AiMaterialParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

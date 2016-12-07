@@ -22,7 +22,25 @@ namespace ph
 
 void loadTestScene(World* const out_world)
 {
-	loadCornellBox(out_world, 10.0f);
+	//loadCornellBox(out_world, 10.0f);
+
+
+	auto groundGeometry = std::make_shared<GRectangle>(100.0f, 100.0f);
+	auto groundMaterial = std::make_shared<MatteOpaque>();
+	groundMaterial->setAlbedo(0.9f, 0.9f, 0.9f);
+	Model groundModel(groundGeometry, groundMaterial);
+	groundModel.rotate(Vector3f(1, 0, 0), -90);
+	groundModel.translate(0, -5, 0);
+	out_world->addModel(groundModel);
+
+	auto lightGeometry = std::make_shared<GRectangle>(10.0f, 10.0f);
+	auto lightMaterial = std::make_shared<LightMaterial>();
+	lightMaterial->setEmittedRadiance(1.5f, 1.5f, 1.5f);
+	Model lightModel(lightGeometry, lightMaterial);
+	lightModel.rotate(Vector3f(1, 0, 0), 90);
+	lightModel.rotate(Vector3f(0, 0, 1), -45);
+	lightModel.translate(10, 10, 0);
+	out_world->addModel(lightModel);
 
 	ModelLoader modelLoader;
 	//auto loadedModel = modelLoader.load("../SceneResource/cube.obj");
@@ -30,16 +48,21 @@ void loadTestScene(World* const out_world)
 	
 	//bool isLoadingSuccess = modelLoader.load("../SceneResource/dragon.obj", &loadedModel);
 	//bool isLoadingSuccess = modelLoader.load("../SceneResource/GlassesAndCups.obj", &loadedModel);
-	bool isLoadingSuccess = false;
+	bool isLoadingSuccess = modelLoader.load("../SceneResource/lalala/lalala.obj", &loadedModel);
+	//bool isLoadingSuccess = false;
 	if(isLoadingSuccess)
 	{
 		//loadedModel.translate(0, -5, 0);
 		//loadedModel.scale(4);
 		//loadedModel.rotate(Vector3f(0, 1, 0), 180);
 
-		loadedModel.translate(0, -5, 1.5f);
+		/*loadedModel.translate(0, -5, 1.5f);
 		loadedModel.scale(1.1f);
-		loadedModel.rotate(Vector3f(0, 1, 0), 180);
+		loadedModel.rotate(Vector3f(0, 1, 0), 180);*/
+
+		loadedModel.translate(-3, -4, 1.5f);
+		loadedModel.scale(1.5f);
+		loadedModel.rotate(Vector3f(0, 1, 0), -45);
 
 		/*loadedModel.setTextureMapper(std::make_shared<SphericalMapper>());
 		auto loadedModelMaterial = std::make_shared<MatteOpaque>();
@@ -50,37 +73,38 @@ void loadTestScene(World* const out_world)
 		dragonMaterial->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));// gold
 		dragonMaterial->setRoughness(0.1f);*/
 
-		auto dragonMaterial = std::make_shared<AbradedTranslucent>();
+		/*auto dragonMaterial = std::make_shared<AbradedTranslucent>();
 		dragonMaterial->setF0(0.04f, 0.04f, 0.04f);
 		dragonMaterial->setRoughness(0.05f);
-		dragonMaterial->setIOR(1.5f);
+		dragonMaterial->setIOR(1.5f);*/
 
 		//auto dragonMaterial = std::make_shared<PerfectMirror>();
 
-		loadedModel.setMaterial(dragonMaterial);
+		/*loadedModel.setMaterial(dragonMaterial);
+		for(auto& model : loadedModel.getChildren())
+		{
+			model.setMaterial(dragonMaterial);
+		}*/
 
 		out_world->addModel(loadedModel);
 	}
 
-	auto sphereChildMaterial = std::make_shared<MatteOpaque>();
-	auto sphereChildGeometry = std::make_shared<GSphere>(1.0f);
-	sphereChildMaterial->setAlbedo(0.9f, 0.9f, 0.9f);
-	Model sphereChildModel(sphereChildGeometry, sphereChildMaterial);
-	sphereChildModel.translate(0, 2, 0);
+	//auto sphereChildMaterial = std::make_shared<MatteOpaque>();
+	//auto sphereChildGeometry = std::make_shared<GSphere>(1.0f);
+	//sphereChildMaterial->setAlbedo(0.9f, 0.9f, 0.9f);
+	//Model sphereChildModel(sphereChildGeometry, sphereChildMaterial);
+	//sphereChildModel.translate(0, 2, 0);
 
-	auto sphereMaterial = std::make_shared<MatteOpaque>();
-	auto sphereGeometry = std::make_shared<GSphere>(1.0f);
-	//sphereMaterial->setAlbedo(0.9f, 0.9f, 0.9f);
-	sphereMaterial->setAlbedo(std::make_shared<CheckerboardTexture>(128.0f, 64.0f, Vector3f(0, 0, 0), Vector3f(1, 1, 1)));
-	Model sphereModel(sphereGeometry, sphereMaterial);
-	sphereModel.setTextureMapper(std::make_shared<SphericalMapper>());
-	//sphereModel.rotate(Vector3f(1, 1, 0).normalize(), 45);
-	sphereModel.translate(0, -4, 0);
-
-	sphereModel.addChild(sphereChildModel);
-
-
-	out_world->addModel(sphereModel);
+	//auto sphereMaterial = std::make_shared<MatteOpaque>();
+	//auto sphereGeometry = std::make_shared<GSphere>(1.0f);
+	////sphereMaterial->setAlbedo(0.9f, 0.9f, 0.9f);
+	//sphereMaterial->setAlbedo(std::make_shared<CheckerboardTexture>(128.0f, 64.0f, Vector3f(0, 0, 0), Vector3f(1, 1, 1)));
+	//Model sphereModel(sphereGeometry, sphereMaterial);
+	//sphereModel.setTextureMapper(std::make_shared<SphericalMapper>());
+	////sphereModel.rotate(Vector3f(1, 1, 0).normalize(), 45);
+	//sphereModel.translate(0, -4, 0);
+	//sphereModel.addChild(sphereChildModel);
+	//out_world->addModel(sphereModel);
 
 	/*auto lightMaterial = std::make_shared<LightMaterial>();
 	auto lightGeometry = std::make_shared<GTriangle>(Vector3f(40, 10, -40), Vector3f(0, 10, 40), Vector3f(-40, 10, -40));
@@ -114,9 +138,9 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 	auto unitRectangleGeom = std::make_shared<GRectangle>(1.0f, 1.0f);
 
 	auto lightMatl = std::make_shared<LightMaterial>();
-	//lightMatl->setEmittedRadiance(3, 3, 3);
-	//lightMatl->setEmittedRadiance(1.5f, 1.5f, 1.5f);
-	lightMatl->setEmittedRadiance(1.0f, 1.0f, 1.0f);
+	lightMatl->setEmittedRadiance(3.4f, 3.4f, 3.4f);
+	//lightMatl->setEmittedRadiance(1.8f, 1.8f, 1.8f);
+	//lightMatl->setEmittedRadiance(1.0f, 1.0f, 1.0f);
 	Model lightModel(unitRectangleGeom, lightMatl);
 	lightModel.rotate(Vector3f(1, 0, 0), 90);
 	lightModel.scale(boxSize * 0.3f);

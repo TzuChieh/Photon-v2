@@ -191,6 +191,7 @@
     <ClCompile Include="Source\Model\ModelLoader.cpp" />
     <ClCompile Include="Source\Model\BoundingVolume\AABB.cpp" />
     <ClCompile Include="Source\Model\BoundingVolume\BoundingVolume.cpp" />
+    <ClCompile Include="Source\Model\ModelParser\AiMaterialParser.cpp" />
     <ClCompile Include="Source\Model\ModelParser\AiMeshParser.cpp" />
     <ClCompile Include="Source\Model\ModelParser\AssimpModelParser.cpp" />
     <ClCompile Include="Source\Model\ModelParser\ModelParser.cpp" />
@@ -254,6 +255,7 @@
     <ClInclude Include="Source\Math\Color.h" />
     <ClInclude Include="Source\Math\Math.h" />
     <ClInclude Include="Source\Math\Normal3f.h" />
+    <ClInclude Include="Source\Model\ModelParser\AiMaterialParser.h" />
     <ClInclude Include="Source\Model\ModelParser\AiMeshParser.h" />
     <ClInclude Include="Source\Model\ModelParser\AssimpModelParser.h" />
     <ClInclude Include="Source\Model\Material\Integrand\Microfacet.h" />

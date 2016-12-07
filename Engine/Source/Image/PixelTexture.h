@@ -8,7 +8,7 @@
 namespace ph
 {
 
-class PixelTexture final : Texture
+class PixelTexture final : public Texture
 {
 public:
 	PixelTexture();

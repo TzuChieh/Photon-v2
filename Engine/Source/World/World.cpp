@@ -23,12 +23,6 @@ World::World() :
 
 void World::addModel(const Model& model)
 {
-	if(model.getGeometry() == nullptr || model.getMaterial() == nullptr)
-	{
-		std::cerr << "warning: at World::addModel(), model has no geometry or material" << std::endl;
-		return;
-	}
-
 	m_models.push_back(model);
 }
 

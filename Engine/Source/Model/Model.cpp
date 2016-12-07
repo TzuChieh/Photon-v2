@@ -9,7 +9,7 @@ namespace ph
 {
 
 Model::Model() : 
-	m_geometry(nullptr), m_material(nullptr), m_textureMapper(nullptr), 
+	m_geometry(nullptr), m_material(nullptr), m_textureMapper(std::make_shared<DefaultMapper>()),
 	m_modelTransformInfo(), m_modelToWorld(), m_worldToModel(), 
 	m_parentModel(nullptr)
 {
@@ -159,11 +159,6 @@ void Model::updateTransforms()
 
 void Model::setParent(const Model* const parent)
 {
-	if(!parent)
-	{
-		std::cerr << "warning: at Model::setParent(), parent is null" << std::endl;
-	}
-
 	m_parentModel = parent;
 	updateAllTransforms();
 }

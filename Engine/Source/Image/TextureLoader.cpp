@@ -1,5 +1,6 @@
 #include "Image/TextureLoader.h"
 #include "Image/PixelTexture.h"
+#include "Math/random_number.h"
 
 #include "Common/ThirdParty/lib_stb.h"
 
@@ -36,6 +37,8 @@ bool TextureLoader::load(const std::string& fullFilename, PixelTexture* const ou
 		std::cerr << "(message: " << stbi_failure_reason() << ")" << std::endl;
 		return false;
 	}
+
+	//std::cout << "# " << numComponents << std::endl;
 
 	const uint32 dataSize = widthPx * heightPx * numComponents;
 	std::vector<float32> pixelData(static_cast<std::size_t>(dataSize), 0.0f);

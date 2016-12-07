@@ -6,12 +6,15 @@
 #include "Model/Geometry/GTriangleMesh.h"
 #include "Model/Material/PerfectMirror.h"
 #include "Model/TextureMapper/DefaultMapper.h"
+#include "Model/ModelParser/AiMeshParser.h"
+#include "Model/ModelParser/AiMaterialParser.h"
 
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
 #include <vector>
 #include <iostream>
+#include <memory>
 
 namespace ph
 {
@@ -28,58 +31,34 @@ bool AssimpModelParser::parse(const std::string& fullFilename, Model* const out_
 		return false;
 	}
 
-	std::vector<Vector3f> positions;
-	std::vector<Vector3f> normals;
-	std::vector<uint32>   indices;
+	const std::string& modelDirectory = fullFilename.substr(0, fullFilename.find_last_of('/') + 1);
+	Model rootModel;
 
-	// FIXME: mMeshes[N]
-	const aiMesh* mesh = assimpScene->mMeshes[0];
+	std::vector<std::shared_ptr<Geometry>> geometries;
+	std::vector<std::shared_ptr<Material>> materials;
 
-	if(mesh->HasPositions())
+	if(assimpScene->HasMeshes())
 	{
-		for(int i = 0; i < mesh->mNumVertices; ++i)
+		for(uint32 i = 0; i < assimpScene->mNumMeshes; i++)
 		{
-			positions.push_back(Vector3f(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
+			geometries.push_back(AiMeshParser::parse(assimpScene->mMeshes[i]));
 		}
 	}
 
-	if(mesh->HasNormals())
+	if(assimpScene->HasMaterials())
 	{
-		for(int i = 0; i < mesh->mNumVertices; ++i)
+		for(uint32 i = 0; i < assimpScene->mNumMaterials; i++)
 		{
-			normals.push_back(Vector3f(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z));
+			materials.push_back(AiMaterialParser::parseMaterial(assimpScene->mMaterials[i], modelDirectory));
 		}
 	}
 
-	if(mesh->HasFaces())
+	for(uint32 i = 0; i < assimpScene->mNumMeshes; i++)
 	{
-		for(int i = 0; i < mesh->mNumFaces; ++i)
-		{
-			indices.push_back(mesh->mFaces[i].mIndices[0]);
-			indices.push_back(mesh->mFaces[i].mIndices[1]);
-			indices.push_back(mesh->mFaces[i].mIndices[2]);
-		}
+		rootModel.addChild(Model(geometries[i], materials[assimpScene->mMeshes[i]->mMaterialIndex]));
 	}
 
-	if(positions.empty() || normals.empty() || indices.empty() || indices.size() % 3 != 0)
-	{
-		std::cerr << "ModelLoader error: unsupported format" << std::endl;
-		return false;
-	}
-
-	auto geometry = std::make_shared<GTriangleMesh>();
-	auto material = std::make_shared<MatteOpaque>();
-	material->setAlbedo(1, 1, 1);
-	//auto material = std::make_shared<PerfectMirror>();
-
-	for(std::size_t i = 0; i < indices.size(); i += 3)
-	{
-		geometry->addTriangle(GTriangle(positions[indices[i]], positions[indices[i + 1]], positions[indices[i + 2]]));
-	}
-
-	out_model->setGeometry(geometry);
-	out_model->setMaterial(material);
-	out_model->setTextureMapper(std::make_shared<DefaultMapper>());
+	*out_model = rootModel;
 
 	return true;
 }

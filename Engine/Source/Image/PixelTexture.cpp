@@ -1,4 +1,5 @@
 #include "Image/PixelTexture.h"
+#include "Math/Math.h"
 
 #include <iostream>
 
@@ -25,7 +26,34 @@ PixelTexture::~PixelTexture() = default;
 
 void PixelTexture::sample(const Vector3f& uvw, Vector3f* const out_value) const
 {
+	const float32 u = uvw.x;
+	const float32 v = uvw.y;
 
+	const int32 maxX = static_cast<int32>(m_widthPx - 1);
+	const int32 maxY = static_cast<int32>(m_heightPx - 1);
+	int32 x = static_cast<int32>(u * static_cast<float32>(maxX));
+	int32 y = static_cast<int32>(v * static_cast<float32>(maxY));
+
+	x = x % maxX;
+	y = y % maxY;
+	x = x < 0 ? x + maxX : x;
+	y = y < 0 ? y + maxY : y;
+
+	const uint32 baseIndex = (y * m_widthPx + x) * m_nPxComponents;
+
+	out_value->x = m_pixelData[baseIndex + 0];
+	out_value->y = m_pixelData[baseIndex + 1];
+	out_value->z = m_pixelData[baseIndex + 2];
+
+	switch(m_nPxComponents)
+	{
+	case 3:
+		out_value->z = m_pixelData[baseIndex + 2];
+	case 2:
+		out_value->y = m_pixelData[baseIndex + 1];
+	case 1:
+		out_value->x = m_pixelData[baseIndex + 0];
+	}
 }
 
 void PixelTexture::reset(const uint32 widthPx, const uint32 heightPx, const uint32 nPxComponents)
@@ -50,7 +78,7 @@ void PixelTexture::setPixels(const uint32 x, const uint32 y, const uint32 widthP
 	{
 		for(uint32 xi = x; xi < x + widthPx; xi++)
 		{
-			const uint32 baseIndex = (yi * m_widthPx) * m_nPxComponents + xi;
+			const uint32 baseIndex = (yi * m_widthPx + xi) * m_nPxComponents;
 			for(uint32 ci = 0; ci < nPxComponents; ci++)
 			{
 				m_pixelData[baseIndex + ci] = pixelData[dataIndex++];
