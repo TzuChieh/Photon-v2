@@ -201,8 +201,9 @@
     <ClCompile Include="Source\Common\ThirdParty\lib_stb.cpp" />
     <ClCompile Include="Source\World\BruteForceIntersector.cpp" />
     <ClCompile Include="Source\World\Intersector.cpp" />
-    <ClCompile Include="Source\World\KdtreeIntersector.cpp" />
-    <ClCompile Include="Source\World\KdtreeNode.cpp" />
+    <ClCompile Include="Source\World\Kdtree\KdtreeAABB.cpp" />
+    <ClCompile Include="Source\World\Kdtree\KdtreeIntersector.cpp" />
+    <ClCompile Include="Source\World\Kdtree\KdtreeNode.cpp" />
     <ClCompile Include="Source\World\World.cpp" />
     <ClCompile Include="Source\Image\Film.cpp" />
     <ClCompile Include="Source\Image\Frame.cpp" />
@@ -280,8 +281,10 @@
     <ClInclude Include="Source\Common\ThirdParty\lib_stb.h" />
     <ClInclude Include="Source\World\BruteForceIntersector.h" />
     <ClInclude Include="Source\World\Intersector.h" />
-    <ClInclude Include="Source\World\KdtreeIntersector.h" />
-    <ClInclude Include="Source\World\KdtreeNode.h" />
+    <ClInclude Include="Source\World\Kdtree\KdtreeAABB.h" />
+    <ClInclude Include="Source\World\Kdtree\KdtreeIntersector.h" />
+    <ClInclude Include="Source\World\Kdtree\KdtreeNode.h" />
+    <ClInclude Include="Source\World\Kdtree\kdtree_core.h" />
     <ClInclude Include="Source\World\World.h" />
     <ClInclude Include="Source\Image\Frame.h" />
     <ClInclude Include="Source\Image\HDRFrame.h" />

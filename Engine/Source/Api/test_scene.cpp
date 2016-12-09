@@ -22,10 +22,56 @@ namespace ph
 
 void loadTestScene(World* const out_world)
 {
-	//loadCornellBox(out_world, 10.0f);
+	//ModelLoader modelLoader;
+	//Model sponzaModel;
+	//if(modelLoader.load("../SceneResource/sponza/sponza.obj", &sponzaModel))
+	//{
+	//	sponzaModel.scale(0.02f);
+	//	//sponzaModel.rotate(Vector3f(0, 1, 0), 90);
+	//}
+	//out_world->addModel(sponzaModel);
+
+	//auto lightGeometry = std::make_shared<GSphere>(4.0f);
+	//auto lightMaterial = std::make_shared<LightMaterial>();
+	//lightMaterial->setEmittedRadiance(15.0f, 15.5f, 21.5f);
+	//Model lightModel(lightGeometry, lightMaterial);
+	//lightModel.translate(-20, 20, 0);
+	//out_world->addModel(lightModel);
 
 
-	auto groundGeometry = std::make_shared<GRectangle>(100.0f, 100.0f);
+	//Model cupsModel;
+	//if(modelLoader.load("../SceneResource/GlassesAndCups.obj", &cupsModel))
+	//{
+	//	cupsModel.scale(10.0f);
+	//	cupsModel.rotate(Vector3f(0, 1, 0), 180);
+
+	//	auto glassMaterial = std::make_shared<AbradedTranslucent>();
+	//	glassMaterial->setF0(0.04f, 0.04f, 0.04f);
+	//	glassMaterial->setIOR(1.5f);
+	//	glassMaterial->setRoughness(0.0f);
+
+	//	cupsModel.setMaterial(glassMaterial);
+	//	for(auto& model : cupsModel.getChildren())
+	//	{
+	//		model.setMaterial(glassMaterial);
+	//	}
+	//}
+	//out_world->addModel(cupsModel);
+
+	loadCornellBox(out_world, 10.0f);
+
+	/*auto glassMaterial = std::make_shared<AbradedTranslucent>();
+	glassMaterial->setF0(0.04f, 0.04f, 0.04f);
+	glassMaterial->setRoughness(0.05f);
+	glassMaterial->setIOR(1.5f);
+
+	auto sphereGeometry = std::make_shared<GSphere>(2.5f);
+	Model sphereModel(sphereGeometry, glassMaterial);
+	sphereModel.translate(0, -1, 0);
+	out_world->addModel(sphereModel);*/
+
+
+	/*auto groundGeometry = std::make_shared<GRectangle>(100.0f, 100.0f);
 	auto groundMaterial = std::make_shared<MatteOpaque>();
 	groundMaterial->setAlbedo(0.9f, 0.9f, 0.9f);
 	Model groundModel(groundGeometry, groundMaterial);
@@ -40,15 +86,15 @@ void loadTestScene(World* const out_world)
 	lightModel.rotate(Vector3f(1, 0, 0), 90);
 	lightModel.rotate(Vector3f(0, 0, 1), -45);
 	lightModel.translate(10, 10, 0);
-	out_world->addModel(lightModel);
+	out_world->addModel(lightModel);*/
 
 	ModelLoader modelLoader;
 	//auto loadedModel = modelLoader.load("../SceneResource/cube.obj");
 	Model loadedModel;
 	
 	//bool isLoadingSuccess = modelLoader.load("../SceneResource/dragon.obj", &loadedModel);
-	//bool isLoadingSuccess = modelLoader.load("../SceneResource/GlassesAndCups.obj", &loadedModel);
-	bool isLoadingSuccess = modelLoader.load("../SceneResource/lalala/lalala.obj", &loadedModel);
+	bool isLoadingSuccess = modelLoader.load("../SceneResource/GlassesAndCups.obj", &loadedModel);
+	//bool isLoadingSuccess = modelLoader.load("../SceneResource/lalala/lalala.obj", &loadedModel);
 	//bool isLoadingSuccess = false;
 	if(isLoadingSuccess)
 	{
@@ -56,13 +102,13 @@ void loadTestScene(World* const out_world)
 		//loadedModel.scale(4);
 		//loadedModel.rotate(Vector3f(0, 1, 0), 180);
 
-		/*loadedModel.translate(0, -5, 1.5f);
+		loadedModel.translate(0, -5, 1.5f);
 		loadedModel.scale(1.1f);
-		loadedModel.rotate(Vector3f(0, 1, 0), 180);*/
+		loadedModel.rotate(Vector3f(0, 1, 0), 180);
 
-		loadedModel.translate(-3, -4, 1.5f);
+		/*loadedModel.translate(-3, -4, 1.5f);
 		loadedModel.scale(1.5f);
-		loadedModel.rotate(Vector3f(0, 1, 0), -45);
+		loadedModel.rotate(Vector3f(0, 1, 0), -45);*/
 
 		/*loadedModel.setTextureMapper(std::make_shared<SphericalMapper>());
 		auto loadedModelMaterial = std::make_shared<MatteOpaque>();
@@ -73,18 +119,18 @@ void loadTestScene(World* const out_world)
 		dragonMaterial->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));// gold
 		dragonMaterial->setRoughness(0.1f);*/
 
-		/*auto dragonMaterial = std::make_shared<AbradedTranslucent>();
+		auto dragonMaterial = std::make_shared<AbradedTranslucent>();
 		dragonMaterial->setF0(0.04f, 0.04f, 0.04f);
-		dragonMaterial->setRoughness(0.05f);
-		dragonMaterial->setIOR(1.5f);*/
+		dragonMaterial->setRoughness(0.0f);
+		dragonMaterial->setIOR(1.5f);
 
 		//auto dragonMaterial = std::make_shared<PerfectMirror>();
 
-		/*loadedModel.setMaterial(dragonMaterial);
+		loadedModel.setMaterial(dragonMaterial);
 		for(auto& model : loadedModel.getChildren())
 		{
 			model.setMaterial(dragonMaterial);
-		}*/
+		}
 
 		out_world->addModel(loadedModel);
 	}

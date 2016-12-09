@@ -27,11 +27,15 @@ void BackwardPathIntegrator::update(const Intersector& intersector)
 
 void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const Intersector& intersector, Vector3f* const out_radiance) const
 {
+	const float32 rayDeltaDist = 0.001f;
 	uint32 numBounces = 0;
 	Vector3f accuRadiance(0, 0, 0);
 	Vector3f accuLiWeight(1, 1, 1);
+	Vector3f rayOriginDelta;
 	Intersection intersection;
 	Ray tracingRay(ray);
+
+	const Triangle* lastTriangle = nullptr;
 
 	while(numBounces <= MAX_RAY_BOUNCES && intersector.isIntersecting(tracingRay, &intersection))
 	{
@@ -51,7 +55,11 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const Intersector&
 			Vector3f radianceLi = surfaceSample.m_emittedRadiance;
 
 			// avoid excessive, negative weight and possible NaNs
-			accuLiWeight.clampLocal(0.0f, 1000.0f);
+			//accuLiWeight.clampLocal(0.0f, 1000.0f);
+
+			accuLiWeight.x = accuLiWeight.x > 0.0f && accuLiWeight.x < 1000.0f ? accuLiWeight.x : 0.0f;
+			accuLiWeight.y = accuLiWeight.y > 0.0f && accuLiWeight.y < 1000.0f ? accuLiWeight.y : 0.0f;
+			accuLiWeight.z = accuLiWeight.z > 0.0f && accuLiWeight.z < 1000.0f ? accuLiWeight.z : 0.0f;
 
 			accuRadiance.addLocal(radianceLi.mul(accuLiWeight));
 			keepSampling = false;
@@ -62,6 +70,27 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const Intersector&
 		case ESurfaceSampleType::REFLECTION:
 		case ESurfaceSampleType::TRANSMISSION:
 		{
+			//if(lastTriangle == intersection.getHitTriangle())
+			//{
+			//	rayOriginDelta.addLocal(surfaceSample.m_direction.mul(rayDeltaDist));
+
+			//	const Vector3f L = surfaceSample.m_direction;
+			//	const Vector3f nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
+			//	const Vector3f nextRayDirection(L);
+			//	tracingRay.setOrigin(nextRayOrigin);
+			//	tracingRay.setDirection(nextRayDirection);
+			//	intersection.clear();
+			//	//std::cout << "gaga" << std::endl;
+			//	continue;
+			//}
+			//else
+			//{
+			//	rayOriginDelta.set(surfaceSample.m_direction).mulLocal(rayDeltaDist);
+			//	lastTriangle = intersection.getHitTriangle();
+			//}
+
+			rayOriginDelta.set(surfaceSample.m_direction).mulLocal(rayDeltaDist);
+
 			Vector3f liWeight = surfaceSample.m_LiWeight;
 
 			//const float32 rrSurviveRate = liWeight.clamp(0.0f, 1.0f).max();
@@ -99,7 +128,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const Intersector&
 
 		// prepare for next recursion
 		const Vector3f L = surfaceSample.m_direction;
-		const Vector3f nextRayOrigin(intersection.getHitPosition().add(N.mul(0.0001f)));
+		const Vector3f nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
 		const Vector3f nextRayDirection(L);
 		tracingRay.setOrigin(nextRayOrigin);
 		tracingRay.setDirection(nextRayDirection);

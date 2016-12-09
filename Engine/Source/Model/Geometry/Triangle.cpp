@@ -110,6 +110,7 @@ bool Triangle::isIntersecting(const Ray& ray, Intersection* const out_intersecti
 	Vector3f localHitNormal(m_nA.mul(1.0f - baryB - baryC).addLocal(m_nB.mul(baryB)).addLocal(m_nC.mul(baryC)));
 	m_parentModel->getModelToWorldTransform()->transformPoint(localRay.getDirection().mul(dist).addLocal(localRay.getOrigin()), &hitPosition);
 	m_parentModel->getModelToWorldTransform()->transformVector(localHitNormal, &hitNormal);
+	//m_parentModel->getModelToWorldTransform()->transformVector(m_faceNormal, &hitNormal);
 
 	out_intersection->setHitPosition(hitPosition);
 	out_intersection->setHitNormal(hitNormal.normalizeLocal());

@@ -67,10 +67,18 @@ public class Main
 		PhCamera camera = new PhCamera(PhCamera.Type.DEFAULT);
 		camera.setPosition(0, 0, 16);
 		
+		// for sponza
+//		camera.setPosition(3.5765076f, 2.1717842f, 2.5685565f);
+//		camera.setDirection(-0.81385213f, -0.30174536f, -0.49657395f);
+		
+		
+		final int outputWidth = 900;
+		final int outputHeight = 900;
+		
 		PhWorld world = new PhWorld();
 		PhRenderer renderer = new PhRenderer(PhRenderer.Type.MT_IMPORTANCE);
-		PhFilm film = new PhFilm(900, 900);
-		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.STANDARD, 512);
+		PhFilm film = new PhFilm(outputWidth, outputHeight);
+		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.STANDARD, 16);
 		
 		camera.setFilm(film);
 		
@@ -115,7 +123,7 @@ public class Main
 		long t2 = System.currentTimeMillis();
 		System.out.println("time elapsed: " + (double)(t2 - t1) + " ms");
 		
-		PhFrame frame = new PhFrame(PhFrame.Type.HDR, 900, 900);
+		PhFrame frame = new PhFrame(PhFrame.Type.HDR, outputWidth, outputHeight);
 		film.develop(frame);
 		
 		FrameData frameData = new FrameData();

@@ -5,7 +5,7 @@
 #include "Core/Ray.h"
 #include "Model/Model.h"
 #include "World/BruteForceIntersector.h"
-#include "World/KdtreeIntersector.h"
+#include "World/Kdtree/KdtreeIntersector.h"
 #include "Model/Geometry/Triangle.h"
 
 #include <limits>

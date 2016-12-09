@@ -36,6 +36,11 @@ public final class PhCamera
 		Ph.phSetCameraPosition(m_cameraId, x, y, z);
 	}
 	
+	public void setDirection(float x, float y, float z)
+	{
+		Ph.phSetCameraDirection(m_cameraId, x, y, z);
+	}
+	
 	public void setFilm(PhFilm film)
 	{
 		Ph.phSetCameraFilm(m_cameraId, film.m_filmId);
