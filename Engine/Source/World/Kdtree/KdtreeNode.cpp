@@ -237,13 +237,14 @@ std::unique_ptr<KdtreeNode> KdtreeNode::buildChildNode(const KdtreeAABB& childAA
 {
 	std::vector<const Triangle*> triangles;
 
-	AABB primAABB;
-	for(std::size_t i = 0; i < parentTriangles.size(); i++)
+	AABB childNodeAABB;
+	childAABB.getAABB(&childNodeAABB);
+
+	for(const Triangle* triangle : parentTriangles)
 	{
-		parentTriangles[i]->calcAABB(&primAABB);
-		if(childAABB.isIntersecting(primAABB))
+		if(triangle->isIntersecting(childNodeAABB))
 		{
-			triangles.push_back(parentTriangles[i]);
+			triangles.push_back(triangle);
 		}	
 	}
 

@@ -264,7 +264,6 @@
     <ClInclude Include="Source\Model\Material\Integrand\random_sample.h" />
     <ClInclude Include="Source\Math\Transform.h" />
     <ClInclude Include="Source\Math\vector_math.h" />
-    <ClInclude Include="Source\Model\Geometry\DifferentialPatch.h" />
     <ClInclude Include="Source\Model\Geometry\GRectangle.h" />
     <ClInclude Include="Source\Model\Geometry\GTriangleMesh.h" />
     <ClInclude Include="Source\Model\Geometry\Triangle.h" />

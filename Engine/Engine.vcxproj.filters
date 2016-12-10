@@ -374,9 +374,6 @@
     <ClInclude Include="Source\Model\Geometry\GRectangle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Model\Geometry\DifferentialPatch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Model\TextureMapper\TextureMapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>

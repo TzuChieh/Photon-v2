@@ -9,7 +9,6 @@ class Model;
 class Ray;
 class Intersection;
 class AABB;
-class DifferentialPatch;
 
 class Triangle final
 {
@@ -18,8 +17,8 @@ public:
 	~Triangle() = default;
 
 	bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const;
+	bool isIntersecting(const AABB& aabb) const;
 	void calcAABB(AABB* const out_aabb) const;
-	void calcDifferentialPatch(const Vector3f& hitPosition, DifferentialPatch* const out_differentialPatch) const;
 
 	inline const Model* getParentModel() const
 	{

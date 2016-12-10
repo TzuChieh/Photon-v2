@@ -83,4 +83,9 @@ float32 KdtreeAABB::getMaxVertex(const int32 axis) const
 	return maxVertex[axis];
 }
 
+void KdtreeAABB::getAABB(AABB* const out_aabb) const
+{
+	*out_aabb = m_aabb;
+}
+
 }// end namespace ph

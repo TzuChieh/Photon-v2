@@ -26,6 +26,7 @@ public:
 	void getMaxVertex(float32* const out_vector3f) const;
 	float32 getMinVertex(const int32 axis) const;
 	float32 getMaxVertex(const int32 axis) const;
+	void getAABB(AABB* const out_aabb) const;
 
 	inline float32 getExtent(const int32 axis) const
 	{

@@ -4,7 +4,7 @@
 #include "Camera/Camera.h"
 #include "World/World.h"
 #include "Core/SampleGenerator.h"
-#include "Image/Film.h"
+#include "Image/Film/Film.h"
 
 #include <utility>
 #include <iostream>
