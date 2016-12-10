@@ -22,19 +22,10 @@ public:
 	bool isIntersecting(const AABB& aabb) const;
 	bool trySplitAt(const int32 axis, const float32 splitPos, KdtreeAABB* const out_negativeAABB, KdtreeAABB* const out_positiveAABB) const;
 
-	inline void getMinVertex(float32* const out_vector3f) const
-	{
-		out_vector3f[KDTREE_X_AXIS] = m_aabb.getMinVertex().x;
-		out_vector3f[KDTREE_Y_AXIS] = m_aabb.getMinVertex().y;
-		out_vector3f[KDTREE_Z_AXIS] = m_aabb.getMinVertex().z;
-	}
-
-	inline void getMaxVertex(float32* const out_vector3f) const
-	{
-		out_vector3f[KDTREE_X_AXIS] = m_aabb.getMaxVertex().x;
-		out_vector3f[KDTREE_Y_AXIS] = m_aabb.getMaxVertex().y;
-		out_vector3f[KDTREE_Z_AXIS] = m_aabb.getMaxVertex().z;
-	}
+	void getMinVertex(float32* const out_vector3f) const;
+	void getMaxVertex(float32* const out_vector3f) const;
+	float32 getMinVertex(const int32 axis) const;
+	float32 getMaxVertex(const int32 axis) const;
 
 	inline float32 getExtent(const int32 axis) const
 	{

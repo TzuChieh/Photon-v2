@@ -205,7 +205,7 @@
     <ClCompile Include="Source\World\Kdtree\KdtreeIntersector.cpp" />
     <ClCompile Include="Source\World\Kdtree\KdtreeNode.cpp" />
     <ClCompile Include="Source\World\World.cpp" />
-    <ClCompile Include="Source\Image\Film.cpp" />
+    <ClCompile Include="Source\Image\Film\Film.cpp" />
     <ClCompile Include="Source\Image\Frame.cpp" />
     <ClCompile Include="Source\Image\HDRFrame.cpp" />
     <ClCompile Include="Source\Api\ApiDatabase.cpp" />
@@ -243,13 +243,14 @@
     <ClInclude Include="Source\Core\MtImportanceRenderer.h" />
     <ClInclude Include="Source\Image\CheckerboardTexture.h" />
     <ClInclude Include="Source\Image\ConstantTexture.h" />
-    <ClInclude Include="Source\Image\Film.h" />
+    <ClInclude Include="Source\Image\Film\Film.h" />
     <ClInclude Include="Source\Core\ImportanceRenderer.h" />
     <ClInclude Include="Source\Core\Intersection.h" />
     <ClInclude Include="Source\Core\Renderer.h" />
     <ClInclude Include="Source\Core\Sample.h" />
     <ClInclude Include="Source\Core\SampleGenerator.h" />
     <ClInclude Include="Source\Core\StandardSampleGenerator.h" />
+    <ClInclude Include="Source\Image\Film\RadianceSensor.h" />
     <ClInclude Include="Source\Image\TextureLoader.h" />
     <ClInclude Include="Source\Image\PixelTexture.h" />
     <ClInclude Include="Source\Image\Texture.h" />

@@ -105,13 +105,8 @@ void KdtreeNode::analyzeSplitCostSAH(const std::vector<const Triangle*>& triangl
 		triangles[i]->calcAABB(&primAABB);
 		primKdtreeAABB = KdtreeAABB(primAABB);
 
-		float32 minVertex[KDTREE_NUM_AXES];
-		float32 maxVertex[KDTREE_NUM_AXES];
-		primKdtreeAABB.getMinVertex(minVertex);
-		primKdtreeAABB.getMaxVertex(maxVertex);
-
-		testAxisPoints[2 * i]     = TestPoint(minVertex[axis], TestPoint::PRIMITIVE_MIN);
-		testAxisPoints[2 * i + 1] = TestPoint(maxVertex[axis], TestPoint::PRIMITIVE_MAX);
+		testAxisPoints[2 * i]     = TestPoint(primKdtreeAABB.getMinVertex(axis), TestPoint::PRIMITIVE_MIN);
+		testAxisPoints[2 * i + 1] = TestPoint(primKdtreeAABB.getMaxVertex(axis), TestPoint::PRIMITIVE_MAX);
 	}
 
 	// the sorting process has to be stable (equal elements shouldn't be reordered)
@@ -119,7 +114,6 @@ void KdtreeNode::analyzeSplitCostSAH(const std::vector<const Triangle*>& triangl
 
 	float64 noSplitSurfaceArea = m_aabb.getSurfaceArea();
 	float64 noSplitCost = COST_INTERSECTION * static_cast<float64>(triangles.size());
-	
 
 	std::size_t numNnodePrims, numPnodePrims;
 	bool boundaryPrimPassed;
@@ -129,13 +123,8 @@ void KdtreeNode::analyzeSplitCostSAH(const std::vector<const Triangle*>& triangl
 	numPnodePrims = triangles.size();
 	boundaryPrimPassed = false;
 
-	float32 minVertex[KDTREE_NUM_AXES];
-	float32 maxVertex[KDTREE_NUM_AXES];
-	m_aabb.getMinVertex(minVertex);
-	m_aabb.getMaxVertex(maxVertex);
-
-	float32 minAabbAxisPoint = minVertex[axis];
-	float32 maxAabbAxisPoint = maxVertex[axis];
+	float32 minAabbAxisPoint = m_aabb.getMinVertex(axis);
+	float32 maxAabbAxisPoint = m_aabb.getMaxVertex(axis);
 
 	*out_minCost = std::numeric_limits<float64>::max();
 	*out_splitPoint = (minAabbAxisPoint + maxAabbAxisPoint) / 2.0f;

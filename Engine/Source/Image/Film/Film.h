@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
+#include "Image/Film/RadianceSensor.h"
 
 #include <vector>
 
@@ -34,8 +35,7 @@ private:
 	uint32 m_widthPx;
 	uint32 m_heightPx;
 
-	std::vector<float64> m_pixelRadianceSensors;
-	std::vector<uint32> m_pixelSenseCounts;
+	std::vector<RadianceSensor> m_pixelRadianceSensors;
 };
 
 }// end namespace ph

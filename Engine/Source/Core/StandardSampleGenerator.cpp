@@ -1,5 +1,5 @@
 #include "Core/StandardSampleGenerator.h"
-#include "Image/Film.h"
+#include "Image/Film/Film.h"
 #include "Core/Sample.h"
 #include "Math/random_number.h"
 

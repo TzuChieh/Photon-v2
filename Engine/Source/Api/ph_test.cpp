@@ -13,7 +13,7 @@
 #include "Model/Material/PerfectMirror.h"
 #include "Model/Material/AbradedOpaque.h"
 #include "Core/StandardSampleGenerator.h"
-#include "Image/Film.h"
+#include "Image/Film/Film.h"
 #include "Model/ModelLoader.h"
 #include "Api/test_scene.h"
 #include "Model/Geometry/GRectangle.h"

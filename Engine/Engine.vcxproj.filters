@@ -78,9 +78,6 @@
     <ClCompile Include="Source\Model\Material\AbradedOpaque.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Image\Film.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\World\World.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -219,6 +216,9 @@
     <ClCompile Include="Source\World\Kdtree\KdtreeAABB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Image\Film\Film.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Math\Matrix4f.h">
@@ -306,9 +306,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Model\Material\AbradedOpaque.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Image\Film.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\World\World.h">
@@ -459,6 +456,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\World\Kdtree\kdtree_core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Image\Film\Film.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Image\Film\RadianceSensor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

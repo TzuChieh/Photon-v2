@@ -7,7 +7,7 @@
 #include "Camera/DefaultCamera.h"
 #include "Core/StandardSampleGenerator.h"
 #include "Api/test_scene.h"
-#include "Image/Film.h"
+#include "Image/Film/Film.h"
 #include "Image/Frame.h"
 
 #include <memory>
