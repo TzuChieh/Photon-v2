@@ -22,7 +22,7 @@ public class Window extends JFrame
 	private LoggerTextPane m_loggerTextPane;
 	private TaskPanel m_taskPanel;
 	
-	public Window(int widthPx, int heightPx)
+	public Window()
 	{
 		super("Photon-v2 Editor");
 		

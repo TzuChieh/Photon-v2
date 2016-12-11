@@ -160,7 +160,6 @@ bool Triangle::isIntersecting(const AABB& aabb) const
 	Vector3f tvA;
 	Vector3f tvB;
 	Vector3f tvC;
-
 	m_parentModel->getModelToWorldTransform()->transformPoint(m_vA, &tvA);
 	m_parentModel->getModelToWorldTransform()->transformPoint(m_vB, &tvB);
 	m_parentModel->getModelToWorldTransform()->transformPoint(m_vC, &tvC);

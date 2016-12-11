@@ -44,7 +44,7 @@ void ImportanceRenderer::render(const World& world, const Camera& camera) const
 	while(m_sampleGenerator->hasMoreSamples())
 	{
 		samples.clear();
-		m_sampleGenerator->requestMoreSamples(*film, &samples);
+		//m_sampleGenerator->requestMoreSamples(*film, &samples);
 
 		Sample sample;
 		while(!samples.empty())

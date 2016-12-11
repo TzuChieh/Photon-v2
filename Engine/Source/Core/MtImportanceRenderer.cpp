@@ -50,6 +50,7 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 	std::vector<std::unique_ptr<SampleGenerator>> subSampleGenerators;
 
 	m_subFilms = std::vector<Film>(nThreads, Film(camera.getFilm()->getWidthPx(), camera.getFilm()->getHeightPx()));
+	m_sampleGenerator->analyze(world, *(camera.getFilm()));
 	m_sampleGenerator->split(nThreads, &subSampleGenerators);
 
 	for(std::size_t threadIndex = 0; threadIndex < nThreads; threadIndex++)
@@ -84,7 +85,7 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 			t1 = std::chrono::system_clock::now();
 
 			samples.clear();
-			subSampleGenerator->requestMoreSamples(*subFilm, &samples);
+			subSampleGenerator->requestMoreSamples(&samples);
 
 			Sample sample;
 			while(!samples.empty())
@@ -138,20 +139,19 @@ float32 MtImportanceRenderer::queryPercentageProgress() const
 		avgWorkerProgress += *(m_workerProgresses[threadId]);
 	}
 	avgWorkerProgress /= static_cast<float32>(m_workerProgresses.size());
-
+	
 	return avgWorkerProgress * 100.0f;
 }
 
 float32 MtImportanceRenderer::querySampleFrequency() const
 {
-	float32 avgWorkerSampleFreq = 0.0f;
+	float32 sampleFreq = 0.0f;
 	for(uint32 threadId = 0; threadId < m_workerSampleFrequencies.size(); threadId++)
 	{
-		avgWorkerSampleFreq += *(m_workerSampleFrequencies[threadId]);
+		sampleFreq += *(m_workerSampleFrequencies[threadId]);
 	}
-	avgWorkerSampleFreq /= static_cast<float32>(m_workerSampleFrequencies.size());
 
-	return avgWorkerSampleFreq;
+	return sampleFreq;
 }
 
 }// end namespace ph
