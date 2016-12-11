@@ -5,7 +5,7 @@
 #include "World/World.h"
 #include "Camera/Camera.h"
 #include "Camera/DefaultCamera.h"
-#include "Core/StandardSampleGenerator.h"
+#include "Core/SampleGenerator/PixelJitterSampleGenerator.h"
 #include "Api/test_scene.h"
 #include "Image/Film/Film.h"
 #include "Image/Frame.h"
@@ -128,8 +128,8 @@ void phCreateSampleGenerator(PHuint64* out_sampleGeneratorId, const PHint32 samp
 
 	switch(sampleGeneratorType)
 	{
-	case PH_STANDARD_SAMPLE_GENERATOR_TYPE:
-		*out_sampleGeneratorId = static_cast<PHuint64>(ApiDatabase::addSampleGenerator(std::make_unique<StandardSampleGenerator>(sppBudget)));
+	case PH_PIXEL_JITTER_SAMPLE_GENERATOR_TYPE:
+		*out_sampleGeneratorId = static_cast<PHuint64>(ApiDatabase::addSampleGenerator(std::make_unique<PixelJitterSampleGenerator>(sppBudget)));
 		break;
 
 	default:

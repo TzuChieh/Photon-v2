@@ -1,16 +1,16 @@
 #pragma once
 
-#include "Core/SampleGenerator.h"
+#include "Core/SampleGenerator/SampleGenerator.h"
 #include "Common/primitive_type.h"
 
 namespace ph
 {
 
-class StandardSampleGenerator final : public SampleGenerator
+class PixelJitterSampleGenerator final : public SampleGenerator
 {
 public:
-	StandardSampleGenerator(const uint32 sppBudget);
-	virtual ~StandardSampleGenerator() override;
+	PixelJitterSampleGenerator(const uint32 sppBudget);
+	virtual ~PixelJitterSampleGenerator() override;
 
 	virtual bool hasMoreSamples() const override;
 	virtual void analyze(const World& world, const Film& film) override;

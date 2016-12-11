@@ -173,8 +173,8 @@
     <ClCompile Include="Source\Core\Intersection.cpp" />
     <ClCompile Include="Source\Core\MtImportanceRenderer.cpp" />
     <ClCompile Include="Source\Core\Renderer.cpp" />
-    <ClCompile Include="Source\Core\SampleGenerator.cpp" />
-    <ClCompile Include="Source\Core\StandardSampleGenerator.cpp" />
+    <ClCompile Include="Source\Core\SampleGenerator\SampleGenerator.cpp" />
+    <ClCompile Include="Source\Core\SampleGenerator\PixelJitterSampleGenerator.cpp" />
     <ClCompile Include="Source\Image\CheckerboardTexture.cpp" />
     <ClCompile Include="Source\Image\ConstantTexture.cpp" />
     <ClCompile Include="Source\Image\TextureLoader.cpp" />
@@ -248,8 +248,8 @@
     <ClInclude Include="Source\Core\Intersection.h" />
     <ClInclude Include="Source\Core\Renderer.h" />
     <ClInclude Include="Source\Core\Sample.h" />
-    <ClInclude Include="Source\Core\SampleGenerator.h" />
-    <ClInclude Include="Source\Core\StandardSampleGenerator.h" />
+    <ClInclude Include="Source\Core\SampleGenerator\SampleGenerator.h" />
+    <ClInclude Include="Source\Core\SampleGenerator\PixelJitterSampleGenerator.h" />
     <ClInclude Include="Source\Image\Film\RadianceSensor.h" />
     <ClInclude Include="Source\Image\TextureLoader.h" />
     <ClInclude Include="Source\Image\PixelTexture.h" />

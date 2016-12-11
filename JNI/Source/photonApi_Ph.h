@@ -17,8 +17,8 @@ extern "C" {
 #define photonApi_Ph_PH_HDR_FRAME_TYPE 50L
 #undef photonApi_Ph_PH_DEFAULT_CAMERA_TYPE
 #define photonApi_Ph_PH_DEFAULT_CAMERA_TYPE 100L
-#undef photonApi_Ph_PH_STANDARD_SAMPLE_GENERATOR_TYPE
-#define photonApi_Ph_PH_STANDARD_SAMPLE_GENERATOR_TYPE 150L
+#undef photonApi_Ph_PH_PIXEL_JITTER_SAMPLE_GENERATOR_TYPE
+#define photonApi_Ph_PH_PIXEL_JITTER_SAMPLE_GENERATOR_TYPE 150L
 /*
  * Class:     photonApi_Ph
  * Method:    phStart

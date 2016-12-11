@@ -53,7 +53,7 @@ typedef double         PHfloat64;
 
 #define PH_DEFAULT_CAMERA_TYPE 100
 
-#define PH_STANDARD_SAMPLE_GENERATOR_TYPE 150
+#define PH_PIXEL_JITTER_SAMPLE_GENERATOR_TYPE 150
 
 #ifdef __cplusplus
 extern "C" {

@@ -3,7 +3,7 @@
 #include "Core/Renderer.h"
 #include "Camera/Camera.h"
 #include "World/World.h"
-#include "Core/SampleGenerator.h"
+#include "Core/SampleGenerator/SampleGenerator.h"
 #include "Image/Film/Film.h"
 
 #include <utility>

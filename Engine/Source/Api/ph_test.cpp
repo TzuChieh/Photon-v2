@@ -12,7 +12,7 @@
 #include "Model/Model.h"
 #include "Model/Material/PerfectMirror.h"
 #include "Model/Material/AbradedOpaque.h"
-#include "Core/StandardSampleGenerator.h"
+#include "Core/SampleGenerator/PixelJitterSampleGenerator.h"
 #include "Image/Film/Film.h"
 #include "Model/ModelLoader.h"
 #include "Api/test_scene.h"
@@ -68,7 +68,7 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	//auto renderer = std::make_shared<BruteForceRenderer>();
 	//ImportanceRenderer renderer;
 	MtImportanceRenderer renderer;
-	StandardSampleGenerator sampleGenerator(32);
+	PixelJitterSampleGenerator sampleGenerator(32);
 	World world;
 	DefaultCamera camera;
 	Film film(widthPx, heightPx);

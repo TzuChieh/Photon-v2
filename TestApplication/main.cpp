@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 	phCreateRenderer(&rendererId, PH_MT_IMPORTANCE_RENDERER_TYPE);
 
 	PHuint64 sampleGeneratorId;
-	phCreateSampleGenerator(&sampleGeneratorId, PH_STANDARD_SAMPLE_GENERATOR_TYPE, 32);
+	phCreateSampleGenerator(&sampleGeneratorId, PH_PIXEL_JITTER_SAMPLE_GENERATOR_TYPE, 32);
 
 	PHuint64 cameraId;
 	phCreateCamera(&cameraId, PH_DEFAULT_CAMERA_TYPE);

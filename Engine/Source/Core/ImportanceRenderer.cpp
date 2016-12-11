@@ -8,7 +8,7 @@
 #include "Model/Material/Material.h"
 #include "Model/Material/Integrand/SurfaceIntegrand.h"
 #include "Math/constant.h"
-#include "Core/SampleGenerator.h"
+#include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Sample.h"
 #include "Math/random_number.h"
 #include "Math/Color.h"

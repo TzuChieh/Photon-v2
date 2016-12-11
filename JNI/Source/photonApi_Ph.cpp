@@ -259,8 +259,8 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateSampleGenerator
 	PHuint64 sampleGeneratorId;
 	switch(sampleGeneratorType)
 	{
-	case photonApi_Ph_PH_STANDARD_SAMPLE_GENERATOR_TYPE:
-		phCreateSampleGenerator(&sampleGeneratorId, PH_STANDARD_SAMPLE_GENERATOR_TYPE, static_cast<PHuint32>(sppBudget));
+	case photonApi_Ph_PH_PIXEL_JITTER_SAMPLE_GENERATOR_TYPE:
+		phCreateSampleGenerator(&sampleGeneratorId, PH_PIXEL_JITTER_SAMPLE_GENERATOR_TYPE, static_cast<PHuint32>(sppBudget));
 		break;
 
 	default:

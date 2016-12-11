@@ -1,4 +1,4 @@
-#include "Core/SampleGenerator.h"
+#include "Core/SampleGenerator/SampleGenerator.h"
 
 namespace ph
 {

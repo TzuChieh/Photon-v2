@@ -7,7 +7,7 @@ public final class PhSampleGenerator
 {
 	public static enum Type
 	{
-		STANDARD(Ph.PH_STANDARD_SAMPLE_GENERATOR_TYPE);
+		PIXEL_JITTER(Ph.PH_PIXEL_JITTER_SAMPLE_GENERATOR_TYPE);
 		
 		private final int m_phValue;
 		
