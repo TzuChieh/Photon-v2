@@ -78,7 +78,7 @@ public class Main
 		PhWorld world = new PhWorld();
 		PhRenderer renderer = new PhRenderer(PhRenderer.Type.MT_IMPORTANCE);
 		PhFilm film = new PhFilm(outputWidth, outputHeight);
-		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.PIXEL_JITTER, 16);
+		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.PIXEL_JITTER, 8192);
 		
 		camera.setFilm(film);
 		

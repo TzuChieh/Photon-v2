@@ -48,7 +48,11 @@ void loadTestScene(World* const out_world)
 		auto glassMaterial = std::make_shared<AbradedTranslucent>();
 		glassMaterial->setF0(0.04f, 0.04f, 0.04f);
 		glassMaterial->setIOR(1.5f);
-		glassMaterial->setRoughness(0.0f);
+		glassMaterial->setRoughness(0.4f);
+
+		auto goldMaterial = std::make_shared<AbradedOpaque>();
+		goldMaterial->setF0(1.0f, 0.765557f, 0.336057f);
+		goldMaterial->setRoughness(0.1f);
 
 		cupsModel.setMaterial(glassMaterial);
 		for(auto& model : cupsModel.getChildren())

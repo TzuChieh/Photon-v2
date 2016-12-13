@@ -168,7 +168,6 @@
     <ClCompile Include="Source\Camera\Camera.cpp" />
     <ClCompile Include="Source\Camera\DefaultCamera.cpp" />
     <ClCompile Include="Source\Core\BackwardPathIntegrator.cpp" />
-    <ClCompile Include="Source\Core\ImportanceRenderer.cpp" />
     <ClCompile Include="Source\Core\Integrator.cpp" />
     <ClCompile Include="Source\Core\Intersection.cpp" />
     <ClCompile Include="Source\Core\MtImportanceRenderer.cpp" />
@@ -244,7 +243,6 @@
     <ClInclude Include="Source\Image\CheckerboardTexture.h" />
     <ClInclude Include="Source\Image\ConstantTexture.h" />
     <ClInclude Include="Source\Image\Film\Film.h" />
-    <ClInclude Include="Source\Core\ImportanceRenderer.h" />
     <ClInclude Include="Source\Core\Intersection.h" />
     <ClInclude Include="Source\Core\Renderer.h" />
     <ClInclude Include="Source\Core\Sample.h" />
