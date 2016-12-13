@@ -20,15 +20,15 @@
 #include <vector>
 #include <thread>
 #include <chrono>
+#include <functional>
 
 namespace ph
 {
 
-const uint32 MtImportanceRenderer::nThreads;
-
-MtImportanceRenderer::MtImportanceRenderer()
+MtImportanceRenderer::MtImportanceRenderer(const uint32 numThreads) : 
+	Renderer(numThreads)
 {
-	for(std::size_t threadIndex = 0; threadIndex < nThreads; threadIndex++)
+	for(std::size_t threadIndex = 0; threadIndex < m_numThreads; threadIndex++)
 	{
 		m_workerProgresses.push_back(std::make_unique<std::atomic<float32>>(0.0f));
 		m_workerSampleFrequencies.push_back(std::make_unique<std::atomic<float32>>(0.0f));
@@ -46,21 +46,21 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 	integrator.update(world.getIntersector());
 
 	std::atomic<int32> numSpp = 0;
-	std::thread renderWorkers[nThreads];
+	std::vector<std::thread> renderWorkers(m_numThreads);
 	std::vector<std::unique_ptr<SampleGenerator>> subSampleGenerators;
 
-	m_subFilms = std::vector<Film>(nThreads, Film(camera.getFilm()->getWidthPx(), camera.getFilm()->getHeightPx()));
+	m_subFilms = std::vector<Film>(m_numThreads, Film(camera.getFilm()->getWidthPx(), camera.getFilm()->getHeightPx()));
 	m_sampleGenerator->analyze(world, *(camera.getFilm()));
-	m_sampleGenerator->split(nThreads, &subSampleGenerators);
+	m_sampleGenerator->split(m_numThreads, &subSampleGenerators);
 
-	for(std::size_t threadIndex = 0; threadIndex < nThreads; threadIndex++)
+	for(std::size_t threadIndex = 0; threadIndex < m_numThreads; threadIndex++)
 	{
 		SampleGenerator*      subSampleGenerator = subSampleGenerators[threadIndex].get();
 		Film*                 subFilm            = &(m_subFilms[threadIndex]);
 		std::atomic<float32>* workerProgress     = m_workerProgresses[threadIndex].get();
 		std::atomic<float32>* workerSampleFreq   = m_workerSampleFrequencies[threadIndex].get();
 
-		renderWorkers[threadIndex] = std::thread([this, &camera, &integrator, &world, &numSpp, subSampleGenerator, subFilm, workerProgress, workerSampleFreq]()
+		renderWorkers[threadIndex] = std::thread([this, &camera, &integrator, &world, &numSpp, subSampleGenerator, subFilm, workerProgress, workerSampleFreq]() -> void
 		{
 		// ****************************** thread start ****************************** //
 
@@ -123,6 +123,8 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 
 		// ****************************** thread end ****************************** //
 		});
+
+		//renderWorkers[threadIndex] = std::make_unique<std::thread>(workerFunction);
 	}
 
 	for(auto& renderWorker : renderWorkers)

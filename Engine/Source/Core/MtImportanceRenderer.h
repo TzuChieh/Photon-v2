@@ -16,7 +16,7 @@ class Sample;
 class MtImportanceRenderer final : public Renderer
 {
 public:
-	MtImportanceRenderer();
+	MtImportanceRenderer(const uint32 numThreads);
 	virtual ~MtImportanceRenderer() override;
 
 	virtual void render(const World& world, const Camera& camera) const override;
@@ -29,8 +29,6 @@ private:
 
 	std::vector<std::unique_ptr<std::atomic<float32>>> m_workerProgresses;
 	std::vector<std::unique_ptr<std::atomic<float32>>> m_workerSampleFrequencies;
-
-	static const uint32 nThreads = 4;
 };
 
 }// end namespace ph

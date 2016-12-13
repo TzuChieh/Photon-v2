@@ -22,7 +22,7 @@ public final class Ph
 	public static native boolean phStart();
 	public static native void    phExit();
 	
-	public static native void    phCreateRenderer(LongRef out_rendererId, int rendererType);
+	public static native void    phCreateRenderer(LongRef out_rendererId, int rendererType, int numThreads);
 	public static native void    phDeleteRenderer(long rendererId);
 	
 	public static native void    phCreateFilm(LongRef out_filmId, int filmWidthPx, int filmHeightPx);

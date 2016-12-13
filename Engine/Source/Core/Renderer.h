@@ -16,7 +16,7 @@ class Film;
 class Renderer
 {
 public:
-	Renderer();
+	Renderer(const uint32 numThreads);
 	virtual ~Renderer() = 0;
 
 	virtual void render(const World& world, const Camera& camera) const = 0;
@@ -46,6 +46,7 @@ public:
 
 protected:
 	SampleGenerator* m_sampleGenerator;
+	uint32           m_numThreads;
 };
 
 }// end namespace ph

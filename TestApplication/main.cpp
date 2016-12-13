@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 	phCreateWorld(&worldId);
 
 	PHuint64 rendererId;
-	phCreateRenderer(&rendererId, PH_MT_IMPORTANCE_RENDERER_TYPE);
+	phCreateRenderer(&rendererId, PH_MT_IMPORTANCE_RENDERER_TYPE, 4);
 
 	PHuint64 sampleGeneratorId;
 	phCreateSampleGenerator(&sampleGeneratorId, PH_PIXEL_JITTER_SAMPLE_GENERATOR_TYPE, 32);

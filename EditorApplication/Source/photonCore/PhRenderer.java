@@ -27,10 +27,10 @@ public final class PhRenderer
 	
 	protected final long m_rendererId;
 	
-	public PhRenderer(Type type)
+	public PhRenderer(Type type, int numThreads)
 	{
 		LongRef rendererId = new LongRef();
-		Ph.phCreateRenderer(rendererId, type.getValue());
+		Ph.phCreateRenderer(rendererId, type.getValue(), numThreads);
 		m_rendererId = rendererId.m_value;
 	}
 	

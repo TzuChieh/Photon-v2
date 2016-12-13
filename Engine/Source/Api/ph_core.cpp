@@ -22,7 +22,7 @@ void phExit()
 	ph::ApiDatabase::releaseAllData();
 }
 
-void phCreateRenderer(PHuint64* out_rendererId, const PHint32 rendererType)
+void phCreateRenderer(PHuint64* out_rendererId, const PHint32 rendererType, const PHuint32 numThreads)
 {
 	using namespace ph;
 
@@ -39,7 +39,7 @@ void phCreateRenderer(PHuint64* out_rendererId, const PHint32 rendererType)
 		break;
 
 	case PH_MT_IMPORTANCE_RENDERER_TYPE:
-		*out_rendererId = static_cast<std::size_t>(ApiDatabase::addRenderer(std::make_unique<MtImportanceRenderer>()));
+		*out_rendererId = static_cast<std::size_t>(ApiDatabase::addRenderer(std::make_unique<MtImportanceRenderer>(numThreads)));
 		break;
 
 	default:

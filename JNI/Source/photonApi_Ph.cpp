@@ -53,10 +53,10 @@ void JNICALL Java_photonApi_Ph_genTestHdrFrame(JNIEnv* env, jclass thiz, jobject
 /*
 * Class:     photonApi_Ph
 * Method:    phCreateRenderer
-* Signature: (LphotonApi/LongRef;I)V
+* Signature: (LphotonApi/LongRef;II)V
 */
 JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateRenderer
-(JNIEnv* env, jclass thiz, jobject out_LongRef_rendererId, jint rendererType)
+(JNIEnv* env, jclass thiz, jobject out_LongRef_rendererId, jint rendererType, jint numThreads)
 {
 	ph::JLongRef jRendererId(out_LongRef_rendererId, env);
 	PHuint64 rendererId;
@@ -64,19 +64,19 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateRenderer
 	switch(rendererType)
 	{
 	case photonApi_Ph_PH_BRUTE_FORCE_RENDERER_TYPE:
-		phCreateRenderer(&rendererId, PH_BRUTE_FORCE_RENDERER_TYPE);
+		phCreateRenderer(&rendererId, PH_BRUTE_FORCE_RENDERER_TYPE, static_cast<PHuint32>(numThreads));
 		break;
 
 	case photonApi_Ph_PH_IMPORTANCE_RENDERER_TYPE:
-		phCreateRenderer(&rendererId, PH_IMPORTANCE_RENDERER_TYPE);
+		phCreateRenderer(&rendererId, PH_IMPORTANCE_RENDERER_TYPE, static_cast<PHuint32>(numThreads));
 		break;
 
 	case photonApi_Ph_PH_MT_IMPORTANCE_RENDERER_TYPE:
-		phCreateRenderer(&rendererId, photonApi_Ph_PH_MT_IMPORTANCE_RENDERER_TYPE);
+		phCreateRenderer(&rendererId, photonApi_Ph_PH_MT_IMPORTANCE_RENDERER_TYPE, static_cast<PHuint32>(numThreads));
 		break;
 
 	default:
-		phCreateRenderer(&rendererId, static_cast<PHint32>(rendererType));
+		phCreateRenderer(&rendererId, static_cast<PHint32>(rendererType), static_cast<PHuint32>(numThreads));
 	}
 
 	jRendererId.setValue(static_cast<PHint64>(rendererId));

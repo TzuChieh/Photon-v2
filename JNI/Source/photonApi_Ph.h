@@ -38,10 +38,10 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phExit
 /*
  * Class:     photonApi_Ph
  * Method:    phCreateRenderer
- * Signature: (LphotonApi/LongRef;I)V
+ * Signature: (LphotonApi/LongRef;II)V
  */
 JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateRenderer
-  (JNIEnv *, jclass, jobject, jint);
+  (JNIEnv *, jclass, jobject, jint, jint);
 
 /*
  * Class:     photonApi_Ph

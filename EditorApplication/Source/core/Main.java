@@ -74,11 +74,13 @@ public class Main
 		
 		final int outputWidth = 1280;
 		final int outputHeight = 720;
+		final int numRenderThreads = 4;
+		
 		
 		PhWorld world = new PhWorld();
-		PhRenderer renderer = new PhRenderer(PhRenderer.Type.MT_IMPORTANCE);
+		PhRenderer renderer = new PhRenderer(PhRenderer.Type.MT_IMPORTANCE, numRenderThreads);
 		PhFilm film = new PhFilm(outputWidth, outputHeight);
-		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.PIXEL_JITTER, 8192);
+		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.PIXEL_JITTER, 16);
 		
 		camera.setFilm(film);
 		

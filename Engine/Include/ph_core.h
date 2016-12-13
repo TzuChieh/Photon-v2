@@ -62,7 +62,7 @@ extern "C" {
 extern PH_API PHint32 phStart();
 extern PH_API void    phExit();
 
-extern PH_API void phCreateRenderer(PHuint64* out_rendererId, const PHint32 rendererType);
+extern PH_API void phCreateRenderer(PHuint64* out_rendererId, const PHint32 rendererType, const PHuint32 numThreads);
 extern PH_API void phDeleteRenderer(const PHuint64 rendererId);
 
 extern PH_API void phCreateWorld(PHuint64* out_worldId);

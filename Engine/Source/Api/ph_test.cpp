@@ -66,7 +66,7 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 
 	//auto renderer = std::make_shared<BruteForceRenderer>();
 	//ImportanceRenderer renderer;
-	MtImportanceRenderer renderer;
+	MtImportanceRenderer renderer(4);
 	PixelJitterSampleGenerator sampleGenerator(32);
 	World world;
 	DefaultCamera camera;
