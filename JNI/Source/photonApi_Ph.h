@@ -7,8 +7,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#undef photonApi_Ph_PH_BRUTE_FORCE_RENDERER_TYPE
-#define photonApi_Ph_PH_BRUTE_FORCE_RENDERER_TYPE 1L
+#undef photonApi_Ph_PH_PREVIEW_RENDERER_TYPE
+#define photonApi_Ph_PH_PREVIEW_RENDERER_TYPE 1L
 #undef photonApi_Ph_PH_IMPORTANCE_RENDERER_TYPE
 #define photonApi_Ph_PH_IMPORTANCE_RENDERER_TYPE 2L
 #undef photonApi_Ph_PH_MT_IMPORTANCE_RENDERER_TYPE

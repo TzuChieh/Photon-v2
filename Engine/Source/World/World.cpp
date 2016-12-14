@@ -1,12 +1,12 @@
 #include "World/World.h"
-#include "Model/Geometry/Geometry.h"
+#include "Entity/Geometry/Geometry.h"
 #include "Core/Intersection.h"
 #include "Common/primitive_type.h"
 #include "Core/Ray.h"
-#include "Model/Model.h"
+#include "Entity/Entity.h"
 #include "World/BruteForceIntersector.h"
 #include "World/Kdtree/KdtreeIntersector.h"
-#include "Model/Geometry/Triangle.h"
+#include "Entity/Geometry/Triangle.h"
 
 #include <limits>
 #include <iostream>
@@ -21,16 +21,16 @@ World::World() :
 
 }
 
-void World::addModel(const Model& model)
+void World::addEntity(const Entity& entity)
 {
-	m_models.push_back(model);
+	m_entities.push_back(entity);
 }
 
 void World::update(const float32 deltaS)
 {
 	std::cout << "updating world..." << std::endl;
 
-	updateIntersector(m_intersector.get(), m_models);
+	updateIntersector(m_intersector.get(), m_entities);
 }
 
 const Intersector& World::getIntersector() const
@@ -38,14 +38,14 @@ const Intersector& World::getIntersector() const
 	return *m_intersector;
 }
 
-void World::updateIntersector(Intersector* const out_intersector, const std::vector<Model>& models)
+void World::updateIntersector(Intersector* const out_intersector, const std::vector<Entity>& entities)
 {
 	out_intersector->clearData();
 
 	std::vector<Triangle> triangles;
-	for(const auto& model : models)
+	for(const auto& entity : entities)
 	{
-		discretizeModelGeometry(model, &triangles);
+		discretizeModelGeometry(entity, &triangles);
 	}
 
 	std::cout << "world discretized into " << triangles.size() << " triangles" << std::endl;
@@ -59,16 +59,16 @@ void World::updateIntersector(Intersector* const out_intersector, const std::vec
 	out_intersector->construct();
 }
 
-void World::discretizeModelGeometry(const Model& model, std::vector<Triangle>* const out_triangles)
+void World::discretizeModelGeometry(const Entity& entity, std::vector<Triangle>* const out_triangles)
 {
-	if(model.getGeometry())
+	if(entity.getGeometry())
 	{
-		model.getGeometry()->discretize(out_triangles, &model);
+		entity.getGeometry()->discretize(out_triangles, &entity);
 	}
 
-	for(const auto& model : model.getChildren())
+	for(const auto& entity : entity.getChildren())
 	{
-		discretizeModelGeometry(model, out_triangles);
+		discretizeModelGeometry(entity, out_triangles);
 	}
 }
 

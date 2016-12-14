@@ -8,7 +8,7 @@ public final class PhRenderer
 {
 	public static enum Type
 	{
-		BRUTE_FORCE   (Ph.PH_BRUTE_FORCE_RENDERER_TYPE), 
+		PREVIEW       (Ph.PH_PREVIEW_RENDERER_TYPE), 
 		IMPORTANCE    (Ph.PH_IMPORTANCE_RENDERER_TYPE), 
 		MT_IMPORTANCE (Ph.PH_MT_IMPORTANCE_RENDERER_TYPE);
 		

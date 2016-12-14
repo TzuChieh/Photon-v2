@@ -78,13 +78,18 @@ public class Main
 		
 		
 		PhWorld world = new PhWorld();
-		PhRenderer renderer = new PhRenderer(PhRenderer.Type.MT_IMPORTANCE, numRenderThreads);
-		PhFilm film = new PhFilm(outputWidth, outputHeight);
+		
 		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.PIXEL_JITTER, 16);
+		PhRenderer renderer = new PhRenderer(PhRenderer.Type.MT_IMPORTANCE, numRenderThreads);
+		renderer.setSampleGenerator(sampleGenerator);
+		
+//		PhRenderer renderer = new PhRenderer(PhRenderer.Type.PREVIEW, numRenderThreads);
+		PhFilm film = new PhFilm(outputWidth, outputHeight);
+		
 		
 		camera.setFilm(film);
 		
-		renderer.setSampleGenerator(sampleGenerator);
+		
 		
 		PhUtility.loadTestScene(world);
 		world.cook();

@@ -1,5 +1,5 @@
 #include "World/Kdtree/KdtreeIntersector.h"
-#include "Model/Geometry/Triangle.h"
+#include "Entity/Geometry/Triangle.h"
 
 #include <iostream>
 

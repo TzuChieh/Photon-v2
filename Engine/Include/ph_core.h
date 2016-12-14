@@ -45,7 +45,7 @@ typedef double         PHfloat64;
 #define PH_TRUE  1
 #define PH_FALSE 0
 
-#define PH_BRUTE_FORCE_RENDERER_TYPE   1
+#define PH_PREVIEW_RENDERER_TYPE       1
 #define PH_IMPORTANCE_RENDERER_TYPE    2
 #define PH_MT_IMPORTANCE_RENDERER_TYPE 3
 

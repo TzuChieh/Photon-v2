@@ -1,5 +1,5 @@
 #include "World/Intersector.h"
-#include "Model/Geometry/Triangle.h"
+#include "Entity/Geometry/Triangle.h"
 
 namespace ph
 {

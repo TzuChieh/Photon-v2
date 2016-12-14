@@ -1,5 +1,5 @@
 #include "Math/Transform.h"
-#include "Model/BoundingVolume/AABB.h"
+#include "Entity/BoundingVolume/AABB.h"
 
 #include <iostream>
 

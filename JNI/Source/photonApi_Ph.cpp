@@ -63,8 +63,8 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateRenderer
 
 	switch(rendererType)
 	{
-	case photonApi_Ph_PH_BRUTE_FORCE_RENDERER_TYPE:
-		phCreateRenderer(&rendererId, PH_BRUTE_FORCE_RENDERER_TYPE, static_cast<PHuint32>(numThreads));
+	case photonApi_Ph_PH_PREVIEW_RENDERER_TYPE:
+		phCreateRenderer(&rendererId, PH_PREVIEW_RENDERER_TYPE, static_cast<PHuint32>(numThreads));
 		break;
 
 	case photonApi_Ph_PH_IMPORTANCE_RENDERER_TYPE:

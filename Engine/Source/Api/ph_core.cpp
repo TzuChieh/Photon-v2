@@ -1,6 +1,7 @@
 #include "ph_core.h"
 #include "Api/ApiDatabase.h"
 #include "Core/MtImportanceRenderer.h"
+#include "Core/Renderer/PreviewRenderer.h"
 #include "World/World.h"
 #include "Camera/Camera.h"
 #include "Camera/DefaultCamera.h"
@@ -28,9 +29,8 @@ void phCreateRenderer(PHuint64* out_rendererId, const PHint32 rendererType, cons
 
 	switch(rendererType)
 	{
-	case PH_BRUTE_FORCE_RENDERER_TYPE:
-		//*out_rendererId = static_cast<std::size_t>(ApiDatabase::addRenderer(std::make_unique<BruteForceRenderer>()));
-		std::cerr << "warning: phCreateRenderer(), Photon does not support BruteForceRenderer anymore" << std::endl;
+	case PH_PREVIEW_RENDERER_TYPE:
+		*out_rendererId = static_cast<std::size_t>(ApiDatabase::addRenderer(std::make_unique<PreviewRenderer>(numThreads)));
 		break;
 
 	case PH_IMPORTANCE_RENDERER_TYPE:

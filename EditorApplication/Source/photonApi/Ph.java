@@ -10,7 +10,7 @@ public final class Ph
 		System.loadLibrary("JNI/JNI");
 	}
 	
-	public static final int PH_BRUTE_FORCE_RENDERER_TYPE          = 1;
+	public static final int PH_PREVIEW_RENDERER_TYPE              = 1;
 	public static final int PH_IMPORTANCE_RENDERER_TYPE           = 2;
 	public static final int PH_MT_IMPORTANCE_RENDERER_TYPE        = 3;
 	public static final int PH_HDR_FRAME_TYPE                     = 50;

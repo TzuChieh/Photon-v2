@@ -1,19 +1,19 @@
 #include "Api/test_scene.h"
 #include "Common/primitive_type.h"
-#include "Model/Model.h"
-#include "Model/Geometry/Geometry.h"
-#include "Model/Material/Material.h"
-#include "Model/Geometry/GSphere.h"
-#include "Model/Material/MatteOpaque.h"
-#include "Model/Material/AbradedOpaque.h"
-#include "Model/Material/AbradedTranslucent.h"
-#include "Model/Material/LightMaterial.h"
-#include "Model/Material/PerfectMirror.h"
+#include "Entity/Entity.h"
+#include "Entity/Geometry/Geometry.h"
+#include "Entity/Material/Material.h"
+#include "Entity/Geometry/GSphere.h"
+#include "Entity/Material/MatteOpaque.h"
+#include "Entity/Material/AbradedOpaque.h"
+#include "Entity/Material/AbradedTranslucent.h"
+#include "Entity/Material/LightMaterial.h"
+#include "Entity/Material/PerfectMirror.h"
 #include "World/World.h"
-#include "Model/Geometry/GRectangle.h"
-#include "Model/ModelLoader.h"
+#include "Entity/Geometry/GRectangle.h"
+#include "Entity/ModelLoader.h"
 #include "Image/CheckerboardTexture.h"
-#include "Model/TextureMapper/SphericalMapper.h"
+#include "Entity/TextureMapper/SphericalMapper.h"
 
 #include <memory>
 
@@ -23,23 +23,23 @@ namespace ph
 void loadTestScene(World* const out_world)
 {
 	ModelLoader modelLoader;
-	Model sponzaModel;
+	Entity sponzaModel;
 	if(modelLoader.load("../SceneResource/sponza/sponza.obj", &sponzaModel))
 	{
 		sponzaModel.scale(0.02f);
 		//sponzaModel.rotate(Vector3f(0, 1, 0), 90);
 	}
-	out_world->addModel(sponzaModel);
+	out_world->addEntity(sponzaModel);
 
 	auto lightGeometry = std::make_shared<GSphere>(4.0f);
 	auto lightMaterial = std::make_shared<LightMaterial>();
 	lightMaterial->setEmittedRadiance(15.0f, 15.5f, 21.5f);
-	Model lightModel(lightGeometry, lightMaterial);
-	lightModel.translate(-20, 20, 0);
-	out_world->addModel(lightModel);
+	Entity lightEntity(lightGeometry, lightMaterial);
+	lightEntity.translate(-20, 20, 0);
+	out_world->addEntity(lightEntity);
 
 
-	Model cupsModel;
+	Entity cupsModel;
 	if(modelLoader.load("../SceneResource/GlassesAndCups_original.obj", &cupsModel))
 	{
 		cupsModel.scale(10.0f);
@@ -60,7 +60,7 @@ void loadTestScene(World* const out_world)
 			model.setMaterial(glassMaterial);
 		}
 	}
-	out_world->addModel(cupsModel);
+	out_world->addEntity(cupsModel);
 
 	//loadCornellBox(out_world, 10.0f);
 
@@ -72,7 +72,7 @@ void loadTestScene(World* const out_world)
 	auto sphereGeometry = std::make_shared<GSphere>(2.5f);
 	Model sphereModel(sphereGeometry, glassMaterial);
 	sphereModel.translate(0, -1, 0);
-	out_world->addModel(sphereModel);*/
+	out_world->addEntity(sphereModel);*/
 
 
 	/*auto groundGeometry = std::make_shared<GRectangle>(100.0f, 100.0f);
@@ -81,7 +81,7 @@ void loadTestScene(World* const out_world)
 	Model groundModel(groundGeometry, groundMaterial);
 	groundModel.rotate(Vector3f(1, 0, 0), -90);
 	groundModel.translate(0, -5, 0);
-	out_world->addModel(groundModel);
+	out_world->addEntity(groundModel);
 
 	auto lightGeometry = std::make_shared<GRectangle>(10.0f, 10.0f);
 	auto lightMaterial = std::make_shared<LightMaterial>();
@@ -90,7 +90,7 @@ void loadTestScene(World* const out_world)
 	lightModel.rotate(Vector3f(1, 0, 0), 90);
 	lightModel.rotate(Vector3f(0, 0, 1), -45);
 	lightModel.translate(10, 10, 0);
-	out_world->addModel(lightModel);*/
+	out_world->addEntity(lightModel);*/
 
 	//ModelLoader modelLoader;
 	////auto loadedModel = modelLoader.load("../SceneResource/cube.obj");
@@ -191,50 +191,50 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 	lightMatl->setEmittedRadiance(3.4f, 3.4f, 3.4f);
 	//lightMatl->setEmittedRadiance(1.8f, 1.8f, 1.8f);
 	//lightMatl->setEmittedRadiance(1.0f, 1.0f, 1.0f);
-	Model lightModel(unitRectangleGeom, lightMatl);
+	Entity lightModel(unitRectangleGeom, lightMatl);
 	lightModel.rotate(Vector3f(1, 0, 0), 90);
 	lightModel.scale(boxSize * 0.3f);
 	lightModel.translate(0, halfBoxSize - halfBoxSize * 0.05f, 0);
-	out_world->addModel(lightModel);
+	out_world->addEntity(lightModel);
 
 	auto leftWallMatl = std::make_shared<MatteOpaque>();
 	leftWallMatl->setAlbedo(0.9f, 0.0f, 0.0f);
-	Model leftWallModel(unitRectangleGeom, leftWallMatl);
+	Entity leftWallModel(unitRectangleGeom, leftWallMatl);
 	leftWallModel.rotate(Vector3f(0, 1, 0), 90);
 	leftWallModel.scale(boxSize);
 	leftWallModel.translate(-halfBoxSize, 0, 0);
-	out_world->addModel(leftWallModel);
+	out_world->addEntity(leftWallModel);
 
 	auto rightWallMatl = std::make_shared<MatteOpaque>();
 	rightWallMatl->setAlbedo(0.0f, 0.0f, 0.9f);
-	Model rightWallModel(unitRectangleGeom, rightWallMatl);
+	Entity rightWallModel(unitRectangleGeom, rightWallMatl);
 	rightWallModel.rotate(Vector3f(0, 1, 0), -90);
 	rightWallModel.scale(boxSize);
 	rightWallModel.translate(halfBoxSize, 0, 0);
-	out_world->addModel(rightWallModel);
+	out_world->addEntity(rightWallModel);
 
 	auto backWallMatl = std::make_shared<MatteOpaque>();
 	backWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
-	Model backWallModel(unitRectangleGeom, backWallMatl);
+	Entity backWallModel(unitRectangleGeom, backWallMatl);
 	backWallModel.scale(boxSize);
 	backWallModel.translate(0, 0, -halfBoxSize);
-	out_world->addModel(backWallModel);
+	out_world->addEntity(backWallModel);
 
 	auto topWallMatl = std::make_shared<MatteOpaque>();
 	backWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
-	Model topWallModel(unitRectangleGeom, topWallMatl);
+	Entity topWallModel(unitRectangleGeom, topWallMatl);
 	topWallModel.rotate(Vector3f(1, 0, 0), 90);
 	topWallModel.scale(boxSize);
 	topWallModel.translate(0, halfBoxSize, 0);
-	out_world->addModel(topWallModel);
+	out_world->addEntity(topWallModel);
 
 	auto groundWallMatl = std::make_shared<MatteOpaque>();
 	groundWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
-	Model groundWallModel(unitRectangleGeom, groundWallMatl);
+	Entity groundWallModel(unitRectangleGeom, groundWallMatl);
 	groundWallModel.rotate(Vector3f(1, 0, 0), -90);
 	groundWallModel.scale(boxSize);
 	groundWallModel.translate(0, -halfBoxSize, 0);
-	out_world->addModel(groundWallModel);
+	out_world->addEntity(groundWallModel);
 }
 
 void load5bScene(World* const out_world)
@@ -294,23 +294,23 @@ void load5bScene(World* const out_world)
 	auto sphere1Geometry = std::make_shared<GSphere>(0.25f);
 	auto sphere1Matl = std::make_shared<MatteOpaque>();
 	sphere1Matl->setAlbedo(0.3f, 0.3f, 1.0f);
-	Model sphere1Model(sphere1Geometry, sphere1Matl);
+	Entity sphere1Model(sphere1Geometry, sphere1Matl);
 	sphere1Model.translate(-boxHalfSize + 0.25f, -boxHalfSize + 0.25f, -10.0f);
-	out_world->addModel(sphere1Model);
+	out_world->addEntity(sphere1Model);
 
 	auto sphere2Geometry = std::make_shared<GSphere>(0.5f);
 	auto sphere2Matl = std::make_shared<MatteOpaque>();
 	sphere2Matl->setAlbedo(0.3f, 1.0f, 0.3f);
-	Model sphere2Model(sphere2Geometry, sphere2Matl);
+	Entity sphere2Model(sphere2Geometry, sphere2Matl);
 	sphere2Model.translate(-boxHalfSize + 1.5f, -boxHalfSize + 0.5f, -10.0f);
-	out_world->addModel(sphere2Model);
+	out_world->addEntity(sphere2Model);
 
 	auto sphere3Geometry = std::make_shared<GSphere>(1.0f);
 	auto sphere3Matl = std::make_shared<MatteOpaque>();
 	sphere3Matl->setAlbedo(1.0f, 0.3f, 0.3f);
-	Model sphere3Model(sphere3Geometry, sphere3Matl);
+	Entity sphere3Model(sphere3Geometry, sphere3Matl);
 	sphere3Model.translate(-boxHalfSize + 4.0f, -boxHalfSize + 1.0f, -10.0f);
-	out_world->addModel(sphere3Model);
+	out_world->addEntity(sphere3Model);
 
 	auto sphere4Geometry = std::make_shared<GSphere>(3.0f);
 	//auto sphere4Matl = std::make_shared<MatteOpaque>();
@@ -318,16 +318,16 @@ void load5bScene(World* const out_world)
 	auto sphere4Matl = std::make_shared<AbradedOpaque>();
 	sphere4Matl->setRoughness(0.1f);
 	//sphere4Matl->setF0(Vector3f(1.0f, 1.0f, 1.0f));
-	Model sphere4Model(sphere4Geometry, sphere4Matl);
+	Entity sphere4Model(sphere4Geometry, sphere4Matl);
 	sphere4Model.translate(boxHalfSize - 3.0f, -boxHalfSize + 3.0f, -boxHalfSize - 10.0f + 3.0f);
-	out_world->addModel(sphere4Model);
+	out_world->addEntity(sphere4Model);
 
 	auto sphere5Geometry = std::make_shared<GSphere>(0.8f);
 	auto sphere5Matl = std::make_shared<MatteOpaque>();
 	sphere5Matl->setAlbedo(1.0f, 1.0f, 1.0f);
-	Model sphere5Model(sphere5Geometry, sphere5Matl);
+	Entity sphere5Model(sphere5Geometry, sphere5Matl);
 	sphere5Model.translate(boxHalfSize - 2.0f, -boxHalfSize + 0.8f, -8.5f);
-	out_world->addModel(sphere5Model);
+	out_world->addEntity(sphere5Model);
 
 	/*auto lightGeometry = std::make_shared<GSphere>(0.2f);
 	auto lightMatl = std::make_shared<LightMaterial>();

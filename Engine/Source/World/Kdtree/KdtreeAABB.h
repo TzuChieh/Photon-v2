@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Model/BoundingVolume/AABB.h"
+#include "Entity/BoundingVolume/AABB.h"
 #include "World/Kdtree/kdtree_core.h"
 #include "Common/primitive_type.h"
 

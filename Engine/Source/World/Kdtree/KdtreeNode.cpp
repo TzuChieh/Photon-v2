@@ -1,7 +1,7 @@
 #include "World/Kdtree/KdtreeNode.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
-#include "Model/Geometry/Triangle.h"
+#include "Entity/Geometry/Triangle.h"
 
 #include <iostream>
 #include <algorithm>

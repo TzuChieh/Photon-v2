@@ -3,13 +3,13 @@
 #include "World/World.h"
 #include "Math/Vector3f.h"
 #include "Core/Intersection.h"
-#include "Model/Model.h"
-#include "Model/Material/Material.h"
-#include "Model/Material/Integrand/SurfaceIntegrand.h"
+#include "Entity/Entity.h"
+#include "Entity/Material/Material.h"
+#include "Entity/Material/Integrand/SurfaceIntegrand.h"
 #include "Math/Math.h"
 #include "Math/Color.h"
 #include "Math/random_number.h"
-#include "Model/Geometry/Triangle.h"
+#include "Entity/Geometry/Triangle.h"
 
 #include <iostream>
 
@@ -39,8 +39,8 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const Intersector&
 
 	while(numBounces <= MAX_RAY_BOUNCES && intersector.isIntersecting(tracingRay, &intersection))
 	{
-		const Model* hitModel = intersection.getHitTriangle()->getParentModel();
-		const Material* hitMaterial = hitModel->getMaterial();
+		const Entity* hitEntity = intersection.getHitTriangle()->getParentEntity();
+		const Material* hitMaterial = hitEntity->getMaterial();
 
 		const Vector3f N(intersection.getHitNormal());
 		const Vector3f V(tracingRay.getDirection().mul(-1.0f));
