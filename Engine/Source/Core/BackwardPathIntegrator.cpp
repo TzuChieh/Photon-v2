@@ -33,7 +33,9 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const Intersector&
 	Vector3f accuLiWeight(1, 1, 1);
 	Vector3f rayOriginDelta;
 	Intersection intersection;
-	Ray tracingRay(ray);
+
+	// backward tracing to light
+	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f));
 
 	const Triangle* lastTriangle = nullptr;
 

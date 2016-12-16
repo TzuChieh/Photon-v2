@@ -71,7 +71,7 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 
 		std::vector<Sample> samples;
 
-		Ray primaryRay;
+		Ray primarySensingRay;
 		Vector3f radiance;
 
 		const uint32 totalSpp = subSampleGenerator->getSppBudget();
@@ -92,9 +92,9 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 			{
 				sample = samples.back();
 				samples.pop_back();
-				camera.genSampleRay(sample, &primaryRay, aspectRatio);
+				camera.genSensingRay(sample, &primarySensingRay, aspectRatio);
 
-				integrator.radianceAlongRay(primaryRay, intersector, &radiance);
+				integrator.radianceAlongRay(primarySensingRay, intersector, &radiance);
 
 				uint32 x = static_cast<uint32>((sample.m_cameraX + 1.0f) / 2.0f * widthPx);
 				uint32 y = static_cast<uint32>((sample.m_cameraY + 1.0f) / 2.0f * heightPx);

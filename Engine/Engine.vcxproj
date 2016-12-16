@@ -176,12 +176,12 @@
     <ClCompile Include="Source\Core\SampleGenerator\PixelFixedSampleGenerator.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator\SampleGenerator.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator\PixelJitterSampleGenerator.cpp" />
+    <ClCompile Include="Source\Emitter\Emitter.cpp" />
     <ClCompile Include="Source\Image\CheckerboardTexture.cpp" />
     <ClCompile Include="Source\Image\ConstantTexture.cpp" />
     <ClCompile Include="Source\Image\TextureLoader.cpp" />
     <ClCompile Include="Source\Image\PixelTexture.cpp" />
     <ClCompile Include="Source\Image\Texture.cpp" />
-    <ClCompile Include="Source\Light\Light.cpp" />
     <ClCompile Include="Source\Entity\Material\Integrand\random_sample.cpp" />
     <ClCompile Include="Source\Math\Transform.cpp" />
     <ClCompile Include="Source\Math\TransformInfo.cpp" />
@@ -245,6 +245,7 @@
     <ClInclude Include="Source\Core\MtImportanceRenderer.h" />
     <ClInclude Include="Source\Core\Renderer\PreviewRenderer.h" />
     <ClInclude Include="Source\Core\SampleGenerator\PixelFixedSampleGenerator.h" />
+    <ClInclude Include="Source\Emitter\Emitter.h" />
     <ClInclude Include="Source\Image\CheckerboardTexture.h" />
     <ClInclude Include="Source\Image\ConstantTexture.h" />
     <ClInclude Include="Source\Image\Film\Film.h" />
@@ -257,7 +258,6 @@
     <ClInclude Include="Source\Image\TextureLoader.h" />
     <ClInclude Include="Source\Image\PixelTexture.h" />
     <ClInclude Include="Source\Image\Texture.h" />
-    <ClInclude Include="Source\Light\Light.h" />
     <ClInclude Include="Source\Math\Color.h" />
     <ClInclude Include="Source\Math\Math.h" />
     <ClInclude Include="Source\Math\Normal3f.h" />
@@ -289,6 +289,7 @@
     <ClInclude Include="Source\World\Kdtree\KdtreeIntersector.h" />
     <ClInclude Include="Source\World\Kdtree\KdtreeNode.h" />
     <ClInclude Include="Source\World\Kdtree\kdtree_core.h" />
+    <ClInclude Include="Source\World\TManagedResource.h" />
     <ClInclude Include="Source\World\World.h" />
     <ClInclude Include="Source\Image\Frame.h" />
     <ClInclude Include="Source\Image\HDRFrame.h" />

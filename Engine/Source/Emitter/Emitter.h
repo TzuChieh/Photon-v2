@@ -3,10 +3,12 @@
 namespace ph
 {
 
-class Light
+class Emitter
 {
 public:
-	virtual ~Light() = 0;
+	virtual ~Emitter() = 0;
+
+	//virtual void 
 };
 
 }// end namespace ph

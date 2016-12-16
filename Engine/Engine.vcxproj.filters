@@ -132,9 +132,6 @@
     <ClCompile Include="Source\Core\SampleGenerator\PixelFixedSampleGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Light\Light.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Entity\BoundingVolume\AABB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -223,6 +220,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Entity\Entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Emitter\Emitter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -371,9 +371,6 @@
     <ClInclude Include="Source\Core\SampleGenerator\PixelFixedSampleGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Light\Light.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Entity\BoundingVolume\AABB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -471,6 +468,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Entity\Entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\World\TManagedResource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Emitter\Emitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

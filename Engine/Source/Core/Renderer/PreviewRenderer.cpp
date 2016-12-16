@@ -94,7 +94,7 @@ void PreviewRenderer::render(const World& world, const Camera& camera) const
 			{
 				sample = samples.back();
 				samples.pop_back();
-				camera.genSampleRay(sample, &primaryRay, aspectRatio);
+				camera.genSensingRay(sample, &primaryRay, aspectRatio);
 
 				integrator.radianceAlongRay(primaryRay, intersector, &radiance);
 

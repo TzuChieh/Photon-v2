@@ -7,14 +7,14 @@ namespace ph
 
 DefaultCamera::DefaultCamera() :
 	Camera(),
-	m_fov(70.0f / 180.0f * 3.1415927f)
+	m_fov(50.0f / 180.0f * 3.1415927f)
 {
 
 }
 
 DefaultCamera::~DefaultCamera() = default;
 
-void DefaultCamera::genSampleRay(const Sample& sample, Ray* const out_ray, const float32 aspectRatio) const
+void DefaultCamera::genSensingRay(const Sample& sample, Ray* const out_ray, const float32 aspectRatio) const
 {
 	// Note: this will fail when the camera is facing directly on y-axis
 
@@ -30,7 +30,7 @@ void DefaultCamera::genSampleRay(const Sample& sample, Ray* const out_ray, const
 	rightDir.mulLocal(pixelPosX);
 	upDir.mulLocal(pixelPosY);
 
-	out_ray->setDirection(getDirection().add(rightDir.addLocal(upDir)).normalizeLocal());
+	out_ray->setDirection(getDirection().add(rightDir.addLocal(upDir)).mulLocal(-1.0f).normalizeLocal());
 	out_ray->setOrigin(getPosition());
 }
 

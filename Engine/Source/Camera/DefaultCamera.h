@@ -12,7 +12,7 @@ public:
 	DefaultCamera();
 	virtual ~DefaultCamera() override;
 
-	virtual void genSampleRay(const Sample& sample, Ray* const out_ray, const float32 aspectRatio) const override;
+	virtual void genSensingRay(const Sample& sample, Ray* const out_ray, const float32 aspectRatio) const override;
 
 private:
 	float32 m_fov;

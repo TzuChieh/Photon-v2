@@ -81,6 +81,7 @@ public:
 	}
 
 private:
+	// resources
 	std::shared_ptr<Geometry>      m_geometry;
 	std::shared_ptr<Material>      m_material;
 	std::shared_ptr<TextureMapper> m_textureMapper;
