@@ -4,7 +4,7 @@
 #include "Entity/Geometry/GSphere.h"
 #include "Entity/Geometry/GTriangle.h"
 #include "Camera/DefaultCamera.h"
-#include "Core/MtImportanceRenderer.h"
+#include "Core/Renderer/MtImportanceRenderer.h"
 #include "Math/random_number.h"
 #include "Entity/Material/MatteOpaque.h"
 #include "Entity/Material/LightMaterial.h"

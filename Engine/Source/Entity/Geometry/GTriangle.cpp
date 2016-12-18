@@ -1,5 +1,5 @@
 #include "Entity/Geometry/GTriangle.h"
-#include "Entity/Geometry/Triangle.h"
+#include "Entity/Primitive/PTriangle.h"
 #include "Entity/Entity.h"
 #include "Entity/TextureMapper/TextureMapper.h"
 
@@ -21,11 +21,11 @@ GTriangle::GTriangle(const Vector3f& vA, const Vector3f& vB, const Vector3f& vC)
 
 GTriangle::~GTriangle() = default;
 
-void GTriangle::discretize(std::vector<Triangle>* const out_triangles, const Entity* const parentEntity) const
+void GTriangle::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const Entity* const parentEntity) const
 {
 	const auto* const textureMapper = parentEntity->getTextureMapper();
 
-	Triangle triangle(parentEntity, m_vA, m_vB, m_vC);
+	PTriangle triangle(parentEntity, m_vA, m_vB, m_vC);
 
 	triangle.setNa(m_nA);
 	triangle.setNb(m_nB);
@@ -42,7 +42,7 @@ void GTriangle::discretize(std::vector<Triangle>* const out_triangles, const Ent
 	textureMapper->map(m_vC, m_uvwC, &mappedUVW);
 	triangle.setUVWc(mappedUVW);
 
-	out_triangles->push_back(triangle);
+	out_primitives->push_back(std::make_unique<PTriangle>(triangle));
 }
 
 }// end namespace ph

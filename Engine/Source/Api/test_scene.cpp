@@ -70,9 +70,9 @@ void loadTestScene(World* const out_world)
 	glassMaterial->setIOR(1.5f);
 
 	auto sphereGeometry = std::make_shared<GSphere>(2.5f);
-	Model sphereModel(sphereGeometry, glassMaterial);
-	sphereModel.translate(0, -1, 0);
-	out_world->addEntity(sphereModel);*/
+	Entity sphereEntity(sphereGeometry, glassMaterial);
+	sphereEntity.translate(0, -1, 0);
+	out_world->addEntity(sphereEntity);*/
 
 
 	/*auto groundGeometry = std::make_shared<GRectangle>(100.0f, 100.0f);
@@ -119,9 +119,14 @@ void loadTestScene(World* const out_world)
 		loadedModelMaterial->setAlbedo(std::make_shared<CheckerboardTexture>(16.0f, 8.0f, Vector3f(0, 0, 0), Vector3f(1, 1, 1)));
 		loadedModel.setMaterial(loadedModelMaterial);*/
 
-		auto dragonMaterial = std::make_shared<AbradedOpaque>();
-		dragonMaterial->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));// gold
-		dragonMaterial->setRoughness(0.3f);
+		auto goldMaterial = std::make_shared<AbradedOpaque>();
+		goldMaterial->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));
+		goldMaterial->setRoughness(0.3f);
+
+		auto glassMaterial = std::make_shared<AbradedTranslucent>();
+		glassMaterial->setF0(0.04f, 0.04f, 0.04f);
+		glassMaterial->setIOR(1.5f);
+		glassMaterial->setRoughness(0.0f);
 
 		/*auto dragonMaterial = std::make_shared<AbradedTranslucent>();
 		dragonMaterial->setF0(0.04f, 0.04f, 0.04f);
@@ -130,10 +135,10 @@ void loadTestScene(World* const out_world)
 
 		//auto dragonMaterial = std::make_shared<PerfectMirror>();
 
-		loadedModel.setMaterial(dragonMaterial);
+		loadedModel.setMaterial(glassMaterial);
 		for(auto& model : loadedModel.getChildren())
 		{
-			model.setMaterial(dragonMaterial);
+			model.setMaterial(glassMaterial);
 		}
 
 		out_world->addEntity(loadedModel);

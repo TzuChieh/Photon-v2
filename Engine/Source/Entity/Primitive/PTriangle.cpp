@@ -1,4 +1,4 @@
-#include "Entity/Geometry/Triangle.h"
+#include "Entity/Primitive/PTriangle.h"
 #include "Entity/Entity.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
@@ -11,8 +11,9 @@
 namespace ph
 {
 
-Triangle::Triangle(const Entity* const parentEntity, const Vector3f& vA, const Vector3f& vB, const Vector3f& vC) :
-	m_parentEntity(parentEntity), m_vA(vA), m_vB(vB), m_vC(vC), 
+PTriangle::PTriangle(const Entity* const parentEntity, const Vector3f& vA, const Vector3f& vB, const Vector3f& vC) :
+	Primitive(parentEntity), 
+	m_vA(vA), m_vB(vB), m_vC(vC), 
 	m_uvwA(0, 0, 0), m_uvwB(0, 0, 0), m_uvwC(0, 0, 0)
 {
 	m_eAB = m_vB.sub(m_vA);
@@ -25,7 +26,9 @@ Triangle::Triangle(const Entity* const parentEntity, const Vector3f& vA, const V
 	m_nC = m_faceNormal;
 }
 
-bool Triangle::isIntersecting(const Ray& ray, Intersection* const out_intersection) const
+PTriangle::~PTriangle() = default;
+
+bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersection) const
 {
 	Vector3f localOrigin;
 	Vector3f localDirection;
@@ -111,15 +114,19 @@ bool Triangle::isIntersecting(const Ray& ray, Intersection* const out_intersecti
 	m_parentEntity->getLocalToWorldTransform()->transformVector(localHitNormal, &hitNormal);
 	//m_parentModel->getModelToWorldTransform()->transformVector(m_faceNormal, &hitNormal);
 
+	Vector3f hitGeoNormal;
+	m_parentEntity->getLocalToWorldTransform()->transformVector(m_faceNormal, &hitGeoNormal);
+
 	out_intersection->setHitPosition(hitPosition);
-	out_intersection->setHitNormal(hitNormal.normalizeLocal());
+	out_intersection->setHitSmoothNormal(hitNormal.normalizeLocal());
+	out_intersection->setHitGeoNormal(hitGeoNormal.normalizeLocal());
 	out_intersection->setHitUVW(m_uvwA.mul(1.0f - baryB - baryC).addLocal(m_uvwB.mul(baryB)).addLocal(m_uvwC.mul(baryC)));
-	out_intersection->setHitTriangle(this);
+	out_intersection->setHitPrimitive(this);
 
 	return true;
 }
 
-void Triangle::calcAABB(AABB* const out_aabb) const
+void PTriangle::calcAABB(AABB* const out_aabb) const
 {
 	Vector3f vA;
 	Vector3f vB;
@@ -129,8 +136,8 @@ void Triangle::calcAABB(AABB* const out_aabb) const
 	m_parentEntity->getLocalToWorldTransform()->transformPoint(m_vC, &vC);
 
 	float32 minX = vA.x, maxX = vA.x,
-	        minY = vA.y, maxY = vA.y,
-	        minZ = vA.z, maxZ = vA.z;
+		minY = vA.y, maxY = vA.y,
+		minZ = vA.z, maxZ = vA.z;
 
 	if(vB.x > maxX)      maxX = vB.x;
 	else if(vB.x < minX) minX = vB.x;
@@ -150,7 +157,7 @@ void Triangle::calcAABB(AABB* const out_aabb) const
 	out_aabb->setMaxVertex(Vector3f(maxX + TRIANGLE_EPSILON, maxY + TRIANGLE_EPSILON, maxZ + TRIANGLE_EPSILON));
 }
 
-bool Triangle::isIntersecting(const AABB& aabb) const
+bool PTriangle::isIntersecting(const AABB& aabb) const
 {
 	// Reference: Tomas Akenine-Moeller's "Fast 3D Triangle-Box Overlap Testing", which
 	// is based on SAT but faster.
@@ -174,7 +181,7 @@ bool Triangle::isIntersecting(const AABB& aabb) const
 	Vector3f projection;
 	Vector3f sortedProjection;// (min, mid, max)
 
-	// test AABB face normals (x-, y- and z-axes)
+								// test AABB face normals (x-, y- and z-axes)
 	projection.set(tvA.x, tvB.x, tvC.x);
 	projection.sort(&sortedProjection);
 	if(sortedProjection.z < -aabbHalfExtents.x || sortedProjection.x > aabbHalfExtents.x)
@@ -208,9 +215,9 @@ bool Triangle::isIntersecting(const AABB& aabb) const
 	float32 trigE;// projected coordinate of a triangle's edge
 	float32 trigV;// the remaining vertex's projected coordinate
 
-	// TODO: precompute triangle edges
+					// TODO: precompute triangle edges
 
-	// (1, 0, 0) cross (edge AB)
+					// (1, 0, 0) cross (edge AB)
 	projection.set(0.0f, tvA.z - tvB.z, tvB.y - tvA.y);
 	aabbR = aabbHalfExtents.y * abs(projection.y) + aabbHalfExtents.z * abs(projection.z);
 	trigE = projection.y*tvA.y + projection.z*tvA.z;

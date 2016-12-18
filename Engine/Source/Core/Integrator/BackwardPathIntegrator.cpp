@@ -1,4 +1,4 @@
-#include "BackwardPathIntegrator.h"
+#include "Core/Integrator/BackwardPathIntegrator.h"
 #include "Core/Ray.h"
 #include "World/World.h"
 #include "Math/Vector3f.h"
@@ -9,7 +9,7 @@
 #include "Math/Math.h"
 #include "Math/Color.h"
 #include "Math/random_number.h"
-#include "Entity/Geometry/Triangle.h"
+#include "Entity/Primitive/Primitive.h"
 
 #include <iostream>
 
@@ -27,7 +27,7 @@ void BackwardPathIntegrator::update(const Intersector& intersector)
 
 void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const Intersector& intersector, Vector3f* const out_radiance) const
 {
-	const float32 rayDeltaDist = 0.001f;
+	const float32 rayDeltaDist = 0.0001f;
 	uint32 numBounces = 0;
 	Vector3f accuRadiance(0, 0, 0);
 	Vector3f accuLiWeight(1, 1, 1);
@@ -37,15 +37,15 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const Intersector&
 	// backward tracing to light
 	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f));
 
-	const Triangle* lastTriangle = nullptr;
+	const Primitive* lastPrimitive = nullptr;
 
 	while(numBounces <= MAX_RAY_BOUNCES && intersector.isIntersecting(tracingRay, &intersection))
 	{
-		const Entity* hitEntity = intersection.getHitTriangle()->getParentEntity();
+		const Entity* hitEntity = intersection.getHitPrimitive()->getParentEntity();
 		const Material* hitMaterial = hitEntity->getMaterial();
 
-		const Vector3f N(intersection.getHitNormal());
-		const Vector3f V(tracingRay.getDirection().mul(-1.0f));
+		//const Vector3f N(intersection.getHitSmoothNormal());
+		//const Vector3f V(tracingRay.getDirection().mul(-1.0f));
 
 		SurfaceSample surfaceSample;
 		hitMaterial->getSurfaceIntegrand()->evaluateImportanceSample(intersection, tracingRay, &surfaceSample);
@@ -95,21 +95,24 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const Intersector&
 
 			Vector3f liWeight = surfaceSample.m_LiWeight;
 
-			//const float32 rrSurviveRate = liWeight.clamp(0.0f, 1.0f).max();
-			const float32 rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001f, 1.0f);
-			//const float32 rrSurviveRate = Math::clamp(Color::linearRgbLuminance(liWeight), 0.0001f, 1.0f);
-			const float32 rrSpin = genRandomFloat32_0_1_uniform();
+			//if(numBounces >= 3)
+			{
+				//const float32 rrSurviveRate = liWeight.clamp(0.0f, 1.0f).max();
+				const float32 rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001f, 1.0f);
+				//const float32 rrSurviveRate = Math::clamp(Color::linearRgbLuminance(liWeight), 0.0001f, 1.0f);
+				const float32 rrSpin = genRandomFloat32_0_1_uniform();
 
-			// russian roulette >> survive
-			if(rrSurviveRate > rrSpin)
-			{
-				const float32 rrScale = 1.0f / rrSurviveRate;
-				liWeight.mulLocal(rrScale);
-			}
-			// russian roulette >> dead
-			else
-			{
-				keepSampling = false;
+				// russian roulette >> survive
+				if(rrSurviveRate > rrSpin)
+				{
+					const float32 rrScale = 1.0f / rrSurviveRate;
+					liWeight.mulLocal(rrScale);
+				}
+				// russian roulette >> dead
+				else
+				{
+					keepSampling = false;
+				}
 			}
 
 			accuLiWeight.mulLocal(liWeight);

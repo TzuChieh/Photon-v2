@@ -1,6 +1,6 @@
 #include "ph_core.h"
 #include "Api/ApiDatabase.h"
-#include "Core/MtImportanceRenderer.h"
+#include "Core/Renderer/MtImportanceRenderer.h"
 #include "Core/Renderer/PreviewRenderer.h"
 #include "World/World.h"
 #include "Camera/Camera.h"

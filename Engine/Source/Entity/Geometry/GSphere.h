@@ -16,7 +16,7 @@ public:
 	GSphere(const GSphere& other);
 	virtual ~GSphere() override;
 
-	virtual void discretize(std::vector<Triangle>* const out_triangles, const Entity* const parentEntity) const override;
+	virtual void discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const Entity* const parentEntity) const override;
 
 	GSphere& operator = (const GSphere& rhs);
 

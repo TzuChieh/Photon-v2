@@ -1,5 +1,5 @@
 #include "Entity/Geometry/GTriangleMesh.h"
-#include "Entity/Geometry/Triangle.h"
+#include "Entity/Geometry/GTriangle.h"
 
 namespace ph
 {
@@ -9,11 +9,11 @@ GTriangleMesh::~GTriangleMesh()
 
 }
 
-void GTriangleMesh::discretize(std::vector<Triangle>* const out_triangles, const Entity* const parentEntity) const
+void GTriangleMesh::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const Entity* const parentEntity) const
 {
 	for(const auto& gTriangle : m_gTriangles)
 	{
-		gTriangle.discretize(out_triangles, parentEntity);
+		gTriangle.discretize(out_primitives, parentEntity);
 	}
 }
 

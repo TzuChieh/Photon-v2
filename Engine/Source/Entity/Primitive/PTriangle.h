@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/Vector3f.h"
+#include "Entity/Primitive/Primitive.h"
 
 namespace ph
 {
@@ -10,20 +11,15 @@ class Ray;
 class Intersection;
 class AABB;
 
-class Triangle final
+class PTriangle final : public Primitive
 {
 public:
-	Triangle(const Entity* const parentEntity, const Vector3f& vA, const Vector3f& vB, const Vector3f& vC);
-	~Triangle() = default;
+	PTriangle(const Entity* const parentEntity, const Vector3f& vA, const Vector3f& vB, const Vector3f& vC);
+	virtual ~PTriangle() override;
 
-	bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const;
-	bool isIntersecting(const AABB& aabb) const;
-	void calcAABB(AABB* const out_aabb) const;
-
-	inline const Entity* getParentEntity() const
-	{
-		return m_parentEntity;
-	}
+	virtual bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const override;
+	virtual bool isIntersecting(const AABB& aabb) const override;
+	virtual void calcAABB(AABB* const out_aabb) const override;
 
 	inline void setNa(const Vector3f& nA)
 	{
@@ -71,8 +67,6 @@ public:
 	}
 
 private:
-	const Entity* m_parentEntity;
-
 	Vector3f m_vA;
 	Vector3f m_vB;
 	Vector3f m_vC;

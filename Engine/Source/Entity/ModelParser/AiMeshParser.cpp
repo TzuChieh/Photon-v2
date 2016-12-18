@@ -48,6 +48,9 @@ std::shared_ptr<Geometry> AiMeshParser::parse(const aiMesh* const mesh)
 				Vector3f n0(static_cast<float32>(mesh->mNormals[i0].x), static_cast<float32>(mesh->mNormals[i0].y), static_cast<float32>(mesh->mNormals[i0].z));
 				Vector3f n1(static_cast<float32>(mesh->mNormals[i1].x), static_cast<float32>(mesh->mNormals[i1].y), static_cast<float32>(mesh->mNormals[i1].z));
 				Vector3f n2(static_cast<float32>(mesh->mNormals[i2].x), static_cast<float32>(mesh->mNormals[i2].y), static_cast<float32>(mesh->mNormals[i2].z));
+				n0.normalizeLocal();
+				n1.normalizeLocal();
+				n2.normalizeLocal();
 				triangle.setNa(n0);
 				triangle.setNb(n1);
 				triangle.setNc(n2);

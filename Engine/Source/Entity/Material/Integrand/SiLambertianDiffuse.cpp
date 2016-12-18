@@ -36,7 +36,7 @@ void SiLambertianDiffuse::evaluateImportanceSample(const Intersection& intersect
 	Vector3f& L = out_sample->m_direction;
 	genUnitHemisphereCosineThetaWeightedSample(genRandomFloat32_0_1_uniform(), genRandomFloat32_0_1_uniform(), &L);
 	Vector3f u;
-	Vector3f v(intersection.getHitNormal());
+	Vector3f v(intersection.getHitSmoothNormal());
 	Vector3f w;
 	v.calcOrthBasisAsYaxis(&u, &w);
 	L = u.mulLocal(L.x).addLocal(v.mulLocal(L.y)).addLocal(w.mulLocal(L.z));

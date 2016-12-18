@@ -9,6 +9,7 @@
 #include "Entity/Material/Integrand/Microfacet.h"
 
 #include <memory>
+#include <iostream>
 
 namespace ph
 {
@@ -39,7 +40,7 @@ void SiTranslucentMicrofacet::evaluateImportanceSample(const Intersection& inter
 	m_F0->sample(intersection.getHitUVW(), &sampledF0);
 
 	const Vector3f V = ray.getDirection().mul(-1.0f);
-	const Vector3f& N = intersection.getHitNormal();
+	const Vector3f& N = intersection.getHitSmoothNormal();
 	Vector3f H;
 
 	genUnitHemisphereGgxTrowbridgeReitzNdfSample(genRandomFloat32_0_1_uniform(), genRandomFloat32_0_1_uniform(), roughness, &H);
@@ -53,6 +54,17 @@ void SiTranslucentMicrofacet::evaluateImportanceSample(const Intersection& inter
 	const float32 NoV = N.dot(V);
 	const float32 HoV = H.dot(V);
 	const float32 NoH = N.dot(H);
+
+	// sidedness agreement between real geometry and shading (phong-interpolated) normal
+	if(NoV * intersection.getHitGeoNormal().dot(V) <= 0.0f)
+	{
+		out_sample->m_LiWeight.set(0, 0, 0);
+		out_sample->m_direction.set(ray.getDirection().reflect(H).normalizeLocal());
+		out_sample->m_type = ESurfaceSampleType::REFLECTION;
+		out_sample->m_emittedRadiance.set(0, 0, 0);
+		//std::cerr << "detected!";
+		return;
+	}
 
 	Vector3f F;
 	Microfacet::fresnelSchlickApproximated(abs(HoV), sampledF0, &F);
@@ -86,7 +98,7 @@ void SiTranslucentMicrofacet::evaluateImportanceSample(const Intersection& inter
 		const float32 sqrValue = 1.0f - iorRatio*iorRatio*(1.0f - HoV * HoV);
 
 		// TIR (total internal reflection)
-		if(sqrValue < 0.0f)
+		if(sqrValue <= 0.0f)
 		{
 			// calculate reflected L
 			out_sample->m_direction = V.mul(-1.0f).reflectLocal(H).normalizeLocal();

@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Core/Integrator.h"
+#include "Core/Integrator/Integrator.h"
 
 namespace ph
 {
 
-class BackwardPathIntegrator final : public Integrator
+class BackwardLightIntegrator final : public Integrator
 {
 public:
-	virtual ~BackwardPathIntegrator() override;
+	virtual ~BackwardLightIntegrator() override;
 
 	virtual void update(const Intersector& intersector) override;
 	virtual void radianceAlongRay(const Ray& ray, const Intersector& intersector, Vector3f* const out_radiance) const override;

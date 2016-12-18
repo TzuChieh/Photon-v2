@@ -5,7 +5,7 @@
 namespace ph
 {
 
-class Triangle;
+class Primitive;
 
 class Intersection final
 {
@@ -15,9 +15,10 @@ public:
 	inline void clear()
 	{
 		m_hitPosition.set(0, 0, 0);
-		m_hitNormal.set(0, 0, -1);
+		m_hitSmoothNormal.set(0, 0, -1);
+		m_hitGeoNormal.set(0, 0, -1);
 		m_hitUVW.set(0, 0, 0);
-		m_hitTriangle = nullptr;
+		m_hitPrimitive = nullptr;
 	}
 
 	inline const Vector3f& getHitPosition() const
@@ -25,9 +26,14 @@ public:
 		return m_hitPosition;
 	}
 
-	inline const Vector3f& getHitNormal() const
+	inline const Vector3f& getHitSmoothNormal() const
 	{
-		return m_hitNormal;
+		return m_hitSmoothNormal;
+	}
+
+	inline const Vector3f& getHitGeoNormal() const
+	{
+		return m_hitGeoNormal;
 	}
 
 	inline const Vector3f& getHitUVW() const
@@ -35,9 +41,9 @@ public:
 		return m_hitUVW;
 	}
 
-	inline const Triangle* getHitTriangle() const
+	inline const Primitive* getHitPrimitive() const
 	{
-		return m_hitTriangle;
+		return m_hitPrimitive;
 	}
 
 	inline void setHitPosition(const Vector3f& hitPosition)
@@ -45,9 +51,14 @@ public:
 		m_hitPosition.set(hitPosition);
 	}
 
-	inline void setHitNormal(const Vector3f& hitNormal)
+	inline void setHitSmoothNormal(const Vector3f& hitSmoothNormal)
 	{
-		m_hitNormal.set(hitNormal);
+		m_hitSmoothNormal.set(hitSmoothNormal);
+	}
+
+	inline void setHitGeoNormal(const Vector3f& hitGeoNormal)
+	{
+		m_hitGeoNormal.set(hitGeoNormal);
 	}
 
 	inline void setHitUVW(const Vector3f& hitUVW)
@@ -55,16 +66,17 @@ public:
 		m_hitUVW.set(hitUVW);
 	}
 
-	inline void setHitTriangle(const Triangle* const hitTriangle)
+	inline void setHitPrimitive(const Primitive* const hitPrimitive)
 	{
-		m_hitTriangle = hitTriangle;
+		m_hitPrimitive = hitPrimitive;
 	}
 
 private:
 	Vector3f m_hitPosition;
-	Vector3f m_hitNormal;
+	Vector3f m_hitSmoothNormal;
+	Vector3f m_hitGeoNormal;
 	Vector3f m_hitUVW;
-	const Triangle* m_hitTriangle;
+	const Primitive* m_hitPrimitive;
 };
 
 }// end namespace ph

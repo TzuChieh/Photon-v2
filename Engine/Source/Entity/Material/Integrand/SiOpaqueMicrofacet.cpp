@@ -37,7 +37,7 @@ void SiOpaqueMicrofacet::evaluateImportanceSample(const Intersection& intersecti
 	Vector3f sampledF0;
 	m_F0->sample(intersection.getHitUVW(), &sampledF0);
 
-	const Vector3f& N = intersection.getHitNormal();
+	const Vector3f& N = intersection.getHitSmoothNormal();
 	Vector3f H;
 
 	genUnitHemisphereGgxTrowbridgeReitzNdfSample(genRandomFloat32_0_1_uniform(), genRandomFloat32_0_1_uniform(), roughness, &H);

@@ -1,5 +1,5 @@
 #include "Entity/Geometry/GRectangle.h"
-#include "Entity/Geometry/Triangle.h"
+#include "Entity/Primitive/PTriangle.h"
 #include "Math/Vector3f.h"
 
 #include <iostream>
@@ -15,7 +15,7 @@ GRectangle::GRectangle(const float32 width, const float32 height) :
 
 GRectangle::~GRectangle() = default;
 
-void GRectangle::discretize(std::vector<Triangle>* const out_triangles, const Entity* const parentEntity) const
+void GRectangle::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const Entity* const parentEntity) const
 {
 	if(m_width <= 0.0f || m_height <= 0.0f)
 	{
@@ -31,8 +31,8 @@ void GRectangle::discretize(std::vector<Triangle>* const out_triangles, const En
 	const Vector3f vD( halfWidth,  halfHeight, 0.0f);
 
 	// 2 triangles for a rectangle (both CCW)
-	out_triangles->push_back(Triangle(parentEntity, vA, vB, vD));
-	out_triangles->push_back(Triangle(parentEntity, vB, vC, vD));
+	out_primitives->push_back(std::make_unique<PTriangle>(parentEntity, vA, vB, vD));
+	out_primitives->push_back(std::make_unique<PTriangle>(parentEntity, vB, vC, vD));
 }
 
 }// end namespace ph

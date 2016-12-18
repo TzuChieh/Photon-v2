@@ -1,7 +1,7 @@
 #include "Entity/Geometry/GSphere.h"
+#include "Entity/Primitive/PTriangle.h"
 #include "Math/Vector3f.h"
 #include "Entity/Entity.h"
-#include "Entity/Geometry/Triangle.h"
 #include "Entity/TextureMapper/TextureMapper.h"
 
 #include <cmath>
@@ -39,7 +39,7 @@ GSphere::GSphere(const GSphere& other) :
 GSphere::~GSphere() = default;
 
 // discretize the sphere into an icosphere
-void GSphere::discretize(std::vector<Triangle>* const out_triangles, const Entity* const parentEntity) const
+void GSphere::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const Entity* const parentEntity) const
 {
 	if(!(parentEntity->getScale().x == parentEntity->getScale().y && parentEntity->getScale().y == parentEntity->getScale().z))
 	{
@@ -132,7 +132,7 @@ void GSphere::discretize(std::vector<Triangle>* const out_triangles, const Entit
 		Vector3f vB(vertices[iTriangle.iB]);
 		Vector3f vC(vertices[iTriangle.iC]);
 
-		Triangle triangle(parentEntity, vA, vB, vC);
+		PTriangle triangle(parentEntity, vA, vB, vC);
 		triangle.setNa(vA.normalize());
 		triangle.setNb(vB.normalize());
 		triangle.setNc(vC.normalize());
@@ -148,7 +148,7 @@ void GSphere::discretize(std::vector<Triangle>* const out_triangles, const Entit
 		textureMapper->map(vC, triangle.getUVWc(), &mappedUVW);
 		triangle.setUVWc(mappedUVW);
 
-		out_triangles->push_back(triangle);
+		out_primitives->push_back(std::make_unique<PTriangle>(triangle));
 	}
 }
 

@@ -13,7 +13,7 @@
 #include "Math/random_number.h"
 #include "Math/Color.h"
 #include "Math/Math.h"
-#include "Core/BackwardPathIntegrator.h"
+#include "Core/Integrator/BackwardPathIntegrator.h"
 
 #include <cmath>
 #include <iostream>

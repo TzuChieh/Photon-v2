@@ -1,4 +1,4 @@
-#include "Core/MtImportanceRenderer.h"
+#include "Core/Renderer/MtImportanceRenderer.h"
 #include "Common/primitive_type.h"
 #include "Image/Film/Film.h"
 #include "World/World.h"
@@ -13,7 +13,7 @@
 #include "Math/random_number.h"
 #include "Math/Color.h"
 #include "Math/Math.h"
-#include "Core/BackwardPathIntegrator.h"
+#include "Core/Integrator/BackwardPathIntegrator.h"
 
 #include <cmath>
 #include <iostream>

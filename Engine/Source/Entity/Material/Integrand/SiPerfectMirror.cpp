@@ -21,7 +21,7 @@ void SiPerfectMirror::evaluateImportanceSample(const Intersection& intersection,
 {
 	out_sample->m_type = ESurfaceSampleType::REFLECTION;
 	out_sample->m_LiWeight.set(1.0f, 1.0f, 1.0f);
-	out_sample->m_direction = ray.getDirection().reflect(intersection.getHitNormal());
+	out_sample->m_direction = ray.getDirection().reflect(intersection.getHitSmoothNormal());
 }
 
 }// end namespace ph
