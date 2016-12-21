@@ -3,9 +3,10 @@
 #include "Common/primitive_type.h"
 #include "Entity/Entity.h"
 #include "Intersector.h"
-#include "Entity/Primitive/Primitive.h"
-#include "World/LightStorage.h"
-#include "Entity/Primitive/PrimitiveMetadata.h"
+#include "Core/Primitive/Primitive.h"
+#include "Core/Primitive/PrimitiveMetadata.h"
+#include "World/LightSampler/LightSampler.h"
+#include "Core/Primitive/PrimitiveStorage.h"
 
 #include <vector>
 #include <memory>
@@ -25,18 +26,17 @@ public:
 	void update(const float32 deltaS);
 
 	const Intersector&  getIntersector() const;
-	const LightStorage& getLightStorage() const;
+	const LightSampler& getLightSampler() const;
 
 private:
 	std::vector<Entity> m_entities;
-	std::vector<std::unique_ptr<PrimitiveMetadata>> m_primitiveMetadataBuffer;
+	PrimitiveStorage m_primitiveStorage;
 
 	std::unique_ptr<Intersector> m_intersector;
-	LightStorage m_lightStorage;
-	std::vector<std::unique_ptr<Primitive>> m_primitives;
+	std::unique_ptr<LightSampler> m_lightSampler;
 
-	void updateIntersector(Intersector* const out_intersector, const std::vector<Entity>& entities, std::vector<std::unique_ptr<Primitive>>* const out_primitives);
-	void discretizeEntity(const Entity& entity, std::vector<std::unique_ptr<Primitive>>* const out_primitives);
+	void gatherPrimitivesFromEntity(const Entity& entity);
+	void gatherPrimitives();
 };
 
 }// end namespace ph

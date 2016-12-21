@@ -1,11 +1,9 @@
-#include "Entity/Primitive/PrimitiveMetadata.h"
-
-#include <iostream>
+#include "Core/Emitter/EmitterMetadata.h"
 
 namespace ph
 {
 
-PrimitiveMetadata::PrimitiveMetadata() :
+EmitterMetadata::EmitterMetadata() :
 	m_material(nullptr), m_localToWorld(nullptr), m_worldToLocal(nullptr), m_textureMapper(nullptr)
 {
 

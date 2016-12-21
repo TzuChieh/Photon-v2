@@ -1,7 +1,7 @@
 #include "World/Kdtree/KdtreeNode.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
-#include "Entity/Primitive/Primitive.h"
+#include "Core/Primitive/Primitive.h"
 
 #include <iostream>
 #include <algorithm>

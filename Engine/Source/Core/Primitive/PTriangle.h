@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Math/Vector3f.h"
-#include "Entity/Primitive/Primitive.h"
+#include "Core/Primitive/Primitive.h"
 
 namespace ph
 {

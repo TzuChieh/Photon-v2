@@ -1,5 +1,5 @@
-#include "Entity/Primitive/PTriangle.h"
-#include "Entity/Primitive/PrimitiveMetadata.h"
+#include "Core/Primitive/PTriangle.h"
+#include "Core/Primitive/PrimitiveMetadata.h"
 #include "Math/Transform.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"

@@ -6,6 +6,7 @@
 #include "Entity/Entity.h"
 #include "World/BruteForceIntersector.h"
 #include "World/Kdtree/KdtreeIntersector.h"
+#include "World/LightSampler/UniformRandomLightSampler.h"
 
 #include <limits>
 #include <iostream>
@@ -15,7 +16,8 @@ namespace ph
 
 World::World() : 
 	//m_intersector(std::make_unique<BruteForceIntersector>())
-	m_intersector(std::make_unique<KdtreeIntersector>())
+	m_intersector(std::make_unique<KdtreeIntersector>()), 
+	m_lightSampler(std::make_unique<UniformRandomLightSampler>())
 {
 
 }
@@ -29,7 +31,13 @@ void World::update(const float32 deltaS)
 {
 	std::cout << "updating world..." << std::endl;
 
-	updateIntersector(m_intersector.get(), m_entities, &m_primitives);
+	gatherPrimitives();
+
+	std::cout << "world discretized into " << m_primitiveStorage.numPrimitives() << " primitives" << std::endl;
+	std::cout << "constructing world intersector..." << std::endl;
+
+	m_intersector->update(m_primitiveStorage);
+	m_lightSampler->update(m_entities);
 }
 
 const Intersector& World::getIntersector() const
@@ -37,28 +45,22 @@ const Intersector& World::getIntersector() const
 	return *m_intersector;
 }
 
-const LightStorage& World::getLightStorage() const
+const LightSampler& World::getLightSampler() const
 {
-	return m_lightStorage;
+	return *m_lightSampler;
 }
 
-void World::updateIntersector(Intersector* const out_intersector, const std::vector<Entity>& entities, std::vector<std::unique_ptr<Primitive>>* const out_primitives)
+void World::gatherPrimitives()
 {
-	out_primitives->clear();
-	out_primitives->shrink_to_fit();
+	m_primitiveStorage.clear();
 
-	for(const auto& entity : entities)
+	for(const auto& entity : m_entities)
 	{
-		discretizeEntity(entity, out_primitives);
+		gatherPrimitivesFromEntity(entity);
 	}
-
-	std::cout << "world discretized into " << out_primitives->size() << " primitives" << std::endl;
-	std::cout << "constructing world intersector..." << std::endl;
-
-	out_intersector->update(*out_primitives);
 }
 
-void World::discretizeEntity(const Entity& entity, std::vector<std::unique_ptr<Primitive>>* const out_primitives)
+void World::gatherPrimitivesFromEntity(const Entity& entity)
 {
 	// a visible entity must at least have geometry and material
 	if(entity.getGeometry() && entity.getMaterial())
@@ -68,13 +70,13 @@ void World::discretizeEntity(const Entity& entity, std::vector<std::unique_ptr<P
 		metadata->m_localToWorld  = entity.getLocalToWorldTransform();
 		metadata->m_worldToLocal  = entity.getWorldToLocalTransform();
 		metadata->m_textureMapper = entity.getTextureMapper();
-		m_primitiveMetadataBuffer.push_back(std::move(metadata));
-		entity.getGeometry()->discretize(out_primitives, m_primitiveMetadataBuffer.back().get());
+		entity.getGeometry()->discretize(&m_primitiveStorage, entity);
+		m_primitiveStorage.add(std::move(metadata));
 	}
 
 	for(const auto& entity : entity.getChildren())
 	{
-		discretizeEntity(entity, out_primitives);
+		gatherPrimitivesFromEntity(entity);
 	}
 }
 

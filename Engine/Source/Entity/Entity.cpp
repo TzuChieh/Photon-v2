@@ -9,7 +9,7 @@ namespace ph
 {
 
 Entity::Entity() :
-	m_geometry(nullptr), m_material(nullptr), m_textureMapper(std::make_shared<DefaultMapper>()),
+	m_geometry(nullptr), m_material(nullptr), m_textureMapper(std::make_shared<DefaultMapper>()), m_emitter(nullptr), 
 	m_entityTransformInfo(), m_localToWorld(), m_worldToLocal(), 
 	m_parentEntity(nullptr)
 {
@@ -17,7 +17,7 @@ Entity::Entity() :
 }
 
 Entity::Entity(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<Material>& material) :
-	m_geometry(geometry), m_material(material), m_textureMapper(std::make_shared<DefaultMapper>()), 
+	m_geometry(geometry), m_material(material), m_textureMapper(std::make_shared<DefaultMapper>()), m_emitter(nullptr), 
 	m_entityTransformInfo(), m_localToWorld(), m_worldToLocal(),
 	m_parentEntity(nullptr)
 {
@@ -25,7 +25,7 @@ Entity::Entity(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<
 }
 
 Entity::Entity(const Entity& other) :
-	m_geometry(other.m_geometry), m_material(other.m_material), m_textureMapper(other.m_textureMapper), 
+	m_geometry(other.m_geometry), m_material(other.m_material), m_textureMapper(other.m_textureMapper), m_emitter(other.m_emitter), 
 	m_entityTransformInfo(other.m_entityTransformInfo), m_localToWorld(other.m_localToWorld), m_worldToLocal(other.m_worldToLocal),
 	m_childrenEntities(other.m_childrenEntities), m_parentEntity(nullptr)
 {
@@ -46,6 +46,7 @@ void swap(Entity& first, Entity& second)
 	swap(first.m_geometry,            second.m_geometry);
 	swap(first.m_material,            second.m_material);
 	swap(first.m_textureMapper,       second.m_textureMapper);
+	swap(first.m_emitter,             second.m_emitter);
 	swap(first.m_entityTransformInfo, second.m_entityTransformInfo);
 	swap(first.m_localToWorld,        second.m_localToWorld);
 	swap(first.m_worldToLocal,        second.m_worldToLocal);
@@ -123,6 +124,11 @@ void Entity::setTextureMapper(const std::shared_ptr<TextureMapper>& textureMappe
 	m_textureMapper = textureMapper;
 }
 
+void Entity::setEmitter(const std::shared_ptr<Emitter>& emitter)
+{
+	m_emitter = emitter;
+}
+
 bool Entity::hasChildren() const
 {
 	return !(m_childrenEntities.empty());
@@ -167,6 +173,36 @@ void Entity::addChild(const Entity& child)
 {
 	m_childrenEntities.push_back(child);
 	m_childrenEntities.back().setParent(this);
+}
+
+const Geometry* Entity::getGeometry() const
+{
+	return m_geometry.get();
+}
+
+const Material* Entity::getMaterial() const
+{
+	return m_material.get();
+}
+
+const TextureMapper* Entity::getTextureMapper() const
+{
+	return m_textureMapper.get();
+}
+
+const Emitter* Entity::getEmitter() const
+{
+	return m_emitter.get();
+}
+
+const Transform* Entity::getLocalToWorldTransform() const
+{
+	return &m_localToWorld;
+}
+
+const Transform* Entity::getWorldToLocalTransform() const
+{
+	return &m_worldToLocal;
 }
 
 }// end namespace ph

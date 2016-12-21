@@ -13,7 +13,7 @@ class GTriangleMesh final : public Geometry
 public:
 	virtual ~GTriangleMesh() override;
 
-	virtual void discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata* const metadata) const override;
+	virtual void discretize(PrimitiveStorage* const out_data, const Entity& parentEntity) const override;
 
 	void addTriangle(const GTriangle gTriangle);
 

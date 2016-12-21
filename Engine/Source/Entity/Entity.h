@@ -12,6 +12,7 @@ namespace ph
 class Geometry;
 class Material;
 class TextureMapper;
+class Emitter;
 
 class Entity final
 {
@@ -28,10 +29,6 @@ public:
 	void scale(const float32 x, const float32 y, const float32 z);
 	void scale(const float32 scaleFactor);
 
-	void setGeometry(const std::shared_ptr<Geometry>& geometry);
-	void setMaterial(const std::shared_ptr<Material>& material);
-	void setTextureMapper(const std::shared_ptr<TextureMapper>& textureMapper);
-
 	bool hasChildren() const;
 	std::vector<Entity>& getChildren();
 	const std::vector<Entity>& getChildren() const;
@@ -40,30 +37,17 @@ public:
 	friend void swap(Entity& first, Entity& second);
 	Entity& operator = (Entity rhs);
 
-	inline const Geometry* getGeometry() const
-	{
-		return m_geometry.get();
-	}
+	const Geometry*      getGeometry() const;
+	const Material*      getMaterial() const;
+	const TextureMapper* getTextureMapper() const;
+	const Emitter*       getEmitter() const;
+	const Transform*     getLocalToWorldTransform() const;
+	const Transform*     getWorldToLocalTransform() const;
 
-	inline const Material* getMaterial() const
-	{
-		return m_material.get();
-	}
-
-	inline const TextureMapper* getTextureMapper() const
-	{
-		return m_textureMapper.get();
-	}
-
-	inline const Transform* getLocalToWorldTransform() const
-	{
-		return &m_localToWorld;
-	}
-
-	inline const Transform* getWorldToLocalTransform() const
-	{
-		return &m_worldToLocal;
-	}
+	void setGeometry(const std::shared_ptr<Geometry>& geometry);
+	void setMaterial(const std::shared_ptr<Material>& material);
+	void setTextureMapper(const std::shared_ptr<TextureMapper>& textureMapper);
+	void setEmitter(const std::shared_ptr<Emitter>& emitter);
 
 	inline const Vector3f& getPosition() const
 	{
@@ -85,10 +69,10 @@ private:
 	std::shared_ptr<Geometry>      m_geometry;
 	std::shared_ptr<Material>      m_material;
 	std::shared_ptr<TextureMapper> m_textureMapper;
-
+	std::shared_ptr<Emitter>       m_emitter;
 	TransformInfo m_entityTransformInfo;
-	Transform m_localToWorld;
-	Transform m_worldToLocal;
+	Transform     m_localToWorld;
+	Transform     m_worldToLocal;
 
 	std::vector<Entity> m_childrenEntities;
 	const Entity* m_parentEntity;

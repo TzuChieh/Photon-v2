@@ -12,7 +12,7 @@ public:
 	GTriangle(const Vector3f& vA, const Vector3f& vB, const Vector3f& vC);
 	virtual ~GTriangle() override;
 
-	virtual void discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata* const metadata) const override;
+	virtual void discretize(PrimitiveStorage* const out_data, const Entity& parentEntity) const override;
 
 	inline const Vector3f getVa() const
 	{

@@ -1,4 +1,4 @@
-#include "Entity/Primitive/Primitive.h"
+#include "Core/Primitive/Primitive.h"
 
 #include <iostream>
 

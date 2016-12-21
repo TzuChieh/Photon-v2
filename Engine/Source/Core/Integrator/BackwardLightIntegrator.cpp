@@ -6,8 +6,8 @@
 #include "Entity/Material/Integrand/SurfaceSample.h"
 #include "Entity/Material/Material.h"
 #include "Entity/Material/Integrand/SurfaceIntegrand.h"
-#include "Entity/Primitive/Primitive.h"
-#include "Entity/Primitive/PrimitiveMetadata.h"
+#include "Core/Primitive/Primitive.h"
+#include "Core/Primitive/PrimitiveMetadata.h"
 
 #define MAX_RAY_BOUNCES 10000
 

@@ -2,7 +2,8 @@
 #include "Common/primitive_type.h"
 #include "Core/Intersection.h"
 #include "Core/Ray.h"
-#include "Entity/Primitive/Primitive.h"
+#include "Core/Primitive/Primitive.h"
+#include "Core/Primitive/PrimitiveStorage.h"
 
 #include <limits>
 
@@ -11,7 +12,7 @@ namespace ph
 
 BruteForceIntersector::~BruteForceIntersector() = default;
 
-void BruteForceIntersector::update(const std::vector<std::unique_ptr<Primitive>>& primitives)
+void BruteForceIntersector::update(const PrimitiveStorage& primitives)
 {
 	m_primitives.clear();
 	m_primitives.shrink_to_fit();

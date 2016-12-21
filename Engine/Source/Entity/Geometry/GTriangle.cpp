@@ -1,7 +1,9 @@
 #include "Entity/Geometry/GTriangle.h"
-#include "Entity/Primitive/PTriangle.h"
-#include "Entity/Primitive/PrimitiveMetadata.h"
+#include "Core/Primitive/PTriangle.h"
+#include "Core/Primitive/PrimitiveMetadata.h"
 #include "Entity/TextureMapper/TextureMapper.h"
+#include "Core/Primitive/PrimitiveStorage.h"
+#include "Entity/Entity.h"
 
 namespace ph
 {
@@ -21,11 +23,17 @@ GTriangle::GTriangle(const Vector3f& vA, const Vector3f& vB, const Vector3f& vC)
 
 GTriangle::~GTriangle() = default;
 
-void GTriangle::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata* const metadata) const
+void GTriangle::discretize(PrimitiveStorage* const out_data, const Entity& parentEntity) const
 {
+	auto metadata = std::make_unique<PrimitiveMetadata>();
+	metadata->m_material      = parentEntity.getMaterial();
+	metadata->m_localToWorld  = parentEntity.getLocalToWorldTransform();
+	metadata->m_worldToLocal  = parentEntity.getWorldToLocalTransform();
+	metadata->m_textureMapper = parentEntity.getTextureMapper();
+
 	const auto* const textureMapper = metadata->m_textureMapper;
 
-	PTriangle triangle(metadata, m_vA, m_vB, m_vC);
+	PTriangle triangle(metadata.get(), m_vA, m_vB, m_vC);
 
 	triangle.setNa(m_nA);
 	triangle.setNb(m_nB);
@@ -42,7 +50,8 @@ void GTriangle::discretize(std::vector<std::unique_ptr<Primitive>>* const out_pr
 	textureMapper->map(m_vC, m_uvwC, &mappedUVW);
 	triangle.setUVWc(mappedUVW);
 
-	out_primitives->push_back(std::make_unique<PTriangle>(triangle));
+	out_data->add(std::make_unique<PTriangle>(triangle));
+	out_data->add(std::move(metadata));
 }
 
 }// end namespace ph

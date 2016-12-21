@@ -1,8 +1,10 @@
 #include "Entity/Geometry/GSphere.h"
-#include "Entity/Primitive/PTriangle.h"
+#include "Core/Primitive/PTriangle.h"
 #include "Math/Vector3f.h"
-#include "Entity/Primitive/PrimitiveMetadata.h"
+#include "Core/Primitive/PrimitiveMetadata.h"
 #include "Entity/TextureMapper/TextureMapper.h"
+#include "Core/Primitive/PrimitiveStorage.h"
+#include "Entity/Entity.h"
 
 #include <cmath>
 #include <iostream>
@@ -39,12 +41,19 @@ GSphere::GSphere(const GSphere& other) :
 GSphere::~GSphere() = default;
 
 // discretize the sphere into an icosphere
-void GSphere::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata* const metadata) const
+void GSphere::discretize(PrimitiveStorage* const out_data, const Entity& parentEntity) const
 {
-	/*if(!(parentEntity->getScale().x == parentEntity->getScale().y && parentEntity->getScale().y == parentEntity->getScale().z))
+	if(parentEntity.getScale().x != parentEntity.getScale().y || parentEntity.getScale().y != parentEntity.getScale().z)
 	{
 		std::cerr << "warning: nonuniform scale on GSphere detected" << std::endl;
-	}*/
+		return;
+	}
+
+	auto metadata = std::make_unique<PrimitiveMetadata>();
+	metadata->m_material      = parentEntity.getMaterial();
+	metadata->m_localToWorld  = parentEntity.getLocalToWorldTransform();
+	metadata->m_worldToLocal  = parentEntity.getWorldToLocalTransform();
+	metadata->m_textureMapper = parentEntity.getTextureMapper();
 
 	const uint32 nRefinements = 5;
 
@@ -132,7 +141,7 @@ void GSphere::discretize(std::vector<std::unique_ptr<Primitive>>* const out_prim
 		Vector3f vB(vertices[iTriangle.iB]);
 		Vector3f vC(vertices[iTriangle.iC]);
 
-		PTriangle triangle(metadata, vA, vB, vC);
+		PTriangle triangle(metadata.get(), vA, vB, vC);
 		triangle.setNa(vA.normalize());
 		triangle.setNb(vB.normalize());
 		triangle.setNc(vC.normalize());
@@ -148,8 +157,10 @@ void GSphere::discretize(std::vector<std::unique_ptr<Primitive>>* const out_prim
 		textureMapper->map(vC, triangle.getUVWc(), &mappedUVW);
 		triangle.setUVWc(mappedUVW);
 
-		out_primitives->push_back(std::make_unique<PTriangle>(triangle));
+		out_data->add(std::make_unique<PTriangle>(triangle));
 	}
+
+	out_data->add(std::move(metadata));
 }
 
 std::size_t GSphere::addVertex(const Vector3f& vertex, std::vector<Vector3f>* const out_vertices) const

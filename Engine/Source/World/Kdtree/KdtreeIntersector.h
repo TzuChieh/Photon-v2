@@ -2,7 +2,7 @@
 
 #include "World/Intersector.h"
 #include "World/Kdtree/KdtreeNode.h"
-#include "Entity/Primitive/Primitive.h"
+#include "Core/Primitive/Primitive.h"
 
 #include <vector>
 
@@ -15,7 +15,7 @@ public:
 	KdtreeIntersector();
 	virtual ~KdtreeIntersector() override;
 
-	virtual void update(const std::vector<std::unique_ptr<Primitive>>& primitives) override;
+	virtual void update(const PrimitiveStorage& primitives) override;
 	virtual bool isIntersecting(const Ray& ray, Intersection* out_intersection) const override;
 
 private:

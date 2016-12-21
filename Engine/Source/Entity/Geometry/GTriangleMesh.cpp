@@ -1,6 +1,8 @@
 #include "Entity/Geometry/GTriangleMesh.h"
 #include "Entity/Geometry/GTriangle.h"
-#include "Entity/Primitive/PrimitiveMetadata.h"
+#include "Core/Primitive/PrimitiveMetadata.h"
+#include "Core/Primitive/PrimitiveStorage.h"
+#include "Entity/Entity.h"
 
 namespace ph
 {
@@ -10,11 +12,11 @@ GTriangleMesh::~GTriangleMesh()
 
 }
 
-void GTriangleMesh::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata* const metadata) const
+void GTriangleMesh::discretize(PrimitiveStorage* const out_data, const Entity& parentEntity) const
 {
 	for(const auto& gTriangle : m_gTriangles)
 	{
-		gTriangle.discretize(out_primitives, metadata);
+		gTriangle.discretize(out_data, parentEntity);
 	}
 }
 

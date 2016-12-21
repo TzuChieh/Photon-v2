@@ -1,4 +1,5 @@
 #include "World/Kdtree/KdtreeIntersector.h"
+#include "Core/Primitive/PrimitiveStorage.h"
 
 #include <iostream>
 
@@ -15,7 +16,7 @@ KdtreeIntersector::KdtreeIntersector() :
 
 KdtreeIntersector::~KdtreeIntersector() = default;
 
-void KdtreeIntersector::update(const std::vector<std::unique_ptr<Primitive>>& primitives)
+void KdtreeIntersector::update(const PrimitiveStorage& primitives)
 {
 	std::vector<const Primitive*> primPtrs;
 	for(const auto& primitive : primitives)

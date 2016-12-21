@@ -3,13 +3,13 @@
 #include "World/World.h"
 #include "Math/Vector3f.h"
 #include "Core/Intersection.h"
-#include "Entity/Primitive/PrimitiveMetadata.h"
+#include "Core/Primitive/PrimitiveMetadata.h"
 #include "Entity/Material/Material.h"
 #include "Entity/Material/Integrand/SurfaceIntegrand.h"
 #include "Math/Math.h"
 #include "Math/Color.h"
 #include "Math/random_number.h"
-#include "Entity/Primitive/Primitive.h"
+#include "Core/Primitive/Primitive.h"
 
 #include <iostream>
 
