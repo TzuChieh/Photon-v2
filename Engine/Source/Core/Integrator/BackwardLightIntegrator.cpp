@@ -7,7 +7,7 @@
 #include "Entity/Material/Material.h"
 #include "Entity/Material/Integrand/SurfaceIntegrand.h"
 #include "Entity/Primitive/Primitive.h"
-#include "Entity/Entity.h"
+#include "Entity/Primitive/PrimitiveMetadata.h"
 
 #define MAX_RAY_BOUNCES 10000
 
@@ -37,8 +37,8 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const Intersector
 		}
 
 		SurfaceSample surfaceSample;
-		const Entity* hitEntity = intersection.getHitPrimitive()->getParentEntity();
-		const Material* hitMaterial = hitEntity->getMaterial();
+		const PrimitiveMetadata* metadata = intersection.getHitPrimitive()->getMetadata();
+		const Material* hitMaterial = metadata->m_material;
 		const SurfaceIntegrand* surfaceIntegrand = hitMaterial->getSurfaceIntegrand();
 
 		// TODO: sample light

@@ -180,7 +180,9 @@
     <ClCompile Include="Source\Emitter\Emitter.cpp" />
     <ClCompile Include="Source\Emitter\SurfaceEmitter.cpp" />
     <ClCompile Include="Source\Entity\Primitive\Primitive.cpp" />
+    <ClCompile Include="Source\Entity\Primitive\PrimitiveMetadata.cpp" />
     <ClCompile Include="Source\Entity\Primitive\PTriangle.cpp" />
+    <ClCompile Include="Source\FileIO\RenderDataFileLoader.cpp" />
     <ClCompile Include="Source\Image\CheckerboardTexture.cpp" />
     <ClCompile Include="Source\Image\ConstantTexture.cpp" />
     <ClCompile Include="Source\Image\TextureLoader.cpp" />
@@ -209,6 +211,7 @@
     <ClCompile Include="Source\World\Kdtree\KdtreeAABB.cpp" />
     <ClCompile Include="Source\World\Kdtree\KdtreeIntersector.cpp" />
     <ClCompile Include="Source\World\Kdtree\KdtreeNode.cpp" />
+    <ClCompile Include="Source\World\LightStorage.cpp" />
     <ClCompile Include="Source\World\World.cpp" />
     <ClCompile Include="Source\Image\Film\Film.cpp" />
     <ClCompile Include="Source\Image\Frame.cpp" />
@@ -252,7 +255,9 @@
     <ClInclude Include="Source\Emitter\Emitter.h" />
     <ClInclude Include="Source\Emitter\SurfaceEmitter.h" />
     <ClInclude Include="Source\Entity\Primitive\Primitive.h" />
+    <ClInclude Include="Source\Entity\Primitive\PrimitiveMetadata.h" />
     <ClInclude Include="Source\Entity\Primitive\PTriangle.h" />
+    <ClInclude Include="Source\FileIO\RenderDataFileLoader.h" />
     <ClInclude Include="Source\Image\CheckerboardTexture.h" />
     <ClInclude Include="Source\Image\ConstantTexture.h" />
     <ClInclude Include="Source\Image\Film\Film.h" />
@@ -295,6 +300,7 @@
     <ClInclude Include="Source\World\Kdtree\KdtreeIntersector.h" />
     <ClInclude Include="Source\World\Kdtree\KdtreeNode.h" />
     <ClInclude Include="Source\World\Kdtree\kdtree_core.h" />
+    <ClInclude Include="Source\World\LightStorage.h" />
     <ClInclude Include="Source\World\TManagedResource.h" />
     <ClInclude Include="Source\World\World.h" />
     <ClInclude Include="Source\Image\Frame.h" />

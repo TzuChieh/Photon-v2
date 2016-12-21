@@ -12,7 +12,7 @@ public:
 	GRectangle(const float32 width, const float32 height);
 	virtual ~GRectangle() override;
 
-	virtual void discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const Entity* const parentEntity) const override;
+	virtual void discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata* const metadata) const override;
 
 private:
 	float32 m_width;

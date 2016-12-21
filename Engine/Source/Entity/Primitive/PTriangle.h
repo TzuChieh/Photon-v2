@@ -6,7 +6,6 @@
 namespace ph
 {
 
-class Entity;
 class Ray;
 class Intersection;
 class AABB;
@@ -14,7 +13,7 @@ class AABB;
 class PTriangle final : public Primitive
 {
 public:
-	PTriangle(const Entity* const parentEntity, const Vector3f& vA, const Vector3f& vB, const Vector3f& vC);
+	PTriangle(const PrimitiveMetadata* const metadata, const Vector3f& vA, const Vector3f& vB, const Vector3f& vC);
 	virtual ~PTriangle() override;
 
 	virtual bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const override;

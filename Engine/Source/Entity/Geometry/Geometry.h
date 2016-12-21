@@ -10,14 +10,14 @@ namespace ph
 
 class Ray;
 class Intersection;
-class Entity;
+class PrimitiveMetadata;
 
 class Geometry
 {
 public:
 	virtual ~Geometry() = 0;
 
-	virtual void discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const Entity* const parentEntity) const = 0;
+	virtual void discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata* const metadata) const = 0;
 };
 
 }// end namespace ph

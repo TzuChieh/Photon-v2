@@ -14,6 +14,7 @@
 #include "Entity/ModelLoader.h"
 #include "Image/CheckerboardTexture.h"
 #include "Entity/TextureMapper/SphericalMapper.h"
+#include "FileIO/RenderDataFileLoader.h"
 
 #include <memory>
 
@@ -22,6 +23,10 @@ namespace ph
 
 void loadTestScene(World* const out_world)
 {
+	RenderDataFileLoader dataFileLoader;
+	dataFileLoader.load("./testDataFile.txt");
+
+
 	//ModelLoader modelLoader;
 	//Entity sponzaModel;
 	//if(modelLoader.load("../SceneResource/sponza/sponza.obj", &sponzaModel))
@@ -97,14 +102,23 @@ void loadTestScene(World* const out_world)
 	Entity loadedModel;
 	
 	bool isLoadingSuccess = modelLoader.load("../SceneResource/dragon.obj", &loadedModel);
+	//bool isLoadingSuccess = modelLoader.load("../SceneResource/lucy.obj", &loadedModel);
 	//bool isLoadingSuccess = modelLoader.load("../SceneResource/GlassesAndCups.obj", &loadedModel);
 	//bool isLoadingSuccess = modelLoader.load("../SceneResource/lalala/lalala.obj", &loadedModel);
 	//bool isLoadingSuccess = false;
 	if(isLoadingSuccess)
 	{
-		loadedModel.translate(-1.6f, -5, 0);
+		/*loadedModel.translate(-1.6f, -5, 0);
 		loadedModel.scale(3.5f);
-		loadedModel.rotate(Vector3f(0, 1, 0), 230);
+		loadedModel.rotate(Vector3f(0, 1, 0), 230);*/
+
+		loadedModel.translate(0, -5, 0);
+		loadedModel.scale(5.0f);
+		loadedModel.rotate(Vector3f(0, 1, 0), 180);
+
+		/*loadedModel.translate(0, -5, 0);
+		loadedModel.scale(4.0f);*/
+		//loadedModel.rotate(Vector3f(0, 1, 0), 180);
 
 		/*loadedModel.translate(0, -5, 1.5f);
 		loadedModel.scale(1.1f);
@@ -135,16 +149,16 @@ void loadTestScene(World* const out_world)
 
 		//auto dragonMaterial = std::make_shared<PerfectMirror>();
 
-		loadedModel.setMaterial(glassMaterial);
+		loadedModel.setMaterial(goldMaterial);
 		for(auto& model : loadedModel.getChildren())
 		{
-			model.setMaterial(glassMaterial);
+			model.setMaterial(goldMaterial);
 		}
 
 		out_world->addEntity(loadedModel);
 	}
 
-	auto sphereMaterial = std::make_shared<AbradedTranslucent>();
+	/*auto sphereMaterial = std::make_shared<AbradedTranslucent>();
 	sphereMaterial->setF0(0.04f, 0.04f, 0.04f);
 	sphereMaterial->setRoughness(0.0f);
 	sphereMaterial->setIOR(1.5f);
@@ -152,7 +166,7 @@ void loadTestScene(World* const out_world)
 	Entity sphereModel(sphereGeometry, sphereMaterial);
 	sphereModel.rotate(Vector3f(1, 1, 0).normalize(), 45);
 	sphereModel.translate(2, -3.5f, 0);
-	out_world->addEntity(sphereModel);
+	out_world->addEntity(sphereModel);*/
 
 	//auto sphereChildMaterial = std::make_shared<MatteOpaque>();
 	//auto sphereChildGeometry = std::make_shared<GSphere>(1.0f);
@@ -213,7 +227,7 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 	out_world->addEntity(lightModel);
 
 	auto leftWallMatl = std::make_shared<MatteOpaque>();
-	leftWallMatl->setAlbedo(0.9f, 0.0f, 0.0f);
+	leftWallMatl->setAlbedo(0.85f, 0.3f, 0.3f);
 	Entity leftWallModel(unitRectangleGeom, leftWallMatl);
 	leftWallModel.rotate(Vector3f(0, 1, 0), 90);
 	leftWallModel.scale(boxSize);
@@ -221,7 +235,7 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 	out_world->addEntity(leftWallModel);
 
 	auto rightWallMatl = std::make_shared<MatteOpaque>();
-	rightWallMatl->setAlbedo(0.0f, 0.0f, 0.9f);
+	rightWallMatl->setAlbedo(0.3f, 0.3f, 0.85f);
 	Entity rightWallModel(unitRectangleGeom, rightWallMatl);
 	rightWallModel.rotate(Vector3f(0, 1, 0), -90);
 	rightWallModel.scale(boxSize);
@@ -229,14 +243,14 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 	out_world->addEntity(rightWallModel);
 
 	auto backWallMatl = std::make_shared<MatteOpaque>();
-	backWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
+	backWallMatl->setAlbedo(0.7f, 0.7f, 0.7f);
 	Entity backWallModel(unitRectangleGeom, backWallMatl);
 	backWallModel.scale(boxSize);
 	backWallModel.translate(0, 0, -halfBoxSize);
 	out_world->addEntity(backWallModel);
 
 	auto topWallMatl = std::make_shared<MatteOpaque>();
-	backWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
+	backWallMatl->setAlbedo(0.7f, 0.7f, 0.7f);
 	Entity topWallModel(unitRectangleGeom, topWallMatl);
 	topWallModel.rotate(Vector3f(1, 0, 0), 90);
 	topWallModel.scale(boxSize);
@@ -244,7 +258,7 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 	out_world->addEntity(topWallModel);
 
 	auto groundWallMatl = std::make_shared<MatteOpaque>();
-	groundWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
+	groundWallMatl->setAlbedo(0.7f, 0.7f, 0.7f);
 	Entity groundWallModel(unitRectangleGeom, groundWallMatl);
 	groundWallModel.rotate(Vector3f(1, 0, 0), -90);
 	groundWallModel.scale(boxSize);

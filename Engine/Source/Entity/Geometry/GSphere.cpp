@@ -1,7 +1,7 @@
 #include "Entity/Geometry/GSphere.h"
 #include "Entity/Primitive/PTriangle.h"
 #include "Math/Vector3f.h"
-#include "Entity/Entity.h"
+#include "Entity/Primitive/PrimitiveMetadata.h"
 #include "Entity/TextureMapper/TextureMapper.h"
 
 #include <cmath>
@@ -39,12 +39,12 @@ GSphere::GSphere(const GSphere& other) :
 GSphere::~GSphere() = default;
 
 // discretize the sphere into an icosphere
-void GSphere::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const Entity* const parentEntity) const
+void GSphere::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata* const metadata) const
 {
-	if(!(parentEntity->getScale().x == parentEntity->getScale().y && parentEntity->getScale().y == parentEntity->getScale().z))
+	/*if(!(parentEntity->getScale().x == parentEntity->getScale().y && parentEntity->getScale().y == parentEntity->getScale().z))
 	{
 		std::cerr << "warning: nonuniform scale on GSphere detected" << std::endl;
-	}
+	}*/
 
 	const uint32 nRefinements = 5;
 
@@ -123,7 +123,7 @@ void GSphere::discretize(std::vector<std::unique_ptr<Primitive>>* const out_prim
 		indexedTriangles = refined;
 	}
 
-	const auto* const textureMapper = parentEntity->getTextureMapper();
+	const auto* const textureMapper = metadata->m_textureMapper;
 
 	// construct actual triangles
 	for(const IndexedTriangle& iTriangle : indexedTriangles)
@@ -132,7 +132,7 @@ void GSphere::discretize(std::vector<std::unique_ptr<Primitive>>* const out_prim
 		Vector3f vB(vertices[iTriangle.iB]);
 		Vector3f vC(vertices[iTriangle.iC]);
 
-		PTriangle triangle(parentEntity, vA, vB, vC);
+		PTriangle triangle(metadata, vA, vB, vC);
 		triangle.setNa(vA.normalize());
 		triangle.setNb(vB.normalize());
 		triangle.setNc(vC.normalize());

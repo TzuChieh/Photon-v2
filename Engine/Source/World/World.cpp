@@ -37,6 +37,11 @@ const Intersector& World::getIntersector() const
 	return *m_intersector;
 }
 
+const LightStorage& World::getLightStorage() const
+{
+	return m_lightStorage;
+}
+
 void World::updateIntersector(Intersector* const out_intersector, const std::vector<Entity>& entities, std::vector<std::unique_ptr<Primitive>>* const out_primitives)
 {
 	out_primitives->clear();
@@ -58,7 +63,13 @@ void World::discretizeEntity(const Entity& entity, std::vector<std::unique_ptr<P
 	// a visible entity must at least have geometry and material
 	if(entity.getGeometry() && entity.getMaterial())
 	{
-		entity.getGeometry()->discretize(out_primitives, &entity);
+		auto metadata = std::make_unique<PrimitiveMetadata>();
+		metadata->m_material      = entity.getMaterial();
+		metadata->m_localToWorld  = entity.getLocalToWorldTransform();
+		metadata->m_worldToLocal  = entity.getWorldToLocalTransform();
+		metadata->m_textureMapper = entity.getTextureMapper();
+		m_primitiveMetadataBuffer.push_back(std::move(metadata));
+		entity.getGeometry()->discretize(out_primitives, m_primitiveMetadataBuffer.back().get());
 	}
 
 	for(const auto& entity : entity.getChildren())

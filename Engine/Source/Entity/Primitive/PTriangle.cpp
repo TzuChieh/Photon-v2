@@ -1,5 +1,6 @@
 #include "Entity/Primitive/PTriangle.h"
-#include "Entity/Entity.h"
+#include "Entity/Primitive/PrimitiveMetadata.h"
+#include "Math/Transform.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
 #include "Entity/BoundingVolume/AABB.h"
@@ -11,8 +12,8 @@
 namespace ph
 {
 
-PTriangle::PTriangle(const Entity* const parentEntity, const Vector3f& vA, const Vector3f& vB, const Vector3f& vC) :
-	Primitive(parentEntity), 
+PTriangle::PTriangle(const PrimitiveMetadata* const metadata, const Vector3f& vA, const Vector3f& vB, const Vector3f& vC) :
+	Primitive(metadata),
 	m_vA(vA), m_vB(vB), m_vC(vC), 
 	m_uvwA(0, 0, 0), m_uvwB(0, 0, 0), m_uvwC(0, 0, 0)
 {
@@ -32,8 +33,8 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 {
 	Vector3f localOrigin;
 	Vector3f localDirection;
-	m_parentEntity->getWorldToLocalTransform()->transformPoint(ray.getOrigin(), &localOrigin);
-	m_parentEntity->getWorldToLocalTransform()->transformVector(ray.getDirection(), &localDirection);
+	m_metadata->m_worldToLocal->transformPoint(ray.getOrigin(), &localOrigin);
+	m_metadata->m_worldToLocal->transformVector(ray.getDirection(), &localDirection);
 	Ray localRay(localOrigin, localDirection.normalizeLocal());
 
 	const float32 dist = localRay.getOrigin().sub(m_vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
@@ -110,12 +111,12 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	Vector3f hitPosition;
 	Vector3f hitNormal;
 	Vector3f localHitNormal(m_nA.mul(1.0f - baryB - baryC).addLocal(m_nB.mul(baryB)).addLocal(m_nC.mul(baryC)));
-	m_parentEntity->getLocalToWorldTransform()->transformPoint(localRay.getDirection().mul(dist).addLocal(localRay.getOrigin()), &hitPosition);
-	m_parentEntity->getLocalToWorldTransform()->transformVector(localHitNormal, &hitNormal);
+	m_metadata->m_localToWorld->transformPoint(localRay.getDirection().mul(dist).addLocal(localRay.getOrigin()), &hitPosition);
+	m_metadata->m_localToWorld->transformVector(localHitNormal, &hitNormal);
 	//m_parentModel->getModelToWorldTransform()->transformVector(m_faceNormal, &hitNormal);
 
 	Vector3f hitGeoNormal;
-	m_parentEntity->getLocalToWorldTransform()->transformVector(m_faceNormal, &hitGeoNormal);
+	m_metadata->m_localToWorld->transformVector(m_faceNormal, &hitGeoNormal);
 
 	out_intersection->setHitPosition(hitPosition);
 	out_intersection->setHitSmoothNormal(hitNormal.normalizeLocal());
@@ -131,9 +132,9 @@ void PTriangle::calcAABB(AABB* const out_aabb) const
 	Vector3f vA;
 	Vector3f vB;
 	Vector3f vC;
-	m_parentEntity->getLocalToWorldTransform()->transformPoint(m_vA, &vA);
-	m_parentEntity->getLocalToWorldTransform()->transformPoint(m_vB, &vB);
-	m_parentEntity->getLocalToWorldTransform()->transformPoint(m_vC, &vC);
+	m_metadata->m_localToWorld->transformPoint(m_vA, &vA);
+	m_metadata->m_localToWorld->transformPoint(m_vB, &vB);
+	m_metadata->m_localToWorld->transformPoint(m_vC, &vC);
 
 	float32 minX = vA.x, maxX = vA.x,
 		minY = vA.y, maxY = vA.y,
@@ -167,9 +168,9 @@ bool PTriangle::isIntersecting(const AABB& aabb) const
 	Vector3f tvA;
 	Vector3f tvB;
 	Vector3f tvC;
-	m_parentEntity->getLocalToWorldTransform()->transformPoint(m_vA, &tvA);
-	m_parentEntity->getLocalToWorldTransform()->transformPoint(m_vB, &tvB);
-	m_parentEntity->getLocalToWorldTransform()->transformPoint(m_vC, &tvC);
+	m_metadata->m_localToWorld->transformPoint(m_vA, &tvA);
+	m_metadata->m_localToWorld->transformPoint(m_vB, &tvB);
+	m_metadata->m_localToWorld->transformPoint(m_vC, &tvC);
 
 	// move the origin to the AABB's center
 	const Vector3f aabbCenter(aabb.getMinVertex().add(aabb.getMaxVertex()).mulLocal(0.5f));
@@ -198,7 +199,7 @@ bool PTriangle::isIntersecting(const AABB& aabb) const
 		return false;
 
 	Vector3f tNormal;
-	m_parentEntity->getLocalToWorldTransform()->transformVector(m_faceNormal, &tNormal);
+	m_metadata->m_localToWorld->transformVector(m_faceNormal, &tNormal);
 	tNormal.normalizeLocal();
 
 	// test triangle's face normal

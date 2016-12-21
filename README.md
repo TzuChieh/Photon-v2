@@ -18,8 +18,8 @@ Photon-v2 is being developed with cross-platformity in mind, but Windows is the 
 (building instructions will be added soon...) <br />
 
 ## Images Rendered by Photon-v2
-![sponza gold cups](gallery/028_sponza gold cups 12800spp.png) <br />
-![sponza gold cups](gallery/030_cornell box dragon glass ball 16384spp.png) <br />
+![](gallery/028_sponza gold cups 12800spp.png =480x)
+![](gallery/030_cornell box dragon glass ball 16384spp.png =480x) <br />
 
 ## About the Author
 YouTube Channel: https://www.youtube.com/channel/UCKdlogjqjuFsuv06wajp-2g <br />

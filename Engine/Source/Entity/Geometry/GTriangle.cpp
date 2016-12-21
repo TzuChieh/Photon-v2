@@ -1,6 +1,6 @@
 #include "Entity/Geometry/GTriangle.h"
 #include "Entity/Primitive/PTriangle.h"
-#include "Entity/Entity.h"
+#include "Entity/Primitive/PrimitiveMetadata.h"
 #include "Entity/TextureMapper/TextureMapper.h"
 
 namespace ph
@@ -21,11 +21,11 @@ GTriangle::GTriangle(const Vector3f& vA, const Vector3f& vB, const Vector3f& vC)
 
 GTriangle::~GTriangle() = default;
 
-void GTriangle::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const Entity* const parentEntity) const
+void GTriangle::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata* const metadata) const
 {
-	const auto* const textureMapper = parentEntity->getTextureMapper();
+	const auto* const textureMapper = metadata->m_textureMapper;
 
-	PTriangle triangle(parentEntity, m_vA, m_vB, m_vC);
+	PTriangle triangle(metadata, m_vA, m_vB, m_vC);
 
 	triangle.setNa(m_nA);
 	triangle.setNb(m_nB);

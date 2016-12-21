@@ -3,7 +3,7 @@
 #include "World/World.h"
 #include "Math/Vector3f.h"
 #include "Core/Intersection.h"
-#include "Entity/Entity.h"
+#include "Entity/Primitive/PrimitiveMetadata.h"
 #include "Entity/Material/Material.h"
 #include "Entity/Material/Integrand/SurfaceIntegrand.h"
 #include "Math/Math.h"
@@ -41,8 +41,8 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const Intersector&
 
 	while(numBounces <= MAX_RAY_BOUNCES && intersector.isIntersecting(tracingRay, &intersection))
 	{
-		const Entity* hitEntity = intersection.getHitPrimitive()->getParentEntity();
-		const Material* hitMaterial = hitEntity->getMaterial();
+		const auto* const metadata = intersection.getHitPrimitive()->getMetadata();
+		const Material* hitMaterial = metadata->m_material;
 
 		//const Vector3f N(intersection.getHitSmoothNormal());
 		//const Vector3f V(tracingRay.getDirection().mul(-1.0f));
@@ -95,7 +95,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const Intersector&
 
 			Vector3f liWeight = surfaceSample.m_LiWeight;
 
-			//if(numBounces >= 3)
+			if(numBounces >= 3)
 			{
 				//const float32 rrSurviveRate = liWeight.clamp(0.0f, 1.0f).max();
 				const float32 rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001f, 1.0f);
