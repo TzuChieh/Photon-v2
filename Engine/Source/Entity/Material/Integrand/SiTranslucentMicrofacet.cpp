@@ -55,17 +55,6 @@ void SiTranslucentMicrofacet::evaluateImportanceSample(const Intersection& inter
 	const float32 HoV = H.dot(V);
 	const float32 NoH = N.dot(H);
 
-	// sidedness agreement between real geometry and shading (phong-interpolated) normal
-	if(NoV * intersection.getHitGeoNormal().dot(V) <= 0.0f)
-	{
-		out_sample->m_LiWeight.set(0, 0, 0);
-		out_sample->m_direction.set(ray.getDirection().reflect(H).normalizeLocal());
-		out_sample->m_type = ESurfaceSampleType::REFLECTION;
-		out_sample->m_emittedRadiance.set(0, 0, 0);
-		//std::cerr << "detected!";
-		return;
-	}
-
 	Vector3f F;
 	Microfacet::fresnelSchlickApproximated(abs(HoV), sampledF0, &F);
 
@@ -129,6 +118,17 @@ void SiTranslucentMicrofacet::evaluateImportanceSample(const Intersection& inter
 
 	const float32 NoL = N.dot(L);
 	const float32 HoL = H.dot(L);
+
+	// sidedness agreement between real geometry and shading (phong-interpolated) normal
+	if(NoV * intersection.getHitGeoNormal().dot(V) <= 0.0f || NoL * intersection.getHitGeoNormal().dot(L) <= 0.0f)
+	{
+		out_sample->m_LiWeight.set(0, 0, 0);
+		out_sample->m_direction.set(ray.getDirection().reflect(H).normalizeLocal());
+		out_sample->m_type = ESurfaceSampleType::REFLECTION;
+		out_sample->m_emittedRadiance.set(0, 0, 0);
+		//std::cerr << "detected!";
+		return;
+	}
 
 	const float32 G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, roughness);
 

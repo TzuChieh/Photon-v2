@@ -149,10 +149,10 @@ void loadTestScene(World* const out_world)
 
 		//auto dragonMaterial = std::make_shared<PerfectMirror>();
 
-		loadedModel.setMaterial(goldMaterial);
+		loadedModel.setMaterial(glassMaterial);
 		for(auto& model : loadedModel.getChildren())
 		{
-			model.setMaterial(goldMaterial);
+			model.setMaterial(glassMaterial);
 		}
 
 		out_world->addEntity(loadedModel);

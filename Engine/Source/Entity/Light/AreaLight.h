@@ -10,7 +10,10 @@ class AreaLight final : public Light
 public:
 	virtual ~AreaLight() override;
 
-	virtual void buildEmitters(std::vector<std::unique_ptr<Emitter>>* const out_emitters, const EmitterMetadata* const metadata) const override;
+	virtual void buildEmitters(EmitterStorage* const out_data, const Entity& parentEntity) const override;
+
+private:
+	static bool checkEntityCompleteness(const Entity& entity);
 };
 
 }// end namespace ph

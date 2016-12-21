@@ -65,13 +65,7 @@ void World::gatherPrimitivesFromEntity(const Entity& entity)
 	// a visible entity must at least have geometry and material
 	if(entity.getGeometry() && entity.getMaterial())
 	{
-		auto metadata = std::make_unique<PrimitiveMetadata>();
-		metadata->m_material      = entity.getMaterial();
-		metadata->m_localToWorld  = entity.getLocalToWorldTransform();
-		metadata->m_worldToLocal  = entity.getWorldToLocalTransform();
-		metadata->m_textureMapper = entity.getTextureMapper();
 		entity.getGeometry()->discretize(&m_primitiveStorage, entity);
-		m_primitiveStorage.add(std::move(metadata));
 	}
 
 	for(const auto& entity : entity.getChildren())

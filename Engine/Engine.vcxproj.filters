@@ -258,6 +258,9 @@
     <ClCompile Include="Source\Core\Primitive\PrimitiveStorage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\Emitter\EmitterStorage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Math\Matrix4f.h">
@@ -540,6 +543,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Primitive\PrimitiveStorage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Emitter\EmitterStorage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

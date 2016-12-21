@@ -5,9 +5,9 @@
 namespace ph
 {
 
-PrimitiveEmitter::PrimitiveEmitter(const EmitterMetadata* const metadata, std::unique_ptr<Primitive> primitive) :
+PrimitiveEmitter::PrimitiveEmitter(const EmitterMetadata* const metadata, const Primitive* const primitive) :
 	Emitter(metadata), 
-	m_primitive(std::move(primitive))
+	m_primitive(primitive)
 {
 
 }

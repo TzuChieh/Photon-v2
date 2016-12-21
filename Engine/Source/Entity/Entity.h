@@ -12,7 +12,7 @@ namespace ph
 class Geometry;
 class Material;
 class TextureMapper;
-class Emitter;
+class Light;
 
 class Entity final
 {
@@ -40,14 +40,14 @@ public:
 	const Geometry*      getGeometry() const;
 	const Material*      getMaterial() const;
 	const TextureMapper* getTextureMapper() const;
-	const Emitter*       getEmitter() const;
+	const Light*         getLight() const;
 	const Transform*     getLocalToWorldTransform() const;
 	const Transform*     getWorldToLocalTransform() const;
 
 	void setGeometry(const std::shared_ptr<Geometry>& geometry);
 	void setMaterial(const std::shared_ptr<Material>& material);
 	void setTextureMapper(const std::shared_ptr<TextureMapper>& textureMapper);
-	void setEmitter(const std::shared_ptr<Emitter>& emitter);
+	void setLight(const std::shared_ptr<Light>& light);
 
 	inline const Vector3f& getPosition() const
 	{
@@ -69,7 +69,7 @@ private:
 	std::shared_ptr<Geometry>      m_geometry;
 	std::shared_ptr<Material>      m_material;
 	std::shared_ptr<TextureMapper> m_textureMapper;
-	std::shared_ptr<Emitter>       m_emitter;
+	std::shared_ptr<Light>         m_light;
 	TransformInfo m_entityTransformInfo;
 	Transform     m_localToWorld;
 	Transform     m_worldToLocal;

@@ -12,6 +12,8 @@ namespace ph
 class PrimitiveStorage final
 {
 public:
+	PrimitiveStorage() = default;
+
 	void clear();
 	void add(std::unique_ptr<Primitive> primitive);
 	void add(std::unique_ptr<PrimitiveMetadata> metadata);
@@ -22,6 +24,12 @@ public:
 	typename std::vector<std::unique_ptr<Primitive>>::const_iterator end()   const noexcept;
 
 	std::size_t numPrimitives() const;
+
+	void add(PrimitiveStorage&& other);
+
+	// forbid copying
+	PrimitiveStorage(const PrimitiveStorage& other) = delete;
+	PrimitiveStorage& operator = (const PrimitiveStorage& rhs) = delete;
 
 private:
 	std::vector<std::unique_ptr<Primitive>> m_primitives;

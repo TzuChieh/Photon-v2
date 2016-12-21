@@ -168,6 +168,7 @@
     <ClCompile Include="Source\Camera\Camera.cpp" />
     <ClCompile Include="Source\Camera\DefaultCamera.cpp" />
     <ClCompile Include="Source\Core\Emitter\EmitterMetadata.cpp" />
+    <ClCompile Include="Source\Core\Emitter\EmitterStorage.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardLightIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardPathIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\Integrator.cpp" />
@@ -252,6 +253,7 @@
     <ClInclude Include="Source\Camera\DefaultCamera.h" />
     <ClInclude Include="Source\Common\primitive_type.h" />
     <ClInclude Include="Source\Core\Emitter\EmitterMetadata.h" />
+    <ClInclude Include="Source\Core\Emitter\EmitterStorage.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardLightIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardPathIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\Integrator.h" />

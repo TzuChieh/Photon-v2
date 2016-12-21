@@ -46,4 +46,14 @@ std::size_t PrimitiveStorage::numPrimitives() const
 	return m_primitives.size();
 }
 
+void PrimitiveStorage::add(PrimitiveStorage&& other)
+{
+	m_primitives.insert(m_primitives.end(),
+	                    std::make_move_iterator(other.m_primitives.begin()), 
+	                    std::make_move_iterator(other.m_primitives.end()));
+	m_metadataBuffer.insert(m_metadataBuffer.end(), 
+	                        std::make_move_iterator(other.m_metadataBuffer.begin()), 
+	                        std::make_move_iterator(other.m_metadataBuffer.end()));
+}
+
 }// end namespace ph
