@@ -53,4 +53,9 @@ std::size_t EmitterStorage::numEmitters() const
 	return m_emitters.size();
 }
 
+const Emitter& EmitterStorage::operator [] (const std::size_t index) const
+{
+	return *(m_emitters[index]);
+}
+
 }// end namespace ph

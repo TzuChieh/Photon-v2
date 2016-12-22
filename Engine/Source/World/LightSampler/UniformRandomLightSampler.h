@@ -12,6 +12,7 @@ public:
 	virtual ~UniformRandomLightSampler() override;
 
 	virtual void update(const std::vector<Entity>& entities) override;
+	virtual const Emitter* pickEmitter(float32* const out_PDF) const override;
 
 private:
 	EmitterStorage m_emitterStorage;

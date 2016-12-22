@@ -1,6 +1,8 @@
 #include "Core/Integrator/BackwardPathIntegrator.h"
 #include "Core/Ray.h"
 #include "World/World.h"
+#include "World/Intersector.h"
+#include "World/LightSampler/LightSampler.h"
 #include "Math/Vector3f.h"
 #include "Core/Intersection.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
@@ -20,14 +22,16 @@ namespace ph
 
 BackwardPathIntegrator::~BackwardPathIntegrator() = default;
 
-void BackwardPathIntegrator::update(const Intersector& intersector)
+void BackwardPathIntegrator::update(const World& world)
 {
 	// update nothing
 }
 
-void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const Intersector& intersector, Vector3f* const out_radiance) const
+void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world, Vector3f* const out_radiance) const
 {
 	const float32 rayDeltaDist = 0.0001f;
+	const Intersector& intersector = world.getIntersector();
+
 	uint32 numBounces = 0;
 	Vector3f accuRadiance(0, 0, 0);
 	Vector3f accuLiWeight(1, 1, 1);

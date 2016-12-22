@@ -25,6 +25,8 @@ public:
 
 	std::size_t numEmitters() const;
 
+	const Emitter& operator [] (const std::size_t index) const;
+
 private:
 	std::vector<std::unique_ptr<Emitter>> m_emitters;
 	std::vector<std::unique_ptr<EmitterMetadata>> m_emitterMetadataBuffer;

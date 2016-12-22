@@ -33,6 +33,8 @@ void AreaLight::buildEmitters(EmitterStorage* const out_data, const Entity& pare
 	for(const auto& primitive : primitives)
 	{
 		out_data->add(std::make_unique<PrimitiveEmitter>(emitterMetadata.get(), primitive.get()));
+
+		//std::cout << "added" << std::endl;
 	}
 	
 	out_data->add(std::move(emitterMetadata));

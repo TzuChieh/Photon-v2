@@ -15,6 +15,7 @@
 #include "Image/CheckerboardTexture.h"
 #include "Entity/TextureMapper/SphericalMapper.h"
 #include "FileIO/RenderDataFileLoader.h"
+#include "Entity/Light/AreaLight.h"
 
 #include <memory>
 
@@ -25,6 +26,15 @@ void loadTestScene(World* const out_world)
 {
 	RenderDataFileLoader dataFileLoader;
 	dataFileLoader.load("./testDataFile.txt");
+
+	/*auto lightGeometry = std::make_shared<GSphere>(0.5f);
+	auto lightMaterial = std::make_shared<LightMaterial>();
+	auto lightData = std::make_shared<AreaLight>();
+	lightMaterial->setEmittedRadiance(1.0f, 0.0f, 0.0f);
+	Entity testLightEntity(lightGeometry, lightMaterial);
+	testLightEntity.translate(0, 0, 0);
+	testLightEntity.setLight(lightData);
+	out_world->addEntity(testLightEntity);*/
 
 
 	//ModelLoader modelLoader;
@@ -101,62 +111,62 @@ void loadTestScene(World* const out_world)
 	//auto loadedModel = modelLoader.load("../SceneResource/cube.obj");
 	Entity loadedModel;
 	
-	bool isLoadingSuccess = modelLoader.load("../SceneResource/dragon.obj", &loadedModel);
-	//bool isLoadingSuccess = modelLoader.load("../SceneResource/lucy.obj", &loadedModel);
-	//bool isLoadingSuccess = modelLoader.load("../SceneResource/GlassesAndCups.obj", &loadedModel);
-	//bool isLoadingSuccess = modelLoader.load("../SceneResource/lalala/lalala.obj", &loadedModel);
-	//bool isLoadingSuccess = false;
-	if(isLoadingSuccess)
-	{
-		/*loadedModel.translate(-1.6f, -5, 0);
-		loadedModel.scale(3.5f);
-		loadedModel.rotate(Vector3f(0, 1, 0), 230);*/
+	//bool isLoadingSuccess = modelLoader.load("../SceneResource/dragon.obj", &loadedModel);
+	////bool isLoadingSuccess = modelLoader.load("../SceneResource/lucy.obj", &loadedModel);
+	////bool isLoadingSuccess = modelLoader.load("../SceneResource/GlassesAndCups.obj", &loadedModel);
+	////bool isLoadingSuccess = modelLoader.load("../SceneResource/lalala/lalala.obj", &loadedModel);
+	////bool isLoadingSuccess = false;
+	//if(isLoadingSuccess)
+	//{
+	//	/*loadedModel.translate(-1.6f, -5, 0);
+	//	loadedModel.scale(3.5f);
+	//	loadedModel.rotate(Vector3f(0, 1, 0), 230);*/
 
-		loadedModel.translate(0, -5, 0);
-		loadedModel.scale(5.0f);
-		loadedModel.rotate(Vector3f(0, 1, 0), 180);
+	//	loadedModel.translate(0, -5, 0);
+	//	loadedModel.scale(5.0f);
+	//	loadedModel.rotate(Vector3f(0, 1, 0), 180);
 
-		/*loadedModel.translate(0, -5, 0);
-		loadedModel.scale(4.0f);*/
-		//loadedModel.rotate(Vector3f(0, 1, 0), 180);
+	//	/*loadedModel.translate(0, -5, 0);
+	//	loadedModel.scale(4.0f);*/
+	//	//loadedModel.rotate(Vector3f(0, 1, 0), 180);
 
-		/*loadedModel.translate(0, -5, 1.5f);
-		loadedModel.scale(1.1f);
-		loadedModel.rotate(Vector3f(0, 1, 0), 180);*/
+	//	/*loadedModel.translate(0, -5, 1.5f);
+	//	loadedModel.scale(1.1f);
+	//	loadedModel.rotate(Vector3f(0, 1, 0), 180);*/
 
-		/*loadedModel.translate(-3, -4, 1.5f);
-		loadedModel.scale(1.5f);
-		loadedModel.rotate(Vector3f(0, 1, 0), -45);*/
+	//	/*loadedModel.translate(-3, -4, 1.5f);
+	//	loadedModel.scale(1.5f);
+	//	loadedModel.rotate(Vector3f(0, 1, 0), -45);*/
 
-		/*loadedModel.setTextureMapper(std::make_shared<SphericalMapper>());
-		auto loadedModelMaterial = std::make_shared<MatteOpaque>();
-		loadedModelMaterial->setAlbedo(std::make_shared<CheckerboardTexture>(16.0f, 8.0f, Vector3f(0, 0, 0), Vector3f(1, 1, 1)));
-		loadedModel.setMaterial(loadedModelMaterial);*/
+	//	/*loadedModel.setTextureMapper(std::make_shared<SphericalMapper>());
+	//	auto loadedModelMaterial = std::make_shared<MatteOpaque>();
+	//	loadedModelMaterial->setAlbedo(std::make_shared<CheckerboardTexture>(16.0f, 8.0f, Vector3f(0, 0, 0), Vector3f(1, 1, 1)));
+	//	loadedModel.setMaterial(loadedModelMaterial);*/
 
-		auto goldMaterial = std::make_shared<AbradedOpaque>();
-		goldMaterial->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));
-		goldMaterial->setRoughness(0.3f);
+	//	auto goldMaterial = std::make_shared<AbradedOpaque>();
+	//	goldMaterial->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));
+	//	goldMaterial->setRoughness(0.3f);
 
-		auto glassMaterial = std::make_shared<AbradedTranslucent>();
-		glassMaterial->setF0(0.04f, 0.04f, 0.04f);
-		glassMaterial->setIOR(1.5f);
-		glassMaterial->setRoughness(0.0f);
+	//	auto glassMaterial = std::make_shared<AbradedTranslucent>();
+	//	glassMaterial->setF0(0.04f, 0.04f, 0.04f);
+	//	glassMaterial->setIOR(1.5f);
+	//	glassMaterial->setRoughness(0.0f);
 
-		/*auto dragonMaterial = std::make_shared<AbradedTranslucent>();
-		dragonMaterial->setF0(0.04f, 0.04f, 0.04f);
-		dragonMaterial->setRoughness(0.0f);
-		dragonMaterial->setIOR(1.5f);*/
+	//	/*auto dragonMaterial = std::make_shared<AbradedTranslucent>();
+	//	dragonMaterial->setF0(0.04f, 0.04f, 0.04f);
+	//	dragonMaterial->setRoughness(0.0f);
+	//	dragonMaterial->setIOR(1.5f);*/
 
-		//auto dragonMaterial = std::make_shared<PerfectMirror>();
+	//	//auto dragonMaterial = std::make_shared<PerfectMirror>();
 
-		loadedModel.setMaterial(glassMaterial);
-		for(auto& model : loadedModel.getChildren())
-		{
-			model.setMaterial(glassMaterial);
-		}
+	//	loadedModel.setMaterial(glassMaterial);
+	//	for(auto& model : loadedModel.getChildren())
+	//	{
+	//		model.setMaterial(glassMaterial);
+	//	}
 
-		out_world->addEntity(loadedModel);
-	}
+	//	out_world->addEntity(loadedModel);
+	//}
 
 	/*auto sphereMaterial = std::make_shared<AbradedTranslucent>();
 	sphereMaterial->setF0(0.04f, 0.04f, 0.04f);

@@ -1,6 +1,8 @@
 #include "Core/Integrator/BackwardLightIntegrator.h"
 #include "Core/Ray.h"
+#include "World/World.h"
 #include "World/Intersector.h"
+#include "World/LightSampler/LightSampler.h"
 #include "Math/Vector3f.h"
 #include "Core/Intersection.h"
 #include "Entity/Material/Integrand/SurfaceSample.h"
@@ -16,13 +18,15 @@ namespace ph
 
 BackwardLightIntegrator::~BackwardLightIntegrator() = default;
 
-void BackwardLightIntegrator::update(const Intersector& intersector)
+void BackwardLightIntegrator::update(const World& world)
 {
 	// update nothing
 }
 
-void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const Intersector& intersector, Vector3f* const out_radiance) const
+void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const World& world, Vector3f* const out_radiance) const
 {
+	const Intersector& intersector = world.getIntersector();
+
 	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f));// reverse ray for backward tracing
 	Intersection intersection;
 	Vector3f accuRadiance(0, 0, 0);
