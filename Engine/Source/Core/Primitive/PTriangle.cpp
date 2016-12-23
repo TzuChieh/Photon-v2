@@ -38,7 +38,7 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	const float32 hitT = localRay.getOrigin().sub(m_vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
 
 	// reject by distance (NaN-aware)
-	if(!(TRIANGLE_EPSILON < hitT && hitT < ray.getMaxT()))
+	if(!(ray.getMinT() < hitT && hitT < ray.getMaxT()))
 		return false;
 
 	// projected hit point
@@ -134,7 +134,7 @@ bool PTriangle::isIntersecting(const Ray& ray) const
 	const float32 hitT = localRay.getOrigin().sub(m_vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
 
 	// reject by distance (NaN-aware)
-	if(!(TRIANGLE_EPSILON < hitT && hitT < ray.getMaxT()))
+	if(!(ray.getMinT() < hitT && hitT < ray.getMaxT()))
 		return false;
 
 	// projected hit point

@@ -346,7 +346,7 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, Intersection
 	else
 	{
 		Intersection closestIntersection(*out_intersection);
-
+		const Ray segmentRay(ray.getOrigin(), ray.getDirection(), rayDistMin, rayDistMax);
 		Vector3f temp;
 
 		// TODO: infinity may be unsafe on some machine
@@ -359,7 +359,7 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, Intersection
 		{
 			out_intersection->clear();
 
-			if((*m_primitiveBuffer)[primIndex]->isIntersecting(ray, out_intersection))
+			if((*m_primitiveBuffer)[primIndex]->isIntersecting(segmentRay, out_intersection))
 			{
 				out_intersection->getHitPosition().sub(ray.getOrigin(), &temp);
 				float32 squaredHitDist = temp.squaredLength();

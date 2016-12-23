@@ -35,6 +35,7 @@ void Transform::transformRay(const Ray& ray, Ray* const out_transformedRay) cons
 {
 	m_transformMatrix.mul(ray.getOrigin(), 1.0f, &(out_transformedRay->getOrigin()));
 	m_transformMatrix.mul(ray.getDirection(), 0.0f, &(out_transformedRay->getDirection()));
+	out_transformedRay->setMinT(ray.getMinT());
 	out_transformedRay->setMaxT(ray.getMaxT());
 }
 
@@ -45,6 +46,7 @@ void Transform::transformRayNormalized(const Ray& ray, Ray* const out_transforme
 
 	// normalizing the ray
 	const float32 dirLength = out_transformedRay->getDirection().length();
+	out_transformedRay->setMinT(ray.getMinT() * dirLength);
 	out_transformedRay->setMaxT(ray.getMaxT() * dirLength);
 	out_transformedRay->getDirection().mulLocal(1.0f / dirLength);
 }

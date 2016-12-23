@@ -67,12 +67,11 @@ bool AABB::isIntersectingVolume(const Ray& ray) const
 
 	// below conditions are NaN-aware
 
-	// ray intersects with AABB if traveling forward with unlimited distance
-	// (tMin can be negative if ray origin is inside AABB)
-	if(tMax > 0.0f && tMax > tMin)
+	// ray intersects with AABB if elongated in both directions with unlimited length
+	if(tMax > tMin)
 	{
-		// for a length-limited ray to actually intersect with AABB, it must at least longer than tMin
-		if(ray.getMaxT() > tMin)
+		// for a length-limited ray to actually intersect with AABB, it must overlap (tMin, tMax)
+		if(ray.getMaxT() > tMin && ray.getMinT() < tMax)
 		{
 			return true;
 		}
@@ -133,15 +132,14 @@ bool AABB::isIntersectingVolume(const Ray& ray, float32* const out_rayNearHitDis
 
 	// below conditions are NaN-aware
 
-	// ray intersects with AABB if traveling forward with unlimited distance
-	// (tMin can be negative if ray origin is inside AABB)
-	if(tMax > 0.0f && tMax > tMin)
+	// ray intersects with AABB if elongated in both directions with unlimited length
+	if(tMax > tMin)
 	{
-		// for a length-limited ray to actually intersect with AABB, it must at least longer than tMin
-		if(ray.getMaxT() > tMin)
+		// for a length-limited ray to actually intersect with AABB, it must overlap (tMin, tMax)
+		if(ray.getMaxT() > tMin && ray.getMinT() < tMax)
 		{
-			*out_rayNearHitDist = tMin;
-			*out_rayFarHitDist = tMax > ray.getMaxT() ? ray.getMaxT() : tMax;
+			*out_rayNearHitDist = tMin < ray.getMinT() ? ray.getMinT() : tMin;
+			*out_rayFarHitDist  = tMax > ray.getMaxT() ? ray.getMaxT() : tMax;
 			return true;
 		}
 	}

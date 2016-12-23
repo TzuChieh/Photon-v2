@@ -34,7 +34,8 @@ void DefaultCamera::genSensingRay(const Sample& sample, Ray* const out_ray, cons
 
 	out_ray->setDirection(getDirection().add(rightDir.addLocal(upDir)).mulLocal(-1.0f).normalizeLocal());
 	out_ray->setOrigin(getPosition());
-	out_ray->setMaxT(std::numeric_limits<float32>::max());
+	out_ray->setMinT(RAY_T_EPSILON);
+	out_ray->setMaxT(RAY_T_MAX);
 }
 
 }// end namespace ph

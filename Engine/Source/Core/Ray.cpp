@@ -2,9 +2,14 @@
 
 namespace ph
 {
+Ray::Ray(const Vector3f& origin, const Vector3f& direction, const float32 minT, const float32 maxT) :
+	m_origin(origin), m_direction(direction), m_minT(minT), m_maxT(maxT)
+{
 
-Ray::Ray(const Vector3f& origin, const Vector3f& direction, const float32 maxT) :
-	m_origin(origin), m_direction(direction), m_maxT(maxT)
+}
+
+Ray::Ray(const Vector3f& origin, const Vector3f& direction) :
+	Ray(origin, direction, RAY_T_EPSILON, RAY_T_MAX)
 {
 
 }

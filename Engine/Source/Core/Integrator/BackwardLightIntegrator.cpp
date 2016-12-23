@@ -29,7 +29,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const World& worl
 	const LightSampler& lightSampler = world.getLightSampler();
 
 	// reverse ray for backward tracing
-	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f));
+	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), RAY_T_EPSILON, RAY_T_MAX);
 	Intersection intersection;
 	Vector3f accuRadiance(0, 0, 0);
 	Vector3f accuLiWeight(1, 1, 1);

@@ -39,7 +39,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world
 	Intersection intersection;
 
 	// backward tracing to light
-	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f));
+	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), RAY_T_EPSILON, RAY_T_MAX);
 
 	const Primitive* lastPrimitive = nullptr;
 

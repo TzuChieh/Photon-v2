@@ -1,8 +1,12 @@
 #pragma once
 
+#include "Common/primitive_type.h"
 #include "Math/Vector3f.h"
 
 #include <limits>
+
+#define RAY_T_EPSILON 0.0001f
+#define RAY_T_MAX     std::numeric_limits<float32>::max()
 
 namespace ph
 {
@@ -10,7 +14,8 @@ namespace ph
 class Ray final
 {
 public:
-	Ray(const Vector3f& origin, const Vector3f& direction, const float32 maxT = std::numeric_limits<float32>::max());
+	Ray(const Vector3f& origin, const Vector3f& direction, const float32 minT, const float32 maxT);
+	Ray(const Vector3f& origin, const Vector3f& direction);
 	Ray();
 
 	inline const Vector3f& getOrigin() const
@@ -33,6 +38,11 @@ public:
 		return m_direction;
 	}
 
+	inline float32 getMinT() const
+	{
+		return m_minT;
+	}
+
 	inline float32 getMaxT() const
 	{
 		return m_maxT;
@@ -48,6 +58,11 @@ public:
 		m_direction = direction;
 	}
 
+	inline void setMinT(const float32 minT)
+	{
+		m_minT = minT;
+	}
+
 	inline void setMaxT(const float32 maxT)
 	{
 		m_maxT = maxT;
@@ -56,6 +71,7 @@ public:
 private:
 	Vector3f m_origin;
 	Vector3f m_direction;
+	float32  m_minT;
 	float32  m_maxT;
 };
 
