@@ -2,12 +2,14 @@
 #include "Core/Ray.h"
 #include "Core/Sample.h"
 
+#include <limits>
+
 namespace ph
 {
 
 DefaultCamera::DefaultCamera() :
 	Camera(),
-	m_fov(50.0f / 180.0f * 3.1415927f)
+	m_fov(70.0f / 180.0f * 3.1415927f)
 {
 
 }
@@ -32,6 +34,7 @@ void DefaultCamera::genSensingRay(const Sample& sample, Ray* const out_ray, cons
 
 	out_ray->setDirection(getDirection().add(rightDir.addLocal(upDir)).mulLocal(-1.0f).normalizeLocal());
 	out_ray->setOrigin(getPosition());
+	out_ray->setMaxT(std::numeric_limits<float32>::max());
 }
 
 }// end namespace ph

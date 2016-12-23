@@ -21,14 +21,14 @@ KdtreeAABB::KdtreeAABB(const Vector3f& minVertex, const Vector3f& maxVertex) :
 
 }
 
-bool KdtreeAABB::isIntersecting(const Ray& ray, float32* const out_rayNearHitDist, float32* const out_rayFarHitDist) const
+bool KdtreeAABB::isIntersectingVolume(const Ray& ray, float32* const out_rayNearHitDist, float32* const out_rayFarHitDist) const
 {
-	return m_aabb.isIntersecting(ray, out_rayNearHitDist, out_rayFarHitDist);
+	return m_aabb.isIntersectingVolume(ray, out_rayNearHitDist, out_rayFarHitDist);
 }
 
-bool KdtreeAABB::isIntersecting(const AABB& aabb) const
+bool KdtreeAABB::isIntersectingVolume(const AABB& aabb) const
 {
-	return m_aabb.isIntersecting(aabb);
+	return m_aabb.isIntersectingVolume(aabb);
 }
 
 bool KdtreeAABB::trySplitAt(const int32 axis, const float32 splitPos, KdtreeAABB* const out_negativeAABB, KdtreeAABB* const out_positiveAABB) const

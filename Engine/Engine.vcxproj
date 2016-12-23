@@ -201,8 +201,7 @@
     <ClCompile Include="Source\Entity\Material\AbradedTranslucent.cpp" />
     <ClCompile Include="Source\Entity\Material\Integrand\SiTranslucentMicrofacet.cpp" />
     <ClCompile Include="Source\Entity\ModelLoader.cpp" />
-    <ClCompile Include="Source\Entity\BoundingVolume\AABB.cpp" />
-    <ClCompile Include="Source\Entity\BoundingVolume\BoundingVolume.cpp" />
+    <ClCompile Include="Source\Core\BoundingVolume\AABB.cpp" />
     <ClCompile Include="Source\Entity\ModelParser\AiMaterialParser.cpp" />
     <ClCompile Include="Source\Entity\ModelParser\AiMeshParser.cpp" />
     <ClCompile Include="Source\Entity\ModelParser\AssimpModelParser.cpp" />
@@ -298,8 +297,7 @@
     <ClInclude Include="Source\Entity\Material\Integrand\SiTranslucentMicrofacet.h" />
     <ClInclude Include="Source\Entity\Material\Integrand\SurfaceSample.h" />
     <ClInclude Include="Source\Entity\ModelLoader.h" />
-    <ClInclude Include="Source\Entity\BoundingVolume\AABB.h" />
-    <ClInclude Include="Source\Entity\BoundingVolume\BoundingVolume.h" />
+    <ClInclude Include="Source\Core\BoundingVolume\AABB.h" />
     <ClInclude Include="Source\Entity\ModelParser\ModelParser.h" />
     <ClInclude Include="Source\Entity\TextureMapper\DefaultMapper.h" />
     <ClInclude Include="Source\Entity\TextureMapper\SphericalMapper.h" />

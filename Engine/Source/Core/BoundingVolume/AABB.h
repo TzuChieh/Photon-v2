@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Entity/BoundingVolume/BoundingVolume.h"
 #include "Math/Vector3f.h"
 
 namespace ph
@@ -8,16 +7,15 @@ namespace ph
 
 class Ray;
 
-class AABB final : public BoundingVolume
+class AABB final
 {
 public:
 	AABB();
 	AABB(const Vector3f& minVertex, const Vector3f& maxVertex);
-	virtual ~AABB() override;
 
-	bool isIntersecting(const Ray& ray) const;
-	bool isIntersecting(const Ray& ray, float32* const out_rayNearHitDist, float32* const out_rayFarHitDist) const;
-	bool isIntersecting(const AABB& aabb) const;
+	bool isIntersectingVolume(const Ray& ray) const;
+	bool isIntersectingVolume(const Ray& ray, float32* const out_rayNearHitDist, float32* const out_rayFarHitDist) const;
+	bool isIntersectingVolume(const AABB& aabb) const;
 	void unionWith(const AABB& other);
 
 	inline void getMinMaxVertices(Vector3f* const out_minVertex, Vector3f* const out_maxVertex) const

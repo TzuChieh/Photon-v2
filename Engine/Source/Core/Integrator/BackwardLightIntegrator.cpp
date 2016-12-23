@@ -26,12 +26,13 @@ void BackwardLightIntegrator::update(const World& world)
 void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const World& world, Vector3f* const out_radiance) const
 {
 	const Intersector& intersector = world.getIntersector();
+	const LightSampler& lightSampler = world.getLightSampler();
 
-	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f));// reverse ray for backward tracing
+	// reverse ray for backward tracing
+	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f));
 	Intersection intersection;
 	Vector3f accuRadiance(0, 0, 0);
 	Vector3f accuLiWeight(1, 1, 1);
-	
 
 	for(uint32 numBounces = 0; numBounces < MAX_RAY_BOUNCES; numBounces++)
 	{
@@ -45,7 +46,12 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const World& worl
 		const Material* hitMaterial = metadata->m_material;
 		const SurfaceIntegrand* surfaceIntegrand = hitMaterial->getSurfaceIntegrand();
 
-		// TODO: sample light
+		float32 emitterPickPDF;
+		const Emitter* emitter = lightSampler.pickEmitter(&emitterPickPDF);
+		if(emitter)
+		{
+			// sample light
+		}
 
 		// TODO: sample indirect light
 	}

@@ -1,5 +1,6 @@
 #include "Math/Transform.h"
-#include "Entity/BoundingVolume/AABB.h"
+#include "Core/BoundingVolume/AABB.h"
+#include "Core/Ray.h"
 
 #include <iostream>
 
@@ -28,6 +29,24 @@ void Transform::transformVector(const Vector3f& vector, Vector3f* const out_tran
 void Transform::transformPoint(const Vector3f& point, Vector3f* const out_transformedPoint) const
 {
 	m_transformMatrix.mul(point, 1.0f, out_transformedPoint);
+}
+
+void Transform::transformRay(const Ray& ray, Ray* const out_transformedRay) const
+{
+	m_transformMatrix.mul(ray.getOrigin(), 1.0f, &(out_transformedRay->getOrigin()));
+	m_transformMatrix.mul(ray.getDirection(), 0.0f, &(out_transformedRay->getDirection()));
+	out_transformedRay->setMaxT(ray.getMaxT());
+}
+
+void Transform::transformRayNormalized(const Ray& ray, Ray* const out_transformedRay) const
+{
+	m_transformMatrix.mul(ray.getOrigin(), 1.0f, &(out_transformedRay->getOrigin()));
+	m_transformMatrix.mul(ray.getDirection(), 0.0f, &(out_transformedRay->getDirection()));
+
+	// normalizing the ray
+	const float32 dirLength = out_transformedRay->getDirection().length();
+	out_transformedRay->setMaxT(ray.getMaxT() * dirLength);
+	out_transformedRay->getDirection().mulLocal(1.0f / dirLength);
 }
 
 void Transform::transform(const AABB& aabb, AABB* const out_aabb) const

@@ -18,9 +18,9 @@ Photon-v2 is being developed with cross-platformity in mind, but Windows is the 
 (building instructions will be added soon...) <br />
 
 ## Images Rendered by Photon-v2
-<img src="./gallery/028_sponza gold cups 12800spp.png" alt="Drawing" style="width: 480px;"/>
-<img src="./gallery/030_cornell box dragon glass ball 16384spp.png" alt="Drawing" style="width: 480px;"/>
-<img src="./gallery/035_lucy cornell box 10000spp.png" alt="Drawing" style="width: 480px;"/>
+<a href="url"><img src="./gallery/028_sponza gold cups 12800spp.png" align="left" width="480" ></a>
+<a href="url"><img src="./gallery/030_cornell box dragon glass ball 16384spp.png" align="left" width="480" ></a>
+<a href="url"><img src="./gallery/035_lucy cornell box 10000spp.png" align="left" width="480" ></a>
 
 ## About the Author
 YouTube Channel: https://www.youtube.com/channel/UCKdlogjqjuFsuv06wajp-2g <br />

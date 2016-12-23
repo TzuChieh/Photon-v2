@@ -3,7 +3,7 @@
 #include "Math/Transform.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
-#include "Entity/BoundingVolume/AABB.h"
+#include "Core/BoundingVolume/AABB.h"
 
 #include <limits>
 
@@ -31,16 +31,14 @@ PTriangle::~PTriangle() = default;
 
 bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersection) const
 {
-	Vector3f localOrigin;
-	Vector3f localDirection;
-	m_metadata->m_worldToLocal->transformPoint(ray.getOrigin(), &localOrigin);
-	m_metadata->m_worldToLocal->transformVector(ray.getDirection(), &localDirection);
-	Ray localRay(localOrigin, localDirection.normalizeLocal());
+	Ray localRay;
+	m_metadata->m_worldToLocal->transformRay(ray, &localRay);
 
-	const float32 dist = localRay.getOrigin().sub(m_vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
+	// hitT's unit is in world space (localRay's direction can have scale factor)
+	const float32 hitT = localRay.getOrigin().sub(m_vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
 
-	// reject by distance
-	if(dist < TRIANGLE_EPSILON || dist > std::numeric_limits<float32>::max() || dist != dist)
+	// reject by distance (NaN-aware)
+	if(!(TRIANGLE_EPSILON < hitT && hitT < ray.getMaxT()))
 		return false;
 
 	// projected hit point
@@ -55,8 +53,8 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 		// X dominant, projection plane is YZ
 		if(abs(m_faceNormal.x) > abs(m_faceNormal.z))
 		{
-			hitPu = dist * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
-			hitPv = dist * localRay.getDirection().z + localRay.getOrigin().z - m_vA.z;
+			hitPu = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
+			hitPv = hitT * localRay.getDirection().z + localRay.getOrigin().z - m_vA.z;
 			abPu = m_eAB.y;
 			abPv = m_eAB.z;
 			acPu = m_eAC.y;
@@ -65,8 +63,8 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 		// Z dominant, projection plane is XY
 		else
 		{
-			hitPu = dist * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
-			hitPv = dist * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
+			hitPu = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
+			hitPv = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
 			abPu = m_eAB.x;
 			abPv = m_eAB.y;
 			acPu = m_eAC.x;
@@ -76,8 +74,8 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	// Y dominant, projection plane is ZX
 	else if(abs(m_faceNormal.y) > abs(m_faceNormal.z))
 	{
-		hitPu = dist * localRay.getDirection().z + localRay.getOrigin().z - m_vA.z;
-		hitPv = dist * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
+		hitPu = hitT * localRay.getDirection().z + localRay.getOrigin().z - m_vA.z;
+		hitPv = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
 		abPu = m_eAB.z;
 		abPv = m_eAB.x;
 		acPu = m_eAC.z;
@@ -86,8 +84,8 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	// Z dominant, projection plane is XY
 	else
 	{
-		hitPu = dist * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
-		hitPv = dist * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
+		hitPu = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
+		hitPv = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
 		abPu = m_eAB.x;
 		abPv = m_eAB.y;
 		acPu = m_eAC.x;
@@ -111,7 +109,7 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	Vector3f hitPosition;
 	Vector3f hitNormal;
 	Vector3f localHitNormal(m_nA.mul(1.0f - baryB - baryC).addLocal(m_nB.mul(baryB)).addLocal(m_nC.mul(baryC)));
-	m_metadata->m_localToWorld->transformPoint(localRay.getDirection().mul(dist).addLocal(localRay.getOrigin()), &hitPosition);
+	m_metadata->m_localToWorld->transformPoint(localRay.getDirection().mul(hitT).addLocal(localRay.getOrigin()), &hitPosition);
 	m_metadata->m_localToWorld->transformVector(localHitNormal, &hitNormal);
 	//m_parentModel->getModelToWorldTransform()->transformVector(m_faceNormal, &hitNormal);
 
@@ -124,6 +122,85 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	out_intersection->setHitUVW(m_uvwA.mul(1.0f - baryB - baryC).addLocal(m_uvwB.mul(baryB)).addLocal(m_uvwC.mul(baryC)));
 	out_intersection->setHitPrimitive(this);
 
+	return true;
+}
+
+bool PTriangle::isIntersecting(const Ray& ray) const
+{
+	Ray localRay;
+	m_metadata->m_worldToLocal->transformRay(ray, &localRay);
+
+	// hitT's unit is in world space (localRay's direction can have scale factor)
+	const float32 hitT = localRay.getOrigin().sub(m_vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
+
+	// reject by distance (NaN-aware)
+	if(!(TRIANGLE_EPSILON < hitT && hitT < ray.getMaxT()))
+		return false;
+
+	// projected hit point
+	float32 hitPu, hitPv;
+
+	// projected side vector AB and AC
+	float32 abPu, abPv, acPu, acPv;
+
+	// find dominant axis
+	if(abs(m_faceNormal.x) > abs(m_faceNormal.y))
+	{
+		// X dominant, projection plane is YZ
+		if(abs(m_faceNormal.x) > abs(m_faceNormal.z))
+		{
+			hitPu = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
+			hitPv = hitT * localRay.getDirection().z + localRay.getOrigin().z - m_vA.z;
+			abPu = m_eAB.y;
+			abPv = m_eAB.z;
+			acPu = m_eAC.y;
+			acPv = m_eAC.z;
+		}
+		// Z dominant, projection plane is XY
+		else
+		{
+			hitPu = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
+			hitPv = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
+			abPu = m_eAB.x;
+			abPv = m_eAB.y;
+			acPu = m_eAC.x;
+			acPv = m_eAC.y;
+		}
+	}
+	// Y dominant, projection plane is ZX
+	else if(abs(m_faceNormal.y) > abs(m_faceNormal.z))
+	{
+		hitPu = hitT * localRay.getDirection().z + localRay.getOrigin().z - m_vA.z;
+		hitPv = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
+		abPu = m_eAB.z;
+		abPv = m_eAB.x;
+		acPu = m_eAC.z;
+		acPv = m_eAC.x;
+	}
+	// Z dominant, projection plane is XY
+	else
+	{
+		hitPu = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
+		hitPv = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
+		abPu = m_eAB.x;
+		abPv = m_eAB.y;
+		acPu = m_eAC.x;
+		acPv = m_eAC.y;
+	}
+
+	// TODO: check if these operations are possible of producing NaNs
+
+	// barycentric coordinate of vertex B in the projected plane
+	const float32 baryB = (hitPu*acPv - hitPv*acPu) / (abPu*acPv - abPv*acPu);
+	if(baryB < 0.0f) return false;
+
+	// barycentric coordinate of vertex C in the projected plane
+	const float32 baryC = (hitPu*abPv - hitPv*abPu) / (acPu*abPv - abPu*acPv);
+	if(baryC < 0.0f) return false;
+
+	if(baryB + baryC > 1.0f) return false;
+
+	// so the ray intersects the triangle (TODO: reuse calculated results!)
 	return true;
 }
 
@@ -158,7 +235,7 @@ void PTriangle::calcAABB(AABB* const out_aabb) const
 	out_aabb->setMaxVertex(Vector3f(maxX + TRIANGLE_EPSILON, maxY + TRIANGLE_EPSILON, maxZ + TRIANGLE_EPSILON));
 }
 
-bool PTriangle::isIntersecting(const AABB& aabb) const
+bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 {
 	// Reference: Tomas Akenine-Moeller's "Fast 3D Triangle-Box Overlap Testing", which
 	// is based on SAT but faster.

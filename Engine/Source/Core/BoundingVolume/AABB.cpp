@@ -1,4 +1,4 @@
-#include "Entity/BoundingVolume/AABB.h"
+#include "Core/BoundingVolume/AABB.h"
 #include "Core/Ray.h"
 
 namespace ph
@@ -16,9 +16,7 @@ AABB::AABB(const Vector3f& minVertex, const Vector3f& maxVertex) :
 
 }
 
-AABB::~AABB() = default;
-
-bool AABB::isIntersecting(const Ray& ray) const
+bool AABB::isIntersectingVolume(const Ray& ray) const
 {
 	// Reference: Kay and Kayjia's "slab method" from a project of the ACM SIGGRAPH Education Committee
 	// named HyperGraph.
@@ -67,14 +65,27 @@ bool AABB::isIntersecting(const Ray& ray) const
 		tMax = tMax > tzMin ? tzMin : tMax;
 	}
 
-	return (tMax >= 0.0f) && (tMax >= tMin);
+	// below conditions are NaN-aware
+
+	// ray intersects with AABB if traveling forward with unlimited distance
+	// (tMin can be negative if ray origin is inside AABB)
+	if(tMax > 0.0f && tMax > tMin)
+	{
+		// for a length-limited ray to actually intersect with AABB, it must at least longer than tMin
+		if(ray.getMaxT() > tMin)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
-// Returned boolean value indicates whether the ray is intersecting the AABB
-// or not. If there's an intersection, the near and far hit distance will be
-// returned via (out_rayNearHitDist, out_rayFarHitDist); if the ray origin is 
-// inside the AABB, near hit distance will be negative.
-bool AABB::isIntersecting(const Ray& ray, float32* const out_rayNearHitDist, float32* const out_rayFarHitDist) const
+// Returned boolean value indicates whether the ray is intersecting with the AABB's 
+// volume or not. If there's an intersection, the near and far hit distance will be
+// returned via (out_rayNearHitDist, out_rayFarHitDist); if the ray origin is inside 
+// the AABB, near hit distance will be 0 since volume intersection starts at ray origin.
+bool AABB::isIntersectingVolume(const Ray& ray, float32* const out_rayNearHitDist, float32* const out_rayFarHitDist) const
 {
 	float32 tMin, tMax;
 
@@ -120,20 +131,29 @@ bool AABB::isIntersecting(const Ray& ray, float32* const out_rayNearHitDist, flo
 		tMax = tMax > tzMin ? tzMin : tMax;
 	}
 
-	if(tMax < 0.0f || tMax < tMin)
-		return false;
+	// below conditions are NaN-aware
 
-	*out_rayNearHitDist = tMin;
-	*out_rayFarHitDist  = tMax;
+	// ray intersects with AABB if traveling forward with unlimited distance
+	// (tMin can be negative if ray origin is inside AABB)
+	if(tMax > 0.0f && tMax > tMin)
+	{
+		// for a length-limited ray to actually intersect with AABB, it must at least longer than tMin
+		if(ray.getMaxT() > tMin)
+		{
+			*out_rayNearHitDist = tMin;
+			*out_rayFarHitDist = tMax > ray.getMaxT() ? ray.getMaxT() : tMax;
+			return true;
+		}
+	}
 
-	return true;
+	return false;
 }
 
-bool AABB::isIntersecting(const AABB& aabb) const
+bool AABB::isIntersectingVolume(const AABB& aabb) const
 {
-	return m_minVertex.x <= aabb.m_maxVertex.x && m_maxVertex.x >= aabb.m_minVertex.x &&
-	       m_minVertex.y <= aabb.m_maxVertex.y && m_maxVertex.y >= aabb.m_minVertex.y &&
-	       m_minVertex.z <= aabb.m_maxVertex.z && m_maxVertex.z >= aabb.m_minVertex.z;
+	return m_minVertex.x < aabb.m_maxVertex.x && m_maxVertex.x > aabb.m_minVertex.x &&
+	       m_minVertex.y < aabb.m_maxVertex.y && m_maxVertex.y > aabb.m_minVertex.y &&
+	       m_minVertex.z < aabb.m_maxVertex.z && m_maxVertex.z > aabb.m_minVertex.z;
 }
 
 void AABB::unionWith(const AABB& other)

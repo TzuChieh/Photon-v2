@@ -17,7 +17,8 @@ public:
 	virtual ~PTriangle() override;
 
 	virtual bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const override;
-	virtual bool isIntersecting(const AABB& aabb) const override;
+	virtual bool isIntersecting(const Ray& ray) const override;
+	virtual bool isIntersectingVolume(const AABB& aabb) const override;
 	virtual void calcAABB(AABB* const out_aabb) const override;
 
 	inline void setNa(const Vector3f& nA)

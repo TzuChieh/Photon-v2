@@ -26,6 +26,7 @@ SiTranslucentMicrofacet::~SiTranslucentMicrofacet() = default;
 
 void SiTranslucentMicrofacet::evaluateImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
 {
+	// HACK: copy-and-paste comment
 	// Cook-Torrance microfacet specular BRDF is D(H)*F(V, H)*G(L, V, H) / (4*NoL*NoV).
 	// The importance sampling strategy is to generate a microfacet normal (H) which follows D(H)'s distribution, and
 	// generate L by reflecting/refracting -V using H.

@@ -37,47 +37,47 @@ void loadTestScene(World* const out_world)
 	out_world->addEntity(testLightEntity);*/
 
 
-	//ModelLoader modelLoader;
-	//Entity sponzaModel;
-	//if(modelLoader.load("../SceneResource/sponza/sponza.obj", &sponzaModel))
-	//{
-	//	sponzaModel.scale(0.02f);
-	//	//sponzaModel.rotate(Vector3f(0, 1, 0), 90);
-	//}
-	//out_world->addEntity(sponzaModel);
+	ModelLoader modelLoader;
+	Entity sponzaModel;
+	if(modelLoader.load("../SceneResource/sponza/sponza.obj", &sponzaModel))
+	{
+		sponzaModel.scale(0.02f);
+		//sponzaModel.rotate(Vector3f(0, 1, 0), 90);
+	}
+	out_world->addEntity(sponzaModel);
 
-	//auto lightGeometry = std::make_shared<GSphere>(4.0f);
-	//auto lightMaterial = std::make_shared<LightMaterial>();
-	//lightMaterial->setEmittedRadiance(15.0f, 15.5f, 21.5f);
-	//Entity lightEntity(lightGeometry, lightMaterial);
-	//lightEntity.translate(-20, 20, 0);
-	//out_world->addEntity(lightEntity);
+	auto lightGeometry = std::make_shared<GSphere>(4.0f);
+	auto lightMaterial = std::make_shared<LightMaterial>();
+	lightMaterial->setEmittedRadiance(15.0f, 15.5f, 21.5f);
+	Entity lightEntity(lightGeometry, lightMaterial);
+	lightEntity.translate(-20, 20, 0);
+	out_world->addEntity(lightEntity);
 
 
-	//Entity cupsModel;
-	//if(modelLoader.load("../SceneResource/GlassesAndCups_original.obj", &cupsModel))
-	//{
-	//	cupsModel.scale(10.0f);
-	//	cupsModel.rotate(Vector3f(0, 1, 0), 180);
+	Entity cupsModel;
+	if(modelLoader.load("../SceneResource/GlassesAndCups_original.obj", &cupsModel))
+	{
+		cupsModel.scale(10.0f);
+		cupsModel.rotate(Vector3f(0, 1, 0), 180);
 
-	//	auto glassMaterial = std::make_shared<AbradedTranslucent>();
-	//	glassMaterial->setF0(0.04f, 0.04f, 0.04f);
-	//	glassMaterial->setIOR(1.5f);
-	//	glassMaterial->setRoughness(0.4f);
+		auto glassMaterial = std::make_shared<AbradedTranslucent>();
+		glassMaterial->setF0(0.04f, 0.04f, 0.04f);
+		glassMaterial->setIOR(1.5f);
+		glassMaterial->setRoughness(0.0f);
 
-	//	auto goldMaterial = std::make_shared<AbradedOpaque>();
-	//	goldMaterial->setF0(1.0f, 0.765557f, 0.336057f);
-	//	goldMaterial->setRoughness(0.1f);
+		auto goldMaterial = std::make_shared<AbradedOpaque>();
+		goldMaterial->setF0(1.0f, 0.765557f, 0.336057f);
+		goldMaterial->setRoughness(0.1f);
 
-	//	cupsModel.setMaterial(glassMaterial);
-	//	for(auto& model : cupsModel.getChildren())
-	//	{
-	//		model.setMaterial(glassMaterial);
-	//	}
-	//}
-	//out_world->addEntity(cupsModel);
+		cupsModel.setMaterial(goldMaterial);
+		for(auto& model : cupsModel.getChildren())
+		{
+			model.setMaterial(goldMaterial);
+		}
+	}
+	out_world->addEntity(cupsModel);
 
-	loadCornellBox(out_world, 10.0f);
+	//loadCornellBox(out_world, 10.0f);
 
 	/*auto glassMaterial = std::make_shared<AbradedTranslucent>();
 	glassMaterial->setF0(0.04f, 0.04f, 0.04f);
@@ -107,9 +107,9 @@ void loadTestScene(World* const out_world)
 	lightModel.translate(10, 10, 0);
 	out_world->addEntity(lightModel);*/
 
-	ModelLoader modelLoader;
-	//auto loadedModel = modelLoader.load("../SceneResource/cube.obj");
-	Entity loadedModel;
+	//ModelLoader modelLoader;
+	////auto loadedModel = modelLoader.load("../SceneResource/cube.obj");
+	//Entity loadedModel;
 	
 	//bool isLoadingSuccess = modelLoader.load("../SceneResource/dragon.obj", &loadedModel);
 	////bool isLoadingSuccess = modelLoader.load("../SceneResource/lucy.obj", &loadedModel);
@@ -159,10 +159,10 @@ void loadTestScene(World* const out_world)
 
 	//	//auto dragonMaterial = std::make_shared<PerfectMirror>();
 
-	//	loadedModel.setMaterial(glassMaterial);
+	//	loadedModel.setMaterial(goldMaterial);
 	//	for(auto& model : loadedModel.getChildren())
 	//	{
-	//		model.setMaterial(glassMaterial);
+	//		model.setMaterial(goldMaterial);
 	//	}
 
 	//	out_world->addEntity(loadedModel);

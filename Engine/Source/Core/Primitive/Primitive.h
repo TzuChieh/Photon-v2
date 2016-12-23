@@ -15,7 +15,8 @@ public:
 	virtual ~Primitive() = 0;
 
 	virtual bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const = 0;
-	virtual bool isIntersecting(const AABB& aabb) const = 0;
+	virtual bool isIntersecting(const Ray& ray) const = 0;
+	virtual bool isIntersectingVolume(const AABB& aabb) const = 0;
 	virtual void calcAABB(AABB* const out_aabb) const = 0;
 
 	inline const PrimitiveMetadata* getMetadata() const

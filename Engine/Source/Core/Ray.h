@@ -2,48 +2,61 @@
 
 #include "Math/Vector3f.h"
 
+#include <limits>
+
 namespace ph
 {
 
 class Ray final
 {
 public:
-	Ray(const Vector3f& origin, const Vector3f& direction);
+	Ray(const Vector3f& origin, const Vector3f& direction, const float32 maxT = std::numeric_limits<float32>::max());
 	Ray();
 
-	const Vector3f& getOrigin() const
+	inline const Vector3f& getOrigin() const
 	{
 		return m_origin;
 	}
 
-	const Vector3f& getDirection() const
+	inline const Vector3f& getDirection() const
 	{
 		return m_direction;
 	}
 
-	void getOrigin(Vector3f* const out_origin) const
+	inline Vector3f& getOrigin()
 	{
-		m_origin.set(out_origin);
+		return m_origin;
 	}
 
-	void getDirection(Vector3f* const out_direction) const
+	inline Vector3f& getDirection()
 	{
-		m_direction.set(out_direction);
+		return m_direction;
 	}
 
-	void setOrigin(const Vector3f& origin)
+	inline float32 getMaxT() const
 	{
-		m_origin.set(origin);
+		return m_maxT;
 	}
 
-	void setDirection(const Vector3f& direction)
+	inline void setOrigin(const Vector3f& origin)
 	{
-		m_direction.set(direction);
+		m_origin = origin;
+	}
+
+	inline void setDirection(const Vector3f& direction)
+	{
+		m_direction = direction;
+	}
+
+	inline void setMaxT(const float32 maxT)
+	{
+		m_maxT = maxT;
 	}
 
 private:
 	Vector3f m_origin;
 	Vector3f m_direction;
+	float32  m_maxT;
 };
 
 }// end namespace ph

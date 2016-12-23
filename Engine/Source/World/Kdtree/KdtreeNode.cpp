@@ -82,16 +82,13 @@ bool KdtreeNode::findClosestIntersection(const Ray& ray, Intersection* const out
 	float32 rayNearHitDist;
 	float32 rayFarHitDist;
 
-	if(!m_aabb.isIntersecting(ray, &rayNearHitDist, &rayFarHitDist))
+	if(!m_aabb.isIntersectingVolume(ray, &rayNearHitDist, &rayFarHitDist))
 	{
 		// ray missed root node's aabb
 		return false;
 	}
 
-	float32 nearHitDist = rayNearHitDist < 0.0f ? 0.0f : rayNearHitDist;
-	float32 farHitDist = rayFarHitDist;
-
-	return traverseAndFindClosestIntersection(ray, out_intersection, nearHitDist, farHitDist);
+	return traverseAndFindClosestIntersection(ray, out_intersection, rayNearHitDist, rayFarHitDist);
 }
 
 void KdtreeNode::analyzeSplitCostSAH(const std::vector<const Primitive*>& primitives, const int32 axis, float64* const out_minCost, float32* const out_splitPoint) const
@@ -242,7 +239,7 @@ std::unique_ptr<KdtreeNode> KdtreeNode::buildChildNode(const KdtreeAABB& childAA
 
 	for(const Primitive* primitive : parentPrimitives)
 	{
-		if(primitive->isIntersecting(childNodeAABB))
+		if(primitive->isIntersectingVolume(childNodeAABB))
 		{
 			primitives.push_back(primitive);
 		}	

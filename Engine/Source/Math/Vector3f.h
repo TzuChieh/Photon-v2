@@ -118,15 +118,9 @@ public:
 		result->z = x * value.y - y * value.x;
 	}
 
-	inline Vector3f normalize() const
-	{
-		float32 len = length();
-		return Vector3f(x / len, y / len, z / len);
-	}
-
 	inline Vector3f& setLength(const float32 len)
 	{
-		float32 multiplier = len / length();
+		const float32 multiplier = len / length();
 
 		x *= multiplier;
 		y *= multiplier;
@@ -135,13 +129,19 @@ public:
 		return *this;
 	}
 
+	inline Vector3f normalize() const
+	{
+		const float32 reciprocalLen = 1.0f / length();
+		return Vector3f(x * reciprocalLen, y * reciprocalLen, z * reciprocalLen);
+	}
+
 	inline Vector3f& normalizeLocal()
 	{
-		float32 len = length();
+		const float32 reciprocalLen = 1.0f / length();
 
-		x /= len;
-		y /= len;
-		z /= len;
+		x *= reciprocalLen;
+		y *= reciprocalLen;
+		z *= reciprocalLen;
 
 		return *this;
 	}

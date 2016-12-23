@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Entity/BoundingVolume/AABB.h"
+#include "Core/BoundingVolume/AABB.h"
 #include "World/Kdtree/kdtree_core.h"
 #include "Common/primitive_type.h"
 
@@ -18,8 +18,8 @@ public:
 	explicit KdtreeAABB(const AABB& aabb);
 	KdtreeAABB(const Vector3f& minVertex, const Vector3f& maxVertex);
 
-	bool isIntersecting(const Ray& ray, float32* const out_rayNearHitDist, float32* const out_rayFarHitDist) const;
-	bool isIntersecting(const AABB& aabb) const;
+	bool isIntersectingVolume(const Ray& ray, float32* const out_rayNearHitDist, float32* const out_rayFarHitDist) const;
+	bool isIntersectingVolume(const AABB& aabb) const;
 	bool trySplitAt(const int32 axis, const float32 splitPos, KdtreeAABB* const out_negativeAABB, KdtreeAABB* const out_positiveAABB) const;
 
 	void getMinVertex(float32* const out_vector3f) const;
