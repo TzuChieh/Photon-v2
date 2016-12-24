@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Entity/Material/Material.h"
-#include "Entity/Material/Integrand/SiPerfectMirror.h"
+#include "Entity/Material/SurfaceBehavior/SPerfectMirror.h"
 
 namespace ph
 {
@@ -11,10 +11,10 @@ class PerfectMirror : public Material
 public:
 	virtual ~PerfectMirror() override;
 
-	virtual const SurfaceIntegrand* getSurfaceIntegrand() const override;
+	virtual const SurfaceBehavior* getSurfaceBehavior() const override;
 
 private:
-	SiPerfectMirror m_surfaceIntegrand;
+	SPerfectMirror m_surfaceBehavior;
 };
 
 }// end namespace ph

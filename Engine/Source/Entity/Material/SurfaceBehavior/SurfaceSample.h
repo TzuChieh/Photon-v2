@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Math/Vector3f.h"
-#include "Entity/Material/Integrand/ESurfaceSampleType.h"
+#include "Entity/Material/SurfaceBehavior/ESurfaceSampleType.h"
 
 namespace ph
 {

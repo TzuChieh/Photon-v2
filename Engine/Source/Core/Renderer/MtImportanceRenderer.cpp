@@ -6,7 +6,6 @@
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
 #include "Entity/Material/Material.h"
-#include "Entity/Material/Integrand/SurfaceIntegrand.h"
 #include "Math/constant.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Sample.h"
@@ -14,6 +13,7 @@
 #include "Math/Color.h"
 #include "Math/Math.h"
 #include "Core/Integrator/BackwardPathIntegrator.h"
+#include "Core/Integrator/BackwardLightIntegrator.h"
 
 #include <cmath>
 #include <iostream>
@@ -43,6 +43,7 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 	m_subFilms.shrink_to_fit();
 
 	BackwardPathIntegrator integrator;
+	//BackwardLightIntegrator integrator;
 	integrator.update(world);
 
 	std::atomic<int32> numSpp = 0;

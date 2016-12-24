@@ -12,7 +12,7 @@ void LightMaterial::setEmittedRadiance(const Vector3f& radiance)
 
 void LightMaterial::setEmittedRadiance(const float32 r, const float32 g, const float32 b)
 {
-	m_surfaceIntegrand.setEmittedRadiance(r, g, b);
+	m_surfaceBehavior.setEmittedRadiance(r, g, b);
 }
 
 }// end namespace ph

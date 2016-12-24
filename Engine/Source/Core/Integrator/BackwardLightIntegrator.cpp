@@ -5,9 +5,9 @@
 #include "World/LightSampler/LightSampler.h"
 #include "Math/Vector3f.h"
 #include "Core/Intersection.h"
-#include "Entity/Material/Integrand/SurfaceSample.h"
+#include "Entity/Material/SurfaceBehavior/SurfaceSample.h"
 #include "Entity/Material/Material.h"
-#include "Entity/Material/Integrand/SurfaceIntegrand.h"
+#include "Entity/Material/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/Primitive/Primitive.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
 
@@ -44,16 +44,20 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const World& worl
 		SurfaceSample surfaceSample;
 		const PrimitiveMetadata* metadata = intersection.getHitPrimitive()->getMetadata();
 		const Material* hitMaterial = metadata->m_material;
-		const SurfaceIntegrand* surfaceIntegrand = hitMaterial->getSurfaceIntegrand();
+		const SurfaceBehavior* surfaceBehavior = hitMaterial->getSurfaceBehavior();
+
+		///////////////////////////////////////////////////////////////////////////////
+		// direct light sample
 
 		float32 emitterPickPDF;
 		const Emitter* emitter = lightSampler.pickEmitter(&emitterPickPDF);
 		if(emitter)
 		{
-			// sample light
+			
 		}
 
-		// TODO: sample indirect light
+		///////////////////////////////////////////////////////////////////////////////
+		// indirect light sample
 	}
 
 	*out_radiance = accuRadiance;

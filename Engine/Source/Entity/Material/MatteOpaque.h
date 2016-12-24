@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Entity/Material/Material.h"
-#include "Entity/Material/Integrand/SiLambertianDiffuse.h"
+#include "Entity/Material/SurfaceBehavior/SLambertianDiffuse.h"
 #include "Math/Vector3f.h"
 #include "Image/Texture.h"
 
@@ -16,9 +16,9 @@ public:
 	MatteOpaque();
 	virtual ~MatteOpaque() override;
 
-	virtual inline const SurfaceIntegrand* getSurfaceIntegrand() const override
+	virtual inline const SurfaceBehavior* getSurfaceBehavior() const override
 	{
-		return &m_surfaceIntegrand;
+		return &m_surfaceBehavior;
 	}
 
 	void setAlbedo(const Vector3f& albedo);
@@ -26,7 +26,7 @@ public:
 	void setAlbedo(const std::shared_ptr<Texture>& albedo);
 
 private:
-	SiLambertianDiffuse m_surfaceIntegrand;
+	SLambertianDiffuse m_surfaceBehavior;
 };
 
 }// end namespace ph

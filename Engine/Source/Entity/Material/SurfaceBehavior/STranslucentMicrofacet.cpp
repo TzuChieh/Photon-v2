@@ -1,12 +1,12 @@
-#include "Entity/Material/Integrand/SiTranslucentMicrofacet.h"
+#include "Entity/Material/SurfaceBehavior/STranslucentMicrofacet.h"
 #include "Image/ConstantTexture.h"
 #include "Core/Ray.h"
 #include "Math/Vector3f.h"
 #include "Math/random_number.h"
 #include "Math/constant.h"
 #include "Core/Intersection.h"
-#include "Entity/Material/Integrand/random_sample.h"
-#include "Entity/Material/Integrand/Microfacet.h"
+#include "Entity/Material/SurfaceBehavior/random_sample.h"
+#include "Entity/Material/SurfaceBehavior/Microfacet.h"
 
 #include <memory>
 #include <iostream>
@@ -14,7 +14,7 @@
 namespace ph
 {
 
-SiTranslucentMicrofacet::SiTranslucentMicrofacet() :
+STranslucentMicrofacet::STranslucentMicrofacet() :
 	m_F0       (std::make_shared<ConstantTexture>(Vector3f(0.04f, 0.04f, 0.04f))),
 	m_IOR      (std::make_shared<ConstantTexture>(Vector3f(1.0f, 1.0f, 1.0f))),
 	m_roughness(std::make_shared<ConstantTexture>(Vector3f(0.5f, 0.5f, 0.5f)))
@@ -22,9 +22,9 @@ SiTranslucentMicrofacet::SiTranslucentMicrofacet() :
 
 }
 
-SiTranslucentMicrofacet::~SiTranslucentMicrofacet() = default;
+STranslucentMicrofacet::~STranslucentMicrofacet() = default;
 
-void SiTranslucentMicrofacet::evaluateImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
+void STranslucentMicrofacet::genBsdfCosImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
 {
 	// HACK: copy-and-paste comment
 	// Cook-Torrance microfacet specular BRDF is D(H)*F(V, H)*G(L, V, H) / (4*NoL*NoV).

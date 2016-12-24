@@ -7,7 +7,7 @@
 #include "Core/Intersection.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Entity/Material/Material.h"
-#include "Entity/Material/Integrand/SurfaceIntegrand.h"
+#include "Entity/Material/SurfaceBehavior/SurfaceBehavior.h"
 #include "Math/Math.h"
 #include "Math/Color.h"
 #include "Math/random_number.h"
@@ -52,7 +52,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world
 		//const Vector3f V(tracingRay.getDirection().mul(-1.0f));
 
 		SurfaceSample surfaceSample;
-		hitMaterial->getSurfaceIntegrand()->evaluateImportanceSample(intersection, tracingRay, &surfaceSample);
+		hitMaterial->getSurfaceBehavior()->genBsdfCosImportanceSample(intersection, tracingRay, &surfaceSample);
 		bool keepSampling = true;
 		switch(surfaceSample.m_type)
 		{

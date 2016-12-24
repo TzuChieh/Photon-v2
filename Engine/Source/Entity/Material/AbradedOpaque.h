@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Entity/Material/Material.h"
-#include "Entity/Material/Integrand/SiOpaqueMicrofacet.h"
+#include "Entity/Material/SurfaceBehavior/SOpaqueMicrofacet.h"
 #include "Common/primitive_type.h"
 #include "Math/Vector3f.h"
 
@@ -14,9 +14,9 @@ public:
 	AbradedOpaque();
 	virtual ~AbradedOpaque() override;
 
-	virtual inline const SurfaceIntegrand* getSurfaceIntegrand() const override
+	virtual inline const SurfaceBehavior* getSurfaceBehavior() const override
 	{
-		return &m_surfaceIntegrand;
+		return &m_surfaceBehavior;
 	}
 
 	void setRoughness(const float32 roughness);
@@ -24,7 +24,7 @@ public:
 	void setF0(const float32 r, const float32 g, const float32 b);
 
 private:
-	SiOpaqueMicrofacet m_surfaceIntegrand;
+	SOpaqueMicrofacet m_surfaceBehavior;
 };
 
 }// end namespace ph

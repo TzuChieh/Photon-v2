@@ -1,26 +1,26 @@
-#include "Entity/Material/Integrand/SiLambertianDiffuse.h"
+#include "Entity/Material/SurfaceBehavior/SLambertianDiffuse.h"
 #include "Core/Ray.h"
 #include "Math/Vector3f.h"
 #include "Math/random_number.h"
 #include "Math/constant.h"
 #include "Entity/Material/MatteOpaque.h"
 #include "Core/Intersection.h"
-#include "Entity/Material/Integrand/random_sample.h"
+#include "Entity/Material/SurfaceBehavior/random_sample.h"
 
 #include <cmath>
 
 namespace ph
 {
 
-SiLambertianDiffuse::SiLambertianDiffuse() :
+SLambertianDiffuse::SLambertianDiffuse() :
 	m_albedo(std::make_shared<ConstantTexture>(Vector3f(0.5f, 0.5f, 0.5f)))
 {
 
 }
 
-SiLambertianDiffuse::~SiLambertianDiffuse() = default;
+SLambertianDiffuse::~SLambertianDiffuse() = default;
 
-void SiLambertianDiffuse::evaluateImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
+void SLambertianDiffuse::genBsdfCosImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
 {
 	// Lambertian diffuse model's BRDF is simply albedo/pi.
 	// The importance sampling strategy is to use the cosine term in the rendering equation, 
@@ -46,7 +46,7 @@ void SiLambertianDiffuse::evaluateImportanceSample(const Intersection& intersect
 	out_sample->m_type = ESurfaceSampleType::REFLECTION;
 }
 
-void SiLambertianDiffuse::setAlbedo(const std::shared_ptr<Texture>& albedo)
+void SLambertianDiffuse::setAlbedo(const std::shared_ptr<Texture>& albedo)
 {
 	m_albedo = albedo;
 }

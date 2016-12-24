@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Entity/Material/Integrand/SiLight.h"
+#include "Entity/Material/SurfaceBehavior/SLight.h"
 #include "Math/Vector3f.h"
 #include "Core/Ray.h"
 #include "Math/random_number.h"
@@ -12,15 +12,15 @@
 namespace ph
 {
 
-SiLight::SiLight() :
+SLight::SLight() :
 	m_emittedRadiance(0, 0, 0)
 {
 
 }
 
-SiLight::~SiLight() = default;
+SLight::~SLight() = default;
 
-void SiLight::evaluateImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
+void SLight::genBsdfCosImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
 {
 	// This lighting model is simple: the surface emits constant amount of radiance to any direction on
 	// a specific point.

@@ -138,27 +138,6 @@
     <ClCompile Include="Source\Entity\Geometry\GTriangleMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Entity\Material\Integrand\random_sample.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Entity\Material\Integrand\SiLambertianDiffuse.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Entity\Material\Integrand\SiLight.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Entity\Material\Integrand\SiOpaqueMicrofacet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Entity\Material\Integrand\SiPerfectMirror.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Entity\Material\Integrand\SiTranslucentMicrofacet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Entity\Material\Integrand\SurfaceIntegrand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Entity\Material\AbradedOpaque.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -256,6 +235,27 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\BoundingVolume\AABB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Entity\Material\SurfaceBehavior\random_sample.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Entity\Material\SurfaceBehavior\SurfaceBehavior.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Entity\Material\SurfaceBehavior\STranslucentMicrofacet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Entity\Material\SurfaceBehavior\SPerfectMirror.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Entity\Material\SurfaceBehavior\SOpaqueMicrofacet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Entity\Material\SurfaceBehavior\SLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Entity\Material\SurfaceBehavior\SLambertianDiffuse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -410,36 +410,6 @@
     <ClInclude Include="Source\Entity\Geometry\GTriangleMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Entity\Material\Integrand\ESurfaceSampleType.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Entity\Material\Integrand\Microfacet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Entity\Material\Integrand\random_sample.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Entity\Material\Integrand\SiLambertianDiffuse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Entity\Material\Integrand\SiLight.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Entity\Material\Integrand\SiOpaqueMicrofacet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Entity\Material\Integrand\SiPerfectMirror.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Entity\Material\Integrand\SiTranslucentMicrofacet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Entity\Material\Integrand\SurfaceIntegrand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Entity\Material\Integrand\SurfaceSample.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Entity\Material\AbradedOpaque.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -540,6 +510,36 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\BoundingVolume\AABB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Entity\Material\SurfaceBehavior\ESurfaceSampleType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Entity\Material\SurfaceBehavior\Microfacet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Entity\Material\SurfaceBehavior\random_sample.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Entity\Material\SurfaceBehavior\SurfaceBehavior.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Entity\Material\SurfaceBehavior\SurfaceSample.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Entity\Material\SurfaceBehavior\STranslucentMicrofacet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Entity\Material\SurfaceBehavior\SPerfectMirror.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Entity\Material\SurfaceBehavior\SOpaqueMicrofacet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Entity\Material\SurfaceBehavior\SLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Entity\Material\SurfaceBehavior\SLambertianDiffuse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,4 +1,4 @@
-#include "Entity/Material/Integrand/random_sample.h"
+#include "Entity/Material/SurfaceBehavior/random_sample.h"
 #include "Math/Vector3f.h"
 #include "Math/constant.h"
 

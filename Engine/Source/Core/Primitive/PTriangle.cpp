@@ -4,6 +4,7 @@
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
 #include "Core/BoundingVolume/AABB.h"
+#include "Math/random_number.h"
 
 #include <limits>
 
@@ -25,6 +26,8 @@ PTriangle::PTriangle(const PrimitiveMetadata* const metadata, const Vector3f& vA
 	m_nA = m_faceNormal;
 	m_nB = m_faceNormal;
 	m_nC = m_faceNormal;
+
+	m_reciExtendedArea = 1.0f / (m_eAB.cross(m_eAC).length() * 0.5f);
 }
 
 PTriangle::~PTriangle() = default;
@@ -369,6 +372,16 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 
 	// no separating axis found
 	return true;
+}
+
+void PTriangle::genPositionSample(Vector3f* const out_position, Vector3f* const out_normal, float32* const out_PDF) const
+{
+	const float32 A = std::sqrt(genRandomFloat32_0_1_uniform());
+	const float32 B = genRandomFloat32_0_1_uniform();
+
+	*out_position = m_vA.mul(1.0f - A).addLocal(m_vB.mul(A * (1.0f - B))).addLocal(m_vC.mul(B * A));
+	*out_normal   = m_faceNormal;
+	*out_PDF      = m_reciExtendedArea;
 }
 
 }// end namespace ph

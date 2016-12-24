@@ -5,9 +5,9 @@ namespace ph
 
 PerfectMirror::~PerfectMirror() = default;
 
-const SurfaceIntegrand* PerfectMirror::getSurfaceIntegrand() const
+const SurfaceBehavior* PerfectMirror::getSurfaceBehavior() const
 {
-	return &m_surfaceIntegrand;
+	return &m_surfaceBehavior;
 }
 
 }// end namespace ph

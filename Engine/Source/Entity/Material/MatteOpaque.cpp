@@ -5,7 +5,7 @@ namespace ph
 {
 
 MatteOpaque::MatteOpaque() : 
-	m_surfaceIntegrand()
+	m_surfaceBehavior()
 {
 
 }
@@ -24,7 +24,7 @@ void MatteOpaque::setAlbedo(const float32 r, const float32 g, const float32 b)
 
 void MatteOpaque::setAlbedo(const std::shared_ptr<Texture>& albedo)
 {
-	m_surfaceIntegrand.setAlbedo(albedo);
+	m_surfaceBehavior.setAlbedo(albedo);
 }
 
 }// end namespace ph

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Entity/Material/Integrand/SurfaceIntegrand.h"
+#include "Entity/Material/SurfaceBehavior/SurfaceBehavior.h"
 #include "Math/Vector3f.h"
 #include "Image/Texture.h"
 #include "Image/ConstantTexture.h"
@@ -10,13 +10,13 @@
 namespace ph
 {
 
-class SiOpaqueMicrofacet : public SurfaceIntegrand
+class SOpaqueMicrofacet : public SurfaceBehavior
 {
 public:
-	SiOpaqueMicrofacet();
-	virtual ~SiOpaqueMicrofacet() override;
+	SOpaqueMicrofacet();
+	virtual ~SOpaqueMicrofacet() override;
 
-	virtual void evaluateImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const override;
+	virtual void genBsdfCosImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const override;
 
 	inline void setAlbedo(const std::shared_ptr<Texture>& albedo)
 	{

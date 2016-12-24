@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Entity/Material/Integrand/SurfaceIntegrand.h"
+#include "Entity/Material/SurfaceBehavior/SurfaceBehavior.h"
 #include "Image/Texture.h"
 
 #include <memory>
@@ -8,13 +8,13 @@
 namespace ph
 {
 
-class SiTranslucentMicrofacet : public SurfaceIntegrand
+class STranslucentMicrofacet : public SurfaceBehavior
 {
 public:
-	SiTranslucentMicrofacet();
-	virtual ~SiTranslucentMicrofacet() override;
+	STranslucentMicrofacet();
+	virtual ~STranslucentMicrofacet() override;
 
-	virtual void evaluateImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const override;
+	virtual void genBsdfCosImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const override;
 
 	inline void setF0(const std::shared_ptr<Texture>& f0)
 	{

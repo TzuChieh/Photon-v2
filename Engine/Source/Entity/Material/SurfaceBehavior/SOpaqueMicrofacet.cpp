@@ -1,18 +1,18 @@
-#include "Entity/Material/Integrand/SiOpaqueMicrofacet.h"
+#include "Entity/Material/SurfaceBehavior/SOpaqueMicrofacet.h"
 #include "Core/Ray.h"
 #include "Math/Vector3f.h"
 #include "Math/random_number.h"
 #include "Math/constant.h"
 #include "Core/Intersection.h"
-#include "Entity/Material/Integrand/random_sample.h"
-#include "Entity/Material/Integrand/Microfacet.h"
+#include "Entity/Material/SurfaceBehavior/random_sample.h"
+#include "Entity/Material/SurfaceBehavior/Microfacet.h"
 
 #include <cmath>
 
 namespace ph
 {
 
-SiOpaqueMicrofacet::SiOpaqueMicrofacet() :
+SOpaqueMicrofacet::SOpaqueMicrofacet() :
 	m_albedo   (std::make_shared<ConstantTexture>(Vector3f(0.5f, 0.5f, 0.5f))), 
 	m_roughness(std::make_shared<ConstantTexture>(Vector3f(0.5f, 0.5f, 0.5f))), 
 	m_F0       (std::make_shared<ConstantTexture>(Vector3f(0.04f, 0.04f, 0.04f)))
@@ -20,9 +20,9 @@ SiOpaqueMicrofacet::SiOpaqueMicrofacet() :
 
 }
 
-SiOpaqueMicrofacet::~SiOpaqueMicrofacet() = default;
+SOpaqueMicrofacet::~SOpaqueMicrofacet() = default;
 
-void SiOpaqueMicrofacet::evaluateImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
+void SOpaqueMicrofacet::genBsdfCosImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
 {
 	// Cook-Torrance microfacet specular BRDF is D(H)*F(V, H)*G(L, V, H) / (4*NoL*NoV).
 	// The importance sampling strategy is to generate a microfacet normal (H) which follows D(H)'s distribution, and
@@ -57,6 +57,16 @@ void SiOpaqueMicrofacet::evaluateImportanceSample(const Intersection& intersecti
 	const float32 HoV = H.dot(V);
 	const float32 HoL = H.dot(L);
 	const float32 NoH = N.dot(H);
+
+	// sidedness agreement between real geometry and shading (phong-interpolated) normal
+	if(NoV * intersection.getHitGeoNormal().dot(V) <= 0.0f || NoL * intersection.getHitGeoNormal().dot(L) <= 0.0f)
+	{
+		out_sample->m_LiWeight.set(0, 0, 0);
+		out_sample->m_direction.set(ray.getDirection().reflect(H).normalizeLocal());
+		out_sample->m_type = ESurfaceSampleType::REFLECTION;
+		out_sample->m_emittedRadiance.set(0, 0, 0);
+		return;
+	}
 
 	Vector3f F;
 	const float32 G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, roughness);

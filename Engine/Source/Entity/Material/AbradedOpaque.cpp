@@ -7,7 +7,7 @@ namespace ph
 {
 
 AbradedOpaque::AbradedOpaque() : 
-	m_surfaceIntegrand()
+	m_surfaceBehavior()
 {
 
 }
@@ -16,7 +16,7 @@ AbradedOpaque::~AbradedOpaque() = default;
 
 void AbradedOpaque::setRoughness(const float32 roughness)
 {
-	m_surfaceIntegrand.setRoughness(std::make_shared<ConstantTexture>(roughness, roughness, roughness));
+	m_surfaceBehavior.setRoughness(std::make_shared<ConstantTexture>(roughness, roughness, roughness));
 }
 
 void AbradedOpaque::setF0(const Vector3f& f0)
@@ -26,7 +26,7 @@ void AbradedOpaque::setF0(const Vector3f& f0)
 
 void AbradedOpaque::setF0(const float32 r, const float32 g, const float32 b)
 {
-	m_surfaceIntegrand.setF0(std::make_shared<ConstantTexture>(r, g, b));
+	m_surfaceBehavior.setF0(std::make_shared<ConstantTexture>(r, g, b));
 }
 
 }// end namespace ph

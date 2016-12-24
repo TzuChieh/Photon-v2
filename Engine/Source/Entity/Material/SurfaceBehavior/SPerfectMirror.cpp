@@ -1,4 +1,4 @@
-#include "Entity/Material/Integrand/SiPerfectMirror.h"
+#include "Entity/Material/SurfaceBehavior/SPerfectMirror.h"
 #include "Core/Ray.h"
 #include "Math/Vector3f.h"
 #include "Math/random_number.h"
@@ -15,9 +15,9 @@
 namespace ph
 {
 
-SiPerfectMirror::~SiPerfectMirror() = default;
+SPerfectMirror::~SPerfectMirror() = default;
 
-void SiPerfectMirror::evaluateImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
+void SPerfectMirror::genBsdfCosImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
 {
 	out_sample->m_type = ESurfaceSampleType::REFLECTION;
 	out_sample->m_LiWeight.set(1.0f, 1.0f, 1.0f);

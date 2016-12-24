@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Entity/Material/Material.h"
-#include "Entity/Material/Integrand/SiTranslucentMicrofacet.h"
+#include "Entity/Material/SurfaceBehavior/STranslucentMicrofacet.h"
 #include "Common/primitive_type.h"
 #include "Math/Vector3f.h"
 
@@ -14,9 +14,9 @@ public:
 	AbradedTranslucent();
 	virtual ~AbradedTranslucent() override;
 
-	virtual inline const SurfaceIntegrand* getSurfaceIntegrand() const override
+	virtual inline const SurfaceBehavior* getSurfaceBehavior() const override
 	{
-		return &m_surfaceIntegrand;
+		return &m_surfaceBehavior;
 	}
 
 	void setF0(const Vector3f& f0);
@@ -25,7 +25,7 @@ public:
 	void setRoughness(const float32 roughness);
 
 private:
-	SiTranslucentMicrofacet m_surfaceIntegrand;
+	STranslucentMicrofacet m_surfaceBehavior;
 };
 
 }// end namespace ph
