@@ -6,8 +6,11 @@
 #include "Math/Vector3f.h"
 #include "Core/Intersection.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
-#include "Entity/Material/Material.h"
-#include "Entity/Material/SurfaceBehavior/SurfaceBehavior.h"
+#include "Actor/Model/Material/Material.h"
+#include "Core/SurfaceBehavior/SurfaceBehavior.h"
+#include "Core/SurfaceBehavior/BSDFcos.h"
+#include "Core/SurfaceBehavior/SurfaceSample.h"
+#include "Core/SurfaceBehavior/ESurfaceSampleType.h"
 #include "Math/Math.h"
 #include "Math/Color.h"
 #include "Math/random_number.h"
@@ -46,13 +49,14 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world
 	while(numBounces <= MAX_RAY_BOUNCES && intersector.isIntersecting(tracingRay, &intersection))
 	{
 		const auto* const metadata = intersection.getHitPrimitive()->getMetadata();
-		const Material* hitMaterial = metadata->m_material;
+		const SurfaceBehavior* hitSurfaceBehavior = metadata->m_surfaceBehavior;
 
 		//const Vector3f N(intersection.getHitSmoothNormal());
 		//const Vector3f V(tracingRay.getDirection().mul(-1.0f));
 
 		SurfaceSample surfaceSample;
-		hitMaterial->getSurfaceBehavior()->genBsdfCosImportanceSample(intersection, tracingRay, &surfaceSample);
+		const BSDFcos* bsdfCos = hitSurfaceBehavior->getBsdfCos();
+		bsdfCos->genImportanceSample(intersection, tracingRay, &surfaceSample);
 		bool keepSampling = true;
 		switch(surfaceSample.m_type)
 		{

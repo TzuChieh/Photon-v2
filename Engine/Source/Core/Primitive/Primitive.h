@@ -28,6 +28,11 @@ public:
 		return m_metadata;
 	}
 
+	inline float32 getReciExtendedArea() const
+	{
+		return m_reciExtendedArea;
+	}
+
 protected:
 	const PrimitiveMetadata* m_metadata;
 	float32 m_reciExtendedArea;

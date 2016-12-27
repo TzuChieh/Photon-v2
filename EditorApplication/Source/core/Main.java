@@ -83,7 +83,7 @@ public class Main
 		
 		PhWorld world = new PhWorld();
 		
-		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.PIXEL_JITTER, 16);
+		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.PIXEL_JITTER, 128);
 		PhRenderer renderer = new PhRenderer(PhRenderer.Type.MT_IMPORTANCE, numRenderThreads);
 		renderer.setSampleGenerator(sampleGenerator);
 		

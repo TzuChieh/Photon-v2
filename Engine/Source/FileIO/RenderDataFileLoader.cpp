@@ -44,15 +44,15 @@ void RenderDataFileLoader::parseDataFile(std::ifstream* const dataFile)
 	std::cout << sourceString << std::endl;
 }
 
-std::vector<Entity> RenderDataFileLoader::getLoadedEntities() const
+std::vector<Model> RenderDataFileLoader::getLoadedModels() const
 {
-	return m_loadedEntities;
+	return m_loadedModels;
 }
 
 void RenderDataFileLoader::clearLoadedData()
 {
-	m_loadedEntities.clear();
-	m_loadedEntities.shrink_to_fit();
+	m_loadedModels.clear();
+	m_loadedModels.shrink_to_fit();
 }
 
 }// end namespace ph

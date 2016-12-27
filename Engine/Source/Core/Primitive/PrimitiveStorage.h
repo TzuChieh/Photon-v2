@@ -16,7 +16,9 @@ public:
 
 	void clear();
 	void add(std::unique_ptr<Primitive> primitive);
+	void add(std::vector<std::unique_ptr<Primitive>>&& primitives);
 	void add(std::unique_ptr<PrimitiveMetadata> metadata);
+	void add(PrimitiveStorage&& other);
 
 	typename std::vector<std::unique_ptr<Primitive>>::iterator       begin() noexcept;
 	typename std::vector<std::unique_ptr<Primitive>>::const_iterator begin() const noexcept;
@@ -25,7 +27,7 @@ public:
 
 	std::size_t numPrimitives() const;
 
-	void add(PrimitiveStorage&& other);
+	std::vector<std::unique_ptr<PrimitiveMetadata>>& getMetadataBuffer();
 
 	// forbid copying
 	PrimitiveStorage(const PrimitiveStorage& other) = delete;

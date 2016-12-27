@@ -1,19 +1,17 @@
 #pragma once
 
+#include "Core/SurfaceBehavior/SurfaceBehavior.h"
+#include "Math/Transform.h"
+
 namespace ph
 {
-
-class Material;
-class Transform;
-class TextureMapper;
 
 class PrimitiveMetadata final
 {
 public:
-	const Material*      m_material;
-	const Transform*     m_localToWorld;
-	const Transform*     m_worldToLocal;
-	const TextureMapper* m_textureMapper;
+	SurfaceBehavior* m_surfaceBehavior;
+	Transform*       m_localToWorld;
+	Transform*       m_worldToLocal;
 
 	PrimitiveMetadata();
 };

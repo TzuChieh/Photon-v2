@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Entity/Entity.h"
+#include "Actor/Model/Model.h"
 
 #include <vector>
 #include <string>
@@ -15,10 +15,10 @@ public:
 	RenderDataFileLoader();
 
 	bool load(const std::string& fullFilename);
-	std::vector<Entity> getLoadedEntities() const;
+	std::vector<Model> getLoadedModels() const;
 
 private:
-	std::vector<Entity> m_loadedEntities;
+	std::vector<Model> m_loadedModels;
 
 	void clearLoadedData();
 	void parseDataFile(std::ifstream* const dataFile);

@@ -5,11 +5,13 @@
 #include "World/LightSampler/LightSampler.h"
 #include "Math/Vector3f.h"
 #include "Core/Intersection.h"
-#include "Entity/Material/SurfaceBehavior/SurfaceSample.h"
-#include "Entity/Material/Material.h"
-#include "Entity/Material/SurfaceBehavior/SurfaceBehavior.h"
+#include "Core/SurfaceBehavior/SurfaceSample.h"
+#include "Actor/Model/Material/Material.h"
+#include "Core/SurfaceBehavior/SurfaceBehavior.h"
+#include "Core/SurfaceBehavior/BSDFcos.h"
 #include "Core/Primitive/Primitive.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
+#include "Core/SurfaceBehavior/ESurfaceSampleType.h"
 
 #define MAX_RAY_BOUNCES 10000
 
@@ -43,8 +45,6 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const World& worl
 
 		SurfaceSample surfaceSample;
 		const PrimitiveMetadata* metadata = intersection.getHitPrimitive()->getMetadata();
-		const Material* hitMaterial = metadata->m_material;
-		const SurfaceBehavior* surfaceBehavior = hitMaterial->getSurfaceBehavior();
 
 		///////////////////////////////////////////////////////////////////////////////
 		// direct light sample

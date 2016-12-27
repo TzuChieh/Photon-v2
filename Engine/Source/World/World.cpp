@@ -1,9 +1,9 @@
 #include "World/World.h"
-#include "Entity/Geometry/Geometry.h"
+#include "Actor/Model/Geometry/Geometry.h"
 #include "Core/Intersection.h"
 #include "Common/primitive_type.h"
 #include "Core/Ray.h"
-#include "Entity/Entity.h"
+#include "Actor/Model/Model.h"
 #include "World/BruteForceIntersector.h"
 #include "World/Kdtree/KdtreeIntersector.h"
 #include "World/LightSampler/UniformRandomLightSampler.h"
@@ -22,22 +22,31 @@ World::World() :
 
 }
 
-void World::addEntity(const Entity& entity)
+void World::addModel(const Model& model)
 {
-	m_entities.push_back(entity);
+	m_models.push_back(model);
+}
+
+void World::addLight(const Light& light)
+{
+	m_lights.push_back(light);
 }
 
 void World::update(const float32 deltaS)
 {
 	std::cout << "updating world..." << std::endl;
 
-	gatherPrimitives();
+	m_cookedModelStorage.clear();
+	m_emitterStorage.clear();
 
-	std::cout << "world discretized into " << m_primitiveStorage.numPrimitives() << " primitives" << std::endl;
-	std::cout << "constructing world intersector..." << std::endl;
+	cookModels();
+	cookLights();
 
-	m_intersector->update(m_primitiveStorage);
-	m_lightSampler->update(m_entities);
+	std::cout << "world discretized into " << m_cookedModelStorage.numPrimitives() << " primitives" << std::endl;
+	std::cout << "processing..." << std::endl;
+
+	m_intersector->update(m_cookedModelStorage);
+	m_lightSampler->update(m_emitterStorage);
 }
 
 const Intersector& World::getIntersector() const
@@ -50,27 +59,19 @@ const LightSampler& World::getLightSampler() const
 	return *m_lightSampler;
 }
 
-void World::gatherPrimitives()
+void World::cookModels()
 {
-	m_primitiveStorage.clear();
-
-	for(const auto& entity : m_entities)
+	for(const auto& model : m_models)
 	{
-		gatherPrimitivesFromEntity(entity);
+		model.cookData(&m_cookedModelStorage);
 	}
 }
 
-void World::gatherPrimitivesFromEntity(const Entity& entity)
+void World::cookLights()
 {
-	// a visible entity must at least have geometry and material
-	if(entity.getGeometry() && entity.getMaterial())
+	for(const auto& light : m_lights)
 	{
-		entity.getGeometry()->discretize(&m_primitiveStorage, entity);
-	}
-
-	for(const auto& entity : entity.getChildren())
-	{
-		gatherPrimitivesFromEntity(entity);
+		//light.cookData(&m_primitiveStorage, &m_emitterStorage);
 	}
 }
 

@@ -1,12 +1,14 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Entity/Entity.h"
+#include "Actor/Model/Model.h"
 #include "Intersector.h"
 #include "Core/Primitive/Primitive.h"
-#include "Core/Primitive/PrimitiveMetadata.h"
+#include "Core/CookedModelStorage.h"
 #include "World/LightSampler/LightSampler.h"
 #include "Core/Primitive/PrimitiveStorage.h"
+#include "Core/Emitter/EmitterStorage.h"
+#include "Actor/Light/Light.h"
 
 #include <vector>
 #include <memory>
@@ -22,21 +24,25 @@ class World final
 public:
 	World();
 
-	void addEntity(const Entity& entity);
+	void addModel(const Model& model);
+	void addLight(const Light& light);
 	void update(const float32 deltaS);
 
 	const Intersector&  getIntersector() const;
 	const LightSampler& getLightSampler() const;
 
 private:
-	std::vector<Entity> m_entities;
-	PrimitiveStorage m_primitiveStorage;
+	std::vector<Model> m_models;
+	std::vector<Light> m_lights;
+
+	CookedModelStorage m_cookedModelStorage;
+	EmitterStorage m_emitterStorage;
 
 	std::unique_ptr<Intersector> m_intersector;
 	std::unique_ptr<LightSampler> m_lightSampler;
 
-	void gatherPrimitivesFromEntity(const Entity& entity);
-	void gatherPrimitives();
+	void cookModels();
+	void cookLights();
 };
 
 }// end namespace ph

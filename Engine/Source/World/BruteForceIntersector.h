@@ -15,7 +15,7 @@ class BruteForceIntersector final : public Intersector
 public:
 	virtual ~BruteForceIntersector() override;
 
-	virtual void update(const PrimitiveStorage& primitives) override;
+	virtual void update(const CookedModelStorage& cookedModelStorage) override;
 	virtual bool isIntersecting(const Ray& ray, Intersection* out_intersection) const override;
 
 private:
