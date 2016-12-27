@@ -1,7 +1,6 @@
 #include "Actor/Model/Geometry/GTriangleMesh.h"
 #include "Actor/Model/Geometry/GTriangle.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
-#include "Core/Primitive/PrimitiveStorage.h"
 #include "Actor/Model/Model.h"
 
 namespace ph

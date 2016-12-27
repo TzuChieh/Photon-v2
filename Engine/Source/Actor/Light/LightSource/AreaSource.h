@@ -16,8 +16,8 @@ public:
 	AreaSource(const Vector3f& emittedRadiance);
 	virtual ~AreaSource() override;
 
-	virtual void buildEmitters(PrimitiveStorage* const out_primitiveStorage,
-	                           EmitterStorage* const out_emitterStorage,
+	virtual void buildEmitters(CookedModelStorage* const out_cookedModelStorage,
+	                           CookedLightStorage* const out_cookedLightStorage,
 	                           const Model& lightModel) const override;
 
 private:

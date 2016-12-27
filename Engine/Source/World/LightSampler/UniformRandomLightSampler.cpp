@@ -2,6 +2,7 @@
 #include "Actor/Model/Model.h"
 #include "Actor/Light/Light.h"
 #include "Math/random_number.h"
+#include "Core/CookedLightStorage.h"
 
 #include <iostream>
 
@@ -10,12 +11,12 @@ namespace ph
 
 UniformRandomLightSampler::~UniformRandomLightSampler() = default;
 
-void UniformRandomLightSampler::update(const EmitterStorage& emitters)
+void UniformRandomLightSampler::update(const CookedLightStorage& cookedLightStorage)
 {
 	m_emitters.clear();
 	m_emitters.shrink_to_fit();
 
-	for(const auto& emitter : emitters)
+	for(const auto& emitter : cookedLightStorage)
 	{
 		m_emitters.push_back(emitter.get());
 	}

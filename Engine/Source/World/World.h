@@ -6,8 +6,7 @@
 #include "Core/Primitive/Primitive.h"
 #include "Core/CookedModelStorage.h"
 #include "World/LightSampler/LightSampler.h"
-#include "Core/Primitive/PrimitiveStorage.h"
-#include "Core/Emitter/EmitterStorage.h"
+#include "Core/CookedLightStorage.h"
 #include "Actor/Light/Light.h"
 
 #include <vector>
@@ -36,7 +35,7 @@ private:
 	std::vector<Light> m_lights;
 
 	CookedModelStorage m_cookedModelStorage;
-	EmitterStorage m_emitterStorage;
+	CookedLightStorage m_cookedLightStorage;
 
 	std::unique_ptr<Intersector> m_intersector;
 	std::unique_ptr<LightSampler> m_lightSampler;

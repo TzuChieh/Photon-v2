@@ -7,7 +7,7 @@ template<typename ContainerType>
 class TConstIteratorProxy
 {
 public:
-	TConstIteratorProxy(const ContainerType& container) : 
+	explicit TConstIteratorProxy(const ContainerType& container) :
 		m_container(container)
 	{
 

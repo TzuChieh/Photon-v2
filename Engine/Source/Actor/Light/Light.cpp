@@ -1,7 +1,6 @@
 #include "Actor/Light/Light.h"
 #include "Math/Math.h"
 #include "Actor/Model/TextureMapper/DefaultMapper.h"
-#include "Core/Primitive/PrimitiveStorage.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Actor/Model/Geometry/Geometry.h"
 #include "Actor/Model/Material/Material.h"
@@ -51,11 +50,11 @@ Light& Light::operator = (Light rhs)
 	return *this;
 }
 
-void Light::cookData(PrimitiveStorage* const out_primitiveStorage, EmitterStorage* const out_emitterStorage) const
+void Light::cookData(CookedModelStorage* const out_cookedModelStorage, CookedLightStorage* const out_cookedLightStorage) const
 {
 	if(m_lightSource)
 	{
-		m_lightSource->buildEmitters(out_primitiveStorage, out_emitterStorage, m_model);
+		m_lightSource->buildEmitters(out_cookedModelStorage, out_cookedLightStorage, m_model);
 	}
 }
 

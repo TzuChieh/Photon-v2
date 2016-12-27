@@ -37,7 +37,7 @@ void World::update(const float32 deltaS)
 	std::cout << "updating world..." << std::endl;
 
 	m_cookedModelStorage.clear();
-	m_emitterStorage.clear();
+	m_cookedLightStorage.clear();
 
 	cookModels();
 	cookLights();
@@ -46,7 +46,7 @@ void World::update(const float32 deltaS)
 	std::cout << "processing..." << std::endl;
 
 	m_intersector->update(m_cookedModelStorage);
-	m_lightSampler->update(m_emitterStorage);
+	m_lightSampler->update(m_cookedLightStorage);
 }
 
 const Intersector& World::getIntersector() const
@@ -71,7 +71,7 @@ void World::cookLights()
 {
 	for(const auto& light : m_lights)
 	{
-		//light.cookData(&m_primitiveStorage, &m_emitterStorage);
+		light.cookData(&m_cookedModelStorage, &m_cookedLightStorage);
 	}
 }
 

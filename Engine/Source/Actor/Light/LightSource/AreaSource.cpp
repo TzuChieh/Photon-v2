@@ -1,10 +1,10 @@
 #include "Actor/Light/LightSource/AreaSource.h"
-#include "Core/Primitive/PrimitiveStorage.h"
-#include "Core/Emitter/EmitterStorage.h"
+#include "Core/CookedLightStorage.h"
 #include "Core/Emitter/EmitterMetadata.h"
 #include "Actor/Model/Model.h"
 #include "Core/Emitter/AreaEmitter.h"
 #include "Image/ConstantTexture.h"
+#include "Core/CookedModelStorage.h"
 
 #include <iostream>
 
@@ -19,8 +19,8 @@ AreaSource::AreaSource(const Vector3f& emittedRadiance) :
 
 AreaSource::~AreaSource() = default;
 
-void AreaSource::buildEmitters(PrimitiveStorage* const out_primitiveStorage,
-                               EmitterStorage* const out_emitterStorage, 
+void AreaSource::buildEmitters(CookedModelStorage* const out_cookedModelStorage,
+                               CookedLightStorage* const out_cookedLightStorage,
                                const Model& lightModel) const
 {
 	if(!lightModel.getGeometry())
@@ -29,16 +29,16 @@ void AreaSource::buildEmitters(PrimitiveStorage* const out_primitiveStorage,
 		return;
 	}
 
-	PrimitiveStorage primitiveStorage;
-	//lightModel.cookData(&primitiveStorage);
-	if(primitiveStorage.numPrimitives() == 0)
+	CookedModelStorage cookedModel;
+	lightModel.cookData(&cookedModel);
+	if(cookedModel.numPrimitives() == 0)
 	{
 		std::cerr << "warning: at AreaSource::buildEmitters(), no Primitive generated" << std::endl;
 		return;
 	}
 
 	std::vector<const Primitive*> primitives;
-	for(const auto& primitive : primitiveStorage)
+	for(const auto& primitive : cookedModel.primitives())
 	{
 		primitives.push_back(primitive.get());
 	}
@@ -50,14 +50,14 @@ void AreaSource::buildEmitters(PrimitiveStorage* const out_primitiveStorage,
 	std::unique_ptr<AreaEmitter> emitter = std::make_unique<AreaEmitter>(emitterMetadata.get(), primitives);
 	emitter->setEmittedRadiance(m_emittedRadiance);
 
-	for(auto& primitiveMetadata : primitiveStorage.getMetadataBuffer())
+	for(auto& primitiveMetadata : cookedModel.primitiveMetadatas())
 	{
-		//primitiveMetadata->m_surfaceBehavior->setEmitter(emitter.get());
+		primitiveMetadata->surfaceBehavior.setEmitter(emitter.get());
 	}
 
-	out_primitiveStorage->add(std::move(primitiveStorage));
-	out_emitterStorage->add(std::move(emitter));
-	out_emitterStorage->add(std::move(emitterMetadata));
+	out_cookedModelStorage->add(std::move(cookedModel));
+	out_cookedLightStorage->add(std::move(emitter));
+	out_cookedLightStorage->add(std::move(emitterMetadata));
 }
 
 }// end namespace ph

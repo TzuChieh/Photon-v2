@@ -49,13 +49,13 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world
 	while(numBounces <= MAX_RAY_BOUNCES && intersector.isIntersecting(tracingRay, &intersection))
 	{
 		const auto* const metadata = intersection.getHitPrimitive()->getMetadata();
-		const SurfaceBehavior* hitSurfaceBehavior = metadata->m_surfaceBehavior;
+		const SurfaceBehavior& hitSurfaceBehavior = metadata->surfaceBehavior;
 
 		//const Vector3f N(intersection.getHitSmoothNormal());
 		//const Vector3f V(tracingRay.getDirection().mul(-1.0f));
 
 		SurfaceSample surfaceSample;
-		const BSDFcos* bsdfCos = hitSurfaceBehavior->getBsdfCos();
+		const BSDFcos* bsdfCos = hitSurfaceBehavior.getBsdfCos();
 		bsdfCos->genImportanceSample(intersection, tracingRay, &surfaceSample);
 		bool keepSampling = true;
 		switch(surfaceSample.m_type)

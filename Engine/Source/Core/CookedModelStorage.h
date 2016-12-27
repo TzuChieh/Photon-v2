@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Utility/TIteratorProxy.h"
 #include "Utility/TConstIteratorProxy.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/Primitive/Primitive.h"
@@ -32,9 +33,24 @@ public:
 	CookedModelStorage(const CookedModelStorage& other) = delete;
 	CookedModelStorage& operator = (const CookedModelStorage& rhs) = delete;
 
+	inline TIteratorProxy<std::vector<std::unique_ptr<Primitive>>> primitives()
+	{
+		return TIteratorProxy<std::vector<std::unique_ptr<Primitive>>>(m_primitives);
+	}
+
 	inline TConstIteratorProxy<std::vector<std::unique_ptr<Primitive>>> primitives() const
 	{
 		return TConstIteratorProxy<std::vector<std::unique_ptr<Primitive>>>(m_primitives);
+	}
+
+	inline TIteratorProxy<std::vector<std::unique_ptr<PrimitiveMetadata>>> primitiveMetadatas()
+	{
+		return TIteratorProxy<std::vector<std::unique_ptr<PrimitiveMetadata>>>(m_primitiveMetadatas);
+	}
+
+	inline TConstIteratorProxy<std::vector<std::unique_ptr<PrimitiveMetadata>>> primitiveMetadatas() const
+	{
+		return TConstIteratorProxy<std::vector<std::unique_ptr<PrimitiveMetadata>>>(m_primitiveMetadatas);
 	}
 
 	std::size_t numPrimitives() const;

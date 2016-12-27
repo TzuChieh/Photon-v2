@@ -21,14 +21,14 @@ void SurfaceBehavior::setBsdfCos(std::unique_ptr<BSDFcos> bsdfCos)
 	m_bsdfCos = std::move(bsdfCos);
 }
 
-void SurfaceBehavior::setEmitter(std::unique_ptr<Emitter> emitter)
+void SurfaceBehavior::setEmitter(const Emitter* emitter)
 {
 	if(!emitter)
 	{
 		std::cerr << "warning: at SurfaceBehavior::setEmitter(), input is null" << std::endl;
 	}
 
-	m_emitter = std::move(emitter);
+	m_emitter = emitter;
 }
 
 }// end namespace ph

@@ -35,7 +35,7 @@ PTriangle::~PTriangle() = default;
 bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersection) const
 {
 	Ray localRay;
-	m_metadata->m_worldToLocal->transformRay(ray, &localRay);
+	m_metadata->worldToLocal.transformRay(ray, &localRay);
 
 	// hitT's unit is in world space (localRay's direction can have scale factor)
 	const float32 hitT = localRay.getOrigin().sub(m_vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
@@ -112,12 +112,12 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	Vector3f hitPosition;
 	Vector3f hitNormal;
 	Vector3f localHitNormal(m_nA.mul(1.0f - baryB - baryC).addLocal(m_nB.mul(baryB)).addLocal(m_nC.mul(baryC)));
-	m_metadata->m_localToWorld->transformPoint(localRay.getDirection().mul(hitT).addLocal(localRay.getOrigin()), &hitPosition);
-	m_metadata->m_localToWorld->transformVector(localHitNormal, &hitNormal);
+	m_metadata->localToWorld.transformPoint(localRay.getDirection().mul(hitT).addLocal(localRay.getOrigin()), &hitPosition);
+	m_metadata->localToWorld.transformVector(localHitNormal, &hitNormal);
 	//m_parentModel->getModelToWorldTransform()->transformVector(m_faceNormal, &hitNormal);
 
 	Vector3f hitGeoNormal;
-	m_metadata->m_localToWorld->transformVector(m_faceNormal, &hitGeoNormal);
+	m_metadata->localToWorld.transformVector(m_faceNormal, &hitGeoNormal);
 
 	out_intersection->setHitPosition(hitPosition);
 	out_intersection->setHitSmoothNormal(hitNormal.normalizeLocal());
@@ -131,7 +131,7 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 bool PTriangle::isIntersecting(const Ray& ray) const
 {
 	Ray localRay;
-	m_metadata->m_worldToLocal->transformRay(ray, &localRay);
+	m_metadata->worldToLocal.transformRay(ray, &localRay);
 
 	// hitT's unit is in world space (localRay's direction can have scale factor)
 	const float32 hitT = localRay.getOrigin().sub(m_vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
@@ -212,9 +212,9 @@ void PTriangle::calcAABB(AABB* const out_aabb) const
 	Vector3f vA;
 	Vector3f vB;
 	Vector3f vC;
-	m_metadata->m_localToWorld->transformPoint(m_vA, &vA);
-	m_metadata->m_localToWorld->transformPoint(m_vB, &vB);
-	m_metadata->m_localToWorld->transformPoint(m_vC, &vC);
+	m_metadata->localToWorld.transformPoint(m_vA, &vA);
+	m_metadata->localToWorld.transformPoint(m_vB, &vB);
+	m_metadata->localToWorld.transformPoint(m_vC, &vC);
 
 	float32 minX = vA.x, maxX = vA.x,
 		minY = vA.y, maxY = vA.y,
@@ -248,9 +248,9 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 	Vector3f tvA;
 	Vector3f tvB;
 	Vector3f tvC;
-	m_metadata->m_localToWorld->transformPoint(m_vA, &tvA);
-	m_metadata->m_localToWorld->transformPoint(m_vB, &tvB);
-	m_metadata->m_localToWorld->transformPoint(m_vC, &tvC);
+	m_metadata->localToWorld.transformPoint(m_vA, &tvA);
+	m_metadata->localToWorld.transformPoint(m_vB, &tvB);
+	m_metadata->localToWorld.transformPoint(m_vC, &tvC);
 
 	// move the origin to the AABB's center
 	const Vector3f aabbCenter(aabb.getMinVertex().add(aabb.getMaxVertex()).mulLocal(0.5f));
@@ -279,7 +279,7 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 		return false;
 
 	Vector3f tNormal;
-	m_metadata->m_localToWorld->transformVector(m_faceNormal, &tNormal);
+	m_metadata->localToWorld.transformVector(m_faceNormal, &tNormal);
 	tNormal.normalizeLocal();
 
 	// test triangle's face normal

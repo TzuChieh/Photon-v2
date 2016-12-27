@@ -62,9 +62,8 @@ private:
 	std::shared_ptr<Geometry> m_geometry;
 	std::shared_ptr<Material> m_material;
 	TransformInfo m_entityTransformInfo;
-
-	mutable Transform       m_localToWorld;
-	mutable Transform       m_worldToLocal;
+	Transform     m_localToWorld;
+	Transform     m_worldToLocal;
 
 	void updateTransforms();
 };

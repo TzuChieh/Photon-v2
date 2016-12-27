@@ -3,7 +3,6 @@
 #include "Math/Vector3f.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Actor/Model/Model.h"
-#include "Core/Primitive/PrimitiveStorage.h"
 
 #include <iostream>
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "World/LightSampler/LightSampler.h"
-#include "Core/Emitter/EmitterStorage.h"
 
 #include <vector>
 
@@ -13,7 +12,7 @@ class UniformRandomLightSampler : public LightSampler
 public:
 	virtual ~UniformRandomLightSampler() override;
 
-	virtual void update(const EmitterStorage& emitters) override;
+	virtual void update(const CookedLightStorage& cookedLightStorage) override;
 	virtual const Emitter* pickEmitter(float32* const out_PDF) const override;
 
 private:

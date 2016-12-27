@@ -3,8 +3,8 @@
 namespace ph
 {
 
-class PrimitiveStorage;
-class EmitterStorage;
+class CookedModelStorage;
+class CookedLightStorage;
 class EmitterMetadata;
 class Model;
 
@@ -13,8 +13,8 @@ class LightSource
 public:
 	virtual ~LightSource() = 0;
 
-	virtual void buildEmitters(PrimitiveStorage* const out_primitiveStorage, 
-	                           EmitterStorage* const out_emitterStorage, 
+	virtual void buildEmitters(CookedModelStorage* const out_cookedModelStorage,
+	                           CookedLightStorage* const out_cookedLightStorage,
 	                           const Model& lightModel) const = 0;
 };
 

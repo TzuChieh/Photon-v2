@@ -16,7 +16,7 @@ public:
 	SurfaceBehavior();
 
 	void setBsdfCos(std::unique_ptr<BSDFcos> bsdfCos);
-	void setEmitter(std::unique_ptr<Emitter> emitter);
+	void setEmitter(const Emitter* emitter);
 
 	inline const BSDFcos* getBsdfCos() const
 	{
@@ -25,12 +25,12 @@ public:
 
 	inline const Emitter* getEmitter() const
 	{
-		return m_emitter.get();
+		return m_emitter;
 	}
 
 private:
 	std::unique_ptr<BSDFcos> m_bsdfCos;
-	std::unique_ptr<Emitter> m_emitter;
+	const Emitter* m_emitter;
 };
 
 }// end namespace ph

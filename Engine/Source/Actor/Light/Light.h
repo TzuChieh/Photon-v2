@@ -14,8 +14,8 @@ namespace ph
 class Geometry;
 class Material;
 class TextureMapper;
-class PrimitiveStorage;
-class EmitterStorage;
+class CookedModelStorage;
+class CookedLightStorage;
 class LightSource;
 
 class Light final
@@ -26,7 +26,7 @@ public:
 	Light(const Light& other);
 	~Light();
 
-	void cookData(PrimitiveStorage* const out_primitiveStorage, EmitterStorage* const out_emitterStorage) const;
+	void cookData(CookedModelStorage* const out_cookedModelStorage, CookedLightStorage* const out_cookedLightStorage) const;
 	void setLightSource(const std::shared_ptr<LightSource>& lightSource);
 	Model& getModel();
 

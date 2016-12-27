@@ -11,7 +11,7 @@ namespace ph
 
 AreaEmitter::AreaEmitter(const EmitterMetadata* const metadata, const std::vector<const Primitive*>& primitives) :
 	Emitter(metadata), 
-	m_primitives(primitives), m_emittedRadiance(std::make_shared<ConstantTexture>(0, 0, 0))
+	m_primitives(primitives), m_emittedRadiance(std::make_shared<ConstantTexture>(Vector3f(0, 0, 0)))
 {
 	if(primitives.empty())
 	{

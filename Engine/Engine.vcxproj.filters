@@ -159,12 +159,6 @@
     <ClCompile Include="Source\Core\Emitter\EmitterMetadata.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Primitive\PrimitiveStorage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\Emitter\EmitterStorage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Core\BoundingVolume\AABB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -259,6 +253,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\CookedModelStorage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\CookedLightStorage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -437,12 +434,6 @@
     <ClInclude Include="Source\Core\Emitter\EmitterMetadata.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Primitive\PrimitiveStorage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\Emitter\EmitterStorage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\BoundingVolume\AABB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -548,10 +539,16 @@
     <ClInclude Include="Source\Actor\Light\LightSource\AreaSource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Utility\TConstIteratorProxy.h">
+    <ClInclude Include="Source\Core\CookedModelStorage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\CookedModelStorage.h">
+    <ClInclude Include="Source\Core\CookedLightStorage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\TIteratorProxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\TConstIteratorProxy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

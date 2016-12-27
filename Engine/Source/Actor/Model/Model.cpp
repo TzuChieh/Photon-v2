@@ -1,7 +1,6 @@
 #include "Actor/Model/Model.h"
 #include "Math/Math.h"
 #include "Actor/Model/TextureMapper/DefaultMapper.h"
-#include "Core/Primitive/PrimitiveStorage.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Actor/Model/Geometry/Geometry.h"
 #include "Actor/Model/Material/Material.h"
@@ -61,20 +60,16 @@ void Model::cookData(CookedModelStorage* const out_cookedModelStorage) const
 {
 	if(m_geometry && m_material)
 	{
-		std::unique_ptr<SurfaceBehavior> surfaceBehavior = std::make_unique<SurfaceBehavior>();
-		m_material->populateSurfaceBehavior(surfaceBehavior.get());
-
 		std::unique_ptr<PrimitiveMetadata> metadata = std::make_unique<PrimitiveMetadata>();
-		metadata->m_worldToLocal    = &m_worldToLocal;
-		metadata->m_localToWorld    = &m_localToWorld;
-		metadata->m_surfaceBehavior = surfaceBehavior.get();
+		metadata->worldToLocal  = m_worldToLocal;
+		metadata->localToWorld  = m_localToWorld;
 
 		std::vector<std::unique_ptr<Primitive>> primitives;
 		m_geometry->discretize(&primitives, *metadata);
+		m_material->populateSurfaceBehavior(&(metadata->surfaceBehavior));
 
 		out_cookedModelStorage->add(std::move(primitives));
 		out_cookedModelStorage->add(std::move(metadata));
-		out_cookedModelStorage->add(std::move(surfaceBehavior));
 	}
 }
 
