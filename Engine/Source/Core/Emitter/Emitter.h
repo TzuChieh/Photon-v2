@@ -1,18 +1,21 @@
 #pragma once
 
 #include "Common/primitive_type.h"
+#include "Math/Transform.h"
 
 namespace ph
 {
 
 class Vector3f;
-class EmitterMetadata;
 class Intersection;
 
 class Emitter
 {
 public:
-	Emitter(const EmitterMetadata* const metadata);
+	Transform worldToLocal;
+	Transform localToWorld;
+
+	Emitter();
 	virtual ~Emitter() = 0;
 
 	virtual void evalEmittedRadiance(const Intersection& intersection, Vector3f* const out_emitterRadiance) const = 0;
@@ -22,9 +25,7 @@ public:
 	{
 		return true;
 	}
-
-protected:
-	const EmitterMetadata* m_metadata;
+	
 };
 
 }// end namespace ph

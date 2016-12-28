@@ -350,21 +350,21 @@ public:
 		return *this;
 	}
 
+	// Current vector is expected to be normalized already.
 	inline void calcOrthBasisAsYaxis(Vector3f* out_xAxis, Vector3f* out_zAxis) const
 	{
 		if(fabs(y) < 0.9f)
 		{
 			out_xAxis->set(-z, 0.0f, x);// yAxis cross (0, 1, 0)
+			out_xAxis->divLocal(sqrt(x * x + z * z));
 		}
 		else
 		{
 			out_xAxis->set(y, -x, 0.0f);// yAxis cross (0, 0, 1)
+			out_xAxis->divLocal(sqrt(x * x + y * y));
 		}
 
 		out_xAxis->cross(*this, out_zAxis);
-
-		out_xAxis->normalizeLocal();
-		out_zAxis->normalizeLocal();
 	}
 
 	// Clamp current vector's components to specific range. If a component is NaN, its value is

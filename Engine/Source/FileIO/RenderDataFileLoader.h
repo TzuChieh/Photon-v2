@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Actor/Model/Model.h"
+#include "Actor/AModel.h"
 
 #include <vector>
 #include <string>
@@ -15,10 +15,10 @@ public:
 	RenderDataFileLoader();
 
 	bool load(const std::string& fullFilename);
-	std::vector<Model> getLoadedModels() const;
+	std::vector<AModel> getLoadedModels() const;
 
 private:
-	std::vector<Model> m_loadedModels;
+	std::vector<AModel> m_loadedModels;
 
 	void clearLoadedData();
 	void parseDataFile(std::ifstream* const dataFile);

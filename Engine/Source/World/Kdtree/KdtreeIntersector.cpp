@@ -1,5 +1,5 @@
 #include "World/Kdtree/KdtreeIntersector.h"
-#include "Core/CookedModelStorage.h"
+#include "Core/CookedActorStorage.h"
 
 #include <iostream>
 
@@ -16,10 +16,10 @@ KdtreeIntersector::KdtreeIntersector() :
 
 KdtreeIntersector::~KdtreeIntersector() = default;
 
-void KdtreeIntersector::update(const CookedModelStorage& cookedModelStorage)
+void KdtreeIntersector::update(const CookedActorStorage& cookedActors)
 {
 	std::vector<const Primitive*> primPtrs;
-	for(const auto& primitive : cookedModelStorage.primitives())
+	for(const auto& primitive : cookedActors.primitives())
 	{
 		primPtrs.push_back(primitive.get());
 	}

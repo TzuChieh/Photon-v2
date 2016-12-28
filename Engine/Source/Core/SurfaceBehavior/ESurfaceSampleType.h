@@ -8,8 +8,7 @@ namespace ph
 enum class ESurfaceSampleType : int32
 {
 	REFLECTION,
-	TRANSMISSION,
-	EMISSION
+	TRANSMISSION
 };
 
 }// end namespace ph

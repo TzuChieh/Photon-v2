@@ -44,7 +44,7 @@ void RenderDataFileLoader::parseDataFile(std::ifstream* const dataFile)
 	std::cout << sourceString << std::endl;
 }
 
-std::vector<Model> RenderDataFileLoader::getLoadedModels() const
+std::vector<AModel> RenderDataFileLoader::getLoadedModels() const
 {
 	return m_loadedModels;
 }

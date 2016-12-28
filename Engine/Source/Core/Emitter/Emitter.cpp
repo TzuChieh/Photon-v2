@@ -3,11 +3,7 @@
 namespace ph
 {
 
-Emitter::Emitter(const EmitterMetadata* const metadata) : 
-	m_metadata(metadata)
-{
-
-}
+Emitter::Emitter() = default;
 
 Emitter::~Emitter() = default;
 

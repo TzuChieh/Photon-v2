@@ -3,7 +3,7 @@
 #include "Core/Intersection.h"
 #include "Core/Ray.h"
 #include "Core/Primitive/Primitive.h"
-#include "Core/CookedModelStorage.h"
+#include "Core/CookedActorStorage.h"
 
 #include <limits>
 
@@ -12,12 +12,12 @@ namespace ph
 
 BruteForceIntersector::~BruteForceIntersector() = default;
 
-void BruteForceIntersector::update(const CookedModelStorage& cookedModelStorage)
+void BruteForceIntersector::update(const CookedActorStorage& cookedActors)
 {
 	m_primitives.clear();
 	m_primitives.shrink_to_fit();
 
-	for(const auto& primitive : cookedModelStorage.primitives())
+	for(const auto& primitive : cookedActors.primitives())
 	{
 		m_primitives.push_back(primitive.get());
 	}

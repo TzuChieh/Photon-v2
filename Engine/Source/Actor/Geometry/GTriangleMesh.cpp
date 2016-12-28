@@ -1,0 +1,27 @@
+#include "Actor/Geometry/GTriangleMesh.h"
+#include "Actor/Geometry/GTriangle.h"
+#include "Core/Primitive/PrimitiveMetadata.h"
+#include "Actor/AModel.h"
+
+namespace ph
+{
+
+GTriangleMesh::~GTriangleMesh()
+{
+
+}
+
+void GTriangleMesh::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata& metadata) const
+{
+	for(const auto& gTriangle : m_gTriangles)
+	{
+		gTriangle.discretize(out_primitives, metadata);
+	}
+}
+
+void GTriangleMesh::addTriangle(const GTriangle gTriangle)
+{
+	m_gTriangles.push_back(gTriangle);
+}
+
+}// end namespace ph

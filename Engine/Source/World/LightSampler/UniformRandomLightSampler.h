@@ -12,7 +12,7 @@ class UniformRandomLightSampler : public LightSampler
 public:
 	virtual ~UniformRandomLightSampler() override;
 
-	virtual void update(const CookedLightStorage& cookedLightStorage) override;
+	virtual void update(const CookedActorStorage& cookedActors) override;
 	virtual const Emitter* pickEmitter(float32* const out_PDF) const override;
 
 private:

@@ -156,9 +156,6 @@
     <ClCompile Include="Source\Core\Emitter\Emitter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Emitter\EmitterMetadata.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Core\BoundingVolume\AABB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -174,88 +171,85 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\random_sample.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\SLight.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceBehavior.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\SurfaceBehavior\TranslucentMicrofacet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Emitter\AreaEmitter.cpp">
+    <ClCompile Include="Source\Core\CoreActor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\Geometry\Geometry.cpp">
+    <ClCompile Include="Source\Actor\Actor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\Geometry\GRectangle.cpp">
+    <ClCompile Include="Source\Core\CookedActorStorage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\Geometry\GSphere.cpp">
+    <ClCompile Include="Source\Actor\Geometry\Geometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\Geometry\GTriangle.cpp">
+    <ClCompile Include="Source\Actor\Geometry\GRectangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\Geometry\GTriangleMesh.cpp">
+    <ClCompile Include="Source\Actor\Geometry\GSphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\Material\AbradedOpaque.cpp">
+    <ClCompile Include="Source\Actor\Geometry\GTriangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\Material\AbradedTranslucent.cpp">
+    <ClCompile Include="Source\Actor\Geometry\GTriangleMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\Material\LightMaterial.cpp">
+    <ClCompile Include="Source\Actor\Material\AbradedOpaque.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\Material\Material.cpp">
+    <ClCompile Include="Source\Actor\Material\AbradedTranslucent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\Material\MatteOpaque.cpp">
+    <ClCompile Include="Source\Actor\Material\Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\ModelParser\AiMaterialParser.cpp">
+    <ClCompile Include="Source\Actor\Material\MatteOpaque.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\ModelParser\AiMeshParser.cpp">
+    <ClCompile Include="Source\Actor\ModelParser\AiMaterialParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\ModelParser\AssimpModelParser.cpp">
+    <ClCompile Include="Source\Actor\ModelParser\AiMeshParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\ModelParser\ModelParser.cpp">
+    <ClCompile Include="Source\Actor\ModelParser\AssimpModelParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\TextureMapper\DefaultMapper.cpp">
+    <ClCompile Include="Source\Actor\ModelParser\ModelParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\TextureMapper\SphericalMapper.cpp">
+    <ClCompile Include="Source\Actor\TextureMapper\DefaultMapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\TextureMapper\TextureMapper.cpp">
+    <ClCompile Include="Source\Actor\TextureMapper\SphericalMapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\Model.cpp">
+    <ClCompile Include="Source\Actor\TextureMapper\TextureMapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Model\ModelLoader.cpp">
+    <ClCompile Include="Source\Actor\ModelLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Light\Light.cpp">
+    <ClCompile Include="Source\Actor\AModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Light\LightSource\LightSource.cpp">
+    <ClCompile Include="Source\Actor\LightSource\AreaSource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Light\LightSource\AreaSource.cpp">
+    <ClCompile Include="Source\Actor\LightSource\LightSource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\CookedModelStorage.cpp">
+    <ClCompile Include="Source\Actor\ALight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\CookedLightStorage.cpp">
+    <ClCompile Include="Source\Core\Emitter\PrimitiveAreaEmitter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -431,9 +425,6 @@
     <ClInclude Include="Source\Core\Emitter\Emitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Emitter\EmitterMetadata.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\BoundingVolume\AABB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -455,9 +446,6 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\random_sample.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\SLight.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceBehavior.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -467,88 +455,85 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\TranslucentMicrofacet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Emitter\AreaEmitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\Geometry\Geometry.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\Geometry\GRectangle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\Geometry\GSphere.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\Geometry\GTriangle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\Geometry\GTriangleMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\Material\AbradedOpaque.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\Material\AbradedTranslucent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\Material\LightMaterial.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\Material\Material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\Material\MatteOpaque.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\ModelParser\AiMaterialParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\ModelParser\AiMeshParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\ModelParser\AssimpModelParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\ModelParser\ModelParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\TextureMapper\DefaultMapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\TextureMapper\SphericalMapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\TextureMapper\TextureMapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\ModelLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Light\Light.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Model\geometries.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Light\LightSource\LightSource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Light\LightSource\AreaSource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\CookedModelStorage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\CookedLightStorage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Utility\TIteratorProxy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Utility\TConstIteratorProxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\CoreActor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\Actor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\CookedActorStorage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\Geometry\Geometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\Geometry\GRectangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\Geometry\GSphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\Geometry\GTriangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\Geometry\GTriangleMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\Material\AbradedOpaque.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\Material\AbradedTranslucent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\Material\Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\Material\MatteOpaque.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\ModelParser\AiMaterialParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\ModelParser\AiMeshParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\ModelParser\AssimpModelParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\ModelParser\ModelParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\TextureMapper\DefaultMapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\TextureMapper\SphericalMapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\TextureMapper\TextureMapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\ModelLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\AModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\LightSource\AreaSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\LightSource\LightSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\ALight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Emitter\PrimitiveAreaEmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

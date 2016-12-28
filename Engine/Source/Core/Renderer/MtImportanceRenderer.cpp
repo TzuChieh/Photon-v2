@@ -5,7 +5,7 @@
 #include "Camera/Camera.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
-#include "Actor/Model/Material/Material.h"
+#include "Actor/Material/Material.h"
 #include "Math/constant.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Sample.h"

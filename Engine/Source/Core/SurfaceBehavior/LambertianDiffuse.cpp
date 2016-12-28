@@ -3,7 +3,7 @@
 #include "Math/Vector3f.h"
 #include "Math/random_number.h"
 #include "Math/constant.h"
-#include "Actor/Model/Material/MatteOpaque.h"
+#include "Actor/Material/MatteOpaque.h"
 #include "Core/Intersection.h"
 #include "Core/SurfaceBehavior/random_sample.h"
 #include "Core/SurfaceBehavior/SurfaceSample.h"

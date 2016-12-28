@@ -6,7 +6,7 @@
 #include "Math/Vector3f.h"
 #include "Core/Intersection.h"
 #include "Core/SurfaceBehavior/SurfaceSample.h"
-#include "Actor/Model/Material/Material.h"
+#include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/BSDFcos.h"
 #include "Core/Primitive/Primitive.h"

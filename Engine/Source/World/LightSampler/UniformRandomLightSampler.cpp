@@ -1,8 +1,8 @@
 #include "World/LightSampler/UniformRandomLightSampler.h"
-#include "Actor/Model/Model.h"
-#include "Actor/Light/Light.h"
+#include "Actor/AModel.h"
+#include "Actor/ALight.h"
 #include "Math/random_number.h"
-#include "Core/CookedLightStorage.h"
+#include "Core/CookedActorStorage.h"
 
 #include <iostream>
 
@@ -11,12 +11,12 @@ namespace ph
 
 UniformRandomLightSampler::~UniformRandomLightSampler() = default;
 
-void UniformRandomLightSampler::update(const CookedLightStorage& cookedLightStorage)
+void UniformRandomLightSampler::update(const CookedActorStorage& cookedActors)
 {
 	m_emitters.clear();
 	m_emitters.shrink_to_fit();
 
-	for(const auto& emitter : cookedLightStorage)
+	for(const auto& emitter : cookedActors.emitters())
 	{
 		m_emitters.push_back(emitter.get());
 	}
