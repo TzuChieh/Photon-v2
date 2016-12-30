@@ -536,5 +536,14 @@
     <ClInclude Include="Source\Core\Emitter\PrimitiveAreaEmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Common\assertion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Emitter\EmitterSample.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Sample\PositionSample.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

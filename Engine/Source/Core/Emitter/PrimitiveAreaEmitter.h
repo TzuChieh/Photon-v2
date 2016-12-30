@@ -19,7 +19,7 @@ public:
 	virtual ~PrimitiveAreaEmitter() override;
 
 	virtual void evalEmittedRadiance(const Intersection& intersection, Vector3f* const out_emitterRadiance) const override;
-	virtual void samplePosition(const Vector3f& position, const Vector3f& direction, float32* const out_PDF, Vector3f* const out_emittedRadiance) const override;
+	virtual void genDirectSample(const Vector3f& targetPos, Vector3f* const out_emitPos, Vector3f* const out_emittedRadiance, float32* const out_PDF) const override;
 
 	void setEmittedRadiance(const std::shared_ptr<Texture> emittedRadiance);
 

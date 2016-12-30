@@ -14,4 +14,7 @@ typedef uint64_t       uint64;
 typedef float          float32;
 typedef double         float64;
 
+typedef float32 real;
+typedef int32   integer;
+
 }// end namespace ph

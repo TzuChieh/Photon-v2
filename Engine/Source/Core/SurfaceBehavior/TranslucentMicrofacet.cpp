@@ -139,4 +139,9 @@ void TranslucentMicrofacet::genImportanceSample(const Intersection& intersection
 	out_sample->m_LiWeight.set(F.mul(G * dotTerms));
 }
 
+void TranslucentMicrofacet::evaluate(const Intersection& intersection, const Vector3f& wi, const Vector3f& wo, Vector3f* const out_value) const
+{
+	std::cerr << "warning: TranslucentMicrofacet::evaluate() not implemented" << std::endl;
+}
+
 }// end namespace ph

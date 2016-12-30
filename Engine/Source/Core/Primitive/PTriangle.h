@@ -20,7 +20,11 @@ public:
 	virtual bool isIntersecting(const Ray& ray) const override;
 	virtual bool isIntersectingVolume(const AABB& aabb) const override;
 	virtual void calcAABB(AABB* const out_aabb) const override;
-	virtual void genPositionSample(Vector3f* const out_position, Vector3f* const out_normal, float32* const out_PDF) const override;
+	virtual void genPositionSample(PositionSample* const out_sample) const override;
+
+	virtual float32 calcExtendedArea() const override;
+
+	// TODO: update internal data like area when setters are called
 
 	inline void setNa(const Vector3f& nA)
 	{
@@ -84,6 +88,8 @@ private:
 	Vector3f m_eAC;
 
 	Vector3f m_faceNormal;
+
+	Vector3f calcBarycentricCoord(const Vector3f& position) const;
 };
 
 }// end namespace ph

@@ -9,6 +9,7 @@
 #include "Core/SurfaceBehavior/SurfaceSample.h"
 
 #include <cmath>
+#include <iostream>
 
 namespace ph
 {
@@ -81,6 +82,11 @@ void OpaqueMicrofacet::genImportanceSample(const Intersection& intersection, con
 
 	// this model reflects light
 	out_sample->m_type = ESurfaceSampleType::REFLECTION;
+}
+
+void OpaqueMicrofacet::evaluate(const Intersection& intersection, const Vector3f& wi, const Vector3f& wo, Vector3f* const out_value) const
+{
+	std::cerr << "warning: OpaqueMicrofacet::evaluate() not implemented" << std::endl;
 }
 
 }// end namespace ph

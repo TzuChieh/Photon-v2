@@ -5,6 +5,7 @@
 #include "Core/Intersection.h"
 #include "Core/BoundingVolume/AABB.h"
 #include "Math/random_number.h"
+#include "Core/Sample/PositionSample.h"
 
 #include <limits>
 
@@ -27,7 +28,7 @@ PTriangle::PTriangle(const PrimitiveMetadata* const metadata, const Vector3f& vA
 	m_nB = m_faceNormal;
 	m_nC = m_faceNormal;
 
-	m_reciExtendedArea = 1.0f / (m_eAB.cross(m_eAC).length() * 0.5f);
+	m_reciExtendedArea = 1.0f / calcExtendedArea();
 }
 
 PTriangle::~PTriangle() = default;
@@ -374,14 +375,56 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 	return true;
 }
 
-void PTriangle::genPositionSample(Vector3f* const out_position, Vector3f* const out_normal, float32* const out_PDF) const
+void PTriangle::genPositionSample(PositionSample* const out_sample) const
 {
 	const float32 A = std::sqrt(genRandomFloat32_0_1_uniform());
 	const float32 B = genRandomFloat32_0_1_uniform();
 
-	*out_position = m_vA.mul(1.0f - A).addLocal(m_vB.mul(A * (1.0f - B))).addLocal(m_vC.mul(B * A));
-	*out_normal   = m_faceNormal;
-	*out_PDF      = m_reciExtendedArea;
+	const Vector3f localPos = m_vA.mul(1.0f - A).addLocal(m_vB.mul(A * (1.0f - B))).addLocal(m_vC.mul(B * A));
+	Vector3f worldPos;
+	m_metadata->localToWorld.transformPoint(localPos, &worldPos);
+	out_sample->position = worldPos;
+
+	const Vector3f abc = calcBarycentricCoord(localPos);
+	out_sample->uvw = m_uvwA.mul(1.0f - abc.y - abc.z).addLocal(m_uvwB.mul(abc.y)).addLocal(m_uvwC.mul(abc.z));
+
+	//Vector3f localNormal(m_nA.mul(1.0f - abc.y - abc.z).addLocal(m_nB.mul(abc.y)).addLocal(m_nC.mul(abc.z)));
+	Vector3f worldN;
+	m_metadata->localToWorld.transformVector(m_faceNormal, &worldN);
+	out_sample->normal = worldN.normalizeLocal();
+
+	out_sample->pdf = m_reciExtendedArea;
+}
+
+float32 PTriangle::calcExtendedArea() const
+{
+	Vector3f eAB;
+	Vector3f eAC;
+	m_metadata->localToWorld.transformVector(m_eAB, &eAB);
+	m_metadata->localToWorld.transformVector(m_eAC, &eAC);
+	return eAB.cross(eAC).length() * 0.5f;
+}
+
+Vector3f PTriangle::calcBarycentricCoord(const Vector3f& position) const
+{
+	// Reference: Real-Time Collision Detection, Volume 1, P.47 ~ P.48
+	// Computes barycentric coordinates (a, b, c) for a position with respect to triangle (A, B, C).
+
+	const Vector3f eAP = position.sub(m_vA);
+
+	const float32 d00 = m_eAB.dot(m_eAB);
+	const float32 d01 = m_eAB.dot(m_eAC);
+	const float32 d11 = m_eAC.dot(m_eAC);
+	const float32 d20 = eAP.dot(m_eAB);
+	const float32 d21 = eAP.dot(m_eAC);
+
+	const float32 reciDenom = 1.0f / (d00 * d11 - d01 * d01);
+
+	const float32 b = (d11 * d20 - d01 * d21) * reciDenom;
+	const float32 c = (d00 * d21 - d01 * d20) * reciDenom;
+	const float32 a = 1.0f - b - c;
+
+	return Vector3f(a, b, c);
 }
 
 }// end namespace ph

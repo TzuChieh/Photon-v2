@@ -6,13 +6,13 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
  * backward path tracing
 * **Material**
  * Lambertian diffuse
- * perfect mirror
  * microfacet-based opaque and translucent model
- * simple pure emission model
 * **Geometry**
  * sphere shape
  * rectangular shape
  * triangle mesh
+* **Light**
+ * area light
 
 ## Build
 Photon-v2 is being developed with cross-platformity in mind, but Windows is the only platform that has been tested, for now. <br />

@@ -42,8 +42,8 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 	m_subFilms.clear();
 	m_subFilms.shrink_to_fit();
 
-	BackwardPathIntegrator integrator;
-	//BackwardLightIntegrator integrator;
+	//BackwardPathIntegrator integrator;
+	BackwardLightIntegrator integrator;
 	integrator.update(world);
 
 	std::atomic<int32> numSpp = 0;

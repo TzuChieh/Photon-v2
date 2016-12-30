@@ -161,14 +161,17 @@ void loadTestScene(World* const out_world)
 		glassMaterial->setIOR(1.5f);
 		glassMaterial->setRoughness(0.0f);
 
+		auto matteMaterial = std::make_shared<MatteOpaque>();
+		matteMaterial->setAlbedo(0.6f, 0.6f, 0.6f);
+
 		for(auto& model : loadedModels1)
 		{
-			model.setMaterial(goldMaterial);
+			model.setMaterial(matteMaterial);
 		}
 
 		for(auto& model : loadedModels2)
 		{
-			model.setMaterial(silverMaterial);
+			model.setMaterial(matteMaterial);
 		}
 
 		for(auto& model : loadedModels1)
@@ -182,14 +185,31 @@ void loadTestScene(World* const out_world)
 		}
 	}
 
-	auto sphereMaterial = std::make_shared<AbradedTranslucent>();
+	/*auto sphereMaterial = std::make_shared<AbradedTranslucent>();
 	sphereMaterial->setF0(0.04f, 0.04f, 0.04f);
 	sphereMaterial->setRoughness(0.0f);
-	sphereMaterial->setIOR(1.5f);
+	sphereMaterial->setIOR(1.5f);*/
+	auto sphereMaterial = std::make_shared<MatteOpaque>();
+	sphereMaterial->setAlbedo(0.6f, 0.6f, 0.6f);
 	auto sphereGeometry = std::make_shared<GSphere>(1.8f);
 	AModel sphereModel(sphereGeometry, sphereMaterial);
 	sphereModel.rotate(Vector3f(1, 1, 0).normalize(), 45);
 	sphereModel.translate(0.5f, -3.2f, 3);
+
+	/*auto sphereMaterial = std::make_shared<AbradedOpaque>();
+	sphereMaterial->setF0(0.05f, 0.05f, 0.05f);
+	sphereMaterial->setRoughness(0.05f);
+	auto sphereGeometry = std::make_shared<GSphere>(1.5f);
+	AModel sphereModel(sphereGeometry, sphereMaterial);
+	sphereModel.rotate(Vector3f(1, 1, 0).normalize(), 45);
+	sphereModel.translate(0.5f, -3.5f, 3);*/
+
+	/*ALight sphereLight;
+	sphereLight.getModel() = sphereModel;
+
+	auto sphereLightSource = std::make_shared<AreaSource>(Vector3f(0.3f, 0.3f, 0.15f));
+	sphereLight.setLightSource(sphereLightSource);*/
+
 	out_world->addActor(std::make_unique<AModel>(sphereModel));
 
 	//auto sphereChildMaterial = std::make_shared<MatteOpaque>();

@@ -251,9 +251,11 @@
     <ClInclude Include="Source\Api\test_scene.h" />
     <ClInclude Include="Source\Camera\Camera.h" />
     <ClInclude Include="Source\Camera\DefaultCamera.h" />
+    <ClInclude Include="Source\Common\assertion.h" />
     <ClInclude Include="Source\Common\primitive_type.h" />
     <ClInclude Include="Source\Core\CoreActor.h" />
     <ClInclude Include="Source\Core\CookedActorStorage.h" />
+    <ClInclude Include="Source\Core\Emitter\EmitterSample.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardLightIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardPathIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\Integrator.h" />
@@ -266,6 +268,7 @@
     <ClInclude Include="Source\Core\Primitive\PrimitiveMetadata.h" />
     <ClInclude Include="Source\Core\Primitive\PTriangle.h" />
     <ClInclude Include="Source\Actor\ALight.h" />
+    <ClInclude Include="Source\Core\Sample\PositionSample.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\BSDFcos.h" />
     <ClInclude Include="Source\FileIO\RenderDataFileLoader.h" />
     <ClInclude Include="Source\Image\CheckerboardTexture.h" />
