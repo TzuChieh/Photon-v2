@@ -27,12 +27,12 @@ TranslucentMicrofacet::~TranslucentMicrofacet() = default;
 
 void TranslucentMicrofacet::genImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
 {
-	// HACK: copy-and-paste comment
-	// Cook-Torrance microfacet specular BRDF is D(H)*F(V, H)*G(L, V, H) / (4*NoL*NoV).
+	// Cook-Torrance microfacet specular BRDF for translucent surface is:
+	// |HoL||HoV|/(|NoL||NoV|)*(iorO^2)*(D(H)*F(V, H)*G(L, V, H)) / (iorI*HoL + iorO*HoV)^2.
 	// The importance sampling strategy is to generate a microfacet normal (H) which follows D(H)'s distribution, and
 	// generate L by reflecting/refracting -V using H.
-	// The PDF for this sampling scheme is D(H)*NoH / (4*HoL). The reason that (4*HoL) exists is because there's a 
-	// jacobian involved (from H's probability space to L's).
+	// The PDF for this sampling scheme is (D(H)*NoH) * (iorO^2 * |HoV| / ((iorI*HoL + iorO*HoV)^2)).
+	// The reason that the latter multiplier in the PDF exists is because there's a jacobian involved (from H's probability space to L's).
 
 	Vector3f sampledRoughness;
 	m_roughness->sample(intersection.getHitUVW(), &sampledRoughness);
@@ -128,7 +128,6 @@ void TranslucentMicrofacet::genImportanceSample(const Intersection& intersection
 		out_sample->m_direction.set(ray.getDirection().reflect(H).normalizeLocal());
 		out_sample->m_type = ESurfaceSampleType::REFLECTION;
 		out_sample->m_emittedRadiance.set(0, 0, 0);
-		//std::cerr << "detected!";
 		return;
 	}
 
@@ -139,9 +138,84 @@ void TranslucentMicrofacet::genImportanceSample(const Intersection& intersection
 	out_sample->m_LiWeight.set(F.mul(G * dotTerms));
 }
 
-void TranslucentMicrofacet::evaluate(const Intersection& intersection, const Vector3f& wi, const Vector3f& wo, Vector3f* const out_value) const
+void TranslucentMicrofacet::evaluate(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_value) const
 {
-	std::cerr << "warning: TranslucentMicrofacet::evaluate() not implemented" << std::endl;
+	const Vector3f& N = intersection.getHitSmoothNormal();
+
+	const float32 NoL = N.dot(L);
+	const float32 NoV = N.dot(V);
+
+	// sidedness agreement between real geometry and shading (phong-interpolated) normal
+	if(NoL * intersection.getHitGeoNormal().dot(L) <= 0.0f || NoV * intersection.getHitGeoNormal().dot(V) <= 0.0f)
+	{
+		out_value->set(0, 0, 0);
+		return;
+	}
+
+	Vector3f sampledRoughness;
+	m_roughness->sample(intersection.getHitUVW(), &sampledRoughness);
+	const float32 roughness = sampledRoughness.x;
+	Vector3f sampledF0;
+	m_F0->sample(intersection.getHitUVW(), &sampledF0);
+
+	// reflection
+	if(NoL * NoV >= 0.0f)
+	{
+		// H is on the hemisphere of N
+		Vector3f H = L.add(V).normalizeLocal();
+		if(NoL < 0.0f)
+		{
+			H.mulLocal(-1.0f);
+		}
+
+		const float32 HoV = H.dot(V);
+		const float32 NoH = N.dot(H);
+		const float32 HoL = H.dot(L);
+
+		Vector3f F;
+		Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
+		const float32 D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, roughness);
+		const float32 G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, roughness);
+
+		// notice that the abs(N dot L) term canceled out with the lambertian term
+		*out_value = F.mul(D * G / (4.0f * std::abs(NoV)));
+	}
+	// refraction
+	else
+	{
+		Vector3f sampledIor;
+		m_IOR->sample(intersection.getHitUVW(), &sampledIor);
+		float32 iorI;
+		float32 iorO;
+
+		// H is on the hemisphere of N
+		Vector3f H;
+		if(NoL < 0.0f)
+		{
+			iorI = sampledIor.x;
+			iorO = 1.0f;
+		}
+		else
+		{
+			iorI = 1.0f;
+			iorO = sampledIor.x;
+		}
+		H = L.mul(iorI).add(V.mul(iorO)).mulLocal(-1.0f).normalizeLocal();
+
+		const float32 HoV = H.dot(V);
+		const float32 NoH = N.dot(H);
+		const float32 HoL = H.dot(L);
+
+		Vector3f F;
+		Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
+		const float32 D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, roughness);
+		const float32 G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, roughness);
+
+		// notice that the abs(N dot L) term canceled out with the lambertian term
+		const float32 dotTerm = std::abs(HoL * HoV / NoV);
+		const float32 iorTerm = iorO / (iorI * HoL + iorO * HoV);
+		*out_value = F.complement().mul(D * G * dotTerm / (iorTerm * iorTerm));
+	}
 }
 
 }// end namespace ph

@@ -52,22 +52,22 @@ void LambertianDiffuse::setAlbedo(const std::shared_ptr<Texture>& albedo)
 	m_albedo = albedo;
 }
 
-void LambertianDiffuse::evaluate(const Intersection& intersection, const Vector3f& wi, const Vector3f& wo, Vector3f* const out_value) const
+void LambertianDiffuse::evaluate(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_value) const
 {
-	const float32 NoV = intersection.getHitSmoothNormal().dot(wo);
-	const float32 NoL = intersection.getHitSmoothNormal().dot(wi);
+	const float32 NoL = intersection.getHitSmoothNormal().dot(L);
+	const float32 NoV = intersection.getHitSmoothNormal().dot(V);
 
-	// check if wi, wo lies on different side of the surface
-	if(NoV * NoL <= 0.0f)
+	// check if L, V lies on different side of the surface
+	if(NoL * NoV <= 0.0f)
 	{
-		*out_value = Vector3f(0, 0, 0);
+		out_value->set(0, 0, 0);
 		return;
 	}
 
 	// sidedness agreement between real geometry and shading (phong-interpolated) normal
-	if(NoV * intersection.getHitGeoNormal().dot(wo) <= 0.0f || NoL * intersection.getHitGeoNormal().dot(wi) <= 0.0f)
+	if(NoL * intersection.getHitGeoNormal().dot(L) <= 0 || NoV * intersection.getHitGeoNormal().dot(V) <= 0.0f)
 	{
-		*out_value = Vector3f(0, 0, 0);
+		out_value->set(0, 0, 0);
 		return;
 	}
 

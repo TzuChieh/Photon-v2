@@ -14,7 +14,7 @@ public:
 	virtual ~BSDFcos() = 0;
 
 	virtual void genImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const = 0;
-	virtual void evaluate(const Intersection& intersection, const Vector3f& wi, const Vector3f& wo, Vector3f* const out_value) const = 0;
+	virtual void evaluate(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_value) const = 0;
 };
 
 }// end namespace ph

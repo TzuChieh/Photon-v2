@@ -84,9 +84,51 @@ void OpaqueMicrofacet::genImportanceSample(const Intersection& intersection, con
 	out_sample->m_type = ESurfaceSampleType::REFLECTION;
 }
 
-void OpaqueMicrofacet::evaluate(const Intersection& intersection, const Vector3f& wi, const Vector3f& wo, Vector3f* const out_value) const
+void OpaqueMicrofacet::evaluate(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_value) const
 {
-	std::cerr << "warning: OpaqueMicrofacet::evaluate() not implemented" << std::endl;
+	const Vector3f& N = intersection.getHitSmoothNormal();
+
+	const float32 NoL = N.dot(L);
+	const float32 NoV = N.dot(V);
+
+	// check if L, V lies on different side of the surface
+	if(NoL * NoV <= 0.0f)
+	{
+		out_value->set(0, 0, 0);
+		return;
+	}
+
+	// sidedness agreement between real geometry and shading (phong-interpolated) normal
+	if(NoL * intersection.getHitGeoNormal().dot(L) <= 0.0f || NoV * intersection.getHitGeoNormal().dot(V) <= 0.0f)
+	{
+		out_value->set(0, 0, 0);
+		return;
+	}
+
+	Vector3f sampledRoughness;
+	m_roughness->sample(intersection.getHitUVW(), &sampledRoughness);
+	const float32 roughness = sampledRoughness.x;
+	Vector3f sampledF0;
+	m_F0->sample(intersection.getHitUVW(), &sampledF0);
+
+	// H is on the hemisphere of N
+	Vector3f H = L.add(V).normalizeLocal();
+	if(NoL < 0.0f)
+	{
+		H.mulLocal(-1.0f);
+	}
+
+	const float32 HoV = H.dot(V);
+	const float32 NoH = N.dot(H);
+	const float32 HoL = H.dot(L);
+
+	Vector3f F;
+	Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
+	const float32 D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, roughness);
+	const float32 G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, roughness);
+
+	// notice that the abs(N dot L) term canceled out with the lambertian term
+	*out_value = F.mul(D * G / (4.0f * std::abs(NoV)));
 }
 
 }// end namespace ph

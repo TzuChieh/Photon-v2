@@ -173,6 +173,7 @@
     <ClCompile Include="Source\Core\CoreActor.cpp" />
     <ClCompile Include="Source\Core\CookedActorStorage.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardLightIntegrator.cpp" />
+    <ClCompile Include="Source\Core\Integrator\BackwardMisIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardPathIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\Integrator.cpp" />
     <ClCompile Include="Source\Core\Intersection.cpp" />
@@ -257,6 +258,7 @@
     <ClInclude Include="Source\Core\CookedActorStorage.h" />
     <ClInclude Include="Source\Core\Emitter\EmitterSample.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardLightIntegrator.h" />
+    <ClInclude Include="Source\Core\Integrator\BackwardMisIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardPathIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\Integrator.h" />
     <ClInclude Include="Source\Core\Renderer\MtImportanceRenderer.h" />
@@ -292,7 +294,6 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\Microfacet.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\random_sample.h" />
     <ClInclude Include="Source\Math\Transform.h" />
-    <ClInclude Include="Source\Math\vector_math.h" />
     <ClInclude Include="Source\Actor\Geometry\GRectangle.h" />
     <ClInclude Include="Source\Actor\Geometry\GTriangleMesh.h" />
     <ClInclude Include="Source\Actor\Material\AbradedTranslucent.h" />

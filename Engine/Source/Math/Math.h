@@ -35,6 +35,18 @@ public:
 	{
 		return degrees * (1.0f / 180.0f) * PI_FLOAT32;
 	}
+
+	// Extract the sign of a value (branchless).
+	// If the provided value is comparable to 0:
+	// returns ( 1) when (value  > 0), 
+	// returns (-1) when (value  < 0), 
+	// returns ( 0) when (value == 0).
+	// (Note that the target value is pass by value.)
+	template<typename T>
+	static inline int32 sign(const T value)
+	{
+		return (static_cast<T>(0) < value) - (static_cast<T>(0) > value);
+	}
 };
 
 }// end namespace ph

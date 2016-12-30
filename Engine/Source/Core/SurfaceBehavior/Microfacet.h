@@ -28,7 +28,7 @@ public:
 		return alpha2 / denominator;
 	}
 
-	// Smith's GGX Geometry Shadowing Function
+	// Smith's GGX Geometry Shadowing Function (H is expected to be on the hemisphere of N)
 	inline static float32 geometryShadowingGgxSmith(const float32 NoV, const float32 NoL, const float32 HoV, const float32 HoL, const float32 roughness)
 	{
 		// The back surface of the microsurface is never visible from directions on the front side 
