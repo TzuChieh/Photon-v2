@@ -10,7 +10,6 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/BSDFcos.h"
 #include "Core/SurfaceBehavior/SurfaceSample.h"
-#include "Core/SurfaceBehavior/ESurfaceSampleType.h"
 #include "Math/Math.h"
 #include "Math/Color.h"
 #include "Math/random_number.h"
@@ -54,8 +53,6 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world
 		const auto* const metadata = intersection.getHitPrimitive()->getMetadata();
 		const SurfaceBehavior& hitSurfaceBehavior = metadata->surfaceBehavior;
 
-		Vector3f L;
-
 		///////////////////////////////////////////////////////////////////////////////
 		// sample emitted radiance
 
@@ -83,19 +80,21 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world
 		// sample BSDF
 
 		SurfaceSample surfaceSample;
-		const BSDFcos* bsdfCos = hitSurfaceBehavior.getBsdfCos();
-		bsdfCos->genImportanceSample(intersection, tracingRay, &surfaceSample);
+		surfaceSample.setImportanceSample(intersection, tracingRay.getDirection().mul(-1.0f));
+		hitSurfaceBehavior.getBsdfCos()->genImportanceSample(surfaceSample);
+		if(surfaceSample.liWeight.allZero())
+		{
+			break;
+		}
 
-		L = surfaceSample.m_direction;
-
-		switch(surfaceSample.m_type)
+		switch(surfaceSample.type)
 		{
 		case ESurfaceSampleType::REFLECTION:
 		case ESurfaceSampleType::TRANSMISSION:
 		{
-			rayOriginDelta.set(surfaceSample.m_direction).mulLocal(rayDeltaDist);
+			rayOriginDelta.set(surfaceSample.L).mulLocal(rayDeltaDist);
 
-			Vector3f liWeight = surfaceSample.m_LiWeight;
+			Vector3f liWeight = surfaceSample.liWeight;
 
 			if(numBounces >= 3)
 			{
@@ -134,7 +133,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world
 
 		// prepare for next iteration
 		const Vector3f nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
-		const Vector3f nextRayDirection(L);
+		const Vector3f nextRayDirection(surfaceSample.L);
 		tracingRay.setOrigin(nextRayOrigin);
 		tracingRay.setDirection(nextRayDirection);
 		numBounces++;

@@ -24,7 +24,7 @@ OpaqueMicrofacet::OpaqueMicrofacet() :
 
 OpaqueMicrofacet::~OpaqueMicrofacet() = default;
 
-void OpaqueMicrofacet::genImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
+void OpaqueMicrofacet::genImportanceSample(SurfaceSample& sample) const
 {
 	// Cook-Torrance microfacet specular BRDF is D(H)*F(V, H)*G(L, V, H) / (4*NoL*NoV).
 	// The importance sampling strategy is to generate a microfacet normal (H) which follows D(H)'s distribution, and
@@ -33,13 +33,13 @@ void OpaqueMicrofacet::genImportanceSample(const Intersection& intersection, con
 	// jacobian involved (from H's probability space to L's).
 
 	Vector3f sampledRoughness;
-	m_roughness->sample(intersection.getHitUVW(), &sampledRoughness);
+	m_roughness->sample(sample.X->getHitUVW(), &sampledRoughness);
 	const float32 roughness = sampledRoughness.x;
 
 	Vector3f sampledF0;
-	m_F0->sample(intersection.getHitUVW(), &sampledF0);
+	m_F0->sample(sample.X->getHitUVW(), &sampledF0);
 
-	const Vector3f& N = intersection.getHitSmoothNormal();
+	const Vector3f& N = sample.X->getHitSmoothNormal();
 	Vector3f H;
 
 	genUnitHemisphereGgxTrowbridgeReitzNdfSample(genRandomFloat32_0_1_uniform(), genRandomFloat32_0_1_uniform(), roughness, &H);
@@ -50,9 +50,9 @@ void OpaqueMicrofacet::genImportanceSample(const Intersection& intersection, con
 	H = u.mulLocal(H.x).addLocal(v.mulLocal(H.y)).addLocal(w.mulLocal(H.z));
 	H.normalizeLocal();
 
-	const Vector3f V = ray.getDirection().mul(-1.0f);
-	const Vector3f L = ray.getDirection().reflect(H).normalizeLocal();
-	out_sample->m_direction = L;
+	const Vector3f V = sample.V;
+	const Vector3f L = sample.V.mul(-1.0f).reflect(H).normalizeLocal();
+	sample.L = L;
 
 	const float32 NoV = N.dot(V);
 	const float32 NoL = N.dot(L);
@@ -61,12 +61,9 @@ void OpaqueMicrofacet::genImportanceSample(const Intersection& intersection, con
 	const float32 NoH = N.dot(H);
 
 	// sidedness agreement between real geometry and shading (phong-interpolated) normal
-	if(NoV * intersection.getHitGeoNormal().dot(V) <= 0.0f || NoL * intersection.getHitGeoNormal().dot(L) <= 0.0f)
+	if(NoV * sample.X->getHitGeoNormal().dot(V) <= 0.0f || NoL * sample.X->getHitGeoNormal().dot(L) <= 0.0f)
 	{
-		out_sample->m_LiWeight.set(0, 0, 0);
-		out_sample->m_direction.set(ray.getDirection().reflect(H).normalizeLocal());
-		out_sample->m_type = ESurfaceSampleType::REFLECTION;
-		out_sample->m_emittedRadiance.set(0, 0, 0);
+		sample.liWeight.set(0, 0, 0);
 		return;
 	}
 
@@ -78,10 +75,10 @@ void OpaqueMicrofacet::genImportanceSample(const Intersection& intersection, con
 	const Vector3f& F = calcFresnelTerm(intersection, V, H);*/
 
 	// notice that the (N dot L) term canceled out with the lambertian term
-	out_sample->m_LiWeight.set(F.mul(G * HoL).divLocal(NoV * NoH));
+	sample.liWeight.set(F.mul(G * HoL).divLocal(NoV * NoH));
 
 	// this model reflects light
-	out_sample->m_type = ESurfaceSampleType::REFLECTION;
+	sample.type = ESurfaceSampleType::REFLECTION;
 }
 
 void OpaqueMicrofacet::evaluate(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_value) const

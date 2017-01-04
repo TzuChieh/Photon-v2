@@ -209,8 +209,8 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 	ALight topLight;
 	AModel& lightModel = topLight.getModel();
 	lightModel.rotate(Vector3f(1, 0, 0), 90);
-	lightModel.scale(boxSize * 0.05f);
-	//lightModel.scale(boxSize * 0.3f);
+	//lightModel.scale(boxSize * 0.05f);
+	lightModel.scale(boxSize * 0.3f);
 	lightModel.translate(0, halfBoxSize - halfBoxSize * 0.05f, 0);
 
 	auto topLightMaterial = std::make_shared<MatteOpaque>();
@@ -218,8 +218,8 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 	lightModel.setGeometry(unitRectangleGeom);
 	lightModel.setMaterial(topLightMaterial);
 
-	//auto topLightSource = std::make_shared<AreaSource>(Vector3f(3.4f, 3.4f, 3.4f));
-	auto topLightSource = std::make_shared<AreaSource>(Vector3f(34, 34, 34));
+	auto topLightSource = std::make_shared<AreaSource>(Vector3f(3.4f, 3.4f, 3.4f));
+	//auto topLightSource = std::make_shared<AreaSource>(Vector3f(34, 34, 34));
 	topLight.setLightSource(topLightSource);
 	out_world->addActor(std::make_unique<ALight>(topLight));
 

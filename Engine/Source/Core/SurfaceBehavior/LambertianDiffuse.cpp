@@ -21,7 +21,7 @@ LambertianDiffuse::LambertianDiffuse() :
 
 LambertianDiffuse::~LambertianDiffuse() = default;
 
-void LambertianDiffuse::genImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample) const
+void LambertianDiffuse::genImportanceSample(SurfaceSample& sample) const
 {
 	// Lambertian diffuse model's BRDF is simply albedo/pi.
 	// The importance sampling strategy is to use the cosine term in the rendering equation, 
@@ -29,23 +29,44 @@ void LambertianDiffuse::genImportanceSample(const Intersection& intersection, co
 	// Thus, BRDF_lambertian*cos(theta)/PDF = albedo = Li's weight.
 
 	Vector3f albedo;
-	m_albedo->sample(intersection.getHitUVW(), &albedo);
-	out_sample->m_LiWeight.set(albedo);
+	m_albedo->sample(sample.X->getHitUVW(), &albedo);
+	sample.liWeight.set(albedo);
 
 	// generate and transform L to N's space
 
-	Vector3f& L = out_sample->m_direction;
+	Vector3f& L = sample.L;
 	genUnitHemisphereCosineThetaWeightedSample(genRandomFloat32_0_1_uniform(), genRandomFloat32_0_1_uniform(), &L);
 	Vector3f u;
-	Vector3f v(intersection.getHitSmoothNormal());
+	Vector3f v(sample.X->getHitSmoothNormal());
 	Vector3f w;
 	v.calcOrthBasisAsYaxis(&u, &w);
 	L = u.mulLocal(L.x).addLocal(v.mulLocal(L.y)).addLocal(w.mulLocal(L.z));
 	L.normalizeLocal();
 
 	// this model reflects light
-	out_sample->m_type = ESurfaceSampleType::REFLECTION;
+	sample.type = ESurfaceSampleType::REFLECTION;
 }
+
+//void LambertianDiffuse::genImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample, float32* const out_pdfW) const
+//{
+//	Vector3f albedo;
+//	m_albedo->sample(intersection.getHitUVW(), &albedo);
+//	out_sample->m_LiWeight.set(albedo);
+//
+//	// generate and transform L to N's space
+//
+//	Vector3f& L = out_sample->m_direction;
+//	genUnitHemisphereCosineThetaWeightedSample(genRandomFloat32_0_1_uniform(), genRandomFloat32_0_1_uniform(), &L);
+//	Vector3f u;
+//	Vector3f v(intersection.getHitSmoothNormal());
+//	Vector3f w;
+//	v.calcOrthBasisAsYaxis(&u, &w);
+//	L = u.mulLocal(L.x).addLocal(v.mulLocal(L.y)).addLocal(w.mulLocal(L.z));
+//	L.normalizeLocal();
+//
+//	// this model reflects light
+//	out_sample->m_type = ESurfaceSampleType::REFLECTION;
+//}
 
 void LambertianDiffuse::setAlbedo(const std::shared_ptr<Texture>& albedo)
 {

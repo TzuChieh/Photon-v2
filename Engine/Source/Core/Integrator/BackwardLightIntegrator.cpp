@@ -11,7 +11,6 @@
 #include "Core/SurfaceBehavior/BSDFcos.h"
 #include "Core/Primitive/Primitive.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
-#include "Core/SurfaceBehavior/ESurfaceSampleType.h"
 #include "Math/Math.h"
 #include "Math/random_number.h"
 
@@ -99,15 +98,21 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const World& worl
 
 		bool keepSampling = true;
 
-		bsdfCos->genImportanceSample(intersection, tracingRay, &surfaceSample);
-		switch(surfaceSample.m_type)
+		surfaceSample.setImportanceSample(intersection, tracingRay.getDirection().mul(-1.0f));
+		bsdfCos->genImportanceSample(surfaceSample);
+		if(surfaceSample.liWeight.allZero())
+		{
+			break;
+		}
+
+		switch(surfaceSample.type)
 		{
 		case ESurfaceSampleType::REFLECTION:
 		case ESurfaceSampleType::TRANSMISSION:
 		{
-			rayOriginDelta.set(surfaceSample.m_direction).mulLocal(rayDeltaDist);
+			rayOriginDelta.set(surfaceSample.L).mulLocal(rayDeltaDist);
 
-			Vector3f liWeight = surfaceSample.m_LiWeight;
+			Vector3f liWeight = surfaceSample.liWeight;
 
 			if(numBounces >= 3)
 			{
@@ -143,7 +148,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const World& worl
 		break;
 
 		default:
-			std::cerr << "warning: unknown surface sample type in BackwardPathIntegrator detected" << std::endl;
+			std::cerr << "warning: unknown surface sample type in BackwardLightIntegrator detected" << std::endl;
 			keepSampling = false;
 			break;
 		}// end switch surface sample type
@@ -155,7 +160,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const World& worl
 
 		// prepare for next iteration
 		const Vector3f nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
-		const Vector3f nextRayDirection(surfaceSample.m_direction);
+		const Vector3f nextRayDirection(surfaceSample.L);
 		tracingRay.setOrigin(nextRayOrigin);
 		tracingRay.setDirection(nextRayDirection);
 		numBounces++;

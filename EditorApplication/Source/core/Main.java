@@ -2,6 +2,7 @@ package core;
 
 import java.awt.BorderLayout;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -69,10 +70,13 @@ public class Main
 		// for cbox
 		camera.setPosition(0, 0, 16);
 		
+		
+		
 		// for sponza
 //		camera.setPosition(3.5765076f, 2.1717842f, 2.5685565f);
 //		camera.setDirection(-0.81385213f, -0.30174536f, -0.49657395f);
 		
+		//ArrayList<PhCamera> bb;
 		
 //		final int outputWidth = 1280;
 //		final int outputHeight = 720;

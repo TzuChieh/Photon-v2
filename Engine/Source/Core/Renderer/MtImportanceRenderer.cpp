@@ -14,6 +14,7 @@
 #include "Math/Math.h"
 #include "Core/Integrator/BackwardPathIntegrator.h"
 #include "Core/Integrator/BackwardLightIntegrator.h"
+#include "Core/Integrator/BackwardMisIntegrator.h"
 
 #include <cmath>
 #include <iostream>
@@ -44,6 +45,7 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 
 	//BackwardPathIntegrator integrator;
 	BackwardLightIntegrator integrator;
+	//BackwardMisIntegrator integrator;
 	integrator.update(world);
 
 	std::atomic<int32> numSpp = 0;

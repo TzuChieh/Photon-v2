@@ -431,9 +431,6 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\BSDFcos.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\ESurfaceSampleType.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\SurfaceBehavior\LambertianDiffuse.h">
       <Filter>Header Files</Filter>
     </ClInclude>

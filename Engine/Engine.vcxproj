@@ -297,7 +297,6 @@
     <ClInclude Include="Source\Actor\Geometry\GRectangle.h" />
     <ClInclude Include="Source\Actor\Geometry\GTriangleMesh.h" />
     <ClInclude Include="Source\Actor\Material\AbradedTranslucent.h" />
-    <ClInclude Include="Source\Core\SurfaceBehavior\ESurfaceSampleType.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\TranslucentMicrofacet.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceSample.h" />
     <ClInclude Include="Source\Actor\ModelLoader.h" />

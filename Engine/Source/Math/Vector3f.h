@@ -522,6 +522,11 @@ public:
 		       (y - r.y) < std::abs(margin) &&
 		       (z - r.z) < std::abs(margin);
 	}
+
+	inline bool allZero() const
+	{
+		return x == 0.0f && y == 0.0f && z == 0.0f;
+	}
 };// end class Vector3f
 
 }// end namespace ph
