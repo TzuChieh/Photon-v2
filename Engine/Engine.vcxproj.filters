@@ -255,6 +255,9 @@
     <ClCompile Include="Source\Core\Integrator\BackwardMisIntegrator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\Integrator\NormalBufferIntegrator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Math\Matrix4f.h">
@@ -446,9 +449,6 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceBehavior.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceSample.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\SurfaceBehavior\TranslucentMicrofacet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -536,13 +536,19 @@
     <ClInclude Include="Source\Common\assertion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Emitter\EmitterSample.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Sample\PositionSample.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Integrator\BackwardMisIntegrator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Sample\DirectLightSample.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Sample\SurfaceSample.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Integrator\NormalBufferIntegrator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

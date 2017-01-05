@@ -6,6 +6,7 @@
 #include "Core/Primitive/Primitive.h"
 #include "Math/random_number.h"
 #include "Core/Sample/PositionSample.h"
+#include "Core/Sample/DirectLightSample.h"
 
 #include <iostream>
 
@@ -64,6 +65,35 @@ void PrimitiveAreaEmitter::genDirectSample(const Vector3f& targetPos, Vector3f* 
 	*out_emittedRadiance = emittedRadiance;
 
 	*out_emitPos = positionSample.position;
+}
+
+void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
+{
+	// randomly and uniformly pick a primitive
+	const std::size_t picker = static_cast<std::size_t>(genRandomFloat32_0_1_uniform() * static_cast<float32>(m_primitives.size()));
+	const std::size_t pickedIndex = picker == m_primitives.size() ? picker - 1 : picker;
+	sample.sourcePrim = m_primitives[pickedIndex];
+	const float32 pickPdfW = (1.0f / sample.sourcePrim->getReciExtendedArea()) * m_reciExtendedArea;
+
+	PositionSample positionSample;
+	sample.sourcePrim->genPositionSample(&positionSample);
+
+	const Vector3f emitterToTargetPos(sample.targetPos.sub(positionSample.position));
+	const Vector3f emitDir(emitterToTargetPos.normalize());
+	const float32 distSquared = emitterToTargetPos.squaredLength();
+	
+	sample.emitPos = positionSample.position;
+	sample.pdfW = pickPdfW * positionSample.pdf / std::abs(emitDir.dot(positionSample.normal)) * distSquared;
+	m_emittedRadiance->sample(positionSample.uvw, &sample.radianceLe);
+}
+
+float32 PrimitiveAreaEmitter::calcDirectSamplePdfW(const Vector3f& targetPos, const Vector3f& emitPos, const Vector3f& emitN, const Primitive* hitPrim) const
+{
+	const float32 pickPdfW = (1.0f / hitPrim->getReciExtendedArea()) * m_reciExtendedArea;
+	const float32 samplePdfA = hitPrim->calcPositionSamplePdfA(emitPos);
+	const float32 distSquared = targetPos.sub(emitPos).squaredLength();
+	const Vector3f emitDir(targetPos.sub(emitPos).normalizeLocal());
+	return pickPdfW * (samplePdfA / std::abs(emitDir.dot(emitN)) * distSquared);
 }
 
 void PrimitiveAreaEmitter::setEmittedRadiance(const std::shared_ptr<Texture> emittedRadiance)

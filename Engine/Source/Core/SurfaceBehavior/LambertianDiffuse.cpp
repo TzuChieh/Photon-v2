@@ -6,7 +6,7 @@
 #include "Actor/Material/MatteOpaque.h"
 #include "Core/Intersection.h"
 #include "Core/SurfaceBehavior/random_sample.h"
-#include "Core/SurfaceBehavior/SurfaceSample.h"
+#include "Core/Sample/SurfaceSample.h"
 
 #include <cmath>
 
@@ -47,54 +47,32 @@ void LambertianDiffuse::genImportanceSample(SurfaceSample& sample) const
 	sample.type = ESurfaceSampleType::REFLECTION;
 }
 
-//void LambertianDiffuse::genImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample, float32* const out_pdfW) const
-//{
-//	Vector3f albedo;
-//	m_albedo->sample(intersection.getHitUVW(), &albedo);
-//	out_sample->m_LiWeight.set(albedo);
-//
-//	// generate and transform L to N's space
-//
-//	Vector3f& L = out_sample->m_direction;
-//	genUnitHemisphereCosineThetaWeightedSample(genRandomFloat32_0_1_uniform(), genRandomFloat32_0_1_uniform(), &L);
-//	Vector3f u;
-//	Vector3f v(intersection.getHitSmoothNormal());
-//	Vector3f w;
-//	v.calcOrthBasisAsYaxis(&u, &w);
-//	L = u.mulLocal(L.x).addLocal(v.mulLocal(L.y)).addLocal(w.mulLocal(L.z));
-//	L.normalizeLocal();
-//
-//	// this model reflects light
-//	out_sample->m_type = ESurfaceSampleType::REFLECTION;
-//}
+float32 LambertianDiffuse::calcImportanceSamplePdfW(const SurfaceSample& sample) const
+{
+	return sample.L.dot(sample.X->getHitSmoothNormal()) * RECI_PI_FLOAT32;
+}
 
 void LambertianDiffuse::setAlbedo(const std::shared_ptr<Texture>& albedo)
 {
 	m_albedo = albedo;
 }
 
-void LambertianDiffuse::evaluate(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_value) const
+void LambertianDiffuse::evaluate(SurfaceSample& sample) const
 {
-	const float32 NoL = intersection.getHitSmoothNormal().dot(L);
-	const float32 NoV = intersection.getHitSmoothNormal().dot(V);
+	const float32 NoL = sample.X->getHitSmoothNormal().dot(sample.L);
+	const float32 NoV = sample.X->getHitSmoothNormal().dot(sample.V);
 
 	// check if L, V lies on different side of the surface
 	if(NoL * NoV <= 0.0f)
 	{
-		out_value->set(0, 0, 0);
-		return;
-	}
-
-	// sidedness agreement between real geometry and shading (phong-interpolated) normal
-	if(NoL * intersection.getHitGeoNormal().dot(L) <= 0 || NoV * intersection.getHitGeoNormal().dot(V) <= 0.0f)
-	{
-		out_value->set(0, 0, 0);
+		sample.liWeight.set(0, 0, 0);
 		return;
 	}
 
 	Vector3f albedo;
-	m_albedo->sample(intersection.getHitUVW(), &albedo);
-	*out_value = albedo.divLocal(PI_FLOAT32).mulLocal(std::abs(NoL));
+	m_albedo->sample(sample.X->getHitUVW(), &albedo);
+	sample.liWeight = albedo.divLocal(PI_FLOAT32).mulLocal(std::abs(NoL));
+	sample.type = ESurfaceSampleType::REFLECTION;
 }
 
 }// end namespace ph

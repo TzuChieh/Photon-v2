@@ -57,7 +57,7 @@ public class TaskStatusPanel extends JPanel
 	
 	public void setSampleFrequency(float sampleFrequency)
 	{
-		m_sampleFrequencyLabel.setText((int)(sampleFrequency / 1000.0f) + "k spp/s");
+		m_sampleFrequencyLabel.setText((int)(sampleFrequency / 1000.0f) + "k samples / sec");
 	}
 	
 	public void setPercentageProgress(float percentageProgress)

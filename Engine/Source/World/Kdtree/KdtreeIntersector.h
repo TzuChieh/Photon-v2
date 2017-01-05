@@ -17,6 +17,7 @@ public:
 
 	virtual void update(const CookedActorStorage& cookedActors) override;
 	virtual bool isIntersecting(const Ray& ray, Intersection* out_intersection) const override;
+	virtual bool isIntersecting(const Ray& ray) const override;
 
 private:
 	std::vector<const Primitive*> m_nodePrimitiveBuffer;

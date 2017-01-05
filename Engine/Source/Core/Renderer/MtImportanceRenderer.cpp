@@ -15,6 +15,7 @@
 #include "Core/Integrator/BackwardPathIntegrator.h"
 #include "Core/Integrator/BackwardLightIntegrator.h"
 #include "Core/Integrator/BackwardMisIntegrator.h"
+#include "Core/Integrator/NormalBufferIntegrator.h"
 
 #include <cmath>
 #include <iostream>
@@ -44,8 +45,9 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 	m_subFilms.shrink_to_fit();
 
 	//BackwardPathIntegrator integrator;
-	BackwardLightIntegrator integrator;
-	//BackwardMisIntegrator integrator;
+	//BackwardLightIntegrator integrator;
+	BackwardMisIntegrator integrator;
+	//NormalBufferIntegrator integrator;
 	integrator.update(world);
 
 	std::atomic<int32> numSpp = 0;

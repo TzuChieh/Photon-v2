@@ -5,16 +5,13 @@
 namespace ph
 {
 
-class BackwardLightIntegrator final : public Integrator
+class NormalBufferIntegrator final : Integrator
 {
 public:
-	virtual ~BackwardLightIntegrator() override;
+	virtual ~NormalBufferIntegrator() override;
 
 	virtual void update(const World& world) override;
 	virtual void radianceAlongRay(const Ray& ray, const World& world, Vector3f* const out_radiance) const override;
-
-private:
-	static void rationalClamp(Vector3f& value);
 };
 
 }// end namespace ph

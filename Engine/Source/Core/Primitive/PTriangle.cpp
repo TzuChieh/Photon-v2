@@ -427,4 +427,10 @@ Vector3f PTriangle::calcBarycentricCoord(const Vector3f& position) const
 	return Vector3f(a, b, c);
 }
 
+float32 PTriangle::calcPositionSamplePdfA(const Vector3f& position) const
+{
+	// FIXME: primitive may have scale factor
+	return m_reciExtendedArea;
+}
+
 }// end namespace ph

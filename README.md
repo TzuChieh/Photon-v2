@@ -5,6 +5,7 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
 * **Integration (rendering method)**
  * backward path tracing
  * backward light tracing (next event estimation)
+ * MIS'ed backward tracing (path + light)
 * **Material**
  * Lambertian diffuse
  * microfacet-based opaque and translucent model

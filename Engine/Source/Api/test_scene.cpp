@@ -277,28 +277,29 @@ void loadCbox3ObjScene(World* const out_world)
 {
 	loadCornellBox(out_world, 10.0f);
 
+	auto goldMaterial = std::make_shared<AbradedOpaque>();
+	goldMaterial->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));
+	goldMaterial->setRoughness(0.3f);
+	//goldMaterial->setRoughness(0.001f);
+
+	auto silverMaterial = std::make_shared<AbradedOpaque>();
+	silverMaterial->setF0(Vector3f(0.971519f, 0.959915f, 0.915324f));
+	silverMaterial->setRoughness(0.1f);
+
+	auto glassMaterial = std::make_shared<AbradedTranslucent>();
+	glassMaterial->setF0(0.04f, 0.04f, 0.04f);
+	glassMaterial->setIOR(1.5f);
+	glassMaterial->setRoughness(0.01f);
+
+	auto matteMaterial = std::make_shared<MatteOpaque>();
+	matteMaterial->setAlbedo(0.6f, 0.6f, 0.6f);
+
 	ModelLoader modelLoader;
 
 	std::vector<AModel> dragonModels;
 	std::vector<AModel> lucyModels;
 	if(modelLoader.load("../SceneResource/dragon.obj", &dragonModels) && modelLoader.load("../SceneResource/lucy.obj", &lucyModels))
 	{
-		auto goldMaterial = std::make_shared<AbradedOpaque>();
-		goldMaterial->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));
-		goldMaterial->setRoughness(0.3f);
-
-		auto silverMaterial = std::make_shared<AbradedOpaque>();
-		silverMaterial->setF0(Vector3f(0.971519f, 0.959915f, 0.915324f));
-		silverMaterial->setRoughness(0.1f);
-
-		auto glassMaterial = std::make_shared<AbradedTranslucent>();
-		glassMaterial->setF0(0.04f, 0.04f, 0.04f);
-		glassMaterial->setIOR(1.5f);
-		glassMaterial->setRoughness(0.0f);
-
-		auto matteMaterial = std::make_shared<MatteOpaque>();
-		matteMaterial->setAlbedo(0.6f, 0.6f, 0.6f);
-
 		for(auto& model : dragonModels)
 		{
 			model.translate(-2.0f, -5, 0);
@@ -329,9 +330,10 @@ void loadCbox3ObjScene(World* const out_world)
 	sphereMaterial->setAlbedo(0.6f, 0.6f, 0.6f);*/
 
 	auto sphereGeometry = std::make_shared<GSphere>(1.8f);
-	AModel sphereModel(sphereGeometry, sphereMaterial);
+	AModel sphereModel(sphereGeometry, glassMaterial);
 	sphereModel.rotate(Vector3f(1, 1, 0).normalize(), 45);
 	sphereModel.translate(0.5f, -3.2f, 3);
+	//sphereModel.translate(-1.5f, -3.2f, 3);
 
 	out_world->addActor(std::make_unique<AModel>(sphereModel));
 }

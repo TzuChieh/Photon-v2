@@ -20,6 +20,7 @@ public:
 	virtual bool isIntersecting(const Ray& ray) const override;
 	virtual bool isIntersectingVolume(const AABB& aabb) const override;
 	virtual void calcAABB(AABB* const out_aabb) const override;
+	virtual float32 calcPositionSamplePdfA(const Vector3f& position) const override;
 	virtual void genPositionSample(PositionSample* const out_sample) const override;
 
 	virtual float32 calcExtendedArea() const override;

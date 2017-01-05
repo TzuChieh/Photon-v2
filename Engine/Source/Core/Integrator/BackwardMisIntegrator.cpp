@@ -5,7 +5,7 @@
 #include "World/LightSampler/LightSampler.h"
 #include "Math/Vector3f.h"
 #include "Core/Intersection.h"
-#include "Core/SurfaceBehavior/SurfaceSample.h"
+#include "Core/Sample/SurfaceSample.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/BSDFcos.h"
@@ -13,6 +13,7 @@
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Math/Math.h"
 #include "Math/random_number.h"
+#include "Core/Sample/DirectLightSample.h"
 
 #include <iostream>
 
@@ -35,8 +36,10 @@ void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const World& world,
 	Vector3f rayOriginDelta;
 	Vector3f accuRadiance(0, 0, 0);
 	Vector3f accuLiWeight(1, 1, 1);
+	Vector3f V;
 	Intersection intersection;
 	SurfaceSample surfaceSample;
+	DirectLightSample directLightSample;
 
 	// convenient variables
 	const Intersector&       intersector  = world.getIntersector();
@@ -54,14 +57,23 @@ void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const World& world,
 		return;
 	}
 
+	V = tracingRay.getDirection().mul(-1.0f);
+
+	// sidedness agreement between real geometry and shading (phong-interpolated) normal
+	if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0.0f)
+	{
+		*out_radiance = Vector3f(0, 0, 0);
+		return;
+	}
+
 	metadata = intersection.getHitPrimitive()->getMetadata();
 	bsdfCos = metadata->surfaceBehavior.getBsdfCos();
 
 	if(metadata->surfaceBehavior.getEmitter())
 	{
-		Vector3f radianceLi;
-		metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(intersection, &radianceLi);
-		accuRadiance.addLocal(radianceLi);
+		Vector3f radianceLe;
+		metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(intersection, &radianceLe);
+		accuRadiance.addLocal(radianceLe);
 	}
 
 	for(uint32 numBounces = 0; numBounces < MAX_RAY_BOUNCES; numBounces++)
@@ -69,108 +81,128 @@ void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const World& world,
 		///////////////////////////////////////////////////////////////////////////////
 		// direct light sample
 
-		float32 emitterPickPdfW;
-		emitter = lightSampler.pickEmitter(&emitterPickPdfW);
-		if(emitter->isSurfaceEmissive())
+		directLightSample.setDirectSample(intersection.getHitPosition());
+		lightSampler.genDirectSample(directLightSample);
+		if(directLightSample.isDirectSampleGood())
 		{
-			Vector3f emittedRadiance;
-			Vector3f emitPos;
-			float32 directPdfW;
-			emitter->genDirectSample(intersection.getHitPosition(), &emitPos, &emittedRadiance, &directPdfW);
-			if(directPdfW > 0.0f)
+			const Vector3f toLightVec = directLightSample.emitPos.sub(directLightSample.targetPos);
+
+			// sidedness agreement between real geometry and shading (phong-interpolated) normal
+			if(!(intersection.getHitSmoothNormal().dot(toLightVec) * intersection.getHitGeoNormal().dot(toLightVec) <= 0.0f))
 			{
-				Vector3f toLightVec = emitPos.sub(intersection.getHitPosition());
-				Ray visRay(intersection.getHitPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2);
-				Intersection visIntersection;
-				if(!intersector.isIntersecting(visRay, &visIntersection))
+				const Ray visRay(intersection.getHitPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2);
+				if(!intersector.isIntersecting(visRay))
 				{
 					Vector3f weight;
-					bsdfCos->evaluate(intersection, toLightVec.normalize(), tracingRay.getDirection().mul(-1.0f), &weight);
-					weight.mulLocal(accuLiWeight).divLocal(directPdfW * emitterPickPdfW);
+					surfaceSample.setEvaluation(intersection, visRay.getDirection(), V);
+					bsdfCos->evaluate(surfaceSample);
+					if(surfaceSample.isEvaluationGood())
+					{
+						const float32 bsdfCosPdfW = bsdfCos->calcImportanceSamplePdfW(surfaceSample);
+						const float32 misWeighting = misWeight(directLightSample.pdfW, bsdfCosPdfW);
+						//const float32 misWeighting = 0.0f;
 
-					// avoid excessive, negative weight and possible NaNs
-					rationalClamp(weight);
+						weight = surfaceSample.liWeight;
+						weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directLightSample.pdfW);
 
-					accuRadiance.addLocal(emittedRadiance.mulLocal(weight).mulLocal(accuLiWeight));
+						// avoid excessive, negative weight and possible NaNs
+						rationalClamp(weight);
+
+						accuRadiance.addLocal(directLightSample.radianceLe.mul(weight));
+					}
 				}
 			}
-		}
+		}// end direct light sample
 
 		///////////////////////////////////////////////////////////////////////////////
 		// BSDF sample + indirect light sample
-
-		bool keepSampling = true;
-
+		
 		surfaceSample.setImportanceSample(intersection, tracingRay.getDirection().mul(-1.0f));
 		bsdfCos->genImportanceSample(surfaceSample);
-		if(surfaceSample.liWeight.allZero())
+		// blackness check & sidedness agreement between real geometry and shading (phong-interpolated) normal
+		if(!surfaceSample.isImportanceSampleGood() ||
+		   intersection.getHitSmoothNormal().dot(surfaceSample.L) * intersection.getHitGeoNormal().dot(surfaceSample.L) <= 0.0f)
 		{
 			break;
 		}
 
-		switch(surfaceSample.type)
-		{
-		case ESurfaceSampleType::REFLECTION:
-		case ESurfaceSampleType::TRANSMISSION:
-		{
-			rayOriginDelta.set(surfaceSample.L).mulLocal(RAY_DELTA_DIST);
+		const float32 bsdfCosPdfW = bsdfCos->calcImportanceSamplePdfW(surfaceSample);
+		const Vector3f directLitPos = intersection.getHitPosition();
 
-			Vector3f liWeight = surfaceSample.liWeight;
-
-			if(numBounces >= 3)
-			{
-				const float32 rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001f, 1.0f);
-				//const float32 rrSurviveRate = Math::clamp(Color::linearRgbLuminance(liWeight), 0.0001f, 1.0f);
-				const float32 rrSpin = genRandomFloat32_0_1_uniform();
-
-				// russian roulette >> survive
-				if(rrSurviveRate > rrSpin)
-				{
-					const float32 rrScale = 1.0f / rrSurviveRate;
-					liWeight.mulLocal(rrScale);
-				}
-				// russian roulette >> dead
-				else
-				{
-					keepSampling = false;
-				}
-			}
-
-			accuLiWeight.mulLocal(liWeight);
-
-			// avoid excessive, negative weight and possible NaNs
-			rationalClamp(accuLiWeight);
-		}
-		break;
-
-		default:
-			std::cerr << "warning: unknown surface sample type in BackwardMisIntegrator detected" << std::endl;
-			keepSampling = false;
-			break;
-		}// end switch surface sample type
-
-		if(!keepSampling || accuLiWeight.squaredLength() == 0.0f)
-		{
-			break;
-		}
-
-		// prepare for next iteration
-
-		const Vector3f nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
-		const Vector3f nextRayDirection(surfaceSample.L);
-		tracingRay.setOrigin(nextRayOrigin);
-		tracingRay.setDirection(nextRayDirection);
-		
+		// trace a ray via BSDFcos's suggestion
+		rayOriginDelta.set(surfaceSample.L).mulLocal(RAY_DELTA_DIST);
+		tracingRay.setOrigin(intersection.getHitPosition().add(rayOriginDelta));
+		tracingRay.setDirection(surfaceSample.L);
 		intersection.clear();
-		numBounces++;
-
 		if(!intersector.isIntersecting(tracingRay, &intersection))
+		{
+			break;
+		}
+
+		V = tracingRay.getDirection().mul(-1.0f);
+		// sidedness agreement between real geometry and shading (phong-interpolated) normal
+		if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0.0f)
 		{
 			break;
 		}
 
 		metadata = intersection.getHitPrimitive()->getMetadata();
 		bsdfCos = metadata->surfaceBehavior.getBsdfCos();
+		emitter = metadata->surfaceBehavior.getEmitter();
+		if(emitter)
+		{
+			Vector3f radianceLe;
+			metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(intersection, &radianceLe);
+
+			// TODO: how to handle delta BSDF distributions?
+
+			const float32 directLightPdfW = lightSampler.calcDirectPdfW(directLitPos, 
+				intersection.getHitPosition(), 
+				intersection.getHitSmoothNormal(), 
+				emitter, intersection.getHitPrimitive());
+			const float32 misWeighting = misWeight(bsdfCosPdfW, directLightPdfW);
+			//const float32 misWeighting = 1.0f;
+
+			Vector3f weight = surfaceSample.liWeight;
+			weight.mulLocal(accuLiWeight).mulLocal(misWeighting);
+
+			// avoid excessive, negative weight and possible NaNs
+			rationalClamp(weight);
+
+			accuRadiance.addLocal(radianceLe.mulLocal(weight));
+		}
+
+		Vector3f liWeight = surfaceSample.liWeight;
+
+		if(numBounces >= 3)
+		{
+			const float32 rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001f, 1.0f);
+			const float32 rrSpin = genRandomFloat32_0_1_uniform();
+
+			// russian roulette >> survive
+			if(rrSurviveRate > rrSpin)
+			{
+				const float32 rrScale = 1.0f / rrSurviveRate;
+				liWeight.mulLocal(rrScale);
+			}
+			// russian roulette >> dead
+			else
+			{
+				break;
+			}
+		}
+
+		accuLiWeight.mulLocal(liWeight);
+
+		// avoid excessive, negative weight and possible NaNs
+		rationalClamp(accuLiWeight);
+
+		if(accuLiWeight.allZero())
+		{
+			break;
+		}
+
+		numBounces++;
 	}
 
 	*out_radiance = accuRadiance;

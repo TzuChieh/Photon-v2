@@ -17,7 +17,8 @@ public:
 	virtual ~OpaqueMicrofacet() override;
 
 	virtual void genImportanceSample(SurfaceSample& sample) const override;
-	virtual void evaluate(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_value) const override;
+	virtual float32 calcImportanceSamplePdfW(const SurfaceSample& sample) const override;
+	virtual void evaluate(SurfaceSample& sample) const override;
 
 	inline void setAlbedo(const std::shared_ptr<Texture>& albedo)
 	{

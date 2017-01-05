@@ -9,7 +9,7 @@
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/BSDFcos.h"
-#include "Core/SurfaceBehavior/SurfaceSample.h"
+#include "Core/Sample/SurfaceSample.h"
 #include "Math/Math.h"
 #include "Math/Color.h"
 #include "Math/random_number.h"
@@ -52,9 +52,16 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world
 
 		const auto* const metadata = intersection.getHitPrimitive()->getMetadata();
 		const SurfaceBehavior& hitSurfaceBehavior = metadata->surfaceBehavior;
+		const Vector3f V = tracingRay.getDirection().mul(-1.0f);
 
 		///////////////////////////////////////////////////////////////////////////////
 		// sample emitted radiance
+
+		// sidedness agreement between real geometry and shading (phong-interpolated) normal
+		if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0.0f)
+		{
+			break;
+		}
 
 		if(hitSurfaceBehavior.getEmitter())
 		{
@@ -82,7 +89,10 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world
 		SurfaceSample surfaceSample;
 		surfaceSample.setImportanceSample(intersection, tracingRay.getDirection().mul(-1.0f));
 		hitSurfaceBehavior.getBsdfCos()->genImportanceSample(surfaceSample);
-		if(surfaceSample.liWeight.allZero())
+
+		// blackness check & sidedness agreement between real geometry and shading (phong-interpolated) normal
+		if(surfaceSample.liWeight.allZero() || 
+		   intersection.getHitSmoothNormal().dot(surfaceSample.L) * intersection.getHitGeoNormal().dot(surfaceSample.L) <= 0.0f)
 		{
 			break;
 		}

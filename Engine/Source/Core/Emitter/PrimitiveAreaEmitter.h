@@ -20,6 +20,8 @@ public:
 
 	virtual void evalEmittedRadiance(const Intersection& intersection, Vector3f* const out_emitterRadiance) const override;
 	virtual void genDirectSample(const Vector3f& targetPos, Vector3f* const out_emitPos, Vector3f* const out_emittedRadiance, float32* const out_PDF) const override;
+	virtual void genDirectSample(DirectLightSample& sample) const override;
+	virtual float32 calcDirectSamplePdfW(const Vector3f& targetPos, const Vector3f& emitPos, const Vector3f& emitN, const Primitive* hitPrim) const override;
 
 	void setEmittedRadiance(const std::shared_ptr<Texture> emittedRadiance);
 

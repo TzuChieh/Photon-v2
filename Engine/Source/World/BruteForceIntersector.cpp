@@ -44,4 +44,17 @@ bool BruteForceIntersector::isIntersecting(const Ray& ray, Intersection* out_int
 	return closestSquaredHitDist != std::numeric_limits<float32>::infinity();
 }
 
+bool BruteForceIntersector::isIntersecting(const Ray& ray) const
+{
+	for(const Primitive* primitive : m_primitives)
+	{
+		if(primitive->isIntersecting(ray))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 }// end namespace ph

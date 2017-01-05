@@ -28,7 +28,7 @@ public:
 
 	static inline float32 toDegrees(const float32 radians)
 	{
-		return radians * RECIPROCAL_PI_FLOAT32 * 180.0f;
+		return radians * RECI_PI_FLOAT32 * 180.0f;
 	}
 
 	static inline float32 toRadians(const float32 degrees)

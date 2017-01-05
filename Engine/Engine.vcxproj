@@ -176,6 +176,7 @@
     <ClCompile Include="Source\Core\Integrator\BackwardMisIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardPathIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\Integrator.cpp" />
+    <ClCompile Include="Source\Core\Integrator\NormalBufferIntegrator.cpp" />
     <ClCompile Include="Source\Core\Intersection.cpp" />
     <ClCompile Include="Source\Core\Renderer\MtImportanceRenderer.cpp" />
     <ClCompile Include="Source\Core\Renderer.cpp" />
@@ -256,11 +257,11 @@
     <ClInclude Include="Source\Common\primitive_type.h" />
     <ClInclude Include="Source\Core\CoreActor.h" />
     <ClInclude Include="Source\Core\CookedActorStorage.h" />
-    <ClInclude Include="Source\Core\Emitter\EmitterSample.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardLightIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardMisIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardPathIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\Integrator.h" />
+    <ClInclude Include="Source\Core\Integrator\NormalBufferIntegrator.h" />
     <ClInclude Include="Source\Core\Renderer\MtImportanceRenderer.h" />
     <ClInclude Include="Source\Core\Renderer\PreviewRenderer.h" />
     <ClInclude Include="Source\Core\SampleGenerator\PixelFixedSampleGenerator.h" />
@@ -270,6 +271,7 @@
     <ClInclude Include="Source\Core\Primitive\PrimitiveMetadata.h" />
     <ClInclude Include="Source\Core\Primitive\PTriangle.h" />
     <ClInclude Include="Source\Actor\ALight.h" />
+    <ClInclude Include="Source\Core\Sample\DirectLightSample.h" />
     <ClInclude Include="Source\Core\Sample\PositionSample.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\BSDFcos.h" />
     <ClInclude Include="Source\FileIO\RenderDataFileLoader.h" />
@@ -298,7 +300,7 @@
     <ClInclude Include="Source\Actor\Geometry\GTriangleMesh.h" />
     <ClInclude Include="Source\Actor\Material\AbradedTranslucent.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\TranslucentMicrofacet.h" />
-    <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceSample.h" />
+    <ClInclude Include="Source\Core\Sample\SurfaceSample.h" />
     <ClInclude Include="Source\Actor\ModelLoader.h" />
     <ClInclude Include="Source\Core\BoundingVolume\AABB.h" />
     <ClInclude Include="Source\Actor\ModelParser\ModelParser.h" />

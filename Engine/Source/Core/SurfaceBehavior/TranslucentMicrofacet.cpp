@@ -7,7 +7,7 @@
 #include "Core/Intersection.h"
 #include "Core/SurfaceBehavior/random_sample.h"
 #include "Core/SurfaceBehavior/Microfacet.h"
-#include "Core/SurfaceBehavior/SurfaceSample.h"
+#include "Core/Sample/SurfaceSample.h"
 
 #include <memory>
 #include <iostream>
@@ -121,13 +121,6 @@ void TranslucentMicrofacet::genImportanceSample(SurfaceSample& sample) const
 	const float32 NoL = N.dot(L);
 	const float32 HoL = H.dot(L);
 
-	// sidedness agreement between real geometry and shading (phong-interpolated) normal
-	if(NoV * sample.X->getHitGeoNormal().dot(V) <= 0.0f || NoL * sample.X->getHitGeoNormal().dot(L) <= 0.0f)
-	{
-		sample.liWeight.set(0, 0, 0);
-		return;
-	}
-
 	const float32 G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, roughness);
 
 	// notice that the (N dot L) term canceled out with the lambertian term
@@ -135,53 +128,38 @@ void TranslucentMicrofacet::genImportanceSample(SurfaceSample& sample) const
 	sample.liWeight.set(F.mul(G * dotTerms));
 }
 
-void TranslucentMicrofacet::evaluate(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_value) const
+float32 TranslucentMicrofacet::calcImportanceSamplePdfW(const SurfaceSample& sample) const
 {
-	const Vector3f& N = intersection.getHitSmoothNormal();
-
-	const float32 NoL = N.dot(L);
-	const float32 NoV = N.dot(V);
-
-	// sidedness agreement between real geometry and shading (phong-interpolated) normal
-	if(NoL * intersection.getHitGeoNormal().dot(L) <= 0.0f || NoV * intersection.getHitGeoNormal().dot(V) <= 0.0f)
-	{
-		out_value->set(0, 0, 0);
-		return;
-	}
+	const Vector3f& N = sample.X->getHitSmoothNormal();
+	const float32 NoL = N.dot(sample.L);
 
 	Vector3f sampledRoughness;
-	m_roughness->sample(intersection.getHitUVW(), &sampledRoughness);
+	m_roughness->sample(sample.X->getHitUVW(), &sampledRoughness);
 	const float32 roughness = sampledRoughness.x;
-	Vector3f sampledF0;
-	m_F0->sample(intersection.getHitUVW(), &sampledF0);
 
-	// reflection
-	if(NoL * NoV >= 0.0f)
+	switch(sample.type)
+	{
+	case ESurfaceSampleType::REFLECTION:
 	{
 		// H is on the hemisphere of N
-		Vector3f H = L.add(V).normalizeLocal();
+		Vector3f H = sample.L.add(sample.V).normalizeLocal();
 		if(NoL < 0.0f)
 		{
 			H.mulLocal(-1.0f);
 		}
 
-		const float32 HoV = H.dot(V);
 		const float32 NoH = N.dot(H);
-		const float32 HoL = H.dot(L);
-
-		Vector3f F;
-		Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
+		const float32 HoL = H.dot(sample.L);
 		const float32 D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, roughness);
-		const float32 G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, roughness);
 
-		// notice that the abs(N dot L) term canceled out with the lambertian term
-		*out_value = F.mul(D * G / (4.0f * std::abs(NoV)));
+		return std::abs(D * NoH / (4.0f * HoL));
+		break;
 	}
-	// refraction
-	else
+
+	case ESurfaceSampleType::TRANSMISSION:
 	{
 		Vector3f sampledIor;
-		m_IOR->sample(intersection.getHitUVW(), &sampledIor);
+		m_IOR->sample(sample.X->getHitUVW(), &sampledIor);
 		float32 iorI;
 		float32 iorO;
 
@@ -197,11 +175,89 @@ void TranslucentMicrofacet::evaluate(const Intersection& intersection, const Vec
 			iorI = 1.0f;
 			iorO = sampledIor.x;
 		}
-		H = L.mul(iorI).add(V.mul(iorO)).mulLocal(-1.0f).normalizeLocal();
+		H = sample.L.mul(iorI).add(sample.V.mul(iorO)).mulLocal(-1.0f).normalizeLocal();
 
-		const float32 HoV = H.dot(V);
+		const float32 HoV = H.dot(sample.V);
 		const float32 NoH = N.dot(H);
-		const float32 HoL = H.dot(L);
+		const float32 HoL = H.dot(sample.L);
+
+		const float32 D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, roughness);
+
+		const float32 iorTerm = iorI*HoL + iorO*HoV;
+		const float32 multiplier = iorO * iorO * HoV / (iorTerm * iorTerm);
+
+		return std::abs(D * NoH * multiplier);
+		break;
+	}
+
+	default:
+		std::cerr << "warning: at TranslucentMicrofacet::calcImportanceSamplePdfW(), invalid sample type detected" << std::endl;
+		return 0.0f;
+		break;
+	}
+}
+
+void TranslucentMicrofacet::evaluate(SurfaceSample& sample) const
+{
+	const Vector3f& N = sample.X->getHitSmoothNormal();
+
+	const float32 NoL = N.dot(sample.L);
+	const float32 NoV = N.dot(sample.V);
+
+	Vector3f sampledRoughness;
+	m_roughness->sample(sample.X->getHitUVW(), &sampledRoughness);
+	const float32 roughness = sampledRoughness.x;
+	Vector3f sampledF0;
+	m_F0->sample(sample.X->getHitUVW(), &sampledF0);
+
+	// reflection
+	if(NoL * NoV >= 0.0f)
+	{
+		// H is on the hemisphere of N
+		Vector3f H = sample.L.add(sample.V).normalizeLocal();
+		if(NoL < 0.0f)
+		{
+			H.mulLocal(-1.0f);
+		}
+
+		const float32 HoV = H.dot(sample.V);
+		const float32 NoH = N.dot(H);
+		const float32 HoL = H.dot(sample.L);
+
+		Vector3f F;
+		Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
+		const float32 D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, roughness);
+		const float32 G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, roughness);
+
+		// notice that the abs(N dot L) term canceled out with the lambertian term
+		sample.liWeight = F.mul(D * G / (4.0f * std::abs(NoV)));
+		sample.type = ESurfaceSampleType::REFLECTION;
+	}
+	// refraction
+	else
+	{
+		Vector3f sampledIor;
+		m_IOR->sample(sample.X->getHitUVW(), &sampledIor);
+		float32 iorI;
+		float32 iorO;
+
+		// H is on the hemisphere of N
+		Vector3f H;
+		if(NoL < 0.0f)
+		{
+			iorI = sampledIor.x;
+			iorO = 1.0f;
+		}
+		else
+		{
+			iorI = 1.0f;
+			iorO = sampledIor.x;
+		}
+		H = sample.L.mul(iorI).add(sample.V.mul(iorO)).mulLocal(-1.0f).normalizeLocal();
+
+		const float32 HoV = H.dot(sample.V);
+		const float32 NoH = N.dot(H);
+		const float32 HoL = H.dot(sample.L);
 
 		Vector3f F;
 		Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
@@ -211,7 +267,8 @@ void TranslucentMicrofacet::evaluate(const Intersection& intersection, const Vec
 		// notice that the abs(N dot L) term canceled out with the lambertian term
 		const float32 dotTerm = std::abs(HoL * HoV / NoV);
 		const float32 iorTerm = iorO / (iorI * HoL + iorO * HoV);
-		*out_value = F.complement().mul(D * G * dotTerm / (iorTerm * iorTerm));
+		sample.liWeight = F.complement().mul(D * G * dotTerm / (iorTerm * iorTerm));
+		sample.type = ESurfaceSampleType::TRANSMISSION;
 	}
 }
 

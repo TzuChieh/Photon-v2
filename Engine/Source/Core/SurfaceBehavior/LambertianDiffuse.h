@@ -17,8 +17,8 @@ public:
 	virtual ~LambertianDiffuse() override;
 
 	virtual void genImportanceSample(SurfaceSample& sample) const override;
-	//virtual void genImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample, float32* const out_pdfW) const override;
-	virtual void evaluate(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_value) const override;
+	virtual float32 calcImportanceSamplePdfW(const SurfaceSample& sample) const override;
+	virtual void evaluate(SurfaceSample& sample) const override;
 
 	void setAlbedo(const std::shared_ptr<Texture>& albedo);
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Common/primitive_type.h"
+
 namespace ph
 {
 
@@ -14,8 +16,8 @@ public:
 	virtual ~BSDFcos() = 0;
 
 	virtual void genImportanceSample(SurfaceSample& sample) const = 0;
-	//virtual void genImportanceSample(const Intersection& intersection, const Ray& ray, SurfaceSample* const out_sample, float32* const out_pdfW) const = 0;
-	virtual void evaluate(const Intersection& intersection, const Vector3f& L, const Vector3f& V, Vector3f* const out_value) const = 0;
+	virtual float32 calcImportanceSamplePdfW(const SurfaceSample& sample) const = 0;
+	virtual void evaluate(SurfaceSample& sample) const = 0;
 };
 
 }// end namespace ph

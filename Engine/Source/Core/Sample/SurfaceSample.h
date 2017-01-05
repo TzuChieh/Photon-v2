@@ -11,6 +11,7 @@ enum class ESurfaceSampleType : int32
 {
 	REFLECTION,
 	TRANSMISSION, 
+	DELTA, 
 	UNSPECIFIED
 };
 
@@ -29,9 +30,26 @@ public:
 
 	}
 
+	inline bool isImportanceSampleGood() const
+	{
+		return liWeight.x > 0.0f || liWeight.y > 0.0f || liWeight.z > 0.0f;
+	}
+
+	inline bool isEvaluationGood() const
+	{
+		return liWeight.x > 0.0f || liWeight.y > 0.0f || liWeight.z > 0.0f;
+	}
+
 	inline void setImportanceSample(const Intersection& X, const Vector3f& V)
 	{
 		this->X = &X;
+		this->V = V;
+	}
+
+	inline void setEvaluation(const Intersection& X, const Vector3f& L, const Vector3f& V)
+	{
+		this->X = &X;
+		this->L = L;
 		this->V = V;
 	}
 };
