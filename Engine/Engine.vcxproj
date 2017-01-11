@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Actor.cpp" />
+    <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp" />
     <ClCompile Include="Source\Actor\LightSource\AreaSource.cpp" />
     <ClCompile Include="Source\Actor\LightSource\LightSource.cpp" />
     <ClCompile Include="Source\Api\ph_core.cpp" />
@@ -248,6 +249,7 @@
     <ClInclude Include="Include\ph_query.h" />
     <ClInclude Include="Include\ph_test.h" />
     <ClInclude Include="Source\Actor\Actor.h" />
+    <ClInclude Include="Source\Actor\Geometry\GCuboid.h" />
     <ClInclude Include="Source\Actor\LightSource\AreaSource.h" />
     <ClInclude Include="Source\Actor\LightSource\LightSource.h" />
     <ClInclude Include="Source\Api\test_scene.h" />

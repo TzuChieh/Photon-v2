@@ -49,6 +49,7 @@ void GSphere::discretize(std::vector<std::unique_ptr<Primitive>>* const out_prim
 	}*/
 
 	const uint32 nRefinements = 5;
+	//const uint32 nRefinements = 1;
 
 	std::vector<Vector3f>        vertices;
 	std::vector<IndexedTriangle> indexedTriangles;

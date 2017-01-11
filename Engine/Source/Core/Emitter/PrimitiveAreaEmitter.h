@@ -23,7 +23,7 @@ public:
 	virtual void genDirectSample(DirectLightSample& sample) const override;
 	virtual float32 calcDirectSamplePdfW(const Vector3f& targetPos, const Vector3f& emitPos, const Vector3f& emitN, const Primitive* hitPrim) const override;
 
-	void setEmittedRadiance(const std::shared_ptr<Texture> emittedRadiance);
+	void setEmittedRadiance(const std::shared_ptr<Texture>& emittedRadiance);
 
 private:
 	std::shared_ptr<Texture> m_emittedRadiance;

@@ -19,6 +19,7 @@
 
 #define RAY_DELTA_DIST 0.0001f
 #define MAX_RAY_BOUNCES 10000
+//#define MAX_RAY_BOUNCES 2
 
 namespace ph
 {
@@ -42,11 +43,10 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const World& worl
 	DirectLightSample directLightSample;
 
 	// convenient variables
-	const Intersector&       intersector = world.getIntersector();
+	const Intersector&       intersector  = world.getIntersector();
 	const LightSampler&      lightSampler = world.getLightSampler();
-	const PrimitiveMetadata* metadata = nullptr;
-	const BSDFcos*           bsdfCos = nullptr;
-	const Emitter*           emitter = nullptr;
+	const PrimitiveMetadata* metadata     = nullptr;
+	const BSDFcos*           bsdfCos      = nullptr;
 
 	// reversing the ray for backward tracing
 	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), RAY_T_EPSILON, RAY_T_MAX);
@@ -85,7 +85,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const World& worl
 		lightSampler.genDirectSample(directLightSample);
 		if(directLightSample.isDirectSampleGood())
 		{
-			Vector3f toLightVec = directLightSample.emitPos.sub(intersection.getHitPosition());
+			const Vector3f toLightVec = directLightSample.emitPos.sub(intersection.getHitPosition());
 
 			// sidedness agreement between real geometry and shading (phong-interpolated) normal
 			if(!(intersection.getHitSmoothNormal().dot(toLightVec) * intersection.getHitGeoNormal().dot(toLightVec) <= 0.0f))
@@ -176,9 +176,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const World& worl
 		const Vector3f nextRayDirection(surfaceSample.L);
 		tracingRay.setOrigin(nextRayOrigin);
 		tracingRay.setDirection(nextRayDirection);
-
 		intersection.clear();
-		numBounces++;
 
 		if(!intersector.isIntersecting(tracingRay, &intersection))
 		{
@@ -188,8 +186,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const World& worl
 		V = tracingRay.getDirection().mul(-1.0f);
 
 		// sidedness agreement between real geometry and shading (phong-interpolated) normal
-		if(surfaceSample.liWeight.allZero() ||
-		   intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0.0f)
+		if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0.0f)
 		{
 			break;
 		}

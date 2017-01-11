@@ -44,13 +44,24 @@ public class ImagePanel extends JPanel
 				float g = frame.getPixelG(x, y);
 				float b = frame.getPixelB(x, y);
 				
+				if(r != r || g != g || b != b)
+				{
+					System.out.println("NaN!");
+					//System.exit(1);
+				}
+				
 				color.set(r, g, b);
 				
+//				if(r > 100.0f || g > 100.0f || b > 100.0f || r < 0.0f || g < 0.0f || b < 0.0f)
+//				{
+//					System.out.println("(" + r + ", " + g + ", " + b + ")");
+//				}
+				
 				// clamp
-//					color.clampLocal(0.0f, 1.0f);
-//					r = color.x;
-//					g = color.y;
-//					b = color.z;
+//				color.clampLocal(0.0f, 1.0f);
+//				r = color.x;
+//				g = color.y;
+//				b = color.z;
 				
 				// linear
 //					r = Func.clamp(frame.getPixelR(x, y), 0.0f, 1.0f);
@@ -78,12 +89,6 @@ public class ImagePanel extends JPanel
 				r = numerator.x / denominator.x;
 				g = numerator.y / denominator.y;
 				b = numerator.z / denominator.z;
-				
-				if(r != r || g != g || b != b)
-				{
-					System.out.println("NaN!");
-					//System.exit(1);
-				}
 				
 				m_bufferedImage.setRGB(x, inversedY, Color.toARGBInt(0.0f, r, g, b));
 			}

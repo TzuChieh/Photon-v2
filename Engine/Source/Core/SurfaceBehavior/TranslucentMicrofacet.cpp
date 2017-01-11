@@ -137,6 +137,9 @@ float32 TranslucentMicrofacet::calcImportanceSamplePdfW(const SurfaceSample& sam
 	m_roughness->sample(sample.X->getHitUVW(), &sampledRoughness);
 	const float32 roughness = sampledRoughness.x;
 
+	Vector3f sampledF0;
+	m_F0->sample(sample.X->getHitUVW(), &sampledF0);
+
 	switch(sample.type)
 	{
 	case ESurfaceSampleType::REFLECTION:
@@ -150,9 +153,28 @@ float32 TranslucentMicrofacet::calcImportanceSamplePdfW(const SurfaceSample& sam
 
 		const float32 NoH = N.dot(H);
 		const float32 HoL = H.dot(sample.L);
+		const float32 HoV = H.dot(sample.V);
 		const float32 D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, roughness);
 
-		return std::abs(D * NoH / (4.0f * HoL));
+		Vector3f F;
+		Microfacet::fresnelSchlickApproximated(abs(HoV), sampledF0, &F);
+		float32 reflectProb = F.avg();
+
+		const float32 signHoV = HoV < 0.0f ? -1.0f : 1.0f;
+		Vector3f ior;
+		m_IOR->sample(sample.X->getHitUVW(), &ior);
+
+		// assume the outside medium has an IOR of 1.0 (which is true in most cases)
+		const float32 iorRatio = signHoV < 0.0f ? ior.x : 1.0f / ior.x;
+		const float32 sqrValue = 1.0f - iorRatio*iorRatio*(1.0f - HoV * HoV);
+
+		// TIR (total internal reflection)
+		if(sqrValue <= 0.0f)
+		{
+			reflectProb = 1.0f;
+		}
+
+		return std::abs(D * NoH / (4.0f * HoL)) * reflectProb;
 		break;
 	}
 
@@ -183,10 +205,14 @@ float32 TranslucentMicrofacet::calcImportanceSamplePdfW(const SurfaceSample& sam
 
 		const float32 D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, roughness);
 
-		const float32 iorTerm = iorI*HoL + iorO*HoV;
-		const float32 multiplier = iorO * iorO * HoV / (iorTerm * iorTerm);
+		Vector3f F;
+		Microfacet::fresnelSchlickApproximated(abs(HoV), sampledF0, &F);
+		const float32 reflectProb = 1.0f - F.avg();
 
-		return std::abs(D * NoH * multiplier);
+		const float32 iorTerm = iorI*HoL + iorO*HoV;
+		const float32 multiplier = iorI * iorI * HoV / (iorTerm * iorTerm);
+
+		return std::abs(D * NoH * multiplier) * reflectProb;
 		break;
 	}
 
@@ -215,7 +241,7 @@ void TranslucentMicrofacet::evaluate(SurfaceSample& sample) const
 	{
 		// H is on the hemisphere of N
 		Vector3f H = sample.L.add(sample.V).normalizeLocal();
-		if(NoL < 0.0f)
+		if(N.dot(H) < 0.0f)
 		{
 			H.mulLocal(-1.0f);
 		}
@@ -223,6 +249,8 @@ void TranslucentMicrofacet::evaluate(SurfaceSample& sample) const
 		const float32 HoV = H.dot(sample.V);
 		const float32 NoH = N.dot(H);
 		const float32 HoL = H.dot(sample.L);
+
+		// TODO: TIR?
 
 		Vector3f F;
 		Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
@@ -258,7 +286,7 @@ void TranslucentMicrofacet::evaluate(SurfaceSample& sample) const
 		const float32 HoV = H.dot(sample.V);
 		const float32 NoH = N.dot(H);
 		const float32 HoL = H.dot(sample.L);
-
+		
 		Vector3f F;
 		Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
 		const float32 D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, roughness);
@@ -266,8 +294,8 @@ void TranslucentMicrofacet::evaluate(SurfaceSample& sample) const
 
 		// notice that the abs(N dot L) term canceled out with the lambertian term
 		const float32 dotTerm = std::abs(HoL * HoV / NoV);
-		const float32 iorTerm = iorO / (iorI * HoL + iorO * HoV);
-		sample.liWeight = F.complement().mul(D * G * dotTerm / (iorTerm * iorTerm));
+		const float32 iorTerm = iorI / (iorI * HoL + iorO * HoV);
+		sample.liWeight = F.complement().mul(D * G * dotTerm * (iorTerm * iorTerm));
 		sample.type = ESurfaceSampleType::TRANSMISSION;
 	}
 }

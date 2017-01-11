@@ -258,6 +258,9 @@
     <ClCompile Include="Source\Core\Integrator\NormalBufferIntegrator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Math\Matrix4f.h">
@@ -549,6 +552,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Integrator\NormalBufferIntegrator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\Geometry\GCuboid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

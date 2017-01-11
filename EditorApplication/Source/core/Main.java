@@ -68,7 +68,9 @@ public class Main
 		PhCamera camera = new PhCamera(PhCamera.Type.DEFAULT);
 		
 		// for cbox
-		camera.setPosition(0, 0, 16);
+		camera.setPosition(0.000001f, -0.000002f, 16);
+//		camera.setPosition(0.000001f, -0.000002f, 3);
+		camera.setDirection(0.0001f, 0.000002f, -1.0f);
 		
 		
 		
@@ -80,14 +82,16 @@ public class Main
 		
 //		final int outputWidth = 1280;
 //		final int outputHeight = 720;
-		final int outputWidth = 900;
-		final int outputHeight = 900;
+//		final int outputWidth = 900;
+//		final int outputHeight = 900;
+		final int outputWidth = 100;
+		final int outputHeight = 100;
 		final int numRenderThreads = 4;
 		
 		
 		PhWorld world = new PhWorld();
 		
-		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.PIXEL_JITTER, 5500);
+		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.PIXEL_JITTER, 1024);
 		PhRenderer renderer = new PhRenderer(PhRenderer.Type.MT_IMPORTANCE, numRenderThreads);
 		renderer.setSampleGenerator(sampleGenerator);
 		

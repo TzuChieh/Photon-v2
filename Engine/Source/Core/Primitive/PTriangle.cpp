@@ -388,9 +388,10 @@ void PTriangle::genPositionSample(PositionSample* const out_sample) const
 	const Vector3f abc = calcBarycentricCoord(localPos);
 	out_sample->uvw = m_uvwA.mul(1.0f - abc.y - abc.z).addLocal(m_uvwB.mul(abc.y)).addLocal(m_uvwC.mul(abc.z));
 
-	//Vector3f localNormal(m_nA.mul(1.0f - abc.y - abc.z).addLocal(m_nB.mul(abc.y)).addLocal(m_nC.mul(abc.z)));
+	const Vector3f localNormal(m_nA.mul(1.0f - abc.y - abc.z).addLocal(m_nB.mul(abc.y)).addLocal(m_nC.mul(abc.z)));
 	Vector3f worldN;
-	m_metadata->localToWorld.transformVector(m_faceNormal, &worldN);
+	//m_metadata->localToWorld.transformVector(m_faceNormal, &worldN);
+	m_metadata->localToWorld.transformVector(localNormal, &worldN);
 	out_sample->normal = worldN.normalizeLocal();
 
 	out_sample->pdf = m_reciExtendedArea;
@@ -417,9 +418,9 @@ Vector3f PTriangle::calcBarycentricCoord(const Vector3f& position) const
 	const float32 d11 = m_eAC.dot(m_eAC);
 	const float32 d20 = eAP.dot(m_eAB);
 	const float32 d21 = eAP.dot(m_eAC);
-
+	
 	const float32 reciDenom = 1.0f / (d00 * d11 - d01 * d01);
-
+	
 	const float32 b = (d11 * d20 - d01 * d21) * reciDenom;
 	const float32 c = (d00 * d21 - d01 * d20) * reciDenom;
 	const float32 a = 1.0f - b - c;

@@ -100,7 +100,6 @@ void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const World& world,
 					{
 						const float32 bsdfCosPdfW = bsdfCos->calcImportanceSamplePdfW(surfaceSample);
 						const float32 misWeighting = misWeight(directLightSample.pdfW, bsdfCosPdfW);
-						//const float32 misWeighting = 0.0f;
 
 						weight = surfaceSample.liWeight;
 						weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directLightSample.pdfW);
@@ -161,7 +160,6 @@ void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const World& world,
 				intersection.getHitSmoothNormal(), 
 				emitter, intersection.getHitPrimitive());
 			const float32 misWeighting = misWeight(bsdfCosPdfW, directLightPdfW);
-			//const float32 misWeighting = 1.0f;
 
 			Vector3f weight = surfaceSample.liWeight;
 			weight.mulLocal(accuLiWeight).mulLocal(misWeighting);
@@ -201,8 +199,6 @@ void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const World& world,
 		{
 			break;
 		}
-
-		numBounces++;
 	}
 
 	*out_radiance = accuRadiance;

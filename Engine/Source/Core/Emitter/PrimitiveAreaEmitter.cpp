@@ -96,7 +96,7 @@ float32 PrimitiveAreaEmitter::calcDirectSamplePdfW(const Vector3f& targetPos, co
 	return pickPdfW * (samplePdfA / std::abs(emitDir.dot(emitN)) * distSquared);
 }
 
-void PrimitiveAreaEmitter::setEmittedRadiance(const std::shared_ptr<Texture> emittedRadiance)
+void PrimitiveAreaEmitter::setEmittedRadiance(const std::shared_ptr<Texture>& emittedRadiance)
 {
 	m_emittedRadiance = emittedRadiance;
 }
