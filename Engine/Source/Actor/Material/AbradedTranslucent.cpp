@@ -2,6 +2,8 @@
 #include "Image/ConstantTexture.h"
 
 #include <memory>
+#include <cmath>
+#include <algorithm>
 
 namespace ph
 {
@@ -36,7 +38,18 @@ void AbradedTranslucent::setIOR(const float32 ior)
 
 void AbradedTranslucent::setRoughness(const float32 roughness)
 {
-	m_bsdfCos.setRoughness(std::make_shared<ConstantTexture>(roughness, roughness, roughness));
+	const float32 alpha = roughnessToAlpha(roughness);
+	m_bsdfCos.setAlpha(std::make_shared<ConstantTexture>(alpha, alpha, alpha));
+}
+
+// This mapping is what used in PBRT-v3. 
+// (Strangely the original paper: Microfacet Models for Refraction through Rough Surfaces by Walter et al. does 
+// not include such mapping for GGX distribution, only the ones for other kinds of distribution.)
+float32 AbradedTranslucent::roughnessToAlpha(const float32 roughness)
+{
+	const float32 clampedRoughness = std::max(roughness, 0.001f);
+	const float32 x = std::log(clampedRoughness);
+	return 1.62142f + 0.819955f * x + 0.1734f * x * x + 0.0171201f * x * x * x + 0.000640711f * x * x * x * x;
 }
 
 }// end namespace ph

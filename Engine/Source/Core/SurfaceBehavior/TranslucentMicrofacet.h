@@ -28,15 +28,15 @@ public:
 		m_IOR = ior;
 	}
 
-	inline void setRoughness(const std::shared_ptr<Texture>& roughness)
+	inline void setAlpha(const std::shared_ptr<Texture>& alpha)
 	{
-		m_roughness = roughness;
+		m_alpha = alpha;
 	}
 
 private:
 	std::shared_ptr<Texture> m_F0;
 	std::shared_ptr<Texture> m_IOR;
-	std::shared_ptr<Texture> m_roughness;
+	std::shared_ptr<Texture> m_alpha;
 };
 
 }// end namespace ph

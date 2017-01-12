@@ -43,6 +43,11 @@ void LambertianDiffuse::genImportanceSample(SurfaceSample& sample) const
 	L = u.mulLocal(L.x).addLocal(v.mulLocal(L.y)).addLocal(w.mulLocal(L.z));
 	L.normalizeLocal();
 
+	if(sample.V.dot(sample.X->getHitSmoothNormal()) < 0.0f)
+	{
+		L.mulLocal(-1.0f);
+	}
+
 	// this model reflects light
 	sample.type = ESurfaceSampleType::REFLECTION;
 }

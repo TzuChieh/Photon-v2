@@ -3,6 +3,7 @@
 #include "Actor/LightSource/LightSource.h"
 
 #include <memory>
+#include <string>
 
 namespace ph
 {
@@ -14,6 +15,7 @@ class AreaSource final : public LightSource
 {
 public:
 	AreaSource(const Vector3f& emittedRadiance);
+	AreaSource(const std::string& imageFilename);
 	virtual ~AreaSource() override;
 
 	virtual void buildEmitter(CoreActor& coreActor) const override;

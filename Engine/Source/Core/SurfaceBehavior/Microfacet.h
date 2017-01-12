@@ -11,14 +11,13 @@ class Microfacet final
 {
 public:
 	// GGX (Trowbridge-Reitz) Normal Distribution Function
-	inline static float32 normalDistributionGgxTrowbridgeReitz(const float32 NoH, const float32 roughness)
+	inline static float32 normalDistributionGgxTrowbridgeReitz(const float32 NoH, const float32 alpha)
 	{
 		if(NoH <= 0.0f)
 		{
 			return 0.0f;
 		}
 
-		const float32 alpha = roughness * roughness;
 		const float32 alpha2 = alpha * alpha;
 		const float32 NoH2 = NoH * NoH;
 
@@ -29,7 +28,7 @@ public:
 	}
 
 	// Smith's GGX Geometry Shadowing Function (H is expected to be on the hemisphere of N)
-	inline static float32 geometryShadowingGgxSmith(const float32 NoV, const float32 NoL, const float32 HoV, const float32 HoL, const float32 roughness)
+	inline static float32 geometryShadowingGgxSmith(const float32 NoV, const float32 NoL, const float32 HoV, const float32 HoL, const float32 alpha)
 	{
 		// The back surface of the microsurface is never visible from directions on the front side 
 		// of the macrosurface and viceversa (sidedness agreement)
@@ -38,7 +37,6 @@ public:
 			return 0.0f;
 		}
 
-		const float32 alpha = roughness * roughness;
 		const float32 alpha2 = alpha * alpha;
 
 		const float32 lightG = 2.0f / (1.0f + sqrt(alpha2 * (1.0f / (NoL*NoL) - 1.0f) + 1.0f));

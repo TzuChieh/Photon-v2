@@ -2,6 +2,8 @@
 #include "Actor/AModel.h"
 #include "Core/Emitter/PrimitiveAreaEmitter.h"
 #include "Image/ConstantTexture.h"
+#include "Image/PixelTexture.h"
+#include "Image/TextureLoader.h"
 #include "Core/CoreActor.h"
 
 #include <iostream>
@@ -13,6 +15,21 @@ AreaSource::AreaSource(const Vector3f& emittedRadiance) :
 	m_emittedRadiance(std::make_shared<ConstantTexture>(emittedRadiance))
 {
 
+}
+
+AreaSource::AreaSource(const std::string& imageFilename) : 
+	m_emittedRadiance(std::make_shared<ConstantTexture>(Vector3f(0, 0, 0)))
+{
+	std::shared_ptr<PixelTexture> image = std::make_shared<PixelTexture>();
+	TextureLoader loader;
+	if(loader.load(imageFilename, image.get()))
+	{
+		m_emittedRadiance = image;
+	}
+	else
+	{
+		std::cerr << "warning: at AreaSource::AreaSource(), image loading failed" << std::endl;
+	}
 }
 
 AreaSource::~AreaSource() = default;

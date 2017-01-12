@@ -24,7 +24,7 @@ bool TextureLoader::load(const std::string& fullFilename, PixelTexture* const ou
 	int numComponents;
 
 	// default loading's origin is on the upper-left corner, this call made stb made the 
-	// origin on the lower-left corner to meet with Photon's requirement
+	// origin on the lower-left corner to meet with Photon's expectation
 	stbi_set_flip_vertically_on_load(true);
 
 	// the last parameter is "0" since we want the actual components the image has;
