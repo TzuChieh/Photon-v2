@@ -6,13 +6,14 @@
 namespace ph
 {
 
-class DefaultCamera final : public Camera
+class PinholeCamera final : public Camera
 {
 public:
-	DefaultCamera();
-	virtual ~DefaultCamera() override;
+	PinholeCamera();
+	virtual ~PinholeCamera() override;
 
 	virtual void genSensingRay(const Sample& sample, Ray* const out_ray, const float32 aspectRatio) const override;
+	virtual void evalEmittedImportance(const Vector3f& targetPos, Vector3f* const out_importance) const override;
 
 private:
 	float32 m_fov;

@@ -22,8 +22,9 @@ Photon-v2 is being developed with cross-platformity in mind, but Windows is the 
 (building instructions will be added soon...) <br />
 
 ## Images Rendered by Photon-v2
-<a href="url"><img src="./gallery/028_sponza gold cups 12800spp.png" align="left" width="480" ></a>
-<a href="url"><img src="./gallery/038_cbox 3 objs 11000spp.png" align="left" width="480" ></a>
+<a href="url"><img src="./gallery/028_sponza gold cups 12800spp.png" align="left" width="600" ></a>
+<a href="url"><img src="./gallery/038_cbox 3 objs 11000spp.png" align="left" width="600" ></a>
+<a href="url"><img src="./gallery/044_scenery glass dragon 6000spp.png" align="left" width="600" ></a>
 
 ## About the Author
 Development Blog: http://tcchangs.blogspot.tw/ <br />

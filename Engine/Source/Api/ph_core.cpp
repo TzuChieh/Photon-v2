@@ -4,7 +4,7 @@
 #include "Core/Renderer/PreviewRenderer.h"
 #include "World/World.h"
 #include "Camera/Camera.h"
-#include "Camera/DefaultCamera.h"
+#include "Camera/PinholeCamera.h"
 #include "Core/SampleGenerator/PixelJitterSampleGenerator.h"
 #include "Api/test_scene.h"
 #include "Image/Film/Film.h"
@@ -78,8 +78,8 @@ void phCreateCamera(PHuint64* out_cameraId, const PHint32 cameraType)
 
 	switch(cameraType)
 	{
-	case PH_DEFAULT_CAMERA_TYPE:
-		*out_cameraId = static_cast<PHuint64>(ApiDatabase::addCamera(std::make_unique<DefaultCamera>()));
+	case PH_PINHOLE_CAMERA_TYPE:
+		*out_cameraId = static_cast<PHuint64>(ApiDatabase::addCamera(std::make_unique<PinholeCamera>()));
 		break;
 
 	default:

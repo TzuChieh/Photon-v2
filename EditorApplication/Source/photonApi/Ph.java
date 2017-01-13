@@ -14,7 +14,7 @@ public final class Ph
 	public static final int PH_IMPORTANCE_RENDERER_TYPE           = 2;
 	public static final int PH_MT_IMPORTANCE_RENDERER_TYPE        = 3;
 	public static final int PH_HDR_FRAME_TYPE                     = 50;
-	public static final int PH_DEFAULT_CAMERA_TYPE                = 100;
+	public static final int PH_PINHOLE_CAMERA_TYPE                = 100;
 	public static final int PH_PIXEL_JITTER_SAMPLE_GENERATOR_TYPE = 150;
 	
 	// core

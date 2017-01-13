@@ -3,7 +3,7 @@
 #include "World/World.h"
 #include "Actor/Geometry/GSphere.h"
 #include "Actor/Geometry/GTriangle.h"
-#include "Camera/DefaultCamera.h"
+#include "Camera/PinholeCamera.h"
 #include "Core/Renderer/MtImportanceRenderer.h"
 #include "Math/random_number.h"
 #include "Actor/Material/MatteOpaque.h"
@@ -67,7 +67,7 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	MtImportanceRenderer renderer(4);
 	PixelJitterSampleGenerator sampleGenerator(32);
 	World world;
-	DefaultCamera camera;
+	PinholeCamera camera;
 	Film film(widthPx, heightPx);
 
 	renderer.setSampleGenerator(&sampleGenerator);

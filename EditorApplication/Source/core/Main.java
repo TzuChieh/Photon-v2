@@ -65,7 +65,7 @@ public class Main
 		testTaskStatusModel.setTaskName("test render task");
 		dummyTaskStatusModel.setTaskName("dummy dummy dummy");
 		
-		PhCamera camera = new PhCamera(PhCamera.Type.DEFAULT);
+		PhCamera camera = new PhCamera(PhCamera.Type.PINHOLE);
 		
 		// for cbox
 		camera.setPosition(0.000001f, -0.000002f, 16);
@@ -93,7 +93,7 @@ public class Main
 		
 		PhWorld world = new PhWorld();
 		
-		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.PIXEL_JITTER, 256);
+		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.PIXEL_JITTER, 6000);
 		PhRenderer renderer = new PhRenderer(PhRenderer.Type.MT_IMPORTANCE, numRenderThreads);
 		renderer.setSampleGenerator(sampleGenerator);
 		

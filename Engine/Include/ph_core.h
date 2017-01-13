@@ -51,7 +51,7 @@ typedef double         PHfloat64;
 
 #define PH_HDR_FRAME_TYPE 50
 
-#define PH_DEFAULT_CAMERA_TYPE 100
+#define PH_PINHOLE_CAMERA_TYPE 100
 
 #define PH_PIXEL_JITTER_SAMPLE_GENERATOR_TYPE 150
 

@@ -1,4 +1,4 @@
-#include "Camera/DefaultCamera.h"
+#include "Camera/PinholeCamera.h"
 #include "Core/Ray.h"
 #include "Core/Sample.h"
 
@@ -7,16 +7,16 @@
 namespace ph
 {
 
-DefaultCamera::DefaultCamera() :
+PinholeCamera::PinholeCamera() :
 	Camera(),
 	m_fov(50.0f / 180.0f * 3.1415927f)
 {
 
 }
 
-DefaultCamera::~DefaultCamera() = default;
+PinholeCamera::~PinholeCamera() = default;
 
-void DefaultCamera::genSensingRay(const Sample& sample, Ray* const out_ray, const float32 aspectRatio) const
+void PinholeCamera::genSensingRay(const Sample& sample, Ray* const out_ray, const float32 aspectRatio) const
 {
 	// Note: this will fail when the camera is facing directly on y-axis
 
@@ -36,6 +36,11 @@ void DefaultCamera::genSensingRay(const Sample& sample, Ray* const out_ray, cons
 	out_ray->setOrigin(getPosition());
 	out_ray->setMinT(RAY_T_EPSILON);
 	out_ray->setMaxT(RAY_T_MAX);
+}
+
+void PinholeCamera::evalEmittedImportance(const Vector3f& targetPos, Vector3f* const out_importance) const
+{
+
 }
 
 }// end namespace ph

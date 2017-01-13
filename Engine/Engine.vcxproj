@@ -170,13 +170,14 @@
     <ClCompile Include="Source\Api\ph_query.cpp" />
     <ClCompile Include="Source\Api\test_scene.cpp" />
     <ClCompile Include="Source\Camera\Camera.cpp" />
-    <ClCompile Include="Source\Camera\DefaultCamera.cpp" />
+    <ClCompile Include="Source\Camera\PinholeCamera.cpp" />
     <ClCompile Include="Source\Core\CoreActor.cpp" />
     <ClCompile Include="Source\Core\CookedActorStorage.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardLightIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardMisIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardPathIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\Integrator.cpp" />
+    <ClCompile Include="Source\Core\Integrator\LightTracingIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\NormalBufferIntegrator.cpp" />
     <ClCompile Include="Source\Core\Intersection.cpp" />
     <ClCompile Include="Source\Core\Renderer\MtImportanceRenderer.cpp" />
@@ -254,7 +255,7 @@
     <ClInclude Include="Source\Actor\LightSource\LightSource.h" />
     <ClInclude Include="Source\Api\test_scene.h" />
     <ClInclude Include="Source\Camera\Camera.h" />
-    <ClInclude Include="Source\Camera\DefaultCamera.h" />
+    <ClInclude Include="Source\Camera\PinholeCamera.h" />
     <ClInclude Include="Source\Common\assertion.h" />
     <ClInclude Include="Source\Common\primitive_type.h" />
     <ClInclude Include="Source\Core\CoreActor.h" />
@@ -263,6 +264,7 @@
     <ClInclude Include="Source\Core\Integrator\BackwardMisIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardPathIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\Integrator.h" />
+    <ClInclude Include="Source\Core\Integrator\LightTracingIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\NormalBufferIntegrator.h" />
     <ClInclude Include="Source\Core\Renderer\MtImportanceRenderer.h" />
     <ClInclude Include="Source\Core\Renderer\PreviewRenderer.h" />

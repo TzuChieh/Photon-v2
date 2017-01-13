@@ -7,7 +7,7 @@ public final class PhCamera
 {
 	public static enum Type
 	{
-		DEFAULT(Ph.PH_DEFAULT_CAMERA_TYPE);
+		PINHOLE(Ph.PH_PINHOLE_CAMERA_TYPE);
 		
 		private final int m_phValue;
 		

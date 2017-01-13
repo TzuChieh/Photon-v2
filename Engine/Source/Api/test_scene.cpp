@@ -207,15 +207,19 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 
 	auto unitRectangleGeom = std::make_shared<GRectangle>(1.0f, 1.0f);
 
+	auto chromiumMaterial = std::make_shared<AbradedOpaque>();
+	chromiumMaterial->setF0(Vector3f(0.549585f, 0.556114f, 0.554256f));
+	chromiumMaterial->setRoughness(0.3f);
+
 	ALight topLight;
 	AModel& lightModel = topLight.getModel();
-	lightModel.rotate(Vector3f(1, 0, 0), 90);
+	//lightModel.rotate(Vector3f(1, 0, 0), 90);
 	//lightModel.scale(boxSize * 0.05f);
 	//lightModel.scale(boxSize * 0.3f);
 	//lightModel.scale(boxSize * 0.5f);
 	lightModel.scale(boxSize * 0.9f);
-	lightModel.translate(0, halfBoxSize - halfBoxSize * 0.05f, 0);
-	//lightModel.translate(0, 0, -(halfBoxSize - halfBoxSize * 0.05f));
+	//lightModel.translate(0, halfBoxSize - halfBoxSize * 0.05f, 0);
+	lightModel.translate(0, 0, -(halfBoxSize - halfBoxSize * 0.05f));
 
 	auto topLightMaterial = std::make_shared<MatteOpaque>();
 	topLightMaterial->setAlbedo(0.5f, 0.5f, 0.5f);
@@ -224,7 +228,11 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 
 	//auto topLightSource = std::make_shared<AreaSource>(Vector3f(3.4f, 3.4f, 3.4f));
 	//auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/debugTexture.png");
-	auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/bigPlatform.png");
+	//auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/bigPlatform.png");
+	//auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/mountains.jpg");
+	//auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/vm.png");
+	//auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/human.jpg");
+	auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/scenery.jpg");
 	//auto topLightSource = std::make_shared<AreaSource>(Vector3f(34, 34, 34));
 	//auto topLightSource = std::make_shared<AreaSource>(Vector3f(1, 1, 1));
 	//auto topLightSource = std::make_shared<AreaSource>(Vector3f(0.4f, 0.4f, 0.4f));
@@ -275,7 +283,8 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 
 	auto groundWallMatl = std::make_shared<MatteOpaque>();
 	groundWallMatl->setAlbedo(0.7f, 0.7f, 0.7f);
-	AModel groundWallModel(unitRectangleGeom, groundWallMatl);
+	//AModel groundWallModel(unitRectangleGeom, groundWallMatl);
+	AModel groundWallModel(unitRectangleGeom, chromiumMaterial);
 	groundWallModel.rotate(Vector3f(1, 0, 0), -90);
 	groundWallModel.scale(boxSize);
 	groundWallModel.translate(0, -halfBoxSize, 0);
@@ -288,7 +297,7 @@ void loadCbox3ObjScene(World* const out_world)
 
 	auto goldMaterial = std::make_shared<AbradedOpaque>();
 	goldMaterial->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));
-	goldMaterial->setRoughness(0.3f);
+	goldMaterial->setRoughness(0.2f);
 	//goldMaterial->setRoughness(0.001f);
 
 	auto silverMaterial = std::make_shared<AbradedOpaque>();
@@ -308,7 +317,7 @@ void loadCbox3ObjScene(World* const out_world)
 	auto matteMaterial = std::make_shared<MatteOpaque>();
 	matteMaterial->setAlbedo(0.6f, 0.6f, 0.6f);
 
-	ModelLoader modelLoader;
+	/*ModelLoader modelLoader;
 
 	std::vector<AModel> dragonModels;
 	std::vector<AModel> lucyModels;
@@ -334,7 +343,7 @@ void loadCbox3ObjScene(World* const out_world)
 
 			out_world->addActor(std::make_unique<AModel>(model));
 		}
-	}
+	}*/
 
 	/*auto sphereMaterial = std::make_shared<AbradedTranslucent>();
 	sphereMaterial->setF0(0.04f, 0.04f, 0.04f);
@@ -343,19 +352,20 @@ void loadCbox3ObjScene(World* const out_world)
 	/*auto sphereMaterial = std::make_shared<MatteOpaque>();
 	sphereMaterial->setAlbedo(0.6f, 0.6f, 0.6f);*/
 
-	auto sphereGeometry = std::make_shared<GSphere>(1.8f);
+	/*auto sphereGeometry = std::make_shared<GSphere>(1.8f);
 	AModel sphereModel(sphereGeometry, glassMaterial);
 	sphereModel.rotate(Vector3f(1, 1, 0).normalize(), 45);
-	sphereModel.translate(0.5f, -3.2f, 3);
+	sphereModel.translate(0.5f, -3.2f, 3);*/
 
 
-	//auto sphereGeometry = std::make_shared<GSphere>(3.0f);
+	//auto sphereGeometry = std::make_shared<GSphere>(2.7f);
 	//AModel sphereModel(sphereGeometry, glassMaterial);
 	////AModel sphereModel(sphereGeometry, goldMaterial);
 	//sphereModel.rotate(Vector3f(1, 1, 0).normalize(), 45);
-	//sphereModel.translate(0.5f, -2.0f, 3);
+	////sphereModel.translate(0.5f, -2.0f, 3);
+	//sphereModel.translate(0.9f, -2.3f, 1.3f);
 
-	out_world->addActor(std::make_unique<AModel>(sphereModel));
+	//out_world->addActor(std::make_unique<AModel>(sphereModel));
 
 
 	//auto cubeGeometry = std::make_shared<GCuboid>(4.5f, 4.5f, 4.5f);
@@ -364,6 +374,23 @@ void loadCbox3ObjScene(World* const out_world)
 	////cubeModel.translate(0, -1.2f, 0);
 	//cubeModel.translate(0, -1.5f, 0);
 	//out_world->addActor(std::make_unique<AModel>(cubeModel));
+
+	ModelLoader modelLoader;
+
+	std::vector<AModel> dragonModels;
+	if(modelLoader.load("../SceneResource/dragon.obj", &dragonModels))
+	{
+		for(auto& model : dragonModels)
+		{
+			model.translate(0, -5, 0);
+			model.scale(5.0f);
+			model.rotate(Vector3f(0, 1, 0), 180);
+
+			model.setMaterial(glassMaterial);
+
+			out_world->addActor(std::make_unique<AModel>(model));
+		}
+	}
 }
 
 void load5bScene(World* const out_world)

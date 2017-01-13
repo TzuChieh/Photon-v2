@@ -203,8 +203,8 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateCamera
 	PHuint64 cameraId;
 	switch(cameraType)
 	{
-	case photonApi_Ph_PH_DEFAULT_CAMERA_TYPE:
-		phCreateCamera(&cameraId, PH_DEFAULT_CAMERA_TYPE);
+	case photonApi_Ph_PH_PINHOLE_CAMERA_TYPE:
+		phCreateCamera(&cameraId, PH_PINHOLE_CAMERA_TYPE);
 		break;
 
 	default:
