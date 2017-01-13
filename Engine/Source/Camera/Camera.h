@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/Vector3f.h"
+#include "Math/Vector2f.h"
 
 #include <iostream>
 
@@ -19,9 +20,9 @@ public:
 	Camera();
 	virtual ~Camera() = 0;
 
-	// TODO: get aspect ratio info from camera film
-	virtual void genSensingRay(const Sample& sample, Ray* const out_ray, const float32 aspectRatio) const = 0;
-	virtual void evalEmittedImportance(const Vector3f& targetPos, Vector3f* const out_importance) const = 0;
+	// TODO: precalculate aspect ratio info from camera film
+	virtual void genSensingRay(const Sample& sample, Ray* const out_ray) const = 0;
+	virtual void evalEmittedImportanceAndPdfW(const Vector3f& targetPos, Vector2f* const out_filmCoord, Vector3f* const out_importance, float32* const out_pdfW) const = 0;
 
 	inline void setFilm(Film* film)
 	{

@@ -11,7 +11,7 @@ public:
 	virtual ~LightTracingIntegrator() override;
 
 	virtual void update(const World& world) override;
-	virtual void radianceAlongRay(const Ray& ray, const World& world, Vector3f* const out_radiance) const override;
+	virtual void radianceAlongRay(const Sample& sample, const World& world, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const override;
 
 private:
 	static void rationalClamp(Vector3f& value);

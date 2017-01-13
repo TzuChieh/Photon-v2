@@ -14,6 +14,7 @@
 #include "Math/Math.h"
 #include "Math/random_number.h"
 #include "Core/Sample/DirectLightSample.h"
+#include "Camera/Camera.h"
 
 #include <iostream>
 
@@ -31,171 +32,58 @@ void LightTracingIntegrator::update(const World& world)
 	// update nothing
 }
 
-void LightTracingIntegrator::radianceAlongRay(const Ray& ray, const World& world, Vector3f* const out_radiance) const
+void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World& world, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const
 {
-	// common variables
-	Vector3f rayOriginDelta;
-	Vector3f accuRadiance(0, 0, 0);
-	Vector3f accuLiWeight(1, 1, 1);
-	Vector3f V;
-	Intersection intersection;
-	SurfaceSample surfaceSample;
-	DirectLightSample directLightSample;
+	Ray ray;
+	camera.genSensingRay(sample, &ray);
 
 	// convenient variables
-	const Intersector&       intersector  = world.getIntersector();
+	const Intersector&       intersector = world.getIntersector();
 	const LightSampler&      lightSampler = world.getLightSampler();
-	const PrimitiveMetadata* metadata     = nullptr;
-	const BSDFcos*           bsdfCos      = nullptr;
+	const PrimitiveMetadata* metadata = nullptr;
+	const BSDFcos*           bsdfCos = nullptr;
 
-	// reversing the ray for backward tracing
-	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), RAY_T_EPSILON, RAY_T_MAX);
-
-	if(!intersector.isIntersecting(tracingRay, &intersection))
+	/*Intersection cameraIntersection;
+	Ray cameraRay(ray.getOrigin(), ray.getDirection(), RAY_T_EPSILON, RAY_T_MAX);
+	if(!intersector.isIntersecting(cameraRay, &cameraIntersection))
 	{
-		*out_radiance = Vector3f(0, 0, 0);
 		return;
 	}
 
-	V = tracingRay.getDirection().mul(-1.0f);
-
-	// sidedness agreement between real geometry and shading (phong-interpolated) normal
-	if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0.0f)
+	Vector3f cameraV = cameraRay.getDirection().mul(-1.0f);
+	if(cameraIntersection.getHitGeoNormal().dot(cameraV) * cameraIntersection.getHitSmoothNormal().dot(cameraV) <= 0.0f)
 	{
-		*out_radiance = Vector3f(0, 0, 0);
 		return;
 	}
 
-	metadata = intersection.getHitPrimitive()->getMetadata();
-	bsdfCos = metadata->surfaceBehavior.getBsdfCos();
-
-	if(metadata->surfaceBehavior.getEmitter())
+	Vector3f cameraImportanceWe;
+	Vector2f filmCoord;
+	float32 cameraRayPdfW;
+	camera.evalEmittedImportanceAndPdfW(cameraIntersection.getHitPosition(), &filmCoord, &cameraImportanceWe, &cameraRayPdfW);
+	if(cameraImportanceWe.allZero() || cameraRayPdfW <= 0.0f)
 	{
-		Vector3f radianceLe;
-		metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(intersection, &radianceLe);
-		accuRadiance.addLocal(radianceLe);
+		return;
+	}*/
+
+	
+	float32 emitterPickPdf;
+	const Emitter* emitter = lightSampler.pickEmitter(&emitterPickPdf);
+	if(!emitter || emitterPickPdf <= 0.0f)
+	{
+		return;
 	}
 
-	for(uint32 numBounces = 0; numBounces < MAX_RAY_BOUNCES; numBounces++)
+	Ray emitterRay;
+	Vector3f emitterRadianceLe;
+	float32 emitterPdfA;
+	float32 emitterPdfW;
+	emitter->genSensingRay(&emitterRay, &emitterRadianceLe, &emitterPdfA, &emitterPdfW);
+	if(emitterRadianceLe.allZero() || emitterPdfA <= 0.0f || emitterPdfW <= 0.0f)
 	{
-		///////////////////////////////////////////////////////////////////////////////
-		// direct light sample
-
-		directLightSample.setDirectSample(intersection.getHitPosition());
-		lightSampler.genDirectSample(directLightSample);
-		if(directLightSample.isDirectSampleGood())
-		{
-			const Vector3f toLightVec = directLightSample.emitPos.sub(intersection.getHitPosition());
-
-			// sidedness agreement between real geometry and shading (phong-interpolated) normal
-			if(!(intersection.getHitSmoothNormal().dot(toLightVec) * intersection.getHitGeoNormal().dot(toLightVec) <= 0.0f))
-			{
-				const Ray visRay(intersection.getHitPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2);
-				if(!intersector.isIntersecting(visRay))
-				{
-					Vector3f weight;
-					surfaceSample.setEvaluation(intersection, visRay.getDirection(), V);
-					bsdfCos->evaluate(surfaceSample);
-					if(surfaceSample.isEvaluationGood())
-					{
-						weight = surfaceSample.liWeight;
-						weight.mulLocal(accuLiWeight).divLocal(directLightSample.pdfW);
-
-						// avoid excessive, negative weight and possible NaNs
-						rationalClamp(weight);
-
-						accuRadiance.addLocal(directLightSample.radianceLe.mul(weight));
-					}
-				}
-			}
-		}// end direct light sample
-
-		///////////////////////////////////////////////////////////////////////////////
-		// BSDF sample + indirect light sample
-
-		bool keepSampling = true;
-
-		surfaceSample.setImportanceSample(intersection, tracingRay.getDirection().mul(-1.0f));
-		bsdfCos->genImportanceSample(surfaceSample);
-		// blackness check & sidedness agreement between real geometry and shading (phong-interpolated) normal
-		if(!surfaceSample.isImportanceSampleGood() ||
-		   intersection.getHitSmoothNormal().dot(surfaceSample.L) * intersection.getHitGeoNormal().dot(surfaceSample.L) <= 0.0f)
-		{
-			break;
-		}
-
-		switch(surfaceSample.type)
-		{
-		case ESurfaceSampleType::REFLECTION:
-		case ESurfaceSampleType::TRANSMISSION:
-		{
-			rayOriginDelta.set(surfaceSample.L).mulLocal(RAY_DELTA_DIST);
-
-			Vector3f liWeight = surfaceSample.liWeight;
-
-			if(numBounces >= 3)
-			{
-				const float32 rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001f, 1.0f);
-				//const float32 rrSurviveRate = Math::clamp(Color::linearRgbLuminance(liWeight), 0.0001f, 1.0f);
-				const float32 rrSpin = genRandomFloat32_0_1_uniform();
-
-				// russian roulette >> survive
-				if(rrSurviveRate > rrSpin)
-				{
-					const float32 rrScale = 1.0f / rrSurviveRate;
-					liWeight.mulLocal(rrScale);
-				}
-				// russian roulette >> dead
-				else
-				{
-					keepSampling = false;
-				}
-			}
-
-			accuLiWeight.mulLocal(liWeight);
-
-			// avoid excessive, negative weight and possible NaNs
-			rationalClamp(accuLiWeight);
-		}
-		break;
-
-		default:
-			std::cerr << "warning: unknown surface sample type in BackwardMisIntegrator detected" << std::endl;
-			keepSampling = false;
-			break;
-		}// end switch surface sample type
-
-		if(!keepSampling || accuLiWeight.allZero())
-		{
-			break;
-		}
-
-		// prepare for next iteration
-
-		const Vector3f nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
-		const Vector3f nextRayDirection(surfaceSample.L);
-		tracingRay.setOrigin(nextRayOrigin);
-		tracingRay.setDirection(nextRayDirection);
-		intersection.clear();
-
-		if(!intersector.isIntersecting(tracingRay, &intersection))
-		{
-			break;
-		}
-
-		V = tracingRay.getDirection().mul(-1.0f);
-
-		// sidedness agreement between real geometry and shading (phong-interpolated) normal
-		if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0.0f)
-		{
-			break;
-		}
-
-		metadata = intersection.getHitPrimitive()->getMetadata();
-		bsdfCos = metadata->surfaceBehavior.getBsdfCos();
+		return;
 	}
 
-	*out_radiance = accuRadiance;
+	Intersection lightIntersection;
 }
 
 // NaNs will be clamped to 0

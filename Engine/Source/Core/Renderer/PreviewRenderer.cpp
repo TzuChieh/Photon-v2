@@ -88,21 +88,21 @@ void PreviewRenderer::render(const World& world, const Camera& camera) const
 			subSampleGenerator->requestMoreSamples(&samples);
 
 			Sample sample;
-			while(!samples.empty())
-			{
-				sample = samples.back();
-				samples.pop_back();
-				camera.genSensingRay(sample, &primaryRay, aspectRatio);
+			//while(!samples.empty())
+			//{
+			//	sample = samples.back();
+			//	samples.pop_back();
+			//	camera.genSensingRay(sample, &primaryRay, aspectRatio);
 
-				integrator.radianceAlongRay(primaryRay, world, &radiance);
+			//	integrator.radianceAlongRay(primaryRay, world, camera, &radiance);
 
-				uint32 x = static_cast<uint32>((sample.m_cameraX + 1.0f) / 2.0f * widthPx);
-				uint32 y = static_cast<uint32>((sample.m_cameraY + 1.0f) / 2.0f * heightPx);
-				if(x >= widthPx) x = widthPx - 1;
-				if(y >= heightPx) y = heightPx - 1;
+			//	uint32 x = static_cast<uint32>((sample.m_cameraX + 1.0f) / 2.0f * widthPx);
+			//	uint32 y = static_cast<uint32>((sample.m_cameraY + 1.0f) / 2.0f * heightPx);
+			//	if(x >= widthPx) x = widthPx - 1;
+			//	if(y >= heightPx) y = heightPx - 1;
 
-				subFilm->accumulateRadiance(x, y, radiance);
-			}// end while
+			//	subFilm->accumulateRadiance(x, y, radiance);
+			//}// end while
 
 			currentSpp++;
 			*workerProgress = static_cast<float32>(currentSpp) / static_cast<float32>(totalSpp);

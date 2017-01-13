@@ -31,7 +31,7 @@ void BackwardPathIntegrator::update(const World& world)
 	// update nothing
 }
 
-void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world, Vector3f* const out_radiance) const
+void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const World& world, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const
 {
 	const float32 rayDeltaDist = 0.0001f;
 	const Intersector& intersector = world.getIntersector();
@@ -41,6 +41,9 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world
 	Vector3f accuLiWeight(1, 1, 1);
 	Vector3f rayOriginDelta;
 	Intersection intersection;
+
+	Ray ray;
+	camera.genSensingRay(sample, &ray);
 
 	// backward tracing to light
 	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), RAY_T_EPSILON, RAY_T_MAX);
@@ -151,7 +154,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const World& world
 		intersection.clear();
 	}// end while
 
-	*out_radiance = accuRadiance;
+	out_senseEvents.push_back(SenseEvent(sample.m_cameraX, sample.m_cameraY, accuRadiance));
 }
 
 }// end namespace ph

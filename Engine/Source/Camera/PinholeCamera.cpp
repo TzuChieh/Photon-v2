@@ -1,6 +1,7 @@
 #include "Camera/PinholeCamera.h"
 #include "Core/Ray.h"
 #include "Core/Sample.h"
+#include "Image/Film/Film.h"
 
 #include <limits>
 
@@ -16,14 +17,16 @@ PinholeCamera::PinholeCamera() :
 
 PinholeCamera::~PinholeCamera() = default;
 
-void PinholeCamera::genSensingRay(const Sample& sample, Ray* const out_ray, const float32 aspectRatio) const
+void PinholeCamera::genSensingRay(const Sample& sample, Ray* const out_ray) const
 {
+	const float32 aspectRatio = static_cast<float32>(getFilm()->getWidthPx()) / static_cast<float32>(getFilm()->getHeightPx());
+
 	// Note: this will fail when the camera is facing directly on y-axis
 
 	Vector3f rightDir = Vector3f(-getDirection().z, 0.0f, getDirection().x).normalizeLocal();
 	Vector3f upDir = rightDir.cross(getDirection()).normalizeLocal();
 
-	const float32 halfWidth = tan(m_fov / 2.0f);
+	const float32 halfWidth = std::tan(m_fov / 2.0f);
 	const float32 halfHeight = halfWidth / aspectRatio;
 
 	const float32 pixelPosX = sample.m_cameraX * halfWidth;
@@ -38,9 +41,44 @@ void PinholeCamera::genSensingRay(const Sample& sample, Ray* const out_ray, cons
 	out_ray->setMaxT(RAY_T_MAX);
 }
 
-void PinholeCamera::evalEmittedImportance(const Vector3f& targetPos, Vector3f* const out_importance) const
+void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3f& targetPos, Vector2f* const out_filmCoord, Vector3f* const out_importance, float32* const out_pdfW) const
 {
+	const Vector3f targetDir = targetPos.sub(getPosition()).normalizeLocal();
+	const float32 cosTheta = targetDir.dot(getDirection());
 
+	if(cosTheta <= 0.0f)
+	{
+		out_importance->set(0.0f);
+		*out_pdfW = 0.0f;
+		return;
+	}
+
+	const Vector3f filmPos = targetDir.mul(1.0f / cosTheta).add(getPosition());
+	const Vector3f filmCenter = getDirection().add(getPosition());
+	const Vector3f filmVec = filmPos.sub(filmCenter);
+
+	// Note: this will fail when the camera is facing directly on y-axis
+
+	Vector3f rightDir = Vector3f(-getDirection().z, 0.0f, getDirection().x).normalizeLocal();
+	Vector3f upDir = rightDir.cross(getDirection()).normalizeLocal();
+
+	const float32 aspectRatio = static_cast<float32>(getFilm()->getWidthPx()) / static_cast<float32>(getFilm()->getHeightPx());
+	const float32 halfFilmWidth = std::tan(m_fov / 2.0f);
+	const float32 halfFilmHeight = halfFilmWidth / aspectRatio;
+
+	out_filmCoord->x = filmVec.dot(rightDir);
+	out_filmCoord->y = filmVec.dot(upDir);
+
+	if(std::abs(out_filmCoord->x) > halfFilmWidth || std::abs(out_filmCoord->y) > halfFilmHeight)
+	{
+		out_importance->set(0.0f);
+		*out_pdfW = 0.0f;
+		return;
+	}
+
+	const float32 filmArea = halfFilmWidth * halfFilmHeight * 4.0f;
+	out_importance->set(1.0f / (filmArea * cosTheta * cosTheta * cosTheta * cosTheta));
+	*out_pdfW = 1.0f / (filmArea * cosTheta * cosTheta * cosTheta);
 }
 
 }// end namespace ph

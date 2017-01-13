@@ -16,6 +16,7 @@
 #include "Core/Integrator/BackwardLightIntegrator.h"
 #include "Core/Integrator/BackwardMisIntegrator.h"
 #include "Core/Integrator/NormalBufferIntegrator.h"
+#include "Core/Integrator/LightTracingIntegrator.h"
 
 #include <cmath>
 #include <iostream>
@@ -48,6 +49,8 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 	//BackwardLightIntegrator integrator;
 	BackwardMisIntegrator integrator;
 	//NormalBufferIntegrator integrator;
+	//LightTracingIntegrator integrator;
+
 	integrator.update(world);
 
 	std::atomic<int32> numSpp = 0;
@@ -71,9 +74,9 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 
 		const uint32 widthPx = camera.getFilm()->getWidthPx();
 		const uint32 heightPx = camera.getFilm()->getHeightPx();
-		const float32 aspectRatio = static_cast<float32>(widthPx) / static_cast<float32>(heightPx);
 
 		std::vector<Sample> samples;
+		std::vector<SenseEvent> senseEvents;
 
 		Ray primarySensingRay;
 		Vector3f radiance;
@@ -91,21 +94,21 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 			samples.clear();
 			subSampleGenerator->requestMoreSamples(&samples);
 
-			Sample sample;
 			while(!samples.empty())
 			{
-				sample = samples.back();
+				integrator.radianceAlongRay(samples.back(), world, camera, senseEvents);
 				samples.pop_back();
-				camera.genSensingRay(sample, &primarySensingRay, aspectRatio);
 
-				integrator.radianceAlongRay(primarySensingRay, world, &radiance);
-
-				uint32 x = static_cast<uint32>((sample.m_cameraX + 1.0f) / 2.0f * widthPx);
-				uint32 y = static_cast<uint32>((sample.m_cameraY + 1.0f) / 2.0f * heightPx);
-				if(x >= widthPx) x = widthPx - 1;
-				if(y >= heightPx) y = heightPx - 1;
-
-				subFilm->accumulateRadiance(x, y, radiance);
+				// HACK
+				for(const auto& senseEvent : senseEvents)
+				{
+					uint32 x = static_cast<uint32>((senseEvent.filmX + 1.0f) / 2.0f * widthPx);
+					uint32 y = static_cast<uint32>((senseEvent.filmY + 1.0f) / 2.0f * heightPx);
+					if(x >= widthPx) x = widthPx - 1;
+					if(y >= heightPx) y = heightPx - 1;
+					subFilm->accumulateRadiance(x, y, senseEvent.radiance);
+				}
+				senseEvents.clear();
 			}// end while
 
 			currentSpp++;

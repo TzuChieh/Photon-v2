@@ -14,20 +14,26 @@ void NormalBufferIntegrator::update(const World& world)
 	// update nothing
 }
 
-void NormalBufferIntegrator::radianceAlongRay(const Ray& ray, const World& world, Vector3f* const out_radiance) const
+void NormalBufferIntegrator::radianceAlongRay(const Sample& sample, const World& world, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const
 {
+	Ray ray;
+	camera.genSensingRay(sample, &ray);
+
 	// reverse tracing
 	const Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), RAY_T_EPSILON, RAY_T_MAX);
 	
+	Vector3f radiance;
 	Intersection intersection;
 	if(world.getIntersector().isIntersecting(tracingRay, &intersection))
 	{
-		*out_radiance = intersection.getHitSmoothNormal();
+		radiance = intersection.getHitSmoothNormal();
 	}
 	else
 	{
-		*out_radiance = Vector3f(0, 0, 0);
+		radiance = Vector3f(0, 0, 0);
 	}
+
+	out_senseEvents.push_back(SenseEvent(sample.m_cameraX, sample.m_cameraY, radiance));
 }
 
 }// end namespace ph

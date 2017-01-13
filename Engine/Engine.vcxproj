@@ -266,6 +266,7 @@
     <ClInclude Include="Source\Core\Integrator\Integrator.h" />
     <ClInclude Include="Source\Core\Integrator\LightTracingIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\NormalBufferIntegrator.h" />
+    <ClInclude Include="Source\Core\Integrator\Utility\SenseEvent.h" />
     <ClInclude Include="Source\Core\Renderer\MtImportanceRenderer.h" />
     <ClInclude Include="Source\Core\Renderer\PreviewRenderer.h" />
     <ClInclude Include="Source\Core\SampleGenerator\PixelFixedSampleGenerator.h" />
@@ -312,6 +313,7 @@
     <ClInclude Include="Source\Actor\TextureMapper\SphericalMapper.h" />
     <ClInclude Include="Source\Actor\TextureMapper\TextureMapper.h" />
     <ClInclude Include="Source\Common\ThirdParty\lib_stb.h" />
+    <ClInclude Include="Source\Math\Vector2f.h" />
     <ClInclude Include="Source\Utility\TConstIteratorProxy.h" />
     <ClInclude Include="Source\Utility\TIteratorProxy.h" />
     <ClInclude Include="Source\World\BruteForceIntersector.h" />

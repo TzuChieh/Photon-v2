@@ -31,8 +31,11 @@ void BackwardLightIntegrator::update(const World& world)
 	// update nothing
 }
 
-void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const World& world, Vector3f* const out_radiance) const
+void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const World& world, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const
 {
+	Ray ray;
+	camera.genSensingRay(sample, &ray);
+
 	// common variables
 	Vector3f rayOriginDelta;
 	Vector3f accuRadiance(0, 0, 0);
@@ -53,7 +56,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const World& worl
 
 	if(!intersector.isIntersecting(tracingRay, &intersection))
 	{
-		*out_radiance = Vector3f(0, 0, 0);
+		out_senseEvents.push_back(SenseEvent(sample.m_cameraX, sample.m_cameraY, accuRadiance));
 		return;
 	}
 
@@ -62,7 +65,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const World& worl
 	// sidedness agreement between real geometry and shading (phong-interpolated) normal
 	if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0.0f)
 	{
-		*out_radiance = Vector3f(0, 0, 0);
+		out_senseEvents.push_back(SenseEvent(sample.m_cameraX, sample.m_cameraY, accuRadiance));
 		return;
 	}
 
@@ -195,7 +198,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const World& worl
 		bsdfCos = metadata->surfaceBehavior.getBsdfCos();
 	}
 
-	*out_radiance = accuRadiance;
+	out_senseEvents.push_back(SenseEvent(sample.m_cameraX, sample.m_cameraY, accuRadiance));
 }
 
 // NaNs will be clamped to 0
