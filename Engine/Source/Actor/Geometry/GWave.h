@@ -2,28 +2,26 @@
 
 #include "Actor/Geometry/Geometry.h"
 #include "Common/primitive_type.h"
-#include "Math/Vector3f.h"
 
 #include <vector>
 
 namespace ph
 {
 
-class GCuboid final : public Geometry
+class GWave : public Geometry
 {
 public:
-	GCuboid(const float32 xLen, const float32 yLen, const float32 zLen);
-	GCuboid(const GCuboid& other);
-	virtual ~GCuboid() override;
+	GWave(const float32 xLen, const float32 yLen, const float32 zLen);
+	virtual ~GWave() override;
 
 	virtual void discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata& metadata) const override;
-
-	GCuboid& operator = (const GCuboid& rhs);
 
 private:
 	float32 m_xLen;
 	float32 m_yLen;
 	float32 m_zLen;
+
+	static void genTessellatedRectangleXZ(const float32 xLen, const float32 zLen, const int32 numXdivs, const int32 numZdivs, std::vector<Vector3f>& positions);
 };
 
 }// end namespace ph

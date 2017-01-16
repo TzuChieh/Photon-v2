@@ -88,12 +88,12 @@ public class Main
 //		final int outputHeight = 400;
 //		final int outputWidth = 150;
 //		final int outputHeight = 150;
-		final int numRenderThreads = 4;
+		final int numRenderThreads = 8;
 		
 		
 		PhWorld world = new PhWorld();
 		
-		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.PIXEL_JITTER, 16);
+		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.PIXEL_JITTER, 5000);
 		PhRenderer renderer = new PhRenderer(PhRenderer.Type.MT_IMPORTANCE, numRenderThreads);
 		renderer.setSampleGenerator(sampleGenerator);
 		

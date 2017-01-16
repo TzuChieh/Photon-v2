@@ -16,6 +16,7 @@
 #include "Actor/LightSource/AreaSource.h"
 #include "Actor/ALight.h"
 #include "Actor/Geometry/GCuboid.h"
+#include "Actor/Geometry/GWave.h"
 
 #include <memory>
 
@@ -215,16 +216,20 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 
 	ALight topLight;
 	AModel& lightModel = topLight.getModel();
-	//lightModel.rotate(Vector3f(1, 0, 0), 90);
+	lightModel.rotate(Vector3f(1, 0, 0), 90);
 	//lightModel.rotate(Vector3f(1, 0, 0), 45);
-	//lightModel.scale(boxSize * 0.05f);
+	lightModel.scale(boxSize * 0.05f);
 	//lightModel.scale(boxSize * 0.3f);
 	//lightModel.scale(boxSize * 0.5f);
-	lightModel.scale(boxSize * 0.9f);
-	//lightModel.translate(0, halfBoxSize - halfBoxSize * 0.05f, 0);
+	//lightModel.scale(boxSize * 0.9f);
+
+	//lightModel.scale(boxSize * 0.9f, boxSize * 0.7f, boxSize * 0.9f);
+	//lightModel.translate(0, 1.4f, -(halfBoxSize - halfBoxSize * 0.05f));
+
+	lightModel.translate(0, halfBoxSize - halfBoxSize * 0.05f, 0);
 	//lightModel.translate(0, -halfBoxSize + 1.0f, 0);
 	//lightModel.translate(0, -halfBoxSize + 1.5f, 0);
-	lightModel.translate(0, 0, -(halfBoxSize - halfBoxSize * 0.05f));
+	//lightModel.translate(0, 0, -(halfBoxSize - halfBoxSize * 0.05f));
 
 	auto topLightMaterial = std::make_shared<MatteOpaque>();
 	topLightMaterial->setAlbedo(0.5f, 0.5f, 0.5f);
@@ -237,8 +242,8 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 	//auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/mountains.jpg");
 	//auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/vm.png");
 	//auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/human.jpg");
-	auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/scenery.jpg");
-	//auto topLightSource = std::make_shared<AreaSource>(Vector3f(34, 34, 34));
+	//auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/scenery.jpg");
+	auto topLightSource = std::make_shared<AreaSource>(Vector3f(120, 120, 120));
 	//auto topLightSource = std::make_shared<AreaSource>(Vector3f(1, 1, 1));
 	//auto topLightSource = std::make_shared<AreaSource>(Vector3f(0.4f, 0.4f, 0.4f));
 	//auto topLightSource = std::make_shared<AreaSource>(Vector3f(0.2f, 0.2f, 0.2f));
@@ -289,8 +294,8 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 
 	auto groundWallMatl = std::make_shared<MatteOpaque>();
 	groundWallMatl->setAlbedo(0.7f, 0.7f, 0.7f);
-	//AModel groundWallModel(unitRectangleGeom, groundWallMatl);
-	AModel groundWallModel(unitRectangleGeom, chromiumMaterial);
+	AModel groundWallModel(unitRectangleGeom, groundWallMatl);
+	//AModel groundWallModel(unitRectangleGeom, chromiumMaterial);
 	groundWallModel.rotate(Vector3f(1, 0, 0), -90);
 	groundWallModel.scale(boxSize);
 	groundWallModel.translate(0, -halfBoxSize, 0);
@@ -303,12 +308,12 @@ void loadCbox3ObjScene(World* const out_world)
 
 	auto goldMaterial = std::make_shared<AbradedOpaque>();
 	goldMaterial->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));
-	goldMaterial->setRoughness(0.2f);
+	goldMaterial->setRoughness(0.03f);
 	//goldMaterial->setRoughness(0.001f);
 
 	auto silverMaterial = std::make_shared<AbradedOpaque>();
 	silverMaterial->setF0(Vector3f(0.971519f, 0.959915f, 0.915324f));
-	silverMaterial->setRoughness(0.1f);
+	silverMaterial->setRoughness(0.01f);
 
 	auto glassMaterial = std::make_shared<AbradedTranslucent>();
 	glassMaterial->setF0(0.04f, 0.04f, 0.04f);
@@ -319,6 +324,11 @@ void loadCbox3ObjScene(World* const out_world)
 	//glassMaterial->setIOR(1.0f);
 	//glassMaterial->setRoughness(0.2f);
 	glassMaterial->setRoughness(0.0f);
+
+	auto waterMaterial = std::make_shared<AbradedTranslucent>();
+	waterMaterial->setF0(0.020059312f, 0.020059312f, 0.020059312f);
+	waterMaterial->setIOR(1.33f);
+	waterMaterial->setRoughness(0.0f);
 
 	auto matteMaterial = std::make_shared<MatteOpaque>();
 	matteMaterial->setAlbedo(0.6f, 0.6f, 0.6f);
@@ -388,14 +398,26 @@ void loadCbox3ObjScene(World* const out_world)
 		for(auto& model : dragonModels)
 		{
 			model.translate(0, -5, 0);
-			model.scale(5.0f);
+			//model.scale(5.0f);
+			model.scale(4.5f);
 			model.rotate(Vector3f(0, 1, 0), 180);
 
-			model.setMaterial(glassMaterial);
+			//model.setMaterial(glassMaterial);
+			model.setMaterial(silverMaterial);
 
 			out_world->addActor(std::make_unique<AModel>(model));
 		}
 	}
+
+	auto waveMaterial = std::make_shared<MatteOpaque>();
+	waveMaterial->setAlbedo(0.7f, 0.7f, 0.7f);
+	auto waveGeometry = std::make_shared<GWave>(10.001f, 2.501f, 10.001f);
+	//AModel waveModel(waveGeometry, waveMaterial);
+	AModel waveModel(waveGeometry, waterMaterial);
+	//waveModel.rotate(Vector3f(0, 1, 0), 315);
+	//waveModel.scale(boxSize);
+	waveModel.translate(0, -2.5f, 0);
+	out_world->addActor(std::make_unique<AModel>(waveModel));
 }
 
 void load5bScene(World* const out_world)

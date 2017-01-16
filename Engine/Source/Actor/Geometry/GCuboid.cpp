@@ -11,7 +11,7 @@
 namespace ph
 {
 
-GCuboid::GCuboid(const float32 xLen, const float yLen, const float zLen) :
+GCuboid::GCuboid(const float32 xLen, const float32 yLen, const float32 zLen) :
 	m_xLen(xLen), m_yLen(yLen), m_zLen(zLen)
 {
 
