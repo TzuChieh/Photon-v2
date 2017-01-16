@@ -49,7 +49,9 @@ public class Window extends JFrame
 		m_loggerTextPane.setBackground(Color.BLACK);
 		m_loggerTextPane.setBounds(0, 448, 370, 224);
 		m_loggerTextPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		m_loggerTextPane.directSystemOutErrToThis();
+		
+		//m_loggerTextPane.directSystemOutErrToThis();
+		
 		getContentPane().add(m_loggerTextPane);
 		
 		m_taskPanel = new TaskPanel();

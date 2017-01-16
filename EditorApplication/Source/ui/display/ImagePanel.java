@@ -46,7 +46,7 @@ public class ImagePanel extends JPanel
 				
 				if(r != r || g != g || b != b)
 				{
-					System.out.println("NaN!");
+					System.err.println("NaN!");
 					//System.exit(1);
 				}
 				

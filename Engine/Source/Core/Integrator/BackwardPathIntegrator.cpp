@@ -18,8 +18,8 @@
 
 #include <iostream>
 
-#define MAX_RAY_BOUNCES 10000
-//#define MAX_RAY_BOUNCES 2
+//#define MAX_RAY_BOUNCES 10000
+#define MAX_RAY_BOUNCES 1
 
 namespace ph
 {

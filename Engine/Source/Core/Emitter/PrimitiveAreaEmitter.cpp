@@ -11,6 +11,8 @@
 #include "Math/constant.h"
 
 #include <iostream>
+#include <algorithm>
+#include <cmath>
 
 namespace ph
 {
@@ -98,7 +100,7 @@ float32 PrimitiveAreaEmitter::calcDirectSamplePdfW(const Vector3f& targetPos, co
 	return pickPdfW * (samplePdfA / std::abs(emitDir.dot(emitN)) * distSquared);
 }
 
-void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, Vector3f* const out_Le, float32* const out_pdfA, float32* const out_pdfW) const
+void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, Vector3f* const out_Le, Vector3f* const out_eN, float32* const out_pdfA, float32* const out_pdfW) const
 {
 	// randomly and uniformly pick a primitive
 	const std::size_t picker = static_cast<std::size_t>(genRandomFloat32_0_1_uniform() * static_cast<float32>(m_primitives.size()));
@@ -120,12 +122,22 @@ void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, Vector3f* const out
 	rayDir.z = 1.0f - 2.0f * r2;
 	rayDir.normalizeLocal();
 
+	/*Vector3f rayDir;
+	const float32 r1 = genRandomFloat32_0_1_uniform();
+	const float32 r2 = genRandomFloat32_0_1_uniform();
+	const float32 z = 1.0f - 2.0f * r1;
+	const float32 r = std::sqrt(std::max(0.0f, 1.0f - z * z));
+	const float32 phi = 2 * PI_FLOAT32 * r2;
+	rayDir.set(r * std::cos(phi), r * std::sin(phi), z);
+	rayDir.normalizeLocal();*/
+
 	out_ray->setDirection(rayDir);
 	out_ray->setOrigin(positionSample.position);
 	out_ray->setMinT(RAY_T_EPSILON);
 	out_ray->setMaxT(RAY_T_MAX);
+	out_eN->set(positionSample.normal);
 	*out_pdfA = pickPdfW * positionSample.pdf;
-	*out_pdfW = 1.0f / (4.0f * PI_FLOAT32);
+	*out_pdfW = 1.0f / (4.0f * PI_FLOAT32) / out_ray->getDirection().absDot(positionSample.normal);
 	m_emittedRadiance->sample(positionSample.uvw, out_Le);
 }
 

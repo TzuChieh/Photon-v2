@@ -14,6 +14,6 @@ extern void genUnitHemisphereUniformSample(const float32 value_0_1_a, const floa
 extern void genUnitHemisphereCosineThetaWeightedSample(const float32 value_0_1_a, const float32 value_0_1_b, Vector3f* const out_sample);
 
 // sample PDF is NDF*cos(NoH)
-extern void genUnitHemisphereGgxTrowbridgeReitzNdfSample(const float32 value_0_1_a, const float32 value_0_1_b, const float32 roughness, Vector3f* const out_sample);
+extern void genUnitHemisphereGgxTrowbridgeReitzNdfSample(const float32 value_0_1_a, const float32 value_0_1_b, const float32 alpha, Vector3f* const out_sample);
 
 }// end namespace ph

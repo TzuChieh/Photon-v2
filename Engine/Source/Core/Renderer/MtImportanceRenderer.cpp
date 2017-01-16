@@ -47,9 +47,12 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 
 	//BackwardPathIntegrator integrator;
 	//BackwardLightIntegrator integrator;
-	BackwardMisIntegrator integrator;
+	//BackwardMisIntegrator integrator;
 	//NormalBufferIntegrator integrator;
-	//LightTracingIntegrator integrator;
+	LightTracingIntegrator integrator;
+
+	const bool isLT = true;
+	//const bool isLT = false;
 
 	integrator.update(world);
 
@@ -68,7 +71,7 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 		std::atomic<float32>* workerProgress     = m_workerProgresses[threadIndex].get();
 		std::atomic<float32>* workerSampleFreq   = m_workerSampleFrequencies[threadIndex].get();
 
-		renderWorkers[threadIndex] = std::thread([this, &camera, &integrator, &world, &numSpp, subSampleGenerator, subFilm, workerProgress, workerSampleFreq]() -> void
+		renderWorkers[threadIndex] = std::thread([this, &camera, &integrator, &world, &numSpp, &isLT, subSampleGenerator, subFilm, workerProgress, workerSampleFreq]() -> void
 		{
 		// ****************************** thread start ****************************** //
 
@@ -77,9 +80,6 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 
 		std::vector<Sample> samples;
 		std::vector<SenseEvent> senseEvents;
-
-		Ray primarySensingRay;
-		Vector3f radiance;
 
 		const uint32 totalSpp = subSampleGenerator->getSppBudget();
 		uint32 currentSpp = 0;
@@ -100,16 +100,41 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 				samples.pop_back();
 
 				// HACK
-				for(const auto& senseEvent : senseEvents)
+				if(!isLT)
 				{
-					uint32 x = static_cast<uint32>((senseEvent.filmX + 1.0f) / 2.0f * widthPx);
-					uint32 y = static_cast<uint32>((senseEvent.filmY + 1.0f) / 2.0f * heightPx);
-					if(x >= widthPx) x = widthPx - 1;
-					if(y >= heightPx) y = heightPx - 1;
-					subFilm->accumulateRadiance(x, y, senseEvent.radiance);
+					for(const auto& senseEvent : senseEvents)
+					{
+						uint32 x = static_cast<uint32>((senseEvent.filmX + 1.0f) / 2.0f * widthPx);
+						uint32 y = static_cast<uint32>((senseEvent.filmY + 1.0f) / 2.0f * heightPx);
+						if(x >= widthPx) x = widthPx - 1;
+						if(y >= heightPx) y = heightPx - 1;
+						subFilm->accumulateRadiance(x, y, senseEvent.radiance);
+					}
+
+					if(senseEvents.size() != 1)
+					{
+						std::cerr << "unexpected event occured" << std::endl;
+					}
+				}
+				else
+				{
+					for(const auto& senseEvent : senseEvents)
+					{
+						uint32 x = static_cast<uint32>((senseEvent.filmX + 1.0f) / 2.0f * widthPx);
+						uint32 y = static_cast<uint32>((senseEvent.filmY + 1.0f) / 2.0f * heightPx);
+						if(x >= widthPx) x = widthPx - 1;
+						if(y >= heightPx) y = heightPx - 1;
+						subFilm->accumulateRadianceWithoutIncrementSenseCount(x, y, senseEvent.radiance);
+					}
 				}
 				senseEvents.clear();
 			}// end while
+
+			 // HACK
+			if(isLT)
+			{
+				subFilm->incrementAllSenseCounts();
+			}
 
 			currentSpp++;
 			*workerProgress = static_cast<float32>(currentSpp) / static_cast<float32>(totalSpp);

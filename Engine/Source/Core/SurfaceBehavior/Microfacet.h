@@ -4,6 +4,8 @@
 #include "Math/constant.h"
 #include "Math/Vector3f.h"
 
+#include <iostream>
+
 namespace ph
 {
 

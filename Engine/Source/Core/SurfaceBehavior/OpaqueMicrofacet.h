@@ -25,9 +25,9 @@ public:
 		m_albedo = albedo;
 	}
 
-	inline void setRoughness(const std::shared_ptr<Texture>& roughness)
+	inline void setAlpha(const std::shared_ptr<Texture>& alpha)
 	{
-		m_roughness = roughness;
+		m_alpha = alpha;
 	}
 
 	inline void setF0(const std::shared_ptr<Texture>& f0)
@@ -37,7 +37,7 @@ public:
 
 private:
 	std::shared_ptr<Texture> m_albedo;
-	std::shared_ptr<Texture> m_roughness;
+	std::shared_ptr<Texture> m_alpha;
 	std::shared_ptr<Texture> m_F0;
 };
 

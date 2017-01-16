@@ -15,9 +15,9 @@ namespace ph
 {
 
 OpaqueMicrofacet::OpaqueMicrofacet() :
-	m_albedo   (std::make_shared<ConstantTexture>(Vector3f(0.5f, 0.5f, 0.5f))), 
-	m_roughness(std::make_shared<ConstantTexture>(Vector3f(0.5f, 0.5f, 0.5f))), 
-	m_F0       (std::make_shared<ConstantTexture>(Vector3f(0.04f, 0.04f, 0.04f)))
+	m_albedo(std::make_shared<ConstantTexture>(Vector3f(0.5f, 0.5f, 0.5f))), 
+	m_alpha (std::make_shared<ConstantTexture>(Vector3f(0.5f, 0.5f, 0.5f))), 
+	m_F0    (std::make_shared<ConstantTexture>(Vector3f(0.04f, 0.04f, 0.04f)))
 {
 
 }
@@ -32,9 +32,9 @@ void OpaqueMicrofacet::genImportanceSample(SurfaceSample& sample) const
 	// The PDF for this sampling scheme is D(H)*NoH / |4*HoL|. The reason that |4*HoL| exists is because there's a 
 	// jacobian involved (from H's probability space to L's).
 
-	Vector3f sampledRoughness;
-	m_roughness->sample(sample.X->getHitUVW(), &sampledRoughness);
-	const float32 roughness = sampledRoughness.x;
+	Vector3f sampledAlpha;
+	m_alpha->sample(sample.X->getHitUVW(), &sampledAlpha);
+	const float32 alpha = sampledAlpha.x;
 
 	Vector3f sampledF0;
 	m_F0->sample(sample.X->getHitUVW(), &sampledF0);
@@ -42,7 +42,7 @@ void OpaqueMicrofacet::genImportanceSample(SurfaceSample& sample) const
 	const Vector3f& N = sample.X->getHitSmoothNormal();
 	Vector3f H;
 
-	genUnitHemisphereGgxTrowbridgeReitzNdfSample(genRandomFloat32_0_1_uniform(), genRandomFloat32_0_1_uniform(), roughness, &H);
+	genUnitHemisphereGgxTrowbridgeReitzNdfSample(genRandomFloat32_0_1_uniform(), genRandomFloat32_0_1_uniform(), alpha, &H);
 	Vector3f u;
 	Vector3f v(N);
 	Vector3f w;
@@ -61,7 +61,7 @@ void OpaqueMicrofacet::genImportanceSample(SurfaceSample& sample) const
 	const float32 NoH = N.dot(H);
 
 	Vector3f F;
-	const float32 G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, roughness);
+	const float32 G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, alpha);
 	Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
 
 	// notice that the (N dot L) term canceled out with the lambertian term
@@ -73,9 +73,9 @@ void OpaqueMicrofacet::genImportanceSample(SurfaceSample& sample) const
 
 float32 OpaqueMicrofacet::calcImportanceSamplePdfW(const SurfaceSample& sample) const
 {
-	Vector3f sampledRoughness;
-	m_roughness->sample(sample.X->getHitUVW(), &sampledRoughness);
-	const float32 roughness = sampledRoughness.x;
+	Vector3f sampledAlpha;
+	m_alpha->sample(sample.X->getHitUVW(), &sampledAlpha);
+	const float32 alpha = sampledAlpha.x;
 
 	const float32 NoL = sample.X->getHitSmoothNormal().dot(sample.L);
 
@@ -88,7 +88,7 @@ float32 OpaqueMicrofacet::calcImportanceSamplePdfW(const SurfaceSample& sample) 
 
 	const float32 NoH = sample.X->getHitSmoothNormal().dot(H);
 	const float32 HoL = H.dot(sample.L);
-	const float32 D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, roughness);
+	const float32 D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
 
 	return std::abs(D * NoH / (4.0f * HoL));
 }
@@ -107,9 +107,9 @@ void OpaqueMicrofacet::evaluate(SurfaceSample& sample) const
 		return;
 	}
 
-	Vector3f sampledRoughness;
-	m_roughness->sample(sample.X->getHitUVW(), &sampledRoughness);
-	const float32 roughness = sampledRoughness.x;
+	Vector3f sampledAlpha;
+	m_alpha->sample(sample.X->getHitUVW(), &sampledAlpha);
+	const float32 alpha = sampledAlpha.x;
 	Vector3f sampledF0;
 	m_F0->sample(sample.X->getHitUVW(), &sampledF0);
 
@@ -126,8 +126,8 @@ void OpaqueMicrofacet::evaluate(SurfaceSample& sample) const
 
 	Vector3f F;
 	Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
-	const float32 D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, roughness);
-	const float32 G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, roughness);
+	const float32 D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
+	const float32 G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, alpha);
 
 	// notice that the abs(N dot L) term canceled out with the lambertian term
 	sample.liWeight = F.mul(D * G / (4.0f * std::abs(NoV)));

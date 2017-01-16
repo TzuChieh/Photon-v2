@@ -49,7 +49,7 @@ void Film::developFilm(Frame* const out_frame) const
 	float64 sensorR;
 	float64 sensorG;
 	float64 sensorB;
-	float64 senseCount;
+	float64 reciSenseCount;
 	std::size_t baseIndex;
 
 	for(uint32 y = 0; y < m_heightPx; y++)
@@ -61,11 +61,14 @@ void Film::developFilm(Frame* const out_frame) const
 			sensorR = m_pixelRadianceSensors[baseIndex].m_accuR;
 			sensorG = m_pixelRadianceSensors[baseIndex].m_accuG;
 			sensorB = m_pixelRadianceSensors[baseIndex].m_accuB;
-			senseCount = static_cast<float64>(m_pixelRadianceSensors[baseIndex].m_numSenseCounts);
+			const float64 senseCount = static_cast<float64>(m_pixelRadianceSensors[baseIndex].m_numSenseCounts);
 
-			sensorR /= senseCount;
-			sensorG /= senseCount;
-			sensorB /= senseCount;
+			// to prevent divide by zero
+			reciSenseCount = senseCount == 0.0 ? 0.0 : 1.0 / senseCount;
+
+			sensorR *= reciSenseCount;
+			sensorG *= reciSenseCount;
+			sensorB *= reciSenseCount;
 
 			out_frame->setPixel(x, y, static_cast<float32>(sensorR), static_cast<float32>(sensorG), static_cast<float32>(sensorB));
 		}

@@ -84,10 +84,10 @@ public class Main
 //		final int outputHeight = 720;
 		final int outputWidth = 800;
 		final int outputHeight = 800;
-//		final int outputWidth = 300;
-//		final int outputHeight = 300;
-//		final int outputWidth = 100;
-//		final int outputHeight = 100;
+//		final int outputWidth = 400;
+//		final int outputHeight = 400;
+//		final int outputWidth = 150;
+//		final int outputHeight = 150;
 		final int numRenderThreads = 4;
 		
 		
@@ -161,7 +161,6 @@ public class Main
 		System.out.println("frame width: " + frameData.getWidthPx() + " | frame height: " + frameData.getHeightPx());
 		
 		HdrFrame hdrFrame = new HdrFrame(frameData);
-		
 		
 		SwingUtilities.invokeLater(new Runnable()
 		{

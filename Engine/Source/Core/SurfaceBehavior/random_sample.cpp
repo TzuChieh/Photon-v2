@@ -27,13 +27,13 @@ void genUnitHemisphereCosineThetaWeightedSample(const float32 value_0_1_a, const
 	out_sample->z = sin(phi) * yRadius;
 }
 
-void genUnitHemisphereGgxTrowbridgeReitzNdfSample(const float32 value_0_1_a, const float32 value_0_1_b, const float32 roughness, Vector3f* const out_sample)
+void genUnitHemisphereGgxTrowbridgeReitzNdfSample(const float32 value_0_1_a, const float32 value_0_1_b, const float32 alpha, Vector3f* const out_sample)
 {
 	// for GGX (Trowbridge-Reitz) Normal Distribution Function
 
 	const float32 phi     = 2.0f * PI_FLOAT32 * value_0_1_a;
 	const float32 randNum = value_0_1_b;
-	const float32 theta   = atan(roughness * roughness * sqrt(randNum / (1.0f - randNum)));
+	const float32 theta   = atan(alpha * sqrt(randNum / (1.0f - randNum)));
 
 	const float32 sinTheta = sin(theta);
 	const float32 cosTheta = cos(theta);

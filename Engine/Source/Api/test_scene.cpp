@@ -209,16 +209,21 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 
 	auto chromiumMaterial = std::make_shared<AbradedOpaque>();
 	chromiumMaterial->setF0(Vector3f(0.549585f, 0.556114f, 0.554256f));
-	chromiumMaterial->setRoughness(0.3f);
+	//chromiumMaterial->setRoughness(0.3f);
+	chromiumMaterial->setRoughness(0.01f);
+	//chromiumMaterial->setRoughness(0.0f);
 
 	ALight topLight;
 	AModel& lightModel = topLight.getModel();
 	//lightModel.rotate(Vector3f(1, 0, 0), 90);
+	//lightModel.rotate(Vector3f(1, 0, 0), 45);
 	//lightModel.scale(boxSize * 0.05f);
 	//lightModel.scale(boxSize * 0.3f);
 	//lightModel.scale(boxSize * 0.5f);
 	lightModel.scale(boxSize * 0.9f);
 	//lightModel.translate(0, halfBoxSize - halfBoxSize * 0.05f, 0);
+	//lightModel.translate(0, -halfBoxSize + 1.0f, 0);
+	//lightModel.translate(0, -halfBoxSize + 1.5f, 0);
 	lightModel.translate(0, 0, -(halfBoxSize - halfBoxSize * 0.05f));
 
 	auto topLightMaterial = std::make_shared<MatteOpaque>();
@@ -252,6 +257,7 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 
 	auto leftWallMatl = std::make_shared<MatteOpaque>();
 	leftWallMatl->setAlbedo(0.85f, 0.3f, 0.3f);
+	//leftWallMatl->setAlbedo(1.0f, 1.0f, 1.0f);
 	AModel leftWallModel(unitRectangleGeom, leftWallMatl);
 	leftWallModel.rotate(Vector3f(0, 1, 0), 90);
 	leftWallModel.scale(boxSize);
@@ -369,14 +375,13 @@ void loadCbox3ObjScene(World* const out_world)
 
 
 	//auto cubeGeometry = std::make_shared<GCuboid>(4.5f, 4.5f, 4.5f);
-	//AModel cubeModel(cubeGeometry, glassMaterial);
+	//AModel cubeModel(cubeGeometry, matteMaterial);
 	//cubeModel.rotate(Vector3f(1, 1, 0).normalize(), 30);
 	////cubeModel.translate(0, -1.2f, 0);
 	//cubeModel.translate(0, -1.5f, 0);
 	//out_world->addActor(std::make_unique<AModel>(cubeModel));
 
 	ModelLoader modelLoader;
-
 	std::vector<AModel> dragonModels;
 	if(modelLoader.load("../SceneResource/dragon.obj", &dragonModels))
 	{

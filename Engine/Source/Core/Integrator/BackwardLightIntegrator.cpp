@@ -18,8 +18,8 @@
 #include <iostream>
 
 #define RAY_DELTA_DIST 0.0001f
-#define MAX_RAY_BOUNCES 10000
-//#define MAX_RAY_BOUNCES 2
+//#define MAX_RAY_BOUNCES 10000
+#define MAX_RAY_BOUNCES 1
 
 namespace ph
 {

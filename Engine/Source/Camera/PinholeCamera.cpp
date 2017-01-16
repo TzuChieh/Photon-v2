@@ -41,7 +41,7 @@ void PinholeCamera::genSensingRay(const Sample& sample, Ray* const out_ray) cons
 	out_ray->setMaxT(RAY_T_MAX);
 }
 
-void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3f& targetPos, Vector2f* const out_filmCoord, Vector3f* const out_importance, float32* const out_pdfW) const
+void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3f& targetPos, Vector2f* const out_filmCoord, Vector3f* const out_importance, float32* out_filmArea, float32* const out_pdfW) const
 {
 	const Vector3f targetDir = targetPos.sub(getPosition()).normalizeLocal();
 	const float32 cosTheta = targetDir.dot(getDirection());
@@ -59,26 +59,26 @@ void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3f& targetPos, Vect
 
 	// Note: this will fail when the camera is facing directly on y-axis
 
-	Vector3f rightDir = Vector3f(-getDirection().z, 0.0f, getDirection().x).normalizeLocal();
-	Vector3f upDir = rightDir.cross(getDirection()).normalizeLocal();
+	const Vector3f rightDir = Vector3f(-getDirection().z, 0.0f, getDirection().x).normalizeLocal();
+	const Vector3f upDir = rightDir.cross(getDirection()).normalizeLocal();
 
 	const float32 aspectRatio = static_cast<float32>(getFilm()->getWidthPx()) / static_cast<float32>(getFilm()->getHeightPx());
 	const float32 halfFilmWidth = std::tan(m_fov / 2.0f);
 	const float32 halfFilmHeight = halfFilmWidth / aspectRatio;
 
-	out_filmCoord->x = filmVec.dot(rightDir);
-	out_filmCoord->y = filmVec.dot(upDir);
+	out_filmCoord->x = filmVec.dot(rightDir) / halfFilmWidth;
+	out_filmCoord->y = filmVec.dot(upDir) / halfFilmHeight;
 
-	if(std::abs(out_filmCoord->x) > halfFilmWidth || std::abs(out_filmCoord->y) > halfFilmHeight)
+	if(std::abs(out_filmCoord->x) > 1.0f || std::abs(out_filmCoord->y) > 1.0f)
 	{
 		out_importance->set(0.0f);
 		*out_pdfW = 0.0f;
 		return;
 	}
 
-	const float32 filmArea = halfFilmWidth * halfFilmHeight * 4.0f;
-	out_importance->set(1.0f / (filmArea * cosTheta * cosTheta * cosTheta * cosTheta));
-	*out_pdfW = 1.0f / (filmArea * cosTheta * cosTheta * cosTheta);
+	*out_filmArea = halfFilmWidth * halfFilmHeight * 4.0f;
+	out_importance->set(1.0f / (*out_filmArea * cosTheta * cosTheta * cosTheta * cosTheta));
+	*out_pdfW = 1.0f / (*out_filmArea * cosTheta * cosTheta * cosTheta);
 }
 
 }// end namespace ph
