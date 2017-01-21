@@ -194,7 +194,9 @@
     <ClCompile Include="Source\Core\Primitive\PTriangle.cpp" />
     <ClCompile Include="Source\Actor\ALight.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BSDFcos.cpp" />
-    <ClCompile Include="Source\FileIO\RenderDataFileLoader.cpp" />
+    <ClCompile Include="Source\FileIO\RenderingFileLoader.cpp" />
+    <ClCompile Include="Source\FileIO\Tokenizer.cpp" />
+    <ClCompile Include="Source\FileIO\ValuePacket.cpp" />
     <ClCompile Include="Source\Image\CheckerboardTexture.cpp" />
     <ClCompile Include="Source\Image\ConstantTexture.cpp" />
     <ClCompile Include="Source\Image\TextureLoader.cpp" />
@@ -281,7 +283,10 @@
     <ClInclude Include="Source\Core\Sample\DirectLightSample.h" />
     <ClInclude Include="Source\Core\Sample\PositionSample.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\BSDFcos.h" />
-    <ClInclude Include="Source\FileIO\RenderDataFileLoader.h" />
+    <ClInclude Include="Source\FileIO\Tokenizer.h" />
+    <ClInclude Include="Source\FileIO\ValuePacket.h" />
+    <ClInclude Include="Source\FileIO\RenderingFileLoader.h" />
+    <ClInclude Include="Source\FileIO\RenderingDescription.h" />
     <ClInclude Include="Source\Image\CheckerboardTexture.h" />
     <ClInclude Include="Source\Image\ConstantTexture.h" />
     <ClInclude Include="Source\Image\Film\Film.h" />

@@ -6,6 +6,7 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
  * backward path tracing
  * backward light tracing (next event estimation)
  * MIS'ed backward tracing (path + light)
+ * light/particle tracing
 * **Material**
  * Lambertian diffuse
  * microfacet-based opaque and translucent model
@@ -25,6 +26,9 @@ Photon-v2 is being developed with cross-platformity in mind, but Windows is the 
 <a href="url"><img src="./gallery/028_sponza gold cups 12800spp.png" align="left" width="600" ></a>
 <a href="url"><img src="./gallery/038_cbox 3 objs 11000spp.png" align="left" width="600" ></a>
 <a href="url"><img src="./gallery/044_scenery glass dragon 6000spp.png" align="left" width="600" ></a>
+
+## Scene Description Language
+(WIP)
 
 ## About the Author
 Development Blog: http://tcchangs.blogspot.tw/ <br />

@@ -47,12 +47,12 @@ void MtImportanceRenderer::render(const World& world, const Camera& camera) cons
 
 	//BackwardPathIntegrator integrator;
 	//BackwardLightIntegrator integrator;
-	//BackwardMisIntegrator integrator;
+	BackwardMisIntegrator integrator;
 	//NormalBufferIntegrator integrator;
-	LightTracingIntegrator integrator;
+	//LightTracingIntegrator integrator;
 
-	const bool isLT = true;
-	//const bool isLT = false;
+	//const bool isLT = true;
+	const bool isLT = false;
 
 	integrator.update(world);
 

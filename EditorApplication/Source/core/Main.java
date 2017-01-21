@@ -72,7 +72,8 @@ public class Main
 //		camera.setPosition(0.000001f, -0.000002f, 3);
 		camera.setDirection(0.0001f, 0.000002f, -1.0f);
 		
-		
+//		camera.setPosition(0.000001f, -0.500002f, 17);
+//		camera.setDirection(0.0001f, 0.100002f, -1.0f);
 		
 		// for sponza
 //		camera.setPosition(3.5765076f, 2.1717842f, 2.5685565f);
@@ -82,18 +83,20 @@ public class Main
 		
 //		final int outputWidth = 1280;
 //		final int outputHeight = 720;
+//		final int outputWidth = 1400;
+//		final int outputHeight = 600;
 		final int outputWidth = 800;
 		final int outputHeight = 800;
 //		final int outputWidth = 400;
 //		final int outputHeight = 400;
 //		final int outputWidth = 150;
 //		final int outputHeight = 150;
-		final int numRenderThreads = 8;
+		final int numRenderThreads = 4;
 		
 		
 		PhWorld world = new PhWorld();
 		
-		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.PIXEL_JITTER, 5000);
+		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.PIXEL_JITTER, 8000);
 		PhRenderer renderer = new PhRenderer(PhRenderer.Type.MT_IMPORTANCE, numRenderThreads);
 		renderer.setSampleGenerator(sampleGenerator);
 		
