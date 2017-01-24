@@ -7,8 +7,8 @@
 #include "Camera/PinholeCamera.h"
 #include "Core/SampleGenerator/PixelJitterSampleGenerator.h"
 #include "Api/test_scene.h"
-#include "Image/Film/Film.h"
-#include "Image/Frame.h"
+#include "Filmic/Film.h"
+#include "Filmic/Frame.h"
 
 #include <memory>
 #include <iostream>

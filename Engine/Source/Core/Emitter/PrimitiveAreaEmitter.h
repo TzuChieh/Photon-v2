@@ -2,7 +2,7 @@
 
 #include "Core/Emitter/Emitter.h"
 #include "Common/primitive_type.h"
-#include "Image/Texture.h"
+#include "Actor/Texture/Texture.h"
 
 #include <memory>
 #include <vector>

@@ -2,7 +2,7 @@
 
 #include "ph_core.h"
 #include "Api/ApiDatabase.h"
-#include "Image/HDRFrame.h"
+#include "Filmic/HDRFrame.h"
 
 #include <iostream>
 #include <memory>

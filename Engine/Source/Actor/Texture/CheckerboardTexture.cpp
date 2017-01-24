@@ -1,4 +1,4 @@
-#include "Image/CheckerboardTexture.h"
+#include "Actor/Texture/CheckerboardTexture.h"
 #include "Math/Vector3f.h"
 
 #include <iostream>

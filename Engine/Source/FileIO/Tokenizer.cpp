@@ -23,7 +23,7 @@ void Tokenizer::tokenize(const std::string& source, std::vector<std::string>& ou
 	}
 
 	std::size_t i = 0;
-	while(i < source.size())
+	while(i < source.length())
 	{
 		const char ch = source[i];
 		if(isSeparator(ch))
@@ -44,7 +44,7 @@ void Tokenizer::tokenize(const std::string& source, std::vector<std::string>& ou
 std::size_t Tokenizer::extractSeparatorSeparatedToken(const std::string& source, const std::size_t startIndex, std::vector<std::string>& out_results) const
 {
 	std::size_t i = startIndex + 1;
-	while(i < source.size())
+	while(i < source.length())
 	{
 		if(isSeparator(source[i]))
 		{
@@ -60,11 +60,11 @@ std::size_t Tokenizer::extractSeparatorSeparatedToken(const std::string& source,
 	return nextIndex;
 }
 
-std::size_t Tokenizer::extractEnclosureSeparatedToken(const std::string& source, const std::size_t startIndex, const char enclosureStart, 
-                                                      std::vector<std::string>& out_results) const
+std::size_t Tokenizer::extractEnclosureSeparatedToken(const std::string& source, const std::size_t startIndex, 
+                                                      const char enclosureStart, std::vector<std::string>& out_results) const
 {
 	std::size_t i = startIndex + 1;
-	while(i < source.size())
+	while(i < source.length())
 	{
 		if(isEnclosurePair(enclosureStart, source[i]))
 		{

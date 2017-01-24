@@ -3,6 +3,9 @@
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Actor/TextureMapper/TextureMapper.h"
 #include "Actor/AModel.h"
+#include "FileIO/InputPacket.h"
+
+#include <iostream>
 
 namespace ph
 {
@@ -18,6 +21,16 @@ GTriangle::GTriangle(const Vector3f& vA, const Vector3f& vB, const Vector3f& vC)
 	m_uvwA.set(0.0f);
 	m_uvwB.set(0.0f);
 	m_uvwC.set(0.0f);
+}
+
+GTriangle::GTriangle(const InputPacket& packet) : 
+	Geometry(packet)
+{
+	/*m_vA = packet.getVector3r("vA", Vector3f());
+	m_vB = packet.getVector3r("vB", Vector3f());
+	m_vC = packet.getVector3r("vC", Vector3f());*/
+
+	std::cerr << "GTriangle::GTriangle(const InputPacket& packet) not implemented!" << std::endl;
 }
 
 GTriangle::~GTriangle() = default;

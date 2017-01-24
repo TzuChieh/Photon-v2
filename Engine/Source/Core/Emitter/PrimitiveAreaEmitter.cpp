@@ -2,7 +2,7 @@
 #include "Math/Vector3f.h"
 #include "Actor/Geometry/Geometry.h"
 #include "Core/Intersection.h"
-#include "Image/ConstantTexture.h"
+#include "Actor/Texture/ConstantTexture.h"
 #include "Core/Primitive/Primitive.h"
 #include "Math/random_number.h"
 #include "Core/Sample/PositionSample.h"

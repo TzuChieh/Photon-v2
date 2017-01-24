@@ -1,18 +1,22 @@
-#include "Image/PixelTexture.h"
+#include "Actor/Texture/PixelTexture.h"
 #include "Math/Math.h"
+#include "FileIO/InputPacket.h"
+#include "Actor/Texture/TextureLoader.h"
 
 #include <iostream>
+#include <string>
 
 namespace ph
 {
 
-PixelTexture::PixelTexture() :
+PixelTexture::PixelTexture() : 
 	PixelTexture(0, 0, 0)
 {
 
 }
 
-PixelTexture::PixelTexture(const uint32 widthPx, const uint32 heightPx, const uint32 nPxComponents) :
+PixelTexture::PixelTexture(const uint32 widthPx, const uint32 heightPx, const uint32 nPxComponents) : 
+	Texture(), 
 	m_widthPx(widthPx), m_heightPx(heightPx), m_nPxComponents(nPxComponents),
 	m_pixelData(static_cast<std::size_t>(nPxComponents) * widthPx * heightPx, 0.0f)
 {
@@ -20,6 +24,13 @@ PixelTexture::PixelTexture(const uint32 widthPx, const uint32 heightPx, const ui
 	{
 		std::cerr << "warning: at PixelTexture ctor, pixel with > 3 components is not supported" << std::endl;
 	}
+}
+
+PixelTexture::PixelTexture(const InputPacket& packet) : 
+	Texture(packet)
+{
+	const std::string filename = packet.getString("filename", "", "PixelTexture -> filename not found");
+	TextureLoader().load(filename, this);
 }
 
 PixelTexture::~PixelTexture() = default;

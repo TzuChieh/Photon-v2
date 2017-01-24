@@ -1,5 +1,5 @@
 #include "Core/SurfaceBehavior/TranslucentMicrofacet.h"
-#include "Image/ConstantTexture.h"
+#include "Actor/Texture/ConstantTexture.h"
 #include "Core/Ray.h"
 #include "Math/Vector3f.h"
 #include "Math/random_number.h"

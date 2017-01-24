@@ -1,9 +1,9 @@
 #include "Actor/ModelParser/AiMaterialParser.h"
 #include "Actor/Material/Material.h"
 #include "Actor/Material/MatteOpaque.h"
-#include "Image/ConstantTexture.h"
-#include "Image/TextureLoader.h"
-#include "Image/PixelTexture.h"
+#include "Actor/Texture/ConstantTexture.h"
+#include "Actor/Texture/TextureLoader.h"
+#include "Actor/Texture/PixelTexture.h"
 
 #include <iostream>
 

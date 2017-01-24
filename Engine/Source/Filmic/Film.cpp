@@ -1,6 +1,6 @@
-#include "Image/Film/Film.h"
+#include "Filmic/Film.h"
 #include "Math/Vector3f.h"
-#include "Image/Frame.h"
+#include "Filmic/Frame.h"
 
 #include <cstddef>
 #include <iostream>

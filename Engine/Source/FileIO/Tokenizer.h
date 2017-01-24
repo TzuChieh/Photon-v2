@@ -18,7 +18,8 @@ private:
 	std::vector<char> m_separators;
 	std::vector<std::pair<char, char>> m_enclosures;
 
-	std::size_t extractSeparatorSeparatedToken(const std::string& source, const std::size_t startIndex, std::vector<std::string>& out_results) const;
+	std::size_t extractSeparatorSeparatedToken(const std::string& source, const std::size_t startIndex, 
+                                               std::vector<std::string>& out_results) const;
 	std::size_t extractEnclosureSeparatedToken(const std::string& source, const std::size_t startIndex, const char enclosureStart, 
 	                                           std::vector<std::string>& out_results) const;
 	bool isSeparator(const char character) const;

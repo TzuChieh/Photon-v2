@@ -21,6 +21,7 @@ public:
 	AModel();
 	AModel(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<Material>& material);
 	AModel(const AModel& other);
+	AModel(const InputPacket& packet);
 	virtual ~AModel() override;
 
 	virtual void genCoreActor(CoreActor* const out_coreActor) const override;

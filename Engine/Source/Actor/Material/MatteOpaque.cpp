@@ -1,13 +1,24 @@
 #include "Actor/Material/MatteOpaque.h"
-#include "Image/ConstantTexture.h"
+#include "Actor/Texture/ConstantTexture.h"
+#include "FileIO/InputPacket.h"
 
 namespace ph
 {
 
 MatteOpaque::MatteOpaque() : 
+	Material(), 
 	m_bsdfCos()
 {
 	
+}
+
+MatteOpaque::MatteOpaque(const InputPacket& packet) :
+	Material(packet), 
+	m_bsdfCos()
+{
+	const Vector3f albedo = packet.getVector3r("albedo", Vector3f(0.5f, 0.5f, 0.5f), 
+	                                           "albedo not found, all components are set to 0.5");
+	setAlbedo(albedo);
 }
 
 MatteOpaque::~MatteOpaque() = default;

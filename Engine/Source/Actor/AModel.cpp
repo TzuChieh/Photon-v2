@@ -6,6 +6,7 @@
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/CoreActor.h"
+#include "FileIO/InputPacket.h"
 
 #include <algorithm>
 #include <iostream>
@@ -32,6 +33,15 @@ AModel::AModel(const AModel& other) :
 	m_entityTransformInfo(other.m_entityTransformInfo), m_localToWorld(other.m_localToWorld), m_worldToLocal(other.m_worldToLocal)
 {
 	
+}
+
+AModel::AModel(const InputPacket& packet) : 
+	Actor(packet), 
+	m_geometry(nullptr), m_material(nullptr), 
+	m_entityTransformInfo(), m_localToWorld(), m_worldToLocal()
+{
+	m_geometry = packet.getGeometry("geometry", "AModel >> parameter geometry not found");
+	m_material = packet.getMaterial("material", "AModel >> parameter material not found");
 }
 
 AModel::~AModel() = default;

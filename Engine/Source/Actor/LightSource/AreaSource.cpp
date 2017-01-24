@@ -1,10 +1,11 @@
 #include "Actor/LightSource/AreaSource.h"
 #include "Actor/AModel.h"
 #include "Core/Emitter/PrimitiveAreaEmitter.h"
-#include "Image/ConstantTexture.h"
-#include "Image/PixelTexture.h"
-#include "Image/TextureLoader.h"
+#include "Actor/Texture/ConstantTexture.h"
+#include "Actor/Texture/PixelTexture.h"
+#include "Actor/Texture/TextureLoader.h"
 #include "Core/CoreActor.h"
+#include "FileIO/InputPacket.h"
 
 #include <iostream>
 
@@ -12,12 +13,14 @@ namespace ph
 {
 
 AreaSource::AreaSource(const Vector3f& emittedRadiance) : 
+	LightSource(), 
 	m_emittedRadiance(std::make_shared<ConstantTexture>(emittedRadiance))
 {
 
 }
 
 AreaSource::AreaSource(const std::string& imageFilename) : 
+	LightSource(), 
 	m_emittedRadiance(std::make_shared<ConstantTexture>(Vector3f(0, 0, 0)))
 {
 	std::shared_ptr<PixelTexture> image = std::make_shared<PixelTexture>();
@@ -30,6 +33,12 @@ AreaSource::AreaSource(const std::string& imageFilename) :
 	{
 		std::cerr << "warning: at AreaSource::AreaSource(), image loading failed" << std::endl;
 	}
+}
+
+AreaSource::AreaSource(const InputPacket& packet) : 
+	LightSource(packet)
+{
+	m_emittedRadiance = packet.getTexture("emitted-radiance", "AreaSource >> argument emitted-radiance not found");
 }
 
 AreaSource::~AreaSource() = default;

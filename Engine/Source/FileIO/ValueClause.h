@@ -7,15 +7,18 @@
 namespace ph
 {
 
-class ValuePacket final
+class ValueClause final
 {
 public:
 	std::string type;
 	std::string name;
 	std::string value;
 
-	ValuePacket(const std::string& valueDescription);
+	ValueClause(const std::string& clauseString);
+	ValueClause(const ValueClause& other);
+	ValueClause(ValueClause&& other);
 
+	bool isReference() const;
 	std::string toString() const;
 
 private:

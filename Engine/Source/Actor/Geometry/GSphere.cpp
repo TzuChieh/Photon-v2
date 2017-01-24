@@ -4,6 +4,7 @@
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Actor/TextureMapper/TextureMapper.h"
 #include "Actor/AModel.h"
+#include "FileIO/InputPacket.h"
 
 #include <cmath>
 #include <iostream>
@@ -26,15 +27,23 @@ public:
 };
 
 GSphere::GSphere(const float32 radius) :
+	Geometry(), 
 	m_radius(radius)
 {
 
 }
 
 GSphere::GSphere(const GSphere& other) :
+	Geometry(), 
 	m_radius(other.m_radius)
 {
 
+}
+
+GSphere::GSphere(const InputPacket& packet) : 
+	Geometry(packet)
+{
+	m_radius = packet.getReal("radius", 1.0f);
 }
 
 GSphere::~GSphere() = default;

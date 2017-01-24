@@ -1,5 +1,5 @@
-#include "Image/TextureLoader.h"
-#include "Image/PixelTexture.h"
+#include "Actor/Texture/TextureLoader.h"
+#include "Actor/Texture/PixelTexture.h"
 #include "Math/random_number.h"
 
 #include "Common/ThirdParty/lib_stb.h"

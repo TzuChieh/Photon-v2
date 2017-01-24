@@ -2,6 +2,7 @@
 #include "Core/Primitive/PTriangle.h"
 #include "Math/Vector3f.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
+#include "FileIO/InputPacket.h"
 
 #include <iostream>
 
@@ -12,6 +13,13 @@ GRectangle::GRectangle(const float32 width, const float32 height) :
 	m_width(width), m_height(height)
 {
 
+}
+
+GRectangle::GRectangle(const InputPacket& packet) : 
+	Geometry(packet)
+{
+	m_width  = packet.getReal("width",  1.0f);
+	m_height = packet.getReal("height", 1.0f);
 }
 
 GRectangle::~GRectangle() = default;

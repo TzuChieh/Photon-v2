@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Image/Film/RadianceSensor.h"
+#include "Filmic/RadianceSensor.h"
 
 #include <vector>
 

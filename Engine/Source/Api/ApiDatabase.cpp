@@ -1,10 +1,10 @@
 #include "Api/ApiDatabase.h"
-#include "Image/Frame.h"
+#include "Filmic/Frame.h"
 #include "Core/Renderer.h"
 #include "Camera/Camera.h"
 #include "World/World.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "Image/Film/Film.h"
+#include "Filmic/Film.h"
 
 #include <utility>
 #include <iostream>

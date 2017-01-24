@@ -2,8 +2,8 @@
 
 #include "Core/SurfaceBehavior/BSDFcos.h"
 #include "Math/Vector3f.h"
-#include "Image/Texture.h"
-#include "Image/ConstantTexture.h"
+#include "Actor/Texture/Texture.h"
+#include "Actor/Texture/ConstantTexture.h"
 
 #include <memory>
 

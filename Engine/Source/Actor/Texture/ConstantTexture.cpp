@@ -1,4 +1,4 @@
-#include "Image/ConstantTexture.h"
+#include "Actor/Texture/ConstantTexture.h"
 #include "Math/Vector3f.h"
 
 namespace ph

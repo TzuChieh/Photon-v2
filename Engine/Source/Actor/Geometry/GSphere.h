@@ -14,6 +14,7 @@ class GSphere final : public Geometry
 public:
 	GSphere(const float32 radius);
 	GSphere(const GSphere& other);
+	GSphere(const InputPacket& packet);
 	virtual ~GSphere() override;
 
 	virtual void discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata& metadata) const override;

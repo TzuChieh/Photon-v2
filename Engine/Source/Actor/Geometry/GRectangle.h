@@ -10,6 +10,7 @@ class GRectangle : public Geometry
 {
 public:
 	GRectangle(const float32 width, const float32 height);
+	GRectangle(const InputPacket& packet);
 	virtual ~GRectangle() override;
 
 	virtual void discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata& metadata) const override;

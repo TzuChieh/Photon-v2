@@ -1,7 +1,7 @@
 #include "Camera/PinholeCamera.h"
 #include "Core/Ray.h"
 #include "Core/Sample.h"
-#include "Image/Film/Film.h"
+#include "Filmic/Film.h"
 
 #include <limits>
 

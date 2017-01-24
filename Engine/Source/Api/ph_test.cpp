@@ -1,5 +1,5 @@
 #include "ph_test.h"
-#include "Image/HDRFrame.h"
+#include "Filmic/HDRFrame.h"
 #include "World/World.h"
 #include "Actor/Geometry/GSphere.h"
 #include "Actor/Geometry/GTriangle.h"
@@ -10,11 +10,11 @@
 #include "Actor/AModel.h"
 #include "Actor/Material/AbradedOpaque.h"
 #include "Core/SampleGenerator/PixelJitterSampleGenerator.h"
-#include "Image/Film/Film.h"
+#include "Filmic/Film.h"
 #include "Actor/ModelLoader.h"
 #include "Api/test_scene.h"
 #include "Actor/Geometry/GRectangle.h"
-#include "Image/CheckerboardTexture.h"
+#include "Actor/Texture/CheckerboardTexture.h"
 #include "Actor/TextureMapper/SphericalMapper.h"
 
 #include <iostream>

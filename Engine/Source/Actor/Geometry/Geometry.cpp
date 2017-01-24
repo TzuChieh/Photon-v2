@@ -11,6 +11,12 @@ Geometry::Geometry() :
 
 }
 
+Geometry::Geometry(const InputPacket& packet) :
+	Geometry()
+{
+
+}
+
 Geometry::~Geometry() = default;
 
 void Geometry::setTextureMapper(const std::shared_ptr<TextureMapper>& textureMapper)

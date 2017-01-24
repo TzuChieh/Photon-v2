@@ -3,7 +3,7 @@
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/LambertianDiffuse.h"
 #include "Math/Vector3f.h"
-#include "Image/Texture.h"
+#include "Actor/Texture/Texture.h"
 
 #include <memory>
 
@@ -14,6 +14,7 @@ class MatteOpaque : public Material
 {
 public:
 	MatteOpaque();
+	MatteOpaque(const InputPacket& packet);
 	virtual ~MatteOpaque() override;
 
 	virtual void populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const override;

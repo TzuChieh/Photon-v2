@@ -10,14 +10,15 @@
 #include "World/World.h"
 #include "Actor/Geometry/GRectangle.h"
 #include "Actor/ModelLoader.h"
-#include "Image/CheckerboardTexture.h"
+#include "Actor/Texture/CheckerboardTexture.h"
 #include "Actor/TextureMapper/SphericalMapper.h"
-#include "FileIO/RenderingFileLoader.h"
+#include "FileIO/RenderingFileParser.h"
 #include "Actor/LightSource/AreaSource.h"
 #include "Actor/ALight.h"
 #include "Actor/Geometry/GCuboid.h"
 #include "Actor/Geometry/GWave.h"
-#include "FileIO/ValuePacket.h"
+#include "FileIO/ValueClause.h"
+#include "FileIO/SceneDescription.h"
 
 #include <memory>
 #include <string>
@@ -32,10 +33,17 @@ void loadTestScene(World* const out_world)
 	dataFileLoader.load("./testDataFile.txt");*/
 
 	//ValuePacket testValuePacket("   <-3spaces \n some\n test");
-	ValuePacket testValuePacket("   <-3spaces \n some\n \"test with   spaces\"");
+	/*ValuePacket testValuePacket("   <-3spaces \n some\n \"test with   spaces\"");
 	ValuePacket testValuePacket2("\"  \t spaces tabs nextln\n  \" \n some\n \"test with   spaces\"");
 	std::cerr << testValuePacket.toString() << std::endl;
-	std::cerr << testValuePacket2.toString() << std::endl;
+	std::cerr << testValuePacket2.toString() << std::endl;*/
+
+	RenderingFileParser renderingFileParser;
+	SceneDescription sceneDescription;
+	if(!renderingFileParser.load("../SceneResource/testScene.p2", &sceneDescription))
+	{
+		std::cerr << "rendering file loading failed" << std::endl;
+	}
 
 	loadCbox3ObjScene(out_world);
 

@@ -13,11 +13,13 @@ class Intersection;
 class Primitive;
 class PrimitiveStorage;
 class TextureMapper;
+class InputPacket;
 
 class Geometry
 {
 public:
 	Geometry();
+	Geometry(const InputPacket& packet);
 	virtual ~Geometry() = 0;
 
 	virtual void discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata& metadata) const = 0;

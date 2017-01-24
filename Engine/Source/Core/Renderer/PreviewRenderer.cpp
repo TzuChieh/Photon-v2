@@ -1,6 +1,6 @@
 #include "Core/Renderer/PreviewRenderer.h"
 #include "Common/primitive_type.h"
-#include "Image/Film/Film.h"
+#include "Filmic/Film.h"
 #include "World/World.h"
 #include "Camera/Camera.h"
 #include "Core/Ray.h"

@@ -1,5 +1,5 @@
 #include "Core/SampleGenerator/PixelFixedSampleGenerator.h"
-#include "Image/Film/Film.h"
+#include "Filmic/Film.h"
 #include "Core/Sample.h"
 
 #include <iostream>

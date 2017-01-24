@@ -1,5 +1,5 @@
 #include "Actor/Material/AbradedOpaque.h"
-#include "Image/ConstantTexture.h"
+#include "Actor/Texture/ConstantTexture.h"
 
 #include <memory>
 #include <algorithm>

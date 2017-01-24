@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Image/Texture.h"
+#include "Actor/Texture/Texture.h"
 #include "Common/primitive_type.h"
 
 #include <vector>
@@ -13,6 +13,7 @@ class PixelTexture final : public Texture
 public:
 	PixelTexture();
 	PixelTexture(const uint32 widthPx, const uint32 heightPx, const uint32 nPxComponents);
+	PixelTexture(const InputPacket& packet);
 	virtual ~PixelTexture() override;
 
 	virtual void sample(const Vector3f& uvw, Vector3f* const out_value) const override;

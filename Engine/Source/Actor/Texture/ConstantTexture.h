@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Image/Texture.h"
+#include "Actor/Texture/Texture.h"
 #include "Math/Vector3f.h"
 
 namespace ph

@@ -6,6 +6,7 @@
 #include "Actor/Material/Material.h"
 #include "Actor/LightSource/LightSource.h"
 #include "Core/CoreActor.h"
+#include "FileIO/InputPacket.h"
 
 #include <algorithm>
 #include <iostream>
@@ -29,6 +30,13 @@ ALight::ALight(const ALight& other) :
 	m_model(other.m_model), m_lightSource(other.m_lightSource)
 {
 
+}
+
+ALight::ALight(const InputPacket& packet) : 
+	Actor(packet), 
+	m_model(packet)
+{
+	m_lightSource = packet.getLightSource("light-source", "ALight >> parameter light-source not found");
 }
 
 ALight::~ALight() = default;

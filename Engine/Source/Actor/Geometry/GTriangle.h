@@ -10,6 +10,7 @@ class GTriangle final : public Geometry
 {
 public:
 	GTriangle(const Vector3f& vA, const Vector3f& vB, const Vector3f& vC);
+	GTriangle(const InputPacket& packet);
 	virtual ~GTriangle() override;
 
 	virtual void discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata& metadata) const override;
