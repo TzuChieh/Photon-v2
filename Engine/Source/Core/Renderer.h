@@ -1,52 +1,40 @@
 #pragma once
 
 #include "Common/primitive_type.h"
+#include "Core/Renderer.h"
 
-#include <iostream>
+#include <vector>
+#include <mutex>
+#include <memory>
+#include <atomic>
 
 namespace ph
 {
 
+class Film;
+class Sample;
 class World;
 class Camera;
-class Frame;
-class SampleGenerator;
-class Film;
+class Description;
 
-class Renderer
+class Renderer final
 {
 public:
 	Renderer(const uint32 numThreads);
-	virtual ~Renderer() = 0;
+	~Renderer();
 
-	virtual void render(const World& world, const Camera& camera) const = 0;
-	virtual float32 queryPercentageProgress() const = 0;
-	virtual float32 querySampleFrequency() const = 0;
+	void render(const Description& description) const;
+	float32 queryPercentageProgress() const;
+	float32 querySampleFrequency() const;
 
-	inline bool isReady() const
-	{
-		if(!m_sampleGenerator)
-		{
-			std::cerr << "warning: renderer's sample generator is unset" << std::endl;
-			return false;
-		}
+private:
+	uint32 m_numThreads;
 
-		return true;
-	}
+	mutable std::vector<Film> m_subFilms;
+	mutable std::mutex m_rendererMutex;
 
-	inline void setSampleGenerator(SampleGenerator* const sampleGenerator)
-	{
-		if(!sampleGenerator)
-		{
-			std::cerr << "warning: at Renderer::setSampleGenerator(), input is null" << std::endl;
-		}
-
-		m_sampleGenerator = sampleGenerator;
-	}
-
-protected:
-	SampleGenerator* m_sampleGenerator;
-	uint32           m_numThreads;
+	std::vector<std::unique_ptr<std::atomic<float32>>> m_workerProgresses;
+	std::vector<std::unique_ptr<std::atomic<float32>>> m_workerSampleFrequencies;
 };
 
 }// end namespace ph

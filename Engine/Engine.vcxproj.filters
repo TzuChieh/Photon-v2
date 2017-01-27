@@ -45,9 +45,6 @@
     <ClCompile Include="Source\Api\ph_core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Api\ph_image.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Api\ph_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -90,19 +87,10 @@
     <ClCompile Include="Source\Core\SampleGenerator\PixelJitterSampleGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Renderer\PreviewRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SampleGenerator\PixelFixedSampleGenerator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Core\Integrator\Integrator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Integrator\BackwardPathIntegrator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\Renderer\MtImportanceRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Integrator\BackwardLightIntegrator.cpp">
@@ -255,9 +243,6 @@
     <ClCompile Include="Source\FileIO\InputPacket.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\FileIO\RenderingFileParser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Actor\Texture\CheckerboardTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -282,7 +267,10 @@
     <ClCompile Include="Source\Filmic\HDRFrame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\FileIO\SceneDescription.cpp">
+    <ClCompile Include="Source\FileIO\Description.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\FileIO\DescriptionFileParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -383,12 +371,6 @@
     <ClInclude Include="Source\Core\SampleGenerator\PixelJitterSampleGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Renderer\PreviewRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SampleGenerator\PixelFixedSampleGenerator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\World\TManagedResource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -396,9 +378,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Integrator\Integrator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\Renderer\MtImportanceRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Integrator\BackwardLightIntegrator.h">
@@ -578,9 +557,6 @@
     <ClInclude Include="Source\FileIO\ValueClause.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\FileIO\RenderingFileParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Actor\Texture\CheckerboardTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -608,7 +584,13 @@
     <ClInclude Include="Source\Filmic\RadianceSensor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\FileIO\SceneDescription.h">
+    <ClInclude Include="Source\FileIO\RenderOption.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FileIO\Description.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FileIO\DescriptionFileParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

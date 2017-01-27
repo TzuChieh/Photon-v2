@@ -4,7 +4,6 @@ import photonApi.FloatArrayRef;
 import photonApi.IntRef;
 import photonApi.LongRef;
 import photonApi.Ph;
-import photonCore.exception.PhDataInconsistentException;
 
 public final class PhFrame
 {
@@ -27,20 +26,14 @@ public final class PhFrame
 	
 	protected long m_frameId;
 	
-	private int m_widthPx;
-	private int m_heightPx;
-	
-	public PhFrame(Type type, int widthPx, int heightPx)
+	public PhFrame(Type type)
 	{
-		m_widthPx  = widthPx;
-		m_heightPx = heightPx;
-		
 		LongRef frameId = new LongRef();
-		Ph.phCreateFrame(frameId, type.getValue(), widthPx, heightPx);
+		Ph.phCreateFrame(frameId, type.getValue());
 		m_frameId = frameId.m_value;
 	}
 	
-	public void getData(FrameData data) throws PhDataInconsistentException
+	public void getData(FrameData data)
 	{
 		FloatArrayRef pixelData        = new FloatArrayRef();
 		IntRef        widthPx          = new IntRef();
@@ -48,15 +41,8 @@ public final class PhFrame
 		IntRef        nPixelComponents = new IntRef();
 		Ph.phGetFrameData(m_frameId, pixelData, widthPx, heightPx, nPixelComponents);
 		
-		// check consistency
-		if(m_widthPx != widthPx.m_value || m_heightPx != heightPx.m_value)
-		{
-			throw new PhDataInconsistentException("frame data has inconsistent dimension: "
-			                                    + "cached<" + m_widthPx + ", " + m_heightPx + "> actual<" + widthPx + ", " + heightPx + ">");
-		}
-		
-		data.m_widthPx            = m_widthPx;
-		data.m_heightPx           = m_heightPx;
+		data.m_widthPx            = widthPx.m_value;
+		data.m_heightPx           = heightPx.m_value;
 		data.m_numPixelComponents = nPixelComponents.m_value;
 		data.m_pixelData          = pixelData.m_value;
 	}

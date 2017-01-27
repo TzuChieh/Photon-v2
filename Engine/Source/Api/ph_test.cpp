@@ -4,7 +4,7 @@
 #include "Actor/Geometry/GSphere.h"
 #include "Actor/Geometry/GTriangle.h"
 #include "Camera/PinholeCamera.h"
-#include "Core/Renderer/MtImportanceRenderer.h"
+#include "Core/Renderer.h"
 #include "Math/random_number.h"
 #include "Actor/Material/MatteOpaque.h"
 #include "Actor/AModel.h"
@@ -62,15 +62,13 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 {
 	using namespace ph;
 
-	//auto renderer = std::make_shared<BruteForceRenderer>();
-	//ImportanceRenderer renderer;
-	MtImportanceRenderer renderer(4);
+	Renderer renderer(4);
 	PixelJitterSampleGenerator sampleGenerator(32);
 	World world;
 	PinholeCamera camera;
 	Film film(widthPx, heightPx);
 
-	renderer.setSampleGenerator(&sampleGenerator);
+	//renderer.setSampleGenerator(&sampleGenerator);
 	camera.setFilm(&film);
 	//camera.setPosition(Vector3f(0, 0, 4));
 	camera.setPosition(Vector3f(0, 0, 16));
@@ -95,8 +93,8 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 
 	// do something
 	std::cout << "rendering world" << std::endl;
-	renderer.render(world, camera);
-	film.developFilm(&testHdrFrame);
+	/*renderer.render(world, camera);
+	film.developFilm(&testHdrFrame);*/
 
 	// stop timer
 	QueryPerformanceCounter(&t2);

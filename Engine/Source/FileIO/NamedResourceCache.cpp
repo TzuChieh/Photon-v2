@@ -83,32 +83,21 @@ const ALight* NamedResourceCache::getActorLight(const std::string& name) const
 	return m_actorLights.count(name) == 1 ? m_actorLights.at(name).get() : nullptr;
 }
 
-std::unique_ptr<AModel> NamedResourceCache::claimActorModel(const std::string& name)
+std::vector<std::unique_ptr<Actor>> NamedResourceCache::claimAllActors()
 {
-	if(m_actorModels.count(name) == 1)
-	{
-		std::unique_ptr<AModel> claimedActorModel = std::move(m_actorModels[name]);
-		m_actorModels.erase(name);
-		return claimedActorModel;
-	}
-	else
-	{
-		return nullptr;
-	}
-}
+	std::vector<std::unique_ptr<Actor>> actors;
 
-std::unique_ptr<ALight> NamedResourceCache::claimActorLight(const std::string& name)
-{
-	if(m_actorLights.count(name) == 1)
+	for(auto& keyValuePair : m_actorModels)
 	{
-		std::unique_ptr<ALight> claimedActorLight = std::move(m_actorLights[name]);
-		m_actorLights.erase(name);
-		return claimedActorLight;
+		actors.push_back(std::move(keyValuePair.second));
 	}
-	else
+
+	for(auto& keyValuePair : m_actorLights)
 	{
-		return nullptr;
+		actors.push_back(std::move(keyValuePair.second));
 	}
+
+	return actors;
 }
 
 }// end namespace ph

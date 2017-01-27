@@ -9,6 +9,7 @@ namespace ph
 class BackwardMisIntegrator final : public Integrator
 {
 public:
+	BackwardMisIntegrator(const InputPacket& packet);
 	virtual ~BackwardMisIntegrator() override;
 
 	virtual void update(const World& world) override;

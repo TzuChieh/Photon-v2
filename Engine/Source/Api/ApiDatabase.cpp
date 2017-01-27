@@ -1,9 +1,7 @@
 #include "Api/ApiDatabase.h"
 #include "Filmic/Frame.h"
 #include "Core/Renderer.h"
-#include "Camera/Camera.h"
-#include "World/World.h"
-#include "Core/SampleGenerator/SampleGenerator.h"
+#include "FileIO/Description.h"
 #include "Filmic/Film.h"
 
 #include <utility>
@@ -12,12 +10,9 @@
 namespace ph
 {
 
-TStableIndexDenseArray<std::unique_ptr<Renderer>>        ApiDatabase::renderers;
-TStableIndexDenseArray<std::unique_ptr<Frame>>           ApiDatabase::frames;
-TStableIndexDenseArray<std::unique_ptr<World>>           ApiDatabase::worlds;
-TStableIndexDenseArray<std::unique_ptr<Camera>>          ApiDatabase::cameras;
-TStableIndexDenseArray<std::unique_ptr<SampleGenerator>> ApiDatabase::sampleGenerators;
-TStableIndexDenseArray<std::unique_ptr<Film>>            ApiDatabase::films;
+TStableIndexDenseArray<std::unique_ptr<Renderer>>    ApiDatabase::renderers;
+TStableIndexDenseArray<std::unique_ptr<Frame>>       ApiDatabase::frames;
+TStableIndexDenseArray<std::unique_ptr<Description>> ApiDatabase::descriptions;
 
 // ***************************************************************************
 // Renderer
@@ -70,113 +65,35 @@ Frame* ApiDatabase::getFrame(const std::size_t frameId)
 }
 
 // ***************************************************************************
-// World
+// Description
 
-std::size_t ApiDatabase::addWorld(std::unique_ptr<World> world)
+std::size_t ApiDatabase::addDescription(std::unique_ptr<Description> description)
 {
-	return worlds.add(std::move(world));
+	return descriptions.add(std::move(description));
 }
 
-bool ApiDatabase::removeWorld(const std::size_t worldId)
+bool ApiDatabase::removeDescription(const std::size_t descriptionId)
 {
-	return worlds.remove(worldId);
+	return descriptions.remove(descriptionId);
 }
 
-World* ApiDatabase::getWorld(const std::size_t worldId)
+Description* ApiDatabase::getDescription(const std::size_t descriptionId)
 {
-	auto* world = worlds.get(worldId);
-	if(world == nullptr)
+	auto* description = descriptions.get(descriptionId);
+	if(description == nullptr)
 	{
-		std::cerr << "World<" << worldId << "> does not exist" << std::endl;
+		std::cerr << "Description<" << descriptionId << "> does not exist" << std::endl;
 		return nullptr;
 	}
 
-	return world->get();
-}
-
-// ***************************************************************************
-// Camera
-
-std::size_t ApiDatabase::addCamera(std::unique_ptr<Camera> camera)
-{
-	return cameras.add(std::move(camera));
-}
-
-bool ApiDatabase::removeCamera(const std::size_t cameraId)
-{
-	return cameras.remove(cameraId);
-}
-
-Camera* ApiDatabase::getCamera(const std::size_t cameraId)
-{
-	auto* camera = cameras.get(cameraId);
-	if(camera == nullptr)
-	{
-		std::cerr << "Camera<" << cameraId << "> does not exist" << std::endl;
-		return nullptr;
-	}
-
-	return camera->get();
-}
-
-// ***************************************************************************
-// SampleGenerator
-
-std::size_t ApiDatabase::addSampleGenerator(std::unique_ptr<SampleGenerator> sampleGenerator)
-{
-	return sampleGenerators.add(std::move(sampleGenerator));
-}
-
-bool ApiDatabase::removeSampleGenerator(const std::size_t sampleGeneratorId)
-{
-	return sampleGenerators.remove(sampleGeneratorId);
-}
-
-SampleGenerator* ApiDatabase::getSampleGenerator(const std::size_t sampleGeneratorId)
-{
-	auto* sampleGenerator = sampleGenerators.get(sampleGeneratorId);
-	if(sampleGenerator == nullptr)
-	{
-		std::cerr << "SampleGenerator<" << sampleGeneratorId << "> does not exist" << std::endl;
-		return nullptr;
-	}
-
-	return sampleGenerator->get();
-}
-
-// ***************************************************************************
-// Film
-
-std::size_t ApiDatabase::addFilm(std::unique_ptr<Film> film)
-{
-	return films.add(std::move(film));
-}
-
-bool ApiDatabase::removeFilm(const std::size_t filmId)
-{
-	return films.remove(filmId);
-}
-
-Film* ApiDatabase::getFilm(const std::size_t filmId)
-{
-	auto* film = films.get(filmId);
-	if(film == nullptr)
-	{
-		std::cerr << "Film<" << filmId << "> does not exist" << std::endl;
-		return nullptr;
-	}
-
-	return film->get();
+	return description->get();
 }
 
 void ApiDatabase::releaseAllData()
 {
 	frames.removeAll();
 	renderers.removeAll();
-	worlds.removeAll();
-	cameras.removeAll();
-	sampleGenerators.removeAll();
-	films.removeAll();
+	descriptions.removeAll();
 }
 
 }// end namespace ph

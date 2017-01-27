@@ -28,12 +28,11 @@ public:
 	std::shared_ptr<LightSource> getLightSource(const std::string& name) const;
 
 	void addActorModel(const std::string& name, std::unique_ptr<AModel> actorModel);
-	const AModel* getActorModel(const std::string& name) const;
-	std::unique_ptr<AModel> claimActorModel(const std::string& name);
-
 	void addActorLight(const std::string& name, std::unique_ptr<ALight> actorLight);
+	const AModel* getActorModel(const std::string& name) const;
 	const ALight* getActorLight(const std::string& name) const;
-	std::unique_ptr<ALight> claimActorLight(const std::string& name);
+
+	std::vector<std::unique_ptr<Actor>> claimAllActors();
 
 private:
 	std::unordered_map<std::string, std::shared_ptr<Geometry>>    m_geometries;

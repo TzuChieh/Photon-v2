@@ -6,6 +6,7 @@
 
 namespace ph
 {
+
 JLongRef::JLongRef(const jobject javaObject, JNIEnv* const env) :
 	JObject<JLongRef>(javaObject, env)
 {

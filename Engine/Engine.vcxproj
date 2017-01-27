@@ -167,7 +167,6 @@
     <ClCompile Include="Source\Actor\LightSource\AreaSource.cpp" />
     <ClCompile Include="Source\Actor\LightSource\LightSource.cpp" />
     <ClCompile Include="Source\Api\ph_core.cpp" />
-    <ClCompile Include="Source\Api\ph_image.cpp" />
     <ClCompile Include="Source\Api\ph_query.cpp" />
     <ClCompile Include="Source\Api\test_scene.cpp" />
     <ClCompile Include="Source\Camera\Camera.cpp" />
@@ -181,10 +180,7 @@
     <ClCompile Include="Source\Core\Integrator\LightTracingIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\NormalBufferIntegrator.cpp" />
     <ClCompile Include="Source\Core\Intersection.cpp" />
-    <ClCompile Include="Source\Core\Renderer\MtImportanceRenderer.cpp" />
     <ClCompile Include="Source\Core\Renderer.cpp" />
-    <ClCompile Include="Source\Core\Renderer\PreviewRenderer.cpp" />
-    <ClCompile Include="Source\Core\SampleGenerator\PixelFixedSampleGenerator.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator\SampleGenerator.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator\PixelJitterSampleGenerator.cpp" />
     <ClCompile Include="Source\Core\Emitter\Emitter.cpp" />
@@ -196,8 +192,8 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\BSDFcos.cpp" />
     <ClCompile Include="Source\FileIO\InputPacket.cpp" />
     <ClCompile Include="Source\FileIO\NamedResourceCache.cpp" />
-    <ClCompile Include="Source\FileIO\SceneDescription.cpp" />
-    <ClCompile Include="Source\FileIO\RenderingFileParser.cpp" />
+    <ClCompile Include="Source\FileIO\Description.cpp" />
+    <ClCompile Include="Source\FileIO\DescriptionFileParser.cpp" />
     <ClCompile Include="Source\FileIO\resource_loading.cpp" />
     <ClCompile Include="Source\FileIO\Tokenizer.cpp" />
     <ClCompile Include="Source\FileIO\ValueClause.cpp" />
@@ -275,9 +271,6 @@
     <ClInclude Include="Source\Core\Integrator\LightTracingIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\NormalBufferIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\Utility\SenseEvent.h" />
-    <ClInclude Include="Source\Core\Renderer\MtImportanceRenderer.h" />
-    <ClInclude Include="Source\Core\Renderer\PreviewRenderer.h" />
-    <ClInclude Include="Source\Core\SampleGenerator\PixelFixedSampleGenerator.h" />
     <ClInclude Include="Source\Core\Emitter\Emitter.h" />
     <ClInclude Include="Source\Core\Emitter\PrimitiveAreaEmitter.h" />
     <ClInclude Include="Source\Core\Primitive\Primitive.h" />
@@ -289,11 +282,12 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\BSDFcos.h" />
     <ClInclude Include="Source\FileIO\InputPacket.h" />
     <ClInclude Include="Source\FileIO\NamedResourceCache.h" />
+    <ClInclude Include="Source\FileIO\RenderOption.h" />
     <ClInclude Include="Source\FileIO\resource_loading.h" />
     <ClInclude Include="Source\FileIO\Tokenizer.h" />
     <ClInclude Include="Source\FileIO\ValueClause.h" />
-    <ClInclude Include="Source\FileIO\RenderingFileParser.h" />
-    <ClInclude Include="Source\FileIO\SceneDescription.h" />
+    <ClInclude Include="Source\FileIO\DescriptionFileParser.h" />
+    <ClInclude Include="Source\FileIO\Description.h" />
     <ClInclude Include="Source\Actor\Texture\CheckerboardTexture.h" />
     <ClInclude Include="Source\Actor\Texture\ConstantTexture.h" />
     <ClInclude Include="Source\Filmic\Film.h" />

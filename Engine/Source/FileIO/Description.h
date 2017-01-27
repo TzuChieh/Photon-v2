@@ -5,6 +5,8 @@
 #include "World/World.h"
 #include "Filmic/Film.h"
 #include "Core/Integrator/Integrator.h"
+#include "Core/SampleGenerator/SampleGenerator.h"
+#include "FileIO/RenderOption.h"
 
 #include <vector>
 #include <memory>
@@ -13,16 +15,18 @@
 namespace ph
 {
 
-class SceneDescription final
+class Description final
 {
 public:
-	std::unique_ptr<Camera>     camera;
-	std::unique_ptr<Film>       film;
-	std::unique_ptr<Integrator> integrator;
-
+	std::unique_ptr<Camera>          camera;
+	std::unique_ptr<Film>            film;
+	std::unique_ptr<Integrator>      integrator;
+	std::unique_ptr<SampleGenerator> sampleGenerator;
 	World world;
 
-	SceneDescription();
+	RenderOption renderOption;
+
+	Description();
 
 	void update(const real deltaS);
 

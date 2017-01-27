@@ -13,10 +13,13 @@ class World;
 class Ray;
 class Vector3f;
 class Camera;
+class InputPacket;
 
 class Integrator
 {
 public:
+	Integrator();
+	Integrator(const InputPacket& packet);
 	virtual ~Integrator() = 0;
 
 	virtual void update(const World& world) = 0;

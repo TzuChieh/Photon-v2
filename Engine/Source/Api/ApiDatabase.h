@@ -9,9 +9,7 @@ namespace ph
 
 class Frame;
 class Renderer;
-class World;
-class Camera;
-class SampleGenerator;
+class Description;
 class Film;
 
 class ApiDatabase final
@@ -25,31 +23,16 @@ public:
 	static bool removeFrame(const std::size_t frameId);
 	static Frame* getFrame(const std::size_t frameId);
 
-	static std::size_t addWorld(std::unique_ptr<World> world);
-	static bool removeWorld(const std::size_t worldId);
-	static World* getWorld(const std::size_t worldId);
-
-	static std::size_t addCamera(std::unique_ptr<Camera> camera);
-	static bool removeCamera(const std::size_t cameraId);
-	static Camera* getCamera(const std::size_t cameraId);
-
-	static std::size_t addSampleGenerator(std::unique_ptr<SampleGenerator> sampleGenerator);
-	static bool removeSampleGenerator(const std::size_t sampleGeneratorId);
-	static SampleGenerator* getSampleGenerator(const std::size_t sampleGeneratorId);
-
-	static std::size_t addFilm(std::unique_ptr<Film> film);
-	static bool removeFilm(const std::size_t filmId);
-	static Film* getFilm(const std::size_t filmId);
+	static std::size_t addDescription(std::unique_ptr<Description> description);
+	static bool removeDescription(const std::size_t descriptionId);
+	static Description* getDescription(const std::size_t descriptionId);
 
 	static void releaseAllData();
 
 private:
-	static TStableIndexDenseArray<std::unique_ptr<Renderer>>        renderers;
-	static TStableIndexDenseArray<std::unique_ptr<Frame>>           frames;
-	static TStableIndexDenseArray<std::unique_ptr<World>>           worlds;
-	static TStableIndexDenseArray<std::unique_ptr<Camera>>          cameras;
-	static TStableIndexDenseArray<std::unique_ptr<SampleGenerator>> sampleGenerators;
-	static TStableIndexDenseArray<std::unique_ptr<Film>>            films;
+	static TStableIndexDenseArray<std::unique_ptr<Renderer>>    renderers;
+	static TStableIndexDenseArray<std::unique_ptr<Frame>>       frames;
+	static TStableIndexDenseArray<std::unique_ptr<Description>> descriptions;
 };
 
 }// end namespace ph

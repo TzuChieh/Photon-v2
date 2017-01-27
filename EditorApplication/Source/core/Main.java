@@ -14,14 +14,9 @@ import photonApi.LongRef;
 import photonApi.Ph;
 import photonApi.PhTest;
 import photonCore.FrameData;
-import photonCore.PhCamera;
-import photonCore.PhFilm;
+import photonCore.PhDescription;
 import photonCore.PhFrame;
 import photonCore.PhRenderer;
-import photonCore.PhSampleGenerator;
-import photonCore.PhUtility;
-import photonCore.PhWorld;
-import photonCore.exception.PhDataInconsistentException;
 import ui.Window;
 import ui.display.ImagePanel;
 import ui.model.TaskStatusModel;
@@ -38,8 +33,6 @@ public class Main
 		}
 		
 		new PhTest();
-		
-		Ph.printTestMessage();
 		
 		TaskStatusModel testTaskStatusModel = new TaskStatusModel();
 		TaskStatusModel dummyTaskStatusModel = new TaskStatusModel();
@@ -65,12 +58,10 @@ public class Main
 		testTaskStatusModel.setTaskName("test render task");
 		dummyTaskStatusModel.setTaskName("dummy dummy dummy");
 		
-		PhCamera camera = new PhCamera(PhCamera.Type.PINHOLE);
-		
 		// for cbox
-		camera.setPosition(0.000001f, -0.000002f, 16);
+		//camera.setPosition(0.000001f, -0.000002f, 16);
 //		camera.setPosition(0.000001f, -0.000002f, 3);
-		camera.setDirection(0.0001f, 0.000002f, -1.0f);
+		//camera.setDirection(0.0001f, 0.000002f, -1.0f);
 		
 //		camera.setPosition(0.000001f, -0.500002f, 17);
 //		camera.setDirection(0.0001f, 0.100002f, -1.0f);
@@ -85,8 +76,8 @@ public class Main
 //		final int outputHeight = 720;
 //		final int outputWidth = 1400;
 //		final int outputHeight = 600;
-		final int outputWidth = 800;
-		final int outputHeight = 800;
+//		final int outputWidth = 800;
+//		final int outputHeight = 800;
 //		final int outputWidth = 400;
 //		final int outputHeight = 400;
 //		final int outputWidth = 150;
@@ -94,22 +85,11 @@ public class Main
 		final int numRenderThreads = 4;
 		
 		
-		PhWorld world = new PhWorld();
+		PhDescription description = new PhDescription();
+		description.load("../SceneResource/testScene.p2");
+		description.update();
 		
-		PhSampleGenerator sampleGenerator = new PhSampleGenerator(PhSampleGenerator.Type.PIXEL_JITTER, 8000);
-		PhRenderer renderer = new PhRenderer(PhRenderer.Type.MT_IMPORTANCE, numRenderThreads);
-		renderer.setSampleGenerator(sampleGenerator);
-		
-//		PhRenderer renderer = new PhRenderer(PhRenderer.Type.PREVIEW, numRenderThreads);
-		PhFilm film = new PhFilm(outputWidth, outputHeight);
-		
-		
-		camera.setFilm(film);
-		
-		
-		
-		PhUtility.loadTestScene(world);
-		world.cook();
+		PhRenderer renderer = new PhRenderer(numRenderThreads);
 		
 		Thread queryThread = new Thread((new Runnable()
 		{
@@ -143,23 +123,15 @@ public class Main
 		queryThread.start();
 		
 		long t1 = System.currentTimeMillis();
-		renderer.render(world, camera);
+		renderer.render(description);
 		long t2 = System.currentTimeMillis();
 		System.out.println("time elapsed: " + (double)(t2 - t1) + " ms");
 		
-		PhFrame frame = new PhFrame(PhFrame.Type.HDR, outputWidth, outputHeight);
-		film.develop(frame);
+		PhFrame frame = new PhFrame(PhFrame.Type.HDR);
+		description.developFilm(frame);
 		
 		FrameData frameData = new FrameData();
-		try
-		{
-			frame.getData(frameData);
-		}
-		catch(PhDataInconsistentException e)
-		{
-			e.printStackTrace();
-			System.exit(1);
-		}
+		frame.getData(frameData);
 		
 		System.out.println("frame width: " + frameData.getWidthPx() + " | frame height: " + frameData.getHeightPx());
 		
@@ -174,5 +146,7 @@ public class Main
 				System.out.println("rendering done");
 			}
 		});
+		
+		// TODO: exit photon
 	}
 }

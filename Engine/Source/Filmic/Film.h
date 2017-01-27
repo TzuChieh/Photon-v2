@@ -10,11 +10,13 @@ namespace ph
 
 class Vector3f;
 class Frame;
+class InputPacket;
 
-class Film
+class Film final
 {
 public:
 	Film(const uint32 widthPx, const uint32 heightPx);
+	Film(const InputPacket& packet);
 
 	void accumulateRadiance(const uint32 x, const uint32 y, const Vector3f& radiance);
 	void accumulateRadiance(const Film& other);

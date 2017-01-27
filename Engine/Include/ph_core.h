@@ -45,15 +45,7 @@ typedef double         PHfloat64;
 #define PH_TRUE  1
 #define PH_FALSE 0
 
-#define PH_PREVIEW_RENDERER_TYPE       1
-#define PH_IMPORTANCE_RENDERER_TYPE    2
-#define PH_MT_IMPORTANCE_RENDERER_TYPE 3
-
 #define PH_HDR_FRAME_TYPE 50
-
-#define PH_PINHOLE_CAMERA_TYPE 100
-
-#define PH_PIXEL_JITTER_SAMPLE_GENERATOR_TYPE 150
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,34 +54,19 @@ extern "C" {
 extern PH_API PHint32 phStart();
 extern PH_API void    phExit();
 
-extern PH_API void phCreateRenderer(PHuint64* out_rendererId, const PHint32 rendererType, const PHuint32 numThreads);
+extern PH_API void phCreateRenderer(PHuint64* out_rendererId, const PHuint32 numThreads);
+extern PH_API void phRender(const PHuint64 rendererId, const PHuint64 descriptionId);
 extern PH_API void phDeleteRenderer(const PHuint64 rendererId);
 
-extern PH_API void phCreateWorld(PHuint64* out_worldId);
-extern PH_API void phDeleteWorld(const PHuint64 worldId);
+extern PH_API void phCreateDescription(PHuint64* out_descriptionId);
+extern PH_API void phLoadDescription(const PHuint64 descriptionId, const char* const filename);
+extern PH_API void phUpdateDescription(const PHuint64 descriptionId);
+extern PH_API void phDevelopFilm(const PHuint64 descriptionId, const PHuint64 frameId);
+extern PH_API void phDeleteDescription(const PHuint64 descriptionId);
 
-extern PH_API void phCreateFrame(PHuint64* out_frameId, const PHint32 frameType, const PHuint32 frameWidthPx, const PHuint32 frameHeightPx);
-extern PH_API void phDeleteFrame(const PHuint64 frameId);
-
-extern PH_API void phCreateFilm(PHuint64* out_filmId, const PHuint32 filmWidthPx, const PHuint32 filmHeightPx);
-extern PH_API void phDeleteFilm(const PHuint64 filmId);
-
-extern PH_API void phCreateCamera(PHuint64* out_cameraId, const PHint32 cameraType);
-extern PH_API void phDeleteCamera(const PHuint64 cameraId);
-
-extern PH_API void phCreateSampleGenerator(PHuint64* out_sampleGeneratorId, const PHint32 sampleGeneratorType, const PHuint32 sppBudget);
-extern PH_API void phDeleteSampleGenerator(const PHuint64 sampleGeneratorId);
-
-extern PH_API void phLoadTestScene(const PHuint64 worldId);
-extern PH_API void phRender(const PHuint64 rendererId, const PHuint64 worldId, const PHuint64 cameraId);
-extern PH_API void phCookWorld(const PHuint64 worldId);
-extern PH_API void phSetCameraFilm(const PHuint64 cameraId, const PHuint64 filmId);
-extern PH_API void phSetRendererSampleGenerator(const PHuint64 rendererId, const PHuint64 sampleGeneratorId);
-extern PH_API void phDevelopFilm(const PHuint64 filmId, const PHuint64 frameId);
+extern PH_API void phCreateFrame(PHuint64* out_frameId, const PHint32 frameType);
 extern PH_API void phGetFrameData(const PHuint64 frameId, const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32* out_heightPx, PHuint32* out_nPixelComponents);
-
-extern PH_API void phSetCameraPosition(const PHuint64 cameraId, const PHfloat32 x, const PHfloat32 y, const PHfloat32 z);
-extern PH_API void phSetCameraDirection(const PHuint64 cameraId, const PHfloat32 x, const PHfloat32 y, const PHfloat32 z);
+extern PH_API void phDeleteFrame(const PHuint64 frameId);
 
 #ifdef __cplusplus
 }

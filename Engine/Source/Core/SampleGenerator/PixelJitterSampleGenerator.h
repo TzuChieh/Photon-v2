@@ -10,6 +10,7 @@ class PixelJitterSampleGenerator final : public SampleGenerator
 {
 public:
 	PixelJitterSampleGenerator(const uint32 sppBudget);
+	PixelJitterSampleGenerator(const InputPacket& packet);
 	virtual ~PixelJitterSampleGenerator() override;
 
 	virtual bool hasMoreSamples() const override;

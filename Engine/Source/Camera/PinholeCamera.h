@@ -10,6 +10,7 @@ class PinholeCamera final : public Camera
 {
 public:
 	PinholeCamera();
+	PinholeCamera(const InputPacket& packet);
 	virtual ~PinholeCamera() override;
 
 	virtual void genSensingRay(const Sample& sample, Ray* const out_ray) const override;

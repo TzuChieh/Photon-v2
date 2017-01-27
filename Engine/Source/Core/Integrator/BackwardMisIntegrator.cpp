@@ -24,6 +24,12 @@
 namespace ph
 {
 
+BackwardMisIntegrator::BackwardMisIntegrator(const InputPacket& packet) : 
+	Integrator(packet)
+{
+
+}
+
 BackwardMisIntegrator::~BackwardMisIntegrator() = default;
 
 void BackwardMisIntegrator::update(const World& world)

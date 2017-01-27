@@ -13,11 +13,13 @@ class Ray;
 class Sample;
 class SampleGenerator;
 class Film;
+class InputPacket;
 
 class Camera
 {
 public:
 	Camera();
+	Camera(const InputPacket& packet);
 	virtual ~Camera() = 0;
 
 	// TODO: precalculate aspect ratio info from camera film

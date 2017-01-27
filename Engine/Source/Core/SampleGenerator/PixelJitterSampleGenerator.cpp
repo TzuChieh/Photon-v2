@@ -15,6 +15,13 @@ PixelJitterSampleGenerator::PixelJitterSampleGenerator(const uint32 sppBudget) :
 
 }
 
+PixelJitterSampleGenerator::PixelJitterSampleGenerator(const InputPacket& packet) : 
+	SampleGenerator(packet), 
+	m_numDispatchedSpp(0), m_filmWidthPx(0), m_filmHeightPx(0)
+{
+
+}
+
 PixelJitterSampleGenerator::~PixelJitterSampleGenerator() = default;
 
 bool PixelJitterSampleGenerator::hasMoreSamples() const

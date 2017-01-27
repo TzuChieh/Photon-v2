@@ -9,11 +9,53 @@
 #include "Actor/AModel.h"
 #include "Actor/ALight.h"
 #include "Actor/LightSource/AreaSource.h"
+#include "Camera/PinholeCamera.h"
+#include "Filmic/Film.h"
+#include "Core/SampleGenerator/PixelJitterSampleGenerator.h"
+#include "Core/Integrator/BackwardMisIntegrator.h"
 
 #include <iostream>
 
 namespace ph
 {
+
+std::unique_ptr<Camera> load_camera(const InputPacket& packet)
+{
+	const std::string typeString = packet.getString("type");
+	if(typeString == "pinhole")
+	{
+		return std::make_unique<PinholeCamera>(packet);
+	}
+	else
+	{
+		std::cerr << "warning: at load_camera(), unknown type of camera <" << typeString << ">" << std::endl;
+		return nullptr;
+	}
+}
+
+std::unique_ptr<Film> load_film(const InputPacket& packet)
+{
+	return std::make_unique<Film>(packet);
+}
+
+std::unique_ptr<Integrator> load_integrator(const InputPacket& packet)
+{
+	const std::string typeString = packet.getString("type");
+	if(typeString == "backward-mis")
+	{
+		return std::make_unique<BackwardMisIntegrator>(packet);
+	}
+	else
+	{
+		std::cerr << "warning: at load_integrator(), unknown type of integrator <" << typeString << ">" << std::endl;
+		return nullptr;
+	}
+}
+
+std::unique_ptr<SampleGenerator> load_sample_generator(const InputPacket& packet)
+{
+	return std::make_unique<PixelJitterSampleGenerator>(packet);
+}
 
 std::shared_ptr<Geometry> load_geometry(const InputPacket& packet)
 {

@@ -11,11 +11,13 @@ namespace ph
 
 class Film;
 class World;
+class InputPacket;
 
 class SampleGenerator
 {
 public:
 	SampleGenerator(const uint32 sppBudget);
+	SampleGenerator(const InputPacket& packet);
 	virtual ~SampleGenerator() = 0;
 
 	virtual bool hasMoreSamples() const = 0;

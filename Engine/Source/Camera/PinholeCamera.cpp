@@ -2,6 +2,7 @@
 #include "Core/Ray.h"
 #include "Core/Sample.h"
 #include "Filmic/Film.h"
+#include "FileIO/InputPacket.h"
 
 #include <limits>
 
@@ -13,6 +14,13 @@ PinholeCamera::PinholeCamera() :
 	m_fov(50.0f / 180.0f * 3.1415927f)
 {
 
+}
+
+PinholeCamera::PinholeCamera(const InputPacket& packet) : 
+	Camera(packet), 
+	m_fov(70.0f / 180.0f * 3.1415927f)
+{
+	m_fov = packet.getReal("fov", m_fov, "PinholeCamera >> argument fov not found");
 }
 
 PinholeCamera::~PinholeCamera() = default;

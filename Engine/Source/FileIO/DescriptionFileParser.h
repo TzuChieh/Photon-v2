@@ -12,29 +12,32 @@
 namespace ph
 {
 
-class SceneDescription;
+class Description;
 
 enum class ECommandType
 {
 	UNKNOWN, 
-	CORE,
-	WORLD
+	CORE, 
+	WORLD, 
+	COMMENT
 };
 
-class RenderingFileParser final
+class DescriptionFileParser final
 {
 public:
-	RenderingFileParser();
+	DescriptionFileParser();
 
-	bool load(const std::string& fullFilename, SceneDescription* const out_data);
+	bool load(const std::string& fullFilename, Description* const out_data);
 
 private:
 	NamedResourceCache m_cache;
+	Tokenizer m_coreCommandTokenizer;
 	Tokenizer m_worldCommandTokenizer;
 	std::size_t m_generatedNameCounter;
 
-	void parseCoreCommand(const std::string& command);
+	void parseCoreCommand(const std::string& command, Description& out_data);
 	void parseWorldCommand(const std::string& command);
+	void populateWorldWithActors(Description& out_data);
 	std::string genName();
 	std::string getName(const std::string& nameToken);
 

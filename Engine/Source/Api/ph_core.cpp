@@ -1,14 +1,13 @@
 #include "ph_core.h"
 #include "Api/ApiDatabase.h"
-#include "Core/Renderer/MtImportanceRenderer.h"
-#include "Core/Renderer/PreviewRenderer.h"
-#include "World/World.h"
+#include "Core/Renderer.h"
+#include "FileIO/Description.h"
+#include "FileIO/DescriptionFileParser.h"
 #include "Camera/Camera.h"
-#include "Camera/PinholeCamera.h"
-#include "Core/SampleGenerator/PixelJitterSampleGenerator.h"
 #include "Api/test_scene.h"
 #include "Filmic/Film.h"
 #include "Filmic/Frame.h"
+#include "Filmic/HDRFrame.h"
 
 #include <memory>
 #include <iostream>
@@ -23,28 +22,11 @@ void phExit()
 	ph::ApiDatabase::releaseAllData();
 }
 
-void phCreateRenderer(PHuint64* out_rendererId, const PHint32 rendererType, const PHuint32 numThreads)
+void phCreateRenderer(PHuint64* out_rendererId, const PHuint32 numThreads)
 {
 	using namespace ph;
 
-	switch(rendererType)
-	{
-	case PH_PREVIEW_RENDERER_TYPE:
-		*out_rendererId = static_cast<std::size_t>(ApiDatabase::addRenderer(std::make_unique<PreviewRenderer>(numThreads)));
-		break;
-
-	case PH_IMPORTANCE_RENDERER_TYPE:
-		//*out_rendererId = static_cast<std::size_t>(ApiDatabase::addRenderer(std::make_unique<ImportanceRenderer>()));
-		std::cerr << "warning: phCreateRenderer(), Photon does not support ImportanceRenderer anymore" << std::endl;
-		break;
-
-	case PH_MT_IMPORTANCE_RENDERER_TYPE:
-		*out_rendererId = static_cast<std::size_t>(ApiDatabase::addRenderer(std::make_unique<MtImportanceRenderer>(numThreads)));
-		break;
-
-	default:
-		std::cerr << "unidentified renderer type at phCreateRenderer()" << std::endl;
-	}
+	*out_rendererId = static_cast<std::size_t>(ApiDatabase::addRenderer(std::make_unique<Renderer>(numThreads)));
 }
 
 void phDeleteRenderer(const PHuint64 rendererId)
@@ -59,163 +41,82 @@ void phDeleteRenderer(const PHuint64 rendererId)
 	}
 }
 
-void phCreateWorld(PHuint64* out_worldId)
+void phCreateDescription(PHuint64* out_descriptionId)
 {
-	*out_worldId = static_cast<PHuint64>(ph::ApiDatabase::addWorld(std::make_unique<ph::World>()));
+	*out_descriptionId = static_cast<PHuint64>(ph::ApiDatabase::addDescription(std::make_unique<ph::Description>()));
 }
 
-void phDeleteWorld(const PHuint64 worldId)
-{
-	if(!ph::ApiDatabase::removeWorld(worldId))
-	{
-		std::cerr << "error while deleting World<" << worldId << ">" << std::endl;
-	}
-}
-
-void phCreateCamera(PHuint64* out_cameraId, const PHint32 cameraType)
+void phLoadDescription(const PHuint64 descriptionId, const char* const filename)
 {
 	using namespace ph;
 
-	switch(cameraType)
+	Description* description = ApiDatabase::getDescription(descriptionId);
+	if(description)
 	{
-	case PH_PINHOLE_CAMERA_TYPE:
-		*out_cameraId = static_cast<PHuint64>(ApiDatabase::addCamera(std::make_unique<PinholeCamera>()));
-		break;
-
-	default:
-		std::cerr << "unidentified Camera type at phCreateCamera()" << std::endl;
-	}
-}
-
-void phDeleteCamera(const PHuint64 cameraId)
-{
-	if(!ph::ApiDatabase::removeCamera(cameraId))
-	{
-		std::cerr << "error while deleting Camera<" << cameraId << ">" << std::endl;
-	}
-}
-
-void phSetCameraFilm(const PHuint64 cameraId, const PHuint64 filmId)
-{
-	using namespace ph;
-
-	Camera* camera = ApiDatabase::getCamera(cameraId);
-	Film*   film   = ApiDatabase::getFilm(filmId);
-	if(camera && film)
-	{
-		camera->setFilm(film);
-	}
-}
-
-void phCreateFilm(PHuint64* out_filmId, const PHuint32 filmWidthPx, const PHuint32 filmHeightPx)
-{
-	using namespace ph;
-
-	*out_filmId = static_cast<PHuint64>(ApiDatabase::addFilm(std::make_unique<Film>(static_cast<uint32>(filmWidthPx), static_cast<uint32>(filmHeightPx))));
-}
-
-void phDeleteFilm(const PHuint64 filmId)
-{
-	if(!ph::ApiDatabase::removeFilm(filmId))
-	{
-		std::cerr << "error while deleting film<" << filmId << ">" << std::endl;
-	}
-}
-
-void phCreateSampleGenerator(PHuint64* out_sampleGeneratorId, const PHint32 sampleGeneratorType, const PHuint32 sppBudget)
-{
-	using namespace ph;
-
-	switch(sampleGeneratorType)
-	{
-	case PH_PIXEL_JITTER_SAMPLE_GENERATOR_TYPE:
-		*out_sampleGeneratorId = static_cast<PHuint64>(ApiDatabase::addSampleGenerator(std::make_unique<PixelJitterSampleGenerator>(sppBudget)));
-		break;
-
-	default:
-		std::cerr << "unidentified SampleGenerator type at phCreateSampleGenerator()" << std::endl;
-	}
-}
-
-void phDeleteSampleGenerator(const PHuint64 sampleGeneratorId)
-{
-	if(!ph::ApiDatabase::removeSampleGenerator(sampleGeneratorId))
-	{
-		std::cerr << "error while deleting SampleGenerator<" << sampleGeneratorId << ">" << std::endl;
-	}
-}
-
-void phLoadTestScene(const PHuint64 worldId)
-{
-	using namespace ph;
-
-	World* world = ApiDatabase::getWorld(worldId);
-	if(world)
-	{
-		//load5bScene(world);
-		loadTestScene(world);
-	}
-}
-
-void phRender(const PHuint64 rendererId, const PHuint64 worldId, const PHuint64 cameraId)
-{
-	using namespace ph;
-
-	Renderer* renderer = ApiDatabase::getRenderer(rendererId);
-	World*    world    = ApiDatabase::getWorld(worldId);
-	Camera*   camera   = ApiDatabase::getCamera(cameraId);
-	if(renderer && world && camera)
-	{
-		if(!camera->getFilm())
+		DescriptionFileParser parser;
+		if(!parser.load(filename, description))
 		{
-			std::cerr << "warning: at phRender(), camera has no film" << std::endl;
-			return;
+			std::cout << "error while loading file <" << filename << ">" << 
+			             " into description <" << descriptionId << ">" << std::endl;
 		}
-
-		if(!renderer->isReady())
-		{
-			std::cerr << "warning: at phRender(), renderer is not ready" << std::endl;
-			return;
-		}
-
-		renderer->render(*world, *camera);
 	}
 }
 
-void phSetRendererSampleGenerator(const PHuint64 rendererId, const PHuint64 sampleGeneratorId)
+void phUpdateDescription(const PHuint64 descriptionId)
 {
 	using namespace ph;
 
-	Renderer*        renderer        = ApiDatabase::getRenderer(rendererId);
-	SampleGenerator* sampleGenerator = ApiDatabase::getSampleGenerator(sampleGeneratorId);
-
-	if(renderer && sampleGenerator)
-	{
-		renderer->setSampleGenerator(sampleGenerator);
-	}
-}
-
-void phCookWorld(const PHuint64 worldId)
-{
-	using namespace ph;
-
-	World* world = ApiDatabase::getWorld(worldId);
-	if(world)
+	Description* description = ApiDatabase::getDescription(descriptionId);
+	if(description)
 	{
 		// HACK
-		world->update(0.0f);
+		description->update(0.0f);
 	}
 }
 
-void phDevelopFilm(const PHuint64 filmId, const PHuint64 frameId)
+void phDeleteDescription(const PHuint64 descriptionId)
+{
+	if(!ph::ApiDatabase::removeDescription(descriptionId))
+	{
+		std::cerr << "error while deleting Description<" << descriptionId << ">" << std::endl;
+	}
+}
+
+void phRender(const PHuint64 rendererId, const PHuint64 descriptionId)
 {
 	using namespace ph;
 
-	Film*  film  = ApiDatabase::getFilm(filmId);
-	Frame* frame = ApiDatabase::getFrame(frameId);
-	if(film && frame)
+	Renderer*    renderer = ApiDatabase::getRenderer(rendererId);
+	Description* description = ApiDatabase::getDescription(descriptionId);
+	if(renderer && description)
 	{
-		film->developFilm(frame);
+		renderer->render(*description);
+	}
+}
+
+void phDevelopFilm(const PHuint64 descriptionId, const PHuint64 frameId)
+{
+	using namespace ph;
+
+	Description* description = ApiDatabase::getDescription(descriptionId);
+	Frame*       frame       = ApiDatabase::getFrame(frameId);
+	if(description && frame)
+	{
+		description->film->developFilm(frame);
+	}
+}
+
+void phCreateFrame(PHuint64* out_frameId, const PHint32 frameType)
+{
+	switch(frameType)
+	{
+	case PH_HDR_FRAME_TYPE:
+		*out_frameId = ph::ApiDatabase::addFrame(std::make_unique<ph::HDRFrame>());
+		std::cout << "Frame<" << *out_frameId << "> created" << std::endl;
+		break;
+
+	default:
+		std::cerr << "unidentified renderer type at phCreateFrame()" << std::endl;
 	}
 }
 
@@ -233,24 +134,14 @@ void phGetFrameData(const PHuint64 frameId, const PHfloat32** out_data, PHuint32
 	}
 }
 
-void phSetCameraPosition(const PHuint64 cameraId, const PHfloat32 x, const PHfloat32 y, const PHfloat32 z)
+void phDeleteFrame(const PHuint64 frameId)
 {
-	using namespace ph;
-
-	Camera* camera = ApiDatabase::getCamera(cameraId);
-	if(camera)
+	if(ph::ApiDatabase::removeFrame(frameId))
 	{
-		camera->setPosition(Vector3f(x, y, z));
+		std::cout << "Frame<" << frameId << "> deleted" << std::endl;
 	}
-}
-
-void phSetCameraDirection(const PHuint64 cameraId, const PHfloat32 x, const PHfloat32 y, const PHfloat32 z)
-{
-	using namespace ph;
-
-	Camera* camera = ApiDatabase::getCamera(cameraId);
-	if(camera)
+	else
 	{
-		camera->setDirection(Vector3f(x, y, z).normalizeLocal());
+		std::cout << "error while deleting Frame<" << frameId << ">" << std::endl;
 	}
 }

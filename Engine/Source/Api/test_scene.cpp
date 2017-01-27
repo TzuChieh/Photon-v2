@@ -12,13 +12,13 @@
 #include "Actor/ModelLoader.h"
 #include "Actor/Texture/CheckerboardTexture.h"
 #include "Actor/TextureMapper/SphericalMapper.h"
-#include "FileIO/RenderingFileParser.h"
+#include "FileIO/DescriptionFileParser.h"
 #include "Actor/LightSource/AreaSource.h"
 #include "Actor/ALight.h"
 #include "Actor/Geometry/GCuboid.h"
 #include "Actor/Geometry/GWave.h"
 #include "FileIO/ValueClause.h"
-#include "FileIO/SceneDescription.h"
+#include "FileIO/Description.h"
 
 #include <memory>
 #include <string>
@@ -38,11 +38,11 @@ void loadTestScene(World* const out_world)
 	std::cerr << testValuePacket.toString() << std::endl;
 	std::cerr << testValuePacket2.toString() << std::endl;*/
 
-	RenderingFileParser renderingFileParser;
-	SceneDescription sceneDescription;
-	if(!renderingFileParser.load("../SceneResource/testScene.p2", &sceneDescription))
+	DescriptionFileParser descriptionFileParser;
+	Description description;
+	if(!descriptionFileParser.load("../SceneResource/testScene.p2", &description))
 	{
-		std::cerr << "rendering file loading failed" << std::endl;
+		std::cerr << "description file loading failed" << std::endl;
 	}
 
 	loadCbox3ObjScene(out_world);
