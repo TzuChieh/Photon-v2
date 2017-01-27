@@ -86,7 +86,7 @@ public class Main
 		
 		
 		PhDescription description = new PhDescription();
-		description.load("../Scene/testScene.p2");
+		description.load("../scene/testScene.p2");
 		description.update();
 		
 		PhRenderer renderer = new PhRenderer(numRenderThreads);

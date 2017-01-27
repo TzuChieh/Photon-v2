@@ -29,8 +29,8 @@ public:
 
 	void addActorModel(const std::string& name, std::unique_ptr<AModel> actorModel);
 	void addActorLight(const std::string& name, std::unique_ptr<ALight> actorLight);
-	const AModel* getActorModel(const std::string& name) const;
-	const ALight* getActorLight(const std::string& name) const;
+	AModel* getActorModel(const std::string& name) const;
+	ALight* getActorLight(const std::string& name) const;
 
 	std::vector<std::unique_ptr<Actor>> claimAllActors();
 

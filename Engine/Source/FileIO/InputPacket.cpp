@@ -12,6 +12,8 @@
 #define TYPENAME_TEXTURE     "texture"
 #define TYPENAME_MATERIAL    "material"
 #define TYPENAME_LIGHTSOURCE "light-source"
+#define TYPENAME_ACTOR_MODEL "actor-model"
+#define TYPENAME_ACTOR_LIGHT "actor-light"
 
 namespace ph
 {
@@ -82,6 +84,28 @@ std::shared_ptr<LightSource> InputPacket::getLightSource(const std::string& name
 	std::string stringValue;
 	return findStringValue(TYPENAME_LIGHTSOURCE, name, notFoundMessage, &stringValue) ?
 	                       m_cache.getLightSource(stringValue) : nullptr;
+}
+
+PhysicalActor* InputPacket::getPhysicalActor(const std::string& name, const std::string& notFoundMessage) const
+{
+	std::string stringValue;
+	if(findStringValue(TYPENAME_ACTOR_MODEL, name, "", &stringValue))
+	{
+		return m_cache.getActorModel(stringValue);
+	}
+	else if(findStringValue(TYPENAME_ACTOR_LIGHT, name, "", &stringValue))
+	{
+		return m_cache.getActorLight(stringValue);
+	}
+	else
+	{
+		if(!notFoundMessage.empty())
+		{
+			printNotFoundMessage(notFoundMessage);
+		}
+
+		return nullptr;
+	}
 }
 
 bool InputPacket::findStringValue(const std::string& type, const std::string& name, const std::string& notFoundMessage, 

@@ -73,12 +73,12 @@ void NamedResourceCache::addActorLight(const std::string& name, std::unique_ptr<
 	m_actorLights[name] = std::move(actorLight);
 }
 
-const AModel* NamedResourceCache::getActorModel(const std::string& name) const
+AModel* NamedResourceCache::getActorModel(const std::string& name) const
 {
 	return m_actorModels.count(name) == 1 ? m_actorModels.at(name).get() : nullptr;
 }
 
-const ALight* NamedResourceCache::getActorLight(const std::string& name) const
+ALight* NamedResourceCache::getActorLight(const std::string& name) const
 {
 	return m_actorLights.count(name) == 1 ? m_actorLights.at(name).get() : nullptr;
 }

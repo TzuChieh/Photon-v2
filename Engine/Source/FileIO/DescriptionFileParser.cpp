@@ -1,6 +1,7 @@
 #include "FileIO/DescriptionFileParser.h"
 #include "FileIO/Description.h"
 #include "FileIO/resource_loading.h"
+#include "FileIO/function_executing.h"
 #include "FileIO/RenderOption.h"
 
 #include <iostream>
@@ -142,6 +143,7 @@ void DescriptionFileParser::parseWorldCommand(const std::string& command)
 	else if(commandName == "transform")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 2, tokens.end());
+		execute_transform(InputPacket(getValueClauses(clauseStrings), m_cache));
 	}
 	else
 	{

@@ -16,6 +16,7 @@ class Geometry;
 class Texture;
 class Material;
 class LightSource;
+class PhysicalActor;
 
 class InputPacket final
 {
@@ -31,7 +32,7 @@ public:
 	std::shared_ptr<Texture> getTexture(const std::string& name, const std::string& notFoundMessage = "") const;
 	std::shared_ptr<Material> getMaterial(const std::string& name, const std::string& notFoundMessage = "") const;
 	std::shared_ptr<LightSource> getLightSource(const std::string& name, const std::string& notFoundMessage = "") const;
-
+	PhysicalActor* getPhysicalActor(const std::string& name, const std::string& notFoundMessage = "") const;
 
 	// forbid copying
 	InputPacket(const InputPacket& other) = delete;
