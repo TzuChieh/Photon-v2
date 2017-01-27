@@ -166,6 +166,7 @@
     <ClCompile Include="Source\Actor\Geometry\GWave.cpp" />
     <ClCompile Include="Source\Actor\LightSource\AreaSource.cpp" />
     <ClCompile Include="Source\Actor\LightSource\LightSource.cpp" />
+    <ClCompile Include="Source\Actor\PhysicalActor.cpp" />
     <ClCompile Include="Source\Api\ph_core.cpp" />
     <ClCompile Include="Source\Api\ph_query.cpp" />
     <ClCompile Include="Source\Api\test_scene.cpp" />
@@ -190,6 +191,7 @@
     <ClCompile Include="Source\Core\Primitive\PTriangle.cpp" />
     <ClCompile Include="Source\Actor\ALight.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BSDFcos.cpp" />
+    <ClCompile Include="Source\FileIO\function_executing.cpp" />
     <ClCompile Include="Source\FileIO\InputPacket.cpp" />
     <ClCompile Include="Source\FileIO\NamedResourceCache.cpp" />
     <ClCompile Include="Source\FileIO\Description.cpp" />
@@ -257,6 +259,7 @@
     <ClInclude Include="Source\Actor\Geometry\GWave.h" />
     <ClInclude Include="Source\Actor\LightSource\AreaSource.h" />
     <ClInclude Include="Source\Actor\LightSource\LightSource.h" />
+    <ClInclude Include="Source\Actor\PhysicalActor.h" />
     <ClInclude Include="Source\Api\test_scene.h" />
     <ClInclude Include="Source\Camera\Camera.h" />
     <ClInclude Include="Source\Camera\PinholeCamera.h" />
@@ -280,6 +283,7 @@
     <ClInclude Include="Source\Core\Sample\DirectLightSample.h" />
     <ClInclude Include="Source\Core\Sample\PositionSample.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\BSDFcos.h" />
+    <ClInclude Include="Source\FileIO\function_executing.h" />
     <ClInclude Include="Source\FileIO\InputPacket.h" />
     <ClInclude Include="Source\FileIO\NamedResourceCache.h" />
     <ClInclude Include="Source\FileIO\RenderOption.h" />

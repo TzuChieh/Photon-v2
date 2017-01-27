@@ -64,4 +64,4 @@ ipch/
 cloc-1.62.exe
 count.bat
 ThirdParty/
-SceneResource/
+Scene/resource/

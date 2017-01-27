@@ -27,11 +27,11 @@ public:
 	integer getInteger(const std::string& name, const integer defaultInteger = 0, const std::string& notFoundMessage = "") const;
 	real getReal(const std::string& name, const real defaultReal = 0.0f, const std::string& notFoundMessage = "") const;
 	Vector3f getVector3r(const std::string& name, const Vector3f& defaultVector3r = Vector3f(), const std::string& notFoundMessage = "") const;
-
 	std::shared_ptr<Geometry> getGeometry(const std::string& name, const std::string& notFoundMessage = "") const;
 	std::shared_ptr<Texture> getTexture(const std::string& name, const std::string& notFoundMessage = "") const;
 	std::shared_ptr<Material> getMaterial(const std::string& name, const std::string& notFoundMessage = "") const;
 	std::shared_ptr<LightSource> getLightSource(const std::string& name, const std::string& notFoundMessage = "") const;
+
 
 	// forbid copying
 	InputPacket(const InputPacket& other) = delete;

@@ -1,4 +1,5 @@
 #include "FileIO/resource_loading.h"
+#include "FileIO/InputPacket.h"
 #include "FileIO/Tokenizer.h"
 #include "Actor/Geometry/GSphere.h"
 #include "Actor/Geometry/GRectangle.h"

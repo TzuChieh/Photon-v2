@@ -3,8 +3,7 @@
 #include "Math/TransformInfo.h"
 #include "Math/Transform.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Actor/AModel.h"
-#include "Actor/Actor.h"
+#include "Actor/PhysicalActor.h"
 
 #include <memory>
 #include <vector>
@@ -19,7 +18,7 @@ class CookedModelStorage;
 class CookedLightStorage;
 class LightSource;
 
-class ALight final : public Actor
+class ALight final : public PhysicalActor
 {
 public:
 	ALight();
@@ -30,15 +29,20 @@ public:
 
 	virtual void genCoreActor(CoreActor* const out_coreActor) const override;
 
+	const Geometry*    getGeometry() const;
+	const Material*    getMaterial() const;
+	const LightSource* getLightSource() const;
+
+	void setGeometry(const std::shared_ptr<Geometry>& geometry);
+	void setMaterial(const std::shared_ptr<Material>& material);
 	void setLightSource(const std::shared_ptr<LightSource>& lightSource);
-	AModel& getModel();
 
 	friend void swap(ALight& first, ALight& second);
 	ALight& operator = (ALight rhs);
 
 private:
-	// resources
-	AModel m_model;
+	std::shared_ptr<Geometry>    m_geometry;
+	std::shared_ptr<Material>    m_material;
 	std::shared_ptr<LightSource> m_lightSource;
 };
 

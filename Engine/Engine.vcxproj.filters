@@ -273,6 +273,12 @@
     <ClCompile Include="Source\FileIO\DescriptionFileParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\FileIO\function_executing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Actor\PhysicalActor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Math\Matrix4f.h">
@@ -591,6 +597,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\FileIO\DescriptionFileParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FileIO\function_executing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\PhysicalActor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

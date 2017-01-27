@@ -236,26 +236,25 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 	//chromiumMaterial->setRoughness(0.0f);
 
 	ALight topLight;
-	AModel& lightModel = topLight.getModel();
-	lightModel.rotate(Vector3f(1, 0, 0), 90);
-	//lightModel.rotate(Vector3f(1, 0, 0), 45);
-	//lightModel.scale(boxSize * 0.05f);
-	//lightModel.scale(boxSize * 0.3f);
-	//lightModel.scale(boxSize * 0.5f);
-	lightModel.scale(boxSize * 0.9f);
+	topLight.rotate(Vector3f(1, 0, 0), 90);
+	//topLight.rotate(Vector3f(1, 0, 0), 45);
+	//topLight.scale(boxSize * 0.05f);
+	//topLight.scale(boxSize * 0.3f);
+	//topLight.scale(boxSize * 0.5f);
+	topLight.scale(boxSize * 0.9f);
 
 	//lightModel.scale(boxSize * 0.9f, boxSize * 0.7f, boxSize * 0.9f);
 	//lightModel.translate(0, 1.4f, -(halfBoxSize - halfBoxSize * 0.05f));
 
-	lightModel.translate(0, halfBoxSize - halfBoxSize * 0.05f, 0);
+	topLight.translate(0, halfBoxSize - halfBoxSize * 0.05f, 0);
 	//lightModel.translate(0, -halfBoxSize + 1.0f, 0);
 	//lightModel.translate(0, -halfBoxSize + 1.5f, 0);
 	//lightModel.translate(0, 0, -(halfBoxSize - halfBoxSize * 0.05f));
 
 	auto topLightMaterial = std::make_shared<MatteOpaque>();
 	topLightMaterial->setAlbedo(0.5f, 0.5f, 0.5f);
-	lightModel.setGeometry(unitRectangleGeom);
-	lightModel.setMaterial(topLightMaterial);
+	topLight.setGeometry(unitRectangleGeom);
+	topLight.setMaterial(topLightMaterial);
 
 	//auto topLightSource = std::make_shared<AreaSource>(Vector3f(3.4f, 3.4f, 3.4f));
 	auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/debugTexture.png");

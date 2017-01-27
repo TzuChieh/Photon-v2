@@ -1,7 +1,5 @@
 #pragma once
 
-#include "FileIO/InputPacket.h"
-
 #include <vector>
 #include <string>
 #include <memory>
@@ -9,6 +7,7 @@
 namespace ph
 {
 
+class InputPacket;
 class Camera;
 class Film;
 class Integrator;

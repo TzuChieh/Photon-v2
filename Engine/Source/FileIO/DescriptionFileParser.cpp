@@ -102,7 +102,7 @@ void DescriptionFileParser::parseWorldCommand(const std::string& command)
 {
 	std::vector<std::string> tokens;
 	m_worldCommandTokenizer.tokenize(command, tokens);
-	if(tokens.size() < 4)
+	if(tokens.size() < 3)
 	{
 		std::cerr << "warning: at DescriptionFileParser::parseWorldCommand(), bad formatted command <" + command + ">" << std::endl;
 		return;
@@ -138,6 +138,10 @@ void DescriptionFileParser::parseWorldCommand(const std::string& command)
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
 		m_cache.addActorLight(getName(tokens[2]), load_actor_light(InputPacket(getValueClauses(clauseStrings), m_cache)));
+	}
+	else if(commandName == "transform")
+	{
+		const std::vector<std::string> clauseStrings(tokens.begin() + 2, tokens.end());
 	}
 	else
 	{
