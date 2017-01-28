@@ -37,26 +37,6 @@ void NamedResourceCache::addLightSource(const std::string& name, const std::shar
 	m_lightSources[name] = lightSource;
 }
 
-std::shared_ptr<Geometry> NamedResourceCache::getGeometry(const std::string& name) const
-{
-	return m_geometries.count(name) == 1 ? m_geometries.at(name) : nullptr;
-}
-
-std::shared_ptr<Texture> NamedResourceCache::getTexture(const std::string& name) const
-{
-	return m_textures.count(name) == 1 ? m_textures.at(name) : nullptr;
-}
-
-std::shared_ptr<Material> NamedResourceCache::getMaterial(const std::string& name) const
-{
-	return m_materials.count(name) == 1 ? m_materials.at(name) : nullptr;
-}
-
-std::shared_ptr<LightSource> NamedResourceCache::getLightSource(const std::string& name) const
-{
-	return m_lightSources.count(name) == 1 ? m_lightSources.at(name) : nullptr;
-}
-
 void NamedResourceCache::addActorModel(const std::string& name, std::unique_ptr<AModel> actorModel)
 {
 	if(getActorModel(name))
@@ -73,14 +53,82 @@ void NamedResourceCache::addActorLight(const std::string& name, std::unique_ptr<
 	m_actorLights[name] = std::move(actorLight);
 }
 
-AModel* NamedResourceCache::getActorModel(const std::string& name) const
+std::shared_ptr<Geometry> NamedResourceCache::getGeometry(const std::string& name, const std::string& notFoundMessage) const
 {
-	return m_actorModels.count(name) == 1 ? m_actorModels.at(name).get() : nullptr;
+	if(m_geometries.count(name) == 1)
+	{
+		return m_geometries.at(name);
+	}
+	else
+	{
+		if(!notFoundMessage.empty()) printNotFoundMessage("geometry", name, notFoundMessage);
+		return nullptr;
+	}
 }
 
-ALight* NamedResourceCache::getActorLight(const std::string& name) const
+std::shared_ptr<Texture> NamedResourceCache::getTexture(const std::string& name, const std::string& notFoundMessage) const
 {
-	return m_actorLights.count(name) == 1 ? m_actorLights.at(name).get() : nullptr;
+	if(m_textures.count(name) == 1)
+	{
+		return m_textures.at(name);
+	}
+	else
+	{
+		if(!notFoundMessage.empty()) printNotFoundMessage("texture", name, notFoundMessage);
+		return nullptr;
+	}
+}
+
+std::shared_ptr<Material> NamedResourceCache::getMaterial(const std::string& name, const std::string& notFoundMessage) const
+{
+	if(m_materials.count(name) == 1)
+	{
+		return m_materials.at(name);
+	}
+	else
+	{
+		if(!notFoundMessage.empty()) printNotFoundMessage("material", name, notFoundMessage);
+		return nullptr;
+	}
+}
+
+std::shared_ptr<LightSource> NamedResourceCache::getLightSource(const std::string& name, const std::string& notFoundMessage) const
+{
+	if(m_lightSources.count(name) == 1)
+	{
+		return m_lightSources.at(name);
+	}
+	else
+	{
+		if(!notFoundMessage.empty()) printNotFoundMessage("light-source", name, notFoundMessage);
+		return nullptr;
+	}
+}
+
+AModel* NamedResourceCache::getActorModel(const std::string& name, const std::string& notFoundMessage) const
+{
+	if(m_actorModels.count(name) == 1)
+	{
+		return m_actorModels.at(name).get();
+	}
+	else
+	{
+		if(!notFoundMessage.empty()) printNotFoundMessage("actor-model", name, notFoundMessage);
+		return nullptr;
+	}
+}
+
+ALight* NamedResourceCache::getActorLight(const std::string& name, const std::string& notFoundMessage) const
+{
+	if(m_actorLights.count(name) == 1)
+	{
+		return m_actorLights.at(name).get();
+	}
+	else
+	{
+		if(!notFoundMessage.empty()) printNotFoundMessage("actor-light", name, notFoundMessage);
+		return nullptr;
+	}
 }
 
 std::vector<std::unique_ptr<Actor>> NamedResourceCache::claimAllActors()
@@ -98,6 +146,11 @@ std::vector<std::unique_ptr<Actor>> NamedResourceCache::claimAllActors()
 	}
 
 	return actors;
+}
+
+void NamedResourceCache::printNotFoundMessage(const std::string& typeName, const std::string& name, const std::string& message)
+{
+	std::cerr << "warning: type<" << typeName << "> name<" << name << "> not found (" << message << ")" << std::endl;
 }
 
 }// end namespace ph

@@ -42,9 +42,10 @@ private:
 	const std::vector<ValueClause> m_vClauses;
 	const NamedResourceCache& m_cache;
 
-	bool findStringValue(const std::string& type, const std::string& name, const std::string& notFoundMessage, 
+	bool findStringValue(const std::string& typeName, const std::string& name, const std::string& notFoundMessage,
 	                     std::string* const out_value) const;
-	void printNotFoundMessage(const std::string& notFoundMessage) const;
+
+	static void printNotFoundMessage(const std::string& typeName, const std::string& name, const std::string& message);
 };
 
 }// end namespace ph

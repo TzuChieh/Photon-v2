@@ -86,7 +86,8 @@ public class Main
 		
 		
 		PhDescription description = new PhDescription();
-		description.load("../scene/testScene.p2");
+//		description.load("../scene/testScene.p2");
+		description.load("../scene/cornell_box.p2");
 		description.update();
 		
 		PhRenderer renderer = new PhRenderer(numRenderThreads);

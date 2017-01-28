@@ -21,16 +21,15 @@ public:
 	void addTexture(const std::string& name, const std::shared_ptr<Texture>& texture);
 	void addMaterial(const std::string& name, const std::shared_ptr<Material>& material);
 	void addLightSource(const std::string& name, const std::shared_ptr<LightSource>& lightSource);
-
-	std::shared_ptr<Geometry> getGeometry(const std::string& name) const;
-	std::shared_ptr<Texture> getTexture(const std::string& name) const;
-	std::shared_ptr<Material> getMaterial(const std::string& name) const;
-	std::shared_ptr<LightSource> getLightSource(const std::string& name) const;
-
 	void addActorModel(const std::string& name, std::unique_ptr<AModel> actorModel);
 	void addActorLight(const std::string& name, std::unique_ptr<ALight> actorLight);
-	AModel* getActorModel(const std::string& name) const;
-	ALight* getActorLight(const std::string& name) const;
+
+	std::shared_ptr<Geometry> getGeometry(const std::string& name, const std::string& notFoundMessage = "") const;
+	std::shared_ptr<Texture> getTexture(const std::string& name, const std::string& notFoundMessage = "") const;
+	std::shared_ptr<Material> getMaterial(const std::string& name, const std::string& notFoundMessage = "") const;
+	std::shared_ptr<LightSource> getLightSource(const std::string& name, const std::string& notFoundMessage = "") const;
+	AModel* getActorModel(const std::string& name, const std::string& notFoundMessage = "") const;
+	ALight* getActorLight(const std::string& name, const std::string& notFoundMessage = "") const;
 
 	std::vector<std::unique_ptr<Actor>> claimAllActors();
 
@@ -39,9 +38,10 @@ private:
 	std::unordered_map<std::string, std::shared_ptr<Texture>>     m_textures;
 	std::unordered_map<std::string, std::shared_ptr<Material>>    m_materials;
 	std::unordered_map<std::string, std::shared_ptr<LightSource>> m_lightSources;
+	std::unordered_map<std::string, std::unique_ptr<AModel>>      m_actorModels;
+	std::unordered_map<std::string, std::unique_ptr<ALight>>      m_actorLights;
 
-	std::unordered_map<std::string, std::unique_ptr<AModel>> m_actorModels;
-	std::unordered_map<std::string, std::unique_ptr<ALight>> m_actorLights;
+	static void printNotFoundMessage(const std::string& typeName, const std::string& name, const std::string& message);
 };
 
 }// end namespace ph

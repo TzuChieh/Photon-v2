@@ -62,58 +62,57 @@ std::shared_ptr<Geometry> InputPacket::getGeometry(const std::string& name, cons
 {
 	std::string stringValue;
 	return findStringValue(TYPENAME_GEOMETRY, name, notFoundMessage, &stringValue) ? 
-	       m_cache.getGeometry(stringValue) : nullptr;
+	       m_cache.getGeometry(stringValue, notFoundMessage) : nullptr;
 }
 
 std::shared_ptr<Texture> InputPacket::getTexture(const std::string& name, const std::string& notFoundMessage) const
 {
 	std::string stringValue;
 	return findStringValue(TYPENAME_TEXTURE, name, notFoundMessage, &stringValue) ?
-	                       m_cache.getTexture(stringValue) : nullptr;
+	                       m_cache.getTexture(stringValue, notFoundMessage) : nullptr;
 }
 
 std::shared_ptr<Material> InputPacket::getMaterial(const std::string& name, const std::string& notFoundMessage) const
 {
 	std::string stringValue;
 	return findStringValue(TYPENAME_MATERIAL, name, notFoundMessage, &stringValue) ?
-	                       m_cache.getMaterial(stringValue) : nullptr;
+	                       m_cache.getMaterial(stringValue, notFoundMessage) : nullptr;
 }
 
 std::shared_ptr<LightSource> InputPacket::getLightSource(const std::string& name, const std::string& notFoundMessage) const
 {
 	std::string stringValue;
 	return findStringValue(TYPENAME_LIGHTSOURCE, name, notFoundMessage, &stringValue) ?
-	                       m_cache.getLightSource(stringValue) : nullptr;
+	                       m_cache.getLightSource(stringValue, notFoundMessage) : nullptr;
 }
 
 PhysicalActor* InputPacket::getPhysicalActor(const std::string& name, const std::string& notFoundMessage) const
 {
 	std::string stringValue;
+	PhysicalActor* actor = nullptr;
 	if(findStringValue(TYPENAME_ACTOR_MODEL, name, "", &stringValue))
 	{
-		return m_cache.getActorModel(stringValue);
+		actor = m_cache.getActorModel(stringValue, notFoundMessage);
 	}
 	else if(findStringValue(TYPENAME_ACTOR_LIGHT, name, "", &stringValue))
 	{
-		return m_cache.getActorLight(stringValue);
+		actor = m_cache.getActorLight(stringValue, notFoundMessage);
 	}
-	else
-	{
-		if(!notFoundMessage.empty())
-		{
-			printNotFoundMessage(notFoundMessage);
-		}
 
-		return nullptr;
+	if(!actor && !notFoundMessage.empty())
+	{
+		printNotFoundMessage("physical-actor", name, notFoundMessage);
 	}
+
+	return actor;
 }
 
-bool InputPacket::findStringValue(const std::string& type, const std::string& name, const std::string& notFoundMessage, 
+bool InputPacket::findStringValue(const std::string& typeName, const std::string& name, const std::string& notFoundMessage, 
                                   std::string* const out_value) const
 {
 	for(const ValueClause& vClause : m_vClauses)
 	{
-		if(vClause.type == type && vClause.name == name)
+		if(vClause.type == typeName && vClause.name == name)
 		{
 			*out_value = vClause.value;
 			return true;
@@ -122,16 +121,16 @@ bool InputPacket::findStringValue(const std::string& type, const std::string& na
 
 	if(!notFoundMessage.empty())
 	{
-		printNotFoundMessage(notFoundMessage);
+		printNotFoundMessage(typeName, name, notFoundMessage);
 	}
 
 	out_value->clear();
 	return false;
 }
 
-void InputPacket::printNotFoundMessage(const std::string& notFoundMessage) const
+void InputPacket::printNotFoundMessage(const std::string& typeName, const std::string& name, const std::string& message)
 {
-	std::cerr << "warning: " << notFoundMessage << std::endl;
+	std::cerr << "warning: type<" << typeName << "> name<" << name << "> not found (" << message << ")" << std::endl;
 }
 
 }// end namespace ph
