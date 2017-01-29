@@ -5,6 +5,7 @@
 #include "Actor/TextureMapper/TextureMapper.h"
 #include "Actor/AModel.h"
 #include "FileIO/InputPacket.h"
+#include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 
 #include <cmath>
 #include <iostream>
@@ -49,8 +50,15 @@ GSphere::GSphere(const InputPacket& packet) :
 GSphere::~GSphere() = default;
 
 // discretize the sphere into an icosphere
-void GSphere::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata& metadata) const
+void GSphere::discretize(const PrimitiveBuildingMaterial& data,
+                         std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
+	if(!data.metadata)
+	{
+		std::cerr << "warning: at GSphere::discretize(), no PrimitiveMetadata" << std::endl;
+		return;
+	}
+
 	/*if(parentModel.getScale().x != parentModel.getScale().y || parentModel.getScale().y != parentModel.getScale().z)
 	{
 		std::cerr << "warning: nonuniform scale on GSphere detected" << std::endl;
@@ -142,7 +150,7 @@ void GSphere::discretize(std::vector<std::unique_ptr<Primitive>>* const out_prim
 		Vector3f vB(vertices[iTriangle.iB]);
 		Vector3f vC(vertices[iTriangle.iC]);
 
-		PTriangle triangle(&metadata, vA, vB, vC);
+		PTriangle triangle(data.metadata, vA, vB, vC);
 		triangle.setNa(vA.normalize());
 		triangle.setNb(vB.normalize());
 		triangle.setNc(vC.normalize());
@@ -158,7 +166,7 @@ void GSphere::discretize(std::vector<std::unique_ptr<Primitive>>* const out_prim
 		m_textureMapper->map(vC, triangle.getUVWc(), &mappedUVW);
 		triangle.setUVWc(mappedUVW);
 
-		out_primitives->push_back(std::make_unique<PTriangle>(triangle));
+		out_primitives.push_back(std::make_unique<PTriangle>(triangle));
 	}
 }
 

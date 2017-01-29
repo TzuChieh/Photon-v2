@@ -3,6 +3,7 @@
 #include "Math/Vector3f.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "FileIO/InputPacket.h"
+#include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 
 #include <iostream>
 
@@ -24,11 +25,12 @@ GRectangle::GRectangle(const InputPacket& packet) :
 
 GRectangle::~GRectangle() = default;
 
-void GRectangle::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata& metadata) const
+void GRectangle::discretize(const PrimitiveBuildingMaterial& data,
+                            std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
-	if(m_width <= 0.0f || m_height <= 0.0f)
+	if(!checkData(data, m_width, m_height))
 	{
-		std::cerr << "warning: GRectangle's dimension is zero or negative" << std::endl;
+		return;
 	}
 
 	const float32 halfWidth = m_width * 0.5f;
@@ -44,19 +46,36 @@ void GRectangle::discretize(std::vector<std::unique_ptr<Primitive>>* const out_p
 	const Vector3f tC(1.0f, 0.0f, 0.0f);// quadrant IV
 	const Vector3f tD(1.0f, 1.0f, 0.0f);// quadrant I
 
-	PTriangle tri1(&metadata, vA, vB, vD);
+	PTriangle tri1(data.metadata, vA, vB, vD);
 	tri1.setUVWa(tA);
 	tri1.setUVWb(tB);
 	tri1.setUVWc(tD);
 
-	PTriangle tri2(&metadata, vB, vC, vD);
+	PTriangle tri2(data.metadata, vB, vC, vD);
 	tri2.setUVWa(tB);
 	tri2.setUVWb(tC);
 	tri2.setUVWc(tD);
 
 	// 2 triangles for a rectangle (both CCW)
-	out_primitives->push_back(std::make_unique<PTriangle>(tri1));
-	out_primitives->push_back(std::make_unique<PTriangle>(tri2));
+	out_primitives.push_back(std::make_unique<PTriangle>(tri1));
+	out_primitives.push_back(std::make_unique<PTriangle>(tri2));
+}
+
+bool GRectangle::checkData(const PrimitiveBuildingMaterial& data, const float32 width, const float32 height)
+{
+	if(!data.metadata)
+	{
+		std::cerr << "warning: at GRectangle::checkData(), no PrimitiveMetadata" << std::endl;
+		return false;
+	}
+
+	if(width <= 0.0f || height <= 0.0f)
+	{
+		std::cerr << "warning: at GRectangle::checkData(), GRectangle's dimension is zero or negative" << std::endl;
+		return false;
+	}
+
+	return true;
 }
 
 }// end namespace ph

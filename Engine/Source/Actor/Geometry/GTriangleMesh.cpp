@@ -2,6 +2,7 @@
 #include "Actor/Geometry/GTriangle.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Actor/AModel.h"
+#include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 
 namespace ph
 {
@@ -11,11 +12,12 @@ GTriangleMesh::~GTriangleMesh()
 
 }
 
-void GTriangleMesh::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata& metadata) const
+void GTriangleMesh::discretize(const PrimitiveBuildingMaterial& data,
+                               std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
 	for(const auto& gTriangle : m_gTriangles)
 	{
-		gTriangle.discretize(out_primitives, metadata);
+		gTriangle.discretize(data, out_primitives);
 	}
 }
 

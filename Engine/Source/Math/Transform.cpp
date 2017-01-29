@@ -7,8 +7,6 @@
 namespace ph
 {
 
-const Transform Transform::EMPTY_TRANSFORM;
-
 Transform::Transform()
 {
 	m_transformMatrix.initIdentity();

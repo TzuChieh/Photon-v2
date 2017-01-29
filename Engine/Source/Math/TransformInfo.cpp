@@ -21,7 +21,7 @@ Transform TransformInfo::genTransform(const Transform& parentTransform) const
 	return parentTransform.transform(Transform(translationMatrix.mul(rotationMatrix).mul(scaleMatrix)));
 }
 
-Transform TransformInfo::genInverseTransform(const Transform& parentInverseTransform) const
+Transform TransformInfo::genInverseTransform(const Transform& parentInvTransform) const
 {
 	Matrix4f invTranslationMatrix;
 	Matrix4f invRotationMatrix;
@@ -30,7 +30,7 @@ Transform TransformInfo::genInverseTransform(const Transform& parentInverseTrans
 	invRotationMatrix.initRotation(m_rotation.conjugate());
 	invScaleMatrix.initScale(m_scale.reciprocal());
 
-	return Transform(invScaleMatrix.mul(invRotationMatrix).mul(invTranslationMatrix)).transform(parentInverseTransform);
+	return Transform(invScaleMatrix.mul(invRotationMatrix).mul(invTranslationMatrix)).transform(parentInvTransform);
 }
 
 }// end namespace ph

@@ -7,6 +7,8 @@
 #include "Actor/LightSource/LightSource.h"
 #include "Core/CoreActor.h"
 #include "FileIO/InputPacket.h"
+#include "Actor/Geometry/PrimitiveBuildingMaterial.h"
+#include "Actor/LightSource/EmitterBuildingMaterial.h"
 
 #include <algorithm>
 #include <iostream>
@@ -67,31 +69,43 @@ ALight& ALight::operator = (ALight rhs)
 
 void ALight::genCoreActor(CoreActor* const out_coreActor) const
 {
-	CoreActor coreActor;
-
-	if(m_geometry && m_material)
-	{
-		std::unique_ptr<PrimitiveMetadata> metadata = std::make_unique<PrimitiveMetadata>();
-		metadata->worldToLocal = m_worldToLocal;
-		metadata->localToWorld = m_localToWorld;
-
-		std::vector<std::unique_ptr<Primitive>> primitives;
-		m_geometry->discretize(&primitives, *metadata);
-		m_material->populateSurfaceBehavior(&(metadata->surfaceBehavior));
-
-		coreActor.primitives        = std::move(primitives);
-		coreActor.primitiveMetadata = std::move(metadata);
-	}
+	CoreActor                 coreActor;
+	PrimitiveBuildingMaterial primitiveBuildingMaterial;
+	EmitterBuildingMaterial   emitterBuildingMaterial;
 
 	if(m_lightSource)
 	{
-		m_lightSource->buildEmitter(coreActor);
-		*out_coreActor = std::move(coreActor);
+		if(m_geometry && m_material)
+		{
+			std::unique_ptr<PrimitiveMetadata> metadata = std::make_unique<PrimitiveMetadata>();
+			metadata->localToWorld = m_localToWorld;
+			metadata->worldToLocal = m_worldToLocal;
+
+			primitiveBuildingMaterial.metadata = metadata.get();
+			std::vector<std::unique_ptr<Primitive>> primitives;
+			m_geometry->discretize(primitiveBuildingMaterial, primitives);
+			m_material->populateSurfaceBehavior(&(metadata->surfaceBehavior));
+
+			coreActor.primitives        = std::move(primitives);
+			coreActor.primitiveMetadata = std::move(metadata);
+		}
+
+		emitterBuildingMaterial.localToWorld = m_localToWorld;
+		emitterBuildingMaterial.worldToLocal = m_worldToLocal;
+		for(const auto& primitive : coreActor.primitives)
+		{
+			emitterBuildingMaterial.primitives.push_back(primitive.get());
+		}
+		
+		coreActor.emitter = m_lightSource->buildEmitter(emitterBuildingMaterial);
+		coreActor.primitiveMetadata->surfaceBehavior.setEmitter(coreActor.emitter.get());
 	}
 	else
 	{
 		std::cerr << "warning: at ALight::genCoreActor(), incomplete data detected" << std::endl;
 	}
+
+	*out_coreActor = std::move(coreActor);
 }
 
 const Geometry* ALight::getGeometry() const

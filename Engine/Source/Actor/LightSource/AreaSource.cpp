@@ -6,6 +6,7 @@
 #include "Actor/Texture/TextureLoader.h"
 #include "Core/CoreActor.h"
 #include "FileIO/InputPacket.h"
+#include "Actor/LightSource/EmitterBuildingMaterial.h"
 
 #include <iostream>
 
@@ -47,52 +48,19 @@ AreaSource::AreaSource(const InputPacket& packet) :
 
 AreaSource::~AreaSource() = default;
 
-void AreaSource::buildEmitter(CoreActor& coreActor) const
+std::unique_ptr<Emitter> AreaSource::buildEmitter(const EmitterBuildingMaterial& data) const
 {
-	if(!checkCoreActor(coreActor))
+	if(data.primitives.empty())
 	{
-		return;
-	}
-
-	std::vector<const Primitive*> primitives;
-	for(const auto& primitive : coreActor.primitives)
-	{
-		primitives.push_back(primitive.get());
+		std::cerr << "warning: at AreaSource::buildEmitter(), requires at least a Primitive to build" << std::endl;
+		return nullptr;
 	}
 	
-	std::unique_ptr<PrimitiveAreaEmitter> emitter = std::make_unique<PrimitiveAreaEmitter>(primitives);
+	std::unique_ptr<PrimitiveAreaEmitter> emitter = std::make_unique<PrimitiveAreaEmitter>(data.primitives);
 	emitter->setEmittedRadiance(m_emittedRadiance);
-	emitter->worldToLocal = coreActor.primitiveMetadata->worldToLocal;
-	emitter->localToWorld = coreActor.primitiveMetadata->localToWorld;
-
-	coreActor.primitiveMetadata->surfaceBehavior.setEmitter(emitter.get());
-	coreActor.emitter = std::move(emitter);
-}
-
-bool AreaSource::checkCoreActor(const CoreActor& coreActor)
-{
-	// check errors
-
-	if(coreActor.primitives.empty())
-	{
-		std::cerr << "warning: at AreaSource::checkCoreActor(), AreaSource require at least a Primitive" << std::endl;
-		return false;
-	}
-
-	if(coreActor.primitiveMetadata == nullptr)
-	{
-		std::cerr << "warning: at AreaSource::checkCoreActor(), AreaSource has no PrimitiveMetadata for reference" << std::endl;
-		return false;
-	}
-
-	// emit warnings
-
-	if(coreActor.emitter != nullptr)
-	{
-		std::cerr << "warning: at AreaSource::checkCoreActor(), going to override an existing emitter found in CoreActor" << std::endl;
-	}
-
-	return true;
+	emitter->localToWorld = data.localToWorld;
+	emitter->worldToLocal = data.worldToLocal;
+	return std::move(emitter);
 }
 
 }// end namespace ph

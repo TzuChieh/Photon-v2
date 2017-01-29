@@ -14,6 +14,7 @@ class Primitive;
 class PrimitiveStorage;
 class TextureMapper;
 class InputPacket;
+class PrimitiveBuildingMaterial;
 
 class Geometry
 {
@@ -22,10 +23,11 @@ public:
 	Geometry(const InputPacket& packet);
 	virtual ~Geometry() = 0;
 
-	virtual void discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata& metadata) const = 0;
+	virtual void discretize(const PrimitiveBuildingMaterial& data, 
+	                        std::vector<std::unique_ptr<Primitive>>& out_primitives) const = 0;
 
-	void setTextureMapper(const std::shared_ptr<TextureMapper>& textureMapper);
 	const TextureMapper* getTextureMapper() const;
+	void setTextureMapper(const std::shared_ptr<TextureMapper>& textureMapper);
 
 protected:
 	std::shared_ptr<TextureMapper> m_textureMapper;

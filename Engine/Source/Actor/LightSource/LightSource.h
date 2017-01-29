@@ -1,12 +1,14 @@
 #pragma once
 
+#include "Actor/LightSource/EmitterBuildingMaterial.h"
+
 #include <memory>
 
 namespace ph
 {
 
-class CoreActor;
 class InputPacket;
+class Emitter;
 
 class LightSource
 {
@@ -15,7 +17,7 @@ public:
 	LightSource(const InputPacket& packet);
 	virtual ~LightSource() = 0;
 
-	virtual void buildEmitter(CoreActor& coreActor) const = 0;
+	virtual std::unique_ptr<Emitter> buildEmitter(const EmitterBuildingMaterial& data) const = 0;
 };
 
 }// end namespace ph

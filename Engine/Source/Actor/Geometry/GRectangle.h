@@ -13,11 +13,14 @@ public:
 	GRectangle(const InputPacket& packet);
 	virtual ~GRectangle() override;
 
-	virtual void discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata& metadata) const override;
+	virtual void discretize(const PrimitiveBuildingMaterial& data,
+	                        std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
 
 private:
 	float32 m_width;
 	float32 m_height;
+
+	static bool checkData(const PrimitiveBuildingMaterial& data, const float32 width, const float32 height);
 };
 
 }// end namespace ph

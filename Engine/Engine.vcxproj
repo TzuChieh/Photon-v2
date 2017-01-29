@@ -256,6 +256,7 @@
     <ClInclude Include="Include\ph_test.h" />
     <ClInclude Include="Source\Actor\Actor.h" />
     <ClInclude Include="Source\Actor\Geometry\GCuboid.h" />
+    <ClInclude Include="Source\Actor\Geometry\PrimitiveBuildingMaterial.h" />
     <ClInclude Include="Source\Actor\Geometry\GWave.h" />
     <ClInclude Include="Source\Actor\LightSource\AreaSource.h" />
     <ClInclude Include="Source\Actor\LightSource\LightSource.h" />
@@ -267,6 +268,7 @@
     <ClInclude Include="Source\Common\primitive_type.h" />
     <ClInclude Include="Source\Core\CoreActor.h" />
     <ClInclude Include="Source\Core\CookedActorStorage.h" />
+    <ClInclude Include="Source\Actor\LightSource\EmitterBuildingMaterial.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardLightIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardMisIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardPathIntegrator.h" />

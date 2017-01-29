@@ -16,7 +16,8 @@ public:
 	GCuboid(const GCuboid& other);
 	virtual ~GCuboid() override;
 
-	virtual void discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata& metadata) const override;
+	virtual void discretize(const PrimitiveBuildingMaterial& data,
+	                        std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
 
 	GCuboid& operator = (const GCuboid& rhs);
 
@@ -24,6 +25,8 @@ private:
 	float32 m_xLen;
 	float32 m_yLen;
 	float32 m_zLen;
+
+	static bool checkData(const PrimitiveBuildingMaterial& data, const float32 xLen, const float32 yLen, const float32 zLen);
 };
 
 }// end namespace ph

@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
 
 	PHuint64 descriptionId;
 	phCreateDescription(&descriptionId);
-	phLoadDescription(descriptionId, "../SceneResource/testScene.p2");
+	phLoadDescription(descriptionId, "../scene/testScene.p2");
 	phUpdateDescription(descriptionId);
 
 	PHuint64 rendererId;

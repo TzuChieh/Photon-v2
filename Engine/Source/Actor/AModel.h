@@ -31,7 +31,6 @@ public:
 
 	const Geometry* getGeometry() const;
 	const Material* getMaterial() const;
-
 	void setGeometry(const std::shared_ptr<Geometry>& geometry);
 	void setMaterial(const std::shared_ptr<Material>& material);
 

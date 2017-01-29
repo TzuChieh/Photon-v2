@@ -4,6 +4,7 @@
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Actor/TextureMapper/TextureMapper.h"
 #include "Actor/AModel.h"
+#include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 
 #include <cmath>
 #include <iostream>
@@ -25,8 +26,14 @@ GCuboid::GCuboid(const GCuboid& other) :
 
 GCuboid::~GCuboid() = default;
 
-void GCuboid::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata& metadata) const
+void GCuboid::discretize(const PrimitiveBuildingMaterial& data,
+                         std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
+	if(!checkData(data, m_xLen, m_yLen, m_zLen))
+	{
+		return;
+	}
+
 	// TODO: UVW mapping
 
 	const float32 halfXlen = m_xLen * 0.5f;
@@ -46,22 +53,22 @@ void GCuboid::discretize(std::vector<std::unique_ptr<Primitive>>* const out_prim
 	// 12 triangles (all CCW)
 
 	// xy-plane
-	out_primitives->push_back(std::make_unique<PTriangle>(&metadata, vPPP, vNPP, vNNP));
-	out_primitives->push_back(std::make_unique<PTriangle>(&metadata, vPPP, vNNP, vPNP));
-	out_primitives->push_back(std::make_unique<PTriangle>(&metadata, vNPN, vPPN, vPNN));
-	out_primitives->push_back(std::make_unique<PTriangle>(&metadata, vNPN, vPNN, vNNN));
+	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vPPP, vNPP, vNNP));
+	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vPPP, vNNP, vPNP));
+	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vNPN, vPPN, vPNN));
+	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vNPN, vPNN, vNNN));
 
 	// yz-plane
-	out_primitives->push_back(std::make_unique<PTriangle>(&metadata, vPPN, vPPP, vPNP));
-	out_primitives->push_back(std::make_unique<PTriangle>(&metadata, vPPN, vPNP, vPNN));
-	out_primitives->push_back(std::make_unique<PTriangle>(&metadata, vNPP, vNPN, vNNN));
-	out_primitives->push_back(std::make_unique<PTriangle>(&metadata, vNPP, vNNN, vNNP));
+	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vPPN, vPPP, vPNP));
+	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vPPN, vPNP, vPNN));
+	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vNPP, vNPN, vNNN));
+	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vNPP, vNNN, vNNP));
 
 	// xz-plane
-	out_primitives->push_back(std::make_unique<PTriangle>(&metadata, vPPN, vNPN, vNPP));
-	out_primitives->push_back(std::make_unique<PTriangle>(&metadata, vPPN, vNPP, vPPP));
-	out_primitives->push_back(std::make_unique<PTriangle>(&metadata, vPNP, vNNP, vNNN));
-	out_primitives->push_back(std::make_unique<PTriangle>(&metadata, vPNP, vNNN, vPNN));
+	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vPPN, vNPN, vNPP));
+	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vPPN, vNPP, vPPP));
+	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vPNP, vNNP, vNNN));
+	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vPNP, vNNN, vPNN));
 }
 
 GCuboid& GCuboid::operator = (const GCuboid& rhs)
@@ -71,6 +78,23 @@ GCuboid& GCuboid::operator = (const GCuboid& rhs)
 	m_zLen = rhs.m_zLen;
 
 	return *this;
+}
+
+bool GCuboid::checkData(const PrimitiveBuildingMaterial& data, const float32 xLen, const float32 yLen, const float32 zLen)
+{
+	if(!data.metadata)
+	{
+		std::cerr << "warning: at GCuboid::checkData(), no PrimitiveMetadata" << std::endl;
+		return false;
+	}
+
+	if(xLen <= 0.0f || yLen <= 0.0f || zLen <= 0.0f)
+	{
+		std::cerr << "warning: at GCuboid::checkData(), GCuboid's dimension is zero or negative" << std::endl;
+		return false;
+	}
+
+	return true;
 }
 
 }// end namespace ph

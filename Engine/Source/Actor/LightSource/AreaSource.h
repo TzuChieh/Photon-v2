@@ -19,12 +19,10 @@ public:
 	AreaSource(const InputPacket& packet);
 	virtual ~AreaSource() override;
 
-	virtual void buildEmitter(CoreActor& coreActor) const override;
+	virtual std::unique_ptr<Emitter> buildEmitter(const EmitterBuildingMaterial& data) const override;
 
 private:
 	std::shared_ptr<Texture> m_emittedRadiance;
-
-	static bool checkCoreActor(const CoreActor& coreActor);
 };
 
 }// end namespace ph

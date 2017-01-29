@@ -7,6 +7,7 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/CoreActor.h"
 #include "FileIO/InputPacket.h"
+#include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 
 #include <algorithm>
 #include <iostream>
@@ -65,14 +66,17 @@ AModel& AModel::operator = (AModel rhs)
 
 void AModel::genCoreActor(CoreActor* const out_coreActor) const
 {
+	PrimitiveBuildingMaterial primitiveBuildingMaterial;
+
 	if(m_geometry && m_material)
 	{
 		std::unique_ptr<PrimitiveMetadata> metadata = std::make_unique<PrimitiveMetadata>();
 		metadata->worldToLocal = m_worldToLocal;
 		metadata->localToWorld = m_localToWorld;
 
+		primitiveBuildingMaterial.metadata = metadata.get();
 		std::vector<std::unique_ptr<Primitive>> primitives;
-		m_geometry->discretize(&primitives, *metadata);
+		m_geometry->discretize(primitiveBuildingMaterial, primitives);
 		m_material->populateSurfaceBehavior(&(metadata->surfaceBehavior));
 
 		out_coreActor->primitives        = std::move(primitives);

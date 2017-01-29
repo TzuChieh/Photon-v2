@@ -4,6 +4,7 @@
 #include "Actor/TextureMapper/TextureMapper.h"
 #include "Actor/AModel.h"
 #include "FileIO/InputPacket.h"
+#include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 
 #include <iostream>
 
@@ -35,9 +36,16 @@ GTriangle::GTriangle(const InputPacket& packet) :
 
 GTriangle::~GTriangle() = default;
 
-void GTriangle::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata& metadata) const
+void GTriangle::discretize(const PrimitiveBuildingMaterial& data,
+                           std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
-	PTriangle triangle(&metadata, m_vA, m_vB, m_vC);
+	if(!data.metadata)
+	{
+		std::cerr << "warning: at GTriangle::discretize(), no PrimitiveMetadata" << std::endl;
+		return;
+	}
+
+	PTriangle triangle(data.metadata, m_vA, m_vB, m_vC);
 
 	triangle.setNa(m_nA);
 	triangle.setNb(m_nB);
@@ -54,7 +62,7 @@ void GTriangle::discretize(std::vector<std::unique_ptr<Primitive>>* const out_pr
 	m_textureMapper->map(m_vC, m_uvwC, &mappedUVW);
 	triangle.setUVWc(mappedUVW);
 
-	out_primitives->push_back(std::make_unique<PTriangle>(triangle));
+	out_primitives.push_back(std::make_unique<PTriangle>(triangle));
 }
 
 }// end namespace ph

@@ -14,7 +14,8 @@ public:
 	GWave(const float32 xLen, const float32 yLen, const float32 zLen);
 	virtual ~GWave() override;
 
-	virtual void discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata& metadata) const override;
+	virtual void discretize(const PrimitiveBuildingMaterial& data,
+	                        std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
 
 private:
 	float32 m_xLen;
@@ -22,6 +23,7 @@ private:
 	float32 m_zLen;
 
 	static void genTessellatedRectangleXZ(const float32 xLen, const float32 zLen, const int32 numXdivs, const int32 numZdivs, std::vector<Vector3f>& positions);
+	static bool checkData(const PrimitiveBuildingMaterial& data, const float32 xLen, const float32 yLen, const float32 zLen);
 };
 
 }// end namespace ph

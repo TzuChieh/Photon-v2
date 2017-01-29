@@ -2,6 +2,7 @@
 #include "Core/Primitive/PTriangle.h"
 #include "Math/Vector3f.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
+#include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 
 #include <iostream>
 #include <cmath>
@@ -17,11 +18,12 @@ GWave::GWave(const float32 xLen, const float32 yLen, const float32 zLen) :
 
 GWave::~GWave() = default;
 
-void GWave::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primitives, const PrimitiveMetadata& metadata) const
+void GWave::discretize(const PrimitiveBuildingMaterial& data,
+                       std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
-	if(m_xLen <= 0.0f || m_yLen <= 0.0f || m_zLen <= 0.0f)
+	if(!checkData(data, m_xLen, m_yLen, m_xLen))
 	{
-		std::cerr << "warning: GWave's dimension is zero or negative" << std::endl;
+		return;
 	}
 
 	const int32 numXdivs = 150;
@@ -96,19 +98,19 @@ void GWave::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primit
 			const Vector3f nC(smoothNormals[(iz + 1) * numXvertices + ix + 1]);
 			const Vector3f nD(smoothNormals[(iz + 1) * numXvertices + ix]);
 
-			PTriangle tri1(&metadata, vA, vB, vC);
+			PTriangle tri1(data.metadata, vA, vB, vC);
 			tri1.setNa(nA);
 			tri1.setNb(nB);
 			tri1.setNc(nC);
 
-			PTriangle tri2(&metadata, vA, vC, vD);
+			PTriangle tri2(data.metadata, vA, vC, vD);
 			tri2.setNa(nA);
 			tri2.setNb(nC);
 			tri2.setNc(nD);
 
 			// 2 triangles for a mesh (both CCW)
-			out_primitives->push_back(std::make_unique<PTriangle>(tri1));
-			out_primitives->push_back(std::make_unique<PTriangle>(tri2));
+			out_primitives.push_back(std::make_unique<PTriangle>(tri1));
+			out_primitives.push_back(std::make_unique<PTriangle>(tri2));
 		}
 	}
 
@@ -118,12 +120,12 @@ void GWave::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primit
 		const Vector3f vB(-m_xLen / 2.0f, -m_yLen, m_zLen / 2.0f);// quadrant III
 		const Vector3f vC(m_xLen / 2.0f, -m_yLen, m_zLen / 2.0f);// quadrant IV
 		const Vector3f vD(m_xLen / 2.0f, -m_yLen, -m_zLen / 2.0f);// quadrant I
-		PTriangle tri1(&metadata, vA, vD, vB);
-		PTriangle tri2(&metadata, vC, vB, vD);
+		PTriangle tri1(data.metadata, vA, vD, vB);
+		PTriangle tri2(data.metadata, vC, vB, vD);
 
 		// 2 triangles for a rectangle (both CCW)
-		out_primitives->push_back(std::make_unique<PTriangle>(tri1));
-		out_primitives->push_back(std::make_unique<PTriangle>(tri2));
+		out_primitives.push_back(std::make_unique<PTriangle>(tri1));
+		out_primitives.push_back(std::make_unique<PTriangle>(tri2));
 	}
 	
 	const float32 meshSizeX = m_xLen / static_cast<float32>(numXdivs);
@@ -138,12 +140,12 @@ void GWave::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primit
 		const Vector3f vB(minX + static_cast<float32>(ix) * meshSizeX, -m_yLen, maxZ);
 		const Vector3f vC(minX + static_cast<float32>(ix + 1) * meshSizeX, -m_yLen, maxZ);
 		const Vector3f vD(positions[ix + 1]);
-		PTriangle tri1(&metadata, vA, vB, vC);
-		PTriangle tri2(&metadata, vA, vC, vD);
+		PTriangle tri1(data.metadata, vA, vB, vC);
+		PTriangle tri2(data.metadata, vA, vC, vD);
 
 		// both CCW
-		out_primitives->push_back(std::make_unique<PTriangle>(tri1));
-		out_primitives->push_back(std::make_unique<PTriangle>(tri2));
+		out_primitives.push_back(std::make_unique<PTriangle>(tri1));
+		out_primitives.push_back(std::make_unique<PTriangle>(tri2));
 	}
 
 	// wave back side
@@ -153,12 +155,12 @@ void GWave::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primit
 		const Vector3f vB(minX + static_cast<float32>(ix) * meshSizeX, -m_yLen, -maxZ);
 		const Vector3f vC(minX + static_cast<float32>(ix + 1) * meshSizeX, -m_yLen, -maxZ);
 		const Vector3f vD(positions[numZdivs * numXvertices + ix + 1]);
-		PTriangle tri1(&metadata, vA, vC, vB);
-		PTriangle tri2(&metadata, vA, vD, vC);
+		PTriangle tri1(data.metadata, vA, vC, vB);
+		PTriangle tri2(data.metadata, vA, vD, vC);
 
 		// both CCW
-		out_primitives->push_back(std::make_unique<PTriangle>(tri1));
-		out_primitives->push_back(std::make_unique<PTriangle>(tri2));
+		out_primitives.push_back(std::make_unique<PTriangle>(tri1));
+		out_primitives.push_back(std::make_unique<PTriangle>(tri2));
 	}
 
 	// wave right side
@@ -168,12 +170,12 @@ void GWave::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primit
 		const Vector3f vB(m_xLen / 2.0f, -m_yLen, maxZ - static_cast<float32>(iz) * meshSizeZ);
 		const Vector3f vC(m_xLen / 2.0f, -m_yLen, maxZ - static_cast<float32>(iz + 1) * meshSizeZ);
 		const Vector3f vD(positions[(iz + 1) * numXvertices + numXdivs]);
-		PTriangle tri1(&metadata, vA, vB, vC);
-		PTriangle tri2(&metadata, vA, vC, vD);
+		PTriangle tri1(data.metadata, vA, vB, vC);
+		PTriangle tri2(data.metadata, vA, vC, vD);
 
 		// both CCW
-		out_primitives->push_back(std::make_unique<PTriangle>(tri1));
-		out_primitives->push_back(std::make_unique<PTriangle>(tri2));
+		out_primitives.push_back(std::make_unique<PTriangle>(tri1));
+		out_primitives.push_back(std::make_unique<PTriangle>(tri2));
 	}
 
 	// wave left side
@@ -183,12 +185,12 @@ void GWave::discretize(std::vector<std::unique_ptr<Primitive>>* const out_primit
 		const Vector3f vB(-m_xLen / 2.0f, -m_yLen, maxZ - static_cast<float32>(iz) * meshSizeZ);
 		const Vector3f vC(-m_xLen / 2.0f, -m_yLen, maxZ - static_cast<float32>(iz + 1) * meshSizeZ);
 		const Vector3f vD(positions[(iz + 1) * numXvertices + 0]);
-		PTriangle tri1(&metadata, vA, vC, vB);
-		PTriangle tri2(&metadata, vA, vD, vC);
+		PTriangle tri1(data.metadata, vA, vC, vB);
+		PTriangle tri2(data.metadata, vA, vD, vC);
 
 		// both CCW
-		out_primitives->push_back(std::make_unique<PTriangle>(tri1));
-		out_primitives->push_back(std::make_unique<PTriangle>(tri2));
+		out_primitives.push_back(std::make_unique<PTriangle>(tri1));
+		out_primitives.push_back(std::make_unique<PTriangle>(tri2));
 	}
 }
 
@@ -215,6 +217,23 @@ void GWave::genTessellatedRectangleXZ(const float32 xLen, const float32 zLen, co
 			positions.push_back(Vector3f(x, y, z));
 		}
 	}
+}
+
+bool GWave::checkData(const PrimitiveBuildingMaterial& data, const float32 xLen, const float32 yLen, const float32 zLen)
+{
+	if(!data.metadata)
+	{
+		std::cerr << "warning: at GWave::checkData(), no PrimitiveMetadata" << std::endl;
+		return false;
+	}
+
+	if(xLen <= 0.0f || yLen <= 0.0f || zLen <= 0.0f)
+	{
+		std::cerr << "warning: at GWave::checkData(), GWave's dimension is zero or negative" << std::endl;
+		return false;
+	}
+
+	return true;
 }
 
 }// end namespace ph

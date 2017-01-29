@@ -31,11 +31,12 @@ public:
 	PhysicalActor& operator = (const PhysicalActor& rhs);
 
 protected:
-	TransformInfo m_entityTransformInfo;
+	TransformInfo m_transformInfo;
 	Transform     m_localToWorld;
 	Transform     m_worldToLocal;
 
-	void updateTransforms();
+	virtual void updateTransforms(const Transform& parentTransform = Transform(), 
+	                              const Transform& parentInverseTransform = Transform());
 };
 
 }// end namespace ph

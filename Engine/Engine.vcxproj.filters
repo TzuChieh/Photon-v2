@@ -605,5 +605,11 @@
     <ClInclude Include="Source\Actor\PhysicalActor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Actor\LightSource\EmitterBuildingMaterial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\Geometry\PrimitiveBuildingMaterial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -12,8 +12,6 @@ class Ray;
 class Transform final
 {
 public:
-	static const Transform EMPTY_TRANSFORM;
-
 	Transform();
 	Transform(const Matrix4f& transformMatrix);
 

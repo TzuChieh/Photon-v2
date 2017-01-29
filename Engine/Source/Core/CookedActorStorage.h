@@ -27,8 +27,9 @@ public:
 	void add(std::unique_ptr<Emitter> emitter);
 	void add(CoreActor&& coreActor);
 	void add(std::vector<std::unique_ptr<Primitive>>&& primitives);
-
 	void add(CookedActorStorage&& other);
+
+	std::size_t numPrimitives() const;
 
 	// forbid copying
 	CookedActorStorage(const CookedActorStorage& other) = delete;
@@ -63,8 +64,6 @@ public:
 	{
 		return TConstIteratorProxy<std::vector<std::unique_ptr<Emitter>>>(m_emitters);
 	}
-
-	std::size_t numPrimitives() const;
 
 private:
 	std::vector<std::unique_ptr<Primitive>>         m_primitives;
