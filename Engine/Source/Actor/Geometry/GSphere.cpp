@@ -1,6 +1,5 @@
 #include "Actor/Geometry/GSphere.h"
 #include "Core/Primitive/PTriangle.h"
-#include "Math/Vector3f.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Actor/TextureMapper/TextureMapper.h"
 #include "Actor/AModel.h"
@@ -68,7 +67,7 @@ void GSphere::discretize(const PrimitiveBuildingMaterial& data,
 	const uint32 nRefinements = 5;
 	//const uint32 nRefinements = 1;
 
-	std::vector<Vector3f>        vertices;
+	std::vector<Vector3R>        vertices;
 	std::vector<IndexedTriangle> indexedTriangles;
 
 	// 12 vertices of a icosahedron (located on the sphere)
@@ -76,22 +75,22 @@ void GSphere::discretize(const PrimitiveBuildingMaterial& data,
 	const float32 t = (1.0f + sqrt(5.0f)) / 2.0f;
 
 	// xy-plane
-	addVertex(Vector3f(-1,  t,  0), &vertices);// 0
-	addVertex(Vector3f( 1,  t,  0), &vertices);// 1
-	addVertex(Vector3f(-1, -t,  0), &vertices);// 2
-	addVertex(Vector3f( 1, -t,  0), &vertices);// 3
+	addVertex(Vector3R(-1,  t,  0), &vertices);// 0
+	addVertex(Vector3R( 1,  t,  0), &vertices);// 1
+	addVertex(Vector3R(-1, -t,  0), &vertices);// 2
+	addVertex(Vector3R( 1, -t,  0), &vertices);// 3
 
 	// yz-plane
-	addVertex(Vector3f( 0, -1,  t), &vertices);// 4
-	addVertex(Vector3f( 0,  1,  t), &vertices);// 5
-	addVertex(Vector3f( 0, -1, -t), &vertices);// 6
-	addVertex(Vector3f( 0,  1, -t), &vertices);// 7
+	addVertex(Vector3R( 0, -1,  t), &vertices);// 4
+	addVertex(Vector3R( 0,  1,  t), &vertices);// 5
+	addVertex(Vector3R( 0, -1, -t), &vertices);// 6
+	addVertex(Vector3R( 0,  1, -t), &vertices);// 7
 
 	// zx-plane
-	addVertex(Vector3f( t,  0, -1), &vertices);// 8
-	addVertex(Vector3f( t,  0,  1), &vertices);// 9
-	addVertex(Vector3f(-t,  0, -1), &vertices);// 10
-	addVertex(Vector3f(-t,  0,  1), &vertices);// 11
+	addVertex(Vector3R( t,  0, -1), &vertices);// 8
+	addVertex(Vector3R( t,  0,  1), &vertices);// 9
+	addVertex(Vector3R(-t,  0, -1), &vertices);// 10
+	addVertex(Vector3R(-t,  0,  1), &vertices);// 11
 
 	// generate 20 triangles from the icosahedron (all CCW)
 
@@ -146,16 +145,16 @@ void GSphere::discretize(const PrimitiveBuildingMaterial& data,
 	// construct actual triangles
 	for(const IndexedTriangle& iTriangle : indexedTriangles)
 	{
-		Vector3f vA(vertices[iTriangle.iA]);
-		Vector3f vB(vertices[iTriangle.iB]);
-		Vector3f vC(vertices[iTriangle.iC]);
+		Vector3R vA(vertices[iTriangle.iA]);
+		Vector3R vB(vertices[iTriangle.iB]);
+		Vector3R vC(vertices[iTriangle.iC]);
 
 		PTriangle triangle(data.metadata, vA, vB, vC);
 		triangle.setNa(vA.normalize());
 		triangle.setNb(vB.normalize());
 		triangle.setNc(vC.normalize());
 
-		Vector3f mappedUVW;
+		Vector3R mappedUVW;
 
 		m_textureMapper->map(vA, triangle.getUVWa(), &mappedUVW);
 		triangle.setUVWa(mappedUVW);
@@ -170,10 +169,10 @@ void GSphere::discretize(const PrimitiveBuildingMaterial& data,
 	}
 }
 
-std::size_t GSphere::addVertex(const Vector3f& vertex, std::vector<Vector3f>* const out_vertices) const
+std::size_t GSphere::addVertex(const Vector3R& vertex, std::vector<Vector3R>* const out_vertices) const
 {
 	// make vertex on the sphere
-	Vector3f vertexOnSphere(vertex);
+	Vector3R vertexOnSphere(vertex);
 	vertexOnSphere.normalizeLocal().mulLocal(m_radius);
 
 	out_vertices->push_back(vertexOnSphere);
@@ -181,7 +180,7 @@ std::size_t GSphere::addVertex(const Vector3f& vertex, std::vector<Vector3f>* co
 	return out_vertices->size() - 1;
 }
 
-std::size_t GSphere::addMidpointVertex(const std::size_t iA, const std::size_t iB, std::vector<Vector3f>* const out_vertices) const
+std::size_t GSphere::addMidpointVertex(const std::size_t iA, const std::size_t iB, std::vector<Vector3R>* const out_vertices) const
 {
 	return addVertex((*out_vertices)[iA].add((*out_vertices)[iB]).mulLocal(0.5f), out_vertices);
 }

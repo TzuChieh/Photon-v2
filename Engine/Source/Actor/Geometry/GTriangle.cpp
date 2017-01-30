@@ -11,10 +11,10 @@
 namespace ph
 {
 
-GTriangle::GTriangle(const Vector3f& vA, const Vector3f& vB, const Vector3f& vC) : 
+GTriangle::GTriangle(const Vector3R& vA, const Vector3R& vB, const Vector3R& vC) :
 	m_vA(vA), m_vB(vB), m_vC(vC)
 {
-	const Vector3f faceN = vB.sub(vA).cross(vC.sub(vA)).normalizeLocal();
+	const Vector3R faceN = vB.sub(vA).cross(vC.sub(vA)).normalizeLocal();
 	m_nA = faceN;
 	m_nB = faceN;
 	m_nC = faceN;
@@ -51,7 +51,7 @@ void GTriangle::discretize(const PrimitiveBuildingMaterial& data,
 	triangle.setNb(m_nB);
 	triangle.setNc(m_nC);
 
-	Vector3f mappedUVW;
+	Vector3R mappedUVW;
 
 	m_textureMapper->map(m_vA, m_uvwA, &mappedUVW);
 	triangle.setUVWa(mappedUVW);

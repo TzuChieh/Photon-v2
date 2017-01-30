@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
+#include "Math/TVector3.h"
 
 namespace ph
 {
@@ -9,7 +10,6 @@ class Ray;
 class Intersection;
 class AABB;
 class PrimitiveMetadata;
-class Vector3f;
 class PositionSample;
 
 class Primitive
@@ -22,7 +22,7 @@ public:
 	virtual bool isIntersecting(const Ray& ray) const = 0;
 	virtual bool isIntersectingVolume(const AABB& aabb) const = 0;
 	virtual void calcAABB(AABB* const out_aabb) const = 0;
-	virtual float32 calcPositionSamplePdfA(const Vector3f& position) const = 0;
+	virtual float32 calcPositionSamplePdfA(const Vector3R& position) const = 0;
 	virtual void genPositionSample(PositionSample* const out_sample) const = 0;
 
 	inline const PrimitiveMetadata* getMetadata() const

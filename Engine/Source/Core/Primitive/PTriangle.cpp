@@ -14,7 +14,7 @@
 namespace ph
 {
 
-PTriangle::PTriangle(const PrimitiveMetadata* const metadata, const Vector3f& vA, const Vector3f& vB, const Vector3f& vC) :
+PTriangle::PTriangle(const PrimitiveMetadata* const metadata, const Vector3R& vA, const Vector3R& vB, const Vector3R& vC) :
 	Primitive(metadata),
 	m_vA(vA), m_vB(vB), m_vC(vC), 
 	m_uvwA(0, 0, 0), m_uvwB(0, 0, 0), m_uvwC(0, 0, 0)
@@ -110,14 +110,14 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 
 	// so the ray intersects the triangle (TODO: reuse calculated results!)
 
-	Vector3f hitPosition;
-	Vector3f hitNormal;
-	Vector3f localHitNormal(m_nA.mul(1.0f - baryB - baryC).addLocal(m_nB.mul(baryB)).addLocal(m_nC.mul(baryC)));
+	Vector3R hitPosition;
+	Vector3R hitNormal;
+	Vector3R localHitNormal(m_nA.mul(1.0f - baryB - baryC).addLocal(m_nB.mul(baryB)).addLocal(m_nC.mul(baryC)));
 	m_metadata->localToWorld.transformPoint(localRay.getDirection().mul(hitT).addLocal(localRay.getOrigin()), &hitPosition);
 	m_metadata->localToWorld.transformVector(localHitNormal, &hitNormal);
 	//m_parentModel->getModelToWorldTransform()->transformVector(m_faceNormal, &hitNormal);
 
-	Vector3f hitGeoNormal;
+	Vector3R hitGeoNormal;
 	m_metadata->localToWorld.transformVector(m_faceNormal, &hitGeoNormal);
 
 	out_intersection->setHitPosition(hitPosition);
@@ -210,9 +210,9 @@ bool PTriangle::isIntersecting(const Ray& ray) const
 
 void PTriangle::calcAABB(AABB* const out_aabb) const
 {
-	Vector3f vA;
-	Vector3f vB;
-	Vector3f vC;
+	Vector3R vA;
+	Vector3R vB;
+	Vector3R vC;
 	m_metadata->localToWorld.transformPoint(m_vA, &vA);
 	m_metadata->localToWorld.transformPoint(m_vB, &vB);
 	m_metadata->localToWorld.transformPoint(m_vC, &vC);
@@ -235,8 +235,8 @@ void PTriangle::calcAABB(AABB* const out_aabb) const
 	if(vC.z > maxZ)      maxZ = vC.z;
 	else if(vC.z < minZ) minZ = vC.z;
 
-	out_aabb->setMinVertex(Vector3f(minX - TRIANGLE_EPSILON, minY - TRIANGLE_EPSILON, minZ - TRIANGLE_EPSILON));
-	out_aabb->setMaxVertex(Vector3f(maxX + TRIANGLE_EPSILON, maxY + TRIANGLE_EPSILON, maxZ + TRIANGLE_EPSILON));
+	out_aabb->setMinVertex(Vector3R(minX - TRIANGLE_EPSILON, minY - TRIANGLE_EPSILON, minZ - TRIANGLE_EPSILON));
+	out_aabb->setMaxVertex(Vector3R(maxX + TRIANGLE_EPSILON, maxY + TRIANGLE_EPSILON, maxZ + TRIANGLE_EPSILON));
 }
 
 bool PTriangle::isIntersectingVolume(const AABB& aabb) const
@@ -246,22 +246,22 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 
 	// TODO: transform aabb to local space may be faster
 
-	Vector3f tvA;
-	Vector3f tvB;
-	Vector3f tvC;
+	Vector3R tvA;
+	Vector3R tvB;
+	Vector3R tvC;
 	m_metadata->localToWorld.transformPoint(m_vA, &tvA);
 	m_metadata->localToWorld.transformPoint(m_vB, &tvB);
 	m_metadata->localToWorld.transformPoint(m_vC, &tvC);
 
 	// move the origin to the AABB's center
-	const Vector3f aabbCenter(aabb.getMinVertex().add(aabb.getMaxVertex()).mulLocal(0.5f));
+	const Vector3R aabbCenter(aabb.getMinVertex().add(aabb.getMaxVertex()).mulLocal(0.5f));
 	tvA.subLocal(aabbCenter);
 	tvB.subLocal(aabbCenter);
 	tvC.subLocal(aabbCenter);
 
-	Vector3f aabbHalfExtents = aabb.getMaxVertex().sub(aabbCenter);
-	Vector3f projection;
-	Vector3f sortedProjection;// (min, mid, max)
+	Vector3R aabbHalfExtents = aabb.getMaxVertex().sub(aabbCenter);
+	Vector3R projection;
+	Vector3R sortedProjection;// (min, mid, max)
 
 								// test AABB face normals (x-, y- and z-axes)
 	projection.set(tvA.x, tvB.x, tvC.x);
@@ -279,7 +279,7 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 	if(sortedProjection.z < -aabbHalfExtents.z || sortedProjection.x > aabbHalfExtents.z)
 		return false;
 
-	Vector3f tNormal;
+	Vector3R tNormal;
 	m_metadata->localToWorld.transformVector(m_faceNormal, &tNormal);
 	tNormal.normalizeLocal();
 
@@ -380,16 +380,16 @@ void PTriangle::genPositionSample(PositionSample* const out_sample) const
 	const float32 A = std::sqrt(genRandomFloat32_0_1_uniform());
 	const float32 B = genRandomFloat32_0_1_uniform();
 
-	const Vector3f localPos = m_vA.mul(1.0f - A).addLocal(m_vB.mul(A * (1.0f - B))).addLocal(m_vC.mul(B * A));
-	Vector3f worldPos;
+	const Vector3R localPos = m_vA.mul(1.0f - A).addLocal(m_vB.mul(A * (1.0f - B))).addLocal(m_vC.mul(B * A));
+	Vector3R worldPos;
 	m_metadata->localToWorld.transformPoint(localPos, &worldPos);
 	out_sample->position = worldPos;
 
-	const Vector3f abc = calcBarycentricCoord(localPos);
+	const Vector3R abc = calcBarycentricCoord(localPos);
 	out_sample->uvw = m_uvwA.mul(1.0f - abc.y - abc.z).addLocal(m_uvwB.mul(abc.y)).addLocal(m_uvwC.mul(abc.z));
 
-	const Vector3f localNormal(m_nA.mul(1.0f - abc.y - abc.z).addLocal(m_nB.mul(abc.y)).addLocal(m_nC.mul(abc.z)));
-	Vector3f worldN;
+	const Vector3R localNormal(m_nA.mul(1.0f - abc.y - abc.z).addLocal(m_nB.mul(abc.y)).addLocal(m_nC.mul(abc.z)));
+	Vector3R worldN;
 	//m_metadata->localToWorld.transformVector(m_faceNormal, &worldN);
 	m_metadata->localToWorld.transformVector(localNormal, &worldN);
 	out_sample->normal = worldN.normalizeLocal();
@@ -399,19 +399,19 @@ void PTriangle::genPositionSample(PositionSample* const out_sample) const
 
 float32 PTriangle::calcExtendedArea() const
 {
-	Vector3f eAB;
-	Vector3f eAC;
+	Vector3R eAB;
+	Vector3R eAC;
 	m_metadata->localToWorld.transformVector(m_eAB, &eAB);
 	m_metadata->localToWorld.transformVector(m_eAC, &eAC);
 	return eAB.cross(eAC).length() * 0.5f;
 }
 
-Vector3f PTriangle::calcBarycentricCoord(const Vector3f& position) const
+Vector3R PTriangle::calcBarycentricCoord(const Vector3R& position) const
 {
 	// Reference: Real-Time Collision Detection, Volume 1, P.47 ~ P.48
 	// Computes barycentric coordinates (a, b, c) for a position with respect to triangle (A, B, C).
 
-	const Vector3f eAP = position.sub(m_vA);
+	const Vector3R eAP = position.sub(m_vA);
 
 	const float32 d00 = m_eAB.dot(m_eAB);
 	const float32 d01 = m_eAB.dot(m_eAC);
@@ -425,10 +425,10 @@ Vector3f PTriangle::calcBarycentricCoord(const Vector3f& position) const
 	const float32 c = (d00 * d21 - d01 * d20) * reciDenom;
 	const float32 a = 1.0f - b - c;
 
-	return Vector3f(a, b, c);
+	return Vector3R(a, b, c);
 }
 
-float32 PTriangle::calcPositionSamplePdfA(const Vector3f& position) const
+float32 PTriangle::calcPositionSamplePdfA(const Vector3R& position) const
 {
 	// FIXME: primitive may have scale factor
 	return m_reciExtendedArea;

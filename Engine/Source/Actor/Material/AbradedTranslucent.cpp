@@ -1,5 +1,6 @@
 #include "Actor/Material/AbradedTranslucent.h"
 #include "Actor/Texture/ConstantTexture.h"
+#include "FileIO/InputPacket.h"
 
 #include <memory>
 #include <cmath>
@@ -14,6 +15,25 @@ AbradedTranslucent::AbradedTranslucent() :
 	
 }
 
+AbradedTranslucent::AbradedTranslucent(const InputPacket& packet) : 
+	Material(packet), 
+	m_bsdfCos()
+{
+	Vector3R albedo(0.5f, 0.5f, 0.5f);
+	Vector3R f0(0.04f, 0.04f, 0.04f);
+	real roughness = 0.5f;
+	real ior       = 1.0f;
+	albedo    = packet.getVector3R("albedo", albedo);
+	f0        = packet.getVector3R("f0", f0);
+	roughness = packet.getReal("roughness", roughness);
+	ior       = packet.getReal("ior", ior);
+
+	setAlbedo(albedo);
+	setF0(f0);
+	setRoughness(roughness);
+	setIOR(ior);
+}
+
 AbradedTranslucent::~AbradedTranslucent() = default;
 
 void AbradedTranslucent::populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const
@@ -21,7 +41,12 @@ void AbradedTranslucent::populateSurfaceBehavior(SurfaceBehavior* const out_surf
 	out_surfaceBehavior->setBsdfCos(std::make_unique<TranslucentMicrofacet>(m_bsdfCos));
 }
 
-void AbradedTranslucent::setF0(const Vector3f& f0)
+void AbradedTranslucent::setAlbedo(const Vector3R& albedo)
+{
+	m_bsdfCos.setF0(std::make_shared<ConstantTexture>(albedo));
+}
+
+void AbradedTranslucent::setF0(const Vector3R& f0)
 {
 	setF0(f0.x, f0.y, f0.z);
 }

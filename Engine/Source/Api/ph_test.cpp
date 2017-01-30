@@ -71,7 +71,7 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	//renderer.setSampleGenerator(&sampleGenerator);
 	camera.setFilm(&film);
 	//camera.setPosition(Vector3f(0, 0, 4));
-	camera.setPosition(Vector3f(0, 0, 16));
+	camera.setPosition(Vector3R(0, 0, 16));
 	
 
 	//load5bScene(&world);

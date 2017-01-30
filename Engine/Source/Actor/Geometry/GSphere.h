@@ -2,7 +2,7 @@
 
 #include "Actor/Geometry/Geometry.h"
 #include "Common/primitive_type.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 
 #include <vector>
 
@@ -25,8 +25,8 @@ public:
 private:
 	float32 m_radius;
 
-	std::size_t addVertex(const Vector3f& vertex, std::vector<Vector3f>* const out_vertices) const;
-	std::size_t addMidpointVertex(const std::size_t iA, const std::size_t iB, std::vector<Vector3f>* const out_vertices) const;
+	std::size_t addVertex(const Vector3R& vertex, std::vector<Vector3R>* const out_vertices) const;
+	std::size_t addMidpointVertex(const std::size_t iA, const std::size_t iB, std::vector<Vector3R>* const out_vertices) const;
 };
 
 }// end namespace ph

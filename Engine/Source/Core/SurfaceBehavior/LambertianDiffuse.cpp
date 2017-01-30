@@ -1,6 +1,6 @@
 #include "Core/SurfaceBehavior/LambertianDiffuse.h"
 #include "Core/Ray.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 #include "Math/random_number.h"
 #include "Math/constant.h"
 #include "Actor/Material/MatteOpaque.h"
@@ -14,7 +14,7 @@ namespace ph
 {
 
 LambertianDiffuse::LambertianDiffuse() :
-	m_albedo(std::make_shared<ConstantTexture>(Vector3f(0.5f, 0.5f, 0.5f)))
+	m_albedo(std::make_shared<ConstantTexture>(Vector3R(0.5f, 0.5f, 0.5f)))
 {
 
 }
@@ -28,17 +28,17 @@ void LambertianDiffuse::genImportanceSample(SurfaceSample& sample) const
 	// generating a cos(theta) weighted L corresponding to N, which PDF is cos(theta)/pi.
 	// Thus, BRDF_lambertian*cos(theta)/PDF = albedo = Li's weight.
 
-	Vector3f albedo;
+	Vector3R albedo;
 	m_albedo->sample(sample.X->getHitUVW(), &albedo);
 	sample.liWeight.set(albedo);
 
 	// generate and transform L to N's space
 
-	Vector3f& L = sample.L;
+	Vector3R& L = sample.L;
 	genUnitHemisphereCosineThetaWeightedSample(genRandomFloat32_0_1_uniform(), genRandomFloat32_0_1_uniform(), &L);
-	Vector3f u;
-	Vector3f v(sample.X->getHitSmoothNormal());
-	Vector3f w;
+	Vector3R u;
+	Vector3R v(sample.X->getHitSmoothNormal());
+	Vector3R w;
 	v.calcOrthBasisAsYaxis(&u, &w);
 	L = u.mulLocal(L.x).addLocal(v.mulLocal(L.y)).addLocal(w.mulLocal(L.z));
 	L.normalizeLocal();
@@ -74,7 +74,7 @@ void LambertianDiffuse::evaluate(SurfaceSample& sample) const
 		return;
 	}
 
-	Vector3f albedo;
+	Vector3R albedo;
 	m_albedo->sample(sample.X->getHitUVW(), &albedo);
 	sample.liWeight = albedo.divLocal(PI_FLOAT32).mulLocal(std::abs(NoL));
 	sample.type = ESurfaceSampleType::REFLECTION;

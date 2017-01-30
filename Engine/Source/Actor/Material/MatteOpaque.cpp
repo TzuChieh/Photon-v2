@@ -16,7 +16,7 @@ MatteOpaque::MatteOpaque(const InputPacket& packet) :
 	Material(packet), 
 	m_bsdfCos()
 {
-	const Vector3f albedo = packet.getVector3r("albedo", Vector3f(0.5f, 0.5f, 0.5f), 
+	const Vector3R albedo = packet.getVector3R("albedo", Vector3R(0.5f, 0.5f, 0.5f),
 	                                           "albedo not found, all components are set to 0.5");
 	setAlbedo(albedo);
 }
@@ -28,7 +28,7 @@ void MatteOpaque::populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBeha
 	out_surfaceBehavior->setBsdfCos(std::make_unique<LambertianDiffuse>(m_bsdfCos));
 }
 
-void MatteOpaque::setAlbedo(const Vector3f& albedo)
+void MatteOpaque::setAlbedo(const Vector3R& albedo)
 {
 	setAlbedo(albedo.x, albedo.y, albedo.z);
 }

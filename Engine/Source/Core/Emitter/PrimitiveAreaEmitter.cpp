@@ -1,5 +1,5 @@
 #include "Core/Emitter/PrimitiveAreaEmitter.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 #include "Actor/Geometry/Geometry.h"
 #include "Core/Intersection.h"
 #include "Actor/Texture/ConstantTexture.h"
@@ -19,7 +19,7 @@ namespace ph
 
 PrimitiveAreaEmitter::PrimitiveAreaEmitter(const std::vector<const Primitive*>& primitives) :
 	Emitter(), 
-	m_primitives(primitives), m_emittedRadiance(std::make_shared<ConstantTexture>(Vector3f(0, 0, 0)))
+	m_primitives(primitives), m_emittedRadiance(std::make_shared<ConstantTexture>(Vector3R(0, 0, 0)))
 {
 	if(primitives.empty())
 	{
@@ -39,12 +39,12 @@ PrimitiveAreaEmitter::~PrimitiveAreaEmitter()
 
 }
 
-void PrimitiveAreaEmitter::evalEmittedRadiance(const Intersection& intersection, Vector3f* const out_emitterRadiance) const
+void PrimitiveAreaEmitter::evalEmittedRadiance(const Intersection& intersection, Vector3R* const out_emitterRadiance) const
 {
 	m_emittedRadiance->sample(intersection.getHitUVW(), out_emitterRadiance);
 }
 
-void PrimitiveAreaEmitter::genDirectSample(const Vector3f& targetPos, Vector3f* const out_emitPos, Vector3f* const out_emittedRadiance, float32* const out_PDF) const
+void PrimitiveAreaEmitter::genDirectSample(const Vector3R& targetPos, Vector3R* const out_emitPos, Vector3R* const out_emittedRadiance, float32* const out_PDF) const
 {
 	const std::size_t picker = static_cast<std::size_t>(genRandomFloat32_0_1_uniform() * static_cast<float32>(m_primitives.size()));
 	const std::size_t pickedIndex = picker == m_primitives.size() ? picker - 1 : picker;
@@ -54,7 +54,7 @@ void PrimitiveAreaEmitter::genDirectSample(const Vector3f& targetPos, Vector3f* 
 	primitive->genPositionSample(&positionSample);
 
 	const float32 distSquared = targetPos.sub(positionSample.position).squaredLength();
-	const Vector3f emitDir = targetPos.sub(positionSample.position).normalizeLocal();
+	const Vector3R emitDir = targetPos.sub(positionSample.position).normalizeLocal();
 	const float32 pickPDF = (1.0f / primitive->getReciExtendedArea()) * m_reciExtendedArea;
 	//*out_PDF = pickPDF * positionSample.pdf / (std::abs(emitDir.dot(positionSample.normal)) / distSquared);
 	*out_PDF = pickPDF * positionSample.pdf / std::abs(emitDir.dot(positionSample.normal)) * distSquared;
@@ -64,7 +64,7 @@ void PrimitiveAreaEmitter::genDirectSample(const Vector3f& targetPos, Vector3f* 
 		*out_PDF = 0.0f;
 	}*/
 
-	Vector3f emittedRadiance;
+	Vector3R emittedRadiance;
 	m_emittedRadiance->sample(positionSample.uvw, &emittedRadiance);
 	*out_emittedRadiance = emittedRadiance;
 
@@ -82,8 +82,8 @@ void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
 	PositionSample positionSample;
 	sample.sourcePrim->genPositionSample(&positionSample);
 
-	const Vector3f emitterToTargetPos(sample.targetPos.sub(positionSample.position));
-	const Vector3f emitDir(emitterToTargetPos.normalize());
+	const Vector3R emitterToTargetPos(sample.targetPos.sub(positionSample.position));
+	const Vector3R emitDir(emitterToTargetPos.normalize());
 	const float32 distSquared = emitterToTargetPos.squaredLength();
 	
 	sample.emitPos = positionSample.position;
@@ -91,16 +91,16 @@ void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
 	m_emittedRadiance->sample(positionSample.uvw, &sample.radianceLe);
 }
 
-float32 PrimitiveAreaEmitter::calcDirectSamplePdfW(const Vector3f& targetPos, const Vector3f& emitPos, const Vector3f& emitN, const Primitive* hitPrim) const
+float32 PrimitiveAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const
 {
 	const float32 pickPdfW = (1.0f / hitPrim->getReciExtendedArea()) * m_reciExtendedArea;
 	const float32 samplePdfA = hitPrim->calcPositionSamplePdfA(emitPos);
 	const float32 distSquared = targetPos.sub(emitPos).squaredLength();
-	const Vector3f emitDir(targetPos.sub(emitPos).normalizeLocal());
+	const Vector3R emitDir(targetPos.sub(emitPos).normalizeLocal());
 	return pickPdfW * (samplePdfA / std::abs(emitDir.dot(emitN)) * distSquared);
 }
 
-void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, Vector3f* const out_Le, Vector3f* const out_eN, float32* const out_pdfA, float32* const out_pdfW) const
+void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, Vector3R* const out_Le, Vector3R* const out_eN, float32* const out_pdfA, float32* const out_pdfW) const
 {
 	// randomly and uniformly pick a primitive
 	const std::size_t picker = static_cast<std::size_t>(genRandomFloat32_0_1_uniform() * static_cast<float32>(m_primitives.size()));
@@ -112,7 +112,7 @@ void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, Vector3f* const out
 	primitive->genPositionSample(&positionSample);
 
 	// random & uniform direction on a unit sphere
-	Vector3f rayDir;
+	Vector3R rayDir;
 	const float32 r1 = genRandomFloat32_0_1_uniform();
 	const float32 r2 = genRandomFloat32_0_1_uniform();
 	const float32 sqrtTerm = std::sqrt(r2 * (1.0f - r2));

@@ -2,7 +2,7 @@
 
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/LambertianDiffuse.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 #include "Actor/Texture/Texture.h"
 
 #include <memory>
@@ -19,7 +19,7 @@ public:
 
 	virtual void populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const override;
 
-	void setAlbedo(const Vector3f& albedo);
+	void setAlbedo(const Vector3R& albedo);
 	void setAlbedo(const float32 r, const float32 g, const float32 b);
 	void setAlbedo(const std::shared_ptr<Texture>& albedo);
 

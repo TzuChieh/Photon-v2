@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/constant.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 
 #include <iostream>
 
@@ -48,7 +48,7 @@ public:
 	}
 
 	// Schlick Approximated Fresnel Function
-	inline static void fresnelSchlickApproximated(const float32 HoV, const Vector3f& f0, Vector3f* const out_F)
+	inline static void fresnelSchlickApproximated(const float32 HoV, const Vector3R& f0, Vector3R* const out_F)
 	{
 		*out_F = f0.add(f0.complement().mulLocal(pow(1.0f - HoV, 5)));
 	}

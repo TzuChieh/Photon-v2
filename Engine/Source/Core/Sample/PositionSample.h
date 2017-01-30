@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 
 namespace ph
 {
@@ -8,9 +8,9 @@ namespace ph
 class PositionSample final
 {
 public:
-	Vector3f position;
-	Vector3f normal;
-	Vector3f uvw;
+	Vector3R position;
+	Vector3R normal;
+	Vector3R uvw;
 	float32  pdf;
 };
 

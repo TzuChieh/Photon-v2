@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 #include "Math/Vector2f.h"
 
 #include <iostream>
@@ -24,7 +24,7 @@ public:
 
 	// TODO: precalculate aspect ratio info from camera film
 	virtual void genSensingRay(const Sample& sample, Ray* const out_ray) const = 0;
-	virtual void evalEmittedImportanceAndPdfW(const Vector3f& targetPos, Vector2f* const out_filmCoord, Vector3f* const out_importance, float32* out_filmArea, float32* const out_pdfW) const = 0;
+	virtual void evalEmittedImportanceAndPdfW(const Vector3R& targetPos, Vector2f* const out_filmCoord, Vector3R* const out_importance, float32* out_filmArea, float32* const out_pdfW) const = 0;
 
 	inline void setFilm(Film* film)
 	{
@@ -41,39 +41,39 @@ public:
 		return m_film;
 	}
 
-	inline const Vector3f& getPosition() const
+	inline const Vector3R& getPosition() const
 	{
 		return m_position;
 	}
 
-	inline const Vector3f& getDirection() const
+	inline const Vector3R& getDirection() const
 	{
 		return m_direction;
 	}
 
-	inline void getPosition(Vector3f* out_position) const
+	inline void getPosition(Vector3R* const out_position) const
 	{
 		m_position.set(out_position);
 	}
 
-	inline void getDirection(Vector3f* out_direction) const
+	inline void getDirection(Vector3R* const out_direction) const
 	{
 		m_direction.set(out_direction);
 	}
 
-	inline void setPosition(const Vector3f& position)
+	inline void setPosition(const Vector3R& position)
 	{
 		m_position.set(position);
 	}
 
-	inline void setDirection(const Vector3f& direction)
+	inline void setDirection(const Vector3R& direction)
 	{
 		m_direction.set(direction);
 	}
 
 private:
-	Vector3f m_position;
-	Vector3f m_direction;
+	Vector3R m_position;
+	Vector3R m_direction;
 
 	Film* m_film;
 };

@@ -1,6 +1,6 @@
 #include "Actor/Geometry/GCuboid.h"
 #include "Core/Primitive/PTriangle.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Actor/TextureMapper/TextureMapper.h"
 #include "Actor/AModel.h"
@@ -41,14 +41,14 @@ void GCuboid::discretize(const PrimitiveBuildingMaterial& data,
 	const float32 halfZlen = m_zLen * 0.5f;
 
 	// 8 vertices of a cuboid
-	const Vector3f vPPP( halfXlen,  halfYlen,  halfZlen);
-	const Vector3f vNPP(-halfXlen,  halfYlen,  halfZlen);
-	const Vector3f vNNP(-halfXlen, -halfYlen,  halfZlen);
-	const Vector3f vPNP( halfXlen, -halfYlen,  halfZlen);
-	const Vector3f vPPN( halfXlen,  halfYlen, -halfZlen);
-	const Vector3f vNPN(-halfXlen,  halfYlen, -halfZlen);
-	const Vector3f vNNN(-halfXlen, -halfYlen, -halfZlen);
-	const Vector3f vPNN( halfXlen, -halfYlen, -halfZlen);
+	const Vector3R vPPP( halfXlen,  halfYlen,  halfZlen);
+	const Vector3R vNPP(-halfXlen,  halfYlen,  halfZlen);
+	const Vector3R vNNP(-halfXlen, -halfYlen,  halfZlen);
+	const Vector3R vPNP( halfXlen, -halfYlen,  halfZlen);
+	const Vector3R vPPN( halfXlen,  halfYlen, -halfZlen);
+	const Vector3R vNPN(-halfXlen,  halfYlen, -halfZlen);
+	const Vector3R vNNN(-halfXlen, -halfYlen, -halfZlen);
+	const Vector3R vPNN( halfXlen, -halfYlen, -halfZlen);
 
 	// 12 triangles (all CCW)
 

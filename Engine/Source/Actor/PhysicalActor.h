@@ -3,6 +3,7 @@
 #include "Actor/Actor.h"
 #include "Math/TransformInfo.h"
 #include "Math/Transform.h"
+#include "Math/math_fwd.h"
 
 namespace ph
 {
@@ -17,10 +18,10 @@ public:
 
 	virtual void genCoreActor(CoreActor* const out_coreActor) const = 0;
 
-	void translate(const Vector3f& translation);
+	void translate(const Vector3R& translation);
 	void translate(const float32 x, const float32 y, const float32 z);
-	void rotate(const Vector3f& normalizedAxis, const float32 degrees);
-	void scale(const Vector3f& scaleFactor);
+	void rotate(const Vector3R& normalizedAxis, const float32 degrees);
+	void scale(const Vector3R& scaleFactor);
 	void scale(const float32 x, const float32 y, const float32 z);
 	void scale(const float32 scaleFactor);
 

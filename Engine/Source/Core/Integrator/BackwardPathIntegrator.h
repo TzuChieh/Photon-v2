@@ -8,6 +8,7 @@ namespace ph
 class BackwardPathIntegrator final : public Integrator
 {
 public:
+	BackwardPathIntegrator(const InputPacket& packet);
 	virtual ~BackwardPathIntegrator() override;
 
 	virtual void update(const World& world) override;

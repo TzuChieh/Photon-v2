@@ -1,7 +1,7 @@
 #include "Core/SurfaceBehavior/TranslucentMicrofacet.h"
 #include "Actor/Texture/ConstantTexture.h"
 #include "Core/Ray.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 #include "Math/random_number.h"
 #include "Math/constant.h"
 #include "Core/Intersection.h"
@@ -16,9 +16,9 @@ namespace ph
 {
 
 TranslucentMicrofacet::TranslucentMicrofacet() :
-	m_F0   (std::make_shared<ConstantTexture>(Vector3f(0.04f, 0.04f, 0.04f))),
-	m_IOR  (std::make_shared<ConstantTexture>(Vector3f(1.0f, 1.0f, 1.0f))),
-	m_alpha(std::make_shared<ConstantTexture>(Vector3f(0.5f, 0.5f, 0.5f)))
+	m_F0   (std::make_shared<ConstantTexture>(Vector3R(0.04f, 0.04f, 0.04f))),
+	m_IOR  (std::make_shared<ConstantTexture>(Vector3R(1.0f, 1.0f, 1.0f))),
+	m_alpha(std::make_shared<ConstantTexture>(Vector3R(0.5f, 0.5f, 0.5f)))
 {
 
 }
@@ -34,21 +34,21 @@ void TranslucentMicrofacet::genImportanceSample(SurfaceSample& sample) const
 	// The PDF for this sampling scheme is (D(H)*NoH) * (iorO^2 * |HoV| / ((iorI*HoL + iorO*HoV)^2)).
 	// The reason that the latter multiplier in the PDF exists is because there's a jacobian involved (from H's probability space to L's).
 
-	Vector3f sampledAlpha;
+	Vector3R sampledAlpha;
 	m_alpha->sample(sample.X->getHitUVW(), &sampledAlpha);
 	const float32 alpha = sampledAlpha.x;
 
-	Vector3f sampledF0;
+	Vector3R sampledF0;
 	m_F0->sample(sample.X->getHitUVW(), &sampledF0);
 
-	const Vector3f V = sample.V;
-	const Vector3f& N = sample.X->getHitSmoothNormal();
-	Vector3f H;
+	const Vector3R V = sample.V;
+	const Vector3R& N = sample.X->getHitSmoothNormal();
+	Vector3R H;
 
 	genUnitHemisphereGgxTrowbridgeReitzNdfSample(genRandomFloat32_0_1_uniform(), genRandomFloat32_0_1_uniform(), alpha, &H);
-	Vector3f u;
-	Vector3f v(N);
-	Vector3f w;
+	Vector3R u;
+	Vector3R v(N);
+	Vector3R w;
 	v.calcOrthBasisAsYaxis(&u, &w);
 	H = u.mulLocal(H.x).addLocal(v.mulLocal(H.y)).addLocal(w.mulLocal(H.z));
 	H.normalizeLocal();
@@ -57,7 +57,7 @@ void TranslucentMicrofacet::genImportanceSample(SurfaceSample& sample) const
 	const float32 HoV = H.dot(V);
 	const float32 NoH = N.dot(H);
 
-	Vector3f F;
+	Vector3R F;
 	Microfacet::fresnelSchlickApproximated(abs(HoV), sampledF0, &F);
 
 	// use Fresnel term to select which path to take and calculate L
@@ -81,7 +81,7 @@ void TranslucentMicrofacet::genImportanceSample(SurfaceSample& sample) const
 	else
 	{
 		float32 signHoV = HoV < 0.0f ? -1.0f : 1.0f;
-		Vector3f ior;
+		Vector3R ior;
 		m_IOR->sample(sample.X->getHitUVW(), &ior);
 
 		// assume the outside medium has an IOR of 1.0 (which is true in most cases)
@@ -116,7 +116,7 @@ void TranslucentMicrofacet::genImportanceSample(SurfaceSample& sample) const
 		}
 	}
 
-	const Vector3f& L = sample.L;
+	const Vector3R& L = sample.L;
 
 	const float32 NoL = N.dot(L);
 	const float32 HoL = H.dot(L);
@@ -130,14 +130,14 @@ void TranslucentMicrofacet::genImportanceSample(SurfaceSample& sample) const
 
 float32 TranslucentMicrofacet::calcImportanceSamplePdfW(const SurfaceSample& sample) const
 {
-	const Vector3f& N = sample.X->getHitSmoothNormal();
+	const Vector3R& N = sample.X->getHitSmoothNormal();
 	const float32 NoL = N.dot(sample.L);
 
-	Vector3f sampledAlpha;
+	Vector3R sampledAlpha;
 	m_alpha->sample(sample.X->getHitUVW(), &sampledAlpha);
 	const float32 alpha = sampledAlpha.x;
 
-	Vector3f sampledF0;
+	Vector3R sampledF0;
 	m_F0->sample(sample.X->getHitUVW(), &sampledF0);
 
 	switch(sample.type)
@@ -145,7 +145,7 @@ float32 TranslucentMicrofacet::calcImportanceSamplePdfW(const SurfaceSample& sam
 	case ESurfaceSampleType::REFLECTION:
 	{
 		// H is on the hemisphere of N
-		Vector3f H = sample.L.add(sample.V).normalizeLocal();
+		Vector3R H = sample.L.add(sample.V).normalizeLocal();
 		if(NoL < 0.0f)
 		{
 			H.mulLocal(-1.0f);
@@ -156,12 +156,12 @@ float32 TranslucentMicrofacet::calcImportanceSamplePdfW(const SurfaceSample& sam
 		const float32 HoV = H.dot(sample.V);
 		const float32 D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
 
-		Vector3f F;
+		Vector3R F;
 		Microfacet::fresnelSchlickApproximated(abs(HoV), sampledF0, &F);
 		float32 reflectProb = F.avg();
 
 		const float32 signHoV = HoV < 0.0f ? -1.0f : 1.0f;
-		Vector3f ior;
+		Vector3R ior;
 		m_IOR->sample(sample.X->getHitUVW(), &ior);
 
 		// assume the outside medium has an IOR of 1.0 (which is true in most cases)
@@ -180,13 +180,13 @@ float32 TranslucentMicrofacet::calcImportanceSamplePdfW(const SurfaceSample& sam
 
 	case ESurfaceSampleType::TRANSMISSION:
 	{
-		Vector3f sampledIor;
+		Vector3R sampledIor;
 		m_IOR->sample(sample.X->getHitUVW(), &sampledIor);
 		float32 iorI;
 		float32 iorO;
 
 		// H is on the hemisphere of N
-		Vector3f H;
+		Vector3R H;
 		if(NoL < 0.0f)
 		{
 			iorI = sampledIor.x;
@@ -205,7 +205,7 @@ float32 TranslucentMicrofacet::calcImportanceSamplePdfW(const SurfaceSample& sam
 
 		const float32 D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
 
-		Vector3f F;
+		Vector3R F;
 		Microfacet::fresnelSchlickApproximated(abs(HoV), sampledF0, &F);
 		const float32 reflectProb = 1.0f - F.avg();
 
@@ -225,15 +225,15 @@ float32 TranslucentMicrofacet::calcImportanceSamplePdfW(const SurfaceSample& sam
 
 void TranslucentMicrofacet::evaluate(SurfaceSample& sample) const
 {
-	const Vector3f& N = sample.X->getHitSmoothNormal();
+	const Vector3R& N = sample.X->getHitSmoothNormal();
 
 	const float32 NoL = N.dot(sample.L);
 	const float32 NoV = N.dot(sample.V);
 
-	Vector3f sampledAlpha;
+	Vector3R sampledAlpha;
 	m_alpha->sample(sample.X->getHitUVW(), &sampledAlpha);
 	const float32 alpha = sampledAlpha.x;
-	Vector3f sampledF0;
+	Vector3R sampledF0;
 	m_F0->sample(sample.X->getHitUVW(), &sampledF0);
 
 	// reflection
@@ -244,7 +244,7 @@ void TranslucentMicrofacet::evaluate(SurfaceSample& sample) const
 		return;*/
 
 		// H is on the hemisphere of N
-		Vector3f H = sample.L.add(sample.V).normalizeLocal();
+		Vector3R H = sample.L.add(sample.V).normalizeLocal();
 		if(N.dot(H) < 0.0f)
 		{
 			H.mulLocal(-1.0f);
@@ -254,11 +254,11 @@ void TranslucentMicrofacet::evaluate(SurfaceSample& sample) const
 		const float32 NoH = N.dot(H);
 		const float32 HoL = H.dot(sample.L);
 
-		Vector3f F;
+		Vector3R F;
 		Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
 
 		const float32 signHoV = HoV < 0.0f ? -1.0f : 1.0f;
-		Vector3f ior;
+		Vector3R ior;
 		m_IOR->sample(sample.X->getHitUVW(), &ior);
 
 		// assume the outside medium has an IOR of 1.0 (which is true in most cases)
@@ -285,13 +285,13 @@ void TranslucentMicrofacet::evaluate(SurfaceSample& sample) const
 		/*sample.liWeight.set(0, 0, 0);
 		return;*/
 
-		Vector3f sampledIor;
+		Vector3R sampledIor;
 		m_IOR->sample(sample.X->getHitUVW(), &sampledIor);
 		float32 iorI;
 		float32 iorO;
 
 		// H is on the hemisphere of N
-		Vector3f H;
+		Vector3R H;
 		if(NoL < 0.0f)
 		{
 			iorI = sampledIor.x;
@@ -318,7 +318,7 @@ void TranslucentMicrofacet::evaluate(SurfaceSample& sample) const
 		//	return;
 		//}
 		
-		Vector3f F;
+		Vector3R F;
 		Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
 		const float32 D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
 		const float32 G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, alpha);

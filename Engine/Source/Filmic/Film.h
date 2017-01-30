@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
+#include "Math/math_fwd.h"
 #include "Filmic/RadianceSensor.h"
 
 #include <vector>
@@ -8,7 +9,6 @@
 namespace ph
 {
 
-class Vector3f;
 class Frame;
 class InputPacket;
 
@@ -18,7 +18,7 @@ public:
 	Film(const uint32 widthPx, const uint32 heightPx);
 	Film(const InputPacket& packet);
 
-	void accumulateRadiance(const uint32 x, const uint32 y, const Vector3f& radiance);
+	void accumulateRadiance(const uint32 x, const uint32 y, const Vector3R& radiance);
 	void accumulateRadiance(const Film& other);
 	void developFilm(Frame* const out_frame) const;
 	void clear();
@@ -34,7 +34,7 @@ public:
 	}
 
 	// HACK
-	inline void accumulateRadianceWithoutIncrementSenseCount(const uint32 x, const uint32 y, const Vector3f& radiance)
+	inline void accumulateRadianceWithoutIncrementSenseCount(const uint32 x, const uint32 y, const Vector3R& radiance)
 	{
 		const std::size_t baseIndex = y * static_cast<std::size_t>(m_widthPx) + x;
 

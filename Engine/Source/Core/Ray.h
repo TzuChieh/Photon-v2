@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 
 #include <limits>
 
@@ -14,26 +14,26 @@ namespace ph
 class Ray final
 {
 public:
-	Ray(const Vector3f& origin, const Vector3f& direction, const float32 minT, const float32 maxT);
-	Ray(const Vector3f& origin, const Vector3f& direction);
+	Ray(const Vector3R& origin, const Vector3R& direction, const float32 minT, const float32 maxT);
+	Ray(const Vector3R& origin, const Vector3R& direction);
 	Ray();
 
-	inline const Vector3f& getOrigin() const
+	inline const Vector3R& getOrigin() const
 	{
 		return m_origin;
 	}
 
-	inline const Vector3f& getDirection() const
+	inline const Vector3R& getDirection() const
 	{
 		return m_direction;
 	}
 
-	inline Vector3f& getOrigin()
+	inline Vector3R& getOrigin()
 	{
 		return m_origin;
 	}
 
-	inline Vector3f& getDirection()
+	inline Vector3R& getDirection()
 	{
 		return m_direction;
 	}
@@ -48,12 +48,12 @@ public:
 		return m_maxT;
 	}
 
-	inline void setOrigin(const Vector3f& origin)
+	inline void setOrigin(const Vector3R& origin)
 	{
 		m_origin = origin;
 	}
 
-	inline void setDirection(const Vector3f& direction)
+	inline void setDirection(const Vector3R& direction)
 	{
 		m_direction = direction;
 	}
@@ -69,8 +69,8 @@ public:
 	}
 
 private:
-	Vector3f m_origin;
-	Vector3f m_direction;
+	Vector3R m_origin;
+	Vector3R m_direction;
 	float32  m_minT;
 	float32  m_maxT;
 };

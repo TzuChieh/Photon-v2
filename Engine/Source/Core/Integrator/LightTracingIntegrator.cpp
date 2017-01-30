@@ -3,7 +3,7 @@
 #include "World/World.h"
 #include "World/Intersector.h"
 #include "World/LightSampler/LightSampler.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 #include "Core/Intersection.h"
 #include "Core/Sample/SurfaceSample.h"
 #include "Actor/Material/Material.h"
@@ -48,8 +48,8 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 	}
 
 	Ray emitterRay;
-	Vector3f emitterRadianceLe;
-	Vector3f eN;
+	Vector3R emitterRadianceLe;
+	Vector3R eN;
 	float32 emitterPdfA;
 	float32 emitterPdfW;
 	emitter->genSensingRay(&emitterRay, &emitterRadianceLe, &eN, &emitterPdfA, &emitterPdfW);
@@ -61,12 +61,12 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 
 	// 0 bounce
 	{
-		const Vector3f toCameraVec(camera.getPosition().sub(emitterRay.getOrigin()));
+		const Vector3R toCameraVec(camera.getPosition().sub(emitterRay.getOrigin()));
 		const Ray toCameraRay(emitterRay.getOrigin(), toCameraVec.normalize(), 
 			RAY_DELTA_DIST, toCameraVec.length() - 2.0f * RAY_DELTA_DIST);
 		if(!intersector.isIntersecting(toCameraRay))
 		{
-			Vector3f cameraImportanceWe;
+			Vector3R cameraImportanceWe;
 			Vector2f filmCoord;
 			float32 cameraPdfW;
 			float32 cameraPdfA = 1.0f;// always pinhole for now
@@ -75,7 +75,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 				&cameraImportanceWe, &filmArea, &cameraPdfW);
 			if(cameraPdfW > 0.0f)
 			{
-				Vector3f weight(1, 1, 1);
+				Vector3R weight(1, 1, 1);
 				weight.mulLocal(cameraImportanceWe.div(cameraPdfA));
 				weight.divLocal(emitterPdfA);
 				const float32 G = eN.absDot(toCameraRay.getDirection()) * 
@@ -91,12 +91,12 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 	}
 
 	Intersection intersection;
-	Vector3f throughput(1, 1, 1);
+	Vector3R throughput(1, 1, 1);
 	while(numBounces < MAX_RAY_BOUNCES && intersector.isIntersecting(emitterRay, &intersection))
 	{
 		const PrimitiveMetadata* const metadata = intersection.getHitPrimitive()->getMetadata();
 		const BSDFcos* const bsdfCos = metadata->surfaceBehavior.getBsdfCos();
-		const Vector3f V(emitterRay.getDirection().mul(-1.0f));
+		const Vector3R V(emitterRay.getDirection().mul(-1.0f));
 		
 		if(intersection.getHitGeoNormal().dot(V) * intersection.getHitSmoothNormal().dot(V) <= 0.0f)
 		{
@@ -105,7 +105,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 
 		// try connecting to camera
 		{
-			const Vector3f toCameraVec(camera.getPosition().sub(intersection.getHitPosition()));
+			const Vector3R toCameraVec(camera.getPosition().sub(intersection.getHitPosition()));
 			if(!(intersection.getHitGeoNormal().dot(toCameraVec) * intersection.getHitSmoothNormal().dot(toCameraVec) <= 0.0f))
 			{
 				const Ray toCameraRay(intersection.getHitPosition(), toCameraVec.normalize(), 
@@ -117,7 +117,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 					bsdfCos->evaluate(surfaceSample);
 					if(surfaceSample.isEvaluationGood())
 					{
-						Vector3f cameraImportanceWe;
+						Vector3R cameraImportanceWe;
 						Vector2f filmCoord;
 						float32 cameraPdfW;
 						float32 cameraPdfA = 1.0f;// always pinhole for now
@@ -126,7 +126,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 							&cameraImportanceWe, &filmArea, &cameraPdfW);
 						if(cameraPdfW > 0.0f)
 						{
-							Vector3f weight(1, 1, 1);
+							Vector3R weight(1, 1, 1);
 							weight.mulLocal(cameraImportanceWe.div(cameraPdfA));
 							weight.mulLocal(surfaceSample.liWeight);
 							weight.mulLocal(1.0f / (emitterPdfA * emitterPdfW));
@@ -159,7 +159,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 			return;
 		}
 
-		Vector3f liWeight = surfaceSample.liWeight;
+		Vector3R liWeight = surfaceSample.liWeight;
 
 		if(numBounces >= 3)
 		{
@@ -196,7 +196,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 }
 
 // NaNs will be clamped to 0
-void LightTracingIntegrator::rationalClamp(Vector3f& value)
+void LightTracingIntegrator::rationalClamp(Vector3R& value)
 {
 	value.x = value.x > 0.0f && value.x < 10000.0f ? value.x : 0.0f;
 	value.y = value.y > 0.0f && value.y < 10000.0f ? value.y : 0.0f;

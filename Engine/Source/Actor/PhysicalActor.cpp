@@ -1,6 +1,7 @@
 #include "Actor/PhysicalActor.h"
 #include "FileIO/InputPacket.h"
 #include "Math/Math.h"
+#include "Math/TVector3.h"
 
 namespace ph
 {
@@ -28,14 +29,14 @@ PhysicalActor::PhysicalActor(const InputPacket& packet) :
 
 PhysicalActor::~PhysicalActor() = default;
 
-void PhysicalActor::translate(const Vector3f& translation)
+void PhysicalActor::translate(const Vector3R& translation)
 {
 	m_transformInfo.setPosition(m_transformInfo.getPosition().add(translation));
 
 	updateTransforms();
 }
 
-void PhysicalActor::rotate(const Vector3f& normalizedAxis, const float32 degrees)
+void PhysicalActor::rotate(const Vector3R& normalizedAxis, const float32 degrees)
 {
 	Quaternion rotation(normalizedAxis, Math::toRadians(degrees));
 	rotation.mulLocal(m_transformInfo.getRotation());
@@ -45,7 +46,7 @@ void PhysicalActor::rotate(const Vector3f& normalizedAxis, const float32 degrees
 	updateTransforms();
 }
 
-void PhysicalActor::scale(const Vector3f& scaleFactor)
+void PhysicalActor::scale(const Vector3R& scaleFactor)
 {
 	m_transformInfo.setScale(m_transformInfo.getScale().mul(scaleFactor));
 
@@ -54,17 +55,17 @@ void PhysicalActor::scale(const Vector3f& scaleFactor)
 
 void PhysicalActor::translate(const float32 x, const float32 y, const float32 z)
 {
-	translate(Vector3f(x, y, z));
+	translate(Vector3R(x, y, z));
 }
 
 void PhysicalActor::scale(const float32 x, const float32 y, const float32 z)
 {
-	scale(Vector3f(x, y, z));
+	scale(Vector3R(x, y, z));
 }
 
 void PhysicalActor::scale(const float32 scaleFactor)
 {
-	scale(Vector3f(scaleFactor));
+	scale(Vector3R(scaleFactor));
 }
 
 const Transform* PhysicalActor::getLocalToWorldTransform() const

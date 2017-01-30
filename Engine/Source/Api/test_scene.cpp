@@ -230,13 +230,13 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 	auto unitRectangleGeom = std::make_shared<GRectangle>(1.0f, 1.0f);
 
 	auto chromiumMaterial = std::make_shared<AbradedOpaque>();
-	chromiumMaterial->setF0(Vector3f(0.549585f, 0.556114f, 0.554256f));
+	chromiumMaterial->setF0(Vector3R(0.549585f, 0.556114f, 0.554256f));
 	//chromiumMaterial->setRoughness(0.3f);
 	chromiumMaterial->setRoughness(0.01f);
 	//chromiumMaterial->setRoughness(0.0f);
 
 	ALight topLight;
-	topLight.rotate(Vector3f(1, 0, 0), 90);
+	topLight.rotate(Vector3R(1, 0, 0), 90);
 	//topLight.rotate(Vector3f(1, 0, 0), 45);
 	//topLight.scale(boxSize * 0.05f);
 	//topLight.scale(boxSize * 0.3f);
@@ -284,7 +284,7 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 	leftWallMatl->setAlbedo(0.85f, 0.3f, 0.3f);
 	//leftWallMatl->setAlbedo(1.0f, 1.0f, 1.0f);
 	AModel leftWallModel(unitRectangleGeom, leftWallMatl);
-	leftWallModel.rotate(Vector3f(0, 1, 0), 90);
+	leftWallModel.rotate(Vector3R(0, 1, 0), 90);
 	leftWallModel.scale(boxSize);
 	leftWallModel.translate(-halfBoxSize, 0, 0);
 	out_world->addActor(std::make_unique<AModel>(leftWallModel));
@@ -292,7 +292,7 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 	auto rightWallMatl = std::make_shared<MatteOpaque>();
 	rightWallMatl->setAlbedo(0.3f, 0.3f, 0.85f);
 	AModel rightWallModel(unitRectangleGeom, rightWallMatl);
-	rightWallModel.rotate(Vector3f(0, 1, 0), -90);
+	rightWallModel.rotate(Vector3R(0, 1, 0), -90);
 	rightWallModel.scale(boxSize);
 	rightWallModel.translate(halfBoxSize, 0, 0);
 	out_world->addActor(std::make_unique<AModel>(rightWallModel));
@@ -307,7 +307,7 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 	auto topWallMatl = std::make_shared<MatteOpaque>();
 	backWallMatl->setAlbedo(0.7f, 0.7f, 0.7f);
 	AModel topWallModel(unitRectangleGeom, topWallMatl);
-	topWallModel.rotate(Vector3f(1, 0, 0), 90);
+	topWallModel.rotate(Vector3R(1, 0, 0), 90);
 	topWallModel.scale(boxSize);
 	topWallModel.translate(0, halfBoxSize, 0);
 	out_world->addActor(std::make_unique<AModel>(topWallModel));
@@ -317,7 +317,7 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 	groundWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
 	AModel groundWallModel(unitRectangleGeom, groundWallMatl);
 	//AModel groundWallModel(unitRectangleGeom, chromiumMaterial);
-	groundWallModel.rotate(Vector3f(1, 0, 0), -90);
+	groundWallModel.rotate(Vector3R(1, 0, 0), -90);
 	groundWallModel.scale(boxSize);
 	groundWallModel.translate(0, -halfBoxSize, 0);
 	out_world->addActor(std::make_unique<AModel>(groundWallModel));
@@ -331,12 +331,12 @@ void loadCbox3ObjScene(World* const out_world)
 	loadCornellBox(out_world, boxSize);
 
 	auto goldMaterial = std::make_shared<AbradedOpaque>();
-	goldMaterial->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));
+	goldMaterial->setF0(Vector3R(1.0f, 0.765557f, 0.336057f));
 	goldMaterial->setRoughness(0.03f);
 	//goldMaterial->setRoughness(0.001f);
 
 	auto silverMaterial = std::make_shared<AbradedOpaque>();
-	silverMaterial->setF0(Vector3f(0.971519f, 0.959915f, 0.915324f));
+	silverMaterial->setF0(Vector3R(0.971519f, 0.959915f, 0.915324f));
 	silverMaterial->setRoughness(0.0f);
 
 	auto glassMaterial = std::make_shared<AbradedTranslucent>();
@@ -424,7 +424,7 @@ void loadCbox3ObjScene(World* const out_world)
 			model.translate(0, -5, 0);
 			model.scale(5.0f);
 			//model.scale(4.5f);
-			model.rotate(Vector3f(0, 1, 0), 180);
+			model.rotate(Vector3R(0, 1, 0), 180);
 
 			//model.setMaterial(glassMaterial);
 			model.setMaterial(silverMaterial);

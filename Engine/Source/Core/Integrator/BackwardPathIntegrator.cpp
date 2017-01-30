@@ -3,7 +3,7 @@
 #include "World/World.h"
 #include "World/Intersector.h"
 #include "World/LightSampler/LightSampler.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 #include "Core/Intersection.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Actor/Material/Material.h"
@@ -15,6 +15,7 @@
 #include "Math/random_number.h"
 #include "Core/Primitive/Primitive.h"
 #include "Core/Emitter/Emitter.h"
+#include "FileIO/InputPacket.h"
 
 #include <iostream>
 
@@ -23,6 +24,12 @@
 
 namespace ph
 {
+
+BackwardPathIntegrator::BackwardPathIntegrator(const InputPacket& packet) : 
+	Integrator(packet)
+{
+
+}
 
 BackwardPathIntegrator::~BackwardPathIntegrator() = default;
 
@@ -37,9 +44,9 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const World&
 	const Intersector& intersector = world.getIntersector();
 
 	uint32 numBounces = 0;
-	Vector3f accuRadiance(0, 0, 0);
-	Vector3f accuLiWeight(1, 1, 1);
-	Vector3f rayOriginDelta;
+	Vector3R accuRadiance(0, 0, 0);
+	Vector3R accuLiWeight(1, 1, 1);
+	Vector3R rayOriginDelta;
 	Intersection intersection;
 
 	Ray ray;
@@ -56,7 +63,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const World&
 
 		const auto* const metadata = intersection.getHitPrimitive()->getMetadata();
 		const SurfaceBehavior& hitSurfaceBehavior = metadata->surfaceBehavior;
-		const Vector3f V = tracingRay.getDirection().mul(-1.0f);
+		const Vector3R V = tracingRay.getDirection().mul(-1.0f);
 
 		///////////////////////////////////////////////////////////////////////////////
 		// sample emitted radiance
@@ -69,7 +76,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const World&
 
 		if(hitSurfaceBehavior.getEmitter())
 		{
-			Vector3f radianceLi;
+			Vector3R radianceLi;
 			hitSurfaceBehavior.getEmitter()->evalEmittedRadiance(intersection, &radianceLi);
 
 			// avoid excessive, negative weight and possible NaNs
@@ -108,7 +115,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const World&
 		{
 			rayOriginDelta.set(surfaceSample.L).mulLocal(rayDeltaDist);
 
-			Vector3f liWeight = surfaceSample.liWeight;
+			Vector3R liWeight = surfaceSample.liWeight;
 
 			if(numBounces >= 3)
 			{
@@ -146,8 +153,8 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const World&
 		}
 
 		// prepare for next iteration
-		const Vector3f nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
-		const Vector3f nextRayDirection(surfaceSample.L);
+		const Vector3R nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
+		const Vector3R nextRayDirection(surfaceSample.L);
 		tracingRay.setOrigin(nextRayOrigin);
 		tracingRay.setDirection(nextRayDirection);
 		numBounces++;

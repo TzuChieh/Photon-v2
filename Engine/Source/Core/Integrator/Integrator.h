@@ -11,7 +11,6 @@ namespace ph
 
 class World;
 class Ray;
-class Vector3f;
 class Camera;
 class InputPacket;
 

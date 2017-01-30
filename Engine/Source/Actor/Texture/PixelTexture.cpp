@@ -35,7 +35,7 @@ PixelTexture::PixelTexture(const InputPacket& packet) :
 
 PixelTexture::~PixelTexture() = default;
 
-void PixelTexture::sample(const Vector3f& uvw, Vector3f* const out_value) const
+void PixelTexture::sample(const Vector3R& uvw, Vector3R* const out_value) const
 {
 	const float32 u = uvw.x;
 	const float32 v = uvw.y;

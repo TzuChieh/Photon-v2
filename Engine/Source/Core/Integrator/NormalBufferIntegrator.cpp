@@ -3,6 +3,7 @@
 #include "Core/Intersection.h"
 #include "World/World.h"
 #include "World/Intersector.h"
+#include "Math/TVector3.h"
 
 namespace ph
 {
@@ -22,7 +23,7 @@ void NormalBufferIntegrator::radianceAlongRay(const Sample& sample, const World&
 	// reverse tracing
 	const Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), RAY_T_EPSILON, RAY_T_MAX);
 	
-	Vector3f radiance;
+	Vector3R radiance;
 	Intersection intersection;
 	if(world.getIntersector().isIntersecting(tracingRay, &intersection))
 	{
@@ -30,7 +31,7 @@ void NormalBufferIntegrator::radianceAlongRay(const Sample& sample, const World&
 	}
 	else
 	{
-		radiance = Vector3f(0, 0, 0);
+		radiance = Vector3R(0, 0, 0);
 	}
 
 	out_senseEvents.push_back(SenseEvent(sample.m_cameraX, sample.m_cameraY, radiance));

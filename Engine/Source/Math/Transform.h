@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Math/Matrix4f.h"
+#include "Math/TVector3.h"
 
 namespace ph
 {
 
-class Vector3f;
 class AABB;
 class Ray;
 
@@ -15,8 +15,8 @@ public:
 	Transform();
 	Transform(const Matrix4f& transformMatrix);
 
-	void transformVector(const Vector3f& vector, Vector3f* const out_transformedVector) const;
-	void transformPoint(const Vector3f& point, Vector3f* const out_transformedPoint) const;
+	void transformVector(const Vector3R& vector, Vector3R* const out_transformedVector) const;
+	void transformPoint(const Vector3R& point, Vector3R* const out_transformedPoint) const;
 
 	// Notice that transforming a ray will not change its parametric length (t) nor renormalizing its direction
 	// vector even if the transform contains scale factor; because when we use "rayDirection * t" to obtain the 

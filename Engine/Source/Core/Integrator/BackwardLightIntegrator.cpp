@@ -3,7 +3,7 @@
 #include "World/World.h"
 #include "World/Intersector.h"
 #include "World/LightSampler/LightSampler.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 #include "Core/Intersection.h"
 #include "Core/Sample/SurfaceSample.h"
 #include "Actor/Material/Material.h"
@@ -14,6 +14,7 @@
 #include "Math/Math.h"
 #include "Math/random_number.h"
 #include "Core/Sample/DirectLightSample.h"
+#include "FileIO/InputPacket.h"
 
 #include <iostream>
 
@@ -23,6 +24,12 @@
 
 namespace ph
 {
+
+BackwardLightIntegrator::BackwardLightIntegrator(const InputPacket& packet) : 
+	Integrator(packet)
+{
+
+}
 
 BackwardLightIntegrator::~BackwardLightIntegrator() = default;
 
@@ -37,10 +44,10 @@ void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const World
 	camera.genSensingRay(sample, &ray);
 
 	// common variables
-	Vector3f rayOriginDelta;
-	Vector3f accuRadiance(0, 0, 0);
-	Vector3f accuLiWeight(1, 1, 1);
-	Vector3f V;
+	Vector3R rayOriginDelta;
+	Vector3R accuRadiance(0, 0, 0);
+	Vector3R accuLiWeight(1, 1, 1);
+	Vector3R V;
 	Intersection intersection;
 	SurfaceSample surfaceSample;
 	DirectLightSample directLightSample;
@@ -74,7 +81,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const World
 
 	if(metadata->surfaceBehavior.getEmitter())
 	{
-		Vector3f radianceLe;
+		Vector3R radianceLe;
 		metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(intersection, &radianceLe);
 		accuRadiance.addLocal(radianceLe);
 	}
@@ -88,7 +95,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const World
 		lightSampler.genDirectSample(directLightSample);
 		if(directLightSample.isDirectSampleGood())
 		{
-			const Vector3f toLightVec = directLightSample.emitPos.sub(intersection.getHitPosition());
+			const Vector3R toLightVec = directLightSample.emitPos.sub(intersection.getHitPosition());
 
 			// sidedness agreement between real geometry and shading (phong-interpolated) normal
 			if(!(intersection.getHitSmoothNormal().dot(toLightVec) * intersection.getHitGeoNormal().dot(toLightVec) <= 0.0f))
@@ -96,7 +103,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const World
 				const Ray visRay(intersection.getHitPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2);
 				if(!intersector.isIntersecting(visRay))
 				{
-					Vector3f weight;
+					Vector3R weight;
 					surfaceSample.setEvaluation(intersection, visRay.getDirection(), V);
 					bsdfCos->evaluate(surfaceSample);
 					if(surfaceSample.isEvaluationGood())
@@ -134,7 +141,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const World
 		{
 			rayOriginDelta.set(surfaceSample.L).mulLocal(RAY_DELTA_DIST);
 
-			Vector3f liWeight = surfaceSample.liWeight;
+			Vector3R liWeight = surfaceSample.liWeight;
 
 			if(numBounces >= 3)
 			{
@@ -175,8 +182,8 @@ void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const World
 
 		// prepare for next iteration
 
-		const Vector3f nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
-		const Vector3f nextRayDirection(surfaceSample.L);
+		const Vector3R nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
+		const Vector3R nextRayDirection(surfaceSample.L);
 		tracingRay.setOrigin(nextRayOrigin);
 		tracingRay.setDirection(nextRayDirection);
 		intersection.clear();
@@ -202,7 +209,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const World
 }
 
 // NaNs will be clamped to 0
-void BackwardLightIntegrator::rationalClamp(Vector3f& value)
+void BackwardLightIntegrator::rationalClamp(Vector3R& value)
 {
 	value.x = value.x > 0.0f && value.x < 10000.0f ? value.x : 0.0f;
 	value.y = value.y > 0.0f && value.y < 10000.0f ? value.y : 0.0f;

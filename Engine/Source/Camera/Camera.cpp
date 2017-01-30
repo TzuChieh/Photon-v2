@@ -13,8 +13,8 @@ Camera::Camera() :
 Camera::Camera(const InputPacket& packet) : 
 	Camera()
 {
-	m_position = packet.getVector3r("position", m_position, "Camera >> argument position not found");
-	m_direction = packet.getVector3r("direction", m_direction, "Camera >> argument direction not found");
+	m_position = packet.getVector3R("position", m_position, "Camera >> argument position not found");
+	m_direction = packet.getVector3R("direction", m_direction, "Camera >> argument direction not found");
 
 	m_direction.normalizeLocal();
 }

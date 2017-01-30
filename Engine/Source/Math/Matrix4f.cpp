@@ -1,6 +1,6 @@
-#include "Matrix4f.h"
-#include "Vector3f.h"
-#include "Quaternion.h"
+#include "Math/Matrix4f.h"
+#include "Math/TVector3.h"
+#include "Math/Quaternion.h"
 
 #include <cmath>
 
@@ -38,7 +38,7 @@ Matrix4f& Matrix4f::initTranslation(const float32 x, const float32 y, const floa
 	return *this;
 }
 
-Matrix4f& Matrix4f::initTranslation(const Vector3f& value)
+Matrix4f& Matrix4f::initTranslation(const Vector3R& value)
 {
 	return initTranslation(value.x, value.y, value.z);
 }
@@ -78,7 +78,7 @@ Matrix4f& Matrix4f::initScale(const float32 x, const float32 y, const float32 z)
 	return *this;
 }
 
-Matrix4f& Matrix4f::initScale(const Vector3f& scale)
+Matrix4f& Matrix4f::initScale(const Vector3R& scale)
 {
 	return initScale(scale.x, scale.y, scale.z);
 }
@@ -131,7 +131,7 @@ void Matrix4f::mul(const Matrix4f& r, Matrix4f* out_result) const
 	}
 }
 
-void Matrix4f::mul(const Vector3f& rhsXYZ, const float32 rhsW, Vector3f* const out_result) const
+void Matrix4f::mul(const Vector3R& rhsXYZ, const float32 rhsW, Vector3R* const out_result) const
 {
 	out_result->x = m[0][0] * rhsXYZ.x + m[0][1] * rhsXYZ.y + m[0][2] * rhsXYZ.z + m[0][3] * rhsW;
 	out_result->y = m[1][0] * rhsXYZ.x + m[1][1] * rhsXYZ.y + m[1][2] * rhsXYZ.z + m[1][3] * rhsW;

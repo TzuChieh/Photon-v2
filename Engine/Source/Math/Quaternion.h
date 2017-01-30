@@ -1,14 +1,12 @@
 #pragma once
 
 #include "Common/primitive_type.h"
+#include "Math/math_fwd.h"
 
 #include <cmath>
 
 namespace ph
 {
-
-class Vector3f;
-class Matrix4f;
 
 class Quaternion
 {
@@ -23,13 +21,13 @@ public:
 	Quaternion(float32 x, float32 y, float32 z, float32 w) : x(x), y(y), z(z), w(w) {}
 	Quaternion() : x(0.0f), y(0.0f), z(0.0f), w(0.0f) {}
 
-	Quaternion(const Vector3f& normalizedAxis, const float32 angle);
+	Quaternion(const Vector3R& normalizedAxis, const real angle);
 
 	// acting like w component is 0
-	Quaternion mul(const Vector3f& xyz) const;
-	void mul(const Vector3f& xyz, Quaternion* out_result) const;
+	Quaternion mul(const Vector3R& xyz) const;
+	void mul(const Vector3R& xyz, Quaternion* const out_result) const;
 
-	void setRot(const Vector3f& normalizedAxis, const float32 angle);
+	void setRot(const Vector3R& normalizedAxis, const real angle);
 	void toRotationMatrix(Matrix4f* result) const;
 
 	Quaternion nlerp(const Quaternion& dest, float32 lerpFactor, bool shortest) const;
@@ -114,7 +112,7 @@ public:
 		return *this;
 	}
 
-	inline Quaternion mul(const float r) const
+	inline Quaternion mul(const float32 r) const
 	{
 		return Quaternion(x * r, y * r, z * r, w * r);
 	}

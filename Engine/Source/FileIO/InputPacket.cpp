@@ -51,11 +51,11 @@ real InputPacket::getReal(const std::string& name, const real defaultReal, const
 	       static_cast<real>(std::stold(stringValue)) : defaultReal;
 }
 
-Vector3f InputPacket::getVector3r(const std::string& name, const Vector3f& defaultVector3r, const std::string& notFoundMessage) const
+Vector3R InputPacket::getVector3R(const std::string& name, const Vector3R& defaultVector3r, const std::string& notFoundMessage) const
 {
 	std::string stringValue;
 	return findStringValue(TYPENAME_VECTOR3R, name, notFoundMessage, &stringValue) ? 
-	       Vector3f(stringValue) : defaultVector3r;
+	       Vector3R(stringValue) : defaultVector3r;
 }
 
 std::shared_ptr<Geometry> InputPacket::getGeometry(const std::string& name, const std::string& notFoundMessage) const

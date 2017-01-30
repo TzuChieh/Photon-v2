@@ -1,5 +1,5 @@
 #include "Filmic/Film.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 #include "Filmic/Frame.h"
 #include "FileIO/InputPacket.h"
 
@@ -26,7 +26,7 @@ Film::Film(const InputPacket& packet)
 	m_pixelRadianceSensors = std::vector<RadianceSensor>(numSensors, RadianceSensor());
 }
 
-void Film::accumulateRadiance(const uint32 x, const uint32 y, const Vector3f& radiance)
+void Film::accumulateRadiance(const uint32 x, const uint32 y, const Vector3R& radiance)
 {
 	const std::size_t baseIndex = y * static_cast<std::size_t>(m_widthPx) + x;
 

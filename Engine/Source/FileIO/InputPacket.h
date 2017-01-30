@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "FileIO/ValueClause.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 
 #include <vector>
 #include <string>
@@ -27,7 +27,7 @@ public:
 	std::string getString(const std::string& name, const std::string& defaultString = "", const std::string& notFoundMessage = "") const;
 	integer getInteger(const std::string& name, const integer defaultInteger = 0, const std::string& notFoundMessage = "") const;
 	real getReal(const std::string& name, const real defaultReal = 0.0f, const std::string& notFoundMessage = "") const;
-	Vector3f getVector3r(const std::string& name, const Vector3f& defaultVector3r = Vector3f(), const std::string& notFoundMessage = "") const;
+	Vector3R getVector3R(const std::string& name, const Vector3R& defaultVector3r = Vector3R(), const std::string& notFoundMessage = "") const;
 	std::shared_ptr<Geometry> getGeometry(const std::string& name, const std::string& notFoundMessage = "") const;
 	std::shared_ptr<Texture> getTexture(const std::string& name, const std::string& notFoundMessage = "") const;
 	std::shared_ptr<Material> getMaterial(const std::string& name, const std::string& notFoundMessage = "") const;

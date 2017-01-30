@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core/SurfaceBehavior/BSDFcos.h"
-#include "Math/Vector3f.h"
 #include "Actor/Texture/Texture.h"
 #include "Actor/Texture/ConstantTexture.h"
 

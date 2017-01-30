@@ -1,6 +1,6 @@
 #include "Actor/Geometry/GRectangle.h"
 #include "Core/Primitive/PTriangle.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "FileIO/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
@@ -36,15 +36,15 @@ void GRectangle::discretize(const PrimitiveBuildingMaterial& data,
 	const float32 halfWidth = m_width * 0.5f;
 	const float32 halfHeight = m_height * 0.5f;
 
-	const Vector3f vA(-halfWidth,  halfHeight, 0.0f);// quadrant II
-	const Vector3f vB(-halfWidth, -halfHeight, 0.0f);// quadrant III
-	const Vector3f vC( halfWidth, -halfHeight, 0.0f);// quadrant IV
-	const Vector3f vD( halfWidth,  halfHeight, 0.0f);// quadrant I
+	const Vector3R vA(-halfWidth,  halfHeight, 0.0f);// quadrant II
+	const Vector3R vB(-halfWidth, -halfHeight, 0.0f);// quadrant III
+	const Vector3R vC( halfWidth, -halfHeight, 0.0f);// quadrant IV
+	const Vector3R vD( halfWidth,  halfHeight, 0.0f);// quadrant I
 
-	const Vector3f tA(0.0f, 1.0f, 0.0f);// quadrant II
-	const Vector3f tB(0.0f, 0.0f, 0.0f);// quadrant III
-	const Vector3f tC(1.0f, 0.0f, 0.0f);// quadrant IV
-	const Vector3f tD(1.0f, 1.0f, 0.0f);// quadrant I
+	const Vector3R tA(0.0f, 1.0f, 0.0f);// quadrant II
+	const Vector3R tB(0.0f, 0.0f, 0.0f);// quadrant III
+	const Vector3R tC(1.0f, 0.0f, 0.0f);// quadrant IV
+	const Vector3R tD(1.0f, 1.0f, 0.0f);// quadrant I
 
 	PTriangle tri1(data.metadata, vA, vB, vD);
 	tri1.setUVWa(tA);

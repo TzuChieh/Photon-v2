@@ -1,5 +1,5 @@
 #include "Actor/ModelParser/AiMeshParser.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 #include "Actor/Geometry/GTriangle.h"
 #include "Actor/Material/MatteOpaque.h"
 #include "Actor/Geometry/GTriangleMesh.h"
@@ -35,17 +35,17 @@ std::shared_ptr<Geometry> AiMeshParser::parse(const aiMesh* const mesh)
 
 		if(mesh->HasPositions())
 		{
-			Vector3f v0(static_cast<float32>(mesh->mVertices[i0].x), static_cast<float32>(mesh->mVertices[i0].y), static_cast<float32>(mesh->mVertices[i0].z));
-			Vector3f v1(static_cast<float32>(mesh->mVertices[i1].x), static_cast<float32>(mesh->mVertices[i1].y), static_cast<float32>(mesh->mVertices[i1].z));
-			Vector3f v2(static_cast<float32>(mesh->mVertices[i2].x), static_cast<float32>(mesh->mVertices[i2].y), static_cast<float32>(mesh->mVertices[i2].z));
+			Vector3R v0(static_cast<float32>(mesh->mVertices[i0].x), static_cast<float32>(mesh->mVertices[i0].y), static_cast<float32>(mesh->mVertices[i0].z));
+			Vector3R v1(static_cast<float32>(mesh->mVertices[i1].x), static_cast<float32>(mesh->mVertices[i1].y), static_cast<float32>(mesh->mVertices[i1].z));
+			Vector3R v2(static_cast<float32>(mesh->mVertices[i2].x), static_cast<float32>(mesh->mVertices[i2].y), static_cast<float32>(mesh->mVertices[i2].z));
 			
 			GTriangle triangle(v0, v1, v2);
 
 			if(mesh->HasNormals())
 			{
-				Vector3f n0(static_cast<float32>(mesh->mNormals[i0].x), static_cast<float32>(mesh->mNormals[i0].y), static_cast<float32>(mesh->mNormals[i0].z));
-				Vector3f n1(static_cast<float32>(mesh->mNormals[i1].x), static_cast<float32>(mesh->mNormals[i1].y), static_cast<float32>(mesh->mNormals[i1].z));
-				Vector3f n2(static_cast<float32>(mesh->mNormals[i2].x), static_cast<float32>(mesh->mNormals[i2].y), static_cast<float32>(mesh->mNormals[i2].z));
+				Vector3R n0(static_cast<float32>(mesh->mNormals[i0].x), static_cast<float32>(mesh->mNormals[i0].y), static_cast<float32>(mesh->mNormals[i0].z));
+				Vector3R n1(static_cast<float32>(mesh->mNormals[i1].x), static_cast<float32>(mesh->mNormals[i1].y), static_cast<float32>(mesh->mNormals[i1].z));
+				Vector3R n2(static_cast<float32>(mesh->mNormals[i2].x), static_cast<float32>(mesh->mNormals[i2].y), static_cast<float32>(mesh->mNormals[i2].z));
 				n0.normalizeLocal();
 				n1.normalizeLocal();
 				n2.normalizeLocal();
@@ -56,9 +56,9 @@ std::shared_ptr<Geometry> AiMeshParser::parse(const aiMesh* const mesh)
 
 			if(mesh->HasTextureCoords(0))
 			{
-				Vector3f uvwA(static_cast<float32>(mesh->mTextureCoords[0][i0].x), static_cast<float32>(mesh->mTextureCoords[0][i0].y), static_cast<float32>(mesh->mTextureCoords[0][i0].z));
-				Vector3f uvwB(static_cast<float32>(mesh->mTextureCoords[0][i1].x), static_cast<float32>(mesh->mTextureCoords[0][i1].y), static_cast<float32>(mesh->mTextureCoords[0][i1].z));
-				Vector3f uvwC(static_cast<float32>(mesh->mTextureCoords[0][i2].x), static_cast<float32>(mesh->mTextureCoords[0][i2].y), static_cast<float32>(mesh->mTextureCoords[0][i2].z));
+				Vector3R uvwA(static_cast<float32>(mesh->mTextureCoords[0][i0].x), static_cast<float32>(mesh->mTextureCoords[0][i0].y), static_cast<float32>(mesh->mTextureCoords[0][i0].z));
+				Vector3R uvwB(static_cast<float32>(mesh->mTextureCoords[0][i1].x), static_cast<float32>(mesh->mTextureCoords[0][i1].y), static_cast<float32>(mesh->mTextureCoords[0][i1].z));
+				Vector3R uvwC(static_cast<float32>(mesh->mTextureCoords[0][i2].x), static_cast<float32>(mesh->mTextureCoords[0][i2].y), static_cast<float32>(mesh->mTextureCoords[0][i2].z));
 				triangle.setUVWa(uvwA);
 				triangle.setUVWb(uvwB);
 				triangle.setUVWc(uvwC);

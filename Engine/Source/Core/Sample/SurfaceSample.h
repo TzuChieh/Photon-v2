@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 
 namespace ph
 {
@@ -19,9 +19,9 @@ class SurfaceSample final
 {
 public:
 	const Intersection* X;
-	Vector3f            L;
-	Vector3f            V;
-	Vector3f            liWeight;
+	Vector3R            L;
+	Vector3R            V;
+	Vector3R            liWeight;
 	ESurfaceSampleType  type;
 
 	inline SurfaceSample() : 
@@ -40,13 +40,13 @@ public:
 		return liWeight.x > 0.0f || liWeight.y > 0.0f || liWeight.z > 0.0f;
 	}
 
-	inline void setImportanceSample(const Intersection& X, const Vector3f& V)
+	inline void setImportanceSample(const Intersection& X, const Vector3R& V)
 	{
 		this->X = &X;
 		this->V = V;
 	}
 
-	inline void setEvaluation(const Intersection& X, const Vector3f& L, const Vector3f& V)
+	inline void setEvaluation(const Intersection& X, const Vector3R& L, const Vector3R& V)
 	{
 		this->X = &X;
 		this->L = L;

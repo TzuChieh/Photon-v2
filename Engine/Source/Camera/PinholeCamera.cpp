@@ -32,8 +32,8 @@ void PinholeCamera::genSensingRay(const Sample& sample, Ray* const out_ray) cons
 
 	// Note: this will fail when the camera is facing directly on y-axis
 
-	Vector3f rightDir = Vector3f(-getDirection().z, 0.0f, getDirection().x).normalizeLocal();
-	Vector3f upDir = rightDir.cross(getDirection()).normalizeLocal();
+	Vector3R rightDir = Vector3R(-getDirection().z, 0.0f, getDirection().x).normalizeLocal();
+	Vector3R upDir = rightDir.cross(getDirection()).normalizeLocal();
 
 	const float32 halfWidth = std::tan(m_fov / 2.0f);
 	const float32 halfHeight = halfWidth / aspectRatio;
@@ -50,9 +50,9 @@ void PinholeCamera::genSensingRay(const Sample& sample, Ray* const out_ray) cons
 	out_ray->setMaxT(RAY_T_MAX);
 }
 
-void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3f& targetPos, Vector2f* const out_filmCoord, Vector3f* const out_importance, float32* out_filmArea, float32* const out_pdfW) const
+void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3R& targetPos, Vector2f* const out_filmCoord, Vector3R* const out_importance, float32* out_filmArea, float32* const out_pdfW) const
 {
-	const Vector3f targetDir = targetPos.sub(getPosition()).normalizeLocal();
+	const Vector3R targetDir = targetPos.sub(getPosition()).normalizeLocal();
 	const float32 cosTheta = targetDir.dot(getDirection());
 
 	if(cosTheta <= 0.0f)
@@ -62,14 +62,14 @@ void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3f& targetPos, Vect
 		return;
 	}
 
-	const Vector3f filmPos = targetDir.mul(1.0f / cosTheta).add(getPosition());
-	const Vector3f filmCenter = getDirection().add(getPosition());
-	const Vector3f filmVec = filmPos.sub(filmCenter);
+	const Vector3R filmPos = targetDir.mul(1.0f / cosTheta).add(getPosition());
+	const Vector3R filmCenter = getDirection().add(getPosition());
+	const Vector3R filmVec = filmPos.sub(filmCenter);
 
 	// Note: this will fail when the camera is facing directly on y-axis
 
-	const Vector3f rightDir = Vector3f(-getDirection().z, 0.0f, getDirection().x).normalizeLocal();
-	const Vector3f upDir = rightDir.cross(getDirection()).normalizeLocal();
+	const Vector3R rightDir = Vector3R(-getDirection().z, 0.0f, getDirection().x).normalizeLocal();
+	const Vector3R upDir = rightDir.cross(getDirection()).normalizeLocal();
 
 	const float32 aspectRatio = static_cast<float32>(getFilm()->getWidthPx()) / static_cast<float32>(getFilm()->getHeightPx());
 	const float32 halfFilmWidth = std::tan(m_fov / 2.0f);

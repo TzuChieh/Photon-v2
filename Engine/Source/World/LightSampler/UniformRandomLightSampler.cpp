@@ -4,6 +4,7 @@
 #include "Math/random_number.h"
 #include "Core/CookedActorStorage.h"
 #include "Core/Sample/DirectLightSample.h"
+#include "Math/TVector3.h"
 
 #include <iostream>
 
@@ -48,7 +49,7 @@ void UniformRandomLightSampler::genDirectSample(DirectLightSample& sample) const
 	sample.pdfW *= pickPdfW;
 }
 
-float32 UniformRandomLightSampler::calcDirectPdfW(const Vector3f& targetPos, const Vector3f& emitPos, const Vector3f& emitN, const Emitter* hitEmitter, const Primitive* hitPrim) const
+float32 UniformRandomLightSampler::calcDirectPdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Emitter* hitEmitter, const Primitive* hitPrim) const
 {
 	const float32 pickPdfW = 1.0f / static_cast<float32>(m_emitters.size());
 	const float32 samplePdfW = hitEmitter->calcDirectSamplePdfW(targetPos, emitPos, emitN, hitPrim);

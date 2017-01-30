@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 #include "Math/Quaternion.h"
 #include "Math/Matrix4f.h"
 #include "Math/Transform.h"
@@ -16,7 +16,7 @@ public:
 	Transform genTransform(const Transform& parentTransform) const;
 	Transform genInverseTransform(const Transform& parentInverseTransform) const;
 
-	inline const Vector3f& getPosition() const
+	inline const Vector3R& getPosition() const
 	{
 		return m_position;
 	}
@@ -26,12 +26,12 @@ public:
 		return m_rotation;
 	}
 
-	inline const Vector3f& getScale() const
+	inline const Vector3R& getScale() const
 	{
 		return m_scale;
 	}
 
-	inline void setPosition(const Vector3f& position)
+	inline void setPosition(const Vector3R& position)
 	{
 		m_position = position;
 	}
@@ -41,15 +41,15 @@ public:
 		m_rotation = rotation;
 	}
 
-	inline void setScale(const Vector3f& scale)
+	inline void setScale(const Vector3R& scale)
 	{
 		m_scale = scale;
 	}
 
 private:
-	Vector3f   m_position;
+	Vector3R   m_position;
 	Quaternion m_rotation;
-	Vector3f   m_scale;
+	Vector3R   m_scale;
 };
 
 }// end namespace ph

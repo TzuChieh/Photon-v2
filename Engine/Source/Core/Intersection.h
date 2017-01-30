@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 
 namespace ph
 {
@@ -21,22 +21,22 @@ public:
 		m_hitPrimitive = nullptr;
 	}
 
-	inline const Vector3f& getHitPosition() const
+	inline const Vector3R& getHitPosition() const
 	{
 		return m_hitPosition;
 	}
 
-	inline const Vector3f& getHitSmoothNormal() const
+	inline const Vector3R& getHitSmoothNormal() const
 	{
 		return m_hitSmoothNormal;
 	}
 
-	inline const Vector3f& getHitGeoNormal() const
+	inline const Vector3R& getHitGeoNormal() const
 	{
 		return m_hitGeoNormal;
 	}
 
-	inline const Vector3f& getHitUVW() const
+	inline const Vector3R& getHitUVW() const
 	{
 		return m_hitUVW;
 	}
@@ -46,22 +46,22 @@ public:
 		return m_hitPrimitive;
 	}
 
-	inline void setHitPosition(const Vector3f& hitPosition)
+	inline void setHitPosition(const Vector3R& hitPosition)
 	{
 		m_hitPosition.set(hitPosition);
 	}
 
-	inline void setHitSmoothNormal(const Vector3f& hitSmoothNormal)
+	inline void setHitSmoothNormal(const Vector3R& hitSmoothNormal)
 	{
 		m_hitSmoothNormal.set(hitSmoothNormal);
 	}
 
-	inline void setHitGeoNormal(const Vector3f& hitGeoNormal)
+	inline void setHitGeoNormal(const Vector3R& hitGeoNormal)
 	{
 		m_hitGeoNormal.set(hitGeoNormal);
 	}
 
-	inline void setHitUVW(const Vector3f& hitUVW)
+	inline void setHitUVW(const Vector3R& hitUVW)
 	{
 		m_hitUVW.set(hitUVW);
 	}
@@ -72,10 +72,10 @@ public:
 	}
 
 private:
-	Vector3f m_hitPosition;
-	Vector3f m_hitSmoothNormal;
-	Vector3f m_hitGeoNormal;
-	Vector3f m_hitUVW;
+	Vector3R m_hitPosition;
+	Vector3R m_hitSmoothNormal;
+	Vector3R m_hitGeoNormal;
+	Vector3R m_hitUVW;
 	const Primitive* m_hitPrimitive;
 };
 

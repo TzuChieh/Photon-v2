@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 #include "Core/SurfaceBehavior/BSDFcos.h"
 #include "Core/Emitter/Emitter.h"
 

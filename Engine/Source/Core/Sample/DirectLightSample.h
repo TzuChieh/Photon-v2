@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 
 namespace ph
 {
@@ -10,9 +10,9 @@ class Primitive;
 class DirectLightSample final
 {
 public:
-	Vector3f targetPos;
-	Vector3f emitPos;
-	Vector3f radianceLe;
+	Vector3R targetPos;
+	Vector3R emitPos;
+	Vector3R radianceLe;
 	float32 pdfW;
 	const Primitive* sourcePrim;
 
@@ -27,7 +27,7 @@ public:
 		return pdfW > 0.0f && (radianceLe.x > 0.0f || radianceLe.y > 0.0f || radianceLe.z > 0.0f);
 	}
 
-	inline void setDirectSample(const Vector3f& targetPos)
+	inline void setDirectSample(const Vector3R& targetPos)
 	{
 		this->targetPos = targetPos;
 	}

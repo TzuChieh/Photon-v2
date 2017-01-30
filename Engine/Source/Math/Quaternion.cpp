@@ -1,16 +1,16 @@
-#include "Quaternion.h"
-#include "Vector3f.h"
-#include "Matrix4f.h"
+#include "Math/Quaternion.h"
+#include "Math/TVector3.h"
+#include "Math/Matrix4f.h"
 
 namespace ph
 {
 
-Quaternion::Quaternion(const Vector3f& normalizedAxis, const float32 angle)
+Quaternion::Quaternion(const Vector3R& normalizedAxis, const real angle)
 {
 	setRot(normalizedAxis, angle);
 }
 
-Quaternion Quaternion::mul(const Vector3f& xyz) const
+Quaternion Quaternion::mul(const Vector3R& xyz) const
 {
 	return Quaternion(w * xyz.x + y * xyz.z - z * xyz.y,
 		w * xyz.y - x * xyz.z + z * xyz.x,
@@ -18,7 +18,7 @@ Quaternion Quaternion::mul(const Vector3f& xyz) const
 		-x * xyz.x - y * xyz.y - z * xyz.z);
 }
 
-void Quaternion::mul(const Vector3f& xyz, Quaternion* out_result) const
+void Quaternion::mul(const Vector3R& xyz, Quaternion* const out_result) const
 {
 	out_result->x = w * xyz.x + y * xyz.z - z * xyz.y;
 	out_result->y = w * xyz.y - x * xyz.z + z * xyz.x;
@@ -26,10 +26,10 @@ void Quaternion::mul(const Vector3f& xyz, Quaternion* out_result) const
 	out_result->w = -x * xyz.x - y * xyz.y - z * xyz.z;
 }
 
-void Quaternion::setRot(const Vector3f& normalizedAxis, const float32 angle)
+void Quaternion::setRot(const Vector3R& normalizedAxis, const real angle)
 {
-	float32 sinHalfAngle = sin(angle / 2.0f);
-	float32 cosHalfAngle = cos(angle / 2.0f);
+	const real sinHalfAngle = std::sin(angle / static_cast<real>(2));
+	const real cosHalfAngle = std::cos(angle / static_cast<real>(2));
 
 	x = normalizedAxis.x * sinHalfAngle;
 	y = normalizedAxis.y * sinHalfAngle;
@@ -37,27 +37,27 @@ void Quaternion::setRot(const Vector3f& normalizedAxis, const float32 angle)
 	w = cosHalfAngle;
 }
 
-void Quaternion::toRotationMatrix(Matrix4f* result) const
+void Quaternion::toRotationMatrix(Matrix4f* const out_result) const
 {
-	result->m[0][0] = 1.0f - 2.0f*(y*y + z*z);
-	result->m[0][1] = 2.0f*(x*y - z*w);
-	result->m[0][2] = 2.0f*(y*w + x*z);
-	result->m[0][3] = 0.0f;
+	out_result->m[0][0] = 1.0f - 2.0f*(y*y + z*z);
+	out_result->m[0][1] = 2.0f*(x*y - z*w);
+	out_result->m[0][2] = 2.0f*(y*w + x*z);
+	out_result->m[0][3] = 0.0f;
 
-	result->m[1][0] = 2.0f*(x*y + z*w);
-	result->m[1][1] = 1.0f - 2.0f*(x*x + z*z);
-	result->m[1][2] = 2.0f*(y*z - x*w);
-	result->m[1][3] = 0.0f;
+	out_result->m[1][0] = 2.0f*(x*y + z*w);
+	out_result->m[1][1] = 1.0f - 2.0f*(x*x + z*z);
+	out_result->m[1][2] = 2.0f*(y*z - x*w);
+	out_result->m[1][3] = 0.0f;
 
-	result->m[2][0] = 2.0f*(x*z - y*w);
-	result->m[2][1] = 2.0f*(y*z + x*w);
-	result->m[2][2] = 1.0f - 2.0f*(x*x + y*y);
-	result->m[2][3] = 0.0f;
+	out_result->m[2][0] = 2.0f*(x*z - y*w);
+	out_result->m[2][1] = 2.0f*(y*z + x*w);
+	out_result->m[2][2] = 1.0f - 2.0f*(x*x + y*y);
+	out_result->m[2][3] = 0.0f;
 
-	result->m[3][0] = 0.0f;
-	result->m[3][1] = 0.0f;
-	result->m[3][2] = 0.0f;
-	result->m[3][3] = 1.0f;
+	out_result->m[3][0] = 0.0f;
+	out_result->m[3][1] = 0.0f;
+	out_result->m[3][2] = 0.0f;
+	out_result->m[3][3] = 1.0f;
 }
 
 Quaternion Quaternion::nlerp(const Quaternion& dest, float32 lerpFactor, bool shortest) const

@@ -3,6 +3,7 @@
 #include "Core/BoundingVolume/AABB.h"
 #include "World/Kdtree/kdtree_core.h"
 #include "Common/primitive_type.h"
+#include "Math/math_fwd.h"
 
 #include <iostream>
 
@@ -16,7 +17,7 @@ class KdtreeAABB final
 public:
 	KdtreeAABB();
 	explicit KdtreeAABB(const AABB& aabb);
-	KdtreeAABB(const Vector3f& minVertex, const Vector3f& maxVertex);
+	KdtreeAABB(const Vector3R& minVertex, const Vector3R& maxVertex);
 
 	bool isIntersectingVolume(const Ray& ray, float32* const out_rayNearHitDist, float32* const out_rayFarHitDist) const;
 	bool isIntersectingVolume(const AABB& aabb) const;

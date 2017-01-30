@@ -3,7 +3,7 @@
 #include "World/World.h"
 #include "World/Intersector.h"
 #include "World/LightSampler/LightSampler.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 #include "Core/Intersection.h"
 #include "Core/Sample/SurfaceSample.h"
 #include "Actor/Material/Material.h"
@@ -43,10 +43,10 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 	camera.genSensingRay(sample, &ray);
 
 	// common variables
-	Vector3f rayOriginDelta;
-	Vector3f accuRadiance(0, 0, 0);
-	Vector3f accuLiWeight(1, 1, 1);
-	Vector3f V;
+	Vector3R rayOriginDelta;
+	Vector3R accuRadiance(0, 0, 0);
+	Vector3R accuLiWeight(1, 1, 1);
+	Vector3R V;
 	Intersection intersection;
 	SurfaceSample surfaceSample;
 	DirectLightSample directLightSample;
@@ -81,7 +81,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 
 	if(metadata->surfaceBehavior.getEmitter())
 	{
-		Vector3f radianceLe;
+		Vector3R radianceLe;
 		metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(intersection, &radianceLe);
 		accuRadiance.addLocal(radianceLe);
 	}
@@ -95,7 +95,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 		lightSampler.genDirectSample(directLightSample);
 		if(directLightSample.isDirectSampleGood())
 		{
-			const Vector3f toLightVec = directLightSample.emitPos.sub(directLightSample.targetPos);
+			const Vector3R toLightVec = directLightSample.emitPos.sub(directLightSample.targetPos);
 
 			// sidedness agreement between real geometry and shading (phong-interpolated) normal
 			if(!(intersection.getHitSmoothNormal().dot(toLightVec) * intersection.getHitGeoNormal().dot(toLightVec) <= 0.0f))
@@ -103,7 +103,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 				const Ray visRay(intersection.getHitPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2);
 				if(!intersector.isIntersecting(visRay))
 				{
-					Vector3f weight;
+					Vector3R weight;
 					surfaceSample.setEvaluation(intersection, visRay.getDirection(), V);
 					bsdfCos->evaluate(surfaceSample);
 					if(surfaceSample.isEvaluationGood())
@@ -136,7 +136,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 		}
 
 		const float32 bsdfCosPdfW = bsdfCos->calcImportanceSamplePdfW(surfaceSample);
-		const Vector3f directLitPos = intersection.getHitPosition();
+		const Vector3R directLitPos = intersection.getHitPosition();
 
 		// trace a ray via BSDFcos's suggestion
 		rayOriginDelta.set(surfaceSample.L).mulLocal(RAY_DELTA_DIST);
@@ -160,7 +160,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 		emitter = metadata->surfaceBehavior.getEmitter();
 		if(emitter)
 		{
-			Vector3f radianceLe;
+			Vector3R radianceLe;
 			metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(intersection, &radianceLe);
 
 			// TODO: how to handle delta BSDF distributions?
@@ -171,7 +171,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 				emitter, intersection.getHitPrimitive());
 			const float32 misWeighting = misWeight(bsdfCosPdfW, directLightPdfW);
 
-			Vector3f weight = surfaceSample.liWeight;
+			Vector3R weight = surfaceSample.liWeight;
 			weight.mulLocal(accuLiWeight).mulLocal(misWeighting);
 
 			// avoid excessive, negative weight and possible NaNs
@@ -180,7 +180,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 			accuRadiance.addLocal(radianceLe.mulLocal(weight));
 		}
 
-		Vector3f liWeight = surfaceSample.liWeight;
+		Vector3R liWeight = surfaceSample.liWeight;
 
 		if(numBounces >= 3)
 		{
@@ -215,7 +215,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 }
 
 // NaNs will be clamped to 0
-void BackwardMisIntegrator::rationalClamp(Vector3f& value)
+void BackwardMisIntegrator::rationalClamp(Vector3R& value)
 {
 	value.x = value.x > 0.0f && value.x < 10000.0f ? value.x : 0.0f;
 	value.y = value.y > 0.0f && value.y < 10000.0f ? value.y : 0.0f;

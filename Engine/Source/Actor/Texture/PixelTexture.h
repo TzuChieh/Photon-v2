@@ -2,6 +2,7 @@
 
 #include "Actor/Texture/Texture.h"
 #include "Common/primitive_type.h"
+#include "Math/TVector3.h"
 
 #include <vector>
 
@@ -16,7 +17,7 @@ public:
 	PixelTexture(const InputPacket& packet);
 	virtual ~PixelTexture() override;
 
-	virtual void sample(const Vector3f& uvw, Vector3f* const out_value) const override;
+	virtual void sample(const Vector3R& uvw, Vector3R* const out_value) const override;
 
 	void reset(const uint32 widthPx, const uint32 heightPx, const uint32 nPxComponents);
 	void setPixels(const uint32 x, const uint32 y, const uint32 widthPx, const uint32 heighPx, const uint32 nPxComponents, 

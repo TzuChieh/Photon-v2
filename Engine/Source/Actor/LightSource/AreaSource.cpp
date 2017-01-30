@@ -7,13 +7,14 @@
 #include "Core/CoreActor.h"
 #include "FileIO/InputPacket.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
+#include "Math/TVector3.h"
 
 #include <iostream>
 
 namespace ph
 {
 
-AreaSource::AreaSource(const Vector3f& emittedRadiance) : 
+AreaSource::AreaSource(const Vector3R& emittedRadiance) :
 	LightSource(), 
 	m_emittedRadiance(std::make_shared<ConstantTexture>(emittedRadiance))
 {
@@ -22,7 +23,7 @@ AreaSource::AreaSource(const Vector3f& emittedRadiance) :
 
 AreaSource::AreaSource(const std::string& imageFilename) : 
 	LightSource(), 
-	m_emittedRadiance(std::make_shared<ConstantTexture>(Vector3f(0, 0, 0)))
+	m_emittedRadiance(std::make_shared<ConstantTexture>(Vector3R(0, 0, 0)))
 {
 	std::shared_ptr<PixelTexture> image = std::make_shared<PixelTexture>();
 	TextureLoader loader;
@@ -41,7 +42,7 @@ AreaSource::AreaSource(const InputPacket& packet) :
 {
 	//m_emittedRadiance = packet.getTexture("emitted-radiance", "AreaSource >> argument emitted-radiance not found");
 
-	const Vector3f emittedRadiance = packet.getVector3r("emitted-radiance", Vector3f(0, 0, 0), 
+	const Vector3R emittedRadiance = packet.getVector3R("emitted-radiance", Vector3R(0, 0, 0),
 	                                                    "AreaSource >> argument emitted-radiance not found");
 	m_emittedRadiance = std::make_shared<ConstantTexture>(emittedRadiance);
 }

@@ -18,11 +18,11 @@ public:
 	PrimitiveAreaEmitter(const std::vector<const Primitive*>& primitives);
 	virtual ~PrimitiveAreaEmitter() override;
 
-	virtual void evalEmittedRadiance(const Intersection& intersection, Vector3f* const out_emitterRadiance) const override;
-	virtual void genDirectSample(const Vector3f& targetPos, Vector3f* const out_emitPos, Vector3f* const out_emittedRadiance, float32* const out_PDF) const override;
+	virtual void evalEmittedRadiance(const Intersection& intersection, Vector3R* const out_emitterRadiance) const override;
+	virtual void genDirectSample(const Vector3R& targetPos, Vector3R* const out_emitPos, Vector3R* const out_emittedRadiance, float32* const out_PDF) const override;
 	virtual void genDirectSample(DirectLightSample& sample) const override;
-	virtual void genSensingRay(Ray* const out_ray, Vector3f* const out_Le, Vector3f* const out_eN, float32* const out_pdfA, float32* const out_pdfW) const override;
-	virtual float32 calcDirectSamplePdfW(const Vector3f& targetPos, const Vector3f& emitPos, const Vector3f& emitN, const Primitive* hitPrim) const override;
+	virtual void genSensingRay(Ray* const out_ray, Vector3R* const out_Le, Vector3R* const out_eN, float32* const out_pdfA, float32* const out_pdfW) const override;
+	virtual float32 calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const override;
 
 	void setEmittedRadiance(const std::shared_ptr<Texture>& emittedRadiance);
 

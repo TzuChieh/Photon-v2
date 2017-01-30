@@ -3,7 +3,7 @@
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/TranslucentMicrofacet.h"
 #include "Common/primitive_type.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 
 namespace ph
 {
@@ -12,11 +12,13 @@ class AbradedTranslucent : public Material
 {
 public:
 	AbradedTranslucent();
+	AbradedTranslucent(const InputPacket& packet);
 	virtual ~AbradedTranslucent() override;
 
 	virtual void populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const override;
 
-	void setF0(const Vector3f& f0);
+	void setAlbedo(const Vector3R& albedo);
+	void setF0(const Vector3R& f0);
 	void setF0(const float32 r, const float32 g, const float32 b);
 	void setIOR(const float32 ior);
 	void setRoughness(const float32 roughness);

@@ -1,11 +1,11 @@
 #include "Core/SurfaceBehavior/random_sample.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 #include "Math/constant.h"
 
 namespace ph
 {
 
-void genUnitHemisphereUniformSample(const float32 value_0_1_a, const float32 value_0_1_b, Vector3f* const out_sample)
+void genUnitHemisphereUniformSample(const float32 value_0_1_a, const float32 value_0_1_b, Vector3R* const out_sample)
 {
 	const float32 phi     = 2.0f * PI_FLOAT32 * value_0_1_a;
 	const float32 yValue  = value_0_1_b;
@@ -16,7 +16,7 @@ void genUnitHemisphereUniformSample(const float32 value_0_1_a, const float32 val
 	out_sample->z = sin(phi) * yRadius;
 }
 
-void genUnitHemisphereCosineThetaWeightedSample(const float32 value_0_1_a, const float32 value_0_1_b, Vector3f* const out_sample)
+void genUnitHemisphereCosineThetaWeightedSample(const float32 value_0_1_a, const float32 value_0_1_b, Vector3R* const out_sample)
 {
 	const float32 phi     = 2.0f * PI_FLOAT32 * value_0_1_a;
 	const float32 yValue  = sqrt(value_0_1_b);
@@ -27,7 +27,7 @@ void genUnitHemisphereCosineThetaWeightedSample(const float32 value_0_1_a, const
 	out_sample->z = sin(phi) * yRadius;
 }
 
-void genUnitHemisphereGgxTrowbridgeReitzNdfSample(const float32 value_0_1_a, const float32 value_0_1_b, const float32 alpha, Vector3f* const out_sample)
+void genUnitHemisphereGgxTrowbridgeReitzNdfSample(const float32 value_0_1_a, const float32 value_0_1_b, const float32 alpha, Vector3R* const out_sample)
 {
 	// for GGX (Trowbridge-Reitz) Normal Distribution Function
 

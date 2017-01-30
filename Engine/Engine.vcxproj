@@ -221,6 +221,7 @@
     <ClCompile Include="Source\Actor\TextureMapper\SphericalMapper.cpp" />
     <ClCompile Include="Source\Actor\TextureMapper\TextureMapper.cpp" />
     <ClCompile Include="Source\Common\ThirdParty\lib_stb.cpp" />
+    <ClCompile Include="Source\Math\TVector3.cpp" />
     <ClCompile Include="Source\World\BruteForceIntersector.cpp" />
     <ClCompile Include="Source\World\Intersector.cpp" />
     <ClCompile Include="Source\World\Kdtree\KdtreeAABB.cpp" />
@@ -237,7 +238,6 @@
     <ClCompile Include="Source\Math\Matrix4f.cpp" />
     <ClCompile Include="Source\Math\Quaternion.cpp" />
     <ClCompile Include="Source\Math\random_number.cpp" />
-    <ClCompile Include="Source\Math\Vector3f.cpp" />
     <ClCompile Include="Source\Core\Ray.cpp" />
     <ClCompile Include="Source\Actor\Geometry\Geometry.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GTriangle.cpp" />
@@ -308,6 +308,7 @@
     <ClInclude Include="Source\Actor\Texture\Texture.h" />
     <ClInclude Include="Source\Math\Color.h" />
     <ClInclude Include="Source\Math\Math.h" />
+    <ClInclude Include="Source\Math\math_fwd.h" />
     <ClInclude Include="Source\Math\Normal3f.h" />
     <ClInclude Include="Source\Actor\ModelParser\AiMaterialParser.h" />
     <ClInclude Include="Source\Actor\ModelParser\AiMeshParser.h" />
@@ -328,6 +329,7 @@
     <ClInclude Include="Source\Actor\TextureMapper\TextureMapper.h" />
     <ClInclude Include="Source\Common\ThirdParty\lib_stb.h" />
     <ClInclude Include="Source\Math\Vector2f.h" />
+    <ClInclude Include="Source\Math\TVector3.h" />
     <ClInclude Include="Source\Utility\TConstIteratorProxy.h" />
     <ClInclude Include="Source\Utility\TIteratorProxy.h" />
     <ClInclude Include="Source\World\BruteForceIntersector.h" />
@@ -348,7 +350,6 @@
     <ClInclude Include="Source\Math\Quaternion.h" />
     <ClInclude Include="Source\Math\random_number.h" />
     <ClInclude Include="Source\Math\TransformInfo.h" />
-    <ClInclude Include="Source\Math\Vector3f.h" />
     <ClInclude Include="Source\Actor\Geometry\GTriangle.h" />
     <ClInclude Include="Source\Actor\Material\AbradedOpaque.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\OpaqueMicrofacet.h" />
@@ -361,6 +362,11 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceBehavior.h" />
     <ClInclude Include="Source\Actor\AModel.h" />
     <ClInclude Include="Source\Utility\TStableIndexDenseArray.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Math\TVector3.tpp">
+      <FileType>Document</FileType>
+    </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

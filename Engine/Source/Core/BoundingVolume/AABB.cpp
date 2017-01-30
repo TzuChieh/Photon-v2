@@ -10,7 +10,7 @@ AABB::AABB() :
 
 }
 
-AABB::AABB(const Vector3f& minVertex, const Vector3f& maxVertex) : 
+AABB::AABB(const Vector3R& minVertex, const Vector3R& maxVertex) :
 	m_minVertex(minVertex), m_maxVertex(maxVertex)
 {
 

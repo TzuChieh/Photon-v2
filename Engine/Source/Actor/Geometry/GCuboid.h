@@ -2,7 +2,6 @@
 
 #include "Actor/Geometry/Geometry.h"
 #include "Common/primitive_type.h"
-#include "Math/Vector3f.h"
 
 #include <vector>
 

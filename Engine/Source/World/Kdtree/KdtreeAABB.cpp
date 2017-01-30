@@ -1,4 +1,5 @@
 #include "World/Kdtree/KdtreeAABB.h"
+#include "Math/TVector3.h"
 
 namespace ph
 {
@@ -15,7 +16,7 @@ KdtreeAABB::KdtreeAABB(const AABB& aabb) :
 
 }
 
-KdtreeAABB::KdtreeAABB(const Vector3f& minVertex, const Vector3f& maxVertex) : 
+KdtreeAABB::KdtreeAABB(const Vector3R& minVertex, const Vector3R& maxVertex) :
 	m_aabb(minVertex, maxVertex)
 {
 
@@ -49,8 +50,8 @@ bool KdtreeAABB::trySplitAt(const int32 axis, const float32 splitPos, KdtreeAABB
 
 	out_negativeAABB->m_aabb = m_aabb;
 	out_positiveAABB->m_aabb = m_aabb;
-	out_negativeAABB->m_aabb.setMaxVertex(Vector3f(maxVertex[KDTREE_X_AXIS], maxVertex[KDTREE_Y_AXIS], maxVertex[KDTREE_Z_AXIS]));
-	out_positiveAABB->m_aabb.setMinVertex(Vector3f(minVertex[KDTREE_X_AXIS], minVertex[KDTREE_Y_AXIS], minVertex[KDTREE_Z_AXIS]));
+	out_negativeAABB->m_aabb.setMaxVertex(Vector3R(maxVertex[KDTREE_X_AXIS], maxVertex[KDTREE_Y_AXIS], maxVertex[KDTREE_Z_AXIS]));
+	out_positiveAABB->m_aabb.setMinVertex(Vector3R(minVertex[KDTREE_X_AXIS], minVertex[KDTREE_Y_AXIS], minVertex[KDTREE_Z_AXIS]));
 
 	return true;
 }

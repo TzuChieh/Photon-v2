@@ -1,12 +1,11 @@
 #include "Actor/Texture/CheckerboardTexture.h"
-#include "Math/Vector3f.h"
 
 #include <iostream>
 
 namespace ph
 {
 
-CheckerboardTexture::CheckerboardTexture(const float32 nUtiles, const float32 nVtiles, const Vector3f& oddValue, const Vector3f& evenValue) : 
+CheckerboardTexture::CheckerboardTexture(const float32 nUtiles, const float32 nVtiles, const Vector3R& oddValue, const Vector3R& evenValue) :
 	m_nUtiles(nUtiles), m_nVtiles(nVtiles), m_oddValue(oddValue), m_evenValue(evenValue)
 {
 	if(nUtiles <= 0.0f || nVtiles <= 0.0f)
@@ -20,7 +19,7 @@ CheckerboardTexture::CheckerboardTexture(const float32 nUtiles, const float32 nV
 
 CheckerboardTexture::~CheckerboardTexture() = default;
 
-void CheckerboardTexture::sample(const Vector3f& uvw, Vector3f* const out_value) const
+void CheckerboardTexture::sample(const Vector3R& uvw, Vector3R* const out_value) const
 {
 	const int32 uNumber = static_cast<int32>(std::floor(uvw.x / m_uTileSize));
 	const int32 vNumber = static_cast<int32>(std::floor(uvw.y / m_vTileSize));

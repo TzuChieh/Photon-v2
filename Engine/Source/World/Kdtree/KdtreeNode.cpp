@@ -2,6 +2,7 @@
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
 #include "Core/Primitive/Primitive.h"
+#include "Math/TVector3.h"
 
 #include <iostream>
 #include <algorithm>
@@ -59,7 +60,7 @@ void KdtreeNode::buildTree(const std::vector<const Primitive*>& primitives)
 {
 	if(primitives.empty())
 	{
-		m_aabb = KdtreeAABB(Vector3f(0, 0, 0), Vector3f(0, 0, 0));
+		m_aabb = KdtreeAABB(Vector3R(0, 0, 0), Vector3R(0, 0, 0));
 		return;
 	}
 
@@ -347,7 +348,7 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, Intersection
 	{
 		Intersection closestIntersection(*out_intersection);
 		const Ray segmentRay(ray.getOrigin(), ray.getDirection(), rayDistMin, rayDistMax);
-		Vector3f temp;
+		Vector3R temp;
 
 		// TODO: infinity may be unsafe on some machine
 		float32 closestHitSquaredDist = std::numeric_limits<float32>::infinity();

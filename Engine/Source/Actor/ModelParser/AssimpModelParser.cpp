@@ -1,5 +1,4 @@
 #include "Actor/ModelParser/AssimpModelParser.h"
-#include "Math/Vector3f.h"
 #include "Actor/Geometry/GTriangle.h"
 #include "Actor/AModel.h"
 #include "Actor/Material/MatteOpaque.h"

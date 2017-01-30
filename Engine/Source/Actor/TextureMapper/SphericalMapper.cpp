@@ -1,5 +1,5 @@
 #include "Actor/TextureMapper/SphericalMapper.h"
-#include "Math/Vector3f.h"
+#include "Math/TVector3.h"
 #include "Math/Math.h"
 #include "Math/constant.h"
 
@@ -10,14 +10,14 @@ namespace ph
 
 SphericalMapper::~SphericalMapper() = default;
 
-void SphericalMapper::map(const Vector3f& position, const Vector3f& uvw, Vector3f* const out_uvw) const
+void SphericalMapper::map(const Vector3R& position, const Vector3R& uvw, Vector3R* const out_uvw) const
 {
 	if(position.length() < 1e-8)
 	{
 		std::cerr << "warning: at SphericalMapper::map(), positions too close to geometry origin may induce errors during mapping" << std::endl;
 	}
 
-	const Vector3f positionDir = position.normalize();
+	const Vector3R positionDir = position.normalize();
 
 	const float32 cosTheta = Math::clamp(positionDir.y, -1.0f, 1.0f);
 	const float32 cosPhi   = Math::clamp(positionDir.x, -1.0f, 1.0f);
