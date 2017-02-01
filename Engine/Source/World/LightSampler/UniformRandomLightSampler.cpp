@@ -29,30 +29,30 @@ void UniformRandomLightSampler::update(const CookedActorStorage& cookedActors)
 	}
 }
 
-const Emitter* UniformRandomLightSampler::pickEmitter(float32* const out_PDF) const
+const Emitter* UniformRandomLightSampler::pickEmitter(real* const out_PDF) const
 {
-	const std::size_t picker = static_cast<std::size_t>(genRandomFloat32_0_1_uniform() * static_cast<float32>(m_emitters.size()));
+	const std::size_t picker = static_cast<std::size_t>(genRandomReal_0_1_uniform() * static_cast<real>(m_emitters.size()));
 	const std::size_t pickedIndex = picker == m_emitters.size() ? picker - 1 : picker;
 
-	*out_PDF = 1.0f / static_cast<float32>(m_emitters.size());
+	*out_PDF = 1.0_r / static_cast<real>(m_emitters.size());
 	return m_emitters[pickedIndex];
 }
 
 void UniformRandomLightSampler::genDirectSample(DirectLightSample& sample) const
 {
 	// randomly and uniformly select an emitter
-	const std::size_t picker = static_cast<std::size_t>(genRandomFloat32_0_1_uniform() * static_cast<float32>(m_emitters.size()));
+	const std::size_t picker = static_cast<std::size_t>(genRandomReal_0_1_uniform() * static_cast<real>(m_emitters.size()));
 	const std::size_t pickedIndex = picker == m_emitters.size() ? picker - 1 : picker;
-	const float32 pickPdfW = 1.0f / static_cast<float32>(m_emitters.size());
+	const real pickPdfW = 1.0_r / static_cast<real>(m_emitters.size());
 
 	m_emitters[pickedIndex]->genDirectSample(sample);
 	sample.pdfW *= pickPdfW;
 }
 
-float32 UniformRandomLightSampler::calcDirectPdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Emitter* hitEmitter, const Primitive* hitPrim) const
+real UniformRandomLightSampler::calcDirectPdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Emitter* hitEmitter, const Primitive* hitPrim) const
 {
-	const float32 pickPdfW = 1.0f / static_cast<float32>(m_emitters.size());
-	const float32 samplePdfW = hitEmitter->calcDirectSamplePdfW(targetPos, emitPos, emitN, hitPrim);
+	const real pickPdfW = 1.0_r / static_cast<real>(m_emitters.size());
+	const real samplePdfW = hitEmitter->calcDirectSamplePdfW(targetPos, emitPos, emitN, hitPrim);
 	return pickPdfW * samplePdfW;
 }
 

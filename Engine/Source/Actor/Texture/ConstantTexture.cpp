@@ -9,7 +9,7 @@ ConstantTexture::ConstantTexture(const Vector3R& value) :
 
 }
 
-ConstantTexture::ConstantTexture(const float32 r, const float32 g, const float32 b) :
+ConstantTexture::ConstantTexture(const real r, const real g, const real b) :
 	ConstantTexture(Vector3R(r, g, b))
 {
 

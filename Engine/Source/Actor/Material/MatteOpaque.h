@@ -20,7 +20,7 @@ public:
 	virtual void populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const override;
 
 	void setAlbedo(const Vector3R& albedo);
-	void setAlbedo(const float32 r, const float32 g, const float32 b);
+	void setAlbedo(const real r, const real g, const real b);
 	void setAlbedo(const std::shared_ptr<Texture>& albedo);
 
 private:

@@ -5,8 +5,8 @@
 
 #include <limits>
 
-#define RAY_T_EPSILON 0.0001f
-#define RAY_T_MAX     std::numeric_limits<float32>::max()
+#define RAY_T_EPSILON 0.0001_r
+#define RAY_T_MAX     std::numeric_limits<real>::max()
 
 namespace ph
 {
@@ -14,7 +14,7 @@ namespace ph
 class Ray final
 {
 public:
-	Ray(const Vector3R& origin, const Vector3R& direction, const float32 minT, const float32 maxT);
+	Ray(const Vector3R& origin, const Vector3R& direction, const real minT, const real maxT);
 	Ray(const Vector3R& origin, const Vector3R& direction);
 	Ray();
 
@@ -38,12 +38,12 @@ public:
 		return m_direction;
 	}
 
-	inline float32 getMinT() const
+	inline real getMinT() const
 	{
 		return m_minT;
 	}
 
-	inline float32 getMaxT() const
+	inline real getMaxT() const
 	{
 		return m_maxT;
 	}
@@ -58,12 +58,12 @@ public:
 		m_direction = direction;
 	}
 
-	inline void setMinT(const float32 minT)
+	inline void setMinT(const real minT)
 	{
 		m_minT = minT;
 	}
 
-	inline void setMaxT(const float32 maxT)
+	inline void setMaxT(const real maxT)
 	{
 		m_maxT = maxT;
 	}
@@ -71,8 +71,8 @@ public:
 private:
 	Vector3R m_origin;
 	Vector3R m_direction;
-	float32  m_minT;
-	float32  m_maxT;
+	real     m_minT;
+	real     m_maxT;
 };
 
 }// end namespace ph

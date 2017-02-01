@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/Matrix4f.h"
+#include "Math/TMatrix4.h"
 #include "Math/TVector3.h"
 
 namespace ph
@@ -13,7 +13,7 @@ class Transform final
 {
 public:
 	Transform();
-	Transform(const Matrix4f& transformMatrix);
+	Transform(const Matrix4R& transformMatrix);
 
 	void transformVector(const Vector3R& vector, Vector3R* const out_transformedVector) const;
 	void transformPoint(const Vector3R& point, Vector3R* const out_transformedPoint) const;
@@ -32,7 +32,7 @@ public:
 	Transform transform(const Transform& rhs) const;
 
 private:
-	Matrix4f m_transformMatrix;
+	Matrix4R m_transformMatrix;
 };
 
 }// end namespace ph

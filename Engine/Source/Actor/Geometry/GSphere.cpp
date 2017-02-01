@@ -26,7 +26,7 @@ public:
 	std::size_t iC;
 };
 
-GSphere::GSphere(const float32 radius) :
+GSphere::GSphere(const real radius) :
 	Geometry(), 
 	m_radius(radius)
 {
@@ -43,7 +43,7 @@ GSphere::GSphere(const GSphere& other) :
 GSphere::GSphere(const InputPacket& packet) : 
 	Geometry(packet)
 {
-	m_radius = packet.getReal("radius", 1.0f);
+	m_radius = packet.getReal("radius", 1.0_r);
 }
 
 GSphere::~GSphere() = default;
@@ -72,7 +72,7 @@ void GSphere::discretize(const PrimitiveBuildingMaterial& data,
 
 	// 12 vertices of a icosahedron (located on the sphere)
 
-	const float32 t = (1.0f + sqrt(5.0f)) / 2.0f;
+	const real t = (1.0_r + sqrt(5.0_r)) / 2.0_r;
 
 	// xy-plane
 	addVertex(Vector3R(-1,  t,  0), &vertices);// 0

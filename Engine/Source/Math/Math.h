@@ -16,7 +16,7 @@ public:
 	// Clamp a real value to specific range. If the real value is NaN, its value is clamped to lower bound. 
 	// Either lower bound or upper bound shall not be NaN, or the method's behavior is undefined.
 
-	static inline float32 clamp(const float32 value, const float32 lowerBound, const float32 upperBound)
+	static inline real clamp(const real value, const real lowerBound, const real upperBound)
 	{
 		return fmin(upperBound, fmax(value, lowerBound));
 	}
@@ -26,14 +26,14 @@ public:
 		return std::min(upperBound, std::max(value, lowerBound));
 	}
 
-	static inline float32 toDegrees(const float32 radians)
+	static inline real toDegrees(const real radians)
 	{
-		return radians * RECI_PI_FLOAT32 * 180.0f;
+		return radians * RECI_PI_REAL * 180.0_r;
 	}
 
-	static inline float32 toRadians(const float32 degrees)
+	static inline real toRadians(const real degrees)
 	{
-		return degrees * (1.0f / 180.0f) * PI_FLOAT32;
+		return degrees * (1.0_r / 180.0_r) * PI_REAL;
 	}
 
 	// Extract the sign of a value (branchless).

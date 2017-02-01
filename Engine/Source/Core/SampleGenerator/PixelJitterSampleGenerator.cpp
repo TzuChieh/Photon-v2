@@ -42,18 +42,18 @@ void PixelJitterSampleGenerator::requestMoreSamples(std::vector<Sample>* const o
 		return;
 	}
 
-	const float32 halfWidthPx = static_cast<float32>(m_filmWidthPx) / 2.0f;
-	const float32 halfHeightPx = static_cast<float32>(m_filmHeightPx) / 2.0f;
-	const float32 invWidthPx = 1.0f / halfWidthPx;
-	const float32 invHeightPx = 1.0f / halfHeightPx;
+	const real halfWidthPx = static_cast<real>(m_filmWidthPx) * 0.5_r;
+	const real halfHeightPx = static_cast<real>(m_filmHeightPx) * 0.5_r;
+	const real invWidthPx = 1.0_r / halfWidthPx;
+	const real invHeightPx = 1.0_r / halfHeightPx;
 
 	Sample sample;
 	for(uint32 y = 0; y < m_filmHeightPx; y++)
 	{
 		for(uint32 x = 0; x < m_filmWidthPx; x++)
 		{
-			sample.m_cameraX = (static_cast<float32>(x) + genRandomFloat32_0_1_uniform() - halfWidthPx) * invWidthPx;
-			sample.m_cameraY = (static_cast<float32>(y) + genRandomFloat32_0_1_uniform() - halfHeightPx) * invHeightPx;
+			sample.m_cameraX = (static_cast<real>(x) + genRandomReal_0_1_uniform() - halfWidthPx) * invWidthPx;
+			sample.m_cameraY = (static_cast<real>(y) + genRandomReal_0_1_uniform() - halfHeightPx) * invHeightPx;
 			out_samples->push_back(sample);
 		}
 	}

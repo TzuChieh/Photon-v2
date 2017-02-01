@@ -13,7 +13,7 @@ public:
 	Vector3R targetPos;
 	Vector3R emitPos;
 	Vector3R radianceLe;
-	float32 pdfW;
+	real pdfW;
 	const Primitive* sourcePrim;
 
 	inline DirectLightSample() : 
@@ -24,7 +24,7 @@ public:
 
 	inline bool isDirectSampleGood() const
 	{
-		return pdfW > 0.0f && (radianceLe.x > 0.0f || radianceLe.y > 0.0f || radianceLe.z > 0.0f);
+		return pdfW > 0.0_r && (radianceLe.x > 0.0_r || radianceLe.y > 0.0_r || radianceLe.z > 0.0_r);
 	}
 
 	inline void setDirectSample(const Vector3R& targetPos)

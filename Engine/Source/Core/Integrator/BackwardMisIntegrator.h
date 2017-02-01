@@ -18,7 +18,7 @@ public:
 
 private:
 	static void rationalClamp(Vector3R& value);
-	static float32 misWeight(float32 pdf1W, float32 pdf2W);
+	static real misWeight(real pdf1W, real pdf2W);
 };
 
 }// end namespace ph

@@ -12,7 +12,7 @@
 namespace ph
 {
 
-GCuboid::GCuboid(const float32 xLen, const float32 yLen, const float32 zLen) :
+GCuboid::GCuboid(const real xLen, const real yLen, const real zLen) :
 	m_xLen(xLen), m_yLen(yLen), m_zLen(zLen)
 {
 
@@ -36,9 +36,9 @@ void GCuboid::discretize(const PrimitiveBuildingMaterial& data,
 
 	// TODO: UVW mapping
 
-	const float32 halfXlen = m_xLen * 0.5f;
-	const float32 halfYlen = m_yLen * 0.5f;
-	const float32 halfZlen = m_zLen * 0.5f;
+	const real halfXlen = m_xLen * 0.5_r;
+	const real halfYlen = m_yLen * 0.5_r;
+	const real halfZlen = m_zLen * 0.5_r;
 
 	// 8 vertices of a cuboid
 	const Vector3R vPPP( halfXlen,  halfYlen,  halfZlen);
@@ -80,7 +80,7 @@ GCuboid& GCuboid::operator = (const GCuboid& rhs)
 	return *this;
 }
 
-bool GCuboid::checkData(const PrimitiveBuildingMaterial& data, const float32 xLen, const float32 yLen, const float32 zLen)
+bool GCuboid::checkData(const PrimitiveBuildingMaterial& data, const real xLen, const real yLen, const real zLen)
 {
 	if(!data.metadata)
 	{

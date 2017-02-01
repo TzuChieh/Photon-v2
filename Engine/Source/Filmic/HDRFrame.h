@@ -19,7 +19,7 @@ public:
 
 	virtual void resize(const uint32 newWidthPx, const uint32 newHeightPx) override;
 	virtual void getPixel(const uint32 x, const uint32 y, Vector3R* const out_pixel) const override;
-	virtual void setPixel(const uint32 x, const uint32 y, const float32 r, const float32 g, const float32 b) override;
+	virtual void setPixel(const uint32 x, const uint32 y, const real r, const real g, const real b) override;
 
 	virtual inline uint32 getWidthPx() const override
 	{
@@ -36,12 +36,12 @@ public:
 		return 3;
 	}
 
-	virtual inline const float32* getPixelData() const override
+	virtual inline const real* getPixelData() const override
 	{
 		return m_pixelData.data();
 	}
 
-	inline float32 getPixel(const uint32 x, const uint32 y) const
+	inline real getPixel(const uint32 x, const uint32 y) const
 	{
 		return m_pixelData[y * getWidthPx() + x];
 	}
@@ -53,7 +53,7 @@ private:
 	uint32 m_widthPx;
 	uint32 m_heightPx;
 
-	std::vector<float32> m_pixelData;
+	std::vector<real> m_pixelData;
 };
 
 }// end namespace ph

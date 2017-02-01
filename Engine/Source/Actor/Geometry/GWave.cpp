@@ -10,7 +10,7 @@
 namespace ph
 {
 
-GWave::GWave(const float32 xLen, const float32 yLen, const float32 zLen) :
+GWave::GWave(const real xLen, const real yLen, const real zLen) :
 	m_xLen(xLen), m_yLen(yLen), m_zLen(zLen)
 {
 
@@ -49,8 +49,8 @@ void GWave::discretize(const PrimitiveBuildingMaterial& data,
 	const int32 numZvertices = numZdivs + 1;
 
 	std::vector<Vector3R> smoothNormals(numXvertices * numZvertices);
-	const float32 dx = m_xLen / static_cast<float32>(numXdivs);
-	const float32 dz = m_zLen / static_cast<float32>(numZdivs);
+	const real dx = m_xLen / static_cast<real>(numXdivs);
+	const real dz = m_zLen / static_cast<real>(numZdivs);
 	for(int32 iz = 0; iz < numZvertices; iz++)
 	{
 		for(int32 ix = 0; ix < numXvertices; ix++)
@@ -128,17 +128,17 @@ void GWave::discretize(const PrimitiveBuildingMaterial& data,
 		out_primitives.push_back(std::make_unique<PTriangle>(tri2));
 	}
 	
-	const float32 meshSizeX = m_xLen / static_cast<float32>(numXdivs);
-	const float32 meshSizeZ = m_zLen / static_cast<float32>(numZdivs);
-	const float32 minX = -m_xLen / 2.0f;
-	const float32 maxZ = m_zLen / 2.0f;
+	const real meshSizeX = m_xLen / static_cast<real>(numXdivs);
+	const real meshSizeZ = m_zLen / static_cast<real>(numZdivs);
+	const real minX = -m_xLen / 2.0_r;
+	const real maxZ = m_zLen / 2.0_r;
 
 	// wave front side
 	for(int32 ix = 0; ix < numXdivs; ix++)
 	{
 		const Vector3R vA(positions[ix]);
-		const Vector3R vB(minX + static_cast<float32>(ix) * meshSizeX, -m_yLen, maxZ);
-		const Vector3R vC(minX + static_cast<float32>(ix + 1) * meshSizeX, -m_yLen, maxZ);
+		const Vector3R vB(minX + static_cast<real>(ix) * meshSizeX, -m_yLen, maxZ);
+		const Vector3R vC(minX + static_cast<real>(ix + 1) * meshSizeX, -m_yLen, maxZ);
 		const Vector3R vD(positions[ix + 1]);
 		PTriangle tri1(data.metadata, vA, vB, vC);
 		PTriangle tri2(data.metadata, vA, vC, vD);
@@ -152,8 +152,8 @@ void GWave::discretize(const PrimitiveBuildingMaterial& data,
 	for(int32 ix = 0; ix < numXdivs; ix++)
 	{
 		const Vector3R vA(positions[numZdivs * numXvertices + ix]);
-		const Vector3R vB(minX + static_cast<float32>(ix) * meshSizeX, -m_yLen, -maxZ);
-		const Vector3R vC(minX + static_cast<float32>(ix + 1) * meshSizeX, -m_yLen, -maxZ);
+		const Vector3R vB(minX + static_cast<real>(ix) * meshSizeX, -m_yLen, -maxZ);
+		const Vector3R vC(minX + static_cast<real>(ix + 1) * meshSizeX, -m_yLen, -maxZ);
 		const Vector3R vD(positions[numZdivs * numXvertices + ix + 1]);
 		PTriangle tri1(data.metadata, vA, vC, vB);
 		PTriangle tri2(data.metadata, vA, vD, vC);
@@ -167,8 +167,8 @@ void GWave::discretize(const PrimitiveBuildingMaterial& data,
 	for(int32 iz = 0; iz < numZdivs; iz++)
 	{
 		const Vector3R vA(positions[iz * numXvertices + numXdivs]);
-		const Vector3R vB(m_xLen / 2.0f, -m_yLen, maxZ - static_cast<float32>(iz) * meshSizeZ);
-		const Vector3R vC(m_xLen / 2.0f, -m_yLen, maxZ - static_cast<float32>(iz + 1) * meshSizeZ);
+		const Vector3R vB(m_xLen / 2.0_r, -m_yLen, maxZ - static_cast<real>(iz) * meshSizeZ);
+		const Vector3R vC(m_xLen / 2.0_r, -m_yLen, maxZ - static_cast<real>(iz + 1) * meshSizeZ);
 		const Vector3R vD(positions[(iz + 1) * numXvertices + numXdivs]);
 		PTriangle tri1(data.metadata, vA, vB, vC);
 		PTriangle tri2(data.metadata, vA, vC, vD);
@@ -182,8 +182,8 @@ void GWave::discretize(const PrimitiveBuildingMaterial& data,
 	for(int32 iz = 0; iz < numZdivs; iz++)
 	{
 		const Vector3R vA(positions[iz * numXvertices + 0]);
-		const Vector3R vB(-m_xLen / 2.0f, -m_yLen, maxZ - static_cast<float32>(iz) * meshSizeZ);
-		const Vector3R vC(-m_xLen / 2.0f, -m_yLen, maxZ - static_cast<float32>(iz + 1) * meshSizeZ);
+		const Vector3R vB(-m_xLen / 2.0f, -m_yLen, maxZ - static_cast<real>(iz) * meshSizeZ);
+		const Vector3R vC(-m_xLen / 2.0f, -m_yLen, maxZ - static_cast<real>(iz + 1) * meshSizeZ);
 		const Vector3R vD(positions[(iz + 1) * numXvertices + 0]);
 		PTriangle tri1(data.metadata, vA, vC, vB);
 		PTriangle tri2(data.metadata, vA, vD, vC);
@@ -194,7 +194,7 @@ void GWave::discretize(const PrimitiveBuildingMaterial& data,
 	}
 }
 
-void GWave::genTessellatedRectangleXZ(const float32 xLen, const float32 zLen, const int32 numXdivs, const int32 numZdivs, std::vector<Vector3R>& positions)
+void GWave::genTessellatedRectangleXZ(const real xLen, const real zLen, const int32 numXdivs, const int32 numZdivs, std::vector<Vector3R>& positions)
 {
 	if(xLen <= 0.0f || zLen <= 0.0f || numXdivs <= 0 || numZdivs <= 0)
 	{
@@ -202,24 +202,24 @@ void GWave::genTessellatedRectangleXZ(const float32 xLen, const float32 zLen, co
 		return;
 	}
 
-	const float32 meshSizeX = xLen / static_cast<float32>(numXdivs);
-	const float32 meshSizeZ = zLen / static_cast<float32>(numZdivs);
-	const float32 minX = -xLen / 2.0f;
-	const float32 maxZ =  zLen / 2.0f;
+	const real meshSizeX = xLen / static_cast<real>(numXdivs);
+	const real meshSizeZ = zLen / static_cast<real>(numZdivs);
+	const real minX = -xLen / 2.0_r;
+	const real maxZ =  zLen / 2.0_r;
 
 	for(int32 iz = 0; iz <= numZdivs; iz++)
 	{
 		for(int32 ix = 0; ix <= numXdivs; ix++)
 		{
-			const float32 x = minX + static_cast<float32>(ix) * meshSizeX;
-			const float32 y = 0.0f;
-			const float32 z = maxZ - static_cast<float32>(iz) * meshSizeZ;
+			const real x = minX + static_cast<real>(ix) * meshSizeX;
+			const real y = 0.0_r;
+			const real z = maxZ - static_cast<real>(iz) * meshSizeZ;
 			positions.push_back(Vector3R(x, y, z));
 		}
 	}
 }
 
-bool GWave::checkData(const PrimitiveBuildingMaterial& data, const float32 xLen, const float32 yLen, const float32 zLen)
+bool GWave::checkData(const PrimitiveBuildingMaterial& data, const real xLen, const real yLen, const real zLen)
 {
 	if(!data.metadata)
 	{
@@ -227,7 +227,7 @@ bool GWave::checkData(const PrimitiveBuildingMaterial& data, const float32 xLen,
 		return false;
 	}
 
-	if(xLen <= 0.0f || yLen <= 0.0f || zLen <= 0.0f)
+	if(xLen <= 0.0_r || yLen <= 0.0_r || zLen <= 0.0_r)
 	{
 		std::cerr << "warning: at GWave::checkData(), GWave's dimension is zero or negative" << std::endl;
 		return false;

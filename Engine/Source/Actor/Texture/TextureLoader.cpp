@@ -41,10 +41,10 @@ bool TextureLoader::load(const std::string& fullFilename, PixelTexture* const ou
 	//std::cout << "# " << numComponents << std::endl;
 
 	const uint32 dataSize = widthPx * heightPx * numComponents;
-	std::vector<float32> pixelData(static_cast<std::size_t>(dataSize), 0.0f);
+	std::vector<real> pixelData(static_cast<std::size_t>(dataSize), 0.0_r);
 	for(uint32 i = 0; i < dataSize; i++)
 	{
-		pixelData[i] = static_cast<float32>(stbImageData[i]) / 255.0f;
+		pixelData[i] = static_cast<real>(stbImageData[i]) / 255.0_r;
 	}
 
 	// don't forget to free the image data loaded by stb

@@ -5,7 +5,7 @@
 namespace ph
 {
 
-CheckerboardTexture::CheckerboardTexture(const float32 nUtiles, const float32 nVtiles, const Vector3R& oddValue, const Vector3R& evenValue) :
+CheckerboardTexture::CheckerboardTexture(const real nUtiles, const real nVtiles, const Vector3R& oddValue, const Vector3R& evenValue) :
 	m_nUtiles(nUtiles), m_nVtiles(nVtiles), m_oddValue(oddValue), m_evenValue(evenValue)
 {
 	if(nUtiles <= 0.0f || nVtiles <= 0.0f)

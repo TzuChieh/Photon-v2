@@ -145,14 +145,14 @@ void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const World
 
 			if(numBounces >= 3)
 			{
-				const float32 rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001f, 1.0f);
-				//const float32 rrSurviveRate = Math::clamp(Color::linearRgbLuminance(liWeight), 0.0001f, 1.0f);
-				const float32 rrSpin = genRandomFloat32_0_1_uniform();
+				const real rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001_r, 1.0_r);
+				//const real rrSurviveRate = Math::clamp(Color::linearRgbLuminance(liWeight), 0.0001f, 1.0f);
+				const real rrSpin = genRandomReal_0_1_uniform();
 
 				// russian roulette >> survive
 				if(rrSurviveRate > rrSpin)
 				{
-					const float32 rrScale = 1.0f / rrSurviveRate;
+					const real rrScale = 1.0_r / rrSurviveRate;
 					liWeight.mulLocal(rrScale);
 				}
 				// russian roulette >> dead
@@ -175,7 +175,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const World
 			break;
 		}// end switch surface sample type
 
-		if(!keepSampling || accuLiWeight.allZero())
+		if(!keepSampling || accuLiWeight.isZero())
 		{
 			break;
 		}

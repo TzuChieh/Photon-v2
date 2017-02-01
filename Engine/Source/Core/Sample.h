@@ -8,8 +8,8 @@ namespace ph
 class Sample
 {
 public:
-	float32 m_cameraX;
-	float32 m_cameraY;
+	real m_cameraX;
+	real m_cameraY;
 };
 
 }// end namespace ph

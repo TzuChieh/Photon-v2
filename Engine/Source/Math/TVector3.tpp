@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Math/TVector3.h"
-#include "Math/Quaternion.h"
+#include "Math/TQuaternion.h"
 #include "FileIO/Tokenizer.h"
 
 #include <cmath>
@@ -66,27 +66,19 @@ inline TVector3<T>::~TVector3()
 }
 
 template<typename T>
-Vector3R TVector3<T>::rotate(const Quaternion& rotation) const
+TVector3<T> TVector3<T>::rotate(const TQuaternion<T>& rotation) const
 {
-	const Quaternion& conjugatedRotation = rotation.conjugate();
+	const TQuaternion<T>& conjugatedRotation = rotation.conjugate();
+	const TQuaternion<T>& result = rotation.mul(*this).mulLocal(conjugatedRotation);
 
-	// HACK
-	Vector3R thiz(x, y, z);
-
-	const Quaternion& result = rotation.mul(thiz).mulLocal(conjugatedRotation);
-
-	return Vector3R(result.x, result.y, result.z);
+	return TVector3(result.x, result.y, result.z);
 }
 
 template<typename T>
-void TVector3<T>::rotate(const Quaternion& rotation, Vector3R* const out_result) const
+void TVector3<T>::rotate(const TQuaternion<T>& rotation, TVector3* const out_result) const
 {
-	const Quaternion& conjugatedRotation = rotation.conjugate();
-
-	// HACK
-	Vector3R thiz(x, y, z);
-
-	const Quaternion& result = rotation.mul(thiz).mulLocal(conjugatedRotation);
+	const TQuaternion<T>& conjugatedRotation = rotation.conjugate();
+	const TQuaternion<T>& result = rotation.mul(*this).mulLocal(conjugatedRotation);
 
 	out_result->x = result.x;
 	out_result->y = result.y;
@@ -94,15 +86,15 @@ void TVector3<T>::rotate(const Quaternion& rotation, Vector3R* const out_result)
 }
 
 template<typename T>
-inline real TVector3<T>::length() const
+inline T TVector3<T>::length() const
 {
 	return std::sqrt(squaredLength());
 }
 
 template<typename T>
-inline real TVector3<T>::squaredLength() const
+inline T TVector3<T>::squaredLength() const
 {
-	return static_cast<real>(x * x + y * y + z * z);
+	return x * x + y * y + z * z;
 }
 
 template<typename T>
@@ -192,14 +184,14 @@ inline void TVector3<T>::cross(const TVector3& rhs, TVector3* const out_result) 
 template<typename T>
 inline TVector3<T> TVector3<T>::normalize() const
 {
-	const T reciLen = static_cast<T>(1) / length();
+	const T reciLen = 1 / length();
 	return TVector3(x * reciLen, y * reciLen, z * reciLen);
 }
 
 template<typename T>
 inline TVector3<T>& TVector3<T>::normalizeLocal()
 {
-	const T reciLen = static_cast<T>(1) / length();
+	const T reciLen = 1 / length();
 
 	x *= reciLen;
 	y *= reciLen;
@@ -207,22 +199,6 @@ inline TVector3<T>& TVector3<T>::normalizeLocal()
 
 	return *this;
 }
-
-//template<typename T>
-//inline TVector3<T> TVector3<T>::lerp(const TVector3& destination, const float32 lerpFactor) const
-//{
-//	return destination.sub(*this).mulLocal(lerpFactor).addLocal(*this);
-//}
-//
-//template<typename T>
-//inline TVector3<T>& TVector3<T>::setLinearInterpolated(const Vector3f& start, const Vector3f& end, const float fraction)
-//{
-//	x = (end.x - start.x) * fraction + start.x;
-//	y = (end.y - start.y) * fraction + start.y;
-//	z = (end.z - start.z) * fraction + start.z;
-//
-//	return *this;
-//}
 
 template<typename T>
 inline TVector3<T> TVector3<T>::add(const TVector3& rhs) const
@@ -389,6 +365,16 @@ inline TVector3<T> TVector3<T>::div(const TVector3& rhs) const
 }
 
 template<typename T>
+inline TVector3<T>& TVector3<T>::divLocal(const TVector3& rhs)
+{
+	x /= rhs.x;
+	y /= rhs.y;
+	z /= rhs.z;
+
+	return *this;
+}
+
+template<typename T>
 inline TVector3<T> TVector3<T>::div(const T rhs) const
 {
 	return TVector3(x / rhs, y / rhs, z / rhs);
@@ -400,16 +386,6 @@ inline TVector3<T>& TVector3<T>::divLocal(const T rhs)
 	x /= rhs;
 	y /= rhs;
 	z /= rhs;
-
-	return *this;
-}
-
-template<typename T>
-inline TVector3<T>& TVector3<T>::divLocal(const TVector3& rhs)
-{
-	x /= rhs.x;
-	y /= rhs.y;
-	z /= rhs.z;
 
 	return *this;
 }
@@ -430,6 +406,7 @@ inline TVector3<T>& TVector3<T>::absLocal()
 	return *this;
 }
 
+// TODO: move to a specilized utility function
 // Current vector is expected to be normalized already.
 template<typename T>
 inline void TVector3<T>::calcOrthBasisAsYaxis(TVector3* const out_xAxis, TVector3* const out_zAxis) const
@@ -473,38 +450,36 @@ inline TVector3<T>& TVector3<T>::clampLocal(const T lowerBound, const T upperBou
 template<typename T>
 inline TVector3<T> TVector3<T>::complement() const
 {
-	return TVector3(static_cast<T>(1) - x, static_cast<T>(1) - y, static_cast<T>(1) - z);
+	return TVector3(1 - x, 1 - y, 1 - z);
 }
 
 template<typename T>
-inline real TVector3<T>::avg() const
+inline T TVector3<T>::avg() const
 {
-	return static_cast<real>(x + y + z) / static_cast<real>(3);
+	return (x + y + z) / 3;
 }
 
 template<typename T>
 inline TVector3<T> TVector3<T>::reciprocal() const
 {
-	return TVector3(static_cast<T>(1) / x, static_cast<T>(1) / y, static_cast<T>(1) / z);
+	return TVector3(1 / x, 1 / y, 1 / z);
 }
 
 template<typename T>
 inline TVector3<T> TVector3<T>::reflect(const TVector3& normal) const
 {
-	TVector3 result = normal.mul(-2.0f * normal.dot(*this));
-	result.addLocal(*this);
-
-	return result;
+	TVector3 result = normal.mul(2 * normal.dot(*this));
+	return this->sub(result);
 }
 
 template<typename T>
 inline TVector3<T>& TVector3<T>::reflectLocal(const TVector3& normal)
 {
-	const T factor = -2.0f * normal.dot(*this);
+	const T factor = 2 * normal.dot(*this);
 
-	x = x + factor * normal.x;
-	y = y + factor * normal.y;
-	z = z + factor * normal.z;
+	x = x - factor * normal.x;
+	y = y - factor * normal.y;
+	z = z - factor * normal.z;
 
 	return *this;
 }
@@ -572,9 +547,9 @@ inline std::string TVector3<T>::toStringFormal() const
 template<typename T>
 inline TVector3<T>& TVector3<T>::set(const T rhsX, const T rhsY, const T rhsZ)
 {
-	this->x = rhsX;
-	this->y = rhsY;
-	this->z = rhsZ;
+	x = rhsX;
+	y = rhsY;
+	z = rhsZ;
 
 	return *this;
 }
@@ -582,9 +557,9 @@ inline TVector3<T>& TVector3<T>::set(const T rhsX, const T rhsY, const T rhsZ)
 template<typename T>
 inline TVector3<T>& TVector3<T>::set(const T rhs)
 {
-	this->x = rhs;
-	this->y = rhs;
-	this->z = rhs;
+	x = rhs;
+	y = rhs;
+	z = rhs;
 
 	return *this;
 }
@@ -620,9 +595,9 @@ inline bool TVector3<T>::equals(const TVector3& rhs, const T margin) const
 }
 
 template<typename T>
-inline bool TVector3<T>::allZero() const
+inline bool TVector3<T>::isZero() const
 {
-	return x == static_cast<T>(0) && y == static_cast<T>(0) && z == static_cast<T>(0);
+	return x == 0 && y == 0 && z == 0;
 }
 
 }// end namespace ph

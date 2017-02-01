@@ -21,16 +21,16 @@ public:
 	static const int32 PRIMITIVE_MAX = 2;
 
 public:
-	float32 m_testPoint;
-	int32   m_pointType;
+	real  m_testPoint;
+	int32 m_pointType;
 
 	TestPoint() : 
-		m_testPoint(0.0f), m_pointType(PRIMITIVE_MIN)
+		m_testPoint(0.0_r), m_pointType(PRIMITIVE_MIN)
 	{
 
 	}
 
-	TestPoint(const float32 testPoint, const int32 pointType) :
+	TestPoint(const real testPoint, const int32 pointType) :
 		m_testPoint(testPoint), m_pointType(pointType)
 	{
 
@@ -47,7 +47,7 @@ const int32 TestPoint::PRIMITIVE_MAX;
 
 KdtreeNode::KdtreeNode(std::vector<const Primitive*>* primitiveBuffer) :
 	m_positiveChild(nullptr), m_negativeChild(nullptr), 
-	m_splitAxis(KDTREE_UNKNOWN_AXIS), m_splitPos(0.0f),
+	m_splitAxis(KDTREE_UNKNOWN_AXIS), m_splitPos(0.0_r),
 	m_primitiveBuffer(primitiveBuffer), m_nodeBufferStartIndex(-1), m_nodeBufferEndIndex(-1)
 {
 	if(!primitiveBuffer)
@@ -80,8 +80,8 @@ void KdtreeNode::buildTree(const std::vector<const Primitive*>& primitives)
 
 bool KdtreeNode::findClosestIntersection(const Ray& ray, Intersection* const out_intersection) const
 {
-	float32 rayNearHitDist;
-	float32 rayFarHitDist;
+	real rayNearHitDist;
+	real rayFarHitDist;
 
 	if(!m_aabb.isIntersectingVolume(ray, &rayNearHitDist, &rayFarHitDist))
 	{
@@ -92,7 +92,7 @@ bool KdtreeNode::findClosestIntersection(const Ray& ray, Intersection* const out
 	return traverseAndFindClosestIntersection(ray, out_intersection, rayNearHitDist, rayFarHitDist);
 }
 
-void KdtreeNode::analyzeSplitCostSAH(const std::vector<const Primitive*>& primitives, const int32 axis, float64* const out_minCost, float32* const out_splitPoint) const
+void KdtreeNode::analyzeSplitCostSAH(const std::vector<const Primitive*>& primitives, const int32 axis, float64* const out_minCost, real* const out_splitPoint) const
 {
 	std::vector<TestPoint> testAxisPoints(primitives.size() * 2);
 
@@ -121,11 +121,11 @@ void KdtreeNode::analyzeSplitCostSAH(const std::vector<const Primitive*>& primit
 	numPnodePrims = primitives.size();
 	boundaryPrimPassed = false;
 
-	float32 minAabbAxisPoint = m_aabb.getMinVertex(axis);
-	float32 maxAabbAxisPoint = m_aabb.getMaxVertex(axis);
+	real minAabbAxisPoint = m_aabb.getMinVertex(axis);
+	real maxAabbAxisPoint = m_aabb.getMaxVertex(axis);
 
 	*out_minCost = std::numeric_limits<float64>::max();
-	*out_splitPoint = (minAabbAxisPoint + maxAabbAxisPoint) / 2.0f;
+	*out_splitPoint = (minAabbAxisPoint + maxAabbAxisPoint) * 0.5_r;
 
 	for(std::size_t i = 0; i < testAxisPoints.size(); i++)
 	{
@@ -174,7 +174,7 @@ void KdtreeNode::buildChildrenNodes(const std::vector<const Primitive*>& primiti
 	// a SAH based spatial partitioning algorithm
 
 	float64 xAxisMinSplitCost, yAxisMinSplitCost, zAxisMinSplitCost;
-	float32 xAxisSplitPoint, yAxisSplitPoint, zAxisSplitPoint;
+	real xAxisSplitPoint, yAxisSplitPoint, zAxisSplitPoint;
 	analyzeSplitCostSAH(primitives, KDTREE_X_AXIS, &xAxisMinSplitCost, &xAxisSplitPoint);
 	analyzeSplitCostSAH(primitives, KDTREE_Y_AXIS, &yAxisMinSplitCost, &yAxisSplitPoint);
 	analyzeSplitCostSAH(primitives, KDTREE_Z_AXIS, &zAxisMinSplitCost, &zAxisSplitPoint);
@@ -259,12 +259,12 @@ std::unique_ptr<KdtreeNode> KdtreeNode::buildChildNode(const KdtreeAABB& childAA
 }
 
 bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, Intersection* const out_intersection,
-                                                    const float32 rayDistMin, const float32 rayDistMax) const
+                                                    const real rayDistMin, const real rayDistMax) const
 {
 	if(!isLeaf())
 	{
-		float32 splitAxisRayOrigin = 0.0f;
-		float32 splitAxisRayDir    = 0.0f;
+		real splitAxisRayOrigin = 0.0_r;
+		real splitAxisRayDir    = 0.0_r;
 
 		switch(m_splitAxis)
 		{
@@ -304,10 +304,10 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, Intersection
 
 		// The result can be NaN (the ray is lying on the splitting plane). In such case, traverse both
 		// positive and negative node (handled in Case III).
-		float32 raySplitPlaneDist = (m_splitPos - splitAxisRayOrigin) / splitAxisRayDir;
+		real raySplitPlaneDist = (m_splitPos - splitAxisRayOrigin) / splitAxisRayDir;
 
 		// Case I: Split plane is beyond ray's range or behind ray origin, only near node is hit.
-		if(raySplitPlaneDist >= rayDistMax || raySplitPlaneDist < 0.0f)
+		if(raySplitPlaneDist >= rayDistMax || raySplitPlaneDist < 0.0_r)
 		{
 			if(nearHitNode != nullptr)
 			{
@@ -315,7 +315,7 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, Intersection
 			}
 		}
 		// Case II: Split plane is between ray origin and near intersection point, only far node is hit.
-		else if(raySplitPlaneDist <= rayDistMin && raySplitPlaneDist > 0.0f)
+		else if(raySplitPlaneDist <= rayDistMin && raySplitPlaneDist > 0.0_r)
 		{
 			if(farHitNode != nullptr)
 			{
@@ -351,7 +351,7 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, Intersection
 		Vector3R temp;
 
 		// TODO: infinity may be unsafe on some machine
-		float32 closestHitSquaredDist = std::numeric_limits<float32>::infinity();
+		real closestHitSquaredDist = std::numeric_limits<real>::infinity();
 
 		if(closestIntersection.getHitPrimitive() != nullptr)
 			closestHitSquaredDist = closestIntersection.getHitPosition().sub(ray.getOrigin()).squaredLength();
@@ -363,7 +363,7 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, Intersection
 			if((*m_primitiveBuffer)[primIndex]->isIntersecting(segmentRay, out_intersection))
 			{
 				out_intersection->getHitPosition().sub(ray.getOrigin(), &temp);
-				float32 squaredHitDist = temp.squaredLength();
+				real squaredHitDist = temp.squaredLength();
 
 				if(squaredHitDist < closestHitSquaredDist)
 				{

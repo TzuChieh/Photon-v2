@@ -1,4 +1,5 @@
 #include "Math/TransformInfo.h"
+#include "Math/TMatrix4.h"
 
 namespace ph
 {
@@ -11,9 +12,9 @@ TransformInfo::TransformInfo() :
 
 Transform TransformInfo::genTransform(const Transform& parentTransform) const
 {
-	Matrix4f translationMatrix;
-	Matrix4f rotationMatrix;
-	Matrix4f scaleMatrix;
+	Matrix4R translationMatrix;
+	Matrix4R rotationMatrix;
+	Matrix4R scaleMatrix;
 	translationMatrix.initTranslation(m_position);
 	rotationMatrix.initRotation(m_rotation);
 	scaleMatrix.initScale(m_scale);
@@ -23,10 +24,10 @@ Transform TransformInfo::genTransform(const Transform& parentTransform) const
 
 Transform TransformInfo::genInverseTransform(const Transform& parentInvTransform) const
 {
-	Matrix4f invTranslationMatrix;
-	Matrix4f invRotationMatrix;
-	Matrix4f invScaleMatrix;
-	invTranslationMatrix.initTranslation(m_position.mul(-1.0f));
+	Matrix4R invTranslationMatrix;
+	Matrix4R invRotationMatrix;
+	Matrix4R invScaleMatrix;
+	invTranslationMatrix.initTranslation(m_position.mul(-1));
 	invRotationMatrix.initRotation(m_rotation.conjugate());
 	invScaleMatrix.initScale(m_scale.reciprocal());
 

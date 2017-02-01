@@ -5,38 +5,38 @@
 namespace ph
 {
 
-void genUnitHemisphereUniformSample(const float32 value_0_1_a, const float32 value_0_1_b, Vector3R* const out_sample)
+void genUnitHemisphereUniformSample(const real value_0_1_a, const real value_0_1_b, Vector3R* const out_sample)
 {
-	const float32 phi     = 2.0f * PI_FLOAT32 * value_0_1_a;
-	const float32 yValue  = value_0_1_b;
-	const float32 yRadius = sqrt(1.0f - yValue * yValue);
+	const real phi     = 2.0_r * PI_REAL * value_0_1_a;
+	const real yValue  = value_0_1_b;
+	const real yRadius = sqrt(1.0_r - yValue * yValue);
 
 	out_sample->x = cos(phi) * yRadius;
 	out_sample->y = yValue;
 	out_sample->z = sin(phi) * yRadius;
 }
 
-void genUnitHemisphereCosineThetaWeightedSample(const float32 value_0_1_a, const float32 value_0_1_b, Vector3R* const out_sample)
+void genUnitHemisphereCosineThetaWeightedSample(const real value_0_1_a, const real value_0_1_b, Vector3R* const out_sample)
 {
-	const float32 phi     = 2.0f * PI_FLOAT32 * value_0_1_a;
-	const float32 yValue  = sqrt(value_0_1_b);
-	const float32 yRadius = sqrt(1.0f - yValue * yValue);
+	const real phi     = 2.0f * PI_REAL * value_0_1_a;
+	const real yValue  = sqrt(value_0_1_b);
+	const real yRadius = sqrt(1.0f - yValue * yValue);
 
 	out_sample->x = cos(phi) * yRadius;
 	out_sample->y = yValue;
 	out_sample->z = sin(phi) * yRadius;
 }
 
-void genUnitHemisphereGgxTrowbridgeReitzNdfSample(const float32 value_0_1_a, const float32 value_0_1_b, const float32 alpha, Vector3R* const out_sample)
+void genUnitHemisphereGgxTrowbridgeReitzNdfSample(const real value_0_1_a, const real value_0_1_b, const real alpha, Vector3R* const out_sample)
 {
 	// for GGX (Trowbridge-Reitz) Normal Distribution Function
 
-	const float32 phi     = 2.0f * PI_FLOAT32 * value_0_1_a;
-	const float32 randNum = value_0_1_b;
-	const float32 theta   = atan(alpha * sqrt(randNum / (1.0f - randNum)));
+	const real phi     = 2.0f * PI_REAL * value_0_1_a;
+	const real randNum = value_0_1_b;
+	const real theta   = atan(alpha * sqrt(randNum / (1.0_r - randNum)));
 
-	const float32 sinTheta = sin(theta);
-	const float32 cosTheta = cos(theta);
+	const real sinTheta = sin(theta);
+	const real cosTheta = cos(theta);
 
 	out_sample->x = cos(phi) * sinTheta;
 	out_sample->y = cosTheta;

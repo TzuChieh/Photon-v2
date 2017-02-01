@@ -11,7 +11,7 @@ public:
 	Vector3R position;
 	Vector3R normal;
 	Vector3R uvw;
-	float32  pdf;
+	real     pdf;
 };
 
 }// end namespace ph

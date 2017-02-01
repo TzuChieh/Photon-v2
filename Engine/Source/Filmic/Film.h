@@ -52,17 +52,6 @@ public:
 		}
 	}
 
-	// HACK
-	/*inline void scaleSenseValue(const float32 factor)
-	{
-		for(auto& sensor : m_pixelRadianceSensors)
-		{
-			sensor.m_accuR *= factor;
-			sensor.m_accuG *= factor;
-			sensor.m_accuB *= factor;
-		}
-	}*/
-
 private:
 	uint32 m_widthPx;
 	uint32 m_heightPx;

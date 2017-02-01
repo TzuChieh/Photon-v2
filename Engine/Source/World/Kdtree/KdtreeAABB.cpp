@@ -22,7 +22,7 @@ KdtreeAABB::KdtreeAABB(const Vector3R& minVertex, const Vector3R& maxVertex) :
 
 }
 
-bool KdtreeAABB::isIntersectingVolume(const Ray& ray, float32* const out_rayNearHitDist, float32* const out_rayFarHitDist) const
+bool KdtreeAABB::isIntersectingVolume(const Ray& ray, real* const out_rayNearHitDist, real* const out_rayFarHitDist) const
 {
 	return m_aabb.isIntersectingVolume(ray, out_rayNearHitDist, out_rayFarHitDist);
 }
@@ -32,10 +32,10 @@ bool KdtreeAABB::isIntersectingVolume(const AABB& aabb) const
 	return m_aabb.isIntersectingVolume(aabb);
 }
 
-bool KdtreeAABB::trySplitAt(const int32 axis, const float32 splitPos, KdtreeAABB* const out_negativeAABB, KdtreeAABB* const out_positiveAABB) const
+bool KdtreeAABB::trySplitAt(const int32 axis, const real splitPos, KdtreeAABB* const out_negativeAABB, KdtreeAABB* const out_positiveAABB) const
 {
-	float32 minVertex[KDTREE_NUM_AXES];
-	float32 maxVertex[KDTREE_NUM_AXES];
+	real minVertex[KDTREE_NUM_AXES];
+	real maxVertex[KDTREE_NUM_AXES];
 	getMinVertex(minVertex);
 	getMaxVertex(maxVertex);
 
@@ -56,30 +56,30 @@ bool KdtreeAABB::trySplitAt(const int32 axis, const float32 splitPos, KdtreeAABB
 	return true;
 }
 
-void KdtreeAABB::getMinVertex(float32* const out_vector3f) const
+void KdtreeAABB::getMinVertex(real* const out_vector3f) const
 {
 	out_vector3f[KDTREE_X_AXIS] = m_aabb.getMinVertex().x;
 	out_vector3f[KDTREE_Y_AXIS] = m_aabb.getMinVertex().y;
 	out_vector3f[KDTREE_Z_AXIS] = m_aabb.getMinVertex().z;
 }
 
-void KdtreeAABB::getMaxVertex(float32* const out_vector3f) const
+void KdtreeAABB::getMaxVertex(real* const out_vector3f) const
 {
 	out_vector3f[KDTREE_X_AXIS] = m_aabb.getMaxVertex().x;
 	out_vector3f[KDTREE_Y_AXIS] = m_aabb.getMaxVertex().y;
 	out_vector3f[KDTREE_Z_AXIS] = m_aabb.getMaxVertex().z;
 }
 
-float32 KdtreeAABB::getMinVertex(const int32 axis) const
+real KdtreeAABB::getMinVertex(const int32 axis) const
 {
-	float32 minVertex[KDTREE_NUM_AXES];
+	real minVertex[KDTREE_NUM_AXES];
 	getMinVertex(minVertex);
 	return minVertex[axis];
 }
 
-float32 KdtreeAABB::getMaxVertex(const int32 axis) const
+real KdtreeAABB::getMaxVertex(const int32 axis) const
 {
-	float32 maxVertex[KDTREE_NUM_AXES];
+	real maxVertex[KDTREE_NUM_AXES];
 	getMaxVertex(maxVertex);
 	return maxVertex[axis];
 }

@@ -11,7 +11,7 @@ namespace ph
 class GCuboid final : public Geometry
 {
 public:
-	GCuboid(const float32 xLen, const float32 yLen, const float32 zLen);
+	GCuboid(const real xLen, const real yLen, const real zLen);
 	GCuboid(const GCuboid& other);
 	virtual ~GCuboid() override;
 
@@ -21,11 +21,11 @@ public:
 	GCuboid& operator = (const GCuboid& rhs);
 
 private:
-	float32 m_xLen;
-	float32 m_yLen;
-	float32 m_zLen;
+	real m_xLen;
+	real m_yLen;
+	real m_zLen;
 
-	static bool checkData(const PrimitiveBuildingMaterial& data, const float32 xLen, const float32 yLen, const float32 zLen);
+	static bool checkData(const PrimitiveBuildingMaterial& data, const real xLen, const real yLen, const real zLen);
 };
 
 }// end namespace ph

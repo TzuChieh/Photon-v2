@@ -12,7 +12,7 @@ namespace ph
 class GSphere final : public Geometry
 {
 public:
-	GSphere(const float32 radius);
+	GSphere(const real radius);
 	GSphere(const GSphere& other);
 	GSphere(const InputPacket& packet);
 	virtual ~GSphere() override;
@@ -23,7 +23,7 @@ public:
 	GSphere& operator = (const GSphere& rhs);
 
 private:
-	float32 m_radius;
+	real m_radius;
 
 	std::size_t addVertex(const Vector3R& vertex, std::vector<Vector3R>* const out_vertices) const;
 	std::size_t addMidpointVertex(const std::size_t iA, const std::size_t iB, std::vector<Vector3R>* const out_vertices) const;

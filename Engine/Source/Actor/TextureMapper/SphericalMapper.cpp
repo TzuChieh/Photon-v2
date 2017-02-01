@@ -19,16 +19,16 @@ void SphericalMapper::map(const Vector3R& position, const Vector3R& uvw, Vector3
 
 	const Vector3R positionDir = position.normalize();
 
-	const float32 cosTheta = Math::clamp(positionDir.y, -1.0f, 1.0f);
-	const float32 cosPhi   = Math::clamp(positionDir.x, -1.0f, 1.0f);
-	const float32 sinPhi   = Math::clamp(positionDir.z, -1.0f, 1.0f);
+	const real cosTheta = Math::clamp(positionDir.y, -1.0_r, 1.0_r);
+	const real cosPhi   = Math::clamp(positionDir.x, -1.0_r, 1.0_r);
+	const real sinPhi   = Math::clamp(positionDir.z, -1.0_r, 1.0_r);
 
-	const float32 theta = acos(cosTheta);       // [  0, pi]
-	const float32 phi   = atan2(sinPhi, cosPhi);// [-pi, pi]
+	const real theta = acos(cosTheta);       // [  0, pi]
+	const real phi   = atan2(sinPhi, cosPhi);// [-pi, pi]
 
-	out_uvw->x = (-phi + PI_FLOAT32) / (2.0f * PI_FLOAT32);// [0, 1]
-	out_uvw->y = (PI_FLOAT32 - theta) / PI_FLOAT32;        // [0, 1]
-	out_uvw->z = 0.0f;
+	out_uvw->x = (-phi + PI_REAL) / (2.0_r * PI_REAL);// [0, 1]
+	out_uvw->y = (PI_REAL - theta) / PI_REAL;        // [0, 1]
+	out_uvw->z = 0.0_r;
 }
 
 }// end namespace ph

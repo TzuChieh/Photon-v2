@@ -25,7 +25,7 @@ public:
 private:
 	OpaqueMicrofacet m_bsdfCos;
 
-	static float32 roughnessToAlpha(const real roughness);
+	static real roughnessToAlpha(const real roughness);
 };
 
 }// end namespace ph

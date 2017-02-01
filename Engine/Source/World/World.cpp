@@ -26,7 +26,7 @@ void World::addActor(std::unique_ptr<Actor> actor)
 	m_actors.push_back(std::move(actor));
 }
 
-void World::update(const float32 deltaS)
+void World::update(const real deltaS)
 {
 	std::cout << "updating world..." << std::endl;
 

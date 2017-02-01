@@ -39,17 +39,17 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	m_metadata->worldToLocal.transformRay(ray, &localRay);
 
 	// hitT's unit is in world space (localRay's direction can have scale factor)
-	const float32 hitT = localRay.getOrigin().sub(m_vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
+	const real hitT = localRay.getOrigin().sub(m_vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
 
 	// reject by distance (NaN-aware)
 	if(!(ray.getMinT() < hitT && hitT < ray.getMaxT()))
 		return false;
 
 	// projected hit point
-	float32 hitPu, hitPv;
+	real hitPu, hitPv;
 
 	// projected side vector AB and AC
-	float32 abPu, abPv, acPu, acPv;
+	real abPu, abPv, acPu, acPv;
 
 	// find dominant axis
 	if(abs(m_faceNormal.x) > abs(m_faceNormal.y))
@@ -99,20 +99,20 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	// TODO: check if these operations are possible of producing NaNs
 
 	// barycentric coordinate of vertex B in the projected plane
-	const float32 baryB = (hitPu*acPv - hitPv*acPu) / (abPu*acPv - abPv*acPu);
-	if(baryB < 0.0f) return false;
+	const real baryB = (hitPu*acPv - hitPv*acPu) / (abPu*acPv - abPv*acPu);
+	if(baryB < 0.0_r) return false;
 
 	// barycentric coordinate of vertex C in the projected plane
-	const float32 baryC = (hitPu*abPv - hitPv*abPu) / (acPu*abPv - abPu*acPv);
-	if(baryC < 0.0f) return false;
+	const real baryC = (hitPu*abPv - hitPv*abPu) / (acPu*abPv - abPu*acPv);
+	if(baryC < 0.0_r) return false;
 
-	if(baryB + baryC > 1.0f) return false;
+	if(baryB + baryC > 1.0_r) return false;
 
 	// so the ray intersects the triangle (TODO: reuse calculated results!)
 
 	Vector3R hitPosition;
 	Vector3R hitNormal;
-	Vector3R localHitNormal(m_nA.mul(1.0f - baryB - baryC).addLocal(m_nB.mul(baryB)).addLocal(m_nC.mul(baryC)));
+	Vector3R localHitNormal(m_nA.mul(1.0_r - baryB - baryC).addLocal(m_nB.mul(baryB)).addLocal(m_nC.mul(baryC)));
 	m_metadata->localToWorld.transformPoint(localRay.getDirection().mul(hitT).addLocal(localRay.getOrigin()), &hitPosition);
 	m_metadata->localToWorld.transformVector(localHitNormal, &hitNormal);
 	//m_parentModel->getModelToWorldTransform()->transformVector(m_faceNormal, &hitNormal);
@@ -123,7 +123,7 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	out_intersection->setHitPosition(hitPosition);
 	out_intersection->setHitSmoothNormal(hitNormal.normalizeLocal());
 	out_intersection->setHitGeoNormal(hitGeoNormal.normalizeLocal());
-	out_intersection->setHitUVW(m_uvwA.mul(1.0f - baryB - baryC).addLocal(m_uvwB.mul(baryB)).addLocal(m_uvwC.mul(baryC)));
+	out_intersection->setHitUVW(m_uvwA.mul(1.0_r - baryB - baryC).addLocal(m_uvwB.mul(baryB)).addLocal(m_uvwC.mul(baryC)));
 	out_intersection->setHitPrimitive(this);
 
 	return true;
@@ -135,17 +135,17 @@ bool PTriangle::isIntersecting(const Ray& ray) const
 	m_metadata->worldToLocal.transformRay(ray, &localRay);
 
 	// hitT's unit is in world space (localRay's direction can have scale factor)
-	const float32 hitT = localRay.getOrigin().sub(m_vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
+	const real hitT = localRay.getOrigin().sub(m_vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
 
 	// reject by distance (NaN-aware)
 	if(!(ray.getMinT() < hitT && hitT < ray.getMaxT()))
 		return false;
 
 	// projected hit point
-	float32 hitPu, hitPv;
+	real hitPu, hitPv;
 
 	// projected side vector AB and AC
-	float32 abPu, abPv, acPu, acPv;
+	real abPu, abPv, acPu, acPv;
 
 	// find dominant axis
 	if(abs(m_faceNormal.x) > abs(m_faceNormal.y))
@@ -195,14 +195,14 @@ bool PTriangle::isIntersecting(const Ray& ray) const
 	// TODO: check if these operations are possible of producing NaNs
 
 	// barycentric coordinate of vertex B in the projected plane
-	const float32 baryB = (hitPu*acPv - hitPv*acPu) / (abPu*acPv - abPv*acPu);
-	if(baryB < 0.0f) return false;
+	const real baryB = (hitPu*acPv - hitPv*acPu) / (abPu*acPv - abPv*acPu);
+	if(baryB < 0.0_r) return false;
 
 	// barycentric coordinate of vertex C in the projected plane
-	const float32 baryC = (hitPu*abPv - hitPv*abPu) / (acPu*abPv - abPu*acPv);
-	if(baryC < 0.0f) return false;
+	const real baryC = (hitPu*abPv - hitPv*abPu) / (acPu*abPv - abPu*acPv);
+	if(baryC < 0.0_r) return false;
 
-	if(baryB + baryC > 1.0f) return false;
+	if(baryB + baryC > 1.0_r) return false;
 
 	// so the ray intersects the triangle (TODO: reuse calculated results!)
 	return true;
@@ -217,9 +217,9 @@ void PTriangle::calcAABB(AABB* const out_aabb) const
 	m_metadata->localToWorld.transformPoint(m_vB, &vB);
 	m_metadata->localToWorld.transformPoint(m_vC, &vC);
 
-	float32 minX = vA.x, maxX = vA.x,
-		minY = vA.y, maxY = vA.y,
-		minZ = vA.z, maxZ = vA.z;
+	real minX = vA.x, maxX = vA.x,
+	     minY = vA.y, maxY = vA.y,
+	     minZ = vA.z, maxZ = vA.z;
 
 	if(vB.x > maxX)      maxX = vB.x;
 	else if(vB.x < minX) minX = vB.x;
@@ -284,7 +284,7 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 	tNormal.normalizeLocal();
 
 	// test triangle's face normal
-	float32 trigOffset = tvA.dot(tNormal);
+	real trigOffset = tvA.dot(tNormal);
 	sortedProjection.z = abs(aabbHalfExtents.x * tNormal.x)
 	                   + abs(aabbHalfExtents.y * tNormal.y)
 	                   + abs(aabbHalfExtents.z * tNormal.z);
@@ -293,14 +293,14 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 		return false;
 
 	// test 9 edge cross-products (saves in projection)
-	float32 aabbR;
-	float32 trigE;// projected coordinate of a triangle's edge
-	float32 trigV;// the remaining vertex's projected coordinate
+	real aabbR;
+	real trigE;// projected coordinate of a triangle's edge
+	real trigV;// the remaining vertex's projected coordinate
 
-					// TODO: precompute triangle edges
+	// TODO: precompute triangle edges
 
-					// (1, 0, 0) cross (edge AB)
-	projection.set(0.0f, tvA.z - tvB.z, tvB.y - tvA.y);
+	// (1, 0, 0) cross (edge AB)
+	projection.set(0.0_r, tvA.z - tvB.z, tvB.y - tvA.y);
 	aabbR = aabbHalfExtents.y * abs(projection.y) + aabbHalfExtents.z * abs(projection.z);
 	trigE = projection.y*tvA.y + projection.z*tvA.z;
 	trigV = projection.y*tvC.y + projection.z*tvC.z;
@@ -308,7 +308,7 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
 	// (0, 1, 0) cross (edge AB)
-	projection.set(tvB.z - tvA.z, 0.0f, tvA.x - tvB.x);
+	projection.set(tvB.z - tvA.z, 0.0_r, tvA.x - tvB.x);
 	aabbR = aabbHalfExtents.x * abs(projection.x) + aabbHalfExtents.z * abs(projection.z);
 	trigE = projection.x*tvA.x + projection.z*tvA.z;
 	trigV = projection.x*tvC.x + projection.z*tvC.z;
@@ -316,7 +316,7 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
 	// (0, 0, 1) cross (edge AB)
-	projection.set(tvA.y - tvB.y, tvB.x - tvA.x, 0.0f);
+	projection.set(tvA.y - tvB.y, tvB.x - tvA.x, 0.0_r);
 	aabbR = aabbHalfExtents.x * abs(projection.x) + aabbHalfExtents.y * abs(projection.y);
 	trigE = projection.x*tvA.x + projection.y*tvA.y;
 	trigV = projection.x*tvC.x + projection.y*tvC.y;
@@ -324,7 +324,7 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
 	// (1, 0, 0) cross (edge BC)
-	projection.set(0.0f, tvB.z - tvC.z, tvC.y - tvB.y);
+	projection.set(0.0_r, tvB.z - tvC.z, tvC.y - tvB.y);
 	aabbR = aabbHalfExtents.y * abs(projection.y) + aabbHalfExtents.z * abs(projection.z);
 	trigE = projection.y*tvB.y + projection.z*tvB.z;
 	trigV = projection.y*tvA.y + projection.z*tvA.z;
@@ -332,7 +332,7 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
 	// (0, 1, 0) cross (edge BC)
-	projection.set(tvC.z - tvB.z, 0.0f, tvB.x - tvC.x);
+	projection.set(tvC.z - tvB.z, 0.0_r, tvB.x - tvC.x);
 	aabbR = aabbHalfExtents.x * abs(projection.x) + aabbHalfExtents.z * abs(projection.z);
 	trigE = projection.x*tvB.x + projection.z*tvB.z;
 	trigV = projection.x*tvA.x + projection.z*tvA.z;
@@ -340,7 +340,7 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
 	// (0, 0, 1) cross (edge BC)
-	projection.set(tvB.y - tvC.y, tvC.x - tvB.x, 0.0f);
+	projection.set(tvB.y - tvC.y, tvC.x - tvB.x, 0.0_r);
 	aabbR = aabbHalfExtents.x * abs(projection.x) + aabbHalfExtents.y * abs(projection.y);
 	trigE = projection.x*tvB.x + projection.y*tvB.y;
 	trigV = projection.x*tvA.x + projection.y*tvA.y;
@@ -348,7 +348,7 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
 	// (1, 0, 0) cross (edge CA)
-	projection.set(0.0f, tvC.z - tvA.z, tvA.y - tvC.y);
+	projection.set(0.0_r, tvC.z - tvA.z, tvA.y - tvC.y);
 	aabbR = aabbHalfExtents.y * abs(projection.y) + aabbHalfExtents.z * abs(projection.z);
 	trigE = projection.y*tvC.y + projection.z*tvC.z;
 	trigV = projection.y*tvB.y + projection.z*tvB.z;
@@ -356,7 +356,7 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
 	// (0, 1, 0) cross (edge CA)
-	projection.set(tvA.z - tvC.z, 0.0f, tvC.x - tvA.x);
+	projection.set(tvA.z - tvC.z, 0.0_r, tvC.x - tvA.x);
 	aabbR = aabbHalfExtents.x * abs(projection.x) + aabbHalfExtents.z * abs(projection.z);
 	trigE = projection.x*tvC.x + projection.z*tvC.z;
 	trigV = projection.x*tvB.x + projection.z*tvB.z;
@@ -364,7 +364,7 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
 	// (0, 0, 1) cross (edge CA)
-	projection.set(tvC.y - tvA.y, tvA.x - tvC.x, 0.0f);
+	projection.set(tvC.y - tvA.y, tvA.x - tvC.x, 0.0_r);
 	aabbR = aabbHalfExtents.x * abs(projection.x) + aabbHalfExtents.y * abs(projection.y);
 	trigE = projection.x*tvC.x + projection.y*tvC.y;
 	trigV = projection.x*tvB.x + projection.y*tvB.y;
@@ -377,18 +377,18 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 
 void PTriangle::genPositionSample(PositionSample* const out_sample) const
 {
-	const float32 A = std::sqrt(genRandomFloat32_0_1_uniform());
-	const float32 B = genRandomFloat32_0_1_uniform();
+	const real A = std::sqrt(genRandomReal_0_1_uniform());
+	const real B = genRandomReal_0_1_uniform();
 
-	const Vector3R localPos = m_vA.mul(1.0f - A).addLocal(m_vB.mul(A * (1.0f - B))).addLocal(m_vC.mul(B * A));
+	const Vector3R localPos = m_vA.mul(1.0_r - A).addLocal(m_vB.mul(A * (1.0_r - B))).addLocal(m_vC.mul(B * A));
 	Vector3R worldPos;
 	m_metadata->localToWorld.transformPoint(localPos, &worldPos);
 	out_sample->position = worldPos;
 
 	const Vector3R abc = calcBarycentricCoord(localPos);
-	out_sample->uvw = m_uvwA.mul(1.0f - abc.y - abc.z).addLocal(m_uvwB.mul(abc.y)).addLocal(m_uvwC.mul(abc.z));
+	out_sample->uvw = m_uvwA.mul(1.0_r - abc.y - abc.z).addLocal(m_uvwB.mul(abc.y)).addLocal(m_uvwC.mul(abc.z));
 
-	const Vector3R localNormal(m_nA.mul(1.0f - abc.y - abc.z).addLocal(m_nB.mul(abc.y)).addLocal(m_nC.mul(abc.z)));
+	const Vector3R localNormal(m_nA.mul(1.0_r - abc.y - abc.z).addLocal(m_nB.mul(abc.y)).addLocal(m_nC.mul(abc.z)));
 	Vector3R worldN;
 	//m_metadata->localToWorld.transformVector(m_faceNormal, &worldN);
 	m_metadata->localToWorld.transformVector(localNormal, &worldN);
@@ -397,13 +397,13 @@ void PTriangle::genPositionSample(PositionSample* const out_sample) const
 	out_sample->pdf = m_reciExtendedArea;
 }
 
-float32 PTriangle::calcExtendedArea() const
+real PTriangle::calcExtendedArea() const
 {
 	Vector3R eAB;
 	Vector3R eAC;
 	m_metadata->localToWorld.transformVector(m_eAB, &eAB);
 	m_metadata->localToWorld.transformVector(m_eAC, &eAC);
-	return eAB.cross(eAC).length() * 0.5f;
+	return eAB.cross(eAC).length() * 0.5_r;
 }
 
 Vector3R PTriangle::calcBarycentricCoord(const Vector3R& position) const
@@ -413,22 +413,22 @@ Vector3R PTriangle::calcBarycentricCoord(const Vector3R& position) const
 
 	const Vector3R eAP = position.sub(m_vA);
 
-	const float32 d00 = m_eAB.dot(m_eAB);
-	const float32 d01 = m_eAB.dot(m_eAC);
-	const float32 d11 = m_eAC.dot(m_eAC);
-	const float32 d20 = eAP.dot(m_eAB);
-	const float32 d21 = eAP.dot(m_eAC);
+	const real d00 = m_eAB.dot(m_eAB);
+	const real d01 = m_eAB.dot(m_eAC);
+	const real d11 = m_eAC.dot(m_eAC);
+	const real d20 = eAP.dot(m_eAB);
+	const real d21 = eAP.dot(m_eAC);
 	
-	const float32 reciDenom = 1.0f / (d00 * d11 - d01 * d01);
+	const real reciDenom = 1.0_r / (d00 * d11 - d01 * d01);
 	
-	const float32 b = (d11 * d20 - d01 * d21) * reciDenom;
-	const float32 c = (d00 * d21 - d01 * d20) * reciDenom;
-	const float32 a = 1.0f - b - c;
+	const real b = (d11 * d20 - d01 * d21) * reciDenom;
+	const real c = (d00 * d21 - d01 * d20) * reciDenom;
+	const real a = 1.0_r - b - c;
 
 	return Vector3R(a, b, c);
 }
 
-float32 PTriangle::calcPositionSamplePdfA(const Vector3R& position) const
+real PTriangle::calcPositionSamplePdfA(const Vector3R& position) const
 {
 	// FIXME: primitive may have scale factor
 	return m_reciExtendedArea;

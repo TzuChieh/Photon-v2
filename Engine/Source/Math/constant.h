@@ -1,4 +1,4 @@
 #pragma once
 
-#define PI_FLOAT32      3.14159265f
-#define RECI_PI_FLOAT32 1.0f / PI_FLOAT32
+#define PI_REAL      3.141592653589793238462643383279_r
+#define RECI_PI_REAL 1.0_r / PI_REAL

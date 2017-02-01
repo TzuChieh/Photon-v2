@@ -40,7 +40,7 @@ void BackwardPathIntegrator::update(const World& world)
 
 void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const World& world, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const
 {
-	const float32 rayDeltaDist = 0.0001f;
+	const real rayDeltaDist = 0.0001_r;
 	const Intersector& intersector = world.getIntersector();
 
 	uint32 numBounces = 0;
@@ -102,7 +102,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const World&
 		hitSurfaceBehavior.getBsdfCos()->genImportanceSample(surfaceSample);
 
 		// blackness check & sidedness agreement between real geometry and shading (phong-interpolated) normal
-		if(surfaceSample.liWeight.allZero() || 
+		if(surfaceSample.liWeight.isZero() ||
 		   intersection.getHitSmoothNormal().dot(surfaceSample.L) * intersection.getHitGeoNormal().dot(surfaceSample.L) <= 0.0f)
 		{
 			break;
@@ -119,15 +119,15 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const World&
 
 			if(numBounces >= 3)
 			{
-				//const float32 rrSurviveRate = liWeight.clamp(0.0f, 1.0f).max();
-				const float32 rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001f, 1.0f);
-				//const float32 rrSurviveRate = Math::clamp(Color::linearRgbLuminance(liWeight), 0.0001f, 1.0f);
-				const float32 rrSpin = genRandomFloat32_0_1_uniform();
+				//const real rrSurviveRate = liWeight.clamp(0.0f, 1.0f).max();
+				const real rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001_r, 1.0_r);
+				//const real rrSurviveRate = Math::clamp(Color::linearRgbLuminance(liWeight), 0.0001f, 1.0f);
+				const real rrSpin = genRandomReal_0_1_uniform();
 
 				// russian roulette >> survive
 				if(rrSurviveRate > rrSpin)
 				{
-					const float32 rrScale = 1.0f / rrSurviveRate;
+					const real rrScale = 1.0_r / rrSurviveRate;
 					liWeight.mulLocal(rrScale);
 				}
 				// russian roulette >> dead

@@ -24,10 +24,10 @@ bool AABB::isIntersectingVolume(const Ray& ray) const
 	// it can be handled, we ignore it since the performance will degrade, also bounding volumes are allowed 
 	// to produce false positives already.
 
-	float32 tMin, tMax;
+	real tMin, tMax;
 
-	const float32 txMin = (m_minVertex.x - ray.getOrigin().x) / ray.getDirection().x;
-	const float32 txMax = (m_maxVertex.x - ray.getOrigin().x) / ray.getDirection().x;
+	const real txMin = (m_minVertex.x - ray.getOrigin().x) / ray.getDirection().x;
+	const real txMax = (m_maxVertex.x - ray.getOrigin().x) / ray.getDirection().x;
 	if(txMin < txMax)
 	{
 		tMin = txMin;
@@ -39,8 +39,8 @@ bool AABB::isIntersectingVolume(const Ray& ray) const
 		tMax = txMin;
 	}
 
-	const float32 tyMin = (m_minVertex.y - ray.getOrigin().y) / ray.getDirection().y;
-	const float32 tyMax = (m_maxVertex.y - ray.getOrigin().y) / ray.getDirection().y;
+	const real tyMin = (m_minVertex.y - ray.getOrigin().y) / ray.getDirection().y;
+	const real tyMax = (m_maxVertex.y - ray.getOrigin().y) / ray.getDirection().y;
 	if(tyMin < tyMax)
 	{
 		tMin = tMin > tyMin ? tMin : tyMin;
@@ -52,8 +52,8 @@ bool AABB::isIntersectingVolume(const Ray& ray) const
 		tMax = tMax > tyMin ? tyMin : tMax;
 	}
 
-	const float32 tzMin = (m_minVertex.z - ray.getOrigin().z) / ray.getDirection().z;
-	const float32 tzMax = (m_maxVertex.z - ray.getOrigin().z) / ray.getDirection().z;
+	const real tzMin = (m_minVertex.z - ray.getOrigin().z) / ray.getDirection().z;
+	const real tzMax = (m_maxVertex.z - ray.getOrigin().z) / ray.getDirection().z;
 	if(tzMin < tzMax)
 	{
 		tMin = tMin > tzMin ? tMin : tzMin;
@@ -84,12 +84,12 @@ bool AABB::isIntersectingVolume(const Ray& ray) const
 // volume or not. If there's an intersection, the near and far hit distance will be
 // returned via (out_rayNearHitDist, out_rayFarHitDist); if the ray origin is inside 
 // the AABB, near hit distance will be 0 since volume intersection starts at ray origin.
-bool AABB::isIntersectingVolume(const Ray& ray, float32* const out_rayNearHitDist, float32* const out_rayFarHitDist) const
+bool AABB::isIntersectingVolume(const Ray& ray, real* const out_rayNearHitDist, real* const out_rayFarHitDist) const
 {
-	float32 tMin, tMax;
+	real tMin, tMax;
 
-	float32 txMin = (m_minVertex.x - ray.getOrigin().x) / ray.getDirection().x;
-	float32 txMax = (m_maxVertex.x - ray.getOrigin().x) / ray.getDirection().x;
+	real txMin = (m_minVertex.x - ray.getOrigin().x) / ray.getDirection().x;
+	real txMax = (m_maxVertex.x - ray.getOrigin().x) / ray.getDirection().x;
 
 	if(txMin < txMax)
 	{
@@ -102,8 +102,8 @@ bool AABB::isIntersectingVolume(const Ray& ray, float32* const out_rayNearHitDis
 		tMax = txMin;
 	}
 
-	float32 tyMin = (m_minVertex.y - ray.getOrigin().y) / ray.getDirection().y;
-	float32 tyMax = (m_maxVertex.y - ray.getOrigin().y) / ray.getDirection().y;
+	real tyMin = (m_minVertex.y - ray.getOrigin().y) / ray.getDirection().y;
+	real tyMax = (m_maxVertex.y - ray.getOrigin().y) / ray.getDirection().y;
 
 	if(tyMin < tyMax)
 	{
@@ -116,8 +116,8 @@ bool AABB::isIntersectingVolume(const Ray& ray, float32* const out_rayNearHitDis
 		tMax = tMax > tyMin ? tyMin : tMax;
 	}
 
-	float32 tzMin = (m_minVertex.z - ray.getOrigin().z) / ray.getDirection().z;
-	float32 tzMax = (m_maxVertex.z - ray.getOrigin().z) / ray.getDirection().z;
+	real tzMin = (m_minVertex.z - ray.getOrigin().z) / ray.getDirection().z;
+	real tzMax = (m_maxVertex.z - ray.getOrigin().z) / ray.getDirection().z;
 
 	if(tzMin < tzMax)
 	{

@@ -6,11 +6,11 @@
 namespace ph
 {
 
-const std::uniform_real_distribution<float32> distribution(0.0f, 1.0f);
+const std::uniform_real_distribution<real> distribution(0.0_r, 1.0_r);
 std::atomic<int32> seed(37);
 const int32 incrementation = 17;
 
-float32 genRandomFloat32_0_1_uniform()
+real genRandomReal_0_1_uniform()
 {
 	static thread_local std::mt19937 generator(seed = seed + incrementation);
 	return distribution(generator);

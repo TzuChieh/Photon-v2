@@ -33,7 +33,7 @@ void MatteOpaque::setAlbedo(const Vector3R& albedo)
 	setAlbedo(albedo.x, albedo.y, albedo.z);
 }
 
-void MatteOpaque::setAlbedo(const float32 r, const float32 g, const float32 b)
+void MatteOpaque::setAlbedo(const real r, const real g, const real b)
 {
 	setAlbedo(std::make_shared<ConstantTexture>(r, g, b));
 }

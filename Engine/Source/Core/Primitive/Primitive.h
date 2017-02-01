@@ -22,7 +22,7 @@ public:
 	virtual bool isIntersecting(const Ray& ray) const = 0;
 	virtual bool isIntersectingVolume(const AABB& aabb) const = 0;
 	virtual void calcAABB(AABB* const out_aabb) const = 0;
-	virtual float32 calcPositionSamplePdfA(const Vector3R& position) const = 0;
+	virtual real calcPositionSamplePdfA(const Vector3R& position) const = 0;
 	virtual void genPositionSample(PositionSample* const out_sample) const = 0;
 
 	inline const PrimitiveMetadata* getMetadata() const
@@ -30,16 +30,16 @@ public:
 		return m_metadata;
 	}
 
-	inline float32 getReciExtendedArea() const
+	inline real getReciExtendedArea() const
 	{
 		return m_reciExtendedArea;
 	}
 
-	virtual float32 calcExtendedArea() const = 0;
+	virtual real calcExtendedArea() const = 0;
 
 protected:
 	const PrimitiveMetadata* m_metadata;
-	float32 m_reciExtendedArea;
+	real m_reciExtendedArea;
 };
 
 }// end namespace ph

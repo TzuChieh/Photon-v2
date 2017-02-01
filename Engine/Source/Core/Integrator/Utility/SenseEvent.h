@@ -9,11 +9,11 @@ namespace ph
 class SenseEvent final
 {
 public:
-	float32 filmX;
-	float32 filmY;
+	real filmX;
+	real filmY;
 	Vector3R radiance;
 
-	SenseEvent(const float32 filmX, const float32 filmY, const Vector3R& radiance) :
+	SenseEvent(const real filmX, const real filmY, const Vector3R& radiance) :
 		filmX(filmX), filmY(filmY), radiance(radiance)
 	{
 

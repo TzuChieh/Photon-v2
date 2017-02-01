@@ -10,8 +10,6 @@
 namespace ph
 {
 
-class Vector3f;
-
 class KdtreeAABB final
 {
 public:
@@ -19,31 +17,31 @@ public:
 	explicit KdtreeAABB(const AABB& aabb);
 	KdtreeAABB(const Vector3R& minVertex, const Vector3R& maxVertex);
 
-	bool isIntersectingVolume(const Ray& ray, float32* const out_rayNearHitDist, float32* const out_rayFarHitDist) const;
+	bool isIntersectingVolume(const Ray& ray, real* const out_rayNearHitDist, real* const out_rayFarHitDist) const;
 	bool isIntersectingVolume(const AABB& aabb) const;
-	bool trySplitAt(const int32 axis, const float32 splitPos, KdtreeAABB* const out_negativeAABB, KdtreeAABB* const out_positiveAABB) const;
+	bool trySplitAt(const int32 axis, const real splitPos, KdtreeAABB* const out_negativeAABB, KdtreeAABB* const out_positiveAABB) const;
 
-	void getMinVertex(float32* const out_vector3f) const;
-	void getMaxVertex(float32* const out_vector3f) const;
-	float32 getMinVertex(const int32 axis) const;
-	float32 getMaxVertex(const int32 axis) const;
+	void getMinVertex(real* const out_vector3f) const;
+	void getMaxVertex(real* const out_vector3f) const;
+	real getMinVertex(const int32 axis) const;
+	real getMaxVertex(const int32 axis) const;
 	void getAABB(AABB* const out_aabb) const;
 
-	inline float32 getExtent(const int32 axis) const
+	inline real getExtent(const int32 axis) const
 	{
-		float32 minVertex[KDTREE_NUM_AXES];
-		float32 maxVertex[KDTREE_NUM_AXES];
+		real minVertex[KDTREE_NUM_AXES];
+		real maxVertex[KDTREE_NUM_AXES];
 		getMinVertex(minVertex);
 		getMaxVertex(maxVertex);
 		return maxVertex[axis] - minVertex[axis];
 	}
 
-	inline float32 getSurfaceArea() const
+	inline real getSurfaceArea() const
 	{
-		const float32 xExtent = m_aabb.getMaxVertex().x - m_aabb.getMinVertex().x;
-		const float32 yExtent = m_aabb.getMaxVertex().y - m_aabb.getMinVertex().y;
-		const float32 zExtent = m_aabb.getMaxVertex().z - m_aabb.getMinVertex().z;
-		return 2.0f * (xExtent * yExtent + yExtent * zExtent + zExtent * xExtent);
+		const real xExtent = m_aabb.getMaxVertex().x - m_aabb.getMinVertex().x;
+		const real yExtent = m_aabb.getMaxVertex().y - m_aabb.getMinVertex().y;
+		const real zExtent = m_aabb.getMaxVertex().z - m_aabb.getMinVertex().z;
+		return 2.0_r * (xExtent * yExtent + yExtent * zExtent + zExtent * xExtent);
 	}
 
 private:

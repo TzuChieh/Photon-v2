@@ -34,15 +34,15 @@ void LightTracingIntegrator::update(const World& world)
 
 void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World& world, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const
 {
-	float32 numBounces = 0;
+	uint32 numBounces = 0;
 
 	// convenient variables
 	const Intersector&  intersector  = world.getIntersector();
 	const LightSampler& lightSampler = world.getLightSampler();
 	
-	float32 emitterPickPdf;
+	real emitterPickPdf;
 	const Emitter* emitter = lightSampler.pickEmitter(&emitterPickPdf);
-	if(!emitter || emitterPickPdf <= 0.0f)
+	if(!emitter || emitterPickPdf <= 0)
 	{
 		return;
 	}
@@ -50,11 +50,11 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 	Ray emitterRay;
 	Vector3R emitterRadianceLe;
 	Vector3R eN;
-	float32 emitterPdfA;
-	float32 emitterPdfW;
+	real emitterPdfA;
+	real emitterPdfW;
 	emitter->genSensingRay(&emitterRay, &emitterRadianceLe, &eN, &emitterPdfA, &emitterPdfW);
 	emitterPdfA *= emitterPickPdf;
-	if(emitterRadianceLe.allZero() || emitterPdfA <= 0.0f || emitterPdfW <= 0.0f)
+	if(emitterRadianceLe.isZero() || emitterPdfA <= 0 || emitterPdfW <= 0)
 	{
 		return;
 	}
@@ -63,22 +63,22 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 	{
 		const Vector3R toCameraVec(camera.getPosition().sub(emitterRay.getOrigin()));
 		const Ray toCameraRay(emitterRay.getOrigin(), toCameraVec.normalize(), 
-			RAY_DELTA_DIST, toCameraVec.length() - 2.0f * RAY_DELTA_DIST);
+			RAY_DELTA_DIST, toCameraVec.length() - 2 * RAY_DELTA_DIST);
 		if(!intersector.isIntersecting(toCameraRay))
 		{
 			Vector3R cameraImportanceWe;
 			Vector2f filmCoord;
-			float32 cameraPdfW;
-			float32 cameraPdfA = 1.0f;// always pinhole for now
-			float32 filmArea;
+			real cameraPdfW;
+			real cameraPdfA = 1;// always pinhole for now
+			real filmArea;
 			camera.evalEmittedImportanceAndPdfW(emitterRay.getOrigin(), &filmCoord, 
 				&cameraImportanceWe, &filmArea, &cameraPdfW);
-			if(cameraPdfW > 0.0f)
+			if(cameraPdfW > 0)
 			{
 				Vector3R weight(1, 1, 1);
 				weight.mulLocal(cameraImportanceWe.div(cameraPdfA));
 				weight.divLocal(emitterPdfA);
-				const float32 G = eN.absDot(toCameraRay.getDirection()) * 
+				const real G = eN.absDot(toCameraRay.getDirection()) *
 					camera.getDirection().absDot(toCameraRay.getDirection()) / toCameraVec.squaredLength();
 				weight.mulLocal(G);
 
@@ -109,7 +109,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 			if(!(intersection.getHitGeoNormal().dot(toCameraVec) * intersection.getHitSmoothNormal().dot(toCameraVec) <= 0.0f))
 			{
 				const Ray toCameraRay(intersection.getHitPosition(), toCameraVec.normalize(), 
-					RAY_DELTA_DIST, toCameraVec.length() - 2.0f * RAY_DELTA_DIST);
+					RAY_DELTA_DIST, toCameraVec.length() - 2 * RAY_DELTA_DIST);
 				if(!intersector.isIntersecting(toCameraRay))
 				{
 					SurfaceSample surfaceSample;
@@ -119,19 +119,19 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 					{
 						Vector3R cameraImportanceWe;
 						Vector2f filmCoord;
-						float32 cameraPdfW;
-						float32 cameraPdfA = 1.0f;// always pinhole for now
-						float32 filmArea;
+						real cameraPdfW;
+						real cameraPdfA = 1.0_r;// always pinhole for now
+						real filmArea;
 						camera.evalEmittedImportanceAndPdfW(intersection.getHitPosition(), &filmCoord, 
 							&cameraImportanceWe, &filmArea, &cameraPdfW);
-						if(cameraPdfW > 0.0f)
+						if(cameraPdfW > 0.0_r)
 						{
-							Vector3R weight(1, 1, 1);
+							Vector3R weight(1.0_r, 1.0_r, 1.0_r);
 							weight.mulLocal(cameraImportanceWe.div(cameraPdfA));
 							weight.mulLocal(surfaceSample.liWeight);
-							weight.mulLocal(1.0f / (emitterPdfA * emitterPdfW));
+							weight.mulLocal(1.0_r / (emitterPdfA * emitterPdfW));
 							weight.mulLocal(throughput);
-							const float32 G = intersection.getHitSmoothNormal().absDot(toCameraRay.getDirection()) *
+							const real G = intersection.getHitSmoothNormal().absDot(toCameraRay.getDirection()) *
 								camera.getDirection().absDot(toCameraRay.getDirection()) / toCameraVec.squaredLength();
 							weight.mulLocal(G);
 
@@ -154,7 +154,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 			return;
 		}
 
-		if(intersection.getHitGeoNormal().dot(surfaceSample.L) * intersection.getHitSmoothNormal().dot(surfaceSample.L) <= 0.0f)
+		if(intersection.getHitGeoNormal().dot(surfaceSample.L) * intersection.getHitSmoothNormal().dot(surfaceSample.L) <= 0.0_r)
 		{
 			return;
 		}
@@ -163,13 +163,13 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 
 		if(numBounces >= 3)
 		{
-			const float32 rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001f, 1.0f);
-			const float32 rrSpin = genRandomFloat32_0_1_uniform();
+			const real rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001_r, 1.0_r);
+			const real rrSpin = genRandomReal_0_1_uniform();
 
 			// russian roulette >> survive
 			if(rrSurviveRate > rrSpin)
 			{
-				const float32 rrScale = 1.0f / rrSurviveRate;
+				const real rrScale = 1.0_r / rrSurviveRate;
 				liWeight.mulLocal(rrScale);
 			}
 			// russian roulette >> dead
@@ -181,7 +181,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 
 		throughput.mulLocal(liWeight);
 		rationalClamp(throughput);
-		if(throughput.allZero())
+		if(throughput.isZero())
 		{
 			return;
 		}

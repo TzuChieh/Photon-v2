@@ -14,7 +14,7 @@ namespace ph
 {
 
 LambertianDiffuse::LambertianDiffuse() :
-	m_albedo(std::make_shared<ConstantTexture>(Vector3R(0.5f, 0.5f, 0.5f)))
+	m_albedo(std::make_shared<ConstantTexture>(Vector3R(0.5_r, 0.5_r, 0.5_r)))
 {
 
 }
@@ -35,7 +35,7 @@ void LambertianDiffuse::genImportanceSample(SurfaceSample& sample) const
 	// generate and transform L to N's space
 
 	Vector3R& L = sample.L;
-	genUnitHemisphereCosineThetaWeightedSample(genRandomFloat32_0_1_uniform(), genRandomFloat32_0_1_uniform(), &L);
+	genUnitHemisphereCosineThetaWeightedSample(genRandomReal_0_1_uniform(), genRandomReal_0_1_uniform(), &L);
 	Vector3R u;
 	Vector3R v(sample.X->getHitSmoothNormal());
 	Vector3R w;
@@ -43,18 +43,18 @@ void LambertianDiffuse::genImportanceSample(SurfaceSample& sample) const
 	L = u.mulLocal(L.x).addLocal(v.mulLocal(L.y)).addLocal(w.mulLocal(L.z));
 	L.normalizeLocal();
 
-	if(sample.V.dot(sample.X->getHitSmoothNormal()) < 0.0f)
+	if(sample.V.dot(sample.X->getHitSmoothNormal()) < 0.0_r)
 	{
-		L.mulLocal(-1.0f);
+		L.mulLocal(-1.0_r);
 	}
 
 	// this model reflects light
 	sample.type = ESurfaceSampleType::REFLECTION;
 }
 
-float32 LambertianDiffuse::calcImportanceSamplePdfW(const SurfaceSample& sample) const
+real LambertianDiffuse::calcImportanceSamplePdfW(const SurfaceSample& sample) const
 {
-	return sample.L.dot(sample.X->getHitSmoothNormal()) * RECI_PI_FLOAT32;
+	return sample.L.dot(sample.X->getHitSmoothNormal()) * RECI_PI_REAL;
 }
 
 void LambertianDiffuse::setAlbedo(const std::shared_ptr<Texture>& albedo)
@@ -64,11 +64,11 @@ void LambertianDiffuse::setAlbedo(const std::shared_ptr<Texture>& albedo)
 
 void LambertianDiffuse::evaluate(SurfaceSample& sample) const
 {
-	const float32 NoL = sample.X->getHitSmoothNormal().dot(sample.L);
-	const float32 NoV = sample.X->getHitSmoothNormal().dot(sample.V);
+	const real NoL = sample.X->getHitSmoothNormal().dot(sample.L);
+	const real NoV = sample.X->getHitSmoothNormal().dot(sample.V);
 
 	// check if L, V lies on different side of the surface
-	if(NoL * NoV <= 0.0f)
+	if(NoL * NoV <= 0.0_r)
 	{
 		sample.liWeight.set(0, 0, 0);
 		return;
@@ -76,7 +76,7 @@ void LambertianDiffuse::evaluate(SurfaceSample& sample) const
 
 	Vector3R albedo;
 	m_albedo->sample(sample.X->getHitUVW(), &albedo);
-	sample.liWeight = albedo.divLocal(PI_FLOAT32).mulLocal(std::abs(NoL));
+	sample.liWeight = albedo.divLocal(PI_REAL).mulLocal(std::abs(NoL));
 	sample.type = ESurfaceSampleType::REFLECTION;
 }
 

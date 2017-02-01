@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Math/TVector3.h"
-#include "Math/Quaternion.h"
-#include "Math/Matrix4f.h"
+#include "Math/TQuaternion.h"
 #include "Math/Transform.h"
 
 namespace ph
@@ -21,7 +20,7 @@ public:
 		return m_position;
 	}
 
-	inline const Quaternion& getRotation() const
+	inline const QuaternionR& getRotation() const
 	{
 		return m_rotation;
 	}
@@ -36,7 +35,7 @@ public:
 		m_position = position;
 	}
 
-	inline void setRotation(const Quaternion& rotation)
+	inline void setRotation(const QuaternionR& rotation)
 	{
 		m_rotation = rotation;
 	}
@@ -47,9 +46,9 @@ public:
 	}
 
 private:
-	Vector3R   m_position;
-	Quaternion m_rotation;
-	Vector3R   m_scale;
+	Vector3R    m_position;
+	QuaternionR m_rotation;
+	Vector3R    m_scale;
 };
 
 }// end namespace ph

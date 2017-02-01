@@ -19,17 +19,17 @@ public:
 	virtual ~PrimitiveAreaEmitter() override;
 
 	virtual void evalEmittedRadiance(const Intersection& intersection, Vector3R* const out_emitterRadiance) const override;
-	virtual void genDirectSample(const Vector3R& targetPos, Vector3R* const out_emitPos, Vector3R* const out_emittedRadiance, float32* const out_PDF) const override;
+	virtual void genDirectSample(const Vector3R& targetPos, Vector3R* const out_emitPos, Vector3R* const out_emittedRadiance, real* const out_PDF) const override;
 	virtual void genDirectSample(DirectLightSample& sample) const override;
-	virtual void genSensingRay(Ray* const out_ray, Vector3R* const out_Le, Vector3R* const out_eN, float32* const out_pdfA, float32* const out_pdfW) const override;
-	virtual float32 calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const override;
+	virtual void genSensingRay(Ray* const out_ray, Vector3R* const out_Le, Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const override;
+	virtual real calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const override;
 
 	void setEmittedRadiance(const std::shared_ptr<Texture>& emittedRadiance);
 
 private:
 	std::shared_ptr<Texture> m_emittedRadiance;
 	std::vector<const Primitive*> m_primitives;
-	float32 m_reciExtendedArea;
+	real m_reciExtendedArea;
 };
 
 }// end namespace ph

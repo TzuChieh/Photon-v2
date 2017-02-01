@@ -223,16 +223,16 @@ void loadTestScene(World* const out_world)
 	//sphereModel.translate(0.5f, -3.2f, 3);
 }
 
-void loadCornellBox(World* const out_world, const float32 boxSize)
+void loadCornellBox(World* const out_world, const real boxSize)
 {
-	const float32 halfBoxSize = boxSize * 0.5f;
+	const real halfBoxSize = boxSize * 0.5_r;
 
-	auto unitRectangleGeom = std::make_shared<GRectangle>(1.0f, 1.0f);
+	auto unitRectangleGeom = std::make_shared<GRectangle>(1.0_r, 1.0_r);
 
 	auto chromiumMaterial = std::make_shared<AbradedOpaque>();
-	chromiumMaterial->setF0(Vector3R(0.549585f, 0.556114f, 0.554256f));
+	chromiumMaterial->setF0(Vector3R(0.549585_r, 0.556114_r, 0.554256_r));
 	//chromiumMaterial->setRoughness(0.3f);
-	chromiumMaterial->setRoughness(0.01f);
+	chromiumMaterial->setRoughness(0.01_r);
 	//chromiumMaterial->setRoughness(0.0f);
 
 	ALight topLight;
@@ -325,7 +325,7 @@ void loadCornellBox(World* const out_world, const float32 boxSize)
 
 void loadCbox3ObjScene(World* const out_world)
 {
-	const float32 boxSize = 10.0f;
+	const real boxSize = 10.0f;
 
 	//loadCornellBox(out_world, 10.0f);
 	loadCornellBox(out_world, boxSize);
@@ -446,8 +446,8 @@ void loadCbox3ObjScene(World* const out_world)
 
 void load5bScene(World* const out_world)
 {
-	const float32 wallRadius = 1000.0f;
-	const float32 boxHalfSize = 5.0f;
+	const real wallRadius = 1000.0_r;
+	const real boxHalfSize = 5.0_r;
 
 	//auto leftWallBall = std::make_shared<GSphere>(wallRadius);
 	//auto leftWallMatl = std::make_shared<MatteOpaque>();

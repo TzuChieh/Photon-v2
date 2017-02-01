@@ -12,7 +12,7 @@ HDRFrame::HDRFrame()
 }
 
 HDRFrame::HDRFrame(const uint32 widthPx, const uint32 heightPx) :
-	m_widthPx(widthPx), m_heightPx(heightPx), m_pixelData(static_cast<std::size_t>(3) * widthPx * heightPx, 0.0f)
+	m_widthPx(widthPx), m_heightPx(heightPx), m_pixelData(static_cast<std::size_t>(3) * widthPx * heightPx, 0.0_r)
 {
 
 }
@@ -38,7 +38,7 @@ void HDRFrame::resize(const uint32 newWidthPx, const uint32 newHeightPx)
 {
 	m_widthPx = newWidthPx;
 	m_heightPx = newHeightPx;
-	m_pixelData = std::vector<float32>(static_cast<std::size_t>(3) * newWidthPx * newHeightPx, 0.0f);
+	m_pixelData = std::vector<real>(static_cast<std::size_t>(3) * newWidthPx * newHeightPx, 0.0_r);
 }
 
 void HDRFrame::getPixel(const uint32 x, const uint32 y, Vector3R* const out_pixel) const
@@ -50,7 +50,7 @@ void HDRFrame::getPixel(const uint32 x, const uint32 y, Vector3R* const out_pixe
 	out_pixel->z = m_pixelData[baseIndex + 2];
 }
 
-void HDRFrame::setPixel(const uint32 x, const uint32 y, const float32 r, const float32 g, const float32 b)
+void HDRFrame::setPixel(const uint32 x, const uint32 y, const real r, const real g, const real b)
 {
 	const std::size_t baseIndex = (y * static_cast<std::size_t>(getWidthPx()) + x) * 3;
 	m_pixelData[baseIndex + 0] = r;

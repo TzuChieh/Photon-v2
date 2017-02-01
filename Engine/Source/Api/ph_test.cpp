@@ -42,7 +42,7 @@ void testRun()
 
 	for(int i = 0; i < 20; i++)
 	{
-		std::cout << genRandomFloat32_0_1_uniform() << std::endl;
+		std::cout << genRandomReal_0_1_uniform() << std::endl;
 	}
 
 	/*World world;

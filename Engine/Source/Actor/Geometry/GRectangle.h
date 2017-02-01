@@ -9,7 +9,7 @@ namespace ph
 class GRectangle : public Geometry
 {
 public:
-	GRectangle(const float32 width, const float32 height);
+	GRectangle(const real width, const real height);
 	GRectangle(const InputPacket& packet);
 	virtual ~GRectangle() override;
 
@@ -17,10 +17,10 @@ public:
 	                        std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
 
 private:
-	float32 m_width;
-	float32 m_height;
+	real m_width;
+	real m_height;
 
-	static bool checkData(const PrimitiveBuildingMaterial& data, const float32 width, const float32 height);
+	static bool checkData(const PrimitiveBuildingMaterial& data, const real width, const real height);
 };
 
 }// end namespace ph

@@ -5,6 +5,6 @@
 namespace ph
 {
 
-extern float32 genRandomFloat32_0_1_uniform();
+extern real genRandomReal_0_1_uniform();
 
 }// end namespace ph

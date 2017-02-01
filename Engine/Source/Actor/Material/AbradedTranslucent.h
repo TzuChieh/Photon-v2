@@ -19,14 +19,14 @@ public:
 
 	void setAlbedo(const Vector3R& albedo);
 	void setF0(const Vector3R& f0);
-	void setF0(const float32 r, const float32 g, const float32 b);
-	void setIOR(const float32 ior);
-	void setRoughness(const float32 roughness);
+	void setF0(const real r, const real g, const real b);
+	void setIOR(const real ior);
+	void setRoughness(const real roughness);
 
 private:
 	TranslucentMicrofacet m_bsdfCos;
 
-	static float32 roughnessToAlpha(const float32 roughness);
+	static real roughnessToAlpha(const real roughness);
 };
 
 }// end namespace ph

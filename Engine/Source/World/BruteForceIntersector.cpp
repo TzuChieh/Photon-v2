@@ -26,13 +26,13 @@ void BruteForceIntersector::update(const CookedActorStorage& cookedActors)
 bool BruteForceIntersector::isIntersecting(const Ray& ray, Intersection* out_intersection) const
 {
 	Intersection intersection;
-	float32 closestSquaredHitDist = std::numeric_limits<float32>::infinity();
+	real closestSquaredHitDist = std::numeric_limits<real>::infinity();
 
 	for(const Primitive* primitive : m_primitives)
 	{
 		if(primitive->isIntersecting(ray, &intersection))
 		{
-			float32 squaredHitDist = intersection.getHitPosition().sub(ray.getOrigin()).squaredLength();
+			real squaredHitDist = intersection.getHitPosition().sub(ray.getOrigin()).squaredLength();
 			if(closestSquaredHitDist > squaredHitDist)
 			{
 				closestSquaredHitDist = squaredHitDist;
@@ -41,7 +41,7 @@ bool BruteForceIntersector::isIntersecting(const Ray& ray, Intersection* out_int
 		}
 	}
 
-	return closestSquaredHitDist != std::numeric_limits<float32>::infinity();
+	return closestSquaredHitDist != std::numeric_limits<real>::infinity();
 }
 
 bool BruteForceIntersector::isIntersecting(const Ray& ray) const

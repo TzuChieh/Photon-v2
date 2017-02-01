@@ -36,9 +36,9 @@ void PhysicalActor::translate(const Vector3R& translation)
 	updateTransforms();
 }
 
-void PhysicalActor::rotate(const Vector3R& normalizedAxis, const float32 degrees)
+void PhysicalActor::rotate(const Vector3R& normalizedAxis, const real degrees)
 {
-	Quaternion rotation(normalizedAxis, Math::toRadians(degrees));
+	QuaternionR rotation(normalizedAxis, Math::toRadians(degrees));
 	rotation.mulLocal(m_transformInfo.getRotation());
 	rotation.normalizeLocal();
 	m_transformInfo.setRotation(rotation);
@@ -53,17 +53,17 @@ void PhysicalActor::scale(const Vector3R& scaleFactor)
 	updateTransforms();
 }
 
-void PhysicalActor::translate(const float32 x, const float32 y, const float32 z)
+void PhysicalActor::translate(const real x, const real y, const real z)
 {
 	translate(Vector3R(x, y, z));
 }
 
-void PhysicalActor::scale(const float32 x, const float32 y, const float32 z)
+void PhysicalActor::scale(const real x, const real y, const real z)
 {
 	scale(Vector3R(x, y, z));
 }
 
-void PhysicalActor::scale(const float32 scaleFactor)
+void PhysicalActor::scale(const real scaleFactor)
 {
 	scale(Vector3R(scaleFactor));
 }

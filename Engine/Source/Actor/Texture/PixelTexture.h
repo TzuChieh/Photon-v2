@@ -21,14 +21,14 @@ public:
 
 	void reset(const uint32 widthPx, const uint32 heightPx, const uint32 nPxComponents);
 	void setPixels(const uint32 x, const uint32 y, const uint32 widthPx, const uint32 heighPx, const uint32 nPxComponents, 
-	               const float32* const pixelData);
+	               const real* const pixelData);
 
 private:
 	uint32 m_widthPx;
 	uint32 m_heightPx;
 	uint32 m_nPxComponents;
 
-	std::vector<float32> m_pixelData;
+	std::vector<real> m_pixelData;
 };
 
 }// end namespace ph

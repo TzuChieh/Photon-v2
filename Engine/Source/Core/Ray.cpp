@@ -2,7 +2,7 @@
 
 namespace ph
 {
-Ray::Ray(const Vector3R& origin, const Vector3R& direction, const float32 minT, const float32 maxT) :
+Ray::Ray(const Vector3R& origin, const Vector3R& direction, const real minT, const real maxT) :
 	m_origin(origin), m_direction(direction), m_minT(minT), m_maxT(maxT)
 {
 

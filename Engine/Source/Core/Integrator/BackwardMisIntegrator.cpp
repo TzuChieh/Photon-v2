@@ -59,7 +59,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 	const Emitter*           emitter      = nullptr;
 
 	// reversing the ray for backward tracing
-	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), RAY_T_EPSILON, RAY_T_MAX);
+	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1), RAY_T_EPSILON, RAY_T_MAX);
 
 	if(!intersector.isIntersecting(tracingRay, &intersection))
 	{
@@ -67,10 +67,10 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 		return;
 	}
 
-	V = tracingRay.getDirection().mul(-1.0f);
+	V = tracingRay.getDirection().mul(-1);
 
 	// sidedness agreement between real geometry and shading (phong-interpolated) normal
-	if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0.0f)
+	if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0)
 	{
 		out_senseEvents.push_back(SenseEvent(sample.m_cameraX, sample.m_cameraY, accuRadiance));
 		return;
@@ -98,7 +98,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 			const Vector3R toLightVec = directLightSample.emitPos.sub(directLightSample.targetPos);
 
 			// sidedness agreement between real geometry and shading (phong-interpolated) normal
-			if(!(intersection.getHitSmoothNormal().dot(toLightVec) * intersection.getHitGeoNormal().dot(toLightVec) <= 0.0f))
+			if(!(intersection.getHitSmoothNormal().dot(toLightVec) * intersection.getHitGeoNormal().dot(toLightVec) <= 0))
 			{
 				const Ray visRay(intersection.getHitPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2);
 				if(!intersector.isIntersecting(visRay))
@@ -108,8 +108,8 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 					bsdfCos->evaluate(surfaceSample);
 					if(surfaceSample.isEvaluationGood())
 					{
-						const float32 bsdfCosPdfW = bsdfCos->calcImportanceSamplePdfW(surfaceSample);
-						const float32 misWeighting = misWeight(directLightSample.pdfW, bsdfCosPdfW);
+						const real bsdfCosPdfW = bsdfCos->calcImportanceSamplePdfW(surfaceSample);
+						const real misWeighting = misWeight(directLightSample.pdfW, bsdfCosPdfW);
 
 						weight = surfaceSample.liWeight;
 						weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directLightSample.pdfW);
@@ -126,16 +126,16 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 		///////////////////////////////////////////////////////////////////////////////
 		// BSDF sample + indirect light sample
 		
-		surfaceSample.setImportanceSample(intersection, tracingRay.getDirection().mul(-1.0f));
+		surfaceSample.setImportanceSample(intersection, tracingRay.getDirection().mul(-1));
 		bsdfCos->genImportanceSample(surfaceSample);
 		// blackness check & sidedness agreement between real geometry and shading (phong-interpolated) normal
 		if(!surfaceSample.isImportanceSampleGood() ||
-		   intersection.getHitSmoothNormal().dot(surfaceSample.L) * intersection.getHitGeoNormal().dot(surfaceSample.L) <= 0.0f)
+		   intersection.getHitSmoothNormal().dot(surfaceSample.L) * intersection.getHitGeoNormal().dot(surfaceSample.L) <= 0)
 		{
 			break;
 		}
 
-		const float32 bsdfCosPdfW = bsdfCos->calcImportanceSamplePdfW(surfaceSample);
+		const real bsdfCosPdfW = bsdfCos->calcImportanceSamplePdfW(surfaceSample);
 		const Vector3R directLitPos = intersection.getHitPosition();
 
 		// trace a ray via BSDFcos's suggestion
@@ -148,9 +148,9 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 			break;
 		}
 
-		V = tracingRay.getDirection().mul(-1.0f);
+		V = tracingRay.getDirection().mul(-1.0_r);
 		// sidedness agreement between real geometry and shading (phong-interpolated) normal
-		if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0.0f)
+		if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0)
 		{
 			break;
 		}
@@ -165,11 +165,11 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 
 			// TODO: how to handle delta BSDF distributions?
 
-			const float32 directLightPdfW = lightSampler.calcDirectPdfW(directLitPos, 
+			const real directLightPdfW = lightSampler.calcDirectPdfW(directLitPos,
 				intersection.getHitPosition(), 
 				intersection.getHitSmoothNormal(), 
 				emitter, intersection.getHitPrimitive());
-			const float32 misWeighting = misWeight(bsdfCosPdfW, directLightPdfW);
+			const real misWeighting = misWeight(bsdfCosPdfW, directLightPdfW);
 
 			Vector3R weight = surfaceSample.liWeight;
 			weight.mulLocal(accuLiWeight).mulLocal(misWeighting);
@@ -184,13 +184,13 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 
 		if(numBounces >= 3)
 		{
-			const float32 rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001f, 1.0f);
-			const float32 rrSpin = genRandomFloat32_0_1_uniform();
+			const real rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001_r, 1.0_r);
+			const real rrSpin = genRandomReal_0_1_uniform();
 
 			// russian roulette >> survive
 			if(rrSurviveRate > rrSpin)
 			{
-				const float32 rrScale = 1.0f / rrSurviveRate;
+				const real rrScale = 1.0_r / rrSurviveRate;
 				liWeight.mulLocal(rrScale);
 			}
 			// russian roulette >> dead
@@ -205,7 +205,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 		// avoid excessive, negative weight and possible NaNs
 		rationalClamp(accuLiWeight);
 
-		if(accuLiWeight.allZero())
+		if(accuLiWeight.isZero())
 		{
 			break;
 		}
@@ -217,13 +217,13 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 // NaNs will be clamped to 0
 void BackwardMisIntegrator::rationalClamp(Vector3R& value)
 {
-	value.x = value.x > 0.0f && value.x < 10000.0f ? value.x : 0.0f;
-	value.y = value.y > 0.0f && value.y < 10000.0f ? value.y : 0.0f;
-	value.z = value.z > 0.0f && value.z < 10000.0f ? value.z : 0.0f;
+	value.x = value.x > 0.0_r && value.x < 10000.0_r ? value.x : 0.0_r;
+	value.y = value.y > 0.0_r && value.y < 10000.0_r ? value.y : 0.0_r;
+	value.z = value.z > 0.0_r && value.z < 10000.0_r ? value.z : 0.0_r;
 }
 
 // power heuristic with beta = 2
-float32 BackwardMisIntegrator::misWeight(float32 pdf1W, float32 pdf2W)
+real BackwardMisIntegrator::misWeight(real pdf1W, real pdf2W)
 {
 	pdf1W *= pdf1W;
 	pdf2W *= pdf2W;

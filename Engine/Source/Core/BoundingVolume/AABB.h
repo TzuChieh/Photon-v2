@@ -14,7 +14,7 @@ public:
 	AABB(const Vector3R& minVertex, const Vector3R& maxVertex);
 
 	bool isIntersectingVolume(const Ray& ray) const;
-	bool isIntersectingVolume(const Ray& ray, float32* const out_rayNearHitDist, float32* const out_rayFarHitDist) const;
+	bool isIntersectingVolume(const Ray& ray, real* const out_rayNearHitDist, real* const out_rayFarHitDist) const;
 	bool isIntersectingVolume(const AABB& aabb) const;
 	void unionWith(const AABB& other);
 

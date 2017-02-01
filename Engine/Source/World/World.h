@@ -24,7 +24,7 @@ public:
 	World();
 
 	void addActor(std::unique_ptr<Actor> actor);
-	void update(const float32 deltaS);
+	void update(const real deltaS);
 
 	const Intersector&  getIntersector() const;
 	const LightSampler& getLightSampler() const;

@@ -205,6 +205,7 @@
     <ClCompile Include="Source\Actor\Texture\PixelTexture.cpp" />
     <ClCompile Include="Source\Actor\Texture\Texture.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\random_sample.cpp" />
+    <ClCompile Include="Source\Math\TMatrix4.cpp" />
     <ClCompile Include="Source\Math\Transform.cpp" />
     <ClCompile Include="Source\Math\TransformInfo.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GRectangle.cpp" />
@@ -235,8 +236,7 @@
     <ClCompile Include="Source\Filmic\HDRFrame.cpp" />
     <ClCompile Include="Source\Api\ApiDatabase.cpp" />
     <ClCompile Include="Source\Api\ph_test.cpp" />
-    <ClCompile Include="Source\Math\Matrix4f.cpp" />
-    <ClCompile Include="Source\Math\Quaternion.cpp" />
+    <ClCompile Include="Source\Math\TQuaternion.cpp" />
     <ClCompile Include="Source\Math\random_number.cpp" />
     <ClCompile Include="Source\Core\Ray.cpp" />
     <ClCompile Include="Source\Actor\Geometry\Geometry.cpp" />
@@ -315,6 +315,7 @@
     <ClInclude Include="Source\Actor\ModelParser\AssimpModelParser.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\Microfacet.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\random_sample.h" />
+    <ClInclude Include="Source\Math\TMatrix4.h" />
     <ClInclude Include="Source\Math\Transform.h" />
     <ClInclude Include="Source\Actor\Geometry\GRectangle.h" />
     <ClInclude Include="Source\Actor\Geometry\GTriangleMesh.h" />
@@ -346,8 +347,7 @@
     <ClInclude Include="Source\Filmic\HDRFrame.h" />
     <ClInclude Include="Source\Api\ApiDatabase.h" />
     <ClInclude Include="Source\Math\constant.h" />
-    <ClInclude Include="Source\Math\Matrix4f.h" />
-    <ClInclude Include="Source\Math\Quaternion.h" />
+    <ClInclude Include="Source\Math\TQuaternion.h" />
     <ClInclude Include="Source\Math\random_number.h" />
     <ClInclude Include="Source\Math\TransformInfo.h" />
     <ClInclude Include="Source\Actor\Geometry\GTriangle.h" />
@@ -367,6 +367,10 @@
     <ClInclude Include="Source\Math\TVector3.tpp">
       <FileType>Document</FileType>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\Math\TMatrix4.tpp" />
+    <None Include="Source\Math\TQuaternion.tpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
