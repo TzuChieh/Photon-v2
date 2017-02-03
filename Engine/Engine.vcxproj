@@ -205,6 +205,7 @@
     <ClCompile Include="Source\Actor\Texture\PixelTexture.cpp" />
     <ClCompile Include="Source\Actor\Texture\Texture.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\random_sample.cpp" />
+    <ClCompile Include="Source\Math\Math.cpp" />
     <ClCompile Include="Source\Math\TMatrix4.cpp" />
     <ClCompile Include="Source\Math\Transform.cpp" />
     <ClCompile Include="Source\Math\TransformInfo.cpp" />

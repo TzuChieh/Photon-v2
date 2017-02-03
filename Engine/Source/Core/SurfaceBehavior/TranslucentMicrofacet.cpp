@@ -8,6 +8,7 @@
 #include "Core/SurfaceBehavior/random_sample.h"
 #include "Core/SurfaceBehavior/Microfacet.h"
 #include "Core/Sample/SurfaceSample.h"
+#include "Math/Math.h"
 
 #include <memory>
 #include <iostream>
@@ -49,7 +50,7 @@ void TranslucentMicrofacet::genImportanceSample(SurfaceSample& sample) const
 	Vector3R u;
 	Vector3R v(N);
 	Vector3R w;
-	v.calcOrthBasisAsYaxis(&u, &w);
+	Math::formOrthonormalBasis(v, &u, &w);
 	H = u.mulLocal(H.x).addLocal(v.mulLocal(H.y)).addLocal(w.mulLocal(H.z));
 	H.normalizeLocal();
 

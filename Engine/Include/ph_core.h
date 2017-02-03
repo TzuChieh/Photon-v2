@@ -64,6 +64,8 @@ extern PH_API void phUpdateDescription(const PHuint64 descriptionId);
 extern PH_API void phDevelopFilm(const PHuint64 descriptionId, const PHuint64 frameId);
 extern PH_API void phDeleteDescription(const PHuint64 descriptionId);
 
+// TODO: frame related API needs to aware of the size of real
+
 extern PH_API void phCreateFrame(PHuint64* out_frameId, const PHint32 frameType);
 extern PH_API void phGetFrameData(const PHuint64 frameId, const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32* out_heightPx, PHuint32* out_nPixelComponents);
 extern PH_API void phDeleteFrame(const PHuint64 frameId);

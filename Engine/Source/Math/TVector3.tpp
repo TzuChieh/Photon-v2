@@ -406,25 +406,6 @@ inline TVector3<T>& TVector3<T>::absLocal()
 	return *this;
 }
 
-// TODO: move to a specilized utility function
-// Current vector is expected to be normalized already.
-template<typename T>
-inline void TVector3<T>::calcOrthBasisAsYaxis(TVector3* const out_xAxis, TVector3* const out_zAxis) const
-{
-	if(std::abs(y) < 0.9f)
-	{
-		out_xAxis->set(-z, 0.0f, x);// yAxis cross (0, 1, 0)
-		out_xAxis->divLocal(sqrt(x * x + z * z));
-	}
-	else
-	{
-		out_xAxis->set(y, -x, 0.0f);// yAxis cross (0, 0, 1)
-		out_xAxis->divLocal(sqrt(x * x + y * y));
-	}
-
-	out_xAxis->cross(*this, out_zAxis);
-}
-
 // Clamp current vector's components to specific range. If a component is NaN, its value is
 // clamped to lower bound. Either lower bound or upper bound shall not be NaN, or the method's 
 // behavior is undefined.

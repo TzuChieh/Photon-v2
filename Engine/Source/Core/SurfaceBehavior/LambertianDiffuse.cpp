@@ -7,6 +7,7 @@
 #include "Core/Intersection.h"
 #include "Core/SurfaceBehavior/random_sample.h"
 #include "Core/Sample/SurfaceSample.h"
+#include "Math/Math.h"
 
 #include <cmath>
 
@@ -39,7 +40,7 @@ void LambertianDiffuse::genImportanceSample(SurfaceSample& sample) const
 	Vector3R u;
 	Vector3R v(sample.X->getHitSmoothNormal());
 	Vector3R w;
-	v.calcOrthBasisAsYaxis(&u, &w);
+	Math::formOrthonormalBasis(v, &u, &w);
 	L = u.mulLocal(L.x).addLocal(v.mulLocal(L.y)).addLocal(w.mulLocal(L.z));
 	L.normalizeLocal();
 

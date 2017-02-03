@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/constant.h"
+#include "Math/math_fwd.h"
 
 #include <cmath>
 #include <algorithm>
@@ -12,6 +13,15 @@ namespace ph
 class Math final
 {
 public:
+	static void formOrthonormalBasis(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis);
+
+	// A fast, without sqrt(), nearly branchless method. Notice that Photon uses y-axis as the up/normal vector. This
+	// static method implements the y-is-normal version which is different from the original paper.
+	// (Reference: Frisvad, Jeppe Revall, "Building an Orthonormal Basis from a 3D Unit Vector Without Normalization", 
+	// Journal of Graphics Tools, 2012)
+	// Note: This method seems to have larger numerical error (at least 10^3 larger than my naive method), 
+	// thus it is not used currently.
+	static void formOrthonormalBasisFrisvad(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis);
 
 	// Clamp a real value to specific range. If the real value is NaN, its value is clamped to lower bound. 
 	// Either lower bound or upper bound shall not be NaN, or the method's behavior is undefined.

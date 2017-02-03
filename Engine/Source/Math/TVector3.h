@@ -86,9 +86,6 @@ public:
 	inline TVector3 reflect(const TVector3& normal) const;
 	inline TVector3& reflectLocal(const TVector3& normal);
 
-	// Current vector is expected to be normalized already.
-	inline void calcOrthBasisAsYaxis(TVector3* const out_xAxis, TVector3* const out_zAxis) const;
-
 	// Clamp current vector's components to specific range. If a component is NaN, its value is
 	// clamped to lower bound. Either lower bound or upper bound shall not be NaN, or the method's 
 	// behavior is undefined.
