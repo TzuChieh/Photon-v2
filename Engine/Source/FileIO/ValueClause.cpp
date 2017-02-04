@@ -6,7 +6,7 @@
 namespace ph
 {
 
-const Tokenizer ValueClause::tokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}});
+const Tokenizer ValueClause::tokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}, {'{', '}'}});
 
 ValueClause::ValueClause(const std::string& clauseString)
 {

@@ -1,4 +1,4 @@
-#include "FileIO/resource_loading.h"
+#include "FileIO/ResourceLoader.h"
 #include "FileIO/InputPacket.h"
 #include "FileIO/Tokenizer.h"
 #include "Actor/Geometry/GSphere.h"
@@ -24,7 +24,7 @@
 namespace ph
 {
 
-std::unique_ptr<Camera> load_camera(const InputPacket& packet)
+std::unique_ptr<Camera> ResourceLoader::loadCamera(const InputPacket& packet)
 {
 	const std::string typeString = packet.getString("type");
 	if(typeString == "pinhole")
@@ -38,12 +38,12 @@ std::unique_ptr<Camera> load_camera(const InputPacket& packet)
 	}
 }
 
-std::unique_ptr<Film> load_film(const InputPacket& packet)
+std::unique_ptr<Film> ResourceLoader::loadFilm(const InputPacket& packet)
 {
 	return std::make_unique<Film>(packet);
 }
 
-std::unique_ptr<Integrator> load_integrator(const InputPacket& packet)
+std::unique_ptr<Integrator> ResourceLoader::loadIntegrator(const InputPacket& packet)
 {
 	const std::string typeString = packet.getString("type");
 	if(typeString == "backward-path")
@@ -65,12 +65,12 @@ std::unique_ptr<Integrator> load_integrator(const InputPacket& packet)
 	}
 }
 
-std::unique_ptr<SampleGenerator> load_sample_generator(const InputPacket& packet)
+std::unique_ptr<SampleGenerator> ResourceLoader::loadSampleGenerator(const InputPacket& packet)
 {
 	return std::make_unique<PixelJitterSampleGenerator>(packet);
 }
 
-std::shared_ptr<Geometry> load_geometry(const InputPacket& packet)
+std::shared_ptr<Geometry> ResourceLoader::loadGeometry(const InputPacket& packet)
 {
 	const std::string typeString = packet.getString("type");
 	if(typeString == "sphere")
@@ -88,7 +88,7 @@ std::shared_ptr<Geometry> load_geometry(const InputPacket& packet)
 	}
 }
 
-std::shared_ptr<Texture> load_texture(const InputPacket& packet)
+std::shared_ptr<Texture> ResourceLoader::loadTexture(const InputPacket& packet)
 {
 	const std::string typeString = packet.getString("type");
 	if(typeString == "pixel")
@@ -102,7 +102,7 @@ std::shared_ptr<Texture> load_texture(const InputPacket& packet)
 	}
 }
 
-std::shared_ptr<Material> load_material(const InputPacket& packet)
+std::shared_ptr<Material> ResourceLoader::loadMaterial(const InputPacket& packet)
 {
 	const std::string typeString = packet.getString("type");
 	if(typeString == "matte-opaque")
@@ -124,7 +124,7 @@ std::shared_ptr<Material> load_material(const InputPacket& packet)
 	}
 }
 
-std::shared_ptr<LightSource> load_light_source(const InputPacket& packet)
+std::shared_ptr<LightSource> ResourceLoader::loadLightSource(const InputPacket& packet)
 {
 	const std::string typeString = packet.getString("type");
 	if(typeString == "area")
@@ -138,12 +138,12 @@ std::shared_ptr<LightSource> load_light_source(const InputPacket& packet)
 	}
 }
 
-std::unique_ptr<AModel> load_actor_model(const InputPacket& packet)
+std::unique_ptr<AModel> ResourceLoader::loadActorModel(const InputPacket& packet)
 {
 	return std::make_unique<AModel>(packet);
 }
 
-std::unique_ptr<ALight> load_actor_light(const InputPacket& packet)
+std::unique_ptr<ALight> ResourceLoader::loadActorLight(const InputPacket& packet)
 {
 	return std::make_unique<ALight>(packet);
 }

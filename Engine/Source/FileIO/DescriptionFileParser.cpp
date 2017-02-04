@@ -1,7 +1,7 @@
 #include "FileIO/DescriptionFileParser.h"
 #include "FileIO/Description.h"
-#include "FileIO/resource_loading.h"
-#include "FileIO/function_executing.h"
+#include "FileIO/ResourceLoader.h"
+#include "FileIO/FunctionExecutor.h"
 #include "FileIO/RenderOption.h"
 
 #include <iostream>
@@ -74,19 +74,19 @@ void DescriptionFileParser::parseCoreCommand(const std::string& command, Descrip
 	const std::vector<std::string> clauseStrings(tokens.begin() + 2, tokens.end());
 	if(commandName == "camera")
 	{
-		out_data.camera = load_camera(InputPacket(getValueClauses(clauseStrings), m_cache));
+		out_data.camera = ResourceLoader::loadCamera(InputPacket(getValueClauses(clauseStrings), m_cache));
 	}
 	else if(commandName == "film")
 	{
-		out_data.film = load_film(InputPacket(getValueClauses(clauseStrings), m_cache));
+		out_data.film = ResourceLoader::loadFilm(InputPacket(getValueClauses(clauseStrings), m_cache));
 	}
 	else if(commandName == "sampler")
 	{
-		out_data.sampleGenerator = load_sample_generator(InputPacket(getValueClauses(clauseStrings), m_cache));
+		out_data.sampleGenerator = ResourceLoader::loadSampleGenerator(InputPacket(getValueClauses(clauseStrings), m_cache));
 	}
 	else if(commandName == "integrator")
 	{
-		out_data.integrator = load_integrator(InputPacket(getValueClauses(clauseStrings), m_cache));
+		out_data.integrator = ResourceLoader::loadIntegrator(InputPacket(getValueClauses(clauseStrings), m_cache));
 	}
 	else if(commandName == "renderer")
 	{
@@ -113,37 +113,43 @@ void DescriptionFileParser::parseWorldCommand(const std::string& command)
 	if(commandName == "geometry")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
-		m_cache.addGeometry(getName(tokens[2]), load_geometry(InputPacket(getValueClauses(clauseStrings), m_cache)));
+		m_cache.addGeometry(getName(tokens[2]), 
+		                    ResourceLoader::loadGeometry(InputPacket(getValueClauses(clauseStrings), m_cache)));
 	}
 	else if(commandName == "texture")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
-		m_cache.addTexture(getName(tokens[2]), load_texture(InputPacket(getValueClauses(clauseStrings), m_cache)));
+		m_cache.addTexture(getName(tokens[2]), 
+		                   ResourceLoader::loadTexture(InputPacket(getValueClauses(clauseStrings), m_cache)));
 	}
 	else if(commandName == "material")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
-		m_cache.addMaterial(getName(tokens[2]), load_material(InputPacket(getValueClauses(clauseStrings), m_cache)));
+		m_cache.addMaterial(getName(tokens[2]), 
+		                    ResourceLoader::loadMaterial(InputPacket(getValueClauses(clauseStrings), m_cache)));
 	}
 	else if(commandName == "light-source")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
-		m_cache.addLightSource(getName(tokens[2]), load_light_source(InputPacket(getValueClauses(clauseStrings), m_cache)));
+		m_cache.addLightSource(getName(tokens[2]), 
+		                       ResourceLoader::loadLightSource(InputPacket(getValueClauses(clauseStrings), m_cache)));
 	}
 	else if(commandName == "actor-model")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
-		m_cache.addActorModel(getName(tokens[2]), load_actor_model(InputPacket(getValueClauses(clauseStrings), m_cache)));
+		m_cache.addActorModel(getName(tokens[2]), 
+		                      ResourceLoader::loadActorModel(InputPacket(getValueClauses(clauseStrings), m_cache)));
 	}
 	else if(commandName == "actor-light")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
-		m_cache.addActorLight(getName(tokens[2]), load_actor_light(InputPacket(getValueClauses(clauseStrings), m_cache)));
+		m_cache.addActorLight(getName(tokens[2]), 
+		                      ResourceLoader::loadActorLight(InputPacket(getValueClauses(clauseStrings), m_cache)));
 	}
 	else if(commandName == "transform")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 2, tokens.end());
-		execute_transform(InputPacket(getValueClauses(clauseStrings), m_cache));
+		FunctionExecutor::executeTransform(InputPacket(getValueClauses(clauseStrings), m_cache));
 	}
 	else
 	{

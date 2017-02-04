@@ -1,4 +1,4 @@
-#include "FileIO/function_executing.h"
+#include "FileIO/FunctionExecutor.h"
 #include "FileIO/InputPacket.h"
 #include "Actor/PhysicalActor.h"
 #include "Math/TVector3.h"
@@ -9,7 +9,7 @@
 namespace ph
 {
 
-void execute_transform(const InputPacket& packet)
+void FunctionExecutor::executeTransform(const InputPacket& packet)
 {
 	PhysicalActor* actor = packet.getPhysicalActor("target", "at execute_transform()");
 	if(!actor)

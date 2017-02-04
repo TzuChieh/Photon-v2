@@ -1,5 +1,6 @@
 #include "FileIO/InputPacket.h"
 #include "FileIO/NamedResourceCache.h"
+#include "FileIO/ValueParser.h"
 
 #include <iostream>
 
@@ -34,28 +35,28 @@ std::string InputPacket::getString(const std::string& name, const std::string& d
 {
 	std::string stringValue;
 	return findStringValue(TYPENAME_STRING, name, notFoundMessage, &stringValue) ? 
-           stringValue : defaultString;
+	       ValueParser::parseString(stringValue) : defaultString;
 }
 
 integer InputPacket::getInteger(const std::string& name, const integer defaultInteger, const std::string& notFoundMessage) const
 {
 	std::string stringValue;
 	return findStringValue(TYPENAME_INTEGER, name, notFoundMessage, &stringValue) ? 
-	       static_cast<integer>(std::stoll(stringValue)) : defaultInteger;
+	       ValueParser::parseInteger(stringValue) : defaultInteger;
 }
 
 real InputPacket::getReal(const std::string& name, const real defaultReal, const std::string& notFoundMessage) const
 {
 	std::string stringValue;
 	return findStringValue(TYPENAME_REAL, name, notFoundMessage, &stringValue) ? 
-	       static_cast<real>(std::stold(stringValue)) : defaultReal;
+	       ValueParser::parseReal(stringValue) : defaultReal;
 }
 
 Vector3R InputPacket::getVector3R(const std::string& name, const Vector3R& defaultVector3r, const std::string& notFoundMessage) const
 {
 	std::string stringValue;
 	return findStringValue(TYPENAME_VECTOR3R, name, notFoundMessage, &stringValue) ? 
-	       Vector3R(stringValue) : defaultVector3r;
+	       ValueParser::parseVector3r(stringValue) : defaultVector3r;
 }
 
 std::shared_ptr<Geometry> InputPacket::getGeometry(const std::string& name, const std::string& notFoundMessage) const
