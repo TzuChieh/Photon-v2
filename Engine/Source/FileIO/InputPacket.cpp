@@ -4,10 +4,11 @@
 
 #include <iostream>
 
-#define TYPENAME_STRING   "string"
-#define TYPENAME_INTEGER  "integer"
-#define TYPENAME_REAL     "real"
-#define TYPENAME_VECTOR3R "vector3r"
+#define TYPENAME_STRING         "string"
+#define TYPENAME_INTEGER        "integer"
+#define TYPENAME_REAL           "real"
+#define TYPENAME_VECTOR3R       "vector3r"
+#define TYPENAME_VECTOR3R_ARRAY "vector3r-array"
 
 #define TYPENAME_GEOMETRY    "geometry"
 #define TYPENAME_TEXTURE     "texture"
@@ -52,11 +53,22 @@ real InputPacket::getReal(const std::string& name, const real defaultReal, const
 	       ValueParser::parseReal(stringValue) : defaultReal;
 }
 
-Vector3R InputPacket::getVector3R(const std::string& name, const Vector3R& defaultVector3r, const std::string& notFoundMessage) const
+Vector3R InputPacket::getVector3r(const std::string& name,
+                                  const Vector3R& defaultVector3r, 
+                                  const std::string& notFoundMessage) const
 {
 	std::string stringValue;
 	return findStringValue(TYPENAME_VECTOR3R, name, notFoundMessage, &stringValue) ? 
 	       ValueParser::parseVector3r(stringValue) : defaultVector3r;
+}
+
+std::vector<Vector3R> InputPacket::getVector3rArray(const std::string& name,
+                                                    const std::vector<Vector3R>& defaultVector3rArray,
+                                                    const std::string& notFoundMessage) const
+{
+	std::string stringValue;
+	return findStringValue(TYPENAME_VECTOR3R_ARRAY, name, notFoundMessage, &stringValue) ?
+	       ValueParser::parseVector3rArray(stringValue) : defaultVector3rArray;
 }
 
 std::shared_ptr<Geometry> InputPacket::getGeometry(const std::string& name, const std::string& notFoundMessage) const

@@ -20,18 +20,18 @@ void FunctionExecutor::executeTransform(const InputPacket& packet)
 	const std::string typeString = packet.getString("type");
 	if(typeString == "translate")
 	{
-		const Vector3R translation = packet.getVector3R("factor", Vector3R(0, 0, 0), "at execute_transform(): translate");
+		const Vector3R translation = packet.getVector3r("factor", Vector3R(0, 0, 0), "at execute_transform(): translate");
 		actor->translate(translation);
 	}
 	else if(typeString == "rotate")
 	{
-		const Vector3R axis = packet.getVector3R("axis", Vector3R(1, 0, 0), "at execute_transform(): rotate");
+		const Vector3R axis = packet.getVector3r("axis", Vector3R(1, 0, 0), "at execute_transform(): rotate");
 		const real degrees = packet.getReal("degree", 0.0f, "at execute_transform(): rotate");
 		actor->rotate(axis.normalize(), degrees);
 	}
 	else if(typeString == "scale")
 	{
-		const Vector3R scalation = packet.getVector3R("factor", Vector3R(1, 1, 1), "at execute_transform(): scale");
+		const Vector3R scalation = packet.getVector3r("factor", Vector3R(1, 1, 1), "at execute_transform(): scale");
 		actor->scale(scalation);
 	}
 	else

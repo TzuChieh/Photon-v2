@@ -21,8 +21,8 @@ AbradedOpaque::AbradedOpaque(const InputPacket& packet) :
 	Vector3R albedo(0.5f, 0.5f, 0.5f);
 	Vector3R f0(0.04f, 0.04f, 0.04f);
 	real     roughness = 0.5f;
-	albedo    = packet.getVector3R("albedo", albedo);
-	f0        = packet.getVector3R("f0", f0);
+	albedo    = packet.getVector3r("albedo", albedo);
+	f0        = packet.getVector3r("f0", f0);
 	roughness = packet.getReal("roughness", roughness);
 
 	setAlbedo(albedo);

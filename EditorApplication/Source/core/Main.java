@@ -1,16 +1,7 @@
 package core;
 
-import java.awt.BorderLayout;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-
-import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import photonApi.FloatArrayRef;
-import photonApi.FloatRef;
-import photonApi.IntRef;
-import photonApi.LongRef;
 import photonApi.Ph;
 import photonApi.PhTest;
 import photonCore.FrameData;
@@ -18,7 +9,6 @@ import photonCore.PhDescription;
 import photonCore.PhFrame;
 import photonCore.PhRenderer;
 import ui.Window;
-import ui.display.ImagePanel;
 import ui.model.TaskStatusModel;
 
 public class Main
@@ -88,8 +78,8 @@ public class Main
 		PhDescription description = new PhDescription();
 //		description.load("../scene/testScene.p2");
 //		description.load("../scene/cbox_simple.p2");
-		description.load("../scene/cbox_material_test.p2");
-//		description.load("../scene/cbox_test.p2");
+//		description.load("../scene/cbox_material_test.p2");
+		description.load("../scene/cbox_test.p2");
 		description.update();
 		
 		PhRenderer renderer = new PhRenderer(numRenderThreads);

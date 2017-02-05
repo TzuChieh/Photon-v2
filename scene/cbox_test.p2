@@ -1,18 +1,28 @@
 ## camera [string type pinhole] [real fov-degree 50] [vector3r position "0 0 16"] [vector3r direction "0 0 -1"]
 ## film [integer width 600] [integer height 600]
-## sampler [integer spp-budget 16]
-## integrator [string type backward-mis]
+//## sampler [integer spp-budget 16]
+## sampler [integer spp-budget 256]
+//## integrator [string type backward-mis]
+## integrator [string type backward-path]
 
 -> geometry @boxWall [string type rectangle] [real width 1] [real height 1]
 -> geometry @sphere [string type sphere] [real radius 0.5]
+-> geometry @triMesh [string type triangle-mesh] 
+[vector3r-array positions {"-2 -2 0" "2 -2 0" "0 2 0"}]
+[vector3r-array texture-coordinates {"0 0 0" "0 0 0" "0 0 0"}]
+[vector3r-array normals {"0 0 1" "0 0 1" "0 0 1"}]
 
-// top light
+// light
 -> material @topLightMaterial [string type matte-opaque] [vector3r albedo "0.5 0.5 0.5"]
 -> light-source @topLightSource [string type area] [vector3r emitted-radiance "10 10 10"]
 -> actor-light @topLight [geometry geometry @sphere] [material material @topLightMaterial] 
 [light-source light-source @topLightSource]
--> transform [string type translate] [actor-light target @topLight] [vector3r factor "0 4 0"]
+-> transform [string type translate] [actor-light target @topLight] [vector3r factor "0 1 0"]
 -> transform [string type rotate] [actor-light target @topLight] [vector3r axis "1 0 0"] [real degree 90]
+
+// some object...
+-> material @objectMaterial [string type matte-opaque] [vector3r albedo "0.2 0.8 0.2"]
+-> actor-model @someObject [geometry geometry @triMesh] [material material @objectMaterial]
 
 // left wall
 -> material @leftWallMaterial [string type matte-opaque] [vector3r albedo "0.2 0.8 0.2"]

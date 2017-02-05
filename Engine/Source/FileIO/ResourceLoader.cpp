@@ -3,6 +3,7 @@
 #include "FileIO/Tokenizer.h"
 #include "Actor/Geometry/GSphere.h"
 #include "Actor/Geometry/GRectangle.h"
+#include "Actor/Geometry/GTriangleMesh.h"
 #include "Actor/Texture/Texture.h"
 #include "Actor/Texture/PixelTexture.h"
 #include "Actor/Material/Material.h"
@@ -80,6 +81,10 @@ std::shared_ptr<Geometry> ResourceLoader::loadGeometry(const InputPacket& packet
 	else if(typeString == "rectangle")
 	{
 		return std::make_shared<GRectangle>(packet);
+	}
+	else if(typeString == "triangle-mesh")
+	{
+		return std::make_shared<GTriangleMesh>(packet);
 	}
 	else
 	{

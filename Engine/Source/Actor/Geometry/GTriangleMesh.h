@@ -11,6 +11,8 @@ namespace ph
 class GTriangleMesh final : public Geometry
 {
 public:
+	GTriangleMesh();
+	GTriangleMesh(const InputPacket& packet);
 	virtual ~GTriangleMesh() override;
 
 	virtual void discretize(const PrimitiveBuildingMaterial& data,

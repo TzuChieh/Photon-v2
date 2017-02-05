@@ -23,8 +23,8 @@ AbradedTranslucent::AbradedTranslucent(const InputPacket& packet) :
 	Vector3R f0(0.04f, 0.04f, 0.04f);
 	real roughness = 0.5f;
 	real ior       = 1.0f;
-	albedo    = packet.getVector3R("albedo", albedo);
-	f0        = packet.getVector3R("f0", f0);
+	albedo    = packet.getVector3r("albedo", albedo);
+	f0        = packet.getVector3r("f0", f0);
 	roughness = packet.getReal("roughness", roughness);
 	ior       = packet.getReal("ior", ior);
 
