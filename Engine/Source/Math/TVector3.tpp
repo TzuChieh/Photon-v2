@@ -28,7 +28,7 @@ inline TVector3<T>::TVector3(const T x, const T y, const T z) :
 
 template<typename T>
 inline TVector3<T>::TVector3(const T var) :
-	x(var), y(var), z(var) 
+	x(var), y(var), z(var)
 {
 
 }
