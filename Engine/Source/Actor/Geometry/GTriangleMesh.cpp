@@ -35,13 +35,13 @@ GTriangleMesh::GTriangleMesh(const InputPacket& packet) :
 
 	for(std::size_t i = 0; i < positions.size(); i += 3)
 	{
-		GTriangle triangle(positions[i], positions[i + 1], positions[i + 2]);
-		triangle.setUVWa(texCoords[i]);
+		GTriangle triangle(positions[i + 0], positions[i + 1], positions[i + 2]);
+		triangle.setUVWa(texCoords[i + 0]);
 		triangle.setUVWb(texCoords[i + 1]);
 		triangle.setUVWc(texCoords[i + 2]);
-		triangle.setNa(normals[i]);
-		triangle.setNb(normals[i + 1]);
-		triangle.setNc(normals[i + 2]);
+		triangle.setNa(normals[i + 0].normalize());
+		triangle.setNb(normals[i + 1].normalize());
+		triangle.setNc(normals[i + 2].normalize());
 		addTriangle(triangle);
 	}
 }
