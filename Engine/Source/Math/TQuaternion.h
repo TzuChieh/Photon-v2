@@ -4,6 +4,7 @@
 #include "Math/math_fwd.h"
 
 #include <cmath>
+#include <string>
 
 namespace ph
 {
@@ -45,6 +46,8 @@ public:
 	inline TQuaternion& set(const TQuaternion& rhs);
 	inline void setRot(const TVector3<T>& normalizedAxis, const T radians);
 	inline void toRotationMatrix(TMatrix4<T>* const out_result) const;
+
+	inline std::string toStringFormal() const;
 };
 
 }// end namespace ph

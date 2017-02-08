@@ -3,6 +3,7 @@
 #include "Common/primitive_type.h"
 #include "FileIO/ValueClause.h"
 #include "Math/TVector3.h"
+#include "Math/TQuaternion.h"
 
 #include <vector>
 #include <string>
@@ -17,6 +18,7 @@ class Texture;
 class Material;
 class LightSource;
 class PhysicalActor;
+class InputPrototype;
 
 class InputPacket final
 {
@@ -30,15 +32,19 @@ public:
 	Vector3R getVector3r(const std::string& name, 
 	                     const Vector3R& defaultVector3r = Vector3R(), 
 	                     const std::string& notFoundMessage = "") const;
+	QuaternionR getQuaternionR(const std::string& name,
+	                           const QuaternionR& defaultQuaternionR = QuaternionR(),
+	                           const std::string& notFoundMessage = "") const;
 	std::vector<Vector3R> getVector3rArray(const std::string& name, 
 	                                       const std::vector<Vector3R>& defaultVector3rArray = std::vector<Vector3R>(), 
 	                                       const std::string& notFoundMessage = "") const;
-
 	std::shared_ptr<Geometry> getGeometry(const std::string& name, const std::string& notFoundMessage = "") const;
 	std::shared_ptr<Texture> getTexture(const std::string& name, const std::string& notFoundMessage = "") const;
 	std::shared_ptr<Material> getMaterial(const std::string& name, const std::string& notFoundMessage = "") const;
 	std::shared_ptr<LightSource> getLightSource(const std::string& name, const std::string& notFoundMessage = "") const;
 	PhysicalActor* getPhysicalActor(const std::string& name, const std::string& notFoundMessage = "") const;
+
+	bool isPrototypeMatched(const InputPrototype& prototype) const;
 
 	// forbid copying
 	InputPacket(const InputPacket& other) = delete;

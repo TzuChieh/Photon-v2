@@ -20,7 +20,8 @@ public:
 
 	void translate(const Vector3R& translation);
 	void translate(const real x, const real y, const real z);
-	void rotate(const Vector3R& normalizedAxis, const real degrees);
+	void rotate(const Vector3R& axis, const real degrees);
+	void rotate(const QuaternionR& rotation);
 	void scale(const Vector3R& scaleFactor);
 	void scale(const real x, const real y, const real z);
 	void scale(const real scaleFactor);

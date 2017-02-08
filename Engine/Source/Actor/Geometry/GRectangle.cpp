@@ -19,8 +19,8 @@ GRectangle::GRectangle(const real width, const real height) :
 GRectangle::GRectangle(const InputPacket& packet) : 
 	Geometry(packet)
 {
-	m_width  = packet.getReal("width",  1.0_r);
-	m_height = packet.getReal("height", 1.0_r);
+	m_width  = packet.getReal("width",  1.0_r, "at GRectangle::GRectangle()");
+	m_height = packet.getReal("height", 1.0_r, "at GRectangle::GRectangle()");
 }
 
 GRectangle::~GRectangle() = default;
