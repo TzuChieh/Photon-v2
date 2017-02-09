@@ -14,15 +14,11 @@ from bpy_extras.io_utils import ExportHelper
 from bpy.props import StringProperty, BoolProperty, EnumProperty
 from bpy.types import Operator
 
-def export_object_mesh(p2File, obj, scene):
-	# this creates a temporary mesh data with all modifiers applied for exporting
-	# (don't forget to delete it after exporting)
-	mesh = obj.to_mesh(scene, True, "RENDER")
-
+def export_geometry(p2File, name, mesh, polygons):
 	positions = ""
 	texcoords = ""
 	normals   = ""
-	for polygon in mesh.polygons:
+	for polygon in polygons:
 		for loopIndex in polygon.loop_indices:
 			vertexIndex = mesh.loops[loopIndex].vertex_index
 			triVertex = mesh.vertices[vertexIndex]
@@ -39,10 +35,7 @@ def export_object_mesh(p2File, obj, scene):
 			texcoords += "\"%.8f %.8f %.8f\" " %(triTexCoord[0], triTexCoord[1], 0)
 			normals   += "\"%.8f %.8f %.8f\" " %(triNormal.y, triNormal.z, triNormal.x)
 
-	# delete the temporary mesh for exporting
-	bpy.data.meshes.remove(mesh)
-
-	geometryName = "@geometry_" + obj.name + "_" + obj.data.name
+	geometryName = "\"@geometry_" + name + "\""
 
 	p2File.write("-> geometry %s [string type triangle-mesh]\n" %(geometryName))
 	p2File.write("[vector3r-array positions {%s}]\n"           %(positions))
@@ -51,41 +44,95 @@ def export_object_mesh(p2File, obj, scene):
 
 	return geometryName
 
-def export_object_material(p2File, material, scene):
-	materialName = "@material_" + material.name
+def export_material(p2File, name, material):
+	materialName = "\"@material_" + name + "\""
+	materialType = material.ph_material_type
 
-	albedo = material.ph_albedo
-	p2File.write("-> material %s [string type matte-opaque] [vector3r albedo \"%.8f %.8f %.8f\"]\n" 
-	             %(materialName, albedo[0], albedo[1], albedo[2]))
+	albedo    = material.ph_albedo
+	roughness = material.ph_roughness
+	ior       = material.ph_ior
+	f0        = material.ph_f0
+
+	if materialType == "MATTE_OPAQUE":
+
+		p2File.write("-> material %s [string type matte-opaque]\n" %(materialName))
+		p2File.write("[vector3r albedo \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
+
+	elif materialType == "ABRADED_OPAQUE":
+
+		p2File.write("-> material %s [string type abraded-opaque]\n" %(materialName))
+		p2File.write("[vector3r albedo     \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
+		p2File.write("[vector3r f0         \"%.8f %.8f %.8f\"]\n" %(f0[0],     f0[1],     f0[2]))
+		p2File.write("[real     roughness    %.8f]            \n" %(roughness))
+
+	elif materialType == "ABRADED_TRANSLUCENT":
+
+		p2File.write("-> material %s [string type abraded-translucent]\n" %(materialName))
+		p2File.write("[vector3r albedo     \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
+		p2File.write("[vector3r f0         \"%.8f %.8f %.8f\"]\n" %(f0[0],     f0[1],     f0[2]))
+		p2File.write("[real     roughness    %.8f]            \n" %(roughness))
+		p2File.write("[real     ior          %.8f]            \n" %(ior))
+
+	else:
+		print("warning: material (%s) with type %s is unsuppoprted, not exporting" %(material.name, materialType))
 
 	return materialName
 
-def export_actor_model(p2File, obj, scene):
-	if obj.active_material != None:
-		geometryName   = export_object_mesh(p2File, obj, scene)
-		materialName   = export_object_material(p2File, obj.active_material, scene)
-		actorModelName = "@actor_model_" + obj.name
+def export_object_mesh(p2File, obj, scene):
+	if len(obj.data.materials) != 0:
 
-		# creating actor-model, also convert transformation to Photon-v2's coordinate system
-		pos, rot, scale = obj.matrix_world.decompose()
-		p2File.write("-> actor-model %s [geometry geometry %s] [material material %s]\n" %(actorModelName, geometryName, materialName))
-		p2File.write("-> transform [string type translate] [actor-model target %s] [vector3r factor \"%.8f %.8f %.8f\"]\n" 
-		             %(actorModelName, pos.y, pos.z, pos.x))
-		p2File.write("-> transform [string type scale] [actor-model target %s] [vector3r factor \"%.8f %.8f %.8f\"]\n"
-		             %(actorModelName, scale.y, scale.z, scale.x))
-		p2File.write("-> transform [string type rotate] [actor-model target %s] [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
-		             %(actorModelName, rot.y, rot.z, rot.x, rot.w))
+		# this creates a temporary mesh data with all modifiers applied for exporting
+		# (don't forget to delete it after exporting)
+		mesh = obj.to_mesh(scene, True, "RENDER")
+
+		materialIdPolygonsMap = {}
+
+		# find polygons with the same material, then export as a Photon-v2's actor-model
+
+		for polygon in mesh.polygons:
+			matId = polygon.material_index
+
+			if matId not in materialIdPolygonsMap.keys():
+				materialIdPolygonsMap[matId] = []
+
+			materialIdPolygonsMap[matId].append(polygon)
+
+		for matId in materialIdPolygonsMap.keys():
+
+			material = obj.material_slots[matId].material
+			polygons = materialIdPolygonsMap[matId]
+
+			geometryName = obj.name + "_" + mesh.name + "_" + str(matId)
+			materialName = obj.name + "_" + mesh.name + "_" + material.name
+
+			geometryName = export_geometry(p2File, geometryName, mesh, polygons)
+			materialName = export_material(p2File, materialName, material)
+
+			actorModelName = "\"@actor_model_" + obj.name + "_" + str(matId) + "\""
+
+			# creating actor-model, also convert transformation to Photon-v2's coordinate system
+			pos, rot, scale = obj.matrix_world.decompose()
+			p2File.write("-> actor-model %s [geometry geometry %s] [material material %s]\n" %(actorModelName, geometryName, materialName))
+			p2File.write("-> transform [string type translate] [actor-model target %s] [vector3r factor \"%.8f %.8f %.8f\"]\n" 
+			             %(actorModelName, pos.y, pos.z, pos.x))
+			p2File.write("-> transform [string type scale] [actor-model target %s] [vector3r factor \"%.8f %.8f %.8f\"]\n"
+			             %(actorModelName, scale.y, scale.z, scale.x))
+			p2File.write("-> transform [string type rotate] [actor-model target %s] [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
+			             %(actorModelName, rot.y, rot.z, rot.x, rot.w))
+
+		# delete the temporary mesh for exporting
+		bpy.data.meshes.remove(mesh)
 	else:
-		print("warning: mesh<%s> has no material, not exporting" %(obj.name))
+		print("warning: mesh object (%s) has no material, not exporting" %(obj.name))
 
-def export_actor_light(p2File, obj, scene):
+def export_object_lamp(p2File, obj, scene):
 	lamp = obj.data
 
 	if lamp.type == "AREA":
-		lightMaterialName = "@material_" + obj.name + "_" + lamp.name
-		lightGeometryName = "@geometry_" + obj.name + "_" + lamp.name
-		lightSourceName   = "@light_source_" + obj.name + "_" + lamp.name
-		actorLightName    = "@actor_light_" + obj.name
+		lightMaterialName = "\"@material_" + obj.name + "_" + lamp.name + "\""
+		lightGeometryName = "\"@geometry_" + obj.name + "_" + lamp.name + "\""
+		lightSourceName   = "\"@light_source_" + obj.name + "_" + lamp.name + "\""
+		actorLightName    = "\"@actor_light_" + obj.name + "\""
 
 		recWidth  = lamp.size
 		recHeight = lamp.size
@@ -163,9 +210,9 @@ def export_world_commands(p2File, scene):
 	objs = scene.objects
 	for obj in objs:
 		if obj.type == "MESH":
-			export_actor_model(p2File, obj, scene)
+			export_object_mesh(p2File, obj, scene)
 		elif obj.type == "LAMP":
-			export_actor_light(p2File, obj, scene)
+			export_object_lamp(p2File, obj, scene)
 		elif obj.type == "CAMERA":
 			# do nothing since it belongs to core command
 			return

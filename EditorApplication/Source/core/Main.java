@@ -81,6 +81,7 @@ public class Main
 //		description.load("../scene/cbox_material_test.p2");
 //		description.load("../scene/cbox_test.p2");
 		description.load("../scene/exporter_test.p2");
+//		description.load("../scene/LAZIENKA.p2");
 		description.update();
 		
 		PhRenderer renderer = new PhRenderer(numRenderThreads);

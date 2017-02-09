@@ -5,6 +5,7 @@ bl_info = {
 }
 
 import bpy
+import sys
 
 class PhMaterialPanel(bpy.types.Panel):
 	"""Photon's material panel"""
@@ -14,18 +15,72 @@ class PhMaterialPanel(bpy.types.Panel):
 	bl_region_type = "WINDOW"
 	bl_context     = "material"
 
+	bpy.types.Material.ph_material_type = bpy.props.EnumProperty(
+		items = [
+			("MATTE_OPAQUE",        "Matte Opaque",        "diffuse material"), 
+			("ABRADED_OPAQUE",      "Abraded Opaque",      "microfacet material"), 
+			("ABRADED_TRANSLUCENT", "Abraded Translucent", "microfacet dielectric material")
+		],
+		name        = "Material Type",
+		description = "Photon-v2's material types", 
+		default     = "MATTE_OPAQUE"
+	)
+
 	bpy.types.Material.ph_albedo = bpy.props.FloatVectorProperty(
-	    name    = "albedo",
-	    default = [0.5, 0.5, 0.5],
-	    subtype = "COLOR",
-	    size    = 3
+	    name        = "albedo", 
+	    description = "surface albedo in [0, 1]", 
+	    default     = [0.5, 0.5, 0.5], 
+	    min         = 0.0, 
+		max         = 1.0, 
+	    subtype     = "COLOR", 
+	    size        = 3
+	)
+
+	bpy.types.Material.ph_roughness = bpy.props.FloatProperty(
+		name        = "roughness", 
+		description = "surface roughness in [0, 1]", 
+		default     = 0.5, 
+		min         = 0.0, 
+		max         = 1.0
+	)
+
+	bpy.types.Material.ph_ior = bpy.props.FloatProperty(
+		name        = "index of refraction", 
+		description = "index of refraction of the material in [0, infinity]", 
+		default     = 1.5, 
+		min         = 0.0, 
+		max         = sys.float_info.max
+	)
+
+	bpy.types.Material.ph_f0 = bpy.props.FloatVectorProperty(
+		name        = "F0", 
+		description = "surface reflectivity at normal incidence in [0, 1]", 
+		default     = [0.04, 0.04, 0.04], 
+		min         = 0.0, 
+		max         = 1.0, 
+		subtype     = "COLOR", 
+		size        = 3
 	)
 
 	def draw(self, context):
-		layout = self.layout
-		obj    = context.object
+		material = context.material
+		self.layout.prop(material, "ph_material_type")
 
-		layout.prop(obj.active_material, "ph_albedo")
+		material_type = material.ph_material_type
+
+		if material_type == "MATTE_OPAQUE":
+			self.layout.prop(material, "ph_albedo")
+		elif material_type == "ABRADED_OPAQUE":
+			self.layout.prop(material, "ph_albedo")
+			self.layout.prop(material, "ph_f0")
+			self.layout.prop(material, "ph_roughness")
+		elif material_type == "ABRADED_TRANSLUCENT":
+			self.layout.prop(material, "ph_albedo")
+			self.layout.prop(material, "ph_f0")
+			self.layout.prop(material, "ph_roughness")
+			self.layout.prop(material, "ph_ior")
+		else:
+			print("warning: unknown type of Photon-v2 material (%s)" %(material_type))
 
 def register():
 	bpy.utils.register_class(PhMaterialPanel)
