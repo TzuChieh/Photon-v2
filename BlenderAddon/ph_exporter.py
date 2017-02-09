@@ -5,6 +5,8 @@ bl_info = {
 }
 
 import bpy
+import math
+import mathutils
 
 # ExportHelper is a helper class, defines filename and
 # invoke() function which calls the file selector.
@@ -82,7 +84,7 @@ def export_actor_light(p2File, obj, scene):
 	if lamp.type == "AREA":
 		lightMaterialName = "@material_" + obj.name + "_" + lamp.name
 		lightGeometryName = "@geometry_" + obj.name + "_" + lamp.name
-		lightSourceName   = "@light_source" + obj.name + "_" + lamp.name
+		lightSourceName   = "@light_source_" + obj.name + "_" + lamp.name
 		actorLightName    = "@actor_light_" + obj.name
 
 		recWidth  = lamp.size
@@ -122,25 +124,53 @@ def export_actor_light(p2File, obj, scene):
 	else:
 		print("warning: lamp (%s) type (%s) is unsupported, not exporting" %(lamp.name, lamp.type))
 
-def export_object(p2File, obj, scene):
-	if obj.type == "MESH":
-		export_actor_model(p2File, obj, scene)
-	elif obj.type == "LAMP":
-		export_actor_light(p2File, obj, scene)
-	else:
-		print("warning: object (%s) type (%s) is not supported, not exporting" %(obj.name, obj.type))
+def export_camera(p2File, obj, scene):
+	camera = obj.data
+	if camera.type == "PERSP":
+		if camera.lens_unit == "FOV":
+			fovDegrees = math.degrees(camera.angle)
 
-def export_core_commands(p2File):
-	p2File.write("## camera [string type pinhole] [real fov-degree 50] [vector3r position \"0 0 16\"] [vector3r direction \"0 0 -1\"] \n")
+			# creating camera, also convert transformation to Photon-v2's coordinate system
+			# (Blender's camera intially pointing (0, 0, -1) with up (0, 1, 0) in its coordinate system.)
+
+			pos, rot, scale = obj.matrix_world.decompose()
+
+			if (scale.x - 1.0) > 0.0001 or (scale.y - 1.0) > 0.0001 or (scale.z - 1.0) > 0.0001:
+				print("warning: camera (%s) contains scale factor, ignoring" %(camera.name))
+
+			camDir   = rot * mathutils.Vector((0, 0, -1))
+			camUpDir = rot * mathutils.Vector((0, 1, 0))
+
+			p2File.write("""## camera [string type pinhole] [real fov-degree %.8f] 
+			             [vector3r position \"%.8f %.8f %.8f\"] [vector3r direction \"%.8f %.8f %.8f\"] [vector3r up-axis \"%.8f %.8f %.8f\"]\n"""
+			             %(fovDegrees, pos.y, pos.z, pos.x, camDir.y, camDir.z, camDir.x, camUpDir.y, camUpDir.z, camUpDir.x))
+		else:
+			print("warning: camera (%s) with lens unit %s is unsupported, not exporting" %(camera.name, camera.lens_unit))
+	else:
+		print("warning: camera (%s) type (%s) is unsupported, not exporting" %(camera.name, camera.type))
+
+def export_core_commands(p2File, scene):
+	objs = scene.objects
+	for obj in objs:
+		if obj.type == "CAMERA":
+			export_camera(p2File, obj, scene)
+
 	p2File.write("## film [integer width 400] [integer height 400] \n")
 	p2File.write("## sampler [integer spp-budget 16] \n")
 	p2File.write("## integrator [string type backward-mis] \n")
 
-def export_world_commands(p2File):
-	scene = bpy.context.scene
+def export_world_commands(p2File, scene):
 	objs = scene.objects
 	for obj in objs:
-		export_object(p2File, obj, scene)
+		if obj.type == "MESH":
+			export_actor_model(p2File, obj, scene)
+		elif obj.type == "LAMP":
+			export_actor_light(p2File, obj, scene)
+		elif obj.type == "CAMERA":
+			# do nothing since it belongs to core command
+			return
+		else:
+			print("warning: object (%s) type (%s) is not supported, not exporting" %(obj.name, obj.type))
 
 class P2Exporter(Operator, ExportHelper):
 	"""export the scene to some Photon-v2 readable format"""
@@ -175,8 +205,9 @@ class P2Exporter(Operator, ExportHelper):
 		print("exporting p2 file to <%s>" %(self.filepath))
 
 		p2File = open(self.filepath, "w", encoding = "utf-8")
-		export_core_commands(p2File)
-		export_world_commands(p2File)
+		scene = bpy.context.scene
+		export_core_commands(p2File, scene)
+		export_world_commands(p2File, scene)
 		p2File.close()
 
 		print("exporting complete")

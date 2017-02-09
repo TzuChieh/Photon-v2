@@ -51,6 +51,11 @@ public:
 		return m_direction;
 	}
 
+	inline const Vector3R& getUpAxis() const
+	{
+		return m_upAxis;
+	}
+
 	inline void getPosition(Vector3R* const out_position) const
 	{
 		m_position.set(out_position);
@@ -68,12 +73,24 @@ public:
 
 	inline void setDirection(const Vector3R& direction)
 	{
+		// TODO: check the input camera direction is valid
+
 		m_direction.set(direction);
+		m_direction.normalizeLocal();
+	}
+
+	inline void setUpAxis(const Vector3R& upAxis)
+	{
+		// TODO: check the input up-axis is valid (e.g., apart enough to camera direction, not zero vector...)
+
+		m_upAxis = upAxis;
+		m_upAxis.normalizeLocal();
 	}
 
 private:
 	Vector3R m_position;
 	Vector3R m_direction;
+	Vector3R m_upAxis;
 
 	Film* m_film;
 };

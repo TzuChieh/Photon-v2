@@ -5,7 +5,7 @@ namespace ph
 {
 	
 Camera::Camera() :
-	m_position(0, 0, 0), m_direction(0, 0, -1), m_film(nullptr)
+	m_position(0, 0, 0), m_direction(0, 0, -1), m_upAxis(0, 1, 0), m_film(nullptr)
 {
 
 }
@@ -13,10 +13,13 @@ Camera::Camera() :
 Camera::Camera(const InputPacket& packet) : 
 	Camera()
 {
-	m_position = packet.getVector3r("position", m_position, "Camera >> argument position not found");
-	m_direction = packet.getVector3r("direction", m_direction, "Camera >> argument direction not found");
+	const Vector3R position  = packet.getVector3r("position", m_position, "Camera >> argument position not found");
+	const Vector3R direction = packet.getVector3r("direction", m_direction, "Camera >> argument direction not found");
+	const Vector3R upAxis    = packet.getVector3r("up-axis", m_upAxis);
 
-	m_direction.normalizeLocal();
+	setPosition(position);
+	setDirection(direction);
+	setUpAxis(upAxis);
 }
 
 Camera::~Camera() = default;

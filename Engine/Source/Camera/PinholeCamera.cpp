@@ -21,6 +21,7 @@ PinholeCamera::PinholeCamera(const InputPacket& packet) :
 	Camera(packet)
 {
 	const real fovDegree = packet.getReal("fov-degree", 50, "at PinholeCamera()");
+
 	m_fov = Math::toRadians(fovDegree);
 }
 
@@ -30,10 +31,8 @@ void PinholeCamera::genSensingRay(const Sample& sample, Ray* const out_ray) cons
 {
 	const real aspectRatio = static_cast<real>(getFilm()->getWidthPx()) / static_cast<real>(getFilm()->getHeightPx());
 
-	// Note: this will fail when the camera is facing directly on y-axis
-
-	Vector3R rightDir = Vector3R(-getDirection().z, 0.0_r, getDirection().x).normalizeLocal();
-	Vector3R upDir = rightDir.cross(getDirection()).normalizeLocal();
+	Vector3R rightDir = getDirection().cross(getUpAxis()).normalizeLocal();
+	Vector3R upDir    = rightDir.cross(getDirection()).normalizeLocal();
 
 	const real halfWidth = std::tan(m_fov / 2.0_r);
 	const real halfHeight = halfWidth / aspectRatio;
@@ -66,10 +65,8 @@ void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3R& targetPos, Vect
 	const Vector3R filmCenter = getDirection().add(getPosition());
 	const Vector3R filmVec = filmPos.sub(filmCenter);
 
-	// Note: this will fail when the camera is facing directly on y-axis
-
-	const Vector3R rightDir = Vector3R(-getDirection().z, 0.0_r, getDirection().x).normalizeLocal();
-	const Vector3R upDir = rightDir.cross(getDirection()).normalizeLocal();
+	const Vector3R rightDir = getDirection().cross(getUpAxis()).normalizeLocal();
+	const Vector3R upDir    = rightDir.cross(getDirection()).normalizeLocal();
 
 	const real aspectRatio = static_cast<real>(getFilm()->getWidthPx()) / static_cast<real>(getFilm()->getHeightPx());
 	const real halfFilmWidth = std::tan(m_fov / 2.0_r);
