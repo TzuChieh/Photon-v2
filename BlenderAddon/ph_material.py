@@ -64,23 +64,34 @@ class PhMaterialPanel(bpy.types.Panel):
 
 	def draw(self, context):
 		material = context.material
-		self.layout.prop(material, "ph_material_type")
+		layout   = self.layout
 
-		material_type = material.ph_material_type
+		if material == None:
+			layout.label(material, "no material for Photon-v2 material panel")
+			return
 
-		if material_type == "MATTE_OPAQUE":
-			self.layout.prop(material, "ph_albedo")
-		elif material_type == "ABRADED_OPAQUE":
-			self.layout.prop(material, "ph_albedo")
-			self.layout.prop(material, "ph_f0")
-			self.layout.prop(material, "ph_roughness")
-		elif material_type == "ABRADED_TRANSLUCENT":
-			self.layout.prop(material, "ph_albedo")
-			self.layout.prop(material, "ph_f0")
-			self.layout.prop(material, "ph_roughness")
-			self.layout.prop(material, "ph_ior")
+		layout.prop(material, "ph_material_type")
+		materialType = material.ph_material_type
+
+		if materialType == "MATTE_OPAQUE":
+
+			layout.prop(material, "ph_albedo")
+
+		elif materialType == "ABRADED_OPAQUE":
+
+			layout.prop(material, "ph_albedo")
+			layout.prop(material, "ph_f0")
+			layout.prop(material, "ph_roughness")
+
+		elif materialType == "ABRADED_TRANSLUCENT":
+
+			layout.prop(material, "ph_albedo")
+			layout.prop(material, "ph_f0")
+			layout.prop(material, "ph_roughness")
+			layout.prop(material, "ph_ior")
+
 		else:
-			print("warning: unknown type of Photon-v2 material (%s)" %(material_type))
+			print("warning: unknown type of Photon-v2 material (%s)" %(materialType))
 
 def register():
 	bpy.utils.register_class(PhMaterialPanel)

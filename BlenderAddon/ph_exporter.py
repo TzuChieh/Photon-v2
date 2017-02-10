@@ -14,26 +14,56 @@ from bpy_extras.io_utils import ExportHelper
 from bpy.props import StringProperty, BoolProperty, EnumProperty
 from bpy.types import Operator
 
-def export_geometry(p2File, name, mesh, polygons):
+def export_geometry(p2File, name, mesh, faces):
+
+	# all UV maps for tessellated faces
+	uvMaps = mesh.tessface_uv_textures
+
+	uvLayers = None
+
+	if len(uvMaps) > 0:
+		if uvMaps.active != None:
+			uvLayers = uvMaps.active.data
+		else:
+			print("warning: mesh (%s) has %d uv maps, but no one is active (no uv map will be exported)" %(name, len(uvMaps)))
+
+		if len(uvMaps) > 1:
+			print("warning: mesh (%s) has %d uv maps, only the active one is exported" %(name, len(uvMaps)))
+
 	positions = ""
 	texcoords = ""
 	normals   = ""
-	for polygon in polygons:
-		for loopIndex in polygon.loop_indices:
-			vertexIndex = mesh.loops[loopIndex].vertex_index
+
+	for face in faces:
+
+		faceVertexIndices = [0, 1, 2]
+
+		# identify and triangulate quads (assuming coplanar & CCW)
+		if len(face.vertices) > 3:
+			if len(face.vertices) == 4:
+				faceVertexIndices.extend([0, 2, 3])
+			else:
+				print("warning: face of mesh %s consists more than 4 vertices which is unsupported, ignoring" %(name))
+				continue
+
+		# export triangle data
+		for faceVertexIndex in faceVertexIndices:
+			vertexIndex = face.vertices[faceVertexIndex]
 			triVertex = mesh.vertices[vertexIndex]
 
 			triPosition = triVertex.co
-			triNormal   = triVertex.normal
+			triNormal   = triVertex.normal if face.use_smooth else face.normal
+			triTexCoord = [0, 0, 0]
 
-			triTexCoord = [0, 0]
-			if len(mesh.uv_layers) != 0:
-				triTexCoord = mesh.uv_layers[0].data[loopIndex].uv
+			if uvLayers != None:
+				faceUvLayer = uvLayers[face.index]
+				triTexCoord[0] = faceUvLayer.uv[faceVertexIndex][0]
+				triTexCoord[1] = faceUvLayer.uv[faceVertexIndex][1]
 
 			# also convert position & normal to Photon-v2's coordinate system
-			positions += "\"%.8f %.8f %.8f\" " %(triPosition.y, triPosition.z, triPosition.x)
-			texcoords += "\"%.8f %.8f %.8f\" " %(triTexCoord[0], triTexCoord[1], 0)
-			normals   += "\"%.8f %.8f %.8f\" " %(triNormal.y, triNormal.z, triNormal.x)
+			positions += "\"%.8f %.8f %.8f\" " %(triPosition.y,  triPosition.z,  triPosition.x)
+			texcoords += "\"%.8f %.8f %.8f\" " %(triTexCoord[0], triTexCoord[1], 0.0)
+			normals   += "\"%.8f %.8f %.8f\" " %(triNormal.y,    triNormal.z,    triNormal.x)
 
 	geometryName = "\"@geometry_" + name + "\""
 
@@ -83,29 +113,40 @@ def export_object_mesh(p2File, obj, scene):
 
 		# this creates a temporary mesh data with all modifiers applied for exporting
 		# (don't forget to delete it after exporting)
-		mesh = obj.to_mesh(scene, True, "RENDER")
+		mesh = obj.to_mesh(scene, apply_modifiers = True, settings = "RENDER", calc_tessface = True)
 
-		materialIdPolygonsMap = {}
+		if mesh == None:
+			print("warning: mesh object %s cannot convert to mesh, not exporting" %(obj.name))
+			bpy.data.meshes.remove(mesh)
+			return
 
-		# find polygons with the same material, then export as a Photon-v2's actor-model
+		materialIdFacesMap = {}
 
-		for polygon in mesh.polygons:
-			matId = polygon.material_index
+		# group faces with the same material, then export each face-material pair as a Photon-v2's actor-model
 
-			if matId not in materialIdPolygonsMap.keys():
-				materialIdPolygonsMap[matId] = []
+		for face in mesh.tessfaces:
+			# note that this index refers to material slots (their stack order on the UI)
+			matId = face.material_index
 
-			materialIdPolygonsMap[matId].append(polygon)
+			if matId not in materialIdFacesMap.keys():
+				materialIdFacesMap[matId] = []
 
-		for matId in materialIdPolygonsMap.keys():
+			materialIdFacesMap[matId].append(face)
+
+		for matId in materialIdFacesMap.keys():
 
 			material = obj.material_slots[matId].material
-			polygons = materialIdPolygonsMap[matId]
+			faces    = materialIdFacesMap[matId]
+
+			# a material slot can be empty, this check is necessary
+			if material == None:
+				print("warning: no material is in mesh object %s's material slot %d, not exporting" %(obj.name, matId))
+				continue
 
 			geometryName = obj.name + "_" + mesh.name + "_" + str(matId)
 			materialName = obj.name + "_" + mesh.name + "_" + material.name
 
-			geometryName = export_geometry(p2File, geometryName, mesh, polygons)
+			geometryName = export_geometry(p2File, geometryName, mesh, faces)
 			materialName = export_material(p2File, materialName, material)
 
 			actorModelName = "\"@actor_model_" + obj.name + "_" + str(matId) + "\""
