@@ -10,7 +10,6 @@ namespace ph
 class Frame;
 class Renderer;
 class Description;
-class Film;
 
 class ApiDatabase final
 {

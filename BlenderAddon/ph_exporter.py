@@ -14,7 +14,219 @@ from bpy_extras.io_utils import ExportHelper
 from bpy.props import StringProperty, BoolProperty, EnumProperty
 from bpy.types import Operator
 
-def export_geometry(p2File, name, mesh, faces):
+def mangled_geometry_name(obj, name, suffix):
+	return "\"@geometry_" + obj.name + "_" + name + "_" + suffix + "\""
+
+def mangled_material_name(obj, name, suffix):
+	return "\"@material_" + obj.name + "_" + name + "_" + suffix + "\""
+
+def mangled_light_source_name(obj, name, suffix):
+	return "\"@light_source_" + obj.name + "_" + name + "_" + suffix + "\""
+
+def mangled_actor_model_name(obj, name, suffix):
+	return "\"@actor_model_" + obj.name + "_" + name + "_" + suffix + "\""
+
+def mangled_actor_light_name(obj, name, suffix):
+	return "\"@actor_light_" + obj.name + "_" + name + "_" + suffix + "\""
+
+class Exporter:
+
+	def __init__(self, filename):
+		self.__filename = filename
+		self.__p2File   = None
+
+	def begin(self):
+		filename = self.__filename
+		print("-------------------------------------------------------------")
+		print("exporting p2 file to <%s>" %(filename))
+		self.__p2File = open(filename, "w", encoding = "utf-8")
+
+	def end(self):
+		self.__p2File.close()
+		print("exporting complete")
+
+	def exportCamera(self, cameraType, fovDegrees, position, direction, upDirection):
+
+		# TODO: check camera type
+
+		p2File = self.__p2File
+
+		position    = self.__blendToPhotonVector(position)
+		direction   = self.__blendToPhotonVector(direction)
+		upDirection = self.__blendToPhotonVector(upDirection)
+
+		p2File.write("""## camera [string type %s] [real fov-degree %.8f] 
+		             [vector3r position  \"%.8f %.8f %.8f\"] 
+		             [vector3r direction \"%.8f %.8f %.8f\"] 
+		             [vector3r up-axis   \"%.8f %.8f %.8f\"]\n"""
+		             %(cameraType, fovDegrees, 
+	             	   position.x,    position.y,    position.z, 
+	             	   direction.x,   direction.y,   direction.z, 
+	             	   upDirection.x, upDirection.y, upDirection.z))
+
+	def exportGeometry(self, geometryType, geometryName, **keywordArgs):
+
+		p2File = self.__p2File
+
+		if geometryType == "triangle-mesh":
+			p2File.write("-> geometry %s [string type triangle-mesh]\n" %(geometryName))
+
+			positions = ""
+			for position in keywordArgs["positions"]:
+				triPosition = self.__blendToPhotonVector(position)
+				positions += "\"%.8f %.8f %.8f\" " %(triPosition.x, triPosition.y, triPosition.z)
+
+			texCoords = ""
+			for texCoord in keywordArgs["texCoords"]:
+				texCoords += "\"%.8f %.8f %.8f\" " %(texCoord[0], texCoord[1], texCoord[2])
+
+			normals = ""
+			for normal in keywordArgs["normals"]:
+				triNormal = self.__blendToPhotonVector(normal)
+				normals += "\"%.8f %.8f %.8f\" " %(triNormal.x, triNormal.y, triNormal.z)
+
+			p2File.write("[vector3r-array positions {%s}]\n"           %(positions))
+			p2File.write("[vector3r-array texture-coordinates {%s}]\n" %(texCoords))
+			p2File.write("[vector3r-array normals {%s}]\n"             %(normals))
+
+		elif geometryType == "rectangle":
+
+			# TODO: width & height may correspond to different axes in Blender and Photon-v2
+
+			p2File.write("-> geometry %s [string type rectangle] [real width %.8f] [real height %.8f]\n" 
+		                 %(geometryName, keywordArgs["width"], keywordArgs["height"]))
+
+		else:
+			print("warning: geometry (%s) with type %s is not supported, not exporting" %(geometryName, geometryType))
+
+	def exportMaterial(self, materialType, materialName, **keywordArgs):
+
+		p2File = self.__p2File
+
+		if materialType == "MATTE_OPAQUE":
+
+			albedo = keywordArgs["albedo"]
+
+			p2File.write("-> material %s [string type matte-opaque]\n" %(materialName))
+			p2File.write("[vector3r albedo \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
+
+		elif materialType == "ABRADED_OPAQUE":
+
+			albedo    = keywordArgs["albedo"]
+			f0        = keywordArgs["f0"]
+			roughness = keywordArgs["roughness"]
+
+			p2File.write("-> material %s [string type abraded-opaque]\n" %(materialName))
+			p2File.write("[vector3r albedo     \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
+			p2File.write("[vector3r f0         \"%.8f %.8f %.8f\"]\n" %(f0[0],     f0[1],     f0[2]))
+			p2File.write("[real     roughness    %.8f]            \n" %(roughness))
+
+		elif materialType == "ABRADED_TRANSLUCENT":
+
+			albedo    = keywordArgs["albedo"]
+			f0        = keywordArgs["f0"]
+			roughness = keywordArgs["roughness"]
+			ior       = keywordArgs["ior"]
+
+			p2File.write("-> material %s [string type abraded-translucent]\n" %(materialName))
+			p2File.write("[vector3r albedo     \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
+			p2File.write("[vector3r f0         \"%.8f %.8f %.8f\"]\n" %(f0[0],     f0[1],     f0[2]))
+			p2File.write("[real     roughness    %.8f]            \n" %(roughness))
+			p2File.write("[real     ior          %.8f]            \n" %(ior))
+
+		else:
+			print("warning: material (%s) with type %s is unsuppoprted, not exporting" %(materialName, materialType))
+
+	def exportLightSource(self, lightSourceType, lightSourceName, **keywordArgs):
+
+		p2File = self.__p2File
+
+		if lightSourceType == "area":
+
+			emittedRadiance = keywordArgs["emittedRadiance"]
+			p2File.write("-> light-source %s [string type area] [vector3r emitted-radiance \"%.8f %.8f %.8f\"]\n" 
+		                 %(lightSourceName, emittedRadiance[0], emittedRadiance[1], emittedRadiance[2]))
+
+		else:
+			print("warning: light source (%s) with type %s is unsuppoprted, not exporting" 
+			      %(lightSourceName, lightSourceType))
+
+	def exportActorLight(self, actorLightName, lightSourceName, geometryName, materialName, position, rotation, scale):
+
+		# TODO: check non-uniform scale
+
+		p2File = self.__p2File
+
+		position = self.__blendToPhotonVector(position)
+		rotation = self.__blendToPhotonQuaternion(rotation)
+		scale    = self.__blendToPhotonVector(scale)
+
+		if lightSourceName != None:
+			p2File.write("-> actor-light %s [light-source light-source %s] " 
+		                 %(actorLightName, lightSourceName))
+		else:
+			print("warning: expecting a non-None light source name for actor-light %s, not exporting" %(actorLightName))
+			return
+
+		if geometryName != None:
+			p2File.write("[geometry geometry %s] " %(geometryName))
+
+		if materialName != None:
+			p2File.write("[material material %s] " %(materialName))
+
+		p2File.write("\n")
+
+		p2File.write("-> transform [string type translate] [actor-light target %s] [vector3r factor \"%.8f %.8f %.8f\"]\n" 
+		             %(actorLightName, position.x, position.y, position.z))
+		p2File.write("-> transform [string type scale] [actor-light target %s] [vector3r factor \"%.8f %.8f %.8f\"]\n"
+		             %(actorLightName, scale.x, scale.y, scale.z))
+		p2File.write("-> transform [string type rotate] [actor-light target %s] [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
+		             %(actorLightName, rotation.x, rotation.y, rotation.z, rotation.w))
+
+	def exportActorModel(self, actorModelName, geometryName, materialName, position, rotation, scale):
+
+		if (actorModelName == None) or (geometryName == None) or (materialName == None):
+			print("warning: no name should be none, not exporting")
+			return
+
+		p2File = self.__p2File
+
+		position = self.__blendToPhotonVector(position)
+		rotation = self.__blendToPhotonQuaternion(rotation)
+		scale    = self.__blendToPhotonVector(scale)
+
+		p2File.write("-> actor-model %s [geometry geometry %s] [material material %s]\n" 
+		             %(actorModelName, geometryName, materialName))
+
+		p2File.write("-> transform [string type translate] [actor-model target %s] [vector3r factor \"%.8f %.8f %.8f\"]\n" 
+		             %(actorModelName, position.x, position.y, position.z))
+		p2File.write("-> transform [string type scale] [actor-model target %s] [vector3r factor \"%.8f %.8f %.8f\"]\n"
+		             %(actorModelName, scale.x, scale.y, scale.z))
+		p2File.write("-> transform [string type rotate] [actor-model target %s] [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
+		             %(actorModelName, rotation.x, rotation.y, rotation.z, rotation.w))
+
+	def exportRaw(self, rawText):
+		p2File = self.__p2File
+		p2File.write(rawText)
+
+	def __blendToPhotonVector(self, blenderVector):
+		photonVector = mathutils.Vector((blenderVector.y, 
+		                                 blenderVector.z, 
+		                                 blenderVector.x))
+		return photonVector
+
+	def __blendToPhotonQuaternion(self, blenderQuaternion):
+		# initializer is like mathutils.Quaternion(w, x, y, z)
+		photonQuaternion = mathutils.Quaternion((blenderQuaternion.w, 
+		                                         blenderQuaternion.y, 
+		                                         blenderQuaternion.z, 
+		                                         blenderQuaternion.x))
+		return photonQuaternion
+
+
+#def export_translate_actor_command()
+
+def export_geometry(exporter, geometryName, mesh, faces):
 
 	# all UV maps for tessellated faces
 	uvMaps = mesh.tessface_uv_textures
@@ -25,14 +237,14 @@ def export_geometry(p2File, name, mesh, faces):
 		if uvMaps.active != None:
 			uvLayers = uvMaps.active.data
 		else:
-			print("warning: mesh (%s) has %d uv maps, but no one is active (no uv map will be exported)" %(name, len(uvMaps)))
+			print("warning: mesh (%s) has %d uv maps, but no one is active (no uv map will be exported)" %(geometryName, len(uvMaps)))
 
 		if len(uvMaps) > 1:
-			print("warning: mesh (%s) has %d uv maps, only the active one is exported" %(name, len(uvMaps)))
+			print("warning: mesh (%s) has %d uv maps, only the active one is exported" %(geometryName, len(uvMaps)))
 
-	positions = ""
-	texcoords = ""
-	normals   = ""
+	triPositions = []
+	triTexCoords = []
+	triNormals   = []
 
 	for face in faces:
 
@@ -43,10 +255,10 @@ def export_geometry(p2File, name, mesh, faces):
 			if len(face.vertices) == 4:
 				faceVertexIndices.extend([0, 2, 3])
 			else:
-				print("warning: face of mesh %s consists more than 4 vertices which is unsupported, ignoring" %(name))
+				print("warning: face of mesh %s consists more than 4 vertices which is unsupported, ignoring" %(geometryName))
 				continue
 
-		# export triangle data
+		# gather triangle data
 		for faceVertexIndex in faceVertexIndices:
 			vertexIndex = face.vertices[faceVertexIndex]
 			triVertex = mesh.vertices[vertexIndex]
@@ -60,55 +272,26 @@ def export_geometry(p2File, name, mesh, faces):
 				triTexCoord[0] = faceUvLayer.uv[faceVertexIndex][0]
 				triTexCoord[1] = faceUvLayer.uv[faceVertexIndex][1]
 
-			# also convert position & normal to Photon-v2's coordinate system
-			positions += "\"%.8f %.8f %.8f\" " %(triPosition.y,  triPosition.z,  triPosition.x)
-			texcoords += "\"%.8f %.8f %.8f\" " %(triTexCoord[0], triTexCoord[1], 0.0)
-			normals   += "\"%.8f %.8f %.8f\" " %(triNormal.y,    triNormal.z,    triNormal.x)
+			triPositions.append(triPosition)
+			triTexCoords.append(triTexCoord)
+			triNormals.append(triNormal)
 
-	geometryName = "\"@geometry_" + name + "\""
+	exporter.exportGeometry("triangle-mesh", geometryName, 
+	                        positions = triPositions, 
+	                        texCoords = triTexCoords, 
+	                        normals   = triNormals)
 
-	p2File.write("-> geometry %s [string type triangle-mesh]\n" %(geometryName))
-	p2File.write("[vector3r-array positions {%s}]\n"           %(positions))
-	p2File.write("[vector3r-array texture-coordinates {%s}]\n" %(texcoords))
-	p2File.write("[vector3r-array normals {%s}]\n"             %(normals))
+def export_material(exporter, materialName, material):
 
-	return geometryName
+	materialType = material.ph_materialType
 
-def export_material(p2File, name, material):
-	materialName = "\"@material_" + name + "\""
-	materialType = material.ph_material_type
+	exporter.exportMaterial(materialType, materialName, 
+	                        albedo    = material.ph_albedo, 
+	                        roughness = material.ph_roughness, 
+	                        ior       = material.ph_ior, 
+	                        f0        = material.ph_f0)
 
-	albedo    = material.ph_albedo
-	roughness = material.ph_roughness
-	ior       = material.ph_ior
-	f0        = material.ph_f0
-
-	if materialType == "MATTE_OPAQUE":
-
-		p2File.write("-> material %s [string type matte-opaque]\n" %(materialName))
-		p2File.write("[vector3r albedo \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
-
-	elif materialType == "ABRADED_OPAQUE":
-
-		p2File.write("-> material %s [string type abraded-opaque]\n" %(materialName))
-		p2File.write("[vector3r albedo     \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
-		p2File.write("[vector3r f0         \"%.8f %.8f %.8f\"]\n" %(f0[0],     f0[1],     f0[2]))
-		p2File.write("[real     roughness    %.8f]            \n" %(roughness))
-
-	elif materialType == "ABRADED_TRANSLUCENT":
-
-		p2File.write("-> material %s [string type abraded-translucent]\n" %(materialName))
-		p2File.write("[vector3r albedo     \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
-		p2File.write("[vector3r f0         \"%.8f %.8f %.8f\"]\n" %(f0[0],     f0[1],     f0[2]))
-		p2File.write("[real     roughness    %.8f]            \n" %(roughness))
-		p2File.write("[real     ior          %.8f]            \n" %(ior))
-
-	else:
-		print("warning: material (%s) with type %s is unsuppoprted, not exporting" %(material.name, materialType))
-
-	return materialName
-
-def export_object_mesh(p2File, obj, scene):
+def export_object_mesh(exporter, obj, scene):
 	if len(obj.data.materials) != 0:
 
 		# this creates a temporary mesh data with all modifiers applied for exporting
@@ -122,7 +305,7 @@ def export_object_mesh(p2File, obj, scene):
 
 		materialIdFacesMap = {}
 
-		# group faces with the same material, then export each face-material pair as a Photon-v2's actor-model
+		# group faces with the same material, then export each face-material pair as a Photon-v2's actor
 
 		for face in mesh.tessfaces:
 			# note that this index refers to material slots (their stack order on the UI)
@@ -143,117 +326,115 @@ def export_object_mesh(p2File, obj, scene):
 				print("warning: no material is in mesh object %s's material slot %d, not exporting" %(obj.name, matId))
 				continue
 
-			geometryName = obj.name + "_" + mesh.name + "_" + str(matId)
-			materialName = obj.name + "_" + mesh.name + "_" + material.name
+			# same material can be in different slots, with slot index as suffix we can ensure unique material
+			# names (required by Photon-v2 for creating unique materials)
+			geometryName = mangled_geometry_name(obj, mesh.name, str(matId))
+			materialName = mangled_material_name(obj, mesh.name + "_" + material.name, str(matId))
 
-			geometryName = export_geometry(p2File, geometryName, mesh, faces)
-			materialName = export_material(p2File, materialName, material)
+			export_geometry(exporter, geometryName, mesh, faces)
+			export_material(exporter, materialName, material)
 
-			actorModelName = "\"@actor_model_" + obj.name + "_" + str(matId) + "\""
+			actorType = None
+			actorName = None
 
-			# creating actor-model, also convert transformation to Photon-v2's coordinate system
+			# creating actor (can be either model or light depending on emissivity)
 			pos, rot, scale = obj.matrix_world.decompose()
-			p2File.write("-> actor-model %s [geometry geometry %s] [material material %s]\n" %(actorModelName, geometryName, materialName))
-			p2File.write("-> transform [string type translate] [actor-model target %s] [vector3r factor \"%.8f %.8f %.8f\"]\n" 
-			             %(actorModelName, pos.y, pos.z, pos.x))
-			p2File.write("-> transform [string type scale] [actor-model target %s] [vector3r factor \"%.8f %.8f %.8f\"]\n"
-			             %(actorModelName, scale.y, scale.z, scale.x))
-			p2File.write("-> transform [string type rotate] [actor-model target %s] [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
-			             %(actorModelName, rot.y, rot.z, rot.x, rot.w))
+
+			if material.ph_isEmissive:
+
+				lightSourceName = mangled_light_source_name(obj, mesh.name, str(matId))
+				actorLightName  = mangled_actor_light_name(obj, "", str(matId))
+
+				exporter.exportLightSource("area", lightSourceName, emittedRadiance = material.ph_emittedRadiance)
+				exporter.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
+
+			else:
+
+				actorModelName = mangled_actor_model_name(obj, "", str(matId))
+
+				exporter.exportActorModel(actorModelName, geometryName, materialName, pos, rot, scale)
 
 		# delete the temporary mesh for exporting
 		bpy.data.meshes.remove(mesh)
+
 	else:
 		print("warning: mesh object (%s) has no material, not exporting" %(obj.name))
 
-def export_object_lamp(p2File, obj, scene):
+def export_object_lamp(exporter, obj, scene):
 	lamp = obj.data
 
 	if lamp.type == "AREA":
-		lightMaterialName = "\"@material_" + obj.name + "_" + lamp.name + "\""
-		lightGeometryName = "\"@geometry_" + obj.name + "_" + lamp.name + "\""
-		lightSourceName   = "\"@light_source_" + obj.name + "_" + lamp.name + "\""
-		actorLightName    = "\"@actor_light_" + obj.name + "\""
+		
+		lightMaterialName = mangled_material_name(obj, lamp.name, "")
+		lightGeometryName = mangled_geometry_name(obj, lamp.name, "")
+		lightSourceName   = mangled_light_source_name(obj, lamp.name, "")
+		actorLightName    = mangled_actor_light_name(obj, "blenderLamp", "")
 
+		# In Blender's Lamp, under Area category, only Square and Rectangle shape are available.
+		# (which are both a rectangle in Photon-v2)
 		recWidth  = lamp.size
-		recHeight = lamp.size
-		if lamp.shape == "RECTANGLE":
-			recHeight = lamp.size_y
+		recHeight = lamp.size_y if lamp.shape == "RECTANGLE" else lamp.size
+		exporter.exportGeometry("rectangle", lightGeometryName, width = recWidth, height = recHeight)
 
-		p2File.write("-> geometry %s [string type rectangle] [real width %.8f] [real height %.8f]\n" 
-		             %(lightGeometryName, recWidth, recHeight))
-		p2File.write("-> material %s [string type matte-opaque] [vector3r albedo \"0.5 0.5 0.5\"]\n" 
-	                 %(lightMaterialName))
+		# assume the Lamp uses this material
+		exporter.exportMaterial("MATTE_OPAQUE", lightMaterialName, albedo = [0.5, 0.5, 0.5])
 
 		# use lamp's color attribute as emitted radiance
-		emittedRadiance = lamp.color
-
-		p2File.write("-> light-source %s [string type area] [vector3r emitted-radiance \"%.8f %.8f %.8f\"]\n" 
-		             %(lightSourceName, emittedRadiance[0], emittedRadiance[1], emittedRadiance[2]))
+		exporter.exportLightSource("area", lightSourceName, emittedRadiance = lamp.color)
 
 		# creating actor-light, also convert transformation to Photon-v2's coordinate system
 
+		# TODO: check normal's direction
+		# Blender's rectangle is defined in its xy-plane, which is Photon-v2's zx-plane, this rotation accounts for that 
+		# (Photon-v2's rectangle is defined in xy-plane)
 		pos, rot, scale = obj.matrix_world.decompose()
+		rot = rot * mathutils.Quaternion((0.0, 1.0, 0.0), math.radians(90.0))
 
-		p2File.write("-> actor-light %s [light-source light-source %s] [geometry geometry %s] [material material %s]\n" 
-		             %(actorLightName, lightSourceName, lightGeometryName, lightMaterialName))
-		p2File.write("-> transform [string type translate] [actor-light target %s] [vector3r factor \"%.8f %.8f %.8f\"]\n" 
-		             %(actorLightName, pos.y, pos.z, pos.x))
-		p2File.write("-> transform [string type scale] [actor-light target %s] [vector3r factor \"%.8f %.8f %.8f\"]\n"
-		             %(actorLightName, scale.y, scale.z, scale.x))
-
-		# Blender's rectangle is defined in xy-plane, which is Photon-v2's xz-plane, this rotation accounts for that
-		p2File.write("-> transform [string type rotate] [actor-light target %s] [vector3r axis \"1 0 0\"] [real degree -90]\n"
-			         %(actorLightName))
-
-		p2File.write("-> transform [string type rotate] [actor-light target %s] [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
-		             %(actorLightName, rot.y, rot.z, rot.x, rot.w))
+		exporter.exportActorLight(actorLightName, lightSourceName, lightGeometryName, lightMaterialName, pos, rot, scale)
 
 	else:
 		print("warning: lamp (%s) type (%s) is unsupported, not exporting" %(lamp.name, lamp.type))
 
-def export_camera(p2File, obj, scene):
+def export_camera(exporter, obj, scene):
 	camera = obj.data
 	if camera.type == "PERSP":
 		if camera.lens_unit == "FOV":
-			fovDegrees = math.degrees(camera.angle)
-
-			# creating camera, also convert transformation to Photon-v2's coordinate system
-			# (Blender's camera intially pointing (0, 0, -1) with up (0, 1, 0) in its coordinate system.)
-
+			
 			pos, rot, scale = obj.matrix_world.decompose()
 
 			if (scale.x - 1.0) > 0.0001 or (scale.y - 1.0) > 0.0001 or (scale.z - 1.0) > 0.0001:
 				print("warning: camera (%s) contains scale factor, ignoring" %(camera.name))
 
+			# Blender's camera intially pointing (0, 0, -1) with up (0, 1, 0) in its coordinate system.
+			# (Blender's quaternion works this way, does not require q*v*q')
+			fovDegrees = math.degrees(camera.angle)
 			camDir   = rot * mathutils.Vector((0, 0, -1))
 			camUpDir = rot * mathutils.Vector((0, 1, 0))
 
-			p2File.write("""## camera [string type pinhole] [real fov-degree %.8f] 
-			             [vector3r position \"%.8f %.8f %.8f\"] [vector3r direction \"%.8f %.8f %.8f\"] [vector3r up-axis \"%.8f %.8f %.8f\"]\n"""
-			             %(fovDegrees, pos.y, pos.z, pos.x, camDir.y, camDir.z, camDir.x, camUpDir.y, camUpDir.z, camUpDir.x))
+			exporter.exportCamera("pinhole", fovDegrees, pos, camDir, camUpDir)
+
 		else:
 			print("warning: camera (%s) with lens unit %s is unsupported, not exporting" %(camera.name, camera.lens_unit))
 	else:
 		print("warning: camera (%s) type (%s) is unsupported, not exporting" %(camera.name, camera.type))
 
-def export_core_commands(p2File, scene):
+def export_core_commands(exporter, scene):
 	objs = scene.objects
 	for obj in objs:
 		if obj.type == "CAMERA":
-			export_camera(p2File, obj, scene)
+			export_camera(exporter, obj, scene)
 
-	p2File.write("## film [integer width 400] [integer height 400] \n")
-	p2File.write("## sampler [integer spp-budget 16] \n")
-	p2File.write("## integrator [string type backward-mis] \n")
+	exporter.exportRaw("## film [integer width 400] [integer height 400] \n")
+	exporter.exportRaw("## sampler [integer spp-budget 16] \n")
+	exporter.exportRaw("## integrator [string type backward-mis] \n")
 
-def export_world_commands(p2File, scene):
+def export_world_commands(exporter, scene):
 	objs = scene.objects
 	for obj in objs:
 		if obj.type == "MESH":
-			export_object_mesh(p2File, obj, scene)
+			export_object_mesh(exporter, obj, scene)
 		elif obj.type == "LAMP":
-			export_object_lamp(p2File, obj, scene)
+			export_object_lamp(exporter, obj, scene)
 		elif obj.type == "CAMERA":
 			# do nothing since it belongs to core command
 			return
@@ -290,15 +471,16 @@ class P2Exporter(Operator, ExportHelper):
 		)
 
 	def execute(self, context):
-		print("exporting p2 file to <%s>" %(self.filepath))
 
-		p2File = open(self.filepath, "w", encoding = "utf-8")
+		exporter = Exporter(self.filepath)
+		exporter.begin()
+
 		scene = bpy.context.scene
-		export_core_commands(p2File, scene)
-		export_world_commands(p2File, scene)
-		p2File.close()
+		export_core_commands(exporter, scene)
+		export_world_commands(exporter, scene)
+		
+		exporter.end()
 
-		print("exporting complete")
 		return {"FINISHED"}
 
 # Only needed if you want to add into a dynamic menu

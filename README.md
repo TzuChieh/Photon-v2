@@ -16,6 +16,8 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
  * triangle mesh
 * **Light**
  * area light
+* **Misc.**
+ * Blender addon for scene creation
 
 ## Build
 Photon-v2 is being developed with cross-platformity in mind, but Windows is the only platform that has been tested, for now. <br />
@@ -28,7 +30,7 @@ Photon-v2 is being developed with cross-platformity in mind, but Windows is the 
 | <a href="url"><img src="./gallery/044_scenery glass dragon 6000spp.png" align="left" width="450" ></a> | <a href="url"><img src="./gallery/045_water dragon color light.png" align="left" width="450" ></a> |
 
 ## Scene Description Language
-(WIP)
+The scene descripting language (SDL) designed by T.C. Chang can be stored into a text file (.p2 filename extension) and loaded by Photon-v2 for rendering. To create a scene, you can either open up a text file and start writing right away (visit folder "./scenes/" for reference) or install the Blender addon (in "./BlenderAddon/"), which contains a .p2 file exporter and a material editor currently.
 
 ## About the Author
 Development Blog: http://tcchangs.blogspot.tw/ <br />

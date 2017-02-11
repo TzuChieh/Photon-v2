@@ -15,7 +15,7 @@ class PhMaterialPanel(bpy.types.Panel):
 	bl_region_type = "WINDOW"
 	bl_context     = "material"
 
-	bpy.types.Material.ph_material_type = bpy.props.EnumProperty(
+	bpy.types.Material.ph_materialType = bpy.props.EnumProperty(
 		items = [
 			("MATTE_OPAQUE",        "Matte Opaque",        "diffuse material"), 
 			("ABRADED_OPAQUE",      "Abraded Opaque",      "microfacet material"), 
@@ -62,16 +62,32 @@ class PhMaterialPanel(bpy.types.Panel):
 		size        = 3
 	)
 
+	bpy.types.Material.ph_isEmissive = bpy.props.BoolProperty(
+		name        = "emissive", 
+		description = "whether consider current material's emissivity or not", 
+		default     = False
+	)
+
+	bpy.types.Material.ph_emittedRadiance = bpy.props.FloatVectorProperty(
+		name        = "radiance", 
+		description = "radiance emitted by the surface", 
+		default     = [0.0, 0.0, 0.0], 
+		min         = 0.0, 
+		max         = sys.float_info.max, 
+		subtype     = "COLOR", 
+		size        = 3
+	)
+
 	def draw(self, context):
 		material = context.material
 		layout   = self.layout
 
 		if material == None:
-			layout.label(material, "no material for Photon-v2 material panel")
+			layout.label("no material for Photon-v2 material panel")
 			return
 
-		layout.prop(material, "ph_material_type")
-		materialType = material.ph_material_type
+		layout.prop(material, "ph_materialType")
+		materialType = material.ph_materialType
 
 		if materialType == "MATTE_OPAQUE":
 
@@ -92,6 +108,10 @@ class PhMaterialPanel(bpy.types.Panel):
 
 		else:
 			print("warning: unknown type of Photon-v2 material (%s)" %(materialType))
+
+		row = layout.row()
+		row.prop(material, "ph_isEmissive")
+		row.prop(material, "ph_emittedRadiance")
 
 def register():
 	bpy.utils.register_class(PhMaterialPanel)

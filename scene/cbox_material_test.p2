@@ -1,22 +1,30 @@
 ## camera [string type pinhole] [real fov-degree 50] [vector3r position "0 0 16"] [vector3r direction "0 0 -1"] [vector3r up-axis "0.5 0.5 0"]
 //## film [integer width 400] [integer height 400]
 ## film [integer width 800] [integer height 800]
-## sampler [integer spp-budget 6000]
+## sampler [integer spp-budget 16]
 
-//## integrator [string type backward-path]
+## integrator [string type backward-path]
 //## integrator [string type backward-light]
-## integrator [string type backward-mis]
+//## integrator [string type backward-mis]
 
 
 -> geometry @boxWall [string type rectangle] [real width 1] [real height 1]
 
-// top light
--> material @topLightMaterial [string type matte-opaque] [vector3r albedo "0.5 0.5 0.5"]
--> light-source @topLightSource [string type area] [vector3r emitted-radiance "3.4 3.4 3.4"]
--> actor-light @topLight [geometry geometry @boxWall] [material material @topLightMaterial] [light-source light-source @topLightSource]
--> transform [string type translate] [actor-light target @topLight] [vector3r factor "0 4.75 0"]
--> transform [string type rotate] [actor-light target @topLight] [vector3r axis "1 0 0"] [real degree 90]
--> transform [string type scale] [actor-light target @topLight] [vector3r factor "3 3 3"]
+// top light (left)
+-> material @topLightMaterial1 [string type matte-opaque] [vector3r albedo "0.5 0.5 0.5"]
+-> light-source @topLightSource1 [string type area] [vector3r emitted-radiance "3.4 3.4 3.4"]
+-> actor-light @topLight1 [geometry geometry @boxWall] [material material @topLightMaterial1] [light-source light-source @topLightSource1]
+-> transform [string type translate] [actor-light target @topLight1] [vector3r factor "-3 4.75 0"]
+-> transform [string type rotate] [actor-light target @topLight1] [vector3r axis "1 0 0"] [real degree 90]
+-> transform [string type scale] [actor-light target @topLight1] [vector3r factor "3 3 3"]
+
+// top light (right)
+-> material @topLightMaterial2 [string type matte-opaque] [vector3r albedo "0.5 0.5 0.5"]
+-> light-source @topLightSource2 [string type area] [vector3r emitted-radiance "3.4 3.4 3.4"]
+-> actor-light @topLight2 [geometry geometry @boxWall] [material material @topLightMaterial2] [light-source light-source @topLightSource2]
+-> transform [string type translate] [actor-light target @topLight2] [vector3r factor "3 4.75 0"]
+-> transform [string type rotate] [actor-light target @topLight2] [vector3r axis "1 0 0"] [real degree 90]
+-> transform [string type scale] [actor-light target @topLight2] [vector3r factor "3 3 3"]
 
 // left wall
 -> material @leftWallMaterial [string type matte-opaque] [vector3r albedo "0.85 0.3 0.3"]
