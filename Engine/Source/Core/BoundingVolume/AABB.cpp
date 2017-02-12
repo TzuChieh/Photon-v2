@@ -1,6 +1,8 @@
 #include "Core/BoundingVolume/AABB.h"
 #include "Core/Ray.h"
 
+#include <algorithm>
+
 namespace ph
 {
 
@@ -16,135 +18,174 @@ AABB::AABB(const Vector3R& minVertex, const Vector3R& maxVertex) :
 
 }
 
+// TODO: this method is basically duplicated
 bool AABB::isIntersectingVolume(const Ray& ray) const
 {
-	// Reference: Kay and Kayjia's "slab method" from a project of the ACM SIGGRAPH Education Committee
-	// named HyperGraph.
-	// Note: This algorithm can produce NaNs which will generate false positives in rare cases. Although 
-	// it can be handled, we ignore it since the performance will degrade, also bounding volumes are allowed 
-	// to produce false positives already.
+	// The starting ray interval (tMin, tMax) will be incrementally intersect
+	// against each ray-slab hitting interval (t1, t2) and be updated with the
+	// resulting interval.
+	// Note that the following implementation is NaN-aware 
+	// (tMin & tMax will never have NaNs)
+	real tMin = ray.getMinT();
+	real tMax = ray.getMaxT();
 
-	real tMin, tMax;
+	// find ray-slab hitting interval in x-axis then intersect with (tMin, tMax)
 
-	const real txMin = (m_minVertex.x - ray.getOrigin().x) / ray.getDirection().x;
-	const real txMax = (m_maxVertex.x - ray.getOrigin().x) / ray.getDirection().x;
-	if(txMin < txMax)
+	real reciDir = 1.0_r / ray.getDirection().x;
+	real t1 = (m_minVertex.x - ray.getOrigin().x) * reciDir;
+	real t2 = (m_maxVertex.x - ray.getOrigin().x) * reciDir;
+
+	if(t1 < t2)
 	{
-		tMin = txMin;
-		tMax = txMax;
+		tMin = t1 > tMin ? t1 : tMin;
+		tMax = t2 < tMax ? t2 : tMax;
 	}
 	else
 	{
-		tMin = txMax;
-		tMax = txMin;
+		tMin = t2 > tMin ? t2 : tMin;
+		tMax = t1 < tMax ? t1 : tMax;
 	}
 
-	const real tyMin = (m_minVertex.y - ray.getOrigin().y) / ray.getDirection().y;
-	const real tyMax = (m_maxVertex.y - ray.getOrigin().y) / ray.getDirection().y;
-	if(tyMin < tyMax)
+	if(tMin > tMax)
 	{
-		tMin = tMin > tyMin ? tMin : tyMin;
-		tMax = tMax > tyMax ? tyMax : tMax;
+		return false;
+	}
+
+	// find ray-slab hitting interval in y-axis then intersect with (tMin, tMax)
+
+	reciDir = 1.0_r / ray.getDirection().y;
+	t1 = (m_minVertex.y - ray.getOrigin().y) * reciDir;
+	t2 = (m_maxVertex.y - ray.getOrigin().y) * reciDir;
+
+	if(t1 < t2)
+	{
+		tMin = t1 > tMin ? t1 : tMin;
+		tMax = t2 < tMax ? t2 : tMax;
 	}
 	else
 	{
-		tMin = tMin > tyMax ? tMin : tyMax;
-		tMax = tMax > tyMin ? tyMin : tMax;
+		tMin = t2 > tMin ? t2 : tMin;
+		tMax = t1 < tMax ? t1 : tMax;
 	}
 
-	const real tzMin = (m_minVertex.z - ray.getOrigin().z) / ray.getDirection().z;
-	const real tzMax = (m_maxVertex.z - ray.getOrigin().z) / ray.getDirection().z;
-	if(tzMin < tzMax)
+	if(tMin > tMax)
 	{
-		tMin = tMin > tzMin ? tMin : tzMin;
-		tMax = tMax > tzMax ? tzMax : tMax;
+		return false;
+	}
+
+	// find ray-slab hitting interval in z-axis then intersect with (tMin, tMax)
+
+	reciDir = 1.0_r / ray.getDirection().z;
+	t1 = (m_minVertex.z - ray.getOrigin().z) * reciDir;
+	t2 = (m_maxVertex.z - ray.getOrigin().z) * reciDir;
+
+	if(t1 < t2)
+	{
+		tMin = t1 > tMin ? t1 : tMin;
+		tMax = t2 < tMax ? t2 : tMax;
 	}
 	else
 	{
-		tMin = tMin > tzMax ? tMin : tzMax;
-		tMax = tMax > tzMin ? tzMin : tMax;
+		tMin = t2 > tMin ? t2 : tMin;
+		tMax = t1 < tMax ? t1 : tMax;
 	}
 
-	// below conditions are NaN-aware
-
-	// ray intersects with AABB if elongated in both directions with unlimited length
-	if(tMax > tMin)
+	if(tMin > tMax)
 	{
-		// for a length-limited ray to actually intersect with AABB, it must overlap (tMin, tMax)
-		if(ray.getMaxT() > tMin && ray.getMinT() < tMax)
-		{
-			return true;
-		}
+		return false;
 	}
 
-	return false;
+	return true;
 }
 
 // Returned boolean value indicates whether the ray is intersecting with the AABB's 
 // volume or not. If there's an intersection, the near and far hit distance will be
 // returned via (out_rayNearHitDist, out_rayFarHitDist); if the ray origin is inside 
 // the AABB, near hit distance will be 0 since volume intersection starts at ray origin.
-bool AABB::isIntersectingVolume(const Ray& ray, real* const out_rayNearHitDist, real* const out_rayFarHitDist) const
+//
+// Reference: Kay and Kayjia's "slab method" from a project of the ACM SIGGRAPH Education 
+// Committee named HyperGraph.
+bool AABB::isIntersectingVolume(const Ray& ray, 
+                                real* const out_rayNearHitDist, real* const out_rayFarHitDist) const
 {
-	real tMin, tMax;
+	// The starting ray interval (tMin, tMax) will be incrementally intersect
+	// against each ray-slab hitting interval (t1, t2) and be updated with the
+	// resulting interval.
+	// Note that the following implementation is NaN-aware 
+	// (tMin & tMax will never have NaNs)
+	real tMin = ray.getMinT();
+	real tMax = ray.getMaxT();
 
-	real txMin = (m_minVertex.x - ray.getOrigin().x) / ray.getDirection().x;
-	real txMax = (m_maxVertex.x - ray.getOrigin().x) / ray.getDirection().x;
+	// find ray-slab hitting interval in x-axis then intersect with (tMin, tMax)
 
-	if(txMin < txMax)
+	real reciDir = 1.0_r / ray.getDirection().x;
+	real t1 = (m_minVertex.x - ray.getOrigin().x) * reciDir;
+	real t2 = (m_maxVertex.x - ray.getOrigin().x) * reciDir;
+
+	if(t1 < t2)
 	{
-		tMin = txMin;
-		tMax = txMax;
+		tMin = t1 > tMin ? t1 : tMin;
+		tMax = t2 < tMax ? t2 : tMax;
 	}
 	else
 	{
-		tMin = txMax;
-		tMax = txMin;
+		tMin = t2 > tMin ? t2 : tMin;
+		tMax = t1 < tMax ? t1 : tMax;
 	}
 
-	real tyMin = (m_minVertex.y - ray.getOrigin().y) / ray.getDirection().y;
-	real tyMax = (m_maxVertex.y - ray.getOrigin().y) / ray.getDirection().y;
-
-	if(tyMin < tyMax)
+	if(tMin > tMax)
 	{
-		tMin = tMin > tyMin ? tMin : tyMin;
-		tMax = tMax > tyMax ? tyMax : tMax;
+		return false;
+	}
+
+	// find ray-slab hitting interval in y-axis then intersect with (tMin, tMax)
+
+	reciDir = 1.0_r / ray.getDirection().y;
+	t1 = (m_minVertex.y - ray.getOrigin().y) * reciDir;
+	t2 = (m_maxVertex.y - ray.getOrigin().y) * reciDir;
+
+	if(t1 < t2)
+	{
+		tMin = t1 > tMin ? t1 : tMin;
+		tMax = t2 < tMax ? t2 : tMax;
 	}
 	else
 	{
-		tMin = tMin > tyMax ? tMin : tyMax;
-		tMax = tMax > tyMin ? tyMin : tMax;
+		tMin = t2 > tMin ? t2 : tMin;
+		tMax = t1 < tMax ? t1 : tMax;
 	}
 
-	real tzMin = (m_minVertex.z - ray.getOrigin().z) / ray.getDirection().z;
-	real tzMax = (m_maxVertex.z - ray.getOrigin().z) / ray.getDirection().z;
-
-	if(tzMin < tzMax)
+	if(tMin > tMax)
 	{
-		tMin = tMin > tzMin ? tMin : tzMin;
-		tMax = tMax > tzMax ? tzMax : tMax;
+		return false;
+	}
+
+	// find ray-slab hitting interval in z-axis then intersect with (tMin, tMax)
+
+	reciDir = 1.0_r / ray.getDirection().z;
+	t1 = (m_minVertex.z - ray.getOrigin().z) * reciDir;
+	t2 = (m_maxVertex.z - ray.getOrigin().z) * reciDir;
+
+	if(t1 < t2)
+	{
+		tMin = t1 > tMin ? t1 : tMin;
+		tMax = t2 < tMax ? t2 : tMax;
 	}
 	else
 	{
-		tMin = tMin > tzMax ? tMin : tzMax;
-		tMax = tMax > tzMin ? tzMin : tMax;
+		tMin = t2 > tMin ? t2 : tMin;
+		tMax = t1 < tMax ? t1 : tMax;
 	}
 
-	// below conditions are NaN-aware
-
-	// ray intersects with AABB if elongated in both directions with unlimited length
-	if(tMax > tMin)
+	if(tMin > tMax)
 	{
-		// for a length-limited ray to actually intersect with AABB, it must overlap (tMin, tMax)
-		if(ray.getMaxT() > tMin && ray.getMinT() < tMax)
-		{
-			*out_rayNearHitDist = tMin < ray.getMinT() ? ray.getMinT() : tMin;
-			*out_rayFarHitDist  = tMax > ray.getMaxT() ? ray.getMaxT() : tMax;
-			return true;
-		}
+		return false;
 	}
 
-	return false;
+	*out_rayNearHitDist = tMin;
+	*out_rayFarHitDist  = tMax;
+
+	return true;
 }
 
 bool AABB::isIntersectingVolume(const AABB& aabb) const
