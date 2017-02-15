@@ -16,7 +16,8 @@ namespace ph
 World::World() : 
 	//m_intersector(std::make_unique<BruteForceIntersector>())
 	m_intersector(std::make_unique<KdtreeIntersector>()), 
-	m_lightSampler(std::make_unique<UniformRandomLightSampler>())
+	m_lightSampler(std::make_unique<UniformRandomLightSampler>()), 
+	m_scene()
 {
 
 }
@@ -39,6 +40,8 @@ void World::update(const real deltaS)
 
 	m_intersector->update(m_cookedActorStorage);
 	m_lightSampler->update(m_cookedActorStorage);
+
+	m_scene = Scene(m_intersector.get(), m_lightSampler.get());
 }
 
 void World::cookActors()
@@ -51,14 +54,9 @@ void World::cookActors()
 	}
 }
 
-const Intersector& World::getIntersector() const
+const Scene& World::getScene() const
 {
-	return *m_intersector;
-}
-
-const LightSampler& World::getLightSampler() const
-{
-	return *m_lightSampler;
+	return m_scene;
 }
 
 }// end namespace ph

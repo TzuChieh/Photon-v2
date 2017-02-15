@@ -1,8 +1,6 @@
 #include "Core/Integrator/BackwardMisIntegrator.h"
 #include "Core/Ray.h"
-#include "World/World.h"
-#include "World/Intersector.h"
-#include "World/LightSampler/LightSampler.h"
+#include "World/Scene.h"
 #include "Math/TVector3.h"
 #include "Core/Intersection.h"
 #include "Core/Sample/SurfaceSample.h"
@@ -32,12 +30,12 @@ BackwardMisIntegrator::BackwardMisIntegrator(const InputPacket& packet) :
 
 BackwardMisIntegrator::~BackwardMisIntegrator() = default;
 
-void BackwardMisIntegrator::update(const World& world)
+void BackwardMisIntegrator::update(const Scene& scene)
 {
 	// update nothing
 }
 
-void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& world, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const
+void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const Scene& scene, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const
 {
 	Ray ray;
 	camera.genSensingRay(sample, &ray);
@@ -52,16 +50,14 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 	DirectLightSample directLightSample;
 
 	// convenient variables
-	const Intersector&       intersector  = world.getIntersector();
-	const LightSampler&      lightSampler = world.getLightSampler();
 	const PrimitiveMetadata* metadata     = nullptr;
 	const BSDFcos*           bsdfCos      = nullptr;
 	const Emitter*           emitter      = nullptr;
 
 	// reversing the ray for backward tracing
-	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1), RAY_T_EPSILON, RAY_T_MAX);
+	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1), 0.0001_r, Ray::MAX_T);// HACK: hard-coded number
 
-	if(!intersector.isIntersecting(tracingRay, &intersection))
+	if(!scene.isIntersecting(tracingRay, &intersection))
 	{
 		out_senseEvents.push_back(SenseEvent(sample.m_cameraX, sample.m_cameraY, accuRadiance));
 		return;
@@ -92,7 +88,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 		// direct light sample
 
 		directLightSample.setDirectSample(intersection.getHitPosition());
-		lightSampler.genDirectSample(directLightSample);
+		scene.genDirectSample(directLightSample);
 		if(directLightSample.isDirectSampleGood())
 		{
 			const Vector3R toLightVec = directLightSample.emitPos.sub(directLightSample.targetPos);
@@ -101,7 +97,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 			if(!(intersection.getHitSmoothNormal().dot(toLightVec) * intersection.getHitGeoNormal().dot(toLightVec) <= 0))
 			{
 				const Ray visRay(intersection.getHitPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2);
-				if(!intersector.isIntersecting(visRay))
+				if(!scene.isIntersecting(visRay))
 				{
 					Vector3R weight;
 					surfaceSample.setEvaluation(intersection, visRay.getDirection(), V);
@@ -143,7 +139,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 		tracingRay.setOrigin(intersection.getHitPosition().add(rayOriginDelta));
 		tracingRay.setDirection(surfaceSample.L);
 		intersection.clear();
-		if(!intersector.isIntersecting(tracingRay, &intersection))
+		if(!scene.isIntersecting(tracingRay, &intersection))
 		{
 			break;
 		}
@@ -165,7 +161,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const World& 
 
 			// TODO: how to handle delta BSDF distributions?
 
-			const real directLightPdfW = lightSampler.calcDirectPdfW(directLitPos,
+			const real directLightPdfW = scene.calcDirectPdfW(directLitPos,
 				intersection.getHitPosition(), 
 				intersection.getHitSmoothNormal(), 
 				emitter, intersection.getHitPrimitive());

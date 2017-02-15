@@ -10,7 +10,7 @@ namespace ph
 {
 
 class Film;
-class World;
+class Scene;
 class InputPacket;
 
 class SampleGenerator
@@ -21,7 +21,7 @@ public:
 	virtual ~SampleGenerator() = 0;
 
 	virtual bool hasMoreSamples() const = 0;
-	virtual void analyze(const World& world, const Film& film) = 0;
+	virtual void analyze(const Scene& scene, const Film& film) = 0;
 	virtual void requestMoreSamples(std::vector<Sample>* const out_samples) = 0;
 	virtual void split(const uint32 nSplits, std::vector<std::unique_ptr<SampleGenerator>>* const out_sampleGenerators) = 0;
 

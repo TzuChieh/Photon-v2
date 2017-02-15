@@ -24,8 +24,8 @@ void Description::update(const real deltaS)
 
 	world.update(deltaS);
 
-	integrator->update(world);
-	sampleGenerator->analyze(world, *film);
+	integrator->update(world.getScene());
+	sampleGenerator->analyze(world.getScene(), *film);
 
 	camera->setFilm(film.get());
 }

@@ -14,7 +14,7 @@ public:
 	virtual ~PixelJitterSampleGenerator() override;
 
 	virtual bool hasMoreSamples() const override;
-	virtual void analyze(const World& world, const Film& film) override;
+	virtual void analyze(const Scene& scene, const Film& film) override;
 	virtual void requestMoreSamples(std::vector<Sample>* const out_samples) override;
 	virtual void split(const uint32 nSplits, std::vector<std::unique_ptr<SampleGenerator>>* const out_sampleGenerators) override;
 

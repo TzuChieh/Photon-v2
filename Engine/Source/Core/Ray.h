@@ -3,16 +3,14 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 
-#include <limits>
-
-#define RAY_T_EPSILON 0.0001_r
-#define RAY_T_MAX     std::numeric_limits<real>::max()
-
 namespace ph
 {
 
 class Ray final
 {
+public:
+	static const real MAX_T;
+
 public:
 	Ray(const Vector3R& origin, const Vector3R& direction, const real minT, const real maxT);
 	Ray(const Vector3R& origin, const Vector3R& direction);

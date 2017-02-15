@@ -103,7 +103,7 @@ void Renderer::render(const Description& description) const
 
 				while(!samples.empty())
 				{
-					integrator.radianceAlongRay(samples.back(), world, camera, senseEvents);
+					integrator.radianceAlongRay(samples.back(), world.getScene(), camera, senseEvents);
 					samples.pop_back();
 
 					// HACK

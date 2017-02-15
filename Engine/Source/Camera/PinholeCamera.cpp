@@ -45,8 +45,8 @@ void PinholeCamera::genSensingRay(const Sample& sample, Ray* const out_ray) cons
 
 	out_ray->setDirection(getDirection().add(rightDir.addLocal(upDir)).mulLocal(-1.0_r).normalizeLocal());
 	out_ray->setOrigin(getPosition());
-	out_ray->setMinT(RAY_T_EPSILON);
-	out_ray->setMaxT(RAY_T_MAX);
+	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
+	out_ray->setMaxT(Ray::MAX_T);
 }
 
 void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3R& targetPos, Vector2f* const out_filmCoord, Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const

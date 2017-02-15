@@ -29,7 +29,7 @@ bool PixelJitterSampleGenerator::hasMoreSamples() const
 	return m_numDispatchedSpp < getSppBudget();
 }
 
-void PixelJitterSampleGenerator::analyze(const World& world, const Film& film)
+void PixelJitterSampleGenerator::analyze(const Scene& scene, const Film& film)
 {
 	m_filmWidthPx = film.getWidthPx();
 	m_filmHeightPx = film.getHeightPx();

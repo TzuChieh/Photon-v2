@@ -1,8 +1,6 @@
 #include "Core/Integrator/BackwardPathIntegrator.h"
 #include "Core/Ray.h"
-#include "World/World.h"
-#include "World/Intersector.h"
-#include "World/LightSampler/LightSampler.h"
+#include "World/Scene.h"
 #include "Math/TVector3.h"
 #include "Core/Intersection.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
@@ -33,15 +31,14 @@ BackwardPathIntegrator::BackwardPathIntegrator(const InputPacket& packet) :
 
 BackwardPathIntegrator::~BackwardPathIntegrator() = default;
 
-void BackwardPathIntegrator::update(const World& world)
+void BackwardPathIntegrator::update(const Scene& scene)
 {
 	// update nothing
 }
 
-void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const World& world, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const
+void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const Scene& scene, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const
 {
 	const real rayDeltaDist = 0.0001_r;
-	const Intersector& intersector = world.getIntersector();
 
 	uint32 numBounces = 0;
 	Vector3R accuRadiance(0, 0, 0);
@@ -53,11 +50,11 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const World&
 	camera.genSensingRay(sample, &ray);
 
 	// backward tracing to light
-	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), RAY_T_EPSILON, RAY_T_MAX);
+	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), 0.0001_r, Ray::MAX_T);// HACK: hard-coded number
 
 	const Primitive* lastPrimitive = nullptr;
 
-	while(numBounces <= MAX_RAY_BOUNCES && intersector.isIntersecting(tracingRay, &intersection))
+	while(numBounces <= MAX_RAY_BOUNCES && scene.isIntersecting(tracingRay, &intersection))
 	{
 		bool keepSampling = true;
 

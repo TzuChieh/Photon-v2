@@ -9,7 +9,7 @@
 namespace ph
 {
 
-class World;
+class Scene;
 class Ray;
 class Camera;
 class InputPacket;
@@ -21,8 +21,8 @@ public:
 	Integrator(const InputPacket& packet);
 	virtual ~Integrator() = 0;
 
-	virtual void update(const World& world) = 0;
-	virtual void radianceAlongRay(const Sample& sample, const World& world, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const = 0;
+	virtual void update(const Scene& scene) = 0;
+	virtual void radianceAlongRay(const Sample& sample, const Scene& scene, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const = 0;
 };
 
 }// end namespace ph

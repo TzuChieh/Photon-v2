@@ -124,8 +124,8 @@ void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, Vector3R* const out
 
 	out_ray->setDirection(rayDir);
 	out_ray->setOrigin(positionSample.position);
-	out_ray->setMinT(RAY_T_EPSILON);
-	out_ray->setMaxT(RAY_T_MAX);
+	out_ray->setMinT(0.0001_r);// HACK: hard-code number
+	out_ray->setMaxT(Ray::MAX_T);
 	out_eN->set(positionSample.normal);
 	*out_pdfA = pickPdfW * positionSample.pdf;
 	*out_pdfW = 1.0_r / (4.0_r * PI_REAL) / out_ray->getDirection().absDot(positionSample.normal);

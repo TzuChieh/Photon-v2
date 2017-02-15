@@ -1,8 +1,6 @@
 #include "Core/Integrator/LightTracingIntegrator.h"
 #include "Core/Ray.h"
-#include "World/World.h"
-#include "World/Intersector.h"
-#include "World/LightSampler/LightSampler.h"
+#include "World/Scene.h"
 #include "Math/TVector3.h"
 #include "Core/Intersection.h"
 #include "Core/Sample/SurfaceSample.h"
@@ -27,21 +25,17 @@ namespace ph
 
 LightTracingIntegrator::~LightTracingIntegrator() = default;
 
-void LightTracingIntegrator::update(const World& world)
+void LightTracingIntegrator::update(const Scene& scene)
 {
 	// update nothing
 }
 
-void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World& world, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const
+void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene& scene, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const
 {
 	uint32 numBounces = 0;
-
-	// convenient variables
-	const Intersector&  intersector  = world.getIntersector();
-	const LightSampler& lightSampler = world.getLightSampler();
 	
 	real emitterPickPdf;
-	const Emitter* emitter = lightSampler.pickEmitter(&emitterPickPdf);
+	const Emitter* emitter = scene.pickEmitter(&emitterPickPdf);
 	if(!emitter || emitterPickPdf <= 0)
 	{
 		return;
@@ -64,7 +58,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 		const Vector3R toCameraVec(camera.getPosition().sub(emitterRay.getOrigin()));
 		const Ray toCameraRay(emitterRay.getOrigin(), toCameraVec.normalize(), 
 			RAY_DELTA_DIST, toCameraVec.length() - 2 * RAY_DELTA_DIST);
-		if(!intersector.isIntersecting(toCameraRay))
+		if(!scene.isIntersecting(toCameraRay))
 		{
 			Vector3R cameraImportanceWe;
 			Vector2f filmCoord;
@@ -92,7 +86,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 
 	Intersection intersection;
 	Vector3R throughput(1, 1, 1);
-	while(numBounces < MAX_RAY_BOUNCES && intersector.isIntersecting(emitterRay, &intersection))
+	while(numBounces < MAX_RAY_BOUNCES && scene.isIntersecting(emitterRay, &intersection))
 	{
 		const PrimitiveMetadata* const metadata = intersection.getHitPrimitive()->getMetadata();
 		const BSDFcos* const bsdfCos = metadata->surfaceBehavior.getBsdfCos();
@@ -110,7 +104,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const World&
 			{
 				const Ray toCameraRay(intersection.getHitPosition(), toCameraVec.normalize(), 
 					RAY_DELTA_DIST, toCameraVec.length() - 2 * RAY_DELTA_DIST);
-				if(!intersector.isIntersecting(toCameraRay))
+				if(!scene.isIntersecting(toCameraRay))
 				{
 					SurfaceSample surfaceSample;
 					surfaceSample.setEvaluation(intersection, toCameraRay.getDirection(), V);

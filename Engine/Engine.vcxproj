@@ -234,6 +234,7 @@
     <ClCompile Include="Source\World\Kdtree\KdtreeNode.cpp" />
     <ClCompile Include="Source\World\LightSampler\LightSampler.cpp" />
     <ClCompile Include="Source\World\LightSampler\UniformRandomLightSampler.cpp" />
+    <ClCompile Include="Source\World\Scene.cpp" />
     <ClCompile Include="Source\World\World.cpp" />
     <ClCompile Include="Source\Filmic\Film.cpp" />
     <ClCompile Include="Source\Filmic\Frame.cpp" />
@@ -348,6 +349,7 @@
     <ClInclude Include="Source\World\Kdtree\kdtree_core.h" />
     <ClInclude Include="Source\World\LightSampler\LightSampler.h" />
     <ClInclude Include="Source\World\LightSampler\UniformRandomLightSampler.h" />
+    <ClInclude Include="Source\World\Scene.h" />
     <ClInclude Include="Source\World\TManagedResource.h" />
     <ClInclude Include="Source\World\World.h" />
     <ClInclude Include="Source\Filmic\Frame.h" />
