@@ -8,6 +8,7 @@
 #include "Core/Sample/PositionSample.h"
 
 #include <limits>
+#include <iostream>
 
 #define TRIANGLE_EPSILON 0.0001f
 
@@ -38,84 +39,128 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	Ray localRay;
 	m_metadata->worldToLocal.transformRay(ray, &localRay);
 
-	// hitT's unit is in world space (localRay's direction can have scale factor)
-	const real hitT = localRay.getOrigin().sub(m_vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
+	Vector3R rayDir = localRay.getDirection();
+	Vector3R vAt = m_vA.sub(localRay.getOrigin());
+	Vector3R vBt = m_vB.sub(localRay.getOrigin());
+	Vector3R vCt = m_vC.sub(localRay.getOrigin());
 
-	// reject by distance (NaN-aware)
-	if(!(ray.getMinT() < hitT && hitT < ray.getMaxT()))
-		return false;
-
-	// projected hit point
-	real hitPu, hitPv;
-
-	// projected side vector AB and AC
-	real abPu, abPv, acPu, acPv;
-
-	// find dominant axis
-	if(abs(m_faceNormal.x) > abs(m_faceNormal.y))
+	// find dominant dimension of ray direction, then make it Z, 
+	// the rest dimensions are arbitrarily assigned
+	if(std::abs(rayDir.x) > std::abs(rayDir.y))
 	{
-		// X dominant, projection plane is YZ
-		if(abs(m_faceNormal.x) > abs(m_faceNormal.z))
+		// X dominant
+		if(std::abs(rayDir.x) > std::abs(rayDir.z))
 		{
-			hitPu = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
-			hitPv = hitT * localRay.getDirection().z + localRay.getOrigin().z - m_vA.z;
-			abPu = m_eAB.y;
-			abPv = m_eAB.z;
-			acPu = m_eAC.y;
-			acPv = m_eAC.z;
+			rayDir.set(rayDir.y, rayDir.z, rayDir.x);
+			vAt.set(vAt.y, vAt.z, vAt.x);
+			vBt.set(vBt.y, vBt.z, vBt.x);
+			vCt.set(vCt.y, vCt.z, vCt.x);
 		}
-		// Z dominant, projection plane is XY
+		// Z dominant
 		else
 		{
-			hitPu = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
-			hitPv = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
-			abPu = m_eAB.x;
-			abPv = m_eAB.y;
-			acPu = m_eAC.x;
-			acPv = m_eAC.y;
+			// left as-is
 		}
 	}
-	// Y dominant, projection plane is ZX
-	else if(abs(m_faceNormal.y) > abs(m_faceNormal.z))
-	{
-		hitPu = hitT * localRay.getDirection().z + localRay.getOrigin().z - m_vA.z;
-		hitPv = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
-		abPu = m_eAB.z;
-		abPv = m_eAB.x;
-		acPu = m_eAC.z;
-		acPv = m_eAC.x;
-	}
-	// Z dominant, projection plane is XY
 	else
 	{
-		hitPu = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
-		hitPv = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
-		abPu = m_eAB.x;
-		abPv = m_eAB.y;
-		acPu = m_eAC.x;
-		acPv = m_eAC.y;
+		// Y dominant
+		if(std::abs(rayDir.y) > std::abs(rayDir.z))
+		{
+			rayDir.set(rayDir.z, rayDir.x, rayDir.y);
+			vAt.set(vAt.z, vAt.x, vAt.y);
+			vBt.set(vBt.z, vBt.x, vBt.y);
+			vCt.set(vCt.z, vCt.x, vCt.y);
+		}
+		// Z dominant
+		else
+		{
+			// left as-is
+		}
 	}
 
-	// TODO: check if these operations are possible of producing NaNs
+	const real reciRayDirZ = 1.0_r / rayDir.z;
+	const real shearX = -rayDir.x * reciRayDirZ;
+	const real shearY = -rayDir.y * reciRayDirZ;
+	const real shearZ = reciRayDirZ;
 
-	// barycentric coordinate of vertex B in the projected plane
-	const real baryB = (hitPu*acPv - hitPv*acPu) / (abPu*acPv - abPv*acPu);
-	if(baryB < 0.0_r) return false;
+	vAt.x += shearX * vAt.z;
+	vAt.y += shearY * vAt.z;
+	vBt.x += shearX * vBt.z;
+	vBt.y += shearY * vBt.z;
+	vCt.x += shearX * vCt.z;
+	vCt.y += shearY * vCt.z;
 
-	// barycentric coordinate of vertex C in the projected plane
-	const real baryC = (hitPu*abPv - hitPv*abPu) / (acPu*abPv - abPu*acPv);
-	if(baryC < 0.0_r) return false;
+	real funcEa = vBt.x * vCt.y - vBt.y * vCt.x;
+	real funcEb = vCt.x * vAt.y - vCt.y * vAt.x;
+	real funcEc = vAt.x * vBt.y - vAt.y * vBt.x;
 
-	if(baryB + baryC > 1.0_r) return false;
+	// possibly fallback to higher precision test for triangle edges
+	if(sizeof(real) < sizeof(float64))
+	{
+		if(funcEa == 0.0_r || funcEb == 0.0_r || funcEc == 0.0_r)
+		{
+			const float64 funcEa64 = static_cast<float64>(vBt.x) * static_cast<float64>(vCt.y) -
+			                         static_cast<float64>(vBt.y) * static_cast<float64>(vCt.x);
+			const float64 funcEb64 = static_cast<float64>(vCt.x) * static_cast<float64>(vAt.y) -
+			                         static_cast<float64>(vCt.y) * static_cast<float64>(vAt.x);
+			const float64 funcEc64 = static_cast<float64>(vAt.x) * static_cast<float64>(vBt.y) -
+			                         static_cast<float64>(vAt.y) * static_cast<float64>(vBt.x);
+			
+			funcEa = static_cast<real>(funcEa64);
+			funcEb = static_cast<real>(funcEb64);
+			funcEc = static_cast<real>(funcEc64);
+		}
+	}
 
-	// so the ray intersects the triangle (TODO: reuse calculated results!)
+	if((funcEa < 0.0_r || funcEb < 0.0_r || funcEc < 0.0_r) && (funcEa > 0.0_r || funcEb > 0.0_r || funcEc > 0.0_r))
+	{
+		return false;
+	}
+
+	const real determinant = funcEa + funcEb + funcEc;
+
+	if(determinant == 0.0_r)
+	{
+		return false;
+	}
+
+	vAt.z *= shearZ;
+	vBt.z *= shearZ;
+	vCt.z *= shearZ;
+
+	const real hitTscaled = funcEa * vAt.z + funcEb * vBt.z + funcEc * vCt.z;
+
+	if(determinant > 0.0_r)
+	{
+		if(hitTscaled < localRay.getMinT() * determinant || hitTscaled > localRay.getMaxT() * determinant)
+		{
+			return false;
+		}
+	}
+	else
+	{
+		if(hitTscaled > localRay.getMinT() * determinant || hitTscaled < localRay.getMaxT() * determinant)
+		{
+			return false;
+		}
+	}
+
+	// so the ray intersects the triangle
+
+	const real reciDeterminant = 1.0_r / determinant;
+	const real baryA = funcEa * reciDeterminant;
+	const real baryB = funcEb * reciDeterminant;
+	const real baryC = funcEc * reciDeterminant;
+	//const real hitT = hitTscaled * reciDeterminant;
 
 	Vector3R hitPosition;
 	Vector3R hitNormal;
-	Vector3R localHitNormal(m_nA.mul(1.0_r - baryB - baryC).addLocal(m_nB.mul(baryB)).addLocal(m_nC.mul(baryC)));
-	m_metadata->localToWorld.transformPoint(localRay.getDirection().mul(hitT).addLocal(localRay.getOrigin()), &hitPosition);
+	Vector3R localHitPosition(m_vA.mul(baryA).addLocal(m_vB.mul(baryB)).addLocal(m_vC.mul(baryC)));
+	Vector3R localHitNormal(m_nA.mul(baryA).addLocal(m_nB.mul(baryB)).addLocal(m_nC.mul(baryC)));
+
+	m_metadata->localToWorld.transformPoint(localHitPosition, &hitPosition);
 	m_metadata->localToWorld.transformVector(localHitNormal, &hitNormal);
-	//m_parentModel->getModelToWorldTransform()->transformVector(m_faceNormal, &hitNormal);
 
 	Vector3R hitGeoNormal;
 	m_metadata->localToWorld.transformVector(m_faceNormal, &hitGeoNormal);
@@ -123,7 +168,7 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	out_intersection->setHitPosition(hitPosition);
 	out_intersection->setHitSmoothNormal(hitNormal.normalizeLocal());
 	out_intersection->setHitGeoNormal(hitGeoNormal.normalizeLocal());
-	out_intersection->setHitUVW(m_uvwA.mul(1.0_r - baryB - baryC).addLocal(m_uvwB.mul(baryB)).addLocal(m_uvwC.mul(baryC)));
+	out_intersection->setHitUVW(m_uvwA.mul(baryA).addLocal(m_uvwB.mul(baryB)).addLocal(m_uvwC.mul(baryC)));
 	out_intersection->setHitPrimitive(this);
 
 	return true;
@@ -131,80 +176,83 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 
 bool PTriangle::isIntersecting(const Ray& ray) const
 {
-	Ray localRay;
-	m_metadata->worldToLocal.transformRay(ray, &localRay);
+	//Ray localRay;
+	//m_metadata->worldToLocal.transformRay(ray, &localRay);
 
-	// hitT's unit is in world space (localRay's direction can have scale factor)
-	const real hitT = localRay.getOrigin().sub(m_vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
+	//// hitT's unit is in world space (localRay's direction can have scale factor)
+	//const real hitT = localRay.getOrigin().sub(m_vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
 
-	// reject by distance (NaN-aware)
-	if(!(ray.getMinT() < hitT && hitT < ray.getMaxT()))
-		return false;
+	//// reject by distance (NaN-aware)
+	//if(!(ray.getMinT() < hitT && hitT < ray.getMaxT()))
+	//	return false;
 
-	// projected hit point
-	real hitPu, hitPv;
+	//// projected hit point
+	//real hitPu, hitPv;
 
-	// projected side vector AB and AC
-	real abPu, abPv, acPu, acPv;
+	//// projected side vector AB and AC
+	//real abPu, abPv, acPu, acPv;
 
-	// find dominant axis
-	if(abs(m_faceNormal.x) > abs(m_faceNormal.y))
-	{
-		// X dominant, projection plane is YZ
-		if(abs(m_faceNormal.x) > abs(m_faceNormal.z))
-		{
-			hitPu = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
-			hitPv = hitT * localRay.getDirection().z + localRay.getOrigin().z - m_vA.z;
-			abPu = m_eAB.y;
-			abPv = m_eAB.z;
-			acPu = m_eAC.y;
-			acPv = m_eAC.z;
-		}
-		// Z dominant, projection plane is XY
-		else
-		{
-			hitPu = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
-			hitPv = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
-			abPu = m_eAB.x;
-			abPv = m_eAB.y;
-			acPu = m_eAC.x;
-			acPv = m_eAC.y;
-		}
-	}
-	// Y dominant, projection plane is ZX
-	else if(abs(m_faceNormal.y) > abs(m_faceNormal.z))
-	{
-		hitPu = hitT * localRay.getDirection().z + localRay.getOrigin().z - m_vA.z;
-		hitPv = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
-		abPu = m_eAB.z;
-		abPv = m_eAB.x;
-		acPu = m_eAC.z;
-		acPv = m_eAC.x;
-	}
-	// Z dominant, projection plane is XY
-	else
-	{
-		hitPu = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
-		hitPv = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
-		abPu = m_eAB.x;
-		abPv = m_eAB.y;
-		acPu = m_eAC.x;
-		acPv = m_eAC.y;
-	}
+	//// find dominant axis
+	//if(abs(m_faceNormal.x) > abs(m_faceNormal.y))
+	//{
+	//	// X dominant, projection plane is YZ
+	//	if(abs(m_faceNormal.x) > abs(m_faceNormal.z))
+	//	{
+	//		hitPu = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
+	//		hitPv = hitT * localRay.getDirection().z + localRay.getOrigin().z - m_vA.z;
+	//		abPu = m_eAB.y;
+	//		abPv = m_eAB.z;
+	//		acPu = m_eAC.y;
+	//		acPv = m_eAC.z;
+	//	}
+	//	// Z dominant, projection plane is XY
+	//	else
+	//	{
+	//		hitPu = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
+	//		hitPv = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
+	//		abPu = m_eAB.x;
+	//		abPv = m_eAB.y;
+	//		acPu = m_eAC.x;
+	//		acPv = m_eAC.y;
+	//	}
+	//}
+	//// Y dominant, projection plane is ZX
+	//else if(abs(m_faceNormal.y) > abs(m_faceNormal.z))
+	//{
+	//	hitPu = hitT * localRay.getDirection().z + localRay.getOrigin().z - m_vA.z;
+	//	hitPv = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
+	//	abPu = m_eAB.z;
+	//	abPv = m_eAB.x;
+	//	acPu = m_eAC.z;
+	//	acPv = m_eAC.x;
+	//}
+	//// Z dominant, projection plane is XY
+	//else
+	//{
+	//	hitPu = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
+	//	hitPv = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
+	//	abPu = m_eAB.x;
+	//	abPv = m_eAB.y;
+	//	acPu = m_eAC.x;
+	//	acPv = m_eAC.y;
+	//}
 
-	// TODO: check if these operations are possible of producing NaNs
+	//// TODO: check if these operations are possible of producing NaNs
 
-	// barycentric coordinate of vertex B in the projected plane
-	const real baryB = (hitPu*acPv - hitPv*acPu) / (abPu*acPv - abPv*acPu);
-	if(baryB < 0.0_r) return false;
+	//// barycentric coordinate of vertex B in the projected plane
+	//const real baryB = (hitPu*acPv - hitPv*acPu) / (abPu*acPv - abPv*acPu);
+	//if(baryB < 0.0_r) return false;
 
-	// barycentric coordinate of vertex C in the projected plane
-	const real baryC = (hitPu*abPv - hitPv*abPu) / (acPu*abPv - abPu*acPv);
-	if(baryC < 0.0_r) return false;
+	//// barycentric coordinate of vertex C in the projected plane
+	//const real baryC = (hitPu*abPv - hitPv*abPu) / (acPu*abPv - abPu*acPv);
+	//if(baryC < 0.0_r) return false;
 
-	if(baryB + baryC > 1.0_r) return false;
+	//if(baryB + baryC > 1.0_r) return false;
 
-	// so the ray intersects the triangle (TODO: reuse calculated results!)
+	//// so the ray intersects the triangle (TODO: reuse calculated results!)
+
+	std::cerr << "warning: bool PTriangle::isIntersecting(const Ray& ray) const not implemented" << std::endl;
+
 	return true;
 }
 

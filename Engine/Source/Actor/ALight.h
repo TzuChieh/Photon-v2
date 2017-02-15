@@ -25,7 +25,7 @@ public:
 	ALight(const std::shared_ptr<LightSource>& lightSource);
 	ALight(const ALight& other);
 	ALight(const InputPacket& packet);
-	~ALight();
+	virtual ~ALight() override;
 
 	virtual void genCoreActor(CoreActor* const out_coreActor) const override;
 
