@@ -3,11 +3,13 @@
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
 #include "FileIO/Tokenizer.h"
+#include "Math/Math.h"
 
 #include <cmath>
 #include <string>
 #include <cstdlib>
 #include <iostream>
+#include <algorithm>
 
 namespace ph
 {
@@ -41,29 +43,7 @@ inline TVector3<T>::TVector3(const TVector3& other) :
 }
 
 template<typename T>
-inline TVector3<T>::TVector3(const std::string& stringRepresentation) :
-	TVector3()
-{
-	const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
-	std::vector<std::string> tokens;
-	tokenizer.tokenize(stringRepresentation, tokens);
-
-	if(tokens.size() != 3)
-	{
-		std::cerr << "warning: at TVector3::TVector3(), bad string representation <" + stringRepresentation + ">" << std::endl;
-		return;
-	}
-
-	x = static_cast<T>(std::stold(tokens[0]));
-	y = static_cast<T>(std::stold(tokens[1]));
-	z = static_cast<T>(std::stold(tokens[2]));
-}
-
-template<typename T>
-inline TVector3<T>::~TVector3()
-{
-
-}
+inline TVector3<T>::~TVector3() = default;
 
 template<typename T>
 TVector3<T> TVector3<T>::rotate(const TQuaternion<T>& rotation) const
@@ -100,27 +80,27 @@ inline T TVector3<T>::squaredLength() const
 template<typename T>
 inline T TVector3<T>::max() const
 {
-	return fmax(x, fmax(y, z));
+	return std::max(x, std::max(y, z));
 }
 
 template<typename T>
 inline T TVector3<T>::absMax() const
 {
-	return fmax(fabs(x), fmax(fabs(y), fabs(z)));
+	return std::max(std::abs(x), std::max(std::abs(y), std::abs(z)));
 }
 
 template<typename T>
 inline TVector3<T> TVector3<T>::max(const TVector3& rhs) const
 {
-	return TVector3(fmax(x, rhs.x), fmax(y, rhs.y), fmax(z, rhs.z));
+	return TVector3(std::max(x, rhs.x), std::max(y, rhs.y), std::max(z, rhs.z));
 }
 
 template<typename T>
 inline TVector3<T>& TVector3<T>::maxLocal(const TVector3& rhs)
 {
-	x = fmax(x, rhs.x);
-	y = fmax(y, rhs.y);
-	z = fmax(z, rhs.z);
+	x = std::max(x, rhs.x);
+	y = std::max(y, rhs.y);
+	z = std::max(z, rhs.z);
 
 	return *this;
 }
@@ -128,17 +108,24 @@ inline TVector3<T>& TVector3<T>::maxLocal(const TVector3& rhs)
 template<typename T>
 inline TVector3<T> TVector3<T>::min(const TVector3& rhs) const
 {
-	return TVector3(fmin(x, rhs.x), fmin(y, rhs.y), fmin(z, rhs.z));
+	return TVector3(std::min(x, rhs.x), std::min(y, rhs.y), std::min(z, rhs.z));
 }
 
 template<typename T>
 inline TVector3<T>& TVector3<T>::minLocal(const TVector3& rhs)
 {
-	x = fmin(x, rhs.x);
-	y = fmin(y, rhs.y);
-	z = fmin(z, rhs.z);
+	x = std::min(x, rhs.x);
+	y = std::min(y, rhs.y);
+	z = std::min(z, rhs.z);
 
 	return *this;
+}
+
+template<typename T>
+inline int32 TVector3<T>::maxDimension() const
+{
+	return x > y ? (x > z ? Math::X_AXIS : Math::Z_AXIS) :
+	               (y > z ? Math::Y_AXIS : Math::Z_AXIS);
 }
 
 template<typename T>
@@ -150,7 +137,7 @@ inline T TVector3<T>::dot(const TVector3& rhs) const
 template<typename T>
 inline T TVector3<T>::absDot(const TVector3& rhs) const
 {
-	return fabs(dot(rhs));
+	return std::abs(dot(rhs));
 }
 
 template<typename T>
@@ -399,9 +386,9 @@ inline TVector3<T> TVector3<T>::abs() const
 template<typename T>
 inline TVector3<T>& TVector3<T>::absLocal()
 {
-	x = fabs(x);
-	y = fabs(y);
-	z = fabs(z);
+	x = std::abs(x);
+	y = std::abs(y);
+	z = std::abs(z);
 
 	return *this;
 }
@@ -579,6 +566,50 @@ template<typename T>
 inline bool TVector3<T>::isZero() const
 {
 	return x == 0 && y == 0 && z == 0;
+}
+
+template<typename T>
+inline bool TVector3<T>::hasNegativeComponent() const
+{
+	return x < 0 || y < 0 || z < 0;
+}
+
+template<typename T>
+inline T& TVector3<T>::operator [] (const int32 axisIndex)
+{
+	switch(axisIndex)
+	{
+	case Math::X_AXIS: return x;
+	case Math::Y_AXIS: return y;
+	case Math::Z_AXIS: return z;
+	}
+
+	std::cerr << "warning: at TVector3<T>::operator [] (), axis index out of range (" << axisIndex << "), x is returned" << std::endl;
+	return x;
+}
+
+template<typename T>
+inline const T& TVector3<T>::operator [] (const int32 axisIndex) const
+{
+	switch(axisIndex)
+	{
+	case Math::X_AXIS: return x;
+	case Math::Y_AXIS: return y;
+	case Math::Z_AXIS: return z;
+	}
+
+	std::cerr << "warning: at TVector3<T>::operator [] (), axis index out of range (" << axisIndex << "), x is returned" << std::endl;
+	return x;
+}
+
+template<typename T>
+inline TVector3<T>& TVector3<T>::operator = (const TVector3& rhs)
+{
+	x = rhs.x;
+	y = rhs.y;
+	z = rhs.z;
+
+	return *this;
 }
 
 }// end namespace ph

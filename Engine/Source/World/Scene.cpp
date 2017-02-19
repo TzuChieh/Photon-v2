@@ -1,7 +1,7 @@
 #pragma once
 
 #include "World/Scene.h"
-#include "World/Intersector.h"
+#include "World/Intersector/Intersector.h"
 #include "World/LightSampler/LightSampler.h"
 
 namespace ph

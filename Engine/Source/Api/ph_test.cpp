@@ -1,5 +1,5 @@
 #include "ph_test.h"
-#include "Filmic/HDRFrame.h"
+#include "Filmic/HdrFrame.h"
 #include "World/World.h"
 #include "Actor/Geometry/GSphere.h"
 #include "Actor/Geometry/GTriangle.h"
@@ -32,7 +32,7 @@ void testRun()
 
 	std::cout << "Hello World!" << std::endl;
 
-	HDRFrame hdrFrame(1280, 720);
+	HdrFrame hdrFrame(1280, 720);
 
 	//Data data;
 	//func(data);
@@ -56,7 +56,7 @@ void testRun()
 
 static const ph::uint32 widthPx = 900;
 static const ph::uint32 heightPx = 900;
-static ph::HDRFrame testHdrFrame(widthPx, heightPx);
+static ph::HdrFrame testHdrFrame(widthPx, heightPx);
 
 void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32* out_heightPx)
 {

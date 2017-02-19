@@ -8,14 +8,14 @@
 namespace ph
 {
 
-class HDRFrame : public Frame
+class HdrFrame : public Frame
 {
 public:
-	HDRFrame();
-	HDRFrame(const uint32 widthPx, const uint32 heightPx);
-	HDRFrame(const HDRFrame& other);
-	HDRFrame(HDRFrame&& other);
-	virtual ~HDRFrame() override;
+	HdrFrame();
+	HdrFrame(const uint32 widthPx, const uint32 heightPx);
+	HdrFrame(const HdrFrame& other);
+	HdrFrame(HdrFrame&& other);
+	virtual ~HdrFrame() override;
 
 	virtual void resize(const uint32 newWidthPx, const uint32 newHeightPx) override;
 	virtual void getPixel(const uint32 x, const uint32 y, Vector3R* const out_pixel) const override;
@@ -46,8 +46,8 @@ public:
 		return m_pixelData[y * getWidthPx() + x];
 	}
 
-	HDRFrame& operator = (const HDRFrame& rhs);
-	HDRFrame& operator = (HDRFrame&& rhs);
+	HdrFrame& operator = (const HdrFrame& rhs);
+	HdrFrame& operator = (HdrFrame&& rhs);
 
 private:
 	uint32 m_widthPx;

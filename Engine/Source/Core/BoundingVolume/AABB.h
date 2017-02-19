@@ -10,13 +10,18 @@ class Ray;
 class AABB final
 {
 public:
+	static AABB makeUnioned(const AABB& a, const AABB& b);
+
+public:
 	AABB();
+	AABB(const Vector3R& point);
 	AABB(const Vector3R& minVertex, const Vector3R& maxVertex);
 
 	bool isIntersectingVolume(const Ray& ray) const;
-	bool isIntersectingVolume(const Ray& ray, real* const out_rayNearHitDist, real* const out_rayFarHitDist) const;
+	bool isIntersectingVolume(const Ray& ray, real* const out_rayNearHitT, real* const out_rayFarHitT) const;
 	bool isIntersectingVolume(const AABB& aabb) const;
-	void unionWith(const AABB& other);
+	AABB& unionWith(const AABB& other);
+	AABB& unionWith(const Vector3R& point);
 
 	inline void getMinMaxVertices(Vector3R* const out_minVertex, Vector3R* const out_maxVertex) const
 	{
@@ -32,6 +37,16 @@ public:
 	inline const Vector3R& getMaxVertex() const
 	{
 		return m_maxVertex;
+	}
+
+	inline Vector3R calcCentroid() const
+	{
+		return m_minVertex.add(m_maxVertex).mulLocal(0.5_r);
+	}
+
+	inline Vector3R calcExtents() const
+	{
+		return m_maxVertex.sub(m_minVertex);
 	}
 
 	inline void setMinVertex(const Vector3R& minVertex)

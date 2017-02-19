@@ -11,7 +11,7 @@ namespace ph
 {
 
 template<typename T>
-class TVector3 final
+class TVector3
 {
 public:
 	T x;
@@ -22,9 +22,8 @@ public:
 	inline TVector3();
 	inline TVector3(const T x, const T y, const T z);
 	inline explicit TVector3(const T var);
-	inline explicit TVector3(const std::string& stringRepresentation);
 	inline TVector3(const TVector3& other);
-	inline ~TVector3();
+	virtual inline ~TVector3();
 
 	TVector3 rotate(const TQuaternion<T>& rotation) const;
 	void rotate(const TQuaternion<T>& rotation, TVector3* const out_result) const;
@@ -38,6 +37,7 @@ public:
 	inline TVector3& maxLocal(const TVector3& rhs);
 	inline TVector3 min(const TVector3& rhs) const;
 	inline TVector3& minLocal(const TVector3& rhs);
+	inline int32 maxDimension() const;
 	inline TVector3 abs() const;
 	inline TVector3& absLocal();
 
@@ -103,8 +103,14 @@ public:
 	inline bool equals(const TVector3& rhs) const;
 	inline bool equals(const TVector3& rhs, const T margin) const;
 	inline bool isZero() const;
+	inline bool hasNegativeComponent() const;
 
 	inline std::string toStringFormal() const;
+
+	inline T& operator [] (const int32 axisIndex);
+	inline const T& operator [] (const int32 axisIndex) const;
+
+	inline TVector3& operator = (const TVector3& rhs);
 };
 
 }// end namespace ph

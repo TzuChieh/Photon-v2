@@ -3,9 +3,10 @@
 #include "Common/primitive_type.h"
 #include "Core/Ray.h"
 #include "Actor/AModel.h"
-#include "World/BruteForceIntersector.h"
-#include "World/Kdtree/KdtreeIntersector.h"
+#include "World/Intersector/BruteForceIntersector.h"
+#include "World/Intersector/Kdtree/KdtreeIntersector.h"
 #include "World/LightSampler/UniformRandomLightSampler.h"
+#include "World/Intersector/Bvh/ClassicBvhIntersector.h"
 
 #include <limits>
 #include <iostream>
@@ -14,8 +15,9 @@ namespace ph
 {
 
 World::World() : 
-	//m_intersector(std::make_unique<BruteForceIntersector>())
-	m_intersector(std::make_unique<KdtreeIntersector>()), 
+	//m_intersector(std::make_unique<BruteForceIntersector>()), 
+	//m_intersector(std::make_unique<KdtreeIntersector>()), 
+	m_intersector(std::make_unique<ClassicBvhIntersector>()), 
 	m_lightSampler(std::make_unique<UniformRandomLightSampler>()), 
 	m_scene()
 {

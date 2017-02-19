@@ -1,4 +1,4 @@
-#include "World/Intersector.h"
+#include "World/Intersector/Intersector.h"
 
 namespace ph
 {

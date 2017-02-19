@@ -7,7 +7,7 @@
 #include "Api/test_scene.h"
 #include "Filmic/Film.h"
 #include "Filmic/Frame.h"
-#include "Filmic/HDRFrame.h"
+#include "Filmic/HdrFrame.h"
 
 #include <memory>
 #include <iostream>
@@ -111,7 +111,7 @@ void phCreateFrame(PHuint64* out_frameId, const PHint32 frameType)
 	switch(frameType)
 	{
 	case PH_HDR_FRAME_TYPE:
-		*out_frameId = ph::ApiDatabase::addFrame(std::make_unique<ph::HDRFrame>());
+		*out_frameId = ph::ApiDatabase::addFrame(std::make_unique<ph::HdrFrame>());
 		std::cout << "Frame<" << *out_frameId << "> created" << std::endl;
 		break;
 

@@ -208,7 +208,9 @@
     <ClCompile Include="Source\Actor\Texture\Texture.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\random_sample.cpp" />
     <ClCompile Include="Source\FileIO\ValueParser.cpp" />
+    <ClCompile Include="Source\Filmic\HdrFrame.cpp" />
     <ClCompile Include="Source\Math\Math.cpp" />
+    <ClCompile Include="Source\Math\TIndexedVector3.cpp" />
     <ClCompile Include="Source\Math\TMatrix4.cpp" />
     <ClCompile Include="Source\Math\Transform.cpp" />
     <ClCompile Include="Source\Math\TransformInfo.cpp" />
@@ -227,18 +229,22 @@
     <ClCompile Include="Source\Actor\TextureMapper\TextureMapper.cpp" />
     <ClCompile Include="Source\Common\ThirdParty\lib_stb.cpp" />
     <ClCompile Include="Source\Math\TVector3.cpp" />
-    <ClCompile Include="Source\World\BruteForceIntersector.cpp" />
-    <ClCompile Include="Source\World\Intersector.cpp" />
-    <ClCompile Include="Source\World\Kdtree\KdtreeAABB.cpp" />
-    <ClCompile Include="Source\World\Kdtree\KdtreeIntersector.cpp" />
-    <ClCompile Include="Source\World\Kdtree\KdtreeNode.cpp" />
+    <ClCompile Include="Source\World\Intersector\BruteForceIntersector.cpp" />
+    <ClCompile Include="Source\World\Intersector\Bvh\BvhBuilder.cpp" />
+    <ClCompile Include="Source\World\Intersector\Bvh\BvhInfoNode.cpp" />
+    <ClCompile Include="Source\World\Intersector\Bvh\ClassicBvhIntersector.cpp" />
+    <ClCompile Include="Source\World\Intersector\Bvh\BvhLinearNode.cpp" />
+    <ClCompile Include="Source\World\Intersector\Bvh\BvhPrimitiveInfo.cpp" />
+    <ClCompile Include="Source\World\Intersector\Intersector.cpp" />
+    <ClCompile Include="Source\World\Intersector\Kdtree\KdtreeAABB.cpp" />
+    <ClCompile Include="Source\World\Intersector\Kdtree\KdtreeIntersector.cpp" />
+    <ClCompile Include="Source\World\Intersector\Kdtree\KdtreeNode.cpp" />
     <ClCompile Include="Source\World\LightSampler\LightSampler.cpp" />
     <ClCompile Include="Source\World\LightSampler\UniformRandomLightSampler.cpp" />
     <ClCompile Include="Source\World\Scene.cpp" />
     <ClCompile Include="Source\World\World.cpp" />
     <ClCompile Include="Source\Filmic\Film.cpp" />
     <ClCompile Include="Source\Filmic\Frame.cpp" />
-    <ClCompile Include="Source\Filmic\HDRFrame.cpp" />
     <ClCompile Include="Source\Api\ApiDatabase.cpp" />
     <ClCompile Include="Source\Api\ph_test.cpp" />
     <ClCompile Include="Source\Math\TQuaternion.cpp" />
@@ -310,6 +316,7 @@
     <ClInclude Include="Source\Core\Sample.h" />
     <ClInclude Include="Source\Core\SampleGenerator\SampleGenerator.h" />
     <ClInclude Include="Source\Core\SampleGenerator\PixelJitterSampleGenerator.h" />
+    <ClInclude Include="Source\Filmic\HdrFrame.h" />
     <ClInclude Include="Source\Filmic\RadianceSensor.h" />
     <ClInclude Include="Source\Actor\Texture\TextureLoader.h" />
     <ClInclude Include="Source\Actor\Texture\PixelTexture.h" />
@@ -323,6 +330,7 @@
     <ClInclude Include="Source\Actor\ModelParser\AssimpModelParser.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\Microfacet.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\random_sample.h" />
+    <ClInclude Include="Source\Math\TIndexedVector3.h" />
     <ClInclude Include="Source\Math\TMatrix4.h" />
     <ClInclude Include="Source\Math\Transform.h" />
     <ClInclude Include="Source\Actor\Geometry\GRectangle.h" />
@@ -341,19 +349,24 @@
     <ClInclude Include="Source\Math\TVector3.h" />
     <ClInclude Include="Source\Utility\TConstIteratorProxy.h" />
     <ClInclude Include="Source\Utility\TIteratorProxy.h" />
-    <ClInclude Include="Source\World\BruteForceIntersector.h" />
-    <ClInclude Include="Source\World\Intersector.h" />
-    <ClInclude Include="Source\World\Kdtree\KdtreeAABB.h" />
-    <ClInclude Include="Source\World\Kdtree\KdtreeIntersector.h" />
-    <ClInclude Include="Source\World\Kdtree\KdtreeNode.h" />
-    <ClInclude Include="Source\World\Kdtree\kdtree_core.h" />
+    <ClInclude Include="Source\World\Intersector\BruteForceIntersector.h" />
+    <ClInclude Include="Source\World\Intersector\Bvh\BvhBuilder.h" />
+    <ClInclude Include="Source\World\Intersector\Bvh\ClassicBvhIntersector.h" />
+    <ClInclude Include="Source\World\Intersector\Bvh\BvhInfoNode.h" />
+    <ClInclude Include="Source\World\Intersector\Bvh\BvhLinearNode.h" />
+    <ClInclude Include="Source\World\Intersector\Bvh\BvhPrimitiveInfo.h" />
+    <ClInclude Include="Source\World\Intersector\Bvh\EBvhType.h" />
+    <ClInclude Include="Source\World\Intersector\Intersector.h" />
+    <ClInclude Include="Source\World\Intersector\Kdtree\KdtreeAABB.h" />
+    <ClInclude Include="Source\World\Intersector\Kdtree\KdtreeIntersector.h" />
+    <ClInclude Include="Source\World\Intersector\Kdtree\KdtreeNode.h" />
+    <ClInclude Include="Source\World\Intersector\Kdtree\kdtree_core.h" />
     <ClInclude Include="Source\World\LightSampler\LightSampler.h" />
     <ClInclude Include="Source\World\LightSampler\UniformRandomLightSampler.h" />
     <ClInclude Include="Source\World\Scene.h" />
     <ClInclude Include="Source\World\TManagedResource.h" />
     <ClInclude Include="Source\World\World.h" />
     <ClInclude Include="Source\Filmic\Frame.h" />
-    <ClInclude Include="Source\Filmic\HDRFrame.h" />
     <ClInclude Include="Source\Api\ApiDatabase.h" />
     <ClInclude Include="Source\Math\constant.h" />
     <ClInclude Include="Source\Math\TQuaternion.h" />
@@ -378,8 +391,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Math\TIndexedVector3.tpp">
+      <FileType>Document</FileType>
+    </ClInclude>
     <None Include="Source\Math\TMatrix4.tpp" />
-    <None Include="Source\Math\TQuaternion.tpp" />
+    <ClInclude Include="Source\Math\TQuaternion.tpp">
+      <FileType>Document</FileType>
+    </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

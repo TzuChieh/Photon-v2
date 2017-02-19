@@ -13,6 +13,11 @@ namespace ph
 class Math final
 {
 public:
+	static const int32 UNKNOWN_AXIS = -1;
+	static const int32 X_AXIS       = 0;
+	static const int32 Y_AXIS       = 1;
+	static const int32 Z_AXIS       = 2;
+
 	static void formOrthonormalBasis(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis);
 
 	// A fast, without sqrt(), nearly branchless method. Notice that Photon uses y-axis as the up/normal vector. This

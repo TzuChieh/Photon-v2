@@ -6,13 +6,24 @@
 namespace ph
 {
 
+AABB AABB::makeUnioned(const AABB& a, const AABB& b)
+{
+	return AABB(a).unionWith(b);
+}
+
 AABB::AABB() : 
 	m_minVertex(0, 0, 0), m_maxVertex(0, 0, 0)
 {
 
 }
 
-AABB::AABB(const Vector3R& minVertex, const Vector3R& maxVertex) :
+AABB::AABB(const Vector3R& point) : 
+	m_minVertex(point), m_maxVertex(point)
+{
+
+}
+
+AABB::AABB(const Vector3R& minVertex, const Vector3R& maxVertex) : 
 	m_minVertex(minVertex), m_maxVertex(maxVertex)
 {
 
@@ -106,7 +117,7 @@ bool AABB::isIntersectingVolume(const Ray& ray) const
 // Reference: Kay and Kayjia's "slab method" from a project of the ACM SIGGRAPH Education 
 // Committee named HyperGraph.
 bool AABB::isIntersectingVolume(const Ray& ray, 
-                                real* const out_rayNearHitDist, real* const out_rayFarHitDist) const
+                                real* const out_rayNearHitT, real* const out_rayFarHitT) const
 {
 	// The starting ray interval (tMin, tMax) will be incrementally intersect
 	// against each ray-slab hitting interval (t1, t2) and be updated with the
@@ -182,23 +193,33 @@ bool AABB::isIntersectingVolume(const Ray& ray,
 		return false;
 	}
 
-	*out_rayNearHitDist = tMin;
-	*out_rayFarHitDist  = tMax;
+	*out_rayNearHitT = tMin;
+	*out_rayFarHitT  = tMax;
 
 	return true;
 }
 
 bool AABB::isIntersectingVolume(const AABB& aabb) const
 {
-	return m_minVertex.x < aabb.m_maxVertex.x && m_maxVertex.x > aabb.m_minVertex.x &&
-	       m_minVertex.y < aabb.m_maxVertex.y && m_maxVertex.y > aabb.m_minVertex.y &&
-	       m_minVertex.z < aabb.m_maxVertex.z && m_maxVertex.z > aabb.m_minVertex.z;
+	return m_minVertex.x <= aabb.m_maxVertex.x && m_maxVertex.x >= aabb.m_minVertex.x &&
+	       m_minVertex.y <= aabb.m_maxVertex.y && m_maxVertex.y >= aabb.m_minVertex.y &&
+	       m_minVertex.z <= aabb.m_maxVertex.z && m_maxVertex.z >= aabb.m_minVertex.z;
 }
 
-void AABB::unionWith(const AABB& other)
+AABB& AABB::unionWith(const AABB& other)
 {
 	m_minVertex.minLocal(other.getMinVertex());
 	m_maxVertex.maxLocal(other.getMaxVertex());
+
+	return *this;
+}
+
+AABB& AABB::unionWith(const Vector3R& point)
+{
+	m_minVertex.minLocal(point);
+	m_maxVertex.maxLocal(point);
+
+	return *this;
 }
 
 }// end namespace ph

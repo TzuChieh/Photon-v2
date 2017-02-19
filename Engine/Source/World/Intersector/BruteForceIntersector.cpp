@@ -1,4 +1,4 @@
-#include "World/BruteForceIntersector.h"
+#include "World/Intersector/BruteForceIntersector.h"
 #include "Common/primitive_type.h"
 #include "Core/Intersection.h"
 #include "Core/Ray.h"
@@ -23,7 +23,7 @@ void BruteForceIntersector::update(const CookedActorStorage& cookedActors)
 	}
 }
 
-bool BruteForceIntersector::isIntersecting(const Ray& ray, Intersection* out_intersection) const
+bool BruteForceIntersector::isIntersecting(const Ray& ray, Intersection* const out_intersection) const
 {
 	Intersection intersection;
 	real closestSquaredHitDist = std::numeric_limits<real>::infinity();

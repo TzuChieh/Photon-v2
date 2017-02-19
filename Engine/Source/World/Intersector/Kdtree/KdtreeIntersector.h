@@ -1,7 +1,7 @@
 #pragma once
 
-#include "World/Intersector.h"
-#include "World/Kdtree/KdtreeNode.h"
+#include "World/Intersector/Intersector.h"
+#include "World/Intersector/Kdtree/KdtreeNode.h"
 #include "Core/Primitive/Primitive.h"
 
 #include <vector>
@@ -16,7 +16,7 @@ public:
 	virtual ~KdtreeIntersector() override;
 
 	virtual void update(const CookedActorStorage& cookedActors) override;
-	virtual bool isIntersecting(const Ray& ray, Intersection* out_intersection) const override;
+	virtual bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const override;
 	virtual bool isIntersecting(const Ray& ray) const override;
 
 private:

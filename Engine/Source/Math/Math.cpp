@@ -8,6 +8,11 @@
 namespace ph
 {
 
+const int32 Math::UNKNOWN_AXIS;
+const int32 Math::X_AXIS;
+const int32 Math::Y_AXIS;
+const int32 Math::Z_AXIS;
+
 void Math::formOrthonormalBasis(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis)
 {
 	// choose an axis deviate enough to specified y-axis to perform cross product in order to avoid some 
