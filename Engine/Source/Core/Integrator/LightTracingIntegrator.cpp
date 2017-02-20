@@ -184,7 +184,6 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 
 		emitterRay.setOrigin(intersection.getHitPosition());
 		emitterRay.setDirection(surfaceSample.L);
-		intersection.clear();
 		numBounces++;
 	}
 }

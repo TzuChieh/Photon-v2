@@ -155,7 +155,6 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 		tracingRay.setOrigin(nextRayOrigin);
 		tracingRay.setDirection(nextRayDirection);
 		numBounces++;
-		intersection.clear();
 	}// end while
 
 	out_senseEvents.push_back(SenseEvent(sample.m_cameraX, sample.m_cameraY, accuRadiance));

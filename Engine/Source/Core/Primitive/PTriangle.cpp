@@ -152,24 +152,24 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	const real baryA = funcEa * reciDeterminant;
 	const real baryB = funcEb * reciDeterminant;
 	const real baryC = funcEc * reciDeterminant;
-	//const real hitT = hitTscaled * reciDeterminant;
+	const real hitT = hitTscaled * reciDeterminant;
 
 	Vector3R hitPosition;
 	Vector3R hitNormal;
+	Vector3R hitGeoNormal;
 	Vector3R localHitPosition(m_vA.mul(baryA).addLocal(m_vB.mul(baryB)).addLocal(m_vC.mul(baryC)));
 	Vector3R localHitNormal(m_nA.mul(baryA).addLocal(m_nB.mul(baryB)).addLocal(m_nC.mul(baryC)));
 
 	m_metadata->localToWorld.transformPoint(localHitPosition, &hitPosition);
 	m_metadata->localToWorld.transformVector(localHitNormal, &hitNormal);
-
-	Vector3R hitGeoNormal;
 	m_metadata->localToWorld.transformVector(m_faceNormal, &hitGeoNormal);
 
-	out_intersection->setHitPosition(hitPosition);
-	out_intersection->setHitSmoothNormal(hitNormal.normalizeLocal());
-	out_intersection->setHitGeoNormal(hitGeoNormal.normalizeLocal());
-	out_intersection->setHitUVW(m_uvwA.mul(baryA).addLocal(m_uvwB.mul(baryB)).addLocal(m_uvwC.mul(baryC)));
-	out_intersection->setHitPrimitive(this);
+	out_intersection->set(this, 
+	                      hitPosition, 
+	                      hitNormal.normalizeLocal(), 
+	                      hitGeoNormal.normalizeLocal(), 
+	                      m_uvwA.mul(baryA).addLocal(m_uvwB.mul(baryB)).addLocal(m_uvwC.mul(baryC)), 
+	                      hitT);
 
 	return true;
 }

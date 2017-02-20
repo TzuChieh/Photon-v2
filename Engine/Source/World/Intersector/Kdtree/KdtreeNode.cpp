@@ -358,12 +358,10 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, Intersection
 
 		for(std::size_t primIndex = m_nodeBufferStartIndex; primIndex < m_nodeBufferEndIndex; primIndex++)
 		{
-			out_intersection->clear();
-
 			if((*m_primitiveBuffer)[primIndex]->isIntersecting(segmentRay, out_intersection))
 			{
 				out_intersection->getHitPosition().sub(ray.getOrigin(), &temp);
-				real squaredHitDist = temp.squaredLength();
+				const real squaredHitDist = temp.squaredLength();
 
 				if(squaredHitDist < closestHitSquaredDist)
 				{

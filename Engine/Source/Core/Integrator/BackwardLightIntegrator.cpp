@@ -182,7 +182,6 @@ void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const Scene
 		const Vector3R nextRayDirection(surfaceSample.L);
 		tracingRay.setOrigin(nextRayOrigin);
 		tracingRay.setDirection(nextRayDirection);
-		intersection.clear();
 
 		if(!scene.isIntersecting(tracingRay, &intersection))
 		{

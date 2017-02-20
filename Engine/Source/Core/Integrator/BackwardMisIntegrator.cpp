@@ -138,7 +138,6 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const Scene& 
 		rayOriginDelta.set(surfaceSample.L).mulLocal(RAY_DELTA_DIST);
 		tracingRay.setOrigin(intersection.getHitPosition().add(rayOriginDelta));
 		tracingRay.setDirection(surfaceSample.L);
-		intersection.clear();
 		if(!scene.isIntersecting(tracingRay, &intersection))
 		{
 			break;

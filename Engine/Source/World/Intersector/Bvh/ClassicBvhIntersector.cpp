@@ -53,12 +53,16 @@ bool ClassicBvhIntersector::isIntersecting(const Ray& ray, Intersection* const o
 	std::size_t todoNodes[NODE_STACK_SIZE];
 	int32       numTodoNodes     = 0;
 	std::size_t currentNodeIndex = 0;
+
 	Ray bvhRay(ray);
-	Intersection intersection;
-	real minT = 0.0_r;
-	real maxT = 0.0_r;
-	real hitDistSquared = std::numeric_limits<real>::infinity();
 	const int32 isDirNeg[3] = {bvhRay.getDirection().x < 0.0_r, bvhRay.getDirection().y < 0.0_r, bvhRay.getDirection().z < 0.0_r};
+	Intersection intersection;
+
+	real minT    = 0.0_r;
+	real maxT    = 0.0_r;
+	real minHitT = std::numeric_limits<real>::infinity();
+
+	// TODO: thinking of making use of minT & maxT found by AABB intersection
 
 	while(!m_nodes.empty())
 	{
@@ -66,47 +70,37 @@ bool ClassicBvhIntersector::isIntersecting(const Ray& ray, Intersection* const o
 
 		if(node.aabb.isIntersectingVolume(bvhRay, &minT, &maxT))
 		{
-			//bvhRay.setMinT(minT);
-			//bvhRay.setMaxT(maxT);
-
 			if(node.isLeaf())
 			{
 				for(int32 i = 0; i < node.numPrimitives; i++)
 				{
 					if(m_primitives[node.primitivesOffset + i]->isIntersecting(bvhRay, &intersection))
 					{
-						const real distSquared = intersection.getHitPosition().sub(bvhRay.getOrigin()).squaredLength();
-						if(distSquared < hitDistSquared)
+						const real hitT = intersection.getHitRayT();
+						if(hitT < minHitT)
 						{
-							hitDistSquared = distSquared;
+							minHitT = hitT;
+							bvhRay.setMaxT(hitT);
 							*out_intersection = intersection;
-							intersection.clear();
 						}
 					}
 				}
 
 				if(numTodoNodes == 0)
-				{
 					break;
-				}
 				else
-				{
-					currentNodeIndex = todoNodes[numTodoNodes - 1];
-					numTodoNodes--;
-				}
+					currentNodeIndex = todoNodes[--numTodoNodes];
 			}
 			else
 			{
 				if(isDirNeg[node.splittedAxis])
 				{
-					todoNodes[numTodoNodes] = currentNodeIndex + 1;
-					numTodoNodes++;
+					todoNodes[numTodoNodes++] = currentNodeIndex + 1;
 					currentNodeIndex = node.secondChildOffset;
 				}
 				else
 				{
-					todoNodes[numTodoNodes] = node.secondChildOffset;
-					numTodoNodes++;
+					todoNodes[numTodoNodes++] = node.secondChildOffset;
 					currentNodeIndex = currentNodeIndex + 1;
 				}
 			}
@@ -114,18 +108,13 @@ bool ClassicBvhIntersector::isIntersecting(const Ray& ray, Intersection* const o
 		else
 		{
 			if(numTodoNodes == 0)
-			{
 				break;
-			}
 			else
-			{
-				currentNodeIndex = todoNodes[numTodoNodes - 1];
-				numTodoNodes--;
-			}
+				currentNodeIndex = todoNodes[--numTodoNodes];
 		}
 	}
 	
-	return hitDistSquared != std::numeric_limits<real>::infinity();
+	return minHitT != std::numeric_limits<real>::infinity();
 }
 
 bool ClassicBvhIntersector::isIntersecting(const Ray& ray) const
