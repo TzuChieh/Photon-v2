@@ -23,7 +23,8 @@ void ClassicBvhIntersector::update(const CookedActorStorage& cookedActors)
 		primitives.push_back(primitive.get());
 	}
 
-	BvhBuilder bvhBuilder(EBvhType::HALF);
+	//BvhBuilder bvhBuilder(EBvhType::HALF);
+	BvhBuilder bvhBuilder(EBvhType::SAH);
 	const BvhInfoNode* root = bvhBuilder.buildInformativeBinaryBvh(primitives);
 	bvhBuilder.buildLinearDepthFirstBinaryBvh(root, &m_nodes, &m_primitives);
 
@@ -32,7 +33,7 @@ void ClassicBvhIntersector::update(const CookedActorStorage& cookedActors)
 	const std::size_t treeDepth = BvhBuilder::calcMaxDepth(root);
 	if(treeDepth > NODE_STACK_SIZE)
 	{
-		std::cerr << "warning: at ClassicBvhIntersector::update(), BVH depth exceeds stack size (64)" << std::endl;
+		std::cerr << "warning: at ClassicBvhIntersector::update(), BVH depth exceeds stack size (" << NODE_STACK_SIZE << ")" << std::endl;
 	}
 
 	if(m_primitives.empty() || m_nodes.empty())

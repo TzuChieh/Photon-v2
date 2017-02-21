@@ -37,12 +37,20 @@ private:
 	enum class ENodeSplitMethod
 	{
 		EQUAL_PRIMITIVES, 
-		AABB_CENTROID, 
-		SAH
+		SAH_16_BUCKETS
 	};
 
-	const BvhInfoNode* buildBinaryBvhInfoNodeRecursive(std::vector<BvhPrimitiveInfo>& primitives, const ENodeSplitMethod splitMethod);
+	const BvhInfoNode* buildBinaryBvhInfoNodeRecursive(const std::vector<BvhPrimitiveInfo>& primitives, const ENodeSplitMethod splitMethod);
 	void buildBinaryBvhLinearDepthFirstNodeRecursive(const BvhInfoNode* rootNode, std::size_t* out_nodeIndex);
+
+	bool splitWithEqualPrimitives(const std::vector<BvhPrimitiveInfo>& primitives, const int32 splitDimension, 
+	                              std::vector<BvhPrimitiveInfo>* const out_partA, 
+	                              std::vector<BvhPrimitiveInfo>* const out_partB);
+
+	bool splitWithSah16Buckets(const std::vector<BvhPrimitiveInfo>& primitives, const int32 splitDimension, 
+	                           const AABB& primitivesAABB, const AABB& centroidsAABB, 
+	                           std::vector<BvhPrimitiveInfo>* const out_partA,
+	                           std::vector<BvhPrimitiveInfo>* const out_partB);
 };
 
 }// end namespace ph

@@ -25,7 +25,7 @@ private:
 	std::vector<const Primitive*> m_primitives;
 	std::vector<BvhLinearNode>    m_nodes;
 
-	static const int32 NODE_STACK_SIZE = 32;
+	static const int32 NODE_STACK_SIZE = 64;
 };
 
 }// end namespace ph

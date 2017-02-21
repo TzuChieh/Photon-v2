@@ -20,6 +20,7 @@ public:
 	bool isIntersectingVolume(const Ray& ray) const;
 	bool isIntersectingVolume(const Ray& ray, real* const out_rayNearHitT, real* const out_rayFarHitT) const;
 	bool isIntersectingVolume(const AABB& aabb) const;
+	bool isPoint() const;
 	AABB& unionWith(const AABB& other);
 	AABB& unionWith(const Vector3R& point);
 
@@ -47,6 +48,12 @@ public:
 	inline Vector3R calcExtents() const
 	{
 		return m_maxVertex.sub(m_minVertex);
+	}
+
+	inline real calcSurfaceArea() const
+	{
+		const Vector3R& extents = calcExtents();
+		return 2.0_r * (extents.x * extents.y + extents.y * extents.z + extents.z * extents.x);
 	}
 
 	inline void setMinVertex(const Vector3R& minVertex)

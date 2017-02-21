@@ -206,6 +206,11 @@ bool AABB::isIntersectingVolume(const AABB& aabb) const
 	       m_minVertex.z <= aabb.m_maxVertex.z && m_maxVertex.z >= aabb.m_minVertex.z;
 }
 
+bool AABB::isPoint() const
+{
+	return m_minVertex.equals(m_maxVertex);
+}
+
 AABB& AABB::unionWith(const AABB& other)
 {
 	m_minVertex.minLocal(other.getMinVertex());
