@@ -24,7 +24,7 @@ void ClassicBvhIntersector::update(const CookedActorStorage& cookedActors)
 	}
 
 	//BvhBuilder bvhBuilder(EBvhType::HALF);
-	BvhBuilder bvhBuilder(EBvhType::SAH);
+	BvhBuilder bvhBuilder(EBvhType::SAH_BUCKET);
 	const BvhInfoNode* root = bvhBuilder.buildInformativeBinaryBvh(primitives);
 	bvhBuilder.buildLinearDepthFirstBinaryBvh(root, &m_nodes, &m_primitives);
 

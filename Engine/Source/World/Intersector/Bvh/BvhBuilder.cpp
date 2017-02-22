@@ -42,9 +42,9 @@ const BvhInfoNode* BvhBuilder::buildInformativeBinaryBvh(const std::vector<const
 	{
 		rootNode = buildBinaryBvhInfoNodeRecursive(primitiveInfos, ENodeSplitMethod::EQUAL_PRIMITIVES);
 	}
-	else if(m_type == EBvhType::SAH)
+	else if(m_type == EBvhType::SAH_BUCKET)
 	{
-		rootNode = buildBinaryBvhInfoNodeRecursive(primitiveInfos, ENodeSplitMethod::SAH_16_BUCKETS);
+		rootNode = buildBinaryBvhInfoNodeRecursive(primitiveInfos, ENodeSplitMethod::SAH_BUCKETS);
 	}
 	else
 	{
@@ -135,8 +135,8 @@ const BvhInfoNode* BvhBuilder::buildBinaryBvhInfoNodeRecursive(const std::vector
 				isSplitSuccess = splitWithEqualPrimitives(primitives, maxDimension, &primitivesA, &primitivesB);
 				break;
 
-			case ENodeSplitMethod::SAH_16_BUCKETS:
-				isSplitSuccess = splitWithSah16Buckets(primitives, maxDimension, nodeAABB, centroidsAABB, &primitivesA, &primitivesB);
+			case ENodeSplitMethod::SAH_BUCKETS:
+				isSplitSuccess = splitWithSahBuckets(primitives, maxDimension, nodeAABB, centroidsAABB, &primitivesA, &primitivesB);
 				break;
 
 			default:
@@ -262,18 +262,18 @@ bool BvhBuilder::splitWithEqualPrimitives(const std::vector<BvhPrimitiveInfo>& p
 	return true;
 }
 
-bool BvhBuilder::splitWithSah16Buckets(const std::vector<BvhPrimitiveInfo>& primitives, const int32 splitDimension, 
-                                       const AABB& primitivesAABB, const AABB& centroidsAABB, 
-                                       std::vector<BvhPrimitiveInfo>* const out_partA,
-                                       std::vector<BvhPrimitiveInfo>* const out_partB)
+bool BvhBuilder::splitWithSahBuckets(const std::vector<BvhPrimitiveInfo>& primitives, const int32 splitDimension, 
+                                     const AABB& primitivesAABB, const AABB& centroidsAABB, 
+                                     std::vector<BvhPrimitiveInfo>* const out_partA,
+                                     std::vector<BvhPrimitiveInfo>* const out_partB)
 {
 	if(primitives.size() < 2)
 	{
-		std::cerr << "warning: at BvhBuilder::splitWithSah16Buckets(), number of primitives < 2, cannot split" << std::endl;
+		std::cerr << "warning: at BvhBuilder::splitWithSahBuckets(), number of primitives < 2, cannot split" << std::endl;
 		return false;
 	}
 
-	const int32 numBuckets = 16;
+	const int32 numBuckets = 64;
 
 	const int32    dim         = splitDimension;
 	const Vector3R extents     = centroidsAABB.calcExtents();
@@ -284,7 +284,7 @@ bool BvhBuilder::splitWithSah16Buckets(const std::vector<BvhPrimitiveInfo>& prim
 	{
 		if(splitExtent < 0.0_r)
 		{
-			std::cerr << "warning: at BvhBuilder::splitWithSah16Buckets(), primitive AABB split extent < 0, cannot split" << std::endl;
+			std::cerr << "warning: at BvhBuilder::splitWithSahBuckets(), primitive AABB split extent < 0, cannot split" << std::endl;
 			return false;
 		}
 

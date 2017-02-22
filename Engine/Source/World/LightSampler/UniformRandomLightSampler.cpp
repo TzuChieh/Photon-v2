@@ -1,7 +1,7 @@
 #include "World/LightSampler/UniformRandomLightSampler.h"
 #include "Actor/AModel.h"
 #include "Actor/ALight.h"
-#include "Math/random_number.h"
+#include "Math/Random.h"
 #include "Core/CookedActorStorage.h"
 #include "Core/Sample/DirectLightSample.h"
 #include "Math/TVector3.h"
@@ -31,7 +31,7 @@ void UniformRandomLightSampler::update(const CookedActorStorage& cookedActors)
 
 const Emitter* UniformRandomLightSampler::pickEmitter(real* const out_PDF) const
 {
-	const std::size_t picker = static_cast<std::size_t>(genRandomReal_0_1_uniform() * static_cast<real>(m_emitters.size()));
+	const std::size_t picker = static_cast<std::size_t>(Random::genUniformReal_i0_e1() * static_cast<real>(m_emitters.size()));
 	const std::size_t pickedIndex = picker == m_emitters.size() ? picker - 1 : picker;
 
 	*out_PDF = 1.0_r / static_cast<real>(m_emitters.size());
@@ -41,7 +41,7 @@ const Emitter* UniformRandomLightSampler::pickEmitter(real* const out_PDF) const
 void UniformRandomLightSampler::genDirectSample(DirectLightSample& sample) const
 {
 	// randomly and uniformly select an emitter
-	const std::size_t picker = static_cast<std::size_t>(genRandomReal_0_1_uniform() * static_cast<real>(m_emitters.size()));
+	const std::size_t picker = static_cast<std::size_t>(Random::genUniformReal_i0_e1() * static_cast<real>(m_emitters.size()));
 	const std::size_t pickedIndex = picker == m_emitters.size() ? picker - 1 : picker;
 	const real pickPdfW = 1.0_r / static_cast<real>(m_emitters.size());
 

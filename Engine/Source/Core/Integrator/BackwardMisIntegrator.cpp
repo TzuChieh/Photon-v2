@@ -10,7 +10,7 @@
 #include "Core/Primitive/Primitive.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Math/Math.h"
-#include "Math/random_number.h"
+#include "Math/Random.h"
 #include "Core/Sample/DirectLightSample.h"
 
 #include <iostream>
@@ -180,7 +180,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const Scene& 
 		if(numBounces >= 3)
 		{
 			const real rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001_r, 1.0_r);
-			const real rrSpin = genRandomReal_0_1_uniform();
+			const real rrSpin = Random::genUniformReal_i0_e1();
 
 			// russian roulette >> survive
 			if(rrSurviveRate > rrSpin)

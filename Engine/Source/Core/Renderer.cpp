@@ -10,7 +10,7 @@
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/SampleGenerator/PixelJitterSampleGenerator.h"
 #include "Core/Sample.h"
-#include "Math/random_number.h"
+#include "Math/Random.h"
 #include "Math/Color.h"
 #include "Math/Math.h"
 #include "Core/Integrator/BackwardPathIntegrator.h"

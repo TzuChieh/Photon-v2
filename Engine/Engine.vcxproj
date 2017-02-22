@@ -248,7 +248,7 @@
     <ClCompile Include="Source\Api\ApiDatabase.cpp" />
     <ClCompile Include="Source\Api\ph_test.cpp" />
     <ClCompile Include="Source\Math\TQuaternion.cpp" />
-    <ClCompile Include="Source\Math\random_number.cpp" />
+    <ClCompile Include="Source\Math\Random.cpp" />
     <ClCompile Include="Source\Core\Ray.cpp" />
     <ClCompile Include="Source\Actor\Geometry\Geometry.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GTriangle.cpp" />
@@ -370,7 +370,7 @@
     <ClInclude Include="Source\Api\ApiDatabase.h" />
     <ClInclude Include="Source\Math\constant.h" />
     <ClInclude Include="Source\Math\TQuaternion.h" />
-    <ClInclude Include="Source\Math\random_number.h" />
+    <ClInclude Include="Source\Math\Random.h" />
     <ClInclude Include="Source\Math\TransformInfo.h" />
     <ClInclude Include="Source\Actor\Geometry\GTriangle.h" />
     <ClInclude Include="Source\Actor\Material\AbradedOpaque.h" />

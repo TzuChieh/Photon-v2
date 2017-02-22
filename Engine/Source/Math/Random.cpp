@@ -1,18 +1,16 @@
-#include "Math/random_number.h"
-
-#include <random>
-#include <atomic>
+#include "Math/Random.h"
 
 namespace ph
 {
 
-const std::uniform_real_distribution<real> distribution(0.0_r, 1.0_r);
-std::atomic<int32> seed(37);
-const int32 incrementation = 17;
+const std::uniform_real_distribution<real> Random::distribution(0.0_r, 1.0_r);
+std::atomic<int32> Random::seed(37);
+const int32 Random::incrementation = 17;
 
-real genRandomReal_0_1_uniform()
+// NOTE: consider using __rdtsc() as seed (if film merging is desired)
+real Random::genUniformReal_i0_e1()
 {
-	static thread_local std::mt19937 generator(seed = seed + incrementation);
+	static thread_local std::mt19937 generator(seed += incrementation);
 	return distribution(generator);
 }
 

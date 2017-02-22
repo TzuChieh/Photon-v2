@@ -7,7 +7,8 @@ enum class EBvhType
 {
 	HALF, 
 	MIDPOINT, 
-	SAH
+	SAH_BUCKET, 
+	SAH_EDGE
 };
 
 }// end namespace ph

@@ -1,6 +1,6 @@
 #include "Actor/Texture/TextureLoader.h"
 #include "Actor/Texture/PixelTexture.h"
-#include "Math/random_number.h"
+#include "Math/Random.h"
 
 #include "Common/ThirdParty/lib_stb.h"
 

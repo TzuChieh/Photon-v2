@@ -4,7 +4,7 @@
 #include "Core/Intersection.h"
 #include "Actor/Texture/ConstantTexture.h"
 #include "Core/Primitive/Primitive.h"
-#include "Math/random_number.h"
+#include "Math/Random.h"
 #include "Core/Sample/PositionSample.h"
 #include "Core/Sample/DirectLightSample.h"
 #include "Core/Ray.h"
@@ -46,7 +46,7 @@ void PrimitiveAreaEmitter::evalEmittedRadiance(const Intersection& intersection,
 
 void PrimitiveAreaEmitter::genDirectSample(const Vector3R& targetPos, Vector3R* const out_emitPos, Vector3R* const out_emittedRadiance, real* const out_PDF) const
 {
-	const std::size_t picker = static_cast<std::size_t>(genRandomReal_0_1_uniform() * static_cast<real>(m_primitives.size()));
+	const std::size_t picker = static_cast<std::size_t>(Random::genUniformReal_i0_e1() * static_cast<real>(m_primitives.size()));
 	const std::size_t pickedIndex = picker == m_primitives.size() ? picker - 1 : picker;
 
 	const Primitive* primitive = m_primitives[pickedIndex];
@@ -74,7 +74,7 @@ void PrimitiveAreaEmitter::genDirectSample(const Vector3R& targetPos, Vector3R* 
 void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
 {
 	// randomly and uniformly pick a primitive
-	const std::size_t picker = static_cast<std::size_t>(genRandomReal_0_1_uniform() * static_cast<real>(m_primitives.size()));
+	const std::size_t picker = static_cast<std::size_t>(Random::genUniformReal_i0_e1() * static_cast<real>(m_primitives.size()));
 	const std::size_t pickedIndex = picker == m_primitives.size() ? picker - 1 : picker;
 	sample.sourcePrim = m_primitives[pickedIndex];
 	const real pickPdfW = (1.0_r / sample.sourcePrim->getReciExtendedArea()) * m_reciExtendedArea;
@@ -103,7 +103,7 @@ real PrimitiveAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const
 void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, Vector3R* const out_Le, Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const
 {
 	// randomly and uniformly pick a primitive
-	const std::size_t picker = static_cast<std::size_t>(genRandomReal_0_1_uniform() * static_cast<real>(m_primitives.size()));
+	const std::size_t picker = static_cast<std::size_t>(Random::genUniformReal_i0_e1() * static_cast<real>(m_primitives.size()));
 	const std::size_t pickedIndex = picker == m_primitives.size() ? picker - 1 : picker;
 	const Primitive* primitive = m_primitives[pickedIndex];
 	const real pickPdfW = (1.0_r / primitive->getReciExtendedArea()) * m_reciExtendedArea;
@@ -113,8 +113,8 @@ void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, Vector3R* const out
 
 	// random & uniform direction on a unit sphere
 	Vector3R rayDir;
-	const real r1 = genRandomReal_0_1_uniform();
-	const real r2 = genRandomReal_0_1_uniform();
+	const real r1 = Random::genUniformReal_i0_e1();
+	const real r2 = Random::genUniformReal_i0_e1();
 	const real sqrtTerm = std::sqrt(r2 * (1.0_r - r2));
 	const real anglTerm = 2.0_r * PI_REAL * r1;
 	rayDir.x = 2.0_r * std::cos(anglTerm) * sqrtTerm;

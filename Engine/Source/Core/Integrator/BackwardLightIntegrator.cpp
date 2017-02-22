@@ -10,7 +10,7 @@
 #include "Core/Primitive/Primitive.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Math/Math.h"
-#include "Math/random_number.h"
+#include "Math/Random.h"
 #include "Core/Sample/DirectLightSample.h"
 #include "FileIO/InputPacket.h"
 
@@ -143,7 +143,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const Scene
 			{
 				const real rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001_r, 1.0_r);
 				//const real rrSurviveRate = Math::clamp(Color::linearRgbLuminance(liWeight), 0.0001f, 1.0f);
-				const real rrSpin = genRandomReal_0_1_uniform();
+				const real rrSpin = Random::genUniformReal_i0_e1();
 
 				// russian roulette >> survive
 				if(rrSurviveRate > rrSpin)

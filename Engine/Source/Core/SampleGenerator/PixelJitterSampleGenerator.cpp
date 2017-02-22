@@ -1,7 +1,7 @@
 #include "Core/SampleGenerator/PixelJitterSampleGenerator.h"
 #include "Filmic/Film.h"
 #include "Core/Sample.h"
-#include "Math/random_number.h"
+#include "Math/Random.h"
 
 #include <iostream>
 
@@ -52,8 +52,8 @@ void PixelJitterSampleGenerator::requestMoreSamples(std::vector<Sample>* const o
 	{
 		for(uint32 x = 0; x < m_filmWidthPx; x++)
 		{
-			sample.m_cameraX = (static_cast<real>(x) + genRandomReal_0_1_uniform() - halfWidthPx) * invWidthPx;
-			sample.m_cameraY = (static_cast<real>(y) + genRandomReal_0_1_uniform() - halfHeightPx) * invHeightPx;
+			sample.m_cameraX = (static_cast<real>(x) + Random::genUniformReal_i0_e1() - halfWidthPx) * invWidthPx;
+			sample.m_cameraY = (static_cast<real>(y) + Random::genUniformReal_i0_e1() - halfHeightPx) * invHeightPx;
 			out_samples->push_back(sample);
 		}
 	}

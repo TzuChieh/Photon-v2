@@ -1,7 +1,7 @@
 #include "Core/SurfaceBehavior/LambertianDiffuse.h"
 #include "Core/Ray.h"
 #include "Math/TVector3.h"
-#include "Math/random_number.h"
+#include "Math/Random.h"
 #include "Math/constant.h"
 #include "Actor/Material/MatteOpaque.h"
 #include "Core/Intersection.h"
@@ -36,7 +36,7 @@ void LambertianDiffuse::genImportanceSample(SurfaceSample& sample) const
 	// generate and transform L to N's space
 
 	Vector3R& L = sample.L;
-	genUnitHemisphereCosineThetaWeightedSample(genRandomReal_0_1_uniform(), genRandomReal_0_1_uniform(), &L);
+	genUnitHemisphereCosineThetaWeightedSample(Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), &L);
 	Vector3R u;
 	Vector3R v(sample.X->getHitSmoothNormal());
 	Vector3R w;

@@ -2,7 +2,7 @@
 #include "Actor/Texture/ConstantTexture.h"
 #include "Core/Ray.h"
 #include "Math/TVector3.h"
-#include "Math/random_number.h"
+#include "Math/Random.h"
 #include "Math/constant.h"
 #include "Core/Intersection.h"
 #include "Core/SurfaceBehavior/random_sample.h"
@@ -46,7 +46,7 @@ void TranslucentMicrofacet::genImportanceSample(SurfaceSample& sample) const
 	const Vector3R& N = sample.X->getHitSmoothNormal();
 	Vector3R H;
 
-	genUnitHemisphereGgxTrowbridgeReitzNdfSample(genRandomReal_0_1_uniform(), genRandomReal_0_1_uniform(), alpha, &H);
+	genUnitHemisphereGgxTrowbridgeReitzNdfSample(Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), alpha, &H);
 	Vector3R u;
 	Vector3R v(N);
 	Vector3R w;
@@ -63,7 +63,7 @@ void TranslucentMicrofacet::genImportanceSample(SurfaceSample& sample) const
 
 	// use Fresnel term to select which path to take and calculate L
 
-	const real dart = genRandomReal_0_1_uniform();
+	const real dart = Random::genUniformReal_i0_e1();
 	const real reflectProb = F.avg();
 
 	// reflect path

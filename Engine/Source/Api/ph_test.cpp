@@ -5,7 +5,7 @@
 #include "Actor/Geometry/GTriangle.h"
 #include "Camera/PinholeCamera.h"
 #include "Core/Renderer.h"
-#include "Math/random_number.h"
+#include "Math/Random.h"
 #include "Actor/Material/MatteOpaque.h"
 #include "Actor/AModel.h"
 #include "Actor/Material/AbradedOpaque.h"
@@ -42,7 +42,7 @@ void testRun()
 
 	for(int i = 0; i < 20; i++)
 	{
-		std::cout << genRandomReal_0_1_uniform() << std::endl;
+		std::cout << Random::genUniformReal_i0_e1() << std::endl;
 	}
 
 	/*World world;

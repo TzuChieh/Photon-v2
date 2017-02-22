@@ -4,7 +4,7 @@
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
 #include "Core/BoundingVolume/AABB.h"
-#include "Math/random_number.h"
+#include "Math/Random.h"
 #include "Core/Sample/PositionSample.h"
 
 #include <limits>
@@ -425,8 +425,8 @@ bool PTriangle::isIntersectingVolume(const AABB& aabb) const
 
 void PTriangle::genPositionSample(PositionSample* const out_sample) const
 {
-	const real A = std::sqrt(genRandomReal_0_1_uniform());
-	const real B = genRandomReal_0_1_uniform();
+	const real A = std::sqrt(Random::genUniformReal_i0_e1());
+	const real B = Random::genUniformReal_i0_e1();
 
 	const Vector3R localPos = m_vA.mul(1.0_r - A).addLocal(m_vB.mul(A * (1.0_r - B))).addLocal(m_vC.mul(B * A));
 	Vector3R worldPos;
