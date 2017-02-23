@@ -296,6 +296,7 @@
     <ClInclude Include="Source\Core\Sample\DirectLightSample.h" />
     <ClInclude Include="Source\Core\Sample\PositionSample.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\BSDFcos.h" />
+    <ClInclude Include="Source\FileIO\DataTreatment.h" />
     <ClInclude Include="Source\FileIO\FunctionExecutor.h" />
     <ClInclude Include="Source\FileIO\InputPacket.h" />
     <ClInclude Include="Source\FileIO\Keyword.h" />

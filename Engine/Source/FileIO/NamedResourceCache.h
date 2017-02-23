@@ -6,6 +6,7 @@
 #include "Actor/LightSource/LightSource.h"
 #include "Actor/AModel.h"
 #include "Actor/ALight.h"
+#include "FileIO/DataTreatment.h"
 
 #include <unordered_map>
 #include <string>
@@ -24,12 +25,12 @@ public:
 	void addActorModel(const std::string& name, std::unique_ptr<AModel> actorModel);
 	void addActorLight(const std::string& name, std::unique_ptr<ALight> actorLight);
 
-	std::shared_ptr<Geometry> getGeometry(const std::string& name, const std::string& notFoundMessage = "") const;
-	std::shared_ptr<Texture> getTexture(const std::string& name, const std::string& notFoundMessage = "") const;
-	std::shared_ptr<Material> getMaterial(const std::string& name, const std::string& notFoundMessage = "") const;
-	std::shared_ptr<LightSource> getLightSource(const std::string& name, const std::string& notFoundMessage = "") const;
-	AModel* getActorModel(const std::string& name, const std::string& notFoundMessage = "") const;
-	ALight* getActorLight(const std::string& name, const std::string& notFoundMessage = "") const;
+	std::shared_ptr<Geometry> getGeometry(const std::string& name, const DataTreatment& treatment = DataTreatment()) const;
+	std::shared_ptr<Texture> getTexture(const std::string& name, const DataTreatment& treatment = DataTreatment()) const;
+	std::shared_ptr<Material> getMaterial(const std::string& name, const DataTreatment& treatment = DataTreatment()) const;
+	std::shared_ptr<LightSource> getLightSource(const std::string& name, const DataTreatment& treatment = DataTreatment()) const;
+	AModel* getActorModel(const std::string& name, const DataTreatment& treatment = DataTreatment()) const;
+	ALight* getActorLight(const std::string& name, const DataTreatment& treatment = DataTreatment()) const;
 
 	std::vector<std::unique_ptr<Actor>> claimAllActors();
 
@@ -41,7 +42,7 @@ private:
 	std::unordered_map<std::string, std::unique_ptr<AModel>>      m_actorModels;
 	std::unordered_map<std::string, std::unique_ptr<ALight>>      m_actorLights;
 
-	static void printNotFoundMessage(const std::string& typeName, const std::string& name, const std::string& message);
+	static void reportResourceNotFound(const std::string& typeName, const std::string& name, const DataTreatment& treatment);
 };
 
 }// end namespace ph

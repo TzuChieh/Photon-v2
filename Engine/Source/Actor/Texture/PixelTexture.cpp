@@ -29,7 +29,7 @@ PixelTexture::PixelTexture(const uint32 widthPx, const uint32 heightPx, const ui
 PixelTexture::PixelTexture(const InputPacket& packet) : 
 	Texture(packet)
 {
-	const std::string filename = packet.getString("filename", "", "PixelTexture -> filename not found");
+	const std::string filename = packet.getString("filename", "", DataTreatment::REQUIRED());
 	TextureLoader().load(filename, this);
 }
 

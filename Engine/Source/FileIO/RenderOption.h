@@ -20,7 +20,7 @@ public:
 	inline RenderOption(const InputPacket& packet) : 
 		RenderOption()
 	{
-		numThreads = static_cast<uint32>(packet.getInteger("threads", numThreads, "RenderOption >> argument threads not found"));
+		numThreads = static_cast<uint32>(packet.getInteger("threads", numThreads, DataTreatment(EDataImportance::REQUIRED)));
 	}
 };
 

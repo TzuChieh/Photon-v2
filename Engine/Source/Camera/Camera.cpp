@@ -13,9 +13,9 @@ Camera::Camera() :
 Camera::Camera(const InputPacket& packet) : 
 	Camera()
 {
-	const Vector3R position  = packet.getVector3r("position", m_position, "Camera >> argument position not found");
-	const Vector3R direction = packet.getVector3r("direction", m_direction, "Camera >> argument direction not found");
-	const Vector3R upAxis    = packet.getVector3r("up-axis", m_upAxis);
+	const Vector3R position  = packet.getVector3r("position",  m_position,  DataTreatment::REQUIRED());
+	const Vector3R direction = packet.getVector3r("direction", m_direction, DataTreatment::REQUIRED());
+	const Vector3R upAxis    = packet.getVector3r("up-axis",   m_upAxis,    DataTreatment::OPTIONAL());
 
 	setPosition(position);
 	setDirection(direction);

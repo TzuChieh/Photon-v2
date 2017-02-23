@@ -40,10 +40,7 @@ AreaSource::AreaSource(const std::string& imageFilename) :
 AreaSource::AreaSource(const InputPacket& packet) : 
 	LightSource(packet)
 {
-	//m_emittedRadiance = packet.getTexture("emitted-radiance", "AreaSource >> argument emitted-radiance not found");
-
-	const Vector3R emittedRadiance = packet.getVector3r("emitted-radiance", Vector3R(0, 0, 0),
-	                                                    "AreaSource >> argument emitted-radiance not found");
+	const Vector3R emittedRadiance = packet.getVector3r("emitted-radiance", Vector3R(0), DataTreatment::REQUIRED());
 	m_emittedRadiance = std::make_shared<ConstantTexture>(emittedRadiance);
 }
 

@@ -13,7 +13,8 @@ namespace ph
 
 void FunctionExecutor::executeTransform(const InputPacket& packet)
 {
-	PhysicalActor* actor = packet.getPhysicalActor("target", "at FunctionExecutor::executeTransform()");
+	DataTreatment requiredData(EDataImportance::REQUIRED, "FunctionExecutor::executeTransform()");
+	PhysicalActor* actor = packet.getPhysicalActor("target", requiredData);
 	if(!actor)
 	{
 		return;
@@ -22,8 +23,8 @@ void FunctionExecutor::executeTransform(const InputPacket& packet)
 	const std::string typeString = packet.getString("type");
 	if(typeString == "translate")
 	{
-		const Vector3R translation = packet.getVector3r("factor", Vector3R(0, 0, 0), 
-		                                                "at FunctionExecutor::executeTransform(): translate");
+		DataTreatment translateDT(EDataImportance::REQUIRED, requiredData.notFoundInfo + " : translate");
+		const Vector3R translation = packet.getVector3r("factor", Vector3R(0, 0, 0), translateDT);
 		actor->translate(translation);
 	}
 	else if(typeString == "rotate")
@@ -56,8 +57,8 @@ void FunctionExecutor::executeTransform(const InputPacket& packet)
 	}
 	else if(typeString == "scale")
 	{
-		const Vector3R scalation = packet.getVector3r("factor", Vector3R(1, 1, 1), 
-		                                              "at FunctionExecutor::executeTransform(): scale");
+		DataTreatment scaleDT(EDataImportance::REQUIRED, requiredData.notFoundInfo + " : translate");
+		const Vector3R scalation = packet.getVector3r("factor", Vector3R(1, 1, 1), scaleDT);
 		actor->scale(scalation);
 	}
 	else

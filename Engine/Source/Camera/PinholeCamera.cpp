@@ -20,8 +20,7 @@ PinholeCamera::PinholeCamera() :
 PinholeCamera::PinholeCamera(const InputPacket& packet) : 
 	Camera(packet)
 {
-	const real fovDegree = packet.getReal("fov-degree", 50, "at PinholeCamera()");
-
+	const real fovDegree = packet.getReal("fov-degree", 50, DataTreatment::OPTIONAL("defaults to 50 degrees"));
 	m_fov = Math::toRadians(fovDegree);
 }
 

@@ -12,8 +12,8 @@ class Random final
 {
 	// Method Notations
 	//
-	// i: include
-	// e: exclude
+	// i: including
+	// e: excluding
 	//
 	// Examples
 	//

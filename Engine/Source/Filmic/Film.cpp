@@ -19,8 +19,9 @@ Film::Film(const uint32 widthPx, const uint32 heightPx) :
 
 Film::Film(const InputPacket& packet)
 {
-	m_widthPx = static_cast<uint32>(packet.getInteger("width", 0, "Film >> argument width not found"));
-	m_heightPx = static_cast<uint32>(packet.getInteger("height", 0, "Film >> argument height not found"));
+	const DataTreatment requiredDT(EDataImportance::REQUIRED, "Film requires pixel width and height");
+	m_widthPx  = static_cast<uint32>(packet.getInteger("width",  0, requiredDT));
+	m_heightPx = static_cast<uint32>(packet.getInteger("height", 0, requiredDT));
 
 	const std::size_t numSensors = static_cast<std::size_t>(m_widthPx) * static_cast<std::size_t>(m_heightPx);
 	m_pixelRadianceSensors = std::vector<RadianceSensor>(numSensors, RadianceSensor());

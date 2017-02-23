@@ -40,8 +40,9 @@ AModel::AModel(const InputPacket& packet) :
 	PhysicalActor(packet), 
 	m_geometry(nullptr), m_material(nullptr)
 {
-	m_geometry = packet.getGeometry("geometry", "AModel >> parameter geometry not found");
-	m_material = packet.getMaterial("material", "AModel >> parameter material not found");
+	const DataTreatment requiredDT(EDataImportance::REQUIRED, "AModel needs both a Geometry and a Material");
+	m_geometry = packet.getGeometry("geometry", requiredDT);
+	m_material = packet.getMaterial("material", requiredDT);
 }
 
 AModel::~AModel() = default;

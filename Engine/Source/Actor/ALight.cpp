@@ -41,9 +41,10 @@ ALight::ALight(const InputPacket& packet) :
 	PhysicalActor(packet),
 	m_geometry(nullptr), m_material(nullptr), m_lightSource(nullptr)
 {
+	const DataTreatment requiredData(EDataImportance::REQUIRED, "ALight requires at least a LightSource");
 	m_geometry    = packet.getGeometry("geometry");
 	m_material    = packet.getMaterial("material");
-	m_lightSource = packet.getLightSource("light-source", "ALight >> parameter light-source not found");
+	m_lightSource = packet.getLightSource("light-source", requiredData);
 }
 
 ALight::~ALight() = default;
