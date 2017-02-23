@@ -1,4 +1,4 @@
-#include "Camera/Camera.h"
+#include "Core/Camera/Camera.h"
 #include "FileIO/InputPacket.h"
 
 namespace ph

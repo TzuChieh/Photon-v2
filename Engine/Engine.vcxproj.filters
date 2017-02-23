@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Camera\Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Core\Ray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -195,9 +192,6 @@
     <ClCompile Include="Source\Core\Integrator\LightTracingIntegrator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Camera\PinholeCamera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Actor\Geometry\GWave.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -226,12 +220,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Actor\Texture\TextureLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Filmic\Film.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Filmic\Frame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\FileIO\Description.cpp">
@@ -273,9 +261,6 @@
     <ClCompile Include="Source\World\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Filmic\HdrFrame.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\World\Intersector\Kdtree\KdtreeAABB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -312,6 +297,21 @@
     <ClCompile Include="Source\Math\Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\Camera\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Camera\PinholeCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Camera\Film.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\PostProcess\Frame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\PostProcess\HDRFrame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Common\primitive_type.h">
@@ -321,9 +321,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\ph_test.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Camera\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Ray.h">
@@ -539,9 +536,6 @@
     <ClInclude Include="Source\Core\Integrator\LightTracingIntegrator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Camera\PinholeCamera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Integrator\Utility\SenseEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -576,15 +570,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Actor\Texture\TextureLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Filmic\Film.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Filmic\Frame.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Filmic\RadianceSensor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\FileIO\RenderOption.h">
@@ -636,9 +621,6 @@
     <ClInclude Include="Source\World\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Filmic\HdrFrame.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\World\Intersector\Kdtree\kdtree_core.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -684,6 +666,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\FileIO\DataTreatment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Camera\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Camera\PinholeCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Camera\Film.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Camera\RadianceSensor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PostProcess\Frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PostProcess\HDRFrame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

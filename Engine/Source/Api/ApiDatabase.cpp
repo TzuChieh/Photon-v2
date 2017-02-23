@@ -1,8 +1,8 @@
 #include "Api/ApiDatabase.h"
-#include "Filmic/Frame.h"
+#include "PostProcess/Frame.h"
 #include "Core/Renderer.h"
 #include "FileIO/Description.h"
-#include "Filmic/Film.h"
+#include "Core/Camera/Film.h"
 
 #include <utility>
 #include <iostream>

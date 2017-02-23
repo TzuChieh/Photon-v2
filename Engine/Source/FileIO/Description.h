@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Camera/Camera.h"
+#include "Core/Camera/Camera.h"
 #include "World/World.h"
-#include "Filmic/Film.h"
+#include "Core/Camera/Film.h"
 #include "Core/Integrator/Integrator.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "FileIO/RenderOption.h"

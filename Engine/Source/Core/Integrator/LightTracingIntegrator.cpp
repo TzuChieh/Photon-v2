@@ -12,7 +12,7 @@
 #include "Math/Math.h"
 #include "Math/Random.h"
 #include "Core/Sample/DirectLightSample.h"
-#include "Camera/Camera.h"
+#include "Core/Camera/Camera.h"
 
 #include <iostream>
 

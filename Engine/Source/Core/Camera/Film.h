@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
-#include "Filmic/RadianceSensor.h"
+#include "Core/Camera/RadianceSensor.h"
 
 #include <vector>
 

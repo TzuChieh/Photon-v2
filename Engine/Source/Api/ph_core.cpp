@@ -3,11 +3,11 @@
 #include "Core/Renderer.h"
 #include "FileIO/Description.h"
 #include "FileIO/DescriptionFileParser.h"
-#include "Camera/Camera.h"
+#include "Core/Camera/Camera.h"
 #include "Api/test_scene.h"
-#include "Filmic/Film.h"
-#include "Filmic/Frame.h"
-#include "Filmic/HdrFrame.h"
+#include "Core/Camera/Film.h"
+#include "PostProcess/Frame.h"
+#include "PostProcess/HdrFrame.h"
 
 #include <memory>
 #include <iostream>

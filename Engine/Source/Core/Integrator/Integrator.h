@@ -2,7 +2,7 @@
 
 #include "Core/Integrator/Utility/SenseEvent.h"
 #include "Core/Sample.h"
-#include "Camera/Camera.h"
+#include "Core/Camera/Camera.h"
 
 #include <vector>
 

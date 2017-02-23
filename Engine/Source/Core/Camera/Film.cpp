@@ -1,6 +1,6 @@
-#include "Filmic/Film.h"
+#include "Core/Camera/Film.h"
 #include "Math/TVector3.h"
-#include "Filmic/Frame.h"
+#include "PostProcess/Frame.h"
 #include "FileIO/InputPacket.h"
 
 #include <cstddef>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Camera/Camera.h"
+#include "Core/Camera/Camera.h"
 #include "Common/primitive_type.h"
 
 namespace ph

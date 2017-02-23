@@ -78,14 +78,14 @@ public class Main
 		PhDescription description = new PhDescription();
 //		description.load("../scene/testScene.p2");
 //		description.load("../scene/cbox_simple.p2");
-//		description.load("../scene/cbox_material_test.p2");
+		description.load("../scene/cbox_material_test.p2");
 //		description.load("../scene/cbox_test.p2"); 
 //		description.load("../scene/exporter_test.p2");
 //		description.load("../scene/LAZIENKA.p2");
 //		description.load("../scene/complex/corridor.p2");
 //		description.load("../scene/complex/corridor_1.p2");
 //		description.load("../scene/complex/FinalAR.p2");
-		description.load("../scene/complex/FinalAR_1.p2");
+//		description.load("../scene/complex/FinalAR_1.p2");
 		description.update();
 		
 		PhRenderer renderer = new PhRenderer(numRenderThreads);
