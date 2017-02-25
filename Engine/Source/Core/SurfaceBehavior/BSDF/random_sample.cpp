@@ -1,4 +1,4 @@
-#include "Core/SurfaceBehavior/random_sample.h"
+#include "Core/SurfaceBehavior/BSDF/random_sample.h"
 #include "Math/TVector3.h"
 #include "Math/constant.h"
 

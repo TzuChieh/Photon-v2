@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Actor/Material/Material.h"
-#include "Core/SurfaceBehavior/LambertianDiffuse.h"
+#include "Core/SurfaceBehavior/BSDF/LambertianDiffuse.h"
 #include "Math/TVector3.h"
 #include "Actor/Texture/Texture.h"
 
@@ -24,7 +24,7 @@ public:
 	void setAlbedo(const std::shared_ptr<Texture>& albedo);
 
 private:
-	LambertianDiffuse m_bsdfCos;
+	LambertianDiffuse m_bsdf;
 };
 
 }// end namespace ph

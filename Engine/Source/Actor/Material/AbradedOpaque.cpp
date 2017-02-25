@@ -9,14 +9,14 @@ namespace ph
 {
 
 AbradedOpaque::AbradedOpaque() : 
-	m_bsdfCos()
+	m_bsdf()
 {
 	
 }
 
 AbradedOpaque::AbradedOpaque(const InputPacket& packet) :
 	Material(packet), 
-	m_bsdfCos()
+	m_bsdf()
 {
 	Vector3R albedo(0.5f, 0.5f, 0.5f);
 	Vector3R f0(0.04f, 0.04f, 0.04f);
@@ -34,18 +34,18 @@ AbradedOpaque::~AbradedOpaque() = default;
 
 void AbradedOpaque::populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const
 {
-	out_surfaceBehavior->setBsdfCos(std::make_unique<OpaqueMicrofacet>(m_bsdfCos));
+	out_surfaceBehavior->setBsdf(std::make_unique<OpaqueMicrofacet>(m_bsdf));
 }
 
 void AbradedOpaque::setAlbedo(const Vector3R& albedo)
 {
-	m_bsdfCos.setF0(std::make_shared<ConstantTexture>(albedo));
+	m_bsdf.setF0(std::make_shared<ConstantTexture>(albedo));
 }
 
 void AbradedOpaque::setRoughness(const real roughness)
 {
 	const real alpha = roughnessToAlpha(roughness);
-	m_bsdfCos.setAlpha(std::make_shared<ConstantTexture>(alpha, alpha, alpha));
+	m_bsdf.setAlpha(std::make_shared<ConstantTexture>(alpha, alpha, alpha));
 }
 
 void AbradedOpaque::setF0(const Vector3R& f0)
@@ -55,7 +55,7 @@ void AbradedOpaque::setF0(const Vector3R& f0)
 
 void AbradedOpaque::setF0(const real r, const real g, const real b)
 {
-	m_bsdfCos.setF0(std::make_shared<ConstantTexture>(r, g, b));
+	m_bsdf.setF0(std::make_shared<ConstantTexture>(r, g, b));
 }
 
 // This mapping is what used in PBRT-v3. 

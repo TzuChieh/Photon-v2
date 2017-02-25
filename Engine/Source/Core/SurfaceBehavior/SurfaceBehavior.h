@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
-#include "Core/SurfaceBehavior/BSDFcos.h"
+#include "Core/SurfaceBehavior/BSDF.h"
 #include "Core/Emitter/Emitter.h"
 
 #include <memory>
@@ -15,12 +15,12 @@ class SurfaceBehavior final
 public:
 	SurfaceBehavior();
 
-	void setBsdfCos(std::unique_ptr<BSDFcos> bsdfCos);
+	void setBsdf(std::unique_ptr<BSDF> bsdf);
 	void setEmitter(const Emitter* emitter);
 
-	inline const BSDFcos* getBsdfCos() const
+	inline const BSDF* getBsdf() const
 	{
-		return m_bsdfCos.get();
+		return m_bsdf.get();
 	}
 
 	inline const Emitter* getEmitter() const
@@ -29,7 +29,7 @@ public:
 	}
 
 private:
-	std::unique_ptr<BSDFcos> m_bsdfCos;
+	std::unique_ptr<BSDF> m_bsdf;
 	const Emitter* m_emitter;
 };
 

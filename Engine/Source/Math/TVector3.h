@@ -103,6 +103,7 @@ public:
 	inline bool equals(const TVector3& rhs) const;
 	inline bool equals(const TVector3& rhs, const T margin) const;
 	inline bool isZero() const;
+	inline bool isNotZero() const;
 	inline bool hasNegativeComponent() const;
 
 	inline std::string toStringFormal() const;

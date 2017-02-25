@@ -5,9 +5,10 @@
 namespace ph
 {
 
-class NormalBufferIntegrator final : Integrator
+class NormalBufferIntegrator final : public Integrator
 {
 public:
+	NormalBufferIntegrator(const InputPacket& packet);
 	virtual ~NormalBufferIntegrator() override;
 
 	virtual void update(const Scene& scene) override;

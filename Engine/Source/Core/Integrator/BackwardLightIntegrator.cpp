@@ -6,13 +6,15 @@
 #include "Core/Sample/SurfaceSample.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Core/SurfaceBehavior/BSDFcos.h"
+#include "Core/SurfaceBehavior/BSDF.h"
 #include "Core/Primitive/Primitive.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Math/Math.h"
 #include "Math/Random.h"
 #include "Core/Sample/DirectLightSample.h"
 #include "FileIO/InputPacket.h"
+#include "Core/SurfaceBehavior/BsdfSample.h"
+#include "Core/SurfaceBehavior/BsdfEvaluation.h"
 
 #include <iostream>
 
@@ -47,12 +49,13 @@ void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const Scene
 	Vector3R accuLiWeight(1, 1, 1);
 	Vector3R V;
 	Intersection intersection;
-	SurfaceSample surfaceSample;
+	BsdfSample     bsdfSample;
+	BsdfEvaluation bsdfEval;
 	DirectLightSample directLightSample;
 
 	// convenient variables
 	const PrimitiveMetadata* metadata     = nullptr;
-	const BSDFcos*           bsdfCos      = nullptr;
+	const BSDF*              bsdfCos      = nullptr;
 
 	// reversing the ray for backward tracing
 	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), 0.0001_r, Ray::MAX_T);// HACK: hard-coded number
@@ -66,14 +69,14 @@ void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const Scene
 	V = tracingRay.getDirection().mul(-1.0f);
 
 	// sidedness agreement between real geometry and shading (phong-interpolated) normal
-	if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0.0f)
+	if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0.0_r)
 	{
 		out_senseEvents.push_back(SenseEvent(sample.m_cameraX, sample.m_cameraY, accuRadiance));
 		return;
 	}
 
 	metadata = intersection.getHitPrimitive()->getMetadata();
-	bsdfCos = metadata->surfaceBehavior.getBsdfCos();
+	bsdfCos = metadata->surfaceBehavior.getBsdf();
 
 	if(metadata->surfaceBehavior.getEmitter())
 	{
@@ -94,17 +97,17 @@ void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const Scene
 			const Vector3R toLightVec = directLightSample.emitPos.sub(intersection.getHitPosition());
 
 			// sidedness agreement between real geometry and shading (phong-interpolated) normal
-			if(!(intersection.getHitSmoothNormal().dot(toLightVec) * intersection.getHitGeoNormal().dot(toLightVec) <= 0.0f))
+			if(!(intersection.getHitSmoothNormal().dot(toLightVec) * intersection.getHitGeoNormal().dot(toLightVec) <= 0.0_r))
 			{
 				const Ray visRay(intersection.getHitPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2);
 				if(!scene.isIntersecting(visRay))
 				{
 					Vector3R weight;
-					surfaceSample.setEvaluation(intersection, visRay.getDirection(), V);
-					bsdfCos->evaluate(surfaceSample);
-					if(surfaceSample.isEvaluationGood())
+					bsdfEval.inputs.set(intersection, visRay.getDirection(), V);
+					bsdfCos->evaluate(bsdfEval);
+					if(bsdfEval.outputs.isGood())
 					{
-						weight = surfaceSample.liWeight;
+						weight = bsdfEval.outputs.bsdf;
 						weight.mulLocal(accuLiWeight).divLocal(directLightSample.pdfW);
 
 						// avoid excessive, negative weight and possible NaNs
@@ -121,23 +124,26 @@ void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const Scene
 
 		bool keepSampling = true;
 
-		surfaceSample.setImportanceSample(intersection, tracingRay.getDirection().mul(-1.0f));
-		bsdfCos->genImportanceSample(surfaceSample);
+		bsdfSample.inputs.set(intersection, tracingRay.getDirection().mul(-1.0_r));
+		bsdfCos->sample(bsdfSample);
+
+		const Vector3R& sampledL = bsdfSample.outputs.L;
+
 		// blackness check & sidedness agreement between real geometry and shading (phong-interpolated) normal
-		if(!surfaceSample.isImportanceSampleGood() ||
-		   intersection.getHitSmoothNormal().dot(surfaceSample.L) * intersection.getHitGeoNormal().dot(surfaceSample.L) <= 0.0f)
+		if(!bsdfSample.outputs.isGood() ||
+		   intersection.getHitSmoothNormal().dot(sampledL) * intersection.getHitGeoNormal().dot(sampledL) <= 0.0_r)
 		{
 			break;
 		}
 
-		switch(surfaceSample.type)
+		switch(bsdfSample.outputs.phenomenon)
 		{
-		case ESurfaceSampleType::REFLECTION:
-		case ESurfaceSampleType::TRANSMISSION:
+		case ESurfacePhenomenon::REFLECTION:
+		case ESurfacePhenomenon::TRANSMISSION:
 		{
-			rayOriginDelta.set(surfaceSample.L).mulLocal(RAY_DELTA_DIST);
+			rayOriginDelta.set(sampledL).mulLocal(RAY_DELTA_DIST);
 
-			Vector3R liWeight = surfaceSample.liWeight;
+			Vector3R liWeight = bsdfSample.outputs.pdfAppliedBsdf;
 
 			if(numBounces >= 3)
 			{
@@ -179,7 +185,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const Scene
 		// prepare for next iteration
 
 		const Vector3R nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
-		const Vector3R nextRayDirection(surfaceSample.L);
+		const Vector3R nextRayDirection(sampledL);
 		tracingRay.setOrigin(nextRayOrigin);
 		tracingRay.setDirection(nextRayDirection);
 
@@ -188,16 +194,16 @@ void BackwardLightIntegrator::radianceAlongRay(const Sample& sample, const Scene
 			break;
 		}
 
-		V = tracingRay.getDirection().mul(-1.0f);
+		V = tracingRay.getDirection().mul(-1.0_r);
 
 		// sidedness agreement between real geometry and shading (phong-interpolated) normal
-		if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0.0f)
+		if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0.0_r)
 		{
 			break;
 		}
 
 		metadata = intersection.getHitPrimitive()->getMetadata();
-		bsdfCos = metadata->surfaceBehavior.getBsdfCos();
+		bsdfCos = metadata->surfaceBehavior.getBsdf();
 	}
 
 	out_senseEvents.push_back(SenseEvent(sample.m_cameraX, sample.m_cameraY, accuRadiance));

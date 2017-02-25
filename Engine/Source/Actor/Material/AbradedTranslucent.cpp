@@ -10,14 +10,14 @@ namespace ph
 {
 
 AbradedTranslucent::AbradedTranslucent() :
-	m_bsdfCos()
+	m_bsdf()
 {
 	
 }
 
 AbradedTranslucent::AbradedTranslucent(const InputPacket& packet) : 
 	Material(packet), 
-	m_bsdfCos()
+	m_bsdf()
 {
 	Vector3R albedo(0.5f, 0.5f, 0.5f);
 	Vector3R f0(0.04f, 0.04f, 0.04f);
@@ -38,12 +38,12 @@ AbradedTranslucent::~AbradedTranslucent() = default;
 
 void AbradedTranslucent::populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const
 {
-	out_surfaceBehavior->setBsdfCos(std::make_unique<TranslucentMicrofacet>(m_bsdfCos));
+	out_surfaceBehavior->setBsdf(std::make_unique<TranslucentMicrofacet>(m_bsdf));
 }
 
 void AbradedTranslucent::setAlbedo(const Vector3R& albedo)
 {
-	m_bsdfCos.setF0(std::make_shared<ConstantTexture>(albedo));
+	m_bsdf.setF0(std::make_shared<ConstantTexture>(albedo));
 }
 
 void AbradedTranslucent::setF0(const Vector3R& f0)
@@ -53,18 +53,18 @@ void AbradedTranslucent::setF0(const Vector3R& f0)
 
 void AbradedTranslucent::setF0(const real r, const real g, const real b)
 {
-	m_bsdfCos.setF0(std::make_shared<ConstantTexture>(r, g, b));
+	m_bsdf.setF0(std::make_shared<ConstantTexture>(r, g, b));
 }
 
 void AbradedTranslucent::setIOR(const real ior)
 {
-	m_bsdfCos.setIOR(std::make_shared<ConstantTexture>(ior, ior, ior));
+	m_bsdf.setIOR(std::make_shared<ConstantTexture>(ior, ior, ior));
 }
 
 void AbradedTranslucent::setRoughness(const real roughness)
 {
 	const real alpha = roughnessToAlpha(roughness);
-	m_bsdfCos.setAlpha(std::make_shared<ConstantTexture>(alpha, alpha, alpha));
+	m_bsdf.setAlpha(std::make_shared<ConstantTexture>(alpha, alpha, alpha));
 }
 
 // This mapping is what used in PBRT-v3. 

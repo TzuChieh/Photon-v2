@@ -19,6 +19,8 @@
 #include "Core/Integrator/BackwardPathIntegrator.h"
 #include "Core/Integrator/BackwardLightIntegrator.h"
 #include "Core/Integrator/BackwardMisIntegrator.h"
+#include "Core/Integrator/LightTracingIntegrator.h"
+#include "Core/Integrator/NormalBufferIntegrator.h"
 
 #include <iostream>
 
@@ -58,6 +60,14 @@ std::unique_ptr<Integrator> ResourceLoader::loadIntegrator(const InputPacket& pa
 	else if(typeString == "backward-mis")
 	{
 		return std::make_unique<BackwardMisIntegrator>(packet);
+	}
+	else if(typeString == "light-tracing")
+	{
+		return std::make_unique<LightTracingIntegrator>(packet);
+	}
+	else if(typeString == "surface-normal")
+	{
+		return std::make_unique<NormalBufferIntegrator>(packet);
 	}
 	else
 	{

@@ -6,13 +6,15 @@
 #include "Core/Sample/SurfaceSample.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Core/SurfaceBehavior/BSDFcos.h"
+#include "Core/SurfaceBehavior/BSDF.h"
 #include "Core/Primitive/Primitive.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Math/Math.h"
 #include "Math/Random.h"
 #include "Core/Sample/DirectLightSample.h"
 #include "Core/Camera/Camera.h"
+#include "Core/SurfaceBehavior/BsdfEvaluation.h"
+#include "Core/SurfaceBehavior/BsdfSample.h"
 
 #include <iostream>
 
@@ -22,6 +24,12 @@
 
 namespace ph
 {
+
+LightTracingIntegrator::LightTracingIntegrator(const InputPacket& packet) : 
+	Integrator(packet)
+{
+
+}
 
 LightTracingIntegrator::~LightTracingIntegrator() = default;
 
@@ -89,7 +97,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 	while(numBounces < MAX_RAY_BOUNCES && scene.isIntersecting(emitterRay, &intersection))
 	{
 		const PrimitiveMetadata* const metadata = intersection.getHitPrimitive()->getMetadata();
-		const BSDFcos* const bsdfCos = metadata->surfaceBehavior.getBsdfCos();
+		const BSDF* const bsdfCos = metadata->surfaceBehavior.getBsdf();
 		const Vector3R V(emitterRay.getDirection().mul(-1.0f));
 		
 		if(intersection.getHitGeoNormal().dot(V) * intersection.getHitSmoothNormal().dot(V) <= 0.0f)
@@ -106,10 +114,10 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 					RAY_DELTA_DIST, toCameraVec.length() - 2 * RAY_DELTA_DIST);
 				if(!scene.isIntersecting(toCameraRay))
 				{
-					SurfaceSample surfaceSample;
-					surfaceSample.setEvaluation(intersection, toCameraRay.getDirection(), V);
-					bsdfCos->evaluate(surfaceSample);
-					if(surfaceSample.isEvaluationGood())
+					BsdfEvaluation bsdfEval;
+					bsdfEval.inputs.set(intersection, toCameraRay.getDirection(), V);
+					bsdfCos->evaluate(bsdfEval);
+					if(bsdfEval.outputs.isGood())
 					{
 						Vector3R cameraImportanceWe;
 						Vector2f filmCoord;
@@ -122,7 +130,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 						{
 							Vector3R weight(1.0_r, 1.0_r, 1.0_r);
 							weight.mulLocal(cameraImportanceWe.div(cameraPdfA));
-							weight.mulLocal(surfaceSample.liWeight);
+							weight.mulLocal(bsdfEval.outputs.bsdf);
 							weight.mulLocal(1.0_r / (emitterPdfA * emitterPdfW));
 							weight.mulLocal(throughput);
 							const real G = intersection.getHitSmoothNormal().absDot(toCameraRay.getDirection()) *
@@ -140,20 +148,21 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 			}
 		}
 
-		SurfaceSample surfaceSample;
-		surfaceSample.setImportanceSample(intersection, V);
-		bsdfCos->genImportanceSample(surfaceSample);
-		if(!surfaceSample.isImportanceSampleGood())
+		BsdfSample bsdfSample;
+		bsdfSample.inputs.set(intersection, V);
+		bsdfCos->sample(bsdfSample);
+		if(!bsdfSample.outputs.isGood())
 		{
 			return;
 		}
 
-		if(intersection.getHitGeoNormal().dot(surfaceSample.L) * intersection.getHitSmoothNormal().dot(surfaceSample.L) <= 0.0_r)
+		const Vector3R& sampledL = bsdfSample.outputs.L;
+		if(intersection.getHitGeoNormal().dot(sampledL) * intersection.getHitSmoothNormal().dot(sampledL) <= 0.0_r)
 		{
 			return;
 		}
 
-		Vector3R liWeight = surfaceSample.liWeight;
+		Vector3R liWeight = bsdfSample.outputs.pdfAppliedBsdf;
 
 		if(numBounces >= 3)
 		{
@@ -183,7 +192,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 		// prepare for next intersection
 
 		emitterRay.setOrigin(intersection.getHitPosition());
-		emitterRay.setDirection(surfaceSample.L);
+		emitterRay.setDirection(sampledL);
 		numBounces++;
 	}
 }

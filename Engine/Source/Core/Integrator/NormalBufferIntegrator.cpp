@@ -7,6 +7,12 @@
 namespace ph
 {
 
+NormalBufferIntegrator::NormalBufferIntegrator(const InputPacket& packet) : 
+	Integrator(packet)
+{
+
+}
+
 NormalBufferIntegrator::~NormalBufferIntegrator() = default;
 
 void NormalBufferIntegrator::update(const Scene& scene)

@@ -1,10 +1,13 @@
 ## camera [string type pinhole] [real fov-degree 50] [vector3r position "0 0 16"] [vector3r direction "0 0 -1"]
 //## film [integer width 400] [integer height 400]
 ## film [integer width 800] [integer height 800]
-## sampler [integer spp-budget 16]
+//## sampler [integer spp-budget 16]
+## sampler [integer spp-budget 1024]
 
-## integrator [string type backward-path]
+//## integrator [string type backward-path]
 //## integrator [string type backward-light]
+//## integrator [string type light-tracing]
+## integrator [string type surface-normal]
 //## integrator [string type backward-mis]
 
 

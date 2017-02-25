@@ -87,22 +87,7 @@
     <ClCompile Include="Source\Core\BoundingVolume\AABB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\BSDFcos.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\LambertianDiffuse.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\OpaqueMicrofacet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\random_sample.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceBehavior.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\TranslucentMicrofacet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\CoreActor.cpp">
@@ -312,6 +297,27 @@
     <ClCompile Include="Source\PostProcess\HDRFrame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\BSDF.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\LambertianDiffuse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\OpaqueMicrofacet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\TranslucentMicrofacet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\random_sample.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\BsdfSample.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\BsdfPdfQuery.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Common\primitive_type.h">
@@ -410,25 +416,7 @@
     <ClInclude Include="Source\Core\BoundingVolume\AABB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\BSDFcos.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\LambertianDiffuse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\Microfacet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\OpaqueMicrofacet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\random_sample.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceBehavior.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\TranslucentMicrofacet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Utility\TIteratorProxy.h">
@@ -684,6 +672,36 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\PostProcess\HDRFrame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\BSDF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\LambertianDiffuse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\Microfacet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\OpaqueMicrofacet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\TranslucentMicrofacet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\random_sample.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\BsdfEvaluation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\ESurfacePhenomenon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\BsdfSample.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\BsdfPdfQuery.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

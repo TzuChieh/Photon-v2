@@ -569,6 +569,12 @@ inline bool TVector3<T>::isZero() const
 }
 
 template<typename T>
+inline bool TVector3<T>::isNotZero() const
+{
+	return x != 0 || y != 0 || z != 0;
+}
+
+template<typename T>
 inline bool TVector3<T>::hasNegativeComponent() const
 {
 	return x < 0 || y < 0 || z < 0;

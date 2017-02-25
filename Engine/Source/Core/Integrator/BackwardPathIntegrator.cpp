@@ -6,7 +6,7 @@
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Core/SurfaceBehavior/BSDFcos.h"
+#include "Core/SurfaceBehavior/BSDF.h"
 #include "Core/Sample/SurfaceSample.h"
 #include "Math/Math.h"
 #include "Math/Color.h"
@@ -14,6 +14,7 @@
 #include "Core/Primitive/Primitive.h"
 #include "Core/Emitter/Emitter.h"
 #include "FileIO/InputPacket.h"
+#include "Core/SurfaceBehavior/BsdfSample.h"
 
 #include <iostream>
 
@@ -94,25 +95,27 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 		///////////////////////////////////////////////////////////////////////////////
 		// sample BSDF
 
-		SurfaceSample surfaceSample;
-		surfaceSample.setImportanceSample(intersection, tracingRay.getDirection().mul(-1.0f));
-		hitSurfaceBehavior.getBsdfCos()->genImportanceSample(surfaceSample);
+		BsdfSample bsdfSample;
+		bsdfSample.inputs.set(intersection, tracingRay.getDirection().mul(-1.0f));
+		hitSurfaceBehavior.getBsdf()->sample(bsdfSample);
+
+		const Vector3R& sampledL = bsdfSample.outputs.L;
 
 		// blackness check & sidedness agreement between real geometry and shading (phong-interpolated) normal
-		if(surfaceSample.liWeight.isZero() ||
-		   intersection.getHitSmoothNormal().dot(surfaceSample.L) * intersection.getHitGeoNormal().dot(surfaceSample.L) <= 0.0f)
+		if(!bsdfSample.outputs.isGood() ||
+		   intersection.getHitSmoothNormal().dot(sampledL) * intersection.getHitGeoNormal().dot(sampledL) <= 0.0_r)
 		{
 			break;
 		}
 
-		switch(surfaceSample.type)
+		switch(bsdfSample.outputs.phenomenon)
 		{
-		case ESurfaceSampleType::REFLECTION:
-		case ESurfaceSampleType::TRANSMISSION:
+		case ESurfacePhenomenon::REFLECTION:
+		case ESurfacePhenomenon::TRANSMISSION:
 		{
-			rayOriginDelta.set(surfaceSample.L).mulLocal(rayDeltaDist);
+			rayOriginDelta.set(sampledL).mulLocal(rayDeltaDist);
 
-			Vector3R liWeight = surfaceSample.liWeight;
+			Vector3R liWeight = bsdfSample.outputs.pdfAppliedBsdf;
 
 			if(numBounces >= 3)
 			{
@@ -139,7 +142,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 		break;
 
 		default:
-			std::cerr << "warning: unknown surface sample type in BackwardPathIntegrator detected" << std::endl;
+			std::cerr << "warning: unknown surface phenomenon type in BackwardPathIntegrator detected" << std::endl;
 			keepSampling = false;
 			break;
 		}// end switch surface sample type
@@ -151,7 +154,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 
 		// prepare for next iteration
 		const Vector3R nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
-		const Vector3R nextRayDirection(surfaceSample.L);
+		const Vector3R nextRayDirection(sampledL);
 		tracingRay.setOrigin(nextRayOrigin);
 		tracingRay.setDirection(nextRayDirection);
 		numBounces++;

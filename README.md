@@ -25,9 +25,12 @@ Photon-v2 is being developed with cross-platformity in mind, but Windows is the 
 (building instructions will be added soon...) <br />
 
 ## Images Rendered by Photon-v2
-| <a href="url"><img src="./gallery/028_sponza gold cups 12800spp.png" align="left" width="450" ></a> | <a href="url"><img src="./gallery/038_cbox 3 objs 11000spp.png" align="left" width="450" ></a> |
-| --- | --- |
+| <a href="url"><img src="./gallery/028_sponza gold cups 12800spp.png" align="left" width="450" ></a> | <a href="url"><img src="./gallery/048_Arc Reactor (Iron Man) by kuhn0362 8000spp.png" align="left" width="450" ></a> |
+| :---: | :---: |
+| Gold Cups in Sponza |  Arc Reactor (Iron Man) scene, modeled by "kuhn0362", who made this scene available on BlendSwap under a CC-BY license. (material properties had been reassigned) |
 | <a href="url"><img src="./gallery/044_scenery glass dragon 6000spp.png" align="left" width="450" ></a> | <a href="url"><img src="./gallery/045_water dragon color light.png" align="left" width="450" ></a> |
+| :---: | :---: |
+| Scenery with Glass Dragon | Dragon in Fluid |
 
 ## Scene Description Language
 The scene descripting language (SDL) designed by T.C. Chang can be stored into a text file (.p2 filename extension) and loaded by Photon-v2 for rendering. To create a scene, you can either open up a text file and start writing right away (visit folder "./scenes/" for reference) or install the Blender addon (in "./BlenderAddon/"), which contains a .p2 file exporter and a material editor currently.
