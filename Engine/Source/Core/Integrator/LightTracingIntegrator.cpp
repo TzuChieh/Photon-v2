@@ -96,7 +96,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 	while(numBounces < MAX_RAY_BOUNCES && scene.isIntersecting(emitterRay, &intersection))
 	{
 		const PrimitiveMetadata* const metadata = intersection.getHitPrimitive()->getMetadata();
-		const BSDF* const bsdfCos = metadata->surfaceBehavior.getBsdf();
+		const BSDF* const bsdf = metadata->surfaceBehavior.getBsdf();
 		const Vector3R V(emitterRay.getDirection().mul(-1.0f));
 		
 		if(intersection.getHitGeoNormal().dot(V) * intersection.getHitSmoothNormal().dot(V) <= 0.0f)
@@ -115,7 +115,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 				{
 					BsdfEvaluation bsdfEval;
 					bsdfEval.inputs.set(intersection, toCameraRay.getDirection(), V);
-					bsdfCos->evaluate(bsdfEval);
+					bsdf->evaluate(bsdfEval);
 					if(bsdfEval.outputs.isGood())
 					{
 						Vector3R cameraImportanceWe;
@@ -136,8 +136,6 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 								camera.getDirection().absDot(toCameraRay.getDirection()) / toCameraVec.squaredLength();
 							weight.mulLocal(G);
 
-							weight.divLocal(toCameraRay.getDirection().absDot(intersection.getHitSmoothNormal()));
-
 							rationalClamp(weight);
 
 							out_senseEvents.push_back(SenseEvent(filmCoord.x, filmCoord.y, emitterRadianceLe.mul(weight)));
@@ -149,19 +147,22 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 
 		BsdfSample bsdfSample;
 		bsdfSample.inputs.set(intersection, V);
-		bsdfCos->sample(bsdfSample);
+		bsdf->sample(bsdfSample);
+
 		if(!bsdfSample.outputs.isGood())
 		{
 			return;
 		}
 
-		const Vector3R& sampledL = bsdfSample.outputs.L;
-		if(intersection.getHitGeoNormal().dot(sampledL) * intersection.getHitSmoothNormal().dot(sampledL) <= 0.0_r)
+		const Vector3R& N = intersection.getHitSmoothNormal();
+		const Vector3R& L = bsdfSample.outputs.L;
+
+		if(intersection.getHitGeoNormal().dot(L) * intersection.getHitSmoothNormal().dot(L) <= 0.0_r)
 		{
 			return;
 		}
 
-		Vector3R liWeight = bsdfSample.outputs.pdfAppliedBsdf;
+		Vector3R liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 
 		if(numBounces >= 3)
 		{
@@ -191,7 +192,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 		// prepare for next intersection
 
 		emitterRay.setOrigin(intersection.getHitPosition());
-		emitterRay.setDirection(sampledL);
+		emitterRay.setDirection(L);
 		numBounces++;
 	}
 }
