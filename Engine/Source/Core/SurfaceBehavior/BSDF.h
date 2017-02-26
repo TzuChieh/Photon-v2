@@ -23,10 +23,6 @@ public:
 	void sample(BsdfSample& sample) const;
 	void calcPdf(BsdfPdfQuery& pdfQuery) const;
 
-	virtual void genImportanceSample(SurfaceSample& sample) const = 0;
-	virtual real calcImportanceSamplePdfW(const SurfaceSample& sample) const = 0;
-	virtual void evaluate(SurfaceSample& sample) const = 0;
-
 private:
 	virtual void evaluate(const Intersection& X, const Vector3R& L, const Vector3R& V, 
 	                      Vector3R* const out_bsdf, ESurfacePhenomenon* const out_type) const = 0;

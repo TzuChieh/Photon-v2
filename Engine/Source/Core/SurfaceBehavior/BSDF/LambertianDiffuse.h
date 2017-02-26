@@ -15,10 +15,6 @@ public:
 	LambertianDiffuse();
 	virtual ~LambertianDiffuse() override;
 
-	virtual void genImportanceSample(SurfaceSample& sample) const override;
-	virtual real calcImportanceSamplePdfW(const SurfaceSample& sample) const override;
-	virtual void evaluate(SurfaceSample& sample) const override;
-
 	void setAlbedo(const std::shared_ptr<Texture>& albedo);
 
 private:

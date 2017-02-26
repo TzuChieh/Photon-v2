@@ -3,7 +3,6 @@
 #include "World/Scene.h"
 #include "Math/TVector3.h"
 #include "Core/Intersection.h"
-#include "Core/Sample/SurfaceSample.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/BSDF.h"

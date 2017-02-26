@@ -512,9 +512,6 @@
     <ClInclude Include="Source\Core\Sample\DirectLightSample.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Sample\SurfaceSample.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Integrator\NormalBufferIntegrator.h">
       <Filter>Header Files</Filter>
     </ClInclude>

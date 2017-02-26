@@ -7,7 +7,6 @@
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/BSDF.h"
-#include "Core/Sample/SurfaceSample.h"
 #include "Math/Math.h"
 #include "Math/Color.h"
 #include "Math/Random.h"
@@ -99,11 +98,12 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 		bsdfSample.inputs.set(intersection, tracingRay.getDirection().mul(-1.0f));
 		hitSurfaceBehavior.getBsdf()->sample(bsdfSample);
 
-		const Vector3R& sampledL = bsdfSample.outputs.L;
+		const Vector3R N = intersection.getHitSmoothNormal();
+		const Vector3R L = bsdfSample.outputs.L;
 
 		// blackness check & sidedness agreement between real geometry and shading (phong-interpolated) normal
 		if(!bsdfSample.outputs.isGood() ||
-		   intersection.getHitSmoothNormal().dot(sampledL) * intersection.getHitGeoNormal().dot(sampledL) <= 0.0_r)
+		   intersection.getHitSmoothNormal().dot(L) * intersection.getHitGeoNormal().dot(L) <= 0.0_r)
 		{
 			break;
 		}
@@ -113,9 +113,9 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 		case ESurfacePhenomenon::REFLECTION:
 		case ESurfacePhenomenon::TRANSMISSION:
 		{
-			rayOriginDelta.set(sampledL).mulLocal(rayDeltaDist);
+			rayOriginDelta.set(L).mulLocal(rayDeltaDist);
 
-			Vector3R liWeight = bsdfSample.outputs.pdfAppliedBsdf;
+			Vector3R liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 
 			if(numBounces >= 3)
 			{
@@ -154,7 +154,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 
 		// prepare for next iteration
 		const Vector3R nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
-		const Vector3R nextRayDirection(sampledL);
+		const Vector3R nextRayDirection(L);
 		tracingRay.setOrigin(nextRayOrigin);
 		tracingRay.setDirection(nextRayDirection);
 		numBounces++;

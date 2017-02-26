@@ -14,10 +14,6 @@ public:
 	TranslucentMicrofacet();
 	virtual ~TranslucentMicrofacet() override;
 
-	virtual void genImportanceSample(SurfaceSample& sample) const override;
-	virtual real calcImportanceSamplePdfW(const SurfaceSample& sample) const override;
-	virtual void evaluate(SurfaceSample& sample) const override;
-
 	inline void setF0(const std::shared_ptr<Texture>& f0)
 	{
 		m_F0 = f0;

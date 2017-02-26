@@ -344,7 +344,6 @@
     <ClInclude Include="Source\Actor\Geometry\GTriangleMesh.h" />
     <ClInclude Include="Source\Actor\Material\AbradedTranslucent.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\TranslucentMicrofacet.h" />
-    <ClInclude Include="Source\Core\Sample\SurfaceSample.h" />
     <ClInclude Include="Source\Actor\ModelLoader.h" />
     <ClInclude Include="Source\Core\BoundingVolume\AABB.h" />
     <ClInclude Include="Source\Actor\ModelParser\ModelParser.h" />

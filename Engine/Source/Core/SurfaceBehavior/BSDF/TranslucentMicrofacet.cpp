@@ -7,7 +7,6 @@
 #include "Core/Intersection.h"
 #include "Core/SurfaceBehavior/BSDF/random_sample.h"
 #include "Core/SurfaceBehavior/BSDF/Microfacet.h"
-#include "Core/Sample/SurfaceSample.h"
 #include "Math/Math.h"
 
 #include <memory>
@@ -25,46 +24,6 @@ TranslucentMicrofacet::TranslucentMicrofacet() :
 }
 
 TranslucentMicrofacet::~TranslucentMicrofacet() = default;
-
-void TranslucentMicrofacet::genImportanceSample(SurfaceSample& sample) const
-{
-	ESurfacePhenomenon type;
-	genSample(*sample.X, sample.V, &sample.L, &sample.liWeight, &type);
-	
-	switch(type)
-	{
-	case ESurfacePhenomenon::REFLECTION: sample.type = ESurfaceSampleType::REFLECTION; break;
-	case ESurfacePhenomenon::TRANSMISSION: sample.type = ESurfaceSampleType::TRANSMISSION; break;
-	}
-}
-
-real TranslucentMicrofacet::calcImportanceSamplePdfW(const SurfaceSample& sample) const
-{
-	ESurfacePhenomenon type;
-	real pdfW;
-
-	switch(sample.type)
-	{
-	case ESurfaceSampleType::REFLECTION: type = ESurfacePhenomenon::REFLECTION; break;
-	case ESurfaceSampleType::TRANSMISSION: type = ESurfacePhenomenon::TRANSMISSION; break;
-	}
-	
-	calcSampleDirPdfW(*sample.X, sample.L, sample.V, type, &pdfW);
-
-	return pdfW;
-}
-
-void TranslucentMicrofacet::evaluate(SurfaceSample& sample) const
-{
-	ESurfacePhenomenon type;
-	evaluate(*sample.X, sample.L, sample.V, &sample.liWeight, &type);
-
-	switch(type)
-	{
-	case ESurfacePhenomenon::REFLECTION: sample.type = ESurfaceSampleType::REFLECTION; break;
-	case ESurfacePhenomenon::TRANSMISSION: sample.type = ESurfaceSampleType::TRANSMISSION; break;
-	}
-}
 
 void TranslucentMicrofacet::evaluate(const Intersection& X, const Vector3R& L, const Vector3R& V,
                                      Vector3R* const out_bsdf, ESurfacePhenomenon* const out_type) const
@@ -114,9 +73,7 @@ void TranslucentMicrofacet::evaluate(const Intersection& X, const Vector3R& L, c
 		const real D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
 		const real G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, alpha);
 
-		// notice that the abs(N dot L) term canceled out with the lambertian term
-		*out_bsdf = F.mul(D * G / (4.0_r * std::abs(NoV)));
-
+		*out_bsdf = F.mul(D * G / (4.0_r * std::abs(NoV * NoL)));
 		*out_type = ESurfacePhenomenon::REFLECTION;
 	}
 	// refraction
@@ -150,11 +107,9 @@ void TranslucentMicrofacet::evaluate(const Intersection& X, const Vector3R& L, c
 		const real D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
 		const real G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, alpha);
 
-		// notice that the abs(N dot L) term canceled out with the lambertian term
-		const real dotTerm = std::abs(HoL * HoV / NoV);
+		const real dotTerm = std::abs(HoL * HoV / (NoV * NoL));
 		const real iorTerm = iorI / (iorI * HoL + iorO * HoV);
 		*out_bsdf = F.complement().mul(D * G * dotTerm * (iorTerm * iorTerm));
-
 		*out_type = ESurfacePhenomenon::TRANSMISSION;
 	}
 }
@@ -166,8 +121,9 @@ void TranslucentMicrofacet::genSample(const Intersection& X, const Vector3R& V,
 	// |HoL||HoV|/(|NoL||NoV|)*(iorO^2)*(D(H)*F(V, H)*G(L, V, H)) / (iorI*HoL + iorO*HoV)^2.
 	// The importance sampling strategy is to generate a microfacet normal (H) which follows D(H)'s distribution, and
 	// generate L by reflecting/refracting -V using H.
-	// The PDF for this sampling scheme is (D(H)*NoH) * (iorO^2 * |HoV| / ((iorI*HoL + iorO*HoV)^2)).
-	// The reason that the latter multiplier in the PDF exists is because there's a jacobian involved (from H's probability space to L's).
+	// The PDF for this sampling scheme is (D(H)*|NoH|) * (iorO^2 * |HoV| / ((iorI*HoL + iorO*HoV)^2)).
+	// The reason that the latter multiplier in the PDF exists is because there's a jacobian involved 
+	// (from H's probability space to L's).
 
 	Vector3R sampledAlpha;
 	m_alpha->sample(X.getHitUVW(), &sampledAlpha);
@@ -254,8 +210,7 @@ void TranslucentMicrofacet::genSample(const Intersection& X, const Vector3R& V,
 
 	const real G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, alpha);
 
-	// notice that the (N dot L) term canceled out with the lambertian term
-	const real dotTerms = abs(HoL / (NoV * NoH));
+	const real dotTerms = std::abs(HoL / (NoV * NoL * NoH));
 	out_pdfAppliedBsdf->set(F.mul(G * dotTerms));
 }
 
@@ -342,7 +297,7 @@ void TranslucentMicrofacet::calcSampleDirPdfW(const Intersection& X, const Vecto
 		const real reflectProb = 1.0_r - F.avg();
 
 		const real iorTerm = iorI*HoL + iorO*HoV;
-		const real multiplier = iorI * iorI * HoV / (iorTerm * iorTerm);
+		const real multiplier = (iorI * iorI * HoV) / (iorTerm * iorTerm);
 
 		*out_pdfW = std::abs(D * NoH * multiplier) * reflectProb;
 		break;
