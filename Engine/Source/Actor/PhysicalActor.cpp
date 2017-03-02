@@ -89,6 +89,15 @@ void PhysicalActor::updateTransforms(const Transform& parentTransform, const Tra
 	m_worldToLocal = m_transformInfo.genInverseTransform(parentInverseTransform);
 }
 
+PhysicalActor& PhysicalActor::operator = (const PhysicalActor& rhs)
+{
+	m_transformInfo = rhs.m_transformInfo;
+	m_localToWorld  = rhs.m_localToWorld;
+	m_worldToLocal  = rhs.m_worldToLocal;
+
+	return *this;
+}
+
 void swap(PhysicalActor& first, PhysicalActor& second)
 {
 	// enable ADL
@@ -99,15 +108,6 @@ void swap(PhysicalActor& first, PhysicalActor& second)
 	swap(first.m_transformInfo,      second.m_transformInfo);
 	swap(first.m_localToWorld,       second.m_localToWorld);
 	swap(first.m_worldToLocal,       second.m_worldToLocal);
-}
-
-PhysicalActor& PhysicalActor::operator = (const PhysicalActor& rhs)
-{
-	m_transformInfo = rhs.m_transformInfo;
-	m_localToWorld  = rhs.m_localToWorld;
-	m_worldToLocal  = rhs.m_worldToLocal;
-
-	return *this;
 }
 
 }// end namespace ph

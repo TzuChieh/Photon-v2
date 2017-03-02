@@ -8,12 +8,16 @@
 #include "Core/Camera/Film.h"
 #include "PostProcess/Frame.h"
 #include "PostProcess/HdrFrame.h"
+#include "Math/TArithmeticArray.tpp"
 
 #include <memory>
 #include <iostream>
 
 PHint32 phStart()
 {
+	/*std::array<ph::real, 32> inputs;
+	ph::TArithmeticArray<ph::real, 32> aaa(inputs);*/
+
 	return PH_TRUE;
 }
 

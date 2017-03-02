@@ -17,16 +17,16 @@ Actor::Actor(const InputPacket& packet) :
 
 Actor::~Actor() = default;
 
-void swap(Actor& first, Actor& second)
-{
-	// nothing to swap
-}
-
 Actor& Actor::operator = (const Actor& rhs)
 {
 	// nothing to assign
 
 	return *this;
+}
+
+void swap(Actor& first, Actor& second)
+{
+	// nothing to swap
 }
 
 }// end namespace ph

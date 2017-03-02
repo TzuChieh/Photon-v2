@@ -6,7 +6,7 @@
 #include "Core/Primitive/Primitive.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
 #include "Math/Transform.h"
-#include "Core/CoreActor.h"
+#include "Core/CookedActor.h"
 
 #include <vector>
 #include <memory>
@@ -25,7 +25,7 @@ public:
 	void add(std::unique_ptr<Primitive> primitive);
 	void add(std::unique_ptr<PrimitiveMetadata> metadata);
 	void add(std::unique_ptr<Emitter> emitter);
-	void add(CoreActor&& coreActor);
+	void add(CookedActor&& cookedActor);
 	void add(std::vector<std::unique_ptr<Primitive>>&& primitives);
 	void add(CookedActorStorage&& other);
 

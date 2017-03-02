@@ -3,7 +3,7 @@
 namespace ph
 {
 
-class CoreActor;
+class CookedActor;
 class InputPacket;
 
 class Actor
@@ -14,10 +14,11 @@ public:
 	Actor(const InputPacket& packet);
 	virtual ~Actor() = 0;
 
-	virtual void genCoreActor(CoreActor* const out_coreActor) const = 0;
+	virtual void cook(CookedActor* const out_cookedActor) const = 0;
+
+	Actor& operator = (const Actor& rhs);
 
 	friend void swap(Actor& first, Actor& second);
-	Actor& operator = (const Actor& rhs);
 };
 
 }// end namespace ph

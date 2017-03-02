@@ -2,7 +2,8 @@
 #include "Core/Intersection.h"
 #include "Common/primitive_type.h"
 #include "Core/Ray.h"
-#include "Actor/AModel.h"
+#include "Actor/Actor.h"
+#include "Core/CookedActor.h"
 #include "World/Intersector/BruteForceIntersector.h"
 #include "World/Intersector/Kdtree/KdtreeIntersector.h"
 #include "World/LightSampler/UniformRandomLightSampler.h"
@@ -50,9 +51,9 @@ void World::cookActors()
 {
 	for(const auto& actor : m_actors)
 	{
-		CoreActor coreActor;
-		actor->genCoreActor(&coreActor);
-		m_cookedActorStorage.add(std::move(coreActor));
+		CookedActor cookedActor;
+		actor->cook(&cookedActor);
+		m_cookedActorStorage.add(std::move(cookedActor));
 	}
 }
 

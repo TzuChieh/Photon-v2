@@ -90,9 +90,6 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceBehavior.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\CoreActor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Actor\Actor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -318,6 +315,12 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\BsdfPdfQuery.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Math\TArithmeticArray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\CookedActor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Common\primitive_type.h">
@@ -423,9 +426,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Utility\TConstIteratorProxy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\CoreActor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Actor\Actor.h">
@@ -699,6 +699,13 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\SurfaceBehavior\BsdfPdfQuery.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\TArithmeticArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\TArithmeticArray.tpp" />
+    <ClInclude Include="Source\Core\CookedActor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

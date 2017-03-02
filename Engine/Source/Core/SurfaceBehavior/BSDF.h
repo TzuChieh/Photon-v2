@@ -9,7 +9,6 @@ namespace ph
 
 class Intersection;
 class Ray;
-class SurfaceSample;
 class BsdfEvaluation;
 class BsdfSample;
 class BsdfPdfQuery;

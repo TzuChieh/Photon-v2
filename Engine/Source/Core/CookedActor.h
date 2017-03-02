@@ -10,22 +10,22 @@
 namespace ph
 {
 
-class CoreActor final
+class CookedActor final
 {
 public:
 	std::vector<std::unique_ptr<Primitive>> primitives;
 	std::unique_ptr<PrimitiveMetadata>      primitiveMetadata;
 	std::unique_ptr<Emitter>                emitter;
 
-	CoreActor();
-	CoreActor(CoreActor&& other);
-	~CoreActor() = default;
+	CookedActor();
+	CookedActor(CookedActor&& other);
+	~CookedActor() = default;
 
 	// forbid copying
-	CoreActor(const CoreActor& other) = delete;
-	CoreActor& operator = (const CoreActor& rhs) = delete;
+	CookedActor(const CookedActor& other) = delete;
+	CookedActor& operator = (const CookedActor& rhs) = delete;
 
-	CoreActor& operator = (CoreActor&& rhs);
+	CookedActor& operator = (CookedActor&& rhs);
 };
 
 }// end namespace ph

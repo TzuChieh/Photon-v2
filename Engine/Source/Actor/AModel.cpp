@@ -5,7 +5,7 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Core/CoreActor.h"
+#include "Core/CookedActor.h"
 #include "FileIO/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 
@@ -47,16 +47,6 @@ AModel::AModel(const InputPacket& packet) :
 
 AModel::~AModel() = default;
 
-void swap(AModel& first, AModel& second)
-{
-	// enable ADL
-	using std::swap;
-
-	// by swapping the members of two objects, the two objects are effectively swapped
-	swap(static_cast<PhysicalActor&>(first), static_cast<PhysicalActor&>(second));
-	swap(first.m_geometry,                   second.m_geometry);
-	swap(first.m_material,                   second.m_material);
-}
 
 AModel& AModel::operator = (AModel rhs)
 {
@@ -65,8 +55,9 @@ AModel& AModel::operator = (AModel rhs)
 	return *this;
 }
 
-void AModel::genCoreActor(CoreActor* const out_coreActor) const
+void AModel::cook(CookedActor* const out_cookedActor) const
 {
+	CookedActor               cookedActor;
 	PrimitiveBuildingMaterial primitiveBuildingMaterial;
 
 	if(m_geometry && m_material)
@@ -80,13 +71,15 @@ void AModel::genCoreActor(CoreActor* const out_coreActor) const
 		m_geometry->discretize(primitiveBuildingMaterial, primitives);
 		m_material->populateSurfaceBehavior(&(metadata->surfaceBehavior));
 
-		out_coreActor->primitives        = std::move(primitives);
-		out_coreActor->primitiveMetadata = std::move(metadata);
+		cookedActor.primitives        = std::move(primitives);
+		cookedActor.primitiveMetadata = std::move(metadata);
 	}
 	else
 	{
-		std::cerr << "warning: at AModel::genCoreActor(), incomplete data detected" << std::endl;
+		std::cerr << "warning: at AModel::cook(), incomplete data detected" << std::endl;
 	}
+
+	*out_cookedActor = std::move(cookedActor);
 }
 
 void AModel::setGeometry(const std::shared_ptr<Geometry>& geometry)
@@ -107,6 +100,17 @@ const Geometry* AModel::getGeometry() const
 const Material* AModel::getMaterial() const
 {
 	return m_material.get();
+}
+
+void swap(AModel& first, AModel& second)
+{
+	// enable ADL
+	using std::swap;
+
+	// by swapping the members of two objects, the two objects are effectively swapped
+	swap(static_cast<PhysicalActor&>(first), static_cast<PhysicalActor&>(second));
+	swap(first.m_geometry,                   second.m_geometry);
+	swap(first.m_material,                   second.m_material);
 }
 
 }// end namespace ph

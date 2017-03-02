@@ -1,21 +1,21 @@
-#include "Core/CoreActor.h"
+#include "Core/CookedActor.h"
 
 namespace ph
 {
 
-CoreActor::CoreActor() :
+CookedActor::CookedActor() :
 	primitives(), primitiveMetadata(nullptr), emitter(nullptr)
 {
 
 }
 
-CoreActor::CoreActor(CoreActor&& other) : 
+CookedActor::CookedActor(CookedActor&& other) :
 	primitives(std::move(other.primitives)), primitiveMetadata(std::move(other.primitiveMetadata)), emitter(std::move(other.emitter))
 {
 
 }
 
-CoreActor& CoreActor::operator = (CoreActor&& rhs)
+CookedActor& CookedActor::operator = (CookedActor&& rhs)
 {
 	primitives        = std::move(rhs.primitives);
 	primitiveMetadata = std::move(rhs.primitiveMetadata);

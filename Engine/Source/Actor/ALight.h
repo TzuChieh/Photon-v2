@@ -14,8 +14,6 @@ namespace ph
 class Geometry;
 class Material;
 class TextureMapper;
-class CookedModelStorage;
-class CookedLightStorage;
 class LightSource;
 
 class ALight final : public PhysicalActor
@@ -27,7 +25,7 @@ public:
 	ALight(const InputPacket& packet);
 	virtual ~ALight() override;
 
-	virtual void genCoreActor(CoreActor* const out_coreActor) const override;
+	virtual void cook(CookedActor* const out_cookedActor) const override;
 
 	const Geometry*    getGeometry() const;
 	const Material*    getMaterial() const;
@@ -36,8 +34,9 @@ public:
 	void setMaterial(const std::shared_ptr<Material>& material);
 	void setLightSource(const std::shared_ptr<LightSource>& lightSource);
 
-	friend void swap(ALight& first, ALight& second);
 	ALight& operator = (ALight rhs);
+
+	friend void swap(ALight& first, ALight& second);
 
 private:
 	std::shared_ptr<Geometry>    m_geometry;

@@ -1,11 +1,9 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Actor/AModel.h"
 #include "Core/Primitive/Primitive.h"
 #include "Core/CookedActorStorage.h"
-#include "Actor/ALight.h"
-#include "Core/CoreActor.h"
+#include "Actor/Actor.h"
 #include "World/Scene.h"
 #include "World/Intersector/Intersector.h"
 #include "World/LightSampler/LightSampler.h"

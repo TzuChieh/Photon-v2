@@ -4,7 +4,7 @@
 #include "Actor/Texture/ConstantTexture.h"
 #include "Actor/Texture/PixelTexture.h"
 #include "Actor/Texture/TextureLoader.h"
-#include "Core/CoreActor.h"
+#include "Core/CookedActor.h"
 #include "FileIO/InputPacket.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "Math/TVector3.h"

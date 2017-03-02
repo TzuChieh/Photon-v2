@@ -172,7 +172,7 @@
     <ClCompile Include="Source\Api\test_scene.cpp" />
     <ClCompile Include="Source\Core\Camera\Camera.cpp" />
     <ClCompile Include="Source\Core\Camera\PinholeCamera.cpp" />
-    <ClCompile Include="Source\Core\CoreActor.cpp" />
+    <ClCompile Include="Source\Core\CookedActor.cpp" />
     <ClCompile Include="Source\Core\CookedActorStorage.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardLightIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardMisIntegrator.cpp" />
@@ -210,6 +210,7 @@
     <ClCompile Include="Source\Actor\Texture\Texture.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\random_sample.cpp" />
     <ClCompile Include="Source\FileIO\ValueParser.cpp" />
+    <ClCompile Include="Source\Math\TArithmeticArray.cpp" />
     <ClCompile Include="Source\PostProcess\HDRFrame.cpp" />
     <ClCompile Include="Source\Math\Math.cpp" />
     <ClCompile Include="Source\Math\TIndexedVector3.cpp" />
@@ -279,7 +280,7 @@
     <ClInclude Include="Source\Core\Camera\PinholeCamera.h" />
     <ClInclude Include="Source\Common\assertion.h" />
     <ClInclude Include="Source\Common\primitive_type.h" />
-    <ClInclude Include="Source\Core\CoreActor.h" />
+    <ClInclude Include="Source\Core\CookedActor.h" />
     <ClInclude Include="Source\Core\CookedActorStorage.h" />
     <ClInclude Include="Source\Actor\LightSource\EmitterBuildingMaterial.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardLightIntegrator.h" />
@@ -323,6 +324,7 @@
     <ClInclude Include="Source\Core\Sample.h" />
     <ClInclude Include="Source\Core\SampleGenerator\SampleGenerator.h" />
     <ClInclude Include="Source\Core\SampleGenerator\PixelJitterSampleGenerator.h" />
+    <ClInclude Include="Source\Math\TArithmeticArray.h" />
     <ClInclude Include="Source\PostProcess\HDRFrame.h" />
     <ClInclude Include="Source\Core\Camera\RadianceSensor.h" />
     <ClInclude Include="Source\Actor\Texture\TextureLoader.h" />
@@ -398,6 +400,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Math\TIndexedVector3.tpp">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="Source\Math\TArithmeticArray.tpp">
       <FileType>Document</FileType>
     </ClInclude>
     <None Include="Source\Math\TMatrix4.tpp" />

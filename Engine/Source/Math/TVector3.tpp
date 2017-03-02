@@ -15,7 +15,7 @@ namespace ph
 {
 
 template<typename T>
-inline TVector3<T>::TVector3() :
+inline TVector3<T>::TVector3() : 
 	x(0), y(0), z(0)
 {
 

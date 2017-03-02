@@ -13,7 +13,6 @@ namespace ph
 class Geometry;
 class Material;
 class TextureMapper;
-class CookedModelStorage;
 
 class AModel final : public PhysicalActor
 {
@@ -24,15 +23,16 @@ public:
 	AModel(const InputPacket& packet);
 	virtual ~AModel() override;
 
-	virtual void genCoreActor(CoreActor* const out_coreActor) const override;
+	virtual void cook(CookedActor* const out_cookedActor) const override;
 
-	friend void swap(AModel& first, AModel& second);
 	AModel& operator = (AModel rhs);
 
 	const Geometry* getGeometry() const;
 	const Material* getMaterial() const;
 	void setGeometry(const std::shared_ptr<Geometry>& geometry);
 	void setMaterial(const std::shared_ptr<Material>& material);
+
+	friend void swap(AModel& first, AModel& second);
 
 private:
 	std::shared_ptr<Geometry> m_geometry;

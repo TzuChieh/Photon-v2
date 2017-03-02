@@ -16,39 +16,44 @@ void CookedActorStorage::clear()
 
 void CookedActorStorage::add(std::unique_ptr<Primitive> primitive)
 {
-	m_primitives.push_back(std::move(primitive));
+	if(primitive != nullptr)
+	{
+		m_primitives.push_back(std::move(primitive));
+	}
 }
 
 void CookedActorStorage::add(std::unique_ptr<PrimitiveMetadata> metadata)
 {
-	m_primitiveMetadatas.push_back(std::move(metadata));
+	if(metadata != nullptr)
+	{
+		m_primitiveMetadatas.push_back(std::move(metadata));
+	}
 }
 
 void CookedActorStorage::add(std::unique_ptr<Emitter> emitter)
 {
-	m_emitters.push_back(std::move(emitter));
+	if(emitter != nullptr)
+	{
+		m_emitters.push_back(std::move(emitter));
+	}
 }
 
-void CookedActorStorage::add(CoreActor&& coreActor)
+void CookedActorStorage::add(CookedActor&& cookedActor)
 {
-	add(std::move(coreActor.primitives));
-
-	if(coreActor.primitiveMetadata)
-	{
-		add(std::move(coreActor.primitiveMetadata));
-	}
-	
-	if(coreActor.emitter)
-	{
-		add(std::move(coreActor.emitter));
-	}
+	add(std::move(cookedActor.primitives));
+	add(std::move(cookedActor.primitiveMetadata));
+	add(std::move(cookedActor.emitter));
 }
 
 void CookedActorStorage::add(std::vector<std::unique_ptr<Primitive>>&& primitives)
 {
-	m_primitives.insert(m_primitives.end(),
-		std::make_move_iterator(primitives.begin()),
-		std::make_move_iterator(primitives.end()));
+	for(auto& primitive : primitives)
+	{
+		if(primitive != nullptr)
+		{
+			m_primitives.push_back(std::move(primitive));
+		}
+	}
 }
 
 void CookedActorStorage::add(CookedActorStorage&& other)

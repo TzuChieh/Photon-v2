@@ -16,7 +16,7 @@ public:
 	PhysicalActor(const InputPacket& packet);
 	virtual ~PhysicalActor() override;
 
-	virtual void genCoreActor(CoreActor* const out_coreActor) const = 0;
+	virtual void cook(CookedActor* const out_cookedActor) const = 0;
 
 	void translate(const Vector3R& translation);
 	void translate(const real x, const real y, const real z);
@@ -29,8 +29,9 @@ public:
 	const Transform* getLocalToWorldTransform() const;
 	const Transform* getWorldToLocalTransform() const;
 
-	friend void swap(PhysicalActor& first, PhysicalActor& second);
 	PhysicalActor& operator = (const PhysicalActor& rhs);
+
+	friend void swap(PhysicalActor& first, PhysicalActor& second);
 
 protected:
 	TransformInfo m_transformInfo;

@@ -5,7 +5,7 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Actor/Material/Material.h"
 #include "Actor/LightSource/LightSource.h"
-#include "Core/CoreActor.h"
+#include "Core/CookedActor.h"
 #include "FileIO/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
@@ -49,17 +49,6 @@ ALight::ALight(const InputPacket& packet) :
 
 ALight::~ALight() = default;
 
-void swap(ALight& first, ALight& second)
-{
-	// enable ADL
-	using std::swap;
-
-	// by swapping the members of two objects, the two objects are effectively swapped
-	swap(static_cast<PhysicalActor&>(first), static_cast<PhysicalActor&>(second));
-	swap(first.m_geometry,                   second.m_geometry);
-	swap(first.m_material,                   second.m_material);
-	swap(first.m_lightSource,                second.m_lightSource);
-}
 
 ALight& ALight::operator = (ALight rhs)
 {
@@ -68,9 +57,9 @@ ALight& ALight::operator = (ALight rhs)
 	return *this;
 }
 
-void ALight::genCoreActor(CoreActor* const out_coreActor) const
+void ALight::cook(CookedActor* const out_cookedActor) const
 {
-	CoreActor                 coreActor;
+	CookedActor               cookedActor;
 	PrimitiveBuildingMaterial primitiveBuildingMaterial;
 	EmitterBuildingMaterial   emitterBuildingMaterial;
 
@@ -87,26 +76,26 @@ void ALight::genCoreActor(CoreActor* const out_coreActor) const
 			m_geometry->discretize(primitiveBuildingMaterial, primitives);
 			m_material->populateSurfaceBehavior(&(metadata->surfaceBehavior));
 
-			coreActor.primitives        = std::move(primitives);
-			coreActor.primitiveMetadata = std::move(metadata);
+			cookedActor.primitives        = std::move(primitives);
+			cookedActor.primitiveMetadata = std::move(metadata);
 		}
 
 		emitterBuildingMaterial.localToWorld = m_localToWorld;
 		emitterBuildingMaterial.worldToLocal = m_worldToLocal;
-		for(const auto& primitive : coreActor.primitives)
+		for(const auto& primitive : cookedActor.primitives)
 		{
 			emitterBuildingMaterial.primitives.push_back(primitive.get());
 		}
 		
-		coreActor.emitter = m_lightSource->buildEmitter(emitterBuildingMaterial);
-		coreActor.primitiveMetadata->surfaceBehavior.setEmitter(coreActor.emitter.get());
+		cookedActor.emitter = m_lightSource->buildEmitter(emitterBuildingMaterial);
+		cookedActor.primitiveMetadata->surfaceBehavior.setEmitter(cookedActor.emitter.get());
 	}
 	else
 	{
-		std::cerr << "warning: at ALight::genCoreActor(), incomplete data detected" << std::endl;
+		std::cerr << "warning: at ALight::cook(), incomplete data detected" << std::endl;
 	}
 
-	*out_coreActor = std::move(coreActor);
+	*out_cookedActor = std::move(cookedActor);
 }
 
 const Geometry* ALight::getGeometry() const
@@ -137,6 +126,18 @@ void ALight::setMaterial(const std::shared_ptr<Material>& material)
 void ALight::setLightSource(const std::shared_ptr<LightSource>& lightSource)
 {
 	m_lightSource = lightSource;
+}
+
+void swap(ALight& first, ALight& second)
+{
+	// enable ADL
+	using std::swap;
+
+	// by swapping the members of two objects, the two objects are effectively swapped
+	swap(static_cast<PhysicalActor&>(first), static_cast<PhysicalActor&>(second));
+	swap(first.m_geometry,                   second.m_geometry);
+	swap(first.m_material,                   second.m_material);
+	swap(first.m_lightSource,                second.m_lightSource);
 }
 
 }// end namespace ph
