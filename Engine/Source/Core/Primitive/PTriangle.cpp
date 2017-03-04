@@ -1,6 +1,6 @@
 #include "Core/Primitive/PTriangle.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
-#include "Math/Transform.h"
+#include "Math/Transform/StaticTransform.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
 #include "Core/BoundingVolume/AABB.h"

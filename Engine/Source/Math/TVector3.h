@@ -23,6 +23,10 @@ public:
 	inline TVector3(const T x, const T y, const T z);
 	inline explicit TVector3(const T var);
 	inline TVector3(const TVector3& other);
+
+	template<typename U>
+	inline explicit TVector3(const TVector3<U>& other);
+
 	virtual inline ~TVector3();
 
 	TVector3 rotate(const TQuaternion<T>& rotation) const;

@@ -36,12 +36,6 @@
     <ClCompile Include="Source\Core\Intersection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Math\TransformInfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Math\Transform.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Api\test_scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -321,6 +315,12 @@
     <ClCompile Include="Source\Core\CookedActor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Math\Transform\StaticTransform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Math\Transform\Transform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Common\primitive_type.h">
@@ -360,12 +360,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Math\Math.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Math\TransformInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Math\Transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Api\test_scene.h">
@@ -706,6 +700,15 @@
     </ClInclude>
     <ClInclude Include="Source\Math\TArithmeticArray.tpp" />
     <ClInclude Include="Source\Core\CookedActor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Transform\StaticTransform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Transform\Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Transform\TDecomposedTransform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

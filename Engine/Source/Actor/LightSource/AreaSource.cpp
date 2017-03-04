@@ -56,8 +56,6 @@ std::unique_ptr<Emitter> AreaSource::buildEmitter(const EmitterBuildingMaterial&
 	
 	std::unique_ptr<PrimitiveAreaEmitter> emitter = std::make_unique<PrimitiveAreaEmitter>(data.primitives);
 	emitter->setEmittedRadiance(m_emittedRadiance);
-	emitter->localToWorld = data.localToWorld;
-	emitter->worldToLocal = data.worldToLocal;
 	return std::move(emitter);
 }
 

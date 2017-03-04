@@ -21,6 +21,10 @@ public:
 public:
 	inline TQuaternion();
 	inline TQuaternion(const TQuaternion& other);
+
+	template<typename U>
+	inline explicit TQuaternion(const TQuaternion<U>& other);
+
 	inline TQuaternion(const T x, const T y, const T z, const T w);
 	inline TQuaternion(const TVector3<T>& normalizedAxis, const T radians);
 

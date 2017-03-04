@@ -2,7 +2,6 @@
 
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
-#include "Math/Transform.h"
 
 namespace ph
 {
@@ -15,9 +14,6 @@ class Ray;
 class Emitter
 {
 public:
-	Transform worldToLocal;
-	Transform localToWorld;
-
 	Emitter();
 	virtual ~Emitter() = 0;
 

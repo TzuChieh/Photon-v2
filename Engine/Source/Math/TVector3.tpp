@@ -22,22 +22,30 @@ inline TVector3<T>::TVector3() :
 }
 
 template<typename T>
-inline TVector3<T>::TVector3(const T x, const T y, const T z) :
+inline TVector3<T>::TVector3(const T x, const T y, const T z) : 
 	x(x), y(y), z(z)
 {
 
 }
 
 template<typename T>
-inline TVector3<T>::TVector3(const T var) :
+inline TVector3<T>::TVector3(const T var) : 
 	x(var), y(var), z(var)
 {
 
 }
 
 template<typename T>
-inline TVector3<T>::TVector3(const TVector3& other) :
+inline TVector3<T>::TVector3(const TVector3& other) : 
 	x(other.x), y(other.y), z(other.z)
+{
+
+}
+
+template<typename T>
+template<typename U>
+inline TVector3<T>::TVector3(const TVector3<U>& other) : 
+	x(static_cast<T>(other.x)), y(static_cast<T>(other.y)), z(static_cast<T>(other.z))
 {
 
 }

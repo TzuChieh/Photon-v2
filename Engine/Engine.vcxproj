@@ -211,12 +211,12 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\random_sample.cpp" />
     <ClCompile Include="Source\FileIO\ValueParser.cpp" />
     <ClCompile Include="Source\Math\TArithmeticArray.cpp" />
+    <ClCompile Include="Source\Math\Transform\Transform.cpp" />
     <ClCompile Include="Source\PostProcess\HDRFrame.cpp" />
     <ClCompile Include="Source\Math\Math.cpp" />
     <ClCompile Include="Source\Math\TIndexedVector3.cpp" />
     <ClCompile Include="Source\Math\TMatrix4.cpp" />
-    <ClCompile Include="Source\Math\Transform.cpp" />
-    <ClCompile Include="Source\Math\TransformInfo.cpp" />
+    <ClCompile Include="Source\Math\Transform\StaticTransform.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GRectangle.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GTriangleMesh.cpp" />
     <ClCompile Include="Source\Actor\Material\AbradedTranslucent.cpp" />
@@ -325,6 +325,8 @@
     <ClInclude Include="Source\Core\SampleGenerator\SampleGenerator.h" />
     <ClInclude Include="Source\Core\SampleGenerator\PixelJitterSampleGenerator.h" />
     <ClInclude Include="Source\Math\TArithmeticArray.h" />
+    <ClInclude Include="Source\Math\Transform\TDecomposedTransform.h" />
+    <ClInclude Include="Source\Math\Transform\Transform.h" />
     <ClInclude Include="Source\PostProcess\HDRFrame.h" />
     <ClInclude Include="Source\Core\Camera\RadianceSensor.h" />
     <ClInclude Include="Source\Actor\Texture\TextureLoader.h" />
@@ -341,7 +343,7 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\random_sample.h" />
     <ClInclude Include="Source\Math\TIndexedVector3.h" />
     <ClInclude Include="Source\Math\TMatrix4.h" />
-    <ClInclude Include="Source\Math\Transform.h" />
+    <ClInclude Include="Source\Math\Transform\StaticTransform.h" />
     <ClInclude Include="Source\Actor\Geometry\GRectangle.h" />
     <ClInclude Include="Source\Actor\Geometry\GTriangleMesh.h" />
     <ClInclude Include="Source\Actor\Material\AbradedTranslucent.h" />
@@ -379,7 +381,6 @@
     <ClInclude Include="Source\Math\constant.h" />
     <ClInclude Include="Source\Math\TQuaternion.h" />
     <ClInclude Include="Source\Math\Random.h" />
-    <ClInclude Include="Source\Math\TransformInfo.h" />
     <ClInclude Include="Source\Actor\Geometry\GTriangle.h" />
     <ClInclude Include="Source\Actor\Material\AbradedOpaque.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\OpaqueMicrofacet.h" />

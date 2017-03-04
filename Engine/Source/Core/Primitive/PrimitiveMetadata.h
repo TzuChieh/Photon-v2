@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Math/Transform.h"
+#include "Math/Transform/StaticTransform.h"
 
 namespace ph
 {
@@ -10,8 +10,8 @@ class PrimitiveMetadata final
 {
 public:
 	SurfaceBehavior surfaceBehavior;
-	Transform       localToWorld;
-	Transform       worldToLocal;
+	StaticTransform localToWorld;
+	StaticTransform worldToLocal;
 
 	PrimitiveMetadata();
 };

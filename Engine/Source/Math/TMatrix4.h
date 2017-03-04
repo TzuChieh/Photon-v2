@@ -4,18 +4,26 @@
 #include "Math/math_fwd.h"
 
 #include <string>
+#include <array>
 
 namespace ph
 {
 	
 template<typename T>
-class TMatrix4
+class TMatrix4 final
 {
+public:
+	static TMatrix4 IDENTITY();
+
 public:
 	T m[4][4];
 
 public:
-	TMatrix4();
+	inline TMatrix4();
+	inline TMatrix4(const TMatrix4& other);
+
+	template<typename U>
+	explicit inline TMatrix4(const TMatrix4<U>& other);
 
 	inline TMatrix4& initIdentity();
 	inline TMatrix4& initTranslation(const T x, const T y, const T z);

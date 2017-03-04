@@ -5,7 +5,7 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/Primitive/Primitive.h"
 #include "Core/Primitive/PrimitiveMetadata.h"
-#include "Math/Transform.h"
+#include "Math/Transform/StaticTransform.h"
 #include "Core/CookedActor.h"
 
 #include <vector>

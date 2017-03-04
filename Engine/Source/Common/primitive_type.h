@@ -16,6 +16,8 @@ typedef double         float64;
 
 typedef float32 real;
 typedef int32   integer;
+typedef float64 hiReal;
+typedef int64   hiInteger;
 
 constexpr inline real operator "" _r(const long double cookedValue)
 {

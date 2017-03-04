@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Math/TransformInfo.h"
-#include "Math/Transform.h"
+#include "Math/Transform/StaticTransform.h"
 #include "Actor/PhysicalActor.h"
 
 #include <memory>

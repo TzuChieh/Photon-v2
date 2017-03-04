@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Actor/Actor.h"
-#include "Math/TransformInfo.h"
-#include "Math/Transform.h"
+#include "Math/Transform/StaticTransform.h"
+#include "Math/Transform/TDecomposedTransform.h"
 #include "Math/math_fwd.h"
 
 namespace ph
@@ -18,6 +18,7 @@ public:
 
 	virtual void cook(CookedActor* const out_cookedActor) const = 0;
 
+	// FIXME: precision loss using real
 	void translate(const Vector3R& translation);
 	void translate(const real x, const real y, const real z);
 	void rotate(const Vector3R& axis, const real degrees);
@@ -26,20 +27,18 @@ public:
 	void scale(const real x, const real y, const real z);
 	void scale(const real scaleFactor);
 
-	const Transform* getLocalToWorldTransform() const;
-	const Transform* getWorldToLocalTransform() const;
+	/*const StaticTransform* getLocalToWorldTransform() const;
+	const StaticTransform* getWorldToLocalTransform() const;*/
 
 	PhysicalActor& operator = (const PhysicalActor& rhs);
 
 	friend void swap(PhysicalActor& first, PhysicalActor& second);
 
 protected:
-	TransformInfo m_transformInfo;
-	Transform     m_localToWorld;
-	Transform     m_worldToLocal;
+	TDecomposedTransform<hiReal> m_localToWorld;
 
-	virtual void updateTransforms(const Transform& parentTransform = Transform(), 
-	                              const Transform& parentInverseTransform = Transform());
+	/*virtual void updateTransforms(const StaticTransform& parentTransform = StaticTransform(),
+	                              const StaticTransform& parentInverseTransform = StaticTransform());*/
 };
 
 }// end namespace ph

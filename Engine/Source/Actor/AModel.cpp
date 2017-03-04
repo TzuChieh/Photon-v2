@@ -63,8 +63,8 @@ void AModel::cook(CookedActor* const out_cookedActor) const
 	if(m_geometry && m_material)
 	{
 		std::unique_ptr<PrimitiveMetadata> metadata = std::make_unique<PrimitiveMetadata>();
-		metadata->worldToLocal = m_worldToLocal;
-		metadata->localToWorld = m_localToWorld;
+		metadata->localToWorld = StaticTransform::makeForward(m_localToWorld);
+		metadata->worldToLocal = StaticTransform::makeInverse(m_localToWorld);
 
 		primitiveBuildingMaterial.metadata = metadata.get();
 		std::vector<std::unique_ptr<Primitive>> primitives;

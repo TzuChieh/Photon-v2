@@ -10,6 +10,12 @@ namespace ph
 {
 
 template<typename T>
+TMatrix4<T> TMatrix4<T>::IDENTITY()
+{
+	return TMatrix4().initIdentity();
+}
+
+template<typename T>
 inline TMatrix4<T>::TMatrix4()
 {
 	for(uint32 i = 0; i < 4; i++)
@@ -17,6 +23,31 @@ inline TMatrix4<T>::TMatrix4()
 		for(uint32 j = 0; j < 4; j++)
 		{
 			m[i][j] = 0;
+		}
+	}
+}
+
+template<typename T>
+inline TMatrix4<T>::TMatrix4(const TMatrix4& other)
+{
+	for(uint32 i = 0; i < 4; i++)
+	{
+		for(uint32 j = 0; j < 4; j++)
+		{
+			m[i][j] = other.m[i][j];
+		}
+	}
+}
+
+template<typename T>
+template<typename U>
+inline TMatrix4<T>::TMatrix4(const TMatrix4<U>& other)
+{
+	for(uint32 i = 0; i < 4; i++)
+	{
+		for(uint32 j = 0; j < 4; j++)
+		{
+			m[i][j] = static_cast<T>(other.m[i][j]);
 		}
 	}
 }

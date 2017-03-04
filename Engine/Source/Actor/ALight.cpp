@@ -68,8 +68,8 @@ void ALight::cook(CookedActor* const out_cookedActor) const
 		if(m_geometry && m_material)
 		{
 			std::unique_ptr<PrimitiveMetadata> metadata = std::make_unique<PrimitiveMetadata>();
-			metadata->localToWorld = m_localToWorld;
-			metadata->worldToLocal = m_worldToLocal;
+			metadata->localToWorld = StaticTransform::makeForward(m_localToWorld);
+			metadata->worldToLocal = StaticTransform::makeInverse(m_localToWorld);
 
 			primitiveBuildingMaterial.metadata = metadata.get();
 			std::vector<std::unique_ptr<Primitive>> primitives;
@@ -80,8 +80,6 @@ void ALight::cook(CookedActor* const out_cookedActor) const
 			cookedActor.primitiveMetadata = std::move(metadata);
 		}
 
-		emitterBuildingMaterial.localToWorld = m_localToWorld;
-		emitterBuildingMaterial.worldToLocal = m_worldToLocal;
 		for(const auto& primitive : cookedActor.primitives)
 		{
 			emitterBuildingMaterial.primitives.push_back(primitive.get());

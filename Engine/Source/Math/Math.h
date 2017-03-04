@@ -41,14 +41,16 @@ public:
 		return std::min(upperBound, std::max(value, lowerBound));
 	}
 
-	static inline real toDegrees(const real radians)
+	template<typename T>
+	static inline T toDegrees(const T radians)
 	{
-		return radians * RECI_PI_REAL * 180.0_r;
+		return radians * static_cast<T>(PH_RECI_PI * 180.0);
 	}
 
-	static inline real toRadians(const real degrees)
+	template<typename T>
+	static inline T toRadians(const T degrees)
 	{
-		return degrees * (1.0_r / 180.0_r) * PI_REAL;
+		return degrees * static_cast<T>(PH_PI / 180.0);
 	}
 
 	// Extract the sign of a value (branchless).
