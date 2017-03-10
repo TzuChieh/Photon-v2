@@ -1,5 +1,8 @@
 package photonCore;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+
 import photonApi.FloatRef;
 import photonApi.LongRef;
 import photonApi.Ph;
@@ -18,6 +21,26 @@ public final class PhEngine
 	public void enterCommand(String commandFragment)
 	{
 		Ph.phEnterCommand(m_engineId, commandFragment);
+	}
+	
+	public void load(String filename)
+	{
+		try
+		{
+			BufferedReader reader = new BufferedReader(new FileReader(filename));
+		    String line = null;
+		    while((line = reader.readLine()) != null)
+		    {
+		    	enterCommand(line + '\n');
+		    }
+		    
+		    enterCommand("->");
+		    reader.close();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	public void render()

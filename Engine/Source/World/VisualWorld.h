@@ -25,7 +25,7 @@ public:
 	VisualWorld(VisualWorld&& other);
 
 	void cook();
-	void addActor(std::unique_ptr<Actor> actor);
+	void addActor(std::shared_ptr<Actor> actor);
 
 	const Scene& getScene() const;
 
@@ -34,8 +34,8 @@ public:
 	VisualWorld& operator = (const VisualWorld& rhs) = delete;
 
 private:
-	std::vector<std::unique_ptr<Actor>> m_actors;
-	CookedActorStorage        m_cookedActorStorage;
+	std::vector<std::shared_ptr<Actor>> m_actors;
+	CookedActorStorage m_cookedActorStorage;
 
 	std::unique_ptr<Intersector>  m_intersector;
 	std::unique_ptr<LightSampler> m_lightSampler;

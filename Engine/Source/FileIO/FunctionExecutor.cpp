@@ -14,7 +14,7 @@ namespace ph
 void FunctionExecutor::executeTransform(const InputPacket& packet)
 {
 	DataTreatment requiredData(EDataImportance::REQUIRED, "FunctionExecutor::executeTransform()");
-	PhysicalActor* actor = packet.getPhysicalActor("target", requiredData);
+	auto& actor = packet.getPhysicalActor("target", requiredData);
 	if(!actor)
 	{
 		return;

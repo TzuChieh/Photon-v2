@@ -43,7 +43,7 @@ void DescriptionParser::parseCommand(const std::string& command, Description& ou
 
 	if(commandType == ECommandType::WORLD)
 	{
-		parseWorldCommand(command);
+		parseWorldCommand(command, out_data);
 	}
 	else if(commandType == ECommandType::CORE)
 	{
@@ -61,6 +61,8 @@ void DescriptionParser::parseCommand(const std::string& command, Description& ou
 
 void DescriptionParser::parseCoreCommand(const std::string& command, Description& out_data)
 {
+	auto& resources = out_data.resources;
+
 	std::vector<std::string> tokens;
 	m_coreCommandTokenizer.tokenize(command, tokens);
 
@@ -79,27 +81,27 @@ void DescriptionParser::parseCoreCommand(const std::string& command, Description
 	if(commandName == "camera")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 2, tokens.end());
-		out_data.camera = ResourceLoader::loadCamera(InputPacket(getValueClauses(clauseStrings), m_resourceCache));
+		out_data.camera = ResourceLoader::loadCamera(InputPacket(getValueClauses(clauseStrings), resources));
 	}
 	else if(commandName == "film")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 2, tokens.end());
-		out_data.film = ResourceLoader::loadFilm(InputPacket(getValueClauses(clauseStrings), m_resourceCache));
+		out_data.film = ResourceLoader::loadFilm(InputPacket(getValueClauses(clauseStrings), resources));
 	}
 	else if(commandName == "sampler")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 2, tokens.end());
-		out_data.sampleGenerator = ResourceLoader::loadSampleGenerator(InputPacket(getValueClauses(clauseStrings), m_resourceCache));
+		out_data.sampleGenerator = ResourceLoader::loadSampleGenerator(InputPacket(getValueClauses(clauseStrings), resources));
 	}
 	else if(commandName == "integrator")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 2, tokens.end());
-		out_data.integrator = ResourceLoader::loadIntegrator(InputPacket(getValueClauses(clauseStrings), m_resourceCache));
+		out_data.integrator = ResourceLoader::loadIntegrator(InputPacket(getValueClauses(clauseStrings), resources));
 	}
 	else if(commandName == "renderer")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 2, tokens.end());
-		out_data.renderOption = RenderOption(InputPacket(getValueClauses(clauseStrings), m_resourceCache));
+		out_data.renderOption = RenderOption(InputPacket(getValueClauses(clauseStrings), resources));
 	}
 	/*else if(commandName == "render")
 	{
@@ -112,8 +114,10 @@ void DescriptionParser::parseCoreCommand(const std::string& command, Description
 	}
 }
 
-void DescriptionParser::parseWorldCommand(const std::string& command)
+void DescriptionParser::parseWorldCommand(const std::string& command, Description& out_data)
 {
+	auto& resources = out_data.resources;
+
 	std::vector<std::string> tokens;
 	m_worldCommandTokenizer.tokenize(command, tokens);
 
@@ -132,43 +136,43 @@ void DescriptionParser::parseWorldCommand(const std::string& command)
 	if(commandName == "geometry")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
-		m_resourceCache.addGeometry(getName(tokens[2]),
-		                            ResourceLoader::loadGeometry(InputPacket(getValueClauses(clauseStrings), m_resourceCache)));
+		resources.addGeometry(getName(tokens[2]),
+		                      ResourceLoader::loadGeometry(InputPacket(getValueClauses(clauseStrings), resources)));
 	}
 	else if(commandName == "texture")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
-		m_resourceCache.addTexture(getName(tokens[2]),
-		                           ResourceLoader::loadTexture(InputPacket(getValueClauses(clauseStrings), m_resourceCache)));
+		resources.addTexture(getName(tokens[2]),
+		                     ResourceLoader::loadTexture(InputPacket(getValueClauses(clauseStrings), resources)));
 	}
 	else if(commandName == "material")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
-		m_resourceCache.addMaterial(getName(tokens[2]),
-		                            ResourceLoader::loadMaterial(InputPacket(getValueClauses(clauseStrings), m_resourceCache)));
+		resources.addMaterial(getName(tokens[2]),
+		                      ResourceLoader::loadMaterial(InputPacket(getValueClauses(clauseStrings), resources)));
 	}
 	else if(commandName == "light-source")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
-		m_resourceCache.addLightSource(getName(tokens[2]),
-		                               ResourceLoader::loadLightSource(InputPacket(getValueClauses(clauseStrings), m_resourceCache)));
+		resources.addLightSource(getName(tokens[2]),
+		                         ResourceLoader::loadLightSource(InputPacket(getValueClauses(clauseStrings), resources)));
 	}
 	else if(commandName == "actor-model")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
-		m_resourceCache.addActorModel(getName(tokens[2]),
-		                              ResourceLoader::loadActorModel(InputPacket(getValueClauses(clauseStrings), m_resourceCache)));
+		resources.addActorModel(getName(tokens[2]),
+		                        ResourceLoader::loadActorModel(InputPacket(getValueClauses(clauseStrings), resources)));
 	}
 	else if(commandName == "actor-light")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
-		m_resourceCache.addActorLight(getName(tokens[2]),
-		                              ResourceLoader::loadActorLight(InputPacket(getValueClauses(clauseStrings), m_resourceCache)));
+		resources.addActorLight(getName(tokens[2]),
+		                        ResourceLoader::loadActorLight(InputPacket(getValueClauses(clauseStrings), resources)));
 	}
 	else if(commandName == "transform")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 2, tokens.end());
-		FunctionExecutor::executeTransform(InputPacket(getValueClauses(clauseStrings), m_resourceCache));
+		FunctionExecutor::executeTransform(InputPacket(getValueClauses(clauseStrings), resources));
 	}
 	else
 	{
@@ -177,16 +181,16 @@ void DescriptionParser::parseWorldCommand(const std::string& command)
 	}
 }
 
-void DescriptionParser::populateWorldWithActors(Description& out_data)
-{
-	std::vector<std::unique_ptr<Actor>> actors = m_resourceCache.claimAllActors();
-	for(auto& actor : actors)
-	{
-		out_data.visualWorld.addActor(std::move(actor));
-	}
-
-	//std::cerr << "warning: DescriptionParser::populateWorldWithActors() not implemented" << std::endl;
-}
+//void DescriptionParser::populateWorldWithActors(Description& out_data)
+//{
+//	std::vector<std::unique_ptr<Actor>> actors = m_resourceCache.claimAllActors();
+//	for(auto& actor : actors)
+//	{
+//		out_data.visualWorld.addActor(std::move(actor));
+//	}
+//
+//	//std::cerr << "warning: DescriptionParser::populateWorldWithActors() not implemented" << std::endl;
+//}
 
 std::string DescriptionParser::genName()
 {

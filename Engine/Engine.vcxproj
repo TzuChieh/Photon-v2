@@ -198,7 +198,7 @@
     <ClCompile Include="Source\FileIO\InputPacket.cpp" />
     <ClCompile Include="Source\FileIO\InputPrototype.cpp" />
     <ClCompile Include="Source\FileIO\Keyword.cpp" />
-    <ClCompile Include="Source\FileIO\NamedResourceCache.cpp" />
+    <ClCompile Include="Source\FileIO\NamedResourceStorage.cpp" />
     <ClCompile Include="Source\FileIO\Description.cpp" />
     <ClCompile Include="Source\FileIO\DescriptionParser.cpp" />
     <ClCompile Include="Source\FileIO\ResourceLoader.cpp" />
@@ -311,7 +311,7 @@
     <ClInclude Include="Source\FileIO\FunctionExecutor.h" />
     <ClInclude Include="Source\FileIO\InputPacket.h" />
     <ClInclude Include="Source\FileIO\Keyword.h" />
-    <ClInclude Include="Source\FileIO\NamedResourceCache.h" />
+    <ClInclude Include="Source\FileIO\NamedResourceStorage.h" />
     <ClInclude Include="Source\FileIO\InputPrototype.h" />
     <ClInclude Include="Source\FileIO\RenderOption.h" />
     <ClInclude Include="Source\FileIO\ResourceLoader.h" />

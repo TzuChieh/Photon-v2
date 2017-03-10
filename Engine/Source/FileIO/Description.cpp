@@ -22,6 +22,12 @@ void Description::update(const real deltaS)
 		return;
 	}
 
+	const auto& actors = resources.getActors();
+	for(const auto& actor : actors)
+	{
+		visualWorld.addActor(actor);
+	}
+
 	visualWorld.cook();
 
 	integrator->update(visualWorld.getScene());

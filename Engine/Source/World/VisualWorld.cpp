@@ -35,13 +35,13 @@ VisualWorld::VisualWorld(VisualWorld&& other) :
 
 }
 
-void VisualWorld::addActor(std::unique_ptr<Actor> actor)
+void VisualWorld::addActor(std::shared_ptr<Actor> actor)
 {
 	// TODO: allow duplicated actors?
 
 	if(actor != nullptr)
 	{
-		m_actors.push_back(std::move(actor));
+		m_actors.push_back(actor);
 	}
 	else
 	{

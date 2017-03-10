@@ -86,39 +86,17 @@ public class Main
 		
 		
 		
-//		PhDescription description = new PhDescription();
-//		description.load("../scene/testScene.p2");
-//		description.load("../scene/cbox_simple.p2");
-//		description.load("../scene/cbox_material_test.p2");
-//		description.load("../scene/cbox_test.p2"); 
-//		description.load("../scene/exporter_test.p2");
-//		description.load("../scene/LAZIENKA.p2");
-//		description.load("../scene/complex/corridor.p2");
-//		description.load("../scene/complex/corridor_1.p2");
-//		description.load("../scene/complex/FinalAR.p2");
-//		description.load("../scene/complex/FinalAR_1.p2");
-//		description.update();
+//		engine.load("../scene/testScene.p2");
+//		engine.load("../scene/cbox_simple.p2");
+		engine.load("../scene/cbox_material_test.p2");
+//		engine.load("../scene/cbox_test.p2"); 
+//		engine.load("../scene/exporter_test.p2");
+//		engine.load("../scene/LAZIENKA.p2");
+//		engine.load("../scene/complex/corridor.p2");
+//		engine.load("../scene/complex/corridor_1.p2");
+//		engine.load("../scene/complex/FinalAR.p2");
+//		engine.load("../scene/complex/FinalAR_1.p2");
 		
-		
-		try
-		{
-			BufferedReader reader = new BufferedReader(new FileReader("../scene/cbox_material_test.p2"));
-		    String line = null;
-		    while((line = reader.readLine()) != null)
-		    {
-		    	line += "\n";
-		    	System.out.print(line);
-		    	
-		    	engine.enterCommand(line);
-		    }
-		    
-		    engine.enterCommand("->");
-		    reader.close();
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
 		
 		Thread queryThread = new Thread((new Runnable()
 		{

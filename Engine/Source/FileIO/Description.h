@@ -7,6 +7,7 @@
 #include "Core/Integrator/Integrator.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "FileIO/RenderOption.h"
+#include "FileIO/NamedResourceStorage.h"
 
 #include <vector>
 #include <memory>
@@ -22,9 +23,11 @@ public:
 	std::unique_ptr<Film>            film;
 	std::unique_ptr<Integrator>      integrator;
 	std::unique_ptr<SampleGenerator> sampleGenerator;
-	VisualWorld visualWorld;
 
-	RenderOption renderOption;
+	RenderOption         renderOption;
+	NamedResourceStorage resources;
+
+	VisualWorld visualWorld;
 
 	Description();
 

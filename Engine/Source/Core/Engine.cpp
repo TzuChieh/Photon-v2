@@ -19,7 +19,6 @@ void Engine::enterCommand(const std::string& commandFragment)
 void Engine::render()
 {
 	// HACK
-	m_parser.populateWorldWithActors(m_description);
 	m_description.update(0.0_r);
 
 	m_renderer.render(m_description);
