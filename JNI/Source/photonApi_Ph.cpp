@@ -11,55 +11,64 @@
 
 /*
 * Class:     photonApi_Ph
-* Method:    phStart
-* Signature: ()Z
+* Method:    phCreateEngine
+* Signature: (LphotonApi/LongRef;I)V
 */
-JNIEXPORT jboolean JNICALL Java_photonApi_Ph_phStart
-(JNIEnv* env, jclass thiz)
+JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateEngine
+(JNIEnv* env, jclass thiz, jobject out_LongRef_engineId, jint numRenderThreads)
 {
-	std::cout << "initializing Photon..." << std::endl;
+	ph::JLongRef jEngineId(out_LongRef_engineId, env);
+	PHuint64     engineId;
 
-	return phStart() == PH_TRUE ? JNI_TRUE : JNI_FALSE;
+	phCreateEngine(&engineId, static_cast<PHuint32>(numRenderThreads));
+
+	jEngineId.setValue(static_cast<PHint64>(engineId));
 }
 
 /*
 * Class:     photonApi_Ph
-* Method:    phExit
-* Signature: ()V
+* Method:    phEnterCommand
+* Signature: (JLjava/lang/String;)V
 */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phExit
-(JNIEnv* env, jclass thiz)
+JNIEXPORT void JNICALL Java_photonApi_Ph_phEnterCommand
+(JNIEnv* env, jclass thiz, jlong engineId, jstring commandFragment)
 {
-	std::cout << "exiting Photon..." << std::endl;
-
-	phExit();
+	const char* commandFragmentString = env->GetStringUTFChars(commandFragment, JNI_FALSE);
+	phEnterCommand(static_cast<PHuint64>(engineId), commandFragmentString);
+	env->ReleaseStringUTFChars(commandFragment, commandFragmentString);
 }
 
 /*
 * Class:     photonApi_Ph
-* Method:    phCreateRenderer
-* Signature: (LphotonApi/LongRef;II)V
-*/
-JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateRenderer
-(JNIEnv* env, jclass thiz, jobject out_LongRef_rendererId, jint numThreads)
-{
-	ph::JLongRef jRendererId(out_LongRef_rendererId, env);
-	PHuint64 rendererId;
-
-	phCreateRenderer(&rendererId, static_cast<PHuint32>(numThreads));
-
-	jRendererId.setValue(static_cast<PHint64>(rendererId));
-}
-
-/*
-* Class:     photonApi_Ph
-* Method:    phDeleteRenderer
+* Method:    phRender
 * Signature: (J)V
 */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteRenderer
-(JNIEnv* env, jclass thiz, jlong rendererId)
+JNIEXPORT void JNICALL Java_photonApi_Ph_phRender
+(JNIEnv* env, jclass thiz, jlong engineId)
 {
-	phDeleteRenderer(static_cast<PHuint64>(rendererId));
+	phRender(static_cast<PHuint64>(engineId));
+}
+
+/*
+* Class:     photonApi_Ph
+* Method:    phDevelopFilm
+* Signature: (JJ)V
+*/
+JNIEXPORT void JNICALL Java_photonApi_Ph_phDevelopFilm
+(JNIEnv* env, jclass thiz, jlong engineId, jlong frameId)
+{
+	phDevelopFilm(static_cast<PHuint64>(engineId), static_cast<PHuint64>(frameId));
+}
+
+/*
+* Class:     photonApi_Ph
+* Method:    phDeleteEngine
+* Signature: (J)V
+*/
+JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteEngine
+(JNIEnv* env, jclass thiz, jlong engineId)
+{
+	phDeleteEngine(static_cast<PHuint64>(engineId));
 }
 
 /*
@@ -94,79 +103,6 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteFrame
 (JNIEnv* env, jclass thiz, jlong frameId)
 {
 	phDeleteFrame(static_cast<PHuint64>(frameId));
-}
-
-/*
-* Class:     photonApi_Ph
-* Method:    phCreateDescription
-* Signature: (LphotonApi/LongRef;)V
-*/
-JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateDescription
-(JNIEnv* env, jclass thiz, jobject out_LongRef_descriptionId)
-{
-	ph::JLongRef jDescriptionId(out_LongRef_descriptionId, env);
-
-	PHuint64 descriptionId;
-	phCreateDescription(&descriptionId);
-
-	jDescriptionId.setValue(static_cast<PHint64>(descriptionId));
-}
-
-/*
-* Class:     photonApi_Ph
-* Method:    phLoadDescription
-* Signature: (JLjava/lang/String;)V
-*/
-JNIEXPORT void JNICALL Java_photonApi_Ph_phLoadDescription
-(JNIEnv* env, jclass thiz, jlong descriptionId, jstring filename)
-{
-	const char* javaString = env->GetStringUTFChars(filename, JNI_FALSE);
-	phLoadDescription(static_cast<PHuint64>(descriptionId), javaString);
-	env->ReleaseStringUTFChars(filename, javaString);
-}
-
-/*
-* Class:     photonApi_Ph
-* Method:    phUpdateDescription
-* Signature: (J)V
-*/
-JNIEXPORT void JNICALL Java_photonApi_Ph_phUpdateDescription
-(JNIEnv* env, jclass thiz, jlong descriptionId)
-{
-	phUpdateDescription(static_cast<PHuint64>(descriptionId));
-}
-
-/*
-* Class:     photonApi_Ph
-* Method:    phDevelopFilm
-* Signature: (JJ)V
-*/
-JNIEXPORT void JNICALL Java_photonApi_Ph_phDevelopFilm
-(JNIEnv* env, jclass thiz, jlong descriptionId, jlong frameId)
-{
-	phDevelopFilm(static_cast<PHuint64>(descriptionId), static_cast<PHuint64>(frameId));
-}
-
-/*
-* Class:     photonApi_Ph
-* Method:    phDeleteDescription
-* Signature: (J)V
-*/
-JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteDescription
-(JNIEnv* env, jclass thiz, jlong descriptionId)
-{
-	phDeleteDescription(static_cast<PHuint64>(descriptionId));
-}
-
-/*
-* Class:     photonApi_Ph
-* Method:    phRender
-* Signature: (JJ)V
-*/
-JNIEXPORT void JNICALL Java_photonApi_Ph_phRender
-(JNIEnv* env, jclass thiz, jlong rendererId, jlong descriptionId)
-{
-	phRender(static_cast<PHuint64>(rendererId), static_cast<PHuint64>(descriptionId));
 }
 
 /*
@@ -208,10 +144,10 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phGetFrameData
 * Signature: (JLphotonApi/FloatRef;)V
 */
 JNIEXPORT void JNICALL Java_photonApi_Ph_phQueryRendererPercentageProgress
-(JNIEnv* env, jclass thiz, jlong rendererId, jobject out_FloatRef_progress)
+(JNIEnv* env, jclass thiz, jlong engineId, jobject out_FloatRef_progress)
 {
 	PHfloat32 progress;
-	phQueryRendererPercentageProgress(static_cast<PHuint64>(rendererId), &progress);
+	phQueryRendererPercentageProgress(static_cast<PHuint64>(engineId), &progress);
 	ph::JFloatRef jProgress(out_FloatRef_progress, env);
 	jProgress.setValue(progress);
 }
@@ -222,10 +158,10 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phQueryRendererPercentageProgress
 * Signature: (JLphotonApi/FloatRef;)V
 */
 JNIEXPORT void JNICALL Java_photonApi_Ph_phQueryRendererSampleFrequency
-(JNIEnv* env, jclass thiz, jlong rendererId, jobject out_FloatRef_frequency)
+(JNIEnv* env, jclass thiz, jlong engineId, jobject out_FloatRef_frequency)
 {
 	PHfloat32 frequency;
-	phQueryRendererSampleFrequency(static_cast<PHuint64>(rendererId), &frequency);
+	phQueryRendererSampleFrequency(static_cast<PHuint64>(engineId), &frequency);
 	ph::JFloatRef jFrequency(out_FloatRef_frequency, env);
 	jFrequency.setValue(frequency);
 }

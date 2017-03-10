@@ -16,26 +16,30 @@ namespace ph
 
 class Intersection;
 class Ray;
+class Actor;
 
-class World final
+class VisualWorld final
 {
 public:
-	World();
+	VisualWorld();
+	VisualWorld(VisualWorld&& other);
 
+	void cook();
 	void addActor(std::unique_ptr<Actor> actor);
-	void update(const real deltaS);
 
 	const Scene& getScene() const;
 
+	// forbid copying
+	VisualWorld(const VisualWorld& other) = delete;
+	VisualWorld& operator = (const VisualWorld& rhs) = delete;
+
 private:
 	std::vector<std::unique_ptr<Actor>> m_actors;
-	CookedActorStorage m_cookedActorStorage;
+	CookedActorStorage        m_cookedActorStorage;
 
-	std::unique_ptr<Intersector> m_intersector;
+	std::unique_ptr<Intersector>  m_intersector;
 	std::unique_ptr<LightSampler> m_lightSampler;
-	Scene m_scene;
-
-	void cookActors();
+	Scene                         m_scene;
 };
 
 }// end namespace ph

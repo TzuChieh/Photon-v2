@@ -146,6 +146,9 @@ std::vector<std::unique_ptr<Actor>> NamedResourceCache::claimAllActors()
 		actors.push_back(std::move(keyValuePair.second));
 	}
 
+	m_actorModels.clear();
+	m_actorLights.clear();
+
 	return actors;
 }
 

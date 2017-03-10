@@ -3,6 +3,12 @@
 namespace ph
 {
 
+CookedActorStorage::CookedActorStorage(CookedActorStorage&& other) : 
+	CookedActorStorage()
+{
+	add(std::move(other));
+}
+
 void CookedActorStorage::clear()
 {
 	m_primitives.clear();

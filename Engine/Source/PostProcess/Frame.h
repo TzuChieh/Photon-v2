@@ -17,7 +17,7 @@ public:
 
 	virtual uint32 getWidthPx() const = 0;
 	virtual uint32 getHeightPx() const = 0;
-	virtual uint32 nPixelComponents() const = 0;
+	virtual uint32 numPixelComponents() const = 0;
 	virtual const real* getPixelData() const = 0;
 };
 

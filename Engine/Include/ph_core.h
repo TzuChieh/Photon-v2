@@ -51,18 +51,11 @@ typedef double         PHfloat64;
 extern "C" {
 #endif
 
-extern PH_API PHint32 phStart();
-extern PH_API void    phExit();
-
-extern PH_API void phCreateRenderer(PHuint64* out_rendererId, const PHuint32 numThreads);
-extern PH_API void phRender(const PHuint64 rendererId, const PHuint64 descriptionId);
-extern PH_API void phDeleteRenderer(const PHuint64 rendererId);
-
-extern PH_API void phCreateDescription(PHuint64* out_descriptionId);
-extern PH_API void phLoadDescription(const PHuint64 descriptionId, const char* const filename);
-extern PH_API void phUpdateDescription(const PHuint64 descriptionId);
-extern PH_API void phDevelopFilm(const PHuint64 descriptionId, const PHuint64 frameId);
-extern PH_API void phDeleteDescription(const PHuint64 descriptionId);
+extern PH_API void phCreateEngine(PHuint64* out_engineId, const PHuint32 numRenderThreads);
+extern PH_API void phEnterCommand(const PHuint64 engineId, const char* const commandFragment);
+extern PH_API void phRender(const PHuint64 engineId);
+extern PH_API void phDevelopFilm(const PHuint64 engineId, const PHuint64 frameId);
+extern PH_API void phDeleteEngine(const PHuint64 engineId);
 
 // TODO: frame related API needs to aware of the size of real
 

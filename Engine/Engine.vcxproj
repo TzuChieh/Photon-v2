@@ -174,6 +174,7 @@
     <ClCompile Include="Source\Core\Camera\PinholeCamera.cpp" />
     <ClCompile Include="Source\Core\CookedActor.cpp" />
     <ClCompile Include="Source\Core\CookedActorStorage.cpp" />
+    <ClCompile Include="Source\Core\Engine.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardLightIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardMisIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardPathIntegrator.cpp" />
@@ -199,7 +200,7 @@
     <ClCompile Include="Source\FileIO\Keyword.cpp" />
     <ClCompile Include="Source\FileIO\NamedResourceCache.cpp" />
     <ClCompile Include="Source\FileIO\Description.cpp" />
-    <ClCompile Include="Source\FileIO\DescriptionFileParser.cpp" />
+    <ClCompile Include="Source\FileIO\DescriptionParser.cpp" />
     <ClCompile Include="Source\FileIO\ResourceLoader.cpp" />
     <ClCompile Include="Source\FileIO\Tokenizer.cpp" />
     <ClCompile Include="Source\FileIO\ValueClause.cpp" />
@@ -212,7 +213,7 @@
     <ClCompile Include="Source\FileIO\ValueParser.cpp" />
     <ClCompile Include="Source\Math\TArithmeticArray.cpp" />
     <ClCompile Include="Source\Math\Transform\Transform.cpp" />
-    <ClCompile Include="Source\PostProcess\HDRFrame.cpp" />
+    <ClCompile Include="Source\PostProcess\HdrFrame.cpp" />
     <ClCompile Include="Source\Math\Math.cpp" />
     <ClCompile Include="Source\Math\TIndexedVector3.cpp" />
     <ClCompile Include="Source\Math\TMatrix4.cpp" />
@@ -232,6 +233,8 @@
     <ClCompile Include="Source\Actor\TextureMapper\TextureMapper.cpp" />
     <ClCompile Include="Source\Common\ThirdParty\lib_stb.cpp" />
     <ClCompile Include="Source\Math\TVector3.cpp" />
+    <ClCompile Include="Source\PostProcess\HdrOperator\HdrOperator.cpp" />
+    <ClCompile Include="Source\PostProcess\ToneMapper\ToneMapper.cpp" />
     <ClCompile Include="Source\World\Intersector\BruteForceIntersector.cpp" />
     <ClCompile Include="Source\World\Intersector\Bvh\BvhBuilder.cpp" />
     <ClCompile Include="Source\World\Intersector\Bvh\BvhInfoNode.cpp" />
@@ -245,7 +248,7 @@
     <ClCompile Include="Source\World\LightSampler\LightSampler.cpp" />
     <ClCompile Include="Source\World\LightSampler\UniformRandomLightSampler.cpp" />
     <ClCompile Include="Source\World\Scene.cpp" />
-    <ClCompile Include="Source\World\World.cpp" />
+    <ClCompile Include="Source\World\VisualWorld.cpp" />
     <ClCompile Include="Source\Core\Camera\Film.cpp" />
     <ClCompile Include="Source\PostProcess\Frame.cpp" />
     <ClCompile Include="Source\Api\ApiDatabase.cpp" />
@@ -283,6 +286,7 @@
     <ClInclude Include="Source\Core\CookedActor.h" />
     <ClInclude Include="Source\Core\CookedActorStorage.h" />
     <ClInclude Include="Source\Actor\LightSource\EmitterBuildingMaterial.h" />
+    <ClInclude Include="Source\Core\Engine.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardLightIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardMisIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardPathIntegrator.h" />
@@ -313,7 +317,7 @@
     <ClInclude Include="Source\FileIO\ResourceLoader.h" />
     <ClInclude Include="Source\FileIO\Tokenizer.h" />
     <ClInclude Include="Source\FileIO\ValueClause.h" />
-    <ClInclude Include="Source\FileIO\DescriptionFileParser.h" />
+    <ClInclude Include="Source\FileIO\DescriptionParser.h" />
     <ClInclude Include="Source\FileIO\Description.h" />
     <ClInclude Include="Source\Actor\Texture\CheckerboardTexture.h" />
     <ClInclude Include="Source\Actor\Texture\ConstantTexture.h" />
@@ -327,7 +331,7 @@
     <ClInclude Include="Source\Math\TArithmeticArray.h" />
     <ClInclude Include="Source\Math\Transform\TDecomposedTransform.h" />
     <ClInclude Include="Source\Math\Transform\Transform.h" />
-    <ClInclude Include="Source\PostProcess\HDRFrame.h" />
+    <ClInclude Include="Source\PostProcess\HdrFrame.h" />
     <ClInclude Include="Source\Core\Camera\RadianceSensor.h" />
     <ClInclude Include="Source\Actor\Texture\TextureLoader.h" />
     <ClInclude Include="Source\Actor\Texture\PixelTexture.h" />
@@ -357,6 +361,9 @@
     <ClInclude Include="Source\Common\ThirdParty\lib_stb.h" />
     <ClInclude Include="Source\Math\Vector2f.h" />
     <ClInclude Include="Source\Math\TVector3.h" />
+    <ClInclude Include="Source\PostProcess\HdrOperator\HdrOperator.h" />
+    <ClInclude Include="Source\PostProcess\PostProcessor.h" />
+    <ClInclude Include="Source\PostProcess\ToneMapper\ToneMapper.h" />
     <ClInclude Include="Source\Utility\TConstIteratorProxy.h" />
     <ClInclude Include="Source\Utility\TIteratorProxy.h" />
     <ClInclude Include="Source\World\Intersector\BruteForceIntersector.h" />
@@ -375,7 +382,7 @@
     <ClInclude Include="Source\World\LightSampler\UniformRandomLightSampler.h" />
     <ClInclude Include="Source\World\Scene.h" />
     <ClInclude Include="Source\World\TManagedResource.h" />
-    <ClInclude Include="Source\World\World.h" />
+    <ClInclude Include="Source\World\VisualWorld.h" />
     <ClInclude Include="Source\PostProcess\Frame.h" />
     <ClInclude Include="Source\Api\ApiDatabase.h" />
     <ClInclude Include="Source\Math\constant.h" />

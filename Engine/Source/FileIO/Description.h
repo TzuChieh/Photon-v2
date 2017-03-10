@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Core/Camera/Camera.h"
-#include "World/World.h"
+#include "World/VisualWorld.h"
 #include "Core/Camera/Film.h"
 #include "Core/Integrator/Integrator.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
@@ -22,7 +22,7 @@ public:
 	std::unique_ptr<Film>            film;
 	std::unique_ptr<Integrator>      integrator;
 	std::unique_ptr<SampleGenerator> sampleGenerator;
-	World world;
+	VisualWorld visualWorld;
 
 	RenderOption renderOption;
 

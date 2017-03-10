@@ -1,6 +1,6 @@
 #include "ph_test.h"
 #include "PostProcess/HdrFrame.h"
-#include "World/World.h"
+#include "World/VisualWorld.h"
 #include "Actor/Geometry/GSphere.h"
 #include "Actor/Geometry/GTriangle.h"
 #include "Core/Camera/PinholeCamera.h"
@@ -62,9 +62,10 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 {
 	using namespace ph;
 
-	Renderer renderer(4);
+	Renderer renderer;
+	renderer.setNumRenderThreads(4);
 	PixelJitterSampleGenerator sampleGenerator(32);
-	World world;
+	VisualWorld world;
 	PinholeCamera camera;
 	Film film(widthPx, heightPx);
 
@@ -78,8 +79,7 @@ void genTestHdrFrame(const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32
 	loadTestScene(&world);
 
 	std::cout << "cooking world" << std::endl;
-	// HACK
-	world.update(0.0f);
+	world.cook();
 
 	LARGE_INTEGER frequency;        // ticks per second
 	LARGE_INTEGER t1, t2;           // ticks

@@ -22,22 +22,24 @@ enum class ECommandType
 	COMMENT
 };
 
-class DescriptionFileParser final
+class DescriptionParser final
 {
 public:
-	DescriptionFileParser();
+	DescriptionParser();
 
-	bool load(const std::string& fullFilename, Description* const out_data);
+	void enter(const std::string& commandFragment, Description& out_data);
+	void populateWorldWithActors(Description& out_data);
 
 private:
-	NamedResourceCache m_cache;
-	Tokenizer m_coreCommandTokenizer;
-	Tokenizer m_worldCommandTokenizer;
-	std::size_t m_generatedNameCounter;
+	std::string        m_commandCache;
+	NamedResourceCache m_resourceCache;
+	Tokenizer          m_coreCommandTokenizer;
+	Tokenizer          m_worldCommandTokenizer;
+	std::size_t        m_generatedNameCounter;
 
+	void parseCommand(const std::string& command, Description& out_data);
 	void parseCoreCommand(const std::string& command, Description& out_data);
 	void parseWorldCommand(const std::string& command);
-	void populateWorldWithActors(Description& out_data);
 	std::string genName();
 	std::string getName(const std::string& nameToken);
 

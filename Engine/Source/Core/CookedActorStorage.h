@@ -18,6 +18,7 @@ class CookedActorStorage final
 {
 public:
 	CookedActorStorage() = default;
+	CookedActorStorage(CookedActorStorage&& other);
 	~CookedActorStorage() = default;
 
 	void clear();

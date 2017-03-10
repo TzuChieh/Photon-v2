@@ -13,19 +13,21 @@ namespace ph
 
 class Film;
 class Sample;
-class World;
+class VisualWorld;
 class Camera;
 class Description;
 
 class Renderer final
 {
 public:
-	Renderer(const uint32 numThreads);
+	Renderer();
 	~Renderer();
 
 	void render(const Description& description) const;
 	float32 queryPercentageProgress() const;
 	float32 querySampleFrequency() const;
+
+	void setNumRenderThreads(const uint32 numThreads);
 
 private:
 	uint32 m_numThreads;

@@ -7,12 +7,12 @@
 #include "Actor/Material/MatteOpaque.h"
 #include "Actor/Material/AbradedOpaque.h"
 #include "Actor/Material/AbradedTranslucent.h"
-#include "World/World.h"
+#include "World/VisualWorld.h"
 #include "Actor/Geometry/GRectangle.h"
 #include "Actor/ModelLoader.h"
 #include "Actor/Texture/CheckerboardTexture.h"
 #include "Actor/TextureMapper/SphericalMapper.h"
-#include "FileIO/DescriptionFileParser.h"
+#include "FileIO/DescriptionParser.h"
 #include "Actor/LightSource/AreaSource.h"
 #include "Actor/ALight.h"
 #include "Actor/Geometry/GCuboid.h"
@@ -27,7 +27,7 @@
 namespace ph
 {
 
-void loadTestScene(World* const out_world)
+void loadTestScene(VisualWorld* const out_world)
 {
 	/*RenderDataFileLoader dataFileLoader;
 	dataFileLoader.load("./testDataFile.txt");*/
@@ -38,12 +38,12 @@ void loadTestScene(World* const out_world)
 	std::cerr << testValuePacket.toString() << std::endl;
 	std::cerr << testValuePacket2.toString() << std::endl;*/
 
-	DescriptionFileParser descriptionFileParser;
+	DescriptionParser descriptionParser;
 	Description description;
-	if(!descriptionFileParser.load("../SceneResource/testScene.p2", &description))
+	/*if(!descriptionParser.load("../SceneResource/testScene.p2", &description))
 	{
 		std::cerr << "description file loading failed" << std::endl;
-	}
+	}*/
 
 	loadCbox3ObjScene(out_world);
 
@@ -223,325 +223,325 @@ void loadTestScene(World* const out_world)
 	//sphereModel.translate(0.5f, -3.2f, 3);
 }
 
-void loadCornellBox(World* const out_world, const real boxSize)
+void loadCornellBox(VisualWorld* const out_world, const real boxSize)
 {
-	const real halfBoxSize = boxSize * 0.5_r;
+	//const real halfBoxSize = boxSize * 0.5_r;
 
-	auto unitRectangleGeom = std::make_shared<GRectangle>(1.0_r, 1.0_r);
+	//auto unitRectangleGeom = std::make_shared<GRectangle>(1.0_r, 1.0_r);
 
-	auto chromiumMaterial = std::make_shared<AbradedOpaque>();
-	chromiumMaterial->setF0(Vector3R(0.549585_r, 0.556114_r, 0.554256_r));
-	//chromiumMaterial->setRoughness(0.3f);
-	chromiumMaterial->setRoughness(0.01_r);
-	//chromiumMaterial->setRoughness(0.0f);
+	//auto chromiumMaterial = std::make_shared<AbradedOpaque>();
+	//chromiumMaterial->setF0(Vector3R(0.549585_r, 0.556114_r, 0.554256_r));
+	////chromiumMaterial->setRoughness(0.3f);
+	//chromiumMaterial->setRoughness(0.01_r);
+	////chromiumMaterial->setRoughness(0.0f);
 
-	ALight topLight;
-	topLight.rotate(Vector3R(1, 0, 0), 90);
-	//topLight.rotate(Vector3f(1, 0, 0), 45);
-	//topLight.scale(boxSize * 0.05f);
-	//topLight.scale(boxSize * 0.3f);
-	//topLight.scale(boxSize * 0.5f);
-	topLight.scale(boxSize * 0.9f);
+	//ALight topLight;
+	//topLight.rotate(Vector3R(1, 0, 0), 90);
+	////topLight.rotate(Vector3f(1, 0, 0), 45);
+	////topLight.scale(boxSize * 0.05f);
+	////topLight.scale(boxSize * 0.3f);
+	////topLight.scale(boxSize * 0.5f);
+	//topLight.scale(boxSize * 0.9f);
 
-	//lightModel.scale(boxSize * 0.9f, boxSize * 0.7f, boxSize * 0.9f);
-	//lightModel.translate(0, 1.4f, -(halfBoxSize - halfBoxSize * 0.05f));
+	////lightModel.scale(boxSize * 0.9f, boxSize * 0.7f, boxSize * 0.9f);
+	////lightModel.translate(0, 1.4f, -(halfBoxSize - halfBoxSize * 0.05f));
 
-	topLight.translate(0, halfBoxSize - halfBoxSize * 0.05f, 0);
-	//lightModel.translate(0, -halfBoxSize + 1.0f, 0);
-	//lightModel.translate(0, -halfBoxSize + 1.5f, 0);
-	//lightModel.translate(0, 0, -(halfBoxSize - halfBoxSize * 0.05f));
+	//topLight.translate(0, halfBoxSize - halfBoxSize * 0.05f, 0);
+	////lightModel.translate(0, -halfBoxSize + 1.0f, 0);
+	////lightModel.translate(0, -halfBoxSize + 1.5f, 0);
+	////lightModel.translate(0, 0, -(halfBoxSize - halfBoxSize * 0.05f));
 
-	auto topLightMaterial = std::make_shared<MatteOpaque>();
-	topLightMaterial->setAlbedo(0.5f, 0.5f, 0.5f);
-	topLight.setGeometry(unitRectangleGeom);
-	topLight.setMaterial(topLightMaterial);
+	//auto topLightMaterial = std::make_shared<MatteOpaque>();
+	//topLightMaterial->setAlbedo(0.5f, 0.5f, 0.5f);
+	//topLight.setGeometry(unitRectangleGeom);
+	//topLight.setMaterial(topLightMaterial);
 
-	//auto topLightSource = std::make_shared<AreaSource>(Vector3f(3.4f, 3.4f, 3.4f));
-	auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/debugTexture.png");
-	//auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/bigPlatform.png");
-	//auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/mountains.jpg");
-	//auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/vm.png");
-	//auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/human.png");
-	//auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/scenery.jpg");
-	//auto topLightSource = std::make_shared<AreaSource>(Vector3f(120, 120, 120));
-	//auto topLightSource = std::make_shared<AreaSource>(Vector3f(1, 1, 1));
-	//auto topLightSource = std::make_shared<AreaSource>(Vector3f(0.4f, 0.4f, 0.4f));
-	//auto topLightSource = std::make_shared<AreaSource>(Vector3f(0.2f, 0.2f, 0.2f));
-	topLight.setLightSource(topLightSource);
-	out_world->addActor(std::make_unique<ALight>(topLight));
+	////auto topLightSource = std::make_shared<AreaSource>(Vector3f(3.4f, 3.4f, 3.4f));
+	//auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/debugTexture.png");
+	////auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/bigPlatform.png");
+	////auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/mountains.jpg");
+	////auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/vm.png");
+	////auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/human.png");
+	////auto topLightSource = std::make_shared<AreaSource>("../SceneResource/image/scenery.jpg");
+	////auto topLightSource = std::make_shared<AreaSource>(Vector3f(120, 120, 120));
+	////auto topLightSource = std::make_shared<AreaSource>(Vector3f(1, 1, 1));
+	////auto topLightSource = std::make_shared<AreaSource>(Vector3f(0.4f, 0.4f, 0.4f));
+	////auto topLightSource = std::make_shared<AreaSource>(Vector3f(0.2f, 0.2f, 0.2f));
+	//topLight.setLightSource(topLightSource);
+	//out_world->addActor(std::make_unique<ALight>(topLight));
 
-	//auto lightMatl = std::make_shared<LightMaterial>();
-	//lightMatl->setEmittedRadiance(3.4f, 3.4f, 3.4f);
-	////lightMatl->setEmittedRadiance(1.8f, 1.8f, 1.8f);
-	////lightMatl->setEmittedRadiance(1.0f, 1.0f, 1.0f);
-	//AModel lightModel(unitRectangleGeom, lightMatl);
-	//lightModel.rotate(Vector3f(1, 0, 0), 90);
-	//lightModel.scale(boxSize * 0.3f);
-	//lightModel.translate(0, halfBoxSize - halfBoxSize * 0.05f, 0);
-	//out_world->addActor(std::make_unique<AModel>(lightModel));
+	////auto lightMatl = std::make_shared<LightMaterial>();
+	////lightMatl->setEmittedRadiance(3.4f, 3.4f, 3.4f);
+	//////lightMatl->setEmittedRadiance(1.8f, 1.8f, 1.8f);
+	//////lightMatl->setEmittedRadiance(1.0f, 1.0f, 1.0f);
+	////AModel lightModel(unitRectangleGeom, lightMatl);
+	////lightModel.rotate(Vector3f(1, 0, 0), 90);
+	////lightModel.scale(boxSize * 0.3f);
+	////lightModel.translate(0, halfBoxSize - halfBoxSize * 0.05f, 0);
+	////out_world->addActor(std::make_unique<AModel>(lightModel));
 
-	auto leftWallMatl = std::make_shared<MatteOpaque>();
-	leftWallMatl->setAlbedo(0.85f, 0.3f, 0.3f);
-	//leftWallMatl->setAlbedo(1.0f, 1.0f, 1.0f);
-	AModel leftWallModel(unitRectangleGeom, leftWallMatl);
-	leftWallModel.rotate(Vector3R(0, 1, 0), 90);
-	leftWallModel.scale(boxSize);
-	leftWallModel.translate(-halfBoxSize, 0, 0);
-	out_world->addActor(std::make_unique<AModel>(leftWallModel));
-
-	auto rightWallMatl = std::make_shared<MatteOpaque>();
-	rightWallMatl->setAlbedo(0.3f, 0.3f, 0.85f);
-	AModel rightWallModel(unitRectangleGeom, rightWallMatl);
-	rightWallModel.rotate(Vector3R(0, 1, 0), -90);
-	rightWallModel.scale(boxSize);
-	rightWallModel.translate(halfBoxSize, 0, 0);
-	out_world->addActor(std::make_unique<AModel>(rightWallModel));
-
-	auto backWallMatl = std::make_shared<MatteOpaque>();
-	backWallMatl->setAlbedo(0.7f, 0.7f, 0.7f);
-	AModel backWallModel(unitRectangleGeom, backWallMatl);
-	backWallModel.scale(boxSize);
-	backWallModel.translate(0, 0, -halfBoxSize);
-	out_world->addActor(std::make_unique<AModel>(backWallModel));
-
-	auto topWallMatl = std::make_shared<MatteOpaque>();
-	backWallMatl->setAlbedo(0.7f, 0.7f, 0.7f);
-	AModel topWallModel(unitRectangleGeom, topWallMatl);
-	topWallModel.rotate(Vector3R(1, 0, 0), 90);
-	topWallModel.scale(boxSize);
-	topWallModel.translate(0, halfBoxSize, 0);
-	out_world->addActor(std::make_unique<AModel>(topWallModel));
-
-	auto groundWallMatl = std::make_shared<MatteOpaque>();
-	//groundWallMatl->setAlbedo(0.7f, 0.7f, 0.7f);
-	groundWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
-	AModel groundWallModel(unitRectangleGeom, groundWallMatl);
-	//AModel groundWallModel(unitRectangleGeom, chromiumMaterial);
-	groundWallModel.rotate(Vector3R(1, 0, 0), -90);
-	groundWallModel.scale(boxSize);
-	groundWallModel.translate(0, -halfBoxSize, 0);
-	out_world->addActor(std::make_unique<AModel>(groundWallModel));
-}
-
-void loadCbox3ObjScene(World* const out_world)
-{
-	const real boxSize = 10.0f;
-
-	//loadCornellBox(out_world, 10.0f);
-	loadCornellBox(out_world, boxSize);
-
-	auto goldMaterial = std::make_shared<AbradedOpaque>();
-	goldMaterial->setF0(Vector3R(1.0f, 0.765557f, 0.336057f));
-	goldMaterial->setRoughness(0.03f);
-	//goldMaterial->setRoughness(0.001f);
-
-	auto silverMaterial = std::make_shared<AbradedOpaque>();
-	silverMaterial->setF0(Vector3R(0.971519f, 0.959915f, 0.915324f));
-	silverMaterial->setRoughness(0.0f);
-
-	auto glassMaterial = std::make_shared<AbradedTranslucent>();
-	glassMaterial->setF0(0.04f, 0.04f, 0.04f);
-	//glassMaterial->setF0(0.1836735f, 0.1836735f, 0.1836735f);
-	glassMaterial->setIOR(1.5f);
-	//glassMaterial->setIOR(2.5f);
-	//glassMaterial->setIOR(1.0f);
-	//glassMaterial->setIOR(1.0f);
-	//glassMaterial->setRoughness(0.2f);
-	glassMaterial->setRoughness(0.0f);
-
-	auto waterMaterial = std::make_shared<AbradedTranslucent>();
-	waterMaterial->setF0(0.020059312f, 0.020059312f, 0.020059312f);
-	waterMaterial->setIOR(1.33f);
-	waterMaterial->setRoughness(0.0f);
-
-	auto matteMaterial = std::make_shared<MatteOpaque>();
-	matteMaterial->setAlbedo(0.6f, 0.6f, 0.6f);
-
-	/*ModelLoader modelLoader;
-
-	std::vector<AModel> dragonModels;
-	std::vector<AModel> lucyModels;
-	if(modelLoader.load("../SceneResource/dragon.obj", &dragonModels) && modelLoader.load("../SceneResource/lucy.obj", &lucyModels))
-	{
-		for(auto& model : dragonModels)
-		{
-			model.translate(-2.0f, -5, 0);
-			model.scale(3.5f);
-			model.rotate(Vector3f(0, 1, 0), 240);
-
-			model.setMaterial(goldMaterial);
-
-			out_world->addActor(std::make_unique<AModel>(model));
-		}
-
-		for(auto& model : lucyModels)
-		{
-			model.translate(1.9f, -5, -0.2f);
-			model.scale(4.0f);
-
-			model.setMaterial(silverMaterial);
-
-			out_world->addActor(std::make_unique<AModel>(model));
-		}
-	}*/
-
-	/*auto sphereMaterial = std::make_shared<AbradedTranslucent>();
-	sphereMaterial->setF0(0.04f, 0.04f, 0.04f);
-	sphereMaterial->setRoughness(0.0f);
-	sphereMaterial->setIOR(1.5f);*/
-	/*auto sphereMaterial = std::make_shared<MatteOpaque>();
-	sphereMaterial->setAlbedo(0.6f, 0.6f, 0.6f);*/
-
-	/*auto sphereGeometry = std::make_shared<GSphere>(1.8f);
-	AModel sphereModel(sphereGeometry, glassMaterial);
-	sphereModel.rotate(Vector3f(1, 1, 0).normalize(), 45);
-	sphereModel.translate(0.5f, -3.2f, 3);*/
-
-
-	//auto sphereGeometry = std::make_shared<GSphere>(2.7f);
-	//AModel sphereModel(sphereGeometry, glassMaterial);
-	////AModel sphereModel(sphereGeometry, goldMaterial);
-	//sphereModel.rotate(Vector3f(1, 1, 0).normalize(), 45);
-	////sphereModel.translate(0.5f, -2.0f, 3);
-	//sphereModel.translate(0.9f, -2.3f, 1.3f);
-
-	//out_world->addActor(std::make_unique<AModel>(sphereModel));
-
-
-	//auto cubeGeometry = std::make_shared<GCuboid>(4.5f, 4.5f, 4.5f);
-	//AModel cubeModel(cubeGeometry, glassMaterial);
-	//cubeModel.rotate(Vector3f(1, 1, 0).normalize(), 30);
-	////cubeModel.translate(0, -1.2f, 0);
-	//cubeModel.translate(0, -1.5f, 0);
-	//out_world->addActor(std::make_unique<AModel>(cubeModel));
-
-	ModelLoader modelLoader;
-	std::vector<AModel> dragonModels;
-	if(modelLoader.load("../SceneResource/dragon.obj", &dragonModels))
-	{
-		for(auto& model : dragonModels)
-		{
-			model.translate(0, -5, 0);
-			model.scale(5.0f);
-			//model.scale(4.5f);
-			model.rotate(Vector3R(0, 1, 0), 180);
-
-			//model.setMaterial(glassMaterial);
-			model.setMaterial(silverMaterial);
-
-			out_world->addActor(std::make_unique<AModel>(model));
-		}
-	}
-
-	auto waveMaterial = std::make_shared<MatteOpaque>();
-	waveMaterial->setAlbedo(0.7f, 0.7f, 0.7f);
-	auto waveGeometry = std::make_shared<GWave>(boxSize, 2.501f, boxSize);
-	//AModel waveModel(waveGeometry, waveMaterial);
-	AModel waveModel(waveGeometry, waterMaterial);
-	//waveModel.rotate(Vector3f(0, 1, 0), 315);
-	//waveModel.scale(boxSize);
-	waveModel.translate(0, -2.5f, 0);
-	out_world->addActor(std::make_unique<AModel>(waveModel));
-}
-
-void load5bScene(World* const out_world)
-{
-	const real wallRadius = 1000.0_r;
-	const real boxHalfSize = 5.0_r;
-
-	//auto leftWallBall = std::make_shared<GSphere>(wallRadius);
 	//auto leftWallMatl = std::make_shared<MatteOpaque>();
-	//leftWallMatl->setAlbedo(0.9f, 0.0f, 0.0f);
-	////auto leftWallMatl = std::make_shared<AbradedOpaque>();
-	////leftWallMatl->setRoughness(1.0f);
-	////leftWallMatl->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));// gold
-	//Model leftWallModel(leftWallBall, leftWallMatl);
-	//leftWallModel.translate(-wallRadius - boxHalfSize, 0, 0);
-	//out_world->addModel(leftWallModel);
+	//leftWallMatl->setAlbedo(0.85f, 0.3f, 0.3f);
+	////leftWallMatl->setAlbedo(1.0f, 1.0f, 1.0f);
+	//AModel leftWallModel(unitRectangleGeom, leftWallMatl);
+	//leftWallModel.rotate(Vector3R(0, 1, 0), 90);
+	//leftWallModel.scale(boxSize);
+	//leftWallModel.translate(-halfBoxSize, 0, 0);
+	//out_world->addActor(std::make_unique<AModel>(leftWallModel));
 
-	//auto rightWallBall = std::make_shared<GSphere>(wallRadius);
 	//auto rightWallMatl = std::make_shared<MatteOpaque>();
-	//rightWallMatl->setAlbedo(0.0f, 0.0f, 0.9f);
-	//Model rightWallModel(rightWallBall, rightWallMatl);
-	//rightWallModel.translate(wallRadius + boxHalfSize, 0, 0);
-	//out_world->addModel(rightWallModel);
+	//rightWallMatl->setAlbedo(0.3f, 0.3f, 0.85f);
+	//AModel rightWallModel(unitRectangleGeom, rightWallMatl);
+	//rightWallModel.rotate(Vector3R(0, 1, 0), -90);
+	//rightWallModel.scale(boxSize);
+	//rightWallModel.translate(halfBoxSize, 0, 0);
+	//out_world->addActor(std::make_unique<AModel>(rightWallModel));
 
-	//auto backWallBall = std::make_shared<GSphere>(wallRadius);
 	//auto backWallMatl = std::make_shared<MatteOpaque>();
-	//backWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
-	//Model backWallModel(backWallBall, backWallMatl);
-	//backWallModel.translate(0, 0, -wallRadius - boxHalfSize - 10.0f);
-	//out_world->addModel(backWallModel);
+	//backWallMatl->setAlbedo(0.7f, 0.7f, 0.7f);
+	//AModel backWallModel(unitRectangleGeom, backWallMatl);
+	//backWallModel.scale(boxSize);
+	//backWallModel.translate(0, 0, -halfBoxSize);
+	//out_world->addActor(std::make_unique<AModel>(backWallModel));
 
-	//auto groundWallBall = std::make_shared<GSphere>(wallRadius);
+	//auto topWallMatl = std::make_shared<MatteOpaque>();
+	//backWallMatl->setAlbedo(0.7f, 0.7f, 0.7f);
+	//AModel topWallModel(unitRectangleGeom, topWallMatl);
+	//topWallModel.rotate(Vector3R(1, 0, 0), 90);
+	//topWallModel.scale(boxSize);
+	//topWallModel.translate(0, halfBoxSize, 0);
+	//out_world->addActor(std::make_unique<AModel>(topWallModel));
+
 	//auto groundWallMatl = std::make_shared<MatteOpaque>();
+	////groundWallMatl->setAlbedo(0.7f, 0.7f, 0.7f);
 	//groundWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
-	//Model groundWallModel(groundWallBall, groundWallMatl);
-	//groundWallModel.translate(0, -wallRadius - boxHalfSize, 0);
-	//out_world->addModel(groundWallModel);
+	//AModel groundWallModel(unitRectangleGeom, groundWallMatl);
+	////AModel groundWallModel(unitRectangleGeom, chromiumMaterial);
+	//groundWallModel.rotate(Vector3R(1, 0, 0), -90);
+	//groundWallModel.scale(boxSize);
+	//groundWallModel.translate(0, -halfBoxSize, 0);
+	//out_world->addActor(std::make_unique<AModel>(groundWallModel));
+}
 
-	//auto topWallBall = std::make_shared<GSphere>(wallRadius);
-	//auto topWallMatl = std::make_shared<LightMaterial>();
-	////auto topWallMatl = std::make_shared<MatteOpaque>();
-	////topWallMatl->setEmittedRadiance(1.5f, 1.5f, 1.5f);
-	//topWallMatl->setEmittedRadiance(1.0f, 1.0f, 1.0f);
-	//Model topWallModel(topWallBall, topWallMatl);
-	//topWallModel.translate(0, wallRadius + boxHalfSize, 0);
-	//out_world->addModel(topWallModel);
-
-	//auto frontWallBall = std::make_shared<GSphere>(wallRadius);
-	//auto frontWallMatl = std::make_shared<MatteOpaque>();
-	//frontWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
-	//Model frontWallModel(frontWallBall, frontWallMatl);
-	//frontWallModel.translate(0, 0, wallRadius + boxHalfSize);
-	//out_world->addModel(frontWallModel);
-
-	// scene objects
-
-	auto sphere1Geometry = std::make_shared<GSphere>(0.25f);
-	auto sphere1Matl = std::make_shared<MatteOpaque>();
-	sphere1Matl->setAlbedo(0.3f, 0.3f, 1.0f);
-	AModel sphere1Model(sphere1Geometry, sphere1Matl);
-	sphere1Model.translate(-boxHalfSize + 0.25f, -boxHalfSize + 0.25f, -10.0f);
-	out_world->addActor(std::make_unique<AModel>(sphere1Model));
-
-	auto sphere2Geometry = std::make_shared<GSphere>(0.5f);
-	auto sphere2Matl = std::make_shared<MatteOpaque>();
-	sphere2Matl->setAlbedo(0.3f, 1.0f, 0.3f);
-	AModel sphere2Model(sphere2Geometry, sphere2Matl);
-	sphere2Model.translate(-boxHalfSize + 1.5f, -boxHalfSize + 0.5f, -10.0f);
-	out_world->addActor(std::make_unique<AModel>(sphere2Model));
-
-	auto sphere3Geometry = std::make_shared<GSphere>(1.0f);
-	auto sphere3Matl = std::make_shared<MatteOpaque>();
-	sphere3Matl->setAlbedo(1.0f, 0.3f, 0.3f);
-	AModel sphere3Model(sphere3Geometry, sphere3Matl);
-	sphere3Model.translate(-boxHalfSize + 4.0f, -boxHalfSize + 1.0f, -10.0f);
-	out_world->addActor(std::make_unique<AModel>(sphere3Model));
-
-	auto sphere4Geometry = std::make_shared<GSphere>(3.0f);
-	//auto sphere4Matl = std::make_shared<MatteOpaque>();
-	//sphere4Matl->setAlbedo(1.0f, 1.0f, 1.0f);
-	auto sphere4Matl = std::make_shared<AbradedOpaque>();
-	sphere4Matl->setRoughness(0.1f);
-	//sphere4Matl->setF0(Vector3f(1.0f, 1.0f, 1.0f));
-	AModel sphere4Model(sphere4Geometry, sphere4Matl);
-	sphere4Model.translate(boxHalfSize - 3.0f, -boxHalfSize + 3.0f, -boxHalfSize - 10.0f + 3.0f);
-	out_world->addActor(std::make_unique<AModel>(sphere4Model));
-
-	auto sphere5Geometry = std::make_shared<GSphere>(0.8f);
-	auto sphere5Matl = std::make_shared<MatteOpaque>();
-	sphere5Matl->setAlbedo(1.0f, 1.0f, 1.0f);
-	AModel sphere5Model(sphere5Geometry, sphere5Matl);
-	sphere5Model.translate(boxHalfSize - 2.0f, -boxHalfSize + 0.8f, -8.5f);
-	out_world->addActor(std::make_unique<AModel>(sphere5Model));
-
-	/*auto lightGeometry = std::make_shared<GSphere>(0.2f);
-	auto lightMatl = std::make_shared<LightMaterial>();
-	lightMatl->setEmittedRadiance(1600000, 2000000, 1000000);
-	Model lightModel(lightGeometry, lightMatl);
-	lightModel.translate(-2.5f, 2.0f, -5.0f);
-	out_world->addModel(lightModel);*/
+void loadCbox3ObjScene(VisualWorld* const out_world)
+{
+//	const real boxSize = 10.0f;
+//
+//	//loadCornellBox(out_world, 10.0f);
+//	loadCornellBox(out_world, boxSize);
+//
+//	auto goldMaterial = std::make_shared<AbradedOpaque>();
+//	goldMaterial->setF0(Vector3R(1.0f, 0.765557f, 0.336057f));
+//	goldMaterial->setRoughness(0.03f);
+//	//goldMaterial->setRoughness(0.001f);
+//
+//	auto silverMaterial = std::make_shared<AbradedOpaque>();
+//	silverMaterial->setF0(Vector3R(0.971519f, 0.959915f, 0.915324f));
+//	silverMaterial->setRoughness(0.0f);
+//
+//	auto glassMaterial = std::make_shared<AbradedTranslucent>();
+//	glassMaterial->setF0(0.04f, 0.04f, 0.04f);
+//	//glassMaterial->setF0(0.1836735f, 0.1836735f, 0.1836735f);
+//	glassMaterial->setIOR(1.5f);
+//	//glassMaterial->setIOR(2.5f);
+//	//glassMaterial->setIOR(1.0f);
+//	//glassMaterial->setIOR(1.0f);
+//	//glassMaterial->setRoughness(0.2f);
+//	glassMaterial->setRoughness(0.0f);
+//
+//	auto waterMaterial = std::make_shared<AbradedTranslucent>();
+//	waterMaterial->setF0(0.020059312f, 0.020059312f, 0.020059312f);
+//	waterMaterial->setIOR(1.33f);
+//	waterMaterial->setRoughness(0.0f);
+//
+//	auto matteMaterial = std::make_shared<MatteOpaque>();
+//	matteMaterial->setAlbedo(0.6f, 0.6f, 0.6f);
+//
+//	/*ModelLoader modelLoader;
+//
+//	std::vector<AModel> dragonModels;
+//	std::vector<AModel> lucyModels;
+//	if(modelLoader.load("../SceneResource/dragon.obj", &dragonModels) && modelLoader.load("../SceneResource/lucy.obj", &lucyModels))
+//	{
+//		for(auto& model : dragonModels)
+//		{
+//			model.translate(-2.0f, -5, 0);
+//			model.scale(3.5f);
+//			model.rotate(Vector3f(0, 1, 0), 240);
+//
+//			model.setMaterial(goldMaterial);
+//
+//			out_world->addActor(std::make_unique<AModel>(model));
+//		}
+//
+//		for(auto& model : lucyModels)
+//		{
+//			model.translate(1.9f, -5, -0.2f);
+//			model.scale(4.0f);
+//
+//			model.setMaterial(silverMaterial);
+//
+//			out_world->addActor(std::make_unique<AModel>(model));
+//		}
+//	}*/
+//
+//	/*auto sphereMaterial = std::make_shared<AbradedTranslucent>();
+//	sphereMaterial->setF0(0.04f, 0.04f, 0.04f);
+//	sphereMaterial->setRoughness(0.0f);
+//	sphereMaterial->setIOR(1.5f);*/
+//	/*auto sphereMaterial = std::make_shared<MatteOpaque>();
+//	sphereMaterial->setAlbedo(0.6f, 0.6f, 0.6f);*/
+//
+//	/*auto sphereGeometry = std::make_shared<GSphere>(1.8f);
+//	AModel sphereModel(sphereGeometry, glassMaterial);
+//	sphereModel.rotate(Vector3f(1, 1, 0).normalize(), 45);
+//	sphereModel.translate(0.5f, -3.2f, 3);*/
+//
+//
+//	//auto sphereGeometry = std::make_shared<GSphere>(2.7f);
+//	//AModel sphereModel(sphereGeometry, glassMaterial);
+//	////AModel sphereModel(sphereGeometry, goldMaterial);
+//	//sphereModel.rotate(Vector3f(1, 1, 0).normalize(), 45);
+//	////sphereModel.translate(0.5f, -2.0f, 3);
+//	//sphereModel.translate(0.9f, -2.3f, 1.3f);
+//
+//	//out_world->addActor(std::make_unique<AModel>(sphereModel));
+//
+//
+//	//auto cubeGeometry = std::make_shared<GCuboid>(4.5f, 4.5f, 4.5f);
+//	//AModel cubeModel(cubeGeometry, glassMaterial);
+//	//cubeModel.rotate(Vector3f(1, 1, 0).normalize(), 30);
+//	////cubeModel.translate(0, -1.2f, 0);
+//	//cubeModel.translate(0, -1.5f, 0);
+//	//out_world->addActor(std::make_unique<AModel>(cubeModel));
+//
+//	ModelLoader modelLoader;
+//	std::vector<AModel> dragonModels;
+//	if(modelLoader.load("../SceneResource/dragon.obj", &dragonModels))
+//	{
+//		for(auto& model : dragonModels)
+//		{
+//			model.translate(0, -5, 0);
+//			model.scale(5.0f);
+//			//model.scale(4.5f);
+//			model.rotate(Vector3R(0, 1, 0), 180);
+//
+//			//model.setMaterial(glassMaterial);
+//			model.setMaterial(silverMaterial);
+//
+//			out_world->addActor(std::make_unique<AModel>(model));
+//		}
+//	}
+//
+//	auto waveMaterial = std::make_shared<MatteOpaque>();
+//	waveMaterial->setAlbedo(0.7f, 0.7f, 0.7f);
+//	auto waveGeometry = std::make_shared<GWave>(boxSize, 2.501f, boxSize);
+//	//AModel waveModel(waveGeometry, waveMaterial);
+//	AModel waveModel(waveGeometry, waterMaterial);
+//	//waveModel.rotate(Vector3f(0, 1, 0), 315);
+//	//waveModel.scale(boxSize);
+//	waveModel.translate(0, -2.5f, 0);
+//	out_world->addActor(std::make_unique<AModel>(waveModel));
+//}
+//
+//void load5bScene(World* const out_world)
+//{
+//	const real wallRadius = 1000.0_r;
+//	const real boxHalfSize = 5.0_r;
+//
+//	//auto leftWallBall = std::make_shared<GSphere>(wallRadius);
+//	//auto leftWallMatl = std::make_shared<MatteOpaque>();
+//	//leftWallMatl->setAlbedo(0.9f, 0.0f, 0.0f);
+//	////auto leftWallMatl = std::make_shared<AbradedOpaque>();
+//	////leftWallMatl->setRoughness(1.0f);
+//	////leftWallMatl->setF0(Vector3f(1.0f, 0.765557f, 0.336057f));// gold
+//	//Model leftWallModel(leftWallBall, leftWallMatl);
+//	//leftWallModel.translate(-wallRadius - boxHalfSize, 0, 0);
+//	//out_world->addModel(leftWallModel);
+//
+//	//auto rightWallBall = std::make_shared<GSphere>(wallRadius);
+//	//auto rightWallMatl = std::make_shared<MatteOpaque>();
+//	//rightWallMatl->setAlbedo(0.0f, 0.0f, 0.9f);
+//	//Model rightWallModel(rightWallBall, rightWallMatl);
+//	//rightWallModel.translate(wallRadius + boxHalfSize, 0, 0);
+//	//out_world->addModel(rightWallModel);
+//
+//	//auto backWallBall = std::make_shared<GSphere>(wallRadius);
+//	//auto backWallMatl = std::make_shared<MatteOpaque>();
+//	//backWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
+//	//Model backWallModel(backWallBall, backWallMatl);
+//	//backWallModel.translate(0, 0, -wallRadius - boxHalfSize - 10.0f);
+//	//out_world->addModel(backWallModel);
+//
+//	//auto groundWallBall = std::make_shared<GSphere>(wallRadius);
+//	//auto groundWallMatl = std::make_shared<MatteOpaque>();
+//	//groundWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
+//	//Model groundWallModel(groundWallBall, groundWallMatl);
+//	//groundWallModel.translate(0, -wallRadius - boxHalfSize, 0);
+//	//out_world->addModel(groundWallModel);
+//
+//	//auto topWallBall = std::make_shared<GSphere>(wallRadius);
+//	//auto topWallMatl = std::make_shared<LightMaterial>();
+//	////auto topWallMatl = std::make_shared<MatteOpaque>();
+//	////topWallMatl->setEmittedRadiance(1.5f, 1.5f, 1.5f);
+//	//topWallMatl->setEmittedRadiance(1.0f, 1.0f, 1.0f);
+//	//Model topWallModel(topWallBall, topWallMatl);
+//	//topWallModel.translate(0, wallRadius + boxHalfSize, 0);
+//	//out_world->addModel(topWallModel);
+//
+//	//auto frontWallBall = std::make_shared<GSphere>(wallRadius);
+//	//auto frontWallMatl = std::make_shared<MatteOpaque>();
+//	//frontWallMatl->setAlbedo(0.9f, 0.9f, 0.9f);
+//	//Model frontWallModel(frontWallBall, frontWallMatl);
+//	//frontWallModel.translate(0, 0, wallRadius + boxHalfSize);
+//	//out_world->addModel(frontWallModel);
+//
+//	// scene objects
+//
+//	auto sphere1Geometry = std::make_shared<GSphere>(0.25f);
+//	auto sphere1Matl = std::make_shared<MatteOpaque>();
+//	sphere1Matl->setAlbedo(0.3f, 0.3f, 1.0f);
+//	AModel sphere1Model(sphere1Geometry, sphere1Matl);
+//	sphere1Model.translate(-boxHalfSize + 0.25f, -boxHalfSize + 0.25f, -10.0f);
+//	out_world->addActor(std::make_unique<AModel>(sphere1Model));
+//
+//	auto sphere2Geometry = std::make_shared<GSphere>(0.5f);
+//	auto sphere2Matl = std::make_shared<MatteOpaque>();
+//	sphere2Matl->setAlbedo(0.3f, 1.0f, 0.3f);
+//	AModel sphere2Model(sphere2Geometry, sphere2Matl);
+//	sphere2Model.translate(-boxHalfSize + 1.5f, -boxHalfSize + 0.5f, -10.0f);
+//	out_world->addActor(std::make_unique<AModel>(sphere2Model));
+//
+//	auto sphere3Geometry = std::make_shared<GSphere>(1.0f);
+//	auto sphere3Matl = std::make_shared<MatteOpaque>();
+//	sphere3Matl->setAlbedo(1.0f, 0.3f, 0.3f);
+//	AModel sphere3Model(sphere3Geometry, sphere3Matl);
+//	sphere3Model.translate(-boxHalfSize + 4.0f, -boxHalfSize + 1.0f, -10.0f);
+//	out_world->addActor(std::make_unique<AModel>(sphere3Model));
+//
+//	auto sphere4Geometry = std::make_shared<GSphere>(3.0f);
+//	//auto sphere4Matl = std::make_shared<MatteOpaque>();
+//	//sphere4Matl->setAlbedo(1.0f, 1.0f, 1.0f);
+//	auto sphere4Matl = std::make_shared<AbradedOpaque>();
+//	sphere4Matl->setRoughness(0.1f);
+//	//sphere4Matl->setF0(Vector3f(1.0f, 1.0f, 1.0f));
+//	AModel sphere4Model(sphere4Geometry, sphere4Matl);
+//	sphere4Model.translate(boxHalfSize - 3.0f, -boxHalfSize + 3.0f, -boxHalfSize - 10.0f + 3.0f);
+//	out_world->addActor(std::make_unique<AModel>(sphere4Model));
+//
+//	auto sphere5Geometry = std::make_shared<GSphere>(0.8f);
+//	auto sphere5Matl = std::make_shared<MatteOpaque>();
+//	sphere5Matl->setAlbedo(1.0f, 1.0f, 1.0f);
+//	AModel sphere5Model(sphere5Geometry, sphere5Matl);
+//	sphere5Model.translate(boxHalfSize - 2.0f, -boxHalfSize + 0.8f, -8.5f);
+//	out_world->addActor(std::make_unique<AModel>(sphere5Model));
+//
+//	/*auto lightGeometry = std::make_shared<GSphere>(0.2f);
+//	auto lightMatl = std::make_shared<LightMaterial>();
+//	lightMatl->setEmittedRadiance(1600000, 2000000, 1000000);
+//	Model lightModel(lightGeometry, lightMatl);
+//	lightModel.translate(-2.5f, 2.0f, -5.0f);
+//	out_world->addModel(lightModel);*/
 }
 
 }// end namespace ph

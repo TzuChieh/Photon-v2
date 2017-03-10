@@ -14,25 +14,18 @@ public final class Ph
 	
 	// core
 	
-	public static native boolean phStart();
-	public static native void    phExit();
+	public static native void phCreateEngine(LongRef out_engineId, int numRenderThreads);
+	public static native void phEnterCommand(long engineId, String commandFragment);
+	public static native void phRender(long engineId);
+	public static native void phDevelopFilm(long engineId, long frameId);
+	public static native void phDeleteEngine(long engineId);
 	
-	public static native void    phCreateRenderer(LongRef out_rendererId, int numThreads);
-	public static native void    phRender(long rendererId, long descriptionId);
-	public static native void    phDeleteRenderer(long rendererId);
-	
-	public static native void    phCreateFrame(LongRef out_frameId, int frameType);
-	public static native void    phGetFrameData(long frameId, FloatArrayRef out_pixelData, IntRef out_widthPx, IntRef out_heightPx, IntRef out_nPixelComponents);
-	public static native void    phDeleteFrame(long frameId);
-	
-	public static native void    phCreateDescription(LongRef out_descriptionId);
-	public static native void    phLoadDescription(long descriptionId, String filename);
-	public static native void    phUpdateDescription(long descriptionId);
-	public static native void    phDevelopFilm(long descriptionId, long frameId);
-	public static native void    phDeleteDescription(long descriptionId);
+	public static native void phCreateFrame(LongRef out_frameId, int frameType);
+	public static native void phGetFrameData(long frameId, FloatArrayRef out_pixelData, IntRef out_widthPx, IntRef out_heightPx, IntRef out_nPixelComponents);
+	public static native void phDeleteFrame(long frameId);
 	
 	// query
 	
-	public static native void phQueryRendererPercentageProgress(long rendererId, FloatRef out_progress);
-	public static native void phQueryRendererSampleFrequency(long rendererId, FloatRef out_frequency);
+	public static native void phQueryRendererPercentageProgress(long engineId, FloatRef out_progress);
+	public static native void phQueryRendererSampleFrequency(long engineId, FloatRef out_frequency);
 }

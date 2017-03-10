@@ -1,7 +1,7 @@
 #include "Core/Renderer.h"
 #include "Common/primitive_type.h"
 #include "Core/Camera/Film.h"
-#include "World/World.h"
+#include "World/VisualWorld.h"
 #include "Camera/Camera.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
@@ -30,25 +30,21 @@
 namespace ph
 {
 
-Renderer::Renderer(const uint32 numThreads) : 
-	m_numThreads(numThreads)
+Renderer::Renderer() : 
+	m_numThreads(0)
 {
-	for(std::size_t threadIndex = 0; threadIndex < m_numThreads; threadIndex++)
-	{
-		m_workerProgresses.push_back(std::make_unique<std::atomic<float32>>(0.0f));
-		m_workerSampleFrequencies.push_back(std::make_unique<std::atomic<float32>>(0.0f));
-	}
+
 }
 
 Renderer::~Renderer() = default;
 
 void Renderer::render(const Description& description) const
 {
-	const World&      world      = description.world;
-	const Camera&     camera     = *(description.camera);
-	const Film&       film       = *(description.film);
-	const Integrator& integrator = *(description.integrator);
-	SampleGenerator* sampleGenerator = description.sampleGenerator.get();
+	const VisualWorld& world           = description.visualWorld;
+	const Camera&      camera          = *(description.camera);
+	const Film&        film            = *(description.film);
+	const Integrator&  integrator      = *(description.integrator);
+	SampleGenerator*   sampleGenerator = description.sampleGenerator.get();
 
 	m_subFilms.clear();
 	m_subFilms.shrink_to_fit();
@@ -169,6 +165,21 @@ void Renderer::render(const Description& description) const
 	for(auto& renderWorker : renderWorkers)
 	{
 		renderWorker.join();
+	}
+}
+
+void Renderer::setNumRenderThreads(const uint32 numThreads)
+{
+	m_numThreads = numThreads;
+
+	m_workerProgresses.clear();
+	m_workerProgresses.shrink_to_fit();
+	m_workerSampleFrequencies.clear();
+	m_workerSampleFrequencies.shrink_to_fit();
+	for(std::size_t threadIndex = 0; threadIndex < m_numThreads; threadIndex++)
+	{
+		m_workerProgresses.push_back(std::make_unique<std::atomic<float32>>(0.0f));
+		m_workerSampleFrequencies.push_back(std::make_unique<std::atomic<float32>>(0.0f));
 	}
 }
 

@@ -1,13 +1,15 @@
 package core;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+
 import javax.swing.SwingUtilities;
 
 import photonApi.Ph;
 import photonApi.PhTest;
 import photonCore.FrameData;
-import photonCore.PhDescription;
 import photonCore.PhFrame;
-import photonCore.PhRenderer;
+import photonCore.PhEngine;
 import ui.Window;
 import ui.model.TaskStatusModel;
 
@@ -17,10 +19,10 @@ public class Main
 	
 	public static void main(String[] args)
 	{
-		if(!Ph.phStart())
-		{
-			System.out.println("Photon API initialization failed");
-		}
+//		if(!Ph.phStart())
+//		{
+//			System.out.println("Photon API initialization failed");
+//		}
 		
 		new PhTest();
 		
@@ -74,8 +76,17 @@ public class Main
 //		final int outputHeight = 150;
 		final int numRenderThreads = 4;
 		
+		PhEngine engine = new PhEngine(numRenderThreads);
 		
-		PhDescription description = new PhDescription();
+//		engine.enterCommand("## camera [string type pinhole] [real fov-degree 50] [vector3r position \"0 0 16\"] [vector3r direction \"0 0 -1\"]");
+//		engine.enterCommand("## film [integer width 800] [integer height 800]");
+//		engine.enterCommand("## sampler [integer spp-budget 16]");
+//		engine.enterCommand("## integrator [string type backward-mis]");
+//		engine.enterCommand("->");
+		
+		
+		
+//		PhDescription description = new PhDescription();
 //		description.load("../scene/testScene.p2");
 //		description.load("../scene/cbox_simple.p2");
 //		description.load("../scene/cbox_material_test.p2");
@@ -85,10 +96,29 @@ public class Main
 //		description.load("../scene/complex/corridor.p2");
 //		description.load("../scene/complex/corridor_1.p2");
 //		description.load("../scene/complex/FinalAR.p2");
-		description.load("../scene/complex/FinalAR_1.p2");
-		description.update();
+//		description.load("../scene/complex/FinalAR_1.p2");
+//		description.update();
 		
-		PhRenderer renderer = new PhRenderer(numRenderThreads);
+		
+		try
+		{
+			BufferedReader reader = new BufferedReader(new FileReader("../scene/cbox_material_test.p2"));
+		    String line = null;
+		    while((line = reader.readLine()) != null)
+		    {
+		    	line += "\n";
+		    	System.out.print(line);
+		    	
+		    	engine.enterCommand(line);
+		    }
+		    
+		    engine.enterCommand("->");
+		    reader.close();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 		
 		Thread queryThread = new Thread((new Runnable()
 		{
@@ -97,8 +127,8 @@ public class Main
 			{
 				while(true)
 				{
-					float progress = renderer.queryPercentageProgress();
-					float frequency = renderer.querySampleFrequency();
+					float progress = engine.queryPercentageProgress();
+					float frequency = engine.querySampleFrequency();
 					testTaskStatusModel.setPercentageProgress(progress);
 					testTaskStatusModel.setSampleFrequency(frequency);
 					if(progress == 100.0f)
@@ -122,12 +152,12 @@ public class Main
 		queryThread.start();
 		
 		long t1 = System.currentTimeMillis();
-		renderer.render(description);
+		engine.render();
 		long t2 = System.currentTimeMillis();
 		System.out.println("time elapsed: " + (double)(t2 - t1) + " ms");
 		
 		PhFrame frame = new PhFrame(PhFrame.Type.HDR);
-		description.developFilm(frame);
+		engine.developFilm(frame);
 		
 		FrameData frameData = new FrameData();
 		frame.getData(frameData);

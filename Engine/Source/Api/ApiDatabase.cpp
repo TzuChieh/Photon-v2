@@ -1,8 +1,6 @@
 #include "Api/ApiDatabase.h"
 #include "PostProcess/Frame.h"
-#include "Core/Renderer.h"
-#include "FileIO/Description.h"
-#include "Core/Camera/Film.h"
+#include "Core/Engine.h"
 
 #include <utility>
 #include <iostream>
@@ -10,37 +8,30 @@
 namespace ph
 {
 
-TStableIndexDenseArray<std::unique_ptr<Renderer>>    ApiDatabase::renderers;
-TStableIndexDenseArray<std::unique_ptr<Frame>>       ApiDatabase::frames;
-TStableIndexDenseArray<std::unique_ptr<Description>> ApiDatabase::descriptions;
+TStableIndexDenseArray<std::unique_ptr<Engine>> ApiDatabase::engines;
+TStableIndexDenseArray<std::unique_ptr<Frame>>  ApiDatabase::frames;
 
-// ***************************************************************************
-// Renderer
-
-std::size_t ApiDatabase::addRenderer(std::unique_ptr<Renderer> renderer)
+std::size_t ApiDatabase::addEngine(std::unique_ptr<Engine> engine)
 {
-	return renderers.add(std::move(renderer));
+	return engines.add(std::move(engine));
 }
 
-bool ApiDatabase::removeRenderer(const std::size_t rendererId)
+bool ApiDatabase::removeEngine(const std::size_t engineId)
 {
-	return renderers.remove(rendererId);
+	return engines.remove(engineId);
 }
 
-Renderer* ApiDatabase::getRenderer(const std::size_t rendererId)
+Engine* ApiDatabase::getEngine(const std::size_t engineId)
 {
-	auto* renderer = renderers.get(rendererId);
-	if(renderer == nullptr)
+	auto* engine = engines.get(engineId);
+	if(engine == nullptr)
 	{
-		std::cerr << "Renderer<" << rendererId << "> does not exist" << std::endl;
+		std::cerr << "Engine<" << engineId << "> does not exist" << std::endl;
 		return nullptr;
 	}
 
-	return renderer->get();
+	return engine->get();
 }
-
-// ***************************************************************************
-// Frame
 
 std::size_t ApiDatabase::addFrame(std::unique_ptr<Frame> frame)
 {
@@ -62,38 +53,6 @@ Frame* ApiDatabase::getFrame(const std::size_t frameId)
 	}
 
 	return frame->get();
-}
-
-// ***************************************************************************
-// Description
-
-std::size_t ApiDatabase::addDescription(std::unique_ptr<Description> description)
-{
-	return descriptions.add(std::move(description));
-}
-
-bool ApiDatabase::removeDescription(const std::size_t descriptionId)
-{
-	return descriptions.remove(descriptionId);
-}
-
-Description* ApiDatabase::getDescription(const std::size_t descriptionId)
-{
-	auto* description = descriptions.get(descriptionId);
-	if(description == nullptr)
-	{
-		std::cerr << "Description<" << descriptionId << "> does not exist" << std::endl;
-		return nullptr;
-	}
-
-	return description->get();
-}
-
-void ApiDatabase::releaseAllData()
-{
-	frames.removeAll();
-	renderers.removeAll();
-	descriptions.removeAll();
 }
 
 }// end namespace ph

@@ -31,7 +31,7 @@ public:
 		return m_heightPx;
 	}
 
-	virtual inline uint32 nPixelComponents() const override
+	virtual inline uint32 numPixelComponents() const override
 	{
 		return 3;
 	}

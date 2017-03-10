@@ -4,9 +4,7 @@
 
 int main(int argc, char* argv[])
 {
-	phStart();
-
-	PHuint64 descriptionId;
+	/*PHuint64 descriptionId;
 	phCreateDescription(&descriptionId);
 	phLoadDescription(descriptionId, "../scene/testScene.p2");
 	phUpdateDescription(descriptionId);
@@ -16,7 +14,7 @@ int main(int argc, char* argv[])
 
 	phRender(rendererId, descriptionId);
 
-	phExit();
+	phExit();*/
 
 	return 0;
 }

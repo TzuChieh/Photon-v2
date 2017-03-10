@@ -7,7 +7,7 @@ namespace ph
 
 Description::Description() :
 	camera(nullptr), film(nullptr), integrator(nullptr), sampleGenerator(nullptr), 
-	world(), renderOption(), 
+	visualWorld(), renderOption(), 
 	m_isReady(false)
 {
 
@@ -22,10 +22,10 @@ void Description::update(const real deltaS)
 		return;
 	}
 
-	world.update(deltaS);
+	visualWorld.cook();
 
-	integrator->update(world.getScene());
-	sampleGenerator->analyze(world.getScene(), *film);
+	integrator->update(visualWorld.getScene());
+	sampleGenerator->analyze(visualWorld.getScene(), *film);
 
 	camera->setFilm(film.get());
 }

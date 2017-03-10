@@ -11,42 +11,42 @@ extern "C" {
 #define photonApi_Ph_PH_HDR_FRAME_TYPE 50L
 /*
  * Class:     photonApi_Ph
- * Method:    phStart
- * Signature: ()Z
- */
-JNIEXPORT jboolean JNICALL Java_photonApi_Ph_phStart
-  (JNIEnv *, jclass);
-
-/*
- * Class:     photonApi_Ph
- * Method:    phExit
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phExit
-  (JNIEnv *, jclass);
-
-/*
- * Class:     photonApi_Ph
- * Method:    phCreateRenderer
+ * Method:    phCreateEngine
  * Signature: (LphotonApi/LongRef;I)V
  */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateRenderer
+JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateEngine
   (JNIEnv *, jclass, jobject, jint);
 
 /*
  * Class:     photonApi_Ph
+ * Method:    phEnterCommand
+ * Signature: (JLjava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phEnterCommand
+  (JNIEnv *, jclass, jlong, jstring);
+
+/*
+ * Class:     photonApi_Ph
  * Method:    phRender
- * Signature: (JJ)V
+ * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_photonApi_Ph_phRender
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phDevelopFilm
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phDevelopFilm
   (JNIEnv *, jclass, jlong, jlong);
 
 /*
  * Class:     photonApi_Ph
- * Method:    phDeleteRenderer
+ * Method:    phDeleteEngine
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteRenderer
+JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteEngine
   (JNIEnv *, jclass, jlong);
 
 /*
@@ -71,46 +71,6 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phGetFrameData
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteFrame
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     photonApi_Ph
- * Method:    phCreateDescription
- * Signature: (LphotonApi/LongRef;)V
- */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateDescription
-  (JNIEnv *, jclass, jobject);
-
-/*
- * Class:     photonApi_Ph
- * Method:    phLoadDescription
- * Signature: (JLjava/lang/String;)V
- */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phLoadDescription
-  (JNIEnv *, jclass, jlong, jstring);
-
-/*
- * Class:     photonApi_Ph
- * Method:    phUpdateDescription
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phUpdateDescription
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     photonApi_Ph
- * Method:    phDevelopFilm
- * Signature: (JJ)V
- */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phDevelopFilm
-  (JNIEnv *, jclass, jlong, jlong);
-
-/*
- * Class:     photonApi_Ph
- * Method:    phDeleteDescription
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteDescription
   (JNIEnv *, jclass, jlong);
 
 /*
