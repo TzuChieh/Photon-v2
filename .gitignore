@@ -27,7 +27,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ib/
-Photon-v2_library/
+/Photon-v2_library/
 
 # Visual Studio 2015 Cache/Options Directory
 .vs/
@@ -36,7 +36,6 @@ Photon-v2_library/
 .metadata/
 .recommenders/
 .settings/
-Library/
 
 # Visual C++ Cache Files
 ipch/
@@ -63,6 +62,6 @@ ipch/
 # Custom Files or Folders
 cloc-1.62.exe
 count.bat
-ThirdParty/
-scene/resource/
-scene/complex/
+/ThirdParty/
+/scene/resource/
+/scene/complex/

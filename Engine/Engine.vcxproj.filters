@@ -39,9 +39,6 @@
     <ClCompile Include="Source\Api\ph_query.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Common\ThirdParty\lib_stb.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Core\SampleGenerator\SampleGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -330,6 +327,9 @@
     <ClCompile Include="Source\FileIO\NamedResourceStorage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Common\ThirdParty\lib_stb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Common\primitive_type.h">
@@ -375,9 +375,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\ph_query.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Common\ThirdParty\lib_stb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\SampleGenerator\SampleGenerator.h">
@@ -730,6 +727,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\FileIO\NamedResourceStorage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Common\ThirdParty\lib_stb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

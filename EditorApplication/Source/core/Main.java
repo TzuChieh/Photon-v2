@@ -74,7 +74,7 @@ public class Main
 //		final int outputHeight = 400;
 //		final int outputWidth = 150;
 //		final int outputHeight = 150;
-		final int numRenderThreads = 4;
+		final int numRenderThreads = 10;
 		
 		PhEngine engine = new PhEngine(numRenderThreads);
 		

@@ -170,6 +170,7 @@
     <ClCompile Include="Source\Api\ph_core.cpp" />
     <ClCompile Include="Source\Api\ph_query.cpp" />
     <ClCompile Include="Source\Api\test_scene.cpp" />
+    <ClCompile Include="Source\Common\ThirdParty\lib_stb.cpp" />
     <ClCompile Include="Source\Core\Camera\Camera.cpp" />
     <ClCompile Include="Source\Core\Camera\PinholeCamera.cpp" />
     <ClCompile Include="Source\Core\CookedActor.cpp" />
@@ -231,7 +232,6 @@
     <ClCompile Include="Source\Actor\TextureMapper\DefaultMapper.cpp" />
     <ClCompile Include="Source\Actor\TextureMapper\SphericalMapper.cpp" />
     <ClCompile Include="Source\Actor\TextureMapper\TextureMapper.cpp" />
-    <ClCompile Include="Source\Common\ThirdParty\lib_stb.cpp" />
     <ClCompile Include="Source\Math\TVector3.cpp" />
     <ClCompile Include="Source\PostProcess\HdrOperator\HdrOperator.cpp" />
     <ClCompile Include="Source\PostProcess\ToneMapper\ToneMapper.cpp" />
@@ -279,6 +279,7 @@
     <ClInclude Include="Source\Actor\LightSource\LightSource.h" />
     <ClInclude Include="Source\Actor\PhysicalActor.h" />
     <ClInclude Include="Source\Api\test_scene.h" />
+    <ClInclude Include="Source\Common\ThirdParty\lib_stb.h" />
     <ClInclude Include="Source\Core\Camera\Camera.h" />
     <ClInclude Include="Source\Core\Camera\PinholeCamera.h" />
     <ClInclude Include="Source\Common\assertion.h" />
@@ -358,7 +359,6 @@
     <ClInclude Include="Source\Actor\TextureMapper\DefaultMapper.h" />
     <ClInclude Include="Source\Actor\TextureMapper\SphericalMapper.h" />
     <ClInclude Include="Source\Actor\TextureMapper\TextureMapper.h" />
-    <ClInclude Include="Source\Common\ThirdParty\lib_stb.h" />
     <ClInclude Include="Source\Math\Vector2f.h" />
     <ClInclude Include="Source\Math\TVector3.h" />
     <ClInclude Include="Source\PostProcess\HdrOperator\HdrOperator.h" />
