@@ -167,6 +167,7 @@
     <ClCompile Include="Source\Actor\LightSource\AreaSource.cpp" />
     <ClCompile Include="Source\Actor\LightSource\LightSource.cpp" />
     <ClCompile Include="Source\Actor\PhysicalActor.cpp" />
+    <ClCompile Include="Source\Api\init_and_exit.cpp" />
     <ClCompile Include="Source\Api\ph_core.cpp" />
     <ClCompile Include="Source\Api\ph_query.cpp" />
     <ClCompile Include="Source\Api\test_scene.cpp" />
@@ -203,6 +204,7 @@
     <ClCompile Include="Source\FileIO\Description.cpp" />
     <ClCompile Include="Source\FileIO\DescriptionParser.cpp" />
     <ClCompile Include="Source\FileIO\ResourceLoader.cpp" />
+    <ClCompile Include="Source\FileIO\SDL\CommandEntry.cpp" />
     <ClCompile Include="Source\FileIO\Tokenizer.cpp" />
     <ClCompile Include="Source\FileIO\ValueClause.cpp" />
     <ClCompile Include="Source\Actor\Texture\CheckerboardTexture.cpp" />
@@ -278,6 +280,7 @@
     <ClInclude Include="Source\Actor\LightSource\AreaSource.h" />
     <ClInclude Include="Source\Actor\LightSource\LightSource.h" />
     <ClInclude Include="Source\Actor\PhysicalActor.h" />
+    <ClInclude Include="Source\Api\init_and_exit.h" />
     <ClInclude Include="Source\Api\test_scene.h" />
     <ClInclude Include="Source\Common\ThirdParty\lib_stb.h" />
     <ClInclude Include="Source\Core\Camera\Camera.h" />
@@ -316,6 +319,8 @@
     <ClInclude Include="Source\FileIO\InputPrototype.h" />
     <ClInclude Include="Source\FileIO\RenderOption.h" />
     <ClInclude Include="Source\FileIO\ResourceLoader.h" />
+    <ClInclude Include="Source\FileIO\SDL\CommandEntry.h" />
+    <ClInclude Include="Source\FileIO\SDL\TCommandInterface.h" />
     <ClInclude Include="Source\FileIO\Tokenizer.h" />
     <ClInclude Include="Source\FileIO\ValueClause.h" />
     <ClInclude Include="Source\FileIO\DescriptionParser.h" />

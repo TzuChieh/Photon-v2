@@ -3,12 +3,33 @@
 #include "FileIO/ResourceLoader.h"
 #include "FileIO/FunctionExecutor.h"
 #include "FileIO/RenderOption.h"
+#include "FileIO/SDL/TCommandInterface.h"
+#include "FileIO/SDL/CommandEntry.h"
 
 #include <iostream>
 #include <sstream>
 
 namespace ph
 {
+
+bool DescriptionParser::addCommandEntry(const CommandEntry& entry)
+{
+	const auto& iter = NAMED_INTERFACE_MAP().find(entry.typeName());
+	if(iter != NAMED_INTERFACE_MAP().end())
+	{
+		std::cerr << "warning: command entry <" << entry.typeName() << "> is already present, not adding" << std::endl;
+		return false;
+	}
+
+	NAMED_INTERFACE_MAP()[entry.typeName()] = entry;
+	return true;
+}
+
+std::unordered_map<std::string, CommandEntry>& DescriptionParser::NAMED_INTERFACE_MAP()
+{
+	static std::unordered_map<std::string, CommandEntry> namedInterfaceMap;
+	return namedInterfaceMap;
+}
 
 DescriptionParser::DescriptionParser() : 
 	m_commandCache(), 

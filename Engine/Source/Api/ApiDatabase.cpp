@@ -55,4 +55,10 @@ Frame* ApiDatabase::getFrame(const std::size_t frameId)
 	return frame->get();
 }
 
+void ApiDatabase::clear()
+{
+	engines.removeAll();
+	frames.removeAll();
+}
+
 }// end namespace ph

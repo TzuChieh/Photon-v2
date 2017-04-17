@@ -7,11 +7,13 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <unordered_map>
 
 namespace ph
 {
 
 class Description;
+class CommandEntry;
 
 enum class ECommandType
 {
@@ -23,6 +25,12 @@ enum class ECommandType
 
 class DescriptionParser final
 {
+public:
+	static bool addCommandEntry(const CommandEntry& entry);
+
+private:
+	static std::unordered_map<std::string, CommandEntry>& NAMED_INTERFACE_MAP();
+
 public:
 	DescriptionParser();
 

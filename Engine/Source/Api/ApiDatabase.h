@@ -12,6 +12,9 @@ class Engine;
 
 class ApiDatabase final
 {
+
+	// TODO: use lazy initialization
+
 public:
 	static std::size_t addEngine(std::unique_ptr<Engine> engine);
 	static bool removeEngine(const std::size_t engineId);
@@ -24,6 +27,9 @@ public:
 private:
 	static TStableIndexDenseArray<std::unique_ptr<Engine>> engines;
 	static TStableIndexDenseArray<std::unique_ptr<Frame>>  frames;
+
+	friend bool exit_api_database();
+	static void clear();
 };
 
 }// end namespace ph
