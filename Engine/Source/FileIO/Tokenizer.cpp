@@ -32,7 +32,7 @@ void Tokenizer::tokenize(const std::string& source, std::vector<std::string>& ou
 		}
 		else if(isEnclosureStart(ch))
 		{
-			i = extractEnclosureSeparatedToken(source, i, ch, out_results);
+			i = extractEnclosureSeparatedToken(source, i + 1, ch, out_results) + 1;
 		}
 		else
 		{
@@ -41,13 +41,13 @@ void Tokenizer::tokenize(const std::string& source, std::vector<std::string>& ou
 	}
 }
 
-std::size_t Tokenizer::extractSeparatorSeparatedToken(const std::string& source, const std::size_t startIndex, 
+std::size_t Tokenizer::extractSeparatorSeparatedToken(const std::string& source, const std::size_t tokenStartIndex, 
                                                       std::vector<std::string>& out_results) const
 {
-	std::size_t i = startIndex + 1;
+	std::size_t i = tokenStartIndex;
 	while(i < source.length())
 	{
-		if(isSeparator(source[i]))
+		if(isSeparator(source[i]) || isEnclosureStart(source[i]))
 		{
 			break;
 		}
@@ -55,17 +55,21 @@ std::size_t Tokenizer::extractSeparatorSeparatedToken(const std::string& source,
 		i++;
 	}
 
-	out_results.push_back(source.substr(startIndex, i - startIndex));
+	const std::string token = source.substr(tokenStartIndex, i - tokenStartIndex);
+	if(!token.empty())
+	{
+		out_results.push_back(token);
+	}
 
-	const std::size_t nextIndex = i + 1;
-	return nextIndex;
+	const std::size_t tokenEndIndexExclusive = i;
+	return tokenEndIndexExclusive;
 }
 
-std::size_t Tokenizer::extractEnclosureSeparatedToken(const std::string& source, const std::size_t startIndex, 
+std::size_t Tokenizer::extractEnclosureSeparatedToken(const std::string& source, const std::size_t tokenStartIndex,
                                                       const char enclosureStart, std::vector<std::string>& out_results) const
 {
 	bool isEnclosurePairFound = false;
-	std::size_t i = startIndex + 1;
+	std::size_t i = tokenStartIndex;
 	while(i < source.length())
 	{
 		if(isEnclosurePair(enclosureStart, source[i]))
@@ -79,16 +83,19 @@ std::size_t Tokenizer::extractEnclosureSeparatedToken(const std::string& source,
 
 	if(isEnclosurePairFound)
 	{
-		// plus 1 since we don't want to include the enclosure characters as part of a token
-		out_results.push_back(source.substr(startIndex + 1, i - (startIndex + 1)));
+		const std::string token = source.substr(tokenStartIndex, i - tokenStartIndex);
+		if(!token.empty())
+		{
+			out_results.push_back(token);
+		}
 	}
 	else
 	{
 		std::cerr << "warning: at Tokenizer::extractEnclosureSeparatedToken(), enclosure pair not found" << std::endl;
 	}
 
-	const std::size_t nextIndex = i + 1;
-	return nextIndex;
+	const std::size_t tokenEndIndexExclusive = i;
+	return tokenEndIndexExclusive;
 }
 
 bool Tokenizer::isSeparator(const char character) const

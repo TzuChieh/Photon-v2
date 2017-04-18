@@ -205,6 +205,7 @@
     <ClCompile Include="Source\FileIO\DescriptionParser.cpp" />
     <ClCompile Include="Source\FileIO\ResourceLoader.cpp" />
     <ClCompile Include="Source\FileIO\SDL\CommandEntry.cpp" />
+    <ClCompile Include="Source\FileIO\SDL\SdlTypeInfo.cpp" />
     <ClCompile Include="Source\FileIO\Tokenizer.cpp" />
     <ClCompile Include="Source\FileIO\ValueClause.cpp" />
     <ClCompile Include="Source\Actor\Texture\CheckerboardTexture.cpp" />
@@ -320,6 +321,8 @@
     <ClInclude Include="Source\FileIO\RenderOption.h" />
     <ClInclude Include="Source\FileIO\ResourceLoader.h" />
     <ClInclude Include="Source\FileIO\SDL\CommandEntry.h" />
+    <ClInclude Include="Source\FileIO\SDL\ETypeCategory.h" />
+    <ClInclude Include="Source\FileIO\SDL\SdlTypeInfo.h" />
     <ClInclude Include="Source\FileIO\SDL\TCommandInterface.h" />
     <ClInclude Include="Source\FileIO\Tokenizer.h" />
     <ClInclude Include="Source\FileIO\ValueClause.h" />

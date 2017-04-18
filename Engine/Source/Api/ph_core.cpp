@@ -14,26 +14,26 @@
 #include <memory>
 #include <iostream>
 
-bool phInit()
+int phInit()
 {
 	if(!ph::init_command_parser())
 	{
 		std::cerr << "command parser initialization failed" << std::endl;
-		return false;
+		return PH_FALSE;
 	}
 
-	return true;
+	return PH_TRUE;
 }
 
-bool phExit()
+int phExit()
 {
 	if(!ph::exit_api_database())
 	{
 		std::cerr << "API database exiting failed" << std::endl;
-		return false;
+		return PH_FALSE;
 	}
 
-	return true;
+	return PH_TRUE;
 }
 
 void phCreateEngine(PHuint64* out_engineId, const PHuint32 numRenderThreads)

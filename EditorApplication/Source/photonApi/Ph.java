@@ -14,6 +14,9 @@ public final class Ph
 	
 	// core
 	
+	public static native boolean phInit();
+	public static native boolean phExit();
+	
 	public static native void phCreateEngine(LongRef out_engineId, int numRenderThreads);
 	public static native void phEnterCommand(long engineId, String commandFragment);
 	public static native void phRender(long engineId);

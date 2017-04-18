@@ -6,14 +6,14 @@ namespace ph
 {
 
 CommandEntry::CommandEntry() : 
-	m_typeName(nullptr), m_load(nullptr), m_execute(nullptr)
+	m_typeInfo(nullptr), m_load(nullptr), m_execute(nullptr)
 {
 
 }
 
-CommandEntry& CommandEntry::setTypeNameFunc(const TypeNameFuncType& func)
+CommandEntry& CommandEntry::setTypeInfoFunc(const TypeInfoFuncType& func)
 {
-	m_typeName = func;
+	m_typeInfo = func;
 	return *this;
 }
 
@@ -29,15 +29,15 @@ CommandEntry& CommandEntry::setExecuteFunc(const ExecuteFuncType& func)
 	return *this;
 }
 
-std::string CommandEntry::typeName() const
+SdlTypeInfo CommandEntry::typeInfo() const
 {
-	if(m_typeName == nullptr)
+	if(m_typeInfo == nullptr)
 	{
-		std::cerr << "warning: at CommandEntry::typeName(), empty function pointer" << std::endl;
-		return "";
+		std::cerr << "warning: at CommandEntry::typeInfo(), empty function pointer" << std::endl;
+		return SdlTypeInfo::makeInvalid();
 	}
 
-	return m_typeName();
+	return m_typeInfo();
 }
 
 std::shared_ptr<void> CommandEntry::load(const InputPacket& packet) const

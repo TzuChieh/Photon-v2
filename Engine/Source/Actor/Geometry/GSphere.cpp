@@ -40,12 +40,6 @@ GSphere::GSphere(const GSphere& other) :
 
 }
 
-GSphere::GSphere(const InputPacket& packet) : 
-	Geometry(packet)
-{
-	m_radius = packet.getReal("radius", 1.0_r);
-}
-
 GSphere::~GSphere() = default;
 
 // discretize the sphere into an icosphere
@@ -190,6 +184,24 @@ GSphere& GSphere::operator = (const GSphere& rhs)
 	m_radius = rhs.m_radius;
 
 	return *this;
+}
+
+// command interface
+
+GSphere::GSphere(const InputPacket& packet) : 
+	Geometry(packet)
+{
+	m_radius = packet.getReal("radius", 1.0_r);
+}
+
+SdlTypeInfo GSphere::iTypeInfoImpl()
+{
+	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "sphere");
+}
+
+void GSphere::iExecuteImpl(const std::string& functionName, const InputPacket& packet)
+{
+
 }
 
 }// end namespace ph

@@ -1,0 +1,99 @@
+## camera [string type pinhole] [real fov-degree 50] [vector3r position "0 0 16"] [vector3r direction "0 0 -1"]
+//## film [integer width 400] [integer height 400]
+//## film [integer width 800] [integer height 800]
+## film [integer width 1440] [integer height 900]
+## sampler [integer spp-budget 40]
+//## sampler [integer spp-budget 64]
+
+## integrator [string type backward-path]
+//## integrator [string type backward-light]
+//## integrator [string type light-tracing]
+//## integrator [string type surface-normal]
+//## integrator [string type backward-mis]
+
+
+
+// top light (left)
+//-> material(matte-opaque) @topLightMaterial1 [vector3r albedo "0.5 0.5 0.5"]
+//-> light-source(area) @topLightSource1 [vector3r emitted-radiance "3.4 3.4 3.4"]
+//-> actor(light) @topLight1 [geometry geometry @boxWall] [material material @topLightMaterial1] [light-source light-source @topLightSource1]
+//-> actor(light) translate(@topLight1) [vector3r factor "-3 4.75 0"]
+//-> actor(light) rotate(@topLight1) [vector3r axis "1 0 0"] [real degree 90]
+//-> actor(light) scale(@topLight1) [vector3r factor "3 3 3"]
+
+
+
+
+
+-> geometry @boxWall [string type rectangle] [real width 1][real height 1]
+
+// top light (left)
+-> material @topLightMaterial1 [string type matte-opaque][vector3r albedo "0.5 0.5 0.5"]
+-> light-source @topLightSource1 [string type area] [vector3r emitted-radiance "3.4 3.4 3.4"]
+-> actor-light @topLight1 [geometry geometry @boxWall] [material material @topLightMaterial1] [light-source light-source @topLightSource1]
+-> transform[string type translate] [actor-light target @topLight1] [vector3r factor "-3 4.75 0"]
+-> transform [string type rotate] [actor-light target @topLight1] [vector3r axis "1 0 0"] [real degree 90]
+-> transform[string type scale] [actor-light target @topLight1] [vector3r factor "3 3 3"]
+
+// top light (right)
+-> material @topLightMaterial2 [string type matte-opaque] [vector3r albedo "0.5 0.5 0.5"]
+-> light-source @topLightSource2 [string type area] [vector3r emitted-radiance "3.4 3.4 3.4"]
+-> actor-light @topLight2 [geometry geometry @boxWall] [material material @topLightMaterial2] [light-source light-source @topLightSource2]
+-> transform [string type translate] [actor-light target @topLight2] [vector3r factor "3 4.75 0"]
+-> transform [string type rotate] [actor-light target @topLight2] [vector3r axis "1 0 0"] [real degree 90]
+-> transform [string type scale] [actor-light target @topLight2] [vector3r factor "3 3 3"]
+
+// left wall
+-> material @leftWallMaterial [string type matte-opaque] [vector3r albedo "0.85 0.3 0.3"]
+-> actor-model @leftWall [geometry geometry @boxWall] [material material @leftWallMaterial]
+-> transform [string type translate] [actor-model target @leftWall] [vector3r factor "-5 0 0"]
+-> transform [string type rotate] [actor-model target @leftWall] [vector3r axis "0 1 0"] [real degree 90]
+-> transform [string type scale] [actor-model target @leftWall] [vector3r factor "10 10 10"]
+
+// right wall
+-> material @rightWallMaterial [string type matte-opaque] [vector3r albedo "0.3 0.3 0.85"]
+-> actor-model @rightWall [geometry geometry @boxWall] [material material @rightWallMaterial]
+-> transform [string type translate] [actor-model target @rightWall] [vector3r factor "5 0 0"]
+-> transform [string type rotate] [actor-model target @rightWall] [vector3r axis "0 1 0"] [real degree -90]
+-> transform [string type scale] [actor-model target @rightWall] [vector3r factor "10 10 10"]
+
+// top wall
+-> material @topWallMaterial [string type matte-opaque] [vector3r albedo "0.7 0.7 0.7"]
+-> actor-model @topWall [geometry geometry @boxWall] [material material @topWallMaterial]
+-> transform [string type translate] [actor-model target @topWall] [vector3r factor "0 5 0"]
+-> transform [string type rotate] [actor-model target @topWall] [vector3r axis "1 0 0"] [real degree 90]
+-> transform [string type scale] [actor-model target @topWall] [vector3r factor "10 10 10"]
+
+// bottom wall
+-> material @bottomWallMaterial [string type matte-opaque] [vector3r albedo "0.7 0.7 0.7"]
+-> actor-model @bottomWall [geometry geometry @boxWall] [material material @bottomWallMaterial]
+-> transform [string type translate] [actor-model target @bottomWall] [vector3r factor "0 -5 0"]
+-> transform [string type rotate] [actor-model target @bottomWall] [vector3r axis "1 0 0"] [real degree -90]
+-> transform [string type scale] [actor-model target @bottomWall] [vector3r factor "10 10 10"]
+
+// back wall
+-> material @backWallMaterial [string type matte-opaque] [vector3r albedo "0.7 0.7 0.7"]
+-> actor-model @backWall [geometry geometry @boxWall] [material material @backWallMaterial]
+-> transform [string type translate] [actor-model target @backWall] [vector3r factor "0 0 -5"]
+-> transform [string type scale] [actor-model target @backWall] [vector3r factor "10 10 10"]
+
+// create materials
+-> material @diffuseMaterial [string type matte-opaque] [vector3r albedo "0.5 0.9 0.5"]
+-> material @goldMaterial [string type abraded-opaque] [vector3r albedo "0.0 0.0 0.0"] [real roughness 0.0] [vector3r f0 "1.0 0.765557 0.336057"]
+-> material @glassMaterial [string type abraded-translucent] [vector3r albedo "0.0 0.0 0.0"] [real roughness 0.0] [vector3r f0 "0.04 0.04 0.04"]
+   [real ior 1.5]
+
+// diffuse object
+-> geometry @diffuseGeometry [string type sphere] [real radius 1.5]
+-> actor-model @diffuseModel [geometry geometry @diffuseGeometry] [material material @diffuseMaterial]
+-> transform [string type translate] [actor-model target @diffuseModel] [vector3r factor "-3 -3.5 0"]
+
+// metal object
+-> geometry @metalGeometry [string type sphere] [real radius 1.5]
+-> actor-model @metalModel [geometry geometry @metalGeometry] [material material @goldMaterial]
+-> transform [string type translate] [actor-model target @metalModel] [vector3r factor "0 -3.5 0"]
+
+// glass object
+-> geometry @glassGeometry [string type sphere] [real radius 1.5]
+-> actor-model @glassModel [geometry geometry @glassGeometry] [material material @glassMaterial]
+-> transform [string type translate] [actor-model target @glassModel] [vector3r factor "3 0 0"]

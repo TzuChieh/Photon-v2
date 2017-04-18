@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FileIO/InputPacket.h"
+#include "FileIO/SDL/SdlTypeInfo.h"
 
 #include <string>
 #include <functional>
@@ -12,22 +13,22 @@ namespace ph
 class CommandEntry final
 {
 public:
-	typedef std::function<std::string()>                                                    TypeNameFuncType;
+	typedef std::function<SdlTypeInfo()>                                                    TypeInfoFuncType;
 	typedef std::function<std::shared_ptr<void>(const InputPacket& packet)>                 LoadFuncType;
 	typedef std::function<void(const std::string& functionName, const InputPacket& packet)> ExecuteFuncType;
 
 	CommandEntry();
 
-	CommandEntry& setTypeNameFunc(const TypeNameFuncType& func);
+	CommandEntry& setTypeInfoFunc(const TypeInfoFuncType& func);
 	CommandEntry& setLoadFunc(const LoadFuncType& func);
 	CommandEntry& setExecuteFunc(const ExecuteFuncType& func);
 
-	std::string typeName() const;
+	SdlTypeInfo typeInfo() const;
 	std::shared_ptr<void> load(const InputPacket& packet) const;
 	void execute(const std::string& functionName, const InputPacket& packet) const;
 
 private:
-	TypeNameFuncType m_typeName;
+	TypeInfoFuncType m_typeInfo;
 	LoadFuncType     m_load;
 	ExecuteFuncType  m_execute;
 };

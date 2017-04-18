@@ -14,14 +14,20 @@ namespace ph
 
 bool DescriptionParser::addCommandEntry(const CommandEntry& entry)
 {
-	const auto& iter = NAMED_INTERFACE_MAP().find(entry.typeName());
-	if(iter != NAMED_INTERFACE_MAP().end())
+	if(!entry.typeInfo().isValid())
 	{
-		std::cerr << "warning: command entry <" << entry.typeName() << "> is already present, not adding" << std::endl;
+		std::cerr << "warning: command entry has invalid type info: " << entry.typeInfo().toString() << ", not adding" << std::endl;
 		return false;
 	}
 
-	NAMED_INTERFACE_MAP()[entry.typeName()] = entry;
+	const auto& iter = NAMED_INTERFACE_MAP().find(entry.typeInfo().typeName);
+	if(iter != NAMED_INTERFACE_MAP().end())
+	{
+		std::cerr << "warning: command entry of type <" << entry.typeInfo().toString() << "> is already present, not adding" << std::endl;
+		return false;
+	}
+
+	NAMED_INTERFACE_MAP()[entry.typeInfo().typeName] = entry;
 	return true;
 }
 

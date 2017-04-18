@@ -19,6 +19,8 @@ namespace ph
 class NamedResourceStorage final
 {
 public:
+
+
 	void addGeometry   (const std::string& name, const std::shared_ptr<Geometry>&    geometry);
 	void addTexture    (const std::string& name, const std::shared_ptr<Texture>&     texture);
 	void addMaterial   (const std::string& name, const std::shared_ptr<Material>&    material);
