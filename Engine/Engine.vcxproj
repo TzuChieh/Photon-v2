@@ -205,6 +205,8 @@
     <ClCompile Include="Source\FileIO\DescriptionParser.cpp" />
     <ClCompile Include="Source\FileIO\ResourceLoader.cpp" />
     <ClCompile Include="Source\FileIO\SDL\CommandEntry.cpp" />
+    <ClCompile Include="Source\FileIO\SDL\ExitStatus.cpp" />
+    <ClCompile Include="Source\FileIO\SDL\ISdlResource.cpp" />
     <ClCompile Include="Source\FileIO\SDL\SdlTypeInfo.cpp" />
     <ClCompile Include="Source\FileIO\Tokenizer.cpp" />
     <ClCompile Include="Source\FileIO\ValueClause.cpp" />
@@ -322,6 +324,8 @@
     <ClInclude Include="Source\FileIO\ResourceLoader.h" />
     <ClInclude Include="Source\FileIO\SDL\CommandEntry.h" />
     <ClInclude Include="Source\FileIO\SDL\ETypeCategory.h" />
+    <ClInclude Include="Source\FileIO\SDL\ExitStatus.h" />
+    <ClInclude Include="Source\FileIO\SDL\ISdlResource.h" />
     <ClInclude Include="Source\FileIO\SDL\SdlTypeInfo.h" />
     <ClInclude Include="Source\FileIO\SDL\TCommandInterface.h" />
     <ClInclude Include="Source\FileIO\Tokenizer.h" />

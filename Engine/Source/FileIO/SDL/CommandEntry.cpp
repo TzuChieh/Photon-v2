@@ -40,7 +40,7 @@ SdlTypeInfo CommandEntry::typeInfo() const
 	return m_typeInfo();
 }
 
-std::shared_ptr<void> CommandEntry::load(const InputPacket& packet) const
+std::shared_ptr<ISdlResource> CommandEntry::load(const InputPacket& packet) const
 {
 	if(m_load == nullptr)
 	{
@@ -51,7 +51,7 @@ std::shared_ptr<void> CommandEntry::load(const InputPacket& packet) const
 	return m_load(packet);
 }
 
-void CommandEntry::execute(const std::string& functionName, const InputPacket& packet) const
+void CommandEntry::execute(const std::shared_ptr<ISdlResource>& targetResource, const std::string& functionName, const InputPacket& packet) const
 {
 	if(m_execute == nullptr)
 	{
@@ -59,7 +59,7 @@ void CommandEntry::execute(const std::string& functionName, const InputPacket& p
 		return;
 	}
 
-	m_execute(functionName, packet);
+	m_execute(targetResource, functionName, packet);
 }
 
 }// end namespace ph

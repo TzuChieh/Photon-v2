@@ -2,6 +2,7 @@
 #include "FileIO/InputPacket.h"
 #include "Math/Math.h"
 #include "Math/TVector3.tpp"
+#include "FileIO/InputPrototype.h"
 
 namespace ph
 {
@@ -15,13 +16,6 @@ PhysicalActor::PhysicalActor() :
 
 PhysicalActor::PhysicalActor(const PhysicalActor& other) : 
 	Actor(other), 
-	m_localToWorld()
-{
-
-}
-
-PhysicalActor::PhysicalActor(const InputPacket& packet) : 
-	Actor(packet), 
 	m_localToWorld()
 {
 
@@ -95,6 +89,92 @@ void swap(PhysicalActor& first, PhysicalActor& second)
 	// by swapping the members of two objects, the two objects are effectively swapped
 	swap(static_cast<Actor&>(first), static_cast<Actor&>(second));
 	swap(first.m_localToWorld,        second.m_localToWorld);
+}
+
+// command interface
+
+PhysicalActor::PhysicalActor(const InputPacket& packet) :
+	Actor(packet),
+	m_localToWorld()
+{
+
+}
+
+SdlTypeInfo PhysicalActor::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "physical-actor");
+}
+
+ExitStatus PhysicalActor::ciExecute(const std::shared_ptr<PhysicalActor>& targetResource, const std::string& functionName, const InputPacket& packet)
+{
+	if(!targetResource)
+	{
+		return ExitStatus::BAD_INPUT("requiring a physical actor as target");
+	}
+
+	if(functionName == "translate")
+	{
+		InputPrototype translationInput;
+		translationInput.addVector3r("factor");
+
+		if(packet.isPrototypeMatched(translationInput))
+		{
+			const Vector3R translation = packet.getVector3r("factor");
+			targetResource->translate(translation);
+			return ExitStatus::SUCCESS();
+		}
+		else
+		{
+			return ExitStatus::BAD_INPUT("requiring a vector3r factor");
+		}
+	}
+	else if(functionName == "rotate")
+	{
+		InputPrototype quaternionInput;
+		quaternionInput.addQuaternionR("factor");
+
+		InputPrototype axisDegreeInput;
+		axisDegreeInput.addVector3r("axis");
+		axisDegreeInput.addReal("degree");
+
+		if(packet.isPrototypeMatched(quaternionInput))
+		{
+			const QuaternionR rotation = packet.getQuaternionR("factor");
+			targetResource->rotate(rotation.normalize());
+			return ExitStatus::SUCCESS();
+		}
+		else if(packet.isPrototypeMatched(axisDegreeInput))
+		{
+			const Vector3R axis    = packet.getVector3r("axis");
+			const real     degrees = packet.getReal("degree");
+			targetResource->rotate(axis.normalize(), degrees);
+			return ExitStatus::SUCCESS();
+		}
+		else
+		{
+			return ExitStatus::BAD_INPUT("required input formats are: 1. " + quaternionInput.toString() + "; 2. " + axisDegreeInput.toString());
+		}
+	}
+	else if(functionName == "scale")
+	{
+		InputPrototype scalationInput;
+		scalationInput.addVector3r("factor");
+
+		if(packet.isPrototypeMatched(scalationInput))
+		{
+			const Vector3R scalation = packet.getVector3r("factor");
+			targetResource->scale(scalation);
+			return ExitStatus::SUCCESS();
+		}
+		else
+		{
+			return ExitStatus::BAD_INPUT("requiring a vector3r factor");
+		}
+	}
+	else
+	{
+		return ExitStatus::UNSUPPORTED();
+	}
 }
 
 }// end namespace ph

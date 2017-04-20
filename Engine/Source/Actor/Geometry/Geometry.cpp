@@ -11,12 +11,6 @@ Geometry::Geometry() :
 
 }
 
-Geometry::Geometry(const InputPacket& packet) :
-	Geometry()
-{
-
-}
-
 Geometry::~Geometry() = default;
 
 void Geometry::setTextureMapper(const std::shared_ptr<TextureMapper>& textureMapper)
@@ -27,6 +21,24 @@ void Geometry::setTextureMapper(const std::shared_ptr<TextureMapper>& textureMap
 const TextureMapper* Geometry::getTextureMapper() const
 {
 	return m_textureMapper.get();
+}
+
+// command interface
+
+Geometry::Geometry(const InputPacket& packet) :
+	Geometry()
+{
+
+}
+
+SdlTypeInfo Geometry::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "geometry");
+}
+
+ExitStatus Geometry::ciExecute(const std::shared_ptr<Geometry>& targetResource, const std::string& functionName, const InputPacket& packet)
+{
+	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

@@ -31,8 +31,8 @@ private:
 // command interface
 public:
 	GSphere(const InputPacket& packet);
-	static SdlTypeInfo iTypeInfoImpl();
-	static void iExecuteImpl(const std::string& functionName, const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static ExitStatus ciExecute(const std::shared_ptr<GSphere>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 
 }// end namespace ph

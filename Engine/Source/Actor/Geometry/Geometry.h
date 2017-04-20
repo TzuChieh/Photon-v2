@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Core/Primitive/Primitive.h"
+#include "FileIO/SDL/TCommandInterface.h"
+#include "FileIO/SDL/ISdlResource.h"
 
 #include <vector>
 #include <memory>
@@ -16,11 +18,10 @@ class TextureMapper;
 class InputPacket;
 class PrimitiveBuildingMaterial;
 
-class Geometry
+class Geometry : public TCommandInterface<Geometry>, public ISdlResource
 {
 public:
 	Geometry();
-	Geometry(const InputPacket& packet);
 	virtual ~Geometry() = 0;
 
 	virtual void discretize(const PrimitiveBuildingMaterial& data, 
@@ -31,6 +32,13 @@ public:
 
 protected:
 	std::shared_ptr<TextureMapper> m_textureMapper;
+
+
+// command interface
+public:
+	Geometry(const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static ExitStatus ciExecute(const std::shared_ptr<Geometry>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 
 }// end namespace ph

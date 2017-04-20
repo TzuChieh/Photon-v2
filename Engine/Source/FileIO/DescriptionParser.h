@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Actor/AModel.h"
 #include "FileIO/Tokenizer.h"
 #include "FileIO/ValueClause.h"
 
@@ -14,6 +13,7 @@ namespace ph
 
 class Description;
 class CommandEntry;
+class SdlTypeInfo;
 
 enum class ECommandType
 {
@@ -27,9 +27,7 @@ class DescriptionParser final
 {
 public:
 	static bool addCommandEntry(const CommandEntry& entry);
-
-private:
-	static std::unordered_map<std::string, CommandEntry>& NAMED_INTERFACE_MAP();
+	static CommandEntry getCommandEntry(const SdlTypeInfo& typeInfo);
 
 public:
 	DescriptionParser();
@@ -49,9 +47,16 @@ private:
 	std::string genName();
 	std::string getName(const std::string& nameToken);
 
+private:
+	static std::unordered_map<std::string, CommandEntry>& NAMED_INTERFACE_MAP();
+	static std::string getFullTypeName(const SdlTypeInfo& typeInfo);
+
 	static void getCommandString(std::ifstream& dataFile, std::string* const out_command, ECommandType* const out_type);
 	static ECommandType getCommandType(const std::string& command);
 	static std::vector<ValueClause> getValueClauses(const std::vector<std::string>& clauseStrings);
+	static bool isResourceName(const std::string& resourceName);
+	static bool isLoadCommand(const std::vector<std::string>& commandTokens);
+	static bool isExecuteCommand(const std::vector<std::string>& commandTokens);
 };
 
 }// end namespace ph

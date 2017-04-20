@@ -156,7 +156,7 @@ bool InputPacket::isPrototypeMatched(const InputPrototype& prototype) const
 	return true;
 }
 
-bool InputPacket::findStringValue(const std::string& typeName, const std::string& name, const DataTreatment& treatment, 
+bool InputPacket::findStringValue(const std::string& typeName, const std::string& dataName, const DataTreatment& treatment,
                                   std::string* const out_value) const
 {
 	if(out_value)
@@ -166,7 +166,7 @@ bool InputPacket::findStringValue(const std::string& typeName, const std::string
 
 	for(const ValueClause& vClause : m_vClauses)
 	{
-		if(vClause.type == typeName && vClause.name == name)
+		if(vClause.type == typeName && vClause.name == dataName)
 		{
 			if(out_value)
 			{
@@ -177,11 +177,11 @@ bool InputPacket::findStringValue(const std::string& typeName, const std::string
 		}
 	}
 
-	reportDataNotFound(typeName, name, treatment);
+	reportDataNotFound(typeName, dataName, treatment);
 	return false;
 }
 
-void InputPacket::reportDataNotFound(const std::string& typeName, const std::string& name, const DataTreatment& treatment)
+void InputPacket::reportDataNotFound(const std::string& typeName, const std::string& dataName, const DataTreatment& treatment)
 {
 	const std::string& message = treatment.notFoundInfo;
 
@@ -190,15 +190,15 @@ void InputPacket::reportDataNotFound(const std::string& typeName, const std::str
 	case EDataImportance::OPTIONAL:
 		if(!message.empty())
 		{
-			std::cerr << "warning: optional data type<" << typeName << "> name<" << name << "> not found (" << message << ")" << std::endl;
+			std::cerr << "warning: optional data type<" << typeName << "> name<" << dataName << "> not found (" << message << ")" << std::endl;
 		}
 		break;
 
 	case EDataImportance::REQUIRED:
-		std::cerr << "warning: required data type<" << typeName << "> name<" << name << "> not found ";
+		std::cerr << "warning: required data type<" << typeName << "> name<" << dataName << "> not found";
 		if(!message.empty())
 		{
-			std::cerr << "(" << message << ")" << std::endl;
+			std::cerr << " (" << message << ")";
 		}
 		std::cerr << std::endl;
 		break;

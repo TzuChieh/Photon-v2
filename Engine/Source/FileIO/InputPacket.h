@@ -5,6 +5,8 @@
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
 #include "FileIO/DataTreatment.h"
+#include "FileIO/SDL/SdlTypeInfo.h"
+#include "FileIO/NamedResourceStorage.h"
 
 #include <vector>
 #include <string>
@@ -26,7 +28,7 @@ class InputPacket final
 public:
 	InputPacket(const std::vector<ValueClause>& vClauses, const NamedResourceStorage& storage);
 	InputPacket(InputPacket&& other);
-
+	
 	std::string getString(
 		const std::string& name, 
 		const std::string& defaultString = "", 
@@ -55,6 +57,11 @@ public:
 	std::vector<Vector3R> getVector3rArray(
 		const std::string& name, 
 		const std::vector<Vector3R>& defaultVector3rArray = std::vector<Vector3R>(), 
+		const DataTreatment& treatment = DataTreatment()) const;
+
+	template<typename T>
+	std::shared_ptr<T> get(
+		const std::string& dataName,
 		const DataTreatment& treatment = DataTreatment()) const;
 
 	std::shared_ptr<Geometry> getGeometry(
@@ -87,11 +94,22 @@ private:
 	const std::vector<ValueClause> m_vClauses;
 	const NamedResourceStorage& m_storage;
 
-	bool findStringValue(const std::string& typeName, const std::string& name, const DataTreatment& treatment, 
+	bool findStringValue(const std::string& typeName, const std::string& dataName, const DataTreatment& treatment,
 	                     std::string* const out_value) const;
 
 	static void reportDataNotFound(const std::string& typeName, const std::string& name, const DataTreatment& treatment);
 
 };
+
+// template implementations:
+
+template<typename T>
+std::shared_ptr<T> InputPacket::get(const std::string& dataName, const DataTreatment& treatment) const
+{
+	const SdlTypeInfo& typeInfo = T::ciTypeInfo();
+	std::string resourceName;
+	return findStringValue(typeInfo.getCategoryName(), dataName, treatment, &resourceName) ?
+	                       m_storage.getResource<T>(resourceName, treatment) : nullptr;
+}
 
 }// end namespace ph

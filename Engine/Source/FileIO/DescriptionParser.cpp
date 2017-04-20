@@ -5,6 +5,7 @@
 #include "FileIO/RenderOption.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "FileIO/SDL/CommandEntry.h"
+#include "FileIO/SDL/SdlTypeInfo.h"
 
 #include <iostream>
 #include <sstream>
@@ -20,15 +21,29 @@ bool DescriptionParser::addCommandEntry(const CommandEntry& entry)
 		return false;
 	}
 
-	const auto& iter = NAMED_INTERFACE_MAP().find(entry.typeInfo().typeName);
+	const std::string& fullTypeName = getFullTypeName(entry.typeInfo());
+	const auto& iter = NAMED_INTERFACE_MAP().find(fullTypeName);
 	if(iter != NAMED_INTERFACE_MAP().end())
 	{
 		std::cerr << "warning: command entry of type <" << entry.typeInfo().toString() << "> is already present, not adding" << std::endl;
 		return false;
 	}
 
-	NAMED_INTERFACE_MAP()[entry.typeInfo().typeName] = entry;
+	NAMED_INTERFACE_MAP()[fullTypeName] = entry;
 	return true;
+}
+
+CommandEntry DescriptionParser::getCommandEntry(const SdlTypeInfo& typeInfo)
+{
+	const std::string& fullTypeName = getFullTypeName(typeInfo);
+	const auto& iter = NAMED_INTERFACE_MAP().find(fullTypeName);
+	if(iter == NAMED_INTERFACE_MAP().end())
+	{
+		std::cerr << "warning: command entry <" << fullTypeName << "> does not exist" << std::endl;
+		return CommandEntry();
+	}
+
+	return NAMED_INTERFACE_MAP()[fullTypeName];
 }
 
 std::unordered_map<std::string, CommandEntry>& DescriptionParser::NAMED_INTERFACE_MAP()
@@ -40,7 +55,7 @@ std::unordered_map<std::string, CommandEntry>& DescriptionParser::NAMED_INTERFAC
 DescriptionParser::DescriptionParser() : 
 	m_commandCache(), 
 	m_coreCommandTokenizer({' ', '\t', '\n', '\r'}, {{'[', ']'}}),
-	m_worldCommandTokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}, {'[', ']'}, {'<', '>'}}), 
+	m_worldCommandTokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}, {'[', ']'}, {'(', ')'}}), 
 	m_generatedNameCounter(0)
 {
 
@@ -51,7 +66,6 @@ void DescriptionParser::enter(const std::string& commandFragment, Description& o
 	if(getCommandType(commandFragment) != ECommandType::UNKNOWN)
 	{
 		parseCommand(m_commandCache, out_data);
-
 		m_commandCache.clear();
 		m_commandCache.shrink_to_fit();
 	}
@@ -143,30 +157,67 @@ void DescriptionParser::parseCoreCommand(const std::string& command, Description
 
 void DescriptionParser::parseWorldCommand(const std::string& command, Description& out_data)
 {
-	auto& resources = out_data.resources;
-
 	std::vector<std::string> tokens;
 	m_worldCommandTokenizer.tokenize(command, tokens);
 
+	// skip command-prefix-only command
 	if(tokens.size() == 1)
 	{
 		return;
 	}
 
-	if(tokens.size() < 3)
+	if(isLoadCommand(tokens))
 	{
-		std::cerr << "warning: at DescriptionParser::parseWorldCommand(), bad formatted command <" + command + ">" << std::endl;
-		return;
+		std::cout << ">>>>>>>>>>>>>>> resource load: begin" << std::endl;
+
+		const std::string&             categoryName = tokens[1];
+		const std::string&             typeName = tokens[2];
+		const std::string&             resourceName = tokens[3];
+		const SdlTypeInfo              typeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
+		const std::vector<std::string> clauseStrings(tokens.begin() + 4, tokens.end());
+		const InputPacket              inputPacket(getValueClauses(clauseStrings), out_data.resources);
+
+		const auto& loadedResource = getCommandEntry(typeInfo).load(inputPacket);
+		out_data.resources.addResource(typeInfo, resourceName, loadedResource);
+
+		std::cout << "type info: " << typeInfo.toString() << std::endl;
+		std::cout << "res name:  " << resourceName << std::endl;
+
+		std::cout << ">>>>>>>>>>>>>>> resource load: end" << std::endl << std::endl;
+	}
+	else if(isExecuteCommand(tokens))
+	{
+		std::cout << ">>>>>>>>>>>>>>> execute: begin" << std::endl;
+
+		const std::string&             categoryName = tokens[1];
+		const std::string&             typeName = tokens[2];
+		const std::string&             functionName = tokens[3];
+		const std::string&             targetResourceName = tokens[4];
+		const SdlTypeInfo              typeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
+		const std::vector<std::string> clauseStrings(tokens.begin() + 5, tokens.end());
+		const InputPacket              inputPacket(getValueClauses(clauseStrings), out_data.resources);
+
+		const DataTreatment targetResourceDT = targetResourceName.empty() ? 
+			DataTreatment::OPTIONAL() : DataTreatment::REQUIRED("world command parser cannot find specified target resource");
+
+		const auto& targetResource = out_data.resources.getResource(typeInfo, targetResourceName, targetResourceDT);
+		getCommandEntry(typeInfo).execute(targetResource, functionName, inputPacket);
+
+		std::cout << "type info:       " << typeInfo.toString() << std::endl;
+		std::cout << "target res name: " << targetResourceName << std::endl;
+		std::cout << "function name:   " << functionName << std::endl;
+
+		std::cout << ">>>>>>>>>>>>>>> execute: end" << std::endl << std::endl;
 	}
 
-	const std::string commandName = tokens[1];
-	if(commandName == "geometry")
-	{
-		const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
-		resources.addGeometry(getName(tokens[2]),
-		                      ResourceLoader::loadGeometry(InputPacket(getValueClauses(clauseStrings), resources)));
-	}
-	else if(commandName == "texture")
+	//if(categoryName == "geometry")
+	//{
+	//	std::cout << "yo" << std::endl;
+	//	/*const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
+	//	resources.addGeometry(getName(tokens[2]),
+	//	                      ResourceLoader::loadGeometry(InputPacket(getValueClauses(clauseStrings), resources)));*/
+	//}
+	/*else if(commandName == "texture")
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
 		resources.addTexture(getName(tokens[2]),
@@ -200,7 +251,7 @@ void DescriptionParser::parseWorldCommand(const std::string& command, Descriptio
 	{
 		const std::vector<std::string> clauseStrings(tokens.begin() + 2, tokens.end());
 		FunctionExecutor::executeTransform(InputPacket(getValueClauses(clauseStrings), resources));
-	}
+	}*/
 	else
 	{
 		std::cerr << "warning: at DescriptionParser::parseWorldCommand(), unknown command <" + command + ">" << std::endl;
@@ -308,6 +359,54 @@ ECommandType DescriptionParser::getCommandType(const std::string& command)
 	{
 		return ECommandType::UNKNOWN;
 	}
+}
+
+bool DescriptionParser::isResourceName(const std::string& resourceName)
+{
+	if(resourceName.empty())
+	{
+		return false;
+	}
+
+	if(resourceName[0] != '@')
+	{
+		return false;
+	}
+
+	return true;
+}
+
+std::string DescriptionParser::getFullTypeName(const SdlTypeInfo& typeInfo)
+{
+	const std::string& categoryName = typeInfo.getCategoryName();
+	const std::string& typeName     = typeInfo.typeName;
+	return categoryName + '_' + typeName;
+}
+
+bool DescriptionParser::isLoadCommand(const std::vector<std::string>& commandTokens)
+{
+	if(commandTokens.size() >= 4)
+	{
+		if(isResourceName(commandTokens[3]))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool DescriptionParser::isExecuteCommand(const std::vector<std::string>& commandTokens)
+{
+	if(commandTokens.size() >= 5)
+	{
+		if(isResourceName(commandTokens[4]))
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 }// end namespace ph

@@ -36,15 +36,6 @@ AModel::AModel(const AModel& other) :
 	
 }
 
-AModel::AModel(const InputPacket& packet) : 
-	PhysicalActor(packet), 
-	m_geometry(nullptr), m_material(nullptr)
-{
-	const DataTreatment requiredDT(EDataImportance::REQUIRED, "AModel needs both a Geometry and a Material");
-	m_geometry = packet.getGeometry("geometry", requiredDT);
-	m_material = packet.getMaterial("material", requiredDT);
-}
-
 AModel::~AModel() = default;
 
 
@@ -111,6 +102,30 @@ void swap(AModel& first, AModel& second)
 	swap(static_cast<PhysicalActor&>(first), static_cast<PhysicalActor&>(second));
 	swap(first.m_geometry,                   second.m_geometry);
 	swap(first.m_material,                   second.m_material);
+}
+
+// command interface
+
+AModel::AModel(const InputPacket& packet) :
+	PhysicalActor(packet),
+	m_geometry(nullptr), m_material(nullptr)
+{
+	const DataTreatment requiredDT(EDataImportance::REQUIRED, "AModel needs both a Geometry and a Material");
+	m_geometry = packet.get<Geometry>("geometry", requiredDT);
+	m_material = packet.get<Material>("material", requiredDT);
+	/*const DataTreatment requiredDT(EDataImportance::REQUIRED, "AModel needs both a Geometry and a Material");
+	m_geometry = packet.getGeometry("geometry", requiredDT);
+	m_material = packet.getMaterial("material", requiredDT);*/
+}
+
+SdlTypeInfo AModel::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "model");
+}
+
+ExitStatus AModel::ciExecute(const std::shared_ptr<AModel>& targetResource, const std::string& functionName, const InputPacket& packet)
+{
+	return PhysicalActor::ciExecute(targetResource, functionName, packet);
 }
 
 }// end namespace ph

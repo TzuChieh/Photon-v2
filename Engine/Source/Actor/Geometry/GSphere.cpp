@@ -192,16 +192,18 @@ GSphere::GSphere(const InputPacket& packet) :
 	Geometry(packet)
 {
 	m_radius = packet.getReal("radius", 1.0_r);
+
+	std::cout << "sphere ctor" << std::endl;
 }
 
-SdlTypeInfo GSphere::iTypeInfoImpl()
+SdlTypeInfo GSphere::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "sphere");
 }
 
-void GSphere::iExecuteImpl(const std::string& functionName, const InputPacket& packet)
+ExitStatus GSphere::ciExecute(const std::shared_ptr<GSphere>& targetResource, const std::string& functionName, const InputPacket& packet)
 {
-
+	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

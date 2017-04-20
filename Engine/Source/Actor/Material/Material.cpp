@@ -5,11 +5,24 @@ namespace ph
 
 Material::Material() = default;
 
-Material::Material(const InputPacket& packet)
+Material::~Material() = default;
+
+// command interface
+
+Material::Material(const InputPacket& packet) : 
+	Material()
 {
 
 }
 
-Material::~Material() = default;
+SdlTypeInfo Material::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "material");
+}
+
+ExitStatus Material::ciExecute(const std::shared_ptr<Material>& targetResource, const std::string& functionName, const InputPacket& packet)
+{
+	return ExitStatus::UNSUPPORTED();
+}
 
 }// end namespace ph

@@ -11,6 +11,8 @@ class SdlTypeInfo final
 {
 public:
 	static SdlTypeInfo makeInvalid();
+	static std::string categoryToName(const ETypeCategory typeCategory);
+	static ETypeCategory nameToCategory(const std::string& name);
 
 public:
 	ETypeCategory typeCategory;

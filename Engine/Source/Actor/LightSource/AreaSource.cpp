@@ -37,13 +37,6 @@ AreaSource::AreaSource(const std::string& imageFilename) :
 	}
 }
 
-AreaSource::AreaSource(const InputPacket& packet) : 
-	LightSource(packet)
-{
-	const Vector3R emittedRadiance = packet.getVector3r("emitted-radiance", Vector3R(0), DataTreatment::REQUIRED());
-	m_emittedRadiance = std::make_shared<ConstantTexture>(emittedRadiance);
-}
-
 AreaSource::~AreaSource() = default;
 
 std::unique_ptr<Emitter> AreaSource::buildEmitter(const EmitterBuildingMaterial& data) const
@@ -57,6 +50,23 @@ std::unique_ptr<Emitter> AreaSource::buildEmitter(const EmitterBuildingMaterial&
 	std::unique_ptr<PrimitiveAreaEmitter> emitter = std::make_unique<PrimitiveAreaEmitter>(data.primitives);
 	emitter->setEmittedRadiance(m_emittedRadiance);
 	return std::move(emitter);
+}
+
+AreaSource::AreaSource(const InputPacket& packet) :
+	LightSource(packet)
+{
+	const Vector3R emittedRadiance = packet.getVector3r("emitted-radiance", Vector3R(0), DataTreatment::REQUIRED());
+	m_emittedRadiance = std::make_shared<ConstantTexture>(emittedRadiance);
+}
+
+SdlTypeInfo AreaSource::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_LIGHT_SOURCE, "area");
+}
+
+ExitStatus AreaSource::ciExecute(const std::shared_ptr<AreaSource>& targetResource, const std::string& functionName, const InputPacket& packet)
+{
+	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

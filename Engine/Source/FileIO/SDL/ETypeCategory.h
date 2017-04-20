@@ -5,12 +5,15 @@ namespace ph
 
 enum class ETypeCategory
 {
-	UNSPECIFIED, 
 	PRIMITIVE, 
 	REF_GEOMETRY, 
 	REF_MATERIAL, 
 	REF_LIGHT_SOURCE, 
-	REF_ACTOR
+	REF_ACTOR, 
+
+	UNSPECIFIED,
+	MIN = PRIMITIVE,
+	MAX = REF_ACTOR
 };
 
 }// end namespace ph
