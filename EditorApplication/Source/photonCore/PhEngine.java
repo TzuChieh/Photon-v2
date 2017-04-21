@@ -33,8 +33,8 @@ public final class PhEngine
 		    {
 		    	enterCommand(line + '\n');
 		    }
-		    
 		    enterCommand("->");
+		    
 		    reader.close();
 		}
 		catch(Exception e)

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
+#include "FileIO/SDL/ISdlResource.h"
+#include "FileIO/SDL/TCommandInterface.h"
 
 #include <memory>
 
@@ -10,14 +12,19 @@ namespace ph
 class InputPacket;
 class Emitter;
 
-class LightSource
+class LightSource : public TCommandInterface<LightSource>, public ISdlResource
 {
 public:
 	LightSource();
-	LightSource(const InputPacket& packet);
 	virtual ~LightSource() = 0;
 
 	virtual std::unique_ptr<Emitter> buildEmitter(const EmitterBuildingMaterial& data) const = 0;
+
+// command interface
+public:
+	LightSource(const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static ExitStatus ciExecute(const std::shared_ptr<LightSource>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 
 }// end namespace ph

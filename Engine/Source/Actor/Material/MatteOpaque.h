@@ -4,17 +4,17 @@
 #include "Core/SurfaceBehavior/BSDF/LambertianDiffuse.h"
 #include "Math/TVector3.h"
 #include "Actor/Texture/Texture.h"
+#include "FileIO/SDL/TCommandInterface.h"
 
 #include <memory>
 
 namespace ph
 {
 
-class MatteOpaque : public Material
+class MatteOpaque : public Material, public TCommandInterface<MatteOpaque>
 {
 public:
 	MatteOpaque();
-	MatteOpaque(const InputPacket& packet);
 	virtual ~MatteOpaque() override;
 
 	virtual void populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const override;
@@ -25,6 +25,12 @@ public:
 
 private:
 	LambertianDiffuse m_bsdf;
+
+// command interface
+public:
+	MatteOpaque(const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static ExitStatus ciExecute(const std::shared_ptr<MatteOpaque>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 
 }// end namespace ph

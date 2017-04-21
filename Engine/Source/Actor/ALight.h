@@ -3,6 +3,7 @@
 #include "Math/Transform/StaticTransform.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Actor/PhysicalActor.h"
+#include "FileIO/SDL/TCommandInterface.h"
 
 #include <memory>
 #include <vector>
@@ -15,13 +16,12 @@ class Material;
 class TextureMapper;
 class LightSource;
 
-class ALight final : public PhysicalActor
+class ALight final : public PhysicalActor, public TCommandInterface<ALight>
 {
 public:
 	ALight();
 	ALight(const std::shared_ptr<LightSource>& lightSource);
 	ALight(const ALight& other);
-	ALight(const InputPacket& packet);
 	virtual ~ALight() override;
 
 	virtual void cook(CookedActor* const out_cookedActor) const override;
@@ -41,6 +41,12 @@ private:
 	std::shared_ptr<Geometry>    m_geometry;
 	std::shared_ptr<Material>    m_material;
 	std::shared_ptr<LightSource> m_lightSource;
+
+// command interface
+public:
+	ALight(const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static ExitStatus ciExecute(const std::shared_ptr<ALight>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 
 }// end namespace ph

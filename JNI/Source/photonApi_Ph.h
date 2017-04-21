@@ -11,6 +11,22 @@ extern "C" {
 #define photonApi_Ph_PH_HDR_FRAME_TYPE 50L
 /*
  * Class:     photonApi_Ph
+ * Method:    phInit
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_photonApi_Ph_phInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phExit
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_photonApi_Ph_phExit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     photonApi_Ph
  * Method:    phCreateEngine
  * Signature: (LphotonApi/LongRef;I)V
  */

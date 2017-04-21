@@ -9,9 +9,32 @@
 #include "PostProcess/Frame.h"
 #include "PostProcess/HdrFrame.h"
 #include "Math/TArithmeticArray.tpp"
+#include "Api/init_and_exit.h"
 
 #include <memory>
 #include <iostream>
+
+int phInit()
+{
+	if(!ph::init_command_parser())
+	{
+		std::cerr << "command parser initialization failed" << std::endl;
+		return PH_FALSE;
+	}
+
+	return PH_TRUE;
+}
+
+int phExit()
+{
+	if(!ph::exit_api_database())
+	{
+		std::cerr << "API database exiting failed" << std::endl;
+		return PH_FALSE;
+	}
+
+	return PH_TRUE;
+}
 
 void phCreateEngine(PHuint64* out_engineId, const PHuint32 numRenderThreads)
 {

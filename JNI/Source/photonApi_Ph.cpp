@@ -11,6 +11,28 @@
 
 /*
 * Class:     photonApi_Ph
+* Method:    phInit
+* Signature: ()Z
+*/
+JNIEXPORT jboolean JNICALL Java_photonApi_Ph_phInit
+(JNIEnv* env, jclass thiz)
+{
+	return phInit() == PH_TRUE ? JNI_TRUE : JNI_FALSE;
+}
+
+/*
+* Class:     photonApi_Ph
+* Method:    phExit
+* Signature: ()Z
+*/
+JNIEXPORT jboolean JNICALL Java_photonApi_Ph_phExit
+(JNIEnv* env, jclass thiz)
+{
+	return phExit() == PH_TRUE ? JNI_TRUE : JNI_FALSE;
+}
+
+/*
+* Class:     photonApi_Ph
 * Method:    phCreateEngine
 * Signature: (LphotonApi/LongRef;I)V
 */

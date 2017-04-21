@@ -4,16 +4,16 @@
 #include "Math/Transform/StaticTransform.h"
 #include "Math/Transform/TDecomposedTransform.h"
 #include "Math/math_fwd.h"
+#include "FileIO/SDL/TCommandInterface.h"
 
 namespace ph
 {
 
-class PhysicalActor : public Actor
+class PhysicalActor : public Actor, public TCommandInterface<PhysicalActor>
 {
 public:
 	PhysicalActor();
 	PhysicalActor(const PhysicalActor& other);
-	PhysicalActor(const InputPacket& packet);
 	virtual ~PhysicalActor() override;
 
 	virtual void cook(CookedActor* const out_cookedActor) const = 0;
@@ -39,6 +39,12 @@ protected:
 
 	/*virtual void updateTransforms(const StaticTransform& parentTransform = StaticTransform(),
 	                              const StaticTransform& parentInverseTransform = StaticTransform());*/
+
+// command interface
+public:
+	PhysicalActor(const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static ExitStatus ciExecute(const std::shared_ptr<PhysicalActor>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 
 }// end namespace ph

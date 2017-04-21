@@ -1,17 +1,19 @@
 #pragma once
 
-#include "Actor/AModel.h"
 #include "FileIO/Tokenizer.h"
 #include "FileIO/ValueClause.h"
 
 #include <vector>
 #include <string>
 #include <fstream>
+#include <unordered_map>
 
 namespace ph
 {
 
 class Description;
+class CommandEntry;
+class SdlTypeInfo;
 
 enum class ECommandType
 {
@@ -24,6 +26,10 @@ enum class ECommandType
 class DescriptionParser final
 {
 public:
+	static bool addCommandEntry(const CommandEntry& entry);
+	static CommandEntry getCommandEntry(const SdlTypeInfo& typeInfo);
+
+public:
 	DescriptionParser();
 
 	void enter(const std::string& commandFragment, Description& out_data);
@@ -33,13 +39,22 @@ private:
 	std::string        m_commandCache;
 	Tokenizer          m_coreCommandTokenizer;
 	Tokenizer          m_worldCommandTokenizer;
+	Tokenizer          m_nameTokenizer;
 	std::size_t        m_generatedNameCounter;
 
 	void parseCommand(const std::string& command, Description& out_data);
 	void parseCoreCommand(const std::string& command, Description& out_data);
 	void parseWorldCommand(const std::string& command, Description& out_data);
 	std::string genName();
-	std::string getName(const std::string& nameToken);
+	std::string getName(const std::string& nameToken) const;
+
+private:
+	bool isResourceName(const std::string& token) const;
+	bool isLoadCommand(const std::vector<std::string>& commandTokens) const;
+	bool isExecuteCommand(const std::vector<std::string>& commandTokens) const;
+
+	static std::unordered_map<std::string, CommandEntry>& NAMED_INTERFACE_MAP();
+	static std::string getFullTypeName(const SdlTypeInfo& typeInfo);
 
 	static void getCommandString(std::ifstream& dataFile, std::string* const out_command, ECommandType* const out_type);
 	static ECommandType getCommandType(const std::string& command);

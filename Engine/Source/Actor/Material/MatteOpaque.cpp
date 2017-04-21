@@ -12,14 +12,6 @@ MatteOpaque::MatteOpaque() :
 	
 }
 
-MatteOpaque::MatteOpaque(const InputPacket& packet) :
-	Material(packet), 
-	m_bsdf()
-{
-	const Vector3R albedo = packet.getVector3r("albedo", Vector3R(0.5_r), DataTreatment::OPTIONAL("all components are set to 0.5"));
-	setAlbedo(albedo);
-}
-
 MatteOpaque::~MatteOpaque() = default;
 
 void MatteOpaque::populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const
@@ -40,6 +32,26 @@ void MatteOpaque::setAlbedo(const real r, const real g, const real b)
 void MatteOpaque::setAlbedo(const std::shared_ptr<Texture>& albedo)
 {
 	m_bsdf.setAlbedo(albedo);
+}
+
+// command interface
+
+MatteOpaque::MatteOpaque(const InputPacket& packet) :
+	Material(packet),
+	m_bsdf()
+{
+	const Vector3R albedo = packet.getVector3r("albedo", Vector3R(0.5_r), DataTreatment::OPTIONAL("all components are set to 0.5"));
+	setAlbedo(albedo);
+}
+
+SdlTypeInfo MatteOpaque::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "matte-opaque");
+}
+
+ExitStatus MatteOpaque::ciExecute(const std::shared_ptr<MatteOpaque>& targetResource, const std::string& functionName, const InputPacket& packet)
+{
+	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

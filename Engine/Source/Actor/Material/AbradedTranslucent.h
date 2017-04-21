@@ -4,15 +4,15 @@
 #include "Core/SurfaceBehavior/BSDF/TranslucentMicrofacet.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
+#include "FileIO/SDL/TCommandInterface.h"
 
 namespace ph
 {
 
-class AbradedTranslucent : public Material
+class AbradedTranslucent : public Material, public TCommandInterface<AbradedTranslucent>
 {
 public:
 	AbradedTranslucent();
-	AbradedTranslucent(const InputPacket& packet);
 	virtual ~AbradedTranslucent() override;
 
 	virtual void populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const override;
@@ -27,6 +27,12 @@ private:
 	TranslucentMicrofacet m_bsdf;
 
 	static real roughnessToAlpha(const real roughness);
+
+// command interface
+public:
+	AbradedTranslucent(const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static ExitStatus ciExecute(const std::shared_ptr<AbradedTranslucent>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 
 }// end namespace ph

@@ -2,6 +2,7 @@
 
 #include "Math/Transform/StaticTransform.h"
 #include "Actor/PhysicalActor.h"
+#include "FileIO/SDL/TCommandInterface.h"
 
 #include <memory>
 #include <vector>
@@ -13,13 +14,12 @@ class Geometry;
 class Material;
 class TextureMapper;
 
-class AModel final : public PhysicalActor
+class AModel final : public PhysicalActor, public TCommandInterface<AModel>
 {
 public:
 	AModel();
 	AModel(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<Material>& material);
 	AModel(const AModel& other);
-	AModel(const InputPacket& packet);
 	virtual ~AModel() override;
 
 	virtual void cook(CookedActor* const out_cookedActor) const override;
@@ -36,6 +36,12 @@ public:
 private:
 	std::shared_ptr<Geometry> m_geometry;
 	std::shared_ptr<Material> m_material;
+
+// command interface
+public:
+	AModel(const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static ExitStatus ciExecute(const std::shared_ptr<AModel>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 
 }// end namespace ph

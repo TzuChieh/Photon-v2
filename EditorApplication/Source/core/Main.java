@@ -19,10 +19,14 @@ public class Main
 	
 	public static void main(String[] args)
 	{
-//		if(!Ph.phStart())
-//		{
-//			System.out.println("Photon API initialization failed");
-//		}
+		if(Ph.phInit())
+		{
+			System.out.println("Photon initialized");
+		}
+		else
+		{
+			System.err.println("Photon initializing failed");
+		}
 		
 		new PhTest();
 		
@@ -88,13 +92,14 @@ public class Main
 		
 //		engine.load("../scene/testScene.p2");
 //		engine.load("../scene/cbox_simple.p2");
-		engine.load("../scene/cbox_material_test.p2");
+//		engine.load("../scene/cbox_material_test.p2");
+//		engine.load("../scene/new_syntax_test.p2");
 //		engine.load("../scene/cbox_test.p2"); 
 //		engine.load("../scene/exporter_test.p2");
 //		engine.load("../scene/LAZIENKA.p2");
 //		engine.load("../scene/complex/corridor.p2");
 //		engine.load("../scene/complex/corridor_1.p2");
-//		engine.load("../scene/complex/FinalAR.p2");
+		engine.load("../scene/complex/FinalAR.p2");
 //		engine.load("../scene/complex/FinalAR_1.p2");
 		
 		
@@ -154,6 +159,14 @@ public class Main
 			}
 		});
 		
-		// TODO: exit photon
+		// TODO: exit Photon on Jframe exit event
+//		if(Ph.phExit())
+//		{
+//			System.out.println("Photon exited");
+//		}
+//		else
+//		{
+//			System.err.println("Photon exiting failed");
+//		}
 	}
 }

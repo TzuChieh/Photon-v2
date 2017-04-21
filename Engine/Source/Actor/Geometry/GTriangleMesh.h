@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Actor/Geometry/GTriangle.h"
+#include "FileIO/SDL/TCommandInterface.h"
 
 #include <vector>
 #include <memory>
@@ -8,11 +9,10 @@
 namespace ph
 {
 
-class GTriangleMesh final : public Geometry
+class GTriangleMesh final : public Geometry, public TCommandInterface<GTriangleMesh>
 {
 public:
 	GTriangleMesh();
-	GTriangleMesh(const InputPacket& packet);
 	virtual ~GTriangleMesh() override;
 
 	virtual void discretize(const PrimitiveBuildingMaterial& data,
@@ -22,6 +22,12 @@ public:
 
 private:
 	std::vector<GTriangle> m_gTriangles;
+
+// command interface
+public:
+	GTriangleMesh(const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static ExitStatus ciExecute(const std::shared_ptr<GTriangleMesh>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 
 }// end namespace ph

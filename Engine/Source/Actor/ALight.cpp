@@ -37,16 +37,6 @@ ALight::ALight(const ALight& other) :
 
 }
 
-ALight::ALight(const InputPacket& packet) : 
-	PhysicalActor(packet),
-	m_geometry(nullptr), m_material(nullptr), m_lightSource(nullptr)
-{
-	const DataTreatment requiredData(EDataImportance::REQUIRED, "ALight requires at least a LightSource");
-	m_geometry    = packet.getGeometry("geometry");
-	m_material    = packet.getMaterial("material");
-	m_lightSource = packet.getLightSource("light-source", requiredData);
-}
-
 ALight::~ALight() = default;
 
 
@@ -136,6 +126,26 @@ void swap(ALight& first, ALight& second)
 	swap(first.m_geometry,                   second.m_geometry);
 	swap(first.m_material,                   second.m_material);
 	swap(first.m_lightSource,                second.m_lightSource);
+}
+
+ALight::ALight(const InputPacket& packet) :
+	PhysicalActor(packet),
+	m_geometry(nullptr), m_material(nullptr), m_lightSource(nullptr)
+{
+	const DataTreatment requiredData(EDataImportance::REQUIRED, "ALight requires at least a LightSource");
+	m_geometry = packet.get<Geometry>("geometry");
+	m_material = packet.get<Material>("material");
+	m_lightSource = packet.get<LightSource>("light-source", requiredData);
+}
+
+SdlTypeInfo ALight::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "light");
+}
+
+ExitStatus ALight::ciExecute(const std::shared_ptr<ALight>& targetResource, const std::string& functionName, const InputPacket& packet)
+{
+	return PhysicalActor::ciExecute(targetResource, functionName, packet);
 }
 
 }// end namespace ph

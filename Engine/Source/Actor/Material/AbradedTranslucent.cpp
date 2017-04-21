@@ -15,25 +15,6 @@ AbradedTranslucent::AbradedTranslucent() :
 	
 }
 
-AbradedTranslucent::AbradedTranslucent(const InputPacket& packet) : 
-	Material(packet), 
-	m_bsdf()
-{
-	Vector3R albedo(0.5f, 0.5f, 0.5f);
-	Vector3R f0(0.04f, 0.04f, 0.04f);
-	real roughness = 0.5f;
-	real ior       = 1.0f;
-	albedo    = packet.getVector3r("albedo", albedo);
-	f0        = packet.getVector3r("f0", f0);
-	roughness = packet.getReal("roughness", roughness);
-	ior       = packet.getReal("ior", ior);
-
-	setAlbedo(albedo);
-	setF0(f0);
-	setRoughness(roughness);
-	setIOR(ior);
-}
-
 AbradedTranslucent::~AbradedTranslucent() = default;
 
 void AbradedTranslucent::populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const
@@ -75,6 +56,37 @@ real AbradedTranslucent::roughnessToAlpha(const real roughness)
 	const real clampedRoughness = std::max(roughness, 0.001_r);
 	const real x = std::log(clampedRoughness);
 	return 1.62142_r + 0.819955_r * x + 0.1734_r * x * x + 0.0171201_r * x * x * x + 0.000640711_r * x * x * x * x;
+}
+
+// command interface
+
+AbradedTranslucent::AbradedTranslucent(const InputPacket& packet) :
+	Material(packet),
+	m_bsdf()
+{
+	Vector3R albedo(0.5f, 0.5f, 0.5f);
+	Vector3R f0(0.04f, 0.04f, 0.04f);
+	real roughness = 0.5f;
+	real ior = 1.0f;
+	albedo    = packet.getVector3r("albedo", albedo);
+	f0        = packet.getVector3r("f0", f0);
+	roughness = packet.getReal("roughness", roughness);
+	ior       = packet.getReal("ior", ior);
+
+	setAlbedo(albedo);
+	setF0(f0);
+	setRoughness(roughness);
+	setIOR(ior);
+}
+
+SdlTypeInfo AbradedTranslucent::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "abraded-translucent");
+}
+
+ExitStatus AbradedTranslucent::ciExecute(const std::shared_ptr<AbradedTranslucent>& targetResource, const std::string& functionName, const InputPacket& packet)
+{
+	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph
