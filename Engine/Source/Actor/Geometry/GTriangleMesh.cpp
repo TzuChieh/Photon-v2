@@ -17,17 +17,38 @@ GTriangleMesh::GTriangleMesh() :
 
 }
 
-GTriangleMesh::GTriangleMesh(const InputPacket& packet) : 
-	Geometry(packet), 
+GTriangleMesh::~GTriangleMesh()
+{
+
+}
+
+void GTriangleMesh::discretize(const PrimitiveBuildingMaterial& data,
+                               std::vector<std::unique_ptr<Primitive>>& out_primitives) const
+{
+	for(const auto& gTriangle : m_gTriangles)
+	{
+		gTriangle.discretize(data, out_primitives);
+	}
+}
+
+void GTriangleMesh::addTriangle(const GTriangle gTriangle)
+{
+	m_gTriangles.push_back(gTriangle);
+}
+
+// command interface
+
+GTriangleMesh::GTriangleMesh(const InputPacket& packet) :
+	Geometry(packet),
 	m_gTriangles()
 {
 	const std::vector<Vector3R> positions = packet.getVector3rArray("positions");
 	const std::vector<Vector3R> texCoords = packet.getVector3rArray("texture-coordinates");
 	const std::vector<Vector3R> normals   = packet.getVector3rArray("normals");
 
-	if(!(positions.size() == texCoords.size() && texCoords.size() == normals.size()) || 
-	   (positions.empty() || texCoords.empty() || normals.empty()) || 
-	   (positions.size() % 3 != 0 || texCoords.size() % 3 != 0 || normals.size() % 3 != 0))
+	if(!(positions.size() == texCoords.size() && texCoords.size() == normals.size()) ||
+	    (positions.empty() || texCoords.empty() || normals.empty()) ||
+	    (positions.size() % 3 != 0 || texCoords.size() % 3 != 0 || normals.size() % 3 != 0))
 	{
 		std::cerr << "warning: at GTriangleMesh::GTriangleMesh(), bad input detected" << std::endl;
 		return;
@@ -46,23 +67,14 @@ GTriangleMesh::GTriangleMesh(const InputPacket& packet) :
 	}
 }
 
-GTriangleMesh::~GTriangleMesh()
+SdlTypeInfo GTriangleMesh::ciTypeInfo()
 {
-
+	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "triangle-mesh");
 }
 
-void GTriangleMesh::discretize(const PrimitiveBuildingMaterial& data,
-                               std::vector<std::unique_ptr<Primitive>>& out_primitives) const
+ExitStatus GTriangleMesh::ciExecute(const std::shared_ptr<GTriangleMesh>& targetResource, const std::string& functionName, const InputPacket& packet)
 {
-	for(const auto& gTriangle : m_gTriangles)
-	{
-		gTriangle.discretize(data, out_primitives);
-	}
-}
-
-void GTriangleMesh::addTriangle(const GTriangle gTriangle)
-{
-	m_gTriangles.push_back(gTriangle);
+	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

@@ -16,12 +16,6 @@ Tokenizer::Tokenizer(const std::vector<char>& separators, const std::vector<std:
 
 void Tokenizer::tokenize(const std::string& source, std::vector<std::string>& out_results) const
 {
-	if(source.empty())
-	{
-		std::cerr << "warning: at Tokenizer::tokenize(), source string is empty" << std::endl;
-		return;
-	}
-
 	std::size_t i = 0;
 	while(i < source.length())
 	{

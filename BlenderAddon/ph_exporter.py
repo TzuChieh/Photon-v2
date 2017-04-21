@@ -69,7 +69,7 @@ class Exporter:
 		p2File = self.__p2File
 
 		if geometryType == "triangle-mesh":
-			p2File.write("-> geometry %s [string type triangle-mesh]\n" %(geometryName))
+			p2File.write("-> geometry(triangle-mesh) %s \n" %(geometryName))
 
 			positions = ""
 			for position in keywordArgs["positions"]:
@@ -93,7 +93,7 @@ class Exporter:
 
 			# TODO: width & height may correspond to different axes in Blender and Photon-v2
 
-			p2File.write("-> geometry %s [string type rectangle] [real width %.8f] [real height %.8f]\n" 
+			p2File.write("-> geometry(rectangle) %s [real width %.8f] [real height %.8f]\n" 
 		                 %(geometryName, keywordArgs["width"], keywordArgs["height"]))
 
 		else:
@@ -107,7 +107,7 @@ class Exporter:
 
 			albedo = keywordArgs["albedo"]
 
-			p2File.write("-> material %s [string type matte-opaque]\n" %(materialName))
+			p2File.write("-> material(matte-opaque) %s \n" %(materialName))
 			p2File.write("[vector3r albedo \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
 
 		elif materialType == "ABRADED_OPAQUE":
@@ -116,7 +116,7 @@ class Exporter:
 			f0        = keywordArgs["f0"]
 			roughness = keywordArgs["roughness"]
 
-			p2File.write("-> material %s [string type abraded-opaque]\n" %(materialName))
+			p2File.write("-> material(abraded-opaque) %s \n" %(materialName))
 			p2File.write("[vector3r albedo     \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
 			p2File.write("[vector3r f0         \"%.8f %.8f %.8f\"]\n" %(f0[0],     f0[1],     f0[2]))
 			p2File.write("[real     roughness    %.8f]            \n" %(roughness))
@@ -128,7 +128,7 @@ class Exporter:
 			roughness = keywordArgs["roughness"]
 			ior       = keywordArgs["ior"]
 
-			p2File.write("-> material %s [string type abraded-translucent]\n" %(materialName))
+			p2File.write("-> material(abraded-translucent) %s \n" %(materialName))
 			p2File.write("[vector3r albedo     \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
 			p2File.write("[vector3r f0         \"%.8f %.8f %.8f\"]\n" %(f0[0],     f0[1],     f0[2]))
 			p2File.write("[real     roughness    %.8f]            \n" %(roughness))
@@ -144,7 +144,7 @@ class Exporter:
 		if lightSourceType == "area":
 
 			emittedRadiance = keywordArgs["emittedRadiance"]
-			p2File.write("-> light-source %s [string type area] [vector3r emitted-radiance \"%.8f %.8f %.8f\"]\n" 
+			p2File.write("-> light-source(area) %s [vector3r emitted-radiance \"%.8f %.8f %.8f\"]\n" 
 		                 %(lightSourceName, emittedRadiance[0], emittedRadiance[1], emittedRadiance[2]))
 
 		else:
@@ -162,7 +162,7 @@ class Exporter:
 		scale    = self.__blendToPhotonVector(scale)
 
 		if lightSourceName != None:
-			p2File.write("-> actor-light %s [light-source light-source %s] " 
+			p2File.write("-> actor(light) %s [light-source light-source %s] " 
 		                 %(actorLightName, lightSourceName))
 		else:
 			print("warning: expecting a non-None light source name for actor-light %s, not exporting" %(actorLightName))
@@ -176,11 +176,11 @@ class Exporter:
 
 		p2File.write("\n")
 
-		p2File.write("-> transform [string type translate] [actor-light target %s] [vector3r factor \"%.8f %.8f %.8f\"]\n" 
+		p2File.write("-> actor(light) translate(%s) [vector3r factor \"%.8f %.8f %.8f\"]\n" 
 		             %(actorLightName, position.x, position.y, position.z))
-		p2File.write("-> transform [string type scale] [actor-light target %s] [vector3r factor \"%.8f %.8f %.8f\"]\n"
+		p2File.write("-> actor(light) scale    (%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
 		             %(actorLightName, scale.x, scale.y, scale.z))
-		p2File.write("-> transform [string type rotate] [actor-light target %s] [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
+		p2File.write("-> actor(light) rotate   (%s) [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
 		             %(actorLightName, rotation.x, rotation.y, rotation.z, rotation.w))
 
 	def exportActorModel(self, actorModelName, geometryName, materialName, position, rotation, scale):
@@ -195,14 +195,14 @@ class Exporter:
 		rotation = self.__blendToPhotonQuaternion(rotation)
 		scale    = self.__blendToPhotonVector(scale)
 
-		p2File.write("-> actor-model %s [geometry geometry %s] [material material %s]\n" 
+		p2File.write("-> actor(model) %s [geometry geometry %s] [material material %s]\n" 
 		             %(actorModelName, geometryName, materialName))
 
-		p2File.write("-> transform [string type translate] [actor-model target %s] [vector3r factor \"%.8f %.8f %.8f\"]\n" 
+		p2File.write("-> actor(model) translate(%s) [vector3r factor \"%.8f %.8f %.8f\"]\n" 
 		             %(actorModelName, position.x, position.y, position.z))
-		p2File.write("-> transform [string type scale] [actor-model target %s] [vector3r factor \"%.8f %.8f %.8f\"]\n"
+		p2File.write("-> actor(model) scale    (%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
 		             %(actorModelName, scale.x, scale.y, scale.z))
-		p2File.write("-> transform [string type rotate] [actor-model target %s] [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
+		p2File.write("-> actor(model) rotate   (%s) [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
 		             %(actorModelName, rotation.x, rotation.y, rotation.z, rotation.w))
 
 	def exportRaw(self, rawText):
@@ -376,7 +376,7 @@ def export_object_lamp(exporter, obj, scene):
 		recHeight = lamp.size_y if lamp.shape == "RECTANGLE" else lamp.size
 		exporter.exportGeometry("rectangle", lightGeometryName, width = recWidth, height = recHeight)
 
-		# assume the Lamp uses this material
+		# HACK: assume the Lamp uses this material
 		exporter.exportMaterial("MATTE_OPAQUE", lightMaterialName, albedo = [0.5, 0.5, 0.5])
 
 		# use lamp's color attribute as emitted radiance

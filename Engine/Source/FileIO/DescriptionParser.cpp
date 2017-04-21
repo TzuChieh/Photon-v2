@@ -56,6 +56,7 @@ DescriptionParser::DescriptionParser() :
 	m_commandCache(), 
 	m_coreCommandTokenizer({' ', '\t', '\n', '\r'}, {{'[', ']'}}),
 	m_worldCommandTokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}, {'[', ']'}, {'(', ')'}}), 
+	m_nameTokenizer({}, {{'\"', '\"'}}),
 	m_generatedNameCounter(0)
 {
 
@@ -172,7 +173,7 @@ void DescriptionParser::parseWorldCommand(const std::string& command, Descriptio
 
 		const std::string&             categoryName = tokens[1];
 		const std::string&             typeName = tokens[2];
-		const std::string&             resourceName = tokens[3];
+		const std::string&             resourceName = getName(tokens[3]);
 		const SdlTypeInfo              typeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
 		const std::vector<std::string> clauseStrings(tokens.begin() + 4, tokens.end());
 		const InputPacket              inputPacket(getValueClauses(clauseStrings), out_data.resources);
@@ -192,7 +193,7 @@ void DescriptionParser::parseWorldCommand(const std::string& command, Descriptio
 		const std::string&             categoryName = tokens[1];
 		const std::string&             typeName = tokens[2];
 		const std::string&             functionName = tokens[3];
-		const std::string&             targetResourceName = tokens[4];
+		const std::string&             targetResourceName = getName(tokens[4]);
 		const SdlTypeInfo              typeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
 		const std::vector<std::string> clauseStrings(tokens.begin() + 5, tokens.end());
 		const InputPacket              inputPacket(getValueClauses(clauseStrings), out_data.resources);
@@ -275,9 +276,26 @@ std::string DescriptionParser::genName()
 	return "@__item-" + std::to_string(m_generatedNameCounter++);
 }
 
-std::string DescriptionParser::getName(const std::string& nameToken)
+std::string DescriptionParser::getName(const std::string& nameToken) const
 {
-	if(nameToken.empty())
+	std::vector<std::string> tokens;
+	m_nameTokenizer.tokenize(nameToken, tokens);
+	if(tokens.size() != 1)
+	{
+		//std::cerr << "warning: at DescriptionParser::getName(), bad number of name tokens detected <" << nameToken << ">" << std::endl;
+		return "";
+	}
+	else if(tokens.front()[0] != '@' || tokens.front().length() == 1)
+	{
+		//std::cerr << "warning: at DescriptionParser::getName(), bad formatted name detected <" << nameToken << ">" << std::endl;
+		return "";
+	}
+	else
+	{
+		return tokens.front();
+	}
+
+	/*if(nameToken.empty())
 	{
 		std::cerr << "warning: at DescriptionParser::getName(), empty name detected" << std::endl;
 		return genName();
@@ -294,7 +312,7 @@ std::string DescriptionParser::getName(const std::string& nameToken)
 	else
 	{
 		return nameToken;
-	}
+	}*/
 }
 
 void DescriptionParser::getCommandString(std::ifstream& dataFile, std::string* const out_command, ECommandType* const out_type)
@@ -361,19 +379,9 @@ ECommandType DescriptionParser::getCommandType(const std::string& command)
 	}
 }
 
-bool DescriptionParser::isResourceName(const std::string& resourceName)
+bool DescriptionParser::isResourceName(const std::string& token) const
 {
-	if(resourceName.empty())
-	{
-		return false;
-	}
-
-	if(resourceName[0] != '@')
-	{
-		return false;
-	}
-
-	return true;
+	return !getName(token).empty();
 }
 
 std::string DescriptionParser::getFullTypeName(const SdlTypeInfo& typeInfo)
@@ -383,7 +391,7 @@ std::string DescriptionParser::getFullTypeName(const SdlTypeInfo& typeInfo)
 	return categoryName + '_' + typeName;
 }
 
-bool DescriptionParser::isLoadCommand(const std::vector<std::string>& commandTokens)
+bool DescriptionParser::isLoadCommand(const std::vector<std::string>& commandTokens) const
 {
 	if(commandTokens.size() >= 4)
 	{
@@ -396,7 +404,7 @@ bool DescriptionParser::isLoadCommand(const std::vector<std::string>& commandTok
 	return false;
 }
 
-bool DescriptionParser::isExecuteCommand(const std::vector<std::string>& commandTokens)
+bool DescriptionParser::isExecuteCommand(const std::vector<std::string>& commandTokens) const
 {
 	if(commandTokens.size() >= 5)
 	{
