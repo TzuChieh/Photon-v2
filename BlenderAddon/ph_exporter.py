@@ -55,7 +55,7 @@ class Exporter:
 		direction   = self.__blendToPhotonVector(direction)
 		upDirection = self.__blendToPhotonVector(upDirection)
 
-		p2File.write("""## camera [string type %s] [real fov-degree %.8f] 
+		p2File.write("""## camera(%s) [real fov-degree %.8f] 
 		             [vector3r position  \"%.8f %.8f %.8f\"] 
 		             [vector3r direction \"%.8f %.8f %.8f\"] 
 		             [vector3r up-axis   \"%.8f %.8f %.8f\"]\n"""
@@ -424,9 +424,9 @@ def export_core_commands(exporter, scene):
 		if obj.type == "CAMERA":
 			export_camera(exporter, obj, scene)
 
-	exporter.exportRaw("## film [integer width 400] [integer height 400] \n")
-	exporter.exportRaw("## sampler [integer spp-budget 16] \n")
-	exporter.exportRaw("## integrator [string type backward-mis] \n")
+	exporter.exportRaw("## film(film) [integer width 400] [integer height 400] \n")
+	exporter.exportRaw("## sampler(sampler) [integer spp-budget 16] \n")
+	exporter.exportRaw("## integrator(backward-mis) \n")
 
 def export_world_commands(exporter, scene):
 	objs = scene.objects
