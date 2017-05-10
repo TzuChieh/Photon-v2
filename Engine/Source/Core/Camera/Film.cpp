@@ -17,15 +17,7 @@ Film::Film(const uint32 widthPx, const uint32 heightPx) :
 
 }
 
-Film::Film(const InputPacket& packet)
-{
-	const DataTreatment requiredDT(EDataImportance::REQUIRED, "Film requires pixel width and height");
-	m_widthPx  = static_cast<uint32>(packet.getInteger("width",  0, requiredDT));
-	m_heightPx = static_cast<uint32>(packet.getInteger("height", 0, requiredDT));
-
-	const std::size_t numSensors = static_cast<std::size_t>(m_widthPx) * static_cast<std::size_t>(m_heightPx);
-	m_pixelRadianceSensors = std::vector<RadianceSensor>(numSensors, RadianceSensor());
-}
+Film::~Film() = default;
 
 void Film::accumulateRadiance(const uint32 x, const uint32 y, const Vector3R& radiance)
 {
@@ -91,6 +83,28 @@ void Film::developFilm(Frame* const out_frame) const
 void Film::clear()
 {
 	std::fill(m_pixelRadianceSensors.begin(), m_pixelRadianceSensors.end(), RadianceSensor());
+}
+
+// command interface
+
+Film::Film(const InputPacket& packet)
+{
+	const DataTreatment requiredDT(EDataImportance::REQUIRED, "Film requires pixel width and height");
+	m_widthPx = static_cast<uint32>(packet.getInteger("width", 0, requiredDT));
+	m_heightPx = static_cast<uint32>(packet.getInteger("height", 0, requiredDT));
+
+	const std::size_t numSensors = static_cast<std::size_t>(m_widthPx) * static_cast<std::size_t>(m_heightPx);
+	m_pixelRadianceSensors = std::vector<RadianceSensor>(numSensors, RadianceSensor());
+}
+
+SdlTypeInfo Film::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_FILM, "film");
+}
+
+ExitStatus Film::ciExecute(const std::shared_ptr<Film>& targetResource, const std::string& functionName, const InputPacket& packet)
+{
+	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

@@ -5,7 +5,7 @@
 #include "World/VisualWorld.h"
 #include "Core/Camera/Film.h"
 #include "Core/Integrator/Integrator.h"
-#include "Core/SampleGenerator/SampleGenerator.h"
+#include "Core/SampleGenerator/PixelJitterSampleGenerator.h"
 #include "FileIO/RenderOption.h"
 #include "FileIO/NamedResourceStorage.h"
 
@@ -19,11 +19,6 @@ namespace ph
 class Description final
 {
 public:
-	std::unique_ptr<Camera>          camera;
-	std::unique_ptr<Film>            film;
-	std::unique_ptr<Integrator>      integrator;
-	std::unique_ptr<SampleGenerator> sampleGenerator;
-
 	RenderOption         renderOption;
 	NamedResourceStorage resources;
 
@@ -33,8 +28,16 @@ public:
 
 	void update(const real deltaS);
 
+	inline std::shared_ptr<Camera>                     getCamera()          const { return m_camera;          };
+	inline std::shared_ptr<Film>                       getFilm()            const { return m_film;            };
+	inline std::shared_ptr<Integrator>                 getIntegrator()      const { return m_integrator;      };
+	inline std::shared_ptr<PixelJitterSampleGenerator> getSampleGenerator() const { return m_sampleGenerator; };
+
 private:
-	bool m_isReady;
+	std::shared_ptr<Camera>                     m_camera;
+	std::shared_ptr<Film>                       m_film;
+	std::shared_ptr<Integrator>                 m_integrator;
+	std::shared_ptr<PixelJitterSampleGenerator> m_sampleGenerator;
 };
 
 }// end namespace ph

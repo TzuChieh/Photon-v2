@@ -17,9 +17,9 @@ void NamedResourceStorage::addResource(
 	const std::string& resourceName, 
 	const std::shared_ptr<ISdlResource>& resource)
 {
-	if(resource == nullptr)
+	if(resource == nullptr || resourceName.empty())
 	{
-		std::cerr << "warning: at NamedResourceStorage::addResource(), name <" << resourceName << "> is null, ignoring" << std::endl;
+		std::cerr << "warning: at NamedResourceStorage::addResource(), name <" << resourceName << "> or resource is null, ignoring" << std::endl;
 		return;
 	}
 

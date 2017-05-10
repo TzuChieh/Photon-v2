@@ -7,10 +7,9 @@
 namespace ph
 {
 
-class BackwardMisIntegrator final : public Integrator
+class BackwardMisIntegrator final : public Integrator, public TCommandInterface<BackwardMisIntegrator>
 {
 public:
-	BackwardMisIntegrator(const InputPacket& packet);
 	virtual ~BackwardMisIntegrator() override;
 
 	virtual void update(const Scene& scene) override;
@@ -19,6 +18,12 @@ public:
 private:
 	static void rationalClamp(Vector3R& value);
 	static real misWeight(real pdf1W, real pdf2W);
+
+// command interface
+public:
+	BackwardMisIntegrator(const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static ExitStatus ciExecute(const std::shared_ptr<BackwardMisIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 
 }// end namespace ph

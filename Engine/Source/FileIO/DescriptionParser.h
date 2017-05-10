@@ -26,6 +26,7 @@ enum class ECommandType
 class DescriptionParser final
 {
 public:
+	static std::string CORE_DATA_NAME();
 	static bool addCommandEntry(const CommandEntry& entry);
 	static CommandEntry getCommandEntry(const SdlTypeInfo& typeInfo);
 

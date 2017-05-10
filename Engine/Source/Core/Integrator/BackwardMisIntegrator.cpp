@@ -24,12 +24,6 @@
 namespace ph
 {
 
-BackwardMisIntegrator::BackwardMisIntegrator(const InputPacket& packet) : 
-	Integrator(packet)
-{
-
-}
-
 BackwardMisIntegrator::~BackwardMisIntegrator() = default;
 
 void BackwardMisIntegrator::update(const Scene& scene)
@@ -238,6 +232,24 @@ real BackwardMisIntegrator::misWeight(real pdf1W, real pdf2W)
 	pdf1W *= pdf1W;
 	pdf2W *= pdf2W;
 	return pdf1W / (pdf1W + pdf2W);
+}
+
+// command interface
+
+BackwardMisIntegrator::BackwardMisIntegrator(const InputPacket& packet) :
+	Integrator(packet)
+{
+
+}
+
+SdlTypeInfo BackwardMisIntegrator::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "backward-mis");
+}
+
+ExitStatus BackwardMisIntegrator::ciExecute(const std::shared_ptr<BackwardMisIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet)
+{
+	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

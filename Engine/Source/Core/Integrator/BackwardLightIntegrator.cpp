@@ -24,12 +24,6 @@
 namespace ph
 {
 
-BackwardLightIntegrator::BackwardLightIntegrator(const InputPacket& packet) : 
-	Integrator(packet)
-{
-
-}
-
 BackwardLightIntegrator::~BackwardLightIntegrator() = default;
 
 void BackwardLightIntegrator::update(const Scene& scene)
@@ -218,6 +212,24 @@ void BackwardLightIntegrator::rationalClamp(Vector3R& value)
 	value.x = value.x > 0.0f && value.x < 10000.0f ? value.x : 0.0f;
 	value.y = value.y > 0.0f && value.y < 10000.0f ? value.y : 0.0f;
 	value.z = value.z > 0.0f && value.z < 10000.0f ? value.z : 0.0f;
+}
+
+// command interface
+
+BackwardLightIntegrator::BackwardLightIntegrator(const InputPacket& packet) :
+	Integrator(packet)
+{
+
+}
+
+SdlTypeInfo BackwardLightIntegrator::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "backward-light");
+}
+
+ExitStatus BackwardLightIntegrator::ciExecute(const std::shared_ptr<BackwardLightIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet)
+{
+	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

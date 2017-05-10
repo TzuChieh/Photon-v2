@@ -3,6 +3,8 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Math/Vector2f.h"
+#include "FileIO/SDL/ISdlResource.h"
+#include "FileIO/SDL/TCommandInterface.h"
 
 #include <iostream>
 
@@ -15,11 +17,10 @@ class SampleGenerator;
 class Film;
 class InputPacket;
 
-class Camera
+class Camera : public TCommandInterface<Camera>, public ISdlResource
 {
 public:
 	Camera();
-	Camera(const InputPacket& packet);
 	virtual ~Camera() = 0;
 
 	// TODO: precalculate aspect ratio info from camera film
@@ -93,6 +94,12 @@ private:
 	Vector3R m_upAxis;
 
 	Film* m_film;
+
+// command interface
+public:
+	Camera(const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static ExitStatus ciExecute(const std::shared_ptr<Camera>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 
 }// end namespace ph

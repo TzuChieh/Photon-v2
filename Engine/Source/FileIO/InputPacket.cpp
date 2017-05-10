@@ -3,6 +3,7 @@
 #include "FileIO/ValueParser.h"
 #include "FileIO/Keyword.h"
 #include "FileIO/InputPrototype.h"
+#include "FileIO/DescriptionParser.h"
 
 #include <iostream>
 
@@ -81,66 +82,6 @@ std::vector<Vector3R> InputPacket::getVector3rArray(
 	       ValueParser::parseVector3rArray(stringValue) : defaultVector3rArray;
 }
 
-std::shared_ptr<Geometry> InputPacket::getGeometry(
-	const std::string& name, 
-	const DataTreatment& treatment) const
-{
-	std::string stringValue;
-	return findStringValue(Keyword::TYPENAME_GEOMETRY, name, treatment, &stringValue) ?
-	                       m_storage.getGeometry(stringValue, treatment) : nullptr;
-}
-
-std::shared_ptr<Texture> InputPacket::getTexture(
-	const std::string& name, 
-	const DataTreatment& treatment) const
-{
-	std::string stringValue;
-	return findStringValue(Keyword::TYPENAME_TEXTURE, name, treatment, &stringValue) ?
-	                       m_storage.getTexture(stringValue, treatment) : nullptr;
-}
-
-std::shared_ptr<Material> InputPacket::getMaterial(
-	const std::string& name, 
-	const DataTreatment& treatment) const
-{
-	std::string stringValue;
-	return findStringValue(Keyword::TYPENAME_MATERIAL, name, treatment, &stringValue) ?
-	                       m_storage.getMaterial(stringValue, treatment) : nullptr;
-}
-
-std::shared_ptr<LightSource> InputPacket::getLightSource(
-	const std::string& name, 
-	const DataTreatment& treatment) const
-{
-	std::string stringValue;
-	return findStringValue(Keyword::TYPENAME_LIGHTSOURCE, name, treatment, &stringValue) ?
-	                       m_storage.getLightSource(stringValue, treatment) : nullptr;
-}
-
-std::shared_ptr<PhysicalActor> InputPacket::getPhysicalActor(
-	const std::string& name, 
-	const DataTreatment& treatment) const
-{
-	std::string stringValue;
-	std::shared_ptr<PhysicalActor> actor;
-	if(findStringValue(Keyword::TYPENAME_ACTOR_MODEL, name, DataTreatment(), &stringValue))
-	{
-		actor = m_storage.getActorModel(stringValue, treatment);
-	}
-	else if(findStringValue(Keyword::TYPENAME_ACTOR_LIGHT, name, DataTreatment(), &stringValue))
-	{
-		actor = m_storage.getActorLight(stringValue, treatment);
-	}
-
-	if(!actor)
-	{
-		// HACK: hard-coded value
-		reportDataNotFound("physical-actor", name, treatment);
-	}
-
-	return actor;
-}
-
 bool InputPacket::isPrototypeMatched(const InputPrototype& prototype) const
 {
 	for(const auto& typeNamePair : prototype.typeNamePairs)
@@ -203,6 +144,11 @@ void InputPacket::reportDataNotFound(const std::string& typeName, const std::str
 		std::cerr << std::endl;
 		break;
 	}
+}
+
+std::string InputPacket::getCoreDataName()
+{
+	return DescriptionParser::CORE_DATA_NAME();
 }
 
 }// end namespace ph

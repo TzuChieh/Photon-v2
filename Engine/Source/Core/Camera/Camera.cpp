@@ -3,12 +3,6 @@
 
 namespace ph
 {
-	
-Camera::Camera() :
-	m_position(0, 0, 0), m_direction(0, 0, -1), m_upAxis(0, 1, 0), m_film(nullptr)
-{
-
-}
 
 Camera::Camera(const InputPacket& packet) : 
 	Camera()
@@ -23,5 +17,23 @@ Camera::Camera(const InputPacket& packet) :
 }
 
 Camera::~Camera() = default;
+
+// command interface
+
+Camera::Camera() :
+	m_position(0, 0, 0), m_direction(0, 0, -1), m_upAxis(0, 1, 0), m_film(nullptr)
+{
+
+}
+
+SdlTypeInfo Camera::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_CAMERA, "camera");
+}
+
+ExitStatus Camera::ciExecute(const std::shared_ptr<Camera>& targetResource, const std::string& functionName, const InputPacket& packet)
+{
+	return ExitStatus::UNSUPPORTED();
+}
 
 }// end namespace ph

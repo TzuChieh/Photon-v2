@@ -64,25 +64,8 @@ public:
 		const std::string& dataName,
 		const DataTreatment& treatment = DataTreatment()) const;
 
-	std::shared_ptr<Geometry> getGeometry(
-		const std::string& name, 
-		const DataTreatment& treatment = DataTreatment()) const;
-
-	std::shared_ptr<Texture> getTexture(
-		const std::string& name, 
-		const DataTreatment& treatment = DataTreatment()) const;
-
-	std::shared_ptr<Material> getMaterial(
-		const std::string& name, 
-		const DataTreatment& treatment = DataTreatment()) const;
-
-	std::shared_ptr<LightSource> getLightSource(
-		const std::string& name, 
-		const DataTreatment& treatment = DataTreatment()) const;
-
-	std::shared_ptr<PhysicalActor> getPhysicalActor(
-		const std::string& name,
-		const DataTreatment& treatment = DataTreatment()) const;
+	template<typename T>
+	std::shared_ptr<T> getCore(const DataTreatment& treatment = DataTreatment()) const;
 
 	bool isPrototypeMatched(const InputPrototype& prototype) const;
 
@@ -98,7 +81,7 @@ private:
 	                     std::string* const out_value) const;
 
 	static void reportDataNotFound(const std::string& typeName, const std::string& name, const DataTreatment& treatment);
-
+	static std::string getCoreDataName();
 };
 
 // template implementations:
@@ -110,6 +93,12 @@ std::shared_ptr<T> InputPacket::get(const std::string& dataName, const DataTreat
 	std::string resourceName;
 	return findStringValue(typeInfo.getCategoryName(), dataName, treatment, &resourceName) ?
 	                       m_storage.getResource<T>(resourceName, treatment) : nullptr;
+}
+
+template<typename T>
+std::shared_ptr<T> InputPacket::getCore(const DataTreatment& treatment) const
+{
+	return get<T>(getCoreDataName(), treatment);
 }
 
 }// end namespace ph

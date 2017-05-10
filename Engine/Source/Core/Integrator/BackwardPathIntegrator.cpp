@@ -23,12 +23,6 @@
 namespace ph
 {
 
-BackwardPathIntegrator::BackwardPathIntegrator(const InputPacket& packet) : 
-	Integrator(packet)
-{
-
-}
-
 BackwardPathIntegrator::~BackwardPathIntegrator() = default;
 
 void BackwardPathIntegrator::update(const Scene& scene)
@@ -161,6 +155,24 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 	}// end while
 
 	out_senseEvents.push_back(SenseEvent(sample.m_cameraX, sample.m_cameraY, accuRadiance));
+}
+
+// command interface
+
+BackwardPathIntegrator::BackwardPathIntegrator(const InputPacket& packet) :
+	Integrator(packet)
+{
+
+}
+
+SdlTypeInfo BackwardPathIntegrator::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "backward-path");
+}
+
+ExitStatus BackwardPathIntegrator::ciExecute(const std::shared_ptr<BackwardPathIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet)
+{
+	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

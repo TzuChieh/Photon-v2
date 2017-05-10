@@ -23,10 +23,10 @@ void register_command_interface();
 template<typename DerivedType>
 class TCommandInterface
 {
-private:
 	friend void register_command_interface<DerivedType>();
-	static void registerInterface();
 
+private:
+	static void registerInterface();
 	static SdlTypeInfo typeInfo();
 	static void execute(const std::shared_ptr<ISdlResource>& targetResource, const std::string& functionName, const InputPacket& packet);
 	static std::shared_ptr<ISdlResource> load(const InputPacket& packet);
@@ -65,7 +65,7 @@ SdlTypeInfo TCommandInterface<DerivedType>::typeInfo()
 	return DerivedType::ciTypeInfo();
 }
 
-// input target resource is allowed to be null since execute may not necessarily operate on resources
+// input target resource is allowed to be null since execute() may not necessarily operate on resources
 template<typename DerivedType>
 void TCommandInterface<DerivedType>::execute(const std::shared_ptr<ISdlResource>& targetResource, const std::string& functionName, const InputPacket& packet)
 {

@@ -6,10 +6,9 @@
 namespace ph
 {
 
-class LightTracingIntegrator final : public Integrator
+class LightTracingIntegrator final : public Integrator, public TCommandInterface<LightTracingIntegrator>
 {
 public:
-	LightTracingIntegrator(const InputPacket& packet);
 	virtual ~LightTracingIntegrator() override;
 
 	virtual void update(const Scene& scene) override;
@@ -17,6 +16,12 @@ public:
 
 private:
 	static void rationalClamp(Vector3R& value);
+
+// command interface
+public:
+	LightTracingIntegrator(const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static ExitStatus ciExecute(const std::shared_ptr<LightTracingIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 
 }// end namespace ph

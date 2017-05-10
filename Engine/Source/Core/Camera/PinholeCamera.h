@@ -2,15 +2,15 @@
 
 #include "Core/Camera/Camera.h"
 #include "Common/primitive_type.h"
+#include "FileIO/SDL/TCommandInterface.h"
 
 namespace ph
 {
 
-class PinholeCamera final : public Camera
+class PinholeCamera final : public Camera, public TCommandInterface<PinholeCamera>
 {
 public:
 	PinholeCamera();
-	PinholeCamera(const InputPacket& packet);
 	virtual ~PinholeCamera() override;
 
 	virtual void genSensingRay(const Sample& sample, Ray* const out_ray) const override;
@@ -18,6 +18,12 @@ public:
 
 private:
 	real m_fov;
+
+// command interface
+public:
+	PinholeCamera(const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static ExitStatus ciExecute(const std::shared_ptr<PinholeCamera>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 
 }// end namespace ph

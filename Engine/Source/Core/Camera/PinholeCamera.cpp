@@ -17,13 +17,6 @@ PinholeCamera::PinholeCamera() :
 
 }
 
-PinholeCamera::PinholeCamera(const InputPacket& packet) : 
-	Camera(packet)
-{
-	const real fovDegree = packet.getReal("fov-degree", 50, DataTreatment::OPTIONAL("defaults to 50 degrees"));
-	m_fov = Math::toRadians(fovDegree);
-}
-
 PinholeCamera::~PinholeCamera() = default;
 
 void PinholeCamera::genSensingRay(const Sample& sample, Ray* const out_ray) const
@@ -84,6 +77,25 @@ void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3R& targetPos, Vect
 	*out_filmArea = halfFilmWidth * halfFilmHeight * 4.0_r;
 	out_importance->set(1.0_r / (*out_filmArea * cosTheta * cosTheta * cosTheta * cosTheta));
 	*out_pdfW = 1.0_r / (*out_filmArea * cosTheta * cosTheta * cosTheta);
+}
+
+// command interface
+
+PinholeCamera::PinholeCamera(const InputPacket& packet) :
+	Camera(packet)
+{
+	const real fovDegree = packet.getReal("fov-degree", 50, DataTreatment::OPTIONAL("defaults to 50 degrees"));
+	m_fov = Math::toRadians(fovDegree);
+}
+
+SdlTypeInfo PinholeCamera::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_CAMERA, "pinhole");
+}
+
+ExitStatus PinholeCamera::ciExecute(const std::shared_ptr<PinholeCamera>& targetResource, const std::string& functionName, const InputPacket& packet)
+{
+	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

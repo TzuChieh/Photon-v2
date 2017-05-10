@@ -24,12 +24,6 @@
 namespace ph
 {
 
-LightTracingIntegrator::LightTracingIntegrator(const InputPacket& packet) : 
-	Integrator(packet)
-{
-
-}
-
 LightTracingIntegrator::~LightTracingIntegrator() = default;
 
 void LightTracingIntegrator::update(const Scene& scene)
@@ -203,6 +197,24 @@ void LightTracingIntegrator::rationalClamp(Vector3R& value)
 	value.x = value.x > 0.0f && value.x < 10000.0f ? value.x : 0.0f;
 	value.y = value.y > 0.0f && value.y < 10000.0f ? value.y : 0.0f;
 	value.z = value.z > 0.0f && value.z < 10000.0f ? value.z : 0.0f;
+}
+
+// command interface
+
+LightTracingIntegrator::LightTracingIntegrator(const InputPacket& packet) :
+	Integrator(packet)
+{
+
+}
+
+SdlTypeInfo LightTracingIntegrator::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "light-tracing");
+}
+
+ExitStatus LightTracingIntegrator::ciExecute(const std::shared_ptr<LightTracingIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet)
+{
+	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

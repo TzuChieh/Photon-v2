@@ -7,12 +7,6 @@
 namespace ph
 {
 
-NormalBufferIntegrator::NormalBufferIntegrator(const InputPacket& packet) : 
-	Integrator(packet)
-{
-
-}
-
 NormalBufferIntegrator::~NormalBufferIntegrator() = default;
 
 void NormalBufferIntegrator::update(const Scene& scene)
@@ -40,6 +34,24 @@ void NormalBufferIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 	}
 
 	out_senseEvents.push_back(SenseEvent(sample.m_cameraX, sample.m_cameraY, radiance));
+}
+
+// command interface
+
+NormalBufferIntegrator::NormalBufferIntegrator(const InputPacket& packet) :
+	Integrator(packet)
+{
+
+}
+
+SdlTypeInfo NormalBufferIntegrator::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "surface-normal");
+}
+
+ExitStatus NormalBufferIntegrator::ciExecute(const std::shared_ptr<NormalBufferIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet)
+{
+	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

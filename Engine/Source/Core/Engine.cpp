@@ -26,7 +26,7 @@ void Engine::render()
 
 void Engine::developFilm(Frame* const out_frame)
 {
-	m_description.film->developFilm(out_frame);
+	m_description.getFilm()->developFilm(out_frame);
 }
 
 void Engine::setNumRenderThreads(const std::size_t numThreads)

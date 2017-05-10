@@ -196,7 +196,6 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\BSDF.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BsdfPdfQuery.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BsdfSample.cpp" />
-    <ClCompile Include="Source\FileIO\FunctionExecutor.cpp" />
     <ClCompile Include="Source\FileIO\InputPacket.cpp" />
     <ClCompile Include="Source\FileIO\InputPrototype.cpp" />
     <ClCompile Include="Source\FileIO\Keyword.cpp" />
@@ -315,7 +314,6 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\BsdfSample.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\ESurfacePhenomenon.h" />
     <ClInclude Include="Source\FileIO\DataTreatment.h" />
-    <ClInclude Include="Source\FileIO\FunctionExecutor.h" />
     <ClInclude Include="Source\FileIO\InputPacket.h" />
     <ClInclude Include="Source\FileIO\Keyword.h" />
     <ClInclude Include="Source\FileIO\NamedResourceStorage.h" />

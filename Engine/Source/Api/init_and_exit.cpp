@@ -23,6 +23,24 @@
 #include "Actor/AModel.h"
 #include "Actor/ALight.h"
 
+// cameras
+#include "Core/Camera/Camera.h"
+#include "Core/Camera/PinholeCamera.h"
+
+// films
+#include "Core/Camera/Film.h"
+
+// samplers
+#include "Core/SampleGenerator/PixelJitterSampleGenerator.h"
+
+// integrators
+#include "Core/Integrator/Integrator.h"
+#include "Core/Integrator/BackwardLightIntegrator.h"
+#include "Core/Integrator/BackwardMisIntegrator.h"
+#include "Core/Integrator/BackwardPathIntegrator.h"
+#include "Core/Integrator/LightTracingIntegrator.h"
+#include "Core/Integrator/NormalBufferIntegrator.h"
+
 #include <iostream>
 
 namespace ph
@@ -57,6 +75,24 @@ bool init_command_parser()
 	register_command_interface<PhysicalActor>();
 	register_command_interface<AModel>();
 	register_command_interface<ALight>();
+
+	// cameras
+	register_command_interface<Camera>();
+	register_command_interface<PinholeCamera>();
+
+	// films
+	register_command_interface<Film>();
+
+	// samplers
+	register_command_interface<PixelJitterSampleGenerator>();
+
+	// integrators
+	register_command_interface<Integrator>();
+	register_command_interface<BackwardLightIntegrator>();
+	register_command_interface<BackwardMisIntegrator>();
+	register_command_interface<BackwardPathIntegrator>();
+	register_command_interface<LightTracingIntegrator>();
+	register_command_interface<NormalBufferIntegrator>();
 
 	return true;
 }

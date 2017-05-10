@@ -15,13 +15,6 @@ PixelJitterSampleGenerator::PixelJitterSampleGenerator(const uint32 sppBudget) :
 
 }
 
-PixelJitterSampleGenerator::PixelJitterSampleGenerator(const InputPacket& packet) : 
-	SampleGenerator(packet), 
-	m_numDispatchedSpp(0), m_filmWidthPx(0), m_filmHeightPx(0)
-{
-
-}
-
 PixelJitterSampleGenerator::~PixelJitterSampleGenerator() = default;
 
 bool PixelJitterSampleGenerator::hasMoreSamples() const
@@ -103,6 +96,25 @@ bool PixelJitterSampleGenerator::canSplit(const uint32 nSplits) const
 	}
 
 	return true;
+}
+
+// command interface
+
+PixelJitterSampleGenerator::PixelJitterSampleGenerator(const InputPacket& packet) :
+	SampleGenerator(packet),
+	m_numDispatchedSpp(0), m_filmWidthPx(0), m_filmHeightPx(0)
+{
+
+}
+
+SdlTypeInfo PixelJitterSampleGenerator::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_SAMPLER, "sampler");
+}
+
+ExitStatus PixelJitterSampleGenerator::ciExecute(const std::shared_ptr<PixelJitterSampleGenerator>& targetResource, const std::string& functionName, const InputPacket& packet)
+{
+	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

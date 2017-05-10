@@ -3,8 +3,6 @@
 #include <unordered_map>
 #include <iostream>
 
-#define SDL_TYPE_INFO_UNSPECIFIED
-
 namespace ph
 {
 
@@ -23,6 +21,10 @@ std::string SdlTypeInfo::categoryToName(const ETypeCategory typeCategory)
 	case ETypeCategory::REF_MATERIAL:     categoryName = "material";        break;
 	case ETypeCategory::REF_LIGHT_SOURCE: categoryName = "light-source";    break;
 	case ETypeCategory::REF_ACTOR:        categoryName = "actor";           break;
+	case ETypeCategory::REF_CAMERA:       categoryName = "camera";          break;
+	case ETypeCategory::REF_FILM:         categoryName = "film";            break;
+	case ETypeCategory::REF_INTEGRATOR:   categoryName = "integrator";      break;
+	case ETypeCategory::REF_SAMPLER:      categoryName = "sampler";         break;
 
 	default:
 		std::cerr << "warning: converting category to name failed, unspecified category detected" << std::endl;
@@ -41,6 +43,10 @@ ETypeCategory SdlTypeInfo::nameToCategory(const std::string& name)
 		{categoryToName(ETypeCategory::REF_MATERIAL),     ETypeCategory::REF_MATERIAL},
 		{categoryToName(ETypeCategory::REF_LIGHT_SOURCE), ETypeCategory::REF_LIGHT_SOURCE},
 		{categoryToName(ETypeCategory::REF_ACTOR),        ETypeCategory::REF_ACTOR},
+		{categoryToName(ETypeCategory::REF_CAMERA),       ETypeCategory::REF_CAMERA},
+		{categoryToName(ETypeCategory::REF_FILM),         ETypeCategory::REF_FILM},
+		{categoryToName(ETypeCategory::REF_INTEGRATOR),   ETypeCategory::REF_INTEGRATOR},
+		{categoryToName(ETypeCategory::REF_SAMPLER),      ETypeCategory::REF_SAMPLER},
 	};
 
 	const auto& iter = map.find(name);

@@ -3,6 +3,8 @@
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
 #include "Core/Camera/RadianceSensor.h"
+#include "FileIO/SDL/ISdlResource.h"
+#include "FileIO/SDL/TCommandInterface.h"
 
 #include <vector>
 
@@ -12,11 +14,11 @@ namespace ph
 class Frame;
 class InputPacket;
 
-class Film final
+class Film final : public TCommandInterface<Film>, public ISdlResource
 {
 public:
 	Film(const uint32 widthPx, const uint32 heightPx);
-	Film(const InputPacket& packet);
+	virtual ~Film() override;
 
 	void accumulateRadiance(const uint32 x, const uint32 y, const Vector3R& radiance);
 	void accumulateRadiance(const Film& other);
@@ -57,6 +59,12 @@ private:
 	uint32 m_heightPx;
 
 	std::vector<RadianceSensor> m_pixelRadianceSensors;
+
+// command interface
+public:
+	Film(const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static ExitStatus ciExecute(const std::shared_ptr<Film>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 
 }// end namespace ph

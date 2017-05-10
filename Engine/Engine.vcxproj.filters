@@ -210,9 +210,6 @@
     <ClCompile Include="Source\FileIO\ValueParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\FileIO\FunctionExecutor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\FileIO\ResourceLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -595,9 +592,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\FileIO\ValueParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\FileIO\FunctionExecutor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\FileIO\ResourceLoader.h">

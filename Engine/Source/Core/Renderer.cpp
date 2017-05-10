@@ -41,10 +41,10 @@ Renderer::~Renderer() = default;
 void Renderer::render(const Description& description) const
 {
 	const VisualWorld& world           = description.visualWorld;
-	const Camera&      camera          = *(description.camera);
-	const Film&        film            = *(description.film);
-	const Integrator&  integrator      = *(description.integrator);
-	SampleGenerator*   sampleGenerator = description.sampleGenerator.get();
+	const Camera&      camera          = *(description.getCamera());
+	const Film&        film            = *(description.getFilm());
+	const Integrator&  integrator      = *(description.getIntegrator());
+	SampleGenerator*   sampleGenerator = description.getSampleGenerator().get();
 
 	m_subFilms.clear();
 	m_subFilms.shrink_to_fit();

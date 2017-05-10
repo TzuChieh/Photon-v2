@@ -6,10 +6,9 @@
 namespace ph
 {
 
-class BackwardLightIntegrator final : public Integrator
+class BackwardLightIntegrator final : public Integrator, public TCommandInterface<BackwardLightIntegrator>
 {
 public:
-	BackwardLightIntegrator(const InputPacket& packet);
 	virtual ~BackwardLightIntegrator() override;
 
 	virtual void update(const Scene& scene) override;
@@ -17,6 +16,12 @@ public:
 
 private:
 	static void rationalClamp(Vector3R& value);
+
+// command interface
+public:
+	BackwardLightIntegrator(const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static ExitStatus ciExecute(const std::shared_ptr<BackwardLightIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 
 }// end namespace ph
