@@ -39,21 +39,6 @@ public:
 		const std::string& resourceName, 
 		const DataTreatment& treatment = DataTreatment()) const;
 
-	void addGeometry   (const std::string& name, const std::shared_ptr<Geometry>&    geometry);
-	void addTexture    (const std::string& name, const std::shared_ptr<Texture>&     texture);
-	void addMaterial   (const std::string& name, const std::shared_ptr<Material>&    material);
-	void addLightSource(const std::string& name, const std::shared_ptr<LightSource>& lightSource);
-	std::shared_ptr<Geometry>    getGeometry   (const std::string& name, const DataTreatment& treatment = DataTreatment()) const;
-	std::shared_ptr<Texture>     getTexture    (const std::string& name, const DataTreatment& treatment = DataTreatment()) const;
-	std::shared_ptr<Material>    getMaterial   (const std::string& name, const DataTreatment& treatment = DataTreatment()) const;
-	std::shared_ptr<LightSource> getLightSource(const std::string& name, const DataTreatment& treatment = DataTreatment()) const;
-
-	void addActorModel(const std::string& name, std::shared_ptr<AModel> actorModel);
-	void addActorLight(const std::string& name, std::shared_ptr<ALight> actorLight);
-	std::shared_ptr<AModel> getActorModel(const std::string& name, const DataTreatment& treatment = DataTreatment()) const;
-	std::shared_ptr<ALight> getActorLight(const std::string& name, const DataTreatment& treatment = DataTreatment()) const;
-
-	//std::vector<std::unique_ptr<Actor>> claimAllActors();
 	std::vector<std::shared_ptr<Actor>> getActors() const;
 
 private:

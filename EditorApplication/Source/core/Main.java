@@ -78,7 +78,7 @@ public class Main
 //		final int outputHeight = 400;
 //		final int outputWidth = 150;
 //		final int outputHeight = 150;
-		final int numRenderThreads = 4;
+		final int numRenderThreads = 12;
 		
 		PhEngine engine = new PhEngine(numRenderThreads);
 		
@@ -99,9 +99,10 @@ public class Main
 //		engine.load("../scene/LAZIENKA.p2");
 //		engine.load("../scene/complex/corridor.p2");
 //		engine.load("../scene/complex/corridor_1.p2");
-		engine.load("../scene/complex/FinalAR.p2");
+//		engine.load("../scene/complex/FinalAR.p2");
 //		engine.load("../scene/complex/FinalAR_1.p2");
-		
+		engine.load("../scene/complex/dvi.p2");
+//		engine.load("../scene/complex/rays_chair.p2");
 		
 		Thread queryThread = new Thread((new Runnable()
 		{
