@@ -55,7 +55,6 @@ private:
 
 	static std::unordered_map<std::string, CommandEntry>& NAMED_INTERFACE_MAP();
 	static std::string getFullTypeName(const SdlTypeInfo& typeInfo);
-	static void getCommandString(std::ifstream& dataFile, std::string* const out_command, ECommandType* const out_type);
 	static ECommandType getCommandType(const std::string& command);
 	static std::vector<ValueClause> getValueClauses(const std::vector<std::string>& clauseStrings);
 };

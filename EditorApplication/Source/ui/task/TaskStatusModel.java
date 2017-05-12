@@ -1,4 +1,4 @@
-package ui.model;
+package ui.task;
 
 import java.util.ArrayList;
 import java.util.List;

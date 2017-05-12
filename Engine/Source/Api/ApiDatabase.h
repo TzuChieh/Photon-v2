@@ -3,6 +3,7 @@
 #include "Utility/TStableIndexDenseArray.h"
 
 #include <memory>
+#include <mutex>
 
 namespace ph
 {
@@ -27,8 +28,9 @@ public:
 	static Frame* getFrame(const std::size_t frameId);
 
 private:
-	static TStableIndexDenseArray<std::unique_ptr<Engine>> engines;
-	static TStableIndexDenseArray<std::unique_ptr<Frame>>  frames;
+	static TStableIndexDenseArray<std::unique_ptr<Engine>>& ENGINES();
+	static TStableIndexDenseArray<std::unique_ptr<Frame>>&  FRAMES();
+	static std::mutex& MUTEX_LOCK();
 
 	static void clear();
 };

@@ -1,5 +1,25 @@
 #pragma once
 
+/////////////////////////////////////////////////////////////////////
+// 
+// To correctly use Photon-v2 API, please read the following notes:
+//
+// 1. phInit() must be called before any other use of the API.
+// 
+// 2. phExit() must be called before exiting the API.
+// 
+// 3. phInit() and phExit() must be called on the same thread.
+//
+// 4. phCreate<XXX>() and phQuery<XXX>() functions can be used in a
+//    multithreaded environment, namely, they are thread-safe.
+// 
+// 5. Resources created by phCreate<XXX>() cannot be manipulated 
+//    concurrently. Any function requiring some resource ID inputs 
+//    (except phQuery<XXX>() functions) is considered a resource 
+//    manipulating operation on those resources.
+// 
+/////////////////////////////////////////////////////////////////////
+
 // HACK
 #define PH_EXPORT_API
 
@@ -61,10 +81,12 @@ extern PH_API void phDevelopFilm(const PHuint64 engineId, const PHuint64 frameId
 extern PH_API void phDeleteEngine(const PHuint64 engineId);
 
 // TODO: frame related API needs to aware of the size of real
-
 extern PH_API void phCreateFrame(PHuint64* out_frameId, const PHint32 frameType);
 extern PH_API void phGetFrameData(const PHuint64 frameId, const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32* out_heightPx, PHuint32* out_nPixelComponents);
 extern PH_API void phDeleteFrame(const PHuint64 frameId);
+
+extern PH_API void phQueryRendererPercentageProgress(const PHuint64 engineId, PHfloat32* const out_percentage);
+extern PH_API void phQueryRendererSampleFrequency(const PHuint64 engineId, PHfloat32* const out_frequency);
 
 #ifdef __cplusplus
 }

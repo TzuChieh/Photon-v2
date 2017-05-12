@@ -1,8 +1,8 @@
 ## camera(pinhole) [real fov-degree 50] [vector3r position "0 0 16"] [vector3r direction "0 0 -1"]
 //## film(film) [integer width 400] [integer height 400]
 //## film(film) [integer width 800] [integer height 800]
-## film(film) [integer width 1440] [integer height 900]
-## sampler(sampler) [integer spp-budget 40]
+## film(film) [integer width 800] [integer height 600]
+## sampler(sampler) [integer spp-budget 8]
 //## sampler(sampler) [integer spp-budget 64]
 
 ## integrator(backward-path)

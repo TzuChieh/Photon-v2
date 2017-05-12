@@ -11,7 +11,7 @@ import photonCore.FrameData;
 import photonCore.PhFrame;
 import photonCore.PhEngine;
 import ui.Window;
-import ui.model.TaskStatusModel;
+import ui.task.TaskStatusModel;
 
 public class Main
 {
@@ -78,7 +78,7 @@ public class Main
 //		final int outputHeight = 400;
 //		final int outputWidth = 150;
 //		final int outputHeight = 150;
-		final int numRenderThreads = 12;
+		final int numRenderThreads = 4;
 		
 		PhEngine engine = new PhEngine(numRenderThreads);
 		
@@ -93,7 +93,7 @@ public class Main
 //		engine.load("../scene/testScene.p2");
 //		engine.load("../scene/cbox_simple.p2");
 //		engine.load("../scene/cbox_material_test.p2");
-//		engine.load("../scene/new_syntax_test.p2");
+		engine.load("../scene/new_syntax_test.p2");
 //		engine.load("../scene/cbox_test.p2"); 
 //		engine.load("../scene/exporter_test.p2");
 //		engine.load("../scene/LAZIENKA.p2");
@@ -101,7 +101,7 @@ public class Main
 //		engine.load("../scene/complex/corridor_1.p2");
 //		engine.load("../scene/complex/FinalAR.p2");
 //		engine.load("../scene/complex/FinalAR_1.p2");
-		engine.load("../scene/complex/dvi.p2");
+//		engine.load("../scene/complex/dvi.p2");
 //		engine.load("../scene/complex/rays_chair.p2");
 		
 		Thread queryThread = new Thread((new Runnable()

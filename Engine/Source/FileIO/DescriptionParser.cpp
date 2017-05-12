@@ -212,40 +212,6 @@ std::string DescriptionParser::getName(const std::string& nameToken) const
 	}
 }
 
-void DescriptionParser::getCommandString(std::ifstream& dataFile, std::string* const out_command, ECommandType* const out_type)
-{
-	std::string lineString;
-	out_command->clear();
-	*out_type = ECommandType::UNKNOWN;
-	while(dataFile.good())
-	{
-		const std::size_t position = dataFile.tellg();
-		std::getline(dataFile, lineString);
-		const ECommandType commandType = getCommandType(lineString);
-
-		if(out_command->empty())
-		{
-			if(commandType != ECommandType::UNKNOWN)
-			{
-				*out_type = commandType;
-				*out_command += lineString;
-			}
-		}
-		else
-		{
-			if(commandType == ECommandType::UNKNOWN)
-			{
-				*out_command += lineString;
-			}
-			else
-			{
-				dataFile.seekg(position, std::ios_base::beg);
-				break;
-			}
-		}
-	}
-}
-
 std::vector<ValueClause> DescriptionParser::getValueClauses(const std::vector<std::string>& clauseStrings)
 {
 	std::vector<ValueClause> vClauses;
