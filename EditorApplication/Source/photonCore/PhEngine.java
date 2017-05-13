@@ -66,4 +66,15 @@ public final class PhEngine
 		Ph.phQueryRendererSampleFrequency(m_engineId, frequency);
 		return frequency.m_value;
 	}
+	
+	public void dispose()
+	{
+		Ph.phDeleteEngine(m_engineId);
+	}
+	
+	@Override
+	protected void finalize()
+	{
+		// TODO: check whether the engine is properly deleted, if not, deleted it
+	}
 }

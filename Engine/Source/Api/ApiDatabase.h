@@ -13,9 +13,6 @@ class Engine;
 
 class ApiDatabase final
 {
-
-	// TODO: use lazy initialization
-
 	friend bool exit_api_database();
 
 public:
@@ -28,9 +25,10 @@ public:
 	static Frame* getFrame(const std::size_t frameId);
 
 private:
+	static std::mutex& MUTEX_LOCK();
+
 	static TStableIndexDenseArray<std::unique_ptr<Engine>>& ENGINES();
 	static TStableIndexDenseArray<std::unique_ptr<Frame>>&  FRAMES();
-	static std::mutex& MUTEX_LOCK();
 
 	static void clear();
 };
