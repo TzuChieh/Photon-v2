@@ -1,4 +1,4 @@
-package app;
+package appGui;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,8 +8,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
+import photonCore.PhEngine;
 
-public class EngineTaskController
+public class ProjectOverviewController
 {
 	@FXML
     private TitledPane engineTaskPane;
@@ -17,13 +18,11 @@ public class EngineTaskController
 	@FXML
     private TextField sceneFileTextField;
 	
-	private PhotonDatabase m_database;
+	private EngineTaskModel m_model;
 	
 	@FXML
     void sceneFileBrowseBtnClicked(MouseEvent event)
 	{
-		//System.out.println(engineTaskPane);
-		
 		FileChooser chooser = new FileChooser();
 	    chooser.setTitle("Open Scene File");
 	    File file = chooser.showOpenDialog(engineTaskPane.getScene().getWindow());
@@ -38,11 +37,23 @@ public class EngineTaskController
 				e.printStackTrace();
 			}
 	    }
-	    
+    }
+
+	@FXML
+    void startRenderingBtnClicked(MouseEvent event)
+    {
+		String sceneFileName = sceneFileTextField.getText();
+    	if(!sceneFileName.isEmpty())
+    	{
+    		m_model.loadSceneFile(sceneFileName);
+    		m_model.renderScene();
+    	}
     }
 	
-	public void setDatabase(PhotonDatabase database)
+	public void setModel(EngineTaskModel model)
     {
-    	m_database = database;
+		m_model = model;
+		
+		engineTaskPane.setText(model.getTaskName());
     }
 }

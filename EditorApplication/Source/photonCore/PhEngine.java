@@ -9,10 +9,14 @@ import photonApi.Ph;
 
 public final class PhEngine
 {
+	private int m_numRenderThreads;
+	
 	protected final long m_engineId;
 	
 	public PhEngine(int numRenderThreads)
 	{
+		m_numRenderThreads = numRenderThreads;
+		
 		LongRef engineId = new LongRef();
 		Ph.phCreateEngine(engineId, numRenderThreads);
 		m_engineId = engineId.m_value;
@@ -70,6 +74,13 @@ public final class PhEngine
 	public void dispose()
 	{
 		Ph.phDeleteEngine(m_engineId);
+	}
+	
+	public void setNumRenderThreads(int numRenderThreads)
+	{
+		m_numRenderThreads = numRenderThreads;
+		
+		// TODO: set
 	}
 	
 	@Override

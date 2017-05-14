@@ -1,4 +1,4 @@
-package app;
+package appGui;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import javax.swing.SwingUtilities;
 
+import appModel.EditorApp;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -23,26 +24,11 @@ public class AppMain extends Application
 {
 //	private static Window window;
 	
-	private static PhotonDatabase database;
+	private static final EditorApp editorApp = new EditorApp();
 	
 	public static void main(String[] args)
 	{
-		// DEBUG
-		System.out.println("main thread ID: " + Thread.currentThread().getId());
-		
-		if(Ph.phInit())
-			System.out.println("Photon initialized");
-		else
-			System.err.println("Photon initializing failed");
-		
-		database = new PhotonDatabase();
-		
 		Application.launch(args);
-		
-		if(Ph.phExit())
-			System.out.println("Photon exited");
-		else
-			System.err.println("Photon exiting failed");
 		
 		
 //		if(Ph.phInit())
@@ -198,25 +184,31 @@ public class AppMain extends Application
 	}
 
 	@Override
-	public void start(Stage primaryStage)
+	public void start(Stage primaryStage) throws Exception
 	{
-		try
-		{
-			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("AppMain.fxml"));
-			
-			Parent            mainPane       = fxmlLoader.load();
-			AppMainController mainController = fxmlLoader.getController();
-			
-			mainController.setDatabase(database);
-			
-			primaryStage.setTitle("Photon-v2 version 0.0 | Editor");
-			primaryStage.setScene(new Scene(mainPane, 1280,	720));
-//			primaryStage.setMaximized(true);
-	        primaryStage.show();
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-		}
+		editorApp.create();
+		
+		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("AppMain.fxml"));
+		
+		Parent            mainPane       = fxmlLoader.load();
+		AppMainController mainController = fxmlLoader.getController();
+		
+		mainController.setModel(appMainModel);
+		
+		primaryStage.setTitle("Photon-v2 version 0.0 | Editor");
+		primaryStage.setScene(new Scene(mainPane, 1280,	680));
+//		primaryStage.setMaximized(true);
+        primaryStage.show();
+        
+        
+		mainController.createNewTask("(default task)");
+	}
+	
+	@Override
+	public void stop() throws Exception
+	{
+		super.stop();
+		
+		editorApp.decompose();
 	}
 }
