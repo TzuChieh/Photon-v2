@@ -13,7 +13,7 @@
       <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <items>
           <Button mnemonicParsing="false" onMouseClicked="#createNewProjectBtnClicked" text="Create New Project" />
-            <Button mnemonicParsing="false" text="Save Image" />
+            <Button mnemonicParsing="false" onMouseClicked="#saveImageBtnClicked" text="Save Image" />
         </items>
       </ToolBar>
    </top>

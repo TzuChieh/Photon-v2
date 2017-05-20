@@ -3,7 +3,10 @@ package appGui;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 import appModel.EditorApp;
 import appModel.event.ProjectEvent;
@@ -13,6 +16,7 @@ import appModel.project.Project;
 import appModel.project.ProjectProxy;
 import core.HdrFrame;
 import core.Vector3f;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -61,6 +65,12 @@ public class AppMainController
     void createNewProjectBtnClicked(MouseEvent event)
     {
     	createNewProject("project " + m_projectId++);
+    }
+    
+    @FXML
+    void saveImageBtnClicked(MouseEvent event)
+    {
+    	saveDisplayImage();
     }
     
     public AppMainController()
@@ -164,5 +174,23 @@ public class AppMainController
 		g.drawImage(m_displayImage, 
 		            (canvas.getWidth() - imageWidth) * 0.5, (canvas.getHeight() - imageHeight) * 0.5, 
 		            imageWidth, imageHeight);
+    }
+    
+    private void saveDisplayImage()
+    {
+    	BufferedImage image = SwingFXUtils.fromFXImage(m_displayImage, null);
+    	try 
+		{
+		    File outputfile = new File("./result.png");
+		    ImageIO.write(image, "png", outputfile);
+		    
+		    System.out.println("image saved");
+		} 
+		catch(IOException e)
+		{
+			e.printStackTrace();
+			
+			System.err.println("image saving failed");
+		}
     }
 }
