@@ -1,5 +1,7 @@
 package photonCore;
 
+import java.util.Arrays;
+
 public final class FrameData
 {
 	protected int     m_widthPx;
@@ -13,6 +15,14 @@ public final class FrameData
 		m_heightPx           = 0;
 		m_numPixelComponents = 0;
 		m_pixelData          = null;
+	}
+	
+	public FrameData(FrameData other)
+	{
+		m_widthPx            = other.m_widthPx;
+		m_heightPx           = other.m_heightPx;
+		m_numPixelComponents = other.m_numPixelComponents;
+		m_pixelData          = Arrays.copyOf(other.m_pixelData, other.m_pixelData.length);
 	}
 	
 	public boolean isDataGood()

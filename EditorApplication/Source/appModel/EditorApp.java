@@ -4,13 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import appModel.project.Project;
+import appModel.project.ProjectProxy;
 import photonApi.Ph;
 
 public final class EditorApp extends ManageableResource
 {
-	private Map<String, Project> m_projects;
-	
-	// TODO: engines here
 	private Map<String, Project> m_projects;
 	
 	public EditorApp()
@@ -38,20 +36,38 @@ public final class EditorApp extends ManageableResource
 			System.err.println("Photon exiting failed");
 	}
 	
-	public Project getProject(String projectName)
+	public ProjectProxy getProject(String projectName)
 	{
-		return m_projects.get(projectName);
+		return new ProjectProxy(m_projects.get(projectName));
 	}
 	
-	public void addProject(String projectName, Project project)
+	public ProjectProxy createProject(String projectName)
 	{
 		if(m_projects.get(projectName) != null)
 		{
-			System.err.println("project name already exists");
+			System.err.println("project already exists");
+			return null;
 		}
 		else
 		{
+			Project project = new Project(projectName, this);
+			project.create();
 			m_projects.put(projectName, project);
+			return new ProjectProxy(project);
+		}
+	}
+	
+	public void deleteProject(String projectName)
+	{
+		Project project = m_projects.get(projectName);
+		if(project == null)
+		{
+			System.err.println("project does not exist");
+		}
+		else
+		{
+			project.decompose();
+			m_projects.remove(projectName, project);
 		}
 	}
 }

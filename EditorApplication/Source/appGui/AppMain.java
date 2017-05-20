@@ -190,18 +190,16 @@ public class AppMain extends Application
 		
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("AppMain.fxml"));
 		
-		Parent            mainPane       = fxmlLoader.load();
-		AppMainController mainController = fxmlLoader.getController();
+		Parent            appMainView       = fxmlLoader.load();
+		AppMainController appMainController = fxmlLoader.getController();
 		
-		mainController.setModel(appMainModel);
+		appMainController.setEditorApp(editorApp);
+		appMainController.createNewProject("(default project)");
 		
 		primaryStage.setTitle("Photon-v2 version 0.0 | Editor");
-		primaryStage.setScene(new Scene(mainPane, 1280,	680));
+		primaryStage.setScene(new Scene(appMainView, 1280,	680));
 //		primaryStage.setMaximized(true);
         primaryStage.show();
-        
-        
-		mainController.createNewTask("(default task)");
 	}
 	
 	@Override

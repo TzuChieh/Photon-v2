@@ -9,7 +9,10 @@ public final class RenderSetting extends SettingGroup
 	public RenderSetting()
 	{
 		super();
-		
+	}
+	
+	public void setToDefaults()
+	{
 		set(SCENE_FILE_NAME, "");
 	}
 }

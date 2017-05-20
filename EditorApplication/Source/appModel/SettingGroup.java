@@ -21,12 +21,12 @@ public abstract class SettingGroup
 		m_settingListeners = new ArrayList<>();
 	}
 	
-	public String get(Integer settingId)
+	public String get(int settingId)
 	{
 		return m_settings.get(settingId);
 	}
 	
-	public void set(Integer settingId, String settingValue)
+	public void set(int settingId, String settingValue)
 	{
 		m_settings.put(settingId, settingValue);
 		
