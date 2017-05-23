@@ -3,6 +3,8 @@ package appGui;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 
 import javax.swing.SwingUtilities;
 
@@ -25,6 +27,29 @@ public class AppMain extends Application
 //	private static Window window;
 	
 	private static final EditorApp editorApp = new EditorApp();
+	
+	private static final OutputStream consoleOutputStream = new OutputStream()
+	{
+		private StringBuilder msgBuilder = new StringBuilder();
+		
+		@Override
+		public void write(int b) throws IOException
+		{
+			char ch = (char)b;
+			if(ch != '\n')
+			{
+				msgBuilder.append(ch);
+			}
+			else
+			{
+				EditorApp.printToConsole(msgBuilder.toString());
+				msgBuilder.setLength(0);
+			}
+		}
+	};
+	
+	private static final PrintStream originalOut = System.out;
+	private static final PrintStream originalErr = System.err;
 	
 	public static void main(String[] args)
 	{
@@ -188,6 +213,9 @@ public class AppMain extends Application
 	{
 		editorApp.create();
 		
+		System.setOut(new PrintStream(consoleOutputStream, true));
+		System.setErr(new PrintStream(consoleOutputStream, true));
+		
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("AppMain.fxml"));
 		
 		Parent            appMainView       = fxmlLoader.load();
@@ -205,7 +233,8 @@ public class AppMain extends Application
 	@Override
 	public void stop() throws Exception
 	{
-		super.stop();
+		System.setOut(originalOut);
+		System.setErr(originalErr);
 		
 		editorApp.decompose();
 	}

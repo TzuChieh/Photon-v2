@@ -7,8 +7,11 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.text.DefaultCaret;
 
 import appModel.EditorApp;
+import appModel.console.Console;
+import appModel.console.MessageListener;
 import appModel.event.ProjectEvent;
 import appModel.event.ProjectEventListener;
 import appModel.event.ProjectEventType;
@@ -16,12 +19,16 @@ import appModel.project.Project;
 import appModel.project.ProjectProxy;
 import core.HdrFrame;
 import core.Vector3f;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
@@ -44,6 +51,9 @@ public class AppMainController
 	
 	@FXML
     private Canvas canvas;
+	
+	@FXML
+    private TextArea messageTextArea;
 	 
     private EditorApp m_editorApp;
     private int       m_projectId;
@@ -59,6 +69,16 @@ public class AppMainController
     	canvas.heightProperty().addListener(observable -> drawFrame());
     	canvas.widthProperty().bind(displayPane.widthProperty());
     	canvas.heightProperty().bind(displayPane.heightProperty());
+    	
+    	EditorApp.getConsole().addListener(new MessageListener()
+		{
+			@Override
+			public void onMessageWritten(String message)
+			{
+				Platform.runLater(() -> updateMessageTextArea());
+			}
+		});
+    	updateMessageTextArea();
     }
 
     @FXML
@@ -92,7 +112,7 @@ public class AppMainController
 				m_displayImage = new WritableImage(frame.getWidthPx(), frame.getHeightPx());
 				final PixelWriter pixelWriter = m_displayImage.getPixelWriter();
 				
-				Vector3f color   = new Vector3f();
+				Vector3f color = new Vector3f();
 				for(int y = 0; y < frame.getHeightPx(); y++)
 				{
 					for(int x = 0; x < frame.getWidthPx(); x++)
@@ -184,13 +204,34 @@ public class AppMainController
 		    File outputfile = new File("./result.png");
 		    ImageIO.write(image, "png", outputfile);
 		    
-		    System.out.println("image saved");
+		    EditorApp.printToConsole("image saved");
 		} 
 		catch(IOException e)
 		{
 			e.printStackTrace();
 			
-			System.err.println("image saving failed");
+			EditorApp.printToConsole("image saving failed");
 		}
+    }
+    
+    private void updateMessageTextArea()
+    {
+    	Console console = EditorApp.getConsole();
+    	StringBuilder messages = new StringBuilder();
+    	console.getCachedMessages(messages);
+    	
+//    	DefaultCaret caret = (DefaultCaret) messageTextArea.getCaret();
+//    	caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+    	
+    	messageTextArea.clear();
+//    	messageTextArea.deleteText(0, messageTextArea.getText().length());
+    	messageTextArea.setText(messages.toString());
+    	messageTextArea.setScrollTop(Double.MAX_VALUE);
+//    	messageTextArea.setScrollTop(Double.MAX_VALUE);
+//    	messageTextArea.clear();
+//    	messageTextArea.de
+//    	messageTextArea.setScrollTop(Double.MAX_VALUE);
+//    	messageTextArea.setText(messages.toString());
+//    	messageTextArea.setScrollTop(Double.MAX_VALUE);
     }
 }

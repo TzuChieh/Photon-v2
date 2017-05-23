@@ -42,13 +42,6 @@ public:
 	std::vector<std::shared_ptr<Actor>> getActors() const;
 
 private:
-	std::unordered_map<std::string, std::shared_ptr<Geometry>>    m_geometries;
-	std::unordered_map<std::string, std::shared_ptr<Texture>>     m_textures;
-	std::unordered_map<std::string, std::shared_ptr<Material>>    m_materials;
-	std::unordered_map<std::string, std::shared_ptr<LightSource>> m_lightSources;
-	std::unordered_map<std::string, std::shared_ptr<AModel>>      m_actorModels;
-	std::unordered_map<std::string, std::shared_ptr<ALight>>      m_actorLights;
-
 	std::vector<std::unordered_map<std::string, std::shared_ptr<ISdlResource>>> m_resources;
 	
 private:

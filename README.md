@@ -3,31 +3,26 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
 
 ## Features
 * **Integration (rendering method)**
-
- * backward path tracing
- * backward light tracing (next event estimation)
- * MIS'ed backward tracing (path + light)
- * light/particle tracing
+  * backward path tracing
+  * backward light tracing (next event estimation)
+  * MIS'ed backward tracing (path + light)
+  * light/particle tracing
 
 * **Material**
-
- * Lambertian diffuse
- * microfacet-based opaque and translucent model
+  * Lambertian diffuse
+  * microfacet-based opaque and translucent model
 
 * **Geometry**
-
- * sphere shape
- * rectangular shape
- * triangle mesh
+  * sphere shape
+  * rectangular shape
+  * triangle mesh
 
 * **Light**
-
- * area light
+  * area light
 
 * **Misc.**
-
- * Blender addon for scene creation
- * easy-to-use custom scene description language
+  * Blender addon for scene creation
+  * easy-to-use custom scene description language
 
 
 ## Build

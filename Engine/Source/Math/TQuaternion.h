@@ -27,6 +27,7 @@ public:
 
 	inline TQuaternion(const T x, const T y, const T z, const T w);
 	inline TQuaternion(const TVector3<T>& normalizedAxis, const T radians);
+	inline explicit TQuaternion(const TMatrix4<T>& rotationMatrix);
 
 	// acting like w component is 0
 	inline TQuaternion mul(const TVector3<T>& xyz) const;

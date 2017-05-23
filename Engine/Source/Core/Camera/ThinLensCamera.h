@@ -10,6 +10,7 @@ namespace ph
 class ThinLensCamera : public Camera, public TCommandInterface<ThinLensCamera>
 {
 public:
+	ThinLensCamera(const float32 fov, const float32 lensRadius, const float32 lensFocalLength);
 	virtual ~ThinLensCamera() override;
 
 	virtual void genSensingRay(const Sample& sample, Ray* const out_ray) const override;
@@ -19,6 +20,11 @@ public:
 		Vector3R* const out_importance, 
 		real* out_filmArea, 
 		real* const out_pdfW) const override;
+
+private:
+	float32 m_fov;
+	float32 m_lensRadius;
+	float32 m_lensFocalLength;
 
 // command interface
 public:

@@ -12,14 +12,19 @@ Camera::Camera() :
 
 Camera::~Camera() = default;
 
+void Camera::onFilmSet(Film* newFilm)
+{
+	// do nothing
+}
+
 // command interface
 
 Camera::Camera(const InputPacket& packet) :
 	Camera()
 {
-	const Vector3R position = packet.getVector3r("position", m_position, DataTreatment::REQUIRED());
+	const Vector3R position  = packet.getVector3r("position",  m_position,  DataTreatment::REQUIRED());
 	const Vector3R direction = packet.getVector3r("direction", m_direction, DataTreatment::REQUIRED());
-	const Vector3R upAxis = packet.getVector3r("up-axis", m_upAxis, DataTreatment::OPTIONAL());
+	const Vector3R upAxis    = packet.getVector3r("up-axis",   m_upAxis,    DataTreatment::OPTIONAL());
 
 	setPosition(position);
 	setDirection(direction);

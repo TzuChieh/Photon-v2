@@ -19,6 +19,9 @@ public:
 	void addQuaternionR(const std::string& name);
 
 	std::string toString() const;
+
+	// TODO: auto resource extraction
+	// (extract resources from InputPacket automatically)
 };
 
 }// namespace ph

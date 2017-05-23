@@ -37,16 +37,22 @@ public final class Project extends ManageableResource
 	
 	public void opRenderScene()
 	{
+		EditorApp.printToConsole("rendering scene...");
+		
 		m_engine.render();
 	}
 	
 	public void opLoadSceneFile(String filename)
 	{
+		EditorApp.printToConsole("loading scene file <" + filename + ">...");
+		
 		m_engine.load(filename);
 	}
 	
 	public void opDevelopFilm()
 	{
+		EditorApp.printToConsole("developing film...");
+		
 		m_engine.developFilm(m_frame);
 		m_frame.getData(m_frameData);
 		

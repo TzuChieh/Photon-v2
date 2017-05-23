@@ -29,6 +29,7 @@ public:
 	inline TMatrix4& initTranslation(const T x, const T y, const T z);
 	inline TMatrix4& initTranslation(const TVector3<T>& value);
 	inline TMatrix4& initRotation(const TQuaternion<T>& rot);
+	inline TMatrix4& initRotation(const TVector3<T>& orthBasisX, const TVector3<T>& orthBasisY, const TVector3<T>& orthBasisZ);
 	inline TMatrix4& initScale(const T x, const T y, const T z);
 	inline TMatrix4& initScale(const TVector3<T>& scale);
 	inline TMatrix4& initPerspectiveProjection(const T fov,

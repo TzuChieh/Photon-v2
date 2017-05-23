@@ -107,8 +107,8 @@ void Renderer::render(const Description& description) const
 					{
 						for(const auto& senseEvent : senseEvents)
 						{
-							uint32 x = static_cast<uint32>((senseEvent.filmX + 1.0f) / 2.0f * widthPx);
-							uint32 y = static_cast<uint32>((senseEvent.filmY + 1.0f) / 2.0f * heightPx);
+							uint32 x = static_cast<uint32>(senseEvent.filmX * widthPx);
+							uint32 y = static_cast<uint32>(senseEvent.filmY * heightPx);
 							if(x >= widthPx) x = widthPx - 1;
 							if(y >= heightPx) y = heightPx - 1;
 							subFilm->accumulateRadiance(x, y, senseEvent.radiance);
@@ -123,8 +123,8 @@ void Renderer::render(const Description& description) const
 					{
 						for(const auto& senseEvent : senseEvents)
 						{
-							uint32 x = static_cast<uint32>((senseEvent.filmX + 1.0f) / 2.0f * widthPx);
-							uint32 y = static_cast<uint32>((senseEvent.filmY + 1.0f) / 2.0f * heightPx);
+							uint32 x = static_cast<uint32>(senseEvent.filmX * widthPx);
+							uint32 y = static_cast<uint32>(senseEvent.filmY * heightPx);
 							if(x >= widthPx) x = widthPx - 1;
 							if(y >= heightPx) y = heightPx - 1;
 							subFilm->accumulateRadianceWithoutIncrementSenseCount(x, y, senseEvent.radiance);

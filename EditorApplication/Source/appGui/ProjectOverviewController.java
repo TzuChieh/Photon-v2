@@ -42,7 +42,7 @@ public class ProjectOverviewController
 	    	try
 			{
 	    		String filename = file.getCanonicalPath();
-	    		m_project.getRenderSetting().set(RenderSetting.SCENE_FILE_NAME, filename);
+	    		sceneFileTextField.setText(filename);
 			}
 			catch(IOException e)
 			{
@@ -54,9 +54,11 @@ public class ProjectOverviewController
 	@FXML
     void startRenderingBtnClicked(MouseEvent event)
     {
-		String sceneFileName = sceneFileTextField.getText();
-    	if(!sceneFileName.isEmpty())
+		String sceneFileName = m_project.getRenderSetting().get(RenderSetting.SCENE_FILE_NAME);
+    	if(sceneFileName != null)
     	{
+    		m_project.getRenderSetting().set(RenderSetting.SCENE_FILE_NAME, sceneFileName);
+    		
     		final Task<String> loadSceneTask         = m_project.createTask(TaskType.LOAD_SCENE);
     		final Task<String> renderTask            = m_project.createTask(TaskType.RENDER);
     		final Task<String> updateStaticImageTask = m_project.createTask(TaskType.UPDATE_STATIC_IMAGE);
@@ -113,20 +115,10 @@ public class ProjectOverviewController
 	public void setProject(ProjectProxy project)
     {
 		m_project = project;
-		m_project.getRenderSetting().addSettingListener(new SettingListener()
+		
+		sceneFileTextField.textProperty().addListener((observable, oldValue, newValue) -> 
 		{
-			@Override
-			public void onSettingChanged(SettingEvent event)
-			{
-				switch(event.settingId)
-				{
-				case RenderSetting.SCENE_FILE_NAME:
-					String sceneFileName = event.settingValue;
-					sceneFileTextField.setText(sceneFileName);
-					break;
-				}
-			}
+			m_project.getRenderSetting().set(RenderSetting.SCENE_FILE_NAME, newValue);
 		});
-		m_project.getRenderSetting().setToDefaults();
     }
 }

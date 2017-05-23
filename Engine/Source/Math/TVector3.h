@@ -75,6 +75,7 @@ public:
 	inline TVector3 mul(const T rhs) const;
 	inline void mul(const T rhs, TVector3* const out_result) const;
 	inline TVector3& mulLocal(const T rhs);
+	inline TVector3& mulLocal(const T rhsX, const T rhsY, const T rhsZ);
 	inline TVector3& mulLocal(const TVector3& rhs);
 	
 	inline TVector3 div(const TVector3& rhs) const;

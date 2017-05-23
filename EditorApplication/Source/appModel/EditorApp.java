@@ -3,12 +3,15 @@ package appModel;
 import java.util.HashMap;
 import java.util.Map;
 
+import appModel.console.Console;
 import appModel.project.Project;
 import appModel.project.ProjectProxy;
 import photonApi.Ph;
 
 public final class EditorApp extends ManageableResource
 {
+	private static final Console CONSOLE = new Console(100);
+	
 	private Map<String, Project> m_projects;
 	
 	public EditorApp()
@@ -69,5 +72,12 @@ public final class EditorApp extends ManageableResource
 			project.decompose();
 			m_projects.remove(projectName, project);
 		}
+	}
+	
+	public static Console getConsole() { return CONSOLE; }
+	
+	public static void printToConsole(String message)
+	{
+		CONSOLE.writeMessage(message);
 	}
 }

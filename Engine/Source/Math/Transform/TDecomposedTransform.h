@@ -16,7 +16,12 @@ public:
 
 	inline void translate(const TVector3<T>& amount)
 	{
-		m_position.addLocal(amount);
+		translate(amount.x, amount.y, amount.z);
+	}
+
+	inline void translate(const T x, const T y, const T z)
+	{
+		m_position.addLocal(x, y, z);
 	}
 
 	inline void rotate(const TQuaternion<T>& rotation)
@@ -36,7 +41,12 @@ public:
 
 	inline void scale(const TVector3<T>& amount)
 	{
-		m_scale.mulLocal(amount);
+		scale(amount.x, amount.y, amount.z);
+	}
+
+	inline void scale(const T x, const T y, const T z)
+	{
+		m_scale.mulLocal(x, y, z);
 	}
 
 	inline void setPosition(const TVector3<T>& position)

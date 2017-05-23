@@ -172,6 +172,7 @@
     <ClCompile Include="Source\Api\test_scene.cpp" />
     <ClCompile Include="Source\Common\ThirdParty\lib_stb.cpp" />
     <ClCompile Include="Source\Core\Camera\Camera.cpp" />
+    <ClCompile Include="Source\Core\Camera\PerspectiveCamera.cpp" />
     <ClCompile Include="Source\Core\Camera\PinholeCamera.cpp" />
     <ClCompile Include="Source\Core\Camera\ThinLensCamera.cpp" />
     <ClCompile Include="Source\Core\CookedActor.cpp" />
@@ -283,6 +284,7 @@
     <ClInclude Include="Source\Api\test_scene.h" />
     <ClInclude Include="Source\Common\ThirdParty\lib_stb.h" />
     <ClInclude Include="Source\Core\Camera\Camera.h" />
+    <ClInclude Include="Source\Core\Camera\PerspectiveCamera.h" />
     <ClInclude Include="Source\Core\Camera\PinholeCamera.h" />
     <ClInclude Include="Source\Common\assertion.h" />
     <ClInclude Include="Source\Common\primitive_type.h" />

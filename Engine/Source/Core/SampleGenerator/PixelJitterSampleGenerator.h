@@ -8,6 +8,8 @@
 namespace ph
 {
 
+// TODO: jittering according to a general grid, not for specific raster resolution
+
 class PixelJitterSampleGenerator final : public SampleGenerator, public TCommandInterface<PixelJitterSampleGenerator>, public ISdlResource
 {
 public:
