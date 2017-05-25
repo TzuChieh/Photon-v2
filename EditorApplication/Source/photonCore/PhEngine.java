@@ -9,10 +9,14 @@ import photonApi.Ph;
 
 public final class PhEngine
 {
+	private int m_numRenderThreads;
+	
 	protected final long m_engineId;
 	
 	public PhEngine(int numRenderThreads)
 	{
+		m_numRenderThreads = numRenderThreads;
+		
 		LongRef engineId = new LongRef();
 		Ph.phCreateEngine(engineId, numRenderThreads);
 		m_engineId = engineId.m_value;
@@ -65,5 +69,23 @@ public final class PhEngine
 		FloatRef frequency = new FloatRef();
 		Ph.phQueryRendererSampleFrequency(m_engineId, frequency);
 		return frequency.m_value;
+	}
+	
+	public void dispose()
+	{
+		Ph.phDeleteEngine(m_engineId);
+	}
+	
+	public void setNumRenderThreads(int numRenderThreads)
+	{
+		m_numRenderThreads = numRenderThreads;
+		
+		// TODO: set
+	}
+	
+	@Override
+	protected void finalize()
+	{
+		// TODO: check whether the engine is properly deleted, if not, deleted it
 	}
 }

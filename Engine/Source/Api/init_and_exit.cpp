@@ -25,7 +25,9 @@
 
 // cameras
 #include "Core/Camera/Camera.h"
+#include "Core/Camera/PerspectiveCamera.h"
 #include "Core/Camera/PinholeCamera.h"
+#include "Core/Camera/ThinLensCamera.h"
 
 // films
 #include "Core/Camera/Film.h"
@@ -78,7 +80,9 @@ bool init_command_parser()
 
 	// cameras
 	register_command_interface<Camera>();
+	register_command_interface<PerspectiveCamera>();
 	register_command_interface<PinholeCamera>();
+	register_command_interface<ThinLensCamera>();
 
 	// films
 	register_command_interface<Film>();

@@ -3,6 +3,7 @@
 #include "Utility/TStableIndexDenseArray.h"
 
 #include <memory>
+#include <mutex>
 
 namespace ph
 {
@@ -12,9 +13,6 @@ class Engine;
 
 class ApiDatabase final
 {
-
-	// TODO: use lazy initialization
-
 	friend bool exit_api_database();
 
 public:
@@ -27,8 +25,10 @@ public:
 	static Frame* getFrame(const std::size_t frameId);
 
 private:
-	static TStableIndexDenseArray<std::unique_ptr<Engine>> engines;
-	static TStableIndexDenseArray<std::unique_ptr<Frame>>  frames;
+	static std::mutex& MUTEX_LOCK();
+
+	static TStableIndexDenseArray<std::unique_ptr<Engine>>& ENGINES();
+	static TStableIndexDenseArray<std::unique_ptr<Frame>>&  FRAMES();
 
 	static void clear();
 };

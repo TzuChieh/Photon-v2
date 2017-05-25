@@ -324,6 +324,16 @@ inline TVector3<T>& TVector3<T>::mulLocal(const T rhs)
 }
 
 template<typename T>
+inline TVector3<T>& TVector3<T>::mulLocal(const T rhsX, const T rhsY, const T rhsZ)
+{
+	x *= rhsX;
+	y *= rhsY;
+	z *= rhsZ;
+
+	return *this;
+}
+
+template<typename T>
 inline TVector3<T>& TVector3<T>::mulLocal(const TVector3& rhs)
 {
 	x *= rhs.x;

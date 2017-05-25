@@ -107,12 +107,23 @@ inline TMatrix4<T>& TMatrix4<T>::initRotation(const TQuaternion<T>& rot)
 }
 
 template<typename T>
+inline TMatrix4<T>& TMatrix4<T>::initRotation(const TVector3<T>& orthBasisX, const TVector3<T>& orthBasisY, const TVector3<T>& orthBasisZ)
+{
+	m[0][0] = orthBasisX.x; m[0][1] = orthBasisX.y; m[0][2] = orthBasisX.z; m[0][3] = 0;
+	m[1][0] = orthBasisY.x; m[1][1] = orthBasisY.y; m[1][2] = orthBasisY.z; m[1][3] = 0;
+	m[2][0] = orthBasisZ.x; m[2][1] = orthBasisZ.y; m[2][2] = orthBasisZ.z; m[2][3] = 0;
+	m[3][0] = 0;            m[3][1] = 0;            m[3][2] = 0;            m[3][3] = 1;
+
+	return *this;
+}
+
+template<typename T>
 inline TMatrix4<T>& TMatrix4<T>::initScale(const T x, const T y, const T z)
 {
-	m[0][0] = x;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = 0;
-	m[1][0] = 0;	m[1][1] = y;	m[1][2] = 0;	m[1][3] = 0;
-	m[2][0] = 0;	m[2][1] = 0;	m[2][2] = z;	m[2][3] = 0;
-	m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 1;
+	m[0][0] = x; m[0][1] = 0; m[0][2] = 0; m[0][3] = 0;	
+	m[1][0] = 0; m[1][1] = y; m[1][2] = 0; m[1][3] = 0;
+	m[2][0] = 0; m[2][1] = 0; m[2][2] = z; m[2][3] = 0;
+	m[3][0] = 0; m[3][1] = 0; m[3][2] = 0; m[3][3] = 1;
 
 	return *this;
 }

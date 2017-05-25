@@ -38,7 +38,7 @@ void Description::update(const real deltaS)
 	m_integrator->update(visualWorld.getScene());
 	m_sampleGenerator->analyze(visualWorld.getScene(), *m_film);
 
-	m_camera->setFilm(m_film.get());
+	m_camera->setFilm(m_film);
 }
 
 }// end namespace ph

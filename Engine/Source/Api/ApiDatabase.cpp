@@ -8,22 +8,43 @@
 namespace ph
 {
 
-TStableIndexDenseArray<std::unique_ptr<Engine>> ApiDatabase::engines;
-TStableIndexDenseArray<std::unique_ptr<Frame>>  ApiDatabase::frames;
+TStableIndexDenseArray<std::unique_ptr<Engine>>& ApiDatabase::ENGINES()
+{
+	static TStableIndexDenseArray<std::unique_ptr<Engine>> engines;
+	return engines;
+}
+
+TStableIndexDenseArray<std::unique_ptr<Frame>>& ApiDatabase::FRAMES()
+{
+	static TStableIndexDenseArray<std::unique_ptr<Frame>> frames;
+	return frames;
+}
+
+std::mutex& ApiDatabase::MUTEX_LOCK()
+{
+	static std::mutex lock;
+	return lock;
+}
 
 std::size_t ApiDatabase::addEngine(std::unique_ptr<Engine> engine)
 {
-	return engines.add(std::move(engine));
+	std::lock_guard<std::mutex> lock(MUTEX_LOCK());
+
+	return ENGINES().add(std::move(engine));
 }
 
 bool ApiDatabase::removeEngine(const std::size_t engineId)
 {
-	return engines.remove(engineId);
+	std::lock_guard<std::mutex> lock(MUTEX_LOCK());
+
+	return ENGINES().remove(engineId);
 }
 
 Engine* ApiDatabase::getEngine(const std::size_t engineId)
 {
-	auto* engine = engines.get(engineId);
+	std::lock_guard<std::mutex> lock(MUTEX_LOCK());
+
+	auto* engine = ENGINES().get(engineId);
 	if(engine == nullptr)
 	{
 		std::cerr << "Engine<" << engineId << "> does not exist" << std::endl;
@@ -35,17 +56,23 @@ Engine* ApiDatabase::getEngine(const std::size_t engineId)
 
 std::size_t ApiDatabase::addFrame(std::unique_ptr<Frame> frame)
 {
-	return frames.add(std::move(frame));
+	std::lock_guard<std::mutex> lock(MUTEX_LOCK());
+
+	return FRAMES().add(std::move(frame));
 }
 
 bool ApiDatabase::removeFrame(const std::size_t frameId)
 {
-	return frames.remove(frameId);
+	std::lock_guard<std::mutex> lock(MUTEX_LOCK());
+
+	return FRAMES().remove(frameId);
 }
 
 Frame* ApiDatabase::getFrame(const std::size_t frameId)
 {
-	auto* frame = frames.get(frameId);
+	std::lock_guard<std::mutex> lock(MUTEX_LOCK());
+
+	auto* frame = FRAMES().get(frameId);
 	if(frame == nullptr)
 	{
 		std::cerr << "Frame<" << frameId << "> does not exist" << std::endl;
@@ -57,8 +84,10 @@ Frame* ApiDatabase::getFrame(const std::size_t frameId)
 
 void ApiDatabase::clear()
 {
-	engines.removeAll();
-	frames.removeAll();
+	std::lock_guard<std::mutex> lock(MUTEX_LOCK());
+
+	ENGINES().removeAll();
+	FRAMES().removeAll();
 }
 
 }// end namespace ph

@@ -46,4 +46,15 @@ public final class PhFrame
 		data.m_numPixelComponents = nPixelComponents.m_value;
 		data.m_pixelData          = pixelData.m_value;
 	}
+	
+	public void dispose()
+	{
+		Ph.phDeleteEngine(m_frameId);
+	}
+	
+	@Override
+	protected void finalize()
+	{
+		// TODO: check whether the frame is properly deleted, if not, deleted it
+	}
 }

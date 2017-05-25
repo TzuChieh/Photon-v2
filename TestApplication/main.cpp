@@ -1,4 +1,3 @@
-#include <ph_test.h>
 #include <ph_core.h>
 
 #include <iostream>
@@ -14,7 +13,7 @@ int main(int argc, char* argv[])
 	}
 
 	PHuint64 engineId;
-	phCreateEngine(&engineId, 10);
+	phCreateEngine(&engineId, 1);
 
 	std::ifstream sceneFile;
 	sceneFile.open("../scene/new_syntax_test.p2", std::ios::in);
@@ -38,7 +37,7 @@ int main(int argc, char* argv[])
 		sceneFile.close();
 	}
 
-	
+	phRender(engineId);
 
 	/*PHuint64 descriptionId;
 	phCreateDescription(&descriptionId);

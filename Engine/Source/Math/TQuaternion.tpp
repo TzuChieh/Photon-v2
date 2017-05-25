@@ -43,6 +43,52 @@ inline TQuaternion<T>::TQuaternion(const TVector3<T>& normalizedAxis, const T ra
 	setRot(normalizedAxis, radians);
 }
 
+template<typename T>
+inline TQuaternion<T>::TQuaternion(const TMatrix4<T>& rotationMatrix) : 
+	TQuaternion()
+{
+	const TMatrix4<T>& m = rotationMatrix;
+
+	const T trace = m.m[0][0] + m.m[1][1] + m.m[2][2];
+	if(trace > 0)
+	{
+		const T s = static_cast<T>(0.5) / std::sqrt(trace + 1);
+		x = (m.m[2][1] - m.m[1][2]) * s;
+		y = (m.m[0][2] - m.m[2][0]) * s;
+		z = (m.m[1][0] - m.m[0][1]) * s;
+		w = static_cast<T>(0.25) / s;
+	}
+	else
+	{
+		if(m.m[0][0] > m.m[1][1] && m.m[0][0] > m.m[2][2])
+		{
+			const T s = static_cast<T>(0.5) / std::sqrt(1 + m.m[0][0] - m.m[1][1] - m.m[2][2]);
+			x = static_cast<T>(0.25) / s;
+			y = (m.m[0][1] + m.m[1][0]) * s;
+			z = (m.m[0][2] + m.m[2][0]) * s;
+			w = (m.m[2][1] - m.m[1][2]) * s;
+		}
+		else if(m.m[1][1] > m.m[2][2])
+		{
+			const T s = static_cast<T>(0.5) / std::sqrt(1 + m.m[1][1] - m.m[0][0] - m.m[2][2]);
+			x = (m.m[0][1] + m.m[1][0]) * s;
+			y = static_cast<T>(0.25) / s;
+			z = (m.m[1][2] + m.m[2][1]) * s;
+			w = (m.m[0][2] - m.m[2][0]) * s;
+		}
+		else
+		{
+			const T s = static_cast<T>(0.5) / std::sqrt(1 + m.m[2][2] - m.m[0][0] - m.m[1][1]);
+			x = (m.m[0][2] + m.m[2][0]) * s;
+			y = (m.m[1][2] + m.m[2][1]) * s;
+			z = static_cast<T>(0.25) / s;
+			w = (m.m[1][0] - m.m[0][1]) * s;
+		}
+	}
+
+	normalizeLocal();
+}
+
 // acting like w component is 0
 template<typename T>
 inline TQuaternion<T> TQuaternion<T>::mul(const TVector3<T>& xyz) const
