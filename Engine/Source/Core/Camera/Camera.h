@@ -71,33 +71,6 @@ public:
 		m_direction.set(out_direction);
 	}
 
-	inline void setPosition(const Vector3R& position)
-	{
-		m_position.set(position);
-
-		updateCameraToWorldTransform(m_position, m_direction, m_upAxis);
-	}
-
-	inline void setDirection(const Vector3R& direction)
-	{
-		// TODO: check the input camera direction is valid
-
-		m_direction.set(direction);
-		m_direction.normalizeLocal();
-
-		updateCameraToWorldTransform(m_position, m_direction, m_upAxis);
-	}
-
-	inline void setUpAxis(const Vector3R& upAxis)
-	{
-		// TODO: check the input up-axis is valid (e.g., apart enough to camera direction, not zero vector...)
-
-		m_upAxis = upAxis;
-		m_upAxis.normalizeLocal();
-
-		updateCameraToWorldTransform(m_position, m_direction, m_upAxis);
-	}
-
 	virtual void onFilmSet(Film* newFilm);
 
 protected:
@@ -110,17 +83,7 @@ private:
 
 	std::shared_ptr<Film> m_film;
 
-	inline void updateCameraToWorldTransform(const Vector3R& position, const Vector3R& direction, const Vector3R& upAxis)
-	{
-		m_cameraToWorldTransform.setPosition(TVector3<hiReal>(position));
-		m_cameraToWorldTransform.setScale(TVector3<hiReal>(0.001, 0.001, 0.001));
-
-		const TVector3<hiReal> zAxis             = TVector3<hiReal>(direction.mul(-1.0f)).normalizeLocal();
-		const TVector3<hiReal> xAxis             = TVector3<hiReal>(direction.cross(upAxis)).normalizeLocal();
-		const TVector3<hiReal> yAxis             = zAxis.cross(xAxis).normalizeLocal();
-		const TMatrix4<hiReal> worldToViewRotMat = TMatrix4<hiReal>().initRotation(xAxis, yAxis, zAxis);
-		m_cameraToWorldTransform.setRotation(TQuaternion<hiReal>(worldToViewRotMat).conjugateLocal());
-	}
+	void updateCameraToWorldTransform(const Vector3R& position, const Vector3R& direction, const Vector3R& upAxis);
 
 // command interface
 public:

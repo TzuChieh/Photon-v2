@@ -20,16 +20,15 @@ void PerspectiveCamera::onFilmSet(Film* newFilm)
 
 void PerspectiveCamera::updateTransforms()
 {
-	const hiReal rasterWidthPx   = static_cast<hiReal>(getFilm()->getWidthPx());
-	const hiReal rasterHeightPx  = static_cast<hiReal>(getFilm()->getHeightPx());
+	const hiReal rasterWidthPx   = getFilm()->getWidthPx();
+	const hiReal rasterHeightPx  = getFilm()->getHeightPx();
 	const hiReal filmAspectRatio = rasterWidthPx / rasterHeightPx;
 	const hiReal filmWidthMM     = m_filmWidthMM;
 	const hiReal filmHeightMM    = filmWidthMM / filmAspectRatio;
-	const hiReal filmOffsetMM    = m_filmOffsetMM;
 
 	TDecomposedTransform<hiReal> rasterToCameraTransform;
 	rasterToCameraTransform.scale(-filmWidthMM / rasterWidthPx, -filmHeightMM / rasterHeightPx, 1);
-	rasterToCameraTransform.translate(filmWidthMM / 2, filmHeightMM / 2, filmOffsetMM);
+	rasterToCameraTransform.translate(filmWidthMM / 2, filmHeightMM / 2, m_filmOffsetMM);
 
 	std::vector<TDecomposedTransform<hiReal>> rootToLocal{m_cameraToWorldTransform, rasterToCameraTransform};
 	m_rasterToWorld  = std::make_shared<StaticTransform>(StaticTransform::makeParentedForward(rootToLocal));
@@ -57,7 +56,6 @@ PerspectiveCamera::PerspectiveCamera(const InputPacket& packet) :
 	if(packet.isPrototypeMatched(fovBasedInput))
 	{
 		// Respect film dimensions; modify film offset to satisfy FOV requirement.
-
 		const real fovDegree = packet.getReal(NAME_FOV_DEGREE);
 		const real halfFov   = Math::toRadians(fovDegree) * 0.5_r;
 		m_filmWidthMM  = packet.getReal(NAME_FILM_WIDTH_MM, m_filmWidthMM);

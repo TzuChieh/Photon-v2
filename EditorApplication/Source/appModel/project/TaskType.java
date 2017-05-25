@@ -4,5 +4,5 @@ public enum TaskType
 {
 	RENDER,
 	LOAD_SCENE,
-	UPDATE_STATIC_IMAGE
+	DEVELOP_FILM
 }

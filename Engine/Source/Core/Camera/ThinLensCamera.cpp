@@ -2,39 +2,43 @@
 #include "Core/Camera/Film.h"
 #include "Core/Sample.h"
 #include "Core/Ray.h"
+#include "Math/Transform/Transform.h"
+#include "FileIO/InputPacket.h"
+#include "Math/Random.h"
 
 #include <iostream>
 
 namespace ph
 {
 
-ThinLensCamera::ThinLensCamera(const float32 fov, const float32 lensRadius, const float32 lensFocalLength) :
-	Camera(),
-	m_fov(fov), m_lensRadius(lensRadius), m_lensFocalLength(lensFocalLength)
-{
-
-}
-
 ThinLensCamera::~ThinLensCamera() = default;
 
 void ThinLensCamera::genSensingRay(const Sample& sample, Ray* const out_ray) const
 {
-	const real aspectRatio = static_cast<real>(getFilm()->getWidthPx()) / static_cast<real>(getFilm()->getHeightPx());
+	const Vector3R rasterPosPx(sample.m_cameraX * getFilm()->getWidthPx(),
+	                           sample.m_cameraY * getFilm()->getHeightPx(),
+	                           0);
+	Vector3R camFilmPos;
+	m_rasterToCamera->transformPoint(rasterPosPx, &camFilmPos);
 
-	Vector3R rightDir = getDirection().cross(getUpAxis()).normalizeLocal();
-	Vector3R upDir = rightDir.cross(getDirection()).normalizeLocal();
+	const Vector3R camCenterRayDir = camFilmPos.mul(-1);
+	const real     hitParamDist    = m_focalDistanceMM / (-camCenterRayDir.z);
+	const Vector3R camFocusPos     = camCenterRayDir.mul(hitParamDist);
 
-	const real halfWidth = std::tan(m_fov / 2.0_r);
-	const real halfHeight = halfWidth / aspectRatio;
+	//std::cerr << camFilmPos.toStringFormal() << std::endl;
 
-	const real pixelPosX = sample.m_cameraX * halfWidth;
-	const real pixelPosY = sample.m_cameraY * halfHeight;
+	Vector3R camLensPos;
+	genRandomSampleOnDisk(m_lensRadiusMM, &camLensPos.x, &camLensPos.y);
 
-	rightDir.mulLocal(pixelPosX);
-	upDir.mulLocal(pixelPosY);
+	
 
-	out_ray->setDirection(getDirection().add(rightDir.addLocal(upDir)).mulLocal(-1.0_r).normalizeLocal());
-	out_ray->setOrigin(getPosition());
+	Vector3R worldLensPos, worldFocusPos;
+	m_cameraToWorld->transformPoint(camLensPos,  &worldLensPos);
+	m_cameraToWorld->transformPoint(camFocusPos, &worldFocusPos);
+
+
+	out_ray->setDirection(worldLensPos.sub(worldFocusPos).normalizeLocal());
+	out_ray->setOrigin(worldLensPos);
 	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
 	out_ray->setMaxT(Ray::MAX_T);
 }
@@ -49,12 +53,22 @@ void ThinLensCamera::evalEmittedImportanceAndPdfW(
 	std::cerr << "ThinLensCamera::evalEmittedImportanceAndPdfW() not implemented" << std::endl;
 }
 
+void ThinLensCamera::genRandomSampleOnDisk(const real radius, real* const out_x, real* const out_y)
+{
+	const real r   = radius * std::sqrt(Random::genUniformReal_i0_e1());
+	const real phi = 2.0_r * PI_REAL * Random::genUniformReal_i0_e1();
+	*out_x = r * std::cos(phi);
+	*out_y = r * std::sin(phi);
+}
+
 // command interface
 
 ThinLensCamera::ThinLensCamera(const InputPacket& packet) : 
-	Camera(packet)
+	PerspectiveCamera(packet), 
+	m_lensRadiusMM(0.0_r), m_focalDistanceMM()
 {
-	
+	m_lensRadiusMM    = packet.getReal("lens-radius-mm",    m_lensRadiusMM,    DataTreatment::REQUIRED());
+	m_focalDistanceMM = packet.getReal("focal-distance-mm", m_focalDistanceMM, DataTreatment::REQUIRED());
 }
 
 SdlTypeInfo ThinLensCamera::ciTypeInfo()

@@ -26,36 +26,12 @@ void PinholeCamera::genSensingRay(const Sample& sample, Ray* const out_ray) cons
 	out_ray->setOrigin(getPosition());
 	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
 	out_ray->setMaxT(Ray::MAX_T);
-
-
-
-
-	//const real aspectRatio = static_cast<real>(getFilm()->getWidthPx()) / static_cast<real>(getFilm()->getHeightPx());
-
-	//Vector3R rightDir = getDirection().cross(getUpAxis()).normalizeLocal();
-	//Vector3R upDir    = rightDir.cross(getDirection()).normalizeLocal();
-
-	//const real halfWidth = std::tan(Math::toRadians(m_fovDegree) / 2.0_r);// FIXME: this should be precalculated
-	//const real halfHeight = halfWidth / aspectRatio;
-
-	//const real pixelPosX = sample.m_cameraX * halfWidth;
-	//const real pixelPosY = sample.m_cameraY * halfHeight;
-
-	//rightDir.mulLocal(pixelPosX);
-	//upDir.mulLocal(pixelPosY);
-
-	//out_ray->setDirection(getDirection().add(rightDir.addLocal(upDir)).mulLocal(-1.0_r).normalizeLocal());
-	//out_ray->setOrigin(getPosition());
-	//out_ray->setMinT(0.0001_r);// HACK: hard-coded number
-	//out_ray->setMaxT(Ray::MAX_T);
-
-
-	//std::cerr << "new: " << rayDir.normalize().toStringFormal() << std::endl;
-	//std::cerr << "old: " << out_ray->getDirection().toStringFormal() << std::endl;
 }
 
 void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3R& targetPos, Vector2f* const out_filmCoord, Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const
 {
+	std::cerr << "PinholeCamera::evalEmittedImportanceAndPdfW() not implemented" << std::endl;
+
 	/*const Vector3R targetDir = targetPos.sub(getPosition()).normalizeLocal();
 	const real cosTheta = targetDir.dot(getDirection());
 

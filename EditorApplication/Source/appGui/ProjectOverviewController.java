@@ -59,9 +59,9 @@ public class ProjectOverviewController
     	{
     		m_project.getRenderSetting().set(RenderSetting.SCENE_FILE_NAME, sceneFileName);
     		
-    		final Task<String> loadSceneTask         = m_project.createTask(TaskType.LOAD_SCENE);
-    		final Task<String> renderTask            = m_project.createTask(TaskType.RENDER);
-    		final Task<String> updateStaticImageTask = m_project.createTask(TaskType.UPDATE_STATIC_IMAGE);
+    		final Task<String> loadSceneTask   = m_project.createTask(TaskType.LOAD_SCENE);
+    		final Task<String> renderTask      = m_project.createTask(TaskType.RENDER);
+    		final Task<String> developFilmTask = m_project.createTask(TaskType.DEVELOP_FILM);
     		
     		final Task<String> queryTask = new Task<String>()
 			{
@@ -97,7 +97,9 @@ public class ProjectOverviewController
 						}
 					}
 					
-					Thread updateStaticImageThread = new Thread(updateStaticImageTask);
+					renderSceneThread.join();
+					
+					Thread updateStaticImageThread = new Thread(developFilmTask);
 					updateStaticImageThread.start();
 					updateStaticImageThread.join();
 					

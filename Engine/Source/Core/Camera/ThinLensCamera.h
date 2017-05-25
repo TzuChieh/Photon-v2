@@ -3,14 +3,14 @@
 #include "Core/Camera/Camera.h"
 #include "FileIO/SDL/ISdlResource.h"
 #include "FileIO/SDL/TCommandInterface.h"
+#include "Core/Camera/PerspectiveCamera.h"
 
 namespace ph
 {
 
-class ThinLensCamera : public Camera, public TCommandInterface<ThinLensCamera>
+class ThinLensCamera : public PerspectiveCamera, public TCommandInterface<ThinLensCamera>
 {
 public:
-	ThinLensCamera(const float32 fov, const float32 lensRadius, const float32 lensFocalLength);
 	virtual ~ThinLensCamera() override;
 
 	virtual void genSensingRay(const Sample& sample, Ray* const out_ray) const override;
@@ -22,9 +22,10 @@ public:
 		real* const out_pdfW) const override;
 
 private:
-	float32 m_fov;
-	float32 m_lensRadius;
-	float32 m_lensFocalLength;
+	float32 m_lensRadiusMM;
+	float32 m_focalDistanceMM;
+
+	static void genRandomSampleOnDisk(const real radius, real* const out_x, real* const out_y);
 
 // command interface
 public:

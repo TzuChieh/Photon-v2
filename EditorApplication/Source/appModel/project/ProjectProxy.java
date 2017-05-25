@@ -22,7 +22,7 @@ public final class ProjectProxy
 			return createRenderTask();
 		case LOAD_SCENE:
 			return createLoadSceneTask();
-		case UPDATE_STATIC_IMAGE:
+		case DEVELOP_FILM:
 			return createUpdateStaticImageTask();
 		}
 		

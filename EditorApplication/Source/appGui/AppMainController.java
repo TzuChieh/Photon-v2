@@ -102,7 +102,7 @@ public class AppMainController
     public void createNewProject(String projectName)
     {
     	ProjectProxy project = m_editorApp.createProject(projectName);
-    	project.addListener(ProjectEventType.STATIC_IMAGE_READY, new ProjectEventListener()
+    	project.addListener(ProjectEventType.STATIC_FRAME_READY, new ProjectEventListener()
 		{
 			@Override
 			public void onEventOccurred(ProjectEvent event)

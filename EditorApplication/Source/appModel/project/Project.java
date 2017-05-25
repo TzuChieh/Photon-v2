@@ -40,6 +40,11 @@ public final class Project extends ManageableResource
 		EditorApp.printToConsole("rendering scene...");
 		
 		m_engine.render();
+		
+		Platform.runLater(() ->
+		{
+			m_eventDispatcher.notify(ProjectEventType.STATIC_FILM_READY, getProxy());
+		});
 	}
 	
 	public void opLoadSceneFile(String filename)
@@ -47,6 +52,11 @@ public final class Project extends ManageableResource
 		EditorApp.printToConsole("loading scene file <" + filename + ">...");
 		
 		m_engine.load(filename);
+		
+		Platform.runLater(() ->
+		{
+			m_eventDispatcher.notify(ProjectEventType.STATIC_SCENE_READY, getProxy());
+		});
 	}
 	
 	public void opDevelopFilm()
@@ -58,14 +68,14 @@ public final class Project extends ManageableResource
 		
 		Platform.runLater(() ->
 		{
-			m_eventDispatcher.notify(ProjectEventType.STATIC_IMAGE_READY, getProxy());
+			m_eventDispatcher.notify(ProjectEventType.STATIC_FRAME_READY, getProxy());
 		});
 	}
 	
 	@Override
 	protected void initResource()
 	{
-		m_engine = new PhEngine(4);
+		m_engine = new PhEngine(10);
 		m_frame  = new PhFrame(PhFrame.Type.HDR);
 		
 		m_proxy = new ProjectProxy(this);

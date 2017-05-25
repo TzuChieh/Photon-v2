@@ -51,13 +51,7 @@ public final class ProjectEventDispatcher
 		for(Map.Entry<ProjectEventType, List<ProjectEventListener>> entry : m_listenersMap.entrySet())
 		{
 			List<ProjectEventListener> listeners = entry.getValue();
-			for(ProjectEventListener listener : listeners)
-			{
-				if(listener == targetListener)
-				{
-					listeners.remove(targetListener);
-				}
-			}
+			while(listeners.remove(targetListener));
 		}
 	}
 }

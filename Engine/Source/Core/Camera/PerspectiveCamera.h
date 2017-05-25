@@ -23,7 +23,6 @@ class PerspectiveCamera : public Camera, public TCommandInterface<PerspectiveCam
 public:
 	virtual ~PerspectiveCamera() = 0;
 
-	// TODO: precalculate aspect ratio info from camera film
 	virtual void genSensingRay(const Sample& sample, Ray* const out_ray) const = 0;
 	virtual void evalEmittedImportanceAndPdfW(
 		const Vector3R& targetPos, 
@@ -38,7 +37,6 @@ protected:
 	std::shared_ptr<Transform> m_rasterToCamera;
 	std::shared_ptr<Transform> m_cameraToWorld;
 	std::shared_ptr<Transform> m_rasterToWorld;
-
 	
 private:
 	real m_filmWidthMM;
