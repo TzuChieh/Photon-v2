@@ -1,10 +1,10 @@
 //## camera(pinhole) [real fov-degree 50] [vector3r position "0 0 16"] [vector3r direction "0 0 -1"]
-## camera(pinhole) [real fov-degree 70] [vector3r position "-3.5 -3.6 2.9"] [vector3r direction "0.7 0.4 -0.3"]
-//## camera(thin-lens) [real fov-degree 70] [real lens-radius-mm 220.0] [real focal-distance-mm 3300] [vector3r position "-3.5 -3.6 2.9"] [vector3r direction "0.7 0.4 -0.3"]
+//## camera(pinhole) [real fov-degree 70] [vector3r position "-3.5 -3.6 2.9"] [vector3r direction "0.7 0.4 -0.3"]
+## camera(thin-lens) [real fov-degree 70] [real lens-radius-mm 220.0] [real focal-distance-mm 3300] [vector3r position "-3.5 -3.6 2.9"] [vector3r direction "0.7 0.4 -0.3"]
 //## film(film) [integer width 400] [integer height 400]
 //## film(film) [integer width 800] [integer height 800]
 ## film(film) [integer width 800] [integer height 600]
-## sampler(sampler) [integer spp-budget 10]
+## sampler(sampler) [integer spp-budget 1000]
 //## sampler(sampler) [integer spp-budget 64]
 
 ## integrator(backward-path)

@@ -5,6 +5,10 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.text.DefaultCaret;
@@ -25,15 +29,21 @@ import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import photonCore.FrameData;
@@ -41,48 +51,40 @@ import photonCore.PhEngine;
 
 public class AppMainController
 {
-	private static final String FXML_VIEW_NAME = "ProjectOverview.fxml";
+	private static final String FXML_MANAGER_NAME = "Manager.fxml";
+	private static final String FXML_EDITOR_NAME  = "Editor.fxml";
 	
-	@FXML
-	private VBox projectOverviewVbox;
-	
-	@FXML
-    private AnchorPane displayPane;
-	
-	@FXML
-    private Canvas canvas;
-	
-	@FXML
-    private TextArea messageTextArea;
-	 
-    private EditorApp m_editorApp;
+	private EditorApp m_editorApp;
     private int       m_projectId;
-    
-    private WritableImage m_displayImage;
+	private Map<String, Parent>   m_editorViews;
+	private AppMainGraphicalState m_graphicalState;
+	private Parent                m_managerView;
+	private Parent                m_editorView;
+	private ManagerController     m_managerController;
+	private EditorController      m_editorController;
+	
+	@FXML
+    private AnchorPane workbenchPane;
+	
+	@FXML
+    private Pane footerPane;
+	
+	@FXML
+    private Label footerMsgLbl;
     
     @FXML
     public void initialize()
     {
-    	m_displayImage = new WritableImage(1, 1);
+    	footerPane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
     	
-    	canvas.widthProperty().addListener(observable -> drawFrame());
-    	canvas.heightProperty().addListener(observable -> drawFrame());
-    	canvas.widthProperty().bind(displayPane.widthProperty());
-    	canvas.heightProperty().bind(displayPane.heightProperty());
+    	m_graphicalState = new AppMainGraphicalState(this);
     	
-    	EditorApp.getConsole().addListener(new MessageListener()
-		{
-			@Override
-			public void onMessageWritten(String message)
-			{
-				Platform.runLater(() -> updateMessageTextArea());
-			}
-		});
-    	updateMessageTextArea();
+    	loadManagerView();
+    	loadEditorView();
     }
 
     @FXML
-    void createNewProjectBtnClicked(MouseEvent event)
+    void newProjectBtnClicked(MouseEvent event)
     {
     	createNewProject("project " + m_projectId++);
     }
@@ -93,8 +95,24 @@ public class AppMainController
     	saveDisplayImage();
     }
     
+    @FXML
+    void managerBtnClicked(MouseEvent event)
+    {
+    	setWorkbenchAsManagerView();
+    }
+    
+    @FXML
+    void editorBtnClicked(MouseEvent event)
+    {
+    	setWorkbenchAsEditorView();
+//    	System.out.println("ccc");
+    }
+    
     public AppMainController()
     {
+    	m_editorViews = new HashMap<>();
+    	
+    	
     	m_editorApp = null;
     	m_projectId = 0;
     }
@@ -102,65 +120,22 @@ public class AppMainController
     public void createNewProject(String projectName)
     {
     	ProjectProxy project = m_editorApp.createProject(projectName);
-    	project.addListener(ProjectEventType.STATIC_FRAME_READY, new ProjectEventListener()
-		{
-			@Override
-			public void onEventOccurred(ProjectEvent event)
-			{
-				final HdrFrame frame = new HdrFrame(event.source.getStaticImageData());
-				
-				m_displayImage = new WritableImage(frame.getWidthPx(), frame.getHeightPx());
-				final PixelWriter pixelWriter = m_displayImage.getPixelWriter();
-				
-				Vector3f color = new Vector3f();
-				for(int y = 0; y < frame.getHeightPx(); y++)
-				{
-					for(int x = 0; x < frame.getWidthPx(); x++)
-					{
-						color.set(frame.getPixelR(x, y), 
-						          frame.getPixelG(x, y), 
-						          frame.getPixelB(x, y));
-						if(color.x != color.x || 
-						   color.y != color.y || 
-						   color.z != color.z)
-						{
-							System.err.println("NaN!");
-						}
-						
-						// Tone-mapping operator: Jim Hejl and Richard Burgess-Dawson (GDC)
-						// (no need of gamma correction)
-						color.subLocal(0.004f).clampLocal(0.0f, Float.MAX_VALUE);
-						Vector3f numerator   = color.mul(6.2f).addLocal(0.5f).mulLocal(color);
-						Vector3f denominator = color.mul(6.2f).addLocal(1.7f).mulLocal(color).addLocal(0.06f);
-						color.x = numerator.x / denominator.x;
-						color.y = numerator.y / denominator.y;
-						color.z = numerator.z / denominator.z;
-						
-						int inversedY = frame.getHeightPx() - y - 1;
-						Color fxColor = new Color(color.x, color.y, color.z, 1.0);
-						pixelWriter.setColor(x, inversedY, fxColor);
-					}
-				}
-				
-				drawFrame();
-			}
-		});
     	
-    	try
-		{
-			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FXML_VIEW_NAME));
-			
-			Parent                    projectOverviewView       = fxmlLoader.load();
-			ProjectOverviewController projectOverviewController = fxmlLoader.getController();
-			
-			projectOverviewController.setProject(project);
-			projectOverviewVbox.getChildren().add(projectOverviewView);
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-			m_editorApp.deleteProject(projectName);
-		}
+//    	try
+//		{
+//			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FXML_MANAGER_NAME));
+//			
+//			Parent            managerView       = fxmlLoader.load();
+//			ManagerController managerController = fxmlLoader.getController();
+//			
+//			managerController.setProject(project);
+//			projectOverviewVbox.getChildren().add(managerView);
+//		}
+//		catch(IOException e)
+//		{
+//			e.printStackTrace();
+//			m_editorApp.deleteProject(projectName);
+//		}
     }
     
     public void setEditorApp(EditorApp editorApp)
@@ -168,70 +143,78 @@ public class AppMainController
     	m_editorApp = editorApp;
     }
     
-    private void drawFrame()
-    {
-    	final float canvasWidth       = (float)(canvas.getWidth());
-		final float canvasHeight      = (float)(canvas.getHeight());
-		final float canvasAspectRatio = canvasWidth / canvasHeight;
-		final float frameAspectRatio  = (float)(m_displayImage.getWidth()) / (float)(m_displayImage.getHeight());
-		
-		int imageWidth;
-		int imageHeight;
-		if(frameAspectRatio > canvasAspectRatio)
-		{
-			imageWidth  = (int)canvasWidth;
-			imageHeight = (int)(canvasWidth / frameAspectRatio);
-		}
-		else
-		{
-			imageHeight = (int)canvasHeight;
-			imageWidth  = (int)(canvasHeight * frameAspectRatio);
-		}
-		
-		GraphicsContext g = canvas.getGraphicsContext2D();
-		g.setFill(Color.DARKBLUE);
-		g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-		g.drawImage(m_displayImage, 
-		            (canvas.getWidth() - imageWidth) * 0.5, (canvas.getHeight() - imageHeight) * 0.5, 
-		            imageWidth, imageHeight);
-    }
-    
     private void saveDisplayImage()
     {
-    	BufferedImage image = SwingFXUtils.fromFXImage(m_displayImage, null);
-    	try 
+//    	BufferedImage image = SwingFXUtils.fromFXImage(m_displayImage, null);
+//    	try 
+//		{
+//		    File outputfile = new File("./result.png");
+//		    ImageIO.write(image, "png", outputfile);
+//		    
+//		    EditorApp.printToConsole("image saved");
+//		} 
+//		catch(IOException e)
+//		{
+//			e.printStackTrace();
+//			
+//			EditorApp.printToConsole("image saving failed");
+//		}
+    }
+    
+    public void setWorkbenchAsEditorView()
+    {
+    	Parent editorView = m_editorViews.get(m_graphicalState.getActiveProjectName());
+    	workbenchPane.getChildren().clear();
+    	workbenchPane.getChildren().add(editorView);
+    	
+    	m_graphicalState.setActiveViewName("project editor");
+    }
+    
+    public void setWorkbenchAsManagerView()
+    {
+    	workbenchPane.getChildren().clear();
+    	workbenchPane.getChildren().add(m_managerView);
+    	
+    	m_graphicalState.setActiveViewName("project manager");
+    }
+    
+    public void updateFooterText()
+    {
+    	footerMsgLbl.setText("Project: "   + m_graphicalState.getActiveProjectName() + " | " + 
+    	                     "Workbench: " + m_graphicalState.getActiveViewName());
+    }
+    
+    private void loadManagerView()
+    {
+    	try
 		{
-		    File outputfile = new File("./result.png");
-		    ImageIO.write(image, "png", outputfile);
-		    
-		    EditorApp.printToConsole("image saved");
-		} 
+			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FXML_MANAGER_NAME));
+			
+			m_managerView       = fxmlLoader.load();
+			m_managerController = fxmlLoader.getController();
+			
+			m_managerController.setAppMainGraphicalState(m_graphicalState);
+		}
 		catch(IOException e)
 		{
 			e.printStackTrace();
-			
-			EditorApp.printToConsole("image saving failed");
+			new MessagePopup(e);
 		}
     }
     
-    private void updateMessageTextArea()
+    private void loadEditorView()
     {
-    	Console console = EditorApp.getConsole();
-    	StringBuilder messages = new StringBuilder();
-    	console.getCachedMessages(messages);
-    	
-//    	DefaultCaret caret = (DefaultCaret) messageTextArea.getCaret();
-//    	caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-    	
-    	messageTextArea.clear();
-//    	messageTextArea.deleteText(0, messageTextArea.getText().length());
-    	messageTextArea.setText(messages.toString());
-    	messageTextArea.setScrollTop(Double.MAX_VALUE);
-//    	messageTextArea.setScrollTop(Double.MAX_VALUE);
-//    	messageTextArea.clear();
-//    	messageTextArea.de
-//    	messageTextArea.setScrollTop(Double.MAX_VALUE);
-//    	messageTextArea.setText(messages.toString());
-//    	messageTextArea.setScrollTop(Double.MAX_VALUE);
+    	try
+		{
+			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FXML_EDITOR_NAME));
+			
+			m_editorView       = fxmlLoader.load();
+			m_editorController = fxmlLoader.getController();
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+			new MessagePopup(e);
+		}
     }
 }

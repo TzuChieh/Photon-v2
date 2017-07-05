@@ -213,8 +213,8 @@ public class AppMain extends Application
 	{
 		editorApp.create();
 		
-		System.setOut(new PrintStream(consoleOutputStream, true));
-		System.setErr(new PrintStream(consoleOutputStream, true));
+//		System.setOut(new PrintStream(consoleOutputStream, true));
+//		System.setErr(new PrintStream(consoleOutputStream, true));
 		
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("AppMain.fxml"));
 		
