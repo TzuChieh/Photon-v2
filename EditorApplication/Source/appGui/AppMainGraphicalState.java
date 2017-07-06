@@ -7,9 +7,9 @@ public final class AppMainGraphicalState
 	private String m_activeProjectName;
 	private String m_activeViewName;
 	
-	public AppMainGraphicalState(AppMainController appMainConsroller)
+	public AppMainGraphicalState(AppMainController appMainController)
 	{
-		m_appMainController = appMainConsroller;
+		m_appMainController = appMainController;
 		
 		m_activeProjectName = "";
 		m_activeViewName    = "";

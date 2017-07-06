@@ -13,50 +13,58 @@ import appModel.event.ProjectEvent;
 import appModel.event.ProjectEventListener;
 import appModel.event.ProjectEventType;
 import appModel.project.ProjectProxy;
+import appModel.project.RenderSetting;
+import appModel.project.TaskType;
 import core.HdrFrame;
 import core.Vector3f;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
+import photonCore.FrameData;
 
 public class EditorController
 {
-	@FXML
-	private VBox projectOverviewVbox;
-	
-	@FXML
-    private AnchorPane displayPane;
-	
-	@FXML
-    private Canvas canvas;
-	
-	@FXML
-    private TextArea messageTextArea;
-	
 	private ProjectProxy m_project;
     private EditorApp m_editorApp;
     private int       m_projectId;
     
     private WritableImage m_displayImage;
     
+    private ProjectEventListener m_editorFrameReadyListener;
+	
+	@FXML private VBox        projectOverviewVbox;
+	@FXML private TitledPane  projectOverviewPane;
+	@FXML private TextField   sceneFileTextField;
+	@FXML private ProgressBar renderProgressBar;
+	@FXML private Label       renderProgressLabel;
+	@FXML private AnchorPane  displayPane;
+	@FXML private Canvas      canvas;
+	@FXML private TextArea    messageTextArea;
+    
     @FXML
     public void initialize()
     {
     	m_displayImage = new WritableImage(1, 1);
     	
-    	canvas.widthProperty().addListener(observable -> drawFrame());
-    	canvas.heightProperty().addListener(observable -> drawFrame());
+    	canvas.widthProperty().addListener(observable -> {clearFrame(); drawFrame();});
+    	canvas.heightProperty().addListener(observable -> {clearFrame(); drawFrame();});
     	canvas.widthProperty().bind(displayPane.widthProperty());
     	canvas.heightProperty().bind(displayPane.heightProperty());
     	
@@ -69,30 +77,112 @@ public class EditorController
 			}
 		});
     	updateMessageTextArea();
-    }
-
-    @FXML
-    void createNewProjectBtnClicked(MouseEvent event)
-    {
-    	createNewProject("project " + m_projectId++);
+    	
+    	m_editorFrameReadyListener = new ProjectEventListener()
+    	{
+    		@Override
+    		public void onEventOccurred(ProjectEvent event)
+    		{
+    			clearFrame();
+    			loadFrameBuffer();
+    			drawFrame();
+    		}
+    	};
+    	
+//    	sceneFileTextField.textProperty().addListener((observable, oldValue, newValue) -> 
+//		{
+//			if(m_project != null)
+//			{
+//				m_project.getRenderSetting().set(RenderSetting.SCENE_FILE_NAME, newValue);
+//			}
+//		});
     }
     
-    @FXML
-    void saveImageBtnClicked(MouseEvent event)
+    public void startRenderingStaticScene()
     {
-    	saveDisplayImage();
+		String sceneFileName = sceneFileTextField.getText();
+		if(sceneFileName == null)
+		{
+			return;
+		}
+		
+		m_project.getRenderSetting().set(RenderSetting.SCENE_FILE_NAME, sceneFileName);
+		
+		final Task<String> loadSceneTask   = m_project.createTask(TaskType.LOAD_SCENE);
+		final Task<String> renderTask      = m_project.createTask(TaskType.RENDER);
+		final Task<String> developFilmTask = m_project.createTask(TaskType.DEVELOP_FILM);
+		
+		final Task<String> queryTask = new Task<String>()
+		{
+			@Override
+			protected String call() throws Exception
+			{
+				Thread loadSceneThread = new Thread(loadSceneTask);
+				loadSceneThread.start();
+				loadSceneThread.join();
+				
+				Thread renderSceneThread = new Thread(renderTask);
+				renderSceneThread.start();
+				
+				while(true)
+				{
+					final float parametricProgress = m_project.queryParametricProgress();
+					final float percentageProgress = parametricProgress * 100.0f;
+					final long  workDone           = (long)(percentageProgress + 0.5f);
+					final long  totalWork          = 100;
+					updateProgress(workDone, totalWork);
+					Platform.runLater(() -> renderProgressLabel.setText(percentageProgress + " %"));
+					
+					if(workDone >= totalWork)
+					{
+						break;
+					}
+					
+					try
+					{
+						Thread.sleep(3000);
+					}
+					catch(InterruptedException e)
+					{
+						e.printStackTrace();
+					}
+				}
+				
+				renderSceneThread.join();
+				
+				Thread updateStaticImageThread = new Thread(developFilmTask);
+				updateStaticImageThread.start();
+				updateStaticImageThread.join();
+				
+				return "";
+			}
+		};
+		
+		renderProgressBar.progressProperty().bind(queryTask.progressProperty());
+		
+		Thread queryThread = new Thread(queryTask);
+		queryThread.start();
     }
-    
-    @FXML
-    void startRenderingBtnClicked(MouseEvent event)
-	{
-	    	
-	}
     
     @FXML
     void sceneFileBrowseBtnClicked(MouseEvent event)
     {
-    	
+		FileChooser chooser = new FileChooser();
+		chooser.setTitle("Open Scene File");
+			    
+		File file = chooser.showOpenDialog(projectOverviewPane.getScene().getWindow());
+		if(file != null)
+		{
+			try
+			{
+				String filename = file.getCanonicalPath();
+				sceneFileTextField.setText(filename);
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
     }
     
     public EditorController()
@@ -101,6 +191,7 @@ public class EditorController
     	m_projectId = 0;
     }
     
+    // TODO
     public void createNewProject(String projectName)
     {
     	ProjectProxy project = m_editorApp.createProject(projectName);
@@ -109,41 +200,8 @@ public class EditorController
 			@Override
 			public void onEventOccurred(ProjectEvent event)
 			{
-				final HdrFrame frame = new HdrFrame(event.source.getStaticImageData());
-				
-				m_displayImage = new WritableImage(frame.getWidthPx(), frame.getHeightPx());
-				final PixelWriter pixelWriter = m_displayImage.getPixelWriter();
-				
-				Vector3f color = new Vector3f();
-				for(int y = 0; y < frame.getHeightPx(); y++)
-				{
-					for(int x = 0; x < frame.getWidthPx(); x++)
-					{
-						color.set(frame.getPixelR(x, y), 
-						          frame.getPixelG(x, y), 
-						          frame.getPixelB(x, y));
-						if(color.x != color.x || 
-						   color.y != color.y || 
-						   color.z != color.z)
-						{
-							System.err.println("NaN!");
-						}
-						
-						// Tone-mapping operator: Jim Hejl and Richard Burgess-Dawson (GDC)
-						// (no need of gamma correction)
-						color.subLocal(0.004f).clampLocal(0.0f, Float.MAX_VALUE);
-						Vector3f numerator   = color.mul(6.2f).addLocal(0.5f).mulLocal(color);
-						Vector3f denominator = color.mul(6.2f).addLocal(1.7f).mulLocal(color).addLocal(0.06f);
-						color.x = numerator.x / denominator.x;
-						color.y = numerator.y / denominator.y;
-						color.z = numerator.z / denominator.z;
-						
-						int inversedY = frame.getHeightPx() - y - 1;
-						Color fxColor = new Color(color.x, color.y, color.z, 1.0);
-						pixelWriter.setColor(x, inversedY, fxColor);
-					}
-				}
-				
+				clearFrame();
+				loadFrameBuffer();
 				drawFrame();
 			}
 		});
@@ -163,16 +221,67 @@ public class EditorController
 //			e.printStackTrace();
 //			m_editorApp.deleteProject(projectName);
 //		}
-    }
+	}
+	    
+	public void setEditorApp(EditorApp editorApp)
+	{
+		m_editorApp = editorApp;
+	}
+	
+	private void loadFrameBuffer()
+	{
+		final FrameData frameData = m_project.getStaticImageData();
+		if(!frameData.isDataGood())
+		{
+			m_displayImage = new WritableImage(1, 1);
+			return;
+		}
+		
+		final HdrFrame frame = new HdrFrame(frameData);
+		m_displayImage = new WritableImage(frame.getWidthPx(), frame.getHeightPx());
+		final PixelWriter pixelWriter = m_displayImage.getPixelWriter();
+		
+		Vector3f color = new Vector3f();
+		for(int y = 0; y < frame.getHeightPx(); y++)
+		{
+			for(int x = 0; x < frame.getWidthPx(); x++)
+			{
+				color.set(frame.getPixelR(x, y), 
+				          frame.getPixelG(x, y), 
+				          frame.getPixelB(x, y));
+				if(color.x != color.x || 
+				   color.y != color.y || 
+				   color.z != color.z)
+				{
+					System.err.println("NaN!");
+				}
+				
+				// Tone-mapping operator: Jim Hejl and Richard Burgess-Dawson (GDC)
+				// (no need of gamma correction)
+				color.subLocal(0.004f).clampLocal(0.0f, Float.MAX_VALUE);
+				Vector3f numerator   = color.mul(6.2f).addLocal(0.5f).mulLocal(color);
+				Vector3f denominator = color.mul(6.2f).addLocal(1.7f).mulLocal(color).addLocal(0.06f);
+				color.x = numerator.x / denominator.x;
+				color.y = numerator.y / denominator.y;
+				color.z = numerator.z / denominator.z;
+				
+				int inversedY = frame.getHeightPx() - y - 1;
+				Color fxColor = new Color(color.x, color.y, color.z, 1.0);
+				pixelWriter.setColor(x, inversedY, fxColor);
+			}
+		}
+	}
+	
+	private void clearFrame()
+	{
+		GraphicsContext g = canvas.getGraphicsContext2D();
+		g.setFill(Color.DARKBLUE);
+		g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+	}
     
-    public void setEditorApp(EditorApp editorApp)
-    {
-    	m_editorApp = editorApp;
-    }
-    
-    private void drawFrame()
-    {
-    	final float canvasWidth       = (float)(canvas.getWidth());
+	private void drawFrame()
+	{
+		final float canvasWidth       = (float)(canvas.getWidth());
 		final float canvasHeight      = (float)(canvas.getHeight());
 		final float canvasAspectRatio = canvasWidth / canvasHeight;
 		final float frameAspectRatio  = (float)(m_displayImage.getWidth()) / (float)(m_displayImage.getHeight());
@@ -191,19 +300,17 @@ public class EditorController
 		}
 		
 		GraphicsContext g = canvas.getGraphicsContext2D();
-		g.setFill(Color.DARKBLUE);
-		g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		g.drawImage(m_displayImage, 
 		            (canvas.getWidth() - imageWidth) * 0.5, (canvas.getHeight() - imageHeight) * 0.5, 
 		            imageWidth, imageHeight);
-    }
+	}
     
-    private void saveDisplayImage()
+    public void saveDisplayImage(String imageName)
     {
     	BufferedImage image = SwingFXUtils.fromFXImage(m_displayImage, null);
     	try 
 		{
-		    File outputfile = new File("./result.png");
+		    File outputfile = new File("./" + imageName + ".png");
 		    ImageIO.write(image, "png", outputfile);
 		    
 		    EditorApp.printToConsole("image saved");
@@ -239,7 +346,17 @@ public class EditorController
     
     public void setProject(ProjectProxy project)
     {
+    	if(m_project != null)
+    	{
+    		m_project.removeListener(m_editorFrameReadyListener);
+    	}
+    	
     	m_project = project;
+    	project.addListener(ProjectEventType.STATIC_FRAME_READY, m_editorFrameReadyListener);
+    	
+    	clearFrame();
+    	loadFrameBuffer();
+    	drawFrame();
     	
     	// TODO
     }

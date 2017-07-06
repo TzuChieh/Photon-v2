@@ -56,7 +56,6 @@ public class AppMainController
 	
 	private EditorApp m_editorApp;
     private int       m_projectId;
-	private Map<String, Parent>   m_editorViews;
 	private AppMainGraphicalState m_graphicalState;
 	private Parent                m_managerView;
 	private Parent                m_editorView;
@@ -81,38 +80,47 @@ public class AppMainController
     	
     	loadManagerView();
     	loadEditorView();
+    	
+    	setWorkbenchAsEditorView();
     }
 
-    @FXML
-    void newProjectBtnClicked(MouseEvent event)
-    {
-    	createNewProject("project " + m_projectId++);
-    }
-    
-    @FXML
-    void saveImageBtnClicked(MouseEvent event)
-    {
-    	saveDisplayImage();
-    }
-    
-    @FXML
-    void managerBtnClicked(MouseEvent event)
-    {
-    	setWorkbenchAsManagerView();
-    }
+	@FXML
+	void newProjectBtnClicked(MouseEvent event)
+	{
+		final String newProjectName = "project " + m_projectId++;
+		createNewProject(newProjectName);
+	}
+	
+	@FXML
+	void saveImageBtnClicked(MouseEvent event)
+	{
+		String imageName = "result - " + m_graphicalState.getActiveProjectName();
+		m_editorController.saveDisplayImage(imageName);
+	}
+	
+	@FXML
+	void renderBtnClicked(MouseEvent event)
+	{
+		m_editorController.startRenderingStaticScene();
+	}
+	
+	@FXML
+	void managerBtnClicked(MouseEvent event)
+	{
+		setWorkbenchAsManagerView();
+	}
     
     @FXML
     void editorBtnClicked(MouseEvent event)
     {
+    	String activeProjectName = m_graphicalState.getActiveProjectName();
+    	m_editorController.setProject(m_editorApp.getProject(activeProjectName));
+    	
     	setWorkbenchAsEditorView();
-//    	System.out.println("ccc");
     }
     
     public AppMainController()
     {
-    	m_editorViews = new HashMap<>();
-    	
-    	
     	m_editorApp = null;
     	m_projectId = 0;
     }
@@ -120,7 +128,8 @@ public class AppMainController
     public void createNewProject(String projectName)
     {
     	ProjectProxy project = m_editorApp.createProject(projectName);
-    	
+    	m_managerController.registerProject(projectName);
+    	m_editorController.setProject(project);
 //    	try
 //		{
 //			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FXML_MANAGER_NAME));
@@ -143,29 +152,15 @@ public class AppMainController
     	m_editorApp = editorApp;
     }
     
-    private void saveDisplayImage()
-    {
-//    	BufferedImage image = SwingFXUtils.fromFXImage(m_displayImage, null);
-//    	try 
-//		{
-//		    File outputfile = new File("./result.png");
-//		    ImageIO.write(image, "png", outputfile);
-//		    
-//		    EditorApp.printToConsole("image saved");
-//		} 
-//		catch(IOException e)
-//		{
-//			e.printStackTrace();
-//			
-//			EditorApp.printToConsole("image saving failed");
-//		}
-    }
-    
     public void setWorkbenchAsEditorView()
     {
-    	Parent editorView = m_editorViews.get(m_graphicalState.getActiveProjectName());
     	workbenchPane.getChildren().clear();
-    	workbenchPane.getChildren().add(editorView);
+    	workbenchPane.getChildren().add(m_editorView);
+    	
+    	AnchorPane.setTopAnchor(m_editorView, 0.0);
+    	AnchorPane.setBottomAnchor(m_editorView, 0.0);
+    	AnchorPane.setLeftAnchor(m_editorView, 0.0);
+    	AnchorPane.setRightAnchor(m_editorView, 0.0);
     	
     	m_graphicalState.setActiveViewName("project editor");
     }
@@ -174,6 +169,11 @@ public class AppMainController
     {
     	workbenchPane.getChildren().clear();
     	workbenchPane.getChildren().add(m_managerView);
+    	
+    	AnchorPane.setTopAnchor(m_managerView, 0.0);
+    	AnchorPane.setBottomAnchor(m_managerView, 0.0);
+    	AnchorPane.setLeftAnchor(m_managerView, 0.0);
+    	AnchorPane.setRightAnchor(m_managerView, 0.0);
     	
     	m_graphicalState.setActiveViewName("project manager");
     }

@@ -40,7 +40,7 @@
                 <Button mnemonicParsing="false" onMouseClicked="#newProjectBtnClicked" text="New Project" />
                   <Button mnemonicParsing="false" onMouseClicked="#managerBtnClicked" text="Manager" />
                   <Button mnemonicParsing="false" onMouseClicked="#editorBtnClicked" text="Editor" />
-                  <Button mnemonicParsing="false" text="Render" />
+                  <Button mnemonicParsing="false" onMouseClicked="#renderBtnClicked" text="Render" />
                   <Button mnemonicParsing="false" onMouseClicked="#saveImageBtnClicked" text="Save Image" />
               </items>
             </ToolBar>
@@ -48,10 +48,10 @@
       </VBox>
    </top>
    <center>
-      <AnchorPane fx:id="workbenchPane" prefHeight="200.0" BorderPane.alignment="CENTER" />
+      <AnchorPane fx:id="workbenchPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER" />
    </center>
    <bottom>
-      <Pane fx:id="footerPane" BorderPane.alignment="CENTER">
+      <Pane fx:id="footerPane" BorderPane.alignment="BOTTOM_CENTER">
          <children>
             <Label fx:id="footerMsgLbl" text="Label" textFill="#32c832">
                <font>
