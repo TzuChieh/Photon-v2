@@ -25,8 +25,8 @@ public final class Project extends ManageableResource
 		super();
 		
 		m_projectName     = projectName;
-		m_renderSetting   = new RenderSetting();
 		m_editorApp       = editorApp;
+		m_renderSetting   = new RenderSetting(editorApp.getGeneralOption());
 		m_proxy           = null;
 		m_eventDispatcher = new ProjectEventDispatcher();
 		
@@ -77,8 +77,9 @@ public final class Project extends ManageableResource
 	{
 		m_engine = new PhEngine(10);
 		m_frame  = new PhFrame(PhFrame.Type.HDR);
+		m_proxy  = new ProjectProxy(this);
 		
-		m_proxy = new ProjectProxy(this);
+		m_renderSetting.setToDefaults();
 	}
 
 	@Override

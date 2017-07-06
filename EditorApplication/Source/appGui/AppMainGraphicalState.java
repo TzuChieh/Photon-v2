@@ -2,12 +2,12 @@ package appGui;
 
 public final class AppMainGraphicalState
 {
-	private AppMainController m_appMainController;
+	private AppMainCtrl m_appMainController;
 	
 	private String m_activeProjectName;
 	private String m_activeViewName;
 	
-	public AppMainGraphicalState(AppMainController appMainController)
+	public AppMainGraphicalState(AppMainCtrl appMainController)
 	{
 		m_appMainController = appMainController;
 		

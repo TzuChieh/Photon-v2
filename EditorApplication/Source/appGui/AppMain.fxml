@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="appGui.AppMainController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="appGui.AppMainCtrl">
    <top>
       <VBox BorderPane.alignment="CENTER">
          <children>
@@ -28,6 +28,11 @@
                     <MenuItem mnemonicParsing="false" text="Delete" />
                   </items>
                 </Menu>
+                  <Menu mnemonicParsing="false" text="Configuration">
+                    <items>
+                      <MenuItem mnemonicParsing="false" onAction="#generalOptionsClicked" text="General Options" />
+                    </items>
+                  </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                   <items>
                     <MenuItem mnemonicParsing="false" text="About" />
@@ -40,7 +45,7 @@
                 <Button mnemonicParsing="false" onMouseClicked="#newProjectBtnClicked" text="New Project" />
                   <Button mnemonicParsing="false" onMouseClicked="#managerBtnClicked" text="Manager" />
                   <Button mnemonicParsing="false" onMouseClicked="#editorBtnClicked" text="Editor" />
-                  <Button mnemonicParsing="false" onMouseClicked="#renderBtnClicked" text="Render" />
+                  <Button fx:id="renderBtn" mnemonicParsing="false" onMouseClicked="#renderBtnClicked" text="Render" />
                   <Button mnemonicParsing="false" onMouseClicked="#saveImageBtnClicked" text="Save Image" />
               </items>
             </ToolBar>

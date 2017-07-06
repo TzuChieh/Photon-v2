@@ -1,28 +1,28 @@
 package appGui;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-
 import appModel.EditorApp;
 import appModel.console.Console;
 import appModel.console.MessageListener;
 import appModel.event.ProjectEvent;
 import appModel.event.ProjectEventListener;
 import appModel.event.ProjectEventType;
+import appModel.event.SettingListener;
 import appModel.project.ProjectProxy;
 import appModel.project.RenderSetting;
 import appModel.project.TaskType;
 import core.HdrFrame;
 import core.Vector3f;
+import photonCore.FrameData;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
@@ -32,18 +32,18 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
-import photonCore.FrameData;
 
-public class EditorController
+public class EditorCtrl
 {
+	// TODO: make project able to pickup directly typed text
+	
 	private ProjectProxy m_project;
-    private EditorApp m_editorApp;
-    private int       m_projectId;
     
     private WritableImage m_displayImage;
     
@@ -78,35 +78,21 @@ public class EditorController
 		});
     	updateMessageTextArea();
     	
-    	m_editorFrameReadyListener = new ProjectEventListener()
+    	m_editorFrameReadyListener = (event) -> 
     	{
-    		@Override
-    		public void onEventOccurred(ProjectEvent event)
-    		{
-    			clearFrame();
-    			loadFrameBuffer();
-    			drawFrame();
-    		}
+			clearFrame();
+			loadFrameBuffer();
+			drawFrame();
     	};
-    	
-//    	sceneFileTextField.textProperty().addListener((observable, oldValue, newValue) -> 
-//		{
-//			if(m_project != null)
-//			{
-//				m_project.getRenderSetting().set(RenderSetting.SCENE_FILE_NAME, newValue);
-//			}
-//		});
     }
     
     public void startRenderingStaticScene()
     {
-		String sceneFileName = sceneFileTextField.getText();
+		String sceneFileName = m_project.getRenderSetting().get(RenderSetting.SCENE_FILE_NAME);
 		if(sceneFileName == null)
 		{
 			return;
 		}
-		
-		m_project.getRenderSetting().set(RenderSetting.SCENE_FILE_NAME, sceneFileName);
 		
 		final Task<String> loadSceneTask   = m_project.createTask(TaskType.LOAD_SCENE);
 		final Task<String> renderTask      = m_project.createTask(TaskType.RENDER);
@@ -176,7 +162,7 @@ public class EditorController
 			try
 			{
 				String filename = file.getCanonicalPath();
-				sceneFileTextField.setText(filename);
+				m_project.getRenderSetting().set(RenderSetting.SCENE_FILE_NAME, filename);
 			}
 			catch(IOException e)
 			{
@@ -184,49 +170,6 @@ public class EditorController
 			}
 		}
     }
-    
-    public EditorController()
-    {
-    	m_editorApp = null;
-    	m_projectId = 0;
-    }
-    
-    // TODO
-    public void createNewProject(String projectName)
-    {
-    	ProjectProxy project = m_editorApp.createProject(projectName);
-    	project.addListener(ProjectEventType.STATIC_FRAME_READY, new ProjectEventListener()
-		{
-			@Override
-			public void onEventOccurred(ProjectEvent event)
-			{
-				clearFrame();
-				loadFrameBuffer();
-				drawFrame();
-			}
-		});
-    	
-//    	try
-//		{
-//			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FXML_VIEW_NAME));
-//			
-//			Parent                    projectOverviewView       = fxmlLoader.load();
-//			ManagerController projectOverviewController = fxmlLoader.getController();
-//			
-//			projectOverviewController.setProject(project);
-//			projectOverviewVbox.getChildren().add(projectOverviewView);
-//		}
-//		catch(IOException e)
-//		{
-//			e.printStackTrace();
-//			m_editorApp.deleteProject(projectName);
-//		}
-	}
-	    
-	public void setEditorApp(EditorApp editorApp)
-	{
-		m_editorApp = editorApp;
-	}
 	
 	private void loadFrameBuffer()
 	{
@@ -342,22 +285,28 @@ public class EditorController
 //    	messageTextArea.setScrollTop(Double.MAX_VALUE);
 //    	messageTextArea.setText(messages.toString());
 //    	messageTextArea.setScrollTop(Double.MAX_VALUE);
-    }
-    
-    public void setProject(ProjectProxy project)
-    {
-    	if(m_project != null)
-    	{
-    		m_project.removeListener(m_editorFrameReadyListener);
-    	}
-    	
-    	m_project = project;
-    	project.addListener(ProjectEventType.STATIC_FRAME_READY, m_editorFrameReadyListener);
-    	
-    	clearFrame();
-    	loadFrameBuffer();
-    	drawFrame();
-    	
-    	// TODO
-    }
+	}
+	
+	public void setProject(ProjectProxy project)
+	{
+		if(m_project != null)
+		{
+			m_project.removeListener(m_editorFrameReadyListener);
+		}
+		
+		m_project = project;
+		
+		project.addListener(ProjectEventType.STATIC_FRAME_READY, m_editorFrameReadyListener);
+		project.getRenderSetting().addSettingListener((event) -> 
+		{
+			String sceneFilename = project.getRenderSetting().get(RenderSetting.SCENE_FILE_NAME);
+			sceneFileTextField.setText(sceneFilename);
+		});
+	    	
+		clearFrame();
+		loadFrameBuffer();
+		drawFrame();
+		
+		sceneFileTextField.setText(project.getRenderSetting().get(RenderSetting.SCENE_FILE_NAME));
+	}
 }

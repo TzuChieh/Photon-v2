@@ -13,12 +13,14 @@ public final class EditorApp extends ManageableResource
 	private static final Console CONSOLE = new Console(100);
 	
 	private Map<String, Project> m_projects;
+	private GeneralOption        m_generalOption;
 	
 	public EditorApp()
 	{
 		super();
 		
-		m_projects = new HashMap<>();
+		m_projects      = new HashMap<>();
+		m_generalOption = new GeneralOption();
 	}
 	
 	@Override
@@ -28,6 +30,8 @@ public final class EditorApp extends ManageableResource
 			System.out.println("Photon initialized");
 		else
 			System.err.println("Photon initializing failed");
+		
+		m_generalOption.setToDefaults();
 	}
 	
 	@Override
@@ -73,6 +77,8 @@ public final class EditorApp extends ManageableResource
 			m_projects.remove(projectName, project);
 		}
 	}
+	
+	public GeneralOption getGeneralOption() { return m_generalOption; }
 	
 	public static Console getConsole() { return CONSOLE; }
 	

@@ -10,7 +10,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
-public class ManagerController
+public class ManagerCtrl
 {
 	private AppMainGraphicalState  m_appMainGraphicalState;
 	private ObservableList<String> m_projectNames;

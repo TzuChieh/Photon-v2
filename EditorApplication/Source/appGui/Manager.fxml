@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.BorderPane?>
 
 
-<BorderPane fx:id="mainPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="appGui.ManagerController">
+<BorderPane fx:id="mainPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="appGui.ManagerCtrl">
    <center>
       <ListView fx:id="projectListView" BorderPane.alignment="CENTER" />
    </center>
