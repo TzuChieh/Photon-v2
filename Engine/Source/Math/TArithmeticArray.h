@@ -39,3 +39,5 @@ protected:
 };
 
 }// end namespace ph
+
+#include "Math/TArithmeticArray.ipp"

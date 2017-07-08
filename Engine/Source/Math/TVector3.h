@@ -125,3 +125,5 @@ public:
 };
 
 }// end namespace ph
+
+#include "Math/TVector3.ipp"

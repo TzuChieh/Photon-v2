@@ -25,3 +25,5 @@ private:
 };
 
 }// end namespace ph
+
+#include "Math/TIndexedVector3.ipp"

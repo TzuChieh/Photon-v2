@@ -180,15 +180,6 @@
     <ClCompile Include="Source\Actor\PhysicalActor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Math\TVector3.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Math\TQuaternion.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Math\TMatrix4.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Math\Math.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -220,9 +211,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\World\Intersector\BruteForceIntersector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Math\TIndexedVector3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\World\Intersector\Bvh\BvhBuilder.cpp">
@@ -274,9 +262,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\SurfaceBehavior\BsdfPdfQuery.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Math\TArithmeticArray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\CookedActor.cpp">
@@ -340,12 +325,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Intersectable\PTriangle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Math\TOrientation3.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Math\TPoint3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -572,7 +551,6 @@
     <ClInclude Include="Source\Math\TVector3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Math\TVector3.tpp" />
     <ClInclude Include="Source\Math\math_fwd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -618,8 +596,6 @@
     <ClInclude Include="Source\Math\TIndexedVector3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Math\TIndexedVector3.tpp" />
-    <ClInclude Include="Source\Math\TQuaternion.tpp" />
     <ClInclude Include="Source\World\Intersector\Bvh\ClassicBvhIntersector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -692,7 +668,6 @@
     <ClInclude Include="Source\Math\TArithmeticArray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Math\TArithmeticArray.tpp" />
     <ClInclude Include="Source\Core\CookedActor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -786,8 +761,15 @@
     <ClInclude Include="Source\Math\TOrientation3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Math\TMatrix4.tpp" />
-    <ClInclude Include="Source\Math\TPoint3.tpp" />
-    <ClInclude Include="Source\Math\TOrientation3.tpp" />
+    <ClInclude Include="Source\Math\math_common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\TVector3.ipp" />
+    <ClInclude Include="Source\Math\TQuaternion.ipp" />
+    <ClInclude Include="Source\Math\TPoint3.ipp" />
+    <ClInclude Include="Source\Math\TOrientation3.ipp" />
+    <ClInclude Include="Source\Math\TMatrix4.ipp" />
+    <ClInclude Include="Source\Math\TIndexedVector3.ipp" />
+    <ClInclude Include="Source\Math\TArithmeticArray.ipp" />
   </ItemGroup>
 </Project>

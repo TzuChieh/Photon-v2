@@ -8,7 +8,7 @@
 #include "Core/Camera/Film.h"
 #include "PostProcess/Frame.h"
 #include "PostProcess/HdrFrame.h"
-#include "Math/TArithmeticArray.tpp"
+#include "Math/TArithmeticArray.h"
 #include "Api/init_and_exit.h"
 
 #include <memory>

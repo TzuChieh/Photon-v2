@@ -3,8 +3,8 @@
 #include "Core/Ray.h"
 #include "Math/TVector3.h"
 #include "Math/TPoint3.h"
-#include "Math/TVector3.tpp"
-#include "Math/TPoint3.tpp"
+#include "Math/TVector3.h"
+#include "Math/TPoint3.h"
 
 namespace ph
 {

@@ -56,3 +56,5 @@ public:
 };
 
 }// end namespace ph
+
+#include "Math/TQuaternion.ipp"

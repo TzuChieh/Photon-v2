@@ -217,14 +217,9 @@
     <ClCompile Include="Source\Actor\Texture\Texture.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\random_sample.cpp" />
     <ClCompile Include="Source\FileIO\ValueParser.cpp" />
-    <ClCompile Include="Source\Math\TArithmeticArray.cpp" />
-    <ClCompile Include="Source\Math\TOrientation3.cpp" />
-    <ClCompile Include="Source\Math\TPoint3.cpp" />
     <ClCompile Include="Source\Math\Transform\Transform.cpp" />
     <ClCompile Include="Source\PostProcess\HdrFrame.cpp" />
     <ClCompile Include="Source\Math\Math.cpp" />
-    <ClCompile Include="Source\Math\TIndexedVector3.cpp" />
-    <ClCompile Include="Source\Math\TMatrix4.cpp" />
     <ClCompile Include="Source\Math\Transform\StaticTransform.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GRectangle.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GTriangleMesh.cpp" />
@@ -239,7 +234,6 @@
     <ClCompile Include="Source\Actor\TextureMapper\DefaultMapper.cpp" />
     <ClCompile Include="Source\Actor\TextureMapper\SphericalMapper.cpp" />
     <ClCompile Include="Source\Actor\TextureMapper\TextureMapper.cpp" />
-    <ClCompile Include="Source\Math\TVector3.cpp" />
     <ClCompile Include="Source\PostProcess\HdrOperator\HdrOperator.cpp" />
     <ClCompile Include="Source\PostProcess\ToneMapper\ToneMapper.cpp" />
     <ClCompile Include="Source\World\Intersector\BruteForceIntersector.cpp" />
@@ -259,7 +253,6 @@
     <ClCompile Include="Source\Core\Camera\Film.cpp" />
     <ClCompile Include="Source\PostProcess\Frame.cpp" />
     <ClCompile Include="Source\Api\ApiDatabase.cpp" />
-    <ClCompile Include="Source\Math\TQuaternion.cpp" />
     <ClCompile Include="Source\Math\Random.cpp" />
     <ClCompile Include="Source\Core\Ray.cpp" />
     <ClCompile Include="Source\Actor\Geometry\Geometry.cpp" />
@@ -345,6 +338,7 @@
     <ClInclude Include="Source\Core\Sample.h" />
     <ClInclude Include="Source\Core\SampleGenerator\SampleGenerator.h" />
     <ClInclude Include="Source\Core\SampleGenerator\PixelJitterSampleGenerator.h" />
+    <ClInclude Include="Source\Math\math_common.h" />
     <ClInclude Include="Source\Math\TArithmeticArray.h" />
     <ClInclude Include="Source\Math\TOrientation3.h" />
     <ClInclude Include="Source\Math\TPoint3.h" />
@@ -420,27 +414,27 @@
     <ClInclude Include="Source\Utility\TStableIndexDenseArray.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Math\TVector3.tpp">
+    <ClInclude Include="Source\Math\TVector3.ipp">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Math\TIndexedVector3.tpp">
+    <ClInclude Include="Source\Math\TIndexedVector3.ipp">
       <FileType>Document</FileType>
     </ClInclude>
-    <ClInclude Include="Source\Math\TArithmeticArray.tpp">
+    <ClInclude Include="Source\Math\TArithmeticArray.ipp">
       <FileType>Document</FileType>
     </ClInclude>
-    <ClInclude Include="Source\Math\TMatrix4.tpp">
+    <ClInclude Include="Source\Math\TMatrix4.ipp">
       <FileType>Document</FileType>
     </ClInclude>
-    <ClInclude Include="Source\Math\TQuaternion.tpp">
+    <ClInclude Include="Source\Math\TQuaternion.ipp">
       <FileType>Document</FileType>
     </ClInclude>
-    <ClInclude Include="Source\Math\TOrientation3.tpp">
+    <ClInclude Include="Source\Math\TOrientation3.ipp">
       <FileType>Document</FileType>
     </ClInclude>
-    <ClInclude Include="Source\Math\TPoint3.tpp">
+    <ClInclude Include="Source\Math\TPoint3.ipp">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>

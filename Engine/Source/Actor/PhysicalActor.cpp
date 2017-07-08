@@ -1,7 +1,7 @@
 #include "Actor/PhysicalActor.h"
 #include "FileIO/InputPacket.h"
 #include "Math/Math.h"
-#include "Math/TVector3.tpp"
+#include "Math/TVector3.h"
 #include "FileIO/InputPrototype.h"
 
 namespace ph

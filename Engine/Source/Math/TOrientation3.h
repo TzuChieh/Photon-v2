@@ -15,3 +15,5 @@ public:
 };
 
 }// end namespace ph
+
+#include "Math/TOrientation3.ipp"

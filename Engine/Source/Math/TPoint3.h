@@ -43,3 +43,5 @@ public:
 };
 
 }// end namespace ph
+
+#include "Math/TPoint3.ipp"

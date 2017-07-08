@@ -50,3 +50,5 @@ public:
 };
 
 }// end namespace ph
+
+#include "Math/TMatrix4.ipp"

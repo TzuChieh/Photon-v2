@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Math/TMatrix4.tpp"
-#include "Math/TVector3.tpp"
+#include "Math/TMatrix4.h"
+#include "Math/TVector3.h"
 #include "Math/Transform/Transform.h"
 #include "Math/Transform/TDecomposedTransform.h"
 

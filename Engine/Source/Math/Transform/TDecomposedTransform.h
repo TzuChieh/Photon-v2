@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Math/TVector3.tpp"
-#include "Math/TQuaternion.tpp"
-#include "Math/TMatrix4.tpp"
+#include "Math/TVector3.h"
+#include "Math/TQuaternion.h"
+#include "Math/TMatrix4.h"
 #include "Math/Math.h"
 
 namespace ph
