@@ -1,7 +1,7 @@
 #include "Actor/Geometry/GRectangle.h"
-#include "Core/Primitive/PTriangle.h"
+#include "Core/Intersectable/PTriangle.h"
 #include "Math/TVector3.h"
-#include "Core/Primitive/PrimitiveMetadata.h"
+#include "Core/Intersectable/PrimitiveMetadata.h"
 #include "FileIO/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 

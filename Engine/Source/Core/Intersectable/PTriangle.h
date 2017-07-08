@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Math/TVector3.h"
-#include "Core/Primitive/Primitive.h"
+#include "Core/Intersectable/Primitive.h"
 
 namespace ph
 {
@@ -16,12 +16,13 @@ public:
 	PTriangle(const PrimitiveMetadata* const metadata, const Vector3R& vA, const Vector3R& vB, const Vector3R& vC);
 	virtual ~PTriangle() override;
 
-	virtual bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const override;
+	virtual bool isIntersecting(const Ray& ray, 
+	                            Intersection* out_intersection) const override;
 	virtual bool isIntersecting(const Ray& ray) const override;
-	virtual bool isIntersectingVolume(const AABB& aabb) const override;
-	virtual void calcAABB(AABB* const out_aabb) const override;
+	virtual bool isIntersectingVolumeConservative(const AABB& aabb) const override;
+	virtual void calcAABB(AABB* out_aabb) const override;
 	virtual real calcPositionSamplePdfA(const Vector3R& position) const override;
-	virtual void genPositionSample(PositionSample* const out_sample) const override;
+	virtual void genPositionSample(PositionSample* out_sample) const override;
 
 	virtual real calcExtendedArea() const override;
 

@@ -33,15 +33,35 @@ public:
 	StaticTransform(const Matrix4R& transform, const Matrix4R& inverseTransform);
 	virtual ~StaticTransform() override;
 
-	virtual void transformVector(const Vector3R& vector, Vector3R* const out_transformedVector) const override;
+	virtual void transformVector(const Vector3R& vector, Vector3R* out_transformedVector) const override;
 	//virtual void transformNormal(const Vector3R& normal, Vector3R* const out_transformedNormal) const override;
-	virtual void transformPoint(const Vector3R& point, Vector3R* const out_transformedPoint) const override;
+	virtual void transformPoint(const Vector3R& point, Vector3R* out_transformedPoint) const override;
 
 	// Notice that transforming a ray will not change its parametric length (t) nor renormalizing its direction
 	// vector even if the transform contains scale factor; because when we use "rayDirection * t" to obtain the 
 	// ray's endpoint coordinate, this configuration will still yield a correctly transformed result while saving
 	// an expensive sqrt() call.
-	virtual void transformRay(const Ray& ray, Ray* const out_transformedRay) const override;
+	virtual void transformRay(const Ray& ray, Ray* out_transformedRay) const override;
+
+private:
+	virtual void transformVector(const Vector3R& vector,
+		const Time& time,
+		Vector3R* out_vector) const override;
+
+	virtual void transformOrientation(const Vector3R& orientation,
+		const Time& time,
+		Vector3R* out_orientation) const override;
+
+	virtual void transformPoint(const Vector3R& point,
+		const Time& time,
+		Vector3R* out_point) const override;
+
+	virtual void transformLineSegment(const Vector3R& lineStartPos,
+		const Vector3R& lineDir,
+		real lineMinT, real lineMaxT,
+		const Time& time,
+		Vector3R* out_lineStartPos,
+		Vector3R* out_lineDir) const override;
 
 private:
 	Matrix4R m_transformMatrix;

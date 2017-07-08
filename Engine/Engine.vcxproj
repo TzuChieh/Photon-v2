@@ -190,9 +190,9 @@
     <ClCompile Include="Source\Core\SampleGenerator\PixelJitterSampleGenerator.cpp" />
     <ClCompile Include="Source\Core\Emitter\Emitter.cpp" />
     <ClCompile Include="Source\Core\Emitter\PrimitiveAreaEmitter.cpp" />
-    <ClCompile Include="Source\Core\Primitive\Primitive.cpp" />
-    <ClCompile Include="Source\Core\Primitive\PrimitiveMetadata.cpp" />
-    <ClCompile Include="Source\Core\Primitive\PTriangle.cpp" />
+    <ClCompile Include="Source\Core\Intersectable\Primitive.cpp" />
+    <ClCompile Include="Source\Core\Intersectable\PrimitiveMetadata.cpp" />
+    <ClCompile Include="Source\Core\Intersectable\PTriangle.cpp" />
     <ClCompile Include="Source\Actor\ALight.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BSDF.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BsdfPdfQuery.cpp" />
@@ -218,6 +218,8 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\random_sample.cpp" />
     <ClCompile Include="Source\FileIO\ValueParser.cpp" />
     <ClCompile Include="Source\Math\TArithmeticArray.cpp" />
+    <ClCompile Include="Source\Math\TOrientation3.cpp" />
+    <ClCompile Include="Source\Math\TPoint3.cpp" />
     <ClCompile Include="Source\Math\Transform\Transform.cpp" />
     <ClCompile Include="Source\PostProcess\HdrFrame.cpp" />
     <ClCompile Include="Source\Math\Math.cpp" />
@@ -302,9 +304,12 @@
     <ClInclude Include="Source\Core\Integrator\Utility\SenseEvent.h" />
     <ClInclude Include="Source\Core\Emitter\Emitter.h" />
     <ClInclude Include="Source\Core\Emitter\PrimitiveAreaEmitter.h" />
-    <ClInclude Include="Source\Core\Primitive\Primitive.h" />
-    <ClInclude Include="Source\Core\Primitive\PrimitiveMetadata.h" />
-    <ClInclude Include="Source\Core\Primitive\PTriangle.h" />
+    <ClInclude Include="Source\Core\Intersectable\CompositeIntersectable.h" />
+    <ClInclude Include="Source\Core\Intersectable\Intersectable.h" />
+    <ClInclude Include="Source\Core\Intersectable\TransformedIntersectable.h" />
+    <ClInclude Include="Source\Core\Intersectable\Primitive.h" />
+    <ClInclude Include="Source\Core\Intersectable\PrimitiveMetadata.h" />
+    <ClInclude Include="Source\Core\Intersectable\PTriangle.h" />
     <ClInclude Include="Source\Actor\ALight.h" />
     <ClInclude Include="Source\Core\Sample\DirectLightSample.h" />
     <ClInclude Include="Source\Core\Sample\PositionSample.h" />
@@ -313,6 +318,7 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\BsdfPdfQuery.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\BsdfSample.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\ESurfacePhenomenon.h" />
+    <ClInclude Include="Source\Core\Time.h" />
     <ClInclude Include="Source\FileIO\DataTreatment.h" />
     <ClInclude Include="Source\FileIO\InputPacket.h" />
     <ClInclude Include="Source\FileIO\Keyword.h" />
@@ -340,6 +346,8 @@
     <ClInclude Include="Source\Core\SampleGenerator\SampleGenerator.h" />
     <ClInclude Include="Source\Core\SampleGenerator\PixelJitterSampleGenerator.h" />
     <ClInclude Include="Source\Math\TArithmeticArray.h" />
+    <ClInclude Include="Source\Math\TOrientation3.h" />
+    <ClInclude Include="Source\Math\TPoint3.h" />
     <ClInclude Include="Source\Math\Transform\TDecomposedTransform.h" />
     <ClInclude Include="Source\Math\Transform\Transform.h" />
     <ClInclude Include="Source\PostProcess\HdrFrame.h" />
@@ -423,8 +431,16 @@
     <ClInclude Include="Source\Math\TArithmeticArray.tpp">
       <FileType>Document</FileType>
     </ClInclude>
-    <None Include="Source\Math\TMatrix4.tpp" />
+    <ClInclude Include="Source\Math\TMatrix4.tpp">
+      <FileType>Document</FileType>
+    </ClInclude>
     <ClInclude Include="Source\Math\TQuaternion.tpp">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="Source\Math\TOrientation3.tpp">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="Source\Math\TPoint3.tpp">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>

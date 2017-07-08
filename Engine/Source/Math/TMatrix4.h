@@ -10,7 +10,7 @@ namespace ph
 {
 	
 template<typename T>
-class TMatrix4 final
+class TMatrix4
 {
 public:
 	static TMatrix4 IDENTITY();
@@ -21,6 +21,7 @@ public:
 public:
 	inline TMatrix4();
 	inline TMatrix4(const TMatrix4& other);
+	virtual inline ~TMatrix4();
 
 	template<typename U>
 	explicit inline TMatrix4(const TMatrix4<U>& other);

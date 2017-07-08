@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Primitive/Primitive.h"
-#include "Core/Primitive/PrimitiveMetadata.h"
+#include "Core/Intersectable/Primitive.h"
+#include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Emitter/Emitter.h"
 
 #include <vector>

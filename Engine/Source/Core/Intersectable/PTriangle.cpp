@@ -1,5 +1,5 @@
-#include "Core/Primitive/PTriangle.h"
-#include "Core/Primitive/PrimitiveMetadata.h"
+#include "Core/Intersectable/PTriangle.h"
+#include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Transform/StaticTransform.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
@@ -287,10 +287,11 @@ void PTriangle::calcAABB(AABB* const out_aabb) const
 	out_aabb->setMaxVertex(Vector3R(maxX + TRIANGLE_EPSILON, maxY + TRIANGLE_EPSILON, maxZ + TRIANGLE_EPSILON));
 }
 
-bool PTriangle::isIntersectingVolume(const AABB& aabb) const
+bool PTriangle::isIntersectingVolumeConservative(const AABB& aabb) const
 {
-	// Reference: Tomas Akenine-Moeller's "Fast 3D Triangle-Box Overlap Testing", which
-	// is based on SAT but faster.
+	// Reference: Tomas Akenine-Moeller's 
+	// "Fast 3D Triangle-Box Overlap Testing", 
+	// which is based on SAT but faster.
 
 	// TODO: transform aabb to local space may be faster
 

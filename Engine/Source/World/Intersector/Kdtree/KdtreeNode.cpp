@@ -1,7 +1,7 @@
 #include "World/Intersector/Kdtree/KdtreeNode.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
-#include "Core/Primitive/Primitive.h"
+#include "Core/Intersectable/Primitive.h"
 #include "Math/TVector3.h"
 
 #include <iostream>
@@ -240,7 +240,7 @@ std::unique_ptr<KdtreeNode> KdtreeNode::buildChildNode(const KdtreeAABB& childAA
 
 	for(const Primitive* primitive : parentPrimitives)
 	{
-		if(primitive->isIntersectingVolume(childNodeAABB))
+		if(primitive->isIntersectingVolumeConservative(childNodeAABB))
 		{
 			primitives.push_back(primitive);
 		}	
@@ -354,14 +354,14 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, Intersection
 		real closestHitSquaredDist = std::numeric_limits<real>::infinity();
 
 		if(closestIntersection.getHitPrimitive() != nullptr)
-			closestHitSquaredDist = closestIntersection.getHitPosition().sub(ray.getOrigin()).squaredLength();
+			closestHitSquaredDist = closestIntersection.getHitPosition().sub(ray.getOrigin()).lengthSquared();
 
 		for(std::size_t primIndex = m_nodeBufferStartIndex; primIndex < m_nodeBufferEndIndex; primIndex++)
 		{
 			if((*m_primitiveBuffer)[primIndex]->isIntersecting(segmentRay, out_intersection))
 			{
 				out_intersection->getHitPosition().sub(ray.getOrigin(), &temp);
-				const real squaredHitDist = temp.squaredLength();
+				const real squaredHitDist = temp.lengthSquared();
 
 				if(squaredHitDist < closestHitSquaredDist)
 				{

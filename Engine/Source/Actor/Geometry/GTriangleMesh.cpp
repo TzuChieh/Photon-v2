@@ -1,6 +1,6 @@
 #include "Actor/Geometry/GTriangleMesh.h"
 #include "Actor/Geometry/GTriangle.h"
-#include "Core/Primitive/PrimitiveMetadata.h"
+#include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/AModel.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "FileIO/InputPacket.h"

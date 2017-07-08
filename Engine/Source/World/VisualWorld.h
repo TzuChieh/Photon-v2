@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Core/Primitive/Primitive.h"
+#include "Core/Intersectable/Primitive.h"
 #include "Core/CookedActorStorage.h"
 #include "Actor/Actor.h"
 #include "World/Scene.h"

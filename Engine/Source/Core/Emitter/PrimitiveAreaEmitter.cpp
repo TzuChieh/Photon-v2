@@ -3,7 +3,7 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Core/Intersection.h"
 #include "Actor/Texture/ConstantTexture.h"
-#include "Core/Primitive/Primitive.h"
+#include "Core/Intersectable/Primitive.h"
 #include "Math/Random.h"
 #include "Core/Sample/PositionSample.h"
 #include "Core/Sample/DirectLightSample.h"
@@ -53,7 +53,7 @@ void PrimitiveAreaEmitter::genDirectSample(const Vector3R& targetPos, Vector3R* 
 	PositionSample positionSample;
 	primitive->genPositionSample(&positionSample);
 
-	const real distSquared = targetPos.sub(positionSample.position).squaredLength();
+	const real distSquared = targetPos.sub(positionSample.position).lengthSquared();
 	const Vector3R emitDir = targetPos.sub(positionSample.position).normalizeLocal();
 	const real pickPDF = (1.0_r / primitive->getReciExtendedArea()) * m_reciExtendedArea;
 	//*out_PDF = pickPDF * positionSample.pdf / (std::abs(emitDir.dot(positionSample.normal)) / distSquared);
@@ -84,7 +84,7 @@ void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
 
 	const Vector3R emitterToTargetPos(sample.targetPos.sub(positionSample.position));
 	const Vector3R emitDir(emitterToTargetPos.normalize());
-	const real distSquared = emitterToTargetPos.squaredLength();
+	const real distSquared = emitterToTargetPos.lengthSquared();
 	
 	sample.emitPos = positionSample.position;
 	sample.pdfW = pickPdfW * positionSample.pdf / std::abs(emitDir.dot(positionSample.normal)) * distSquared;
@@ -95,7 +95,7 @@ real PrimitiveAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const
 {
 	const real pickPdfW = (1.0_r / hitPrim->getReciExtendedArea()) * m_reciExtendedArea;
 	const real samplePdfA = hitPrim->calcPositionSamplePdfA(emitPos);
-	const real distSquared = targetPos.sub(emitPos).squaredLength();
+	const real distSquared = targetPos.sub(emitPos).lengthSquared();
 	const Vector3R emitDir(targetPos.sub(emitPos).normalizeLocal());
 	return pickPdfW * (samplePdfA / std::abs(emitDir.dot(emitN)) * distSquared);
 }

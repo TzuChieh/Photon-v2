@@ -6,8 +6,8 @@
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/BSDF.h"
-#include "Core/Primitive/Primitive.h"
-#include "Core/Primitive/PrimitiveMetadata.h"
+#include "Core/Intersectable/Primitive.h"
+#include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Math.h"
 #include "Math/Random.h"
 #include "Core/Sample/DirectLightSample.h"
@@ -74,7 +74,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 				weight.mulLocal(cameraImportanceWe.div(cameraPdfA));
 				weight.divLocal(emitterPdfA);
 				const real G = eN.absDot(toCameraRay.getDirection()) *
-					camera.getDirection().absDot(toCameraRay.getDirection()) / toCameraVec.squaredLength();
+					camera.getDirection().absDot(toCameraRay.getDirection()) / toCameraVec.lengthSquared();
 				weight.mulLocal(G);
 
 				rationalClamp(weight);
@@ -127,7 +127,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 							weight.mulLocal(1.0_r / (emitterPdfA * emitterPdfW));
 							weight.mulLocal(throughput);
 							const real G = intersection.getHitSmoothNormal().absDot(toCameraRay.getDirection()) *
-								camera.getDirection().absDot(toCameraRay.getDirection()) / toCameraVec.squaredLength();
+								camera.getDirection().absDot(toCameraRay.getDirection()) / toCameraVec.lengthSquared();
 							weight.mulLocal(G);
 
 							rationalClamp(weight);

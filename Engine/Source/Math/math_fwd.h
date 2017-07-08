@@ -9,6 +9,12 @@ template<typename T>
 class TVector3;
 
 template<typename T>
+class TPoint3;
+
+template<typename T>
+class TOrientation3;
+
+template<typename T>
 class TIndexedVector3;
 
 template<typename T>
@@ -20,6 +26,14 @@ class TMatrix4;
 typedef TVector3<real>    Vector3R;
 typedef TVector3<float32> Vector3F;
 typedef TVector3<float64> Vector3D;
+
+typedef TPoint3<real>    Point3R;
+typedef TPoint3<float32> Point3F;
+typedef TPoint3<float64> Point3D;
+
+typedef TOrientation3<real>    Orientation3R;
+typedef TOrientation3<float32> Orientation3F;
+typedef TOrientation3<float64> Orientation3D;
 
 typedef TIndexedVector3<real>    IndexedVector3R;
 typedef TIndexedVector3<float32> IndexedVector3F;

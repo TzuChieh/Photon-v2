@@ -3,14 +3,14 @@
 #include "World/Scene.h"
 #include "Math/TVector3.h"
 #include "Core/Intersection.h"
-#include "Core/Primitive/PrimitiveMetadata.h"
+#include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/BSDF.h"
 #include "Math/Math.h"
 #include "Math/Color.h"
 #include "Math/Random.h"
-#include "Core/Primitive/Primitive.h"
+#include "Core/Intersectable/Primitive.h"
 #include "Core/Emitter/Emitter.h"
 #include "FileIO/InputPacket.h"
 #include "Core/SurfaceBehavior/BsdfSample.h"
@@ -77,7 +77,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 			accuLiWeight.x = accuLiWeight.x > 0.0f && accuLiWeight.x < 10000.0f ? accuLiWeight.x : 0.0f;
 			accuLiWeight.y = accuLiWeight.y > 0.0f && accuLiWeight.y < 10000.0f ? accuLiWeight.y : 0.0f;
 			accuLiWeight.z = accuLiWeight.z > 0.0f && accuLiWeight.z < 10000.0f ? accuLiWeight.z : 0.0f;
-			if(accuLiWeight.squaredLength() == 0.0f)
+			if(accuLiWeight.lengthSquared() == 0.0f)
 			{
 				break;
 			}

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Intersectable/Intersectable.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 
@@ -12,18 +13,19 @@ class AABB;
 class PrimitiveMetadata;
 class PositionSample;
 
-class Primitive
+class Primitive : public Intersectable
 {
 public:
 	Primitive(const PrimitiveMetadata* const metadata);
 	virtual ~Primitive() = 0;
 
-	virtual bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const = 0;
+	virtual bool isIntersecting(const Ray& ray, 
+	                            Intersection* out_intersection) const = 0;
 	virtual bool isIntersecting(const Ray& ray) const = 0;
-	virtual bool isIntersectingVolume(const AABB& aabb) const = 0;
-	virtual void calcAABB(AABB* const out_aabb) const = 0;
+	virtual bool isIntersectingVolumeConservative(const AABB& aabb) const = 0;
+	virtual void calcAABB(AABB* out_aabb) const = 0;
 	virtual real calcPositionSamplePdfA(const Vector3R& position) const = 0;
-	virtual void genPositionSample(PositionSample* const out_sample) const = 0;
+	virtual void genPositionSample(PositionSample* out_sample) const = 0;
 
 	inline const PrimitiveMetadata* getMetadata() const
 	{

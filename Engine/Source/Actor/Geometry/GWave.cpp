@@ -1,7 +1,7 @@
 #include "Actor/Geometry/GWave.h"
-#include "Core/Primitive/PTriangle.h"
+#include "Core/Intersectable/PTriangle.h"
 #include "Math/TVector3.h"
-#include "Core/Primitive/PrimitiveMetadata.h"
+#include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 
 #include <iostream>

@@ -2,7 +2,7 @@
 
 #include "World/Intersector/Intersector.h"
 #include "World/Intersector/Kdtree/KdtreeNode.h"
-#include "Core/Primitive/Primitive.h"
+#include "Core/Intersectable/Primitive.h"
 
 #include <vector>
 

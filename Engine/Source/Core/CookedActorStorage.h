@@ -3,8 +3,8 @@
 #include "Utility/TIteratorProxy.h"
 #include "Utility/TConstIteratorProxy.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Core/Primitive/Primitive.h"
-#include "Core/Primitive/PrimitiveMetadata.h"
+#include "Core/Intersectable/Primitive.h"
+#include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Transform/StaticTransform.h"
 #include "Core/CookedActor.h"
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Primitive/Primitive.h"
+#include "Core/Intersectable/Primitive.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "FileIO/SDL/ISdlResource.h"
 

@@ -20,8 +20,8 @@ public:
 
 public:
 	inline TVector3();
-	inline TVector3(const T x, const T y, const T z);
-	inline explicit TVector3(const T var);
+	inline TVector3(T x, T y, T z);
+	inline explicit TVector3(T value);
 	inline TVector3(const TVector3& other);
 
 	template<typename U>
@@ -30,10 +30,10 @@ public:
 	virtual inline ~TVector3();
 
 	TVector3 rotate(const TQuaternion<T>& rotation) const;
-	void rotate(const TQuaternion<T>& rotation, TVector3* const out_result) const;
+	void rotate(const TQuaternion<T>& rotation, TVector3* out_result) const;
 
 	inline T length() const;
-	inline T squaredLength() const;
+	inline T lengthSquared() const;
 
 	inline T max() const;
 	inline T absMax() const;
@@ -46,75 +46,77 @@ public:
 	inline TVector3& absLocal();
 
 	inline T dot(const TVector3& rhs) const;
-	inline T dot(const T rhs) const;
+	inline T dot(T rhs) const;
 	inline T dot(const T rhsX, const T rhsY, const T rhsZ) const;
 	inline T absDot(const TVector3& rhs) const;
 
 	inline TVector3 cross(const TVector3& rhs) const;
-	inline void cross(const TVector3& rhs, TVector3* const out_result) const;
+	inline void cross(const TVector3& rhs, TVector3* out_result) const;
 
 	// Notice that normalizing a integer typed vector is undefined behavior.
 	inline TVector3 normalize() const;
 	inline TVector3& normalizeLocal();
 
 	inline TVector3 add(const TVector3& rhs) const;
-	inline void add(const TVector3& rhs, TVector3* const out_result) const;
-	inline TVector3 add(const T rhs) const;
+	inline void add(const TVector3& rhs, TVector3* out_result) const;
+	inline TVector3 add(T rhs) const;
 	inline TVector3& addLocal(const TVector3& rhs);
-	inline TVector3& addLocal(const T rhs);
+	inline TVector3& addLocal(T rhs);
 	inline TVector3& addLocal(const T rhsX, const T rhsY, const T rhsZ);
 
 	inline TVector3 sub(const TVector3& rhs) const;
-	inline TVector3 sub(const T rhs) const;
-	inline void sub(const TVector3& var, TVector3* const out_result) const;
+	inline TVector3 sub(T rhs) const;
+	inline void sub(const TVector3& var, TVector3* out_result) const;
 	inline TVector3& subLocal(const TVector3& rhs);
-	inline TVector3& subLocal(const T rhs);
+	inline TVector3& subLocal(T rhs);
 
 	inline TVector3 mul(const TVector3& rhs) const;
-	inline void mul(const TVector3& rhs, TVector3* const out_result) const;
-	inline TVector3 mul(const T rhs) const;
-	inline void mul(const T rhs, TVector3* const out_result) const;
-	inline TVector3& mulLocal(const T rhs);
-	inline TVector3& mulLocal(const T rhsX, const T rhsY, const T rhsZ);
+	inline void mul(const TVector3& rhs, TVector3* out_result) const;
+	inline TVector3 mul(T rhs) const;
+	inline void mul(T rhs, TVector3* out_result) const;
+	inline TVector3& mulLocal(T rhs);
+	inline TVector3& mulLocal(T rhsX, T rhsY, T rhsZ);
 	inline TVector3& mulLocal(const TVector3& rhs);
 	
 	inline TVector3 div(const TVector3& rhs) const;
 	inline TVector3& divLocal(const TVector3& rhs);
-	inline TVector3 div(const T rhs) const;
-	inline TVector3& divLocal(const T rhs);
+	inline TVector3 div(T rhs) const;
+	inline TVector3& divLocal(T rhs);
 	
 	inline TVector3 complement() const;
 	inline TVector3& negateLocal();
 	inline TVector3 reciprocal() const;
-	inline TVector3& maddLocal(const T multiplier, const TVector3& adder);
+	inline TVector3& maddLocal(T multiplier, const TVector3& adder);
 	inline T avg() const;
 	inline TVector3 reflect(const TVector3& normal) const;
 	inline TVector3& reflectLocal(const TVector3& normal);
 
-	// Clamp current vector's components to specific range. If a component is NaN, its value is
-	// clamped to lower bound. Either lower bound or upper bound shall not be NaN, or the method's 
-	// behavior is undefined.
-	inline TVector3 clamp(const T lowerBound, const T upperBound) const;
-	inline TVector3& clampLocal(const T lowerBound, const T upperBound);
+	// TODO: supply clamp methods for NaN-safe and NaN-propagative versions
+
+	// Clamp current vector's components to specific range. If a component 
+	// is NaN, its value is clamped to lower bound. Either lower bound or 
+	// upper bound shall not be NaN, or the method's behavior is undefined.
+	inline TVector3 clamp(T lowerBound, T upperBound) const;
+	inline TVector3& clampLocal(T lowerBound, T upperBound);
 
 	// returned (x, y, z) = (min, mid, max)
-	inline void sort(TVector3* const out_result) const;
+	inline void sort(TVector3* out_result) const;
 
-	inline TVector3& set(const T rhsX, const T rhsY, const T rhsZ);
-	inline TVector3& set(const T rhs);
+	inline TVector3& set(T rhsX, T rhsY, T rhsZ);
+	inline TVector3& set(T rhs);
 	inline TVector3& set(const TVector3& rhs);
 	inline void set(TVector3* const out_value) const;
 
 	inline bool equals(const TVector3& rhs) const;
-	inline bool equals(const TVector3& rhs, const T margin) const;
+	inline bool equals(const TVector3& rhs, T margin) const;
 	inline bool isZero() const;
 	inline bool isNotZero() const;
 	inline bool hasNegativeComponent() const;
 
 	inline std::string toStringFormal() const;
 
-	inline T& operator [] (const int32 axisIndex);
-	inline const T& operator [] (const int32 axisIndex) const;
+	inline T& operator [] (int32 axisIndex);
+	inline const T& operator [] (int32 axisIndex) const;
 
 	inline TVector3& operator = (const TVector3& rhs);
 };

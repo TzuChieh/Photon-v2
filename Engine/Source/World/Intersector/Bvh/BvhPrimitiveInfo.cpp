@@ -1,5 +1,5 @@
 #include "World/Intersector/Bvh/BvhPrimitiveInfo.h"
-#include "Core/Primitive/Primitive.h"
+#include "Core/Intersectable/Primitive.h"
 
 #include <iostream>
 

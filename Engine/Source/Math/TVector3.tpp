@@ -29,8 +29,8 @@ inline TVector3<T>::TVector3(const T x, const T y, const T z) :
 }
 
 template<typename T>
-inline TVector3<T>::TVector3(const T var) : 
-	x(var), y(var), z(var)
+inline TVector3<T>::TVector3(const T value) :
+	x(value), y(value), z(value)
 {
 
 }
@@ -45,7 +45,9 @@ inline TVector3<T>::TVector3(const TVector3& other) :
 template<typename T>
 template<typename U>
 inline TVector3<T>::TVector3(const TVector3<U>& other) : 
-	x(static_cast<T>(other.x)), y(static_cast<T>(other.y)), z(static_cast<T>(other.z))
+	x(static_cast<T>(other.x)), 
+	y(static_cast<T>(other.y)), 
+	z(static_cast<T>(other.z))
 {
 
 }
@@ -63,7 +65,8 @@ TVector3<T> TVector3<T>::rotate(const TQuaternion<T>& rotation) const
 }
 
 template<typename T>
-void TVector3<T>::rotate(const TQuaternion<T>& rotation, TVector3* const out_result) const
+void TVector3<T>::rotate(const TQuaternion<T>& rotation, 
+                         TVector3* const out_result) const
 {
 	const TQuaternion<T>& conjugatedRotation = rotation.conjugate();
 	const TQuaternion<T>& result = rotation.mul(*this).mulLocal(conjugatedRotation);
@@ -76,11 +79,11 @@ void TVector3<T>::rotate(const TQuaternion<T>& rotation, TVector3* const out_res
 template<typename T>
 inline T TVector3<T>::length() const
 {
-	return std::sqrt(squaredLength());
+	return std::sqrt(lengthSquared());
 }
 
 template<typename T>
-inline T TVector3<T>::squaredLength() const
+inline T TVector3<T>::lengthSquared() const
 {
 	return x * x + y * y + z * z;
 }
@@ -100,7 +103,9 @@ inline T TVector3<T>::absMax() const
 template<typename T>
 inline TVector3<T> TVector3<T>::max(const TVector3& rhs) const
 {
-	return TVector3(std::max(x, rhs.x), std::max(y, rhs.y), std::max(z, rhs.z));
+	return TVector3(std::max(x, rhs.x), 
+	                std::max(y, rhs.y), 
+	                std::max(z, rhs.z));
 }
 
 template<typename T>
@@ -116,7 +121,9 @@ inline TVector3<T>& TVector3<T>::maxLocal(const TVector3& rhs)
 template<typename T>
 inline TVector3<T> TVector3<T>::min(const TVector3& rhs) const
 {
-	return TVector3(std::min(x, rhs.x), std::min(y, rhs.y), std::min(z, rhs.z));
+	return TVector3(std::min(x, rhs.x), 
+	                std::min(y, rhs.y), 
+	                std::min(z, rhs.z));
 }
 
 template<typename T>
@@ -169,7 +176,8 @@ inline TVector3<T> TVector3<T>::cross(const TVector3& rhs) const
 }
 
 template<typename T>
-inline void TVector3<T>::cross(const TVector3& rhs, TVector3* const out_result) const
+inline void TVector3<T>::cross(const TVector3& rhs, 
+                               TVector3* const out_result) const
 {
 	out_result->x = y * rhs.z - z * rhs.y;
 	out_result->y = z * rhs.x - x * rhs.z;
@@ -202,7 +210,8 @@ inline TVector3<T> TVector3<T>::add(const TVector3& rhs) const
 }
 
 template<typename T>
-inline void TVector3<T>::add(const TVector3& rhs, TVector3* const out_result) const
+inline void TVector3<T>::add(const TVector3& rhs, 
+                             TVector3* const out_result) const
 {
 	out_result->x = x + rhs.x;
 	out_result->y = y + rhs.y;
@@ -236,7 +245,9 @@ inline TVector3<T>& TVector3<T>::addLocal(const T rhs)
 }
 
 template<typename T>
-inline TVector3<T>& TVector3<T>::addLocal(const T rhsX, const T rhsY, const T rhsZ)
+inline TVector3<T>& TVector3<T>::addLocal(const T rhsX, 
+                                          const T rhsY, 
+                                          const T rhsZ)
 {
 	x += rhsX;
 	y += rhsY;
@@ -258,7 +269,8 @@ inline TVector3<T> TVector3<T>::sub(const T rhs) const
 }
 
 template<typename T>
-inline void TVector3<T>::sub(const TVector3& rhs, TVector3* const out_result) const
+inline void TVector3<T>::sub(const TVector3& rhs, 
+                             TVector3* const out_result) const
 {
 	out_result->x = x - rhs.x;
 	out_result->y = y - rhs.y;
@@ -292,7 +304,8 @@ inline TVector3<T> TVector3<T>::mul(const TVector3& rhs) const
 }
 
 template<typename T>
-inline void TVector3<T>::mul(const TVector3& rhs, TVector3* const out_result) const
+inline void TVector3<T>::mul(const TVector3& rhs, 
+                             TVector3* const out_result) const
 {
 	out_result->x = x * rhs.x;
 	out_result->y = y * rhs.y;
@@ -306,7 +319,8 @@ inline TVector3<T> TVector3<T>::mul(const T rhs) const
 }
 
 template<typename T>
-inline void TVector3<T>::mul(const T rhs, TVector3* const out_result) const
+inline void TVector3<T>::mul(const T rhs, 
+                             TVector3* const out_result) const
 {
 	out_result->x = x * rhs;
 	out_result->y = y * rhs;
@@ -324,7 +338,9 @@ inline TVector3<T>& TVector3<T>::mulLocal(const T rhs)
 }
 
 template<typename T>
-inline TVector3<T>& TVector3<T>::mulLocal(const T rhsX, const T rhsY, const T rhsZ)
+inline TVector3<T>& TVector3<T>::mulLocal(const T rhsX, 
+                                          const T rhsY, 
+                                          const T rhsZ)
 {
 	x *= rhsX;
 	y *= rhsY;
@@ -344,7 +360,8 @@ inline TVector3<T>& TVector3<T>::mulLocal(const TVector3& rhs)
 }
 
 template<typename T>
-inline TVector3<T>& TVector3<T>::maddLocal(const T multiplier, const TVector3& adder)
+inline TVector3<T>& TVector3<T>::maddLocal(const T multiplier, 
+                                           const TVector3& adder)
 {
 	x = x * multiplier + adder.x;
 	y = y * multiplier + adder.y;
@@ -410,10 +427,6 @@ inline TVector3<T>& TVector3<T>::absLocal()
 
 	return *this;
 }
-
-// Clamp current vector's components to specific range. If a component is NaN, its value is
-// clamped to lower bound. Either lower bound or upper bound shall not be NaN, or the method's 
-// behavior is undefined.
 
 template<typename T>
 inline TVector3<T> TVector3<T>::clamp(const T lowerBound, const T upperBound) const

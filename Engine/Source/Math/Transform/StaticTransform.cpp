@@ -40,4 +40,35 @@ void StaticTransform::transformRay(const Ray& ray, Ray* const out_transformedRay
 	out_transformedRay->setMaxT(ray.getMaxT());
 }
 
+void StaticTransform::transformVector(const Vector3R& vector,
+	const Time& time,
+	Vector3R* out_vector) const
+{
+
+}
+
+void StaticTransform::transformOrientation(const Vector3R& orientation,
+	const Time& time,
+	Vector3R* out_orientation) const
+{
+
+}
+
+void StaticTransform::transformPoint(const Vector3R& point,
+	const Time& time,
+	Vector3R* out_point) const
+{
+
+}
+
+void StaticTransform::transformLineSegment(const Vector3R& lineStartPos,
+	const Vector3R& lineDir,
+	real lineMinT, real lineMaxT,
+	const Time& time,
+	Vector3R* out_lineStartPos,
+	Vector3R* out_lineDir) const
+{
+
+}
+
 }// end namespace ph

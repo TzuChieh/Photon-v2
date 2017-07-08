@@ -2,7 +2,7 @@
 #include "Common/primitive_type.h"
 #include "Core/Intersection.h"
 #include "Core/Ray.h"
-#include "Core/Primitive/Primitive.h"
+#include "Core/Intersectable/Primitive.h"
 #include "Core/CookedActorStorage.h"
 
 #include <limits>
@@ -32,7 +32,7 @@ bool BruteForceIntersector::isIntersecting(const Ray& ray, Intersection* const o
 	{
 		if(primitive->isIntersecting(ray, &intersection))
 		{
-			real squaredHitDist = intersection.getHitPosition().sub(ray.getOrigin()).squaredLength();
+			real squaredHitDist = intersection.getHitPosition().sub(ray.getOrigin()).lengthSquared();
 			if(closestSquaredHitDist > squaredHitDist)
 			{
 				closestSquaredHitDist = squaredHitDist;

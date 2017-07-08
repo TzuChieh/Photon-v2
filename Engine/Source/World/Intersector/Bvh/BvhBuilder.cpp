@@ -1,6 +1,6 @@
 #include "World/Intersector/Bvh/BvhBuilder.h"
 #include "World/Intersector/Bvh/BvhInfoNode.h"
-#include "Core/Primitive/Primitive.h"
+#include "Core/Intersectable/Primitive.h"
 #include "Math/TVector3.h"
 
 #include <iostream>

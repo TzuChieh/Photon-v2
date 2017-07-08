@@ -6,7 +6,7 @@ namespace ph
 {
 
 template<typename T>
-class TIndexedVector3 final : public TVector3<T>
+class TIndexedVector3 : public TVector3<T>
 {
 public:
 	inline TIndexedVector3();

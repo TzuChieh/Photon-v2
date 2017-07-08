@@ -1,4 +1,4 @@
-#include "Core/Primitive/PrimitiveMetadata.h"
+#include "Core/Intersectable/PrimitiveMetadata.h"
 
 #include <iostream>
 
