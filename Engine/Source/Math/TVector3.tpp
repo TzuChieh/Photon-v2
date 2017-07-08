@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/TVector3.h"
+#include "Math/TPoint3.h"
 #include "Math/TQuaternion.h"
 #include "FileIO/Tokenizer.h"
 #include "Math/Math.h"
@@ -48,6 +49,16 @@ inline TVector3<T>::TVector3(const TVector3<U>& other) :
 	x(static_cast<T>(other.x)), 
 	y(static_cast<T>(other.y)), 
 	z(static_cast<T>(other.z))
+{
+
+}
+
+template<typename T>
+template<typename U>
+inline TVector3<T>::TVector3(const TPoint3<U>& point) :
+	x(static_cast<T>(point.x)),
+	y(static_cast<T>(point.y)),
+	z(static_cast<T>(point.z))
 {
 
 }

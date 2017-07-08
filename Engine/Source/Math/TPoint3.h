@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/TVector3.h"
+#include "Math/math_fwd.h"
 
 namespace ph
 {
@@ -21,6 +21,9 @@ public:
 
 	template<typename U>
 	inline explicit TPoint3(const TPoint3<U>& other);
+
+	template<typename U>
+	inline explicit TPoint3(const TVector3<U>& vector);
 
 	virtual inline ~TPoint3();
 

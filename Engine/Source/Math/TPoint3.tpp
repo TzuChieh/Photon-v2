@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/TPoint3.h"
+#include "Math/TVector3.h"
 
 namespace ph
 {
@@ -39,6 +40,16 @@ inline TPoint3<T>::TPoint3(const TPoint3<U>& other) :
 	x(static_cast<T>(other.x)), 
 	y(static_cast<T>(other.y)), 
 	z(static_cast<T>(other.z))
+{
+
+}
+
+template<typename T>
+template<typename U>
+inline TPoint3<T>::TPoint3(const TVector3<U>& vector) :
+	x(static_cast<T>(vector.x)),
+	y(static_cast<T>(vector.y)),
+	z(static_cast<T>(vector.z))
 {
 
 }

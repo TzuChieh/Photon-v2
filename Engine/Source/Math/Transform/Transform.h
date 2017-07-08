@@ -13,8 +13,9 @@ class Transform
 public:
 	virtual ~Transform() = 0;
 
-	
-
+	void transform(const Vector3R& vector, Vector3R* out_vector) const;
+	void transform(const Point3R&  point,  Point3R*  out_point)  const;
+	void transform(const Ray&      ray,    Ray*      out_ray)    const;
 
 
 	// Treating a Vector3R as either a vector, normal, or point and calculate the transformed result.
@@ -39,16 +40,13 @@ private:
 	// Treating a Vector3R as either a vector, orientation, or point and 
 	// calculate the transformed result.
 
-	virtual void transformVector(const Vector3R& vector, 
-	                             const Time& time, 
+	virtual void transformVector(const Vector3R& vector, const Time& time, 
 	                             Vector3R* out_vector) const = 0;
 
-	virtual void transformOrientation(const Vector3R& orientation,
-	                                  const Time& time,
+	virtual void transformOrientation(const Vector3R& orientation, const Time& time,
 	                                  Vector3R* out_orientation) const = 0;
 
-	virtual void transformPoint(const Vector3R& point, 
-	                            const Time& time, 
+	virtual void transformPoint(const Vector3R& point, const Time& time, 
 	                            Vector3R* out_point) const = 0;
 
 	// Transform the specified line segment. A line segment's definition is 
@@ -58,12 +56,10 @@ private:
 	//                     lineStartPos + lineMaxT * lineDir]
 	//
 	// Also note that lineDir is not necessary to be normalized.
-	virtual void transformLineSegment(const Vector3R& lineStartPos, 
-	                                  const Vector3R& lineDir, 
-	                                  real lineMinT, real lineMaxT, 
-	                                  const Time& time, 
-	                                  Vector3R* out_lineStartPos, 
-	                                  Vector3R* out_lineDir) const = 0;
+	virtual void transformLineSegment(const Vector3R& lineStartPos, const Vector3R& lineDir, 
+	                                  real lineMinT, real lineMaxT, const Time& time, 
+	                                  Vector3R* out_lineStartPos, Vector3R* out_lineDir,
+	                                  real* out_lineMinT, real* out_lineMaxT) const = 0;
 };
 
 }// end namespace ph
