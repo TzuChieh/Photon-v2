@@ -19,7 +19,7 @@ void ThinLensCamera::genSensingRay(const Sample& sample, Ray* const out_ray) con
 	                           sample.m_cameraY * getFilm()->getHeightPx(),
 	                           0);
 	Vector3R camFilmPos;
-	m_rasterToCamera->transformPoint(rasterPosPx, &camFilmPos);
+	m_rasterToCamera->transformP(rasterPosPx, &camFilmPos);
 
 	const Vector3R camCenterRayDir = camFilmPos.mul(-1);
 	const real     hitParamDist    = m_focalDistanceMM / (-camCenterRayDir.z);
@@ -33,8 +33,8 @@ void ThinLensCamera::genSensingRay(const Sample& sample, Ray* const out_ray) con
 	
 
 	Vector3R worldLensPos, worldFocusPos;
-	m_cameraToWorld->transformPoint(camLensPos,  &worldLensPos);
-	m_cameraToWorld->transformPoint(camFocusPos, &worldFocusPos);
+	m_cameraToWorld->transformP(camLensPos,  &worldLensPos);
+	m_cameraToWorld->transformP(camFocusPos, &worldFocusPos);
 
 
 	out_ray->setDirection(worldLensPos.sub(worldFocusPos).normalizeLocal());

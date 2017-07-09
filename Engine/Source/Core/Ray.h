@@ -12,9 +12,9 @@ public:
 	static const real MAX_T;
 
 public:
+	Ray();
 	Ray(const Vector3R& origin, const Vector3R& direction, const real minT, const real maxT);
 	Ray(const Vector3R& origin, const Vector3R& direction);
-	Ray();
 
 	inline const Vector3R& getOrigin() const
 	{

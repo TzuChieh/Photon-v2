@@ -33,16 +33,6 @@ public:
 	StaticTransform(const Matrix4R& transform, const Matrix4R& inverseTransform);
 	virtual ~StaticTransform() override;
 
-	virtual void transformVector(const Vector3R& vector, Vector3R* out_transformedVector) const override;
-	//virtual void transformNormal(const Vector3R& normal, Vector3R* const out_transformedNormal) const override;
-	virtual void transformPoint(const Vector3R& point, Vector3R* out_transformedPoint) const override;
-
-	// Notice that transforming a ray will not change its parametric length (t) nor renormalizing its direction
-	// vector even if the transform contains scale factor; because when we use "rayDirection * t" to obtain the 
-	// ray's endpoint coordinate, this configuration will still yield a correctly transformed result while saving
-	// an expensive sqrt() call.
-	virtual void transformRay(const Ray& ray, Ray* out_transformedRay) const override;
-
 private:
 	virtual void transformVector(const Vector3R& vector, const Time& time, 
 	                             Vector3R* out_vector) const override;

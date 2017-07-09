@@ -13,15 +13,14 @@ class Transform
 public:
 	virtual ~Transform() = 0;
 
-	void transform(const Vector3R& vector, Vector3R* out_vector) const;
-	void transform(const Point3R&  point,  Point3R*  out_point)  const;
-	void transform(const Ray&      ray,    Ray*      out_ray)    const;
+	void transformV(const Vector3R& vector,      Vector3R* out_vector)      const;
+	void transformO(const Vector3R& orientation, Vector3R* out_orientation) const;
+	void transformP(const Vector3R& point,       Vector3R* out_point)       const;
+
+	void transform(const Ray& ray, Ray* out_ray) const;
 
 
 	// Treating a Vector3R as either a vector, normal, or point and calculate the transformed result.
-	virtual void transformVector(const Vector3R& vector, Vector3R* out_vector) const = 0;
-	//virtual void transformNormal(const Vector3R& normal, Vector3R* const out_transformedNormal) const = 0;
-	virtual void transformPoint(const Vector3R& point, Vector3R* out_point) const = 0;
 
 	// Notice that transforming a ray neither will change its parametric 
 	// length (t) nor renormalizing its direction vector even if the transform 
@@ -33,7 +32,6 @@ public:
 	// 
 	// this operation will always yield a correctly transformed result while 
 	// saving an expensive sqrt() call.
-	virtual void transformRay(const Ray& ray, Ray* out_ray) const = 0;
 
 private:
 

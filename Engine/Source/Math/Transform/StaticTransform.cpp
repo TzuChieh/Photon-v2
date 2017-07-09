@@ -2,7 +2,6 @@
 #include "Core/BoundingVolume/AABB.h"
 #include "Core/Ray.h"
 #include "Math/TVector3.h"
-#include "Math/TPoint3.h"
 
 #include <iostream>
 
@@ -23,23 +22,6 @@ StaticTransform::StaticTransform(const Matrix4R& transform, const Matrix4R& inve
 
 StaticTransform::~StaticTransform() = default;
 
-void StaticTransform::transformVector(const Vector3R& vector, Vector3R* const out_transformedVector) const
-{
-	transform(vector, out_transformedVector);
-}
-
-void StaticTransform::transformPoint(const Vector3R& point, Vector3R* const out_transformedPoint) const
-{
-	Point3R result;
-	transform(Point3R(point), &result);
-	*out_transformedPoint = Vector3R(result);
-}
-
-void StaticTransform::transformRay(const Ray& ray, Ray* const out_transformedRay) const
-{
-	transform(ray, out_transformedRay);
-}
-
 void StaticTransform::transformVector(const Vector3R& vector, const Time& time,
                                       Vector3R* const out_vector) const
 {
@@ -50,7 +32,8 @@ void StaticTransform::transformVector(const Vector3R& vector, const Time& time,
 void StaticTransform::transformOrientation(const Vector3R& orientation, const Time& time,
                                            Vector3R* const out_orientation) const
 {
-	// TODO
+	// TODO: correctly transform orientation
+	m_transformMatrix.mul(orientation, 0.0_r, out_orientation);
 }
 
 void StaticTransform::transformPoint(const Vector3R& point, const Time& time,

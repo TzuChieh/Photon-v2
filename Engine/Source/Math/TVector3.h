@@ -14,6 +14,11 @@ template<typename T>
 class TVector3
 {
 public:
+	static inline TVector3 weightedSum(const TVector3& vA, T wA, 
+	                                   const TVector3& vB, T wB, 
+	                                   const TVector3& vC, T wC);
+
+public:
 	T x;
 	T y;
 	T z;
@@ -26,9 +31,6 @@ public:
 
 	template<typename U>
 	inline explicit TVector3(const TVector3<U>& other);
-
-	template<typename U>
-	inline explicit TVector3(const TPoint3<U>& point);
 
 	virtual inline ~TVector3();
 

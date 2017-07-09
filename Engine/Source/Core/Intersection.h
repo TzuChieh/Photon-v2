@@ -43,11 +43,11 @@ public:
 	}
 
 	inline void set(const Primitive* primitive, 
-	                const Vector3R& hitPosition, 
-	                const Vector3R& hitSmoothNormal, 
-	                const Vector3R& hitGeoNormal, 
-	                const Vector3R& hitUVW, 
-	                const real hitRayT)
+	                const Vector3R&  hitPosition,
+	                const Vector3R&  hitSmoothNormal,
+	                const Vector3R&  hitGeoNormal,
+	                const Vector3R&  hitUVW, 
+	                const real       hitRayT)
 	{
 		m_hitPrimitive    = primitive;
 		m_hitPosition     = hitPosition;
@@ -59,11 +59,11 @@ public:
 
 private:
 	const Primitive* m_hitPrimitive;
-	Vector3R m_hitPosition;
-	Vector3R m_hitSmoothNormal;
-	Vector3R m_hitGeoNormal;
-	Vector3R m_hitUVW;
-	real m_hitRayT;
+	Vector3R         m_hitPosition;
+	Vector3R         m_hitSmoothNormal;
+	Vector3R         m_hitGeoNormal;
+	Vector3R         m_hitUVW;
+	real             m_hitRayT;
 };
 
 }// end namespace ph

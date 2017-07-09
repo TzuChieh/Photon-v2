@@ -20,7 +20,7 @@ void PinholeCamera::genSensingRay(const Sample& sample, Ray* const out_ray) cons
 	const Vector3R& worldPinholePos = getPosition();
 
 	Vector3R worldFilmPos;
-	m_rasterToWorld->transformPoint(rasterPosPx, &worldFilmPos);
+	m_rasterToWorld->transformP(rasterPosPx, &worldFilmPos);
 
 	out_ray->setDirection(worldFilmPos.subLocal(worldPinholePos).normalizeLocal());
 	out_ray->setOrigin(getPosition());

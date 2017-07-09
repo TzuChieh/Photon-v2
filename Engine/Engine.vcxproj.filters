@@ -554,9 +554,6 @@
     <ClInclude Include="Source\Math\math_fwd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Math\TQuaternion.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Math\TMatrix4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -755,21 +752,16 @@
     <ClInclude Include="Source\Core\Time.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Math\TPoint3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Math\TOrientation3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Math\math_common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Math\TVector3.ipp" />
     <ClInclude Include="Source\Math\TQuaternion.ipp" />
-    <ClInclude Include="Source\Math\TPoint3.ipp" />
-    <ClInclude Include="Source\Math\TOrientation3.ipp" />
     <ClInclude Include="Source\Math\TMatrix4.ipp" />
     <ClInclude Include="Source\Math\TIndexedVector3.ipp" />
     <ClInclude Include="Source\Math\TArithmeticArray.ipp" />
+    <ClInclude Include="Source\Math\TQuaternion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

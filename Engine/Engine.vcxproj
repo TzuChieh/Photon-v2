@@ -340,8 +340,7 @@
     <ClInclude Include="Source\Core\SampleGenerator\PixelJitterSampleGenerator.h" />
     <ClInclude Include="Source\Math\math_common.h" />
     <ClInclude Include="Source\Math\TArithmeticArray.h" />
-    <ClInclude Include="Source\Math\TOrientation3.h" />
-    <ClInclude Include="Source\Math\TPoint3.h" />
+    <ClInclude Include="Source\Math\TQuaternion.h" />
     <ClInclude Include="Source\Math\Transform\TDecomposedTransform.h" />
     <ClInclude Include="Source\Math\Transform\Transform.h" />
     <ClInclude Include="Source\PostProcess\HdrFrame.h" />
@@ -398,7 +397,6 @@
     <ClInclude Include="Source\PostProcess\Frame.h" />
     <ClInclude Include="Source\Api\ApiDatabase.h" />
     <ClInclude Include="Source\Math\constant.h" />
-    <ClInclude Include="Source\Math\TQuaternion.h" />
     <ClInclude Include="Source\Math\Random.h" />
     <ClInclude Include="Source\Actor\Geometry\GTriangle.h" />
     <ClInclude Include="Source\Actor\Material\AbradedOpaque.h" />
@@ -429,12 +427,6 @@
       <FileType>Document</FileType>
     </ClInclude>
     <ClInclude Include="Source\Math\TQuaternion.ipp">
-      <FileType>Document</FileType>
-    </ClInclude>
-    <ClInclude Include="Source\Math\TOrientation3.ipp">
-      <FileType>Document</FileType>
-    </ClInclude>
-    <ClInclude Include="Source\Math\TPoint3.ipp">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>

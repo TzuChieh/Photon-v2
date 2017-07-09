@@ -88,7 +88,7 @@ void swap(PhysicalActor& first, PhysicalActor& second)
 
 	// by swapping the members of two objects, the two objects are effectively swapped
 	swap(static_cast<Actor&>(first), static_cast<Actor&>(second));
-	swap(first.m_localToWorld,        second.m_localToWorld);
+	swap(first.m_localToWorld,       second.m_localToWorld);
 }
 
 // command interface
