@@ -1,7 +1,7 @@
 #pragma once
 
 #include "World/Intersector/Bvh/EBvhType.h"
-#include "World/Intersector/Bvh/BvhPrimitiveInfo.h"
+#include "World/Intersector/Bvh/BvhIntersectableInfo.h"
 #include "World/Intersector/Bvh/BvhLinearNode.h"
 
 #include <memory>
@@ -10,48 +10,52 @@
 namespace ph
 {
 
-class Primitive;
+class Intersectables;
 class BvhInfoNode;
 
 class BvhBuilder final
 {
 public:
 	static std::size_t calcTotalNodes(const BvhInfoNode* rootNode);
-	static std::size_t calcTotalPrimitives(const BvhInfoNode* rootNode);
+	static std::size_t calcTotalIntersectables(const BvhInfoNode* rootNode);
 	static std::size_t calcMaxDepth(const BvhInfoNode* rootNode);
 
 public:
-	BvhBuilder(const EBvhType type);
+	BvhBuilder(EBvhType type);
 
-	const BvhInfoNode* buildInformativeBinaryBvh(const std::vector<const Primitive*>& primitives);
+	const BvhInfoNode* buildInformativeBinaryBvh(const std::vector<const Intersectable*>& intersectables);
 	void buildLinearDepthFirstBinaryBvh(const BvhInfoNode* rootNode, 
-	                                    std::vector<BvhLinearNode>* const out_linearNodes, 
-	                                    std::vector<const Primitive*>* const out_primitives);
+	                                    std::vector<BvhLinearNode>* out_linearNodes, 
+	                                    std::vector<const Intersectable*>* out_intersectables);
 
 private:
 	EBvhType m_type;
 	std::vector<std::unique_ptr<BvhInfoNode>> m_infoNodes;
 	std::vector<BvhLinearNode> m_linearNodes;
-	std::vector<const Primitive*> m_primitives;
+	std::vector<const Intersectable*> m_intersectables;
 
 	enum class ENodeSplitMethod
 	{
-		EQUAL_PRIMITIVES, 
+		EQUAL_INTERSECTABLES, 
 		SAH_BUCKETS, 
 		SAH_EDGE_SORT
 	};
 
-	const BvhInfoNode* buildBinaryBvhInfoNodeRecursive(const std::vector<BvhPrimitiveInfo>& primitives, const ENodeSplitMethod splitMethod);
-	void buildBinaryBvhLinearDepthFirstNodeRecursive(const BvhInfoNode* rootNode, std::size_t* out_nodeIndex);
+	const BvhInfoNode* buildBinaryBvhInfoNodeRecursive(const std::vector<BvhIntersectableInfo>& intersectables, 
+	                                                   ENodeSplitMethod splitMethod);
+	void buildBinaryBvhLinearDepthFirstNodeRecursive(const BvhInfoNode* rootNode, 
+	                                                 std::size_t* out_nodeIndex);
 
-	bool splitWithEqualPrimitives(const std::vector<BvhPrimitiveInfo>& primitives, const int32 splitDimension, 
-	                              std::vector<BvhPrimitiveInfo>* const out_partA, 
-	                              std::vector<BvhPrimitiveInfo>* const out_partB);
+	bool splitWithEqualIntersectables(const std::vector<BvhIntersectableInfo>& intersectables, 
+	                                  int32 splitDimension,
+	                                  std::vector<BvhIntersectableInfo>* out_partA,
+	                                  std::vector<BvhIntersectableInfo>* out_partB);
 
-	bool splitWithSahBuckets(const std::vector<BvhPrimitiveInfo>& primitives, const int32 splitDimension, 
+	bool splitWithSahBuckets(const std::vector<BvhIntersectableInfo>& intersectables, 
+	                         int32 splitDimension,
 	                         const AABB& primitivesAABB, const AABB& centroidsAABB, 
-	                         std::vector<BvhPrimitiveInfo>* const out_partA,
-	                         std::vector<BvhPrimitiveInfo>* const out_partB);
+	                         std::vector<BvhIntersectableInfo>* out_partA,
+	                         std::vector<BvhIntersectableInfo>* out_partB);
 };
 
 }// end namespace ph

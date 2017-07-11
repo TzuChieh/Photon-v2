@@ -2,7 +2,7 @@
 #include "Common/primitive_type.h"
 #include "Core/Intersection.h"
 #include "Core/Ray.h"
-#include "Core/Intersectable/Primitive.h"
+#include "Core/Intersectable/Intersectable.h"
 #include "Core/CookedActorStorage.h"
 
 #include <limits>
@@ -14,12 +14,12 @@ BruteForceIntersector::~BruteForceIntersector() = default;
 
 void BruteForceIntersector::update(const CookedActorStorage& cookedActors)
 {
-	m_primitives.clear();
-	m_primitives.shrink_to_fit();
+	m_intersectables.clear();
+	m_intersectables.shrink_to_fit();
 
-	for(const auto& primitive : cookedActors.primitives())
+	for(const auto& intersectable : cookedActors.intersectables())
 	{
-		m_primitives.push_back(primitive.get());
+		m_intersectables.push_back(intersectable.get());
 	}
 }
 
@@ -28,9 +28,9 @@ bool BruteForceIntersector::isIntersecting(const Ray& ray, Intersection* const o
 	Intersection intersection;
 	real closestSquaredHitDist = std::numeric_limits<real>::infinity();
 
-	for(const Primitive* primitive : m_primitives)
+	for(const Intersectable* intersectable : m_intersectables)
 	{
-		if(primitive->isIntersecting(ray, &intersection))
+		if(intersectable->isIntersecting(ray, &intersection))
 		{
 			real squaredHitDist = intersection.getHitPosition().sub(ray.getOrigin()).lengthSquared();
 			if(closestSquaredHitDist > squaredHitDist)
@@ -46,9 +46,9 @@ bool BruteForceIntersector::isIntersecting(const Ray& ray, Intersection* const o
 
 bool BruteForceIntersector::isIntersecting(const Ray& ray) const
 {
-	for(const Primitive* primitive : m_primitives)
+	for(const Intersectable* intersectable : m_intersectables)
 	{
-		if(primitive->isIntersecting(ray))
+		if(intersectable->isIntersecting(ray))
 		{
 			return true;
 		}

@@ -26,8 +26,8 @@ GCuboid::GCuboid(const GCuboid& other) :
 
 GCuboid::~GCuboid() = default;
 
-void GCuboid::discretize(const PrimitiveBuildingMaterial& data,
-                         std::vector<std::unique_ptr<Primitive>>& out_primitives) const
+void GCuboid::genPrimitive(const PrimitiveBuildingMaterial& data,
+                           std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
 	if(!checkData(data, m_xLen, m_yLen, m_zLen))
 	{

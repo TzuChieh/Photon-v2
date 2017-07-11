@@ -43,8 +43,8 @@ GSphere::GSphere(const GSphere& other) :
 GSphere::~GSphere() = default;
 
 // discretize the sphere into an icosphere
-void GSphere::discretize(const PrimitiveBuildingMaterial& data,
-                         std::vector<std::unique_ptr<Primitive>>& out_primitives) const
+void GSphere::genPrimitive(const PrimitiveBuildingMaterial& data,
+                           std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
 	if(!data.metadata)
 	{

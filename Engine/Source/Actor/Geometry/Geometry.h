@@ -24,8 +24,8 @@ public:
 	Geometry();
 	virtual ~Geometry() = 0;
 
-	virtual void discretize(const PrimitiveBuildingMaterial& data, 
-	                        std::vector<std::unique_ptr<Primitive>>& out_primitives) const = 0;
+	virtual void genPrimitive(const PrimitiveBuildingMaterial& data, 
+	                          std::vector<std::unique_ptr<Primitive>>& out_primitives) const = 0;
 
 	const TextureMapper* getTextureMapper() const;
 	void setTextureMapper(const std::shared_ptr<TextureMapper>& textureMapper);

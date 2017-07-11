@@ -166,6 +166,8 @@
     <ClCompile Include="Source\Actor\Geometry\GWave.cpp" />
     <ClCompile Include="Source\Actor\LightSource\AreaSource.cpp" />
     <ClCompile Include="Source\Actor\LightSource\LightSource.cpp" />
+    <ClCompile Include="Source\Actor\MotionSource\ConstVelocityMotion.cpp" />
+    <ClCompile Include="Source\Actor\MotionSource\MotionSource.cpp" />
     <ClCompile Include="Source\Actor\PhysicalActor.cpp" />
     <ClCompile Include="Source\Api\init_and_exit.cpp" />
     <ClCompile Include="Source\Api\ph_core.cpp" />
@@ -184,6 +186,8 @@
     <ClCompile Include="Source\Core\Integrator\Integrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\LightTracingIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\NormalBufferIntegrator.cpp" />
+    <ClCompile Include="Source\Core\Intersectable\Intersectable.cpp" />
+    <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp" />
     <ClCompile Include="Source\Core\Intersection.cpp" />
     <ClCompile Include="Source\Core\Renderer.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator\SampleGenerator.cpp" />
@@ -241,7 +245,7 @@
     <ClCompile Include="Source\World\Intersector\Bvh\BvhInfoNode.cpp" />
     <ClCompile Include="Source\World\Intersector\Bvh\ClassicBvhIntersector.cpp" />
     <ClCompile Include="Source\World\Intersector\Bvh\BvhLinearNode.cpp" />
-    <ClCompile Include="Source\World\Intersector\Bvh\BvhPrimitiveInfo.cpp" />
+    <ClCompile Include="Source\World\Intersector\Bvh\BvhIntersectableInfo.cpp" />
     <ClCompile Include="Source\World\Intersector\Intersector.cpp" />
     <ClCompile Include="Source\World\Intersector\Kdtree\KdtreeAABB.cpp" />
     <ClCompile Include="Source\World\Intersector\Kdtree\KdtreeIntersector.cpp" />
@@ -274,6 +278,8 @@
     <ClInclude Include="Source\Actor\Geometry\GWave.h" />
     <ClInclude Include="Source\Actor\LightSource\AreaSource.h" />
     <ClInclude Include="Source\Actor\LightSource\LightSource.h" />
+    <ClInclude Include="Source\Actor\MotionSource\ConstVelocityMotion.h" />
+    <ClInclude Include="Source\Actor\MotionSource\MotionSource.h" />
     <ClInclude Include="Source\Actor\PhysicalActor.h" />
     <ClInclude Include="Source\Api\init_and_exit.h" />
     <ClInclude Include="Source\Api\test_scene.h" />
@@ -311,7 +317,7 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\BsdfPdfQuery.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\BsdfSample.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\ESurfacePhenomenon.h" />
-    <ClInclude Include="Source\Core\Time.h" />
+    <ClInclude Include="Source\Core\Quantity\Time.h" />
     <ClInclude Include="Source\FileIO\DataTreatment.h" />
     <ClInclude Include="Source\FileIO\InputPacket.h" />
     <ClInclude Include="Source\FileIO\Keyword.h" />
@@ -382,7 +388,7 @@
     <ClInclude Include="Source\World\Intersector\Bvh\ClassicBvhIntersector.h" />
     <ClInclude Include="Source\World\Intersector\Bvh\BvhInfoNode.h" />
     <ClInclude Include="Source\World\Intersector\Bvh\BvhLinearNode.h" />
-    <ClInclude Include="Source\World\Intersector\Bvh\BvhPrimitiveInfo.h" />
+    <ClInclude Include="Source\World\Intersector\Bvh\BvhIntersectableInfo.h" />
     <ClInclude Include="Source\World\Intersector\Bvh\EBvhType.h" />
     <ClInclude Include="Source\World\Intersector\Intersector.h" />
     <ClInclude Include="Source\World\Intersector\Kdtree\KdtreeAABB.h" />

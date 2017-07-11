@@ -8,7 +8,8 @@ enum class ETypeCategory
 	// world command related types
 	PRIMITIVE, 
 	REF_GEOMETRY, 
-	REF_MATERIAL, 
+	REF_MATERIAL,
+	REF_MOTION,
 	REF_LIGHT_SOURCE, 
 	REF_ACTOR, 
 

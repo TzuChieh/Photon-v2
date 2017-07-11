@@ -10,7 +10,7 @@ namespace ph
 {
 
 KdtreeIntersector::KdtreeIntersector() : 
-	m_nodePrimitiveBuffer(), m_rootKdtreeNode(&m_nodePrimitiveBuffer)// FIXME: rely on init ordering is dangerous
+	m_nodeIntersectableBuffer(), m_rootKdtreeNode(&m_nodeIntersectableBuffer)// FIXME: rely on init ordering is dangerous
 {
 
 }
@@ -19,13 +19,13 @@ KdtreeIntersector::~KdtreeIntersector() = default;
 
 void KdtreeIntersector::update(const CookedActorStorage& cookedActors)
 {
-	std::vector<const Primitive*> primPtrs;
-	for(const auto& primitive : cookedActors.primitives())
+	std::vector<const Intersectable*> intersectables;
+	for(const auto& primitive : cookedActors.intersectables())
 	{
-		primPtrs.push_back(primitive.get());
+		intersectables.push_back(primitive.get());
 	}
 
-	m_rootKdtreeNode.buildTree(primPtrs);
+	m_rootKdtreeNode.buildTree(intersectables);
 }
 
 bool KdtreeIntersector::isIntersecting(const Ray& ray, Intersection* const out_intersection) const

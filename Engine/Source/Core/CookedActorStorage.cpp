@@ -11,20 +11,20 @@ CookedActorStorage::CookedActorStorage(CookedActorStorage&& other) :
 
 void CookedActorStorage::clear()
 {
-	m_primitives.clear();
+	m_intersectables.clear();
 	m_primitiveMetadatas.clear();
 	m_emitters.clear();
 
-	m_primitives.shrink_to_fit();
+	m_intersectables.shrink_to_fit();
 	m_primitiveMetadatas.shrink_to_fit();
 	m_emitters.shrink_to_fit();
 }
 
-void CookedActorStorage::add(std::unique_ptr<Primitive> primitive)
+void CookedActorStorage::add(std::unique_ptr<Intersectable> intersectable)
 {
-	if(primitive != nullptr)
+	if(intersectable != nullptr)
 	{
-		m_primitives.push_back(std::move(primitive));
+		m_intersectables.push_back(std::move(intersectable));
 	}
 }
 
@@ -46,27 +46,27 @@ void CookedActorStorage::add(std::unique_ptr<Emitter> emitter)
 
 void CookedActorStorage::add(CookedActor&& cookedActor)
 {
-	add(std::move(cookedActor.primitives));
+	add(std::move(cookedActor.intersectables));
 	add(std::move(cookedActor.primitiveMetadata));
 	add(std::move(cookedActor.emitter));
 }
 
-void CookedActorStorage::add(std::vector<std::unique_ptr<Primitive>>&& primitives)
+void CookedActorStorage::add(std::vector<std::unique_ptr<Intersectable>>&& intersectables)
 {
-	for(auto& primitive : primitives)
+	for(auto& intersectable : intersectables)
 	{
-		if(primitive != nullptr)
+		if(intersectable != nullptr)
 		{
-			m_primitives.push_back(std::move(primitive));
+			m_intersectables.push_back(std::move(intersectable));
 		}
 	}
 }
 
 void CookedActorStorage::add(CookedActorStorage&& other)
 {
-	m_primitives.insert(m_primitives.end(),
-		std::make_move_iterator(other.m_primitives.begin()),
-		std::make_move_iterator(other.m_primitives.end()));
+	m_intersectables.insert(m_intersectables.end(),
+		std::make_move_iterator(other.m_intersectables.begin()),
+		std::make_move_iterator(other.m_intersectables.end()));
 	m_primitiveMetadatas.insert(m_primitiveMetadatas.end(),
 		std::make_move_iterator(other.m_primitiveMetadatas.begin()),
 		std::make_move_iterator(other.m_primitiveMetadatas.end()));
@@ -75,9 +75,9 @@ void CookedActorStorage::add(CookedActorStorage&& other)
 		std::make_move_iterator(other.m_emitters.end()));
 }
 
-std::size_t CookedActorStorage::numPrimitives() const
+std::size_t CookedActorStorage::numIntersectables() const
 {
-	return m_primitives.size();
+	return m_intersectables.size();
 }
 
 }// end namespace ph

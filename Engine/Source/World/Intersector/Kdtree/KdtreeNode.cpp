@@ -1,7 +1,7 @@
 #include "World/Intersector/Kdtree/KdtreeNode.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
-#include "Core/Intersectable/Primitive.h"
+#include "Core/Intersectable/Intersectable.h"
 #include "Math/TVector3.h"
 
 #include <iostream>
@@ -17,15 +17,15 @@ constexpr float64 KdtreeNode::COST_INTERSECTION;
 class TestPoint final
 {
 public:
-	static const int32 PRIMITIVE_MIN = 1;
-	static const int32 PRIMITIVE_MAX = 2;
+	static const int32 INTERSECTABLE_MIN = 1;
+	static const int32 INTERSECTABLE_MAX = 2;
 
 public:
 	real  m_testPoint;
 	int32 m_pointType;
 
 	TestPoint() : 
-		m_testPoint(0.0_r), m_pointType(PRIMITIVE_MIN)
+		m_testPoint(0.0_r), m_pointType(INTERSECTABLE_MIN)
 	{
 
 	}
@@ -42,40 +42,42 @@ public:
 	}
 };
 
-const int32 TestPoint::PRIMITIVE_MIN;
-const int32 TestPoint::PRIMITIVE_MAX;
+const int32 TestPoint::INTERSECTABLE_MIN;
+const int32 TestPoint::INTERSECTABLE_MAX;
 
-KdtreeNode::KdtreeNode(std::vector<const Primitive*>* primitiveBuffer) :
+KdtreeNode::KdtreeNode(std::vector<const Intersectable*>* intersectableBuffer) :
 	m_positiveChild(nullptr), m_negativeChild(nullptr), 
 	m_splitAxis(KDTREE_UNKNOWN_AXIS), m_splitPos(0.0_r),
-	m_primitiveBuffer(primitiveBuffer), m_nodeBufferStartIndex(-1), m_nodeBufferEndIndex(-1)
+	m_intersectableBuffer(intersectableBuffer), 
+	m_nodeBufferStartIndex(-1), m_nodeBufferEndIndex(-1)
 {
-	if(!primitiveBuffer)
+	if(!intersectableBuffer)
 	{
-		std::cerr << "warning: at KdtreeNode::KdtreeNode(), specified primitive buffer is null" << std::endl;
+		std::cerr << "warning: at KdtreeNode::KdtreeNode(), " 
+		          << "specified intersectable buffer is null" << std::endl;
 	}
 }
 
-void KdtreeNode::buildTree(const std::vector<const Primitive*>& primitives)
+void KdtreeNode::buildTree(const std::vector<const Intersectable*>& intersectables)
 {
-	if(primitives.empty())
+	if(intersectables.empty())
 	{
 		m_aabb = KdtreeAABB(Vector3R(0, 0, 0), Vector3R(0, 0, 0));
 		return;
 	}
 
 	AABB nodeAABB;
-	primitives[0]->calcAABB(&nodeAABB);
-	AABB primAABB;
-	for(int i = 1; i < primitives.size(); i++)
+	intersectables[0]->calcAABB(&nodeAABB);
+	AABB isableAABB;
+	for(int i = 1; i < intersectables.size(); i++)
 	{
-		primitives[i]->calcAABB(&primAABB);
-		nodeAABB.unionWith(primAABB);
+		intersectables[i]->calcAABB(&isableAABB);
+		nodeAABB.unionWith(isableAABB);
 	}
 
 	m_aabb = KdtreeAABB(nodeAABB);
 
-	buildChildrenNodes(primitives);
+	buildChildrenNodes(intersectables);
 }
 
 bool KdtreeNode::findClosestIntersection(const Ray& ray, Intersection* const out_intersection) const
@@ -92,34 +94,37 @@ bool KdtreeNode::findClosestIntersection(const Ray& ray, Intersection* const out
 	return traverseAndFindClosestIntersection(ray, out_intersection, rayNearHitDist, rayFarHitDist);
 }
 
-void KdtreeNode::analyzeSplitCostSAH(const std::vector<const Primitive*>& primitives, const int32 axis, float64* const out_minCost, real* const out_splitPoint) const
+void KdtreeNode::analyzeSplitCostSAH(const std::vector<const Intersectable*>& intersectables,
+                                     const int32 axis, 
+                                     float64* const out_minCost, 
+                                     real* const out_splitPoint) const
 {
-	std::vector<TestPoint> testAxisPoints(primitives.size() * 2);
+	std::vector<TestPoint> testAxisPoints(intersectables.size() * 2);
 
-	AABB primAABB;
-	KdtreeAABB primKdtreeAABB;
-	for(std::size_t i = 0; i < primitives.size(); i++)
+	AABB isableAABB;
+	KdtreeAABB isableKdtreeAABB;
+	for(std::size_t i = 0; i < intersectables.size(); i++)
 	{
-		primitives[i]->calcAABB(&primAABB);
-		primKdtreeAABB = KdtreeAABB(primAABB);
+		intersectables[i]->calcAABB(&isableAABB);
+		isableKdtreeAABB = KdtreeAABB(isableAABB);
 
-		testAxisPoints[2 * i]     = TestPoint(primKdtreeAABB.getMinVertex(axis), TestPoint::PRIMITIVE_MIN);
-		testAxisPoints[2 * i + 1] = TestPoint(primKdtreeAABB.getMaxVertex(axis), TestPoint::PRIMITIVE_MAX);
+		testAxisPoints[2 * i]     = TestPoint(isableKdtreeAABB.getMinVertex(axis), TestPoint::INTERSECTABLE_MIN);
+		testAxisPoints[2 * i + 1] = TestPoint(isableKdtreeAABB.getMaxVertex(axis), TestPoint::INTERSECTABLE_MAX);
 	}
 
 	// the sorting process has to be stable (equal elements shouldn't be reordered)
 	std::stable_sort(testAxisPoints.begin(), testAxisPoints.end());
 
 	float64 noSplitSurfaceArea = m_aabb.getSurfaceArea();
-	float64 noSplitCost = COST_INTERSECTION * static_cast<float64>(primitives.size());
+	float64 noSplitCost = COST_INTERSECTION * static_cast<float64>(intersectables.size());
 
-	std::size_t numNnodePrims, numPnodePrims;
-	bool boundaryPrimPassed;
+	std::size_t numNnodeIsables, numPnodeIsables;
+	bool boundaryIsablePassed;
 
 	// analyze on specified axis
-	numNnodePrims = 0;
-	numPnodePrims = primitives.size();
-	boundaryPrimPassed = false;
+	numNnodeIsables = 0;
+	numPnodeIsables = intersectables.size();
+	boundaryIsablePassed = false;
 
 	real minAabbAxisPoint = m_aabb.getMinVertex(axis);
 	real maxAabbAxisPoint = m_aabb.getMaxVertex(axis);
@@ -129,25 +134,25 @@ void KdtreeNode::analyzeSplitCostSAH(const std::vector<const Primitive*>& primit
 
 	for(std::size_t i = 0; i < testAxisPoints.size(); i++)
 	{
-		if(testAxisPoints[i].m_pointType == TestPoint::PRIMITIVE_MIN)
+		if(testAxisPoints[i].m_pointType == TestPoint::INTERSECTABLE_MIN)
 		{
-			if(boundaryPrimPassed)
+			if(boundaryIsablePassed)
 			{
-				boundaryPrimPassed = false;
-				numPnodePrims--;
+				boundaryIsablePassed = false;
+				numPnodeIsables--;
 			}
 
-			numNnodePrims++;
+			numNnodeIsables++;
 		}
 
-		if(testAxisPoints[i].m_pointType == TestPoint::PRIMITIVE_MAX)
+		if(testAxisPoints[i].m_pointType == TestPoint::INTERSECTABLE_MAX)
 		{
-			if(boundaryPrimPassed)
+			if(boundaryIsablePassed)
 			{
-				numPnodePrims--;
+				numPnodeIsables--;
 			}
 
-			boundaryPrimPassed = true;
+			boundaryIsablePassed = true;
 		}
 
 		KdtreeAABB nAABB, pAABB;
@@ -159,7 +164,7 @@ void KdtreeNode::analyzeSplitCostSAH(const std::vector<const Primitive*>& primit
 		float64 pNodeFrac = pAABB.getSurfaceArea() / noSplitSurfaceArea;
 		float64 nNodeFrac = nAABB.getSurfaceArea() / noSplitSurfaceArea;
 
-		float64 splitCost = COST_TRAVERSAL + COST_INTERSECTION * (pNodeFrac*numPnodePrims + nNodeFrac*numNnodePrims);
+		float64 splitCost = COST_TRAVERSAL + COST_INTERSECTION * (pNodeFrac*numPnodeIsables + nNodeFrac*numNnodeIsables);
 
 		if(splitCost < *out_minCost)
 		{
@@ -169,17 +174,17 @@ void KdtreeNode::analyzeSplitCostSAH(const std::vector<const Primitive*>& primit
 	}
 }
 
-void KdtreeNode::buildChildrenNodes(const std::vector<const Primitive*>& primitives)
+void KdtreeNode::buildChildrenNodes(const std::vector<const Intersectable*>& intersectables)
 {
 	// a SAH based spatial partitioning algorithm
 
 	float64 xAxisMinSplitCost, yAxisMinSplitCost, zAxisMinSplitCost;
 	real xAxisSplitPoint, yAxisSplitPoint, zAxisSplitPoint;
-	analyzeSplitCostSAH(primitives, KDTREE_X_AXIS, &xAxisMinSplitCost, &xAxisSplitPoint);
-	analyzeSplitCostSAH(primitives, KDTREE_Y_AXIS, &yAxisMinSplitCost, &yAxisSplitPoint);
-	analyzeSplitCostSAH(primitives, KDTREE_Z_AXIS, &zAxisMinSplitCost, &zAxisSplitPoint);
+	analyzeSplitCostSAH(intersectables, KDTREE_X_AXIS, &xAxisMinSplitCost, &xAxisSplitPoint);
+	analyzeSplitCostSAH(intersectables, KDTREE_Y_AXIS, &yAxisMinSplitCost, &yAxisSplitPoint);
+	analyzeSplitCostSAH(intersectables, KDTREE_Z_AXIS, &zAxisMinSplitCost, &zAxisSplitPoint);
 
-	float64 noSplitCost = COST_INTERSECTION * static_cast<float64>(primitives.size());
+	float64 noSplitCost = COST_INTERSECTION * static_cast<float64>(intersectables.size());
 	float64 minAxisSplitCost = fmin(fmin(xAxisMinSplitCost, yAxisMinSplitCost), zAxisMinSplitCost);
 
 	if(minAxisSplitCost < noSplitCost)
@@ -214,52 +219,56 @@ void KdtreeNode::buildChildrenNodes(const std::vector<const Primitive*>& primiti
 		KdtreeAABB pChildAABB, nChildAABB;
 		if(!m_aabb.trySplitAt(m_splitAxis, m_splitPos, &nChildAABB, &pChildAABB))
 		{
-			std::cerr << "warning: at KdtreeNode::buildChildrenNodes(), invalid split detected" << std::endl;
+			std::cerr << "warning: at KdtreeNode::buildChildrenNodes(), " 
+			          << "invalid split detected" << std::endl;
 		}
 
-		m_positiveChild = buildChildNode(pChildAABB, primitives);
-		m_negativeChild = buildChildNode(nChildAABB, primitives);
+		m_positiveChild = buildChildNode(pChildAABB, intersectables);
+		m_negativeChild = buildChildNode(nChildAABB, intersectables);
 	}
 	else
 	{
-		m_nodeBufferStartIndex = m_primitiveBuffer->size();
-		m_nodeBufferEndIndex = m_nodeBufferStartIndex + primitives.size();
-		for(const auto& primitive : primitives)
+		m_nodeBufferStartIndex = m_intersectableBuffer->size();
+		m_nodeBufferEndIndex = m_nodeBufferStartIndex + intersectables.size();
+		for(const auto& intersectable : intersectables)
 		{
-			m_primitiveBuffer->push_back(primitive);
+			m_intersectableBuffer->push_back(intersectable);
 		}
 	}
 }
 
-std::unique_ptr<KdtreeNode> KdtreeNode::buildChildNode(const KdtreeAABB& childAABB, const std::vector<const Primitive*>& parentPrimitives)
+std::unique_ptr<KdtreeNode> KdtreeNode::buildChildNode(const KdtreeAABB& childAABB, 
+                                                       const std::vector<const Intersectable*>& parentIntersectables)
 {
-	std::vector<const Primitive*> primitives;
+	std::vector<const Intersectable*> intersectables;
 
 	AABB childNodeAABB;
 	childAABB.getAABB(&childNodeAABB);
 
-	for(const Primitive* primitive : parentPrimitives)
+	for(const Intersectable* intersectable : parentIntersectables)
 	{
-		if(primitive->isIntersectingVolumeConservative(childNodeAABB))
+		if(intersectable->isIntersectingVolumeConservative(childNodeAABB))
 		{
-			primitives.push_back(primitive);
+			intersectables.push_back(intersectable);
 		}	
 	}
 
-	if(primitives.empty())
+	if(intersectables.empty())
 	{
 		return nullptr;
 	}
 
-	auto childNode = std::make_unique<KdtreeNode>(m_primitiveBuffer);
+	auto childNode = std::make_unique<KdtreeNode>(m_intersectableBuffer);
 	childNode->m_aabb = childAABB;
-	childNode->buildChildrenNodes(primitives);
+	childNode->buildChildrenNodes(intersectables);
 
 	return childNode;
 }
 
-bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, Intersection* const out_intersection,
-                                                    const real rayDistMin, const real rayDistMax) const
+bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, 
+                                                    Intersection* const out_intersection,
+                                                    const real rayDistMin, 
+                                                    const real rayDistMax) const
 {
 	if(!isLeaf())
 	{
@@ -356,9 +365,9 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, Intersection
 		if(closestIntersection.getHitPrimitive() != nullptr)
 			closestHitSquaredDist = closestIntersection.getHitPosition().sub(ray.getOrigin()).lengthSquared();
 
-		for(std::size_t primIndex = m_nodeBufferStartIndex; primIndex < m_nodeBufferEndIndex; primIndex++)
+		for(std::size_t isableIndex = m_nodeBufferStartIndex; isableIndex < m_nodeBufferEndIndex; isableIndex++)
 		{
-			if((*m_primitiveBuffer)[primIndex]->isIntersecting(segmentRay, out_intersection))
+			if((*m_intersectableBuffer)[isableIndex]->isIntersecting(segmentRay, out_intersection))
 			{
 				out_intersection->getHitPosition().sub(ray.getOrigin(), &temp);
 				const real squaredHitDist = temp.lengthSquared();

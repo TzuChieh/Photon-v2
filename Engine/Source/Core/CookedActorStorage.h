@@ -3,7 +3,7 @@
 #include "Utility/TIteratorProxy.h"
 #include "Utility/TConstIteratorProxy.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Core/Intersectable/Primitive.h"
+#include "Core/Intersectable/Intersectable.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Transform/StaticTransform.h"
 #include "Core/CookedActor.h"
@@ -23,27 +23,27 @@ public:
 
 	void clear();
 
-	void add(std::unique_ptr<Primitive> primitive);
+	void add(std::unique_ptr<Intersectable> intersectable);
 	void add(std::unique_ptr<PrimitiveMetadata> metadata);
 	void add(std::unique_ptr<Emitter> emitter);
 	void add(CookedActor&& cookedActor);
-	void add(std::vector<std::unique_ptr<Primitive>>&& primitives);
+	void add(std::vector<std::unique_ptr<Intersectable>>&& intersectables);
 	void add(CookedActorStorage&& other);
 
-	std::size_t numPrimitives() const;
+	std::size_t numIntersectables() const;
 
 	// forbid copying
 	CookedActorStorage(const CookedActorStorage& other) = delete;
 	CookedActorStorage& operator = (const CookedActorStorage& rhs) = delete;
 
-	inline TIteratorProxy<std::vector<std::unique_ptr<Primitive>>> primitives()
+	inline TIteratorProxy<std::vector<std::unique_ptr<Intersectable>>> intersectables()
 	{
-		return TIteratorProxy<std::vector<std::unique_ptr<Primitive>>>(m_primitives);
+		return TIteratorProxy<std::vector<std::unique_ptr<Intersectable>>>(m_intersectables);
 	}
 
-	inline TConstIteratorProxy<std::vector<std::unique_ptr<Primitive>>> primitives() const
+	inline TConstIteratorProxy<std::vector<std::unique_ptr<Intersectable>>> intersectables() const
 	{
-		return TConstIteratorProxy<std::vector<std::unique_ptr<Primitive>>>(m_primitives);
+		return TConstIteratorProxy<std::vector<std::unique_ptr<Intersectable>>>(m_intersectables);
 	}
 
 	inline TIteratorProxy<std::vector<std::unique_ptr<PrimitiveMetadata>>> primitiveMetadatas()
@@ -67,7 +67,7 @@ public:
 	}
 
 private:
-	std::vector<std::unique_ptr<Primitive>>         m_primitives;
+	std::vector<std::unique_ptr<Intersectable>>     m_intersectables;
 	std::vector<std::unique_ptr<PrimitiveMetadata>> m_primitiveMetadatas;
 	std::vector<std::unique_ptr<Emitter>>           m_emitters;
 };

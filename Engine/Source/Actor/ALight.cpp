@@ -63,16 +63,15 @@ void ALight::cook(CookedActor* const out_cookedActor) const
 
 			primitiveBuildingMaterial.metadata = metadata.get();
 			std::vector<std::unique_ptr<Primitive>> primitives;
-			m_geometry->discretize(primitiveBuildingMaterial, primitives);
+			m_geometry->genPrimitive(primitiveBuildingMaterial, primitives);
 			m_material->populateSurfaceBehavior(&(metadata->surfaceBehavior));
 
-			cookedActor.primitives        = std::move(primitives);
+			for(auto& primitive : primitives)
+			{
+				emitterBuildingMaterial.primitives.push_back(primitive.get());
+				cookedActor.intersectables.push_back(std::move(primitive));
+			}
 			cookedActor.primitiveMetadata = std::move(metadata);
-		}
-
-		for(const auto& primitive : cookedActor.primitives)
-		{
-			emitterBuildingMaterial.primitives.push_back(primitive.get());
 		}
 		
 		cookedActor.emitter = m_lightSource->buildEmitter(emitterBuildingMaterial);

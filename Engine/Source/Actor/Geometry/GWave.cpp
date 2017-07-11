@@ -18,8 +18,8 @@ GWave::GWave(const real xLen, const real yLen, const real zLen) :
 
 GWave::~GWave() = default;
 
-void GWave::discretize(const PrimitiveBuildingMaterial& data,
-                       std::vector<std::unique_ptr<Primitive>>& out_primitives) const
+void GWave::genPrimitive(const PrimitiveBuildingMaterial& data,
+                         std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
 	if(!checkData(data, m_xLen, m_yLen, m_xLen))
 	{

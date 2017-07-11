@@ -10,7 +10,7 @@
 namespace ph
 {
 
-class Primitive;
+class Intersectable;
 
 class ClassicBvhIntersector : public Intersector
 {
@@ -22,8 +22,8 @@ public:
 	virtual bool isIntersecting(const Ray& ray) const override;
 
 private:
-	std::vector<const Primitive*> m_primitives;
-	std::vector<BvhLinearNode>    m_nodes;
+	std::vector<const Intersectable*> m_intersectables;
+	std::vector<BvhLinearNode>        m_nodes;
 
 	static const int32 NODE_STACK_SIZE = 64;
 };

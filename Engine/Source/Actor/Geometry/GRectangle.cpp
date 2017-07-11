@@ -18,8 +18,8 @@ GRectangle::GRectangle(const real width, const real height) :
 
 GRectangle::~GRectangle() = default;
 
-void GRectangle::discretize(const PrimitiveBuildingMaterial& data,
-                            std::vector<std::unique_ptr<Primitive>>& out_primitives) const
+void GRectangle::genPrimitive(const PrimitiveBuildingMaterial& data,
+                              std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
 	if(!checkData(data, m_width, m_height))
 	{

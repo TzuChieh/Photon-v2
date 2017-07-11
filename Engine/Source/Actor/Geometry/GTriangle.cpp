@@ -42,12 +42,12 @@ GTriangle::GTriangle(const InputPacket& packet) :
 
 GTriangle::~GTriangle() = default;
 
-void GTriangle::discretize(const PrimitiveBuildingMaterial& data,
-                           std::vector<std::unique_ptr<Primitive>>& out_primitives) const
+void GTriangle::genPrimitive(const PrimitiveBuildingMaterial& data,
+                             std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
 	if(!data.metadata)
 	{
-		std::cerr << "warning: at GTriangle::discretize(), no PrimitiveMetadata" << std::endl;
+		std::cerr << "warning: at GTriangle::genPrimitive(), no PrimitiveMetadata" << std::endl;
 		return;
 	}
 

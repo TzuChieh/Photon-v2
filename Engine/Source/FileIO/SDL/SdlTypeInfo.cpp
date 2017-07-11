@@ -18,6 +18,7 @@ std::string SdlTypeInfo::categoryToName(const ETypeCategory typeCategory)
 	{
 	case ETypeCategory::PRIMITIVE:        categoryName = "primitive";       break;
 	case ETypeCategory::REF_GEOMETRY:     categoryName = "geometry";        break;
+	case ETypeCategory::REF_MOTION:       categoryName = "motion";          break;
 	case ETypeCategory::REF_MATERIAL:     categoryName = "material";        break;
 	case ETypeCategory::REF_LIGHT_SOURCE: categoryName = "light-source";    break;
 	case ETypeCategory::REF_ACTOR:        categoryName = "actor";           break;
@@ -27,7 +28,8 @@ std::string SdlTypeInfo::categoryToName(const ETypeCategory typeCategory)
 	case ETypeCategory::REF_SAMPLER:      categoryName = "sampler";         break;
 
 	default:
-		std::cerr << "warning: converting category to name failed, unspecified category detected" << std::endl;
+		std::cerr << "warning: converting category to name failed, " 
+		          << "unspecified category detected" << std::endl;
 		break;
 	}
 
@@ -41,6 +43,7 @@ ETypeCategory SdlTypeInfo::nameToCategory(const std::string& name)
 		{categoryToName(ETypeCategory::PRIMITIVE),        ETypeCategory::PRIMITIVE},
 		{categoryToName(ETypeCategory::REF_GEOMETRY),     ETypeCategory::REF_GEOMETRY},
 		{categoryToName(ETypeCategory::REF_MATERIAL),     ETypeCategory::REF_MATERIAL},
+		{categoryToName(ETypeCategory::REF_MOTION),       ETypeCategory::REF_MOTION},
 		{categoryToName(ETypeCategory::REF_LIGHT_SOURCE), ETypeCategory::REF_LIGHT_SOURCE},
 		{categoryToName(ETypeCategory::REF_ACTOR),        ETypeCategory::REF_ACTOR},
 		{categoryToName(ETypeCategory::REF_CAMERA),       ETypeCategory::REF_CAMERA},
@@ -52,7 +55,8 @@ ETypeCategory SdlTypeInfo::nameToCategory(const std::string& name)
 	const auto& iter = map.find(name);
 	if(iter == map.end())
 	{
-		std::cerr << "warning: converting name to category failed, returning unspecified category" << std::endl;
+		std::cerr << "warning: converting name to category failed, " 
+		          << "returning unspecified category" << std::endl;
 		return ETypeCategory::UNSPECIFIED;
 	}
 

@@ -22,12 +22,12 @@ GTriangleMesh::~GTriangleMesh()
 
 }
 
-void GTriangleMesh::discretize(const PrimitiveBuildingMaterial& data,
-                               std::vector<std::unique_ptr<Primitive>>& out_primitives) const
+void GTriangleMesh::genPrimitive(const PrimitiveBuildingMaterial& data,
+                                 std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
 	for(const auto& gTriangle : m_gTriangles)
 	{
-		gTriangle.discretize(data, out_primitives);
+		gTriangle.genPrimitive(data, out_primitives);
 	}
 }
 

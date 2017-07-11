@@ -1,6 +1,6 @@
 #include "World/Intersector/Bvh/BvhBuilder.h"
 #include "World/Intersector/Bvh/BvhInfoNode.h"
-#include "Core/Intersectable/Primitive.h"
+#include "Core/Intersectable/Intersectable.h"
 #include "Math/TVector3.h"
 
 #include <iostream>
@@ -13,10 +13,10 @@ class BvhSahBucket final
 {
 public:
 	AABB        aabb;
-	std::size_t numPrimitives;
+	std::size_t numIntersectables;
 
-	BvhSahBucket() : aabb(), numPrimitives(0) {}
-	bool isEmpty() { return numPrimitives == 0; }
+	BvhSahBucket() : aabb(), numIntersectables(0) {}
+	bool isEmpty() { return numIntersectables == 0; }
 };
 
 BvhBuilder::BvhBuilder(const EBvhType type) : 
@@ -25,30 +25,33 @@ BvhBuilder::BvhBuilder(const EBvhType type) :
 
 }
 
-const BvhInfoNode* BvhBuilder::buildInformativeBinaryBvh(const std::vector<const Primitive*>& primitives)
+const BvhInfoNode* BvhBuilder::buildInformativeBinaryBvh(const std::vector<const Intersectable*>& intersectables)
 {
 	m_infoNodes.clear();
 	m_infoNodes.shrink_to_fit();
 
-	std::vector<BvhPrimitiveInfo> primitiveInfos(primitives.size());
-	for(std::size_t i = 0; i < primitives.size(); i++)
+	std::vector<BvhIntersectableInfo> intersectableInfos(intersectables.size());
+	for(std::size_t i = 0; i < intersectables.size(); i++)
 	{
-		primitiveInfos[i] = BvhPrimitiveInfo(primitives[i], i);
+		intersectableInfos[i] = BvhIntersectableInfo(intersectables[i], i);
 	}
 
 	const BvhInfoNode* rootNode = nullptr;
 
 	if(m_type == EBvhType::HALF)
 	{
-		rootNode = buildBinaryBvhInfoNodeRecursive(primitiveInfos, ENodeSplitMethod::EQUAL_PRIMITIVES);
+		rootNode = buildBinaryBvhInfoNodeRecursive(intersectableInfos, 
+		                                           ENodeSplitMethod::EQUAL_INTERSECTABLES);
 	}
 	else if(m_type == EBvhType::SAH_BUCKET)
 	{
-		rootNode = buildBinaryBvhInfoNodeRecursive(primitiveInfos, ENodeSplitMethod::SAH_BUCKETS);
+		rootNode = buildBinaryBvhInfoNodeRecursive(intersectableInfos, 
+		                                           ENodeSplitMethod::SAH_BUCKETS);
 	}
 	else
 	{
-		std::cerr << "warning: at BvhBuilder::buildInformativeBinaryBvh(), unsupported BVH type specified" << std::endl;
+		std::cerr << "warning: at BvhBuilder::buildInformativeBinaryBvh(), " 
+		          << "unsupported BVH type specified" << std::endl;
 	}
 
 	return rootNode;
@@ -56,63 +59,67 @@ const BvhInfoNode* BvhBuilder::buildInformativeBinaryBvh(const std::vector<const
 
 void BvhBuilder::buildLinearDepthFirstBinaryBvh(const BvhInfoNode* rootNode,
                                                 std::vector<BvhLinearNode>* const out_linearNodes,
-                                                std::vector<const Primitive*>* const out_primitives)
+                                                std::vector<const Intersectable*>* const out_intersectables)
 {
 	if(rootNode == nullptr)
 	{
-		std::cerr << "warning: at BvhBuilder::buildLinearDepthFirstBinaryBvh(), input node is nullptr" << std::endl;
+		std::cerr << "warning: at BvhBuilder::buildLinearDepthFirstBinaryBvh(), " 
+		          << "input node is nullptr" << std::endl;
 	}
 
 	m_linearNodes.clear();
 	m_linearNodes.shrink_to_fit();
 	m_linearNodes.reserve(calcTotalNodes(rootNode));
-	m_primitives.clear();
-	m_primitives.shrink_to_fit();
-	m_primitives.reserve(calcTotalPrimitives(rootNode));
+	m_intersectables.clear();
+	m_intersectables.shrink_to_fit();
+	m_intersectables.reserve(calcTotalIntersectables(rootNode));
 
 	buildBinaryBvhLinearDepthFirstNodeRecursive(rootNode, 0);
 
 	out_linearNodes->clear();
 	out_linearNodes->shrink_to_fit();
-	out_primitives->clear();
-	out_primitives->shrink_to_fit();
+	out_intersectables->clear();
+	out_intersectables->shrink_to_fit();
 
 	m_linearNodes.swap(*out_linearNodes);
-	m_primitives.swap(*out_primitives);
+	m_intersectables.swap(*out_intersectables);
 }
 
-const BvhInfoNode* BvhBuilder::buildBinaryBvhInfoNodeRecursive(const std::vector<BvhPrimitiveInfo>& primitives, const ENodeSplitMethod splitMethod)
+const BvhInfoNode* BvhBuilder::buildBinaryBvhInfoNodeRecursive(const std::vector<BvhIntersectableInfo>& intersectables, 
+                                                               const ENodeSplitMethod splitMethod)
 {
 	m_infoNodes.push_back(std::make_unique<BvhInfoNode>());
 	BvhInfoNode* node = m_infoNodes.back().get();
 
-	AABB nodeAABB(primitives.empty() ? AABB() : primitives.front().aabb);
-	for(const auto primitive : primitives)
+	AABB nodeAABB(intersectables.empty() ? AABB() : intersectables.front().aabb);
+	for(const auto intersectable : intersectables)
 	{
-		nodeAABB = AABB::makeUnioned(nodeAABB, primitive.aabb);
+		nodeAABB = AABB::makeUnioned(nodeAABB, intersectable.aabb);
 	}
 
-	if(primitives.size() <= 1)
+	if(intersectables.size() <= 1)
 	{
-		*node = BvhInfoNode::makeBinaryLeaf(primitives, nodeAABB);
+		*node = BvhInfoNode::makeBinaryLeaf(intersectables, nodeAABB);
 
-		if(primitives.empty())
+		if(intersectables.empty())
 		{
-			std::cerr << "warning: at BvhBuilder::buildBinaryBvhNodeRecursive(), leaf node without primitive detected" << std::endl;
+			std::cerr << "warning: at BvhBuilder::buildBinaryBvhNodeRecursive(), " 
+			          << "leaf node without primitive detected" << std::endl;
 		}
 	}
 	else
 	{
-		AABB centroidsAABB(primitives.front().aabbCentroid);
-		for(const auto primitive : primitives)
+		AABB centroidsAABB(intersectables.front().aabbCentroid);
+		for(const auto intersectable : intersectables)
 		{
-			centroidsAABB = AABB::makeUnioned(centroidsAABB, primitive.aabbCentroid);
+			centroidsAABB = AABB::makeUnioned(centroidsAABB, intersectable.aabbCentroid);
 		}
 
 		Vector3R extents = centroidsAABB.calcExtents();
 		if(extents.hasNegativeComponent())
 		{
-			std::cerr << "warning: at BvhBuilder::buildBinaryBvhNodeRecursive(), negative AABB extent detected" << std::endl;
+			std::cerr << "warning: at BvhBuilder::buildBinaryBvhNodeRecursive(), " 
+			          << "negative AABB extent detected" << std::endl;
 			extents.absLocal();
 		}
 
@@ -120,35 +127,40 @@ const BvhInfoNode* BvhBuilder::buildBinaryBvhInfoNodeRecursive(const std::vector
 
 		if(centroidsAABB.getMinVertex()[maxDimension] == centroidsAABB.getMaxVertex()[maxDimension])
 		{
-			*node = BvhInfoNode::makeBinaryLeaf(primitives, nodeAABB);
+			*node = BvhInfoNode::makeBinaryLeaf(intersectables, nodeAABB);
 		}
 		else
 		{
 			bool isSplitSuccess = false;
-			std::vector<BvhPrimitiveInfo> primitivesA;
-			std::vector<BvhPrimitiveInfo> primitivesB;
+			std::vector<BvhIntersectableInfo> intersectablesA;
+			std::vector<BvhIntersectableInfo> intersectablesB;
 
 			switch(splitMethod)
 			{
 
-			case ENodeSplitMethod::EQUAL_PRIMITIVES:
-				isSplitSuccess = splitWithEqualPrimitives(primitives, maxDimension, &primitivesA, &primitivesB);
+			case ENodeSplitMethod::EQUAL_INTERSECTABLES:
+				isSplitSuccess = splitWithEqualIntersectables(intersectables, maxDimension, 
+				                                              &intersectablesA, &intersectablesB);
 				break;
 
 			case ENodeSplitMethod::SAH_BUCKETS:
-				isSplitSuccess = splitWithSahBuckets(primitives, maxDimension, nodeAABB, centroidsAABB, &primitivesA, &primitivesB);
+				isSplitSuccess = splitWithSahBuckets(intersectables, maxDimension, 
+				                                     nodeAABB, centroidsAABB, 
+				                                     &intersectablesA, &intersectablesB);
 				break;
 
 			default:
-				std::cerr << "warning: at BvhBuilder::buildBinaryBvhNodeRecursive(), unknown split method detected" << std::endl;
+				std::cerr << "warning: at BvhBuilder::buildBinaryBvhNodeRecursive(), " 
+				          << "unknown split method detected" << std::endl;
 				isSplitSuccess = false;
 				break;
 
 			}// end switch split method
 
-			if(isSplitSuccess && (primitivesA.empty() || primitivesB.empty()))
+			if(isSplitSuccess && (intersectablesA.empty() || intersectablesB.empty()))
 			{
-				std::cerr << "warning: at BvhBuilder::buildBinaryBvhNodeRecursive(), bad split detected" << std::endl;
+				std::cerr << "warning: at BvhBuilder::buildBinaryBvhNodeRecursive(), " 
+				          << "bad split detected" << std::endl;
 				isSplitSuccess = false;
 			}
 
@@ -156,13 +168,13 @@ const BvhInfoNode* BvhBuilder::buildBinaryBvhInfoNodeRecursive(const std::vector
 			{
 				//std::cout << "#A: " << primitivesA.size() << "| #B: " << primitivesB.size() << std::endl;
 
-				*node = BvhInfoNode::makeBinaryInternal(buildBinaryBvhInfoNodeRecursive(primitivesA, splitMethod),
-				                                        buildBinaryBvhInfoNodeRecursive(primitivesB, splitMethod), 
+				*node = BvhInfoNode::makeBinaryInternal(buildBinaryBvhInfoNodeRecursive(intersectablesA, splitMethod),
+				                                        buildBinaryBvhInfoNodeRecursive(intersectablesB, splitMethod),
 				                                        maxDimension);
 			}
 			else
 			{
-				*node = BvhInfoNode::makeBinaryLeaf(primitives, nodeAABB);
+				*node = BvhInfoNode::makeBinaryLeaf(intersectables, nodeAABB);
 			}
 		}
 	}
@@ -178,12 +190,12 @@ void BvhBuilder::buildBinaryBvhLinearDepthFirstNodeRecursive(const BvhInfoNode* 
 	if(rootNode->isBinaryLeaf())
 	{
 		m_linearNodes.push_back(BvhLinearNode::makeLeaf(rootNode->aabb, 
-		                                                m_primitives.size(), 
-		                                                static_cast<int32>(rootNode->primitives.size())));
+		                                                m_intersectables.size(), 
+		                                                static_cast<int32>(rootNode->intersectables.size())));
 
-		for(const auto& primitiveInfo : rootNode->primitives)
+		for(const auto& intersectableInfo : rootNode->intersectables)
 		{
-			m_primitives.push_back(primitiveInfo.primitive);
+			m_intersectables.push_back(intersectableInfo.intersectable);
 		}
 	}
 	else if(rootNode->isBinaryInternal())
@@ -193,11 +205,14 @@ void BvhBuilder::buildBinaryBvhLinearDepthFirstNodeRecursive(const BvhInfoNode* 
 		std::size_t secondChildOffset = static_cast<std::size_t>(-1);
 		buildBinaryBvhLinearDepthFirstNodeRecursive(rootNode->children[0], nullptr);
 		buildBinaryBvhLinearDepthFirstNodeRecursive(rootNode->children[1], &secondChildOffset);
-		m_linearNodes[nodeIndex] = BvhLinearNode::makeInternal(rootNode->aabb, secondChildOffset, rootNode->splitAxis);
+		m_linearNodes[nodeIndex] = BvhLinearNode::makeInternal(rootNode->aabb, 
+		                                                       secondChildOffset, 
+		                                                       rootNode->splitAxis);
 	}
 	else
 	{
-		std::cerr << "warning: at BvhBuilder::buildBinaryBvhLinearDepthFirstNodeRecursive(), only binary node is acceptable" << std::endl;
+		std::cerr << "warning: at BvhBuilder::buildBinaryBvhLinearDepthFirstNodeRecursive(), " 
+		          << "only binary node is acceptable" << std::endl;
 		nodeIndex = static_cast<std::size_t>(-1);
 	}
 
@@ -215,11 +230,11 @@ std::size_t BvhBuilder::calcTotalNodes(const BvhInfoNode* rootNode)
 	return result;
 }
 
-std::size_t BvhBuilder::calcTotalPrimitives(const BvhInfoNode* rootNode)
+std::size_t BvhBuilder::calcTotalIntersectables(const BvhInfoNode* rootNode)
 {
-	std::size_t result = rootNode->primitives.size();
-	result += rootNode->children[0] ? calcTotalPrimitives(rootNode->children[0]) : 0;
-	result += rootNode->children[1] ? calcTotalPrimitives(rootNode->children[1]) : 0;
+	std::size_t result = rootNode->intersectables.size();
+	result += rootNode->children[0] ? calcTotalIntersectables(rootNode->children[0]) : 0;
+	result += rootNode->children[1] ? calcTotalIntersectables(rootNode->children[1]) : 0;
 	return result;
 }
 
@@ -232,44 +247,52 @@ std::size_t BvhBuilder::calcMaxDepth(const BvhInfoNode* rootNode)
 	return depth;
 }
 
-bool BvhBuilder::splitWithEqualPrimitives(const std::vector<BvhPrimitiveInfo>& primitives, const int32 splitDimension, 
-                                          std::vector<BvhPrimitiveInfo>* const out_partA,
-                                          std::vector<BvhPrimitiveInfo>* const out_partB)
+bool BvhBuilder::splitWithEqualIntersectables(const std::vector<BvhIntersectableInfo>& intersectables, 
+                                              const int32 splitDimension, 
+                                              std::vector<BvhIntersectableInfo>* const out_partA,
+                                              std::vector<BvhIntersectableInfo>* const out_partB)
 {
-	if(primitives.size() < 2)
+	if(intersectables.size() < 2)
 	{
-		std::cerr << "warning: at BvhBuilder::splitWithEqualPrimitives(), number of primitives < 2, cannot split" << std::endl;
+		std::cerr << "warning: at BvhBuilder::splitWithEqualPrimitives(), " 
+		          << "number of primitives < 2, cannot split" << std::endl;
 		return false;
 	}
 
-	const std::size_t midIndex = primitives.size() / 2 - 1;
-	std::vector<BvhPrimitiveInfo> sortedPrims(primitives);
+	const std::size_t midIndex = intersectables.size() / 2 - 1;
+	std::vector<BvhIntersectableInfo> sortedIntersectables(intersectables);
 
-	std::nth_element(sortedPrims.begin(), sortedPrims.begin() + midIndex, sortedPrims.end(),
-		[splitDimension](const BvhPrimitiveInfo& a, const BvhPrimitiveInfo& b)
-		{
-			return a.aabbCentroid[splitDimension] < b.aabbCentroid[splitDimension];
-		});
+	std::nth_element(sortedIntersectables.begin(), 
+	                 sortedIntersectables.begin() + midIndex, 
+	                 sortedIntersectables.end(),
+	[splitDimension](const BvhIntersectableInfo& a, const BvhIntersectableInfo& b)
+	{
+		return a.aabbCentroid[splitDimension] < b.aabbCentroid[splitDimension];
+	});
 
 	out_partA->clear();
 	out_partB->clear();
 	out_partA->shrink_to_fit();
 	out_partB->shrink_to_fit();
 
-	out_partA->insert(out_partA->end(), sortedPrims.begin(), sortedPrims.begin() + midIndex + 1);
-	out_partB->insert(out_partB->end(), sortedPrims.begin() + midIndex + 1, sortedPrims.end());
+	out_partA->insert(out_partA->end(), 
+	                  sortedIntersectables.begin(), sortedIntersectables.begin() + midIndex + 1);
+	out_partB->insert(out_partB->end(), 
+	                  sortedIntersectables.begin() + midIndex + 1, sortedIntersectables.end());
 
 	return true;
 }
 
-bool BvhBuilder::splitWithSahBuckets(const std::vector<BvhPrimitiveInfo>& primitives, const int32 splitDimension, 
+bool BvhBuilder::splitWithSahBuckets(const std::vector<BvhIntersectableInfo>& intersectables, 
+                                     const int32 splitDimension,
                                      const AABB& primitivesAABB, const AABB& centroidsAABB, 
-                                     std::vector<BvhPrimitiveInfo>* const out_partA,
-                                     std::vector<BvhPrimitiveInfo>* const out_partB)
+                                     std::vector<BvhIntersectableInfo>* const out_partA,
+                                     std::vector<BvhIntersectableInfo>* const out_partB)
 {
-	if(primitives.size() < 2)
+	if(intersectables.size() < 2)
 	{
-		std::cerr << "warning: at BvhBuilder::splitWithSahBuckets(), number of primitives < 2, cannot split" << std::endl;
+		std::cerr << "warning: at BvhBuilder::splitWithSahBuckets(), " 
+		          << "number of intersectables < 2, cannot split" << std::endl;
 		return false;
 	}
 
@@ -280,21 +303,22 @@ bool BvhBuilder::splitWithSahBuckets(const std::vector<BvhPrimitiveInfo>& primit
 	const real     splitExtent = extents[dim];
 
 	BvhSahBucket buckets[numBuckets];
-	for(const auto& primitive : primitives)
+	for(const auto& intersectable : intersectables)
 	{
 		if(splitExtent < 0.0_r)
 		{
-			std::cerr << "warning: at BvhBuilder::splitWithSahBuckets(), primitive AABB split extent < 0, cannot split" << std::endl;
+			std::cerr << "warning: at BvhBuilder::splitWithSahBuckets(), " 
+			          << "intersectable AABB split extent < 0, cannot split" << std::endl;
 			return false;
 		}
 
-		const real factor = (primitive.aabbCentroid[dim] - centroidsAABB.getMinVertex()[dim]) / splitExtent;
+		const real factor = (intersectable.aabbCentroid[dim] - centroidsAABB.getMinVertex()[dim]) / splitExtent;
 		int32 bucketIndex = static_cast<int32>(factor * numBuckets);
 		bucketIndex = (bucketIndex == numBuckets) ? bucketIndex - 1 : bucketIndex;
 
 		buckets[bucketIndex].aabb = (buckets[numBuckets].isEmpty()) ? 
-		                            primitive.aabb : buckets[bucketIndex].aabb.unionWith(primitive.aabb);
-		buckets[bucketIndex].numPrimitives++;
+		                            intersectable.aabb : buckets[bucketIndex].aabb.unionWith(intersectable.aabb);
+		buckets[bucketIndex].numIntersectables++;
 	}
 
 	const real traversalCost = 1.0_r / 8.0_r;
@@ -303,7 +327,7 @@ bool BvhBuilder::splitWithSahBuckets(const std::vector<BvhPrimitiveInfo>& primit
 	real costs[numBuckets - 1] = {0.0_r};
 	for(int32 i = 0; i < numBuckets - 1; i++)
 	{
-		std::size_t numPrimitivesA = 0;
+		std::size_t numIntersectablesA = 0;
 		AABB aabbA;
 		for(int32 j = 0; j <= i; j++)
 		{
@@ -312,10 +336,10 @@ bool BvhBuilder::splitWithSahBuckets(const std::vector<BvhPrimitiveInfo>& primit
 				aabbA = aabbA.isPoint() ? buckets[j].aabb : AABB::makeUnioned(aabbA, buckets[j].aabb);
 			}
 			
-			numPrimitivesA += buckets[j].numPrimitives;
+			numIntersectablesA += buckets[j].numIntersectables;
 		}
 
-		std::size_t numPrimitivesB = 0;
+		std::size_t numIntersectablesB = 0;
 		AABB aabbB;
 		for(int32 j = i + 1; j < numBuckets; j++)
 		{
@@ -324,15 +348,15 @@ bool BvhBuilder::splitWithSahBuckets(const std::vector<BvhPrimitiveInfo>& primit
 				aabbB = aabbB.isPoint() ? buckets[j].aabb : AABB::makeUnioned(aabbB, buckets[j].aabb);
 			}
 
-			numPrimitivesB += buckets[j].numPrimitives;
+			numIntersectablesB += buckets[j].numIntersectables;
 		}
 
 		const real probTestingA = aabbA.calcSurfaceArea() / primitivesAABB.calcSurfaceArea();
 		const real probTestingB = aabbB.calcSurfaceArea() / primitivesAABB.calcSurfaceArea();
 
 		costs[i] = traversalCost + 
-		           static_cast<real>(numPrimitivesA) * intersectCost * probTestingA + 
-		           static_cast<real>(numPrimitivesB) * intersectCost * probTestingB;
+		           static_cast<real>(numIntersectablesA) * intersectCost * probTestingA +
+		           static_cast<real>(numIntersectablesB) * intersectCost * probTestingB;
 	}
 
 	int32 minCostIndex = 0;
@@ -345,27 +369,27 @@ bool BvhBuilder::splitWithSahBuckets(const std::vector<BvhPrimitiveInfo>& primit
 	}
 
 	const real minSplitCost = costs[minCostIndex];
-	const real noSplitCost  = intersectCost * static_cast<real>(primitives.size());
+	const real noSplitCost  = intersectCost * static_cast<real>(intersectables.size());
 
-	const std::size_t maxPrimitives = 256;
+	const std::size_t maxIntersectables = 256;
 
-	if(minSplitCost < noSplitCost || primitives.size() > maxPrimitives)
+	if(minSplitCost < noSplitCost || intersectables.size() > maxIntersectables)
 	{
 		out_partA->clear();
 		out_partB->clear();
 		out_partA->shrink_to_fit();
 		out_partB->shrink_to_fit();
 
-		for(const auto& primitive : primitives)
+		for(const auto& intersectable : intersectables)
 		{
-			const real factor = (primitive.aabbCentroid[dim] - centroidsAABB.getMinVertex()[dim]) / splitExtent;
+			const real factor = (intersectable.aabbCentroid[dim] - centroidsAABB.getMinVertex()[dim]) / splitExtent;
 			int32 bucketIndex = static_cast<int32>(factor * numBuckets);
 			bucketIndex = (bucketIndex == numBuckets) ? bucketIndex - 1 : bucketIndex;
 
 			if(bucketIndex <= minCostIndex)
-				out_partA->push_back(primitive);
+				out_partA->push_back(intersectable);
 			else
-				out_partB->push_back(primitive);
+				out_partB->push_back(intersectable);
 		}
 
 		return true;

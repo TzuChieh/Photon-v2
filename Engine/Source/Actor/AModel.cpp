@@ -59,10 +59,14 @@ void AModel::cook(CookedActor* const out_cookedActor) const
 
 		primitiveBuildingMaterial.metadata = metadata.get();
 		std::vector<std::unique_ptr<Primitive>> primitives;
-		m_geometry->discretize(primitiveBuildingMaterial, primitives);
+		m_geometry->genPrimitive(primitiveBuildingMaterial, primitives);
 		m_material->populateSurfaceBehavior(&(metadata->surfaceBehavior));
 
-		cookedActor.primitives        = std::move(primitives);
+		for(auto& primitive : primitives)
+		{
+			cookedActor.intersectables.push_back(std::move(primitive));
+			//std::cout << "i" << std::endl;
+		}
 		cookedActor.primitiveMetadata = std::move(metadata);
 	}
 	else

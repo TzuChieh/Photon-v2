@@ -8,7 +8,7 @@
 namespace ph
 {
 
-class Triangle;
+class Intersectable;
 
 class BruteForceIntersector final : public Intersector
 {
@@ -20,7 +20,7 @@ public:
 	virtual bool isIntersecting(const Ray& ray) const override;
 
 private:
-	std::vector<const Primitive*> m_primitives;
+	std::vector<const Intersectable*> m_intersectables;
 };
 
 }// end namespace ph

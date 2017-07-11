@@ -4,7 +4,7 @@
 //## film(film) [integer width 400] [integer height 400]
 //## film(film) [integer width 800] [integer height 800]
 ## film(film) [integer width 800] [integer height 600]
-## sampler(sampler) [integer spp-budget 10]
+## sampler(sampler) [integer spp-budget 8]
 //## sampler(sampler) [integer spp-budget 64]
 
 ## integrator(backward-path)

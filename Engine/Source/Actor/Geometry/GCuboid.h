@@ -15,8 +15,8 @@ public:
 	GCuboid(const GCuboid& other);
 	virtual ~GCuboid() override;
 
-	virtual void discretize(const PrimitiveBuildingMaterial& data,
-	                        std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
+	virtual void genPrimitive(const PrimitiveBuildingMaterial& data,
+	                          std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
 
 	GCuboid& operator = (const GCuboid& rhs);
 

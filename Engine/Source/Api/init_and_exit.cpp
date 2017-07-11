@@ -17,6 +17,10 @@
 #include "Actor/LightSource/LightSource.h"
 #include "Actor/LightSource/AreaSource.h"
 
+// motions
+#include "Actor/MotionSource/MotionSource.h"
+#include "Actor/MotionSource/ConstVelocityMotion.h"
+
 // actors
 #include "Actor/Actor.h"
 #include "Actor/PhysicalActor.h"
@@ -71,6 +75,10 @@ bool init_command_parser()
 	// light sources
 	register_command_interface<LightSource>();
 	register_command_interface<AreaSource>();
+
+	// motions
+	register_command_interface<MotionSource>();
+	register_command_interface<ConstVelocityMotion>();
 
 	// actors
 	register_command_interface<Actor>();

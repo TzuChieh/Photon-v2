@@ -2,7 +2,7 @@
 
 #include "World/Intersector/Intersector.h"
 #include "World/Intersector/Kdtree/KdtreeNode.h"
-#include "Core/Intersectable/Primitive.h"
+#include "Core/Intersectable/Intersectable.h"
 
 #include <vector>
 
@@ -20,7 +20,7 @@ public:
 	virtual bool isIntersecting(const Ray& ray) const override;
 
 private:
-	std::vector<const Primitive*> m_nodePrimitiveBuffer;
+	std::vector<const Intersectable*> m_nodeIntersectableBuffer;
 	KdtreeNode m_rootKdtreeNode;
 };
 

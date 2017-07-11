@@ -57,10 +57,15 @@ void VisualWorld::cook()
 	{
 		CookedActor cookedActor;
 		actor->cook(&cookedActor);
+
+		//std::cout << cookedActor.intersectables.size() << std::endl;
+
 		m_cookedActorStorage.add(std::move(cookedActor));
 	}
 
-	std::cout << "visual world discretized into " << m_cookedActorStorage.numPrimitives() << " primitives" << std::endl;
+	std::cout << "visual world discretized into " 
+	          << m_cookedActorStorage.numIntersectables() 
+	          << " intersectables" << std::endl;
 	std::cout << "preprocessing..." << std::endl;
 
 	m_intersector->update(m_cookedActorStorage);

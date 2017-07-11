@@ -225,9 +225,6 @@
     <ClCompile Include="Source\World\Intersector\Bvh\BvhLinearNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\World\Intersector\Bvh\BvhPrimitiveInfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Math\Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -325,6 +322,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Intersectable\PTriangle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Actor\MotionSource\MotionSource.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Actor\MotionSource\ConstVelocityMotion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Intersectable\Intersectable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\World\Intersector\Bvh\BvhIntersectableInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -605,9 +617,6 @@
     <ClInclude Include="Source\World\Intersector\Bvh\BvhLinearNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\World\Intersector\Bvh\BvhPrimitiveInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\World\Intersector\Bvh\EBvhType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -749,9 +758,6 @@
     <ClInclude Include="Source\Core\Intersectable\TransformedIntersectable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Time.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Math\math_common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -761,6 +767,18 @@
     <ClInclude Include="Source\Math\TIndexedVector3.ipp" />
     <ClInclude Include="Source\Math\TArithmeticArray.ipp" />
     <ClInclude Include="Source\Math\TQuaternion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\MotionSource\MotionSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Quantity\Time.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\MotionSource\ConstVelocityMotion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\World\Intersector\Bvh\BvhIntersectableInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

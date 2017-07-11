@@ -15,8 +15,8 @@ public:
 	GWave(const real xLen, const real yLen, const real zLen);
 	virtual ~GWave() override;
 
-	virtual void discretize(const PrimitiveBuildingMaterial& data,
-	                        std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
+	virtual void genPrimitive(const PrimitiveBuildingMaterial& data,
+	                          std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
 
 private:
 	real m_xLen;

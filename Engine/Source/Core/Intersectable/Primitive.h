@@ -17,7 +17,7 @@ class Primitive : public Intersectable
 {
 public:
 	Primitive(const PrimitiveMetadata* const metadata);
-	virtual ~Primitive() = 0;
+	virtual ~Primitive() override;
 
 	virtual bool isIntersecting(const Ray& ray, 
 	                            Intersection* out_intersection) const = 0;
