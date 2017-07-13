@@ -12,6 +12,7 @@ namespace ph
 {
 
 GTriangle::GTriangle(const Vector3R& vA, const Vector3R& vB, const Vector3R& vC) : 
+	Geometry(), 
 	m_vA(vA), m_vB(vB), m_vC(vC)
 {
 	const Vector3R faceN = vB.sub(vA).cross(vC.sub(vA)).normalizeLocal();
@@ -70,6 +71,19 @@ void GTriangle::genPrimitive(const PrimitiveBuildingMaterial& data,
 	triangle.setUVWc(mappedUVW);
 
 	out_primitives.push_back(std::make_unique<PTriangle>(triangle));
+}
+
+std::shared_ptr<Geometry> GTriangle::genTransformApplied(const StaticTransform& transform) const
+{
+	auto tTriangle = std::make_shared<GTriangle>(*this);
+	transform.transformP(m_vA, &tTriangle->m_vA);
+	transform.transformP(m_vB, &tTriangle->m_vB);
+	transform.transformP(m_vC, &tTriangle->m_vC);
+	transform.transformO(m_nA, &tTriangle->m_nA);
+	transform.transformO(m_nB, &tTriangle->m_nB);
+	transform.transformO(m_nC, &tTriangle->m_nC);
+
+	return tTriangle;
 }
 
 }// end namespace ph

@@ -5,8 +5,8 @@ namespace ph
 {
 
 Emitter::Emitter() : 
-	m_localToWorld(StaticTransform::IDENTITY()),
-	m_worldToLocal(StaticTransform::IDENTITY())
+	m_localToWorld(&StaticTransform::IDENTITY()),
+	m_worldToLocal(&StaticTransform::IDENTITY())
 {
 	
 }

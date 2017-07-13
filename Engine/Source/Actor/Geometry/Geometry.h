@@ -3,6 +3,7 @@
 #include "Core/Intersectable/Primitive.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "FileIO/SDL/ISdlResource.h"
+#include "Math/Transform/StaticTransform.h"
 
 #include <vector>
 #include <memory>
@@ -19,6 +20,8 @@ class InputPacket;
 class PrimitiveBuildingMaterial;
 class Transform;
 
+// TODO: use highest precision to perform geometry related operations
+
 class Geometry : public TCommandInterface<Geometry>, public ISdlResource
 {
 public:
@@ -27,7 +30,7 @@ public:
 
 	virtual void genPrimitive(const PrimitiveBuildingMaterial& data, 
 	                          std::vector<std::unique_ptr<Primitive>>& out_primitives) const = 0;
-	virtual std::shared_ptr<Geometry> genTransformApplied(const Transform* transform) const;
+	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticTransform& transform) const;
 
 	const TextureMapper* getTextureMapper() const;
 	void setTextureMapper(const std::shared_ptr<TextureMapper>& textureMapper);

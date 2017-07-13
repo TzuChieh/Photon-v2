@@ -163,6 +163,7 @@
   <ItemGroup>
     <ClCompile Include="Source\Actor\Actor.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp" />
+    <ClCompile Include="Source\Actor\Geometry\GeometrySoup.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GWave.cpp" />
     <ClCompile Include="Source\Actor\LightSource\AreaSource.cpp" />
     <ClCompile Include="Source\Actor\LightSource\LightSource.cpp" />
@@ -275,6 +276,7 @@
     <ClInclude Include="Include\ph_core.h" />
     <ClInclude Include="Source\Actor\Actor.h" />
     <ClInclude Include="Source\Actor\Geometry\GCuboid.h" />
+    <ClInclude Include="Source\Actor\Geometry\GeometrySoup.h" />
     <ClInclude Include="Source\Actor\Geometry\PrimitiveBuildingMaterial.h" />
     <ClInclude Include="Source\Actor\Geometry\GWave.h" />
     <ClInclude Include="Source\Actor\LightSource\AreaSource.h" />

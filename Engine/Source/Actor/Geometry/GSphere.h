@@ -10,6 +10,8 @@
 namespace ph
 {
 
+class GTriangleMesh;
+
 class GSphere final : public Geometry, public TCommandInterface<GSphere>
 {
 public:
@@ -19,6 +21,7 @@ public:
 
 	virtual void genPrimitive(const PrimitiveBuildingMaterial& data,
 	                          std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
+	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticTransform& transform) const override;
 
 	GSphere& operator = (const GSphere& rhs);
 
@@ -27,6 +30,7 @@ private:
 
 	std::size_t addVertex(const Vector3R& vertex, std::vector<Vector3R>* const out_vertices) const;
 	std::size_t addMidpointVertex(const std::size_t iA, const std::size_t iB, std::vector<Vector3R>* const out_vertices) const;
+	std::shared_ptr<GTriangleMesh> genTriangleMesh() const;
 
 // command interface
 public:

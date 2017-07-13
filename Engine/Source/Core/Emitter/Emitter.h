@@ -30,6 +30,13 @@ public:
 	{
 		return true;
 	}
+
+	void setTransform(const Transform* localToWorld,
+	                  const Transform* worldToLocal);
+	
+protected:
+	const Transform* m_localToWorld;
+	const Transform* m_worldToLocal;
 };
 
 }// end namespace ph

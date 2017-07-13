@@ -16,7 +16,7 @@ class Ray;
 class StaticTransform final : public Transform
 {
 public:
-	static const StaticTransform* IDENTITY();
+	static const StaticTransform& IDENTITY();
 
 	template<typename U>
 	static StaticTransform makeForward(const TDecomposedTransform<U>& transform);
@@ -34,8 +34,6 @@ public:
 	StaticTransform();
 	StaticTransform(const Matrix4R& transform, const Matrix4R& inverseTransform);
 	virtual ~StaticTransform() override;
-
-	virtual bool isScaleUniform() const override;
 
 private:
 	virtual void transformVector(const Vector3R& vector, const Time& time, 

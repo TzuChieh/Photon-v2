@@ -1,10 +1,12 @@
 #include "Actor/Geometry/GSphere.h"
 #include "Core/Intersectable/PTriangle.h"
+#include "Actor/Geometry/GTriangle.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/TextureMapper/TextureMapper.h"
 #include "Actor/AModel.h"
 #include "FileIO/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
+#include "Actor/Geometry/GTriangleMesh.h"
 
 #include <cmath>
 #include <iostream>
@@ -48,7 +50,8 @@ void GSphere::genPrimitive(const PrimitiveBuildingMaterial& data,
 {
 	if(!data.metadata)
 	{
-		std::cerr << "warning: at GSphere::discretize(), no PrimitiveMetadata" << std::endl;
+		std::cerr << "warning: at GSphere::discretize(), " 
+		          << "no PrimitiveMetadata" << std::endl;
 		return;
 	}
 
@@ -58,8 +61,35 @@ void GSphere::genPrimitive(const PrimitiveBuildingMaterial& data,
 		return;
 	}*/
 
+	genTriangleMesh()->genPrimitive(data, out_primitives);
+}
+
+std::shared_ptr<Geometry> GSphere::genTransformApplied(const StaticTransform& transform) const
+{
+	return genTriangleMesh()->genTransformApplied(transform);
+}
+
+std::size_t GSphere::addVertex(const Vector3R& vertex, std::vector<Vector3R>* const out_vertices) const
+{
+	// make vertex on the sphere
+	Vector3R vertexOnSphere(vertex);
+	vertexOnSphere.normalizeLocal().mulLocal(m_radius);
+
+	out_vertices->push_back(vertexOnSphere);
+
+	return out_vertices->size() - 1;
+}
+
+std::size_t GSphere::addMidpointVertex(const std::size_t iA, const std::size_t iB, std::vector<Vector3R>* const out_vertices) const
+{
+	return addVertex((*out_vertices)[iA].add((*out_vertices)[iB]).mulLocal(0.5f), out_vertices);
+}
+
+std::shared_ptr<GTriangleMesh> GSphere::genTriangleMesh() const
+{
+	// TODO: check data
+
 	const uint32 nRefinements = 5;
-	//const uint32 nRefinements = 1;
 
 	std::vector<Vector3R>        vertices;
 	std::vector<IndexedTriangle> indexedTriangles;
@@ -136,6 +166,8 @@ void GSphere::genPrimitive(const PrimitiveBuildingMaterial& data,
 		indexedTriangles = refined;
 	}
 
+	auto& triangleMesh = std::make_shared<GTriangleMesh>();
+
 	// construct actual triangles
 	for(const IndexedTriangle& iTriangle : indexedTriangles)
 	{
@@ -143,7 +175,7 @@ void GSphere::genPrimitive(const PrimitiveBuildingMaterial& data,
 		Vector3R vB(vertices[iTriangle.iB]);
 		Vector3R vC(vertices[iTriangle.iC]);
 
-		PTriangle triangle(data.metadata, vA, vB, vC);
+		GTriangle triangle(vA, vB, vC);
 		triangle.setNa(vA.normalize());
 		triangle.setNb(vB.normalize());
 		triangle.setNc(vC.normalize());
@@ -159,24 +191,10 @@ void GSphere::genPrimitive(const PrimitiveBuildingMaterial& data,
 		m_textureMapper->map(vC, triangle.getUVWc(), &mappedUVW);
 		triangle.setUVWc(mappedUVW);
 
-		out_primitives.push_back(std::make_unique<PTriangle>(triangle));
+		triangleMesh->addTriangle(triangle);
 	}
-}
 
-std::size_t GSphere::addVertex(const Vector3R& vertex, std::vector<Vector3R>* const out_vertices) const
-{
-	// make vertex on the sphere
-	Vector3R vertexOnSphere(vertex);
-	vertexOnSphere.normalizeLocal().mulLocal(m_radius);
-
-	out_vertices->push_back(vertexOnSphere);
-
-	return out_vertices->size() - 1;
-}
-
-std::size_t GSphere::addMidpointVertex(const std::size_t iA, const std::size_t iB, std::vector<Vector3R>* const out_vertices) const
-{
-	return addVertex((*out_vertices)[iA].add((*out_vertices)[iB]).mulLocal(0.5f), out_vertices);
+	return triangleMesh;
 }
 
 GSphere& GSphere::operator = (const GSphere& rhs)

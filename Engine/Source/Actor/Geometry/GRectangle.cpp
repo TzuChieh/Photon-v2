@@ -1,5 +1,7 @@
 #include "Actor/Geometry/GRectangle.h"
 #include "Core/Intersectable/PTriangle.h"
+#include "Actor/Geometry/GTriangleMesh.h"
+#include "Actor/Geometry/GTriangle.h"
 #include "Math/TVector3.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "FileIO/InputPacket.h"
@@ -26,7 +28,19 @@ void GRectangle::genPrimitive(const PrimitiveBuildingMaterial& data,
 		return;
 	}
 
-	const real halfWidth = m_width * 0.5_r;
+	genTriangleMesh()->genPrimitive(data, out_primitives);
+}
+
+std::shared_ptr<Geometry> GRectangle::genTransformApplied(const StaticTransform& transform) const
+{
+	return genTriangleMesh()->genTransformApplied(transform);
+}
+
+std::shared_ptr<GTriangleMesh> GRectangle::genTriangleMesh() const
+{
+	// TODO: check data
+
+	const real halfWidth  = m_width * 0.5_r;
 	const real halfHeight = m_height * 0.5_r;
 
 	const Vector3R vA(-halfWidth,  halfHeight, 0.0_r);// quadrant II
@@ -39,19 +53,23 @@ void GRectangle::genPrimitive(const PrimitiveBuildingMaterial& data,
 	const Vector3R tC(1.0_r, 0.0_r, 0.0_r);// quadrant IV
 	const Vector3R tD(1.0_r, 1.0_r, 0.0_r);// quadrant I
 
-	PTriangle tri1(data.metadata, vA, vB, vD);
+	// 2 triangles for a rectangle (both CCW)
+
+	GTriangle tri1(vA, vB, vD);
 	tri1.setUVWa(tA);
 	tri1.setUVWb(tB);
 	tri1.setUVWc(tD);
 
-	PTriangle tri2(data.metadata, vB, vC, vD);
+	GTriangle tri2(vB, vC, vD);
 	tri2.setUVWa(tB);
 	tri2.setUVWb(tC);
 	tri2.setUVWc(tD);
 
-	// 2 triangles for a rectangle (both CCW)
-	out_primitives.push_back(std::make_unique<PTriangle>(tri1));
-	out_primitives.push_back(std::make_unique<PTriangle>(tri2));
+	auto& triMesh = std::make_shared<GTriangleMesh>();
+	triMesh->addTriangle(tri1);
+	triMesh->addTriangle(tri2);
+
+	return triMesh;
 }
 
 bool GRectangle::checkData(const PrimitiveBuildingMaterial& data, const real width, const real height)

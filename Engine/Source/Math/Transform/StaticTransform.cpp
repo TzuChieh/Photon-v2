@@ -8,10 +8,10 @@
 namespace ph
 {
 
-const StaticTransform* StaticTransform::IDENTITY()
+const StaticTransform& StaticTransform::IDENTITY()
 {
 	static const StaticTransform identity(Matrix4R::IDENTITY(), Matrix4R::IDENTITY());
-	return &identity;
+	return identity;
 }
 
 StaticTransform::StaticTransform() : 

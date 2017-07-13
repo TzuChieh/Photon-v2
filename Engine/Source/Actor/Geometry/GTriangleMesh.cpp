@@ -4,6 +4,7 @@
 #include "Actor/AModel.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "FileIO/InputPacket.h"
+#include "Actor/Geometry/GeometrySoup.h"
 
 #include <iostream>
 
@@ -34,6 +35,17 @@ void GTriangleMesh::genPrimitive(const PrimitiveBuildingMaterial& data,
 void GTriangleMesh::addTriangle(const GTriangle gTriangle)
 {
 	m_gTriangles.push_back(gTriangle);
+}
+
+std::shared_ptr<Geometry> GTriangleMesh::genTransformApplied(const StaticTransform& transform) const
+{
+	auto geometrySoup = std::make_shared<GeometrySoup>();
+	for(const auto& gTriangle : m_gTriangles)
+	{
+		geometrySoup->addGeometry(std::make_shared<GTriangle>(gTriangle));
+	}
+
+	return geometrySoup->genTransformApplied(transform);
 }
 
 // command interface

@@ -48,6 +48,7 @@ ALight& ALight::operator = (ALight rhs)
 	return *this;
 }
 
+// TODO: simply this method
 void ALight::cook(CookedActor* const out_cookedActor) const
 {
 	CookedActor               cookedActor;
@@ -61,35 +62,46 @@ void ALight::cook(CookedActor* const out_cookedActor) const
 
 		if(m_geometry && m_material)
 		{
+			auto geometry = m_geometry;
 			if(m_localToWorld.hasScaleEffect())
 			{
-				std::cerr << "warning: at ALight::cook(), "
-				          << "scale detected; scaling on light with attached geometry may have " 
-				          << "unexpected behaviors such as miscalculated primitive surface area, "
-				          << "which can cause severe rendering artifacts" << std::endl;
+				geometry = m_geometry->genTransformApplied(*localToWorld);
+				if(geometry != nullptr)
+				{
+					localToWorld = std::make_unique<StaticTransform>(StaticTransform::IDENTITY());
+					worldToLocal = std::make_unique<StaticTransform>(StaticTransform::IDENTITY());
+				}
+				else
+				{
+					geometry = m_geometry;
+					std::cerr << "warning: at ALight::cook(), "
+					          << "scale detected and has failed to apply it to the geometry; " 
+					          << "scaling on light with attached geometry may have unexpected " 
+					          << "behaviors such as miscalculated primitive surface area, which " 
+					          << "can cause severe rendering artifacts" << std::endl;
+				}
+				
 			}
 
-			// TODO: transform must be static, and must bake into primitive to solve the
-			// scaling problem
+
+			// TODO: transform must be rigid (e.g., motion)
 
 
 			std::unique_ptr<PrimitiveMetadata> metadata = std::make_unique<PrimitiveMetadata>();
-			
-
 			primitiveBuildingMaterial.metadata = metadata.get();
 			std::vector<std::unique_ptr<Primitive>> primitives;
-			m_geometry->genPrimitive(primitiveBuildingMaterial, primitives);
+			geometry->genPrimitive(primitiveBuildingMaterial, primitives);
 			m_material->populateSurfaceBehavior(&(metadata->surfaceBehavior));
 
 			for(auto& primitive : primitives)
 			{
 				emitterBuildingMaterial.primitives.push_back(primitive.get());
 
-				auto localToWorld  = std::make_unique<StaticTransform>(StaticTransform::makeForward(m_localToWorld));
-				auto worldToLocal  = std::make_unique<StaticTransform>(StaticTransform::makeInverse(m_localToWorld));
+				auto iLocalToWorld  = std::make_unique<StaticTransform>(*localToWorld);
+				auto iWorldToLocal  = std::make_unique<StaticTransform>(*worldToLocal);
 				auto intersectable = std::make_unique<TransformedIntersectable>(std::move(primitive),
-				                                                                std::move(localToWorld),
-				                                                                std::move(worldToLocal));
+				                                                                std::move(iLocalToWorld),
+				                                                                std::move(iWorldToLocal));
 				cookedActor.intersectables.push_back(std::move(intersectable));
 			}
 			cookedActor.primitiveMetadata = std::move(metadata);

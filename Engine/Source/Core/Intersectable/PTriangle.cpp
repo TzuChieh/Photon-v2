@@ -451,10 +451,7 @@ real PTriangle::calcExtendedArea() const
 	Vector3R eAB = m_eAB;
 	Vector3R eAC = m_eAC;
 
-	//return eAB.cross(eAC).length() * 0.5_r;
-
-	// DEBUG
-	return eAB.cross(eAC).length() * 0.5_r * 3 * 3;
+	return eAB.cross(eAC).length() * 0.5_r;
 }
 
 Vector3R PTriangle::calcBarycentricCoord(const Vector3R& position) const

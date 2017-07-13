@@ -25,7 +25,7 @@ const TextureMapper* Geometry::getTextureMapper() const
 	return m_textureMapper.get();
 }
 
-std::shared_ptr<Geometry> Geometry::genTransformApplied(const Transform* transform) const
+std::shared_ptr<Geometry> Geometry::genTransformApplied(const StaticTransform& transform) const
 {
 	return nullptr;
 }

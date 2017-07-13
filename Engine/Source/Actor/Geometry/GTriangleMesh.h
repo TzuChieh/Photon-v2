@@ -17,6 +17,7 @@ public:
 
 	virtual void genPrimitive(const PrimitiveBuildingMaterial& data,
 	                          std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
+	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticTransform& transform) const override;
 
 	void addTriangle(const GTriangle gTriangle);
 
