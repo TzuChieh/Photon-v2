@@ -5,6 +5,8 @@
 #include "Math/TMatrix4.h"
 #include "Math/Math.h"
 
+#include <cstdlib>
+
 namespace ph
 {
 
@@ -98,6 +100,8 @@ public:
 	}
 
 	inline TDecomposedTransform invert() const;
+	inline bool hasScaleEffect(T margin = 0) const;
+	inline bool isScaleUniform(T margin = 0) const;
 
 private:
 	TVector3<T>    m_position;
@@ -122,6 +126,24 @@ inline TDecomposedTransform<T> TDecomposedTransform<T>::invert() const
 	result.m_rotation = m_rotation.conjugate();
 	result.m_scale    = m_scale.reciprocal();
 	return result;
+}
+
+template<typename T>
+inline bool TDecomposedTransform<T>::hasScaleEffect(const T margin) const
+{
+	return std::abs(m_scale.x - 1) > margin ||
+	       std::abs(m_scale.y - 1) > margin ||
+	       std::abs(m_scale.z - 1) > margin;
+}
+
+template<typename T>
+inline bool TDecomposedTransform<T>::isScaleUniform(const T margin = 0) const
+{
+	const T dA = std::abs(m_scale.x - m_scale.y);
+	const T dB = std::abs(m_scale.y - m_scale.z);
+	const T dC = std::abs(m_scale.z - m_scale.x);
+
+	return dA < margin && dB < margin && dC < margin;
 }
 
 }// end namespace ph

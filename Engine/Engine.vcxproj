@@ -186,6 +186,7 @@
     <ClCompile Include="Source\Core\Integrator\Integrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\LightTracingIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\NormalBufferIntegrator.cpp" />
+    <ClCompile Include="Source\Core\Intersectable\EmitablePrimitive.cpp" />
     <ClCompile Include="Source\Core\Intersectable\Intersectable.cpp" />
     <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp" />
     <ClCompile Include="Source\Core\Intersection.cpp" />
@@ -304,6 +305,7 @@
     <ClInclude Include="Source\Core\Emitter\Emitter.h" />
     <ClInclude Include="Source\Core\Emitter\PrimitiveAreaEmitter.h" />
     <ClInclude Include="Source\Core\Intersectable\CompositeIntersectable.h" />
+    <ClInclude Include="Source\Core\Intersectable\EmitablePrimitive.h" />
     <ClInclude Include="Source\Core\Intersectable\Intersectable.h" />
     <ClInclude Include="Source\Core\Intersectable\TransformedIntersectable.h" />
     <ClInclude Include="Source\Core\Intersectable\Primitive.h" />

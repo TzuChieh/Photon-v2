@@ -1,4 +1,7 @@
 #include "Core/Intersectable/TransformedIntersectable.h"
+#include "Core/Ray.h"
+#include "Core/Intersection.h"
+#include "Core/BoundingVolume/AABB.h"
 
 namespace ph
 {
@@ -26,22 +29,37 @@ TransformedIntersectable::~TransformedIntersectable() = default;
 bool TransformedIntersectable::isIntersecting(const Ray& ray,
                                               Intersection* const out_intersection) const
 {
-	return m_intersectable->isIntersecting(ray, out_intersection);
+	Ray localRay;
+	m_worldToLocal->transform(ray, &localRay);
+
+	Intersection localIntersection;
+	const bool isIntersecting = m_intersectable->isIntersecting(localRay, &localIntersection);
+	m_localToWorld->transform(localIntersection, out_intersection);
+
+	return isIntersecting;
 }
 
 bool TransformedIntersectable::isIntersecting(const Ray& ray) const
 {
-	return m_intersectable->isIntersecting(ray);
+	Ray localRay;
+	m_worldToLocal->transform(ray, &localRay);
+
+	return m_intersectable->isIntersecting(localRay);
 }
 
 bool TransformedIntersectable::isIntersectingVolumeConservative(const AABB& aabb) const
 {
-	return m_intersectable->isIntersectingVolumeConservative(aabb);
+	AABB localAABB;
+	m_worldToLocal->transform(aabb, &localAABB);
+
+	return m_intersectable->isIntersectingVolumeConservative(localAABB);
 }
 
 void TransformedIntersectable::calcAABB(AABB* out_aabb) const
 {
-	return m_intersectable->calcAABB(out_aabb);
+	AABB localAABB;
+	m_intersectable->calcAABB(&localAABB);
+	m_localToWorld->transform(localAABB, out_aabb);
 }
 
 TransformedIntersectable& TransformedIntersectable::operator = (TransformedIntersectable&& rhs)

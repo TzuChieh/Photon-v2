@@ -8,6 +8,7 @@ namespace ph
 class Ray;
 class Time;
 class Intersection;
+class AABB;
 
 class Transform
 {
@@ -20,6 +21,7 @@ public:
 
 	void transform(const Ray& ray, Ray* out_ray) const;
 	void transform(const Intersection& intersection, Intersection* out_intersection) const;
+	void transform(const AABB& aabb, AABB* out_aabb) const;
 
 
 	// Treating a Vector3R as either a vector, normal, or point and calculate the transformed result.

@@ -44,21 +44,35 @@ void CookedActorStorage::add(std::unique_ptr<Emitter> emitter)
 	}
 }
 
+void CookedActorStorage::add(std::unique_ptr<Transform> transform)
+{
+	if(transform != nullptr)
+	{
+		m_transforms.push_back(std::move(transform));
+	}
+}
+
 void CookedActorStorage::add(CookedActor&& cookedActor)
 {
 	add(std::move(cookedActor.intersectables));
 	add(std::move(cookedActor.primitiveMetadata));
 	add(std::move(cookedActor.emitter));
+	add(std::move(cookedActor.transforms));
 }
 
 void CookedActorStorage::add(std::vector<std::unique_ptr<Intersectable>>&& intersectables)
 {
 	for(auto& intersectable : intersectables)
 	{
-		if(intersectable != nullptr)
-		{
-			m_intersectables.push_back(std::move(intersectable));
-		}
+		add(std::move(intersectable));
+	}
+}
+
+void CookedActorStorage::add(std::vector<std::unique_ptr<Transform>>&& transforms)
+{
+	for(auto& transform : transforms)
+	{
+		add(std::move(transform));
 	}
 }
 
@@ -73,6 +87,9 @@ void CookedActorStorage::add(CookedActorStorage&& other)
 	m_emitters.insert(m_emitters.end(),
 		std::make_move_iterator(other.m_emitters.begin()),
 		std::make_move_iterator(other.m_emitters.end()));
+	m_transforms.insert(m_transforms.end(),
+		std::make_move_iterator(other.m_transforms.begin()),
+		std::make_move_iterator(other.m_transforms.end()));
 }
 
 std::size_t CookedActorStorage::numIntersectables() const

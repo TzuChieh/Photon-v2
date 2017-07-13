@@ -598,9 +598,9 @@ inline bool TVector3<T>::equals(const TVector3& rhs) const
 template<typename T>
 inline bool TVector3<T>::equals(const TVector3& rhs, const T margin) const
 {
-	return (x - rhs.x) < std::abs(margin) &&
-	       (y - rhs.y) < std::abs(margin) &&
-	       (z - rhs.z) < std::abs(margin);
+	return std::abs(x - rhs.x) < margin &&
+	       std::abs(y - rhs.y) < margin &&
+	       std::abs(z - rhs.z) < margin;
 }
 
 template<typename T>

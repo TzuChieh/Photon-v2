@@ -53,11 +53,21 @@ void PrimitiveAreaEmitter::genDirectSample(const Vector3R& targetPos, Vector3R* 
 	PositionSample positionSample;
 	primitive->genPositionSample(&positionSample);
 
-	const real distSquared = targetPos.sub(positionSample.position).lengthSquared();
-	const Vector3R emitDir = targetPos.sub(positionSample.position).normalizeLocal();
+	PositionSample tPositionSample;
+	m_localToWorld->transformP(positionSample.position, &tPositionSample.position);
+	m_localToWorld->transformO(positionSample.normal, &tPositionSample.normal);
+	tPositionSample.normal.normalizeLocal();
+	tPositionSample.uvw = positionSample.uvw;
+	tPositionSample.pdf = positionSample.pdf;
+
+	// DEBUG
+	//tPositionSample = positionSample;
+
+	const real distSquared = targetPos.sub(tPositionSample.position).lengthSquared();
+	const Vector3R emitDir = targetPos.sub(tPositionSample.position).normalizeLocal();
 	const real pickPDF = (1.0_r / primitive->getReciExtendedArea()) * m_reciExtendedArea;
 	//*out_PDF = pickPDF * positionSample.pdf / (std::abs(emitDir.dot(positionSample.normal)) / distSquared);
-	*out_PDF = pickPDF * positionSample.pdf / std::abs(emitDir.dot(positionSample.normal)) * distSquared;
+	*out_PDF = pickPDF * tPositionSample.pdf / std::abs(emitDir.dot(tPositionSample.normal)) * distSquared;
 
 	/*if(*out_PDF < 0.0f)
 	{
@@ -65,10 +75,10 @@ void PrimitiveAreaEmitter::genDirectSample(const Vector3R& targetPos, Vector3R* 
 	}*/
 
 	Vector3R emittedRadiance;
-	m_emittedRadiance->sample(positionSample.uvw, &emittedRadiance);
+	m_emittedRadiance->sample(tPositionSample.uvw, &emittedRadiance);
 	*out_emittedRadiance = emittedRadiance;
 
-	*out_emitPos = positionSample.position;
+	*out_emitPos = tPositionSample.position;
 }
 
 void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
@@ -82,13 +92,23 @@ void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
 	PositionSample positionSample;
 	sample.sourcePrim->genPositionSample(&positionSample);
 
-	const Vector3R emitterToTargetPos(sample.targetPos.sub(positionSample.position));
+	PositionSample tPositionSample;
+	m_localToWorld->transformP(positionSample.position, &tPositionSample.position);
+	m_localToWorld->transformO(positionSample.normal, &tPositionSample.normal);
+	tPositionSample.normal.normalizeLocal();
+	tPositionSample.uvw = positionSample.uvw;
+	tPositionSample.pdf = positionSample.pdf;
+
+	// DEBUG
+	//tPositionSample = positionSample;
+
+	const Vector3R emitterToTargetPos(sample.targetPos.sub(tPositionSample.position));
 	const Vector3R emitDir(emitterToTargetPos.normalize());
 	const real distSquared = emitterToTargetPos.lengthSquared();
 	
-	sample.emitPos = positionSample.position;
-	sample.pdfW = pickPdfW * positionSample.pdf / std::abs(emitDir.dot(positionSample.normal)) * distSquared;
-	m_emittedRadiance->sample(positionSample.uvw, &sample.radianceLe);
+	sample.emitPos = tPositionSample.position;
+	sample.pdfW = pickPdfW * tPositionSample.pdf / std::abs(emitDir.dot(tPositionSample.normal)) * distSquared;
+	m_emittedRadiance->sample(tPositionSample.uvw, &sample.radianceLe);
 }
 
 real PrimitiveAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const
@@ -111,6 +131,16 @@ void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, Vector3R* const out
 	PositionSample positionSample;
 	primitive->genPositionSample(&positionSample);
 
+	PositionSample tPositionSample;
+	m_localToWorld->transformP(positionSample.position, &tPositionSample.position);
+	m_localToWorld->transformO(positionSample.normal, &tPositionSample.normal);
+	tPositionSample.normal.normalizeLocal();
+	tPositionSample.uvw = positionSample.uvw;
+	tPositionSample.pdf = positionSample.pdf;
+
+	// DEBUG
+	//tPositionSample = positionSample;
+
 	// random & uniform direction on a unit sphere
 	Vector3R rayDir;
 	const real r1 = Random::genUniformReal_i0_e1();
@@ -123,13 +153,13 @@ void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, Vector3R* const out
 	rayDir.normalizeLocal();
 
 	out_ray->setDirection(rayDir);
-	out_ray->setOrigin(positionSample.position);
+	out_ray->setOrigin(tPositionSample.position);
 	out_ray->setMinT(0.0001_r);// HACK: hard-code number
 	out_ray->setMaxT(Ray::MAX_T);
-	out_eN->set(positionSample.normal);
-	*out_pdfA = pickPdfW * positionSample.pdf;
-	*out_pdfW = 1.0_r / (4.0_r * PI_REAL) / out_ray->getDirection().absDot(positionSample.normal);
-	m_emittedRadiance->sample(positionSample.uvw, out_Le);
+	out_eN->set(tPositionSample.normal);
+	*out_pdfA = pickPdfW * tPositionSample.pdf;
+	*out_pdfW = 1.0_r / (4.0_r * PI_REAL) / out_ray->getDirection().absDot(tPositionSample.normal);
+	m_emittedRadiance->sample(tPositionSample.uvw, out_Le);
 }
 
 void PrimitiveAreaEmitter::setEmittedRadiance(const std::shared_ptr<Texture>& emittedRadiance)

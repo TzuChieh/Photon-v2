@@ -3,6 +3,7 @@
 #include "Core/Ray.h"
 #include "Math/TVector3.h"
 #include "Core/Intersection.h"
+#include "Core/BoundingVolume/AABB.h"
 
 namespace ph
 {
@@ -48,10 +49,27 @@ void Transform::transform(const Intersection& intersection, Intersection* out_in
 
 	out_intersection->set(intersection.getHitPrimitive(),
 	                      tHitPosition,
-	                      tHitSmoothNormal,
-	                      tHitGeoNormal,
+	                      tHitSmoothNormal.normalizeLocal(),
+	                      tHitGeoNormal.normalizeLocal(),
 	                      intersection.getHitUVW(),
 	                      intersection.getHitRayT());
+}
+
+void Transform::transform(const AABB& aabb, AABB* out_aabb) const
+{
+	auto& vertices = aabb.getVertices();
+	for(auto& vertex : vertices)
+	{
+		Vector3R tVertex;
+		transformP(vertex, &tVertex);
+		vertex = tVertex;
+	}
+	
+	*out_aabb = AABB(vertices[0]);
+	for(std::size_t i = 1; i < vertices.size(); i++)
+	{
+		out_aabb->unionWith(vertices[i]);
+	}
 }
 
 }// end namespace ph

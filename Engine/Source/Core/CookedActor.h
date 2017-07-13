@@ -3,6 +3,7 @@
 #include "Core/Intersectable/Intersectable.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Emitter/Emitter.h"
+#include "Math/Transform/Transform.h"
 
 #include <vector>
 #include <memory>
@@ -16,6 +17,7 @@ public:
 	std::vector<std::unique_ptr<Intersectable>> intersectables;
 	std::unique_ptr<PrimitiveMetadata>          primitiveMetadata;
 	std::unique_ptr<Emitter>                    emitter;
+	std::vector<std::unique_ptr<Transform>>     transforms;
 
 	CookedActor();
 	CookedActor(CookedActor&& other);

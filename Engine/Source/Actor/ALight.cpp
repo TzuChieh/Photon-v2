@@ -9,6 +9,7 @@
 #include "FileIO/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
+#include "Core/Intersectable/TransformedIntersectable.h"
 
 #include <algorithm>
 #include <iostream>
@@ -55,11 +56,25 @@ void ALight::cook(CookedActor* const out_cookedActor) const
 
 	if(m_lightSource)
 	{
+		auto localToWorld = std::make_unique<StaticTransform>(StaticTransform::makeForward(m_localToWorld));
+		auto worldToLocal = std::make_unique<StaticTransform>(StaticTransform::makeInverse(m_localToWorld));
+
 		if(m_geometry && m_material)
 		{
+			if(m_localToWorld.hasScaleEffect())
+			{
+				std::cerr << "warning: at ALight::cook(), "
+				          << "scale detected; scaling on light with attached geometry may have " 
+				          << "unexpected behaviors such as miscalculated primitive surface area, "
+				          << "which can cause severe rendering artifacts" << std::endl;
+			}
+
+			// TODO: transform must be static, and must bake into primitive to solve the
+			// scaling problem
+
+
 			std::unique_ptr<PrimitiveMetadata> metadata = std::make_unique<PrimitiveMetadata>();
-			metadata->localToWorld = StaticTransform::makeForward(m_localToWorld);
-			metadata->worldToLocal = StaticTransform::makeInverse(m_localToWorld);
+			
 
 			primitiveBuildingMaterial.metadata = metadata.get();
 			std::vector<std::unique_ptr<Primitive>> primitives;
@@ -69,17 +84,27 @@ void ALight::cook(CookedActor* const out_cookedActor) const
 			for(auto& primitive : primitives)
 			{
 				emitterBuildingMaterial.primitives.push_back(primitive.get());
-				cookedActor.intersectables.push_back(std::move(primitive));
+
+				auto localToWorld  = std::make_unique<StaticTransform>(StaticTransform::makeForward(m_localToWorld));
+				auto worldToLocal  = std::make_unique<StaticTransform>(StaticTransform::makeInverse(m_localToWorld));
+				auto intersectable = std::make_unique<TransformedIntersectable>(std::move(primitive),
+				                                                                std::move(localToWorld),
+				                                                                std::move(worldToLocal));
+				cookedActor.intersectables.push_back(std::move(intersectable));
 			}
 			cookedActor.primitiveMetadata = std::move(metadata);
 		}
 		
 		cookedActor.emitter = m_lightSource->buildEmitter(emitterBuildingMaterial);
+		cookedActor.emitter->setTransform(localToWorld.get(), worldToLocal.get());
 		cookedActor.primitiveMetadata->surfaceBehavior.setEmitter(cookedActor.emitter.get());
+		cookedActor.transforms.push_back(std::move(localToWorld));
+		cookedActor.transforms.push_back(std::move(worldToLocal));
 	}
 	else
 	{
-		std::cerr << "warning: at ALight::cook(), incomplete data detected" << std::endl;
+		std::cerr << "warning: at ALight::cook(), " 
+		          << "incomplete data detected" << std::endl;
 	}
 
 	*out_cookedActor = std::move(cookedActor);

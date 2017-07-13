@@ -47,7 +47,8 @@ void GTriangle::genPrimitive(const PrimitiveBuildingMaterial& data,
 {
 	if(!data.metadata)
 	{
-		std::cerr << "warning: at GTriangle::genPrimitive(), no PrimitiveMetadata" << std::endl;
+		std::cerr << "warning: at GTriangle::genPrimitive(), " 
+		          << "no PrimitiveMetadata" << std::endl;
 		return;
 	}
 

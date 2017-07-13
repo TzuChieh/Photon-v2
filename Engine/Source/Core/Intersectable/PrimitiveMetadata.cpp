@@ -6,7 +6,7 @@ namespace ph
 {
 
 PrimitiveMetadata::PrimitiveMetadata() :
-	surfaceBehavior(), localToWorld(), worldToLocal()
+	surfaceBehavior()
 {
 
 }

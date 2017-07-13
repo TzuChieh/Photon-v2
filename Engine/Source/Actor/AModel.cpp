@@ -8,6 +8,7 @@
 #include "Core/CookedActor.h"
 #include "FileIO/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
+#include "Core/Intersectable/TransformedIntersectable.h"
 
 #include <algorithm>
 #include <iostream>
@@ -53,9 +54,10 @@ void AModel::cook(CookedActor* const out_cookedActor) const
 
 	if(m_geometry && m_material)
 	{
+		//auto localToWorld = std::make_unique<StaticTransform>(StaticTransform::makeForward(m_localToWorld));
+		//auto worldToLocal = std::make_unique<StaticTransform>(StaticTransform::makeInverse(m_localToWorld));
+
 		std::unique_ptr<PrimitiveMetadata> metadata = std::make_unique<PrimitiveMetadata>();
-		metadata->localToWorld = StaticTransform::makeForward(m_localToWorld);
-		metadata->worldToLocal = StaticTransform::makeInverse(m_localToWorld);
 
 		primitiveBuildingMaterial.metadata = metadata.get();
 		std::vector<std::unique_ptr<Primitive>> primitives;
@@ -64,14 +66,19 @@ void AModel::cook(CookedActor* const out_cookedActor) const
 
 		for(auto& primitive : primitives)
 		{
-			cookedActor.intersectables.push_back(std::move(primitive));
-			//std::cout << "i" << std::endl;
+			auto localToWorld  = std::make_unique<StaticTransform>(StaticTransform::makeForward(m_localToWorld));
+			auto worldToLocal  = std::make_unique<StaticTransform>(StaticTransform::makeInverse(m_localToWorld));
+			auto intersectable = std::make_unique<TransformedIntersectable>(std::move(primitive),
+			                                                                std::move(localToWorld), 
+			                                                                std::move(worldToLocal));
+			cookedActor.intersectables.push_back(std::move(intersectable));
 		}
 		cookedActor.primitiveMetadata = std::move(metadata);
 	}
 	else
 	{
-		std::cerr << "warning: at AModel::cook(), incomplete data detected" << std::endl;
+		std::cerr << "warning: at AModel::cook(), " 
+		          << "incomplete data detected" << std::endl;
 	}
 
 	*out_cookedActor = std::move(cookedActor);

@@ -2,6 +2,8 @@
 
 #include "Math/TVector3.h"
 
+#include <vector>
+
 namespace ph
 {
 
@@ -23,6 +25,8 @@ public:
 	bool isPoint() const;
 	AABB& unionWith(const AABB& other);
 	AABB& unionWith(const Vector3R& point);
+
+	std::vector<Vector3R> getVertices() const;
 
 	inline void getMinMaxVertices(Vector3R* const out_minVertex, Vector3R* const out_maxVertex) const
 	{

@@ -2,6 +2,8 @@
 #include "Actor/TextureMapper/TextureMapper.h"
 #include "Actor/TextureMapper/DefaultMapper.h"
 
+#include <iostream>
+
 namespace ph
 {
 
@@ -21,6 +23,11 @@ void Geometry::setTextureMapper(const std::shared_ptr<TextureMapper>& textureMap
 const TextureMapper* Geometry::getTextureMapper() const
 {
 	return m_textureMapper.get();
+}
+
+std::shared_ptr<Geometry> Geometry::genTransformApplied(const Transform* transform) const
+{
+	return nullptr;
 }
 
 // command interface

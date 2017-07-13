@@ -5,8 +5,8 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Math/Transform/StaticTransform.h"
 #include "Core/CookedActor.h"
+#include "Math/Transform/Transform.h"
 
 #include <vector>
 #include <memory>
@@ -26,8 +26,10 @@ public:
 	void add(std::unique_ptr<Intersectable> intersectable);
 	void add(std::unique_ptr<PrimitiveMetadata> metadata);
 	void add(std::unique_ptr<Emitter> emitter);
+	void add(std::unique_ptr<Transform> transform);
 	void add(CookedActor&& cookedActor);
 	void add(std::vector<std::unique_ptr<Intersectable>>&& intersectables);
+	void add(std::vector<std::unique_ptr<Transform>>&& transforms);
 	void add(CookedActorStorage&& other);
 
 	std::size_t numIntersectables() const;
@@ -70,6 +72,7 @@ private:
 	std::vector<std::unique_ptr<Intersectable>>     m_intersectables;
 	std::vector<std::unique_ptr<PrimitiveMetadata>> m_primitiveMetadatas;
 	std::vector<std::unique_ptr<Emitter>>           m_emitters;
+	std::vector<std::unique_ptr<Transform>>         m_transforms;
 };
 
 }// end namespace ph

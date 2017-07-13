@@ -227,4 +227,16 @@ AABB& AABB::unionWith(const Vector3R& point)
 	return *this;
 }
 
+std::vector<Vector3R> AABB::getVertices() const
+{
+	return {Vector3R(m_minVertex.x, m_minVertex.y, m_minVertex.z),
+	        Vector3R(m_maxVertex.x, m_minVertex.y, m_minVertex.z),
+	        Vector3R(m_minVertex.x, m_maxVertex.y, m_minVertex.z),
+	        Vector3R(m_minVertex.x, m_minVertex.y, m_maxVertex.z),
+	        Vector3R(m_maxVertex.x, m_maxVertex.y, m_minVertex.z),
+	        Vector3R(m_minVertex.x, m_maxVertex.y, m_maxVertex.z),
+	        Vector3R(m_maxVertex.x, m_minVertex.y, m_maxVertex.z),
+	        Vector3R(m_maxVertex.x, m_maxVertex.y, m_maxVertex.z)};
+}
+
 }// end namespace ph

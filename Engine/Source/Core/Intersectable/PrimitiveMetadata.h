@@ -10,8 +10,8 @@ class PrimitiveMetadata final
 {
 public:
 	SurfaceBehavior surfaceBehavior;
-	StaticTransform localToWorld;
-	StaticTransform worldToLocal;
+	//StaticTransform localToWorld;
+	//StaticTransform worldToLocal;
 
 	PrimitiveMetadata();
 };
