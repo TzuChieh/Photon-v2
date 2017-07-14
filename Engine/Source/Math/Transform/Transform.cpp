@@ -10,20 +10,41 @@ namespace ph
 
 Transform::~Transform() = default;
 
-void Transform::transformV(const Vector3R& vector, Vector3R* const out_vector) const
+std::unique_ptr<Transform> Transform::genInversed() const
 {
-	transformVector(vector, Time(), out_vector);
+	return nullptr;
 }
 
-void Transform::transformO(const Vector3R& orientation,
+void Transform::transformV(const Vector3R& vector, const Time& time, 
+                           Vector3R* const out_vector) const
+{
+	transformVector(vector, time, out_vector);
+}
+
+void Transform::transformO(const Vector3R& orientation, const Time& time, 
                            Vector3R* const out_orientation) const
 {
-	transformOrientation(orientation, Time(), out_orientation);
+	transformOrientation(orientation, time, out_orientation);
 }
 
+void Transform::transformP(const Vector3R& point, const Time& time, 
+                           Vector3R* const out_point) const
+{
+	transformPoint(point, time, out_point);
+}
+
+void Transform::transformV(const Vector3R& vector, Vector3R* const out_vector) const
+{
+	transformV(vector, Time(), out_vector);
+}
+
+void Transform::transformO(const Vector3R& orientation, Vector3R* const out_orientation) const
+{
+	transformO(orientation, Time(), out_orientation);
+}
 void Transform::transformP(const Vector3R& point, Vector3R* const out_point) const
 {
-	transformPoint(point, Time(), out_point);
+	transformP(point, Time(), out_point);
 }
 
 void Transform::transform(const Ray& ray, Ray* const out_ray) const
@@ -31,21 +52,22 @@ void Transform::transform(const Ray& ray, Ray* const out_ray) const
 	real rayMinT, rayMaxT;
 	transformLineSegment(ray.getOrigin(), ray.getDirection(), 
 	                     ray.getMinT(), ray.getMaxT(), 
-	                     Time(),
+	                     ray.getTime(),
 	                     &(out_ray->getOrigin()), &(out_ray->getDirection()),
 	                     &rayMinT, &rayMaxT);
 	out_ray->setMinT(rayMinT);
 	out_ray->setMaxT(rayMaxT);
 }
 
-void Transform::transform(const Intersection& intersection, Intersection* out_intersection) const
+void Transform::transform(const Intersection& intersection, const Time& time, 
+                          Intersection* const out_intersection) const
 {
 	Vector3R tHitPosition;
 	Vector3R tHitSmoothNormal;
 	Vector3R tHitGeoNormal;
-	transformP(intersection.getHitPosition(),     &tHitPosition);
-	transformO(intersection.getHitSmoothNormal(), &tHitSmoothNormal);
-	transformO(intersection.getHitGeoNormal(),    &tHitGeoNormal);
+	transformP(intersection.getHitPosition(),     time, &tHitPosition);
+	transformO(intersection.getHitSmoothNormal(), time, &tHitSmoothNormal);
+	transformO(intersection.getHitGeoNormal(),    time, &tHitGeoNormal);
 
 	out_intersection->set(intersection.getHitPrimitive(),
 	                      tHitPosition,
@@ -55,13 +77,14 @@ void Transform::transform(const Intersection& intersection, Intersection* out_in
 	                      intersection.getHitRayT());
 }
 
-void Transform::transform(const AABB& aabb, AABB* out_aabb) const
+void Transform::transform(const AABB& aabb, const Time& time, 
+                          AABB* const out_aabb) const
 {
 	auto& vertices = aabb.getVertices();
 	for(auto& vertex : vertices)
 	{
 		Vector3R tVertex;
-		transformP(vertex, &tVertex);
+		transformP(vertex, time, &tVertex);
 		vertex = tVertex;
 	}
 	
@@ -70,6 +93,17 @@ void Transform::transform(const AABB& aabb, AABB* out_aabb) const
 	{
 		out_aabb->unionWith(vertices[i]);
 	}
+}
+
+void Transform::transform(const Intersection& intersection, 
+                          Intersection* const out_intersection) const
+{
+	transform(intersection, Time(), out_intersection);
+}
+
+void Transform::transform(const AABB& aabb, AABB* const out_aabb) const
+{
+	transform(aabb, Time(), out_aabb);
 }
 
 }// end namespace ph

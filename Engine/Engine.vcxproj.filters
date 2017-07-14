@@ -345,6 +345,9 @@
     <ClCompile Include="Source\Actor\Geometry\GeometrySoup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Math\Transform\DynamicLinearTranslation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Common\primitive_type.h">
@@ -791,6 +794,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Actor\Geometry\GeometrySoup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Transform\DynamicLinearTranslation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

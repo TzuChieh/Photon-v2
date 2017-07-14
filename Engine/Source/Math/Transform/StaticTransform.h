@@ -35,6 +35,8 @@ public:
 	StaticTransform(const Matrix4R& transform, const Matrix4R& inverseTransform);
 	virtual ~StaticTransform() override;
 
+	virtual std::unique_ptr<Transform> genInversed() const override;
+
 private:
 	virtual void transformVector(const Vector3R& vector, const Time& time, 
 	                             Vector3R* out_vector) const override;

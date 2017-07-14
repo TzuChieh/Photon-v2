@@ -28,6 +28,15 @@ StaticTransform::StaticTransform(const Matrix4R& transform, const Matrix4R& inve
 
 StaticTransform::~StaticTransform() = default;
 
+std::unique_ptr<Transform> StaticTransform::genInversed() const
+{
+	auto& inversed = std::unique_ptr<StaticTransform>();
+	inversed->m_transformMatrix        = m_inverseTransformMatrix;
+	inversed->m_inverseTransformMatrix = m_transformMatrix;
+
+	return std::move(inversed);
+}
+
 void StaticTransform::transformVector(const Vector3R& vector, const Time& time,
                                       Vector3R* const out_vector) const
 {
@@ -56,8 +65,8 @@ void StaticTransform::transformLineSegment(const Vector3R& lineStartPos, const V
                                            real* const out_lineMinT, 
                                            real* const out_lineMaxT) const
 {
-	transformPoint (lineStartPos, time, out_lineStartPos);
-	transformVector(lineDir,      time, out_lineDir);
+	StaticTransform::transformPoint (lineStartPos, time, out_lineStartPos);
+	StaticTransform::transformVector(lineDir,      time, out_lineDir);
 	*out_lineMinT = lineMinT;
 	*out_lineMaxT = lineMaxT;
 }

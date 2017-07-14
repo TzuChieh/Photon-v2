@@ -13,6 +13,7 @@ namespace ph
 class Geometry;
 class Material;
 class TextureMapper;
+class MotionSource;
 
 class AModel final : public PhysicalActor, public TCommandInterface<AModel>
 {
@@ -34,8 +35,9 @@ public:
 	friend void swap(AModel& first, AModel& second);
 
 private:
-	std::shared_ptr<Geometry> m_geometry;
-	std::shared_ptr<Material> m_material;
+	std::shared_ptr<Geometry>     m_geometry;
+	std::shared_ptr<Material>     m_material;
+	std::shared_ptr<MotionSource> m_motionSource;
 
 // command interface
 public:

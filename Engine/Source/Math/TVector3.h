@@ -18,6 +18,8 @@ public:
 	                                   const TVector3& vB, T wB, 
 	                                   const TVector3& vC, T wC);
 
+	static TVector3 lerp(const TVector3& vA, const TVector3& vB, T parametricT);
+
 public:
 	T x;
 	T y;

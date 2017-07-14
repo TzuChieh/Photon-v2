@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
+#include "Core/Quantity/Time.h"
 
 namespace ph
 {
@@ -13,8 +14,9 @@ public:
 
 public:
 	Ray();
-	Ray(const Vector3R& origin, const Vector3R& direction, const real minT, const real maxT);
 	Ray(const Vector3R& origin, const Vector3R& direction);
+	Ray(const Vector3R& origin, const Vector3R& direction, real minT, real maxT);
+	Ray(const Vector3R& origin, const Vector3R& direction, real minT, real maxT, const Time& time);
 
 	inline const Vector3R& getOrigin() const
 	{
@@ -24,6 +26,11 @@ public:
 	inline const Vector3R& getDirection() const
 	{
 		return m_direction;
+	}
+
+	inline const Time& getTime() const
+	{
+		return m_time;
 	}
 
 	inline Vector3R& getOrigin()
@@ -66,11 +73,17 @@ public:
 		m_maxT = maxT;
 	}
 
+	inline void setTime(const Time& time)
+	{
+		m_time = time;
+	}
+
 private:
 	Vector3R m_origin;
 	Vector3R m_direction;
 	real     m_minT;
 	real     m_maxT;
+	Time     m_time;
 };
 
 }// end namespace ph

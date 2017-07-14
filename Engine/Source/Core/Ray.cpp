@@ -7,8 +7,19 @@ namespace ph
 
 const real Ray::MAX_T = std::numeric_limits<real>::max();
 
-Ray::Ray(const Vector3R& origin, const Vector3R& direction, const real minT, const real maxT) :
-	m_origin(origin), m_direction(direction), m_minT(minT), m_maxT(maxT)
+Ray::Ray(const Vector3R& origin, const Vector3R& direction, 
+         const real minT, const real maxT, 
+         const Time& time) :
+	m_origin(origin), m_direction(direction), 
+	m_minT(minT), m_maxT(maxT),
+	m_time(time)
+{
+
+}
+
+Ray::Ray(const Vector3R& origin, const Vector3R& direction,
+         const real minT, const real maxT) :
+	Ray(origin, direction, minT, maxT, Time())
 {
 
 }

@@ -53,7 +53,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const Scene& 
 	const Emitter*           emitter  = nullptr;
 
 	// reversing the ray for backward tracing
-	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1), 0.0001_r, Ray::MAX_T);// HACK: hard-coded number
+	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1), 0.0001_r, Ray::MAX_T, ray.getTime());// HACK: hard-coded number
 
 	if(!scene.isIntersecting(tracingRay, &intersection))
 	{
@@ -94,7 +94,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const Scene& 
 			// sidedness agreement between real geometry and shading (phong-interpolated) normal
 			if(!(intersection.getHitSmoothNormal().dot(toLightVec) * intersection.getHitGeoNormal().dot(toLightVec) <= 0))
 			{
-				const Ray visRay(intersection.getHitPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2);
+				const Ray visRay(intersection.getHitPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2, ray.getTime());
 				if(!scene.isIntersecting(visRay))
 				{
 					bsdfEval.inputs.set(intersection, visRay.getDirection(), V);

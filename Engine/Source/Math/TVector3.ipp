@@ -25,6 +25,15 @@ inline TVector3<T> TVector3<T>::weightedSum(const TVector3& vA, const T wA,
 }
 
 template<typename T>
+TVector3<T> TVector3<T>::lerp(const TVector3& vA, const TVector3& vB, const T parametricT)
+{
+	const T oneMinusT = 1 - parametricT;
+	return TVector3(vA.x * oneMinusT + vB.x * parametricT, 
+	                vA.y * oneMinusT + vB.y * parametricT, 
+	                vA.z * oneMinusT + vB.z * parametricT);
+}
+
+template<typename T>
 inline TVector3<T>::TVector3() : 
 	x(0), y(0), z(0)
 {

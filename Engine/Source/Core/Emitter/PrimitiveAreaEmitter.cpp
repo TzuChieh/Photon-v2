@@ -152,6 +152,8 @@ void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, Vector3R* const out
 	rayDir.z = 1.0_r - 2.0_r * r2;
 	rayDir.normalizeLocal();
 
+	// TODO: time
+
 	out_ray->setDirection(rayDir);
 	out_ray->setOrigin(tPositionSample.position);
 	out_ray->setMinT(0.0001_r);// HACK: hard-code number

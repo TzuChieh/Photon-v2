@@ -2,6 +2,8 @@
 
 #include "Math/math_fwd.h"
 
+#include <memory>
+
 namespace ph
 {
 
@@ -15,16 +17,22 @@ class Transform
 public:
 	virtual ~Transform() = 0;
 
+	virtual std::unique_ptr<Transform> genInversed() const;
+
+	// Treating a Vector3R as either
+	//
+	// 1) vectors (V), 
+	// 2) orientations, such as normals and tangents (O), 
+	// 3) points (P) 
+	//
+	// and calculate the transformed result.
+
 	void transformV(const Vector3R& vector,      Vector3R* out_vector)      const;
 	void transformO(const Vector3R& orientation, Vector3R* out_orientation) const;
 	void transformP(const Vector3R& point,       Vector3R* out_point)       const;
-
-	void transform(const Ray& ray, Ray* out_ray) const;
-	void transform(const Intersection& intersection, Intersection* out_intersection) const;
-	void transform(const AABB& aabb, AABB* out_aabb) const;
-
-
-	// Treating a Vector3R as either a vector, normal, or point and calculate the transformed result.
+	void transformV(const Vector3R& vector,      const Time& time, Vector3R* out_vector)      const;
+	void transformO(const Vector3R& orientation, const Time& time, Vector3R* out_orientation) const;
+	void transformP(const Vector3R& point,       const Time& time, Vector3R* out_point)       const;
 
 	// Notice that transforming a ray neither will change its parametric 
 	// length (t) nor renormalizing its direction vector even if the transform 
@@ -36,6 +44,14 @@ public:
 	// 
 	// this operation will always yield a correctly transformed result while 
 	// saving an expensive sqrt() call.
+	void transform(const Ray& ray, Ray* out_ray) const;
+
+	void transform(const Intersection& intersection, Intersection* out_intersection) const;
+	void transform(const AABB& aabb, AABB* out_aabb) const;
+	void transform(const Intersection& intersection, const Time& time, 
+	               Intersection* out_intersection) const;
+	void transform(const AABB& aabb, const Time& time, 
+	               AABB* out_aabb) const;
 
 private:
 

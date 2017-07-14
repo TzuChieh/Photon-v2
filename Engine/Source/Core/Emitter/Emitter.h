@@ -13,6 +13,9 @@ class Primitive;
 class Intersection;
 class DirectLightSample;
 class Ray;
+class Time;
+
+// TODO: supports motion blur on Emitters
 
 class Emitter
 {

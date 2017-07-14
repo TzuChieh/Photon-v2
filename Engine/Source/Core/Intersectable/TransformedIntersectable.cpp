@@ -29,12 +29,14 @@ TransformedIntersectable::~TransformedIntersectable() = default;
 bool TransformedIntersectable::isIntersecting(const Ray& ray,
                                               Intersection* const out_intersection) const
 {
+	const Time& time = ray.getTime();
+
 	Ray localRay;
 	m_worldToLocal->transform(ray, &localRay);
 
 	Intersection localIntersection;
 	const bool isIntersecting = m_intersectable->isIntersecting(localRay, &localIntersection);
-	m_localToWorld->transform(localIntersection, out_intersection);
+	m_localToWorld->transform(localIntersection, time, out_intersection);
 
 	return isIntersecting;
 }
@@ -47,6 +49,7 @@ bool TransformedIntersectable::isIntersecting(const Ray& ray) const
 	return m_intersectable->isIntersecting(localRay);
 }
 
+// FIXME: this is broken under timed environment
 bool TransformedIntersectable::isIntersectingVolumeConservative(const AABB& aabb) const
 {
 	AABB localAABB;
@@ -55,11 +58,28 @@ bool TransformedIntersectable::isIntersectingVolumeConservative(const AABB& aabb
 	return m_intersectable->isIntersectingVolumeConservative(localAABB);
 }
 
-void TransformedIntersectable::calcAABB(AABB* out_aabb) const
+void TransformedIntersectable::calcAABB(AABB* const out_aabb) const
 {
 	AABB localAABB;
+	AABB worldAABB;
 	m_intersectable->calcAABB(&localAABB);
-	m_localToWorld->transform(localAABB, out_aabb);
+	m_localToWorld->transform(localAABB, &worldAABB);
+
+	// TODO: modify time interval base on transform properties or aabb size
+
+	for(size_t i = 0; i < 101; i++)
+	{
+		Time time;
+		time.absoluteS = 0;// HACK
+		time.relativeS = 0;// HACK
+		time.relativeT = static_cast<real>(1.0 / 100.0 * i);
+
+		AABB aabb;
+		m_localToWorld->transform(localAABB, time, &aabb);
+		worldAABB.unionWith(aabb);
+	}
+
+	*out_aabb = worldAABB;
 }
 
 TransformedIntersectable& TransformedIntersectable::operator = (TransformedIntersectable&& rhs)

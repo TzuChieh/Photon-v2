@@ -9,6 +9,8 @@
 #include "FileIO/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
+#include "Actor/MotionSource/MotionSource.h"
+#include "Core/Quantity/Time.h"
 
 #include <algorithm>
 #include <iostream>
@@ -18,21 +20,28 @@ namespace ph
 
 AModel::AModel() : 
 	PhysicalActor(), 
-	m_geometry(nullptr), m_material(nullptr)
+	m_geometry(nullptr), 
+	m_material(nullptr), 
+	m_motionSource(nullptr)
 {
 
 }
 
-AModel::AModel(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<Material>& material) : 
+AModel::AModel(const std::shared_ptr<Geometry>& geometry, 
+               const std::shared_ptr<Material>& material) : 
 	PhysicalActor(), 
-	m_geometry(geometry), m_material(material)
+	m_geometry(geometry), 
+	m_material(material), 
+	m_motionSource(nullptr)
 {
 
 }
 
 AModel::AModel(const AModel& other) : 
 	PhysicalActor(other), 
-	m_geometry(other.m_geometry), m_material(other.m_material)
+	m_geometry(other.m_geometry), 
+	m_material(other.m_material), 
+	m_motionSource(other.m_motionSource)
 {
 	
 }
@@ -71,7 +80,30 @@ void AModel::cook(CookedActor* const out_cookedActor) const
 			auto intersectable = std::make_unique<TransformedIntersectable>(std::move(primitive),
 			                                                                std::move(localToWorld), 
 			                                                                std::move(worldToLocal));
-			cookedActor.intersectables.push_back(std::move(intersectable));
+			
+			// HACK
+
+			std::unique_ptr<TransformedIntersectable> motionIntersectable = nullptr;
+			if(m_motionSource)
+			{
+				Time t0;
+				Time t1;
+				t1.absoluteS = 1;
+				t1.relativeS = 1;
+				t1.relativeT = 1;
+				auto motionLocalToWorld = m_motionSource->genLocalToWorld(t0, t1);
+				auto motionWorldToLocal = motionLocalToWorld->genInversed();
+				motionIntersectable = std::move(std::make_unique<TransformedIntersectable>(std::move(intersectable),
+					std::move(motionLocalToWorld),
+					std::move(motionWorldToLocal)));
+
+				//std::cerr << "processing motion source" << std::endl;
+			}
+
+			if(!motionIntersectable)
+				cookedActor.intersectables.push_back(std::move(intersectable));
+			else
+				cookedActor.intersectables.push_back(std::move(motionIntersectable));
 		}
 		cookedActor.primitiveMetadata = std::move(metadata);
 	}
@@ -113,17 +145,20 @@ void swap(AModel& first, AModel& second)
 	swap(static_cast<PhysicalActor&>(first), static_cast<PhysicalActor&>(second));
 	swap(first.m_geometry,                   second.m_geometry);
 	swap(first.m_material,                   second.m_material);
+	swap(first.m_motionSource,               second.m_motionSource);
 }
 
 // command interface
 
 AModel::AModel(const InputPacket& packet) :
 	PhysicalActor(packet),
-	m_geometry(nullptr), m_material(nullptr)
+	m_geometry(nullptr), m_material(nullptr), m_motionSource(nullptr)
 {
-	const DataTreatment requiredDT(EDataImportance::REQUIRED, "AModel needs both a Geometry and a Material");
-	m_geometry = packet.get<Geometry>("geometry", requiredDT);
-	m_material = packet.get<Material>("material", requiredDT);
+	const DataTreatment requiredDT(EDataImportance::REQUIRED, 
+	                               "AModel needs both a Geometry and a Material");
+	m_geometry     = packet.get<Geometry>("geometry", requiredDT);
+	m_material     = packet.get<Material>("material", requiredDT);
+	m_motionSource = packet.get<MotionSource>("motion", DataTreatment::OPTIONAL());
 	/*const DataTreatment requiredDT(EDataImportance::REQUIRED, "AModel needs both a Geometry and a Material");
 	m_geometry = packet.getGeometry("geometry", requiredDT);
 	m_material = packet.getMaterial("material", requiredDT);*/

@@ -223,6 +223,7 @@
     <ClCompile Include="Source\Actor\Texture\Texture.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\random_sample.cpp" />
     <ClCompile Include="Source\FileIO\ValueParser.cpp" />
+    <ClCompile Include="Source\Math\Transform\DynamicLinearTranslation.cpp" />
     <ClCompile Include="Source\Math\Transform\Transform.cpp" />
     <ClCompile Include="Source\PostProcess\HdrFrame.cpp" />
     <ClCompile Include="Source\Math\Math.cpp" />
@@ -351,6 +352,7 @@
     <ClInclude Include="Source\Math\math_common.h" />
     <ClInclude Include="Source\Math\TArithmeticArray.h" />
     <ClInclude Include="Source\Math\TQuaternion.h" />
+    <ClInclude Include="Source\Math\Transform\DynamicLinearTranslation.h" />
     <ClInclude Include="Source\Math\Transform\TDecomposedTransform.h" />
     <ClInclude Include="Source\Math\Transform\Transform.h" />
     <ClInclude Include="Source\PostProcess\HdrFrame.h" />

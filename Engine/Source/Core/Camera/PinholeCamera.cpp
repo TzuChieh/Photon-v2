@@ -4,6 +4,7 @@
 #include "Core/Camera/Film.h"
 #include "FileIO/InputPacket.h"
 #include "Math/Math.h"
+#include "Math/Random.h"
 
 #include <limits>
 
@@ -26,6 +27,11 @@ void PinholeCamera::genSensingRay(const Sample& sample, Ray* const out_ray) cons
 	out_ray->setOrigin(getPosition());
 	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
 	out_ray->setMaxT(Ray::MAX_T);
+
+	// HACK
+	Time time;
+	time.relativeT = Random::genUniformReal_i0_e1();
+	out_ray->setTime(time);
 }
 
 void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3R& targetPos, Vector2f* const out_filmCoord, Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const
