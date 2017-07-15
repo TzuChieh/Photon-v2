@@ -36,6 +36,8 @@ bld/
 .metadata/
 .recommenders/
 .settings/
+.project
+.classpath
 
 # Visual C++ Cache Files
 ipch/
