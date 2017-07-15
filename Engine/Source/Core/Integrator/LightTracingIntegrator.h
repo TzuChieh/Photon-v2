@@ -6,6 +6,8 @@
 namespace ph
 {
 
+// FIXME: this integrator is broken if the scene contains motion
+
 class LightTracingIntegrator final : public Integrator, public TCommandInterface<LightTracingIntegrator>
 {
 public:

@@ -12,8 +12,8 @@ class TransformedIntersectable : public Intersectable
 {
 public:
 	TransformedIntersectable(std::unique_ptr<Intersectable> intersectable, 
-	                         std::unique_ptr<Transform>     localToWorld, 
-	                         std::unique_ptr<Transform>     worldToLocal);
+	                         const Transform*               localToWorld, 
+	                         const Transform*               worldToLocal);
 	TransformedIntersectable(TransformedIntersectable&& other);
 	virtual ~TransformedIntersectable() override;
 
@@ -31,8 +31,8 @@ public:
 
 protected:
 	std::unique_ptr<Intersectable> m_intersectable;
-	std::unique_ptr<Transform>     m_localToWorld;
-	std::unique_ptr<Transform>     m_worldToLocal;
+	const Transform*               m_localToWorld;
+	const Transform*               m_worldToLocal;
 };
 
 }// end namespace ph

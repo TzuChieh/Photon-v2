@@ -7,19 +7,19 @@ namespace ph
 {
 
 TransformedIntersectable::TransformedIntersectable(std::unique_ptr<Intersectable> intersectable,
-                                                   std::unique_ptr<Transform>     localToWorld,
-                                                   std::unique_ptr<Transform>     worldToLocal) :
+                                                   const Transform*               localToWorld, 
+                                                   const Transform*               worldToLocal) :
 	m_intersectable(std::move(intersectable)),
-	m_localToWorld(std::move(localToWorld)),
-	m_worldToLocal(std::move(worldToLocal))
+	m_localToWorld(localToWorld),
+	m_worldToLocal(worldToLocal)
 {
 
 }
 
 TransformedIntersectable::TransformedIntersectable(TransformedIntersectable&& other) : 
 	m_intersectable(std::move(other.m_intersectable)),
-	m_localToWorld(std::move(other.m_localToWorld)),
-	m_worldToLocal(std::move(other.m_worldToLocal))
+	m_localToWorld(other.m_localToWorld),
+	m_worldToLocal(other.m_worldToLocal)
 {
 
 }
@@ -85,8 +85,8 @@ void TransformedIntersectable::calcAABB(AABB* const out_aabb) const
 TransformedIntersectable& TransformedIntersectable::operator = (TransformedIntersectable&& rhs)
 {
 	m_intersectable = std::move(rhs.m_intersectable);
-	m_localToWorld  = std::move(rhs.m_localToWorld);
-	m_worldToLocal  = std::move(rhs.m_worldToLocal);
+	m_localToWorld  = rhs.m_localToWorld;
+	m_worldToLocal  = rhs.m_worldToLocal;
 
 	return *this;
 }

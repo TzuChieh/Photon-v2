@@ -9,7 +9,8 @@ namespace ph
 class DynamicLinearTranslation : public Transform
 {
 public:
-	DynamicLinearTranslation(const Vector3R& posT0, const Vector3R& posT1);
+	DynamicLinearTranslation(const Vector3R& translationT0, 
+	                         const Vector3R& translationT1);
 	virtual ~DynamicLinearTranslation() override;
 
 	virtual std::unique_ptr<Transform> genInversed() const override;
@@ -29,8 +30,8 @@ private:
 	                                  Vector3R* out_lineStartPos, Vector3R* out_lineDir,
 	                                  real* out_lineMinT, real* out_lineMaxT) const override;
 
-	Vector3R m_posT0;
-	Vector3R m_posT1;
+	Vector3R m_translationT0;
+	Vector3R m_translationT1;
 };
 
 }// end namespace ph

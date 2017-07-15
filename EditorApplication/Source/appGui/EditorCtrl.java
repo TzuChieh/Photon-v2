@@ -121,6 +121,7 @@ public class EditorCtrl
 					
 					if(workDone >= totalWork)
 					{
+						Platform.runLater(() -> renderProgressLabel.setText("100 %"));
 						break;
 					}
 					

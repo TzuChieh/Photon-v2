@@ -30,7 +30,7 @@ StaticTransform::~StaticTransform() = default;
 
 std::unique_ptr<Transform> StaticTransform::genInversed() const
 {
-	auto& inversed = std::unique_ptr<StaticTransform>();
+	auto inversed = std::unique_ptr<StaticTransform>();
 	inversed->m_transformMatrix        = m_inverseTransformMatrix;
 	inversed->m_inverseTransformMatrix = m_transformMatrix;
 

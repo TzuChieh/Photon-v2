@@ -56,23 +56,6 @@ std::shared_ptr<T> NamedResourceStorage::getResource(
 	const std::string& resourceName, 
 	const DataTreatment& treatment) const
 {
-	/*std::shared_ptr<T> resource = nullptr;
-
-	const SdlTypeInfo& typeInfo      = T::ciTypeInfo();
-	const std::size_t  categoryIndex = static_cast<std::size_t>(typeInfo.typeCategory);
-	if(!checkCategoryIndex(categoryIndex))
-	{
-		return resource;
-	}
-
-	const auto& resourcesNameMap = m_resources[categoryIndex];
-	const auto& iter = resourcesNameMap.find(resourceName);
-	if(iter == resourcesNameMap.end())
-	{
-		reportResourceNotFound(SdlTypeInfo::categoryToName(typeInfo.typeCategory), resourceName, treatment);
-		return resource;
-	}*/
-
 	const SdlTypeInfo& typeInfo = T::ciTypeInfo();
 	const std::shared_ptr<ISdlResource>& rawResource = getResource(typeInfo, resourceName, treatment);
 	if(rawResource == nullptr)
@@ -84,7 +67,8 @@ std::shared_ptr<T> NamedResourceStorage::getResource(
 	if(castedResource == nullptr)
 	{
 		reportResourceNotFound(SdlTypeInfo::categoryToName(typeInfo.typeCategory), resourceName, treatment);
-		std::cerr << "resource not found detail: requested type mismatch" << std::endl;
+		std::cerr << "warning: at NamedResourceStorage::getResource(), " 
+		          << "resource not found detail: requested type mismatch" << std::endl;
 		return nullptr;
 	}
 

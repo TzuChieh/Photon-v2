@@ -35,16 +35,16 @@ void Transform::transformP(const Vector3R& point, const Time& time,
 
 void Transform::transformV(const Vector3R& vector, Vector3R* const out_vector) const
 {
-	transformV(vector, Time(), out_vector);
+	transformVector(vector, Time(), out_vector);
 }
 
 void Transform::transformO(const Vector3R& orientation, Vector3R* const out_orientation) const
 {
-	transformO(orientation, Time(), out_orientation);
+	transformOrientation(orientation, Time(), out_orientation);
 }
 void Transform::transformP(const Vector3R& point, Vector3R* const out_point) const
 {
-	transformP(point, Time(), out_point);
+	transformPoint(point, Time(), out_point);
 }
 
 void Transform::transform(const Ray& ray, Ray* const out_ray) const
@@ -65,9 +65,9 @@ void Transform::transform(const Intersection& intersection, const Time& time,
 	Vector3R tHitPosition;
 	Vector3R tHitSmoothNormal;
 	Vector3R tHitGeoNormal;
-	transformP(intersection.getHitPosition(),     time, &tHitPosition);
-	transformO(intersection.getHitSmoothNormal(), time, &tHitSmoothNormal);
-	transformO(intersection.getHitGeoNormal(),    time, &tHitGeoNormal);
+	transformPoint      (intersection.getHitPosition(),     time, &tHitPosition);
+	transformOrientation(intersection.getHitSmoothNormal(), time, &tHitSmoothNormal);
+	transformOrientation(intersection.getHitGeoNormal(),    time, &tHitGeoNormal);
 
 	out_intersection->set(intersection.getHitPrimitive(),
 	                      tHitPosition,
@@ -84,7 +84,7 @@ void Transform::transform(const AABB& aabb, const Time& time,
 	for(auto& vertex : vertices)
 	{
 		Vector3R tVertex;
-		transformP(vertex, time, &tVertex);
+		transformPoint(vertex, time, &tVertex);
 		vertex = tVertex;
 	}
 	

@@ -4,7 +4,7 @@
 //## film(film) [integer width 400] [integer height 400]
 ## film(film) [integer width 800] [integer height 800]
 //## film(film) [integer width 400] [integer height 400]
-## sampler(sampler) [integer spp-budget 128]
+## sampler(sampler) [integer spp-budget 12]
 //## sampler(sampler) [integer spp-budget 64]
 
 //## integrator(backward-path)
@@ -73,18 +73,21 @@
 -> material(abraded-translucent) @glassMaterial [vector3r albedo "0.0 0.0 0.0"] [real roughness 0.0] [vector3r f0 "0.04 0.04 0.04"]
    [real ior 1.5]
 
+-> motion(const-velocity) @testMotion1 [vector3r velocity "-1 0.8 0"]
+-> motion(const-velocity) @testMotion2 [vector3r velocity "-1 0 0"]
+-> motion(const-velocity) @testMotion3 [vector3r velocity "-0.2 -0.5 0"]
+
 // diffuse object
 -> geometry(sphere) @diffuseGeometry [real radius 1.5]
--> motion(const-velocity) @testMotion [vector3r velocity "-1 1 0"]
--> actor(model) @diffuseModel [geometry geometry @diffuseGeometry] [material material @diffuseMaterial] [motion motion @testMotion]
+-> actor(model) @diffuseModel [geometry geometry @diffuseGeometry] [material material @diffuseMaterial] [motion motion @testMotion1]
 //-> actor(model) translate(@diffuseModel) [vector3r factor "-3 -3.5 0"]
 
 // metal object
 -> geometry(sphere) @metalGeometry [real radius 1.5]
--> actor(model) @metalModel [geometry geometry @metalGeometry] [material material @goldMaterial]
+-> actor(model) @metalModel [geometry geometry @metalGeometry] [material material @goldMaterial][motion motion @testMotion2]
 -> actor(model) translate(@metalModel) [vector3r factor "0 -3.5 0"]
 
 // glass object
 -> geometry(sphere) @glassGeometry [real radius 1.5]
--> actor(model) @glassModel [geometry geometry @glassGeometry] [material material @glassMaterial]
+-> actor(model) @glassModel [geometry geometry @glassGeometry] [material material @glassMaterial][motion motion @testMotion3]
 -> actor(model) translate(@glassModel) [vector3r factor "3 0 0"]

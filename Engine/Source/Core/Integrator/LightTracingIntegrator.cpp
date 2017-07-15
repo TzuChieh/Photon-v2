@@ -48,6 +48,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 	real emitterPdfA;
 	real emitterPdfW;
 	emitter->genSensingRay(&emitterRay, &emitterRadianceLe, &eN, &emitterPdfA, &emitterPdfW);
+
 	emitterPdfA *= emitterPickPdf;
 	if(emitterRadianceLe.isZero() || emitterPdfA <= 0 || emitterPdfW <= 0)
 	{

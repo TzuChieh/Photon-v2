@@ -26,7 +26,10 @@ public:
 	virtual void evalEmittedRadiance(const Intersection& intersection, Vector3R* out_emitterRadiance) const = 0;
 	virtual void genDirectSample(const Vector3R& targetPos, Vector3R* out_emitPos, Vector3R* out_emittedRadiance, real* out_PDF) const = 0;
 	virtual void genDirectSample(DirectLightSample& sample) const = 0;
+
+	// FIXME: ray time
 	virtual void genSensingRay(Ray* out_ray, Vector3R* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const = 0;
+
 	virtual real calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const = 0;
 
 	virtual inline bool isSurfaceEmissive() const
