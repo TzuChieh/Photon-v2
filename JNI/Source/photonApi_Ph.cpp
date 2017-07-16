@@ -3,7 +3,7 @@
 #include "JLongRef.h"
 #include "JFloatRef.h"
 
-#include "ph_core.h"
+#include <ph_core.h>
 
 #include <iostream>
 

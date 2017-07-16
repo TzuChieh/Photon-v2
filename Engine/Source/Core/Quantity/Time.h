@@ -19,6 +19,14 @@ public:
 	{
 
 	}
+
+	Time(real absoluteS, real relativeS, real relativeT) :
+		absoluteS(absoluteS),
+		relativeS(relativeS),
+		relativeT(relativeT)
+	{
+
+	}
 };
 
 }// end namespace ph

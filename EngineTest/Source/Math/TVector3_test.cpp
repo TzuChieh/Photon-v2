@@ -1,0 +1,57 @@
+#include "constants_for_math_test.h"
+
+#include <Math/TVector3.h>
+
+#include <gtest/gtest.h>
+
+using namespace ph;
+
+TEST(MathOperationsVector3R, Constructs)
+{
+	const Vector3R vec1(-1.1_r, 0.0_r, 2.3_r);
+	EXPECT_EQ(-1.1_r, vec1.x);
+	EXPECT_EQ( 0.0_r, vec1.y);
+	EXPECT_EQ( 2.3_r, vec1.z);
+}
+
+TEST(MathOperationsVector3R, AddsTwoVectors)
+{
+	const Vector3R vecA1(0.0_r, 1.0_r, -1.0_r), vecB1(0.0_r, -1.0_r, 1.0_r);
+	Vector3R answer1 = vecA1.add(vecB1);
+	EXPECT_NEAR(0.0_r, answer1.x, TEST_REAL_EPSILON);
+	EXPECT_NEAR(0.0_r, answer1.y, TEST_REAL_EPSILON);
+	EXPECT_NEAR(0.0_r, answer1.z, TEST_REAL_EPSILON);
+
+	const Vector3R vecA2(0.0_r, 10.0_r, 0.1_r), vecB2(10.5_r, 25.3_r, -4.8_r);
+	Vector3R answer2 = vecA2.add(vecB2);
+	EXPECT_NEAR(10.5_r, answer2.x, TEST_REAL_EPSILON);
+	EXPECT_NEAR(35.3_r, answer2.y, TEST_REAL_EPSILON);
+	EXPECT_NEAR(-4.7_r, answer2.z, TEST_REAL_EPSILON);
+}
+
+TEST(MathOperationsVector3R, SubtractsTwoVectors)
+{
+	const Vector3R vecA1(1.0_r, 1.0_r, -1.0_r), vecB1(0.0_r, -1.0_r, 1.0_r);
+	Vector3R answer1 = vecA1.sub(vecB1);
+	EXPECT_NEAR( 1.0_r, answer1.x, TEST_REAL_EPSILON);
+	EXPECT_NEAR( 2.0_r, answer1.y, TEST_REAL_EPSILON);
+	EXPECT_NEAR(-2.0_r, answer1.z, TEST_REAL_EPSILON);
+
+	const Vector3R vecA2(0.0_r, 2.3_r, -4.5_r), vecB2(0.0_r, -0.1_r, -4.5_r);
+	Vector3R answer2 = vecA2.sub(vecB2);
+	EXPECT_NEAR(0.0_r, answer2.x, TEST_REAL_EPSILON);
+	EXPECT_NEAR(2.4_r, answer2.y, TEST_REAL_EPSILON);
+	EXPECT_NEAR(0.0_r, answer2.z, TEST_REAL_EPSILON);
+}
+
+TEST(MathOperationsVector3R, ComparesEquality)
+{
+	const Vector3R vecA1(0.0_r, -1.0_r, 2.3_r), vecB1(0.0_r, -1.0_r, 2.3_r);
+	EXPECT_TRUE(vecA1.equals(vecB1));
+
+	const Vector3R vecA2(0.15_r, -0.05_r, 0.0_r), vecB2(0.1_r, 0.03_r, 0.0_r);
+	EXPECT_TRUE(vecA2.equals(vecB2, 0.15_r));
+
+	const Vector3R vecA3(0.0_r, -0.05_r, -0.1_r), vecB3(0.0_r, 0.03_r, 0.1_r);
+	EXPECT_FALSE(vecA3.equals(vecB3, 0.15_r));
+}

@@ -4,14 +4,14 @@
 //## film(film) [integer width 400] [integer height 400]
 //## film(film) [integer width 800] [integer height 800]
 ## film(film) [integer width 800] [integer height 600]
-## sampler(sampler) [integer spp-budget 8]
+## sampler(sampler) [integer spp-budget 12]
 //## sampler(sampler) [integer spp-budget 64]
 
-## integrator(backward-path)
+//## integrator(backward-path)
 //## integrator(backward-light)
 //## integrator(light-tracing)
 //## integrator(surface-normal)
-//## integrator(backward-mis)
+## integrator(backward-mis)
 
 
 
