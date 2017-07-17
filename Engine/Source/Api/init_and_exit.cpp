@@ -34,7 +34,7 @@
 #include "Core/Camera/ThinLensCamera.h"
 
 // films
-#include "Core/Camera/Film.h"
+#include "Core/Filmic/Film.h"
 
 // samplers
 #include "Core/SampleGenerator/PixelJitterSampleGenerator.h"

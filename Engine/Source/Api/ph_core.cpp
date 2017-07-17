@@ -5,7 +5,6 @@
 #include "FileIO/DescriptionParser.h"
 #include "Core/Camera/Camera.h"
 #include "Api/test_scene.h"
-#include "Core/Camera/Film.h"
 #include "PostProcess/Frame.h"
 #include "PostProcess/HdrFrame.h"
 #include "Math/TArithmeticArray.h"

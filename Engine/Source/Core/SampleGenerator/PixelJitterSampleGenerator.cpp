@@ -1,5 +1,5 @@
 #include "Core/SampleGenerator/PixelJitterSampleGenerator.h"
-#include "Core/Camera/Film.h"
+#include "Core/Filmic/Film.h"
 #include "Core/Sample.h"
 #include "Math/Random.h"
 

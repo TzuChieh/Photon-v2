@@ -234,9 +234,6 @@
     <ClCompile Include="Source\Core\Camera\PinholeCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Camera\Film.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\PostProcess\Frame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -346,6 +343,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Actor\MotionSource\ConstantVelocityMotion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Filmic\Film.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -641,9 +641,6 @@
     <ClInclude Include="Source\Core\Camera\PinholeCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Camera\Film.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Camera\RadianceSensor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -806,6 +803,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Actor\MotionSource\ConstantVelocityMotion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Filmic\Film.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

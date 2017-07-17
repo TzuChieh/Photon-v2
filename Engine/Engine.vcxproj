@@ -259,7 +259,7 @@
     <ClCompile Include="Source\World\LightSampler\UniformRandomLightSampler.cpp" />
     <ClCompile Include="Source\World\Scene.cpp" />
     <ClCompile Include="Source\World\VisualWorld.cpp" />
-    <ClCompile Include="Source\Core\Camera\Film.cpp" />
+    <ClCompile Include="Source\Core\Filmic\Film.cpp" />
     <ClCompile Include="Source\PostProcess\Frame.cpp" />
     <ClCompile Include="Source\Api\ApiDatabase.cpp" />
     <ClCompile Include="Source\Math\Random.cpp" />
@@ -345,7 +345,7 @@
     <ClInclude Include="Source\Actor\Texture\CheckerboardTexture.h" />
     <ClInclude Include="Source\Actor\Texture\ConstantTexture.h" />
     <ClInclude Include="Source\FileIO\ValueParser.h" />
-    <ClInclude Include="Source\Core\Camera\Film.h" />
+    <ClInclude Include="Source\Core\Filmic\Film.h" />
     <ClInclude Include="Source\Core\Intersection.h" />
     <ClInclude Include="Source\Core\Renderer.h" />
     <ClInclude Include="Source\Core\Sample.h" />

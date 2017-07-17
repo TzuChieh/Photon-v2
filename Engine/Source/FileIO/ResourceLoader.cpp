@@ -14,7 +14,7 @@
 #include "Actor/ALight.h"
 #include "Actor/LightSource/AreaSource.h"
 #include "Core/Camera/PinholeCamera.h"
-#include "Core/Camera/Film.h"
+#include "Core/Filmic/Film.h"
 #include "Core/SampleGenerator/PixelJitterSampleGenerator.h"
 #include "Core/Integrator/BackwardPathIntegrator.h"
 #include "Core/Integrator/BackwardLightIntegrator.h"

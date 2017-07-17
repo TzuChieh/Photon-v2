@@ -1,7 +1,7 @@
 #include "Core/Camera/PerspectiveCamera.h"
 #include "Core/Ray.h"
 #include "Core/Sample.h"
-#include "Core/Camera/Film.h"
+#include "Core/Filmic/Film.h"
 #include "FileIO/InputPacket.h"
 #include "Math/Math.h"
 #include "FileIO/InputPrototype.h"
