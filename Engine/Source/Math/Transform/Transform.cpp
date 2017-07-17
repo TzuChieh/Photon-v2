@@ -80,7 +80,7 @@ void Transform::transform(const Intersection& intersection, const Time& time,
 void Transform::transform(const AABB& aabb, const Time& time, 
                           AABB* const out_aabb) const
 {
-	auto& vertices = aabb.getVertices();
+	auto vertices = aabb.getVertices();
 	for(auto& vertex : vertices)
 	{
 		Vector3R tVertex;

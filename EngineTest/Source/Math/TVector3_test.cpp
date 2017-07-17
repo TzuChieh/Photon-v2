@@ -17,13 +17,13 @@ TEST(MathOperationsVector3R, Constructs)
 TEST(MathOperationsVector3R, AddsTwoVectors)
 {
 	const Vector3R vecA1(0.0_r, 1.0_r, -1.0_r), vecB1(0.0_r, -1.0_r, 1.0_r);
-	Vector3R answer1 = vecA1.add(vecB1);
+	const Vector3R answer1 = vecA1.add(vecB1);
 	EXPECT_NEAR(0.0_r, answer1.x, TEST_REAL_EPSILON);
 	EXPECT_NEAR(0.0_r, answer1.y, TEST_REAL_EPSILON);
 	EXPECT_NEAR(0.0_r, answer1.z, TEST_REAL_EPSILON);
 
 	const Vector3R vecA2(0.0_r, 10.0_r, 0.1_r), vecB2(10.5_r, 25.3_r, -4.8_r);
-	Vector3R answer2 = vecA2.add(vecB2);
+	const Vector3R answer2 = vecA2.add(vecB2);
 	EXPECT_NEAR(10.5_r, answer2.x, TEST_REAL_EPSILON);
 	EXPECT_NEAR(35.3_r, answer2.y, TEST_REAL_EPSILON);
 	EXPECT_NEAR(-4.7_r, answer2.z, TEST_REAL_EPSILON);
@@ -32,13 +32,13 @@ TEST(MathOperationsVector3R, AddsTwoVectors)
 TEST(MathOperationsVector3R, SubtractsTwoVectors)
 {
 	const Vector3R vecA1(1.0_r, 1.0_r, -1.0_r), vecB1(0.0_r, -1.0_r, 1.0_r);
-	Vector3R answer1 = vecA1.sub(vecB1);
+	const Vector3R answer1 = vecA1.sub(vecB1);
 	EXPECT_NEAR( 1.0_r, answer1.x, TEST_REAL_EPSILON);
 	EXPECT_NEAR( 2.0_r, answer1.y, TEST_REAL_EPSILON);
 	EXPECT_NEAR(-2.0_r, answer1.z, TEST_REAL_EPSILON);
 
 	const Vector3R vecA2(0.0_r, 2.3_r, -4.5_r), vecB2(0.0_r, -0.1_r, -4.5_r);
-	Vector3R answer2 = vecA2.sub(vecB2);
+	const Vector3R answer2 = vecA2.sub(vecB2);
 	EXPECT_NEAR(0.0_r, answer2.x, TEST_REAL_EPSILON);
 	EXPECT_NEAR(2.4_r, answer2.y, TEST_REAL_EPSILON);
 	EXPECT_NEAR(0.0_r, answer2.z, TEST_REAL_EPSILON);
