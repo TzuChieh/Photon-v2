@@ -19,7 +19,7 @@
 
 // motions
 #include "Actor/MotionSource/MotionSource.h"
-#include "Actor/MotionSource/ConstVelocityMotion.h"
+#include "Actor/MotionSource/ConstantVelocityMotion.h"
 
 // actors
 #include "Actor/Actor.h"
@@ -78,7 +78,7 @@ bool init_command_parser()
 
 	// motions
 	register_command_interface<MotionSource>();
-	register_command_interface<ConstVelocityMotion>();
+	register_command_interface<ConstantVelocityMotion>();
 
 	// actors
 	register_command_interface<Actor>();

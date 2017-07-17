@@ -6,11 +6,11 @@
 namespace ph
 {
 
-class ConstVelocityMotion final : public MotionSource, public TCommandInterface<ConstVelocityMotion>
+class ConstantVelocityMotion final : public MotionSource, public TCommandInterface<ConstantVelocityMotion>
 {
 public:
-	ConstVelocityMotion(const Vector3R& velocity);
-	virtual ~ConstVelocityMotion() override;
+	ConstantVelocityMotion(const Vector3R& velocity);
+	virtual ~ConstantVelocityMotion() override;
 
 	virtual std::unique_ptr<Transform> genLocalToWorld(const Time& start,
 	                                                   const Time& end) const override;
@@ -20,9 +20,9 @@ private:
 
 // command interface
 public:
-	ConstVelocityMotion(const InputPacket& packet);
+	ConstantVelocityMotion(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
-	static ExitStatus ciExecute(const std::shared_ptr<ConstVelocityMotion>& targetResource,
+	static ExitStatus ciExecute(const std::shared_ptr<ConstantVelocityMotion>& targetResource,
 	                            const std::string& functionName,
 	                            const InputPacket& packet);
 };

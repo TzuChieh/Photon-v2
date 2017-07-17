@@ -169,7 +169,7 @@
     <ClCompile Include="Source\Actor\Geometry\GWave.cpp" />
     <ClCompile Include="Source\Actor\LightSource\AreaSource.cpp" />
     <ClCompile Include="Source\Actor\LightSource\LightSource.cpp" />
-    <ClCompile Include="Source\Actor\MotionSource\ConstVelocityMotion.cpp" />
+    <ClCompile Include="Source\Actor\MotionSource\ConstantVelocityMotion.cpp" />
     <ClCompile Include="Source\Actor\MotionSource\MotionSource.cpp" />
     <ClCompile Include="Source\Actor\PhysicalActor.cpp" />
     <ClCompile Include="Source\Api\init_and_exit.cpp" />
@@ -284,7 +284,7 @@
     <ClInclude Include="Source\Actor\Geometry\GWave.h" />
     <ClInclude Include="Source\Actor\LightSource\AreaSource.h" />
     <ClInclude Include="Source\Actor\LightSource\LightSource.h" />
-    <ClInclude Include="Source\Actor\MotionSource\ConstVelocityMotion.h" />
+    <ClInclude Include="Source\Actor\MotionSource\ConstantVelocityMotion.h" />
     <ClInclude Include="Source\Actor\MotionSource\MotionSource.h" />
     <ClInclude Include="Source\Actor\PhysicalActor.h" />
     <ClInclude Include="Source\Api\init_and_exit.h" />
@@ -351,6 +351,9 @@
     <ClInclude Include="Source\Core\Sample.h" />
     <ClInclude Include="Source\Core\SampleGenerator\SampleGenerator.h" />
     <ClInclude Include="Source\Core\SampleGenerator\PixelJitterSampleGenerator.h" />
+    <ClInclude Include="Source\Math\Function\TConstant2D.h" />
+    <ClInclude Include="Source\Math\Function\TGaussian2D.h" />
+    <ClInclude Include="Source\Math\Function\TMathFunction2D.h" />
     <ClInclude Include="Source\Math\math_common.h" />
     <ClInclude Include="Source\Math\TArithmeticArray.h" />
     <ClInclude Include="Source\Math\TQuaternion.h" />

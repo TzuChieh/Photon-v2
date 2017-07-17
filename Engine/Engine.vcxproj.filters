@@ -327,9 +327,6 @@
     <ClCompile Include="Source\Actor\MotionSource\MotionSource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\MotionSource\ConstVelocityMotion.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -346,6 +343,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Math\Transform\DynamicLinearTranslation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Actor\MotionSource\ConstantVelocityMotion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -784,9 +784,6 @@
     <ClInclude Include="Source\Core\Quantity\Time.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Actor\MotionSource\ConstVelocityMotion.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\World\Intersector\Bvh\BvhIntersectableInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -797,6 +794,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Math\Transform\DynamicLinearTranslation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Function\TMathFunction2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Function\TConstant2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Function\TGaussian2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\MotionSource\ConstantVelocityMotion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

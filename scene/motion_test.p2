@@ -73,9 +73,9 @@
 -> material(abraded-translucent) @glassMaterial [vector3r albedo "0.0 0.0 0.0"] [real roughness 0.0] [vector3r f0 "0.04 0.04 0.04"]
    [real ior 1.5]
 
--> motion(const-velocity) @testMotion1 [vector3r velocity "-1 0.8 0"]
--> motion(const-velocity) @testMotion2 [vector3r velocity "-1 0 0"]
--> motion(const-velocity) @testMotion3 [vector3r velocity "-0.2 -0.5 0"]
+-> motion(constant-velocity) @testMotion1 [vector3r velocity "-1 0.8 0"]
+-> motion(constant-velocity) @testMotion2 [vector3r velocity "-1 0 0"]
+-> motion(constant-velocity) @testMotion3 [vector3r velocity "-0.2 -0.5 0"]
 
 // diffuse object
 -> geometry(sphere) @diffuseGeometry [real radius 1.5]
