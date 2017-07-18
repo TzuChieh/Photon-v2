@@ -35,6 +35,7 @@
 
 // films
 #include "Core/Filmic/Film.h"
+#include "Core/Filmic/HdrRgbFilm.h"
 
 // samplers
 #include "Core/SampleGenerator/PixelJitterSampleGenerator.h"
@@ -94,7 +95,8 @@ bool init_command_parser()
 
 	// films
 	register_command_interface<Film>();
-
+	register_command_interface<HdrRgbFilm>();
+	
 	// samplers
 	register_command_interface<PixelJitterSampleGenerator>();
 

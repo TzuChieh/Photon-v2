@@ -32,7 +32,7 @@ public:
 private:
 	uint32 m_numThreads;
 
-	mutable std::vector<Film> m_subFilms;
+	//mutable std::vector<Film> m_subFilms;
 	mutable std::mutex m_rendererMutex;
 
 	std::vector<std::unique_ptr<std::atomic<float32>>> m_workerProgresses;

@@ -19,6 +19,7 @@
 #include "Core/Integrator/NormalBufferIntegrator.h"
 #include "Core/Integrator/LightTracingIntegrator.h"
 #include "FileIO/Description.h"
+#include "Core/Filmic/HdrRgbFilm.h"
 
 #include <cmath>
 #include <iostream>
@@ -42,12 +43,12 @@ void Renderer::render(const Description& description) const
 {
 	const VisualWorld& world           = description.visualWorld;
 	const Camera&      camera          = *(description.getCamera());
-	const Film&        film            = *(description.getFilm());
 	const Integrator&  integrator      = *(description.getIntegrator());
+	Film&              film            = *(description.getFilm());
 	SampleGenerator*   sampleGenerator = description.getSampleGenerator().get();
 
-	m_subFilms.clear();
-	m_subFilms.shrink_to_fit();
+	//m_subFilms.clear();
+	//m_subFilms.shrink_to_fit();
 
 	//BackwardPathIntegrator integrator;
 	//BackwardLightIntegrator integrator;
@@ -63,14 +64,19 @@ void Renderer::render(const Description& description) const
 	std::atomic<int32> numSpp = 0;
 	std::vector<std::thread> renderWorkers(m_numThreads);
 	std::vector<std::unique_ptr<SampleGenerator>> subSampleGenerators;
+	
+	std::vector<std::unique_ptr<Film>> subFilms;
+	for(std::size_t ti = 0; ti < m_numThreads; ti++)
+	{
+		subFilms.push_back(film.genChild(film.getWidthPx(), film.getHeightPx()));
+	}
 
-	m_subFilms = std::vector<Film>(m_numThreads, Film(film.getWidthPx(), film.getHeightPx()));
 	sampleGenerator->split(m_numThreads, &subSampleGenerators);
 
 	for(std::size_t threadIndex = 0; threadIndex < m_numThreads; threadIndex++)
 	{
 		SampleGenerator*      subSampleGenerator = subSampleGenerators[threadIndex].get();
-		Film*                 subFilm = &(m_subFilms[threadIndex]);
+		Film*                 subFilm = subFilms[threadIndex].get();
 		std::atomic<float32>* workerProgress = m_workerProgresses[threadIndex].get();
 		std::atomic<float32>* workerSampleFreq = m_workerSampleFrequencies[threadIndex].get();
 
@@ -107,11 +113,12 @@ void Renderer::render(const Description& description) const
 					{
 						for(const auto& senseEvent : senseEvents)
 						{
-							uint32 x = static_cast<uint32>(senseEvent.filmX * widthPx);
-							uint32 y = static_cast<uint32>(senseEvent.filmY * heightPx);
-							if(x >= widthPx) x = widthPx - 1;
-							if(y >= heightPx) y = heightPx - 1;
-							subFilm->accumulateRadiance(x, y, senseEvent.radiance);
+							//uint32 x = static_cast<uint32>(senseEvent.filmX * widthPx);
+							//uint32 y = static_cast<uint32>(senseEvent.filmY * heightPx);
+							//if(x >= widthPx) x = widthPx - 1;
+							//if(y >= heightPx) y = heightPx - 1;
+							//subFilm->accumulateRadiance(x, y, senseEvent.radiance);
+							subFilm->addSample(senseEvent.filmX * widthPx, senseEvent.filmY * heightPx, senseEvent.radiance);
 						}
 
 						if(senseEvents.size() != 1)
@@ -123,11 +130,11 @@ void Renderer::render(const Description& description) const
 					{
 						for(const auto& senseEvent : senseEvents)
 						{
-							uint32 x = static_cast<uint32>(senseEvent.filmX * widthPx);
-							uint32 y = static_cast<uint32>(senseEvent.filmY * heightPx);
-							if(x >= widthPx) x = widthPx - 1;
-							if(y >= heightPx) y = heightPx - 1;
-							subFilm->accumulateRadianceWithoutIncrementSenseCount(x, y, senseEvent.radiance);
+							//uint32 x = static_cast<uint32>(senseEvent.filmX * widthPx);
+							//uint32 y = static_cast<uint32>(senseEvent.filmY * heightPx);
+							//if(x >= widthPx) x = widthPx - 1;
+							//if(y >= heightPx) y = heightPx - 1;
+							//subFilm->accumulateRadianceWithoutIncrementSenseCount(x, y, senseEvent.radiance);
 						}
 					}
 					senseEvents.clear();
@@ -136,7 +143,7 @@ void Renderer::render(const Description& description) const
 					// HACK
 				if(isLT)
 				{
-					subFilm->incrementAllSenseCounts();
+					//subFilm->incrementAllSenseCounts();
 				}
 
 				currentSpp++;
@@ -153,7 +160,8 @@ void Renderer::render(const Description& description) const
 			}
 
 			m_rendererMutex.lock();
-			camera.getFilm()->accumulateRadiance(*subFilm);
+			//camera.getFilm()->accumulateRadiance(*subFilm);
+			subFilm->mergeToParent();
 			m_rendererMutex.unlock();
 
 			// ****************************** thread end ****************************** //

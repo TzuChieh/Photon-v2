@@ -43,7 +43,9 @@ std::unique_ptr<Camera> ResourceLoader::loadCamera(const InputPacket& packet)
 
 std::unique_ptr<Film> ResourceLoader::loadFilm(const InputPacket& packet)
 {
-	return std::make_unique<Film>(packet);
+	//return std::make_unique<Film>(packet);
+	std::cerr << "ResourceLoader::loadFilm(), null" << std::endl;
+	return nullptr;
 }
 
 std::unique_ptr<Integrator> ResourceLoader::loadIntegrator(const InputPacket& packet)

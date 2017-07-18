@@ -183,6 +183,8 @@
     <ClCompile Include="Source\Core\CookedActor.cpp" />
     <ClCompile Include="Source\Core\CookedActorStorage.cpp" />
     <ClCompile Include="Source\Core\Engine.cpp" />
+    <ClCompile Include="Source\Core\Filmic\HdrRgbFilm.cpp" />
+    <ClCompile Include="Source\Core\Filmic\SampleFilter.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardLightIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardMisIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardPathIntegrator.cpp" />
@@ -300,6 +302,8 @@
     <ClInclude Include="Source\Core\CookedActorStorage.h" />
     <ClInclude Include="Source\Actor\LightSource\EmitterBuildingMaterial.h" />
     <ClInclude Include="Source\Core\Engine.h" />
+    <ClInclude Include="Source\Core\Filmic\HdrRgbFilm.h" />
+    <ClInclude Include="Source\Core\Filmic\SampleFilter.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardLightIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardMisIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardPathIntegrator.h" />

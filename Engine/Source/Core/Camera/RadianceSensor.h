@@ -9,13 +9,13 @@ namespace ph
 class RadianceSensor final
 {
 public:
-	float64 m_accuR;
-	float64 m_accuG;
-	float64 m_accuB;
-	uint32  m_numSenseCounts;
+	float64 accuR;
+	float64 accuG;
+	float64 accuB;
+	float64 accuWeight;
 
 	RadianceSensor() : 
-		m_accuR(0), m_accuG(0), m_accuB(0), m_numSenseCounts(0)
+		accuR(0), accuG(0), accuB(0), accuWeight(0)
 	{
 
 	}

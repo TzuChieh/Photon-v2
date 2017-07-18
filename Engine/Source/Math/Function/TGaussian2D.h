@@ -11,21 +11,11 @@ template<typename ValueType>
 class TGaussian2D : public TMathFunction2D<ValueType>
 {
 public:
-	TGaussian2D(const ValueType sigmaX, const ValueType sigmaY, const ValueType amplitude) : 
-		TMathFunction2D<ValueType>(),
-		m_xExpMultiplier(-1 / (2 * sigmaX * sigmaX)),
-		m_yExpMultiplier(-1 / (2 * sigmaY * sigmaY)),
-		m_amplitude(amplitude)
-	{
+	TGaussian2D(ValueType sigmaX, ValueType sigmaY, ValueType amplitude);
 
-	}
+	virtual ~TGaussian2D() override;
 
-	virtual ~TGaussian2D() = 0;
-
-	virtual ValueType evaluate(const ValueType x, const ValueType y) const override
-	{
-		return m_amplitude * std::exp(m_xExpMultiplier * x * x + m_yExpMultiplier * y * y);
-	}
+	virtual ValueType evaluate(ValueType x, ValueType y) const override;
 
 private:
 	ValueType m_xExpMultiplier;
@@ -34,6 +24,24 @@ private:
 };
 
 template<typename ValueType>
+TGaussian2D<ValueType>::TGaussian2D(const ValueType sigmaX, 
+                                    const ValueType sigmaY, 
+                                    const ValueType amplitude) :
+	TMathFunction2D<ValueType>(),
+	m_xExpMultiplier(-1 / (2 * sigmaX * sigmaX)),
+	m_yExpMultiplier(-1 / (2 * sigmaY * sigmaY)),
+	m_amplitude(amplitude)
+{
+
+}
+
+template<typename ValueType>
 TGaussian2D<ValueType>::~TGaussian2D() = default;
+
+template<typename ValueType>
+ValueType TGaussian2D<ValueType>::evaluate(const ValueType x, const ValueType y) const
+{
+	return m_amplitude * std::exp(m_xExpMultiplier * x * x + m_yExpMultiplier * y * y);
+}
 
 }// end namespace ph
