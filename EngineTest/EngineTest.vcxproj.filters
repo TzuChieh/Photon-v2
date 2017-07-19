@@ -38,7 +38,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\constants_for_math_test.h">
+    <ClInclude Include="Source\constants_for_test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

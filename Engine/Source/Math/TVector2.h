@@ -44,6 +44,12 @@ public:
 	inline TVector2 div(T rhs) const;
 	inline TVector2& divLocal(T rhs);
 
+	inline TVector2 min(const TVector2& other) const;
+	inline TVector2 max(const TVector2& other) const;
+
+	inline bool equals(const TVector2& other) const;
+	inline bool equals(const TVector2& other, T margin) const;
+
 	inline TVector2& operator = (const TVector2& rhs);
 };
 

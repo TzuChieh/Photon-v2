@@ -1,4 +1,9 @@
+#pragma once
+
 #include "Math/TVector2.h"
+
+#include <cmath>
+#include <algorithm>
 
 namespace ph
 {
@@ -170,6 +175,33 @@ inline TVector2<T>& TVector2<T>::divLocal(T rhs)
 	y /= rhs;
 
 	return *this;
+}
+
+template<typename T>
+inline TVector2<T> TVector2<T>::min(const TVector2& other) const
+{
+	return TVector2(std::min(x, other.x), 
+	                std::min(y, other.y));
+}
+
+template<typename T>
+inline TVector2<T> TVector2<T>::max(const TVector2& other) const
+{
+	return TVector2(std::max(x, other.x), 
+	                std::max(y, other.y));
+}
+
+template<typename T>
+inline bool TVector2<T>::equals(const TVector2& other) const
+{
+	return x == other.x && y == other.y;
+}
+
+template<typename T>
+inline bool TVector2<T>::equals(const TVector2& other, const T margin) const
+{
+	return std::abs(x - other.x) < margin &&
+	       std::abs(y - other.y) < margin;
 }
 
 template<typename T>

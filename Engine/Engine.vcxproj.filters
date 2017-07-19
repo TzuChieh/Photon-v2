@@ -821,5 +821,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Math\TVector2.ipp" />
+    <ClInclude Include="Source\Core\Bound\TAABB2D.ipp" />
   </ItemGroup>
 </Project>

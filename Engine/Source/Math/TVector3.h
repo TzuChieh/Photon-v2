@@ -114,8 +114,8 @@ public:
 	inline TVector3& set(const TVector3& rhs);
 	inline void set(TVector3* const out_value) const;
 
-	inline bool equals(const TVector3& rhs) const;
-	inline bool equals(const TVector3& rhs, T margin) const;
+	inline bool equals(const TVector3& other) const;
+	inline bool equals(const TVector3& other, T margin) const;
 	inline bool isZero() const;
 	inline bool isNotZero() const;
 	inline bool hasNegativeComponent() const;

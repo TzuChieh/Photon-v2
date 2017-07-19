@@ -597,19 +597,19 @@ inline void TVector3<T>::set(TVector3* const out_value) const
 }
 
 template<typename T>
-inline bool TVector3<T>::equals(const TVector3& rhs) const
+inline bool TVector3<T>::equals(const TVector3& other) const
 {
-	return x == rhs.x &&
-	       y == rhs.y &&
-	       z == rhs.z;
+	return x == other.x &&
+	       y == other.y &&
+	       z == other.z;
 }
 
 template<typename T>
-inline bool TVector3<T>::equals(const TVector3& rhs, const T margin) const
+inline bool TVector3<T>::equals(const TVector3& other, const T margin) const
 {
-	return std::abs(x - rhs.x) < margin &&
-	       std::abs(y - rhs.y) < margin &&
-	       std::abs(z - rhs.z) < margin;
+	return std::abs(x - other.x) < margin &&
+	       std::abs(y - other.y) < margin &&
+	       std::abs(z - other.z) < margin;
 }
 
 template<typename T>

@@ -1,4 +1,4 @@
-#include "constants_for_math_test.h"
+#include "constants_for_test.h"
 
 #include <Common/primitive_type.h>
 #include <Math/TVector2.h>
@@ -169,4 +169,19 @@ TEST(MathOperationsVector2R, DivVectorWithScalar)
 	const Vector2R result2 = Vector2R(vec).divLocal(scalar);
 	EXPECT_NEAR(result2.x, answerX, TEST_REAL_EPSILON);
 	EXPECT_NEAR(result2.y, answerY, TEST_REAL_EPSILON);
+}
+
+TEST(MathOperationsVector2R, ComparesEquality)
+{
+	// trial 1: strict equality
+	
+	const Vector2R vec1a(-1.5_r, 1.5_r);
+	const Vector2R vec1b(-1.5_r, 1.5_r);
+	EXPECT_TRUE(vec1a.equals(vec1b));
+
+	// trial 2: marginal equality
+
+	const Vector2R vec2a(-1.5_r, 1.5_r);
+	const Vector2R vec2b(-1.6_r, 1.3_r);
+	EXPECT_TRUE(vec2a.equals(vec2b, 0.3_r));
 }

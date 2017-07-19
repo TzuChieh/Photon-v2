@@ -163,7 +163,7 @@
     <ClCompile Include="Source\Math\TVector3_test.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\constants_for_math_test.h" />
+    <ClInclude Include="Source\constants_for_test.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

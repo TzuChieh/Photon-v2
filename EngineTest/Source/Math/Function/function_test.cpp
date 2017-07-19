@@ -1,4 +1,4 @@
-#include "constants_for_math_test.h"
+#include "constants_for_test.h"
 
 #include <Common/primitive_type.h>
 #include <Math/Function/TGaussian2D.h>
