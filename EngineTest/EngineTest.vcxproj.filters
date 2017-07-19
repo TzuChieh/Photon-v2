@@ -27,10 +27,13 @@
     <ClCompile Include="Source\Math\Transform\DynamicLinearTranslation_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Math\Function\TGaussian2D_test.cpp">
+    <ClCompile Include="Source\Core\Bound\bound_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Math\Function\TConstant2D_test.cpp">
+    <ClCompile Include="Source\Math\Function\function_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Math\TVector2_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

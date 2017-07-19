@@ -34,7 +34,7 @@ void PinholeCamera::genSensingRay(const Sample& sample, Ray* const out_ray) cons
 	out_ray->setTime(time);
 }
 
-void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3R& targetPos, Vector2f* const out_filmCoord, Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const
+void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3R& targetPos, Vector2R* const out_filmCoord, Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const
 {
 	std::cerr << "PinholeCamera::evalEmittedImportanceAndPdfW() not implemented" << std::endl;
 

@@ -392,9 +392,6 @@
     <ClInclude Include="Source\Api\test_scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Math\Normal3f.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\SampleGenerator\SampleGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -525,9 +522,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Integrator\Utility\SenseEvent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Math\Vector2f.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Actor\Geometry\GWave.h">
@@ -820,5 +814,12 @@
     <ClInclude Include="Source\Core\Bound\AABB3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\Bound\TAABB2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\TVector2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\TVector2.ipp" />
   </ItemGroup>
 </Project>

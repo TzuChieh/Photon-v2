@@ -154,11 +154,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Core\Bound\bound_test.cpp" />
     <ClCompile Include="Source\main.cpp" />
-    <ClCompile Include="Source\Math\Function\TConstant2D_test.cpp" />
-    <ClCompile Include="Source\Math\Function\TGaussian2D_test.cpp" />
+    <ClCompile Include="Source\Math\Function\function_test.cpp" />
     <ClCompile Include="Source\Math\Transform\DynamicLinearTranslation_test.cpp" />
     <ClCompile Include="Source\Math\Transform\StaticTransform_test.cpp" />
+    <ClCompile Include="Source\Math\TVector2_test.cpp" />
     <ClCompile Include="Source\Math\TVector3_test.cpp" />
   </ItemGroup>
   <ItemGroup>

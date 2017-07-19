@@ -14,6 +14,7 @@
 #include "Core/Camera/Camera.h"
 #include "Core/SurfaceBehavior/BsdfEvaluation.h"
 #include "Core/SurfaceBehavior/BsdfSample.h"
+#include "Math/TVector2.h"
 
 #include <iostream>
 
@@ -63,7 +64,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 		if(!scene.isIntersecting(toCameraRay))
 		{
 			Vector3R cameraImportanceWe;
-			Vector2f filmCoord;
+			Vector2R filmCoord;
 			real cameraPdfW;
 			real cameraPdfA = 1;// always pinhole for now
 			real filmArea;
@@ -114,7 +115,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 					if(bsdfEval.outputs.isGood())
 					{
 						Vector3R cameraImportanceWe;
-						Vector2f filmCoord;
+						Vector2R filmCoord;
 						real cameraPdfW;
 						real cameraPdfA = 1.0_r;// always pinhole for now
 						real filmArea;

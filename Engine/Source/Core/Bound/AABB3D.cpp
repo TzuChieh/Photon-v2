@@ -199,11 +199,11 @@ bool AABB3D::isIntersectingVolume(const Ray& ray,
 	return true;
 }
 
-bool AABB3D::isIntersectingVolume(const AABB3D& aabb) const
+bool AABB3D::isIntersectingVolume(const AABB3D& other) const
 {
-	return m_minVertex.x <= aabb.m_maxVertex.x && m_maxVertex.x >= aabb.m_minVertex.x &&
-	       m_minVertex.y <= aabb.m_maxVertex.y && m_maxVertex.y >= aabb.m_minVertex.y &&
-	       m_minVertex.z <= aabb.m_maxVertex.z && m_maxVertex.z >= aabb.m_minVertex.z;
+	return m_minVertex.x <= other.m_maxVertex.x && m_maxVertex.x >= other.m_minVertex.x &&
+	       m_minVertex.y <= other.m_maxVertex.y && m_maxVertex.y >= other.m_minVertex.y &&
+	       m_minVertex.z <= other.m_maxVertex.z && m_maxVertex.z >= other.m_minVertex.z;
 }
 
 bool AABB3D::isPoint() const

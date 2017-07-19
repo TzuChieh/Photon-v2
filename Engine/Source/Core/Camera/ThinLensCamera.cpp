@@ -45,7 +45,7 @@ void ThinLensCamera::genSensingRay(const Sample& sample, Ray* const out_ray) con
 
 void ThinLensCamera::evalEmittedImportanceAndPdfW(
 	const Vector3R& targetPos,
-	Vector2f* const out_filmCoord,
+	Vector2R* const out_filmCoord,
 	Vector3R* const out_importance,
 	real* out_filmArea,
 	real* const out_pdfW) const

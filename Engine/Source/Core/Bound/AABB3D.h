@@ -21,7 +21,7 @@ public:
 
 	bool isIntersectingVolume(const Ray& ray) const;
 	bool isIntersectingVolume(const Ray& ray, real* out_rayNearHitT, real* out_rayFarHitT) const;
-	bool isIntersectingVolume(const AABB3D& aabb) const;
+	bool isIntersectingVolume(const AABB3D& other) const;
 	bool isPoint() const;
 	AABB3D& unionWith(const AABB3D& other);
 	AABB3D& unionWith(const Vector3R& point);

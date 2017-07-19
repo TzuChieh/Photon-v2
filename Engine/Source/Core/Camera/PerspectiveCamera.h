@@ -3,7 +3,6 @@
 #include "Core/Camera/Camera.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
-#include "Math/Vector2f.h"
 #include "FileIO/SDL/ISdlResource.h"
 #include "FileIO/SDL/TCommandInterface.h"
 
@@ -26,7 +25,7 @@ public:
 	virtual void genSensingRay(const Sample& sample, Ray* const out_ray) const = 0;
 	virtual void evalEmittedImportanceAndPdfW(
 		const Vector3R& targetPos, 
-		Vector2f* const out_filmCoord, 
+		Vector2R* const out_filmCoord,
 		Vector3R* const out_importance, 
 		real* out_filmArea, 
 		real* const out_pdfW) const = 0;

@@ -6,6 +6,9 @@ namespace ph
 {
 
 template<typename T>
+class TVector2;
+
+template<typename T>
 class TVector3;
 
 template<typename T>
@@ -16,6 +19,10 @@ class TQuaternion;
 
 template<typename T>
 class TMatrix4;
+
+typedef TVector2<real>    Vector2R;
+typedef TVector2<float32> Vector2F;
+typedef TVector2<float64> Vector2D;
 
 typedef TVector3<real>    Vector3R;
 typedef TVector3<float32> Vector3F;
