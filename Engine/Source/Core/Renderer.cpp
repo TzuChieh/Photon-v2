@@ -68,7 +68,7 @@ void Renderer::render(const Description& description) const
 	std::vector<std::unique_ptr<Film>> subFilms;
 	for(std::size_t ti = 0; ti < m_numThreads; ti++)
 	{
-		subFilms.push_back(film.genChild(film.getWidthPx(), film.getHeightPx()));
+		subFilms.push_back(film.genChild(film.getEffectiveResPx().x, film.getEffectiveResPx().y));
 	}
 
 	sampleGenerator->split(m_numThreads, &subSampleGenerators);
@@ -84,8 +84,8 @@ void Renderer::render(const Description& description) const
 		{
 			// ****************************** thread start ****************************** //
 
-			const uint32 widthPx = camera.getFilm()->getWidthPx();
-			const uint32 heightPx = camera.getFilm()->getHeightPx();
+			const uint32 widthPx = camera.getFilm()->getEffectiveResPx().x;
+			const uint32 heightPx = camera.getFilm()->getEffectiveResPx().x;
 
 			std::vector<Sample> samples;
 			std::vector<SenseEvent> senseEvents;

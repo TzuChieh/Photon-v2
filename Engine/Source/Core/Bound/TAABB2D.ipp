@@ -27,6 +27,14 @@ inline TAABB2D<T>::TAABB2D(const TVector2<T>& minVertex, const TVector2<T>& maxV
 }
 
 template<typename T>
+template<typename U>
+inline TAABB2D<T>::TAABB2D(const TAABB2D<U>& other) : 
+	minVertex(other.minVertex), maxVertex(other.maxVertex)
+{
+
+}
+
+template<typename T>
 inline bool TAABB2D<T>::isIntersectingArea(const TAABB2D& other) const
 {
 	return maxVertex.x >= other.minVertex.x && minVertex.x <= other.maxVertex.x &&

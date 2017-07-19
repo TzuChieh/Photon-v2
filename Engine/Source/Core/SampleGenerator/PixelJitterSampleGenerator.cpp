@@ -24,8 +24,9 @@ bool PixelJitterSampleGenerator::hasMoreSamples() const
 
 void PixelJitterSampleGenerator::analyze(const Scene& scene, const Film& film)
 {
-	m_filmWidthPx = film.getWidthPx();
-	m_filmHeightPx = film.getHeightPx();
+	// HACK
+	m_filmWidthPx = film.getEffectiveResPx().x;
+	m_filmHeightPx = film.getEffectiveResPx().y;
 }
 
 void PixelJitterSampleGenerator::requestMoreSamples(std::vector<Sample>* const out_samples)

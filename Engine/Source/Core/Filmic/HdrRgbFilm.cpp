@@ -24,23 +24,28 @@ HdrRgbFilm::~HdrRgbFilm() = default;
 
 void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const Vector3R& radiance)
 {
-	const float64 discreteXpx = xPx - 0.5;
-	const float64 discreteYpx = yPx - 0.5;
-	int32 filterX0 = static_cast<int32>(std::ceil(discreteXpx - m_filter->getHalfWidthPx()));
-	int32 filterX1 = static_cast<int32>(std::floor(discreteXpx + m_filter->getHalfWidthPx())) + 1;
-	int32 filterY0 = static_cast<int32>(std::ceil(discreteYpx - m_filter->getHalfHeightPx()));
-	int32 filterY1 = static_cast<int32>(std::floor(discreteYpx + m_filter->getHalfHeightPx())) + 1;
-	filterX0 = filterX0 < 0 ? 0 : filterX0;
-	filterX1 = filterX1 > static_cast<int32>(m_widthPx) ? static_cast<int32>(m_widthPx) : filterX1;
-	filterY0 = filterY0 < 0 ? 0 : filterY0;
-	filterY1 = filterY1 > static_cast<int32>(m_heightPx) ? static_cast<int32>(m_heightPx) : filterY1;
+	const TVector2<float64> samplePosPx(xPx, yPx);
 
-	for(int y = filterY0; y < filterY1; y++)
+	// compute filter bounds
+	TVector2<float64> filterMin(samplePosPx.sub(m_filter->getHalfSizePx()));
+	TVector2<float64> filterMax(samplePosPx.add(m_filter->getHalfSizePx()));
+
+	// reduce to effective bounds
+	filterMin = filterMin.max(TVector2<float64>(m_effectiveWindowPx.minVertex));
+	filterMax = filterMax.min(TVector2<float64>(m_effectiveWindowPx.maxVertex));
+
+	// compute pixel index bounds (exclusive on x1y1)
+	TVector2<int64> x0y0(filterMin.sub(0.5).ceil());
+	TVector2<int64> x1y1(filterMax.sub(0.5).floor());
+	x1y1.x += 1;
+	x1y1.y += 1;
+
+	for(int64 y = x0y0.y; y < x1y1.y; y++)
 	{
-		for(int x = filterX0; x < filterX1; x++)
+		for(int64 x = x0y0.x; x < x1y1.x; x++)
 		{
-			const std::size_t baseIndex = y * static_cast<std::size_t>(m_widthPx) + x;
-			const float64 weight = m_filter->evaluate(x - discreteXpx, y - discreteYpx);
+			const std::size_t baseIndex = y * static_cast<std::size_t>(m_effectiveResPx.x) + x;
+			const float64 weight = m_filter->evaluate(x - (xPx - 0.5), y - (yPx - 0.5));
 
 			m_pixelRadianceSensors[baseIndex].accuR += static_cast<float64>(radiance.x) * weight;
 			m_pixelRadianceSensors[baseIndex].accuG += static_cast<float64>(radiance.y) * weight;
@@ -57,7 +62,8 @@ std::unique_ptr<Film> HdrRgbFilm::genChild(uint32 widthPx, uint32 heightPx)
 	{
 		// HACK
 
-		if(m_widthPx != subFilm->m_widthPx || m_heightPx != subFilm->m_heightPx)
+		if(m_effectiveResPx.x != subFilm->m_effectiveResPx.x || 
+			m_effectiveResPx.y != subFilm->m_effectiveResPx.y)
 		{
 			std::cerr << "warning: at Film::accumulateRadiance(), film dimensions mismatch" << std::endl;
 			return;
@@ -84,13 +90,13 @@ void HdrRgbFilm::develop(Frame* const out_frame) const
 	float64 reciSenseCount;
 	std::size_t baseIndex;
 
-	out_frame->resize(m_widthPx, m_heightPx);
+	out_frame->resize(m_effectiveResPx.x, m_effectiveResPx.y);
 
-	for(uint32 y = 0; y < m_heightPx; y++)
+	for(int64 y = 0; y < m_effectiveResPx.y; y++)
 	{
-		for(uint32 x = 0; x < m_widthPx; x++)
+		for(int64 x = 0; x < m_effectiveResPx.x; x++)
 		{
-			baseIndex = y * static_cast<std::size_t>(m_widthPx) + x;
+			baseIndex = y * static_cast<std::size_t>(m_effectiveResPx.x) + x;
 
 			sensorR = m_pixelRadianceSensors[baseIndex].accuR;
 			sensorG = m_pixelRadianceSensors[baseIndex].accuG;
@@ -123,7 +129,9 @@ HdrRgbFilm::HdrRgbFilm(const InputPacket& packet) :
 	//m_widthPx = static_cast<uint32>(packet.getInteger("width", 0, requiredDT));
 	//m_heightPx = static_cast<uint32>(packet.getInteger("height", 0, requiredDT));
 
-	const std::size_t numSensors = static_cast<std::size_t>(m_widthPx) * static_cast<std::size_t>(m_heightPx);
+	// HACK
+	const std::size_t numSensors = static_cast<std::size_t>(packet.getInteger("width", 0, DataTreatment::REQUIRED())) *
+		static_cast<std::size_t>(packet.getInteger("height", 0, DataTreatment::REQUIRED()));
 	m_pixelRadianceSensors = std::vector<RadianceSensor>(numSensors, RadianceSensor());
 }
 

@@ -20,8 +20,9 @@ void PerspectiveCamera::onFilmSet(Film* newFilm)
 
 void PerspectiveCamera::updateTransforms()
 {
-	const hiReal rasterWidthPx   = getFilm()->getWidthPx();
-	const hiReal rasterHeightPx  = getFilm()->getHeightPx();
+	// HACK
+	const hiReal rasterWidthPx   = getFilm()->getEffectiveResPx().x;
+	const hiReal rasterHeightPx  = getFilm()->getEffectiveResPx().y;
 	const hiReal filmAspectRatio = rasterWidthPx / rasterHeightPx;
 	const hiReal filmWidthMM     = m_filmWidthMM;
 	const hiReal filmHeightMM    = filmWidthMM / filmAspectRatio;

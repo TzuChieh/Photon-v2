@@ -100,7 +100,7 @@ inline TVector2<T>& TVector2<T>::subLocal(const TVector2& rhs)
 template<typename T>
 inline TVector2<T> TVector2<T>::sub(const T rhs) const
 {
-	return TVector2(x - rhs.x, y - rhs.y);
+	return TVector2(x - rhs, y - rhs);
 }
 
 template<typename T>
@@ -202,6 +202,18 @@ inline bool TVector2<T>::equals(const TVector2& other, const T margin) const
 {
 	return std::abs(x - other.x) < margin &&
 	       std::abs(y - other.y) < margin;
+}
+
+template<typename T>
+inline TVector2<T> TVector2<T>::ceil() const
+{
+	return TVector2(static_cast<T>(std::ceil(x)), static_cast<T>(std::ceil(y)));
+}
+
+template<typename T>
+inline TVector2<T> TVector2<T>::floor() const
+{
+	return TVector2(static_cast<T>(std::floor(x)), static_cast<T>(std::floor(y)));
 }
 
 template<typename T>

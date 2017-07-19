@@ -16,6 +16,9 @@ public:
 	inline TAABB2D(const TAABB2D& other);
 	inline TAABB2D(const TVector2<T>& minVertex, const TVector2<T>& maxVertex);
 
+	template<typename U>
+	explicit inline TAABB2D(const TAABB2D<U>& other);
+
 	inline bool isIntersectingArea(const TAABB2D& other) const;
 	inline bool isIntersectingArea(const TVector2<T>& point) const;
 	inline T calcArea() const;

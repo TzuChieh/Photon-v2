@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/Function/TMathFunction2D.h"
+#include "Math/TVector2.h"
 
 #include <memory>
 
@@ -17,27 +18,17 @@ public:
 
 	float64 evaluate(float64 xPx, float64 yPx);
 
-	inline float64 getWidthPx() const
-	{
-		return m_widthPx;
-	}
-
-	inline float64 getHeightPx() const
-	{
-		return m_heightPx;
-	}
-
-	inline float64 getHalfWidthPx() const
-	{
-		return m_halfWidthPx;
-	}
-
-	inline float64 getHalfHeightPx() const
-	{
-		return m_halfHeightPx;
-	}
-
 	SampleFilter& operator = (SampleFilter&& rhs);
+
+	inline const TVector2<float64>& getSizePx() const
+	{
+		return m_sizePx;
+	}
+
+	inline const TVector2<float64>& getHalfSizePx() const
+	{
+		return m_halfSizePx;
+	}
 
 	// forbid copying
 	SampleFilter(const SampleFilter& other) = delete;
@@ -45,10 +36,8 @@ public:
 
 private:
 	std::unique_ptr<TMathFunction2D<float64>> m_filter;
-	float64 m_widthPx;
-	float64 m_heightPx;
-	float64 m_halfWidthPx;
-	float64 m_halfHeightPx;
+	TVector2<float64> m_sizePx;
+	TVector2<float64> m_halfSizePx;
 };
 
 }// end namespace ph

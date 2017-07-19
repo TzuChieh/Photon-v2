@@ -50,6 +50,9 @@ public:
 	inline bool equals(const TVector2& other) const;
 	inline bool equals(const TVector2& other, T margin) const;
 
+	inline TVector2 ceil() const;
+	inline TVector2 floor() const;
+
 	inline TVector2& operator = (const TVector2& rhs);
 };
 
