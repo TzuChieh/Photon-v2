@@ -6,7 +6,8 @@
 namespace ph
 {
 
-BvhInfoNode BvhInfoNode::makeBinaryInternal(const BvhInfoNode* child1, const BvhInfoNode* child2, 
+BvhInfoNode BvhInfoNode::makeBinaryInternal(const BvhInfoNode* child1, 
+                                            const BvhInfoNode* child2, 
                                             const int32 splitAxis)
 {
 	if(child1 == nullptr || child2 == nullptr)
@@ -18,14 +19,14 @@ BvhInfoNode BvhInfoNode::makeBinaryInternal(const BvhInfoNode* child1, const Bvh
 	BvhInfoNode internalNode;
 	internalNode.children[0] = child1;
 	internalNode.children[1] = child2;
-	internalNode.aabb        = AABB::makeUnioned(child1->aabb, child2->aabb);
+	internalNode.aabb        = AABB3D::makeUnioned(child1->aabb, child2->aabb);
 	internalNode.splitAxis   = splitAxis;
 
 	return internalNode;
 }
 
 BvhInfoNode BvhInfoNode::makeBinaryLeaf(const std::vector<BvhIntersectableInfo>& leafIntersectables, 
-                                        const AABB& leafAabb)
+                                        const AABB3D& leafAabb)
 {
 	BvhInfoNode leafNode;
 	leafNode.aabb           = leafAabb;

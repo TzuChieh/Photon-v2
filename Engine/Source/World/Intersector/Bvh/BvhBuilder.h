@@ -53,7 +53,7 @@ private:
 
 	bool splitWithSahBuckets(const std::vector<BvhIntersectableInfo>& intersectables, 
 	                         int32 splitDimension,
-	                         const AABB& primitivesAABB, const AABB& centroidsAABB, 
+	                         const AABB3D& primitivesAABB, const AABB3D& centroidsAABB,
 	                         std::vector<BvhIntersectableInfo>* out_partA,
 	                         std::vector<BvhIntersectableInfo>* out_partB);
 };

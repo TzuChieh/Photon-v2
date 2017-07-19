@@ -1,5 +1,4 @@
 #include "Math/Transform/StaticTransform.h"
-#include "Core/BoundingVolume/AABB.h"
 #include "Core/Ray.h"
 #include "Math/TVector3.h"
 

@@ -12,7 +12,7 @@ namespace ph
 class BvhSahBucket final
 {
 public:
-	AABB        aabb;
+	AABB3D      aabb;
 	std::size_t numIntersectables;
 
 	BvhSahBucket() : aabb(), numIntersectables(0) {}
@@ -91,10 +91,10 @@ const BvhInfoNode* BvhBuilder::buildBinaryBvhInfoNodeRecursive(const std::vector
 	m_infoNodes.push_back(std::make_unique<BvhInfoNode>());
 	BvhInfoNode* node = m_infoNodes.back().get();
 
-	AABB nodeAABB(intersectables.empty() ? AABB() : intersectables.front().aabb);
+	AABB3D nodeAABB(intersectables.empty() ? AABB3D() : intersectables.front().aabb);
 	for(const auto intersectable : intersectables)
 	{
-		nodeAABB = AABB::makeUnioned(nodeAABB, intersectable.aabb);
+		nodeAABB = AABB3D::makeUnioned(nodeAABB, intersectable.aabb);
 	}
 
 	if(intersectables.size() <= 1)
@@ -109,10 +109,10 @@ const BvhInfoNode* BvhBuilder::buildBinaryBvhInfoNodeRecursive(const std::vector
 	}
 	else
 	{
-		AABB centroidsAABB(intersectables.front().aabbCentroid);
+		AABB3D centroidsAABB(intersectables.front().aabbCentroid);
 		for(const auto intersectable : intersectables)
 		{
-			centroidsAABB = AABB::makeUnioned(centroidsAABB, intersectable.aabbCentroid);
+			centroidsAABB = AABB3D::makeUnioned(centroidsAABB, intersectable.aabbCentroid);
 		}
 
 		Vector3R extents = centroidsAABB.calcExtents();
@@ -285,7 +285,7 @@ bool BvhBuilder::splitWithEqualIntersectables(const std::vector<BvhIntersectable
 
 bool BvhBuilder::splitWithSahBuckets(const std::vector<BvhIntersectableInfo>& intersectables, 
                                      const int32 splitDimension,
-                                     const AABB& primitivesAABB, const AABB& centroidsAABB, 
+                                     const AABB3D& primitivesAABB, const AABB3D& centroidsAABB,
                                      std::vector<BvhIntersectableInfo>* const out_partA,
                                      std::vector<BvhIntersectableInfo>* const out_partB)
 {
@@ -328,24 +328,24 @@ bool BvhBuilder::splitWithSahBuckets(const std::vector<BvhIntersectableInfo>& in
 	for(int32 i = 0; i < numBuckets - 1; i++)
 	{
 		std::size_t numIntersectablesA = 0;
-		AABB aabbA;
+		AABB3D aabbA;
 		for(int32 j = 0; j <= i; j++)
 		{
 			if(!buckets[j].isEmpty())
 			{
-				aabbA = aabbA.isPoint() ? buckets[j].aabb : AABB::makeUnioned(aabbA, buckets[j].aabb);
+				aabbA = aabbA.isPoint() ? buckets[j].aabb : AABB3D::makeUnioned(aabbA, buckets[j].aabb);
 			}
 			
 			numIntersectablesA += buckets[j].numIntersectables;
 		}
 
 		std::size_t numIntersectablesB = 0;
-		AABB aabbB;
+		AABB3D aabbB;
 		for(int32 j = i + 1; j < numBuckets; j++)
 		{
 			if(!buckets[j].isEmpty())
 			{
-				aabbB = aabbB.isPoint() ? buckets[j].aabb : AABB::makeUnioned(aabbB, buckets[j].aabb);
+				aabbB = aabbB.isPoint() ? buckets[j].aabb : AABB3D::makeUnioned(aabbB, buckets[j].aabb);
 			}
 
 			numIntersectablesB += buckets[j].numIntersectables;

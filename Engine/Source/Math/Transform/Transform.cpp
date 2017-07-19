@@ -3,7 +3,7 @@
 #include "Core/Ray.h"
 #include "Math/TVector3.h"
 #include "Core/Intersection.h"
-#include "Core/BoundingVolume/AABB.h"
+#include "Core/Bound/AABB3D.h"
 
 namespace ph
 {
@@ -77,8 +77,8 @@ void Transform::transform(const Intersection& intersection, const Time& time,
 	                      intersection.getHitRayT());
 }
 
-void Transform::transform(const AABB& aabb, const Time& time, 
-                          AABB* const out_aabb) const
+void Transform::transform(const AABB3D& aabb, const Time& time,
+                          AABB3D* const out_aabb) const
 {
 	auto vertices = aabb.getVertices();
 	for(auto& vertex : vertices)
@@ -88,7 +88,7 @@ void Transform::transform(const AABB& aabb, const Time& time,
 		vertex = tVertex;
 	}
 	
-	*out_aabb = AABB(vertices[0]);
+	*out_aabb = AABB3D(vertices[0]);
 	for(std::size_t i = 1; i < vertices.size(); i++)
 	{
 		out_aabb->unionWith(vertices[i]);
@@ -101,7 +101,7 @@ void Transform::transform(const Intersection& intersection,
 	transform(intersection, Time(), out_intersection);
 }
 
-void Transform::transform(const AABB& aabb, AABB* const out_aabb) const
+void Transform::transform(const AABB3D& aabb, AABB3D* const out_aabb) const
 {
 	transform(aabb, Time(), out_aabb);
 }

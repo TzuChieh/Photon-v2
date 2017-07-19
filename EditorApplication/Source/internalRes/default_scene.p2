@@ -5,7 +5,7 @@
 //## film(film) [integer width 800] [integer height 800]
 //## film(film) [integer width 800] [integer height 600]
 ## film(hdr-rgb) [integer width 600] [integer height 600]
-## sampler(sampler) [integer spp-budget 120]
+## sampler(sampler) [integer spp-budget 12]
 //## sampler(sampler) [integer spp-budget 64]
 
 //## integrator(backward-path)

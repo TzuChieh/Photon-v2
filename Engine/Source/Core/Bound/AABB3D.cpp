@@ -1,4 +1,4 @@
-#include "Core/BoundingVolume/AABB.h"
+#include "Core/Bound/AABB3D.h"
 #include "Core/Ray.h"
 
 #include <algorithm>
@@ -6,31 +6,31 @@
 namespace ph
 {
 
-AABB AABB::makeUnioned(const AABB& a, const AABB& b)
+AABB3D AABB3D::makeUnioned(const AABB3D& a, const AABB3D& b)
 {
-	return AABB(a).unionWith(b);
+	return AABB3D(a).unionWith(b);
 }
 
-AABB::AABB() : 
+AABB3D::AABB3D() :
 	m_minVertex(0, 0, 0), m_maxVertex(0, 0, 0)
 {
 
 }
 
-AABB::AABB(const Vector3R& point) : 
+AABB3D::AABB3D(const Vector3R& point) :
 	m_minVertex(point), m_maxVertex(point)
 {
 
 }
 
-AABB::AABB(const Vector3R& minVertex, const Vector3R& maxVertex) : 
+AABB3D::AABB3D(const Vector3R& minVertex, const Vector3R& maxVertex) :
 	m_minVertex(minVertex), m_maxVertex(maxVertex)
 {
 
 }
 
 // TODO: this method is basically duplicated
-bool AABB::isIntersectingVolume(const Ray& ray) const
+bool AABB3D::isIntersectingVolume(const Ray& ray) const
 {
 	// The starting ray interval (tMin, tMax) will be incrementally intersect
 	// against each ray-slab hitting interval (t1, t2) and be updated with the
@@ -116,8 +116,8 @@ bool AABB::isIntersectingVolume(const Ray& ray) const
 //
 // Reference: Kay and Kayjia's "slab method" from a project of the ACM SIGGRAPH Education 
 // Committee named HyperGraph.
-bool AABB::isIntersectingVolume(const Ray& ray, 
-                                real* const out_rayNearHitT, real* const out_rayFarHitT) const
+bool AABB3D::isIntersectingVolume(const Ray& ray,
+                                  real* const out_rayNearHitT, real* const out_rayFarHitT) const
 {
 	// The starting ray interval (tMin, tMax) will be incrementally intersect
 	// against each ray-slab hitting interval (t1, t2) and be updated with the
@@ -199,19 +199,19 @@ bool AABB::isIntersectingVolume(const Ray& ray,
 	return true;
 }
 
-bool AABB::isIntersectingVolume(const AABB& aabb) const
+bool AABB3D::isIntersectingVolume(const AABB3D& aabb) const
 {
 	return m_minVertex.x <= aabb.m_maxVertex.x && m_maxVertex.x >= aabb.m_minVertex.x &&
 	       m_minVertex.y <= aabb.m_maxVertex.y && m_maxVertex.y >= aabb.m_minVertex.y &&
 	       m_minVertex.z <= aabb.m_maxVertex.z && m_maxVertex.z >= aabb.m_minVertex.z;
 }
 
-bool AABB::isPoint() const
+bool AABB3D::isPoint() const
 {
 	return m_minVertex.equals(m_maxVertex);
 }
 
-AABB& AABB::unionWith(const AABB& other)
+AABB3D& AABB3D::unionWith(const AABB3D& other)
 {
 	m_minVertex.minLocal(other.getMinVertex());
 	m_maxVertex.maxLocal(other.getMaxVertex());
@@ -219,7 +219,7 @@ AABB& AABB::unionWith(const AABB& other)
 	return *this;
 }
 
-AABB& AABB::unionWith(const Vector3R& point)
+AABB3D& AABB3D::unionWith(const Vector3R& point)
 {
 	m_minVertex.minLocal(point);
 	m_maxVertex.maxLocal(point);
@@ -227,7 +227,7 @@ AABB& AABB::unionWith(const Vector3R& point)
 	return *this;
 }
 
-std::vector<Vector3R> AABB::getVertices() const
+std::vector<Vector3R> AABB3D::getVertices() const
 {
 	return {Vector3R(m_minVertex.x, m_minVertex.y, m_minVertex.z),
 	        Vector3R(m_maxVertex.x, m_minVertex.y, m_minVertex.z),

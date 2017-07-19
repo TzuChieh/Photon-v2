@@ -9,26 +9,26 @@ namespace ph
 
 class Ray;
 
-class AABB final
+class AABB3D final
 {
 public:
-	static AABB makeUnioned(const AABB& a, const AABB& b);
+	static AABB3D makeUnioned(const AABB3D& a, const AABB3D& b);
 
 public:
-	AABB();
-	AABB(const Vector3R& point);
-	AABB(const Vector3R& minVertex, const Vector3R& maxVertex);
+	AABB3D();
+	AABB3D(const Vector3R& point);
+	AABB3D(const Vector3R& minVertex, const Vector3R& maxVertex);
 
 	bool isIntersectingVolume(const Ray& ray) const;
-	bool isIntersectingVolume(const Ray& ray, real* const out_rayNearHitT, real* const out_rayFarHitT) const;
-	bool isIntersectingVolume(const AABB& aabb) const;
+	bool isIntersectingVolume(const Ray& ray, real* out_rayNearHitT, real* out_rayFarHitT) const;
+	bool isIntersectingVolume(const AABB3D& aabb) const;
 	bool isPoint() const;
-	AABB& unionWith(const AABB& other);
-	AABB& unionWith(const Vector3R& point);
+	AABB3D& unionWith(const AABB3D& other);
+	AABB3D& unionWith(const Vector3R& point);
 
 	std::vector<Vector3R> getVertices() const;
 
-	inline void getMinMaxVertices(Vector3R* const out_minVertex, Vector3R* const out_maxVertex) const
+	inline void getMinMaxVertices(Vector3R* out_minVertex, Vector3R* out_maxVertex) const
 	{
 		out_minVertex->set(m_minVertex);
 		out_maxVertex->set(m_maxVertex);

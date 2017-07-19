@@ -10,7 +10,7 @@ KdtreeAABB::KdtreeAABB() :
 
 }
 
-KdtreeAABB::KdtreeAABB(const AABB& aabb) : 
+KdtreeAABB::KdtreeAABB(const AABB3D& aabb) :
 	m_aabb(aabb)
 {
 
@@ -27,7 +27,7 @@ bool KdtreeAABB::isIntersectingVolume(const Ray& ray, real* const out_rayNearHit
 	return m_aabb.isIntersectingVolume(ray, out_rayNearHitDist, out_rayFarHitDist);
 }
 
-bool KdtreeAABB::isIntersectingVolume(const AABB& aabb) const
+bool KdtreeAABB::isIntersectingVolume(const AABB3D& aabb) const
 {
 	return m_aabb.isIntersectingVolume(aabb);
 }
@@ -84,7 +84,7 @@ real KdtreeAABB::getMaxVertex(const int32 axis) const
 	return maxVertex[axis];
 }
 
-void KdtreeAABB::getAABB(AABB* const out_aabb) const
+void KdtreeAABB::getAABB(AABB3D* const out_aabb) const
 {
 	*out_aabb = m_aabb;
 }

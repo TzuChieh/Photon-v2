@@ -237,7 +237,7 @@
     <ClCompile Include="Source\Actor\Material\AbradedTranslucent.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\TranslucentMicrofacet.cpp" />
     <ClCompile Include="Source\Actor\ModelLoader.cpp" />
-    <ClCompile Include="Source\Core\BoundingVolume\AABB.cpp" />
+    <ClCompile Include="Source\Core\Bound\AABB3D.cpp" />
     <ClCompile Include="Source\Actor\ModelParser\AiMaterialParser.cpp" />
     <ClCompile Include="Source\Actor\ModelParser\AiMeshParser.cpp" />
     <ClCompile Include="Source\Actor\ModelParser\AssimpModelParser.cpp" />
@@ -386,7 +386,7 @@
     <ClInclude Include="Source\Actor\Material\AbradedTranslucent.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\TranslucentMicrofacet.h" />
     <ClInclude Include="Source\Actor\ModelLoader.h" />
-    <ClInclude Include="Source\Core\BoundingVolume\AABB.h" />
+    <ClInclude Include="Source\Core\Bound\AABB3D.h" />
     <ClInclude Include="Source\Actor\ModelParser\ModelParser.h" />
     <ClInclude Include="Source\Actor\TextureMapper\DefaultMapper.h" />
     <ClInclude Include="Source\Actor\TextureMapper\SphericalMapper.h" />

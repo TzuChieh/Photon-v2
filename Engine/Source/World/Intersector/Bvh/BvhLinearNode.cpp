@@ -3,7 +3,9 @@
 namespace ph
 {
 
-BvhLinearNode BvhLinearNode::makeInternal(const AABB& nodeAABB, const std::size_t secondChildOffset, const int32 splittedAxis)
+BvhLinearNode BvhLinearNode::makeInternal(const AABB3D& nodeAABB, 
+                                          const std::size_t secondChildOffset, 
+                                          const int32 splittedAxis)
 {
 	BvhLinearNode node;
 	node.aabb              = nodeAABB;
@@ -14,7 +16,9 @@ BvhLinearNode BvhLinearNode::makeInternal(const AABB& nodeAABB, const std::size_
 	return node;
 }
 
-BvhLinearNode BvhLinearNode::makeLeaf(const AABB& nodeAABB, const std::size_t primitivesOffset, const int32 numPrimitives)
+BvhLinearNode BvhLinearNode::makeLeaf(const AABB3D& nodeAABB, 
+                                      const std::size_t primitivesOffset, 
+                                      const int32 numPrimitives)
 {
 	BvhLinearNode node;
 	node.aabb             = nodeAABB;

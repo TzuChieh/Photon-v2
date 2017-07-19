@@ -10,7 +10,7 @@ namespace ph
 class Ray;
 class Time;
 class Intersection;
-class AABB;
+class AABB3D;
 
 class Transform
 {
@@ -47,11 +47,11 @@ public:
 	void transform(const Ray& ray, Ray* out_ray) const;
 
 	void transform(const Intersection& intersection, Intersection* out_intersection) const;
-	void transform(const AABB& aabb, AABB* out_aabb) const;
+	void transform(const AABB3D& aabb, AABB3D* out_aabb) const;
 	void transform(const Intersection& intersection, const Time& time, 
 	               Intersection* out_intersection) const;
-	void transform(const AABB& aabb, const Time& time, 
-	               AABB* out_aabb) const;
+	void transform(const AABB3D& aabb, const Time& time,
+	               AABB3D* out_aabb) const;
 
 private:
 

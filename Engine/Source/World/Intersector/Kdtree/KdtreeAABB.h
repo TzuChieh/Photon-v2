@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/BoundingVolume/AABB.h"
+#include "Core/Bound/AABB3D.h"
 #include "World/Intersector/Kdtree/kdtree_core.h"
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
@@ -14,18 +14,18 @@ class KdtreeAABB final
 {
 public:
 	KdtreeAABB();
-	explicit KdtreeAABB(const AABB& aabb);
+	explicit KdtreeAABB(const AABB3D& aabb);
 	KdtreeAABB(const Vector3R& minVertex, const Vector3R& maxVertex);
 
 	bool isIntersectingVolume(const Ray& ray, real* const out_rayNearHitDist, real* const out_rayFarHitDist) const;
-	bool isIntersectingVolume(const AABB& aabb) const;
+	bool isIntersectingVolume(const AABB3D& aabb) const;
 	bool trySplitAt(const int32 axis, const real splitPos, KdtreeAABB* const out_negativeAABB, KdtreeAABB* const out_positiveAABB) const;
 
 	void getMinVertex(real* const out_vector3f) const;
 	void getMaxVertex(real* const out_vector3f) const;
 	real getMinVertex(const int32 axis) const;
 	real getMaxVertex(const int32 axis) const;
-	void getAABB(AABB* const out_aabb) const;
+	void getAABB(AABB3D* const out_aabb) const;
 
 	inline real getExtent(const int32 axis) const
 	{
@@ -45,7 +45,7 @@ public:
 	}
 
 private:
-	AABB m_aabb;
+	AABB3D m_aabb;
 };
 
 }// end namespace ph

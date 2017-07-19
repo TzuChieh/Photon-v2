@@ -66,9 +66,9 @@ void KdtreeNode::buildTree(const std::vector<const Intersectable*>& intersectabl
 		return;
 	}
 
-	AABB nodeAABB;
+	AABB3D nodeAABB;
 	intersectables[0]->calcAABB(&nodeAABB);
-	AABB isableAABB;
+	AABB3D isableAABB;
 	for(int i = 1; i < intersectables.size(); i++)
 	{
 		intersectables[i]->calcAABB(&isableAABB);
@@ -101,7 +101,7 @@ void KdtreeNode::analyzeSplitCostSAH(const std::vector<const Intersectable*>& in
 {
 	std::vector<TestPoint> testAxisPoints(intersectables.size() * 2);
 
-	AABB isableAABB;
+	AABB3D isableAABB;
 	KdtreeAABB isableKdtreeAABB;
 	for(std::size_t i = 0; i < intersectables.size(); i++)
 	{
@@ -242,7 +242,7 @@ std::unique_ptr<KdtreeNode> KdtreeNode::buildChildNode(const KdtreeAABB& childAA
 {
 	std::vector<const Intersectable*> intersectables;
 
-	AABB childNodeAABB;
+	AABB3D childNodeAABB;
 	childAABB.getAABB(&childNodeAABB);
 
 	for(const Intersectable* intersectable : parentIntersectables)

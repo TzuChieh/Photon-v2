@@ -3,7 +3,7 @@
 #include "Math/Transform/StaticTransform.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
-#include "Core/BoundingVolume/AABB.h"
+#include "Core/Bound/AABB3D.h"
 #include "Math/Random.h"
 #include "Core/Sample/PositionSample.h"
 
@@ -264,7 +264,7 @@ bool PTriangle::isIntersecting(const Ray& ray) const
 	return true;
 }
 
-void PTriangle::calcAABB(AABB* const out_aabb) const
+void PTriangle::calcAABB(AABB3D* const out_aabb) const
 {
 	real minX = m_vA.x, maxX = m_vA.x,
 	     minY = m_vA.y, maxY = m_vA.y,
@@ -288,7 +288,7 @@ void PTriangle::calcAABB(AABB* const out_aabb) const
 	out_aabb->setMaxVertex(Vector3R(maxX + TRIANGLE_EPSILON, maxY + TRIANGLE_EPSILON, maxZ + TRIANGLE_EPSILON));
 }
 
-bool PTriangle::isIntersectingVolumeConservative(const AABB& aabb) const
+bool PTriangle::isIntersectingVolumeConservative(const AABB3D& aabb) const
 {
 	// Reference: Tomas Akenine-Moeller's 
 	// "Fast 3D Triangle-Box Overlap Testing", 

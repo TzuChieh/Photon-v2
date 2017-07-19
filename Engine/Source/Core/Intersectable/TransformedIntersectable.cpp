@@ -1,7 +1,7 @@
 #include "Core/Intersectable/TransformedIntersectable.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
-#include "Core/BoundingVolume/AABB.h"
+#include "Core/Bound/AABB3D.h"
 
 namespace ph
 {
@@ -50,18 +50,18 @@ bool TransformedIntersectable::isIntersecting(const Ray& ray) const
 }
 
 // FIXME: this is broken under timed environment
-bool TransformedIntersectable::isIntersectingVolumeConservative(const AABB& aabb) const
+bool TransformedIntersectable::isIntersectingVolumeConservative(const AABB3D& aabb) const
 {
-	AABB localAABB;
+	AABB3D localAABB;
 	m_worldToLocal->transform(aabb, &localAABB);
 
 	return m_intersectable->isIntersectingVolumeConservative(localAABB);
 }
 
-void TransformedIntersectable::calcAABB(AABB* const out_aabb) const
+void TransformedIntersectable::calcAABB(AABB3D* const out_aabb) const
 {
-	AABB localAABB;
-	AABB worldAABB;
+	AABB3D localAABB;
+	AABB3D worldAABB;
 	m_intersectable->calcAABB(&localAABB);
 	m_localToWorld->transform(localAABB, &worldAABB);
 
@@ -74,7 +74,7 @@ void TransformedIntersectable::calcAABB(AABB* const out_aabb) const
 		time.relativeS = 0;// HACK
 		time.relativeT = static_cast<real>(1.0 / 100.0 * i);
 
-		AABB aabb;
+		AABB3D aabb;
 		m_localToWorld->transform(localAABB, time, &aabb);
 		worldAABB.unionWith(aabb);
 	}

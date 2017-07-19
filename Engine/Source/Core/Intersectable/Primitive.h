@@ -9,7 +9,7 @@ namespace ph
 
 class Ray;
 class Intersection;
-class AABB;
+class AABB3D;
 class PrimitiveMetadata;
 class PositionSample;
 
@@ -22,8 +22,8 @@ public:
 	virtual bool isIntersecting(const Ray& ray, 
 	                            Intersection* out_intersection) const = 0;
 	virtual bool isIntersecting(const Ray& ray) const = 0;
-	virtual bool isIntersectingVolumeConservative(const AABB& aabb) const = 0;
-	virtual void calcAABB(AABB* out_aabb) const = 0;
+	virtual bool isIntersectingVolumeConservative(const AABB3D& aabb) const = 0;
+	virtual void calcAABB(AABB3D* out_aabb) const = 0;
 	virtual real calcPositionSamplePdfA(const Vector3R& position) const = 0;
 	virtual void genPositionSample(PositionSample* out_sample) const = 0;
 

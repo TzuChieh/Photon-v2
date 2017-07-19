@@ -20,8 +20,8 @@ public:
 	virtual bool isIntersecting(const Ray& ray, 
 	                            Intersection* out_intersection) const override;
 	virtual bool isIntersecting(const Ray& ray) const override;
-	virtual bool isIntersectingVolumeConservative(const AABB& aabb) const override;
-	virtual void calcAABB(AABB* out_aabb) const override;
+	virtual bool isIntersectingVolumeConservative(const AABB3D& aabb) const override;
+	virtual void calcAABB(AABB3D* out_aabb) const override;
 
 	TransformedIntersectable& operator = (TransformedIntersectable&& rhs);
 
