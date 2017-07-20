@@ -170,6 +170,11 @@ SdlTypeInfo BackwardPathIntegrator::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "backward-path");
 }
 
+std::unique_ptr<BackwardPathIntegrator> BackwardPathIntegrator::ciLoad(const InputPacket& packet)
+{
+	return std::make_unique<BackwardPathIntegrator>(packet);
+}
+
 ExitStatus BackwardPathIntegrator::ciExecute(const std::shared_ptr<BackwardPathIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet)
 {
 	return ExitStatus::UNSUPPORTED();

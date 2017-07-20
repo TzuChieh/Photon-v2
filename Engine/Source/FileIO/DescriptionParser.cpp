@@ -1,6 +1,5 @@
 #include "FileIO/DescriptionParser.h"
 #include "FileIO/Description.h"
-#include "FileIO/ResourceLoader.h"
 #include "FileIO/RenderOption.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "FileIO/SDL/CommandEntry.h"

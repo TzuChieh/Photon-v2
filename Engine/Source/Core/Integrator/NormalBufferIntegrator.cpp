@@ -49,6 +49,11 @@ SdlTypeInfo NormalBufferIntegrator::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "surface-normal");
 }
 
+std::unique_ptr<NormalBufferIntegrator> NormalBufferIntegrator::ciLoad(const InputPacket& packet)
+{
+	return std::make_unique<NormalBufferIntegrator>(packet);
+}
+
 ExitStatus NormalBufferIntegrator::ciExecute(const std::shared_ptr<NormalBufferIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet)
 {
 	return ExitStatus::UNSUPPORTED();

@@ -93,13 +93,6 @@ void swap(PhysicalActor& first, PhysicalActor& second)
 
 // command interface
 
-PhysicalActor::PhysicalActor(const InputPacket& packet) :
-	Actor(packet),
-	m_localToWorld()
-{
-
-}
-
 SdlTypeInfo PhysicalActor::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "physical-actor");

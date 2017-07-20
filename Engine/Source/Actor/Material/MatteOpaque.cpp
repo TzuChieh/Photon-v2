@@ -36,17 +36,19 @@ void MatteOpaque::setAlbedo(const std::shared_ptr<Texture>& albedo)
 
 // command interface
 
-MatteOpaque::MatteOpaque(const InputPacket& packet) :
-	Material(packet),
-	m_bsdf()
-{
-	const Vector3R albedo = packet.getVector3r("albedo", Vector3R(0.5_r), DataTreatment::OPTIONAL("all components are set to 0.5"));
-	setAlbedo(albedo);
-}
-
 SdlTypeInfo MatteOpaque::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "matte-opaque");
+}
+
+std::unique_ptr<MatteOpaque> MatteOpaque::ciLoad(const InputPacket& packet)
+{
+	const Vector3R albedo = packet.getVector3r("albedo", Vector3R(0.5_r), 
+	                                           DataTreatment::OPTIONAL("all components are set to 0.5"));
+
+	std::unique_ptr<MatteOpaque> material = std::make_unique<MatteOpaque>();
+	material->setAlbedo(albedo);
+	return material;
 }
 
 ExitStatus MatteOpaque::ciExecute(const std::shared_ptr<MatteOpaque>& targetResource, const std::string& functionName, const InputPacket& packet)

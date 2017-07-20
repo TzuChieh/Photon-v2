@@ -23,6 +23,7 @@ class Camera : public TCommandInterface<Camera>, public ISdlResource
 {
 public:
 	Camera();
+	Camera(const Vector3R& position, const Vector3R& direction, const Vector3R& upAxis);
 	virtual ~Camera() = 0;
 
 	// TODO: precalculate aspect ratio info from camera film
@@ -86,7 +87,7 @@ private:
 
 // command interface
 public:
-	Camera(const InputPacket& packet);
+	Camera::Camera(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static ExitStatus ciExecute(const std::shared_ptr<Camera>& targetResource, const std::string& functionName, const InputPacket& packet);
 };

@@ -7,12 +7,6 @@ MotionSource::~MotionSource() = default;
 
 // command interface
 
-MotionSource::MotionSource(const InputPacket& packet) : 
-	MotionSource()
-{
-
-}
-
 SdlTypeInfo MotionSource::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_MOTION, "motion");

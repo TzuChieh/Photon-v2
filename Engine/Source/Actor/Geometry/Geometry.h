@@ -41,8 +41,8 @@ protected:
 
 // command interface
 public:
-	Geometry(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
+	static std::unique_ptr<Geometry> ciLoad(const InputPacket& packet);
 	static ExitStatus ciExecute(const std::shared_ptr<Geometry>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 

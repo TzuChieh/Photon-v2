@@ -213,7 +213,6 @@
     <ClCompile Include="Source\FileIO\NamedResourceStorage.cpp" />
     <ClCompile Include="Source\FileIO\Description.cpp" />
     <ClCompile Include="Source\FileIO\DescriptionParser.cpp" />
-    <ClCompile Include="Source\FileIO\ResourceLoader.cpp" />
     <ClCompile Include="Source\FileIO\SDL\CommandEntry.cpp" />
     <ClCompile Include="Source\FileIO\SDL\ExitStatus.cpp" />
     <ClCompile Include="Source\FileIO\SDL\ISdlResource.cpp" />
@@ -336,7 +335,6 @@
     <ClInclude Include="Source\FileIO\NamedResourceStorage.h" />
     <ClInclude Include="Source\FileIO\InputPrototype.h" />
     <ClInclude Include="Source\FileIO\RenderOption.h" />
-    <ClInclude Include="Source\FileIO\ResourceLoader.h" />
     <ClInclude Include="Source\FileIO\SDL\CommandEntry.h" />
     <ClInclude Include="Source\FileIO\SDL\ETypeCategory.h" />
     <ClInclude Include="Source\FileIO\SDL\ExitStatus.h" />

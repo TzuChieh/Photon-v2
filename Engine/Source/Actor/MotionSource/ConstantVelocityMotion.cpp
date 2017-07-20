@@ -24,15 +24,17 @@ std::unique_ptr<Transform> ConstantVelocityMotion::genLocalToWorld(const Time& s
 	return std::make_unique<DynamicLinearTranslation>(translationT0, translationT1);
 }
 
-ConstantVelocityMotion::ConstantVelocityMotion(const InputPacket& packet) :
-	MotionSource(packet)
-{
-	m_velocity = packet.getVector3r("velocity", Vector3R(0), DataTreatment::REQUIRED());
-}
-
 SdlTypeInfo ConstantVelocityMotion::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_MOTION, "constant-velocity");
+}
+
+std::unique_ptr<ConstantVelocityMotion> ConstantVelocityMotion::ciLoad(const InputPacket& packet)
+{
+	const Vector3R velocity = packet.getVector3r("velocity", Vector3R(0), 
+	                                             DataTreatment::REQUIRED());
+
+	return std::make_unique<ConstantVelocityMotion>(velocity);
 }
 
 ExitStatus ConstantVelocityMotion::ciExecute(const std::shared_ptr<ConstantVelocityMotion>& targetResource,

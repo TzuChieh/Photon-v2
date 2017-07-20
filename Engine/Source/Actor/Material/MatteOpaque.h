@@ -28,8 +28,8 @@ private:
 
 // command interface
 public:
-	MatteOpaque(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
+	static std::unique_ptr<MatteOpaque> ciLoad(const InputPacket& packet);
 	static ExitStatus ciExecute(const std::shared_ptr<MatteOpaque>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 

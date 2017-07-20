@@ -13,6 +13,9 @@ class GTriangleMesh final : public Geometry, public TCommandInterface<GTriangleM
 {
 public:
 	GTriangleMesh();
+	GTriangleMesh(const std::vector<Vector3R>& positions, 
+	              const std::vector<Vector3R>& texCoords, 
+	              const std::vector<Vector3R>& normals);
 	virtual ~GTriangleMesh() override;
 
 	virtual void genPrimitive(const PrimitiveBuildingMaterial& data,
@@ -26,8 +29,8 @@ private:
 
 // command interface
 public:
-	GTriangleMesh(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
+	static std::unique_ptr<GTriangleMesh> ciLoad(const InputPacket& packet);
 	static ExitStatus ciExecute(const std::shared_ptr<GTriangleMesh>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 

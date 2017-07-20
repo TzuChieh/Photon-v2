@@ -180,19 +180,23 @@ void swap(ALight& first, ALight& second)
 	swap(first.m_lightSource,                second.m_lightSource);
 }
 
-ALight::ALight(const InputPacket& packet) :
-	PhysicalActor(packet),
-	m_geometry(nullptr), m_material(nullptr), m_lightSource(nullptr)
-{
-	const DataTreatment requiredData(EDataImportance::REQUIRED, "ALight requires at least a LightSource");
-	m_geometry = packet.get<Geometry>("geometry");
-	m_material = packet.get<Material>("material");
-	m_lightSource = packet.get<LightSource>("light-source", requiredData);
-}
-
 SdlTypeInfo ALight::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "light");
+}
+
+std::unique_ptr<ALight> ALight::ciLoad(const InputPacket& packet)
+{
+	const DataTreatment requiredData(EDataImportance::REQUIRED, 
+	                                 "ALight requires at least a LightSource");
+	const auto lightSource = packet.get<LightSource>("light-source", requiredData);
+	const auto geometry    = packet.get<Geometry>("geometry");
+	const auto material    = packet.get<Material>("material");
+
+	std::unique_ptr<ALight> light = std::make_unique<ALight>(lightSource);
+	light->setGeometry(geometry);
+	light->setMaterial(material);
+	return light;
 }
 
 ExitStatus ALight::ciExecute(const std::shared_ptr<ALight>& targetResource, const std::string& functionName, const InputPacket& packet)

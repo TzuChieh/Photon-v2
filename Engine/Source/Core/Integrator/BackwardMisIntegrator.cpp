@@ -247,6 +247,11 @@ SdlTypeInfo BackwardMisIntegrator::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "backward-mis");
 }
 
+std::unique_ptr<BackwardMisIntegrator> BackwardMisIntegrator::ciLoad(const InputPacket& packet)
+{
+	return std::make_unique<BackwardMisIntegrator>(packet);
+}
+
 ExitStatus BackwardMisIntegrator::ciExecute(const std::shared_ptr<BackwardMisIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet)
 {
 	return ExitStatus::UNSUPPORTED();

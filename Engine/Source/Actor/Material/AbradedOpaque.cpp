@@ -9,6 +9,7 @@ namespace ph
 {
 
 AbradedOpaque::AbradedOpaque() : 
+	Material(),
 	m_bsdf()
 {
 	
@@ -54,25 +55,26 @@ real AbradedOpaque::roughnessToAlpha(const real roughness)
 
 // command interface
 
-AbradedOpaque::AbradedOpaque(const InputPacket& packet) :
-	Material(packet),
-	m_bsdf()
+SdlTypeInfo AbradedOpaque::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "abraded-opaque");
+}
+
+std::unique_ptr<AbradedOpaque> AbradedOpaque::ciLoad(const InputPacket& packet)
 {
 	Vector3R albedo(0.5f, 0.5f, 0.5f);
 	Vector3R f0(0.04f, 0.04f, 0.04f);
-	real     roughness = 0.5f;
+	real roughness = 0.5f;
+
 	albedo    = packet.getVector3r("albedo", albedo);
 	f0        = packet.getVector3r("f0", f0);
 	roughness = packet.getReal("roughness", roughness);
 
-	setAlbedo(albedo);
-	setF0(f0);
-	setRoughness(roughness);
-}
-
-SdlTypeInfo AbradedOpaque::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "abraded-opaque");
+	std::unique_ptr<AbradedOpaque> material = std::make_unique<AbradedOpaque>();
+	material->setAlbedo(albedo);
+	material->setF0(f0);
+	material->setRoughness(roughness);
+	return material;
 }
 
 ExitStatus AbradedOpaque::ciExecute(const std::shared_ptr<AbradedOpaque>& targetResource, const std::string& functionName, const InputPacket& packet)

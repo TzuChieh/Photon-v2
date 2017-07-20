@@ -17,6 +17,7 @@ public:
 public:
 	BackwardPathIntegrator(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
+	static std::unique_ptr<BackwardPathIntegrator> ciLoad(const InputPacket& packet);
 	static ExitStatus ciExecute(const std::shared_ptr<BackwardPathIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 

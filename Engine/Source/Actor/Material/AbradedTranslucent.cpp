@@ -10,6 +10,7 @@ namespace ph
 {
 
 AbradedTranslucent::AbradedTranslucent() :
+	Material(),
 	m_bsdf()
 {
 	
@@ -60,28 +61,29 @@ real AbradedTranslucent::roughnessToAlpha(const real roughness)
 
 // command interface
 
-AbradedTranslucent::AbradedTranslucent(const InputPacket& packet) :
-	Material(packet),
-	m_bsdf()
+SdlTypeInfo AbradedTranslucent::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "abraded-translucent");
+}
+
+std::unique_ptr<AbradedTranslucent> AbradedTranslucent::ciLoad(const InputPacket& packet)
 {
 	Vector3R albedo(0.5f, 0.5f, 0.5f);
 	Vector3R f0(0.04f, 0.04f, 0.04f);
 	real roughness = 0.5f;
-	real ior = 1.0f;
+	real ior       = 1.0f;
+
 	albedo    = packet.getVector3r("albedo", albedo);
 	f0        = packet.getVector3r("f0", f0);
 	roughness = packet.getReal("roughness", roughness);
 	ior       = packet.getReal("ior", ior);
 
-	setAlbedo(albedo);
-	setF0(f0);
-	setRoughness(roughness);
-	setIOR(ior);
-}
-
-SdlTypeInfo AbradedTranslucent::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "abraded-translucent");
+	std::unique_ptr<AbradedTranslucent> material = std::make_unique<AbradedTranslucent>();
+	material->setAlbedo(albedo);
+	material->setF0(f0);
+	material->setRoughness(roughness);
+	material->setIOR(ior);
+	return material;
 }
 
 ExitStatus AbradedTranslucent::ciExecute(const std::shared_ptr<AbradedTranslucent>& targetResource, const std::string& functionName, const InputPacket& packet)

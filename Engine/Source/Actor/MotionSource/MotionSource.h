@@ -24,7 +24,6 @@ public:
 
 // command interface
 public:
-	MotionSource(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static ExitStatus ciExecute(const std::shared_ptr<MotionSource>& targetResource, 
 	                            const std::string& functionName, 

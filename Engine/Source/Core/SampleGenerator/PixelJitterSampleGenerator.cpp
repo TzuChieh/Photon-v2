@@ -111,6 +111,11 @@ SdlTypeInfo PixelJitterSampleGenerator::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_SAMPLER, "sampler");
 }
 
+std::unique_ptr<PixelJitterSampleGenerator> PixelJitterSampleGenerator::ciLoad(const InputPacket& packet)
+{
+	return std::make_unique<PixelJitterSampleGenerator>(packet);
+}
+
 ExitStatus PixelJitterSampleGenerator::ciExecute(const std::shared_ptr<PixelJitterSampleGenerator>& targetResource, const std::string& functionName, const InputPacket& packet)
 {
 	return ExitStatus::UNSUPPORTED();

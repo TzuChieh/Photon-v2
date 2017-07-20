@@ -25,21 +25,21 @@ GTriangle::GTriangle(const Vector3R& vA, const Vector3R& vB, const Vector3R& vC)
 	m_uvwC.set(0.0_r);
 }
 
-GTriangle::GTriangle(const InputPacket& packet) : 
-	Geometry(packet)
-{
-	const DataTreatment requiredDT(EDataImportance::REQUIRED, "GTriangle needs vA, vB, vC, nA, nB, nC, uvwA, uvwB, uvwC specified");
-
-	m_vA   = packet.getVector3r("vA",   Vector3R(0), requiredDT);
-	m_vB   = packet.getVector3r("vB",   Vector3R(0), requiredDT);
-	m_vC   = packet.getVector3r("vC",   Vector3R(0), requiredDT);
-	m_nA   = packet.getVector3r("nA",   Vector3R(0), requiredDT);
-	m_nB   = packet.getVector3r("nB",   Vector3R(0), requiredDT);
-	m_nC   = packet.getVector3r("nC",   Vector3R(0), requiredDT);
-	m_uvwA = packet.getVector3r("uvwA", Vector3R(0), requiredDT);
-	m_uvwB = packet.getVector3r("uvwB", Vector3R(0), requiredDT);
-	m_uvwC = packet.getVector3r("uvwC", Vector3R(0), requiredDT);
-}
+//GTriangle::GTriangle(const InputPacket& packet) : 
+//	Geometry(packet)
+//{
+//	const DataTreatment requiredDT(EDataImportance::REQUIRED, "GTriangle needs vA, vB, vC, nA, nB, nC, uvwA, uvwB, uvwC specified");
+//
+//	m_vA   = packet.getVector3r("vA",   Vector3R(0), requiredDT);
+//	m_vB   = packet.getVector3r("vB",   Vector3R(0), requiredDT);
+//	m_vC   = packet.getVector3r("vC",   Vector3R(0), requiredDT);
+//	m_nA   = packet.getVector3r("nA",   Vector3R(0), requiredDT);
+//	m_nB   = packet.getVector3r("nB",   Vector3R(0), requiredDT);
+//	m_nC   = packet.getVector3r("nC",   Vector3R(0), requiredDT);
+//	m_uvwA = packet.getVector3r("uvwA", Vector3R(0), requiredDT);
+//	m_uvwB = packet.getVector3r("uvwB", Vector3R(0), requiredDT);
+//	m_uvwC = packet.getVector3r("uvwC", Vector3R(0), requiredDT);
+//}
 
 GTriangle::~GTriangle() = default;
 

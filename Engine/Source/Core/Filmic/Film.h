@@ -76,7 +76,6 @@ protected:
 
 // command interface
 public:
-	Film(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static ExitStatus ciExecute(const std::shared_ptr<Film>& targetResource, 
 	                            const std::string& functionName, 

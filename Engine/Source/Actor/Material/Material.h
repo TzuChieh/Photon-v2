@@ -21,7 +21,6 @@ public:
 
 // command interface
 public:
-	Material(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static ExitStatus ciExecute(const std::shared_ptr<Material>& targetResource, const std::string& functionName, const InputPacket& packet);
 };

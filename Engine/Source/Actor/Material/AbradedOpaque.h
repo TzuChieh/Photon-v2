@@ -29,8 +29,8 @@ private:
 
 // command interface
 public:
-	AbradedOpaque(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
+	static std::unique_ptr<AbradedOpaque> ciLoad(const InputPacket& packet);
 	static ExitStatus ciExecute(const std::shared_ptr<AbradedOpaque>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 

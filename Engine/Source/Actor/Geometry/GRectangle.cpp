@@ -91,17 +91,20 @@ bool GRectangle::checkData(const PrimitiveBuildingMaterial& data, const real wid
 
 // command interface
 
-GRectangle::GRectangle(const InputPacket& packet) :
-	Geometry(packet)
-{
-	const DataTreatment requiredData(EDataImportance::REQUIRED, "GRectangle needs width and height specified");
-	m_width  = packet.getReal("width", 1.0_r, requiredData);
-	m_height = packet.getReal("height", 1.0_r, requiredData);
-}
-
 SdlTypeInfo GRectangle::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "rectangle");
+}
+
+std::unique_ptr<GRectangle> GRectangle::ciLoad(const InputPacket& packet)
+{
+	const DataTreatment requiredData(EDataImportance::REQUIRED, 
+	                                 "GRectangle needs width and height specified");
+
+	const real width  = packet.getReal("width",  1.0_r, requiredData);
+	const real height = packet.getReal("height", 1.0_r, requiredData);
+
+	return std::make_unique<GRectangle>(width, height);
 }
 
 ExitStatus GRectangle::ciExecute(const std::shared_ptr<GRectangle>& targetResource, const std::string& functionName, const InputPacket& packet)

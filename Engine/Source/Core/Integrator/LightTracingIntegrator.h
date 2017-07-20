@@ -23,6 +23,7 @@ private:
 public:
 	LightTracingIntegrator(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
+	static std::unique_ptr<LightTracingIntegrator> ciLoad(const InputPacket& packet);
 	static ExitStatus ciExecute(const std::shared_ptr<LightTracingIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 

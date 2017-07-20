@@ -42,7 +42,6 @@ protected:
 
 // command interface
 public:
-	PhysicalActor(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static ExitStatus ciExecute(const std::shared_ptr<PhysicalActor>& targetResource, const std::string& functionName, const InputPacket& packet);
 };

@@ -20,8 +20,8 @@ private:
 
 // command interface
 public:
-	ConstantVelocityMotion(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
+	static std::unique_ptr<ConstantVelocityMotion> ciLoad(const InputPacket& packet);
 	static ExitStatus ciExecute(const std::shared_ptr<ConstantVelocityMotion>& targetResource,
 	                            const std::string& functionName,
 	                            const InputPacket& packet);

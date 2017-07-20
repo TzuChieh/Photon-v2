@@ -26,8 +26,8 @@ private:
 
 // command interface
 public:
-	AreaSource(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
+	static std::unique_ptr<AreaSource> ciLoad(const InputPacket& packet);
 	static ExitStatus ciExecute(const std::shared_ptr<AreaSource>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 

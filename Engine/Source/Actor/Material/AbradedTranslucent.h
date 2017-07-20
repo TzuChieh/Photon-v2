@@ -30,8 +30,8 @@ private:
 
 // command interface
 public:
-	AbradedTranslucent(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
+	static std::unique_ptr<AbradedTranslucent> ciLoad(const InputPacket& packet);
 	static ExitStatus ciExecute(const std::shared_ptr<AbradedTranslucent>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 

@@ -52,16 +52,17 @@ std::unique_ptr<Emitter> AreaSource::buildEmitter(const EmitterBuildingMaterial&
 	return std::move(emitter);
 }
 
-AreaSource::AreaSource(const InputPacket& packet) :
-	LightSource(packet)
-{
-	const Vector3R emittedRadiance = packet.getVector3r("emitted-radiance", Vector3R(0), DataTreatment::REQUIRED());
-	m_emittedRadiance = std::make_shared<ConstantTexture>(emittedRadiance);
-}
-
 SdlTypeInfo AreaSource::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_LIGHT_SOURCE, "area");
+}
+
+std::unique_ptr<AreaSource> AreaSource::ciLoad(const InputPacket& packet)
+{
+	const Vector3R emittedRadiance = packet.getVector3r("emitted-radiance", Vector3R(0), 
+	                                                    DataTreatment::REQUIRED());
+
+	return std::make_unique<AreaSource>(emittedRadiance);
 }
 
 ExitStatus AreaSource::ciExecute(const std::shared_ptr<AreaSource>& targetResource, const std::string& functionName, const InputPacket& packet)

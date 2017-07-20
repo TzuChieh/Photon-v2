@@ -9,12 +9,6 @@ Material::~Material() = default;
 
 // command interface
 
-Material::Material(const InputPacket& packet) : 
-	Material()
-{
-
-}
-
 SdlTypeInfo Material::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "material");

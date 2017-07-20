@@ -19,7 +19,8 @@ class AModel final : public PhysicalActor, public TCommandInterface<AModel>
 {
 public:
 	AModel();
-	AModel(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<Material>& material);
+	AModel(const std::shared_ptr<Geometry>& geometry, 
+	       const std::shared_ptr<Material>& material);
 	AModel(const AModel& other);
 	virtual ~AModel() override;
 
@@ -31,6 +32,7 @@ public:
 	const Material* getMaterial() const;
 	void setGeometry(const std::shared_ptr<Geometry>& geometry);
 	void setMaterial(const std::shared_ptr<Material>& material);
+	void setMotionSource(const std::shared_ptr<MotionSource>& motion);
 
 	friend void swap(AModel& first, AModel& second);
 
@@ -41,8 +43,8 @@ private:
 
 // command interface
 public:
-	AModel(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
+	static std::unique_ptr<AModel> ciLoad(const InputPacket& packet);
 	static ExitStatus ciExecute(const std::shared_ptr<AModel>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 

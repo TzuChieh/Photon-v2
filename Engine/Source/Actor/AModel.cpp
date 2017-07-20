@@ -136,6 +136,11 @@ void AModel::setMaterial(const std::shared_ptr<Material>& material)
 	m_material = material;
 }
 
+void AModel::setMotionSource(const std::shared_ptr<MotionSource>& motion)
+{
+	m_motionSource = motion;
+}
+
 const Geometry* AModel::getGeometry() const
 {
 	return m_geometry.get();
@@ -160,20 +165,22 @@ void swap(AModel& first, AModel& second)
 
 // command interface
 
-AModel::AModel(const InputPacket& packet) :
-	PhysicalActor(packet),
-	m_geometry(nullptr), m_material(nullptr), m_motionSource(nullptr)
-{
-	const DataTreatment requiredDT(EDataImportance::REQUIRED, 
-	                               "AModel needs both a Geometry and a Material");
-	m_geometry     = packet.get<Geometry>("geometry", requiredDT);
-	m_material     = packet.get<Material>("material", requiredDT);
-	m_motionSource = packet.get<MotionSource>("motion", DataTreatment::OPTIONAL());
-}
-
 SdlTypeInfo AModel::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "model");
+}
+
+std::unique_ptr<AModel> AModel::ciLoad(const InputPacket& packet)
+{
+	const DataTreatment requiredDT(EDataImportance::REQUIRED, 
+	                               "AModel needs both a Geometry and a Material");
+	const auto& geometry     = packet.get<Geometry>("geometry", requiredDT);
+	const auto& material     = packet.get<Material>("material", requiredDT);
+	const auto& motionSource = packet.get<MotionSource>("motion", DataTreatment::OPTIONAL());
+
+	std::unique_ptr<AModel> model = std::make_unique<AModel>(geometry, material);
+	model->setMotionSource(motionSource);
+	return model;
 }
 
 ExitStatus AModel::ciExecute(const std::shared_ptr<AModel>& targetResource, const std::string& functionName, const InputPacket& packet)

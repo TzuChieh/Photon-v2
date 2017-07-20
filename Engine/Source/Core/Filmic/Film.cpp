@@ -51,24 +51,6 @@ Film::~Film() = default;
 
 // command interface
 
-// HACK
-Film::Film(const InputPacket& packet) : 
-	Film(packet.getInteger("width", 0, DataTreatment::REQUIRED()), packet.getInteger("height", 0, DataTreatment::REQUIRED()), 
-		std::make_shared<SampleFilter>(std::make_unique<TConstant2D<float64>>(1.0), 1, 1))
-{
-	//const DataTreatment requiredDT(EDataImportance::REQUIRED, "Film requires pixel width and height");
-	//m_widthPx  = static_cast<uint32>(packet.getInteger("width",  0, requiredDT));
-	//m_heightPx = static_cast<uint32>(packet.getInteger("height", 0, requiredDT));
-
-	// HACK
-	//auto filterFunc1 = std::make_unique<TConstant2D<float64>>(1.0);
-	//auto filterFunc2 = std::make_unique<TGaussian2D<float64>>(1.0, 1.0, 1.0);
-	//auto filterFunc3 = std::make_unique<TGaussian2D<float64>>(10.0, 10.0, 1.0);
-	//m_filter = std::make_shared<SampleFilter>(std::move(filterFunc1), 1, 1);
-	//m_filter = std::make_shared<SampleFilter>(std::move(filterFunc2), 2, 2);
-	//m_filter = std::make_shared<SampleFilter>(std::move(filterFunc3), 16, 16);
-}
-
 SdlTypeInfo Film::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_FILM, "film");

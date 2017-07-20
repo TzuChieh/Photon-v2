@@ -10,6 +10,7 @@ namespace ph
 
 // TODO: jittering according to a general grid, not for specific raster resolution
 
+// HACK: inheritance
 class PixelJitterSampleGenerator final : public SampleGenerator, public TCommandInterface<PixelJitterSampleGenerator>, public ISdlResource
 {
 public:
@@ -32,6 +33,7 @@ private:
 public:
 	PixelJitterSampleGenerator(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
+	static std::unique_ptr<PixelJitterSampleGenerator> ciLoad(const InputPacket& packet);
 	static ExitStatus ciExecute(const std::shared_ptr<PixelJitterSampleGenerator>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 

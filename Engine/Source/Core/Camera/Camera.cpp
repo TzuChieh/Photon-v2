@@ -5,9 +5,18 @@ namespace ph
 {
 
 Camera::Camera() :
-	m_position(0, 0, 0), m_direction(0, 0, -1), m_upAxis(0, 1, 0), m_film(nullptr)
+	Camera(Vector3R(0, 0, 0), Vector3R(0, 0, -1), Vector3R(0, 1, 0))
 {
 
+}
+
+Camera::Camera(const Vector3R& position, const Vector3R& direction, const Vector3R& upAxis) : 
+	m_position(position), m_direction(direction.normalize()), m_upAxis(upAxis.normalize()),
+	m_film(nullptr)
+{
+	// TODO: input maybe invalid (e.g., axes to close to each other)
+
+	updateCameraToWorldTransform(m_position, m_direction, m_upAxis);
 }
 
 Camera::~Camera() = default;

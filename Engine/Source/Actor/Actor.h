@@ -24,7 +24,6 @@ public:
 
 // command interface
 public:
-	Actor(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static ExitStatus ciExecute(const std::shared_ptr<Actor>& targetResource, const std::string& functionName, const InputPacket& packet);
 };

@@ -18,6 +18,33 @@ GTriangleMesh::GTriangleMesh() :
 
 }
 
+GTriangleMesh::GTriangleMesh(const std::vector<Vector3R>& positions,
+                             const std::vector<Vector3R>& texCoords,
+                             const std::vector<Vector3R>& normals) : 
+	GTriangleMesh()
+{
+	if(!(positions.size() == texCoords.size() && texCoords.size() == normals.size()) ||
+	    (positions.empty() || texCoords.empty() || normals.empty()) ||
+	    (positions.size() % 3 != 0 || texCoords.size() % 3 != 0 || normals.size() % 3 != 0))
+	{
+		std::cerr << "warning: at GTriangleMesh::GTriangleMesh(), " 
+		          << "bad input detected" << std::endl;
+		return;
+	}
+
+	for(std::size_t i = 0; i < positions.size(); i += 3)
+	{
+		GTriangle triangle(positions[i + 0], positions[i + 1], positions[i + 2]);
+		triangle.setUVWa(texCoords[i + 0]);
+		triangle.setUVWb(texCoords[i + 1]);
+		triangle.setUVWc(texCoords[i + 2]);
+		triangle.setNa(normals[i + 0].normalize());
+		triangle.setNb(normals[i + 1].normalize());
+		triangle.setNc(normals[i + 2].normalize());
+		addTriangle(triangle);
+	}
+}
+
 GTriangleMesh::~GTriangleMesh()
 {
 
@@ -50,38 +77,18 @@ std::shared_ptr<Geometry> GTriangleMesh::genTransformApplied(const StaticTransfo
 
 // command interface
 
-GTriangleMesh::GTriangleMesh(const InputPacket& packet) :
-	Geometry(packet),
-	m_gTriangles()
+SdlTypeInfo GTriangleMesh::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "triangle-mesh");
+}
+
+std::unique_ptr<GTriangleMesh> GTriangleMesh::ciLoad(const InputPacket& packet)
 {
 	const std::vector<Vector3R> positions = packet.getVector3rArray("positions");
 	const std::vector<Vector3R> texCoords = packet.getVector3rArray("texture-coordinates");
 	const std::vector<Vector3R> normals   = packet.getVector3rArray("normals");
 
-	if(!(positions.size() == texCoords.size() && texCoords.size() == normals.size()) ||
-	    (positions.empty() || texCoords.empty() || normals.empty()) ||
-	    (positions.size() % 3 != 0 || texCoords.size() % 3 != 0 || normals.size() % 3 != 0))
-	{
-		std::cerr << "warning: at GTriangleMesh::GTriangleMesh(), bad input detected" << std::endl;
-		return;
-	}
-
-	for(std::size_t i = 0; i < positions.size(); i += 3)
-	{
-		GTriangle triangle(positions[i + 0], positions[i + 1], positions[i + 2]);
-		triangle.setUVWa(texCoords[i + 0]);
-		triangle.setUVWb(texCoords[i + 1]);
-		triangle.setUVWc(texCoords[i + 2]);
-		triangle.setNa(normals[i + 0].normalize());
-		triangle.setNb(normals[i + 1].normalize());
-		triangle.setNc(normals[i + 2].normalize());
-		addTriangle(triangle);
-	}
-}
-
-SdlTypeInfo GTriangleMesh::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "triangle-mesh");
+	return std::make_unique<GTriangleMesh>(positions, texCoords, normals);
 }
 
 ExitStatus GTriangleMesh::ciExecute(const std::shared_ptr<GTriangleMesh>& targetResource, const std::string& functionName, const InputPacket& packet)

@@ -22,7 +22,6 @@ public:
 
 // command interface
 public:
-	LightSource(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static ExitStatus ciExecute(const std::shared_ptr<LightSource>& targetResource, const std::string& functionName, const InputPacket& packet);
 };

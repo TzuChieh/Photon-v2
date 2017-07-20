@@ -3,6 +3,8 @@
 #include "PostProcess/Frame.h"
 #include "FileIO/InputPacket.h"
 #include "Core/Filmic/SampleFilter.h"
+#include "Math/Function/TConstant2D.h"
+#include "Math/Function/TGaussian2D.h"
 
 #include <cstddef>
 #include <iostream>
@@ -122,22 +124,18 @@ void HdrRgbFilm::clear()
 
 // command interface
 
-HdrRgbFilm::HdrRgbFilm(const InputPacket& packet) : 
-	Film(packet)
-{
-	//const DataTreatment requiredDT(EDataImportance::REQUIRED, "Film requires pixel width and height");
-	//m_widthPx = static_cast<uint32>(packet.getInteger("width", 0, requiredDT));
-	//m_heightPx = static_cast<uint32>(packet.getInteger("height", 0, requiredDT));
-
-	// HACK
-	const std::size_t numSensors = static_cast<std::size_t>(packet.getInteger("width", 0, DataTreatment::REQUIRED())) *
-		static_cast<std::size_t>(packet.getInteger("height", 0, DataTreatment::REQUIRED()));
-	m_pixelRadianceSensors = std::vector<RadianceSensor>(numSensors, RadianceSensor());
-}
-
 SdlTypeInfo HdrRgbFilm::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_FILM, "hdr-rgb");
+}
+
+std::unique_ptr<HdrRgbFilm> HdrRgbFilm::ciLoad(const InputPacket& packet)
+{
+	const integer filmWidth    = packet.getInteger("width", 0, DataTreatment::REQUIRED());
+	const integer filmHeight   = packet.getInteger("height", 0, DataTreatment::REQUIRED());
+	const auto&   sampleFilter = std::make_shared<SampleFilter>(std::make_unique<TConstant2D<float64>>(1.0), 1, 1);
+
+	return std::make_unique<HdrRgbFilm>(filmWidth, filmHeight, sampleFilter);
 }
 
 ExitStatus HdrRgbFilm::ciExecute(const std::shared_ptr<HdrRgbFilm>& targetResource,

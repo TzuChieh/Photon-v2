@@ -39,10 +39,10 @@ private:
 	// forward load() to SFINAE-determined static methods
 
 	template<typename = std::enable_if_t<!std::is_abstract<DerivedType>::value>>
-	static std::shared_ptr<ISdlResource> conditionalLoad(const InputPacket& packet);
+	static std::unique_ptr<ISdlResource> conditionalLoad(const InputPacket& packet);
 
 	template<typename = std::enable_if_t<std::is_abstract<DerivedType>::value>>
-	static std::shared_ptr<DerivedType> conditionalLoad(const InputPacket& packet);
+	static std::unique_ptr<DerivedType> conditionalLoad(const InputPacket& packet);
 };
 
 // template implementations:
@@ -133,14 +133,15 @@ std::shared_ptr<ISdlResource> TCommandInterface<DerivedType>::load(const InputPa
 
 template<typename DerivedType>
 template<typename>
-std::shared_ptr<ISdlResource> TCommandInterface<DerivedType>::conditionalLoad(const InputPacket& packet)
+std::unique_ptr<ISdlResource> TCommandInterface<DerivedType>::conditionalLoad(const InputPacket& packet)
 {
-	return std::make_shared<DerivedType>(packet);
+	//return std::make_shared<DerivedType>(packet);
+	return DerivedType::ciLoad(packet);
 }
 
 template<typename DerivedType>
 template<typename>
-std::shared_ptr<DerivedType> TCommandInterface<DerivedType>::conditionalLoad(const InputPacket& packet)
+std::unique_ptr<DerivedType> TCommandInterface<DerivedType>::conditionalLoad(const InputPacket& packet)
 {
 	std::cerr << "warning: cannot load abstract class <" << typeInfo().toString() << ">, " 
 	          << "returning nullptr" << std::endl;

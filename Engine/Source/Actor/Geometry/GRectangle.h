@@ -29,8 +29,8 @@ private:
 
 // command interface
 public:
-	GRectangle(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
+	static std::unique_ptr<GRectangle> ciLoad(const InputPacket& packet);
 	static ExitStatus ciExecute(const std::shared_ptr<GRectangle>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 

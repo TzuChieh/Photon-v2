@@ -32,12 +32,6 @@ std::shared_ptr<Geometry> Geometry::genTransformApplied(const StaticTransform& t
 
 // command interface
 
-Geometry::Geometry(const InputPacket& packet) :
-	Geometry()
-{
-
-}
-
 SdlTypeInfo Geometry::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "geometry");
