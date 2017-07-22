@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
 	phCreateEngine(&engineId, 1);
 
 	std::ifstream sceneFile;
-	sceneFile.open("../scene/new_syntax_test.p2", std::ios::in);
+	sceneFile.open("../scene/ttt.p2", std::ios::in);
 
 	if(!sceneFile.is_open())
 	{

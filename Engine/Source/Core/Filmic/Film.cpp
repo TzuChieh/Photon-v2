@@ -13,23 +13,25 @@
 namespace ph
 {
 
-Film::Film(const uint32 widthPx, const uint32 heightPx, 
+Film::Film(const uint64 widthPx, const uint64 heightPx,
            const std::shared_ptr<SampleFilter>& filter) :
 	Film(widthPx, heightPx, 
-	     TAABB2D<int64>(TVector2<int64>(0, 0), 
-	                    TVector2<int64>(widthPx, heightPx)),
+	     TAABB2D<uint64>(TVector2<uint64>(0, 0),
+	                     TVector2<uint64>(widthPx, heightPx)),
 	     filter)
 {
 
 }
 
-Film::Film(const int64 actualWidthPx, const int64 actualHeightPx,
-           const TAABB2D<int64>& effectiveWindowPx,
+Film::Film(const uint64 actualWidthPx, const uint64 actualHeightPx,
+           const TAABB2D<uint64>& effectiveWindowPx,
            const std::shared_ptr<SampleFilter>& filter) : 
-	m_actualResPx(actualWidthPx, actualHeightPx), 
-	m_effectiveResPx(effectiveWindowPx.getWidth(), effectiveWindowPx.getHeight()),
-	m_sampleResPx(effectiveWindowPx.getWidth() - 1.0 + filter->getSizePx().x, 
-	              effectiveWindowPx.getHeight() - 1.0 + filter->getSizePx().y),
+	m_actualResPx(static_cast<int64>(actualWidthPx), 
+	              static_cast<int64>(actualHeightPx)), 
+	m_effectiveResPx(static_cast<int64>(effectiveWindowPx.getWidth()), 
+	                 static_cast<int64>(effectiveWindowPx.getHeight())),
+	m_sampleResPx(static_cast<float64>(effectiveWindowPx.getWidth()) - 1.0 + filter->getSizePx().x, 
+	              static_cast<float64>(effectiveWindowPx.getHeight()) - 1.0 + filter->getSizePx().y),
 	m_effectiveWindowPx(effectiveWindowPx),
 	m_sampleWindowPx(TVector2<float64>(effectiveWindowPx.minVertex).add(0.5).sub(filter->getHalfSizePx()),
 	                 TVector2<float64>(effectiveWindowPx.maxVertex).sub(0.5).add(filter->getHalfSizePx())),

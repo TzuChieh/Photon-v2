@@ -15,10 +15,15 @@ ThinLensCamera::~ThinLensCamera() = default;
 
 void ThinLensCamera::genSensingRay(const Sample& sample, Ray* const out_ray) const
 {
-	// HACK
-	const Vector3R rasterPosPx(sample.m_cameraX * getFilm()->getEffectiveResPx().x,
-	                           sample.m_cameraY * getFilm()->getEffectiveResPx().y,
+	const real sampleResXpx = static_cast<real>(getFilm()->getSampleResPx().x);
+	const real sampleResYpx = static_cast<real>(getFilm()->getSampleResPx().y);
+	const real sampleOriginXpx = static_cast<real>(getFilm()->getSampleWindowPx().minVertex.x);
+	const real sampleOriginYpx = static_cast<real>(getFilm()->getSampleWindowPx().minVertex.y);
+
+	const Vector3R rasterPosPx(sample.m_cameraX * sampleResXpx + sampleOriginXpx,
+	                           sample.m_cameraY * sampleResYpx + sampleOriginYpx,
 	                           0);
+
 	Vector3R camFilmPos;
 	m_rasterToCamera->transformP(rasterPosPx, &camFilmPos);
 

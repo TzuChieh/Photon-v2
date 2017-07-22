@@ -18,7 +18,7 @@ class InputPacket;
 class HdrRgbFilm final : public Film, public TCommandInterface<HdrRgbFilm>
 {
 public:
-	HdrRgbFilm(uint32 widthPx, uint32 heightPx,
+	HdrRgbFilm(uint64 widthPx, uint64 heightPx,
 	           const std::shared_ptr<SampleFilter>& filter);
 	virtual ~HdrRgbFilm() override;
 

@@ -38,7 +38,8 @@
 #include "Core/Filmic/HdrRgbFilm.h"
 
 // samplers
-#include "Core/SampleGenerator/PixelJitterSampleGenerator.h"
+#include "Core/SampleGenerator/SampleGenerator.h"
+#include "Core/SampleGenerator/SGUniformRandom.h"
 
 // integrators
 #include "Core/Integrator/Integrator.h"
@@ -98,7 +99,8 @@ bool init_command_parser()
 	register_command_interface<HdrRgbFilm>();
 	
 	// samplers
-	register_command_interface<PixelJitterSampleGenerator>();
+	register_command_interface<SampleGenerator>();
+	register_command_interface<SGUniformRandom>();
 
 	// integrators
 	register_command_interface<Integrator>();

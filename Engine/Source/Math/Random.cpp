@@ -10,6 +10,7 @@ const int32 Random::incrementation = 17;
 // NOTE: consider using __rdtsc() as seed (if film merging is desired)
 real Random::genUniformReal_i0_e1()
 {
+	// TODO: check whether std::mt19937 can be used for 64-bit random number generating
 	static thread_local std::mt19937 generator(seed += incrementation);
 	return distribution(generator);
 }

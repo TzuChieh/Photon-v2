@@ -8,7 +8,6 @@
 #include "Actor/Material/Material.h"
 #include "Math/constant.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "Core/SampleGenerator/PixelJitterSampleGenerator.h"
 #include "Core/Sample.h"
 #include "Math/Random.h"
 #include "Math/Color.h"
@@ -71,7 +70,7 @@ void Renderer::render(const Description& description) const
 		subFilms.push_back(film.genChild(film.getEffectiveResPx().x, film.getEffectiveResPx().y));
 	}
 
-	sampleGenerator->split(m_numThreads, &subSampleGenerators);
+	sampleGenerator->genSplitted(m_numThreads, subSampleGenerators);
 
 	for(std::size_t threadIndex = 0; threadIndex < m_numThreads; threadIndex++)
 	{
@@ -87,26 +86,31 @@ void Renderer::render(const Description& description) const
 			const uint32 widthPx = camera.getFilm()->getEffectiveResPx().x;
 			const uint32 heightPx = camera.getFilm()->getEffectiveResPx().x;
 
-			std::vector<Sample> samples;
+			TSamplePhase<const Vector2R*> camSamplePhase = subSampleGenerator->declareArray2DPhase(widthPx * heightPx);
+
 			std::vector<SenseEvent> senseEvents;
 
-			const uint32 totalSpp = subSampleGenerator->getSppBudget();
-			uint32 currentSpp = 0;
+			const std::size_t totalSamples = subSampleGenerator->numSamples();
+			std::size_t currentSamples = 0;
 
 			std::chrono::time_point<std::chrono::system_clock> t1;
 			std::chrono::time_point<std::chrono::system_clock> t2;
 
-			while(subSampleGenerator->hasMoreSamples())
+			while(subSampleGenerator->singleSampleStart())
 			{
 				t1 = std::chrono::system_clock::now();
 
-				samples.clear();
-				subSampleGenerator->requestMoreSamples(&samples);
+				const Vector2R* camSamples = subSampleGenerator->getNextArray2D(camSamplePhase);
 
-				while(!samples.empty())
+				for(std::size_t si = 0; si < camSamplePhase.numElements(); si++)
 				{
-					integrator.radianceAlongRay(samples.back(), world.getScene(), camera, senseEvents);
-					samples.pop_back();
+					Sample sample;
+					sample.m_cameraX = camSamples[si].x;
+					sample.m_cameraY = camSamples[si].y;
+
+					//std::cerr << sample.m_cameraX << ", " << sample.m_cameraY << std::endl;
+
+					integrator.radianceAlongRay(sample, world.getScene(), camera, senseEvents);
 
 					// HACK
 					if(!isLT)
@@ -138,7 +142,7 @@ void Renderer::render(const Description& description) const
 						}
 					}
 					senseEvents.clear();
-				}// end while
+				}// end for
 
 					// HACK
 				if(isLT)
@@ -146,8 +150,8 @@ void Renderer::render(const Description& description) const
 					//subFilm->incrementAllSenseCounts();
 				}
 
-				currentSpp++;
-				*workerProgress = static_cast<float32>(currentSpp) / static_cast<float32>(totalSpp);
+				currentSamples++;
+				*workerProgress = static_cast<float32>(currentSamples) / static_cast<float32>(totalSamples);
 
 				m_rendererMutex.lock();
 				std::cout << "SPP: " << ++numSpp << std::endl;
@@ -157,6 +161,8 @@ void Renderer::render(const Description& description) const
 
 				auto msPassed = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
 				*workerSampleFreq = static_cast<float32>(widthPx * heightPx) / static_cast<float32>(msPassed.count()) * 1000.0f;
+
+				subSampleGenerator->singleSampleEnd();
 			}
 
 			m_rendererMutex.lock();

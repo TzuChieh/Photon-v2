@@ -185,6 +185,7 @@
     <ClCompile Include="Source\Core\Engine.cpp" />
     <ClCompile Include="Source\Core\Filmic\HdrRgbFilm.cpp" />
     <ClCompile Include="Source\Core\Filmic\SampleFilter.cpp" />
+    <ClCompile Include="Source\Core\Filmic\SampleFilterFactory.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardLightIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardMisIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardPathIntegrator.cpp" />
@@ -197,7 +198,7 @@
     <ClCompile Include="Source\Core\Intersection.cpp" />
     <ClCompile Include="Source\Core\Renderer.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator\SampleGenerator.cpp" />
-    <ClCompile Include="Source\Core\SampleGenerator\PixelJitterSampleGenerator.cpp" />
+    <ClCompile Include="Source\Core\SampleGenerator\SGUniformRandom.cpp" />
     <ClCompile Include="Source\Core\Emitter\Emitter.cpp" />
     <ClCompile Include="Source\Core\Emitter\PrimitiveAreaEmitter.cpp" />
     <ClCompile Include="Source\Core\Intersectable\Primitive.cpp" />
@@ -304,6 +305,7 @@
     <ClInclude Include="Source\Core\Engine.h" />
     <ClInclude Include="Source\Core\Filmic\HdrRgbFilm.h" />
     <ClInclude Include="Source\Core\Filmic\SampleFilter.h" />
+    <ClInclude Include="Source\Core\Filmic\SampleFilterFactory.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardLightIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardMisIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardPathIntegrator.h" />
@@ -321,6 +323,8 @@
     <ClInclude Include="Source\Core\Intersectable\PrimitiveMetadata.h" />
     <ClInclude Include="Source\Core\Intersectable\PTriangle.h" />
     <ClInclude Include="Source\Actor\ALight.h" />
+    <ClInclude Include="Source\Core\SampleGenerator\EPhaseType.h" />
+    <ClInclude Include="Source\Core\SampleGenerator\TSamplePhase.h" />
     <ClInclude Include="Source\Core\Sample\DirectLightSample.h" />
     <ClInclude Include="Source\Core\Sample\PositionSample.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\BSDF.h" />
@@ -353,7 +357,7 @@
     <ClInclude Include="Source\Core\Renderer.h" />
     <ClInclude Include="Source\Core\Sample.h" />
     <ClInclude Include="Source\Core\SampleGenerator\SampleGenerator.h" />
-    <ClInclude Include="Source\Core\SampleGenerator\PixelJitterSampleGenerator.h" />
+    <ClInclude Include="Source\Core\SampleGenerator\SGUniformRandom.h" />
     <ClInclude Include="Source\Math\Function\TConstant2D.h" />
     <ClInclude Include="Source\Math\Function\TGaussian2D.h" />
     <ClInclude Include="Source\Math\Function\TMathFunction2D.h" />

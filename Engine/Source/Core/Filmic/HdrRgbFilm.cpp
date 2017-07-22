@@ -5,6 +5,7 @@
 #include "Core/Filmic/SampleFilter.h"
 #include "Math/Function/TConstant2D.h"
 #include "Math/Function/TGaussian2D.h"
+#include "Core/Filmic/SampleFilterFactory.h"
 
 #include <cstddef>
 #include <iostream>
@@ -14,7 +15,7 @@
 namespace ph
 {
 
-HdrRgbFilm::HdrRgbFilm(uint32 widthPx, uint32 heightPx,
+HdrRgbFilm::HdrRgbFilm(uint64 widthPx, uint64 heightPx,
                        const std::shared_ptr<SampleFilter>& filter) : 
 	Film(widthPx, heightPx, filter),
 	m_pixelRadianceSensors(static_cast<std::size_t>(widthPx) * static_cast<std::size_t>(heightPx), RadianceSensor())
@@ -47,6 +48,8 @@ void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const Vector3R&
 		for(int64 x = x0y0.x; x < x1y1.x; x++)
 		{
 			const std::size_t baseIndex = y * static_cast<std::size_t>(m_effectiveResPx.x) + x;
+
+			// TODO: factor out -0.5 part
 			const float64 weight = m_filter->evaluate(x - (xPx - 0.5), y - (yPx - 0.5));
 
 			m_pixelRadianceSensors[baseIndex].accuR += static_cast<float64>(radiance.x) * weight;
@@ -131,9 +134,24 @@ SdlTypeInfo HdrRgbFilm::ciTypeInfo()
 
 std::unique_ptr<HdrRgbFilm> HdrRgbFilm::ciLoad(const InputPacket& packet)
 {
-	const integer filmWidth    = packet.getInteger("width", 0, DataTreatment::REQUIRED());
-	const integer filmHeight   = packet.getInteger("height", 0, DataTreatment::REQUIRED());
-	const auto&   sampleFilter = std::make_shared<SampleFilter>(std::make_unique<TConstant2D<float64>>(1.0), 1, 1);
+	const integer     filmWidth  = packet.getInteger("width",  0, DataTreatment::REQUIRED());
+	const integer     filmHeight = packet.getInteger("height", 0, DataTreatment::REQUIRED());
+	const std::string filterName = packet.getString("filter-name", "box");
+
+	std::shared_ptr<SampleFilter> sampleFilter;
+	if(filterName == "box")
+	{
+		sampleFilter = std::make_shared<SampleFilter>(SampleFilterFactory::createBoxFilter());
+	}
+	else if(filterName == "gaussian")
+	{
+		sampleFilter = std::make_shared<SampleFilter>(SampleFilterFactory::createGaussianFilter());
+	}
+	else
+	{
+		std::cerr << "warning: at HdrRgbFilm::ciLoad(), " 
+		          << "unknown filter name specified: " << filterName << std::endl;
+	}
 
 	return std::make_unique<HdrRgbFilm>(filmWidth, filmHeight, sampleFilter);
 }

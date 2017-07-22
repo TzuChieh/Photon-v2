@@ -22,10 +22,10 @@ class SampleFilter;
 class Film : public TCommandInterface<Film>, public ISdlResource
 {
 public:
-	Film(uint32 widthPx, uint32 heightPx, 
+	Film(uint64 widthPx, uint64 heightPx,
 	     const std::shared_ptr<SampleFilter>& filter);
-	Film(int64 actualWidthPx, int64 actualHeightPx, 
-	     const TAABB2D<int64>& effectiveWindowPx, 
+	Film(uint64 actualWidthPx, uint64 actualHeightPx,
+	     const TAABB2D<uint64>& effectiveWindowPx,
 	     const std::shared_ptr<SampleFilter>& filter);
 	virtual ~Film() = 0;
 

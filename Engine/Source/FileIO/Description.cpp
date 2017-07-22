@@ -1,5 +1,6 @@
 #include "FileIO/Description.h"
 #include "FileIO/DescriptionParser.h"
+#include "Core/SampleGenerator/SampleGenerator.h"
 
 #include <iostream>
 
@@ -17,10 +18,10 @@ void Description::update(const real deltaS)
 {
 	const std::string& resourceName = DescriptionParser::CORE_DATA_NAME();
 
-	m_camera          = resources.getResource<Camera>                    (resourceName, DataTreatment::REQUIRED());
-	m_film            = resources.getResource<Film>                      (resourceName, DataTreatment::REQUIRED());
-	m_integrator      = resources.getResource<Integrator>                (resourceName, DataTreatment::REQUIRED());
-	m_sampleGenerator = resources.getResource<PixelJitterSampleGenerator>(resourceName, DataTreatment::REQUIRED());
+	m_camera          = resources.getResource<Camera>         (resourceName, DataTreatment::REQUIRED());
+	m_film            = resources.getResource<Film>           (resourceName, DataTreatment::REQUIRED());
+	m_integrator      = resources.getResource<Integrator>     (resourceName, DataTreatment::REQUIRED());
+	m_sampleGenerator = resources.getResource<SampleGenerator>(resourceName, DataTreatment::REQUIRED());
 	if(!m_camera || !m_film || !m_integrator || !m_sampleGenerator)
 	{
 		std::cerr << "warning: at Description::update(), data incomplete" << std::endl;
@@ -34,10 +35,7 @@ void Description::update(const real deltaS)
 	}
 
 	visualWorld.cook();
-
 	m_integrator->update(visualWorld.getScene());
-	m_sampleGenerator->analyze(visualWorld.getScene(), *m_film);
-
 	m_camera->setFilm(m_film);
 }
 

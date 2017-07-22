@@ -28,8 +28,9 @@ std::string SdlTypeInfo::categoryToName(const ETypeCategory typeCategory)
 	case ETypeCategory::REF_SAMPLER:      categoryName = "sampler";         break;
 
 	default:
-		std::cerr << "warning: converting category to name failed, " 
-		          << "unspecified category detected" << std::endl;
+		std::cerr << "warning: at SdlTypeInfo::categoryToName() " 
+		          << "unspecified category detected, "
+		          << "converting category to name failed" << std::endl;
 		break;
 	}
 
@@ -55,7 +56,8 @@ ETypeCategory SdlTypeInfo::nameToCategory(const std::string& name)
 	const auto& iter = map.find(name);
 	if(iter == map.end())
 	{
-		std::cerr << "warning: converting name to category failed, " 
+		std::cerr << "warning: at SdlTypeInfo::nameToCategory(), "
+		          << "converting name <" << name << "> to category failed, "
 		          << "returning unspecified category" << std::endl;
 		return ETypeCategory::UNSPECIFIED;
 	}

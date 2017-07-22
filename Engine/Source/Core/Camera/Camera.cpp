@@ -29,6 +29,8 @@ void Camera::onFilmSet(Film* newFilm)
 void Camera::updateCameraToWorldTransform(const Vector3R& position, const Vector3R& direction, const Vector3R& upAxis)
 {
 	m_cameraToWorldTransform.setPosition(TVector3<hiReal>(position));
+
+	// changing unit from mm to m
 	m_cameraToWorldTransform.setScale(TVector3<hiReal>(0.001, 0.001, 0.001));
 
 	const TVector3<hiReal> zAxis             = TVector3<hiReal>(direction.mul(-1.0f)).normalizeLocal();
