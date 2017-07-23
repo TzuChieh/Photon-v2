@@ -11,9 +11,9 @@ class Frame
 public:
 	virtual ~Frame() = 0;
 
-	virtual void resize(const uint32 newWidthPx, const uint32 newHeightPx) = 0;
-	virtual void getPixel(const uint32 x, const uint32 y, Vector3R* const out_pixel) const = 0;
-	virtual void setPixel(const uint32 x, const uint32 y, const real r, const real g, const real b) = 0;
+	virtual void resize(uint32 newWidthPx, uint32 newHeightPx) = 0;
+	virtual void getPixel(uint32 x, uint32 y, Vector3R* out_pixel) const = 0;
+	virtual void setPixel(uint32 x, uint32 y, real r, real g, real b) = 0;
 
 	virtual uint32 getWidthPx() const = 0;
 	virtual uint32 getHeightPx() const = 0;

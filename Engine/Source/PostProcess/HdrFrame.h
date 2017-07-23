@@ -17,9 +17,9 @@ public:
 	HdrFrame(HdrFrame&& other);
 	virtual ~HdrFrame() override;
 
-	virtual void resize(const uint32 newWidthPx, const uint32 newHeightPx) override;
-	virtual void getPixel(const uint32 x, const uint32 y, Vector3R* const out_pixel) const override;
-	virtual void setPixel(const uint32 x, const uint32 y, const real r, const real g, const real b) override;
+	virtual void resize(uint32 newWidthPx, uint32 newHeightPx) override;
+	virtual void getPixel(uint32 x, uint32 y, Vector3R* out_pixel) const override;
+	virtual void setPixel(uint32 x, uint32 y, real r, real g, real b) override;
 
 	virtual inline uint32 getWidthPx() const override
 	{
@@ -41,10 +41,10 @@ public:
 		return m_pixelData.data();
 	}
 
-	inline real getPixel(const uint32 x, const uint32 y) const
+	/*inline real getPixel(const uint32 x, const uint32 y) const
 	{
 		return m_pixelData[y * getWidthPx() + x];
-	}
+	}*/
 
 	HdrFrame& operator = (const HdrFrame& rhs);
 	HdrFrame& operator = (HdrFrame&& rhs);

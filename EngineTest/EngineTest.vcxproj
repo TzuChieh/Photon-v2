@@ -149,12 +149,13 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>gtest.lib;"$(SolutionDir)Engine/x64/Release/*.obj";assimp.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gtest.lib;gmock.lib;"$(SolutionDir)Engine/x64/Release/*.obj";assimp.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)ThirdParty\assimp\lib\windows;$(SolutionDir)ThirdParty/googletest/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\Core\Bound\bound_test.cpp" />
+    <ClCompile Include="Source\Core\Filmic\film_sample_weighting_test.cpp" />
     <ClCompile Include="Source\Core\Filmic\film_test.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Math\Function\function_test.cpp" />
