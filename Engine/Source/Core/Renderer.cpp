@@ -122,7 +122,15 @@ void Renderer::render(const Description& description) const
 							//if(x >= widthPx) x = widthPx - 1;
 							//if(y >= heightPx) y = heightPx - 1;
 							//subFilm->accumulateRadiance(x, y, senseEvent.radiance);
-							subFilm->addSample(senseEvent.filmX * widthPx, senseEvent.filmY * heightPx, senseEvent.radiance);
+
+							const real sampleResXpx = static_cast<real>(subFilm->getSampleResPx().x);
+							const real sampleResYpx = static_cast<real>(subFilm->getSampleResPx().y);
+							const real sampleOriginXpx = static_cast<real>(subFilm->getSampleWindowPx().minVertex.x);
+							const real sampleOriginYpx = static_cast<real>(subFilm->getSampleWindowPx().minVertex.y);
+
+							const Vector2R rasterPosPx(senseEvent.filmX * sampleResXpx + sampleOriginXpx,
+								senseEvent.filmY * sampleResYpx + sampleOriginYpx);
+							subFilm->addSample(rasterPosPx.x, rasterPosPx.y, senseEvent.radiance);
 						}
 
 						if(senseEvents.size() != 1)
