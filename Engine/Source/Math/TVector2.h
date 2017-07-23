@@ -2,6 +2,8 @@
 
 #include "Math/math_fwd.h"
 
+#include <string>
+
 namespace ph
 {
 
@@ -52,6 +54,8 @@ public:
 
 	inline TVector2 ceil() const;
 	inline TVector2 floor() const;
+
+	inline std::string toString() const;
 
 	inline TVector2& operator = (const TVector2& rhs);
 };

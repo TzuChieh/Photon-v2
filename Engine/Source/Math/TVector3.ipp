@@ -557,9 +557,9 @@ inline void TVector3<T>::sort(TVector3* const out_result) const
 }
 
 template<typename T>
-inline std::string TVector3<T>::toStringFormal() const
+inline std::string TVector3<T>::toString() const
 {
-	return "(" + std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z) + ")";
+	return '(' + std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z) + ')';
 }
 
 template<typename T>

@@ -31,10 +31,13 @@ void BackwardMisIntegrator::update(const Scene& scene)
 	// update nothing
 }
 
-void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const Scene& scene, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const
+void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const RenderData& data, std::vector<SenseEvent>& out_senseEvents) const
 {
-	Ray ray;
-	camera.genSensingRay(sample, &ray);
+	const Scene&  scene  = *data.scene;
+	const Camera& camera = *data.camera;
+
+	/*Ray ray;
+	camera.genSensingRay(sample, &ray);*/
 
 	// common variables
 	Vector3R rayOriginDelta;
@@ -57,7 +60,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const Scene& 
 
 	if(!scene.isIntersecting(tracingRay, &intersection))
 	{
-		out_senseEvents.push_back(SenseEvent(sample.m_cameraX, sample.m_cameraY, accuRadiance));
+		out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */accuRadiance));
 		return;
 	}
 
@@ -66,7 +69,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const Scene& 
 	// sidedness agreement between real geometry and shading (phong-interpolated) normal
 	if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0)
 	{
-		out_senseEvents.push_back(SenseEvent(sample.m_cameraX, sample.m_cameraY, accuRadiance));
+		out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */accuRadiance));
 		return;
 	}
 
@@ -215,7 +218,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Sample& sample, const Scene& 
 		}
 	}
 
-	out_senseEvents.push_back(SenseEvent(sample.m_cameraX, sample.m_cameraY, accuRadiance));
+	out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */accuRadiance));
 }
 
 // NaNs will be clamped to 0

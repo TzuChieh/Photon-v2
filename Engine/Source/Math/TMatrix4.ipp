@@ -286,26 +286,26 @@ inline T TMatrix4<T>::determinant() const
 }
 
 template<typename T>
-inline std::string TMatrix4<T>::toStringFormal() const
+inline std::string TMatrix4<T>::toString() const
 {
 	std::string result;
 
-	result += "[" + std::to_string(m[0][0]) + ", "
+	result += '[' + std::to_string(m[0][0]) + ", "
 	              + std::to_string(m[0][1]) + ", "
 	              + std::to_string(m[0][2]) + ", "
 	              + std::to_string(m[0][3]) + "]\n";
 
-	result += "[" + std::to_string(m[1][0]) + ", "
+	result += '[' + std::to_string(m[1][0]) + ", "
 	              + std::to_string(m[1][1]) + ", "
 	              + std::to_string(m[1][2]) + ", "
 	              + std::to_string(m[1][3]) + "]\n";
 
-	result += "[" + std::to_string(m[2][0]) + ", "
+	result += '[' + std::to_string(m[2][0]) + ", "
 	              + std::to_string(m[2][1]) + ", "
 	              + std::to_string(m[2][2]) + ", "
 	              + std::to_string(m[2][3]) + "]\n";
 
-	result += "[" + std::to_string(m[3][0]) + ", "
+	result += '[' + std::to_string(m[3][0]) + ", "
 	              + std::to_string(m[3][1]) + ", "
 	              + std::to_string(m[3][2]) + ", "
 	              + std::to_string(m[3][3]) + "]";

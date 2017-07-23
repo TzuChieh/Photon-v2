@@ -35,7 +35,7 @@ Vector3R ValueParser::parseVector3r(const std::string& vector3rString)
 	if(tokens.size() != 3)
 	{
 		std::cerr << "warning: at ValueParser::parseVector3r(), bad string representation <" + vector3rString + ">, " <<
-		             Vector3R().toStringFormal() << " is returned "<< std::endl;
+		             Vector3R().toString() << " is returned "<< std::endl;
 		return Vector3R();
 	}
 
@@ -52,7 +52,7 @@ QuaternionR ValueParser::parseQuaternionR(const std::string& quaternionRstring)
 	if(tokens.size() != 4)
 	{
 		std::cerr << "warning: at ValueParser::parseQuaternionR(), bad string representation <" + quaternionRstring + ">, " <<
-		             QuaternionR().toStringFormal() << " is returned " << std::endl;
+		             QuaternionR().toString() << " is returned " << std::endl;
 		return QuaternionR();
 	}
 

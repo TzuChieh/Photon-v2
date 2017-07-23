@@ -52,7 +52,7 @@ public:
 	inline void setRot(const TVector3<T>& normalizedAxis, const T radians);
 	inline void toRotationMatrix(TMatrix4<T>* const out_result) const;
 
-	inline std::string toStringFormal() const;
+	inline std::string toString() const;
 };
 
 }// end namespace ph

@@ -52,6 +52,29 @@ TEST(BoundTest, IntersectingTwoAABB2DRsAsAreas)
 	EXPECT_FALSE(aabb3a.isIntersectingArea(aabb3b));
 }
 
+TEST(BoundTest, IntersectingAABB2DRwithPoint)
+{
+	typedef TAABB2D<real> AABB2DR;
+
+	// trial 1
+
+	const AABB2DR  aabb1(Vector2R(0, 0), Vector2R(1, 1));
+	const Vector2R point1(0.5_r, 0.5_r);
+	EXPECT_TRUE(aabb1.isIntersectingArea(point1));
+
+	// trial 2
+
+	const AABB2DR  aabb2(Vector2R(-1, -2), Vector2R(1, 1));
+	const Vector2R point2(1.1_r, 0.5_r);
+	EXPECT_FALSE(aabb2.isIntersectingArea(point2));
+
+	// trial 3
+
+	const AABB2DR  aabb3(Vector2R(-3, -3), Vector2R(3, 3));
+	const Vector2R point3(-3.1_r, -3.1_r);
+	EXPECT_FALSE(aabb3.isIntersectingArea(point3));
+}
+
 TEST(BoundTest, AABB2DRvadity)
 {
 	typedef TAABB2D<real> AABB2DR;

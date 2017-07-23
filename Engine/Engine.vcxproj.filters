@@ -828,5 +828,8 @@
     <ClInclude Include="Source\Core\SampleGenerator\SGUniformRandom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\RenderData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

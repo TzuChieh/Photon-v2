@@ -278,12 +278,12 @@ inline TQuaternion<T>& TQuaternion<T>::set(const TQuaternion& rhs)
 }
 
 template<typename T>
-inline std::string TQuaternion<T>::toStringFormal() const
+inline std::string TQuaternion<T>::toString() const
 {
-	return "(" + std::to_string(x) + ", " 
+	return '(' + std::to_string(x) + ", " 
 	           + std::to_string(y) + ", " 
 	           + std::to_string(z) + ", " 
-	           + std::to_string(w) + ")";
+	           + std::to_string(w) + ')';
 }
 
 }// end namespace ph

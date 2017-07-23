@@ -30,8 +30,11 @@ void BackwardPathIntegrator::update(const Scene& scene)
 	// update nothing
 }
 
-void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const Scene& scene, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const
+void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderData& data, std::vector<SenseEvent>& out_senseEvents) const
 {
+	const Scene&  scene  = *data.scene;
+	const Camera& camera = *data.camera;
+
 	const real rayDeltaDist = 0.0001_r;
 
 	uint32 numBounces = 0;
@@ -40,8 +43,8 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 	Vector3R rayOriginDelta;
 	Intersection intersection;
 
-	Ray ray;
-	camera.genSensingRay(sample, &ray);
+	/*Ray ray;
+	camera.genSensingRay(sample, &ray);*/
 
 	// backward tracing to light
 	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), 0.0001_r, Ray::MAX_T, ray.getTime());// HACK: hard-coded number
@@ -154,7 +157,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 		numBounces++;
 	}// end while
 
-	out_senseEvents.push_back(SenseEvent(sample.m_cameraX, sample.m_cameraY, accuRadiance));
+	out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */accuRadiance));
 }
 
 // command interface

@@ -46,7 +46,7 @@ public:
 	inline TMatrix4& inverse(TMatrix4* const out_result) const;
 	inline T determinant() const;
 
-	inline std::string toStringFormal() const;
+	inline std::string toString() const;
 };
 
 }// end namespace ph

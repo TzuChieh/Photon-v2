@@ -5,6 +5,7 @@
 #include "Core/Camera/Camera.h"
 #include "FileIO/SDL/ISdlResource.h"
 #include "FileIO/SDL/TCommandInterface.h"
+#include "Core/RenderData.h"
 
 #include <vector>
 
@@ -23,7 +24,7 @@ public:
 	virtual ~Integrator() = 0;
 
 	virtual void update(const Scene& scene) = 0;
-	virtual void radianceAlongRay(const Sample& sample, const Scene& scene, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const = 0;
+	virtual void radianceAlongRay(const Ray& ray, const RenderData& data, std::vector<SenseEvent>& out_senseEvents) const = 0;
 
 // command interface
 public:

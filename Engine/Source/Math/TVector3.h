@@ -120,7 +120,7 @@ public:
 	inline bool isNotZero() const;
 	inline bool hasNegativeComponent() const;
 
-	inline std::string toStringFormal() const;
+	inline std::string toString() const;
 
 	inline T& operator [] (int32 axisIndex);
 	inline const T& operator [] (int32 axisIndex) const;

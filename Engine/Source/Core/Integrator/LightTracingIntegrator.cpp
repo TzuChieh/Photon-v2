@@ -32,10 +32,13 @@ void LightTracingIntegrator::update(const Scene& scene)
 	// update nothing
 }
 
-void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene& scene, const Camera& camera, std::vector<SenseEvent>& out_senseEvents) const
+void LightTracingIntegrator::radianceAlongRay(const Ray& ray, const RenderData& data, std::vector<SenseEvent>& out_senseEvents) const
 {
+	const Scene&  scene  = *data.scene;
+	const Camera& camera = *data.camera;
+
 	uint32 numBounces = 0;
-	
+
 	real emitterPickPdf;
 	const Emitter* emitter = scene.pickEmitter(&emitterPickPdf);
 	if(!emitter || emitterPickPdf <= 0)
@@ -82,7 +85,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 				rationalClamp(weight);
 
 				// assuming same amount of radiance is emitted in every direction
-				out_senseEvents.push_back(SenseEvent(filmCoord.x, filmCoord.y, emitterRadianceLe.mul(weight)));
+				out_senseEvents.push_back(SenseEvent(/*filmCoord.x, filmCoord.y, */emitterRadianceLe.mul(weight)));
 			}
 		}
 	}
@@ -134,7 +137,7 @@ void LightTracingIntegrator::radianceAlongRay(const Sample& sample, const Scene&
 
 							rationalClamp(weight);
 
-							out_senseEvents.push_back(SenseEvent(filmCoord.x, filmCoord.y, emitterRadianceLe.mul(weight)));
+							out_senseEvents.push_back(SenseEvent(/*filmCoord.x, filmCoord.y, */emitterRadianceLe.mul(weight)));
 						}
 					}
 				}
