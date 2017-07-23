@@ -15,14 +15,6 @@ PinholeCamera::~PinholeCamera() = default;
 
 void PinholeCamera::genSensingRay(const Vector2R& rasterPosPx, Ray* const out_ray) const
 {
-	/*const real sampleResXpx = static_cast<real>(getFilm()->getSampleResPx().x);
-	const real sampleResYpx = static_cast<real>(getFilm()->getSampleResPx().y);
-	const real sampleOriginXpx = static_cast<real>(getFilm()->getSampleWindowPx().minVertex.x);
-	const real sampleOriginYpx = static_cast<real>(getFilm()->getSampleWindowPx().minVertex.y);
-
-	const Vector3R rasterPosPx(sample.m_cameraX * sampleResXpx + sampleOriginXpx,
-	                           sample.m_cameraY * sampleResYpx + sampleOriginYpx,
-	                           0);*/
 	const Vector3R& worldPinholePos = getPosition();
 
 	Vector3R worldFilmPos;

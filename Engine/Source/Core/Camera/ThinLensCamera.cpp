@@ -15,15 +15,6 @@ ThinLensCamera::~ThinLensCamera() = default;
 
 void ThinLensCamera::genSensingRay(const Vector2R& rasterPosPx, Ray* const out_ray) const
 {
-	/*const real sampleResXpx = static_cast<real>(getFilm()->getSampleResPx().x);
-	const real sampleResYpx = static_cast<real>(getFilm()->getSampleResPx().y);
-	const real sampleOriginXpx = static_cast<real>(getFilm()->getSampleWindowPx().minVertex.x);
-	const real sampleOriginYpx = static_cast<real>(getFilm()->getSampleWindowPx().minVertex.y);
-
-	const Vector3R rasterPosPx(sample.m_cameraX * sampleResXpx + sampleOriginXpx,
-	                           sample.m_cameraY * sampleResYpx + sampleOriginYpx,
-	                           0);*/
-
 	Vector3R camFilmPos;
 	m_rasterToCamera->transformP(Vector3R(rasterPosPx.x, rasterPosPx.y, 0), &camFilmPos);
 
@@ -31,12 +22,8 @@ void ThinLensCamera::genSensingRay(const Vector2R& rasterPosPx, Ray* const out_r
 	const real     hitParamDist    = m_focalDistanceMM / (-camCenterRayDir.z);
 	const Vector3R camFocusPos     = camCenterRayDir.mul(hitParamDist);
 
-	//std::cerr << camFilmPos.toStringFormal() << std::endl;
-
 	Vector3R camLensPos;
 	genRandomSampleOnDisk(m_lensRadiusMM, &camLensPos.x, &camLensPos.y);
-
-	
 
 	Vector3R worldLensPos, worldFocusPos;
 	m_cameraToWorld->transformP(camLensPos,  &worldLensPos);

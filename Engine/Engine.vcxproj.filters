@@ -831,5 +831,8 @@
     <ClInclude Include="Source\Core\RenderData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Math\Function\TMNCubic2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
 #pragma once
 
 #define TEST_REAL_EPSILON 0.000001_r
+#define TEST_FLOAT32_EPSILON 1e-5
 #define TEST_FLOAT64_EPSILON 1e-10

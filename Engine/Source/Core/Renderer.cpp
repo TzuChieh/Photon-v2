@@ -49,20 +49,6 @@ void Renderer::render(const Description& description) const
 
 	const RenderData renderData(&world.getScene(), &camera);
 
-	//m_subFilms.clear();
-	//m_subFilms.shrink_to_fit();
-
-	//BackwardPathIntegrator integrator;
-	//BackwardLightIntegrator integrator;
-	//BackwardMisIntegrator integrator;
-	//NormalBufferIntegrator integrator;
-	//LightTracingIntegrator integrator;
-
-	//const bool isLT = true;
-	const bool isLT = false;
-
-	//integrator.update(world);
-
 	std::atomic<int32> numSpp = 0;
 	std::vector<std::thread> renderWorkers(m_numThreads);
 	std::vector<std::unique_ptr<SampleGenerator>> subSampleGenerators;
@@ -83,23 +69,18 @@ void Renderer::render(const Description& description) const
 		std::atomic<float32>* workerSampleFreq = m_workerSampleFrequencies[threadIndex].get();
 		
 
-		renderWorkers[threadIndex] = std::thread([this, &renderData, &integrator, &numSpp, &isLT, subSampleGenerator, subFilm, workerProgress, workerSampleFreq]() -> void
+		renderWorkers[threadIndex] = std::thread([this, &renderData, &integrator, &numSpp, subSampleGenerator, subFilm, workerProgress, workerSampleFreq]() -> void
 		{
 			// ****************************** thread start ****************************** //
 
-			const uint32 filmWpx = subFilm->getEffectiveResPx().x;
-			const uint32 filmHpx = subFilm->getEffectiveResPx().y;
+			const uint64 filmWpx = subFilm->getEffectiveResPx().x;
+			const uint64 filmHpx = subFilm->getEffectiveResPx().y;
 
 			const Vector2D flooredSampleMinVertex = subFilm->getSampleWindowPx().minVertex.floor();
 			const Vector2D ceiledSampleMaxVertex  = subFilm->getSampleWindowPx().maxVertex.ceil();
 			const uint64 filmSampleWpx = static_cast<uint64>(ceiledSampleMaxVertex.x - flooredSampleMinVertex.x);
 			const uint64 filmSampleHpx = static_cast<uint64>(ceiledSampleMaxVertex.y - flooredSampleMinVertex.y);
 			const uint64 numCamPhaseSamples = filmSampleWpx * filmSampleHpx;
-
-			//const real sampleResXpx = static_cast<real>(subFilm->getSampleResPx().x);
-			//const real sampleResYpx = static_cast<real>(subFilm->getSampleResPx().y);
-			//const real sampleOriginXpx = static_cast<real>(subFilm->getSampleWindowPx().minVertex.x);
-			//const real sampleOriginYpx = static_cast<real>(subFilm->getSampleWindowPx().minVertex.y);
 
 			TSamplePhase<const Vector2R*> camSamplePhase = subSampleGenerator->declareArray2DPhase(numCamPhaseSamples);
 
@@ -125,66 +106,27 @@ void Renderer::render(const Description& description) const
 
 					if(!subFilm->getSampleWindowPx().isIntersectingArea(rasterPosPx))
 					{
-						//std::cerr << "rejected: " << rasterPosPx.toString() << std::endl;
 						continue;
 					}
 
 					Ray ray;
 					renderData.camera->genSensingRay(Vector2R(rasterPosPx), &ray);
 
-					/*Sample sample;
-					sample.m_cameraX = camSamples[si].x;
-					sample.m_cameraY = camSamples[si].y;*/
-
-					//std::cerr << sample.m_cameraX << ", " << sample.m_cameraY << std::endl;
-
 					integrator.radianceAlongRay(ray, renderData, senseEvents);
 
-					// HACK
-					if(!isLT)
+					// HACK: sense event
+					for(const auto& senseEvent : senseEvents)
 					{
-						for(const auto& senseEvent : senseEvents)
-						{
-							//uint32 x = static_cast<uint32>(senseEvent.filmX * widthPx);
-							//uint32 y = static_cast<uint32>(senseEvent.filmY * heightPx);
-							//if(x >= widthPx) x = widthPx - 1;
-							//if(y >= heightPx) y = heightPx - 1;
-							//subFilm->accumulateRadiance(x, y, senseEvent.radiance);
-
-							/*const real sampleResXpx = static_cast<real>(subFilm->getSampleResPx().x);
-							const real sampleResYpx = static_cast<real>(subFilm->getSampleResPx().y);
-							const real sampleOriginXpx = static_cast<real>(subFilm->getSampleWindowPx().minVertex.x);
-							const real sampleOriginYpx = static_cast<real>(subFilm->getSampleWindowPx().minVertex.y);*/
-
-							/*const Vector2R rasterPosPx(senseEvent.filmX * sampleResXpx + sampleOriginXpx,
-								senseEvent.filmY * sampleResYpx + sampleOriginYpx);*/
-							subFilm->addSample(rasterPosPx.x, rasterPosPx.y, senseEvent.radiance);
-						}
-
-						if(senseEvents.size() != 1)
-						{
-							std::cerr << "unexpected event occured" << std::endl;
-						}
+						subFilm->addSample(rasterPosPx.x, rasterPosPx.y, senseEvent.radiance);
 					}
-					else
+
+					if(senseEvents.size() != 1)
 					{
-						for(const auto& senseEvent : senseEvents)
-						{
-							//uint32 x = static_cast<uint32>(senseEvent.filmX * widthPx);
-							//uint32 y = static_cast<uint32>(senseEvent.filmY * heightPx);
-							//if(x >= widthPx) x = widthPx - 1;
-							//if(y >= heightPx) y = heightPx - 1;
-							//subFilm->accumulateRadianceWithoutIncrementSenseCount(x, y, senseEvent.radiance);
-						}
+						std::cerr << "unexpected event occured" << std::endl;
 					}
+
 					senseEvents.clear();
 				}// end for
-
-					// HACK
-				if(isLT)
-				{
-					//subFilm->incrementAllSenseCounts();
-				}
 
 				currentSamples++;
 				*workerProgress = static_cast<float32>(currentSamples) / static_cast<float32>(totalSamples);
@@ -202,14 +144,11 @@ void Renderer::render(const Description& description) const
 			}
 
 			m_rendererMutex.lock();
-			//camera.getFilm()->accumulateRadiance(*subFilm);
 			subFilm->mergeToParent();
 			m_rendererMutex.unlock();
 
 			// ****************************** thread end ****************************** //
 		});
-
-		//renderWorkers[threadIndex] = std::make_unique<std::thread>(workerFunction);
 	}
 
 	for(auto& renderWorker : renderWorkers)

@@ -60,7 +60,7 @@ void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const Vector3R&
 	}
 }
 
-std::unique_ptr<Film> HdrRgbFilm::genChild(uint32 widthPx, uint32 heightPx)
+std::unique_ptr<Film> HdrRgbFilm::genChild(uint64 widthPx, uint64 heightPx)
 {
 	auto subFilm = std::make_unique<HdrRgbFilm>(widthPx, heightPx, m_filter);
 	subFilm->m_merger = [&, this, subFilm = subFilm.get()]() -> void
@@ -95,8 +95,10 @@ void HdrRgbFilm::develop(Frame* const out_frame) const
 	float64 reciSenseCount;
 	std::size_t baseIndex;
 
-	out_frame->resize(m_effectiveResPx.x, m_effectiveResPx.y);
+	// HACK: type cast
+	out_frame->resize(static_cast<uint32>(m_effectiveResPx.x), static_cast<uint32>(m_effectiveResPx.y));
 
+	// HACK: int type
 	for(int64 y = 0; y < m_effectiveResPx.y; y++)
 	{
 		for(int64 x = 0; x < m_effectiveResPx.x; x++)
@@ -108,14 +110,16 @@ void HdrRgbFilm::develop(Frame* const out_frame) const
 			sensorB = m_pixelRadianceSensors[baseIndex].accuB;
 			const float64 senseWeight = static_cast<float64>(m_pixelRadianceSensors[baseIndex].accuWeight);
 
-			// to prevent divide by zero
+			// to prevent division by zero
 			reciSenseCount = senseWeight == 0.0 ? 0.0 : 1.0 / senseWeight;
 
 			sensorR *= reciSenseCount;
 			sensorG *= reciSenseCount;
 			sensorB *= reciSenseCount;
 
-			out_frame->setPixel(x, y, static_cast<real>(sensorR), static_cast<real>(sensorG), static_cast<real>(sensorB));
+			// HACK: type cast
+			out_frame->setPixel(static_cast<uint32>(x), static_cast<uint32>(y), 
+				static_cast<real>(sensorR), static_cast<real>(sensorG), static_cast<real>(sensorB));
 		}
 	}
 }
@@ -146,6 +150,10 @@ std::unique_ptr<HdrRgbFilm> HdrRgbFilm::ciLoad(const InputPacket& packet)
 	else if(filterName == "gaussian")
 	{
 		sampleFilter = std::make_shared<SampleFilter>(SampleFilterFactory::createGaussianFilter());
+	}
+	else if(filterName == "mn")
+	{
+		sampleFilter = std::make_shared<SampleFilter>(SampleFilterFactory::createMNFilter());
 	}
 	else
 	{

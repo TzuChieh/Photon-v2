@@ -366,6 +366,7 @@
     <ClInclude Include="Source\Math\Function\TConstant2D.h" />
     <ClInclude Include="Source\Math\Function\TGaussian2D.h" />
     <ClInclude Include="Source\Math\Function\TMathFunction2D.h" />
+    <ClInclude Include="Source\Math\Function\TMNCubic2D.h" />
     <ClInclude Include="Source\Math\math_common.h" />
     <ClInclude Include="Source\Math\TArithmeticArray.h" />
     <ClInclude Include="Source\Math\TQuaternion.h" />

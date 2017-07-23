@@ -32,7 +32,7 @@ public:
 	virtual void addSample(float64 xPx, float64 yPx, const Vector3R& radiance) = 0;
 	virtual void develop(Frame* out_frame) const = 0;
 	virtual void clear() = 0;
-	virtual std::unique_ptr<Film> genChild(uint32 widthPx, uint32 heightPx) = 0;
+	virtual std::unique_ptr<Film> genChild(uint64 widthPx, uint64 heightPx) = 0;
 
 	inline void mergeToParent() const
 	{

@@ -27,7 +27,7 @@ public:
 	virtual void addSample(float64 xPx, float64 yPx, const Vector3R& radiance) override;
 	virtual void develop(Frame* out_frame) const override;
 	virtual void clear() override;
-	virtual std::unique_ptr<Film> genChild(uint32 widthPx, uint32 heightPx) override;
+	virtual std::unique_ptr<Film> genChild(uint64 widthPx, uint64 heightPx) override;
 
 	// HACK
 	/*inline void accumulateRadianceWithoutIncrementSenseCount(const uint32 x, const uint32 y, const Vector3R& radiance)

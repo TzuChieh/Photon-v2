@@ -12,6 +12,7 @@ class SampleFilterFactory final
 public:
 	static SampleFilter createBoxFilter();
 	static SampleFilter createGaussianFilter();
+	static SampleFilter createMNFilter();
 };
 
 }// end namespace ph
