@@ -111,6 +111,7 @@ void HdrRgbFilm::develop(Frame* const out_frame) const
 			const float64 senseWeight = static_cast<float64>(m_pixelRadianceSensors[baseIndex].accuWeight);
 
 			// to prevent division by zero
+			// TODO: prevent negative weight/contribution
 			reciSenseCount = senseWeight == 0.0 ? 0.0 : 1.0 / senseWeight;
 
 			sensorR *= reciSenseCount;

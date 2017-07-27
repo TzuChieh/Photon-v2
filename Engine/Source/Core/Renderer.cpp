@@ -82,7 +82,7 @@ void Renderer::render(const Description& description) const
 			const uint64 filmSampleHpx = static_cast<uint64>(ceiledSampleMaxVertex.y - flooredSampleMinVertex.y);
 			const uint64 numCamPhaseSamples = filmSampleWpx * filmSampleHpx;
 
-			TSamplePhase<const Vector2R*> camSamplePhase = subSampleGenerator->declareArray2DPhase(numCamPhaseSamples);
+			TSamplePhase<SampleArray2D> camSamplePhase = subSampleGenerator->declareArray2DPhase(numCamPhaseSamples);
 
 
 			std::vector<SenseEvent> senseEvents;
@@ -97,9 +97,9 @@ void Renderer::render(const Description& description) const
 			{
 				t1 = std::chrono::system_clock::now();
 
-				const Vector2R* camSamples = subSampleGenerator->getNextArray2D(camSamplePhase);
+				const SampleArray2D& camSamples = subSampleGenerator->getNextArray2D(camSamplePhase);
 
-				for(std::size_t si = 0; si < camSamplePhase.numElements(); si++)
+				for(std::size_t si = 0; si < camSamples.numElements(); si++)
 				{
 					const Vector2D rasterPosPx(camSamples[si].x * filmSampleWpx + flooredSampleMinVertex.x,
 					                           camSamples[si].y * filmSampleHpx + flooredSampleMinVertex.y);

@@ -2,6 +2,7 @@
 #include "Core/Filmic/Film.h"
 #include "Core/Sample.h"
 #include "Math/Random.h"
+#include "FileIO/InputPacket.h"
 
 #include <iostream>
 
@@ -9,33 +10,29 @@ namespace ph
 {
 
 SGUniformRandom::SGUniformRandom(const std::size_t numSamples) :
-	SampleGenerator(numSamples, numSamples)
+	//SampleGenerator(numSamples, numSamples)
+	SampleGenerator(numSamples, 4)// HACK
 {
 
 }
 
 SGUniformRandom::~SGUniformRandom() = default;
 
-void SGUniformRandom::genArray1D(real* coordArray1Ds,
-                                 std::size_t num1Ds,
-                                 EPhaseType type)
+void SGUniformRandom::genArray1D(SampleArray1D* const out_array)
 {
-	for(std::size_t i = 0; i < num1Ds; i++)
+	for(std::size_t i = 0; i < out_array->numElements(); i++)
 	{
-		coordArray1Ds[i] = Random::genUniformReal_i0_e1();
+		out_array->set(i, Random::genUniformReal_i0_e1());
 	}
 }
 
-void SGUniformRandom::genArray2D(Vector2R* coordArray2Ds,
-                                 std::size_t num2Ds,
-                                 EPhaseType type)
+void SGUniformRandom::genArray2D(SampleArray2D* const out_array)
 {
-	for(std::size_t i = 0; i < num2Ds; i++)
+	for(std::size_t i = 0; i < out_array->numElements(); i++)
 	{
-		coordArray2Ds[i].x = Random::genUniformReal_i0_e1();
-		coordArray2Ds[i].y = Random::genUniformReal_i0_e1();
-
-		//std::cerr << "gen" << std::endl;
+		out_array->set(i, 
+		               Random::genUniformReal_i0_e1(), 
+		               Random::genUniformReal_i0_e1());
 	}
 }
 
@@ -77,20 +74,17 @@ bool SGUniformRandom::canSplit(const uint32 nSplits) const
 
 // command interface
 
-SGUniformRandom::SGUniformRandom(const InputPacket& packet) :
-	SampleGenerator(packet)
-{
-
-}
-
 SdlTypeInfo SGUniformRandom::ciTypeInfo()
 {
-	return SdlTypeInfo(ETypeCategory::REF_SAMPLER, "uniform-random");
+	return SdlTypeInfo(ETypeCategory::REF_SAMPLE_GENERATOR, "uniform-random");
 }
 
 std::unique_ptr<SGUniformRandom> SGUniformRandom::ciLoad(const InputPacket& packet)
 {
-	return std::make_unique<SGUniformRandom>(packet);
+	const integer numSamples = packet.getInteger("sample-amount", 0, DataTreatment::REQUIRED());
+
+	// HACK: casting
+	return std::make_unique<SGUniformRandom>(static_cast<std::size_t>(numSamples));
 }
 
 ExitStatus SGUniformRandom::ciExecute(const std::shared_ptr<SGUniformRandom>& targetResource, 

@@ -16,18 +16,13 @@ public:
 	                         std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) override;
 
 private:
-	virtual void genArray1D(real* coordArray1Ds,
-	                        std::size_t num1Ds, 
-	                        EPhaseType type) override;
-	virtual void genArray2D(Vector2R* coordArray2Ds,
-	                        std::size_t num2Ds, 
-	                        EPhaseType type) override;
+	virtual void genArray1D(SampleArray1D* out_array) override;
+	virtual void genArray2D(SampleArray2D* out_array) override;
 
 	bool SGUniformRandom::canSplit(const uint32 nSplits) const;
 
 // command interface
 public:
-	SGUniformRandom(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static std::unique_ptr<SGUniformRandom> ciLoad(const InputPacket& packet);
 	static ExitStatus ciExecute(const std::shared_ptr<SGUniformRandom>& targetResource, 

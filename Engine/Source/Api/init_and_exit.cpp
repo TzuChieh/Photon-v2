@@ -37,9 +37,10 @@
 #include "Core/Filmic/Film.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 
-// samplers
+// sample generators
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/SampleGenerator/SGUniformRandom.h"
+#include "Core/SampleGenerator/SGStratified.h"
 
 // integrators
 #include "Core/Integrator/Integrator.h"
@@ -98,9 +99,10 @@ bool init_command_parser()
 	register_command_interface<Film>();
 	register_command_interface<HdrRgbFilm>();
 	
-	// samplers
+	// sample generators
 	register_command_interface<SampleGenerator>();
 	register_command_interface<SGUniformRandom>();
+	register_command_interface<SGStratified>();
 
 	// integrators
 	register_command_interface<Integrator>();

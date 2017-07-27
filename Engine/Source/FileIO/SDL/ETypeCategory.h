@@ -17,11 +17,11 @@ enum class ETypeCategory
 	REF_CAMERA,
 	REF_FILM,
 	REF_INTEGRATOR,
-	REF_SAMPLER,
+	REF_SAMPLE_GENERATOR,
 	
 	// special values
 	MIN         = PRIMITIVE,
-	MAX         = REF_SAMPLER,
+	MAX         = REF_SAMPLE_GENERATOR,
 	UNSPECIFIED = MAX + 1
 };
 

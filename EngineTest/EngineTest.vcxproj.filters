@@ -42,6 +42,9 @@
     <ClCompile Include="Source\Core\Filmic\film_sample_weighting_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Math\random_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\constants_for_test.h">

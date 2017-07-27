@@ -14,6 +14,8 @@ class Random final
 	//
 	// i: including
 	// e: excluding
+	// L: lower bound
+	// U: upper bound
 	//
 	// Examples
 	//
@@ -21,7 +23,9 @@ class Random final
 	// ...e9_e12 means (9, 12)
 
 public:
-	static real genUniformReal_i0_e1();
+	static real        genUniformReal_i0_e1();
+	static std::size_t genUniformIndex_iL_eU(std::size_t lowerBound, 
+	                                         std::size_t upperBound);
 
 private:
 	static const std::uniform_real_distribution<real> distribution;

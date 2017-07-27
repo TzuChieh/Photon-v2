@@ -202,6 +202,8 @@
     <ClCompile Include="Source\Core\Intersection.cpp" />
     <ClCompile Include="Source\Core\Renderer.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator\SampleGenerator.cpp" />
+    <ClCompile Include="Source\Core\SampleGenerator\sample_array.cpp" />
+    <ClCompile Include="Source\Core\SampleGenerator\SGStratified.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator\SGUniformRandom.cpp" />
     <ClCompile Include="Source\Core\Emitter\Emitter.cpp" />
     <ClCompile Include="Source\Core\Emitter\PrimitiveAreaEmitter.cpp" />
@@ -209,6 +211,7 @@
     <ClCompile Include="Source\Core\Intersectable\PrimitiveMetadata.cpp" />
     <ClCompile Include="Source\Core\Intersectable\PTriangle.cpp" />
     <ClCompile Include="Source\Actor\ALight.cpp" />
+    <ClCompile Include="Source\Core\SampleGenerator\SGUtil.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BSDF.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BsdfPdfQuery.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BsdfSample.cpp" />
@@ -328,7 +331,9 @@
     <ClInclude Include="Source\Core\Intersectable\PTriangle.h" />
     <ClInclude Include="Source\Actor\ALight.h" />
     <ClInclude Include="Source\Core\RenderData.h" />
-    <ClInclude Include="Source\Core\SampleGenerator\EPhaseType.h" />
+    <ClInclude Include="Source\Core\SampleGenerator\sample_array.h" />
+    <ClInclude Include="Source\Core\SampleGenerator\SGStratified.h" />
+    <ClInclude Include="Source\Core\SampleGenerator\SGUtil.h" />
     <ClInclude Include="Source\Core\SampleGenerator\TSamplePhase.h" />
     <ClInclude Include="Source\Core\Sample\DirectLightSample.h" />
     <ClInclude Include="Source\Core\Sample\PositionSample.h" />

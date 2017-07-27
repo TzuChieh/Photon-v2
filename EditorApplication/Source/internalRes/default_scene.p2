@@ -6,9 +6,10 @@
 //## film(film) [integer width 800] [integer height 800]
 //## film(film) [integer width 800] [integer height 600]
 //## film(hdr-rgb) [integer width 800] [integer height 800] [string filter-name "gaussian"]
-## film(hdr-rgb) [integer width 800] [integer height 800] [string filter-name "box"]
+## film(hdr-rgb) [integer width 800] [integer height 800] [string filter-name "mn"]
 
-## sampler(uniform-random) [integer samples 120]
+//## sample-generator(uniform-random) [integer sample-amount 60]
+## sample-generator(stratified) [integer sample-amount 60][integer num-strata-2d-x 800][integer num-strata-2d-y 800]
 //## sampler(uniform-random) [integer samples 120]
 
 //## integrator(backward-path)

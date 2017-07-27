@@ -1,4 +1,5 @@
 #include "Math/Random.h"
+#include "Math/Math.h"
 
 namespace ph
 {
@@ -13,6 +14,15 @@ real Random::genUniformReal_i0_e1()
 	// TODO: check whether std::mt19937 can be used for 64-bit random number generating
 	static thread_local std::mt19937 generator(seed += incrementation);
 	return distribution(generator);
+}
+
+std::size_t Random::genUniformIndex_iL_eU(const std::size_t lowerBound,
+                                          const std::size_t upperBound)
+{
+	const std::size_t numInterval = upperBound - lowerBound;
+	std::size_t index = static_cast<std::size_t>(lowerBound + genUniformReal_i0_e1() * numInterval);
+
+	return index < lowerBound ? lowerBound : (index >= upperBound ? upperBound - 1 : index);
 }
 
 //union union_bit32

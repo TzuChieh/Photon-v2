@@ -36,7 +36,13 @@ public:
 		return fmin(upperBound, fmax(value, lowerBound));
 	}
 
-	static inline int32 clamp(const int32 value, const int32 lowerBound, const int32 upperBound)
+	/*static inline int32 clamp(const int32 value, const int32 lowerBound, const int32 upperBound)
+	{
+		return std::min(upperBound, std::max(value, lowerBound));
+	}*/
+
+	template<typename T>
+	static inline T clamp(const T value, const T lowerBound, const T upperBound)
 	{
 		return std::min(upperBound, std::max(value, lowerBound));
 	}
