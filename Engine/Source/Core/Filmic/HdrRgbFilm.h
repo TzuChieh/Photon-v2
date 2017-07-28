@@ -18,10 +18,10 @@ class InputPacket;
 class HdrRgbFilm final : public Film, public TCommandInterface<HdrRgbFilm>
 {
 public:
-	HdrRgbFilm(uint64 actualWidthPx, uint64 actualHeightPx,
+	HdrRgbFilm(int64 actualWidthPx, int64 actualHeightPx,
 	           const std::shared_ptr<SampleFilter>& filter);
-	HdrRgbFilm(uint64 actualWidthPx, uint64 actualHeightPx,
-	           const TAABB2D<uint64>& effectiveWindowPx,
+	HdrRgbFilm(int64 actualWidthPx, int64 actualHeightPx,
+	           const TAABB2D<int64>& effectiveWindowPx,
 	           const std::shared_ptr<SampleFilter>& filter);
 	virtual ~HdrRgbFilm() override;
 
@@ -30,7 +30,7 @@ public:
 	virtual void addSample(float64 xPx, float64 yPx, const Vector3R& radiance) override;
 	virtual void develop(Frame* out_frame) const override;
 	virtual void clear() override;
-	virtual std::unique_ptr<Film> genChild(uint64 widthPx, uint64 heightPx) override;
+	virtual std::unique_ptr<Film> genChild(const TAABB2D<int64>& effectiveWindowPx) override;
 
 	// HACK
 	/*inline void accumulateRadianceWithoutIncrementSenseCount(const uint32 x, const uint32 y, const Vector3R& radiance)

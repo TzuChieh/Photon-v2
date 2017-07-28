@@ -56,7 +56,7 @@ void Renderer::render(const Description& description) const
 	std::vector<std::unique_ptr<Film>> subFilms;
 	for(std::size_t ti = 0; ti < m_numThreads; ti++)
 	{
-		subFilms.push_back(film.genChild(film.getEffectiveResPx().x, film.getEffectiveResPx().y));
+		subFilms.push_back(film.genChild(film.getEffectiveWindowPx()));
 	}
 
 	sampleGenerator->genSplitted(m_numThreads, subSampleGenerators);
@@ -103,8 +103,6 @@ void Renderer::render(const Description& description) const
 				{
 					const Vector2D rasterPosPx(camSamples[si].x * filmSampleWpx + flooredSampleMinVertex.x,
 					                           camSamples[si].y * filmSampleHpx + flooredSampleMinVertex.y);
-
-					//std::cerr << rasterPosPx.toString() << std::endl;
 
 					if(!subFilm->getSampleWindowPx().isIntersectingArea(rasterPosPx))
 					{

@@ -15,18 +15,18 @@
 namespace ph
 {
 
-HdrRgbFilm::HdrRgbFilm(const uint64 actualWidthPx, const uint64 actualHeightPx,
+HdrRgbFilm::HdrRgbFilm(const int64 actualWidthPx, const int64 actualHeightPx,
                        const std::shared_ptr<SampleFilter>& filter) : 
 	HdrRgbFilm(actualWidthPx, actualHeightPx,
-	           TAABB2D<uint64>(TVector2<uint64>(0, 0),
-	                           TVector2<uint64>(actualWidthPx, actualHeightPx)),
+	           TAABB2D<int64>(TVector2<int64>(0, 0),
+	                          TVector2<int64>(actualWidthPx, actualHeightPx)),
 	           filter)
 {
 
 }
 
-HdrRgbFilm::HdrRgbFilm(const uint64 actualWidthPx, const uint64 actualHeightPx,
-                       const TAABB2D<uint64>& effectiveWindowPx,
+HdrRgbFilm::HdrRgbFilm(const int64 actualWidthPx, const int64 actualHeightPx,
+                       const TAABB2D<int64>& effectiveWindowPx,
                        const std::shared_ptr<SampleFilter>& filter) :
 	Film(actualWidthPx, actualHeightPx, effectiveWindowPx, filter),
 	m_pixelRadianceSensors(effectiveWindowPx.calcArea(), RadianceSensor())
@@ -77,31 +77,24 @@ void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const Vector3R&
 	}
 }
 
-std::unique_ptr<Film> HdrRgbFilm::genChild(uint64 widthPx, uint64 heightPx)
+std::unique_ptr<Film> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindowPx)
 {
-	auto subFilm = std::make_unique<HdrRgbFilm>(widthPx, heightPx, TAABB2D<uint64>(m_effectiveWindowPx), m_filter);
-	subFilm->m_merger = [&, this, subFilm = subFilm.get()]() -> void
+	auto childFilm = std::make_unique<HdrRgbFilm>(m_actualResPx.x, m_actualResPx.y, 
+	                                              effectiveWindowPx, 
+	                                              m_filter);
+	childFilm->m_merger = [this, childFilm = childFilm.get()]() -> void
 	{
-		// HACK
-
-		if(m_effectiveResPx.x != subFilm->m_effectiveResPx.x || 
-			m_effectiveResPx.y != subFilm->m_effectiveResPx.y)
-		{
-			std::cerr << "warning: at Film::accumulateRadiance(), film dimensions mismatch" << std::endl;
-			return;
-		}
-
-		const std::size_t numSensors = subFilm->m_pixelRadianceSensors.size();
+		const std::size_t numSensors = childFilm->m_pixelRadianceSensors.size();
 		for(std::size_t i = 0; i < numSensors; i++)
 		{
-			m_pixelRadianceSensors[i].accuR += subFilm->m_pixelRadianceSensors[i].accuR;
-			m_pixelRadianceSensors[i].accuG += subFilm->m_pixelRadianceSensors[i].accuG;
-			m_pixelRadianceSensors[i].accuB += subFilm->m_pixelRadianceSensors[i].accuB;
-			m_pixelRadianceSensors[i].accuWeight += subFilm->m_pixelRadianceSensors[i].accuWeight;
+			m_pixelRadianceSensors[i].accuR      += childFilm->m_pixelRadianceSensors[i].accuR;
+			m_pixelRadianceSensors[i].accuG      += childFilm->m_pixelRadianceSensors[i].accuG;
+			m_pixelRadianceSensors[i].accuB      += childFilm->m_pixelRadianceSensors[i].accuB;
+			m_pixelRadianceSensors[i].accuWeight += childFilm->m_pixelRadianceSensors[i].accuWeight;
 		}
 	};
 
-	return std::move(subFilm);
+	return std::move(childFilm);
 }
 
 void HdrRgbFilm::develop(Frame* const out_frame) const
@@ -189,8 +182,8 @@ std::unique_ptr<HdrRgbFilm> HdrRgbFilm::ciLoad(const InputPacket& packet)
 		          << "unknown filter name specified: " << filterName << std::endl;
 	}
 
-	const TAABB2D<uint64> effectWindowPx({static_cast<uint64>(rectX), static_cast<uint64>(rectY)}, 
-	                                     {static_cast<uint64>(rectX + rectW), static_cast<uint64>(rectY + rectH)});
+	const TAABB2D<int64> effectWindowPx({rectX, rectY}, 
+	                                    {rectX + rectW, rectY + rectH});
 	return std::make_unique<HdrRgbFilm>(filmWidth, filmHeight, effectWindowPx, sampleFilter);
 }
 

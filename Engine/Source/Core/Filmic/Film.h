@@ -22,17 +22,20 @@ class SampleFilter;
 class Film : public TCommandInterface<Film>, public ISdlResource
 {
 public:
-	Film(uint64 actualWidthPx, uint64 actualHeightPx,
+	Film(int64 actualWidthPx, int64 actualHeightPx,
 	     const std::shared_ptr<SampleFilter>& filter);
-	Film(uint64 actualWidthPx, uint64 actualHeightPx,
-	     const TAABB2D<uint64>& effectiveWindowPx,
+	Film(int64 actualWidthPx, int64 actualHeightPx,
+	     const TAABB2D<int64>& effectiveWindowPx,
 	     const std::shared_ptr<SampleFilter>& filter);
 	virtual ~Film() = 0;
 
 	virtual void addSample(float64 xPx, float64 yPx, const Vector3R& radiance) = 0;
 	virtual void develop(Frame* out_frame) const = 0;
 	virtual void clear() = 0;
-	virtual std::unique_ptr<Film> genChild(uint64 widthPx, uint64 heightPx) = 0;
+
+	// generates a child film with the same actual dimensions and filter as parent, 
+	// but potentially has a different effective window
+	virtual std::unique_ptr<Film> genChild(const TAABB2D<int64>& effectiveWindowPx) = 0;
 
 	inline void mergeToParent() const
 	{
