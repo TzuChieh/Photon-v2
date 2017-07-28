@@ -104,6 +104,8 @@ void Renderer::render(const Description& description) const
 					const Vector2D rasterPosPx(camSamples[si].x * filmSampleWpx + flooredSampleMinVertex.x,
 					                           camSamples[si].y * filmSampleHpx + flooredSampleMinVertex.y);
 
+					//std::cerr << rasterPosPx.toString() << std::endl;
+
 					if(!subFilm->getSampleWindowPx().isIntersectingArea(rasterPosPx))
 					{
 						continue;

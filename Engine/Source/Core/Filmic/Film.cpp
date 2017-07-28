@@ -13,11 +13,11 @@
 namespace ph
 {
 
-Film::Film(const uint64 widthPx, const uint64 heightPx,
+Film::Film(const uint64 actualWidthPx, const uint64 actualHeightPx,
            const std::shared_ptr<SampleFilter>& filter) :
-	Film(widthPx, heightPx, 
+	Film(actualWidthPx, actualHeightPx,
 	     TAABB2D<uint64>(TVector2<uint64>(0, 0),
-	                     TVector2<uint64>(widthPx, heightPx)),
+	                     TVector2<uint64>(actualWidthPx, actualHeightPx)),
 	     filter)
 {
 

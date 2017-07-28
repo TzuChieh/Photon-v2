@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
 	phCreateEngine(&engineId, 1);
 
 	std::ifstream sceneFile;
-	sceneFile.open("../scene/ttt.p2", std::ios::in);
+	sceneFile.open("../scene/default_scene.p2", std::ios::in);
 
 	if(!sceneFile.is_open())
 	{
@@ -39,17 +39,9 @@ int main(int argc, char* argv[])
 
 	phRender(engineId);
 
-	/*PHuint64 descriptionId;
-	phCreateDescription(&descriptionId);
-	phLoadDescription(descriptionId, "../scene/testScene.p2");
-	phUpdateDescription(descriptionId);
-
-	PHuint64 rendererId;
-	phCreateRenderer(&rendererId, 4);
-
-	phRender(rendererId, descriptionId);
-
-	phExit();*/
+	PHuint64 frameId;
+	phCreateFrame(&frameId, PH_HDR_FRAME_TYPE);
+	phDevelopFilm(engineId, frameId);
 
 	if(!phExit())
 	{

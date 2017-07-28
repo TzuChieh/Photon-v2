@@ -15,10 +15,21 @@
 namespace ph
 {
 
-HdrRgbFilm::HdrRgbFilm(uint64 widthPx, uint64 heightPx,
+HdrRgbFilm::HdrRgbFilm(const uint64 actualWidthPx, const uint64 actualHeightPx,
                        const std::shared_ptr<SampleFilter>& filter) : 
-	Film(widthPx, heightPx, filter),
-	m_pixelRadianceSensors(static_cast<std::size_t>(widthPx) * static_cast<std::size_t>(heightPx), RadianceSensor())
+	HdrRgbFilm(actualWidthPx, actualHeightPx,
+	           TAABB2D<uint64>(TVector2<uint64>(0, 0),
+	                           TVector2<uint64>(actualWidthPx, actualHeightPx)),
+	           filter)
+{
+
+}
+
+HdrRgbFilm::HdrRgbFilm(const uint64 actualWidthPx, const uint64 actualHeightPx,
+                       const TAABB2D<uint64>& effectiveWindowPx,
+                       const std::shared_ptr<SampleFilter>& filter) :
+	Film(actualWidthPx, actualHeightPx, effectiveWindowPx, filter),
+	m_pixelRadianceSensors(effectiveWindowPx.calcArea(), RadianceSensor())
 {
 
 }
@@ -47,10 +58,16 @@ void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const Vector3R&
 	{
 		for(int64 x = x0y0.x; x < x1y1.x; x++)
 		{
-			const std::size_t index = y * static_cast<std::size_t>(m_effectiveResPx.x) + x;
-
 			// TODO: factor out -0.5 part
-			const float64 weight = m_filter->evaluate(x - (xPx - 0.5), y - (yPx - 0.5));
+			const float64 filterX = x - (xPx - 0.5);
+			const float64 filterY = y - (yPx - 0.5);
+
+			const std::size_t fx = x - m_effectiveWindowPx.minVertex.x;
+			const std::size_t fy = y - m_effectiveWindowPx.minVertex.y;
+			const std::size_t index = fy * static_cast<std::size_t>(m_effectiveResPx.x) + fx;
+
+			
+			const float64 weight = m_filter->evaluate(filterX, filterY);
 
 			m_pixelRadianceSensors[index].accuR += static_cast<float64>(radiance.x) * weight;
 			m_pixelRadianceSensors[index].accuG += static_cast<float64>(radiance.y) * weight;
@@ -62,7 +79,7 @@ void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const Vector3R&
 
 std::unique_ptr<Film> HdrRgbFilm::genChild(uint64 widthPx, uint64 heightPx)
 {
-	auto subFilm = std::make_unique<HdrRgbFilm>(widthPx, heightPx, m_filter);
+	auto subFilm = std::make_unique<HdrRgbFilm>(widthPx, heightPx, TAABB2D<uint64>(m_effectiveWindowPx), m_filter);
 	subFilm->m_merger = [&, this, subFilm = subFilm.get()]() -> void
 	{
 		// HACK
@@ -89,38 +106,44 @@ std::unique_ptr<Film> HdrRgbFilm::genChild(uint64 widthPx, uint64 heightPx)
 
 void HdrRgbFilm::develop(Frame* const out_frame) const
 {
-	float64 sensorR;
-	float64 sensorG;
-	float64 sensorB;
-	float64 reciWeight;
-	std::size_t baseIndex;
+	float64     sensorR, sensorG, sensorB;
+	float64     reciWeight;
+	std::size_t fx, fy, filmIndex;
 
-	// HACK: type cast
-	out_frame->resize(static_cast<uint32>(m_effectiveResPx.x), static_cast<uint32>(m_effectiveResPx.y));
+	const TAABB2D<int64> frameIndexBound(m_effectiveWindowPx.minVertex, 
+	                                     m_effectiveWindowPx.maxVertex.sub(1));
 
-	// HACK: int type
-	for(int64 y = 0; y < m_effectiveResPx.y; y++)
+	out_frame->resize(static_cast<uint32>(m_actualResPx.x), 
+	                  static_cast<uint32>(m_actualResPx.y));
+	for(int64 y = 0; y < m_actualResPx.y; y++)
 	{
-		for(int64 x = 0; x < m_effectiveResPx.x; x++)
+		for(int64 x = 0; x < m_actualResPx.x; x++)
 		{
-			baseIndex = y * static_cast<std::size_t>(m_effectiveResPx.x) + x;
+			if(frameIndexBound.isIntersectingArea({x, y}))
+			{
+				fx = x - frameIndexBound.minVertex.x;
+				fy = y - frameIndexBound.minVertex.y;
+				filmIndex = fy * static_cast<std::size_t>(m_effectiveResPx.x) + fx;
 
-			sensorR = m_pixelRadianceSensors[baseIndex].accuR;
-			sensorG = m_pixelRadianceSensors[baseIndex].accuG;
-			sensorB = m_pixelRadianceSensors[baseIndex].accuB;
-			const float64 senseWeight = static_cast<float64>(m_pixelRadianceSensors[baseIndex].accuWeight);
+				const float64 sensorWeight = m_pixelRadianceSensors[filmIndex].accuWeight;
 
-			// to prevent division by zero
-			// TODO: prevent negative weight/contribution
-			reciWeight = senseWeight == 0.0 ? 0.0 : 1.0 / senseWeight;
+				// prevent division by zero
+				reciWeight = sensorWeight == 0.0 ? 0.0 : 1.0 / sensorWeight;
+				
+				sensorR = m_pixelRadianceSensors[filmIndex].accuR * reciWeight;
+				sensorG = m_pixelRadianceSensors[filmIndex].accuG * reciWeight;
+				sensorB = m_pixelRadianceSensors[filmIndex].accuB * reciWeight;
+			}
+			else
+			{
+				sensorR = sensorG = sensorB = 0.0;
+			}
 
-			sensorR *= reciWeight;
-			sensorG *= reciWeight;
-			sensorB *= reciWeight;
-
-			// HACK: type cast
+			// TODO: prevent negative pixel
 			out_frame->setPixel(static_cast<uint32>(x), static_cast<uint32>(y), 
-				static_cast<real>(sensorR), static_cast<real>(sensorG), static_cast<real>(sensorB));
+			                    static_cast<real>(sensorR), 
+			                    static_cast<real>(sensorG), 
+			                    static_cast<real>(sensorB));
 		}
 	}
 }
@@ -142,6 +165,10 @@ std::unique_ptr<HdrRgbFilm> HdrRgbFilm::ciLoad(const InputPacket& packet)
 	const integer     filmWidth  = packet.getInteger("width",  0, DataTreatment::REQUIRED());
 	const integer     filmHeight = packet.getInteger("height", 0, DataTreatment::REQUIRED());
 	const std::string filterName = packet.getString("filter-name", "box");
+	const integer     rectX      = packet.getInteger("rect-x", 0);
+	const integer     rectY      = packet.getInteger("rect-y", 0);
+	const integer     rectW      = packet.getInteger("rect-w", filmWidth);
+	const integer     rectH      = packet.getInteger("rect-h", filmHeight);
 
 	std::shared_ptr<SampleFilter> sampleFilter;
 	if(filterName == "box")
@@ -162,9 +189,9 @@ std::unique_ptr<HdrRgbFilm> HdrRgbFilm::ciLoad(const InputPacket& packet)
 		          << "unknown filter name specified: " << filterName << std::endl;
 	}
 
-	std::cout << filterName << std::endl;
-
-	return std::make_unique<HdrRgbFilm>(filmWidth, filmHeight, sampleFilter);
+	const TAABB2D<uint64> effectWindowPx({static_cast<uint64>(rectX), static_cast<uint64>(rectY)}, 
+	                                     {static_cast<uint64>(rectX + rectW), static_cast<uint64>(rectY + rectH)});
+	return std::make_unique<HdrRgbFilm>(filmWidth, filmHeight, effectWindowPx, sampleFilter);
 }
 
 ExitStatus HdrRgbFilm::ciExecute(const std::shared_ptr<HdrRgbFilm>& targetResource,

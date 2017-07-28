@@ -22,7 +22,7 @@ class SampleFilter;
 class Film : public TCommandInterface<Film>, public ISdlResource
 {
 public:
-	Film(uint64 widthPx, uint64 heightPx,
+	Film(uint64 actualWidthPx, uint64 actualHeightPx,
 	     const std::shared_ptr<SampleFilter>& filter);
 	Film(uint64 actualWidthPx, uint64 actualHeightPx,
 	     const TAABB2D<uint64>& effectiveWindowPx,
