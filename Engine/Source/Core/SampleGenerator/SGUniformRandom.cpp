@@ -36,40 +36,9 @@ void SGUniformRandom::genArray2D(SampleArray2D* const out_array)
 	}
 }
 
-void SGUniformRandom::genSplitted(uint32 numSplits,
-                                  std::vector<std::unique_ptr<SampleGenerator>>& out_sgs)
+std::unique_ptr<SampleGenerator> SGUniformRandom::genNewborn(const std::size_t numSamples) const
 {
-	if(!canSplit(numSplits))
-	{
-		return;
-	}
-
-	const std::size_t splittedNumSamples = numSamples() / numSplits;
-	for(uint32 i = 0; i < numSplits; i++)
-	{
-		auto sampleGenerator = std::make_unique<SGUniformRandom>(splittedNumSamples);
-		out_sgs.push_back(std::move(sampleGenerator));
-	}
-}
-
-bool SGUniformRandom::canSplit(const uint32 nSplits) const
-{
-	if(nSplits == 0)
-	{
-		std::cerr << "warning: at PixelJitterSampleGenerator::canSplit(), " 
-		          << "number of splits is 0" << std::endl;
-		return false;
-	}
-
-	if(numSamples() % nSplits != 0)
-	{
-		std::cerr << "warning: at PixelJitterSampleGenerator::canSplit(), " 
-		          << "generator cannot evenly split into " << nSplits << " parts" << std::endl;
-		std::cerr << "(sample count: " << numSamples() << ")" << std::endl;
-		return false;
-	}
-
-	return true;
+	return std::make_unique<SGUniformRandom>(numSamples);
 }
 
 // command interface

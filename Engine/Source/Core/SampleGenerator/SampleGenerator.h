@@ -25,8 +25,8 @@ public:
 	SampleGenerator(std::size_t numSamples, std::size_t sampleBatchSize);
 	virtual ~SampleGenerator() = 0;
 
-	virtual void genSplitted(uint32 numSplits, 
-	                         std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) = 0;
+	void genSplitted(std::size_t numSplits,
+	                 std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) const;
 
 	bool singleSampleStart();
 	void singleSampleEnd();
@@ -59,6 +59,8 @@ private:
 		std::size_t       head;
 		std::size_t       numElements;
 		std::size_t       dimension;
+
+		inline std::size_t numPhaseReals() const { return numElements * dimension; }
 	};
 
 	std::size_t m_numSamples;
@@ -67,11 +69,16 @@ private:
 
 	std::vector<PhaseData> m_phaseDataArray;
 
+	virtual std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const = 0;
 	virtual void genArray1D(SampleArray1D* out_array) = 0;
 	virtual void genArray2D(SampleArray2D* out_array) = 0;
 
 	void alloc1DPhase(std::size_t numElements, uint32* out_phaseIndex);
 	void alloc2DPhase(std::size_t numElements, uint32* out_phaseIndex);
+	void genSampleBatch();
+	void genSampleBatch1D(PhaseData& out_phase);
+	void genSampleBatch2D(PhaseData& out_phase);
+	bool canSplit(std::size_t numSplits) const;
 
 // command interface
 public:

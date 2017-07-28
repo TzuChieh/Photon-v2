@@ -24,31 +24,7 @@ bool SampleGenerator::singleSampleStart()
 
 	if(hasMoreSamples && m_sampleHead % m_sampleBatchSize == 0)
 	{
-		for(auto& phase : m_phaseDataArray)
-		{
-			phase.head = 0;
-			if(phase.dimension == 1)
-			{
-				for(std::size_t b = 0; b < m_sampleBatchSize; b++)
-				{
-					SampleArray1D arrayProxy(&phase.data[b * phase.numElements * 1], phase.numElements);
-					genArray1D(&arrayProxy);
-				}
-			}
-			else if(phase.dimension == 2)
-			{
-				for(std::size_t b = 0; b < m_sampleBatchSize; b++)
-				{
-					SampleArray2D arrayProxy(&phase.data[b * phase.numElements * 2], phase.numElements);
-					genArray2D(&arrayProxy);
-				}
-			}
-			else
-			{
-				std::cerr << "warning: at SampleGenerator::singleSampleStart(), "
-				          << "unsupported dimension number detected: " << phase.dimension << std::endl;
-			}
-		}
+		genSampleBatch();
 	}
 
 	return hasMoreSamples;
@@ -57,6 +33,21 @@ bool SampleGenerator::singleSampleStart()
 void SampleGenerator::singleSampleEnd()
 {
 	m_sampleHead++;
+}
+
+void SampleGenerator::genSplitted(const std::size_t numSplits,
+                                  std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) const
+{
+	if(!canSplit(numSplits))
+	{
+		return;
+	}
+
+	const std::size_t splittedNumSamples = numSamples() / numSplits;
+	for(std::size_t i = 0; i < numSplits; i++)
+	{
+		out_sgs.push_back(genNewborn(splittedNumSamples));
+	}
 }
 
 real SampleGenerator::getNext1D(const TSamplePhase<real>& phase)
@@ -170,9 +161,9 @@ void SampleGenerator::alloc1DPhase(const std::size_t numElements,
 
 	PhaseData phaseData;
 	phaseData.data.resize(m_sampleBatchSize * numElements);
-	phaseData.head = 0;
+	phaseData.head        = 0;
 	phaseData.numElements = numElements;
-	phaseData.dimension = 1;
+	phaseData.dimension   = 1;
 	m_phaseDataArray.push_back(phaseData);
 }
 
@@ -183,10 +174,72 @@ void SampleGenerator::alloc2DPhase(const std::size_t numElements,
 
 	PhaseData phaseData;
 	phaseData.data.resize(m_sampleBatchSize * numElements * 2);
-	phaseData.head = 0;
+	phaseData.head        = 0;
 	phaseData.numElements = numElements;
-	phaseData.dimension = 2;
+	phaseData.dimension   = 2;
 	m_phaseDataArray.push_back(phaseData);
+}
+
+void SampleGenerator::genSampleBatch()
+{
+	for(auto& phase : m_phaseDataArray)
+	{
+		if(phase.dimension == 1)
+		{
+			genSampleBatch1D(phase);
+		}
+		else if(phase.dimension == 2)
+		{
+			genSampleBatch2D(phase);
+		}
+		else
+		{
+			std::cerr << "warning: at SampleGenerator::singleSampleStart(), "
+			          << "unsupported number of dimensions detected: " << phase.dimension << std::endl;
+		}
+	}
+}
+
+void SampleGenerator::genSampleBatch1D(PhaseData& out_phase)
+{
+	out_phase.head = 0;
+	for(std::size_t b = 0; b < m_sampleBatchSize; b++)
+	{
+		SampleArray1D arrayProxy(&out_phase.data[b * out_phase.numPhaseReals()],
+		                         out_phase.numElements);
+		genArray1D(&arrayProxy);
+	}
+}
+
+void SampleGenerator::genSampleBatch2D(PhaseData& out_phase)
+{
+	out_phase.head = 0;
+	for(std::size_t b = 0; b < m_sampleBatchSize; b++)
+	{
+		SampleArray2D arrayProxy(&out_phase.data[b * out_phase.numPhaseReals()],
+		                         out_phase.numElements);
+		genArray2D(&arrayProxy);
+	}
+}
+
+bool SampleGenerator::canSplit(const std::size_t numSplits) const
+{
+	if(numSplits == 0)
+	{
+		std::cerr << "warning: at SampleGenerator::canSplit(), "
+		          << "number of splits is 0" << std::endl;
+		return false;
+	}
+
+	if(m_numSamples % numSplits != 0)
+	{
+		std::cerr << "warning: at SampleGenerator::canSplit(), "
+		          << "generator cannot evenly split into " << numSplits << " parts" << std::endl;
+		std::cerr << "(sample count: " << m_numSamples << ")" << std::endl;
+		return false;
+	}
+
+	return true;
 }
 
 // command interface

@@ -12,14 +12,10 @@ public:
 	SGUniformRandom(const std::size_t numSamples);
 	virtual ~SGUniformRandom() override;
 
-	virtual void genSplitted(uint32 numSplits,
-	                         std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) override;
-
 private:
+	virtual std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;
 	virtual void genArray1D(SampleArray1D* out_array) override;
 	virtual void genArray2D(SampleArray2D* out_array) override;
-
-	bool SGUniformRandom::canSplit(const uint32 nSplits) const;
 
 // command interface
 public:

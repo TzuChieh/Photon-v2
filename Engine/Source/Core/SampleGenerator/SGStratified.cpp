@@ -72,64 +72,11 @@ void SGStratified::genArray2D(SampleArray2D* const out_array)
 	}
 }
 
-void SGStratified::genSplitted(uint32 numSplits,
-                               std::vector<std::unique_ptr<SampleGenerator>>& out_sgs)
+std::unique_ptr<SampleGenerator> SGStratified::genNewborn(const std::size_t numSamples) const
 {
-	if(!canSplit(numSplits))
-	{
-		return;
-	}
-
-	const std::size_t splittedNumSamples = numSamples() / numSplits;
-	for(uint32 i = 0; i < numSplits; i++)
-	{
-		auto sampleGenerator = std::make_unique<SGStratified>(splittedNumSamples, m_numStrata2dX, m_numStrata2dY);
-		out_sgs.push_back(std::move(sampleGenerator));
-	}
-}
-
-bool SGStratified::canSplit(const uint32 nSplits) const
-{
-	if(nSplits == 0)
-	{
-		std::cerr << "warning: at PixelJitterSampleGenerator::canSplit(), " 
-		          << "number of splits is 0" << std::endl;
-		return false;
-	}
-
-	if(numSamples() % nSplits != 0)
-	{
-		std::cerr << "warning: at PixelJitterSampleGenerator::canSplit(), " 
-		          << "generator cannot evenly split into " << nSplits << " parts" << std::endl;
-		std::cerr << "(sample count: " << numSamples() << ")" << std::endl;
-		return false;
-	}
-
-	return true;
-}
-
-void SGStratified::genArray2dStrata(Vector2R* const out_coordArray2Ds, 
-                                    const std::size_t numXs, const std::size_t numYs)
-{
-	const real dx = 1.0_r / static_cast<real>(numXs);
-	const real dy = 1.0_r / static_cast<real>(numYs);
-	for(std::size_t y = 0; y < numYs; y++)
-	{
-		const std::size_t baseIndex = y * numYs;
-		for(std::size_t x = 0; x < numXs; x++)
-		{
-			const real biasX = Random::genUniformReal_i0_e1();
-			const real biasY = Random::genUniformReal_i0_e1();
-			out_coordArray2Ds[baseIndex + x].x = (static_cast<real>(x) + biasX) * dx;
-			out_coordArray2Ds[baseIndex + x].y = (static_cast<real>(y) + biasY) * dy;
-		}
-	}
-}
-
-void SGStratified::genArray2dLatinHypercube(Vector2R* const out_coordArray2Ds, 
-                                            const std::size_t num2Ds)
-{
-
+	return std::make_unique<SGStratified>(numSamples,
+	                                      m_numStrata2dX,
+	                                      m_numStrata2dY);
 }
 
 // command interface
