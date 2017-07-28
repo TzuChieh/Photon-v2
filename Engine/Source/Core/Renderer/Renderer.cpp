@@ -1,8 +1,8 @@
-#include "Core/Renderer.h"
+#include "Core/Renderer/Renderer.h"
 #include "Common/primitive_type.h"
 #include "Core/Filmic/Film.h"
 #include "World/VisualWorld.h"
-#include "Camera/Camera.h"
+#include "Core/Camera/Camera.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
 #include "Actor/Material/Material.h"
@@ -19,7 +19,7 @@
 #include "Core/Integrator/LightTracingIntegrator.h"
 #include "FileIO/Description.h"
 #include "Core/Filmic/HdrRgbFilm.h"
-#include "Core/RenderData.h"
+#include "Core/Renderer/RenderData.h"
 
 #include <cmath>
 #include <iostream>

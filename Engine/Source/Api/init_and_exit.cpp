@@ -49,6 +49,7 @@
 #include "Core/Integrator/BackwardPathIntegrator.h"
 #include "Core/Integrator/LightTracingIntegrator.h"
 #include "Core/Integrator/NormalBufferIntegrator.h"
+#include "Core/Integrator/DebugIntegrator.h"
 
 #include <iostream>
 
@@ -111,6 +112,7 @@ bool init_command_parser()
 	register_command_interface<BackwardPathIntegrator>();
 	register_command_interface<LightTracingIntegrator>();
 	register_command_interface<NormalBufferIntegrator>();
+	register_command_interface<DebugIntegrator>();
 
 	return true;
 }

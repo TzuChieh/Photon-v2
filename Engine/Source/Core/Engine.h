@@ -1,7 +1,7 @@
 #pragma once
 
 #include "World/VisualWorld.h"
-#include "Core/Renderer.h"
+#include "Core/Renderer/Renderer.h"
 #include "FileIO/DescriptionParser.h"
 #include "FileIO/Description.h"
 

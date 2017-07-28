@@ -193,6 +193,7 @@
     <ClCompile Include="Source\Core\Integrator\BackwardLightIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardMisIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardPathIntegrator.cpp" />
+    <ClCompile Include="Source\Core\Integrator\DebugIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\Integrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\LightTracingIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\NormalBufferIntegrator.cpp" />
@@ -200,7 +201,7 @@
     <ClCompile Include="Source\Core\Intersectable\Intersectable.cpp" />
     <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp" />
     <ClCompile Include="Source\Core\Intersection.cpp" />
-    <ClCompile Include="Source\Core\Renderer.cpp" />
+    <ClCompile Include="Source\Core\Renderer\Renderer.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator\SampleGenerator.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator\sample_array.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator\SGStratified.cpp" />
@@ -316,6 +317,7 @@
     <ClInclude Include="Source\Core\Integrator\BackwardLightIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardMisIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardPathIntegrator.h" />
+    <ClInclude Include="Source\Core\Integrator\DebugIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\Integrator.h" />
     <ClInclude Include="Source\Core\Integrator\LightTracingIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\NormalBufferIntegrator.h" />
@@ -330,7 +332,7 @@
     <ClInclude Include="Source\Core\Intersectable\PrimitiveMetadata.h" />
     <ClInclude Include="Source\Core\Intersectable\PTriangle.h" />
     <ClInclude Include="Source\Actor\ALight.h" />
-    <ClInclude Include="Source\Core\RenderData.h" />
+    <ClInclude Include="Source\Core\Renderer\RenderData.h" />
     <ClInclude Include="Source\Core\SampleGenerator\sample_array.h" />
     <ClInclude Include="Source\Core\SampleGenerator\SGStratified.h" />
     <ClInclude Include="Source\Core\SampleGenerator\SGUtil.h" />
@@ -364,7 +366,7 @@
     <ClInclude Include="Source\FileIO\ValueParser.h" />
     <ClInclude Include="Source\Core\Filmic\Film.h" />
     <ClInclude Include="Source\Core\Intersection.h" />
-    <ClInclude Include="Source\Core\Renderer.h" />
+    <ClInclude Include="Source\Core\Renderer\Renderer.h" />
     <ClInclude Include="Source\Core\Sample.h" />
     <ClInclude Include="Source\Core\SampleGenerator\SampleGenerator.h" />
     <ClInclude Include="Source\Core\SampleGenerator\SGUniformRandom.h" />

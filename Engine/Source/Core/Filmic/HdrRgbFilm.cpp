@@ -47,15 +47,15 @@ void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const Vector3R&
 	{
 		for(int64 x = x0y0.x; x < x1y1.x; x++)
 		{
-			const std::size_t baseIndex = y * static_cast<std::size_t>(m_effectiveResPx.x) + x;
+			const std::size_t index = y * static_cast<std::size_t>(m_effectiveResPx.x) + x;
 
 			// TODO: factor out -0.5 part
 			const float64 weight = m_filter->evaluate(x - (xPx - 0.5), y - (yPx - 0.5));
 
-			m_pixelRadianceSensors[baseIndex].accuR += static_cast<float64>(radiance.x) * weight;
-			m_pixelRadianceSensors[baseIndex].accuG += static_cast<float64>(radiance.y) * weight;
-			m_pixelRadianceSensors[baseIndex].accuB += static_cast<float64>(radiance.z) * weight;
-			m_pixelRadianceSensors[baseIndex].accuWeight += weight;
+			m_pixelRadianceSensors[index].accuR += static_cast<float64>(radiance.x) * weight;
+			m_pixelRadianceSensors[index].accuG += static_cast<float64>(radiance.y) * weight;
+			m_pixelRadianceSensors[index].accuB += static_cast<float64>(radiance.z) * weight;
+			m_pixelRadianceSensors[index].accuWeight += weight;
 		}
 	}
 }
@@ -92,7 +92,7 @@ void HdrRgbFilm::develop(Frame* const out_frame) const
 	float64 sensorR;
 	float64 sensorG;
 	float64 sensorB;
-	float64 reciSenseCount;
+	float64 reciWeight;
 	std::size_t baseIndex;
 
 	// HACK: type cast
@@ -112,11 +112,11 @@ void HdrRgbFilm::develop(Frame* const out_frame) const
 
 			// to prevent division by zero
 			// TODO: prevent negative weight/contribution
-			reciSenseCount = senseWeight == 0.0 ? 0.0 : 1.0 / senseWeight;
+			reciWeight = senseWeight == 0.0 ? 0.0 : 1.0 / senseWeight;
 
-			sensorR *= reciSenseCount;
-			sensorG *= reciSenseCount;
-			sensorB *= reciSenseCount;
+			sensorR *= reciWeight;
+			sensorG *= reciWeight;
+			sensorB *= reciWeight;
 
 			// HACK: type cast
 			out_frame->setPixel(static_cast<uint32>(x), static_cast<uint32>(y), 
@@ -161,6 +161,8 @@ std::unique_ptr<HdrRgbFilm> HdrRgbFilm::ciLoad(const InputPacket& packet)
 		std::cerr << "warning: at HdrRgbFilm::ciLoad(), " 
 		          << "unknown filter name specified: " << filterName << std::endl;
 	}
+
+	std::cout << filterName << std::endl;
 
 	return std::make_unique<HdrRgbFilm>(filmWidth, filmHeight, sampleFilter);
 }

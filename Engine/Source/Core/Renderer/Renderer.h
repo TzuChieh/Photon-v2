@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Core/Renderer.h"
+#include "Core/Renderer/Renderer.h"
 
 #include <vector>
 #include <mutex>

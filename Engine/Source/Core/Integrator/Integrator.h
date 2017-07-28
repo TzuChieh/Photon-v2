@@ -5,7 +5,7 @@
 #include "Core/Camera/Camera.h"
 #include "FileIO/SDL/ISdlResource.h"
 #include "FileIO/SDL/TCommandInterface.h"
-#include "Core/RenderData.h"
+#include "Core/Renderer/RenderData.h"
 
 #include <vector>
 

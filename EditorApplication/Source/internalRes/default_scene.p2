@@ -8,7 +8,7 @@
 //## film(hdr-rgb) [integer width 800] [integer height 800] [string filter-name "gaussian"]
 ## film(hdr-rgb) [integer width 800] [integer height 800] [string filter-name "mn"]
 
-//## sample-generator(uniform-random) [integer sample-amount 60]
+//## sample-generator(uniform-random) [integer sample-amount 1]
 ## sample-generator(stratified) [integer sample-amount 2][integer num-strata-2d-x 800][integer num-strata-2d-y 800]
 //## sampler(uniform-random) [integer samples 120]
 
@@ -17,6 +17,7 @@
 //## integrator(light-tracing)
 //## integrator(surface-normal)
 ## integrator(backward-mis)
+//## integrator(debug)
 
 
 
