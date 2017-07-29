@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Core/Renderer/Renderer.h"
+#include "Core/Renderer/RenderWorker.h"
 
 #include <vector>
 #include <mutex>
@@ -35,8 +36,10 @@ private:
 	//mutable std::vector<Film> m_subFilms;
 	mutable std::mutex m_rendererMutex;
 
-	std::vector<std::unique_ptr<std::atomic<float32>>> m_workerProgresses;
-	std::vector<std::unique_ptr<std::atomic<float32>>> m_workerSampleFrequencies;
+	mutable std::vector<RenderWorker> m_workers;
+
+	//std::vector<std::unique_ptr<std::atomic<float32>>> m_workerProgresses;
+	//std::vector<std::unique_ptr<std::atomic<float32>>> m_workerSampleFrequencies;
 };
 
 }// end namespace ph

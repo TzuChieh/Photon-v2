@@ -33,7 +33,7 @@ public:
 	virtual void develop(Frame* out_frame) const = 0;
 	virtual void clear() = 0;
 
-	// generates a child film with the same actual dimensions and filter as parent, 
+	// generates a child film with the same actual dimensions and filter as parent's, 
 	// but potentially has a different effective window
 	virtual std::unique_ptr<Film> genChild(const TAABB2D<int64>& effectiveWindowPx) = 0;
 

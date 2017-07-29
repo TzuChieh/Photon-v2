@@ -98,6 +98,7 @@ public class EditorCtrl
 		final Task<String> renderTask      = m_project.createTask(TaskType.RENDER);
 		final Task<String> developFilmTask = m_project.createTask(TaskType.DEVELOP_FILM);
 		
+		// TODO: exit when render task is done
 		final Task<String> queryTask = new Task<String>()
 		{
 			@Override

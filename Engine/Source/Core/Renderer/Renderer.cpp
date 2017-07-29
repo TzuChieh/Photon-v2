@@ -20,6 +20,7 @@
 #include "FileIO/Description.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/RenderData.h"
+#include "Core/Renderer/RenderWorker.h"
 
 #include <cmath>
 #include <iostream>
@@ -41,119 +42,42 @@ Renderer::~Renderer() = default;
 
 void Renderer::render(const Description& description) const
 {
-	const VisualWorld& world           = description.visualWorld;
-	const Camera&      camera          = *(description.getCamera());
-	const Integrator&  integrator      = *(description.getIntegrator());
-	Film&              film            = *(description.getFilm());
-	SampleGenerator*   sampleGenerator = description.getSampleGenerator().get();
-
-	const RenderData renderData(&world.getScene(), &camera);
-
-	std::atomic<int32> numSpp = 0;
-	std::vector<std::thread> renderWorkers(m_numThreads);
-	std::vector<std::unique_ptr<SampleGenerator>> subSampleGenerators;
-	
 	std::vector<std::unique_ptr<Film>> subFilms;
 	for(std::size_t ti = 0; ti < m_numThreads; ti++)
 	{
+		Film& film = *(description.getFilm());
 		subFilms.push_back(film.genChild(film.getEffectiveWindowPx()));
 	}
 
-	sampleGenerator->genSplitted(m_numThreads, subSampleGenerators);
+	SampleGenerator* sg = description.getSampleGenerator().get();
+	std::vector<std::unique_ptr<SampleGenerator>> subSampleGenerators;
+	sg->genSplitted(m_numThreads, subSampleGenerators);
 
-	for(std::size_t threadIndex = 0; threadIndex < m_numThreads; threadIndex++)
+	m_workers.resize(m_numThreads);
+	std::vector<std::thread> renderThreads(m_numThreads);
+	for(std::size_t ti = 0; ti < m_numThreads; ti++)
 	{
-		SampleGenerator*      subSampleGenerator = subSampleGenerators[threadIndex].get();
-		Film*                 subFilm = subFilms[threadIndex].get();
-		std::atomic<float32>* workerProgress = m_workerProgresses[threadIndex].get();
-		std::atomic<float32>* workerSampleFreq = m_workerSampleFrequencies[threadIndex].get();
-		
+		const RenderData renderData(&description.visualWorld.getScene(),
+		                            description.getCamera().get(), 
+		                            description.getIntegrator().get(), 
+		                            subSampleGenerators[ti].get(), 
+		                            subFilms[ti].get());
+		m_workers[ti] = RenderWorker(renderData);
+		renderThreads[ti] = std::thread(&RenderWorker::run, &m_workers[ti]);
 
-		renderWorkers[threadIndex] = std::thread([this, &renderData, &integrator, &numSpp, subSampleGenerator, subFilm, workerProgress, workerSampleFreq]() -> void
-		{
-			// ****************************** thread start ****************************** //
-
-			const uint64 filmWpx = subFilm->getEffectiveResPx().x;
-			const uint64 filmHpx = subFilm->getEffectiveResPx().y;
-
-			const Vector2D flooredSampleMinVertex = subFilm->getSampleWindowPx().minVertex.floor();
-			const Vector2D ceiledSampleMaxVertex  = subFilm->getSampleWindowPx().maxVertex.ceil();
-			const uint64 filmSampleWpx = static_cast<uint64>(ceiledSampleMaxVertex.x - flooredSampleMinVertex.x);
-			const uint64 filmSampleHpx = static_cast<uint64>(ceiledSampleMaxVertex.y - flooredSampleMinVertex.y);
-			const uint64 numCamPhaseSamples = filmSampleWpx * filmSampleHpx;
-
-			TSamplePhase<SampleArray2D> camSamplePhase = subSampleGenerator->declareArray2DPhase(numCamPhaseSamples);
-
-
-			std::vector<SenseEvent> senseEvents;
-
-			const std::size_t totalSamples = subSampleGenerator->numSamples();
-			std::size_t currentSamples = 0;
-
-			std::chrono::time_point<std::chrono::system_clock> t1;
-			std::chrono::time_point<std::chrono::system_clock> t2;
-
-			while(subSampleGenerator->singleSampleStart())
-			{
-				t1 = std::chrono::system_clock::now();
-
-				const SampleArray2D& camSamples = subSampleGenerator->getNextArray2D(camSamplePhase);
-
-				for(std::size_t si = 0; si < camSamples.numElements(); si++)
-				{
-					const Vector2D rasterPosPx(camSamples[si].x * filmSampleWpx + flooredSampleMinVertex.x,
-					                           camSamples[si].y * filmSampleHpx + flooredSampleMinVertex.y);
-
-					if(!subFilm->getSampleWindowPx().isIntersectingArea(rasterPosPx))
-					{
-						continue;
-					}
-
-					Ray ray;
-					renderData.camera->genSensingRay(Vector2R(rasterPosPx), &ray);
-
-					integrator.radianceAlongRay(ray, renderData, senseEvents);
-
-					// HACK: sense event
-					for(const auto& senseEvent : senseEvents)
-					{
-						subFilm->addSample(rasterPosPx.x, rasterPosPx.y, senseEvent.radiance);
-					}
-
-					if(senseEvents.size() != 1)
-					{
-						std::cerr << "unexpected event occured" << std::endl;
-					}
-
-					senseEvents.clear();
-				}// end for
-
-				currentSamples++;
-				*workerProgress = static_cast<float32>(currentSamples) / static_cast<float32>(totalSamples);
-
-				m_rendererMutex.lock();
-				std::cout << "SPP: " << ++numSpp << std::endl;
-				m_rendererMutex.unlock();
-
-				t2 = std::chrono::system_clock::now();
-
-				auto msPassed = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
-				*workerSampleFreq = static_cast<float32>(filmWpx * filmHpx) / static_cast<float32>(msPassed.count()) * 1000.0f;
-
-				subSampleGenerator->singleSampleEnd();
-			}
-
-			m_rendererMutex.lock();
-			subFilm->mergeToParent();
-			m_rendererMutex.unlock();
-
-			// ****************************** thread end ****************************** //
-		});
+		std::cout << "worker<" << ti << "> started" << std::endl;
 	}
 
-	for(auto& renderWorker : renderWorkers)
+	for(std::size_t ti = 0; ti < m_numThreads; ti++)
 	{
-		renderWorker.join();
+		renderThreads[ti].join();
+
+		std::cout << "worker<" << ti << "> finished" << std::endl;
+	}
+
+	for(auto& worker : m_workers)
+	{
+		worker.data.film->mergeToParent();
 	}
 }
 
@@ -161,7 +85,7 @@ void Renderer::setNumRenderThreads(const uint32 numThreads)
 {
 	m_numThreads = numThreads;
 
-	m_workerProgresses.clear();
+	/*m_workerProgresses.clear();
 	m_workerProgresses.shrink_to_fit();
 	m_workerSampleFrequencies.clear();
 	m_workerSampleFrequencies.shrink_to_fit();
@@ -169,28 +93,31 @@ void Renderer::setNumRenderThreads(const uint32 numThreads)
 	{
 		m_workerProgresses.push_back(std::make_unique<std::atomic<float32>>(0.0f));
 		m_workerSampleFrequencies.push_back(std::make_unique<std::atomic<float32>>(0.0f));
-	}
+	}*/
 }
 
+// TODO: avoid outputting NaN
 float32 Renderer::queryPercentageProgress() const
 {
-	float32 avgWorkerProgress = 0.0f;
-	for(uint32 threadId = 0; threadId < m_workerProgresses.size(); threadId++)
+	std::size_t totalWork = 0;
+	std::size_t workDone  = 0;
+	for(const auto& worker : m_workers)
 	{
-		avgWorkerProgress += *(m_workerProgresses[threadId]);
+		const auto& progress = worker.queryProgress();
+		totalWork += progress.totalWork;
+		workDone  += progress.workDone;
 	}
-	avgWorkerProgress /= static_cast<float32>(m_workerProgresses.size());
 
-	return avgWorkerProgress * 100.0f;
+	return static_cast<float32>(workDone) / static_cast<float32>(totalWork) * 100.0f;
 }
 
 float32 Renderer::querySampleFrequency() const
 {
 	float32 sampleFreq = 0.0f;
-	for(uint32 threadId = 0; threadId < m_workerSampleFrequencies.size(); threadId++)
+	/*for(uint32 threadId = 0; threadId < m_workerSampleFrequencies.size(); threadId++)
 	{
 		sampleFreq += *(m_workerSampleFrequencies[threadId]);
-	}
+	}*/
 
 	return sampleFreq;
 }
