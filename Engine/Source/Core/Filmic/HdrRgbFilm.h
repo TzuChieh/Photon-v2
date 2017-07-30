@@ -28,7 +28,6 @@ public:
 	//void accumulateRadiance(const uint32 x, const uint32 y, const Vector3R& radiance);
 	//void accumulateRadiance(const Film& other);
 	virtual void addSample(float64 xPx, float64 yPx, const Vector3R& radiance) override;
-	virtual void develop(Frame* out_frame) const override;
 	virtual void clear() override;
 	virtual std::unique_ptr<Film> genChild(const TAABB2D<int64>& effectiveWindowPx) override;
 
@@ -52,6 +51,8 @@ public:
 	}*/
 
 private:
+	virtual void developRegion(Frame& out_frame, const TAABB2D<int64>& regionPx) const override;
+
 	std::vector<RadianceSensor> m_pixelRadianceSensors;
 
 // command interface

@@ -22,7 +22,7 @@ public:
 
 	void enterCommand(const std::string& commandFragment);
 	void render();
-	void developFilm(Frame* const out_frame);
+	void developFilm(Frame& out_frame);
 	TVector2<int64> getFilmDimensionPx() const;
 	void setNumRenderThreads(const std::size_t numThreads);
 

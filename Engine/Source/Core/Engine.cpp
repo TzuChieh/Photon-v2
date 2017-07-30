@@ -24,7 +24,7 @@ void Engine::render()
 	m_renderer.render(m_description);
 }
 
-void Engine::developFilm(Frame* const out_frame)
+void Engine::developFilm(Frame& out_frame)
 {
 	m_description.getFilm()->develop(out_frame);
 }

@@ -85,7 +85,7 @@ void phDevelopFilm(const PHuint64 engineId, const PHuint64 frameId)
 	Frame*  frame  = ApiDatabase::getFrame(frameId);
 	if(engine && frame)
 	{
-		engine->developFilm(frame);
+		engine->developFilm(*frame);
 	}
 }
 

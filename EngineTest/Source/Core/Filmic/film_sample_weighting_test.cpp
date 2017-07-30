@@ -28,7 +28,7 @@ TEST(FilmSampleWeightingTest, HdrRgbFilmDevelopesToHdrFrame)
 	film.addSample(testSamplePos2Xpx,
 	               testSamplePos2Ypx,
 	               Vector3R(0.3_r, 0.3_r, 0.3_r));
-	film.develop(&frame);
+	film.develop(frame);
 
 	TVector3<float32> pixelValue;
 	frame.getRgb(0, 0, &pixelValue);

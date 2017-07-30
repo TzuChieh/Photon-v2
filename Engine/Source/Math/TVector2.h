@@ -33,6 +33,7 @@ public:
 	inline TVector2 sub(const TVector2& rhs) const;
 	inline TVector2& subLocal(const TVector2& rhs);
 	inline TVector2 sub(T rhs) const;
+	inline TVector2& subLocal(T rhs);
 
 	inline void mul(const TVector2& rhs, TVector2* out_result) const;
 	inline TVector2 mul(const TVector2& rhs) const;

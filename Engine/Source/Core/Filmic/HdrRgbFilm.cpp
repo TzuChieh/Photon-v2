@@ -69,9 +69,9 @@ void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const Vector3R&
 			
 			const float64 weight = m_filter->evaluate(filterX, filterY);
 
-			m_pixelRadianceSensors[index].accuR += static_cast<float64>(radiance.x) * weight;
-			m_pixelRadianceSensors[index].accuG += static_cast<float64>(radiance.y) * weight;
-			m_pixelRadianceSensors[index].accuB += static_cast<float64>(radiance.z) * weight;
+			m_pixelRadianceSensors[index].accuR      += radiance.x * weight;
+			m_pixelRadianceSensors[index].accuG      += radiance.y * weight;
+			m_pixelRadianceSensors[index].accuB      += radiance.z * weight;
 			m_pixelRadianceSensors[index].accuWeight += weight;
 		}
 	}
@@ -97,50 +97,49 @@ std::unique_ptr<Film> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindow
 	return std::move(childFilm);
 }
 
-void HdrRgbFilm::develop(Frame* const out_frame) const
+void HdrRgbFilm::developRegion(Frame& out_frame, const TAABB2D<int64>& regionPx) const
 {
-	if(out_frame->widthPx() != m_actualResPx.x ||
-	   out_frame->heightPx() != m_actualResPx.y)
+	if(out_frame.widthPx()  != m_actualResPx.x ||
+	   out_frame.heightPx() != m_actualResPx.y)
 	{
 		std::cerr << "warning: at HdrRgbFilm::develop(), "
 		          << "input frame dimension mismatch" << std::endl;
 		return;
 	}
 
+	TAABB2D<int64> frameIndexBound(m_effectiveWindowPx);
+	frameIndexBound.intersectWith(regionPx);
+	frameIndexBound.maxVertex.subLocal(1);
+
 	float64     sensorR, sensorG, sensorB;
 	float64     reciWeight;
 	std::size_t fx, fy, filmIndex;
-
-	const TAABB2D<int64> frameIndexBound(m_effectiveWindowPx.minVertex, 
-	                                     m_effectiveWindowPx.maxVertex.sub(1));
 
 	for(int64 y = 0; y < m_actualResPx.y; y++)
 	{
 		for(int64 x = 0; x < m_actualResPx.x; x++)
 		{
-			if(frameIndexBound.isIntersectingArea({x, y}))
+			if(!frameIndexBound.isIntersectingArea({x, y}))
 			{
-				fx = x - frameIndexBound.minVertex.x;
-				fy = y - frameIndexBound.minVertex.y;
-				filmIndex = fy * static_cast<std::size_t>(m_effectiveResPx.x) + fx;
-
-				const float64 sensorWeight = m_pixelRadianceSensors[filmIndex].accuWeight;
-
-				// prevent division by zero
-				reciWeight = sensorWeight == 0.0 ? 0.0 : 1.0 / sensorWeight;
-				
-				sensorR = m_pixelRadianceSensors[filmIndex].accuR * reciWeight;
-				sensorG = m_pixelRadianceSensors[filmIndex].accuG * reciWeight;
-				sensorB = m_pixelRadianceSensors[filmIndex].accuB * reciWeight;
+				continue;
 			}
-			else
-			{
-				sensorR = sensorG = sensorB = 0.0;
-			}
+
+			fx = x - m_effectiveWindowPx.minVertex.x;
+			fy = y - m_effectiveWindowPx.minVertex.y;
+			filmIndex = fy * static_cast<std::size_t>(m_effectiveResPx.x) + fx;
+
+			const float64 sensorWeight = m_pixelRadianceSensors[filmIndex].accuWeight;
+
+			// prevent division by zero
+			reciWeight = sensorWeight == 0.0 ? 0.0 : 1.0 / sensorWeight;
+
+			sensorR = m_pixelRadianceSensors[filmIndex].accuR * reciWeight;
+			sensorG = m_pixelRadianceSensors[filmIndex].accuG * reciWeight;
+			sensorB = m_pixelRadianceSensors[filmIndex].accuB * reciWeight;
 
 			// TODO: prevent negative pixel
-			out_frame->setRgb(static_cast<uint32>(x), static_cast<uint32>(y), 
-			                  TVector3<float32>(TVector3<float64>(sensorR, sensorG, sensorB)));
+			out_frame.setRgb(static_cast<uint32>(x), static_cast<uint32>(y),
+			                 TVector3<float32>(TVector3<float64>(sensorR, sensorG, sensorB)));
 		}
 	}
 }

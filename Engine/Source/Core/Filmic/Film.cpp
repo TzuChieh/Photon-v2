@@ -47,6 +47,16 @@ Film::Film(const int64 actualWidthPx, const int64 actualHeightPx,
 	}
 }
 
+void Film::develop(Frame& out_frame) const
+{
+	developRegion(out_frame, m_effectiveWindowPx);
+}
+
+void Film::develop(Frame& out_frame, const TAABB2D<int64>& regionPx) const
+{
+	developRegion(out_frame, regionPx);
+}
+
 Film::~Film() = default;
 
 // command interface

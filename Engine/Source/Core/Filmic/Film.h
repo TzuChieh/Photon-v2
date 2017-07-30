@@ -30,7 +30,8 @@ public:
 	virtual ~Film() = 0;
 
 	virtual void addSample(float64 xPx, float64 yPx, const Vector3R& radiance) = 0;
-	virtual void develop(Frame* out_frame) const = 0;
+	void develop(Frame& out_frame) const;
+	void develop(Frame& out_frame, const TAABB2D<int64>& regionPx) const;
 	virtual void clear() = 0;
 
 	// generates a child film with the same actual dimensions and filter as parent's, 
@@ -76,6 +77,9 @@ protected:
 
 	std::shared_ptr<SampleFilter> m_filter;
 	std::function<void()>         m_merger;
+
+private:
+	virtual void developRegion(Frame& out_frame, const TAABB2D<int64>& regionPx) const = 0;
 
 // command interface
 public:
