@@ -4,6 +4,7 @@
 #include "Core/Renderer/Renderer.h"
 #include "FileIO/DescriptionParser.h"
 #include "FileIO/Description.h"
+#include "Math/TVector2.h"
 
 #include <string>
 
@@ -22,7 +23,7 @@ public:
 	void enterCommand(const std::string& commandFragment);
 	void render();
 	void developFilm(Frame* const out_frame);
-
+	TVector2<int64> getFilmDimensionPx() const;
 	void setNumRenderThreads(const std::size_t numThreads);
 
 	float32 queryPercentageProgress() const;

@@ -3,7 +3,7 @@ package appModel.project;
 import appModel.event.ProjectEventListener;
 import appModel.event.ProjectEventType;
 import javafx.concurrent.Task;
-import photonCore.FrameData;
+import photonApi.FrameData;
 
 public final class ProjectProxy
 {

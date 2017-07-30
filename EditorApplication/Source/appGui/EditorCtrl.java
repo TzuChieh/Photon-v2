@@ -12,7 +12,6 @@ import appModel.project.RenderSetting;
 import appModel.project.TaskType;
 import core.HdrFrame;
 import core.Vector3f;
-import photonCore.FrameData;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -38,6 +37,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import photonApi.FrameData;
 
 public class EditorCtrl
 {

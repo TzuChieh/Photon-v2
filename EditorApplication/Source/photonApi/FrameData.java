@@ -1,4 +1,4 @@
-package photonCore;
+package photonApi;
 
 import java.util.Arrays;
 
@@ -7,14 +7,14 @@ public final class FrameData
 	protected int     m_widthPx;
 	protected int     m_heightPx;
 	protected int     m_numPixelComponents;
-	protected float[] m_pixelData;
+	protected float[] m_rgbData;
 	
 	public FrameData()
 	{
 		m_widthPx            = 0;
 		m_heightPx           = 0;
 		m_numPixelComponents = 0;
-		m_pixelData          = null;
+		m_rgbData            = null;
 	}
 	
 	public FrameData(FrameData other)
@@ -22,17 +22,17 @@ public final class FrameData
 		m_widthPx            = other.m_widthPx;
 		m_heightPx           = other.m_heightPx;
 		m_numPixelComponents = other.m_numPixelComponents;
-		m_pixelData          = Arrays.copyOf(other.m_pixelData, other.m_pixelData.length);
+		m_rgbData            = Arrays.copyOf(other.m_rgbData, other.m_rgbData.length);
 	}
 	
 	public boolean isDataGood()
 	{
-		return m_widthPx > 0 && m_heightPx > 0 && m_numPixelComponents > 0 && m_pixelData != null;
+		return m_widthPx > 0 && m_heightPx > 0 && m_numPixelComponents > 0 && m_rgbData != null;
 	}
 	
 	public float[] getPixelData()
 	{
-		return m_pixelData;
+		return m_rgbData;
 	}
 	
 	public int getWidthPx()

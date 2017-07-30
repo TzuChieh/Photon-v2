@@ -1,11 +1,7 @@
-package photonCore;
+package photonApi;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-
-import photonApi.FloatRef;
-import photonApi.LongRef;
-import photonApi.Ph;
 
 public final class PhEngine
 {
@@ -50,6 +46,18 @@ public final class PhEngine
 	public void render()
 	{
 		Ph.phRender(m_engineId);
+	}
+	
+	public FilmInfo getFilmInfo()
+	{
+		IntRef widthPx  = new IntRef();
+		IntRef heightPx = new IntRef();
+		Ph.phGetFilmDimension(m_engineId, widthPx, heightPx);
+		
+		FilmInfo info = new FilmInfo();
+		info.widthPx  = widthPx.m_value;
+		info.heightPx = heightPx.m_value;
+		return info;
 	}
 	
 	public void developFilm(PhFrame frame)

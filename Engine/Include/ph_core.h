@@ -75,18 +75,19 @@ extern PH_API int phInit();
 extern PH_API int phExit();
 
 extern PH_API void phCreateEngine(PHuint64* out_engineId, const PHuint32 numRenderThreads);
-extern PH_API void phEnterCommand(const PHuint64 engineId, const char* const commandFragment);
-extern PH_API void phRender(const PHuint64 engineId);
-extern PH_API void phDevelopFilm(const PHuint64 engineId, const PHuint64 frameId);
-extern PH_API void phDeleteEngine(const PHuint64 engineId);
+extern PH_API void phEnterCommand(PHuint64 engineId, const char* commandFragment);
+extern PH_API void phRender(PHuint64 engineId);
+extern PH_API void phDevelopFilm(PHuint64 engineId, PHuint64 frameId);
+extern PH_API void phGetFilmDimension(PHuint64 engineId, PHuint32* out_widthPx, PHuint32* out_heightPx);
+extern PH_API void phDeleteEngine(PHuint64 engineId);
 
-// TODO: frame related API needs to aware of the size of real
-extern PH_API void phCreateFrame(PHuint64* out_frameId, const PHint32 frameType);
-extern PH_API void phGetFrameData(const PHuint64 frameId, const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32* out_heightPx, PHuint32* out_nPixelComponents);
-extern PH_API void phDeleteFrame(const PHuint64 frameId);
+extern PH_API void phCreateFrame(PHuint64* out_frameId, PHuint32 widthPx, PHuint32 heightPx);
+extern PH_API void phGetFrameDimension(PHuint64 frameId, PHuint32* out_widthPx, PHuint32* out_heightPx);
+extern PH_API void phGetFrameRgbData(PHuint64 frameId, const PHfloat32** out_data);
+extern PH_API void phDeleteFrame(PHuint64 frameId);
 
-extern PH_API void phQueryRendererPercentageProgress(const PHuint64 engineId, PHfloat32* const out_percentage);
-extern PH_API void phQueryRendererSampleFrequency(const PHuint64 engineId, PHfloat32* const out_frequency);
+extern PH_API void phQueryRendererPercentageProgress(PHuint64 engineId, PHfloat32* out_percentage);
+extern PH_API void phQueryRendererSampleFrequency(PHuint64 engineId, PHfloat32* out_frequency);
 
 #ifdef __cplusplus
 }

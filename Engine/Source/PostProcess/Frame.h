@@ -3,22 +3,51 @@
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
 
+#include <vector>
+
 namespace ph
 {
 
-class Frame
+class Frame final
 {
 public:
-	virtual ~Frame() = 0;
+	Frame();
+	Frame(uint32 wPx, uint32 hPx);
+	Frame(const Frame& other);
+	Frame(Frame&& other);
+	~Frame() = default;
 
-	virtual void resize(uint32 newWidthPx, uint32 newHeightPx) = 0;
-	virtual void getPixel(uint32 x, uint32 y, Vector3R* out_pixel) const = 0;
-	virtual void setPixel(uint32 x, uint32 y, real r, real g, real b) = 0;
+	void getRgb(uint32 x, uint32 y, TVector3<float32>* out_rgb) const;
+	void setRgb(uint32 x, uint32 y, const TVector3<float32>& rgb);
+	const float32* getRgbData() const;
 
-	virtual uint32 getWidthPx() const = 0;
-	virtual uint32 getHeightPx() const = 0;
-	virtual uint32 numPixelComponents() const = 0;
-	virtual const real* getPixelData() const = 0;
+	Frame& operator = (Frame rhs);
+	Frame& operator = (Frame&& rhs);
+
+	inline uint32 widthPx() const
+	{
+		return m_widthPx;
+	}
+
+	inline uint32 heightPx() const
+	{
+		return m_heightPx;
+	}
+
+	inline std::size_t numRgbDataElements() const
+	{
+		return m_rgbData.size();
+	}
+
+	friend void swap(Frame& first, Frame& second);
+
+private:
+	uint32 m_widthPx;
+	uint32 m_heightPx;
+
+	std::vector<float32> m_rgbData;
+
+	std::size_t calcRgbDataBaseIndex(uint32 x, uint32 y) const;
 };
 
 }// end namespace ph

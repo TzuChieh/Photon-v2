@@ -22,7 +22,7 @@
 
 package core;
 
-import photonCore.FrameData;
+import photonApi.FrameData;
 
 public class HdrFrame extends Frame
 {

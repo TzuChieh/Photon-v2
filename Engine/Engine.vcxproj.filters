@@ -255,9 +255,6 @@
     <ClCompile Include="Source\Math\Transform\Transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\PostProcess\HdrFrame.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\PostProcess\HdrOperator\HdrOperator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -693,9 +690,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Math\Transform\TDecomposedTransform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\PostProcess\HdrFrame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\PostProcess\PostProcessor.h">

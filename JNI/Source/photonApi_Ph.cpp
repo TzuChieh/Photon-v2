@@ -2,6 +2,7 @@
 #include "JIntRef.h"
 #include "JLongRef.h"
 #include "JFloatRef.h"
+#include "JniUtil.h"
 
 #include <ph_core.h>
 
@@ -82,6 +83,23 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDevelopFilm
 
 /*
 * Class:     photonApi_Ph
+* Method:    phGetFilmDimension
+* Signature: (JLphotonApi/IntRef;LphotonApi/IntRef;)V
+*/
+JNIEXPORT void JNICALL Java_photonApi_Ph_phGetFilmDimension
+(JNIEnv* env, jclass thiz, jlong engineId, jobject out_IntRef_widthPx, jobject out_IntRef_heightPx)
+{
+	PHuint32 widthPx, heightPx;
+	phGetFilmDimension(static_cast<PHuint64>(engineId), &widthPx, &heightPx);
+
+	ph::JIntRef jWidthPx(out_IntRef_widthPx, env);
+	ph::JIntRef jHeightPx(out_IntRef_heightPx, env);
+	jWidthPx.setValue(static_cast<PHint32>(widthPx));
+	jHeightPx.setValue(static_cast<PHint32>(heightPx));
+}
+
+/*
+* Class:     photonApi_Ph
 * Method:    phDeleteEngine
 * Signature: (J)V
 */
@@ -94,21 +112,13 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteEngine
 /*
 * Class:     photonApi_Ph
 * Method:    phCreateFrame
-* Signature: (LphotonApi/LongRef;III)V
+* Signature: (LphotonApi/LongRef;II)V
 */
 JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateFrame
-(JNIEnv* env, jclass thiz, jobject out_LongRef_frameId, jint frameType)
+(JNIEnv* env, jclass thiz, jobject out_LongRef_frameId, jint widthPx, jint heightPx)
 {
 	PHuint64 frameId;
-	switch(frameType)
-	{
-	case photonApi_Ph_PH_HDR_FRAME_TYPE:
-		phCreateFrame(&frameId, PH_HDR_FRAME_TYPE);
-		break;
-
-	default:
-		std::cerr << "unknown frame type in Java_photonApi_Ph_phCreateFrame()" << std::endl;
-	}
+	phCreateFrame(&frameId, static_cast<PHuint32>(widthPx), static_cast<PHuint32>(heightPx));
 
 	ph::JLongRef jFrameId(out_LongRef_frameId, env);
 	jFrameId.setValue(static_cast<PHint64>(frameId));
@@ -127,35 +137,26 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteFrame
 
 /*
 * Class:     photonApi_Ph
-* Method:    phGetFrameData
-* Signature: (JLphotonApi/FloatArrayRef;LphotonApi/IntRef;LphotonApi/IntRef;LphotonApi/IntRef;)V
+* Method:    phGetFrameRgbData
+* Signature: (JLphotonApi/FloatArrayRef;)V
 */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phGetFrameData
-(JNIEnv* env, jclass thiz, jlong frameId, jobject out_FloatArrayRef_pixelData, 
-                                          jobject out_IntRef_widthPx, 
-                                          jobject out_IntRef_heightPx, 
-                                          jobject out_IntRef_nPixelComponents)
+JNIEXPORT void JNICALL Java_photonApi_Ph_phGetFrameRgbData
+(JNIEnv* env, jclass thiz, jlong frameId, jobject out_FloatArrayRef_rgbData)
 {
-	const PHfloat32* pixelData;
-	PHuint32 widthPx;
-	PHuint32 heightPx;
-	PHuint32 nPixelComponents;
-	phGetFrameData(static_cast<PHuint64>(frameId), &pixelData, &widthPx, &heightPx, &nPixelComponents);
+	const PHfloat32* rgbData;
+	PHuint32         widthPx;
+	PHuint32         heightPx;
+	const PHuint32   numComponents = 3;
+	phGetFrameRgbData(static_cast<PHuint64>(frameId), &rgbData);
+	phGetFrameDimension(static_cast<PHuint64>(frameId), &widthPx, &heightPx);
 
-	const jsize arrayLength = static_cast<jsize>(widthPx * heightPx * nPixelComponents);
+	const jsize numFloats = static_cast<jsize>(widthPx * heightPx * numComponents);
 
-	jclass class_out_pixelData = env->GetObjectClass(out_FloatArrayRef_pixelData);
-	jfieldID valueField = env->GetFieldID(class_out_pixelData, "m_value", "[F");
-	jfloatArray jArrayObject = env->NewFloatArray(arrayLength);
-	env->SetFloatArrayRegion(jArrayObject, 0, arrayLength, static_cast<const jfloat*>(pixelData));
-	env->SetObjectField(out_FloatArrayRef_pixelData, valueField, jArrayObject);
-
-	ph::JIntRef jWidthPx(out_IntRef_widthPx, env);
-	ph::JIntRef jHeightPx(out_IntRef_heightPx, env);
-	ph::JIntRef jnPixelComponents(out_IntRef_nPixelComponents, env);
-	jWidthPx.setValue(static_cast<PHint32>(widthPx));
-	jHeightPx.setValue(static_cast<PHint32>(heightPx));
-	jnPixelComponents.setValue(static_cast<PHint32>(nPixelComponents));
+	jclass      class_FloatArrayRef = env->GetObjectClass(out_FloatArrayRef_rgbData);
+	jfieldID    field_m_value       = env->GetFieldID(class_FloatArrayRef, "m_value", "[F");
+	jfloatArray object_float_array  = env->NewFloatArray(numFloats);
+	env->SetFloatArrayRegion(object_float_array, 0, numFloats, static_cast<const jfloat*>(rgbData));
+	env->SetObjectField(out_FloatArrayRef_rgbData, field_m_value, object_float_array);
 }
 
 /*

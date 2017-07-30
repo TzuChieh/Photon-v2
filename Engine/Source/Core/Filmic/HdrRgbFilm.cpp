@@ -99,6 +99,14 @@ std::unique_ptr<Film> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindow
 
 void HdrRgbFilm::develop(Frame* const out_frame) const
 {
+	if(out_frame->widthPx() != m_actualResPx.x ||
+	   out_frame->heightPx() != m_actualResPx.y)
+	{
+		std::cerr << "warning: at HdrRgbFilm::develop(), "
+		          << "input frame dimension mismatch" << std::endl;
+		return;
+	}
+
 	float64     sensorR, sensorG, sensorB;
 	float64     reciWeight;
 	std::size_t fx, fy, filmIndex;
@@ -106,8 +114,6 @@ void HdrRgbFilm::develop(Frame* const out_frame) const
 	const TAABB2D<int64> frameIndexBound(m_effectiveWindowPx.minVertex, 
 	                                     m_effectiveWindowPx.maxVertex.sub(1));
 
-	out_frame->resize(static_cast<uint32>(m_actualResPx.x), 
-	                  static_cast<uint32>(m_actualResPx.y));
 	for(int64 y = 0; y < m_actualResPx.y; y++)
 	{
 		for(int64 x = 0; x < m_actualResPx.x; x++)
@@ -133,10 +139,8 @@ void HdrRgbFilm::develop(Frame* const out_frame) const
 			}
 
 			// TODO: prevent negative pixel
-			out_frame->setPixel(static_cast<uint32>(x), static_cast<uint32>(y), 
-			                    static_cast<real>(sensorR), 
-			                    static_cast<real>(sensorG), 
-			                    static_cast<real>(sensorB));
+			out_frame->setRgb(static_cast<uint32>(x), static_cast<uint32>(y), 
+			                  TVector3<float32>(TVector3<float64>(sensorR, sensorG, sensorB)));
 		}
 	}
 }

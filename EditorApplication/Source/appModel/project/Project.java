@@ -4,9 +4,10 @@ import appModel.EditorApp;
 import appModel.ManageableResource;
 import appModel.event.ProjectEventType;
 import javafx.application.Platform;
-import photonCore.FrameData;
-import photonCore.PhEngine;
-import photonCore.PhFrame;
+import photonApi.FilmInfo;
+import photonApi.FrameData;
+import photonApi.PhEngine;
+import photonApi.PhFrame;
 
 public final class Project extends ManageableResource
 {
@@ -63,8 +64,16 @@ public final class Project extends ManageableResource
 	{
 		EditorApp.printToConsole("developing film...");
 		
+		FilmInfo info = m_engine.getFilmInfo();
+		if(info.widthPx  != m_frame.widthPx() || 
+		   info.heightPx != m_frame.heightPx())
+		{
+			m_frame.dispose();
+			m_frame = new PhFrame(info.widthPx, info.heightPx);
+		}
+		
 		m_engine.developFilm(m_frame);
-		m_frame.getData(m_frameData);
+		m_frame.getRgbData(m_frameData);
 		
 		Platform.runLater(() ->
 		{
@@ -76,7 +85,7 @@ public final class Project extends ManageableResource
 	protected void initResource()
 	{
 		m_engine = new PhEngine(6);
-		m_frame  = new PhFrame(PhFrame.Type.HDR);
+		m_frame  = new PhFrame(0, 0);
 		m_proxy  = new ProjectProxy(this);
 		
 		m_renderSetting.setToDefaults();

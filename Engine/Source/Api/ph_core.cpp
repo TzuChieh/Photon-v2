@@ -6,7 +6,6 @@
 #include "Core/Camera/Camera.h"
 #include "Api/test_scene.h"
 #include "PostProcess/Frame.h"
-#include "PostProcess/HdrFrame.h"
 #include "Math/TArithmeticArray.h"
 #include "Api/init_and_exit.h"
 
@@ -90,31 +89,49 @@ void phDevelopFilm(const PHuint64 engineId, const PHuint64 frameId)
 	}
 }
 
-void phCreateFrame(PHuint64* out_frameId, const PHint32 frameType)
+void phGetFilmDimension(const PHuint64 engineId, PHuint32* const out_widthPx, PHuint32* const out_heightPx)
 {
-	switch(frameType)
-	{
-	case PH_HDR_FRAME_TYPE:
-		*out_frameId = ph::ApiDatabase::addFrame(std::make_unique<ph::HdrFrame>());
-		std::cout << "Frame<" << *out_frameId << "> created" << std::endl;
-		break;
+	using namespace ph;
 
-	default:
-		std::cerr << "unidentified renderer type at phCreateFrame()" << std::endl;
+	Engine* engine = ApiDatabase::getEngine(engineId);
+	if(engine)
+	{
+		const TVector2<int64> dim = engine->getFilmDimensionPx();
+		*out_widthPx  = static_cast<PHuint32>(dim.x);
+		*out_heightPx = static_cast<PHuint32>(dim.y);
 	}
 }
 
-void phGetFrameData(const PHuint64 frameId, const PHfloat32** out_data, PHuint32* out_widthPx, PHuint32* out_heightPx, PHuint32* out_nPixelComponents)
+void phCreateFrame(PHuint64* const out_frameId,
+                   const PHuint32 widthPx, const PHuint32 heightPx)
+{
+	auto frame = std::make_unique<ph::Frame>(widthPx, heightPx);
+	*out_frameId = ph::ApiDatabase::addFrame(std::move(frame));
+
+	std::cout << "Frame<" << *out_frameId << "> created" << std::endl;
+}
+
+void phGetFrameDimension(const PHuint64 frameId, 
+                         PHuint32* const out_widthPx, PHuint32* const out_heightPx)
 {
 	using namespace ph;
 
 	Frame* frame = ApiDatabase::getFrame(frameId);
 	if(frame)
 	{
-		*out_data             = frame->getPixelData();
-		*out_widthPx          = frame->getWidthPx();
-		*out_heightPx         = frame->getHeightPx();
-		*out_nPixelComponents = frame->numPixelComponents();
+		*out_widthPx  = static_cast<PHuint32>(frame->widthPx());
+		*out_heightPx = static_cast<PHuint32>(frame->heightPx());
+	}
+}
+
+void phGetFrameRgbData(const PHuint64 frameId, const PHfloat32** const out_data)
+{
+	using namespace ph;
+
+	Frame* frame = ApiDatabase::getFrame(frameId);
+	if(frame)
+	{
+		*out_data = frame->getRgbData();
 	}
 }
 

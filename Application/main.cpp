@@ -39,8 +39,11 @@ int main(int argc, char* argv[])
 
 	phRender(engineId);
 
+	PHuint32 filmWpx, filmHpx;
+	phGetFilmDimension(engineId, &filmWpx, &filmHpx);
+
 	PHuint64 frameId;
-	phCreateFrame(&frameId, PH_HDR_FRAME_TYPE);
+	phCreateFrame(&frameId, filmWpx, filmHpx);
 	phDevelopFilm(engineId, frameId);
 
 	if(!phExit())

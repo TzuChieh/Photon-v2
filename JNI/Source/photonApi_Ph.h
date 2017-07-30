@@ -7,8 +7,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#undef photonApi_Ph_PH_HDR_FRAME_TYPE
-#define photonApi_Ph_PH_HDR_FRAME_TYPE 50L
 /*
  * Class:     photonApi_Ph
  * Method:    phInit
@@ -59,6 +57,14 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDevelopFilm
 
 /*
  * Class:     photonApi_Ph
+ * Method:    phGetFilmDimension
+ * Signature: (JLphotonApi/IntRef;LphotonApi/IntRef;)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phGetFilmDimension
+  (JNIEnv *, jclass, jlong, jobject, jobject);
+
+/*
+ * Class:     photonApi_Ph
  * Method:    phDeleteEngine
  * Signature: (J)V
  */
@@ -68,18 +74,18 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteEngine
 /*
  * Class:     photonApi_Ph
  * Method:    phCreateFrame
- * Signature: (LphotonApi/LongRef;I)V
+ * Signature: (LphotonApi/LongRef;II)V
  */
 JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateFrame
-  (JNIEnv *, jclass, jobject, jint);
+  (JNIEnv *, jclass, jobject, jint, jint);
 
 /*
  * Class:     photonApi_Ph
- * Method:    phGetFrameData
- * Signature: (JLphotonApi/FloatArrayRef;LphotonApi/IntRef;LphotonApi/IntRef;LphotonApi/IntRef;)V
+ * Method:    phGetFrameRgbData
+ * Signature: (JLphotonApi/FloatArrayRef;)V
  */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phGetFrameData
-  (JNIEnv *, jclass, jlong, jobject, jobject, jobject, jobject);
+JNIEXPORT void JNICALL Java_photonApi_Ph_phGetFrameRgbData
+  (JNIEnv *, jclass, jlong, jobject);
 
 /*
  * Class:     photonApi_Ph

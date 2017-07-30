@@ -29,6 +29,11 @@ void Engine::developFilm(Frame* const out_frame)
 	m_description.getFilm()->develop(out_frame);
 }
 
+TVector2<int64> Engine::getFilmDimensionPx() const
+{
+	return m_description.getFilm()->getActualResPx();
+}
+
 void Engine::setNumRenderThreads(const std::size_t numThreads)
 {
 	m_renderer.setNumRenderThreads(static_cast<uint32>(numThreads));
