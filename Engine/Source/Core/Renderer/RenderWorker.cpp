@@ -107,10 +107,6 @@ void RenderWorker::run()
 
 		sg->singleSampleEnd();
 	}
-
-	//m_rendererMutex.lock();
-	//subFilm->mergeToParent();
-	//m_rendererMutex.unlock();
 }
 
 RenderWorker& RenderWorker::operator = (const RenderWorker& rhs)

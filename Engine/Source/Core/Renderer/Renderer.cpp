@@ -40,29 +40,14 @@ Renderer::Renderer() :
 
 Renderer::~Renderer() = default;
 
-void Renderer::render(const Description& description) const
+void Renderer::render(const Description& description)
 {
-	std::vector<std::unique_ptr<Film>> subFilms;
-	for(std::size_t ti = 0; ti < m_numThreads; ti++)
-	{
-		Film& film = *(description.getFilm());
-		subFilms.push_back(film.genChild(film.getEffectiveWindowPx()));
-	}
+	clearWorkerData();
+	genFullRegionRenderWorkers(description, m_numThreads);
 
-	SampleGenerator* sg = description.getSampleGenerator().get();
-	std::vector<std::unique_ptr<SampleGenerator>> subSampleGenerators;
-	sg->genSplitted(m_numThreads, subSampleGenerators);
-
-	m_workers.resize(m_numThreads);
 	std::vector<std::thread> renderThreads(m_numThreads);
 	for(std::size_t ti = 0; ti < m_numThreads; ti++)
 	{
-		const RenderData renderData(&description.visualWorld.getScene(),
-		                            description.getCamera().get(), 
-		                            description.getIntegrator().get(), 
-		                            subSampleGenerators[ti].get(), 
-		                            subFilms[ti].get());
-		m_workers[ti] = RenderWorker(renderData);
 		renderThreads[ti] = std::thread(&RenderWorker::run, &m_workers[ti]);
 
 		std::cout << "worker<" << ti << "> started" << std::endl;
@@ -120,6 +105,36 @@ float32 Renderer::querySampleFrequency() const
 	}*/
 
 	return sampleFreq;
+}
+
+void Renderer::genFullRegionRenderWorkers(const Description& description, const uint32 numWorkers)
+{
+	Film& film = *(description.getFilm());
+	for(uint32 i = 0; i < numWorkers; i++)
+	{
+		m_workerFilms.push_back(film.genChild(film.getEffectiveWindowPx()));
+	}
+
+	SampleGenerator& sg = *(description.getSampleGenerator());
+	sg.genSplitted(numWorkers, m_workerSgs);
+
+	m_workers.resize(numWorkers);
+	for(std::size_t ti = 0; ti < m_numThreads; ti++)
+	{
+		const RenderData renderData(&description.visualWorld.getScene(),
+		                            description.getCamera().get(), 
+		                            description.getIntegrator().get(), 
+		                            m_workerSgs[ti].get(), 
+		                            m_workerFilms[ti].get());
+		m_workers[ti] = RenderWorker(renderData);
+	}
+}
+
+void Renderer::clearWorkerData()
+{
+	m_workers.clear();
+	m_workerSgs.clear();
+	m_workerFilms.clear();
 }
 
 }// end namespace ph

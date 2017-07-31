@@ -24,7 +24,7 @@ public:
 	Renderer();
 	~Renderer();
 
-	void render(const Description& description) const;
+	void render(const Description& description);
 	float32 queryPercentageProgress() const;
 	float32 querySampleFrequency() const;
 
@@ -34,12 +34,17 @@ private:
 	uint32 m_numThreads;
 
 	//mutable std::vector<Film> m_subFilms;
-	mutable std::mutex m_rendererMutex;
+	std::mutex m_rendererMutex;
 
-	mutable std::vector<RenderWorker> m_workers;
+	std::vector<RenderWorker>                     m_workers;
+	std::vector<std::unique_ptr<SampleGenerator>> m_workerSgs;
+	std::vector<std::unique_ptr<Film>>            m_workerFilms;
 
 	//std::vector<std::unique_ptr<std::atomic<float32>>> m_workerProgresses;
 	//std::vector<std::unique_ptr<std::atomic<float32>>> m_workerSampleFrequencies;
+
+	void clearWorkerData();
+	void genFullRegionRenderWorkers(const Description& description, uint32 numWorkers);
 };
 
 }// end namespace ph

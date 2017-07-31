@@ -147,7 +147,7 @@ void phDeleteFrame(const PHuint64 frameId)
 	}
 }
 
-void phQueryRendererPercentageProgress(const PHuint64 engineId, PHfloat32* const out_percentage)
+void phAsyncGetRendererPercentageProgress(const PHuint64 engineId, PHfloat32* const out_percentage)
 {
 	using namespace ph;
 
@@ -158,7 +158,7 @@ void phQueryRendererPercentageProgress(const PHuint64 engineId, PHfloat32* const
 	}
 }
 
-void phQueryRendererSampleFrequency(const PHuint64 engineId, PHfloat32* const out_frequency)
+void phAsyncGetRendererSampleFrequency(const PHuint64 engineId, PHfloat32* const out_frequency)
 {
 	using namespace ph;
 
@@ -167,4 +167,19 @@ void phQueryRendererSampleFrequency(const PHuint64 engineId, PHfloat32* const ou
 	{
 		*out_frequency = engine->querySampleFrequency();
 	}
+}
+
+int phAsyncPollUpdatedFilmRegion(const PHuint64 engineId,
+                                 PHuint32* const out_xPx, PHuint32* const out_yPx,
+                                 PHuint32* const out_widthPx, PHuint32* const out_heightPx)
+{
+	// TODO
+	return PH_FALSE;
+}
+
+void phAsyncDevelopFilmRegion(const PHuint64 engineId, const PHuint64 frameId,
+                              const PHuint32 xPx, const PHuint32 yPx,
+                              const PHuint32 widthPx, const PHuint32 heightPx)
+{
+	// TODO
 }
