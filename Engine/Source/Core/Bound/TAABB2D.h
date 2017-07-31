@@ -28,6 +28,7 @@ public:
 	inline T getHeight() const;
 	inline bool isValid() const;
 	inline bool isPoint() const;
+	inline bool equals(const TAABB2D& other) const;
 };
 
 }// end namespace ph

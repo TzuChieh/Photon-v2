@@ -96,4 +96,11 @@ inline bool TAABB2D<T>::isPoint() const
 	return minVertex.equals(maxVertex);
 }
 
+template<typename T>
+inline bool TAABB2D<T>::equals(const TAABB2D& other) const
+{
+	return minVertex.equals(other.minVertex) && 
+	       maxVertex.equals(other.maxVertex);
+}
+
 }// end namespace ph

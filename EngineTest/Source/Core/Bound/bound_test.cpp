@@ -29,7 +29,7 @@ TEST(BoundTest, IntersectingTwoAABB3DsAsVolumes)
 	EXPECT_FALSE(aabb3a.isIntersectingVolume(aabb3b));
 }
 
-TEST(BoundTest, IntersectingTwoAABB2DRsAsAreas)
+TEST(BoundTest, IntersectingTwoAABB2DsAsAreas)
 {
 	typedef TAABB2D<real> AABB2DR;
 
@@ -52,7 +52,7 @@ TEST(BoundTest, IntersectingTwoAABB2DRsAsAreas)
 	EXPECT_FALSE(aabb3a.isIntersectingArea(aabb3b));
 }
 
-TEST(BoundTest, IntersectingAABB2DRwithPoint)
+TEST(BoundTest, IntersectingAABB2DwithPoint)
 {
 	typedef TAABB2D<real> AABB2DR;
 
@@ -75,7 +75,7 @@ TEST(BoundTest, IntersectingAABB2DRwithPoint)
 	EXPECT_FALSE(aabb3.isIntersectingArea(point3));
 }
 
-TEST(BoundTest, AABB2DRvadity)
+TEST(BoundTest, AABB2Dvalidity)
 {
 	typedef TAABB2D<real> AABB2DR;
 
@@ -90,7 +90,7 @@ TEST(BoundTest, AABB2DRvadity)
 	EXPECT_FALSE(aabb2.isValid());
 }
 
-TEST(BoundTest, AABB2DRisPoint)
+TEST(BoundTest, IsAABB2DactuallyPoint)
 {
 	typedef TAABB2D<real> AABB2DR;
 
@@ -105,7 +105,7 @@ TEST(BoundTest, AABB2DRisPoint)
 	EXPECT_TRUE(aabb2.isPoint());
 }
 
-TEST(BoundTest, UnionAABB2DRs)
+TEST(BoundTest, UnionAABB2Ds)
 {
 	typedef TAABB2D<real> AABB2DR;
 
@@ -118,7 +118,7 @@ TEST(BoundTest, UnionAABB2DRs)
 	EXPECT_NEAR(unioned.maxVertex.y,  4, TEST_REAL_EPSILON);
 }
 
-TEST(BoundTest, IntersectAABB2DRs)
+TEST(BoundTest, IntersectAABB2Ds)
 {
 	typedef TAABB2D<real> AABB2DR;
 
@@ -142,4 +142,14 @@ TEST(BoundTest, AABB2DcalculateAreas)
 
 	const TAABB2D<int32> aabb2(TVector2<int32>(-3, -1), TVector2<int32>(3, 1));
 	EXPECT_EQ(aabb2.calcArea(), 12);
+}
+
+TEST(BoundTest, AABB2Dequality)
+{
+	const TAABB2D<int32> aabb1(TVector2<int32>(-1, -1), TVector2<int32>(1, 1));
+	const TAABB2D<int32> aabb2(TVector2<int32>(-1, -1), TVector2<int32>(1, 1));
+	const TAABB2D<int32> aabb3(TVector2<int32>( 0, -1), TVector2<int32>(1, 1));
+
+	EXPECT_TRUE (aabb1.equals(aabb2));
+	EXPECT_FALSE(aabb1.equals(aabb3));
 }

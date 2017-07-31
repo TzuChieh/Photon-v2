@@ -41,12 +41,12 @@ void Engine::setNumRenderThreads(const std::size_t numThreads)
 
 float32 Engine::queryPercentageProgress() const
 {
-	return m_renderer.queryPercentageProgress();
+	return m_renderer.asyncQueryPercentageProgress();
 }
 
 float32 Engine::querySampleFrequency() const
 {
-	return m_renderer.querySampleFrequency();
+	return m_renderer.asyncQuerySampleFrequency();
 }
 
 }// end namespace ph

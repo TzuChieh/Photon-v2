@@ -28,6 +28,7 @@
 #include <thread>
 #include <chrono>
 #include <functional>
+#include <utility>
 
 namespace ph
 {
@@ -82,7 +83,7 @@ void Renderer::setNumRenderThreads(const uint32 numThreads)
 }
 
 // TODO: avoid outputting NaN
-float32 Renderer::queryPercentageProgress() const
+float32 Renderer::asyncQueryPercentageProgress() const
 {
 	std::size_t totalWork = 0;
 	std::size_t workDone  = 0;
@@ -96,7 +97,7 @@ float32 Renderer::queryPercentageProgress() const
 	return static_cast<float32>(workDone) / static_cast<float32>(totalWork) * 100.0f;
 }
 
-float32 Renderer::querySampleFrequency() const
+float32 Renderer::asyncQuerySampleFrequency() const
 {
 	float32 sampleFreq = 0.0f;
 	/*for(uint32 threadId = 0; threadId < m_workerSampleFrequencies.size(); threadId++)
@@ -135,6 +136,37 @@ void Renderer::clearWorkerData()
 	m_workers.clear();
 	m_workerSgs.clear();
 	m_workerFilms.clear();
+	m_updatedRegions.clear();
+}
+
+void Renderer::asyncAddUpdatedRegion(const Region& region)
+{
+	std::lock_guard<std::mutex> lock(m_rendererMutex);
+
+	for(const Region& pendingRegion : m_updatedRegions)
+	{
+		if(pendingRegion.equals(region))
+		{
+			return;
+		}
+	}
+
+	m_updatedRegions.push_back(region);
+}
+
+bool Renderer::asyncPollUpdatedRegion(Region* const out_region)
+{
+	std::lock_guard<std::mutex> lock(m_rendererMutex);
+
+	if(m_updatedRegions.empty())
+	{
+		return false;
+	}
+
+	*out_region = m_updatedRegions.front();
+	m_updatedRegions.pop_front();
+
+	return true;
 }
 
 }// end namespace ph
