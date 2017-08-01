@@ -71,7 +71,7 @@ void RenderWorker::run()
 		for(std::size_t si = 0; si < camSamples.numElements(); si++)
 		{
 			const Vector2D rasterPosPx(camSamples[si].x * filmSampleWpx + flooredSampleMinVertex.x,
-				camSamples[si].y * filmSampleHpx + flooredSampleMinVertex.y);
+			                           camSamples[si].y * filmSampleHpx + flooredSampleMinVertex.y);
 
 			if(!film->getSampleWindowPx().isIntersectingArea(rasterPosPx))
 			{
@@ -106,6 +106,9 @@ void RenderWorker::run()
 		//*workerSampleFreq = static_cast<float32>(filmWpx * filmHpx) / static_cast<float32>(msPassed.count()) * 1000.0f;
 
 		sg->singleSampleEnd();
+
+		film->mergeToParent();
+		film->clear();
 	}
 }
 

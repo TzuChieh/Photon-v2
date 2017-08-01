@@ -8,6 +8,7 @@
 #include "Core/Filmic/Film.h"
 
 #include <vector>
+#include <mutex>
 
 namespace ph
 {
@@ -29,7 +30,8 @@ public:
 	//void accumulateRadiance(const Film& other);
 	virtual void addSample(float64 xPx, float64 yPx, const Vector3R& radiance) override;
 	virtual void clear() override;
-	virtual std::unique_ptr<Film> genChild(const TAABB2D<int64>& effectiveWindowPx) override;
+	virtual std::unique_ptr<Film> genChild(const TAABB2D<int64>& effectiveWindowPx, 
+	                                       bool isSynchronizedMerge) override;
 
 	// HACK
 	/*inline void accumulateRadianceWithoutIncrementSenseCount(const uint32 x, const uint32 y, const Vector3R& radiance)
@@ -54,6 +56,9 @@ private:
 	virtual void developRegion(Frame& out_frame, const TAABB2D<int64>& regionPx) const override;
 
 	std::vector<RadianceSensor> m_pixelRadianceSensors;
+	std::mutex                  m_filmMutex;
+
+	void mergeWith(const HdrRgbFilm& other);
 
 // command interface
 public:

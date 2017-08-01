@@ -333,6 +333,7 @@
     <ClInclude Include="Source\Core\Intersectable\PTriangle.h" />
     <ClInclude Include="Source\Actor\ALight.h" />
     <ClInclude Include="Source\Core\Renderer\RenderData.h" />
+    <ClInclude Include="Source\Core\Renderer\RendererProxy.h" />
     <ClInclude Include="Source\Core\Renderer\RenderWorker.h" />
     <ClInclude Include="Source\Core\SampleGenerator\sample_array.h" />
     <ClInclude Include="Source\Core\SampleGenerator\SGStratified.h" />

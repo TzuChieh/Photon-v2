@@ -34,9 +34,13 @@ public:
 	void develop(Frame& out_frame, const TAABB2D<int64>& regionPx) const;
 	virtual void clear() = 0;
 
-	// generates a child film with the same actual dimensions and filter as parent's, 
-	// but potentially has a different effective window
-	virtual std::unique_ptr<Film> genChild(const TAABB2D<int64>& effectiveWindowPx) = 0;
+	// Generates a child film with the same actual dimensions and filter as parent's, 
+	// but potentially has a different effective window.
+	// A child film can be merged into its parent by calling mergeToParent(); whether 
+	// the merge should be synchronized across threads by the parent can be specified 
+	// with the boolean flag.
+	virtual std::unique_ptr<Film> genChild(const TAABB2D<int64>& effectiveWindowPx, 
+	                                       bool isSynchronizedMerge) = 0;
 
 	inline void mergeToParent() const
 	{

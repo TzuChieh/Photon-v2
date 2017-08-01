@@ -61,10 +61,10 @@ void Renderer::render(const Description& description)
 		std::cout << "worker<" << ti << "> finished" << std::endl;
 	}
 
-	for(auto& worker : m_workers)
+	/*for(auto& worker : m_workers)
 	{
 		worker.data.film->mergeToParent();
-	}
+	}*/
 }
 
 void Renderer::setNumRenderThreads(const uint32 numThreads)
@@ -113,7 +113,7 @@ void Renderer::genFullRegionRenderWorkers(const Description& description, const 
 	Film& film = *(description.getFilm());
 	for(uint32 i = 0; i < numWorkers; i++)
 	{
-		m_workerFilms.push_back(film.genChild(film.getEffectiveWindowPx()));
+		m_workerFilms.push_back(film.genChild(film.getEffectiveWindowPx(), true));
 	}
 
 	SampleGenerator& sg = *(description.getSampleGenerator());

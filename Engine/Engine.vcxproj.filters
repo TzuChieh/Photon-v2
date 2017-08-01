@@ -855,5 +855,8 @@
     <ClInclude Include="Source\Core\Renderer\RenderWorker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\Renderer\RendererProxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

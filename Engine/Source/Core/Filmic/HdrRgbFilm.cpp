@@ -11,6 +11,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include <utility>
 
 namespace ph
 {
@@ -77,22 +78,29 @@ void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const Vector3R&
 	}
 }
 
-std::unique_ptr<Film> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindowPx)
+std::unique_ptr<Film> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindowPx, 
+                                           const bool isSynchronizedMerge)
 {
 	auto childFilm = std::make_unique<HdrRgbFilm>(m_actualResPx.x, m_actualResPx.y, 
 	                                              effectiveWindowPx, 
 	                                              m_filter);
-	childFilm->m_merger = [this, childFilm = childFilm.get()]() -> void
+	HdrRgbFilm* parent = this;
+	HdrRgbFilm* child  = childFilm.get();
+	if(isSynchronizedMerge)
 	{
-		const std::size_t numSensors = childFilm->m_pixelRadianceSensors.size();
-		for(std::size_t i = 0; i < numSensors; i++)
+		childFilm->m_merger = [=]() -> void
 		{
-			m_pixelRadianceSensors[i].accuR      += childFilm->m_pixelRadianceSensors[i].accuR;
-			m_pixelRadianceSensors[i].accuG      += childFilm->m_pixelRadianceSensors[i].accuG;
-			m_pixelRadianceSensors[i].accuB      += childFilm->m_pixelRadianceSensors[i].accuB;
-			m_pixelRadianceSensors[i].accuWeight += childFilm->m_pixelRadianceSensors[i].accuWeight;
-		}
-	};
+			std::lock_guard<std::mutex> lock(m_filmMutex);
+			parent->mergeWith(*child);
+		};
+	}
+	else
+	{
+		childFilm->m_merger = [=]() -> void
+		{
+			parent->mergeWith(*child);
+		};
+	}
 
 	return std::move(childFilm);
 }
@@ -147,6 +155,18 @@ void HdrRgbFilm::developRegion(Frame& out_frame, const TAABB2D<int64>& regionPx)
 void HdrRgbFilm::clear()
 {
 	std::fill(m_pixelRadianceSensors.begin(), m_pixelRadianceSensors.end(), RadianceSensor());
+}
+
+void HdrRgbFilm::mergeWith(const HdrRgbFilm& other)
+{
+	const std::size_t numSensors = other.m_pixelRadianceSensors.size();
+	for(std::size_t i = 0; i < numSensors; i++)
+	{
+		m_pixelRadianceSensors[i].accuR      += other.m_pixelRadianceSensors[i].accuR;
+		m_pixelRadianceSensors[i].accuG      += other.m_pixelRadianceSensors[i].accuG;
+		m_pixelRadianceSensors[i].accuB      += other.m_pixelRadianceSensors[i].accuB;
+		m_pixelRadianceSensors[i].accuWeight += other.m_pixelRadianceSensors[i].accuWeight;
+	}
 }
 
 // command interface
