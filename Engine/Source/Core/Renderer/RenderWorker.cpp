@@ -19,16 +19,18 @@
 namespace ph
 {
 
-RenderWorker::RenderWorker(const RenderData& data) : 
+RenderWorker::RenderWorker(const RendererProxy& renderer, const RenderData& data) :
 	data(data), 
-	m_totalWork(0), m_workDone(0)
+	m_totalWork(0), m_workDone(0),
+	m_renderer(renderer)
 {
 
 }
 
 RenderWorker::RenderWorker(const RenderWorker& other) : 
 	data(other.data), 
-	m_totalWork(other.m_totalWork.load()), m_workDone(other.m_workDone.load())
+	m_totalWork(other.m_totalWork.load()), m_workDone(other.m_workDone.load()),
+	m_renderer(other.m_renderer)
 {
 
 }
@@ -109,6 +111,8 @@ void RenderWorker::run()
 
 		film->mergeToParent();
 		film->clear();
+
+		m_renderer.asyncAddUpdatedRegion(film->getEffectiveWindowPx());
 	}
 }
 
@@ -117,6 +121,7 @@ RenderWorker& RenderWorker::operator = (const RenderWorker& rhs)
 	data        = rhs.data;
 	m_totalWork = rhs.m_totalWork.load();
 	m_workDone  = rhs.m_workDone.load();
+	m_renderer  = rhs.m_renderer;
 
 	return *this;
 }

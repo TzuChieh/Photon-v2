@@ -4,23 +4,13 @@
 #include "World/VisualWorld.h"
 #include "Core/Camera/Camera.h"
 #include "Core/Ray.h"
-#include "Core/Intersection.h"
-#include "Actor/Material/Material.h"
 #include "Math/constant.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "Core/Sample.h"
-#include "Math/Random.h"
-#include "Math/Color.h"
-#include "Math/Math.h"
-#include "Core/Integrator/BackwardPathIntegrator.h"
-#include "Core/Integrator/BackwardLightIntegrator.h"
-#include "Core/Integrator/BackwardMisIntegrator.h"
-#include "Core/Integrator/NormalBufferIntegrator.h"
-#include "Core/Integrator/LightTracingIntegrator.h"
 #include "FileIO/Description.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/RenderData.h"
 #include "Core/Renderer/RenderWorker.h"
+#include "Core/Renderer/RendererProxy.h"
 
 #include <cmath>
 #include <iostream>
@@ -127,7 +117,7 @@ void Renderer::genFullRegionRenderWorkers(const Description& description, const 
 		                            description.getIntegrator().get(), 
 		                            m_workerSgs[ti].get(), 
 		                            m_workerFilms[ti].get());
-		m_workers[ti] = RenderWorker(renderData);
+		m_workers[ti] = RenderWorker(RendererProxy(this), renderData);
 	}
 }
 
@@ -152,6 +142,8 @@ void Renderer::asyncAddUpdatedRegion(const Region& region)
 	}
 
 	m_updatedRegions.push_back(region);
+
+	std::cout << region.toString() << std::endl;
 }
 
 bool Renderer::asyncPollUpdatedRegion(Region* const out_region)

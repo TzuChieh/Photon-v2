@@ -103,4 +103,10 @@ inline bool TAABB2D<T>::equals(const TAABB2D& other) const
 	       maxVertex.equals(other.maxVertex);
 }
 
+template<typename T>
+inline std::string TAABB2D<T>::toString() const
+{
+	return "AABB: min" + minVertex.toString() + ", max" + maxVertex.toString();
+}
+
 }// end namespace ph

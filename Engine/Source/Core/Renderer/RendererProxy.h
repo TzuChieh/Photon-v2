@@ -1,21 +1,23 @@
 #pragma once
 
-#include "Core/Renderer/Renderer.h"
+#include "Common/primitive_type.h"
+#include "Core/Bound/TAABB2D.h"
 
 namespace ph
 {
 
+class Renderer;
+
 class RendererProxy final
 {
 public:
-	inline RendererProxy(Renderer* renderer) : 
-		m_renderer(renderer)
-	{
+	typedef TAABB2D<int64> Region;
 
-	}
+public:
+	RendererProxy();
+	RendererProxy(Renderer* renderer);
 
-	inline void 
-
+	void asyncAddUpdatedRegion(const Region& region);
 
 private:
 	Renderer* m_renderer;

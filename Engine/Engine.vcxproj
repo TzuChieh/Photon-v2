@@ -202,6 +202,7 @@
     <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp" />
     <ClCompile Include="Source\Core\Intersection.cpp" />
     <ClCompile Include="Source\Core\Renderer\Renderer.cpp" />
+    <ClCompile Include="Source\Core\Renderer\RendererProxy.cpp" />
     <ClCompile Include="Source\Core\Renderer\RenderWorker.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator\SampleGenerator.cpp" />
     <ClCompile Include="Source\Core\SampleGenerator\sample_array.cpp" />

@@ -2,6 +2,8 @@
 
 #include "Math/TVector2.h"
 
+#include <string>
+
 namespace ph
 {
 
@@ -29,6 +31,7 @@ public:
 	inline bool isValid() const;
 	inline bool isPoint() const;
 	inline bool equals(const TAABB2D& other) const;
+	inline std::string toString() const;
 };
 
 }// end namespace ph

@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Core/Renderer/RenderData.h"
+#include "Core/Renderer/RendererProxy.h"
 
 #include <atomic>
 
@@ -21,7 +22,7 @@ public:
 	RenderData data;
 
 	inline RenderWorker() = default;
-	RenderWorker(const RenderData& data);
+	RenderWorker(const RendererProxy& renderer, const RenderData& data);
 	RenderWorker(const RenderWorker& other);
 
 	void run();
@@ -39,6 +40,7 @@ public:
 private:
 	std::atomic_uint32_t m_totalWork;
 	std::atomic_uint32_t m_workDone;
+	RendererProxy        m_renderer;
 };
 
 }// end namespace ph
