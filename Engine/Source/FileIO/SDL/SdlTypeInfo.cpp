@@ -50,7 +50,7 @@ ETypeCategory SdlTypeInfo::nameToCategory(const std::string& name)
 		{categoryToName(ETypeCategory::REF_CAMERA),           ETypeCategory::REF_CAMERA},
 		{categoryToName(ETypeCategory::REF_FILM),             ETypeCategory::REF_FILM},
 		{categoryToName(ETypeCategory::REF_INTEGRATOR),       ETypeCategory::REF_INTEGRATOR},
-		{categoryToName(ETypeCategory::REF_SAMPLE_GENERATOR), ETypeCategory::REF_SAMPLE_GENERATOR},
+		{categoryToName(ETypeCategory::REF_SAMPLE_GENERATOR), ETypeCategory::REF_SAMPLE_GENERATOR}
 	};
 
 	const auto& iter = map.find(name);

@@ -8,6 +8,7 @@
 #include "Core/Integrator/Integrator.h"
 #include "Core/Camera/Camera.h"
 #include "World/Scene.h"
+#include "Core/Renderer/RenderWork.h"
 
 #include <cmath>
 #include <iostream>
@@ -19,29 +20,40 @@
 namespace ph
 {
 
-RenderWorker::RenderWorker(const RendererProxy& renderer, const RenderData& data) :
-	data(data), 
-	m_totalWork(0), m_workDone(0),
-	m_renderer(renderer)
+RenderWorker::RenderWorker(const RendererProxy& renderer, 
+                           const uint32 id) :
+	m_renderer(renderer),
+	m_id(id),
+	m_totalWork(0), m_workDone(0)
 {
 
 }
 
 RenderWorker::RenderWorker(const RenderWorker& other) : 
-	data(other.data), 
-	m_totalWork(other.m_totalWork.load()), m_workDone(other.m_workDone.load()),
-	m_renderer(other.m_renderer)
+	m_renderer(other.m_renderer),
+	m_id(other.m_id),
+	m_totalWork(other.m_totalWork.load()), m_workDone(other.m_workDone.load())
 {
 
 }
 
 void RenderWorker::run()
 {
-	const Camera* const     camera     = data.camera;
-	const Integrator* const integrator = data.integrator;
-	const Scene* const      scene      = data.scene;
-	SampleGenerator* const  sg         = data.sampleGenerator;
-	Film* const             film       = data.film;
+	RenderWork work;
+	while(m_renderer.getNewWork(&work))
+	{
+		doWork(work);
+		m_renderer.submitWork(work, false);
+	}
+}
+
+void RenderWorker::doWork(const RenderWork& work)
+{
+	const Camera* const     camera     = work.camera;
+	const Integrator* const integrator = work.integrator;
+	const Scene* const      scene      = work.scene;
+	SampleGenerator* const  sg         = work.sampleGenerator;
+	Film* const             film       = work.film;
 
 	const uint64 filmWpx = film->getEffectiveResPx().x;
 	const uint64 filmHpx = film->getEffectiveResPx().y;
@@ -59,7 +71,7 @@ void RenderWorker::run()
 	const std::size_t totalSamples = sg->numSamples();
 	std::size_t currentSamples = 0;
 
-	m_totalWork = static_cast<std::uint32_t>(totalSamples);
+	m_totalWork = static_cast<std::uint64_t>(totalSamples);
 
 	std::chrono::time_point<std::chrono::system_clock> t1;
 	std::chrono::time_point<std::chrono::system_clock> t2;
@@ -83,7 +95,7 @@ void RenderWorker::run()
 			Ray ray;
 			camera->genSensingRay(Vector2R(rasterPosPx), &ray);
 
-			integrator->radianceAlongRay(ray, data, senseEvents);
+			integrator->radianceAlongRay(ray, work, senseEvents);
 
 			// HACK: sense event
 			for(const auto& senseEvent : senseEvents)
@@ -100,7 +112,7 @@ void RenderWorker::run()
 		}// end for
 
 		currentSamples++;
-		m_workDone = static_cast<std::uint32_t>(currentSamples);
+		m_workDone = static_cast<std::uint64_t>(currentSamples);
 
 		t2 = std::chrono::system_clock::now();
 
@@ -109,19 +121,16 @@ void RenderWorker::run()
 
 		sg->singleSampleEnd();
 
-		film->mergeToParent();
-		film->clear();
-
-		m_renderer.asyncAddUpdatedRegion(film->getEffectiveWindowPx());
+		m_renderer.submitWork(work, true);
 	}
 }
 
 RenderWorker& RenderWorker::operator = (const RenderWorker& rhs)
 {
-	data        = rhs.data;
+	m_renderer  = rhs.m_renderer;
+	m_id        = rhs.m_id;
 	m_totalWork = rhs.m_totalWork.load();
 	m_workDone  = rhs.m_workDone.load();
-	m_renderer  = rhs.m_renderer;
 
 	return *this;
 }

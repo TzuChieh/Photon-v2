@@ -16,9 +16,14 @@ RendererProxy::RendererProxy(Renderer* renderer) :
 
 }
 
-void RendererProxy::asyncAddUpdatedRegion(const Region& region)
+bool RendererProxy::getNewWork(RenderWork* out_work)
 {
-	m_renderer->asyncAddUpdatedRegion(region);
+	return m_renderer->getNewWork(out_work);
+}
+
+void RendererProxy::submitWork(const RenderWork& work, bool isUpdating)
+{
+	m_renderer->submitWork(work, isUpdating);
 }
 
 }// end namespace ph

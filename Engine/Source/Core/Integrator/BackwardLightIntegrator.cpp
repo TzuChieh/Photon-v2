@@ -31,7 +31,7 @@ void BackwardLightIntegrator::update(const Scene& scene)
 	// update nothing
 }
 
-void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const RenderData& data, std::vector<SenseEvent>& out_senseEvents) const
+void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
 {
 	const Scene&  scene  = *data.scene;
 	const Camera& camera = *data.camera;

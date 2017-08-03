@@ -45,7 +45,9 @@ private:
 public:
 	static SdlTypeInfo ciTypeInfo();
 	static std::unique_ptr<AModel> ciLoad(const InputPacket& packet);
-	static ExitStatus ciExecute(const std::shared_ptr<AModel>& targetResource, const std::string& functionName, const InputPacket& packet);
+	static ExitStatus ciExecute(const std::shared_ptr<AModel>& targetResource, 
+	                            const std::string& functionName, 
+	                            const InputPacket& packet);
 };
 
 }// end namespace ph

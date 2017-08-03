@@ -14,7 +14,7 @@ void NormalBufferIntegrator::update(const Scene& scene)
 	// update nothing
 }
 
-void NormalBufferIntegrator::radianceAlongRay(const Ray& ray, const RenderData& data, std::vector<SenseEvent>& out_senseEvents) const
+void NormalBufferIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
 {
 	/*Ray ray;
 	data.camera->genSensingRay(sample, &ray);*/

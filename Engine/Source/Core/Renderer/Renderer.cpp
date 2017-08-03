@@ -8,7 +8,6 @@
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "FileIO/Description.h"
 #include "Core/Filmic/HdrRgbFilm.h"
-#include "Core/Renderer/RenderData.h"
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
 
@@ -33,11 +32,17 @@ Renderer::~Renderer() = default;
 
 void Renderer::render(const Description& description)
 {
-	clearWorkerData();
-	genFullRegionRenderWorkers(description, m_numThreads);
+	init(description);
 
 	std::vector<std::thread> renderThreads(m_numThreads);
-	for(std::size_t ti = 0; ti < m_numThreads; ti++)
+
+	m_workers.resize(m_numThreads);
+	for(uint32 ti = 0; ti < m_numThreads; ti++)
+	{
+		m_workers[ti] = RenderWorker(RendererProxy(this), ti);
+	}
+
+	for(uint32 ti = 0; ti < m_numThreads; ti++)
 	{
 		renderThreads[ti] = std::thread(&RenderWorker::run, &m_workers[ti]);
 
@@ -50,26 +55,11 @@ void Renderer::render(const Description& description)
 
 		std::cout << "worker<" << ti << "> finished" << std::endl;
 	}
-
-	/*for(auto& worker : m_workers)
-	{
-		worker.data.film->mergeToParent();
-	}*/
 }
 
 void Renderer::setNumRenderThreads(const uint32 numThreads)
 {
 	m_numThreads = numThreads;
-
-	/*m_workerProgresses.clear();
-	m_workerProgresses.shrink_to_fit();
-	m_workerSampleFrequencies.clear();
-	m_workerSampleFrequencies.shrink_to_fit();
-	for(std::size_t threadIndex = 0; threadIndex < m_numThreads; threadIndex++)
-	{
-		m_workerProgresses.push_back(std::make_unique<std::atomic<float32>>(0.0f));
-		m_workerSampleFrequencies.push_back(std::make_unique<std::atomic<float32>>(0.0f));
-	}*/
 }
 
 // TODO: avoid outputting NaN
@@ -87,78 +77,16 @@ float32 Renderer::asyncQueryPercentageProgress() const
 	return static_cast<float32>(workDone) / static_cast<float32>(totalWork) * 100.0f;
 }
 
+// TODO
 float32 Renderer::asyncQuerySampleFrequency() const
 {
 	float32 sampleFreq = 0.0f;
 	/*for(uint32 threadId = 0; threadId < m_workerSampleFrequencies.size(); threadId++)
 	{
-		sampleFreq += *(m_workerSampleFrequencies[threadId]);
+	sampleFreq += *(m_workerSampleFrequencies[threadId]);
 	}*/
 
 	return sampleFreq;
-}
-
-void Renderer::genFullRegionRenderWorkers(const Description& description, const uint32 numWorkers)
-{
-	Film& film = *(description.getFilm());
-	for(uint32 i = 0; i < numWorkers; i++)
-	{
-		m_workerFilms.push_back(film.genChild(film.getEffectiveWindowPx(), true));
-	}
-
-	SampleGenerator& sg = *(description.getSampleGenerator());
-	sg.genSplitted(numWorkers, m_workerSgs);
-
-	m_workers.resize(numWorkers);
-	for(std::size_t ti = 0; ti < m_numThreads; ti++)
-	{
-		const RenderData renderData(&description.visualWorld.getScene(),
-		                            description.getCamera().get(), 
-		                            description.getIntegrator().get(), 
-		                            m_workerSgs[ti].get(), 
-		                            m_workerFilms[ti].get());
-		m_workers[ti] = RenderWorker(RendererProxy(this), renderData);
-	}
-}
-
-void Renderer::clearWorkerData()
-{
-	m_workers.clear();
-	m_workerSgs.clear();
-	m_workerFilms.clear();
-	m_updatedRegions.clear();
-}
-
-void Renderer::asyncAddUpdatedRegion(const Region& region)
-{
-	std::lock_guard<std::mutex> lock(m_rendererMutex);
-
-	for(const Region& pendingRegion : m_updatedRegions)
-	{
-		if(pendingRegion.equals(region))
-		{
-			return;
-		}
-	}
-
-	m_updatedRegions.push_back(region);
-
-	std::cout << region.toString() << std::endl;
-}
-
-bool Renderer::asyncPollUpdatedRegion(Region* const out_region)
-{
-	std::lock_guard<std::mutex> lock(m_rendererMutex);
-
-	if(m_updatedRegions.empty())
-	{
-		return false;
-	}
-
-	*out_region = m_updatedRegions.front();
-	m_updatedRegions.pop_front();
-
-	return true;
 }
 
 }// end namespace ph

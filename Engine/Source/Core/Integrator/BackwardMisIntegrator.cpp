@@ -31,7 +31,7 @@ void BackwardMisIntegrator::update(const Scene& scene)
 	// update nothing
 }
 
-void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const RenderData& data, std::vector<SenseEvent>& out_senseEvents) const
+void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
 {
 	const Scene&  scene  = *data.scene;
 	const Camera& camera = *data.camera;

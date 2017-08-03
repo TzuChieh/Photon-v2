@@ -11,7 +11,7 @@ public:
 	virtual ~DebugIntegrator() override;
 
 	virtual void update(const Scene& scene) override;
-	virtual void radianceAlongRay(const Ray& ray, const RenderData& data, std::vector<SenseEvent>& out_senseEvents) const override;
+	virtual void radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const override;
 
 // command interface
 public:

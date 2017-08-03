@@ -9,7 +9,10 @@ namespace ph
 
 Description::Description() :
 	visualWorld(), renderOption(), 
-	m_camera(nullptr), m_film(nullptr), m_integrator(nullptr), m_sampleGenerator(nullptr)
+	m_camera(nullptr), 
+	m_film(nullptr), 
+	m_integrator(nullptr), 
+	m_sampleGenerator(nullptr)
 {
 
 }

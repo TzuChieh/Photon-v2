@@ -8,6 +8,7 @@
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "FileIO/RenderOption.h"
 #include "FileIO/NamedResourceStorage.h"
+#include "Core/Renderer/Renderer.h"
 
 #include <vector>
 #include <memory>
@@ -38,6 +39,7 @@ private:
 	std::shared_ptr<Film>            m_film;
 	std::shared_ptr<Integrator>      m_integrator;
 	std::shared_ptr<SampleGenerator> m_sampleGenerator;
+
 };
 
 }// end namespace ph

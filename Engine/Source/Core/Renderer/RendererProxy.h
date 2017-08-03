@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Core/Bound/TAABB2D.h"
+#include "Core/Renderer/RenderWork.h"
 
 namespace ph
 {
@@ -17,7 +18,8 @@ public:
 	RendererProxy();
 	RendererProxy(Renderer* renderer);
 
-	void asyncAddUpdatedRegion(const Region& region);
+	bool getNewWork(RenderWork* out_work);
+	void submitWork(const RenderWork& work, bool isUpdating);
 
 private:
 	Renderer* m_renderer;

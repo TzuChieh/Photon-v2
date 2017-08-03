@@ -201,6 +201,7 @@
     <ClCompile Include="Source\Core\Intersectable\Intersectable.cpp" />
     <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp" />
     <ClCompile Include="Source\Core\Intersection.cpp" />
+    <ClCompile Include="Source\Core\Renderer\BulkRenderer.cpp" />
     <ClCompile Include="Source\Core\Renderer\Renderer.cpp" />
     <ClCompile Include="Source\Core\Renderer\RendererProxy.cpp" />
     <ClCompile Include="Source\Core\Renderer\RenderWorker.cpp" />
@@ -333,7 +334,9 @@
     <ClInclude Include="Source\Core\Intersectable\PrimitiveMetadata.h" />
     <ClInclude Include="Source\Core\Intersectable\PTriangle.h" />
     <ClInclude Include="Source\Actor\ALight.h" />
-    <ClInclude Include="Source\Core\Renderer\RenderData.h" />
+    <ClInclude Include="Source\Core\Renderer\BulkRenderer.h" />
+    <ClInclude Include="Source\Core\Renderer\ERegionStatus.h" />
+    <ClInclude Include="Source\Core\Renderer\RenderWork.h" />
     <ClInclude Include="Source\Core\Renderer\RendererProxy.h" />
     <ClInclude Include="Source\Core\Renderer\RenderWorker.h" />
     <ClInclude Include="Source\Core\SampleGenerator\sample_array.h" />

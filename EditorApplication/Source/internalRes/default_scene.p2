@@ -21,7 +21,6 @@
 //## integrator(debug)
 
 
-
 -> geometry(rectangle) @boxWall [real width 1][real height 1]
 
 // top light (left)

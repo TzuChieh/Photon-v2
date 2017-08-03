@@ -9,7 +9,7 @@ class Integrator;
 class SampleGenerator;
 class Film;
 
-class RenderData final
+class RenderWork final
 {
 public:
 	const Scene*      scene;
@@ -18,7 +18,7 @@ public:
 	SampleGenerator*  sampleGenerator;
 	Film*             film;
 
-	inline RenderData(const Scene* const      scene, 
+	inline RenderWork(const Scene* const      scene,
 	                  const Camera* const     camera,
 	                  const Integrator* const integrator,
 	                  SampleGenerator* const  sampleGenerator,
@@ -32,8 +32,8 @@ public:
 
 	}
 
-	inline RenderData() :
-		RenderData(nullptr, nullptr, nullptr, nullptr, nullptr)
+	inline RenderWork() :
+		RenderWork(nullptr, nullptr, nullptr, nullptr, nullptr)
 	{
 
 	}

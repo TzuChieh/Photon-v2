@@ -1,12 +1,12 @@
 #include "Core/Engine.h"
 #include "PostProcess/Frame.h"
+#include "Core/Renderer/BulkRenderer.h"
 
 namespace ph
 {
 
 Engine::Engine() : 
-	//visualWorld(), 
-	m_renderer()
+	m_renderer(std::make_unique<BulkRenderer>())
 {
 
 }
@@ -21,7 +21,8 @@ void Engine::render()
 	// HACK
 	m_description.update(0.0_r);
 
-	m_renderer.render(m_description);
+	// HACK
+	m_renderer->render(m_description);
 }
 
 void Engine::developFilm(Frame& out_frame)
@@ -34,19 +35,22 @@ TVector2<int64> Engine::getFilmDimensionPx() const
 	return m_description.getFilm()->getActualResPx();
 }
 
-void Engine::setNumRenderThreads(const std::size_t numThreads)
+void Engine::setNumRenderThreads(const uint32 numThreads)
 {
-	m_renderer.setNumRenderThreads(static_cast<uint32>(numThreads));
+	// HACK
+	m_renderer->setNumRenderThreads(numThreads);
 }
 
 float32 Engine::queryPercentageProgress() const
 {
-	return m_renderer.asyncQueryPercentageProgress();
+	// HACK
+	return m_renderer->asyncQueryPercentageProgress();
 }
 
 float32 Engine::querySampleFrequency() const
 {
-	return m_renderer.asyncQuerySampleFrequency();
+	// HACK
+	return m_renderer->asyncQuerySampleFrequency();
 }
 
 }// end namespace ph
