@@ -76,6 +76,12 @@ inline TVector2<T> TVector2<T>::add(const T rhs) const
 }
 
 template<typename T>
+inline TVector2<T> TVector2<T>::add(const T rhsX, const T rhsY) const
+{
+	return TVector2(x + rhsX, y + rhsY);
+}
+
+template<typename T>
 inline void TVector2<T>::sub(const TVector2& rhs, TVector2* const out_result) const
 {
 	out_result->x = x - rhs.x;

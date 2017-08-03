@@ -68,14 +68,14 @@ public final class PhEngine
 	public float queryPercentageProgress()
 	{
 		FloatRef progress = new FloatRef();
-		Ph.phQueryRendererPercentageProgress(m_engineId, progress);
+		Ph.phAsyncQueryRendererPercentageProgress(m_engineId, progress);
 		return progress.m_value;
 	}
 	
 	public float querySampleFrequency()
 	{
 		FloatRef frequency = new FloatRef();
-		Ph.phQueryRendererSampleFrequency(m_engineId, frequency);
+		Ph.phAsyncQueryRendererSampleFrequency(m_engineId, frequency);
 		return frequency.m_value;
 	}
 	

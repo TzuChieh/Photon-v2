@@ -372,6 +372,9 @@
     <ClCompile Include="Source\Core\Renderer\BulkRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\Renderer\TiledRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Common\primitive_type.h">
@@ -868,6 +871,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Renderer\ERegionStatus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Renderer\TiledRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

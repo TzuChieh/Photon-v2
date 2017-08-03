@@ -7,6 +7,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef photonApi_Ph_FILM_REGION_STATUS_INVALID
+#define photonApi_Ph_FILM_REGION_STATUS_INVALID 0L
+#undef photonApi_Ph_FILM_REGION_STATUS_UPDATING
+#define photonApi_Ph_FILM_REGION_STATUS_UPDATING 1L
+#undef photonApi_Ph_FILM_REGION_STATUS_FINISHED
+#define photonApi_Ph_FILM_REGION_STATUS_FINISHED 2L
 /*
  * Class:     photonApi_Ph
  * Method:    phInit
@@ -81,11 +87,19 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateFrame
 
 /*
  * Class:     photonApi_Ph
- * Method:    phGetFrameRgbData
+ * Method:    phCopyFrameRgbData
  * Signature: (JLphotonApi/FloatArrayRef;)V
  */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phGetFrameRgbData
+JNIEXPORT void JNICALL Java_photonApi_Ph_phCopyFrameRgbData__JLphotonApi_FloatArrayRef_2
   (JNIEnv *, jclass, jlong, jobject);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phCopyFrameRgbData
+ * Signature: (JIIIILphotonApi/FloatArrayRef;)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phCopyFrameRgbData__JIIIILphotonApi_FloatArrayRef_2
+  (JNIEnv *, jclass, jlong, jint, jint, jint, jint, jobject);
 
 /*
  * Class:     photonApi_Ph
@@ -97,19 +111,35 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteFrame
 
 /*
  * Class:     photonApi_Ph
- * Method:    phQueryRendererPercentageProgress
+ * Method:    phAsyncQueryRendererPercentageProgress
  * Signature: (JLphotonApi/FloatRef;)V
  */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phQueryRendererPercentageProgress
+JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncQueryRendererPercentageProgress
   (JNIEnv *, jclass, jlong, jobject);
 
 /*
  * Class:     photonApi_Ph
- * Method:    phQueryRendererSampleFrequency
+ * Method:    phAsyncQueryRendererSampleFrequency
  * Signature: (JLphotonApi/FloatRef;)V
  */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phQueryRendererSampleFrequency
+JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncQueryRendererSampleFrequency
   (JNIEnv *, jclass, jlong, jobject);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phAsyncPollUpdatedFilmRegion
+ * Signature: (JLphotonApi/IntRef;LphotonApi/IntRef;LphotonApi/IntRef;LphotonApi/IntRef;)I
+ */
+JNIEXPORT jint JNICALL Java_photonApi_Ph_phAsyncPollUpdatedFilmRegion
+  (JNIEnv *, jclass, jlong, jobject, jobject, jobject, jobject);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phAsyncDevelopFilmRegion
+ * Signature: (JJIIII)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncDevelopFilmRegion
+  (JNIEnv *, jclass, jlong, jlong, jint, jint, jint, jint);
 
 #ifdef __cplusplus
 }

@@ -18,8 +18,8 @@ public:
 	RendererProxy();
 	RendererProxy(Renderer* renderer);
 
-	bool getNewWork(RenderWork* out_work);
-	void submitWork(const RenderWork& work, bool isUpdating);
+	bool getNewWork(uint32 workerId, RenderWork* out_work);
+	void submitWork(uint32 workerId, const RenderWork& work, bool isUpdating);
 
 private:
 	Renderer* m_renderer;

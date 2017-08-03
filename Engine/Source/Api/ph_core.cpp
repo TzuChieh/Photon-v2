@@ -8,6 +8,7 @@
 #include "PostProcess/Frame.h"
 #include "Math/TArithmeticArray.h"
 #include "Api/init_and_exit.h"
+#include "Core/Renderer/Renderer.h"
 
 #include <memory>
 #include <iostream>
@@ -154,7 +155,7 @@ void phAsyncGetRendererPercentageProgress(const PHuint64 engineId, PHfloat32* co
 	Engine* engine = ApiDatabase::getEngine(engineId);
 	if(engine)
 	{
-		*out_percentage = engine->queryPercentageProgress();
+		*out_percentage = engine->asyncQueryPercentageProgress();
 	}
 }
 
@@ -165,7 +166,7 @@ void phAsyncGetRendererSampleFrequency(const PHuint64 engineId, PHfloat32* const
 	Engine* engine = ApiDatabase::getEngine(engineId);
 	if(engine)
 	{
-		*out_frequency = engine->querySampleFrequency();
+		*out_frequency = engine->asyncQuerySampleFrequency();
 	}
 }
 
@@ -173,13 +174,41 @@ int phAsyncPollUpdatedFilmRegion(const PHuint64 engineId,
                                  PHuint32* const out_xPx, PHuint32* const out_yPx,
                                  PHuint32* const out_widthPx, PHuint32* const out_heightPx)
 {
-	// TODO
-	return PH_FALSE;
+	using namespace ph;
+
+	Engine* engine = ApiDatabase::getEngine(engineId);
+	if(engine)
+	{
+		Renderer::Region region;
+		const ERegionStatus status = engine->asyncPollUpdatedRegion(&region);
+
+		*out_xPx      = static_cast<PHuint32>(region.minVertex.x);
+		*out_yPx      = static_cast<PHuint32>(region.minVertex.y);
+		*out_widthPx  = static_cast<PHuint32>(region.getWidth());
+		*out_heightPx = static_cast<PHuint32>(region.getHeight());
+
+		switch(status)
+		{
+		case ERegionStatus::INVALID:  return PH_FILM_REGION_STATUS_INVALID;
+		case ERegionStatus::UPDATING: return PH_FILM_REGION_STATUS_UPDATING;
+		case ERegionStatus::FINISHED: return PH_FILM_REGION_STATUS_FINISHED;
+		}
+	}
+
+	return PH_FILM_REGION_STATUS_INVALID;
 }
 
 void phAsyncDevelopFilmRegion(const PHuint64 engineId, const PHuint64 frameId,
                               const PHuint32 xPx, const PHuint32 yPx,
                               const PHuint32 widthPx, const PHuint32 heightPx)
 {
-	// TODO
+	using namespace ph;
+
+	Engine* engine = ApiDatabase::getEngine(engineId);
+	Frame*  frame  = ApiDatabase::getFrame(frameId);
+	if(engine && frame)
+	{
+		const Renderer::Region region({xPx, yPx}, {xPx + widthPx, yPx + heightPx});
+		engine->asyncDevelopFilmRegion(*frame, region);
+	}
 }

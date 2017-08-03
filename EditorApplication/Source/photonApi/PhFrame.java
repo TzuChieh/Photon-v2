@@ -31,7 +31,7 @@ public final class PhFrame
 	public float[] getRawRgbData()
 	{
 		FloatArrayRef rgbData = new FloatArrayRef();
-		Ph.phGetFrameRgbData(m_frameId, rgbData);
+		Ph.phCopyFrameRgbData(m_frameId, rgbData);
 		if(rgbData.m_value == null)
 		{
 			System.err.println("bad raw data");

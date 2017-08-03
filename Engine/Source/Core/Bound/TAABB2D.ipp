@@ -85,6 +85,13 @@ inline T TAABB2D<T>::getHeight() const
 }
 
 template<typename T>
+inline TVector2<T> TAABB2D<T>::calcCenter() const
+{
+	return TVector2<T>((minVertex.x + maxVertex.x) / 2, 
+	                   (minVertex.y + maxVertex.y) / 2);
+}
+
+template<typename T>
 inline bool TAABB2D<T>::isValid() const
 {
 	return minVertex.x <= maxVertex.x && minVertex.y <= maxVertex.y;

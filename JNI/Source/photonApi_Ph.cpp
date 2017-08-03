@@ -137,34 +137,67 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteFrame
 
 /*
 * Class:     photonApi_Ph
-* Method:    phGetFrameRgbData
+* Method:    phCopyFrameRgbData
 * Signature: (JLphotonApi/FloatArrayRef;)V
 */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phGetFrameRgbData
+JNIEXPORT void JNICALL Java_photonApi_Ph_phCopyFrameRgbData__JLphotonApi_FloatArrayRef_2
 (JNIEnv* env, jclass thiz, jlong frameId, jobject out_FloatArrayRef_rgbData)
+{
+	PHuint32 widthPx;
+	PHuint32 heightPx;
+	phGetFrameDimension(static_cast<PHuint64>(frameId), &widthPx, &heightPx);
+
+	Java_photonApi_Ph_phCopyFrameRgbData__JIIIILphotonApi_FloatArrayRef_2
+	(
+		env, thiz, frameId, 
+		0, 0, static_cast<jint>(widthPx), static_cast<jint>(heightPx), 
+		out_FloatArrayRef_rgbData
+	);
+}
+
+/*
+* Class:     photonApi_Ph
+* Method:    phCopyFrameRgbData
+* Signature: (JIIIILphotonApi/FloatArrayRef;)V
+*/
+JNIEXPORT void JNICALL Java_photonApi_Ph_phCopyFrameRgbData__JIIIILphotonApi_FloatArrayRef_2
+(JNIEnv* env, jclass thiz, jlong frameId, 
+                           jint xPx, jint yPx, jint wPx, jint hPx, 
+                           jobject out_FloatArrayRef_rgbData)
 {
 	const PHfloat32* rgbData;
 	PHuint32         widthPx;
 	PHuint32         heightPx;
-	const PHuint32   numComponents = 3;
+	const jsize      numComp = 3;
 	phGetFrameRgbData(static_cast<PHuint64>(frameId), &rgbData);
 	phGetFrameDimension(static_cast<PHuint64>(frameId), &widthPx, &heightPx);
 
-	const jsize numFloats = static_cast<jsize>(widthPx * heightPx * numComponents);
+	const jsize numFloats = static_cast<jsize>(wPx * hPx * numComp);
+	jfloatArray object_float_array = env->NewFloatArray(numFloats);
+	for(jint y = yPx; y < yPx + hPx; y++)
+	{
+		const std::size_t dataStartIndex = (static_cast<std::size_t>(y) * widthPx + 
+		                                    static_cast<std::size_t>(xPx)) * static_cast<std::size_t>(numComp);
 
-	jclass      class_FloatArrayRef = env->GetObjectClass(out_FloatArrayRef_rgbData);
-	jfieldID    field_m_value       = env->GetFieldID(class_FloatArrayRef, "m_value", "[F");
-	jfloatArray object_float_array  = env->NewFloatArray(numFloats);
-	env->SetFloatArrayRegion(object_float_array, 0, numFloats, static_cast<const jfloat*>(rgbData));
+		const jsize arrayOffset = static_cast<jsize>(y - yPx) * static_cast<jsize>(wPx) * numComp;
+		const jsize length      = static_cast<jsize>(wPx) * numComp;
+
+		env->SetFloatArrayRegion(object_float_array, 
+		                         arrayOffset, length,
+		                         static_cast<const jfloat*>(rgbData + dataStartIndex));
+	}
+
+	jclass   class_FloatArrayRef = env->GetObjectClass(out_FloatArrayRef_rgbData);
+	jfieldID field_m_value       = env->GetFieldID(class_FloatArrayRef, "m_value", "[F");
 	env->SetObjectField(out_FloatArrayRef_rgbData, field_m_value, object_float_array);
 }
 
 /*
 * Class:     photonApi_Ph
-* Method:    phQueryRendererPercentageProgress
+* Method:    phAsyncQueryRendererPercentageProgress
 * Signature: (JLphotonApi/FloatRef;)V
 */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phQueryRendererPercentageProgress
+JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncQueryRendererPercentageProgress
 (JNIEnv* env, jclass thiz, jlong engineId, jobject out_FloatRef_progress)
 {
 	PHfloat32 progress;
@@ -175,14 +208,63 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phQueryRendererPercentageProgress
 
 /*
 * Class:     photonApi_Ph
-* Method:    phQueryRendererSampleFrequency
+* Method:    phAsyncQueryRendererSampleFrequency
 * Signature: (JLphotonApi/FloatRef;)V
 */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phQueryRendererSampleFrequency
+JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncQueryRendererSampleFrequency
 (JNIEnv* env, jclass thiz, jlong engineId, jobject out_FloatRef_frequency)
 {
 	PHfloat32 frequency;
 	phAsyncGetRendererSampleFrequency(static_cast<PHuint64>(engineId), &frequency);
 	ph::JFloatRef jFrequency(out_FloatRef_frequency, env);
 	jFrequency.setValue(frequency);
+}
+
+/*
+* Class:     photonApi_Ph
+* Method:    phAsyncPollUpdatedFilmRegion
+* Signature: (JLphotonApi/IntRef;LphotonApi/IntRef;LphotonApi/IntRef;LphotonApi/IntRef;)I
+*/
+JNIEXPORT jint JNICALL Java_photonApi_Ph_phAsyncPollUpdatedFilmRegion
+(JNIEnv* env, jclass thiz, jlong engineId, 
+                           jobject out_IntRef_xPx, jobject out_IntRef_yPx, 
+                           jobject out_IntRef_wPx, jobject out_IntRef_hPx)
+{
+	PHuint32 xPx, yPx, wPx, hPx;
+	const int status = phAsyncPollUpdatedFilmRegion(static_cast<PHuint64>(engineId), 
+	                                                &xPx, &yPx, &wPx, &hPx);
+
+	ph::JIntRef jXpx(out_IntRef_xPx, env);
+	ph::JIntRef jYpx(out_IntRef_yPx, env);
+	ph::JIntRef jWpx(out_IntRef_wPx, env);
+	ph::JIntRef jHpx(out_IntRef_hPx, env);
+	jXpx.setValue(static_cast<PHint32>(xPx));
+	jYpx.setValue(static_cast<PHint32>(yPx));
+	jWpx.setValue(static_cast<PHint32>(wPx));
+	jHpx.setValue(static_cast<PHint32>(hPx));
+
+	switch(status)
+	{
+	case PH_FILM_REGION_STATUS_UPDATING: return photonApi_Ph_FILM_REGION_STATUS_UPDATING;
+	case PH_FILM_REGION_STATUS_FINISHED: return photonApi_Ph_FILM_REGION_STATUS_FINISHED;
+	}
+
+	return PH_FILM_REGION_STATUS_INVALID;
+}
+
+/*
+* Class:     photonApi_Ph
+* Method:    phAsyncDevelopFilmRegion
+* Signature: (JJIIII)V
+*/
+JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncDevelopFilmRegion
+(JNIEnv* env, jclass thiz, jlong engineId, jlong frameId, 
+                           jint xPx, jint yPx, jint wPx, jint hPx)
+{
+	phAsyncDevelopFilmRegion(static_cast<PHuint64>(engineId), 
+	                         static_cast<PHuint64>(frameId),
+	                         static_cast<PHuint32>(xPx),
+	                         static_cast<PHuint32>(yPx),
+	                         static_cast<PHuint32>(wPx),
+	                         static_cast<PHuint32>(hPx));
 }

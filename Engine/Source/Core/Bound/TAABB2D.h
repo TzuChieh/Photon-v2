@@ -28,6 +28,7 @@ public:
 	inline TAABB2D& intersectWith(const TAABB2D& other);
 	inline T getWidth() const;
 	inline T getHeight() const;
+	inline TVector2<T> calcCenter() const;
 	inline bool isValid() const;
 	inline bool isPoint() const;
 	inline bool equals(const TAABB2D& other) const;

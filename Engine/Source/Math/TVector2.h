@@ -28,6 +28,7 @@ public:
 	inline TVector2 add(const TVector2& rhs) const;
 	inline TVector2& addLocal(const TVector2& rhs);
 	inline TVector2 add(T rhs) const;
+	inline TVector2 add(T rhsX, T rhsY) const;
 
 	inline void sub(const TVector2& rhs, TVector2* out_result) const;
 	inline TVector2 sub(const TVector2& rhs) const;

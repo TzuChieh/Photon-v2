@@ -37,20 +37,28 @@ TVector2<int64> Engine::getFilmDimensionPx() const
 
 void Engine::setNumRenderThreads(const uint32 numThreads)
 {
-	// HACK
 	m_renderer->setNumRenderThreads(numThreads);
 }
 
-float32 Engine::queryPercentageProgress() const
+float32 Engine::asyncQueryPercentageProgress() const
 {
-	// HACK
 	return m_renderer->asyncQueryPercentageProgress();
 }
 
-float32 Engine::querySampleFrequency() const
+float32 Engine::asyncQuerySampleFrequency() const
 {
-	// HACK
 	return m_renderer->asyncQuerySampleFrequency();
+}
+
+ERegionStatus Engine::asyncPollUpdatedRegion(Renderer::Region* const out_region) const
+{
+	return m_renderer->asyncPollUpdatedRegion(out_region);
+}
+
+void Engine::asyncDevelopFilmRegion(Frame& out_frame, 
+                                    const Renderer::Region& region) const
+{
+	m_renderer->asyncDevelopFilmRegion(out_frame, region);
 }
 
 }// end namespace ph

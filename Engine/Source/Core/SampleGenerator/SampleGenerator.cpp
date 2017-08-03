@@ -50,6 +50,11 @@ void SampleGenerator::genSplitted(const std::size_t numSplits,
 	}
 }
 
+std::unique_ptr<SampleGenerator> SampleGenerator::genCopied() const
+{
+	return genNewborn(m_numSamples);
+}
+
 real SampleGenerator::getNext1D(const TSamplePhase<real>& phase)
 {
 	auto& phaseData = m_phaseDataArray[phase.m_phaseIndex];

@@ -40,10 +40,10 @@ RenderWorker::RenderWorker(const RenderWorker& other) :
 void RenderWorker::run()
 {
 	RenderWork work;
-	while(m_renderer.getNewWork(&work))
+	while(m_renderer.getNewWork(m_id, &work))
 	{
 		doWork(work);
-		m_renderer.submitWork(work, false);
+		m_renderer.submitWork(m_id, work, false);
 	}
 }
 
@@ -121,7 +121,7 @@ void RenderWorker::doWork(const RenderWork& work)
 
 		sg->singleSampleEnd();
 
-		m_renderer.submitWork(work, true);
+		m_renderer.submitWork(m_id, work, true);
 	}
 }
 

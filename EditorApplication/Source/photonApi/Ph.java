@@ -25,11 +25,22 @@ public final class Ph
 	public static native void phDeleteEngine(long engineId);
 	
 	public static native void phCreateFrame(LongRef out_frameId, int widthPx, int heightPx);
-	public static native void phGetFrameRgbData(long frameId, FloatArrayRef out_rgbData);
+	public static native void phCopyFrameRgbData(long frameId, FloatArrayRef out_rgbData);
+	public static native void phCopyFrameRgbData(long frameId, int xPx, int yPx, int wPx, int hPx, 
+	                                             FloatArrayRef out_rgbData);
 	public static native void phDeleteFrame(long frameId);
 	
-	// query
+	// asynchronous operations
 	
-	public static native void phQueryRendererPercentageProgress(long engineId, FloatRef out_progress);
-	public static native void phQueryRendererSampleFrequency(long engineId, FloatRef out_frequency);
+	public static final int FILM_REGION_STATUS_INVALID  = 0;
+	public static final int FILM_REGION_STATUS_UPDATING = 1;
+	public static final int FILM_REGION_STATUS_FINISHED = 2;
+	
+	public static native void phAsyncQueryRendererPercentageProgress(long engineId, FloatRef out_progress);
+	public static native void phAsyncQueryRendererSampleFrequency(long engineId, FloatRef out_frequency);
+	public static native int  phAsyncPollUpdatedFilmRegion(long engineId, 
+	                                                       IntRef out_xPx, IntRef out_yPx, 
+	                                                       IntRef out_wPx, IntRef out_hPx);
+	public static native void phAsyncDevelopFilmRegion(long engineId, long frameId, 
+	                                                   int xPx, int yPx, int wPx, int hPx);
 }

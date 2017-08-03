@@ -52,7 +52,7 @@ void BulkRenderer::init(const Description& description)
 	}
 }
 
-bool BulkRenderer::getNewWork(RenderWork* out_work)
+bool BulkRenderer::getNewWork(const uint32 workerId, RenderWork* out_work)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
@@ -72,7 +72,7 @@ bool BulkRenderer::getNewWork(RenderWork* out_work)
 	return true;
 }
 
-void BulkRenderer::submitWork(const RenderWork& work, const bool isUpdating)
+void BulkRenderer::submitWork(const uint32 workerId, const RenderWork& work, const bool isUpdating)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
@@ -109,6 +109,13 @@ ERegionStatus BulkRenderer::asyncPollUpdatedRegion(Region* const out_region)
 	{
 		return ERegionStatus::FINISHED;
 	}
+}
+
+void BulkRenderer::asyncDevelopFilmRegion(Frame& out_frame, const Region& region)
+{
+	std::lock_guard<std::mutex> lock(m_rendererMutex);
+
+	m_film->develop(out_frame, region);
 }
 
 void BulkRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)

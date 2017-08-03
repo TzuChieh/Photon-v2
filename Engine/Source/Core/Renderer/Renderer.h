@@ -17,6 +17,7 @@ namespace ph
 {
 
 class Description;
+class Frame;
 
 class Renderer
 {
@@ -28,9 +29,10 @@ public:
 	virtual ~Renderer() = 0;
 
 	virtual void init(const Description& description) = 0;
+	virtual bool getNewWork(uint32 workerId, RenderWork* out_work) = 0;
+	virtual void submitWork(uint32 workerId, const RenderWork& work, bool isUpdating) = 0;
 	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) = 0;
-	virtual bool getNewWork(RenderWork* out_work) = 0;
-	virtual void submitWork(const RenderWork& work, bool isUpdating) = 0;
+	virtual void asyncDevelopFilmRegion(Frame& out_frame, const Region& region) = 0;
 
 	void render(const Description& description);
 	void setNumRenderThreads(const uint32 numThreads);

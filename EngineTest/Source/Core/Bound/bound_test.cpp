@@ -153,3 +153,20 @@ TEST(BoundTest, AABB2Dequality)
 	EXPECT_TRUE (aabb1.equals(aabb2));
 	EXPECT_FALSE(aabb1.equals(aabb3));
 }
+
+TEST(BoundTest, AABB2DcalculateCenter)
+{
+	// trial 1
+
+	const TAABB2D<int32> aabb1(TVector2<int32>(-2, -1), TVector2<int32>(1, 1));
+	const auto& center1 = aabb1.calcCenter();
+	EXPECT_EQ(center1.x, (-2 + 1) / 2);
+	EXPECT_EQ(center1.y, (-1 + 1) / 2);
+
+	// trial 2
+
+	const TAABB2D<float32> aabb2(TVector2<float32>(-2, -1), TVector2<float32>(1, 1));
+	const auto& center2 = aabb2.calcCenter();
+	EXPECT_FLOAT_EQ(center2.x, (-2.0f + 1.0f) / 2.0f);
+	EXPECT_FLOAT_EQ(center2.y, (-1.0f + 1.0f) / 2.0f);
+}

@@ -27,6 +27,7 @@ public:
 
 	void genSplitted(std::size_t numSplits,
 	                 std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) const;
+	std::unique_ptr<SampleGenerator> genCopied() const;
 
 	bool singleSampleStart();
 	void singleSampleEnd();

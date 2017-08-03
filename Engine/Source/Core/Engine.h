@@ -6,6 +6,7 @@
 #include "FileIO/Description.h"
 #include "Math/TVector2.h"
 #include "Core/Renderer/Renderer.h"
+#include "Core/Renderer/ERegionStatus.h"
 
 #include <string>
 #include <memory>
@@ -26,8 +27,10 @@ public:
 	TVector2<int64> getFilmDimensionPx() const;
 	void setNumRenderThreads(uint32 numThreads);
 
-	float32 queryPercentageProgress() const;
-	float32 querySampleFrequency() const;
+	float32 asyncQueryPercentageProgress() const;
+	float32 asyncQuerySampleFrequency() const;
+	ERegionStatus asyncPollUpdatedRegion(Renderer::Region* out_region) const;
+	void asyncDevelopFilmRegion(Frame& out_frame, const Renderer::Region& region) const;
 
 private:
 	DescriptionParser m_parser;
