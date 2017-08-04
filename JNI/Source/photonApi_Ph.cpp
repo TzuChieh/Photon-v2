@@ -61,6 +61,17 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phEnterCommand
 
 /*
 * Class:     photonApi_Ph
+* Method:    phUpdate
+* Signature: (J)V
+*/
+JNIEXPORT void JNICALL Java_photonApi_Ph_phUpdate
+(JNIEnv* env, jclass thiz, jlong engineId)
+{
+	phUpdate(static_cast<PHuint64>(engineId));
+}
+
+/*
+* Class:     photonApi_Ph
 * Method:    phRender
 * Signature: (J)V
 */

@@ -88,10 +88,10 @@ public final class ProjectProxy
 		return m_project.asyncQuerySamplingFrequency();
 	}
 	
-//	public FrameStatus asyncGetUpdatedFrame(FrameRegion out_frameRegion)
-//	{
-//		return m_project.asyncGetUpdatedFrame(out_frameRegion);
-//	}
+	public FrameStatus asyncGetUpdatedFrame(FrameRegion out_frameRegion)
+	{
+		return m_project.asyncGetUpdatedFrame(out_frameRegion);
+	}
 	
 	public void addListener(ProjectEventType eventType, ProjectEventListener targetListener)
 	{

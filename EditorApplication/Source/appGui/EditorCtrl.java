@@ -37,6 +37,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import photonApi.Frame;
 import photonApi.FrameRegion;
+import photonApi.FrameStatus;
+import photonApi.Rectangle;
 import photonApi.Vector3f;
 
 public class EditorCtrl
@@ -47,7 +49,7 @@ public class EditorCtrl
     
     private WritableImage m_displayImage;
     
-    private ProjectEventListener m_editorFrameReadyListener;
+    private ProjectEventListener m_editorFinalFrameReadyListener;
 	
 	@FXML private VBox        projectOverviewVbox;
 	@FXML private TitledPane  projectOverviewPane;
@@ -78,10 +80,10 @@ public class EditorCtrl
 		});
     	updateMessageTextArea();
     	
-    	m_editorFrameReadyListener = (event) -> 
+    	m_editorFinalFrameReadyListener = (event) -> 
     	{
 			clearFrame();
-			loadFrameBuffer();
+			loadFinalFrame();
 			drawFrame();
     	};
     }
@@ -126,7 +128,16 @@ public class EditorCtrl
 						break;
 					}
 					
-					
+					FrameRegion updatedFrameRegion = new FrameRegion();
+					FrameStatus frameStatus = m_project.asyncGetUpdatedFrame(updatedFrameRegion);
+					if(frameStatus != FrameStatus.INVALID)
+					{
+						Platform.runLater(() ->
+						{
+							loadFrameBuffer(updatedFrameRegion);
+							drawFrame();
+						});
+					}
 					
 					try
 					{
@@ -174,26 +185,38 @@ public class EditorCtrl
 			}
 		}
     }
+    
+    private void loadFinalFrame()
+    {
+    	final Frame frame = m_project.getLocalFinalFrame();
+    	loadFrameBuffer(new FrameRegion(0, 0, frame.getWidthPx(), frame.getHeightPx(), frame));
+    }
 	
-	private void loadFrameBuffer()
+	private void loadFrameBuffer(FrameRegion frameRegion)
 	{
-		final Frame frame = m_project.getLocalFinalFrame();
-		if(!frame.isValid() || frame.getNumComp() != 3)
+		if(!frameRegion.isValid() || frameRegion.getNumComp() != 3)
 		{
 			System.err.println("unexpected frame format; unable to load");
-			m_displayImage = new WritableImage(1, 1);
 			return;
 		}
 		
-		m_displayImage = new WritableImage(frame.getWidthPx(), frame.getHeightPx());
-		final PixelWriter pixelWriter = m_displayImage.getPixelWriter();
-		
-		Vector3f color = new Vector3f();
-		for(int y = 0; y < frame.getHeightPx(); y++)
+		if(m_displayImage.getWidth()  != frameRegion.getFullWidthPx() || 
+		   m_displayImage.getHeight() != frameRegion.getFullHeightPx())
 		{
-			for(int x = 0; x < frame.getWidthPx(); x++)
+			m_displayImage = new WritableImage(frameRegion.getFullWidthPx(), frameRegion.getFullHeightPx());
+		}
+		
+		final PixelWriter pixelWriter = m_displayImage.getPixelWriter();
+		Rectangle region = frameRegion.getRegion();
+		int maxX = region.x + region.w;
+		int maxY = region.y + region.h;
+		Vector3f color = new Vector3f();
+		
+		for(int y = region.y; y < maxY; y++)
+		{
+			for(int x = region.x; x < maxX; x++)
 			{
-				color.set(frame.getRgb(x, y));
+				color.set(frameRegion.getRgb(x, y));
 				if(color.x != color.x || 
 				   color.y != color.y || 
 				   color.z != color.z)
@@ -211,46 +234,12 @@ public class EditorCtrl
 				color.y = numerator.y / denominator.y;
 				color.z = numerator.z / denominator.z;
 				
-				int inversedY = frame.getHeightPx() - y - 1;
+				int inversedY = frameRegion.getHeightPx() - y - 1;
 				Color fxColor = new Color(color.x, color.y, color.z, 1.0);
 				pixelWriter.setColor(x, inversedY, fxColor);
 			}
 		}
 	}
-	
-//	private void loadFrameRegion(FrameRegion frameRegion)
-//	{
-//		m_displayImage = new WritableImage(frameRegion.getWpx(), frameRegion.getHpx());
-//		final PixelWriter pixelWriter = m_displayImage.getPixelWriter();
-//		
-//		Vector3f color = new Vector3f();
-//		for(int y = 0; y < frameRegion.getHpx(); y++)
-//		{
-//			for(int x = 0; x < frameRegion.getWpx(); x++)
-//			{
-//				color.set(frameRegion.getRgb(x, y));
-//				if(color.x != color.x || 
-//				   color.y != color.y || 
-//				   color.z != color.z)
-//				{
-//					System.err.println("NaN!");
-//				}
-//				
-//				// Tone-mapping operator: Jim Hejl and Richard Burgess-Dawson (GDC)
-//				// (no need of gamma correction)
-//				color.subLocal(0.004f).clampLocal(0.0f, Float.MAX_VALUE);
-//				Vector3f numerator   = color.mul(6.2f).addLocal(0.5f).mulLocal(color);
-//				Vector3f denominator = color.mul(6.2f).addLocal(1.7f).mulLocal(color).addLocal(0.06f);
-//				color.x = numerator.x / denominator.x;
-//				color.y = numerator.y / denominator.y;
-//				color.z = numerator.z / denominator.z;
-//				
-//				int inversedY = frame.getHeightPx() - y - 1;
-//				Color fxColor = new Color(color.x, color.y, color.z, 1.0);
-//				pixelWriter.setColor(x, inversedY, fxColor);
-//			}
-//		}
-//	}
 	
 	private void clearFrame()
 	{
@@ -328,12 +317,12 @@ public class EditorCtrl
 	{
 		if(m_project != null)
 		{
-			m_project.removeListener(m_editorFrameReadyListener);
+			m_project.removeListener(m_editorFinalFrameReadyListener);
 		}
 		
 		m_project = project;
 		
-		project.addListener(ProjectEventType.STATIC_FRAME_READY, m_editorFrameReadyListener);
+		project.addListener(ProjectEventType.FINAL_FRAME_READY, m_editorFinalFrameReadyListener);
 		project.getRenderSetting().addSettingListener((event) -> 
 		{
 			String sceneFilename = project.getRenderSetting().get(RenderSetting.SCENE_FILE_NAME);

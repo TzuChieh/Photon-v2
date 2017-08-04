@@ -17,6 +17,11 @@ public final class FrameRegion
 		    regionedFrame);
 	}
 	
+	public FrameRegion()
+	{
+		this(0, 0, 0, 0, null);
+	}
+	
 	public Vector3f getRgb(int x, int y)
 	{
 		return m_regionedFrame.getRgb(x - m_originXpx, y - m_originYpx);
@@ -38,10 +43,22 @@ public final class FrameRegion
 		m_regionedFrame = regionedFrame;
 	}
 	
+	public void set(FrameRegion other)
+	{
+		set(other.m_originXpx, other.m_originXpx,
+		    other.m_fullWidthPx, other.m_fullHeightPx, 
+		    other.m_regionedFrame);
+	}
+	
 	public Rectangle getRegion()
 	{
 		return new Rectangle(getOriginXpx(), getOriginYpx(), 
 		                     getWidthPx(),   getHeightPx());
+	}
+	
+	public boolean isValid()
+	{
+		return m_regionedFrame.isValid();
 	}
 	
 	public int getOriginXpx()    { return m_originXpx;                   }

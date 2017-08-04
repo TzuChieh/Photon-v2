@@ -58,6 +58,17 @@ public final class Project extends ManageableResource
 		EditorApp.printToConsole("loading scene file <" + filename + ">...");
 		
 		m_engine.load(filename);
+		m_engine.update();
+		
+		FilmInfo info = m_engine.getFilmInfo();
+		if(info.widthPx  != m_finalFrame.widthPx() || 
+		   info.heightPx != m_finalFrame.heightPx())
+		{
+			m_finalFrame.dispose();
+			m_transientFrame.dispose();
+			m_finalFrame = new PhFrame(info.widthPx, info.heightPx);
+			m_transientFrame = new PhFrame(info.widthPx, info.heightPx);
+		}
 		
 		Platform.runLater(() ->
 		{
@@ -69,20 +80,12 @@ public final class Project extends ManageableResource
 	{
 		EditorApp.printToConsole("developing film...");
 		
-		FilmInfo info = m_engine.getFilmInfo();
-		if(info.widthPx  != m_finalFrame.widthPx() || 
-		   info.heightPx != m_finalFrame.heightPx())
-		{
-			m_finalFrame.dispose();
-			m_finalFrame = new PhFrame(info.widthPx, info.heightPx);
-		}
-		
 		m_engine.developFilm(m_finalFrame);
 		m_finalFrame.getFullRgb(m_localFinalFrame);
 		
 		Platform.runLater(() ->
 		{
-			m_eventDispatcher.notify(ProjectEventType.STATIC_FRAME_READY, getProxy());
+			m_eventDispatcher.notify(ProjectEventType.FINAL_FRAME_READY, getProxy());
 		});
 	}
 	
@@ -102,6 +105,7 @@ public final class Project extends ManageableResource
 	{
 		m_engine.dispose();
 		m_finalFrame.dispose();
+		m_transientFrame.dispose();
 	}
 	
 	public float asyncQueryParametricProgress()
@@ -114,30 +118,22 @@ public final class Project extends ManageableResource
 		return m_engine.asyncQuerySampleFrequency();
 	}
 	
-//	public FrameStatus asyncGetUpdatedFrame(FrameRegion out_frameRegion)
-//	{
-//		FilmInfo info = m_engine.getFilmInfo();
-//		if(info.widthPx  != m_transientFrame.widthPx() || 
-//		   info.heightPx != m_transientFrame.heightPx())
-//		{
-//			m_transientFrame.dispose();
-//			m_transientFrame = new PhFrame(info.widthPx, info.heightPx);
-//		}
-//		
-//		Rectangle region = new Rectangle();
-//		FrameStatus status = m_engine.asyncGetUpdatedFrame(m_transientFrame, region);
-//		if(status != FrameStatus.INVALID)
-//		{
-//			float[] regionData = m_transientFrame.copyRegionRgb(region);
-//			out_frameRegion.set(region.x, region.y, region.w, region.h, 3, regionData);
-//		}
-//		
-//		return status;
-//	}
+	public FrameStatus asyncGetUpdatedFrame(FrameRegion out_frameRegion)
+	{
+		Rectangle region = new Rectangle();
+		FrameStatus status = m_engine.asyncGetUpdatedFrame(m_transientFrame, region);
+		if(status != FrameStatus.INVALID)
+		{
+			out_frameRegion.set(m_transientFrame.copyRegionRgb(region));
+		}
+		
+		return status;
+	}
 	
-	public String                 getProjectName()     { return m_projectName;     }
-	public RenderSetting          getRenderSetting()   { return m_renderSetting;   }
-	public ProjectProxy           getProxy()           { return m_proxy;           }
-	public ProjectEventDispatcher getEventDispatcher() { return m_eventDispatcher; }
-	public Frame                  getLocalFinalFrame() { return m_localFinalFrame; }
+	public String                 getProjectName()     { return m_projectName;          }
+	public RenderSetting          getRenderSetting()   { return m_renderSetting;        }
+	public ProjectProxy           getProxy()           { return m_proxy;                }
+	public ProjectEventDispatcher getEventDispatcher() { return m_eventDispatcher;      }
+	public Frame                  getLocalFinalFrame() { return m_localFinalFrame;      }
+	public FilmInfo               getFilmInfo()        { return m_engine.getFilmInfo(); }
 }

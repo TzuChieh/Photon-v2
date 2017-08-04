@@ -16,11 +16,14 @@ void Engine::enterCommand(const std::string& commandFragment)
 	m_parser.enter(commandFragment, m_description);
 }
 
-void Engine::render()
+void Engine::update()
 {
 	// HACK
 	m_description.update(0.0_r);
+}
 
+void Engine::render()
+{
 	// HACK
 	m_renderer->render(m_description);
 }

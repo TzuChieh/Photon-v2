@@ -47,6 +47,14 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phEnterCommand
 
 /*
  * Class:     photonApi_Ph
+ * Method:    phUpdate
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phUpdate
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     photonApi_Ph
  * Method:    phRender
  * Signature: (J)V
  */

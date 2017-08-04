@@ -43,6 +43,11 @@ public final class PhEngine
 		}
 	}
 	
+	public void update()
+	{
+		Ph.phUpdate(m_engineId);
+	}
+	
 	public void render()
 	{
 		Ph.phRender(m_engineId);
@@ -90,6 +95,11 @@ public final class PhEngine
 		{
 			return FrameStatus.INVALID;
 		}
+		
+//		System.out.println(xPx);
+//		System.out.println(yPx);
+//		System.out.println(wPx);
+//		System.out.println(hPx);
 		
 		Ph.phAsyncDevelopFilmRegion(m_engineId, out_frame.m_frameId, 
 		                            xPx.m_value, yPx.m_value, wPx.m_value, hPx.m_value);

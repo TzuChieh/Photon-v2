@@ -78,6 +78,17 @@ void phRender(const PHuint64 engineId)
 	}
 }
 
+void phUpdate(const PHuint64 engineId)
+{
+	using namespace ph;
+
+	Engine* engine = ApiDatabase::getEngine(engineId);
+	if(engine)
+	{
+		engine->update();
+	}
+}
+
 void phDevelopFilm(const PHuint64 engineId, const PHuint64 frameId)
 {
 	using namespace ph;

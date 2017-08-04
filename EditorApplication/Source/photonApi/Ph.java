@@ -19,6 +19,7 @@ public final class Ph
 	
 	public static native void phCreateEngine(LongRef out_engineId, int numRenderThreads);
 	public static native void phEnterCommand(long engineId, String commandFragment);
+	public static native void phUpdate(long engindId);
 	public static native void phRender(long engineId);
 	public static native void phDevelopFilm(long engineId, long frameId);
 	public static native void phGetFilmDimension(long engineId, IntRef out_widthPx, IntRef out_heightPx);

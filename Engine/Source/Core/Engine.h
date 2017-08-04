@@ -22,6 +22,7 @@ public:
 	Engine();
 
 	void enterCommand(const std::string& commandFragment);
+	void update();
 	void render();
 	void developFilm(Frame& out_frame);
 	TVector2<int64> getFilmDimensionPx() const;
