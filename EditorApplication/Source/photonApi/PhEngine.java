@@ -65,18 +65,46 @@ public final class PhEngine
 		Ph.phDevelopFilm(m_engineId, frame.m_frameId);
 	}
 	
-	public float queryPercentageProgress()
+	public float asyncQueryPercentageProgress()
 	{
 		FloatRef progress = new FloatRef();
 		Ph.phAsyncQueryRendererPercentageProgress(m_engineId, progress);
 		return progress.m_value;
 	}
 	
-	public float querySampleFrequency()
+	public float asyncQuerySampleFrequency()
 	{
 		FloatRef frequency = new FloatRef();
 		Ph.phAsyncQueryRendererSampleFrequency(m_engineId, frequency);
 		return frequency.m_value;
+	}
+	
+	public FrameStatus asyncGetUpdatedFrame(PhFrame out_frame, Rectangle out_updatedRegion)
+	{
+		IntRef xPx = new IntRef();
+		IntRef yPx = new IntRef();
+		IntRef wPx = new IntRef();
+		IntRef hPx = new IntRef();
+		int pollState = Ph.phAsyncPollUpdatedFilmRegion(m_engineId, xPx, yPx, wPx, hPx);
+		if(pollState == Ph.FILM_REGION_STATUS_INVALID)
+		{
+			return FrameStatus.INVALID;
+		}
+		
+		Ph.phAsyncDevelopFilmRegion(m_engineId, out_frame.m_frameId, 
+		                            xPx.m_value, yPx.m_value, wPx.m_value, hPx.m_value);
+		
+		out_updatedRegion.x = xPx.m_value;
+		out_updatedRegion.y = yPx.m_value;
+		out_updatedRegion.w = wPx.m_value;
+		out_updatedRegion.h = hPx.m_value;
+		
+		switch(pollState)
+		{
+		case Ph.FILM_REGION_STATUS_UPDATING: return FrameStatus.UPDATING;
+		case Ph.FILM_REGION_STATUS_FINISHED: return FrameStatus.FINISHED;
+		default:                             return FrameStatus.INVALID;
+		}
 	}
 	
 	public void dispose()

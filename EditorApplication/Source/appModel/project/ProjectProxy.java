@@ -3,7 +3,9 @@ package appModel.project;
 import appModel.event.ProjectEventListener;
 import appModel.event.ProjectEventType;
 import javafx.concurrent.Task;
-import photonApi.FrameData;
+import photonApi.Frame;
+import photonApi.FrameRegion;
+import photonApi.FrameStatus;
 
 public final class ProjectProxy
 {
@@ -78,13 +80,18 @@ public final class ProjectProxy
 	
 	public float queryParametricProgress()
 	{
-		return m_project.queryParametricProgress();
+		return m_project.asyncQueryParametricProgress();
 	}
 	
 	public float querySamplingFrequency()
 	{
-		return m_project.querySamplingFrequency();
+		return m_project.asyncQuerySamplingFrequency();
 	}
+	
+//	public FrameStatus asyncGetUpdatedFrame(FrameRegion out_frameRegion)
+//	{
+//		return m_project.asyncGetUpdatedFrame(out_frameRegion);
+//	}
 	
 	public void addListener(ProjectEventType eventType, ProjectEventListener targetListener)
 	{
@@ -101,5 +108,5 @@ public final class ProjectProxy
 		return m_project != null;
 	}
 	
-	public FrameData getStaticImageData() { return m_project.getFrameData(); }
+	public Frame getLocalFinalFrame() { return m_project.getLocalFinalFrame(); }
 }

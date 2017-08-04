@@ -5,9 +5,12 @@ import appModel.ManageableResource;
 import appModel.event.ProjectEventType;
 import javafx.application.Platform;
 import photonApi.FilmInfo;
-import photonApi.FrameData;
+import photonApi.Frame;
+import photonApi.FrameRegion;
+import photonApi.FrameStatus;
 import photonApi.PhEngine;
 import photonApi.PhFrame;
+import photonApi.Rectangle;
 
 public final class Project extends ManageableResource
 {
@@ -18,8 +21,9 @@ public final class Project extends ManageableResource
 	private ProjectEventDispatcher m_eventDispatcher;
 	
 	private PhEngine  m_engine;
-	private PhFrame   m_frame;
-	private FrameData m_frameData;
+	private PhFrame   m_finalFrame;
+	private PhFrame   m_transientFrame;
+	private Frame     m_localFinalFrame;
 	
 	public Project(String projectName, EditorApp editorApp)
 	{
@@ -31,9 +35,10 @@ public final class Project extends ManageableResource
 		m_proxy           = null;
 		m_eventDispatcher = new ProjectEventDispatcher();
 		
-		m_engine    = null;
-		m_frame     = null;
-		m_frameData = new FrameData();
+		m_engine          = null;
+		m_finalFrame      = null;
+		m_transientFrame  = null;
+		m_localFinalFrame = new Frame();
 	}
 	
 	public void opRenderScene()
@@ -65,15 +70,15 @@ public final class Project extends ManageableResource
 		EditorApp.printToConsole("developing film...");
 		
 		FilmInfo info = m_engine.getFilmInfo();
-		if(info.widthPx  != m_frame.widthPx() || 
-		   info.heightPx != m_frame.heightPx())
+		if(info.widthPx  != m_finalFrame.widthPx() || 
+		   info.heightPx != m_finalFrame.heightPx())
 		{
-			m_frame.dispose();
-			m_frame = new PhFrame(info.widthPx, info.heightPx);
+			m_finalFrame.dispose();
+			m_finalFrame = new PhFrame(info.widthPx, info.heightPx);
 		}
 		
-		m_engine.developFilm(m_frame);
-		m_frame.getRgbData(m_frameData);
+		m_engine.developFilm(m_finalFrame);
+		m_finalFrame.getFullRgb(m_localFinalFrame);
 		
 		Platform.runLater(() ->
 		{
@@ -84,9 +89,10 @@ public final class Project extends ManageableResource
 	@Override
 	protected void initResource()
 	{
-		m_engine = new PhEngine(6);
-		m_frame  = new PhFrame(0, 0);
-		m_proxy  = new ProjectProxy(this);
+		m_engine         = new PhEngine(6);
+		m_finalFrame     = new PhFrame(0, 0);
+		m_transientFrame = new PhFrame(0, 0);
+		m_proxy          = new ProjectProxy(this);
 		
 		m_renderSetting.setToDefaults();
 	}
@@ -95,22 +101,43 @@ public final class Project extends ManageableResource
 	protected void freeResource()
 	{
 		m_engine.dispose();
-		m_frame.dispose();
+		m_finalFrame.dispose();
 	}
 	
-	public float queryParametricProgress()
+	public float asyncQueryParametricProgress()
 	{
-		return m_engine.queryPercentageProgress() / 100.0f;
+		return m_engine.asyncQueryPercentageProgress() / 100.0f;
 	}
 	
-	public float querySamplingFrequency()
+	public float asyncQuerySamplingFrequency()
 	{
-		return m_engine.querySampleFrequency();
+		return m_engine.asyncQuerySampleFrequency();
 	}
+	
+//	public FrameStatus asyncGetUpdatedFrame(FrameRegion out_frameRegion)
+//	{
+//		FilmInfo info = m_engine.getFilmInfo();
+//		if(info.widthPx  != m_transientFrame.widthPx() || 
+//		   info.heightPx != m_transientFrame.heightPx())
+//		{
+//			m_transientFrame.dispose();
+//			m_transientFrame = new PhFrame(info.widthPx, info.heightPx);
+//		}
+//		
+//		Rectangle region = new Rectangle();
+//		FrameStatus status = m_engine.asyncGetUpdatedFrame(m_transientFrame, region);
+//		if(status != FrameStatus.INVALID)
+//		{
+//			float[] regionData = m_transientFrame.copyRegionRgb(region);
+//			out_frameRegion.set(region.x, region.y, region.w, region.h, 3, regionData);
+//		}
+//		
+//		return status;
+//	}
 	
 	public String                 getProjectName()     { return m_projectName;     }
 	public RenderSetting          getRenderSetting()   { return m_renderSetting;   }
 	public ProjectProxy           getProxy()           { return m_proxy;           }
 	public ProjectEventDispatcher getEventDispatcher() { return m_eventDispatcher; }
-	public FrameData              getFrameData()       { return m_frameData;       }
+	public Frame                  getLocalFinalFrame() { return m_localFinalFrame; }
 }

@@ -20,15 +20,7 @@ public final class PhFrame
 		m_heightPx = heightPx;
 	}
 	
-	public void getRgbData(FrameData data)
-	{
-		data.m_widthPx            = m_widthPx;
-		data.m_heightPx           = m_heightPx;
-		data.m_numPixelComponents = 3;
-		data.m_rgbData            = getRawRgbData();
-	}
-	
-	public float[] getRawRgbData()
+	public void getFullRgb(Frame out_frame)
 	{
 		FloatArrayRef rgbData = new FloatArrayRef();
 		Ph.phCopyFrameRgbData(m_frameId, rgbData);
@@ -37,7 +29,23 @@ public final class PhFrame
 			System.err.println("bad raw data");
 		}
 		
-		return rgbData.m_value;
+		out_frame.set(m_widthPx, m_heightPx, 3, rgbData.m_value);
+	}
+	
+	public FrameRegion copyRegionRgb(Rectangle region)
+	{
+		FloatArrayRef data = new FloatArrayRef();
+		Ph.phCopyFrameRgbData(m_frameId, region.x, region.y, region.w, region.h, data);
+		if(data.m_value == null)
+		{
+			System.err.println("bad region data");
+		}
+		
+		Frame regionedFrame = new Frame(region.w, region.h, 3, data.m_value);
+		FrameRegion frameRegion = new FrameRegion(region.x, region.y, 
+		                                          m_widthPx, m_heightPx, 
+		                                          regionedFrame);
+		return frameRegion;
 	}
 	
 	public void dispose()

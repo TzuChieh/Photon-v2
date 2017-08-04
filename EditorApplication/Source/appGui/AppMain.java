@@ -14,13 +14,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import photonApi.FrameData;
+import photonApi.Frame;
 import photonApi.Ph;
 import photonApi.PhEngine;
 import photonApi.PhFrame;
 import photonApi.PhTest;
-import ui.Window;
-import ui.task.TaskStatusModel;
 
 public class AppMain extends Application
 {
