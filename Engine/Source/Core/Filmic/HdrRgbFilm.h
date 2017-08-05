@@ -8,7 +8,6 @@
 #include "Core/Filmic/Film.h"
 
 #include <vector>
-#include <mutex>
 
 namespace ph
 {
@@ -26,37 +25,14 @@ public:
 	           const std::shared_ptr<SampleFilter>& filter);
 	virtual ~HdrRgbFilm() override;
 
-	//void accumulateRadiance(const uint32 x, const uint32 y, const Vector3R& radiance);
-	//void accumulateRadiance(const Film& other);
 	virtual void addSample(float64 xPx, float64 yPx, const Vector3R& radiance) override;
 	virtual void clear() override;
-	virtual std::unique_ptr<Film> genChild(const TAABB2D<int64>& effectiveWindowPx, 
-	                                       bool isSynchronizedMerge) override;
-
-	// HACK
-	/*inline void accumulateRadianceWithoutIncrementSenseCount(const uint32 x, const uint32 y, const Vector3R& radiance)
-	{
-		const std::size_t baseIndex = y * static_cast<std::size_t>(m_widthPx) + x;
-
-		m_pixelRadianceSensors[baseIndex].m_accuR += static_cast<float64>(radiance.x);
-		m_pixelRadianceSensors[baseIndex].m_accuG += static_cast<float64>(radiance.y);
-		m_pixelRadianceSensors[baseIndex].m_accuB += static_cast<float64>(radiance.z);
-	}*/
-
-	// HACK
-	/*inline void incrementAllSenseCounts()
-	{
-		for(auto& sensor : m_pixelRadianceSensors)
-		{
-			sensor.accuWeight += 1.0;
-		}
-	}*/
+	virtual std::unique_ptr<Film> genChild(const TAABB2D<int64>& effectiveWindowPx) override;
 
 private:
 	virtual void developRegion(Frame& out_frame, const TAABB2D<int64>& regionPx) const override;
 
 	std::vector<RadianceSensor> m_pixelRadianceSensors;
-	std::mutex                  m_filmMutex;
 
 	void mergeWith(const HdrRgbFilm& other);
 

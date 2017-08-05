@@ -9,7 +9,7 @@
 
 using namespace ph;
 
-TEST(FilmSampleWeightingTest, HdrRgbFilmDevelopesToHdrFrame)
+TEST(FilmSampleWeightingTest, HdrRgbFilmDevelopesToFrame)
 {
 	const int64 filmWpx = 1;
 	const int64 filmHpx = 2;

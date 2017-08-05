@@ -141,7 +141,7 @@ public class EditorCtrl
 					
 					try
 					{
-						Thread.sleep(3000);
+						Thread.sleep(1000);
 					}
 					catch(InterruptedException e)
 					{
@@ -151,9 +151,9 @@ public class EditorCtrl
 				
 				renderSceneThread.join();
 				
-				Thread updateStaticImageThread = new Thread(developFilmTask);
-				updateStaticImageThread.start();
-				updateStaticImageThread.join();
+				Thread developFilmThread = new Thread(developFilmTask);
+				developFilmThread.start();
+				developFilmThread.join();
 				
 				return "";
 			}

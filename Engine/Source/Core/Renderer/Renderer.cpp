@@ -62,7 +62,6 @@ void Renderer::setNumRenderThreads(const uint32 numThreads)
 	m_numThreads = numThreads;
 }
 
-// TODO: avoid outputting NaN
 float32 Renderer::asyncQueryPercentageProgress() const
 {
 	std::size_t totalWork = 0;
@@ -72,6 +71,11 @@ float32 Renderer::asyncQueryPercentageProgress() const
 		const auto& progress = worker.queryProgress();
 		totalWork += progress.totalWork;
 		workDone  += progress.workDone;
+	}
+
+	if(totalWork == 0)
+	{
+		return 0.0f;
 	}
 
 	return static_cast<float32>(workDone) / static_cast<float32>(totalWork) * 100.0f;

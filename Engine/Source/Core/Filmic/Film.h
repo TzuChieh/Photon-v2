@@ -36,11 +36,8 @@ public:
 
 	// Generates a child film with the same actual dimensions and filter as parent's, 
 	// but potentially has a different effective window.
-	// A child film can be merged into its parent by calling mergeToParent(); whether 
-	// the merge should be synchronized across threads by the parent can be specified 
-	// with the boolean flag.
-	virtual std::unique_ptr<Film> genChild(const TAABB2D<int64>& effectiveWindowPx, 
-	                                       bool isSynchronizedMerge) = 0;
+	// A child film can be merged into its parent by calling mergeToParent().
+	virtual std::unique_ptr<Film> genChild(const TAABB2D<int64>& effectiveWindowPx) = 0;
 
 	inline void mergeToParent() const
 	{

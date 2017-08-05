@@ -11,7 +11,6 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
-#include <utility>
 
 namespace ph
 {
@@ -78,29 +77,17 @@ void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const Vector3R&
 	}
 }
 
-std::unique_ptr<Film> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindowPx, 
-                                           const bool isSynchronizedMerge)
+std::unique_ptr<Film> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindowPx)
 {
 	auto childFilm = std::make_unique<HdrRgbFilm>(m_actualResPx.x, m_actualResPx.y, 
 	                                              effectiveWindowPx, 
 	                                              m_filter);
 	HdrRgbFilm* parent = this;
 	HdrRgbFilm* child  = childFilm.get();
-	if(isSynchronizedMerge)
+	childFilm->m_merger = [=]() -> void
 	{
-		childFilm->m_merger = [=]() -> void
-		{
-			std::lock_guard<std::mutex> lock(m_filmMutex);
-			parent->mergeWith(*child);
-		};
-	}
-	else
-	{
-		childFilm->m_merger = [=]() -> void
-		{
-			parent->mergeWith(*child);
-		};
-	}
+		parent->mergeWith(*child);
+	};
 
 	return std::move(childFilm);
 }

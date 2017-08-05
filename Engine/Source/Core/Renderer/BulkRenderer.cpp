@@ -48,7 +48,7 @@ void BulkRenderer::init(const Description& description)
 
 	for(uint32 i = 0; i < numWorks; i++)
 	{
-		m_workFilms.push_back(m_film->genChild(m_film->getEffectiveWindowPx(), false));
+		m_workFilms.push_back(m_film->genChild(m_film->getEffectiveWindowPx()));
 	}
 }
 
