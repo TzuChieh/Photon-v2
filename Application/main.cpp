@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 		phRender(engineId);
 	};
 
-	std::thread queryThread = [=]()
+	/*std::thread queryThread = [=]()
 	{
 		PHuint32 x, y, w, h;
 		int regionStatus = phAsyncPollUpdatedFilmRegion(engineId, &x, &y, &w, &h);
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 		{
 			std::cout << "xywh: " << x << ", " << y << ", " << w << ", " << h << std::endl;
 		}
-	};
+	};*/
 
 	renderThread.join();
 
