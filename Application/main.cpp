@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <thread>
 
 int main(int argc, char* argv[])
 {
@@ -16,7 +17,8 @@ int main(int argc, char* argv[])
 	phCreateEngine(&engineId, 1);
 
 	std::ifstream sceneFile;
-	sceneFile.open("../scene/default_scene.p2", std::ios::in);
+	//sceneFile.open("../scene/default_scene.p2", std::ios::in);
+	sceneFile.open("../scene/test_bp.p2", std::ios::in);
 
 	if(!sceneFile.is_open())
 	{
@@ -37,7 +39,24 @@ int main(int argc, char* argv[])
 		sceneFile.close();
 	}
 
-	phRender(engineId);
+	phUpdate(engineId);
+
+	std::thread renderThread = [=]()
+	{
+		phRender(engineId);
+	};
+
+	std::thread queryThread = [=]()
+	{
+		PHuint32 x, y, w, h;
+		int regionStatus = phAsyncPollUpdatedFilmRegion(engineId, &x, &y, &w, &h);
+		if(regionStatus != PH_FILM_REGION_STATUS_INVALID)
+		{
+			std::cout << "xywh: " << x << ", " << y << ", " << w << ", " << h << std::endl;
+		}
+	};
+
+	renderThread.join();
 
 	PHuint32 filmWpx, filmHpx;
 	phGetFilmDimension(engineId, &filmWpx, &filmHpx);

@@ -5,6 +5,7 @@
 *.o
 *.lib
 *.dll
+*.pyc
 
 # Visual Studio User Specific Files
 *.suo
@@ -15,7 +16,7 @@
 # User-specific Files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
-# Build Results
+# Common Build Output Paths
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
@@ -31,12 +32,6 @@ bld/
 
 # Visual Studio 2015 Cache/Options Directory
 .vs/
-
-# Eclipse Data
-.metadata/
-.recommenders/
-.settings/
-.classpath
 
 # Visual C++ Cache Files
 ipch/
@@ -60,10 +55,20 @@ ipch/
 # (but keep track of directories ending in .cache)
 !*.[Cc]ache/
 
-# Custom Files or Folders
+# Eclipse Data
+.metadata/
+.recommenders/
+.settings/
+.classpath
+
+# PyCharm Project Files
+.idea/
+
+# Photon-v2 Project Specific Files & Folders
 cloc-1.62.exe
 count.bat
 /ThirdParty/
 /scene/resource/
 /scene/complex/
 /EditorApplication/*.png
+__pycache__/
