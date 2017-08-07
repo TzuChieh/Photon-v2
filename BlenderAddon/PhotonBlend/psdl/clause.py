@@ -1,11 +1,14 @@
+from . import SdlFragment
+
 from mathutils import Vector
 from mathutils import Quaternion
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 
-class Clause(ABC):
+class SdlClause(SdlFragment):
 	def __init__(self):
+		super(SdlClause, self).__init__()
 		self.typeName = ""
 		self.name     = ""
 		self.data     = ""
@@ -14,15 +17,15 @@ class Clause(ABC):
 	def set_data(self, data):
 		pass
 
+	def to_sdl_fragment(self):
+		return "[{} {} {}]".format(self.typeName, self.name, self.data)
+
 	def set_name(self, name):
 		self.name = name
 		return self
 
-	def to_sdl(self):
-		return "[{} {} {}]".format(self.typeName, self.name, self.data)
 
-
-class IntegerClause(Clause):
+class IntegerClause(SdlClause):
 	def __init__(self):
 		super(IntegerClause, self).__init__()
 		self.typeName = "integer"
@@ -32,7 +35,7 @@ class IntegerClause(Clause):
 		return self
 
 
-class FloatClause(Clause):
+class FloatClause(SdlClause):
 	def __init__(self):
 		super(FloatClause, self).__init__()
 		self.typeName = "real"
@@ -42,7 +45,7 @@ class FloatClause(Clause):
 		return self
 
 
-class StringClause(Clause):
+class StringClause(SdlClause):
 	def __init__(self):
 		super(StringClause, self).__init__()
 		self.typeName = "string"
@@ -52,7 +55,7 @@ class StringClause(Clause):
 		return self
 
 
-class Vector3Clause(Clause):
+class Vector3Clause(SdlClause):
 	def __init__(self):
 		super(Vector3Clause, self).__init__()
 		self.typeName = "vector3r"
@@ -62,7 +65,17 @@ class Vector3Clause(Clause):
 		return self
 
 
-class QuaternionClause(Clause):
+class ColorClause(SdlClause):
+	def __init__(self):
+		super(ColorClause, self).__init__()
+		self.typeName = "vector3r"
+
+	def set_data(self, color):
+		self.data = "\"%.8f %.8f %.8f\"" % (color.r, color.g, color.b)
+		return self
+
+
+class QuaternionClause(SdlClause):
 	def __init__(self):
 		super(QuaternionClause, self).__init__()
 		self.typeName = "quaternionR"
@@ -72,15 +85,16 @@ class QuaternionClause(Clause):
 		return self
 
 
-class Vector3ListClause(Clause):
+class Vector3ListClause(SdlClause):
 	def __init__(self):
 		super(Vector3ListClause, self).__init__()
 		self.typeName = "vector3r-array"
 
 	def set_data(self, vec3arr):
-		vec3strings = []
+		vec3strings = ['{']
 		for vec3 in vec3arr:
 			vec3strings.append("\"%.8f %.8f %.8f\"" % (vec3.x, vec3.y, vec3.z))
+		vec3strings.append('}')
 
 		self.data = "".join(vec3strings)
 		return self

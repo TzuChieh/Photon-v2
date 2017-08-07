@@ -1,5 +1,6 @@
 from ..psdl import clause
 from .. import utility
+from ..psdl import materialcmd
 
 import bpy
 import math
@@ -62,9 +63,9 @@ class Exporter:
 
 		p2File.write("""## camera(%s) [real fov-degree %.8f] %s %s %s \n""" %
 		             (cameraType, fovDegrees,
-					  clauze.set_name("position").set_data(position).to_sdl(),
-					  clauze.set_name("direction").set_data(direction).to_sdl(),
-					  clauze.set_name("up-axis").set_data(upDirection).to_sdl()))
+					  clauze.set_name("position").set_data(position).to_sdl_fragment(),
+					  clauze.set_name("direction").set_data(direction).to_sdl_fragment(),
+					  clauze.set_name("up-axis").set_data(upDirection).to_sdl_fragment()))
 
 	def exportGeometry(self, geometryType, geometryName, **keywordArgs):
 
@@ -110,8 +111,12 @@ class Exporter:
 
 			albedo = keywordArgs["albedo"]
 
-			p2File.write("-> material(matte-opaque) %s \n" %(materialName))
-			p2File.write("[vector3r albedo \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
+			albedoColor = mathutils.Color((albedo[0], albedo[1], albedo[2]))
+			command = materialcmd.MatteOpaque.create(materialName, albedoColor)
+			p2File.write(command.to_sdl())
+
+			#p2File.write("-> material(matte-opaque) %s \n" %(materialName))
+			#p2File.write("[vector3r albedo \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
 
 		elif materialType == "ABRADED_OPAQUE":
 

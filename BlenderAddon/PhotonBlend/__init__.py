@@ -17,7 +17,7 @@ print("PhotonBlend initializing...")
 print(datetime.datetime.now())
 
 bmodulePackageName = "bmodule"
-bmoduleNames       = ["exporter", "material"]
+bmoduleNames       = ["p2exporter", "material"]
 
 bmoduleFullNames = []
 for bmoduleName in bmoduleNames:
