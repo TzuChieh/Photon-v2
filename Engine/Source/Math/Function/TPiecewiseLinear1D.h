@@ -23,7 +23,8 @@ template<typename T>
 class TPiecewiseLinear1D final
 {
 public:
-	inline T evaluate(T x);
+	inline T evaluate(T x) const;
+	inline T evaluate(T x, std::size_t p0Index, std::size_t p1Index) const;
 	inline void update();
 	inline void addPoint(const TVector2<T>& point);
 	inline std::size_t numPoints() const;
@@ -33,35 +34,40 @@ public:
 
 private:
 	std::vector<TVector2<T>> m_points;
+
+	static inline bool pointDomainComparator(const TVector2<T>& pA, const TVector2<T>& pB);
 };
 
 // implementations:
 
 template<typename T>
-inline T TPiecewiseLinear1D<T>::evaluate(const T x)
+inline T TPiecewiseLinear1D<T>::evaluate(const T x) const
 {
 	if(m_points.empty())
 	{
 		return 0;
 	}
 
-	// this also handles if there's only 1 unique point
+	// handling out-of-domain situation
+	// (this also handles if there's only 1 unique point)
 	if     (x <= m_points.front().x) return m_points.front().y;
 	else if(x >= m_points.back().x)  return m_points.back().y;
 
-	const auto& comparator = [](const TVector2<T>& pA,
-	                            const TVector2<T>& pB) -> bool
-	{
-		return pA.x < pB.x;
-	};
-
-	const auto& result = std::lower_bound(m_points.begin(), m_points.end(), 
-	                                      TVector2<T>(x), comparator);
+	const auto& result = std::lower_bound(m_points.begin(), m_points.end(), TVector2<T>(x), 
+	                                      &TPiecewiseLinear1D::pointDomainComparator);
 	const std::size_t i1 = result - m_points.begin();
 	const std::size_t i0 = i1 - 1;
 
-	const TVector2<T>& p0 = m_points[i0];
-	const TVector2<T>& p1 = m_points[i1];
+	return evaluate(x, i0, i1);
+}
+
+template<typename T>
+inline T TPiecewiseLinear1D<T>::evaluate(const T x, 
+                                         const std::size_t p0Index, 
+                                         const std::size_t p1Index) const
+{
+	const TVector2<T>& p0 = m_points[p0Index];
+	const TVector2<T>& p1 = m_points[p1Index];
 	return p0.x != p1.x ? (x - p0.x) / (p1.x - p0.x) * (p1.y - p0.y) + p0.y
 	                    : (p0.y + p1.y) / 2;
 }
@@ -69,11 +75,8 @@ inline T TPiecewiseLinear1D<T>::evaluate(const T x)
 template<typename T>
 inline void TPiecewiseLinear1D<T>::update()
 {
-	std::stable_sort(m_points.begin(), m_points.end(), [](const TVector2<T>& pA, 
-	                                                      const TVector2<T>& pB) -> bool
-	{
-		return pA.x < pB.x;
-	});
+	std::stable_sort(m_points.begin(), m_points.end(), 
+	                 &TPiecewiseLinear1D::pointDomainComparator);
 }
 
 template<typename T>
@@ -103,6 +106,13 @@ inline std::string TPiecewiseLinear1D<T>::toString() const
 		result += point.toString();
 	}
 	return result;
+}
+
+template<typename T>
+inline bool TPiecewiseLinear1D<T>::pointDomainComparator(const TVector2<T>& pA, 
+                                                         const TVector2<T>& pB)
+{
+	return pA.x < pB.x;
 }
 
 }// end namespace ph

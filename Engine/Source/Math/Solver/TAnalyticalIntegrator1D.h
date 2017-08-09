@@ -6,18 +6,20 @@ namespace ph
 {
 
 template<typename T>
-class Integrator1D final
+class TAnalyticalIntegrator1D final
 {
 public:
-	Integrator1D(T x1, T x2);
+	TAnalyticalIntegrator1D(T x0, T x1);
 
 	T integrate(const TPiecewiseLinear1D<T>& func) const;
 
+	void setIntegrationDomain(T x0, T x1);
+
 private:
+	T m_x0;
 	T m_x1;
-	T m_x2;
 };
 
 }// end namespace ph
 
-#include "Math/Solver/TIntegrator1D.h"
+#include "Math/Solver/TAnalyticalIntegrator1D.ipp"

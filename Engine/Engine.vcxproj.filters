@@ -900,9 +900,9 @@
     <ClInclude Include="Source\Math\Function\TPiecewiseLinear1D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Math\Solver\TIntegrator1D.h">
+    <ClInclude Include="Source\Math\Solver\TAnalyticalIntegrator1D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Math\Solver\TIntegrator1D.ipp" />
+    <ClInclude Include="Source\Math\Solver\TAnalyticalIntegrator1D.ipp" />
   </ItemGroup>
 </Project>

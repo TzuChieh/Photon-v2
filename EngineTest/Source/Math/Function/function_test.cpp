@@ -123,10 +123,10 @@ TEST(MathFunctionTest, TPiecewiseLinear1Doperations)
 	func4.addPoint(TVector2<float32>(-1.0f,  2.0f));
 	func4.update();
 
-	std::cout << func4.toString() << std::endl;
-
 	EXPECT_FLOAT_EQ(func4.evaluate(-1.5f), 2.0f);
 	EXPECT_FLOAT_EQ(func4.evaluate( 2.5f), 5.0f);
 	EXPECT_FLOAT_EQ(func4.evaluate( 1.5f), 2.0f);
 	EXPECT_FLOAT_EQ(func4.evaluate( 0.5f), 1.25f);
+	EXPECT_FLOAT_EQ(func4.evaluate(-1.0f), 2.0f);
+	EXPECT_FLOAT_EQ(func4.evaluate( 2.0f), 5.0f);
 }
