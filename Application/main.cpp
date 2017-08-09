@@ -41,10 +41,10 @@ int main(int argc, char* argv[])
 
 	phUpdate(engineId);
 
-	std::thread renderThread = [=]()
+	std::thread renderThread([=]()
 	{
 		phRender(engineId);
-	};
+	});
 
 	/*std::thread queryThread = [=]()
 	{

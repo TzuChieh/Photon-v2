@@ -201,6 +201,10 @@
     <ClCompile Include="Source\Core\Intersectable\Intersectable.cpp" />
     <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp" />
     <ClCompile Include="Source\Core\Intersection.cpp" />
+    <ClInclude Include="Source\Core\Quantity\Private\TAbstractSpectralStrength.ipp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClCompile Include="Source\Core\Quantity\Private\RgbSpectralStrength.cpp" />
     <ClCompile Include="Source\Core\Renderer\BulkRenderer.cpp" />
     <ClCompile Include="Source\Core\Renderer\Renderer.cpp" />
     <ClCompile Include="Source\Core\Renderer\RendererProxy.cpp" />
@@ -220,6 +224,7 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\BSDF.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BsdfPdfQuery.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BsdfSample.cpp" />
+    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\FresnelEffect.cpp" />
     <ClCompile Include="Source\FileIO\InputPacket.cpp" />
     <ClCompile Include="Source\FileIO\InputPrototype.cpp" />
     <ClCompile Include="Source\FileIO\Keyword.cpp" />
@@ -335,6 +340,9 @@
     <ClInclude Include="Source\Core\Intersectable\PrimitiveMetadata.h" />
     <ClInclude Include="Source\Core\Intersectable\PTriangle.h" />
     <ClInclude Include="Source\Actor\ALight.h" />
+    <ClInclude Include="Source\Core\Quantity\Private\TAbstractSpectralStrength.h" />
+    <ClInclude Include="Source\Core\Quantity\Private\RgbSpectralStrength.h" />
+    <ClInclude Include="Source\Core\Quantity\SpectralStrength.h" />
     <ClInclude Include="Source\Core\Renderer\BulkRenderer.h" />
     <ClInclude Include="Source\Core\Renderer\ERegionStatus.h" />
     <ClInclude Include="Source\Core\Renderer\RenderWork.h" />
@@ -353,6 +361,7 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\BsdfSample.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\ESurfacePhenomenon.h" />
     <ClInclude Include="Source\Core\Quantity\Time.h" />
+    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\FresnelEffect.h" />
     <ClInclude Include="Source\FileIO\DataTreatment.h" />
     <ClInclude Include="Source\FileIO\InputPacket.h" />
     <ClInclude Include="Source\FileIO\Keyword.h" />
@@ -382,7 +391,9 @@
     <ClInclude Include="Source\Math\Function\TGaussian2D.h" />
     <ClInclude Include="Source\Math\Function\TMathFunction2D.h" />
     <ClInclude Include="Source\Math\Function\TMNCubic2D.h" />
+    <ClInclude Include="Source\Math\Function\TPiecewiseLinear1D.h" />
     <ClInclude Include="Source\Math\math_common.h" />
+    <ClInclude Include="Source\Math\Solver\TIntegrator1D.h" />
     <ClInclude Include="Source\Math\TArithmeticArray.h" />
     <ClInclude Include="Source\Math\TQuaternion.h" />
     <ClInclude Include="Source\Math\Transform\DynamicLinearTranslation.h" />
@@ -480,6 +491,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\Bound\TAABB2D.ipp">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Math\Solver\TIntegrator1D.ipp">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>

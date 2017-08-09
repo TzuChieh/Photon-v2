@@ -13,7 +13,7 @@ inline TArithmeticArray<T, N>::TArithmeticArray() :
 }
 
 template<typename T, std::size_t N>
-inline TArithmeticArray<T, N>::TArithmeticArray(const T& value) : 
+inline TArithmeticArray<T, N>::TArithmeticArray(const T value) : 
 	m()
 {
 	m.fill(value);
@@ -77,7 +77,7 @@ inline TArithmeticArray<T, N> TArithmeticArray<T, N>::mul(const TArithmeticArray
 }
 
 template<typename T, std::size_t N>
-inline TArithmeticArray<T, N> TArithmeticArray<T, N>::mul(const T& rhs) const
+inline TArithmeticArray<T, N> TArithmeticArray<T, N>::mul(const T rhs) const
 {
 	return TArithmeticArray(*this).mulLocal(rhs);
 }
@@ -94,7 +94,7 @@ inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::mulLocal(const TArithmeti
 }
 
 template<typename T, std::size_t N>
-inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::mulLocal(const T& rhs)
+inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::mulLocal(const T rhs)
 {
 	for(std::size_t i = 0; i < N; ++i)
 	{
@@ -143,6 +143,20 @@ inline T TArithmeticArray<T, N>::sum() const
 	}
 
 	return result;
+}
+
+template<typename T, std::size_t N>
+inline bool TArithmeticArray<T, N>::isZero() const
+{
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		if(m[i] != 0)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 template<typename T, std::size_t N>

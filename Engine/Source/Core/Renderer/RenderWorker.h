@@ -19,11 +19,7 @@ public:
 		uint64 totalWork;
 		uint64 workDone;
 
-		inline Progress() :
-			totalWork(0), workDone(0)
-		{
-
-		}
+		inline Progress() : totalWork(0), workDone(0) {}
 	};
 
 	inline RenderWorker() = default;

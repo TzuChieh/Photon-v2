@@ -4,6 +4,7 @@
 #include <Math/Function/TGaussian2D.h>
 #include <Math/Function/TConstant2D.h>
 #include <Math/Function/TMNCubic2D.h>
+#include <Math/Function/TPiecewiseLinear1D.h>
 
 #include <gtest/gtest.h>
 
@@ -78,4 +79,54 @@ TEST(MathFunctionTest, TMNCubic2dHasCorrectProperty)
 	EXPECT_GT(mnCubic2dFunc->evaluate( 0.5f, 0.5f), 0.0f);
 	EXPECT_GT(mnCubic2dFunc->evaluate(-1.0f, 1.0f), 0.0f);
 	EXPECT_LT(mnCubic2dFunc->evaluate(-1.5f, 1.0f), 0.0f);
+}
+
+TEST(MathFunctionTest, TPiecewiseLinear1Doperations)
+{
+	// trial 1: no point added
+
+	TPiecewiseLinear1D<float32> func1;
+	func1.update();
+
+	EXPECT_EQ(func1.evaluate( 0.0f), 0.0f);
+	EXPECT_EQ(func1.evaluate( 1.1f), 0.0f);
+	EXPECT_EQ(func1.evaluate(-1.1f), 0.0f);
+
+	// trial 2: single point added
+
+	TPiecewiseLinear1D<float32> func2;
+	func2.addPoint(TVector2<float32>(1.0f, 2.0f));
+	func2.update();
+
+	EXPECT_FLOAT_EQ(func2.evaluate(-1.0f), 2.0f);
+	EXPECT_FLOAT_EQ(func2.evaluate( 1.0f), 2.0f);
+	EXPECT_FLOAT_EQ(func2.evaluate( 2.0f), 2.0f);
+
+	// trial 3: multiple point with the same x value added
+
+	const float32 commonX = 2.2f;
+	TPiecewiseLinear1D<float32> func3;
+	func3.addPoint(TVector2<float32>(commonX, -1.0f));
+	func3.addPoint(TVector2<float32>(commonX,  0.0f));
+	func3.addPoint(TVector2<float32>(commonX,  2.0f));
+	func3.update();
+
+	EXPECT_FLOAT_EQ(func3.evaluate(-5.0f), -1.0f);
+	EXPECT_FLOAT_EQ(func3.evaluate( 5.0f),  2.0f);
+
+	// trial 4: general case
+
+	TPiecewiseLinear1D<float32> func4;
+	func4.addPoint(TVector2<float32>( 1.0f,  1.0f));
+	func4.addPoint(TVector2<float32>( 1.0f, -1.0f));
+	func4.addPoint(TVector2<float32>( 2.0f,  5.0f));
+	func4.addPoint(TVector2<float32>(-1.0f,  2.0f));
+	func4.update();
+
+	std::cout << func4.toString() << std::endl;
+
+	EXPECT_FLOAT_EQ(func4.evaluate(-1.5f), 2.0f);
+	EXPECT_FLOAT_EQ(func4.evaluate( 2.5f), 5.0f);
+	EXPECT_FLOAT_EQ(func4.evaluate( 1.5f), 2.0f);
+	EXPECT_FLOAT_EQ(func4.evaluate( 0.5f), 1.25f);
 }
