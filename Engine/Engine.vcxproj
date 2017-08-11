@@ -240,7 +240,7 @@
     <ClCompile Include="Source\Actor\Texture\CheckerboardTexture.cpp" />
     <ClCompile Include="Source\Actor\Texture\ConstantTexture.cpp" />
     <ClCompile Include="Source\Actor\Texture\TextureLoader.cpp" />
-    <ClCompile Include="Source\Actor\Texture\PixelTexture.cpp" />
+    <ClCompile Include="Source\Actor\Texture\RgbPixelTexture.cpp" />
     <ClCompile Include="Source\Actor\Texture\Texture.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\random_sample.cpp" />
     <ClCompile Include="Source\FileIO\ValueParser.cpp" />
@@ -402,7 +402,7 @@
     <ClInclude Include="Source\Math\TVector2.h" />
     <ClInclude Include="Source\Core\Camera\RadianceSensor.h" />
     <ClInclude Include="Source\Actor\Texture\TextureLoader.h" />
-    <ClInclude Include="Source\Actor\Texture\PixelTexture.h" />
+    <ClInclude Include="Source\Actor\Texture\RgbPixelTexture.h" />
     <ClInclude Include="Source\Actor\Texture\Texture.h" />
     <ClInclude Include="Source\Math\Color.h" />
     <ClInclude Include="Source\Math\Math.h" />

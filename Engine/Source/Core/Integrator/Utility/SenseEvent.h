@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 namespace ph
 {
@@ -11,9 +12,9 @@ class SenseEvent final
 public:
 	//real filmX;
 	//real filmY;
-	Vector3R radiance;
+	SpectralStrength radiance;
 
-	SenseEvent(/*const real filmX, const real filmY, */const Vector3R& radiance) :
+	SenseEvent(/*const real filmX, const real filmY, */const SpectralStrength& radiance) :
 		/*filmX(filmX), filmY(filmY), */radiance(radiance)
 	{
 

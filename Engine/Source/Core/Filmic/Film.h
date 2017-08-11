@@ -7,6 +7,7 @@
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Core/Bound/TAABB2D.h"
 #include "Math/TVector2.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <vector>
 #include <functional>
@@ -29,7 +30,7 @@ public:
 	     const std::shared_ptr<SampleFilter>& filter);
 	virtual ~Film() = 0;
 
-	virtual void addSample(float64 xPx, float64 yPx, const Vector3R& radiance) = 0;
+	virtual void addSample(float64 xPx, float64 yPx, const SpectralStrength& radiance) = 0;
 	void develop(Frame& out_frame) const;
 	void develop(Frame& out_frame, const TAABB2D<int64>& regionPx) const;
 	virtual void clear() = 0;

@@ -5,14 +5,14 @@
 namespace ph
 {
 
-class PixelTexture;
+class RgbPixelTexture;
 
 class TextureLoader final
 {
 public:
 	TextureLoader();
 
-	bool load(const std::string& fullFilename, PixelTexture* const out_pixelTexture);
+	bool load(const std::string& fullFilename, RgbPixelTexture* const out_rgbPixelTexture);
 };
 
 }// end namespace ph

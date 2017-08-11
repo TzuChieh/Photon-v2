@@ -9,15 +9,15 @@
 namespace ph
 {
 
-class PixelTexture final : public Texture
+class RgbPixelTexture final : public Texture
 {
 public:
-	PixelTexture();
-	PixelTexture(const uint32 widthPx, const uint32 heightPx, const uint32 nPxComponents);
-	PixelTexture(const InputPacket& packet);
-	virtual ~PixelTexture() override;
+	RgbPixelTexture();
+	RgbPixelTexture(const uint32 widthPx, const uint32 heightPx, const uint32 nPxComponents);
+	RgbPixelTexture(const InputPacket& packet);
+	virtual ~RgbPixelTexture() override;
 
-	virtual void sample(const Vector3R& uvw, Vector3R* const out_value) const override;
+	virtual void sample(const Vector3R& uvw, SpectralStrength* out_value) const override;
 
 	void reset(const uint32 widthPx, const uint32 heightPx, const uint32 nPxComponents);
 	void setPixels(const uint32 x, const uint32 y, const uint32 widthPx, const uint32 heighPx, const uint32 nPxComponents, 

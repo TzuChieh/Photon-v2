@@ -16,7 +16,7 @@ public:
 	virtual void radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const override;
 
 private:
-	static void rationalClamp(Vector3R& value);
+	static void rationalClamp(SpectralStrength& value);
 	static real misWeight(real pdf1W, real pdf2W);
 
 // command interface

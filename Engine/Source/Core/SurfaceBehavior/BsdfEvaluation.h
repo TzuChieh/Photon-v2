@@ -3,6 +3,7 @@
 #include "Math/TVector3.h"
 #include "Core/Intersection.h"
 #include "Core/SurfaceBehavior/ESurfacePhenomenon.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 namespace ph
 {
@@ -28,10 +29,10 @@ public:
 	class Output final
 	{
 	public:
-		Vector3R           bsdf;
+		SpectralStrength   bsdf;
 		ESurfacePhenomenon phenomenon;
 
-		inline void set(const Vector3R& bsdf, const ESurfacePhenomenon phenomenon)
+		inline void set(const SpectralStrength& bsdf, const ESurfacePhenomenon phenomenon)
 		{
 			this->bsdf       = bsdf;
 			this->phenomenon = phenomenon;
@@ -39,7 +40,7 @@ public:
 
 		inline bool isGood() const
 		{
-			return bsdf.x >= 0.0_r && bsdf.y >= 0.0_r && bsdf.z >= 0.0_r;
+			return !bsdf.isZero();
 		}
 	};
 

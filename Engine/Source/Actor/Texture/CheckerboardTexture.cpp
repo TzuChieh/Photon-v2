@@ -5,12 +5,15 @@
 namespace ph
 {
 
-CheckerboardTexture::CheckerboardTexture(const real nUtiles, const real nVtiles, const Vector3R& oddValue, const Vector3R& evenValue) :
-	m_nUtiles(nUtiles), m_nVtiles(nVtiles), m_oddValue(oddValue), m_evenValue(evenValue)
+CheckerboardTexture::CheckerboardTexture(const real nUtiles, const real nVtiles, 
+                                         const Vector3R& oddRgbValue, const Vector3R& evenRgbValue) :
+	m_nUtiles(nUtiles), m_nVtiles(nVtiles), 
+	m_oddRgbValue(oddRgbValue), m_evenRgbValue(evenRgbValue)
 {
 	if(nUtiles <= 0.0f || nVtiles <= 0.0f)
 	{
-		std::cerr << "warning: at CheckerboardTexture::CheckerboardTexture(), number of tiles <= 0" << std::endl;
+		std::cerr << "warning: at CheckerboardTexture::CheckerboardTexture(), " 
+		          << "number of tiles <= 0" << std::endl;
 	}
 
 	m_uTileSize = 1.0f / nUtiles;
@@ -19,18 +22,18 @@ CheckerboardTexture::CheckerboardTexture(const real nUtiles, const real nVtiles,
 
 CheckerboardTexture::~CheckerboardTexture() = default;
 
-void CheckerboardTexture::sample(const Vector3R& uvw, Vector3R* const out_value) const
+void CheckerboardTexture::sample(const Vector3R& uvw, SpectralStrength* const out_value) const
 {
 	const int32 uNumber = static_cast<int32>(std::floor(uvw.x / m_uTileSize));
 	const int32 vNumber = static_cast<int32>(std::floor(uvw.y / m_vTileSize));
 
 	if(std::abs(uNumber % 2) != std::abs(vNumber % 2))
 	{
-		*out_value = m_oddValue;
+		out_value->setRgb(m_oddRgbValue);
 	}
 	else
 	{
-		*out_value = m_evenValue;
+		out_value->setRgb(m_evenRgbValue);
 	}
 }
 

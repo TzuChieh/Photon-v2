@@ -434,7 +434,7 @@ inline TVector3<T>& TVector3<T>::divLocal(const T rhs)
 template<typename T>
 inline TVector3<T> TVector3<T>::abs() const
 {
-	return TVector3(fabs(x), fabs(y), fabs(z));
+	return TVector3(std::abs(x), std::abs(y), std::abs(z));
 }
 
 template<typename T>
@@ -450,17 +450,17 @@ inline TVector3<T>& TVector3<T>::absLocal()
 template<typename T>
 inline TVector3<T> TVector3<T>::clamp(const T lowerBound, const T upperBound) const
 {
-	return TVector3(fmin(upperBound, fmax(x, lowerBound)),
-	                fmin(upperBound, fmax(y, lowerBound)),
-	                fmin(upperBound, fmax(z, lowerBound)));
+	return TVector3(std::fmin(upperBound, std::fmax(x, lowerBound)),
+	                std::fmin(upperBound, std::fmax(y, lowerBound)),
+	                std::fmin(upperBound, std::fmax(z, lowerBound)));
 }
 
 template<typename T>
 inline TVector3<T>& TVector3<T>::clampLocal(const T lowerBound, const T upperBound)
 {
-	x = fmin(upperBound, fmax(x, lowerBound));
-	y = fmin(upperBound, fmax(y, lowerBound));
-	z = fmin(upperBound, fmax(z, lowerBound));
+	x = std::fmin(upperBound, std::fmax(x, lowerBound));
+	y = std::fmin(upperBound, std::fmax(y, lowerBound));
+	z = std::fmin(upperBound, std::fmax(z, lowerBound));
 
 	return *this;
 }

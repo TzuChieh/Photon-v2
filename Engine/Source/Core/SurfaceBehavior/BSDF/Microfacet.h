@@ -3,6 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Math/constant.h"
 #include "Math/TVector3.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <iostream>
 
@@ -48,7 +49,7 @@ public:
 	}
 
 	// Schlick Approximated Fresnel Function
-	inline static void fresnelSchlickApproximated(const real HoV, const Vector3R& f0, Vector3R* const out_F)
+	inline static void fresnelSchlickApproximated(const real HoV, const SpectralStrength& f0, SpectralStrength* const out_F)
 	{
 		*out_F = f0.add(f0.complement().mulLocal(pow(1.0_r - HoV, 5)));
 	}

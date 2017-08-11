@@ -17,7 +17,9 @@ void DebugIntegrator::update(const Scene& scene)
 void DebugIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
 {
 	// just output camera sample location as green dots
-	out_senseEvents.push_back(SenseEvent(Vector3R(0, 1, 0)));
+	SpectralStrength radiance;
+	radiance.setRgb(Vector3R(0, 1, 0));
+	out_senseEvents.push_back(SenseEvent(radiance));
 }
 
 // command interface

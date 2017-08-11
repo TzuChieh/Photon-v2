@@ -14,6 +14,7 @@
 #include "Core/Emitter/Emitter.h"
 #include "FileIO/InputPacket.h"
 #include "Core/SurfaceBehavior/BsdfSample.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <iostream>
 
@@ -38,8 +39,8 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 	const real rayDeltaDist = 0.0001_r;
 
 	uint32 numBounces = 0;
-	Vector3R accuRadiance(0, 0, 0);
-	Vector3R accuLiWeight(1, 1, 1);
+	SpectralStrength accuRadiance(0);
+	SpectralStrength accuLiWeight(1);
 	Vector3R rayOriginDelta;
 	Intersection intersection;
 
@@ -70,17 +71,15 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 
 		if(hitSurfaceBehavior.getEmitter())
 		{
-			Vector3R radianceLi;
+			SpectralStrength radianceLi;
 			hitSurfaceBehavior.getEmitter()->evalEmittedRadiance(intersection, &radianceLi);
 
 			// avoid excessive, negative weight and possible NaNs
 			//accuLiWeight.clampLocal(0.0f, 1000.0f);
 
 			// avoid excessive, negative weight and possible NaNs
-			accuLiWeight.x = accuLiWeight.x > 0.0f && accuLiWeight.x < 10000.0f ? accuLiWeight.x : 0.0f;
-			accuLiWeight.y = accuLiWeight.y > 0.0f && accuLiWeight.y < 10000.0f ? accuLiWeight.y : 0.0f;
-			accuLiWeight.z = accuLiWeight.z > 0.0f && accuLiWeight.z < 10000.0f ? accuLiWeight.z : 0.0f;
-			if(accuLiWeight.lengthSquared() == 0.0f)
+			accuLiWeight.clampLocal(0.0_r, 10000.0_r);
+			if(accuLiWeight.isZero())
 			{
 				break;
 			}
@@ -112,7 +111,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 		{
 			rayOriginDelta.set(L).mulLocal(rayDeltaDist);
 
-			Vector3R liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+			SpectralStrength liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 
 			if(numBounces >= 3)
 			{

@@ -156,9 +156,6 @@
     <ClCompile Include="Source\Actor\Texture\ConstantTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\Texture\PixelTexture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Actor\Texture\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -381,6 +378,9 @@
     <ClCompile Include="Source\Core\Quantity\Private\RgbSpectralStrength.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Actor\Texture\RgbPixelTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Common\primitive_type.h">
@@ -561,9 +561,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Actor\Texture\ConstantTexture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\Texture\PixelTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Actor\Texture\Texture.h">
@@ -904,5 +901,8 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Math\Solver\TAnalyticalIntegrator1D.ipp" />
+    <ClInclude Include="Source\Actor\Texture\RgbPixelTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

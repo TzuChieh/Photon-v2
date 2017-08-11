@@ -25,7 +25,7 @@ public:
 	           const std::shared_ptr<SampleFilter>& filter);
 	virtual ~HdrRgbFilm() override;
 
-	virtual void addSample(float64 xPx, float64 yPx, const Vector3R& radiance) override;
+	virtual void addSample(float64 xPx, float64 yPx, const SpectralStrength& radiance) override;
 	virtual void clear() override;
 	virtual std::unique_ptr<Film> genChild(const TAABB2D<int64>& effectiveWindowPx) override;
 

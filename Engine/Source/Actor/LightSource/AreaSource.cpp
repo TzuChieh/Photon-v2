@@ -2,7 +2,7 @@
 #include "Actor/AModel.h"
 #include "Core/Emitter/PrimitiveAreaEmitter.h"
 #include "Actor/Texture/ConstantTexture.h"
-#include "Actor/Texture/PixelTexture.h"
+#include "Actor/Texture/RgbPixelTexture.h"
 #include "Actor/Texture/TextureLoader.h"
 #include "Core/CookedActor.h"
 #include "FileIO/InputPacket.h"
@@ -25,7 +25,7 @@ AreaSource::AreaSource(const std::string& imageFilename) :
 	LightSource(), 
 	m_emittedRadiance(std::make_shared<ConstantTexture>(Vector3R(0, 0, 0)))
 {
-	std::shared_ptr<PixelTexture> image = std::make_shared<PixelTexture>();
+	std::shared_ptr<RgbPixelTexture> image = std::make_shared<RgbPixelTexture>();
 	TextureLoader loader;
 	if(loader.load(imageFilename, image.get()))
 	{

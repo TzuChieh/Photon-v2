@@ -15,6 +15,7 @@
 #include "Core/SurfaceBehavior/BsdfEvaluation.h"
 #include "Core/SurfaceBehavior/BsdfSample.h"
 #include "Math/TVector2.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <iostream>
 
@@ -34,166 +35,166 @@ void LightTracingIntegrator::update(const Scene& scene)
 
 void LightTracingIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
 {
-	const Scene&  scene  = *data.scene;
-	const Camera& camera = *data.camera;
+	//const Scene&  scene  = *data.scene;
+	//const Camera& camera = *data.camera;
 
-	uint32 numBounces = 0;
+	//uint32 numBounces = 0;
 
-	real emitterPickPdf;
-	const Emitter* emitter = scene.pickEmitter(&emitterPickPdf);
-	if(!emitter || emitterPickPdf <= 0)
-	{
-		return;
-	}
+	//real emitterPickPdf;
+	//const Emitter* emitter = scene.pickEmitter(&emitterPickPdf);
+	//if(!emitter || emitterPickPdf <= 0)
+	//{
+	//	return;
+	//}
 
-	Ray emitterRay;
-	Vector3R emitterRadianceLe;
-	Vector3R eN;
-	real emitterPdfA;
-	real emitterPdfW;
-	emitter->genSensingRay(&emitterRay, &emitterRadianceLe, &eN, &emitterPdfA, &emitterPdfW);
+	//Ray emitterRay;
+	//SpectralStrength emitterRadianceLe;
+	//Vector3R eN;
+	//real emitterPdfA;
+	//real emitterPdfW;
+	//emitter->genSensingRay(&emitterRay, &emitterRadianceLe, &eN, &emitterPdfA, &emitterPdfW);
 
-	emitterPdfA *= emitterPickPdf;
-	if(emitterRadianceLe.isZero() || emitterPdfA <= 0 || emitterPdfW <= 0)
-	{
-		return;
-	}
+	//emitterPdfA *= emitterPickPdf;
+	//if(emitterRadianceLe.isZero() || emitterPdfA <= 0 || emitterPdfW <= 0)
+	//{
+	//	return;
+	//}
 
-	// 0 bounce
-	{
-		const Vector3R toCameraVec(camera.getPosition().sub(emitterRay.getOrigin()));
-		const Ray toCameraRay(emitterRay.getOrigin(), toCameraVec.normalize(), 
-			RAY_DELTA_DIST, toCameraVec.length() - 2 * RAY_DELTA_DIST);
-		if(!scene.isIntersecting(toCameraRay))
-		{
-			Vector3R cameraImportanceWe;
-			Vector2R filmCoord;
-			real cameraPdfW;
-			real cameraPdfA = 1;// always pinhole for now
-			real filmArea;
-			camera.evalEmittedImportanceAndPdfW(emitterRay.getOrigin(), &filmCoord, 
-				&cameraImportanceWe, &filmArea, &cameraPdfW);
-			if(cameraPdfW > 0)
-			{
-				Vector3R weight(1, 1, 1);
-				weight.mulLocal(cameraImportanceWe.div(cameraPdfA));
-				weight.divLocal(emitterPdfA);
-				const real G = eN.absDot(toCameraRay.getDirection()) *
-					camera.getDirection().absDot(toCameraRay.getDirection()) / toCameraVec.lengthSquared();
-				weight.mulLocal(G);
+	//// 0 bounce
+	//{
+	//	const Vector3R toCameraVec(camera.getPosition().sub(emitterRay.getOrigin()));
+	//	const Ray toCameraRay(emitterRay.getOrigin(), toCameraVec.normalize(), 
+	//		RAY_DELTA_DIST, toCameraVec.length() - 2 * RAY_DELTA_DIST);
+	//	if(!scene.isIntersecting(toCameraRay))
+	//	{
+	//		Vector3R cameraImportanceWe;
+	//		Vector2R filmCoord;
+	//		real cameraPdfW;
+	//		real cameraPdfA = 1;// always pinhole for now
+	//		real filmArea;
+	//		camera.evalEmittedImportanceAndPdfW(emitterRay.getOrigin(), &filmCoord, 
+	//			&cameraImportanceWe, &filmArea, &cameraPdfW);
+	//		if(cameraPdfW > 0)
+	//		{
+	//			SpectralStrength weight(1);
+	//			weight.mulLocal(cameraImportanceWe.div(cameraPdfA));
+	//			weight.divLocal(emitterPdfA);
+	//			const real G = eN.absDot(toCameraRay.getDirection()) *
+	//				camera.getDirection().absDot(toCameraRay.getDirection()) / toCameraVec.lengthSquared();
+	//			weight.mulLocal(G);
 
-				rationalClamp(weight);
+	//			rationalClamp(weight);
 
-				// assuming same amount of radiance is emitted in every direction
-				out_senseEvents.push_back(SenseEvent(/*filmCoord.x, filmCoord.y, */emitterRadianceLe.mul(weight)));
-			}
-		}
-	}
+	//			// assuming same amount of radiance is emitted in every direction
+	//			out_senseEvents.push_back(SenseEvent(/*filmCoord.x, filmCoord.y, */emitterRadianceLe.mul(weight)));
+	//		}
+	//	}
+	//}
 
-	Intersection intersection;
-	Vector3R throughput(1, 1, 1);
-	while(numBounces < MAX_RAY_BOUNCES && scene.isIntersecting(emitterRay, &intersection))
-	{
-		const PrimitiveMetadata* const metadata = intersection.getHitPrimitive()->getMetadata();
-		const BSDF* const bsdf = metadata->surfaceBehavior.getBsdf();
-		const Vector3R V(emitterRay.getDirection().mul(-1.0f));
-		
-		if(intersection.getHitGeoNormal().dot(V) * intersection.getHitSmoothNormal().dot(V) <= 0.0f)
-		{
-			return;
-		}
+	//Intersection intersection;
+	//Vector3R throughput(1, 1, 1);
+	//while(numBounces < MAX_RAY_BOUNCES && scene.isIntersecting(emitterRay, &intersection))
+	//{
+	//	const PrimitiveMetadata* const metadata = intersection.getHitPrimitive()->getMetadata();
+	//	const BSDF* const bsdf = metadata->surfaceBehavior.getBsdf();
+	//	const Vector3R V(emitterRay.getDirection().mul(-1.0f));
+	//	
+	//	if(intersection.getHitGeoNormal().dot(V) * intersection.getHitSmoothNormal().dot(V) <= 0.0f)
+	//	{
+	//		return;
+	//	}
 
-		// try connecting to camera
-		{
-			const Vector3R toCameraVec(camera.getPosition().sub(intersection.getHitPosition()));
-			if(!(intersection.getHitGeoNormal().dot(toCameraVec) * intersection.getHitSmoothNormal().dot(toCameraVec) <= 0.0f))
-			{
-				const Ray toCameraRay(intersection.getHitPosition(), toCameraVec.normalize(), 
-					RAY_DELTA_DIST, toCameraVec.length() - 2 * RAY_DELTA_DIST);
-				if(!scene.isIntersecting(toCameraRay))
-				{
-					BsdfEvaluation bsdfEval;
-					bsdfEval.inputs.set(intersection, toCameraRay.getDirection(), V);
-					bsdf->evaluate(bsdfEval);
-					if(bsdfEval.outputs.isGood())
-					{
-						Vector3R cameraImportanceWe;
-						Vector2R filmCoord;
-						real cameraPdfW;
-						real cameraPdfA = 1.0_r;// always pinhole for now
-						real filmArea;
-						camera.evalEmittedImportanceAndPdfW(intersection.getHitPosition(), &filmCoord, 
-							&cameraImportanceWe, &filmArea, &cameraPdfW);
-						if(cameraPdfW > 0.0_r)
-						{
-							Vector3R weight(1.0_r, 1.0_r, 1.0_r);
-							weight.mulLocal(cameraImportanceWe.div(cameraPdfA));
-							weight.mulLocal(bsdfEval.outputs.bsdf);
-							weight.mulLocal(1.0_r / (emitterPdfA * emitterPdfW));
-							weight.mulLocal(throughput);
-							const real G = intersection.getHitSmoothNormal().absDot(toCameraRay.getDirection()) *
-								camera.getDirection().absDot(toCameraRay.getDirection()) / toCameraVec.lengthSquared();
-							weight.mulLocal(G);
+	//	// try connecting to camera
+	//	{
+	//		const Vector3R toCameraVec(camera.getPosition().sub(intersection.getHitPosition()));
+	//		if(!(intersection.getHitGeoNormal().dot(toCameraVec) * intersection.getHitSmoothNormal().dot(toCameraVec) <= 0.0f))
+	//		{
+	//			const Ray toCameraRay(intersection.getHitPosition(), toCameraVec.normalize(), 
+	//				RAY_DELTA_DIST, toCameraVec.length() - 2 * RAY_DELTA_DIST);
+	//			if(!scene.isIntersecting(toCameraRay))
+	//			{
+	//				BsdfEvaluation bsdfEval;
+	//				bsdfEval.inputs.set(intersection, toCameraRay.getDirection(), V);
+	//				bsdf->evaluate(bsdfEval);
+	//				if(bsdfEval.outputs.isGood())
+	//				{
+	//					Vector3R cameraImportanceWe;
+	//					Vector2R filmCoord;
+	//					real cameraPdfW;
+	//					real cameraPdfA = 1.0_r;// always pinhole for now
+	//					real filmArea;
+	//					camera.evalEmittedImportanceAndPdfW(intersection.getHitPosition(), &filmCoord, 
+	//						&cameraImportanceWe, &filmArea, &cameraPdfW);
+	//					if(cameraPdfW > 0.0_r)
+	//					{
+	//						Vector3R weight(1.0_r, 1.0_r, 1.0_r);
+	//						weight.mulLocal(cameraImportanceWe.div(cameraPdfA));
+	//						weight.mulLocal(bsdfEval.outputs.bsdf);
+	//						weight.mulLocal(1.0_r / (emitterPdfA * emitterPdfW));
+	//						weight.mulLocal(throughput);
+	//						const real G = intersection.getHitSmoothNormal().absDot(toCameraRay.getDirection()) *
+	//							camera.getDirection().absDot(toCameraRay.getDirection()) / toCameraVec.lengthSquared();
+	//						weight.mulLocal(G);
 
-							rationalClamp(weight);
+	//						rationalClamp(weight);
 
-							out_senseEvents.push_back(SenseEvent(/*filmCoord.x, filmCoord.y, */emitterRadianceLe.mul(weight)));
-						}
-					}
-				}
-			}
-		}
+	//						out_senseEvents.push_back(SenseEvent(/*filmCoord.x, filmCoord.y, */emitterRadianceLe.mul(weight)));
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
 
-		BsdfSample bsdfSample;
-		bsdfSample.inputs.set(intersection, V);
-		bsdf->sample(bsdfSample);
+	//	BsdfSample bsdfSample;
+	//	bsdfSample.inputs.set(intersection, V);
+	//	bsdf->sample(bsdfSample);
 
-		if(!bsdfSample.outputs.isGood())
-		{
-			return;
-		}
+	//	if(!bsdfSample.outputs.isGood())
+	//	{
+	//		return;
+	//	}
 
-		const Vector3R& N = intersection.getHitSmoothNormal();
-		const Vector3R& L = bsdfSample.outputs.L;
+	//	const Vector3R& N = intersection.getHitSmoothNormal();
+	//	const Vector3R& L = bsdfSample.outputs.L;
 
-		if(intersection.getHitGeoNormal().dot(L) * intersection.getHitSmoothNormal().dot(L) <= 0.0_r)
-		{
-			return;
-		}
+	//	if(intersection.getHitGeoNormal().dot(L) * intersection.getHitSmoothNormal().dot(L) <= 0.0_r)
+	//	{
+	//		return;
+	//	}
 
-		Vector3R liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+	//	Vector3R liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 
-		if(numBounces >= 3)
-		{
-			const real rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001_r, 1.0_r);
-			const real rrSpin = Random::genUniformReal_i0_e1();
+	//	if(numBounces >= 3)
+	//	{
+	//		const real rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001_r, 1.0_r);
+	//		const real rrSpin = Random::genUniformReal_i0_e1();
 
-			// russian roulette >> survive
-			if(rrSurviveRate > rrSpin)
-			{
-				const real rrScale = 1.0_r / rrSurviveRate;
-				liWeight.mulLocal(rrScale);
-			}
-			// russian roulette >> dead
-			else
-			{
-				break;
-			}
-		}
+	//		// russian roulette >> survive
+	//		if(rrSurviveRate > rrSpin)
+	//		{
+	//			const real rrScale = 1.0_r / rrSurviveRate;
+	//			liWeight.mulLocal(rrScale);
+	//		}
+	//		// russian roulette >> dead
+	//		else
+	//		{
+	//			break;
+	//		}
+	//	}
 
-		throughput.mulLocal(liWeight);
-		rationalClamp(throughput);
-		if(throughput.isZero())
-		{
-			return;
-		}
+	//	throughput.mulLocal(liWeight);
+	//	rationalClamp(throughput);
+	//	if(throughput.isZero())
+	//	{
+	//		return;
+	//	}
 
-		// prepare for next intersection
+	//	// prepare for next intersection
 
-		emitterRay.setOrigin(intersection.getHitPosition());
-		emitterRay.setDirection(L);
-		numBounces++;
-	}
+	//	emitterRay.setOrigin(intersection.getHitPosition());
+	//	emitterRay.setDirection(L);
+	//	numBounces++;
+	//}
 }
 
 // NaNs will be clamped to 0

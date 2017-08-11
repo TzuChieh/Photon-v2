@@ -14,6 +14,7 @@
 #include "FileIO/InputPacket.h"
 #include "Core/SurfaceBehavior/BsdfSample.h"
 #include "Core/SurfaceBehavior/BsdfEvaluation.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <iostream>
 
@@ -41,8 +42,8 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const RenderWork&
 
 	// common variables
 	Vector3R rayOriginDelta;
-	Vector3R accuRadiance(0, 0, 0);
-	Vector3R accuLiWeight(1, 1, 1);
+	SpectralStrength accuRadiance(0);
+	SpectralStrength accuLiWeight(1);
 	Vector3R V;
 	Intersection intersection;
 	BsdfSample     bsdfSample;
@@ -76,7 +77,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const RenderWork&
 
 	if(metadata->surfaceBehavior.getEmitter())
 	{
-		Vector3R radianceLe;
+		SpectralStrength radianceLe;
 		metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(intersection, &radianceLe);
 		accuRadiance.addLocal(radianceLe);
 	}
@@ -98,7 +99,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const RenderWork&
 				const Ray visRay(intersection.getHitPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2, ray.getTime());
 				if(!scene.isIntersecting(visRay))
 				{
-					Vector3R weight;
+					SpectralStrength weight;
 					bsdfEval.inputs.set(intersection, visRay.getDirection(), V);
 					bsdf->evaluate(bsdfEval);
 					if(bsdfEval.outputs.isGood())
@@ -143,7 +144,7 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const RenderWork&
 		{
 			rayOriginDelta.set(L).mulLocal(RAY_DELTA_DIST);
 
-			Vector3R liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+			SpectralStrength liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 
 			if(numBounces >= 3)
 			{
@@ -209,12 +210,10 @@ void BackwardLightIntegrator::radianceAlongRay(const Ray& ray, const RenderWork&
 	out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */accuRadiance));
 }
 
-// NaNs will be clamped to 0
-void BackwardLightIntegrator::rationalClamp(Vector3R& value)
+void BackwardLightIntegrator::rationalClamp(SpectralStrength& value)
 {
-	value.x = value.x > 0.0f && value.x < 10000.0f ? value.x : 0.0f;
-	value.y = value.y > 0.0f && value.y < 10000.0f ? value.y : 0.0f;
-	value.z = value.z > 0.0f && value.z < 10000.0f ? value.z : 0.0f;
+	// TODO: should negative value be allowed?
+	value.clampLocal(0.0f, 10000.0f);
 }
 
 // command interface

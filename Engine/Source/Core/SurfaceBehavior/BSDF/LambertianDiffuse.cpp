@@ -27,7 +27,7 @@ void LambertianDiffuse::setAlbedo(const std::shared_ptr<Texture>& albedo)
 }
 
 void LambertianDiffuse::evaluate(const Intersection& X, const Vector3R& L, const Vector3R& V,
-                                 Vector3R* const out_bsdf, ESurfacePhenomenon* const out_type) const
+                                 SpectralStrength* const out_bsdf, ESurfacePhenomenon* const out_type) const
 {
 	const real NoL = X.getHitSmoothNormal().dot(L);
 	const real NoV = X.getHitSmoothNormal().dot(V);
@@ -35,24 +35,24 @@ void LambertianDiffuse::evaluate(const Intersection& X, const Vector3R& L, const
 	// check if L, V lies on different side of the surface
 	if(NoL * NoV <= 0.0_r)
 	{
-		out_bsdf->set(0, 0, 0);
+		out_bsdf->set(0);
 		return;
 	}
 
-	Vector3R albedo;
+	SpectralStrength albedo;
 	m_albedo->sample(X.getHitUVW(), &albedo);
 	*out_bsdf = albedo.divLocal(PI_REAL);
 	*out_type = ESurfacePhenomenon::REFLECTION;
 }
 
 void LambertianDiffuse::genSample(const Intersection& X, const Vector3R& V,
-                                  Vector3R* const out_L, Vector3R* const out_pdfAppliedBsdf, ESurfacePhenomenon* const out_type) const
+                                  Vector3R* const out_L, SpectralStrength* const out_pdfAppliedBsdf, ESurfacePhenomenon* const out_type) const
 {
 	// Lambertian diffuse model's BRDF is simply albedo/pi.
 	// The importance sampling strategy is to use the cosine term in the rendering equation, 
 	// generating a cos(theta) weighted L corresponding to N, which PDF is cos(theta)/pi.
 	// Thus, BRDF_lambertian/PDF = albedo/cos(theta).
-	Vector3R albedo;
+	SpectralStrength albedo;
 	m_albedo->sample(X.getHitUVW(), &albedo);
 
 	// generate and transform L to N's space

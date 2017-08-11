@@ -3,6 +3,7 @@
 #include "Core/Intersection.h"
 #include "World/Scene.h"
 #include "Math/TVector3.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 namespace ph
 {
@@ -22,15 +23,15 @@ void NormalBufferIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 	// reverse tracing
 	const Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), 0.0001_r, Ray::MAX_T);// HACK: hard-coded number
 	
-	Vector3R radiance;
+	SpectralStrength radiance;
 	Intersection intersection;
 	if(data.scene->isIntersecting(tracingRay, &intersection))
 	{
-		radiance = intersection.getHitSmoothNormal();
+		radiance.setRgb(intersection.getHitSmoothNormal());
 	}
 	else
 	{
-		radiance = Vector3R(0, 0, 0);
+		radiance.setRgb(Vector3R(0));
 	}
 
 	out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */radiance));

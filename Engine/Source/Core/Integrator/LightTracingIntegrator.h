@@ -6,7 +6,7 @@
 namespace ph
 {
 
-// FIXME: this integrator is broken
+// FIXME: this integrator is not maintained
 
 class LightTracingIntegrator final : public Integrator, public TCommandInterface<LightTracingIntegrator>
 {

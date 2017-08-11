@@ -3,7 +3,7 @@
 #include "Actor/Material/MatteOpaque.h"
 #include "Actor/Texture/ConstantTexture.h"
 #include "Actor/Texture/TextureLoader.h"
-#include "Actor/Texture/PixelTexture.h"
+#include "Actor/Texture/RgbPixelTexture.h"
 
 #include <iostream>
 
@@ -28,7 +28,7 @@ std::shared_ptr<Material> AiMaterialParser::parseMaterial(const aiMaterial* cons
 		{
 			std::string fullTextureFilename = modelDirectory + textureFilename.data;
 
-			std::shared_ptr<PixelTexture> loadedTexture = std::make_shared<PixelTexture>();
+			std::shared_ptr<RgbPixelTexture> loadedTexture = std::make_shared<RgbPixelTexture>();
 			if(!textureLoader.load(fullTextureFilename, loadedTexture.get()))
 			{
 				std::cerr << "warning: at AiMaterialParser::parseMaterial(), texture <" << fullTextureFilename << " loading failed" << std::endl;

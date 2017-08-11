@@ -36,7 +36,7 @@ HdrRgbFilm::HdrRgbFilm(const int64 actualWidthPx, const int64 actualHeightPx,
 
 HdrRgbFilm::~HdrRgbFilm() = default;
 
-void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const Vector3R& radiance)
+void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const SpectralStrength& radiance)
 {
 	const TVector2<float64> samplePosPx(xPx, yPx);
 
@@ -67,11 +67,12 @@ void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const Vector3R&
 			const std::size_t index = fy * static_cast<std::size_t>(m_effectiveResPx.x) + fx;
 
 			
-			const float64 weight = m_filter->evaluate(filterX, filterY);
+			const float64   weight = m_filter->evaluate(filterX, filterY);
+			const Vector3R& rgb    = radiance.genRgb();
 
-			m_pixelRadianceSensors[index].accuR      += radiance.x * weight;
-			m_pixelRadianceSensors[index].accuG      += radiance.y * weight;
-			m_pixelRadianceSensors[index].accuB      += radiance.z * weight;
+			m_pixelRadianceSensors[index].accuR      += rgb.x * weight;
+			m_pixelRadianceSensors[index].accuG      += rgb.y * weight;
+			m_pixelRadianceSensors[index].accuB      += rgb.z * weight;
 			m_pixelRadianceSensors[index].accuWeight += weight;
 		}
 	}

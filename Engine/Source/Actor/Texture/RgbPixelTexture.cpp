@@ -1,4 +1,4 @@
-#include "Actor/Texture/PixelTexture.h"
+#include "Actor/Texture/RgbPixelTexture.h"
 #include "Math/Math.h"
 #include "FileIO/InputPacket.h"
 #include "Actor/Texture/TextureLoader.h"
@@ -9,33 +9,34 @@
 namespace ph
 {
 
-PixelTexture::PixelTexture() : 
-	PixelTexture(0, 0, 0)
+RgbPixelTexture::RgbPixelTexture() :
+	RgbPixelTexture(0, 0, 0)
 {
 
 }
 
-PixelTexture::PixelTexture(const uint32 widthPx, const uint32 heightPx, const uint32 nPxComponents) : 
+RgbPixelTexture::RgbPixelTexture(const uint32 widthPx, const uint32 heightPx, const uint32 nPxComponents) :
 	Texture(), 
 	m_widthPx(widthPx), m_heightPx(heightPx), m_nPxComponents(nPxComponents),
 	m_pixelData(static_cast<std::size_t>(nPxComponents) * widthPx * heightPx, 0.0f)
 {
 	if(nPxComponents > 3)
 	{
-		std::cerr << "warning: at PixelTexture ctor, pixel with > 3 components is not supported" << std::endl;
+		std::cerr << "warning: at RgbPixelTexture::RgbPixelTexture(), " 
+		          << "pixel with > 3 components is not supported" << std::endl;
 	}
 }
 
-PixelTexture::PixelTexture(const InputPacket& packet) : 
+RgbPixelTexture::RgbPixelTexture(const InputPacket& packet) :
 	Texture(packet)
 {
 	const std::string filename = packet.getString("filename", "", DataTreatment::REQUIRED());
 	TextureLoader().load(filename, this);
 }
 
-PixelTexture::~PixelTexture() = default;
+RgbPixelTexture::~RgbPixelTexture() = default;
 
-void PixelTexture::sample(const Vector3R& uvw, Vector3R* const out_value) const
+void RgbPixelTexture::sample(const Vector3R& uvw, SpectralStrength* const out_value) const
 {
 	const real u = uvw.x;
 	const real v = uvw.y;
@@ -52,22 +53,21 @@ void PixelTexture::sample(const Vector3R& uvw, Vector3R* const out_value) const
 
 	const uint32 baseIndex = (y * m_widthPx + x) * m_nPxComponents;
 
-	out_value->x = m_pixelData[baseIndex + 0];
-	out_value->y = m_pixelData[baseIndex + 1];
-	out_value->z = m_pixelData[baseIndex + 2];
-
+	Vector3R rgb(0);
 	switch(m_nPxComponents)
 	{
 	case 3:
-		out_value->z = m_pixelData[baseIndex + 2];
+		rgb.z = m_pixelData[baseIndex + 2];
 	case 2:
-		out_value->y = m_pixelData[baseIndex + 1];
+		rgb.y = m_pixelData[baseIndex + 1];
 	case 1:
-		out_value->x = m_pixelData[baseIndex + 0];
+		rgb.x = m_pixelData[baseIndex + 0];
 	}
+
+	out_value->setRgb(rgb);
 }
 
-void PixelTexture::reset(const uint32 widthPx, const uint32 heightPx, const uint32 nPxComponents)
+void RgbPixelTexture::reset(const uint32 widthPx, const uint32 heightPx, const uint32 nPxComponents)
 {
 	m_widthPx       = widthPx;
 	m_heightPx      = heightPx;
@@ -75,12 +75,13 @@ void PixelTexture::reset(const uint32 widthPx, const uint32 heightPx, const uint
 	m_pixelData     = std::vector<real>(static_cast<std::size_t>(nPxComponents) * widthPx * heightPx, 0.0f);
 }
 
-void PixelTexture::setPixels(const uint32 x, const uint32 y, const uint32 widthPx, const uint32 heighPx, const uint32 nPxComponents,
+void RgbPixelTexture::setPixels(const uint32 x, const uint32 y, const uint32 widthPx, const uint32 heighPx, const uint32 nPxComponents,
                              const real* const pixelData)
 {
 	if((x + widthPx > m_widthPx) || (y + heighPx > m_heightPx || (nPxComponents > m_nPxComponents)))
 	{
-		std::cerr << "warning: at PixelTexture::setPixels(), input overflow texture storage" << std::endl;
+		std::cerr << "warning: at PixelTexture::setPixels(), " 
+		          << "input overflow texture storage" << std::endl;
 		return;
 	}
 

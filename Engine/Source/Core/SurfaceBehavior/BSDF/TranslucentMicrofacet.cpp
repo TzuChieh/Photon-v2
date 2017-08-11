@@ -26,17 +26,17 @@ TranslucentMicrofacet::TranslucentMicrofacet() :
 TranslucentMicrofacet::~TranslucentMicrofacet() = default;
 
 void TranslucentMicrofacet::evaluate(const Intersection& X, const Vector3R& L, const Vector3R& V,
-                                     Vector3R* const out_bsdf, ESurfacePhenomenon* const out_type) const
+                                     SpectralStrength* const out_bsdf, ESurfacePhenomenon* const out_type) const
 {
 	const Vector3R& N = X.getHitSmoothNormal();
 
 	const real NoL = N.dot(L);
 	const real NoV = N.dot(V);
 
-	Vector3R sampledAlpha;
+	SpectralStrength sampledAlpha;// FIXME
 	m_alpha->sample(X.getHitUVW(), &sampledAlpha);
-	const real alpha = sampledAlpha.x;
-	Vector3R sampledF0;
+	const real alpha = sampledAlpha.genRgb().x;
+	SpectralStrength sampledF0;
 	m_F0->sample(X.getHitUVW(), &sampledF0);
 
 	// reflection
@@ -53,12 +53,13 @@ void TranslucentMicrofacet::evaluate(const Intersection& X, const Vector3R& L, c
 		const real NoH = N.dot(H);
 		const real HoL = H.dot(L);
 
-		Vector3R F;
+		SpectralStrength F;
 		Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
 
 		const real signHoV = HoV < 0.0_r ? -1.0_r : 1.0_r;
-		Vector3R ior;
-		m_IOR->sample(X.getHitUVW(), &ior);
+		SpectralStrength iorss;// FIXME
+		m_IOR->sample(X.getHitUVW(), &iorss);
+		Vector3R ior = iorss.genRgb();
 
 		// assume the outside medium has an IOR of 1.0 (which is true in most cases)
 		const real iorRatio = signHoV < 0.0_r ? ior.x : 1.0_r / ior.x;
@@ -67,7 +68,7 @@ void TranslucentMicrofacet::evaluate(const Intersection& X, const Vector3R& L, c
 		// TIR (total internal reflection)
 		if(sqrValue <= 0.0_r)
 		{
-			F.set(1.0_r, 1.0_r, 1.0_r);
+			F.set(1.0_r);
 		}
 
 		const real D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
@@ -79,8 +80,9 @@ void TranslucentMicrofacet::evaluate(const Intersection& X, const Vector3R& L, c
 	// refraction
 	else
 	{
-		Vector3R sampledIor;
-		m_IOR->sample(X.getHitUVW(), &sampledIor);
+		SpectralStrength sampledIorss;// FIXME
+		m_IOR->sample(X.getHitUVW(), &sampledIorss);
+		Vector3R sampledIor = sampledIorss.genRgb();
 		real iorI;
 		real iorO;
 
@@ -102,7 +104,7 @@ void TranslucentMicrofacet::evaluate(const Intersection& X, const Vector3R& L, c
 		const real NoH = N.dot(H);
 		const real HoL = H.dot(L);
 
-		Vector3R F;
+		SpectralStrength F;
 		Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
 		const real D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
 		const real G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, alpha);
@@ -115,7 +117,7 @@ void TranslucentMicrofacet::evaluate(const Intersection& X, const Vector3R& L, c
 }
 
 void TranslucentMicrofacet::genSample(const Intersection& X, const Vector3R& V,
-                                      Vector3R* const out_L, Vector3R* const out_pdfAppliedBsdf, ESurfacePhenomenon* const out_type) const
+                                      Vector3R* const out_L, SpectralStrength* const out_pdfAppliedBsdf, ESurfacePhenomenon* const out_type) const
 {
 	// Cook-Torrance microfacet specular BRDF for translucent surface is:
 	// |HoL||HoV|/(|NoL||NoV|)*(iorO^2)*(D(H)*F(V, H)*G(L, V, H)) / (iorI*HoL + iorO*HoV)^2.
@@ -125,11 +127,11 @@ void TranslucentMicrofacet::genSample(const Intersection& X, const Vector3R& V,
 	// The reason that the latter multiplier in the PDF exists is because there's a jacobian involved 
 	// (from H's probability space to L's).
 
-	Vector3R sampledAlpha;
+	SpectralStrength sampledAlpha;// FIXME
 	m_alpha->sample(X.getHitUVW(), &sampledAlpha);
-	const real alpha = sampledAlpha.x;
+	const real alpha = sampledAlpha.genRgb().x;
 
-	Vector3R sampledF0;
+	SpectralStrength sampledF0;
 	m_F0->sample(X.getHitUVW(), &sampledF0);
 
 	const Vector3R& N = X.getHitSmoothNormal();
@@ -147,7 +149,7 @@ void TranslucentMicrofacet::genSample(const Intersection& X, const Vector3R& V,
 	const real HoV = H.dot(V);
 	const real NoH = N.dot(H);
 
-	Vector3R F;
+	SpectralStrength F;
 	Microfacet::fresnelSchlickApproximated(abs(HoV), sampledF0, &F);
 
 	// use Fresnel term to select which path to take and calculate L
@@ -170,8 +172,9 @@ void TranslucentMicrofacet::genSample(const Intersection& X, const Vector3R& V,
 	else
 	{
 		real signHoV = HoV < 0.0_r ? -1.0_r : 1.0_r;
-		Vector3R ior;
-		m_IOR->sample(X.getHitUVW(), &ior);
+		SpectralStrength iorss;// FIXME
+		m_IOR->sample(X.getHitUVW(), &iorss);
+		Vector3R ior = iorss.genRgb();
 
 		// assume the outside medium has an IOR of 1.0 (which is true in most cases)
 		const real iorRatio = signHoV < 0.0_r ? ior.x : 1.0_r / ior.x;
@@ -220,11 +223,11 @@ void TranslucentMicrofacet::calcSampleDirPdfW(const Intersection& X, const Vecto
 	const Vector3R& N = X.getHitSmoothNormal();
 	const real NoL = N.dot(L);
 
-	Vector3R sampledAlpha;
+	SpectralStrength sampledAlpha;// FIXME
 	m_alpha->sample(X.getHitUVW(), &sampledAlpha);
-	const real alpha = sampledAlpha.x;
+	const real alpha = sampledAlpha.genRgb().x;
 
-	Vector3R sampledF0;
+	SpectralStrength sampledF0;
 	m_F0->sample(X.getHitUVW(), &sampledF0);
 
 	switch(type)
@@ -243,13 +246,14 @@ void TranslucentMicrofacet::calcSampleDirPdfW(const Intersection& X, const Vecto
 		const real HoV = H.dot(V);
 		const real D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
 
-		Vector3R F;
+		SpectralStrength F;
 		Microfacet::fresnelSchlickApproximated(abs(HoV), sampledF0, &F);
 		real reflectProb = F.avg();
 
 		const real signHoV = HoV < 0.0_r ? -1.0_r : 1.0_r;
-		Vector3R ior;
-		m_IOR->sample(X.getHitUVW(), &ior);
+		SpectralStrength iorss;// FIXME
+		m_IOR->sample(X.getHitUVW(), &iorss);
+		Vector3R ior = iorss.genRgb();
 
 		// assume the outside medium has an IOR of 1.0 (which is true in most cases)
 		const real iorRatio = signHoV < 0.0_r ? ior.x : 1.0_r / ior.x;
@@ -267,8 +271,9 @@ void TranslucentMicrofacet::calcSampleDirPdfW(const Intersection& X, const Vecto
 
 	case ESurfacePhenomenon::TRANSMISSION:
 	{
-		Vector3R sampledIor;
-		m_IOR->sample(X.getHitUVW(), &sampledIor);
+		SpectralStrength sampledIorss;// FIXME
+		m_IOR->sample(X.getHitUVW(), &sampledIorss);
+		Vector3R sampledIor = sampledIorss.genRgb();
 		real iorI;
 		real iorO;
 
@@ -292,7 +297,7 @@ void TranslucentMicrofacet::calcSampleDirPdfW(const Intersection& X, const Vecto
 
 		const real D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
 
-		Vector3R F;
+		SpectralStrength F;
 		Microfacet::fresnelSchlickApproximated(abs(HoV), sampledF0, &F);
 		const real reflectProb = 1.0_r - F.avg();
 

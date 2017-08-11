@@ -39,12 +39,12 @@ PrimitiveAreaEmitter::~PrimitiveAreaEmitter()
 
 }
 
-void PrimitiveAreaEmitter::evalEmittedRadiance(const Intersection& intersection, Vector3R* const out_emitterRadiance) const
+void PrimitiveAreaEmitter::evalEmittedRadiance(const Intersection& intersection, SpectralStrength* const out_radiance) const
 {
-	m_emittedRadiance->sample(intersection.getHitUVW(), out_emitterRadiance);
+	m_emittedRadiance->sample(intersection.getHitUVW(), out_radiance);
 }
 
-void PrimitiveAreaEmitter::genDirectSample(const Vector3R& targetPos, Vector3R* const out_emitPos, Vector3R* const out_emittedRadiance, real* const out_PDF) const
+void PrimitiveAreaEmitter::genDirectSample(const Vector3R& targetPos, Vector3R* const out_emitPos, SpectralStrength* const out_emittedRadiance, real* const out_PDF) const
 {
 	const std::size_t picker = static_cast<std::size_t>(Random::genUniformReal_i0_e1() * static_cast<real>(m_primitives.size()));
 	const std::size_t pickedIndex = picker == m_primitives.size() ? picker - 1 : picker;
@@ -74,9 +74,7 @@ void PrimitiveAreaEmitter::genDirectSample(const Vector3R& targetPos, Vector3R* 
 		*out_PDF = 0.0f;
 	}*/
 
-	Vector3R emittedRadiance;
-	m_emittedRadiance->sample(tPositionSample.uvw, &emittedRadiance);
-	*out_emittedRadiance = emittedRadiance;
+	m_emittedRadiance->sample(tPositionSample.uvw, out_emittedRadiance);
 
 	*out_emitPos = tPositionSample.position;
 }
@@ -120,7 +118,7 @@ real PrimitiveAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const
 	return pickPdfW * (samplePdfA / std::abs(emitDir.dot(emitN)) * distSquared);
 }
 
-void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, Vector3R* const out_Le, Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const
+void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* const out_Le, Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const
 {
 	// randomly and uniformly pick a primitive
 	const std::size_t picker = static_cast<std::size_t>(Random::genUniformReal_i0_e1() * static_cast<real>(m_primitives.size()));

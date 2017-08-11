@@ -17,9 +17,9 @@ ConstantTexture::ConstantTexture(const real r, const real g, const real b) :
 
 ConstantTexture::~ConstantTexture() = default;
 
-void ConstantTexture::sample(const Vector3R& uvw, Vector3R* const out_value) const
+void ConstantTexture::sample(const Vector3R& uvw, SpectralStrength* const out_value) const
 {
-	out_value->set(m_value);
+	out_value->setRgb(Vector3R(m_value));
 }
 
 }// end namespace ph

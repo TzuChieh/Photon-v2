@@ -14,6 +14,7 @@
 #include "Core/SurfaceBehavior/BsdfEvaluation.h"
 #include "Core/SurfaceBehavior/BsdfSample.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <iostream>
 
@@ -41,8 +42,8 @@ void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& d
 
 	// common variables
 	Vector3R rayOriginDelta;
-	Vector3R accuRadiance(0, 0, 0);
-	Vector3R accuLiWeight(1, 1, 1);
+	SpectralStrength accuRadiance(0);
+	SpectralStrength accuLiWeight(1);
 	Vector3R V;
 	Intersection intersection;
 	BsdfEvaluation bsdfEval;
@@ -78,7 +79,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& d
 
 	if(metadata->surfaceBehavior.getEmitter())
 	{
-		Vector3R radianceLe;
+		SpectralStrength radianceLe;
 		metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(intersection, &radianceLe);
 		accuRadiance.addLocal(radianceLe);
 	}
@@ -112,7 +113,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& d
 						const Vector3R& N = intersection.getHitSmoothNormal();
 						const Vector3R& L = visRay.getDirection();
 
-						Vector3R weight;
+						SpectralStrength weight;
 						weight = bsdfEval.outputs.bsdf.mul(N.absDot(L));
 						weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directLightSample.pdfW);
 
@@ -167,7 +168,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& d
 		emitter  = metadata->surfaceBehavior.getEmitter();
 		if(emitter)
 		{
-			Vector3R radianceLe;
+			SpectralStrength radianceLe;
 			metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(intersection, &radianceLe);
 
 			// TODO: handle delta BSDF distributions
@@ -178,7 +179,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& d
 				emitter, intersection.getHitPrimitive());
 			const real misWeighting = misWeight(bsdfSamplePdfW, directLightPdfW);
 
-			Vector3R weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+			SpectralStrength weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 			weight.mulLocal(accuLiWeight).mulLocal(misWeighting);
 
 			// avoid excessive, negative weight and possible NaNs
@@ -187,7 +188,7 @@ void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& d
 			accuRadiance.addLocal(radianceLe.mulLocal(weight));
 		}
 
-		Vector3R liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+		SpectralStrength liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 
 		if(numBounces >= 3)
 		{
@@ -221,12 +222,10 @@ void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& d
 	out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */accuRadiance));
 }
 
-// NaNs will be clamped to 0
-void BackwardMisIntegrator::rationalClamp(Vector3R& value)
+void BackwardMisIntegrator::rationalClamp(SpectralStrength& value)
 {
-	value.x = value.x > 0.0_r && value.x < 10000.0_r ? value.x : 0.0_r;
-	value.y = value.y > 0.0_r && value.y < 10000.0_r ? value.y : 0.0_r;
-	value.z = value.z > 0.0_r && value.z < 10000.0_r ? value.z : 0.0_r;
+	// TODO: should negative value be allowed?
+	value.clampLocal(0.0_r, 10000.0_r);
 }
 
 // power heuristic with beta = 2

@@ -1,5 +1,5 @@
 #include "Actor/Texture/TextureLoader.h"
-#include "Actor/Texture/PixelTexture.h"
+#include "Actor/Texture/RgbPixelTexture.h"
 #include "Math/Random.h"
 
 #include "Common/ThirdParty/lib_stb.h"
@@ -14,7 +14,7 @@ TextureLoader::TextureLoader()
 
 }
 
-bool TextureLoader::load(const std::string& fullFilename, PixelTexture* const out_pixelTexture)
+bool TextureLoader::load(const std::string& fullFilename, RgbPixelTexture* const out_rgbPixelTexture)
 {
 	std::cout << "loading image <" << fullFilename << ">" << std::endl;
 
@@ -50,8 +50,8 @@ bool TextureLoader::load(const std::string& fullFilename, PixelTexture* const ou
 	// don't forget to free the image data loaded by stb
 	stbi_image_free(stbImageData);
 
-	out_pixelTexture->reset(static_cast<uint32>(widthPx), static_cast<uint32>(heightPx), static_cast<uint32>(numComponents));
-	out_pixelTexture->setPixels(0, 0, static_cast<uint32>(widthPx), static_cast<uint32>(heightPx), static_cast<uint32>(numComponents), pixelData.data());
+	out_rgbPixelTexture->reset(static_cast<uint32>(widthPx), static_cast<uint32>(heightPx), static_cast<uint32>(numComponents));
+	out_rgbPixelTexture->setPixels(0, 0, static_cast<uint32>(widthPx), static_cast<uint32>(heightPx), static_cast<uint32>(numComponents), pixelData.data());
 
 	return true;
 }

@@ -3,6 +3,7 @@
 #include <Core/Filmic/HdrRgbFilm.h>
 #include <PostProcess/Frame.h>
 #include <Core/Filmic/SampleFilterFactory.h>
+#include <Core/Quantity/SpectralStrength.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -24,10 +25,10 @@ TEST(FilmSampleWeightingTest, HdrRgbFilmDevelopesToFrame)
 	const float64 testSamplePos2Ypx = film.getSampleWindowPx().minVertex.y + 0.4;
 	film.addSample(testSamplePos1Xpx,
 	               testSamplePos1Ypx,
-	               Vector3R(0.7_r, 0.7_r, 0.7_r));
+	               SpectralStrength(0.7_r));
 	film.addSample(testSamplePos2Xpx,
 	               testSamplePos2Ypx,
-	               Vector3R(0.3_r, 0.3_r, 0.3_r));
+	               SpectralStrength(0.3_r));
 	film.develop(frame);
 
 	TVector3<float32> pixelValue;
@@ -36,6 +37,9 @@ TEST(FilmSampleWeightingTest, HdrRgbFilmDevelopesToFrame)
 	// r, g, b should be equal - since the input samples are monochrome
 	EXPECT_NEAR(pixelValue.x, pixelValue.y, TEST_FLOAT32_EPSILON);
 	EXPECT_NEAR(pixelValue.y, pixelValue.z, TEST_FLOAT32_EPSILON);
+
+	// r, g, b should be non-zero
+	EXPECT_TRUE(pixelValue.isNotZero());
 
 	// predicting the pixel value
 	const float64 pixelToSample1Xpx = 0 + 0.5 - testSamplePos1Xpx;
