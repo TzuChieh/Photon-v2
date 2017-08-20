@@ -37,6 +37,7 @@ public:
 	inline T sum() const;
 	inline T avg() const;
 	inline TArithmeticArray complement() const;
+	inline TArithmeticArray& complementLocal();
 
 	inline bool isZero() const;
 	inline bool isNonNegative() const;

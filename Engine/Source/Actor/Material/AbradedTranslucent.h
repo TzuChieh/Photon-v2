@@ -17,10 +17,8 @@ public:
 
 	virtual void populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const override;
 
-	void setAlbedo(const Vector3R& albedo);
-	void setF0(const Vector3R& f0);
-	void setF0(const real r, const real g, const real b);
-	void setIOR(const real ior);
+	//void setAlbedo(const Vector3R& albedo);
+	void setIor(const real iorOuter, const real iorInner);
 	void setRoughness(const real roughness);
 
 private:

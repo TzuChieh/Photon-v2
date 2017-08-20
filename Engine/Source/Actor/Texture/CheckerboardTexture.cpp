@@ -22,19 +22,33 @@ CheckerboardTexture::CheckerboardTexture(const real nUtiles, const real nVtiles,
 
 CheckerboardTexture::~CheckerboardTexture() = default;
 
-void CheckerboardTexture::sample(const Vector3R& uvw, SpectralStrength* const out_value) const
+void CheckerboardTexture::sample(const Vector3R& uvw, real* out_value) const
+{
+	Vector3R rgb;
+	CheckerboardTexture::sample(uvw, &rgb);
+	*out_value = rgb.x;
+}
+
+void CheckerboardTexture::sample(const Vector3R& uvw, Vector3R* out_value) const
 {
 	const int32 uNumber = static_cast<int32>(std::floor(uvw.x / m_uTileSize));
 	const int32 vNumber = static_cast<int32>(std::floor(uvw.y / m_vTileSize));
 
 	if(std::abs(uNumber % 2) != std::abs(vNumber % 2))
 	{
-		out_value->setRgb(m_oddRgbValue);
+		out_value->set(m_oddRgbValue);
 	}
 	else
 	{
-		out_value->setRgb(m_evenRgbValue);
+		out_value->set(m_evenRgbValue);
 	}
+}
+
+void CheckerboardTexture::sample(const Vector3R& uvw, SpectralStrength* const out_value) const
+{
+	Vector3R rgb;
+	CheckerboardTexture::sample(uvw, &rgb);
+	out_value->setRgb(rgb);
 }
 
 }// end namespace ph

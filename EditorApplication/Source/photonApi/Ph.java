@@ -37,11 +37,14 @@ public final class Ph
 	public static final int FILM_REGION_STATUS_UPDATING = 1;
 	public static final int FILM_REGION_STATUS_FINISHED = 2;
 	
-	public static native void phAsyncQueryRendererPercentageProgress(long engineId, FloatRef out_progress);
-	public static native void phAsyncQueryRendererSampleFrequency(long engineId, FloatRef out_frequency);
+	public static native void phAsyncGetRendererStatistics(long engineId, 
+	                                                       FloatRef out_percentageProgress, 
+	                                                       FloatRef out_samplesPerSecond);
+	
 	public static native int  phAsyncPollUpdatedFilmRegion(long engineId, 
 	                                                       IntRef out_xPx, IntRef out_yPx, 
 	                                                       IntRef out_wPx, IntRef out_hPx);
+	
 	public static native void phAsyncDevelopFilmRegion(long engineId, long frameId, 
 	                                                   int xPx, int yPx, int wPx, int hPx);
 }

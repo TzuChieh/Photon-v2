@@ -28,10 +28,10 @@ public:
 	TVector2<int64> getFilmDimensionPx() const;
 	void setNumRenderThreads(uint32 numThreads);
 
-	float32 asyncQueryPercentageProgress() const;
-	float32 asyncQuerySampleFrequency() const;
 	ERegionStatus asyncPollUpdatedRegion(Renderer::Region* out_region) const;
 	void asyncDevelopFilmRegion(Frame& out_frame, const Renderer::Region& region) const;
+	void asyncQueryStatistics(float32* out_percentageProgress,
+	                          float32* out_samplesPerSecond) const;
 
 private:
 	DescriptionParser m_parser;

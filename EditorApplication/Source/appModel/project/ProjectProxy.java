@@ -6,6 +6,7 @@ import javafx.concurrent.Task;
 import photonApi.Frame;
 import photonApi.FrameRegion;
 import photonApi.FrameStatus;
+import photonApi.Statistics;
 
 public final class ProjectProxy
 {
@@ -78,14 +79,9 @@ public final class ProjectProxy
 		};
 	}
 	
-	public float queryParametricProgress()
+	public void asyncGetRendererStatistics(Statistics out_statistics)
 	{
-		return m_project.asyncQueryParametricProgress();
-	}
-	
-	public float querySamplingFrequency()
-	{
-		return m_project.asyncQuerySamplingFrequency();
+		m_project.asyncGetRendererStatistics(out_statistics);
 	}
 	
 	public FrameStatus asyncGetUpdatedFrame(FrameRegion out_frameRegion)

@@ -70,18 +70,14 @@ public final class PhEngine
 		Ph.phDevelopFilm(m_engineId, frame.m_frameId);
 	}
 	
-	public float asyncQueryPercentageProgress()
+	public void asyncGetRendererStatistics(Statistics out_statistics)
 	{
-		FloatRef progress = new FloatRef();
-		Ph.phAsyncQueryRendererPercentageProgress(m_engineId, progress);
-		return progress.m_value;
-	}
-	
-	public float asyncQuerySampleFrequency()
-	{
+		FloatRef progress  = new FloatRef();
 		FloatRef frequency = new FloatRef();
-		Ph.phAsyncQueryRendererSampleFrequency(m_engineId, frequency);
-		return frequency.m_value;
+		Ph.phAsyncGetRendererStatistics(m_engineId, progress, frequency);
+		
+		out_statistics.percentageProgress = progress.m_value;
+		out_statistics.samplesPerSecond   = frequency.m_value;
 	}
 	
 	public FrameStatus asyncGetUpdatedFrame(PhFrame out_frame, Rectangle out_updatedRegion)

@@ -7,19 +7,20 @@
 namespace ph
 {
 
-// TODO: this class should be named ConstantRgbTexture
-
 class ConstantTexture : public Texture
 {
 public:
-	ConstantTexture(const Vector3R& value);
-	ConstantTexture(const real r, const real g, const real b);
+	ConstantTexture(real value);
+	ConstantTexture(real r, real g, real b);
+	ConstantTexture(const Vector3R& rgb);
 	virtual ~ConstantTexture() override;
 
+	virtual void sample(const Vector3R& uvw, real* out_value) const override;
+	virtual void sample(const Vector3R& uvw, Vector3R* out_value) const override;
 	virtual void sample(const Vector3R& uvw, SpectralStrength* out_value) const override;
 
 private:
-	Vector3R m_value;
+	Vector3R m_rgb;
 };
 
 }// end namespace ph

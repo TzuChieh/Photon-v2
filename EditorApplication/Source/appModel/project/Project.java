@@ -11,6 +11,7 @@ import photonApi.FrameStatus;
 import photonApi.PhEngine;
 import photonApi.PhFrame;
 import photonApi.Rectangle;
+import photonApi.Statistics;
 
 public final class Project extends ManageableResource
 {
@@ -92,7 +93,7 @@ public final class Project extends ManageableResource
 	@Override
 	protected void initResource()
 	{
-		m_engine         = new PhEngine(6);
+		m_engine         = new PhEngine(4);
 		m_finalFrame     = new PhFrame(0, 0);
 		m_transientFrame = new PhFrame(0, 0);
 		m_proxy          = new ProjectProxy(this);
@@ -108,14 +109,9 @@ public final class Project extends ManageableResource
 		m_transientFrame.dispose();
 	}
 	
-	public float asyncQueryParametricProgress()
+	public void asyncGetRendererStatistics(Statistics out_statistics)
 	{
-		return m_engine.asyncQueryPercentageProgress() / 100.0f;
-	}
-	
-	public float asyncQuerySamplingFrequency()
-	{
-		return m_engine.asyncQuerySampleFrequency();
+		m_engine.asyncGetRendererStatistics(out_statistics);
 	}
 	
 	public FrameStatus asyncGetUpdatedFrame(FrameRegion out_frameRegion)

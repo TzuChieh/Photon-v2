@@ -16,7 +16,9 @@ public:
 	Texture(const InputPacket& packet);
 	virtual ~Texture() = 0;
 
-	virtual void sample(const Vector3R& uvw, SpectralStrength* out_value) const = 0;
+	virtual void sample(const Vector3R& uvw, real* out_value) const;
+	virtual void sample(const Vector3R& uvw, Vector3R* out_value) const;
+	virtual void sample(const Vector3R& uvw, SpectralStrength* out_value) const;
 };
 
 }// end namespace ph

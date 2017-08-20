@@ -205,29 +205,20 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phCopyFrameRgbData__JIIIILphotonApi_Flo
 
 /*
 * Class:     photonApi_Ph
-* Method:    phAsyncQueryRendererPercentageProgress
-* Signature: (JLphotonApi/FloatRef;)V
+* Method:    phAsyncGetRendererStatistics
+* Signature: (JLphotonApi/FloatRef;LphotonApi/FloatRef;)V
 */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncQueryRendererPercentageProgress
-(JNIEnv* env, jclass thiz, jlong engineId, jobject out_FloatRef_progress)
+JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncGetRendererStatistics
+(JNIEnv* env, jclass thiz, jlong engineId, 
+                           jobject out_FloatRef_percentageProgress, 
+                           jobject out_FloatRef_samplesPerSecond)
 {
-	PHfloat32 progress;
-	phAsyncGetRendererPercentageProgress(static_cast<PHuint64>(engineId), &progress);
-	ph::JFloatRef jProgress(out_FloatRef_progress, env);
-	jProgress.setValue(progress);
-}
+	PHfloat32 progress, frequency;
+	phAsyncGetRendererStatistics(static_cast<PHuint64>(engineId), &progress, &frequency);
 
-/*
-* Class:     photonApi_Ph
-* Method:    phAsyncQueryRendererSampleFrequency
-* Signature: (JLphotonApi/FloatRef;)V
-*/
-JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncQueryRendererSampleFrequency
-(JNIEnv* env, jclass thiz, jlong engineId, jobject out_FloatRef_frequency)
-{
-	PHfloat32 frequency;
-	phAsyncGetRendererSampleFrequency(static_cast<PHuint64>(engineId), &frequency);
-	ph::JFloatRef jFrequency(out_FloatRef_frequency, env);
+	ph::JFloatRef jProgress(out_FloatRef_percentageProgress, env);
+	ph::JFloatRef jFrequency(out_FloatRef_samplesPerSecond, env);
+	jProgress.setValue(progress);
 	jFrequency.setValue(frequency);
 }
 

@@ -62,35 +62,30 @@ void Renderer::setNumRenderThreads(const uint32 numThreads)
 	m_numThreads = numThreads;
 }
 
-float32 Renderer::asyncQueryPercentageProgress() const
+void Renderer::asyncQueryStatistics(float32* const out_percentageProgress, 
+                                    float32* const out_samplesPerSecond) const
 {
-	std::size_t totalWork = 0;
-	std::size_t workDone  = 0;
+	uint64  totalWork     = 0;
+	uint64  totalWorkDone = 0;
+	float64 samplesPerMs  = 0.0;
 	for(const auto& worker : m_workers)
 	{
-		const auto& progress = worker.queryProgress();
-		totalWork += progress.totalWork;
-		workDone  += progress.workDone;
+		const auto& statistics = worker.getStatistics();
+
+		// FIXME: this calculation can be wrong if there are more works than workers
+		totalWork     += statistics.totalWork;
+		totalWorkDone += statistics.workDone;
+
+		if(statistics.numMsElapsed != 0)
+		{
+			samplesPerMs += static_cast<float64>(statistics.numSamplesTaken) / statistics.numMsElapsed;
+		}
 	}
 
-	if(totalWork == 0)
-	{
-		return 0.0f;
-	}
+	*out_percentageProgress = totalWork != 0 ? 
+		static_cast<float32>(totalWorkDone) / static_cast<float32>(totalWork) * 100.0f : 0.0f;
 
-	return static_cast<float32>(workDone) / static_cast<float32>(totalWork) * 100.0f;
-}
-
-// TODO
-float32 Renderer::asyncQuerySampleFrequency() const
-{
-	float32 sampleFreq = 0.0f;
-	/*for(uint32 threadId = 0; threadId < m_workerSampleFrequencies.size(); threadId++)
-	{
-	sampleFreq += *(m_workerSampleFrequencies[threadId]);
-	}*/
-
-	return sampleFreq;
+	*out_samplesPerSecond = static_cast<float32>(samplesPerMs) * 1000.0f;
 }
 
 }// end namespace ph

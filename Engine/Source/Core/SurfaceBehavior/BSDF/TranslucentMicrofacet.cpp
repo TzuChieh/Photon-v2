@@ -8,6 +8,7 @@
 #include "Core/SurfaceBehavior/BSDF/random_sample.h"
 #include "Core/SurfaceBehavior/BSDF/Microfacet.h"
 #include "Math/Math.h"
+#include "Core/SurfaceBehavior/Utility/SchlickApproxDielectricFresnel.h"
 
 #include <memory>
 #include <iostream>
@@ -16,9 +17,8 @@ namespace ph
 {
 
 TranslucentMicrofacet::TranslucentMicrofacet() :
-	m_F0   (std::make_shared<ConstantTexture>(Vector3R(0.04_r, 0.04_r, 0.04_r))),
-	m_IOR  (std::make_shared<ConstantTexture>(Vector3R(1.0_r,  1.0_r,  1.0_r))),
-	m_alpha(std::make_shared<ConstantTexture>(Vector3R(0.5_r,  0.5_r,  0.5_r)))
+	m_fresnel(std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.0_r)),
+	m_alpha(std::make_shared<ConstantTexture>(Vector3R(0.5_r, 0.5_r,  0.5_r)))
 {
 
 }
@@ -36,8 +36,6 @@ void TranslucentMicrofacet::evaluate(const Intersection& X, const Vector3R& L, c
 	SpectralStrength sampledAlpha;// FIXME
 	m_alpha->sample(X.getHitUVW(), &sampledAlpha);
 	const real alpha = sampledAlpha.genRgb().x;
-	SpectralStrength sampledF0;
-	m_F0->sample(X.getHitUVW(), &sampledF0);
 
 	// reflection
 	if(NoL * NoV >= 0.0_r)
@@ -54,22 +52,7 @@ void TranslucentMicrofacet::evaluate(const Intersection& X, const Vector3R& L, c
 		const real HoL = H.dot(L);
 
 		SpectralStrength F;
-		Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
-
-		const real signHoV = HoV < 0.0_r ? -1.0_r : 1.0_r;
-		SpectralStrength iorss;// FIXME
-		m_IOR->sample(X.getHitUVW(), &iorss);
-		Vector3R ior = iorss.genRgb();
-
-		// assume the outside medium has an IOR of 1.0 (which is true in most cases)
-		const real iorRatio = signHoV < 0.0_r ? ior.x : 1.0_r / ior.x;
-		const real sqrValue = 1.0_r - iorRatio*iorRatio*(1.0_r - HoV * HoV);
-
-		// TIR (total internal reflection)
-		if(sqrValue <= 0.0_r)
-		{
-			F.set(1.0_r);
-		}
+		m_fresnel->calcReflectance(HoL, &F);
 
 		const real D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
 		const real G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, alpha);
@@ -80,37 +63,32 @@ void TranslucentMicrofacet::evaluate(const Intersection& X, const Vector3R& L, c
 	// refraction
 	else
 	{
-		SpectralStrength sampledIorss;// FIXME
-		m_IOR->sample(X.getHitUVW(), &sampledIorss);
-		Vector3R sampledIor = sampledIorss.genRgb();
-		real iorI;
-		real iorO;
-
-		// H is on the hemisphere of N
-		Vector3R H;
+		real etaI = m_fresnel->getIorOuter();
+		real etaT = m_fresnel->getIorInner();
 		if(NoL < 0.0_r)
 		{
-			iorI = sampledIor.x;
-			iorO = 1.0_r;
+			std::swap(etaI, etaT);
 		}
-		else
+
+		// H should be on the same hemisphere as N
+		Vector3R H = L.mul(-etaI).add(V.mul(-etaT)).normalizeLocal();
+		if(N.dot(H) < 0.0_r)
 		{
-			iorI = 1.0_r;
-			iorO = sampledIor.x;
+			H.mulLocal(-1.0_r);
 		}
-		H = L.mul(iorI).add(V.mul(iorO)).mulLocal(-1.0_r).normalizeLocal();
 
 		const real HoV = H.dot(V);
 		const real NoH = N.dot(H);
 		const real HoL = H.dot(L);
 
 		SpectralStrength F;
-		Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
+		m_fresnel->calcTransmittance(HoL, &F);
+
 		const real D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
 		const real G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, alpha);
 
 		const real dotTerm = std::abs(HoL * HoV / (NoV * NoL));
-		const real iorTerm = iorI / (iorI * HoL + iorO * HoV);
+		const real iorTerm = etaI / (etaI * HoL + etaT * HoV);
 		*out_bsdf = F.complement().mul(D * G * dotTerm * (iorTerm * iorTerm));
 		*out_type = ESurfacePhenomenon::TRANSMISSION;
 	}
@@ -131,9 +109,6 @@ void TranslucentMicrofacet::genSample(const Intersection& X, const Vector3R& V,
 	m_alpha->sample(X.getHitUVW(), &sampledAlpha);
 	const real alpha = sampledAlpha.genRgb().x;
 
-	SpectralStrength sampledF0;
-	m_F0->sample(X.getHitUVW(), &sampledF0);
-
 	const Vector3R& N = X.getHitSmoothNormal();
 	Vector3R H;
 
@@ -150,7 +125,7 @@ void TranslucentMicrofacet::genSample(const Intersection& X, const Vector3R& V,
 	const real NoH = N.dot(H);
 
 	SpectralStrength F;
-	Microfacet::fresnelSchlickApproximated(abs(HoV), sampledF0, &F);
+	m_fresnel->calcReflectance(HoV, &F);
 
 	// use Fresnel term to select which path to take and calculate L
 
@@ -169,41 +144,14 @@ void TranslucentMicrofacet::genSample(const Intersection& X, const Vector3R& V,
 		*out_type = ESurfacePhenomenon::REFLECTION;
 	}
 	// refract path
-	else
+	else if(m_fresnel->calcRefractDir(V, H, out_L))
 	{
-		real signHoV = HoV < 0.0_r ? -1.0_r : 1.0_r;
-		SpectralStrength iorss;// FIXME
-		m_IOR->sample(X.getHitUVW(), &iorss);
-		Vector3R ior = iorss.genRgb();
+		m_fresnel->calcTransmittance(out_L->dot(H), &F);
 
-		// assume the outside medium has an IOR of 1.0 (which is true in most cases)
-		const real iorRatio = signHoV < 0.0_r ? ior.x : 1.0_r / ior.x;
-		const real sqrValue = 1.0_r - iorRatio*iorRatio*(1.0_r - HoV * HoV);
+		*out_type = ESurfacePhenomenon::TRANSMISSION;
 
-		// TIR (total internal reflection)
-		if(sqrValue <= 0.0_r)
-		{
-			// calculate reflected L
-			*out_L = V.mul(-1.0_r).reflectLocal(H).normalizeLocal();
-
-			*out_type = ESurfacePhenomenon::REFLECTION;
-
-			// account for probability
-			F = F.complement().divLocal(1.0_r - reflectProb);
-		}
-		// refraction
-		else
-		{
-			// calculate refracted L
-			const real Hfactor = iorRatio * HoV - signHoV * std::sqrt(sqrValue);
-			const real Vfactor = -iorRatio;
-			*out_L = H.mul(Hfactor).addLocal(V.mul(Vfactor)).normalizeLocal();
-
-			*out_type = ESurfacePhenomenon::TRANSMISSION;
-
-			// account for probability
-			F = F.complement().divLocal(1.0_r - reflectProb);
-		}
+		// account for probability
+		F = F.divLocal(1.0_r - reflectProb);
 	}
 
 	const Vector3R& L = *out_L;
@@ -227,9 +175,6 @@ void TranslucentMicrofacet::calcSampleDirPdfW(const Intersection& X, const Vecto
 	m_alpha->sample(X.getHitUVW(), &sampledAlpha);
 	const real alpha = sampledAlpha.genRgb().x;
 
-	SpectralStrength sampledF0;
-	m_F0->sample(X.getHitUVW(), &sampledF0);
-
 	switch(type)
 	{
 	case ESurfacePhenomenon::REFLECTION:
@@ -247,23 +192,8 @@ void TranslucentMicrofacet::calcSampleDirPdfW(const Intersection& X, const Vecto
 		const real D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
 
 		SpectralStrength F;
-		Microfacet::fresnelSchlickApproximated(abs(HoV), sampledF0, &F);
-		real reflectProb = F.avg();
-
-		const real signHoV = HoV < 0.0_r ? -1.0_r : 1.0_r;
-		SpectralStrength iorss;// FIXME
-		m_IOR->sample(X.getHitUVW(), &iorss);
-		Vector3R ior = iorss.genRgb();
-
-		// assume the outside medium has an IOR of 1.0 (which is true in most cases)
-		const real iorRatio = signHoV < 0.0_r ? ior.x : 1.0_r / ior.x;
-		const real sqrValue = 1.0_r - iorRatio*iorRatio*(1.0_r - HoV * HoV);
-
-		// TIR (total internal reflection)
-		if(sqrValue <= 0.0_r)
-		{
-			reflectProb = 1.0_r;
-		}
+		m_fresnel->calcReflectance(HoL, &F);
+		const real reflectProb = F.avg();
 
 		*out_pdfW = std::abs(D * NoH / (4.0_r * HoL)) * reflectProb;
 		break;
@@ -271,25 +201,19 @@ void TranslucentMicrofacet::calcSampleDirPdfW(const Intersection& X, const Vecto
 
 	case ESurfacePhenomenon::TRANSMISSION:
 	{
-		SpectralStrength sampledIorss;// FIXME
-		m_IOR->sample(X.getHitUVW(), &sampledIorss);
-		Vector3R sampledIor = sampledIorss.genRgb();
-		real iorI;
-		real iorO;
-
-		// H is on the hemisphere of N
-		Vector3R H;
+		real etaI = m_fresnel->getIorOuter();
+		real etaT = m_fresnel->getIorInner();
 		if(NoL < 0.0_r)
 		{
-			iorI = sampledIor.x;
-			iorO = 1.0_r;
+			std::swap(etaI, etaT);
 		}
-		else
+
+		// H should be on the same hemisphere as N
+		Vector3R H = L.mul(-etaI).add(V.mul(-etaT)).normalizeLocal();
+		if(N.dot(H) < 0.0_r)
 		{
-			iorI = 1.0_r;
-			iorO = sampledIor.x;
+			H.mulLocal(-1.0_r);
 		}
-		H = L.mul(iorI).add(V.mul(iorO)).mulLocal(-1.0_r).normalizeLocal();
 
 		const real HoV = H.dot(V);
 		const real NoH = N.dot(H);
@@ -298,11 +222,11 @@ void TranslucentMicrofacet::calcSampleDirPdfW(const Intersection& X, const Vecto
 		const real D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
 
 		SpectralStrength F;
-		Microfacet::fresnelSchlickApproximated(abs(HoV), sampledF0, &F);
+		m_fresnel->calcReflectance(HoL, &F);
 		const real reflectProb = 1.0_r - F.avg();
 
-		const real iorTerm = iorI*HoL + iorO*HoV;
-		const real multiplier = (iorI * iorI * HoV) / (iorTerm * iorTerm);
+		const real iorTerm = etaI * HoL + etaT * HoV;
+		const real multiplier = (etaI * etaI * HoV) / (iorTerm * iorTerm);
 
 		*out_pdfW = std::abs(D * NoH * multiplier) * reflectProb;
 		break;

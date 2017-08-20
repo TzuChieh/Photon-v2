@@ -2,10 +2,12 @@
 
 #include "Common/primitive_type.h"
 #include "Core/Renderer/RenderWorker.h"
+#include "Core/Renderer/RenderWork.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Camera/Camera.h"
 #include "Core/Bound/TAABB2D.h"
 #include "Core/Renderer/ERegionStatus.h"
+#include "Core/Renderer/Statistics.h"
 
 #include <vector>
 #include <mutex>
@@ -36,8 +38,8 @@ public:
 
 	void render(const Description& description);
 	void setNumRenderThreads(const uint32 numThreads);
-	float32 asyncQueryPercentageProgress() const;
-	float32 asyncQuerySampleFrequency() const;
+	void asyncQueryStatistics(float32* out_percentageProgress, 
+	                          float32* out_samplesPerSecond) const;
 
 protected:
 	uint32 m_numThreads;

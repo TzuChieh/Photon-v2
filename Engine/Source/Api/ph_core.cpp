@@ -159,25 +159,20 @@ void phDeleteFrame(const PHuint64 frameId)
 	}
 }
 
-void phAsyncGetRendererPercentageProgress(const PHuint64 engineId, PHfloat32* const out_percentage)
+void phAsyncGetRendererStatistics(const PHuint64 engineId,
+                                  PHfloat32* const out_percentageProgress,
+                                  PHfloat32* const out_samplesPerSecond)
 {
 	using namespace ph;
 
 	Engine* engine = ApiDatabase::getEngine(engineId);
 	if(engine)
 	{
-		*out_percentage = engine->asyncQueryPercentageProgress();
-	}
-}
+		float32 percentageProgress, samplesPerSecond;
+		engine->asyncQueryStatistics(&percentageProgress, &samplesPerSecond);
 
-void phAsyncGetRendererSampleFrequency(const PHuint64 engineId, PHfloat32* const out_frequency)
-{
-	using namespace ph;
-
-	Engine* engine = ApiDatabase::getEngine(engineId);
-	if(engine)
-	{
-		*out_frequency = engine->asyncQuerySampleFrequency();
+		*out_percentageProgress = static_cast<PHfloat32>(percentageProgress);
+		*out_samplesPerSecond   = static_cast<PHfloat32>(samplesPerSecond);
 	}
 }
 

@@ -2,6 +2,7 @@
 
 #include "Core/SurfaceBehavior/BSDF.h"
 #include "Actor/Texture/Texture.h"
+#include "Core/SurfaceBehavior/Utility/DielectricFresnel.h"
 
 #include <memory>
 
@@ -14,14 +15,9 @@ public:
 	TranslucentMicrofacet();
 	virtual ~TranslucentMicrofacet() override;
 
-	inline void setF0(const std::shared_ptr<Texture>& f0)
+	inline void setFrenelEffect(const std::shared_ptr<DielectricFresnel>& fresnel)
 	{
-		m_F0 = f0;
-	}
-
-	inline void setIOR(const std::shared_ptr<Texture>& ior)
-	{
-		m_IOR = ior;
+		m_fresnel = fresnel;
 	}
 
 	inline void setAlpha(const std::shared_ptr<Texture>& alpha)
@@ -38,8 +34,7 @@ private:
 	                               real* out_pdfW) const override;
 
 private:
-	std::shared_ptr<Texture> m_F0;
-	std::shared_ptr<Texture> m_IOR;
+	std::shared_ptr<DielectricFresnel> m_fresnel;
 	std::shared_ptr<Texture> m_alpha;
 };
 

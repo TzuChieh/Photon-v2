@@ -183,6 +183,17 @@ inline TArithmeticArray<T, N> TArithmeticArray<T, N>::complement() const
 }
 
 template<typename T, std::size_t N>
+inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::complementLocal()
+{
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		m[i] = 1 - m[i];
+	}
+
+	return *this;
+}
+
+template<typename T, std::size_t N>
 inline bool TArithmeticArray<T, N>::isZero() const
 {
 	// TODO: using lengthSquared() == 0 can achieve branchless isZero()

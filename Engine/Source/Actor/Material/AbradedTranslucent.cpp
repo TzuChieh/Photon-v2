@@ -1,6 +1,7 @@
 #include "Actor/Material/AbradedTranslucent.h"
 #include "Actor/Texture/ConstantTexture.h"
 #include "FileIO/InputPacket.h"
+#include "Core/SurfaceBehavior/Utility/SchlickApproxDielectricFresnel.h"
 
 #include <memory>
 #include <cmath>
@@ -23,24 +24,24 @@ void AbradedTranslucent::populateSurfaceBehavior(SurfaceBehavior* const out_surf
 	out_surfaceBehavior->setBsdf(std::make_unique<TranslucentMicrofacet>(m_bsdf));
 }
 
-void AbradedTranslucent::setAlbedo(const Vector3R& albedo)
-{
-	m_bsdf.setF0(std::make_shared<ConstantTexture>(albedo));
-}
+//void AbradedTranslucent::setAlbedo(const Vector3R& albedo)
+//{
+//	m_bsdf.setF0(std::make_shared<ConstantTexture>(albedo));
+//}
 
-void AbradedTranslucent::setF0(const Vector3R& f0)
-{
-	setF0(f0.x, f0.y, f0.z);
-}
+//void AbradedTranslucent::setF0(const real iorOuter, const real iorInner)
+//{
+//	setF0(f0.x, f0.y, f0.z);
+//}
 
-void AbradedTranslucent::setF0(const real r, const real g, const real b)
-{
-	m_bsdf.setF0(std::make_shared<ConstantTexture>(r, g, b));
-}
+//void AbradedTranslucent::setF0(const real r, const real g, const real b)
+//{
+//	m_bsdf.setF0(std::make_shared<ConstantTexture>(r, g, b));
+//}
 
-void AbradedTranslucent::setIOR(const real ior)
+void AbradedTranslucent::setIor(const real iorOuter, const real iorInner)
 {
-	m_bsdf.setIOR(std::make_shared<ConstantTexture>(ior, ior, ior));
+	m_bsdf.setFrenelEffect(std::make_shared<SchlickApproxDielectricFresnel>(iorOuter, iorInner));
 }
 
 void AbradedTranslucent::setRoughness(const real roughness)
@@ -79,10 +80,10 @@ std::unique_ptr<AbradedTranslucent> AbradedTranslucent::ciLoad(const InputPacket
 	ior       = packet.getReal("ior", ior);
 
 	std::unique_ptr<AbradedTranslucent> material = std::make_unique<AbradedTranslucent>();
-	material->setAlbedo(albedo);
-	material->setF0(f0);
+	//material->setAlbedo(albedo);
+	//material->setF0(f0);
 	material->setRoughness(roughness);
-	material->setIOR(ior);
+	material->setIor(1, ior);
 	return material;
 }
 

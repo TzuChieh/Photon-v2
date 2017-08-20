@@ -39,6 +39,7 @@ import photonApi.Frame;
 import photonApi.FrameRegion;
 import photonApi.FrameStatus;
 import photonApi.Rectangle;
+import photonApi.Statistics;
 import photonApi.Vector3f;
 
 public class EditorCtrl
@@ -55,7 +56,8 @@ public class EditorCtrl
 	@FXML private TitledPane  projectOverviewPane;
 	@FXML private TextField   sceneFileTextField;
 	@FXML private ProgressBar renderProgressBar;
-	@FXML private Label       renderProgressLabel;
+	@FXML private Label       percentageProgressLabel;
+	@FXML private Label       spsLabel;
 	@FXML private AnchorPane  displayPane;
 	@FXML private Canvas      canvas;
 	@FXML private TextArea    messageTextArea;
@@ -113,18 +115,24 @@ public class EditorCtrl
 				Thread renderSceneThread = new Thread(renderTask);
 				renderSceneThread.start();
 				
+				Statistics statistics = new Statistics();
 				while(true)
 				{
-					final float parametricProgress = m_project.queryParametricProgress();
-					final float percentageProgress = parametricProgress * 100.0f;
-					final long  workDone           = (long)(percentageProgress + 0.5f);
-					final long  totalWork          = 100;
+					m_project.asyncGetRendererStatistics(statistics);
+					
+					final long workDone  = (long)(statistics.percentageProgress + 0.5f);
+					final long totalWork = 100;
 					updateProgress(workDone, totalWork);
-					Platform.runLater(() -> renderProgressLabel.setText(percentageProgress + " %"));
+					
+					Platform.runLater(() -> 
+					{
+						percentageProgressLabel.setText(Float.toString(statistics.percentageProgress));
+						spsLabel.setText(Float.toString(statistics.samplesPerSecond));
+					});
 					
 					if(workDone >= totalWork)
 					{
-						Platform.runLater(() -> renderProgressLabel.setText("100 %"));
+						Platform.runLater(() -> percentageProgressLabel.setText("100"));
 						break;
 					}
 					

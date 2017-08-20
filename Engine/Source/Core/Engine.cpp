@@ -43,16 +43,6 @@ void Engine::setNumRenderThreads(const uint32 numThreads)
 	m_renderer->setNumRenderThreads(numThreads);
 }
 
-float32 Engine::asyncQueryPercentageProgress() const
-{
-	return m_renderer->asyncQueryPercentageProgress();
-}
-
-float32 Engine::asyncQuerySampleFrequency() const
-{
-	return m_renderer->asyncQuerySampleFrequency();
-}
-
 ERegionStatus Engine::asyncPollUpdatedRegion(Renderer::Region* const out_region) const
 {
 	return m_renderer->asyncPollUpdatedRegion(out_region);
@@ -62,6 +52,12 @@ void Engine::asyncDevelopFilmRegion(Frame& out_frame,
                                     const Renderer::Region& region) const
 {
 	m_renderer->asyncDevelopFilmRegion(out_frame, region);
+}
+
+void Engine::asyncQueryStatistics(float32* const out_percentageProgress,
+                                  float32* const out_samplesPerSecond) const
+{
+	m_renderer->asyncQueryStatistics(out_percentageProgress, out_samplesPerSecond);
 }
 
 }// end namespace ph

@@ -24,7 +24,7 @@ RenderWorker::RenderWorker(const RendererProxy& renderer,
                            const uint32 id) :
 	m_renderer(renderer),
 	m_id(id),
-	m_totalWork(0), m_workDone(0)
+	m_statistics()
 {
 
 }
@@ -32,7 +32,7 @@ RenderWorker::RenderWorker(const RendererProxy& renderer,
 RenderWorker::RenderWorker(const RenderWorker& other) : 
 	m_renderer(other.m_renderer),
 	m_id(other.m_id),
-	m_totalWork(other.m_totalWork.load()), m_workDone(other.m_workDone.load())
+	m_statistics(other.m_statistics)
 {
 
 }
@@ -47,7 +47,7 @@ void RenderWorker::run()
 	}
 }
 
-void RenderWorker::doWork(const RenderWork& work)
+void RenderWorker::doWork(RenderWork& work)
 {
 	const Camera* const     camera     = work.camera;
 	const Integrator* const integrator = work.integrator;
@@ -68,10 +68,8 @@ void RenderWorker::doWork(const RenderWork& work)
 
 	std::vector<SenseEvent> senseEvents;
 
-	const std::size_t totalSamples = sg->numSamples();
-	std::size_t currentSamples = 0;
-
-	m_totalWork = static_cast<std::uint64_t>(totalSamples);
+	m_statistics.setTotalWork(static_cast<uint32>(sg->numSamples()));
+	m_statistics.setWorkDone(0);
 
 	std::chrono::time_point<std::chrono::system_clock> t1;
 	std::chrono::time_point<std::chrono::system_clock> t2;
@@ -111,26 +109,32 @@ void RenderWorker::doWork(const RenderWork& work)
 			senseEvents.clear();
 		}// end for
 
-		currentSamples++;
-		m_workDone = static_cast<std::uint64_t>(currentSamples);
-
-		t2 = std::chrono::system_clock::now();
-
-		//auto msPassed = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
-		//*workerSampleFreq = static_cast<float32>(filmWpx * filmHpx) / static_cast<float32>(msPassed.count()) * 1000.0f;
-
 		sg->singleSampleEnd();
 
 		m_renderer.submitWork(m_id, work, true);
+		m_statistics.incrementWorkDone();
+	
+		t2 = std::chrono::system_clock::now();
+
+		m_statistics.setNumSamplesTaken(static_cast<uint32>(camSamples.numElements()));
+		m_statistics.setNumMsElapsed(static_cast<uint32>(std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count()));
 	}
+
+	// FIXME: sort of hacking
+	m_statistics.setNumSamplesTaken(0);
+	m_statistics.setNumMsElapsed(0);
+}
+
+Statistics::Record RenderWorker::getStatistics() const
+{
+	return m_statistics.record();
 }
 
 RenderWorker& RenderWorker::operator = (const RenderWorker& rhs)
 {
-	m_renderer  = rhs.m_renderer;
-	m_id        = rhs.m_id;
-	m_totalWork = rhs.m_totalWork.load();
-	m_workDone  = rhs.m_workDone.load();
+	m_renderer   = rhs.m_renderer;
+	m_id         = rhs.m_id;
+	m_statistics = rhs.m_statistics;
 
 	return *this;
 }

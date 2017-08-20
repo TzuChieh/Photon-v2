@@ -14,6 +14,8 @@ public:
 	                    const Vector3R& oddRgbValue, const Vector3R& evenRgbValue);
 	virtual ~CheckerboardTexture() override;
 
+	virtual void sample(const Vector3R& uvw, real* out_value) const override;
+	virtual void sample(const Vector3R& uvw, Vector3R* out_value) const override;
 	virtual void sample(const Vector3R& uvw, SpectralStrength* out_value) const override;
 
 private:

@@ -38,7 +38,12 @@ bool TextureLoader::load(const std::string& fullFilename, RgbPixelTexture* const
 		return false;
 	}
 
-	//std::cout << "# " << numComponents << std::endl;
+	if(numComponents != 3)
+	{
+		std::cerr << "warning: at TextureLoader::load(), " 
+		          << "texture <" << fullFilename << "> #comp. != 3, unsupported" << std::endl;
+		return false;
+	}
 
 	const uint32 dataSize = widthPx * heightPx * numComponents;
 	std::vector<real> pixelData(static_cast<std::size_t>(dataSize), 0.0_r);
@@ -47,11 +52,13 @@ bool TextureLoader::load(const std::string& fullFilename, RgbPixelTexture* const
 		pixelData[i] = static_cast<real>(stbImageData[i]) / 255.0_r;
 	}
 
-	// don't forget to free the image data loaded by stb
+	// free the image data loaded by stb
 	stbi_image_free(stbImageData);
 
-	out_rgbPixelTexture->reset(static_cast<uint32>(widthPx), static_cast<uint32>(heightPx), static_cast<uint32>(numComponents));
-	out_rgbPixelTexture->setPixels(0, 0, static_cast<uint32>(widthPx), static_cast<uint32>(heightPx), static_cast<uint32>(numComponents), pixelData.data());
+	out_rgbPixelTexture->resize(static_cast<uint32>(widthPx), static_cast<uint32>(heightPx));
+	out_rgbPixelTexture->setPixels(0, 0, 
+	                               static_cast<uint32>(widthPx), static_cast<uint32>(heightPx), 
+	                               pixelData.data());
 
 	return true;
 }

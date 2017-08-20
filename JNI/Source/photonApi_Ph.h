@@ -119,19 +119,11 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteFrame
 
 /*
  * Class:     photonApi_Ph
- * Method:    phAsyncQueryRendererPercentageProgress
- * Signature: (JLphotonApi/FloatRef;)V
+ * Method:    phAsyncGetRendererStatistics
+ * Signature: (JLphotonApi/FloatRef;LphotonApi/FloatRef;)V
  */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncQueryRendererPercentageProgress
-  (JNIEnv *, jclass, jlong, jobject);
-
-/*
- * Class:     photonApi_Ph
- * Method:    phAsyncQueryRendererSampleFrequency
- * Signature: (JLphotonApi/FloatRef;)V
- */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncQueryRendererSampleFrequency
-  (JNIEnv *, jclass, jlong, jobject);
+JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncGetRendererStatistics
+  (JNIEnv *, jclass, jlong, jobject, jobject);
 
 /*
  * Class:     photonApi_Ph

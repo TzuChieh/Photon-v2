@@ -106,11 +106,14 @@ extern PH_API void phDeleteFrame(PHuint64 frameId);
 #define PH_FILM_REGION_STATUS_UPDATING 1
 #define PH_FILM_REGION_STATUS_FINISHED 2
 
-extern PH_API void phAsyncGetRendererPercentageProgress(PHuint64 engineId, PHfloat32* out_percentage);
-extern PH_API void phAsyncGetRendererSampleFrequency(PHuint64 engineId, PHfloat32* out_frequency);
+extern PH_API void phAsyncGetRendererStatistics(PHuint64 engineId, 
+                                                PHfloat32* out_percentageProgress, 
+                                                PHfloat32* out_samplesPerSecond);
+
 extern PH_API int  phAsyncPollUpdatedFilmRegion(PHuint64 engineId,
                                                 PHuint32* out_xPx, PHuint32* out_yPx, 
                                                 PHuint32* out_widthPx, PHuint32* out_heightPx);
+
 extern PH_API void phAsyncDevelopFilmRegion(PHuint64 engineId, PHuint64 frameId,
                                             PHuint32 xPx, PHuint32 yPx,
                                             PHuint32 widthPx, PHuint32 heightPx);
