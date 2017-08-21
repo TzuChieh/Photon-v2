@@ -12,6 +12,12 @@ class Tokenizer final
 public:
 	Tokenizer(const std::vector<char>& separators, const std::vector<std::pair<char, char>>& enclosures);
 
+	// Tokenize the input string using specified rules (separators & enclosures).
+	// The resulting tokens will not include any separator and enclosure characters 
+	// or any empty strings.
+	// Also notice that source string's starting and ending locations are treated 
+	// as implicit separators; for example, the source string will be returned as a
+	// token if no separator is provided and no enclosures are found.
 	void tokenize(const std::string& source, std::vector<std::string>& out_results) const;
 
 private:

@@ -448,12 +448,13 @@ def export_world_commands(exporter, scene):
 	objs = scene.objects
 	for obj in objs:
 		if obj.type == "MESH":
+			print("exporting mesh " + obj.name)
 			export_object_mesh(exporter, obj, scene)
 		elif obj.type == "LAMP":
 			export_object_lamp(exporter, obj, scene)
 		elif obj.type == "CAMERA":
-			# do nothing since it belongs to common command
-			return
+			# do nothing since it belongs to core command
+			continue
 		else:
 			print("warning: object (%s) type (%s) is not supported, not exporting" %(obj.name, obj.type))
 

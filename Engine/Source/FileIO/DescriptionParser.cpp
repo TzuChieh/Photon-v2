@@ -65,7 +65,7 @@ DescriptionParser::DescriptionParser() :
 	m_commandCache(), 
 	m_coreCommandTokenizer ({' ', '\t', '\n', '\r'}, {{'(',  ')'}, {'[', ']'}}),
 	m_worldCommandTokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}, {'[', ']'}, {'(', ')'}}), 
-	m_nameTokenizer        ({' '},                   {{'\"', '\"'}}),
+	m_nameTokenizer        ({},                      {{'\"', '\"'}}),
 	m_generatedNameCounter(0)
 {
 
@@ -201,13 +201,14 @@ std::string DescriptionParser::getName(const std::string& nameToken) const
 	{
 		return "";
 	}
-	else if(tokens.front()[0] != '@' || tokens.front().length() == 1)
+	else if(tokens[0].front() != '@' || tokens[0].length() == 1)
 	{
+		// possibly using genName() if anonymous declaration is supported
 		return "";
 	}
 	else
 	{
-		return tokens.front();
+		return tokens[0];
 	}
 }
 

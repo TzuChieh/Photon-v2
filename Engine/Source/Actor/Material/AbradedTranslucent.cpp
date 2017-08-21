@@ -55,6 +55,8 @@ void AbradedTranslucent::setRoughness(const real roughness)
 // not include such mapping for GGX distribution, only the ones for other kinds of distribution.)
 real AbradedTranslucent::roughnessToAlpha(const real roughness)
 {
+	// roughness = 0, mapped result = 0.31116918
+
 	const real clampedRoughness = std::max(roughness, 0.001_r);
 	const real x = std::log(clampedRoughness);
 	return 1.62142_r + 0.819955_r * x + 0.1734_r * x * x + 0.0171201_r * x * x * x + 0.000640711_r * x * x * x * x;
