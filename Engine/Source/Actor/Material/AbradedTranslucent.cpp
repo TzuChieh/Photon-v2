@@ -2,6 +2,7 @@
 #include "Actor/Texture/ConstantTexture.h"
 #include "FileIO/InputPacket.h"
 #include "Core/SurfaceBehavior/Utility/SchlickApproxDielectricFresnel.h"
+#include "Core/SurfaceBehavior/Utility/ExactDielectricFresnel.h"
 
 #include <memory>
 #include <cmath>
@@ -41,7 +42,8 @@ void AbradedTranslucent::populateSurfaceBehavior(SurfaceBehavior* const out_surf
 
 void AbradedTranslucent::setIor(const real iorOuter, const real iorInner)
 {
-	m_bsdf.setFrenelEffect(std::make_shared<SchlickApproxDielectricFresnel>(iorOuter, iorInner));
+	//m_bsdf.setFrenelEffect(std::make_shared<SchlickApproxDielectricFresnel>(iorOuter, iorInner));
+	m_bsdf.setFrenelEffect(std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner));
 }
 
 void AbradedTranslucent::setRoughness(const real roughness)

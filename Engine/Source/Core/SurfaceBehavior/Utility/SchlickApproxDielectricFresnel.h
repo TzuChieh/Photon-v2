@@ -15,7 +15,7 @@ public:
 
 private:
 	real m_f0;
-	real m_tirIorRatio;
+	real m_tirIorRatio2;
 };
 
 }// end namespace ph
