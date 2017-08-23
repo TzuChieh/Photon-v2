@@ -1,6 +1,7 @@
 package appGui;
 
 import appModel.EditorApp;
+import appModel.GeneralOption;
 import appModel.console.Console;
 import appModel.console.MessageListener;
 import appModel.event.ProjectEvent;
@@ -15,6 +16,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+
+import appGui.util.FSBrowser;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
@@ -176,21 +179,17 @@ public class EditorCtrl
     @FXML
     void sceneFileBrowseBtnClicked(MouseEvent event)
     {
-		FileChooser chooser = new FileChooser();
-		chooser.setTitle("Open Scene File");
-			    
-		File file = chooser.showOpenDialog(projectOverviewPane.getScene().getWindow());
-		if(file != null)
+    	String workingDirectory = m_project.getGeneralOption().get(GeneralOption.WORKING_DIRECTORY);
+    	
+    	FSBrowser browser = new FSBrowser(projectOverviewPane.getScene().getWindow());
+    	browser.setBrowserTitle("Open Scene File");
+    	browser.setStartingAbsDirectory(workingDirectory);
+    	browser.startBrowsingFile();
+    	
+    	String fileAbsPath = browser.getSelectedFileAbsPath();
+		if(fileAbsPath != "")
 		{
-			try
-			{
-				String filename = file.getCanonicalPath();
-				m_project.getRenderSetting().set(RenderSetting.SCENE_FILE_NAME, filename);
-			}
-			catch(IOException e)
-			{
-				e.printStackTrace();
-			}
+			m_project.getRenderSetting().set(RenderSetting.SCENE_FILE_NAME, fileAbsPath);
 		}
     }
     

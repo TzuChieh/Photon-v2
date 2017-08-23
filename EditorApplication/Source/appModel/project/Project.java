@@ -132,4 +132,5 @@ public final class Project extends ManageableResource
 	public ProjectEventDispatcher getEventDispatcher() { return m_eventDispatcher;      }
 	public Frame                  getLocalFinalFrame() { return m_localFinalFrame;      }
 	public FilmInfo               getFilmInfo()        { return m_engine.getFilmInfo(); }
+	public EditorApp              getEditorApp()       { return m_editorApp;            }
 }

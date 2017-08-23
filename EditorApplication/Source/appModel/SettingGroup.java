@@ -110,6 +110,7 @@ public abstract class SettingGroup
     		istream = new FileInputStream(new File(fullFilename));
     		
     		Properties props = new Properties();
+    		props.load(istream);
 			for(final String keyName : props.stringPropertyNames())
 			{
 				m_settings.put(keyName, props.getProperty(keyName));

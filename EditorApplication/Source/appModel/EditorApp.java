@@ -31,7 +31,7 @@ public final class EditorApp extends ManageableResource
 		else
 			System.err.println("Photon initializing failed");
 		
-		m_generalOption.setToDefaults();
+		m_generalOption.load();
 	}
 	
 	@Override

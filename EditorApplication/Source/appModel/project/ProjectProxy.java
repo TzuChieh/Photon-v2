@@ -1,5 +1,6 @@
 package appModel.project;
 
+import appModel.GeneralOption;
 import appModel.event.ProjectEventListener;
 import appModel.event.ProjectEventType;
 import javafx.concurrent.Task;
@@ -104,5 +105,6 @@ public final class ProjectProxy
 		return m_project != null;
 	}
 	
-	public Frame getLocalFinalFrame() { return m_project.getLocalFinalFrame(); }
+	public Frame         getLocalFinalFrame() { return m_project.getLocalFinalFrame();              }
+	public GeneralOption getGeneralOption()   { return m_project.getEditorApp().getGeneralOption(); }
 }

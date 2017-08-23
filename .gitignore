@@ -72,3 +72,4 @@ count.bat
 /scene/complex/
 /EditorApplication/*.png
 __pycache__/
+/EditorApplication/*.p2cfg

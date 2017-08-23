@@ -29,14 +29,20 @@ public class AppMainCtrl
 	private static final String EDITOR_FXML_FILENAME          = "Editor.fxml";
 	private static final String GENERAL_OPTIONS_FXML_FILENAME = "GeneralOptions.fxml";
 	
-	private EditorApp m_editorApp;
-    private int       m_projectId;
+	private EditorApp             m_editorApp;
+    private int                   m_projectId;
 	private AppMainGraphicalState m_graphicalState;
-	private Parent                m_managerView;
-	private Parent                m_editorView;
+	
+	private Parent m_managerView;
+	private Parent m_editorView;
+	private Parent m_generalOptionsView;
+	
 	private ManagerCtrl        m_managerCtrl;
 	private EditorCtrl         m_editorCtrl;
+	private GeneralOptionsCtrl m_generalOptionsCtrl;
+	
 	private Scene m_generalOptionsScene;
+	
 	private Stage m_popupStage;
 	
 	@FXML private AnchorPane workbenchPane;
@@ -58,9 +64,9 @@ public class AppMainCtrl
     	
     	m_graphicalState = new AppMainGraphicalState(this);
     	
-    	loadManagerView();
-    	loadEditorView();
-    	loadGeneralOptionsView();
+    	loadManagerUI();
+    	loadEditorUI();
+    	loadGeneralOptionsUI();
     	
     	setWorkbenchAsEditorView();
     }
@@ -122,6 +128,8 @@ public class AppMainCtrl
     public void setEditorApp(EditorApp editorApp)
     {
     	m_editorApp = editorApp;
+    	
+    	m_generalOptionsCtrl.setGeneralOption(editorApp.getGeneralOption());
     }
     
     public void setWorkbenchAsEditorView()
@@ -156,13 +164,13 @@ public class AppMainCtrl
     	                     "Workbench: " + m_graphicalState.getActiveViewName());
     }
     
-    private void loadManagerView()
+    private void loadManagerUI()
     {
     	try
 		{
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(MANAGER_FXML_FILENAME));
 			
-			m_managerView       = fxmlLoader.load();
+			m_managerView = fxmlLoader.load();
 			m_managerCtrl = fxmlLoader.getController();
 			
 			m_managerCtrl.setAppMainGraphicalState(m_graphicalState);
@@ -174,7 +182,7 @@ public class AppMainCtrl
 		}
     }
     
-    private void loadEditorView()
+    private void loadEditorUI()
     {
     	try
 		{
@@ -190,14 +198,15 @@ public class AppMainCtrl
 		}
     }
     
-    private void loadGeneralOptionsView()
+    private void loadGeneralOptionsUI()
     {
     	try
 		{
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(GENERAL_OPTIONS_FXML_FILENAME));
 			
-			Parent generalOptionsView = fxmlLoader.load();
-			m_generalOptionsScene = new Scene(generalOptionsView);
+			m_generalOptionsView  = fxmlLoader.load();
+			m_generalOptionsCtrl  = fxmlLoader.getController();
+			m_generalOptionsScene = new Scene(m_generalOptionsView);
 		}
 		catch(IOException e)
 		{
