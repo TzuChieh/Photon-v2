@@ -1,6 +1,10 @@
 #include "Actor/Material/AbradedOpaque.h"
 #include "Actor/Texture/ConstantTexture.h"
 #include "FileIO/InputPacket.h"
+#include "Core/SurfaceBehavior/Utility/TrowbridgeReitz.h"
+#include "Core/SurfaceBehavior/Utility/SchlickApproxDielectricFresnel.h"
+#include "Core/SurfaceBehavior/Utility/ExactDielectricFresnel.h"
+#include "Core/SurfaceBehavior/Utility/SchlickApproxConductorDielectricFresnel.h"
 
 #include <memory>
 #include <algorithm>
@@ -24,13 +28,14 @@ void AbradedOpaque::populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBe
 
 void AbradedOpaque::setAlbedo(const Vector3R& albedo)
 {
-	m_bsdf.setF0(std::make_shared<ConstantTexture>(albedo));
+	// FIXME
+	//m_bsdf.setF0(std::make_shared<ConstantTexture>(albedo));
 }
 
 void AbradedOpaque::setRoughness(const real roughness)
 {
 	const real alpha = roughnessToAlpha(roughness);
-	m_bsdf.setAlpha(std::make_shared<ConstantTexture>(alpha, alpha, alpha));
+	m_bsdf.setMicrofacet(std::make_shared<TrowbridgeReitz>(alpha));
 }
 
 void AbradedOpaque::setF0(const Vector3R& f0)
@@ -40,7 +45,9 @@ void AbradedOpaque::setF0(const Vector3R& f0)
 
 void AbradedOpaque::setF0(const real r, const real g, const real b)
 {
-	m_bsdf.setF0(std::make_shared<ConstantTexture>(r, g, b));
+	SpectralStrength f0;
+	f0.setRgb(Vector3R(r, g, b));
+	m_bsdf.setFresnelEffect(std::make_shared<SchlickApproxConductorDielectricFresnel>(f0));
 }
 
 // This mapping is what used in PBRT-v3. 

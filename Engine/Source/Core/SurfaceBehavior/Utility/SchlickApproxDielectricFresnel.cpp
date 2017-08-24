@@ -10,9 +10,9 @@ SchlickApproxDielectricFresnel::SchlickApproxDielectricFresnel(
 	const real iorInner) : 
 	DielectricFresnel(iorOuter, iorInner)
 {
-	const real nomi = std::pow(iorOuter - iorInner, 2);
+	const real numi = std::pow(iorOuter - iorInner, 2);
 	const real deno = std::pow(iorOuter + iorInner, 2);
-	m_f0 = nomi / deno;
+	m_f0 = numi / deno;
 
 	m_tirIorRatio2 = std::max(iorOuter, iorInner) / std::min(iorOuter, iorInner);
 }

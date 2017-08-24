@@ -6,7 +6,7 @@
 #include "Math/constant.h"
 #include "Core/Intersection.h"
 #include "Core/SurfaceBehavior/BSDF/random_sample.h"
-#include "Core/SurfaceBehavior/BSDF/Microfacet.h"
+#include "Core/SurfaceBehavior/Utility/TrowbridgeReitz.h"
 #include "Math/Math.h"
 #include "Core/SurfaceBehavior/Utility/SchlickApproxDielectricFresnel.h"
 
@@ -17,8 +17,8 @@ namespace ph
 {
 
 TranslucentMicrofacet::TranslucentMicrofacet() :
-	m_fresnel(std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.0_r)),
-	m_alpha(std::make_shared<ConstantTexture>(Vector3R(0.5_r, 0.5_r,  0.5_r)))
+	m_fresnel   (std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r)),
+	m_microfacet(std::make_shared<TrowbridgeReitz>(0.5_r))
 {
 
 }
@@ -32,10 +32,6 @@ void TranslucentMicrofacet::evaluate(const Intersection& X, const Vector3R& L, c
 
 	const real NoL = N.dot(L);
 	const real NoV = N.dot(V);
-
-	SpectralStrength sampledAlpha;// FIXME
-	m_alpha->sample(X.getHitUVW(), &sampledAlpha);
-	const real alpha = sampledAlpha.genRgb().x;
 
 	// reflection
 	if(NoL * NoV >= 0.0_r)
@@ -54,8 +50,8 @@ void TranslucentMicrofacet::evaluate(const Intersection& X, const Vector3R& L, c
 		SpectralStrength F;
 		m_fresnel->calcReflectance(HoL, &F);
 
-		const real D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
-		const real G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, alpha);
+		const real D = m_microfacet->distribution(N, H);
+		const real G = m_microfacet->shadowing(N, H, L, V);
 
 		*out_bsdf = F.mul(D * G / (4.0_r * std::abs(NoV * NoL)));
 		*out_type = ESurfacePhenomenon::REFLECTION;
@@ -84,8 +80,8 @@ void TranslucentMicrofacet::evaluate(const Intersection& X, const Vector3R& L, c
 		SpectralStrength F;
 		m_fresnel->calcTransmittance(HoL, &F);
 
-		const real D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
-		const real G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, alpha);
+		const real D = m_microfacet->distribution(N, H);
+		const real G = m_microfacet->shadowing(N, H, L, V);
 
 		const real dotTerm = std::abs(HoL * HoV / (NoV * NoL));
 		const real iorTerm = etaI / (etaI * HoL + etaT * HoV);
@@ -105,20 +101,12 @@ void TranslucentMicrofacet::genSample(const Intersection& X, const Vector3R& V,
 	// The reason that the latter multiplier in the PDF exists is because there's a jacobian involved 
 	// (from H's probability space to L's).
 
-	SpectralStrength sampledAlpha;// FIXME
-	m_alpha->sample(X.getHitUVW(), &sampledAlpha);
-	const real alpha = sampledAlpha.genRgb().x;
-
 	const Vector3R& N = X.getHitSmoothNormal();
-	Vector3R H;
 
-	genUnitHemisphereGgxTrowbridgeReitzNdfSample(Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), alpha, &H);
-	Vector3R u;
-	Vector3R v(N);
-	Vector3R w;
-	Math::formOrthonormalBasis(v, &u, &w);
-	H = u.mulLocal(H.x).addLocal(v.mulLocal(H.y)).addLocal(w.mulLocal(H.z));
-	H.normalizeLocal();
+	Vector3R H;
+	m_microfacet->genDistributedH(Random::genUniformReal_i0_e1(), 
+	                              Random::genUniformReal_i0_e1(), 
+	                              N, &H);
 
 	const real NoV = N.dot(V);
 	const real HoV = H.dot(V);
@@ -159,7 +147,7 @@ void TranslucentMicrofacet::genSample(const Intersection& X, const Vector3R& V,
 	const real NoL = N.dot(L);
 	const real HoL = H.dot(L);
 
-	const real G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, alpha);
+	const real G = m_microfacet->shadowing(N, H, L, V);
 
 	const real dotTerms = std::abs(HoL / (NoV * NoL * NoH));
 	out_pdfAppliedBsdf->set(F.mul(G * dotTerms));
@@ -170,10 +158,6 @@ void TranslucentMicrofacet::calcSampleDirPdfW(const Intersection& X, const Vecto
 {
 	const Vector3R& N = X.getHitSmoothNormal();
 	const real NoL = N.dot(L);
-
-	SpectralStrength sampledAlpha;// FIXME
-	m_alpha->sample(X.getHitUVW(), &sampledAlpha);
-	const real alpha = sampledAlpha.genRgb().x;
 
 	switch(type)
 	{
@@ -189,7 +173,7 @@ void TranslucentMicrofacet::calcSampleDirPdfW(const Intersection& X, const Vecto
 		const real NoH = N.dot(H);
 		const real HoL = H.dot(L);
 		const real HoV = H.dot(V);
-		const real D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
+		const real D = m_microfacet->distribution(N, H);
 
 		SpectralStrength F;
 		m_fresnel->calcReflectance(HoL, &F);
@@ -219,7 +203,7 @@ void TranslucentMicrofacet::calcSampleDirPdfW(const Intersection& X, const Vecto
 		const real NoH = N.dot(H);
 		const real HoL = H.dot(L);
 
-		const real D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
+		const real D = m_microfacet->distribution(N, H);
 
 		SpectralStrength F;
 		m_fresnel->calcReflectance(HoL, &F);

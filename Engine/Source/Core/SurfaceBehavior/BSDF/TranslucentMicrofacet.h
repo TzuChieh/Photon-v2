@@ -3,6 +3,7 @@
 #include "Core/SurfaceBehavior/BSDF.h"
 #include "Actor/Texture/Texture.h"
 #include "Core/SurfaceBehavior/Utility/DielectricFresnel.h"
+#include "Core/SurfaceBehavior/Utility/Microfacet.h"
 
 #include <memory>
 
@@ -20,9 +21,9 @@ public:
 		m_fresnel = fresnel;
 	}
 
-	inline void setAlpha(const std::shared_ptr<Texture>& alpha)
+	inline void setMicrofacet(const std::shared_ptr<Microfacet>& microfacet)
 	{
-		m_alpha = alpha;
+		m_microfacet = microfacet;
 	}
 
 private:
@@ -35,7 +36,7 @@ private:
 
 private:
 	std::shared_ptr<DielectricFresnel> m_fresnel;
-	std::shared_ptr<Texture> m_alpha;
+	std::shared_ptr<Microfacet>        m_microfacet;
 };
 
 }// end namespace ph

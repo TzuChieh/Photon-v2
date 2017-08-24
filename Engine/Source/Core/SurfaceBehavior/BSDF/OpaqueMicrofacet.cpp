@@ -5,7 +5,8 @@
 #include "Math/constant.h"
 #include "Core/Intersection.h"
 #include "Core/SurfaceBehavior/BSDF/random_sample.h"
-#include "Core/SurfaceBehavior/BSDF/Microfacet.h"
+#include "Core/SurfaceBehavior/Utility/TrowbridgeReitz.h"
+#include "Core/SurfaceBehavior/Utility/SchlickApproxDielectricFresnel.h"
 #include "Math/Math.h"
 
 #include <cmath>
@@ -15,9 +16,9 @@ namespace ph
 {
 
 OpaqueMicrofacet::OpaqueMicrofacet() :
-	m_albedo(std::make_shared<ConstantTexture>(Vector3R(0.5_r,  0.5_r,  0.5_r))),
-	m_alpha (std::make_shared<ConstantTexture>(Vector3R(0.5_r,  0.5_r,  0.5_r))),
-	m_F0    (std::make_shared<ConstantTexture>(Vector3R(0.04_r, 0.04_r, 0.04_r)))
+	m_albedo    (std::make_shared<ConstantTexture>(Vector3R(0.5_r,  0.5_r,  0.5_r))),
+	m_microfacet(std::make_shared<TrowbridgeReitz>(0.5_r)),
+	m_fresnel   (std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r))
 {
 
 }
@@ -40,12 +41,6 @@ void OpaqueMicrofacet::evaluate(const Intersection& X, const Vector3R& L, const 
 		return;
 	}
 
-	SpectralStrength sampledAlpha;                // FIXME: spectral?!
-	m_alpha->sample(X.getHitUVW(), &sampledAlpha);//
-	const real alpha = sampledAlpha.genRgb().x;   //
-	SpectralStrength sampledF0;                   //
-	m_F0->sample(X.getHitUVW(), &sampledF0);      //
-
 	// H is on the hemisphere of N
 	Vector3R H = L.add(V).normalizeLocal();
 	if(NoL < 0.0_r)
@@ -58,9 +53,10 @@ void OpaqueMicrofacet::evaluate(const Intersection& X, const Vector3R& L, const 
 	const real HoL = H.dot(L);
 
 	SpectralStrength F;
-	Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
-	const real D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
-	const real G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, alpha);
+	m_fresnel->calcReflectance(HoL, &F);
+
+	const real D = m_microfacet->distribution(N, H);
+	const real G = m_microfacet->shadowing(N, H, L, V);
 
 	*out_bsdf = F.mul(D * G / (4.0_r * std::abs(NoV * NoL)));
 	*out_type = ESurfacePhenomenon::REFLECTION;
@@ -77,23 +73,12 @@ void OpaqueMicrofacet::genSample(const Intersection& X, const Vector3R& V,
 	// The PDF for this sampling scheme is D(H)*|NoH|/(4*|HoL|). The reason that 4*|HoL| exists is because there's a 
 	// jacobian involved (from H's probability space to L's).
 
-	SpectralStrength sampledAlpha;// FIXME
-	m_alpha->sample(X.getHitUVW(), &sampledAlpha);
-	const real alpha = sampledAlpha.genRgb().x;
-
-	SpectralStrength sampledF0;
-	m_F0->sample(X.getHitUVW(), &sampledF0);
-
 	const Vector3R& N = X.getHitSmoothNormal();
-	Vector3R H;
 
-	genUnitHemisphereGgxTrowbridgeReitzNdfSample(Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), alpha, &H);
-	Vector3R u;
-	Vector3R v(N);
-	Vector3R w;
-	Math::formOrthonormalBasis(v, &u, &w);
-	H = u.mulLocal(H.x).addLocal(v.mulLocal(H.y)).addLocal(w.mulLocal(H.z));
-	H.normalizeLocal();
+	Vector3R H;
+	m_microfacet->genDistributedH(Random::genUniformReal_i0_e1(), 
+	                              Random::genUniformReal_i0_e1(), 
+	                              N, &H);
 
 	const Vector3R L = V.mul(-1.0_r).reflect(H).normalizeLocal();
 	*out_L = L;
@@ -105,8 +90,9 @@ void OpaqueMicrofacet::genSample(const Intersection& X, const Vector3R& V,
 	const real NoH = N.dot(H);
 
 	SpectralStrength F;
-	const real G = Microfacet::geometryShadowingGgxSmith(NoV, NoL, HoV, HoL, alpha);
-	Microfacet::fresnelSchlickApproximated(std::abs(HoV), sampledF0, &F);
+	m_fresnel->calcReflectance(HoL, &F);
+
+	const real G = m_microfacet->shadowing(N, H, L, V);
 
 	const real multiplier = std::abs(HoL / (NoV * NoL * NoH));
 	out_pdfAppliedBsdf->set(F.mul(G).mulLocal(multiplier));
@@ -117,11 +103,9 @@ void OpaqueMicrofacet::genSample(const Intersection& X, const Vector3R& V,
 void OpaqueMicrofacet::calcSampleDirPdfW(const Intersection& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
                                          real* const out_pdfW) const
 {
-	SpectralStrength sampledAlpha;// FIXME
-	m_alpha->sample(X.getHitUVW(), &sampledAlpha);
-	const real alpha = sampledAlpha.genRgb().x;
+	const Vector3R& N = X.getHitSmoothNormal();
 
-	const real NoL = X.getHitSmoothNormal().dot(L);
+	const real NoL = N.dot(L);
 
 	// H is on the hemisphere of N
 	Vector3R H = L.add(V).normalizeLocal();
@@ -130,9 +114,9 @@ void OpaqueMicrofacet::calcSampleDirPdfW(const Intersection& X, const Vector3R& 
 		H.mulLocal(-1.0_r);
 	}
 
-	const real NoH = X.getHitSmoothNormal().dot(H);
+	const real NoH = N.dot(H);
 	const real HoL = H.dot(L);
-	const real D = Microfacet::normalDistributionGgxTrowbridgeReitz(NoH, alpha);
+	const real D = m_microfacet->distribution(N, H);
 
 	*out_pdfW = std::abs(D * NoH / (4.0_r * HoL));
 }

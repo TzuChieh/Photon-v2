@@ -3,6 +3,7 @@
 #include "FileIO/InputPacket.h"
 #include "Core/SurfaceBehavior/Utility/SchlickApproxDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Utility/ExactDielectricFresnel.h"
+#include "Core/SurfaceBehavior/Utility/TrowbridgeReitz.h"
 
 #include <memory>
 #include <cmath>
@@ -49,7 +50,7 @@ void AbradedTranslucent::setIor(const real iorOuter, const real iorInner)
 void AbradedTranslucent::setRoughness(const real roughness)
 {
 	const real alpha = roughnessToAlpha(roughness);
-	m_bsdf.setAlpha(std::make_shared<ConstantTexture>(alpha, alpha, alpha));
+	m_bsdf.setMicrofacet(std::make_shared<TrowbridgeReitz>(alpha));
 }
 
 // This mapping is what used in PBRT-v3. 

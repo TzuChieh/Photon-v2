@@ -4,6 +4,8 @@
 #include "Math/TVector3.h"
 #include "Actor/Texture/Texture.h"
 #include "Actor/Texture/ConstantTexture.h"
+#include "Core/SurfaceBehavior/Utility/Microfacet.h"
+#include "Core/SurfaceBehavior/Utility/FresnelEffect.h"
 
 #include <memory>
 
@@ -21,14 +23,14 @@ public:
 		m_albedo = albedo;
 	}
 
-	inline void setAlpha(const std::shared_ptr<Texture>& alpha)
+	inline void setMicrofacet(const std::shared_ptr<Microfacet>& microfacet)
 	{
-		m_alpha = alpha;
+		m_microfacet = microfacet;
 	}
 
-	inline void setF0(const std::shared_ptr<Texture>& f0)
+	inline void setFresnelEffect(const std::shared_ptr<FresnelEffect>& fresnel)
 	{
-		m_F0 = f0;
+		m_fresnel = fresnel;
 	}
 
 private:
@@ -46,9 +48,9 @@ private:
 	                               real* out_pdfW) const override;
 
 private:
-	std::shared_ptr<Texture> m_albedo;
-	std::shared_ptr<Texture> m_alpha;
-	std::shared_ptr<Texture> m_F0;
+	std::shared_ptr<Texture>       m_albedo;
+	std::shared_ptr<Microfacet>    m_microfacet;
+	std::shared_ptr<FresnelEffect> m_fresnel;
 };
 
 }// end namespace ph

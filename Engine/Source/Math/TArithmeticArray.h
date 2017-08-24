@@ -29,6 +29,8 @@ public:
 	inline TArithmeticArray& divLocal(const TArithmeticArray& rhs);
 	inline TArithmeticArray& divLocal(T rhs);
 
+	inline TArithmeticArray pow(integer exponent) const;
+
 	// Inputs must not contain any NaN. 
 	// (NaNs are clamped to lower bound)
 	inline TArithmeticArray& clampLocal(T lowerBound, T upperBound);

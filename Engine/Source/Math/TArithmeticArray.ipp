@@ -135,6 +135,18 @@ inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::divLocal(const T rhs)
 }
 
 template<typename T, std::size_t N>
+inline TArithmeticArray<T, N> TArithmeticArray<T, N>::pow(const integer exponent) const
+{
+	TArithmeticArray result;
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		result.m[i] = std::pow(m[i], exponent);
+	}
+
+	return result;
+}
+
+template<typename T, std::size_t N>
 inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::clampLocal(const T lowerBound, 
                                                                   const T upperBound)
 {

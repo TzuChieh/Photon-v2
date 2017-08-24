@@ -226,10 +226,14 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\BSDF.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BsdfPdfQuery.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BsdfSample.cpp" />
+    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\ConductorDielectricFresnel.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\DielectricFresnel.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\ExactDielectricFresnel.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\FresnelEffect.cpp" />
+    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\Microfacet.cpp" />
+    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxConductorDielectricFresnel.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxDielectricFresnel.cpp" />
+    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\TrowbridgeReitz.cpp" />
     <ClCompile Include="Source\FileIO\InputPacket.cpp" />
     <ClCompile Include="Source\FileIO\InputPrototype.cpp" />
     <ClCompile Include="Source\FileIO\Keyword.cpp" />
@@ -367,10 +371,14 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\BsdfSample.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\ESurfacePhenomenon.h" />
     <ClInclude Include="Source\Core\Quantity\Time.h" />
+    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\ConductorDielectricFresnel.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\DielectricFresnel.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\ExactDielectricFresnel.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\FresnelEffect.h" />
+    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\Microfacet.h" />
+    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxConductorDielectricFresnel.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxDielectricFresnel.h" />
+    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\TrowbridgeReitz.h" />
     <ClInclude Include="Source\FileIO\DataTreatment.h" />
     <ClInclude Include="Source\FileIO\InputPacket.h" />
     <ClInclude Include="Source\FileIO\Keyword.h" />
@@ -419,7 +427,6 @@
     <ClInclude Include="Source\Actor\ModelParser\AiMaterialParser.h" />
     <ClInclude Include="Source\Actor\ModelParser\AiMeshParser.h" />
     <ClInclude Include="Source\Actor\ModelParser\AssimpModelParser.h" />
-    <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\Microfacet.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\random_sample.h" />
     <ClInclude Include="Source\Math\TIndexedVector3.h" />
     <ClInclude Include="Source\Math\TMatrix4.h" />

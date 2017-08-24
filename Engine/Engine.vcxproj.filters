@@ -393,6 +393,18 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxDielectricFresnel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\Microfacet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\TrowbridgeReitz.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\ConductorDielectricFresnel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxConductorDielectricFresnel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Common\primitive_type.h">
@@ -677,9 +689,6 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\LambertianDiffuse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\Microfacet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\OpaqueMicrofacet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -929,6 +938,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Renderer\Statistics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\Microfacet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\TrowbridgeReitz.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\ConductorDielectricFresnel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxConductorDielectricFresnel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
