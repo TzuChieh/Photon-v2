@@ -3,6 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/BSDF.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <memory>
 
@@ -18,17 +19,20 @@ public:
 	virtual void populateSurfaceBehavior(SurfaceBehavior* out_surfaceBehavior) const override;
 
 	void setDielectricReflector(real iorOuter, real iorInner);
+	void setMetallicReflector(real iorOuter, const SpectralStrength& f0);
 
 private:
 	enum class Type
 	{
-		DIELECTRIC_REFLECTOR
+		DIELECTRIC_REFLECTOR,
+		METALLIC_REFLECTOR
 	};
 
 	Type m_type;
 
-	real m_monoIorOuter;
-	real m_monoIorInner;
+	real             m_monoIorOuter;
+	real             m_monoIorInner;
+	SpectralStrength m_f0;
 
 // command interface
 public:

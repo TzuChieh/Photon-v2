@@ -80,11 +80,15 @@
 -> material(abraded-translucent) @glassMaterial [vector3r albedo "0.0 0.0 0.0"] [real roughness 0.0] [vector3r f0 "0.04 0.04 0.04"]
    [real ior 1.5]
 
--> material(ideal-substance) @idealMaterial [string type dielectric-reflector] [real ior-outer 1] [real ior-inner 1.5]
+-> material(ideal-substance) @idealDielectricReflector
+ [string type dielectric-reflector] [real ior-outer 1] [real ior-inner 1.5]
+
+-> material(ideal-substance) @idealMetallicReflector 
+[string type metallic-reflector] [real ior-outer 1] [vector3r f0-rgb "1 1 1"]
 
 // diffuse object
 -> geometry(sphere) @diffuseGeometry [real radius 1.5]
--> actor(model) @diffuseModel [geometry geometry @diffuseGeometry] [material material @idealMaterial]
+-> actor(model) @diffuseModel [geometry geometry @diffuseGeometry] [material material @idealMetallicReflector]
 -> actor(model) translate(@diffuseModel) [vector3r factor "-3 -3.5 0"]
 
 // metal object
