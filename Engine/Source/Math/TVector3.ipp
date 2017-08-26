@@ -495,9 +495,9 @@ inline TVector3<T>& TVector3<T>::reflectLocal(const TVector3& normal)
 {
 	const T factor = 2 * normal.dot(*this);
 
-	x = x - factor * normal.x;
-	y = y - factor * normal.y;
-	z = z - factor * normal.z;
+	x -= factor * normal.x;
+	y -= factor * normal.y;
+	z -= factor * normal.z;
 
 	return *this;
 }

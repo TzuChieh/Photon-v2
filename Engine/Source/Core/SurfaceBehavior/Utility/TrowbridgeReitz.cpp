@@ -51,8 +51,8 @@ real TrowbridgeReitz::shadowing(const Vector3R& N, const Vector3R& H,
 
 	const real alpha2 = m_alpha * m_alpha;
 
-	const real lightG = 2.0_r / (1.0_r + sqrt(alpha2 * (1.0_r / (NoL*NoL) - 1.0_r) + 1.0_r));
-	const real viewG  = 2.0_r / (1.0_r + sqrt(alpha2 * (1.0_r / (NoV*NoV) - 1.0_r) + 1.0_r));
+	const real lightG = 2.0_r / (1.0_r + std::sqrt(alpha2 * (1.0_r / (NoL * NoL) - 1.0_r) + 1.0_r));
+	const real viewG  = 2.0_r / (1.0_r + std::sqrt(alpha2 * (1.0_r / (NoV * NoV) - 1.0_r) + 1.0_r));
 
 	return lightG * viewG;
 }
@@ -62,7 +62,7 @@ void TrowbridgeReitz::genDistributedH(const real seedA_i0e1, const real seedB_i0
                                       const Vector3R& N, Vector3R* out_H) const
 {
 	const real phi   = 2.0f * PI_REAL * seedA_i0e1;
-	const real theta = std::atan(m_alpha * std::sqrt(seedB_i0e1 / (1.0_r - seedB_i0e1)));
+	const real theta = std::atan(std::sqrt(m_alpha * m_alpha * seedB_i0e1 / (1.0_r - seedB_i0e1)));
 
 	const real sinTheta = std::sin(theta);
 	const real cosTheta = std::cos(theta);

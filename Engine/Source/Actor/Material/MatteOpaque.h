@@ -17,7 +17,7 @@ public:
 	MatteOpaque();
 	virtual ~MatteOpaque() override;
 
-	virtual void populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const override;
+	virtual void populateSurfaceBehavior(SurfaceBehavior* out_surfaceBehavior) const override;
 
 	void setAlbedo(const Vector3R& albedo);
 	void setAlbedo(const real r, const real g, const real b);

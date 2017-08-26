@@ -139,7 +139,13 @@ void TranslucentMicrofacet::genSample(const Intersection& X, const Vector3R& V,
 		*out_type = ESurfacePhenomenon::TRANSMISSION;
 
 		// account for probability
-		F = F.divLocal(1.0_r - reflectProb);
+		F.divLocal(1.0_r - reflectProb);
+	}
+	else
+	{
+		// this may be called due to numerical error
+		out_pdfAppliedBsdf->set(0);
+		return;
 	}
 
 	const Vector3R& L = *out_L;

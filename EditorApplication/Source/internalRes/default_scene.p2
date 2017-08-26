@@ -62,6 +62,7 @@
 
 // bottom wall
 -> material(matte-opaque) @bottomWallMaterial [vector3r albedo "0.7 0.7 0.7"]
+//-> material(ideal-substance) @bottomWallMaterial [string type dielectric-reflector] [real ior-outer 1] [real ior-inner 1.5]
 -> actor(model) @bottomWall [geometry geometry @boxWall] [material material @bottomWallMaterial]
 -> actor(model) translate(@bottomWall) [vector3r factor "0 -5 0"]
 -> actor(model) rotate(@bottomWall) [vector3r axis "1 0 0"] [real degree -90]
@@ -79,9 +80,11 @@
 -> material(abraded-translucent) @glassMaterial [vector3r albedo "0.0 0.0 0.0"] [real roughness 0.0] [vector3r f0 "0.04 0.04 0.04"]
    [real ior 1.5]
 
+-> material(ideal-substance) @idealMaterial [string type dielectric-reflector] [real ior-outer 1] [real ior-inner 1.5]
+
 // diffuse object
 -> geometry(sphere) @diffuseGeometry [real radius 1.5]
--> actor(model) @diffuseModel [geometry geometry @diffuseGeometry] [material material @diffuseMaterial]
+-> actor(model) @diffuseModel [geometry geometry @diffuseGeometry] [material material @idealMaterial]
 -> actor(model) translate(@diffuseModel) [vector3r factor "-3 -3.5 0"]
 
 // metal object

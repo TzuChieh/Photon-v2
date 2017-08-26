@@ -12,6 +12,7 @@
 #include "Actor/Material/MatteOpaque.h"
 #include "Actor/Material/AbradedOpaque.h"
 #include "Actor/Material/AbradedTranslucent.h"
+#include "Actor/Material/IdealSubstance.h"
 
 // light sources
 #include "Actor/LightSource/LightSource.h"
@@ -75,6 +76,7 @@ bool init_command_parser()
 	register_command_interface<MatteOpaque>();
 	register_command_interface<AbradedOpaque>();
 	register_command_interface<AbradedTranslucent>();
+	register_command_interface<IdealSubstance>();
 
 	// light sources
 	register_command_interface<LightSource>();

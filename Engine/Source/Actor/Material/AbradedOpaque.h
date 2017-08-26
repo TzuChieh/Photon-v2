@@ -15,7 +15,7 @@ public:
 	AbradedOpaque();
 	virtual ~AbradedOpaque() override;
 
-	virtual void populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const override;
+	virtual void populateSurfaceBehavior(SurfaceBehavior* out_surfaceBehavior) const override;
 
 	void setAlbedo(const Vector3R& albedo);
 	void setRoughness(const real roughness);

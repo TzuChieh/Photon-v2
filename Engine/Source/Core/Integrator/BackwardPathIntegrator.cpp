@@ -36,12 +36,12 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 	const Scene&  scene  = *data.scene;
 	const Camera& camera = *data.camera;
 
-	const real rayDeltaDist = 0.0001_r;
+	//const real rayDeltaDist = 0.00001_r;
 
 	uint32 numBounces = 0;
 	SpectralStrength accuRadiance(0);
 	SpectralStrength accuLiWeight(1);
-	Vector3R rayOriginDelta;
+	//Vector3R rayOriginDelta;
 	Intersection intersection;
 
 	/*Ray ray;
@@ -49,8 +49,6 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 
 	// backward tracing to light
 	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), 0.0001_r, Ray::MAX_T, ray.getTime());// HACK: hard-coded number
-
-	const Primitive* lastPrimitive = nullptr;
 
 	while(numBounces <= MAX_RAY_BOUNCES && scene.isIntersecting(tracingRay, &intersection))
 	{
@@ -109,7 +107,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 		case ESurfacePhenomenon::REFLECTION:
 		case ESurfacePhenomenon::TRANSMISSION:
 		{
-			rayOriginDelta.set(L).mulLocal(rayDeltaDist);
+			//rayOriginDelta.set(L).mulLocal(rayDeltaDist);
 
 			SpectralStrength liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 
@@ -149,7 +147,8 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 		}
 
 		// prepare for next iteration
-		const Vector3R nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
+		//const Vector3R nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
+		const Vector3R nextRayOrigin(intersection.getHitPosition());
 		const Vector3R nextRayDirection(L);
 		tracingRay.setOrigin(nextRayOrigin);
 		tracingRay.setDirection(nextRayDirection);

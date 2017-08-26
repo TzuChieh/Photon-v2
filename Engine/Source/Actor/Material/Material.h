@@ -17,7 +17,7 @@ public:
 	Material();
 	virtual ~Material() = 0;
 
-	virtual void populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const = 0;
+	virtual void populateSurfaceBehavior(SurfaceBehavior* out_surfaceBehavior) const = 0;
 
 // command interface
 public:
