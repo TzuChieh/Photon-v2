@@ -67,7 +67,8 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 			break;
 		}
 
-		if(hitSurfaceBehavior.getEmitter())
+		// only forward side is emitable
+		if(hitSurfaceBehavior.getEmitter() && V.dot(intersection.getHitSmoothNormal()) > 0.0_r)
 		{
 			SpectralStrength radianceLi;
 			hitSurfaceBehavior.getEmitter()->evalEmittedRadiance(intersection, &radianceLi);
@@ -114,7 +115,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 			if(numBounces >= 3)
 			{
 				//const real rrSurviveRate = liWeight.clamp(0.0f, 1.0f).max();
-				const real rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001_r, 1.0_r);
+				const real rrSurviveRate = Math::clamp(liWeight.avg(), 0.1_r, 1.0_r);
 				//const real rrSurviveRate = Math::clamp(Color::linearRgbLuminance(liWeight), 0.0001f, 1.0f);
 				const real rrSpin = Random::genUniformReal_i0_e1();
 
