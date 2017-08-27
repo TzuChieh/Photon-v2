@@ -2,7 +2,6 @@
 
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "FileIO/SDL/TCommandInterface.h"
-#include "FileIO/SDL/ISdlResource.h"
 
 namespace ph
 {
@@ -11,7 +10,7 @@ class SurfaceBehavior;
 class BSDFcos;
 class InputPacket;
 
-class Material : public TCommandInterface<Material>, public ISdlResource
+class Material : public TCommandInterface<Material>
 {
 public:
 	Material();

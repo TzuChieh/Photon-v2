@@ -3,7 +3,6 @@
 #include "Core/Integrator/Utility/SenseEvent.h"
 #include "Core/Sample.h"
 #include "Core/Camera/Camera.h"
-#include "FileIO/SDL/ISdlResource.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Core/Renderer/RenderWork.h"
 
@@ -17,7 +16,7 @@ class Ray;
 class Camera;
 class InputPacket;
 
-class Integrator : public TCommandInterface<Integrator>, public ISdlResource
+class Integrator : public TCommandInterface<Integrator>
 {
 public:
 	Integrator();

@@ -2,7 +2,6 @@
 
 #include "Core/Intersectable/Primitive.h"
 #include "FileIO/SDL/TCommandInterface.h"
-#include "FileIO/SDL/ISdlResource.h"
 #include "Math/Transform/StaticTransform.h"
 
 #include <vector>
@@ -22,7 +21,7 @@ class Transform;
 
 // TODO: use highest precision to perform geometry related operations
 
-class Geometry : public TCommandInterface<Geometry>, public ISdlResource
+class Geometry : public TCommandInterface<Geometry>
 {
 public:
 	Geometry();

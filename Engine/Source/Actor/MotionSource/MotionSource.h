@@ -2,7 +2,6 @@
 
 #include "Common/primitive_type.h"
 #include "Math/Transform/TDecomposedTransform.h"
-#include "FileIO/SDL/ISdlResource.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Math/Transform/Transform.h"
 
@@ -13,7 +12,7 @@ namespace ph
 
 class Time;
 
-class MotionSource : public ISdlResource, public TCommandInterface<MotionSource>
+class MotionSource : public TCommandInterface<MotionSource>
 {
 public:
 	MotionSource() = default;

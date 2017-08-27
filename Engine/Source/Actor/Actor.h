@@ -1,7 +1,6 @@
 #pragma once
 
 #include "FileIO/SDL/TCommandInterface.h"
-#include "FileIO/SDL/ISdlResource.h"
 
 namespace ph
 {
@@ -9,7 +8,7 @@ namespace ph
 class CookedActor;
 class InputPacket;
 
-class Actor : public TCommandInterface<Actor>, public ISdlResource
+class Actor : public TCommandInterface<Actor>
 {
 public:
 	Actor();

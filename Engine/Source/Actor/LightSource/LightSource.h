@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
-#include "FileIO/SDL/ISdlResource.h"
 #include "FileIO/SDL/TCommandInterface.h"
 
 #include <memory>
@@ -12,7 +11,7 @@ namespace ph
 class InputPacket;
 class Emitter;
 
-class LightSource : public TCommandInterface<LightSource>, public ISdlResource
+class LightSource : public TCommandInterface<LightSource>
 {
 public:
 	LightSource();

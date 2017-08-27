@@ -3,7 +3,6 @@
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
 #include "Core/Camera/RadianceSensor.h"
-#include "FileIO/SDL/ISdlResource.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Core/Bound/TAABB2D.h"
 #include "Math/TVector2.h"
@@ -20,7 +19,7 @@ class Frame;
 class InputPacket;
 class SampleFilter;
 
-class Film : public TCommandInterface<Film>, public ISdlResource
+class Film : public TCommandInterface<Film>
 {
 public:
 	Film(int64 actualWidthPx, int64 actualHeightPx,

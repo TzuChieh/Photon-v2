@@ -21,9 +21,12 @@ template<typename T>
 void register_command_interface();
 
 template<typename DerivedType>
-class TCommandInterface
+class TCommandInterface : public virtual ISdlResource
 {
 	friend void register_command_interface<DerivedType>();
+
+public:
+	virtual ~TCommandInterface() = 0;
 
 private:
 	static void registerInterface();
@@ -147,5 +150,8 @@ std::unique_ptr<DerivedType> TCommandInterface<DerivedType>::conditionalLoad(con
 	          << "returning nullptr" << std::endl;
 	return nullptr;
 }
+
+template<typename DerivedType>
+TCommandInterface<DerivedType>::~TCommandInterface() = default;
 
 }// end namespace ph

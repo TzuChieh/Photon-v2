@@ -19,7 +19,7 @@ class Film;
 class Scene;
 class InputPacket;
 
-class SampleGenerator : public ISdlResource, TCommandInterface<SampleGenerator>
+class SampleGenerator : public TCommandInterface<SampleGenerator>
 {
 public:
 	SampleGenerator(std::size_t numSamples, std::size_t sampleBatchSize);

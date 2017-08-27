@@ -229,6 +229,7 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\BsdfPdfQuery.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BsdfSample.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\IdealReflector.cpp" />
+    <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\IdealTransmitter.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\ConductorDielectricFresnel.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\DielectricFresnel.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\ExactDielectricFresnel.cpp" />
@@ -373,6 +374,7 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\BsdfPdfQuery.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\BsdfSample.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\IdealReflector.h" />
+    <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\IdealTransmitter.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\ESurfacePhenomenon.h" />
     <ClInclude Include="Source\Core\Quantity\Time.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\ConductorDielectricFresnel.h" />
