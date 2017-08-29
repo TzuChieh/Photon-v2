@@ -12,11 +12,6 @@ SdlTypeInfo MotionSource::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_MOTION, "motion");
 }
 
-ExitStatus MotionSource::ciExecute(const std::shared_ptr<MotionSource>& targetResource,
-                                   const std::string& functionName,
-                                   const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
-}
+void MotionSource::ciRegister(CommandRegister& cmdRegister) {}
 
 }// end namespace ph

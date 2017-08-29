@@ -185,6 +185,15 @@ SdlTypeInfo ALight::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "light");
 }
 
+void ALight::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc(ciLoad);
+	cmdRegister.setLoader(loader);
+
+	PhysicalActor::ciRegisterExecutors(cmdRegister);
+}
+
 std::unique_ptr<ALight> ALight::ciLoad(const InputPacket& packet)
 {
 	const DataTreatment requiredData(EDataImportance::REQUIRED, 
@@ -197,11 +206,6 @@ std::unique_ptr<ALight> ALight::ciLoad(const InputPacket& packet)
 	light->setGeometry(geometry);
 	light->setMaterial(material);
 	return light;
-}
-
-ExitStatus ALight::ciExecute(const std::shared_ptr<ALight>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return PhysicalActor::ciExecute(targetResource, functionName, packet);
 }
 
 }// end namespace ph

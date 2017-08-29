@@ -392,9 +392,12 @@
     <ClInclude Include="Source\FileIO\InputPrototype.h" />
     <ClInclude Include="Source\FileIO\RenderOption.h" />
     <ClInclude Include="Source\FileIO\SDL\CommandEntry.h" />
+    <ClInclude Include="Source\FileIO\SDL\CommandRegister.h" />
     <ClInclude Include="Source\FileIO\SDL\ETypeCategory.h" />
     <ClInclude Include="Source\FileIO\SDL\ExitStatus.h" />
     <ClInclude Include="Source\FileIO\SDL\ISdlResource.h" />
+    <ClInclude Include="Source\FileIO\SDL\SdlExecutor.h" />
+    <ClInclude Include="Source\FileIO\SDL\SdlLoader.h" />
     <ClInclude Include="Source\FileIO\SDL\SdlTypeInfo.h" />
     <ClInclude Include="Source\FileIO\SDL\TCommandInterface.h" />
     <ClInclude Include="Source\FileIO\Tokenizer.h" />

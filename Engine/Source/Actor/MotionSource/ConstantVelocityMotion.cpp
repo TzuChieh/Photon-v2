@@ -29,19 +29,19 @@ SdlTypeInfo ConstantVelocityMotion::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_MOTION, "constant-velocity");
 }
 
+void ConstantVelocityMotion::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc(ciLoad);
+	cmdRegister.setLoader(loader);
+}
+
 std::unique_ptr<ConstantVelocityMotion> ConstantVelocityMotion::ciLoad(const InputPacket& packet)
 {
 	const Vector3R velocity = packet.getVector3r("velocity", Vector3R(0), 
 	                                             DataTreatment::REQUIRED());
 
 	return std::make_unique<ConstantVelocityMotion>(velocity);
-}
-
-ExitStatus ConstantVelocityMotion::ciExecute(const std::shared_ptr<ConstantVelocityMotion>& targetResource,
-                                             const std::string& functionName,
-                                             const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

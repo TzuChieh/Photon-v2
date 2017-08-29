@@ -67,6 +67,13 @@ SdlTypeInfo AbradedOpaque::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "abraded-opaque");
 }
 
+void AbradedOpaque::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc(ciLoad);
+	cmdRegister.setLoader(loader);
+}
+
 std::unique_ptr<AbradedOpaque> AbradedOpaque::ciLoad(const InputPacket& packet)
 {
 	Vector3R albedo(0.5f, 0.5f, 0.5f);
@@ -82,11 +89,6 @@ std::unique_ptr<AbradedOpaque> AbradedOpaque::ciLoad(const InputPacket& packet)
 	material->setF0(f0);
 	material->setRoughness(roughness);
 	return material;
-}
-
-ExitStatus AbradedOpaque::ciExecute(const std::shared_ptr<AbradedOpaque>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

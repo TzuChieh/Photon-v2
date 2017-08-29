@@ -41,8 +41,7 @@ protected:
 // command interface
 public:
 	static SdlTypeInfo ciTypeInfo();
-	static std::unique_ptr<Geometry> ciLoad(const InputPacket& packet);
-	static ExitStatus ciExecute(const std::shared_ptr<Geometry>& targetResource, const std::string& functionName, const InputPacket& packet);
+	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph

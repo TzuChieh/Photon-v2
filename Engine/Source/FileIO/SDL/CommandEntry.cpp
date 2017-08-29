@@ -6,26 +6,29 @@ namespace ph
 {
 
 CommandEntry::CommandEntry() : 
-	m_typeInfo(nullptr), m_load(nullptr), m_execute(nullptr)
+	m_typeInfo(nullptr), m_loader(), m_executors()
 {
 
 }
 
-CommandEntry& CommandEntry::setTypeInfoFunc(const TypeInfoFuncType& func)
+CommandEntry& CommandEntry::setTypeInfoFunc(const std::function<SdlTypeInfo()>& func)
 {
 	m_typeInfo = func;
+
 	return *this;
 }
 
-CommandEntry& CommandEntry::setLoadFunc(const LoadFuncType& func)
+CommandEntry& CommandEntry::setLoader(const SdlLoader& loader)
 {
-	m_load = func;
+	m_loader = loader;
+
 	return *this;
 }
 
-CommandEntry& CommandEntry::setExecuteFunc(const ExecuteFuncType& func)
+CommandEntry& CommandEntry::addExecutor(const SdlExecutor& executor)
 {
-	m_execute = func;
+	m_executors.push_back(executor);
+
 	return *this;
 }
 
@@ -33,7 +36,8 @@ SdlTypeInfo CommandEntry::typeInfo() const
 {
 	if(m_typeInfo == nullptr)
 	{
-		std::cerr << "warning: at CommandEntry::typeInfo(), empty function pointer" << std::endl;
+		std::cerr << "warning: at CommandEntry::typeInfo(), " 
+		          << "no type info provided" << std::endl;
 		return SdlTypeInfo::makeInvalid();
 	}
 
@@ -42,24 +46,45 @@ SdlTypeInfo CommandEntry::typeInfo() const
 
 std::shared_ptr<ISdlResource> CommandEntry::load(const InputPacket& packet) const
 {
-	if(m_load == nullptr)
+	std::shared_ptr<ISdlResource> res = m_loader.load(packet);
+
+	if(res == nullptr)
 	{
-		std::cerr << "warning: at CommandEntry::load(), empty function pointer" << std::endl;
-		return nullptr;
+		std::cerr << "warning: at CommandEntry::load(), " 
+		          << "loading failed for type <" 
+		          << typeInfo().toString() 
+		          << "> due to no loader provided or some internal error" << std::endl;
 	}
 
-	return m_load(packet);
+	return res;
 }
 
-void CommandEntry::execute(const std::shared_ptr<ISdlResource>& targetResource, const std::string& functionName, const InputPacket& packet) const
+ExitStatus CommandEntry::execute(const std::shared_ptr<ISdlResource>& targetResource, 
+                                 const std::string& functionName, 
+                                 const InputPacket& packet) const
 {
-	if(m_execute == nullptr)
+	const SdlExecutor* targetExecutor = nullptr;
+	for(const auto& executor : m_executors)
 	{
-		std::cerr << "warning: at CommandEntry::execute(), empty function pointer" << std::endl;
-		return;
+		if(executor.getName() == functionName)
+		{
+			targetExecutor = &executor;
+			break;
+		}
 	}
 
-	m_execute(targetResource, functionName, packet);
+	if(targetExecutor == nullptr)
+	{
+		return ExitStatus::FAILURE(std::string()
+			+ "warning: at CommandEntry::execute(), " 
+			+ "no valid executor named <"
+			+ functionName
+			+ "> provided by <"
+			+ typeInfo().toString()
+			+ ">");
+	}
+
+	return targetExecutor->execute(targetResource, packet);
 }
 
 }// end namespace ph

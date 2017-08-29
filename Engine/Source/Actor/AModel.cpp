@@ -170,6 +170,15 @@ SdlTypeInfo AModel::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "model");
 }
 
+void AModel::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc(ciLoad);
+	cmdRegister.setLoader(loader);
+
+	PhysicalActor::ciRegisterExecutors(cmdRegister);
+}
+
 std::unique_ptr<AModel> AModel::ciLoad(const InputPacket& packet)
 {
 	const DataTreatment requiredDT(EDataImportance::REQUIRED, 
@@ -181,11 +190,6 @@ std::unique_ptr<AModel> AModel::ciLoad(const InputPacket& packet)
 	std::unique_ptr<AModel> model = std::make_unique<AModel>(geometry, material);
 	model->setMotionSource(motionSource);
 	return model;
-}
-
-ExitStatus AModel::ciExecute(const std::shared_ptr<AModel>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return PhysicalActor::ciExecute(targetResource, functionName, packet);
 }
 
 }// end namespace ph

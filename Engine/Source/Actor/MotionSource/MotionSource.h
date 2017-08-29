@@ -24,9 +24,7 @@ public:
 // command interface
 public:
 	static SdlTypeInfo ciTypeInfo();
-	static ExitStatus ciExecute(const std::shared_ptr<MotionSource>& targetResource, 
-	                            const std::string& functionName, 
-	                            const InputPacket& packet);
+	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph

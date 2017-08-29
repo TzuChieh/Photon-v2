@@ -98,75 +98,97 @@ SdlTypeInfo PhysicalActor::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "physical-actor");
 }
 
-ExitStatus PhysicalActor::ciExecute(const std::shared_ptr<PhysicalActor>& targetResource, const std::string& functionName, const InputPacket& packet)
+void PhysicalActor::ciRegister(CommandRegister& cmdRegister)
 {
-	if(!targetResource)
+	ciRegisterExecutors(cmdRegister);
+}
+
+void PhysicalActor::ciRegisterExecutors(CommandRegister& cmdRegister)
+{
+	SdlExecutor translateSE;
+	translateSE.setName("translate");
+	translateSE.setFunc<PhysicalActor>(ciTranslate);
+	cmdRegister.addExecutor(translateSE);
+
+	SdlExecutor rotateSE;
+	rotateSE.setName("rotate");
+	rotateSE.setFunc<PhysicalActor>(ciRotate);
+	cmdRegister.addExecutor(rotateSE);
+
+	SdlExecutor scaleSE;
+	scaleSE.setName("scale");
+	scaleSE.setFunc<PhysicalActor>(ciScale);
+	cmdRegister.addExecutor(scaleSE);
+}
+
+ExitStatus PhysicalActor::ciTranslate(
+	const std::shared_ptr<PhysicalActor>& targetResource,
+	const InputPacket& packet)
+{
+	InputPrototype translationInput;
+	translationInput.addVector3r("factor");
+
+	if(packet.isPrototypeMatched(translationInput))
 	{
-		return ExitStatus::BAD_INPUT("requiring a physical actor as target");
-	}
-
-	if(functionName == "translate")
-	{
-		InputPrototype translationInput;
-		translationInput.addVector3r("factor");
-
-		if(packet.isPrototypeMatched(translationInput))
-		{
-			const Vector3R translation = packet.getVector3r("factor");
-			targetResource->translate(translation);
-			return ExitStatus::SUCCESS();
-		}
-		else
-		{
-			return ExitStatus::BAD_INPUT("requiring a vector3r factor");
-		}
-	}
-	else if(functionName == "rotate")
-	{
-		InputPrototype quaternionInput;
-		quaternionInput.addQuaternionR("factor");
-
-		InputPrototype axisDegreeInput;
-		axisDegreeInput.addVector3r("axis");
-		axisDegreeInput.addReal("degree");
-
-		if(packet.isPrototypeMatched(quaternionInput))
-		{
-			const QuaternionR rotation = packet.getQuaternionR("factor");
-			targetResource->rotate(rotation.normalize());
-			return ExitStatus::SUCCESS();
-		}
-		else if(packet.isPrototypeMatched(axisDegreeInput))
-		{
-			const Vector3R axis    = packet.getVector3r("axis");
-			const real     degrees = packet.getReal("degree");
-			targetResource->rotate(axis.normalize(), degrees);
-			return ExitStatus::SUCCESS();
-		}
-		else
-		{
-			return ExitStatus::BAD_INPUT("required input formats are: 1. " + quaternionInput.toString() + "; 2. " + axisDegreeInput.toString());
-		}
-	}
-	else if(functionName == "scale")
-	{
-		InputPrototype scalationInput;
-		scalationInput.addVector3r("factor");
-
-		if(packet.isPrototypeMatched(scalationInput))
-		{
-			const Vector3R scalation = packet.getVector3r("factor");
-			targetResource->scale(scalation);
-			return ExitStatus::SUCCESS();
-		}
-		else
-		{
-			return ExitStatus::BAD_INPUT("requiring a vector3r factor");
-		}
+		const Vector3R translation = packet.getVector3r("factor");
+		targetResource->translate(translation);
+		return ExitStatus::SUCCESS();
 	}
 	else
 	{
-		return ExitStatus::UNSUPPORTED();
+		return ExitStatus::BAD_INPUT("requiring a vector3r factor");
+	}
+}
+
+ExitStatus PhysicalActor::ciRotate(
+	const std::shared_ptr<PhysicalActor>& targetResource,
+	const InputPacket& packet)
+{
+	InputPrototype quaternionInput;
+	quaternionInput.addQuaternionR("factor");
+
+	InputPrototype axisDegreeInput;
+	axisDegreeInput.addVector3r("axis");
+	axisDegreeInput.addReal("degree");
+
+	if(packet.isPrototypeMatched(quaternionInput))
+	{
+		const QuaternionR rotation = packet.getQuaternionR("factor");
+		targetResource->rotate(rotation.normalize());
+		return ExitStatus::SUCCESS();
+	}
+	else if(packet.isPrototypeMatched(axisDegreeInput))
+	{
+		const Vector3R axis = packet.getVector3r("axis");
+		const real     degrees = packet.getReal("degree");
+		targetResource->rotate(axis.normalize(), degrees);
+		return ExitStatus::SUCCESS();
+	}
+	else
+	{
+		return ExitStatus::BAD_INPUT(std::string()
+			+ "possible input formats are: "
+			+ "1. " + quaternionInput.toString() + "; "
+			+ "2. " + axisDegreeInput.toString());
+	}
+}
+
+ExitStatus PhysicalActor::ciScale(
+	const std::shared_ptr<PhysicalActor>& targetResource,
+	const InputPacket& packet)
+{
+	InputPrototype scalationInput;
+	scalationInput.addVector3r("factor");
+
+	if(packet.isPrototypeMatched(scalationInput))
+	{
+		const Vector3R scalation = packet.getVector3r("factor");
+		targetResource->scale(scalation);
+		return ExitStatus::SUCCESS();
+	}
+	else
+	{
+		return ExitStatus::BAD_INPUT("requiring a vector3r factor");
 	}
 }
 

@@ -41,6 +41,13 @@ SdlTypeInfo MatteOpaque::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "matte-opaque");
 }
 
+void MatteOpaque::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc(ciLoad);
+	cmdRegister.setLoader(loader);
+}
+
 std::unique_ptr<MatteOpaque> MatteOpaque::ciLoad(const InputPacket& packet)
 {
 	const Vector3R albedo = packet.getVector3r("albedo", Vector3R(0.5_r), 
@@ -49,11 +56,6 @@ std::unique_ptr<MatteOpaque> MatteOpaque::ciLoad(const InputPacket& packet)
 	std::unique_ptr<MatteOpaque> material = std::make_unique<MatteOpaque>();
 	material->setAlbedo(albedo);
 	return material;
-}
-
-ExitStatus MatteOpaque::ciExecute(const std::shared_ptr<MatteOpaque>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

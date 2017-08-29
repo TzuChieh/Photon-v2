@@ -12,11 +12,6 @@ SdlTypeInfo AbradedSurface::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "abraded-surface");
 }
 
-ExitStatus AbradedSurface::ciExecute(const std::shared_ptr<AbradedSurface>& targetResource,
-                                     const std::string& functionName,
-                                     const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
-}
+void AbradedSurface::ciRegister(CommandRegister& cmdRegister) {}
 
 }// end namespace ph

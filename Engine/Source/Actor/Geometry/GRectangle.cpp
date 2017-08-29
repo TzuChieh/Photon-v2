@@ -96,6 +96,8 @@ SdlTypeInfo GRectangle::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "rectangle");
 }
 
+void GRectangle::ciRegister(CommandRegister& cmdRegister) {}
+
 std::unique_ptr<GRectangle> GRectangle::ciLoad(const InputPacket& packet)
 {
 	const DataTreatment requiredData(EDataImportance::REQUIRED, 
@@ -105,11 +107,6 @@ std::unique_ptr<GRectangle> GRectangle::ciLoad(const InputPacket& packet)
 	const real height = packet.getReal("height", 1.0_r, requiredData);
 
 	return std::make_unique<GRectangle>(width, height);
-}
-
-ExitStatus GRectangle::ciExecute(const std::shared_ptr<GRectangle>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

@@ -37,9 +37,6 @@ SdlTypeInfo Geometry::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "geometry");
 }
 
-ExitStatus Geometry::ciExecute(const std::shared_ptr<Geometry>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
-}
+void Geometry::ciRegister(CommandRegister& cmdRegister) {}
 
 }// end namespace ph

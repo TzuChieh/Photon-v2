@@ -970,5 +970,14 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\IdealTransmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\FileIO\SDL\CommandRegister.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FileIO\SDL\SdlExecutor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FileIO\SDL\SdlLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

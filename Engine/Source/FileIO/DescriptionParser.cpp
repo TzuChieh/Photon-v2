@@ -178,7 +178,48 @@ void DescriptionParser::parseWorldCommand(const std::string& command, Descriptio
 			DataTreatment::OPTIONAL() : DataTreatment::REQUIRED("cannot find specified target resource");
 
 		const auto& targetResource = out_data.resources.getResource(typeInfo, targetResourceName, targetResourceDT);
-		getCommandEntry(typeInfo).execute(targetResource, functionName, inputPacket);
+		const auto& commandEntry = getCommandEntry(typeInfo);
+		ExitStatus status = commandEntry.execute(targetResource, functionName, inputPacket);
+
+
+
+
+		/*const std::string& funcInfo = "type <" + typeInfo().toString() + ">'s " +
+			"function <" + functionName + ">";
+
+		switch(status.state)
+		{
+		case ExitStatus::State::SUCCESS:
+			if(!status.message.empty())
+			{
+				std::cout << funcInfo << " successfully executed" << std::endl;
+				std::cout << status.message << std::endl;
+			}
+			break;
+
+		case ExitStatus::State::WARNING:
+			std::cerr << funcInfo << " executed, but with warning" << std::endl;
+			std::cerr << status.message << std::endl;
+			break;
+
+		case ExitStatus::State::FAILURE:
+			std::cerr << funcInfo << " executed and failed" << std::endl;
+			std::cerr << status.message << std::endl;
+			break;
+
+		case ExitStatus::State::BAD_INPUT:
+			std::cerr << funcInfo << " ignored because of bad input" << std::endl;
+			std::cerr << status.message << std::endl;
+			break;
+
+		case ExitStatus::State::UNSUPPORTED:
+			std::cerr << "calling unsupported function: " << funcInfo << std::endl;
+			if(!status.message.empty())
+			{
+				std::cerr << status.message << std::endl;
+			}
+			break;
+		}*/
 	}
 	else
 	{

@@ -43,7 +43,19 @@ protected:
 // command interface
 public:
 	static SdlTypeInfo ciTypeInfo();
-	static ExitStatus ciExecute(const std::shared_ptr<PhysicalActor>& targetResource, const std::string& functionName, const InputPacket& packet);
+	static void ciRegister(CommandRegister& cmdRegister);
+
+	static void ciRegisterExecutors(CommandRegister& cmdRegister);
+
+	static ExitStatus ciTranslate(
+		const std::shared_ptr<PhysicalActor>& targetResource, 
+		const InputPacket& packet);
+	static ExitStatus ciRotate(
+		const std::shared_ptr<PhysicalActor>& targetResource,
+		const InputPacket& packet);
+	static ExitStatus ciScale(
+		const std::shared_ptr<PhysicalActor>& targetResource,
+		const InputPacket& packet);
 };
 
 }// end namespace ph

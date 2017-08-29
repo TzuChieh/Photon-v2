@@ -72,6 +72,13 @@ SdlTypeInfo AbradedTranslucent::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "abraded-translucent");
 }
 
+void AbradedTranslucent::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc(ciLoad);
+	cmdRegister.setLoader(loader);
+}
+
 std::unique_ptr<AbradedTranslucent> AbradedTranslucent::ciLoad(const InputPacket& packet)
 {
 	Vector3R albedo(0.5f, 0.5f, 0.5f);
@@ -90,11 +97,6 @@ std::unique_ptr<AbradedTranslucent> AbradedTranslucent::ciLoad(const InputPacket
 	material->setRoughness(roughness);
 	material->setIor(1, ior);
 	return material;
-}
-
-ExitStatus AbradedTranslucent::ciExecute(const std::shared_ptr<AbradedTranslucent>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

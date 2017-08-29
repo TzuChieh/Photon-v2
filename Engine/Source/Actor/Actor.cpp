@@ -30,9 +30,6 @@ SdlTypeInfo Actor::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "actor");
 }
 
-ExitStatus Actor::ciExecute(const std::shared_ptr<Actor>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
-}
+void Actor::ciRegister(CommandRegister& cmdRegister) {}
 
 }// end namespace ph

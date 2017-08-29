@@ -211,16 +211,13 @@ SdlTypeInfo GSphere::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "sphere");
 }
 
+void GSphere::ciRegister(CommandRegister& cmdRegister) {}
+
 std::unique_ptr<GSphere> GSphere::ciLoad(const InputPacket& packet)
 {
 	const real radius = packet.getReal("radius", 1.0_r);
 
 	return std::make_unique<GSphere>(radius);
-}
-
-ExitStatus GSphere::ciExecute(const std::shared_ptr<GSphere>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

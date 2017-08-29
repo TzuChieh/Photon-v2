@@ -82,6 +82,13 @@ SdlTypeInfo GTriangleMesh::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "triangle-mesh");
 }
 
+void GTriangleMesh::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc(ciLoad);
+	cmdRegister.setLoader(loader);
+}
+
 std::unique_ptr<GTriangleMesh> GTriangleMesh::ciLoad(const InputPacket& packet)
 {
 	const std::vector<Vector3R> positions = packet.getVector3rArray("positions");
@@ -89,11 +96,6 @@ std::unique_ptr<GTriangleMesh> GTriangleMesh::ciLoad(const InputPacket& packet)
 	const std::vector<Vector3R> normals   = packet.getVector3rArray("normals");
 
 	return std::make_unique<GTriangleMesh>(positions, texCoords, normals);
-}
-
-ExitStatus GTriangleMesh::ciExecute(const std::shared_ptr<GTriangleMesh>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph
