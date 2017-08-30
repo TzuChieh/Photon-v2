@@ -75,7 +75,7 @@ SdlTypeInfo AbradedTranslucent::ciTypeInfo()
 void AbradedTranslucent::ciRegister(CommandRegister& cmdRegister)
 {
 	SdlLoader loader;
-	loader.setFunc(ciLoad);
+	loader.setFunc<AbradedTranslucent>(ciLoad);
 	cmdRegister.setLoader(loader);
 }
 

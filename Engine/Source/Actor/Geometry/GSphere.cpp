@@ -211,7 +211,12 @@ SdlTypeInfo GSphere::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "sphere");
 }
 
-void GSphere::ciRegister(CommandRegister& cmdRegister) {}
+void GSphere::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc<GSphere>(ciLoad);
+	cmdRegister.setLoader(loader);
+}
 
 std::unique_ptr<GSphere> GSphere::ciLoad(const InputPacket& packet)
 {

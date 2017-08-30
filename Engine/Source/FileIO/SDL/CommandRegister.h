@@ -26,6 +26,15 @@ public:
 		m_entry.addExecutor(executor);
 	}
 
+	template<typename OwnerType, typename TargetType>
+	inline void reintroduce()
+	{
+		CommandEntry    collectorEntry;
+		CommandRegister collectorRegister(collectorEntry);
+
+		TargetType::ciRegister(collectorRegister);
+	}
+
 private:
 	CommandEntry& m_entry;
 };

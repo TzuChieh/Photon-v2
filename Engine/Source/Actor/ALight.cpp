@@ -188,7 +188,7 @@ SdlTypeInfo ALight::ciTypeInfo()
 void ALight::ciRegister(CommandRegister& cmdRegister)
 {
 	SdlLoader loader;
-	loader.setFunc(ciLoad);
+	loader.setFunc<ALight>(ciLoad);
 	cmdRegister.setLoader(loader);
 
 	PhysicalActor::ciRegisterExecutors(cmdRegister);

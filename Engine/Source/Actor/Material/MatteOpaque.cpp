@@ -44,7 +44,7 @@ SdlTypeInfo MatteOpaque::ciTypeInfo()
 void MatteOpaque::ciRegister(CommandRegister& cmdRegister)
 {
 	SdlLoader loader;
-	loader.setFunc(ciLoad);
+	loader.setFunc<MatteOpaque>(ciLoad);
 	cmdRegister.setLoader(loader);
 }
 

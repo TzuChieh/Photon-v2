@@ -32,7 +32,7 @@ SdlTypeInfo ConstantVelocityMotion::ciTypeInfo()
 void ConstantVelocityMotion::ciRegister(CommandRegister& cmdRegister)
 {
 	SdlLoader loader;
-	loader.setFunc(ciLoad);
+	loader.setFunc<ConstantVelocityMotion>(ciLoad);
 	cmdRegister.setLoader(loader);
 }
 

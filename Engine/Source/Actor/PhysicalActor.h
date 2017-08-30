@@ -45,8 +45,6 @@ public:
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 
-	static void ciRegisterExecutors(CommandRegister& cmdRegister);
-
 	static ExitStatus ciTranslate(
 		const std::shared_ptr<PhysicalActor>& targetResource, 
 		const InputPacket& packet);

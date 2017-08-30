@@ -100,11 +100,6 @@ SdlTypeInfo PhysicalActor::ciTypeInfo()
 
 void PhysicalActor::ciRegister(CommandRegister& cmdRegister)
 {
-	ciRegisterExecutors(cmdRegister);
-}
-
-void PhysicalActor::ciRegisterExecutors(CommandRegister& cmdRegister)
-{
 	SdlExecutor translateSE;
 	translateSE.setName("translate");
 	translateSE.setFunc<PhysicalActor>(ciTranslate);

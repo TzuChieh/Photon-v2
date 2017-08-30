@@ -75,7 +75,7 @@ SdlTypeInfo IdealSubstance::ciTypeInfo()
 void IdealSubstance::ciRegister(CommandRegister& cmdRegister)
 {
 	SdlLoader loader;
-	loader.setFunc(ciLoad);
+	loader.setFunc<IdealSubstance>(ciLoad);
 	cmdRegister.setLoader(loader);
 }
 

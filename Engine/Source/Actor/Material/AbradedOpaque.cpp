@@ -70,7 +70,7 @@ SdlTypeInfo AbradedOpaque::ciTypeInfo()
 void AbradedOpaque::ciRegister(CommandRegister& cmdRegister)
 {
 	SdlLoader loader;
-	loader.setFunc(ciLoad);
+	loader.setFunc<AbradedOpaque>(ciLoad);
 	cmdRegister.setLoader(loader);
 }
 

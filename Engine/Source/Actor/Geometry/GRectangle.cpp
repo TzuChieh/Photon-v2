@@ -96,7 +96,12 @@ SdlTypeInfo GRectangle::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "rectangle");
 }
 
-void GRectangle::ciRegister(CommandRegister& cmdRegister) {}
+void GRectangle::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc<GRectangle>(ciLoad);
+	cmdRegister.setLoader(loader);
+}
 
 std::unique_ptr<GRectangle> GRectangle::ciLoad(const InputPacket& packet)
 {

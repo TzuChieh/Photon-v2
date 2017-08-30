@@ -60,7 +60,7 @@ SdlTypeInfo AreaSource::ciTypeInfo()
 void AreaSource::ciRegister(CommandRegister& cmdRegister)
 {
 	SdlLoader loader;
-	loader.setFunc(ciLoad);
+	loader.setFunc<AreaSource>(ciLoad);
 	cmdRegister.setLoader(loader);
 }
 
