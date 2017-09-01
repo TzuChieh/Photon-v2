@@ -15,7 +15,7 @@ NamedResourceStorage::NamedResourceStorage() :
 void NamedResourceStorage::addResource(
 	const SdlTypeInfo& typeInfo,
 	const std::string& resourceName, 
-	const std::shared_ptr<ISdlResource>& resource)
+	std::unique_ptr<ISdlResource> resource)
 {
 	if(resource == nullptr || resourceName.empty())
 	{
@@ -36,7 +36,7 @@ void NamedResourceStorage::addResource(
 		std::cerr << "warning: at NamedResourceStorage::addResource(), name <" << resourceName << "> duplicated, overwriting" << std::endl;
 	}
 
-	resourcesNameMap[resourceName] = resource;
+	resourcesNameMap[resourceName] = std::move(resource);
 }
 
 std::shared_ptr<ISdlResource> NamedResourceStorage::getResource(

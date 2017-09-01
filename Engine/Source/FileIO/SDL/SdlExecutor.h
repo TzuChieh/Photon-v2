@@ -115,6 +115,16 @@ public:
 		return m_targetTypeInfo.isValid() && !m_name.empty() && m_func != nullptr;
 	}
 
+	inline std::string toString() const
+	{
+		return std::string()
+			+ "SDL executor <"
+			+ m_name
+			+ "> for type <"
+			+ m_targetTypeInfo.toString()
+			+ ">";
+	}
+
 private:
 	SdlTypeInfo m_targetTypeInfo;
 	std::string m_name;

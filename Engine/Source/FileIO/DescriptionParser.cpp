@@ -136,9 +136,10 @@ void DescriptionParser::parseCoreCommand(const std::string& command, Description
 	const SdlTypeInfo              typeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
 	const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
 	const InputPacket              inputPacket(getValueClauses(clauseStrings), out_data.resources);
+	const SdlLoader&               loader = getCommandEntry(typeInfo).getLoader();
 
-	const auto& loadedResource = getCommandEntry(typeInfo).load(inputPacket);
-	out_data.resources.addResource(typeInfo, CORE_DATA_NAME(), loadedResource);
+	auto loadedResource = loader.load(inputPacket);
+	out_data.resources.addResource(typeInfo, CORE_DATA_NAME(), std::move(loadedResource));
 }
 
 void DescriptionParser::parseWorldCommand(const std::string& command, Description& out_data)
@@ -160,37 +161,38 @@ void DescriptionParser::parseWorldCommand(const std::string& command, Descriptio
 		const SdlTypeInfo              typeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
 		const std::vector<std::string> clauseStrings(tokens.begin() + 4, tokens.end());
 		const InputPacket              inputPacket(getValueClauses(clauseStrings), out_data.resources);
+		const SdlLoader&               loader = getCommandEntry(typeInfo).getLoader();
 
-		const auto& loadedResource = getCommandEntry(typeInfo).load(inputPacket);
-		out_data.resources.addResource(typeInfo, resourceName, loadedResource);
+		auto loadedResource = loader.load(inputPacket);
+		out_data.resources.addResource(typeInfo, resourceName, std::move(loadedResource));
 	}
 	else if(isExecuteCommand(tokens))
 	{
 		const std::string&             categoryName = tokens[1];
 		const std::string&             typeName     = tokens[2];
-		const std::string&             functionName = tokens[3];
+		const std::string&             executorName = tokens[3];
 		const std::string&             targetResourceName = getName(tokens[4]);
 		const SdlTypeInfo              ownerTypeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
 		const std::vector<std::string> clauseStrings(tokens.begin() + 5, tokens.end());
 		const InputPacket              inputPacket(getValueClauses(clauseStrings), out_data.resources);
 		
-		const DataTreatment targetResourceDT = targetResourceName.empty() ? 
-			DataTreatment::OPTIONAL() : 
+		const auto& commandEntry   = getCommandEntry(ownerTypeInfo);
+		const auto& executor       = commandEntry.getExecutor(executorName);
+		const auto& targetTypeInfo = executor.getTargetTypeInfo();
+
+		const DataTreatment targetResourceDT = targetResourceName.empty() ?
+			DataTreatment::OPTIONAL() :
 			DataTreatment::REQUIRED("cannot find specified target resource");
 
-		const auto& commandEntry = getCommandEntry(ownerTypeInfo);
-
-		//const SdlTypeInfo          targetTypeInfo = commandEntry
-
-		const auto& targetResource = out_data.resources.getResource(ownerTypeInfo, targetResourceName, targetResourceDT);
+		const auto& targetResource = out_data.resources.getResource(targetTypeInfo, 
+		                                                            targetResourceName, 
+		                                                            targetResourceDT);
 		
-		ExitStatus status = commandEntry.execute(targetResource, functionName, inputPacket);
+		//ExitStatus status = commandEntry.execute(targetResource, executorName, inputPacket);
+		const ExitStatus& status = executor.execute(targetResource, inputPacket);
 
-
-
-
-		/*const std::string& funcInfo = "type <" + typeInfo().toString() + ">'s " +
-			"function <" + functionName + ">";
+		const std::string& funcInfo = "type <" + ownerTypeInfo.toString() + ">'s executor: " +
+			executor.toString();
 
 		switch(status.state)
 		{
@@ -224,7 +226,7 @@ void DescriptionParser::parseWorldCommand(const std::string& command, Descriptio
 				std::cerr << status.message << std::endl;
 			}
 			break;
-		}*/
+		}
 	}
 	else
 	{

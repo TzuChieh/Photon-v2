@@ -46,7 +46,7 @@ void TCommandInterface<DerivedType>::registerInterface()
 	RegisterFuncType registerFunc = DerivedType::ciRegister;
 
 	CommandEntry cmdEntry;
-	cmdEntry.setTypeInfoFunc(typeInfoFunc);
+	cmdEntry.setTypeInfo(typeInfoFunc());
 
 	CommandRegister cmdRegister(cmdEntry);
 	registerFunc(cmdRegister);

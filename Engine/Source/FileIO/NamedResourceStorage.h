@@ -27,7 +27,7 @@ public:
 	void addResource(
 		const SdlTypeInfo& typeInfo,
 		const std::string& resourceName,
-		const std::shared_ptr<ISdlResource>& resource);
+		std::unique_ptr<ISdlResource> resource);
 
 	std::shared_ptr<ISdlResource> getResource(
 		const SdlTypeInfo& typeInfo,
