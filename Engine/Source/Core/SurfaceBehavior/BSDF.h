@@ -4,11 +4,11 @@
 #include "Math/TVector3.h"
 #include "Core/SurfaceBehavior/ESurfacePhenomenon.h"
 #include "Core/Quantity/SpectralStrength.h"
+#include "Core/Intersection.h"
 
 namespace ph
 {
 
-class Intersection;
 class Ray;
 class BsdfEvaluation;
 class BsdfSample;

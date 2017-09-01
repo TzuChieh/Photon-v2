@@ -1,5 +1,5 @@
 #include "Core/SurfaceBehavior/BSDF/IdealReflector.h"
-#include "Core/SurfaceBehavior/Utility/SchlickApproxDielectricFresnel.h"
+#include "Core/SurfaceBehavior/Utility/ExactDielectricFresnel.h"
 #include "Core/Intersection.h"
 
 #include <iostream>
@@ -10,7 +10,7 @@ namespace ph
 
 IdealReflector::IdealReflector() :
 	BSDF(),
-	m_fresnel(std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r))
+	m_fresnel(std::make_shared<ExactDielectricFresnel>(1.0_r, 1.5_r))
 {
 
 }

@@ -10,7 +10,7 @@
 //## film(hdr-rgb) [integer width 800] [integer height 1200] [string filter-name "mn"] [integer rect-x 100] [integer rect-y 200] [integer rect-w 270] [integer rect-h 200]
 
 //## sample-generator(uniform-random) [integer sample-amount 1]
-## sample-generator(stratified) [integer sample-amount 20][integer num-strata-2d-x 800][integer num-strata-2d-y 800]
+## sample-generator(stratified) [integer sample-amount 120][integer num-strata-2d-x 800][integer num-strata-2d-y 800]
 //## sampler(uniform-random) [integer samples 120]
 
 ## integrator(backward-path)
@@ -80,23 +80,27 @@
 -> material(abraded-translucent) @glassMaterial [vector3r albedo "0.0 0.0 0.0"] [real roughness 0.0] [vector3r f0 "0.04 0.04 0.04"]
    [real ior 1.5]
 
--> material(ideal-substance) @idealDielectricReflector
- [string type dielectric-reflector] [real ior-outer 1] [real ior-inner 1.5]
+-> material(ideal-substance) @idealDielectricReflector [string type dielectric-reflector] [real ior-outer 1] [real ior-inner 1.5]
+
+-> material(ideal-substance) @idealDielectricTransmitter [string type transmitter] [real ior-outer 1] [real ior-inner 1.5]
 
 -> material(ideal-substance) @idealMetallicReflector 
 [string type metallic-reflector] [real ior-outer 1] [vector3r f0-rgb "1 1 1"]
 
 // diffuse object
--> geometry(sphere) @diffuseGeometry [real radius 1.5]
--> actor(model) @diffuseModel [geometry geometry @diffuseGeometry] [material material @idealMetallicReflector]
--> actor(model) translate(@diffuseModel) [vector3r factor "-3 -3.5 0"]
+//-> geometry(sphere) @diffuseGeometry [real radius 1.5]
+//-> actor(model) @diffuseModel [geometry geometry @diffuseGeometry] [material material @idealDielectricTransmitter]
+//-> actor(model) translate(@diffuseModel) [vector3r factor "-3 -3.5 0"]
 
 // metal object
--> geometry(sphere) @metalGeometry [real radius 1.5]
--> actor(model) @metalModel [geometry geometry @metalGeometry] [material material @goldMaterial]
--> actor(model) translate(@metalModel) [vector3r factor "0 -3.5 0"]
+//-> geometry(sphere) @metalGeometry [real radius 1.5]
+//-> actor(model) @metalModel [geometry geometry @metalGeometry] [material material @goldMaterial]
+//-> actor(model) translate(@metalModel) [vector3r factor "0 -3.5 0"]
 
 // glass object
--> geometry(sphere) @glassGeometry [real radius 1.5]
--> actor(model) @glassModel [geometry geometry @glassGeometry] [material material @glassMaterial]
--> actor(model) translate(@glassModel) [vector3r factor "3 0 0"]
+//-> geometry(sphere) @glassGeometry [real radius 1.5]
+//-> actor(model) @glassModel [geometry geometry @glassGeometry] [material material @glassMaterial]
+//-> actor(model) translate(@glassModel) [vector3r factor "3 0 0"]
+
+-> geometry(sphere) @testGeometry [real radius 2.5]
+-> actor(model) @testModel [geometry geometry @testGeometry] [material material @idealDielectricTransmitter]
