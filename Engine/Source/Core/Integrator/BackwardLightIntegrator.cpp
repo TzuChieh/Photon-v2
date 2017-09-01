@@ -229,14 +229,16 @@ SdlTypeInfo BackwardLightIntegrator::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "backward-light");
 }
 
+void BackwardLightIntegrator::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc<BackwardLightIntegrator>(ciLoad);
+	cmdRegister.setLoader(loader);
+}
+
 std::unique_ptr<BackwardLightIntegrator> BackwardLightIntegrator::ciLoad(const InputPacket& packet)
 {
 	return std::make_unique<BackwardLightIntegrator>(packet);
-}
-
-ExitStatus BackwardLightIntegrator::ciExecute(const std::shared_ptr<BackwardLightIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

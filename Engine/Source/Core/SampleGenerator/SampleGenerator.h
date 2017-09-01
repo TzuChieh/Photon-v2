@@ -85,9 +85,7 @@ private:
 public:
 	//SampleGenerator(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
-	static ExitStatus ciExecute(const std::shared_ptr<SampleGenerator>& targetResource, 
-	                            const std::string& functionName, 
-	                            const InputPacket& packet);
+	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph

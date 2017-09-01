@@ -85,7 +85,7 @@ SdlTypeInfo GTriangleMesh::ciTypeInfo()
 void GTriangleMesh::ciRegister(CommandRegister& cmdRegister)
 {
 	SdlLoader loader;
-	loader.setFunc(ciLoad);
+	loader.setFunc<GTriangleMesh>(ciLoad);
 	cmdRegister.setLoader(loader);
 }
 

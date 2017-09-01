@@ -44,6 +44,16 @@ SdlTypeInfo CommandEntry::typeInfo() const
 	return m_typeInfo();
 }
 
+//SdlLoader CommandEntry::getLoader() const
+//{
+//
+//}
+//
+//SdlExecutor CommandEntry::getExecutor(const std::string& name) const
+//{
+//
+//}
+
 std::shared_ptr<ISdlResource> CommandEntry::load(const InputPacket& packet) const
 {
 	std::shared_ptr<ISdlResource> res = m_loader.load(packet);

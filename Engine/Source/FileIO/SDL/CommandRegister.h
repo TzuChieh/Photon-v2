@@ -4,6 +4,8 @@
 #include "FileIO/SDL/SdlExecutor.h"
 #include "FileIO/SDL/SdlLoader.h"
 
+#include <type_traits>
+
 namespace ph
 {
 
@@ -24,15 +26,6 @@ public:
 	inline void addExecutor(const SdlExecutor& executor)
 	{
 		m_entry.addExecutor(executor);
-	}
-
-	template<typename OwnerType, typename TargetType>
-	inline void reintroduce()
-	{
-		CommandEntry    collectorEntry;
-		CommandRegister collectorRegister(collectorEntry);
-
-		TargetType::ciRegister(collectorRegister);
 	}
 
 private:

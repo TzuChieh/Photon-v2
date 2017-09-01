@@ -21,8 +21,8 @@ private:
 public:
 	BackwardLightIntegrator(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
+	static void ciRegister(CommandRegister& cmdRegister);
 	static std::unique_ptr<BackwardLightIntegrator> ciLoad(const InputPacket& packet);
-	static ExitStatus ciExecute(const std::shared_ptr<BackwardLightIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 
 }// end namespace ph

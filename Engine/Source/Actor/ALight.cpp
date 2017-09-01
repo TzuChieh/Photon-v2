@@ -191,7 +191,20 @@ void ALight::ciRegister(CommandRegister& cmdRegister)
 	loader.setFunc<ALight>(ciLoad);
 	cmdRegister.setLoader(loader);
 
-	PhysicalActor::ciRegisterExecutors(cmdRegister);
+	SdlExecutor translateSE;
+	translateSE.setName("translate");
+	translateSE.setFunc<ALight>(ciTranslate);
+	cmdRegister.addExecutor(translateSE);
+
+	SdlExecutor rotateSE;
+	rotateSE.setName("rotate");
+	rotateSE.setFunc<ALight>(ciRotate);
+	cmdRegister.addExecutor(rotateSE);
+
+	SdlExecutor scaleSE;
+	scaleSE.setName("scale");
+	scaleSE.setFunc<ALight>(ciScale);
+	cmdRegister.addExecutor(scaleSE);
 }
 
 std::unique_ptr<ALight> ALight::ciLoad(const InputPacket& packet)

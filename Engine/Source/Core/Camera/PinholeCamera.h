@@ -20,8 +20,8 @@ public:
 public:
 	PinholeCamera(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
+	static void ciRegister(CommandRegister& cmdRegister);
 	static std::unique_ptr<PinholeCamera> ciLoad(const InputPacket& packet);
-	static ExitStatus ciExecute(const std::shared_ptr<PinholeCamera>& targetResource, const std::string& functionName, const InputPacket& packet);
 };
 
 }// end namespace ph

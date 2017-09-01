@@ -25,6 +25,9 @@ public:
 	CommandEntry& addExecutor(const SdlExecutor& executor);
 
 	SdlTypeInfo typeInfo() const;
+	/*SdlLoader   getLoader() const;
+	SdlExecutor getExecutor(const std::string& name) const;*/
+
 	std::shared_ptr<ISdlResource> load(const InputPacket& packet) const;
 	ExitStatus execute(const std::shared_ptr<ISdlResource>& targetResource, 
 	                   const std::string& functionName, 

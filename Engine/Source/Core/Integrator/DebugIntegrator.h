@@ -17,10 +17,8 @@ public:
 public:
 	DebugIntegrator(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
+	static void ciRegister(CommandRegister& cmdRegister);
 	static std::unique_ptr<DebugIntegrator> ciLoad(const InputPacket& packet);
-	static ExitStatus ciExecute(const std::shared_ptr<DebugIntegrator>& targetResource, 
-	                            const std::string& functionName, 
-	                            const InputPacket& packet);
 };
 
 }// end namespace ph

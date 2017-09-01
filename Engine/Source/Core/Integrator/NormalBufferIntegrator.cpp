@@ -50,14 +50,16 @@ SdlTypeInfo NormalBufferIntegrator::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "surface-normal");
 }
 
+void NormalBufferIntegrator::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc<NormalBufferIntegrator>(ciLoad);
+	cmdRegister.setLoader(loader);
+}
+
 std::unique_ptr<NormalBufferIntegrator> NormalBufferIntegrator::ciLoad(const InputPacket& packet)
 {
 	return std::make_unique<NormalBufferIntegrator>(packet);
-}
-
-ExitStatus NormalBufferIntegrator::ciExecute(const std::shared_ptr<NormalBufferIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

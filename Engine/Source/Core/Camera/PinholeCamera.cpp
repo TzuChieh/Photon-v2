@@ -86,14 +86,16 @@ SdlTypeInfo PinholeCamera::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_CAMERA, "pinhole");
 }
 
+void PinholeCamera::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc<PinholeCamera>(ciLoad);
+	cmdRegister.setLoader(loader);
+}
+
 std::unique_ptr<PinholeCamera> PinholeCamera::ciLoad(const InputPacket& packet)
 {
 	return std::make_unique<PinholeCamera>(packet);
-}
-
-ExitStatus PinholeCamera::ciExecute(const std::shared_ptr<PinholeCamera>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

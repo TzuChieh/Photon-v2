@@ -173,10 +173,23 @@ SdlTypeInfo AModel::ciTypeInfo()
 void AModel::ciRegister(CommandRegister& cmdRegister)
 {
 	SdlLoader loader;
-	loader.setFunc(ciLoad);
+	loader.setFunc<AModel>(ciLoad);
 	cmdRegister.setLoader(loader);
 
-	PhysicalActor::ciRegisterExecutors(cmdRegister);
+	SdlExecutor translateSE;
+	translateSE.setName("translate");
+	translateSE.setFunc<AModel>(ciTranslate);
+	cmdRegister.addExecutor(translateSE);
+
+	SdlExecutor rotateSE;
+	rotateSE.setName("rotate");
+	rotateSE.setFunc<AModel>(ciRotate);
+	cmdRegister.addExecutor(rotateSE);
+
+	SdlExecutor scaleSE;
+	scaleSE.setName("scale");
+	scaleSE.setFunc<AModel>(ciScale);
+	cmdRegister.addExecutor(scaleSE);
 }
 
 std::unique_ptr<AModel> AModel::ciLoad(const InputPacket& packet)

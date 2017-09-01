@@ -62,9 +62,6 @@ SdlTypeInfo Camera::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_CAMERA, "camera");
 }
 
-ExitStatus Camera::ciExecute(const std::shared_ptr<Camera>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
-}
+void Camera::ciRegister(CommandRegister& cmdRegister) {}
 
 }// end namespace ph

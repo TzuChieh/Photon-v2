@@ -69,14 +69,16 @@ SdlTypeInfo ThinLensCamera::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_CAMERA, "thin-lens");
 }
 
+void ThinLensCamera::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc<ThinLensCamera>(ciLoad);
+	cmdRegister.setLoader(loader);
+}
+
 std::unique_ptr<ThinLensCamera> ThinLensCamera::ciLoad(const InputPacket& packet)
 {
 	return std::make_unique<ThinLensCamera>(packet);
-}
-
-ExitStatus ThinLensCamera::ciExecute(const std::shared_ptr<ThinLensCamera>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

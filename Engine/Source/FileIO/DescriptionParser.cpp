@@ -170,15 +170,20 @@ void DescriptionParser::parseWorldCommand(const std::string& command, Descriptio
 		const std::string&             typeName     = tokens[2];
 		const std::string&             functionName = tokens[3];
 		const std::string&             targetResourceName = getName(tokens[4]);
-		const SdlTypeInfo              typeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
+		const SdlTypeInfo              ownerTypeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
 		const std::vector<std::string> clauseStrings(tokens.begin() + 5, tokens.end());
 		const InputPacket              inputPacket(getValueClauses(clauseStrings), out_data.resources);
-
+		
 		const DataTreatment targetResourceDT = targetResourceName.empty() ? 
-			DataTreatment::OPTIONAL() : DataTreatment::REQUIRED("cannot find specified target resource");
+			DataTreatment::OPTIONAL() : 
+			DataTreatment::REQUIRED("cannot find specified target resource");
 
-		const auto& targetResource = out_data.resources.getResource(typeInfo, targetResourceName, targetResourceDT);
-		const auto& commandEntry = getCommandEntry(typeInfo);
+		const auto& commandEntry = getCommandEntry(ownerTypeInfo);
+
+		//const SdlTypeInfo          targetTypeInfo = commandEntry
+
+		const auto& targetResource = out_data.resources.getResource(ownerTypeInfo, targetResourceName, targetResourceDT);
+		
 		ExitStatus status = commandEntry.execute(targetResource, functionName, inputPacket);
 
 

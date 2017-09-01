@@ -25,10 +25,8 @@ private:
 // command interface
 public:
 	static SdlTypeInfo ciTypeInfo();
+	static void ciRegister(CommandRegister& cmdRegister);
 	static std::unique_ptr<SGStratified> ciLoad(const InputPacket& packet);
-	static ExitStatus ciExecute(const std::shared_ptr<SGStratified>& targetResource,
-	                            const std::string& functionName, 
-	                            const InputPacket& packet);
 };
 
 }// end namespace ph

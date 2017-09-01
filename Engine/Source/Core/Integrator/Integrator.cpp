@@ -20,9 +20,6 @@ SdlTypeInfo Integrator::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "integrator");
 }
 
-ExitStatus Integrator::ciExecute(const std::shared_ptr<Integrator>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
-}
+void Integrator::ciRegister(CommandRegister& cmdRegister) {}
 
 }// end namespace ph

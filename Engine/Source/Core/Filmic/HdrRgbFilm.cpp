@@ -164,6 +164,13 @@ SdlTypeInfo HdrRgbFilm::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_FILM, "hdr-rgb");
 }
 
+void HdrRgbFilm::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc<HdrRgbFilm>(ciLoad);
+	cmdRegister.setLoader(loader);
+}
+
 std::unique_ptr<HdrRgbFilm> HdrRgbFilm::ciLoad(const InputPacket& packet)
 {
 	const integer     filmWidth  = packet.getInteger("width",  0, DataTreatment::REQUIRED());
@@ -196,13 +203,6 @@ std::unique_ptr<HdrRgbFilm> HdrRgbFilm::ciLoad(const InputPacket& packet)
 	const TAABB2D<int64> effectWindowPx({rectX, rectY}, 
 	                                    {rectX + rectW, rectY + rectH});
 	return std::make_unique<HdrRgbFilm>(filmWidth, filmHeight, effectWindowPx, sampleFilter);
-}
-
-ExitStatus HdrRgbFilm::ciExecute(const std::shared_ptr<HdrRgbFilm>& targetResource,
-                                 const std::string& functionName, 
-                                 const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace

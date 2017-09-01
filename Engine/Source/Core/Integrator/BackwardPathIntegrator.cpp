@@ -172,14 +172,16 @@ SdlTypeInfo BackwardPathIntegrator::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "backward-path");
 }
 
+void BackwardPathIntegrator::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc<BackwardPathIntegrator>(ciLoad);
+	cmdRegister.setLoader(loader);
+}
+
 std::unique_ptr<BackwardPathIntegrator> BackwardPathIntegrator::ciLoad(const InputPacket& packet)
 {
 	return std::make_unique<BackwardPathIntegrator>(packet);
-}
-
-ExitStatus BackwardPathIntegrator::ciExecute(const std::shared_ptr<BackwardPathIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

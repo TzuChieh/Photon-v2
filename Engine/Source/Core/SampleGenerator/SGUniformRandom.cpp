@@ -48,19 +48,19 @@ SdlTypeInfo SGUniformRandom::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_SAMPLE_GENERATOR, "uniform-random");
 }
 
+void SGUniformRandom::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc<SGUniformRandom>(ciLoad);
+	cmdRegister.setLoader(loader);
+}
+
 std::unique_ptr<SGUniformRandom> SGUniformRandom::ciLoad(const InputPacket& packet)
 {
 	const integer numSamples = packet.getInteger("sample-amount", 0, DataTreatment::REQUIRED());
 
 	// HACK: casting
 	return std::make_unique<SGUniformRandom>(static_cast<std::size_t>(numSamples));
-}
-
-ExitStatus SGUniformRandom::ciExecute(const std::shared_ptr<SGUniformRandom>& targetResource, 
-                                      const std::string& functionName, 
-                                      const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

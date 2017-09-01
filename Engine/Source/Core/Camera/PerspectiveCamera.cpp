@@ -77,9 +77,6 @@ SdlTypeInfo PerspectiveCamera::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_CAMERA, "perspective");
 }
 
-ExitStatus PerspectiveCamera::ciExecute(const std::shared_ptr<PerspectiveCamera>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
-}
+void PerspectiveCamera::ciRegister(CommandRegister& cmdRegister) {}
 
 }// end namespace ph

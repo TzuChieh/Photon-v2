@@ -254,11 +254,6 @@ SdlTypeInfo SampleGenerator::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_SAMPLE_GENERATOR, "sample-generator");
 }
 
-ExitStatus SampleGenerator::ciExecute(const std::shared_ptr<SampleGenerator>& targetResource, 
-                                      const std::string& functionName, 
-                                      const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
-}
+void SampleGenerator::ciRegister(CommandRegister& cmdRegister) {}
 
 }// end namespace ph

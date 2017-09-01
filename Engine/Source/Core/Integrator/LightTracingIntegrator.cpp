@@ -218,14 +218,16 @@ SdlTypeInfo LightTracingIntegrator::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "light-tracing");
 }
 
+void LightTracingIntegrator::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc<LightTracingIntegrator>(ciLoad);
+	cmdRegister.setLoader(loader);
+}
+
 std::unique_ptr<LightTracingIntegrator> LightTracingIntegrator::ciLoad(const InputPacket& packet)
 {
 	return std::make_unique<LightTracingIntegrator>(packet);
-}
-
-ExitStatus LightTracingIntegrator::ciExecute(const std::shared_ptr<LightTracingIntegrator>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

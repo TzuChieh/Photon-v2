@@ -86,6 +86,13 @@ SdlTypeInfo SGStratified::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_SAMPLE_GENERATOR, "stratified");
 }
 
+void SGStratified::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc<SGStratified>(ciLoad);
+	cmdRegister.setLoader(loader);
+}
+
 std::unique_ptr<SGStratified> SGStratified::ciLoad(const InputPacket& packet)
 {
 	const integer numSamples   = packet.getInteger("sample-amount",   0, DataTreatment::REQUIRED());
@@ -96,13 +103,6 @@ std::unique_ptr<SGStratified> SGStratified::ciLoad(const InputPacket& packet)
 	return std::make_unique<SGStratified>(static_cast<std::size_t>(numSamples), 
 		static_cast<std::size_t>(numStrata2dX),
 		static_cast<std::size_t>(numStrata2dY));
-}
-
-ExitStatus SGStratified::ciExecute(const std::shared_ptr<SGStratified>& targetResource,
-                                   const std::string& functionName, 
-                                   const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
 }
 
 }// end namespace ph

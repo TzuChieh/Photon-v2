@@ -66,9 +66,6 @@ SdlTypeInfo Film::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_FILM, "film");
 }
 
-ExitStatus Film::ciExecute(const std::shared_ptr<Film>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
-}
+void Film::ciRegister(CommandRegister& cmdRegister) {}
 
 }// end namespace ph

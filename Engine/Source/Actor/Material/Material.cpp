@@ -14,9 +14,6 @@ SdlTypeInfo Material::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "material");
 }
 
-ExitStatus Material::ciExecute(const std::shared_ptr<Material>& targetResource, const std::string& functionName, const InputPacket& packet)
-{
-	return ExitStatus::UNSUPPORTED();
-}
+void Material::ciRegister(CommandRegister& cmdRegister) {}
 
 }// end namespace ph
