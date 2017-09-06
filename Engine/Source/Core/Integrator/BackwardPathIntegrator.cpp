@@ -6,7 +6,7 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Core/SurfaceBehavior/BSDF.h"
+#include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Math/Math.h"
 #include "Math/Color.h"
 #include "Math/Random.h"
@@ -91,7 +91,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 
 		BsdfSample bsdfSample;
 		bsdfSample.inputs.set(intersection, tracingRay.getDirection().mul(-1.0f));
-		hitSurfaceBehavior.getBsdf()->sample(bsdfSample);
+		hitSurfaceBehavior.getSurfaceOptics()->genBsdfSample(bsdfSample);
 
 		const Vector3R N = intersection.getHitSmoothNormal();
 		const Vector3R L = bsdfSample.outputs.L;

@@ -1,4 +1,4 @@
-#include "Core/SurfaceBehavior/BSDF/IdealReflector.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/IdealReflector.h"
 #include "Core/SurfaceBehavior/Utility/ExactDielectricFresnel.h"
 #include "Core/Intersection.h"
 
@@ -9,7 +9,7 @@ namespace ph
 {
 
 IdealReflector::IdealReflector() :
-	BSDF(),
+	SurfaceOptics(),
 	m_fresnel(std::make_shared<ExactDielectricFresnel>(1.0_r, 1.5_r))
 {
 
@@ -17,7 +17,7 @@ IdealReflector::IdealReflector() :
 
 IdealReflector::~IdealReflector() = default;
 
-void IdealReflector::evaluate(
+void IdealReflector::evalBsdf(
 	const Intersection& X, const Vector3R& L, const Vector3R& V,
 	SpectralStrength* const out_bsdf,
 	ESurfacePhenomenon* const out_type) const
@@ -26,7 +26,7 @@ void IdealReflector::evaluate(
 	*out_type = ESurfacePhenomenon::REFLECTION;
 }
 
-void IdealReflector::genSample(
+void IdealReflector::genBsdfSample(
 	const Intersection& X, const Vector3R& V,
 	Vector3R* const out_L,
 	SpectralStrength* const out_pdfAppliedBsdf,
@@ -42,7 +42,7 @@ void IdealReflector::genSample(
 	*out_type = ESurfacePhenomenon::REFLECTION;
 }
 
-void IdealReflector::calcSampleDirPdfW(
+void IdealReflector::calcBsdfSamplePdf(
 	const Intersection& X, const Vector3R& L, const Vector3R& V,
 	const ESurfacePhenomenon& type,
 	real* const out_pdfW) const

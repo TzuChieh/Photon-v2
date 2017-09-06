@@ -6,28 +6,18 @@ namespace ph
 {
 
 SurfaceBehavior::SurfaceBehavior() : 
-	m_bsdf(nullptr), m_emitter(nullptr)
+	m_surfaceOptics(nullptr), m_emitter(nullptr)
 {
 
 }
 
-void SurfaceBehavior::setBsdf(std::unique_ptr<BSDF> bsdf)
+void SurfaceBehavior::setSurfaceOptics(std::unique_ptr<SurfaceOptics> optics)
 {
-	if(!bsdf)
-	{
-		std::cerr << "warning: at SurfaceBehavior::setBsdf(), input is null" << std::endl;
-	}
-
-	m_bsdf = std::move(bsdf);
+	m_surfaceOptics = std::move(optics);
 }
 
 void SurfaceBehavior::setEmitter(const Emitter* emitter)
 {
-	if(!emitter)
-	{
-		std::cerr << "warning: at SurfaceBehavior::setEmitter(), input is null" << std::endl;
-	}
-
 	m_emitter = emitter;
 }
 

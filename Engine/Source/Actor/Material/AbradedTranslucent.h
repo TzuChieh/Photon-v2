@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Actor/Material/Material.h"
-#include "Core/SurfaceBehavior/BSDF/TranslucentMicrofacet.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/TranslucentMicrofacet.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "FileIO/SDL/TCommandInterface.h"
@@ -22,7 +22,7 @@ public:
 	void setRoughness(const real roughness);
 
 private:
-	TranslucentMicrofacet m_bsdf;
+	TranslucentMicrofacet m_optics;
 
 	static real roughnessToAlpha(const real roughness);
 

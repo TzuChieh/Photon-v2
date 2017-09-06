@@ -14,7 +14,7 @@ namespace ph
 
 AbradedTranslucent::AbradedTranslucent() :
 	Material(),
-	m_bsdf()
+	m_optics()
 {
 	
 }
@@ -23,7 +23,7 @@ AbradedTranslucent::~AbradedTranslucent() = default;
 
 void AbradedTranslucent::populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const
 {
-	out_surfaceBehavior->setBsdf(std::make_unique<TranslucentMicrofacet>(m_bsdf));
+	out_surfaceBehavior->setSurfaceOptics(std::make_unique<TranslucentMicrofacet>(m_optics));
 }
 
 //void AbradedTranslucent::setAlbedo(const Vector3R& albedo)
@@ -44,13 +44,13 @@ void AbradedTranslucent::populateSurfaceBehavior(SurfaceBehavior* const out_surf
 void AbradedTranslucent::setIor(const real iorOuter, const real iorInner)
 {
 	//m_bsdf.setFrenelEffect(std::make_shared<SchlickApproxDielectricFresnel>(iorOuter, iorInner));
-	m_bsdf.setFrenelEffect(std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner));
+	m_optics.setFrenelEffect(std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner));
 }
 
 void AbradedTranslucent::setRoughness(const real roughness)
 {
 	const real alpha = roughnessToAlpha(roughness);
-	m_bsdf.setMicrofacet(std::make_shared<TrowbridgeReitz>(alpha));
+	m_optics.setMicrofacet(std::make_shared<TrowbridgeReitz>(alpha));
 }
 
 // This mapping is what used in PBRT-v3. 

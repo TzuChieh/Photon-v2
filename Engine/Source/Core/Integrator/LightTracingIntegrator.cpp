@@ -5,7 +5,7 @@
 #include "Core/Intersection.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Core/SurfaceBehavior/BSDF.h"
+#include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Math.h"

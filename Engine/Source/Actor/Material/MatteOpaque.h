@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Actor/Material/Material.h"
-#include "Core/SurfaceBehavior/BSDF/LambertianDiffuse.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
 #include "Math/TVector3.h"
 #include "Actor/Texture/Texture.h"
 #include "FileIO/SDL/TCommandInterface.h"
@@ -24,7 +24,7 @@ public:
 	void setAlbedo(const std::shared_ptr<Texture>& albedo);
 
 private:
-	LambertianDiffuse m_bsdf;
+	LambertianDiffuse m_optics;
 
 // command interface
 public:

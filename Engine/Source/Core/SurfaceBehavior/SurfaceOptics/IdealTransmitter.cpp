@@ -1,11 +1,11 @@
-#include "Core/SurfaceBehavior/BSDF/IdealTransmitter.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/IdealTransmitter.h"
 #include "Core/SurfaceBehavior/Utility/ExactDielectricFresnel.h"
 
 namespace ph
 {
 
 IdealTransmitter::IdealTransmitter() : 
-	BSDF(),
+	SurfaceOptics(),
 	m_fresnel(std::make_shared<ExactDielectricFresnel>(1.0_r, 1.5_r))
 {
 
@@ -13,7 +13,7 @@ IdealTransmitter::IdealTransmitter() :
 
 IdealTransmitter::~IdealTransmitter() = default;
 
-void IdealTransmitter::evaluate(
+void IdealTransmitter::evalBsdf(
 	const Intersection& X, const Vector3R& L, const Vector3R& V,
 	SpectralStrength* const out_bsdf,
 	ESurfacePhenomenon* const out_type) const
@@ -22,7 +22,7 @@ void IdealTransmitter::evaluate(
 	*out_type = ESurfacePhenomenon::TRANSMISSION;
 }
 
-void IdealTransmitter::genSample(
+void IdealTransmitter::genBsdfSample(
 	const Intersection& X, const Vector3R& V,
 	Vector3R* const out_L,
 	SpectralStrength* const out_pdfAppliedBsdf,
@@ -54,7 +54,7 @@ void IdealTransmitter::genSample(
 	out_pdfAppliedBsdf->set(F.mul(iorRatio2 / cosI));
 }
 
-void IdealTransmitter::calcSampleDirPdfW(
+void IdealTransmitter::calcBsdfSamplePdf(
 	const Intersection& X, const Vector3R& L, const Vector3R& V,
 	const ESurfacePhenomenon& type,
 	real* const out_pdfW) const

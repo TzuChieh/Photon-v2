@@ -7,7 +7,6 @@ namespace ph
 {
 
 class SurfaceBehavior;
-class BSDFcos;
 class InputPacket;
 
 class Material : public TCommandInterface<Material>

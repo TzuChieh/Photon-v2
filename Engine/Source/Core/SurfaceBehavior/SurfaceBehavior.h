@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
-#include "Core/SurfaceBehavior/BSDF.h"
+#include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/Emitter/Emitter.h"
 
 #include <memory>
@@ -15,12 +15,12 @@ class SurfaceBehavior final
 public:
 	SurfaceBehavior();
 
-	void setBsdf(std::unique_ptr<BSDF> bsdf);
+	void setSurfaceOptics(std::unique_ptr<SurfaceOptics> optics);
 	void setEmitter(const Emitter* emitter);
 
-	inline const BSDF* getBsdf() const
+	inline const SurfaceOptics* getSurfaceOptics() const
 	{
-		return m_bsdf.get();
+		return m_surfaceOptics.get();
 	}
 
 	inline const Emitter* getEmitter() const
@@ -29,7 +29,7 @@ public:
 	}
 
 private:
-	std::unique_ptr<BSDF> m_bsdf;
+	std::unique_ptr<SurfaceOptics> m_surfaceOptics;
 	const Emitter* m_emitter;
 };
 

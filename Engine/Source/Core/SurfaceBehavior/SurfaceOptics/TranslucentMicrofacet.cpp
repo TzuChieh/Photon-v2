@@ -1,11 +1,11 @@
-#include "Core/SurfaceBehavior/BSDF/TranslucentMicrofacet.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/TranslucentMicrofacet.h"
 #include "Actor/Texture/ConstantTexture.h"
 #include "Core/Ray.h"
 #include "Math/TVector3.h"
 #include "Math/Random.h"
 #include "Math/constant.h"
 #include "Core/Intersection.h"
-#include "Core/SurfaceBehavior/BSDF/random_sample.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/random_sample.h"
 #include "Core/SurfaceBehavior/Utility/TrowbridgeReitz.h"
 #include "Math/Math.h"
 #include "Core/SurfaceBehavior/Utility/SchlickApproxDielectricFresnel.h"
@@ -17,6 +17,7 @@ namespace ph
 {
 
 TranslucentMicrofacet::TranslucentMicrofacet() :
+	SurfaceOptics(),
 	m_fresnel   (std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r)),
 	m_microfacet(std::make_shared<TrowbridgeReitz>(0.5_r))
 {
@@ -25,7 +26,7 @@ TranslucentMicrofacet::TranslucentMicrofacet() :
 
 TranslucentMicrofacet::~TranslucentMicrofacet() = default;
 
-void TranslucentMicrofacet::evaluate(const Intersection& X, const Vector3R& L, const Vector3R& V,
+void TranslucentMicrofacet::evalBsdf(const Intersection& X, const Vector3R& L, const Vector3R& V,
                                      SpectralStrength* const out_bsdf, ESurfacePhenomenon* const out_type) const
 {
 	const Vector3R& N = X.getHitSmoothNormal();
@@ -90,7 +91,7 @@ void TranslucentMicrofacet::evaluate(const Intersection& X, const Vector3R& L, c
 	}
 }
 
-void TranslucentMicrofacet::genSample(const Intersection& X, const Vector3R& V,
+void TranslucentMicrofacet::genBsdfSample(const Intersection& X, const Vector3R& V,
                                       Vector3R* const out_L, SpectralStrength* const out_pdfAppliedBsdf, ESurfacePhenomenon* const out_type) const
 {
 	// Cook-Torrance microfacet specular BRDF for translucent surface is:
@@ -159,7 +160,7 @@ void TranslucentMicrofacet::genSample(const Intersection& X, const Vector3R& V,
 	out_pdfAppliedBsdf->set(F.mul(G * dotTerms));
 }
 
-void TranslucentMicrofacet::calcSampleDirPdfW(const Intersection& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
+void TranslucentMicrofacet::calcBsdfSamplePdf(const Intersection& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
                                               real* const out_pdfW) const
 {
 	const Vector3R& N = X.getHitSmoothNormal();

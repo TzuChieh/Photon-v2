@@ -14,28 +14,28 @@ class BsdfEvaluation;
 class BsdfSample;
 class BsdfPdfQuery;
 
-class BSDF
+class SurfaceOptics
 {
 public:
-	virtual ~BSDF() = 0;
+	virtual ~SurfaceOptics() = 0;
 
-	void evaluate(BsdfEvaluation& eval) const;
-	void sample(BsdfSample& sample) const;
-	void calcPdf(BsdfPdfQuery& pdfQuery) const;
+	void evalBsdf(BsdfEvaluation& eval) const;
+	void genBsdfSample(BsdfSample& sample) const;
+	void calcBsdfSamplePdf(BsdfPdfQuery& pdfQuery) const;
 
 private:
-	virtual void evaluate(
+	virtual void evalBsdf(
 		const Intersection& X, const Vector3R& L, const Vector3R& V, 
 		SpectralStrength* out_bsdf, 
 		ESurfacePhenomenon* out_type) const = 0;
 
-	virtual void genSample(
+	virtual void genBsdfSample(
 		const Intersection& X, const Vector3R& V, 
 		Vector3R* out_L, 
 		SpectralStrength* out_pdfAppliedBsdf, 
 		ESurfacePhenomenon* out_type) const = 0;
 
-	virtual void calcSampleDirPdfW(
+	virtual void calcBsdfSamplePdf(
 		const Intersection& X, const Vector3R& L, const Vector3R& V, 
 		const ESurfacePhenomenon& type, 
 		real* out_pdfW) const = 0;

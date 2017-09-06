@@ -14,7 +14,7 @@ namespace ph
 
 AbradedOpaque::AbradedOpaque() : 
 	Material(),
-	m_bsdf()
+	m_optics()
 {
 	
 }
@@ -23,7 +23,7 @@ AbradedOpaque::~AbradedOpaque() = default;
 
 void AbradedOpaque::populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const
 {
-	out_surfaceBehavior->setBsdf(std::make_unique<OpaqueMicrofacet>(m_bsdf));
+	out_surfaceBehavior->setSurfaceOptics(std::make_unique<OpaqueMicrofacet>(m_optics));
 }
 
 void AbradedOpaque::setAlbedo(const Vector3R& albedo)
@@ -35,7 +35,7 @@ void AbradedOpaque::setAlbedo(const Vector3R& albedo)
 void AbradedOpaque::setRoughness(const real roughness)
 {
 	const real alpha = roughnessToAlpha(roughness);
-	m_bsdf.setMicrofacet(std::make_shared<TrowbridgeReitz>(alpha));
+	m_optics.setMicrofacet(std::make_shared<TrowbridgeReitz>(alpha));
 }
 
 void AbradedOpaque::setF0(const Vector3R& f0)
@@ -47,7 +47,7 @@ void AbradedOpaque::setF0(const real r, const real g, const real b)
 {
 	SpectralStrength f0;
 	f0.setRgb(Vector3R(r, g, b));
-	m_bsdf.setFresnelEffect(std::make_shared<SchlickApproxConductorDielectricFresnel>(f0));
+	m_optics.setFresnelEffect(std::make_shared<SchlickApproxConductorDielectricFresnel>(f0));
 }
 
 // This mapping is what used in PBRT-v3. 

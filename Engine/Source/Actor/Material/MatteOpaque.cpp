@@ -7,7 +7,7 @@ namespace ph
 
 MatteOpaque::MatteOpaque() : 
 	Material(), 
-	m_bsdf()
+	m_optics()
 {
 	
 }
@@ -16,7 +16,7 @@ MatteOpaque::~MatteOpaque() = default;
 
 void MatteOpaque::populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const
 {
-	out_surfaceBehavior->setBsdf(std::make_unique<LambertianDiffuse>(m_bsdf));
+	out_surfaceBehavior->setSurfaceOptics(std::make_unique<LambertianDiffuse>(m_optics));
 }
 
 void MatteOpaque::setAlbedo(const Vector3R& albedo)
@@ -31,7 +31,7 @@ void MatteOpaque::setAlbedo(const real r, const real g, const real b)
 
 void MatteOpaque::setAlbedo(const std::shared_ptr<Texture>& albedo)
 {
-	m_bsdf.setAlbedo(albedo);
+	m_optics.setAlbedo(albedo);
 }
 
 // command interface

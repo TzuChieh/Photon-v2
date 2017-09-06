@@ -37,7 +37,6 @@ public:
 protected:
 	std::shared_ptr<TextureMapper> m_textureMapper;
 
-
 // command interface
 public:
 	static SdlTypeInfo ciTypeInfo();

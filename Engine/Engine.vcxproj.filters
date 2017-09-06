@@ -222,21 +222,6 @@
     <ClCompile Include="Source\PostProcess\Frame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\BSDF.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\LambertianDiffuse.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\OpaqueMicrofacet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\TranslucentMicrofacet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\random_sample.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Core\SurfaceBehavior\BsdfSample.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -405,13 +390,28 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxConductorDielectricFresnel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\IdealReflector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Actor\Material\IdealSubstance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\BSDF\IdealTransmitter.cpp">
+    <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\IdealReflector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\IdealTransmitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\LambertianDiffuse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\OpaqueMicrofacet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\random_sample.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\TranslucentMicrofacet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -692,21 +692,6 @@
     <ClInclude Include="Source\PostProcess\Frame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\BSDF.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\LambertianDiffuse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\OpaqueMicrofacet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\TranslucentMicrofacet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\random_sample.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\SurfaceBehavior\BsdfEvaluation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -961,13 +946,7 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxConductorDielectricFresnel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\IdealReflector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Actor\Material\IdealSubstance.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\BSDF\IdealTransmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\FileIO\SDL\CommandRegister.h">
@@ -977,6 +956,27 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\FileIO\SDL\SdlLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\IdealReflector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\IdealTransmitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\LambertianDiffuse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\OpaqueMicrofacet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\random_sample.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\TranslucentMicrofacet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

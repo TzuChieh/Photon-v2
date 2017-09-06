@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Actor/Material/Material.h"
-#include "Core/SurfaceBehavior/BSDF.h"
+#include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/Quantity/SpectralStrength.h"
 
 #include <memory>
@@ -20,7 +20,7 @@ public:
 	virtual void populateSurfaceBehavior(SurfaceBehavior* out_surfaceBehavior) const override;
 
 private:
-	std::function<std::unique_ptr<BSDF>()> m_bsdfGenerator;
+	std::function<std::unique_ptr<SurfaceOptics>()> m_opticsGenerator;
 
 // command interface
 public:
