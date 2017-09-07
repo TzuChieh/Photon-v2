@@ -1,9 +1,10 @@
-#include "World/Intersector/BruteForceIntersector.h"
+#include "Core/Intersectable/BruteForceIntersector.h"
 #include "Common/primitive_type.h"
 #include "Core/Intersection.h"
 #include "Core/Ray.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Core/CookedActorStorage.h"
+#include "Core/Bound/AABB3D.h"
 
 #include <limits>
 
@@ -55,6 +56,23 @@ bool BruteForceIntersector::isIntersecting(const Ray& ray) const
 	}
 
 	return false;
+}
+
+void BruteForceIntersector::calcAABB(AABB3D* const out_aabb) const
+{
+	if(m_intersectables.empty())
+	{
+		*out_aabb = AABB3D();
+		return;
+	}
+
+	m_intersectables.front()->calcAABB(out_aabb);
+	for(auto intersectable : m_intersectables)
+	{
+		AABB3D aabb;
+		intersectable->calcAABB(&aabb);
+		out_aabb->unionWith(aabb);
+	}
 }
 
 }// end namespace ph

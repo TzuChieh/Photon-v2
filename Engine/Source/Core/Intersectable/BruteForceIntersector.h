@@ -1,6 +1,6 @@
 #pragma once
 
-#include "World/Intersector/Intersector.h"
+#include "Core/Intersectable/Intersector.h"
 
 #include <vector>
 #include <memory>
@@ -16,8 +16,9 @@ public:
 	virtual ~BruteForceIntersector() override;
 
 	virtual void update(const CookedActorStorage& cookedActors) override;
-	virtual bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const override;
+	virtual bool isIntersecting(const Ray& ray, Intersection* out_intersection) const override;
 	virtual bool isIntersecting(const Ray& ray) const override;
+	virtual void calcAABB(AABB3D* out_aabb) const override;
 
 private:
 	std::vector<const Intersectable*> m_intersectables;

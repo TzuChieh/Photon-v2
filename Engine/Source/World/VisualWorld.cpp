@@ -4,10 +4,10 @@
 #include "Core/Ray.h"
 #include "Actor/Actor.h"
 #include "Core/CookedActor.h"
-#include "World/Intersector/BruteForceIntersector.h"
-#include "World/Intersector/Kdtree/KdtreeIntersector.h"
+#include "Core/Intersectable/BruteForceIntersector.h"
+#include "Core/Intersectable/Kdtree/KdtreeIntersector.h"
 #include "World/LightSampler/UniformRandomLightSampler.h"
-#include "World/Intersector/Bvh/ClassicBvhIntersector.h"
+#include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
 
 #include <limits>
 #include <iostream>

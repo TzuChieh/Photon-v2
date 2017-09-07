@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Bound/AABB3D.h"
-#include "World/Intersector/Kdtree/kdtree_core.h"
+#include "Core/Intersectable/Kdtree/kdtree_core.h"
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
 

@@ -1,4 +1,4 @@
-#include "World/Intersector/Kdtree/KdtreeAABB.h"
+#include "Core/Intersectable/Kdtree/KdtreeAABB.h"
 #include "Math/TVector3.h"
 
 namespace ph

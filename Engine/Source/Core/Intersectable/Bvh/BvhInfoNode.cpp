@@ -1,4 +1,4 @@
-#include "World/Intersector/Bvh/BvhInfoNode.h"
+#include "Core/Intersectable/Bvh/BvhInfoNode.h"
 #include "Math/Math.h"
 
 #include <iostream>

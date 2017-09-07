@@ -1,4 +1,4 @@
-#include "World/Intersector/Bvh/BvhLinearNode.h"
+#include "Core/Intersectable/Bvh/BvhLinearNode.h"
 
 namespace ph
 {

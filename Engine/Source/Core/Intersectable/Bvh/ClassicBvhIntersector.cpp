@@ -1,9 +1,10 @@
-#include "World/Intersector/Bvh/ClassicBvhIntersector.h"
+#include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
 #include "Core/Intersection.h"
 #include "Core/Ray.h"
 #include "Core/CookedActorStorage.h"
-#include "World/Intersector/Bvh/BvhInfoNode.h"
-#include "World/Intersector/Bvh/BvhBuilder.h"
+#include "Core/Intersectable/Bvh/BvhInfoNode.h"
+#include "Core/Intersectable/Bvh/BvhBuilder.h"
+#include "Core/Bound/AABB3D.h"
 
 #include <iostream>
 #include <limits>
@@ -120,11 +121,21 @@ bool ClassicBvhIntersector::isIntersecting(const Ray& ray, Intersection* const o
 	return minHitT != std::numeric_limits<real>::infinity();
 }
 
-bool ClassicBvhIntersector::isIntersecting(const Ray& ray) const
+void ClassicBvhIntersector::calcAABB(AABB3D* const out_aabb) const
 {
-	// HACK
-	Intersection intersection;
-	return isIntersecting(ray, &intersection);
+	if(m_intersectables.empty())
+	{
+		*out_aabb = AABB3D();
+		return;
+	}
+
+	m_intersectables.front()->calcAABB(out_aabb);
+	for(auto intersectable : m_intersectables)
+	{
+		AABB3D aabb;
+		intersectable->calcAABB(&aabb);
+		out_aabb->unionWith(aabb);
+	}
 }
 
 }// end namespace ph

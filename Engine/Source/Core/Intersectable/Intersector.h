@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Intersectable/Intersectable.h"
+
 #include <vector>
 #include <memory>
 
@@ -11,14 +13,17 @@ class Intersection;
 class Primitive;
 class CookedActorStorage;
 
-class Intersector
+class Intersector : public Intersectable
 {
 public:
 	virtual ~Intersector() = 0;
 
 	virtual void update(const CookedActorStorage& cookedActors) = 0;
-	virtual bool isIntersecting(const Ray& ray, Intersection* const out_intersection) const = 0;
-	virtual bool isIntersecting(const Ray& ray) const = 0;
+
+	using Intersectable::isIntersecting;
+	virtual bool isIntersecting(const Ray& ray, Intersection* out_intersection) const = 0;
+
+	virtual void calcAABB(AABB3D* out_aabb) const = 0;
 };
 
 }// end namespace ph

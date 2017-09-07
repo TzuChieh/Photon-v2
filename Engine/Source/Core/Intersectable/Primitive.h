@@ -19,9 +19,10 @@ public:
 	Primitive(const PrimitiveMetadata* const metadata);
 	virtual ~Primitive() override;
 
+	using Intersectable::isIntersecting;
 	virtual bool isIntersecting(const Ray& ray, 
 	                            Intersection* out_intersection) const = 0;
-	virtual bool isIntersecting(const Ray& ray) const = 0;
+
 	virtual bool isIntersectingVolumeConservative(const AABB3D& aabb) const = 0;
 	virtual void calcAABB(AABB3D* out_aabb) const = 0;
 	virtual real calcPositionSamplePdfA(const Vector3R& position) const = 0;

@@ -5,7 +5,7 @@
 #include "Core/CookedActorStorage.h"
 #include "Actor/Actor.h"
 #include "World/Scene.h"
-#include "World/Intersector/Intersector.h"
+#include "Core/Intersectable/Intersector.h"
 #include "World/LightSampler/LightSampler.h"
 
 #include <vector>

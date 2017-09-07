@@ -1,5 +1,5 @@
-#include "World/Intersector/Bvh/BvhBuilder.h"
-#include "World/Intersector/Bvh/BvhInfoNode.h"
+#include "Core/Intersectable/Bvh/BvhBuilder.h"
+#include "Core/Intersectable/Bvh/BvhInfoNode.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Math/TVector3.h"
 

@@ -1,4 +1,4 @@
-#include "World/Intersector/Kdtree/KdtreeIntersector.h"
+#include "Core/Intersectable/Kdtree/KdtreeIntersector.h"
 #include "Core/CookedActorStorage.h"
 #include "Core/Intersection.h"
 

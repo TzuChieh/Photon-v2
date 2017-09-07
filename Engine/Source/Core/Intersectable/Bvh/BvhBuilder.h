@@ -1,8 +1,8 @@
 #pragma once
 
-#include "World/Intersector/Bvh/EBvhType.h"
-#include "World/Intersector/Bvh/BvhIntersectableInfo.h"
-#include "World/Intersector/Bvh/BvhLinearNode.h"
+#include "Core/Intersectable/Bvh/EBvhType.h"
+#include "Core/Intersectable/Bvh/BvhIntersectableInfo.h"
+#include "Core/Intersectable/Bvh/BvhLinearNode.h"
 
 #include <memory>
 #include <vector>

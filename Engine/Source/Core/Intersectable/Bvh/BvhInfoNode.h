@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Core/Bound/AABB3D.h"
-#include "World/Intersector/Bvh/BvhIntersectableInfo.h"
+#include "Core/Intersectable/Bvh/BvhIntersectableInfo.h"
 
 #include <vector>
 #include <cstddef>

@@ -1,4 +1,4 @@
-#include "World/Intersector/Kdtree/KdtreeNode.h"
+#include "Core/Intersectable/Kdtree/KdtreeNode.h"
 #include "Core/Ray.h"
 #include "Core/Intersection.h"
 #include "Core/Intersectable/Intersectable.h"

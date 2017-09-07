@@ -1,4 +1,4 @@
-#include "World/Intersector/Bvh/BvhIntersectableInfo.h"
+#include "Core/Intersectable/Bvh/BvhIntersectableInfo.h"
 #include "Core/Intersectable/Intersectable.h"
 
 #include <iostream>
