@@ -1,4 +1,4 @@
-#include "Core/CookedActorStorage.h"
+#include "Actor/CookedActorStorage.h"
 
 namespace ph
 {
@@ -52,7 +52,7 @@ void CookedActorStorage::add(std::unique_ptr<Transform> transform)
 	}
 }
 
-void CookedActorStorage::add(CookedActor&& cookedActor)
+void CookedActorStorage::add(CookedUnit&& cookedActor)
 {
 	add(std::move(cookedActor.intersectables));
 	add(std::move(cookedActor.primitiveMetadata));

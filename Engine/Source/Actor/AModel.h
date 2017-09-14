@@ -24,7 +24,7 @@ public:
 	AModel(const AModel& other);
 	virtual ~AModel() override;
 
-	virtual void cook(CookedActor* const out_cookedActor) const override;
+	virtual CookedUnit cook(CookingContext& context) const override;
 
 	AModel& operator = (AModel rhs);
 

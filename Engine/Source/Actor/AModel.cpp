@@ -5,7 +5,7 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Core/CookedActor.h"
+#include "Actor/CookedUnit.h"
 #include "FileIO/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
@@ -56,18 +56,16 @@ AModel& AModel::operator = (AModel rhs)
 	return *this;
 }
 
-void AModel::cook(CookedActor* const out_cookedActor) const
+CookedUnit AModel::cook(CookingContext& context) const
 {
-	CookedActor               cookedActor;
+	CookedUnit               cookedActor;
 	PrimitiveBuildingMaterial primitiveBuildingMaterial;
 
 	if(!m_geometry || !m_material)
 	{
 		std::cerr << "warning: at AModel::cook(), " 
 		          << "incomplete data detected" << std::endl;
-
-		*out_cookedActor = std::move(cookedActor);
-		return;
+		return cookedActor;
 	}
 
 	std::vector<std::unique_ptr<Primitive>> primitives;
@@ -99,16 +97,18 @@ void AModel::cook(CookedActor* const out_cookedActor) const
 
 	for(auto& primitive : primitives)
 	{
-		auto isable = std::make_unique<TransformedIntersectable>(std::move(primitive),
-		                                                         baseLW.get(),
-		                                                         baseWL.get());
+		const Intersectable* prim = context.addBackend(std::move(primitive));
+		auto tIsable = std::make_unique<TransformedIntersectable>(prim,
+		                                                          baseLW.get(),
+		                                                          baseWL.get());
 		if(!m_motionSource)
 		{
-			cookedActor.intersectables.push_back(std::move(isable));
+			cookedActor.intersectables.push_back(std::move(tIsable));
 		}
 		else
 		{
-			auto motionIsable = std::make_unique<TransformedIntersectable>(std::move(isable),
+			auto baseIsable = context.addBackend(std::move(tIsable));
+			auto motionIsable = std::make_unique<TransformedIntersectable>(baseIsable,
 			                                                               motionLW.get(),
 			                                                               motionWL.get());
 			cookedActor.intersectables.push_back(std::move(motionIsable));
@@ -123,7 +123,7 @@ void AModel::cook(CookedActor* const out_cookedActor) const
 		cookedActor.transforms.push_back(std::move(motionWL));
 	}
 
-	*out_cookedActor = std::move(cookedActor);
+	return cookedActor;
 }
 
 void AModel::setGeometry(const std::shared_ptr<Geometry>& geometry)

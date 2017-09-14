@@ -11,7 +11,7 @@
 namespace ph
 {
 
-class CookedActor final
+class CookedUnit final
 {
 public:
 	std::vector<std::unique_ptr<Intersectable>> intersectables;
@@ -19,15 +19,15 @@ public:
 	std::unique_ptr<Emitter>                    emitter;
 	std::vector<std::unique_ptr<Transform>>     transforms;
 
-	CookedActor();
-	CookedActor(CookedActor&& other);
-	~CookedActor() = default;
+	CookedUnit();
+	CookedUnit(CookedUnit&& other);
+	~CookedUnit() = default;
 
-	CookedActor& operator = (CookedActor&& rhs);
+	CookedUnit& operator = (CookedUnit&& rhs);
 
 	// forbid copying
-	CookedActor(const CookedActor& other) = delete;
-	CookedActor& operator = (const CookedActor& rhs) = delete;
+	CookedUnit(const CookedUnit& other) = delete;
+	CookedUnit& operator = (const CookedUnit& rhs) = delete;
 };
 
 }// end namespace ph

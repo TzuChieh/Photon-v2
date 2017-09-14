@@ -16,7 +16,7 @@ public:
 	PhysicalActor(const PhysicalActor& other);
 	virtual ~PhysicalActor() override;
 
-	virtual void cook(CookedActor* const out_cookedActor) const = 0;
+	virtual CookedUnit cook(CookingContext& context) const = 0;
 
 	// FIXME: precision loss using real
 	void translate(const Vector3R& translation);

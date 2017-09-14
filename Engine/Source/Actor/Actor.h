@@ -1,12 +1,11 @@
 #pragma once
 
 #include "FileIO/SDL/TCommandInterface.h"
+#include "Actor/CookedUnit.h"
+#include "Actor/CookingContext.h"
 
 namespace ph
 {
-
-class CookedActor;
-class InputPacket;
 
 class Actor : public TCommandInterface<Actor>
 {
@@ -15,7 +14,7 @@ public:
 	Actor(const Actor& other);
 	virtual ~Actor() = 0;
 
-	virtual void cook(CookedActor* const out_cookedActor) const = 0;
+	virtual CookedUnit cook(CookingContext& context) const = 0;
 
 	Actor& operator = (const Actor& rhs);
 

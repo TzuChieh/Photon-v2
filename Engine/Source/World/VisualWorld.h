@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Core/Intersectable/Primitive.h"
-#include "Core/CookedActorStorage.h"
+#include "Actor/CookedActorStorage.h"
 #include "Actor/Actor.h"
 #include "World/Scene.h"
 #include "Core/Intersectable/Intersector.h"

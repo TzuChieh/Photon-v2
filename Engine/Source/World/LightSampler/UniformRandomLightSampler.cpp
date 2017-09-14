@@ -2,7 +2,7 @@
 #include "Actor/AModel.h"
 #include "Actor/ALight.h"
 #include "Math/Random.h"
-#include "Core/CookedActorStorage.h"
+#include "Actor/CookedActorStorage.h"
 #include "Core/Sample/DirectLightSample.h"
 #include "Math/TVector3.h"
 

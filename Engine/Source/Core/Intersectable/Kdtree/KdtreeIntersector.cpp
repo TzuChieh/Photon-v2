@@ -1,5 +1,5 @@
 #include "Core/Intersectable/Kdtree/KdtreeIntersector.h"
-#include "Core/CookedActorStorage.h"
+#include "Actor/CookedActorStorage.h"
 #include "Core/Intersection.h"
 
 #include <iostream>

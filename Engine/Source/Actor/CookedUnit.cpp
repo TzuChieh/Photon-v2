@@ -1,9 +1,9 @@
-#include "Core/CookedActor.h"
+#include "Actor/CookedUnit.h"
 
 namespace ph
 {
 
-CookedActor::CookedActor() :
+CookedUnit::CookedUnit() :
 	intersectables(), 
 	primitiveMetadata(nullptr), 
 	emitter(nullptr),
@@ -12,7 +12,7 @@ CookedActor::CookedActor() :
 
 }
 
-CookedActor::CookedActor(CookedActor&& other) :
+CookedUnit::CookedUnit(CookedUnit&& other) :
 	intersectables   (std::move(other.intersectables)), 
 	primitiveMetadata(std::move(other.primitiveMetadata)), 
 	emitter          (std::move(other.emitter)),
@@ -21,7 +21,7 @@ CookedActor::CookedActor(CookedActor&& other) :
 
 }
 
-CookedActor& CookedActor::operator = (CookedActor&& rhs)
+CookedUnit& CookedUnit::operator = (CookedUnit&& rhs)
 {
 	intersectables    = std::move(rhs.intersectables);
 	primitiveMetadata = std::move(rhs.primitiveMetadata);

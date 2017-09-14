@@ -5,7 +5,7 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Actor/Material/Material.h"
 #include "Actor/LightSource/LightSource.h"
-#include "Core/CookedActor.h"
+#include "Actor/CookedUnit.h"
 #include "FileIO/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
@@ -49,19 +49,17 @@ ALight& ALight::operator = (ALight rhs)
 }
 
 // TODO: simply this method
-void ALight::cook(CookedActor* const out_cookedActor) const
+CookedUnit ALight::cook(CookingContext& context) const
 {
-	CookedActor               cookedActor;
+	CookedUnit               cookedActor;
 	PrimitiveBuildingMaterial primitiveBuildingMaterial;
 	EmitterBuildingMaterial   emitterBuildingMaterial;
 
 	if(!m_lightSource)
 	{
-		std::cerr << "warning: at ALight::cook(), " 
-		          << "incomplete data detected" << std::endl;
-
-		*out_cookedActor = std::move(cookedActor);
-		return;
+		std::cerr << "warning: at ALight::cook(), "
+			<< "incomplete data detected" << std::endl;
+		return cookedActor;
 	}
 
 	auto baseLW = std::make_unique<StaticTransform>(StaticTransform::makeForward(m_localToWorld));
@@ -84,10 +82,10 @@ void ALight::cook(CookedActor* const out_cookedActor) const
 			{
 				geometry = m_geometry;
 				std::cerr << "warning: at ALight::cook(), "
-				          << "scale detected and has failed to apply it to the geometry; " 
-				          << "scaling on light with attached geometry may have unexpected " 
-				          << "behaviors such as miscalculated primitive surface area, which " 
-				          << "can cause severe rendering artifacts" << std::endl;
+					<< "scale detected and has failed to apply it to the geometry; "
+					<< "scaling on light with attached geometry may have unexpected "
+					<< "behaviors such as miscalculated primitive surface area, which "
+					<< "can cause severe rendering artifacts" << std::endl;
 			}
 		}
 
@@ -105,15 +103,16 @@ void ALight::cook(CookedActor* const out_cookedActor) const
 
 		for(auto& primitive : primitives)
 		{
-			emitterBuildingMaterial.primitives.push_back(primitive.get());
+			auto prim = static_cast<Primitive*>(context.addBackend(std::move(primitive)));
+			emitterBuildingMaterial.primitives.push_back(prim);
 
 			// TODO: baseLW & baseWL may be identity transform if base transform
 			// is applied to the geometry, in such case, wrapping primitives with
 			// TransformedIntersectable is a total waste
 
-			auto intersectable = std::make_unique<TransformedIntersectable>(std::move(primitive),
-			                                                                baseLW.get(),
-			                                                                baseWL.get());
+			auto intersectable = std::make_unique<TransformedIntersectable>(prim,
+				baseLW.get(),
+				baseWL.get());
 			cookedActor.intersectables.push_back(std::move(intersectable));
 		}
 
@@ -131,11 +130,11 @@ void ALight::cook(CookedActor* const out_cookedActor) const
 		cookedActor.emitter = m_lightSource->buildEmitter(emitterBuildingMaterial);
 		cookedActor.emitter->setTransform(baseLW.get(), baseWL.get());
 	}
-		
+
 	cookedActor.transforms.push_back(std::move(baseLW));
 	cookedActor.transforms.push_back(std::move(baseWL));
 
-	*out_cookedActor = std::move(cookedActor);
+	return cookedActor;
 }
 
 const Geometry* ALight::getGeometry() const

@@ -5,7 +5,7 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Core/CookedActor.h"
+#include "Actor/CookedUnit.h"
 #include "Math/Transform/Transform.h"
 
 #include <vector>
@@ -27,7 +27,7 @@ public:
 	void add(std::unique_ptr<PrimitiveMetadata> metadata);
 	void add(std::unique_ptr<Emitter> emitter);
 	void add(std::unique_ptr<Transform> transform);
-	void add(CookedActor&& cookedActor);
+	void add(CookedUnit&& cookedActor);
 	void add(std::vector<std::unique_ptr<Intersectable>>&& intersectables);
 	void add(std::vector<std::unique_ptr<Transform>>&& transforms);
 	void add(CookedActorStorage&& other);

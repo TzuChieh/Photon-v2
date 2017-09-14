@@ -186,8 +186,8 @@
     <ClCompile Include="Source\Core\Camera\PerspectiveCamera.cpp" />
     <ClCompile Include="Source\Core\Camera\PinholeCamera.cpp" />
     <ClCompile Include="Source\Core\Camera\ThinLensCamera.cpp" />
-    <ClCompile Include="Source\Core\CookedActor.cpp" />
-    <ClCompile Include="Source\Core\CookedActorStorage.cpp" />
+    <ClCompile Include="Source\Actor\CookedUnit.cpp" />
+    <ClCompile Include="Source\Actor\CookedActorStorage.cpp" />
     <ClCompile Include="Source\Core\Engine.cpp" />
     <ClCompile Include="Source\Core\Filmic\HdrRgbFilm.cpp" />
     <ClCompile Include="Source\Core\Filmic\SampleFilter.cpp" />
@@ -203,6 +203,7 @@
     <ClCompile Include="Source\Core\Intersectable\Intersectable.cpp" />
     <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp" />
     <ClCompile Include="Source\Core\Intersection.cpp" />
+    <ClInclude Include="Source\Actor\CookingContext.h" />
     <ClInclude Include="Source\Actor\Material\AbradedSurface.h" />
     <ClInclude Include="Source\Actor\Material\IdealSubstance.h" />
     <ClInclude Include="Source\Core\Quantity\Private\TAbstractSpectralStrength.ipp">
@@ -328,8 +329,8 @@
     <ClInclude Include="Source\Common\assertion.h" />
     <ClInclude Include="Source\Common\primitive_type.h" />
     <ClInclude Include="Source\Core\Camera\ThinLensCamera.h" />
-    <ClInclude Include="Source\Core\CookedActor.h" />
-    <ClInclude Include="Source\Core\CookedActorStorage.h" />
+    <ClInclude Include="Source\Actor\CookedUnit.h" />
+    <ClInclude Include="Source\Actor\CookedActorStorage.h" />
     <ClInclude Include="Source\Actor\LightSource\EmitterBuildingMaterial.h" />
     <ClInclude Include="Source\Core\Engine.h" />
     <ClInclude Include="Source\Core\Filmic\HdrRgbFilm.h" />

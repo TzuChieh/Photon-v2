@@ -3,7 +3,7 @@
 #include "Core/Intersection.h"
 #include "Core/Ray.h"
 #include "Core/Intersectable/Intersectable.h"
-#include "Core/CookedActorStorage.h"
+#include "Actor/CookedActorStorage.h"
 #include "Core/Bound/AABB3D.h"
 
 #include <limits>

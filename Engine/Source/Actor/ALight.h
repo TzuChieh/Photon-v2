@@ -24,7 +24,7 @@ public:
 	ALight(const ALight& other);
 	virtual ~ALight() override;
 
-	virtual void cook(CookedActor* const out_cookedActor) const override;
+	virtual CookedUnit cook(CookingContext& context) const override;
 
 	const Geometry*    getGeometry() const;
 	const Material*    getMaterial() const;

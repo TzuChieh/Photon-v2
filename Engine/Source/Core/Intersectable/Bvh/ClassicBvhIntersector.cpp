@@ -1,7 +1,7 @@
 #include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
 #include "Core/Intersection.h"
 #include "Core/Ray.h"
-#include "Core/CookedActorStorage.h"
+#include "Actor/CookedActorStorage.h"
 #include "Core/Intersectable/Bvh/BvhInfoNode.h"
 #include "Core/Intersectable/Bvh/BvhBuilder.h"
 #include "Core/Bound/AABB3D.h"

@@ -3,7 +3,8 @@
 #include "Common/primitive_type.h"
 #include "Core/Ray.h"
 #include "Actor/Actor.h"
-#include "Core/CookedActor.h"
+#include "Actor/CookedUnit.h"
+#include "Actor/CookingContext.h"
 #include "Core/Intersectable/BruteForceIntersector.h"
 #include "Core/Intersectable/Kdtree/KdtreeIntersector.h"
 #include "World/LightSampler/UniformRandomLightSampler.h"
@@ -53,14 +54,11 @@ void VisualWorld::cook()
 {
 	std::cout << "cooking visual world..." << std::endl;
 
+	CookingContext cookingContext;
 	for(const auto& actor : m_actors)
 	{
-		CookedActor cookedActor;
-		actor->cook(&cookedActor);
-
-		//std::cout << cookedActor.intersectables.size() << std::endl;
-
-		m_cookedActorStorage.add(std::move(cookedActor));
+		CookedUnit cookedUnit = actor->cook(cookingContext);
+		m_cookedActorStorage.add(std::move(cookedUnit));
 	}
 
 	std::cout << "visual world discretized into " 
@@ -72,6 +70,10 @@ void VisualWorld::cook()
 	m_lightSampler->update(m_cookedActorStorage);
 
 	m_scene = Scene(m_intersector.get(), m_lightSampler.get());
+
+	// HACK
+	CookedUnit cookedUnit = cookingContext.toCooked();
+	m_cookedActorStorage.add(std::move(cookedUnit));
 }
 
 const Scene& VisualWorld::getScene() const
