@@ -11,6 +11,7 @@
 #include "Core/Intersectable/TransformedIntersectable.h"
 #include "Actor/MotionSource/MotionSource.h"
 #include "Core/Quantity/Time.h"
+#include "Actor/ModelBuilder.h"
 
 #include <algorithm>
 #include <iostream>
@@ -58,23 +59,34 @@ AModel& AModel::operator = (AModel rhs)
 
 CookedUnit AModel::cook(CookingContext& context) const
 {
-	CookedUnit               cookedActor;
-	PrimitiveBuildingMaterial primitiveBuildingMaterial;
-
 	if(!m_geometry || !m_material)
 	{
 		std::cerr << "warning: at AModel::cook(), " 
 		          << "incomplete data detected" << std::endl;
-		return cookedActor;
+		return CookedUnit();
 	}
 
-	std::vector<std::unique_ptr<Primitive>> primitives;
-	auto baseLW   = std::make_unique<StaticTransform>(StaticTransform::makeForward(m_localToWorld));
-	auto baseWL   = std::make_unique<StaticTransform>(StaticTransform::makeInverse(m_localToWorld));
+	ModelBuilder              builder(context);
+	PrimitiveBuildingMaterial primitiveBuildingMaterial;
+	
 	auto metadata = std::make_unique<PrimitiveMetadata>();
+	primitiveBuildingMaterial.metadata = metadata.get();
 
-	std::unique_ptr<Transform> motionLW;
-	std::unique_ptr<Transform> motionWL;
+	std::vector<std::unique_ptr<Primitive>> primitives;
+	m_geometry->genPrimitive(primitiveBuildingMaterial, primitives);
+	for(auto& primitive : primitives)
+	{
+		builder.addIntersectable(std::move(primitive));
+	}
+
+	m_material->populateSurfaceBehavior(&(metadata->surfaceBehavior));
+
+	builder.setPrimitiveMetadata(std::move(metadata));
+
+	auto baseLW = std::make_unique<StaticTransform>(StaticTransform::makeForward(m_localToWorld));
+	auto baseWL = std::make_unique<StaticTransform>(StaticTransform::makeInverse(m_localToWorld));
+	builder.transform(std::move(baseLW), std::move(baseWL));
+	
 	if(m_motionSource)
 	{
 		// HACK
@@ -84,47 +96,12 @@ CookedUnit AModel::cook(CookingContext& context) const
 		t1.relativeS = 1;
 		t1.relativeT = 1;
 
-		motionLW = m_motionSource->genLocalToWorld(t0, t1);
-		motionWL = motionLW->genInversed();
+		auto motionLW = m_motionSource->genLocalToWorld(t0, t1);
+		auto motionWL = motionLW->genInversed();
+		builder.transform(std::move(motionLW), std::move(motionWL));
 	}
 
-	primitiveBuildingMaterial.metadata = metadata.get();
-	m_geometry->genPrimitive(primitiveBuildingMaterial, primitives);
-	m_material->populateSurfaceBehavior(&(metadata->surfaceBehavior));
-	cookedActor.primitiveMetadata = std::move(metadata);
-
-	// TODO: use nested intersector when > 1 primitives are generated
-
-	for(auto& primitive : primitives)
-	{
-		auto tIsable = std::make_unique<TransformedIntersectable>(primitive.get(),
-		                                                          baseLW.get(),
-		                                                          baseWL.get());
-		if(!m_motionSource)
-		{
-			cookedActor.intersectables.push_back(std::move(tIsable));
-		}
-		else
-		{
-			auto motionIsable = std::make_unique<TransformedIntersectable>(tIsable.get(),
-			                                                               motionLW.get(),
-			                                                               motionWL.get());
-			context.addBackend(std::move(tIsable));
-			cookedActor.intersectables.push_back(std::move(motionIsable));
-		}
-
-		context.addBackend(std::move(primitive));
-	}
-
-	cookedActor.transforms.push_back(std::move(baseLW));
-	cookedActor.transforms.push_back(std::move(baseWL));
-	if(m_motionSource)
-	{
-		cookedActor.transforms.push_back(std::move(motionLW));
-		cookedActor.transforms.push_back(std::move(motionWL));
-	}
-
-	return cookedActor;
+	return builder.claimBuildResult();
 }
 
 void AModel::setGeometry(const std::shared_ptr<Geometry>& geometry)

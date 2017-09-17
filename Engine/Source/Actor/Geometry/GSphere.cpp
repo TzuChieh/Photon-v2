@@ -80,7 +80,8 @@ std::size_t GSphere::addVertex(const Vector3R& vertex, std::vector<Vector3R>* co
 	return out_vertices->size() - 1;
 }
 
-std::size_t GSphere::addMidpointVertex(const std::size_t iA, const std::size_t iB, std::vector<Vector3R>* const out_vertices) const
+std::size_t GSphere::addMidpointVertex(const std::size_t iA, const std::size_t iB, 
+                                       std::vector<Vector3R>* const out_vertices) const
 {
 	return addVertex((*out_vertices)[iA].add((*out_vertices)[iB]).mulLocal(0.5f), out_vertices);
 }

@@ -175,6 +175,7 @@
     <ClCompile Include="Source\Actor\LightSource\LightSource.cpp" />
     <ClCompile Include="Source\Actor\Material\AbradedSurface.cpp" />
     <ClCompile Include="Source\Actor\Material\IdealSubstance.cpp" />
+    <ClCompile Include="Source\Actor\ModelBuilder.cpp" />
     <ClCompile Include="Source\Actor\MotionSource\ConstantVelocityMotion.cpp" />
     <ClCompile Include="Source\Actor\MotionSource\MotionSource.cpp" />
     <ClCompile Include="Source\Actor\PhysicalActor.cpp" />
@@ -206,6 +207,7 @@
     <ClInclude Include="Source\Actor\CookingContext.h" />
     <ClInclude Include="Source\Actor\Material\AbradedSurface.h" />
     <ClInclude Include="Source\Actor\Material\IdealSubstance.h" />
+    <ClInclude Include="Source\Actor\ModelBuilder.h" />
     <ClInclude Include="Source\Core\Quantity\Private\TAbstractSpectralStrength.ipp">
       <FileType>CppCode</FileType>
     </ClInclude>
@@ -455,6 +457,7 @@
     <ClInclude Include="Source\PostProcess\HdrOperator\HdrOperator.h" />
     <ClInclude Include="Source\PostProcess\PostProcessor.h" />
     <ClInclude Include="Source\PostProcess\ToneMapper\ToneMapper.h" />
+    <ClInclude Include="Source\Utility\Noncopyable.h" />
     <ClInclude Include="Source\Utility\TConstIteratorProxy.h" />
     <ClInclude Include="Source\Utility\TIteratorProxy.h" />
     <ClInclude Include="Source\Core\Intersectable\BruteForceIntersector.h" />
