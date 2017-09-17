@@ -103,17 +103,18 @@ CookedUnit ALight::cook(CookingContext& context) const
 
 		for(auto& primitive : primitives)
 		{
-			auto prim = static_cast<Primitive*>(context.addBackend(std::move(primitive)));
-			emitterBuildingMaterial.primitives.push_back(prim);
+			emitterBuildingMaterial.primitives.push_back(primitive.get());
 
 			// TODO: baseLW & baseWL may be identity transform if base transform
 			// is applied to the geometry, in such case, wrapping primitives with
 			// TransformedIntersectable is a total waste
 
-			auto intersectable = std::make_unique<TransformedIntersectable>(prim,
+			auto intersectable = std::make_unique<TransformedIntersectable>(
+				primitive.get(),
 				baseLW.get(),
 				baseWL.get());
 			cookedActor.intersectables.push_back(std::move(intersectable));
+			context.addBackend(std::move(primitive));
 		}
 
 		cookedActor.emitter = m_lightSource->buildEmitter(emitterBuildingMaterial);

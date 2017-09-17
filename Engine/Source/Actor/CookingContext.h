@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <memory>
+#include <type_traits>
 
 namespace ph
 {
@@ -12,11 +13,9 @@ namespace ph
 class CookingContext final
 {
 public:
-	inline Intersectable* addBackend(std::unique_ptr<Intersectable> intersectable)
+	inline void addBackend(std::unique_ptr<Intersectable> intersectable)
 	{
 		m_backendIntersectables.push_back(std::move(intersectable));
-
-		return m_backendIntersectables.back().get();
 	}
 
 	inline CookedUnit toCooked()

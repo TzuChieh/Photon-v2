@@ -97,8 +97,7 @@ CookedUnit AModel::cook(CookingContext& context) const
 
 	for(auto& primitive : primitives)
 	{
-		const Intersectable* prim = context.addBackend(std::move(primitive));
-		auto tIsable = std::make_unique<TransformedIntersectable>(prim,
+		auto tIsable = std::make_unique<TransformedIntersectable>(primitive.get(),
 		                                                          baseLW.get(),
 		                                                          baseWL.get());
 		if(!m_motionSource)
@@ -107,12 +106,14 @@ CookedUnit AModel::cook(CookingContext& context) const
 		}
 		else
 		{
-			auto baseIsable = context.addBackend(std::move(tIsable));
-			auto motionIsable = std::make_unique<TransformedIntersectable>(baseIsable,
+			auto motionIsable = std::make_unique<TransformedIntersectable>(tIsable.get(),
 			                                                               motionLW.get(),
 			                                                               motionWL.get());
+			context.addBackend(std::move(tIsable));
 			cookedActor.intersectables.push_back(std::move(motionIsable));
 		}
+
+		context.addBackend(std::move(primitive));
 	}
 
 	cookedActor.transforms.push_back(std::move(baseLW));

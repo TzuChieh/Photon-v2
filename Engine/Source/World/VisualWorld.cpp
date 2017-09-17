@@ -61,6 +61,9 @@ void VisualWorld::cook()
 		m_cookedActorStorage.add(std::move(cookedUnit));
 	}
 
+	CookedUnit cookedContext = cookingContext.toCooked();
+	m_cookedBackendStorage.add(std::move(cookedContext));
+
 	std::cout << "visual world discretized into " 
 	          << m_cookedActorStorage.numIntersectables() 
 	          << " intersectables" << std::endl;
@@ -70,10 +73,6 @@ void VisualWorld::cook()
 	m_lightSampler->update(m_cookedActorStorage);
 
 	m_scene = Scene(m_intersector.get(), m_lightSampler.get());
-
-	// HACK
-	CookedUnit cookedUnit = cookingContext.toCooked();
-	m_cookedActorStorage.add(std::move(cookedUnit));
 }
 
 const Scene& VisualWorld::getScene() const

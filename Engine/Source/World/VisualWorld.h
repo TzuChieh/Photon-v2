@@ -36,6 +36,7 @@ public:
 private:
 	std::vector<std::shared_ptr<Actor>> m_actors;
 	CookedActorStorage m_cookedActorStorage;
+	CookedActorStorage m_cookedBackendStorage;
 
 	std::unique_ptr<Intersector>  m_intersector;
 	std::unique_ptr<LightSampler> m_lightSampler;
