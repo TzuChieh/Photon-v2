@@ -30,6 +30,8 @@ SampleFilter& SampleFilter::operator = (SampleFilter&& rhs)
 	m_filter     = std::move(rhs.m_filter);
 	m_sizePx     = rhs.m_sizePx;
 	m_halfSizePx = rhs.m_halfSizePx;
+
+	return *this;
 }
 
 }// end namespace ph

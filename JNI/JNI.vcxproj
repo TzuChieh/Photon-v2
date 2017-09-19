@@ -101,7 +101,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;JNI_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Photon-v2_library\Engine\Include;C:\Program Files\Java\jdk1.8.0_92\include\win32;C:\Program Files\Java\jdk1.8.0_92\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Photon-v2_library\Engine\Include;$(SolutionDir)ThirdParty\jdk1.8.0_121\include\win32;$(SolutionDir)ThirdParty\jdk1.8.0_121\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
