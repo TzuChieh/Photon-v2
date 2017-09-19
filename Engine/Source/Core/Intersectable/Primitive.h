@@ -16,7 +16,7 @@ class PositionSample;
 class Primitive : public Intersectable
 {
 public:
-	Primitive(const PrimitiveMetadata* const metadata);
+	Primitive(const PrimitiveMetadata* metadata);
 	virtual ~Primitive() override;
 
 	using Intersectable::isIntersecting;

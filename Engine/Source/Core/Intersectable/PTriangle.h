@@ -13,7 +13,7 @@ class AABB3D;
 class PTriangle final : public Primitive
 {
 public:
-	PTriangle(const PrimitiveMetadata* const metadata, const Vector3R& vA, const Vector3R& vB, const Vector3R& vC);
+	PTriangle(const PrimitiveMetadata* metadata, const Vector3R& vA, const Vector3R& vB, const Vector3R& vC);
 	virtual ~PTriangle() override;
 
 	virtual bool isIntersecting(const Ray& ray, 

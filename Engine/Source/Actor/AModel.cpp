@@ -66,14 +66,15 @@ CookedUnit AModel::cook(CookingContext& context) const
 		return CookedUnit();
 	}
 
-	ModelBuilder              builder(context);
-	PrimitiveBuildingMaterial primitiveBuildingMaterial;
+	ModelBuilder builder(context);
 	
 	auto metadata = std::make_unique<PrimitiveMetadata>();
-	primitiveBuildingMaterial.metadata = metadata.get();
+
+	PrimitiveBuildingMaterial primitiveBuildingMatl;
+	primitiveBuildingMatl.metadata = metadata.get();
 
 	std::vector<std::unique_ptr<Primitive>> primitives;
-	m_geometry->genPrimitive(primitiveBuildingMaterial, primitives);
+	m_geometry->genPrimitive(primitiveBuildingMatl, primitives);
 	for(auto& primitive : primitives)
 	{
 		builder.addIntersectable(std::move(primitive));

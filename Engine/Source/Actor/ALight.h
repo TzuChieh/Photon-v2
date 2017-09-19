@@ -15,6 +15,7 @@ class Geometry;
 class Material;
 class TextureMapper;
 class LightSource;
+class Transform;
 
 class ALight final : public PhysicalActor, public TCommandInterface<ALight>
 {
@@ -41,6 +42,16 @@ private:
 	std::shared_ptr<Geometry>    m_geometry;
 	std::shared_ptr<Material>    m_material;
 	std::shared_ptr<LightSource> m_lightSource;
+
+	CookedUnit buildGeometricLight(CookingContext& context) const;
+
+	// Tries to return a geometry suitable for emitter calculations (can be the 
+	// original one if it is already suitable). If the current actor has undesired 
+	// configurations, nullptr is returned.
+	std::shared_ptr<Geometry> getSanifiedEmitterGeometry(
+		CookingContext& context,
+		std::unique_ptr<Transform>* out_baseLW, 
+		std::unique_ptr<Transform>* out_baseWL) const;
 
 // command interface
 public:
