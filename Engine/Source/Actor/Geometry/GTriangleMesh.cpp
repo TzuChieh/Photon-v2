@@ -59,7 +59,7 @@ void GTriangleMesh::genPrimitive(const PrimitiveBuildingMaterial& data,
 	}
 }
 
-void GTriangleMesh::addTriangle(const GTriangle gTriangle)
+void GTriangleMesh::addTriangle(const GTriangle& gTriangle)
 {
 	m_gTriangles.push_back(gTriangle);
 }
