@@ -114,7 +114,7 @@
                                                                   <GridPane GridPane.rowIndex="2">
                                                                     <columnConstraints>
                                                                       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                                                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                                      <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                                                                     </columnConstraints>
                                                                     <rowConstraints>
                                                                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -128,13 +128,13 @@
                                                                               <Insets left="5.0" />
                                                                            </GridPane.margin>
                                                                         </Label>
-                                                                        <Label text="0" GridPane.columnIndex="1" />
+                                                                        <Label fx:id="timeRemainingLabel" text="0" GridPane.columnIndex="1" />
                                                                      </children>
                                                                   </GridPane>
                                                                   <GridPane GridPane.rowIndex="3">
                                                                     <columnConstraints>
                                                                       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                                                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                                      <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                                                                     </columnConstraints>
                                                                     <rowConstraints>
                                                                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -145,7 +145,7 @@
                                                                               <Insets left="5.0" />
                                                                            </GridPane.margin>
                                                                         </Label>
-                                                                        <Label text="0" GridPane.columnIndex="1" />
+                                                                        <Label fx:id="timeSpentLabel" text="0" GridPane.columnIndex="1" />
                                                                      </children>
                                                                   </GridPane>
                                                                </children>

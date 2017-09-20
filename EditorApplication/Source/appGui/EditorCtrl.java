@@ -44,6 +44,7 @@ import photonApi.FrameStatus;
 import photonApi.Rectangle;
 import photonApi.Statistics;
 import photonApi.Vector3f;
+import util.Time;
 
 public class EditorCtrl
 {
@@ -60,10 +61,12 @@ public class EditorCtrl
 	@FXML private TextField   sceneFileTextField;
 	@FXML private ProgressBar renderProgressBar;
 	@FXML private Label       percentageProgressLabel;
-	@FXML private Label       spsLabel;
 	@FXML private AnchorPane  displayPane;
 	@FXML private Canvas      canvas;
 	@FXML private TextArea    messageTextArea;
+	@FXML private Label       spsLabel;
+	@FXML private Label       timeRemainingLabel;
+    @FXML private Label       timeSpentLabel;
     
     @FXML
     public void initialize()
@@ -95,6 +98,8 @@ public class EditorCtrl
     
     public void startRenderingStaticScene()
     {
+    	final double renderStartMs = Time.getTimeMs();
+    	
 		String sceneFileName = m_project.getRenderSetting().get(RenderSetting.SCENE_FILE_NAME);
 		if(sceneFileName == null)
 		{
@@ -127,10 +132,17 @@ public class EditorCtrl
 					final long totalWork = 100;
 					updateProgress(workDone, totalWork);
 					
+					final double workDoneFraction      = statistics.percentageProgress / 100.0;
+					final double renderTimeMs          = Time.getTimeMs() - renderStartMs;
+					final double totalRenderTimeMs     = renderTimeMs / workDoneFraction;
+					final double remainingRenderTimeMs = totalRenderTimeMs * (1.0 - workDoneFraction);
+					
 					Platform.runLater(() -> 
 					{
 						percentageProgressLabel.setText(Float.toString(statistics.percentageProgress));
-						spsLabel.setText(Float.toString(statistics.samplesPerSecond));
+						spsLabel.setText(Long.toString((long)statistics.samplesPerSecond));
+						timeSpentLabel.setText((long)(renderTimeMs / 1000.0) + " s");
+						timeRemainingLabel.setText((long)(remainingRenderTimeMs / 1000.0) + " s");
 					});
 					
 					if(workDone >= totalWork)

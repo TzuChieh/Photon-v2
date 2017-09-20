@@ -10,12 +10,11 @@
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
+#include "Utility/Timer.h"
 
-#include <cmath>
 #include <iostream>
 #include <vector>
 #include <thread>
-#include <chrono>
 #include <functional>
 #include <utility>
 
@@ -32,6 +31,9 @@ Renderer::~Renderer() = default;
 
 void Renderer::render(const Description& description)
 {
+	Timer renderTimer;
+	renderTimer.start();
+
 	init(description);
 
 	std::vector<std::thread> renderThreads(m_numThreads);
@@ -55,6 +57,9 @@ void Renderer::render(const Description& description)
 
 		std::cout << "worker<" << ti << "> finished" << std::endl;
 	}
+
+	renderTimer.finish();
+	std::cout << "rendering time: " << renderTimer.getDeltaMs() << " ms" << std::endl;
 }
 
 void Renderer::setNumRenderThreads(const uint32 numThreads)

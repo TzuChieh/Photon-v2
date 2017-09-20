@@ -36,13 +36,6 @@ PTriangle::~PTriangle() = default;
 
 bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersection) const
 {
-	/*Ray localRay;
-	m_metadata->worldToLocal.transform(ray, &localRay);
-	Vector3R rayDir = localRay.getDirection();
-	Vector3R vAt = m_vA.sub(localRay.getOrigin());
-	Vector3R vBt = m_vB.sub(localRay.getOrigin());
-	Vector3R vCt = m_vC.sub(localRay.getOrigin());*/
-
 	Vector3R rayDir = ray.getDirection();
 	Vector3R vAt = m_vA.sub(ray.getOrigin());
 	Vector3R vBt = m_vB.sub(ray.getOrigin());
@@ -157,15 +150,6 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	const real baryB = funcEb * reciDeterminant;
 	const real baryC = funcEc * reciDeterminant;
 	const real hitT = hitTscaled * reciDeterminant;
-
-	/*Vector3R hitPosition;
-	Vector3R hitSmoothNormal;
-	Vector3R hitGeoNormal;
-	Vector3R localHitPosition = Vector3R::weightedSum(m_vA, baryA, m_vB, baryB, m_vC, baryC);
-	Vector3R localHitNormal   = Vector3R::weightedSum(m_nA, baryA, m_nB, baryB, m_nC, baryC);
-	m_metadata->localToWorld.transformP(localHitPosition, &hitPosition);
-	m_metadata->localToWorld.transformO(localHitNormal,   &hitSmoothNormal);
-	m_metadata->localToWorld.transformO(m_faceNormal,     &hitGeoNormal);*/
 
 	Vector3R localHitPosition = Vector3R::weightedSum(m_vA, baryA, m_vB, baryB, m_vC, baryC);
 	Vector3R hitPosition = localHitPosition;

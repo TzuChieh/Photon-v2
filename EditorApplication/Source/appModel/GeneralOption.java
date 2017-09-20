@@ -5,7 +5,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 
-import appGui.util.FSUtil;
+import util.FSUtil;
 
 public final class GeneralOption extends SettingGroup
 {

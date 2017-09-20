@@ -289,6 +289,7 @@
     <ClCompile Include="Source\Core\Intersectable\Kdtree\KdtreeAABB.cpp" />
     <ClCompile Include="Source\Core\Intersectable\Kdtree\KdtreeIntersector.cpp" />
     <ClCompile Include="Source\Core\Intersectable\Kdtree\KdtreeNode.cpp" />
+    <ClCompile Include="Source\Utility\Timer.cpp" />
     <ClCompile Include="Source\World\LightSampler\LightSampler.cpp" />
     <ClCompile Include="Source\World\LightSampler\UniformRandomLightSampler.cpp" />
     <ClCompile Include="Source\World\Scene.cpp" />
@@ -459,6 +460,7 @@
     <ClInclude Include="Source\PostProcess\ToneMapper\ToneMapper.h" />
     <ClInclude Include="Source\Utility\Noncopyable.h" />
     <ClInclude Include="Source\Utility\TConstIteratorProxy.h" />
+    <ClInclude Include="Source\Utility\Timer.h" />
     <ClInclude Include="Source\Utility\TIteratorProxy.h" />
     <ClInclude Include="Source\Core\Intersectable\BruteForceIntersector.h" />
     <ClInclude Include="Source\Core\Intersectable\Bvh\BvhBuilder.h" />
