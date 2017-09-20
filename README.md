@@ -45,7 +45,7 @@ The scene descripting language (SDL) designed by T.C. Chang can be stored into a
 ## About the Author
 Development Blog: http://tcchangs.blogspot.tw/ <br />
 YouTube Channel:  https://www.youtube.com/channel/UCKdlogjqjuFsuv06wajp-2g <br />
-Facebook Page:    https://www.facebook.com/tokzin3d/ <br />
+Facebook Page:    https://www.facebook.com/tccthedeveloper/ <br />
 E-mail:           b01502051@ntu.edu.tw <br />
 
 If you have any questions or ideas about my project, feel free to send me an e-mail (= <br />
