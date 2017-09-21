@@ -7,10 +7,10 @@ namespace ph
 
 class Primitive;
 
-class Intersection final
+class IntersectionDetail final
 {
 public:
-	Intersection();
+	IntersectionDetail();
 
 	inline const Vector3R& getHitPosition() const
 	{

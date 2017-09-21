@@ -203,11 +203,12 @@
     <ClCompile Include="Source\Core\Intersectable\EmitablePrimitive.cpp" />
     <ClCompile Include="Source\Core\Intersectable\Intersectable.cpp" />
     <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp" />
-    <ClCompile Include="Source\Core\Intersection.cpp" />
+    <ClCompile Include="Source\Core\IntersectionDetail.cpp" />
     <ClInclude Include="Source\Actor\CookingContext.h" />
     <ClInclude Include="Source\Actor\Material\AbradedSurface.h" />
     <ClInclude Include="Source\Actor\Material\IdealSubstance.h" />
     <ClInclude Include="Source\Actor\ModelBuilder.h" />
+    <ClInclude Include="Source\Core\IntersectionProbe.h" />
     <ClInclude Include="Source\Core\Quantity\Private\TAbstractSpectralStrength.ipp">
       <FileType>CppCode</FileType>
     </ClInclude>
@@ -412,7 +413,7 @@
     <ClInclude Include="Source\Actor\Texture\ConstantTexture.h" />
     <ClInclude Include="Source\FileIO\ValueParser.h" />
     <ClInclude Include="Source\Core\Filmic\Film.h" />
-    <ClInclude Include="Source\Core\Intersection.h" />
+    <ClInclude Include="Source\Core\IntersectionDetail.h" />
     <ClInclude Include="Source\Core\Renderer\Renderer.h" />
     <ClInclude Include="Source\Core\Sample.h" />
     <ClInclude Include="Source\Core\SampleGenerator\SampleGenerator.h" />

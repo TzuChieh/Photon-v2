@@ -8,7 +8,8 @@ namespace ph
 {
 
 class Ray;
-class Intersection;
+class IntersectionProbe;
+class IntersectionDetail;
 class AABB3D;
 class PrimitiveMetadata;
 class PositionSample;
@@ -21,7 +22,9 @@ public:
 
 	using Intersectable::isIntersecting;
 	virtual bool isIntersecting(const Ray& ray, 
-	                            Intersection* out_intersection) const = 0;
+	                            IntersectionProbe* out_probe) const = 0;
+	virtual void calcIntersectionDetail(const Ray& ray, const IntersectionProbe& probe,
+	                                    IntersectionDetail* out_detail) const = 0;
 
 	virtual bool isIntersectingVolumeConservative(const AABB3D& aabb) const = 0;
 	virtual void calcAABB(AABB3D* out_aabb) const = 0;
