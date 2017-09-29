@@ -1,6 +1,6 @@
 #include "Core/Integrator/DebugIntegrator.h"
 #include "Core/Ray.h"
-#include "Core/Intersection.h"
+#include "Core/IntersectionDetail.h"
 #include "World/Scene.h"
 #include "Math/TVector3.h"
 

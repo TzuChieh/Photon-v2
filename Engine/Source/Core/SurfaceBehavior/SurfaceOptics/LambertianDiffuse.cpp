@@ -4,7 +4,6 @@
 #include "Math/Random.h"
 #include "Math/constant.h"
 #include "Actor/Material/MatteOpaque.h"
-#include "Core/Intersection.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/random_sample.h"
 #include "Math/Math.h"
 
@@ -27,7 +26,7 @@ void LambertianDiffuse::setAlbedo(const std::shared_ptr<Texture>& albedo)
 	m_albedo = albedo;
 }
 
-void LambertianDiffuse::evalBsdf(const Intersection& X, const Vector3R& L, const Vector3R& V,
+void LambertianDiffuse::evalBsdf(const IntersectionDetail& X, const Vector3R& L, const Vector3R& V,
                                  SpectralStrength* const out_bsdf, ESurfacePhenomenon* const out_type) const
 {
 	const real NoL = X.getHitSmoothNormal().dot(L);
@@ -46,7 +45,7 @@ void LambertianDiffuse::evalBsdf(const Intersection& X, const Vector3R& L, const
 	*out_type = ESurfacePhenomenon::REFLECTION;
 }
 
-void LambertianDiffuse::genBsdfSample(const Intersection& X, const Vector3R& V,
+void LambertianDiffuse::genBsdfSample(const IntersectionDetail& X, const Vector3R& V,
                                   Vector3R* const out_L, SpectralStrength* const out_pdfAppliedBsdf, ESurfacePhenomenon* const out_type) const
 {
 	// Lambertian diffuse model's BRDF is simply albedo/pi.
@@ -75,7 +74,7 @@ void LambertianDiffuse::genBsdfSample(const Intersection& X, const Vector3R& V,
 	*out_type = ESurfacePhenomenon::REFLECTION;
 }
 
-void LambertianDiffuse::calcBsdfSamplePdf(const Intersection& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
+void LambertianDiffuse::calcBsdfSamplePdf(const IntersectionDetail& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
                                           real* const out_pdfW) const
 {
 	const Vector3R& N = X.getHitSmoothNormal();

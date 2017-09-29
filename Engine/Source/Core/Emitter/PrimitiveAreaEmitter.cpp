@@ -1,7 +1,7 @@
 #include "Core/Emitter/PrimitiveAreaEmitter.h"
 #include "Math/TVector3.h"
 #include "Actor/Geometry/Geometry.h"
-#include "Core/Intersection.h"
+#include "Core/IntersectionDetail.h"
 #include "Actor/Texture/ConstantTexture.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Math/Random.h"
@@ -39,9 +39,9 @@ PrimitiveAreaEmitter::~PrimitiveAreaEmitter()
 
 }
 
-void PrimitiveAreaEmitter::evalEmittedRadiance(const Intersection& intersection, SpectralStrength* const out_radiance) const
+void PrimitiveAreaEmitter::evalEmittedRadiance(const IntersectionDetail& X, SpectralStrength* const out_radiance) const
 {
-	m_emittedRadiance->sample(intersection.getHitUVW(), out_radiance);
+	m_emittedRadiance->sample(X.getHitUVW(), out_radiance);
 }
 
 void PrimitiveAreaEmitter::genDirectSample(const Vector3R& targetPos, Vector3R* const out_emitPos, SpectralStrength* const out_emittedRadiance, real* const out_PDF) const

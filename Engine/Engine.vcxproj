@@ -212,6 +212,7 @@
     <ClInclude Include="Source\Core\Quantity\Private\TAbstractSpectralStrength.ipp">
       <FileType>CppCode</FileType>
     </ClInclude>
+    <ClCompile Include="Source\Core\IntersectionProbe.cpp" />
     <ClCompile Include="Source\Core\Quantity\Private\RgbSpectralStrength.cpp" />
     <ClCompile Include="Source\Core\Renderer\BulkRenderer.cpp" />
     <ClCompile Include="Source\Core\Renderer\Renderer.cpp" />

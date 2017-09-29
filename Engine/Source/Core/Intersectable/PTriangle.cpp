@@ -2,7 +2,8 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Transform/StaticTransform.h"
 #include "Core/Ray.h"
-#include "Core/Intersection.h"
+#include "Core/IntersectionProbe.h"
+#include "Core/IntersectionDetail.h"
 #include "Core/Bound/AABB3D.h"
 #include "Math/Random.h"
 #include "Core/Sample/PositionSample.h"
@@ -34,7 +35,7 @@ PTriangle::PTriangle(const PrimitiveMetadata* const metadata, const Vector3R& vA
 
 PTriangle::~PTriangle() = default;
 
-bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersection) const
+bool PTriangle::isIntersecting(const Ray& ray, IntersectionProbe* const out_probe) const
 {
 	Vector3R rayDir = ray.getDirection();
 	Vector3R vAt = m_vA.sub(ray.getOrigin());
@@ -145,6 +146,139 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 
 	// so the ray intersects the triangle
 
+	const real hitT = hitTscaled / determinant;
+	out_probe->set(this, hitT);
+
+	return true;
+}
+
+void PTriangle::calcIntersectionDetail(const Ray& ray, const IntersectionProbe& probe,
+                                       IntersectionDetail* const out_detail) const
+{
+	/*const Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.hitRayT));
+	const Vector3R& hitBaryABC  = calcBarycentricCoord(hitPosition);
+
+	const Vector3R& hitSmoothNormal = Vector3R::weightedSum(
+		m_nA, hitBaryABC.x,
+		m_nB, hitBaryABC.y,
+		m_nC, hitBaryABC.z);
+
+	const Vector3R& hitUVW = Vector3R::weightedSum(
+		m_uvwA, hitBaryABC.x,
+		m_uvwB, hitBaryABC.y,
+		m_uvwC, hitBaryABC.z);
+
+	out_detail->set(this, hitPosition, hitSmoothNormal, m_faceNormal, hitUVW, probe.hitRayT);*/
+
+	Vector3R rayDir = ray.getDirection();
+	Vector3R vAt = m_vA.sub(ray.getOrigin());
+	Vector3R vBt = m_vB.sub(ray.getOrigin());
+	Vector3R vCt = m_vC.sub(ray.getOrigin());
+
+	// find dominant dimension of ray direction, then make it Z, 
+	// the rest dimensions are arbitrarily assigned
+	if(std::abs(rayDir.x) > std::abs(rayDir.y))
+	{
+		// X dominant
+		if(std::abs(rayDir.x) > std::abs(rayDir.z))
+		{
+			rayDir.set(rayDir.y, rayDir.z, rayDir.x);
+			vAt.set(vAt.y, vAt.z, vAt.x);
+			vBt.set(vBt.y, vBt.z, vBt.x);
+			vCt.set(vCt.y, vCt.z, vCt.x);
+		}
+		// Z dominant
+		else
+		{
+			// left as-is
+		}
+	}
+	else
+	{
+		// Y dominant
+		if(std::abs(rayDir.y) > std::abs(rayDir.z))
+		{
+			rayDir.set(rayDir.z, rayDir.x, rayDir.y);
+			vAt.set(vAt.z, vAt.x, vAt.y);
+			vBt.set(vBt.z, vBt.x, vBt.y);
+			vCt.set(vCt.z, vCt.x, vCt.y);
+		}
+		// Z dominant
+		else
+		{
+			// left as-is
+		}
+	}
+
+	const real reciRayDirZ = 1.0_r / rayDir.z;
+	const real shearX = -rayDir.x * reciRayDirZ;
+	const real shearY = -rayDir.y * reciRayDirZ;
+	const real shearZ = reciRayDirZ;
+
+	vAt.x += shearX * vAt.z;
+	vAt.y += shearY * vAt.z;
+	vBt.x += shearX * vBt.z;
+	vBt.y += shearY * vBt.z;
+	vCt.x += shearX * vCt.z;
+	vCt.y += shearY * vCt.z;
+
+	real funcEa = vBt.x * vCt.y - vBt.y * vCt.x;
+	real funcEb = vCt.x * vAt.y - vCt.y * vAt.x;
+	real funcEc = vAt.x * vBt.y - vAt.y * vBt.x;
+
+	// possibly fallback to higher precision test for triangle edges
+	if(sizeof(real) < sizeof(float64))
+	{
+		if(funcEa == 0.0_r || funcEb == 0.0_r || funcEc == 0.0_r)
+		{
+			const float64 funcEa64 = static_cast<float64>(vBt.x) * static_cast<float64>(vCt.y) -
+				static_cast<float64>(vBt.y) * static_cast<float64>(vCt.x);
+			const float64 funcEb64 = static_cast<float64>(vCt.x) * static_cast<float64>(vAt.y) -
+				static_cast<float64>(vCt.y) * static_cast<float64>(vAt.x);
+			const float64 funcEc64 = static_cast<float64>(vAt.x) * static_cast<float64>(vBt.y) -
+				static_cast<float64>(vAt.y) * static_cast<float64>(vBt.x);
+
+			funcEa = static_cast<real>(funcEa64);
+			funcEb = static_cast<real>(funcEb64);
+			funcEc = static_cast<real>(funcEc64);
+		}
+	}
+
+	/*if((funcEa < 0.0_r || funcEb < 0.0_r || funcEc < 0.0_r) && (funcEa > 0.0_r || funcEb > 0.0_r || funcEc > 0.0_r))
+	{
+		return;
+	}*/
+
+	const real determinant = funcEa + funcEb + funcEc;
+
+	/*if(determinant == 0.0_r)
+	{
+		return;
+	}*/
+
+	vAt.z *= shearZ;
+	vBt.z *= shearZ;
+	vCt.z *= shearZ;
+
+	const real hitTscaled = funcEa * vAt.z + funcEb * vBt.z + funcEc * vCt.z;
+
+	/*if(determinant > 0.0_r)
+	{
+		if(hitTscaled < ray.getMinT() * determinant || hitTscaled > ray.getMaxT() * determinant)
+		{
+			return;
+		}
+	}
+	else
+	{
+		if(hitTscaled > ray.getMinT() * determinant || hitTscaled < ray.getMaxT() * determinant)
+		{
+			return;
+		}
+	}*/
+
+	// so the ray intersects the triangle
+
 	const real reciDeterminant = 1.0_r / determinant;
 	const real baryA = funcEa * reciDeterminant;
 	const real baryB = funcEb * reciDeterminant;
@@ -156,96 +290,12 @@ bool PTriangle::isIntersecting(const Ray& ray, Intersection* const out_intersect
 	Vector3R hitSmoothNormal = Vector3R::weightedSum(m_nA, baryA, m_nB, baryB, m_nC, baryC);
 	Vector3R hitGeoNormal = m_faceNormal;
 
-	out_intersection->set(this, 
-	                      hitPosition, 
-	                      hitSmoothNormal.normalizeLocal(), 
-	                      hitGeoNormal.normalizeLocal(), 
-	                      m_uvwA.mul(baryA).addLocal(m_uvwB.mul(baryB)).addLocal(m_uvwC.mul(baryC)), 
-	                      hitT);
-
-	return true;
-}
-
-bool PTriangle::isIntersecting(const Ray& ray) const
-{
-	//Ray localRay;
-	//m_metadata->worldToLocal.transformRay(ray, &localRay);
-
-	//// hitT's unit is in world space (localRay's direction can have scale factor)
-	//const real hitT = localRay.getOrigin().sub(m_vA).dot(m_faceNormal) / (-localRay.getDirection().dot(m_faceNormal));
-
-	//// reject by distance (NaN-aware)
-	//if(!(ray.getMinT() < hitT && hitT < ray.getMaxT()))
-	//	return false;
-
-	//// projected hit point
-	//real hitPu, hitPv;
-
-	//// projected side vector AB and AC
-	//real abPu, abPv, acPu, acPv;
-
-	//// find dominant axis
-	//if(abs(m_faceNormal.x) > abs(m_faceNormal.y))
-	//{
-	//	// X dominant, projection plane is YZ
-	//	if(abs(m_faceNormal.x) > abs(m_faceNormal.z))
-	//	{
-	//		hitPu = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
-	//		hitPv = hitT * localRay.getDirection().z + localRay.getOrigin().z - m_vA.z;
-	//		abPu = m_eAB.y;
-	//		abPv = m_eAB.z;
-	//		acPu = m_eAC.y;
-	//		acPv = m_eAC.z;
-	//	}
-	//	// Z dominant, projection plane is XY
-	//	else
-	//	{
-	//		hitPu = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
-	//		hitPv = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
-	//		abPu = m_eAB.x;
-	//		abPv = m_eAB.y;
-	//		acPu = m_eAC.x;
-	//		acPv = m_eAC.y;
-	//	}
-	//}
-	//// Y dominant, projection plane is ZX
-	//else if(abs(m_faceNormal.y) > abs(m_faceNormal.z))
-	//{
-	//	hitPu = hitT * localRay.getDirection().z + localRay.getOrigin().z - m_vA.z;
-	//	hitPv = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
-	//	abPu = m_eAB.z;
-	//	abPv = m_eAB.x;
-	//	acPu = m_eAC.z;
-	//	acPv = m_eAC.x;
-	//}
-	//// Z dominant, projection plane is XY
-	//else
-	//{
-	//	hitPu = hitT * localRay.getDirection().x + localRay.getOrigin().x - m_vA.x;
-	//	hitPv = hitT * localRay.getDirection().y + localRay.getOrigin().y - m_vA.y;
-	//	abPu = m_eAB.x;
-	//	abPv = m_eAB.y;
-	//	acPu = m_eAC.x;
-	//	acPv = m_eAC.y;
-	//}
-
-	//// TODO: check if these operations are possible of producing NaNs
-
-	//// barycentric coordinate of vertex B in the projected plane
-	//const real baryB = (hitPu*acPv - hitPv*acPu) / (abPu*acPv - abPv*acPu);
-	//if(baryB < 0.0_r) return false;
-
-	//// barycentric coordinate of vertex C in the projected plane
-	//const real baryC = (hitPu*abPv - hitPv*abPu) / (acPu*abPv - abPu*acPv);
-	//if(baryC < 0.0_r) return false;
-
-	//if(baryB + baryC > 1.0_r) return false;
-
-	//// so the ray intersects the triangle (TODO: reuse calculated results!)
-
-	std::cerr << "warning: bool PTriangle::isIntersecting(const Ray& ray) const not implemented" << std::endl;
-
-	return true;
+	out_detail->set(this,
+		hitPosition,
+		hitSmoothNormal.normalizeLocal(),
+		hitGeoNormal.normalizeLocal(),
+		m_uvwA.mul(baryA).addLocal(m_uvwB.mul(baryB)).addLocal(m_uvwC.mul(baryC)),
+		hitT);
 }
 
 void PTriangle::calcAABB(AABB3D* const out_aabb) const
@@ -272,7 +322,7 @@ void PTriangle::calcAABB(AABB3D* const out_aabb) const
 	out_aabb->setMaxVertex(Vector3R(maxX + TRIANGLE_EPSILON, maxY + TRIANGLE_EPSILON, maxZ + TRIANGLE_EPSILON));
 }
 
-bool PTriangle::isIntersectingVolumeConservative(const AABB3D& aabb) const
+bool PTriangle::isIntersectingVolumeConservative(const AABB3D& volume) const
 {
 	// Reference: Tomas Akenine-Moeller's 
 	// "Fast 3D Triangle-Box Overlap Testing", 
@@ -282,13 +332,13 @@ bool PTriangle::isIntersectingVolumeConservative(const AABB3D& aabb) const
 	Vector3R tvB = m_vB;
 	Vector3R tvC = m_vC;
 
-	// move the origin to the AABB's center
-	const Vector3R aabbCenter(aabb.getMinVertex().add(aabb.getMaxVertex()).mulLocal(0.5_r));
+	// move the origin to the volume/AABB's center
+	const Vector3R aabbCenter(volume.getMinVertex().add(volume.getMaxVertex()).mulLocal(0.5_r));
 	tvA.subLocal(aabbCenter);
 	tvB.subLocal(aabbCenter);
 	tvC.subLocal(aabbCenter);
 
-	Vector3R aabbHalfExtents = aabb.getMaxVertex().sub(aabbCenter);
+	Vector3R aabbHalfExtents = volume.getMaxVertex().sub(aabbCenter);
 	Vector3R projection;
 	Vector3R sortedProjection;// (min, mid, max)
 
@@ -441,7 +491,8 @@ real PTriangle::calcExtendedArea() const
 Vector3R PTriangle::calcBarycentricCoord(const Vector3R& position) const
 {
 	// Reference: Real-Time Collision Detection, Volume 1, P.47 ~ P.48
-	// Computes barycentric coordinates (a, b, c) for a position with respect to triangle (A, B, C).
+	// Computes barycentric coordinates (a, b, c) for a position with 
+	// respect to triangle ABC.
 
 	const Vector3R eAP = position.sub(m_vA);
 
@@ -451,6 +502,8 @@ Vector3R PTriangle::calcBarycentricCoord(const Vector3R& position) const
 	const real d20 = eAP.dot(m_eAB);
 	const real d21 = eAP.dot(m_eAC);
 	
+	// TODO: check numeric stability
+
 	const real reciDenom = 1.0_r / (d00 * d11 - d01 * d01);
 	
 	const real b = (d11 * d20 - d01 * d21) * reciDenom;

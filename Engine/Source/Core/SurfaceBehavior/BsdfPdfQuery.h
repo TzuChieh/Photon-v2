@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Math/TVector3.h"
-#include "Core/Intersection.h"
+#include "Core/IntersectionDetail.h"
 #include "Core/SurfaceBehavior/ESurfacePhenomenon.h"
 
 namespace ph
@@ -16,7 +16,7 @@ public:
 	class Input final
 	{
 	public:
-		Intersection       X;
+		IntersectionDetail X;
 		Vector3R           L;
 		Vector3R           V;
 		ESurfacePhenomenon phenomenon;
@@ -24,7 +24,7 @@ public:
 		void set(const BsdfEvaluation& bsdfEval);
 		void set(const BsdfSample& sample);
 
-		inline void set(const Intersection& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon phenomenon)
+		inline void set(const IntersectionDetail& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon phenomenon)
 		{
 			this->X          = X;
 			this->L          = L;

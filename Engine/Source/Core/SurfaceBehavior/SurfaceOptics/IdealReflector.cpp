@@ -1,6 +1,5 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealReflector.h"
 #include "Core/SurfaceBehavior/Utility/ExactDielectricFresnel.h"
-#include "Core/Intersection.h"
 
 #include <iostream>
 #include <cmath>
@@ -18,7 +17,7 @@ IdealReflector::IdealReflector() :
 IdealReflector::~IdealReflector() = default;
 
 void IdealReflector::evalBsdf(
-	const Intersection& X, const Vector3R& L, const Vector3R& V,
+	const IntersectionDetail& X, const Vector3R& L, const Vector3R& V,
 	SpectralStrength* const out_bsdf,
 	ESurfacePhenomenon* const out_type) const
 {
@@ -27,7 +26,7 @@ void IdealReflector::evalBsdf(
 }
 
 void IdealReflector::genBsdfSample(
-	const Intersection& X, const Vector3R& V,
+	const IntersectionDetail& X, const Vector3R& V,
 	Vector3R* const out_L,
 	SpectralStrength* const out_pdfAppliedBsdf,
 	ESurfacePhenomenon* const out_type) const
@@ -43,7 +42,7 @@ void IdealReflector::genBsdfSample(
 }
 
 void IdealReflector::calcBsdfSamplePdf(
-	const Intersection& X, const Vector3R& L, const Vector3R& V,
+	const IntersectionDetail& X, const Vector3R& L, const Vector3R& V,
 	const ESurfacePhenomenon& type,
 	real* const out_pdfW) const
 {

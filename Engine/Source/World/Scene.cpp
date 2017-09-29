@@ -19,9 +19,9 @@ Scene::Scene(const Intersector* intersector, const LightSampler* lightSampler) :
 
 }
 
-bool Scene::isIntersecting(const Ray& ray, Intersection* out_intersection) const
+bool Scene::isIntersecting(const Ray& ray, IntersectionProbe* out_probe) const
 {
-	return m_intersector->isIntersecting(ray, out_intersection);
+	return m_intersector->isIntersecting(ray, out_probe);
 }
 
 bool Scene::isIntersecting(const Ray& ray) const

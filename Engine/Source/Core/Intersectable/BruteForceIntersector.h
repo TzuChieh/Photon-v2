@@ -16,7 +16,7 @@ public:
 	virtual ~BruteForceIntersector() override;
 
 	virtual void update(const CookedActorStorage& cookedActors) override;
-	virtual bool isIntersecting(const Ray& ray, Intersection* out_intersection) const override;
+	virtual bool isIntersecting(const Ray& ray, IntersectionProbe* out_probe) const override;
 	virtual bool isIntersecting(const Ray& ray) const override;
 	virtual void calcAABB(AABB3D* out_aabb) const override;
 

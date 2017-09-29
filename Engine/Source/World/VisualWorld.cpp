@@ -1,5 +1,4 @@
 #include "World/VisualWorld.h"
-#include "Core/Intersection.h"
 #include "Common/primitive_type.h"
 #include "Core/Ray.h"
 #include "Actor/Actor.h"

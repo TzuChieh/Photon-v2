@@ -9,21 +9,26 @@ namespace ph
 {
 
 class Ray;
-class Intersection;
+class IntersectionProbe;
 class Primitive;
 class CookedActorStorage;
 
+// TODO: rename to ClusteredIntersectable
 class Intersector : public Intersectable
 {
 public:
 	virtual ~Intersector() = 0;
 
 	virtual void update(const CookedActorStorage& cookedActors) = 0;
-
+	
 	virtual bool isIntersecting(const Ray& ray, 
-	                            Intersection* out_intersection) const = 0;
+	                            IntersectionProbe* out_probe) const = 0;
 
 	virtual void calcAABB(AABB3D* out_aabb) const = 0;
+	
+	using Intersectable::isIntersecting;
+	virtual void calcIntersectionDetail(const Ray& ray, const IntersectionProbe& probe,
+	                                    IntersectionDetail* out_detail) const override;
 };
 
 }// end namespace ph

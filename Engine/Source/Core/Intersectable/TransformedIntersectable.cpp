@@ -1,6 +1,7 @@
 #include "Core/Intersectable/TransformedIntersectable.h"
 #include "Core/Ray.h"
-#include "Core/Intersection.h"
+#include "Core/IntersectionProbe.h"
+#include "Core/IntersectionDetail.h"
 #include "Core/Bound/AABB3D.h"
 
 namespace ph
@@ -26,19 +27,15 @@ TransformedIntersectable::TransformedIntersectable(const TransformedIntersectabl
 
 TransformedIntersectable::~TransformedIntersectable() = default;
 
-bool TransformedIntersectable::isIntersecting(const Ray& ray,
-                                              Intersection* const out_intersection) const
-{
-	const Time& time = ray.getTime();
+// FIXME: intersecting routines' time correctness
 
+bool TransformedIntersectable::isIntersecting(const Ray& ray, 
+                                              IntersectionProbe* const out_probe) const
+{
 	Ray localRay;
 	m_worldToLocal->transform(ray, &localRay);
 
-	Intersection localIntersection;
-	const bool isIntersecting = m_intersectable->isIntersecting(localRay, &localIntersection);
-	m_localToWorld->transform(localIntersection, time, out_intersection);
-
-	return isIntersecting;
+	return m_intersectable->isIntersecting(localRay, out_probe);
 }
 
 bool TransformedIntersectable::isIntersecting(const Ray& ray) const
@@ -47,6 +44,18 @@ bool TransformedIntersectable::isIntersecting(const Ray& ray) const
 	m_worldToLocal->transform(ray, &localRay);
 
 	return m_intersectable->isIntersecting(localRay);
+}
+
+void TransformedIntersectable::calcIntersectionDetail(const Ray& ray, const IntersectionProbe& probe,
+                                                      IntersectionDetail* const out_detail) const
+{
+	Ray localRay;
+	m_worldToLocal->transform(ray, &localRay);
+
+	IntersectionDetail localDetail;
+	m_intersectable->calcIntersectionDetail(localRay, probe, &localDetail);
+
+	m_localToWorld->transform(localDetail, out_detail);
 }
 
 // FIXME: this is broken under timed environment

@@ -1,6 +1,7 @@
 #include "Core/Intersectable/BruteForceIntersector.h"
 #include "Common/primitive_type.h"
-#include "Core/Intersection.h"
+#include "Core/IntersectionProbe.h"
+#include "Core/IntersectionDetail.h"
 #include "Core/Ray.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Actor/CookedActorStorage.h"
@@ -24,25 +25,25 @@ void BruteForceIntersector::update(const CookedActorStorage& cookedActors)
 	}
 }
 
-bool BruteForceIntersector::isIntersecting(const Ray& ray, Intersection* const out_intersection) const
+bool BruteForceIntersector::isIntersecting(const Ray& ray, IntersectionProbe* const out_probe) const
 {
-	Intersection intersection;
-	real closestSquaredHitDist = std::numeric_limits<real>::infinity();
+	IntersectionProbe currentProbe;
+	real closestRayHitT = std::numeric_limits<real>::infinity();
 
 	for(const Intersectable* intersectable : m_intersectables)
 	{
-		if(intersectable->isIntersecting(ray, &intersection))
+		if(intersectable->isIntersecting(ray, &currentProbe))
 		{
-			real squaredHitDist = intersection.getHitPosition().sub(ray.getOrigin()).lengthSquared();
-			if(closestSquaredHitDist > squaredHitDist)
+			if(currentProbe.hitRayT < closestRayHitT)
 			{
-				closestSquaredHitDist = squaredHitDist;
-				*out_intersection = intersection;
+				closestRayHitT = currentProbe.hitRayT;
+				*out_probe     = currentProbe;
 			}
 		}
 	}
 
-	return closestSquaredHitDist != std::numeric_limits<real>::infinity();
+	// TODO: modify this into using other information
+	return closestRayHitT != std::numeric_limits<real>::infinity();
 }
 
 bool BruteForceIntersector::isIntersecting(const Ray& ray) const

@@ -2,7 +2,7 @@
 #include "Core/Quantity/Time.h"
 #include "Core/Ray.h"
 #include "Math/TVector3.h"
-#include "Core/Intersection.h"
+#include "Core/IntersectionDetail.h"
 #include "Core/Bound/AABB3D.h"
 
 namespace ph
@@ -59,22 +59,22 @@ void Transform::transform(const Ray& ray, Ray* const out_ray) const
 	out_ray->setMaxT(rayMaxT);
 }
 
-void Transform::transform(const Intersection& intersection, const Time& time, 
-                          Intersection* const out_intersection) const
+void Transform::transform(const IntersectionDetail& detail, const Time& time,
+                          IntersectionDetail* const out_detail) const
 {
 	Vector3R tHitPosition;
 	Vector3R tHitSmoothNormal;
 	Vector3R tHitGeoNormal;
-	transformPoint      (intersection.getHitPosition(),     time, &tHitPosition);
-	transformOrientation(intersection.getHitSmoothNormal(), time, &tHitSmoothNormal);
-	transformOrientation(intersection.getHitGeoNormal(),    time, &tHitGeoNormal);
+	transformPoint      (detail.getHitPosition(),     time, &tHitPosition);
+	transformOrientation(detail.getHitSmoothNormal(), time, &tHitSmoothNormal);
+	transformOrientation(detail.getHitGeoNormal(),    time, &tHitGeoNormal);
 
-	out_intersection->set(intersection.getHitPrimitive(),
-	                      tHitPosition,
-	                      tHitSmoothNormal.normalizeLocal(),
-	                      tHitGeoNormal.normalizeLocal(),
-	                      intersection.getHitUVW(),
-	                      intersection.getHitRayT());
+	out_detail->set(detail.getHitPrimitive(),
+	                tHitPosition,
+	                tHitSmoothNormal.normalizeLocal(),
+	                tHitGeoNormal.normalizeLocal(),
+	                detail.getHitUVW(),
+	                detail.getHitRayT());
 }
 
 void Transform::transform(const AABB3D& aabb, const Time& time,
@@ -95,10 +95,10 @@ void Transform::transform(const AABB3D& aabb, const Time& time,
 	}
 }
 
-void Transform::transform(const Intersection& intersection, 
-                          Intersection* const out_intersection) const
+void Transform::transform(const IntersectionDetail& detail,
+                          IntersectionDetail* const out_detail) const
 {
-	transform(intersection, Time(), out_intersection);
+	transform(detail, Time(), out_detail);
 }
 
 void Transform::transform(const AABB3D& aabb, AABB3D* const out_aabb) const

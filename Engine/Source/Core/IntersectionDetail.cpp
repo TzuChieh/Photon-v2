@@ -1,5 +1,7 @@
 #include "Core/IntersectionDetail.h"
 
+#include <limits>
+
 namespace ph
 {
 
@@ -9,7 +11,7 @@ IntersectionDetail::IntersectionDetail() :
 	m_hitSmoothNormal(0, 0, -1), 
 	m_hitGeoNormal(0, 0, -1), 
 	m_hitUVW(0, 0, 0), 
-	m_hitRayT(0.0_r)
+	m_hitRayT(std::numeric_limits<real>::infinity())
 {
 
 }

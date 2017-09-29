@@ -8,7 +8,7 @@ namespace ph
 
 class Intersector;
 class LightSampler;
-class Intersection;
+class IntersectionProbe;
 class DirectLightSample;
 class Ray;
 class Emitter;
@@ -20,7 +20,7 @@ public:
 	Scene();
 	Scene(const Intersector* intersector, const LightSampler* lightSampler);
 
-	bool isIntersecting(const Ray& ray, Intersection* out_intersection) const;
+	bool isIntersecting(const Ray& ray, IntersectionProbe* out_probe) const;
 	bool isIntersecting(const Ray& ray) const;
 	const Emitter* pickEmitter(real* const out_PDF) const;
 	void genDirectSample(DirectLightSample& sample) const;

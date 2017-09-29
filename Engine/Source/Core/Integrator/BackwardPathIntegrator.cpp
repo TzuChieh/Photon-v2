@@ -2,7 +2,8 @@
 #include "Core/Ray.h"
 #include "World/Scene.h"
 #include "Math/TVector3.h"
-#include "Core/Intersection.h"
+#include "Core/IntersectionProbe.h"
+#include "Core/IntersectionDetail.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
@@ -42,7 +43,8 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 	SpectralStrength accuRadiance(0);
 	SpectralStrength accuLiWeight(1);
 	//Vector3R rayOriginDelta;
-	Intersection intersection;
+	IntersectionProbe hitProbe;
+	IntersectionDetail hitDetail;
 
 	/*Ray ray;
 	camera.genSensingRay(sample, &ray);*/
@@ -50,28 +52,30 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 	// backward tracing to light
 	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), 0.0001_r, Ray::MAX_T, ray.getTime());// HACK: hard-coded number
 
-	while(numBounces <= MAX_RAY_BOUNCES && scene.isIntersecting(tracingRay, &intersection))
+	while(numBounces <= MAX_RAY_BOUNCES && scene.isIntersecting(tracingRay, &hitProbe))
 	{
 		bool keepSampling = true;
 
-		const auto* const metadata = intersection.getHitPrimitive()->getMetadata();
+		hitProbe.calcIntersectionDetail(tracingRay, &hitDetail);
+
+		const auto* const metadata = hitDetail.getHitPrimitive()->getMetadata();
 		const SurfaceBehavior& hitSurfaceBehavior = metadata->surfaceBehavior;
-		const Vector3R V = tracingRay.getDirection().mul(-1.0f);
+		const Vector3R& V = tracingRay.getDirection().mul(-1.0f);
 
 		///////////////////////////////////////////////////////////////////////////////
 		// sample emitted radiance
 
 		// sidedness agreement between real geometry and shading (phong-interpolated) normal
-		if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0.0f)
+		if(hitDetail.getHitSmoothNormal().dot(V) * hitDetail.getHitGeoNormal().dot(V) <= 0.0f)
 		{
 			break;
 		}
 
 		// only forward side is emitable
-		if(hitSurfaceBehavior.getEmitter() && V.dot(intersection.getHitSmoothNormal()) > 0.0_r)
+		if(hitSurfaceBehavior.getEmitter() && V.dot(hitDetail.getHitSmoothNormal()) > 0.0_r)
 		{
 			SpectralStrength radianceLi;
-			hitSurfaceBehavior.getEmitter()->evalEmittedRadiance(intersection, &radianceLi);
+			hitSurfaceBehavior.getEmitter()->evalEmittedRadiance(hitDetail, &radianceLi);
 
 			// avoid excessive, negative weight and possible NaNs
 			//accuLiWeight.clampLocal(0.0f, 1000.0f);
@@ -90,15 +94,15 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 		// sample BSDF
 
 		BsdfSample bsdfSample;
-		bsdfSample.inputs.set(intersection, tracingRay.getDirection().mul(-1.0f));
+		bsdfSample.inputs.set(hitDetail, V);
 		hitSurfaceBehavior.getSurfaceOptics()->genBsdfSample(bsdfSample);
 
-		const Vector3R N = intersection.getHitSmoothNormal();
-		const Vector3R L = bsdfSample.outputs.L;
+		const Vector3R& N = hitDetail.getHitSmoothNormal();
+		const Vector3R& L = bsdfSample.outputs.L;
 
 		// blackness check & sidedness agreement between real geometry and shading (phong-interpolated) normal
 		if(!bsdfSample.outputs.isGood() ||
-		   intersection.getHitSmoothNormal().dot(L) * intersection.getHitGeoNormal().dot(L) <= 0.0_r)
+		   hitDetail.getHitSmoothNormal().dot(L) * hitDetail.getHitGeoNormal().dot(L) <= 0.0_r)
 		{
 			break;
 		}
@@ -149,7 +153,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 
 		// prepare for next iteration
 		//const Vector3R nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
-		const Vector3R nextRayOrigin(intersection.getHitPosition());
+		const Vector3R nextRayOrigin(hitDetail.getHitPosition());
 		const Vector3R nextRayDirection(L);
 		tracingRay.setOrigin(nextRayOrigin);
 		tracingRay.setDirection(nextRayDirection);
