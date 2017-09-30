@@ -1,10 +1,9 @@
 from ..psdl import clause
 from .. import utility
-from ..utility.meta import *
+from ..utility import meta
 from ..psdl import materialcmd
 
 import bpy
-import math
 import mathutils
 
 # ExportHelper is a helper class, defines filename and
@@ -12,6 +11,8 @@ import mathutils
 from bpy_extras.io_utils import ExportHelper
 from bpy.props import StringProperty, BoolProperty, EnumProperty
 from bpy.types import Operator
+
+import math
 
 
 def mangled_geometry_name(obj, name, suffix):
@@ -374,6 +375,7 @@ def export_object_mesh(exporter, obj, scene):
 
 
 def export_object_lamp(exporter, obj, scene):
+
 	lamp = obj.data
 
 	if lamp.type == "AREA":
@@ -410,25 +412,34 @@ def export_object_lamp(exporter, obj, scene):
 
 
 def export_camera(exporter, obj, scene):
+
 	camera = obj.data
+
 	if camera.type == "PERSP":
-		if camera.lens_unit == "FOV":
 
-			pos, rot, scale = obj.matrix_world.decompose()
+		pos, rot, scale = obj.matrix_world.decompose()
+		if abs(scale.x - 1.0) > 0.0001 or abs(scale.y - 1.0) > 0.0001 or abs(scale.z - 1.0) > 0.0001:
+			print("warning: camera (%s) contains scale factor, ignoring" % camera.name)
 
-			if (scale.x - 1.0) > 0.0001 or (scale.y - 1.0) > 0.0001 or (scale.z - 1.0) > 0.0001:
-				print("warning: camera (%s) contains scale factor, ignoring" %(camera.name))
+		# Blender's camera intially pointing (0, 0, -1) with up (0, 1, 0) in its math.py system
+		# (also note that Blender's quaternion works this way, does not require q*v*q').
+		cam_dir     = rot * mathutils.Vector((0, 0, -1))
+		cam_up_dir  = rot * mathutils.Vector((0, 1, 0))
+		fov_degrees = 70.0
 
-			# Blender's camera intially pointing (0, 0, -1) with up (0, 1, 0) in its math.py system.
-			# (Blender's quaternion works this way, does not require q*v*q')
-			fovDegrees = math.degrees(camera.angle)
-			camDir   = rot * mathutils.Vector((0, 0, -1))
-			camUpDir = rot * mathutils.Vector((0, 1, 0))
-
-			exporter.exportCamera("pinhole", fovDegrees, pos, camDir, camUpDir)
-
+		lens_unit = camera.lens_unit
+		if lens_unit == "FOV":
+			fov_degrees = math.degrees(camera.angle)
+		elif lens_unit == "MILLIMETERS":
+			sensor_width = camera.sensor_width
+			focal_length = camera.lens
+			fov_degrees  = math.degrees(math.atan((sensor_width / 2.0) / focal_length)) * 2.0
 		else:
-			print("warning: camera (%s) with lens unit %s is unsupported, not exporting" % (camera.name, camera.lens_unit))
+			print("warning: camera (%s) with lens unit %s is unsupported, not exporting"
+			      % (camera.name, camera.lens_unit))
+
+		exporter.exportCamera("pinhole", fov_degrees, pos, cam_dir, cam_up_dir)
+
 	else:
 		print("warning: camera (%s) type (%s) is unsupported, not exporting" % (camera.name, camera.type))
 
@@ -439,14 +450,14 @@ def export_core_commands(exporter, context):
 		if obj.type == "CAMERA":
 			export_camera(exporter, obj, context.scene)
 
-	meta = MetaGetter(context)
+	meta_info = meta.MetaGetter(context)
 
 	exporter.exportRaw("## film(hdr-rgb) [integer width %s] [integer height %s] [string filter-name \"mn\"]\n"
-	                   % (meta.render_width_px(), meta.render_height_px()))
+	                   % (meta_info.render_width_px(), meta_info.render_height_px()))
 
 	exporter.exportRaw("## sample-generator(stratified) [integer sample-amount 12] "
 	                   "[integer num-strata-2d-x %s] [integer num-strata-2d-y %s]\n"
-	                   % (meta.render_width_px(), meta.render_height_px()))
+	                   % (meta_info.render_width_px(), meta_info.render_height_px()))
 	exporter.exportRaw("## integrator(backward-path) \n")
 
 
