@@ -1,9 +1,5 @@
 package photonApi;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-
 public final class PhFrame
 {
 	protected long m_frameId;

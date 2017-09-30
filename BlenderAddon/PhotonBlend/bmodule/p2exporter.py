@@ -1,5 +1,6 @@
 from ..psdl import clause
 from .. import utility
+from ..utility.meta import *
 from ..psdl import materialcmd
 
 import bpy
@@ -427,21 +428,26 @@ def export_camera(exporter, obj, scene):
 			exporter.exportCamera("pinhole", fovDegrees, pos, camDir, camUpDir)
 
 		else:
-			print("warning: camera (%s) with lens unit %s is unsupported, not exporting" %(camera.name, camera.lens_unit))
+			print("warning: camera (%s) with lens unit %s is unsupported, not exporting" % (camera.name, camera.lens_unit))
 	else:
-		print("warning: camera (%s) type (%s) is unsupported, not exporting" %(camera.name, camera.type))
+		print("warning: camera (%s) type (%s) is unsupported, not exporting" % (camera.name, camera.type))
 
 
-def export_core_commands(exporter, scene):
-	objs = scene.objects
+def export_core_commands(exporter, context):
+	objs = context.scene.objects
 	for obj in objs:
 		if obj.type == "CAMERA":
-			export_camera(exporter, obj, scene)
+			export_camera(exporter, obj, context.scene)
 
-	exporter.exportRaw("## film(hdr-rgb) [integer width 400] [integer height 400] [string filter-name \"mn\"]\n")
+	meta = MetaGetter(context)
+
+	exporter.exportRaw("## film(hdr-rgb) [integer width %s] [integer height %s] [string filter-name \"mn\"]\n"
+	                   % (meta.render_width_px(), meta.render_height_px()))
+
 	exporter.exportRaw("## sample-generator(stratified) [integer sample-amount 12] "
-					   "[integer num-strata-2d-x 400] [integer num-strata-2d-y 400]\n")
-	exporter.exportRaw("## integrator(backward-mis) \n")
+	                   "[integer num-strata-2d-x %s] [integer num-strata-2d-y %s]\n"
+	                   % (meta.render_width_px(), meta.render_height_px()))
+	exporter.exportRaw("## integrator(backward-path) \n")
 
 
 def export_world_commands(exporter, scene):
@@ -494,7 +500,7 @@ class P2Exporter(Operator, ExportHelper):
 		exporter.begin()
 
 		scene = bpy.context.scene
-		export_core_commands(exporter, scene)
+		export_core_commands(exporter, context)
 		export_world_commands(exporter, scene)
 
 		exporter.end()

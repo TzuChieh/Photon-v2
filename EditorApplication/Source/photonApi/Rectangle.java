@@ -1,5 +1,7 @@
 package photonApi;
 
+import util.Time;
+
 public final class Rectangle
 {
 	public int x;
