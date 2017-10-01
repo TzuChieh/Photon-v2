@@ -1,14 +1,29 @@
-import bpy
+from ..utility import settings
+
 import sys
+import bpy
 
 
-class PhMaterialPanel(bpy.types.Panel):
-	"""Photon's material panel"""
-	bl_label       = "Photon-v2 Material"
-	bl_idname      = "MATERIAL_PT_photon"   # "<CATEGORY>_PT_<name>" is a naming convention for panels.
+class PhMaterialPanel:
 	bl_space_type  = "PROPERTIES"
 	bl_region_type = "WINDOW"
 	bl_context     = "material"
+
+	COMPATIBLE_ENGINES = {settings.renderer_id_name}
+
+	@classmethod
+	def poll(cls, context):
+		render_settings = context.scene.render
+		return render_settings.engine in cls.COMPATIBLE_ENGINES
+
+
+class PhMaterial(bpy.types.PropertyGroup):
+	pass
+
+
+class PhGeneralPanel(PhMaterialPanel, bpy.types.Panel):
+	"""Photon's material panel"""
+	bl_label = "Photon-v2 Material"
 
 	bpy.types.Material.ph_materialType = bpy.props.EnumProperty(
 		items = [
@@ -109,12 +124,17 @@ class PhMaterialPanel(bpy.types.Panel):
 		row.prop(material, "ph_emittedRadiance")
 
 
+material_panel_types = [PhGeneralPanel]
+
+
 def register():
-	bpy.utils.register_class(PhMaterialPanel)
+	for panel_type in material_panel_types:
+		bpy.utils.register_class(panel_type)
 
 
 def unregister():
-	bpy.utils.unregister_class(PhMaterialPanel)
+	for panel_type in material_panel_types:
+		bpy.utils.unregister_class(panel_type)
 
 
 if __name__ == "__main__":
