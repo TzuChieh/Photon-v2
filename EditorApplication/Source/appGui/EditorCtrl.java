@@ -54,7 +54,8 @@ public class EditorCtrl
     
     private WritableImage m_displayImage;
     
-    private ProjectEventListener m_editorFinalFrameReadyListener;
+    private ProjectEventListener m_projectFinalFrameReadyListener;
+    private SettingListener      m_renderSettingListener;
 	
 	@FXML private VBox        projectOverviewVbox;
 	@FXML private TitledPane  projectOverviewPane;
@@ -88,11 +89,19 @@ public class EditorCtrl
 		});
     	updateMessageTextArea();
     	
-    	m_editorFinalFrameReadyListener = (event) -> 
+    	m_projectFinalFrameReadyListener = (event) -> 
     	{
 			clearFrame();
 			loadFinalFrame();
 			drawFrame();
+    	};
+    	
+    	m_renderSettingListener = (event) ->
+    	{
+    		if(event.settingName.equals(RenderSetting.SCENE_FILE_NAME))
+    		{
+    			sceneFileTextField.setText(event.newSettingValue);
+    		}
     	};
     }
     
@@ -208,7 +217,10 @@ public class EditorCtrl
     private void loadFinalFrame()
     {
     	final Frame frame = m_project.getLocalFinalFrame();
-    	loadFrameBuffer(new FrameRegion(0, 0, frame.getWidthPx(), frame.getHeightPx(), frame));
+    	if(frame.isValid())
+    	{
+    		loadFrameBuffer(new FrameRegion(0, 0, frame.getWidthPx(), frame.getHeightPx(), frame));
+    	}
     }
 	
 	private void loadFrameBuffer(FrameRegion frameRegion)
@@ -336,20 +348,21 @@ public class EditorCtrl
 	{
 		if(m_project != null)
 		{
-			m_project.removeListener(m_editorFinalFrameReadyListener);
+			m_project.removeListener(m_projectFinalFrameReadyListener);
+			m_project.getRenderSetting().removeSettingListener(m_renderSettingListener);
 		}
 		
 		m_project = project;
 		
-		project.addListener(ProjectEventType.FINAL_FRAME_READY, m_editorFinalFrameReadyListener);
-		project.getRenderSetting().addSettingListener((event) -> 
-		{
-			String sceneFilename = project.getRenderSetting().get(RenderSetting.SCENE_FILE_NAME);
-			sceneFileTextField.setText(sceneFilename);
-		});
-	    	
+		project.addListener(ProjectEventType.FINAL_FRAME_READY, m_projectFinalFrameReadyListener);
+		project.getRenderSetting().addSettingListener(m_renderSettingListener);
+	    
 		clearFrame();
-		drawFrame();
+		if(project.getLocalFinalFrame().isValid())
+		{
+			loadFinalFrame();
+			drawFrame();
+		}
 		
 		sceneFileTextField.setText(project.getRenderSetting().get(RenderSetting.SCENE_FILE_NAME));
 	}

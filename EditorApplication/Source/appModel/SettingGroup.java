@@ -18,6 +18,8 @@ import appModel.event.SettingListener;
 
 public abstract class SettingGroup
 {
+	// TODO: consider making listener listening to specific setting
+	
 	private Map<String, String>   m_settings;
 	private List<SettingListener> m_settingListeners;
 	

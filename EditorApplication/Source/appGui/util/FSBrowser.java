@@ -55,7 +55,6 @@ public final class FSBrowser
 			if(m_selectedTarget.isFile())
 			{
 				absPath = m_selectedTarget.getCanonicalPath();
-				absPath = FSUtil.toSeparatorEnded(absPath);
 			}
 		}
 		catch(IOException e)

@@ -251,7 +251,7 @@ JNIEXPORT jint JNICALL Java_photonApi_Ph_phAsyncPollUpdatedFilmRegion
 	case PH_FILM_REGION_STATUS_FINISHED: return photonApi_Ph_FILM_REGION_STATUS_FINISHED;
 	}
 
-	return PH_FILM_REGION_STATUS_INVALID;
+	return photonApi_Ph_FILM_REGION_STATUS_INVALID;
 }
 
 /*
