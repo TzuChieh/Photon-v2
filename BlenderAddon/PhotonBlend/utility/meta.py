@@ -11,5 +11,8 @@ class MetaGetter:
 		original_height = self.__context.scene.render.resolution_y
 		return original_height * self.__render_size_fraction()
 
+	def spp(self):
+		return self.__context.scene.ph_render_num_spp
+
 	def __render_size_fraction(self):
 		return self.__context.scene.render.resolution_percentage / 100.0

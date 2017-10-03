@@ -455,9 +455,10 @@ def export_core_commands(exporter, context):
 	exporter.exportRaw("## film(hdr-rgb) [integer width %s] [integer height %s] [string filter-name \"mn\"]\n"
 	                   % (meta_info.render_width_px(), meta_info.render_height_px()))
 
-	exporter.exportRaw("## sample-generator(stratified) [integer sample-amount 12] "
+	exporter.exportRaw("## sample-generator(stratified) [integer sample-amount %s] "
 	                   "[integer num-strata-2d-x %s] [integer num-strata-2d-y %s]\n"
-	                   % (meta_info.render_width_px(), meta_info.render_height_px()))
+	                   % (meta_info.spp(), meta_info.render_width_px(), meta_info.render_height_px()))
+
 	exporter.exportRaw("## integrator(backward-path) \n")
 
 

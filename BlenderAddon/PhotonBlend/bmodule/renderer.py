@@ -15,6 +15,40 @@ class PhotonRenderer(bpy.types.RenderEngine):
 		pass
 
 
+class PhRenderPanel:
+	bl_space_type  = "PROPERTIES"
+	bl_region_type = "WINDOW"
+	bl_context     = "render"
+
+	COMPATIBLE_ENGINES = {settings.renderer_id_name}
+
+	@classmethod
+	def poll(cls, context):
+		render_settings = context.scene.render
+		return render_settings.engine in cls.COMPATIBLE_ENGINES
+
+
+class PhSamplingPanel(PhRenderPanel, bpy.types.Panel):
+	bl_label = "Sampling"
+
+	bpy.types.Scene.ph_render_num_spp = bpy.props.IntProperty(
+		name        = "Samples per Pixel",
+		description = "Number of samples used for each pixel.",
+		default     = 4,
+		min         = 1,
+		max         = 2**31 - 1,
+	)
+
+	def draw(self, context):
+		scene  = context.scene
+		layout = self.layout
+
+		layout.prop(scene, "ph_render_num_spp")
+
+
+render_panel_types = [PhSamplingPanel]
+
+
 def register():
 	# Register the RenderEngine.
 	bpy.utils.register_class(PhotonRenderer)
@@ -38,6 +72,9 @@ def register():
 
 	#properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
 
+	for panel_type in render_panel_types:
+		bpy.utils.register_class(panel_type)
+
 
 def unregister():
 	bpy.utils.unregister_class(PhotonRenderer)
@@ -58,3 +95,6 @@ def unregister():
 	properties_data_lamp.DATA_PT_area.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
 
 	#properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
+
+	for panel_type in render_panel_types:
+		bpy.utils.unregister_class(panel_type)
