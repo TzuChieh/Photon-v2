@@ -24,6 +24,21 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
   * Blender addon for scene creation
   * easy-to-use custom scene description language
 
+## Roadmap
+* **Near Future (in 1 ~ 3 months)**
+  * stabilize core engine structure
+  * fully support common materials
+  * basic addon for Blender
+  * distributed rendering system
+
+* **Mid-term (in 3 ~ 6 months)**
+  * material node editor & parser
+  * able to convert Cycles material for use in Photon
+  * a complete Blender addon
+
+* **Future Works (~1 year or later)**
+  * documentation & website
+  * render a short CG film using Photon
 
 ## Build
 Photon-v2 is being developed with cross-platformity in mind, but Windows is the only platform that has been tested, for now. <br />
