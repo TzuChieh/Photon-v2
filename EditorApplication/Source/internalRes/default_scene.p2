@@ -13,10 +13,10 @@
 ## sample-generator(stratified) [integer sample-amount 12][integer num-strata-2d-x 800][integer num-strata-2d-y 800]
 //## sampler(uniform-random) [integer samples 120]
 
-//## integrator(backward-path)
+## integrator(backward-path)
 //## integrator(backward-light)
 //## integrator(light-tracing)
-## integrator(surface-normal)
+//## integrator(surface-normal)
 //## integrator(backward-mis)
 //## integrator(debug)
 

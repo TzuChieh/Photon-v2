@@ -1,18 +1,19 @@
 #pragma once
 
-//#define PH_DEBUG
+#include "Common/config.h"
 
 #ifdef PH_DEBUG
-	#include <cassert>
+	#include <iostream>
 	#define PH_ASSERT(condition)\
+	do\
 	{\
 		if(!(condition))\
 		{\
-			std::cerr << "assertion failed at " << __FILE__ << ": line " << __LINE__;\
-			std::cerr << "; condition: " << #condition;\
-			abort();\
+			std::cerr << "assertion failed at <" << __FILE__ << ">: "\
+			          << "line " << __LINE__\
+			          << ", condition: <" << #condition << ">" << std::endl;\
 		}\
-	}
+	} while(0)
 #else
 	#define PH_ASSERT(condition)
 #endif

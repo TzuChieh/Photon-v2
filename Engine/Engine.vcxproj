@@ -203,15 +203,17 @@
     <ClCompile Include="Source\Core\Intersectable\EmitablePrimitive.cpp" />
     <ClCompile Include="Source\Core\Intersectable\Intersectable.cpp" />
     <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp" />
-    <ClCompile Include="Source\Core\IntersectionDetail.cpp" />
     <ClInclude Include="Source\Actor\CookingContext.h" />
     <ClInclude Include="Source\Actor\Material\AbradedSurface.h" />
     <ClInclude Include="Source\Actor\Material\IdealSubstance.h" />
     <ClInclude Include="Source\Actor\ModelBuilder.h" />
+    <ClInclude Include="Source\Common\config.h" />
+    <ClInclude Include="Source\Core\IntersectionDetail.h" />
     <ClInclude Include="Source\Core\IntersectionProbe.h" />
     <ClInclude Include="Source\Core\Quantity\Private\TAbstractSpectralStrength.ipp">
       <FileType>CppCode</FileType>
     </ClInclude>
+    <ClCompile Include="Source\Core\IntersectionDetail.cpp" />
     <ClCompile Include="Source\Core\IntersectionProbe.cpp" />
     <ClCompile Include="Source\Core\Quantity\Private\RgbSpectralStrength.cpp" />
     <ClCompile Include="Source\Core\Renderer\BulkRenderer.cpp" />
@@ -414,7 +416,6 @@
     <ClInclude Include="Source\Actor\Texture\ConstantTexture.h" />
     <ClInclude Include="Source\FileIO\ValueParser.h" />
     <ClInclude Include="Source\Core\Filmic\Film.h" />
-    <ClInclude Include="Source\Core\IntersectionDetail.h" />
     <ClInclude Include="Source\Core\Renderer\Renderer.h" />
     <ClInclude Include="Source\Core\Sample.h" />
     <ClInclude Include="Source\Core\SampleGenerator\SampleGenerator.h" />
@@ -462,6 +463,7 @@
     <ClInclude Include="Source\PostProcess\ToneMapper\ToneMapper.h" />
     <ClInclude Include="Source\Utility\Noncopyable.h" />
     <ClInclude Include="Source\Utility\TConstIteratorProxy.h" />
+    <ClInclude Include="Source\Utility\TFixedSizeStack.h" />
     <ClInclude Include="Source\Utility\Timer.h" />
     <ClInclude Include="Source\Utility\TIteratorProxy.h" />
     <ClInclude Include="Source\Core\Intersectable\BruteForceIntersector.h" />
@@ -531,6 +533,9 @@
     <ClInclude Include="Source\Math\Solver\TAnalyticalIntegrator1D.ipp">
       <FileType>Document</FileType>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\Utility\TFixedSizeStack.ipp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
