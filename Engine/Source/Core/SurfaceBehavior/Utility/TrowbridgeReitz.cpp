@@ -62,7 +62,7 @@ void TrowbridgeReitz::genDistributedH(const real seedA_i0e1, const real seedB_i0
                                       const Vector3R& N, Vector3R* out_H) const
 {
 	const real phi   = 2.0f * PI_REAL * seedA_i0e1;
-	const real theta = std::atan(std::sqrt(m_alpha * m_alpha * seedB_i0e1 / (1.0_r - seedB_i0e1)));
+	const real theta = std::atan(m_alpha * std::sqrt(seedB_i0e1 / (1.0_r - seedB_i0e1)));
 
 	const real sinTheta = std::sin(theta);
 	const real cosTheta = std::cos(theta);

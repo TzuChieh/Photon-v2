@@ -1,6 +1,6 @@
 #include "Core/Intersectable/Intersectable.h"
 #include "Core/Bound/AABB3D.h"
-#include "Core/Intersection.h"
+#include "Core/IntersectionProbe.h"
 
 namespace ph
 {
@@ -9,9 +9,8 @@ Intersectable::~Intersectable() = default;
 
 bool Intersectable::isIntersecting(const Ray& ray) const
 {
-	Intersection tempIntersection;
-
-	return isIntersecting(ray, &tempIntersection);
+	IntersectionProbe tempProbe;
+	return isIntersecting(ray, &tempProbe);
 }
 
 bool Intersectable::isIntersectingVolumeConservative(const AABB3D& volume) const

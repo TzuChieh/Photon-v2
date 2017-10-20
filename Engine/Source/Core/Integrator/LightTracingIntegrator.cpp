@@ -2,7 +2,7 @@
 #include "Core/Ray.h"
 #include "World/Scene.h"
 #include "Math/TVector3.h"
-#include "Core/Intersection.h"
+#include "Core/IntersectionDetail.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"

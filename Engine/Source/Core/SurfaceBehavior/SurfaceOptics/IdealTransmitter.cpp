@@ -14,7 +14,7 @@ IdealTransmitter::IdealTransmitter() :
 IdealTransmitter::~IdealTransmitter() = default;
 
 void IdealTransmitter::evalBsdf(
-	const Intersection& X, const Vector3R& L, const Vector3R& V,
+	const IntersectionDetail& X, const Vector3R& L, const Vector3R& V,
 	SpectralStrength* const out_bsdf,
 	ESurfacePhenomenon* const out_type) const
 {
@@ -23,7 +23,7 @@ void IdealTransmitter::evalBsdf(
 }
 
 void IdealTransmitter::genBsdfSample(
-	const Intersection& X, const Vector3R& V,
+	const IntersectionDetail& X, const Vector3R& V,
 	Vector3R* const out_L,
 	SpectralStrength* const out_pdfAppliedBsdf,
 	ESurfacePhenomenon* const out_type) const
@@ -55,7 +55,7 @@ void IdealTransmitter::genBsdfSample(
 }
 
 void IdealTransmitter::calcBsdfSamplePdf(
-	const Intersection& X, const Vector3R& L, const Vector3R& V,
+	const IntersectionDetail& X, const Vector3R& L, const Vector3R& V,
 	const ESurfacePhenomenon& type,
 	real* const out_pdfW) const
 {

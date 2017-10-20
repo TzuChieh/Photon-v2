@@ -11,7 +11,7 @@ namespace ph
 {
 
 class Primitive;
-class Intersection;
+class IntersectionDetail;
 class DirectLightSample;
 class Ray;
 class Time;
@@ -24,7 +24,7 @@ public:
 	Emitter();
 	virtual ~Emitter() = 0;
 
-	virtual void evalEmittedRadiance(const Intersection& intersection, SpectralStrength* out_radiance) const = 0;
+	virtual void evalEmittedRadiance(const IntersectionDetail& X, SpectralStrength* out_radiance) const = 0;
 	virtual void genDirectSample(const Vector3R& targetPos, Vector3R* out_emitPos, SpectralStrength* out_emittedRadiance, real* out_PDF) const = 0;
 	virtual void genDirectSample(DirectLightSample& sample) const = 0;
 

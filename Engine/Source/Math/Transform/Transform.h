@@ -9,7 +9,7 @@ namespace ph
 
 class Ray;
 class Time;
-class Intersection;
+class IntersectionDetail;
 class AABB3D;
 
 class Transform
@@ -27,12 +27,19 @@ public:
 	//
 	// and calculate the transformed result.
 
-	void transformV(const Vector3R& vector,      Vector3R* out_vector)      const;
-	void transformO(const Vector3R& orientation, Vector3R* out_orientation) const;
-	void transformP(const Vector3R& point,       Vector3R* out_point)       const;
-	void transformV(const Vector3R& vector,      const Time& time, Vector3R* out_vector)      const;
-	void transformO(const Vector3R& orientation, const Time& time, Vector3R* out_orientation) const;
-	void transformP(const Vector3R& point,       const Time& time, Vector3R* out_point)       const;
+	void transformV(const Vector3R& vector, 
+	                Vector3R* out_vector) const;
+	void transformO(const Vector3R& orientation, 
+	                Vector3R* out_orientation) const;
+	void transformP(const Vector3R& point, 
+	                Vector3R* out_point) const;
+
+	void transformV(const Vector3R& vector, const Time& time, 
+	                Vector3R* out_vector) const;
+	void transformO(const Vector3R& orientation, const Time& time, 
+	                Vector3R* out_orientation) const;
+	void transformP(const Vector3R& point, const Time& time, 
+	                Vector3R* out_point) const;
 
 	// Notice that transforming a ray neither will change its parametric 
 	// length (t) nor renormalizing its direction vector even if the transform 
@@ -44,12 +51,16 @@ public:
 	// 
 	// this operation will always yield a correctly transformed result while 
 	// saving an expensive sqrt() call.
-	void transform(const Ray& ray, Ray* out_ray) const;
+	void transform(const Ray& ray, 
+	               Ray* out_ray) const;
 
-	void transform(const Intersection& intersection, Intersection* out_intersection) const;
-	void transform(const AABB3D& aabb, AABB3D* out_aabb) const;
-	void transform(const Intersection& intersection, const Time& time, 
-	               Intersection* out_intersection) const;
+	void transform(const IntersectionDetail& detail, 
+	               IntersectionDetail* out_detail) const;
+	void transform(const AABB3D& aabb, 
+	               AABB3D* out_aabb) const;
+
+	void transform(const IntersectionDetail& detail, const Time& time,
+	               IntersectionDetail* out_detail) const;
 	void transform(const AABB3D& aabb, const Time& time,
 	               AABB3D* out_aabb) const;
 
