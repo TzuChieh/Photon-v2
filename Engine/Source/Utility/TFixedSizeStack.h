@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Common/primitive_type.h"
+
 #include <cstddef>
 #include <array>
 
@@ -14,16 +16,21 @@ public:
 	inline TFixedSizeStack(const TFixedSizeStack& other);
 	inline ~TFixedSizeStack() = default;
 
-	inline void push();
+	inline void push(const T& item);
 	inline void pop();
-	inline T& getTop();
-	inline const T& getTop() const;
+	inline T& get();
+	inline const T& get() const;
+	inline std::size_t height() const;
 
 	inline TFixedSizeStack& operator = (const TFixedSizeStack& rhs);
+	inline T& operator [] (std::size_t index);
+	inline const T& operator [] (std::size_t index) const;
 
 private:
 	std::array<T, N> m_data;
-	std::size_t      m_head;
+	int32            m_currentIndex;
 };
 
 }// end namespace ph
+
+#include "Utility/TFixedSizeStack.ipp"

@@ -48,6 +48,9 @@
     <ClCompile Include="Source\Math\Function\solver_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Utility\TFixedSizeStack_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\constants_for_test.h">

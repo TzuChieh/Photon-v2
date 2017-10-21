@@ -30,6 +30,7 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
   * fully support common materials
   * basic addon for Blender
   * distributed rendering system
+  * binary version of Photon-SDL
 
 * **Mid-term (in 3 ~ 6 months)**
   * material node editor & parser
