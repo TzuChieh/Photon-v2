@@ -55,6 +55,18 @@ inline std::size_t TFixedSizeStack<T, N>::height() const
 }
 
 template<typename T, std::size_t N>
+inline void TFixedSizeStack<T, N>::clear()
+{
+	m_currentIndex = -1;
+}
+
+template<typename T, std::size_t N>
+inline bool TFixedSizeStack<T, N>::isEmpty() const
+{
+	return m_currentIndex == -1;
+}
+
+template<typename T, std::size_t N>
 inline TFixedSizeStack<T, N>& TFixedSizeStack<T, N>::operator = (const TFixedSizeStack& rhs)
 {
 	m_data         = rhs.m_data;

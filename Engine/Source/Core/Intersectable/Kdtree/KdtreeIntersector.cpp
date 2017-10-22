@@ -29,9 +29,9 @@ void KdtreeIntersector::update(const CookedActorStorage& cookedActors)
 	m_rootKdtreeNode.buildTree(intersectables);
 }
 
-bool KdtreeIntersector::isIntersecting(const Ray& ray, IntersectionProbe* const out_probe) const
+bool KdtreeIntersector::isIntersecting(const Ray& ray, IntersectionProbe& probe) const
 {
-	return m_rootKdtreeNode.findClosestIntersection(ray, out_probe);
+	return m_rootKdtreeNode.findClosestIntersection(ray, probe);
 }
 
 }// end namespace ph

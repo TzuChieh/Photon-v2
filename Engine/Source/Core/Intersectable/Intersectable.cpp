@@ -9,8 +9,8 @@ Intersectable::~Intersectable() = default;
 
 bool Intersectable::isIntersecting(const Ray& ray) const
 {
-	IntersectionProbe tempProbe;
-	return isIntersecting(ray, &tempProbe);
+	IntersectionProbe dummyProbe;
+	return isIntersecting(ray, dummyProbe);
 }
 
 bool Intersectable::isIntersectingVolumeConservative(const AABB3D& volume) const

@@ -35,7 +35,7 @@ PTriangle::PTriangle(const PrimitiveMetadata* const metadata, const Vector3R& vA
 
 PTriangle::~PTriangle() = default;
 
-bool PTriangle::isIntersecting(const Ray& ray, IntersectionProbe* const out_probe) const
+bool PTriangle::isIntersecting(const Ray& ray, IntersectionProbe& probe) const
 {
 	Vector3R rayDir = ray.getDirection();
 	Vector3R vAt = m_vA.sub(ray.getOrigin());
@@ -147,12 +147,12 @@ bool PTriangle::isIntersecting(const Ray& ray, IntersectionProbe* const out_prob
 	// so the ray intersects the triangle
 
 	const real hitT = hitTscaled / determinant;
-	out_probe->set(this, hitT);
+	probe.pushBaseHit(this, hitT);
 
 	return true;
 }
 
-void PTriangle::calcIntersectionDetail(const Ray& ray, const IntersectionProbe& probe,
+void PTriangle::calcIntersectionDetail(const Ray& ray, IntersectionProbe& probe,
                                        IntersectionDetail* const out_detail) const
 {
 	/*const Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.hitRayT));

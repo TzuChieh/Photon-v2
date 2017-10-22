@@ -21,6 +21,8 @@ public:
 	inline T& get();
 	inline const T& get() const;
 	inline std::size_t height() const;
+	inline void clear();
+	inline bool isEmpty() const;
 
 	inline TFixedSizeStack& operator = (const TFixedSizeStack& rhs);
 	inline T& operator [] (std::size_t index);

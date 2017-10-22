@@ -3,6 +3,7 @@
 #include "World/Scene.h"
 #include "Core/Intersectable/Intersector.h"
 #include "World/LightSampler/LightSampler.h"
+#include "Core/IntersectionProbe.h"
 
 namespace ph
 {
@@ -19,14 +20,21 @@ Scene::Scene(const Intersector* intersector, const LightSampler* lightSampler) :
 
 }
 
-bool Scene::isIntersecting(const Ray& ray, IntersectionProbe* out_probe) const
+bool Scene::isIntersecting(const Ray& ray, IntersectionProbe* const out_probe) const
 {
-	return m_intersector->isIntersecting(ray, out_probe);
+	out_probe->clear();
+	return m_intersector->isIntersecting(ray, *out_probe);
 }
 
 bool Scene::isIntersecting(const Ray& ray) const
 {
 	return m_intersector->isIntersecting(ray);
+}
+
+void Scene::calcIntersectionDetail(const Ray& ray, IntersectionProbe& probe,
+                                   IntersectionDetail* const out_detail) const
+{
+	m_intersector->calcIntersectionDetail(ray, probe, out_detail);
 }
 
 const Emitter* Scene::pickEmitter(real* const out_PDF) const

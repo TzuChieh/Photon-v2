@@ -6,9 +6,9 @@ namespace ph
 {
 
 void IntersectionProbe::calcIntersectionDetail(const Ray& ray, 
-                                               IntersectionDetail* const out_detail) const
+                                               IntersectionDetail* const out_detail)
 {
-	hitTarget->calcIntersectionDetail(ray, *this, out_detail);
+	m_hitStack.get()->calcIntersectionDetail(ray, *this, out_detail);
 }
 
 }// end namespace ph

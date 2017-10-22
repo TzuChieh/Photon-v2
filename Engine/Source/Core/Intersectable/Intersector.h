@@ -21,13 +21,12 @@ public:
 
 	virtual void update(const CookedActorStorage& cookedActors) = 0;
 	
-	virtual bool isIntersecting(const Ray& ray, 
-	                            IntersectionProbe* out_probe) const = 0;
+	virtual bool isIntersecting(const Ray& ray, IntersectionProbe& probe) const = 0;
 
 	virtual void calcAABB(AABB3D* out_aabb) const = 0;
 	
 	using Intersectable::isIntersecting;
-	virtual void calcIntersectionDetail(const Ray& ray, const IntersectionProbe& probe,
+	virtual void calcIntersectionDetail(const Ray& ray, IntersectionProbe& probe,
 	                                    IntersectionDetail* out_detail) const override;
 };
 

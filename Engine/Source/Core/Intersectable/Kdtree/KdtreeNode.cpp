@@ -80,7 +80,7 @@ void KdtreeNode::buildTree(const std::vector<const Intersectable*>& intersectabl
 	buildChildrenNodes(intersectables);
 }
 
-bool KdtreeNode::findClosestIntersection(const Ray& ray, IntersectionProbe* const out_probe) const
+bool KdtreeNode::findClosestIntersection(const Ray& ray, IntersectionProbe& probe) const
 {
 	real rayNearHitDist;
 	real rayFarHitDist;
@@ -91,7 +91,7 @@ bool KdtreeNode::findClosestIntersection(const Ray& ray, IntersectionProbe* cons
 		return false;
 	}
 
-	return traverseAndFindClosestIntersection(ray, out_probe, rayNearHitDist, rayFarHitDist);
+	return traverseAndFindClosestIntersection(ray, probe, rayNearHitDist, rayFarHitDist);
 }
 
 void KdtreeNode::analyzeSplitCostSAH(const std::vector<const Intersectable*>& intersectables,
@@ -266,7 +266,7 @@ std::unique_ptr<KdtreeNode> KdtreeNode::buildChildNode(const KdtreeAABB& childAA
 }
 
 bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, 
-                                                    IntersectionProbe* const out_probe,
+                                                    IntersectionProbe& probe,
                                                     const real rayDistMin, 
                                                     const real rayDistMax) const
 {

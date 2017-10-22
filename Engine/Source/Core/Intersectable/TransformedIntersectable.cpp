@@ -29,31 +29,34 @@ TransformedIntersectable::~TransformedIntersectable() = default;
 
 // FIXME: intersecting routines' time correctness
 
-bool TransformedIntersectable::isIntersecting(const Ray& ray, 
-                                              IntersectionProbe* const out_probe) const
+bool TransformedIntersectable::isIntersecting(const Ray& ray, IntersectionProbe& probe) const
 {
 	Ray localRay;
 	m_worldToLocal->transform(ray, &localRay);
+	const bool hasHit = m_intersectable->isIntersecting(localRay, probe);
 
-	return m_intersectable->isIntersecting(localRay, out_probe);
+	probe.pushIntermediateHit(this);
+
+	return hasHit;
 }
 
 bool TransformedIntersectable::isIntersecting(const Ray& ray) const
 {
 	Ray localRay;
 	m_worldToLocal->transform(ray, &localRay);
-
 	return m_intersectable->isIntersecting(localRay);
 }
 
-void TransformedIntersectable::calcIntersectionDetail(const Ray& ray, const IntersectionProbe& probe,
+void TransformedIntersectable::calcIntersectionDetail(const Ray& ray, IntersectionProbe& probe,
                                                       IntersectionDetail* const out_detail) const
 {
+	probe.popIntermediateHit();
+
 	Ray localRay;
 	m_worldToLocal->transform(ray, &localRay);
 
 	IntersectionDetail localDetail;
-	m_intersectable->calcIntersectionDetail(localRay, probe, &localDetail);
+	probe.getCurrentHit()->calcIntersectionDetail(localRay, probe, &localDetail);
 
 	m_localToWorld->transform(localDetail, out_detail);
 }
@@ -63,7 +66,6 @@ bool TransformedIntersectable::isIntersectingVolumeConservative(const AABB3D& aa
 {
 	AABB3D localAABB;
 	m_worldToLocal->transform(aabb, &localAABB);
-
 	return m_intersectable->isIntersectingVolumeConservative(localAABB);
 }
 

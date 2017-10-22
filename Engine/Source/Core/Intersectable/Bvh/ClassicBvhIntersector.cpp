@@ -53,7 +53,7 @@ void ClassicBvhIntersector::update(const CookedActorStorage& cookedActors)
 	std::cout << "max tree depth:          " << treeDepth << std::endl;
 }
 
-bool ClassicBvhIntersector::isIntersecting(const Ray& ray, IntersectionProbe* const out_probe) const
+bool ClassicBvhIntersector::isIntersecting(const Ray& ray, IntersectionProbe& probe) const
 {
 	std::size_t todoNodes[NODE_STACK_SIZE];
 	int32       numTodoNodes     = 0;
@@ -61,7 +61,7 @@ bool ClassicBvhIntersector::isIntersecting(const Ray& ray, IntersectionProbe* co
 
 	Ray bvhRay(ray);
 	const int32 isDirNeg[3] = {bvhRay.getDirection().x < 0.0_r, bvhRay.getDirection().y < 0.0_r, bvhRay.getDirection().z < 0.0_r};
-	IntersectionProbe probe;
+	IntersectionProbe currentProbe;
 
 	real minT    = 0.0_r;
 	real maxT    = 0.0_r;
@@ -79,14 +79,15 @@ bool ClassicBvhIntersector::isIntersecting(const Ray& ray, IntersectionProbe* co
 			{
 				for(int32 i = 0; i < node.numPrimitives; i++)
 				{
-					if(m_intersectables[node.primitivesOffset + i]->isIntersecting(bvhRay, &probe))
+					currentProbe.clear();
+					if(m_intersectables[node.primitivesOffset + i]->isIntersecting(bvhRay, currentProbe))
 					{
-						const real hitT = probe.hitRayT;
+						const real hitT = currentProbe.getHitRayT();
 						if(hitT < minHitT)
 						{
 							minHitT = hitT;
 							bvhRay.setMaxT(hitT);
-							*out_probe = probe;
+							probe = currentProbe;
 						}
 					}
 				}

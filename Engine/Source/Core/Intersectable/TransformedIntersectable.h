@@ -17,9 +17,8 @@ public:
 	TransformedIntersectable(const TransformedIntersectable& other);
 	virtual ~TransformedIntersectable() override;
 
-	virtual bool isIntersecting(const Ray& ray, 
-	                            IntersectionProbe* out_probe) const override;
-	virtual void calcIntersectionDetail(const Ray& ray, const IntersectionProbe& probe,
+	virtual bool isIntersecting(const Ray& ray, IntersectionProbe& probe) const override;
+	virtual void calcIntersectionDetail(const Ray& ray, IntersectionProbe& probe,
 	                                    IntersectionDetail* out_detail) const override;
 	virtual bool isIntersecting(const Ray& ray) const override;
 	virtual bool isIntersectingVolumeConservative(const AABB3D& aabb) const override;

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Common/primitive_type.h"
+#include "Common/config.h"
+#include "Utility/TFixedSizeStack.h"
 
 #include <limits>
 
@@ -15,26 +17,53 @@ class IntersectionProbe final
 {
 public:
 	inline IntersectionProbe() : 
-		hitTarget(nullptr), 
-		hitRayT(std::numeric_limits<real>::infinity())
+		m_hitStack(),
+		m_hitRayT(std::numeric_limits<real>::infinity())
 	{
 
 	}
 
 	// A convenient method for acquiring details on intersection.
-	void calcIntersectionDetail(const Ray& ray, 
-	                            IntersectionDetail* out_detail) const;
+	void calcIntersectionDetail(const Ray& ray, IntersectionDetail* out_detail);
 
-	inline void set(const Intersectable* hitTarget, 
-	                const real hitRayT)
+	inline void pushIntermediateHit(const Intersectable* hitTarget)
 	{
-		this->hitTarget = hitTarget;
-		this->hitRayT   = hitRayT;
+		m_hitStack.push(hitTarget);
 	}
 
-public:
-	const Intersectable* hitTarget;
-	real                 hitRayT;
+	inline void pushBaseHit(const Intersectable* hitTarget,
+	                        const real hitRayT)
+	{
+		m_hitStack.push(hitTarget);
+		m_hitRayT = hitRayT;
+	}
+
+	inline void popIntermediateHit()
+	{
+		m_hitStack.pop();
+	}
+
+	inline const Intersectable* getCurrentHit() const
+	{
+		return m_hitStack.get();
+	}
+
+	inline real getHitRayT() const
+	{
+		return m_hitRayT;
+	}
+
+	inline void clear()
+	{
+		m_hitStack.clear();
+		m_hitRayT = std::numeric_limits<real>::infinity();
+	}
+
+private:
+	typedef TFixedSizeStack<const Intersectable*, PH_INTERSECTION_PROBE_DEPTH> Stack;
+
+	Stack m_hitStack;
+	real  m_hitRayT;
 };
 
 }// end namespace ph

@@ -25,24 +25,24 @@ void BruteForceIntersector::update(const CookedActorStorage& cookedActors)
 	}
 }
 
-bool BruteForceIntersector::isIntersecting(const Ray& ray, IntersectionProbe* const out_probe) const
+bool BruteForceIntersector::isIntersecting(const Ray& ray, IntersectionProbe& probe) const
 {
 	IntersectionProbe currentProbe;
 	real closestRayHitT = std::numeric_limits<real>::infinity();
 
 	for(const Intersectable* intersectable : m_intersectables)
 	{
-		if(intersectable->isIntersecting(ray, &currentProbe))
+		currentProbe.clear();
+		if(intersectable->isIntersecting(ray, currentProbe))
 		{
-			if(currentProbe.hitRayT < closestRayHitT)
+			if(currentProbe.getHitRayT() < closestRayHitT)
 			{
-				closestRayHitT = currentProbe.hitRayT;
-				*out_probe     = currentProbe;
+				closestRayHitT = currentProbe.getHitRayT();
+				probe          = currentProbe;
 			}
 		}
 	}
 
-	// TODO: modify this into using other information
 	return closestRayHitT != std::numeric_limits<real>::infinity();
 }
 
