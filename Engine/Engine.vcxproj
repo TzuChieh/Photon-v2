@@ -428,6 +428,7 @@
     <ClInclude Include="Source\Math\math_common.h" />
     <ClInclude Include="Source\Math\Solver\TAnalyticalIntegrator1D.h" />
     <ClInclude Include="Source\Math\TArithmeticArray.h" />
+    <ClInclude Include="Source\Math\TOrthonormalBasis3.h" />
     <ClInclude Include="Source\Math\TQuaternion.h" />
     <ClInclude Include="Source\Math\Transform\DynamicLinearTranslation.h" />
     <ClInclude Include="Source\Math\Transform\TDecomposedTransform.h" />
@@ -535,6 +536,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Source\Math\TOrthonormalBasis3.ipp" />
     <None Include="Source\Utility\TFixedSizeStack.ipp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

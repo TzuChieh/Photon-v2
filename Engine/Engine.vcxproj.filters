@@ -1009,8 +1009,12 @@
     <ClInclude Include="Source\Utility\TFixedSizeStack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Math\TOrthonormalBasis3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Utility\TFixedSizeStack.ipp" />
+    <None Include="Source\Math\TOrthonormalBasis3.ipp" />
   </ItemGroup>
 </Project>

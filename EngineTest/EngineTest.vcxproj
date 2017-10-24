@@ -161,6 +161,7 @@
     <ClCompile Include="Source\Math\Function\function_test.cpp" />
     <ClCompile Include="Source\Math\Function\solver_test.cpp" />
     <ClCompile Include="Source\Math\random_test.cpp" />
+    <ClCompile Include="Source\Math\TOrthonormalBasis3_test.cpp" />
     <ClCompile Include="Source\Math\Transform\DynamicLinearTranslation_test.cpp" />
     <ClCompile Include="Source\Math\Transform\StaticTransform_test.cpp" />
     <ClCompile Include="Source\Math\TVector2_test.cpp" />
