@@ -21,18 +21,16 @@ public:
 
 	inline TVector3<T> worldToLocal(const TVector3<T>& worldVec) const;
 
-	/*inline T cosPhi(const TVector3<T>& unitVec) const;
 	inline T cosPhi(const TVector3<T>& unitVec) const;
-	inline T sinPhi(const TVector3<T>& unitVec) const;
 	inline T sinPhi(const TVector3<T>& unitVec) const;
 	inline T cos2Phi(const TVector3<T>& unitVec) const;
 	inline T sin2Phi(const TVector3<T>& unitVec) const;
 	inline T cosTheta(const TVector3<T>& unitVec) const;
 	inline T sinTheta(const TVector3<T>& unitVec) const;
+	inline T cos2Theta(const TVector3<T>& unitVec) const;
+	inline T sin2Theta(const TVector3<T>& unitVec) const;
 	inline T absCosTheta(const TVector3<T>& unitVec) const;
 	inline T absSinTheta(const TVector3<T>& unitVec) const;
-	inline T cos2Theta(const TVector3<T>& unitVec) const;
-	inline T sin2Theta(const TVector3<T>& unitVec) const;*/
 
 	inline TOrthonormalBasis3& renormalize();
 
