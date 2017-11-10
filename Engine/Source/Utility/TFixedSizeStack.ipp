@@ -23,17 +23,17 @@ inline TFixedSizeStack<T, N>::TFixedSizeStack(const TFixedSizeStack& other) :
 template<typename T, std::size_t N>
 inline void TFixedSizeStack<T, N>::push(const T& item)
 {
-	m_data[++m_currentIndex] = item;
+	PH_ASSERT(m_currentIndex + 1 >= 0 && m_currentIndex + 1 < N);
 
-	PH_ASSERT(m_currentIndex >= 0 && m_currentIndex < N);
+	m_data[++m_currentIndex] = item;
 }
 
 template<typename T, std::size_t N>
 inline void TFixedSizeStack<T, N>::pop()
 {
+	PH_ASSERT(m_currentIndex - 1 >= -1 && m_currentIndex - 1 < N - 1);
+	
 	--m_currentIndex;
-
-	PH_ASSERT(m_currentIndex >= -1 && m_currentIndex < N - 1);
 }
 
 template<typename T, std::size_t N>

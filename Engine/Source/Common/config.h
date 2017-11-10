@@ -1,5 +1,6 @@
 #pragma once
 
-#define PH_DEBUG
+//#define PH_DEBUG
 
 #define PH_INTERSECTION_PROBE_DEPTH 8
+#define PH_INTERSECTION_PROBE_REAL_CACHE_SIZE 8

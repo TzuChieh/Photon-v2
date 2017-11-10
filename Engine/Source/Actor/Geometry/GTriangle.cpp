@@ -20,9 +20,9 @@ GTriangle::GTriangle(const Vector3R& vA, const Vector3R& vB, const Vector3R& vC)
 	m_nB = faceN;
 	m_nC = faceN;
 
-	m_uvwA.set(0.0_r);
-	m_uvwB.set(0.0_r);
-	m_uvwC.set(0.0_r);
+	m_uvwA.set(0, 0, 0);
+	m_uvwB.set(1, 0, 0);
+	m_uvwC.set(0, 1, 0);
 }
 
 //GTriangle::GTriangle(const InputPacket& packet) : 
