@@ -62,19 +62,26 @@ void Transform::transform(const Ray& ray, Ray* const out_ray) const
 void Transform::transform(const IntersectionDetail& detail, const Time& time,
                           IntersectionDetail* const out_detail) const
 {
-	Vector3R tHitPosition;
-	Vector3R tHitSmoothNormal;
-	Vector3R tHitGeoNormal;
-	transformPoint      (detail.getHitPosition(),     time, &tHitPosition);
-	transformOrientation(detail.getHitSmoothNormal(), time, &tHitSmoothNormal);
-	transformOrientation(detail.getHitGeoNormal(),    time, &tHitGeoNormal);
+	Vector3R tPosition;
+	Vector3R tSmoothNormal;
+	Vector3R tGeoNormal;
+	transformPoint      (detail.getPosition(),     time, &tPosition);
+	transformOrientation(detail.getSmoothNormal(), time, &tSmoothNormal);
+	transformOrientation(detail.getGeoNormal(),    time, &tGeoNormal);
 
-	out_detail->set(detail.getHitPrimitive(),
-	                tHitPosition,
-	                tHitSmoothNormal.normalizeLocal(),
-	                tHitGeoNormal.normalizeLocal(),
-	                detail.getHitUVW(),
-	                detail.getHitRayT());
+	out_detail->setAttributes(detail.getPrimitive(),
+	                          tPosition,
+	                          tSmoothNormal.normalizeLocal(),
+	                          tGeoNormal.normalizeLocal(),
+	                          detail.getUVW(),
+	                          detail.getRayT());
+
+	Vector3R tdPdU;
+	Vector3R tdPdV;
+	transformVector(detail.getdPdU(), time, &tdPdU);
+	transformVector(detail.getdPdV(), time, &tdPdV);
+
+	out_detail->setDerivatives(tdPdU, tdPdV);
 }
 
 void Transform::transform(const AABB3D& aabb, const Time& time,

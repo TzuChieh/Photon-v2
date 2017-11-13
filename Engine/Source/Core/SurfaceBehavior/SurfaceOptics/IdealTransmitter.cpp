@@ -30,7 +30,7 @@ void IdealTransmitter::genBsdfSample(
 {
 	*out_type = ESurfacePhenomenon::TRANSMISSION;
 
-	const Vector3R& N = X.getHitSmoothNormal();
+	const Vector3R& N = X.getSmoothNormal();
 	Vector3R& L = *out_L;
 	if(!m_fresnel->calcRefractDir(V, N, &L))
 	{

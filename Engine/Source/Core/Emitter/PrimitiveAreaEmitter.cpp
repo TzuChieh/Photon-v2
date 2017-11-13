@@ -41,7 +41,7 @@ PrimitiveAreaEmitter::~PrimitiveAreaEmitter()
 
 void PrimitiveAreaEmitter::evalEmittedRadiance(const IntersectionDetail& X, SpectralStrength* const out_radiance) const
 {
-	m_emittedRadiance->sample(X.getHitUVW(), out_radiance);
+	m_emittedRadiance->sample(X.getUVW(), out_radiance);
 }
 
 void PrimitiveAreaEmitter::genDirectSample(const Vector3R& targetPos, Vector3R* const out_emitPos, SpectralStrength* const out_emittedRadiance, real* const out_PDF) const

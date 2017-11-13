@@ -9,7 +9,8 @@ class PhMaterialPanel:
 	bl_region_type = "WINDOW"
 	bl_context     = "material"
 
-	COMPATIBLE_ENGINES = {settings.renderer_id_name}
+	COMPATIBLE_ENGINES = {settings.renderer_id_name,
+	                      settings.cycles_id_name}
 
 	@classmethod
 	def poll(cls, context):
@@ -92,7 +93,7 @@ class PhGeneralPanel(PhMaterialPanel, bpy.types.Panel):
 		material = context.material
 		layout   = self.layout
 
-		if material == None:
+		if material is None:
 			layout.label("no material for Photon-v2 material panel")
 			return
 
@@ -122,6 +123,14 @@ class PhGeneralPanel(PhMaterialPanel, bpy.types.Panel):
 		row = layout.row()
 		row.prop(material, "ph_isEmissive")
 		row.prop(material, "ph_emittedRadiance")
+
+
+# class PhSettingsPanel(PhMaterialPanel, bpy.types.Panel):
+# 	""" A panel for some general material settings. """
+# 	bl_label = "Settings"
+#
+# 	def draw(self, context):
+# 		layout = self.layout
 
 
 material_panel_types = [PhGeneralPanel]

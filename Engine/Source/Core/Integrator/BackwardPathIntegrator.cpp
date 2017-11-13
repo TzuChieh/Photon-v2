@@ -58,7 +58,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 
 		hitProbe.calcIntersectionDetail(tracingRay, &hitDetail);
 
-		const auto* const metadata = hitDetail.getHitPrimitive()->getMetadata();
+		const auto* const metadata = hitDetail.getPrimitive()->getMetadata();
 		const SurfaceBehavior& hitSurfaceBehavior = metadata->surfaceBehavior;
 		const Vector3R& V = tracingRay.getDirection().mul(-1.0f);
 
@@ -66,13 +66,13 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 		// sample emitted radiance
 
 		// sidedness agreement between real geometry and shading (phong-interpolated) normal
-		if(hitDetail.getHitSmoothNormal().dot(V) * hitDetail.getHitGeoNormal().dot(V) <= 0.0f)
+		if(hitDetail.getSmoothNormal().dot(V) * hitDetail.getGeoNormal().dot(V) <= 0.0f)
 		{
 			break;
 		}
 
 		// only forward side is emitable
-		if(hitSurfaceBehavior.getEmitter() && V.dot(hitDetail.getHitSmoothNormal()) > 0.0_r)
+		if(hitSurfaceBehavior.getEmitter() && V.dot(hitDetail.getSmoothNormal()) > 0.0_r)
 		{
 			SpectralStrength radianceLi;
 			hitSurfaceBehavior.getEmitter()->evalEmittedRadiance(hitDetail, &radianceLi);
@@ -97,12 +97,12 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 		bsdfSample.inputs.set(hitDetail, V);
 		hitSurfaceBehavior.getSurfaceOptics()->genBsdfSample(bsdfSample);
 
-		const Vector3R& N = hitDetail.getHitSmoothNormal();
+		const Vector3R& N = hitDetail.getSmoothNormal();
 		const Vector3R& L = bsdfSample.outputs.L;
 
 		// blackness check & sidedness agreement between real geometry and shading (phong-interpolated) normal
 		if(!bsdfSample.outputs.isGood() ||
-		   hitDetail.getHitSmoothNormal().dot(L) * hitDetail.getHitGeoNormal().dot(L) <= 0.0_r)
+		   hitDetail.getSmoothNormal().dot(L) * hitDetail.getGeoNormal().dot(L) <= 0.0_r)
 		{
 			break;
 		}
@@ -153,7 +153,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 
 		// prepare for next iteration
 		//const Vector3R nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
-		const Vector3R nextRayOrigin(hitDetail.getHitPosition());
+		const Vector3R nextRayOrigin(hitDetail.getPosition());
 		const Vector3R nextRayDirection(L);
 		tracingRay.setOrigin(nextRayOrigin);
 		tracingRay.setDirection(nextRayDirection);

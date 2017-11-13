@@ -10,7 +10,7 @@ class GTriangle final : public Geometry
 {
 public:
 	GTriangle(const Vector3R& vA, const Vector3R& vB, const Vector3R& vC);
-	GTriangle(const InputPacket& packet);
+	//GTriangle(const InputPacket& packet);
 	virtual ~GTriangle() override;
 
 	virtual void genPrimitive(const PrimitiveBuildingMaterial& data,

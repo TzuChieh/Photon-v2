@@ -30,7 +30,7 @@ void NormalBufferIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 	{
 		IntersectionDetail detail;
 		probe.calcIntersectionDetail(tracingRay, &detail);
-		radiance.setRgb(detail.getHitSmoothNormal());
+		radiance.setRgb(detail.getSmoothNormal());
 	}
 	else
 	{
