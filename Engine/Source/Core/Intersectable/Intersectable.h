@@ -16,7 +16,7 @@ public:
 	// Checks whether the specified ray intersects this intersectable.
 	// If there is an intersection, true is returned and a brief intersection
 	// report is stored inside the probe. If there is no intersection, false is
-	// returned and the state of the probe is undefined.
+	// returned and the state of the probe remain unchanged.
 	virtual bool isIntersecting(const Ray& ray, IntersectionProbe& probe) const = 0;
 
 	// This method calculates a detailed description of the intersection from

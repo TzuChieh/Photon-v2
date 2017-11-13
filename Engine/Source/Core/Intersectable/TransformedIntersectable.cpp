@@ -33,11 +33,15 @@ bool TransformedIntersectable::isIntersecting(const Ray& ray, IntersectionProbe&
 {
 	Ray localRay;
 	m_worldToLocal->transform(ray, &localRay);
-	const bool hasHit = m_intersectable->isIntersecting(localRay, probe);
-
-	probe.pushIntermediateHit(this);
-
-	return hasHit;
+	if(m_intersectable->isIntersecting(localRay, probe))
+	{
+		probe.pushIntermediateHit(this);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 bool TransformedIntersectable::isIntersecting(const Ray& ray) const
