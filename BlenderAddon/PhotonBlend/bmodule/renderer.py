@@ -39,12 +39,23 @@ class PhSamplingPanel(PhRenderPanel, bpy.types.Panel):
 		max         = 2**31 - 1,
 	)
 
+	bpy.types.Scene.ph_render_sample_filter_type = bpy.props.EnumProperty(
+		items = [
+			("BOX",      "Box",                "box filter"),
+			("GAUSSIAN", "Gaussian",           "Gaussian filter"),
+			("MN",       "Mitchell-Netravali", "Mitchell-Netravali filter")
+		],
+		name        = "Sample Filter Type",
+		description = "Photon-v2's sample filter types",
+		default     = "MN"
+	)
+
 	def draw(self, context):
 		scene  = context.scene
 		layout = self.layout
 
 		layout.prop(scene, "ph_render_num_spp")
-
+		layout.prop(scene, "ph_render_sample_filter_type")
 
 render_panel_types = [PhSamplingPanel]
 
