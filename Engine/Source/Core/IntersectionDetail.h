@@ -12,45 +12,14 @@ class IntersectionDetail final
 public:
 	IntersectionDetail();
 
-	inline const Vector3R& getPosition() const
-	{
-		return m_position;
-	}
-
-	inline const Vector3R& getSmoothNormal() const
-	{
-		return m_smoothNormal;
-	}
-
-	inline const Vector3R& getGeoNormal() const
-	{
-		return m_geoNormal;
-	}
-
-	inline const Vector3R& getUVW() const
-	{
-		return m_uvw;
-	}
-
-	inline const Primitive* getPrimitive() const
-	{
-		return m_primitive;
-	}
-
-	inline real getRayT() const
-	{
-		return m_rayT;
-	}
-
-	inline const Vector3R& getdPdU() const
-	{
-		return m_dPdU;
-	}
-
-	inline const Vector3R& getdPdV() const
-	{
-		return m_dPdV;
-	}
+	inline const Vector3R&  getPosition() const     { return m_position;     }
+	inline const Vector3R&  getSmoothNormal() const { return m_smoothNormal; }
+	inline const Vector3R&  getGeoNormal() const    { return m_geoNormal;    }
+	inline const Vector3R&  getUVW() const          { return m_uvw;          }
+	inline const Primitive* getPrimitive() const    { return m_primitive;    }
+	inline real             getRayT() const         { return m_rayT;         }
+	inline const Vector3R&  getdPdU() const         { return m_dPdU;         }
+	inline const Vector3R&  getdPdV() const         { return m_dPdV;         }
 
 	inline void setAttributes(
 		const Primitive* primitive,
