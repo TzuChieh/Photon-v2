@@ -7,6 +7,8 @@
 #include "Core/Bound/AABB3D.h"
 #include "Math/Random.h"
 #include "Core/Sample/PositionSample.h"
+#include "Math/TVector2.h"
+#include "Math/Math.h"
 
 #include <limits>
 #include <iostream>
@@ -165,17 +167,43 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, IntersectionProbe& probe,
 	Vector3R hitBaryABC;
 	probe.getCachedReal3(0, &hitBaryABC);
 
-	const Vector3R& hitSmoothNormal = Vector3R::weightedSum(
+	const Vector3R& hitShadingNormal = Vector3R::weightedSum(
 		m_nA, hitBaryABC.x,
 		m_nB, hitBaryABC.y,
-		m_nC, hitBaryABC.z);
+		m_nC, hitBaryABC.z).normalizeLocal();
 
 	const Vector3R& hitUVW = Vector3R::weightedSum(
 		m_uvwA, hitBaryABC.x,
 		m_uvwB, hitBaryABC.y,
 		m_uvwC, hitBaryABC.z);
 
-	out_detail->setAttributes(this, hitPosition, hitSmoothNormal, m_faceNormal, hitUVW, probe.getHitRayT());
+	out_detail->setAttributes(this, hitPosition, m_faceNormal, hitShadingNormal, hitUVW, probe.getHitRayT());
+
+	Vector3R dPdU, dPdV;
+	Vector3R dNdU, dNdV;
+	const Vector2R dUVab(m_uvwB.x - m_uvwA.x, m_uvwB.y - m_uvwA.y);
+	const Vector2R dUVac(m_uvwC.x - m_uvwA.x, m_uvwC.y - m_uvwA.y);
+	const real uvDet = dUVab.x * dUVac.y - dUVab.y * dUVac.x;
+	if(uvDet != 0.0_r)
+	{
+		const real reciUvDet = 1.0_r / uvDet;
+
+		dPdU = m_eAB.mul(dUVac.y).add(m_eAC.mul(-dUVab.y)).mulLocal(reciUvDet);
+		dPdV = m_eAB.mul(-dUVac.x).add(m_eAC.mul(dUVab.x)).mulLocal(reciUvDet);
+
+		const Vector3R& dNab = m_nB.sub(m_nA);
+		const Vector3R& dNac = m_nC.sub(m_nA);
+		dNdU = dNab.mul(dUVac.y).add(dNac.mul(-dUVab.y)).mulLocal(reciUvDet);
+		dNdV = dNab.mul(-dUVac.x).add(dNac.mul(dUVab.x)).mulLocal(reciUvDet);
+	}
+	else
+	{
+		Math::formOrthonormalBasis(m_faceNormal, &dPdV, &dPdU);
+		dNdU.set(0.0_r);
+		dNdV.set(0.0_r);
+	}
+	
+	out_detail->setDerivatives(dPdU, dPdV, dNdU, dNdV);
 }
 
 void PTriangle::calcAABB(AABB3D* const out_aabb) const

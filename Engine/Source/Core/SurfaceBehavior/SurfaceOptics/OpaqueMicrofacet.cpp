@@ -29,7 +29,7 @@ void OpaqueMicrofacet::evalBsdf(const IntersectionDetail& X, const Vector3R& L, 
                                 SpectralStrength* const out_bsdf, 
                                 ESurfacePhenomenon* const out_type) const
 {
-	const Vector3R& N = X.getSmoothNormal();
+	const Vector3R& N = X.getShadingNormal();
 
 	const real NoL = N.dot(L);
 	const real NoV = N.dot(V);
@@ -73,7 +73,7 @@ void OpaqueMicrofacet::genBsdfSample(const IntersectionDetail& X, const Vector3R
 	// The PDF for this sampling scheme is D(H)*|NoH|/(4*|HoL|). The reason that 4*|HoL| exists is because there's a 
 	// jacobian involved (from H's probability space to L's).
 
-	const Vector3R& N = X.getSmoothNormal();
+	const Vector3R& N = X.getShadingNormal();
 
 	Vector3R H;
 	m_microfacet->genDistributedH(Random::genUniformReal_i0_e1(), 
@@ -103,7 +103,7 @@ void OpaqueMicrofacet::genBsdfSample(const IntersectionDetail& X, const Vector3R
 void OpaqueMicrofacet::calcBsdfSamplePdf(const IntersectionDetail& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
                                          real* const out_pdfW) const
 {
-	const Vector3R& N = X.getSmoothNormal();
+	const Vector3R& N = X.getShadingNormal();
 
 	const real NoL = N.dot(L);
 

@@ -31,7 +31,7 @@ void IdealReflector::genBsdfSample(
 	SpectralStrength* const out_pdfAppliedBsdf,
 	ESurfacePhenomenon* const out_type) const
 {
-	const Vector3R& N = X.getSmoothNormal();
+	const Vector3R& N = X.getShadingNormal();
 	*out_L = V.mul(-1.0_r).reflect(N);
 
 	const real NoL = N.dot(*out_L);

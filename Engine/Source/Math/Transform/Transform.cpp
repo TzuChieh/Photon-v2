@@ -63,25 +63,29 @@ void Transform::transform(const IntersectionDetail& detail, const Time& time,
                           IntersectionDetail* const out_detail) const
 {
 	Vector3R tPosition;
-	Vector3R tSmoothNormal;
-	Vector3R tGeoNormal;
-	transformPoint      (detail.getPosition(),     time, &tPosition);
-	transformOrientation(detail.getSmoothNormal(), time, &tSmoothNormal);
-	transformOrientation(detail.getGeoNormal(),    time, &tGeoNormal);
+	Vector3R tGeometryNormal;
+	Vector3R tShadingNormal;
+	transformPoint(detail.getPosition(), time, &tPosition);
+	transformOrientation(detail.getGeometryNormal(), time, &tGeometryNormal);
+	transformOrientation(detail.getShadingNormal(), time, &tShadingNormal);
 
 	out_detail->setAttributes(detail.getPrimitive(),
 	                          tPosition,
-	                          tSmoothNormal.normalizeLocal(),
-	                          tGeoNormal.normalizeLocal(),
+	                          tGeometryNormal.normalizeLocal(),
+	                          tShadingNormal.normalizeLocal(),
 	                          detail.getUVW(),
 	                          detail.getRayT());
 
 	Vector3R tdPdU;
 	Vector3R tdPdV;
+	Vector3R tdNdU;
+	Vector3R tdNdV;
 	transformVector(detail.getdPdU(), time, &tdPdU);
 	transformVector(detail.getdPdV(), time, &tdPdV);
+	transformVector(detail.getdNdU(), time, &tdNdU);
+	transformVector(detail.getdNdV(), time, &tdNdV);
 
-	out_detail->setDerivatives(tdPdU, tdPdV);
+	out_detail->setDerivatives(tdPdU, tdPdV, tdNdU, tdNdV);
 }
 
 void Transform::transform(const AABB3D& aabb, const Time& time,

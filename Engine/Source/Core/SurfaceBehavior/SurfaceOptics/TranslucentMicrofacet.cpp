@@ -28,7 +28,7 @@ TranslucentMicrofacet::~TranslucentMicrofacet() = default;
 void TranslucentMicrofacet::evalBsdf(const IntersectionDetail& X, const Vector3R& L, const Vector3R& V,
                                      SpectralStrength* const out_bsdf, ESurfacePhenomenon* const out_type) const
 {
-	const Vector3R& N = X.getSmoothNormal();
+	const Vector3R& N = X.getShadingNormal();
 
 	const real NoL = N.dot(L);
 	const real NoV = N.dot(V);
@@ -101,7 +101,7 @@ void TranslucentMicrofacet::genBsdfSample(const IntersectionDetail& X, const Vec
 	// The reason that the latter multiplier in the PDF exists is because there's a jacobian involved 
 	// (from H's probability space to L's).
 
-	const Vector3R& N = X.getSmoothNormal();
+	const Vector3R& N = X.getShadingNormal();
 
 	Vector3R H;
 	m_microfacet->genDistributedH(Random::genUniformReal_i0_e1(), 
@@ -162,7 +162,7 @@ void TranslucentMicrofacet::genBsdfSample(const IntersectionDetail& X, const Vec
 void TranslucentMicrofacet::calcBsdfSamplePdf(const IntersectionDetail& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
                                               real* const out_pdfW) const
 {
-	const Vector3R& N = X.getSmoothNormal();
+	const Vector3R& N = X.getShadingNormal();
 	const real NoL = N.dot(L);
 
 	switch(type)

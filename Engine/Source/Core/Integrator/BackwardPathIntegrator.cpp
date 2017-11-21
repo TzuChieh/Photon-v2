@@ -66,13 +66,13 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 		// sample emitted radiance
 
 		// sidedness agreement between real geometry and shading (phong-interpolated) normal
-		if(hitDetail.getSmoothNormal().dot(V) * hitDetail.getGeoNormal().dot(V) <= 0.0f)
+		if(hitDetail.getShadingNormal().dot(V) * hitDetail.getGeometryNormal().dot(V) <= 0.0f)
 		{
 			break;
 		}
 
 		// only forward side is emitable
-		if(hitSurfaceBehavior.getEmitter() && V.dot(hitDetail.getSmoothNormal()) > 0.0_r)
+		if(hitSurfaceBehavior.getEmitter() && V.dot(hitDetail.getShadingNormal()) > 0.0_r)
 		{
 			SpectralStrength radianceLi;
 			hitSurfaceBehavior.getEmitter()->evalEmittedRadiance(hitDetail, &radianceLi);
@@ -97,12 +97,12 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 		bsdfSample.inputs.set(hitDetail, V);
 		hitSurfaceBehavior.getSurfaceOptics()->genBsdfSample(bsdfSample);
 
-		const Vector3R& N = hitDetail.getSmoothNormal();
+		const Vector3R& N = hitDetail.getShadingNormal();
 		const Vector3R& L = bsdfSample.outputs.L;
 
 		// blackness check & sidedness agreement between real geometry and shading (phong-interpolated) normal
 		if(!bsdfSample.outputs.isGood() ||
-		   hitDetail.getSmoothNormal().dot(L) * hitDetail.getGeoNormal().dot(L) <= 0.0_r)
+		   hitDetail.getShadingNormal().dot(L) * hitDetail.getGeometryNormal().dot(L) <= 0.0_r)
 		{
 			break;
 		}
