@@ -4,6 +4,8 @@
 #include "Core/Intersectable/Intersector.h"
 #include "World/LightSampler/LightSampler.h"
 #include "Core/IntersectionProbe.h"
+#include "Core/IntersectionDetail.h"
+#include "Common/assertion.h"
 
 namespace ph
 {
@@ -34,7 +36,10 @@ bool Scene::isIntersecting(const Ray& ray) const
 void Scene::calcIntersectionDetail(const Ray& ray, IntersectionProbe& probe,
                                    IntersectionDetail* const out_detail) const
 {
-	m_intersector->calcIntersectionDetail(ray, probe, out_detail);
+	PH_ASSERT(probe.getCurrentHit() != nullptr);
+
+	probe.getCurrentHit()->calcIntersectionDetail(ray, probe, out_detail);
+	out_detail->computeBases();
 }
 
 const Emitter* Scene::pickEmitter(real* const out_PDF) const

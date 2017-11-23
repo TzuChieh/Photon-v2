@@ -56,7 +56,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 	{
 		bool keepSampling = true;
 
-		hitProbe.calcIntersectionDetail(tracingRay, &hitDetail);
+		scene.calcIntersectionDetail(tracingRay, hitProbe, &hitDetail);
 
 		const auto* const metadata = hitDetail.getPrimitive()->getMetadata();
 		const SurfaceBehavior& hitSurfaceBehavior = metadata->surfaceBehavior;

@@ -179,8 +179,8 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, IntersectionProbe& probe,
 
 	out_detail->setAttributes(this, hitPosition, m_faceNormal, hitShadingNormal, hitUVW, probe.getHitRayT());
 
-	Vector3R dPdU, dPdV;
-	Vector3R dNdU, dNdV;
+	Vector3R dPdU(0.0_r), dPdV(0.0_r);
+	Vector3R dNdU(0.0_r), dNdV(0.0_r);
 	const Vector2R dUVab(m_uvwB.x - m_uvwA.x, m_uvwB.y - m_uvwA.y);
 	const Vector2R dUVac(m_uvwC.x - m_uvwA.x, m_uvwC.y - m_uvwA.y);
 	const real uvDet = dUVab.x * dUVac.y - dUVab.y * dUVac.x;
@@ -195,12 +195,6 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, IntersectionProbe& probe,
 		const Vector3R& dNac = m_nC.sub(m_nA);
 		dNdU = dNab.mul(dUVac.y).add(dNac.mul(-dUVab.y)).mulLocal(reciUvDet);
 		dNdV = dNab.mul(-dUVac.x).add(dNac.mul(dUVab.x)).mulLocal(reciUvDet);
-	}
-	else
-	{
-		Math::formOrthonormalBasis(m_faceNormal, &dPdV, &dPdU);
-		dNdU.set(0.0_r);
-		dNdV.set(0.0_r);
 	}
 	
 	out_detail->setDerivatives(dPdU, dPdV, dNdU, dNdV);

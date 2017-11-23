@@ -26,9 +26,6 @@ public:
 
 	}
 
-	// A convenient method for acquiring details on intersection.
-	void calcIntersectionDetail(const Ray& ray, IntersectionDetail* out_detail);
-
 	inline void pushIntermediateHit(const Intersectable* hitTarget)
 	{
 		m_hitStack.push(hitTarget);

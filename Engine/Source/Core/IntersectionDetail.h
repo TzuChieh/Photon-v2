@@ -2,6 +2,7 @@
 
 #include "Math/TVector3.h"
 #include "Math/TOrthonormalBasis3.h"
+#include "Math/Math.h"
 
 namespace ph
 {
@@ -11,6 +12,8 @@ class Primitive;
 class IntersectionDetail final
 {
 public:
+	typedef TOrthonormalBasis3<real> Basis;
+
 	IntersectionDetail();
 
 	inline const Vector3R&  getPosition() const       { return m_position;            }
@@ -23,6 +26,8 @@ public:
 	inline const Vector3R&  getdPdV() const           { return m_dPdV;                }
 	inline const Vector3R&  getdNdU() const           { return m_dNdU;                }
 	inline const Vector3R&  getdNdV() const           { return m_dNdV;                }
+	inline const Basis&     getGeometryBasis() const  { return m_geometryBasis;       }
+	inline const Basis&     getShadingBasis() const   { return m_shadingBasis;        }
 
 	inline void setAttributes(
 		const Primitive* primitive,
@@ -54,11 +59,27 @@ public:
 
 	inline void computeBases()
 	{
-		m_geometryBasis.xAxis = m_geometryBasis.yAxis.cross(m_dPdU).normalizeLocal();
-		m_geometryBasis.zAxis = m_geometryBasis.xAxis.cross(m_geometryBasis.yAxis);
-
-		m_shadingBasis.xAxis = m_shadingBasis.yAxis.cross(m_dNdU).normalizeLocal();
-		m_shadingBasis.zAxis = m_shadingBasis.xAxis.cross(m_shadingBasis.yAxis);
+		if(m_dPdU.lengthSquared() > 0.0_r)
+		{
+			m_geometryBasis.xAxis = m_geometryBasis.yAxis.cross(m_dPdU).normalizeLocal();
+			m_geometryBasis.zAxis = m_geometryBasis.xAxis.cross(m_geometryBasis.yAxis);
+		}
+		else
+		{
+			Math::formOrthonormalBasis(m_geometryBasis.yAxis, 
+			                           &m_geometryBasis.xAxis, &m_geometryBasis.zAxis);
+		}
+		
+		if(m_dNdU.lengthSquared() > 0.0_r)
+		{
+			m_shadingBasis.xAxis = m_shadingBasis.yAxis.cross(m_dNdU).normalizeLocal();
+			m_shadingBasis.zAxis = m_shadingBasis.xAxis.cross(m_shadingBasis.yAxis);
+		}
+		else
+		{
+			Math::formOrthonormalBasis(m_shadingBasis.yAxis,
+			                           &m_shadingBasis.xAxis, &m_shadingBasis.zAxis);
+		}
 	}
 
 private:
@@ -72,8 +93,8 @@ private:
 	Vector3R m_dNdU;
 	Vector3R m_dNdV;
 
-	TOrthonormalBasis3<real> m_geometryBasis;
-	TOrthonormalBasis3<real> m_shadingBasis;
+	Basis m_geometryBasis;
+	Basis m_shadingBasis;
 };
 
 }// end namespace ph
