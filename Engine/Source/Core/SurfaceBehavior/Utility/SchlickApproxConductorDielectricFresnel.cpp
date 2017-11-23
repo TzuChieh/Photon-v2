@@ -19,8 +19,10 @@ SchlickApproxConductorDielectricFresnel::SchlickApproxConductorDielectricFresnel
 
 SchlickApproxConductorDielectricFresnel::SchlickApproxConductorDielectricFresnel(
 	const SpectralStrength& f0) : 
+
 	// actual IOR values are not needed by Schlick's approximation during runtime
 	ConductorDielectricFresnel(1, SpectralStrength(1), SpectralStrength(1)),
+
 	m_f0(f0), m_f0Complement(f0.complement())
 {
 

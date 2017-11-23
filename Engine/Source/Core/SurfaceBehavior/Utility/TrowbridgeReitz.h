@@ -5,17 +5,25 @@
 namespace ph
 {
 
+// Reference:
+// Microfacet Models for Refraction through Rough Surfaces
+// Walter et al., EGSR 2007
+
 class TrowbridgeReitz : public Microfacet
 {
 public:
 	TrowbridgeReitz(real alpha);
 	virtual ~TrowbridgeReitz() override;
 
-	virtual real distribution(const Vector3R& N, const Vector3R& H) const override;
-	virtual real shadowing(const Vector3R& N, const Vector3R& H, 
+	virtual real distribution(const IntersectionDetail& X, 
+	                          const Vector3R& N, const Vector3R& H) const override;
+	virtual real shadowing(const IntersectionDetail& X, 
+	                       const Vector3R& N, const Vector3R& H,
 	                       const Vector3R& L, const Vector3R& V) const override;
-	virtual void genDistributedH(real seedA_i0e1, real seedB_i0e1, 
-	                             const Vector3R& N, Vector3R* out_H) const override;
+	virtual void genDistributedH(const IntersectionDetail& X, 
+	                             real seedA_i0e1, real seedB_i0e1,
+	                             const Vector3R& N, 
+	                             Vector3R* out_H) const override;
 
 private:
 	real m_alpha;

@@ -50,8 +50,8 @@ void TranslucentMicrofacet::evalBsdf(const IntersectionDetail& X, const Vector3R
 		SpectralStrength F;
 		m_fresnel->calcReflectance(HoL, &F);
 
-		const real D = m_microfacet->distribution(N, H);
-		const real G = m_microfacet->shadowing(N, H, L, V);
+		const real D = m_microfacet->distribution(X, N, H);
+		const real G = m_microfacet->shadowing(X, N, H, L, V);
 
 		*out_bsdf = F.mul(D * G / (4.0_r * std::abs(NoV * NoL)));
 		*out_type = ESurfacePhenomenon::REFLECTION;
@@ -80,8 +80,8 @@ void TranslucentMicrofacet::evalBsdf(const IntersectionDetail& X, const Vector3R
 		SpectralStrength F;
 		m_fresnel->calcTransmittance(HoL, &F);
 
-		const real D = m_microfacet->distribution(N, H);
-		const real G = m_microfacet->shadowing(N, H, L, V);
+		const real D = m_microfacet->distribution(X, N, H);
+		const real G = m_microfacet->shadowing(X, N, H, L, V);
 
 		const real dotTerm = std::abs(HoL * HoV / (NoV * NoL));
 		const real iorTerm = etaI / (etaI * HoL + etaT * HoV);
@@ -104,7 +104,8 @@ void TranslucentMicrofacet::genBsdfSample(const IntersectionDetail& X, const Vec
 	const Vector3R& N = X.getShadingNormal();
 
 	Vector3R H;
-	m_microfacet->genDistributedH(Random::genUniformReal_i0_e1(), 
+	m_microfacet->genDistributedH(X, 
+	                              Random::genUniformReal_i0_e1(),
 	                              Random::genUniformReal_i0_e1(), 
 	                              N, &H);
 
@@ -153,7 +154,7 @@ void TranslucentMicrofacet::genBsdfSample(const IntersectionDetail& X, const Vec
 	const real NoL = N.dot(L);
 	const real HoL = H.dot(L);
 
-	const real G = m_microfacet->shadowing(N, H, L, V);
+	const real G = m_microfacet->shadowing(X, N, H, L, V);
 
 	const real dotTerms = std::abs(HoL / (NoV * NoL * NoH));
 	out_pdfAppliedBsdf->set(F.mul(G * dotTerms));
@@ -179,7 +180,7 @@ void TranslucentMicrofacet::calcBsdfSamplePdf(const IntersectionDetail& X, const
 		const real NoH = N.dot(H);
 		const real HoL = H.dot(L);
 		const real HoV = H.dot(V);
-		const real D = m_microfacet->distribution(N, H);
+		const real D = m_microfacet->distribution(X, N, H);
 
 		SpectralStrength F;
 		m_fresnel->calcReflectance(HoL, &F);
@@ -209,7 +210,7 @@ void TranslucentMicrofacet::calcBsdfSamplePdf(const IntersectionDetail& X, const
 		const real NoH = N.dot(H);
 		const real HoL = H.dot(L);
 
-		const real D = m_microfacet->distribution(N, H);
+		const real D = m_microfacet->distribution(X, N, H);
 
 		SpectralStrength F;
 		m_fresnel->calcReflectance(HoL, &F);

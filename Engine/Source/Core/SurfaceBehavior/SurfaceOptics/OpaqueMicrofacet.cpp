@@ -55,8 +55,8 @@ void OpaqueMicrofacet::evalBsdf(const IntersectionDetail& X, const Vector3R& L, 
 	SpectralStrength F;
 	m_fresnel->calcReflectance(HoL, &F);
 
-	const real D = m_microfacet->distribution(N, H);
-	const real G = m_microfacet->shadowing(N, H, L, V);
+	const real D = m_microfacet->distribution(X, N, H);
+	const real G = m_microfacet->shadowing(X, N, H, L, V);
 
 	*out_bsdf = F.mul(D * G / (4.0_r * std::abs(NoV * NoL)));
 	*out_type = ESurfacePhenomenon::REFLECTION;
@@ -76,7 +76,8 @@ void OpaqueMicrofacet::genBsdfSample(const IntersectionDetail& X, const Vector3R
 	const Vector3R& N = X.getShadingNormal();
 
 	Vector3R H;
-	m_microfacet->genDistributedH(Random::genUniformReal_i0_e1(), 
+	m_microfacet->genDistributedH(X, 
+	                              Random::genUniformReal_i0_e1(),
 	                              Random::genUniformReal_i0_e1(), 
 	                              N, &H);
 
@@ -92,7 +93,7 @@ void OpaqueMicrofacet::genBsdfSample(const IntersectionDetail& X, const Vector3R
 	SpectralStrength F;
 	m_fresnel->calcReflectance(HoL, &F);
 
-	const real G = m_microfacet->shadowing(N, H, L, V);
+	const real G = m_microfacet->shadowing(X, N, H, L, V);
 
 	const real multiplier = std::abs(HoL / (NoV * NoL * NoH));
 	out_pdfAppliedBsdf->set(F.mul(G).mulLocal(multiplier));
@@ -116,7 +117,7 @@ void OpaqueMicrofacet::calcBsdfSamplePdf(const IntersectionDetail& X, const Vect
 
 	const real NoH = N.dot(H);
 	const real HoL = H.dot(L);
-	const real D = m_microfacet->distribution(N, H);
+	const real D = m_microfacet->distribution(X, N, H);
 
 	*out_pdfW = std::abs(D * NoH / (4.0_r * HoL));
 }
