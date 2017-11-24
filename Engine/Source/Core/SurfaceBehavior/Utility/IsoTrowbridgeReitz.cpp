@@ -1,21 +1,21 @@
-#include "Core/SurfaceBehavior/Utility/TrowbridgeReitz.h"
+#include "Core/SurfaceBehavior/Utility/IsoTrowbridgeReitz.h"
 
 #include <cmath>
 
 namespace ph
 {
 
-TrowbridgeReitz::TrowbridgeReitz(const real alpha) : 
+IsoTrowbridgeReitz::IsoTrowbridgeReitz(const real alpha) :
 	Microfacet(),
 	m_alpha(alpha)
 {
 
 }
 
-TrowbridgeReitz::~TrowbridgeReitz() = default;
+IsoTrowbridgeReitz::~IsoTrowbridgeReitz() = default;
 
 // GGX (Trowbridge-Reitz) Normal Distribution Function
-real TrowbridgeReitz::distribution(
+real IsoTrowbridgeReitz::distribution(
 	const IntersectionDetail& X, 
 	const Vector3R& N, const Vector3R& H) const
 {
@@ -35,7 +35,7 @@ real TrowbridgeReitz::distribution(
 }
 
 // Smith's GGX Geometry Shadowing Function (H is expected to be on the hemisphere of N)
-real TrowbridgeReitz::shadowing(
+real IsoTrowbridgeReitz::shadowing(
 	const IntersectionDetail& X, 
 	const Vector3R& N, const Vector3R& H,
 	const Vector3R& L, const Vector3R& V) const
@@ -44,10 +44,7 @@ real TrowbridgeReitz::shadowing(
 	const real NoV = N.dot(V);
 	const real HoL = H.dot(L);
 	const real HoV = H.dot(V);
-
-	// The back surface of the microsurface is never visible from directions on the front side 
-	// of the macrosurface and viceversa (sidedness agreement)
-	if(HoL * NoL <= 0.0_r || HoV * NoV <= 0.0_r)
+	if(!isSidednessAgreed(NoL, NoV, HoL, HoV))
 	{
 		return 0.0_r;
 	}
@@ -67,7 +64,7 @@ real TrowbridgeReitz::shadowing(
 }
 
 // for GGX (Trowbridge-Reitz) Normal Distribution Function
-void TrowbridgeReitz::genDistributedH(
+void IsoTrowbridgeReitz::genDistributedH(
 	const IntersectionDetail& X, 
 	const real seedA_i0e1, const real seedB_i0e1,
 	const Vector3R& N, 

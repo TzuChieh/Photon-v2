@@ -23,12 +23,16 @@ public:
 
 	inline T cosPhi(const TVector3<T>& unitVec) const;
 	inline T sinPhi(const TVector3<T>& unitVec) const;
+	inline T tanPhi(const TVector3<T>& unitVec) const;
 	inline T cos2Phi(const TVector3<T>& unitVec) const;
 	inline T sin2Phi(const TVector3<T>& unitVec) const;
+	inline T tan2Phi(const TVector3<T>& unitVec) const;
 	inline T cosTheta(const TVector3<T>& unitVec) const;
 	inline T sinTheta(const TVector3<T>& unitVec) const;
+	inline T tanTheta(const TVector3<T>& unitVec) const;
 	inline T cos2Theta(const TVector3<T>& unitVec) const;
 	inline T sin2Theta(const TVector3<T>& unitVec) const;
+	inline T tan2Theta(const TVector3<T>& unitVec) const;
 	inline T absCosTheta(const TVector3<T>& unitVec) const;
 	inline T absSinTheta(const TVector3<T>& unitVec) const;
 

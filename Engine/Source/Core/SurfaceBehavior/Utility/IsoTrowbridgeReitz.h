@@ -9,11 +9,11 @@ namespace ph
 // Microfacet Models for Refraction through Rough Surfaces
 // Walter et al., EGSR 2007
 
-class TrowbridgeReitz : public Microfacet
+class IsoTrowbridgeReitz final : public Microfacet
 {
 public:
-	TrowbridgeReitz(real alpha);
-	virtual ~TrowbridgeReitz() override;
+	IsoTrowbridgeReitz(real alpha);
+	virtual ~IsoTrowbridgeReitz() override;
 
 	virtual real distribution(const IntersectionDetail& X, 
 	                          const Vector3R& N, const Vector3R& H) const override;

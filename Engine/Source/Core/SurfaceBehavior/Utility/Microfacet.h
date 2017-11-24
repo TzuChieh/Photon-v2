@@ -22,6 +22,15 @@ public:
 	                             real seedA_i0e1, real seedB_i0e1,
 	                             const Vector3R& N, 
 	                             Vector3R* out_H) const = 0;
+
+protected:
+	static inline bool isSidednessAgreed(const real NoL, const real NoV, 
+	                                     const real HoL, const real HoV)
+	{
+		// The back surface of the microsurface is never visible from directions 
+		// on the front side of the macrosurface and vice versa (sidedness agreement)
+		return (HoL * NoL > 0.0_r) && (HoV * NoV > 0.0_r);
+	}
 };
 
 }// end namespace ph

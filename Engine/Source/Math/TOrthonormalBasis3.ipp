@@ -70,6 +70,12 @@ inline T TOrthonormalBasis3<T>::sinPhi(const TVector3<T>& unitVec) const
 }
 
 template<typename T>
+inline T TOrthonormalBasis3<T>::tanPhi(const TVector3<T>& unitVec) const
+{
+	return std::sqrt(tan2Phi(unitVec));
+}
+
+template<typename T>
 inline T TOrthonormalBasis3<T>::cos2Phi(const TVector3<T>& unitVec) const
 {
 	const T cosP = cosPhi(unitVec);
@@ -83,6 +89,14 @@ inline T TOrthonormalBasis3<T>::sin2Phi(const TVector3<T>& unitVec) const
 }
 
 template<typename T>
+inline T TOrthonormalBasis3<T>::tan2Phi(const TVector3<T>& unitVec) const
+{
+	const T cos2P = cos2Phi(unitVec);
+	const T sin2P = 1 - cos2P;
+	return sin2P / cos2P;
+}
+
+template<typename T>
 inline T TOrthonormalBasis3<T>::cosTheta(const TVector3<T>& unitVec) const
 {
 	return Math::clamp(yAxis.dot(unitVec), -1, 1);
@@ -92,6 +106,12 @@ template<typename T>
 inline T TOrthonormalBasis3<T>::sinTheta(const TVector3<T>& unitVec) const
 {
 	return std::sqrt(sin2Theta(unitVec));
+}
+
+template<typename T>
+inline T TOrthonormalBasis3<T>::tanTheta(const TVector3<T>& unitVec) const
+{
+	return std::sqrt(tan2Theta(unitVec));
 }
 
 template<typename T>
@@ -117,6 +137,14 @@ template<typename T>
 inline T TOrthonormalBasis3<T>::sin2Theta(const TVector3<T>& unitVec) const
 {
 	return 1 - cos2Theta(unitVec);
+}
+
+template<typename T>
+inline T TOrthonormalBasis3<T>::tan2Theta(const TVector3<T>& unitVec) const
+{
+	const T cos2T = cos2Theta(unitVec);
+	const T sin2T = 1 - cos2T;
+	return sin2T / cos2T;
 }
 
 template<typename T>
