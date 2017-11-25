@@ -55,7 +55,7 @@ inline T TOrthonormalBasis3<T>::cosPhi(const TVector3<T>& unitVec) const
 	if(length2 != 0)
 	{
 		xzPlaneVec.mulLocal(1 / std::sqrt(length2));
-		return Math::clamp(xzPlaneVec.normalizeLocal().dot(xAxis), -1, 1);
+		return Math::clamp(xzPlaneVec.dot(zAxis), -1, 1);
 	}
 	else
 	{

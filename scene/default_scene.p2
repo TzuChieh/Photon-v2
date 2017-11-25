@@ -6,20 +6,19 @@
 //## film(film) [integer width 800] [integer height 800]
 //## film(film) [integer width 800] [integer height 600]
 //## film(hdr-rgb) [integer width 800] [integer height 800] [string filter-name "gaussian"]
-//## film(hdr-rgb) [integer width 800] [integer height 800] [string filter-name "mn"]
-## film(hdr-rgb) [integer width 800] [integer height 800] [string filter-name "mn"] [integer rect-x 100] [integer rect-y 200] [integer rect-w 200] [integer rect-h 200]
+## film(hdr-rgb) [integer width 800] [integer height 800] [string filter-name "mn"]
+//## film(hdr-rgb) [integer width 800] [integer height 1200] [string filter-name "mn"] [integer rect-x 100] [integer rect-y 200] [integer rect-w 270] [integer rect-h 200]
 
 //## sample-generator(uniform-random) [integer sample-amount 1]
-## sample-generator(stratified) [integer sample-amount 2][integer num-strata-2d-x 800][integer num-strata-2d-y 800]
+## sample-generator(stratified) [integer sample-amount 120][integer num-strata-2d-x 800][integer num-strata-2d-y 800]
 //## sampler(uniform-random) [integer samples 120]
 
-//## integrator(backward-path)
+## integrator(backward-path)
 //## integrator(backward-light)
 //## integrator(light-tracing)
 //## integrator(surface-normal)
-## integrator(backward-mis)
+//## integrator(backward-mis)
 //## integrator(debug)
-
 
 
 -> geometry(rectangle) @boxWall [real width 1][real height 1]
@@ -63,6 +62,7 @@
 
 // bottom wall
 -> material(matte-opaque) @bottomWallMaterial [vector3r albedo "0.7 0.7 0.7"]
+//-> material(ideal-substance) @bottomWallMaterial [string type dielectric-reflector] [real ior-outer 1] [real ior-inner 1.5]
 -> actor(model) @bottomWall [geometry geometry @boxWall] [material material @bottomWallMaterial]
 -> actor(model) translate(@bottomWall) [vector3r factor "0 -5 0"]
 -> actor(model) rotate(@bottomWall) [vector3r axis "1 0 0"] [real degree -90]
@@ -75,22 +75,33 @@
 -> actor(model) scale(@backWall) [vector3r factor "10 10 10"]
 
 // create materials
--> material(matte-opaque) @diffuseMaterial [vector3r albedo "0.5 0.9 0.5"]
--> material(abraded-opaque) @goldMaterial [vector3r albedo "0.0 0.0 0.0"] [real roughness 0.0] [vector3r f0 "1.0 0.765557 0.336057"]
--> material(abraded-translucent) @glassMaterial [vector3r albedo "0.0 0.0 0.0"] [real roughness 0.0] [vector3r f0 "0.04 0.04 0.04"]
-   [real ior 1.5]
+//-> material(matte-opaque) @diffuseMaterial [vector3r albedo "0.5 0.9 0.5"]
+-> material(abraded-opaque) @isoGoldMaterial [string type iso-metallic-ggx] [vector3r albedo "0.0 0.0 0.0"] [real roughness 0.0] [vector3r f0 "1.0 0.765557 0.336057"]
+-> material(abraded-opaque) @anisoGoldMaterial [string type aniso-metallic-ggx] [vector3r albedo "0.0 0.0 0.0"] [real roughness-u 0.2] [real roughness-v 0.0][vector3r f0 "1.0 0.765557 0.336057"]
+//-> material(abraded-translucent) @glassMaterial [vector3r albedo "0.0 0.0 0.0"] [real roughness 0.0] [vector3r f0 "0.04 0.04 0.04"]
+//   [real ior 1.5]
+
+-> material(ideal-substance) @idealDielectricReflector [string type dielectric-reflector] [real ior-outer 1] [real ior-inner 1.5]
+
+-> material(ideal-substance) @idealDielectricTransmitter [string type transmitter] [real ior-outer 1] [real ior-inner 1.5]
+
+-> material(ideal-substance) @idealMetallicReflector 
+[string type metallic-reflector] [real ior-outer 1] [vector3r f0-rgb "1 1 1"]
 
 // diffuse object
--> geometry(sphere) @diffuseGeometry [real radius 1.5]
--> actor(model) @diffuseModel [geometry geometry @diffuseGeometry] [material material @diffuseMaterial]
--> actor(model) translate(@diffuseModel) [vector3r factor "-3 -3.5 0"]
+//-> geometry(sphere) @diffuseGeometry [real radius 1.5]
+//-> actor(model) @diffuseModel [geometry geometry @diffuseGeometry] [material material @idealDielectricTransmitter]
+//-> actor(model) translate(@diffuseModel) [vector3r factor "-3 -3.5 0"]
 
 // metal object
--> geometry(sphere) @metalGeometry [real radius 1.5]
--> actor(model) @metalModel [geometry geometry @metalGeometry] [material material @goldMaterial]
--> actor(model) translate(@metalModel) [vector3r factor "0 -3.5 0"]
+//-> geometry(sphere) @metalGeometry [real radius 1.5]
+//-> actor(model) @metalModel [geometry geometry @metalGeometry] [material material @goldMaterial]
+//-> actor(model) translate(@metalModel) [vector3r factor "0 -3.5 0"]
 
 // glass object
--> geometry(sphere) @glassGeometry [real radius 1.5]
--> actor(model) @glassModel [geometry geometry @glassGeometry] [material material @glassMaterial]
--> actor(model) translate(@glassModel) [vector3r factor "3 0 0"]
+//-> geometry(sphere) @glassGeometry [real radius 1.5]
+//-> actor(model) @glassModel [geometry geometry @glassGeometry] [material material @glassMaterial]
+//-> actor(model) translate(@glassModel) [vector3r factor "3 0 0"]
+
+-> geometry(sphere) @testGeometry [real radius 2.5]
+-> actor(model) @testModel [geometry geometry @testGeometry] [material material @anisoGoldMaterial]

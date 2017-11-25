@@ -49,7 +49,7 @@ void ThinLensCamera::evalEmittedImportanceAndPdfW(
 void ThinLensCamera::genRandomSampleOnDisk(const real radius, real* const out_x, real* const out_y)
 {
 	const real r   = radius * std::sqrt(Random::genUniformReal_i0_e1());
-	const real phi = 2.0_r * PI_REAL * Random::genUniformReal_i0_e1();
+	const real phi = 2.0_r * PH_PI_REAL * Random::genUniformReal_i0_e1();
 	*out_x = r * std::cos(phi);
 	*out_y = r * std::sin(phi);
 }

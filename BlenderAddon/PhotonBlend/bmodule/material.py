@@ -55,6 +55,22 @@ class PhGeneralPanel(PhMaterialPanel, bpy.types.Panel):
 		max         = 1.0
 	)
 
+	bpy.types.Material.ph_roughnessU = bpy.props.FloatProperty(
+		name        = "roughness u",
+		description = "surface anisotropic roughness in [0, 1]",
+		default     = 0.5,
+		min         = 0.0,
+		max         = 1.0
+	)
+
+	bpy.types.Material.ph_roughnessV = bpy.props.FloatProperty(
+		name        = "roughness v",
+		description = "surface anisotropic roughness in [0, 1]",
+		default     = 0.0,
+		min         = 0.0,
+		max         = 1.0
+	)
+
 	bpy.types.Material.ph_ior = bpy.props.FloatProperty(
 		name        = "index of refraction",
 		description = "index of refraction of the material in [0, infinity]",
@@ -79,6 +95,12 @@ class PhGeneralPanel(PhMaterialPanel, bpy.types.Panel):
 		default     = False
 	)
 
+	bpy.types.Material.ph_isAnisotropic = bpy.props.BoolProperty(
+		name        = "anisotropic",
+		description = "does this material has anisotropic roughness",
+		default     = False
+	)
+
 	bpy.types.Material.ph_emittedRadiance = bpy.props.FloatVectorProperty(
 		name        = "radiance",
 		description = "radiance emitted by the surface",
@@ -98,24 +120,38 @@ class PhGeneralPanel(PhMaterialPanel, bpy.types.Panel):
 			return
 
 		layout.prop(material, "ph_materialType")
-		materialType = material.ph_materialType
+		material_type = material.ph_materialType
 
-		if materialType == "MATTE_OPAQUE":
-
-			layout.prop(material, "ph_albedo")
-
-		elif materialType == "ABRADED_OPAQUE":
+		if material_type == "MATTE_OPAQUE":
 
 			layout.prop(material, "ph_albedo")
-			layout.prop(material, "ph_f0")
-			layout.prop(material, "ph_roughness")
 
-		elif materialType == "ABRADED_TRANSLUCENT":
+		elif material_type == "ABRADED_OPAQUE":
 
 			layout.prop(material, "ph_albedo")
 			layout.prop(material, "ph_f0")
-			layout.prop(material, "ph_roughness")
+
+			layout.prop(material, "ph_isAnisotropic")
+
+			if not material.ph_isAnisotropic:
+				layout.prop(material, "ph_roughness")
+			else:
+				layout.prop(material, "ph_roughnessU")
+				layout.prop(material, "ph_roughnessV")
+
+		elif material_type == "ABRADED_TRANSLUCENT":
+
+			layout.prop(material, "ph_albedo")
+			layout.prop(material, "ph_f0")
 			layout.prop(material, "ph_ior")
+
+			layout.prop(material, "ph_isAnisotropic")
+
+			if not material.ph_isAnisotropic:
+				layout.prop(material, "ph_roughness")
+			else:
+				layout.prop(material, "ph_roughnessU")
+				layout.prop(material, "ph_roughnessV")
 
 		else:
 			print("warning: unknown type of Photon-v2 material (%s)" %(materialType))

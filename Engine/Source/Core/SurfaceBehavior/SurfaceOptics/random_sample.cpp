@@ -7,7 +7,7 @@ namespace ph
 
 void genUnitHemisphereUniformSample(const real value_0_1_a, const real value_0_1_b, Vector3R* const out_sample)
 {
-	const real phi     = 2.0_r * PI_REAL * value_0_1_a;
+	const real phi     = 2.0_r * PH_PI_REAL * value_0_1_a;
 	const real yValue  = value_0_1_b;
 	const real yRadius = sqrt(1.0_r - yValue * yValue);
 
@@ -18,7 +18,7 @@ void genUnitHemisphereUniformSample(const real value_0_1_a, const real value_0_1
 
 void genUnitHemisphereCosineThetaWeightedSample(const real value_0_1_a, const real value_0_1_b, Vector3R* const out_sample)
 {
-	const real phi     = 2.0f * PI_REAL * value_0_1_a;
+	const real phi     = 2.0f * PH_PI_REAL * value_0_1_a;
 	const real yValue  = sqrt(value_0_1_b);
 	const real yRadius = sqrt(1.0f - yValue * yValue);
 
@@ -31,7 +31,7 @@ void genUnitHemisphereGgxTrowbridgeReitzNdfSample(const real value_0_1_a, const 
 {
 	// for GGX (Trowbridge-Reitz) Normal Distribution Function
 
-	const real phi     = 2.0f * PI_REAL * value_0_1_a;
+	const real phi     = 2.0f * PH_PI_REAL * value_0_1_a;
 	const real randNum = value_0_1_b;
 	const real theta   = atan(alpha * sqrt(randNum / (1.0_r - randNum)));
 

@@ -6,9 +6,9 @@
 namespace ph
 {
 
-AnisoTrowbridgeReitz::AnisoTrowbridgeReitz(const real alphaX, const real alphaY) :
-	m_alphaX(alphaX), m_alphaY(alphaY),
-	m_reciAlphaX2(1.0_r / (alphaX * alphaX)), m_reciAlphaY2(1.0_r / (alphaY * alphaY))
+AnisoTrowbridgeReitz::AnisoTrowbridgeReitz(const real alphaU, const real alphaV) :
+	m_alphaU(alphaU), m_alphaV(alphaV),
+	m_reciAlphaU2(1.0_r / (alphaU * alphaU)), m_reciAlphaV2(1.0_r / (alphaV * alphaV))
 {
 
 }
@@ -34,9 +34,9 @@ real AnisoTrowbridgeReitz::distribution(
 	const real cos2PhiH   = X.getShadingBasis().cos2Phi(H);
 	const real sin2PhiH   = 1.0_r - cos2PhiH;
 
-	const real tanTerm = 1.0_r + tan2ThetaH * (cos2PhiH * m_reciAlphaX2 + 
-	                                           sin2PhiH * m_reciAlphaY2);
-	return 1.0_r / (PH_PI_REAL * m_alphaX * m_alphaY * cos4ThetaH * tanTerm * tanTerm);
+	const real tanTerm = 1.0_r + tan2ThetaH * (cos2PhiH * m_reciAlphaU2 + 
+	                                           sin2PhiH * m_reciAlphaV2);
+	return 1.0_r / (PH_PI_REAL * m_alphaU * m_alphaV * cos4ThetaH * tanTerm * tanTerm);
 }
 
 real AnisoTrowbridgeReitz::shadowing(
@@ -62,7 +62,14 @@ void AnisoTrowbridgeReitz::genDistributedH(
 	const Vector3R& N,
 	Vector3R* const out_H) const
 {
+	const real uFactor = m_alphaU * std::cos(2.0_r * PH_PI_REAL * seedA_i0e1);
+	const real vFactor = m_alphaV * std::sin(2.0_r * PH_PI_REAL * seedA_i0e1);
 
+	const Vector3R zVec(X.getShadingBasis().zAxis.mul(uFactor));
+	const Vector3R xVec(X.getShadingBasis().xAxis.mul(vFactor));
+	
+	out_H->set(zVec.add(xVec).mul(std::sqrt(seedB_i0e1 / (1.0_r - seedB_i0e1))).add(N));
+	out_H->normalizeLocal();
 }
 
 real AnisoTrowbridgeReitz::lambda(const IntersectionDetail& X, 
@@ -71,8 +78,8 @@ real AnisoTrowbridgeReitz::lambda(const IntersectionDetail& X,
 	const real cos2Phi = X.getShadingBasis().cos2Phi(unitDir);
 	const real sin2Phi = 1.0_r - cos2Phi;
 
-	const real alpha2    = cos2Phi * m_alphaX * m_alphaX + 
-	                       sin2Phi * m_alphaY * m_alphaY;
+	const real alpha2    = cos2Phi * m_alphaU * m_alphaU + 
+	                       sin2Phi * m_alphaV * m_alphaV;
 	const real tan2Theta = X.getShadingBasis().tan2Theta(unitDir);
 	const real sqrtTerm  = 1.0_r + alpha2 * tan2Theta;
 	return 0.5_r * (-1.0_r + std::sqrt(sqrtTerm));

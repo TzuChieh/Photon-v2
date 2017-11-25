@@ -6,6 +6,9 @@
 #include "Math/TVector3.h"
 #include "FileIO/SDL/TCommandInterface.h"
 
+#include <functional>
+#include <memory>
+
 namespace ph
 {
 
@@ -17,13 +20,8 @@ public:
 
 	virtual void populateSurfaceBehavior(SurfaceBehavior* out_surfaceBehavior) const override;
 
-	void setAlbedo(const Vector3R& albedo);
-	void setRoughness(const real roughness);
-	void setF0(const Vector3R& f0);
-	void setF0(const real r, const real g, const real b);
-
 private:
-	OpaqueMicrofacet m_optics;
+	std::function<std::unique_ptr<SurfaceOptics>()> m_opticsGenerator;
 
 	static real roughnessToAlpha(const real roughness);
 
@@ -32,6 +30,8 @@ public:
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 	static std::unique_ptr<AbradedOpaque> ciLoad(const InputPacket& packet);
+	static std::unique_ptr<AbradedOpaque> ciLoadITR(const InputPacket& packet);
+	static std::unique_ptr<AbradedOpaque> ciLoadATR(const InputPacket& packet);
 };
 
 }// end namespace ph

@@ -144,7 +144,7 @@ void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* c
 	const real r1 = Random::genUniformReal_i0_e1();
 	const real r2 = Random::genUniformReal_i0_e1();
 	const real sqrtTerm = std::sqrt(r2 * (1.0_r - r2));
-	const real anglTerm = 2.0_r * PI_REAL * r1;
+	const real anglTerm = 2.0_r * PH_PI_REAL * r1;
 	rayDir.x = 2.0_r * std::cos(anglTerm) * sqrtTerm;
 	rayDir.y = 2.0_r * std::sin(anglTerm) * sqrtTerm;
 	rayDir.z = 1.0_r - 2.0_r * r2;
@@ -158,7 +158,7 @@ void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* c
 	out_ray->setMaxT(Ray::MAX_T);
 	out_eN->set(tPositionSample.normal);
 	*out_pdfA = pickPdfW * tPositionSample.pdf;
-	*out_pdfW = 1.0_r / (4.0_r * PI_REAL) / out_ray->getDirection().absDot(tPositionSample.normal);
+	*out_pdfW = 1.0_r / (4.0_r * PH_PI_REAL) / out_ray->getDirection().absDot(tPositionSample.normal);
 	m_emittedRadiance->sample(tPositionSample.uvw, out_Le);
 }
 

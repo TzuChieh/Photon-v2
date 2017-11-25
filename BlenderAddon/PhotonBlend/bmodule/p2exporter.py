@@ -124,25 +124,37 @@ class Exporter:
 
 			albedo    = keywordArgs["albedo"]
 			f0        = keywordArgs["f0"]
-			roughness = keywordArgs["roughness"]
 
-			p2File.write("-> material(abraded-opaque) %s \n" %(materialName))
-			p2File.write("[vector3r albedo     \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
-			p2File.write("[vector3r f0         \"%.8f %.8f %.8f\"]\n" %(f0[0],     f0[1],     f0[2]))
-			p2File.write("[real     roughness    %.8f]            \n" %(roughness))
+			p2File.write("-> material(abraded-opaque) %s \n"          % materialName)
+			p2File.write("[vector3r albedo     \"%.8f %.8f %.8f\"]\n" % (albedo[0], albedo[1], albedo[2]))
+			p2File.write("[vector3r f0         \"%.8f %.8f %.8f\"]\n" % (f0[0],     f0[1],     f0[2]))
+
+			if not keywordArgs["isAnisotropic"]:
+				p2File.write("[string type iso-metallic-ggx]\n")
+				p2File.write("[real roughness %.8f]\n" % keywordArgs["roughness"])
+			else:
+				p2File.write("[string type aniso-metallic-ggx]\n")
+				p2File.write("[real roughness-u %.8f]\n" % keywordArgs["roughnessU"])
+				p2File.write("[real roughness-v %.8f]\n" % keywordArgs["roughnessV"])
 
 		elif materialType == "ABRADED_TRANSLUCENT":
 
 			albedo    = keywordArgs["albedo"]
 			f0        = keywordArgs["f0"]
-			roughness = keywordArgs["roughness"]
 			ior       = keywordArgs["ior"]
 
-			p2File.write("-> material(abraded-translucent) %s \n" %(materialName))
+			p2File.write("-> material(abraded-translucent) %s \n"     %(materialName))
 			p2File.write("[vector3r albedo     \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
 			p2File.write("[vector3r f0         \"%.8f %.8f %.8f\"]\n" %(f0[0],     f0[1],     f0[2]))
-			p2File.write("[real     roughness    %.8f]            \n" %(roughness))
 			p2File.write("[real     ior          %.8f]            \n" %(ior))
+
+			if not keywordArgs["isAnisotropic"]:
+				p2File.write("[string type iso-metallic-ggx]\n")
+				p2File.write("[real roughness %.8f]\n" % keywordArgs["roughness"])
+			else:
+				p2File.write("[string type aniso-metallic-ggx]\n")
+				p2File.write("[real roughness-u %.8f]\n" % keywordArgs["roughnessU"])
+				p2File.write("[real roughness-v %.8f]\n" % keywordArgs["roughnessV"])
 
 		else:
 			print("warning: material (%s) with type %s is unsuppoprted, not exporting" %(materialName, materialType))
@@ -298,10 +310,13 @@ def export_material(exporter, materialName, material):
 	materialType = material.ph_materialType
 
 	exporter.exportMaterial(materialType, materialName,
-							albedo    = material.ph_albedo,
-							roughness = material.ph_roughness,
-							ior       = material.ph_ior,
-							f0        = material.ph_f0)
+	                        albedo        = material.ph_albedo,
+	                        roughness     = material.ph_roughness,
+	                        ior           = material.ph_ior,
+	                        f0            = material.ph_f0,
+	                        isAnisotropic = material.ph_isAnisotropic,
+							roughnessU    = material.ph_roughnessU,
+							roughnessV    = material.ph_roughnessV)
 
 
 def export_object_mesh(exporter, obj, scene):
@@ -397,13 +412,15 @@ def export_object_lamp(exporter, obj, scene):
 		# use lamp's color attribute as emitted radiance
 		exporter.exportLightSource("area", lightSourceName, emittedRadiance = lamp.color)
 
-		# creating actor-light, also convert transformation to Photon-v2's math.py system
+		# creating actor-light, also convert transformation to Photon-v2's coordinate system
 
-		# TODO: check normal's direction
-		# Blender's rectangle is defined in its xy-plane, which is Photon-v2's zx-plane, this rotation accounts for that
-		# (Photon-v2's rectangle is defined in xy-plane)
 		pos, rot, scale = obj.matrix_world.decompose()
-		rot = rot * mathutils.Quaternion((0.0, 1.0, 0.0), math.radians(90.0))
+
+		# Blender's rectangle area light is in its xy-plane (facing -z axis) by default, 
+		# while Photon's rectangle is in Blender's yz-plane (facing +x axis); these 
+		# rotations accounts for such difference
+		rot = rot * mathutils.Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
+		rot = rot * mathutils.Quaternion((0.0, 0.0, 1.0), math.radians(-90.0))
 
 		exporter.exportActorLight(actorLightName, lightSourceName, lightGeometryName, lightMaterialName, pos, rot, scale)
 

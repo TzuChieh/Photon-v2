@@ -26,8 +26,8 @@ void SphericalMapper::map(const Vector3R& position, const Vector3R& uvw, Vector3
 	const real theta = acos(cosTheta);       // [  0, pi]
 	const real phi   = atan2(sinPhi, cosPhi);// [-pi, pi]
 
-	out_uvw->x = (-phi + PI_REAL) / (2.0_r * PI_REAL);// [0, 1]
-	out_uvw->y = (PI_REAL - theta) / PI_REAL;        // [0, 1]
+	out_uvw->x = (-phi + PH_PI_REAL) / (2.0_r * PH_PI_REAL);// [0, 1]
+	out_uvw->y = (PH_PI_REAL - theta) / PH_PI_REAL;         // [0, 1]
 	out_uvw->z = 0.0_r;
 }
 

@@ -41,7 +41,7 @@ void LambertianDiffuse::evalBsdf(const IntersectionDetail& X, const Vector3R& L,
 
 	SpectralStrength albedo;
 	m_albedo->sample(X.getUVW(), &albedo);
-	*out_bsdf = albedo.divLocal(PI_REAL);
+	*out_bsdf = albedo.divLocal(PH_PI_REAL);
 	*out_type = ESurfacePhenomenon::REFLECTION;
 }
 
@@ -78,7 +78,7 @@ void LambertianDiffuse::calcBsdfSamplePdf(const IntersectionDetail& X, const Vec
                                           real* const out_pdfW) const
 {
 	const Vector3R& N = X.getShadingNormal();
-	*out_pdfW = L.dot(N) * RECI_PI_REAL;
+	*out_pdfW = L.dot(N) * PH_RECI_PI_REAL;
 }
 
 }// end namespace ph

@@ -5,7 +5,7 @@
 #include "Math/Random.h"
 #include "Math/constant.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/random_sample.h"
-#include "Core/SurfaceBehavior/Utility/TrowbridgeReitz.h"
+#include "Core/SurfaceBehavior/Utility/IsoTrowbridgeReitz.h"
 #include "Math/Math.h"
 #include "Core/SurfaceBehavior/Utility/SchlickApproxDielectricFresnel.h"
 
@@ -18,7 +18,7 @@ namespace ph
 TranslucentMicrofacet::TranslucentMicrofacet() :
 	SurfaceOptics(),
 	m_fresnel   (std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r)),
-	m_microfacet(std::make_shared<TrowbridgeReitz>(0.5_r))
+	m_microfacet(std::make_shared<IsoTrowbridgeReitz>(0.5_r))
 {
 
 }

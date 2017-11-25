@@ -29,7 +29,7 @@ real IsoTrowbridgeReitz::distribution(
 	const real NoH2   = NoH * NoH;
 
 	const real innerTerm   = NoH2 * (alpha2 - 1.0_r) + 1.0_r;
-	const real denominator = PI_REAL * innerTerm * innerTerm;
+	const real denominator = PH_PI_REAL * innerTerm * innerTerm;
 
 	return alpha2 / denominator;
 }
@@ -70,7 +70,7 @@ void IsoTrowbridgeReitz::genDistributedH(
 	const Vector3R& N, 
 	Vector3R* const out_H) const
 {
-	const real phi   = 2.0f * PI_REAL * seedA_i0e1;
+	const real phi   = 2.0f * PH_PI_REAL * seedA_i0e1;
 	const real theta = std::atan(m_alpha * std::sqrt(seedB_i0e1 / (1.0_r - seedB_i0e1)));
 
 	const real sinTheta = std::sin(theta);
@@ -78,15 +78,15 @@ void IsoTrowbridgeReitz::genDistributedH(
 
 	Vector3R& H = *out_H;
 
-	H.x = std::cos(phi) * sinTheta;
+	H.x = sinTheta * std::sin(phi);
 	H.y = cosTheta;
-	H.z = std::sin(phi) * sinTheta;
+	H.z = sinTheta * std::cos(phi);
 
-	Vector3R u;
-	Vector3R v(N);
-	Vector3R w;
-	Math::formOrthonormalBasis(v, &u, &w);
-	H = u.mulLocal(H.x).addLocal(v.mulLocal(H.y)).addLocal(w.mulLocal(H.z));
+	Vector3R xAxis;
+	Vector3R yAxis(N);
+	Vector3R zAxis;
+	Math::formOrthonormalBasis(yAxis, &xAxis, &zAxis);
+	H = xAxis.mulLocal(H.x).addLocal(yAxis.mulLocal(H.y)).addLocal(zAxis.mulLocal(H.z));
 	H.normalizeLocal();
 }
 

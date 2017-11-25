@@ -342,9 +342,6 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\Microfacet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\TrowbridgeReitz.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\ConductorDielectricFresnel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -421,6 +418,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\IntersectionProbe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\AnisoTrowbridgeReitz.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\IsoTrowbridgeReitz.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -901,9 +904,6 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\Microfacet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\TrowbridgeReitz.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\ConductorDielectricFresnel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1010,6 +1010,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Math\TOrthonormalBasis3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\AnisoTrowbridgeReitz.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\IsoTrowbridgeReitz.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

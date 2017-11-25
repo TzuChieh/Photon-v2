@@ -8,7 +8,7 @@ namespace ph
 class AnisoTrowbridgeReitz final : public Microfacet
 {
 public:
-	AnisoTrowbridgeReitz(real alphaX, real alphaY);
+	AnisoTrowbridgeReitz(real alphaU, real alphaV);
 	virtual ~AnisoTrowbridgeReitz() override;
 
 	virtual real distribution(const IntersectionDetail& X,
@@ -24,8 +24,8 @@ public:
 	                             Vector3R* out_H) const override;
 
 private:
-	real m_alphaX, m_alphaY;
-	real m_reciAlphaX2, m_reciAlphaY2;
+	real m_alphaU, m_alphaV;
+	real m_reciAlphaU2, m_reciAlphaV2;
 
 	real lambda(const IntersectionDetail& X, const Vector3R& unitDir) const;
 };

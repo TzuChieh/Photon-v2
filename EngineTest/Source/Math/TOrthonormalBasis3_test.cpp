@@ -34,6 +34,36 @@ TEST(TOrthonormalBasis3Test, VectorTransformation)
 	EXPECT_FLOAT_EQ(localVec.z, 3);
 }
 
+TEST(TOrthonormalBasis3Test, Trigonometry)
+{
+	typedef TVector3<float> Vec;
+
+	TOrthonormalBasis3<float> basis;
+	basis.xAxis = Vec(1, 0, 0);
+	basis.yAxis = Vec(0, 1, 0);
+	basis.zAxis = Vec(0, 0, 1);
+
+	Vec unitVec1(1, 0, 0);
+	EXPECT_FLOAT_EQ(basis.cosTheta(unitVec1),  0);
+	EXPECT_FLOAT_EQ(basis.cos2Theta(unitVec1), 0);
+	EXPECT_FLOAT_EQ(basis.sinTheta(unitVec1),  1);
+	EXPECT_FLOAT_EQ(basis.sin2Theta(unitVec1), 1);
+	EXPECT_FLOAT_EQ(basis.cosPhi(unitVec1),    0);
+	EXPECT_FLOAT_EQ(basis.cos2Phi(unitVec1),   0);
+	EXPECT_FLOAT_EQ(basis.sinPhi(unitVec1),    1);
+	EXPECT_FLOAT_EQ(basis.sin2Phi(unitVec1),   1);
+
+	Vec unitVec2(0, 0, 1);
+	EXPECT_FLOAT_EQ(basis.cosTheta(unitVec2),  0);
+	EXPECT_FLOAT_EQ(basis.cos2Theta(unitVec2), 0);
+	EXPECT_FLOAT_EQ(basis.sinTheta(unitVec2),  1);
+	EXPECT_FLOAT_EQ(basis.sin2Theta(unitVec2), 1);
+	EXPECT_FLOAT_EQ(basis.cosPhi(unitVec2),    1);
+	EXPECT_FLOAT_EQ(basis.cos2Phi(unitVec2),   1);
+	EXPECT_FLOAT_EQ(basis.sinPhi(unitVec2),    0);
+	EXPECT_FLOAT_EQ(basis.sin2Phi(unitVec2),   0);
+}
+
 TEST(TOrthonormalBasis3Test, TrigonometryCornerCase)
 {
 	typedef TVector3<float> Vec;
@@ -47,3 +77,4 @@ TEST(TOrthonormalBasis3Test, TrigonometryCornerCase)
 	EXPECT_TRUE(basis.cosTheta(unitVec1) == 1);
 	EXPECT_TRUE(basis.cosPhi(unitVec1) == 1);
 }
+
