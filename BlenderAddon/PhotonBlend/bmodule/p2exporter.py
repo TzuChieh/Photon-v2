@@ -2,6 +2,7 @@ from ..psdl import clause
 from .. import utility
 from ..utility import meta
 from ..psdl import materialcmd
+from . import ui
 
 import bpy
 import mathutils
@@ -104,60 +105,60 @@ class Exporter:
 		else:
 			print("warning: geometry (%s) with type %s is not supported, not exporting" %(geometryName, geometryType))
 
+	def exportMaterial(self, material_name, b_material):
 
-	def exportMaterial(self, materialType, materialName, **keywordArgs):
+		p2_file = self.__p2File
+		p2_file.write(ui.material.to_sdl(b_material, material_name))
 
-		p2File = self.__p2File
-
-		if materialType == "MATTE_OPAQUE":
-
-			albedo = keywordArgs["albedo"]
-
-			albedoColor = mathutils.Color((albedo[0], albedo[1], albedo[2]))
-			command = materialcmd.MatteOpaque.create(materialName, albedoColor)
-			p2File.write(command.to_sdl())
-
-			#p2File.write("-> material(matte-opaque) %s \n" %(materialName))
-			#p2File.write("[vector3r albedo \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
-
-		elif materialType == "ABRADED_OPAQUE":
-
-			albedo    = keywordArgs["albedo"]
-			f0        = keywordArgs["f0"]
-
-			p2File.write("-> material(abraded-opaque) %s \n"          % materialName)
-			p2File.write("[vector3r albedo     \"%.8f %.8f %.8f\"]\n" % (albedo[0], albedo[1], albedo[2]))
-			p2File.write("[vector3r f0         \"%.8f %.8f %.8f\"]\n" % (f0[0],     f0[1],     f0[2]))
-
-			if not keywordArgs["isAnisotropic"]:
-				p2File.write("[string type iso-metallic-ggx]\n")
-				p2File.write("[real roughness %.8f]\n" % keywordArgs["roughness"])
-			else:
-				p2File.write("[string type aniso-metallic-ggx]\n")
-				p2File.write("[real roughness-u %.8f]\n" % keywordArgs["roughnessU"])
-				p2File.write("[real roughness-v %.8f]\n" % keywordArgs["roughnessV"])
-
-		elif materialType == "ABRADED_TRANSLUCENT":
-
-			albedo    = keywordArgs["albedo"]
-			f0        = keywordArgs["f0"]
-			ior       = keywordArgs["ior"]
-
-			p2File.write("-> material(abraded-translucent) %s \n"     %(materialName))
-			p2File.write("[vector3r albedo     \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
-			p2File.write("[vector3r f0         \"%.8f %.8f %.8f\"]\n" %(f0[0],     f0[1],     f0[2]))
-			p2File.write("[real     ior          %.8f]            \n" %(ior))
-
-			if not keywordArgs["isAnisotropic"]:
-				p2File.write("[string type iso-metallic-ggx]\n")
-				p2File.write("[real roughness %.8f]\n" % keywordArgs["roughness"])
-			else:
-				p2File.write("[string type aniso-metallic-ggx]\n")
-				p2File.write("[real roughness-u %.8f]\n" % keywordArgs["roughnessU"])
-				p2File.write("[real roughness-v %.8f]\n" % keywordArgs["roughnessV"])
-
-		else:
-			print("warning: material (%s) with type %s is unsuppoprted, not exporting" %(materialName, materialType))
+		# if materialType == "MATTE_OPAQUE":
+		#
+		# 	albedo = keywordArgs["albedo"]
+		#
+		# 	albedoColor = mathutils.Color((albedo[0], albedo[1], albedo[2]))
+		# 	command = materialcmd.MatteOpaque.create(materialName, albedoColor)
+		# 	p2File.write(command.to_sdl())
+		#
+		# 	#p2File.write("-> material(matte-opaque) %s \n" %(materialName))
+		# 	#p2File.write("[vector3r albedo \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
+		#
+		# elif materialType == "ABRADED_OPAQUE":
+		#
+		# 	albedo    = keywordArgs["albedo"]
+		# 	f0        = keywordArgs["f0"]
+		#
+		# 	p2File.write("-> material(abraded-opaque) %s \n"          % materialName)
+		# 	p2File.write("[vector3r albedo     \"%.8f %.8f %.8f\"]\n" % (albedo[0], albedo[1], albedo[2]))
+		# 	p2File.write("[vector3r f0         \"%.8f %.8f %.8f\"]\n" % (f0[0],     f0[1],     f0[2]))
+		#
+		# 	if not keywordArgs["isAnisotropic"]:
+		# 		p2File.write("[string type iso-metallic-ggx]\n")
+		# 		p2File.write("[real roughness %.8f]\n" % keywordArgs["roughness"])
+		# 	else:
+		# 		p2File.write("[string type aniso-metallic-ggx]\n")
+		# 		p2File.write("[real roughness-u %.8f]\n" % keywordArgs["roughnessU"])
+		# 		p2File.write("[real roughness-v %.8f]\n" % keywordArgs["roughnessV"])
+		#
+		# elif materialType == "ABRADED_TRANSLUCENT":
+		#
+		# 	albedo    = keywordArgs["albedo"]
+		# 	f0        = keywordArgs["f0"]
+		# 	ior       = keywordArgs["ior"]
+		#
+		# 	p2File.write("-> material(abraded-translucent) %s \n"     %(materialName))
+		# 	p2File.write("[vector3r albedo     \"%.8f %.8f %.8f\"]\n" %(albedo[0], albedo[1], albedo[2]))
+		# 	p2File.write("[vector3r f0         \"%.8f %.8f %.8f\"]\n" %(f0[0],     f0[1],     f0[2]))
+		# 	p2File.write("[real     ior          %.8f]            \n" %(ior))
+		#
+		# 	if not keywordArgs["isAnisotropic"]:
+		# 		p2File.write("[string type iso-metallic-ggx]\n")
+		# 		p2File.write("[real roughness %.8f]\n" % keywordArgs["roughness"])
+		# 	else:
+		# 		p2File.write("[string type aniso-metallic-ggx]\n")
+		# 		p2File.write("[real roughness-u %.8f]\n" % keywordArgs["roughnessU"])
+		# 		p2File.write("[real roughness-v %.8f]\n" % keywordArgs["roughnessV"])
+		#
+		# else:
+		# 	print("warning: material (%s) with type %s is unsuppoprted, not exporting" %(materialName, materialType))
 
 
 	def exportLightSource(self, lightSourceType, lightSourceName, **keywordArgs):
@@ -305,18 +306,21 @@ def export_geometry(exporter, geometryName, mesh, faces):
 							normals   = triNormals)
 
 
-def export_material(exporter, materialName, material):
+def export_material(exporter, material_name, b_material):
 
-	materialType = material.ph_materialType
 
-	exporter.exportMaterial(materialType, materialName,
-	                        albedo        = material.ph_albedo,
-	                        roughness     = material.ph_roughness,
-	                        ior           = material.ph_ior,
-	                        f0            = material.ph_f0,
-	                        isAnisotropic = material.ph_isAnisotropic,
-							roughnessU    = material.ph_roughnessU,
-							roughnessV    = material.ph_roughnessV)
+	#materialType = b_material.ph_material_type
+
+	exporter.exportMaterial(material_name, b_material)
+
+	# exporter.exportMaterial(materialType, materialName,
+	#                         albedo        = material.ph_albedo,
+	#                         roughness     = material.ph_roughness,
+	#                         ior           = material.ph_ior,
+	#                         f0            = material.ph_f0,
+	#                         isAnisotropic = material.ph_isAnisotropic,
+	# 						roughnessU    = material.ph_roughnessU,
+	# 						roughnessV    = material.ph_roughnessV)
 
 
 def export_object_mesh(exporter, obj, scene):

@@ -1,4 +1,5 @@
 from ..utility import settings
+from . import ui
 
 import sys
 import bpy
@@ -26,16 +27,16 @@ class PhGeneralPanel(PhMaterialPanel, bpy.types.Panel):
 	"""Photon's material panel"""
 	bl_label = "Photon-v2 Material"
 
-	bpy.types.Material.ph_materialType = bpy.props.EnumProperty(
-		items = [
-			("MATTE_OPAQUE",        "Matte Opaque",        "diffuse material"),
-			("ABRADED_OPAQUE",      "Abraded Opaque",      "microfacet material"),
-			("ABRADED_TRANSLUCENT", "Abraded Translucent", "microfacet dielectric material")
-		],
-		name        = "Material Type",
-		description = "Photon-v2's material types",
-		default     = "MATTE_OPAQUE"
-	)
+	# bpy.types.Material.ph_materialType = bpy.props.EnumProperty(
+	# 	items = [
+	# 		("MATTE_OPAQUE",        "Matte Opaque",        "diffuse material"),
+	# 		("ABRADED_OPAQUE",      "Abraded Opaque",      "microfacet material"),
+	# 		("ABRADED_TRANSLUCENT", "Abraded Translucent", "microfacet dielectric material")
+	# 	],
+	# 	name        = "Material Type",
+	# 	description = "Photon-v2's material types",
+	# 	default     = "MATTE_OPAQUE"
+	# )
 
 	bpy.types.Material.ph_albedo = bpy.props.FloatVectorProperty(
 		name        = "albedo",
@@ -112,6 +113,7 @@ class PhGeneralPanel(PhMaterialPanel, bpy.types.Panel):
 	)
 
 	def draw(self, context):
+
 		material = context.material
 		layout   = self.layout
 
@@ -119,42 +121,44 @@ class PhGeneralPanel(PhMaterialPanel, bpy.types.Panel):
 			layout.label("no material for Photon-v2 material panel")
 			return
 
-		layout.prop(material, "ph_materialType")
-		material_type = material.ph_materialType
+		ui.material.display_blender_props(layout, material)
 
-		if material_type == "MATTE_OPAQUE":
-
-			layout.prop(material, "ph_albedo")
-
-		elif material_type == "ABRADED_OPAQUE":
-
-			layout.prop(material, "ph_albedo")
-			layout.prop(material, "ph_f0")
-
-			layout.prop(material, "ph_isAnisotropic")
-
-			if not material.ph_isAnisotropic:
-				layout.prop(material, "ph_roughness")
-			else:
-				layout.prop(material, "ph_roughnessU")
-				layout.prop(material, "ph_roughnessV")
-
-		elif material_type == "ABRADED_TRANSLUCENT":
-
-			layout.prop(material, "ph_albedo")
-			layout.prop(material, "ph_f0")
-			layout.prop(material, "ph_ior")
-
-			layout.prop(material, "ph_isAnisotropic")
-
-			if not material.ph_isAnisotropic:
-				layout.prop(material, "ph_roughness")
-			else:
-				layout.prop(material, "ph_roughnessU")
-				layout.prop(material, "ph_roughnessV")
-
-		else:
-			print("warning: unknown type of Photon-v2 material (%s)" %(materialType))
+		# layout.prop(material, "ph_materialType")
+		# material_type = material.ph_material_type
+		#
+		# if material_type == "MATTE_OPAQUE":
+		#
+		# 	layout.prop(material, "ph_albedo")
+		#
+		# elif material_type == "ABRADED_OPAQUE":
+		#
+		# 	layout.prop(material, "ph_albedo")
+		# 	layout.prop(material, "ph_f0")
+		#
+		# 	layout.prop(material, "ph_isAnisotropic")
+		#
+		# 	if not material.ph_isAnisotropic:
+		# 		layout.prop(material, "ph_roughness")
+		# 	else:
+		# 		layout.prop(material, "ph_roughnessU")
+		# 		layout.prop(material, "ph_roughnessV")
+		#
+		# elif material_type == "ABRADED_TRANSLUCENT":
+		#
+		# 	layout.prop(material, "ph_albedo")
+		# 	layout.prop(material, "ph_f0")
+		# 	layout.prop(material, "ph_ior")
+		#
+		# 	layout.prop(material, "ph_isAnisotropic")
+		#
+		# 	if not material.ph_isAnisotropic:
+		# 		layout.prop(material, "ph_roughness")
+		# 	else:
+		# 		layout.prop(material, "ph_roughnessU")
+		# 		layout.prop(material, "ph_roughnessV")
+		#
+		# else:
+		# 	print("warning: unknown type of Photon-v2 material (%s)" %(materialType))
 
 		row = layout.row()
 		row.prop(material, "ph_isEmissive")
@@ -173,6 +177,9 @@ material_panel_types = [PhGeneralPanel]
 
 
 def register():
+
+	ui.material.define_blender_props()
+
 	for panel_type in material_panel_types:
 		bpy.utils.register_class(panel_type)
 

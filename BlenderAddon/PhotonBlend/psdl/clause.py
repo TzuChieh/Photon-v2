@@ -1,4 +1,4 @@
-from . import SdlFragment
+from . import cmd_base
 
 from mathutils import Vector
 from mathutils import Quaternion
@@ -6,7 +6,7 @@ from mathutils import Quaternion
 from abc import abstractmethod
 
 
-class SdlClause(SdlFragment):
+class SdlClause(cmd_base.SdlFragment):
 	def __init__(self):
 		super(SdlClause, self).__init__()
 		self.typeName = ""

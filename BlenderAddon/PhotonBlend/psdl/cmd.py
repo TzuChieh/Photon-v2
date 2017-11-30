@@ -1,9 +1,9 @@
-from . import SdlCommand
+from . import cmd_base
 
 from abc import abstractmethod
 
 
-class WorldCommand(SdlCommand):
+class WorldCommand(cmd_base.SdlCommand):
 	def __init__(self):
 		super(WorldCommand, self).__init__()
 		self._typeCategory = ""
