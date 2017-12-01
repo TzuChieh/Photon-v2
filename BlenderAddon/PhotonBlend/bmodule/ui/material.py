@@ -4,11 +4,103 @@ import bpy
 import mathutils
 
 
+class MaterialProperty:
+
+	@classmethod
+	def define_blender_props(cls, b_prop_group):
+		pass
+
+	@classmethod
+	def display_blender_props(cls, b_layout, b_prop_group):
+		pass
+
+
+class MicrofacetProperty(MaterialProperty):
+
+	@classmethod
+	def define_blender_props(cls, b_prop_group):
+
+		roughness = bpy.props.FloatProperty(
+			name        = "roughness",
+			description = "surface roughness in [0, 1]",
+			default     = 0.5,
+			min         = 0.0,
+			max         = 1.0
+		)
+		setattr(b_prop_group, "roughness", roughness)
+
+		roughness_u = bpy.props.FloatProperty(
+			name        = "roughness u",
+			description = "surface anisotropic roughness in [0, 1]",
+			default     = 0.5,
+			min         = 0.0,
+			max         = 1.0
+		)
+		setattr(b_prop_group, "roughness_u", roughness_u)
+
+		roughness_v = bpy.props.FloatProperty(
+			name        = "roughness v",
+			description = "surface anisotropic roughness in [0, 1]",
+			default     = 0.0,
+			min         = 0.0,
+			max         = 1.0
+		)
+		setattr(b_prop_group, "roughness_v", roughness_v)
+
+		is_anisotropic = bpy.props.BoolProperty(
+			name        = "anisotropic",
+			description = "does this material has anisotropic roughness",
+			default     = False
+		)
+		setattr(b_prop_group, "is_anisotropic", is_anisotropic)
+
+	@classmethod
+	def display_blender_props(cls, b_layout, b_prop_group):
+
+		if not b_prop_group.is_anisotropic:
+			b_layout.prop(b_prop_group, "roughness")
+		else:
+			b_layout.prop(b_prop_group, "roughness_u")
+			b_layout.prop(b_prop_group, "roughness_v")
+
+	@classmethod
+	def get_roughness(cls, b_prop_group):
+		return b_prop_group.roughness
+
+	@classmethod
+	def get_roughness_u(cls, b_prop_group):
+		return b_prop_group.roughness_u
+
+	@classmethod
+	def get_roughness_v(cls, b_prop_group):
+		return b_prop_group.roughness_v
+
+	@classmethod
+	def is_anisotropic(cls, b_prop_group):
+		return b_prop_group.is_anisotropic
+
+
 class MaterialType(bpy.types.PropertyGroup):
+
+	@classmethod
+	def define_blender_props(cls):
+		pass
+
+	@classmethod
+	def display_blender_props(cls, b_layout, b_prop_group):
+		pass
 
 	@classmethod
 	def get_description(cls):
 		return "Photon-v2's material"
+
+	@classmethod
+	def to_sdl(cls, b_prop_group, res_name):
+		pass
+
+	@classmethod
+	def get_name(cls):
+		return ""
 
 
 class MatteOpaque(MaterialType):
@@ -47,6 +139,8 @@ class AbradedOpaque(MaterialType):
 	@classmethod
 	def define_blender_props(cls):
 
+		MicrofacetProperty.define_blender_props(cls)
+
 		cls.albedo = bpy.props.FloatVectorProperty(
 			name        = "albedo",
 			description = "surface albedo in [0, 1]",
@@ -57,69 +151,49 @@ class AbradedOpaque(MaterialType):
 			size        = 3
 		)
 
-		bpy.types.Material.roughness = bpy.props.FloatProperty(
-			name        = "roughness",
-			description = "surface roughness in [0, 1]",
-			default     = 0.5,
-			min         = 0.0,
-			max         = 1.0
-		)
-
-		bpy.types.Material.roughness_u = bpy.props.FloatProperty(
-			name        = "roughness u",
-			description = "surface anisotropic roughness in [0, 1]",
-			default     = 0.5,
-			min         = 0.0,
-			max         = 1.0
-		)
-
-		bpy.types.Material.roughness_v = bpy.props.FloatProperty(
-			name        = "roughness v",
-			description = "surface anisotropic roughness in [0, 1]",
-			default     = 0.0,
-			min         = 0.0,
-			max         = 1.0
-		)
-
-		bpy.types.Material.f0 = bpy.props.FloatVectorProperty(
+		cls.f0 = bpy.props.FloatVectorProperty(
 			name        = "F0",
 			description = "surface reflectivity at normal incidence in [0, 1]",
 			default     = [0.04, 0.04, 0.04],
 			min         = 0.0,
 			max         = 1.0,
 			subtype     = "COLOR",
-			size=3
-		)
-
-		bpy.types.Material.ph_isEmissive = bpy.props.BoolProperty(
-			name="emissive",
-			description="whether consider current material's emissivity or not",
-			default=False
-		)
-
-		bpy.types.Material.ph_isAnisotropic = bpy.props.BoolProperty(
-			name="anisotropic",
-			description="does this material has anisotropic roughness",
-			default=False
+			size        = 3
 		)
 
 	@classmethod
 	def display_blender_props(cls, b_layout, b_prop_group):
+
 		b_layout.prop(b_prop_group, "albedo")
+		b_layout.prop(b_prop_group, "f0")
+
+		MicrofacetProperty.display_blender_props(b_layout, b_prop_group)
 
 	@classmethod
 	def to_sdl(cls, b_prop_group, res_name):
-		albedo = b_prop_group.albedo
-		albedo_color = mathutils.Color((albedo[0], albedo[1], albedo[2]))
-		command = psdl.materialcmd.MatteOpaque.create(res_name, albedo_color)
+
+		albedo_vec = b_prop_group.albedo
+		albedo     = mathutils.Color((albedo_vec[0], albedo_vec[1], albedo_vec[2]))
+		f0_vec     = b_prop_group.f0
+		f0         = mathutils.Color((f0_vec[0], f0_vec[1], f0_vec[2]))
+
+		command = psdl.materialcmd.AbradedOpaque.create(
+			name           = res_name,
+			albedo         = albedo,
+			f0             = f0,
+			roughness      = MicrofacetProperty.get_roughness(b_prop_group),
+			roughness_u    = MicrofacetProperty.get_roughness_u(b_prop_group),
+			roughness_v    = MicrofacetProperty.get_roughness_v(b_prop_group),
+			is_anisotropic = MicrofacetProperty.is_anisotropic(b_prop_group))
+
 		return command.to_sdl()
 
 	@classmethod
 	def get_name(cls):
-		return "Matte Opaque"
+		return "Abraded Opaque"
 
 
-AVAILABLE_MATERIAL_TYPES = [MatteOpaque]
+AVAILABLE_MATERIAL_TYPES = [MatteOpaque, AbradedOpaque]
 
 
 def define_blender_props():
@@ -148,6 +222,8 @@ def define_blender_props():
 
 
 def display_blender_props(b_layout, b_material):
+
+	b_layout.prop(b_material, "ph_material_type")
 
 	for material_type in AVAILABLE_MATERIAL_TYPES:
 		if material_type.__name__ == b_material.ph_material_type:
