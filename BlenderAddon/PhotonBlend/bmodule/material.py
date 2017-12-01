@@ -27,78 +27,9 @@ class PhGeneralPanel(PhMaterialPanel, bpy.types.Panel):
 	"""Photon's material panel"""
 	bl_label = "Photon-v2 Material"
 
-	# bpy.types.Material.ph_materialType = bpy.props.EnumProperty(
-	# 	items = [
-	# 		("MATTE_OPAQUE",        "Matte Opaque",        "diffuse material"),
-	# 		("ABRADED_OPAQUE",      "Abraded Opaque",      "microfacet material"),
-	# 		("ABRADED_TRANSLUCENT", "Abraded Translucent", "microfacet dielectric material")
-	# 	],
-	# 	name        = "Material Type",
-	# 	description = "Photon-v2's material types",
-	# 	default     = "MATTE_OPAQUE"
-	# )
-
-	bpy.types.Material.ph_albedo = bpy.props.FloatVectorProperty(
-		name        = "albedo",
-		description = "surface albedo in [0, 1]",
-		default     = [0.5, 0.5, 0.5],
-		min         = 0.0,
-		max         = 1.0,
-		subtype     = "COLOR",
-		size        = 3
-	)
-
-	bpy.types.Material.ph_roughness = bpy.props.FloatProperty(
-		name        = "roughness",
-		description = "surface roughness in [0, 1]",
-		default     = 0.5,
-		min         = 0.0,
-		max         = 1.0
-	)
-
-	bpy.types.Material.ph_roughnessU = bpy.props.FloatProperty(
-		name        = "roughness u",
-		description = "surface anisotropic roughness in [0, 1]",
-		default     = 0.5,
-		min         = 0.0,
-		max         = 1.0
-	)
-
-	bpy.types.Material.ph_roughnessV = bpy.props.FloatProperty(
-		name        = "roughness v",
-		description = "surface anisotropic roughness in [0, 1]",
-		default     = 0.0,
-		min         = 0.0,
-		max         = 1.0
-	)
-
-	bpy.types.Material.ph_ior = bpy.props.FloatProperty(
-		name        = "index of refraction",
-		description = "index of refraction of the material in [0, infinity]",
-		default     = 1.5,
-		min         = 0.0,
-		max         = sys.float_info.max
-	)
-
-	bpy.types.Material.ph_f0 = bpy.props.FloatVectorProperty(
-		name        = "F0",
-		description = "surface reflectivity at normal incidence in [0, 1]",
-		default     = [0.04, 0.04, 0.04],
-		min         = 0.0,
-		max         = 1.0,
-		subtype     = "COLOR",
-		size        = 3
-	)
-
 	bpy.types.Material.ph_isEmissive = bpy.props.BoolProperty(
 		name        = "emissive",
 		description = "whether consider current material's emissivity or not",
-		default     = False
-	)
-
-	bpy.types.Material.ph_isAnisotropic = bpy.props.BoolProperty(
-		name        = "anisotropic",
-		description = "does this material has anisotropic roughness",
 		default     = False
 	)
 
@@ -122,43 +53,6 @@ class PhGeneralPanel(PhMaterialPanel, bpy.types.Panel):
 			return
 
 		ui.material.display_blender_props(layout, material)
-
-		# layout.prop(material, "ph_materialType")
-		# material_type = material.ph_material_type
-		#
-		# if material_type == "MATTE_OPAQUE":
-		#
-		# 	layout.prop(material, "ph_albedo")
-		#
-		# elif material_type == "ABRADED_OPAQUE":
-		#
-		# 	layout.prop(material, "ph_albedo")
-		# 	layout.prop(material, "ph_f0")
-		#
-		# 	layout.prop(material, "ph_isAnisotropic")
-		#
-		# 	if not material.ph_isAnisotropic:
-		# 		layout.prop(material, "ph_roughness")
-		# 	else:
-		# 		layout.prop(material, "ph_roughnessU")
-		# 		layout.prop(material, "ph_roughnessV")
-		#
-		# elif material_type == "ABRADED_TRANSLUCENT":
-		#
-		# 	layout.prop(material, "ph_albedo")
-		# 	layout.prop(material, "ph_f0")
-		# 	layout.prop(material, "ph_ior")
-		#
-		# 	layout.prop(material, "ph_isAnisotropic")
-		#
-		# 	if not material.ph_isAnisotropic:
-		# 		layout.prop(material, "ph_roughness")
-		# 	else:
-		# 		layout.prop(material, "ph_roughnessU")
-		# 		layout.prop(material, "ph_roughnessV")
-		#
-		# else:
-		# 	print("warning: unknown type of Photon-v2 material (%s)" %(materialType))
 
 		row = layout.row()
 		row.prop(material, "ph_isEmissive")

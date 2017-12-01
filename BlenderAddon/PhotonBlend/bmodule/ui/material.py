@@ -3,6 +3,8 @@ from ... import psdl
 import bpy
 import mathutils
 
+import sys
+
 
 class MaterialProperty:
 
@@ -193,7 +195,73 @@ class AbradedOpaque(MaterialType):
 		return "Abraded Opaque"
 
 
-AVAILABLE_MATERIAL_TYPES = [MatteOpaque, AbradedOpaque]
+class AbradedTranslucent(MaterialType):
+
+	@classmethod
+	def define_blender_props(cls):
+
+		MicrofacetProperty.define_blender_props(cls)
+
+		cls.albedo = bpy.props.FloatVectorProperty(
+			name        = "albedo",
+			description = "surface albedo in [0, 1]",
+			default     = [0.5, 0.5, 0.5],
+			min         = 0.0,
+			max         = 1.0,
+			subtype     = "COLOR",
+			size        = 3
+		)
+
+		cls.f0 = bpy.props.FloatVectorProperty(
+			name        = "F0",
+			description = "surface reflectivity at normal incidence in [0, 1]",
+			default     = [0.04, 0.04, 0.04],
+			min         = 0.0,
+			max         = 1.0,
+			subtype     = "COLOR",
+			size        = 3
+		)
+
+		cls.ior = bpy.props.FloatProperty(
+			name        = "index of refraction",
+			description = "index of refraction of the material in [0, infinity]",
+			default     = 1.5,
+			min         = 0.0,
+			max         = sys.float_info.max
+		)
+
+	@classmethod
+	def display_blender_props(cls, b_layout, b_prop_group):
+
+		b_layout.prop(b_prop_group, "albedo")
+		b_layout.prop(b_prop_group, "f0")
+		b_layout.prop(b_prop_group, "ior")
+
+		MicrofacetProperty.display_blender_props(b_layout, b_prop_group)
+
+	@classmethod
+	def to_sdl(cls, b_prop_group, res_name):
+
+		albedo_vec = b_prop_group.albedo
+		albedo     = mathutils.Color((albedo_vec[0], albedo_vec[1], albedo_vec[2]))
+		f0_vec     = b_prop_group.f0
+		f0         = mathutils.Color((f0_vec[0], f0_vec[1], f0_vec[2]))
+
+		command = psdl.materialcmd.AbradedTranslucent.create(
+			name           = res_name,
+			albedo         = albedo,
+			f0             = f0,
+			ior            = b_prop_group.ior,
+			roughness      = MicrofacetProperty.get_roughness(b_prop_group))
+
+		return command.to_sdl()
+
+	@classmethod
+	def get_name(cls):
+		return "Abraded Translucent"
+
+
+AVAILABLE_MATERIAL_TYPES = [MatteOpaque, AbradedOpaque, AbradedTranslucent]
 
 
 def define_blender_props():

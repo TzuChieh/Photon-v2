@@ -44,4 +44,21 @@ class AbradedOpaque(Material):
 		return command
 
 
+class AbradedTranslucent(Material):
+	_type_name = "abraded-translucent"
+
+	@classmethod
+	def create(cls, **kwargs):
+
+		command = CreationCommand()
+		command.set_type_info(cls._category_name, cls._type_name)
+		command.set_data_name(kwargs["name"])
+
+		command.add_clause(ColorClause().set_name("albedo").set_data(kwargs["albedo"]))
+		command.add_clause(ColorClause().set_name("f0").set_data(kwargs["f0"]))
+		command.add_clause(FloatClause().set_name("roughness").set_data(kwargs["roughness"]))
+		command.add_clause(FloatClause().set_name("ior").set_data(kwargs["ior"]))
+
+		return command
+
 
