@@ -258,19 +258,7 @@ def export_geometry(exporter, geometryName, mesh, faces):
 
 def export_material(exporter, material_name, b_material):
 
-
-	#materialType = b_material.ph_material_type
-
 	exporter.exportMaterial(material_name, b_material)
-
-	# exporter.exportMaterial(materialType, materialName,
-	#                         albedo        = material.ph_albedo,
-	#                         roughness     = material.ph_roughness,
-	#                         ior           = material.ph_ior,
-	#                         f0            = material.ph_f0,
-	#                         isAnisotropic = material.ph_isAnisotropic,
-	# 						roughnessU    = material.ph_roughnessU,
-	# 						roughnessV    = material.ph_roughnessV)
 
 
 def export_object_mesh(exporter, obj, scene):
@@ -322,12 +310,12 @@ def export_object_mesh(exporter, obj, scene):
 			# creating actor (can be either model or light depending on emissivity)
 			pos, rot, scale = obj.matrix_world.decompose()
 
-			if material.ph_isEmissive:
+			if material.ph_is_emissive:
 
 				lightSourceName = mangled_light_source_name(obj, mesh.name, str(matId))
 				actorLightName  = mangled_actor_light_name(obj, "", str(matId))
 
-				exporter.exportLightSource("area", lightSourceName, emittedRadiance = material.ph_emittedRadiance)
+				exporter.exportLightSource("area", lightSourceName, emittedRadiance = material.ph_emitted_radiance)
 				exporter.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
 
 			else:
@@ -361,7 +349,9 @@ def export_object_lamp(exporter, obj, scene):
 		exporter.exportGeometry("rectangle", lightGeometryName, width = recWidth, height = recHeight)
 
 		# HACK: assume the Lamp uses this material
-		exporter.exportMaterial("MATTE_OPAQUE", lightMaterialName, albedo = [0.5, 0.5, 0.5])
+		b_material = bpy.data.materials.new(lightMaterialName)
+		exporter.exportMaterial(lightMaterialName, b_material)
+		bpy.data.materials.remove(b_material)
 
 		# use lamp's color attribute as emitted radiance
 		exporter.exportLightSource("area", lightSourceName, emittedRadiance = lamp.color)

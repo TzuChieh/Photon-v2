@@ -5,7 +5,7 @@ import sys
 import bpy
 
 
-class PhMaterialPanel:
+class PhMaterialPanel(bpy.types.Panel):
 	bl_space_type  = "PROPERTIES"
 	bl_region_type = "WINDOW"
 	bl_context     = "material"
@@ -19,22 +19,38 @@ class PhMaterialPanel:
 		return render_settings.engine in cls.COMPATIBLE_ENGINES
 
 
-class PhMaterial(bpy.types.PropertyGroup):
-	pass
+class PhMainPropertyPanel(PhMaterialPanel):
+
+	"""
+	Setting up primary material properties.
+	"""
+
+	bl_label = "PR - Material"
+
+	def draw(self, context):
+
+		material = context.material
+		layout   = self.layout
+
+		ui.material.display_blender_props(layout, material)
 
 
-class PhGeneralPanel(PhMaterialPanel, bpy.types.Panel):
-	"""Photon's material panel"""
-	bl_label = "Photon-v2 Material"
+class PhOptionPanel(PhMaterialPanel):
 
-	bpy.types.Material.ph_isEmissive = bpy.props.BoolProperty(
-		name        = "emissive",
+	"""
+	Additional options for tweaking the material.
+	"""
+
+	bl_label = "PR - Options"
+
+	bpy.types.Material.ph_is_emissive = bpy.props.BoolProperty(
+		name        = "Emissive",
 		description = "whether consider current material's emissivity or not",
 		default     = False
 	)
 
-	bpy.types.Material.ph_emittedRadiance = bpy.props.FloatVectorProperty(
-		name        = "radiance",
+	bpy.types.Material.ph_emitted_radiance = bpy.props.FloatVectorProperty(
+		name        = "Radiance",
 		description = "radiance emitted by the surface",
 		default     = [0.0, 0.0, 0.0],
 		min         = 0.0,
@@ -48,38 +64,24 @@ class PhGeneralPanel(PhMaterialPanel, bpy.types.Panel):
 		material = context.material
 		layout   = self.layout
 
-		if material is None:
-			layout.label("no material for Photon-v2 material panel")
-			return
-
-		ui.material.display_blender_props(layout, material)
-
 		row = layout.row()
-		row.prop(material, "ph_isEmissive")
-		row.prop(material, "ph_emittedRadiance")
+		row.prop(material, "ph_is_emissive")
+		row.prop(material, "ph_emitted_radiance")
 
 
-# class PhSettingsPanel(PhMaterialPanel, bpy.types.Panel):
-# 	""" A panel for some general material settings. """
-# 	bl_label = "Settings"
-#
-# 	def draw(self, context):
-# 		layout = self.layout
-
-
-material_panel_types = [PhGeneralPanel]
+MATERIAL_PANEL_TYPES = [PhMainPropertyPanel, PhOptionPanel]
 
 
 def register():
 
 	ui.material.define_blender_props()
 
-	for panel_type in material_panel_types:
+	for panel_type in MATERIAL_PANEL_TYPES:
 		bpy.utils.register_class(panel_type)
 
 
 def unregister():
-	for panel_type in material_panel_types:
+	for panel_type in MATERIAL_PANEL_TYPES:
 		bpy.utils.unregister_class(panel_type)
 
 

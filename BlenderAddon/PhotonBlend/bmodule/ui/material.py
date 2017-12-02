@@ -23,7 +23,7 @@ class MicrofacetProperty(MaterialProperty):
 	def define_blender_props(cls, b_prop_group):
 
 		roughness = bpy.props.FloatProperty(
-			name        = "roughness",
+			name        = "Roughness",
 			description = "surface roughness in [0, 1]",
 			default     = 0.5,
 			min         = 0.0,
@@ -32,7 +32,7 @@ class MicrofacetProperty(MaterialProperty):
 		setattr(b_prop_group, "roughness", roughness)
 
 		roughness_u = bpy.props.FloatProperty(
-			name        = "roughness u",
+			name        = "Roughness U",
 			description = "surface anisotropic roughness in [0, 1]",
 			default     = 0.5,
 			min         = 0.0,
@@ -41,7 +41,7 @@ class MicrofacetProperty(MaterialProperty):
 		setattr(b_prop_group, "roughness_u", roughness_u)
 
 		roughness_v = bpy.props.FloatProperty(
-			name        = "roughness v",
+			name        = "Roughness V",
 			description = "surface anisotropic roughness in [0, 1]",
 			default     = 0.0,
 			min         = 0.0,
@@ -50,7 +50,7 @@ class MicrofacetProperty(MaterialProperty):
 		setattr(b_prop_group, "roughness_v", roughness_v)
 
 		is_anisotropic = bpy.props.BoolProperty(
-			name        = "anisotropic",
+			name        = "Anisotropic",
 			description = "does this material has anisotropic roughness",
 			default     = False
 		)
@@ -111,7 +111,7 @@ class MatteOpaque(MaterialType):
 	def define_blender_props(cls):
 
 		cls.albedo = bpy.props.FloatVectorProperty(
-			name        = "albedo",
+			name        = "Albedo",
 			description = "surface albedo in [0, 1]",
 			default     = [0.5, 0.5, 0.5],
 			min         = 0.0,
@@ -144,7 +144,7 @@ class AbradedOpaque(MaterialType):
 		MicrofacetProperty.define_blender_props(cls)
 
 		cls.albedo = bpy.props.FloatVectorProperty(
-			name        = "albedo",
+			name        = "Albedo",
 			description = "surface albedo in [0, 1]",
 			default     = [0.5, 0.5, 0.5],
 			min         = 0.0,
@@ -203,7 +203,7 @@ class AbradedTranslucent(MaterialType):
 		MicrofacetProperty.define_blender_props(cls)
 
 		cls.albedo = bpy.props.FloatVectorProperty(
-			name        = "albedo",
+			name        = "Albedo",
 			description = "surface albedo in [0, 1]",
 			default     = [0.5, 0.5, 0.5],
 			min         = 0.0,
@@ -223,7 +223,7 @@ class AbradedTranslucent(MaterialType):
 		)
 
 		cls.ior = bpy.props.FloatProperty(
-			name        = "index of refraction",
+			name        = "Index of Refraction",
 			description = "index of refraction of the material in [0, infinity]",
 			default     = 1.5,
 			min         = 0.0,
@@ -275,7 +275,7 @@ def define_blender_props():
 
 	bpy.types.Material.ph_material_type = bpy.props.EnumProperty(
 		items       = b_enum_items,
-		name        = "Material Type",
+		name        = "Type",
 		description = "Photon-v2's supported material types",
 		default     = b_enum_items[0][0]
 	)
