@@ -1018,6 +1018,9 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\IsoTrowbridgeReitz.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Actor\Material\Utility\RoughnessToAlphaMapping.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Utility\TFixedSizeStack.ipp" />

@@ -23,8 +23,6 @@ public:
 private:
 	std::function<std::unique_ptr<SurfaceOptics>()> m_opticsGenerator;
 
-	static real roughnessToAlpha(const real roughness);
-
 // command interface
 public:
 	static SdlTypeInfo ciTypeInfo();

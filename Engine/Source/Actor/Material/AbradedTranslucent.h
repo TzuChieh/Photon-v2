@@ -24,8 +24,6 @@ public:
 private:
 	TranslucentMicrofacet m_optics;
 
-	static real roughnessToAlpha(const real roughness);
-
 // command interface
 public:
 	static SdlTypeInfo ciTypeInfo();

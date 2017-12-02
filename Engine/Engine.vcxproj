@@ -206,6 +206,7 @@
     <ClInclude Include="Source\Actor\CookingContext.h" />
     <ClInclude Include="Source\Actor\Material\AbradedSurface.h" />
     <ClInclude Include="Source\Actor\Material\IdealSubstance.h" />
+    <ClInclude Include="Source\Actor\Material\Utility\RoughnessToAlphaMapping.h" />
     <ClInclude Include="Source\Actor\ModelBuilder.h" />
     <ClInclude Include="Source\Common\config.h" />
     <ClInclude Include="Source\Core\IntersectionDetail.h" />

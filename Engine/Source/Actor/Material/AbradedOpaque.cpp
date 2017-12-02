@@ -6,6 +6,7 @@
 #include "Core/SurfaceBehavior/Utility/SchlickApproxDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Utility/ExactDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Utility/SchlickApproxConductorDielectricFresnel.h"
+#include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
 
 #include <memory>
 #include <algorithm>
@@ -30,16 +31,6 @@ AbradedOpaque::~AbradedOpaque() = default;
 void AbradedOpaque::populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const
 {
 	out_surfaceBehavior->setSurfaceOptics(m_opticsGenerator());
-}
-
-// This mapping is what used in PBRT-v3. 
-// (Strangely the original paper: Microfacet Models for Refraction through Rough Surfaces by Walter et al. does 
-// not include such mapping for GGX distribution, only the ones for other kinds of distribution.)
-real AbradedOpaque::roughnessToAlpha(const real roughness)
-{
-	const real clampedRoughness = std::max(roughness, 0.001_r);
-	const real x = std::log(clampedRoughness);
-	return 1.62142_r + 0.819955_r * x + 0.1734_r * x * x + 0.0171201_r * x * x * x + 0.000640711_r * x * x * x * x;
 }
 
 // command interface
@@ -84,7 +75,7 @@ std::unique_ptr<AbradedOpaque> AbradedOpaque::ciLoadITR(const InputPacket& packe
 	f0        = packet.getVector3r("f0", f0);
 	roughness = packet.getReal("roughness", roughness);
 
-	const real alpha = roughnessToAlpha(roughness);
+	const real alpha = RoughnessToAlphaMapping::pbrtV3(roughness);
 	SpectralStrength f0Spectrum;
 	f0Spectrum.setRgb(f0);
 
@@ -112,8 +103,8 @@ std::unique_ptr<AbradedOpaque> AbradedOpaque::ciLoadATR(const InputPacket& packe
 	roughnessU = packet.getReal("roughness-u", roughnessU);
 	roughnessV = packet.getReal("roughness-v", roughnessV);
 
-	const real alphaU = roughnessToAlpha(roughnessU);
-	const real alphaV = roughnessToAlpha(roughnessV);
+	const real alphaU = RoughnessToAlphaMapping::pbrtV3(roughnessU);
+	const real alphaV = RoughnessToAlphaMapping::pbrtV3(roughnessV);
 	SpectralStrength f0Spectrum;
 	f0Spectrum.setRgb(f0);
 

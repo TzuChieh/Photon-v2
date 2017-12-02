@@ -4,6 +4,7 @@
 #include "Core/SurfaceBehavior/Utility/SchlickApproxDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Utility/ExactDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Utility/IsoTrowbridgeReitz.h"
+#include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
 
 #include <memory>
 #include <cmath>
@@ -49,20 +50,8 @@ void AbradedTranslucent::setIor(const real iorOuter, const real iorInner)
 
 void AbradedTranslucent::setRoughness(const real roughness)
 {
-	const real alpha = roughnessToAlpha(roughness);
+	const real alpha = RoughnessToAlphaMapping::pbrtV3(roughness);
 	m_optics.setMicrofacet(std::make_shared<IsoTrowbridgeReitz>(alpha));
-}
-
-// This mapping is what used in PBRT-v3. 
-// (Strangely the original paper: Microfacet Models for Refraction through Rough Surfaces by Walter et al. does 
-// not include such mapping for GGX distribution, only the ones for other kinds of distribution.)
-real AbradedTranslucent::roughnessToAlpha(const real roughness)
-{
-	// roughness = 0, mapped result = 0.31116918
-
-	const real clampedRoughness = std::max(roughness, 0.001_r);
-	const real x = std::log(clampedRoughness);
-	return 1.62142_r + 0.819955_r * x + 0.1734_r * x * x + 0.0171201_r * x * x * x + 0.000640711_r * x * x * x * x;
 }
 
 // command interface
