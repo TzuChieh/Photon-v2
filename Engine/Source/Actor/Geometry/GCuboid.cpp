@@ -2,7 +2,6 @@
 #include "Core/Intersectable/PTriangle.h"
 #include "Math/TVector3.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Actor/TextureMapper/TextureMapper.h"
 #include "Actor/AModel.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 

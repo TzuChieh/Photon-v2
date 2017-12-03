@@ -1,6 +1,5 @@
 #include "Actor/Geometry/Geometry.h"
-#include "Actor/TextureMapper/TextureMapper.h"
-#include "Actor/TextureMapper/DefaultMapper.h"
+#include "Actor/UvwGenerator/DefaultGenerator.h"
 
 #include <iostream>
 
@@ -8,21 +7,21 @@ namespace ph
 {
 
 Geometry::Geometry() : 
-	m_textureMapper(std::make_shared<DefaultMapper>())
+	m_uvwGenerator(std::make_shared<DefaultGenerator>())
 {
 
 }
 
 Geometry::~Geometry() = default;
 
-void Geometry::setTextureMapper(const std::shared_ptr<TextureMapper>& textureMapper)
+void Geometry::setUvwGenerator(const std::shared_ptr<UvwGenerator>& uvwGenerator)
 {
-	m_textureMapper = textureMapper;
+	m_uvwGenerator = uvwGenerator;
 }
 
-const TextureMapper* Geometry::getTextureMapper() const
+const UvwGenerator* Geometry::getUvwGenerator() const
 {
-	return m_textureMapper.get();
+	return m_uvwGenerator.get();
 }
 
 std::shared_ptr<Geometry> Geometry::genTransformApplied(const StaticTransform& transform) const

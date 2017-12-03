@@ -6,10 +6,10 @@
 namespace ph
 {
 
-class TextureMapper
+class UvwGenerator
 {
 public:
-	virtual ~TextureMapper() = 0;
+	virtual ~UvwGenerator() = 0;
 
 	virtual void map(const Vector3R& position, const Vector3R& uvw, Vector3R* const out_uvw) const = 0;
 };

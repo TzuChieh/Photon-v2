@@ -11,7 +11,6 @@
 #include "Actor/Geometry/GRectangle.h"
 #include "Actor/ModelLoader.h"
 #include "Actor/Texture/CheckerboardTexture.h"
-#include "Actor/TextureMapper/SphericalMapper.h"
 #include "FileIO/DescriptionParser.h"
 #include "Actor/LightSource/AreaSource.h"
 #include "Actor/ALight.h"

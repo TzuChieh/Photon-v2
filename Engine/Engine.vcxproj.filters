@@ -93,15 +93,6 @@
     <ClCompile Include="Source\Actor\ModelParser\ModelParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\TextureMapper\DefaultMapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Actor\TextureMapper\SphericalMapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Actor\TextureMapper\TextureMapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Actor\ModelLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -426,6 +417,15 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\IsoTrowbridgeReitz.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Actor\UvwGenerator\UvwGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Actor\UvwGenerator\DefaultGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Actor\UvwGenerator\SphericalGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Common\primitive_type.h">
@@ -531,15 +531,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Actor\ModelParser\ModelParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\TextureMapper\DefaultMapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\TextureMapper\SphericalMapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Actor\TextureMapper\TextureMapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Actor\ModelLoader.h">
@@ -1019,6 +1010,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Actor\Material\Utility\RoughnessToAlphaMapping.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\UvwMapper\UvwMapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\UvwGenerator\UvwGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\UvwGenerator\SphericalGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\UvwGenerator\DefaultGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

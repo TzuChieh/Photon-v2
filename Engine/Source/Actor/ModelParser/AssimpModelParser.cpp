@@ -3,7 +3,6 @@
 #include "Actor/AModel.h"
 #include "Actor/Material/MatteOpaque.h"
 #include "Actor/Geometry/GTriangleMesh.h"
-#include "Actor/TextureMapper/DefaultMapper.h"
 #include "Actor/ModelParser/AiMeshParser.h"
 #include "Actor/ModelParser/AiMaterialParser.h"
 

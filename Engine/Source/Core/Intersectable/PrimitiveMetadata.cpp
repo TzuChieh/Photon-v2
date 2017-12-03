@@ -6,7 +6,8 @@ namespace ph
 {
 
 PrimitiveMetadata::PrimitiveMetadata() :
-	surfaceBehavior()
+	surfaceBehavior(),
+	uvwMapper(nullptr)
 {
 
 }

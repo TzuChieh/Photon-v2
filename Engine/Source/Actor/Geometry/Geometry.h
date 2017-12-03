@@ -10,11 +10,9 @@
 namespace ph
 {
 
-class Ray;
-class Intersection;
 class Primitive;
 class PrimitiveStorage;
-class TextureMapper;
+class UvwGenerator;
 class InputPacket;
 class PrimitiveBuildingMaterial;
 class Transform;
@@ -31,11 +29,11 @@ public:
 	                          std::vector<std::unique_ptr<Primitive>>& out_primitives) const = 0;
 	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticTransform& transform) const;
 
-	const TextureMapper* getTextureMapper() const;
-	void setTextureMapper(const std::shared_ptr<TextureMapper>& textureMapper);
+	const UvwGenerator* getUvwGenerator() const;
+	void setUvwGenerator(const std::shared_ptr<UvwGenerator>& uvwGenerator);
 
 protected:
-	std::shared_ptr<TextureMapper> m_textureMapper;
+	std::shared_ptr<UvwGenerator> m_uvwGenerator;
 
 // command interface
 public:

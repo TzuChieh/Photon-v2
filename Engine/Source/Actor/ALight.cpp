@@ -1,6 +1,5 @@
 #include "Actor/ALight.h"
 #include "Math/Math.h"
-#include "Actor/TextureMapper/DefaultMapper.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Geometry/Geometry.h"
 #include "Actor/Material/Material.h"

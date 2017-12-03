@@ -2,6 +2,9 @@
 
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Math/Transform/StaticTransform.h"
+#include "Core/UvwMapper/UvwMapper.h"
+
+#include <memory>
 
 namespace ph
 {
@@ -9,9 +12,8 @@ namespace ph
 class PrimitiveMetadata final
 {
 public:
-	SurfaceBehavior surfaceBehavior;
-	//StaticTransform localToWorld;
-	//StaticTransform worldToLocal;
+	SurfaceBehavior            surfaceBehavior;
+	std::shared_ptr<UvwMapper> uvwMapper;
 
 	PrimitiveMetadata();
 };

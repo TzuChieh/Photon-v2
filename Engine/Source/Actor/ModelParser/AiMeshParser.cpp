@@ -3,7 +3,6 @@
 #include "Actor/Geometry/GTriangle.h"
 #include "Actor/Material/MatteOpaque.h"
 #include "Actor/Geometry/GTriangleMesh.h"
-#include "Actor/TextureMapper/DefaultMapper.h"
 
 #include <vector>
 #include <iostream>

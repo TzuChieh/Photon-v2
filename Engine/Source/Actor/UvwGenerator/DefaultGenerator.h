@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Actor/TextureMapper/TextureMapper.h"
+#include "Actor/UvwGenerator/UvwGenerator.h"
 
 namespace ph
 {
 
-class SphericalMapper final : public TextureMapper
+class DefaultGenerator final : public UvwGenerator
 {
 public:
-	virtual ~SphericalMapper() override;
+	virtual ~DefaultGenerator() override;
 
 	virtual void map(const Vector3R& position, const Vector3R& uvw, Vector3R* const out_uvw) const override;
 };

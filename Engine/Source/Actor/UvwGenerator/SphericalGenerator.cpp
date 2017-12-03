@@ -1,4 +1,4 @@
-#include "Actor/TextureMapper/SphericalMapper.h"
+#include "Actor/UvwGenerator/SphericalGenerator.h"
 #include "Math/TVector3.h"
 #include "Math/Math.h"
 #include "Math/constant.h"
@@ -8,13 +8,13 @@
 namespace ph
 {
 
-SphericalMapper::~SphericalMapper() = default;
+SphericalGenerator::~SphericalGenerator() = default;
 
-void SphericalMapper::map(const Vector3R& position, const Vector3R& uvw, Vector3R* const out_uvw) const
+void SphericalGenerator::map(const Vector3R& position, const Vector3R& uvw, Vector3R* const out_uvw) const
 {
 	if(position.length() < 1e-8)
 	{
-		std::cerr << "warning: at SphericalMapper::map(), positions too close to geometry origin may induce errors during mapping" << std::endl;
+		std::cerr << "warning: at SphericalGenerator::map(), positions too close to geometry origin may induce errors during mapping" << std::endl;
 	}
 
 	const Vector3R positionDir = position.normalize();

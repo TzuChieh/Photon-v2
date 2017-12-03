@@ -2,7 +2,7 @@
 #include "Core/Intersectable/PTriangle.h"
 #include "Actor/Geometry/GTriangle.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Actor/TextureMapper/TextureMapper.h"
+#include "Actor/UvwGenerator/UvwGenerator.h"
 #include "Actor/AModel.h"
 #include "FileIO/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
@@ -183,13 +183,13 @@ std::shared_ptr<GTriangleMesh> GSphere::genTriangleMesh() const
 
 		Vector3R mappedUVW;
 
-		m_textureMapper->map(vA, triangle.getUVWa(), &mappedUVW);
+		m_uvwGenerator->map(vA, triangle.getUVWa(), &mappedUVW);
 		triangle.setUVWa(mappedUVW);
 
-		m_textureMapper->map(vB, triangle.getUVWb(), &mappedUVW);
+		m_uvwGenerator->map(vB, triangle.getUVWb(), &mappedUVW);
 		triangle.setUVWb(mappedUVW);
 
-		m_textureMapper->map(vC, triangle.getUVWc(), &mappedUVW);
+		m_uvwGenerator->map(vC, triangle.getUVWc(), &mappedUVW);
 		triangle.setUVWc(mappedUVW);
 
 		triangleMesh->addTriangle(triangle);
