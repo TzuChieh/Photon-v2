@@ -6,10 +6,10 @@
 namespace ph
 {
 
-class UvwGenerator
+class StGenerator
 {
 public:
-	virtual ~UvwGenerator() = 0;
+	virtual ~StGenerator() = 0;
 
 	virtual void map(const Vector3R& position, const Vector3R& uvw, Vector3R* const out_uvw) const = 0;
 };

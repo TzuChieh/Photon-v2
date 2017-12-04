@@ -417,13 +417,19 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\IsoTrowbridgeReitz.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\UvwGenerator\UvwGenerator.cpp">
+    <ClCompile Include="Source\Core\UvwMapper\UvwMapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\UvwGenerator\DefaultGenerator.cpp">
+    <ClCompile Include="Source\Core\UvwMapper\SphericalMapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Actor\UvwGenerator\SphericalGenerator.cpp">
+    <ClCompile Include="Source\Actor\StGenerator\DefaultGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Actor\StGenerator\SphericalGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Actor\StGenerator\StGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1015,13 +1021,16 @@
     <ClInclude Include="Source\Core\UvwMapper\UvwMapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Actor\UvwGenerator\UvwGenerator.h">
+    <ClInclude Include="Source\Core\UvwMapper\SphericalMapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Actor\UvwGenerator\SphericalGenerator.h">
+    <ClInclude Include="Source\Actor\StGenerator\DefaultGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Actor\UvwGenerator\DefaultGenerator.h">
+    <ClInclude Include="Source\Actor\StGenerator\SphericalGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\StGenerator\StGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

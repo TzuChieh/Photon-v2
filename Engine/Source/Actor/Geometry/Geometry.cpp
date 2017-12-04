@@ -1,5 +1,5 @@
 #include "Actor/Geometry/Geometry.h"
-#include "Actor/UvwGenerator/DefaultGenerator.h"
+#include "Actor/StGenerator/DefaultGenerator.h"
 
 #include <iostream>
 
@@ -7,21 +7,21 @@ namespace ph
 {
 
 Geometry::Geometry() : 
-	m_uvwGenerator(std::make_shared<DefaultGenerator>())
+	m_stGenerator(std::make_shared<DefaultGenerator>())
 {
 
 }
 
 Geometry::~Geometry() = default;
 
-void Geometry::setUvwGenerator(const std::shared_ptr<UvwGenerator>& uvwGenerator)
+void Geometry::setStGenerator(const std::shared_ptr<StGenerator>& stGenerator)
 {
-	m_uvwGenerator = uvwGenerator;
+	m_stGenerator = stGenerator;
 }
 
-const UvwGenerator* Geometry::getUvwGenerator() const
+const StGenerator* Geometry::getStGenerator() const
 {
-	return m_uvwGenerator.get();
+	return m_stGenerator.get();
 }
 
 std::shared_ptr<Geometry> Geometry::genTransformApplied(const StaticTransform& transform) const

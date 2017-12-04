@@ -247,6 +247,8 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\Microfacet.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxConductorDielectricFresnel.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxDielectricFresnel.cpp" />
+    <ClCompile Include="Source\Core\UvwMapper\SphericalMapper.cpp" />
+    <ClCompile Include="Source\Core\UvwMapper\UvwMapper.cpp" />
     <ClCompile Include="Source\FileIO\InputPacket.cpp" />
     <ClCompile Include="Source\FileIO\InputPrototype.cpp" />
     <ClCompile Include="Source\FileIO\Keyword.cpp" />
@@ -280,9 +282,9 @@
     <ClCompile Include="Source\Actor\ModelParser\AiMeshParser.cpp" />
     <ClCompile Include="Source\Actor\ModelParser\AssimpModelParser.cpp" />
     <ClCompile Include="Source\Actor\ModelParser\ModelParser.cpp" />
-    <ClCompile Include="Source\Actor\UvwGenerator\DefaultGenerator.cpp" />
-    <ClCompile Include="Source\Actor\UvwGenerator\SphericalGenerator.cpp" />
-    <ClCompile Include="Source\Actor\UvwGenerator\UvwGenerator.cpp" />
+    <ClCompile Include="Source\Actor\StGenerator\DefaultGenerator.cpp" />
+    <ClCompile Include="Source\Actor\StGenerator\SphericalGenerator.cpp" />
+    <ClCompile Include="Source\Actor\StGenerator\StGenerator.cpp" />
     <ClCompile Include="Source\PostProcess\HdrOperator\HdrOperator.cpp" />
     <ClCompile Include="Source\PostProcess\ToneMapper\ToneMapper.cpp" />
     <ClCompile Include="Source\Core\Intersectable\BruteForceIntersector.cpp" />
@@ -396,6 +398,7 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\Microfacet.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxConductorDielectricFresnel.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxDielectricFresnel.h" />
+    <ClInclude Include="Source\Core\UvwMapper\SphericalMapper.h" />
     <ClInclude Include="Source\Core\UvwMapper\UvwMapper.h" />
     <ClInclude Include="Source\FileIO\DataTreatment.h" />
     <ClInclude Include="Source\FileIO\InputPacket.h" />
@@ -459,9 +462,9 @@
     <ClInclude Include="Source\Actor\ModelLoader.h" />
     <ClInclude Include="Source\Core\Bound\AABB3D.h" />
     <ClInclude Include="Source\Actor\ModelParser\ModelParser.h" />
-    <ClInclude Include="Source\Actor\UvwGenerator\DefaultGenerator.h" />
-    <ClInclude Include="Source\Actor\UvwGenerator\SphericalGenerator.h" />
-    <ClInclude Include="Source\Actor\UvwGenerator\UvwGenerator.h" />
+    <ClInclude Include="Source\Actor\StGenerator\DefaultGenerator.h" />
+    <ClInclude Include="Source\Actor\StGenerator\SphericalGenerator.h" />
+    <ClInclude Include="Source\Actor\StGenerator\StGenerator.h" />
     <ClInclude Include="Source\Math\TVector3.h" />
     <ClInclude Include="Source\PostProcess\HdrOperator\HdrOperator.h" />
     <ClInclude Include="Source\PostProcess\PostProcessor.h" />

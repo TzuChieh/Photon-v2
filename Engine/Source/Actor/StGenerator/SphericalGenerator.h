@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Actor/UvwGenerator/UvwGenerator.h"
+#include "Actor/StGenerator/StGenerator.h"
 
 namespace ph
 {
 
-class SphericalGenerator final : public UvwGenerator
+class SphericalGenerator final : public StGenerator
 {
 public:
 	virtual ~SphericalGenerator() override;

@@ -1,7 +1,7 @@
 #include "Actor/Geometry/GTriangle.h"
 #include "Core/Intersectable/PTriangle.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Actor/UvwGenerator/UvwGenerator.h"
+#include "Actor/StGenerator/StGenerator.h"
 #include "Actor/AModel.h"
 #include "FileIO/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
@@ -61,13 +61,13 @@ void GTriangle::genPrimitive(const PrimitiveBuildingMaterial& data,
 
 	Vector3R mappedUVW;
 
-	m_uvwGenerator->map(m_vA, m_uvwA, &mappedUVW);
+	m_stGenerator->map(m_vA, m_uvwA, &mappedUVW);
 	triangle.setUVWa(mappedUVW);
 
-	m_uvwGenerator->map(m_vB, m_uvwB, &mappedUVW);
+	m_stGenerator->map(m_vB, m_uvwB, &mappedUVW);
 	triangle.setUVWb(mappedUVW);
 
-	m_uvwGenerator->map(m_vC, m_uvwC, &mappedUVW);
+	m_stGenerator->map(m_vC, m_uvwC, &mappedUVW);
 	triangle.setUVWc(mappedUVW);
 
 	out_primitives.push_back(std::make_unique<PTriangle>(triangle));
