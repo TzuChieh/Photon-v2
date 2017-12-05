@@ -9,7 +9,7 @@ namespace ph
 {
 
 class Ray;
-class IntersectionProbe;
+class HitProbe;
 class Primitive;
 class CookedActorStorage;
 
@@ -21,13 +21,13 @@ public:
 
 	virtual void update(const CookedActorStorage& cookedActors) = 0;
 	
-	virtual bool isIntersecting(const Ray& ray, IntersectionProbe& probe) const = 0;
+	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const = 0;
 
 	virtual void calcAABB(AABB3D* out_aabb) const = 0;
 	
 	using Intersectable::isIntersecting;
-	virtual void calcIntersectionDetail(const Ray& ray, IntersectionProbe& probe,
-	                                    IntersectionDetail* out_detail) const override;
+	virtual void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
+	                                    HitDetail* out_detail) const override;
 };
 
 }// end namespace ph

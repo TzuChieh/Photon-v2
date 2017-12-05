@@ -9,9 +9,6 @@
 namespace ph
 {
 
-class IntersectionProbe;
-class IntersectionDetail;
-
 class KdtreeIntersector final : public Intersector
 {
 public:
@@ -19,7 +16,7 @@ public:
 	virtual ~KdtreeIntersector() override;
 
 	virtual void update(const CookedActorStorage& cookedActors) override;
-	virtual bool isIntersecting(const Ray& ray, IntersectionProbe& probe) const override;
+	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 
 private:
 	std::vector<const Intersectable*> m_nodeIntersectableBuffer;

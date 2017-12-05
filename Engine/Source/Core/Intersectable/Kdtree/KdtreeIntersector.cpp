@@ -1,7 +1,6 @@
 #include "Core/Intersectable/Kdtree/KdtreeIntersector.h"
 #include "Actor/CookedActorStorage.h"
-#include "Core/IntersectionProbe.h"
-#include "Core/IntersectionDetail.h"
+#include "Core/HitProbe.h"
 
 #include <iostream>
 
@@ -29,7 +28,7 @@ void KdtreeIntersector::update(const CookedActorStorage& cookedActors)
 	m_rootKdtreeNode.buildTree(intersectables);
 }
 
-bool KdtreeIntersector::isIntersecting(const Ray& ray, IntersectionProbe& probe) const
+bool KdtreeIntersector::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	return m_rootKdtreeNode.findClosestIntersection(ray, probe);
 }

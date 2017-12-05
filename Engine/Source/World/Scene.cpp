@@ -3,8 +3,8 @@
 #include "World/Scene.h"
 #include "Core/Intersectable/Intersector.h"
 #include "World/LightSampler/LightSampler.h"
-#include "Core/IntersectionProbe.h"
-#include "Core/IntersectionDetail.h"
+#include "Core/HitProbe.h"
+#include "Core/HitDetail.h"
 #include "Common/assertion.h"
 
 namespace ph
@@ -22,7 +22,7 @@ Scene::Scene(const Intersector* intersector, const LightSampler* lightSampler) :
 
 }
 
-bool Scene::isIntersecting(const Ray& ray, IntersectionProbe* const out_probe) const
+bool Scene::isIntersecting(const Ray& ray, HitProbe* const out_probe) const
 {
 	out_probe->clear();
 	return m_intersector->isIntersecting(ray, *out_probe);
@@ -33,8 +33,8 @@ bool Scene::isIntersecting(const Ray& ray) const
 	return m_intersector->isIntersecting(ray);
 }
 
-void Scene::calcIntersectionDetail(const Ray& ray, IntersectionProbe& probe,
-                                   IntersectionDetail* const out_detail) const
+void Scene::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
+                                   HitDetail* const out_detail) const
 {
 	PH_ASSERT(probe.getCurrentHit() != nullptr);
 

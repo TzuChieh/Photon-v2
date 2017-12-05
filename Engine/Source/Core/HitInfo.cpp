@@ -1,12 +1,11 @@
-#include "Core/IntersectionDetail.h"
+#include "Core/HitInfo.h"
 
 #include <limits>
 
 namespace ph
 {
 
-IntersectionDetail::IntersectionDetail() :
-	m_primitive(nullptr), 
+HitInfo::HitInfo() :
 	m_position(0, 0, 0), 
 	m_uvw(0, 0, 0), 
 	m_rayT(std::numeric_limits<real>::infinity()),

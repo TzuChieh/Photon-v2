@@ -2,7 +2,7 @@
 #include "Core/Quantity/Time.h"
 #include "Core/Ray.h"
 #include "Math/TVector3.h"
-#include "Core/IntersectionDetail.h"
+#include "Core/HitInfo.h"
 #include "Core/Bound/AABB3D.h"
 
 namespace ph
@@ -59,33 +59,32 @@ void Transform::transform(const Ray& ray, Ray* const out_ray) const
 	out_ray->setMaxT(rayMaxT);
 }
 
-void Transform::transform(const IntersectionDetail& detail, const Time& time,
-                          IntersectionDetail* const out_detail) const
+void Transform::transform(const HitInfo& info, const Time& time,
+                          HitInfo* const out_info) const
 {
 	Vector3R tPosition;
 	Vector3R tGeometryNormal;
 	Vector3R tShadingNormal;
-	transformPoint(detail.getPosition(), time, &tPosition);
-	transformOrientation(detail.getGeometryNormal(), time, &tGeometryNormal);
-	transformOrientation(detail.getShadingNormal(), time, &tShadingNormal);
+	transformPoint(info.getPosition(), time, &tPosition);
+	transformOrientation(info.getGeometryNormal(), time, &tGeometryNormal);
+	transformOrientation(info.getShadingNormal(), time, &tShadingNormal);
 
-	out_detail->setAttributes(detail.getPrimitive(),
-	                          tPosition,
-	                          tGeometryNormal.normalizeLocal(),
-	                          tShadingNormal.normalizeLocal(),
-	                          detail.getUVW(),
-	                          detail.getRayT());
+	out_info->setAttributes(tPosition,
+	                        tGeometryNormal.normalizeLocal(),
+	                        tShadingNormal.normalizeLocal(),
+	                        info.getUVW(),
+	                        info.getRayT());
 
 	Vector3R tdPdU;
 	Vector3R tdPdV;
 	Vector3R tdNdU;
 	Vector3R tdNdV;
-	transformVector(detail.getdPdU(), time, &tdPdU);
-	transformVector(detail.getdPdV(), time, &tdPdV);
-	transformVector(detail.getdNdU(), time, &tdNdU);
-	transformVector(detail.getdNdV(), time, &tdNdV);
+	transformVector(info.getdPdU(), time, &tdPdU);
+	transformVector(info.getdPdV(), time, &tdPdV);
+	transformVector(info.getdNdU(), time, &tdNdU);
+	transformVector(info.getdNdV(), time, &tdNdV);
 
-	out_detail->setDerivatives(tdPdU, tdPdV, tdNdU, tdNdV);
+	out_info->setDerivatives(tdPdU, tdPdV, tdNdU, tdNdV);
 }
 
 void Transform::transform(const AABB3D& aabb, const Time& time,
@@ -106,10 +105,10 @@ void Transform::transform(const AABB3D& aabb, const Time& time,
 	}
 }
 
-void Transform::transform(const IntersectionDetail& detail,
-                          IntersectionDetail* const out_detail) const
+void Transform::transform(const HitInfo& info,
+                          HitInfo* const out_info) const
 {
-	transform(detail, Time(), out_detail);
+	transform(info, Time(), out_info);
 }
 
 void Transform::transform(const AABB3D& aabb, AABB3D* const out_aabb) const

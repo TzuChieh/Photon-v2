@@ -12,13 +12,13 @@ namespace ph
 {
 
 class Intersectable;
-class IntersectionDetail;
+class HitDetail;
 class Ray;
 
-class IntersectionProbe final
+class HitProbe final
 {
 public:
-	inline IntersectionProbe() : 
+	inline HitProbe() :
 		m_hitStack(),
 		m_hitRayT(std::numeric_limits<real>::infinity()),
 		m_realCache()

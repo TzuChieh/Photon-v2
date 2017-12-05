@@ -93,7 +93,7 @@ public final class Project extends ManageableResource
 	@Override
 	protected void initResource()
 	{
-		m_engine         = new PhEngine(6);
+		m_engine         = new PhEngine(10);
 		m_finalFrame     = new PhFrame(0, 0);
 		m_transientFrame = new PhFrame(0, 0);
 		m_proxy          = new ProjectProxy(this);

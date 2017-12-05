@@ -1,6 +1,6 @@
 #include "Core/Intersectable/Kdtree/KdtreeNode.h"
 #include "Core/Ray.h"
-#include "Core/IntersectionProbe.h"
+#include "Core/HitProbe.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Math/TVector3.h"
 
@@ -80,7 +80,7 @@ void KdtreeNode::buildTree(const std::vector<const Intersectable*>& intersectabl
 	buildChildrenNodes(intersectables);
 }
 
-bool KdtreeNode::findClosestIntersection(const Ray& ray, IntersectionProbe& probe) const
+bool KdtreeNode::findClosestIntersection(const Ray& ray, HitProbe& probe) const
 {
 	real rayNearHitDist;
 	real rayFarHitDist;
@@ -266,7 +266,7 @@ std::unique_ptr<KdtreeNode> KdtreeNode::buildChildNode(const KdtreeAABB& childAA
 }
 
 bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, 
-                                                    IntersectionProbe& probe,
+                                                    HitProbe& probe,
                                                     const real rayDistMin, 
                                                     const real rayDistMax) const
 {

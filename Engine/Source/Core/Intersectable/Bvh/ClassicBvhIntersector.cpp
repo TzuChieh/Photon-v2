@@ -1,6 +1,5 @@
 #include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
-#include "Core/IntersectionProbe.h"
-#include "Core/IntersectionDetail.h"
+#include "Core/HitProbe.h"
 #include "Core/Ray.h"
 #include "Actor/CookedActorStorage.h"
 #include "Core/Intersectable/Bvh/BvhInfoNode.h"
@@ -53,7 +52,7 @@ void ClassicBvhIntersector::update(const CookedActorStorage& cookedActors)
 	std::cout << "max tree depth:          " << treeDepth << std::endl;
 }
 
-bool ClassicBvhIntersector::isIntersecting(const Ray& ray, IntersectionProbe& probe) const
+bool ClassicBvhIntersector::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	std::size_t todoNodes[NODE_STACK_SIZE];
 	int32       numTodoNodes     = 0;
@@ -61,7 +60,7 @@ bool ClassicBvhIntersector::isIntersecting(const Ray& ray, IntersectionProbe& pr
 
 	Ray bvhRay(ray);
 	const int32 isDirNeg[3] = {bvhRay.getDirection().x < 0.0_r, bvhRay.getDirection().y < 0.0_r, bvhRay.getDirection().z < 0.0_r};
-	IntersectionProbe currentProbe;
+	HitProbe currentProbe;
 
 	real minT    = 0.0_r;
 	real maxT    = 0.0_r;

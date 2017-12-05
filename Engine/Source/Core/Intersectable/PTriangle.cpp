@@ -2,8 +2,8 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Transform/StaticTransform.h"
 #include "Core/Ray.h"
-#include "Core/IntersectionProbe.h"
-#include "Core/IntersectionDetail.h"
+#include "Core/HitProbe.h"
+#include "Core/HitDetail.h"
 #include "Core/Bound/AABB3D.h"
 #include "Math/Random.h"
 #include "Core/Sample/PositionSample.h"
@@ -37,7 +37,7 @@ PTriangle::PTriangle(const PrimitiveMetadata* const metadata, const Vector3R& vA
 
 PTriangle::~PTriangle() = default;
 
-bool PTriangle::isIntersecting(const Ray& ray, IntersectionProbe& probe) const
+bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	Vector3R rayDir = ray.getDirection();
 	Vector3R vAt = m_vA.sub(ray.getOrigin());
@@ -160,8 +160,8 @@ bool PTriangle::isIntersecting(const Ray& ray, IntersectionProbe& probe) const
 	return true;
 }
 
-void PTriangle::calcIntersectionDetail(const Ray& ray, IntersectionProbe& probe,
-                                       IntersectionDetail* const out_detail) const
+void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
+                                       HitDetail* const out_detail) const
 {
 	const Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
 	Vector3R hitBaryABC;
@@ -177,7 +177,12 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, IntersectionProbe& probe,
 		m_uvwB, hitBaryABC.y,
 		m_uvwC, hitBaryABC.z);
 
-	out_detail->setAttributes(this, hitPosition, m_faceNormal, hitShadingNormal, hitUVW, probe.getHitRayT());
+	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(
+		hitPosition, 
+		m_faceNormal, 
+		hitShadingNormal, 
+		hitUVW, 
+		probe.getHitRayT());
 
 	Vector3R dPdU(0.0_r), dPdV(0.0_r);
 	Vector3R dNdU(0.0_r), dNdV(0.0_r);
@@ -197,7 +202,11 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, IntersectionProbe& probe,
 		dNdV = dNab.mul(-dUVac.x).add(dNac.mul(dUVab.x)).mulLocal(reciUvDet);
 	}
 	
-	out_detail->setDerivatives(dPdU, dPdV, dNdU, dNdV);
+	out_detail->getHitInfo(ECoordSys::LOCAL).setDerivatives(
+		dPdU, dPdV, dNdU, dNdV);
+
+	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
+	out_detail->setAdditional(this);
 }
 
 void PTriangle::calcAABB(AABB3D* const out_aabb) const

@@ -16,7 +16,7 @@ IsoTrowbridgeReitz::~IsoTrowbridgeReitz() = default;
 
 // GGX (Trowbridge-Reitz) Normal Distribution Function
 real IsoTrowbridgeReitz::distribution(
-	const IntersectionDetail& X, 
+	const HitDetail& X,
 	const Vector3R& N, const Vector3R& H) const
 {
 	const real NoH = N.dot(H);
@@ -36,7 +36,7 @@ real IsoTrowbridgeReitz::distribution(
 
 // Smith's GGX Geometry Shadowing Function (H is expected to be on the hemisphere of N)
 real IsoTrowbridgeReitz::shadowing(
-	const IntersectionDetail& X, 
+	const HitDetail& X,
 	const Vector3R& N, const Vector3R& H,
 	const Vector3R& L, const Vector3R& V) const
 {
@@ -65,7 +65,7 @@ real IsoTrowbridgeReitz::shadowing(
 
 // for GGX (Trowbridge-Reitz) Normal Distribution Function
 void IsoTrowbridgeReitz::genDistributedH(
-	const IntersectionDetail& X, 
+	const HitDetail& X,
 	const real seedA_i0e1, const real seedB_i0e1,
 	const Vector3R& N, 
 	Vector3R* const out_H) const

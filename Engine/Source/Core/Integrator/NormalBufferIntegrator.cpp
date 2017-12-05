@@ -1,7 +1,7 @@
 #include "Core/Integrator/NormalBufferIntegrator.h"
 #include "Core/Ray.h"
-#include "Core/IntersectionProbe.h"
-#include "Core/IntersectionDetail.h"
+#include "Core/HitProbe.h"
+#include "Core/HitDetail.h"
 #include "World/Scene.h"
 #include "Math/TVector3.h"
 #include "Core/Quantity/SpectralStrength.h"
@@ -25,10 +25,10 @@ void NormalBufferIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 	const Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), 0.0001_r, Ray::MAX_T);// HACK: hard-coded number
 	
 	SpectralStrength radiance;
-	IntersectionProbe probe;
+	HitProbe probe;
 	if(data.scene->isIntersecting(tracingRay, &probe))
 	{
-		IntersectionDetail detail;
+		HitDetail detail;
 		data.scene->calcIntersectionDetail(tracingRay, probe, &detail);
 		radiance.setRgb(detail.getShadingNormal());
 	}

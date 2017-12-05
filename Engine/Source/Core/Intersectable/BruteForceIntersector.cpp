@@ -1,7 +1,6 @@
 #include "Core/Intersectable/BruteForceIntersector.h"
 #include "Common/primitive_type.h"
-#include "Core/IntersectionProbe.h"
-#include "Core/IntersectionDetail.h"
+#include "Core/HitProbe.h"
 #include "Core/Ray.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Actor/CookedActorStorage.h"
@@ -25,9 +24,9 @@ void BruteForceIntersector::update(const CookedActorStorage& cookedActors)
 	}
 }
 
-bool BruteForceIntersector::isIntersecting(const Ray& ray, IntersectionProbe& probe) const
+bool BruteForceIntersector::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
-	IntersectionProbe currentProbe;
+	HitProbe currentProbe;
 	real closestRayHitT = std::numeric_limits<real>::infinity();
 
 	for(const Intersectable* intersectable : m_intersectables)

@@ -193,6 +193,7 @@
     <ClCompile Include="Source\Core\Filmic\HdrRgbFilm.cpp" />
     <ClCompile Include="Source\Core\Filmic\SampleFilter.cpp" />
     <ClCompile Include="Source\Core\Filmic\SampleFilterFactory.cpp" />
+    <ClCompile Include="Source\Core\HitInfo.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardLightIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardMisIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardPathIntegrator.cpp" />
@@ -209,13 +210,15 @@
     <ClInclude Include="Source\Actor\Material\Utility\RoughnessToAlphaMapping.h" />
     <ClInclude Include="Source\Actor\ModelBuilder.h" />
     <ClInclude Include="Source\Common\config.h" />
-    <ClInclude Include="Source\Core\IntersectionDetail.h" />
-    <ClInclude Include="Source\Core\IntersectionProbe.h" />
+    <ClInclude Include="Source\Core\ECoordSys.h" />
+    <ClInclude Include="Source\Core\HitDetail.h" />
+    <ClInclude Include="Source\Core\HitInfo.h" />
+    <ClInclude Include="Source\Core\HitProbe.h" />
     <ClInclude Include="Source\Core\Quantity\Private\TAbstractSpectralStrength.ipp">
       <FileType>CppCode</FileType>
     </ClInclude>
-    <ClCompile Include="Source\Core\IntersectionDetail.cpp" />
-    <ClCompile Include="Source\Core\IntersectionProbe.cpp" />
+    <ClCompile Include="Source\Core\HitDetail.cpp" />
+    <ClCompile Include="Source\Core\HitProbe.cpp" />
     <ClCompile Include="Source\Core\Quantity\Private\RgbSpectralStrength.cpp" />
     <ClCompile Include="Source\Core\Renderer\BulkRenderer.cpp" />
     <ClCompile Include="Source\Core\Renderer\Renderer.cpp" />

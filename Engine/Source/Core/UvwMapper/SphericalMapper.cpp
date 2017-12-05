@@ -5,7 +5,7 @@ namespace ph
 
 SphericalMapper::~SphericalMapper() = default;
 
-void SphericalMapper::map(const IntersectionDetail& X, Vector3R* const out_uvw) const
+void SphericalMapper::map(const HitDetail& X, Vector3R* const out_uvw) const
 {
 	// TODO
 }

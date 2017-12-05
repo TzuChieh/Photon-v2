@@ -1,6 +1,6 @@
 #include "Core/SurfaceBehavior/Utility/AnisoTrowbridgeReitz.h"
 #include "Math/Math.h"
-#include "Core/IntersectionDetail.h"
+#include "Core/HitDetail.h"
 #include "Math/constant.h"
 
 namespace ph
@@ -16,7 +16,7 @@ AnisoTrowbridgeReitz::AnisoTrowbridgeReitz(const real alphaU, const real alphaV)
 AnisoTrowbridgeReitz::~AnisoTrowbridgeReitz() = default;
 
 real AnisoTrowbridgeReitz::distribution(
-	const IntersectionDetail& X,
+	const HitDetail& X,
 	const Vector3R& N, const Vector3R& H) const
 {
 	real cosThetaH = N.dot(H);
@@ -40,7 +40,7 @@ real AnisoTrowbridgeReitz::distribution(
 }
 
 real AnisoTrowbridgeReitz::shadowing(
-	const IntersectionDetail& X,
+	const HitDetail& X,
 	const Vector3R& N, const Vector3R& H,
 	const Vector3R& L, const Vector3R& V) const
 {
@@ -57,7 +57,7 @@ real AnisoTrowbridgeReitz::shadowing(
 }
 
 void AnisoTrowbridgeReitz::genDistributedH(
-	const IntersectionDetail& X,
+	const HitDetail& X,
 	const real seedA_i0e1, const real seedB_i0e1,
 	const Vector3R& N,
 	Vector3R* const out_H) const
@@ -72,7 +72,7 @@ void AnisoTrowbridgeReitz::genDistributedH(
 	out_H->normalizeLocal();
 }
 
-real AnisoTrowbridgeReitz::lambda(const IntersectionDetail& X, 
+real AnisoTrowbridgeReitz::lambda(const HitDetail& X,
                                   const Vector3R& unitDir) const
 {
 	const real cos2Phi = X.getShadingBasis().cos2Phi(unitDir);

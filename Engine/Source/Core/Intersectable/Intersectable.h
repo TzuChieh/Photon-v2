@@ -4,8 +4,8 @@ namespace ph
 {
 
 class Ray;
-class IntersectionProbe;
-class IntersectionDetail;
+class HitProbe;
+class HitDetail;
 class AABB3D;
 
 class Intersectable
@@ -17,13 +17,13 @@ public:
 	// If there is an intersection, true is returned and a brief intersection
 	// report is stored inside the probe. If there is no intersection, false is
 	// returned and the state of the probe remain unchanged.
-	virtual bool isIntersecting(const Ray& ray, IntersectionProbe& probe) const = 0;
+	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const = 0;
 
 	// This method calculates a detailed description of the intersection from
 	// the ray and probe used for calling isIntersecting() (if an intersection 
 	// is found).
-	virtual void calcIntersectionDetail(const Ray& ray, IntersectionProbe& probe,
-	                                    IntersectionDetail* out_detail) const = 0;
+	virtual void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
+	                                    HitDetail* out_detail) const = 0;
 
 	virtual void calcAABB(AABB3D* out_aabb) const = 0;
 

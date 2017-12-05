@@ -2,8 +2,8 @@
 #include "Core/Ray.h"
 #include "World/Scene.h"
 #include "Math/TVector3.h"
-#include "Core/IntersectionProbe.h"
-#include "Core/IntersectionDetail.h"
+#include "Core/HitProbe.h"
+#include "Core/HitDetail.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
@@ -43,8 +43,8 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 	SpectralStrength accuRadiance(0);
 	SpectralStrength accuLiWeight(1);
 	//Vector3R rayOriginDelta;
-	IntersectionProbe hitProbe;
-	IntersectionDetail hitDetail;
+	HitProbe hitProbe;
+	HitDetail hitDetail;
 
 	/*Ray ray;
 	camera.genSensingRay(sample, &ray);*/
