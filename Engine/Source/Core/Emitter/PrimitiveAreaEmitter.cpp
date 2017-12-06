@@ -2,7 +2,7 @@
 #include "Math/TVector3.h"
 #include "Actor/Geometry/Geometry.h"
 #include "Core/HitDetail.h"
-#include "Actor/Texture/ConstantTexture.h"
+#include "Core/Texture/ConstantTexture.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Math/Random.h"
 #include "Core/Sample/PositionSample.h"

@@ -1,7 +1,7 @@
-#include "Actor/Texture/RgbPixelTexture.h"
+#include "Core/Texture/RgbPixelTexture.h"
 #include "Math/Math.h"
 #include "FileIO/InputPacket.h"
-#include "Actor/Texture/TextureLoader.h"
+#include "Core/Texture/TextureLoader.h"
 
 #include <iostream>
 #include <string>

@@ -1,5 +1,5 @@
 #include "Actor/Material/AbradedTranslucent.h"
-#include "Actor/Texture/ConstantTexture.h"
+#include "Core/Texture/ConstantTexture.h"
 #include "FileIO/InputPacket.h"
 #include "Core/SurfaceBehavior/Utility/SchlickApproxDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Utility/ExactDielectricFresnel.h"

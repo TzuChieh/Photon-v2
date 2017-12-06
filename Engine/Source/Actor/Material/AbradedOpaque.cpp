@@ -1,5 +1,5 @@
 #include "Actor/Material/AbradedOpaque.h"
-#include "Actor/Texture/ConstantTexture.h"
+#include "Core/Texture/ConstantTexture.h"
 #include "FileIO/InputPacket.h"
 #include "Core/SurfaceBehavior/Utility/IsoTrowbridgeReitz.h"
 #include "Core/SurfaceBehavior/Utility/AnisoTrowbridgeReitz.h"

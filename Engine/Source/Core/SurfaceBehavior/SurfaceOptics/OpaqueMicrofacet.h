@@ -2,8 +2,8 @@
 
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Math/TVector3.h"
-#include "Actor/Texture/Texture.h"
-#include "Actor/Texture/ConstantTexture.h"
+#include "Core/Texture/Texture.h"
+#include "Core/Texture/ConstantTexture.h"
 #include "Core/SurfaceBehavior/Utility/Microfacet.h"
 #include "Core/SurfaceBehavior/Utility/FresnelEffect.h"
 

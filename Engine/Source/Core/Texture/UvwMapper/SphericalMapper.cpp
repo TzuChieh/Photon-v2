@@ -1,4 +1,4 @@
-#include "Core/UvwMapper/SphericalMapper.h"
+#include "Core/Texture/UvwMapper/SphericalMapper.h"
 
 namespace ph
 {

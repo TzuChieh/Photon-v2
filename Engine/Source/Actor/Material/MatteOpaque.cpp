@@ -1,5 +1,5 @@
 #include "Actor/Material/MatteOpaque.h"
-#include "Actor/Texture/ConstantTexture.h"
+#include "Core/Texture/ConstantTexture.h"
 #include "FileIO/InputPacket.h"
 
 namespace ph

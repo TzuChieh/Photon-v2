@@ -1,4 +1,4 @@
-#include "Actor/Texture/CheckerboardTexture.h"
+#include "Core/Texture/CheckerboardTexture.h"
 
 #include <iostream>
 

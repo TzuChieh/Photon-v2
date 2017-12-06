@@ -2,7 +2,7 @@
 
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Math/Transform/StaticTransform.h"
-#include "Core/UvwMapper/UvwMapper.h"
+#include "Core/Texture/UvwMapper/UvwMapper.h"
 
 #include <memory>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/UvwMapper/UvwMapper.h"
+#include "Core/Texture/UvwMapper/UvwMapper.h"
 
 namespace ph
 {

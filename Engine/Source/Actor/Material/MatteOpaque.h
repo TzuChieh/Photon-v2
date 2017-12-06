@@ -3,7 +3,7 @@
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
 #include "Math/TVector3.h"
-#include "Actor/Texture/Texture.h"
+#include "Core/Texture/Texture.h"
 #include "FileIO/SDL/TCommandInterface.h"
 
 #include <memory>

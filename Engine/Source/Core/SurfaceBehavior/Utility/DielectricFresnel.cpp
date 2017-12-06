@@ -1,5 +1,5 @@
 #include "Core/SurfaceBehavior/Utility/DielectricFresnel.h"
-#include "Actor/Texture/ConstantTexture.h"
+#include "Core/Texture/ConstantTexture.h"
 
 #include <cmath>
 #include <algorithm>

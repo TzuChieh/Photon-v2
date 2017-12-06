@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Actor/Texture/Texture.h"
-#include "Actor/Texture/ConstantTexture.h"
+#include "Core/Texture/Texture.h"
+#include "Core/Texture/ConstantTexture.h"
 
 #include <memory>
 

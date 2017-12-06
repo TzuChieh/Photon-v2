@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Actor/Texture/Texture.h"
+#include "Core/Texture/Texture.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 
