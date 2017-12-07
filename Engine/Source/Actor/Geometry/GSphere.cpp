@@ -167,7 +167,7 @@ std::shared_ptr<GTriangleMesh> GSphere::genTriangleMesh() const
 		indexedTriangles = refined;
 	}
 
-	auto& triangleMesh = std::make_shared<GTriangleMesh>();
+	auto triangleMesh = std::make_shared<GTriangleMesh>();
 
 	// construct actual triangles
 	for(const IndexedTriangle& iTriangle : indexedTriangles)

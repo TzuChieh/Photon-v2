@@ -48,9 +48,9 @@ inline TVector3<T> TOrthonormalBasis3<T>::worldToLocal(const TVector3<T>& worldV
 template<typename T>
 inline T TOrthonormalBasis3<T>::cosPhi(const TVector3<T>& unitVec) const
 {
-	const T cosT            = cosTheta(unitVec);
-	TVector3<T>& xzPlaneVec = unitVec.sub(yAxis.mul(cosT));
-	const T length2         = xzPlaneVec.lengthSquared();
+	const T cosT           = cosTheta(unitVec);
+	TVector3<T> xzPlaneVec = unitVec.sub(yAxis.mul(cosT));
+	const T length2        = xzPlaneVec.lengthSquared();
 
 	if(length2 != 0)
 	{

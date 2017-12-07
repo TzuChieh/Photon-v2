@@ -65,7 +65,7 @@ std::shared_ptr<GTriangleMesh> GRectangle::genTriangleMesh() const
 	tri2.setUVWb(tC);
 	tri2.setUVWc(tD);
 
-	auto& triMesh = std::make_shared<GTriangleMesh>();
+	auto triMesh = std::make_shared<GTriangleMesh>();
 	triMesh->addTriangle(tri1);
 	triMesh->addTriangle(tri2);
 

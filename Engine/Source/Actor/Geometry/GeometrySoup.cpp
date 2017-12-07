@@ -25,7 +25,7 @@ void GeometrySoup::genPrimitive(const PrimitiveBuildingMaterial& data,
 
 std::shared_ptr<Geometry> GeometrySoup::genTransformApplied(const StaticTransform& transform) const
 {
-	auto& tGeometrySoup = std::make_shared<GeometrySoup>();
+	auto tGeometrySoup = std::make_shared<GeometrySoup>();
 	for(const auto& geometry : m_geometries)
 	{
 		const auto& tGeometry = geometry->genTransformApplied(transform);

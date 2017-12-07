@@ -137,7 +137,7 @@ inline bool TDecomposedTransform<T>::hasScaleEffect(const T margin) const
 }
 
 template<typename T>
-inline bool TDecomposedTransform<T>::isScaleUniform(const T margin = 0) const
+inline bool TDecomposedTransform<T>::isScaleUniform(const T margin) const
 {
 	const T dA = std::abs(m_scale.x - m_scale.y);
 	const T dB = std::abs(m_scale.y - m_scale.z);
