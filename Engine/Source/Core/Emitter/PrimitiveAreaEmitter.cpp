@@ -9,6 +9,7 @@
 #include "Core/Sample/DirectLightSample.h"
 #include "Core/Ray.h"
 #include "Math/constant.h"
+#include "Core/Texture/TSampler.h"
 
 #include <iostream>
 #include <algorithm>
@@ -41,7 +42,8 @@ PrimitiveAreaEmitter::~PrimitiveAreaEmitter()
 
 void PrimitiveAreaEmitter::evalEmittedRadiance(const HitDetail& X, SpectralStrength* const out_radiance) const
 {
-	m_emittedRadiance->sample(X.getUVW(), out_radiance);
+	TSampler<SpectralStrength> sampler;
+	*out_radiance = sampler.sample(*m_emittedRadiance, X);
 }
 
 void PrimitiveAreaEmitter::genDirectSample(const Vector3R& targetPos, Vector3R* const out_emitPos, SpectralStrength* const out_emittedRadiance, real* const out_PDF) const

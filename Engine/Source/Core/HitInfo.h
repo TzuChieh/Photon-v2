@@ -20,7 +20,6 @@ public:
 	inline const Vector3R& getPosition() const       { return m_position;            }
 	inline const Vector3R& getShadingNormal() const  { return m_shadingBasis.yAxis;  }
 	inline const Vector3R& getGeometryNormal() const { return m_geometryBasis.yAxis; }
-	inline const Vector3R& getUVW() const            { return m_uvw;                 }
 	inline real            getRayT() const           { return m_rayT;                }
 	inline const Vector3R& getdPdU() const           { return m_dPdU;                }
 	inline const Vector3R& getdPdV() const           { return m_dPdV;                }
@@ -33,13 +32,11 @@ public:
 		const Vector3R& position,
 		const Vector3R& geometryNormal,
 		const Vector3R& shadingNormal,
-		const Vector3R& uvw, 
 		const real      rayT)
 	{
 		m_position            = position;
 		m_geometryBasis.yAxis = geometryNormal;
 		m_shadingBasis.yAxis  = shadingNormal;
-		m_uvw                 = uvw;
 		m_rayT                = rayT;
 	}
 
@@ -82,7 +79,6 @@ public:
 
 private:
 	Vector3R m_position;
-	Vector3R m_uvw;
 	real     m_rayT;
 
 	Vector3R m_dPdU;

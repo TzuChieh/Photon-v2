@@ -6,6 +6,7 @@
 #include "Actor/Material/MatteOpaque.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/random_sample.h"
 #include "Math/Math.h"
+#include "Core/Texture/TSampler.h"
 
 #include <cmath>
 
@@ -39,8 +40,8 @@ void LambertianDiffuse::evalBsdf(const HitDetail& X, const Vector3R& L, const Ve
 		return;
 	}
 
-	SpectralStrength albedo;
-	m_albedo->sample(X.getUVW(), &albedo);
+	SpectralStrength albedo = TSampler<SpectralStrength>().sample(*m_albedo, X);
+
 	*out_bsdf = albedo.divLocal(PH_PI_REAL);
 	*out_type = ESurfacePhenomenon::REFLECTION;
 }
@@ -52,8 +53,8 @@ void LambertianDiffuse::genBsdfSample(const HitDetail& X, const Vector3R& V,
 	// The importance sampling strategy is to use the cosine term in the rendering equation, 
 	// generating a cos(theta) weighted L corresponding to N, which PDF is cos(theta)/pi.
 	// Thus, BRDF_lambertian/PDF = albedo/cos(theta).
-	SpectralStrength albedo;
-	m_albedo->sample(X.getUVW(), &albedo);
+
+	SpectralStrength albedo = TSampler<SpectralStrength>().sample(*m_albedo, X);
 
 	// generate and transform L to N's space
 	const Vector3R& N = X.getShadingNormal();

@@ -7,7 +7,6 @@ namespace ph
 
 HitInfo::HitInfo() :
 	m_position(0, 0, 0), 
-	m_uvw(0, 0, 0), 
 	m_rayT(std::numeric_limits<real>::infinity()),
 
 	m_dPdU(1, 0, 0),

@@ -250,7 +250,9 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\Microfacet.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxConductorDielectricFresnel.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxDielectricFresnel.cpp" />
+    <ClCompile Include="Source\Core\Texture\TextureChannel.cpp" />
     <ClCompile Include="Source\Core\Texture\UvwMapper\SphericalMapper.cpp" />
+    <ClCompile Include="Source\Core\Texture\UvwMapper\StAsUvMapper.cpp" />
     <ClCompile Include="Source\Core\Texture\UvwMapper\UvwMapper.cpp" />
     <ClCompile Include="Source\FileIO\InputPacket.cpp" />
     <ClCompile Include="Source\FileIO\InputPrototype.cpp" />
@@ -401,7 +403,10 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\Microfacet.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxConductorDielectricFresnel.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxDielectricFresnel.h" />
+    <ClInclude Include="Source\Core\Texture\TSampler.h" />
+    <ClInclude Include="Source\Core\Texture\TextureChannel.h" />
     <ClInclude Include="Source\Core\Texture\UvwMapper\SphericalMapper.h" />
+    <ClInclude Include="Source\Core\Texture\UvwMapper\StAsUvMapper.h" />
     <ClInclude Include="Source\Core\Texture\UvwMapper\UvwMapper.h" />
     <ClInclude Include="Source\FileIO\DataTreatment.h" />
     <ClInclude Include="Source\FileIO\InputPacket.h" />

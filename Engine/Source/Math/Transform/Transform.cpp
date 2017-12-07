@@ -72,7 +72,6 @@ void Transform::transform(const HitInfo& info, const Time& time,
 	out_info->setAttributes(tPosition,
 	                        tGeometryNormal.normalizeLocal(),
 	                        tShadingNormal.normalizeLocal(),
-	                        info.getUVW(),
 	                        info.getRayT());
 
 	Vector3R tdPdU;

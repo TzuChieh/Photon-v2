@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/TVector3.h"
+#include "Math/TVector2.h"
 #include "Math/TOrthonormalBasis3.h"
 #include "Math/Math.h"
 #include "Core/ECoordSys.h"
@@ -63,20 +64,13 @@ public:
 		return getHitInfo(coordSys).getShadingBasis();
 	}
 
-	inline const Vector3R& getUVW(const ECoordSys coordSys = ECoordSys::WORLD) const
-	{
-		return getHitInfo(coordSys).getUVW();
-	}
-
 	inline real getRayT(const ECoordSys coordSys = ECoordSys::WORLD) const
 	{
 		return getHitInfo(coordSys).getRayT();
 	}
 
-	inline const Primitive* getPrimitive() const
-	{
-		return m_primitive;
-	}
+	inline const Primitive* getPrimitive() const { return m_primitive; }
+	inline const Vector2R&  getST() const        { return m_st;        }
 
 	inline const HitInfo& getHitInfo(const ECoordSys coordSys = ECoordSys::WORLD) const
 	{
@@ -88,9 +82,12 @@ public:
 		return m_hitInfos[static_cast<int>(coordSys)];
 	}
 
-	inline void setAdditional(const Primitive* const primitive)
+	inline void setMisc(
+		const Primitive* const primitive,
+		const Vector2R&        st)
 	{
 		m_primitive = primitive;
+		m_st        = st;
 	}
 
 	inline void computeBases()
@@ -103,6 +100,7 @@ public:
 
 private:
 	const Primitive* m_primitive;
+	Vector2R         m_st;
 	HitInfo          m_hitInfos[static_cast<int>(ECoordSys::NUM_ELEMENTS)];
 };
 
