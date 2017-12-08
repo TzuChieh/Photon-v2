@@ -2,6 +2,7 @@
 #include "Core/Intersectable/Bvh/BvhInfoNode.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Math/TVector3.h"
+#include "Common/assertion.h"
 
 #include <iostream>
 #include <algorithm>
@@ -57,15 +58,11 @@ const BvhInfoNode* BvhBuilder::buildInformativeBinaryBvh(const std::vector<const
 	return rootNode;
 }
 
-void BvhBuilder::buildLinearDepthFirstBinaryBvh(const BvhInfoNode* rootNode,
+void BvhBuilder::buildLinearDepthFirstBinaryBvh(const BvhInfoNode* const rootNode,
                                                 std::vector<BvhLinearNode>* const out_linearNodes,
                                                 std::vector<const Intersectable*>* const out_intersectables)
 {
-	if(rootNode == nullptr)
-	{
-		std::cerr << "warning: at BvhBuilder::buildLinearDepthFirstBinaryBvh(), " 
-		          << "input node is nullptr" << std::endl;
-	}
+	PH_ASSERT_MSG(rootNode != nullptr, "input node cannot be nullptr");
 
 	m_linearNodes.clear();
 	m_linearNodes.shrink_to_fit();
@@ -74,7 +71,7 @@ void BvhBuilder::buildLinearDepthFirstBinaryBvh(const BvhInfoNode* rootNode,
 	m_intersectables.shrink_to_fit();
 	m_intersectables.reserve(calcTotalIntersectables(rootNode));
 
-	buildBinaryBvhLinearDepthFirstNodeRecursive(rootNode, 0);
+	buildBinaryBvhLinearDepthFirstNodeRecursive(rootNode, nullptr);
 
 	out_linearNodes->clear();
 	out_linearNodes->shrink_to_fit();
@@ -92,7 +89,7 @@ const BvhInfoNode* BvhBuilder::buildBinaryBvhInfoNodeRecursive(const std::vector
 	BvhInfoNode* node = m_infoNodes.back().get();
 
 	AABB3D nodeAABB(intersectables.empty() ? AABB3D() : intersectables.front().aabb);
-	for(const auto intersectable : intersectables)
+	for(const auto& intersectable : intersectables)
 	{
 		nodeAABB = AABB3D::makeUnioned(nodeAABB, intersectable.aabb);
 	}
@@ -110,7 +107,7 @@ const BvhInfoNode* BvhBuilder::buildBinaryBvhInfoNodeRecursive(const std::vector
 	else
 	{
 		AABB3D centroidsAABB(intersectables.front().aabbCentroid);
-		for(const auto intersectable : intersectables)
+		for(const auto& intersectable : intersectables)
 		{
 			centroidsAABB = AABB3D::makeUnioned(centroidsAABB, intersectable.aabbCentroid);
 		}
@@ -183,7 +180,9 @@ const BvhInfoNode* BvhBuilder::buildBinaryBvhInfoNodeRecursive(const std::vector
 }
 
 
-void BvhBuilder::buildBinaryBvhLinearDepthFirstNodeRecursive(const BvhInfoNode* rootNode, std::size_t* out_nodeIndex)
+void BvhBuilder::buildBinaryBvhLinearDepthFirstNodeRecursive(
+	const BvhInfoNode* const rootNode,
+	std::size_t* const out_nodeIndex)
 {
 	std::size_t nodeIndex = m_linearNodes.size();
 
@@ -222,7 +221,7 @@ void BvhBuilder::buildBinaryBvhLinearDepthFirstNodeRecursive(const BvhInfoNode* 
 	}
 }
 
-std::size_t BvhBuilder::calcTotalNodes(const BvhInfoNode* rootNode)
+std::size_t BvhBuilder::calcTotalNodes(const BvhInfoNode* const rootNode)
 {
 	std::size_t result = 1;
 	result += rootNode->children[0] ? calcTotalNodes(rootNode->children[0]) : 0;
@@ -230,7 +229,7 @@ std::size_t BvhBuilder::calcTotalNodes(const BvhInfoNode* rootNode)
 	return result;
 }
 
-std::size_t BvhBuilder::calcTotalIntersectables(const BvhInfoNode* rootNode)
+std::size_t BvhBuilder::calcTotalIntersectables(const BvhInfoNode* const rootNode)
 {
 	std::size_t result = rootNode->intersectables.size();
 	result += rootNode->children[0] ? calcTotalIntersectables(rootNode->children[0]) : 0;
@@ -238,7 +237,7 @@ std::size_t BvhBuilder::calcTotalIntersectables(const BvhInfoNode* rootNode)
 	return result;
 }
 
-std::size_t BvhBuilder::calcMaxDepth(const BvhInfoNode* rootNode)
+std::size_t BvhBuilder::calcMaxDepth(const BvhInfoNode* const rootNode)
 {
 	std::size_t depth = rootNode->children[0] || rootNode->children[1] ? 1 : 0;
 	std::size_t depthA = rootNode->children[0] ? calcMaxDepth(rootNode->children[0]) : 0;
@@ -316,7 +315,7 @@ bool BvhBuilder::splitWithSahBuckets(const std::vector<BvhIntersectableInfo>& in
 		int32 bucketIndex = static_cast<int32>(factor * numBuckets);
 		bucketIndex = (bucketIndex == numBuckets) ? bucketIndex - 1 : bucketIndex;
 
-		buckets[bucketIndex].aabb = (buckets[numBuckets].isEmpty()) ? 
+		buckets[bucketIndex].aabb = (buckets[bucketIndex].isEmpty()) ?
 		                            intersectable.aabb : buckets[bucketIndex].aabb.unionWith(intersectable.aabb);
 		buckets[bucketIndex].numIntersectables++;
 	}

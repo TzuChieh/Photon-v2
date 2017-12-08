@@ -6,7 +6,9 @@
 namespace ph
 {
 
-BvhIntersectableInfo::BvhIntersectableInfo(const Intersectable* intersectable, const std::size_t index) :
+BvhIntersectableInfo::BvhIntersectableInfo(
+	const Intersectable* const intersectable, 
+	const std::size_t          index) :
 	index(index), aabb(), aabbCentroid(), intersectable(intersectable)
 {
 	intersectable->calcAABB(&aabb);
