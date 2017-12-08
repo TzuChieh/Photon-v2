@@ -14,11 +14,11 @@ int main(int argc, char* argv[])
 	}
 
 	PHuint64 engineId;
-	phCreateEngine(&engineId, 1);
+	phCreateEngine(&engineId, 10);
 
 	std::ifstream sceneFile;
-	//sceneFile.open("../scene/default_scene.p2", std::ios::in);
-	sceneFile.open("../scene/test_bp.p2", std::ios::in);
+	sceneFile.open("../scene/default_scene.p2", std::ios::in);
+	//sceneFile.open("../scene/test_bp.p2", std::ios::in);
 
 	if(!sceneFile.is_open())
 	{
