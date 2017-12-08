@@ -7,6 +7,7 @@
 #include "FileIO/InputPacket.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "Math/TVector3.h"
+#include "FileIO/InputPrototype.h"
 
 #include <iostream>
 
@@ -65,10 +66,30 @@ void AreaSource::ciRegister(CommandRegister& cmdRegister)
 
 std::unique_ptr<AreaSource> AreaSource::ciLoad(const InputPacket& packet)
 {
-	const Vector3R emittedRadiance = packet.getVector3r("emitted-radiance", Vector3R(0), 
-	                                                    DataTreatment::REQUIRED());
+	InputPrototype rgbInput;
+	rgbInput.addVector3r("emitted-radiance");
 
-	return std::make_unique<AreaSource>(emittedRadiance);
+	InputPrototype imageInput;
+	imageInput.addString("emitted-radiance");
+
+	if(packet.isPrototypeMatched(rgbInput))
+	{
+		const auto& emittedRadiance = packet.getVector3r("emitted-radiance", Vector3R(0), 
+		                                                 DataTreatment::REQUIRED());
+		return std::make_unique<AreaSource>(emittedRadiance);
+
+	}
+	else if(packet.isPrototypeMatched(imageInput))
+	{
+		const auto& imageFilename = packet.getString("emitted-radiance", "", 
+		                                             DataTreatment::REQUIRED());
+		return std::make_unique<AreaSource>(imageFilename);
+	}
+	else
+	{
+		std::cerr << "warning: at AreaSource::ciLoad(), invalid input format" << std::endl;
+		return std::make_unique<AreaSource>(Vector3R(1, 1, 1));
+	}
 }
 
 }// end namespace ph

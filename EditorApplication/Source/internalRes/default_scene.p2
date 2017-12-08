@@ -25,11 +25,13 @@
 
 // top light (left)
 -> material(matte-opaque) @topLightMaterial1 [vector3r albedo "0.5 0.5 0.5"]
--> light-source(area) @topLightSource1 [vector3r emitted-radiance "3.4 3.4 3.4"]
+//-> light-source(area) @topLightSource1 [vector3r emitted-radiance "3.4 3.4 3.4"]
+-> light-source(area) @topLightSource1 [string emitted-radiance "../scene/test_img.jpg"]
 -> actor(light) @topLight1 [geometry geometry @boxWall] [material material @topLightMaterial1] [light-source light-source @topLightSource1]
--> actor(light) translate(@topLight1) [vector3r factor "-3 4.75 0"]
--> actor(light) rotate(@topLight1) [vector3r axis "1 0 0"] [real degree 90]
--> actor(light) scale(@topLight1) [vector3r factor "3 3 3"]
+//-> actor(light) translate(@topLight1) [vector3r factor "-3 4.75 0"]
+-> actor(light) translate(@topLight1) [vector3r factor "0 0 -4.75"]
+//-> actor(light) rotate(@topLight1) [vector3r axis "1 0 0"] [real degree 90]
+-> actor(light) scale(@topLight1) [vector3r factor "10 10 10"]
 
 // top light (right)
 -> material(matte-opaque) @topLightMaterial2 [vector3r albedo "0.5 0.5 0.5"]
