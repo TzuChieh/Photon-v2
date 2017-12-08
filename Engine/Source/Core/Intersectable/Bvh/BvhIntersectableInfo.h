@@ -19,7 +19,7 @@ public:
 	const Intersectable* intersectable;
 
 	BvhIntersectableInfo() = default;
-	BvhIntersectableInfo(const Intersectable* intersectable, const std::size_t index);
+	BvhIntersectableInfo(const Intersectable* intersectable, std::size_t index);
 };
 
 }// end namespace ph

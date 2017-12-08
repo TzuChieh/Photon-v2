@@ -36,7 +36,7 @@ BvhInfoNode BvhInfoNode::makeBinaryLeaf(const std::vector<BvhIntersectableInfo>&
 }
 
 BvhInfoNode::BvhInfoNode() : 
-	children{nullptr, nullptr}, aabb(), splitAxis(Math::UNKNOWN_AXIS), intersectables()
+	children{}, aabb(), splitAxis(Math::UNKNOWN_AXIS), intersectables()
 {
 
 }
