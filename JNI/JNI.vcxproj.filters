@@ -15,39 +15,39 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\JLongRef.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\java_type_signature.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\photonApi_Ph.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\JIntRef.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\JObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\JFloatRef.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\JIntRef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\JLongRef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Source\JniUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\JObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\photonApi_Ph.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\JLongRef.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\photonApi_Ph.cpp">
+    <ClCompile Include="Source\JFloatRef.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\JIntRef.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\JFloatRef.cpp">
+    <ClCompile Include="Source\JLongRef.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\photonApi_Ph.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

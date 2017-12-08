@@ -86,7 +86,7 @@ private:
 
 // command interface
 public:
-	Camera::Camera(const InputPacket& packet);
+	Camera(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
