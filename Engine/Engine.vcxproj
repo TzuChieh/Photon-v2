@@ -275,6 +275,7 @@
     <ClInclude Include="Source\FileIO\DataTreatment.h" />
     <ClInclude Include="Source\FileIO\Description.h" />
     <ClInclude Include="Source\FileIO\DescriptionParser.h" />
+    <ClInclude Include="Source\FileIO\FileSystem\Path.h" />
     <ClInclude Include="Source\FileIO\InputPacket.h" />
     <ClInclude Include="Source\FileIO\InputPrototype.h" />
     <ClInclude Include="Source\FileIO\Keyword.h" />

@@ -2,6 +2,7 @@
 
 #include "FileIO/Tokenizer.h"
 #include "FileIO/ValueClause.h"
+#include "FileIO/FileSystem/Path.h"
 
 #include <vector>
 #include <string>
@@ -36,11 +37,12 @@ public:
 	void enter(const std::string& commandFragment, Description& out_data);
 
 private:
-	std::string        m_commandCache;
-	Tokenizer          m_coreCommandTokenizer;
-	Tokenizer          m_worldCommandTokenizer;
-	Tokenizer          m_nameTokenizer;
-	std::size_t        m_generatedNameCounter;
+	Path        m_workingDirectory;
+	std::string m_commandCache;
+	Tokenizer   m_coreCommandTokenizer;
+	Tokenizer   m_worldCommandTokenizer;
+	Tokenizer   m_nameTokenizer;
+	std::size_t m_generatedNameCounter;
 
 	void parseCommand(const std::string& command, Description& out_data);
 	void parseCoreCommand(const std::string& command, Description& out_data);

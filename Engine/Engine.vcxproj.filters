@@ -618,6 +618,16 @@
     <ClInclude Include="Source\World\VisualWorld.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Math\TArithmeticArray.ipp" />
+    <ClInclude Include="Source\Math\TIndexedVector3.ipp" />
+    <ClInclude Include="Source\Math\TMatrix4.ipp" />
+    <ClInclude Include="Source\Math\TOrthonormalBasis3.ipp" />
+    <ClInclude Include="Source\Math\TQuaternion.ipp" />
+    <ClInclude Include="Source\Math\TVector2.ipp" />
+    <ClInclude Include="Source\Math\TVector3.ipp" />
+    <ClInclude Include="Source\FileIO\FileSystem\Path.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">
@@ -1046,14 +1056,5 @@
     <ClCompile Include="Source\World\VisualWorld.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Source\Math\TArithmeticArray.ipp" />
-    <None Include="Source\Math\TIndexedVector3.ipp" />
-    <None Include="Source\Math\TMatrix4.ipp" />
-    <None Include="Source\Math\TOrthonormalBasis3.ipp" />
-    <None Include="Source\Math\TQuaternion.ipp" />
-    <None Include="Source\Math\TVector2.ipp" />
-    <None Include="Source\Math\TVector3.ipp" />
   </ItemGroup>
 </Project>
