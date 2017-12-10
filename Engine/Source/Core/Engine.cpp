@@ -60,4 +60,9 @@ void Engine::asyncQueryStatistics(float32* const out_percentageProgress,
 	m_renderer->asyncQueryStatistics(out_percentageProgress, out_samplesPerSecond);
 }
 
+void Engine::setWorkingDirectory(const Path& path)
+{
+	m_parser.setWorkingDirectory(path);
+}
+
 }// end namespace ph

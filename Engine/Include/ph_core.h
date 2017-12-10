@@ -61,6 +61,7 @@ typedef int64_t        PHint64;
 typedef uint64_t       PHuint64;
 typedef float          PHfloat32;
 typedef double         PHfloat64;
+typedef char           PHchar;
 
 #define PH_TRUE  1
 #define PH_FALSE 0
@@ -87,6 +88,7 @@ extern PH_API void phUpdate(PHuint64 engineId);
 extern PH_API void phDevelopFilm(PHuint64 engineId, PHuint64 frameId);
 extern PH_API void phGetFilmDimension(PHuint64 engineId, PHuint32* out_widthPx, PHuint32* out_heightPx);
 extern PH_API void phDeleteEngine(PHuint64 engineId);
+extern PH_API void phSetWorkingDirectory(PHuint64 engineId, const PHchar* workingDirectory);
 
 
 ///////////////////////////////////////////////////////////////////////////////

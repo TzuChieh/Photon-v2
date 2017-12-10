@@ -10,8 +10,13 @@
 namespace ph
 {
 
-InputPacket::InputPacket(const std::vector<ValueClause>& vClauses, const NamedResourceStorage& storage) : 
-	m_vClauses(vClauses), m_storage(storage)
+InputPacket::InputPacket(
+	const std::vector<ValueClause>&   vClauses,
+	const NamedResourceStorage* const storage,
+	const Path&                       workingDirectory) :
+	m_vClauses(vClauses), 
+	m_storage(storage),
+	m_workingDirectory(workingDirectory)
 {
 
 }
@@ -23,8 +28,8 @@ InputPacket::InputPacket(InputPacket&& other) :
 }
 
 std::string InputPacket::getString(
-	const std::string& name, 
-	const std::string& defaultString, 
+	const std::string&   name, 
+	const std::string&   defaultString, 
 	const DataTreatment& treatment) const
 {
 	std::string stringValue;
@@ -33,8 +38,8 @@ std::string InputPacket::getString(
 }
 
 integer InputPacket::getInteger(
-	const std::string& name, 
-	const integer defaultInteger, 
+	const std::string&   name, 
+	const integer        defaultInteger, 
 	const DataTreatment& treatment) const
 {
 	std::string stringValue;
@@ -43,8 +48,8 @@ integer InputPacket::getInteger(
 }
 
 real InputPacket::getReal(
-	const std::string& name, 
-	const real defaultReal, 
+	const std::string&   name, 
+	const real           defaultReal, 
 	const DataTreatment& treatment) const
 {
 	std::string stringValue;
@@ -53,8 +58,8 @@ real InputPacket::getReal(
 }
 
 Vector3R InputPacket::getVector3r(
-	const std::string& name,
-	const Vector3R& defaultVector3r, 
+	const std::string&   name,
+	const Vector3R&      defaultVector3r, 
 	const DataTreatment& treatment) const
 {
 	std::string stringValue;
@@ -63,8 +68,8 @@ Vector3R InputPacket::getVector3r(
 }
 
 QuaternionR InputPacket::getQuaternionR(
-	const std::string& name,
-	const QuaternionR& defaultQuaternionR,
+	const std::string&   name,
+	const QuaternionR&   defaultQuaternionR,
 	const DataTreatment& treatment) const
 {
 	std::string stringValue;
@@ -73,13 +78,22 @@ QuaternionR InputPacket::getQuaternionR(
 }
 
 std::vector<Vector3R> InputPacket::getVector3rArray(
-	const std::string& name,
+	const std::string&           name,
 	const std::vector<Vector3R>& defaultVector3rArray,
-	const DataTreatment& treatment) const
+	const DataTreatment&         treatment) const
 {
 	std::string stringValue;
 	return findStringValue(Keyword::TYPENAME_VECTOR3R_ARRAY, name, treatment, &stringValue) ?
 	       ValueParser::parseVector3rArray(stringValue) : defaultVector3rArray;
+}
+
+Path InputPacket::getStringAsPath(
+	const std::string&   name,
+	const Path&          defaultPath,
+	const DataTreatment& treatment) const
+{
+	const Path sdlResourceIdentifier(getString(name, defaultPath.toString(), treatment));
+	return m_workingDirectory.append(sdlResourceIdentifier);
 }
 
 bool InputPacket::isPrototypeMatched(const InputPrototype& prototype) const

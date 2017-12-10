@@ -9,6 +9,7 @@
 #include "Math/TArithmeticArray.h"
 #include "Api/init_and_exit.h"
 #include "Core/Renderer/Renderer.h"
+#include "FileIO/FileSystem/Path.h"
 
 #include <memory>
 #include <iostream>
@@ -216,5 +217,17 @@ void phAsyncDevelopFilmRegion(const PHuint64 engineId, const PHuint64 frameId,
 	{
 		const Renderer::Region region({xPx, yPx}, {xPx + widthPx, yPx + heightPx});
 		engine->asyncDevelopFilmRegion(*frame, region);
+	}
+}
+
+void phSetWorkingDirectory(const PHuint64 engineId, const PHchar* const workingDirectory)
+{
+	using namespace ph;
+
+	Engine* engine = ApiDatabase::getEngine(engineId);
+	if(engine)
+	{
+		const Path path(workingDirectory);
+		engine->setWorkingDirectory(path);
 	}
 }

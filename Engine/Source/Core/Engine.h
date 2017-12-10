@@ -15,6 +15,7 @@ namespace ph
 {
 
 class Frame;
+class Path;
 
 class Engine final
 {
@@ -32,6 +33,8 @@ public:
 	void asyncDevelopFilmRegion(Frame& out_frame, const Renderer::Region& region) const;
 	void asyncQueryStatistics(float32* out_percentageProgress,
 	                          float32* out_samplesPerSecond) const;
+
+	void setWorkingDirectory(const Path& path);
 
 private:
 	DescriptionParser m_parser;

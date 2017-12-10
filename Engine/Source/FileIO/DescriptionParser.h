@@ -35,6 +35,7 @@ public:
 	DescriptionParser();
 
 	void enter(const std::string& commandFragment, Description& out_data);
+	void setWorkingDirectory(const Path& path);
 
 private:
 	Path        m_workingDirectory;
@@ -47,6 +48,7 @@ private:
 	void parseCommand(const std::string& command, Description& out_data);
 	void parseCoreCommand(const std::string& command, Description& out_data);
 	void parseWorldCommand(const std::string& command, Description& out_data);
+
 	std::string genName();
 	std::string getName(const std::string& nameToken) const;
 

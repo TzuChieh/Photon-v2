@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <string>
 #include <iostream>
+#include <cwchar>
 
 namespace ph
 {
@@ -17,7 +18,7 @@ public:
 	}
 
 	inline explicit Path(const std::string& path) : 
-		m_path(path)
+		m_path(std::experimental::filesystem::path(path).make_preferred())
 	{
 
 	}
@@ -38,7 +39,9 @@ public:
 		if(!Path(absPath).isAbsolute())
 		{
 			std::cerr << "warning: at Path::getAbsoluteString(), " 
-			          << "path <" << m_path.string() << "> cannot convert to absolute path" << std::endl;
+			          << "path <" 
+			          << m_path.string() 
+			          << "> cannot convert to absolute path" << std::endl;
 		}
 
 		return absPath;
@@ -46,13 +49,72 @@ public:
 
 	inline Path append(const Path& other) const
 	{
-		auto thisPath  = m_path;
-		auto otherPath = other.m_path;
-		return Path(thisPath.append(otherPath).string());
+		auto thisPath  = this->removeTrailingSeparator();
+		auto otherPath = other.removeLeadingSeparator();
+		return Path(thisPath.m_path.append(otherPath.m_path).string());
+	}
+
+	inline std::string toString() const
+	{
+		return m_path.string();
+	}
+
+	inline Path removeLeadingSeparator() const
+	{
+		std::string pathStr = m_path.string();
+		while(!pathStr.empty())
+		{
+			if(charToWchar(pathStr.front()) == m_path.preferred_separator)
+			{
+				pathStr.erase(0, 1);
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		return Path(pathStr);
+	}
+
+	inline Path removeTrailingSeparator() const
+	{
+		std::string pathStr = m_path.string();
+		while(!pathStr.empty())
+		{
+			if(charToWchar(pathStr.back()) == m_path.preferred_separator)
+			{
+				pathStr.pop_back();
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		return Path(pathStr);
+	}
+
+	inline bool operator == (const Path& other) const
+	{
+		return m_path == other.m_path;
 	}
 
 private:
 	std::experimental::filesystem::path m_path;
+
+	inline static wchar_t charToWchar(const char ch)
+	{
+		const std::wint_t wch = std::btowc(ch);
+		if(wch == WEOF)
+		{
+			std::cout << "warning: at Path::charToWchar(), " 
+			          << "char <" << ch
+			          << "> failed to widen to wchar" << std::endl;
+		}
+		
+		return static_cast<wchar_t>(wch);
+	}
 };
 
 }// end namespace ph

@@ -135,7 +135,7 @@ void DescriptionParser::parseCoreCommand(const std::string& command, Description
 	const std::string&             typeName     = tokens[2];
 	const SdlTypeInfo              typeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
 	const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
-	const InputPacket              inputPacket(getValueClauses(clauseStrings), out_data.resources);
+	const InputPacket              inputPacket(getValueClauses(clauseStrings), &out_data.resources, m_workingDirectory);
 	const SdlLoader&               loader = getCommandEntry(typeInfo).getLoader();
 
 	auto loadedResource = loader.load(inputPacket);
@@ -160,7 +160,7 @@ void DescriptionParser::parseWorldCommand(const std::string& command, Descriptio
 		const std::string&             resourceName = getName(tokens[3]);
 		const SdlTypeInfo              typeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
 		const std::vector<std::string> clauseStrings(tokens.begin() + 4, tokens.end());
-		const InputPacket              inputPacket(getValueClauses(clauseStrings), out_data.resources);
+		const InputPacket              inputPacket(getValueClauses(clauseStrings), &out_data.resources, m_workingDirectory);
 		const SdlLoader&               loader = getCommandEntry(typeInfo).getLoader();
 
 		auto loadedResource = loader.load(inputPacket);
@@ -174,7 +174,7 @@ void DescriptionParser::parseWorldCommand(const std::string& command, Descriptio
 		const std::string&             targetResourceName = getName(tokens[4]);
 		const SdlTypeInfo              ownerTypeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
 		const std::vector<std::string> clauseStrings(tokens.begin() + 5, tokens.end());
-		const InputPacket              inputPacket(getValueClauses(clauseStrings), out_data.resources);
+		const InputPacket              inputPacket(getValueClauses(clauseStrings), &out_data.resources, m_workingDirectory);
 		
 		const auto& commandEntry   = getCommandEntry(ownerTypeInfo);
 		const auto& executor       = commandEntry.getExecutor(executorName);
@@ -258,6 +258,11 @@ std::string DescriptionParser::getName(const std::string& nameToken) const
 	{
 		return tokens[0];
 	}
+}
+
+void DescriptionParser::setWorkingDirectory(const Path& path)
+{
+	m_workingDirectory = path;
 }
 
 std::vector<ValueClause> DescriptionParser::getValueClauses(const std::vector<std::string>& clauseStrings)
