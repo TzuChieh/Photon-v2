@@ -220,6 +220,7 @@
     <ClInclude Include="Source\Core\Intersectable\PrimitiveMetadata.h" />
     <ClInclude Include="Source\Core\Intersectable\PTriangle.h" />
     <ClInclude Include="Source\Core\Intersectable\TransformedIntersectable.h" />
+    <ClInclude Include="Source\Core\Quantity\ColorSpace.h" />
     <ClInclude Include="Source\Core\Quantity\Private\RgbSpectralStrength.h" />
     <ClInclude Include="Source\Core\Quantity\Private\TAbstractSpectralStrength.h" />
     <ClInclude Include="Source\Core\Quantity\SpectralStrength.h" />
@@ -497,6 +498,11 @@
       <FileType>Document</FileType>
     </ClInclude>
     <ClInclude Include="Source\Math\TVector3.ipp">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Core\Quantity\Private\TAbstractSpectralStrength.ipp">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>

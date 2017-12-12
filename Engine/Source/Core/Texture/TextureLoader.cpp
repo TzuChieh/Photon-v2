@@ -1,6 +1,7 @@
 #include "Core/Texture/TextureLoader.h"
 #include "Core/Texture/RgbPixelTexture.h"
 #include "Math/Random.h"
+#include "Core/Quantity/ColorSpace.h"
 
 #include "Common/ThirdParty/lib_stb.h"
 
@@ -47,9 +48,17 @@ bool TextureLoader::load(const std::string& fullFilename, RgbPixelTexture* const
 
 	const uint32 dataSize = widthPx * heightPx * numComponents;
 	std::vector<real> pixelData(static_cast<std::size_t>(dataSize), 0.0_r);
-	for(uint32 i = 0; i < dataSize; i++)
+	for(uint32 i = 0; i < dataSize; i += 3)
 	{
-		pixelData[i] = static_cast<real>(stbImageData[i]) / 255.0_r;
+		const Vector3R sRgbPixel(stbImageData[i + 0] / 255.0_r, 
+		                         stbImageData[i + 1] / 255.0_r, 
+		                         stbImageData[i + 2] / 255.0_r);
+
+		const Vector3R linearRgb = ColorSpace::sRgbToLinearRgb(sRgbPixel);
+
+		pixelData[i + 0] = linearRgb.x;
+		pixelData[i + 1] = linearRgb.y;
+		pixelData[i + 2] = linearRgb.z;
 	}
 
 	// free the image data loaded by stb

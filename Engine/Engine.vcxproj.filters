@@ -628,6 +628,10 @@
     <ClInclude Include="Source\FileIO\FileSystem\Path.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\Quantity\Private\TAbstractSpectralStrength.ipp" />
+    <ClInclude Include="Source\Core\Quantity\ColorSpace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">

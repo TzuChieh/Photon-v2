@@ -2,6 +2,7 @@
 #include "Math/Math.h"
 #include "FileIO/InputPacket.h"
 #include "Core/Texture/TextureLoader.h"
+#include "Common/assertion.h"
 
 #include <iostream>
 #include <string>
@@ -34,6 +35,8 @@ RgbPixelTexture::~RgbPixelTexture() = default;
 
 void RgbPixelTexture::sample(const Vector3R& uvw, real* out_value) const
 {
+	PH_ASSERT(out_value != nullptr);
+
 	Vector3R rgb;
 	RgbPixelTexture::sample(uvw, &rgb);
 	*out_value = rgb.x;
@@ -41,6 +44,8 @@ void RgbPixelTexture::sample(const Vector3R& uvw, real* out_value) const
 
 void RgbPixelTexture::sample(const Vector3R& uvw, Vector3R* out_value) const
 {
+	PH_ASSERT(out_value != nullptr);
+
 	const std::size_t baseIndex = calcSampleBaseIndex(uvw);
 	out_value->set(m_pixelData[baseIndex + 0],
 	               m_pixelData[baseIndex + 1], 
@@ -49,6 +54,8 @@ void RgbPixelTexture::sample(const Vector3R& uvw, Vector3R* out_value) const
 
 void RgbPixelTexture::sample(const Vector3R& uvw, SpectralStrength* const out_value) const
 {
+	PH_ASSERT(out_value != nullptr);
+
 	Vector3R rgb;
 	RgbPixelTexture::sample(uvw, &rgb);
 	out_value->setRgb(rgb);
@@ -64,6 +71,8 @@ void RgbPixelTexture::resize(const uint32 widthPx, const uint32 heightPx)
 void RgbPixelTexture::setPixels(const uint32 x, const uint32 y, const uint32 widthPx, const uint32 heighPx,
                                 const real* const pixelData)
 {
+	PH_ASSERT(pixelData != nullptr);
+
 	if((x + widthPx > m_widthPx) || (y + heighPx > m_heightPx))
 	{
 		std::cerr << "warning: at PixelTexture::setPixels(), " 
