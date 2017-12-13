@@ -4,6 +4,7 @@
 #include "Math/TQuaternion.h"
 #include "FileIO/Tokenizer.h"
 #include "Math/Math.h"
+#include "Common/assertion.h"
 
 #include <cmath>
 #include <string>
@@ -87,6 +88,8 @@ template<typename T>
 void TVector3<T>::rotate(const TQuaternion<T>& rotation, 
                          TVector3* const out_result) const
 {
+	PH_ASSERT(out_result != nullptr && out_result != this);
+
 	const TQuaternion<T>& conjugatedRotation = rotation.conjugate();
 	const TQuaternion<T>& result = rotation.mul(*this).mulLocal(conjugatedRotation);
 
@@ -198,6 +201,8 @@ template<typename T>
 inline void TVector3<T>::cross(const TVector3& rhs, 
                                TVector3* const out_result) const
 {
+	PH_ASSERT(out_result != nullptr && out_result != this);
+
 	out_result->x = y * rhs.z - z * rhs.y;
 	out_result->y = z * rhs.x - x * rhs.z;
 	out_result->z = x * rhs.y - y * rhs.x;
@@ -232,6 +237,8 @@ template<typename T>
 inline void TVector3<T>::add(const TVector3& rhs, 
                              TVector3* const out_result) const
 {
+	PH_ASSERT(out_result != nullptr && out_result != this);
+
 	out_result->x = x + rhs.x;
 	out_result->y = y + rhs.y;
 	out_result->z = z + rhs.z;
@@ -291,6 +298,8 @@ template<typename T>
 inline void TVector3<T>::sub(const TVector3& rhs, 
                              TVector3* const out_result) const
 {
+	PH_ASSERT(out_result != nullptr && out_result != this);
+
 	out_result->x = x - rhs.x;
 	out_result->y = y - rhs.y;
 	out_result->z = z - rhs.z;
@@ -326,6 +335,8 @@ template<typename T>
 inline void TVector3<T>::mul(const TVector3& rhs, 
                              TVector3* const out_result) const
 {
+	PH_ASSERT(out_result != nullptr && out_result != this);
+
 	out_result->x = x * rhs.x;
 	out_result->y = y * rhs.y;
 	out_result->z = z * rhs.z;
@@ -341,6 +352,8 @@ template<typename T>
 inline void TVector3<T>::mul(const T rhs, 
                              TVector3* const out_result) const
 {
+	PH_ASSERT(out_result != nullptr && out_result != this);
+
 	out_result->x = x * rhs;
 	out_result->y = y * rhs;
 	out_result->z = z * rhs;
@@ -506,6 +519,8 @@ inline TVector3<T>& TVector3<T>::reflectLocal(const TVector3& normal)
 template<typename T>
 inline void TVector3<T>::sort(TVector3* const out_result) const
 {
+	PH_ASSERT(out_result != nullptr && out_result != this);
+
 	if(x > y)
 	{
 		if(x > z)
@@ -591,6 +606,8 @@ inline TVector3<T>& TVector3<T>::set(const TVector3& rhs)
 template<typename T>
 inline void TVector3<T>::set(TVector3* const out_value) const
 {
+	PH_ASSERT(out_value != nullptr && out_value != this);
+
 	out_value->x = x;
 	out_value->y = y;
 	out_value->z = z;
@@ -633,6 +650,8 @@ inline bool TVector3<T>::hasNegativeComponent() const
 template<typename T>
 inline T& TVector3<T>::operator [] (const int32 axisIndex)
 {
+	PH_ASSERT(axisIndex >= 0 && axisIndex <= 2);
+
 	switch(axisIndex)
 	{
 	case Math::X_AXIS: return x;
@@ -640,13 +659,14 @@ inline T& TVector3<T>::operator [] (const int32 axisIndex)
 	case Math::Z_AXIS: return z;
 	}
 
-	std::cerr << "warning: at TVector3<T>::operator [] (), axis index out of range (" << axisIndex << "), x is returned" << std::endl;
 	return x;
 }
 
 template<typename T>
 inline const T& TVector3<T>::operator [] (const int32 axisIndex) const
 {
+	PH_ASSERT(axisIndex >= 0 && axisIndex <= 2);
+
 	switch(axisIndex)
 	{
 	case Math::X_AXIS: return x;
@@ -654,7 +674,6 @@ inline const T& TVector3<T>::operator [] (const int32 axisIndex) const
 	case Math::Z_AXIS: return z;
 	}
 
-	std::cerr << "warning: at TVector3<T>::operator [] (), axis index out of range (" << axisIndex << "), x is returned" << std::endl;
 	return x;
 }
 

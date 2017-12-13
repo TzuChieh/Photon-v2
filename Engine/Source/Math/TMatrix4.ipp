@@ -3,6 +3,7 @@
 #include "Math/TMatrix4.h"
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
+#include "Common/assertion.h"
 
 #include <cmath>
 
@@ -176,6 +177,8 @@ inline TMatrix4<T> TMatrix4<T>::mul(const TMatrix4& rhs) const
 template<typename T>
 inline void TMatrix4<T>::mul(const TMatrix4& rhs, TMatrix4* const out_result) const
 {
+	PH_ASSERT(out_result != nullptr && out_result != this);
+
 	for(uint32 i = 0; i < 4; i++)
 	{
 		for(uint32 j = 0; j < 4; j++)
@@ -191,6 +194,8 @@ inline void TMatrix4<T>::mul(const TMatrix4& rhs, TMatrix4* const out_result) co
 template<typename T>
 inline void TMatrix4<T>::mul(const TVector3<T>& rhsXYZ, const T rhsW, TVector3<T>* const out_result) const
 {
+	PH_ASSERT(out_result != nullptr && out_result != &rhsXYZ);
+
 	out_result->x = m[0][0] * rhsXYZ.x + m[0][1] * rhsXYZ.y + m[0][2] * rhsXYZ.z + m[0][3] * rhsW;
 	out_result->y = m[1][0] * rhsXYZ.x + m[1][1] * rhsXYZ.y + m[1][2] * rhsXYZ.z + m[1][3] * rhsW;
 	out_result->z = m[2][0] * rhsXYZ.x + m[2][1] * rhsXYZ.y + m[2][2] * rhsXYZ.z + m[2][3] * rhsW;
@@ -225,6 +230,8 @@ inline TMatrix4<T>& TMatrix4<T>::mulLocal(const T rhs)
 template<typename T>
 inline TMatrix4<T>& TMatrix4<T>::inverse(TMatrix4* const out_result) const
 {
+	PH_ASSERT(out_result != nullptr && out_result != this);
+
 	out_result->m[0][0] = m[1][2] * m[2][3] * m[3][1] - m[1][3] * m[2][2] * m[3][1] + m[1][3] * m[2][1] * m[3][2]
 	                    - m[1][1] * m[2][3] * m[3][2] - m[1][2] * m[2][1] * m[3][3] + m[1][1] * m[2][2] * m[3][3];
 	out_result->m[0][1] = m[0][3] * m[2][2] * m[3][1] - m[0][2] * m[2][3] * m[3][1] - m[0][3] * m[2][1] * m[3][2]
