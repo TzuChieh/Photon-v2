@@ -12,6 +12,7 @@ enum class ETypeCategory
 	REF_MOTION,
 	REF_LIGHT_SOURCE, 
 	REF_ACTOR, 
+	REF_IMAGE,
 
 	// core command related types
 	REF_CAMERA,

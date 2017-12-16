@@ -26,6 +26,7 @@ std::string SdlTypeInfo::categoryToName(const ETypeCategory typeCategory)
 	case ETypeCategory::REF_FILM:             categoryName = "film";             break;
 	case ETypeCategory::REF_INTEGRATOR:       categoryName = "integrator";       break;
 	case ETypeCategory::REF_SAMPLE_GENERATOR: categoryName = "sample-generator"; break;
+	case ETypeCategory::REF_IMAGE:            categoryName = "image";            break;
 
 	default:
 		std::cerr << "warning: at SdlTypeInfo::categoryToName() " 
@@ -50,7 +51,8 @@ ETypeCategory SdlTypeInfo::nameToCategory(const std::string& name)
 		{categoryToName(ETypeCategory::REF_CAMERA),           ETypeCategory::REF_CAMERA},
 		{categoryToName(ETypeCategory::REF_FILM),             ETypeCategory::REF_FILM},
 		{categoryToName(ETypeCategory::REF_INTEGRATOR),       ETypeCategory::REF_INTEGRATOR},
-		{categoryToName(ETypeCategory::REF_SAMPLE_GENERATOR), ETypeCategory::REF_SAMPLE_GENERATOR}
+		{categoryToName(ETypeCategory::REF_SAMPLE_GENERATOR), ETypeCategory::REF_SAMPLE_GENERATOR},
+		{categoryToName(ETypeCategory::REF_IMAGE),            ETypeCategory::REF_IMAGE}
 	};
 
 	const auto& iter = map.find(name);
