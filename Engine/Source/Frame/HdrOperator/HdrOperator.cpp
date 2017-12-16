@@ -1,4 +1,4 @@
-#include "PostProcess/HdrOperator/HdrOperator.h"
+#include "Frame/HdrOperator/HdrOperator.h"
 
 namespace ph
 {

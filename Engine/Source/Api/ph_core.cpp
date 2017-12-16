@@ -5,11 +5,12 @@
 #include "FileIO/DescriptionParser.h"
 #include "Core/Camera/Camera.h"
 #include "Api/test_scene.h"
-#include "PostProcess/Frame.h"
+#include "Frame/TFrame.h"
 #include "Math/TArithmeticArray.h"
 #include "Api/init_and_exit.h"
 #include "Core/Renderer/Renderer.h"
 #include "FileIO/FileSystem/Path.h"
+#include "Common/assertion.h"
 
 #include <memory>
 #include <iostream>
@@ -94,8 +95,8 @@ void phDevelopFilm(const PHuint64 engineId, const PHuint64 frameId)
 {
 	using namespace ph;
 
-	Engine* engine = ApiDatabase::getEngine(engineId);
-	Frame*  frame  = ApiDatabase::getFrame(frameId);
+	Engine*       engine = ApiDatabase::getEngine(engineId);
+	TFrame<real>* frame  = ApiDatabase::getFrame(frameId);
 	if(engine && frame)
 	{
 		engine->developFilm(*frame);
@@ -118,7 +119,7 @@ void phGetFilmDimension(const PHuint64 engineId, PHuint32* const out_widthPx, PH
 void phCreateFrame(PHuint64* const out_frameId,
                    const PHuint32 widthPx, const PHuint32 heightPx)
 {
-	auto frame = std::make_unique<ph::Frame>(widthPx, heightPx);
+	auto frame = std::make_unique<ph::TFrame<ph::real>>(widthPx, heightPx);
 	*out_frameId = ph::ApiDatabase::addFrame(std::move(frame));
 
 	std::cout << "Frame<" << *out_frameId << "> created" << std::endl;
@@ -129,7 +130,7 @@ void phGetFrameDimension(const PHuint64 frameId,
 {
 	using namespace ph;
 
-	Frame* frame = ApiDatabase::getFrame(frameId);
+	TFrame<real>* frame = ApiDatabase::getFrame(frameId);
 	if(frame)
 	{
 		*out_widthPx  = static_cast<PHuint32>(frame->widthPx());
@@ -139,12 +140,15 @@ void phGetFrameDimension(const PHuint64 frameId,
 
 void phGetFrameRgbData(const PHuint64 frameId, const PHfloat32** const out_data)
 {
+	// TODO: static assertion
+	PH_ASSERT(sizeof(PHfloat32) == sizeof(ph::real));
+
 	using namespace ph;
 
-	Frame* frame = ApiDatabase::getFrame(frameId);
+	TFrame<real>* frame = ApiDatabase::getFrame(frameId);
 	if(frame)
 	{
-		*out_data = frame->getRgbData();
+		*out_data = static_cast<const PHfloat32*>(frame->getPixelData());
 	}
 }
 
@@ -211,8 +215,8 @@ void phAsyncDevelopFilmRegion(const PHuint64 engineId, const PHuint64 frameId,
 {
 	using namespace ph;
 
-	Engine* engine = ApiDatabase::getEngine(engineId);
-	Frame*  frame  = ApiDatabase::getFrame(frameId);
+	Engine*       engine = ApiDatabase::getEngine(engineId);
+	TFrame<real>* frame  = ApiDatabase::getFrame(frameId);
 	if(engine && frame)
 	{
 		const Renderer::Region region({xPx, yPx}, {xPx + widthPx, yPx + heightPx});

@@ -111,7 +111,7 @@ ERegionStatus BulkRenderer::asyncPollUpdatedRegion(Region* const out_region)
 	}
 }
 
-void BulkRenderer::asyncDevelopFilmRegion(Frame& out_frame, const Region& region)
+void BulkRenderer::asyncDevelopFilmRegion(TFrame<real>& out_frame, const Region& region)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 

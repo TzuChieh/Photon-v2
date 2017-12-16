@@ -14,7 +14,9 @@
 namespace ph
 {
 
-class Frame;
+template<typename ComponentType>
+class TFrame;
+
 class Path;
 
 class Engine final
@@ -25,12 +27,12 @@ public:
 	void enterCommand(const std::string& commandFragment);
 	void update();
 	void render();
-	void developFilm(Frame& out_frame);
+	void developFilm(TFrame<real>& out_frame);
 	TVector2<int64> getFilmDimensionPx() const;
 	void setNumRenderThreads(uint32 numThreads);
 
 	ERegionStatus asyncPollUpdatedRegion(Renderer::Region* out_region) const;
-	void asyncDevelopFilmRegion(Frame& out_frame, const Renderer::Region& region) const;
+	void asyncDevelopFilmRegion(TFrame<real>& out_frame, const Renderer::Region& region) const;
 	void asyncQueryStatistics(float32* out_percentageProgress,
 	                          float32* out_samplesPerSecond) const;
 

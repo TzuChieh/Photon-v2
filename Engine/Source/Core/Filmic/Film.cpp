@@ -1,6 +1,6 @@
 #include "Core/Filmic/Film.h"
 #include "Math/TVector3.h"
-#include "PostProcess/Frame.h"
+#include "Frame/TFrame.h"
 #include "FileIO/InputPacket.h"
 #include "Math/Function/TConstant2D.h"
 #include "Math/Function/TGaussian2D.h"
@@ -47,12 +47,12 @@ Film::Film(const int64 actualWidthPx, const int64 actualHeightPx,
 	}
 }
 
-void Film::develop(Frame& out_frame) const
+void Film::develop(TFrame<real>& out_frame) const
 {
 	developRegion(out_frame, m_effectiveWindowPx);
 }
 
-void Film::develop(Frame& out_frame, const TAABB2D<int64>& regionPx) const
+void Film::develop(TFrame<real>& out_frame, const TAABB2D<int64>& regionPx) const
 {
 	developRegion(out_frame, regionPx);
 }

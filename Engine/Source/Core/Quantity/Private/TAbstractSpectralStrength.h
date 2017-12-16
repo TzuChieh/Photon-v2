@@ -18,7 +18,7 @@ public:
 	inline TAbstractSpectralStrength();
 	inline TAbstractSpectralStrength(const TAbstractSpectralStrength& other);
 	inline TAbstractSpectralStrength(const TArithmeticArray<real, N>& other);
-	virtual inline ~TAbstractSpectralStrength() override;
+	virtual inline ~TAbstractSpectralStrength() override;// TODO: is this vdtor necessary?
 
 	inline Vector3R genRgb() const;
 	inline void setRgb(const Vector3R& rgb);

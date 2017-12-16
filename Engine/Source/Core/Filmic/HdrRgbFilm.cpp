@@ -1,6 +1,6 @@
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Math/TVector3.h"
-#include "PostProcess/Frame.h"
+#include "Frame/TFrame.h"
 #include "FileIO/InputPacket.h"
 #include "Core/Filmic/SampleFilter.h"
 #include "Math/Function/TConstant2D.h"
@@ -93,7 +93,7 @@ std::unique_ptr<Film> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindow
 	return std::move(childFilm);
 }
 
-void HdrRgbFilm::developRegion(Frame& out_frame, const TAABB2D<int64>& regionPx) const
+void HdrRgbFilm::developRegion(TFrame<real>& out_frame, const TAABB2D<int64>& regionPx) const
 {
 	if(out_frame.widthPx()  != m_actualResPx.x ||
 	   out_frame.heightPx() != m_actualResPx.y)
@@ -134,8 +134,8 @@ void HdrRgbFilm::developRegion(Frame& out_frame, const TAABB2D<int64>& regionPx)
 			sensorB = m_pixelRadianceSensors[filmIndex].accuB * reciWeight;
 
 			// TODO: prevent negative pixel
-			out_frame.setRgb(static_cast<uint32>(x), static_cast<uint32>(y),
-			                 TVector3<float32>(TVector3<float64>(sensorR, sensorG, sensorB)));
+			out_frame.setPixel(static_cast<uint32>(x), static_cast<uint32>(y),
+			                   Vector3R(TVector3<float64>(sensorR, sensorG, sensorB)));
 		}
 	}
 }

@@ -147,6 +147,7 @@
     <ClInclude Include="Source\Actor\Geometry\GWave.h" />
     <ClInclude Include="Source\Actor\Geometry\PrimitiveBuildingMaterial.h" />
     <ClInclude Include="Source\Actor\Image\Image.h" />
+    <ClInclude Include="Source\Actor\Image\PictureImage.h" />
     <ClInclude Include="Source\Actor\LightSource\AreaSource.h" />
     <ClInclude Include="Source\Actor\LightSource\EmitterBuildingMaterial.h" />
     <ClInclude Include="Source\Actor\LightSource\LightSource.h" />
@@ -319,10 +320,10 @@
     <ClInclude Include="Source\Math\Transform\Transform.h" />
     <ClInclude Include="Source\Math\TVector2.h" />
     <ClInclude Include="Source\Math\TVector3.h" />
-    <ClInclude Include="Source\PostProcess\Frame.h" />
-    <ClInclude Include="Source\PostProcess\HdrOperator\HdrOperator.h" />
-    <ClInclude Include="Source\PostProcess\PostProcessor.h" />
-    <ClInclude Include="Source\PostProcess\ToneMapper\ToneMapper.h" />
+    <ClInclude Include="Source\Frame\TFrame.h" />
+    <ClInclude Include="Source\Frame\HdrOperator\HdrOperator.h" />
+    <ClInclude Include="Source\Frame\PostProcessor.h" />
+    <ClInclude Include="Source\Frame\ToneMapper\ToneMapper.h" />
     <ClInclude Include="Source\Utility\Noncopyable.h" />
     <ClInclude Include="Source\Utility\TConstIteratorProxy.h" />
     <ClInclude Include="Source\Utility\TFixedSizeStack.h" />
@@ -349,6 +350,8 @@
     <ClCompile Include="Source\Actor\Geometry\GTriangle.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GTriangleMesh.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GWave.cpp" />
+    <ClCompile Include="Source\Actor\Image\Image.cpp" />
+    <ClCompile Include="Source\Actor\Image\PictureImage.cpp" />
     <ClCompile Include="Source\Actor\LightSource\AreaSource.cpp" />
     <ClCompile Include="Source\Actor\LightSource\LightSource.cpp" />
     <ClCompile Include="Source\Actor\Material\AbradedOpaque.cpp" />
@@ -470,9 +473,11 @@
     <ClCompile Include="Source\Math\Transform\DynamicLinearTranslation.cpp" />
     <ClCompile Include="Source\Math\Transform\StaticTransform.cpp" />
     <ClCompile Include="Source\Math\Transform\Transform.cpp" />
-    <ClCompile Include="Source\PostProcess\Frame.cpp" />
-    <ClCompile Include="Source\PostProcess\HdrOperator\HdrOperator.cpp" />
-    <ClCompile Include="Source\PostProcess\ToneMapper\ToneMapper.cpp" />
+    <ClInclude Include="Source\Frame\TFrame.ipp">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClCompile Include="Source\Frame\HdrOperator\HdrOperator.cpp" />
+    <ClCompile Include="Source\Frame\ToneMapper\ToneMapper.cpp" />
     <ClCompile Include="Source\Utility\Timer.cpp" />
     <ClCompile Include="Source\World\LightSampler\LightSampler.cpp" />
     <ClCompile Include="Source\World\LightSampler\UniformRandomLightSampler.cpp" />

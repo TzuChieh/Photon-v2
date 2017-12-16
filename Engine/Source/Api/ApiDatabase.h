@@ -8,7 +8,9 @@
 namespace ph
 {
 
-class Frame;
+template<typename ComponentType>
+class TFrame;
+
 class Engine;
 
 class ApiDatabase final
@@ -20,15 +22,15 @@ public:
 	static bool removeEngine(const std::size_t engineId);
 	static Engine* getEngine(const std::size_t engineId);
 
-	static std::size_t addFrame(std::unique_ptr<Frame> frame);
+	static std::size_t addFrame(std::unique_ptr<TFrame<real>> frame);
 	static bool removeFrame(const std::size_t frameId);
-	static Frame* getFrame(const std::size_t frameId);
+	static TFrame<real>* getFrame(const std::size_t frameId);
 
 private:
 	static std::mutex& MUTEX_LOCK();
 
-	static TStableIndexDenseArray<std::unique_ptr<Engine>>& ENGINES();
-	static TStableIndexDenseArray<std::unique_ptr<Frame>>&  FRAMES();
+	static TStableIndexDenseArray<std::unique_ptr<Engine>>&       ENGINES();
+	static TStableIndexDenseArray<std::unique_ptr<TFrame<real>>>& FRAMES();
 
 	static void clear();
 };

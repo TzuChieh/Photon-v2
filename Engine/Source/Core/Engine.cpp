@@ -1,5 +1,5 @@
 #include "Core/Engine.h"
-#include "PostProcess/Frame.h"
+#include "Frame/TFrame.h"
 #include "Core/Renderer/BulkRenderer.h"
 
 namespace ph
@@ -28,7 +28,7 @@ void Engine::render()
 	m_renderer->render(m_description);
 }
 
-void Engine::developFilm(Frame& out_frame)
+void Engine::developFilm(TFrame<real>& out_frame)
 {
 	m_description.getFilm()->develop(out_frame);
 }
@@ -48,7 +48,7 @@ ERegionStatus Engine::asyncPollUpdatedRegion(Renderer::Region* const out_region)
 	return m_renderer->asyncPollUpdatedRegion(out_region);
 }
 
-void Engine::asyncDevelopFilmRegion(Frame& out_frame, 
+void Engine::asyncDevelopFilmRegion(TFrame<real>& out_frame,
                                     const Renderer::Region& region) const
 {
 	m_renderer->asyncDevelopFilmRegion(out_frame, region);

@@ -61,7 +61,7 @@ ERegionStatus TiledRenderer::asyncPollUpdatedRegion(Region* out_region)
 	return ERegionStatus::INVALID;
 }
 
-void TiledRenderer::asyncDevelopFilmRegion(Frame& out_frame, const Region& region)
+void TiledRenderer::asyncDevelopFilmRegion(TFrame<real>& out_frame, const Region& region)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 

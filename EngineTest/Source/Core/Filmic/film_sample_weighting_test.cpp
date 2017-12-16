@@ -1,7 +1,7 @@
 #include "constants_for_test.h"
 
 #include <Core/Filmic/HdrRgbFilm.h>
-#include <PostProcess/Frame.h>
+#include <Frame/TFrame.h>
 #include <Core/Filmic/SampleFilterFactory.h>
 #include <Core/Quantity/SpectralStrength.h>
 
@@ -15,7 +15,7 @@ TEST(FilmSampleWeightingTest, HdrRgbFilmDevelopesToFrame)
 	const int64 filmWpx = 1;
 	const int64 filmHpx = 2;
 
-	Frame frame(static_cast<uint32>(filmWpx), static_cast<uint32>(filmHpx));
+	TFrame<float32> frame(static_cast<uint32>(filmWpx), static_cast<uint32>(filmHpx));
 	const auto& filter = std::make_shared<SampleFilter>(SampleFilterFactory::createGaussianFilter());
 	HdrRgbFilm film(static_cast<uint64>(filmWpx), static_cast<uint64>(filmHpx), filter);
 
@@ -32,7 +32,7 @@ TEST(FilmSampleWeightingTest, HdrRgbFilmDevelopesToFrame)
 	film.develop(frame);
 
 	TVector3<float32> pixelValue;
-	frame.getRgb(0, 0, &pixelValue);
+	frame.getPixel(0, 0, &pixelValue);
 
 	// r, g, b should be equal - since the input samples are monochrome
 	EXPECT_NEAR(pixelValue.x, pixelValue.y, TEST_FLOAT32_EPSILON);
