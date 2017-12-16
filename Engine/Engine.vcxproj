@@ -146,6 +146,7 @@
     <ClInclude Include="Source\Actor\Geometry\GTriangleMesh.h" />
     <ClInclude Include="Source\Actor\Geometry\GWave.h" />
     <ClInclude Include="Source\Actor\Geometry\PrimitiveBuildingMaterial.h" />
+    <ClInclude Include="Source\Actor\Image\Image.h" />
     <ClInclude Include="Source\Actor\LightSource\AreaSource.h" />
     <ClInclude Include="Source\Actor\LightSource\EmitterBuildingMaterial.h" />
     <ClInclude Include="Source\Actor\LightSource\LightSource.h" />
