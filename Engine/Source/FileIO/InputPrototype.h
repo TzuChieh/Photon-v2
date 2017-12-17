@@ -20,6 +20,8 @@ public:
 
 	std::string toString() const;
 
+	// TODO: prototype for shared resources
+
 	// TODO: auto resource extraction
 	// (extract resources from InputPacket automatically)
 };

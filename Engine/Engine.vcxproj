@@ -148,6 +148,7 @@
     <ClInclude Include="Source\Actor\Geometry\PrimitiveBuildingMaterial.h" />
     <ClInclude Include="Source\Actor\Image\Image.h" />
     <ClInclude Include="Source\Actor\Image\PictureImage.h" />
+    <ClInclude Include="Source\Actor\Image\LdrPictureImage.h" />
     <ClInclude Include="Source\Actor\LightSource\AreaSource.h" />
     <ClInclude Include="Source\Actor\LightSource\EmitterBuildingMaterial.h" />
     <ClInclude Include="Source\Actor\LightSource\LightSource.h" />
@@ -352,6 +353,7 @@
     <ClCompile Include="Source\Actor\Geometry\GTriangleMesh.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GWave.cpp" />
     <ClCompile Include="Source\Actor\Image\Image.cpp" />
+    <ClCompile Include="Source\Actor\Image\LdrPictureImage.cpp" />
     <ClCompile Include="Source\Actor\Image\PictureImage.cpp" />
     <ClCompile Include="Source\Actor\LightSource\AreaSource.cpp" />
     <ClCompile Include="Source\Actor\LightSource\LightSource.cpp" />

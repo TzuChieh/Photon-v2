@@ -13,18 +13,25 @@ class InputPacket;
 class SdlLoader final
 {
 public:
+	typedef std::function
+	<
+		std::unique_ptr<ISdlResource>(const InputPacket& packet)
+	> LoadFuncType;
+
 	inline SdlLoader() :
 		m_func(nullptr)
 	{
 
 	}
 
+	inline explicit SdlLoader(const LoadFuncType& func) :
+		m_func(func)
+	{
+
+	}
+
 	template<typename T>
-	inline void setFunc(
-		const std::function
-		<
-			std::unique_ptr<T>(const InputPacket& packet)
-		>& func)
+	inline void setFunc(const LoadFuncType& func)
 	{
 		m_func = [func](const InputPacket& pac)
 			-> std::unique_ptr<ISdlResource>
@@ -44,11 +51,6 @@ public:
 	}
 
 private:
-	typedef std::function
-	<
-		std::unique_ptr<ISdlResource>(const InputPacket& packet)
-	> LoadFuncType;
-
 	LoadFuncType m_func;
 };
 

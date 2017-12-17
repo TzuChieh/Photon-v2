@@ -9,6 +9,7 @@
 #include "Math/TVector3.h"
 #include "FileIO/InputPrototype.h"
 #include "FileIO/PictureLoader.h"
+#include "Actor/Image/Image.h"
 
 #include <iostream>
 
@@ -42,9 +43,16 @@ AreaSource::AreaSource(const std::string& imageFilename) :
 	}*/
 }
 
+AreaSource::AreaSource(const std::shared_ptr<Image>& emittedRadiance) :
+	m_emittedRadiance(emittedRadiance)
+{
+
+}
+
 AreaSource::~AreaSource() = default;
 
-std::unique_ptr<Emitter> AreaSource::buildEmitter(const EmitterBuildingMaterial& data) const
+std::unique_ptr<Emitter> AreaSource::genEmitter(
+	CookingContext& context, const EmitterBuildingMaterial& data) const
 {
 	if(data.primitives.empty())
 	{
@@ -74,27 +82,31 @@ std::unique_ptr<AreaSource> AreaSource::ciLoad(const InputPacket& packet)
 	InputPrototype rgbInput;
 	rgbInput.addVector3r("emitted-radiance");
 
-	InputPrototype imageInput;
-	imageInput.addString("emitted-radiance");
+	InputPrototype pictureFilenameInput;
+	pictureFilenameInput.addString("emitted-radiance");
 
 	if(packet.isPrototypeMatched(rgbInput))
 	{
-		const auto& emittedRadiance = packet.getVector3r("emitted-radiance", Vector3R(0), 
-		                                                 DataTreatment::REQUIRED());
+		const auto& emittedRadiance = packet.getVector3r(
+			"emitted-radiance", Vector3R(0), DataTreatment::REQUIRED());
 		return std::make_unique<AreaSource>(emittedRadiance);
 
 	}
-	else if(packet.isPrototypeMatched(imageInput))
+	else if(packet.isPrototypeMatched(pictureFilenameInput))
 	{
-		const auto& imageFilename = packet.getString("emitted-radiance", "", 
-		                                             DataTreatment::REQUIRED());
+		const auto& imageFilename = packet.getString(
+			"emitted-radiance", "", DataTreatment::REQUIRED());
 		return std::make_unique<AreaSource>(imageFilename);
 	}
 	else
 	{
-		std::cerr << "warning: at AreaSource::ciLoad(), invalid input format" << std::endl;
-		return std::make_unique<AreaSource>(Vector3R(1, 1, 1));
+		const auto& image = packet.get<Image>(
+			"emitted-radiance", DataTreatment::REQUIRED());
+		auto source = std::make_unique<AreaSource>();
 	}
+
+	std::cerr << "warning: at AreaSource::ciLoad(), invalid input format" << std::endl;
+	return std::make_unique<AreaSource>(Vector3R(1, 1, 1));
 }
 
 }// end namespace ph
