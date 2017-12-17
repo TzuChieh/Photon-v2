@@ -8,6 +8,7 @@
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "Math/TVector3.h"
 #include "FileIO/InputPrototype.h"
+#include "FileIO/PictureLoader.h"
 
 #include <iostream>
 
@@ -26,7 +27,11 @@ AreaSource::AreaSource(const std::string& imageFilename) :
 	m_emittedRadiance(std::make_shared<ConstantTexture>(Vector3R(0, 0, 0)))
 {
 	std::shared_ptr<RgbPixelTexture> image = std::make_shared<RgbPixelTexture>();
-	TextureLoader loader;
+
+	image->setPixels(PictureLoader::loadLdr(Path(imageFilename)));
+	m_emittedRadiance = image;
+
+	/*TextureLoader loader;
 	if(loader.load(imageFilename, image.get()))
 	{
 		m_emittedRadiance = image;
@@ -34,7 +39,7 @@ AreaSource::AreaSource(const std::string& imageFilename) :
 	else
 	{
 		std::cerr << "warning: at AreaSource::AreaSource(), image loading failed" << std::endl;
-	}
+	}*/
 }
 
 AreaSource::~AreaSource() = default;

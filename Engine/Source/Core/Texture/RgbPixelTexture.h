@@ -3,11 +3,15 @@
 #include "Core/Texture/Texture.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
+#include "Frame/TFrame.h"
 
 #include <vector>
 
 namespace ph
 {
+
+template<typename ComponentType>
+class TFrame;
 
 class RgbPixelTexture final : public Texture
 {
@@ -24,6 +28,13 @@ public:
 	void resize(uint32 widthPx, uint32 heightPx);
 	void setPixels(uint32 x, const uint32 y, uint32 widthPx, uint32 heighPx, 
 	               const real* pixelData);
+
+	// HACK
+	inline void setPixels(const TFrame<uint8>& ldrFrame)
+	{
+		resize(ldrFrame.widthPx(), ldrFrame.heightPx());
+		m_pixelData = ldrFrame.getRealData();
+	}
 
 private:
 	uint32 m_widthPx;

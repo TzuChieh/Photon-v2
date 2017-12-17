@@ -95,6 +95,11 @@ public:
 		return Path(pathStr);
 	}
 
+	inline std::string getExtension() const
+	{
+		return m_path.extension().string();
+	}
+
 	inline bool operator == (const Path& other) const
 	{
 		return m_path == other.m_path;

@@ -74,9 +74,11 @@ inline std::size_t TFrame<ComponentType>::calcPixelDataBaseIndex(
 }
 
 template<typename ComponentType>
-inline TFrame<ComponentType>& TFrame<ComponentType>::operator = (TFrame rhs)
+inline TFrame<ComponentType>& TFrame<ComponentType>::operator = (const TFrame& rhs)
 {
-	swap(*this, rhs);
+	m_widthPx   = rhs.m_widthPx;
+	m_heightPx  = rhs.m_heightPx;
+	m_pixelData = rhs.m_pixelData;
 
 	return *this;
 }

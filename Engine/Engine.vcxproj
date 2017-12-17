@@ -284,6 +284,7 @@
     <ClInclude Include="Source\FileIO\InputPrototype.h" />
     <ClInclude Include="Source\FileIO\Keyword.h" />
     <ClInclude Include="Source\FileIO\NamedResourceStorage.h" />
+    <ClInclude Include="Source\FileIO\PictureLoader.h" />
     <ClInclude Include="Source\FileIO\RenderOption.h" />
     <ClInclude Include="Source\FileIO\SDL\CommandEntry.h" />
     <ClInclude Include="Source\FileIO\SDL\CommandRegister.h" />
@@ -461,6 +462,7 @@
     <ClCompile Include="Source\FileIO\InputPrototype.cpp" />
     <ClCompile Include="Source\FileIO\Keyword.cpp" />
     <ClCompile Include="Source\FileIO\NamedResourceStorage.cpp" />
+    <ClCompile Include="Source\FileIO\PictureLoader.cpp" />
     <ClCompile Include="Source\FileIO\SDL\CommandEntry.cpp" />
     <ClCompile Include="Source\FileIO\SDL\ExitStatus.cpp" />
     <ClCompile Include="Source\FileIO\SDL\ISdlResource.cpp" />

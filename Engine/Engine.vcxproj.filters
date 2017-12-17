@@ -641,6 +641,9 @@
     <ClInclude Include="Source\Frame\TFrame.ipp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\FileIO\PictureLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">
@@ -1070,6 +1073,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Frame\ToneMapper\ToneMapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\FileIO\PictureLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

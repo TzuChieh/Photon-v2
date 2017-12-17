@@ -23,7 +23,7 @@ public:
 	inline void setPixel(uint32 x, uint32 y, const TVector3<ComponentType>& pixel);
 	inline const ComponentType* getPixelData() const;
 
-	inline TFrame& operator = (TFrame rhs);
+	inline TFrame& operator = (const TFrame& rhs);
 	inline TFrame& operator = (TFrame&& rhs);
 
 	inline uint32 widthPx() const
@@ -41,7 +41,24 @@ public:
 		return m_pixelData.size();
 	}
 
+	inline bool isEmpty() const
+	{
+		return m_pixelData.empty();
+	}
+
 	friend inline void swap(TFrame& first, TFrame& second);
+
+	// HACK
+	inline std::vector<real> getRealData() const
+	{
+		std::vector<real> realData;
+		for(std::size_t i = 0; i < m_pixelData.size(); i++)
+		{
+			realData.push_back(m_pixelData[i] / 255.0_r);
+		}
+
+		return realData;
+	}
 
 private:
 	uint32 m_widthPx;
