@@ -38,15 +38,24 @@ def mangled_actor_light_name(obj, name, suffix):
 
 class Exporter:
 
-	def __init__(self, filename):
-		self.__filename = filename
-		self.__p2File   = None
+	def __init__(self, file_path):
+		self.__file_path = file_path
+		self.__p2File    = None
 
 	def begin(self):
-		filename = self.__filename
+
+		file_path            = self.__file_path
+		folder_path          = utility.get_folder_path(file_path)
+		filename             = utility.get_filename(file_path)
+		filename_without_ext = utility.get_filename_without_ext(file_path)
+		scene_folder_path    = folder_path + filename_without_ext + utility.path_separator()
+		scene_file_path      = scene_folder_path + filename + ".p2"
+
 		print("-------------------------------------------------------------")
-		print("exporting p2 file to <%s>" % filename)
-		self.__p2File = open(filename, "w", encoding = "utf-8")
+		print("exporting Photon scene to <%s>" % scene_folder_path)
+
+		utility.create_folder(scene_folder_path)
+		self.__p2File = open(scene_file_path, "w", encoding = "utf-8")
 
 	def end(self):
 		self.__p2File.close()
@@ -446,12 +455,12 @@ class P2Exporter(Operator, ExportHelper):
 	bl_label  = "export p2"
 
 	# ExportHelper mixin class uses this
-	filename_ext = ".p2"
+	filename_ext = ""
 
-	filter_glob = StringProperty(
-		default="*.p2",
-		options={"HIDDEN"},
-	)
+	# filter_glob = StringProperty(
+	# 	default="*.p2",
+	# 	options={"HIDDEN"},
+	# )
 
 	# List of operator properties, the attributes will be assigned
 	# to the class instance from the operator settings before calling.
@@ -485,7 +494,7 @@ class P2Exporter(Operator, ExportHelper):
 
 # Only needed if you want to add into a dynamic menu
 def menu_func_export(self, context):
-	self.layout.operator(P2Exporter.bl_idname, text = "P2 (.p2)")
+	self.layout.operator(P2Exporter.bl_idname, text = "Photon Scene (.p2)")
 
 
 def register():
