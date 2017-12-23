@@ -7,6 +7,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/random_sample.h"
 #include "Math/Math.h"
 #include "Core/Texture/TSampler.h"
+#include "Core/Texture/TConstantTexture.h"
 
 #include <cmath>
 
@@ -15,14 +16,15 @@ namespace ph
 
 LambertianDiffuse::LambertianDiffuse() :
 	SurfaceOptics(),
-	m_albedo(std::make_shared<ConstantTexture>(Vector3R(0.5_r, 0.5_r, 0.5_r)))
+	m_albedo(std::make_shared<TConstantTexture<SpectralStrength>>(0.5_r))
 {
 	
 }
 
 LambertianDiffuse::~LambertianDiffuse() = default;
 
-void LambertianDiffuse::setAlbedo(const std::shared_ptr<Texture>& albedo)
+void LambertianDiffuse::setAlbedo(
+	const std::shared_ptr<TTexture<SpectralStrength>>& albedo)
 {
 	m_albedo = albedo;
 }

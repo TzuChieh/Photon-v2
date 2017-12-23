@@ -4,6 +4,7 @@ import bpy
 
 
 class PhotonRenderer(bpy.types.RenderEngine):
+
 	# These three members are used by blender to set up the
 	# RenderEngine; define its internal name, visible name and capabilities.
 	bl_idname      = settings.renderer_id_name
@@ -15,7 +16,8 @@ class PhotonRenderer(bpy.types.RenderEngine):
 		pass
 
 
-class PhRenderPanel:
+class PhRenderPanel(bpy.types.Panel):
+
 	bl_space_type  = "PROPERTIES"
 	bl_region_type = "WINDOW"
 	bl_context     = "render"
@@ -28,8 +30,9 @@ class PhRenderPanel:
 		return render_settings.engine in cls.COMPATIBLE_ENGINES
 
 
-class PhSamplingPanel(PhRenderPanel, bpy.types.Panel):
-	bl_label = "Sampling"
+class PhSamplingPanel(PhRenderPanel):
+
+	bl_label = "PR - Sampling"
 
 	bpy.types.Scene.ph_render_num_spp = bpy.props.IntProperty(
 		name        = "Samples per Pixel",
@@ -51,13 +54,24 @@ class PhSamplingPanel(PhRenderPanel, bpy.types.Panel):
 	)
 
 	def draw(self, context):
+
 		scene  = context.scene
 		layout = self.layout
 
 		layout.prop(scene, "ph_render_num_spp")
 		layout.prop(scene, "ph_render_sample_filter_type")
 
-render_panel_types = [PhSamplingPanel]
+
+class PhOptionsPanel(PhRenderPanel):
+
+	bl_label = "PR - Options"
+
+	def draw(self, context):
+
+		pass
+
+
+render_panel_types = [PhSamplingPanel, PhOptionsPanel]
 
 
 def register():

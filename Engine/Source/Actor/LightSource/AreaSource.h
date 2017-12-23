@@ -9,14 +9,12 @@
 
 namespace ph
 {
-
-class Texture;
 class Image;
 
 class AreaSource final : public LightSource, public TCommandInterface<AreaSource>
 {
 public:
-	AreaSource(const Vector3R& emittedRadiance);
+	AreaSource(const Vector3R& emittedRgbRadiance);
 	AreaSource(const std::string& imageFilename);
 	AreaSource(const std::shared_ptr<Image>& emittedRadiance);
 	virtual ~AreaSource() override;

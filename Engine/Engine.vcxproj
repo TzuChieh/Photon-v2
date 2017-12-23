@@ -267,10 +267,10 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\Microfacet.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxConductorDielectricFresnel.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxDielectricFresnel.h" />
-    <ClInclude Include="Source\Core\Texture\CheckerboardTexture.h" />
-    <ClInclude Include="Source\Core\Texture\ConstantTexture.h" />
-    <ClInclude Include="Source\Core\Texture\RgbPixelTexture.h" />
-    <ClInclude Include="Source\Core\Texture\Texture.h" />
+    <ClInclude Include="Source\Core\Texture\TCheckerboardTexture.h" />
+    <ClInclude Include="Source\Core\Texture\TConstantTexture.h" />
+    <ClInclude Include="Source\Core\Texture\LdrRgbTexture2D.h" />
+    <ClInclude Include="Source\Core\Texture\TTexture.h" />
     <ClInclude Include="Source\Core\Texture\TextureChannel.h" />
     <ClInclude Include="Source\Core\Texture\TextureLoader.h" />
     <ClInclude Include="Source\Core\Texture\TSampler.h" />
@@ -449,10 +449,16 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\Microfacet.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxConductorDielectricFresnel.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxDielectricFresnel.cpp" />
-    <ClCompile Include="Source\Core\Texture\CheckerboardTexture.cpp" />
-    <ClCompile Include="Source\Core\Texture\ConstantTexture.cpp" />
-    <ClCompile Include="Source\Core\Texture\RgbPixelTexture.cpp" />
-    <ClCompile Include="Source\Core\Texture\Texture.cpp" />
+    <ClInclude Include="Source\Core\Texture\TCheckerboardTexture.ipp">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Texture\TConstantTexture.ipp">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClCompile Include="Source\Core\Texture\LdrRgbTexture2D.cpp" />
+    <ClInclude Include="Source\Core\Texture\TTexture.ipp">
+      <FileType>Document</FileType>
+    </ClInclude>
     <ClCompile Include="Source\Core\Texture\TextureChannel.cpp" />
     <ClCompile Include="Source\Core\Texture\TextureLoader.cpp" />
     <ClCompile Include="Source\Core\Texture\UvwMapper\SphericalMapper.cpp" />

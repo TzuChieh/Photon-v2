@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Core/Texture/Texture.h"
+#include "Core/Texture/TTexture.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Frame/TFrame.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <vector>
 
@@ -13,16 +14,13 @@ namespace ph
 template<typename ComponentType>
 class TFrame;
 
-class RgbPixelTexture final : public Texture
+class LdrRgbTexture2D final : public TTexture<SpectralStrength>
 {
 public:
-	RgbPixelTexture();
-	RgbPixelTexture(uint32 widthPx, uint32 heightPx);
-	RgbPixelTexture(const InputPacket& packet);
-	virtual ~RgbPixelTexture() override;
+	LdrRgbTexture2D();
+	LdrRgbTexture2D(uint32 widthPx, uint32 heightPx);
+	virtual ~LdrRgbTexture2D() override;
 
-	virtual void sample(const Vector3R& uvw, real* out_value) const override;
-	virtual void sample(const Vector3R& uvw, Vector3R* out_value) const override;
 	virtual void sample(const Vector3R& uvw, SpectralStrength* out_value) const override;
 
 	void resize(uint32 widthPx, uint32 heightPx);

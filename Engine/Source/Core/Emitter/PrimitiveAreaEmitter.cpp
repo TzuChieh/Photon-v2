@@ -2,7 +2,7 @@
 #include "Math/TVector3.h"
 #include "Actor/Geometry/Geometry.h"
 #include "Core/HitDetail.h"
-#include "Core/Texture/ConstantTexture.h"
+#include "Core/Texture/TConstantTexture.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Math/Random.h"
 #include "Core/Sample/PositionSample.h"
@@ -10,6 +10,7 @@
 #include "Core/Ray.h"
 #include "Math/constant.h"
 #include "Core/Texture/TSampler.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <iostream>
 #include <algorithm>
@@ -20,7 +21,8 @@ namespace ph
 
 PrimitiveAreaEmitter::PrimitiveAreaEmitter(const std::vector<const Primitive*>& primitives) :
 	Emitter(), 
-	m_primitives(primitives), m_emittedRadiance(std::make_shared<ConstantTexture>(Vector3R(0, 0, 0)))
+	m_primitives(primitives), 
+	m_emittedRadiance(std::make_shared<TConstantTexture<SpectralStrength>>(1))
 {
 	if(primitives.empty())
 	{
@@ -164,7 +166,8 @@ void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* c
 	m_emittedRadiance->sample(tPositionSample.uvw, out_Le);
 }
 
-void PrimitiveAreaEmitter::setEmittedRadiance(const std::shared_ptr<Texture>& emittedRadiance)
+void PrimitiveAreaEmitter::setEmittedRadiance(
+	const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance)
 {
 	m_emittedRadiance = emittedRadiance;
 }

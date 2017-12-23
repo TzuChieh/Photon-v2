@@ -1,4 +1,4 @@
-#include "Core/Texture/RgbPixelTexture.h"
+#include "Core/Texture/LdrRgbTexture2D.h"
 #include "Math/Math.h"
 #include "FileIO/InputPacket.h"
 #include "Core/Texture/TextureLoader.h"
@@ -10,65 +10,41 @@
 namespace ph
 {
 
-RgbPixelTexture::RgbPixelTexture() :
-	RgbPixelTexture(0, 0)
+LdrRgbTexture2D::LdrRgbTexture2D() :
+	RgbTexture2D(0, 0)
 {
 
 }
 
-RgbPixelTexture::RgbPixelTexture(const uint32 widthPx, const uint32 heightPx) :
-	Texture(), 
+LdrRgbTexture2D::LdrRgbTexture2D(const uint32 widthPx, const uint32 heightPx) :
+	TTexture(), 
 	m_widthPx(widthPx), m_heightPx(heightPx),
 	m_pixelData(static_cast<std::size_t>(widthPx) * heightPx * 3, 0.0_r)
 {
 
 }
 
-RgbPixelTexture::RgbPixelTexture(const InputPacket& packet) :
-	Texture(packet)
-{
-	const std::string filename = packet.getString("filename", "", DataTreatment::REQUIRED());
-	TextureLoader().load(filename, this);
-}
+LdrRgbTexture2D::~LdrRgbTexture2D() = default;
 
-RgbPixelTexture::~RgbPixelTexture() = default;
-
-void RgbPixelTexture::sample(const Vector3R& uvw, real* out_value) const
-{
-	PH_ASSERT(out_value != nullptr);
-
-	Vector3R rgb;
-	RgbPixelTexture::sample(uvw, &rgb);
-	*out_value = rgb.x;
-}
-
-void RgbPixelTexture::sample(const Vector3R& uvw, Vector3R* out_value) const
+void LdrRgbTexture2D::sample(const Vector3R& uvw, SpectralStrength* const out_value) const
 {
 	PH_ASSERT(out_value != nullptr);
 
 	const std::size_t baseIndex = calcSampleBaseIndex(uvw);
-	out_value->set(m_pixelData[baseIndex + 0],
-	               m_pixelData[baseIndex + 1], 
-	               m_pixelData[baseIndex + 2]);
-}
-
-void RgbPixelTexture::sample(const Vector3R& uvw, SpectralStrength* const out_value) const
-{
-	PH_ASSERT(out_value != nullptr);
-
-	Vector3R rgb;
-	RgbPixelTexture::sample(uvw, &rgb);
+	const Vector3R rgb(m_pixelData[baseIndex + 0],
+	                   m_pixelData[baseIndex + 1], 
+	                   m_pixelData[baseIndex + 2]);
 	out_value->setRgb(rgb);
 }
 
-void RgbPixelTexture::resize(const uint32 widthPx, const uint32 heightPx)
+void LdrRgbTexture2D::resize(const uint32 widthPx, const uint32 heightPx)
 {
 	m_widthPx   = widthPx;
 	m_heightPx  = heightPx;
 	m_pixelData = std::vector<real>(static_cast<std::size_t>(widthPx) * heightPx * 3, 0.0_r);
 }
 
-void RgbPixelTexture::setPixels(const uint32 x, const uint32 y, const uint32 widthPx, const uint32 heighPx,
+void LdrRgbTexture2D::setPixels(const uint32 x, const uint32 y, const uint32 widthPx, const uint32 heighPx,
                                 const real* const pixelData)
 {
 	PH_ASSERT(pixelData != nullptr);
@@ -93,7 +69,7 @@ void RgbPixelTexture::setPixels(const uint32 x, const uint32 y, const uint32 wid
 	}
 }
 
-std::size_t RgbPixelTexture::calcSampleBaseIndex(const Vector3R& uvw) const
+std::size_t LdrRgbTexture2D::calcSampleBaseIndex(const Vector3R& uvw) const
 {
 	const real u = uvw.x;
 	const real v = uvw.y;

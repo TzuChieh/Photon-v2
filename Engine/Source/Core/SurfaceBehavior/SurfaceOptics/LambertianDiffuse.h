@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Core/Texture/Texture.h"
-#include "Core/Texture/ConstantTexture.h"
+#include "Core/Texture/TTexture.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <memory>
 
@@ -15,7 +15,7 @@ public:
 	LambertianDiffuse();
 	virtual ~LambertianDiffuse() override;
 
-	void setAlbedo(const std::shared_ptr<Texture>& albedo);
+	void setAlbedo(const std::shared_ptr<TTexture<SpectralStrength>>& albedo);
 
 private:
 	virtual void evalBsdf(
@@ -35,7 +35,7 @@ private:
 		real* out_pdfW) const override;
 
 private:
-	std::shared_ptr<Texture> m_albedo;
+	std::shared_ptr<TTexture<SpectralStrength>> m_albedo;
 };
 
 }// end namespace ph

@@ -1,8 +1,8 @@
 #include "Actor/LightSource/AreaSource.h"
 #include "Actor/AModel.h"
 #include "Core/Emitter/PrimitiveAreaEmitter.h"
-#include "Core/Texture/ConstantTexture.h"
-#include "Core/Texture/RgbPixelTexture.h"
+#include "Core/Texture/TConstantTexture.h"
+#include "Core/Texture/LdrRgbTexture2D.h"
 #include "Core/Texture/TextureLoader.h"
 #include "FileIO/InputPacket.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
@@ -16,18 +16,20 @@
 namespace ph
 {
 
-AreaSource::AreaSource(const Vector3R& emittedRadiance) :
+AreaSource::AreaSource(const Vector3R& emittedRgbRadiance) :
 	LightSource(), 
-	m_emittedRadiance(std::make_shared<ConstantTexture>(emittedRadiance))
+	m_emittedRadiance(nullptr)
 {
-
+	SpectralStrength radiance;
+	radiance.setRgb(emittedRgbRadiance);
+	m_emittedRadiance = std::make_shared<TConstantTexture<SpectralStrength>>(radiance)
 }
 
 AreaSource::AreaSource(const std::string& imageFilename) : 
 	LightSource(), 
-	m_emittedRadiance(std::make_shared<ConstantTexture>(Vector3R(0, 0, 0)))
+	m_emittedRadiance(std::make_shared<TConstantTexture<SpectralStrength>>(0))
 {
-	std::shared_ptr<RgbPixelTexture> image = std::make_shared<RgbPixelTexture>();
+	std::shared_ptr<LdrRgbTexture2D> image = std::make_shared<LdrRgbTexture2D>();
 
 	image->setPixels(PictureLoader::loadLdr(Path(imageFilename)));
 	m_emittedRadiance = image;
@@ -61,7 +63,7 @@ std::unique_ptr<Emitter> AreaSource::genEmitter(
 	}
 	
 	std::unique_ptr<PrimitiveAreaEmitter> emitter = std::make_unique<PrimitiveAreaEmitter>(data.primitives);
-	emitter->setEmittedRadiance(m_emittedRadiance);
+	emitter->setEmittedRadiance(m_emittedRadiance->genTexture(context));
 	return std::move(emitter);
 }
 

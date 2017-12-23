@@ -2,7 +2,8 @@
 
 #include "Core/Emitter/Emitter.h"
 #include "Common/primitive_type.h"
-#include "Core/Texture/Texture.h"
+#include "Core/Texture/TTexture.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <memory>
 #include <vector>
@@ -24,10 +25,10 @@ public:
 	virtual void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;
 	virtual real calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const override;
 
-	void setEmittedRadiance(const std::shared_ptr<Texture>& emittedRadiance);
+	void setEmittedRadiance(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance);
 
 private:
-	std::shared_ptr<Texture> m_emittedRadiance;
+	std::shared_ptr<TTexture<SpectralStrength>> m_emittedRadiance;
 	std::vector<const Primitive*> m_primitives;
 	real m_reciExtendedArea;
 };

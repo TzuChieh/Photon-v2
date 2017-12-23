@@ -7,6 +7,7 @@
 #include "Core/SurfaceBehavior/Utility/IsoTrowbridgeReitz.h"
 #include "Core/SurfaceBehavior/Utility/SchlickApproxDielectricFresnel.h"
 #include "Math/Math.h"
+#include "Core/Texture/TConstantTexture.h"
 
 #include <cmath>
 #include <iostream>
@@ -16,7 +17,7 @@ namespace ph
 
 OpaqueMicrofacet::OpaqueMicrofacet() :
 	SurfaceOptics(),
-	m_albedo    (std::make_shared<ConstantTexture>(Vector3R(0.5_r,  0.5_r,  0.5_r))),
+	m_albedo    (std::make_shared<TConstantTexture<SpectralStrength>>(0.5_r)),
 	m_microfacet(std::make_shared<IsoTrowbridgeReitz>(0.5_r)),
 	m_fresnel   (std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r))
 {

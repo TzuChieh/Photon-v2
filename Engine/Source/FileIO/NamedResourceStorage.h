@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Actor/Geometry/Geometry.h"
-#include "Core/Texture/Texture.h"
 #include "Actor/Material/Material.h"
 #include "Actor/LightSource/LightSource.h"
 #include "Actor/AModel.h"
