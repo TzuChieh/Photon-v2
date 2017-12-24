@@ -561,9 +561,6 @@
     <ClInclude Include="Source\Math\TVector3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Utility\Noncopyable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Utility\TConstIteratorProxy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -655,6 +652,16 @@
     </ClInclude>
     <ClInclude Include="Source\Core\Texture\TCheckerboardTexture.ipp">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\TFixedSizeStack.ipp" />
+    <ClInclude Include="Source\Utility\INoncopyable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\Image\ConstantImage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Common\utility.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1082,6 +1089,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Texture\LdrRgbTexture2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Actor\Image\ConstantImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

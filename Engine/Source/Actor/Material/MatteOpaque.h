@@ -3,8 +3,9 @@
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
 #include "Math/TVector3.h"
-#include "Core/Texture/Texture.h"
+#include "Core/Texture/TTexture.h"
 #include "FileIO/SDL/TCommandInterface.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <memory>
 
@@ -21,7 +22,7 @@ public:
 
 	void setAlbedo(const Vector3R& albedo);
 	void setAlbedo(const real r, const real g, const real b);
-	void setAlbedo(const std::shared_ptr<Texture>& albedo);
+	void setAlbedo(const std::shared_ptr<TTexture<SpectralStrength>>& albedo);
 
 private:
 	LambertianDiffuse m_optics;

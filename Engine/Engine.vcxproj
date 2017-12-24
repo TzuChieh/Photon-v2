@@ -146,6 +146,7 @@
     <ClInclude Include="Source\Actor\Geometry\GTriangleMesh.h" />
     <ClInclude Include="Source\Actor\Geometry\GWave.h" />
     <ClInclude Include="Source\Actor\Geometry\PrimitiveBuildingMaterial.h" />
+    <ClInclude Include="Source\Actor\Image\ConstantImage.h" />
     <ClInclude Include="Source\Actor\Image\Image.h" />
     <ClInclude Include="Source\Actor\Image\PictureImage.h" />
     <ClInclude Include="Source\Actor\Image\LdrPictureImage.h" />
@@ -178,6 +179,7 @@
     <ClInclude Include="Source\Common\config.h" />
     <ClInclude Include="Source\Common\primitive_type.h" />
     <ClInclude Include="Source\Common\ThirdParty\lib_stb.h" />
+    <ClInclude Include="Source\Common\utility.h" />
     <ClInclude Include="Source\Core\Bound\AABB3D.h" />
     <ClInclude Include="Source\Core\Bound\TAABB2D.h" />
     <ClInclude Include="Source\Core\Camera\Camera.h" />
@@ -326,7 +328,7 @@
     <ClInclude Include="Source\Frame\HdrOperator\HdrOperator.h" />
     <ClInclude Include="Source\Frame\PostProcessor.h" />
     <ClInclude Include="Source\Frame\ToneMapper\ToneMapper.h" />
-    <ClInclude Include="Source\Utility\Noncopyable.h" />
+    <ClInclude Include="Source\Utility\INoncopyable.h" />
     <ClInclude Include="Source\Utility\TConstIteratorProxy.h" />
     <ClInclude Include="Source\Utility\TFixedSizeStack.h" />
     <ClInclude Include="Source\Utility\Timer.h" />
@@ -352,6 +354,7 @@
     <ClCompile Include="Source\Actor\Geometry\GTriangle.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GTriangleMesh.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GWave.cpp" />
+    <ClCompile Include="Source\Actor\Image\ConstantImage.cpp" />
     <ClCompile Include="Source\Actor\Image\Image.cpp" />
     <ClCompile Include="Source\Actor\Image\LdrPictureImage.cpp" />
     <ClCompile Include="Source\Actor\Image\PictureImage.cpp" />
@@ -519,6 +522,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\Quantity\Private\TAbstractSpectralStrength.ipp">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Utility\TFixedSizeStack.ipp">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>

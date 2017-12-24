@@ -10,6 +10,9 @@ template<typename T, std::size_t N>
 class TArithmeticArray
 {
 public:
+	inline static std::size_t numElements();
+
+public:
 	inline TArithmeticArray();
 	explicit inline TArithmeticArray(T value);
 	explicit inline TArithmeticArray(const std::array<T, N>& values);

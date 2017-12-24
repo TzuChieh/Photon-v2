@@ -69,7 +69,7 @@ CookedUnit ALight::cook(CookingContext& context) const
 		auto baseWL = std::make_unique<StaticTransform>(StaticTransform::makeInverse(m_localToWorld));
 
 		EmitterBuildingMaterial emitterBuildingMaterial;
-		cookedActor.emitter = m_lightSource->buildEmitter(emitterBuildingMaterial);
+		cookedActor.emitter = m_lightSource->genEmitter(context, emitterBuildingMaterial);
 		cookedActor.emitter->setTransform(baseLW.get(), baseWL.get());
 		cookedActor.transforms.push_back(std::move(baseLW));
 		cookedActor.transforms.push_back(std::move(baseWL));
@@ -147,7 +147,7 @@ CookedUnit ALight::buildGeometricLight(CookingContext& context) const
 		modelBuilder.addIntersectable(std::move(primitive));
 	}
 
-	auto emitter = m_lightSource->buildEmitter(emitterBuildingMaterial);
+	auto emitter = m_lightSource->genEmitter(context, emitterBuildingMaterial);
 	metadata->surfaceBehavior.setEmitter(emitter.get());
 
 	// TODO: this relies on Emitter having the exact same behavior with 

@@ -11,7 +11,7 @@ class PictureImage final : public Image, public TCommandInterface<PictureImage>
 public:
 	virtual ~PictureImage() override;
 
-	virtual std::shared_ptr<Texture> genTexture(CookingContext& context) const = 0;
+	virtual std::shared_ptr<TTexture<SpectralStrength>> genTexture(CookingContext& context) const = 0;
 
 // command interface
 public:

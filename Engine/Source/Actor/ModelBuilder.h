@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/Noncopyable.h"
+#include "Utility/INoncopyable.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Transform/Transform.h"
@@ -13,7 +13,7 @@ namespace ph
 
 class CookingContext;
 
-class ModelBuilder final : public Noncopyable
+class ModelBuilder final : private INoncopyable
 {
 public:
 	ModelBuilder(CookingContext& context);

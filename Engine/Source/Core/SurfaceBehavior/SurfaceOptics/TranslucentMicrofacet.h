@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Core/Texture/Texture.h"
 #include "Core/SurfaceBehavior/Utility/DielectricFresnel.h"
 #include "Core/SurfaceBehavior/Utility/Microfacet.h"
 

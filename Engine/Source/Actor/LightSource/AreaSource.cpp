@@ -10,6 +10,9 @@
 #include "FileIO/InputPrototype.h"
 #include "FileIO/PictureLoader.h"
 #include "Actor/Image/Image.h"
+#include "Actor/Image/ConstantImage.h"
+#include "Actor/Image/LdrPictureImage.h"
+#include "Common/assertion.h"
 
 #include <iostream>
 
@@ -22,33 +25,28 @@ AreaSource::AreaSource(const Vector3R& emittedRgbRadiance) :
 {
 	SpectralStrength radiance;
 	radiance.setRgb(emittedRgbRadiance);
-	m_emittedRadiance = std::make_shared<TConstantTexture<SpectralStrength>>(radiance)
+
+	std::vector<real> vecRadianceSpectrum;
+	for(std::size_t i = 0; i < SpectralStrength::numElements(); i++)
+	{
+		vecRadianceSpectrum.push_back(radiance[i]);
+	}
+	m_emittedRadiance = std::make_shared<ConstantImage>(vecRadianceSpectrum);
 }
 
 AreaSource::AreaSource(const std::string& imageFilename) : 
 	LightSource(), 
-	m_emittedRadiance(std::make_shared<TConstantTexture<SpectralStrength>>(0))
+	m_emittedRadiance(nullptr)
 {
-	std::shared_ptr<LdrRgbTexture2D> image = std::make_shared<LdrRgbTexture2D>();
-
-	image->setPixels(PictureLoader::loadLdr(Path(imageFilename)));
+	auto imagePath = Path(imageFilename);
+	auto image = std::make_shared<LdrPictureImage>(PictureLoader::loadLdr(imagePath));
 	m_emittedRadiance = image;
-
-	/*TextureLoader loader;
-	if(loader.load(imageFilename, image.get()))
-	{
-		m_emittedRadiance = image;
-	}
-	else
-	{
-		std::cerr << "warning: at AreaSource::AreaSource(), image loading failed" << std::endl;
-	}*/
 }
 
 AreaSource::AreaSource(const std::shared_ptr<Image>& emittedRadiance) :
 	m_emittedRadiance(emittedRadiance)
 {
-
+	PH_ASSERT(m_emittedRadiance != nullptr);
 }
 
 AreaSource::~AreaSource() = default;
@@ -63,7 +61,9 @@ std::unique_ptr<Emitter> AreaSource::genEmitter(
 	}
 	
 	std::unique_ptr<PrimitiveAreaEmitter> emitter = std::make_unique<PrimitiveAreaEmitter>(data.primitives);
-	emitter->setEmittedRadiance(m_emittedRadiance->genTexture(context));
+	std::shared_ptr<TTexture<SpectralStrength>> radianceTexture;
+	m_emittedRadiance->genTexture(context, &radianceTexture);
+	emitter->setEmittedRadiance(radianceTexture);
 	return std::move(emitter);
 }
 
@@ -104,7 +104,7 @@ std::unique_ptr<AreaSource> AreaSource::ciLoad(const InputPacket& packet)
 	{
 		const auto& image = packet.get<Image>(
 			"emitted-radiance", DataTreatment::REQUIRED());
-		auto source = std::make_unique<AreaSource>();
+		auto source = std::make_unique<AreaSource>(image);
 	}
 
 	std::cerr << "warning: at AreaSource::ciLoad(), invalid input format" << std::endl;

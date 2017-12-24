@@ -1,5 +1,5 @@
 #include "Actor/Material/AbradedOpaque.h"
-#include "Core/Texture/ConstantTexture.h"
+#include "Core/Texture/TConstantTexture.h"
 #include "FileIO/InputPacket.h"
 #include "Core/SurfaceBehavior/Utility/IsoTrowbridgeReitz.h"
 #include "Core/SurfaceBehavior/Utility/AnisoTrowbridgeReitz.h"
@@ -76,8 +76,9 @@ std::unique_ptr<AbradedOpaque> AbradedOpaque::ciLoadITR(const InputPacket& packe
 	roughness = packet.getReal("roughness", roughness);
 
 	const real alpha = RoughnessToAlphaMapping::pbrtV3(roughness);
-	SpectralStrength f0Spectrum;
+	SpectralStrength f0Spectrum, albedoSpectrum;
 	f0Spectrum.setRgb(f0);
+	albedoSpectrum.setRgb(albedo);
 
 	std::unique_ptr<AbradedOpaque> material = std::make_unique<AbradedOpaque>();
 	material->m_opticsGenerator = [=]()
@@ -85,7 +86,7 @@ std::unique_ptr<AbradedOpaque> AbradedOpaque::ciLoadITR(const InputPacket& packe
 		auto optics = std::make_unique<OpaqueMicrofacet>();
 		optics->setMicrofacet(std::make_shared<IsoTrowbridgeReitz>(alpha));
 		optics->setFresnelEffect(std::make_shared<SchlickApproxConductorDielectricFresnel>(f0Spectrum));
-		optics->setAlbedo(std::make_shared<ConstantTexture>(albedo));
+		optics->setAlbedo(std::make_shared<TConstantTexture<SpectralStrength>>(albedoSpectrum));
 		return optics;
 	};
 	return material;
@@ -105,8 +106,9 @@ std::unique_ptr<AbradedOpaque> AbradedOpaque::ciLoadATR(const InputPacket& packe
 
 	const real alphaU = RoughnessToAlphaMapping::pbrtV3(roughnessU);
 	const real alphaV = RoughnessToAlphaMapping::pbrtV3(roughnessV);
-	SpectralStrength f0Spectrum;
+	SpectralStrength f0Spectrum, albedoSpectrum;
 	f0Spectrum.setRgb(f0);
+	albedoSpectrum.setRgb(albedo);
 
 	std::unique_ptr<AbradedOpaque> material = std::make_unique<AbradedOpaque>();
 	material->m_opticsGenerator = [=]()
@@ -114,7 +116,7 @@ std::unique_ptr<AbradedOpaque> AbradedOpaque::ciLoadATR(const InputPacket& packe
 		auto optics = std::make_unique<OpaqueMicrofacet>();
 		optics->setMicrofacet(std::make_shared<AnisoTrowbridgeReitz>(alphaU, alphaV));
 		optics->setFresnelEffect(std::make_shared<SchlickApproxConductorDielectricFresnel>(f0Spectrum));
-		optics->setAlbedo(std::make_shared<ConstantTexture>(albedo));
+		optics->setAlbedo(std::make_shared<TConstantTexture<SpectralStrength>>(albedoSpectrum));
 		return optics;
 	};
 	return material;

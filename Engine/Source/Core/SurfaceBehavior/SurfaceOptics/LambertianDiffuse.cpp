@@ -16,7 +16,7 @@ namespace ph
 
 LambertianDiffuse::LambertianDiffuse() :
 	SurfaceOptics(),
-	m_albedo(std::make_shared<TConstantTexture<SpectralStrength>>(0.5_r))
+	m_albedo(std::make_shared<TConstantTexture<SpectralStrength>>(SpectralStrength(0.5_r)))
 {
 	
 }

@@ -1,5 +1,5 @@
 #include "Actor/Material/MatteOpaque.h"
-#include "Core/Texture/ConstantTexture.h"
+#include "Core/Texture/TConstantTexture.h"
 #include "FileIO/InputPacket.h"
 
 namespace ph
@@ -26,10 +26,12 @@ void MatteOpaque::setAlbedo(const Vector3R& albedo)
 
 void MatteOpaque::setAlbedo(const real r, const real g, const real b)
 {
-	setAlbedo(std::make_shared<ConstantTexture>(r, g, b));
+	SpectralStrength rgbSpectrum;
+	rgbSpectrum.setRgb(Vector3R(r, g, b));
+	setAlbedo(std::make_shared<TConstantTexture<SpectralStrength>>(rgbSpectrum));
 }
 
-void MatteOpaque::setAlbedo(const std::shared_ptr<Texture>& albedo)
+void MatteOpaque::setAlbedo(const std::shared_ptr<TTexture<SpectralStrength>>& albedo)
 {
 	m_optics.setAlbedo(albedo);
 }

@@ -22,8 +22,11 @@ namespace ph
 PrimitiveAreaEmitter::PrimitiveAreaEmitter(const std::vector<const Primitive*>& primitives) :
 	Emitter(), 
 	m_primitives(primitives), 
-	m_emittedRadiance(std::make_shared<TConstantTexture<SpectralStrength>>(1))
+	m_emittedRadiance(nullptr)
 {
+	SpectralStrength defaultSpectrum(1.0_r);
+	m_emittedRadiance = std::make_shared<TConstantTexture<SpectralStrength>>(defaultSpectrum);
+
 	if(primitives.empty())
 	{
 		std::cerr << "warning: at PrimitiveAreaEmitter::PrimitiveAreaEmitter(), no Primitive detected" << std::endl;

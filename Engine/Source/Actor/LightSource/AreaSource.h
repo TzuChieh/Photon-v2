@@ -9,6 +9,7 @@
 
 namespace ph
 {
+
 class Image;
 
 class AreaSource final : public LightSource, public TCommandInterface<AreaSource>

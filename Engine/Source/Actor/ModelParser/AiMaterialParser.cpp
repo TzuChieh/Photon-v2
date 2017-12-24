@@ -1,9 +1,10 @@
 #include "Actor/ModelParser/AiMaterialParser.h"
 #include "Actor/Material/Material.h"
 #include "Actor/Material/MatteOpaque.h"
-#include "Core/Texture/ConstantTexture.h"
+#include "Core/Texture/TConstantTexture.h"
 #include "Core/Texture/TextureLoader.h"
-#include "Core/Texture/RgbPixelTexture.h"
+#include "Core/Texture/LdrRgbTexture2D.h"
+#include "Common/utility.h"
 
 #include <iostream>
 
@@ -12,7 +13,7 @@ namespace ph
 
 std::shared_ptr<Material> AiMaterialParser::parseMaterial(const aiMaterial* const material, const std::string& modelDirectory)
 {
-	std::shared_ptr<MatteOpaque> parsedMaterial = std::make_shared<MatteOpaque>();
+	/*std::shared_ptr<MatteOpaque> parsedMaterial = std::make_shared<MatteOpaque>();
 	TextureLoader textureLoader;
 
 	if(material->GetTextureCount(aiTextureType_DIFFUSE) > 1)
@@ -38,7 +39,10 @@ std::shared_ptr<Material> AiMaterialParser::parseMaterial(const aiMaterial* cons
 		}
 	}
 
-	return parsedMaterial;
+	return parsedMaterial;*/
+
+	PH_NOT_IMPLEMENTED_WARNING();
+	return nullptr;
 }
 
 }// end namespace ph

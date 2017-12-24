@@ -6,7 +6,7 @@ namespace ph
 {
 
 template<typename OutputType>
-TCheckerboardTexture<OutputType>::TCheckerboardTexture(
+inline TCheckerboardTexture<OutputType>::TCheckerboardTexture(
 	const real nUtiles, const real nVtiles,
 	const OutputType& oddValue, const OutputType& evenValue) :
 	m_nUtiles(nUtiles), m_nVtiles(nVtiles), 
@@ -23,10 +23,10 @@ TCheckerboardTexture<OutputType>::TCheckerboardTexture(
 }
 
 template<typename OutputType>
-TCheckerboardTexture<OutputType>::~CheckerboardTexture() = default;
+inline TCheckerboardTexture<OutputType>::~TCheckerboardTexture() = default;
 
 template<typename OutputType>
-void TCheckerboardTexture<OutputType>::sample(
+inline void TCheckerboardTexture<OutputType>::sample(
 	const Vector3R& uvw, OutputType* const out_value) const
 {
 	const int32 uNumber = static_cast<int32>(std::floor(uvw.x / m_uTileSize));

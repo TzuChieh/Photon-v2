@@ -8,6 +8,12 @@ namespace ph
 {
 
 template<typename T, std::size_t N>
+inline std::size_t TArithmeticArray<T, N>::numElements()
+{
+	return N;
+}
+
+template<typename T, std::size_t N>
 inline TArithmeticArray<T, N>::TArithmeticArray() : 
 	m()
 {

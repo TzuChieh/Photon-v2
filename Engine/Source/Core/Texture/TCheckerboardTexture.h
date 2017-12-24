@@ -9,11 +9,11 @@ template<typename OutputType>
 class TCheckerboardTexture final : public TTexture<OutputType>
 {
 public:
-	TCheckerboardTexture(real nUtiles, real nVtiles,
+	inline TCheckerboardTexture(real nUtiles, real nVtiles,
 	                     const OutputType& oddValue, const OutputType& evenValue);
-	virtual ~TCheckerboardTexture() override;
+	inline virtual ~TCheckerboardTexture() override;
 
-	virtual void sample(const Vector3R& uvw, OutputType* out_value) const override;
+	inline virtual void sample(const Vector3R& uvw, OutputType* out_value) const override;
 
 private:
 	real       m_nUtiles;

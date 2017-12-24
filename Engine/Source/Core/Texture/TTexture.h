@@ -7,16 +7,14 @@
 namespace ph
 {
 
-class InputPacket;
-
 template<typename OutputType>
 class TTexture
 {
 public:
-	TTexture();
-	virtual ~TTexture() = 0;
+	inline TTexture();
+	inline virtual ~TTexture() = 0;
 
-	virtual void sample(const Vector3R& uvw, OutputType* out_value) const = 0;
+	inline virtual void sample(const Vector3R& uvw, OutputType* out_value) const = 0;
 };
 
 }// end namespace ph

@@ -1,7 +1,7 @@
 #include "Actor/Image/LdrPictureImage.h"
 #include "FileIO/InputPacket.h"
 #include "FileIO/PictureLoader.h"
-#include "Core/Texture/RgbPixelTexture.h"
+#include "Core/Texture/LdrRgbTexture2D.h"
 
 namespace ph
 {
@@ -14,11 +14,13 @@ LdrPictureImage::LdrPictureImage(const TFrame<uint8>& picture) :
 
 LdrPictureImage::~LdrPictureImage() = default;
 
-std::shared_ptr<Texture> LdrPictureImage::genTexture(CookingContext& context) const
+void LdrPictureImage::genTexture(
+	CookingContext& context,
+	std::shared_ptr<TTexture<SpectralStrength>>* const out_texture) const
 {
-	std::shared_ptr<RgbPixelTexture> texture;
+	auto texture = std::make_shared<LdrRgbTexture2D>();
 	texture->setPixels(m_picture);
-	return texture;
+	*out_texture = texture;
 }
 
 // command interface

@@ -6,9 +6,9 @@ namespace ph
 {
 
 template<typename OutputType>
-TTexture<OutputType>::TTexture() = default;
+inline TTexture<OutputType>::TTexture() = default;
 
 template<typename OutputType>
-TTexture<OutputType>::~TTexture() = default;
+inline TTexture<OutputType>::~TTexture() = default;
 
 }// end namespace ph

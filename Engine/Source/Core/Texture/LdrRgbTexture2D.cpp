@@ -11,7 +11,7 @@ namespace ph
 {
 
 LdrRgbTexture2D::LdrRgbTexture2D() :
-	RgbTexture2D(0, 0)
+	LdrRgbTexture2D(0, 0)
 {
 
 }

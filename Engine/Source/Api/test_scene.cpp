@@ -10,7 +10,6 @@
 #include "World/VisualWorld.h"
 #include "Actor/Geometry/GRectangle.h"
 #include "Actor/ModelLoader.h"
-#include "Core/Texture/CheckerboardTexture.h"
 #include "FileIO/DescriptionParser.h"
 #include "Actor/LightSource/AreaSource.h"
 #include "Actor/ALight.h"
