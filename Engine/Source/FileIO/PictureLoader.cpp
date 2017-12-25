@@ -11,8 +11,17 @@
 namespace ph
 {
 
+const Logger& PictureLoader::LOGGER()
+{
+	static const Logger logger(LogSender("Pic. Loader"));
+	return logger;
+}
+
 TFrame<uint8> PictureLoader::loadLdr(const Path& picturePath)
 {
+	// FIXME: testing
+	LOGGER().log(ELogLevel::NOTE_MED, "loading image <" + picturePath.toString() + ">");
+
 	TFrame<uint8> picture;
 
 	const std::string& ext = picturePath.getExtension();

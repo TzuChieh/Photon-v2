@@ -177,6 +177,9 @@
     <ClInclude Include="Source\Api\test_scene.h" />
     <ClInclude Include="Source\Common\assertion.h" />
     <ClInclude Include="Source\Common\config.h" />
+    <ClInclude Include="Source\Common\ELogLevel.h" />
+    <ClInclude Include="Source\Common\Logger.h" />
+    <ClInclude Include="Source\Common\LogSender.h" />
     <ClInclude Include="Source\Common\primitive_type.h" />
     <ClInclude Include="Source\Common\ThirdParty\lib_stb.h" />
     <ClInclude Include="Source\Common\utility.h" />
@@ -382,6 +385,8 @@
     <ClCompile Include="Source\Api\init_and_exit.cpp" />
     <ClCompile Include="Source\Api\ph_core.cpp" />
     <ClCompile Include="Source\Api\test_scene.cpp" />
+    <ClCompile Include="Source\Common\Logger.cpp" />
+    <ClCompile Include="Source\Common\LogSender.cpp" />
     <ClCompile Include="Source\Common\ThirdParty\lib_stb.cpp" />
     <ClCompile Include="Source\Core\Bound\AABB3D.cpp" />
     <ClCompile Include="Source\Core\Camera\Camera.cpp" />

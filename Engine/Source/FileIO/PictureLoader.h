@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "FileIO/FileSystem/Path.h"
+#include "Common/Logger.h"
 
 #include <memory>
 
@@ -18,6 +19,8 @@ public:
 
 private:
 	static TFrame<uint8> loadLdrViaStb(const std::string& fullFilename);
+
+	static const Logger& LOGGER();
 };
 
 }// end namespace ph
