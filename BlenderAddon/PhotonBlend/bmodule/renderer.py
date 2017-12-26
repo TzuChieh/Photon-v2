@@ -66,9 +66,18 @@ class PhOptionsPanel(PhRenderPanel):
 
 	bl_label = "PR - Options"
 
+	bpy.types.Scene.ph_use_cycles_material = bpy.props.BoolProperty(
+		name        = "Use Cycles Material",
+		description = "render/export the scene with materials converted from Cycles to Photon",
+		default     = False
+	)
+
 	def draw(self, context):
 
-		pass
+		scene  = context.scene
+		layout = self.layout
+
+		layout.prop(scene, "ph_use_cycles_material")
 
 
 render_panel_types = [PhSamplingPanel, PhOptionsPanel]

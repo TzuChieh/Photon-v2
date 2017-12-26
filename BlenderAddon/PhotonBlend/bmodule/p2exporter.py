@@ -3,6 +3,7 @@ from .. import utility
 from ..utility import meta
 from ..psdl import materialcmd
 from . import ui
+from . import export
 
 import bpy
 import mathutils
@@ -114,10 +115,14 @@ class Exporter:
 		else:
 			print("warning: geometry (%s) with type %s is not supported, not exporting" %(geometryName, geometryType))
 
-	def exportMaterial(self, material_name, b_material):
+	def exportMaterial(self, b_context, material_name, b_material):
 
 		p2_file = self.__p2File
-		p2_file.write(ui.material.to_sdl(b_material, material_name))
+
+		if not b_context.scene.ph_use_cycles_material:
+			p2_file.write(ui.material.to_sdl(b_material, material_name))
+		else:
+			p2_file.write(export.cycles_material.to_sdl(b_material, material_name))
 
 
 	def exportLightSource(self, lightSourceType, lightSourceName, **keywordArgs):
@@ -265,12 +270,15 @@ def export_geometry(exporter, geometryName, mesh, faces):
 							normals   = triNormals)
 
 
-def export_material(exporter, material_name, b_material):
+def export_material(exporter, b_context, material_name, b_material):
 
-	exporter.exportMaterial(material_name, b_material)
+	exporter.exportMaterial(b_context, material_name, b_material)
 
 
-def export_object_mesh(exporter, obj, scene):
+def export_object_mesh(exporter, b_context, obj):
+
+	scene = b_context.scene
+
 	if len(obj.data.materials) != 0:
 
 		# this creates a temporary mesh data with all modifiers applied for exporting
@@ -311,7 +319,7 @@ def export_object_mesh(exporter, obj, scene):
 			materialName = mangled_material_name(obj, mesh.name + "_" + material.name, str(matId))
 
 			export_geometry(exporter, geometryName, mesh, faces)
-			export_material(exporter, materialName, material)
+			export_material(exporter, b_context, materialName, material)
 
 			actorType = None
 			actorName = None
@@ -340,7 +348,7 @@ def export_object_mesh(exporter, obj, scene):
 		print("warning: mesh object (%s) has no material, not exporting" %(obj.name))
 
 
-def export_object_lamp(exporter, obj, scene):
+def export_object_lamp(exporter, b_context, obj):
 
 	lamp = obj.data
 
@@ -359,7 +367,7 @@ def export_object_lamp(exporter, obj, scene):
 
 		# HACK: assume the Lamp uses this material
 		b_material = bpy.data.materials.new(lightMaterialName)
-		exporter.exportMaterial(lightMaterialName, b_material)
+		exporter.exportMaterial(b_context, lightMaterialName, b_material)
 		bpy.data.materials.remove(b_material)
 
 		# use lamp's color attribute as emitted radiance
@@ -434,14 +442,15 @@ def export_core_commands(exporter, context):
 	exporter.exportRaw("## integrator(backward-path) \n")
 
 
-def export_world_commands(exporter, scene):
+def export_world_commands(exporter, b_context):
+	scene = b_context.scene
 	objs = scene.objects
 	for obj in objs:
 		if obj.type == "MESH":
 			print("exporting mesh " + obj.name)
-			export_object_mesh(exporter, obj, scene)
+			export_object_mesh(exporter, b_context, obj)
 		elif obj.type == "LAMP":
-			export_object_lamp(exporter, obj, scene)
+			export_object_lamp(exporter, b_context, obj)
 		elif obj.type == "CAMERA":
 			# do nothing since it belongs to core command
 			continue
@@ -478,14 +487,13 @@ class P2Exporter(Operator, ExportHelper):
 			default='OPT_A',
 		)
 
-	def execute(self, context):
+	def execute(self, b_context):
 
 		exporter = Exporter(self.filepath)
 		exporter.begin()
 
-		scene = bpy.context.scene
-		export_core_commands(exporter, context)
-		export_world_commands(exporter, scene)
+		export_core_commands(exporter, b_context)
+		export_world_commands(exporter, b_context)
 
 		exporter.end()
 

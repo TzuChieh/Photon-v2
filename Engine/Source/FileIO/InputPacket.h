@@ -94,6 +94,7 @@ private:
 
 	static void reportDataNotFound(const std::string& typeName, const std::string& name, const DataTreatment& treatment);
 	static std::string getCoreDataName();
+	static Path sdlResourceIdentifierToPath(const std::string& sdlResourceIdentifier);
 };
 
 // template implementations:
