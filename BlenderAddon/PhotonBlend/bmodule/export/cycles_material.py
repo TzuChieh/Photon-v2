@@ -32,8 +32,43 @@ def diffuse_bsdf_node_to_sdl(this_node, res_name):
 	return command.to_sdl()
 
 
+def glossy_bsdf_node_to_sdl(this_node, res_name):
+
+	distribution = this_node.distribution
+	if distribution == "GGX":
+
+		roughness_socket = this_node.inputs[1]
+		roughness        = 0.5
+		if not roughness_socket.is_linked:
+			roughness = roughness_socket.default_value
+		else:
+			print("warning: cannot handle non-leaf Glossy BSDF node (material %s)" % res_name)
+
+		color_socket = this_node.inputs[0]
+		color        = (0.5, 0.5, 0.5, 0.5)
+		if not color_socket.is_linked:
+			color = color_socket.default_value
+		else:
+			print("warning: cannot handle non-leaf Glossy BSDF node (material %s)" % res_name)
+
+		command = psdl.materialcmd.AbradedOpaque.create(
+			name           = res_name,
+			albedo         = mathutils.Color((0, 0, 0)),
+			f0             = mathutils.Color((color[0], color[1], color[2])),
+			roughness      = roughness,
+			is_anisotropic = False)
+
+		return command.to_sdl()
+
+	else:
+		print("warning: cannot convert Glossy BSDF distribution type %s (material %s)" %
+			  (distribution, res_name))
+		return ""
+
+
 NODE_NAME_TO_PSDL_TRANSLATOR_TABLE = {
-	"Diffuse BSDF": diffuse_bsdf_node_to_sdl
+	"Diffuse BSDF": diffuse_bsdf_node_to_sdl,
+	"Glossy BSDF" : glossy_bsdf_node_to_sdl
 }
 
 
