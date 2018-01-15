@@ -126,9 +126,14 @@ class MatteOpaque(MaterialType):
 
 	@classmethod
 	def to_sdl(cls, b_prop_group, res_name):
+
 		albedo       = b_prop_group.albedo
 		albedo_color = mathutils.Color((albedo[0], albedo[1], albedo[2]))
-		command      = psdl.materialcmd.MatteOpaque.create(res_name, albedo_color)
+
+		command = psdl.materialcmd.MatteOpaqueCreator()
+		command.set_data_name(res_name)
+		command.set_albedo(albedo_color)
+
 		return command.to_sdl()
 
 	@classmethod
@@ -179,14 +184,14 @@ class AbradedOpaque(MaterialType):
 		f0_vec     = b_prop_group.f0
 		f0         = mathutils.Color((f0_vec[0], f0_vec[1], f0_vec[2]))
 
-		command = psdl.materialcmd.AbradedOpaque.create(
-			name           = res_name,
-			albedo         = albedo,
-			f0             = f0,
-			roughness      = MicrofacetProperty.get_roughness(b_prop_group),
-			roughness_u    = MicrofacetProperty.get_roughness_u(b_prop_group),
-			roughness_v    = MicrofacetProperty.get_roughness_v(b_prop_group),
-			is_anisotropic = MicrofacetProperty.is_anisotropic(b_prop_group))
+		command = psdl.materialcmd.AbradedOpaqueCreator()
+		command.set_data_name(res_name)
+		command.set_albedo(albedo)
+		command.set_f0(f0)
+		command.set_roughness(MicrofacetProperty.get_roughness(b_prop_group))
+		command.set_anisotropicity(MicrofacetProperty.is_anisotropic(b_prop_group))
+		command.set_roughness_u(MicrofacetProperty.get_roughness_u(b_prop_group))
+		command.set_roughness_v(MicrofacetProperty.get_roughness_v(b_prop_group))
 
 		return command.to_sdl()
 
@@ -247,12 +252,12 @@ class AbradedTranslucent(MaterialType):
 		f0_vec     = b_prop_group.f0
 		f0         = mathutils.Color((f0_vec[0], f0_vec[1], f0_vec[2]))
 
-		command = psdl.materialcmd.AbradedTranslucent.create(
-			name           = res_name,
-			albedo         = albedo,
-			f0             = f0,
-			ior            = b_prop_group.ior,
-			roughness      = MicrofacetProperty.get_roughness(b_prop_group))
+		command = psdl.materialcmd.AbradedTranslucentCreator()
+		command.set_data_name(res_name)
+		command.set_albedo(albedo)
+		command.set_f0(f0)
+		command.set_ior(b_prop_group.ior)
+		command.set_roughness(MicrofacetProperty.get_roughness(b_prop_group))
 
 		return command.to_sdl()
 

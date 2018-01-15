@@ -165,4 +165,9 @@ std::string InputPacket::getCoreDataName()
 	return DescriptionParser::CORE_DATA_NAME();
 }
 
+Path InputPacket::sdlResourceIdentifierToPath(const std::string& sdlResourceIdentifier)
+{
+
+}
+
 }// end namespace ph

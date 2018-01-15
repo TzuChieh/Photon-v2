@@ -4,39 +4,55 @@ from abc import abstractmethod
 
 
 class WorldCommand(cmd_base.SdlCommand):
+
 	def __init__(self):
 		super(WorldCommand, self).__init__()
-		self._typeCategory = ""
-		self._typeName     = ""
-		self._dataName     = ""
-		self._clauses      = []
+		self.__clauses   = {}
+		self.__data_name = ""
 
-		self._cmdPrefix = "->"
+	@abstractmethod
+	def get_type_category(self):
+		pass
+
+	@abstractmethod
+	def get_type_name(self):
+		pass
 
 	@abstractmethod
 	def to_sdl(self):
 		pass
 
-	def set_type_info(self, categoryname, typename):
-		self._typeCategory = categoryname
-		self._typeName     = typename
-
 	def set_data_name(self, name):
-		self._dataName = name
+		self.__data_name = name
 
-	def add_clause(self, clause):
-		self._clauses.append(clause)
+	def update_clause(self, clause):
+		self.__clauses[clause.name] = clause
+
+	def get_data_name(self):
+		return self.__data_name
+
+	def get_clauses(self):
+		return self.__clauses
 
 
 class CreationCommand(WorldCommand):
+
 	def __init__(self):
 		super(CreationCommand, self).__init__()
 
+	@abstractmethod
+	def get_type_category(self):
+		pass
+
+	@abstractmethod
+	def get_type_name(self):
+		pass
+
 	def to_sdl(self):
-		cmdstrs = [self._cmdPrefix, " ",
-		           self._typeCategory, "(", self._typeName, ") ",
-		           self._dataName, " "]
-		for clause in self._clauses:
+		cmdstrs = ["-> ",
+		           self.get_type_category(), "(", self.get_type_name(), ") ",
+		           self.get_data_name(), " "]
+		for clause_name, clause in self.get_clauses().items():
 			cmdstrs.append(clause.to_sdl_fragment())
 		cmdstrs.append("\n")
 
@@ -44,20 +60,34 @@ class CreationCommand(WorldCommand):
 
 
 class FunctionCommand(WorldCommand):
+
 	def __init__(self):
 		super(FunctionCommand, self).__init__()
-		self._funcName = ""
+		self.__func_name = ""
+
+	@abstractmethod
+	def get_type_category(self):
+		pass
+
+	@abstractmethod
+	def get_type_name(self):
+		pass
 
 	def to_sdl(self):
-		cmdstrs = [self._cmdPrefix, " ",
-		           self._typeCategory, "(", self._typeName, ") ",
-		           self._funcName, "(", self._dataName, ") "]
-		for clause in self._clauses:
+		cmdstrs = ["-> ",
+		           self.get_type_category(), "(", self.get_type_name(), ") ",
+		           self.get_func_name(), "(", self.get_data_name(), ") "]
+		for clause_name, clause in self.get_clauses().items():
 			cmdstrs.append(clause.to_sdl_fragment())
 		cmdstrs.append("\n")
 
 		return "".join(cmdstrs)
 
 	def set_func_name(self, name):
-		self._funcName = name
+		self.__func_name = name
 
+	def get_func_name(self):
+		return self.__func_name
+
+
+# TODO: core commands
