@@ -6,7 +6,7 @@ import mathutils
 from collections import namedtuple
 
 
-def non_node_material_to_sdl(b_material, res_name):
+def non_node_material_to_sdl(b_material, sdlconsole, res_name):
 
 	print("warning: material %s uses no nodes, exporting diffuse color only" % res_name)
 
@@ -27,7 +27,7 @@ def non_node_material_to_sdl(b_material, res_name):
 
 
 
-def diffuse_bsdf_node_to_sdl(this_node, res_name):
+def diffuse_bsdf_node_to_sdl(this_node, sdlconsole, res_name):
 
 	color_socket = this_node.inputs.get("Color")
 	if color_socket.is_linked:
@@ -55,7 +55,7 @@ def diffuse_bsdf_node_to_sdl(this_node, res_name):
 	return command.to_sdl()
 
 
-def glossy_bsdf_node_to_sdl(this_node, res_name):
+def glossy_bsdf_node_to_sdl(this_node, sdlconsole, res_name):
 
 	distribution = this_node.distribution
 	if distribution == "GGX":
@@ -91,21 +91,21 @@ def glossy_bsdf_node_to_sdl(this_node, res_name):
 
 NODE_NAME_TO_PSDL_TRANSLATOR_TABLE = {
 	"Diffuse BSDF": diffuse_bsdf_node_to_sdl,
-	"Glossy BSDF" : glossy_bsdf_node_to_sdl
+	"Glossy BSDF":  glossy_bsdf_node_to_sdl
 }
 
 
-def surface_node_to_sdl(this_node, res_name):
+def surface_node_to_sdl(this_node, sdlconsole, res_name):
 
 	translator = NODE_NAME_TO_PSDL_TRANSLATOR_TABLE.get(this_node.name)
 	if translator is not None:
-		return translator(this_node, res_name)
+		return translator(this_node, sdlconsole, res_name)
 	else:
 		print("warning: material %s has no valid psdl translator, ignoring" % res_name)
 		return ""
 
 
-def node_material_to_sdl(b_material, res_name):
+def node_material_to_sdl(b_material, sdlconsole, res_name):
 
 	material_output_node = b_material.node_tree.nodes.get("Material Output")
 	if material_output_node is not None:
@@ -113,7 +113,7 @@ def node_material_to_sdl(b_material, res_name):
 
 		if surface_socket.is_linked:
 			surface_node = surface_socket.links[0].from_node
-			return surface_node_to_sdl(surface_node, res_name)
+			return surface_node_to_sdl(surface_node, sdlconsole, res_name)
 		else:
 			print("warning: materia %s has no linked surface node, ignoring" % res_name)
 			return ""
@@ -122,10 +122,10 @@ def node_material_to_sdl(b_material, res_name):
 		return ""
 
 
-def to_sdl(b_material, res_name):
+def to_sdl(b_material, sdlconsole, res_name):
 
 	if b_material.use_nodes:
-		return node_material_to_sdl(b_material, res_name)
+		return node_material_to_sdl(b_material, sdlconsole, res_name)
 	else:
-		return non_node_material_to_sdl(b_material, res_name)
+		return non_node_material_to_sdl(b_material, sdlconsole, res_name)
 

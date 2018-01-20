@@ -27,6 +27,12 @@ def get_filename_without_ext(file_path):
 
 
 def get_folder_path(file_path):
+
+	"""
+	Given a path pointing to a file, return the part pointing to the folder
+	where the file sits. A folder path ends with a path separator.
+	"""
+
 	folder_path = os.path.split(file_path)[0]
 	if not folder_path.endswith(path_separator()):
 		folder_path += path_separator()
@@ -34,7 +40,20 @@ def get_folder_path(file_path):
 
 
 def get_appended_path(parent_path, child_path):
+
+	"""
+	Appends a path to the other one's back and returns the result as a new
+	one. Exactly one path separator will be in-between them.
+	"""
+
 	return os.path.join(parent_path, child_path)
+
+
+def get_absolute_path(path):
+	absolute_path = os.path.abspath(path)
+	if path.endswith(path_separator()) and not absolute_path.endswith(path_separator()):
+		absolute_path += path_separator()
+	return absolute_path
 
 
 def path_separator():

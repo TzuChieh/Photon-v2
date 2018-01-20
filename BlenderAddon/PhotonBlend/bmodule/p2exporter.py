@@ -1,4 +1,5 @@
 from ..psdl import clause
+from ..psdl.sdlconsole import SdlConsole
 from .. import utility
 from ..utility import meta
 from ..psdl import materialcmd
@@ -40,23 +41,25 @@ def mangled_actor_light_name(obj, name, suffix):
 class Exporter:
 
 	def __init__(self, file_path):
-		self.__file_path = file_path
-		self.__p2File    = None
+		self.__file_path  = file_path
+		self.__p2File     = None
+		self.__sdlconsole = None
 
 	def begin(self):
 
 		file_path            = self.__file_path
 		folder_path          = utility.get_folder_path(file_path)
-		filename             = utility.get_filename(file_path)
 		filename_without_ext = utility.get_filename_without_ext(file_path)
 		scene_folder_path    = folder_path + filename_without_ext + utility.path_separator()
-		scene_file_path      = scene_folder_path + filename + ".p2"
+		scene_file_path      = scene_folder_path + filename_without_ext + ".p2"
 
 		print("-------------------------------------------------------------")
 		print("exporting Photon scene to <%s>" % scene_folder_path)
 
 		utility.create_folder(scene_folder_path)
 		self.__p2File = open(scene_file_path, "w", encoding = "utf-8")
+
+		self.__sdlconsole = SdlConsole(scene_folder_path)
 
 	def end(self):
 		self.__p2File.close()
@@ -122,7 +125,7 @@ class Exporter:
 		if not b_context.scene.ph_use_cycles_material:
 			p2_file.write(ui.material.to_sdl(b_material, material_name))
 		else:
-			p2_file.write(export.cycles_material.to_sdl(b_material, material_name))
+			p2_file.write(export.cycles_material.to_sdl(b_material, self.__sdlconsole, material_name))
 
 
 	def exportLightSource(self, lightSourceType, lightSourceName, **keywordArgs):
