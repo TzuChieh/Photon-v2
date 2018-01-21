@@ -54,6 +54,8 @@ class Exporter:
 		print("-------------------------------------------------------------")
 		print("exporting Photon scene to <%s>" % scene_folder_path)
 
+		utility.create_folder(scene_folder_path)
+
 		self.__sdlconsole = SdlConsole(scene_folder_path)
 		self.__sdlconsole.start()
 

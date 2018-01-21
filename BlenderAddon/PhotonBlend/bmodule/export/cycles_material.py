@@ -20,10 +20,13 @@ def non_node_material_to_sdl(b_material, sdlconsole, res_name):
 	return command.to_sdl()
 
 
-#def image_texture_node_to_sdl_resource(this_node, res_name):
+def image_texture_node_to_sdl_resource(this_node, sdlconsole, res_name):
 
-	#sdl_resource = namedtuple(sdl_resource, ["res_name", "command"])
+	sdlres_identifier = psdl.sdlresource.SdlResourceIdentifier()
+	sdlres_identifier.append_folder(res_name)
+	#sdlres_identifier.append_folder()
 
+	return sdlres_identifier
 
 
 
