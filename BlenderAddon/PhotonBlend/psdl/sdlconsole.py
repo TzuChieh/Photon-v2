@@ -52,6 +52,11 @@ class SdlConsole:
 		return self.__working_directory
 
 	def create_resource_folder(self, sdl_resource_identifier):
+
+		if not sdl_resource_identifier.is_valid():
+			print("SDL resource identifier is invalid: %s" % sdl_resource_identifier)
+			return
+
 		res_path        = utility.get_appended_path(self.__working_directory, sdl_resource_identifier.get_path())
 		res_folder_path = utility.get_folder_path(res_path)
 		utility.create_folder(res_folder_path)

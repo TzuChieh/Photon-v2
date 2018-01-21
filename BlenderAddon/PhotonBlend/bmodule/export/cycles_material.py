@@ -1,4 +1,5 @@
 from ... import psdl
+from ... import utility
 
 import bpy
 import mathutils
@@ -22,12 +23,21 @@ def non_node_material_to_sdl(b_material, sdlconsole, res_name):
 
 def image_texture_node_to_sdl_resource(this_node, sdlconsole, res_name):
 
+	image             = this_node.image
 	sdlres_identifier = psdl.sdlresource.SdlResourceIdentifier()
+	if image is None:
+		return sdlres_identifier
+
+	image_name = utility.get_filename_without_ext(image.name)
 	sdlres_identifier.append_folder(res_name)
-	#sdlres_identifier.append_folder()
+	sdlres_identifier.set_file(image_name + ".png")
+	sdlconsole.create_resource_folder(sdlres_identifier)
+
+	image_path = utility.get_appended_path(sdlconsole.get_working_directory(), sdlres_identifier.get_path())
+	image.file_format = "PNG"
+	image.save_render(image_path)
 
 	return sdlres_identifier
-
 
 
 def diffuse_bsdf_node_to_sdl(this_node, sdlconsole, res_name):
@@ -35,9 +45,10 @@ def diffuse_bsdf_node_to_sdl(this_node, sdlconsole, res_name):
 	color_socket = this_node.inputs.get("Color")
 	if color_socket.is_linked:
 
-		if color_socket.links[0].from_node == "Image Texture":
+		if color_socket.links[0].from_node.name == "Image Texture":
 			image_texture_node = color_socket.links[0].from_node
-			#image_texture_node_to_sdl(image_texture_node, )
+			image_texture_node_to_sdl_resource(image_texture_node, sdlconsole, res_name)
+
 
 			# TODO
 

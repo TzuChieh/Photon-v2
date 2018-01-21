@@ -34,6 +34,9 @@ class WorldCommand(cmd_base.SdlCommand):
 	def get_clauses(self):
 		return self.__clauses
 
+	def _get_formated_data_name(self):
+		return "\"@" + self.__data_name + "\""
+
 
 class CreationCommand(WorldCommand):
 
@@ -51,7 +54,7 @@ class CreationCommand(WorldCommand):
 	def to_sdl(self):
 		cmdstrs = ["-> ",
 		           self.get_type_category(), "(", self.get_type_name(), ") ",
-		           self.get_data_name(), " "]
+		           self._get_formated_data_name(), " "]
 		for clause_name, clause in self.get_clauses().items():
 			cmdstrs.append(clause.to_sdl_fragment())
 		cmdstrs.append("\n")
@@ -76,7 +79,7 @@ class FunctionCommand(WorldCommand):
 	def to_sdl(self):
 		cmdstrs = ["-> ",
 		           self.get_type_category(), "(", self.get_type_name(), ") ",
-		           self.get_func_name(), "(", self.get_data_name(), ") "]
+		           self.get_func_name(), "(", self._get_formated_data_name(), ") "]
 		for clause_name, clause in self.get_clauses().items():
 			cmdstrs.append(clause.to_sdl_fragment())
 		cmdstrs.append("\n")

@@ -17,6 +17,9 @@ class SdlResourceIdentifier:
 	def get_path(self):
 		return self.__resource_folder_path + self.__resource_filename
 
+	def is_valid(self):
+		return self.__resource_folder_path or self.__resource_filename
+
 	def __str__(self):
 		return ("resource folder path: " + self.__resource_folder_path + ", "
 		        "resource filename: "    + self.__resource_filename)
