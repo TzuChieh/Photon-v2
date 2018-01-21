@@ -1,8 +1,8 @@
 from ..psdl import clause
 from ..psdl.sdlconsole import SdlConsole
+from ..psdl.cmd import RawCommand
 from .. import utility
 from ..utility import meta
-from ..psdl import materialcmd
 from . import ui
 from . import export
 
@@ -42,7 +42,6 @@ class Exporter:
 
 	def __init__(self, file_path):
 		self.__file_path  = file_path
-		self.__p2File     = None
 		self.__sdlconsole = None
 
 	def begin(self):
@@ -51,25 +50,23 @@ class Exporter:
 		folder_path          = utility.get_folder_path(file_path)
 		filename_without_ext = utility.get_filename_without_ext(file_path)
 		scene_folder_path    = folder_path + filename_without_ext + utility.path_separator()
-		scene_file_path      = scene_folder_path + filename_without_ext + ".p2"
 
 		print("-------------------------------------------------------------")
 		print("exporting Photon scene to <%s>" % scene_folder_path)
 
-		utility.create_folder(scene_folder_path)
-		self.__p2File = open(scene_file_path, "w", encoding = "utf-8")
-
 		self.__sdlconsole = SdlConsole(scene_folder_path)
+		self.__sdlconsole.start()
 
 	def end(self):
-		self.__p2File.close()
+
+		self.__sdlconsole.finish()
+
 		print("exporting complete")
+		print("-------------------------------------------------------------")
 
 	def exportCamera(self, cameraType, fovDegrees, position, direction, upDirection):
 
 		# TODO: check camera type
-
-		p2File = self.__p2File
 
 		position    = utility.to_photon_vec3(position)
 		direction   = utility.to_photon_vec3(direction)
@@ -77,18 +74,21 @@ class Exporter:
 
 		clauze = clause.Vector3Clause()
 
-		p2File.write("""## camera(%s) [real fov-degree %.8f] %s %s %s \n""" %
-		             (cameraType, fovDegrees,
-					  clauze.set_name("position").set_data(position).to_sdl_fragment(),
-					  clauze.set_name("direction").set_data(direction).to_sdl_fragment(),
-					  clauze.set_name("up-axis").set_data(upDirection).to_sdl_fragment()))
+		command = RawCommand()
+		command.append_string(
+			"""## camera(%s) [real fov-degree %.8f] %s %s %s \n""" %
+			(cameraType, fovDegrees,
+			 clauze.set_name("position").set_data(position).to_sdl_fragment(),
+			 clauze.set_name("direction").set_data(direction).to_sdl_fragment(),
+			 clauze.set_name("up-axis").set_data(upDirection).to_sdl_fragment())
+		)
+		self.__sdlconsole.queue_command(command)
 
 	def exportGeometry(self, geometryType, geometryName, **keywordArgs):
 
-		p2File = self.__p2File
-
 		if geometryType == "triangle-mesh":
-			p2File.write("-> geometry(triangle-mesh) %s \n" %(geometryName))
+			command = RawCommand()
+			command.append_string("-> geometry(triangle-mesh) %s \n" %(geometryName))
 
 			positions = ""
 			for position in keywordArgs["positions"]:
@@ -104,39 +104,46 @@ class Exporter:
 				triNormal = self.__blendToPhotonVector(normal)
 				normals += "\"%.8f %.8f %.8f\" " %(triNormal.x, triNormal.y, triNormal.z)
 
-			p2File.write("[vector3r-array positions {%s}]\n"           %(positions))
-			p2File.write("[vector3r-array texture-coordinates {%s}]\n" %(texCoords))
-			p2File.write("[vector3r-array normals {%s}]\n"             %(normals))
+
+			command.append_string("[vector3r-array positions {%s}]\n"           % positions)
+			command.append_string("[vector3r-array texture-coordinates {%s}]\n" % texCoords)
+			command.append_string("[vector3r-array normals {%s}]\n"             % normals)
+			self.__sdlconsole.queue_command(command)
 
 		elif geometryType == "rectangle":
 
 			# TODO: width & height may correspond to different axes in Blender and Photon-v2
 
-			p2File.write("-> geometry(rectangle) %s [real width %.8f] [real height %.8f]\n"
-						 %(geometryName, keywordArgs["width"], keywordArgs["height"]))
+			command = RawCommand()
+			command.append_string(
+				"-> geometry(rectangle) %s [real width %.8f] [real height %.8f]\n" %
+				(geometryName, keywordArgs["width"], keywordArgs["height"])
+			)
+			self.__sdlconsole.queue_command(command)
 
 		else:
-			print("warning: geometry (%s) with type %s is not supported, not exporting" %(geometryName, geometryType))
+			print("warning: geometry (%s) with type %s is not supported, not exporting" % (geometryName, geometryType))
 
 	def exportMaterial(self, b_context, material_name, b_material):
 
-		p2_file = self.__p2File
-
+		command = RawCommand()
 		if not b_context.scene.ph_use_cycles_material:
-			p2_file.write(ui.material.to_sdl(b_material, material_name))
+			command.append_string(ui.material.to_sdl(b_material, material_name))
 		else:
-			p2_file.write(export.cycles_material.to_sdl(b_material, self.__sdlconsole, material_name))
-
+			command.append_string(export.cycles_material.to_sdl(b_material, self.__sdlconsole, material_name))
+		self.__sdlconsole.queue_command(command)
 
 	def exportLightSource(self, lightSourceType, lightSourceName, **keywordArgs):
-
-		p2File = self.__p2File
 
 		if lightSourceType == "area":
 
 			emittedRadiance = keywordArgs["emittedRadiance"]
-			p2File.write("-> light-source(area) %s [vector3r emitted-radiance \"%.8f %.8f %.8f\"]\n"
-						 %(lightSourceName, emittedRadiance[0], emittedRadiance[1], emittedRadiance[2]))
+			command = RawCommand()
+			command.append_string(
+				"-> light-source(area) %s [vector3r emitted-radiance \"%.8f %.8f %.8f\"]\n" %
+				(lightSourceName, emittedRadiance[0], emittedRadiance[1], emittedRadiance[2])
+			)
+			self.__sdlconsole.queue_command(command)
 
 		else:
 			print("warning: light source (%s) with type %s is unsuppoprted, not exporting"
@@ -147,33 +154,35 @@ class Exporter:
 
 		# TODO: check non-uniform scale
 
-		p2File = self.__p2File
+		command = RawCommand()
 
 		position = self.__blendToPhotonVector(position)
 		rotation = self.__blendToPhotonQuaternion(rotation)
 		scale    = self.__blendToPhotonVector(scale)
 
 		if lightSourceName != None:
-			p2File.write("-> actor(light) %s [light-source light-source %s] "
+			command.append_string("-> actor(light) %s [light-source light-source %s] "
 						 %(actorLightName, lightSourceName))
 		else:
 			print("warning: expecting a non-None light source name for actor-light %s, not exporting" %(actorLightName))
 			return
 
 		if geometryName != None:
-			p2File.write("[geometry geometry %s] " %(geometryName))
+			command.append_string("[geometry geometry %s] " %(geometryName))
 
 		if materialName != None:
-			p2File.write("[material material %s] " %(materialName))
+			command.append_string("[material material %s] " %(materialName))
 
-		p2File.write("\n")
+		command.append_string("\n")
 
-		p2File.write("-> actor(light) translate(%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
+		command.append_string("-> actor(light) translate(%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
 					 %(actorLightName, position.x, position.y, position.z))
-		p2File.write("-> actor(light) scale    (%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
+		command.append_string("-> actor(light) scale    (%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
 					 %(actorLightName, scale.x, scale.y, scale.z))
-		p2File.write("-> actor(light) rotate   (%s) [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
+		command.append_string("-> actor(light) rotate   (%s) [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
 					 %(actorLightName, rotation.x, rotation.y, rotation.z, rotation.w))
+
+		self.__sdlconsole.queue_command(command)
 
 
 	def exportActorModel(self, actorModelName, geometryName, materialName, position, rotation, scale):
@@ -182,25 +191,28 @@ class Exporter:
 			print("warning: no name should be none, not exporting")
 			return
 
-		p2File = self.__p2File
+		command = RawCommand()
 
 		position = self.__blendToPhotonVector(position)
 		rotation = self.__blendToPhotonQuaternion(rotation)
 		scale    = self.__blendToPhotonVector(scale)
 
-		p2File.write("-> actor(model) %s [geometry geometry %s] [material material %s]\n"
+		command.append_string("-> actor(model) %s [geometry geometry %s] [material material %s]\n"
 					 %(actorModelName, geometryName, materialName))
 
-		p2File.write("-> actor(model) translate(%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
+		command.append_string("-> actor(model) translate(%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
 					 %(actorModelName, position.x, position.y, position.z))
-		p2File.write("-> actor(model) scale    (%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
+		command.append_string("-> actor(model) scale    (%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
 					 %(actorModelName, scale.x, scale.y, scale.z))
-		p2File.write("-> actor(model) rotate   (%s) [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
+		command.append_string("-> actor(model) rotate   (%s) [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
 					 %(actorModelName, rotation.x, rotation.y, rotation.z, rotation.w))
 
+		self.__sdlconsole.queue_command(command)
+
 	def exportRaw(self, rawText):
-		p2File = self.__p2File
-		p2File.write(rawText)
+		command = RawCommand()
+		command.append_string(rawText)
+		self.__sdlconsole.queue_command(command)
 
 	def __blendToPhotonVector(self, blenderVector):
 		photonVector = mathutils.Vector((blenderVector.y,

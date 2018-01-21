@@ -90,4 +90,17 @@ class FunctionCommand(WorldCommand):
 		return self.__func_name
 
 
+class RawCommand(cmd_base.SdlCommand):
+
+	def __init__(self):
+		super(RawCommand, self).__init__()
+		self.__command_string = ""
+
+	def append_string(self, string):
+		self.__command_string += string
+
+	def to_sdl(self):
+		return self.__command_string
+
+
 # TODO: core commands
