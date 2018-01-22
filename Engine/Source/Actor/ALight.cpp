@@ -137,7 +137,7 @@ CookedUnit ALight::buildGeometricLight(CookingContext& context) const
 	auto metadata = std::make_unique<PrimitiveMetadata>();
 	primitiveBuildingMaterial.metadata = metadata.get();
 
-	m_material->populateSurfaceBehavior(&(metadata->surfaceBehavior));
+	m_material->populateSurfaceBehavior(context, &(metadata->surfaceBehavior));
 
 	std::vector<std::unique_ptr<Primitive>> primitives;
 	sanifiedGeometry->genPrimitive(primitiveBuildingMaterial, primitives);

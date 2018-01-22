@@ -97,7 +97,7 @@ class MaterialType(bpy.types.PropertyGroup):
 		return "Photon-v2's material"
 
 	@classmethod
-	def to_sdl(cls, b_prop_group, res_name):
+	def to_sdl(cls, b_prop_group, sdlconsole, res_name):
 		pass
 
 	@classmethod
@@ -125,16 +125,16 @@ class MatteOpaque(MaterialType):
 		b_layout.prop(b_prop_group, "albedo")
 
 	@classmethod
-	def to_sdl(cls, b_prop_group, res_name):
+	def to_sdl(cls, b_prop_group, sdlconsole, res_name):
 
 		albedo       = b_prop_group.albedo
 		albedo_color = mathutils.Color((albedo[0], albedo[1], albedo[2]))
 
 		command = psdl.materialcmd.MatteOpaqueCreator()
 		command.set_data_name(res_name)
-		command.set_albedo(albedo_color)
+		command.set_albedo_color(albedo_color)
 
-		return command.to_sdl()
+		return command.to_sdl(sdlconsole)
 
 	@classmethod
 	def get_name(cls):
@@ -177,7 +177,7 @@ class AbradedOpaque(MaterialType):
 		MicrofacetProperty.display_blender_props(b_layout, b_prop_group)
 
 	@classmethod
-	def to_sdl(cls, b_prop_group, res_name):
+	def to_sdl(cls, b_prop_group, sdlconsole, res_name):
 
 		albedo_vec = b_prop_group.albedo
 		albedo     = mathutils.Color((albedo_vec[0], albedo_vec[1], albedo_vec[2]))
@@ -193,7 +193,7 @@ class AbradedOpaque(MaterialType):
 		command.set_roughness_u(MicrofacetProperty.get_roughness_u(b_prop_group))
 		command.set_roughness_v(MicrofacetProperty.get_roughness_v(b_prop_group))
 
-		return command.to_sdl()
+		return command.to_sdl(sdlconsole)
 
 	@classmethod
 	def get_name(cls):
@@ -245,7 +245,7 @@ class AbradedTranslucent(MaterialType):
 		MicrofacetProperty.display_blender_props(b_layout, b_prop_group)
 
 	@classmethod
-	def to_sdl(cls, b_prop_group, res_name):
+	def to_sdl(cls, b_prop_group, sdlconsole, res_name):
 
 		albedo_vec = b_prop_group.albedo
 		albedo     = mathutils.Color((albedo_vec[0], albedo_vec[1], albedo_vec[2]))
@@ -259,7 +259,7 @@ class AbradedTranslucent(MaterialType):
 		command.set_ior(b_prop_group.ior)
 		command.set_roughness(MicrofacetProperty.get_roughness(b_prop_group))
 
-		return command.to_sdl()
+		return command.to_sdl(sdlconsole)
 
 	@classmethod
 	def get_name(cls):
@@ -305,13 +305,13 @@ def display_blender_props(b_layout, b_material):
 			material_type.display_blender_props(b_layout, b_prop_group)
 
 
-def to_sdl(b_material, res_name):
+def to_sdl(b_material, sdlconsole, res_name):
 
 	for material_type in AVAILABLE_MATERIAL_TYPES:
 		if material_type.__name__ == b_material.ph_material_type:
 			b_pointer_prop_name = "ph_" + material_type.__name__
 			b_prop_group        = getattr(b_material, b_pointer_prop_name)
-			return material_type.to_sdl(b_prop_group, res_name)
+			return material_type.to_sdl(b_prop_group, sdlconsole, res_name)
 
 	print("warning: at to_sdl(), "
 	      "SDL generating failed for material %s" % b_material.name)

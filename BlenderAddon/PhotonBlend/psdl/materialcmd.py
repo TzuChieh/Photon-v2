@@ -2,6 +2,7 @@ from .cmd import CreationCommand, FunctionCommand
 from .clause import ColorClause
 from .clause import FloatClause
 from .clause import StringClause
+from .clause import SdlResourceIdentifierClause
 
 import mathutils
 
@@ -30,8 +31,11 @@ class MatteOpaqueCreator(MaterialCreator):
 	def get_type_name(self):
 		return "matte-opaque"
 
-	def set_albedo(self, albedo):
+	def set_albedo_color(self, albedo):
 		self.update_clause(ColorClause().set_name("albedo").set_data(albedo))
+
+	def set_albedo_image(self, image_sdlri):
+		self.update_clause(SdlResourceIdentifierClause().set_name("albedo").set_data(image_sdlri))
 
 
 class AbstractAbradedCreator(MaterialCreator):

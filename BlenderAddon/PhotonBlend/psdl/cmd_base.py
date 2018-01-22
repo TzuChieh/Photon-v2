@@ -17,5 +17,5 @@ class SdlCommand(ABC):
 		super(SdlCommand, self).__init__()
 
 	@abstractmethod
-	def to_sdl(self):
+	def to_sdl(self, sdlconsole):
 		pass

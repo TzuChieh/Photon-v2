@@ -20,7 +20,7 @@ ConstantImage::ConstantImage(const std::vector<real>& values) :
 
 ConstantImage::~ConstantImage() = default;
 
-void ConstantImage::genTexture(
+void ConstantImage::genTextureReal(
 	CookingContext& context,
 	std::shared_ptr<TTexture<real>>* const out_texture) const
 {
@@ -34,7 +34,7 @@ void ConstantImage::genTexture(
 	*out_texture = std::make_shared<TConstantTexture<real>>(m_values.empty() ? 1 : m_values[0]);
 }
 
-void ConstantImage::genTexture(
+void ConstantImage::genTextureVector3R(
 	CookingContext& context,
 	std::shared_ptr<TTexture<Vector3R>>* const out_texture) const
 {
@@ -52,7 +52,7 @@ void ConstantImage::genTexture(
 	*out_texture = std::make_shared<TConstantTexture<Vector3R>>(constVec3);
 }
 
-void ConstantImage::genTexture(
+void ConstantImage::genTextureSpectral(
 	CookingContext& context,
 	std::shared_ptr<TTexture<SpectralStrength>>* const out_texture) const
 {

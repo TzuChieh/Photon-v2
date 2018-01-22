@@ -16,41 +16,43 @@ def non_node_material_to_sdl(b_material, sdlconsole, res_name):
 
 	command = psdl.materialcmd.MatteOpaqueCreator()
 	command.set_data_name(res_name)
-	command.set_albedo(diffuse_color)
+	command.set_albedo_color(diffuse_color)
 
-	return command.to_sdl()
+	return command.to_sdl(sdlconsole)
 
 
 def image_texture_node_to_sdl_resource(this_node, sdlconsole, res_name):
 
-	image             = this_node.image
-	sdlres_identifier = psdl.sdlresource.SdlResourceIdentifier()
+	image       = this_node.image
+	image_sdlri = psdl.sdlresource.SdlResourceIdentifier()
 	if image is None:
-		return sdlres_identifier
+		return image_sdlri
 
 	image_name = utility.get_filename_without_ext(image.name)
-	sdlres_identifier.append_folder(res_name)
-	sdlres_identifier.set_file(image_name + ".png")
-	sdlconsole.create_resource_folder(sdlres_identifier)
-
-	image_path = utility.get_appended_path(sdlconsole.get_working_directory(), sdlres_identifier.get_path())
+	image_sdlri.append_folder(res_name)
+	image_sdlri.set_file(image_name + ".png")
 	image.file_format = "PNG"
-	image.save_render(image_path)
+	psdl.sdlresource.save_blender_image(image, image_sdlri, sdlconsole)
 
-	return sdlres_identifier
+	return image_sdlri
 
 
 def diffuse_bsdf_node_to_sdl(this_node, sdlconsole, res_name):
+
+	command = psdl.materialcmd.MatteOpaqueCreator()
+	command.set_data_name(res_name)
 
 	color_socket = this_node.inputs.get("Color")
 	if color_socket.is_linked:
 
 		if color_socket.links[0].from_node.name == "Image Texture":
 			image_texture_node = color_socket.links[0].from_node
-			image_texture_node_to_sdl_resource(image_texture_node, sdlconsole, res_name)
-
-
-			# TODO
+			image_sdlri = image_texture_node_to_sdl_resource(image_texture_node, sdlconsole, res_name)
+			if image_sdlri.is_valid():
+				command.set_albedo_image(image_sdlri)
+			else:
+				print("warning: material %s's albedo image is invalid (identifier = %s)" % (res_name, image_sdlri))
+			return command.to_sdl(sdlconsole)
 
 		else:
 			print("warning: cannot handle Diffuse BSDF node's color socket (material %s)" % res_name)
@@ -61,12 +63,8 @@ def diffuse_bsdf_node_to_sdl(this_node, sdlconsole, res_name):
 	# TODO: handle roughness & normal sockets
 
 	albedo = mathutils.Color((color[0], color[1], color[2]))
-
-	command = psdl.materialcmd.MatteOpaqueCreator()
-	command.set_data_name(res_name)
-	command.set_albedo(albedo)
-
-	return command.to_sdl()
+	command.set_albedo_color(albedo)
+	return command.to_sdl(sdlconsole)
 
 
 def glossy_bsdf_node_to_sdl(this_node, sdlconsole, res_name):
@@ -95,7 +93,7 @@ def glossy_bsdf_node_to_sdl(this_node, sdlconsole, res_name):
 		command.set_roughness(roughness)
 		command.set_anisotropicity(False)
 
-		return command.to_sdl()
+		return command.to_sdl(sdlconsole)
 
 	else:
 		print("warning: cannot convert Glossy BSDF distribution type %s (material %s)" %

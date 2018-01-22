@@ -17,7 +17,7 @@ public:
 	IdealSubstance();
 	virtual ~IdealSubstance() override;
 
-	virtual void populateSurfaceBehavior(SurfaceBehavior* out_surfaceBehavior) const override;
+	virtual void populateSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const override;
 
 private:
 	std::function<std::unique_ptr<SurfaceOptics>()> m_opticsGenerator;

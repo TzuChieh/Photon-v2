@@ -18,7 +18,7 @@ public:
 	AbradedOpaque();
 	virtual ~AbradedOpaque() override;
 
-	virtual void populateSurfaceBehavior(SurfaceBehavior* out_surfaceBehavior) const override;
+	virtual void populateSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const override;
 
 private:
 	std::function<std::unique_ptr<SurfaceOptics>()> m_opticsGenerator;

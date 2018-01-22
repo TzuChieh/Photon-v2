@@ -21,7 +21,7 @@ AbradedTranslucent::AbradedTranslucent() :
 
 AbradedTranslucent::~AbradedTranslucent() = default;
 
-void AbradedTranslucent::populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const
+void AbradedTranslucent::populateSurfaceBehavior(CookingContext& context, SurfaceBehavior* const out_surfaceBehavior) const
 {
 	out_surfaceBehavior->setSurfaceOptics(std::make_unique<TranslucentMicrofacet>(m_optics));
 }

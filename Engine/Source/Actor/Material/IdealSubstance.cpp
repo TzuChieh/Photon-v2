@@ -32,7 +32,7 @@ IdealSubstance::IdealSubstance() :
 
 IdealSubstance::~IdealSubstance() = default;
 
-void IdealSubstance::populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const
+void IdealSubstance::populateSurfaceBehavior(CookingContext& context, SurfaceBehavior* const out_surfaceBehavior) const
 {
 	out_surfaceBehavior->setSurfaceOptics(m_opticsGenerator());
 }

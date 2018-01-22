@@ -20,12 +20,17 @@ class Image : public TCommandInterface<Image>
 public:
 	virtual ~Image() = 0;
 
-	virtual void genTexture(CookingContext& context, 
-	                        std::shared_ptr<TTexture<real>>* out_texture) const;
-	virtual void genTexture(CookingContext& context,
-	                        std::shared_ptr<TTexture<Vector3R>>* out_texture) const;
-	virtual void genTexture(CookingContext& context,
-	                        std::shared_ptr<TTexture<SpectralStrength>>* out_texture) const;
+	virtual void genTextureReal(
+		CookingContext& context, 
+		std::shared_ptr<TTexture<real>>* out_texture) const;
+
+	virtual void genTextureVector3R(
+		CookingContext& context,
+		std::shared_ptr<TTexture<Vector3R>>* out_texture) const;
+
+	virtual void genTextureSpectral(
+		CookingContext& context,
+		std::shared_ptr<TTexture<SpectralStrength>>* out_texture) const;
 
 private:
 	template<typename OutputType>

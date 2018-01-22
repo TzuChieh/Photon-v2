@@ -13,7 +13,7 @@ class AbradedSurface : public Material, public TCommandInterface<AbradedSurface>
 public:
 	virtual ~AbradedSurface() override;
 
-	virtual void populateSurfaceBehavior(SurfaceBehavior* out_surfaceBehavior) const = 0;
+	virtual void populateSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const = 0;
 
 private:
 

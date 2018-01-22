@@ -12,20 +12,22 @@
 namespace ph
 {
 
+class Image;
+
 class MatteOpaque : public Material, public TCommandInterface<MatteOpaque>
 {
 public:
 	MatteOpaque();
 	virtual ~MatteOpaque() override;
 
-	virtual void populateSurfaceBehavior(SurfaceBehavior* out_surfaceBehavior) const override;
+	virtual void populateSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const override;
 
 	void setAlbedo(const Vector3R& albedo);
 	void setAlbedo(const real r, const real g, const real b);
-	void setAlbedo(const std::shared_ptr<TTexture<SpectralStrength>>& albedo);
+	void setAlbedo(const std::shared_ptr<Image>& albedo);
 
 private:
-	LambertianDiffuse m_optics;
+	std::shared_ptr<Image> m_albedo;
 
 // command interface
 public:

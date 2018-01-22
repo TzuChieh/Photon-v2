@@ -130,7 +130,7 @@ class Exporter:
 
 		command = RawCommand()
 		if not b_context.scene.ph_use_cycles_material:
-			command.append_string(ui.material.to_sdl(b_material, material_name))
+			command.append_string(ui.material.to_sdl(b_material, self.__sdlconsole, material_name))
 		else:
 			command.append_string(export.cycles_material.to_sdl(b_material, self.__sdlconsole, material_name))
 		self.__sdlconsole.queue_command(command)

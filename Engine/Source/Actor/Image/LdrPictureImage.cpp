@@ -14,7 +14,7 @@ LdrPictureImage::LdrPictureImage(const TFrame<uint8>& picture) :
 
 LdrPictureImage::~LdrPictureImage() = default;
 
-void LdrPictureImage::genTexture(
+void LdrPictureImage::genTextureSpectral(
 	CookingContext& context,
 	std::shared_ptr<TTexture<SpectralStrength>>* const out_texture) const
 {

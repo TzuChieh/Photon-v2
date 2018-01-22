@@ -61,7 +61,7 @@ std::unique_ptr<Emitter> AreaSource::genEmitter(
 	
 	std::unique_ptr<PrimitiveAreaEmitter> emitter = std::make_unique<PrimitiveAreaEmitter>(data.primitives);
 	std::shared_ptr<TTexture<SpectralStrength>> radianceTexture;
-	m_emittedRadiance->genTexture(context, &radianceTexture);
+	m_emittedRadiance->genTextureSpectral(context, &radianceTexture);
 	emitter->setEmittedRadiance(radianceTexture);
 	return std::move(emitter);
 }

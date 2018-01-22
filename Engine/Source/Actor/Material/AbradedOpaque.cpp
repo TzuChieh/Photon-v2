@@ -28,7 +28,7 @@ AbradedOpaque::AbradedOpaque() :
 
 AbradedOpaque::~AbradedOpaque() = default;
 
-void AbradedOpaque::populateSurfaceBehavior(SurfaceBehavior* const out_surfaceBehavior) const
+void AbradedOpaque::populateSurfaceBehavior(CookingContext& context, SurfaceBehavior* const out_surfaceBehavior) const
 {
 	out_surfaceBehavior->setSurfaceOptics(m_opticsGenerator());
 }

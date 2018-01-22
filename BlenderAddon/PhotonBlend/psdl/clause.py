@@ -7,94 +7,125 @@ from abc import abstractmethod
 
 
 class SdlClause(cmd_base.SdlFragment):
+
 	def __init__(self):
 		super(SdlClause, self).__init__()
-		self.typeName = ""
-		self.name     = ""
-		self.data     = ""
+		self.__name = ""
+		self.__data = ""
 
 	@abstractmethod
-	def set_data(self, data):
+	def get_type_name(self):
+		pass
+
+	@abstractmethod
+	def data_to_string(self, data):
 		pass
 
 	def to_sdl_fragment(self):
-		return "[{} {} {}]".format(self.typeName, self.name, self.data)
+		data_string = self.data_to_string(self.__data)
+		return "[{} {} {}]".format(self.get_type_name(), self.__name, data_string)
 
 	def set_name(self, name):
-		self.name = name
+		self.__name = name
 		return self
+
+	def set_data(self, data):
+		self.__data = data
+		return self
+
+	def get_name(self):
+		return self.__name
 
 
 class IntegerClause(SdlClause):
+
 	def __init__(self):
 		super(IntegerClause, self).__init__()
-		self.typeName = "integer"
 
-	def set_data(self, integer):
-		self.data = str(integer)
-		return self
+	def get_type_name(self):
+		return "integer"
+
+	def data_to_string(self, integer_value):
+		return str(integer_value)
 
 
 class FloatClause(SdlClause):
+
 	def __init__(self):
 		super(FloatClause, self).__init__()
-		self.typeName = "real"
 
-	def set_data(self, floatvalue):
-		self.data = str(floatvalue)
-		return self
+	def get_type_name(self):
+		return "real"
+
+	def data_to_string(self, float_value):
+		return str(float_value)
 
 
 class StringClause(SdlClause):
+
 	def __init__(self):
 		super(StringClause, self).__init__()
-		self.typeName = "string"
 
-	def set_data(self, string):
-		self.data = str(string)
-		return self
+	def get_type_name(self):
+		return "string"
+
+	def data_to_string(self, string):
+		return string
+
+
+class SdlResourceIdentifierClause(StringClause):
+
+	def __init__(self):
+		super(SdlResourceIdentifierClause, self).__init__()
+
+	def data_to_string(self, sdlri):
+		return sdlri.get_identifier()
 
 
 class Vector3Clause(SdlClause):
+
 	def __init__(self):
 		super(Vector3Clause, self).__init__()
-		self.typeName = "vector3r"
 
-	def set_data(self, vec3):
-		self.data = "\"%.8f %.8f %.8f\"" % (vec3.x, vec3.y, vec3.z)
-		return self
+	def get_type_name(self):
+		return "vector3r"
+
+	def data_to_string(self, vec3):
+		return "\"%.8f %.8f %.8f\"" % (vec3.x, vec3.y, vec3.z)
 
 
-class ColorClause(SdlClause):
+class ColorClause(Vector3Clause):
+
 	def __init__(self):
 		super(ColorClause, self).__init__()
-		self.typeName = "vector3r"
 
-	def set_data(self, color):
-		self.data = "\"%.8f %.8f %.8f\"" % (color.r, color.g, color.b)
-		return self
+	def data_to_string(self, color):
+		return "\"%.8f %.8f %.8f\"" % (color.r, color.g, color.b)
 
 
 class QuaternionClause(SdlClause):
+
 	def __init__(self):
 		super(QuaternionClause, self).__init__()
-		self.typeName = "quaternionR"
 
-	def set_data(self, quat):
-		self.data = "\"%.8f %.8f %.8f %.8f\"" % (quat.x, quat.y, quat.z, quat.w)
-		return self
+	def get_type_name(self):
+		return "quaternionR"
+
+	def data_to_string(self, quat):
+		return "\"%.8f %.8f %.8f %.8f\"" % (quat.x, quat.y, quat.z, quat.w)
 
 
 class Vector3ListClause(SdlClause):
+
 	def __init__(self):
 		super(Vector3ListClause, self).__init__()
-		self.typeName = "vector3r-array"
 
-	def set_data(self, vec3arr):
+	def get_type_name(self):
+		return "vector3r-array"
+
+	def data_to_string(self, vec3arr):
 		vec3strings = ['{']
 		for vec3 in vec3arr:
 			vec3strings.append("\"%.8f %.8f %.8f\"" % (vec3.x, vec3.y, vec3.z))
 		vec3strings.append('}')
-
-		self.data = "".join(vec3strings)
-		return self
+		return "".join(vec3strings)
