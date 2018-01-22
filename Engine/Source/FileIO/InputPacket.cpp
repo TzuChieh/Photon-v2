@@ -92,8 +92,8 @@ Path InputPacket::getStringAsPath(
 	const Path&          defaultPath,
 	const DataTreatment& treatment) const
 {
-	const Path sdlResourceIdentifier(getString(name, defaultPath.toString(), treatment));
-	return m_workingDirectory.append(sdlResourceIdentifier);
+	const std::string& identifierString = getString(name, defaultPath.toString(), treatment);
+	return sdlResourceIdentifierToPath(identifierString);
 }
 
 bool InputPacket::isPrototypeMatched(const InputPrototype& prototype) const
@@ -165,9 +165,9 @@ std::string InputPacket::getCoreDataName()
 	return DescriptionParser::CORE_DATA_NAME();
 }
 
-Path InputPacket::sdlResourceIdentifierToPath(const std::string& sdlResourceIdentifier)
+Path InputPacket::sdlResourceIdentifierToPath(const std::string& sdlResourceIdentifier) const
 {
-
+	return m_workingDirectory.append(Path(sdlResourceIdentifier));
 }
 
 }// end namespace ph

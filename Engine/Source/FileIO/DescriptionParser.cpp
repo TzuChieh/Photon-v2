@@ -66,7 +66,8 @@ DescriptionParser::DescriptionParser() :
 	m_coreCommandTokenizer ({' ', '\t', '\n', '\r'}, {{'(',  ')'}, {'[', ']'}}),
 	m_worldCommandTokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}, {'[', ']'}, {'(', ')'}}), 
 	m_nameTokenizer        ({},                      {{'\"', '\"'}}),
-	m_generatedNameCounter(0)
+	m_generatedNameCounter(0),
+	m_workingDirectory()
 {
 
 }

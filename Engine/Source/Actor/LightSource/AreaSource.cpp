@@ -34,11 +34,10 @@ AreaSource::AreaSource(const Vector3R& emittedRgbRadiance) :
 	m_emittedRadiance = std::make_shared<ConstantImage>(vecRadianceSpectrum);
 }
 
-AreaSource::AreaSource(const std::string& imageFilename) : 
+AreaSource::AreaSource(const Path& imagePath) : 
 	LightSource(), 
 	m_emittedRadiance(nullptr)
 {
-	auto imagePath = Path(imageFilename);
 	auto image = std::make_shared<LdrPictureImage>(PictureLoader::loadLdr(imagePath));
 	m_emittedRadiance = image;
 }
@@ -96,16 +95,16 @@ std::unique_ptr<AreaSource> AreaSource::ciLoad(const InputPacket& packet)
 	}
 	else if(packet.isPrototypeMatched(pictureFilenameInput))
 	{
-		const auto& imageFilename = packet.getString(
-			"emitted-radiance", "", DataTreatment::REQUIRED());
-		return std::make_unique<AreaSource>(imageFilename);
+		const auto& imagePath = packet.getStringAsPath(
+			"emitted-radiance", Path(), DataTreatment::REQUIRED());
+		return std::make_unique<AreaSource>(imagePath);
 	}
-	else
+	/*else
 	{
 		const auto& image = packet.get<Image>(
 			"emitted-radiance", DataTreatment::REQUIRED());
 		auto source = std::make_unique<AreaSource>(image);
-	}
+	}*/
 
 	std::cerr << "warning: at AreaSource::ciLoad(), invalid input format" << std::endl;
 	return std::make_unique<AreaSource>(Vector3R(1, 1, 1));

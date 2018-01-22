@@ -28,6 +28,11 @@
 #include "Actor/AModel.h"
 #include "Actor/ALight.h"
 
+// images
+#include "Actor/Image/Image.h"
+#include "Actor/Image/ConstantImage.h"
+#include "Actor/Image/LdrPictureImage.h"
+
 // cameras
 #include "Core/Camera/Camera.h"
 #include "Core/Camera/PerspectiveCamera.h"
@@ -91,6 +96,11 @@ bool init_command_parser()
 	register_command_interface<PhysicalActor>();
 	register_command_interface<AModel>();
 	register_command_interface<ALight>();
+
+	// images
+	register_command_interface<Image>();
+	register_command_interface<ConstantImage>();
+	register_command_interface<LdrPictureImage>();
 
 	// cameras
 	register_command_interface<Camera>();

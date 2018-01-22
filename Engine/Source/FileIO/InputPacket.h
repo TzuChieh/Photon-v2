@@ -64,7 +64,8 @@ public:
 		const std::vector<Vector3R>& defaultVector3rArray = std::vector<Vector3R>(), 
 		const DataTreatment&         treatment            = DataTreatment()) const;
 
-	// Get string as path if the string is a SDL resource identifier.
+	// Get the string as if the string is a SDL resource identifier and convert
+	// it to a path.
 	Path getStringAsPath(
 		const std::string&   name, 
 		const Path&          defaultPath = Path("/"), 
@@ -91,10 +92,10 @@ private:
 
 	bool findStringValue(const std::string& typeName, const std::string& dataName, const DataTreatment& treatment,
 	                     std::string* const out_value) const;
+	Path sdlResourceIdentifierToPath(const std::string& sdlResourceIdentifier) const;
 
 	static void reportDataNotFound(const std::string& typeName, const std::string& name, const DataTreatment& treatment);
 	static std::string getCoreDataName();
-	static Path sdlResourceIdentifierToPath(const std::string& sdlResourceIdentifier);
 };
 
 // template implementations:

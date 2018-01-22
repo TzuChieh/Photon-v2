@@ -87,6 +87,14 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteEngine
 
 /*
  * Class:     photonApi_Ph
+ * Method:    phSetWorkingDirectory
+ * Signature: (JLjava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phSetWorkingDirectory
+  (JNIEnv *, jclass, jlong, jstring);
+
+/*
+ * Class:     photonApi_Ph
  * Method:    phCreateFrame
  * Signature: (LphotonApi/LongRef;II)V
  */

@@ -3,6 +3,7 @@
 #include "Actor/LightSource/LightSource.h"
 #include "Math/math_fwd.h"
 #include "FileIO/SDL/TCommandInterface.h"
+#include "FileIO/FileSystem/Path.h"
 
 #include <memory>
 #include <string>
@@ -16,7 +17,7 @@ class AreaSource final : public LightSource, public TCommandInterface<AreaSource
 {
 public:
 	AreaSource(const Vector3R& emittedRgbRadiance);
-	AreaSource(const std::string& imageFilename);
+	AreaSource(const Path& imagePath);
 	AreaSource(const std::shared_ptr<Image>& emittedRadiance);
 	virtual ~AreaSource() override;
 

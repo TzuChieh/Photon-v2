@@ -1,5 +1,7 @@
 package appModel.project;
 
+import java.io.File;
+
 import appModel.EditorApp;
 import appModel.ManageableResource;
 import appModel.event.ProjectEventType;
@@ -58,7 +60,9 @@ public final class Project extends ManageableResource
 	{
 		EditorApp.printToConsole("loading scene file <" + filename + ">...");
 		
-		m_engine.load(filename);
+		File sceneFile = new File(filename);
+		m_engine.setWorkingDirectory(sceneFile.getParent());
+		m_engine.loadCommand(filename);
 		m_engine.update();
 		
 		FilmInfo info = m_engine.getFilmInfo();

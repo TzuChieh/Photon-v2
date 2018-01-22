@@ -122,6 +122,22 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteEngine
 
 /*
 * Class:     photonApi_Ph
+* Method:    phSetWorkingDirectory
+* Signature: (JLjava/lang/String;)V
+*/
+JNIEXPORT void JNICALL Java_photonApi_Ph_phSetWorkingDirectory
+(JNIEnv* env, jclass clazz, jlong engineId, jstring workingDirectory)
+{
+	static_assert(sizeof(PHchar) == sizeof(char), 
+	              "character size mismatch between Photon's char and C++'s.");
+
+	const PHchar* workingDirectoryString = env->GetStringUTFChars(workingDirectory, JNI_FALSE);
+	phSetWorkingDirectory(static_cast<PHuint64>(engineId), workingDirectoryString);
+	env->ReleaseStringUTFChars(workingDirectory, workingDirectoryString);
+}
+
+/*
+* Class:     photonApi_Ph
 * Method:    phCreateFrame
 * Signature: (LphotonApi/LongRef;II)V
 */

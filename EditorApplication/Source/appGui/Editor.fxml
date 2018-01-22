@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ScrollPane?>
@@ -21,7 +22,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<TabPane prefHeight="500.0" prefWidth="800.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="appGui.EditorCtrl">
+<TabPane prefHeight="500.0" prefWidth="1000.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="appGui.EditorCtrl">
    <tabs>
       <Tab text="General">
          <content>
@@ -193,7 +194,7 @@
                                                                   <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                                </rowConstraints>
                                                                <children>
-                                                                  <Label text="Render" GridPane.rowIndex="3">
+                                                                  <Label text="Render" GridPane.rowIndex="4">
                                                                      <font>
                                                                         <Font name="Arial Bold" size="12.0" />
                                                                      </font>
@@ -201,7 +202,7 @@
                                                                         <Insets left="5.0" right="5.0" />
                                                                      </GridPane.margin>
                                                                   </Label>
-                                                                  <Label text="Scene">
+                                                                  <Label text="Scene Options">
                                                                      <font>
                                                                         <Font name="Arial Bold" size="12.0" />
                                                                      </font>
@@ -209,7 +210,7 @@
                                                                         <Insets left="5.0" right="5.0" />
                                                                      </GridPane.margin>
                                                                   </Label>
-                                                                  <Label text="scene file" GridPane.rowIndex="1">
+                                                                  <Label text="Scene File" GridPane.rowIndex="1">
                                                                      <font>
                                                                         <Font name="Arial" size="12.0" />
                                                                      </font>
@@ -226,10 +227,16 @@
                                                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                                      </rowConstraints>
                                                                      <children>
-                                                                        <TextField fx:id="sceneFileTextField" maxWidth="1.7976931348623157E308" />
-                                                                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onMouseClicked="#sceneFileBrowseBtnClicked" text="browse" GridPane.columnIndex="1" />
+                                                                        <TextField fx:id="sceneFileTextField" maxWidth="1.7976931348623157E308" prefHeight="23.0" prefWidth="147.0" />
+                                                                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onMouseClicked="#sceneFileBrowseBtnClicked" text="Browse" GridPane.columnIndex="1" />
                                                                      </children>
                                                                   </GridPane>
+                                                                  <Label text="Working Directory" GridPane.rowIndex="2">
+                                                                     <GridPane.margin>
+                                                                        <Insets left="5.0" />
+                                                                     </GridPane.margin>
+                                                                  </Label>
+                                                                  <CheckBox disable="true" mnemonicParsing="false" selected="true" text="Use Scene File Directory" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                                                </children>
                                                                <padding>
                                                                   <Insets left="10.0" right="10.0" />

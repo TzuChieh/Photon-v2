@@ -23,7 +23,12 @@ public final class PhEngine
 		Ph.phEnterCommand(m_engineId, commandFragment);
 	}
 	
-	public void load(String filename)
+	public void setWorkingDirectory(String workingDirectory)
+	{
+		Ph.phSetWorkingDirectory(m_engineId, workingDirectory);
+	}
+	
+	public void loadCommand(String filename)
 	{
 		try
 		{

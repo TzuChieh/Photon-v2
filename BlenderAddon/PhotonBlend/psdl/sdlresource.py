@@ -17,6 +17,16 @@ class SdlResourceIdentifier:
 	def get_path(self):
 		return self.__resource_folder_path + self.__resource_filename
 
+	def get_identifier(self):
+		res_path       = self.get_path()
+		res_identifier = ""
+		for ch in res_path:
+			if ch != utility.path_separator():
+				res_identifier += ch
+			else:
+				res_identifier += "/"
+		return res_identifier
+
 	def is_valid(self):
 		return self.__resource_folder_path or self.__resource_filename
 

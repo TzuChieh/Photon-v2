@@ -58,8 +58,11 @@ void phDeleteEngine(const PHuint64 engineId)
 	}
 }
 
-void phEnterCommand(const PHuint64 engineId, const char* const commandFragment)
+void phEnterCommand(const PHuint64 engineId, const PHchar* const commandFragment)
 {
+	// TODO: static assertion
+	PH_ASSERT(sizeof(PHchar) == sizeof(char));
+
 	using namespace ph;
 
 	Engine* engine = ApiDatabase::getEngine(engineId);
@@ -226,6 +229,9 @@ void phAsyncDevelopFilmRegion(const PHuint64 engineId, const PHuint64 frameId,
 
 void phSetWorkingDirectory(const PHuint64 engineId, const PHchar* const workingDirectory)
 {
+	// TODO: static assertion
+	PH_ASSERT(sizeof(PHchar) == sizeof(char));
+
 	using namespace ph;
 
 	Engine* engine = ApiDatabase::getEngine(engineId);

@@ -35,7 +35,7 @@ void LdrPictureImage::ciRegister(CommandRegister& cmdRegister)
 	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
 	{
 		const Path& picturePath = packet.getStringAsPath(
-			"filename", Path(), DataTreatment::REQUIRED());
+			"image", Path(), DataTreatment::REQUIRED());
 
 		return std::make_unique<LdrPictureImage>(PictureLoader::loadLdr(picturePath));
 	}));

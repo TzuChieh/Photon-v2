@@ -82,7 +82,7 @@ extern PH_API int phExit();
 //
 
 extern PH_API void phCreateEngine(PHuint64* out_engineId, const PHuint32 numRenderThreads);
-extern PH_API void phEnterCommand(PHuint64 engineId, const char* commandFragment);
+extern PH_API void phEnterCommand(PHuint64 engineId, const PHchar* commandFragment);
 extern PH_API void phRender(PHuint64 engineId);
 extern PH_API void phUpdate(PHuint64 engineId);
 extern PH_API void phDevelopFilm(PHuint64 engineId, PHuint64 frameId);
