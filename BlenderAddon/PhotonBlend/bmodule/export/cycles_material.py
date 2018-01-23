@@ -32,6 +32,7 @@ def image_texture_node_to_sdl_resource(this_node, sdlconsole, res_name):
 	image_sdlri.append_folder(res_name)
 	image_sdlri.set_file(image_name + ".png")
 	image.file_format = "PNG"
+	image.alpha_mode  = "PREMUL"
 	psdl.sdlresource.save_blender_image(image, image_sdlri, sdlconsole)
 
 	return image_sdlri

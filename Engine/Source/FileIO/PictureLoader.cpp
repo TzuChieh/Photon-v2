@@ -87,8 +87,10 @@ TFrame<uint8> PictureLoader::loadLdrViaStb(const std::string& fullFilename)
 		std::cerr << "warning: at TextureLoader::load(), " 
 		          << "picture <" 
 		          << fullFilename 
-		          << "> number of components != 3, unsupported" << std::endl;
-		return TFrame<uint8>();
+		          << ">'s number of components != 3 (has " 
+		          << numComponents 
+		          << " components), may produce error" << std::endl;
+		//return TFrame<uint8>();
 	}
 
 	TFrame<uint8> picture(widthPx, heightPx);
@@ -96,7 +98,7 @@ TFrame<uint8> PictureLoader::loadLdrViaStb(const std::string& fullFilename)
 	{
 		for(uint32 x = 0; x < picture.widthPx(); x++)
 		{
-			const std::size_t i = (static_cast<std::size_t>(y) * picture.widthPx() + x) * 3;
+			const std::size_t i = (static_cast<std::size_t>(y) * picture.widthPx() + x) * numComponents;
 			PH_ASSERT(i < static_cast<std::size_t>(widthPx) * heightPx * numComponents);
 
 			const Vector3R sRgbPixel(stbImageData[i + 0] / 255.0_r, 

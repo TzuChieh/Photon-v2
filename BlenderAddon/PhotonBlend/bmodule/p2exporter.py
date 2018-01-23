@@ -90,7 +90,7 @@ class Exporter:
 
 		if geometryType == "triangle-mesh":
 			command = RawCommand()
-			command.append_string("-> geometry(triangle-mesh) %s \n" %(geometryName))
+			command.append_string("-> geometry(triangle-mesh) %s \n" % ("\"@" + geometryName + "\""))
 
 			positions = ""
 			for position in keywordArgs["positions"]:
@@ -119,7 +119,7 @@ class Exporter:
 			command = RawCommand()
 			command.append_string(
 				"-> geometry(rectangle) %s [real width %.8f] [real height %.8f]\n" %
-				(geometryName, keywordArgs["width"], keywordArgs["height"])
+				("\"@" + geometryName + "\"", keywordArgs["width"], keywordArgs["height"])
 			)
 			self.__sdlconsole.queue_command(command)
 
@@ -143,13 +143,13 @@ class Exporter:
 			command = RawCommand()
 			command.append_string(
 				"-> light-source(area) %s [vector3r emitted-radiance \"%.8f %.8f %.8f\"]\n" %
-				(lightSourceName, emittedRadiance[0], emittedRadiance[1], emittedRadiance[2])
+				("\"@" + lightSourceName + "\"", emittedRadiance[0], emittedRadiance[1], emittedRadiance[2])
 			)
 			self.__sdlconsole.queue_command(command)
 
 		else:
 			print("warning: light source (%s) with type %s is unsuppoprted, not exporting"
-				  %(lightSourceName, lightSourceType))
+				  %("\"@" + lightSourceName + "\"", lightSourceType))
 
 
 	def exportActorLight(self, actorLightName, lightSourceName, geometryName, materialName, position, rotation, scale):
@@ -164,25 +164,25 @@ class Exporter:
 
 		if lightSourceName != None:
 			command.append_string("-> actor(light) %s [light-source light-source %s] "
-						 %(actorLightName, lightSourceName))
+						 %("\"@" + actorLightName + "\"", "\"@" + lightSourceName + "\""))
 		else:
 			print("warning: expecting a non-None light source name for actor-light %s, not exporting" %(actorLightName))
 			return
 
 		if geometryName != None:
-			command.append_string("[geometry geometry %s] " %(geometryName))
+			command.append_string("[geometry geometry %s] " %("\"@" + geometryName + "\""))
 
 		if materialName != None:
-			command.append_string("[material material %s] " %(materialName))
+			command.append_string("[material material %s] " %("\"@" + materialName + "\""))
 
 		command.append_string("\n")
 
 		command.append_string("-> actor(light) translate(%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
-					 %(actorLightName, position.x, position.y, position.z))
+					 %("\"@" + actorLightName + "\"", position.x, position.y, position.z))
 		command.append_string("-> actor(light) scale    (%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
-					 %(actorLightName, scale.x, scale.y, scale.z))
+					 %("\"@" + actorLightName + "\"", scale.x, scale.y, scale.z))
 		command.append_string("-> actor(light) rotate   (%s) [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
-					 %(actorLightName, rotation.x, rotation.y, rotation.z, rotation.w))
+					 %("\"@" + actorLightName + "\"", rotation.x, rotation.y, rotation.z, rotation.w))
 
 		self.__sdlconsole.queue_command(command)
 
@@ -200,14 +200,14 @@ class Exporter:
 		scale    = self.__blendToPhotonVector(scale)
 
 		command.append_string("-> actor(model) %s [geometry geometry %s] [material material %s]\n"
-					 %(actorModelName, geometryName, materialName))
+					 %("\"@" + actorModelName + "\"", "\"@" + geometryName + "\"", "\"@" + materialName + "\""))
 
 		command.append_string("-> actor(model) translate(%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
-					 %(actorModelName, position.x, position.y, position.z))
+					 %("\"@" + actorModelName + "\"", position.x, position.y, position.z))
 		command.append_string("-> actor(model) scale    (%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
-					 %(actorModelName, scale.x, scale.y, scale.z))
+					 %("\"@" + actorModelName + "\"", scale.x, scale.y, scale.z))
 		command.append_string("-> actor(model) rotate   (%s) [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
-					 %(actorModelName, rotation.x, rotation.y, rotation.z, rotation.w))
+					 %("\"@" + actorModelName + "\"", rotation.x, rotation.y, rotation.z, rotation.w))
 
 		self.__sdlconsole.queue_command(command)
 
