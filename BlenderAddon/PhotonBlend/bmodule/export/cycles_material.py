@@ -7,7 +7,18 @@ import mathutils
 from collections import namedtuple
 
 
-def non_node_material_to_sdl(b_material, sdlconsole, res_name):
+class TranslateResult:
+
+	def __init__(self, command = None, sdlri = None, is_emissive = False):
+		self.command     = command
+		self.sdlri       = sdlri
+		self.is_emissive = is_emissive
+
+	def is_valid(self):
+		return self.command is not None or self.sdlri is not None
+
+
+def translate_non_node_material(b_material, sdlconsole, res_name):
 
 	print("warning: material %s uses no nodes, exporting diffuse color only" % res_name)
 
@@ -17,11 +28,12 @@ def non_node_material_to_sdl(b_material, sdlconsole, res_name):
 	command = psdl.materialcmd.MatteOpaqueCreator()
 	command.set_data_name(res_name)
 	command.set_albedo_color(diffuse_color)
+	sdlconsole.queue_command(command)
 
-	return command.to_sdl(sdlconsole)
+	return TranslateResult(command)
 
 
-def image_texture_node_to_sdl_resource(this_node, sdlconsole, res_name):
+def translate_image_texture_node(this_node, sdlconsole, res_name):
 
 	image       = this_node.image
 	image_sdlri = psdl.sdlresource.SdlResourceIdentifier()
@@ -35,10 +47,10 @@ def image_texture_node_to_sdl_resource(this_node, sdlconsole, res_name):
 	image.alpha_mode  = "PREMUL"
 	psdl.sdlresource.save_blender_image(image, image_sdlri, sdlconsole)
 
-	return image_sdlri
+	return TranslateResult(None, image_sdlri)
 
 
-def diffuse_bsdf_node_to_sdl(this_node, sdlconsole, res_name):
+def translate_diffuse_bsdf_node(this_node, sdlconsole, res_name):
 
 	command = psdl.materialcmd.MatteOpaqueCreator()
 	command.set_data_name(res_name)
@@ -48,12 +60,14 @@ def diffuse_bsdf_node_to_sdl(this_node, sdlconsole, res_name):
 
 		if color_socket.links[0].from_node.name == "Image Texture":
 			image_texture_node = color_socket.links[0].from_node
-			image_sdlri = image_texture_node_to_sdl_resource(image_texture_node, sdlconsole, res_name)
+			image_sdlri = translate_image_texture_node(image_texture_node, sdlconsole, res_name)
 			if image_sdlri.is_valid():
 				command.set_albedo_image(image_sdlri)
 			else:
 				print("warning: material %s's albedo image is invalid (identifier = %s)" % (res_name, image_sdlri))
-			return command.to_sdl(sdlconsole)
+			sdlconsole.queue_command(command)
+
+			return TranslateResult(command)
 
 		else:
 			print("warning: cannot handle Diffuse BSDF node's color socket (material %s)" % res_name)
@@ -65,10 +79,12 @@ def diffuse_bsdf_node_to_sdl(this_node, sdlconsole, res_name):
 
 	albedo = mathutils.Color((color[0], color[1], color[2]))
 	command.set_albedo_color(albedo)
-	return command.to_sdl(sdlconsole)
+	sdlconsole.queue_command(command)
+
+	return TranslateResult(command)
 
 
-def glossy_bsdf_node_to_sdl(this_node, sdlconsole, res_name):
+def translate_glossy_bsdf_node(this_node, sdlconsole, res_name):
 
 	distribution = this_node.distribution
 	if distribution == "GGX":
@@ -93,32 +109,33 @@ def glossy_bsdf_node_to_sdl(this_node, sdlconsole, res_name):
 		command.set_f0(mathutils.Color((color[0], color[1], color[2])))
 		command.set_roughness(roughness)
 		command.set_anisotropicity(False)
+		sdlconsole.queue_command(command)
 
-		return command.to_sdl(sdlconsole)
+		return TranslateResult(command)
 
 	else:
 		print("warning: cannot convert Glossy BSDF distribution type %s (material %s)" %
-			  (distribution, res_name))
-		return ""
+		      (distribution, res_name))
+		return TranslateResult()
 
 
-NODE_NAME_TO_PSDL_TRANSLATOR_TABLE = {
-	"Diffuse BSDF": diffuse_bsdf_node_to_sdl,
-	"Glossy BSDF":  glossy_bsdf_node_to_sdl
+NODE_NAME_TO_TRANSLATOR_TABLE = {
+	"Diffuse BSDF": translate_diffuse_bsdf_node,
+	"Glossy BSDF":  translate_glossy_bsdf_node
 }
 
 
-def surface_node_to_sdl(this_node, sdlconsole, res_name):
+def translate_surface_node(this_node, sdlconsole, res_name):
 
-	translator = NODE_NAME_TO_PSDL_TRANSLATOR_TABLE.get(this_node.name)
+	translator = NODE_NAME_TO_TRANSLATOR_TABLE.get(this_node.name)
 	if translator is not None:
 		return translator(this_node, sdlconsole, res_name)
 	else:
 		print("warning: material %s has no valid psdl translator, ignoring" % res_name)
-		return ""
+		return TranslateResult()
 
 
-def node_material_to_sdl(b_material, sdlconsole, res_name):
+def translate_node_material(b_material, sdlconsole, res_name):
 
 	material_output_node = b_material.node_tree.nodes.get("Material Output")
 	if material_output_node is not None:
@@ -126,19 +143,19 @@ def node_material_to_sdl(b_material, sdlconsole, res_name):
 
 		if surface_socket.is_linked:
 			surface_node = surface_socket.links[0].from_node
-			return surface_node_to_sdl(surface_node, sdlconsole, res_name)
+			return translate_surface_node(surface_node, sdlconsole, res_name)
 		else:
 			print("warning: materia %s has no linked surface node, ignoring" % res_name)
-			return ""
+			return TranslateResult()
 	else:
 		print("warning: material %s has no output node, ignoring" % res_name)
-		return ""
+		return TranslateResult()
 
 
-def to_sdl(b_material, sdlconsole, res_name):
+def translate(b_material, sdlconsole, res_name):
 
 	if b_material.use_nodes:
-		return node_material_to_sdl(b_material, sdlconsole, res_name)
+		return translate_node_material(b_material, sdlconsole, res_name)
 	else:
-		return non_node_material_to_sdl(b_material, sdlconsole, res_name)
+		return translate_non_node_material(b_material, sdlconsole, res_name)
 

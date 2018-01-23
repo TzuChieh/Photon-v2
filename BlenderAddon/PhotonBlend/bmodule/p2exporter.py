@@ -128,12 +128,15 @@ class Exporter:
 
 	def exportMaterial(self, b_context, material_name, b_material):
 
-		command = RawCommand()
 		if not b_context.scene.ph_use_cycles_material:
+			command = RawCommand()
 			command.append_string(ui.material.to_sdl(b_material, self.__sdlconsole, material_name))
+			self.__sdlconsole.queue_command(command)
 		else:
-			command.append_string(export.cycles_material.to_sdl(b_material, self.__sdlconsole, material_name))
-		self.__sdlconsole.queue_command(command)
+			translate_result = export.cycles_material.translate(b_material, self.__sdlconsole, material_name)
+			if not translate_result.is_valid():
+				print("warning: cycles material %s translation failed" % material_name)
+
 
 	def exportLightSource(self, lightSourceType, lightSourceName, **keywordArgs):
 
