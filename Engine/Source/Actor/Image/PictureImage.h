@@ -6,12 +6,14 @@
 namespace ph
 {
 
-class PictureImage final : public Image, public TCommandInterface<PictureImage>
+class PictureImage : public Image, public TCommandInterface<PictureImage>
 {
 public:
 	virtual ~PictureImage() override;
 
-	virtual std::shared_ptr<TTexture<SpectralStrength>> genTexture(CookingContext& context) const = 0;
+	virtual void genTextureSpectral(
+		CookingContext& context,
+		std::shared_ptr<TTexture<SpectralStrength>>* out_texture) const = 0;
 
 // command interface
 public:

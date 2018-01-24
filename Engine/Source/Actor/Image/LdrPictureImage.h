@@ -1,14 +1,14 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Actor/Image/Image.h"
+#include "Actor/Image/PictureImage.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Frame/TFrame.h"
 
 namespace ph
 {
 
-class LdrPictureImage final : public Image, public TCommandInterface<LdrPictureImage>
+class LdrPictureImage final : public PictureImage, public TCommandInterface<LdrPictureImage>
 {
 public:
 	LdrPictureImage(const TFrame<uint8>& picture);
