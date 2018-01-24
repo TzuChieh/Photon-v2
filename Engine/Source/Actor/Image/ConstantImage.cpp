@@ -1,5 +1,6 @@
 #include "Actor/Image/ConstantImage.h"
 #include "Core/Texture/TConstantTexture.h"
+#include "Math/TVector3.h"
 
 #include <iostream>
 
@@ -8,6 +9,12 @@ namespace ph
 
 ConstantImage::ConstantImage(const real value) : 
 	m_values({value})
+{
+
+}
+
+ConstantImage::ConstantImage(const Vector3R& values) : 
+	m_values({values.x, values.y, values.z})
 {
 
 }
@@ -26,7 +33,7 @@ void ConstantImage::genTextureReal(
 {
 	if(m_values.size() != 1)
 	{
-		std::cerr << "warning: at ConstantImage::genTexture(), "
+		std::cerr << "warning: at ConstantImage::genTextureReal(), "
 		          << "zero or > 1 values present. "
 		          << "Generating texture with value 1 or first value." << std::endl;
 	}
@@ -40,7 +47,7 @@ void ConstantImage::genTextureVector3R(
 {
 	if(m_values.size() != 3)
 	{
-		std::cerr << "warning: at ConstantImage::genTexture(), "
+		std::cerr << "warning: at ConstantImage::genTextureVector3R(), "
 		          << "bad number of input values."
 		          << "Generated texture may not be what you want." << std::endl;
 	}
@@ -58,7 +65,7 @@ void ConstantImage::genTextureSpectral(
 {
 	if(m_values.size() != SpectralStrength::numElements())
 	{
-		std::cerr << "warning: at ConstantImage::genTexture(), "
+		std::cerr << "warning: at ConstantImage::genTextureSpectral(), "
 		          << "bad number of input values."
 		          << "Generated texture may not be what you want." << std::endl;
 	}

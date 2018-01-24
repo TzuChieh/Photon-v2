@@ -9,13 +9,21 @@ from collections import namedtuple
 
 class TranslateResult:
 
-	def __init__(self, command = None, sdlri = None, is_emissive = False):
-		self.command     = command
-		self.sdlri       = sdlri
-		self.is_emissive = is_emissive
+	def __init__(self,
+	             sdl_commands               = None,
+	             sdl_resource_identifiers   = None,
+	             sdl_emission_image_command = None):
+		self.sdl_commands               = sdl_commands
+		self.sdl_resource_identifiers   = sdl_resource_identifiers
+		self.sdl_emission_image_command = sdl_emission_image_command
 
 	def is_valid(self):
-		return self.command is not None or self.sdlri is not None
+		return (self.sdl_commands is not None or
+		        self.sdl_resource_identifiers is not None or
+		        self.is_emissive())
+
+	def is_emissive(self):
+		return self.sdl_emission_image_command is not None
 
 
 def translate_non_node_material(b_material, sdlconsole, res_name):
@@ -30,7 +38,7 @@ def translate_non_node_material(b_material, sdlconsole, res_name):
 	command.set_albedo_color(diffuse_color)
 	sdlconsole.queue_command(command)
 
-	return TranslateResult(command)
+	return TranslateResult([command])
 
 
 def translate_image_texture_node(this_node, sdlconsole, res_name):
@@ -38,7 +46,7 @@ def translate_image_texture_node(this_node, sdlconsole, res_name):
 	image       = this_node.image
 	image_sdlri = psdl.sdlresource.SdlResourceIdentifier()
 	if image is None:
-		return image_sdlri
+		return TranslateResult()
 
 	image_name = utility.get_filename_without_ext(image.name)
 	image_sdlri.append_folder(res_name)
@@ -47,7 +55,7 @@ def translate_image_texture_node(this_node, sdlconsole, res_name):
 	image.alpha_mode  = "PREMUL"
 	psdl.sdlresource.save_blender_image(image, image_sdlri, sdlconsole)
 
-	return TranslateResult(None, image_sdlri)
+	return TranslateResult(None, [image_sdlri])
 
 
 def translate_diffuse_bsdf_node(this_node, sdlconsole, res_name):
@@ -60,14 +68,14 @@ def translate_diffuse_bsdf_node(this_node, sdlconsole, res_name):
 
 		if color_socket.links[0].from_node.name == "Image Texture":
 			image_texture_node = color_socket.links[0].from_node
-			image_sdlri = translate_image_texture_node(image_texture_node, sdlconsole, res_name)
-			if image_sdlri.is_valid():
-				command.set_albedo_image(image_sdlri)
+			result = translate_image_texture_node(image_texture_node, sdlconsole, res_name)
+			if result.sdl_resource_identifiers is not None:
+				command.set_albedo_image(result.sdl_resource_identifiers[0])
 			else:
-				print("warning: material %s's albedo image is invalid (identifier = %s)" % (res_name, image_sdlri))
+				print("warning: material %s's albedo image is invalid" % res_name)
 			sdlconsole.queue_command(command)
 
-			return TranslateResult(command)
+			return TranslateResult([command])
 
 		else:
 			print("warning: cannot handle Diffuse BSDF node's color socket (material %s)" % res_name)
@@ -81,7 +89,7 @@ def translate_diffuse_bsdf_node(this_node, sdlconsole, res_name):
 	command.set_albedo_color(albedo)
 	sdlconsole.queue_command(command)
 
-	return TranslateResult(command)
+	return TranslateResult([command])
 
 
 def translate_glossy_bsdf_node(this_node, sdlconsole, res_name):
@@ -111,7 +119,7 @@ def translate_glossy_bsdf_node(this_node, sdlconsole, res_name):
 		command.set_anisotropicity(False)
 		sdlconsole.queue_command(command)
 
-		return TranslateResult(command)
+		return TranslateResult([command])
 
 	else:
 		print("warning: cannot convert Glossy BSDF distribution type %s (material %s)" %
@@ -119,9 +127,34 @@ def translate_glossy_bsdf_node(this_node, sdlconsole, res_name):
 		return TranslateResult()
 
 
+def translate_emission_node(this_node, sdlconsole, res_name):
+
+	color_socket = this_node.inputs.get("Color")
+	if color_socket.is_linked:
+
+		color_socket_from_node = color_socket.links[0].from_node
+		if color_socket_from_node.name == "Image Texture":
+
+			image_texture_node = color_socket_from_node
+			image_command      = psdl.imagecmd.LdrPictureImageCreator()
+
+			result = translate_image_texture_node(image_texture_node, sdlconsole, res_name)
+			if result.sdl_resource_identifiers is not None:
+				image_sdlri = result.sdl_resource_identifiers[0]
+				image_command.set_data_name("emission_image_" + res_name)  # FIXME: be aware of name collision
+				image_command.set_image_sdlri(image_sdlri)
+				sdlconsole.queue_command(image_command)
+				return TranslateResult(None, None, image_command)
+			else:
+				print("warning: material %s's emission image is invalid" % res_name)
+
+	return TranslateResult()
+
+
 NODE_NAME_TO_TRANSLATOR_TABLE = {
 	"Diffuse BSDF": translate_diffuse_bsdf_node,
-	"Glossy BSDF":  translate_glossy_bsdf_node
+	"Glossy BSDF":  translate_glossy_bsdf_node,
+	"Emission":     translate_emission_node
 }
 
 

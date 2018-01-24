@@ -70,7 +70,7 @@ class StringClause(SdlClause):
 		return "string"
 
 	def data_to_string(self, string):
-		return string
+		return "\"" + string + "\""
 
 
 class SdlResourceIdentifierClause(StringClause):
@@ -79,7 +79,7 @@ class SdlResourceIdentifierClause(StringClause):
 		super(SdlResourceIdentifierClause, self).__init__()
 
 	def data_to_string(self, sdlri):
-		return sdlri.get_identifier()
+		return super(SdlResourceIdentifierClause, self).data_to_string(sdlri.get_identifier())
 
 
 class Vector3Clause(SdlClause):

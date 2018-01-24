@@ -3,6 +3,7 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Geometry/Geometry.h"
 #include "Actor/Material/Material.h"
+#include "Actor/Material/MatteOpaque.h"
 #include "Actor/LightSource/LightSource.h"
 #include "Actor/CookedUnit.h"
 #include "FileIO/InputPacket.h"
@@ -110,11 +111,12 @@ void ALight::setLightSource(const std::shared_ptr<LightSource>& lightSource)
 
 CookedUnit ALight::buildGeometricLight(CookingContext& context) const
 {
-	if(!m_material)
+	std::shared_ptr<Material> material = m_material;
+	if(!material)
 	{
-		std::cerr << "warning: at ALight::buildGeometricLight(), " 
-		          << "a material is needed for building a geometric light" << std::endl;
-		return CookedUnit();
+		std::cout << "note: at ALight::buildGeometricLight(), " 
+		          << "material is not specified, using default diffusive material" << std::endl;
+		material = std::make_shared<MatteOpaque>();
 	}
 
 	ModelBuilder modelBuilder(context);
@@ -137,7 +139,7 @@ CookedUnit ALight::buildGeometricLight(CookingContext& context) const
 	auto metadata = std::make_unique<PrimitiveMetadata>();
 	primitiveBuildingMaterial.metadata = metadata.get();
 
-	m_material->populateSurfaceBehavior(context, &(metadata->surfaceBehavior));
+	material->populateSurfaceBehavior(context, &(metadata->surfaceBehavior));
 
 	std::vector<std::unique_ptr<Primitive>> primitives;
 	sanifiedGeometry->genPrimitive(primitiveBuildingMaterial, primitives);

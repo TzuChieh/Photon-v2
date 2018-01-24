@@ -99,12 +99,12 @@ std::unique_ptr<AreaSource> AreaSource::ciLoad(const InputPacket& packet)
 			"emitted-radiance", Path(), DataTreatment::REQUIRED());
 		return std::make_unique<AreaSource>(imagePath);
 	}
-	/*else
+	else
 	{
 		const auto& image = packet.get<Image>(
 			"emitted-radiance", DataTreatment::REQUIRED());
-		auto source = std::make_unique<AreaSource>(image);
-	}*/
+		return std::make_unique<AreaSource>(image);
+	}
 
 	std::cerr << "warning: at AreaSource::ciLoad(), invalid input format" << std::endl;
 	return std::make_unique<AreaSource>(Vector3R(1, 1, 1));

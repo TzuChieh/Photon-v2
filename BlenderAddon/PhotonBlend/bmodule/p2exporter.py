@@ -38,11 +38,21 @@ def mangled_actor_light_name(obj, name, suffix):
 	return "actor_light_" + obj.name + "_" + name + "_" + suffix
 
 
+class MaterialExportStatus:
+
+	def __init__(self, emission_image_command = None):
+		self.emission_image_command = emission_image_command
+
+
 class Exporter:
 
 	def __init__(self, file_path):
 		self.__file_path  = file_path
 		self.__sdlconsole = None
+
+	# TODO: should not expose console
+	def get_sdlconsole(self):
+		return self.__sdlconsole
 
 	def begin(self):
 
@@ -132,10 +142,12 @@ class Exporter:
 			command = RawCommand()
 			command.append_string(ui.material.to_sdl(b_material, self.__sdlconsole, material_name))
 			self.__sdlconsole.queue_command(command)
+			return MaterialExportStatus()
 		else:
 			translate_result = export.cycles_material.translate(b_material, self.__sdlconsole, material_name)
 			if not translate_result.is_valid():
 				print("warning: cycles material %s translation failed" % material_name)
+			return MaterialExportStatus(translate_result.sdl_emission_image_command)
 
 
 	def exportLightSource(self, lightSourceType, lightSourceName, **keywordArgs):
@@ -292,7 +304,7 @@ def export_geometry(exporter, geometryName, mesh, faces):
 
 def export_material(exporter, b_context, material_name, b_material):
 
-	exporter.exportMaterial(b_context, material_name, b_material)
+	return exporter.exportMaterial(b_context, material_name, b_material)
 
 
 def export_object_mesh(exporter, b_context, obj):
@@ -339,15 +351,26 @@ def export_object_mesh(exporter, b_context, obj):
 			materialName = mangled_material_name(obj, mesh.name + "_" + material.name, str(matId))
 
 			export_geometry(exporter, geometryName, mesh, faces)
-			export_material(exporter, b_context, materialName, material)
-
-			actorType = None
-			actorName = None
+			material_export_result = export_material(exporter, b_context, materialName, material)
 
 			# creating actor (can be either model or light depending on emissivity)
 			pos, rot, scale = obj.matrix_world.decompose()
 
-			if material.ph_is_emissive:
+			if material_export_result.emission_image_command is not None:
+
+				lightSourceName = mangled_light_source_name(obj, mesh.name, str(matId))
+				actorLightName  = mangled_actor_light_name(obj, "", str(matId))
+
+				command = RawCommand()
+				command.append_string(
+					"-> light-source(area) %s [image emitted-radiance \"@%s\"]\n" %
+					("\"@" + lightSourceName + "\"", material_export_result.emission_image_command.get_data_name())
+				)
+				exporter.get_sdlconsole().queue_command(command)
+
+				exporter.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
+
+			elif material.ph_is_emissive:
 
 				lightSourceName = mangled_light_source_name(obj, mesh.name, str(matId))
 				actorLightName  = mangled_actor_light_name(obj, "", str(matId))
@@ -387,7 +410,9 @@ def export_object_lamp(exporter, b_context, obj):
 
 		# HACK: assume the Lamp uses this material
 		b_material = bpy.data.materials.new(lightMaterialName)
-		exporter.exportMaterial(b_context, lightMaterialName, b_material)
+		material_export_result = exporter.exportMaterial(b_context, lightMaterialName, b_material)
+		if material_export_result.emission_image_command is not None:
+			print("warning: area lamp %s has emissive material, ignoring" % lightSourceName)
 		bpy.data.materials.remove(b_material)
 
 		# use lamp's color attribute as emitted radiance
@@ -462,6 +487,7 @@ def export_core_commands(exporter, context):
 	exporter.exportRaw("## integrator(backward-path) \n")
 
 
+# TODO: write/flush commands to disk once a while (reducing memory usage)
 def export_world_commands(exporter, b_context):
 	scene = b_context.scene
 	objs = scene.objects

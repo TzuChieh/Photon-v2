@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Actor/Image/Image.h"
+#include "Math/math_fwd.h"
 
 #include <vector>
 
@@ -11,6 +12,7 @@ class ConstantImage final : public Image, public TCommandInterface<ConstantImage
 {
 public:
 	explicit ConstantImage(real value);
+	explicit ConstantImage(const Vector3R& values);
 	explicit ConstantImage(const std::vector<real>& values);
 	virtual ~ConstantImage() override;
 

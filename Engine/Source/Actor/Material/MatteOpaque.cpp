@@ -12,7 +12,7 @@ namespace ph
 
 MatteOpaque::MatteOpaque() : 
 	Material(), 
-	m_albedo(std::make_shared<ConstantImage>(0.5_r))
+	m_albedo(std::make_shared<ConstantImage>(Vector3R(0.5_r)))
 {
 	
 }

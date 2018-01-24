@@ -34,6 +34,10 @@ class SdlResourceIdentifier:
 		return ("resource folder path: " + self.__resource_folder_path + ", "
 		        "resource filename: "    + self.__resource_filename)
 
+	def __bool__(self):
+		return self.is_valid()
+	__nonzero__ = __bool__
+
 
 def save_blender_image(b_image, image_sdlri, sdlconsole):
 	sdlconsole.create_resource_folder(image_sdlri)
