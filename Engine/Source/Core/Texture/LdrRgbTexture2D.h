@@ -21,7 +21,7 @@ public:
 	LdrRgbTexture2D(uint32 widthPx, uint32 heightPx);
 	virtual ~LdrRgbTexture2D() override;
 
-	virtual void sample(const Vector3R& uvw, SpectralStrength* out_value) const override;
+	virtual void sample(const SampleLocation& sampleLocation, SpectralStrength* out_value) const override;
 
 	void resize(uint32 widthPx, uint32 heightPx);
 	void setPixels(uint32 x, const uint32 y, uint32 widthPx, uint32 heighPx, 

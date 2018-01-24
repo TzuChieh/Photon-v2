@@ -3,6 +3,7 @@
 #include "FileIO/InputPacket.h"
 #include "Core/Texture/TextureLoader.h"
 #include "Common/assertion.h"
+#include "Core/Texture/SampleLocation.h"
 
 #include <iostream>
 #include <string>
@@ -26,11 +27,12 @@ LdrRgbTexture2D::LdrRgbTexture2D(const uint32 widthPx, const uint32 heightPx) :
 
 LdrRgbTexture2D::~LdrRgbTexture2D() = default;
 
-void LdrRgbTexture2D::sample(const Vector3R& uvw, SpectralStrength* const out_value) const
+void LdrRgbTexture2D::sample(
+	const SampleLocation& sampleLocation, SpectralStrength* const out_value) const
 {
 	PH_ASSERT(out_value != nullptr);
 
-	const std::size_t baseIndex = calcSampleBaseIndex(uvw);
+	const std::size_t baseIndex = calcSampleBaseIndex(sampleLocation.uvw());
 	const Vector3R rgb(m_pixelData[baseIndex + 0],
 	                   m_pixelData[baseIndex + 1], 
 	                   m_pixelData[baseIndex + 2]);

@@ -7,6 +7,8 @@
 namespace ph
 {
 
+class SampleLocation;
+
 template<typename OutputType>
 class TTexture
 {
@@ -14,7 +16,7 @@ public:
 	inline TTexture();
 	inline virtual ~TTexture() = 0;
 
-	inline virtual void sample(const Vector3R& uvw, OutputType* out_value) const = 0;
+	inline virtual void sample(const SampleLocation& sampleLocation, OutputType* out_value) const = 0;
 };
 
 }// end namespace ph

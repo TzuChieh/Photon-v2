@@ -12,7 +12,7 @@ public:
 	inline TConstantTexture(const OutputType& value);
 	inline virtual ~TConstantTexture() override;
 
-	inline virtual void sample(const Vector3R& uvw, OutputType* out_value) const override;
+	inline virtual void sample(const SampleLocation& sampleLocation, OutputType* out_value) const override;
 
 private:
 	OutputType m_value;

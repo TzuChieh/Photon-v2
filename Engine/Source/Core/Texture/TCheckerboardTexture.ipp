@@ -1,4 +1,5 @@
 #include "Core/Texture/TCheckerboardTexture.h"
+#include "Core/Texture/SampleLocation.h"
 
 #include <iostream>
 
@@ -27,8 +28,9 @@ inline TCheckerboardTexture<OutputType>::~TCheckerboardTexture() = default;
 
 template<typename OutputType>
 inline void TCheckerboardTexture<OutputType>::sample(
-	const Vector3R& uvw, OutputType* const out_value) const
+	const SampleLocation& sampleLocation, OutputType* const out_value) const
 {
+	const Vector3R& uvw = sampleLocation.uvw();
 	const int32 uNumber = static_cast<int32>(std::floor(uvw.x / m_uTileSize));
 	const int32 vNumber = static_cast<int32>(std::floor(uvw.y / m_vTileSize));
 

@@ -13,7 +13,7 @@ public:
 	                     const OutputType& oddValue, const OutputType& evenValue);
 	inline virtual ~TCheckerboardTexture() override;
 
-	inline virtual void sample(const Vector3R& uvw, OutputType* out_value) const override;
+	inline virtual void sample(const SampleLocation& sampleLocation, OutputType* out_value) const override;
 
 private:
 	real       m_nUtiles;
