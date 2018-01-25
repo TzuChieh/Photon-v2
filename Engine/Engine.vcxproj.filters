@@ -675,6 +675,17 @@
     <ClInclude Include="Source\Core\Texture\SampleLocation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\Texture\Function\TTextureFunction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Texture\Function\TTextureFunction.ipp" />
+    <ClInclude Include="Source\Core\Texture\Function\TMultiplyTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Texture\Function\TMultiplyTexture.ipp" />
+    <ClInclude Include="Source\Utility\has_member.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">

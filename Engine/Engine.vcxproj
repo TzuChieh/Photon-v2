@@ -276,10 +276,12 @@
     <ClInclude Include="Source\Core\Texture\TCheckerboardTexture.h" />
     <ClInclude Include="Source\Core\Texture\TConstantTexture.h" />
     <ClInclude Include="Source\Core\Texture\LdrRgbTexture2D.h" />
+    <ClInclude Include="Source\Core\Texture\Function\TMultiplyTexture.h" />
     <ClInclude Include="Source\Core\Texture\TTexture.h" />
     <ClInclude Include="Source\Core\Texture\TextureChannel.h" />
     <ClInclude Include="Source\Core\Texture\TextureLoader.h" />
     <ClInclude Include="Source\Core\Texture\TSampler.h" />
+    <ClInclude Include="Source\Core\Texture\Function\TTextureFunction.h" />
     <ClInclude Include="Source\Core\Texture\UvwMapper\SphericalMapper.h" />
     <ClInclude Include="Source\Core\Texture\UvwMapper\StAsUvMapper.h" />
     <ClInclude Include="Source\Core\Texture\UvwMapper\UvwMapper.h" />
@@ -332,6 +334,7 @@
     <ClInclude Include="Source\Frame\HdrOperator\HdrOperator.h" />
     <ClInclude Include="Source\Frame\PostProcessor.h" />
     <ClInclude Include="Source\Frame\ToneMapper\ToneMapper.h" />
+    <ClInclude Include="Source\Utility\has_member.h" />
     <ClInclude Include="Source\Utility\INoncopyable.h" />
     <ClInclude Include="Source\Utility\TConstIteratorProxy.h" />
     <ClInclude Include="Source\Utility\TFixedSizeStack.h" />
@@ -533,6 +536,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Utility\TFixedSizeStack.ipp">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Core\Texture\Function\TTextureFunction.ipp">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Core\Texture\Function\TMultiplyTexture.ipp">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>
