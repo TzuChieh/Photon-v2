@@ -60,6 +60,9 @@
     <ClCompile Include="Source\Utility\has_member_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\Texture\TMultiplyTexture_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\constants_for_test.h">

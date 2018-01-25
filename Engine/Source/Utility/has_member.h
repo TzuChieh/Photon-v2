@@ -5,6 +5,11 @@
 namespace ph
 {
 
+/*
+	Checks whether the involved types has a multiply operator capable of 
+	producing A * B = C with corresponding instances.
+*/
+
 template<typename A, typename B, typename C, typename Dummy = void>
 struct has_multiply_operator : 
 	std::false_type {};
