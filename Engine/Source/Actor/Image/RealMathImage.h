@@ -2,6 +2,7 @@
 
 #include "Actor/Image/Image.h"
 #include "Core/Texture/Function/TMultiplyTexture.h"
+#include "Core/Texture/Function/TAddTexture.h"
 
 #include <vector>
 #include <iostream>
@@ -14,7 +15,8 @@ class RealMathImage final : public Image, public TCommandInterface<RealMathImage
 public:
 	enum class EMathOp
 	{
-		MULTIPLY
+		MULTIPLY,
+		ADD
 	};
 
 	RealMathImage();
@@ -59,6 +61,15 @@ private:
 		{
 			auto texture = std::make_shared<TMultiplyTexture<InputType, real, OutputType>>();
 			texture->setMultiplier(m_real);
+			texture->setInputTexture(operandTexture);
+			result = texture;
+			break;
+		}
+
+		case EMathOp::ADD:
+		{
+			auto texture = std::make_shared<TAddTexture<InputType, real, OutputType>>();
+			texture->setAdder(m_real);
 			texture->setInputTexture(operandTexture);
 			result = texture;
 			break;

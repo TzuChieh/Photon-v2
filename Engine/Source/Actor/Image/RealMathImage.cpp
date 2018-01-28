@@ -114,6 +114,10 @@ void RealMathImage::ciRegister(CommandRegister& cmdRegister)
 		{
 			image->setMathOp(EMathOp::MULTIPLY);
 		}
+		else if(mathOpType == "add")
+		{
+			image->setMathOp(EMathOp::ADD);
+		}
 		else
 		{
 			std::cerr << "warning: no valid math-op specified while loading RealMathImage" << std::endl;

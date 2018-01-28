@@ -273,6 +273,7 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\Microfacet.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxConductorDielectricFresnel.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxDielectricFresnel.h" />
+    <ClInclude Include="Source\Core\Texture\Function\TAddTexture.h" />
     <ClInclude Include="Source\Core\Texture\SampleLocation.h" />
     <ClInclude Include="Source\Core\Texture\TCheckerboardTexture.h" />
     <ClInclude Include="Source\Core\Texture\TConstantTexture.h" />

@@ -51,6 +51,17 @@ inline TArithmeticArray<T, N> TArithmeticArray<T, N>::add(const TArithmeticArray
 }
 
 template<typename T, std::size_t N>
+inline TArithmeticArray<T, N> TArithmeticArray<T, N>::add(const T rhs) const
+{
+	TArithmeticArray result(*this);
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		result.m[i] += rhs;
+	}
+	return result;
+}
+
+template<typename T, std::size_t N>
 inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::addLocal(const TArithmeticArray& rhs)
 {
 	for(std::size_t i = 0; i < N; ++i)
@@ -277,6 +288,12 @@ template<typename T, std::size_t N>
 inline TArithmeticArray<T, N> TArithmeticArray<T, N>::operator * (const T rhs) const
 {
 	return this->mul(rhs);
+}
+
+template<typename T, std::size_t N>
+inline TArithmeticArray<T, N> TArithmeticArray<T, N>::operator + (const T rhs) const
+{
+	return this->add(rhs);
 }
 
 template<typename T, std::size_t N>

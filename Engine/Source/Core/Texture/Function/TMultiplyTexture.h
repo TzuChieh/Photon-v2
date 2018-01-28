@@ -36,7 +36,7 @@ public:
 	inline virtual void sample(const SampleLocation& sampleLocation, OutputType* const out_value) const override
 	{
 		static_assert(has_multiply_operator<InputType, MultiplierType, OutputType>::value, 
-		              "must have multiply operator for InputType * MultiplierType = OutputType");
+		              "must have multiply operator for OutputType = InputType * MultiplierType");
 
 		const TTexture<InputType>* inputTexture = this->getInputTexture();
 		PH_ASSERT(inputTexture != nullptr);

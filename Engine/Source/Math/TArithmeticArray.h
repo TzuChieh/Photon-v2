@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Common/primitive_type.h"
+
 #include <cstddef>
 #include <array>
 
@@ -20,6 +22,7 @@ public:
 	virtual inline ~TArithmeticArray();
 
 	inline TArithmeticArray add(const TArithmeticArray& rhs) const;
+	inline TArithmeticArray add(T rhs) const;
 	inline TArithmeticArray sub(const TArithmeticArray& rhs) const;
 	inline TArithmeticArray mul(const TArithmeticArray& rhs) const;
 	inline TArithmeticArray mul(T rhs) const;
@@ -54,6 +57,7 @@ public:
 	inline const T& operator [] (std::size_t index) const;
 
 	inline TArithmeticArray operator * (T rhs) const;
+	inline TArithmeticArray operator + (T rhs) const;
 
 	inline TArithmeticArray& operator = (const TArithmeticArray& rhs);
 

@@ -130,12 +130,14 @@
     <ClCompile Include="Source\Core\Bound\bound_test.cpp" />
     <ClCompile Include="Source\Core\Filmic\film_sample_weighting_test.cpp" />
     <ClCompile Include="Source\Core\Filmic\film_test.cpp" />
+    <ClCompile Include="Source\Core\Texture\TAddTexture_test.cpp" />
     <ClCompile Include="Source\Core\Texture\TMultiplyTexture_test.cpp" />
     <ClCompile Include="Source\FileIO\FileSystem\Path_test.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Math\Function\function_test.cpp" />
     <ClCompile Include="Source\Math\Function\solver_test.cpp" />
     <ClCompile Include="Source\Math\random_test.cpp" />
+    <ClCompile Include="Source\Math\TArithmeticArray_test.cpp" />
     <ClCompile Include="Source\Math\TOrthonormalBasis3_test.cpp" />
     <ClCompile Include="Source\Math\Transform\DynamicLinearTranslation_test.cpp" />
     <ClCompile Include="Source\Math\Transform\StaticTransform_test.cpp" />
