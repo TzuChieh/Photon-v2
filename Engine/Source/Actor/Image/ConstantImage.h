@@ -16,17 +16,14 @@ public:
 	explicit ConstantImage(const std::vector<real>& values);
 	virtual ~ConstantImage() override;
 
-	virtual void genTextureReal(
-		CookingContext& context,
-		std::shared_ptr<TTexture<real>>* out_texture) const override;
+	virtual std::shared_ptr<TTexture<real>> genTextureReal(
+		CookingContext& context) const override;
 
-	virtual void genTextureVector3R(
-		CookingContext& context,
-		std::shared_ptr<TTexture<Vector3R>>* out_texture) const override;
+	virtual std::shared_ptr<TTexture<Vector3R>> genTextureVector3R(
+		CookingContext& context) const override;
 
-	virtual void genTextureSpectral(
-		CookingContext& context,
-		std::shared_ptr<TTexture<SpectralStrength>>* out_texture) const override;
+	virtual std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(
+		CookingContext& context) const override;
 
 private:
 	std::vector<real> m_values;

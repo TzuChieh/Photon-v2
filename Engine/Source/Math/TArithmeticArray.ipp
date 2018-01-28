@@ -274,6 +274,12 @@ inline const T& TArithmeticArray<T, N>::operator [] (const std::size_t index) co
 }
 
 template<typename T, std::size_t N>
+inline TArithmeticArray<T, N> TArithmeticArray<T, N>::operator * (const T rhs) const
+{
+	return this->mul(rhs);
+}
+
+template<typename T, std::size_t N>
 inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::operator = (const TArithmeticArray& rhs)
 {
 	m = rhs.m;

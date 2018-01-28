@@ -14,13 +14,12 @@ LdrPictureImage::LdrPictureImage(const TFrame<uint8>& picture) :
 
 LdrPictureImage::~LdrPictureImage() = default;
 
-void LdrPictureImage::genTextureSpectral(
-	CookingContext& context,
-	std::shared_ptr<TTexture<SpectralStrength>>* const out_texture) const
+std::shared_ptr<TTexture<SpectralStrength>> LdrPictureImage::genTextureSpectral(
+	CookingContext& context) const
 {
 	auto texture = std::make_shared<LdrRgbTexture2D>();
 	texture->setPixels(m_picture);
-	*out_texture = texture;
+	return texture;
 }
 
 // command interface

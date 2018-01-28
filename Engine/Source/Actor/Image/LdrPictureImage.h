@@ -14,9 +14,8 @@ public:
 	LdrPictureImage(const TFrame<uint8>& picture);
 	virtual ~LdrPictureImage() override;
 
-	virtual void genTextureSpectral(
-		CookingContext& context,
-		std::shared_ptr<TTexture<SpectralStrength>>* out_texture) const override;
+	virtual std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(
+		CookingContext& context) const override;
 
 private:
 	TFrame<uint8> m_picture;

@@ -14,8 +14,9 @@ template
 <
 	typename InputType, 
 	typename MultiplierType, 
-	typename OutputType,
-	typename = typename std::enable_if<has_multiply_operator<InputType, MultiplierType, OutputType>::value>::type
+	typename OutputType
+	//typename = std::enable_if_t<(has_multiply_operator<InputType, MultiplierType, OutputType>::value &&
+	//                             "must have multiply operator for InputType * MultiplierType = OutputType")>
 >
 class TMultiplyTexture : public TTextureFunction<InputType, OutputType>
 {
@@ -26,7 +27,7 @@ public:
 
 	}
 
-	inline TMultiplyTexture(const MultiplierType& multiplier) : 
+	inline explicit TMultiplyTexture(const MultiplierType& multiplier) : 
 		m_multiplier(multiplier)
 	{
 
@@ -34,14 +35,23 @@ public:
 
 	inline virtual void sample(const SampleLocation& sampleLocation, OutputType* const out_value) const override
 	{
-		PH_ASSERT(out_value != nullptr);
-		
-		const TTexture<InputType>* parentTexture = this->getParentTexture();
-		PH_ASSERT(parentTexture != nullptr);
+		static_assert(has_multiply_operator<InputType, MultiplierType, OutputType>::value, 
+		              "must have multiply operator for InputType * MultiplierType = OutputType");
+
+		const TTexture<InputType>* inputTexture = this->getInputTexture();
+		PH_ASSERT(inputTexture != nullptr);
 
 		InputType inputValue;
-		parentTexture->sample(sampleLocation, &inputValue);
+		inputTexture->sample(sampleLocation, &inputValue);
+
+		PH_ASSERT(out_value != nullptr);
 		*out_value = inputValue * m_multiplier;
+	}
+
+	inline TMultiplyTexture& setMultiplier(const MultiplierType& multiplier)
+	{
+		m_multiplier = multiplier;
+		return *this;
 	}
 
 private:

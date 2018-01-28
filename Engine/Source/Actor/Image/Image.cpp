@@ -5,25 +5,22 @@ namespace ph
 
 Image::~Image() = default;
 
-void Image::genTextureReal(
-	CookingContext& context,
-	std::shared_ptr<TTexture<real>>* const out_texture) const
+std::shared_ptr<TTexture<real>> Image::genTextureReal(
+	CookingContext& context) const
 {
-	*out_texture = genDefaultTexture<real>();
+	return genDefaultTexture<real>();
 }
 
-void Image::genTextureVector3R(
-	CookingContext& context,
-	std::shared_ptr<TTexture<Vector3R>>* const out_texture) const
+std::shared_ptr<TTexture<Vector3R>> Image::genTextureVector3R(
+	CookingContext& context) const
 {
-	*out_texture = genDefaultTexture<Vector3R>();
+	return genDefaultTexture<Vector3R>();
 }
 
-void Image::genTextureSpectral(
-	CookingContext& context,
-	std::shared_ptr<TTexture<SpectralStrength>>* const out_texture) const
+std::shared_ptr<TTexture<SpectralStrength>> Image::genTextureSpectral(
+	CookingContext& context) const
 {
-	*out_texture = genDefaultTexture<SpectralStrength>();
+	return genDefaultTexture<SpectralStrength>();
 }
 
 // command interface
@@ -33,6 +30,14 @@ SdlTypeInfo Image::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_IMAGE, "image");
 }
 
-void Image::ciRegister(CommandRegister& cmdRegister) {}
+void Image::ciRegister(CommandRegister& cmdRegister)
+{
+	ciRegisterMathFunctions(cmdRegister);
+}
+
+void Image::ciRegisterMathFunctions(CommandRegister& cmdRegister)
+{
+
+}
 
 }// end namespace ph

@@ -27,9 +27,8 @@ ConstantImage::ConstantImage(const std::vector<real>& values) :
 
 ConstantImage::~ConstantImage() = default;
 
-void ConstantImage::genTextureReal(
-	CookingContext& context,
-	std::shared_ptr<TTexture<real>>* const out_texture) const
+std::shared_ptr<TTexture<real>> ConstantImage::genTextureReal(
+	CookingContext& context) const
 {
 	if(m_values.size() != 1)
 	{
@@ -38,12 +37,11 @@ void ConstantImage::genTextureReal(
 		          << "Generating texture with value 1 or first value." << std::endl;
 	}
 
-	*out_texture = std::make_shared<TConstantTexture<real>>(m_values.empty() ? 1 : m_values[0]);
+	return std::make_shared<TConstantTexture<real>>(m_values.empty() ? 1 : m_values[0]);
 }
 
-void ConstantImage::genTextureVector3R(
-	CookingContext& context,
-	std::shared_ptr<TTexture<Vector3R>>* const out_texture) const
+std::shared_ptr<TTexture<Vector3R>> ConstantImage::genTextureVector3R(
+	CookingContext& context) const
 {
 	if(m_values.size() != 3)
 	{
@@ -56,12 +54,11 @@ void ConstantImage::genTextureVector3R(
 	constVec3.x = m_values.size() >= 1 ? m_values[0] : 1;
 	constVec3.y = m_values.size() >= 2 ? m_values[1] : 1;
 	constVec3.z = m_values.size() >= 3 ? m_values[2] : 1;
-	*out_texture = std::make_shared<TConstantTexture<Vector3R>>(constVec3);
+	return std::make_shared<TConstantTexture<Vector3R>>(constVec3);
 }
 
-void ConstantImage::genTextureSpectral(
-	CookingContext& context,
-	std::shared_ptr<TTexture<SpectralStrength>>* const out_texture) const
+std::shared_ptr<TTexture<SpectralStrength>> ConstantImage::genTextureSpectral(
+	CookingContext& context) const
 {
 	if(m_values.size() != SpectralStrength::numElements())
 	{
@@ -75,7 +72,7 @@ void ConstantImage::genTextureSpectral(
 	{
 		constSpectrum[i] = m_values.size() >= i + 1 ? m_values[i] : 1;
 	}
-	*out_texture = std::make_shared<TConstantTexture<SpectralStrength>>(constSpectrum);
+	return std::make_shared<TConstantTexture<SpectralStrength>>(constSpectrum);
 }
 
 // command interface

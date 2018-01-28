@@ -53,6 +53,8 @@ public:
 	inline T& operator [] (std::size_t index);
 	inline const T& operator [] (std::size_t index) const;
 
+	inline TArithmeticArray operator * (T rhs) const;
+
 	inline TArithmeticArray& operator = (const TArithmeticArray& rhs);
 
 protected:

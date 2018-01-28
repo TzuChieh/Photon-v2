@@ -21,11 +21,8 @@ MatteOpaque::~MatteOpaque() = default;
 
 void MatteOpaque::populateSurfaceBehavior(CookingContext& context, SurfaceBehavior* const out_surfaceBehavior) const
 {
-	std::shared_ptr<TTexture<SpectralStrength>> albedoTexture;
-	m_albedo->genTextureSpectral(context, &albedoTexture);
-
 	std::unique_ptr<LambertianDiffuse> surfaceOptics = std::make_unique<LambertianDiffuse>();
-	surfaceOptics->setAlbedo(albedoTexture);
+	surfaceOptics->setAlbedo(m_albedo->genTextureSpectral(context));
 	out_surfaceBehavior->setSurfaceOptics(std::move(surfaceOptics));
 }
 

@@ -19,7 +19,7 @@ TEST(TMultiplyTextureTest, CorrectlyMultiply)
 
 	auto mockTexture = std::make_shared<MockTexture>();
 	TMultiplyTexture<real, int8, real> texture(static_cast<int8>(2));
-	texture.setParentTexture(mockTexture);
+	texture.setInputTexture(mockTexture);
 
 	real sampleValue;
 	texture.sample(SampleLocation(HitDetail(), Vector3R()), &sampleValue);

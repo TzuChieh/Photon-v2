@@ -125,6 +125,8 @@ public:
 	inline T& operator [] (int32 axisIndex);
 	inline const T& operator [] (int32 axisIndex) const;
 
+	inline TVector3 operator * (T rhs) const;
+
 	inline TVector3& operator = (const TVector3& rhs);
 };
 

@@ -154,6 +154,10 @@ public class EditorCtrl
 						timeRemainingLabel.setText((long)(remainingRenderTimeMs / 1000.0) + " s");
 					});
 					
+					// TODO: need to add these monitoring attributes to a project's data, 
+					// otherwise other finished projects (with work done = 100%) will cause
+					// this loop to break (thus not updating GUI anymore until rendering finished)
+					
 					if(workDone >= totalWork)
 					{
 						Platform.runLater(() -> percentageProgressLabel.setText("100"));

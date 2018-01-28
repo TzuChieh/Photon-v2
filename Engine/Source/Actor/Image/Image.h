@@ -20,17 +20,14 @@ class Image : public TCommandInterface<Image>
 public:
 	virtual ~Image() = 0;
 
-	virtual void genTextureReal(
-		CookingContext& context, 
-		std::shared_ptr<TTexture<real>>* out_texture) const;
+	virtual std::shared_ptr<TTexture<real>> genTextureReal(
+		CookingContext& context) const;
 
-	virtual void genTextureVector3R(
-		CookingContext& context,
-		std::shared_ptr<TTexture<Vector3R>>* out_texture) const;
+	virtual std::shared_ptr<TTexture<Vector3R>> genTextureVector3R(
+		CookingContext& context) const;
 
-	virtual void genTextureSpectral(
-		CookingContext& context,
-		std::shared_ptr<TTexture<SpectralStrength>>* out_texture) const;
+	virtual std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(
+		CookingContext& context) const;
 
 private:
 	template<typename OutputType>
@@ -46,6 +43,9 @@ private:
 public:
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
+	static void ciRegisterMathFunctions(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph
+
+#include "Actor/Image/Image.ipp"

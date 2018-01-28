@@ -12,21 +12,21 @@ class TTextureFunction : public TTexture<OutputType>
 {
 public:
 	inline TTextureFunction();
-	inline TTextureFunction(const std::shared_ptr<TTexture<InputType>>& parentTexture);
+	inline TTextureFunction(const std::shared_ptr<TTexture<InputType>>& inputTexture);
 	inline virtual ~TTextureFunction() override;
 
 	inline virtual void sample(const SampleLocation& sampleLocation, OutputType* out_value) const = 0;
 
-	inline void setParentTexture(const std::shared_ptr<TTexture<InputType>>& parentTexture);
+	inline TTextureFunction& setInputTexture(const std::shared_ptr<TTexture<InputType>>& parentTexture);
 
 public:
-	inline const TTexture<InputType>* getParentTexture() const
+	inline const TTexture<InputType>* getInputTexture() const
 	{
-		return m_parentTexture.get();
+		return m_inputTexture.get();
 	}
 
 public:
-	std::shared_ptr<TTexture<InputType>> m_parentTexture;
+	std::shared_ptr<TTexture<InputType>> m_inputTexture;
 };
 
 }// end namespace ph

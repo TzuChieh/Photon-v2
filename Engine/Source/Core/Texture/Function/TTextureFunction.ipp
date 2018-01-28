@@ -15,8 +15,8 @@ inline TTextureFunction<InputType, OutputType>::TTextureFunction() :
 
 template<typename InputType, typename OutputType>
 inline TTextureFunction<InputType, OutputType>::TTextureFunction(
-	const std::shared_ptr<TTexture<InputType>>& parentTexture) :
-	m_parentTexture(parentTexture)
+	const std::shared_ptr<TTexture<InputType>>& inputTexture) :
+	m_inputTexture(inputTexture)
 {
 
 }
@@ -25,12 +25,14 @@ template<typename InputType, typename OutputType>
 inline TTextureFunction<InputType, OutputType>::~TTextureFunction() = default;
 
 template<typename InputType, typename OutputType>
-inline void TTextureFunction<InputType, OutputType>::setParentTexture(
-	const std::shared_ptr<TTexture<InputType>>& parentTexture)
+inline auto TTextureFunction<InputType, OutputType>::setInputTexture(
+	const std::shared_ptr<TTexture<InputType>>& inputTexture)
+	-> TTextureFunction<InputType, OutputType>&
 {
-	PH_ASSERT(parentTexture != nullptr);
+	PH_ASSERT(inputTexture != nullptr);
+	m_inputTexture = inputTexture;
 
-	m_parentTexture = parentTexture;
+	return *this;
 }
 
 }// namespace ph

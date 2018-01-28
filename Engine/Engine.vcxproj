@@ -147,6 +147,7 @@
     <ClInclude Include="Source\Actor\Geometry\GWave.h" />
     <ClInclude Include="Source\Actor\Geometry\PrimitiveBuildingMaterial.h" />
     <ClInclude Include="Source\Actor\Image\ConstantImage.h" />
+    <ClInclude Include="Source\Actor\Image\RealMathImage.h" />
     <ClInclude Include="Source\Actor\Image\Image.h" />
     <ClInclude Include="Source\Actor\Image\PictureImage.h" />
     <ClInclude Include="Source\Actor\Image\LdrPictureImage.h" />
@@ -318,6 +319,7 @@
     <ClInclude Include="Source\Math\math_common.h" />
     <ClInclude Include="Source\Math\math_fwd.h" />
     <ClInclude Include="Source\Math\Random.h" />
+    <ClInclude Include="Source\Math\Real.h" />
     <ClInclude Include="Source\Math\Solver\TAnalyticalIntegrator1D.h" />
     <ClInclude Include="Source\Math\TArithmeticArray.h" />
     <ClInclude Include="Source\Math\TIndexedVector3.h" />
@@ -362,6 +364,7 @@
     <ClCompile Include="Source\Actor\Geometry\GTriangleMesh.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GWave.cpp" />
     <ClCompile Include="Source\Actor\Image\ConstantImage.cpp" />
+    <ClCompile Include="Source\Actor\Image\RealMathImage.cpp" />
     <ClCompile Include="Source\Actor\Image\Image.cpp" />
     <ClCompile Include="Source\Actor\Image\LdrPictureImage.cpp" />
     <ClCompile Include="Source\Actor\Image\PictureImage.cpp" />
@@ -541,6 +544,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\Texture\Function\TTextureFunction.ipp">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Actor\Image\Image.ipp">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>
