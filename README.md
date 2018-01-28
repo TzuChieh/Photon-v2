@@ -23,6 +23,10 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
 * **Light**
   * area light
 
+* **Texture**
+  * texture with ordinary file formats (.jpg, .png, etc)
+  * mathematical modifiers (add, multiply)
+
 * **Misc.**
   * Blender addon for scene creation
   * easy-to-write custom scene description language

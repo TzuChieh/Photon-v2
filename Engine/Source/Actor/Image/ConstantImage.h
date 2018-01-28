@@ -11,6 +11,7 @@ namespace ph
 class ConstantImage final : public Image, public TCommandInterface<ConstantImage>
 {
 public:
+	ConstantImage();
 	explicit ConstantImage(real value);
 	explicit ConstantImage(const Vector3R& values);
 	explicit ConstantImage(const std::vector<real>& values);

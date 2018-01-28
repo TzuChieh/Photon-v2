@@ -42,6 +42,8 @@ public:
 
 	inline std::unique_ptr<ISdlResource> load(const InputPacket& packet) const
 	{
+		// TODO: maybe print a warning message if function is null?
+
 		return m_func != nullptr ? m_func(packet) : nullptr;
 	}
 

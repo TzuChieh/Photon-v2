@@ -1,11 +1,19 @@
 #include "Actor/Image/ConstantImage.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Math/TVector3.h"
+#include "FileIO/InputPacket.h"
+#include "FileIO/InputPrototype.h"
 
 #include <iostream>
 
 namespace ph
 {
+
+ConstantImage::ConstantImage() :
+	ConstantImage(1.0_r)
+{
+
+}
 
 ConstantImage::ConstantImage(const real value) : 
 	m_values({value})
@@ -84,7 +92,32 @@ SdlTypeInfo ConstantImage::ciTypeInfo()
 
 void ConstantImage::ciRegister(CommandRegister& cmdRegister)
 {
-	// TODO
+	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
+	{
+		InputPrototype realInput;
+		realInput.addReal("value");
+
+		InputPrototype vec3Input;
+		vec3Input.addVector3r("value");
+
+		// TODO: array input
+
+		if(packet.isPrototypeMatched(realInput))
+		{
+			const real value = packet.getReal("value");
+			return std::make_unique<ConstantImage>(value);
+		}
+		else if(packet.isPrototypeMatched(vec3Input))
+		{
+			const Vector3R value = packet.getVector3r("value");
+			return std::make_unique<ConstantImage>(value);
+		}
+		else
+		{
+			std::cerr << "warning: ill-formed input detected during ConstantImage loading" << std::endl;
+			return std::make_unique<ConstantImage>();
+		}
+	}));
 }
 
 }// end namespace ph

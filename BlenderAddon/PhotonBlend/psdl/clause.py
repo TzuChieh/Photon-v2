@@ -82,6 +82,23 @@ class SdlResourceIdentifierClause(StringClause):
 		return super(SdlResourceIdentifierClause, self).data_to_string(sdlri.get_identifier())
 
 
+class SdlReferenceClause(SdlClause):
+
+	def __init__(self):
+		super(SdlReferenceClause, self).__init__()
+		self.__reference_type_name = None
+
+	def set_reference_type(self, refence_type_name):
+		self.__reference_type_name = refence_type_name
+		return self
+
+	def get_type_name(self):
+		return self.__reference_type_name
+
+	def data_to_string(self, reference_name):
+		return "\"@" + reference_name + "\""
+
+
 class Vector3Clause(SdlClause):
 
 	def __init__(self):
