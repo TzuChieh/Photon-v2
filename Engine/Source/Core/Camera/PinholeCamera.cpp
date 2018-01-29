@@ -23,7 +23,7 @@ void PinholeCamera::genSensingRay(const Vector2R& rasterPosPx, Ray* const out_ra
 	out_ray->setDirection(worldFilmPos.subLocal(worldPinholePos).normalizeLocal());
 	out_ray->setOrigin(getPosition());
 	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
-	out_ray->setMaxT(Ray::MAX_T);
+	out_ray->setMaxT(std::numeric_limits<real>::max());
 
 	// HACK
 	Time time;

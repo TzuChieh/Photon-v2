@@ -50,7 +50,8 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 	camera.genSensingRay(sample, &ray);*/
 
 	// backward tracing to light
-	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), 0.0001_r, Ray::MAX_T, ray.getTime());// HACK: hard-coded number
+	//Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), 0.0001_r, Ray::MAX_T, ray.getTime());// HACK: hard-coded number
+	Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), 0.0002_r, std::numeric_limits<real>::max(), ray.getTime());// HACK: hard-coded number
 
 	while(numBounces <= MAX_RAY_BOUNCES && scene.isIntersecting(tracingRay, &hitProbe))
 	{

@@ -10,9 +10,6 @@ namespace ph
 class Ray final
 {
 public:
-	static const real MAX_T;
-
-public:
 	Ray();
 	Ray(const Vector3R& origin, const Vector3R& direction);
 	Ray(const Vector3R& origin, const Vector3R& direction, real minT, real maxT);

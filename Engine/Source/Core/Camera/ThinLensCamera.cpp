@@ -33,7 +33,7 @@ void ThinLensCamera::genSensingRay(const Vector2R& rasterPosPx, Ray* const out_r
 	out_ray->setDirection(worldLensPos.sub(worldFocusPos).normalizeLocal());
 	out_ray->setOrigin(worldLensPos);
 	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
-	out_ray->setMaxT(Ray::MAX_T);
+	out_ray->setMaxT(std::numeric_limits<real>::max());
 }
 
 void ThinLensCamera::evalEmittedImportanceAndPdfW(

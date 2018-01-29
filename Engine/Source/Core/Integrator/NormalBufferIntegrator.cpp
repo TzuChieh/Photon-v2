@@ -22,7 +22,7 @@ void NormalBufferIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 	data.camera->genSensingRay(sample, &ray);*/
 	
 	// reverse tracing
-	const Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), 0.0001_r, Ray::MAX_T);// HACK: hard-coded number
+	const Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), 0.0001_r, std::numeric_limits<real>::max());// HACK: hard-coded number
 	
 	SpectralStrength radiance;
 	HitProbe probe;

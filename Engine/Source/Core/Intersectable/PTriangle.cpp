@@ -214,18 +214,18 @@ void PTriangle::calcAABB(AABB3D* const out_aabb) const
 	     minY = m_vA.y, maxY = m_vA.y,
 	     minZ = m_vA.z, maxZ = m_vA.z;
 
-	if(m_vB.x > maxX)      maxX = m_vB.x;
+	if     (m_vB.x > maxX) maxX = m_vB.x;
 	else if(m_vB.x < minX) minX = m_vB.x;
-	if(m_vB.y > maxY)      maxY = m_vB.y;
+	if     (m_vB.y > maxY) maxY = m_vB.y;
 	else if(m_vB.y < minY) minY = m_vB.y;
-	if(m_vB.z > maxZ)      maxZ = m_vB.z;
+	if     (m_vB.z > maxZ) maxZ = m_vB.z;
 	else if(m_vB.z < minZ) minZ = m_vB.z;
 
-	if(m_vC.x > maxX)      maxX = m_vC.x;
+	if     (m_vC.x > maxX) maxX = m_vC.x;
 	else if(m_vC.x < minX) minX = m_vC.x;
-	if(m_vC.y > maxY)      maxY = m_vC.y;
+	if     (m_vC.y > maxY) maxY = m_vC.y;
 	else if(m_vC.y < minY) minY = m_vC.y;
-	if(m_vC.z > maxZ)      maxZ = m_vC.z;
+	if     (m_vC.z > maxZ) maxZ = m_vC.z;
 	else if(m_vC.z < minZ) minZ = m_vC.z;
 
 	out_aabb->setMinVertex(Vector3R(minX - TRIANGLE_EPSILON, minY - TRIANGLE_EPSILON, minZ - TRIANGLE_EPSILON));
