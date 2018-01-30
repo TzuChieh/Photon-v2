@@ -6,6 +6,7 @@
 
 #include <cmath>
 #include <algorithm>
+#include <type_traits>
 
 namespace ph
 {
@@ -28,23 +29,20 @@ public:
 	// thus it is not used currently.
 	static void formOrthonormalBasisFrisvad(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis);
 
-	// Clamp a real value to specific range. If the real value is NaN, its value is clamped to lower bound. 
-	// Either lower bound or upper bound shall not be NaN, or the method's behavior is undefined.
+	// Clamp a real value to specific range. If the real value is NaN, its 
+	// value is clamped to lower bound. Neither lower bound or upper bound 
+	// can be NaN, or the method's behavior is undefined.
 
-	static inline real clamp(const real value, const real lowerBound, const real upperBound)
-	{
-		return fmin(upperBound, fmax(value, lowerBound));
-	}
-
-	/*static inline int32 clamp(const int32 value, const int32 lowerBound, const int32 upperBound)
-	{
-		return std::min(upperBound, std::max(value, lowerBound));
-	}*/
-
-	template<typename T>
+	template<typename T, std::enable_if_t<!std::is_floating_point_v<T>, char> = 0>
 	static inline T clamp(const T value, const T lowerBound, const T upperBound)
 	{
 		return std::min(upperBound, std::max(value, lowerBound));
+	}
+
+	template<typename T, std::enable_if_t<std::is_floating_point_v<T>, char> = 1>
+	static inline T clamp(const T value, const T lowerBound, const T upperBound)
+	{
+		return std::fmin(upperBound, std::fmax(value, lowerBound));
 	}
 
 	template<typename T>

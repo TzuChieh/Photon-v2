@@ -136,6 +136,7 @@
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Math\Function\function_test.cpp" />
     <ClCompile Include="Source\Math\Function\solver_test.cpp" />
+    <ClCompile Include="Source\Math\Math_test.cpp" />
     <ClCompile Include="Source\Math\random_test.cpp" />
     <ClCompile Include="Source\Math\TArithmeticArray_test.cpp" />
     <ClCompile Include="Source\Math\TOrthonormalBasis3_test.cpp" />

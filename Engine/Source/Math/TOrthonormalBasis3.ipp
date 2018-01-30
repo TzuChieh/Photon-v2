@@ -55,7 +55,7 @@ inline T TOrthonormalBasis3<T>::cosPhi(const TVector3<T>& unitVec) const
 	if(length2 != 0)
 	{
 		xzPlaneVec.mulLocal(1 / std::sqrt(length2));
-		return Math::clamp(xzPlaneVec.dot(zAxis), -1, 1);
+		return Math::clamp<T>(xzPlaneVec.dot(zAxis), -1, 1);
 	}
 	else
 	{
@@ -99,7 +99,7 @@ inline T TOrthonormalBasis3<T>::tan2Phi(const TVector3<T>& unitVec) const
 template<typename T>
 inline T TOrthonormalBasis3<T>::cosTheta(const TVector3<T>& unitVec) const
 {
-	return Math::clamp(yAxis.dot(unitVec), -1, 1);
+	return Math::clamp<T>(yAxis.dot(unitVec), -1, 1);
 }
 
 template<typename T>
