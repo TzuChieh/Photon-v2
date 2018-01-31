@@ -93,7 +93,7 @@ std::unique_ptr<Film> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindow
 	return std::move(childFilm);
 }
 
-void HdrRgbFilm::developRegion(TFrame<real>& out_frame, const TAABB2D<int64>& regionPx) const
+void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const
 {
 	if(out_frame.widthPx()  != m_actualResPx.x ||
 	   out_frame.heightPx() != m_actualResPx.y)
@@ -133,9 +133,11 @@ void HdrRgbFilm::developRegion(TFrame<real>& out_frame, const TAABB2D<int64>& re
 			sensorG = m_pixelRadianceSensors[filmIndex].accuG * reciWeight;
 			sensorB = m_pixelRadianceSensors[filmIndex].accuB * reciWeight;
 
+			const Vector3R pixel(TVector3<float64>(sensorR, sensorG, sensorB));
+
 			// TODO: prevent negative pixel
 			out_frame.setPixel(static_cast<uint32>(x), static_cast<uint32>(y),
-			                   Vector3R(TVector3<float64>(sensorR, sensorG, sensorB)));
+			                   {pixel.x, pixel.y, pixel.z});
 		}
 	}
 }

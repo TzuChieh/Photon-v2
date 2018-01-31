@@ -7,6 +7,7 @@
 #include "Core/Bound/TAABB2D.h"
 #include "Math/TVector2.h"
 #include "Core/Quantity/SpectralStrength.h"
+#include "Frame/frame_fwd.h"
 
 #include <vector>
 #include <functional>
@@ -14,9 +15,6 @@
 
 namespace ph
 {
-
-template<typename ComponentType>
-class TFrame;
 
 class InputPacket;
 class SampleFilter;
@@ -32,8 +30,8 @@ public:
 	virtual ~Film() = 0;
 
 	virtual void addSample(float64 xPx, float64 yPx, const SpectralStrength& radiance) = 0;
-	void develop(TFrame<real>& out_frame) const;
-	void develop(TFrame<real>& out_frame, const TAABB2D<int64>& regionPx) const;
+	void develop(HdrRgbFrame& out_frame) const;
+	void develop(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const;
 	virtual void clear() = 0;
 
 	// Generates a child film with the same actual dimensions and filter as parent's, 
@@ -82,7 +80,7 @@ protected:
 	std::function<void()>         m_merger;
 
 private:
-	virtual void developRegion(TFrame<real>& out_frame, const TAABB2D<int64>& regionPx) const = 0;
+	virtual void developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const = 0;
 
 // command interface
 public:

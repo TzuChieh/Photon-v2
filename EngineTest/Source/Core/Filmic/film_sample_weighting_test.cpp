@@ -15,7 +15,7 @@ TEST(FilmSampleWeightingTest, HdrRgbFilmDevelopesToFrame)
 	const int64 filmWpx = 1;
 	const int64 filmHpx = 2;
 
-	TFrame<float32> frame(static_cast<uint32>(filmWpx), static_cast<uint32>(filmHpx));
+	HdrRgbFrame frame(static_cast<uint32>(filmWpx), static_cast<uint32>(filmHpx));
 	const auto& filter = std::make_shared<SampleFilter>(SampleFilterFactory::createGaussianFilter());
 	HdrRgbFilm film(static_cast<uint64>(filmWpx), static_cast<uint64>(filmHpx), filter);
 
@@ -31,15 +31,15 @@ TEST(FilmSampleWeightingTest, HdrRgbFilmDevelopesToFrame)
 	               SpectralStrength(0.3_r));
 	film.develop(frame);
 
-	TVector3<float32> pixelValue;
-	frame.getPixel(0, 0, &pixelValue);
+	HdrRgbFrame::Pixel pixel;
+	frame.getPixel(0, 0, &pixel);
 
 	// r, g, b should be equal - since the input samples are monochrome
-	EXPECT_NEAR(pixelValue.x, pixelValue.y, TEST_FLOAT32_EPSILON);
-	EXPECT_NEAR(pixelValue.y, pixelValue.z, TEST_FLOAT32_EPSILON);
+	EXPECT_NEAR(pixel[0], pixel[1], TEST_FLOAT32_EPSILON);
+	EXPECT_NEAR(pixel[1], pixel[2], TEST_FLOAT32_EPSILON);
 
 	// r, g, b should be non-zero
-	EXPECT_TRUE(pixelValue.isNotZero());
+	EXPECT_TRUE(pixel[0] != 0 && pixel[1] != 0 && pixel[2] != 0);
 
 	// predicting the pixel value
 	const float64 pixelToSample1Xpx = 0 + 0.5 - testSamplePos1Xpx;
@@ -52,7 +52,7 @@ TEST(FilmSampleWeightingTest, HdrRgbFilmDevelopesToFrame)
 	EXPECT_TRUE(weight1 > 0.0_r);
 	EXPECT_TRUE(weight2 > 0.0_r);
 	EXPECT_TRUE(weight1 != weight2);
-	EXPECT_NEAR(pixelValue.x,
+	EXPECT_NEAR(pixel[0],
 	            (weight1 * 0.7_r + weight2 * 0.3_r) / (weight1 + weight2), 
 	            TEST_REAL_EPSILON);
 }

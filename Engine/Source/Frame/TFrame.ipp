@@ -6,75 +6,82 @@
 namespace ph
 {
 
-template<typename ComponentType>
-inline TFrame<ComponentType>::TFrame() :
+template<typename ComponentType, std::size_t NUM_COMPONENTS>
+inline TFrame<ComponentType, NUM_COMPONENTS>::TFrame() :
 	TFrame(0, 0)
 {
 
 }
 
-template<typename ComponentType>
-inline TFrame<ComponentType>::TFrame(const uint32 wPx, const uint32 hPx) :
+template<typename ComponentType, std::size_t NUM_COMPONENTS>
+inline TFrame<ComponentType, NUM_COMPONENTS>::TFrame(const uint32 wPx, const uint32 hPx) :
 	m_widthPx(wPx), m_heightPx(hPx),
-	m_pixelData(static_cast<std::size_t>(wPx) * hPx * 3, 0)
+	m_pixelData(wPx * hPx * NUM_COMPONENTS, 0)
 {
 
 }
 
-template<typename ComponentType>
-inline TFrame<ComponentType>::TFrame(const TFrame& other) :
+template<typename ComponentType, std::size_t NUM_COMPONENTS>
+inline TFrame<ComponentType, NUM_COMPONENTS>::TFrame(const TFrame& other) :
 	m_widthPx(other.m_widthPx), m_heightPx(other.m_heightPx),
 	m_pixelData(other.m_pixelData)
 {
 
 }
 
-template<typename ComponentType>
-inline TFrame<ComponentType>::TFrame(TFrame&& other) :
+template<typename ComponentType, std::size_t NUM_COMPONENTS>
+inline TFrame<ComponentType, NUM_COMPONENTS>::TFrame(TFrame&& other) :
 	m_widthPx(other.m_widthPx), m_heightPx(other.m_heightPx),
 	m_pixelData(std::move(other.m_pixelData))
 {
 
 }
 
-template<typename ComponentType>
-inline void TFrame<ComponentType>::getPixel(
+template<typename ComponentType, std::size_t NUM_COMPONENTS>
+inline auto TFrame<ComponentType, NUM_COMPONENTS>::getPixel(
 	const uint32 x, const uint32 y, 
-	TVector3<ComponentType>* const out_pixel) const
+	Pixel* const out_pixel) const
+	-> void
 {
 	const std::size_t baseIndex = calcPixelDataBaseIndex(x, y);
 
-	out_pixel->x = m_pixelData[baseIndex + 0];
-	out_pixel->y = m_pixelData[baseIndex + 1];
-	out_pixel->z = m_pixelData[baseIndex + 2];
+	for(std::size_t i = 0; i < NUM_COMPONENTS; ++i)
+	{
+		(*out_pixel)[i] = m_pixelData[baseIndex + i];
+	}
 }
 
-template<typename ComponentType>
-inline void TFrame<ComponentType>::setPixel(
-	const uint32 x, const uint32 y, const TVector3<ComponentType>& pixel)
+template<typename ComponentType, std::size_t NUM_COMPONENTS>
+inline auto TFrame<ComponentType, NUM_COMPONENTS>::setPixel(
+	const uint32 x, const uint32 y, const Pixel& pixel)
+	-> void
 {
 	const std::size_t baseIndex = calcPixelDataBaseIndex(x, y);
 
-	m_pixelData[baseIndex + 0] = pixel.x;
-	m_pixelData[baseIndex + 1] = pixel.y;
-	m_pixelData[baseIndex + 2] = pixel.z;
+	for(std::size_t i = 0; i < NUM_COMPONENTS; ++i)
+	{
+		m_pixelData[baseIndex + i] = pixel[i];
+	}
 }
 
-template<typename ComponentType>
-inline const ComponentType* TFrame<ComponentType>::getPixelData() const
+template<typename ComponentType, std::size_t NUM_COMPONENTS>
+inline auto TFrame<ComponentType, NUM_COMPONENTS>::getPixelData() const
+	-> const ComponentType*
 {
 	return m_pixelData.data();
 }
 
-template<typename ComponentType>
-inline std::size_t TFrame<ComponentType>::calcPixelDataBaseIndex(
+template<typename ComponentType, std::size_t NUM_COMPONENTS>
+inline auto TFrame<ComponentType, NUM_COMPONENTS>::calcPixelDataBaseIndex(
 	const uint32 x, const uint32 y) const
+	-> std::size_t
 {
-	return (y * static_cast<std::size_t>(m_widthPx) + x) * 3;
+	return (y * static_cast<std::size_t>(m_widthPx) + x) * NUM_COMPONENTS;
 }
 
-template<typename ComponentType>
-inline TFrame<ComponentType>& TFrame<ComponentType>::operator = (const TFrame& rhs)
+template<typename ComponentType, std::size_t NUM_COMPONENTS>
+inline auto TFrame<ComponentType, NUM_COMPONENTS>::operator = (const TFrame& rhs)
+	-> TFrame<ComponentType, NUM_COMPONENTS>&
 {
 	m_widthPx   = rhs.m_widthPx;
 	m_heightPx  = rhs.m_heightPx;
@@ -83,8 +90,9 @@ inline TFrame<ComponentType>& TFrame<ComponentType>::operator = (const TFrame& r
 	return *this;
 }
 
-template<typename ComponentType>
-inline TFrame<ComponentType>& TFrame<ComponentType>::operator = (TFrame&& rhs)
+template<typename ComponentType, std::size_t NUM_COMPONENTS>
+inline auto TFrame<ComponentType, NUM_COMPONENTS>::operator = (TFrame&& rhs)
+	-> TFrame<ComponentType, NUM_COMPONENTS>&
 {
 	m_widthPx   = rhs.m_widthPx;
 	m_heightPx  = rhs.m_heightPx;
@@ -93,8 +101,10 @@ inline TFrame<ComponentType>& TFrame<ComponentType>::operator = (TFrame&& rhs)
 	return *this;
 }
 
-template<typename ComponentType>
-inline void swap(TFrame<ComponentType>& first, TFrame<ComponentType>& second)
+template<typename ComponentType, std::size_t NUM_COMPONENTS>
+inline void swap(
+	TFrame<ComponentType, NUM_COMPONENTS>& first, 
+	TFrame<ComponentType, NUM_COMPONENTS>& second)
 {
 	using std::swap;
 

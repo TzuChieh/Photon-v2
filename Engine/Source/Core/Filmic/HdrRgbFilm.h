@@ -12,9 +12,6 @@
 namespace ph
 {
 
-template<typename ComponentType>
-class TFrame;
-
 class InputPacket;
 
 class HdrRgbFilm final : public Film, public TCommandInterface<HdrRgbFilm>
@@ -32,7 +29,7 @@ public:
 	virtual std::unique_ptr<Film> genChild(const TAABB2D<int64>& effectiveWindowPx) override;
 
 private:
-	virtual void developRegion(TFrame<real>& out_frame, const TAABB2D<int64>& regionPx) const override;
+	virtual void developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const override;
 
 	std::vector<RadianceSensor> m_pixelRadianceSensors;
 

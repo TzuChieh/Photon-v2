@@ -11,14 +11,14 @@ namespace ph
 class LdrPictureImage final : public PictureImage, public TCommandInterface<LdrPictureImage>
 {
 public:
-	LdrPictureImage(const TFrame<uint8>& picture);
+	LdrPictureImage(const LdrRgbFrame& picture);
 	virtual ~LdrPictureImage() override;
 
 	virtual std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(
 		CookingContext& context) const override;
 
 private:
-	TFrame<uint8> m_picture;
+	LdrRgbFrame m_picture;
 
 // command interface
 public:

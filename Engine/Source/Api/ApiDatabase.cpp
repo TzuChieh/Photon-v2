@@ -14,9 +14,9 @@ TStableIndexDenseArray<std::unique_ptr<Engine>>& ApiDatabase::ENGINES()
 	return engines;
 }
 
-TStableIndexDenseArray<std::unique_ptr<TFrame<real>>>& ApiDatabase::FRAMES()
+TStableIndexDenseArray<std::unique_ptr<HdrRgbFrame>>& ApiDatabase::FRAMES()
 {
-	static TStableIndexDenseArray<std::unique_ptr<TFrame<real>>> frames;
+	static TStableIndexDenseArray<std::unique_ptr<HdrRgbFrame>> frames;
 	return frames;
 }
 
@@ -54,7 +54,7 @@ Engine* ApiDatabase::getEngine(const std::size_t engineId)
 	return engine->get();
 }
 
-std::size_t ApiDatabase::addFrame(std::unique_ptr<TFrame<real>> frame)
+std::size_t ApiDatabase::addFrame(std::unique_ptr<HdrRgbFrame> frame)
 {
 	std::lock_guard<std::mutex> lock(MUTEX_LOCK());
 
@@ -68,7 +68,7 @@ bool ApiDatabase::removeFrame(const std::size_t frameId)
 	return FRAMES().remove(frameId);
 }
 
-TFrame<real>* ApiDatabase::getFrame(const std::size_t frameId)
+HdrRgbFrame* ApiDatabase::getFrame(const std::size_t frameId)
 {
 	std::lock_guard<std::mutex> lock(MUTEX_LOCK());
 

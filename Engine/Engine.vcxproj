@@ -309,6 +309,7 @@
     <ClInclude Include="Source\FileIO\Tokenizer.h" />
     <ClInclude Include="Source\FileIO\ValueClause.h" />
     <ClInclude Include="Source\FileIO\ValueParser.h" />
+    <ClInclude Include="Source\Frame\frame_fwd.h" />
     <ClInclude Include="Source\Math\Color.h" />
     <ClInclude Include="Source\Math\constant.h" />
     <ClInclude Include="Source\Math\Function\TConstant2D.h" />

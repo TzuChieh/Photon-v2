@@ -7,15 +7,13 @@
 #include "Math/TVector2.h"
 #include "Core/Renderer/Renderer.h"
 #include "Core/Renderer/ERegionStatus.h"
+#include "Frame/frame_fwd.h"
 
 #include <string>
 #include <memory>
 
 namespace ph
 {
-
-template<typename ComponentType>
-class TFrame;
 
 class Path;
 
@@ -27,12 +25,12 @@ public:
 	void enterCommand(const std::string& commandFragment);
 	void update();
 	void render();
-	void developFilm(TFrame<real>& out_frame);
+	void developFilm(HdrRgbFrame& out_frame);
 	TVector2<int64> getFilmDimensionPx() const;
 	void setNumRenderThreads(uint32 numThreads);
 
 	ERegionStatus asyncPollUpdatedRegion(Renderer::Region* out_region) const;
-	void asyncDevelopFilmRegion(TFrame<real>& out_frame, const Renderer::Region& region) const;
+	void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Renderer::Region& region) const;
 	void asyncQueryStatistics(float32* out_percentageProgress,
 	                          float32* out_samplesPerSecond) const;
 

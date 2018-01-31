@@ -24,7 +24,7 @@ public:
 	virtual bool getNewWork(uint32 workerId, RenderWork* out_work) override;
 	virtual void submitWork(uint32 workerId, const RenderWork& work, bool isUpdating) override;
 	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;
-	virtual void asyncDevelopFilmRegion(TFrame<real>& out_frame, const Region& region) override;
+	virtual void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region) override;
 
 private:
 	const Scene*     m_scene;

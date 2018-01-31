@@ -2,16 +2,21 @@
 
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
+#include "Frame/frame_fwd.h"
 
 #include <vector>
 #include <cstddef>
+#include <array>
 
 namespace ph
 {
 
-template<typename ComponentType>
+template<typename ComponentType, std::size_t NUM_COMPONENTS>
 class TFrame final
 {
+public:
+	typedef std::array<ComponentType, NUM_COMPONENTS> Pixel;
+
 public:
 	inline TFrame();
 	inline TFrame(uint32 wPx, uint32 hPx);
@@ -19,8 +24,8 @@ public:
 	inline TFrame(TFrame&& other);
 	inline ~TFrame() = default;
 
-	inline void getPixel(uint32 x, uint32 y, TVector3<ComponentType>* out_pixel) const;
-	inline void setPixel(uint32 x, uint32 y, const TVector3<ComponentType>& pixel);
+	inline void getPixel(uint32 x, uint32 y, Pixel* out_pixel) const;
+	inline void setPixel(uint32 x, uint32 y, const Pixel& pixel);
 	inline const ComponentType* getPixelData() const;
 
 	inline TFrame& operator = (const TFrame& rhs);

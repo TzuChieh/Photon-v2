@@ -8,6 +8,7 @@
 #include "Core/Bound/TAABB2D.h"
 #include "Core/Renderer/ERegionStatus.h"
 #include "Core/Renderer/Statistics.h"
+#include "Frame/frame_fwd.h"
 
 #include <vector>
 #include <mutex>
@@ -17,8 +18,6 @@
 
 namespace ph
 {
-template<typename ComponentType>
-class TFrame;
 
 class Description;
 
@@ -35,7 +34,7 @@ public:
 	virtual bool getNewWork(uint32 workerId, RenderWork* out_work) = 0;
 	virtual void submitWork(uint32 workerId, const RenderWork& work, bool isUpdating) = 0;
 	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) = 0;
-	virtual void asyncDevelopFilmRegion(TFrame<real>& out_frame, const Region& region) = 0;
+	virtual void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region) = 0;
 
 	void render(const Description& description);
 	void setNumRenderThreads(const uint32 numThreads);

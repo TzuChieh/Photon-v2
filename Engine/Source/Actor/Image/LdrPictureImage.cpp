@@ -6,7 +6,7 @@
 namespace ph
 {
 
-LdrPictureImage::LdrPictureImage(const TFrame<uint8>& picture) : 
+LdrPictureImage::LdrPictureImage(const LdrRgbFrame& picture) :
 	m_picture(picture)
 {
 

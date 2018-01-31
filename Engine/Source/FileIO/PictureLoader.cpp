@@ -1,5 +1,4 @@
 #include "FileIO/PictureLoader.h"
-#include "Frame/TFrame.h"
 #include "Core/Quantity/ColorSpace.h"
 #include "Common/assertion.h"
 #include "Math/Math.h"
@@ -17,12 +16,12 @@ const Logger& PictureLoader::LOGGER()
 	return logger;
 }
 
-TFrame<uint8> PictureLoader::loadLdr(const Path& picturePath)
+LdrRgbFrame PictureLoader::loadLdr(const Path& picturePath)
 {
 	// FIXME: testing
 	LOGGER().log(ELogLevel::NOTE_MED, "loading image <" + picturePath.toString() + ">");
 
-	TFrame<uint8> picture;
+	LdrRgbFrame picture;
 
 	const std::string& ext = picturePath.getExtension();
 	if(ext == ".png"  || 
@@ -41,7 +40,7 @@ TFrame<uint8> PictureLoader::loadLdr(const Path& picturePath)
 		          << "cannot load <"
 		          << picturePath.toString()
 		          << "> since the format is unsupported" << std::endl;
-		picture = TFrame<uint8>();
+		picture = LdrRgbFrame();
 	}
 
 	if(picture.isEmpty())
@@ -55,7 +54,7 @@ TFrame<uint8> PictureLoader::loadLdr(const Path& picturePath)
 	return picture;
 }
 
-TFrame<uint8> PictureLoader::loadLdrViaStb(const std::string& fullFilename)
+LdrRgbFrame PictureLoader::loadLdrViaStb(const std::string& fullFilename)
 {
 	std::cout << "loading image <" << fullFilename << ">" << std::endl;
 
@@ -79,7 +78,7 @@ TFrame<uint8> PictureLoader::loadLdrViaStb(const std::string& fullFilename)
 		          << fullFilename 
 		          << "> loading failed" << std::endl;
 		std::cerr << "(message: " << stbi_failure_reason() << ")" << std::endl;
-		return TFrame<uint8>();
+		return LdrRgbFrame();
 	}
 
 	if(numComponents != 3)
@@ -93,7 +92,7 @@ TFrame<uint8> PictureLoader::loadLdrViaStb(const std::string& fullFilename)
 		//return TFrame<uint8>();
 	}
 
-	TFrame<uint8> picture(widthPx, heightPx);
+	LdrRgbFrame picture(widthPx, heightPx);
 	for(uint32 y = 0; y < picture.heightPx(); y++)
 	{
 		for(uint32 x = 0; x < picture.widthPx(); x++)
@@ -107,7 +106,8 @@ TFrame<uint8> PictureLoader::loadLdrViaStb(const std::string& fullFilename)
 			Vector3R linearRgb = ColorSpace::sRgbToLinearRgb(sRgbPixel);
 			linearRgb.mulLocal(255.0_r).addLocal(0.5_r).clampLocal(0.0_r, 255.0_r);
 
-			picture.setPixel(x, y, TVector3<uint8>(linearRgb));
+			const TVector3<uint8> rgb255(linearRgb);
+			picture.setPixel(x, y, {rgb255.x, rgb255.y, rgb255.z});
 		}
 	}
 

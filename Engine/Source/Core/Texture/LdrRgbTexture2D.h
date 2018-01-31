@@ -11,9 +11,6 @@
 namespace ph
 {
 
-template<typename ComponentType>
-class TFrame;
-
 class LdrRgbTexture2D final : public TTexture<SpectralStrength>
 {
 public:
@@ -28,7 +25,7 @@ public:
 	               const real* pixelData);
 
 	// HACK
-	inline void setPixels(const TFrame<uint8>& ldrFrame)
+	inline void setPixels(const LdrRgbFrame& ldrFrame)
 	{
 		resize(ldrFrame.widthPx(), ldrFrame.heightPx());
 		m_pixelData = ldrFrame.getRealData();
