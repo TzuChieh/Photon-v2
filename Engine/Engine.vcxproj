@@ -336,7 +336,7 @@
     <ClInclude Include="Source\Math\TVector3.h" />
     <ClInclude Include="Source\Frame\TFrame.h" />
     <ClInclude Include="Source\Frame\HdrOperator\HdrOperator.h" />
-    <ClInclude Include="Source\Frame\PostProcessor.h" />
+    <ClInclude Include="Source\Frame\FrameProcessor.h" />
     <ClInclude Include="Source\Frame\ToneMapper\ToneMapper.h" />
     <ClInclude Include="Source\Utility\has_member.h" />
     <ClInclude Include="Source\Utility\INoncopyable.h" />
@@ -495,6 +495,7 @@
     <ClCompile Include="Source\FileIO\Tokenizer.cpp" />
     <ClCompile Include="Source\FileIO\ValueClause.cpp" />
     <ClCompile Include="Source\FileIO\ValueParser.cpp" />
+    <ClCompile Include="Source\Frame\FrameProcessor.cpp" />
     <ClCompile Include="Source\Math\Math.cpp" />
     <ClCompile Include="Source\Math\Random.cpp" />
     <ClCompile Include="Source\Math\Transform\DynamicLinearTranslation.cpp" />
