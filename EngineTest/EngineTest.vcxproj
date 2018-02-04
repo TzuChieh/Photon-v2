@@ -144,6 +144,7 @@
     <ClCompile Include="Source\Math\Transform\StaticTransform_test.cpp" />
     <ClCompile Include="Source\Math\TVector2_test.cpp" />
     <ClCompile Include="Source\Math\TVector3_test.cpp" />
+    <ClCompile Include="Source\Utility\FixedSizeThreadPool_test.cpp" />
     <ClCompile Include="Source\Utility\has_member_test.cpp" />
     <ClCompile Include="Source\Utility\TFixedSizeStack_test.cpp" />
   </ItemGroup>

@@ -54,6 +54,7 @@ public:
 		setFunc<OwnerType, OwnerType>(func);
 	}
 
+	// FIXME: potentially bad or even wrong spec., revision needed
 	// Functions operate on target types other than the owner type must make sure the
 	// desired target type is a base class of the owner type. This will ensure correct
 	// is-a relationship

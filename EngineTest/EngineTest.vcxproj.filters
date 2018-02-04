@@ -72,6 +72,9 @@
     <ClCompile Include="Source\Math\Math_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Utility\FixedSizeThreadPool_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\constants_for_test.h">
