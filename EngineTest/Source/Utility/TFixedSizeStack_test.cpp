@@ -24,33 +24,41 @@ TEST(TFixedSizeStackTest, PushAndPop)
 	EXPECT_TRUE(stack.height() == 0);
 
 	stack.push(-1);
+	// stack state: [-1, X, X]
 	EXPECT_TRUE(stack.get() == -1);
 	EXPECT_TRUE(stack.height() == 1);
 
 	stack.push(0);
+	// stack state: [-1, 0, X]
 	EXPECT_TRUE(stack.get() == 0);
 	EXPECT_TRUE(stack.height() == 2);
 
 	stack.pop();
+	// stack state: [-1, X, X]
 	EXPECT_TRUE(stack.get() == -1);
 	EXPECT_TRUE(stack.height() == 1);
 
 	stack.push(1);
+	// stack state: [-1, 1, X]
 	EXPECT_TRUE(stack.get() == 1);
 	EXPECT_TRUE(stack.height() == 2);
 
 	stack.push(2);
+	// stack state: [-1, 1, 2]
 	EXPECT_TRUE(stack.get() == 2);
 	EXPECT_TRUE(stack.height() == 3);
 
 	stack.pop();
+	// stack state: [-1, 1, X]
 	EXPECT_TRUE(stack.get() == 1);
 	EXPECT_TRUE(stack.height() == 2);
 
 	stack.pop();
+	// stack state: [-1, X, X]
 	EXPECT_TRUE(stack.get() == -1);
 	EXPECT_TRUE(stack.height() == 1);
 
 	stack.pop();
+	// stack state: [X, X, X]
 	EXPECT_TRUE(stack.height() == 0);
 }
