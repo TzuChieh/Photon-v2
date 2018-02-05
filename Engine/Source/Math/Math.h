@@ -27,19 +27,20 @@ public:
 	// Journal of Graphics Tools, 2012)
 	// Note: This method seems to have larger numerical error (at least 10^3 larger than my naive method), 
 	// thus it is not used currently.
+	//
 	static void formOrthonormalBasisFrisvad(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis);
 
 	// Clamp a real value to specific range. If the real value is NaN, its 
 	// value is clamped to lower bound. Neither lower bound or upper bound 
 	// can be NaN, or the method's behavior is undefined.
 
-	template<typename T, std::enable_if_t<!std::is_floating_point_v<T>, char> = 0>
+	template<typename T, std::enable_if_t<!std::is_floating_point_v<T>, int> = 0>
 	static inline T clamp(const T value, const T lowerBound, const T upperBound)
 	{
 		return std::min(upperBound, std::max(value, lowerBound));
 	}
 
-	template<typename T, std::enable_if_t<std::is_floating_point_v<T>, char> = 0>
+	template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
 	static inline T clamp(const T value, const T lowerBound, const T upperBound)
 	{
 		return std::fmin(upperBound, std::fmax(value, lowerBound));
@@ -63,10 +64,30 @@ public:
 	// returns (-1) when (value  < 0), 
 	// returns ( 0) when (value == 0).
 	// (Note that the target value is pass by value.)
+	//
 	template<typename T>
 	static inline int32 sign(const T value)
 	{
 		return (static_cast<T>(0) < value) - (static_cast<T>(0) > value);
+	}
+
+	// Returns the a power of 2 value that is >= <value>. Note that if 
+	// <value> is 0, then 0 will be returned.
+	//
+	// Reference:
+	// Stanford CG Lab's webpage: "Bit Twiddling Hacks" by Sean Eron Anderson
+	//
+	static inline uint32 nextPowerOf2(uint32 value)
+	{
+		--value;
+
+		value |= value >> 1;
+		value |= value >> 2;
+		value |= value >> 4;
+		value |= value >> 8;
+		value |= value >> 16;
+
+		return value + 1;
 	}
 };
 

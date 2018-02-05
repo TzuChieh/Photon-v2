@@ -3,6 +3,7 @@
 #include "Utility/INoncopyable.h"
 #include "Frame/TFrame.h"
 #include "Utility/FixedSizeThreadPool.h"
+#include "Math/Function/TConstant2D.h"
 
 #include <cstddef>
 #include <future>
@@ -25,20 +26,20 @@ public:
 	template<typename T, std::size_t N>
 	using Mipmaps = std::future<std::vector<TFrame<T, N>>>;
 
-	/*template<typename T, std::size_t N>
+	template<typename T, std::size_t N>
 	inline auto genMipmaps(const TFrame<T, N>& source) 
-		-> std::future<Mipmaps>
+		-> std::future<Mipmaps<T, N>>
 	{
-		std::promise<Mipmaps> result;
-		std::future<Mipmaps> mipmaps = result.get_future();
+		std::promise<Mipmaps<T, N>> result;
+		std::future<Mipmaps<T, N>> mipmaps = result.get_future();
 
 		m_workers.queueWork([workingResult = std::move(result)]()
 		{
-
+			// TODO
 		});
 
 		return mipmaps;
-	}*/
+	}
 
 private:
 	FixedSizeThreadPool m_workers;

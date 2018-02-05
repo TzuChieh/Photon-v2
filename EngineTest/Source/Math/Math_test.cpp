@@ -41,3 +41,23 @@ TEST(MathTest, NumberClamping)
 		EXPECT_TRUE(ph::Math::clamp(std::numeric_limits<double>::quiet_NaN(), 1.0, 5.0) == 1.0);
 	}
 }
+
+TEST(MathTest, EvaluateNextPowerOf2)
+{
+	EXPECT_EQ(ph::Math::nextPowerOf2(1), 1);
+	EXPECT_EQ(ph::Math::nextPowerOf2(2), 2);
+	EXPECT_EQ(ph::Math::nextPowerOf2(3), 4);
+	EXPECT_EQ(ph::Math::nextPowerOf2(4), 4);
+	EXPECT_EQ(ph::Math::nextPowerOf2(5), 8);
+	EXPECT_EQ(ph::Math::nextPowerOf2(6), 8);
+	EXPECT_EQ(ph::Math::nextPowerOf2(7), 8);
+	EXPECT_EQ(ph::Math::nextPowerOf2(8), 8);
+
+	// TODO: test by calculating using log functions
+
+	EXPECT_EQ(ph::Math::nextPowerOf2(1023),  1024);
+	EXPECT_EQ(ph::Math::nextPowerOf2(32700), 32768);
+
+	// special case (this behavior is part of spec.)
+	EXPECT_EQ(ph::Math::nextPowerOf2(0), 0);
+}
