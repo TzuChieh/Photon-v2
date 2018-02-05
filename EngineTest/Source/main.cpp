@@ -1,11 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-//TEST(Try, Try1)
-//{
-//	EXPECT_EQ(1, 0);
-//}
-
 int main(int argc, char* argv[])
 {
 	// Since Google Mock depends on Google Test, InitGoogleMock() is

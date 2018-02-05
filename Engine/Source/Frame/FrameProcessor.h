@@ -2,6 +2,7 @@
 
 #include "Utility/INoncopyable.h"
 #include "Frame/TFrame.h"
+#include "Utility/FixedSizeThreadPool.h"
 
 #include <cstddef>
 #include <future>
@@ -13,7 +14,7 @@ namespace ph
 class FrameProcessor final : public INoncopyable
 {
 public:
-	FrameProcessor(const std::size_t maxThreads);
+	FrameProcessor(const std::size_t numThreads);
 	~FrameProcessor() = default;
 
 	// Generates a series of MIP levels from specified source frame.
@@ -28,7 +29,7 @@ public:
 	}*/
 
 private:
-	std::size_t m_maxThreads;
+	FixedSizeThreadPool m_workers;
 };
 
 }// end namespace ph

@@ -58,7 +58,7 @@ void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const SpectralS
 	{
 		for(int64 x = x0y0.x; x < x1y1.x; x++)
 		{
-			// TODO: factor out -0.5 part
+			// TODO: factor out the -0.5 part
 			const float64 filterX = x - (xPx - 0.5);
 			const float64 filterY = y - (yPx - 0.5);
 

@@ -133,6 +133,7 @@
     <ClCompile Include="Source\Core\Texture\TAddTexture_test.cpp" />
     <ClCompile Include="Source\Core\Texture\TMultiplyTexture_test.cpp" />
     <ClCompile Include="Source\FileIO\FileSystem\Path_test.cpp" />
+    <ClCompile Include="Source\Frame\TFrame_test.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Math\Function\function_test.cpp" />
     <ClCompile Include="Source\Math\Function\solver_test.cpp" />

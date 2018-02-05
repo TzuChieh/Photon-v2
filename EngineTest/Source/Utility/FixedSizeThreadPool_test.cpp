@@ -45,3 +45,9 @@ TEST(FixedSizeThreadPoolTest, CalculateNumberSum)
 
 	EXPECT_EQ(testSum, actualSum);
 }
+
+TEST(FixedSizeThreadPoolTest, GetAttributes)
+{
+	ph::FixedSizeThreadPool threadPool(2);
+	EXPECT_EQ(threadPool.numWorkers(), 2);
+}

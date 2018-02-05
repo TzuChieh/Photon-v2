@@ -3,7 +3,8 @@
 namespace ph
 {
 
-FrameProcessor::FrameProcessor(const std::size_t maxThreads)
+FrameProcessor::FrameProcessor(const std::size_t numThreads) : 
+	m_workers(numThreads)
 {
 
 }

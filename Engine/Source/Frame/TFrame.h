@@ -3,6 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
 #include "Frame/frame_fwd.h"
+#include "Math/Function/TMathFunction2D.h"
 
 #include <vector>
 #include <cstddef>
@@ -11,11 +12,21 @@
 namespace ph
 {
 
-template<typename ComponentType, std::size_t NUM_COMPONENTS>
+template<typename T, std::size_t N>
 class TFrame final
 {
 public:
-	typedef std::array<ComponentType, NUM_COMPONENTS> Pixel;
+	typedef std::array<T, N> Pixel;
+
+	static inline Pixel getMonochromaticPixel(const T value)
+	{
+		Pixel result;
+		for(std::size_t i = 0; i < result.size(); ++i)
+		{
+			result[i] = T(value);
+		}
+		return result;
+	}
 
 public:
 	inline TFrame();
@@ -24,9 +35,12 @@ public:
 	inline TFrame(TFrame&& other);
 	inline ~TFrame() = default;
 
+	inline void fill(T value);
+	inline void sample(TFrame& sampled, const TMathFunction2D<float64>& kernel, uint32 kernelRadiusPx) const;
+
 	inline void getPixel(uint32 x, uint32 y, Pixel* out_pixel) const;
 	inline void setPixel(uint32 x, uint32 y, const Pixel& pixel);
-	inline const ComponentType* getPixelData() const;
+	inline const T* getPixelData() const;
 
 	inline TFrame& operator = (const TFrame& rhs);
 	inline TFrame& operator = (TFrame&& rhs);
@@ -69,7 +83,7 @@ private:
 	uint32 m_widthPx;
 	uint32 m_heightPx;
 
-	std::vector<ComponentType> m_pixelData;
+	std::vector<T> m_pixelData;
 
 	inline std::size_t calcPixelDataBaseIndex(uint32 x, uint32 y) const;
 };
