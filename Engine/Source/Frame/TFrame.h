@@ -16,14 +16,18 @@ template<typename T, std::size_t N>
 class TFrame final
 {
 public:
-	typedef std::array<T, N> Pixel;
+	template<typename U>
+	using TPixel = std::array<U, N>;
 
-	static inline Pixel getMonochromaticPixel(const T value)
+	typedef TPixel<T> Pixel;
+
+	template<typename U = T>
+	static inline TPixel<U> getMonochromaticPixel(const U value)
 	{
-		Pixel result;
+		TPixel<U> result;
 		for(std::size_t i = 0; i < result.size(); ++i)
 		{
-			result[i] = T(value);
+			result[i] = U(value);
 		}
 		return result;
 	}
@@ -36,7 +40,11 @@ public:
 	inline ~TFrame() = default;
 
 	inline void fill(T value);
-	inline void sample(TFrame& sampled, const TMathFunction2D<float64>& kernel, uint32 kernelRadiusPx) const;
+
+	// TODO: user specified clamping range?
+	inline void sample(
+		TFrame& sampled, 
+		const TMathFunction2D<float64>& kernel, uint32 kernelRadiusPx) const;
 
 	inline void getPixel(uint32 x, uint32 y, Pixel* out_pixel) const;
 	inline void setPixel(uint32 x, uint32 y, const Pixel& pixel);

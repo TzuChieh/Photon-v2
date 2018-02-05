@@ -39,7 +39,7 @@ public:
 		return std::min(upperBound, std::max(value, lowerBound));
 	}
 
-	template<typename T, std::enable_if_t<std::is_floating_point_v<T>, char> = 1>
+	template<typename T, std::enable_if_t<std::is_floating_point_v<T>, char> = 0>
 	static inline T clamp(const T value, const T lowerBound, const T upperBound)
 	{
 		return std::fmin(upperBound, std::fmax(value, lowerBound));

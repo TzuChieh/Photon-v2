@@ -4,6 +4,9 @@
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
 #include "Math/TVector2.h"
+#include "Math/Math.h"
+
+#include <limits>
 
 namespace ph
 {
@@ -84,8 +87,8 @@ inline void TFrame<T, N>::sample(
 			PH_ASSERT(x0y0.x >= 0 && x0y0.y >= 0 &&
 			          x1y1.x < widthPx() && x1y1.y < heightPx());
 
-			Pixel   pixelSum  = getMonochromaticPixel(0);
-			float64 weightSum = 0.0;
+			TPixel<float64> pixelSum  = getMonochromaticPixel<float64>(0);
+			float64         weightSum = 0.0;
 			for(int64 ky = x0y0.y; ky <= x1y1.y; ++ky)
 			{
 				for(int64 kx = x0y0.x; kx <= x1y1.x; ++kx)
@@ -99,7 +102,7 @@ inline void TFrame<T, N>::sample(
 
 					for(std::size_t i = 0; i < N; ++i)
 					{
-						pixelSum[i] += pixel[i];
+						pixelSum[i] += static_cast<float64>(pixel[i]);
 					}
 					weightSum += weight;
 				}// 
@@ -111,12 +114,16 @@ inline void TFrame<T, N>::sample(
 				const float64 reciWeightSum = 1.0 / weightSum;
 				for(std::size_t i = 0; i < N; ++i)
 				{
-					sampledPixel[i] = static_cast<T>(pixelSum[i] * reciWeightSum);
+					float64 sampledValue = pixelSum[i] * reciWeightSum;
+					sampledValue = Math::clamp(sampledValue, 
+					                           static_cast<float64>(std::numeric_limits<T>::min()),
+					                           static_cast<float64>(std::numeric_limits<T>::max()));
+					sampledPixel[i] = static_cast<T>(sampledValue);
 				}
 			}
 			else
 			{
-				sampledPixel = getMonochromaticPixel(0);
+				sampledPixel = getMonochromaticPixel(T(0));
 			}
 			sampled.setPixel(x, y, sampledPixel);
 		}// 

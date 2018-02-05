@@ -6,7 +6,7 @@
 namespace ph
 {
 	
-template<typename ComponentType, std::size_t NUM_COMPONENTS>
+template<typename T, std::size_t N>
 class TFrame;
 
 typedef TFrame<uint8, 3> LdrRgbFrame;
