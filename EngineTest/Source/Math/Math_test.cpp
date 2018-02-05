@@ -61,3 +61,21 @@ TEST(MathTest, EvaluateNextPowerOf2)
 	// special case (this behavior is part of spec.)
 	EXPECT_EQ(ph::Math::nextPowerOf2(0), 0);
 }
+
+TEST(MathTest, CheckIsPowerOf2)
+{
+	EXPECT_FALSE(ph::Math::isPowerOf2(0));
+	EXPECT_TRUE (ph::Math::isPowerOf2(1));
+	EXPECT_TRUE (ph::Math::isPowerOf2(2));
+	EXPECT_FALSE(ph::Math::isPowerOf2(3));
+	EXPECT_TRUE (ph::Math::isPowerOf2(1 << 17));
+	EXPECT_FALSE(ph::Math::isPowerOf2((1 << 17) + 1));
+	EXPECT_FALSE(ph::Math::isPowerOf2(-1));
+	EXPECT_FALSE(ph::Math::isPowerOf2(std::numeric_limits<int>::max()));
+	EXPECT_FALSE(ph::Math::isPowerOf2(std::numeric_limits<int>::min()));
+	EXPECT_FALSE(ph::Math::isPowerOf2(std::numeric_limits<unsigned int>::max()));
+	EXPECT_FALSE(ph::Math::isPowerOf2(0ULL));
+	EXPECT_TRUE (ph::Math::isPowerOf2(1ULL << 50));
+	EXPECT_FALSE(ph::Math::isPowerOf2((1ULL << 50) + 1));
+	EXPECT_FALSE(ph::Math::isPowerOf2(std::numeric_limits<unsigned long long>::max()));
+}

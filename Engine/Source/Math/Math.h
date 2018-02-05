@@ -89,6 +89,12 @@ public:
 
 		return value + 1;
 	}
+
+	template<typename T>
+	static inline bool isPowerOf2(const T value)
+	{
+		return (value > 0) && !(value & (value - 1));
+	}
 };
 
 }// end namespace ph
