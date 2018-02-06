@@ -79,3 +79,19 @@ TEST(MathTest, CheckIsPowerOf2)
 	EXPECT_FALSE(ph::Math::isPowerOf2((1ULL << 50) + 1));
 	EXPECT_FALSE(ph::Math::isPowerOf2(std::numeric_limits<unsigned long long>::max()));
 }
+
+TEST(MathTest, CalculateIntegerBase2Logarithm)
+{
+	EXPECT_EQ(ph::Math::log2Floor(1), 0);
+	EXPECT_EQ(ph::Math::log2Floor(2), 1);
+	EXPECT_EQ(ph::Math::log2Floor(3), 1);
+	EXPECT_EQ(ph::Math::log2Floor(4), 2);
+	EXPECT_EQ(ph::Math::log2Floor(5), 2);
+	EXPECT_EQ(ph::Math::log2Floor(6), 2);
+	EXPECT_EQ(ph::Math::log2Floor(7), 2);
+	EXPECT_EQ(ph::Math::log2Floor(8), 3);
+
+	EXPECT_EQ(ph::Math::log2Floor(1024), 10);
+	EXPECT_EQ(ph::Math::log2Floor(1 << 20), 20);
+	EXPECT_EQ(ph::Math::log2Floor(std::numeric_limits<ph::uint32>::max()), 31);
+}

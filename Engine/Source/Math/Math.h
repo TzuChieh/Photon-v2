@@ -3,10 +3,16 @@
 #include "Common/primitive_type.h"
 #include "Math/constant.h"
 #include "Math/math_fwd.h"
+#include "Common/compiler.h"
+#include "Common/assertion.h"
 
 #include <cmath>
 #include <algorithm>
 #include <type_traits>
+
+#if defined(PH_COMPILER_IS_MSVC)
+	#include <intrin.h>
+#endif
 
 namespace ph
 {
@@ -95,6 +101,36 @@ public:
 	{
 		return (value > 0) && !(value & (value - 1));
 	}
+
+	// Calculate a positive integer's base 2 logarithm (floored). 
+	// <input> shall not be 0, or the behavior of this method is undefined.
+	//
+	static inline uint32 log2Floor(const uint32 value)
+	{
+		PH_ASSERT(value != 0);
+
+#if defined(PH_COMPILER_IS_CLANG) || defined(PH_COMPILER_IS_GCC)
+
+		static_assert(sizeof(uint32) == sizeof(unsigned long), 
+		              "expecting same size for conversion purposes");
+
+		return 31 - __builtin_clz(value);
+
+#elif defined(PH_COMPILER_IS_MSVC)
+
+		static_assert(sizeof(uint32) == sizeof(unsigned long), 
+		              "expecting same size for conversion purposes");
+
+		unsigned long first1BitFromLeftIndex;
+		_BitScanReverse(&first1BitFromLeftIndex, value);
+		return first1BitFromLeftIndex;
+
+#else
+
+		return static_cast<uint32>(std::log2(static_cast<float>(value)));
+
+#endif
+	}// end log2(1)
 };
 
 }// end namespace ph

@@ -177,6 +177,7 @@
     <ClInclude Include="Source\Api\init_and_exit.h" />
     <ClInclude Include="Source\Api\test_scene.h" />
     <ClInclude Include="Source\Common\assertion.h" />
+    <ClInclude Include="Source\Common\compiler.h" />
     <ClInclude Include="Source\Common\config.h" />
     <ClInclude Include="Source\Common\ELogLevel.h" />
     <ClInclude Include="Source\Common\Logger.h" />
