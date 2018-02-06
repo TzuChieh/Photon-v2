@@ -49,6 +49,19 @@ void FixedSizeThreadPool::queueWork(const Work& work)
 	m_workersCv.notify_all();
 }
 
+// Essentially the same as its const reference variant, except work is moved.
+void FixedSizeThreadPool::queueWork(Work&& work)
+{
+	{
+		std::lock_guard<std::mutex> lock(m_poolMutex);
+
+		m_works.push(std::move(work));
+		m_numQueuedWorks++;
+	}
+
+	m_workersCv.notify_all();
+}
+
 void FixedSizeThreadPool::asyncProcessWork()
 {
 	std::unique_lock<std::mutex> lock(m_poolMutex);

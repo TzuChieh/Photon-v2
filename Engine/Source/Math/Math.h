@@ -85,6 +85,8 @@ public:
 	//
 	static inline uint32 nextPowerOf2(uint32 value)
 	{
+		PH_ASSERT(value <= (1UL << 31));
+
 		--value;
 
 		value |= value >> 1;

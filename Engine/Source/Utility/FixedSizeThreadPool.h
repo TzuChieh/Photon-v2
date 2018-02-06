@@ -23,6 +23,7 @@ public:
 	~FixedSizeThreadPool();
 
 	void queueWork(const Work& work);
+	void queueWork(Work&& work);
 	void requestExit();
 	void waitAllWorks();
 

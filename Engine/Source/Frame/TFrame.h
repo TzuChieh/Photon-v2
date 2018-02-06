@@ -42,6 +42,7 @@ public:
 	inline void fill(T value);
 
 	// TODO: user specified clamping range?
+	// TODO: specify size instead of radius for finer control
 	inline void sample(
 		TFrame& sampled, 
 		const TMathFunction2D<float64>& kernel, uint32 kernelRadiusPx) const;
