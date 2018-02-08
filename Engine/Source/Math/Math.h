@@ -72,7 +72,7 @@ public:
 	// (Note that the target value is pass by value.)
 	//
 	template<typename T>
-	static inline int32 sign(const T value)
+	static inline int sign(const T value)
 	{
 		return (static_cast<T>(0) < value) - (static_cast<T>(0) > value);
 	}
@@ -132,7 +132,7 @@ public:
 		return static_cast<uint32>(std::log2(static_cast<float>(value)));
 
 #endif
-	}// end log2(1)
+	}// end log2Floor(1)
 };
 
 }// end namespace ph

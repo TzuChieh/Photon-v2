@@ -19,6 +19,9 @@ TEST(MathTest, NumberSignExtraction)
 	EXPECT_TRUE(ph::Math::sign(-4.0f) == -1);
 	EXPECT_TRUE(ph::Math::sign( 0.0f) ==  0);
 	EXPECT_TRUE(ph::Math::sign( 7.0f) ==  1);
+
+	EXPECT_TRUE(ph::Math::sign(0ULL) == 0);
+	EXPECT_TRUE(ph::Math::sign(std::numeric_limits<unsigned long long>::max()) == 1);
 }
 
 TEST(MathTest, NumberClamping)
