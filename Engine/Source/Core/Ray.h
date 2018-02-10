@@ -18,6 +18,15 @@ public:
 	Ray(const Vector3R& origin, const Vector3R& direction, real minT, real maxT);
 	Ray(const Vector3R& origin, const Vector3R& direction, real minT, real maxT, const Time& time);
 
+	inline Ray& reverse()
+	{
+		m_direction.mulLocal(-1);
+		m_differential.m_dDdX.mulLocal(-1);
+		m_differential.m_dDdY.mulLocal(-1);
+
+		return *this;
+	}
+
 	inline void      setMinT(const real t)                  { m_minT = t;         }
 	inline void      setMaxT(const real t)                  { m_maxT = t;         }
 	inline void      setTime(const Time& time)              { m_time = time;      }

@@ -13,7 +13,7 @@ namespace ph
 
 ThinLensCamera::~ThinLensCamera() = default;
 
-void ThinLensCamera::genSensingRay(const Vector2R& rasterPosPx, Ray* const out_ray) const
+void ThinLensCamera::genSensedRay(const Vector2R& rasterPosPx, Ray* const out_ray) const
 {
 	Vector3R camFilmPos;
 	m_rasterToCamera->transformP(Vector3R(rasterPosPx.x, rasterPosPx.y, 0), &camFilmPos);

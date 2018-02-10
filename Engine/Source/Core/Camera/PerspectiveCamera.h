@@ -22,7 +22,7 @@ class PerspectiveCamera : public Camera, public TCommandInterface<PerspectiveCam
 public:
 	virtual ~PerspectiveCamera() = 0;
 
-	virtual void genSensingRay(const Vector2R& rasterPosPx, Ray* const out_ray) const = 0;
+	virtual void genSensedRay(const Vector2R& rasterPosPx, Ray* const out_ray) const = 0;
 	virtual void evalEmittedImportanceAndPdfW(
 		const Vector3R& targetPos, 
 		Vector2R* const out_filmCoord,

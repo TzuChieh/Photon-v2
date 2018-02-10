@@ -13,7 +13,7 @@ namespace ph
 
 PinholeCamera::~PinholeCamera() = default;
 
-void PinholeCamera::genSensingRay(const Vector2R& rasterPosPx, Ray* const out_ray) const
+void PinholeCamera::genSensedRay(const Vector2R& rasterPosPx, Ray* const out_ray) const
 {
 	const Vector3R& worldPinholePos = getPosition();
 

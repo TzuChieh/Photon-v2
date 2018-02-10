@@ -91,7 +91,7 @@ void RenderWorker::doWork(RenderWork& work)
 			}
 
 			Ray ray;
-			camera->genSensingRay(Vector2R(rasterPosPx), &ray);
+			camera->genSensedRay(Vector2R(rasterPosPx), &ray);
 
 			integrator->radianceAlongRay(ray, work, senseEvents);
 

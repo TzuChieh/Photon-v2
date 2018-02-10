@@ -18,12 +18,11 @@ void NormalBufferIntegrator::update(const Scene& scene)
 
 void NormalBufferIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
 {
-	/*Ray ray;
-	data.camera->genSensingRay(sample, &ray);*/
-	
 	// reverse tracing
-	const Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1.0f), 0.0001_r, std::numeric_limits<real>::max());// HACK: hard-coded number
-	
+	Ray tracingRay = Ray(ray).reverse();
+	tracingRay.setMinT(0.0002_r);// HACK: hard-coded number
+	tracingRay.setMaxT(std::numeric_limits<real>::max());
+
 	SpectralStrength radiance;
 	HitProbe probe;
 	if(data.scene->isIntersecting(tracingRay, &probe))
