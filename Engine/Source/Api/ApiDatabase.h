@@ -25,7 +25,7 @@ public:
 	static HdrRgbFrame* getFrame(const std::size_t frameId);
 
 private:
-	static std::mutex& MUTEX_LOCK();
+	static std::mutex& MUTEX();
 
 	static TStableIndexDenseArray<std::unique_ptr<Engine>>&      ENGINES();
 	static TStableIndexDenseArray<std::unique_ptr<HdrRgbFrame>>& FRAMES();

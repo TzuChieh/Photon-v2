@@ -13,8 +13,16 @@ class PinholeCamera final : public PerspectiveCamera, public TCommandInterface<P
 public:
 	virtual ~PinholeCamera() override;
 
-	virtual void genSensedRay(const Vector2R& rasterPosPx, Ray* const out_ray) const override;
+	virtual void genSensedRay(const Vector2R& rasterPosPx, Ray* out_ray) const override;
 	virtual void evalEmittedImportanceAndPdfW(const Vector3R& targetPos, Vector2R* const out_filmCoord, Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const override;
+
+private:
+	inline const Vector3R& getPinholePos() const
+	{
+		return getPosition();
+	}
+
+	Vector3R genSensedRayDir(const Vector2R& rasterPosPx) const;
 
 // command interface
 public:

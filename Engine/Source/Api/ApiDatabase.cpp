@@ -20,7 +20,7 @@ TStableIndexDenseArray<std::unique_ptr<HdrRgbFrame>>& ApiDatabase::FRAMES()
 	return frames;
 }
 
-std::mutex& ApiDatabase::MUTEX_LOCK()
+std::mutex& ApiDatabase::MUTEX()
 {
 	static std::mutex lock;
 	return lock;
@@ -28,21 +28,21 @@ std::mutex& ApiDatabase::MUTEX_LOCK()
 
 std::size_t ApiDatabase::addEngine(std::unique_ptr<Engine> engine)
 {
-	std::lock_guard<std::mutex> lock(MUTEX_LOCK());
+	std::lock_guard<std::mutex> lock(MUTEX());
 
 	return ENGINES().add(std::move(engine));
 }
 
 bool ApiDatabase::removeEngine(const std::size_t engineId)
 {
-	std::lock_guard<std::mutex> lock(MUTEX_LOCK());
+	std::lock_guard<std::mutex> lock(MUTEX());
 
 	return ENGINES().remove(engineId);
 }
 
 Engine* ApiDatabase::getEngine(const std::size_t engineId)
 {
-	std::lock_guard<std::mutex> lock(MUTEX_LOCK());
+	std::lock_guard<std::mutex> lock(MUTEX());
 
 	auto* engine = ENGINES().get(engineId);
 	if(engine == nullptr)
@@ -56,21 +56,21 @@ Engine* ApiDatabase::getEngine(const std::size_t engineId)
 
 std::size_t ApiDatabase::addFrame(std::unique_ptr<HdrRgbFrame> frame)
 {
-	std::lock_guard<std::mutex> lock(MUTEX_LOCK());
+	std::lock_guard<std::mutex> lock(MUTEX());
 
 	return FRAMES().add(std::move(frame));
 }
 
 bool ApiDatabase::removeFrame(const std::size_t frameId)
 {
-	std::lock_guard<std::mutex> lock(MUTEX_LOCK());
+	std::lock_guard<std::mutex> lock(MUTEX());
 
 	return FRAMES().remove(frameId);
 }
 
 HdrRgbFrame* ApiDatabase::getFrame(const std::size_t frameId)
 {
-	std::lock_guard<std::mutex> lock(MUTEX_LOCK());
+	std::lock_guard<std::mutex> lock(MUTEX());
 
 	auto* frame = FRAMES().get(frameId);
 	if(frame == nullptr)
@@ -84,7 +84,7 @@ HdrRgbFrame* ApiDatabase::getFrame(const std::size_t frameId)
 
 void ApiDatabase::clear()
 {
-	std::lock_guard<std::mutex> lock(MUTEX_LOCK());
+	std::lock_guard<std::mutex> lock(MUTEX());
 
 	ENGINES().removeAll();
 	FRAMES().removeAll();

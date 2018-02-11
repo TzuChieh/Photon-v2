@@ -13,7 +13,7 @@ class ThinLensCamera : public PerspectiveCamera, public TCommandInterface<ThinLe
 public:
 	virtual ~ThinLensCamera() override;
 
-	virtual void genSensedRay(const Vector2R& rasterPosPx, Ray* const out_ray) const override;
+	virtual void genSensedRay(const Vector2R& rasterPosPx, Ray* out_ray) const override;
 	virtual void evalEmittedImportanceAndPdfW(
 		const Vector3R& targetPos, 
 		Vector2R* const out_filmCoord,

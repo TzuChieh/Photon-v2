@@ -15,20 +15,38 @@ PinholeCamera::~PinholeCamera() = default;
 
 void PinholeCamera::genSensedRay(const Vector2R& rasterPosPx, Ray* const out_ray) const
 {
-	const Vector3R& worldPinholePos = getPosition();
-
-	Vector3R worldFilmPos;
-	m_rasterToWorld->transformP(Vector3R(rasterPosPx.x, rasterPosPx.y, 0), &worldFilmPos);
-
-	out_ray->setDirection(worldFilmPos.subLocal(worldPinholePos).normalizeLocal());
-	out_ray->setOrigin(getPosition());
+	out_ray->setDirection(genSensedRayDir(rasterPosPx));
+	out_ray->setOrigin(getPinholePos());
 	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
 	out_ray->setMaxT(std::numeric_limits<real>::max());
+
+	// computes 2nd-order accurate differentials of the ray
+
+	Ray::Differential differential;
+	const real deltaPx = 1.0_r / 32.0_r;
+
+	const Vector3R& rayDirNX = genSensedRayDir(Vector2R(rasterPosPx.x - deltaPx, rasterPosPx.y));
+	const Vector3R& rayDirPX = genSensedRayDir(Vector2R(rasterPosPx.x + deltaPx, rasterPosPx.y));
+	const Vector3R& rayDirNY = genSensedRayDir(Vector2R(rasterPosPx.x, rasterPosPx.y - deltaPx));
+	const Vector3R& rayDirPY = genSensedRayDir(Vector2R(rasterPosPx.x, rasterPosPx.y + deltaPx));
+
+	differential.setPartialOs(Vector3R(0), Vector3R(0));
+	differential.setPartialDs(rayDirPX.sub(rayDirNX).divLocal(2 * deltaPx), 
+	                          rayDirPY.sub(rayDirNY).divLocal(2 * deltaPx));
+
+	out_ray->setDifferential(differential);
 
 	// HACK
 	Time time;
 	time.relativeT = Random::genUniformReal_i0_e1();
 	out_ray->setTime(time);
+}
+
+Vector3R PinholeCamera::genSensedRayDir(const Vector2R& rasterPosPx) const
+{
+	Vector3R filmPos;
+	m_rasterToWorld->transformP(Vector3R(rasterPosPx.x, rasterPosPx.y, 0), &filmPos);
+	return filmPos.sub(getPinholePos()).normalizeLocal();
 }
 
 void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3R& targetPos, Vector2R* const out_filmCoord, Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const
