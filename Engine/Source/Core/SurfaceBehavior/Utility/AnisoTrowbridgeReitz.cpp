@@ -1,6 +1,5 @@
 #include "Core/SurfaceBehavior/Utility/AnisoTrowbridgeReitz.h"
 #include "Math/Math.h"
-#include "Core/HitDetail.h"
 #include "Math/constant.h"
 
 namespace ph
@@ -16,7 +15,7 @@ AnisoTrowbridgeReitz::AnisoTrowbridgeReitz(const real alphaU, const real alphaV)
 AnisoTrowbridgeReitz::~AnisoTrowbridgeReitz() = default;
 
 real AnisoTrowbridgeReitz::distribution(
-	const HitDetail& X,
+	const SurfaceHit& X,
 	const Vector3R& N, const Vector3R& H) const
 {
 	real cosThetaH = N.dot(H);
@@ -31,7 +30,7 @@ real AnisoTrowbridgeReitz::distribution(
 	const real cos4ThetaH = cos2ThetaH * cos2ThetaH;
 	const real sin2ThetaH = 1.0_r - cos2ThetaH;
 	const real tan2ThetaH = sin2ThetaH / cos2ThetaH;
-	const real cos2PhiH   = X.getShadingBasis().cos2Phi(H);
+	const real cos2PhiH   = X.getDetail().getShadingBasis().cos2Phi(H);
 	const real sin2PhiH   = 1.0_r - cos2PhiH;
 
 	const real tanTerm = 1.0_r + tan2ThetaH * (cos2PhiH * m_reciAlphaU2 + 
@@ -40,7 +39,7 @@ real AnisoTrowbridgeReitz::distribution(
 }
 
 real AnisoTrowbridgeReitz::shadowing(
-	const HitDetail& X,
+	const SurfaceHit& X,
 	const Vector3R& N, const Vector3R& H,
 	const Vector3R& L, const Vector3R& V) const
 {
@@ -57,7 +56,7 @@ real AnisoTrowbridgeReitz::shadowing(
 }
 
 void AnisoTrowbridgeReitz::genDistributedH(
-	const HitDetail& X,
+	const SurfaceHit& X,
 	const real seedA_i0e1, const real seedB_i0e1,
 	const Vector3R& N,
 	Vector3R* const out_H) const
@@ -65,22 +64,22 @@ void AnisoTrowbridgeReitz::genDistributedH(
 	const real uFactor = m_alphaU * std::cos(2.0_r * PH_PI_REAL * seedA_i0e1);
 	const real vFactor = m_alphaV * std::sin(2.0_r * PH_PI_REAL * seedA_i0e1);
 
-	const Vector3R zVec(X.getShadingBasis().zAxis.mul(uFactor));
-	const Vector3R xVec(X.getShadingBasis().xAxis.mul(vFactor));
+	const Vector3R zVec(X.getDetail().getShadingBasis().zAxis.mul(uFactor));
+	const Vector3R xVec(X.getDetail().getShadingBasis().xAxis.mul(vFactor));
 	
 	out_H->set(zVec.add(xVec).mul(std::sqrt(seedB_i0e1 / (1.0_r - seedB_i0e1))).add(N));
 	out_H->normalizeLocal();
 }
 
-real AnisoTrowbridgeReitz::lambda(const HitDetail& X,
+real AnisoTrowbridgeReitz::lambda(const SurfaceHit& X,
                                   const Vector3R& unitDir) const
 {
-	const real cos2Phi = X.getShadingBasis().cos2Phi(unitDir);
+	const real cos2Phi = X.getDetail().getShadingBasis().cos2Phi(unitDir);
 	const real sin2Phi = 1.0_r - cos2Phi;
 
 	const real alpha2    = cos2Phi * m_alphaU * m_alphaU + 
 	                       sin2Phi * m_alphaV * m_alphaV;
-	const real tan2Theta = X.getShadingBasis().tan2Theta(unitDir);
+	const real tan2Theta = X.getDetail().getShadingBasis().tan2Theta(unitDir);
 	const real sqrtTerm  = 1.0_r + alpha2 * tan2Theta;
 	return 0.5_r * (-1.0_r + std::sqrt(sqrtTerm));
 }

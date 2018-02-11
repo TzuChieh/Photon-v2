@@ -19,7 +19,7 @@ public:
 	PrimitiveAreaEmitter(const std::vector<const Primitive*>& primitives);
 	virtual ~PrimitiveAreaEmitter() override;
 
-	virtual void evalEmittedRadiance(const HitDetail& X, SpectralStrength* out_radiance) const override;
+	virtual void evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const override;
 	virtual void genDirectSample(const Vector3R& targetPos, Vector3R* out_emitPos, SpectralStrength* out_emittedRadiance, real* out_PDF) const override;
 	virtual void genDirectSample(DirectLightSample& sample) const override;
 	virtual void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;

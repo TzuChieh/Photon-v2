@@ -1,7 +1,6 @@
 #include "Core/Emitter/PrimitiveAreaEmitter.h"
 #include "Math/TVector3.h"
 #include "Actor/Geometry/Geometry.h"
-#include "Core/HitDetail.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Math/Random.h"
@@ -45,7 +44,7 @@ PrimitiveAreaEmitter::~PrimitiveAreaEmitter()
 
 }
 
-void PrimitiveAreaEmitter::evalEmittedRadiance(const HitDetail& X, SpectralStrength* const out_radiance) const
+void PrimitiveAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* const out_radiance) const
 {
 	TSampler<SpectralStrength> sampler;
 	*out_radiance = sampler.sample(*m_emittedRadiance, X);

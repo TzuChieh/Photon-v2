@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/HitDetail.h"
+#include "Core/SurfaceHit.h"
 #include "Math/TVector3.h"
 
 namespace ph
@@ -15,8 +15,8 @@ class SampleLocation final
 	*/
 
 public:
-	inline SampleLocation(const HitDetail& hitDetail, const Vector3R& uvw) :
-		m_hitDetail(hitDetail), m_uvw(uvw) {}
+	inline SampleLocation(const SurfaceHit& hit, const Vector3R& uvw) :
+		m_hit(hit), m_uvw(uvw) {}
 
 	inline const Vector3R& uvw() const
 	{
@@ -24,8 +24,8 @@ public:
 	}
 
 private:
-	const HitDetail& m_hitDetail;
-	const Vector3R&  m_uvw;
+	const SurfaceHit& m_hit;
+	const Vector3R&   m_uvw;
 };
 
 }// end namespace ph

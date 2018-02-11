@@ -15,12 +15,12 @@ public:
 	IsoTrowbridgeReitz(real alpha);
 	virtual ~IsoTrowbridgeReitz() override;
 
-	virtual real distribution(const HitDetail& X,
+	virtual real distribution(const SurfaceHit& X,
 	                          const Vector3R& N, const Vector3R& H) const override;
-	virtual real shadowing(const HitDetail& X,
+	virtual real shadowing(const SurfaceHit& X,
 	                       const Vector3R& N, const Vector3R& H,
 	                       const Vector3R& L, const Vector3R& V) const override;
-	virtual void genDistributedH(const HitDetail& X,
+	virtual void genDistributedH(const SurfaceHit& X,
 	                             real seedA_i0e1, real seedB_i0e1,
 	                             const Vector3R& N, 
 	                             Vector3R* out_H) const override;

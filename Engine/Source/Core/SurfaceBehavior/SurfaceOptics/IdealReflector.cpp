@@ -17,7 +17,7 @@ IdealReflector::IdealReflector() :
 IdealReflector::~IdealReflector() = default;
 
 void IdealReflector::evalBsdf(
-	const HitDetail& X, const Vector3R& L, const Vector3R& V,
+	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
 	SpectralStrength* const out_bsdf,
 	ESurfacePhenomenon* const out_type) const
 {
@@ -26,7 +26,7 @@ void IdealReflector::evalBsdf(
 }
 
 void IdealReflector::genBsdfSample(
-	const HitDetail& X, const Vector3R& V,
+	const SurfaceHit& X, const Vector3R& V,
 	Vector3R* const out_L,
 	SpectralStrength* const out_pdfAppliedBsdf,
 	ESurfacePhenomenon* const out_type) const
@@ -42,7 +42,7 @@ void IdealReflector::genBsdfSample(
 }
 
 void IdealReflector::calcBsdfSamplePdf(
-	const HitDetail& X, const Vector3R& L, const Vector3R& V,
+	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
 	const ESurfacePhenomenon& type,
 	real* const out_pdfW) const
 {

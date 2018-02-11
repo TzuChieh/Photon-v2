@@ -26,7 +26,7 @@ OpaqueMicrofacet::OpaqueMicrofacet() :
 
 OpaqueMicrofacet::~OpaqueMicrofacet() = default;
 
-void OpaqueMicrofacet::evalBsdf(const HitDetail& X, const Vector3R& L, const Vector3R& V,
+void OpaqueMicrofacet::evalBsdf(const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
                                 SpectralStrength* const out_bsdf, 
                                 ESurfacePhenomenon* const out_type) const
 {
@@ -63,7 +63,7 @@ void OpaqueMicrofacet::evalBsdf(const HitDetail& X, const Vector3R& L, const Vec
 	*out_type = ESurfacePhenomenon::REFLECTION;
 }
 
-void OpaqueMicrofacet::genBsdfSample(const HitDetail& X, const Vector3R& V,
+void OpaqueMicrofacet::genBsdfSample(const SurfaceHit& X, const Vector3R& V,
                                  Vector3R* const out_L, 
                                  SpectralStrength* const out_pdfAppliedBsdf, 
                                  ESurfacePhenomenon* const out_type) const
@@ -102,7 +102,7 @@ void OpaqueMicrofacet::genBsdfSample(const HitDetail& X, const Vector3R& V,
 	*out_type = ESurfacePhenomenon::REFLECTION;
 }
 
-void OpaqueMicrofacet::calcBsdfSamplePdf(const HitDetail& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
+void OpaqueMicrofacet::calcBsdfSamplePdf(const SurfaceHit& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
                                          real* const out_pdfW) const
 {
 	const Vector3R& N = X.getShadingNormal();

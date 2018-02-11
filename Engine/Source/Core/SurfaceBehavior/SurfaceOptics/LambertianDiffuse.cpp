@@ -29,8 +29,9 @@ void LambertianDiffuse::setAlbedo(
 	m_albedo = albedo;
 }
 
-void LambertianDiffuse::evalBsdf(const HitDetail& X, const Vector3R& L, const Vector3R& V,
-                                 SpectralStrength* const out_bsdf, ESurfacePhenomenon* const out_type) const
+void LambertianDiffuse::evalBsdf(
+	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
+	SpectralStrength* const out_bsdf, ESurfacePhenomenon* const out_type) const
 {
 	const real NoL = X.getShadingNormal().dot(L);
 	const real NoV = X.getShadingNormal().dot(V);
@@ -48,7 +49,7 @@ void LambertianDiffuse::evalBsdf(const HitDetail& X, const Vector3R& L, const Ve
 	*out_type = ESurfacePhenomenon::REFLECTION;
 }
 
-void LambertianDiffuse::genBsdfSample(const HitDetail& X, const Vector3R& V,
+void LambertianDiffuse::genBsdfSample(const SurfaceHit& X, const Vector3R& V,
                                   Vector3R* const out_L, SpectralStrength* const out_pdfAppliedBsdf, ESurfacePhenomenon* const out_type) const
 {
 	// Lambertian diffuse model's BRDF is simply albedo/pi.
@@ -85,8 +86,9 @@ void LambertianDiffuse::genBsdfSample(const HitDetail& X, const Vector3R& V,
 	out_pdfAppliedBsdf->set(albedo.mulLocal(1.0_r / N.dot(L)));
 }
 
-void LambertianDiffuse::calcBsdfSamplePdf(const HitDetail& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
-                                          real* const out_pdfW) const
+void LambertianDiffuse::calcBsdfSamplePdf(
+	const SurfaceHit& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
+	real* const out_pdfW) const
 {
 	const Vector3R& N = X.getShadingNormal();
 	*out_pdfW = L.dot(N) * PH_RECI_PI_REAL;

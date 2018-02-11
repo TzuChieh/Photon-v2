@@ -4,6 +4,7 @@
 #include "Math/TVector3.h"
 #include "Core/HitProbe.h"
 #include "Core/HitDetail.h"
+#include "Core/SurfaceHit.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
@@ -73,11 +74,13 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 			break;
 		}
 
+		SurfaceHit surfaceHit(tracingRay, hitDetail);
+
 		// only forward side is emitable
 		if(hitSurfaceBehavior.getEmitter() && V.dot(hitDetail.getShadingNormal()) > 0.0_r)
 		{
 			SpectralStrength radianceLi;
-			hitSurfaceBehavior.getEmitter()->evalEmittedRadiance(hitDetail, &radianceLi);
+			hitSurfaceBehavior.getEmitter()->evalEmittedRadiance(surfaceHit, &radianceLi);
 
 			// avoid excessive, negative weight and possible NaNs
 			//accuLiWeight.clampLocal(0.0f, 1000.0f);
@@ -96,7 +99,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 		// sample BSDF
 
 		BsdfSample bsdfSample;
-		bsdfSample.inputs.set(hitDetail, V);
+		bsdfSample.inputs.set(surfaceHit, V);
 		hitSurfaceBehavior.getSurfaceOptics()->genBsdfSample(bsdfSample);
 
 		const Vector3R& N = hitDetail.getShadingNormal();

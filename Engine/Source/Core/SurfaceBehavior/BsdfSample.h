@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Math/TVector3.h"
-#include "Core/HitDetail.h"
+#include "Core/SurfaceHit.h"
 #include "Core/SurfaceBehavior/ESurfacePhenomenon.h"
 #include "Core/Quantity/SpectralStrength.h"
 
@@ -16,12 +16,12 @@ public:
 	class Input final
 	{
 	public:
-		HitDetail X;
-		Vector3R  V;
+		SurfaceHit X;
+		Vector3R   V;
 
 		void set(const BsdfEvaluation& bsdfEval);
 
-		inline void set(const HitDetail& X, const Vector3R& V)
+		inline void set(const SurfaceHit& X, const Vector3R& V)
 		{
 			this->X = X;
 			this->V = V;

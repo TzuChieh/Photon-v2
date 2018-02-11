@@ -24,7 +24,7 @@ Ray::Ray(const Vector3R& origin, const Vector3R& direction,
 }
 
 Ray::Ray(const Vector3R& origin, const Vector3R& direction) :
-	Ray(origin, direction, 0.0_r, std::numeric_limits<real>::max())
+	Ray(origin, direction, 0, std::numeric_limits<real>::max())
 {
 
 }

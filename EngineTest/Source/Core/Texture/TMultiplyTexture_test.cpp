@@ -22,6 +22,6 @@ TEST(TMultiplyTextureTest, CorrectlyMultiply)
 	texture.setInputTexture(mockTexture);
 
 	real sampleValue;
-	texture.sample(SampleLocation(HitDetail(), Vector3R()), &sampleValue);
+	texture.sample(SampleLocation(SurfaceHit(), Vector3R()), &sampleValue);
 	EXPECT_FLOAT_EQ(sampleValue, 2.0_r);
 }

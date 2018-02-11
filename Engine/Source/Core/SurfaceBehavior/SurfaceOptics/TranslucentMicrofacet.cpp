@@ -25,7 +25,7 @@ TranslucentMicrofacet::TranslucentMicrofacet() :
 
 TranslucentMicrofacet::~TranslucentMicrofacet() = default;
 
-void TranslucentMicrofacet::evalBsdf(const HitDetail& X, const Vector3R& L, const Vector3R& V,
+void TranslucentMicrofacet::evalBsdf(const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
                                      SpectralStrength* const out_bsdf, ESurfacePhenomenon* const out_type) const
 {
 	const Vector3R& N = X.getShadingNormal();
@@ -90,7 +90,7 @@ void TranslucentMicrofacet::evalBsdf(const HitDetail& X, const Vector3R& L, cons
 	}
 }
 
-void TranslucentMicrofacet::genBsdfSample(const HitDetail& X, const Vector3R& V,
+void TranslucentMicrofacet::genBsdfSample(const SurfaceHit& X, const Vector3R& V,
                                       Vector3R* const out_L, SpectralStrength* const out_pdfAppliedBsdf, ESurfacePhenomenon* const out_type) const
 {
 	// Cook-Torrance microfacet specular BRDF for translucent surface is:
@@ -160,7 +160,7 @@ void TranslucentMicrofacet::genBsdfSample(const HitDetail& X, const Vector3R& V,
 	out_pdfAppliedBsdf->set(F.mul(G * dotTerms));
 }
 
-void TranslucentMicrofacet::calcBsdfSamplePdf(const HitDetail& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
+void TranslucentMicrofacet::calcBsdfSamplePdf(const SurfaceHit& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
                                               real* const out_pdfW) const
 {
 	const Vector3R& N = X.getShadingNormal();

@@ -18,6 +18,9 @@ public:
 	Ray(const Vector3R& origin, const Vector3R& direction, real minT, real maxT);
 	Ray(const Vector3R& origin, const Vector3R& direction, real minT, real maxT, const Time& time);
 
+	// Points this ray in opposite direction and differential quantities are 
+	// modified as appropriate; other attributes remain the same. This 
+	// method essentially mirrored the ray with respect to its origin.
 	inline Ray& reverse()
 	{
 		m_direction.mulLocal(-1);
