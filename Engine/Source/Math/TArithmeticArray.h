@@ -19,7 +19,7 @@ public:
 	explicit inline TArithmeticArray(T value);
 	explicit inline TArithmeticArray(const std::array<T, N>& values);
 	inline TArithmeticArray(const TArithmeticArray& other);
-	virtual inline ~TArithmeticArray();
+	virtual inline ~TArithmeticArray() = default;
 
 	inline TArithmeticArray add(const TArithmeticArray& rhs) const;
 	inline TArithmeticArray add(T rhs) const;
@@ -49,6 +49,7 @@ public:
 
 	inline bool isZero() const;
 	inline bool isNonNegative() const;
+	inline std::size_t size() const;
 
 	inline TArithmeticArray& set(const TArithmeticArray& other);
 	inline TArithmeticArray& set(T value);
@@ -60,6 +61,11 @@ public:
 	inline TArithmeticArray operator + (T rhs) const;
 
 	inline TArithmeticArray& operator = (const TArithmeticArray& rhs);
+
+	inline typename std::array<T, N>::iterator       begin() noexcept;
+	inline typename std::array<T, N>::const_iterator begin() const noexcept;
+	inline typename std::array<T, N>::iterator       end()   noexcept;
+	inline typename std::array<T, N>::const_iterator end()   const noexcept;
 
 protected:
 	std::array<T, N> m;

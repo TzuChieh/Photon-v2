@@ -42,9 +42,6 @@ inline TArithmeticArray<T, N>::TArithmeticArray(const TArithmeticArray& other) :
 }
 
 template<typename T, std::size_t N>
-inline TArithmeticArray<T, N>::~TArithmeticArray() = default;
-
-template<typename T, std::size_t N>
 inline TArithmeticArray<T, N> TArithmeticArray<T, N>::add(const TArithmeticArray& rhs) const
 {
 	return TArithmeticArray(*this).addLocal(rhs);
@@ -254,6 +251,12 @@ inline bool TArithmeticArray<T, N>::isNonNegative() const
 }
 
 template<typename T, std::size_t N>
+inline std::size_t TArithmeticArray<T, N>::size() const
+{
+	return N;
+}
+
+template<typename T, std::size_t N>
 inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::set(const TArithmeticArray& other)
 {
 	m = other.m;
@@ -302,6 +305,34 @@ inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::operator = (const TArithm
 	m = rhs.m;
 
 	return *this;
+}
+
+template<typename T, std::size_t N>
+inline auto TArithmeticArray<T, N>::begin() noexcept
+	-> typename std::array<T, N>::iterator
+{
+	return m.begin();
+}
+
+template<typename T, std::size_t N>
+inline auto TArithmeticArray<T, N>::begin() const noexcept
+	-> typename std::array<T, N>::const_iterator
+{
+	return m.cbegin();
+}
+
+template<typename T, std::size_t N>
+inline auto TArithmeticArray<T, N>::end() noexcept
+	-> typename std::array<T, N>::iterator
+{
+	return m.end();
+}
+
+template<typename T, std::size_t N>
+inline auto TArithmeticArray<T, N>::end() const noexcept
+	-> typename std::array<T, N>::const_iterator
+{
+	return m.cend();
 }
 
 }// end namespace ph

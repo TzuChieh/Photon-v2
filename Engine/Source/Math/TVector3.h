@@ -34,7 +34,7 @@ public:
 	template<typename U>
 	inline explicit TVector3(const TVector3<U>& other);
 
-	virtual inline ~TVector3();
+	virtual inline ~TVector3() = default;
 
 	TVector3 rotate(const TQuaternion<T>& rotation) const;
 	void rotate(const TQuaternion<T>& rotation, TVector3* out_result) const;

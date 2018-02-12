@@ -107,7 +107,7 @@ LdrRgbFrame PictureLoader::loadLdrViaStb(const std::string& fullFilename)
 			linearRgb.mulLocal(255.0_r).addLocal(0.5_r).clampLocal(0.0_r, 255.0_r);
 
 			const TVector3<uint8> rgb255(linearRgb);
-			picture.setPixel(x, y, {rgb255.x, rgb255.y, rgb255.z});
+			picture.setPixel(x, y, LdrRgbFrame::Pixel({rgb255.x, rgb255.y, rgb255.z}));
 		}
 	}
 

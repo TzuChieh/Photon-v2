@@ -4,10 +4,10 @@
 #include "Math/math_fwd.h"
 #include "Frame/frame_fwd.h"
 #include "Math/Function/TMathFunction2D.h"
+#include "Math/TArithmeticArray.h"
 
 #include <vector>
 #include <cstddef>
-#include <array>
 
 namespace ph
 {
@@ -17,19 +17,14 @@ class TFrame final
 {
 public:
 	template<typename U>
-	using TPixel = std::array<U, N>;
+	using TPixel = TArithmeticArray<U, N>;
 
 	typedef TPixel<T> Pixel;
 
 	template<typename U = T>
 	static inline TPixel<U> getMonochromaticPixel(const U value)
 	{
-		TPixel<U> result;
-		for(std::size_t i = 0; i < result.size(); ++i)
-		{
-			result[i] = U(value);
-		}
-		return result;
+		return TPixel<U>(value);
 	}
 
 public:

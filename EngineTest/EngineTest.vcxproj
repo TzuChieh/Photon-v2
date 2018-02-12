@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Common\primitive_type_test.cpp" />
     <ClCompile Include="Source\Core\Bound\bound_test.cpp" />
     <ClCompile Include="Source\Core\Filmic\film_sample_weighting_test.cpp" />
     <ClCompile Include="Source\Core\Filmic\film_test.cpp" />

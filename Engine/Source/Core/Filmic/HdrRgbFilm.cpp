@@ -137,7 +137,7 @@ void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& reg
 
 			// TODO: prevent negative pixel
 			out_frame.setPixel(static_cast<uint32>(x), static_cast<uint32>(y),
-			                   {pixel.x, pixel.y, pixel.z});
+			                   HdrRgbFrame::Pixel({pixel.x, pixel.y, pixel.z}));
 		}
 	}
 }

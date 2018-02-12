@@ -73,9 +73,6 @@ inline TVector3<T>::TVector3(const TVector3<U>& other) :
 }
 
 template<typename T>
-inline TVector3<T>::~TVector3() = default;
-
-template<typename T>
 TVector3<T> TVector3<T>::rotate(const TQuaternion<T>& rotation) const
 {
 	const TQuaternion<T>& conjugatedRotation = rotation.conjugate();
