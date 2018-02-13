@@ -277,10 +277,12 @@
     <ClInclude Include="Source\Core\SurfaceHit.h" />
     <ClInclude Include="Source\Core\Texture\Function\TAddTexture.h" />
     <ClInclude Include="Source\Core\Texture\SampleLocation.h" />
+    <ClInclude Include="Source\Core\Texture\TAbstractPixelTex2D.h" />
     <ClInclude Include="Source\Core\Texture\TCheckerboardTexture.h" />
     <ClInclude Include="Source\Core\Texture\TConstantTexture.h" />
     <ClInclude Include="Source\Core\Texture\LdrRgbTexture2D.h" />
     <ClInclude Include="Source\Core\Texture\Function\TMultiplyTexture.h" />
+    <ClInclude Include="Source\Core\Texture\TMipmap.h" />
     <ClInclude Include="Source\Core\Texture\TNearestPixelTex2D.h" />
     <ClInclude Include="Source\Core\Texture\TPixelTex2D.h" />
     <ClInclude Include="Source\Core\Texture\TTexture.h" />

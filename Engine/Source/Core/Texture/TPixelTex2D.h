@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Texture/TTexture.h"
+#include "Core/Texture/TAbstractPixelTex2D.h"
 #include "Frame/TFrame.h"
 #include "Common/assertion.h"
 
@@ -11,10 +11,7 @@ namespace ph
 {
 
 template<typename T, std::size_t N>
-using TTexPixel = typename TFrame<T, N>::Pixel;
-
-template<typename T, std::size_t N>
-class TPixelTex2D : public TTexture<TTexPixel<T, N>>
+class TPixelTex2D : public TAbstractPixelTex2D<T, N>
 {
 public:
 	inline TPixelTex2D() :
@@ -22,14 +19,14 @@ public:
 	{}
 
 	explicit inline TPixelTex2D(const TFrame<T, N>& frame) :
-		TTexture<TTexPixel<T, N>>(),
+		TAbstractPixelTex2D<T, N>(frame.widthPx(), frame.heightPx()),
 		m_frame(frame) 
 	{
 		PH_ASSERT(!m_frame.isEmpty());
 	}
 
 	explicit inline TPixelTex2D(TFrame<T, N>&& frame) :
-		TTexture<TTexPixel<T, N>>(),
+		TAbstractPixelTex2D<T, N>(frame.widthPx(), frame.heightPx()),
 		m_frame(std::move(frame))
 	{
 		PH_ASSERT(!m_frame.isEmpty());

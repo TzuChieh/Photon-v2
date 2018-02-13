@@ -16,7 +16,7 @@ LdrRgbTexture2D::LdrRgbTexture2D() :
 	LdrRgbTexture2D(std::make_unique<TNearestPixelTex2D<LdrComponent, 3>>())
 {}
 
-LdrRgbTexture2D::LdrRgbTexture2D(std::unique_ptr<TPixelTex2D<LdrComponent, 3>> texture) : 
+LdrRgbTexture2D::LdrRgbTexture2D(std::unique_ptr<TAbstractPixelTex2D<LdrComponent, 3>> texture) :
 	TTexture(),
 	m_texture(std::move(texture))
 {}

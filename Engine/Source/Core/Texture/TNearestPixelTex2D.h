@@ -14,7 +14,7 @@ public:
 	using TPixelTex2D<T, N>::TPixelTex2D;
 	virtual ~TNearestPixelTex2D() override = default;
 
-	virtual void sample(
+	virtual inline void sample(
 		const SampleLocation&  sampleLocation, 
 		TTexPixel<T, N>* const out_value) const override
 	{
