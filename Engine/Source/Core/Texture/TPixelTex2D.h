@@ -25,9 +25,11 @@ public:
 		m_frame(frame) 
 	{}
 
-	virtual ~TPixelTex2D() = default override;
+	virtual ~TPixelTex2D() override = default;
 
-	virtual void sample(const SampleLocation& sampleLocation, TTexPixel<T, N>* out_value) const = 0;
+	virtual void sample(
+		const SampleLocation& sampleLocation, 
+		TTexPixel<T, N>*      out_value) const override = 0;
 
 	inline void getPixel(
 		const uint32 x, const uint32 y, 

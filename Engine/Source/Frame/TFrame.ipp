@@ -169,7 +169,7 @@ inline auto TFrame<T, N>::calcPixelDataBaseIndex(
 	const uint32 x, const uint32 y) const
 	-> std::size_t
 {
-	PH_ASSERT(x >= 0 && x < m_widthPx && y >= 0 && y < m_heightPx);
+	PH_ASSERT(x < m_widthPx && y < m_heightPx);
 
 	return (y * static_cast<std::size_t>(m_widthPx) + x) * N;
 }

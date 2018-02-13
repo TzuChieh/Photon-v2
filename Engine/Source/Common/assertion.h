@@ -6,6 +6,13 @@
 
 	#include <iostream>
 	#include <string>
+	#include <cstdlib>
+
+	#ifdef PH_ABORT_ON_ASSERTION_FAILED
+		#define PH_INTERNAL_ASSERTION_ABORT() std::abort()
+	#else
+		#define PH_INTERNAL_ASSERTION_ABORT()
+	#endif
 
 	#define PH_ASSERT_MSG(condition, message)\
 		do\
@@ -20,6 +27,8 @@
 					std::cerr << "; message: <" << (message) << ">";\
 				}\
 				std::cerr << std::endl;\
+				\
+				PH_INTERNAL_ASSERTION_ABORT();\
 			}\
 		} while(0)
 
