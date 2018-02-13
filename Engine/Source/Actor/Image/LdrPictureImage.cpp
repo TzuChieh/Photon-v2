@@ -2,6 +2,9 @@
 #include "FileIO/InputPacket.h"
 #include "FileIO/PictureLoader.h"
 #include "Core/Texture/LdrRgbTexture2D.h"
+#include "Core/Texture/TNearestPixelTex2D.h"
+
+#include <memory>
 
 namespace ph
 {
@@ -17,9 +20,8 @@ LdrPictureImage::~LdrPictureImage() = default;
 std::shared_ptr<TTexture<SpectralStrength>> LdrPictureImage::genTextureSpectral(
 	CookingContext& context) const
 {
-	auto texture = std::make_shared<LdrRgbTexture2D>();
-	texture->setPixels(m_picture);
-	return texture;
+	auto nearestFilteredTexture = std::make_unique<TNearestPixelTex2D<LdrComponent, 3>>(m_picture);
+	return std::make_shared<LdrRgbTexture2D>(std::move(nearestFilteredTexture));
 }
 
 // command interface

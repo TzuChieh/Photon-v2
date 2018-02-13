@@ -9,7 +9,10 @@ namespace ph
 template<typename T, std::size_t N>
 class TFrame;
 
-typedef TFrame<uint8, 3> LdrRgbFrame;
-typedef TFrame<real,  3> HdrRgbFrame;
+typedef uint8 LdrComponent;
+typedef real  HdrComponent;
+
+typedef TFrame<LdrComponent, 3> LdrRgbFrame;
+typedef TFrame<HdrComponent, 3> HdrRgbFrame;
 
 }// end namespace ph

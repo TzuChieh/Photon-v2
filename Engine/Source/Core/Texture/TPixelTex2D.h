@@ -5,6 +5,7 @@
 #include "Common/assertion.h"
 
 #include <type_traits>
+#include <utility>
 
 namespace ph
 {
@@ -17,13 +18,22 @@ class TPixelTex2D : public TTexture<TTexPixel<T, N>>
 {
 public:
 	inline TPixelTex2D() :
-		TPixelTex2D(TFrame<T, N>())
+		TPixelTex2D(TFrame<T, N>(1, 1))
 	{}
 
 	explicit inline TPixelTex2D(const TFrame<T, N>& frame) :
 		TTexture<TTexPixel<T, N>>(),
 		m_frame(frame) 
-	{}
+	{
+		PH_ASSERT(!m_frame.isEmpty());
+	}
+
+	explicit inline TPixelTex2D(TFrame<T, N>&& frame) :
+		TTexture<TTexPixel<T, N>>(),
+		m_frame(std::move(frame))
+	{
+		PH_ASSERT(!m_frame.isEmpty());
+	}
 
 	virtual ~TPixelTex2D() override = default;
 
@@ -46,6 +56,8 @@ public:
 	inline void setPixels(const TFrame<T, N>& frame)
 	{
 		m_frame = frame;
+
+		PH_ASSERT(!m_frame.isEmpty());
 	}
 
 	inline uint32 getWidthPx() const  { return m_frame.widthPx();  }
