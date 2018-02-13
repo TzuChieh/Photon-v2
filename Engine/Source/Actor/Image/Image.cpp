@@ -3,6 +3,14 @@
 namespace ph
 {
 
+Image::Image() : 
+	Image(ImageParameter())
+{}
+
+Image::Image(const ImageParameter& param) : 
+	m_param(param)
+{}
+
 Image::~Image() = default;
 
 std::shared_ptr<TTexture<real>> Image::genTextureReal(
@@ -23,6 +31,11 @@ std::shared_ptr<TTexture<SpectralStrength>> Image::genTextureSpectral(
 	return genDefaultTexture<SpectralStrength>();
 }
 
+ImageParameter Image::getParameter() const
+{
+	return m_param;
+}
+
 // command interface
 
 SdlTypeInfo Image::ciTypeInfo()
@@ -37,7 +50,7 @@ void Image::ciRegister(CommandRegister& cmdRegister)
 
 void Image::ciRegisterMathFunctions(CommandRegister& cmdRegister)
 {
-
+	// TODO
 }
 
 }// end namespace ph
