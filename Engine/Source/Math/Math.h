@@ -133,6 +133,17 @@ public:
 
 #endif
 	}// end log2Floor(1)
+
+	// Retrieve the fractional part of <value> (with the same sign 
+	// as <value>). The result is not guaranteed to be the same as the bit 
+	// representation of <value>'s fractional part.
+	// The result is undefined if input value is NaN or +-Inf.
+	template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
+	static inline T fractionalPart(const T value)
+	{
+		long double integralPart;
+		return static_cast<T>(std::modf(static_cast<long double>(value), &integralPart));
+	}
 };
 
 }// end namespace ph

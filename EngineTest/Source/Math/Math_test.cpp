@@ -98,3 +98,16 @@ TEST(MathTest, CalculateIntegerBase2Logarithm)
 	EXPECT_EQ(ph::Math::log2Floor(1 << 20), 20);
 	EXPECT_EQ(ph::Math::log2Floor(std::numeric_limits<ph::uint32>::max()), 31);
 }
+
+TEST(MathTest, RetrieveFractionalPartOfANumber)
+{
+	EXPECT_FLOAT_EQ(ph::Math::fractionalPart( 0.00f),  0.00f);
+	EXPECT_FLOAT_EQ(ph::Math::fractionalPart( 0.22f),  0.22f);
+	EXPECT_FLOAT_EQ(ph::Math::fractionalPart( 2.33f),  0.33f);
+	EXPECT_FLOAT_EQ(ph::Math::fractionalPart(-2.44f), -0.44f);
+
+	EXPECT_DOUBLE_EQ(ph::Math::fractionalPart( 0.00), 0.00);
+	EXPECT_DOUBLE_EQ(ph::Math::fractionalPart( 0.44), 0.44);
+	EXPECT_DOUBLE_EQ(ph::Math::fractionalPart( 3.55), 0.55);
+	EXPECT_DOUBLE_EQ(ph::Math::fractionalPart(-3.66),-0.66);
+}
