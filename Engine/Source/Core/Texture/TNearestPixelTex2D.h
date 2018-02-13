@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Texture/TPixelTexture2D.h"
+#include "Core/Texture/TPixelTex2D.h"
 
 namespace ph
 {

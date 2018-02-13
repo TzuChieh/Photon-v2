@@ -13,10 +13,13 @@ template<typename OutputType>
 class TTexture
 {
 public:
+	typedef OutputType Output;
+
+public:
 	inline TTexture();
 	inline virtual ~TTexture() = 0;
 
-	inline virtual void sample(const SampleLocation& sampleLocation, OutputType* out_value) const = 0;
+	inline virtual void sample(const SampleLocation& sampleLocation, Output* out_value) const = 0;
 };
 
 }// end namespace ph

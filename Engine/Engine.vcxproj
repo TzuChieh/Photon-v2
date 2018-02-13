@@ -282,7 +282,7 @@
     <ClInclude Include="Source\Core\Texture\LdrRgbTexture2D.h" />
     <ClInclude Include="Source\Core\Texture\Function\TMultiplyTexture.h" />
     <ClInclude Include="Source\Core\Texture\TNearestPixelTex2D.h" />
-    <ClInclude Include="Source\Core\Texture\TPixelTexture2D.h" />
+    <ClInclude Include="Source\Core\Texture\TPixelTex2D.h" />
     <ClInclude Include="Source\Core\Texture\TTexture.h" />
     <ClInclude Include="Source\Core\Texture\TextureChannel.h" />
     <ClInclude Include="Source\Core\Texture\TextureLoader.h" />
