@@ -111,3 +111,57 @@ TEST(MathTest, RetrieveFractionalPartOfANumber)
 	EXPECT_DOUBLE_EQ(ph::Math::fractionalPart( 3.55), 0.55);
 	EXPECT_DOUBLE_EQ(ph::Math::fractionalPart(-3.66),-0.66);
 }
+
+TEST(MathTest, ConstructsMatrix)
+{
+	auto matrix = ph::Math::matrix2x2(1, 2, 3, 4);
+	EXPECT_EQ(matrix[0][0], 1);
+	EXPECT_EQ(matrix[0][1], 2);
+	EXPECT_EQ(matrix[1][0], 3);
+	EXPECT_EQ(matrix[1][1], 4);
+}
+
+TEST(MathTest, SolvesLinearSystem)
+{
+	// trial 1
+
+	std::array<float, 2> x1;
+
+	const auto A1 = ph::Math::matrix2x2(
+		1.0f, 0.0f, 
+		0.0f, 1.0f
+	);
+
+	const bool isX1Solved = ph::Math::solveLinearSystem2x2(A1, {{1.0f, 1.0f}}, &x1);
+	ASSERT_TRUE(isX1Solved);
+
+	EXPECT_FLOAT_EQ(x1[0], 1.0f);
+	EXPECT_FLOAT_EQ(x1[1], 1.0f);
+
+	// trial 2
+
+	std::array<float, 2> x2;
+
+	const auto A2 = ph::Math::matrix2x2(
+		2.0f, 1.0f,
+		1.0f, 2.0f
+	);
+
+	const bool isX2Solved = ph::Math::solveLinearSystem2x2(A2, {{3.0f, 3.0f}}, &x2);
+	ASSERT_TRUE(isX2Solved);
+
+	EXPECT_FLOAT_EQ(x2[0], 1.0f);
+	EXPECT_FLOAT_EQ(x2[1], 1.0f);
+
+	// trial 3
+
+	std::array<float, 2> x3;
+
+	const auto A3 = ph::Math::matrix2x2(
+		-7.0f, -7.0f,
+		-7.0f, -7.0f
+	);
+
+	const bool isX3Solved = ph::Math::solveLinearSystem2x2(A3, {{14.0f, 14.0f}}, &x3);
+	ASSERT_FALSE(isX3Solved);
+}

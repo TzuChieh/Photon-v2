@@ -722,6 +722,9 @@
     <ClInclude Include="Source\Core\Texture\TBilinearPixelTex2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\Texture\TTrilinearPixelTex2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">

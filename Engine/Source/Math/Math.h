@@ -9,6 +9,9 @@
 #include <cmath>
 #include <algorithm>
 #include <type_traits>
+#include <utility>
+#include <limits>
+#include <array>
 
 #if defined(PH_COMPILER_IS_MSVC)
 	#include <intrin.h>
@@ -24,6 +27,17 @@ public:
 	static const int32 X_AXIS       = 0;
 	static const int32 Y_AXIS       = 1;
 	static const int32 Z_AXIS       = 2;
+
+	template<typename T>
+	static inline auto matrix2x2(const T e00, const T e01, const T e10, const T e11)
+		-> std::array<std::array<T, 2>, 2>
+	{
+		return
+		{{
+			{{e00, e01}},
+			{{e10, e11}}
+		}};
+	}
 
 	static void formOrthonormalBasis(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis);
 
@@ -143,6 +157,30 @@ public:
 	{
 		long double integralPart;
 		return static_cast<T>(std::modf(static_cast<long double>(value), &integralPart));
+	}
+
+	// Solves Ax = b where A is a 2x2 matrix and x & b are 2x1 vectors. If x
+	// is successfully solved, method returns true and <out_x> stores the 
+	// answer; otherwise, false is returned and what <out_x> stores is undefined.
+	template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
+	static inline bool solveLinearSystem2x2(
+		const std::array<std::array<T, 2>, 2>& A,
+		const std::array<T, 2>& b,
+		std::array<T, 2>* const out_x)
+	{
+		PH_ASSERT(!std::numeric_limits<T>::is_integer);
+
+		const T determinant = A[0][0] * A[1][1] - A[1][0] * A[0][1];
+		if(std::abs(determinant) <= std::numeric_limits<T>::epsilon())
+		{
+			return false;
+		}
+
+		const T reciDeterminant = 1 / determinant;
+
+		(*out_x)[0] = (A[1][1] * b[0] - A[0][1] * b[1]) * reciDeterminant;
+		(*out_x)[1] = (A[0][0] * b[1] - A[1][0] * b[0]) * reciDeterminant;
+		return true;
 	}
 };
 

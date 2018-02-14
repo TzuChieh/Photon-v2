@@ -37,17 +37,18 @@ public:
 		return m_levels[level].get();
 	}
 
+	inline std::size_t numLevels() const
+	{
+		return m_levels.size();
+	}
+
+protected:
 	inline void setLevel(const std::size_t level, 
 	                     std::unique_ptr<TAbstractPixelTex2D<T, N>> texture)
 	{
 		PH_ASSERT(level < m_levels.size());
 
 		m_levels[level] = std::move(texture);
-	}
-
-	inline std::size_t numLevels() const
-	{
-		return m_levels.size();
 	}
 
 private:
