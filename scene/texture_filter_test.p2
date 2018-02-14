@@ -5,6 +5,7 @@
 
 
 -> geometry(rectangle) @plane [real width 1][real height 1]
+-> geometry(rectangle) @planeS [real width 1][real height 1][real texcoord-scale 3]
 
 // top light (left)
 -> material(matte-opaque) @topLightMaterial1 [vector3r albedo "0.5 0.5 0.5"]
@@ -12,7 +13,8 @@
 
 
 
--> image(ldr-picture) @testImage [string image "2x2_test.png"][string sample-mode nearest]
+-> image(ldr-picture) @testImage [string image "2x2_test.png"][string sample-mode bilinear]
+[string wrap-mode clamp-to-edge]
 -> light-source(area) @topLightSource1 [image emitted-radiance @testImage]
 
 
@@ -24,12 +26,12 @@
 -> actor(light) scale(@topLight1) [vector3r factor "10 10 10"]
 
 // top light (right)
--> material(matte-opaque) @topLightMaterial2 [vector3r albedo "0.5 0.5 0.5"]
--> light-source(area) @topLightSource2 [vector3r emitted-radiance "3.4 3.4 3.4"]
--> actor(light) @topLight2 [geometry geometry @plane] [material material @topLightMaterial2] [light-source light-source @topLightSource2]
--> actor(light) translate(@topLight2) [vector3r factor "3 4.75 0"]
--> actor(light) rotate(@topLight2)    [vector3r axis "1 0 0"] [real degree 90]
--> actor(light) scale(@topLight2)     [vector3r factor "3 3 3"]
+//-> material(matte-opaque) @topLightMaterial2 [vector3r albedo "0.5 0.5 0.5"]
+//-> light-source(area) @topLightSource2 [vector3r emitted-radiance "3.4 3.4 3.4"]
+//-> actor(light) @topLight2 [geometry geometry @plane] [material material @topLightMaterial2] [light-source light-source @topLightSource2]
+//-> actor(light) translate(@topLight2) [vector3r factor "3 4.75 0"]
+//-> actor(light) rotate(@topLight2)    [vector3r axis "1 0 0"] [real degree 90]
+//-> actor(light) scale(@topLight2)     [vector3r factor "3 3 3"]
 
 // left wall
 -> material(matte-opaque) @leftWallMaterial [vector3r albedo "0.85 0.3 0.3"]
@@ -94,5 +96,5 @@
 //-> actor(model) @glassModel [geometry geometry @glassGeometry] [material material @glassMaterial]
 //-> actor(model) translate(@glassModel) [vector3r factor "3 0 0"]
 
--> geometry(sphere) @testGeometry [real radius 2.5]
--> actor(model) @testModel [geometry geometry @testGeometry] [material material @idealDielectricTransmitter]
+//-> geometry(sphere) @testGeometry [real radius 2.5]
+//-> actor(model) @testModel [geometry geometry @testGeometry] [material material @idealDielectricTransmitter]

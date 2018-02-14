@@ -13,7 +13,8 @@ namespace ph
 {
 
 GRectangle::GRectangle(const real width, const real height) :
-	m_width(width), m_height(height)
+	m_width(width), m_height(height),
+	m_texCoordScale(1)
 {
 
 }
@@ -36,6 +37,11 @@ std::shared_ptr<Geometry> GRectangle::genTransformApplied(const StaticTransform&
 	return genTriangleMesh()->genTransformApplied(transform);
 }
 
+void GRectangle::setTexCoordScale(const real scale)
+{
+	m_texCoordScale = scale;
+}
+
 std::shared_ptr<GTriangleMesh> GRectangle::genTriangleMesh() const
 {
 	// TODO: check data
@@ -56,14 +62,14 @@ std::shared_ptr<GTriangleMesh> GRectangle::genTriangleMesh() const
 	// 2 triangles for a rectangle (both CCW)
 
 	GTriangle tri1(vA, vB, vD);
-	tri1.setUVWa(tA);
-	tri1.setUVWb(tB);
-	tri1.setUVWc(tD);
+	tri1.setUVWa(tA.mul(m_texCoordScale));
+	tri1.setUVWb(tB.mul(m_texCoordScale));
+	tri1.setUVWc(tD.mul(m_texCoordScale));
 
 	GTriangle tri2(vB, vC, vD);
-	tri2.setUVWa(tB);
-	tri2.setUVWb(tC);
-	tri2.setUVWc(tD);
+	tri2.setUVWa(tB.mul(m_texCoordScale));
+	tri2.setUVWb(tC.mul(m_texCoordScale));
+	tri2.setUVWc(tD.mul(m_texCoordScale));
 
 	auto triMesh = std::make_shared<GTriangleMesh>();
 	triMesh->addTriangle(tri1);
@@ -111,7 +117,9 @@ std::unique_ptr<GRectangle> GRectangle::ciLoad(const InputPacket& packet)
 	const real width  = packet.getReal("width",  1.0_r, requiredData);
 	const real height = packet.getReal("height", 1.0_r, requiredData);
 
-	return std::make_unique<GRectangle>(width, height);
+	auto rectangle = std::make_unique<GRectangle>(width, height);
+	rectangle->setTexCoordScale(packet.getReal("texcoord-scale", 1.0_r));
+	return rectangle;
 }
 
 }// end namespace ph

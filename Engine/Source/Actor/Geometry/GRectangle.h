@@ -19,9 +19,12 @@ public:
 	                          std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
 	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticTransform& transform) const override;
 
+	void setTexCoordScale(const real scale);
+
 private:
 	real m_width;
 	real m_height;
+	real m_texCoordScale;
 
 	std::shared_ptr<GTriangleMesh> genTriangleMesh() const;
 
