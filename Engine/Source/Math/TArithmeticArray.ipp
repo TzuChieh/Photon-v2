@@ -42,6 +42,17 @@ inline TArithmeticArray<T, N>::TArithmeticArray(const TArithmeticArray& other) :
 }
 
 template<typename T, std::size_t N>
+template<typename U>
+inline TArithmeticArray<T, N>::TArithmeticArray(const TArithmeticArray<U, N>& other) : 
+	TArithmeticArray()
+{
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		m[i] = static_cast<T>(other.m[i]);
+	}
+}
+
+template<typename T, std::size_t N>
 inline TArithmeticArray<T, N> TArithmeticArray<T, N>::add(const TArithmeticArray& rhs) const
 {
 	return TArithmeticArray(*this).addLocal(rhs);
@@ -217,6 +228,19 @@ inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::complementLocal()
 	}
 
 	return *this;
+}
+
+template<typename T, std::size_t N>
+template<typename U>
+inline auto TArithmeticArray<T, N>::lerp(const TArithmeticArray& rhs, const U factor) const
+	-> TArithmeticArray<U, N>
+{
+	TArithmeticArray<U, N> result;
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		result[i] = m[i] * (1 - factor) + rhs.m[i] * factor;
+	}
+	return result;
 }
 
 template<typename T, std::size_t N>

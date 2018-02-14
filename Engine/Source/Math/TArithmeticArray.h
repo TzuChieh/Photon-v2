@@ -12,13 +12,17 @@ template<typename T, std::size_t N>
 class TArithmeticArray
 {
 public:
-	inline static std::size_t numElements();
+	static inline std::size_t numElements();
 
 public:
 	inline TArithmeticArray();
 	explicit inline TArithmeticArray(T value);
 	explicit inline TArithmeticArray(const std::array<T, N>& values);
 	inline TArithmeticArray(const TArithmeticArray& other);
+
+	template<typename U>
+	explicit inline TArithmeticArray(const TArithmeticArray<U, N>& other);
+
 	virtual inline ~TArithmeticArray() = default;
 
 	inline TArithmeticArray add(const TArithmeticArray& rhs) const;
@@ -46,6 +50,9 @@ public:
 	inline T avg() const;
 	inline TArithmeticArray complement() const;
 	inline TArithmeticArray& complementLocal();
+
+	template<typename U>
+	inline TArithmeticArray<U, N> lerp(const TArithmeticArray& rhs, U factor) const;
 
 	inline bool isZero() const;
 	inline bool isNonNegative() const;

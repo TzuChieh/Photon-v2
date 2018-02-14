@@ -34,7 +34,10 @@
 
 	#define PH_ASSERT(condition) PH_ASSERT_MSG(condition, "")
 
+	#define PH_ASSERT_UNREACHABLE_SECTION() PH_ASSERT_MSG(false, "executing supposedly unreachable code")
+
 #else
 	#define PH_ASSERT_MSG(condition, message)
 	#define PH_ASSERT(condition)
+	#define PH_ASSERT_UNREACHABLE_SECTION()
 #endif

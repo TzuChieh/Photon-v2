@@ -1,5 +1,6 @@
 #include "Actor/Image/LdrPictureImage.h"
 #include "FileIO/InputPacket.h"
+#include "FileIO/InputPrototype.h"
 #include "FileIO/PictureLoader.h"
 #include "Core/Texture/LdrRgbTexture2D.h"
 #include "Core/Texture/TNearestPixelTex2D.h"

@@ -18,25 +18,22 @@ public:
 		const SampleLocation&  sampleLocation, 
 		TTexPixel<T, N>* const out_value) const override
 	{
-		const real   u = sampleLocation.uvw().x;
-		const real   v = sampleLocation.uvw().y;
 		const uint32 w = this->getWidthPx();
 		const uint32 h = this->getHeightPx();
 
 		PH_ASSERT(w != 0 && h != 0);
 
-		// normalizing uv to [0, 1] (wrapping mode: repeat)
-		real normalizedU = Math::fractionalPart(u);
-		real normalizedV = Math::fractionalPart(v);
-		normalizedU = normalizedU >= 0.0_r ? normalizedU : normalizedU + 1.0_r;
-		normalizedV = normalizedV >= 0.0_r ? normalizedV : normalizedV + 1.0_r;
+		// normalize uv first to avoid overflowing xy after multiplying
+		// width and height
+		float64 normU, normV;
+		this->normalizeUV(sampleLocation.uvw().x, sampleLocation.uvw().y,
+		                  &normU, &normV);
 
-		uint32 x = static_cast<uint32>(normalizedU * w);
-		uint32 y = static_cast<uint32>(normalizedV * h);
-		x = x < w ? x : w - 1;
-		y = y < h ? y : h - 1;
+		uint32 normX, normY;
+		this->normalizeXY(static_cast<uint32>(normU * w), static_cast<uint32>(normV * h),
+		                  &normX, &normY);
 
-		return this->getPixel(x, y, out_value);
+		this->getPixel(normX, normY, out_value);
 	}
 };
 

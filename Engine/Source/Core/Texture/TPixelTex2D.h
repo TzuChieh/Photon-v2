@@ -53,12 +53,11 @@ public:
 	inline void setPixels(const TFrame<T, N>& frame)
 	{
 		m_frame = frame;
+		setWidthPx(frame->widthPx());
+		setHeightPx(frame->heightPx());
 
 		PH_ASSERT(!m_frame.isEmpty());
 	}
-
-	inline uint32 getWidthPx() const  { return m_frame.widthPx();  }
-	inline uint32 getHeightPx() const { return m_frame.heightPx(); }
 
 private:
 	TFrame<T, N> m_frame;

@@ -278,6 +278,7 @@
     <ClInclude Include="Source\Core\Texture\Function\TAddTexture.h" />
     <ClInclude Include="Source\Core\Texture\SampleLocation.h" />
     <ClInclude Include="Source\Core\Texture\TAbstractPixelTex2D.h" />
+    <ClInclude Include="Source\Core\Texture\TBilinearPixelTex2D.h" />
     <ClInclude Include="Source\Core\Texture\TCheckerboardTexture.h" />
     <ClInclude Include="Source\Core\Texture\TConstantTexture.h" />
     <ClInclude Include="Source\Core\Texture\LdrRgbTexture2D.h" />
