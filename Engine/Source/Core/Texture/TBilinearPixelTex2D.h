@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Core/Texture/TPixelTex2D.h"
+#include "Math/TVector2.h"
 
 #include <utility>
 #include <type_traits>
+#include <cmath>
 
 namespace ph
 {
@@ -31,18 +33,11 @@ public:
 
 		const float64 x  = normU * w;
 		const float64 y  = normV * h;
-		const uint32  x0 = static_cast<uint32>(x);
-		const uint32  y0 = static_cast<uint32>(y);
-		const uint32  x1 = x0 + 1;
-		const uint32  y1 = y0 + 1;
+		const float64 x0 = std::floor(x - 0.5) + 0.5;
+		const float64 y0 = std::floor(y - 0.5) + 0.5;
+		const float64 x1 = x0 + 1.0;
+		const float64 y1 = y0 + 1.0;
 
-		PH_ASSERT_MSG(x1 > x0 && y1 > y0, 
-		              "too large a dimension for uint32 to store causing overflow");
-
-		const std::pair<uint32, uint32> xys[4]
-		{
-			{x0, y0}, {x0, y1}, {x1, y0}, {x1, y1}
-		};
 		const float64 weights[4]
 		{
 			(x1 - x) * (y1 - y),// weight 00
@@ -50,22 +45,35 @@ public:
 			(x - x0) * (y1 - y),// weight 10
 			(x - x0) * (y - y0) // weight 11
 		};
+		const Vector2D xys[4]
+		{
+			{x0, y0}, {x0, y1}, {x1, y0}, {x1, y1}
+		};
 
 		TTexPixel<float64, N> accuPixel(0);
 		TTexPixel<T, N>       pixel;
 		for(std::size_t i = 0; i < 4; ++i)
 		{
-			uint32 normX, normY;
-			this->normalizeXY(xys[i].first, xys[i].second, &normX, &normY);
+			float64 normUi, normVi;
+			this->normalizeUV(xys[i].x * this->getTexelSizeU(), 
+			                  xys[i].y * this->getTexelSizeV(), 
+			                  &normUi, &normVi);
 
-			this->getPixel(normX, normY, &pixel);
+			uint32 xi = static_cast<uint32>(normUi * w);
+			uint32 yi = static_cast<uint32>(normVi * h);
+			xi = xi < w ? xi : w - 1;
+			yi = yi < h ? yi : h - 1;
+
+			this->getPixel(xi, yi, &pixel);
 			accuPixel.addLocal(TTexPixel<float64, N>(pixel).mulLocal(weights[i]));
 		}
 
-		if constexpr(!std::is_integral_v<T>)
+		// taking care of pixel value rounding
+		if constexpr(std::is_integral_v<T>)
 		{
 			accuPixel.addLocal(0.5);
 		}
+
 		*out_value = TTexPixel<T, N>(accuPixel);
 	}
 };

@@ -14,7 +14,7 @@
 
 
 -> image(ldr-picture) @testImage [string image "2x2_test.png"][string sample-mode bilinear]
-[string wrap-mode clamp-to-edge]
+[string wrap-mode repeat]
 -> light-source(area) @topLightSource1 [image emitted-radiance @testImage]
 
 

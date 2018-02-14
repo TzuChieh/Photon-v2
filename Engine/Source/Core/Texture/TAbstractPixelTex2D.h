@@ -27,9 +27,10 @@ public:
 
 	inline TAbstractPixelTex2D(const uint32 widthPx, const uint32 heightPx) :
 		TTexture<TTexPixel<T, N>>(),
-		m_widthPx(widthPx), m_heightPx(heightPx), m_wrapMode(ETexWrapMode::REPEAT)
+		m_wrapMode(ETexWrapMode::REPEAT)
 	{
-		PH_ASSERT(widthPx > 0 && heightPx > 0);
+		setWidthPx(widthPx);
+		setHeightPx(heightPx);
 	}
 
 	virtual ~TAbstractPixelTex2D() override = default;
@@ -38,9 +39,11 @@ public:
 		const SampleLocation& sampleLocation, 
 		TTexPixel<T, N>*      out_value) const override = 0;
 
-	inline uint32       getWidthPx() const  { return m_widthPx;  }
-	inline uint32       getHeightPx() const { return m_heightPx; }
-	inline ETexWrapMode getWrapMode() const { return m_wrapMode; }
+	inline uint32       getWidthPx() const    { return m_widthPx;    }
+	inline uint32       getHeightPx() const   { return m_heightPx;   }
+	inline float64      getTexelSizeU() const { return m_texelSizeU; }
+	inline float64      getTexelSizeV() const { return m_texelSizeV; }
+	inline ETexWrapMode getWrapMode() const   { return m_wrapMode;   }
 
 	inline void setWrapMode(const ETexWrapMode mode)
 	{
@@ -76,49 +79,27 @@ protected:
 		          *out_v >= 0.0 && *out_v <= 1.0);
 	}
 
-	// Normalizing (x, y) coordinates to [0, widthPx) & [0, heightPx) according 
-	// to wrapping mode.
-	inline void normalizeXY(const uint32 x, const uint32 y, 
-	                        uint32* const out_x, uint32* const out_y) const
-	{
-		switch(m_wrapMode)
-		{
-		case ETexWrapMode::REPEAT:
-		{
-			*out_x = x % m_widthPx;
-			*out_y = y % m_heightPx;
-			break;
-		}
-		case ETexWrapMode::CLAMP_TO_EDGE:
-		{
-			*out_x = x < m_widthPx ? x : m_widthPx - 1;
-			*out_y = y < m_heightPx ? y : m_heightPx - 1;
-			break;
-		}
-		default:
-			PH_ASSERT_UNREACHABLE_SECTION();
-		}
-
-		PH_ASSERT(*out_x < m_widthPx && *out_y < m_heightPx);
-	}
-
 	inline void setWidthPx(const uint32 widthPx)
 	{
 		PH_ASSERT(widthPx > 0);
 
-		m_widthPx = widthPx;
+		m_widthPx    = widthPx;
+		m_texelSizeU = 1.0 / widthPx;
 	}
 
 	inline void setHeightPx(const uint32 heightPx)
 	{
 		PH_ASSERT(heightPx > 0);
 
-		m_heightPx = heightPx;
+		m_heightPx   = heightPx;
+		m_texelSizeV = 1.0 / heightPx;
 	}
 
 protected:
 	uint32       m_widthPx;
 	uint32       m_heightPx;
+	float64      m_texelSizeU;
+	float64      m_texelSizeV;
 	ETexWrapMode m_wrapMode;
 };
 

@@ -81,6 +81,17 @@ inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::addLocal(const TArithmeti
 }
 
 template<typename T, std::size_t N>
+inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::addLocal(const T rhs)
+{
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		m[i] += rhs;
+	}
+
+	return *this;
+}
+
+template<typename T, std::size_t N>
 inline TArithmeticArray<T, N> TArithmeticArray<T, N>::sub(const TArithmeticArray& rhs) const
 {
 	return TArithmeticArray(*this).subLocal(rhs);
