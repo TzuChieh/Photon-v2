@@ -719,9 +719,6 @@
     <ClInclude Include="Source\Core\Texture\TAbstractPixelTex2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Actor\Image\ImageParameter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">
@@ -1169,9 +1166,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\SurfaceHit.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Actor\Image\ImageParameter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

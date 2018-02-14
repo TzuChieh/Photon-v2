@@ -6,7 +6,6 @@
 #include "Core/Texture/TTexture.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Core/Texture/TConstantTexture.h"
-#include "Actor/Image/ImageParameter.h"
 
 #include <iostream>
 #include <memory>
@@ -15,12 +14,12 @@ namespace ph
 {
 
 class CookingContext;
+class InputPacket;
 
 class Image : public TCommandInterface<Image>
 {
 public:
 	Image();
-	Image(const ImageParameter& param);
 	virtual ~Image() = 0;
 
 	virtual std::shared_ptr<TTexture<real>> genTextureReal(
@@ -32,11 +31,7 @@ public:
 	virtual std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(
 		CookingContext& context) const;
 
-	ImageParameter getParameter() const;
-
 private:
-	ImageParameter m_param;
-
 	template<typename OutputType>
 	inline std::shared_ptr<TTexture<OutputType>> genDefaultTexture() const
 	{
@@ -48,9 +43,10 @@ private:
 
 // command interface
 public:
+	explicit Image(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
-	static void ciRegisterMathFunctions(CommandRegister& cmdRegister);
+	static void registerMathFunctions(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph
