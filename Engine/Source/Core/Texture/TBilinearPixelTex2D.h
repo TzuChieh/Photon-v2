@@ -51,7 +51,7 @@ public:
 			(x - x0) * (y - y0) // weight 11
 		};
 
-		TTexPixel<T, float64> accuPixel(0);
+		TTexPixel<float64, N> accuPixel(0);
 		TTexPixel<T, N>       pixel;
 		for(std::size_t i = 0; i < 4; ++i)
 		{
@@ -59,7 +59,7 @@ public:
 			this->normalizeXY(xys[i].first, xys[i].second, &normX, &normY);
 
 			this->getPixel(normX, normY, &pixel);
-			accuPixel.addLocal(TTexPixel<T, float64>(pixel).mulLocal(weights[i]));
+			accuPixel.addLocal(TTexPixel<float64, N>(pixel).mulLocal(weights[i]));
 		}
 
 		if constexpr(!std::is_integral_v<T>)

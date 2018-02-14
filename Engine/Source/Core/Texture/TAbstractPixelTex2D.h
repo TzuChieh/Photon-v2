@@ -3,13 +3,15 @@
 #include "Core/Texture/TTexture.h"
 #include "Math/TArithmeticArray.h"
 #include "Common/assertion.h"
+#include "Math/Math.h"
 
 namespace ph
 {
 
 enum class ETexWrapMode
 {
-	REPEAT
+	REPEAT,
+	CLAMP_TO_EDGE
 };
 
 template<typename T, std::size_t N>
@@ -40,6 +42,11 @@ public:
 	inline uint32       getHeightPx() const { return m_heightPx; }
 	inline ETexWrapMode getWrapMode() const { return m_wrapMode; }
 
+	inline void setWrapMode(const ETexWrapMode mode)
+	{
+		m_wrapMode = mode;
+	}
+
 protected:
 	// Normalizing (u, v) coordinates to [0, 1] according to wrapping mode.
 	inline void normalizeUV(const float64 u, const float64 v, 
@@ -53,6 +60,12 @@ protected:
 			const float64 fv = Math::fractionalPart(v);
 			*out_u = fu >= 0.0 ? fu : fu + 1.0;
 			*out_v = fv >= 0.0 ? fv : fv + 1.0;
+			break;
+		}
+		case ETexWrapMode::CLAMP_TO_EDGE:
+		{
+			*out_u = Math::clamp(u, 0.0, 1.0);
+			*out_v = Math::clamp(v, 0.0, 1.0);
 			break;
 		}
 		default:
@@ -76,6 +89,12 @@ protected:
 			*out_y = y % m_heightPx;
 			break;
 		}
+		case ETexWrapMode::CLAMP_TO_EDGE:
+		{
+			*out_x = x < m_widthPx ? x : m_widthPx - 1;
+			*out_y = y < m_heightPx ? y : m_heightPx - 1;
+			break;
+		}
 		default:
 			PH_ASSERT_UNREACHABLE_SECTION();
 		}
@@ -95,11 +114,6 @@ protected:
 		PH_ASSERT(heightPx > 0);
 
 		m_heightPx = heightPx;
-	}
-
-	inline void setWrapMode(const ETexWrapMode mode)
-	{
-		m_wrapMode = mode;
 	}
 
 protected:

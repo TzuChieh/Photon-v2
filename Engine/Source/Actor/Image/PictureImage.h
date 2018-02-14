@@ -9,12 +9,14 @@ namespace ph
 enum class EImgSampleMode
 {
 	NEAREST,
+	BILINEAR,
 	MIPMAP_TRILINEAR
 };
 
 enum class EImgWrapMode
 {
-	REPEAT
+	REPEAT,
+	CLAMP_TO_EDGE
 };
 
 class InputPacket;

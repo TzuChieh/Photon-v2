@@ -48,7 +48,7 @@ inline TArithmeticArray<T, N>::TArithmeticArray(const TArithmeticArray<U, N>& ot
 {
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		m[i] = static_cast<T>(other.m[i]);
+		m[i] = static_cast<T>(other[i]);
 	}
 }
 

@@ -42,6 +42,10 @@ PictureImage::PictureImage(const InputPacket& packet) :
 	{
 		m_sampleMode = EImgSampleMode::NEAREST;
 	}
+	else if(sampleMode == "bilinear")
+	{
+		m_sampleMode = EImgSampleMode::BILINEAR;
+	}
 	else if(sampleMode == "mipmap-trilinear")
 	{
 		m_sampleMode = EImgSampleMode::MIPMAP_TRILINEAR;
@@ -51,6 +55,10 @@ PictureImage::PictureImage(const InputPacket& packet) :
 	if(wrapMode == "repeat")
 	{
 		m_wrapMode = EImgWrapMode::REPEAT;
+	}
+	else if(wrapMode == "clamp-to-edge")
+	{
+		m_wrapMode = EImgWrapMode::CLAMP_TO_EDGE;
 	}
 }
 

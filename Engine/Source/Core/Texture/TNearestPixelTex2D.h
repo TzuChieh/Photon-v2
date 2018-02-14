@@ -28,12 +28,14 @@ public:
 		float64 normU, normV;
 		this->normalizeUV(sampleLocation.uvw().x, sampleLocation.uvw().y,
 		                  &normU, &normV);
+		
+		// calculate pixel index and handle potential overflow
+		uint32 x = static_cast<uint32>(normU * w);
+		uint32 y = static_cast<uint32>(normV * h);
+		x = x < w ? x : w - 1;
+		y = y < h ? y : h - 1;
 
-		uint32 normX, normY;
-		this->normalizeXY(static_cast<uint32>(normU * w), static_cast<uint32>(normV * h),
-		                  &normX, &normY);
-
-		this->getPixel(normX, normY, out_value);
+		this->getPixel(x, y, out_value);
 	}
 };
 
