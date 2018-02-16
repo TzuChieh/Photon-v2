@@ -1,5 +1,7 @@
 #include "Core/Camera/Camera.h"
 #include "FileIO/InputPacket.h"
+#include "Core/RayDifferential.h"
+#include "Core/Ray.h"
 
 namespace ph
 {
@@ -17,6 +19,27 @@ Camera::Camera(const Vector3R& position, const Vector3R& direction, const Vector
 	// TODO: input maybe invalid (e.g., axes to close to each other)
 
 	updateCameraToWorldTransform(m_position, m_direction, m_upAxis);
+}
+
+void Camera::calcSensedRayDifferentials(
+	const Vector2R& rasterPosPx, const Ray& sensedRay,
+	RayDifferential* const out_result) const
+{
+	// 2nd-order accurate with respect to the size of <deltaPx>
+	const real deltaPx        = 1.0_r / 32.0_r;
+	const real reciIntervalPx = 1.0_r / deltaPx;
+
+	Ray dnxRay, dpxRay, dnyRay, dpyRay;
+	genSensedRay(Vector2R(rasterPosPx.x - deltaPx, rasterPosPx.y), &dnxRay);
+	genSensedRay(Vector2R(rasterPosPx.x + deltaPx, rasterPosPx.y), &dpxRay);
+	genSensedRay(Vector2R(rasterPosPx.x, rasterPosPx.y - deltaPx), &dnyRay);
+	genSensedRay(Vector2R(rasterPosPx.x, rasterPosPx.y + deltaPx), &dpyRay);
+
+	out_result->setPartialPs((dpxRay.getOrigin() - dnxRay.getOrigin()).divLocal(reciIntervalPx),
+	                         (dpyRay.getOrigin() - dnyRay.getOrigin()).divLocal(reciIntervalPx));
+
+	out_result->setPartialDs((dpxRay.getDirection() - dnxRay.getDirection()).divLocal(reciIntervalPx),
+	                         (dpyRay.getDirection() - dnyRay.getDirection()).divLocal(reciIntervalPx));
 }
 
 Camera::~Camera() = default;

@@ -114,7 +114,11 @@ TEST(MathTest, RetrieveFractionalPartOfANumber)
 
 TEST(MathTest, ConstructsMatrix)
 {
-	auto matrix = ph::Math::matrix2x2(1, 2, 3, 4);
+	auto matrix = ph::Math::matrix2x2(
+		1, 2, 
+		3, 4
+	);
+
 	EXPECT_EQ(matrix[0][0], 1);
 	EXPECT_EQ(matrix[0][1], 2);
 	EXPECT_EQ(matrix[1][0], 3);

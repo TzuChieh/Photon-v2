@@ -127,6 +127,8 @@ public:
 
 	inline TVector3 operator * (T rhs) const;
 	inline TVector3 operator + (T rhs) const;
+	inline TVector3 operator - (T rhs) const;
+	inline TVector3 operator - (const TVector3& rhs) const;
 
 	inline TVector3& operator = (const TVector3& rhs);
 };

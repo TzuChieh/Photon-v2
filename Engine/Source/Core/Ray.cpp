@@ -10,8 +10,7 @@ Ray::Ray(const Vector3R& origin, const Vector3R& direction,
          const Time& time) :
 	m_origin(origin), m_direction(direction), 
 	m_minT(minT), m_maxT(maxT),
-	m_time(time),
-	m_differential()
+	m_time(time)
 {
 
 }
@@ -31,20 +30,6 @@ Ray::Ray(const Vector3R& origin, const Vector3R& direction) :
 
 Ray::Ray() : 
 	Ray(Vector3R(0, 0, 0), Vector3R(0, 0, -1))
-{
-
-}
-
-Ray::Differential::Differential() : 
-	Differential(Vector3R(0), Vector3R(0), Vector3R(0), Vector3R(0))
-{
-
-}
-
-Ray::Differential::Differential(const Vector3R& dOdX, const Vector3R& dOdY,
-                                const Vector3R& dDdX, const Vector3R& dDdY) : 
-	m_dOdX(dOdX), m_dOdY(dOdY),
-	m_dDdX(dDdX), m_dDdY(dDdY)
 {
 
 }

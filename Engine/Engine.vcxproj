@@ -201,6 +201,7 @@
     <ClInclude Include="Source\Core\Filmic\HdrRgbFilm.h" />
     <ClInclude Include="Source\Core\Filmic\SampleFilter.h" />
     <ClInclude Include="Source\Core\Filmic\SampleFilterFactory.h" />
+    <ClInclude Include="Source\Core\FullRay.h" />
     <ClInclude Include="Source\Core\HitDetail.h" />
     <ClInclude Include="Source\Core\HitInfo.h" />
     <ClInclude Include="Source\Core\HitProbe.h" />
@@ -237,6 +238,7 @@
     <ClInclude Include="Source\Core\Quantity\SpectralStrength.h" />
     <ClInclude Include="Source\Core\Quantity\Time.h" />
     <ClInclude Include="Source\Core\Ray.h" />
+    <ClInclude Include="Source\Core\RayDifferential.h" />
     <ClInclude Include="Source\Core\Renderer\BulkRenderer.h" />
     <ClInclude Include="Source\Core\Renderer\ERegionStatus.h" />
     <ClInclude Include="Source\Core\Renderer\Renderer.h" />
@@ -419,6 +421,7 @@
     <ClCompile Include="Source\Core\Filmic\HdrRgbFilm.cpp" />
     <ClCompile Include="Source\Core\Filmic\SampleFilter.cpp" />
     <ClCompile Include="Source\Core\Filmic\SampleFilterFactory.cpp" />
+    <ClCompile Include="Source\Core\FullRay.cpp" />
     <ClCompile Include="Source\Core\HitDetail.cpp" />
     <ClCompile Include="Source\Core\HitInfo.cpp" />
     <ClCompile Include="Source\Core\HitProbe.cpp" />
@@ -447,6 +450,7 @@
     <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp" />
     <ClCompile Include="Source\Core\Quantity\Private\RgbSpectralStrength.cpp" />
     <ClCompile Include="Source\Core\Ray.cpp" />
+    <ClCompile Include="Source\Core\RayDifferential.cpp" />
     <ClCompile Include="Source\Core\Renderer\BulkRenderer.cpp" />
     <ClCompile Include="Source\Core\Renderer\Renderer.cpp" />
     <ClCompile Include="Source\Core\Renderer\RendererProxy.cpp" />
