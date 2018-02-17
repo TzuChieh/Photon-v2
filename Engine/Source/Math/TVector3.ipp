@@ -672,6 +672,12 @@ inline TVector3<T> TVector3<T>::operator + (const T rhs) const
 }
 
 template<typename T>
+inline TVector3<T> TVector3<T>::operator + (const TVector3& rhs) const
+{
+	return this->add(rhs);
+}
+
+template<typename T>
 inline TVector3<T> TVector3<T>::operator - (const T rhs) const
 {
 	return this->sub(rhs);
@@ -706,6 +712,12 @@ inline TVector3<T>& TVector3<T>::operator = (const TVector3& rhs)
 	z = rhs.z;
 
 	return *this;
+}
+
+template<typename T>
+inline TVector3<T> operator * (const T rhs, const TVector3<T>& lhs)
+{
+	return lhs.mul(rhs);
 }
 
 }// end namespace ph

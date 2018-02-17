@@ -9,12 +9,23 @@ namespace ph
 
 class RayDifferential final
 {
-	friend class Ray;
-
 public:
 	RayDifferential();
 	RayDifferential(const Vector3R& dPdX, const Vector3R& dPdY,
 	                const Vector3R& dDdX, const Vector3R& dDdY);
+
+	// Propagate differential quantities to some location on a surface the ray
+	// has intersected. Specifically, calculate ray differentials on location
+	// <surfaceP> with surface normal <surfaceN>.
+	void transferToSurface(const Vector3R& surfaceP, const Vector3R& surfaceN);
+
+	// Modify differential quantities as if the ray is reversed in
+	// direction.
+	inline void reverse()
+	{
+		m_dDdX.mulLocal(-1);
+		m_dDdY.mulLocal(-1);
+	}
 
 	inline void setPartialPs(const Vector3R& dPdX, const Vector3R& dPdY)
 	{
@@ -40,8 +51,13 @@ public:
 	inline bool isNonZero() const { return m_isPartialPsNonZero || m_isPartialDsNonZero; }
 
 private:
-	// Partial derivatives for a specific point along a ray (P = position, 
-	// D = direction) with respect to raster coordinates x & y.
+	// A point P on a ray.
+	Vector3R m_P;
+
+	// Direction D of a ray.
+	Vector3R m_D;
+
+	// Partial derivatives for P & D with respect to raster coordinates x & y.
 	Vector3R m_dPdX, m_dPdY;
 	Vector3R m_dDdX, m_dDdY;
 

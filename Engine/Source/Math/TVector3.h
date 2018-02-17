@@ -127,11 +127,15 @@ public:
 
 	inline TVector3 operator * (T rhs) const;
 	inline TVector3 operator + (T rhs) const;
+	inline TVector3 operator + (const TVector3& rhs) const;
 	inline TVector3 operator - (T rhs) const;
 	inline TVector3 operator - (const TVector3& rhs) const;
 
 	inline TVector3& operator = (const TVector3& rhs);
 };
+
+template<typename T>
+inline TVector3<T> operator * (T rhs, const TVector3<T>& lhs);
 
 }// end namespace ph
 
