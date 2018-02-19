@@ -234,7 +234,9 @@
     <ClInclude Include="Source\Core\Intersectable\TransformedIntersectable.h" />
     <ClInclude Include="Source\Core\Quantity\ColorSpace.h" />
     <ClInclude Include="Source\Core\Quantity\Private\RgbSpectralStrength.h" />
+    <ClInclude Include="Source\Core\Quantity\Private\SpectralSample.h" />
     <ClInclude Include="Source\Core\Quantity\Private\TAbstractSpectralStrength.h" />
+    <ClInclude Include="Source\Core\Quantity\Private\TSampledSpectralStrength.h" />
     <ClInclude Include="Source\Core\Quantity\SpectralStrength.h" />
     <ClInclude Include="Source\Core\Quantity\Time.h" />
     <ClInclude Include="Source\Core\Ray.h" />
@@ -570,6 +572,10 @@
     <ClInclude Include="Source\Actor\Image\Image.ipp">
       <FileType>Document</FileType>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\Core\Quantity\Private\TSampledSpectralStrength.ipp" />
+    <None Include="Source\Math\Solver\TAnalyticalIntegrator1D.ipp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -10,14 +10,15 @@
 namespace ph
 {
 	
-// A class defining a piecewise linear function. Visually, points are
-// connected by straight lines; thus the function value between point.x-es 
-// are evaluated by linearly interpolating nearby point.y-es. Function value
-// beyond the domain of specified point.x-es are evaluated with its nearest
-// point.x's y value. If the function have got no points, evaluation results
-// in zero no matter the input.
+// A class defining a piecewise linear function, where points (x, y) are
+// connected by straight lines; function values between two nearby points 
+// are evaluated by linearly interpolating their y-coordinates. Function 
+// values beyond the domain of specified x coordinates are evaluated with 
+// its nearest point's y value. If the function have got no points, 
+// evaluation results in zero no matter the inputs.
 // 
-// Notice that update() must be called before evaluating the function.
+// Notice that update() must be called before feeding this function into 
+// any other methods.
 
 template<typename T>
 class TPiecewiseLinear1D final
@@ -25,11 +26,12 @@ class TPiecewiseLinear1D final
 public:
 	inline T evaluate(T x) const;
 	inline T evaluate(T x, std::size_t p0Index, std::size_t p1Index) const;
+
 	inline void update();
+
 	inline void addPoint(const TVector2<T>& point);
 	inline std::size_t numPoints() const;
 	inline TVector2<T> getPoint(std::size_t pointIndex) const;
-
 	inline std::string toString() const;
 
 private:

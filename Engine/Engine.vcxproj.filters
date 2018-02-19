@@ -731,6 +731,12 @@
     <ClInclude Include="Source\Core\RayDifferential.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\Quantity\Private\TSampledSpectralStrength.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Quantity\Private\SpectralSample.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">
@@ -1186,5 +1192,9 @@
     <ClCompile Include="Source\Core\RayDifferential.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\Core\Quantity\Private\TSampledSpectralStrength.ipp" />
+    <None Include="Source\Math\Solver\TAnalyticalIntegrator1D.ipp" />
   </ItemGroup>
 </Project>

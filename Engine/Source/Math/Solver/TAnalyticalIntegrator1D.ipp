@@ -1,4 +1,5 @@
 #include "Math/Solver/TAnalyticalIntegrator1D.h"
+#include "Common/assertion.h"
 
 #include <algorithm>
 
@@ -38,7 +39,7 @@ T TAnalyticalIntegrator1D<T>::integrate(const TPiecewiseLinear1D<T>& func) const
 	// possibly add trapezoidal regions where x > p0.x and x < pN.x
 	for(std::size_t i = 0; i < func.numPoints() - 1; i++)
 	{
-		// intersecting integration domain with piecewise domain
+		// intersecting integration domain with region's domain
 		const auto& p0 = func.getPoint(i);
 		const auto& p1 = func.getPoint(i + 1);
 		const T x0 = std::max(m_x0, p0.x);
@@ -57,6 +58,8 @@ T TAnalyticalIntegrator1D<T>::integrate(const TPiecewiseLinear1D<T>& func) const
 template<typename T>
 void TAnalyticalIntegrator1D<T>::setIntegrationDomain(const T x0, const T x1)
 {
+	PH_ASSERT(x1 >= x0);
+
 	m_x0 = x0;
 	m_x1 = x1;
 }

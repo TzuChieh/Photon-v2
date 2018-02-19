@@ -21,18 +21,21 @@ RgbSpectralStrength::RgbSpectralStrength(const TArithmeticArray<real, 3>& other)
 
 }
 
-RgbSpectralStrength::~RgbSpectralStrength() = default;
-
-Vector3R RgbSpectralStrength::internal_genRgb() const
+Vector3R RgbSpectralStrength::impl_genRgb() const
 {
 	return Vector3R(m[0], m[1], m[2]);
 }
 
-void RgbSpectralStrength::internal_setRgb(const Vector3R& rgb)
+void RgbSpectralStrength::impl_setRgb(const Vector3R& rgb)
 {
 	m[0] = rgb.x;
 	m[1] = rgb.y;
 	m[2] = rgb.z;
+}
+
+void RgbSpectralStrength::impl_setSampled(const std::vector<SpectralSample>& samples)
+{
+	// TODO
 }
 
 }// end namespace ph

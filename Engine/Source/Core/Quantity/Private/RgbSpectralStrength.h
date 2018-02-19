@@ -9,16 +9,16 @@ class RgbSpectralStrength final : public TAbstractSpectralStrength<RgbSpectralSt
 {
 public:
 	using TAbstractSpectralStrength<RgbSpectralStrength, 3>::TAbstractSpectralStrength;
-
 	RgbSpectralStrength();
 	RgbSpectralStrength(const RgbSpectralStrength& other);
 	RgbSpectralStrength(const TArithmeticArray<real, 3>& other);
-	virtual ~RgbSpectralStrength() override;
-
-	Vector3R internal_genRgb() const;
-	void internal_setRgb(const Vector3R& rgb);
+	virtual inline ~RgbSpectralStrength() override = default;
 
 	using TAbstractSpectralStrength<RgbSpectralStrength, 3>::operator = ;
+
+	Vector3R impl_genRgb() const;
+	void impl_setRgb(const Vector3R& rgb);
+	void impl_setSampled(const std::vector<SpectralSample>& samples);
 };
 
 }// end namespace ph

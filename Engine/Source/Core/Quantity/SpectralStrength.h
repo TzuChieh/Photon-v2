@@ -1,11 +1,23 @@
 #pragma once
 
 #include "Core/Quantity/Private/RgbSpectralStrength.h"
+#include "Common/config.h"
 
 namespace ph
 {
 
-// TODO: use macros instead of hard-coding
-typedef RgbSpectralStrength SpectralStrength;
+#ifdef PH_RENDER_MODE_RGB
+	typedef RgbSpectralStrength SpectralStrength;
+
+#elif PH_RENDER_MODE_SPECTRAL
+	// TODO
+
+#elif PH_RENDER_MODE_FULL_SPECTRAL
+	// TODO
+
+#else
+	typedef RgbSpectralStrength SpectralStrength;
+
+#endif
 
 }// end namespace ph
