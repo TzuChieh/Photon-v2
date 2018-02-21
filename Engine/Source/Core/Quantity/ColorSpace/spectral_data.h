@@ -11,7 +11,13 @@ namespace ph
 namespace spectral_data
 {
 
-typedef std::array<real, 64> Array64R;
+typedef std::array<real, 64>  Array64R;
+typedef std::array<real, 471> Array471R;
+
+const Array471R& XYZ_CMF_CIE_1931_2_degree_wavelengths_nm();
+const Array471R& XYZ_CMF_CIE_1931_2_degree_X();
+const Array471R& XYZ_CMF_CIE_1931_2_degree_Y();
+const Array471R& XYZ_CMF_CIE_1931_2_degree_Z();
 
 const Array64R& smits_linear_sRGB_to_spectrum_wavelengths_nm();
 const Array64R& smits_linear_sRGB_to_spectrum_white();
