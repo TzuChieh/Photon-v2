@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Quantity/Private/TSampledSpectralStrength.h"
+#include "Core/Quantity/SpectralStrength/TSampledSpectralStrength.h"
 
 namespace ph
 {

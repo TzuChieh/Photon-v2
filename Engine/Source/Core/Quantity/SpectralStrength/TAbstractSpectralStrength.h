@@ -3,7 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TArithmeticArray.h"
 #include "Math/TVector3.h"
-#include "Core/Quantity/Private/SpectralSample.h"
+#include "Core/Quantity/SpectralStrength/SpectralSample.h"
 
 #include <cstddef>
 #include <vector>
@@ -30,4 +30,4 @@ public:
 
 }// end namespace ph
 
-#include "Core/Quantity/Private/TAbstractSpectralStrength.ipp"
+#include "Core/Quantity/SpectralStrength/TAbstractSpectralStrength.ipp"

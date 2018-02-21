@@ -233,11 +233,11 @@
     <ClInclude Include="Source\Core\Intersectable\PTriangle.h" />
     <ClInclude Include="Source\Core\Intersectable\TransformedIntersectable.h" />
     <ClInclude Include="Source\Core\Quantity\ColorSpace.h" />
-    <ClInclude Include="Source\Core\Quantity\Private\RgbSpectralStrength.h" />
-    <ClInclude Include="Source\Core\Quantity\Private\spectral_data.h" />
-    <ClInclude Include="Source\Core\Quantity\Private\SpectralSample.h" />
-    <ClInclude Include="Source\Core\Quantity\Private\TAbstractSpectralStrength.h" />
-    <ClInclude Include="Source\Core\Quantity\Private\TSampledSpectralStrength.h" />
+    <ClInclude Include="Source\Core\Quantity\SpectralStrength\RgbSpectralStrength.h" />
+    <ClInclude Include="Source\Core\Quantity\ColorSpace\spectral_data.h" />
+    <ClInclude Include="Source\Core\Quantity\SpectralStrength\SpectralSample.h" />
+    <ClInclude Include="Source\Core\Quantity\SpectralStrength\TAbstractSpectralStrength.h" />
+    <ClInclude Include="Source\Core\Quantity\SpectralStrength\TSampledSpectralStrength.h" />
     <ClInclude Include="Source\Core\Quantity\SpectralStrength.h" />
     <ClInclude Include="Source\Core\Quantity\Time.h" />
     <ClInclude Include="Source\Core\Ray.h" />
@@ -451,8 +451,8 @@
     <ClCompile Include="Source\Core\Intersectable\PrimitiveMetadata.cpp" />
     <ClCompile Include="Source\Core\Intersectable\PTriangle.cpp" />
     <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp" />
-    <ClCompile Include="Source\Core\Quantity\Private\RgbSpectralStrength.cpp" />
-    <ClCompile Include="Source\Core\Quantity\Private\spectral_data.cpp" />
+    <ClCompile Include="Source\Core\Quantity\SpectralStrength\RgbSpectralStrength.cpp" />
+    <ClCompile Include="Source\Core\Quantity\ColorSpace\spectral_data.cpp" />
     <ClCompile Include="Source\Core\Ray.cpp" />
     <ClCompile Include="Source\Core\RayDifferential.cpp" />
     <ClCompile Include="Source\Core\Renderer\BulkRenderer.cpp" />
@@ -556,7 +556,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Core\Quantity\Private\TAbstractSpectralStrength.ipp">
+    <ClInclude Include="Source\Core\Quantity\SpectralStrength\TAbstractSpectralStrength.ipp">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>
@@ -576,7 +576,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\Core\Quantity\Private\TSampledSpectralStrength.ipp" />
+    <None Include="Source\Core\Quantity\SpectralStrength\TSampledSpectralStrength.ipp" />
     <None Include="Source\Math\Solver\TAnalyticalIntegrator1D.ipp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

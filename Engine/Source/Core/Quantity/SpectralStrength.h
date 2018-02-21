@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Quantity/Private/RgbSpectralStrength.h"
+#include "Core/Quantity/SpectralStrength/RgbSpectralStrength.h"
 #include "Common/config.h"
 
 namespace ph

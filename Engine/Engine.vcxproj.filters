@@ -270,12 +270,6 @@
     <ClInclude Include="Source\Core\Intersectable\TransformedIntersectable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Quantity\Private\RgbSpectralStrength.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\Quantity\Private\TAbstractSpectralStrength.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Quantity\SpectralStrength.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -601,7 +595,6 @@
     <ClInclude Include="Source\FileIO\FileSystem\Path.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Quantity\Private\TAbstractSpectralStrength.ipp" />
     <ClInclude Include="Source\Core\Quantity\ColorSpace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -731,13 +724,20 @@
     <ClInclude Include="Source\Core\RayDifferential.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Quantity\Private\TSampledSpectralStrength.h">
+    <ClInclude Include="Source\Core\Quantity\SpectralStrength\RgbSpectralStrength.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Quantity\Private\SpectralSample.h">
+    <ClInclude Include="Source\Core\Quantity\SpectralStrength\SpectralSample.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Quantity\Private\spectral_data.h">
+    <ClInclude Include="Source\Core\Quantity\SpectralStrength\TAbstractSpectralStrength.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Quantity\SpectralStrength\TAbstractSpectralStrength.ipp" />
+    <ClInclude Include="Source\Core\Quantity\SpectralStrength\TSampledSpectralStrength.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Quantity\ColorSpace\spectral_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -956,9 +956,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\Quantity\Private\RgbSpectralStrength.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Renderer\BulkRenderer.cpp">
@@ -1195,12 +1192,15 @@
     <ClCompile Include="Source\Core\RayDifferential.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Quantity\Private\spectral_data.cpp">
+    <ClCompile Include="Source\Core\Quantity\SpectralStrength\RgbSpectralStrength.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Quantity\ColorSpace\spectral_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\Core\Quantity\Private\TSampledSpectralStrength.ipp" />
     <None Include="Source\Math\Solver\TAnalyticalIntegrator1D.ipp" />
+    <None Include="Source\Core\Quantity\SpectralStrength\TSampledSpectralStrength.ipp" />
   </ItemGroup>
 </Project>

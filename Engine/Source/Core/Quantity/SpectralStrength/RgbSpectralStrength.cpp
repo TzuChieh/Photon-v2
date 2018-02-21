@@ -1,4 +1,4 @@
-#include "Core/Quantity/Private/RgbSpectralStrength.h"
+#include "Core/Quantity/SpectralStrength/RgbSpectralStrength.h"
 
 namespace ph
 {

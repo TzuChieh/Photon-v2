@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Quantity/Private/TAbstractSpectralStrength.h"
+#include "Core/Quantity/SpectralStrength/TAbstractSpectralStrength.h"
 
 #include <cstddef>
 
@@ -26,4 +26,4 @@ public:
 
 }// end namespace ph
 
-#include "Core/Quantity/Private/TSampledSpectralStrength.ipp"
+#include "Core/Quantity/SpectralStrength/TSampledSpectralStrength.ipp"
