@@ -737,6 +737,9 @@
     <ClInclude Include="Source\Core\Quantity\Private\SpectralSample.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\Quantity\Private\spectral_data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">
@@ -1190,6 +1193,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\RayDifferential.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Quantity\Private\spectral_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
