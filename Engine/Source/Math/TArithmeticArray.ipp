@@ -225,6 +225,20 @@ inline T TArithmeticArray<T, N>::avg() const
 }
 
 template<typename T, std::size_t N>
+inline T TArithmeticArray<T, N>::max() const
+{
+	T maxValue = m[0];
+	for(std::size_t i = 1; i < N; ++i)
+	{
+		if(m[i] > maxValue)
+		{
+			maxValue = m[i];
+		}
+	}
+	return maxValue;
+}
+
+template<typename T, std::size_t N>
 inline TArithmeticArray<T, N> TArithmeticArray<T, N>::complement() const
 {
 	return TArithmeticArray(1).subLocal(*this);

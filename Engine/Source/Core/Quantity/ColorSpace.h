@@ -65,6 +65,8 @@ private:
 	static SampledSpectralStrength kernel_Y;
 	static SampledSpectralStrength kernel_Z;
 
+	static SampledSpectralStrength spectrum_D65;
+
 #ifdef PH_DEBUG
 	static inline bool isInitialized(const bool toggle = false)
 	{

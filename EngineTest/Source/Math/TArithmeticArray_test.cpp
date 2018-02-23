@@ -28,3 +28,14 @@ TEST(TArithmeticArrayTest, AddsRhsValue)
 		EXPECT_TRUE(addedArray3[i] == 4);
 	}
 }
+
+TEST(TArithmeticArrayTest, FindsLargestElement)
+{
+	ph::TArithmeticArray<float, 5> array1;
+	array1[0] = -3.0f;
+	array1[1] =  0.0f;
+	array1[2] = -1.3f;
+	array1[3] =  9.9f;
+	array1[4] =  2.0f;
+	EXPECT_EQ(array1.max(), 9.9f);
+}

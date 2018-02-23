@@ -49,6 +49,7 @@ public:
 	inline T dot(const TArithmeticArray& rhs) const;
 	inline T sum() const;
 	inline T avg() const;
+	inline T max() const;
 	inline TArithmeticArray complement() const;
 	inline TArithmeticArray& complementLocal();
 
