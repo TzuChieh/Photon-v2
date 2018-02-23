@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 
-TEST(QuantityRelatedTest, ColorSpaceConversion)
+TEST(ColorConversionTest, SrgbCieXyzInterConversion)
 {
 	using namespace ph;
 
@@ -50,4 +50,21 @@ TEST(QuantityRelatedTest, ColorSpaceConversion)
 	EXPECT_NEAR(color.x, normalizedD65_XYZ.x, 0.001_r);
 	EXPECT_NEAR(color.y, normalizedD65_XYZ.y, 0.001_r);
 	EXPECT_NEAR(color.z, normalizedD65_XYZ.z, 0.001_r);
+}
+
+TEST(ColorConversionTest, SpectrumToCieXyzConversion)
+{
+	using namespace ph;
+
+	Vector3R color;
+
+	color = ColorSpace::SPD_to_CIE_XYZ_D65(ColorSpace::get_D65_SPD());
+	EXPECT_NEAR(color.x, 0.95047_r, 0.001_r);
+	EXPECT_NEAR(color.y, 1.00000_r, 0.001_r);
+	EXPECT_NEAR(color.z, 1.08883_r, 0.001_r);
+
+	color = ColorSpace::SPD_to_CIE_XYZ_D65(SampledSpectralStrength(0));
+	EXPECT_FLOAT_EQ(color.x, 0);
+	EXPECT_FLOAT_EQ(color.y, 0);
+	EXPECT_FLOAT_EQ(color.z, 0);
 }

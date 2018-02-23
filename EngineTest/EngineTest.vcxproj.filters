@@ -87,7 +87,7 @@
     <ClCompile Include="Source\Core\Texture\pixel_based_texture_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\quantity_test.cpp">
+    <ClCompile Include="Source\Core\color_conversion_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

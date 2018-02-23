@@ -15,6 +15,7 @@ class ColorSpace final
 {
 public:
 	// This method must be called once before using any other method.
+	//
 	static void init();
 
 	static inline Vector3R sRGB_to_linear_sRGB(const Vector3R& color)
@@ -32,12 +33,11 @@ public:
 	}
 
 	// CIE-XYZ color represented here is with a reference white point of D65
-	// (actually the standard of sRGB is based on)
+	// (actually the standard sRGB based on)
 	//
 	// Reference: 
 	// (1) http://www.color.org/sRGB.xalter
 	// (2) http://www.ryanjuckett.com/programming/rgb-color-space-conversion/?start=2
-	//
 
 	static inline Vector3R CIE_XYZ_D65_to_linear_sRGB(const Vector3R& color)
 	{
@@ -53,19 +53,29 @@ public:
 		                0.019330_r * color.x + 0.119195_r * color.y + 0.950528_r * color.z);
 	}
 
-	static inline Vector3R sampled_to_CIE_XYZ(const SampledSpectralStrength& color)
+
+	static inline Vector3R SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd)
 	{
 		PH_ASSERT(isInitialized());
 
-		// TODO
+		return Vector3R(kernel_X_D65.dot(spd), 
+		                kernel_Y_D65.dot(spd), 
+		                kernel_Z_D65.dot(spd));
+	}
+
+	static inline const SampledSpectralStrength& get_D65_SPD()
+	{
+		PH_ASSERT(isInitialized());
+
+		return SPD_D65;
 	}
 
 private:
-	static SampledSpectralStrength kernel_X;
-	static SampledSpectralStrength kernel_Y;
-	static SampledSpectralStrength kernel_Z;
+	static SampledSpectralStrength kernel_X_D65;
+	static SampledSpectralStrength kernel_Y_D65;
+	static SampledSpectralStrength kernel_Z_D65;
 
-	static SampledSpectralStrength spectrum_D65;
+	static SampledSpectralStrength SPD_D65;
 
 #ifdef PH_DEBUG
 	static inline bool isInitialized(const bool toggle = false)

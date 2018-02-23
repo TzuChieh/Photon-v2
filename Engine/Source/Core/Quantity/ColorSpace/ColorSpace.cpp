@@ -10,9 +10,11 @@
 namespace ph
 {
 
-SampledSpectralStrength ColorSpace::kernel_X;
-SampledSpectralStrength ColorSpace::kernel_Y;
-SampledSpectralStrength ColorSpace::kernel_Z;
+SampledSpectralStrength ColorSpace::kernel_X_D65;
+SampledSpectralStrength ColorSpace::kernel_Y_D65;
+SampledSpectralStrength ColorSpace::kernel_Z_D65;
+
+SampledSpectralStrength ColorSpace::SPD_D65;
 
 namespace
 {
@@ -60,19 +62,44 @@ void ColorSpace::init()
 {
 	PH_ASSERT_MSG(!isInitialized(), "ColorSpace is already initialized");
 
-	const std::size_t numPoints = std::tuple_size<spectral_data::ArrayXYZCMF>::value;
+	// Construct sampled D65 spectrum and normalize it by making its largest
+	// value equals to 1.
+	//
+	SPD_D65 = make_sampled(spectral_data::CIE_D65_wavelengths_nm().data(),
+	                       spectral_data::CIE_D65_values().data(),
+	                       std::tuple_size<spectral_data::ArrayD65>::value);
+	SPD_D65.divLocal(SPD_D65.max());
 
-	kernel_X = make_sampled(spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
-	                        spectral_data::XYZ_CMF_CIE_1931_2_degree_X().data(), 
-	                        numPoints);
-	kernel_Y = make_sampled(spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
-	                        spectral_data::XYZ_CMF_CIE_1931_2_degree_Y().data(), 
-	                        numPoints);
-	kernel_Z = make_sampled(spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
-	                        spectral_data::XYZ_CMF_CIE_1931_2_degree_Z().data(), 
-	                        numPoints);
+	// Sample XYZ color matching functions first, then later normalize it so 
+	// that dotting them with sampled D65 spectrum is equivalent to computing
+	// (X, Y, Z) tristimulus values and will yield (0.95047, 1, 1.08883).
 
-	// TODO
+	// sampling
+	//
+	const std::size_t numXyzCmfPoints = std::tuple_size<spectral_data::ArrayXYZCMF>::value;
+	kernel_X_D65 = make_sampled(spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
+	                            spectral_data::XYZ_CMF_CIE_1931_2_degree_X().data(), 
+	                            numXyzCmfPoints);
+	kernel_Y_D65 = make_sampled(spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
+	                            spectral_data::XYZ_CMF_CIE_1931_2_degree_Y().data(), 
+	                            numXyzCmfPoints);
+	kernel_Z_D65 = make_sampled(spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
+	                            spectral_data::XYZ_CMF_CIE_1931_2_degree_Z().data(), 
+	                            numXyzCmfPoints);
+
+	// normalizing
+
+	// multiplier of Riemann Sum
+	//
+	kernel_X_D65.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
+	kernel_Y_D65.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
+	kernel_Z_D65.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
+	
+	// scaled to match D65
+	//
+	kernel_X_D65.mulLocal(0.95047_r / kernel_X_D65.dot(SPD_D65));
+	kernel_Y_D65.mulLocal(1.00000_r / kernel_Y_D65.dot(SPD_D65));
+	kernel_Z_D65.mulLocal(1.08883_r / kernel_Z_D65.dot(SPD_D65));
 
 	PH_ASSERT(isInitialized(true));
 }

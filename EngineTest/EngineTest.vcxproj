@@ -114,7 +114,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(SolutionDir)Engine/Source;$(SolutionDir)ThirdParty/googletest/include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(SolutionDir)Engine/Include;$(SolutionDir)Engine/Source;$(SolutionDir)ThirdParty/googletest/include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -132,7 +132,7 @@
     <ClCompile Include="Source\Core\Bound\bound_test.cpp" />
     <ClCompile Include="Source\Core\Filmic\film_sample_weighting_test.cpp" />
     <ClCompile Include="Source\Core\Filmic\film_test.cpp" />
-    <ClCompile Include="Source\Core\quantity_test.cpp" />
+    <ClCompile Include="Source\Core\color_conversion_test.cpp" />
     <ClCompile Include="Source\Core\Texture\pixel_based_texture_test.cpp" />
     <ClCompile Include="Source\Core\Texture\TAddTexture_test.cpp" />
     <ClCompile Include="Source\Core\Texture\TMultiplyTexture_test.cpp" />
