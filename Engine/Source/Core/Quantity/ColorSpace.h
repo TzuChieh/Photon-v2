@@ -53,6 +53,20 @@ public:
 		                0.019330_r * color.x + 0.119195_r * color.y + 0.950528_r * color.z);
 	}
 
+	static inline Vector3R CIE_XYZ_D65_to_sRGB(const Vector3R& color)
+	{
+		return linear_sRGB_to_sRGB(CIE_XYZ_D65_to_linear_sRGB(color));
+	}
+
+	static inline Vector3R SPD_to_linear_sRGB(const SampledSpectralStrength& spd)
+	{
+		return CIE_XYZ_D65_to_linear_sRGB(SPD_to_CIE_XYZ_D65(spd));
+	}
+
+	static inline Vector3R SPD_to_sRGB(const SampledSpectralStrength& spd)
+	{
+		return linear_sRGB_to_sRGB(SPD_to_linear_sRGB(spd));
+	}
 
 	static inline Vector3R SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd)
 	{
