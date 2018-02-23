@@ -3,6 +3,7 @@
 #include "Core/Quantity/SpectralStrength/TAbstractSpectralStrength.h"
 #include "Math/Function/TPiecewiseLinear1D.h"
 #include "Math/Solver/TAnalyticalIntegrator1D.h"
+#include "Core/Quantity/ColorSpace.h"
 
 namespace ph
 {
@@ -23,22 +24,34 @@ inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(cons
 {}
 
 template<typename DerivedType, std::size_t N>
-inline Vector3R TAbstractSpectralStrength<DerivedType, N>::genRgb() const
+inline Vector3R TAbstractSpectralStrength<DerivedType, N>::genSrgb() const
 {
-	return static_cast<const DerivedType&>(*this).impl_genRgb();
+	return ColorSpace::linear_sRGB_to_sRGB(genLinearSrgb());
 }
 
 template<typename DerivedType, std::size_t N>
-inline void TAbstractSpectralStrength<DerivedType, N>::setRgb(const Vector3R& rgb)
+inline Vector3R TAbstractSpectralStrength<DerivedType, N>::genLinearSrgb() const
 {
-	static_cast<DerivedType&>(*this).impl_setRgb(rgb);
+	return static_cast<const DerivedType&>(*this).impl_genLinearSrgb();
+}
+
+template<typename DerivedType, std::size_t N>
+inline void TAbstractSpectralStrength<DerivedType, N>::setSrgb(const Vector3R& srgb)
+{
+	setLinearSrgb(ColorSpace::sRGB_to_linear_sRGB(srgb));
+}
+
+template<typename DerivedType, std::size_t N>
+inline void TAbstractSpectralStrength<DerivedType, N>::setLinearSrgb(const Vector3R& linearSrgb)
+{
+	static_cast<DerivedType&>(*this).impl_setLinearSrgb(linearSrgb);
 }
 
 template<typename DerivedType, std::size_t N>
 inline void TAbstractSpectralStrength<DerivedType, N>::setSampled(
-	const std::vector<SpectralSample>& samples)
+	const TArithmeticArray<real, N>& sampled)
 {
-	static_cast<DerivedType&>(*this).impl_setSampled(samples);
+	static_cast<DerivedType&>(*this).impl_setSampled(sampled);
 }
 
 }// end namespace ph

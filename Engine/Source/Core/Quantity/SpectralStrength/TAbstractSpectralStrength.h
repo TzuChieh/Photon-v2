@@ -3,7 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TArithmeticArray.h"
 #include "Math/TVector3.h"
-#include "Core/Quantity/SpectralStrength/SpectralSample.h"
+#include "Core/Quantity/spectral_strength_fwd.h"
 
 #include <cstddef>
 #include <vector>
@@ -21,9 +21,11 @@ public:
 	inline TAbstractSpectralStrength(const TArithmeticArray<real, N>& other);
 	virtual inline ~TAbstractSpectralStrength() override = default;
 
-	inline Vector3R genRgb() const;
-	inline void setRgb(const Vector3R& rgb);
-	inline void setSampled(const std::vector<SpectralSample>& samples);
+	inline Vector3R genSrgb() const;
+	inline Vector3R genLinearSrgb() const;
+	inline void setSrgb(const Vector3R& srgb);
+	inline void setLinearSrgb(const Vector3R& linearSrgb);
+	inline void setSampled(const TArithmeticArray<real, N>& sampled);
 
 	using TArithmeticArray<real, N>::operator = ;
 };

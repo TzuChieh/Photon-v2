@@ -1,21 +1,15 @@
 #pragma once
 
-#include "Core/Quantity/SpectralStrength/RgbSpectralStrength.h"
+#include "Core/Quantity/SpectralStrength/LinearSrgbSpectralStrength.h"
 #include "Core/Quantity/SpectralStrength/TSampledSpectralStrength.h"
+#include "Core/Quantity/spectral_strength_fwd.h"
 #include "Common/config.h"
 
 namespace ph
 {
 
-typedef TSampledSpectralStrength
-<
-	PH_SPECTRUM_SAMPLED_NUM_SAMPLES,
-	PH_SPECTRUM_SAMPLED_MIN_WAVELENGTH_NM, 
-	PH_SPECTRUM_SAMPLED_MAX_WAVELENGTH_NM
-> SampledSpectralStrength;
-
 #ifdef PH_RENDER_MODE_RGB
-	typedef RgbSpectralStrength SpectralStrength;
+	typedef LinearSrgbSpectralStrength SpectralStrength;
 
 #elif PH_RENDER_MODE_SPECTRAL
 	typedef SampledSpectralStrength SpectralStrength;

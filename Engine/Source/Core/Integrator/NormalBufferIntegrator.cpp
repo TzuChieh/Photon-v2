@@ -29,11 +29,11 @@ void NormalBufferIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 	{
 		HitDetail detail;
 		data.scene->calcIntersectionDetail(tracingRay, probe, &detail);
-		radiance.setRgb(detail.getShadingNormal());
+		radiance.setLinearSrgb(detail.getShadingNormal());// FIXME: check color space
 	}
 	else
 	{
-		radiance.setRgb(Vector3R(0));
+		radiance.setLinearSrgb(Vector3R(0));// FIXME: check color space
 	}
 
 	out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */radiance));

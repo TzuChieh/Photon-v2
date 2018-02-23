@@ -68,7 +68,7 @@ void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const SpectralS
 
 			
 			const float64   weight = m_filter->evaluate(filterX, filterY);
-			const Vector3R& rgb    = radiance.genRgb();
+			const Vector3R& rgb    = radiance.genLinearSrgb();// FIXME: check color space
 
 			m_pixelRadianceSensors[index].accuR      += rgb.x * weight;
 			m_pixelRadianceSensors[index].accuG      += rgb.y * weight;

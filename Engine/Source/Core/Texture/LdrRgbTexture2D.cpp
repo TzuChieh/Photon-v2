@@ -34,7 +34,7 @@ void LdrRgbTexture2D::sample(
 	const Vector3R rgb(rgb255[0] / 255.0_r, 
 	                   rgb255[1] / 255.0_r, 
 	                   rgb255[2] / 255.0_r);
-	out_value->setRgb(rgb);
+	out_value->setLinearSrgb(rgb);// FIXME: check color space
 }
 
 }// end namespace ph

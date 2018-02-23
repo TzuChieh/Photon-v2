@@ -724,12 +724,6 @@
     <ClInclude Include="Source\Core\RayDifferential.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Quantity\SpectralStrength\RgbSpectralStrength.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\Quantity\SpectralStrength\SpectralSample.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Quantity\SpectralStrength\TAbstractSpectralStrength.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -740,6 +734,13 @@
     <ClInclude Include="Source\Core\Quantity\ColorSpace\spectral_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\Quantity\spectral_strength_fwd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Quantity\SpectralStrength\LinearSrgbSpectralStrength.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Quantity\SpectralStrength\TSampledSpectralStrength.ipp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">
@@ -1192,18 +1193,17 @@
     <ClCompile Include="Source\Core\RayDifferential.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Quantity\SpectralStrength\RgbSpectralStrength.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Core\Quantity\ColorSpace\spectral_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Quantity\ColorSpace\ColorSpace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\Quantity\SpectralStrength\LinearSrgbSpectralStrength.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Math\Solver\TAnalyticalIntegrator1D.ipp" />
-    <None Include="Source\Core\Quantity\SpectralStrength\TSampledSpectralStrength.ipp" />
   </ItemGroup>
 </Project>

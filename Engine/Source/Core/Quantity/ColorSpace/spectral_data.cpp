@@ -417,7 +417,7 @@ constexpr ArrayXYZCMF XYZ_CMF_CIE_1931_2_degree_Z_data
 	Reference: https://www.rit.edu/cos/colorscience/rc_useful_data.php
 */
 
-const ArrayD65& CIE_D65_wavelengths_nm_data = 
+constexpr ArrayD65 CIE_D65_wavelengths_nm_data =
 {{
 	300.0_r, 301.0_r, 302.0_r, 303.0_r, 304.0_r, 305.0_r, 306.0_r, 307.0_r, 308.0_r, 309.0_r,
 	310.0_r, 311.0_r, 312.0_r, 313.0_r, 314.0_r, 315.0_r, 316.0_r, 317.0_r, 318.0_r, 319.0_r,
@@ -475,7 +475,7 @@ const ArrayD65& CIE_D65_wavelengths_nm_data =
 	830.0_r
 }};
 
-const ArrayD65& CIE_D65_values_data = 
+constexpr ArrayD65 CIE_D65_values_data =
 {{
 	0.0341_r,  0.36014_r, 0.68618_r, 1.01222_r, 1.33826_r,
 	1.6643_r,  1.99034_r, 2.31638_r, 2.64242_r, 2.96846_r,

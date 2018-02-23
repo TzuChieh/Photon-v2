@@ -2,6 +2,8 @@
 
 #include "Common/primitive_type.h"
 
+#include <cstddef>
+
 namespace ph
 {
 
@@ -19,6 +21,9 @@ class TQuaternion;
 
 template<typename T>
 class TMatrix4;
+
+template<typename T, std::size_t N>
+class TArithmeticArray;
 
 typedef TVector2<real>    Vector2R;
 typedef TVector2<float32> Vector2F;

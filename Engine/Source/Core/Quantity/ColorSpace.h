@@ -3,7 +3,7 @@
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
 #include "Common/config.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/spectral_strength_fwd.h"
 
 #include <cmath>
 #include <cstddef>
@@ -68,29 +68,11 @@ public:
 		return linear_sRGB_to_sRGB(SPD_to_linear_sRGB(spd));
 	}
 
-	static inline Vector3R SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd)
-	{
-		PH_ASSERT(isInitialized());
+	static Vector3R SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd);
 
-		return Vector3R(kernel_X_D65.dot(spd), 
-		                kernel_Y_D65.dot(spd), 
-		                kernel_Z_D65.dot(spd));
-	}
-
-	static inline const SampledSpectralStrength& get_D65_SPD()
-	{
-		PH_ASSERT(isInitialized());
-
-		return SPD_D65;
-	}
+	static const SampledSpectralStrength& get_D65_SPD();
 
 private:
-	static SampledSpectralStrength kernel_X_D65;
-	static SampledSpectralStrength kernel_Y_D65;
-	static SampledSpectralStrength kernel_Z_D65;
-
-	static SampledSpectralStrength SPD_D65;
-
 #ifdef PH_DEBUG
 	static inline bool isInitialized(const bool toggle = false)
 	{

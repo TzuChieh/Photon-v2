@@ -78,7 +78,7 @@ std::unique_ptr<IdealSubstance> IdealSubstance::ciLoad(const InputPacket& packet
 		const Vector3R f0Rgb = packet.getVector3r("f0-rgb", Vector3R(1), DataTreatment::REQUIRED());
 
 		SpectralStrength f0Spectral;
-		f0Spectral.setRgb(f0Rgb);
+		f0Spectral.setLinearSrgb(f0Rgb);// FIXME: check color space
 
 		material->m_opticsGenerator = [=]()
 		{

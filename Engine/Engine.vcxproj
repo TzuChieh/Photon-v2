@@ -233,12 +233,12 @@
     <ClInclude Include="Source\Core\Intersectable\PTriangle.h" />
     <ClInclude Include="Source\Core\Intersectable\TransformedIntersectable.h" />
     <ClInclude Include="Source\Core\Quantity\ColorSpace.h" />
-    <ClInclude Include="Source\Core\Quantity\SpectralStrength\RgbSpectralStrength.h" />
+    <ClInclude Include="Source\Core\Quantity\SpectralStrength\LinearSrgbSpectralStrength.h" />
     <ClInclude Include="Source\Core\Quantity\ColorSpace\spectral_data.h" />
-    <ClInclude Include="Source\Core\Quantity\SpectralStrength\SpectralSample.h" />
     <ClInclude Include="Source\Core\Quantity\SpectralStrength\TAbstractSpectralStrength.h" />
     <ClInclude Include="Source\Core\Quantity\SpectralStrength\TSampledSpectralStrength.h" />
     <ClInclude Include="Source\Core\Quantity\SpectralStrength.h" />
+    <ClInclude Include="Source\Core\Quantity\spectral_strength_fwd.h" />
     <ClInclude Include="Source\Core\Quantity\Time.h" />
     <ClInclude Include="Source\Core\Ray.h" />
     <ClInclude Include="Source\Core\RayDifferential.h" />
@@ -452,7 +452,7 @@
     <ClCompile Include="Source\Core\Intersectable\PTriangle.cpp" />
     <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp" />
     <ClCompile Include="Source\Core\Quantity\ColorSpace\ColorSpace.cpp" />
-    <ClCompile Include="Source\Core\Quantity\SpectralStrength\RgbSpectralStrength.cpp" />
+    <ClCompile Include="Source\Core\Quantity\SpectralStrength\LinearSrgbSpectralStrength.cpp" />
     <ClCompile Include="Source\Core\Quantity\ColorSpace\spectral_data.cpp" />
     <ClCompile Include="Source\Core\Ray.cpp" />
     <ClCompile Include="Source\Core\RayDifferential.cpp" />
@@ -577,7 +577,9 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\Core\Quantity\SpectralStrength\TSampledSpectralStrength.ipp" />
+    <ClInclude Include="Source\Core\Quantity\SpectralStrength\TSampledSpectralStrength.ipp">
+      <FileType>Document</FileType>
+    </ClInclude>
     <None Include="Source\Math\Solver\TAnalyticalIntegrator1D.ipp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

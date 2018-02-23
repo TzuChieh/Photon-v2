@@ -43,7 +43,7 @@ TSampledSpectralStrength(const TArithmeticArray<real, N>& other) :
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
 auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
-impl_genRgb() const
+impl_genLinearSrgb() const
 	-> Vector3R
 {
 	// TODO
@@ -51,7 +51,15 @@ impl_genRgb() const
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
 auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
-impl_setRgb(const Vector3R& rgb)
+impl_setLinearSrgb(const Vector3R& linearSrgb)
+	-> void
+{
+	// TODO
+}
+
+template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
+auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
+impl_setSampled(const TArithmeticArray<real, N>& sampled)
 	-> void
 {
 	// TODO

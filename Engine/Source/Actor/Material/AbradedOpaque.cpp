@@ -77,8 +77,8 @@ std::unique_ptr<AbradedOpaque> AbradedOpaque::ciLoadITR(const InputPacket& packe
 
 	const real alpha = RoughnessToAlphaMapping::pbrtV3(roughness);
 	SpectralStrength f0Spectrum, albedoSpectrum;
-	f0Spectrum.setRgb(f0);
-	albedoSpectrum.setRgb(albedo);
+	f0Spectrum.setLinearSrgb(f0);// FIXME: check color space
+	albedoSpectrum.setLinearSrgb(albedo);// FIXME: check color space
 
 	std::unique_ptr<AbradedOpaque> material = std::make_unique<AbradedOpaque>();
 	material->m_opticsGenerator = [=]()
@@ -107,8 +107,8 @@ std::unique_ptr<AbradedOpaque> AbradedOpaque::ciLoadATR(const InputPacket& packe
 	const real alphaU = RoughnessToAlphaMapping::pbrtV3(roughnessU);
 	const real alphaV = RoughnessToAlphaMapping::pbrtV3(roughnessV);
 	SpectralStrength f0Spectrum, albedoSpectrum;
-	f0Spectrum.setRgb(f0);
-	albedoSpectrum.setRgb(albedo);
+	f0Spectrum.setLinearSrgb(f0);// FIXME: check color space
+	albedoSpectrum.setLinearSrgb(albedo);// FIXME: check color space
 
 	std::unique_ptr<AbradedOpaque> material = std::make_unique<AbradedOpaque>();
 	material->m_opticsGenerator = [=]()

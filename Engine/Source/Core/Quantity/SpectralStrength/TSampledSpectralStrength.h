@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Quantity/SpectralStrength/TAbstractSpectralStrength.h"
+#include "Core/Quantity/spectral_strength_fwd.h"
 
 #include <cstddef>
 #include <utility>
@@ -30,8 +31,9 @@ public:
 
 	using Parent::operator = ;
 
-	Vector3R impl_genRgb() const;
-	void impl_setRgb(const Vector3R& rgb);
+	Vector3R impl_genLinearSrgb() const;
+	void impl_setLinearSrgb(const Vector3R& rgb);
+	void impl_setSampled(const TArithmeticArray<real, N>& sampled);
 };
 
 }// end namespace ph

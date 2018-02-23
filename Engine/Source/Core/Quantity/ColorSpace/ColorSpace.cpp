@@ -3,6 +3,7 @@
 #include "Math/Function/TPiecewiseLinear1D.h"
 #include "Math/Solver/TAnalyticalIntegrator1D.h"
 #include "Core/Quantity/ColorSpace/spectral_data.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <array>
 #include <iostream>
@@ -10,14 +11,14 @@
 namespace ph
 {
 
-SampledSpectralStrength ColorSpace::kernel_X_D65;
-SampledSpectralStrength ColorSpace::kernel_Y_D65;
-SampledSpectralStrength ColorSpace::kernel_Z_D65;
-
-SampledSpectralStrength ColorSpace::SPD_D65;
-
 namespace
 {
+
+static SampledSpectralStrength kernel_X_D65;
+static SampledSpectralStrength kernel_Y_D65;
+static SampledSpectralStrength kernel_Z_D65;
+
+static SampledSpectralStrength SPD_D65;
 
 static SampledSpectralStrength make_sampled(
 	const real* const wavelengthsNm, 
@@ -102,6 +103,22 @@ void ColorSpace::init()
 	kernel_Z_D65.mulLocal(1.08883_r / kernel_Z_D65.dot(SPD_D65));
 
 	PH_ASSERT(isInitialized(true));
+}
+
+Vector3R ColorSpace::SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd)
+{
+	PH_ASSERT(isInitialized());
+
+	return Vector3R(kernel_X_D65.dot(spd),
+	                kernel_Y_D65.dot(spd),
+	                kernel_Z_D65.dot(spd));
+}
+
+const SampledSpectralStrength& ColorSpace::get_D65_SPD()
+{
+	PH_ASSERT(isInitialized());
+
+	return SPD_D65;
 }
 
 }// end namespace ph
