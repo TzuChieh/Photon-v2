@@ -9,6 +9,7 @@ template<typename T>
 class TAnalyticalIntegrator1D final
 {
 public:
+	TAnalyticalIntegrator1D();
 	TAnalyticalIntegrator1D(T x0, T x1);
 
 	T integrate(const TPiecewiseLinear1D<T>& func) const;

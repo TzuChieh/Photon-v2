@@ -451,6 +451,7 @@
     <ClCompile Include="Source\Core\Intersectable\PrimitiveMetadata.cpp" />
     <ClCompile Include="Source\Core\Intersectable\PTriangle.cpp" />
     <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp" />
+    <ClCompile Include="Source\Core\Quantity\ColorSpace\ColorSpace.cpp" />
     <ClCompile Include="Source\Core\Quantity\SpectralStrength\RgbSpectralStrength.cpp" />
     <ClCompile Include="Source\Core\Quantity\ColorSpace\spectral_data.cpp" />
     <ClCompile Include="Source\Core\Ray.cpp" />

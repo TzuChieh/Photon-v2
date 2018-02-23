@@ -5,6 +5,11 @@
 
 namespace ph
 {
+
+template<typename T>
+TAnalyticalIntegrator1D<T>::TAnalyticalIntegrator1D() : 
+	TAnalyticalIntegrator1D(0, 0)
+{}
 	
 template<typename T>
 TAnalyticalIntegrator1D<T>::TAnalyticalIntegrator1D(const T x0, const T x1) :

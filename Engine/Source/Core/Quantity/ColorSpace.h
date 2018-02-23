@@ -2,8 +2,11 @@
 
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
+#include "Common/config.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <cmath>
+#include <cstddef>
 
 namespace ph
 {
@@ -11,6 +14,9 @@ namespace ph
 class ColorSpace final
 {
 public:
+	// This method must be called once before using any other method.
+	static void init();
+
 	static inline Vector3R sRGB_to_linear_sRGB(const Vector3R& color)
 	{
 		return Vector3R(sRGB_inverseGammaCorrect(color.x),
@@ -26,26 +32,49 @@ public:
 	}
 
 	// CIE-XYZ color represented here is with a reference white point of D65
+	// (actually the standard of sRGB is based on)
+	//
+	// Reference: 
+	// (1) http://www.color.org/sRGB.xalter
+	// (2) http://www.ryanjuckett.com/programming/rgb-color-space-conversion/?start=2
+	//
 
-	static inline Vector3R CIE_XYZ_to_linear_sRGB(const Vector3R& color)
+	static inline Vector3R CIE_XYZ_D65_to_linear_sRGB(const Vector3R& color)
 	{
-		return Vector3R( 3.2404542_r * color.x - 1.5371385_r * color.y - 0.4985314_r * color.z,
-		                -0.9692660_r * color.x + 1.8760108_r * color.y + 0.0415560_r * color.z,
-		                 0.0556434_r * color.x - 0.2040259_r * color.y + 1.0572252_r * color.z);
+		return Vector3R( 3.241030_r * color.x - 1.537410_r * color.y - 0.498620_r * color.z,
+		                -0.969242_r * color.x + 1.875960_r * color.y + 0.041555_r * color.z,
+		                 0.055632_r * color.x - 0.203979_r * color.y + 1.056980_r * color.z);
 	}
 
-	static inline Vector3R linear_sRGB_to_CIE_XYZ(const Vector3R& color)
+	static inline Vector3R linear_sRGB_to_CIE_XYZ_D65(const Vector3R& color)
 	{
-		PH_ASSERT(color.x >= 0.0_r && color.x <= 1.0_r &&
-		          color.y >= 0.0_r && color.y <= 1.0_r &&
-		          color.z >= 0.0_r && color.z <= 1.0_r);
+		return Vector3R(0.412383_r * color.x + 0.357585_r * color.y + 0.180480_r * color.z,
+		                0.212635_r * color.x + 0.715170_r * color.y + 0.072192_r * color.z,
+		                0.019330_r * color.x + 0.119195_r * color.y + 0.950528_r * color.z);
+	}
 
-		return Vector3R(0.4124564_r * color.x + 0.3575761_r * color.y + 0.1804375_r * color.z, 
-		                0.2126729_r * color.x + 0.7151522_r * color.y + 0.0721750_r * color.z,
-		                0.0193339_r * color.x + 0.1191920_r * color.y + 0.9503041_r * color.z);
+	static inline Vector3R sampled_to_CIE_XYZ(const SampledSpectralStrength& color)
+	{
+		PH_ASSERT(isInitialized());
+
+		// TODO
 	}
 
 private:
+	static SampledSpectralStrength kernel_X;
+	static SampledSpectralStrength kernel_Y;
+	static SampledSpectralStrength kernel_Z;
+
+#ifdef PH_DEBUG
+	static inline bool isInitialized(const bool toggle = false)
+	{
+		static bool hasInit = false;
+
+		hasInit = toggle ? !hasInit : hasInit;
+		return hasInit;
+	}
+#endif
+
 	static inline real sRGB_forwardGammaCorrect(const real colorComponent)
 	{
 		PH_ASSERT(colorComponent >= 0.0_r && colorComponent <= 1.0_r);

@@ -3,8 +3,9 @@
 namespace ph
 {
 
-extern bool init_command_parser();
+void init_core_infrastructure();
+bool init_command_parser();
 
-extern bool exit_api_database();
+bool exit_api_database();
 
 }// end namespace ph

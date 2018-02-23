@@ -1198,6 +1198,9 @@
     <ClCompile Include="Source\Core\Quantity\ColorSpace\spectral_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\Quantity\ColorSpace\ColorSpace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Math\Solver\TAnalyticalIntegrator1D.ipp" />

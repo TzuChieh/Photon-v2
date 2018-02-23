@@ -17,6 +17,8 @@
 
 int phInit()
 {
+	ph::init_core_infrastructure();
+
 	if(!ph::init_command_parser())
 	{
 		std::cerr << "command parser initialization failed" << std::endl;

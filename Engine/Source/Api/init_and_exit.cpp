@@ -1,5 +1,6 @@
 #include "Api/init_and_exit.h"
 #include "Api/ApiDatabase.h"
+#include "Core/Quantity/ColorSpace.h"
 
 // geometries
 #include "Actor/Geometry/Geometry.h"
@@ -62,6 +63,12 @@
 
 namespace ph
 {
+
+void init_core_infrastructure()
+{
+	std::cout << "initializing color transform functions" << std::endl;
+	ColorSpace::init();
+}
 
 template<typename T>
 void register_command_interface()
