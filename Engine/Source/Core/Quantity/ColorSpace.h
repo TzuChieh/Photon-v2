@@ -69,6 +69,8 @@ public:
 	}
 
 	static Vector3R SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd);
+	static void linear_sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* out_spd);
+	static void sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* out_spd);
 
 	static const SampledSpectralStrength& get_D65_SPD();
 
