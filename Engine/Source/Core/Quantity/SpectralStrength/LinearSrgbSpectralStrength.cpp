@@ -28,9 +28,9 @@ void LinearSrgbSpectralStrength::impl_setLinearSrgb(const Vector3R& linearSrgb)
 	m[2] = linearSrgb.z;
 }
 
-void LinearSrgbSpectralStrength::impl_setSampled(const SampledSpectralStrength& samples)
+void LinearSrgbSpectralStrength::impl_setSampled(const SampledSpectralStrength& sampled)
 {
-	// TODO
+	impl_setLinearSrgb(ColorSpace::SPD_to_linear_sRGB(sampled));
 }
 
 }// end namespace ph
