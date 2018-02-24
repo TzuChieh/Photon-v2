@@ -11,27 +11,19 @@ namespace ph
 
 ConstantImage::ConstantImage() :
 	ConstantImage(1.0_r)
-{
-
-}
+{}
 
 ConstantImage::ConstantImage(const real value) : 
 	m_values({value})
-{
-
-}
+{}
 
 ConstantImage::ConstantImage(const Vector3R& values) : 
 	m_values({values.x, values.y, values.z})
-{
-
-}
+{}
 
 ConstantImage::ConstantImage(const std::vector<real>& values) : 
 	m_values(values)
-{
-
-}
+{}
 
 ConstantImage::~ConstantImage() = default;
 
@@ -54,7 +46,7 @@ std::shared_ptr<TTexture<Vector3R>> ConstantImage::genTextureVector3R(
 	if(m_values.size() != 3)
 	{
 		std::cerr << "warning: at ConstantImage::genTextureVector3R(), "
-		          << "bad number of input values."
+		          << "mismatched number of input values."
 		          << "Generated texture may not be what you want." << std::endl;
 	}
 
@@ -68,18 +60,29 @@ std::shared_ptr<TTexture<Vector3R>> ConstantImage::genTextureVector3R(
 std::shared_ptr<TTexture<SpectralStrength>> ConstantImage::genTextureSpectral(
 	CookingContext& context) const
 {
-	if(m_values.size() != SpectralStrength::numElements())
+	SpectralStrength constSpectrum;
+
+	// FIXME: implicitly treating it as linear sRGB, make it explicit
+	if(m_values.size() == 3)
 	{
-		std::cerr << "warning: at ConstantImage::genTextureSpectral(), "
-		          << "bad number of input values."
-		          << "Generated texture may not be what you want." << std::endl;
+		const Vector3R linearSrgb(m_values[0], m_values[1], m_values[2]);
+		constSpectrum.setLinearSrgb(linearSrgb);
+	}
+	else
+	{
+		if(m_values.size() != SpectralStrength::numElements())
+		{
+			std::cerr << "warning: at ConstantImage::genTextureSpectral(), "
+			          << "bad number of input values."
+			          << "Generated texture may not be what you want." << std::endl;
+		}
+
+		for(std::size_t i = 0; i < SpectralStrength::numElements(); i++)
+		{
+			constSpectrum[i] = i < m_values.size() ? m_values[i] : 1;
+		}
 	}
 
-	SpectralStrength constSpectrum;
-	for(std::size_t i = 0; i < SpectralStrength::numElements(); i++)
-	{
-		constSpectrum[i] = m_values.size() >= i + 1 ? m_values[i] : 1;
-	}
 	return std::make_shared<TConstantTexture<SpectralStrength>>(constSpectrum);
 }
 

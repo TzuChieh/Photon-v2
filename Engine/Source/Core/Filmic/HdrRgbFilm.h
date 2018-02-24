@@ -14,6 +14,11 @@ namespace ph
 
 class InputPacket;
 
+/*
+	A film that records RGB values internally. Although film samples are
+	added as spectral values, they are automatically converted to linear sRGB
+	values for storage. 
+*/
 class HdrRgbFilm final : public Film, public TCommandInterface<HdrRgbFilm>
 {
 public:

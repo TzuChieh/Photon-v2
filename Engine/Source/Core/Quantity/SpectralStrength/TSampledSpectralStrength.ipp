@@ -66,7 +66,15 @@ auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
 impl_setLinearSrgb(const Vector3R& linearSrgb)
 	-> void
 {
-	impl_setSampled(ColorSpace::linear_sRGB_to_SPD(linearSrgb));
+	if constexpr(std::is_same_v<TSampledSpectralStrength, SampledSpectralStrength>)
+	{
+		ColorSpace::linear_sRGB_to_SPD(linearSrgb, static_cast<SampledSpectralStrength*>(this));
+	}
+	else
+	{
+		// TODO
+		PH_ASSERT_UNREACHABLE_SECTION();
+	}
 }
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
