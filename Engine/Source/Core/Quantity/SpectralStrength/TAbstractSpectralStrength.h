@@ -25,7 +25,7 @@ public:
 	inline Vector3R genLinearSrgb() const;
 	inline void setSrgb(const Vector3R& srgb);
 	inline void setLinearSrgb(const Vector3R& linearSrgb);
-	inline void setSampled(const TArithmeticArray<real, N>& sampled);
+	inline void setSampled(const SampledSpectralStrength& sampled);
 
 	using TArithmeticArray<real, N>::operator = ;
 };

@@ -33,7 +33,7 @@ public:
 
 	Vector3R impl_genLinearSrgb() const;
 	void impl_setLinearSrgb(const Vector3R& rgb);
-	void impl_setSampled(const TArithmeticArray<real, N>& sampled);
+	void impl_setSampled(const SampledSpectralStrength& sampled);
 };
 
 }// end namespace ph

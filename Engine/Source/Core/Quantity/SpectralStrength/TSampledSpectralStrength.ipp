@@ -59,7 +59,7 @@ impl_setLinearSrgb(const Vector3R& linearSrgb)
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
 auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
-impl_setSampled(const TArithmeticArray<real, N>& sampled)
+impl_setSampled(const SampledSpectralStrength& sampled)
 	-> void
 {
 	// TODO

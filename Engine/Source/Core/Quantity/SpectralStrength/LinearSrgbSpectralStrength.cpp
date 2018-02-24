@@ -1,4 +1,5 @@
 #include "Core/Quantity/SpectralStrength/LinearSrgbSpectralStrength.h"
+#include "Core/Quantity/SpectralStrength/TSampledSpectralStrength.h"
 
 namespace ph
 {
@@ -27,7 +28,7 @@ void LinearSrgbSpectralStrength::impl_setLinearSrgb(const Vector3R& linearSrgb)
 	m[2] = linearSrgb.z;
 }
 
-void LinearSrgbSpectralStrength::impl_setSampled(const TArithmeticArray<real, 3>& samples)
+void LinearSrgbSpectralStrength::impl_setSampled(const SampledSpectralStrength& samples)
 {
 	// TODO
 }

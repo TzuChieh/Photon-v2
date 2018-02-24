@@ -4,6 +4,7 @@
 #include "Math/Function/TPiecewiseLinear1D.h"
 #include "Math/Solver/TAnalyticalIntegrator1D.h"
 #include "Core/Quantity/ColorSpace.h"
+#include "Core/Quantity/SpectralStrength/TSampledSpectralStrength.h"
 
 namespace ph
 {
@@ -49,7 +50,7 @@ inline void TAbstractSpectralStrength<DerivedType, N>::setLinearSrgb(const Vecto
 
 template<typename DerivedType, std::size_t N>
 inline void TAbstractSpectralStrength<DerivedType, N>::setSampled(
-	const TArithmeticArray<real, N>& sampled)
+	const SampledSpectralStrength& sampled)
 {
 	static_cast<DerivedType&>(*this).impl_setSampled(sampled);
 }
