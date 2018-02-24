@@ -21,7 +21,6 @@ real ValueParser::parseReal(const std::string& realString)
 	return static_cast<real>(std::stold(realString));
 }
 
-
 std::string ValueParser::parseString(const std::string& stringString)
 {
 	return stringString;

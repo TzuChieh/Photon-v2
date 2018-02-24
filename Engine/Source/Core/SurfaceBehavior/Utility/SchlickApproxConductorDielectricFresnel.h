@@ -12,7 +12,7 @@ public:
 	                                        const SpectralStrength& iorInner, 
 	                                        const SpectralStrength& iorInnerK);
 	SchlickApproxConductorDielectricFresnel(const SpectralStrength& f0);
-	virtual ~SchlickApproxConductorDielectricFresnel() override;
+	virtual ~SchlickApproxConductorDielectricFresnel() override = default;
 
 	virtual void calcReflectance(real cosThetaIncident, 
 	                             SpectralStrength* out_reflectance) const override;

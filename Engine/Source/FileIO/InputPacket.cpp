@@ -17,15 +17,11 @@ InputPacket::InputPacket(
 	m_vClauses(vClauses), 
 	m_storage(storage),
 	m_workingDirectory(workingDirectory)
-{
-
-}
+{}
 
 InputPacket::InputPacket(InputPacket&& other) : 
 	m_vClauses(std::move(other.m_vClauses)), m_storage(other.m_storage)
-{
-
-}
+{}
 
 std::string InputPacket::getString(
 	const std::string&   name, 

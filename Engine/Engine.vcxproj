@@ -320,6 +320,7 @@
     <ClInclude Include="Source\FileIO\SDL\SdlLoader.h" />
     <ClInclude Include="Source\FileIO\SDL\SdlTypeInfo.h" />
     <ClInclude Include="Source\FileIO\SDL\TCommandInterface.h" />
+    <ClInclude Include="Source\FileIO\TextFileLoader.h" />
     <ClInclude Include="Source\FileIO\Tokenizer.h" />
     <ClInclude Include="Source\FileIO\ValueClause.h" />
     <ClInclude Include="Source\FileIO\ValueParser.h" />
@@ -512,6 +513,7 @@
     <ClCompile Include="Source\FileIO\SDL\ExitStatus.cpp" />
     <ClCompile Include="Source\FileIO\SDL\ISdlResource.cpp" />
     <ClCompile Include="Source\FileIO\SDL\SdlTypeInfo.cpp" />
+    <ClCompile Include="Source\FileIO\TextFileLoader.cpp" />
     <ClCompile Include="Source\FileIO\Tokenizer.cpp" />
     <ClCompile Include="Source\FileIO\ValueClause.cpp" />
     <ClCompile Include="Source\FileIO\ValueParser.cpp" />

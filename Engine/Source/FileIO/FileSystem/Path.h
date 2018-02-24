@@ -13,19 +13,16 @@ class Path final
 public:
 	inline Path() : 
 		Path(std::experimental::filesystem::current_path().string())
-	{
-
-	}
+	{}
 
 	// Constructing a path from some string representing of the path. The string 
 	// can be either a relative or absolute path, or even a path fragment. The
 	// constructed path substitutes all separators to a system specific (preferred)
 	// one.
+	//
 	inline explicit Path(const std::string& path) : 
 		m_path(std::experimental::filesystem::path(path).make_preferred())
-	{
-
-	}
+	{}
 
 	inline bool isRelative() const
 	{
