@@ -147,6 +147,7 @@
     <ClInclude Include="Source\Actor\Geometry\GTriangleMesh.h" />
     <ClInclude Include="Source\Actor\Geometry\GWave.h" />
     <ClInclude Include="Source\Actor\Geometry\PrimitiveBuildingMaterial.h" />
+    <ClInclude Include="Source\Actor\Image\CheckerboardImage.h" />
     <ClInclude Include="Source\Actor\Image\ConstantImage.h" />
     <ClInclude Include="Source\Actor\Image\RealMathImage.h" />
     <ClInclude Include="Source\Actor\Image\Image.h" />
@@ -381,6 +382,7 @@
     <ClCompile Include="Source\Actor\Geometry\GTriangle.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GTriangleMesh.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GWave.cpp" />
+    <ClCompile Include="Source\Actor\Image\CheckerboardImage.cpp" />
     <ClCompile Include="Source\Actor\Image\ConstantImage.cpp" />
     <ClCompile Include="Source\Actor\Image\RealMathImage.cpp" />
     <ClCompile Include="Source\Actor\Image\Image.cpp" />

@@ -68,6 +68,10 @@ std::shared_ptr<TTexture<SpectralStrength>> ConstantImage::genTextureSpectral(
 		const Vector3R linearSrgb(m_values[0], m_values[1], m_values[2]);
 		constSpectrum.setLinearSrgb(linearSrgb);
 	}
+	else if(m_values.size() == 1)
+	{
+		constSpectrum.set(m_values[0]);
+	}
 	else
 	{
 		if(m_values.size() != SpectralStrength::numElements())

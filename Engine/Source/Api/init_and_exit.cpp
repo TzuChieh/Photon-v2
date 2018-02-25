@@ -34,6 +34,7 @@
 #include "Actor/Image/ConstantImage.h"
 #include "Actor/Image/LdrPictureImage.h"
 #include "Actor/Image/RealMathImage.h"
+#include "Actor/Image/CheckerboardImage.h"
 
 // cameras
 #include "Core/Camera/Camera.h"
@@ -110,6 +111,7 @@ bool init_command_parser()
 	register_command_interface<ConstantImage>();
 	register_command_interface<LdrPictureImage>();
 	register_command_interface<RealMathImage>();
+	register_command_interface<CheckerboardImage>();
 
 	// cameras
 	register_command_interface<Camera>();

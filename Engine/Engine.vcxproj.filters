@@ -744,6 +744,9 @@
     <ClInclude Include="Source\FileIO\TextFileLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Actor\Image\CheckerboardImage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">
@@ -1206,6 +1209,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\FileIO\TextFileLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Actor\Image\CheckerboardImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -26,6 +26,7 @@ protected:
 	}
 
 private:
+	// FIXME: break the possibility of cyclic reference
 	std::shared_ptr<TTexture<InputType>> m_inputTexture;
 };
 
