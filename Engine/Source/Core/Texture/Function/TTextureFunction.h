@@ -19,13 +19,13 @@ public:
 
 	inline TTextureFunction& setInputTexture(const std::shared_ptr<TTexture<InputType>>& parentTexture);
 
-public:
+protected:
 	inline const TTexture<InputType>* getInputTexture() const
 	{
 		return m_inputTexture.get();
 	}
 
-public:
+private:
 	std::shared_ptr<TTexture<InputType>> m_inputTexture;
 };
 

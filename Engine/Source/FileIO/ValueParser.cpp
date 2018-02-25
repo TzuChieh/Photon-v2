@@ -1,6 +1,7 @@
 #include "FileIO/ValueParser.h"
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
+#include "FileIO/TextFileLoader.h"
 
 #include <iostream>
 
