@@ -57,14 +57,14 @@ void MatteOpaque::ciRegister(CommandRegister& cmdRegister)
 
 std::unique_ptr<MatteOpaque> MatteOpaque::ciLoad(const InputPacket& packet)
 {
-	InputPrototype imageAlbedo;
-	imageAlbedo.addString("albedo");
+	InputPrototype imageFileAlbedo;
+	imageFileAlbedo.addString("albedo");
 
 	InputPrototype constAlbedo;
 	constAlbedo.addVector3r("albedo");
 
 	std::unique_ptr<MatteOpaque> material = std::make_unique<MatteOpaque>();
-	if(packet.isPrototypeMatched(imageAlbedo))
+	if(packet.isPrototypeMatched(imageFileAlbedo))
 	{
 		const Path& imagePath = packet.getStringAsPath("albedo", Path(), DataTreatment::REQUIRED());
 		const auto& albedo    = std::make_shared<LdrPictureImage>(PictureLoader::loadLdr(imagePath));
@@ -78,8 +78,16 @@ std::unique_ptr<MatteOpaque> MatteOpaque::ciLoad(const InputPacket& packet)
 	}
 	else
 	{
-		std::cerr << "warning: at MatteOpaque::ciLoad(), " 
-		          << "ill-formed input detected" << std::endl;
+		const auto& albedo = packet.get<Image>("albedo");
+		if(albedo != nullptr)
+		{
+			material->setAlbedo(albedo);
+		}
+		else
+		{
+			std::cerr << "warning: at MatteOpaque::ciLoad(), " 
+		              << "ill-formed input detected" << std::endl;
+		}
 	}
 	
 	return material;
