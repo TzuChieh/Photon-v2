@@ -5,6 +5,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "FileIO/SDL/TCommandInterface.h"
+#include "Core/SurfaceBehavior/Property/FresnelEffect.h"
 
 #include <functional>
 #include <memory>
@@ -28,8 +29,9 @@ public:
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 	static std::unique_ptr<AbradedOpaque> ciLoad(const InputPacket& packet);
-	static std::unique_ptr<AbradedOpaque> ciLoadITR(const InputPacket& packet);
-	static std::unique_ptr<AbradedOpaque> ciLoadATR(const InputPacket& packet);
+	static std::unique_ptr<AbradedOpaque> loadITR(const InputPacket& packet);
+	static std::unique_ptr<AbradedOpaque> loadATR(const InputPacket& packet);
+	static std::unique_ptr<FresnelEffect> loadFresnelEffect(const InputPacket& packet);
 };
 
 }// end namespace ph

@@ -29,6 +29,8 @@ public:
 	TSampledSpectralStrength(const TArithmeticArray<real, N>& other);
 	virtual inline ~TSampledSpectralStrength() override = default;
 
+	void asAveraged(const real* lambdasNm, const real* strengths, std::size_t numElements);
+
 	using Parent::operator = ;
 
 	Vector3R impl_genLinearSrgb() const;

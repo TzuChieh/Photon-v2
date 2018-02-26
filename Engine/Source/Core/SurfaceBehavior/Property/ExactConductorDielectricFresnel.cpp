@@ -1,7 +1,9 @@
 #include "Core/SurfaceBehavior/Property/ExactConductorDielectricFresnel.h"
 #include "Common/assertion.h"
+#include "Core/Quantity/SpectralData.h"
 
 #include <cmath>
+#include <iostream>
 
 namespace ph
 {
@@ -11,12 +13,36 @@ ExactConductorDielectricFresnel::ExactConductorDielectricFresnel(
 	const SpectralStrength& iorInner,
 	const SpectralStrength& iorInnerK) : 
 
-	ConductorDielectricFresnel(iorOuter, iorInner, iorInnerK)
+	ConductorDielectricFresnel()
 {
-	const SpectralStrength en2 = iorInner.div(iorOuter).pow(2);
-	const SpectralStrength ek2 = iorInnerK.div(iorOuter).pow(2);
-	m_en2_sub_ek2       = en2.sub(ek2);
-	m_4_mul_en2_mul_ek2 = en2.mul(ek2).mul(4);
+	setIors(iorOuter, iorInner, iorInnerK);
+}
+
+ExactConductorDielectricFresnel::ExactConductorDielectricFresnel(
+	const real               iorOuter,
+	const std::vector<real>& iorWavelengthsNm,
+	const std::vector<real>& iorInnerNs,
+	const std::vector<real>& iorInnerKs) : 
+
+	ConductorDielectricFresnel()
+{
+	if(iorWavelengthsNm.size() != iorInnerNs.size() ||
+	   iorWavelengthsNm.size() != iorInnerKs.size())
+	{
+		std::cerr << "warning: at ExactConductorDielectricFresnel ctor, "
+		          << "irregular-sized input data detected" << std::endl;
+		return;
+	}
+
+	const auto& sampledInnerNs = SpectralData::calcPiecewiseAveraged(
+		iorWavelengthsNm.data(), iorInnerNs.data(), iorWavelengthsNm.size());
+	const auto& sampledInnerKs = SpectralData::calcPiecewiseAveraged(
+		iorWavelengthsNm.data(), iorInnerNs.data(), iorWavelengthsNm.size());
+
+	SpectralStrength iorInnerN, iorInnerK;
+	iorInnerN.setSampled(sampledInnerNs);
+	iorInnerK.setSampled(sampledInnerKs);
+	setIors(iorOuter, iorInnerN, iorInnerK);
 }
 
 ExactConductorDielectricFresnel::~ExactConductorDielectricFresnel() = default;
@@ -46,6 +72,21 @@ void ExactConductorDielectricFresnel::calcReflectance(
 	const SpectralStrength& Rs = t1.sub(t2).divLocal(t1.add(t2));
 	const SpectralStrength& Rp = Rs.mul(t3.sub(t4).divLocal(t3.add(t4)));
 	*out_reflectance = Rs.add(Rp).mulLocal(0.5_r);
+}
+
+void ExactConductorDielectricFresnel::setIors(
+	const real              iorOuter,
+	const SpectralStrength& iorInner,
+	const SpectralStrength& iorInnerK)
+{
+	m_iorOuter  = iorOuter;
+	m_iorInner  = iorInner;
+	m_iorInnerK = iorInnerK;
+
+	const SpectralStrength en2 = iorInner.div(iorOuter).pow(2);
+	const SpectralStrength ek2 = iorInnerK.div(iorOuter).pow(2);
+	m_en2_sub_ek2       = en2.sub(ek2);
+	m_4_mul_en2_mul_ek2 = en2.mul(ek2).mul(4);
 }
 
 }// end namespace ph

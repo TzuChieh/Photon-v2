@@ -1,12 +1,14 @@
 #include "Actor/Material/AbradedOpaque.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "FileIO/InputPacket.h"
+#include "FileIO/InputPrototype.h"
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
 #include "Core/SurfaceBehavior/Property/AnisoTrowbridgeReitz.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxConductorDielectricFresnel.h"
 #include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
+#include "Core/SurfaceBehavior/Property/ExactConductorDielectricFresnel.h"
 
 #include <memory>
 #include <algorithm>
@@ -55,71 +57,119 @@ std::unique_ptr<AbradedOpaque> AbradedOpaque::ciLoad(const InputPacket& packet)
 	                                          DataTreatment::REQUIRED());
 	if(type == "iso-metallic-ggx")
 	{
-		material = ciLoadITR(packet);
+		material = loadITR(packet);
 	}
 	else if(type == "aniso-metallic-ggx")
 	{
-		material = ciLoadATR(packet);
+		material = loadATR(packet);
 	}
 
 	return material;
 }
 
-std::unique_ptr<AbradedOpaque> AbradedOpaque::ciLoadITR(const InputPacket& packet)
+std::unique_ptr<AbradedOpaque> AbradedOpaque::loadITR(const InputPacket& packet)
 {
 	Vector3R albedo    = Vector3R(0.5f, 0.5f, 0.5f);
-	Vector3R f0        = Vector3R(0.04f, 0.04f, 0.04f);
 	real     roughness = 0.5f;
 
 	albedo    = packet.getVector3r("albedo", albedo);
-	f0        = packet.getVector3r("f0", f0);
 	roughness = packet.getReal("roughness", roughness);
 
 	const real alpha = RoughnessToAlphaMapping::pbrtV3(roughness);
-	SpectralStrength f0Spectrum, albedoSpectrum;
-	f0Spectrum.setLinearSrgb(f0);// FIXME: check color space
+	SpectralStrength albedoSpectrum;
 	albedoSpectrum.setLinearSrgb(albedo);// FIXME: check color space
+
+	std::shared_ptr<FresnelEffect> fresnelEffect = loadFresnelEffect(packet);
 
 	std::unique_ptr<AbradedOpaque> material = std::make_unique<AbradedOpaque>();
 	material->m_opticsGenerator = [=]()
 	{
 		auto optics = std::make_unique<OpaqueMicrofacet>();
 		optics->setMicrofacet(std::make_shared<IsoTrowbridgeReitz>(alpha));
-		optics->setFresnelEffect(std::make_shared<SchlickApproxConductorDielectricFresnel>(f0Spectrum));
+		optics->setFresnelEffect(fresnelEffect);
 		optics->setAlbedo(std::make_shared<TConstantTexture<SpectralStrength>>(albedoSpectrum));
 		return optics;
 	};
 	return material;
 }
 
-std::unique_ptr<AbradedOpaque> AbradedOpaque::ciLoadATR(const InputPacket& packet)
+std::unique_ptr<AbradedOpaque> AbradedOpaque::loadATR(const InputPacket& packet)
 {
 	Vector3R albedo     = Vector3R(0.5f, 0.5f, 0.5f);
-	Vector3R f0         = Vector3R(0.04f, 0.04f, 0.04f);
 	real     roughnessU = 0.5f;
 	real     roughnessV = 0.5f;
 
 	albedo     = packet.getVector3r("albedo", albedo);
-	f0         = packet.getVector3r("f0", f0);
 	roughnessU = packet.getReal("roughness-u", roughnessU);
 	roughnessV = packet.getReal("roughness-v", roughnessV);
 
 	const real alphaU = RoughnessToAlphaMapping::pbrtV3(roughnessU);
 	const real alphaV = RoughnessToAlphaMapping::pbrtV3(roughnessV);
-	SpectralStrength f0Spectrum, albedoSpectrum;
-	f0Spectrum.setLinearSrgb(f0);// FIXME: check color space
+	SpectralStrength albedoSpectrum;
 	albedoSpectrum.setLinearSrgb(albedo);// FIXME: check color space
+
+	std::shared_ptr<FresnelEffect> fresnelEffect = loadFresnelEffect(packet);
 
 	std::unique_ptr<AbradedOpaque> material = std::make_unique<AbradedOpaque>();
 	material->m_opticsGenerator = [=]()
 	{
 		auto optics = std::make_unique<OpaqueMicrofacet>();
 		optics->setMicrofacet(std::make_shared<AnisoTrowbridgeReitz>(alphaU, alphaV));
-		optics->setFresnelEffect(std::make_shared<SchlickApproxConductorDielectricFresnel>(f0Spectrum));
+		optics->setFresnelEffect(fresnelEffect);
 		optics->setAlbedo(std::make_shared<TConstantTexture<SpectralStrength>>(albedoSpectrum));
 		return optics;
 	};
 	return material;
+}
+
+std::unique_ptr<FresnelEffect> AbradedOpaque::loadFresnelEffect(const InputPacket& packet)
+{
+	std::unique_ptr<FresnelEffect> fresnelEffect;
+
+	// FIXME: f0's color space
+	InputPrototype approxInput;
+	approxInput.addVector3r("f0");
+
+	InputPrototype exactInput;
+	exactInput.addReal("ior-outer");
+	exactInput.addVec3Array("ior-inner-wavelength-nm");
+	exactInput.addVec3Array("ior-inner-n");
+	exactInput.addVec3Array("ior-inner-k");
+
+	if(packet.isPrototypeMatched(exactInput))
+	{
+		const auto& iorOuter             = packet.getReal("ior-outer");
+		const auto& iorInnerWavelengthNm = packet.getVector3rArray("ior-inner-wavelength-nm");
+		const auto& iorInnerN            = packet.getVector3rArray("ior-inner-n");
+		const auto& iorInnerK            = packet.getVector3rArray("ior-inner-k");
+
+		fresnelEffect = std::make_unique<ExactConductorDielectricFresnel>(
+			iorOuter,
+			iorInnerWavelengthNm, 
+			iorInnerN, 
+			iorInnerK);
+	}
+	else if(packet.isPrototypeMatched(approxInput))
+	{
+		const auto& f0 = packet.getVector3r("f0");
+
+		SpectralStrength spectralF0;
+		spectralF0.setLinearSrgb(f0);
+		fresnelEffect = std::make_unique<SchlickApproxConductorDielectricFresnel>(spectralF0);
+	}
+	else
+	{
+		std::cout << "NOTE: AbradedOpaque requires Fresnel effect parameter set "
+		          << "which are not found, using default" << std::endl;
+
+		const Vector3R defaultF0(0.04_r, 0.04_r, 0.04_r);
+
+		SpectralStrength spectralF0;
+		spectralF0.setLinearSrgb(defaultF0);
+		fresnelEffect = std::make_unique<SchlickApproxConductorDielectricFresnel>(spectralF0);
+	}
+	
+	return fresnelEffect;
 }
 
 }// end namespace ph

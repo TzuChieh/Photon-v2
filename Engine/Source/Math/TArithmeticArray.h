@@ -38,6 +38,7 @@ public:
 	inline TArithmeticArray& addLocal(const TArithmeticArray& rhs);
 	inline TArithmeticArray& addLocal(T rhs);
 	inline TArithmeticArray& subLocal(const TArithmeticArray& rhs);
+	inline TArithmeticArray& subLocal(const T rhs);
 	inline TArithmeticArray& mulLocal(const TArithmeticArray& rhs);
 	inline TArithmeticArray& mulLocal(T rhs);
 	inline TArithmeticArray& divLocal(const TArithmeticArray& rhs);

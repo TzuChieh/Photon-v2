@@ -9,6 +9,7 @@ namespace ph
 class ConductorDielectricFresnel : public FresnelEffect
 {
 public:
+	ConductorDielectricFresnel();
 	ConductorDielectricFresnel(real iorOuter, 
 	                           const SpectralStrength& iorInner, 
 	                           const SpectralStrength& iorInnerK);

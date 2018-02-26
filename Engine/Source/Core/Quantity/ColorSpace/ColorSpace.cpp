@@ -1,9 +1,8 @@
 #include "Core/Quantity/ColorSpace.h"
 #include "Common/assertion.h"
-#include "Math/Function/TPiecewiseLinear1D.h"
-#include "Math/Solver/TAnalyticalIntegrator1D.h"
 #include "Core/Quantity/ColorSpace/spectral_data.h"
 #include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/SpectralData.h"
 
 #include <array>
 #include <iostream>
@@ -28,43 +27,6 @@ static SampledSpectralStrength SPD_Smits_E_red;
 static SampledSpectralStrength SPD_Smits_E_green;
 static SampledSpectralStrength SPD_Smits_E_blue;
 
-static SampledSpectralStrength make_sampled(
-	const real* const wavelengthsNm, 
-	const real* const values, 
-	const std::size_t numPoints)
-{
-	PH_ASSERT(wavelengthsNm != nullptr && values != nullptr);
-
-	// construct a curve from specified points
-	//
-	TPiecewiseLinear1D<real> curve;
-	for(std::size_t i = 0; i < numPoints; i++)
-	{
-		const real wavelengthNm = wavelengthsNm[i];
-		const real value        = values[i];
-
-		curve.addPoint({wavelengthNm, value});
-	}
-	curve.update();
-
-	// sample curve values by averaging each wavelength interval
-	//
-	SampledSpectralStrength       sampled;
-	TAnalyticalIntegrator1D<real> areaCalculator;
-	for(std::size_t i = 0; i < SampledSpectralStrength::NUM_INTERVALS; i++)
-	{
-		const auto& range = SampledSpectralStrength::lambdaRangeNmOf(i);
-
-		areaCalculator.setIntegrationDomain(range.first, range.second);
-
-		const real area         = areaCalculator.integrate(curve);
-		const real averageValue = area / (range.second - range.first);
-		sampled[i] = averageValue;
-	}
-	
-	return sampled;
-}
-
 }// end anonymous namespace
 
 void ColorSpace::init()
@@ -73,10 +35,12 @@ void ColorSpace::init()
 
 	// Construct sampled D65 spectrum and normalize it by making its largest
 	// value equals to 1.
-	//
-	SPD_D65 = make_sampled(spectral_data::CIE_D65_wavelengths_nm().data(),
-	                       spectral_data::CIE_D65_values().data(),
-	                       std::tuple_size<spectral_data::ArrayD65>::value);
+
+	SPD_D65 = SpectralData::calcPiecewiseAveraged(
+		spectral_data::CIE_D65_wavelengths_nm().data(),
+		spectral_data::CIE_D65_values().data(),
+		std::tuple_size<spectral_data::ArrayD65>::value);
+
 	SPD_D65.divLocal(SPD_D65.max());
 
 	// Sample XYZ color matching functions first, then later normalize it so 
@@ -84,17 +48,23 @@ void ColorSpace::init()
 	// (X, Y, Z) tristimulus values and will yield (0.95047, 1, 1.08883).
 
 	// sampling
-	//
+
 	const std::size_t numXyzCmfPoints = std::tuple_size<spectral_data::ArrayXYZCMF>::value;
-	kernel_X_D65 = make_sampled(spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
-	                            spectral_data::XYZ_CMF_CIE_1931_2_degree_X().data(), 
-	                            numXyzCmfPoints);
-	kernel_Y_D65 = make_sampled(spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
-	                            spectral_data::XYZ_CMF_CIE_1931_2_degree_Y().data(), 
-	                            numXyzCmfPoints);
-	kernel_Z_D65 = make_sampled(spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
-	                            spectral_data::XYZ_CMF_CIE_1931_2_degree_Z().data(), 
-	                            numXyzCmfPoints);
+
+	kernel_X_D65 = SpectralData::calcPiecewiseAveraged(
+		spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
+		spectral_data::XYZ_CMF_CIE_1931_2_degree_X().data(), 
+		numXyzCmfPoints);
+
+	kernel_Y_D65 = SpectralData::calcPiecewiseAveraged(
+		spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
+		spectral_data::XYZ_CMF_CIE_1931_2_degree_Y().data(), 
+		numXyzCmfPoints);
+
+	kernel_Z_D65 = SpectralData::calcPiecewiseAveraged(
+		spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
+		spectral_data::XYZ_CMF_CIE_1931_2_degree_Z().data(), 
+		numXyzCmfPoints);
 
 	// normalizing
 
@@ -114,27 +84,40 @@ void ColorSpace::init()
 	
 	const std::size_t numSmitsPoints = std::tuple_size<spectral_data::ArraySmits>::value;
 
-	SPD_Smits_E_white   = make_sampled(spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
-	                                   spectral_data::smits_linear_sRGB_to_spectrum_E_white().data(),
-	                                   numSmitsPoints);
-	SPD_Smits_E_cyan    = make_sampled(spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
-	                                   spectral_data::smits_linear_sRGB_to_spectrum_E_cyan().data(),
-	                                   numSmitsPoints);
-	SPD_Smits_E_magenta = make_sampled(spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
-	                                   spectral_data::smits_linear_sRGB_to_spectrum_E_magenta().data(),
-	                                   numSmitsPoints);
-	SPD_Smits_E_yellow  = make_sampled(spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
-	                                   spectral_data::smits_linear_sRGB_to_spectrum_E_yellow().data(),
-	                                   numSmitsPoints);
-	SPD_Smits_E_red     = make_sampled(spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
-	                                   spectral_data::smits_linear_sRGB_to_spectrum_E_red().data(),
-	                                   numSmitsPoints);
-	SPD_Smits_E_green   = make_sampled(spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
-	                                   spectral_data::smits_linear_sRGB_to_spectrum_E_green().data(),
-	                                   numSmitsPoints);
-	SPD_Smits_E_blue    = make_sampled(spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
-	                                   spectral_data::smits_linear_sRGB_to_spectrum_E_blue().data(),
-	                                   numSmitsPoints);
+	SPD_Smits_E_white   = SpectralData::calcPiecewiseAveraged(
+		spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
+		spectral_data::smits_linear_sRGB_to_spectrum_E_white().data(),
+		numSmitsPoints);
+
+	SPD_Smits_E_cyan    = SpectralData::calcPiecewiseAveraged(
+		spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
+		spectral_data::smits_linear_sRGB_to_spectrum_E_cyan().data(),
+		numSmitsPoints);
+
+	SPD_Smits_E_magenta = SpectralData::calcPiecewiseAveraged(
+		spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
+		spectral_data::smits_linear_sRGB_to_spectrum_E_magenta().data(),
+		numSmitsPoints);
+
+	SPD_Smits_E_yellow  = SpectralData::calcPiecewiseAveraged(
+		spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
+		spectral_data::smits_linear_sRGB_to_spectrum_E_yellow().data(),
+		numSmitsPoints);
+
+	SPD_Smits_E_red     = SpectralData::calcPiecewiseAveraged(
+		spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
+		spectral_data::smits_linear_sRGB_to_spectrum_E_red().data(),
+		numSmitsPoints);
+
+	SPD_Smits_E_green   = SpectralData::calcPiecewiseAveraged(
+		spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
+		spectral_data::smits_linear_sRGB_to_spectrum_E_green().data(),
+		numSmitsPoints);
+
+	SPD_Smits_E_blue    = SpectralData::calcPiecewiseAveraged(
+		spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
+		spectral_data::smits_linear_sRGB_to_spectrum_E_blue().data(),
+		numSmitsPoints);
 
 	PH_ASSERT(isInitialized(true));
 }

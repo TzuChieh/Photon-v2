@@ -234,6 +234,7 @@
     <ClInclude Include="Source\Core\Intersectable\PTriangle.h" />
     <ClInclude Include="Source\Core\Intersectable\TransformedIntersectable.h" />
     <ClInclude Include="Source\Core\Quantity\ColorSpace.h" />
+    <ClInclude Include="Source\Core\Quantity\SpectralData.h" />
     <ClInclude Include="Source\Core\Quantity\SpectralStrength\LinearSrgbSpectralStrength.h" />
     <ClInclude Include="Source\Core\Quantity\ColorSpace\spectral_data.h" />
     <ClInclude Include="Source\Core\Quantity\SpectralStrength\TAbstractSpectralStrength.h" />
@@ -456,6 +457,7 @@
     <ClCompile Include="Source\Core\Intersectable\PTriangle.cpp" />
     <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp" />
     <ClCompile Include="Source\Core\Quantity\ColorSpace\ColorSpace.cpp" />
+    <ClCompile Include="Source\Core\Quantity\SpectralData.cpp" />
     <ClCompile Include="Source\Core\Quantity\SpectralStrength\LinearSrgbSpectralStrength.cpp" />
     <ClCompile Include="Source\Core\Quantity\ColorSpace\spectral_data.cpp" />
     <ClCompile Include="Source\Core\Ray.cpp" />
