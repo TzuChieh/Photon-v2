@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/SurfaceBehavior/Utility/DielectricFresnel.h"
+#include "Core/SurfaceBehavior/Property/DielectricFresnel.h"
 
 namespace ph
 {

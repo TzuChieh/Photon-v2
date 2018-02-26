@@ -4,8 +4,8 @@
 #include "Math/Random.h"
 #include "Math/constant.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/random_sample.h"
-#include "Core/SurfaceBehavior/Utility/IsoTrowbridgeReitz.h"
-#include "Core/SurfaceBehavior/Utility/SchlickApproxDielectricFresnel.h"
+#include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
+#include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
 #include "Math/Math.h"
 #include "Core/Texture/TConstantTexture.h"
 

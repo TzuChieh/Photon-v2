@@ -1,11 +1,11 @@
 #include "Actor/Material/AbradedOpaque.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "FileIO/InputPacket.h"
-#include "Core/SurfaceBehavior/Utility/IsoTrowbridgeReitz.h"
-#include "Core/SurfaceBehavior/Utility/AnisoTrowbridgeReitz.h"
-#include "Core/SurfaceBehavior/Utility/SchlickApproxDielectricFresnel.h"
-#include "Core/SurfaceBehavior/Utility/ExactDielectricFresnel.h"
-#include "Core/SurfaceBehavior/Utility/SchlickApproxConductorDielectricFresnel.h"
+#include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
+#include "Core/SurfaceBehavior/Property/AnisoTrowbridgeReitz.h"
+#include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
+#include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
+#include "Core/SurfaceBehavior/Property/SchlickApproxConductorDielectricFresnel.h"
 #include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
 
 #include <memory>

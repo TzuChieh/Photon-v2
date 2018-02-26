@@ -1,4 +1,4 @@
-#include "Core/SurfaceBehavior/Utility/ConductorDielectricFresnel.h"
+#include "Core/SurfaceBehavior/Property/ConductorDielectricFresnel.h"
 
 namespace ph
 {

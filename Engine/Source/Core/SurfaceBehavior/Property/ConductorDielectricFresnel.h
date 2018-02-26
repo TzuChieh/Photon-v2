@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Core/SurfaceBehavior/Utility/FresnelEffect.h"
+#include "Core/SurfaceBehavior/Property/FresnelEffect.h"
 
 namespace ph
 {

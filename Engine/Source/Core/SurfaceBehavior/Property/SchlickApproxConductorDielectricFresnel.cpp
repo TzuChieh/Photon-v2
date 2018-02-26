@@ -1,4 +1,4 @@
-#include "Core/SurfaceBehavior/Utility/SchlickApproxConductorDielectricFresnel.h"
+#include "Core/SurfaceBehavior/Property/SchlickApproxConductorDielectricFresnel.h"
 
 namespace ph
 {

@@ -1,4 +1,4 @@
-#include "Core/SurfaceBehavior/Utility/AnisoTrowbridgeReitz.h"
+#include "Core/SurfaceBehavior/Property/AnisoTrowbridgeReitz.h"
 #include "Math/Math.h"
 #include "Math/constant.h"
 

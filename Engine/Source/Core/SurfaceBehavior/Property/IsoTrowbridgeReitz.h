@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/SurfaceBehavior/Utility/Microfacet.h"
+#include "Core/SurfaceBehavior/Property/Microfacet.h"
 
 namespace ph
 {

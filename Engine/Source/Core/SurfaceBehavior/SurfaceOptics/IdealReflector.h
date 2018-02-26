@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Core/SurfaceBehavior/Utility/FresnelEffect.h"
+#include "Core/SurfaceBehavior/Property/FresnelEffect.h"
 
 #include <memory>
 

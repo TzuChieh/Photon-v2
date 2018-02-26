@@ -3,8 +3,8 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Math/TVector3.h"
 #include "Core/Texture/TTexture.h"
-#include "Core/SurfaceBehavior/Utility/Microfacet.h"
-#include "Core/SurfaceBehavior/Utility/FresnelEffect.h"
+#include "Core/SurfaceBehavior/Property/Microfacet.h"
+#include "Core/SurfaceBehavior/Property/FresnelEffect.h"
 #include "Core/Quantity/SpectralStrength.h"
 
 #include <memory>

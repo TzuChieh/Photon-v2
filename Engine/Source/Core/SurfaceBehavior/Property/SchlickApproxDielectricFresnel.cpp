@@ -1,4 +1,4 @@
-#include "Core/SurfaceBehavior/Utility/SchlickApproxDielectricFresnel.h"
+#include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
 
 #include <cmath>
 
@@ -30,6 +30,7 @@ void SchlickApproxDielectricFresnel::calcReflectance(
 	// since Schlick's approximation erroneously ignores the critical angle during calculation,
 	// to fix this, we can use the refraction angle instead when TIR is possible (i.e., the
 	// situation where the IOR of the incident side is greater than the opposite side).
+	//
 	if((cosThetaIncident > 0 && m_iorOuter > m_iorInner) ||
 	   (cosThetaIncident < 0 && m_iorInner > m_iorOuter))
 	{

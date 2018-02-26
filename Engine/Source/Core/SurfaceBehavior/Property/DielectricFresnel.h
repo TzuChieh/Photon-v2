@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/SurfaceBehavior/Utility/FresnelEffect.h"
+#include "Core/SurfaceBehavior/Property/FresnelEffect.h"
 
 namespace ph
 {

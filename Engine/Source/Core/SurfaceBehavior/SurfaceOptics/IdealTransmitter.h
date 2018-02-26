@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Core/SurfaceBehavior/Utility/DielectricFresnel.h"
+#include "Core/SurfaceBehavior/Property/DielectricFresnel.h"
 
 #include <memory>
 

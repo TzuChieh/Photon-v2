@@ -342,33 +342,6 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\TranslucentMicrofacet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\AnisoTrowbridgeReitz.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\ConductorDielectricFresnel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\DielectricFresnel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\ExactDielectricFresnel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\FresnelEffect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\IsoTrowbridgeReitz.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\Microfacet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxConductorDielectricFresnel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxDielectricFresnel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\SurfaceBehavior\BsdfEvaluation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -747,6 +720,36 @@
     <ClInclude Include="Source\Actor\Image\CheckerboardImage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\Property\AnisoTrowbridgeReitz.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\Property\ConductorDielectricFresnel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\Property\DielectricFresnel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\Property\ExactConductorDielectricFresnel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\Property\ExactDielectricFresnel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\Property\FresnelEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\Property\IsoTrowbridgeReitz.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\Property\Microfacet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\Property\SchlickApproxConductorDielectricFresnel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\Property\SchlickApproxDielectricFresnel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">
@@ -1013,33 +1016,6 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\TranslucentMicrofacet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\AnisoTrowbridgeReitz.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\ConductorDielectricFresnel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\DielectricFresnel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\ExactDielectricFresnel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\FresnelEffect.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\IsoTrowbridgeReitz.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\Microfacet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxConductorDielectricFresnel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\Utility\SchlickApproxDielectricFresnel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Core\SurfaceBehavior\BsdfPdfQuery.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1212,6 +1188,33 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Actor\Image\CheckerboardImage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\Property\AnisoTrowbridgeReitz.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\Property\ConductorDielectricFresnel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\Property\DielectricFresnel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\Property\ExactDielectricFresnel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\Property\FresnelEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\Property\IsoTrowbridgeReitz.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\Property\Microfacet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\Property\SchlickApproxConductorDielectricFresnel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\Property\SchlickApproxDielectricFresnel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

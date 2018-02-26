@@ -1,4 +1,4 @@
-#include "Core/SurfaceBehavior/Utility/DielectricFresnel.h"
+#include "Core/SurfaceBehavior/Property/DielectricFresnel.h"
 
 #include <cmath>
 #include <algorithm>

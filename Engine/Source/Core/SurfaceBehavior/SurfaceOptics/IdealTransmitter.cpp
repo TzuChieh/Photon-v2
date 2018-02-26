@@ -1,5 +1,5 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealTransmitter.h"
-#include "Core/SurfaceBehavior/Utility/ExactDielectricFresnel.h"
+#include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 
 namespace ph
 {
