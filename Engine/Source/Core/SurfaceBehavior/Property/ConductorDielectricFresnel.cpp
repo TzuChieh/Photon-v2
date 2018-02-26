@@ -9,9 +9,7 @@ ConductorDielectricFresnel::ConductorDielectricFresnel(
 	const SpectralStrength& iorInnerK) : 
 	FresnelEffect(),
 	m_iorOuter(iorOuter), m_iorInner(iorInner), m_iorInnerK(iorInnerK)
-{
-
-}
+{}
 
 ConductorDielectricFresnel::~ConductorDielectricFresnel() = default;
 

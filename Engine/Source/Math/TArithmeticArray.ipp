@@ -98,6 +98,12 @@ inline TArithmeticArray<T, N> TArithmeticArray<T, N>::sub(const TArithmeticArray
 }
 
 template<typename T, std::size_t N>
+inline TArithmeticArray<T, N> TArithmeticArray<T, N>::sub(const T rhs) const
+{
+	return TArithmeticArray(*this).subLocal(rhs);
+}
+
+template<typename T, std::size_t N>
 inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::subLocal(const TArithmeticArray& rhs)
 {
 	for(std::size_t i = 0; i < N; ++i)
@@ -149,6 +155,12 @@ inline TArithmeticArray<T, N> TArithmeticArray<T, N>::div(const TArithmeticArray
 }
 
 template<typename T, std::size_t N>
+inline TArithmeticArray<T, N> TArithmeticArray<T, N>::div(const T rhs) const
+{
+	return TArithmeticArray(*this).divLocal(rhs);
+}
+
+template<typename T, std::size_t N>
 inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::divLocal(const TArithmeticArray& rhs)
 {
 	for(std::size_t i = 0; i < N; ++i)
@@ -180,6 +192,17 @@ inline TArithmeticArray<T, N> TArithmeticArray<T, N>::pow(const integer exponent
 	}
 
 	return result;
+}
+
+template<typename T, std::size_t N>
+inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::sqrtLocal()
+{
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		m[i] = std::sqrt(m[i]);
+	}
+
+	return *this;
 }
 
 template<typename T, std::size_t N>

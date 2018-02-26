@@ -29,9 +29,11 @@ public:
 	inline TArithmeticArray add(const TArithmeticArray& rhs) const;
 	inline TArithmeticArray add(T rhs) const;
 	inline TArithmeticArray sub(const TArithmeticArray& rhs) const;
+	inline TArithmeticArray sub(T rhs) const;
 	inline TArithmeticArray mul(const TArithmeticArray& rhs) const;
 	inline TArithmeticArray mul(T rhs) const;
 	inline TArithmeticArray div(const TArithmeticArray& rhs) const;
+	inline TArithmeticArray div(T rhs) const;
 
 	inline TArithmeticArray& addLocal(const TArithmeticArray& rhs);
 	inline TArithmeticArray& addLocal(T rhs);
@@ -42,6 +44,7 @@ public:
 	inline TArithmeticArray& divLocal(T rhs);
 
 	inline TArithmeticArray pow(integer exponent) const;
+	inline TArithmeticArray& sqrtLocal();
 
 	// Inputs must not contain any NaN. 
 	// (NaNs are clamped to lower bound)

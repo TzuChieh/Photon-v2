@@ -1217,6 +1217,9 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\Property\SchlickApproxDielectricFresnel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\Property\ExactConductorDielectricFresnel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Math\Solver\TAnalyticalIntegrator1D.ipp" />
