@@ -37,7 +37,7 @@ ExactConductorDielectricFresnel::ExactConductorDielectricFresnel(
 	const auto& sampledInnerNs = SpectralData::calcPiecewiseAveraged(
 		iorWavelengthsNm.data(), iorInnerNs.data(), iorWavelengthsNm.size());
 	const auto& sampledInnerKs = SpectralData::calcPiecewiseAveraged(
-		iorWavelengthsNm.data(), iorInnerNs.data(), iorWavelengthsNm.size());
+		iorWavelengthsNm.data(), iorInnerKs.data(), iorWavelengthsNm.size());
 
 	SpectralStrength iorInnerN, iorInnerK;
 	iorInnerN.setSampled(sampledInnerNs);

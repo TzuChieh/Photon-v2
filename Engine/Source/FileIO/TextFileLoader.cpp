@@ -9,6 +9,8 @@ namespace ph
 
 bool TextFileLoader::load(const Path& filePath, std::string* const out_text)
 {
+	std::cout << "loading text file <" << filePath.toString() << ">" << std::endl;
+
 	std::ifstream textFile;
 	textFile.open(filePath.toAbsoluteString());
 	if(!textFile.is_open())

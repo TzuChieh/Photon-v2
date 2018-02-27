@@ -33,15 +33,11 @@ ValueClause::ValueClause(const std::string& clauseString)
 
 ValueClause::ValueClause(const ValueClause& other) : 
 	type(other.type), name(other.name), value(other.value)
-{
-
-}
+{}
 
 ValueClause::ValueClause(ValueClause&& other) : 
 	type(std::move(other.type)), name(std::move(other.name)), value(std::move(other.value))
-{
-
-}
+{}
 
 bool ValueClause::isReference() const
 {

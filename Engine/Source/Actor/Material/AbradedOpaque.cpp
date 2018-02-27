@@ -132,9 +132,9 @@ std::unique_ptr<FresnelEffect> AbradedOpaque::loadFresnelEffect(const InputPacke
 
 	InputPrototype exactInput;
 	exactInput.addReal("ior-outer");
-	exactInput.addVec3Array("ior-inner-wavelength-nm");
-	exactInput.addVec3Array("ior-inner-n");
-	exactInput.addVec3Array("ior-inner-k");
+	exactInput.addRealArray("ior-inner-wavelength-nm");
+	exactInput.addRealArray("ior-inner-n");
+	exactInput.addRealArray("ior-inner-k");
 
 	if(packet.isPrototypeMatched(exactInput))
 	{
