@@ -8,6 +8,7 @@
 #include "FileIO/SDL/SdlTypeInfo.h"
 #include "FileIO/NamedResourceStorage.h"
 #include "FileIO/FileSystem/Path.h"
+#include "FileIO/ValueParser.h"
 
 #include <vector>
 #include <string>
@@ -50,14 +51,19 @@ public:
 		const DataTreatment& treatment   = DataTreatment()) const;
 
 	Vector3R getVector3r(
-		const std::string&   name, 
-		const Vector3R&      defaultVector3r = Vector3R(), 
-		const DataTreatment& treatment       = DataTreatment()) const;
+		const std::string&           name, 
+		const Vector3R&              defaultVector3r      = Vector3R(), 
+		const DataTreatment&         treatment            = DataTreatment()) const;
 
 	QuaternionR getQuaternionR(
-		const std::string&   name,
-		const QuaternionR&   defaultQuaternionR = QuaternionR(),
-		const DataTreatment& treatment          = DataTreatment()) const;
+		const std::string&           name,
+		const QuaternionR&           defaultQuaternionR   = QuaternionR(),
+		const DataTreatment&         treatment            = DataTreatment()) const;
+
+	std::vector<real> getRealArray(
+		const std::string&           name, 
+		const std::vector<real>&     defaultRealArray     = std::vector<real>(), 
+		const DataTreatment&         treatment            = DataTreatment()) const;
 
 	std::vector<Vector3R> getVector3rArray(
 		const std::string&           name, 
@@ -89,6 +95,7 @@ private:
 	const std::vector<ValueClause>    m_vClauses;
 	const NamedResourceStorage* const m_storage;
 	const Path                        m_workingDirectory;
+	const ValueParser                 m_valueParser;
 
 	bool findStringValue(const std::string& typeName, const std::string& dataName, const DataTreatment& treatment,
 	                     std::string* const out_value) const;

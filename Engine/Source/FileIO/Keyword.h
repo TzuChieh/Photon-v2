@@ -14,6 +14,7 @@ public:
 	static const std::string TYPENAME_REAL;
 	static const std::string TYPENAME_VECTOR3R;
 	static const std::string TYPENAME_QUATERNIONR;
+	static const std::string TYPENAME_REAL_ARRAY;
 	static const std::string TYPENAME_VECTOR3R_ARRAY;
 
 	// reference types

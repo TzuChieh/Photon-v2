@@ -139,9 +139,9 @@ std::unique_ptr<FresnelEffect> AbradedOpaque::loadFresnelEffect(const InputPacke
 	if(packet.isPrototypeMatched(exactInput))
 	{
 		const auto& iorOuter             = packet.getReal("ior-outer");
-		const auto& iorInnerWavelengthNm = packet.getVector3rArray("ior-inner-wavelength-nm");
-		const auto& iorInnerN            = packet.getVector3rArray("ior-inner-n");
-		const auto& iorInnerK            = packet.getVector3rArray("ior-inner-k");
+		const auto& iorInnerWavelengthNm = packet.getRealArray("ior-inner-wavelength-nm");
+		const auto& iorInnerN            = packet.getRealArray("ior-inner-n");
+		const auto& iorInnerK            = packet.getRealArray("ior-inner-k");
 
 		fresnelEffect = std::make_unique<ExactConductorDielectricFresnel>(
 			iorOuter,

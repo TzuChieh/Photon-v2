@@ -753,6 +753,9 @@
     <ClInclude Include="Source\Core\Quantity\SpectralData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\FileIO\SDL\SdlResourceIdentifier.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">

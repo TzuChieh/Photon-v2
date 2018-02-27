@@ -4,6 +4,7 @@
 #include "FileIO/Keyword.h"
 #include "FileIO/InputPrototype.h"
 #include "FileIO/DescriptionParser.h"
+#include "FileIO/SDL/SdlResourceIdentifier.h"
 
 #include <iostream>
 
@@ -16,11 +17,15 @@ InputPacket::InputPacket(
 	const Path&                       workingDirectory) :
 	m_vClauses(vClauses), 
 	m_storage(storage),
-	m_workingDirectory(workingDirectory)
+	m_workingDirectory(workingDirectory),
+	m_valueParser(workingDirectory)
 {}
 
 InputPacket::InputPacket(InputPacket&& other) : 
-	m_vClauses(std::move(other.m_vClauses)), m_storage(other.m_storage)
+	m_vClauses(std::move(other.m_vClauses)), 
+	m_storage(std::move(other.m_storage)),
+	m_workingDirectory(std::move(other.m_workingDirectory)),
+	m_valueParser(std::move(other.m_valueParser))
 {}
 
 std::string InputPacket::getString(
@@ -30,7 +35,7 @@ std::string InputPacket::getString(
 {
 	std::string stringValue;
 	return findStringValue(Keyword::TYPENAME_STRING, name, treatment, &stringValue) ?
-	       ValueParser::parseString(stringValue) : defaultString;
+	       m_valueParser.parseString(stringValue) : defaultString;
 }
 
 integer InputPacket::getInteger(
@@ -40,7 +45,7 @@ integer InputPacket::getInteger(
 {
 	std::string stringValue;
 	return findStringValue(Keyword::TYPENAME_INTEGER, name, treatment, &stringValue) ?
-	       ValueParser::parseInteger(stringValue) : defaultInteger;
+	       m_valueParser.parseInteger(stringValue) : defaultInteger;
 }
 
 real InputPacket::getReal(
@@ -50,7 +55,7 @@ real InputPacket::getReal(
 {
 	std::string stringValue;
 	return findStringValue(Keyword::TYPENAME_REAL, name, treatment, &stringValue) ?
-	       ValueParser::parseReal(stringValue) : defaultReal;
+	       m_valueParser.parseReal(stringValue) : defaultReal;
 }
 
 Vector3R InputPacket::getVector3r(
@@ -60,7 +65,7 @@ Vector3R InputPacket::getVector3r(
 {
 	std::string stringValue;
 	return findStringValue(Keyword::TYPENAME_VECTOR3R, name, treatment, &stringValue) ?
-	       ValueParser::parseVector3r(stringValue) : defaultVector3r;
+	       m_valueParser.parseVector3r(stringValue) : defaultVector3r;
 }
 
 QuaternionR InputPacket::getQuaternionR(
@@ -70,7 +75,17 @@ QuaternionR InputPacket::getQuaternionR(
 {
 	std::string stringValue;
 	return findStringValue(Keyword::TYPENAME_QUATERNIONR, name, treatment, &stringValue) ?
-	       ValueParser::parseQuaternionR(stringValue) : defaultQuaternionR;
+	       m_valueParser.parseQuaternionR(stringValue) : defaultQuaternionR;
+}
+
+std::vector<real> InputPacket::getRealArray(
+	const std::string&       name, 
+	const std::vector<real>& defaultRealArray, 
+	const DataTreatment&     treatment) const
+{
+	std::string stringValue;
+	return findStringValue(Keyword::TYPENAME_REAL_ARRAY, name, treatment, &stringValue) ?
+	       m_valueParser.parseRealArray(stringValue) : defaultRealArray;
 }
 
 std::vector<Vector3R> InputPacket::getVector3rArray(
@@ -80,7 +95,7 @@ std::vector<Vector3R> InputPacket::getVector3rArray(
 {
 	std::string stringValue;
 	return findStringValue(Keyword::TYPENAME_VECTOR3R_ARRAY, name, treatment, &stringValue) ?
-	       ValueParser::parseVector3rArray(stringValue) : defaultVector3rArray;
+	       m_valueParser.parseVector3rArray(stringValue) : defaultVector3rArray;
 }
 
 Path InputPacket::getStringAsPath(
@@ -89,7 +104,7 @@ Path InputPacket::getStringAsPath(
 	const DataTreatment& treatment) const
 {
 	const std::string& identifierString = getString(name, defaultPath.toString(), treatment);
-	return sdlResourceIdentifierToPath(identifierString);
+	return SdlResourceIdentifier(identifierString, m_workingDirectory).getPathToResource();
 }
 
 bool InputPacket::isPrototypeMatched(const InputPrototype& prototype) const

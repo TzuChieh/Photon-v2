@@ -9,6 +9,7 @@ const std::string Keyword::TYPENAME_INTEGER        = "integer";
 const std::string Keyword::TYPENAME_REAL           = "real";
 const std::string Keyword::TYPENAME_VECTOR3R       = "vector3r";
 const std::string Keyword::TYPENAME_QUATERNIONR    = "quaternionR";
+const std::string Keyword::TYPENAME_REAL_ARRAY     = "real-array";
 const std::string Keyword::TYPENAME_VECTOR3R_ARRAY = "vector3r-array";
 
 // reference types

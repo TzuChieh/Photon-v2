@@ -29,6 +29,11 @@ void InputPrototype::addQuaternionR(const std::string& name)
 	typeNamePairs.push_back({Keyword::TYPENAME_QUATERNIONR, name});
 }
 
+void InputPrototype::addRealArray(const std::string& name)
+{
+	typeNamePairs.push_back({Keyword::TYPENAME_REAL_ARRAY, name});
+}
+
 void InputPrototype::addVec3Array(const std::string& name)
 {
 	typeNamePairs.push_back({Keyword::TYPENAME_VECTOR3R_ARRAY, name});
