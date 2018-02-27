@@ -47,6 +47,9 @@ ExactConductorDielectricFresnel::ExactConductorDielectricFresnel(
 
 ExactConductorDielectricFresnel::~ExactConductorDielectricFresnel() = default;
 
+// Implementation follows the excellent blog post written by Sebastien Lagarde.
+// Reference: https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
+//
 void ExactConductorDielectricFresnel::calcReflectance(
 	const real              cosThetaIncident,
 	SpectralStrength* const out_reflectance) const

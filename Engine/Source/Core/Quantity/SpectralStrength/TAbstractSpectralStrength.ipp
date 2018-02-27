@@ -37,6 +37,12 @@ inline Vector3R TAbstractSpectralStrength<DerivedType, N>::genLinearSrgb() const
 }
 
 template<typename DerivedType, std::size_t N>
+inline real TAbstractSpectralStrength<DerivedType, N>::calcLuminance() const
+{
+	return ColorSpace::linear_sRGB_to_luminance(genLinearSrgb());
+}
+
+template<typename DerivedType, std::size_t N>
 inline void TAbstractSpectralStrength<DerivedType, N>::setSrgb(const Vector3R& srgb)
 {
 	setLinearSrgb(ColorSpace::sRGB_to_linear_sRGB(srgb));

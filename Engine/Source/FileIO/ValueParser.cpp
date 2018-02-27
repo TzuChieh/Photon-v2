@@ -73,22 +73,15 @@ std::vector<real> ValueParser::parseRealArray(const std::string& realArrayString
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
-	std::cerr << realArrayString << std::endl;
-
 	// Tries to tokenize and see if the tokens are valid array or in fact
 	// an identifier. If its an identifier, load the actual tokens.
 	//
 	std::vector<std::string> realTokens;
 	tokenizer.tokenize(realArrayString, realTokens);
-
-	std::cerr << realTokens.size() << std::endl;
-
 	if(!realTokens.empty())
 	{
-		std::cerr << "not empty" << std::endl;
 		if(!startsWithNumber(realTokens[0]))
 		{
-			std::cerr << "not starts with number" << std::endl;
 			const std::string& identifier = realArrayString;
 			realTokens.clear();
 			tokenizer.tokenize(loadResource(identifier), realTokens);

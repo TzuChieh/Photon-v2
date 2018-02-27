@@ -68,6 +68,19 @@ public:
 		return linear_sRGB_to_sRGB(SPD_to_linear_sRGB(spd));
 	}
 
+	// Conversions from color to relative luminance.
+	// Reference: https://en.wikipedia.org/wiki/Relative_luminance
+
+	static inline real linear_sRGB_to_luminance(const Vector3R& linearSrgb)
+	{
+		return 0.2126_r * linearSrgb.x + 0.7152_r * linearSrgb.y + 0.0722_r * linearSrgb.z;
+	}
+
+	static inline real CIE_XYZ_D65_to_luminance(const Vector3R& cieXyzD65)
+	{
+		return cieXyzD65.y;
+	}
+
 	static Vector3R SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd);
 	static void linear_sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* out_spd);
 	static void sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* out_spd);

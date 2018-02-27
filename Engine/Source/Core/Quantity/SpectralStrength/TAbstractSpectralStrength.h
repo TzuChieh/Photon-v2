@@ -23,6 +23,11 @@ public:
 
 	inline Vector3R genSrgb() const;
 	inline Vector3R genLinearSrgb() const;
+
+	// Calculates relative luminance with D65 as reference white point.
+	//
+	inline real calcLuminance() const;
+
 	inline void setSrgb(const Vector3R& srgb);
 	inline void setLinearSrgb(const Vector3R& linearSrgb);
 	inline void setSampled(const SampledSpectralStrength& sampled);

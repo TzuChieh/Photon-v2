@@ -2,16 +2,18 @@
 Photon-v2 is a rendering engine made out of my personal interest in computer graphics. A rendering engine is what takes geometrical descriptions and material properties of a 3-D scene as input, and outputs a 2-D image of that scene from a specific point of view. In layman's terms, it is like taking a photograph, except the scene and the camera are both computer simulated. Different from its previous version, Photon, which was written entirely in Java, Photon-v2 utilizes the powerful C++14 for the rendering core and builds a GUI on top of it with Java via JNI. This project is currently in development and more features are expected to come. <br />
 
 ## Features
-* **Integration (rendering method)**
+* **Rendering**
   * backward path tracing
   * ~~backward light tracing (next event estimation)~~
   * ~~MIS'ed backward tracing (path + light)~~
   * ~~light/particle tracing~~
+  * handles both RGB and spectral rendering
 
 * **Material**
   * Lambertian diffuse
   * microfacet-based opaque & translucent model
   * ideal reflector & transmitter
+  * handles measured IOR
 
 * **Geometry**
   * sphere
