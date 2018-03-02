@@ -589,6 +589,9 @@
     <ClInclude Include="Source\Core\Quantity\SpectralStrength\TSampledSpectralStrength.ipp">
       <FileType>Document</FileType>
     </ClInclude>
+    <ClInclude Include="Source\Core\Quantity\ColorSpace\ColorSpace.ipp">
+      <FileType>Document</FileType>
+    </ClInclude>
     <None Include="Source\Math\Solver\TAnalyticalIntegrator1D.ipp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

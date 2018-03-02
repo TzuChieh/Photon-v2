@@ -14,14 +14,14 @@
 
 -> image(constant) @blackImg [real value 0]
 -> image(constant) @grayImg  [real value 0.5]
--> image(constant) @whiteImg [real value 1]
+-> image(constant) @whiteImg [real value "1 1 1"]
 
 -> image(checkerboard) @blackGrayImg [real x-tiles 5] [real y-tiles 5] [image odd @blackImg] [image even @grayImg]
 -> image(checkerboard) @grayWhiteImg [real x-tiles 5] [real y-tiles 5] [image odd @grayImg]  [image even @whiteImg]
 
 -> image(checkerboard) @blackGrayWhiteImg [real x-tiles 5] [real y-tiles 5] [image odd @blackGrayImg] [image even @grayWhiteImg]
 
--> light-source(area) @topLightSource1 [image emitted-radiance @blackGrayWhiteImg]
+-> light-source(area) @topLightSource1 [image emitted-radiance @whiteImg]
 
 
 
@@ -40,14 +40,14 @@
 //-> actor(light) scale(@topLight2)     [vector3r factor "3 3 3"]
 
 // left wall
--> material(matte-opaque) @leftWallMaterial [vector3r albedo "0.85 0.3 0.3"]
+-> material(matte-opaque) @leftWallMaterial [vector3r albedo "0.5 0.5 0.5"]
 -> actor(model) @leftWall [geometry geometry @plane] [material material @leftWallMaterial]
 -> actor(model) translate(@leftWall) [vector3r factor "-5 0 0"]
 -> actor(model) rotate(@leftWall)    [vector3r axis "0 1 0"] [real degree 90]
 -> actor(model) scale(@leftWall)     [vector3r factor "10 10 10"]
 
 // right wall
--> material(matte-opaque) @rightWallMaterial [vector3r albedo "0.3 0.3 0.85"]
+-> material(matte-opaque) @rightWallMaterial [vector3r albedo "0.5 0.5 0.5"]
 -> actor(model) @rightWall [geometry geometry @plane] [material material @rightWallMaterial]
 -> actor(model) translate(@rightWall) [vector3r factor "5 0 0"]
 -> actor(model) rotate(@rightWall)    [vector3r axis "0 1 0"] [real degree -90]

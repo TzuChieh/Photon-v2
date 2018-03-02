@@ -756,6 +756,7 @@
     <ClInclude Include="Source\FileIO\SDL\SdlResourceIdentifier.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\Quantity\ColorSpace\ColorSpace.ipp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">

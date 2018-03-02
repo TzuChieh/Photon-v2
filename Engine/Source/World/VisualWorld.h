@@ -14,10 +14,6 @@
 namespace ph
 {
 
-class Intersection;
-class Ray;
-class Actor;
-
 class VisualWorld final
 {
 public:

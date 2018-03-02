@@ -10,24 +10,19 @@
 namespace ph
 {
 
-namespace
-{
+SampledSpectralStrength ColorSpace::kernel_X_D65;
+SampledSpectralStrength ColorSpace::kernel_Y_D65;
+SampledSpectralStrength ColorSpace::kernel_Z_D65;
 
-static SampledSpectralStrength kernel_X_D65;
-static SampledSpectralStrength kernel_Y_D65;
-static SampledSpectralStrength kernel_Z_D65;
+SampledSpectralStrength ColorSpace::SPD_D65;
 
-static SampledSpectralStrength SPD_D65;
-
-static SampledSpectralStrength SPD_Smits_E_white;
-static SampledSpectralStrength SPD_Smits_E_cyan;
-static SampledSpectralStrength SPD_Smits_E_magenta;
-static SampledSpectralStrength SPD_Smits_E_yellow;
-static SampledSpectralStrength SPD_Smits_E_red;
-static SampledSpectralStrength SPD_Smits_E_green;
-static SampledSpectralStrength SPD_Smits_E_blue;
-
-}// end anonymous namespace
+SampledSpectralStrength ColorSpace::SPD_Smits_E_white;
+SampledSpectralStrength ColorSpace::SPD_Smits_E_cyan;
+SampledSpectralStrength ColorSpace::SPD_Smits_E_magenta;
+SampledSpectralStrength ColorSpace::SPD_Smits_E_yellow;
+SampledSpectralStrength ColorSpace::SPD_Smits_E_red;
+SampledSpectralStrength ColorSpace::SPD_Smits_E_green;
+SampledSpectralStrength ColorSpace::SPD_Smits_E_blue;
 
 void ColorSpace::init()
 {
@@ -73,12 +68,34 @@ void ColorSpace::init()
 	kernel_X_D65.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
 	kernel_Y_D65.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
 	kernel_Z_D65.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
+
+	std::cerr << kernel_X_D65.sum() << std::endl;
+	std::cerr << kernel_Y_D65.sum() << std::endl;
+	std::cerr << kernel_Z_D65.sum() << std::endl;
+
+	std::cerr << kernel_X_D65.dot(SPD_D65) << std::endl;
+	std::cerr << kernel_Y_D65.dot(SPD_D65) << std::endl;
+	std::cerr << kernel_Z_D65.dot(SPD_D65) << std::endl;
+
+	std::cerr << kernel_X_D65.dot(SPD_D65) / kernel_Y_D65.dot(SPD_D65) << std::endl;
+	std::cerr << kernel_Y_D65.dot(SPD_D65) / kernel_Y_D65.dot(SPD_D65) << std::endl;
+	std::cerr << kernel_Z_D65.dot(SPD_D65) / kernel_Y_D65.dot(SPD_D65) << std::endl;
 	
 	// scaled to match D65
 	//
 	kernel_X_D65.mulLocal(0.95047_r / kernel_X_D65.dot(SPD_D65));
 	kernel_Y_D65.mulLocal(1.00000_r / kernel_Y_D65.dot(SPD_D65));
 	kernel_Z_D65.mulLocal(1.08883_r / kernel_Z_D65.dot(SPD_D65));
+
+	//std::cerr << kernel_X_D65.dot(SPD_D65) << std::endl;
+	//std::cerr << kernel_Y_D65.dot(SPD_D65) << std::endl;
+	//std::cerr << kernel_Z_D65.dot(SPD_D65) << std::endl;
+
+	//const real norm = kernel_Y_D65.dot(SPD_D65);
+
+	//kernel_X_D65.mulLocal(1.0_r / norm);
+	//kernel_Y_D65.mulLocal(1.0_r / norm);
+	//kernel_Z_D65.mulLocal(1.0_r / norm);
 
 	// Constructing sampled SPD for Smits' algorithm.
 	
@@ -129,80 +146,6 @@ Vector3R ColorSpace::SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd)
 	return Vector3R(kernel_X_D65.dot(spd),
 	                kernel_Y_D65.dot(spd),
 	                kernel_Z_D65.dot(spd));
-}
-
-void ColorSpace::linear_sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* const out_spd)
-{
-	PH_ASSERT(isInitialized());
-	PH_ASSERT(out_spd != nullptr);
-
-	const real r = color.x;
-	const real g = color.y;
-	const real b = color.z;
-
-	out_spd->set(0);
-
-	// The following steps mix in primary colors only as needed.
-
-	// when R is minimum
-	if(r <= g && r <= b)
-	{
-		out_spd->addLocal(SPD_Smits_E_white * r);
-		if(g <= b)
-		{
-			out_spd->addLocal(SPD_Smits_E_cyan * (g - r));
-			out_spd->addLocal(SPD_Smits_E_blue * (b - g));
-		}
-		else
-		{
-			out_spd->addLocal(SPD_Smits_E_cyan * (b - r));
-			out_spd->addLocal(SPD_Smits_E_green * (g - b));
-		}
-	}
-	// when G is minimum
-	else if(g <= r && g <= b)
-	{
-		out_spd->addLocal(SPD_Smits_E_white * g);
-		if(r <= b)
-		{
-			out_spd->addLocal(SPD_Smits_E_magenta * (r - g));
-			out_spd->addLocal(SPD_Smits_E_blue * (b - r));
-		}
-		else
-		{
-			out_spd->addLocal(SPD_Smits_E_magenta * (b - g));
-			out_spd->addLocal(SPD_Smits_E_red * (r - b));
-		}
-	}
-	// when B is minimum
-	else
-	{
-		out_spd->addLocal(SPD_Smits_E_white * b);
-		if(r <= g)
-		{
-			out_spd->addLocal(SPD_Smits_E_yellow * (r - b));
-			out_spd->addLocal(SPD_Smits_E_green * (g - r));
-		}
-		else
-		{
-			out_spd->addLocal(SPD_Smits_E_yellow * (g - b));
-			out_spd->addLocal(SPD_Smits_E_red * (r - g));
-		}
-	}
-
-	// TODO: ensure energy conservation?
-}
-
-void ColorSpace::sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* const out_spd)
-{
-	linear_sRGB_to_SPD(sRGB_to_linear_sRGB(color), out_spd);
-}
-
-const SampledSpectralStrength& ColorSpace::get_D65_SPD()
-{
-	PH_ASSERT(isInitialized());
-
-	return SPD_D65;
 }
 
 }// end namespace ph

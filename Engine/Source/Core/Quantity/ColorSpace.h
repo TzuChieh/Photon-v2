@@ -7,12 +7,21 @@
 
 #include <cmath>
 #include <cstddef>
+#include <type_traits>
 
 namespace ph
 {
 
 class ColorSpace final
 {
+public:
+	class SourceHint
+	{
+	public:
+		class REFLECTANCE;
+		class ILLUMINANT;
+	};
+
 public:
 	// This method must be called once before using any other method.
 	//
@@ -82,10 +91,23 @@ public:
 	}
 
 	static Vector3R SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd);
-	static void linear_sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* out_spd);
-	static void sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* out_spd);
 
-	static const SampledSpectralStrength& get_D65_SPD();
+	template<typename Hint, typename = std::enable_if_t<std::is_base_of_v<SourceHint, Hint>>>
+	static inline void linear_sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* out_spd);
+
+	template<typename Hint, typename = std::enable_if_t<std::is_base_of_v<SourceHint, Hint>>>
+	static inline void sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* out_spd);
+
+	static inline const SampledSpectralStrength& get_D65_SPD()
+	{
+		PH_ASSERT(isInitialized());
+
+		return SPD_D65;
+	}
+
+public:
+	class SourceHint::REFLECTANCE final : public SourceHint{};
+	class SourceHint::ILLUMINANT  final : public SourceHint{};
 
 private:
 #ifdef PH_DEBUG
@@ -97,6 +119,20 @@ private:
 		return hasInit;
 	}
 #endif
+
+	static SampledSpectralStrength kernel_X_D65;
+	static SampledSpectralStrength kernel_Y_D65;
+	static SampledSpectralStrength kernel_Z_D65;
+
+	static SampledSpectralStrength SPD_D65;
+
+	static SampledSpectralStrength SPD_Smits_E_white;
+	static SampledSpectralStrength SPD_Smits_E_cyan;
+	static SampledSpectralStrength SPD_Smits_E_magenta;
+	static SampledSpectralStrength SPD_Smits_E_yellow;
+	static SampledSpectralStrength SPD_Smits_E_red;
+	static SampledSpectralStrength SPD_Smits_E_green;
+	static SampledSpectralStrength SPD_Smits_E_blue;
 
 	static inline real sRGB_forwardGammaCorrect(const real colorComponent)
 	{
@@ -124,3 +160,5 @@ private:
 };
 
 }// end namespace ph
+
+#include "Core/Quantity/ColorSpace/ColorSpace.ipp"

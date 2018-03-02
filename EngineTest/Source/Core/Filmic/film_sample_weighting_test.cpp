@@ -4,11 +4,14 @@
 #include <Frame/TFrame.h>
 #include <Core/Filmic/SampleFilterFactory.h>
 #include <Core/Quantity/SpectralStrength.h>
+#include <Common/config.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 using namespace ph;
+
+#ifdef PH_RENDER_MODE_RGB
 
 TEST(FilmSampleWeightingTest, HdrRgbFilmDevelopesToFrame)
 {
@@ -56,6 +59,8 @@ TEST(FilmSampleWeightingTest, HdrRgbFilmDevelopesToFrame)
 	            (weight1 * 0.7_r + weight2 * 0.3_r) / (weight1 + weight2), 
 	            TEST_REAL_EPSILON);
 }
+
+#endif
 
 //class MockFrame : public Frame
 //{
