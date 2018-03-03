@@ -18,13 +18,14 @@ class TAbstractSpectralStrength
 public:
 	static constexpr std::size_t NUM_VALUES = N;
 
-public:
+protected:
 	inline TAbstractSpectralStrength();
 	explicit inline TAbstractSpectralStrength(real value);
 	explicit inline TAbstractSpectralStrength(const TArithmeticArray<real, N>& values);
 	explicit inline TAbstractSpectralStrength(const TAbstractSpectralStrength& other);
 	virtual inline ~TAbstractSpectralStrength() = 0;
 
+public:
 	// Calculates relative luminance with D65 as reference white point.
 	//
 	inline real calcLuminance() const;
@@ -35,34 +36,43 @@ public:
 	inline void setLinearSrgb(const Vector3R& linearSrgb);
 	inline void setSampled(const SampledSpectralStrength& sampled);
 
-	inline TAbstractSpectralStrength add(const TAbstractSpectralStrength& rhs) const;
-	inline TAbstractSpectralStrength add(real rhs) const;
-	inline TAbstractSpectralStrength sub(const TAbstractSpectralStrength& rhs) const;
-	inline TAbstractSpectralStrength sub(real rhs) const;
-	inline TAbstractSpectralStrength mul(const TAbstractSpectralStrength& rhs) const;
-	inline TAbstractSpectralStrength mul(real rhs) const;
-	inline TAbstractSpectralStrength div(const TAbstractSpectralStrength& rhs) const;
-	inline TAbstractSpectralStrength div(real rhs) const;
+	inline DerivedType add(const DerivedType& rhs) const;
+	inline DerivedType add(real rhs) const;
+	inline DerivedType sub(const DerivedType& rhs) const;
+	inline DerivedType sub(real rhs) const;
+	inline DerivedType mul(const DerivedType& rhs) const;
+	inline DerivedType mul(real rhs) const;
+	inline DerivedType div(const DerivedType& rhs) const;
+	inline DerivedType div(real rhs) const;
 
-	inline TAbstractSpectralStrength& addLocal(const TAbstractSpectralStrength& rhs);
-	inline TAbstractSpectralStrength& addLocal(real rhs);
-	inline TAbstractSpectralStrength& subLocal(const TAbstractSpectralStrength& rhs);
-	inline TAbstractSpectralStrength& subLocal(real rhs);
-	inline TAbstractSpectralStrength& mulLocal(const TAbstractSpectralStrength& rhs);
-	inline TAbstractSpectralStrength& mulLocal(real rhs);
-	inline TAbstractSpectralStrength& divLocal(const TAbstractSpectralStrength& rhs);
-	inline TAbstractSpectralStrength& divLocal(real rhs);
+	inline DerivedType& addLocal(const DerivedType& rhs);
+	inline DerivedType& addLocal(real rhs);
+	inline DerivedType& subLocal(const DerivedType& rhs);
+	inline DerivedType& subLocal(real rhs);
+	inline DerivedType& mulLocal(const DerivedType& rhs);
+	inline DerivedType& mulLocal(real rhs);
+	inline DerivedType& divLocal(const DerivedType& rhs);
+	inline DerivedType& divLocal(real rhs);
 
-	inline TAbstractSpectralStrength& set(real value);
-	inline TAbstractSpectralStrength& set(const std::array<real, N>& values);
+	inline DerivedType pow(integer exponent) const;
+	inline DerivedType& sqrtLocal();
+
+	// Inputs must not contain any NaN. 
+	// (NaNs are clamped to lower bound)
+	//
+	inline DerivedType& clampLocal(real lowerBound, real upperBound);
+
+	inline DerivedType& set(real value);
+	inline DerivedType& set(const std::array<real, N>& values);
 
 	inline real operator [] (std::size_t index) const;
 	inline real& operator [] (std::size_t index);
 
-	inline TAbstractSpectralStrength operator + (const TAbstractSpectralStrength& rhs);
-	inline TAbstractSpectralStrength operator * (const TAbstractSpectralStrength& rhs);
+	inline DerivedType operator + (const DerivedType& rhs);
+	inline DerivedType operator * (const DerivedType& rhs);
 
-	inline TAbstractSpectralStrength& operator = (const TAbstractSpectralStrength& rhs);
+	inline DerivedType& operator = (const DerivedType& rhs);
+	inline TAbstractSpectralStrength& operator = (const TAbstractSpectralStrength& rhs) = delete;
 
 protected:
 	TArithmeticArray<real, N> m_values;

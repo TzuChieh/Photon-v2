@@ -73,131 +73,156 @@ inline void TAbstractSpectralStrength<DerivedType, N>::setSampled(
 }
 
 template<typename DerivedType, std::size_t N>
-inline auto TAbstractSpectralStrength<DerivedType, N>::add(const TAbstractSpectralStrength& rhs) const
-	-> TAbstractSpectralStrength<DerivedType, N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::add(const DerivedType& rhs) const
+	-> DerivedType
 {
-	return TAbstractSpectralStrength(m_values.add(rhs.m_values));
+	return DerivedType(m_values.add(rhs.m_values));
 }
 
 template<typename DerivedType, std::size_t N>
 inline auto TAbstractSpectralStrength<DerivedType, N>::add(const real rhs) const
-	-> TAbstractSpectralStrength<DerivedType, N>
+	-> DerivedType
 {
-	return TAbstractSpectralStrength(m_values.add(rhs));
+	return DerivedType(m_values.add(rhs));
 }
 
 template<typename DerivedType, std::size_t N>
-inline auto TAbstractSpectralStrength<DerivedType, N>::sub(const TAbstractSpectralStrength& rhs) const
-	-> TAbstractSpectralStrength<DerivedType, N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::sub(const DerivedType& rhs) const
+	-> DerivedType
 {
-	return TAbstractSpectralStrength(m_values.sub(rhs.m_values));
+	return DerivedType(m_values.sub(rhs.m_values));
 }
 
 template<typename DerivedType, std::size_t N>
 inline auto TAbstractSpectralStrength<DerivedType, N>::sub(const real rhs) const
-	-> TAbstractSpectralStrength<DerivedType, N>
+	-> DerivedType
 {
-	return TAbstractSpectralStrength(m_values.sub(rhs));
+	return DerivedType(m_values.sub(rhs));
 }
 
 template<typename DerivedType, std::size_t N>
-inline auto TAbstractSpectralStrength<DerivedType, N>::mul(const TAbstractSpectralStrength& rhs) const
-	-> TAbstractSpectralStrength<DerivedType, N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::mul(const DerivedType& rhs) const
+	-> DerivedType
 {
-	return TAbstractSpectralStrength(m_values.mul(rhs.m_values));
+	return DerivedType(m_values.mul(rhs.m_values));
 }
 
 template<typename DerivedType, std::size_t N>
 inline auto TAbstractSpectralStrength<DerivedType, N>::mul(const real rhs) const
-	-> TAbstractSpectralStrength<DerivedType, N>
+	-> DerivedType
 {
-	return TAbstractSpectralStrength(m_values.mul(rhs));
+	return DerivedType(m_values.mul(rhs));
 }
 
 template<typename DerivedType, std::size_t N>
-inline auto TAbstractSpectralStrength<DerivedType, N>::div(const TAbstractSpectralStrength& rhs) const
-	-> TAbstractSpectralStrength<DerivedType, N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::div(const DerivedType& rhs) const
+	-> DerivedType
 {
-	return TAbstractSpectralStrength(m_values.div(rhs.m_values));
+	return DerivedType(m_values.div(rhs.m_values));
 }
 
 template<typename DerivedType, std::size_t N>
 inline auto TAbstractSpectralStrength<DerivedType, N>::div(const real rhs) const
-	-> TAbstractSpectralStrength<DerivedType, N>
+	-> DerivedType
 {
-	return TAbstractSpectralStrength(m_values.div(rhs));
+	return DerivedType(m_values.div(rhs));
 }
 
 template<typename DerivedType, std::size_t N>
-inline auto TAbstractSpectralStrength<DerivedType, N>::addLocal(const TAbstractSpectralStrength& rhs)
-	-> TAbstractSpectralStrength<DerivedType, N>&
+inline auto TAbstractSpectralStrength<DerivedType, N>::addLocal(const DerivedType& rhs)
+	-> DerivedType&
 {
 	m_values.addLocal(rhs.m_values);
 
-	return *this;
+	return static_cast<DerivedType&>(*this);
 }
 
 template<typename DerivedType, std::size_t N>
 inline auto TAbstractSpectralStrength<DerivedType, N>::addLocal(const real rhs)
-	-> TAbstractSpectralStrength<DerivedType, N>&
+	-> DerivedType&
 {
 	m_values.addLocal(rhs);
 
-	return *this;
+	return static_cast<DerivedType&>(*this);
 }
 
 template<typename DerivedType, std::size_t N>
-inline auto TAbstractSpectralStrength<DerivedType, N>::subLocal(const TAbstractSpectralStrength& rhs)
-	-> TAbstractSpectralStrength<DerivedType, N>&
+inline auto TAbstractSpectralStrength<DerivedType, N>::subLocal(const DerivedType& rhs)
+	-> DerivedType&
 {
 	m_values.subLocal(rhs.m_values);
 
-	return *this;
+	return static_cast<DerivedType&>(*this);
 }
 
 template<typename DerivedType, std::size_t N>
 inline auto TAbstractSpectralStrength<DerivedType, N>::subLocal(const real rhs)
-	-> TAbstractSpectralStrength<DerivedType, N>&
+	-> DerivedType&
 {
 	m_values.subLocal(rhs);
 
-	return *this;
+	return static_cast<DerivedType&>(*this);
 }
 
 template<typename DerivedType, std::size_t N>
-inline auto TAbstractSpectralStrength<DerivedType, N>::mulLocal(const TAbstractSpectralStrength& rhs)
-	-> TAbstractSpectralStrength<DerivedType, N>&
+inline auto TAbstractSpectralStrength<DerivedType, N>::mulLocal(const DerivedType& rhs)
+	-> DerivedType&
 {
 	m_values.mulLocal(rhs.m_values);
 
-	return *this;
+	return static_cast<DerivedType&>(*this);
 }
 
 template<typename DerivedType, std::size_t N>
 inline auto TAbstractSpectralStrength<DerivedType, N>::mulLocal(const real rhs)
-	-> TAbstractSpectralStrength<DerivedType, N>&
+	-> DerivedType&
 {
 	m_values.mulLocal(rhs);
 
-	return *this;
+	return static_cast<DerivedType&>(*this);
 }
 
 template<typename DerivedType, std::size_t N>
-inline auto TAbstractSpectralStrength<DerivedType, N>::divLocal(const TAbstractSpectralStrength& rhs)
-	-> TAbstractSpectralStrength<DerivedType, N>&
+inline auto TAbstractSpectralStrength<DerivedType, N>::divLocal(const DerivedType& rhs)
+	-> DerivedType&
 {
 	m_values.divLocal(rhs.m_values);
 
-	return *this;
+	return static_cast<DerivedType&>(*this);
 }
 
 template<typename DerivedType, std::size_t N>
 inline auto TAbstractSpectralStrength<DerivedType, N>::divLocal(const real rhs)
-	-> TAbstractSpectralStrength<DerivedType, N>&
+	-> DerivedType&
 {
 	m_values.divLocal(rhs);
 
-	return *this;
+	return static_cast<DerivedType&>(*this);
+}
+
+template<typename DerivedType, std::size_t N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::pow(const integer exponent) const
+	-> DerivedType
+{
+	return DerivedType(m_values.pow(exponent));
+}
+
+template<typename DerivedType, std::size_t N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::sqrtLocal()
+	-> DerivedType&
+{
+	m_values.sqrtLocal();
+
+	return static_cast<DerivedType&>(*this);
+}
+
+template<typename DerivedType, std::size_t N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::clampLocal(const real lowerBound, const real upperBound)
+	-> DerivedType&
+{
+	m_values.clampLocal(lowerBound, upperBound);
+
+	return static_cast<DerivedType&>(*this);
 }
 
 template<typename DerivedType, std::size_t N>
