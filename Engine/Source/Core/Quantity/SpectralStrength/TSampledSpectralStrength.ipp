@@ -40,12 +40,6 @@ TSampledSpectralStrength(const TSampledSpectralStrength& other) :
 {}
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
-TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
-TSampledSpectralStrength(const TArithmeticArray<real, N>& other) : 
-	Parent(other)
-{}
-
-template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
 auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
 impl_genLinearSrgb() const
 	-> Vector3R

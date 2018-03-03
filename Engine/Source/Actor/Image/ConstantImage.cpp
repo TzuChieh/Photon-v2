@@ -74,14 +74,14 @@ std::shared_ptr<TTexture<SpectralStrength>> ConstantImage::genTextureSpectral(
 	}
 	else
 	{
-		if(m_values.size() != SpectralStrength::numElements())
+		if(m_values.size() != SpectralStrength::NUM_VALUES)
 		{
 			std::cerr << "warning: at ConstantImage::genTextureSpectral(), "
 			          << "bad number of input values."
 			          << "Generated texture may not be what you want." << std::endl;
 		}
 
-		for(std::size_t i = 0; i < SpectralStrength::numElements(); i++)
+		for(std::size_t i = 0; i < SpectralStrength::NUM_VALUES; i++)
 		{
 			constSpectrum[i] = i < m_values.size() ? m_values[i] : 1;
 		}

@@ -23,10 +23,9 @@ public:
 public:
 	typedef TAbstractSpectralStrength<TSampledSpectralStrength, N> Parent;
 
-	using Parent::TAbstractSpectralStrength;
 	TSampledSpectralStrength();
 	TSampledSpectralStrength(const TSampledSpectralStrength& other);
-	TSampledSpectralStrength(const TArithmeticArray<real, N>& other);
+	using Parent::TAbstractSpectralStrength;
 	virtual inline ~TSampledSpectralStrength() override = default;
 
 	void asAveraged(const real* lambdasNm, const real* strengths, std::size_t numElements);

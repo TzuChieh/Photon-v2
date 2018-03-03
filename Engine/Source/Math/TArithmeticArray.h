@@ -38,7 +38,7 @@ public:
 	inline TArithmeticArray& addLocal(const TArithmeticArray& rhs);
 	inline TArithmeticArray& addLocal(T rhs);
 	inline TArithmeticArray& subLocal(const TArithmeticArray& rhs);
-	inline TArithmeticArray& subLocal(const T rhs);
+	inline TArithmeticArray& subLocal(T rhs);
 	inline TArithmeticArray& mulLocal(const TArithmeticArray& rhs);
 	inline TArithmeticArray& mulLocal(T rhs);
 	inline TArithmeticArray& divLocal(const TArithmeticArray& rhs);
@@ -65,8 +65,8 @@ public:
 	inline bool isNonNegative() const;
 	inline std::size_t size() const;
 
-	inline TArithmeticArray& set(const TArithmeticArray& other);
 	inline TArithmeticArray& set(T value);
+	inline TArithmeticArray& set(const std::array<T, N>& values);
 
 	inline T& operator [] (std::size_t index);
 	inline const T& operator [] (std::size_t index) const;
