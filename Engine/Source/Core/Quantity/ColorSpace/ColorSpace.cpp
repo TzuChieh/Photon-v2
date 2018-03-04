@@ -10,11 +10,15 @@
 namespace ph
 {
 
+SampledSpectralStrength ColorSpace::SPD_E;
+SampledSpectralStrength ColorSpace::SPD_D65;
+
+SampledSpectralStrength ColorSpace::kernel_X_E;
+SampledSpectralStrength ColorSpace::kernel_Y_E;
+SampledSpectralStrength ColorSpace::kernel_Z_E;
 SampledSpectralStrength ColorSpace::kernel_X_D65;
 SampledSpectralStrength ColorSpace::kernel_Y_D65;
 SampledSpectralStrength ColorSpace::kernel_Z_D65;
-
-SampledSpectralStrength ColorSpace::SPD_D65;
 
 SampledSpectralStrength ColorSpace::SPD_Smits_E_white;
 SampledSpectralStrength ColorSpace::SPD_Smits_E_cyan;
@@ -28,6 +32,8 @@ void ColorSpace::init()
 {
 	PH_ASSERT_MSG(!isInitialized(), "ColorSpace is already initialized");
 
+	SPD_E = SampledSpectralStrength(1.0_r);
+
 	// Construct sampled D65 spectrum and normalize it by making its largest
 	// value equals to 1.
 
@@ -39,63 +45,54 @@ void ColorSpace::init()
 	SPD_D65.divLocal(SPD_D65.max());
 
 	// Sample XYZ color matching functions first, then later normalize it so 
-	// that dotting them with sampled D65 spectrum is equivalent to computing
-	// (X, Y, Z) tristimulus values and will yield (0.95047, 1, 1.08883).
+	// that dotting them with sampled E/D65 spectrum is equivalent to computing
+	// (X, Y, Z) tristimulus values and will yield (1, 1, 1)/(0.95047, 1, 1.08883).
 
-	// sampling
+	// sampling XYZ CMF
 
 	const std::size_t numXyzCmfPoints = std::tuple_size<spectral_data::ArrayXYZCMF>::value;
 
-	kernel_X_D65 = SpectralData::calcPiecewiseAveraged(
+	const SampledSpectralStrength& sampledCmfX = SpectralData::calcPiecewiseAveraged(
 		spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
 		spectral_data::XYZ_CMF_CIE_1931_2_degree_X().data(), 
 		numXyzCmfPoints);
 
-	kernel_Y_D65 = SpectralData::calcPiecewiseAveraged(
+	const SampledSpectralStrength& sampledCmfY = SpectralData::calcPiecewiseAveraged(
 		spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
 		spectral_data::XYZ_CMF_CIE_1931_2_degree_Y().data(), 
 		numXyzCmfPoints);
 
-	kernel_Z_D65 = SpectralData::calcPiecewiseAveraged(
+	const SampledSpectralStrength& sampledCmfZ = SpectralData::calcPiecewiseAveraged(
 		spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
 		spectral_data::XYZ_CMF_CIE_1931_2_degree_Z().data(), 
 		numXyzCmfPoints);
+
+	kernel_X_E   = sampledCmfX;
+	kernel_Y_E   = sampledCmfY;
+	kernel_Z_E   = sampledCmfZ;
+	kernel_X_D65 = sampledCmfX;
+	kernel_Y_D65 = sampledCmfY;
+	kernel_Z_D65 = sampledCmfZ;
 
 	// normalizing
 
 	// multiplier of Riemann Sum
 	//
+	kernel_X_E.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
+	kernel_Y_E.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
+	kernel_Z_E.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
 	kernel_X_D65.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
 	kernel_Y_D65.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
 	kernel_Z_D65.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
-
-	std::cerr << kernel_X_D65.sum() << std::endl;
-	std::cerr << kernel_Y_D65.sum() << std::endl;
-	std::cerr << kernel_Z_D65.sum() << std::endl;
-
-	std::cerr << kernel_X_D65.dot(SPD_D65) << std::endl;
-	std::cerr << kernel_Y_D65.dot(SPD_D65) << std::endl;
-	std::cerr << kernel_Z_D65.dot(SPD_D65) << std::endl;
-
-	std::cerr << kernel_X_D65.dot(SPD_D65) / kernel_Y_D65.dot(SPD_D65) << std::endl;
-	std::cerr << kernel_Y_D65.dot(SPD_D65) / kernel_Y_D65.dot(SPD_D65) << std::endl;
-	std::cerr << kernel_Z_D65.dot(SPD_D65) / kernel_Y_D65.dot(SPD_D65) << std::endl;
 	
-	// scaled to match D65
+	// scaled to match E/D65
 	//
+	kernel_X_E.mulLocal(1.0_r / kernel_X_E.dot(SPD_E));
+	kernel_Y_E.mulLocal(1.0_r / kernel_Y_E.dot(SPD_E));
+	kernel_Z_E.mulLocal(1.0_r / kernel_Z_E.dot(SPD_E));
 	kernel_X_D65.mulLocal(0.95047_r / kernel_X_D65.dot(SPD_D65));
 	kernel_Y_D65.mulLocal(1.00000_r / kernel_Y_D65.dot(SPD_D65));
 	kernel_Z_D65.mulLocal(1.08883_r / kernel_Z_D65.dot(SPD_D65));
-
-	//std::cerr << kernel_X_D65.dot(SPD_D65) << std::endl;
-	//std::cerr << kernel_Y_D65.dot(SPD_D65) << std::endl;
-	//std::cerr << kernel_Z_D65.dot(SPD_D65) << std::endl;
-
-	//const real norm = kernel_Y_D65.dot(SPD_D65);
-
-	//kernel_X_D65.mulLocal(1.0_r / norm);
-	//kernel_Y_D65.mulLocal(1.0_r / norm);
-	//kernel_Z_D65.mulLocal(1.0_r / norm);
 
 	// Constructing sampled SPD for Smits' algorithm.
 	
@@ -146,6 +143,15 @@ Vector3R ColorSpace::SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd)
 	return Vector3R(kernel_X_D65.dot(spd),
 	                kernel_Y_D65.dot(spd),
 	                kernel_Z_D65.dot(spd));
+}
+
+Vector3R ColorSpace::SPD_to_CIE_XYZ_E(const SampledSpectralStrength& spd)
+{
+	PH_ASSERT(isInitialized());
+
+	return Vector3R(kernel_X_E.dot(spd),
+	                kernel_Y_E.dot(spd),
+	                kernel_Z_E.dot(spd));
 }
 
 }// end namespace ph

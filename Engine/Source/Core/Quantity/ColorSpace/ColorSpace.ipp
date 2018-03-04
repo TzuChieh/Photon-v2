@@ -9,7 +9,53 @@ namespace ph
 {
 
 template<typename Hint, typename>
-static inline void ColorSpace::linear_sRGB_to_SPD(
+inline Vector3R ColorSpace::SPD_to_CIE_XYZ(const SampledSpectralStrength& spd)
+{
+	PH_ASSERT(isInitialized());
+
+	if constexpr(std::is_same_v<Hint, SourceHint::ILLUMINANT>)
+	{
+		return SPD_to_CIE_XYZ_D65(spd);
+	}
+	
+	if constexpr(std::is_same_v<Hint, SourceHint::REFLECTANCE>)
+	{
+		return SPD_to_CIE_XYZ_E(spd);
+	}
+
+	// Assuming D65 white point based SPD for other cases
+	//
+	return SPD_to_CIE_XYZ_D65(spd);
+}
+
+template<typename Hint, typename>
+inline Vector3R ColorSpace::SPD_to_linear_sRGB(const SampledSpectralStrength& spd)
+{
+	const Vector3R& cieXyz = SPD_to_CIE_XYZ<Hint>(spd);
+
+	if constexpr(std::is_same_v<Hint, SourceHint::ILLUMINANT>)
+	{
+		return CIE_XYZ_D65_to_linear_sRGB(cieXyz);
+	}
+
+	if constexpr(std::is_same_v<Hint, SourceHint::REFLECTANCE>)
+	{
+		return CIE_XYZ_E_to_linear_sRGB(cieXyz);
+	}
+
+	// Assuming D65 white point based SPD for other cases (follows sRGB standard)
+	//
+	return CIE_XYZ_D65_to_linear_sRGB(SPD_to_CIE_XYZ(spd));
+}
+
+template<typename Hint, typename>
+inline Vector3R ColorSpace::SPD_to_sRGB(const SampledSpectralStrength& spd)
+{
+	return linear_sRGB_to_sRGB(SPD_to_linear_sRGB<Hint>(spd));
+}
+
+template<typename Hint, typename>
+inline void ColorSpace::linear_sRGB_to_SPD(
 	const Vector3R&                color, 
 	SampledSpectralStrength* const out_spd)
 {
@@ -22,7 +68,9 @@ static inline void ColorSpace::linear_sRGB_to_SPD(
 
 	out_spd->setValues(0);
 
-	// The following steps mix in primary colors only as needed.
+	// The following steps mix in primary colors only as needed. Also, 
+	// (r, g, b) = (1, 1, 1) will be mapped to a constant SPD with 
+	// magnitudes = 1.
 
 	// when R is minimum
 	if(r <= g && r <= b)
@@ -77,11 +125,16 @@ static inline void ColorSpace::linear_sRGB_to_SPD(
 		out_spd->mulLocal(SPD_D65);
 	}
 
-	// TODO: ensure energy conservation?
+	// For reflectances, make sure energy conservation requirements are met.
+	//
+	if constexpr(std::is_same_v<Hint, SourceHint::REFLECTANCE>)
+	{
+		out_spd->clampLocal(0.0_r, 1.0_r);
+	}
 }
 
 template<typename Hint, typename>
-void inline ColorSpace::sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* const out_spd)
+inline void ColorSpace::sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* const out_spd)
 {
 	linear_sRGB_to_SPD<Hint>(sRGB_to_linear_sRGB(color), out_spd);
 }

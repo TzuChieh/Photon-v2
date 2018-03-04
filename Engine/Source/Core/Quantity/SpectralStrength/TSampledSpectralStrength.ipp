@@ -56,7 +56,20 @@ impl_genLinearSrgb() const
 {
 	if constexpr(std::is_same_v<TSampledSpectralStrength, SampledSpectralStrength>)
 	{
-		return ColorSpace::SPD_to_linear_sRGB(static_cast<const SampledSpectralStrength&>(*this));
+		switch(this->m_valueType)
+		{
+		case EQuantity::LIGHT:
+			return ColorSpace::SPD_to_linear_sRGB<ColorSpace::SourceHint::ILLUMINANT>(
+				static_cast<const SampledSpectralStrength&>(*this));
+
+		case EQuantity::REFLECTANCE:
+			return ColorSpace::SPD_to_linear_sRGB<ColorSpace::SourceHint::REFLECTANCE>(
+				static_cast<const SampledSpectralStrength&>(*this));
+
+		default:
+			return ColorSpace::SPD_to_linear_sRGB<ColorSpace::SourceHint::NO_HINT>(
+				static_cast<const SampledSpectralStrength&>(*this));
+		}
 	}
 	else
 	{
@@ -85,7 +98,7 @@ impl_setLinearSrgb(const Vector3R& linearSrgb)
 			break;
 
 		default:
-			ColorSpace::linear_sRGB_to_SPD<ColorSpace::SourceHint::REFLECTANCE>(
+			ColorSpace::linear_sRGB_to_SPD<ColorSpace::SourceHint::NO_HINT>(
 				linearSrgb, static_cast<SampledSpectralStrength*>(this));
 			break;
 		}
