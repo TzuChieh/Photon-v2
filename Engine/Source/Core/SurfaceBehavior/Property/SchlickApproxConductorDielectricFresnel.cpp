@@ -37,7 +37,7 @@ void SchlickApproxConductorDielectricFresnel::calcReflectance(
 	//
 	const real cosI = std::abs(cosThetaIncident);
 
-	out_reflectance->set(m_f0Complement.mul(std::pow(1.0_r - cosI, 5)).addLocal(m_f0));
+	out_reflectance->setValues(m_f0Complement.mul(std::pow(1.0_r - cosI, 5)).addLocal(m_f0));
 }
 
 }// end namespace ph

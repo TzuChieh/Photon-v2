@@ -39,7 +39,7 @@ void LambertianDiffuse::evalBsdf(
 	// check if L, V lies on different side of the surface
 	if(NoL * NoV <= 0.0_r)
 	{
-		out_bsdf->set(0);
+		out_bsdf->setValues(0);
 		return;
 	}
 
@@ -79,11 +79,11 @@ void LambertianDiffuse::genBsdfSample(const SurfaceHit& X, const Vector3R& V,
 	const real NoL = N.dot(L);
 	if(NoL <= 0.0_r)
 	{
-		out_pdfAppliedBsdf->set(0);
+		out_pdfAppliedBsdf->setValues(0);
 		return;
 	}
 
-	out_pdfAppliedBsdf->set(albedo.mulLocal(1.0_r / N.dot(L)));
+	out_pdfAppliedBsdf->setValues(albedo.mulLocal(1.0_r / N.dot(L)));
 }
 
 void LambertianDiffuse::calcBsdfSamplePdf(

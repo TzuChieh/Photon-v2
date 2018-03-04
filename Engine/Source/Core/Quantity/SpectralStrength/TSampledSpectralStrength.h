@@ -23,18 +23,18 @@ public:
 public:
 	typedef TAbstractSpectralStrength<TSampledSpectralStrength, N> Parent;
 
-	TSampledSpectralStrength();
-	TSampledSpectralStrength(const TSampledSpectralStrength& other);
+	inline TSampledSpectralStrength();
+	inline TSampledSpectralStrength(const TSampledSpectralStrength& other);
 	using Parent::TAbstractSpectralStrength;
 	virtual inline ~TSampledSpectralStrength() override = default;
 
-	void asAveraged(const real* lambdasNm, const real* strengths, std::size_t numElements);
+	//void asAveraged(const real* lambdasNm, const real* strengths, std::size_t numElements);
 
-	using Parent::operator = ;
+	inline TSampledSpectralStrength& operator = (const TSampledSpectralStrength& rhs);
 
-	Vector3R impl_genLinearSrgb() const;
-	void impl_setLinearSrgb(const Vector3R& rgb);
-	void impl_setSampled(const SampledSpectralStrength& sampled);
+	inline Vector3R impl_genLinearSrgb() const;
+	inline void impl_setLinearSrgb(const Vector3R& rgb);
+	inline void impl_setSampled(const SampledSpectralStrength& sampled);
 };
 
 }// end namespace ph

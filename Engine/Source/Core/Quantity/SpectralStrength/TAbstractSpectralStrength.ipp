@@ -18,18 +18,33 @@ inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength() :
 {}
 
 template<typename DerivedType, std::size_t N>
+inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(const EQuantity valueType) : 
+	TAbstractSpectralStrength(0, valueType)
+{}
+
+template<typename DerivedType, std::size_t N>
 inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(const real value) :
 	TAbstractSpectralStrength(TArithmeticArray<real, N>(value))
 {}
 
 template<typename DerivedType, std::size_t N>
+inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(const real value, const EQuantity valueType) :
+	TAbstractSpectralStrength(TArithmeticArray<real, N>(value), valueType)
+{}
+
+template<typename DerivedType, std::size_t N>
 inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(const TArithmeticArray<real, N>& values) :
-	m_values(values)
+	TAbstractSpectralStrength(values, EQuantity::RAW_DATA)
+{}
+
+template<typename DerivedType, std::size_t N>
+inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(const TArithmeticArray<real, N>& values, const EQuantity valueType) :
+	m_values(values), m_valueType(valueType)
 {}
 
 template<typename DerivedType, std::size_t N>
 inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(const TAbstractSpectralStrength& other) :
-	m_values(other.m_values)
+	m_values(other.m_values), m_valueType(other.m_valueType)
 {}
 
 template<typename DerivedType, std::size_t N>
@@ -54,21 +69,23 @@ inline real TAbstractSpectralStrength<DerivedType, N>::calcLuminance() const
 }
 
 template<typename DerivedType, std::size_t N>
-inline void TAbstractSpectralStrength<DerivedType, N>::setSrgb(const Vector3R& srgb)
+inline void TAbstractSpectralStrength<DerivedType, N>::setSrgb(const Vector3R& srgb, const EQuantity valueType)
 {
-	setLinearSrgb(ColorSpace::sRGB_to_linear_sRGB(srgb));
+	setLinearSrgb(ColorSpace::sRGB_to_linear_sRGB(srgb), valueType);
 }
 
 template<typename DerivedType, std::size_t N>
-inline void TAbstractSpectralStrength<DerivedType, N>::setLinearSrgb(const Vector3R& linearSrgb)
+inline void TAbstractSpectralStrength<DerivedType, N>::setLinearSrgb(const Vector3R& linearSrgb, const EQuantity valueType)
 {
+	setValueType(valueType);
 	static_cast<DerivedType&>(*this).impl_setLinearSrgb(linearSrgb);
 }
 
 template<typename DerivedType, std::size_t N>
 inline void TAbstractSpectralStrength<DerivedType, N>::setSampled(
-	const SampledSpectralStrength& sampled)
+	const SampledSpectralStrength& sampled, const EQuantity valueType)
 {
+	setValueType(valueType);
 	static_cast<DerivedType&>(*this).impl_setSampled(sampled);
 }
 
@@ -201,6 +218,21 @@ inline auto TAbstractSpectralStrength<DerivedType, N>::divLocal(const real rhs)
 }
 
 template<typename DerivedType, std::size_t N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::complementLocal()
+-> DerivedType&
+{
+	m_values.complementLocal();
+
+	return static_cast<DerivedType&>(*this);
+}
+
+template<typename DerivedType, std::size_t N>
+inline real TAbstractSpectralStrength<DerivedType, N>::dot(const DerivedType& rhs) const
+{
+	return m_values.dot(rhs.m_values);
+}
+
+template<typename DerivedType, std::size_t N>
 inline auto TAbstractSpectralStrength<DerivedType, N>::pow(const integer exponent) const
 	-> DerivedType
 {
@@ -217,6 +249,13 @@ inline auto TAbstractSpectralStrength<DerivedType, N>::sqrtLocal()
 }
 
 template<typename DerivedType, std::size_t N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::complement() const
+	-> DerivedType
+{
+	return DerivedType(m_values.complement());
+}
+
+template<typename DerivedType, std::size_t N>
 inline auto TAbstractSpectralStrength<DerivedType, N>::clampLocal(const real lowerBound, const real upperBound)
 	-> DerivedType&
 {
@@ -226,21 +265,77 @@ inline auto TAbstractSpectralStrength<DerivedType, N>::clampLocal(const real low
 }
 
 template<typename DerivedType, std::size_t N>
-inline auto TAbstractSpectralStrength<DerivedType, N>::set(const real value)
-	-> TAbstractSpectralStrength<DerivedType, N>&
+inline auto TAbstractSpectralStrength<DerivedType, N>::setValues(const real value)
+	-> DerivedType&
 {
 	m_values.set(value);
 
-	return *this;
+	return static_cast<DerivedType&>(*this);
 }
 
 template<typename DerivedType, std::size_t N>
-inline auto TAbstractSpectralStrength<DerivedType, N>::set(const std::array<real, N>& values)
-	-> TAbstractSpectralStrength<DerivedType, N>&
+inline auto TAbstractSpectralStrength<DerivedType, N>::setValues(const std::array<real, N>& values)
+	-> DerivedType&
 {
 	m_values.set(values);
 
-	return *this;
+	return static_cast<DerivedType&>(*this);
+}
+
+template<typename DerivedType, std::size_t N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::setValues(const TArithmeticArray<real, N>& values)
+	-> DerivedType&
+{
+	m_values = values;
+
+	return static_cast<DerivedType&>(*this);
+}
+
+template<typename DerivedType, std::size_t N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::setValues(const DerivedType& values)
+	-> DerivedType&
+{
+	return setValues(values.m_values);
+}
+
+template<typename DerivedType, std::size_t N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::setValueType(const EQuantity valueType)
+	-> DerivedType&
+{
+	m_valueType = valueType;
+
+	return static_cast<DerivedType&>(*this);
+}
+
+template<typename DerivedType, std::size_t N>
+inline bool TAbstractSpectralStrength<DerivedType, N>::isZero() const
+{
+	return m_values.isZero();
+}
+
+template<typename DerivedType, std::size_t N>
+inline bool TAbstractSpectralStrength<DerivedType, N>::isNonNegative() const
+{
+	return m_values.isNonNegative();
+}
+
+template<typename DerivedType, std::size_t N>
+inline real TAbstractSpectralStrength<DerivedType, N>::sum() const
+{
+	return m_values.sum();
+}
+
+template<typename DerivedType, std::size_t N>
+inline real TAbstractSpectralStrength<DerivedType, N>::avg() const
+{
+	return m_values.avg();
+}
+
+
+template<typename DerivedType, std::size_t N>
+inline real TAbstractSpectralStrength<DerivedType, N>::max() const
+{
+	return m_values.max();
 }
 
 template<typename DerivedType, std::size_t N>
@@ -256,24 +351,39 @@ inline real& TAbstractSpectralStrength<DerivedType, N>::operator [] (const std::
 }
 
 template<typename DerivedType, std::size_t N>
-inline auto TAbstractSpectralStrength<DerivedType, N>::operator + (const TAbstractSpectralStrength& rhs)
-	-> TAbstractSpectralStrength<DerivedType, N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::operator + (const DerivedType& rhs) const
+	-> DerivedType
 {
-	m_values 
+	return this->add(rhs);
 }
 
 template<typename DerivedType, std::size_t N>
-inline auto TAbstractSpectralStrength<DerivedType, N>::operator * (const TAbstractSpectralStrength& rhs)
-	-> TAbstractSpectralStrength<DerivedType, N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::operator * (const DerivedType& rhs) const
+	-> DerivedType
 {
+	return this->mul(rhs);
+}
 
+template<typename DerivedType, std::size_t N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::operator + (const real rhs) const
+	-> DerivedType
+{
+	return this->add(rhs);
+}
+
+template<typename DerivedType, std::size_t N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::operator * (const real rhs) const
+	-> DerivedType
+{
+	return this->mul(rhs);
 }
 
 template<typename DerivedType, std::size_t N>
 inline auto TAbstractSpectralStrength<DerivedType, N>::operator = (const TAbstractSpectralStrength& rhs)
-	-> TAbstractSpectralStrength<DerivedType, N>&
+	-> TAbstractSpectralStrength&
 {
-	m_values = rhs.m_values;
+	m_values    = rhs.m_values;
+	m_valueType = rhs.m_valueType;
 
 	return *this;
 }

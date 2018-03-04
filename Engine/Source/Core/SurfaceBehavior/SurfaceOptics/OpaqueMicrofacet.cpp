@@ -38,7 +38,7 @@ void OpaqueMicrofacet::evalBsdf(const SurfaceHit& X, const Vector3R& L, const Ve
 	// check if L, V lies on different side of the surface
 	if(NoL * NoV <= 0.0_r)
 	{
-		out_bsdf->set(0);
+		out_bsdf->setValues(0);
 		return;
 	}
 
@@ -97,7 +97,7 @@ void OpaqueMicrofacet::genBsdfSample(const SurfaceHit& X, const Vector3R& V,
 	const real G = m_microfacet->shadowing(X, N, H, L, V);
 
 	const real multiplier = std::abs(HoL / (NoV * NoL * NoH));
-	out_pdfAppliedBsdf->set(F.mul(G).mulLocal(multiplier));
+	out_pdfAppliedBsdf->setValues(F.mul(G).mulLocal(multiplier));
 
 	*out_type = ESurfacePhenomenon::REFLECTION;
 }

@@ -28,19 +28,29 @@ lambdaRangeNmOf(const std::size_t index)
 }
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
-TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
+inline TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
 TSampledSpectralStrength() :
 	Parent(0)
 {}
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
-TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
+inline TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
 TSampledSpectralStrength(const TSampledSpectralStrength& other) :
 	Parent(other)
 {}
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
-auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
+inline auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
+operator = (const TSampledSpectralStrength& rhs)
+	-> TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>&
+{
+	this->Parent::operator = (rhs);
+
+	return *this;
+}
+
+template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
+inline auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
 impl_genLinearSrgb() const
 	-> Vector3R
 {
@@ -56,13 +66,29 @@ impl_genLinearSrgb() const
 }
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
-auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
+inline auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
 impl_setLinearSrgb(const Vector3R& linearSrgb)
 	-> void
 {
 	if constexpr(std::is_same_v<TSampledSpectralStrength, SampledSpectralStrength>)
 	{
-		ColorSpace::linear_sRGB_to_SPD(linearSrgb, static_cast<SampledSpectralStrength*>(this));
+		switch(this->m_valueType)
+		{
+		case EQuantity::LIGHT:
+			ColorSpace::linear_sRGB_to_SPD<ColorSpace::SourceHint::ILLUMINANT>(
+				linearSrgb, static_cast<SampledSpectralStrength*>(this));
+			break;
+
+		case EQuantity::REFLECTANCE:
+			ColorSpace::linear_sRGB_to_SPD<ColorSpace::SourceHint::REFLECTANCE>(
+				linearSrgb, static_cast<SampledSpectralStrength*>(this));
+			break;
+
+		default:
+			ColorSpace::linear_sRGB_to_SPD<ColorSpace::SourceHint::REFLECTANCE>(
+				linearSrgb, static_cast<SampledSpectralStrength*>(this));
+			break;
+		}
 	}
 	else
 	{
@@ -72,7 +98,7 @@ impl_setLinearSrgb(const Vector3R& linearSrgb)
 }
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
-auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
+inline auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
 impl_setSampled(const SampledSpectralStrength& sampled)
 	-> void
 {

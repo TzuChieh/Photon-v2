@@ -234,6 +234,7 @@
     <ClInclude Include="Source\Core\Intersectable\PTriangle.h" />
     <ClInclude Include="Source\Core\Intersectable\TransformedIntersectable.h" />
     <ClInclude Include="Source\Core\Quantity\ColorSpace.h" />
+    <ClInclude Include="Source\Core\Quantity\EQuantity.h" />
     <ClInclude Include="Source\Core\Quantity\SpectralData.h" />
     <ClInclude Include="Source\Core\Quantity\SpectralStrength\LinearSrgbSpectralStrength.h" />
     <ClInclude Include="Source\Core\Quantity\ColorSpace\spectral_data.h" />

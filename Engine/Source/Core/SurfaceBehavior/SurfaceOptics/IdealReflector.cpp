@@ -21,7 +21,7 @@ void IdealReflector::evalBsdf(
 	SpectralStrength* const out_bsdf,
 	ESurfacePhenomenon* const out_type) const
 {
-	out_bsdf->set(0.0_r);
+	out_bsdf->setValues(0.0_r);
 	*out_type = ESurfacePhenomenon::REFLECTION;
 }
 

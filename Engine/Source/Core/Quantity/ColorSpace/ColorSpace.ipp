@@ -20,7 +20,7 @@ static inline void ColorSpace::linear_sRGB_to_SPD(
 	const real g = color.y;
 	const real b = color.z;
 
-	out_spd->set(0);
+	out_spd->setValues(0);
 
 	// The following steps mix in primary colors only as needed.
 

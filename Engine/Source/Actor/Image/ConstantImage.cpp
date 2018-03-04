@@ -70,7 +70,7 @@ std::shared_ptr<TTexture<SpectralStrength>> ConstantImage::genTextureSpectral(
 	}
 	else if(m_values.size() == 1)
 	{
-		constSpectrum.set(m_values[0]);
+		constSpectrum.setValues(m_values[0]);
 	}
 	else
 	{

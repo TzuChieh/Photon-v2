@@ -145,7 +145,7 @@ void TranslucentMicrofacet::genBsdfSample(const SurfaceHit& X, const Vector3R& V
 	else
 	{
 		// this may be called due to numerical error
-		out_pdfAppliedBsdf->set(0);
+		out_pdfAppliedBsdf->setValues(0);
 		return;
 	}
 
@@ -157,7 +157,7 @@ void TranslucentMicrofacet::genBsdfSample(const SurfaceHit& X, const Vector3R& V
 	const real G = m_microfacet->shadowing(X, N, H, L, V);
 
 	const real dotTerms = std::abs(HoL / (NoV * NoL * NoH));
-	out_pdfAppliedBsdf->set(F.mul(G * dotTerms));
+	out_pdfAppliedBsdf->setValues(F.mul(G * dotTerms));
 }
 
 void TranslucentMicrofacet::calcBsdfSamplePdf(const SurfaceHit& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,

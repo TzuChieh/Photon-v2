@@ -27,7 +27,7 @@ AreaSource::AreaSource(const Vector3R& emittedRgbRadiance) :
 	radiance.setLinearSrgb(emittedRgbRadiance);// FIXME: check color space
 
 	std::vector<real> vecRadianceSpectrum;
-	for(std::size_t i = 0; i < SpectralStrength::numElements(); i++)
+	for(std::size_t i = 0; i < SpectralStrength::NUM_VALUES; i++)
 	{
 		vecRadianceSpectrum.push_back(radiance[i]);
 	}

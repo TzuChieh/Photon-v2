@@ -18,8 +18,8 @@ public:
 	class SourceHint
 	{
 	public:
-		class REFLECTANCE;
 		class ILLUMINANT;
+		class REFLECTANCE;
 	};
 
 public:

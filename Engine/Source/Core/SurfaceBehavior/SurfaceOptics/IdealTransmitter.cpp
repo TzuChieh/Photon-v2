@@ -18,7 +18,7 @@ void IdealTransmitter::evalBsdf(
 	SpectralStrength* const out_bsdf,
 	ESurfacePhenomenon* const out_type) const
 {
-	out_bsdf->set(0.0_r);
+	out_bsdf->setValues(0.0_r);
 	*out_type = ESurfacePhenomenon::TRANSMISSION;
 }
 
@@ -34,7 +34,7 @@ void IdealTransmitter::genBsdfSample(
 	Vector3R& L = *out_L;
 	if(!m_fresnel->calcRefractDir(V, N, &L))
 	{
-		out_pdfAppliedBsdf->set(0.0_r);
+		out_pdfAppliedBsdf->setValues(0.0_r);
 		return;
 	}
 
@@ -51,7 +51,7 @@ void IdealTransmitter::genBsdfSample(
 	}
 
 	const real iorRatio2 = (etaT * etaT) / (etaI * etaI);
-	out_pdfAppliedBsdf->set(F.mul(iorRatio2 / cosI));
+	out_pdfAppliedBsdf->setValues(F.mul(iorRatio2 / cosI));
 }
 
 void IdealTransmitter::calcBsdfSamplePdf(

@@ -39,14 +39,14 @@ void SchlickApproxDielectricFresnel::calcReflectance(
 		// handles TIR
 		if(sinT2 >= 1.0_r)
 		{
-			out_reflectance->set(1.0_r);
+			out_reflectance->setValues(1.0_r);
 			return;
 		}
 
 		cosTheta = std::sqrt(1.0_r - sinT2);
 	}
 
-	out_reflectance->set(m_f0 + (1.0_r - m_f0) * std::pow(1.0_r - cosTheta, 5));
+	out_reflectance->setValues(m_f0 + (1.0_r - m_f0) * std::pow(1.0_r - cosTheta, 5));
 }
 
 }// end namespace ph

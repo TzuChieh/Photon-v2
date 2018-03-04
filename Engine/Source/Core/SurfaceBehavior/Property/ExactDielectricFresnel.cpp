@@ -31,7 +31,7 @@ void ExactDielectricFresnel::calcReflectance(const real cosThetaIncident,
 	// handles TIR
 	if(sinT2 >= 1.0_r)
 	{
-		out_reflectance->set(1.0_r);
+		out_reflectance->setValues(1.0_r);
 		return;
 	}
 
@@ -41,7 +41,7 @@ void ExactDielectricFresnel::calcReflectance(const real cosThetaIncident,
 	const real rPerpendicular = (etaI * cosI - etaT * cosT) / (etaI * cosI + etaT * cosT);
 	const real rSum           = 0.5_r * (rParallel * rParallel + rPerpendicular * rPerpendicular);
 
-	out_reflectance->set(rSum);
+	out_reflectance->setValues(rSum);
 }
 
 }// end namespace ph

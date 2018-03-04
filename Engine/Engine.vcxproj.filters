@@ -757,6 +757,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Quantity\ColorSpace\ColorSpace.ipp" />
+    <ClInclude Include="Source\Core\Quantity\EQuantity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">
