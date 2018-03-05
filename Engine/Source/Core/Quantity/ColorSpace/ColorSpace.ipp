@@ -23,9 +23,9 @@ inline Vector3R ColorSpace::SPD_to_CIE_XYZ(const SampledSpectralStrength& spd)
 		return SPD_to_CIE_XYZ_E(spd);
 	}
 
-	// Assuming D65 white point based SPD for other cases
+	// Assuming E white point based SPD for other cases.
 	//
-	return SPD_to_CIE_XYZ_D65(spd);
+	return SPD_to_CIE_XYZ_E(spd);
 }
 
 template<typename Hint, typename>
@@ -43,9 +43,9 @@ inline Vector3R ColorSpace::SPD_to_linear_sRGB(const SampledSpectralStrength& sp
 		return CIE_XYZ_E_to_linear_sRGB(cieXyz);
 	}
 
-	// Assuming D65 white point based SPD for other cases (follows sRGB standard)
+	// Assuming E white point based SPD for other cases.
 	//
-	return CIE_XYZ_D65_to_linear_sRGB(SPD_to_CIE_XYZ(spd));
+	return CIE_XYZ_E_to_linear_sRGB(SPD_to_CIE_XYZ(spd));
 }
 
 template<typename Hint, typename>

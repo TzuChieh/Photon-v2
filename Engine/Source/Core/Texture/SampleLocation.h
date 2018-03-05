@@ -2,6 +2,7 @@
 
 #include "Core/SurfaceHit.h"
 #include "Math/TVector3.h"
+#include "Core/Quantity/EQuantity.h"
 
 namespace ph
 {
@@ -14,12 +15,19 @@ namespace ph
 class SampleLocation final
 {
 public:
-	inline SampleLocation(const SurfaceHit& hit, const Vector3R& uvw) :
-		m_hit(hit), m_uvw(uvw)
+	inline SampleLocation(const SurfaceHit& hit, 
+	                      const Vector3R&   uvw) :
+		SampleLocation(hit, uvw, EQuantity::RAW)
+	{}
+
+	inline SampleLocation(const SurfaceHit& hit, 
+	                      const Vector3R&   uvw, 
+	                      const EQuantity   quantity) :
+		m_hit(hit), m_uvw(uvw), m_quantity(quantity)
 	{}
 
 	inline SampleLocation(const SampleLocation& other) :
-		SampleLocation(other.m_hit, other.m_uvw)
+		SampleLocation(other.m_hit, other.m_uvw, other.m_quantity)
 	{}
 
 	inline const Vector3R& uvw() const
@@ -29,12 +37,18 @@ public:
 
 	inline SampleLocation getUvwScaled(const Vector3R& scale) const
 	{
-		return SampleLocation(m_hit, m_uvw.mul(scale));
+		return SampleLocation(m_hit, m_uvw.mul(scale), m_quantity);
+	}
+
+	inline EQuantity expectedQuantity() const
+	{
+		return m_quantity;
 	}
 
 private:
 	const SurfaceHit& m_hit;
 	const Vector3R&   m_uvw;
+	const EQuantity   m_quantity;
 };
 
 }// end namespace ph

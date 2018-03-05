@@ -34,7 +34,7 @@ inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(cons
 
 template<typename DerivedType, std::size_t N>
 inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(const TArithmeticArray<real, N>& values) :
-	TAbstractSpectralStrength(values, EQuantity::RAW_DATA)
+	TAbstractSpectralStrength(values, EQuantity::RAW)
 {}
 
 template<typename DerivedType, std::size_t N>
@@ -67,10 +67,10 @@ inline real TAbstractSpectralStrength<DerivedType, N>::calcLuminance() const
 {
 	switch(m_valueType)
 	{
-	case EQuantity::LIGHT:
+	case EQuantity::EMR:
 		return ColorSpace::linear_sRGB_D65_to_luminance(genLinearSrgb());
 
-	case EQuantity::REFLECTANCE:
+	case EQuantity::ECF:
 		return ColorSpace::linear_sRGB_E_to_luminance(genLinearSrgb());
 
 	default:

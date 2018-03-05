@@ -37,12 +37,9 @@ public:
 	inline Vector3R genSrgb() const;
 	inline Vector3R genLinearSrgb() const;
 
-	inline void setSrgb(const Vector3R& srgb, 
-	                    EQuantity valueType = EQuantity::RAW_DATA);
-	inline void setLinearSrgb(const Vector3R& linearSrgb, 
-	                          EQuantity valueType = EQuantity::RAW_DATA);
-	inline void setSampled(const SampledSpectralStrength& sampled, 
-	                       EQuantity valueType = EQuantity::RAW_DATA);
+	inline void setSrgb(const Vector3R& srgb, EQuantity valueType = EQuantity::RAW);
+	inline void setLinearSrgb(const Vector3R& linearSrgb, EQuantity valueType = EQuantity::RAW);
+	inline void setSampled(const SampledSpectralStrength& sampled, EQuantity valueType = EQuantity::RAW);
 
 	inline DerivedType add(const DerivedType& rhs) const;
 	inline DerivedType add(real rhs) const;

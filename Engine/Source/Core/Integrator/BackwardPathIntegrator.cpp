@@ -41,8 +41,8 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 	//const real rayDeltaDist = 0.00001_r;
 
 	uint32 numBounces = 0;
-	SpectralStrength accuRadiance(0);
-	SpectralStrength accuLiWeight(1);
+	SpectralStrength accuRadiance(0, EQuantity::EMR);
+	SpectralStrength accuLiWeight(1, EQuantity::RAW);
 	//Vector3R rayOriginDelta;
 	HitProbe hitProbe;
 	HitDetail hitDetail;

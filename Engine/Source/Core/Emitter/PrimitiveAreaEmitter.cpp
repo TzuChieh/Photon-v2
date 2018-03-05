@@ -46,7 +46,7 @@ PrimitiveAreaEmitter::~PrimitiveAreaEmitter()
 
 void PrimitiveAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* const out_radiance) const
 {
-	TSampler<SpectralStrength> sampler;
+	TSampler<SpectralStrength> sampler(EQuantity::EMR);
 	*out_radiance = sampler.sample(*m_emittedRadiance, X);
 }
 

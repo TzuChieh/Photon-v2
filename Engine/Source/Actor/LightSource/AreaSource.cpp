@@ -58,7 +58,7 @@ std::unique_ptr<Emitter> AreaSource::genEmitter(
 		std::cerr << "warning: at AreaSource::buildEmitter(), requires at least a Primitive to build" << std::endl;
 		return nullptr;
 	}
-	
+
 	std::unique_ptr<PrimitiveAreaEmitter> emitter = std::make_unique<PrimitiveAreaEmitter>(data.primitives);
 	emitter->setEmittedRadiance(m_emittedRadiance->genTextureSpectral(context));
 	return std::move(emitter);

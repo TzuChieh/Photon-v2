@@ -17,9 +17,7 @@ namespace ph
 LambertianDiffuse::LambertianDiffuse() :
 	SurfaceOptics(),
 	m_albedo(std::make_shared<TConstantTexture<SpectralStrength>>(SpectralStrength(0.5_r)))
-{
-	
-}
+{}
 
 LambertianDiffuse::~LambertianDiffuse() = default;
 
@@ -43,7 +41,7 @@ void LambertianDiffuse::evalBsdf(
 		return;
 	}
 
-	SpectralStrength albedo = TSampler<SpectralStrength>().sample(*m_albedo, X);
+	SpectralStrength albedo = TSampler<SpectralStrength>(EQuantity::ECF).sample(*m_albedo, X);
 
 	*out_bsdf = albedo.divLocal(PH_PI_REAL);
 	*out_type = ESurfacePhenomenon::REFLECTION;
@@ -57,7 +55,7 @@ void LambertianDiffuse::genBsdfSample(const SurfaceHit& X, const Vector3R& V,
 	// generating a cos(theta) weighted L corresponding to N, which PDF is cos(theta)/pi.
 	// Thus, BRDF_lambertian/PDF = albedo/cos(theta).
 
-	SpectralStrength albedo = TSampler<SpectralStrength>().sample(*m_albedo, X);
+	SpectralStrength albedo = TSampler<SpectralStrength>(EQuantity::ECF).sample(*m_albedo, X);
 
 	// generate and transform L to N's space
 	const Vector3R& N = X.getShadingNormal();
