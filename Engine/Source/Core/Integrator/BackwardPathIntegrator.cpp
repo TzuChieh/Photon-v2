@@ -41,8 +41,8 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 	//const real rayDeltaDist = 0.00001_r;
 
 	uint32 numBounces = 0;
-	SpectralStrength accuRadiance(0, EQuantity::EMR);
-	SpectralStrength accuLiWeight(1, EQuantity::RAW);
+	SpectralStrength accuRadiance(0);
+	SpectralStrength accuLiWeight(1);
 	//Vector3R rayOriginDelta;
 	HitProbe hitProbe;
 	HitDetail hitDetail;
@@ -125,7 +125,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 			{
 				//const real rrSurviveRate = liWeight.clamp(0.0f, 1.0f).max();
 				//const real rrSurviveRate = Math::clamp(liWeight.avg(), 0.1_r, 1.0_r);
-				const real rrSurviveRate = Math::clamp(liWeight.calcLuminance(), 0.1_r, 1.0_r);
+				const real rrSurviveRate = Math::clamp(liWeight.calcLuminance(EQuantity::EMR), 0.1_r, 1.0_r);
 				//const real rrSurviveRate = Math::clamp(Color::linearRgbLuminance(liWeight), 0.0001f, 1.0f);
 				const real rrSpin = Random::genUniformReal_i0_e1();
 

@@ -32,9 +32,9 @@ public:
 
 	inline TSampledSpectralStrength& operator = (const TSampledSpectralStrength& rhs);
 
-	inline Vector3R impl_genLinearSrgb() const;
-	inline void impl_setLinearSrgb(const Vector3R& rgb);
-	inline void impl_setSampled(const SampledSpectralStrength& sampled);
+	inline Vector3R impl_genLinearSrgb(EQuantity valueType) const;
+	inline void impl_setLinearSrgb(const Vector3R& rgb, EQuantity valueType);
+	inline void impl_setSampled(const SampledSpectralStrength& sampled, EQuantity valueType);
 };
 
 }// end namespace ph

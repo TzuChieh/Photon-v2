@@ -51,12 +51,12 @@ operator = (const TSampledSpectralStrength& rhs)
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
 inline auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
-impl_genLinearSrgb() const
+impl_genLinearSrgb(const EQuantity valueType) const
 	-> Vector3R
 {
 	if constexpr(std::is_same_v<TSampledSpectralStrength, SampledSpectralStrength>)
 	{
-		switch(this->m_valueType)
+		switch(valueType)
 		{
 		case EQuantity::EMR:
 			return ColorSpace::SPD_to_linear_sRGB<ColorSpace::SourceHint::ILLUMINANT>(
@@ -80,12 +80,12 @@ impl_genLinearSrgb() const
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
 inline auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
-impl_setLinearSrgb(const Vector3R& linearSrgb)
+impl_setLinearSrgb(const Vector3R& linearSrgb, const EQuantity valueType)
 	-> void
 {
 	if constexpr(std::is_same_v<TSampledSpectralStrength, SampledSpectralStrength>)
 	{
-		switch(this->m_valueType)
+		switch(valueType)
 		{
 		case EQuantity::EMR:
 			ColorSpace::linear_sRGB_to_SPD<ColorSpace::SourceHint::ILLUMINANT>(
@@ -112,7 +112,7 @@ impl_setLinearSrgb(const Vector3R& linearSrgb)
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
 inline auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
-impl_setSampled(const SampledSpectralStrength& sampled)
+impl_setSampled(const SampledSpectralStrength& sampled, const EQuantity valueType)
 	-> void
 {
 	if constexpr(std::is_same_v<TSampledSpectralStrength, SampledSpectralStrength>)

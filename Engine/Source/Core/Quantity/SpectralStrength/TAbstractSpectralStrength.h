@@ -21,21 +21,19 @@ public:
 
 public:
 	inline TAbstractSpectralStrength();
-	explicit inline TAbstractSpectralStrength(EQuantity valueType);
 	explicit inline TAbstractSpectralStrength(real value);
+	explicit inline TAbstractSpectralStrength(const std::array<real, N>& values);
 	explicit inline TAbstractSpectralStrength(const TArithmeticArray<real, N>& values);
 	explicit inline TAbstractSpectralStrength(const TAbstractSpectralStrength& other);
-	inline TAbstractSpectralStrength(real value, EQuantity valueType);
-	inline TAbstractSpectralStrength(const TArithmeticArray<real, N>& values, EQuantity valueType);
 	virtual inline ~TAbstractSpectralStrength() = 0;
 
 public:
 	// Calculates relative luminance with D65 as reference white point.
 	//
-	inline real calcLuminance() const;
+	inline real calcLuminance(EQuantity valueType = EQuantity::RAW) const;
 
-	inline Vector3R genSrgb() const;
-	inline Vector3R genLinearSrgb() const;
+	inline Vector3R genSrgb(EQuantity valueType = EQuantity::RAW) const;
+	inline Vector3R genLinearSrgb(EQuantity valueType = EQuantity::RAW) const;
 
 	inline void setSrgb(const Vector3R& srgb, EQuantity valueType = EQuantity::RAW);
 	inline void setLinearSrgb(const Vector3R& linearSrgb, EQuantity valueType = EQuantity::RAW);
@@ -74,7 +72,6 @@ public:
 	inline DerivedType& setValues(const std::array<real, N>& values);
 	inline DerivedType& setValues(const TArithmeticArray<real, N>& values);
 	inline DerivedType& setValues(const DerivedType& values);
-	inline DerivedType& setValueType(EQuantity valueType);
 
 	inline bool isZero() const;
 	inline bool isNonNegative() const;
@@ -92,7 +89,6 @@ public:
 
 protected:
 	TArithmeticArray<real, N> m_values;
-	EQuantity                 m_valueType;
 
 	inline TAbstractSpectralStrength& operator = (const TAbstractSpectralStrength& rhs);
 };
