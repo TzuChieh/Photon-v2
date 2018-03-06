@@ -118,6 +118,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DisableLanguageExtensions>true</DisableLanguageExtensions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -364,6 +365,7 @@
     <ClInclude Include="Source\Utility\TConstIteratorProxy.h" />
     <ClInclude Include="Source\Utility\TFixedSizeStack.h" />
     <ClInclude Include="Source\Utility\Timer.h" />
+    <ClInclude Include="Source\Utility\Timestamp.h" />
     <ClInclude Include="Source\Utility\TIteratorProxy.h" />
     <ClInclude Include="Source\Utility\TStableIndexDenseArray.h" />
     <ClInclude Include="Source\World\LightSampler\LightSampler.h" />
@@ -538,6 +540,7 @@
     <ClCompile Include="Source\Frame\ToneMapper\ToneMapper.cpp" />
     <ClCompile Include="Source\Utility\FixedSizeThreadPool.cpp" />
     <ClCompile Include="Source\Utility\Timer.cpp" />
+    <ClCompile Include="Source\Utility\Timestamp.cpp" />
     <ClCompile Include="Source\World\LightSampler\LightSampler.cpp" />
     <ClCompile Include="Source\World\LightSampler\UniformRandomLightSampler.cpp" />
     <ClCompile Include="Source\World\Scene.cpp" />

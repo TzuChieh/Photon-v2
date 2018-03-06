@@ -1,6 +1,8 @@
 #include "Common/Logger.h"
+#include "Utility/Timestamp.h"
 
 #include <iostream>
+#include <string>
 
 // FIXME: currently windows headers are non-standard, could not color console 
 // output on windows
@@ -20,9 +22,7 @@ const Logger& Logger::DEFAULT()
 
 Logger::Logger(const LogSender& logSender) :
 	m_logSender(logSender)
-{
-
-}
+{}
 
 void Logger::log(const std::string& message) const
 {
@@ -41,6 +41,8 @@ void Logger::setLogSender(const LogSender& logSender)
 
 void Logger::log(const LogSender& logSender, const ELogLevel& logLevel, const std::string& message)
 {
+	const Timestamp timestamp;
+
 #ifdef OPERATING_SYSTEM_WINDOWS
 	/*
 		For a color 0xAB, A = background color, B = foreground color,
@@ -121,25 +123,29 @@ void Logger::log(const LogSender& logSender, const ELogLevel& logLevel, const st
 	case ELogLevel::NOTE_MIN:
 	case ELogLevel::NOTE_MED:
 	case ELogLevel::NOTE_MAX:
-		std::cout << "[" << logSender.getSenderName() << "] >> " << message << std::endl;
+		std::cout << "[" + timestamp.toString() + "] " 
+		          << "[" << logSender.getSenderName() << "] " << message << std::endl;
 		break;
 
 	case ELogLevel::WARNING_MIN:
 	case ELogLevel::WARNING_MED:
 	case ELogLevel::WARNING_MAX:
-		std::cerr << "[" << logSender.getSenderName() << "] warning >> " << message << std::endl;
+		std::cerr << "[" + timestamp.toString() + "] " 
+		          << "[" << logSender.getSenderName() << "] [WARNING] " << message << std::endl;
 		break;
 
 	case ELogLevel::DEBUG_MIN:
 	case ELogLevel::DEBUG_MED:
 	case ELogLevel::DEBUG_MAX:
-		std::cerr << "[" << logSender.getSenderName() << "] debug >> " << message << std::endl;
+		std::cerr << "[" + timestamp.toString() + "] " 
+		          << "[" << logSender.getSenderName() << "] [DEBUG] " << message << std::endl;
 		break;
 
 	case ELogLevel::RECOVERABLE_ERROR:
 	case ELogLevel::SEVERE_ERROR:
 	case ELogLevel::FATAL_ERROR:
-		std::cerr << "[" << logSender.getSenderName() << "] error >> " << message << std::endl;
+		std::cerr << "[" + timestamp.toString() + "] " 
+		          << "[" << logSender.getSenderName() << "] [ERROR] " << message << std::endl;
 		break;
 
 	default:

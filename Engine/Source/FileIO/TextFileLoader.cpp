@@ -7,16 +7,19 @@
 namespace ph
 {
 
+const Logger TextFileLoader::logger(LogSender("Text File Loader"));
+
 bool TextFileLoader::load(const Path& filePath, std::string* const out_text)
 {
-	std::cout << "loading text file <" << filePath.toString() << ">" << std::endl;
+	logger.log(ELogLevel::NOTE_MED, 
+	           "loading text file <" + filePath.toString() + ">");
 
 	std::ifstream textFile;
 	textFile.open(filePath.toAbsoluteString());
 	if(!textFile.is_open())
 	{
-		std::cerr << "warning: cannot open text file <" 
-		          << filePath.toAbsoluteString() << ">" << std::endl;
+		logger.log(ELogLevel::WARNING_MED, 
+		           "cannot open text file <"+ filePath.toAbsoluteString() + ">");
 		return false;
 	}
 

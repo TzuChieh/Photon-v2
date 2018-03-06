@@ -18,7 +18,7 @@ public:
 private:
 	static LdrRgbFrame loadLdrViaStb(const std::string& fullFilename);
 
-	static const Logger& LOGGER();
+	static const Logger logger;
 };
 
 }// end namespace ph

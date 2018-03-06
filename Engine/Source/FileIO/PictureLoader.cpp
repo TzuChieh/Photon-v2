@@ -10,16 +10,12 @@
 namespace ph
 {
 
-const Logger& PictureLoader::LOGGER()
-{
-	static const Logger logger(LogSender("Pic. Loader"));
-	return logger;
-}
+const Logger PictureLoader::logger(LogSender("Picture Loader"));
 
 LdrRgbFrame PictureLoader::loadLdr(const Path& picturePath)
 {
-	// FIXME: testing
-	LOGGER().log(ELogLevel::NOTE_MED, "loading image <" + picturePath.toString() + ">");
+	logger.log(ELogLevel::NOTE_MED, 
+	           "loading image <" + picturePath.toString() + ">");
 
 	LdrRgbFrame picture;
 
@@ -36,19 +32,17 @@ LdrRgbFrame PictureLoader::loadLdr(const Path& picturePath)
 	}
 	else
 	{
-		std::cerr << "warning: at PictureLoader::loadLdr(), " 
-		          << "cannot load <"
-		          << picturePath.toString()
-		          << "> since the format is unsupported" << std::endl;
+		logger.log(ELogLevel::WARNING_MED, 
+		           "cannot load <" + 
+		           picturePath.toString() + 
+		           "> since the format is unsupported");
 		picture = LdrRgbFrame();
 	}
 
 	if(picture.isEmpty())
 	{
-		std::cerr << "warning: at PictureLoader::loadLdr(), " 
-		          << "picture <"
-		          << picturePath.toString()
-		          << "> is empty" << std::endl;
+		logger.log(ELogLevel::WARNING_MED,
+		           "picture <" + picturePath.toString() + "> is empty");
 	}
 
 	return picture;
@@ -56,8 +50,6 @@ LdrRgbFrame PictureLoader::loadLdr(const Path& picturePath)
 
 LdrRgbFrame PictureLoader::loadLdrViaStb(const std::string& fullFilename)
 {
-	std::cout << "loading image <" << fullFilename << ">" << std::endl;
-
 	// variables to retrieve image info from stbi_load()
 	int widthPx;
 	int heightPx;
@@ -73,14 +65,13 @@ LdrRgbFrame PictureLoader::loadLdrViaStb(const std::string& fullFilename)
 
 	if(stbImageData == NULL)
 	{
-		std::cerr << "warning: at PictureLoader::loadLdrViaStb(), "
-		          << "picture <" 
-		          << fullFilename 
-		          << "> loading failed" << std::endl;
-		std::cerr << "(message: " << stbi_failure_reason() << ")" << std::endl;
+		logger.log(ELogLevel::WARNING_MED,
+		           "picture <" + fullFilename + "> loading failed " + 
+		           "(message: " + stbi_failure_reason() + ")");// FIXME: check stbi_failure_reason() thread safety
 		return LdrRgbFrame();
 	}
 
+	// FIXME: supports alpha
 	if(numComponents != 3)
 	{
 		std::cerr << "warning: at TextureLoader::load(), " 
