@@ -6,13 +6,12 @@
 #include "Core/Texture/TTexture.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Core/Quantity/SpectralStrength.h"
+#include "Actor/Image/Image.h"
 
 #include <memory>
 
 namespace ph
 {
-
-class Image;
 
 class MatteOpaque : public Material, public TCommandInterface<MatteOpaque>
 {

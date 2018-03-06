@@ -12,9 +12,9 @@
 //-> light-source(area) @topLightSource1 [vector3r emitted-radiance "3.4 3.4 3.4"]
 
 
--> image(constant) @blackImg [real value 0]
--> image(constant) @grayImg  [real value 0.5]
--> image(constant) @whiteImg [real value "1 1 1"]
+-> image(constant) @blackImg [real value 0] [string value-type ecf-linear-srgb]
+-> image(constant) @grayImg  [real value 0.5][string value-type ecf-linear-srgb]
+-> image(constant) @whiteImg [real value "1 1 1"][string value-type ecf-linear-srgb]
 -> image(ldr-picture) @whiteLdrImg [string image "1x1_white.png"]
 
 -> image(checkerboard) @blackGrayImg [real x-tiles 5] [real y-tiles 5] [image odd @blackImg] [image even @grayImg]

@@ -77,7 +77,7 @@ std::unique_ptr<AbradedOpaque> AbradedOpaque::loadITR(const InputPacket& packet)
 
 	const real alpha = RoughnessToAlphaMapping::pbrtV3(roughness);
 	SpectralStrength albedoSpectrum;
-	albedoSpectrum.setLinearSrgb(albedo);// FIXME: check color space
+	albedoSpectrum.setLinearSrgb(albedo, EQuantity::ECF);// FIXME: check color space
 
 	std::shared_ptr<FresnelEffect> fresnelEffect = loadFresnelEffect(packet);
 
@@ -106,7 +106,7 @@ std::unique_ptr<AbradedOpaque> AbradedOpaque::loadATR(const InputPacket& packet)
 	const real alphaU = RoughnessToAlphaMapping::pbrtV3(roughnessU);
 	const real alphaV = RoughnessToAlphaMapping::pbrtV3(roughnessV);
 	SpectralStrength albedoSpectrum;
-	albedoSpectrum.setLinearSrgb(albedo);// FIXME: check color space
+	albedoSpectrum.setLinearSrgb(albedo, EQuantity::ECF);// FIXME: check color space
 
 	std::shared_ptr<FresnelEffect> fresnelEffect = loadFresnelEffect(packet);
 
@@ -154,7 +154,7 @@ std::unique_ptr<FresnelEffect> AbradedOpaque::loadFresnelEffect(const InputPacke
 		const auto& f0 = packet.getVector3r("f0");
 
 		SpectralStrength spectralF0;
-		spectralF0.setLinearSrgb(f0);
+		spectralF0.setLinearSrgb(f0);// FIXME: check color space
 		fresnelEffect = std::make_unique<SchlickApproxConductorDielectricFresnel>(spectralF0);
 	}
 	else
@@ -164,7 +164,7 @@ std::unique_ptr<FresnelEffect> AbradedOpaque::loadFresnelEffect(const InputPacke
 
 		const Vector3R defaultF0(0.04_r, 0.04_r, 0.04_r);
 
-		SpectralStrength spectralF0;
+		SpectralStrength spectralF0;// FIXME: check color space
 		spectralF0.setLinearSrgb(defaultF0);
 		fresnelEffect = std::make_unique<SchlickApproxConductorDielectricFresnel>(spectralF0);
 	}

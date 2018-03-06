@@ -12,10 +12,8 @@ namespace ph
 
 MatteOpaque::MatteOpaque() : 
 	Material(), 
-	m_albedo(std::make_shared<ConstantImage>(Vector3R(0.5_r)))
-{
-	
-}
+	m_albedo(std::make_shared<ConstantImage>(0.5_r))
+{}
 
 MatteOpaque::~MatteOpaque() = default;
 
@@ -33,7 +31,7 @@ void MatteOpaque::setAlbedo(const Vector3R& albedo)
 
 void MatteOpaque::setAlbedo(const real r, const real g, const real b)
 {
-	m_albedo = std::make_shared<ConstantImage>(std::vector<real>{r, g, b});
+	m_albedo = std::make_shared<ConstantImage>(std::vector<real>{r, g, b}, ConstantImage::EType::ECF_LINEAR_SRGB);
 }
 
 void MatteOpaque::setAlbedo(const std::shared_ptr<Image>& albedo)
