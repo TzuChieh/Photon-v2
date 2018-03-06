@@ -22,7 +22,7 @@ public:
 		m_sampledQuantity(sampledQuantity)
 	{}
 
-	inline OutputType sample(const TTexture<OutputType>& texture, const SurfaceHit& X)
+	inline OutputType sample(const TTexture<OutputType>& texture, const SurfaceHit& X) const
 	{
 		Vector3R uvw;
 		const auto& textureChannel = X.getDetail().getPrimitive()->getMetadata()->getDefaultTextureChannel();

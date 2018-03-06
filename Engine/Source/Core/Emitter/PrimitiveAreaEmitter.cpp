@@ -39,10 +39,7 @@ PrimitiveAreaEmitter::PrimitiveAreaEmitter(const std::vector<const Primitive*>& 
 	m_reciExtendedArea = static_cast<real>(1.0 / extendedArea);
 }
 
-PrimitiveAreaEmitter::~PrimitiveAreaEmitter()
-{
-
-}
+PrimitiveAreaEmitter::~PrimitiveAreaEmitter() = default;
 
 void PrimitiveAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* const out_radiance) const
 {

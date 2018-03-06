@@ -173,9 +173,7 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 
 BackwardPathIntegrator::BackwardPathIntegrator(const InputPacket& packet) :
 	Integrator(packet)
-{
-
-}
+{}
 
 SdlTypeInfo BackwardPathIntegrator::ciTypeInfo()
 {

@@ -13,12 +13,11 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
   * Lambertian diffuse
   * microfacet-based opaque & translucent model
   * ideal reflector & transmitter
-  * handles measured IOR
+  * supports measured IOR
 
 * **Geometry**
-  * sphere
-  * rectangle
-  * cuboid
+  * triangle, rectangle
+  * sphere, cuboid
   * triangle mesh
   * simple 2-D wave
 

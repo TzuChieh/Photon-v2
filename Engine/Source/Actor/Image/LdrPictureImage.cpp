@@ -14,16 +14,12 @@ namespace ph
 
 LdrPictureImage::LdrPictureImage() : 
 	LdrPictureImage(LdrRgbFrame())
-{
-
-}
+{}
 
 LdrPictureImage::LdrPictureImage(const LdrRgbFrame& picture) :
 	PictureImage(),
 	m_picture(picture)
-{
-
-}
+{}
 
 LdrPictureImage::~LdrPictureImage() = default;
 

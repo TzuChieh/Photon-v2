@@ -21,18 +21,14 @@ HdrRgbFilm::HdrRgbFilm(const int64 actualWidthPx, const int64 actualHeightPx,
 	           TAABB2D<int64>(TVector2<int64>(0, 0),
 	                          TVector2<int64>(actualWidthPx, actualHeightPx)),
 	           filter)
-{
-
-}
+{}
 
 HdrRgbFilm::HdrRgbFilm(const int64 actualWidthPx, const int64 actualHeightPx,
                        const TAABB2D<int64>& effectiveWindowPx,
                        const std::shared_ptr<SampleFilter>& filter) :
 	Film(actualWidthPx, actualHeightPx, effectiveWindowPx, filter),
 	m_pixelRadianceSensors(effectiveWindowPx.calcArea(), RadianceSensor())
-{
-
-}
+{}
 
 HdrRgbFilm::~HdrRgbFilm() = default;
 
@@ -65,10 +61,9 @@ void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const SpectralS
 			const std::size_t fx = x - m_effectiveWindowPx.minVertex.x;
 			const std::size_t fy = y - m_effectiveWindowPx.minVertex.y;
 			const std::size_t index = fy * static_cast<std::size_t>(m_effectiveResPx.x) + fx;
-
 			
 			const float64   weight = m_filter->evaluate(filterX, filterY);
-			const Vector3R& rgb    = radiance.genLinearSrgb();// FIXME: check color space
+			const Vector3R& rgb    = radiance.genLinearSrgb(EQuantity::EMR);
 
 			m_pixelRadianceSensors[index].accuR      += rgb.x * weight;
 			m_pixelRadianceSensors[index].accuG      += rgb.y * weight;

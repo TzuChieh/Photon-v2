@@ -15,13 +15,14 @@
 -> image(constant) @blackImg [real value 0]
 -> image(constant) @grayImg  [real value 0.5]
 -> image(constant) @whiteImg [real value "1 1 1"]
+-> image(ldr-picture) @whiteLdrImg [string image "1x1_white.png"]
 
 -> image(checkerboard) @blackGrayImg [real x-tiles 5] [real y-tiles 5] [image odd @blackImg] [image even @grayImg]
 -> image(checkerboard) @grayWhiteImg [real x-tiles 5] [real y-tiles 5] [image odd @grayImg]  [image even @whiteImg]
 
 -> image(checkerboard) @blackGrayWhiteImg [real x-tiles 5] [real y-tiles 5] [image odd @blackGrayImg] [image even @grayWhiteImg]
 
--> light-source(area) @topLightSource1 [image emitted-radiance @whiteImg]
+-> light-source(area) @topLightSource1 [image emitted-radiance @whiteLdrImg]
 
 
 

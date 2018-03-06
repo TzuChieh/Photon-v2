@@ -45,7 +45,7 @@ inline Vector3R ColorSpace::SPD_to_linear_sRGB(const SampledSpectralStrength& sp
 
 	// Assuming E white point based SPD for other cases.
 	//
-	return CIE_XYZ_E_to_linear_sRGB(SPD_to_CIE_XYZ(spd));
+	return CIE_XYZ_E_to_linear_sRGB(SPD_to_CIE_XYZ_E(spd));
 }
 
 template<typename Hint, typename>
@@ -122,6 +122,7 @@ inline void ColorSpace::linear_sRGB_to_SPD(
 	//
 	if constexpr(std::is_same_v<Hint, SourceHint::ILLUMINANT>)
 	{
+		//std::cerr << "run1" << std::endl;
 		out_spd->mulLocal(SPD_D65);
 	}
 
@@ -129,6 +130,7 @@ inline void ColorSpace::linear_sRGB_to_SPD(
 	//
 	if constexpr(std::is_same_v<Hint, SourceHint::REFLECTANCE>)
 	{
+		//std::cerr << "run2" << std::endl;
 		out_spd->clampLocal(0.0_r, 1.0_r);
 	}
 }
