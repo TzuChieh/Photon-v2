@@ -93,8 +93,6 @@ std::vector<real> ValueParser::parseRealArray(const std::string& realArrayString
 	{
 		const long double realValue = std::stold(realToken);
 		realArray.push_back(static_cast<real>(realValue));
-
-		std::cerr << realValue << std::endl;
 	}
 
 	return std::move(realArray);
