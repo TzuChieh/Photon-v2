@@ -19,9 +19,7 @@ Film::Film(const int64 actualWidthPx, const int64 actualHeightPx,
 	     TAABB2D<int64>(TVector2<int64>(0, 0),
 	                    TVector2<int64>(actualWidthPx, actualHeightPx)),
 	     filter)
-{
-
-}
+{}
 
 Film::Film(const int64 actualWidthPx, const int64 actualHeightPx,
            const TAABB2D<int64>& effectiveWindowPx,

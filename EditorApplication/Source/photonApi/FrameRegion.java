@@ -45,7 +45,7 @@ public final class FrameRegion
 	
 	public void set(FrameRegion other)
 	{
-		set(other.m_originXpx, other.m_originXpx,
+		set(other.m_originXpx, other.m_originYpx,
 		    other.m_fullWidthPx, other.m_fullHeightPx, 
 		    other.m_regionedFrame);
 	}
@@ -63,7 +63,7 @@ public final class FrameRegion
 	
 	public int getOriginXpx()    { return m_originXpx;                   }
 	public int getOriginYpx()    { return m_originYpx;                   }
-	public int getWidthPx()      { return m_regionedFrame.getWidthPx();    }
+	public int getWidthPx()      { return m_regionedFrame.getWidthPx();  }
 	public int getHeightPx()     { return m_regionedFrame.getHeightPx(); }
 	public int getFullWidthPx()  { return m_fullWidthPx;                 }
 	public int getFullHeightPx() { return m_fullHeightPx;                }

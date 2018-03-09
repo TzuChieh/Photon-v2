@@ -269,7 +269,7 @@ public class EditorCtrl
 				color.y = numerator.y / denominator.y;
 				color.z = numerator.z / denominator.z;
 				
-				int inversedY = frameRegion.getHeightPx() - y - 1;
+				int inversedY = frameRegion.getFullHeightPx() - y - 1;
 				Color fxColor = new Color(color.x, color.y, color.z, 1.0);
 				pixelWriter.setColor(x, inversedY, fxColor);
 			}
