@@ -17,11 +17,13 @@ public:
 	// If there is an intersection, true is returned and a brief intersection
 	// report is stored inside the probe. If there is no intersection, false is
 	// returned and the state of the probe remain unchanged.
+	//
 	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const = 0;
 
 	// This method calculates a detailed description of the intersection from
 	// the ray and probe used for calling isIntersecting() (if an intersection 
 	// is found).
+	//
 	virtual void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 	                                    HitDetail* out_detail) const = 0;
 
@@ -29,6 +31,7 @@ public:
 
 	// If greater performance is desired, you can override the default 
 	// implementation which simply calls isIntersecting(2) to do the job.
+	//
 	virtual bool isIntersecting(const Ray& ray) const;
 
 
@@ -36,6 +39,7 @@ public:
 	// AABB calculated by calcAABB(). Although false-positives are allowed for this
 	// method, providing an implementation with higher accuracy is benefitial for
 	// many algorithms used by the renderer.
+	//
 	virtual bool isIntersectingVolumeConservative(const AABB3D& volume) const;
 };
 

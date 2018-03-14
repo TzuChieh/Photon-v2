@@ -3,6 +3,7 @@
 #include "Core/HitDetail.h"
 #include "Core/HitProbe.h"
 #include "Core/Bound/AABB3D.h"
+#include "Common/assertion.h"
 
 namespace ph
 {
@@ -13,7 +14,11 @@ TransformedIntersectable::TransformedIntersectable(const Intersectable* intersec
 	m_intersectable(intersectable),
 	m_localToWorld(localToWorld),
 	m_worldToLocal(worldToLocal)
-{}
+{
+	PH_ASSERT(intersectable != nullptr);
+	PH_ASSERT(localToWorld  != nullptr);
+	PH_ASSERT(worldToLocal  != nullptr);
+}
 
 TransformedIntersectable::TransformedIntersectable(const TransformedIntersectable& other) : 
 	m_intersectable(other.m_intersectable),
