@@ -23,9 +23,7 @@ AModel::AModel() :
 	m_geometry(nullptr), 
 	m_material(nullptr), 
 	m_motionSource(nullptr)
-{
-
-}
+{}
 
 AModel::AModel(const std::shared_ptr<Geometry>& geometry, 
                const std::shared_ptr<Material>& material) : 
@@ -33,18 +31,14 @@ AModel::AModel(const std::shared_ptr<Geometry>& geometry,
 	m_geometry(geometry), 
 	m_material(material), 
 	m_motionSource(nullptr)
-{
-
-}
+{}
 
 AModel::AModel(const AModel& other) : 
 	PhysicalActor(other), 
 	m_geometry(other.m_geometry), 
 	m_material(other.m_material), 
 	m_motionSource(other.m_motionSource)
-{
-	
-}
+{}
 
 AModel::~AModel() = default;
 

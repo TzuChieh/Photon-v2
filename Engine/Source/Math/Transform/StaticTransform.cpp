@@ -15,15 +15,11 @@ const StaticTransform& StaticTransform::IDENTITY()
 
 StaticTransform::StaticTransform() : 
 	StaticTransform(Matrix4R::IDENTITY(), Matrix4R::IDENTITY())
-{
-
-}
+{}
 
 StaticTransform::StaticTransform(const Matrix4R& transform, const Matrix4R& inverseTransform) : 
 	m_transformMatrix(transform), m_inverseTransformMatrix(inverseTransform)
-{
-
-}
+{}
 
 StaticTransform::~StaticTransform() = default;
 

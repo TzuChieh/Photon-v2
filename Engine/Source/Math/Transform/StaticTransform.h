@@ -15,18 +15,32 @@ class Ray;
 
 class StaticTransform final : public Transform
 {
+	friend class StaticRigidTransform;
+
 public:
 	static const StaticTransform& IDENTITY();
 
+	// Generates a StaticTransform that can be used to transform values from 
+	// local to world space.
+	//
 	template<typename U>
 	static StaticTransform makeForward(const TDecomposedTransform<U>& transform);
 
+	// Generates a StaticTransform that can be used to transform values from 
+	// world to local space.
+	//
 	template<typename U>
 	static StaticTransform makeInverse(const TDecomposedTransform<U>& transform);
 
+	// Given a chain of transforms from root (world) to local, generates a 
+	// StaticTransform that can be used to transform values from local to world space.
+	//
 	template<typename U>
 	static StaticTransform makeParentedForward(const std::vector<TDecomposedTransform<U>>& fromRootToLocal);
 
+	// Given a chain of transforms from root (world) to local, generates a 
+	// StaticTransform that can be used to transform values from world to local space.
+	//
 	template<typename U>
 	static StaticTransform makeParentedInverse(const std::vector<TDecomposedTransform<U>>& fromRootToLocal);
 
@@ -38,19 +52,31 @@ public:
 	virtual std::unique_ptr<Transform> genInversed() const override;
 
 private:
-	virtual void transformVector(const Vector3R& vector, const Time& time, 
-	                             Vector3R* out_vector) const override;
+	virtual void transformVector(
+		const Vector3R& vector,
+		const Time&     time,
+		Vector3R*       out_vector) const override;
 
-	virtual void transformOrientation(const Vector3R& orientation, const Time& time,
-	                                  Vector3R* out_orientation) const override;
+	virtual void transformOrientation(
+		const Vector3R& orientation,
+		const Time&     time,
+		Vector3R*       out_orientation) const override;
 
-	virtual void transformPoint(const Vector3R& point, const Time& time,
-	                            Vector3R* out_point) const override;
+	virtual void transformPoint(
+		const Vector3R& point,
+		const Time&     time,
+		Vector3R*       out_point) const override;
 
-	virtual void transformLineSegment(const Vector3R& lineStartPos, const Vector3R& lineDir,
-	                                  real lineMinT, real lineMaxT, const Time& time,
-	                                  Vector3R* out_lineStartPos, Vector3R* out_lineDir,
-	                                  real* out_lineMinT, real* out_lineMaxT) const override;
+	virtual void transformLineSegment(
+		const Vector3R& lineStartPos,
+		const Vector3R& lineDir,
+		real            lineMinT,
+		real            lineMaxT,
+		const Time&     time,
+		Vector3R*       out_lineStartPos,
+		Vector3R*       out_lineDir,
+		real*           out_lineMinT,
+		real*           out_lineMaxT) const override;
 
 private:
 	Matrix4R m_transformMatrix;

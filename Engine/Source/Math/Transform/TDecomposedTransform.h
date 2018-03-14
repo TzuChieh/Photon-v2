@@ -16,61 +16,88 @@ class TDecomposedTransform final
 public:
 	TDecomposedTransform();
 
-	inline void translate(const TVector3<T>& amount)
+	inline TDecomposedTransform& translate(const TVector3<T>& amount)
 	{
-		translate(amount.x, amount.y, amount.z);
+		return translate(amount.x, amount.y, amount.z);
 	}
 
-	inline void translate(const T x, const T y, const T z)
+	inline TDecomposedTransform& translate(const T x, const T y, const T z)
 	{
 		m_position.addLocal(x, y, z);
+
+		return *this;
 	}
 
-	inline void rotate(const TQuaternion<T>& rotation)
+	inline TDecomposedTransform rotate(const TQuaternion<T>& rotation)
 	{
 		TQuaternion<T> addtionalRotation(rotation);
 		addtionalRotation.normalizeLocal();
 
 		const TQuaternion<T> totalRotation = addtionalRotation.mul(m_rotation).normalizeLocal();
 		setRotation(totalRotation);
+
+		return *this;
 	}
 
-	inline void rotate(const TVector3<T>& axis, const T degrees)
+	inline TDecomposedTransform& rotate(const TVector3<T>& axis, const T degrees)
 	{
 		const TVector3<T> normalizedAxis(axis.normalize());
 		rotate(TQuaternion<T>(normalizedAxis, Math::toRadians(degrees)));
+
+		return *this;
 	}
 
-	inline void scale(const TVector3<T>& amount)
+	inline TDecomposedTransform& scale(const TVector3<T>& amount)
 	{
-		scale(amount.x, amount.y, amount.z);
+		return scale(amount.x, amount.y, amount.z);
 	}
 
-	inline void scale(const T x, const T y, const T z)
+	inline TDecomposedTransform& scale(const T x, const T y, const T z)
 	{
 		m_scale.mulLocal(x, y, z);
+
+		return *this;
 	}
 
-	inline void setPosition(const TVector3<T>& position)
+	inline TDecomposedTransform& setPosition(const TVector3<T>& position)
 	{
 		m_position = position;
+
+		return *this;
 	}
 
-	inline void setRotation(const TQuaternion<T>& rotation)
+	inline TDecomposedTransform& setRotation(const TQuaternion<T>& rotation)
 	{
 		m_rotation = rotation;
+
+		return *this;
 	}
 
-	inline void setScale(const TVector3<T>& scale)
+	inline TDecomposedTransform& setScale(const T scale)
+	{
+		return setScale(TVector3<T>(scale, scale, scale));
+	}
+
+	inline TDecomposedTransform& setScale(const TVector3<T>& scale)
 	{
 		m_scale = scale;
+
+		return *this;
 	}
 
-	inline void get(TVector3<T>* const out_position, TQuaternion<T>* const out_rotation, TVector3<T>* const out_scale) const
+	inline void get(
+		TVector3<T>* const    out_position, 
+		TQuaternion<T>* const out_rotation, 
+		TVector3<T>* const    out_scale) const
 	{
 		*out_position = m_position;
 		*out_rotation = m_rotation;
 		*out_scale    = m_scale;
+	}
+
+	inline TVector3<T> getScale() const
+	{
+		return m_scale;
 	}
 
 	inline void genTransformMatrix(TMatrix4<T>* const out_result) const
@@ -114,9 +141,7 @@ private:
 template<typename T>
 TDecomposedTransform<T>::TDecomposedTransform() : 
 	m_position(0, 0, 0), m_rotation(0, 0, 0, 1), m_scale(1, 1, 1)
-{
-
-}
+{}
 
 template<typename T>
 inline TDecomposedTransform<T> TDecomposedTransform<T>::invert() const
@@ -139,11 +164,11 @@ inline bool TDecomposedTransform<T>::hasScaleEffect(const T margin) const
 template<typename T>
 inline bool TDecomposedTransform<T>::isScaleUniform(const T margin) const
 {
-	const T dA = std::abs(m_scale.x - m_scale.y);
-	const T dB = std::abs(m_scale.y - m_scale.z);
-	const T dC = std::abs(m_scale.z - m_scale.x);
+	const T dSxSy = std::abs(m_scale.x - m_scale.y);
+	const T dSySz = std::abs(m_scale.y - m_scale.z);
+	const T dSzSx = std::abs(m_scale.z - m_scale.x);
 
-	return dA < margin && dB < margin && dC < margin;
+	return dSxSy < margin && dSySz < margin && dSzSx < margin;
 }
 
 }// end namespace ph

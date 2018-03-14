@@ -21,9 +21,9 @@ public:
 
 	// Treating a Vector3R as either
 	//
-	// 1) vectors (V), 
-	// 2) orientations, such as normals and tangents (O), 
-	// 3) points (P) 
+	// 1) vectors      (V)
+	// 2) orientations (O) (such as normals and tangents)
+	// 3) points       (P) 
 	//
 	// and calculate the transformed result.
 
@@ -51,6 +51,7 @@ public:
 	// 
 	// this operation will always yield a correctly transformed result while 
 	// saving an expensive sqrt() call.
+	//
 	void transform(const Ray& ray, 
 	               Ray* out_ray) const;
 
@@ -85,6 +86,7 @@ private:
 	//                     lineStartPos + lineMaxT * lineDir]
 	//
 	// Also note that lineDir is not necessary to be normalized.
+	//
 	virtual void transformLineSegment(const Vector3R& lineStartPos, const Vector3R& lineDir, 
 	                                  real lineMinT, real lineMaxT, const Time& time, 
 	                                  Vector3R* out_lineStartPos, Vector3R* out_lineDir,

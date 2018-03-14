@@ -21,23 +21,17 @@ namespace ph
 ALight::ALight() : 
 	PhysicalActor(), 
 	m_geometry(nullptr), m_material(nullptr), m_lightSource(nullptr)
-{
-
-}
+{}
 
 ALight::ALight(const std::shared_ptr<LightSource>& lightSource) : 
 	PhysicalActor(),
 	m_geometry(nullptr), m_material(nullptr), m_lightSource(lightSource)
-{
-
-}
+{}
 
 ALight::ALight(const ALight& other) : 
 	PhysicalActor(other),
 	m_geometry(other.m_geometry), m_material(other.m_material), m_lightSource(other.m_lightSource)
-{
-
-}
+{}
 
 ALight::~ALight() = default;
 

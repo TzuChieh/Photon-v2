@@ -350,6 +350,8 @@
     <ClInclude Include="Source\Math\TOrthonormalBasis3.h" />
     <ClInclude Include="Source\Math\TQuaternion.h" />
     <ClInclude Include="Source\Math\Transform\DynamicLinearTranslation.h" />
+    <ClInclude Include="Source\Math\Transform\RigidTransform.h" />
+    <ClInclude Include="Source\Math\Transform\StaticRigidTransform.h" />
     <ClInclude Include="Source\Math\Transform\StaticTransform.h" />
     <ClInclude Include="Source\Math\Transform\TDecomposedTransform.h" />
     <ClInclude Include="Source\Math\Transform\Transform.h" />
@@ -531,6 +533,8 @@
     <ClCompile Include="Source\Math\Math.cpp" />
     <ClCompile Include="Source\Math\Random.cpp" />
     <ClCompile Include="Source\Math\Transform\DynamicLinearTranslation.cpp" />
+    <ClCompile Include="Source\Math\Transform\RigidTransform.cpp" />
+    <ClCompile Include="Source\Math\Transform\StaticRigidTransform.cpp" />
     <ClCompile Include="Source\Math\Transform\StaticTransform.cpp" />
     <ClCompile Include="Source\Math\Transform\Transform.cpp" />
     <ClInclude Include="Source\Frame\TFrame.ipp">

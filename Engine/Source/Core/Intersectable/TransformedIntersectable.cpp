@@ -13,17 +13,13 @@ TransformedIntersectable::TransformedIntersectable(const Intersectable* intersec
 	m_intersectable(intersectable),
 	m_localToWorld(localToWorld),
 	m_worldToLocal(worldToLocal)
-{
-
-}
+{}
 
 TransformedIntersectable::TransformedIntersectable(const TransformedIntersectable& other) : 
 	m_intersectable(other.m_intersectable),
 	m_localToWorld(other.m_localToWorld),
 	m_worldToLocal(other.m_worldToLocal)
-{
-
-}
+{}
 
 TransformedIntersectable::~TransformedIntersectable() = default;
 
