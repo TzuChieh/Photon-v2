@@ -16,7 +16,7 @@ class Primitive;
 class PrimitiveAreaEmitter final : public Emitter
 {
 public:
-	PrimitiveAreaEmitter(const std::vector<const Primitive*>& primitives);
+	PrimitiveAreaEmitter(const Primitive* primitive);
 	virtual ~PrimitiveAreaEmitter() override;
 
 	virtual void evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const override;
@@ -29,7 +29,7 @@ public:
 
 private:
 	std::shared_ptr<TTexture<SpectralStrength>> m_emittedRadiance;
-	std::vector<const Primitive*> m_primitives;
+	const Primitive* m_primitive;
 	real m_reciExtendedArea;
 };
 

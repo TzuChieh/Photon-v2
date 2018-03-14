@@ -19,6 +19,8 @@
 namespace ph
 {
 
+const Logger AreaSource::logger(LogSender("Area Source"));
+
 AreaSource::AreaSource(const Vector3R& emittedRgbRadiance) :
 	LightSource(), 
 	m_emittedRadiance(nullptr)
@@ -53,13 +55,14 @@ AreaSource::~AreaSource() = default;
 std::unique_ptr<Emitter> AreaSource::genEmitter(
 	CookingContext& context, const EmitterBuildingMaterial& data) const
 {
-	if(data.primitives.empty())
+	if(data.primitive == nullptr)
 	{
-		std::cerr << "warning: at AreaSource::buildEmitter(), requires at least a Primitive to build" << std::endl;
+		logger.log(ELogLevel::WARNING_MED, 
+		           "no primitive provided; requires at least a primitive to build emitter");
 		return nullptr;
 	}
 
-	std::unique_ptr<PrimitiveAreaEmitter> emitter = std::make_unique<PrimitiveAreaEmitter>(data.primitives);
+	std::unique_ptr<PrimitiveAreaEmitter> emitter = std::make_unique<PrimitiveAreaEmitter>(data.primitive);
 	emitter->setEmittedRadiance(m_emittedRadiance->genTextureSpectral(context));
 	return std::move(emitter);
 }

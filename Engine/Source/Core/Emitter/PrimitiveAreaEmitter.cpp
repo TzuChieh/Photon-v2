@@ -10,6 +10,7 @@
 #include "Math/constant.h"
 #include "Core/Texture/TSampler.h"
 #include "Core/Quantity/SpectralStrength.h"
+#include "Common/assertion.h"
 
 #include <iostream>
 #include <algorithm>
@@ -18,25 +19,17 @@
 namespace ph
 {
 
-PrimitiveAreaEmitter::PrimitiveAreaEmitter(const std::vector<const Primitive*>& primitives) :
+PrimitiveAreaEmitter::PrimitiveAreaEmitter(const Primitive* const primitive) :
 	Emitter(), 
-	m_primitives(primitives), 
+	m_primitive(primitive),
 	m_emittedRadiance(nullptr)
 {
+	PH_ASSERT(primitive != nullptr);
+
 	SpectralStrength defaultSpectrum(1.0_r);
 	m_emittedRadiance = std::make_shared<TConstantTexture<SpectralStrength>>(defaultSpectrum);
 
-	if(primitives.empty())
-	{
-		std::cerr << "warning: at PrimitiveAreaEmitter::PrimitiveAreaEmitter(), no Primitive detected" << std::endl;
-	}
-
-	float64 extendedArea = 0.0;
-	for(const auto& primitive : primitives)
-	{
-		extendedArea += 1.0f / primitive->getReciExtendedArea();
-	}
-	m_reciExtendedArea = static_cast<real>(1.0 / extendedArea);
+	m_reciExtendedArea = primitive->getReciExtendedArea();
 }
 
 PrimitiveAreaEmitter::~PrimitiveAreaEmitter() = default;

@@ -174,9 +174,6 @@
     <ClInclude Include="Source\Core\Emitter\Emitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Emitter\PrimitiveAreaEmitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Filmic\Film.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -772,6 +769,9 @@
     <ClInclude Include="Source\Core\Intersectable\TransformedPrimitive.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\Emitter\PrimitiveAreaEmitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">
@@ -904,9 +904,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Emitter\Emitter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\Emitter\PrimitiveAreaEmitter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Filmic\Film.cpp">
@@ -1255,6 +1252,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Intersectable\TransformedPrimitive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Emitter\PrimitiveAreaEmitter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

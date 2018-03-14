@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-
 namespace ph
 {
 
@@ -10,13 +8,11 @@ class Primitive;
 class EmitterBuildingMaterial final
 {
 public:
-	std::vector<const Primitive*> primitives;
+	const Primitive* primitive;
 
 	inline EmitterBuildingMaterial() : 
-		primitives()
-	{
-
-	}
+		primitive(nullptr)
+	{}
 };
 
 }// end namespace ph

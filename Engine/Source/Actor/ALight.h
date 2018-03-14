@@ -4,6 +4,7 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Actor/PhysicalActor.h"
 #include "FileIO/SDL/TCommandInterface.h"
+#include "Common/Logger.h"
 
 #include <memory>
 #include <vector>
@@ -52,6 +53,8 @@ private:
 		CookingContext& context,
 		std::unique_ptr<Transform>* out_baseLW, 
 		std::unique_ptr<Transform>* out_baseWL) const;
+
+	static const Logger logger;
 
 // command interface
 public:

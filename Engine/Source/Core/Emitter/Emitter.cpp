@@ -4,20 +4,9 @@
 namespace ph
 {
 
-Emitter::Emitter() : 
-	m_localToWorld(&StaticTransform::IDENTITY()),
-	m_worldToLocal(&StaticTransform::IDENTITY())
-{
-	
-}
+Emitter::Emitter()
+{}
 
 Emitter::~Emitter() = default;
-
-void Emitter::setTransform(const Transform* localToWorld,
-                           const Transform* worldToLocal)
-{
-	m_localToWorld = localToWorld;
-	m_worldToLocal = worldToLocal;
-}
 
 }// end namespace ph

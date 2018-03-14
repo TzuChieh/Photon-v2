@@ -4,6 +4,7 @@
 #include "Math/math_fwd.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "FileIO/FileSystem/Path.h"
+#include "Common/Logger.h"
 
 #include <memory>
 #include <string>
@@ -26,6 +27,8 @@ public:
 
 private:
 	std::shared_ptr<Image> m_emittedRadiance;
+
+	static const Logger logger;
 
 // command interface
 public:

@@ -24,7 +24,7 @@ public:
 
 	virtual inline bool isIntersecting(const Ray& ray) const override
 	{
-		return m_primitive->isIntersecting(ray);
+		return m_intersectable.isIntersecting(ray);
 	}
 
 	virtual inline bool isIntersecting(const Ray& ray, HitProbe& probe) const override
@@ -50,15 +50,8 @@ public:
 		m_intersectable.calcAABB(out_aabb);
 	}
 
-	virtual inline real calcPositionSamplePdfA(const Vector3R& position) const override
-	{
-		return m_primitive->calcPositionSamplePdfA(position);
-	}
-
-	virtual inline void genPositionSample(PositionSample* const out_sample) const override
-	{
-		return m_primitive->genPositionSample(out_sample);
-	}
+	virtual real calcPositionSamplePdfA(const Vector3R& position) const override;
+	virtual void genPositionSample(PositionSample* out_sample) const override;
 
 	inline real getReciExtendedArea() const
 	{
@@ -73,6 +66,8 @@ public:
 private:
 	const Primitive*         m_primitive;
 	TransformedIntersectable m_intersectable;
+	const RigidTransform*    m_localToWorld;
+	const RigidTransform*    m_worldToLocal;
 };
 
 }// end namespace ph

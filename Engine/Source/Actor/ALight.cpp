@@ -18,6 +18,8 @@
 namespace ph
 {
 
+const Logger ALight::logger(LogSender("Actor Light"));
+
 ALight::ALight() : 
 	PhysicalActor(), 
 	m_geometry(nullptr), m_material(nullptr), m_lightSource(nullptr)
@@ -127,8 +129,6 @@ CookedUnit ALight::buildGeometricLight(CookingContext& context) const
 
 	// TODO: transform must be rigid (e.g., motion)
 	
-
-	EmitterBuildingMaterial emitterBuildingMaterial;
 	PrimitiveBuildingMaterial primitiveBuildingMaterial;
 	auto metadata = std::make_unique<PrimitiveMetadata>();
 	primitiveBuildingMaterial.metadata = metadata.get();
@@ -139,8 +139,11 @@ CookedUnit ALight::buildGeometricLight(CookingContext& context) const
 	sanifiedGeometry->genPrimitive(primitiveBuildingMaterial, primitives);
 	for(auto& primitive : primitives)
 	{
-		emitterBuildingMaterial.primitives.push_back(primitive.get());
+		EmitterBuildingMaterial emitterBuildingMaterial;
+		emitterBuildingMaterial.primitive = primitive.get();
 		modelBuilder.addIntersectable(std::move(primitive));
+
+
 	}
 
 	auto emitter = m_lightSource->genEmitter(context, emitterBuildingMaterial);
@@ -160,7 +163,6 @@ CookedUnit ALight::buildGeometricLight(CookingContext& context) const
 
 	CookedUnit cookedActor = modelBuilder.claimBuildResult();
 	cookedActor.emitter = std::move(emitter);
-
 	return cookedActor;
 }
 
