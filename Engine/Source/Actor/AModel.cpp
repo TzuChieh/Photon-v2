@@ -42,7 +42,6 @@ AModel::AModel(const AModel& other) :
 
 AModel::~AModel() = default;
 
-
 AModel& AModel::operator = (AModel rhs)
 {
 	swap(*this, rhs);
@@ -63,8 +62,7 @@ CookedUnit AModel::cook(CookingContext& context) const
 	
 	auto metadata = std::make_unique<PrimitiveMetadata>();
 
-	PrimitiveBuildingMaterial primitiveBuildingMatl;
-	primitiveBuildingMatl.metadata = metadata.get();
+	PrimitiveBuildingMaterial primitiveBuildingMatl(metadata.get());
 
 	std::vector<std::unique_ptr<Primitive>> primitives;
 	m_geometry->genPrimitive(primitiveBuildingMatl, primitives);
@@ -75,7 +73,7 @@ CookedUnit AModel::cook(CookingContext& context) const
 
 	m_material->populateSurfaceBehavior(context, &(metadata->surfaceBehavior));
 
-	builder.setPrimitiveMetadata(std::move(metadata));
+	builder.addPrimitiveMetadata(std::move(metadata));
 
 	auto baseLW = std::make_unique<StaticTransform>(StaticTransform::makeForward(m_localToWorld));
 	auto baseWL = std::make_unique<StaticTransform>(StaticTransform::makeInverse(m_localToWorld));

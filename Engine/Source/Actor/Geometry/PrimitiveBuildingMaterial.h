@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Common/assertion.h"
+
 namespace ph
 {
 
@@ -10,10 +12,10 @@ class PrimitiveBuildingMaterial final
 public:
 	const PrimitiveMetadata* metadata;
 
-	inline PrimitiveBuildingMaterial() : 
-		metadata(nullptr)
+	inline PrimitiveBuildingMaterial(const PrimitiveMetadata* metadata) : 
+		metadata(metadata)
 	{
-
+		PH_ASSERT(metadata != nullptr);
 	}
 };
 

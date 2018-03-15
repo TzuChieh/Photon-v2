@@ -17,6 +17,7 @@ class Material;
 class TextureMapper;
 class LightSource;
 class Transform;
+class RigidTransform;
 
 class ALight final : public PhysicalActor, public TCommandInterface<ALight>
 {
@@ -51,8 +52,8 @@ private:
 	// configurations, nullptr is returned.
 	std::shared_ptr<Geometry> getSanifiedEmitterGeometry(
 		CookingContext& context,
-		std::unique_ptr<Transform>* out_baseLW, 
-		std::unique_ptr<Transform>* out_baseWL) const;
+		std::unique_ptr<RigidTransform>* out_baseLW,
+		std::unique_ptr<RigidTransform>* out_baseWL) const;
 
 	static const Logger logger;
 

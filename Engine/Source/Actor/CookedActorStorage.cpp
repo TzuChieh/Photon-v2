@@ -12,12 +12,16 @@ CookedActorStorage::CookedActorStorage(CookedActorStorage&& other) :
 void CookedActorStorage::clear()
 {
 	m_intersectables.clear();
-	m_primitiveMetadatas.clear();
-	m_emitters.clear();
-
 	m_intersectables.shrink_to_fit();
+
+	m_primitiveMetadatas.clear();
 	m_primitiveMetadatas.shrink_to_fit();
+
+	m_emitters.clear();
 	m_emitters.shrink_to_fit();
+
+	m_transforms.clear();
+	m_transforms.shrink_to_fit();
 }
 
 void CookedActorStorage::add(std::unique_ptr<Intersectable> intersectable)
@@ -55,8 +59,17 @@ void CookedActorStorage::add(std::unique_ptr<Transform> transform)
 void CookedActorStorage::add(CookedUnit&& cookedActor)
 {
 	add(std::move(cookedActor.intersectables));
-	add(std::move(cookedActor.primitiveMetadata));
-	add(std::move(cookedActor.emitter));
+
+	for(auto& metadata : cookedActor.primitiveMetadatas)
+	{
+		add(std::move(metadata));
+	}
+
+	for(auto& emitter : cookedActor.emitters)
+	{
+		add(std::move(emitter));
+	}
+
 	add(std::move(cookedActor.transforms));
 }
 

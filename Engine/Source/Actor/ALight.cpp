@@ -11,6 +11,8 @@
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
 #include "Actor/ModelBuilder.h"
+#include "Core/Intersectable/TransformedPrimitive.h"
+#include "Math/Transform/StaticRigidTransform.h"
 
 #include <algorithm>
 #include <iostream>
@@ -65,9 +67,10 @@ CookedUnit ALight::cook(CookingContext& context) const
 		auto baseLW = std::make_unique<StaticTransform>(StaticTransform::makeForward(m_localToWorld));
 		auto baseWL = std::make_unique<StaticTransform>(StaticTransform::makeInverse(m_localToWorld));
 
+		// TODO: transforms
+
 		EmitterBuildingMaterial emitterBuildingMaterial;
-		cookedActor.emitter = m_lightSource->genEmitter(context, emitterBuildingMaterial);
-		cookedActor.emitter->setTransform(baseLW.get(), baseWL.get());
+		cookedActor.emitters.push_back(m_lightSource->genEmitter(context, emitterBuildingMaterial));
 		cookedActor.transforms.push_back(std::move(baseLW));
 		cookedActor.transforms.push_back(std::move(baseWL));
 	}
@@ -110,83 +113,87 @@ CookedUnit ALight::buildGeometricLight(CookingContext& context) const
 	std::shared_ptr<Material> material = m_material;
 	if(!material)
 	{
-		std::cout << "note: at ALight::buildGeometricLight(), " 
-		          << "material is not specified, using default diffusive material" << std::endl;
+		logger.log(ELogLevel::NOTE_MED, 
+		           "material is not specified, using default diffusive material");
+
 		material = std::make_shared<MatteOpaque>();
 	}
 
-	ModelBuilder modelBuilder(context);
-
-	std::unique_ptr<Transform> baseLW, baseWL;
+	std::unique_ptr<RigidTransform> baseLW, baseWL;
 	auto sanifiedGeometry = getSanifiedEmitterGeometry(context, &baseLW, &baseWL);
 	if(!sanifiedGeometry)
 	{
+		logger.log(ELogLevel::WARNING_MED,
+		           "sanified geometry cannot be made during the process of "
+		           "geometric light building; proceed at your own risk");
+
 		sanifiedGeometry = m_geometry;
-		std::cerr << "warning: at ALight::buildGeometricLight(), "
-		          << "sanified geometry cannot be made; proceed at your own risk" << std::endl;
 	}
 
+	CookedUnit cookedActor;
 
-	// TODO: transform must be rigid (e.g., motion)
-	
-	PrimitiveBuildingMaterial primitiveBuildingMaterial;
-	auto metadata = std::make_unique<PrimitiveMetadata>();
-	primitiveBuildingMaterial.metadata = metadata.get();
+	PrimitiveMetadata* metadata;
+	{
+		auto primitiveMetadata = std::make_unique<PrimitiveMetadata>();
+		metadata = primitiveMetadata.get();
+		cookedActor.primitiveMetadatas.push_back(std::move(primitiveMetadata));
+	}
 
 	material->populateSurfaceBehavior(context, &(metadata->surfaceBehavior));
 
-	std::vector<std::unique_ptr<Primitive>> primitives;
-	sanifiedGeometry->genPrimitive(primitiveBuildingMaterial, primitives);
-	for(auto& primitive : primitives)
+	std::vector<std::unique_ptr<Primitive>> primitiveData;
+	sanifiedGeometry->genPrimitive(PrimitiveBuildingMaterial(metadata), primitiveData);
+
+	std::vector<const Primitive*> primitives;
+	for(auto& primitiveDatum : primitiveData)
 	{
-		EmitterBuildingMaterial emitterBuildingMaterial;
-		emitterBuildingMaterial.primitive = primitive.get();
-		modelBuilder.addIntersectable(std::move(primitive));
+		// TODO: baseLW & baseWL may be identity transform if base transform
+		// is applied to the geometry, in such case, wrapping primitives with
+		// TransformedIntersectable is a total waste
+		auto transformedPrimitive = std::make_unique<TransformedPrimitive>(primitiveDatum.get(), 
+		                                                                   baseLW.get(), 
+		                                                                   baseWL.get());
 
+		primitives.push_back(transformedPrimitive.get());
 
+		context.addBackend(std::move(primitiveDatum));
+		cookedActor.intersectables.push_back(std::move(transformedPrimitive));
 	}
 
+	EmitterBuildingMaterial emitterBuildingMaterial;
+	emitterBuildingMaterial.primitives = primitives;
 	auto emitter = m_lightSource->genEmitter(context, emitterBuildingMaterial);
 	metadata->surfaceBehavior.setEmitter(emitter.get());
 
-	// TODO: this relies on Emitter having the exact same behavior with 
-	// TransformedIntersectable when a transform is applied, which is
-	// risky
-	emitter->setTransform(baseLW.get(), baseWL.get());
+	cookedActor.emitters.push_back(std::move(emitter));
 
-	// TODO: baseLW & baseWL may be identity transform if base transform
-	// is applied to the geometry, in such case, wrapping primitives with
-	// TransformedIntersectable is a total waste
-	modelBuilder.transform(std::move(baseLW), std::move(baseWL));
+	cookedActor.transforms.push_back(std::move(baseLW));
+	cookedActor.transforms.push_back(std::move(baseWL));
 
-	modelBuilder.setPrimitiveMetadata(std::move(metadata));
-
-	CookedUnit cookedActor = modelBuilder.claimBuildResult();
-	cookedActor.emitter = std::move(emitter);
 	return cookedActor;
 }
 
 std::shared_ptr<Geometry> ALight::getSanifiedEmitterGeometry(
 	CookingContext& context,
-	std::unique_ptr<Transform>* const out_baseLW,
-	std::unique_ptr<Transform>* const out_baseWL) const
+	std::unique_ptr<RigidTransform>* const out_baseLW,
+	std::unique_ptr<RigidTransform>* const out_baseWL) const
 {
 	std::shared_ptr<Geometry> sanifiedGeometry = nullptr;
 	*out_baseLW = nullptr;
 	*out_baseWL = nullptr;
 
-	auto baseLW = std::make_unique<StaticTransform>(StaticTransform::makeForward(m_localToWorld));
-	auto baseWL = std::make_unique<StaticTransform>(StaticTransform::makeInverse(m_localToWorld));
+	auto staticBaseLW = std::make_unique<StaticTransform>(StaticTransform::makeForward(m_localToWorld));
+	auto staticBaseWL = std::make_unique<StaticTransform>(StaticTransform::makeInverse(m_localToWorld));
 
 	// TODO: test "isRigid()" may be more appropriate
 	if(m_localToWorld.hasScaleEffect())
 	{
-		sanifiedGeometry = m_geometry->genTransformApplied(*baseLW);
+		sanifiedGeometry = m_geometry->genTransformApplied(*staticBaseLW);
 		if(sanifiedGeometry != nullptr)
 		{
 			// TODO: combine identity transforms...
-			*out_baseLW = std::make_unique<StaticTransform>(StaticTransform::IDENTITY());
-			*out_baseWL = std::make_unique<StaticTransform>(StaticTransform::IDENTITY());
+			*out_baseLW = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeIdentity());
+			*out_baseWL = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeIdentity());
 		}
 		else
 		{
@@ -200,8 +207,8 @@ std::shared_ptr<Geometry> ALight::getSanifiedEmitterGeometry(
 	else
 	{
 		sanifiedGeometry = m_geometry;
-		*out_baseLW = std::move(baseLW);
-		*out_baseWL = std::move(baseWL);
+		*out_baseLW = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeForward(m_localToWorld));
+		*out_baseWL = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeForward(m_localToWorld));
 	}
 
 	return sanifiedGeometry;

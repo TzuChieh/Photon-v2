@@ -5,9 +5,20 @@ namespace ph
 
 const Logger StaticRigidTransform::logger(LogSender("StaticRigidTransform"));
 
+StaticRigidTransform StaticRigidTransform::makeIdentity()
+{
+	return StaticRigidTransform(StaticTransform::IDENTITY());
+}
+
 StaticRigidTransform::StaticRigidTransform() : 
 	m_staticTransform()
 {}
+
+StaticRigidTransform::StaticRigidTransform(const StaticTransform& transform) : 
+	m_staticTransform(transform)
+{
+	// TODO: assert on scale-free
+}
 
 void StaticRigidTransform::transformVector(
 	const Vector3R& vector,

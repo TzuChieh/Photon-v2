@@ -8,9 +8,7 @@ namespace ph
 
 ModelBuilder::ModelBuilder(CookingContext& context) :
 	m_context(context), m_cookedResults()
-{
-	
-}
+{}
 
 ModelBuilder& ModelBuilder::addIntersectable(std::unique_ptr<Intersectable> isable)
 {
@@ -19,9 +17,9 @@ ModelBuilder& ModelBuilder::addIntersectable(std::unique_ptr<Intersectable> isab
 	return *this;
 }
 
-ModelBuilder& ModelBuilder::setPrimitiveMetadata(std::unique_ptr<PrimitiveMetadata> metadata)
+ModelBuilder& ModelBuilder::addPrimitiveMetadata(std::unique_ptr<PrimitiveMetadata> metadata)
 {
-	m_cookedResults.primitiveMetadata = std::move(metadata);
+	m_cookedResults.primitiveMetadatas.push_back(std::move(metadata));
 
 	return *this;
 }

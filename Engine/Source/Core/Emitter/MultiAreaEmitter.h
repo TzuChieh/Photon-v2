@@ -1,37 +1,45 @@
 #pragma once
 
 #include "Core/Emitter/Emitter.h"
-#include "Common/primitive_type.h"
-#include "Core/Texture/TTexture.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Emitter/PrimitiveAreaEmitter.h"
 
-#include <memory>
 #include <vector>
 
 namespace ph
 {
 
-class Primitive;
-
-class PrimitiveAreaEmitter final : public Emitter
+class MultiAreaEmitter final : public Emitter
 {
 public:
-	PrimitiveAreaEmitter(const Primitive* primitive);
-	virtual ~PrimitiveAreaEmitter() override;
+	MultiAreaEmitter(const std::vector<PrimitiveAreaEmitter>& areaEmitters);
+	virtual ~MultiAreaEmitter() override;
 
 	virtual void evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const override;
 	virtual void genDirectSample(const Vector3R& targetPos, Vector3R* out_emitPos, SpectralStrength* out_emittedRadiance, real* out_PDF) const override;
 	virtual void genDirectSample(DirectLightSample& sample) const override;
+
+	// FIXME: ray time
 	virtual void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;
+
 	virtual real calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const override;
 
+	virtual inline bool isSurfaceEmissive() const
+	{
+		return true;
+	}
+
+	inline void addEmitter(const PrimitiveAreaEmitter& emitter)
+	{
+		m_areaEmitters.push_back(emitter);
+	}
+
 	void setEmittedRadiance(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance);
-	const Primitive* getPrimitive() const;
 
 private:
+	std::vector<PrimitiveAreaEmitter>           m_areaEmitters;
 	std::shared_ptr<TTexture<SpectralStrength>> m_emittedRadiance;
-	const Primitive* m_primitive;
-	real m_reciExtendedArea;
+	real                                        m_extendedArea;
+	real                                        m_reciExtendedArea;
 };
 
 }// end namespace ph

@@ -196,6 +196,7 @@
     <ClInclude Include="Source\Core\Camera\RadianceSensor.h" />
     <ClInclude Include="Source\Core\Camera\ThinLensCamera.h" />
     <ClInclude Include="Source\Core\ECoordSys.h" />
+    <ClInclude Include="Source\Core\Emitter\MultiAreaEmitter.h" />
     <ClInclude Include="Source\Core\Emitter\Emitter.h" />
     <ClInclude Include="Source\Core\Emitter\PrimitiveAreaEmitter.h" />
     <ClInclude Include="Source\Core\Engine.h" />
@@ -429,6 +430,7 @@
     <ClCompile Include="Source\Core\Camera\PerspectiveCamera.cpp" />
     <ClCompile Include="Source\Core\Camera\PinholeCamera.cpp" />
     <ClCompile Include="Source\Core\Camera\ThinLensCamera.cpp" />
+    <ClCompile Include="Source\Core\Emitter\MultiAreaEmitter.cpp" />
     <ClCompile Include="Source\Core\Emitter\Emitter.cpp" />
     <ClCompile Include="Source\Core\Emitter\PrimitiveAreaEmitter.cpp" />
     <ClCompile Include="Source\Core\Engine.cpp" />

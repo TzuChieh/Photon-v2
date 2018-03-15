@@ -21,9 +21,7 @@ VisualWorld::VisualWorld() :
 	m_intersector(std::make_unique<ClassicBvhIntersector>()), 
 	m_lightSampler(std::make_unique<UniformRandomLightSampler>()), 
 	m_scene()
-{
-
-}
+{}
 
 VisualWorld::VisualWorld(VisualWorld&& other) :
 	m_actors            (std::move(other.m_actors)), 
@@ -31,9 +29,7 @@ VisualWorld::VisualWorld(VisualWorld&& other) :
 	m_intersector       (std::move(other.m_intersector)), 
 	m_lightSampler      (std::move(other.m_lightSampler)), 
 	m_scene             (std::move(other.m_scene))
-{
-
-}
+{}
 
 void VisualWorld::addActor(std::shared_ptr<Actor> actor)
 {

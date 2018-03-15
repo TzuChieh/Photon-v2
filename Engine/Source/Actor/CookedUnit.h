@@ -14,10 +14,10 @@ namespace ph
 class CookedUnit final
 {
 public:
-	std::vector<std::unique_ptr<Intersectable>> intersectables;
-	std::unique_ptr<PrimitiveMetadata>          primitiveMetadata;
-	std::unique_ptr<Emitter>                    emitter;
-	std::vector<std::unique_ptr<Transform>>     transforms;
+	std::vector<std::unique_ptr<Intersectable>>     intersectables;
+	std::vector<std::unique_ptr<PrimitiveMetadata>> primitiveMetadatas;
+	std::vector<std::unique_ptr<Emitter>>           emitters;
+	std::vector<std::unique_ptr<Transform>>         transforms;
 
 	CookedUnit();
 	CookedUnit(CookedUnit&& other);

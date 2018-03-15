@@ -13,6 +13,9 @@
 #include "Actor/Image/ConstantImage.h"
 #include "Actor/Image/LdrPictureImage.h"
 #include "Common/assertion.h"
+#include "Core/Emitter/MultiAreaEmitter.h"
+#include "Core/Intersectable/PrimitiveMetadata.h"
+#include "Core/Intersectable/Primitive.h"
 
 #include <iostream>
 
@@ -55,16 +58,37 @@ AreaSource::~AreaSource() = default;
 std::unique_ptr<Emitter> AreaSource::genEmitter(
 	CookingContext& context, const EmitterBuildingMaterial& data) const
 {
-	if(data.primitive == nullptr)
+	if(data.primitives.empty())
 	{
 		logger.log(ELogLevel::WARNING_MED, 
 		           "no primitive provided; requires at least a primitive to build emitter");
 		return nullptr;
 	}
 
-	std::unique_ptr<PrimitiveAreaEmitter> emitter = std::make_unique<PrimitiveAreaEmitter>(data.primitive);
-	emitter->setEmittedRadiance(m_emittedRadiance->genTextureSpectral(context));
-	return std::move(emitter);
+	auto emittedRadiance = m_emittedRadiance->genTextureSpectral(context);
+
+	std::vector<PrimitiveAreaEmitter> primitiveEmitters;
+	for(const auto& primitive : data.primitives)
+	{
+		PrimitiveAreaEmitter emitter(primitive);
+		emitter.setEmittedRadiance(emittedRadiance);
+		primitiveEmitters.push_back(emitter);
+	}
+
+	PH_ASSERT(!primitiveEmitters.empty());
+
+	if(primitiveEmitters.size() == 1)
+	{
+		return std::make_unique<PrimitiveAreaEmitter>(primitiveEmitters[0]);
+	}
+	else
+	{
+		auto multiEmitter = std::make_unique<MultiAreaEmitter>(std::move(primitiveEmitters));
+		multiEmitter->setEmittedRadiance(emittedRadiance);
+		return multiEmitter;
+	}
+
+	PH_ASSERT_UNREACHABLE_SECTION();
 }
 
 SdlTypeInfo AreaSource::ciTypeInfo()

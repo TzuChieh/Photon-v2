@@ -19,7 +19,7 @@ public:
 	ModelBuilder(CookingContext& context);
 
 	ModelBuilder& addIntersectable(std::unique_ptr<Intersectable> isable);
-	ModelBuilder& setPrimitiveMetadata(std::unique_ptr<PrimitiveMetadata> metadata);
+	ModelBuilder& addPrimitiveMetadata(std::unique_ptr<PrimitiveMetadata> metadata);
 	ModelBuilder& transform(std::unique_ptr<Transform> LtoW, std::unique_ptr<Transform> WtoL);
 	CookedUnit claimBuildResult();
 

@@ -172,4 +172,9 @@ void PrimitiveAreaEmitter::setEmittedRadiance(
 	m_emittedRadiance = emittedRadiance;
 }
 
+const Primitive* PrimitiveAreaEmitter::getPrimitive() const
+{
+	return m_primitive;
+}
+
 }// end namespace ph
