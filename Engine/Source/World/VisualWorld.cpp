@@ -15,6 +15,8 @@
 namespace ph
 {
 
+const Logger VisualWorld::logger(LogSender("Visual World"));
+
 VisualWorld::VisualWorld() :
 	//m_intersector(std::make_unique<BruteForceIntersector>()), 
 	//m_intersector(std::make_unique<KdtreeIntersector>()), 
@@ -47,7 +49,7 @@ void VisualWorld::addActor(std::shared_ptr<Actor> actor)
 
 void VisualWorld::cook()
 {
-	std::cout << "cooking visual world..." << std::endl;
+	logger.log(ELogLevel::NOTE_MED, "cooking visual world...");
 
 	CookingContext cookingContext;
 	for(const auto& actor : m_actors)
@@ -59,12 +61,19 @@ void VisualWorld::cook()
 	CookedUnit cookedContext = cookingContext.toCooked();
 	m_cookedBackendStorage.add(std::move(cookedContext));
 
-	std::cout << "visual world discretized into " 
-	          << m_cookedActorStorage.numIntersectables() 
-	          << " intersectables" << std::endl;
-	std::cout << "preprocessing..." << std::endl;
+	logger.log(ELogLevel::NOTE_MED, 
+	           "visual world discretized into " + 
+	           std::to_string(m_cookedActorStorage.numIntersectables()) + 
+	           " intersectables");
 
+	logger.log(ELogLevel::NOTE_MED, 
+	           "number of emitters: " + 
+	           std::to_string(m_cookedActorStorage.numEmitters()));
+
+	logger.log(ELogLevel::NOTE_MED, "updating intersector...");
 	m_intersector->update(m_cookedActorStorage);
+
+	logger.log(ELogLevel::NOTE_MED, "updating light sampler...");
 	m_lightSampler->update(m_cookedActorStorage);
 
 	m_scene = Scene(m_intersector.get(), m_lightSampler.get());

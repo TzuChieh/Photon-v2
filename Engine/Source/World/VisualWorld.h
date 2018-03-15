@@ -7,6 +7,7 @@
 #include "World/Scene.h"
 #include "Core/Intersectable/Intersector.h"
 #include "World/LightSampler/LightSampler.h"
+#include "Common/Logger.h"
 
 #include <vector>
 #include <memory>
@@ -37,6 +38,8 @@ private:
 	std::unique_ptr<Intersector>  m_intersector;
 	std::unique_ptr<LightSampler> m_lightSampler;
 	Scene                         m_scene;
+
+	static const Logger logger;
 };
 
 }// end namespace ph

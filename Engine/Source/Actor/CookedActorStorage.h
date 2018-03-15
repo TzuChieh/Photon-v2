@@ -33,6 +33,7 @@ public:
 	void add(CookedActorStorage&& other);
 
 	std::size_t numIntersectables() const;
+	std::size_t numEmitters() const;
 
 	// forbid copying
 	CookedActorStorage(const CookedActorStorage& other) = delete;

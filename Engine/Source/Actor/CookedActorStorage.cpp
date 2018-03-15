@@ -110,4 +110,9 @@ std::size_t CookedActorStorage::numIntersectables() const
 	return m_intersectables.size();
 }
 
+std::size_t CookedActorStorage::numEmitters() const
+{
+	return m_emitters.size();
+}
+
 }// end namespace ph
