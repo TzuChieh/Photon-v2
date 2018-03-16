@@ -233,6 +233,7 @@
     <ClInclude Include="Source\Core\Intersectable\Kdtree\kdtree_core.h" />
     <ClInclude Include="Source\Core\Intersectable\Primitive.h" />
     <ClInclude Include="Source\Core\Intersectable\PrimitiveMetadata.h" />
+    <ClInclude Include="Source\Core\Intersectable\PSphere.h" />
     <ClInclude Include="Source\Core\Intersectable\PTriangle.h" />
     <ClInclude Include="Source\Core\Intersectable\TransformedIntersectable.h" />
     <ClInclude Include="Source\Core\Intersectable\TransformedPrimitive.h" />
@@ -463,6 +464,7 @@
     <ClCompile Include="Source\Core\Intersectable\Kdtree\KdtreeNode.cpp" />
     <ClCompile Include="Source\Core\Intersectable\Primitive.cpp" />
     <ClCompile Include="Source\Core\Intersectable\PrimitiveMetadata.cpp" />
+    <ClCompile Include="Source\Core\Intersectable\PSphere.cpp" />
     <ClCompile Include="Source\Core\Intersectable\PTriangle.cpp" />
     <ClCompile Include="Source\Core\Intersectable\TransformedIntersectable.cpp" />
     <ClCompile Include="Source\Core\Intersectable\TransformedPrimitive.cpp" />
