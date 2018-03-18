@@ -60,17 +60,20 @@ bool PSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 	{
 		D = std::sqrt(D);
 
-		// pick the closest point in front of ray origin
+		const real reciA = 1.0_r / a;
+
+		// pick the closest point in front of ray tail
+		// t = (b +- D) / a
 		//
 		real t = 0.0_r;
-		if     (b - D > 0.0_r) t = b - D;
-		else if(b + D > 0.0_r) t = b + D;
-
-		if(t > 0.0_r)
+		if((t = (b - D) * reciA) > ray.getMinT())
 		{
-			t /= a;
 			probe.pushBaseHit(this, t);
-
+			return true;
+		}
+		else if((t = (b + D) * reciA) > ray.getMinT())
+		{
+			probe.pushBaseHit(this, t);
 			return true;
 		}
 		else
@@ -88,8 +91,8 @@ void PSphere::calcIntersectionDetail(
 	PH_ASSERT(m_metadata != nullptr);
 	const UvwMapper* mapper = m_metadata->getChannel(probe.getChannel()).getMapper();
 
-	const Vector3R& hitPosition      = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
-	const Vector3R& hitShadingNormal = hitPosition.normalize();
+	const Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
+	const Vector3R& hitNormal   = hitPosition.normalize();
 
 	PH_ASSERT(mapper != nullptr);
 	Vector3R hitUvw;
@@ -97,8 +100,8 @@ void PSphere::calcIntersectionDetail(
 
 	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(
 		hitPosition, 
-		hitShadingNormal,
-		hitShadingNormal, 
+		hitNormal,
+		hitNormal,
 		probe.getHitRayT());
 
 	/*Vector3R dPdU(0.0_r), dPdV(0.0_r);
