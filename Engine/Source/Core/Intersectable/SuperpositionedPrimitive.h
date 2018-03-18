@@ -10,8 +10,12 @@ namespace ph
 
 /*
 	A collective of primitives that are each other's superposition. 
+
 	Primitives are said to be superpositioning if they represents 
-	the same primitive and are very similar to each other in shape.
+	the same object in space and are exactly the same to each other 
+	in shape. Primitives must also be able to share intersection cache
+	(it is best to ensure that they are the same type).
+
 	This primitive will not work well if geometric properties of the
 	primitives are not close enough to one another.
 

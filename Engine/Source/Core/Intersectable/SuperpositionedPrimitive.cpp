@@ -41,7 +41,15 @@ bool SuperpositionedPrimitive::isIntersecting(const Ray& ray, HitProbe& probe) c
 {
 	PH_ASSERT(m_mainPrimitive != nullptr);
 
-	return m_mainPrimitive->isIntersecting(ray, probe);
+	if(m_mainPrimitive->isIntersecting(ray, probe))
+	{
+		probe.pushIntermediateHit(this);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void SuperpositionedPrimitive::calcIntersectionDetail(
@@ -49,6 +57,8 @@ void SuperpositionedPrimitive::calcIntersectionDetail(
 	HitProbe&        probe,
 	HitDetail* const out_detail) const
 {
+	probe.popIntermediateHit();
+
 	const uint32 channel = probe.getChannel();
 
 	const Primitive* targetPrimitive;
@@ -61,7 +71,11 @@ void SuperpositionedPrimitive::calcIntersectionDetail(
 		targetPrimitive = m_mainPrimitive;
 	}
 
-	targetPrimitive->calcIntersectionDetail(ray, probe, out_detail);
+	// substitutes next hit with target primitive
+
+	PH_ASSERT(probe.getCurrentHit() == m_mainPrimitive);
+	probe.replaceCurrentHitWith(targetPrimitive);
+	probe.getCurrentHit()->calcIntersectionDetail(ray, probe, out_detail);
 }
 
 bool SuperpositionedPrimitive::isIntersectingVolumeConservative(const AABB3D& aabb) const

@@ -45,6 +45,12 @@ public:
 		m_hitStack.pop();
 	}
 
+	inline void replaceCurrentHitWith(const Intersectable* const newCurrentHit)
+	{
+		m_hitStack.pop();
+		m_hitStack.push(newCurrentHit);
+	}
+
 	inline void setChannel(const uint32 channel)
 	{
 		m_hitDetailChannel = channel;
