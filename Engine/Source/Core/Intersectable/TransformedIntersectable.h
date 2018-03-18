@@ -17,10 +17,10 @@ public:
 	TransformedIntersectable(const TransformedIntersectable& other);
 	virtual ~TransformedIntersectable() override;
 
+	virtual bool isIntersecting(const Ray& ray) const override;
 	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 	virtual void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 	                                    HitDetail* out_detail) const override;
-	virtual bool isIntersecting(const Ray& ray) const override;
 	virtual bool isIntersectingVolumeConservative(const AABB3D& aabb) const override;
 	virtual void calcAABB(AABB3D* out_aabb) const override;
 

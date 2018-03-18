@@ -44,13 +44,6 @@ bool SuperpositionedPrimitive::isIntersecting(const Ray& ray, HitProbe& probe) c
 	return m_mainPrimitive->isIntersecting(ray, probe);
 }
 
-bool SuperpositionedPrimitive::isIntersectingVolumeConservative(const AABB3D& aabb) const
-{
-	PH_ASSERT(m_mainPrimitive != nullptr);
-
-	return m_mainPrimitive->isIntersectingVolumeConservative(aabb);
-}
-
 void SuperpositionedPrimitive::calcIntersectionDetail(
 	const Ray&       ray,
 	HitProbe&        probe,
@@ -69,6 +62,13 @@ void SuperpositionedPrimitive::calcIntersectionDetail(
 	}
 
 	targetPrimitive->calcIntersectionDetail(ray, probe, out_detail);
+}
+
+bool SuperpositionedPrimitive::isIntersectingVolumeConservative(const AABB3D& aabb) const
+{
+	PH_ASSERT(m_mainPrimitive != nullptr);
+
+	return m_mainPrimitive->isIntersectingVolumeConservative(aabb);
 }
 
 void SuperpositionedPrimitive::calcAABB(AABB3D* const out_aabb) const

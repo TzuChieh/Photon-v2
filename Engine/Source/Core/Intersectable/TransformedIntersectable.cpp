@@ -30,6 +30,13 @@ TransformedIntersectable::~TransformedIntersectable() = default;
 
 // FIXME: intersecting routines' time correctness
 
+bool TransformedIntersectable::isIntersecting(const Ray& ray) const
+{
+	Ray localRay;
+	m_worldToLocal->transform(ray, &localRay);
+	return m_intersectable->isIntersecting(localRay);
+}
+
 bool TransformedIntersectable::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	Ray localRay;
@@ -43,13 +50,6 @@ bool TransformedIntersectable::isIntersecting(const Ray& ray, HitProbe& probe) c
 	{
 		return false;
 	}
-}
-
-bool TransformedIntersectable::isIntersecting(const Ray& ray) const
-{
-	Ray localRay;
-	m_worldToLocal->transform(ray, &localRay);
-	return m_intersectable->isIntersecting(localRay);
 }
 
 void TransformedIntersectable::calcIntersectionDetail(const Ray& ray, HitProbe& probe,

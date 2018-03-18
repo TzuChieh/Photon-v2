@@ -43,9 +43,7 @@ void NormalBufferIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 
 NormalBufferIntegrator::NormalBufferIntegrator(const InputPacket& packet) :
 	Integrator(packet)
-{
-
-}
+{}
 
 SdlTypeInfo NormalBufferIntegrator::ciTypeInfo()
 {

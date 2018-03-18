@@ -70,6 +70,12 @@ public:
 		m_maxVertex = maxVertex;
 	}
 
+	inline void expand(const Vector3R& amount)
+	{
+		m_minVertex.subLocal(amount);
+		m_maxVertex.addLocal(amount);
+	}
+
 private:
 	Vector3R m_minVertex;
 	Vector3R m_maxVertex;

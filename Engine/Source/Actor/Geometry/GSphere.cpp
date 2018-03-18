@@ -7,6 +7,7 @@
 #include "FileIO/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Actor/Geometry/GTriangleMesh.h"
+#include "Core/Intersectable/PSphere.h"
 
 #include <cmath>
 #include <iostream>
@@ -29,16 +30,12 @@ public:
 GSphere::GSphere(const real radius) :
 	Geometry(), 
 	m_radius(radius)
-{
-
-}
+{}
 
 GSphere::GSphere(const GSphere& other) :
 	Geometry(), 
 	m_radius(other.m_radius)
-{
-
-}
+{}
 
 GSphere::~GSphere() = default;
 
@@ -53,13 +50,9 @@ void GSphere::genPrimitive(const PrimitiveBuildingMaterial& data,
 		return;
 	}
 
-	/*if(parentModel.getScale().x != parentModel.getScale().y || parentModel.getScale().y != parentModel.getScale().z)
-	{
-		std::cerr << "warning: nonuniform scale on GSphere detected" << std::endl;
-		return;
-	}*/
-
 	genTriangleMesh()->genPrimitive(data, out_primitives);
+
+	//out_primitives.push_back(std::make_unique<PSphere>(data.metadata, m_radius));
 }
 
 std::shared_ptr<Geometry> GSphere::genTransformApplied(const StaticTransform& transform) const

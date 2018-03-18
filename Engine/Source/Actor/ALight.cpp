@@ -182,13 +182,12 @@ std::shared_ptr<Geometry> ALight::getSanifiedEmitterGeometry(
 	*out_baseLW = nullptr;
 	*out_baseWL = nullptr;
 
-	auto staticBaseLW = std::make_unique<StaticTransform>(StaticTransform::makeForward(m_localToWorld));
-	auto staticBaseWL = std::make_unique<StaticTransform>(StaticTransform::makeInverse(m_localToWorld));
-
 	// TODO: test "isRigid()" may be more appropriate
 	if(m_localToWorld.hasScaleEffect())
 	{
-		sanifiedGeometry = m_geometry->genTransformApplied(*staticBaseLW);
+		const StaticTransform& baseLW = StaticTransform::makeForward(m_localToWorld);
+
+		sanifiedGeometry = m_geometry->genTransformApplied(baseLW);
 		if(sanifiedGeometry != nullptr)
 		{
 			// TODO: combine identity transforms...
@@ -202,13 +201,16 @@ std::shared_ptr<Geometry> ALight::getSanifiedEmitterGeometry(
 			          << "scaling on light with attached geometry may have unexpected "
 			          << "behaviors such as miscalculated primitive surface area, which "
 			          << "can cause severe rendering artifacts" << std::endl;
+
+			*out_baseLW = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeForward(m_localToWorld));
+			*out_baseWL = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeInverse(m_localToWorld));
 		}
 	}
 	else
 	{
 		sanifiedGeometry = m_geometry;
 		*out_baseLW = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeForward(m_localToWorld));
-		*out_baseWL = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeForward(m_localToWorld));
+		*out_baseWL = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeInverse(m_localToWorld));
 	}
 
 	return sanifiedGeometry;

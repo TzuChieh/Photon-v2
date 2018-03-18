@@ -20,7 +20,7 @@ public:
 	{}
 
 	inline TSampler(const EQuantity sampledQuantity) : 
-		m_sampledQuantity(sampledQuantity)
+		TSampler(sampledQuantity, 0)
 	{}
 
 	inline TSampler(const EQuantity sampledQuantity, const uint32 sampledChannel) :

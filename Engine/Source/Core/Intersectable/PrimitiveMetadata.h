@@ -22,7 +22,14 @@ public:
 
 	inline const PrimitiveChannel& getChannel(const uint32 channelId) const
 	{
-		return m_channels[channelId];
+		if(channelId < m_channels.size())
+		{
+			return m_channels[channelId];
+		}
+		else
+		{
+			return getDefaultChannel();
+		}
 	}
 
 	inline const PrimitiveChannel& getDefaultChannel() const

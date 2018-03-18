@@ -1,0 +1,22 @@
+## camera(pinhole) [real fov-degree 30] [vector3r position "0 6 40"] [vector3r direction "0 0 -1"]
+## film(hdr-rgb) [integer width 800] [integer height 800] [string filter-name "gaussian"]
+## sample-generator(stratified) [integer sample-amount 1000][integer num-strata-2d-x 800][integer num-strata-2d-y 800]
+## integrator(backward-path)
+//## integrator(surface-normal)
+
+-> geometry(rectangle) @plane [real width 15] [real height 15]
+-> geometry(sphere)    @target  [real radius 3]
+
+-> material(matte-opaque) @white [vector3r albedo "0.8 0.8 0.8"]
+
+-> actor(model) @ground [geometry geometry @plane] [material material @white]
+-> actor(model) rotate(@ground) [vector3r axis "1 0 0"] [real degree -90]
+-> actor(model) scale(@ground) [vector3r factor "10 10 10"]
+
+-> actor(model) @object [geometry geometry @target]  [material material @white]
+-> actor(model) translate(@object) [vector3r factor "0 4 0"]
+
+-> light-source(area) @areaSource [vector3r emitted-radiance "3.4 3.4 3.4"]
+-> actor(light) @topLight [geometry geometry @plane] [material material @white] [light-source light-source @areaSource]
+-> actor(light) translate(@topLight) [vector3r factor "0 10 0"]
+-> actor(light) rotate(@topLight) [vector3r axis "1 0 0"] [real degree 90]
