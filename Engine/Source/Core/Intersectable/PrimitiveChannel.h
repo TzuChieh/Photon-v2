@@ -1,17 +1,17 @@
 #pragma once
 
-#include "Core/Texture/UvwMapper/UvwMapper.h"
+#include "Core/Intersectable/UvwMapper/UvwMapper.h"
 
 #include <memory>
 
 namespace ph
 {
 
-class TextureChannel final
+class PrimitiveChannel final
 {
 public:
-	TextureChannel();
-	TextureChannel(std::shared_ptr<UvwMapper> mapper);
+	PrimitiveChannel();
+	PrimitiveChannel(const std::shared_ptr<UvwMapper>& mapper);
 
 	inline const UvwMapper* getMapper() const
 	{

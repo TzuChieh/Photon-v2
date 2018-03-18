@@ -6,6 +6,7 @@
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Texture/SampleLocation.h"
+#include "Common/primitive_type.h"
 
 namespace ph
 {
@@ -22,19 +23,26 @@ public:
 		m_sampledQuantity(sampledQuantity)
 	{}
 
+	inline TSampler(const EQuantity sampledQuantity, const uint32 sampledChannel) :
+		m_sampledQuantity(sampledQuantity), m_sampledChannel(sampledChannel)
+	{}
+
 	inline OutputType sample(const TTexture<OutputType>& texture, const SurfaceHit& X) const
 	{
-		Vector3R uvw;
-		const auto& textureChannel = X.getDetail().getPrimitive()->getMetadata()->getDefaultTextureChannel();
-		textureChannel.getMapper()->map(X.getDetail(), &uvw);
+		HitDetail channeledDetail = X.getDetail();
+		if(m_sampledChannel != 0)
+		{
+			channeledDetail = X.switchChannel(m_sampledChannel).getDetail();
+		}
 
 		OutputType value;
-		texture.sample(SampleLocation(X, uvw, m_sampledQuantity), &value);
+		texture.sample(SampleLocation(channeledDetail, m_sampledQuantity), &value);
 		return value;
 	}
 
 private:
 	EQuantity m_sampledQuantity;
+	uint32    m_sampledChannel;
 };
 
 }// end namespace ph

@@ -45,7 +45,6 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 	SpectralStrength accuLiWeight(1);
 	//Vector3R rayOriginDelta;
 	HitProbe hitProbe;
-	HitDetail hitDetail;
 
 	/*Ray ray;
 	camera.genSensingRay(sample, &ray);*/
@@ -59,7 +58,8 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 	{
 		bool keepSampling = true;
 
-		scene.calcIntersectionDetail(tracingRay, hitProbe, &hitDetail);
+		const SurfaceHit surfaceHit(tracingRay, hitProbe);
+		const HitDetail& hitDetail = surfaceHit.getDetail();
 
 		const auto* const metadata = hitDetail.getPrimitive()->getMetadata();
 		const SurfaceBehavior& hitSurfaceBehavior = metadata->surfaceBehavior;
@@ -73,8 +73,6 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 		{
 			break;
 		}
-
-		SurfaceHit surfaceHit(tracingRay, hitDetail);
 
 		// only forward side is emitable
 		if(hitSurfaceBehavior.getEmitter() && V.dot(hitDetail.getShadingNormal()) > 0.0_r)

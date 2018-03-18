@@ -21,10 +21,9 @@ public:
 	Scene();
 	Scene(const Intersector* intersector, const LightSampler* lightSampler);
 
-	bool isIntersecting(const Ray& ray, HitProbe* out_probe) const;
 	bool isIntersecting(const Ray& ray) const;
-	void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
-	                            HitDetail* out_detail) const;
+	bool isIntersecting(const Ray& ray, HitProbe* out_probe) const;
+
 	const Emitter* pickEmitter(real* const out_PDF) const;
 	void genDirectSample(DirectLightSample& sample) const;
 	real calcDirectPdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Emitter* hitEmitter, const Primitive* hitPrim) const;

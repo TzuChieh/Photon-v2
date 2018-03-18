@@ -7,10 +7,8 @@ namespace ph
 
 HitDetail::HitDetail() :
 	m_primitive(nullptr),
-	m_st(0, 0),
+	m_uvw(0, 0, 0),
 	m_hitInfos{HitInfo(), HitInfo()}
-{
-
-}
+{}
 
 }// end namespace ph

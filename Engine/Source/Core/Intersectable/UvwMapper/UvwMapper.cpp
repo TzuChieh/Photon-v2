@@ -1,4 +1,4 @@
-#include "Core/Texture/UvwMapper/UvwMapper.h"
+#include "Core/Intersectable/UvwMapper/UvwMapper.h"
 
 namespace ph
 {

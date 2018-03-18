@@ -13,15 +13,11 @@ namespace ph
 
 GCuboid::GCuboid(const real xLen, const real yLen, const real zLen) :
 	m_xLen(xLen), m_yLen(yLen), m_zLen(zLen)
-{
-
-}
+{}
 
 GCuboid::GCuboid(const GCuboid& other) :
 	m_xLen(other.m_xLen), m_yLen(other.m_yLen), m_zLen(other.m_zLen)
-{
-
-}
+{}
 
 GCuboid::~GCuboid() = default;
 

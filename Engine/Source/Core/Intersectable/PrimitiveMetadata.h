@@ -2,8 +2,8 @@
 
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Math/Transform/StaticTransform.h"
-#include "Core/Texture/UvwMapper/UvwMapper.h"
-#include "Core/Texture/TextureChannel.h"
+#include "Core/Intersectable/UvwMapper/UvwMapper.h"
+#include "Core/Intersectable/PrimitiveChannel.h"
 
 #include <memory>
 #include <vector>
@@ -18,20 +18,20 @@ public:
 
 	PrimitiveMetadata();
 
-	int addTextureChannel(const TextureChannel& channel);
+	uint32 addChannel(const PrimitiveChannel& channel);
 
-	inline const TextureChannel& getTextureChannel(const int channelId) const
+	inline const PrimitiveChannel& getChannel(const uint32 channelId) const
 	{
-		return m_textureChannels[channelId];
+		return m_channels[channelId];
 	}
 
-	inline const TextureChannel& getDefaultTextureChannel() const
+	inline const PrimitiveChannel& getDefaultChannel() const
 	{
-		return getTextureChannel(0);
+		return getChannel(0);
 	}
 
 private:
-	std::vector<TextureChannel> m_textureChannels;
+	std::vector<PrimitiveChannel> m_channels;
 };
 
 }// end namespace ph

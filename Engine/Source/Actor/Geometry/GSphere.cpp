@@ -2,7 +2,7 @@
 #include "Core/Intersectable/PTriangle.h"
 #include "Actor/Geometry/GTriangle.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Actor/StGenerator/StGenerator.h"
+#include "Core/Intersectable/UvwMapper/UvwMapper.h"
 #include "Actor/AModel.h"
 #include "FileIO/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
@@ -19,9 +19,7 @@ class IndexedTriangle
 public:
 	IndexedTriangle(const std::size_t iA, const std::size_t iB, const std::size_t iC) :
 		iA(iA), iB(iB), iC(iC)
-	{
-
-	}
+	{}
 
 	std::size_t iA;
 	std::size_t iB;
@@ -183,13 +181,13 @@ std::shared_ptr<GTriangleMesh> GSphere::genTriangleMesh() const
 
 		Vector3R mappedUVW;
 
-		m_stGenerator->map(vA, triangle.getUVWa(), &mappedUVW);
+		m_uvwMapper->map(vA, &mappedUVW);
 		triangle.setUVWa(mappedUVW);
 
-		m_stGenerator->map(vB, triangle.getUVWb(), &mappedUVW);
+		m_uvwMapper->map(vB, &mappedUVW);
 		triangle.setUVWb(mappedUVW);
 
-		m_stGenerator->map(vC, triangle.getUVWc(), &mappedUVW);
+		m_uvwMapper->map(vC, &mappedUVW);
 		triangle.setUVWc(mappedUVW);
 
 		triangleMesh->addTriangle(triangle);

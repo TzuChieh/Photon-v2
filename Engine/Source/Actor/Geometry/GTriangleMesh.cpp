@@ -14,9 +14,7 @@ namespace ph
 GTriangleMesh::GTriangleMesh() : 
 	Geometry(), 
 	m_gTriangles()
-{
-
-}
+{}
 
 GTriangleMesh::GTriangleMesh(const std::vector<Vector3R>& positions,
                              const std::vector<Vector3R>& texCoords,

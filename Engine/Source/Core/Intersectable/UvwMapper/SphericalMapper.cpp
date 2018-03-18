@@ -1,20 +1,22 @@
-#include "Actor/StGenerator/SphericalGenerator.h"
+#include "Core/Intersectable/UvwMapper/SphericalMapper.h"
 #include "Math/TVector3.h"
 #include "Math/Math.h"
 #include "Math/constant.h"
 
 #include <iostream>
+#include <cmath>
 
 namespace ph
 {
 
-SphericalGenerator::~SphericalGenerator() = default;
+SphericalMapper::~SphericalMapper() = default;
 
-void SphericalGenerator::map(const Vector3R& position, const Vector3R& uvw, Vector3R* const out_uvw) const
+void SphericalMapper::map(const Vector3R& position, Vector3R* const out_uvw) const
 {
 	if(position.length() < 1e-8)
 	{
-		std::cerr << "warning: at SphericalGenerator::map(), positions too close to geometry origin may induce errors during mapping" << std::endl;
+		std::cerr << "warning: at SphericalMapper::map(), "
+		          << "positions too close to origin may induce errors during mapping" << std::endl;
 	}
 
 	const Vector3R positionDir = position.normalize();
@@ -23,8 +25,8 @@ void SphericalGenerator::map(const Vector3R& position, const Vector3R& uvw, Vect
 	const real cosPhi   = Math::clamp(positionDir.x, -1.0_r, 1.0_r);
 	const real sinPhi   = Math::clamp(positionDir.z, -1.0_r, 1.0_r);
 
-	const real theta = acos(cosTheta);       // [  0, pi]
-	const real phi   = atan2(sinPhi, cosPhi);// [-pi, pi]
+	const real theta = std::acos(cosTheta);       // [  0, pi]
+	const real phi   = std::atan2(sinPhi, cosPhi);// [-pi, pi]
 
 	out_uvw->x = (-phi + PH_PI_REAL) / (2.0_r * PH_PI_REAL);// [0, 1]
 	out_uvw->y = (PH_PI_REAL - theta) / PH_PI_REAL;         // [0, 1]

@@ -11,7 +11,7 @@ class UvwMapper
 public:
 	virtual ~UvwMapper() = 0;
 
-	virtual void map(const HitDetail& X, Vector3R* out_uvw) const = 0;
+	virtual void map(const Vector3R& position, Vector3R* out_uvw) const = 0;
 };
 
 }// end namespace ph

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Math/TVector3.h"
-#include "Math/TVector2.h"
 #include "Math/TOrthonormalBasis3.h"
 #include "Math/Math.h"
 #include "Core/ECoordSys.h"
@@ -70,7 +69,7 @@ public:
 	}
 
 	inline const Primitive* getPrimitive() const { return m_primitive; }
-	inline const Vector2R&  getST() const        { return m_st;        }
+	inline const Vector3R&  getUvw() const       { return m_uvw;       }
 
 	inline const HitInfo& getHitInfo(const ECoordSys coordSys = ECoordSys::WORLD) const
 	{
@@ -84,10 +83,10 @@ public:
 
 	inline void setMisc(
 		const Primitive* const primitive,
-		const Vector2R&        st)
+		const Vector3R&        uvw)
 	{
 		m_primitive = primitive;
-		m_st        = st;
+		m_uvw       = uvw;
 	}
 
 	inline void computeBases()
@@ -100,7 +99,7 @@ public:
 
 private:
 	const Primitive* m_primitive;
-	Vector2R         m_st;
+	Vector3R         m_uvw;
 	HitInfo          m_hitInfos[static_cast<int>(ECoordSys::NUM_ELEMENTS)];
 };
 

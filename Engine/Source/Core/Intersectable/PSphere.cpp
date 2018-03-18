@@ -131,6 +131,7 @@ void PSphere::calcAABB(AABB3D* const out_aabb) const
 real PSphere::calcPositionSamplePdfA(const Vector3R& position) const
 {
 	// TODO
+	return 0.0_r;
 }
 
 void PSphere::genPositionSample(PositionSample* const out_sample) const

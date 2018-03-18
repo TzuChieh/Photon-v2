@@ -1,5 +1,6 @@
 #include "Actor/Geometry/Geometry.h"
-#include "Actor/StGenerator/DefaultGenerator.h"
+#include "Core/Intersectable/UvwMapper/SphericalMapper.h"
+#include "Common/assertion.h"
 
 #include <iostream>
 
@@ -7,21 +8,25 @@ namespace ph
 {
 
 Geometry::Geometry() : 
-	m_stGenerator(std::make_shared<DefaultGenerator>())
+	m_uvwMapper(std::make_shared<SphericalMapper>())
 {
-
+	PH_ASSERT(m_uvwMapper != nullptr);
 }
 
 Geometry::~Geometry() = default;
 
-void Geometry::setStGenerator(const std::shared_ptr<StGenerator>& stGenerator)
+void Geometry::setUvwMapper(const std::shared_ptr<UvwMapper>& uvwMapper)
 {
-	m_stGenerator = stGenerator;
+	PH_ASSERT(uvwMapper != nullptr);
+
+	m_uvwMapper = uvwMapper;
 }
 
-const StGenerator* Geometry::getStGenerator() const
+const UvwMapper* Geometry::getUvwMapper() const
 {
-	return m_stGenerator.get();
+	PH_ASSERT(m_uvwMapper != nullptr);
+
+	return m_uvwMapper.get();
 }
 
 std::shared_ptr<Geometry> Geometry::genTransformApplied(const StaticTransform& transform) const

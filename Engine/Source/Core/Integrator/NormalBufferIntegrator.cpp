@@ -5,6 +5,7 @@
 #include "World/Scene.h"
 #include "Math/TVector3.h"
 #include "Core/Quantity/SpectralStrength.h"
+#include "Core/SurfaceHit.h"
 
 namespace ph
 {
@@ -27,9 +28,8 @@ void NormalBufferIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 	HitProbe probe;
 	if(data.scene->isIntersecting(tracingRay, &probe))
 	{
-		HitDetail detail;
-		data.scene->calcIntersectionDetail(tracingRay, probe, &detail);
-		radiance.setLinearSrgb(detail.getShadingNormal());// FIXME: check color space
+		const SurfaceHit hit(tracingRay, probe);
+		radiance.setLinearSrgb(hit.getDetail().getShadingNormal());// FIXME: check color space
 	}
 	else
 	{

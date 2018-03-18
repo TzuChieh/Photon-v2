@@ -12,9 +12,7 @@ namespace ph
 
 GWave::GWave(const real xLen, const real yLen, const real zLen) :
 	m_xLen(xLen), m_yLen(yLen), m_zLen(zLen)
-{
-
-}
+{}
 
 GWave::~GWave() = default;
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/HitDetail.h"
+#include "Core/HitProbe.h"
 #include "Core/Ray.h"
 
 namespace ph
@@ -10,16 +11,16 @@ class SurfaceHit final
 {
 public:
 	inline SurfaceHit() :
-		m_incidentRay(), m_detail()
-	{
+		m_incidentRay(), m_recordedProbe(), m_detail()
+	{}
 
+	inline SurfaceHit(const Ray& incidentRay, const HitProbe& probe) : 
+		m_incidentRay(incidentRay), m_recordedProbe(probe), m_detail()
+	{
+		HitProbe(m_recordedProbe).calcIntersectionDetail(m_incidentRay, &m_detail);
 	}
 
-	inline SurfaceHit(const Ray& incidentRay, const HitDetail& detail) : 
-		m_incidentRay(incidentRay), m_detail(detail)
-	{
-
-	}
+	SurfaceHit switchChannel(uint32 newChannel) const;
 
 	inline const HitDetail& getDetail() const
 	{
@@ -48,6 +49,7 @@ public:
 
 private:
 	Ray       m_incidentRay;
+	HitProbe  m_recordedProbe;
 	HitDetail m_detail;
 };
 

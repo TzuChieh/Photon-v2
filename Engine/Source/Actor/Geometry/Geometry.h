@@ -12,7 +12,7 @@ namespace ph
 
 class Primitive;
 class PrimitiveStorage;
-class StGenerator;
+class UvwMapper;
 class InputPacket;
 class PrimitiveBuildingMaterial;
 class Transform;
@@ -29,11 +29,11 @@ public:
 	                          std::vector<std::unique_ptr<Primitive>>& out_primitives) const = 0;
 	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticTransform& transform) const;
 
-	const StGenerator* getStGenerator() const;
-	void setStGenerator(const std::shared_ptr<StGenerator>& stGenerator);
+	const UvwMapper* getUvwMapper() const;
+	void setUvwMapper(const std::shared_ptr<UvwMapper>& uvwMapper);
 
 protected:
-	std::shared_ptr<StGenerator> m_stGenerator;
+	std::shared_ptr<UvwMapper> m_uvwMapper;
 
 // command interface
 public:

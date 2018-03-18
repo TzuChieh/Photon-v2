@@ -53,11 +53,6 @@ public:
 	virtual real calcPositionSamplePdfA(const Vector3R& position) const override;
 	virtual void genPositionSample(PositionSample* out_sample) const override;
 
-	inline real getReciExtendedArea() const
-	{
-		return m_primitive->getReciExtendedArea();
-	}
-
 	virtual inline real calcExtendedArea() const override
 	{
 		return m_primitive->calcExtendedArea();

@@ -29,7 +29,7 @@ PrimitiveAreaEmitter::PrimitiveAreaEmitter(const Primitive* const primitive) :
 	SpectralStrength defaultSpectrum(1.0_r);
 	m_emittedRadiance = std::make_shared<TConstantTexture<SpectralStrength>>(defaultSpectrum);
 
-	m_reciExtendedArea = primitive->getReciExtendedArea();
+	m_reciExtendedArea = 1.0_r / primitive->calcExtendedArea();
 }
 
 PrimitiveAreaEmitter::~PrimitiveAreaEmitter() = default;
@@ -113,11 +113,17 @@ void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
 
 real PrimitiveAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const
 {
-	const real pickPdfW = (1.0_r / hitPrim->getReciExtendedArea()) * m_reciExtendedArea;
+	// FIXME: WTF on pickPdfW... (1.0_r / hitPrim->getReciExtendedArea())??? seems to be the cause of the 
+	// artifact experienced earlier, all methods above and below this one have the same error
+
+	/*const real pickPdfW = (1.0_r / hitPrim->getReciExtendedArea()) * m_reciExtendedArea;
 	const real samplePdfA = hitPrim->calcPositionSamplePdfA(emitPos);
 	const real distSquared = targetPos.sub(emitPos).lengthSquared();
 	const Vector3R emitDir(targetPos.sub(emitPos).normalizeLocal());
-	return pickPdfW * (samplePdfA / std::abs(emitDir.dot(emitN)) * distSquared);
+	return pickPdfW * (samplePdfA / std::abs(emitDir.dot(emitN)) * distSquared);*/
+
+	std::cerr << "PrimitiveAreaEmitter::calcDirectSamplePdfW() not implemented" << std::endl;
+	return 0;
 }
 
 void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* const out_Le, Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const

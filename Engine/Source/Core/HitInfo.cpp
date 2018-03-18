@@ -16,8 +16,6 @@ HitInfo::HitInfo() :
 
 	m_geometryBasis(),
 	m_shadingBasis()
-{
-
-}
+{}
 
 }// end namespace ph

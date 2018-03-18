@@ -7,6 +7,7 @@
 #include "Math/TVector3.h"
 
 #include <limits>
+#include <array>
 
 namespace ph
 {
@@ -21,17 +22,18 @@ public:
 	inline HitProbe() :
 		m_hitStack(),
 		m_hitRayT(std::numeric_limits<real>::infinity()),
-		m_realCache()
-	{
+		m_realCache(),
+		m_hitDetailChannel(0)
+	{}
 
-	}
+	void calcIntersectionDetail(const Ray& ray, HitDetail* out_detail);
 
-	inline void pushIntermediateHit(const Intersectable* hitTarget)
+	inline void pushIntermediateHit(const Intersectable* const hitTarget)
 	{
 		m_hitStack.push(hitTarget);
 	}
 
-	inline void pushBaseHit(const Intersectable* hitTarget,
+	inline void pushBaseHit(const Intersectable* const hitTarget,
 	                        const real hitRayT)
 	{
 		m_hitStack.push(hitTarget);
@@ -41,6 +43,11 @@ public:
 	inline void popIntermediateHit()
 	{
 		m_hitStack.pop();
+	}
+
+	inline void setChannel(const uint32 channel)
+	{
+		m_hitDetailChannel = channel;
 	}
 
 	inline const Intersectable* getCurrentHit() const
@@ -53,12 +60,20 @@ public:
 		return m_hitRayT;
 	}
 
+	inline uint32 getChannel() const
+	{
+		return m_hitDetailChannel;
+	}
+
+	// Clears the probe object and make it ready for probing again. 
+	// 
 	inline void clear()
 	{
 		m_hitStack.clear();
 		m_hitRayT = std::numeric_limits<real>::infinity();
+		m_hitDetailChannel = 0;
 	}
-
+	
 	inline void cacheReal3(const int32 headIndex, const Vector3R& real3)
 	{
 		PH_ASSERT(headIndex >= 0 && 
@@ -82,9 +97,10 @@ public:
 private:
 	typedef TFixedSizeStack<const Intersectable*, PH_INTERSECTION_PROBE_DEPTH> Stack;
 
-	Stack m_hitStack;
-	real  m_hitRayT;
-	real  m_realCache[PH_INTERSECTION_PROBE_REAL_CACHE_SIZE];
+	Stack  m_hitStack;
+	real   m_hitRayT;
+	real   m_realCache[PH_INTERSECTION_PROBE_REAL_CACHE_SIZE];
+	uint32 m_hitDetailChannel;
 };
 
 }// end namespace ph

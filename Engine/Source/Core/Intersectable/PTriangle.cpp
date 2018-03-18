@@ -96,7 +96,8 @@ bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
 	real funcEc = vAt.x * vBt.y - vAt.y * vBt.x;
 
 	// possibly fallback to higher precision test for triangle edges
-	if(sizeof(real) < sizeof(float64))
+	//
+	if constexpr(sizeof(real) < sizeof(float64))
 	{
 		if(funcEa == 0.0_r || funcEb == 0.0_r || funcEc == 0.0_r)
 		{
@@ -205,7 +206,7 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 		dPdU, dPdV, dNdU, dNdV);
 
 	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
-	out_detail->setMisc(this, Vector2R(hitUVW.x, hitUVW.y));
+	out_detail->setMisc(this, hitUVW);
 }
 
 void PTriangle::calcAABB(AABB3D* const out_aabb) const

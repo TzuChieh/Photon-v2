@@ -8,9 +8,7 @@ namespace ph
 GeometrySoup::GeometrySoup() : 
 	Geometry(),
 	m_geometries()
-{
-
-}
+{}
 
 GeometrySoup::~GeometrySoup() = default;
 
