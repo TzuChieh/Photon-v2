@@ -346,6 +346,7 @@
     <ClInclude Include="Source\Math\Solver\TAnalyticalIntegrator1D.h" />
     <ClInclude Include="Source\Math\TArithmeticArray.h" />
     <ClInclude Include="Source\Math\TIndexedVector3.h" />
+    <ClInclude Include="Source\Math\TMatrix2.h" />
     <ClInclude Include="Source\Math\TMatrix4.h" />
     <ClInclude Include="Source\Math\TOrthonormalBasis3.h" />
     <ClInclude Include="Source\Math\TQuaternion.h" />
@@ -601,6 +602,9 @@
       <FileType>Document</FileType>
     </ClInclude>
     <None Include="Source\Math\Solver\TAnalyticalIntegrator1D.ipp" />
+    <ClInclude Include="Source\Math\TMatrix2.ipp">
+      <FileType>Document</FileType>
+    </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

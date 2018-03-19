@@ -20,6 +20,9 @@ template<typename T>
 class TQuaternion;
 
 template<typename T>
+class TMatrix2;
+
+template<typename T>
 class TMatrix4;
 
 template<typename T, std::size_t N>
@@ -40,6 +43,10 @@ typedef TIndexedVector3<float64> IndexedVector3D;
 typedef TQuaternion<real>    QuaternionR;
 typedef TQuaternion<float32> QuaternionF;
 typedef TQuaternion<float64> QuaternionD;
+
+typedef TMatrix2<real>    Matrix2R;
+typedef TMatrix2<float32> Matrix2F;
+typedef TMatrix2<float64> Matrix2D;
 
 typedef TMatrix4<real>    Matrix4R;
 typedef TMatrix4<float32> Matrix4F;

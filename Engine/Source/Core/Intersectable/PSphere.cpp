@@ -9,6 +9,7 @@
 #include "Core/HitDetail.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/UvwMapper/UvwMapper.h"
+#include "Math/TMatrix2.h"
 
 #include <algorithm>
 #include <cmath>
@@ -103,6 +104,34 @@ void PSphere::calcIntersectionDetail(
 		hitNormal,
 		hitNormal,
 		probe.getHitRayT());
+
+	// compute partial derivatives using 2nd-order approximation
+
+	// calculating displacement vectors on hit normals tangent plane
+	//
+	const real delta = m_radius / 128.0_r;
+	Vector3R dx, dz;
+	Math::formOrthonormalBasis(hitNormal, &dx, &dz);
+	dx.mulLocal(delta);
+	dz.mulLocal(delta);
+
+	// find delta positions on the sphere from displacement vectors
+	//
+	const Vector3R& negX = hitPosition.sub(dx).normalizeLocal().mulLocal(m_radius);
+	const Vector3R& posX = hitPosition.add(dx).normalizeLocal().mulLocal(m_radius);
+	const Vector3R& negZ = hitPosition.sub(dz).normalizeLocal().mulLocal(m_radius);
+	const Vector3R& posZ = hitPosition.add(dz).normalizeLocal().mulLocal(m_radius);
+
+	// find delta uvw vectors
+	//
+	Vector3R negXuvw, posXuvw, negZuvw, posZuvw;
+	mapper->map(negX, &negXuvw);
+	mapper->map(posX, &posXuvw);
+	mapper->map(negZ, &negZuvw);
+	mapper->map(posZ, &posZuvw);
+
+
+
 
 	/*Vector3R dPdU(0.0_r), dPdV(0.0_r);
 	Vector3R dNdU(0.0_r), dNdV(0.0_r);
