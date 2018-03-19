@@ -20,7 +20,7 @@ namespace ph
 
 PSphere::PSphere(const PrimitiveMetadata* const metadata, const real radius) : 
 	Primitive(metadata),
-	m_radius(radius)
+	m_radius(radius), m_reciRadius(radius > 0.0_r ? 1.0_r / radius : 0.0_r)
 {
 	PH_ASSERT(radius > 0.0_r);
 }
@@ -93,7 +93,7 @@ void PSphere::calcIntersectionDetail(
 	const UvwMapper* mapper = m_metadata->getChannel(probe.getChannel()).getMapper();
 
 	const Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
-	const Vector3R& hitNormal   = hitPosition.normalize();
+	const Vector3R& hitNormal   = hitPosition.mul(m_reciRadius);
 
 	PH_ASSERT(mapper != nullptr);
 	Vector3R hitUvw;
@@ -130,29 +130,23 @@ void PSphere::calcIntersectionDetail(
 	mapper->map(negZ, &negZuvw);
 	mapper->map(posZ, &posZuvw);
 
-
-
-
-	/*Vector3R dPdU(0.0_r), dPdV(0.0_r);
-	Vector3R dNdU(0.0_r), dNdV(0.0_r);
-	const Vector2R dUVab(m_uvwB.x - m_uvwA.x, m_uvwB.y - m_uvwA.y);
-	const Vector2R dUVac(m_uvwC.x - m_uvwA.x, m_uvwC.y - m_uvwA.y);
-	const real uvDet = dUVab.x * dUVac.y - dUVab.y * dUVac.x;
-	if(uvDet != 0.0_r)
+	// calculating positional partial derivatives
+	//
+	Vector3R dPdU, dPdV;
+	const Matrix2R uvwDiff(posXuvw.x - negXuvw.x, posXuvw.y - negXuvw.y,
+	                       posZuvw.x - negZuvw.x, posZuvw.y - negZuvw.y);
+	if(!uvwDiff.solve(posX.sub(negX), posZ.sub(negZ), &dPdU, &dPdV))
 	{
-		const real reciUvDet = 1.0_r / uvDet;
-
-		dPdU = m_eAB.mul(dUVac.y).add(m_eAC.mul(-dUVab.y)).mulLocal(reciUvDet);
-		dPdV = m_eAB.mul(-dUVac.x).add(m_eAC.mul(dUVab.x)).mulLocal(reciUvDet);
-
-		const Vector3R& dNab = m_nB.sub(m_nA);
-		const Vector3R& dNac = m_nC.sub(m_nA);
-		dNdU = dNab.mul(dUVac.y).add(dNac.mul(-dUVab.y)).mulLocal(reciUvDet);
-		dNdV = dNab.mul(-dUVac.x).add(dNac.mul(dUVab.x)).mulLocal(reciUvDet);
+		Math::formOrthonormalBasis(hitNormal, &dPdU, &dPdV);
 	}
-	
+
+	// normal derivatives are actually scaled version of dPdU and dPdV
+	//
+	const Vector3R& dNdU = dPdU.mul(m_reciRadius);
+	const Vector3R& dNdV = dPdV.mul(m_reciRadius);
+
 	out_detail->getHitInfo(ECoordSys::LOCAL).setDerivatives(
-		dPdU, dPdV, dNdU, dNdV);*/
+		dPdU, dPdV, dNdU, dNdV);
 
 	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
 	out_detail->setMisc(this, hitUvw);
@@ -198,7 +192,7 @@ void PSphere::calcAABB(AABB3D* const out_aabb) const
 {
 	out_aabb->setMinVertex(Vector3R(-m_radius, -m_radius, -m_radius));
 	out_aabb->setMaxVertex(Vector3R( m_radius,  m_radius,  m_radius));
-	out_aabb->expand(Vector3R(0.0001_r));
+	out_aabb->expand(Vector3R(0.0001_r * m_radius));
 }
 
 real PSphere::calcPositionSamplePdfA(const Vector3R& position) const

@@ -24,6 +24,7 @@ public:
 
 private:
 	real m_radius;
+	real m_reciRadius;
 };
 
 }// end namespace ph
