@@ -104,13 +104,15 @@ inline bool TMatrix2<T>::solve(const TVector2<T>& b, TVector2<T>* const out_x) c
 {
 	PH_ASSERT(!std::numeric_limits<T>::is_integer);
 
-	const T det = determinant();
-	if(std::abs(det) <= std::numeric_limits<T>::epsilon())
+	const T det     = determinant();
+	const T reciDet = det != static_cast<T>(0) ? static_cast<T>(1) / det
+	                                           : std::numeric_limits<T>::infinity();
+	if(std::fabs(reciDet) >= std::numeric_limits<T>::max())
 	{
 		return false;
 	}
-
-	const T reciDet = static_cast<T>(1) / det;
+	PH_ASSERT(reciDet != std::numeric_limits<T>::infinity());
+	PH_ASSERT(reciDet == reciDet);
 
 	out_x->x = (m[1][1] * b.x - m[0][1] * b.y) * reciDet;
 	out_x->y = (m[0][0] * b.y - m[1][0] * b.x) * reciDet;
@@ -124,13 +126,15 @@ inline bool TMatrix2<T>::solve(
 {
 	PH_ASSERT(!std::numeric_limits<T>::is_integer);
 
-	const T det = determinant();
-	if(std::abs(det) <= std::numeric_limits<T>::epsilon())
+	const T det     = determinant();
+	const T reciDet = det != static_cast<T>(0) ? static_cast<T>(1) / det
+	                                           : std::numeric_limits<T>::infinity();
+	if(std::fabs(reciDet) >= std::numeric_limits<T>::max())
 	{
 		return false;
 	}
-
-	const T reciDet = static_cast<T>(1) / det;
+	PH_ASSERT(reciDet != std::numeric_limits<T>::infinity());
+	PH_ASSERT(reciDet == reciDet);
 
 	out_xx->x = (m[1][1] * bx.x - m[0][1] * by.x) * reciDet;
 	out_xy->x = (m[0][0] * by.x - m[1][0] * bx.x) * reciDet;

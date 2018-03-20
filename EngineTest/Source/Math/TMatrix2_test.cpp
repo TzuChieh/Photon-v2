@@ -44,11 +44,15 @@ TEST(TMatrix2Test, DeterminantAndInverse)
 	                      3,  4);
 	EXPECT_FLOAT_EQ(mat1.determinant(), 2);
 
-	TMatrix2<float> mat2(1, 2,
+	TMatrix2<float> mat2(-0.1f, -0.2f,
+	                      0.3f,  0.4f);
+	EXPECT_FLOAT_EQ(mat2.determinant(), 0.02f);
+
+	TMatrix2<float> mat3(1, 2,
 	                     3, 4);
-	TMatrix2<float> mat3 = mat2.inverse();
-	EXPECT_FLOAT_EQ(mat3.m[0][0], -2.0f); EXPECT_FLOAT_EQ(mat3.m[0][1],  1.0f);
-	EXPECT_FLOAT_EQ(mat3.m[1][0],  1.5f); EXPECT_FLOAT_EQ(mat3.m[1][1], -0.5f);
+	TMatrix2<float> mat4 = mat3.inverse();
+	EXPECT_FLOAT_EQ(mat4.m[0][0], -2.0f); EXPECT_FLOAT_EQ(mat4.m[0][1],  1.0f);
+	EXPECT_FLOAT_EQ(mat4.m[1][0],  1.5f); EXPECT_FLOAT_EQ(mat4.m[1][1], -0.5f);
 }
 
 TEST(TMatrix2Test, SolveLinearSystem)
@@ -57,10 +61,10 @@ TEST(TMatrix2Test, SolveLinearSystem)
 
 	// a solvable system
 
-	TMatrix2<float> A1(1, 2,
-	                   3, 4);
-	TVector2<float> b1(1, 
-	                   1);
+	TMatrix2<float> A1(0.1f, 0.2f,
+	                   0.3f, 0.4f);
+	TVector2<float> b1(0.1f, 
+	                   0.1f);
 	TVector2<float> x1;
 	ASSERT_TRUE(A1.solve(b1, &x1));
 	EXPECT_FLOAT_EQ(x1.x, -1);
