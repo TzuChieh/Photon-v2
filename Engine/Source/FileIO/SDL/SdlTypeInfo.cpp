@@ -16,7 +16,6 @@ std::string SdlTypeInfo::categoryToName(const ETypeCategory typeCategory)
 	std::string categoryName;
 	switch(typeCategory)
 	{
-	case ETypeCategory::PRIMITIVE:            categoryName = "primitive";        break;
 	case ETypeCategory::REF_GEOMETRY:         categoryName = "geometry";         break;
 	case ETypeCategory::REF_MOTION:           categoryName = "motion";           break;
 	case ETypeCategory::REF_MATERIAL:         categoryName = "material";         break;
@@ -42,7 +41,6 @@ ETypeCategory SdlTypeInfo::nameToCategory(const std::string& name)
 {
 	const static std::unordered_map<std::string, ETypeCategory> map = 
 	{ 
-		{categoryToName(ETypeCategory::PRIMITIVE),            ETypeCategory::PRIMITIVE},
 		{categoryToName(ETypeCategory::REF_GEOMETRY),         ETypeCategory::REF_GEOMETRY},
 		{categoryToName(ETypeCategory::REF_MATERIAL),         ETypeCategory::REF_MATERIAL},
 		{categoryToName(ETypeCategory::REF_MOTION),           ETypeCategory::REF_MOTION},
@@ -69,9 +67,7 @@ ETypeCategory SdlTypeInfo::nameToCategory(const std::string& name)
 
 SdlTypeInfo::SdlTypeInfo(const ETypeCategory typeCategory, const std::string& typeName) :
 	typeCategory(typeCategory), typeName(typeName)
-{
-
-}
+{}
 
 bool SdlTypeInfo::isValid() const
 {

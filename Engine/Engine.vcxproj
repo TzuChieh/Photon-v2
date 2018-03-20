@@ -207,7 +207,7 @@
     <ClInclude Include="Source\Core\HitProbe.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardLightIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\BackwardMisIntegrator.h" />
-    <ClInclude Include="Source\Core\Integrator\BackwardPathIntegrator.h" />
+    <ClInclude Include="Source\Core\Integrator\VBPTIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\DebugIntegrator.h" />
     <ClInclude Include="Source\Core\Integrator\Integrator.h" />
     <ClInclude Include="Source\Core\Integrator\LightTracingIntegrator.h" />
@@ -440,7 +440,7 @@
     <ClCompile Include="Source\Core\HitProbe.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardLightIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\BackwardMisIntegrator.cpp" />
-    <ClCompile Include="Source\Core\Integrator\BackwardPathIntegrator.cpp" />
+    <ClCompile Include="Source\Core\Integrator\VBPTIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\DebugIntegrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\Integrator.cpp" />
     <ClCompile Include="Source\Core\Integrator\LightTracingIntegrator.cpp" />

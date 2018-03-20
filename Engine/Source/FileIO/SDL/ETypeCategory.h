@@ -6,7 +6,6 @@ namespace ph
 enum class ETypeCategory
 {
 	// world command related types
-	PRIMITIVE, 
 	REF_GEOMETRY, 
 	REF_MATERIAL,
 	REF_MOTION,
@@ -22,7 +21,7 @@ enum class ETypeCategory
 	REF_RENDERER,
 	
 	// special values
-	MIN         = PRIMITIVE,
+	MIN         = REF_GEOMETRY,
 	MAX         = REF_RENDERER,
 	UNSPECIFIED = MAX + 1
 };

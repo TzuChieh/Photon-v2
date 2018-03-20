@@ -1,4 +1,4 @@
-#include "Core/Integrator/BackwardPathIntegrator.h"
+#include "Core/Integrator/VBPTIntegrator.h"
 #include "Core/Ray.h"
 #include "World/Scene.h"
 #include "Math/TVector3.h"
@@ -26,14 +26,14 @@
 namespace ph
 {
 
-BackwardPathIntegrator::~BackwardPathIntegrator() = default;
+VBPTIntegrator::~VBPTIntegrator() = default;
 
-void BackwardPathIntegrator::update(const Scene& scene)
+void VBPTIntegrator::update(const Scene& scene)
 {
 	// update nothing
 }
 
-void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
+void VBPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
 {
 	const Scene&  scene  = *data.scene;
 	const Camera& camera = *data.camera;
@@ -169,25 +169,25 @@ void BackwardPathIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& 
 
 // command interface
 
-BackwardPathIntegrator::BackwardPathIntegrator(const InputPacket& packet) :
+VBPTIntegrator::VBPTIntegrator(const InputPacket& packet) :
 	Integrator(packet)
 {}
 
-SdlTypeInfo BackwardPathIntegrator::ciTypeInfo()
+SdlTypeInfo VBPTIntegrator::ciTypeInfo()
 {
-	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "backward-path");
+	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "vbpt");
 }
 
-void BackwardPathIntegrator::ciRegister(CommandRegister& cmdRegister)
+void VBPTIntegrator::ciRegister(CommandRegister& cmdRegister)
 {
 	SdlLoader loader;
-	loader.setFunc<BackwardPathIntegrator>(ciLoad);
+	loader.setFunc<VBPTIntegrator>(ciLoad);
 	cmdRegister.setLoader(loader);
 }
 
-std::unique_ptr<BackwardPathIntegrator> BackwardPathIntegrator::ciLoad(const InputPacket& packet)
+std::unique_ptr<VBPTIntegrator> VBPTIntegrator::ciLoad(const InputPacket& packet)
 {
-	return std::make_unique<BackwardPathIntegrator>(packet);
+	return std::make_unique<VBPTIntegrator>(packet);
 }
 
 }// end namespace ph
