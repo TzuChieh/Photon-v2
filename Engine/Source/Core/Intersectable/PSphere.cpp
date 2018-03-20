@@ -10,6 +10,9 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/UvwMapper/UvwMapper.h"
 #include "Math/TMatrix2.h"
+#include "Math/sampling.h"
+#include "Math/Random.h"
+#include "Core/Sample/PositionSample.h"
 
 #include <algorithm>
 #include <cmath>
@@ -197,18 +200,29 @@ void PSphere::calcAABB(AABB3D* const out_aabb) const
 
 real PSphere::calcPositionSamplePdfA(const Vector3R& position) const
 {
-	// TODO
-	return 0.0_r;
+	return 1.0_r / this->PSphere::calcExtendedArea();
 }
 
 void PSphere::genPositionSample(PositionSample* const out_sample) const
 {
-	// TODO
+	PH_ASSERT(m_metadata != nullptr);
+
+	sampling::unit_sphere::uniform::gen(
+		Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), &(out_sample->position));
+	out_sample->normal = out_sample->position;
+	out_sample->position.mulLocal(m_radius);
+
+	// FIXME: able to specify mapper channel
+	const UvwMapper* mapper = m_metadata->getDefaultChannel().getMapper();
+	PH_ASSERT(mapper != nullptr);
+	mapper->map(out_sample->position, &(out_sample->uvw));
+
+	out_sample->pdf = this->calcPositionSamplePdfA(out_sample->position);
 }
 
 real PSphere::calcExtendedArea() const
 {
-	return PH_PI_REAL * m_radius * m_radius;
+	return 4.0_r * PH_PI_REAL * m_radius * m_radius;
 }
 
 }// end namespace ph
