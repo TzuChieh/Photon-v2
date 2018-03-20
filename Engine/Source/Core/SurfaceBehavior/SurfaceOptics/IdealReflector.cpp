@@ -10,9 +10,7 @@ namespace ph
 IdealReflector::IdealReflector() :
 	SurfaceOptics(),
 	m_fresnel(std::make_shared<ExactDielectricFresnel>(1.0_r, 1.5_r))
-{
-
-}
+{}
 
 IdealReflector::~IdealReflector() = default;
 

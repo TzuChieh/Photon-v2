@@ -233,12 +233,12 @@ void PTriangle::calcAABB(AABB3D* const out_aabb) const
 	out_aabb->setMaxVertex(Vector3R(maxX + TRIANGLE_EPSILON, maxY + TRIANGLE_EPSILON, maxZ + TRIANGLE_EPSILON));
 }
 
+
+// Reference: Tomas Akenine-Moeller's "Fast 3D Triangle-Box Overlap Testing", 
+// which is based on SAT but faster.
+//
 bool PTriangle::isIntersectingVolumeConservative(const AABB3D& volume) const
 {
-	// Reference: Tomas Akenine-Moeller's 
-	// "Fast 3D Triangle-Box Overlap Testing", 
-	// which is based on SAT but faster.
-
 	Vector3R tvA = m_vA;
 	Vector3R tvB = m_vB;
 	Vector3R tvC = m_vC;

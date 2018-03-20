@@ -324,9 +324,6 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\OpaqueMicrofacet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\random_sample.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\TranslucentMicrofacet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -773,6 +770,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Math\TMatrix2.ipp" />
+    <ClInclude Include="Source\Math\sampling.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">
@@ -1019,9 +1019,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\OpaqueMicrofacet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\random_sample.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\TranslucentMicrofacet.cpp">

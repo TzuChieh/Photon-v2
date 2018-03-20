@@ -4,7 +4,7 @@
 #include "Math/Random.h"
 #include "Math/constant.h"
 #include "Actor/Material/MatteOpaque.h"
-#include "Core/SurfaceBehavior/SurfaceOptics/random_sample.h"
+#include "Math/sampling.h"
 #include "Math/Math.h"
 #include "Core/Texture/TSampler.h"
 #include "Core/Texture/TConstantTexture.h"
@@ -60,7 +60,8 @@ void LambertianDiffuse::genBsdfSample(const SurfaceHit& X, const Vector3R& V,
 	// generate and transform L to N's space
 	const Vector3R& N = X.getShadingNormal();
 	Vector3R& L = *out_L;
-	genUnitHemisphereCosineThetaWeightedSample(Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), &L);
+	sampling::unit_hemisphere::cosine_theta_weighted::gen(
+		Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), &L);
 	Vector3R u;
 	Vector3R v(N);
 	Vector3R w;

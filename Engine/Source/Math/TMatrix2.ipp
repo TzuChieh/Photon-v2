@@ -36,7 +36,6 @@ inline TMatrix2<T>::TMatrix2(const TMatrix2& other) :
 	m(other.m)
 {}
 
-
 template<typename T>
 template<typename U>
 inline TMatrix2<T>::TMatrix2(const TMatrix2<U>& other) :
@@ -111,7 +110,7 @@ inline bool TMatrix2<T>::solve(const TVector2<T>& b, TVector2<T>* const out_x) c
 		return false;
 	}
 
-	const T reciDet = 1 / det;
+	const T reciDet = static_cast<T>(1) / det;
 
 	out_x->x = (m[1][1] * b.x - m[0][1] * b.y) * reciDet;
 	out_x->y = (m[0][0] * b.y - m[1][0] * b.x) * reciDet;
@@ -131,7 +130,7 @@ inline bool TMatrix2<T>::solve(
 		return false;
 	}
 
-	const T reciDet = 1 / det;
+	const T reciDet = static_cast<T>(1) / det;
 
 	out_xx->x = (m[1][1] * bx.x - m[0][1] * by.x) * reciDet;
 	out_xy->x = (m[0][0] * by.x - m[1][0] * bx.x) * reciDet;

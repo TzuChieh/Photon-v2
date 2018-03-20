@@ -274,7 +274,6 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\IdealTransmitter.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\LambertianDiffuse.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\OpaqueMicrofacet.h" />
-    <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\random_sample.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\TranslucentMicrofacet.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\Property\AnisoTrowbridgeReitz.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\Property\ConductorDielectricFresnel.h" />
@@ -343,6 +342,7 @@
     <ClInclude Include="Source\Math\math_fwd.h" />
     <ClInclude Include="Source\Math\Random.h" />
     <ClInclude Include="Source\Math\Real.h" />
+    <ClInclude Include="Source\Math\sampling.h" />
     <ClInclude Include="Source\Math\Solver\TAnalyticalIntegrator1D.h" />
     <ClInclude Include="Source\Math\TArithmeticArray.h" />
     <ClInclude Include="Source\Math\TIndexedVector3.h" />
@@ -489,7 +489,6 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\IdealTransmitter.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\LambertianDiffuse.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\OpaqueMicrofacet.cpp" />
-    <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\random_sample.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\TranslucentMicrofacet.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\Property\AnisoTrowbridgeReitz.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\Property\ConductorDielectricFresnel.cpp" />

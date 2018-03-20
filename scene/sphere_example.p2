@@ -7,7 +7,8 @@
 -> geometry(rectangle) @plane [real width 15] [real height 15]
 -> geometry(sphere)    @target  [real radius 3]
 
--> material(matte-opaque) @white [vector3r albedo "0.8 0.8 0.8"]
+//-> material(matte-opaque) @white [vector3r albedo "0.8 0.8 0.8"]
+-> material(abraded-opaque) @white [vector3r albedo "0.8 0.8 0.8"] [real roughness-v 0.02] [real roughness-u 0.1] [vector3r f0 "0.9 0.9 0.9"]
 
 -> actor(model) @ground [geometry geometry @plane] [material material @white]
 -> actor(model) rotate(@ground) [vector3r axis "1 0 0"] [real degree -90]

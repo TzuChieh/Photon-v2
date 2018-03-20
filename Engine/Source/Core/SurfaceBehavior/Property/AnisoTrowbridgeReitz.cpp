@@ -1,6 +1,7 @@
 #include "Core/SurfaceBehavior/Property/AnisoTrowbridgeReitz.h"
 #include "Math/Math.h"
 #include "Math/constant.h"
+#include "Common/assertion.h"
 
 namespace ph
 {
@@ -8,9 +9,7 @@ namespace ph
 AnisoTrowbridgeReitz::AnisoTrowbridgeReitz(const real alphaU, const real alphaV) :
 	m_alphaU(alphaU), m_alphaV(alphaV),
 	m_reciAlphaU2(1.0_r / (alphaU * alphaU)), m_reciAlphaV2(1.0_r / (alphaV * alphaV))
-{
-
-}
+{}
 
 AnisoTrowbridgeReitz::~AnisoTrowbridgeReitz() = default;
 
@@ -61,6 +60,10 @@ void AnisoTrowbridgeReitz::genDistributedH(
 	const Vector3R& N,
 	Vector3R* const out_H) const
 {
+	PH_ASSERT(seedA_i0e1 >= 0.0_r && seedA_i0e1 <= 1.0_r);
+	PH_ASSERT(seedB_i0e1 >= 0.0_r && seedB_i0e1 <= 1.0_r);
+	PH_ASSERT(out_H != nullptr);
+
 	const real uFactor = m_alphaU * std::cos(2.0_r * PH_PI_REAL * seedA_i0e1);
 	const real vFactor = m_alphaV * std::sin(2.0_r * PH_PI_REAL * seedA_i0e1);
 

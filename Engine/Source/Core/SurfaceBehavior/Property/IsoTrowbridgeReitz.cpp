@@ -1,4 +1,5 @@
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
+#include "Common/assertion.h"
 
 #include <cmath>
 
@@ -8,9 +9,7 @@ namespace ph
 IsoTrowbridgeReitz::IsoTrowbridgeReitz(const real alpha) :
 	Microfacet(),
 	m_alpha(alpha)
-{
-
-}
+{}
 
 IsoTrowbridgeReitz::~IsoTrowbridgeReitz() = default;
 
@@ -64,12 +63,17 @@ real IsoTrowbridgeReitz::shadowing(
 }
 
 // for GGX (Trowbridge-Reitz) Normal Distribution Function
+//
 void IsoTrowbridgeReitz::genDistributedH(
 	const SurfaceHit& X,
 	const real seedA_i0e1, const real seedB_i0e1,
 	const Vector3R& N, 
 	Vector3R* const out_H) const
 {
+	PH_ASSERT(seedA_i0e1 >= 0.0_r && seedA_i0e1 <= 1.0_r);
+	PH_ASSERT(seedB_i0e1 >= 0.0_r && seedB_i0e1 <= 1.0_r);
+	PH_ASSERT(out_H != nullptr);
+
 	const real phi   = 2.0f * PH_PI_REAL * seedA_i0e1;
 	const real theta = std::atan(m_alpha * std::sqrt(seedB_i0e1 / (1.0_r - seedB_i0e1)));
 
