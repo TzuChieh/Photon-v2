@@ -183,9 +183,6 @@
     <ClInclude Include="Source\Core\Integrator\BackwardLightIntegrator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Integrator\BackwardMisIntegrator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Integrator\DebugIntegrator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -770,7 +767,10 @@
     <ClInclude Include="Source\Math\sampling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Integrator\VBPTIntegrator.h">
+    <ClInclude Include="Source\Core\Integrator\BNEEPTIntegrator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Integrator\BVPTIntegrator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -911,9 +911,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Integrator\BackwardLightIntegrator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\Integrator\BackwardMisIntegrator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Integrator\DebugIntegrator.cpp">
@@ -1249,7 +1246,10 @@
     <ClCompile Include="Source\Core\Intersectable\PrimitiveChannel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Integrator\VBPTIntegrator.cpp">
+    <ClCompile Include="Source\Core\Integrator\BNEEPTIntegrator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Integrator\BVPTIntegrator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,4 +1,4 @@
-#include "Core/Integrator/BackwardMisIntegrator.h"
+#include "Core/Integrator/BNEEPTIntegrator.h"
 #include "Core/Ray.h"
 #include "World/Scene.h"
 #include "Math/TVector3.h"
@@ -25,14 +25,14 @@
 namespace ph
 {
 
-BackwardMisIntegrator::~BackwardMisIntegrator() = default;
+BNEEPTIntegrator::~BNEEPTIntegrator() = default;
 
-void BackwardMisIntegrator::update(const Scene& scene)
+void BNEEPTIntegrator::update(const Scene& scene)
 {
 	// update nothing
 }
 
-void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
+void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
 {
 	//const Scene&  scene  = *data.scene;
 	//const Camera& camera = *data.camera;
@@ -222,14 +222,14 @@ void BackwardMisIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& d
 	//out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */accuRadiance));
 }
 
-void BackwardMisIntegrator::rationalClamp(SpectralStrength& value)
+void BNEEPTIntegrator::rationalClamp(SpectralStrength& value)
 {
 	// TODO: should negative value be allowed?
 	value.clampLocal(0.0_r, 10000.0_r);
 }
 
 // power heuristic with beta = 2
-real BackwardMisIntegrator::misWeight(real pdf1W, real pdf2W)
+real BNEEPTIntegrator::misWeight(real pdf1W, real pdf2W)
 {
 	pdf1W *= pdf1W;
 	pdf2W *= pdf2W;
@@ -238,27 +238,25 @@ real BackwardMisIntegrator::misWeight(real pdf1W, real pdf2W)
 
 // command interface
 
-BackwardMisIntegrator::BackwardMisIntegrator(const InputPacket& packet) :
+BNEEPTIntegrator::BNEEPTIntegrator(const InputPacket& packet) :
 	Integrator(packet)
-{
+{}
 
+SdlTypeInfo BNEEPTIntegrator::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "bneept");
 }
 
-SdlTypeInfo BackwardMisIntegrator::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "backward-mis");
-}
-
-void BackwardMisIntegrator::ciRegister(CommandRegister& cmdRegister)
+void BNEEPTIntegrator::ciRegister(CommandRegister& cmdRegister)
 {
 	SdlLoader loader;
-	loader.setFunc<BackwardMisIntegrator>(ciLoad);
+	loader.setFunc<BNEEPTIntegrator>(ciLoad);
 	cmdRegister.setLoader(loader);
 }
 
-std::unique_ptr<BackwardMisIntegrator> BackwardMisIntegrator::ciLoad(const InputPacket& packet)
+std::unique_ptr<BNEEPTIntegrator> BNEEPTIntegrator::ciLoad(const InputPacket& packet)
 {
-	return std::make_unique<BackwardMisIntegrator>(packet);
+	return std::make_unique<BNEEPTIntegrator>(packet);
 }
 
 }// end namespace ph

@@ -54,8 +54,8 @@
 // integrators
 #include "Core/Integrator/Integrator.h"
 #include "Core/Integrator/BackwardLightIntegrator.h"
-#include "Core/Integrator/BackwardMisIntegrator.h"
-#include "Core/Integrator/VBPTIntegrator.h"
+#include "Core/Integrator/BNEEPTIntegrator.h"
+#include "Core/Integrator/BVPTIntegrator.h"
 #include "Core/Integrator/LightTracingIntegrator.h"
 #include "Core/Integrator/NormalBufferIntegrator.h"
 #include "Core/Integrator/DebugIntegrator.h"
@@ -131,8 +131,8 @@ bool init_command_parser()
 	// integrators
 	register_command_interface<Integrator>();
 	register_command_interface<BackwardLightIntegrator>();
-	register_command_interface<BackwardMisIntegrator>();
-	register_command_interface<VBPTIntegrator>();
+	register_command_interface<BNEEPTIntegrator>();
+	register_command_interface<BVPTIntegrator>();
 	register_command_interface<LightTracingIntegrator>();
 	register_command_interface<NormalBufferIntegrator>();
 	register_command_interface<DebugIntegrator>();
