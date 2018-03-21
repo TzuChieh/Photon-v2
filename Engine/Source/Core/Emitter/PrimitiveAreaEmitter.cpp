@@ -37,6 +37,14 @@ PrimitiveAreaEmitter::~PrimitiveAreaEmitter() = default;
 
 void PrimitiveAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* const out_radiance) const
 {
+	// FIXME: sort of hacked... (the direction of ray is reversed)
+	// only front side of the emitter is emissive
+	if(X.getIncidentRay().getDirection().mul(-1.0_r).dot(X.getShadingNormal()) <= 0.0_r)
+	{
+		out_radiance->setValues(0.0_r);
+		return;
+	}
+
 	TSampler<SpectralStrength> sampler(EQuantity::EMR);
 	*out_radiance = sampler.sample(*m_emittedRadiance, X);
 }
@@ -96,7 +104,14 @@ void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
 	const real distSquared = emitterToTargetPos.lengthSquared();
 	
 	sample.emitPos = positionSample.position;
-	sample.pdfW    = positionSample.pdf / std::abs(emitDir.dot(positionSample.normal)) * distSquared;
+
+	const real emitDirDotNormal = emitDir.dot(positionSample.normal);
+	if(emitDirDotNormal <= 0.0_r)
+	{
+		sample.pdfW = 0.0_r;
+		return;
+	}
+	sample.pdfW = positionSample.pdf / std::abs(emitDirDotNormal) * distSquared;
 	m_emittedRadiance->sample(SampleLocation(positionSample.uvw, EQuantity::EMR), &sample.radianceLe);
 }
 
@@ -104,10 +119,16 @@ real PrimitiveAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const
 {
 	PH_ASSERT(hitPrim != nullptr);
 
+	const Vector3R emitDir(targetPos.sub(emitPos).normalizeLocal());
+	const real emitDirDotNormal = emitDir.dot(emitN);
+	if(emitDirDotNormal <= 0.0_r)
+	{
+		return 0.0_r;
+	}
+
 	const real samplePdfA  = hitPrim->calcPositionSamplePdfA(emitPos);
 	const real distSquared = targetPos.sub(emitPos).lengthSquared();
-	const Vector3R emitDir(targetPos.sub(emitPos).normalizeLocal());
-	return samplePdfA / std::abs(emitDir.dot(emitN)) * distSquared;
+	return samplePdfA / std::abs(emitDirDotNormal) * distSquared;
 }
 
 void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* const out_Le, Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const

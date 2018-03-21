@@ -36,6 +36,14 @@ MultiAreaEmitter::~MultiAreaEmitter() = default;
 
 void MultiAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const
 {
+	// FIXME: sort of hacked... (the direction of ray is reversed)
+	// only front side of the emitter is emissive
+	if(X.getIncidentRay().getDirection().mul(-1.0_r).dot(X.getShadingNormal()) <= 0.0_r)
+	{
+		out_radiance->setValues(0.0_r);
+		return;
+	}
+
 	// TODO: able to specify channel or restrict it
 	TSampler<SpectralStrength> sampler(EQuantity::EMR);
 	*out_radiance = sampler.sample(*m_emittedRadiance, X);
@@ -72,11 +80,18 @@ void MultiAreaEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vec
 real MultiAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const
 {
 	// HACK
+
+	const Vector3R emitDir(targetPos.sub(emitPos).normalizeLocal());
+	const real emitDirDotNormal = emitDir.dot(emitN);
+	if(emitDirDotNormal <= 0.0_r)
+	{
+		return 0.0_r;
+	}
+	
 	const real pickPdf = (1.0_r / static_cast<real>(m_areaEmitters.size()));
 	const real samplePdfA  = hitPrim->calcPositionSamplePdfA(emitPos);
 	const real distSquared = targetPos.sub(emitPos).lengthSquared();
-	const Vector3R emitDir(targetPos.sub(emitPos).normalizeLocal());
-	return samplePdfA / std::abs(emitDir.dot(emitN)) * distSquared * pickPdf;
+	return samplePdfA / std::abs(emitDirDotNormal) * distSquared * pickPdf;
 
 	/*const PrimitiveAreaEmitter& emitter = m_areaEmitters[Random::genUniformIndex_iL_eU(0, m_areaEmitters.size())];
 	const real pdfW    = emitter.calcDirectSamplePdfW(targetPos, emitPos, emitN, hitPrim);
