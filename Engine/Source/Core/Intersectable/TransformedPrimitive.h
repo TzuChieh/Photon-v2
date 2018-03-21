@@ -4,6 +4,7 @@
 #include "Core/Intersectable/TransformedIntersectable.h"
 #include "Core/HitDetail.h"
 #include "Core/HitProbe.h"
+#include "Common/assertion.h"
 
 #include <iostream>
 
@@ -49,10 +50,11 @@ public:
 		HitProbe&        probe,
 		HitDetail* const out_detail) const override
 	{
+		probe.popIntermediateHit();
+
+		PH_ASSERT(probe.getCurrentHit() == &m_intersectable);
 		m_intersectable.calcIntersectionDetail(ray, probe, out_detail);
 		out_detail->setMisc(this, out_detail->getUvw());
-
-		std::cerr << "exec" << std::endl;
 	}
 
 	virtual inline bool isIntersectingVolumeConservative(const AABB3D& aabb) const override

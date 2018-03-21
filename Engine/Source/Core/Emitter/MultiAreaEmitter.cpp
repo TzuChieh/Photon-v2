@@ -9,6 +9,8 @@
 #include "Core/Sample/PositionSample.h"
 #include "Core/Sample/DirectLightSample.h"
 
+#include <iostream>
+
 namespace ph
 {
 
@@ -69,11 +71,17 @@ void MultiAreaEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vec
 
 real MultiAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const
 {
-	const PrimitiveAreaEmitter& emitter = m_areaEmitters[Random::genUniformIndex_iL_eU(0, m_areaEmitters.size())];
+	// HACK
+	const real pickPdf = (1.0_r / static_cast<real>(m_areaEmitters.size()));
+	const real samplePdfA  = hitPrim->calcPositionSamplePdfA(emitPos);
+	const real distSquared = targetPos.sub(emitPos).lengthSquared();
+	const Vector3R emitDir(targetPos.sub(emitPos).normalizeLocal());
+	return samplePdfA / std::abs(emitDir.dot(emitN)) * distSquared * pickPdf;
 
+	/*const PrimitiveAreaEmitter& emitter = m_areaEmitters[Random::genUniformIndex_iL_eU(0, m_areaEmitters.size())];
 	const real pdfW    = emitter.calcDirectSamplePdfW(targetPos, emitPos, emitN, hitPrim);
 	const real pickPdf = (1.0_r / static_cast<real>(m_areaEmitters.size()));
-	return pdfW * pickPdf;
+	return pdfW * pickPdf;*/
 }
 
 void MultiAreaEmitter::setEmittedRadiance(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance)

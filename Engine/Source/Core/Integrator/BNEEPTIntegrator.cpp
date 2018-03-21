@@ -139,7 +139,7 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 			const SurfaceBehavior*   surfaceBehavior = &(metadata->surfaceBehavior);
 
 			BsdfSample bsdfSample;
-			bsdfSample.inputs.set(surfaceHit, tracingRay.getDirection().mul(-1));
+			bsdfSample.inputs.set(surfaceHit, V);
 			surfaceBehavior->getSurfaceOptics()->genBsdfSample(bsdfSample);
 
 			const Vector3R& N = surfaceHit.getShadingNormal();
@@ -160,7 +160,7 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 			const real      bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
 			const Vector3R& directLitPos   = surfaceHit.getPosition();
 
-			// trace the ray via BSDF's suggestion
+			// trace a ray using BSDF's suggestion
 			//
 			tracingRay.setOrigin(surfaceHit.getPosition());
 			tracingRay.setDirection(L);
