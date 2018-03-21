@@ -5,6 +5,9 @@
 #include "Core/Quantity/SpectralStrength.h"
 #include "Core/Texture/TTexture.h"
 #include "Common/utility.h"
+#include "Math/Random.h"
+#include "Core/Sample/PositionSample.h"
+#include "Core/Sample/DirectLightSample.h"
 
 namespace ph
 {
@@ -31,20 +34,31 @@ MultiAreaEmitter::~MultiAreaEmitter() = default;
 
 void MultiAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const
 {
+	// TODO: able to specify channel or restrict it
 	TSampler<SpectralStrength> sampler(EQuantity::EMR);
 	*out_radiance = sampler.sample(*m_emittedRadiance, X);
 }
 
-void MultiAreaEmitter::genDirectSample(const Vector3R& targetPos, Vector3R* out_emitPos, SpectralStrength* out_emittedRadiance, real* out_PDF) const
+void MultiAreaEmitter::genDirectSample(
+	const Vector3R& targetPos, 
+	Vector3R* out_emitPos, 
+	SpectralStrength* out_emittedRadiance, 
+	real* out_PDF) const
 {
-	// TODO
-	PH_ASSERT_UNREACHABLE_SECTION();
+	const PrimitiveAreaEmitter& emitter = m_areaEmitters[Random::genUniformIndex_iL_eU(0, m_areaEmitters.size())];
+
+	emitter.genDirectSample(targetPos, out_emitPos, out_emittedRadiance, out_PDF);
+	const real pickPdf = (1.0_r / static_cast<real>(m_areaEmitters.size()));
+	(*out_PDF) *= pickPdf;
 }
 
 void MultiAreaEmitter::genDirectSample(DirectLightSample& sample) const
 {
-	// TODO
-	PH_ASSERT_UNREACHABLE_SECTION();
+	const PrimitiveAreaEmitter& emitter = m_areaEmitters[Random::genUniformIndex_iL_eU(0, m_areaEmitters.size())];
+
+	emitter.genDirectSample(sample);
+	const real pickPdf = (1.0_r / static_cast<real>(m_areaEmitters.size()));
+	sample.pdfW *= pickPdf;
 }
 
 void MultiAreaEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
@@ -55,9 +69,11 @@ void MultiAreaEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vec
 
 real MultiAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const
 {
-	// TODO
-	PH_ASSERT_UNREACHABLE_SECTION();
-	return 0.0_r;
+	const PrimitiveAreaEmitter& emitter = m_areaEmitters[Random::genUniformIndex_iL_eU(0, m_areaEmitters.size())];
+
+	const real pdfW    = emitter.calcDirectSamplePdfW(targetPos, emitPos, emitN, hitPrim);
+	const real pickPdf = (1.0_r / static_cast<real>(m_areaEmitters.size()));
+	return pdfW * pickPdf;
 }
 
 void MultiAreaEmitter::setEmittedRadiance(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance)

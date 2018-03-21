@@ -19,9 +19,7 @@ public:
 
 	inline DirectLightSample() : 
 		targetPos(0, 0, 0), emitPos(0, 0, 0), radianceLe(0), pdfW(0.0f), sourcePrim(nullptr)
-	{
-
-	}
+	{}
 
 	inline bool isDirectSampleGood() const
 	{

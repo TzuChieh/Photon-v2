@@ -18,6 +18,11 @@ namespace ph
 class SampleLocation final
 {
 public:
+	// HACK
+	inline explicit SampleLocation(const Vector3R& uvw, const EQuantity quantity) :
+		SampleLocation(HitDetail().setMisc(nullptr, uvw), quantity)
+	{}
+
 	inline SampleLocation(const HitDetail& hit) :
 		SampleLocation(hit, EQuantity::RAW)
 	{}

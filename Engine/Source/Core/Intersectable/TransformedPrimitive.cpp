@@ -2,6 +2,9 @@
 #include "Common/assertion.h"
 #include "Math/Transform/RigidTransform.h"
 #include "Core/Sample/PositionSample.h"
+#include "Core/HitDetail.h"
+
+#include <iostream>
 
 namespace ph
 {

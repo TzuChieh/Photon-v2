@@ -1,5 +1,6 @@
 #include "Math/Random.h"
 #include "Math/Math.h"
+#include "Common/assertion.h"
 
 namespace ph
 {
@@ -19,8 +20,10 @@ real Random::genUniformReal_i0_e1()
 std::size_t Random::genUniformIndex_iL_eU(const std::size_t lowerBound,
                                           const std::size_t upperBound)
 {
-	const std::size_t numInterval = upperBound - lowerBound;
-	std::size_t index = static_cast<std::size_t>(lowerBound + genUniformReal_i0_e1() * numInterval);
+	PH_ASSERT(upperBound > lowerBound);
+
+	const std::size_t numIntervals = upperBound - lowerBound;
+	std::size_t index = static_cast<std::size_t>(lowerBound + genUniformReal_i0_e1() * numIntervals);
 
 	return index < lowerBound ? lowerBound : (index >= upperBound ? upperBound - 1 : index);
 }

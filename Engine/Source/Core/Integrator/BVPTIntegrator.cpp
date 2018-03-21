@@ -37,7 +37,7 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 {
 	const Scene&  scene  = *data.scene;
 	const Camera& camera = *data.camera;
-
+	
 	//const real rayDeltaDist = 0.00001_r;
 
 	uint32 numBounces = 0;
@@ -51,7 +51,7 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 
 	// backward tracing to light
 	Ray tracingRay = Ray(ray).reverse();
-	tracingRay.setMinT(0.0002_r);// HACK: hard-coded number
+	tracingRay.setMinT(0.0001_r);// HACK: hard-coded number
 	tracingRay.setMaxT(std::numeric_limits<real>::max());
 
 	while(numBounces <= MAX_RAY_BOUNCES && scene.isIntersecting(tracingRay, &hitProbe))

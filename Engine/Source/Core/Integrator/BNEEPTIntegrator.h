@@ -15,6 +15,11 @@ namespace ph
 	intersection point, an additional ray is shot towards an emitter and its
 	lighting contribution is accounted unbiasedly. This integrator works well 
 	on small lights while BVPT does poorly.
+
+	A good reference on this technique is Fabio Pellacini's awesome lecture
+	on path tracing.
+	His page:     http://pellacini.di.uniroma1.it/
+	Lecture Note: http://pellacini.di.uniroma1.it/teaching/graphics08/lectures/18_PathTracing_Web.pdf
 */
 class BNEEPTIntegrator final : public Integrator, public TCommandInterface<BNEEPTIntegrator>
 {

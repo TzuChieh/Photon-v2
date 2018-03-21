@@ -34,192 +34,203 @@ void BNEEPTIntegrator::update(const Scene& scene)
 
 void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
 {
-	//const Scene&  scene  = *data.scene;
-	//const Camera& camera = *data.camera;
+	const Scene&  scene  = *data.scene;
+	const Camera& camera = *data.camera;
 
-	///*Ray ray;
-	//camera.genSensingRay(sample, &ray);*/
+	// common variables
+	//
+	SpectralStrength accuRadiance(0);
+	SpectralStrength accuLiWeight(1);
+	HitProbe         hitProbe;
+	SurfaceHit       surfaceHit;
+	Vector3R         V;
 
-	//// common variables
-	//Vector3R rayOriginDelta;
-	//SpectralStrength accuRadiance(0);
-	//SpectralStrength accuLiWeight(1);
-	//Vector3R V;
-	//Intersection intersection;
-	//BsdfEvaluation bsdfEval;
-	//BsdfSample     bsdfSample;
-	//BsdfPdfQuery   bsdfPdfQuery;
-	//DirectLightSample directLightSample;
+	// reversing the ray for backward tracing
+	//
+	Ray tracingRay = Ray(ray).reverse();
+	tracingRay.setMinT(0.0001_r);// HACK: hard-coded number
+	tracingRay.setMaxT(std::numeric_limits<real>::max());
 
-	//// convenient variables
-	//const PrimitiveMetadata* metadata = nullptr;
-	//const BSDF*              bsdf     = nullptr;
-	//const Emitter*           emitter  = nullptr;
+	if(!scene.isIntersecting(tracingRay, &hitProbe))
+	{
+		out_senseEvents.push_back(SenseEvent(accuRadiance));
+		return;
+	}
 
-	//// reversing the ray for backward tracing
-	//Ray tracingRay(ray.getOrigin(), ray.getDirection().mul(-1), 0.0001_r, Ray::MAX_T, ray.getTime());// HACK: hard-coded number
+	// 0-bounce direct lighting
+	//
+	{
+		surfaceHit = SurfaceHit(tracingRay, hitProbe);
 
-	//if(!scene.isIntersecting(tracingRay, &intersection))
-	//{
-	//	out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */accuRadiance));
-	//	return;
-	//}
+		// sidedness agreement between real geometry and shading normal
+		//
+		V = tracingRay.getDirection().mul(-1.0_r);
+		if(surfaceHit.getGeometryNormal().dot(V) * surfaceHit.getShadingNormal().dot(V) <= 0.0_r)
+		{
+			out_senseEvents.push_back(SenseEvent(accuRadiance));
+			return;
+		}
 
-	//V = tracingRay.getDirection().mul(-1);
+		const PrimitiveMetadata* metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
+		const SurfaceBehavior&   surfaceBehavior = metadata->surfaceBehavior;
+		if(surfaceBehavior.getEmitter())
+		{
+			SpectralStrength radianceLi;
+			surfaceBehavior.getEmitter()->evalEmittedRadiance(surfaceHit, &radianceLi);
+			accuRadiance.addLocal(radianceLi);
+		}
+	}
 
-	//// sidedness agreement between real geometry and shading (phong-interpolated) normal
-	//if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0)
-	//{
-	//	out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */accuRadiance));
-	//	return;
-	//}
+	// ray bouncing around the scene (1 ~ N bounces)
+	//
+	for(uint32 numBounces = 0; numBounces < MAX_RAY_BOUNCES; numBounces++)
+	{
+		// direct light sample
+		//
+		DirectLightSample directLightSample;
+		directLightSample.setDirectSample(surfaceHit.getPosition());
+		scene.genDirectSample(directLightSample);
+		if(directLightSample.isDirectSampleGood())
+		{
+			const Vector3R& toLightVec = directLightSample.emitPos.sub(directLightSample.targetPos);
 
-	//metadata = intersection.getHitPrimitive()->getMetadata();
-	//bsdf     = metadata->surfaceBehavior.getBsdf();
+			// sidedness agreement between real geometry and shading  normal
+			//
+			if(surfaceHit.getGeometryNormal().dot(toLightVec) * surfaceHit.getShadingNormal().dot(toLightVec) > 0.0_r)
+			{
+				const Ray visRay(surfaceHit.getPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2, ray.getTime());
+				if(!scene.isIntersecting(visRay))
+				{
+					const PrimitiveMetadata* metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
+					const SurfaceBehavior&   surfaceBehavior = metadata->surfaceBehavior;
 
-	//if(metadata->surfaceBehavior.getEmitter())
-	//{
-	//	SpectralStrength radianceLe;
-	//	metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(intersection, &radianceLe);
-	//	accuRadiance.addLocal(radianceLe);
-	//}
+					BsdfEvaluation bsdfEval;
+					bsdfEval.inputs.set(surfaceHit, visRay.getDirection(), V);
+					surfaceBehavior.getSurfaceOptics()->evalBsdf(bsdfEval);
+					if(bsdfEval.outputs.isGood())
+					{
+						BsdfPdfQuery bsdfPdfQuery;
+						bsdfPdfQuery.inputs.set(bsdfEval);
+						surfaceBehavior.getSurfaceOptics()->calcBsdfSamplePdf(bsdfPdfQuery);
 
-	//for(uint32 numBounces = 0; numBounces < MAX_RAY_BOUNCES; numBounces++)
-	//{
-	//	///////////////////////////////////////////////////////////////////////////////
-	//	// direct light sample
+						const real      bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
+						const real      misWeighting   = misWeight(directLightSample.pdfW, bsdfSamplePdfW);
+						const Vector3R& N = surfaceHit.getShadingNormal();
+						const Vector3R& L = visRay.getDirection();
 
-	//	directLightSample.setDirectSample(intersection.getHitPosition());
-	//	scene.genDirectSample(directLightSample);
-	//	if(directLightSample.isDirectSampleGood())
-	//	{
-	//		const Vector3R toLightVec = directLightSample.emitPos.sub(directLightSample.targetPos);
+						SpectralStrength weight;
+						weight = bsdfEval.outputs.bsdf.mul(N.absDot(L));
+						weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directLightSample.pdfW);
 
-	//		// sidedness agreement between real geometry and shading (phong-interpolated) normal
-	//		if(!(intersection.getHitSmoothNormal().dot(toLightVec) * intersection.getHitGeoNormal().dot(toLightVec) <= 0))
-	//		{
-	//			const Ray visRay(intersection.getHitPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2, ray.getTime());
-	//			if(!scene.isIntersecting(visRay))
-	//			{
-	//				bsdfEval.inputs.set(intersection, visRay.getDirection(), V);
-	//				bsdf->evaluate(bsdfEval);
-	//				if(bsdfEval.outputs.isGood())
-	//				{
-	//					bsdfPdfQuery.inputs.set(bsdfEval);
-	//					bsdf->calcPdf(bsdfPdfQuery);
-	//					const real bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
-	//					const real misWeighting = misWeight(directLightSample.pdfW, bsdfSamplePdfW);
+						// avoid excessive, negative weight and possible NaNs
+						//
+						rationalClamp(weight);
 
-	//					const Vector3R& N = intersection.getHitSmoothNormal();
-	//					const Vector3R& L = visRay.getDirection();
+						accuRadiance.addLocal(directLightSample.radianceLe.mul(weight));
+					}
+				}
+			}
+		}// end direct light sample
 
-	//					SpectralStrength weight;
-	//					weight = bsdfEval.outputs.bsdf.mul(N.absDot(L));
-	//					weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directLightSample.pdfW);
+		// BSDF sample + indirect light sample
+		//
+		{
+			const PrimitiveMetadata* metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
+			const SurfaceBehavior*   surfaceBehavior = &(metadata->surfaceBehavior);
 
-	//					// avoid excessive, negative weight and possible NaNs
-	//					rationalClamp(weight);
+			BsdfSample bsdfSample;
+			bsdfSample.inputs.set(surfaceHit, tracingRay.getDirection().mul(-1));
+			surfaceBehavior->getSurfaceOptics()->genBsdfSample(bsdfSample);
 
-	//					accuRadiance.addLocal(directLightSample.radianceLe.mul(weight));
-	//				}
-	//			}
-	//		}
-	//	}// end direct light sample
+			const Vector3R& N = surfaceHit.getShadingNormal();
+			const Vector3R& L = bsdfSample.outputs.L;
 
-	//	///////////////////////////////////////////////////////////////////////////////
-	//	// BSDF sample + indirect light sample
+			// blackness check & sidedness agreement between real geometry and shading normal
+			//
+			if(!bsdfSample.outputs.isGood() ||
+			   surfaceHit.getGeometryNormal().dot(L) * surfaceHit.getShadingNormal().dot(L) <= 0.0_r)
+			{
+				break;
+			}
 
-	//	bsdfSample.inputs.set(intersection, tracingRay.getDirection().mul(-1));
-	//	bsdf->sample(bsdfSample);
+			BsdfPdfQuery bsdfPdfQuery;
+			bsdfPdfQuery.inputs.set(bsdfSample);
+			surfaceBehavior->getSurfaceOptics()->calcBsdfSamplePdf(bsdfPdfQuery);
 
-	//	const Vector3R N = intersection.getHitSmoothNormal();
-	//	const Vector3R L = bsdfSample.outputs.L;
+			const real      bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
+			const Vector3R& directLitPos   = surfaceHit.getPosition();
 
-	//	// blackness check & sidedness agreement between real geometry and shading (phong-interpolated) normal
-	//	if(!bsdfSample.outputs.isGood() ||
-	//	   intersection.getHitSmoothNormal().dot(L) * intersection.getHitGeoNormal().dot(L) <= 0)
-	//	{
-	//		break;
-	//	}
+			// trace the ray via BSDF's suggestion
+			//
+			tracingRay.setOrigin(surfaceHit.getPosition());
+			tracingRay.setDirection(L);
+			if(!scene.isIntersecting(tracingRay, &hitProbe))
+			{
+				break;
+			}
+			surfaceHit = SurfaceHit(tracingRay, hitProbe);
 
-	//	bsdfPdfQuery.inputs.set(bsdfSample);
-	//	bsdf->calcPdf(bsdfPdfQuery);
-	//	const real bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
-	//	const Vector3R directLitPos = intersection.getHitPosition();
+			metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
+			surfaceBehavior = &(metadata->surfaceBehavior);
 
-	//	// trace a ray via BSDF's suggestion
-	//	rayOriginDelta.set(L).mulLocal(RAY_DELTA_DIST);
-	//	tracingRay.setOrigin(intersection.getHitPosition().add(rayOriginDelta));
-	//	tracingRay.setDirection(L);
-	//	if(!scene.isIntersecting(tracingRay, &intersection))
-	//	{
-	//		break;
-	//	}
+			const Emitter* emitter = metadata->surfaceBehavior.getEmitter();
+			if(emitter)
+			{
+				SpectralStrength radianceLe;
+				metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(surfaceHit, &radianceLe);
 
-	//	V = tracingRay.getDirection().mul(-1.0_r);
-	//	// sidedness agreement between real geometry and shading (phong-interpolated) normal
-	//	if(intersection.getHitSmoothNormal().dot(V) * intersection.getHitGeoNormal().dot(V) <= 0)
-	//	{
-	//		break;
-	//	}
+				const real directLightPdfW = scene.calcDirectPdfW(
+					directLitPos,
+					surfaceHit.getPosition(),
+					surfaceHit.getShadingNormal(),
+					emitter, 
+					surfaceHit.getDetail().getPrimitive());
+				const real misWeighting = misWeight(bsdfSamplePdfW, directLightPdfW);
 
-	//	metadata = intersection.getHitPrimitive()->getMetadata();
-	//	bsdf     = metadata->surfaceBehavior.getBsdf();
-	//	emitter  = metadata->surfaceBehavior.getEmitter();
-	//	if(emitter)
-	//	{
-	//		SpectralStrength radianceLe;
-	//		metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(intersection, &radianceLe);
+				SpectralStrength weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+				weight.mulLocal(accuLiWeight).mulLocal(misWeighting);
 
-	//		// TODO: handle delta BSDF distributions
+				// avoid excessive, negative weight and possible NaNs
+				//
+				rationalClamp(weight);
 
-	//		const real directLightPdfW = scene.calcDirectPdfW(directLitPos,
-	//			intersection.getHitPosition(), 
-	//			intersection.getHitSmoothNormal(), 
-	//			emitter, intersection.getHitPrimitive());
-	//		const real misWeighting = misWeight(bsdfSamplePdfW, directLightPdfW);
+				accuRadiance.addLocal(radianceLe.mulLocal(weight));
+			}
 
-	//		SpectralStrength weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
-	//		weight.mulLocal(accuLiWeight).mulLocal(misWeighting);
+			SpectralStrength currentLiWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+			if(numBounces >= 3)
+			{
+				const real rrSurviveRate = Math::clamp(currentLiWeight.calcLuminance(), 0.0001_r, 1.0_r);
+				const real rrSpin = Random::genUniformReal_i0_e1();
 
-	//		// avoid excessive, negative weight and possible NaNs
-	//		rationalClamp(weight);
+				// russian roulette >> survive
+				if(rrSurviveRate > rrSpin)
+				{
+					const real rrScale = 1.0_r / rrSurviveRate;
+					currentLiWeight.mulLocal(rrScale);
+				}
+				// russian roulette >> dead
+				else
+				{
+					break;
+				}
+			}
+			accuLiWeight.mulLocal(currentLiWeight);
 
-	//		accuRadiance.addLocal(radianceLe.mulLocal(weight));
-	//	}
+			// avoid excessive, negative weight and possible NaNs
+			//
+			rationalClamp(accuLiWeight);
 
-	//	SpectralStrength liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+			if(accuLiWeight.isZero())
+			{
+				break;
+			}
 
-	//	if(numBounces >= 3)
-	//	{
-	//		const real rrSurviveRate = Math::clamp(liWeight.avg(), 0.0001_r, 1.0_r);
-	//		const real rrSpin = Random::genUniformReal_i0_e1();
+			V = tracingRay.getDirection().mul(-1.0_r);
+		}
+	}// end for each bounces
 
-	//		// russian roulette >> survive
-	//		if(rrSurviveRate > rrSpin)
-	//		{
-	//			const real rrScale = 1.0_r / rrSurviveRate;
-	//			liWeight.mulLocal(rrScale);
-	//		}
-	//		// russian roulette >> dead
-	//		else
-	//		{
-	//			break;
-	//		}
-	//	}
-
-	//	accuLiWeight.mulLocal(liWeight);
-
-	//	// avoid excessive, negative weight and possible NaNs
-	//	rationalClamp(accuLiWeight);
-
-	//	if(accuLiWeight.isZero())
-	//	{
-	//		break;
-	//	}
-	//}
-
-	//out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */accuRadiance));
+	out_senseEvents.push_back(SenseEvent(accuRadiance));
 }
 
 void BNEEPTIntegrator::rationalClamp(SpectralStrength& value)

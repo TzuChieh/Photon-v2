@@ -11,6 +11,7 @@
 #include "Core/Texture/TSampler.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Common/assertion.h"
+#include "Core/Texture/SampleLocation.h"
 
 #include <iostream>
 #include <algorithm>
@@ -40,7 +41,11 @@ void PrimitiveAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStre
 	*out_radiance = sampler.sample(*m_emittedRadiance, X);
 }
 
-void PrimitiveAreaEmitter::genDirectSample(const Vector3R& targetPos, Vector3R* const out_emitPos, SpectralStrength* const out_emittedRadiance, real* const out_PDF) const
+void PrimitiveAreaEmitter::genDirectSample(
+	const Vector3R& targetPos, 
+	Vector3R* const out_emitPos, 
+	SpectralStrength* const out_emittedRadiance, 
+	real* const out_PDF) const
 {
 	//const std::size_t picker = static_cast<std::size_t>(Random::genUniformReal_i0_e1() * static_cast<real>(m_primitives.size()));
 	//const std::size_t pickedIndex = picker == m_primitives.size() ? picker - 1 : picker;
@@ -81,49 +86,28 @@ void PrimitiveAreaEmitter::genDirectSample(const Vector3R& targetPos, Vector3R* 
 
 void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
 {
-	//// randomly and uniformly pick a primitive
-	//const std::size_t picker = static_cast<std::size_t>(Random::genUniformReal_i0_e1() * static_cast<real>(m_primitives.size()));
-	//const std::size_t pickedIndex = picker == m_primitives.size() ? picker - 1 : picker;
-	//sample.sourcePrim = m_primitives[pickedIndex];
-	//const real pickPdfW = (1.0_r / sample.sourcePrim->getReciExtendedArea()) * m_reciExtendedArea;
+	sample.sourcePrim = m_primitive;
 
-	//PositionSample positionSample;
-	//sample.sourcePrim->genPositionSample(&positionSample);
+	PositionSample positionSample;
+	sample.sourcePrim->genPositionSample(&positionSample);
 
-	//PositionSample tPositionSample;
-	//m_localToWorld->transformP(positionSample.position, &tPositionSample.position);
-	//m_localToWorld->transformO(positionSample.normal, &tPositionSample.normal);
-	//tPositionSample.normal.normalizeLocal();
-	//tPositionSample.uvw = positionSample.uvw;
-	//tPositionSample.pdf = positionSample.pdf;
-
-	//// DEBUG
-	////tPositionSample = positionSample;
-
-	//const Vector3R emitterToTargetPos(sample.targetPos.sub(tPositionSample.position));
-	//const Vector3R emitDir(emitterToTargetPos.normalize());
-	//const real distSquared = emitterToTargetPos.lengthSquared();
-	//
-	//sample.emitPos = tPositionSample.position;
-	//sample.pdfW = pickPdfW * tPositionSample.pdf / std::abs(emitDir.dot(tPositionSample.normal)) * distSquared;
-	//m_emittedRadiance->sample(tPositionSample.uvw, &sample.radianceLe);
-
-	std::cerr << "PrimitiveAreaEmitter::genDirectSample() not implemented" << std::endl;
+	const Vector3R emitterToTargetPos(sample.targetPos.sub(positionSample.position));
+	const Vector3R emitDir(emitterToTargetPos.normalize());
+	const real distSquared = emitterToTargetPos.lengthSquared();
+	
+	sample.emitPos = positionSample.position;
+	sample.pdfW    = positionSample.pdf / std::abs(emitDir.dot(positionSample.normal)) * distSquared;
+	m_emittedRadiance->sample(SampleLocation(positionSample.uvw, EQuantity::EMR), &sample.radianceLe);
 }
 
 real PrimitiveAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const
 {
-	// FIXME: WTF on pickPdfW... (1.0_r / hitPrim->getReciExtendedArea())??? seems to be the cause of the 
-	// artifact experienced earlier, all methods above and below this one have the same error
+	PH_ASSERT(hitPrim != nullptr);
 
-	/*const real pickPdfW = (1.0_r / hitPrim->getReciExtendedArea()) * m_reciExtendedArea;
-	const real samplePdfA = hitPrim->calcPositionSamplePdfA(emitPos);
+	const real samplePdfA  = hitPrim->calcPositionSamplePdfA(emitPos);
 	const real distSquared = targetPos.sub(emitPos).lengthSquared();
 	const Vector3R emitDir(targetPos.sub(emitPos).normalizeLocal());
-	return pickPdfW * (samplePdfA / std::abs(emitDir.dot(emitN)) * distSquared);*/
-
-	std::cerr << "PrimitiveAreaEmitter::calcDirectSamplePdfW() not implemented" << std::endl;
-	return 0;
+	return samplePdfA / std::abs(emitDir.dot(emitN)) * distSquared;
 }
 
 void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* const out_Le, Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const

@@ -2,6 +2,10 @@
 
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
+#include "Core/HitDetail.h"
+#include "Core/HitProbe.h"
+
+#include <iostream>
 
 namespace ph
 {
@@ -29,7 +33,15 @@ public:
 
 	virtual inline bool isIntersecting(const Ray& ray, HitProbe& probe) const override
 	{
-		return m_intersectable.isIntersecting(ray, probe);
+		if(m_intersectable.isIntersecting(ray, probe))
+		{
+			probe.pushIntermediateHit(this);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	virtual inline void calcIntersectionDetail(
@@ -38,6 +50,9 @@ public:
 		HitDetail* const out_detail) const override
 	{
 		m_intersectable.calcIntersectionDetail(ray, probe, out_detail);
+		out_detail->setMisc(this, out_detail->getUvw());
+
+		std::cerr << "exec" << std::endl;
 	}
 
 	virtual inline bool isIntersectingVolumeConservative(const AABB3D& aabb) const override

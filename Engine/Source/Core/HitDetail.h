@@ -81,12 +81,14 @@ public:
 		return m_hitInfos[static_cast<int>(coordSys)];
 	}
 
-	inline void setMisc(
+	inline HitDetail& setMisc(
 		const Primitive* const primitive,
 		const Vector3R&        uvw)
 	{
 		m_primitive = primitive;
 		m_uvw       = uvw;
+
+		return *this;
 	}
 
 	inline void computeBases()
