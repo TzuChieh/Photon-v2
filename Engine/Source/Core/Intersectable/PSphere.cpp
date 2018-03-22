@@ -160,6 +160,10 @@ void PSphere::calcIntersectionDetail(
 //
 bool PSphere::isIntersectingVolumeConservative(const AABB3D& volume) const
 {
+	/*AABB3D aabb;
+	this->PSphere::calcAABB(&aabb);
+	return volume.isIntersectingVolume(aabb);*/
+
 	const real radius2 = Math::squared(m_radius);
 
 	// These variables are gonna store minimum and maximum squared distances 
@@ -193,6 +197,8 @@ bool PSphere::isIntersectingVolumeConservative(const AABB3D& volume) const
 
 void PSphere::calcAABB(AABB3D* const out_aabb) const
 {
+	PH_ASSERT(out_aabb != nullptr);
+
 	out_aabb->setMinVertex(Vector3R(-m_radius, -m_radius, -m_radius));
 	out_aabb->setMaxVertex(Vector3R( m_radius,  m_radius,  m_radius));
 	out_aabb->expand(Vector3R(0.0001_r * m_radius));
@@ -205,19 +211,18 @@ real PSphere::calcPositionSamplePdfA(const Vector3R& position) const
 
 void PSphere::genPositionSample(PositionSample* const out_sample) const
 {
-	PH_ASSERT(m_metadata != nullptr);
+	PH_ASSERT(out_sample != nullptr && m_metadata != nullptr);
 
 	sampling::unit_sphere::uniform::gen(
-		Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), &(out_sample->position));
-	out_sample->normal = out_sample->position;
-	out_sample->position.mulLocal(m_radius);
+		Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), &(out_sample->normal));
+	out_sample->position = out_sample->normal.mul(m_radius);
 
 	// FIXME: able to specify mapper channel
 	const UvwMapper* mapper = m_metadata->getDefaultChannel().getMapper();
 	PH_ASSERT(mapper != nullptr);
 	mapper->map(out_sample->position, &(out_sample->uvw));
 
-	out_sample->pdf = this->calcPositionSamplePdfA(out_sample->position);
+	out_sample->pdf = this->PSphere::calcPositionSamplePdfA(out_sample->position);
 }
 
 real PSphere::calcExtendedArea() const

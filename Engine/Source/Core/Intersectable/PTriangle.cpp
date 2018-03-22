@@ -31,8 +31,6 @@ PTriangle::PTriangle(const PrimitiveMetadata* const metadata, const Vector3R& vA
 	m_nA = m_faceNormal;
 	m_nB = m_faceNormal;
 	m_nC = m_faceNormal;
-
-	m_reciExtendedArea = 1.0f / calcExtendedArea();
 }
 
 PTriangle::~PTriangle() = default;
@@ -383,7 +381,7 @@ void PTriangle::genPositionSample(PositionSample* const out_sample) const
 	//out_sample->normal = worldN.normalizeLocal();
 	out_sample->normal = localNormal.normalize();
 
-	out_sample->pdf = m_reciExtendedArea;
+	out_sample->pdf = this->PTriangle::calcPositionSamplePdfA(out_sample->position);
 }
 
 real PTriangle::calcExtendedArea() const
@@ -426,8 +424,7 @@ Vector3R PTriangle::calcBarycentricCoord(const Vector3R& position) const
 
 real PTriangle::calcPositionSamplePdfA(const Vector3R& position) const
 {
-	// FIXME: primitive may have scale factor
-	return m_reciExtendedArea;
+	return 1.0_r / this->PTriangle::calcExtendedArea();
 }
 
 }// end namespace ph

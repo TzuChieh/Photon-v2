@@ -7,7 +7,7 @@ namespace ph
 {
 
 Primitive::Primitive(const PrimitiveMetadata* const metadata) :
-	m_metadata(metadata), m_reciExtendedArea(1.0f)
+	m_metadata(metadata)
 {
 	PH_ASSERT(metadata != nullptr);
 }

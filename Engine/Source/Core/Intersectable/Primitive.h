@@ -35,16 +35,10 @@ public:
 		return m_metadata;
 	}
 
-	/*inline real getReciExtendedArea() const
-	{
-		return m_reciExtendedArea;
-	}*/
-
 	virtual real calcExtendedArea() const = 0;
 
 protected:
 	const PrimitiveMetadata* m_metadata;
-	real m_reciExtendedArea;
 };
 
 }// end namespace ph

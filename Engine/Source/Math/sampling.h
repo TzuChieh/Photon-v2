@@ -72,8 +72,8 @@ namespace unit_sphere::uniform
 		const real sqrtTerm = std::sqrt(r2 * (1.0_r - r2));
 		const real phiTerm  = 2.0_r * PH_PI_REAL * r1;
 		out_sample->x = 2.0_r * std::cos(phiTerm) * sqrtTerm;
-		out_sample->y = 2.0_r * std::sin(phiTerm) * sqrtTerm;
-		out_sample->z = 1.0_r - 2.0_r * r2;
+		out_sample->y = 1.0_r - 2.0_r * r2;
+		out_sample->z = 2.0_r * std::sin(phiTerm) * sqrtTerm;
 		out_sample->normalizeLocal();
 	}
 }
