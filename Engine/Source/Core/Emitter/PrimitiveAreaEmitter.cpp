@@ -49,49 +49,6 @@ void PrimitiveAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStre
 	*out_radiance = sampler.sample(*m_emittedRadiance, X);
 }
 
-void PrimitiveAreaEmitter::genDirectSample(
-	const Vector3R& targetPos, 
-	Vector3R* const out_emitPos, 
-	SpectralStrength* const out_emittedRadiance, 
-	real* const out_PDF) const
-{
-	//const std::size_t picker = static_cast<std::size_t>(Random::genUniformReal_i0_e1() * static_cast<real>(m_primitives.size()));
-	//const std::size_t pickedIndex = picker == m_primitives.size() ? picker - 1 : picker;
-
-	//const Primitive* primitive = m_primitives[pickedIndex];
-	//PositionSample positionSample;
-	//primitive->genPositionSample(&positionSample);
-
-	//PositionSample tPositionSample;
-	//m_localToWorld->transformP(positionSample.position, &tPositionSample.position);
-	//m_localToWorld->transformO(positionSample.normal, &tPositionSample.normal);
-	//tPositionSample.normal.normalizeLocal();
-	//tPositionSample.uvw = positionSample.uvw;
-	//tPositionSample.pdf = positionSample.pdf;
-
-	//// DEBUG
-	////tPositionSample = positionSample;
-
-	//const real distSquared = targetPos.sub(tPositionSample.position).lengthSquared();
-	//const Vector3R emitDir = targetPos.sub(tPositionSample.position).normalizeLocal();
-	//const real pickPDF = (1.0_r / primitive->getReciExtendedArea()) * m_reciExtendedArea;
-	////*out_PDF = pickPDF * positionSample.pdf / (std::abs(emitDir.dot(positionSample.normal)) / distSquared);
-	//*out_PDF = pickPDF * tPositionSample.pdf / std::abs(emitDir.dot(tPositionSample.normal)) * distSquared;
-
-	///*if(*out_PDF < 0.0f)
-	//{
-	//	*out_PDF = 0.0f;
-	//}*/
-
-	//TSampler<SpectralStrength> sampler;
-	//sampler.sample(m_emittedRadiance, );
-	//m_emittedRadiance->sample(tPositionSample.uvw, out_emittedRadiance);
-
-	//*out_emitPos = tPositionSample.position;
-
-	std::cerr << "PrimitiveAreaEmitter::genDirectSample() not implemented" << std::endl;
-}
-
 void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
 {
 	sample.sourcePrim = m_primitive;

@@ -1,7 +1,7 @@
 ## camera(pinhole) [real fov-degree 49.13434264] [vector3r position "-11.21065807 14.47856808 0.53681177"] [vector3r direction "0.61413336 -0.78917873 -0.00609765"] [vector3r up-axis "0.78913987 0.61416364 -0.00783552"] 
 ## film(hdr-rgb) [integer width 960] [integer height 540] [string filter-name gaussian]
 ## sample-generator(stratified) [integer sample-amount 40] [integer num-strata-2d-x 960] [integer num-strata-2d-y 540]
-## integrator(backward-path) 
+## integrator(bvpt) 
 -> geometry(rectangle) "@geometry_Area_Area_" [real width 0.10000000] [real height 0.10000000]
 -> material(matte-opaque) "@material_Area_Area_" [vector3r albedo "0.50000000 0.50000000 0.50000000"]
 -> light-source(area) "@light_source_Area_Area_" [vector3r emitted-radiance "5.00000000 0.00000000 0.00000000"]

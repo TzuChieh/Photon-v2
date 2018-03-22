@@ -25,7 +25,6 @@ public:
 	virtual ~Emitter() = 0;
 
 	virtual void evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const = 0;
-	virtual void genDirectSample(const Vector3R& targetPos, Vector3R* out_emitPos, SpectralStrength* out_emittedRadiance, real* out_PDF) const = 0;
 	virtual void genDirectSample(DirectLightSample& sample) const = 0;
 
 	// FIXME: ray time

@@ -49,19 +49,6 @@ void MultiAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength
 	*out_radiance = sampler.sample(*m_emittedRadiance, X);
 }
 
-void MultiAreaEmitter::genDirectSample(
-	const Vector3R& targetPos, 
-	Vector3R* out_emitPos, 
-	SpectralStrength* out_emittedRadiance, 
-	real* out_PDF) const
-{
-	const PrimitiveAreaEmitter& emitter = m_areaEmitters[Random::genUniformIndex_iL_eU(0, m_areaEmitters.size())];
-
-	emitter.genDirectSample(targetPos, out_emitPos, out_emittedRadiance, out_PDF);
-	const real pickPdf = (1.0_r / static_cast<real>(m_areaEmitters.size()));
-	(*out_PDF) *= pickPdf;
-}
-
 void MultiAreaEmitter::genDirectSample(DirectLightSample& sample) const
 {
 	const PrimitiveAreaEmitter& emitter = m_areaEmitters[Random::genUniformIndex_iL_eU(0, m_areaEmitters.size())];
