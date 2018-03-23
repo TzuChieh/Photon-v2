@@ -378,4 +378,11 @@ inline auto TAbstractSpectralStrength<DerivedType, N>::operator = (const TAbstra
 	return *this;
 }
 
+template<typename DerivedType, std::size_t N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::toString() const
+	-> std::string
+{
+	return m_values.toString();
+}
+
 }// end namespace ph

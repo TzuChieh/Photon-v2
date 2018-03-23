@@ -56,6 +56,10 @@ void MultiAreaEmitter::genDirectSample(DirectLightSample& sample) const
 	emitter.genDirectSample(sample);
 	const real pickPdf = (1.0_r / static_cast<real>(m_areaEmitters.size()));
 	sample.pdfW *= pickPdf;
+
+
+
+	std::cerr << sample.emitPos.toString() << std::endl;
 }
 
 void MultiAreaEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const

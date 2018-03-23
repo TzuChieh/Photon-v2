@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/TArithmeticArray.h"
+#include "Common/assertion.h"
 
 #include <cmath>
 
@@ -419,6 +420,23 @@ inline auto TArithmeticArray<T, N>::end() const noexcept
 	-> typename std::array<T, N>::const_iterator
 {
 	return m.cend();
+}
+
+template<typename T, std::size_t N>
+inline auto TArithmeticArray<T, N>::toString() const
+	-> std::string
+{
+	PH_ASSERT(N != 0);
+
+	std::string result("[");
+	result += std::to_string(m[0]);
+	for(std::size_t i = 1; i < N; ++i)
+	{
+		result += ", " + std::to_string(m[i]);
+	}
+	result += "]";
+
+	return result;
 }
 
 }// end namespace ph

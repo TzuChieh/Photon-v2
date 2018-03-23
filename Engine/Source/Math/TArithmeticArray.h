@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <array>
+#include <string>
 
 namespace ph
 {
@@ -80,6 +81,8 @@ public:
 	inline typename std::array<T, N>::const_iterator begin() const noexcept;
 	inline typename std::array<T, N>::iterator       end()   noexcept;
 	inline typename std::array<T, N>::const_iterator end()   const noexcept;
+
+	inline std::string toString() const;
 
 protected:
 	std::array<T, N> m;

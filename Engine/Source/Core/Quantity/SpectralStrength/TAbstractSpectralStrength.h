@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <vector>
 #include <array>
+#include <string>
 
 namespace ph
 {
@@ -86,6 +87,8 @@ public:
 	inline DerivedType operator + (real rhs) const;
 	inline DerivedType operator * (const DerivedType& rhs) const;
 	inline DerivedType operator * (real rhs) const;
+
+	inline std::string toString() const;
 
 protected:
 	TArithmeticArray<real, N> m_values;

@@ -39,11 +39,11 @@ void PrimitiveAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStre
 {
 	// FIXME: sort of hacked... (the direction of ray is reversed)
 	// only front side of the emitter is emissive
-	if(X.getIncidentRay().getDirection().mul(-1.0_r).dot(X.getShadingNormal()) <= 0.0_r)
+	/*if(X.getIncidentRay().getDirection().mul(-1.0_r).dot(X.getShadingNormal()) <= 0.0_r)
 	{
 		out_radiance->setValues(0.0_r);
 		return;
-	}
+	}*/
 
 	TSampler<SpectralStrength> sampler(EQuantity::EMR);
 	*out_radiance = sampler.sample(*m_emittedRadiance, X);
@@ -70,6 +70,10 @@ void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
 	}
 	sample.pdfW = positionSample.pdf / std::abs(emitDirDotNormal) * distSquared;
 	m_emittedRadiance->sample(SampleLocation(positionSample.uvw, EQuantity::EMR), &sample.radianceLe);
+
+	/*std::cerr << sample.emitPos.toString() << std::endl;
+	std::cerr << sample.radianceLe.toString() << std::endl;
+	std::cerr << sample.pdfW << std::endl;*/
 }
 
 real PrimitiveAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const
