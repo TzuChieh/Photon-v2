@@ -9,16 +9,12 @@ namespace ph
 template<typename T, std::size_t N>
 inline TFixedSizeStack<T, N>::TFixedSizeStack() :
 	m_data{}, m_currentIndex(-1)
-{
-
-}
+{}
 
 template<typename T, std::size_t N>
 inline TFixedSizeStack<T, N>::TFixedSizeStack(const TFixedSizeStack& other) : 
 	m_data(other.m_data), m_currentIndex(other.m_currentIndex)
-{
-
-}
+{}
 
 template<typename T, std::size_t N>
 inline void TFixedSizeStack<T, N>::push(const T& item)

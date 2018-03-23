@@ -14,16 +14,12 @@ inline TOrthonormalBasis3<T>::TOrthonormalBasis3() :
 	xAxis(1, 0, 0),
 	yAxis(0, 1, 0),
 	zAxis(0, 0, 1)
-{
-
-}
+{}
 
 template<typename T>
 inline TOrthonormalBasis3<T>::TOrthonormalBasis3(const TOrthonormalBasis3& other) :
 	TOrthonormalBasis3(other.xAxis, other.yAxis, other.zAxis)
-{
-
-}
+{}
 
 template<typename T>
 inline TOrthonormalBasis3<T>::TOrthonormalBasis3(
@@ -33,9 +29,7 @@ inline TOrthonormalBasis3<T>::TOrthonormalBasis3(
 	xAxis(xAxis),
 	yAxis(yAxis),
 	zAxis(zAxis)
-{
-
-}
+{}
 
 template<typename T>
 inline TVector3<T> TOrthonormalBasis3<T>::worldToLocal(const TVector3<T>& worldVec) const

@@ -773,6 +773,7 @@
     <ClInclude Include="Source\Core\Integrator\BVPTIntegrator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\Bound\TAABB2D.ipp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">

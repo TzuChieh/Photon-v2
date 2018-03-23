@@ -7,7 +7,8 @@
 -> geometry(rectangle) @plane [real width 15] [real height 15]
 -> geometry(rectangle) @smallPlane [real width 0.5] [real height 0.5]
 -> geometry(sphere)    @smallBall [real radius 0.5]
--> geometry(sphere)    @target  [real radius 3]
+//-> geometry(sphere)    @target  [real radius 3]
+-> geometry(rectangle) @target [real width 4] [real height 4]
 
 -> material(matte-opaque) @white [vector3r albedo "0.8 0.8 0.8"]
 //-> material(abraded-opaque) @white [vector3r albedo "0.8 0.8 0.8"] [real roughness-v 0.02] [real roughness-u 0.1] [vector3r f0 "0.9 0.9 0.9"]
@@ -18,6 +19,7 @@
 
 -> actor(model) @object [geometry geometry @target]  [material material @white]
 -> actor(model) translate(@object) [vector3r factor "0 4 0"]
+-> actor(model) rotate(@object) [vector3r axis "1 0 0"] [real degree -90]
 
 -> light-source(area) @areaSource [vector3r emitted-radiance "100 100 100"]
 -> actor(light) @topLight [geometry geometry @smallBall] [material material @white] [light-source light-source @areaSource]

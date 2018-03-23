@@ -43,11 +43,11 @@ bool PSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 	// To find the intersection point, the length of vector (td - oc) must equals r.
 	// This is equivalent to (td - oc)*(td - oc) = r^2. After reformatting, we have
 	//
-	//              t^2(d*d) - 2t(d*op) + (oc*oc) - r^2 = 0     --- (1)
+	//              t^2(d*d) - 2t(d*oc) + (oc*oc) - r^2 = 0     --- (1)
 	//
 	// Solving equation (1) for t will yield the intersection point (o + td).
-
-	// vector from ray origin to sphere center
+	
+	// vector from ray origin (o) to sphere center (c)
 	//
 	const Vector3R& oc = Vector3R(0, 0, 0).sub(ray.getOrigin());
 
@@ -56,7 +56,7 @@ bool PSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 	const real c = oc.dot(oc) - m_radius * m_radius;          // c in equation (1)
 
 	real D = b * b - a * c;
-	if(D < 0.0_r)
+	if(D <= 0.0_r)
 	{
 		return false;
 	}
@@ -69,15 +69,19 @@ bool PSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 		// pick the closest point in front of ray tail
 		// t = (b +- D) / a
 		//
-		real t = 0.0_r;
-		if((t = (b - D) * reciA) > ray.getMinT())
+		const real t1 = (b - D) * reciA;
+		const real t2 = (b + D) * reciA;
+
+		// t1 is smaller than t2, we test t1 first
+		//
+		if(ray.getMinT() < t1 && t1 < ray.getMaxT())
 		{
-			probe.pushBaseHit(this, t);
+			probe.pushBaseHit(this, t1);
 			return true;
 		}
-		else if((t = (b + D) * reciA) > ray.getMinT())
+		else if(ray.getMinT() < t2 && t2 < ray.getMaxT())
 		{
-			probe.pushBaseHit(this, t);
+			probe.pushBaseHit(this, t2);
 			return true;
 		}
 		else
@@ -160,10 +164,6 @@ void PSphere::calcIntersectionDetail(
 //
 bool PSphere::isIntersectingVolumeConservative(const AABB3D& volume) const
 {
-	/*AABB3D aabb;
-	this->PSphere::calcAABB(&aabb);
-	return volume.isIntersectingVolume(aabb);*/
-
 	const real radius2 = Math::squared(m_radius);
 
 	// These variables are gonna store minimum and maximum squared distances 
@@ -214,13 +214,13 @@ void PSphere::genPositionSample(PositionSample* const out_sample) const
 	PH_ASSERT(out_sample != nullptr && m_metadata != nullptr);
 
 	sampling::unit_sphere::uniform::gen(
-		Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), &(out_sample->normal));
+		Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), &out_sample->normal);
 	out_sample->position = out_sample->normal.mul(m_radius);
 
 	// FIXME: able to specify mapper channel
 	const UvwMapper* mapper = m_metadata->getDefaultChannel().getMapper();
 	PH_ASSERT(mapper != nullptr);
-	mapper->map(out_sample->position, &(out_sample->uvw));
+	mapper->map(out_sample->position, &out_sample->uvw);
 
 	out_sample->pdf = this->PSphere::calcPositionSamplePdfA(out_sample->position);
 }

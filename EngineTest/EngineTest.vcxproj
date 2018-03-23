@@ -133,6 +133,7 @@
     <ClCompile Include="Source\Core\Filmic\film_sample_weighting_test.cpp" />
     <ClCompile Include="Source\Core\Filmic\film_test.cpp" />
     <ClCompile Include="Source\Core\color_conversion_test.cpp" />
+    <ClCompile Include="Source\Core\primitive_intersection_test.cpp" />
     <ClCompile Include="Source\Core\Texture\pixel_based_texture_test.cpp" />
     <ClCompile Include="Source\Core\Texture\TAddTexture_test.cpp" />
     <ClCompile Include="Source\Core\Texture\TMultiplyTexture_test.cpp" />

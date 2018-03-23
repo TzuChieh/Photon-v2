@@ -179,8 +179,6 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 				SpectralStrength radianceLe;
 				metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(surfaceHit, &radianceLe);
 
-				std::cerr << radianceLe.toString() << std::endl;
-
 				const real directLightPdfW = scene.calcDirectPdfW(
 					directLitPos,
 					surfaceHit.getPosition(),

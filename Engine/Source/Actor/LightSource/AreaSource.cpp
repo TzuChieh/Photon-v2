@@ -77,11 +77,11 @@ std::unique_ptr<Emitter> AreaSource::genEmitter(
 
 	PH_ASSERT(!primitiveEmitters.empty());
 
-	if(primitiveEmitters.size() == 1)
+	/*if(primitiveEmitters.size() == 1)
 	{
 		return std::make_unique<PrimitiveAreaEmitter>(primitiveEmitters[0]);
 	}
-	else
+	else*/
 	{
 		auto multiEmitter = std::make_unique<MultiAreaEmitter>(std::move(primitiveEmitters));
 		multiEmitter->setEmittedRadiance(emittedRadiance);

@@ -96,6 +96,9 @@
     <ClCompile Include="Source\Math\TMatrix2_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\primitive_intersection_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\constants_for_test.h">
