@@ -6,6 +6,7 @@
 #include "Math/constant.h"
 
 #include <cmath>
+#include <algorithm>
 
 namespace ph
 {
@@ -67,14 +68,14 @@ namespace unit_sphere::uniform
 		const real r2       = value_0_1_b;
 		const real sqrtTerm = std::sqrt(r2 * (1.0_r - r2));
 		const real phiTerm  = 2.0_r * PH_PI_REAL * r1;
-		out_sample->x = 2.0_r * std::cos(phiTerm) * sqrtTerm;
+		out_sample->x = 2.0_r * std::sin(phiTerm) * sqrtTerm;
 		out_sample->y = 1.0_r - 2.0_r * r2;
-		out_sample->z = 2.0_r * std::sin(phiTerm) * sqrtTerm;
+		out_sample->z = 2.0_r * std::cos(phiTerm) * sqrtTerm;
 		out_sample->normalizeLocal();*/
 
-		const real y   = value_0_1_a;
+		const real y   = 2.0_r * (value_0_1_a - 0.5_r);
 		const real phi = 2.0_r * PH_PI_REAL * value_0_1_b;
-		const real r   = std::sqrt(1.0_r - y * y);
+		const real r   = std::sqrt(std::max(1.0_r - y * y, 0.0_r));
 
 		out_sample->x = r * std::sin(phi);
 		out_sample->y = y;

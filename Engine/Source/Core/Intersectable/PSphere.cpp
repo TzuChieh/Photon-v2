@@ -94,7 +94,7 @@ bool PSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 		}
 
 		probe.pushBaseHit(this, static_cast<real>(t));
-		probe.cacheReal3(0, Vector3R(rayO.add(rayD.mul(t))));
+		//probe.cacheReal3(0, Vector3R(rayO.add(rayD.mul(t))));
 		return true;
 	}
 }
@@ -107,7 +107,8 @@ void PSphere::calcIntersectionDetail(
 	PH_ASSERT(m_metadata != nullptr);
 	const UvwMapper* mapper = m_metadata->getChannel(probe.getChannel()).getMapper();
 
-	const Vector3R& hitPosition = probe.getCachedReal3(0);
+	//const Vector3R& hitPosition = probe.getCachedReal3(0);
+	const Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
 	const Vector3R& hitNormal   = hitPosition.normalize();
 
 	PH_ASSERT(mapper != nullptr);

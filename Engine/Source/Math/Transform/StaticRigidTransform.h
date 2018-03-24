@@ -30,7 +30,6 @@ public:
 	template<typename U>
 	static inline StaticRigidTransform makeParentedInverse(const std::vector<TDecomposedTransform<U>>& fromRootToLocal);
 
-
 public:
 	StaticRigidTransform();
 
@@ -77,14 +76,14 @@ template<typename U>
 inline auto StaticRigidTransform::makeForward(const TDecomposedTransform<U>& transform)
 	-> StaticRigidTransform
 {
-	return StaticRigidTransform(StaticTransform::makeParentedForward(getScaleFreeTransforms<U>({transform})));
+	return StaticRigidTransform(StaticTransform::makeForward(getScaleFreeTransforms<U>({transform})[0]));
 }
 
 template<typename U>
 inline auto StaticRigidTransform::makeInverse(const TDecomposedTransform<U>& transform)
 	-> StaticRigidTransform
 {
-	return StaticRigidTransform(StaticTransform::makeParentedInverse(getScaleFreeTransforms<U>({transform})));
+	return StaticRigidTransform(StaticTransform::makeInverse(getScaleFreeTransforms<U>({transform})[0]));
 }
 
 template<typename U>
