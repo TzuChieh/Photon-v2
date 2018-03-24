@@ -15,7 +15,6 @@ namespace sampling
 
 namespace unit_hemisphere::uniform
 {
-
 	// sample PDF is 1/(2*pi)
 	//
 	inline void gen(const real value_0_1_a, const real value_0_1_b, Vector3R* const out_sample)
@@ -32,12 +31,10 @@ namespace unit_hemisphere::uniform
 		out_sample->y = yValue;
 		out_sample->z = std::cos(phi) * yRadius;
 	}
-
 }
 
 namespace unit_hemisphere::cosine_theta_weighted
 {
-
 	// sample PDF is cos(theta)
 	//
 	inline void gen(const real value_0_1_a, const real value_0_1_b, Vector3R* const out_sample)
@@ -54,7 +51,6 @@ namespace unit_hemisphere::cosine_theta_weighted
 		out_sample->y = yValue;
 		out_sample->z = std::cos(phi) * yRadius;
 	}
-
 }
 
 namespace unit_sphere::uniform

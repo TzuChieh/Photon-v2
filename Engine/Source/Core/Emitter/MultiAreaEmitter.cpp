@@ -34,12 +34,17 @@ MultiAreaEmitter::MultiAreaEmitter(const std::vector<PrimitiveAreaEmitter>& area
 
 MultiAreaEmitter::~MultiAreaEmitter() = default;
 
+
+//static int iii = 0;
 void MultiAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const
 {
 	// FIXME: sort of hacked... (the direction of ray is reversed)
 	// only front side of the emitter is emissive
 	if(X.getIncidentRay().getDirection().mul(-1.0_r).dot(X.getShadingNormal()) <= 0.0_r)
 	{
+		/*std::cerr << X.getIncidentRay().getDirection().mul(-1.0_r).dot(X.getShadingNormal()) << std::endl;
+		std::cerr << ++iii << std::endl;*/
+
 		out_radiance->setValues(0.0_r);
 		return;
 	}

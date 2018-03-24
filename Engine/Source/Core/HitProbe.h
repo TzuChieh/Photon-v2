@@ -100,6 +100,13 @@ public:
 		out_real3->z = m_realCache[headIndex + 2];
 	}
 
+	inline Vector3R getCachedReal3(const int32 headIndex) const
+	{
+		Vector3R result;
+		getCachedReal3(headIndex, &result);
+		return result;
+	}
+
 private:
 	typedef TFixedSizeStack<const Intersectable*, PH_INTERSECTION_PROBE_DEPTH> Stack;
 

@@ -75,7 +75,8 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 		}
 
 		// only forward side is emitable
-		if(hitSurfaceBehavior.getEmitter() && V.dot(hitDetail.getShadingNormal()) > 0.0_r)
+		//if(hitSurfaceBehavior.getEmitter() && V.dot(hitDetail.getShadingNormal()) > 0.0_r)
+		if(hitSurfaceBehavior.getEmitter())
 		{
 			SpectralStrength radianceLi;
 			hitSurfaceBehavior.getEmitter()->evalEmittedRadiance(surfaceHit, &radianceLi);
@@ -84,7 +85,7 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 			//accuLiWeight.clampLocal(0.0f, 1000.0f);
 
 			// avoid excessive, negative weight and possible NaNs
-			accuLiWeight.clampLocal(0.0_r, 10000.0_r);
+			accuLiWeight.clampLocal(0.0_r, 1000000000.0_r);
 			if(accuLiWeight.isZero())
 			{
 				break;
@@ -156,7 +157,7 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 		}
 
 		// prepare for next iteration
-		//const Vector3R nextRayOrigin(intersection.getHitPosition().add(rayOriginDelta));
+		//const Vector3R nextRayOrigin(hitDetail.getPosition().add(hitDetail.getGeometryNormal().mul(0.001_r)));
 		const Vector3R nextRayOrigin(hitDetail.getPosition());
 		const Vector3R nextRayDirection(L);
 		tracingRay.setOrigin(nextRayOrigin);

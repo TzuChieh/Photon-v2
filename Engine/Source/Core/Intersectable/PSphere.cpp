@@ -47,16 +47,19 @@ bool PSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 	//
 	// Solving equation (1) for t will yield the intersection point (o + td).
 	
+	const Vector3D& rayO = Vector3D(ray.getOrigin());
+	const Vector3D& rayD = Vector3D(ray.getDirection());
+
 	// vector from ray origin (o) to sphere center (c)
 	//
-	const Vector3R& oc = Vector3R(0, 0, 0).sub(ray.getOrigin());
+	const Vector3D& oc = Vector3D(0, 0, 0).sub(rayO);
+	
+	const float64 a = rayD.dot(rayD);// a in equation (1)
+	const float64 b = rayD.dot(oc);// b in equation (1) (-2 is cancelled while solving t)
+	const float64 c = oc.dot(oc) - static_cast<float64>(m_radius) * m_radius;// c in equation (1)
 
-	const real a = ray.getDirection().dot(ray.getDirection());// a in equation (1)
-	const real b = ray.getDirection().dot(oc);                // b in equation (1) (-2 is cancelled while solving t)
-	const real c = oc.dot(oc) - m_radius * m_radius;          // c in equation (1)
-
-	real D = b * b - a * c;
-	if(D <= 0.0_r)
+	float64 D = b * b - a * c;
+	if(D < 0.0)
 	{
 		return false;
 	}
@@ -64,30 +67,35 @@ bool PSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 	{
 		D = std::sqrt(D);
 
-		const real reciA = 1.0_r / a;
+		const float64 reciA = 1.0 / a;
 
 		// pick the closest point in front of ray tail
 		// t = (b +- D) / a
 		//
-		const real t1 = (b - D) * reciA;
-		const real t2 = (b + D) * reciA;
+		const float64 t1 = (b - D) * reciA;
+		const float64 t2 = (b + D) * reciA;
+
+		PH_ASSERT(t1 <= t2);
 
 		// t1 is smaller than t2, we test t1 first
 		//
+		float64 t;
 		if(ray.getMinT() < t1 && t1 < ray.getMaxT())
 		{
-			probe.pushBaseHit(this, t1);
-			return true;
+			t = t1;
 		}
 		else if(ray.getMinT() < t2 && t2 < ray.getMaxT())
 		{
-			probe.pushBaseHit(this, t2);
-			return true;
+			t = t2;
 		}
 		else
 		{
 			return false;
 		}
+
+		probe.pushBaseHit(this, static_cast<real>(t));
+		probe.cacheReal3(0, Vector3R(rayO.add(rayD.mul(t))));
+		return true;
 	}
 }
 
@@ -99,8 +107,8 @@ void PSphere::calcIntersectionDetail(
 	PH_ASSERT(m_metadata != nullptr);
 	const UvwMapper* mapper = m_metadata->getChannel(probe.getChannel()).getMapper();
 
-	const Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
-	const Vector3R& hitNormal   = hitPosition.mul(m_reciRadius);
+	const Vector3R& hitPosition = probe.getCachedReal3(0);
+	const Vector3R& hitNormal   = hitPosition.normalize();
 
 	PH_ASSERT(mapper != nullptr);
 	Vector3R hitUvw;

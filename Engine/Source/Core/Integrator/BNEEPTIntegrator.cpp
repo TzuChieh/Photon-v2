@@ -236,7 +236,7 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 void BNEEPTIntegrator::rationalClamp(SpectralStrength& value)
 {
 	// TODO: should negative value be allowed?
-	value.clampLocal(0.0_r, 10000.0_r);
+	value.clampLocal(0.0_r, 1000000000.0_r);
 }
 
 // power heuristic with beta = 2

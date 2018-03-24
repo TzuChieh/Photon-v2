@@ -22,8 +22,8 @@ public:
 		real* const out_pdfW) const override;
 
 private:
-	float32 m_lensRadiusMM;
-	float32 m_focalDistanceMM;
+	real m_lensRadiusMM;
+	real m_focalDistanceMM;
 
 	static void genRandomSampleOnDisk(const real radius, real* const out_x, real* const out_y);
 

@@ -78,7 +78,7 @@ bool ClassicBvhIntersector::isIntersecting(const Ray& ray, HitProbe& probe) cons
 			{
 				for(int32 i = 0; i < node.numPrimitives; i++)
 				{
-					currentProbe.clear();
+					currentProbe.clear();// FIXME: this will erroneously clear the output probe if BVH is nested
 					if(m_intersectables[node.primitivesOffset + i]->isIntersecting(bvhRay, currentProbe))
 					{
 						const real hitT = currentProbe.getHitRayT();
@@ -86,7 +86,7 @@ bool ClassicBvhIntersector::isIntersecting(const Ray& ray, HitProbe& probe) cons
 						{
 							minHitT = hitT;
 							bvhRay.setMaxT(hitT);
-							probe = currentProbe;
+							probe = currentProbe;// FIXME: erroneously clear the output probe if BVH is nested
 						}
 					}
 				}
