@@ -13,30 +13,47 @@ namespace ph
 class CookingContext final
 {
 public:
-	inline void addBackend(std::unique_ptr<Intersectable> intersectable)
+	inline CookingContext& addBackend(std::unique_ptr<Intersectable> intersectable)
 	{
 		m_backendIntersectables.push_back(std::move(intersectable));
+
+		return *this;
 	}
 
-	inline CookedUnit toCooked()
+	inline CookingContext& addCookedUnit(CookedUnit&& cookedUnit)
+	{
+		m_cookedUnits.push_back(std::move(cookedUnit));
+
+		return *this;
+	}
+
+	inline CookedUnit retrieveCookedBackends()
 	{
 		CookedUnit cookedUnit;
 		for(auto& isable : m_backendIntersectables)
 		{
 			cookedUnit.intersectables.push_back(std::move(isable));
 		}
-		clear();
+		m_backendIntersectables.clear();
 
 		return cookedUnit;
 	}
 
-	inline void clear()
+	inline CookedUnit retrieveCookedUnits()
 	{
-		m_backendIntersectables.clear();
+		CookedUnit results;
+		for(auto& unit : m_cookedUnits)
+		{
+			results.add(std::move(unit));
+		}
+		m_cookedUnits.clear();
+
+		return results;
 	}
 
 private:
 	std::vector<std::unique_ptr<Intersectable>> m_backendIntersectables;
+	std::vector<CookedUnit>                     m_cookedUnits; 
 };
 
 }// end namespace ph

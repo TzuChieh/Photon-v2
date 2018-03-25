@@ -57,9 +57,8 @@ void VisualWorld::cook()
 		CookedUnit cookedUnit = actor->cook(cookingContext);
 		m_cookedActorStorage.add(std::move(cookedUnit));
 	}
-
-	CookedUnit cookedContext = cookingContext.toCooked();
-	m_cookedBackendStorage.add(std::move(cookedContext));
+	m_cookedActorStorage.add(cookingContext.retrieveCookedUnits());
+	m_cookedBackendStorage.add(cookingContext.retrieveCookedBackends());
 
 	logger.log(ELogLevel::NOTE_MED, 
 	           "visual world discretized into " + 

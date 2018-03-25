@@ -23,6 +23,8 @@ public:
 	CookedUnit(CookedUnit&& other);
 	~CookedUnit() = default;
 
+	CookedUnit& add(CookedUnit&& cookedUnit);
+
 	CookedUnit& operator = (CookedUnit&& rhs);
 
 	// forbid copying
