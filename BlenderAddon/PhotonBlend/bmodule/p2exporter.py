@@ -484,7 +484,7 @@ def export_core_commands(exporter, context):
 	                   "[integer num-strata-2d-x %s] [integer num-strata-2d-y %s]\n"
 	                   % (meta_info.spp(), meta_info.render_width_px(), meta_info.render_height_px()))
 
-	exporter.exportRaw("## integrator(backward-path) \n")
+	exporter.exportRaw("## integrator(%s) \n" % meta_info.integrator_type_name())
 
 
 # TODO: write/flush commands to disk once a while (reducing memory usage)

@@ -26,5 +26,15 @@ class MetaGetter:
 			print("warning: unsupported filter type %s, using box MN instead" % filter_type)
 			return "mn"
 
+	def integrator_type_name(self):
+		integrator_type = self.__context.scene.ph_render_integrator_type
+		if integrator_type == "BVPT":
+			return "bvpt"
+		elif integrator_type == "BNEEPT":
+			return "bneept"
+		else:
+			print("warning: unsupported integrator type %s, using BVPT instead" % integrator_type)
+			return "bvpt"
+
 	def __render_size_fraction(self):
 		return self.__context.scene.render.resolution_percentage / 100.0

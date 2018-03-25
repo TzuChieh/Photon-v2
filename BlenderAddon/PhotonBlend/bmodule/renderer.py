@@ -30,6 +30,28 @@ class PhRenderPanel(bpy.types.Panel):
 		return render_settings.engine in cls.COMPATIBLE_ENGINES
 
 
+class PhRenderingPanel(PhRenderPanel):
+
+	bl_label = "PR - Rendering"
+
+	bpy.types.Scene.ph_render_integrator_type = bpy.props.EnumProperty(
+		items = [
+			("BVPT",   "Pure Path Tracing",  "slow but unbiased"),
+			("BNEEPT", "NEE Path Tracing",   "fairly slow but good on rendering small lights")
+		],
+		name        = "Rendering Method",
+		description = "Photon-v2's rendering methods",
+		default     = "BVPT"
+	)
+
+	def draw(self, context):
+
+		scene  = context.scene
+		layout = self.layout
+
+		layout.prop(scene, "ph_render_integrator_type")
+
+
 class PhSamplingPanel(PhRenderPanel):
 
 	bl_label = "PR - Sampling"
@@ -37,7 +59,7 @@ class PhSamplingPanel(PhRenderPanel):
 	bpy.types.Scene.ph_render_num_spp = bpy.props.IntProperty(
 		name        = "Samples per Pixel",
 		description = "Number of samples used for each pixel.",
-		default     = 4,
+		default     = 40,
 		min         = 1,
 		max         = 2**31 - 1,
 	)
@@ -80,15 +102,19 @@ class PhOptionsPanel(PhRenderPanel):
 		layout.prop(scene, "ph_use_cycles_material")
 
 
-render_panel_types = [PhSamplingPanel, PhOptionsPanel]
+render_panel_types = [
+	PhSamplingPanel,
+	PhOptionsPanel,
+	PhRenderingPanel
+]
 
 
 def register():
 	# Register the RenderEngine.
 	bpy.utils.register_class(PhotonRenderer)
 
-	# RenderEngines also need to tell UI Panels that they are compatible
-	# Otherwise most of the UI will be empty when the engine is selected.
+	# RenderEngines also need to tell UI Panels that they are compatible;
+	# otherwise most of the UI will be empty when the engine is selected.
 
 	from bl_ui import (
 		properties_render,
