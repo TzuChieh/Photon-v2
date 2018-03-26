@@ -23,7 +23,7 @@ public:
 	virtual ~AreaSource() override;
 
 	virtual std::unique_ptr<Emitter> genEmitter(
-		CookingContext& context, const EmitterBuildingMaterial& data) const override;
+		CookingContext& context, EmitterBuildingMaterial&& data) const override;
 
 private:
 	std::shared_ptr<Image> m_emittedRadiance;

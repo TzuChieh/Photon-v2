@@ -6,9 +6,9 @@ Visit Project Website: https://tzuchieh.github.io/Photon-v2-site
 ## Features
 * **Rendering**
   * backward path tracing
-  * ~~backward light tracing (next event estimation)~~
-  * ~~MIS'ed backward tracing (path + light)~~
+  * backward path tracing with next event estimation~~
   * ~~light/particle tracing~~
+  * ~~backward light tracing (next event estimation)~~
   * handles both RGB and spectral rendering
 
 * **Material**
@@ -25,6 +25,7 @@ Visit Project Website: https://tzuchieh.github.io/Photon-v2-site
 
 * **Light**
   * area light
+  * point light
 
 * **Texture**
   * texture with ordinary file formats (.jpg, .png, etc)

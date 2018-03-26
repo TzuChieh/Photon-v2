@@ -18,6 +18,7 @@
 // light sources
 #include "Actor/LightSource/LightSource.h"
 #include "Actor/LightSource/AreaSource.h"
+#include "Actor/LightSource/PointSource.h"
 
 // motions
 #include "Actor/MotionSource/MotionSource.h"
@@ -95,6 +96,7 @@ bool init_command_parser()
 	// light sources
 	register_command_interface<LightSource>();
 	register_command_interface<AreaSource>();
+	register_command_interface<PointSource>();
 
 	// motions
 	register_command_interface<MotionSource>();

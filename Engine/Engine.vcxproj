@@ -157,6 +157,7 @@
     <ClInclude Include="Source\Actor\LightSource\AreaSource.h" />
     <ClInclude Include="Source\Actor\LightSource\EmitterBuildingMaterial.h" />
     <ClInclude Include="Source\Actor\LightSource\LightSource.h" />
+    <ClInclude Include="Source\Actor\LightSource\PointSource.h" />
     <ClInclude Include="Source\Actor\Material\AbradedOpaque.h" />
     <ClInclude Include="Source\Actor\Material\AbradedSurface.h" />
     <ClInclude Include="Source\Actor\Material\AbradedTranslucent.h" />
@@ -399,6 +400,7 @@
     <ClCompile Include="Source\Actor\Image\PictureImage.cpp" />
     <ClCompile Include="Source\Actor\LightSource\AreaSource.cpp" />
     <ClCompile Include="Source\Actor\LightSource\LightSource.cpp" />
+    <ClCompile Include="Source\Actor\LightSource\PointSource.cpp" />
     <ClCompile Include="Source\Actor\Material\AbradedOpaque.cpp" />
     <ClCompile Include="Source\Actor\Material\AbradedSurface.cpp" />
     <ClCompile Include="Source\Actor\Material\AbradedTranslucent.cpp" />

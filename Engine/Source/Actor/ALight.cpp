@@ -52,8 +52,8 @@ CookedUnit ALight::cook(CookingContext& context) const
 {
 	if(!m_lightSource)
 	{
-		std::cerr << "warning: at ALight::cook(), "
-		          << "incomplete data detected" << std::endl;
+		logger.log(ELogLevel::WARNING_MED, 
+		           "incomplete data detected, this light is ignored");
 		return CookedUnit();
 	}
 
@@ -64,15 +64,13 @@ CookedUnit ALight::cook(CookingContext& context) const
 	}
 	else
 	{
-		auto baseLW = std::make_unique<StaticTransform>(StaticTransform::makeForward(m_localToWorld));
-		auto baseWL = std::make_unique<StaticTransform>(StaticTransform::makeInverse(m_localToWorld));
-
-		// TODO: transforms
+		auto baseLW = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeForward(m_localToWorld));
+		auto baseWL = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeInverse(m_localToWorld));
 
 		EmitterBuildingMaterial emitterBuildingMaterial;
-		cookedActor.emitters.push_back(m_lightSource->genEmitter(context, emitterBuildingMaterial));
-		cookedActor.transforms.push_back(std::move(baseLW));
-		cookedActor.transforms.push_back(std::move(baseWL));
+		emitterBuildingMaterial.baseLocalToWorld = std::move(baseLW);
+		emitterBuildingMaterial.baseWorldToLocal = std::move(baseWL);
+		cookedActor.emitters.push_back(m_lightSource->genEmitter(context, std::move(emitterBuildingMaterial)));
 	}
 
 	return cookedActor;
@@ -162,7 +160,7 @@ CookedUnit ALight::buildGeometricLight(CookingContext& context) const
 
 	EmitterBuildingMaterial emitterBuildingMaterial;
 	emitterBuildingMaterial.primitives = primitives;
-	auto emitter = m_lightSource->genEmitter(context, emitterBuildingMaterial);
+	auto emitter = m_lightSource->genEmitter(context, std::move(emitterBuildingMaterial));
 	metadata->surfaceBehavior.setEmitter(emitter.get());
 
 	cookedActor.emitters.push_back(std::move(emitter));

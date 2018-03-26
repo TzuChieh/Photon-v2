@@ -28,15 +28,8 @@ AreaSource::AreaSource(const Vector3R& emittedRgbRadiance) :
 	LightSource(), 
 	m_emittedRadiance(nullptr)
 {
-	SpectralStrength radiance;
-	radiance.setLinearSrgb(emittedRgbRadiance);// FIXME: check color space
-
-	std::vector<real> vecRadianceSpectrum;
-	for(std::size_t i = 0; i < SpectralStrength::NUM_VALUES; i++)
-	{
-		vecRadianceSpectrum.push_back(radiance[i]);
-	}
-	m_emittedRadiance = std::make_shared<ConstantImage>(vecRadianceSpectrum);
+	m_emittedRadiance = std::make_shared<ConstantImage>(emittedRgbRadiance, 
+	                                                    ConstantImage::EType::EMR_LINEAR_SRGB);
 }
 
 AreaSource::AreaSource(const Path& imagePath) : 
@@ -56,7 +49,7 @@ AreaSource::AreaSource(const std::shared_ptr<Image>& emittedRadiance) :
 AreaSource::~AreaSource() = default;
 
 std::unique_ptr<Emitter> AreaSource::genEmitter(
-	CookingContext& context, const EmitterBuildingMaterial& data) const
+	CookingContext& context, EmitterBuildingMaterial&& data) const
 {
 	if(data.primitives.empty())
 	{
@@ -77,11 +70,11 @@ std::unique_ptr<Emitter> AreaSource::genEmitter(
 
 	PH_ASSERT(!primitiveEmitters.empty());
 
-	/*if(primitiveEmitters.size() == 1)
+	if(primitiveEmitters.size() == 1)
 	{
 		return std::make_unique<PrimitiveAreaEmitter>(primitiveEmitters[0]);
 	}
-	else*/
+	else
 	{
 		auto multiEmitter = std::make_unique<MultiAreaEmitter>(std::move(primitiveEmitters));
 		multiEmitter->setEmittedRadiance(emittedRadiance);

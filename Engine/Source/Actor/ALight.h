@@ -5,6 +5,7 @@
 #include "Actor/PhysicalActor.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Common/Logger.h"
+#include "Math/Transform/StaticRigidTransform.h"
 
 #include <memory>
 #include <vector>
@@ -17,7 +18,6 @@ class Material;
 class TextureMapper;
 class LightSource;
 class Transform;
-class RigidTransform;
 
 class ALight final : public PhysicalActor, public TCommandInterface<ALight>
 {
