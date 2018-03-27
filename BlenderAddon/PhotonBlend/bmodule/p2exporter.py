@@ -430,6 +430,12 @@ def export_object_lamp(exporter, b_context, obj):
 
 		exporter.exportActorLight(actorLightName, lightSourceName, lightGeometryName, lightMaterialName, pos, rot, scale)
 
+	elif lamp.type == "POINT":
+
+		# TODO
+
+		pass
+
 	else:
 		print("warning: lamp (%s) type (%s) is unsupported, not exporting" %(lamp.name, lamp.type))
 
