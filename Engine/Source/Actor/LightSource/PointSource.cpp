@@ -14,6 +14,8 @@
 #include "FileIO/InputPrototype.h"
 #include "Actor/Image/LdrPictureImage.h"
 #include "FileIO/PictureLoader.h"
+#include "Math/constant.h"
+#include "Core/Texture/TConstantTexture.h"
 
 #include <iostream>
 #include <memory>
@@ -22,20 +24,23 @@ namespace ph
 {
 
 PointSource::PointSource() :
-	PointSource(std::make_shared<ConstantImage>(1000.0_r, 
-	                                            ConstantImage::EType::EMR_LINEAR_SRGB))
+	PointSource(Vector3R(1, 1, 1), 1000.0_r)
 {}
 
-PointSource::PointSource(const Vector3R& linearSrgbRadiance) : 
-	PointSource(std::make_shared<ConstantImage>(linearSrgbRadiance, 
-	                                            ConstantImage::EType::EMR_LINEAR_SRGB))
-{}
-
-PointSource::PointSource(const std::shared_ptr<Image> radiance) : 
+PointSource::PointSource(const Vector3R& linearSrgbColor, const real numWatts) :
 	LightSource(),
-	m_emittedRadiance(radiance)
+	m_color(), m_numWatts(numWatts)
 {
-	PH_ASSERT(radiance != nullptr);
+	PH_ASSERT(numWatts > 0.0_r);
+
+	m_color.setLinearSrgb(linearSrgbColor, EQuantity::EMR);
+}
+
+PointSource::PointSource(const SampledSpectralStrength& color, const real numWatts) :
+	LightSource(),
+	m_color(color), m_numWatts(numWatts)
+{
+	PH_ASSERT(numWatts > 0.0_r);
 }
 
 PointSource::~PointSource() = default;
@@ -44,6 +49,8 @@ std::unique_ptr<Emitter> PointSource::genEmitter(
 	CookingContext& context, EmitterBuildingMaterial&& data) const
 {
 	PH_ASSERT_MSG(data.primitives.empty(), "primitive data not required");
+
+	const real SPHERE_RADIUS = 0.005_r;
 
 	CookedUnit cookedUnit;
 
@@ -77,7 +84,7 @@ std::unique_ptr<Emitter> PointSource::genEmitter(
 
 	Primitive* primitive = nullptr;
 	{
-		auto smallSphere            = std::make_unique<PSphere>(metadata, 0.005_r);
+		auto smallSphere            = std::make_unique<PSphere>(metadata, SPHERE_RADIUS);
 		auto transformedSmallSphere = std::make_unique<TransformedPrimitive>(smallSphere.get(), 
 		                                                                     baseLW, 
 		                                                                     baseWL);
@@ -87,9 +94,18 @@ std::unique_ptr<Emitter> PointSource::genEmitter(
 		context.addBackend(std::move(smallSphere));
 	}
 	PH_ASSERT(primitive != nullptr);
-	
-	auto emitter         = std::make_unique<PrimitiveAreaEmitter>(primitive);
-	auto emittedRadiance = m_emittedRadiance->genTextureSpectral(context);
+
+	const auto unitWattColor   = m_color.div(m_color.sum());
+	const auto totalWattColor  = unitWattColor.mul(m_numWatts);
+	const real lightArea       = 4.0_r * PH_PI_REAL * SPHERE_RADIUS * SPHERE_RADIUS;
+	const auto lightIrradiance = totalWattColor.div(lightArea);
+	const auto lightRadiance   = lightIrradiance.div(2.0_r * PH_PI_REAL);
+
+	SpectralStrength radiance;
+	radiance.setSampled(lightRadiance, EQuantity::EMR);
+	const auto& emittedRadiance = std::make_shared<TConstantTexture<SpectralStrength>>(radiance);
+
+	auto emitter = std::make_unique<PrimitiveAreaEmitter>(primitive);
 	emitter->setEmittedRadiance(emittedRadiance);
 
 	metadata->surfaceBehavior.setSurfaceOptics(std::make_unique<LambertianDiffuse>());
@@ -114,34 +130,23 @@ void PointSource::ciRegister(CommandRegister& cmdRegister)
 std::unique_ptr<PointSource> PointSource::loadPointSource(const InputPacket& packet)
 {
 	InputPrototype rgbInput;
-	rgbInput.addVector3r("emitted-radiance");
-
-	InputPrototype pictureFilenameInput;
-	pictureFilenameInput.addString("emitted-radiance");
+	rgbInput.addVector3r("linear-srgb");
+	rgbInput.addReal("watts");
 
 	if(packet.isPrototypeMatched(rgbInput))
 	{
-		const auto& emittedRadiance = packet.getVector3r(
-			"emitted-radiance", Vector3R(0), DataTreatment::REQUIRED());
-		return std::make_unique<PointSource>(emittedRadiance);
+		const auto& linearSrgbColor = packet.getVector3r(
+			"linear-srgb", Vector3R(0), DataTreatment::REQUIRED());
+		const real watts = packet.getReal("watts", 1000.0_r, DataTreatment::REQUIRED());
 
-	}
-	else if(packet.isPrototypeMatched(pictureFilenameInput))
-	{
-		const auto& imagePath = packet.getStringAsPath(
-			"emitted-radiance", Path(), DataTreatment::REQUIRED());
-		const auto& image = std::make_shared<LdrPictureImage>(PictureLoader::loadLdr(imagePath));
-		return std::make_unique<PointSource>(image);
+		return std::make_unique<PointSource>(linearSrgbColor, watts);
 	}
 	else
 	{
-		const auto& image = packet.get<Image>(
-			"emitted-radiance", DataTreatment::REQUIRED());
-		return std::make_unique<PointSource>(image);
+		std::cerr << "warning: at PointSource::loadPointSource(), "
+		          << "invalid input format" << std::endl;
+		return std::make_unique<PointSource>();
 	}
-
-	std::cerr << "warning: at PointSource::ciLoad(), invalid input format" << std::endl;
-	return std::make_unique<PointSource>();
 }
 
 }// end namespace ph

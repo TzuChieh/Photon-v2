@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Actor/LightSource/LightSource.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <memory>
 
@@ -13,15 +14,16 @@ class PointSource : public LightSource, public TCommandInterface<PointSource>
 {
 public:
 	PointSource();
-	PointSource(const Vector3R& linearSrgbRadiance);
-	PointSource(const std::shared_ptr<Image> radiance);
+	PointSource(const Vector3R& linearSrgbColor, real numWatts);
+	PointSource(const SampledSpectralStrength& color, real numWatts);
 	virtual ~PointSource() override;
 
 	virtual std::unique_ptr<Emitter> genEmitter(
 		CookingContext& context, EmitterBuildingMaterial&& data) const override;
 
 private:
-	std::shared_ptr<Image> m_emittedRadiance;
+	SampledSpectralStrength m_color;
+	real                    m_numWatts;
 
 // command interface
 public:

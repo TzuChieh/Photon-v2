@@ -122,7 +122,6 @@ inline void ColorSpace::linear_sRGB_to_SPD(
 	//
 	if constexpr(std::is_same_v<Hint, SourceHint::ILLUMINANT>)
 	{
-		//std::cerr << "run1" << std::endl;
 		out_spd->mulLocal(SPD_D65);
 	}
 
@@ -130,7 +129,6 @@ inline void ColorSpace::linear_sRGB_to_SPD(
 	//
 	if constexpr(std::is_same_v<Hint, SourceHint::REFLECTANCE>)
 	{
-		//std::cerr << "run2" << std::endl;
 		out_spd->clampLocal(0.0_r, 1.0_r);
 	}
 }
