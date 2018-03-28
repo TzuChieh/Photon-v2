@@ -1,10 +1,18 @@
 from ..utility import settings
+from ..psdl import lightcmd
+from ..psdl import materialcmd
+from ..psdl.cmd import RawCommand
+from .export import naming
+
+import bpy
+import mathutils
 
 import sys
-import bpy
+import math
 
 
 class PhLightPanel(bpy.types.Panel):
+
 	bl_space_type  = "PROPERTIES"
 	bl_region_type = "WINDOW"
 	bl_context     = "data"
@@ -17,37 +25,6 @@ class PhLightPanel(bpy.types.Panel):
 		return render_settings.engine in cls.COMPATIBLE_ENGINES
 
 
-# HACK: brings up lamp manipulating widgets by modifying blender's lamp data
-def modify_blender_lamp_type_for_viewport_widgets(self, context):
-
-	lamp = context.lamp
-
-	if lamp.ph_light_type == "AREA":
-
-		lamp.type = "AREA"
-
-		if lamp.ph_area_light_shape_type == "SQUARE":
-
-			lamp.shape = "SQUARE"
-			lamp.size  = lamp.ph_area_light_square_size
-
-		elif lamp.ph_area_light_shape_type == "RECTANGLE":
-
-			lamp.shape = "RECTANGLE"
-			lamp.lamp  = lamp.ph_area_light_rectangle_width
-			lamp.lamp  = lamp.ph_area_light_rectangle_height
-
-		else:
-			lamp.shape = "SQUARE"
-
-	elif lamp.ph_light_type == "POINT":
-
-		lamp.type = "POINT"
-
-	else:
-		lamp.type = "POINT"
-
-
 class PhLightPropertyPanel(PhLightPanel):
 
 	"""
@@ -55,17 +32,6 @@ class PhLightPropertyPanel(PhLightPanel):
 	"""
 
 	bl_label = "PR - Light"
-
-	bpy.types.Lamp.ph_light_type = bpy.props.EnumProperty(
-		items = [
-			("AREA",  "Area",  "A finite area that is emitting energy."),
-			("POINT", "Point", "An energy-emitting spot.")
-		],
-		name        = "Type",
-		description = "Photon-v2's supported light types.",
-		default     = "POINT",
-		update      = modify_blender_lamp_type_for_viewport_widgets
-	)
 
 	bpy.types.Lamp.ph_light_color_linear_srgb = bpy.props.FloatVectorProperty(
 		name        = "Color",
@@ -85,76 +51,117 @@ class PhLightPropertyPanel(PhLightPanel):
 		max         = sys.float_info.max
 	)
 
-	bpy.types.Lamp.ph_area_light_shape_type = bpy.props.EnumProperty(
-		items=[
-			("SQUARE",    "Square",    "A suqare light shape."),
-			("RECTANGLE", "Rectangle", "A rectangle light shape.")
-		],
-		name        = "Shape",
-		description = "shape for an area light",
-		default     = "SQUARE"
-	)
-
-	bpy.types.Lamp.ph_area_light_square_size = bpy.props.FloatProperty(
-		name        = "Size",
-		description = "Size of the square's side.",
-		default     = 1,
-		min         = 0.0,
-		max         = sys.float_info.max
-	)
-
-	bpy.types.Lamp.ph_area_light_rectangle_width = bpy.props.FloatProperty(
-		name        = "Width",
-		description = "Width of the rectangle.",
-		default     = 1,
-		min         = 0.0,
-		max         = sys.float_info.max
-	)
-
-	bpy.types.Lamp.ph_area_light_rectangle_height = bpy.props.FloatProperty(
-		name        = "Height",
-		description = "Height of the rectangle.",
-		default     = 1,
-		min         = 0.0,
-		max         = sys.float_info.max
-	)
-
 	def draw(self, context):
 
 		lamp   = context.lamp
 		layout = self.layout
 
-		layout.prop(lamp, "ph_light_type", expand = True)
+		# HACK: relying on blender lamp type to change lamp data
+		layout.prop(lamp, "type", expand = True)
 
 		layout.prop(lamp, "ph_light_color_linear_srgb")
 		layout.prop(lamp, "ph_light_watts")
 
-		if lamp.ph_light_type == "AREA":
+		if lamp.type == "AREA":
 
 			split = layout.split()
 
 			col = split.column()
-			col.prop(lamp, "ph_area_light_shape_type")
+			col.prop(lamp, "shape", text = "Shape")
 
-			if lamp.ph_area_light_shape_type == "SQUARE":
+			if lamp.shape == "SQUARE":
 
-				col.prop(lamp, "ph_area_light_square_size")
+				col.prop(lamp, "size", text = "Size")
 
-			elif lamp.ph_area_light_shape_type == "RECTANGLE":
+			elif lamp.shape == "RECTANGLE":
 
-				col.prop(lamp, "ph_area_light_rectangle_width")
-				col.prop(lamp, "ph_area_light_rectangle_height")
+				col.prop(lamp, "size",   text = "Width")
+				col.prop(lamp, "size_y", text = "Height")
 
 			else:
-				print("warning: unsupported area light shape %s" % lamp.ph_area_light_shape_type)
+				print("warning: unsupported area light shape %s" % lamp.shape)
 
-		elif lamp.ph_light_type == "POINT":
+		elif lamp.type == "POINT":
 
 			# nothing to display
 			pass
 
 		else:
-			print("warning: unsupported light type %s" % lamp.ph_light_type)
+			print("warning: unsupported light type %s" % lamp.type)
+
+
+def to_sdl_commands(b_obj, sdlconsole):
+
+	b_lamp = b_obj.data
+
+	source_name = naming.mangled_light_source_name(b_obj, b_lamp.name, "lamp_source")
+	actor_name  = naming.mangled_actor_light_name(b_obj, b_lamp.name, "lamp_actor")
+
+	if b_lamp.type == "AREA":
+
+		material_name = naming.mangled_material_name(b_obj, b_lamp.name, "lamp_material")
+		geometry_name = naming.mangled_geometry_name(b_obj, b_lamp.name, "lamp_geometry")
+
+		# In Blender's Lamp, under Area category, only Square and Rectangle shape are available.
+		# (which are both a rectangle in Photon)
+		rec_width  = b_lamp.size
+		rec_height = b_lamp.size_y if b_lamp.shape == "RECTANGLE" else b_lamp.size
+
+		geometry_cmd = RawCommand()
+		geometry_cmd.append_string(
+			"-> geometry(ractangle) @%s [real width %s] [real height %s]" %
+			(geometry_name, rec_width, rec_height)
+		)
+		sdlconsole.queue_command(geometry_cmd)
+
+		material_cmd = materialcmd.MatteOpaqueCreator()
+		material_cmd.set_albedo_color(mathutils.Color((0.5, 0.5, 0.5)))
+		material_cmd.set_data_name(material_name)
+		sdlconsole.queue_command(geometry_cmd)
+
+		# HACK
+		emitted_radiance = b_lamp.ph_light_color_linear_srgb * b_lamp.ph_light_watts
+		source_cmd = RawCommand()
+		source_cmd.append_string(
+			"-> light-source(area) @%s [vector3r emitted-radiance \"%.8f %.8f %.8f\"]" %
+			(source_name, emitted_radiance.r, emitted_radiance.g, emitted_radiance.b)
+		)
+		sdlconsole.queue_command(emitted_radiance)
+
+		# creating actor-light, also convert transformation to Photon's coordinate system
+
+		pos, rot, scale = b_obj.matrix_world.decompose()
+
+		# Blender's rectangle area light is in its xy-plane (facing -z axis) by default,
+		# while Photon's rectangle is in Blender's yz-plane (facing +x axis); these
+		# rotations accounts for such difference
+		rot = rot * mathutils.Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
+		rot = rot * mathutils.Quaternion((0.0, 0.0, 1.0), math.radians(-90.0))
+
+		actor_cmd = RawCommand()
+		actor_cmd.append_string(
+			"-> actor(light) @%s [geometry geometry @%s] [material material @%s] [light-source light-source @%s]" %
+			(actor_name, geometry_name, material_name, source_name)
+		)
+		sdlconsole.queue_command(actor_cmd)
+
+	elif b_lamp.type == "POINT":
+
+		source_cmd = lightcmd.PointLightCreator()
+		source_cmd.set_data_name(source_name)
+		source_cmd.set_linear_srgb_color(b_lamp.ph_light_color_linear_srgb)
+		source_cmd.set_watts(b_lamp.ph_light_watts)
+		sdlconsole.queue_command(source_cmd)
+
+		actor_cmd = RawCommand()
+		actor_cmd.append_string(
+			"-> actor(light) @%s [light-source light-source %s]" %
+			(actor_name, source_name)
+		)
+		sdlconsole.queue_command(actor_cmd)
+
+	else:
+		print("warning: unsupported lamp type %s, ignoring" % b_lamp.type)
 
 
 LIGHT_PANEL_TYPES = [PhLightPropertyPanel]

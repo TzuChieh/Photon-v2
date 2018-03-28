@@ -5,6 +5,7 @@ from .. import utility
 from ..utility import meta
 from . import ui
 from . import export
+from .export import naming
 
 import bpy
 import mathutils
@@ -16,26 +17,6 @@ from bpy.props import StringProperty, BoolProperty, EnumProperty
 from bpy.types import Operator
 
 import math
-
-
-def mangled_geometry_name(obj, name, suffix):
-	return "geometry_" + obj.name + "_" + name + "_" + suffix
-
-
-def mangled_material_name(obj, name, suffix):
-	return "material_" + obj.name + "_" + name + "_" + suffix
-
-
-def mangled_light_source_name(obj, name, suffix):
-	return "light_source_" + obj.name + "_" + name + "_" + suffix
-
-
-def mangled_actor_model_name(obj, name, suffix):
-	return "actor_model_" + obj.name + "_" + name + "_" + suffix
-
-
-def mangled_actor_light_name(obj, name, suffix):
-	return "actor_light_" + obj.name + "_" + name + "_" + suffix
 
 
 class MaterialExportStatus:
@@ -347,8 +328,8 @@ def export_object_mesh(exporter, b_context, obj):
 
 			# same material can be in different slots, with slot index as suffix we can ensure unique material
 			# names (required by Photon-v2 for creating unique materials)
-			geometryName = mangled_geometry_name(obj, mesh.name, str(matId))
-			materialName = mangled_material_name(obj, mesh.name + "_" + material.name, str(matId))
+			geometryName = naming.mangled_geometry_name(obj, mesh.name, str(matId))
+			materialName = naming.mangled_material_name(obj, mesh.name + "_" + material.name, str(matId))
 
 			export_geometry(exporter, geometryName, mesh, faces)
 			material_export_result = export_material(exporter, b_context, materialName, material)
@@ -358,8 +339,8 @@ def export_object_mesh(exporter, b_context, obj):
 
 			if material_export_result.emission_image_command is not None:
 
-				lightSourceName = mangled_light_source_name(obj, mesh.name, str(matId))
-				actorLightName  = mangled_actor_light_name(obj, "", str(matId))
+				lightSourceName = naming.mangled_light_source_name(obj, mesh.name, str(matId))
+				actorLightName  = naming.mangled_actor_light_name(obj, "", str(matId))
 
 				command = RawCommand()
 				command.append_string(
@@ -372,15 +353,15 @@ def export_object_mesh(exporter, b_context, obj):
 
 			elif material.ph_is_emissive:
 
-				lightSourceName = mangled_light_source_name(obj, mesh.name, str(matId))
-				actorLightName  = mangled_actor_light_name(obj, "", str(matId))
+				lightSourceName = naming.mangled_light_source_name(obj, mesh.name, str(matId))
+				actorLightName  = naming.mangled_actor_light_name(obj, "", str(matId))
 
 				exporter.exportLightSource("area", lightSourceName, emittedRadiance = material.ph_emitted_radiance)
 				exporter.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
 
 			else:
 
-				actorModelName = mangled_actor_model_name(obj, "", str(matId))
+				actorModelName = naming.mangled_actor_model_name(obj, "", str(matId))
 
 				exporter.exportActorModel(actorModelName, geometryName, materialName, pos, rot, scale)
 
@@ -397,10 +378,10 @@ def export_object_lamp(exporter, b_context, obj):
 
 	if lamp.type == "AREA":
 
-		lightMaterialName = mangled_material_name(obj, lamp.name, "")
-		lightGeometryName = mangled_geometry_name(obj, lamp.name, "")
-		lightSourceName   = mangled_light_source_name(obj, lamp.name, "")
-		actorLightName    = mangled_actor_light_name(obj, "blenderLamp", "")
+		lightMaterialName = naming.mangled_material_name(obj, lamp.name, "")
+		lightGeometryName = naming.mangled_geometry_name(obj, lamp.name, "")
+		lightSourceName   = naming.mangled_light_source_name(obj, lamp.name, "")
+		actorLightName    = naming.mangled_actor_light_name(obj, "blenderLamp", "")
 
 		# In Blender's Lamp, under Area category, only Square and Rectangle shape are available.
 		# (which are both a rectangle in Photon-v2)
