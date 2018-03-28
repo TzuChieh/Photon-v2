@@ -22,7 +22,7 @@
 -> actor(model) rotate(@object) [vector3r axis "1 0 0"] [real degree -90]
 
 //-> light-source(area) @areaSource [vector3r emitted-radiance "400000 400000 400000"]
--> light-source(point) @source [vector3r linear-srgb "1 1 1"] [real watts 1000]
+-> light-source(area) @source [vector3r linear-srgb "1 1 1"] [real watts 1000]
 -> actor(light) @topLight [light-source light-source @source]
 -> actor(light) translate(@topLight) [vector3r factor "-10 10 0"]
 -> actor(light) rotate(@topLight) [vector3r axis "1 0 0"] [real degree 90]

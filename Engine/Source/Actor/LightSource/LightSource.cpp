@@ -9,6 +9,9 @@ LightSource::~LightSource() = default;
 
 // command interface
 
+LightSource::LightSource(const InputPacket& packet)
+{}
+
 SdlTypeInfo LightSource::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_LIGHT_SOURCE, "light-source");

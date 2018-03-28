@@ -15,7 +15,8 @@ class GTriangleMesh;
 class GSphere final : public Geometry, public TCommandInterface<GSphere>
 {
 public:
-	GSphere(const real radius);
+	GSphere();
+	GSphere(real radius);
 	GSphere(const GSphere& other);
 	virtual ~GSphere() override;
 

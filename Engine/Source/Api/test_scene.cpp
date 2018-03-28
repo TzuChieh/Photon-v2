@@ -11,7 +11,6 @@
 #include "Actor/Geometry/GRectangle.h"
 #include "Actor/ModelLoader.h"
 #include "FileIO/DescriptionParser.h"
-#include "Actor/LightSource/AreaSource.h"
 #include "Actor/ALight.h"
 #include "Actor/Geometry/GCuboid.h"
 #include "Actor/Geometry/GWave.h"

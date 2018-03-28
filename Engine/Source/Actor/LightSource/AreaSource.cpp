@@ -1,49 +1,48 @@
 #include "Actor/LightSource/AreaSource.h"
-#include "Actor/AModel.h"
-#include "Core/Emitter/PrimitiveAreaEmitter.h"
-#include "Core/Texture/TConstantTexture.h"
-#include "Core/Texture/LdrRgbTexture2D.h"
-#include "Core/Texture/TextureLoader.h"
-#include "FileIO/InputPacket.h"
+#include "Actor/CookingContext.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
-#include "Math/TVector3.h"
-#include "FileIO/InputPrototype.h"
-#include "FileIO/PictureLoader.h"
-#include "Actor/Image/Image.h"
-#include "Actor/Image/ConstantImage.h"
-#include "Actor/Image/LdrPictureImage.h"
-#include "Common/assertion.h"
-#include "Core/Emitter/MultiAreaEmitter.h"
+#include "Math/Transform/RigidTransform.h"
+#include "Math/Transform/StaticRigidTransform.h"
+#include "Core/Intersectable/PSphere.h"
+#include "Core/Intersectable/TransformedPrimitive.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Core/Intersectable/Primitive.h"
+#include "Common/assertion.h"
+#include "Core/Emitter/PrimitiveAreaEmitter.h"
+#include "Core/Emitter/MultiAreaEmitter.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
+#include "Actor/Image/ConstantImage.h"
+#include "FileIO/InputPacket.h"
+#include "FileIO/InputPrototype.h"
+#include "Actor/Image/LdrPictureImage.h"
+#include "FileIO/PictureLoader.h"
+#include "Math/constant.h"
+#include "Core/Texture/TConstantTexture.h"
+#include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 
 #include <iostream>
+#include <memory>
 
 namespace ph
 {
 
-const Logger AreaSource::logger(LogSender("Area Source"));
+AreaSource::AreaSource() :
+	AreaSource(Vector3R(1, 1, 1), 100.0_r)
+{}
 
-AreaSource::AreaSource(const Vector3R& emittedRgbRadiance) :
-	LightSource(), 
-	m_emittedRadiance(nullptr)
+AreaSource::AreaSource(const Vector3R& linearSrgbColor, const real numWatts) :
+	LightSource(),
+	m_color(), m_numWatts(numWatts)
 {
-	m_emittedRadiance = std::make_shared<ConstantImage>(emittedRgbRadiance, 
-	                                                    ConstantImage::EType::EMR_LINEAR_SRGB);
+	PH_ASSERT(numWatts > 0.0_r);
+
+	m_color.setLinearSrgb(linearSrgbColor, EQuantity::EMR);
 }
 
-AreaSource::AreaSource(const Path& imagePath) : 
-	LightSource(), 
-	m_emittedRadiance(nullptr)
+AreaSource::AreaSource(const SampledSpectralStrength& color, const real numWatts) :
+	LightSource(),
+	m_color(color), m_numWatts(numWatts)
 {
-	auto image = std::make_shared<LdrPictureImage>(PictureLoader::loadLdr(imagePath));
-	m_emittedRadiance = image;
-}
-
-AreaSource::AreaSource(const std::shared_ptr<Image>& emittedRadiance) :
-	m_emittedRadiance(emittedRadiance)
-{
-	PH_ASSERT(m_emittedRadiance != nullptr);
+	PH_ASSERT(numWatts > 0.0_r);
 }
 
 AreaSource::~AreaSource() = default;
@@ -51,37 +50,125 @@ AreaSource::~AreaSource() = default;
 std::unique_ptr<Emitter> AreaSource::genEmitter(
 	CookingContext& context, EmitterBuildingMaterial&& data) const
 {
-	if(data.primitives.empty())
+	PH_ASSERT_MSG(data.primitives.empty(), "primitive data not required");
+
+	CookedUnit cookedUnit;
+
+	RigidTransform* baseLW = nullptr;
+	RigidTransform* baseWL = nullptr;
+	if(data.baseLocalToWorld != nullptr && data.baseWorldToLocal != nullptr)
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-		           "no primitive provided; requires at least a primitive to build emitter");
-		return nullptr;
-	}
-
-	auto emittedRadiance = m_emittedRadiance->genTextureSpectral(context);
-
-	std::vector<PrimitiveAreaEmitter> primitiveEmitters;
-	for(const auto& primitive : data.primitives)
-	{
-		PrimitiveAreaEmitter emitter(primitive);
-		emitter.setEmittedRadiance(emittedRadiance);
-		primitiveEmitters.push_back(emitter);
-	}
-
-	PH_ASSERT(!primitiveEmitters.empty());
-
-	if(primitiveEmitters.size() == 1)
-	{
-		return std::make_unique<PrimitiveAreaEmitter>(primitiveEmitters[0]);
+		baseLW = data.baseLocalToWorld.get();
+		baseWL = data.baseWorldToLocal.get();
+		cookedUnit.transforms.push_back(std::move(data.baseLocalToWorld));
+		cookedUnit.transforms.push_back(std::move(data.baseWorldToLocal));
 	}
 	else
 	{
-		auto multiEmitter = std::make_unique<MultiAreaEmitter>(std::move(primitiveEmitters));
-		multiEmitter->setEmittedRadiance(emittedRadiance);
-		return multiEmitter;
+		std::cerr << "warning: at AreaSource::genEmitter(), "
+		          << "incomplete transform information, use identity transform instead" << std::endl;
+		auto identity = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeIdentity());
+		baseLW = identity.get();
+		baseWL = identity.get();
+		cookedUnit.transforms.push_back(std::move(identity));
 	}
+	PH_ASSERT(baseLW != nullptr && baseWL != nullptr);
 
-	PH_ASSERT_UNREACHABLE_SECTION();
+	PrimitiveMetadata* metadata = nullptr;
+	{
+		auto primitiveMetadata = std::make_unique<PrimitiveMetadata>();
+		metadata = primitiveMetadata.get();
+		cookedUnit.primitiveMetadatas.push_back(std::move(primitiveMetadata));
+	}
+	PH_ASSERT(metadata != nullptr);
+
+	std::vector<const Primitive*> primitives;
+	{
+		auto areaGeometries = genAreas();
+		std::vector<std::unique_ptr<Primitive>> areas;
+		for(auto& areaGeometry : areaGeometries)
+		{
+			areaGeometry->genPrimitive(PrimitiveBuildingMaterial(metadata), areas);
+		}
+
+		for(auto& area : areas)
+		{
+			auto transformedArea = std::make_unique<TransformedPrimitive>(
+				area.get(), baseLW, baseWL);
+			primitives.push_back(transformedArea.get());
+
+			cookedUnit.intersectables.push_back(std::move(transformedArea));
+			context.addBackend(std::move(area));
+		}
+	}
+	PH_ASSERT(!primitives.empty());
+
+	real lightArea = 0.0_r;
+	for(auto primitive : primitives)
+	{
+		lightArea += primitive->calcExtendedArea();
+	}
+	PH_ASSERT(lightArea > 0.0_r);
+
+	const auto unitWattColor  = m_color.div(m_color.sum());
+	const auto totalWattColor = unitWattColor.mul(m_numWatts);
+	const auto lightRadiance  = totalWattColor.div(lightArea * PH_PI_REAL);
+
+	SpectralStrength radiance;
+	radiance.setSampled(lightRadiance, EQuantity::EMR);
+	const auto& emittedRadiance = std::make_shared<TConstantTexture<SpectralStrength>>(radiance);
+
+	std::unique_ptr<Emitter> emitter;
+	{
+		if(primitives.size() > 1)
+		{
+			std::vector<PrimitiveAreaEmitter> areaEmitters;
+			for(auto primitive : primitives)
+			{
+				areaEmitters.push_back(PrimitiveAreaEmitter(primitive));
+			}
+
+			auto emitterData = std::make_unique<MultiAreaEmitter>(areaEmitters);
+			emitterData->setEmittedRadiance(emittedRadiance);
+			emitter = std::move(emitterData);
+		}
+		else
+		{
+			auto emitterData = std::make_unique<PrimitiveAreaEmitter>(primitives[0]);
+			emitterData->setEmittedRadiance(emittedRadiance);
+			emitter = std::move(emitterData);
+		}
+	}
+	PH_ASSERT(emitter != nullptr);
+
+	metadata->surfaceBehavior.setSurfaceOptics(std::make_unique<LambertianDiffuse>());
+	metadata->surfaceBehavior.setEmitter(emitter.get());
+
+	context.addCookedUnit(std::move(cookedUnit));
+	return emitter;
+}
+
+// command interface
+
+AreaSource::AreaSource(const InputPacket& packet) : 
+	LightSource(packet)
+{
+	InputPrototype rgbInput;
+	rgbInput.addVector3r("linear-srgb");
+	rgbInput.addReal("watts");
+
+	if(packet.isPrototypeMatched(rgbInput))
+	{
+		m_color.setLinearSrgb(packet.getVector3r("linear-srgb"));
+		m_numWatts = packet.getReal("watts");
+	}
+	else
+	{
+		std::cerr << "warning: at AreaSource ctor, "
+		          << "invalid input format" << std::endl;
+		m_color.setLinearSrgb(Vector3R(1, 1, 1));
+		m_numWatts = 100.0_r;
+	}
 }
 
 SdlTypeInfo AreaSource::ciTypeInfo()
@@ -90,42 +177,6 @@ SdlTypeInfo AreaSource::ciTypeInfo()
 }
 
 void AreaSource::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<AreaSource>(ciLoad);
-	cmdRegister.setLoader(loader);
-}
-
-std::unique_ptr<AreaSource> AreaSource::ciLoad(const InputPacket& packet)
-{
-	InputPrototype rgbInput;
-	rgbInput.addVector3r("emitted-radiance");
-
-	InputPrototype pictureFilenameInput;
-	pictureFilenameInput.addString("emitted-radiance");
-
-	if(packet.isPrototypeMatched(rgbInput))
-	{
-		const auto& emittedRadiance = packet.getVector3r(
-			"emitted-radiance", Vector3R(0), DataTreatment::REQUIRED());
-		return std::make_unique<AreaSource>(emittedRadiance);
-
-	}
-	else if(packet.isPrototypeMatched(pictureFilenameInput))
-	{
-		const auto& imagePath = packet.getStringAsPath(
-			"emitted-radiance", Path(), DataTreatment::REQUIRED());
-		return std::make_unique<AreaSource>(imagePath);
-	}
-	else
-	{
-		const auto& image = packet.get<Image>(
-			"emitted-radiance", DataTreatment::REQUIRED());
-		return std::make_unique<AreaSource>(image);
-	}
-
-	std::cerr << "warning: at AreaSource::ciLoad(), invalid input format" << std::endl;
-	return std::make_unique<AreaSource>(Vector3R(1, 1, 1));
-}
+{}
 
 }// end namespace ph

@@ -2,13 +2,13 @@
 
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "FileIO/SDL/TCommandInterface.h"
+#include "FileIO/InputPacket.h"
 
 #include <memory>
 
 namespace ph
 {
 
-class InputPacket;
 class Emitter;
 class CookingContext;
 
@@ -23,6 +23,7 @@ public:
 
 // command interface
 public:
+	LightSource(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };

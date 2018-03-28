@@ -27,6 +27,10 @@ public:
 	std::size_t iC;
 };
 
+GSphere::GSphere() :
+	GSphere(1.0_r)
+{}
+
 GSphere::GSphere(const real radius) :
 	Geometry(), 
 	m_radius(radius)

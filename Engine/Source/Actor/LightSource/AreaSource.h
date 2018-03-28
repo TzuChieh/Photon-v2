@@ -1,40 +1,39 @@
 #pragma once
 
 #include "Actor/LightSource/LightSource.h"
-#include "Math/math_fwd.h"
-#include "FileIO/SDL/TCommandInterface.h"
-#include "FileIO/FileSystem/Path.h"
-#include "Common/Logger.h"
+#include "Core/Quantity/SpectralStrength.h"
+#include "FileIO/InputPacket.h"
+#include "Actor/Geometry/Geometry.h"
 
 #include <memory>
-#include <string>
 
 namespace ph
 {
 
 class Image;
 
-class AreaSource final : public LightSource, public TCommandInterface<AreaSource>
+class AreaSource : public LightSource, public TCommandInterface<AreaSource>
 {
 public:
-	AreaSource(const Vector3R& emittedRgbRadiance);
-	AreaSource(const Path& imagePath);
-	AreaSource(const std::shared_ptr<Image>& emittedRadiance);
+	AreaSource();
+	AreaSource(const Vector3R& linearSrgbColor, real numWatts);
+	AreaSource(const SampledSpectralStrength& color, real numWatts);
 	virtual ~AreaSource() override;
+
+	virtual std::vector<std::unique_ptr<Geometry>> genAreas() const = 0;
 
 	virtual std::unique_ptr<Emitter> genEmitter(
 		CookingContext& context, EmitterBuildingMaterial&& data) const override;
 
 private:
-	std::shared_ptr<Image> m_emittedRadiance;
-
-	static const Logger logger;
+	SampledSpectralStrength m_color;
+	real                    m_numWatts;
 
 // command interface
 public:
+	AreaSource(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
-	static std::unique_ptr<AreaSource> ciLoad(const InputPacket& packet);
 };
 
 }// end namespace ph

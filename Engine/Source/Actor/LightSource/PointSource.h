@@ -1,16 +1,12 @@
 #pragma once
 
-#include "Actor/LightSource/LightSource.h"
-#include "Core/Quantity/SpectralStrength.h"
-
-#include <memory>
+#include "Actor/LightSource/AreaSource.h"
+#include "Actor/LightSource/SphereSource.h"
 
 namespace ph
 {
 
-class Image;
-
-class PointSource : public LightSource, public TCommandInterface<PointSource>
+class PointSource final : public AreaSource, public TCommandInterface<PointSource>
 {
 public:
 	PointSource();
@@ -18,18 +14,16 @@ public:
 	PointSource(const SampledSpectralStrength& color, real numWatts);
 	virtual ~PointSource() override;
 
-	virtual std::unique_ptr<Emitter> genEmitter(
-		CookingContext& context, EmitterBuildingMaterial&& data) const override;
+	virtual std::vector<std::unique_ptr<Geometry>> genAreas() const override;
 
 private:
-	SampledSpectralStrength m_color;
-	real                    m_numWatts;
+	SphereSource m_sphereSource;
 
 // command interface
 public:
+	PointSource(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
-	static std::unique_ptr<PointSource> loadPointSource(const InputPacket& packet);
 };
 
 }// end namespace ph
