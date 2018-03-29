@@ -107,7 +107,8 @@ inline auto StaticRigidTransform::getScaleFreeTransforms(const std::vector<TDeco
 	std::vector<TDecomposedTransform<U>> scaleFreeTransforms;
 	for(const auto& transform : transforms)
 	{
-		if(!transform.hasScaleEffect())
+		// FIXME: better scale tolerance value, not hardcoded like this
+		if(!transform.hasScaleEffect(0.000001_r))
 		{
 			scaleFreeTransforms.push_back(transform);
 		}

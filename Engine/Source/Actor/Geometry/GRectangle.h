@@ -12,7 +12,8 @@ class GTriangleMesh;
 class GRectangle : public Geometry, public TCommandInterface<GRectangle>
 {
 public:
-	GRectangle(const real width, const real height);
+	GRectangle();
+	GRectangle(real width, real height);
 	virtual ~GRectangle() override;
 
 	virtual void genPrimitive(const PrimitiveBuildingMaterial& data,

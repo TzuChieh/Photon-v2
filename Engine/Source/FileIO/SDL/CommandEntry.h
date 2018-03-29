@@ -4,6 +4,7 @@
 #include "FileIO/SDL/ISdlResource.h"
 #include "FileIO/SDL/SdlLoader.h"
 #include "FileIO/SDL/SdlExecutor.h"
+#include "Common/Logger.h"
 
 #include <string>
 #include <vector>
@@ -30,6 +31,9 @@ private:
 	SdlTypeInfo              m_typeInfo;
 	SdlLoader                m_loader;
 	std::vector<SdlExecutor> m_executors;
+
+private:
+	static const Logger logger;
 };
 
 }// end namespace ph

@@ -5,11 +5,11 @@
 namespace ph
 {
 
+const Logger CommandEntry::logger(LogSender("Command Entry"));
+
 CommandEntry::CommandEntry() : 
 	m_typeInfo(SdlTypeInfo::makeInvalid()), m_loader(), m_executors()
-{
-
-}
+{}
 
 CommandEntry& CommandEntry::setTypeInfo(const SdlTypeInfo& typeInfo)
 {
@@ -39,6 +39,11 @@ SdlTypeInfo CommandEntry::typeInfo() const
 
 SdlLoader CommandEntry::getLoader() const
 {
+	if(!m_loader.isValid())
+	{
+		logger.log(ELogLevel::WARNING_MED, "loader is invalid");
+	}
+
 	return m_loader;
 }
 
@@ -51,6 +56,8 @@ SdlExecutor CommandEntry::getExecutor(const std::string& name) const
 			return executor;
 		}
 	}
+
+	logger.log(ELogLevel::WARNING_MED, "executor <" + name + "> not found");
 
 	return SdlExecutor();
 }

@@ -3,6 +3,8 @@ from ..psdl import lightcmd
 from ..psdl import materialcmd
 from ..psdl.cmd import RawCommand
 from .export import naming
+from .. import utility
+from ..psdl import clause
 
 import bpy
 import mathutils
@@ -99,51 +101,18 @@ def to_sdl_commands(b_obj, sdlconsole):
 
 	if b_lamp.type == "AREA":
 
-		material_name = naming.mangled_material_name(b_obj, b_lamp.name, "lamp_material")
-		geometry_name = naming.mangled_geometry_name(b_obj, b_lamp.name, "lamp_geometry")
-
 		# In Blender's Lamp, under Area category, only Square and Rectangle shape are available.
 		# (which are both a rectangle in Photon)
 		rec_width  = b_lamp.size
 		rec_height = b_lamp.size_y if b_lamp.shape == "RECTANGLE" else b_lamp.size
 
-		geometry_cmd = RawCommand()
-		geometry_cmd.append_string(
-			"-> geometry(ractangle) @%s [real width %s] [real height %s]" %
-			(geometry_name, rec_width, rec_height)
-		)
-		sdlconsole.queue_command(geometry_cmd)
-
-		material_cmd = materialcmd.MatteOpaqueCreator()
-		material_cmd.set_albedo_color(mathutils.Color((0.5, 0.5, 0.5)))
-		material_cmd.set_data_name(material_name)
-		sdlconsole.queue_command(geometry_cmd)
-
-		# HACK
-		emitted_radiance = b_lamp.ph_light_color_linear_srgb * b_lamp.ph_light_watts
-		source_cmd = RawCommand()
-		source_cmd.append_string(
-			"-> light-source(area) @%s [vector3r emitted-radiance \"%.8f %.8f %.8f\"]" %
-			(source_name, emitted_radiance.r, emitted_radiance.g, emitted_radiance.b)
-		)
-		sdlconsole.queue_command(emitted_radiance)
-
-		# creating actor-light, also convert transformation to Photon's coordinate system
-
-		pos, rot, scale = b_obj.matrix_world.decompose()
-
-		# Blender's rectangle area light is in its xy-plane (facing -z axis) by default,
-		# while Photon's rectangle is in Blender's yz-plane (facing +x axis); these
-		# rotations accounts for such difference
-		rot = rot * mathutils.Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
-		rot = rot * mathutils.Quaternion((0.0, 0.0, 1.0), math.radians(-90.0))
-
-		actor_cmd = RawCommand()
-		actor_cmd.append_string(
-			"-> actor(light) @%s [geometry geometry @%s] [material material @%s] [light-source light-source @%s]" %
-			(actor_name, geometry_name, material_name, source_name)
-		)
-		sdlconsole.queue_command(actor_cmd)
+		source_cmd = lightcmd.RectangleLightCreator()
+		source_cmd.set_data_name(source_name)
+		source_cmd.set_width(rec_width)
+		source_cmd.set_height(rec_height)
+		source_cmd.set_linear_srgb_color(b_lamp.ph_light_color_linear_srgb)
+		source_cmd.set_watts(b_lamp.ph_light_watts)
+		sdlconsole.queue_command(source_cmd)
 
 	elif b_lamp.type == "POINT":
 
@@ -153,15 +122,39 @@ def to_sdl_commands(b_obj, sdlconsole):
 		source_cmd.set_watts(b_lamp.ph_light_watts)
 		sdlconsole.queue_command(source_cmd)
 
-		actor_cmd = RawCommand()
-		actor_cmd.append_string(
-			"-> actor(light) @%s [light-source light-source %s]" %
-			(actor_name, source_name)
-		)
-		sdlconsole.queue_command(actor_cmd)
-
 	else:
 		print("warning: unsupported lamp type %s, ignoring" % b_lamp.type)
+
+	pos, rot, scale = b_obj.matrix_world.decompose()
+
+	# Blender's rectangle area light is in its xy-plane (facing -z axis) by default,
+	# while Photon's rectangle is in Blender's yz-plane (facing +x axis); these
+	# rotations accounts for such difference
+	rot = rot * mathutils.Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
+	rot = rot * mathutils.Quaternion((0.0, 0.0, 1.0), math.radians(-90.0))
+
+	pos   = utility.to_photon_vec3(pos)
+	rot   = utility.to_photon_quat(rot)
+	scale = utility.to_photon_vec3(scale)
+
+	actor_cmd = RawCommand()
+	actor_cmd.append_string(
+		"-> actor(light) @%s [light-source light-source @%s] \n" %
+		(actor_name, source_name)
+	)
+	actor_cmd.append_string(
+		"-> actor(light) translate(@%s) [vector3r factor \"%.8f %.8f %.8f\"] \n" %
+		(actor_name, pos.x, pos.y, pos.z)
+	)
+	actor_cmd.append_string(
+		"-> actor(light) rotate(@%s) [quaternionR factor \"%.8f %.8f %.8f %.8f\"] \n" %
+		(actor_name, rot.x, rot.y, rot.z, rot.w)
+	)
+	actor_cmd.append_string(
+		"-> actor(light) scale(@%s) [vector3r factor \"%.8f %.8f %.8f\"] \n" %
+		(actor_name, scale.x, scale.y, scale.z)
+	)
+	sdlconsole.queue_command(actor_cmd)
 
 
 LIGHT_PANEL_TYPES = [PhLightPropertyPanel]

@@ -6,6 +6,7 @@ from ..utility import meta
 from . import ui
 from . import export
 from .export import naming
+from . import light
 
 import bpy
 import mathutils
@@ -374,51 +375,7 @@ def export_object_mesh(exporter, b_context, obj):
 
 def export_object_lamp(exporter, b_context, obj):
 
-	lamp = obj.data
-
-	if lamp.type == "AREA":
-
-		lightMaterialName = naming.mangled_material_name(obj, lamp.name, "")
-		lightGeometryName = naming.mangled_geometry_name(obj, lamp.name, "")
-		lightSourceName   = naming.mangled_light_source_name(obj, lamp.name, "")
-		actorLightName    = naming.mangled_actor_light_name(obj, "blenderLamp", "")
-
-		# In Blender's Lamp, under Area category, only Square and Rectangle shape are available.
-		# (which are both a rectangle in Photon-v2)
-		recWidth  = lamp.size
-		recHeight = lamp.size_y if lamp.shape == "RECTANGLE" else lamp.size
-		exporter.exportGeometry("rectangle", lightGeometryName, width = recWidth, height = recHeight)
-
-		# HACK: assume the Lamp uses this material
-		b_material = bpy.data.materials.new(lightMaterialName)
-		material_export_result = exporter.exportMaterial(b_context, lightMaterialName, b_material)
-		if material_export_result.emission_image_command is not None:
-			print("warning: area lamp %s has emissive material, ignoring" % lightSourceName)
-		bpy.data.materials.remove(b_material)
-
-		# use lamp's color attribute as emitted radiance
-		exporter.exportLightSource("area", lightSourceName, emittedRadiance = lamp.color)
-
-		# creating actor-light, also convert transformation to Photon-v2's coordinate system
-
-		pos, rot, scale = obj.matrix_world.decompose()
-
-		# Blender's rectangle area light is in its xy-plane (facing -z axis) by default, 
-		# while Photon's rectangle is in Blender's yz-plane (facing +x axis); these 
-		# rotations accounts for such difference
-		rot = rot * mathutils.Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
-		rot = rot * mathutils.Quaternion((0.0, 0.0, 1.0), math.radians(-90.0))
-
-		exporter.exportActorLight(actorLightName, lightSourceName, lightGeometryName, lightMaterialName, pos, rot, scale)
-
-	elif lamp.type == "POINT":
-
-		# TODO
-
-		pass
-
-	else:
-		print("warning: lamp (%s) type (%s) is unsupported, not exporting" %(lamp.name, lamp.type))
+	light.to_sdl_commands(obj, exporter.get_sdlconsole())
 
 
 def export_camera(exporter, obj, scene):

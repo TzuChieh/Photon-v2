@@ -20,15 +20,11 @@ public:
 
 	inline SdlLoader() :
 		m_func(nullptr)
-	{
-
-	}
+	{}
 
 	inline explicit SdlLoader(const LoadFuncType& func) :
 		m_func(func)
-	{
-
-	}
+	{}
 
 	template<typename T>
 	inline void setFunc(const LoadFuncType& func)
@@ -42,8 +38,6 @@ public:
 
 	inline std::unique_ptr<ISdlResource> load(const InputPacket& packet) const
 	{
-		// TODO: maybe print a warning message if function is null?
-
 		return m_func != nullptr ? m_func(packet) : nullptr;
 	}
 
