@@ -7,6 +7,7 @@
 #include "Actor/Geometry/GSphere.h"
 #include "Actor/Geometry/GRectangle.h"
 #include "Actor/Geometry/GTriangleMesh.h"
+#include "Actor/Geometry/GMengerSponge.h"
 
 // materials
 #include "Actor/Material/Material.h"
@@ -88,6 +89,7 @@ bool init_command_parser()
 	register_command_interface<GSphere>();
 	register_command_interface<GRectangle>();
 	register_command_interface<GTriangleMesh>();
+	register_command_interface<GMengerSponge>();
 
 	// materials
 	register_command_interface<Material>();

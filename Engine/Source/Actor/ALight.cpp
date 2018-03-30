@@ -39,7 +39,6 @@ ALight::ALight(const ALight& other) :
 
 ALight::~ALight() = default;
 
-
 ALight& ALight::operator = (ALight rhs)
 {
 	swap(*this, rhs);

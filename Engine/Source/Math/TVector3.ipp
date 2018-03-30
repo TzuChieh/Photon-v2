@@ -666,6 +666,12 @@ inline TVector3<T> TVector3<T>::operator * (const T rhs) const
 }
 
 template<typename T>
+inline TVector3<T> TVector3<T>::operator / (const T rhs) const
+{
+	return this->div(rhs);
+}
+
+template<typename T>
 inline TVector3<T> TVector3<T>::operator + (const T rhs) const
 {
 	return this->add(rhs);

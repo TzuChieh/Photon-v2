@@ -142,6 +142,7 @@
     <ClInclude Include="Source\Actor\Geometry\GCuboid.h" />
     <ClInclude Include="Source\Actor\Geometry\Geometry.h" />
     <ClInclude Include="Source\Actor\Geometry\GeometrySoup.h" />
+    <ClInclude Include="Source\Actor\Geometry\GMengerSponge.h" />
     <ClInclude Include="Source\Actor\Geometry\GRectangle.h" />
     <ClInclude Include="Source\Actor\Geometry\GSphere.h" />
     <ClInclude Include="Source\Actor\Geometry\GTriangle.h" />
@@ -390,6 +391,7 @@
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp" />
     <ClCompile Include="Source\Actor\Geometry\Geometry.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GeometrySoup.cpp" />
+    <ClCompile Include="Source\Actor\Geometry\GMengerSponge.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GRectangle.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GSphere.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GTriangle.cpp" />

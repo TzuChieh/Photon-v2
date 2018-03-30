@@ -4,6 +4,7 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/AModel.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
+#include "Common/assertion.h"
 
 #include <cmath>
 #include <iostream>
@@ -11,12 +12,41 @@
 namespace ph
 {
 
-GCuboid::GCuboid(const real xLen, const real yLen, const real zLen) :
-	m_xLen(xLen), m_yLen(yLen), m_zLen(zLen)
+GCuboid::GCuboid() : 
+	GCuboid(1)
 {}
 
+GCuboid::GCuboid(const real sideLength) : 
+	GCuboid(sideLength, Vector3R(0, 0, 0))
+{}
+
+GCuboid::GCuboid(const real sideLength, const Vector3R& offset) : 
+	GCuboid(sideLength, sideLength, sideLength, offset)
+{}
+
+GCuboid::GCuboid(const real xLen, const real yLen, const real zLen) :
+	GCuboid(xLen, yLen, zLen, Vector3R(0, 0, 0))
+{}
+
+GCuboid::GCuboid(const Vector3R& minVertex, const Vector3R& maxVertex) : 
+	GCuboid(maxVertex.x - minVertex.x,
+	        maxVertex.y - minVertex.y,
+	        maxVertex.z - minVertex.z,
+	        (maxVertex + minVertex) * 0.5_r)
+{}
+
+GCuboid::GCuboid(const real xLen, const real yLen, const real zLen, const Vector3R& offset) :
+	Geometry(),
+	m_xLen(xLen), m_yLen(yLen), m_zLen(zLen), m_offset(offset)
+{
+	PH_ASSERT(xLen > 0.0_r && yLen > 0.0_r && zLen > 0.0_r);
+}
+
 GCuboid::GCuboid(const GCuboid& other) :
-	m_xLen(other.m_xLen), m_yLen(other.m_yLen), m_zLen(other.m_zLen)
+	m_xLen(other.m_xLen), 
+	m_yLen(other.m_yLen), 
+	m_zLen(other.m_zLen), 
+	m_offset(other.m_offset)
 {}
 
 GCuboid::~GCuboid() = default;
@@ -36,14 +66,14 @@ void GCuboid::genPrimitive(const PrimitiveBuildingMaterial& data,
 	const real halfZlen = m_zLen * 0.5_r;
 
 	// 8 vertices of a cuboid
-	const Vector3R vPPP( halfXlen,  halfYlen,  halfZlen);
-	const Vector3R vNPP(-halfXlen,  halfYlen,  halfZlen);
-	const Vector3R vNNP(-halfXlen, -halfYlen,  halfZlen);
-	const Vector3R vPNP( halfXlen, -halfYlen,  halfZlen);
-	const Vector3R vPPN( halfXlen,  halfYlen, -halfZlen);
-	const Vector3R vNPN(-halfXlen,  halfYlen, -halfZlen);
-	const Vector3R vNNN(-halfXlen, -halfYlen, -halfZlen);
-	const Vector3R vPNN( halfXlen, -halfYlen, -halfZlen);
+	const Vector3R vPPP = Vector3R( halfXlen,  halfYlen,  halfZlen).add(m_offset);
+	const Vector3R vNPP = Vector3R(-halfXlen,  halfYlen,  halfZlen).add(m_offset);
+	const Vector3R vNNP = Vector3R(-halfXlen, -halfYlen,  halfZlen).add(m_offset);
+	const Vector3R vPNP = Vector3R( halfXlen, -halfYlen,  halfZlen).add(m_offset);
+	const Vector3R vPPN = Vector3R( halfXlen,  halfYlen, -halfZlen).add(m_offset);
+	const Vector3R vNPN = Vector3R(-halfXlen,  halfYlen, -halfZlen).add(m_offset);
+	const Vector3R vNNN = Vector3R(-halfXlen, -halfYlen, -halfZlen).add(m_offset);
+	const Vector3R vPNN = Vector3R( halfXlen, -halfYlen, -halfZlen).add(m_offset);
 
 	// 12 triangles (all CCW)
 
@@ -68,9 +98,10 @@ void GCuboid::genPrimitive(const PrimitiveBuildingMaterial& data,
 
 GCuboid& GCuboid::operator = (const GCuboid& rhs)
 {
-	m_xLen = rhs.m_xLen;
-	m_yLen = rhs.m_yLen;
-	m_zLen = rhs.m_zLen;
+	m_xLen   = rhs.m_xLen;
+	m_yLen   = rhs.m_yLen;
+	m_zLen   = rhs.m_zLen;
+	m_offset = rhs.m_offset;
 
 	return *this;
 }
