@@ -678,9 +678,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Quantity\SpectralStrength\TSampledSpectralStrength.ipp" />
-    <ClInclude Include="Source\FileIO\TextFileLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Actor\Image\CheckerboardImage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -787,6 +784,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Actor\Geometry\GMengerSponge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FileIO\TextFileLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FileIO\Data\IesFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1187,9 +1190,6 @@
     <ClCompile Include="Source\Core\Quantity\SpectralStrength\LinearSrgbSpectralStrength.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\FileIO\TextFileLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Actor\Image\CheckerboardImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1281,6 +1281,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Actor\Geometry\GMengerSponge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\FileIO\TextFileLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\FileIO\Data\IesFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

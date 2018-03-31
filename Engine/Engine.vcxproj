@@ -311,6 +311,7 @@
     <ClInclude Include="Source\Core\Intersectable\UvwMapper\SphericalMapper.h" />
     <ClInclude Include="Source\Core\Intersectable\UvwMapper\UvwMapper.h" />
     <ClInclude Include="Source\FileIO\DataTreatment.h" />
+    <ClInclude Include="Source\FileIO\Data\IesFile.h" />
     <ClInclude Include="Source\FileIO\Description.h" />
     <ClInclude Include="Source\FileIO\DescriptionParser.h" />
     <ClInclude Include="Source\FileIO\FileSystem\Path.h" />
@@ -524,6 +525,7 @@
     <ClCompile Include="Source\Core\Texture\TextureLoader.cpp" />
     <ClCompile Include="Source\Core\Intersectable\UvwMapper\SphericalMapper.cpp" />
     <ClCompile Include="Source\Core\Intersectable\UvwMapper\UvwMapper.cpp" />
+    <ClCompile Include="Source\FileIO\Data\IesFile.cpp" />
     <ClCompile Include="Source\FileIO\Description.cpp" />
     <ClCompile Include="Source\FileIO\DescriptionParser.cpp" />
     <ClCompile Include="Source\FileIO\InputPacket.cpp" />
