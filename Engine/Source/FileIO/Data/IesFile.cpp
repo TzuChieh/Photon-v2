@@ -244,7 +244,7 @@ std::size_t IesFile::parseTiltData(const std::vector<std::string>& lines, const 
 	//
 	if(m_tilt == "NONE")
 	{
-		return currentLine + 1;
+		return currentLine;
 	}
 	// If TILT=INCLUDE, tilt data are in the photometric data file. Since we
 	// do not support tilting, we simply ignore them.
@@ -260,7 +260,7 @@ std::size_t IesFile::parseTiltData(const std::vector<std::string>& lines, const 
 	//
 	else
 	{
-		return currentLine + 1;
+		return currentLine;
 	}
 }
 
