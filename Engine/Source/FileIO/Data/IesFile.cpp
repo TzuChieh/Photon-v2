@@ -12,7 +12,7 @@ const Logger IesFile::logger(LogSender("IES File"));
 
 IesFile::IesFile(const Path& path) : 
 	m_path(path), 
-	m_type(EType::UNKNOWN)
+	m_iesFileType(EIesFileType::UNKNOWN)
 {}
 
 bool IesFile::load()
@@ -100,17 +100,17 @@ std::size_t IesFile::parseFileType(const std::vector<std::string>& lines, const 
 	const auto& line = lines[currentLine];
 	if(line == "IESNA91")
 	{
-		m_type = EType::LM_63_1991;
+		m_iesFileType = EIesFileType::LM_63_1991;
 		return currentLine + 1;
 	}
 	else if(line == "IESNA:LM-63-1995")
 	{
-		m_type = EType::LM_63_1995;
+		m_iesFileType = EIesFileType::LM_63_1995;
 		return currentLine + 1;
 	}
 	else
 	{
-		m_type = EType::LM_63_1986;
+		m_iesFileType = EIesFileType::LM_63_1986;
 		return currentLine;
 	}
 }
@@ -128,7 +128,7 @@ std::size_t IesFile::parseLabelsAndKeywords(const std::vector<std::string>& line
 	// find the index of line starting with "TILT="
 	//
 	std::size_t tiltLineIndex = lines.size();
-	for(std::size_t i = 1; i < lines.size(); i++)
+	for(std::size_t i = currentLine; i < lines.size(); i++)
 	{
 		const std::string& line   = lines[i];
 		const std::string& prefix = line.substr(0, 5);
@@ -155,8 +155,8 @@ std::size_t IesFile::parseLabelsAndKeywords(const std::vector<std::string>& line
 		if(line.length() > 0 && line[0] == '[')
 		{
 			const std::size_t tagEndIndex = line.find(']');
-			const std::string tag  = line.substr(0, tagEndIndex + 1);
-			const std::string data = line.substr(tagEndIndex + 1);
+			const std::string tag         = line.substr(1, tagEndIndex - 1);
+			const std::string data        = line.substr(tagEndIndex + 1);
 
 			// required in LM-63-1991, but not in LM-63-1995
 			//
@@ -172,7 +172,7 @@ std::size_t IesFile::parseLabelsAndKeywords(const std::vector<std::string>& line
 			}
 			else if(tag == "LUMCAT")
 			{
-				m_lampCatalogNumber += data;
+				m_luminaireCatalogNumber += data;
 			}
 			else if(tag == "LUMINAIRE")
 			{
@@ -264,9 +264,9 @@ std::size_t IesFile::parseTiltData(const std::vector<std::string>& lines, const 
 	}
 }
 
-IesFile::EType IesFile::getType() const
+IesFile::EIesFileType IesFile::getIesFileType() const
 {
-	return m_type;
+	return m_iesFileType;
 }
 
 std::string IesFile::getTestInfo() const
@@ -310,24 +310,49 @@ std::string IesFile::getUncategorizedInfo() const
 */
 std::vector<std::string> IesFile::retrieveLines(const std::vector<char>& data)
 {
-	std::size_t beginIndex = 0;
-	std::size_t endIndex   = 0;
+	std::size_t lineBeginIndex = 0;
+	std::size_t lineEndIndex   = 0;
 	std::vector<std::string> lines;
-	while(endIndex < data.size())
+	while(lineEndIndex < data.size())
 	{
-		const char thisChar = data[endIndex];
-		const char nextChar = (endIndex + 1) < data.size() ? data[endIndex + 1] : '\0';
+		const char thisChar = data[lineEndIndex];
+		const char nextChar = (lineEndIndex + 1) < data.size() ? data[lineEndIndex + 1] : '\0';
 		if(thisChar == '\r' && nextChar == '\n')
 		{
 			std::string line;
-			for(std::size_t i = beginIndex; i < endIndex; i++)
+			for(std::size_t i = lineBeginIndex; i < lineEndIndex; i++)
 			{
 				line += data[i];
 			}
 			lines.push_back(line);
+
+			lineEndIndex += 2;
+			lineBeginIndex = lineEndIndex;
 		}
-		endIndex += 2;
+		else
+		{
+			lineEndIndex++;
+		}
 	}
+
+	/*int i = 0;
+	for(const auto& ch : data)
+	{
+		std::cerr << std::hex << static_cast<int>(ch) << " ";
+		i++;
+		if(i == 16)
+		{
+			i = 0;
+		}
+	}*/
+
+	//std::ofstream file("./test.txt");
+	//for(const auto& line : lines)
+	//{
+	//	//std::cerr << line << std::endl;
+	//	file << line;
+	//}
+
 	return lines;
 }
 

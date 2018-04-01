@@ -56,6 +56,24 @@ public:
 
 	bool load();
 
+	// Gets the type of this IES file.
+	//
+	EIesFileType getIesFileType()            const;
+
+	// Gets the test report number and laboratory for the IES file.
+	//
+	std::string  getTestInfo()               const;
+
+	std::string  getLuminaireManufacturer()  const;
+	std::string  getLuminaireCatalogNumber() const;
+	std::string  getLuminaireDescription()   const;
+	std::string  getLampCatalogNumber()      const;
+	std::string  getLampDescription()        const;
+
+	// Gets descriptions that are not categorized by the parser.
+	//
+	std::string  getUncategorizedInfo()      const;
+
 private:
 	Path m_path;
 
@@ -102,27 +120,9 @@ private:
 	std::size_t parseLabelsAndKeywords(const std::vector<std::string>& lines, std::size_t currentLine);
 	std::size_t parseTiltLine(const std::vector<std::string>& lines, std::size_t currentLine);
 	std::size_t parseTiltData(const std::vector<std::string>& lines, std::size_t currentLine);
-	std::size_t parseMetadata1(const std::vector<std::string>& lines, std::size_t currentLine);
+	/*std::size_t parseMetadata1(const std::vector<std::string>& lines, std::size_t currentLine);
 	std::size_t parseMetadata2(const std::vector<std::string>& lines, std::size_t currentLine);
-	std::size_t parseLightingData(const std::vector<std::string>& lines, std::size_t currentLine);
-
-	// Gets the type of this IES file.
-	//
-	EIesFileType getIesFileType()            const;
-
-	// Gets the test report number and laboratory for the IES file.
-	//
-	std::string  getTestInfo()               const;
-
-	std::string  getLuminaireManufacturer()  const;
-	std::string  getLuminaireCatalogNumber() const;
-	std::string  getLuminaireDescription()   const;
-	std::string  getLampCatalogNumber()      const;
-	std::string  getLampDescription()        const;
-
-	// Gets descriptions that are not categorized by the parser.
-	//
-	std::string  getUncategorizedInfo()      const;
+	std::size_t parseLightingData(const std::vector<std::string>& lines, std::size_t currentLine);*/
 
 private:
 	static const Logger logger;
