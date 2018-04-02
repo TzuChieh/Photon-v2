@@ -51,4 +51,43 @@ TEST(IesFileLoadingTest, Parse1995Files)
 	EXPECT_NEAR(candelaValues1.back()[1], 197.4, acceptableError);
 	EXPECT_NEAR(candelaValues1.back()[3], 193.2, acceptableError);
 	EXPECT_NEAR(candelaValues1.back().back(), 0.0, acceptableError);
+
+	///////////////////////////////////////////////////////////////////////////
+	// file 2
+
+	IesFile file2(Path("./Resource/Test/IES/7.ies"));
+	ASSERT_TRUE(file2.load());
+	
+	EXPECT_TRUE(file2.getIesFileType() == IesFile::EIesFileType::LM_63_1995);
+	EXPECT_EQ(file2.getNumLamps(), 1);
+	EXPECT_NEAR(file2.getLumensPerLamp(), 4450.0_r, acceptableError);
+	EXPECT_NEAR(file2.getCandelaMultiplier(), 1.0_r, acceptableError);
+	EXPECT_EQ(file2.getNumVerticalAngles(), 37);
+	EXPECT_EQ(file2.getNumHorizontalAngles(), 7);
+
+	const auto verticalAngles2   = file2.getVerticalAngles();
+	const auto horizontalAngles2 = file2.getHorizontalAngles();
+	const auto candelaValues2    = file2.getCandelaValues();
+	ASSERT_EQ(verticalAngles2.size(),   file2.getNumVerticalAngles());
+	ASSERT_EQ(horizontalAngles2.size(), file2.getNumHorizontalAngles());
+	ASSERT_EQ(candelaValues2.size(),    file2.getNumHorizontalAngles());
+	for(const auto& verticalValues : candelaValues2)
+	{
+		ASSERT_EQ(verticalValues.size(), file2.getNumVerticalAngles());
+	}
+
+	EXPECT_NEAR(candelaValues2[0][0], 0.0, acceptableError);
+	EXPECT_NEAR(candelaValues2[0][1], 0.0, acceptableError);
+	EXPECT_NEAR(candelaValues2[0][2], 0.0, acceptableError);
+	EXPECT_NEAR(candelaValues2[0].back(), 1054.2, acceptableError);
+
+	EXPECT_NEAR(candelaValues2[2][0], 0.0, acceptableError);
+	EXPECT_NEAR(candelaValues2[2][2], 0.0, acceptableError);
+	EXPECT_NEAR(candelaValues2[2][5], 0.0, acceptableError);
+	EXPECT_NEAR(candelaValues2[2].back(), 1054.2, acceptableError);
+
+	EXPECT_NEAR(candelaValues2.back()[0], 0.0, acceptableError);
+	EXPECT_NEAR(candelaValues2.back()[1], 0.0, acceptableError);
+	EXPECT_NEAR(candelaValues2.back()[3], 0.0, acceptableError);
+	EXPECT_NEAR(candelaValues2.back().back(), 1054.2, acceptableError);
 }

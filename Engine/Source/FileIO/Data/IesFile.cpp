@@ -435,57 +435,56 @@ std::size_t IesFile::parseAngles(const std::vector<std::string>& lines, const st
 
 	PH_ASSERT(currentLine < lines.size());
 
-	if(currentLine < lines.size())
-	{
-		m_verticalAngles.clear();
+	std::size_t parsingLine = currentLine;
 
+	m_verticalAngles.clear();
+	while(parsingLine < lines.size() && m_verticalAngles.size() != m_numVerticalAngles)
+	{
 		std::vector<std::string> tokens;
-		tokenizer.tokenize(lines[currentLine], tokens);
+		tokenizer.tokenize(lines[parsingLine], tokens);
 		for(const auto& token : tokens)
 		{
 			const double angle = std::stod(token);
 			m_verticalAngles.push_back(static_cast<real>(angle));
 		}
+		parsingLine++;
 
-		if(m_verticalAngles.size() != m_numVerticalAngles)
+		if(m_verticalAngles.size() > m_numVerticalAngles)
 		{
 			logger.log(ELogLevel::WARNING_MED,
-				"mismatched number of vertical angles in file " + m_path.toAbsoluteString());
+				"too many vertical angles in file " + m_path.toAbsoluteString());
+			break;
 		}
 	}
-	else
-	{
-		logger.log(ELogLevel::WARNING_MED,
-			"no vertical angles in file " + m_path.toAbsoluteString());
-		return lines.size();
-	}
 
-	if(currentLine + 1 < lines.size())
+	m_horizontalAngles.clear();
+	while(parsingLine < lines.size() && m_horizontalAngles.size() != m_numHorizontalAngles)
 	{
-		m_horizontalAngles.clear();
-
 		std::vector<std::string> tokens;
-		tokenizer.tokenize(lines[currentLine + 1], tokens);
+		tokenizer.tokenize(lines[parsingLine], tokens);
 		for(const auto& token : tokens)
 		{
 			const double angle = std::stod(token);
 			m_horizontalAngles.push_back(static_cast<real>(angle));
 		}
+		parsingLine++;
 
-		if(m_horizontalAngles.size() != m_numHorizontalAngles)
+		if(m_horizontalAngles.size() > m_numHorizontalAngles)
 		{
 			logger.log(ELogLevel::WARNING_MED,
-				"mismatched number of horizontal angles in file " + m_path.toAbsoluteString());
+				"too many horizontal angles in file " + m_path.toAbsoluteString());
+			break;
 		}
 	}
-	else
+
+	if(m_verticalAngles.size() != m_numVerticalAngles ||
+	   m_horizontalAngles.size() != m_numHorizontalAngles)
 	{
 		logger.log(ELogLevel::WARNING_MED,
-			"no horizontal angles in file " + m_path.toAbsoluteString());
-		return lines.size();
+			"mismatched number of angles in file " + m_path.toAbsoluteString());
 	}
 
-	return currentLine + 2;
+	return parsingLine;
 }
 
 std::size_t IesFile::parseCandelaValues(const std::vector<std::string>& lines, const std::size_t currentLine)
