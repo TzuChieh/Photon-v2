@@ -90,4 +90,43 @@ TEST(IesFileLoadingTest, Parse1995Files)
 	EXPECT_NEAR(candelaValues2.back()[1], 0.0, acceptableError);
 	EXPECT_NEAR(candelaValues2.back()[3], 0.0, acceptableError);
 	EXPECT_NEAR(candelaValues2.back().back(), 1054.2, acceptableError);
+
+	///////////////////////////////////////////////////////////////////////////
+	// file 3
+
+	IesFile file3(Path("./Resource/Test/IES/L1768-65BR30FL_FL55.ies"));
+	ASSERT_TRUE(file3.load());
+	
+	EXPECT_TRUE(file3.getIesFileType() == IesFile::EIesFileType::LM_63_1995);
+	EXPECT_EQ(file3.getNumLamps(), 1);
+	EXPECT_NEAR(file3.getLumensPerLamp(), 635.0_r, acceptableError);
+	EXPECT_NEAR(file3.getCandelaMultiplier(), 0.1_r, acceptableError);
+	EXPECT_EQ(file3.getNumVerticalAngles(), 73);
+	EXPECT_EQ(file3.getNumHorizontalAngles(), 9);
+
+	const auto verticalAngles3   = file3.getVerticalAngles();
+	const auto horizontalAngles3 = file3.getHorizontalAngles();
+	const auto candelaValues3    = file3.getCandelaValues();
+	ASSERT_EQ(verticalAngles3.size(),   file3.getNumVerticalAngles());
+	ASSERT_EQ(horizontalAngles3.size(), file3.getNumHorizontalAngles());
+	ASSERT_EQ(candelaValues3.size(),    file3.getNumHorizontalAngles());
+	for(const auto& verticalValues : candelaValues3)
+	{
+		ASSERT_EQ(verticalValues.size(), file3.getNumVerticalAngles());
+	}
+
+	EXPECT_NEAR(candelaValues3[0][0], 5453.0, acceptableError);
+	EXPECT_NEAR(candelaValues3[0][1], 5669.0, acceptableError);
+	EXPECT_NEAR(candelaValues3[0][2], 5798.0, acceptableError);
+	EXPECT_NEAR(candelaValues3[0].back(), 0.0, acceptableError);
+
+	EXPECT_NEAR(candelaValues3[2][0], 5453.0, acceptableError);
+	EXPECT_NEAR(candelaValues3[2][2], 5640.0, acceptableError);
+	EXPECT_NEAR(candelaValues3[2][5], 5084.0, acceptableError);
+	EXPECT_NEAR(candelaValues3[2].back(), 0.0, acceptableError);
+
+	EXPECT_NEAR(candelaValues3.back()[0], 5453.0, acceptableError);
+	EXPECT_NEAR(candelaValues3.back()[1], 5178.0, acceptableError);
+	EXPECT_NEAR(candelaValues3.back()[3], 4400.0, acceptableError);
+	EXPECT_NEAR(candelaValues3.back().back(), 0.0, acceptableError);
 }
