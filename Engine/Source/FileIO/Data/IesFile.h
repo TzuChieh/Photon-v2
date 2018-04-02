@@ -74,6 +74,12 @@ public:
 	//
 	std::string  getUncategorizedInfo()      const;
 
+	uint32       getNumLamps()               const;
+	real         getLumensPerLamp()          const;
+	real         getCandelaMultiplier()      const;
+	uint32       getNumVerticalAngles()      const;
+	uint32       getNumHorizontalAngles()    const;
+
 private:
 	Path m_path;
 
@@ -120,9 +126,9 @@ private:
 	std::size_t parseLabelsAndKeywords(const std::vector<std::string>& lines, std::size_t currentLine);
 	std::size_t parseTiltLine(const std::vector<std::string>& lines, std::size_t currentLine);
 	std::size_t parseTiltData(const std::vector<std::string>& lines, std::size_t currentLine);
-	/*std::size_t parseMetadata1(const std::vector<std::string>& lines, std::size_t currentLine);
+	std::size_t parseMetadata1(const std::vector<std::string>& lines, std::size_t currentLine);
 	std::size_t parseMetadata2(const std::vector<std::string>& lines, std::size_t currentLine);
-	std::size_t parseLightingData(const std::vector<std::string>& lines, std::size_t currentLine);*/
+	std::size_t parseLightingData(const std::vector<std::string>& lines, std::size_t currentLine);
 
 private:
 	static const Logger logger;

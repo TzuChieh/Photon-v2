@@ -10,6 +10,8 @@ namespace ph
 class Tokenizer final
 {
 public:
+	explicit Tokenizer(const std::vector<char>& separators);
+	explicit Tokenizer(const std::vector<std::pair<char, char>>& enclosures);
 	Tokenizer(const std::vector<char>& separators, const std::vector<std::pair<char, char>>& enclosures);
 
 	// Tokenize the input string using specified rules (separators & enclosures).

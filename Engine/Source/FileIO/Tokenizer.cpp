@@ -5,6 +5,14 @@
 namespace ph
 {
 
+Tokenizer::Tokenizer(const std::vector<char>& separators) : 
+	Tokenizer(separators, {})
+{}
+
+Tokenizer::Tokenizer(const std::vector<std::pair<char, char>>& enclosures) : 
+	Tokenizer({}, enclosures)
+{}
+
 Tokenizer::Tokenizer(const std::vector<char>& separators, const std::vector<std::pair<char, char>>& enclosures) :
 	m_separators(separators), m_enclosures(enclosures)
 {

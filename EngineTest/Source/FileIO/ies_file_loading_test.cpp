@@ -15,4 +15,9 @@ TEST(IesFileLoadingTest, Parse1995Files)
 	EXPECT_STREQ(file1.getLuminaireCatalogNumber().c_str(), " 83479000");
 	EXPECT_STREQ(file1.getLuminaireDescription().c_str(), " Panarc Corridor luminaire");
 	EXPECT_STREQ(file1.getLampCatalogNumber().c_str(), " TC-F 36W");
+	EXPECT_EQ(file1.getNumLamps(), 1);
+	EXPECT_EQ(file1.getLumensPerLamp(), 2700.0_r);
+	EXPECT_EQ(file1.getCandelaMultiplier(), 1.0_r);
+	EXPECT_EQ(file1.getNumVerticalAngles(), 19);
+	EXPECT_EQ(file1.getNumHorizontalAngles(), 7);
 }

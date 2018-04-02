@@ -1,5 +1,6 @@
 #include "FileIO/Data/IesFile.h"
 #include "Common/assertion.h"
+#include "FileIO/Tokenizer.h"
 
 #include <fstream>
 #include <vector>
@@ -62,24 +63,39 @@ bool IesFile::parse(const std::vector<char>& data)
 
 	std::size_t currentLine = 0;
 
+	// Line for file type.
+	//
 	if(currentLine < lines.size())
 	{
 		currentLine = parseFileType(lines, currentLine);
 	}
 
+	// Following is keywords (1991+) and labels (1986).
+	//
 	if(currentLine < lines.size())
 	{
 		currentLine = parseLabelsAndKeywords(lines, currentLine);
 	}
 
+	// The tilt line uniquely delimits the end of keyword/label lines.
+	//
 	if(currentLine < lines.size())
 	{
 		currentLine = parseTiltLine(lines, currentLine);
 	}
 	
+	// There may be tilt data after the tilt line.
+	//
 	if(currentLine < lines.size())
 	{
 		currentLine = parseTiltData(lines, currentLine);
+	}
+
+	// First line of metadata for the light and later data.
+	//
+	if(currentLine < lines.size())
+	{
+		currentLine = parseMetadata1(lines, currentLine);
 	}
 
 	// TODO
@@ -264,6 +280,113 @@ std::size_t IesFile::parseTiltData(const std::vector<std::string>& lines, const 
 	}
 }
 
+std::size_t IesFile::parseMetadata1(const std::vector<std::string>& lines, const std::size_t currentLine)
+{
+	static const Tokenizer tokenizer(std::vector<char>{' '});
+
+	PH_ASSERT(currentLine < lines.size());
+
+	std::vector<std::string> tokens;
+	tokenizer.tokenize(lines[currentLine], tokens);
+	if(tokens.size() != 10)
+	{
+		logger.log(ELogLevel::WARNING_MED, 
+			"the line for metadata 1 has " + std::to_string(tokens.size()) + 
+			" tokens only (10 expected), will still try to parse (file " + 
+			m_path.toAbsoluteString() + ")");
+	}
+
+	m_numLamps            = 0 < tokens.size() ? static_cast<uint32>(std::stoi(tokens[0])) : 1;
+	m_lumensPerLamp       = 1 < tokens.size() ? static_cast<real>(std::stod(tokens[1]))   : 1000;
+	m_candelaMultiplier   = 2 < tokens.size() ? static_cast<real>(std::stod(tokens[2]))   : 1;
+	m_numVerticalAngles   = 3 < tokens.size() ? static_cast<uint32>(std::stoi(tokens[3])) : 0;
+	m_numHorizontalAngles = 4 < tokens.size() ? static_cast<uint32>(std::stoi(tokens[4])) : 0;
+	
+	if(5 < tokens.size())
+	{
+		const int photometricWebTypeId = std::stoi(tokens[5]);
+		switch(photometricWebTypeId)
+		{
+		case 1:  m_webType = EPhotometricWebType::C; break;
+		case 2:  m_webType = EPhotometricWebType::B; break;
+		case 3:  m_webType = EPhotometricWebType::A; break;
+		default: m_webType = EPhotometricWebType::C; break;
+		}
+	}
+
+	// Unit Type:
+	// 1 = Feet
+	// 2 = Meters
+	//
+	if(6 < tokens.size())
+	{
+		// TODO: currently ignored
+	}
+
+	// Luminous Opening Dimensions: width
+	//
+	if(7 < tokens.size())
+	{
+		// TODO: currently ignored
+	}
+
+	// Luminous Opening Dimensions: length
+	//
+	if(8 < tokens.size())
+	{
+		// TODO: currently ignored
+	}
+
+	// Luminous Opening Dimensions: height
+	//
+	if(9 < tokens.size())
+	{
+		// TODO: currently ignored
+	}
+
+	/*
+		Nonrectangular Luminous Openings
+
+		The luminous opening is normally considered to be rectangular. However,
+		other predefined shapes can be modeled by specifying one or more of the
+		above dimensions as zero or negative floating point numbers as follows:
+
+		  Width  Length  Height  Description
+
+			 0      0       0    Point
+			 w      l       h    Rectangular (default)
+			-d      0       0    Circular (where d = diameter of circle)
+			-d      0      -d    Sphere (where d = diameter of circle)
+			-d      0       h    Vertical cylinder (where d = diameter of
+								 cylinder)
+			 0      l      -d    Horizontal cylinder oriented along luminaire
+								 length.
+			 w      0      -d    Horizontal cylinder oriented along luminaire
+								 width.
+			-w      l       h    Ellipse oriented along luminaire length.
+			 w     -l       h    Ellipse oriented along luminaire width.
+			-w      l      -h    Ellipsoid oriented along luminaire length.
+			 w     -l      -h    Ellipsoid oriented along luminaire width.
+
+		See IES LM-63-1995 for detailed descriptions and diagrams.
+	*/
+
+	// TODO
+	m_luminaireOpeningArea = 0.0_r;
+
+	return currentLine + 1;
+}
+
+std::size_t IesFile::parseMetadata2(const std::vector<std::string>& lines, const std::size_t currentLine)
+{
+	// TODO
+}
+
+std::size_t IesFile::parseLightingData(const std::vector<std::string>& lines, const std::size_t currentLine)
+{
+	// TODO
+}
+
 IesFile::EIesFileType IesFile::getIesFileType() const
 {
 	return m_iesFileType;
@@ -302,6 +425,31 @@ std::string IesFile::getLampDescription() const
 std::string IesFile::getUncategorizedInfo() const
 {
 	return m_uncategorizedInfo;
+}
+
+uint32 IesFile::getNumLamps() const
+{
+	return m_numLamps;
+}
+
+real IesFile::getLumensPerLamp() const
+{
+	return m_lumensPerLamp;
+}
+
+real IesFile::getCandelaMultiplier() const
+{
+	return m_candelaMultiplier;
+}
+
+uint32 IesFile::getNumVerticalAngles() const
+{
+	return m_numVerticalAngles;
+}
+
+uint32 IesFile::getNumHorizontalAngles() const
+{
+	return m_numHorizontalAngles;
 }
 
 /* 
