@@ -11,7 +11,7 @@ TEST(IesFileLoadingTest, Parse1995Files)
 	///////////////////////////////////////////////////////////////////////////
 	// file 1
 
-	IesFile file1(Path("C:/Users/OrangeDog/Desktop/IES58k/IES Lights/Best IES/1.ies"));
+	IesFile file1(Path("./Resource/Test/IES/1.ies"));
 	ASSERT_TRUE(file1.load());
 	
 	EXPECT_TRUE(file1.getIesFileType() == IesFile::EIesFileType::LM_63_1995);
