@@ -80,6 +80,10 @@ public:
 	uint32       getNumVerticalAngles()      const;
 	uint32       getNumHorizontalAngles()    const;
 
+	std::vector<real>              getVerticalAngles()   const;
+	std::vector<real>              getHorizontalAngles() const;
+	std::vector<std::vector<real>> getCandelaValues()    const;
+
 private:
 	Path m_path;
 
@@ -128,7 +132,8 @@ private:
 	std::size_t parseTiltData(const std::vector<std::string>& lines, std::size_t currentLine);
 	std::size_t parseMetadata1(const std::vector<std::string>& lines, std::size_t currentLine);
 	std::size_t parseMetadata2(const std::vector<std::string>& lines, std::size_t currentLine);
-	std::size_t parseLightingData(const std::vector<std::string>& lines, std::size_t currentLine);
+	std::size_t parseAngles(const std::vector<std::string>& lines, std::size_t currentLine);
+	std::size_t parseCandelaValues(const std::vector<std::string>& lines, std::size_t currentLine);
 
 private:
 	static const Logger logger;

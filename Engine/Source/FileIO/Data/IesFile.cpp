@@ -63,6 +63,11 @@ bool IesFile::parse(const std::vector<char>& data)
 
 	std::size_t currentLine = 0;
 
+	///////////////////////////////////////////////////////////////////////////
+	// Start parsing the IES file.
+
+	PH_ASSERT(currentLine == 0);
+
 	// Line for file type.
 	//
 	if(currentLine < lines.size())
@@ -98,7 +103,31 @@ bool IesFile::parse(const std::vector<char>& data)
 		currentLine = parseMetadata1(lines, currentLine);
 	}
 
-	// TODO
+	// Second line of metadata.
+	//
+	if(currentLine < lines.size())
+	{
+		currentLine = parseMetadata2(lines, currentLine);
+	}
+
+	// Vertical & horizontal angles for the photometric web.
+	//
+	if(currentLine < lines.size())
+	{
+		currentLine = parseAngles(lines, currentLine);
+	}
+
+	// Candela values on the photometric web.
+	//
+	if(currentLine < lines.size())
+	{
+		currentLine = parseCandelaValues(lines, currentLine);
+	}
+
+	PH_ASSERT(currentLine == lines.size());
+
+	// Finish parsing the IES file.
+	///////////////////////////////////////////////////////////////////////////
 
 	return true;
 }
@@ -379,12 +408,127 @@ std::size_t IesFile::parseMetadata1(const std::vector<std::string>& lines, const
 
 std::size_t IesFile::parseMetadata2(const std::vector<std::string>& lines, const std::size_t currentLine)
 {
-	// TODO
+	static const Tokenizer tokenizer(std::vector<char>{' '});
+
+	PH_ASSERT(currentLine < lines.size());
+
+	std::vector<std::string> tokens;
+	tokenizer.tokenize(lines[currentLine], tokens);
+	if(tokens.size() != 3)
+	{
+		logger.log(ELogLevel::WARNING_MED, 
+			"the line for metadata 2 has " + std::to_string(tokens.size()) + 
+			" tokens only (3 expected), will still try to parse (file " + 
+			m_path.toAbsoluteString() + ")");
+	}
+
+	m_ballastFactor                = 0 < tokens.size() ? static_cast<real>(std::stod(tokens[0])) : 1.0_r;
+	m_ballastLampPhotometricFactor = 1 < tokens.size() ? static_cast<real>(std::stod(tokens[1])) : 1.0_r;
+	m_inputWatts                   = 2 < tokens.size() ? static_cast<real>(std::stod(tokens[2])) : 100.0_r;
+
+	return currentLine + 1;
 }
 
-std::size_t IesFile::parseLightingData(const std::vector<std::string>& lines, const std::size_t currentLine)
+std::size_t IesFile::parseAngles(const std::vector<std::string>& lines, const std::size_t currentLine)
 {
-	// TODO
+	static const Tokenizer tokenizer(std::vector<char>{' '});
+
+	PH_ASSERT(currentLine < lines.size());
+
+	if(currentLine < lines.size())
+	{
+		m_verticalAngles.clear();
+
+		std::vector<std::string> tokens;
+		tokenizer.tokenize(lines[currentLine], tokens);
+		for(const auto& token : tokens)
+		{
+			const double angle = std::stod(token);
+			m_verticalAngles.push_back(static_cast<real>(angle));
+		}
+
+		if(m_verticalAngles.size() != m_numVerticalAngles)
+		{
+			logger.log(ELogLevel::WARNING_MED,
+				"mismatched number of vertical angles in file " + m_path.toAbsoluteString());
+		}
+	}
+	else
+	{
+		logger.log(ELogLevel::WARNING_MED,
+			"no vertical angles in file " + m_path.toAbsoluteString());
+		return lines.size();
+	}
+
+	if(currentLine + 1 < lines.size())
+	{
+		m_horizontalAngles.clear();
+
+		std::vector<std::string> tokens;
+		tokenizer.tokenize(lines[currentLine + 1], tokens);
+		for(const auto& token : tokens)
+		{
+			const double angle = std::stod(token);
+			m_horizontalAngles.push_back(static_cast<real>(angle));
+		}
+
+		if(m_horizontalAngles.size() != m_numHorizontalAngles)
+		{
+			logger.log(ELogLevel::WARNING_MED,
+				"mismatched number of horizontal angles in file " + m_path.toAbsoluteString());
+		}
+	}
+	else
+	{
+		logger.log(ELogLevel::WARNING_MED,
+			"no horizontal angles in file " + m_path.toAbsoluteString());
+		return lines.size();
+	}
+
+	return currentLine + 2;
+}
+
+std::size_t IesFile::parseCandelaValues(const std::vector<std::string>& lines, const std::size_t currentLine)
+{
+	static const Tokenizer tokenizer(std::vector<char>{' '});
+
+	PH_ASSERT(currentLine < lines.size());
+
+	std::string joinedLines;
+	for(std::size_t i = currentLine; i < lines.size(); i++)
+	{
+		joinedLines += lines[i];
+		joinedLines += ' ';
+	}
+
+	std::vector<std::string> tokens;
+	tokenizer.tokenize(joinedLines, tokens);
+
+	const std::size_t expectedNumCandelaValues = m_numVerticalAngles * m_numHorizontalAngles;
+	if(tokens.size() != expectedNumCandelaValues)
+	{
+		logger.log(ELogLevel::WARNING_MED,
+			"mismatched number of candela values (" + std::to_string(tokens.size()) +
+			", expected to be " + std::to_string(expectedNumCandelaValues) + 
+			") in file " + m_path.toAbsoluteString());
+	}
+
+	m_candelaValues.clear();
+	m_candelaValues.resize(m_numHorizontalAngles, std::vector<real>(m_numVerticalAngles, 0.0_r));
+	for(std::size_t hIndex = 0; hIndex < m_numHorizontalAngles; hIndex++)
+	{
+		for(std::size_t vIndex = 0; vIndex < m_numVerticalAngles; vIndex++)
+		{
+			PH_ASSERT(hIndex < m_candelaValues.size() &&
+			          vIndex < m_candelaValues[hIndex].size());
+
+			const std::size_t tokenIndex = hIndex * m_numVerticalAngles + vIndex;
+			const double value = tokenIndex < tokens.size() ? std::stod(tokens[tokenIndex]) : 0.0;
+			m_candelaValues[hIndex][vIndex] = static_cast<real>(value);
+		}
+	}
+
+	return lines.size();
 }
 
 IesFile::EIesFileType IesFile::getIesFileType() const
@@ -450,6 +594,21 @@ uint32 IesFile::getNumVerticalAngles() const
 uint32 IesFile::getNumHorizontalAngles() const
 {
 	return m_numHorizontalAngles;
+}
+
+std::vector<real> IesFile::getVerticalAngles() const
+{
+	return m_verticalAngles;
+}
+
+std::vector<real> IesFile::getHorizontalAngles() const
+{
+	return m_horizontalAngles;
+}
+
+std::vector<std::vector<real>> IesFile::getCandelaValues() const
+{
+	return m_candelaValues;
 }
 
 /* 
