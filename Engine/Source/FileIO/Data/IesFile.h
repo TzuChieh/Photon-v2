@@ -11,6 +11,9 @@ namespace ph
 {
 
 /*
+	A low-level class that parses an IES photometric data file and provides 
+	convenient methods for file content accessing.
+
 	Reference: http://lumen.iee.put.poznan.pl/kw/iesna.txt
 */
 class IesFile final
@@ -52,9 +55,11 @@ public:
 	};
 
 public:
-	IesFile(const Path& path);
+	IesFile(const Path& iesFilePath);
 
 	bool load();
+
+	std::string  getFilename()               const;
 
 	// Gets the type of this IES file.
 	//
@@ -74,14 +79,18 @@ public:
 	//
 	std::string  getUncategorizedInfo()      const;
 
-	uint32       getNumLamps()               const;
-	real         getLumensPerLamp()          const;
-	real         getCandelaMultiplier()      const;
-	uint32       getNumVerticalAngles()      const;
-	uint32       getNumHorizontalAngles()    const;
+	uint32              getNumLamps()            const;
+	real                getLumensPerLamp()       const;
+	real                getCandelaMultiplier()   const;
+	uint32              getNumVerticalAngles()   const;
+	uint32              getNumHorizontalAngles() const;
+	EPhotometricWebType getPhotometricWebType()  const;
 
 	std::vector<real>              getVerticalAngles()   const;
 	std::vector<real>              getHorizontalAngles() const;
+
+	// Candela values stored as data[horizontal-index][vertical-index].
+	//
 	std::vector<std::vector<real>> getCandelaValues()    const;
 
 private:

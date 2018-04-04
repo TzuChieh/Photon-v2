@@ -792,6 +792,9 @@
     <ClInclude Include="Source\FileIO\Data\IesFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\FileIO\Data\IesData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">
@@ -1287,6 +1290,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\FileIO\Data\IesFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\FileIO\Data\IesData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

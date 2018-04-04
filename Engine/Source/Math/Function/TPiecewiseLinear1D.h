@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
+#include <iterator>
 
 namespace ph
 {
@@ -28,8 +29,10 @@ public:
 	inline T evaluate(T x, std::size_t p0Index, std::size_t p1Index) const;
 
 	inline void update();
-
+	
 	inline void addPoint(const TVector2<T>& point);
+	inline void addPoints(const TPiecewiseLinear1D& points);
+	inline TPiecewiseLinear1D getMirrored(T pivotX) const;
 	inline std::size_t numPoints() const;
 	inline TVector2<T> getPoint(std::size_t pointIndex) const;
 	inline std::string toString() const;
@@ -85,6 +88,25 @@ template<typename T>
 inline void TPiecewiseLinear1D<T>::addPoint(const TVector2<T>& point)
 {
 	m_points.push_back(point);
+}
+
+template<typename T>
+inline void TPiecewiseLinear1D<T>::addPoints(const TPiecewiseLinear1D& points)
+{
+	m_points.insert(std::end(m_points), 
+	                std::begin(points.m_points), std::end(points.m_points));
+}
+
+template<typename T>
+inline TPiecewiseLinear1D<T> TPiecewiseLinear1D<T>::getMirrored(const T pivotX) const
+{
+	TPiecewiseLinear1D mirrored;
+	for(const auto& point : m_points)
+	{
+		mirrored.addPoint({static_cast<T>(2) * pivotX - point.x, point.y});
+	}
+	mirrored.update();
+	return mirrored;
 }
 
 template<typename T>

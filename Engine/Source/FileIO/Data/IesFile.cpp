@@ -11,8 +11,8 @@ namespace ph
 
 const Logger IesFile::logger(LogSender("IES File"));
 
-IesFile::IesFile(const Path& path) : 
-	m_path(path), 
+IesFile::IesFile(const Path& iesFilePath) :
+	m_path(iesFilePath),
 	m_iesFileType(EIesFileType::UNKNOWN)
 {}
 
@@ -530,6 +530,11 @@ std::size_t IesFile::parseCandelaValues(const std::vector<std::string>& lines, c
 	return lines.size();
 }
 
+std::string IesFile::getFilename() const
+{
+	return m_path.toAbsoluteString();
+}
+
 IesFile::EIesFileType IesFile::getIesFileType() const
 {
 	return m_iesFileType;
@@ -593,6 +598,11 @@ uint32 IesFile::getNumVerticalAngles() const
 uint32 IesFile::getNumHorizontalAngles() const
 {
 	return m_numHorizontalAngles;
+}
+
+IesFile::EPhotometricWebType IesFile::getPhotometricWebType() const
+{
+	return m_webType;
 }
 
 std::vector<real> IesFile::getVerticalAngles() const
