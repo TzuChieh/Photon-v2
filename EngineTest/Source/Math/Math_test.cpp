@@ -169,3 +169,37 @@ TEST(MathTest, SolvesLinearSystem)
 	const bool isX3Solved = ph::Math::solveLinearSystem2x2(A3, {{14.0f, 14.0f}}, &x3);
 	ASSERT_FALSE(isX3Solved);
 }
+
+TEST(MathTest, IntegerWrapping)
+{
+	using namespace ph;
+
+	EXPECT_EQ(Math::wrap(-5, -1, 2), -1);
+	EXPECT_EQ(Math::wrap(-4, -1, 2),  0);
+	EXPECT_EQ(Math::wrap(-3, -1, 2),  1);
+	EXPECT_EQ(Math::wrap(-2, -1, 2),  2);
+	EXPECT_EQ(Math::wrap(-1, -1, 2), -1);
+	EXPECT_EQ(Math::wrap( 0, -1, 2),  0);
+	EXPECT_EQ(Math::wrap( 1, -1, 2),  1);
+	EXPECT_EQ(Math::wrap( 2, -1, 2),  2);
+	EXPECT_EQ(Math::wrap( 3, -1, 2), -1);
+
+	const int maxInt = std::numeric_limits<int>::max();
+	EXPECT_EQ(Math::wrap(maxInt - 11, maxInt - 10, maxInt - 8), maxInt - 8);
+	EXPECT_EQ(Math::wrap(maxInt - 7,  maxInt - 10, maxInt - 8), maxInt - 10);
+
+	const int minInt = std::numeric_limits<int>::min();
+	EXPECT_EQ(Math::wrap(minInt + 2, minInt + 3, minInt + 7), minInt + 7);
+	EXPECT_EQ(Math::wrap(minInt + 8, minInt + 3, minInt + 7), minInt + 3);
+
+	EXPECT_EQ(Math::wrap(0U, 1U, 2U), 2U);
+	EXPECT_EQ(Math::wrap(1U, 1U, 2U), 1U);
+	EXPECT_EQ(Math::wrap(2U, 1U, 2U), 2U);
+	EXPECT_EQ(Math::wrap(3U, 1U, 2U), 1U);
+	EXPECT_EQ(Math::wrap(4U, 1U, 2U), 2U);
+	EXPECT_EQ(Math::wrap(5U, 1U, 2U), 1U);
+
+	const unsigned int maxUint = std::numeric_limits<unsigned int>::max();
+	EXPECT_EQ(Math::wrap(maxUint - 11, maxUint - 10, maxUint - 8), maxUint - 8);
+	EXPECT_EQ(Math::wrap(maxUint - 7,  maxUint - 10, maxUint - 8), maxUint - 10);
+}

@@ -158,6 +158,7 @@ public:
 	// as <value>). The result is not guaranteed to be the same as the bit 
 	// representation of <value>'s fractional part.
 	// The result is undefined if input value is NaN or +-Inf.
+	//
 	template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
 	static inline T fractionalPart(const T value)
 	{
@@ -168,6 +169,7 @@ public:
 	// Solves Ax = b where A is a 2x2 matrix and x & b are 2x1 vectors. If x
 	// is successfully solved, method returns true and <out_x> stores the 
 	// answer; otherwise, false is returned and what <out_x> stores is undefined.
+	//
 	template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
 	static inline bool solveLinearSystem2x2(
 		const std::array<std::array<T, 2>, 2>& A,
@@ -187,6 +189,24 @@ public:
 		(*out_x)[0] = (A[1][1] * b[0] - A[0][1] * b[1]) * reciDeterminant;
 		(*out_x)[1] = (A[0][0] * b[1] - A[1][0] * b[0]) * reciDeterminant;
 		return true;
+	}
+
+	// Wraps an integer around [lower-bound, upper-bound]. 
+	// For example, given a bound [-1, 2], 3 will be wrapped to -1.
+	//
+	template<typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0>
+	static inline T wrap(T value, const T lowerBound, const T upperBound)
+	{
+		PH_ASSERT(upperBound >= lowerBound);
+
+		const T rangeSize = upperBound - lowerBound + static_cast<T>(1);
+
+		if(value < lowerBound)
+		{
+			value += rangeSize * ((lowerBound - value) / rangeSize + static_cast<T>(1));
+		}
+
+		return lowerBound + (value - lowerBound) % rangeSize;
 	}
 };
 

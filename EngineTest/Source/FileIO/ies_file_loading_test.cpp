@@ -1,4 +1,5 @@
 #include <FileIO/Data/IesFile.h>
+#include <FileIO/Data/IesData.h>
 
 #include <gtest/gtest.h>
 
@@ -129,4 +130,9 @@ TEST(IesFileLoadingTest, Parse1995Files)
 	EXPECT_NEAR(candelaValues3.back()[1], 5178.0, acceptableError);
 	EXPECT_NEAR(candelaValues3.back()[3], 4400.0, acceptableError);
 	EXPECT_NEAR(candelaValues3.back().back(), 0.0, acceptableError);
+}
+
+TEST(IesFileLoadingTest, DataProcessing)
+{
+
 }

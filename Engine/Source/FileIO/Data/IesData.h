@@ -19,6 +19,8 @@ class IesData final
 public:
 	IesData(const Path& iesFilePath);
 
+	real sampleAttenuationFactor(real theta, real phi) const;
+
 private:
 	IesFile                        m_file;
 
@@ -27,6 +29,8 @@ private:
 	// Range of phi:   [0, 2 * pi]
 	//
 	std::vector<std::vector<real>> m_sphericalCandelas;
+
+	std::vector<std::vector<real>> m_sphericalAttenuationFactors;
 
 	enum class EReflectFrom
 	{
@@ -37,7 +41,10 @@ private:
 	};
 
 	void processCandelaValues();
+	void processAttenuationFactors();
 	void reflectCandelaValues(EReflectFrom reflectFrom, real reflectionMultiplier = 1.0_r);
+
+	static real calcBicubicWeight(real x);
 
 	static const Logger logger;
 };
