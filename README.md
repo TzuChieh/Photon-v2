@@ -6,26 +6,26 @@ Visit Project Website: https://tzuchieh.github.io/Photon-v2-site
 ## Features
 * **Rendering**
   * backward path tracing
-  * backward path tracing with next event estimation~~
+  * backward path tracing with next event estimation
   * ~~light/particle tracing~~
   * ~~backward light tracing (next event estimation)~~
-  * handles both RGB and spectral rendering
+  * RGB and spectral rendering modes
 
 * **Material**
   * Lambertian diffuse
   * microfacet-based opaque & translucent model
   * ideal reflector & transmitter
-  * supports measured IOR
+  * measured IOR
 
 * **Geometry**
   * triangle, rectangle
-  * sphere, cuboid
-  * triangle mesh
-  * simple 2-D wave
+  * sphere, cuboid, triangle mesh
+  * simple 2-D wave, fractal
 
 * **Light**
-  * area light
   * point light
+  * area light (sphere, rectangle)
+  * geometric light
 
 * **Texture**
   * texture with ordinary file formats (.jpg, .png, etc)

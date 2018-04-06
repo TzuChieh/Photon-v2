@@ -128,11 +128,12 @@ void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& reg
 			sensorG = m_pixelRadianceSensors[filmIndex].accuG * reciWeight;
 			sensorB = m_pixelRadianceSensors[filmIndex].accuB * reciWeight;
 
-			const Vector3R pixel(TVector3<float64>(sensorR, sensorG, sensorB));
-
 			// TODO: prevent negative pixel
-			out_frame.setPixel(static_cast<uint32>(x), static_cast<uint32>(y),
-			                   HdrRgbFrame::Pixel({pixel.x, pixel.y, pixel.z}));
+			out_frame.setPixel(
+				static_cast<uint32>(x), static_cast<uint32>(y),
+				HdrRgbFrame::Pixel({static_cast<HdrComponent>(sensorR), 
+			                        static_cast<HdrComponent>(sensorG), 
+			                        static_cast<HdrComponent>(sensorB)}));
 		}
 	}
 }

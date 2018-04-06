@@ -18,10 +18,13 @@ namespace ph
 class SampleLocation final
 {
 public:
-	// HACK
+	// Constructs a sample location at (u, v, w).
+	//
 	inline explicit SampleLocation(const Vector3R& uvw, const EQuantity quantity) :
 		SampleLocation(HitDetail().setMisc(nullptr, uvw), quantity)
 	{}
+
+	// Constructs a sample location from hit information.
 
 	inline SampleLocation(const HitDetail& hit) :
 		SampleLocation(hit, EQuantity::RAW)
@@ -36,6 +39,8 @@ public:
 		SampleLocation(other.m_hit, other.m_quantity)
 	{}
 
+	// Gets the uvw coordinate of this sample location.
+	//
 	inline const Vector3R& uvw() const
 	{
 		return m_hit.getUvw();
@@ -50,6 +55,8 @@ public:
 		return SampleLocation(newDetail, m_quantity);
 	}
 
+	// Gets the expected type of the quantity being sampled.
+	//
 	inline EQuantity expectedQuantity() const
 	{
 		return m_quantity;

@@ -16,6 +16,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Core Engine Structures:
 //
+
+// If defined, double precision real number will be used.
+//
+//#define PH_USE_DOUBLE_REAL
+
 #define PH_SPECTRUM_SAMPLED_MIN_WAVELENGTH_NM 350
 #define PH_SPECTRUM_SAMPLED_MAX_WAVELENGTH_NM 850
 #define PH_SPECTRUM_SAMPLED_NUM_SAMPLES       100

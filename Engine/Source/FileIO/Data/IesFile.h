@@ -59,7 +59,9 @@ public:
 
 	bool load();
 
-	std::string  getFilename()               const;
+	std::string getFilename() const;
+
+	// Retrieving file contents.
 
 	// Gets the type of this IES file.
 	//

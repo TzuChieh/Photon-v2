@@ -50,6 +50,7 @@ public:
 
 	// Appending one path to another. System specific directory separators are
 	// added in between two path objects.
+	//
 	inline Path append(const Path& other) const
 	{
 		auto thisPath  = this->removeTrailingSeparator();

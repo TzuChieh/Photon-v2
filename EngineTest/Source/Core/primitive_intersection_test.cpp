@@ -15,14 +15,14 @@ TEST(PrimitiveIntersectionTest, RaySphereIntersection)
 	std::unique_ptr<Intersectable> unitSphere = std::make_unique<PSphere>(&metadata, 1.0_r);
 
 	Ray longXAxisRay(
-		Vector3R(-1000.0_r, 0, 0), 
+		Vector3R(-100000.0_r, 0, 0), 
 		Vector3R(1, 0, 0), 
 		0, 
 		std::numeric_limits<real>::max());
 	EXPECT_TRUE(unitSphere->isIntersecting(longXAxisRay));
 
 	Ray shortXAxisRay(
-		Vector3R(-std::numeric_limits<real>::max(), 0, 0), 
+		Vector3R(-100000.0_r, 0, 0),
 		Vector3R(1, 0, 0), 
 		0, 
 		1);

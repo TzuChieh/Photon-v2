@@ -12,27 +12,32 @@ namespace ph
 const Logger IesData::logger(LogSender("IES Data"));
 
 IesData::IesData(const Path& iesFilePath) : 
-	m_file(IesFile(iesFilePath)),
+	m_file(iesFilePath),
 	m_sphericalCandelas(),
 	m_sphericalAttenuationFactors()
 {
+	if(!m_file.load())
+	{
+		logger.log(ELogLevel::WARNING_MED, 
+			"failed on loading file <" + m_file.getFilename() + ">");
+		return;
+	}
+
 	processCandelaValues();
 	processAttenuationFactors();
 }
 
 real IesData::sampleAttenuationFactor(const real theta, const real phi) const
 {
-	if(m_sphericalAttenuationFactors.empty() || 
-	   m_sphericalAttenuationFactors[0].empty())
+	const int numThetaSamples = static_cast<int>(numAttenuationFactorThetaSamples());
+	const int numPhiSamples   = static_cast<int>(numAttenuationFactorPhiSamples());
+	if(numThetaSamples < 2 || numPhiSamples < 2)
 	{
 		return 0.0_r;
 	}
 
-	PH_ASSERT(theta >= 0.0_r && theta <= PH_PI_REAL);
-	PH_ASSERT(phi   >= 0.0_r && phi   <= 2.0_r * PH_PI_REAL);
-
-	const real dTheta = PH_PI_REAL / static_cast<real>(m_sphericalAttenuationFactors[0].size() - 1);
-	const real dPhi   = (2.0_r * PH_PI_REAL) / static_cast<real>(m_sphericalAttenuationFactors.size() - 1);
+	const real dTheta = PH_PI_REAL / static_cast<real>(numThetaSamples - 1);
+	const real dPhi   = (2.0_r * PH_PI_REAL) / static_cast<real>(numPhiSamples - 1);
 
 	const int minTi = static_cast<int>(std::ceil(theta / dTheta - 2.0_r));
 	const int minPi = static_cast<int>(std::ceil(phi   / dPhi   - 2.0_r));
@@ -49,17 +54,20 @@ real IesData::sampleAttenuationFactor(const real theta, const real phi) const
 			const real theta_i = ti * dTheta;
 			const real wTheta  = calcBicubicWeight((theta_i - theta) / dTheta);
 
-			// wrapping index: cycling out-of-range indices
+			// clamping theta index and wrapping phi index
 			//
-			const int phiIndex   = Math::wrap(pi, 0, static_cast<int>(m_sphericalAttenuationFactors.size()) - 1);
-			const int thetaIndex = Math::wrap(ti, 0, static_cast<int>(m_sphericalAttenuationFactors[phiIndex].size()) - 1);
+			const int thetaIndex = Math::clamp(ti, 0, numThetaSamples - 1);
+			const int phiIndex   = Math::wrap(pi, 0, numPhiSamples - 2);
 
-			factor += m_sphericalAttenuationFactors[phiIndex][thetaIndex];
+			factor += wPhi * wTheta * m_sphericalAttenuationFactors[phiIndex][thetaIndex];
 			weight += wPhi * wTheta;
 		}
 	}
 	factor = weight != 0.0_r ? factor / weight : 0.0_r;
 
+	// FIXME: Bicubic interpolation will cause overshoot in some places.
+	// It is subtle but can be physically incorrect for attenuation factors.
+	// Need a "smoother" solution here.
 	return Math::clamp(factor, 0.0_r, 1.0_r);
 }
 
@@ -253,6 +261,23 @@ void IesData::reflectCandelaValues(const EReflectFrom reflectFrom, const real re
 			m_sphericalCandelas = std::move(phis);
 		}
 	}
+}
+
+std::size_t IesData::numAttenuationFactorThetaSamples() const
+{
+	if(!m_sphericalAttenuationFactors.empty())
+	{
+		return m_sphericalAttenuationFactors.front().size();
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+std::size_t IesData::numAttenuationFactorPhiSamples() const
+{
+	return m_sphericalAttenuationFactors.size();
 }
 
 // Reference: https://en.wikipedia.org/wiki/Bicubic_interpolation

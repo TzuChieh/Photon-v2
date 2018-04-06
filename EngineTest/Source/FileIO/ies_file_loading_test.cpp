@@ -3,6 +3,8 @@
 
 #include <gtest/gtest.h>
 
+#include <cmath>
+
 TEST(IesFileLoadingTest, Parse1995Files)
 {
 	using namespace ph;
@@ -134,5 +136,27 @@ TEST(IesFileLoadingTest, Parse1995Files)
 
 TEST(IesFileLoadingTest, DataProcessing)
 {
+	using namespace ph;
 
+	const real PI               = std::atan(1.0_r) * 4.0_r;
+	const real ACCEPTABLE_ERROR = 0.0001_r;
+
+	IesData iesData1(Path("./Resource/Test/IES/constant_point5_candela.IES"));
+
+	// sampled degrees: 0, 90, 180
+	//
+	ASSERT_EQ(iesData1.numAttenuationFactorThetaSamples(), 3);
+
+	// sampled degrees: 0, 180, 360
+	//
+	ASSERT_EQ(iesData1.numAttenuationFactorPhiSamples(), 3);
+
+	EXPECT_NEAR(iesData1.sampleAttenuationFactor(0, 0), 1.0, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(iesData1.sampleAttenuationFactor(PI, 0), 0.0, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(iesData1.sampleAttenuationFactor(0, PI), 1.0, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(iesData1.sampleAttenuationFactor(PI, PI), 0.0, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(iesData1.sampleAttenuationFactor(2 * PI, 2 * PI), 0.0, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(iesData1.sampleAttenuationFactor(2 * PI, 4 * PI), 0.0, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(iesData1.sampleAttenuationFactor(-2 * PI, -4 * PI), 1.0, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(iesData1.sampleAttenuationFactor(PI / 2, PI), 1.0, ACCEPTABLE_ERROR);
 }

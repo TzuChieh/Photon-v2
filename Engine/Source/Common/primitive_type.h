@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Common/config.h"
+
 #include <cstdint>
 
 namespace ph
@@ -14,7 +16,12 @@ typedef uint64_t       uint64;
 typedef float          float32;
 typedef double         float64;
 
-typedef float   real;
+#ifdef PH_USE_DOUBLE_REAL
+	typedef double real;
+#else
+	typedef float real;
+#endif
+
 typedef int     integer;
 typedef float64 hiReal;
 typedef int64   hiInteger;

@@ -20,6 +20,8 @@ public:
 	IesData(const Path& iesFilePath);
 
 	real sampleAttenuationFactor(real theta, real phi) const;
+	std::size_t numAttenuationFactorThetaSamples() const;
+	std::size_t numAttenuationFactorPhiSamples() const;
 
 private:
 	IesFile                        m_file;

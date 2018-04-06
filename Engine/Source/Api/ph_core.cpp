@@ -145,14 +145,13 @@ void phGetFrameDimension(const PHuint64 frameId,
 
 void phGetFrameRgbData(const PHuint64 frameId, const PHfloat32** const out_data)
 {
-	// TODO: static assertion
-	PH_ASSERT(sizeof(PHfloat32) == sizeof(ph::real));
-
 	using namespace ph;
 
 	HdrRgbFrame* frame = ApiDatabase::getFrame(frameId);
 	if(frame)
 	{
+		static_assert(sizeof(PHfloat32) == sizeof(HdrComponent));
+
 		*out_data = static_cast<const PHfloat32*>(frame->getPixelData());
 	}
 }

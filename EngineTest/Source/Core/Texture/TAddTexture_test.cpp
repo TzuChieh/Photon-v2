@@ -23,5 +23,5 @@ TEST(TAddTextureTest, CorrectlyAdd)
 
 	real sampleValue;
 	texture.sample(SampleLocation(HitDetail()), &sampleValue);
-	EXPECT_FLOAT_EQ(sampleValue, 3.0_r);
+	EXPECT_DOUBLE_EQ(sampleValue, 3.0_r);
 }
