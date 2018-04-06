@@ -99,6 +99,10 @@ public:
 		return Path(pathStr);
 	}
 
+	// Returns filename extension if present. The extension string will 
+	// start with a period character ".". If the path contains no extension,
+	// then an empty string is returned.
+	//
 	inline std::string getExtension() const
 	{
 		return m_path.extension().string();

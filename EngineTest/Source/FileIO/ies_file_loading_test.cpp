@@ -1,5 +1,8 @@
 #include <FileIO/Data/IesFile.h>
 #include <FileIO/Data/IesData.h>
+#include <FileIO/PictureSaver.h>
+#include <Frame/TFrame.h>
+#include <Math/Math.h>
 
 #include <gtest/gtest.h>
 
@@ -159,4 +162,25 @@ TEST(IesFileLoadingTest, DataProcessing)
 	EXPECT_NEAR(iesData1.sampleAttenuationFactor(2 * PI, 4 * PI), 0.0, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(iesData1.sampleAttenuationFactor(-2 * PI, -4 * PI), 1.0, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(iesData1.sampleAttenuationFactor(PI / 2, PI), 1.0, ACCEPTABLE_ERROR);
+
+	// DEBUG
+
+	//IesData iesData(Path("./Resource/Test/IES/L1768-65BR30FL_FL55.ies"));
+	/*IesData iesData(Path("./Resource/Test/IES/9.ies"));
+	LdrRgbFrame iesFrame(400, 200);
+	for(std::size_t y = 0; y < iesFrame.heightPx(); y++)
+	{
+		for(std::size_t x = 0; x < iesFrame.widthPx(); x++)
+		{
+			const real u = (static_cast<real>(x) + 0.5_r) / static_cast<real>(iesFrame.widthPx());
+			const real v = (static_cast<real>(y) + 0.5_r) / static_cast<real>(iesFrame.heightPx());
+			const real phi = u * 2.0_r * PI;
+			const real theta = (1.0_r - v) * PI;
+
+			const real factor = iesData.sampleAttenuationFactor(theta, phi);
+			const LdrComponent factor255 = static_cast<LdrComponent>(Math::clamp(factor * 255.0_r + 0.5_r, 0.0_r, 255.0_r));
+			iesFrame.setPixel(x, y, LdrRgbFrame::Pixel({factor255, factor255, factor255}));
+		}
+	}
+	PictureSaver::save(iesFrame, Path("./test_img.png"));*/
 }

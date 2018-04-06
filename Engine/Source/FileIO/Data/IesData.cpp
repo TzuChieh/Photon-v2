@@ -115,9 +115,10 @@ void IesData::processCandelaValues()
 	{
 		// There is only one horizontal angle, implying that the luminaire
 		// is laterally symmetric in all photometric planes. 
-		// Reflect is still needed since phi is required to span [0, 2 * pi]
+		// Append a copy if 0-phi to make it span [0, 2 * pi]
 		//
-		reflectCandelaValues(EReflectFrom::PHI_TAIL);
+		auto zeroPhis = m_sphericalCandelas.front();
+		m_sphericalCandelas.push_back(std::move(zeroPhis));
 	}
 	else if(std::abs(hDegreesDiff - 90.0_r) < 0.0001_r)
 	{
@@ -216,6 +217,7 @@ void IesData::reflectCandelaValues(const EReflectFrom reflectFrom, const real re
 		for(std::size_t pi = 0; pi < m_sphericalCandelas.size(); pi++)
 		{
 			std::vector<real> thetas = std::move(m_sphericalCandelas[pi]);
+			PH_ASSERT(thetas.size() >= 2);
 
 			std::vector<real> reflectedThetas = thetas;
 			std::reverse(reflectedThetas.begin(), reflectedThetas.end());
@@ -239,6 +241,7 @@ void IesData::reflectCandelaValues(const EReflectFrom reflectFrom, const real re
 	else if(reflectFrom == EReflectFrom::PHI_HEAD || reflectFrom == EReflectFrom::PHI_TAIL)
 	{
 		std::vector<std::vector<real>> phis = std::move(m_sphericalCandelas);
+		PH_ASSERT(phis.size() >= 2);
 
 		std::vector<std::vector<real>> reflectedPhis = phis;
 		std::reverse(reflectedPhis.begin(), reflectedPhis.end());

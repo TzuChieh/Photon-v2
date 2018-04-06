@@ -5,6 +5,7 @@
 #include "Frame/frame_fwd.h"
 #include "Math/Function/TMathFunction2D.h"
 #include "Math/TArithmeticArray.h"
+#include "Core/Texture/texture_fwd.h"
 
 #include <vector>
 #include <cstddef>
@@ -41,6 +42,8 @@ public:
 	inline void sample(
 		TFrame& sampled, 
 		const TMathFunction2D<float64>& kernel, uint32 kernelRadiusPx) const;
+
+	// TODO: sampling texture
 
 	inline void getPixel(uint32 x, uint32 y, Pixel* out_pixel) const;
 	inline void setPixel(uint32 x, uint32 y, const Pixel& pixel);

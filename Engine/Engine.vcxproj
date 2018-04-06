@@ -299,6 +299,7 @@
     <ClInclude Include="Source\Core\Texture\TConstantTexture.h" />
     <ClInclude Include="Source\Core\Texture\LdrRgbTexture2D.h" />
     <ClInclude Include="Source\Core\Texture\Function\TMultiplyTexture.h" />
+    <ClInclude Include="Source\Core\Texture\texture_fwd.h" />
     <ClInclude Include="Source\Core\Texture\TMipmap.h" />
     <ClInclude Include="Source\Core\Texture\TNearestPixelTex2D.h" />
     <ClInclude Include="Source\Core\Texture\TPixelTex2D.h" />
@@ -321,6 +322,7 @@
     <ClInclude Include="Source\FileIO\Keyword.h" />
     <ClInclude Include="Source\FileIO\NamedResourceStorage.h" />
     <ClInclude Include="Source\FileIO\PictureLoader.h" />
+    <ClInclude Include="Source\FileIO\PictureSaver.h" />
     <ClInclude Include="Source\FileIO\RenderOption.h" />
     <ClInclude Include="Source\FileIO\SDL\CommandEntry.h" />
     <ClInclude Include="Source\FileIO\SDL\CommandRegister.h" />
@@ -535,6 +537,7 @@
     <ClCompile Include="Source\FileIO\Keyword.cpp" />
     <ClCompile Include="Source\FileIO\NamedResourceStorage.cpp" />
     <ClCompile Include="Source\FileIO\PictureLoader.cpp" />
+    <ClCompile Include="Source\FileIO\PictureSaver.cpp" />
     <ClCompile Include="Source\FileIO\SDL\CommandEntry.cpp" />
     <ClCompile Include="Source\FileIO\SDL\ExitStatus.cpp" />
     <ClCompile Include="Source\FileIO\SDL\ISdlResource.cpp" />

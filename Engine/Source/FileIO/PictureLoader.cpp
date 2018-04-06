@@ -66,8 +66,7 @@ LdrRgbFrame PictureLoader::loadLdrViaStb(const std::string& fullFilename)
 	if(stbImageData == NULL)
 	{
 		logger.log(ELogLevel::WARNING_MED,
-		           "picture <" + fullFilename + "> loading failed " + 
-		           "(message: " + stbi_failure_reason() + ")");// FIXME: check stbi_failure_reason() thread safety
+		           "picture <" + fullFilename + "> loading failed");
 		return LdrRgbFrame();
 	}
 

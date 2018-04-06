@@ -651,24 +651,6 @@ std::vector<std::string> IesFile::retrieveLines(const std::vector<char>& data)
 		}
 	}
 
-	/*int i = 0;
-	for(const auto& ch : data)
-	{
-		std::cerr << std::hex << static_cast<int>(ch) << " ";
-		i++;
-		if(i == 16)
-		{
-			i = 0;
-		}
-	}*/
-
-	//std::ofstream file("./test.txt");
-	//for(const auto& line : lines)
-	//{
-	//	//std::cerr << line << std::endl;
-	//	file << line;
-	//}
-
 	return lines;
 }
 
