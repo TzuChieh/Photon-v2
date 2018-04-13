@@ -35,11 +35,9 @@ RectangleSource::RectangleSource(
 
 RectangleSource::~RectangleSource() = default;
 
-std::vector<std::unique_ptr<Geometry>> RectangleSource::genAreas() const
+std::shared_ptr<Geometry> RectangleSource::genAreas(CookingContext& context) const
 {
-	std::vector<std::unique_ptr<Geometry>> areas;
-	areas.push_back(std::make_unique<GRectangle>(m_width, m_height));
-	return std::move(areas);
+	return std::make_shared<GRectangle>(m_width, m_height);
 }
 
 void RectangleSource::setDimension(const real width, const real height)

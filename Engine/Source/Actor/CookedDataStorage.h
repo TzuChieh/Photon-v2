@@ -14,12 +14,12 @@
 namespace ph
 {
 
-class CookedActorStorage final
+class CookedDataStorage final
 {
 public:
-	CookedActorStorage() = default;
-	CookedActorStorage(CookedActorStorage&& other);
-	~CookedActorStorage() = default;
+	CookedDataStorage() = default;
+	CookedDataStorage(CookedDataStorage&& other);
+	~CookedDataStorage() = default;
 
 	void clear();
 
@@ -27,17 +27,12 @@ public:
 	void add(std::unique_ptr<PrimitiveMetadata> metadata);
 	void add(std::unique_ptr<Emitter> emitter);
 	void add(std::unique_ptr<Transform> transform);
-	void add(CookedUnit&& cookedActor);
 	void add(std::vector<std::unique_ptr<Intersectable>>&& intersectables);
 	void add(std::vector<std::unique_ptr<Transform>>&& transforms);
-	void add(CookedActorStorage&& other);
+	void add(CookedDataStorage&& other);
 
 	std::size_t numIntersectables() const;
 	std::size_t numEmitters() const;
-
-	// forbid copying
-	CookedActorStorage(const CookedActorStorage& other) = delete;
-	CookedActorStorage& operator = (const CookedActorStorage& rhs) = delete;
 
 	inline TIteratorProxy<std::vector<std::unique_ptr<Intersectable>>> intersectables()
 	{
@@ -68,6 +63,11 @@ public:
 	{
 		return TConstIteratorProxy<std::vector<std::unique_ptr<Emitter>>>(m_emitters);
 	}
+
+	// forbid copying
+	//
+	CookedDataStorage(const CookedDataStorage& other) = delete;
+	CookedDataStorage& operator = (const CookedDataStorage& rhs) = delete;
 
 private:
 	std::vector<std::unique_ptr<Intersectable>>     m_intersectables;

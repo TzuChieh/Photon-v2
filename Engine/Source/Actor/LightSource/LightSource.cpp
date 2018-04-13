@@ -1,4 +1,6 @@
 #include "Actor/LightSource/LightSource.h"
+#include "Actor/Geometry/Geometry.h"
+#include "Actor/Material/MatteOpaque.h"
 
 namespace ph
 {
@@ -6,6 +8,17 @@ namespace ph
 LightSource::LightSource() = default;
 
 LightSource::~LightSource() = default;
+
+std::shared_ptr<Geometry> LightSource::genGeometry(CookingContext& context) const
+{
+	return nullptr;
+}
+
+std::shared_ptr<Material> LightSource::genMaterial(CookingContext& context) const
+{
+	const Vector3R linearSrgbAlbedo(0.5_r);
+	return std::make_shared<MatteOpaque>(linearSrgbAlbedo);
+}
 
 // command interface
 

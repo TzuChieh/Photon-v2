@@ -4,6 +4,9 @@
 #include "Math/math_fwd.h"
 #include "Math/Transform/Transform.h"
 #include "Core/Quantity/SpectralStrength.h"
+#include "Core/Emitter/Emitter.h"
+#include "Core/Texture/TTexture.h"
+#include "Common/assertion.h"
 
 #include <memory>
 
@@ -16,13 +19,12 @@ class DirectLightSample;
 class Ray;
 class Time;
 
-// TODO: supports motion blur on Emitters
-
-class Emitter
+class SurfaceEmitter : public Emitter
 {
 public:
-	Emitter();
-	virtual ~Emitter() = 0;
+	SurfaceEmitter();
+	SurfaceEmitter(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance);
+	virtual ~SurfaceEmitter() override;
 
 	virtual void evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const = 0;
 	virtual void genDirectSample(DirectLightSample& sample) const = 0;
@@ -32,11 +34,17 @@ public:
 
 	virtual real calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const = 0;
 
-	// FIXME: move to surface emitter
-	virtual inline bool isSurfaceEmissive() const
+	virtual void setEmittedRadiance(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance);
+
+	inline const TTexture<SpectralStrength>& getEmittedRadiance() const
 	{
-		return true;
+		PH_ASSERT(m_emittedRadiance != nullptr);
+
+		return *m_emittedRadiance;
 	}
+
+private:
+	std::shared_ptr<TTexture<SpectralStrength>> m_emittedRadiance;
 };
 
 }// end namespace ph

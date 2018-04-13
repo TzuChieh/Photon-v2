@@ -13,7 +13,7 @@ public:
 	RectangleSource(real width, real height, const SampledSpectralStrength& color, real numWatts);
 	virtual ~RectangleSource() override;
 
-	virtual std::vector<std::unique_ptr<Geometry>> genAreas() const override;
+	virtual std::shared_ptr<Geometry> genAreas(CookingContext& context) const override;
 
 	void setDimension(real width, real height);
 

@@ -68,20 +68,44 @@ std::unique_ptr<Emitter> ModelSource::genEmitter(
 		primitiveEmitters.push_back(emitter);
 	}
 
-	PH_ASSERT(!primitiveEmitters.empty());
-
 	if(primitiveEmitters.size() == 1)
 	{
 		return std::make_unique<PrimitiveAreaEmitter>(primitiveEmitters[0]);
 	}
 	else
 	{
+		PH_ASSERT(!primitiveEmitters.empty());
+
 		auto multiEmitter = std::make_unique<MultiAreaEmitter>(std::move(primitiveEmitters));
 		multiEmitter->setEmittedRadiance(emittedRadiance);
 		return multiEmitter;
 	}
 
 	PH_ASSERT_UNREACHABLE_SECTION();
+}
+
+std::shared_ptr<Geometry> ModelSource::genGeometry(CookingContext& context) const
+{
+	return m_geometry;
+}
+
+std::shared_ptr<Material> ModelSource::genMaterial(CookingContext& context) const
+{
+	return m_material;
+}
+
+void ModelSource::setGeometry(const std::shared_ptr<Geometry>& geometry)
+{
+	PH_ASSERT(geometry != nullptr);
+
+	m_geometry = geometry;
+}
+
+void ModelSource::setMaterial(const std::shared_ptr<Material>& material)
+{
+	PH_ASSERT(material != nullptr);
+
+	m_material = material;
 }
 
 SdlTypeInfo ModelSource::ciTypeInfo()
@@ -104,28 +128,32 @@ std::unique_ptr<ModelSource> ModelSource::ciLoad(const InputPacket& packet)
 	InputPrototype pictureFilenameInput;
 	pictureFilenameInput.addString("emitted-radiance");
 
+	std::unique_ptr<ModelSource> source;
 	if(packet.isPrototypeMatched(rgbInput))
 	{
 		const auto& emittedRadiance = packet.getVector3r(
 			"emitted-radiance", Vector3R(0), DataTreatment::REQUIRED());
-		return std::make_unique<ModelSource>(emittedRadiance);
-
+		source = std::make_unique<ModelSource>(emittedRadiance);
 	}
 	else if(packet.isPrototypeMatched(pictureFilenameInput))
 	{
 		const auto& imagePath = packet.getStringAsPath(
 			"emitted-radiance", Path(), DataTreatment::REQUIRED());
-		return std::make_unique<ModelSource>(imagePath);
+		source = std::make_unique<ModelSource>(imagePath);
 	}
 	else
 	{
 		const auto& image = packet.get<Image>(
 			"emitted-radiance", DataTreatment::REQUIRED());
-		return std::make_unique<ModelSource>(image);
+		source = std::make_unique<ModelSource>(image);
 	}
 
-	std::cerr << "warning: at ModelSource::ciLoad(), invalid input format" << std::endl;
-	return std::make_unique<ModelSource>(Vector3R(1, 1, 1));
+	const auto geometry = packet.get<Geometry>("geometry", DataTreatment::REQUIRED());
+	const auto material = packet.get<Material>("material", DataTreatment::REQUIRED());
+	source->setGeometry(geometry);
+	source->setMaterial(material);
+
+	return source;
 }
 
 }// end namespace ph

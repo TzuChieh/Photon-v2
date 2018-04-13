@@ -106,12 +106,12 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 
 					BsdfEvaluation bsdfEval;
 					bsdfEval.inputs.set(surfaceHit, visRay.getDirection(), V);
-					surfaceBehavior.getSurfaceOptics()->evalBsdf(bsdfEval);
+					surfaceBehavior.getOptics()->evalBsdf(bsdfEval);
 					if(bsdfEval.outputs.isGood())
 					{
 						BsdfPdfQuery bsdfPdfQuery;
 						bsdfPdfQuery.inputs.set(bsdfEval);
-						surfaceBehavior.getSurfaceOptics()->calcBsdfSamplePdf(bsdfPdfQuery);
+						surfaceBehavior.getOptics()->calcBsdfSamplePdf(bsdfPdfQuery);
 
 						const real     bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
 						const real     misWeighting   = misWeight(directLightSample.pdfW, bsdfSamplePdfW);
@@ -140,7 +140,7 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 
 			BsdfSample bsdfSample;
 			bsdfSample.inputs.set(surfaceHit, V);
-			surfaceBehavior->getSurfaceOptics()->genBsdfSample(bsdfSample);
+			surfaceBehavior->getOptics()->genBsdfSample(bsdfSample);
 
 			const Vector3R N = surfaceHit.getShadingNormal();
 			const Vector3R L = bsdfSample.outputs.L;
@@ -155,7 +155,7 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 
 			BsdfPdfQuery bsdfPdfQuery;
 			bsdfPdfQuery.inputs.set(bsdfSample);
-			surfaceBehavior->getSurfaceOptics()->calcBsdfSamplePdf(bsdfPdfQuery);
+			surfaceBehavior->getOptics()->calcBsdfSamplePdf(bsdfPdfQuery);
 
 			const real     bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
 			const Vector3R directLitPos   = surfaceHit.getPosition();

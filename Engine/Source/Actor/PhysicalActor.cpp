@@ -58,6 +58,11 @@ void PhysicalActor::scale(const real scaleFactor)
 	scale(Vector3R(scaleFactor));
 }
 
+void PhysicalActor::setBaseTransform(const TDecomposedTransform<hiReal>& baseLocalToWorld)
+{
+	m_localToWorld = baseLocalToWorld;
+}
+
 //const StaticTransform* PhysicalActor::getLocalToWorldTransform() const
 //{
 //	return &m_localToWorld;

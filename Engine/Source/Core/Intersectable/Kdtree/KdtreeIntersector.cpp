@@ -1,5 +1,5 @@
 #include "Core/Intersectable/Kdtree/KdtreeIntersector.h"
-#include "Actor/CookedActorStorage.h"
+#include "Actor/CookedDataStorage.h"
 #include "Core/HitProbe.h"
 
 #include <iostream>
@@ -17,7 +17,7 @@ KdtreeIntersector::KdtreeIntersector() :
 
 KdtreeIntersector::~KdtreeIntersector() = default;
 
-void KdtreeIntersector::update(const CookedActorStorage& cookedActors)
+void KdtreeIntersector::update(const CookedDataStorage& cookedActors)
 {
 	std::vector<const Intersectable*> intersectables;
 	for(const auto& primitive : cookedActors.intersectables())

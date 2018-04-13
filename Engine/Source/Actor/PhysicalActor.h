@@ -27,6 +27,8 @@ public:
 	void scale(const real x, const real y, const real z);
 	void scale(const real scaleFactor);
 
+	void setBaseTransform(const TDecomposedTransform<hiReal>& baseLocalToWorld);
+
 	/*const StaticTransform* getLocalToWorldTransform() const;
 	const StaticTransform* getWorldToLocalTransform() const;*/
 

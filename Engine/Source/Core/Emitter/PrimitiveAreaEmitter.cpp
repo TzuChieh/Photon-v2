@@ -21,14 +21,10 @@ namespace ph
 {
 
 PrimitiveAreaEmitter::PrimitiveAreaEmitter(const Primitive* const primitive) :
-	Emitter(), 
-	m_primitive(primitive),
-	m_emittedRadiance(nullptr)
+	SurfaceEmitter(), 
+	m_primitive(primitive)
 {
 	PH_ASSERT(primitive != nullptr);
-
-	SpectralStrength defaultSpectrum(1.0_r);
-	m_emittedRadiance = std::make_shared<TConstantTexture<SpectralStrength>>(defaultSpectrum);
 
 	m_reciExtendedArea = 1.0_r / primitive->calcExtendedArea();
 }
@@ -46,7 +42,7 @@ void PrimitiveAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStre
 	}
 
 	TSampler<SpectralStrength> sampler(EQuantity::EMR);
-	*out_radiance = sampler.sample(*m_emittedRadiance, X);
+	*out_radiance = sampler.sample(getEmittedRadiance(), X);
 }
 
 void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
@@ -69,7 +65,7 @@ void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
 		return;
 	}
 	sample.pdfW = positionSample.pdf / std::abs(emitDirDotNormal) * distSquared;
-	m_emittedRadiance->sample(SampleLocation(positionSample.uvw, EQuantity::EMR), &sample.radianceLe);
+	getEmittedRadiance().sample(SampleLocation(positionSample.uvw, EQuantity::EMR), &sample.radianceLe);
 }
 
 real PrimitiveAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const
@@ -132,12 +128,6 @@ void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* c
 	//m_emittedRadiance->sample(tPositionSample.uvw, out_Le);
 
 	std::cerr << "PrimitiveAreaEmitter::genSensingRay() not implemented" << std::endl;
-}
-
-void PrimitiveAreaEmitter::setEmittedRadiance(
-	const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance)
-{
-	m_emittedRadiance = emittedRadiance;
 }
 
 const Primitive* PrimitiveAreaEmitter::getPrimitive() const

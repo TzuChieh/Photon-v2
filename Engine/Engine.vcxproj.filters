@@ -99,9 +99,6 @@
     <ClInclude Include="Source\Actor\AModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Actor\CookedActorStorage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Actor\CookedUnit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -801,6 +798,12 @@
     <ClInclude Include="Source\FileIO\PictureSaver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\Emitter\SurfaceEmitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Actor\CookedDataStorage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">
@@ -873,9 +876,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Actor\AModel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Actor\CookedActorStorage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Actor\CookedUnit.cpp">
@@ -1302,6 +1302,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\FileIO\PictureSaver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Emitter\SurfaceEmitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Actor\CookedDataStorage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Actor\CookingContext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

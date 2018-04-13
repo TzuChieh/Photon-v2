@@ -10,6 +10,10 @@
 namespace ph
 {
 
+// TODO: backends should be with CookedUnit
+
+class CookedDataStorage;
+
 class CookingContext final
 {
 public:
@@ -20,40 +24,10 @@ public:
 		return *this;
 	}
 
-	inline CookingContext& addCookedUnit(CookedUnit&& cookedUnit)
-	{
-		m_cookedUnits.push_back(std::move(cookedUnit));
-
-		return *this;
-	}
-
-	inline CookedUnit retrieveCookedBackends()
-	{
-		CookedUnit cookedUnit;
-		for(auto& isable : m_backendIntersectables)
-		{
-			cookedUnit.intersectables.push_back(std::move(isable));
-		}
-		m_backendIntersectables.clear();
-
-		return cookedUnit;
-	}
-
-	inline CookedUnit retrieveCookedUnits()
-	{
-		CookedUnit results;
-		for(auto& unit : m_cookedUnits)
-		{
-			results.add(std::move(unit));
-		}
-		m_cookedUnits.clear();
-
-		return results;
-	}
+	void claimBackendData(CookedDataStorage& storage);
 
 private:
 	std::vector<std::unique_ptr<Intersectable>> m_backendIntersectables;
-	std::vector<CookedUnit>                     m_cookedUnits; 
 };
 
 }// end namespace ph

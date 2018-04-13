@@ -1,6 +1,7 @@
 from ..psdl import clause
 from ..psdl.sdlconsole import SdlConsole
 from ..psdl.cmd import RawCommand
+from ..psdl.lightcmd import ModelLightCreator
 from .. import utility
 from ..utility import meta
 from . import ui
@@ -343,16 +344,18 @@ def export_object_mesh(exporter, b_context, obj):
 				lightSourceName = naming.mangled_light_source_name(obj, mesh.name, str(matId))
 				actorLightName  = naming.mangled_actor_light_name(obj, "", str(matId))
 
-				command = RawCommand()
-				command.append_string(
-					"-> light-source(area) %s [image emitted-radiance \"@%s\"]\n" %
-					("\"@" + lightSourceName + "\"", material_export_result.emission_image_command.get_data_name())
-				)
-				exporter.get_sdlconsole().queue_command(command)
+				source_cmd = ModelLightCreator()
+				source_cmd.set_data_name(lightSourceName)
+				source_cmd.set_emitted_radiance_image(material_export_result.emission_image_command.get_data_name())
+				source_cmd.set_geometry(geometryName)
+				source_cmd.set_material(materialName)
+				exporter.get_sdlconsole().queue_command(source_cmd)
 
 				exporter.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
 
 			elif material.ph_is_emissive:
+
+				# FIXME: broken code here
 
 				lightSourceName = naming.mangled_light_source_name(obj, mesh.name, str(matId))
 				actorLightName  = naming.mangled_actor_light_name(obj, "", str(matId))

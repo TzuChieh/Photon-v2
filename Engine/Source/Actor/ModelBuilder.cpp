@@ -12,14 +12,14 @@ ModelBuilder::ModelBuilder(CookingContext& context) :
 
 ModelBuilder& ModelBuilder::addIntersectable(std::unique_ptr<Intersectable> isable)
 {
-	m_cookedResults.intersectables.push_back(std::move(isable));
+	m_cookedResults.addIntersectable(std::move(isable));
 
 	return *this;
 }
 
 ModelBuilder& ModelBuilder::addPrimitiveMetadata(std::unique_ptr<PrimitiveMetadata> metadata)
 {
-	m_cookedResults.primitiveMetadatas.push_back(std::move(metadata));
+	m_cookedResults.setPrimitiveMetadata(std::move(metadata));
 
 	return *this;
 }
@@ -27,7 +27,7 @@ ModelBuilder& ModelBuilder::addPrimitiveMetadata(std::unique_ptr<PrimitiveMetada
 ModelBuilder& ModelBuilder::transform(std::unique_ptr<Transform> LtoW,
                                       std::unique_ptr<Transform> WtoL)
 {
-	for(auto& intersectable : m_cookedResults.intersectables)
+	for(auto& intersectable : m_cookedResults.intersectables())
 	{
 		auto oldIsable = std::move(intersectable);
 		auto newIsable = std::make_unique<TransformedIntersectable>(oldIsable.get(), 
@@ -37,8 +37,8 @@ ModelBuilder& ModelBuilder::transform(std::unique_ptr<Transform> LtoW,
 		intersectable = std::move(newIsable);
 	}
 
-	m_cookedResults.transforms.push_back(std::move(LtoW));
-	m_cookedResults.transforms.push_back(std::move(WtoL));
+	m_cookedResults.addTransform(std::move(LtoW));
+	m_cookedResults.addTransform(std::move(WtoL));
 
 	return *this;
 }

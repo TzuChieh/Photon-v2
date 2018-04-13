@@ -23,7 +23,7 @@ AbradedTranslucent::~AbradedTranslucent() = default;
 
 void AbradedTranslucent::populateSurfaceBehavior(CookingContext& context, SurfaceBehavior* const out_surfaceBehavior) const
 {
-	out_surfaceBehavior->setSurfaceOptics(std::make_unique<TranslucentMicrofacet>(m_optics));
+	out_surfaceBehavior->setOptics(std::make_unique<TranslucentMicrofacet>(m_optics));
 }
 
 //void AbradedTranslucent::setAlbedo(const Vector3R& albedo)

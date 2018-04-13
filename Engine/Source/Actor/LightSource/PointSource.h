@@ -14,7 +14,7 @@ public:
 	PointSource(const SampledSpectralStrength& color, real numWatts);
 	virtual ~PointSource() override;
 
-	virtual std::vector<std::unique_ptr<Geometry>> genAreas() const override;
+	virtual std::shared_ptr<Geometry> genAreas(CookingContext& context) const override;
 
 private:
 	SphereSource m_sphereSource;

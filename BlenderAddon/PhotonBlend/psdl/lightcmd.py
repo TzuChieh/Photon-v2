@@ -1,6 +1,8 @@
 from .cmd import CreationCommand
 from .clause import ColorClause
 from .clause import FloatClause
+from .clause import SdlResourceIdentifierClause
+from .clause import SdlReferenceClause
 
 import mathutils
 
@@ -72,3 +74,32 @@ class RectangleLightCreator(AreaLightCreator):
 	def set_height(self, height):
 		self.update_clause(FloatClause().set_name("height").set_data(height))
 
+
+class ModelLightCreator(LightCreator):
+
+	def __init__(self):
+		super(ModelLightCreator, self).__init__()
+
+	def get_type_name(self):
+		return "model"
+
+	def set_emitted_radiance_linear_srgb(self, color):
+		self.update_clause(ColorClause().set_name("emitted-radiance").set_data(color))
+
+	def set_emitted_radiance_sdlri(self, sdlri):
+		self.update_clause(SdlResourceIdentifierClause().set_name("emitted-radiance").set_data(sdlri))
+
+	def set_emitted_radiance_image(self, image_name):
+		ref_clause = SdlReferenceClause()
+		ref_clause.set_reference_type("image")
+		self.update_clause(ref_clause.set_name("emitted-radiance").set_data(image_name))
+
+	def set_geometry(self, geometry_name):
+		ref_clause = SdlReferenceClause()
+		ref_clause.set_reference_type("geometry")
+		self.update_clause(ref_clause.set_name("geometry").set_data(geometry_name))
+
+	def set_material(self, material_name):
+		ref_clause = SdlReferenceClause()
+		ref_clause.set_reference_type("material")
+		self.update_clause(ref_clause.set_name("material").set_data(material_name))

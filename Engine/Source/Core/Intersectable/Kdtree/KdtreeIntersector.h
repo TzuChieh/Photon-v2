@@ -15,7 +15,7 @@ public:
 	KdtreeIntersector();
 	virtual ~KdtreeIntersector() override;
 
-	virtual void update(const CookedActorStorage& cookedActors) override;
+	virtual void update(const CookedDataStorage& cookedActors) override;
 	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 
 private:

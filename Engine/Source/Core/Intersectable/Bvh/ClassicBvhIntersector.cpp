@@ -1,7 +1,7 @@
 #include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
 #include "Core/HitProbe.h"
 #include "Core/Ray.h"
-#include "Actor/CookedActorStorage.h"
+#include "Actor/CookedDataStorage.h"
 #include "Core/Intersectable/Bvh/BvhInfoNode.h"
 #include "Core/Intersectable/Bvh/BvhBuilder.h"
 #include "Core/Bound/AABB3D.h"
@@ -16,7 +16,7 @@ const int32 ClassicBvhIntersector::NODE_STACK_SIZE;
 
 ClassicBvhIntersector::~ClassicBvhIntersector() = default;
 
-void ClassicBvhIntersector::update(const CookedActorStorage& cookedActors)
+void ClassicBvhIntersector::update(const CookedDataStorage& cookedActors)
 {
 	std::vector<const Intersectable*> intersectables;
 	for(const auto& intersectable : cookedActors.intersectables())

@@ -18,6 +18,7 @@
 #include "Math/constant.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
+#include "Actor/AModel.h"
 
 #include <iostream>
 #include <memory>
@@ -50,63 +51,19 @@ AreaSource::~AreaSource() = default;
 std::unique_ptr<Emitter> AreaSource::genEmitter(
 	CookingContext& context, EmitterBuildingMaterial&& data) const
 {
-	PH_ASSERT_MSG(data.primitives.empty(), "primitive data not required");
-
-	CookedUnit cookedUnit;
-
-	RigidTransform* baseLW = nullptr;
-	RigidTransform* baseWL = nullptr;
-	if(data.baseLocalToWorld != nullptr && data.baseWorldToLocal != nullptr)
-	{
-		baseLW = data.baseLocalToWorld.get();
-		baseWL = data.baseWorldToLocal.get();
-		cookedUnit.transforms.push_back(std::move(data.baseLocalToWorld));
-		cookedUnit.transforms.push_back(std::move(data.baseWorldToLocal));
-	}
-	else
+	if(data.primitives.empty())
 	{
 		std::cerr << "warning: at AreaSource::genEmitter(), "
-		          << "incomplete transform information, use identity transform instead" << std::endl;
-		auto identity = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeIdentity());
-		baseLW = identity.get();
-		baseWL = identity.get();
-		cookedUnit.transforms.push_back(std::move(identity));
+		          << "requires at least a primitive, emitter ignored" << std::endl;
+		return nullptr;
 	}
-	PH_ASSERT(baseLW != nullptr && baseWL != nullptr);
 
-	PrimitiveMetadata* metadata = nullptr;
-	{
-		auto primitiveMetadata = std::make_unique<PrimitiveMetadata>();
-		metadata = primitiveMetadata.get();
-		cookedUnit.primitiveMetadatas.push_back(std::move(primitiveMetadata));
-	}
-	PH_ASSERT(metadata != nullptr);
-
-	std::vector<const Primitive*> primitives;
-	{
-		auto areaGeometries = genAreas();
-		std::vector<std::unique_ptr<Primitive>> areas;
-		for(auto& areaGeometry : areaGeometries)
-		{
-			areaGeometry->genPrimitive(PrimitiveBuildingMaterial(metadata), areas);
-		}
-
-		for(auto& area : areas)
-		{
-			auto transformedArea = std::make_unique<TransformedPrimitive>(
-				area.get(), baseLW, baseWL);
-			primitives.push_back(transformedArea.get());
-
-			cookedUnit.intersectables.push_back(std::move(transformedArea));
-			context.addBackend(std::move(area));
-		}
-	}
-	PH_ASSERT(!primitives.empty());
+	std::vector<const Primitive*> areas = std::move(data.primitives);
 
 	real lightArea = 0.0_r;
-	for(auto primitive : primitives)
+	for(const auto area : areas)
 	{
-		lightArea += primitive->calcExtendedArea();
+		lightArea += area->calcExtendedArea();
 	}
 	PH_ASSERT(lightArea > 0.0_r);
 
@@ -120,12 +77,12 @@ std::unique_ptr<Emitter> AreaSource::genEmitter(
 
 	std::unique_ptr<Emitter> emitter;
 	{
-		if(primitives.size() > 1)
+		if(areas.size() > 1)
 		{
 			std::vector<PrimitiveAreaEmitter> areaEmitters;
-			for(auto primitive : primitives)
+			for(auto area : areas)
 			{
-				areaEmitters.push_back(PrimitiveAreaEmitter(primitive));
+				areaEmitters.push_back(PrimitiveAreaEmitter(area));
 			}
 
 			auto emitterData = std::make_unique<MultiAreaEmitter>(areaEmitters);
@@ -134,18 +91,21 @@ std::unique_ptr<Emitter> AreaSource::genEmitter(
 		}
 		else
 		{
-			auto emitterData = std::make_unique<PrimitiveAreaEmitter>(primitives[0]);
+			auto emitterData = std::make_unique<PrimitiveAreaEmitter>(areas[0]);
 			emitterData->setEmittedRadiance(emittedRadiance);
 			emitter = std::move(emitterData);
 		}
 	}
 	PH_ASSERT(emitter != nullptr);
 
-	metadata->surfaceBehavior.setSurfaceOptics(std::make_unique<LambertianDiffuse>());
-	metadata->surfaceBehavior.setEmitter(emitter.get());
-
-	context.addCookedUnit(std::move(cookedUnit));
 	return emitter;
+}
+
+std::shared_ptr<Geometry> AreaSource::genGeometry(CookingContext& context) const
+{
+	std::shared_ptr<Geometry> areas = genAreas(context);
+	PH_ASSERT(areas != nullptr);
+	return areas;
 }
 
 // command interface

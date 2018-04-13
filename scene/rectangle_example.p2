@@ -17,6 +17,7 @@
 -> actor(model) rotate(@object) [vector3r axis "1 1 0"] [real degree -30]
 
 -> light-source(model) @modelSource [vector3r emitted-radiance "3.4 3.4 3.4"]
--> actor(light) @topLight [geometry geometry @plane] [material material @white] [light-source light-source @modelSource]
+[geometry geometry @plane] [material material @white]
+-> actor(light) @topLight [light-source light-source @modelSource]
 -> actor(light) translate(@topLight) [vector3r factor "0 10 0"]
 -> actor(light) rotate(@topLight) [vector3r axis "1 0 0"] [real degree 90]

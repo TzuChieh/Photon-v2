@@ -136,7 +136,7 @@
     <ClInclude Include="Source\Actor\Actor.h" />
     <ClInclude Include="Source\Actor\ALight.h" />
     <ClInclude Include="Source\Actor\AModel.h" />
-    <ClInclude Include="Source\Actor\CookedActorStorage.h" />
+    <ClInclude Include="Source\Actor\CookedDataStorage.h" />
     <ClInclude Include="Source\Actor\CookedUnit.h" />
     <ClInclude Include="Source\Actor\CookingContext.h" />
     <ClInclude Include="Source\Actor\Geometry\GCuboid.h" />
@@ -201,6 +201,7 @@
     <ClInclude Include="Source\Core\Emitter\MultiAreaEmitter.h" />
     <ClInclude Include="Source\Core\Emitter\Emitter.h" />
     <ClInclude Include="Source\Core\Emitter\PrimitiveAreaEmitter.h" />
+    <ClInclude Include="Source\Core\Emitter\SurfaceEmitter.h" />
     <ClInclude Include="Source\Core\Engine.h" />
     <ClInclude Include="Source\Core\Filmic\Film.h" />
     <ClInclude Include="Source\Core\Filmic\HdrRgbFilm.h" />
@@ -390,8 +391,9 @@
     <ClCompile Include="Source\Actor\Actor.cpp" />
     <ClCompile Include="Source\Actor\ALight.cpp" />
     <ClCompile Include="Source\Actor\AModel.cpp" />
-    <ClCompile Include="Source\Actor\CookedActorStorage.cpp" />
+    <ClCompile Include="Source\Actor\CookedDataStorage.cpp" />
     <ClCompile Include="Source\Actor\CookedUnit.cpp" />
+    <ClCompile Include="Source\Actor\CookingContext.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp" />
     <ClCompile Include="Source\Actor\Geometry\Geometry.cpp" />
     <ClCompile Include="Source\Actor\Geometry\GeometrySoup.cpp" />
@@ -443,6 +445,7 @@
     <ClCompile Include="Source\Core\Emitter\MultiAreaEmitter.cpp" />
     <ClCompile Include="Source\Core\Emitter\Emitter.cpp" />
     <ClCompile Include="Source\Core\Emitter\PrimitiveAreaEmitter.cpp" />
+    <ClCompile Include="Source\Core\Emitter\SurfaceEmitter.cpp" />
     <ClCompile Include="Source\Core\Engine.cpp" />
     <ClCompile Include="Source\Core\Filmic\Film.cpp" />
     <ClCompile Include="Source\Core\Filmic\HdrRgbFilm.cpp" />

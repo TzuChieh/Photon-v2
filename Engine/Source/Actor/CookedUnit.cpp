@@ -1,53 +1,71 @@
 #include "Actor/CookedUnit.h"
+#include "Common/assertion.h"
+#include "Actor/CookedDataStorage.h"
 
 namespace ph
 {
 
 CookedUnit::CookedUnit() :
-	intersectables(), 
-	primitiveMetadatas(), 
-	emitters(),
-	transforms()
+	m_intersectables(), 
+	m_primitiveMetadata(), 
+	m_transforms(),
+	m_emitter()
 {}
 
 CookedUnit::CookedUnit(CookedUnit&& other) :
-	intersectables    (std::move(other.intersectables)), 
-	primitiveMetadatas(std::move(other.primitiveMetadatas)), 
-	emitters          (std::move(other.emitters)),
-	transforms        (std::move(other.transforms))
+	m_intersectables   (std::move(other.m_intersectables)),
+	m_primitiveMetadata(std::move(other.m_primitiveMetadata)),
+	m_transforms       (std::move(other.m_transforms)),
+	m_emitter          (std::move(other.m_emitter))
 {}
 
-CookedUnit& CookedUnit::add(CookedUnit&& cookedUnit)
+void CookedUnit::addIntersectable(std::unique_ptr<Intersectable> intersectable)
 {
-	intersectables.insert(
-		intersectables.end(),
-		std::make_move_iterator(cookedUnit.intersectables.begin()),
-		std::make_move_iterator(cookedUnit.intersectables.end()));
+	PH_ASSERT(intersectable != nullptr);
 
-	primitiveMetadatas.insert(
-		primitiveMetadatas.end(),
-		std::make_move_iterator(cookedUnit.primitiveMetadatas.begin()),
-		std::make_move_iterator(cookedUnit.primitiveMetadatas.end()));
+	m_intersectables.push_back(std::move(intersectable));
+}
 
-	emitters.insert(
-		emitters.end(),
-		std::make_move_iterator(cookedUnit.emitters.begin()),
-		std::make_move_iterator(cookedUnit.emitters.end()));
+void CookedUnit::setPrimitiveMetadata(std::unique_ptr<PrimitiveMetadata> metadata)
+{
+	PH_ASSERT(metadata != nullptr);
 
-	transforms.insert(
-		transforms.end(),
-		std::make_move_iterator(cookedUnit.transforms.begin()),
-		std::make_move_iterator(cookedUnit.transforms.end()));
+	m_primitiveMetadata = std::move(metadata);
+}
 
-	return *this;
+void CookedUnit::addTransform(std::unique_ptr<Transform> transform)
+{
+	PH_ASSERT(transform != nullptr);
+
+	m_transforms.push_back(std::move(transform));
+}
+
+void CookedUnit::setEmitter(std::unique_ptr<Emitter> emitter)
+{
+	PH_ASSERT(emitter != nullptr);
+
+	m_emitter = std::move(emitter);
+}
+
+void CookedUnit::claimCookedData(CookedDataStorage& storage)
+{
+	storage.add(std::move(m_intersectables));
+	storage.add(std::move(m_primitiveMetadata));
+	storage.add(std::move(m_transforms));
+	storage.add(std::move(m_emitter));
+
+	m_intersectables.clear();
+	m_primitiveMetadata = nullptr;
+	m_transforms.clear();
+	m_emitter = nullptr;
 }
 
 CookedUnit& CookedUnit::operator = (CookedUnit&& rhs)
 {
-	intersectables     = std::move(rhs.intersectables);
-	primitiveMetadatas = std::move(rhs.primitiveMetadatas);
-	emitters           = std::move(rhs.emitters);
-	transforms         = std::move(rhs.transforms);
+	m_intersectables    = std::move(rhs.m_intersectables);
+	m_primitiveMetadata = std::move(rhs.m_primitiveMetadata);
+	m_transforms        = std::move(rhs.m_transforms);
+	m_emitter           = std::move(rhs.m_emitter);
 
 	return *this;
 }

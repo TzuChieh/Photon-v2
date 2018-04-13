@@ -3,7 +3,7 @@
 #include "Core/HitProbe.h"
 #include "Core/Ray.h"
 #include "Core/Intersectable/Intersectable.h"
-#include "Actor/CookedActorStorage.h"
+#include "Actor/CookedDataStorage.h"
 #include "Core/Bound/AABB3D.h"
 
 #include <limits>
@@ -13,7 +13,7 @@ namespace ph
 
 BruteForceIntersector::~BruteForceIntersector() = default;
 
-void BruteForceIntersector::update(const CookedActorStorage& cookedActors)
+void BruteForceIntersector::update(const CookedDataStorage& cookedActors)
 {
 	m_intersectables.clear();
 	m_intersectables.shrink_to_fit();

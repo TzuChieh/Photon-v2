@@ -24,11 +24,9 @@ SphereSource::SphereSource(const real radius, const SampledSpectralStrength& col
 
 SphereSource::~SphereSource() = default;
 
-std::vector<std::unique_ptr<Geometry>> SphereSource::genAreas() const
+std::shared_ptr<Geometry> SphereSource::genAreas(CookingContext& context) const
 {
-	std::vector<std::unique_ptr<Geometry>> areas;
-	areas.push_back(std::make_unique<GSphere>(m_radius));
-	return std::move(areas);
+	return std::make_shared<GSphere>(m_radius);
 }
 
 void SphereSource::setRadius(const real radius)

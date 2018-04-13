@@ -20,10 +20,12 @@ public:
 	AreaSource(const SampledSpectralStrength& color, real numWatts);
 	virtual ~AreaSource() override;
 
-	virtual std::vector<std::unique_ptr<Geometry>> genAreas() const = 0;
+	virtual std::shared_ptr<Geometry> genAreas(CookingContext& context) const = 0;
 
 	virtual std::unique_ptr<Emitter> genEmitter(
 		CookingContext& context, EmitterBuildingMaterial&& data) const override;
+
+	virtual std::shared_ptr<Geometry> genGeometry(CookingContext& context) const final override;
 
 private:
 	SampledSpectralStrength m_color;

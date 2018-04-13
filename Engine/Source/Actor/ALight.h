@@ -29,11 +29,7 @@ public:
 
 	virtual CookedUnit cook(CookingContext& context) const override;
 
-	const Geometry*    getGeometry() const;
-	const Material*    getMaterial() const;
 	const LightSource* getLightSource() const;
-	void setGeometry(const std::shared_ptr<Geometry>& geometry);
-	void setMaterial(const std::shared_ptr<Material>& material);
 	void setLightSource(const std::shared_ptr<LightSource>& lightSource);
 
 	ALight& operator = (ALight rhs);
@@ -41,17 +37,19 @@ public:
 	friend void swap(ALight& first, ALight& second);
 
 private:
-	std::shared_ptr<Geometry>    m_geometry;
-	std::shared_ptr<Material>    m_material;
 	std::shared_ptr<LightSource> m_lightSource;
 
-	CookedUnit buildGeometricLight(CookingContext& context) const;
+	CookedUnit buildGeometricLight(
+		CookingContext&                  context, 
+		std::shared_ptr<Geometry> geometry,
+		std::shared_ptr<Material> material) const;
 
 	// Tries to return a geometry suitable for emitter calculations (can be the 
 	// original one if it is already suitable). If the current actor has undesired 
 	// configurations, nullptr is returned.
-	std::shared_ptr<Geometry> getSanifiedEmitterGeometry(
-		CookingContext& context,
+	std::shared_ptr<Geometry> getSanifiedGeometry(
+		CookingContext&                  context,
+		const std::shared_ptr<Geometry>& geometry,
 		std::unique_ptr<RigidTransform>* out_baseLW,
 		std::unique_ptr<RigidTransform>* out_baseWL) const;
 

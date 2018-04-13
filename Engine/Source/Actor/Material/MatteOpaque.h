@@ -17,6 +17,7 @@ class MatteOpaque : public Material, public TCommandInterface<MatteOpaque>
 {
 public:
 	MatteOpaque();
+	MatteOpaque(const Vector3R& linearSrgbAlbedo);
 	virtual ~MatteOpaque() override;
 
 	virtual void populateSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const override;

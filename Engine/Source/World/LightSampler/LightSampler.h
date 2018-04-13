@@ -11,7 +11,7 @@ namespace ph
 
 class Emitter;
 class Model;
-class CookedActorStorage;
+class CookedDataStorage;
 class Primitive;
 class DirectLightSample;
 
@@ -20,7 +20,8 @@ class LightSampler
 public:
 	virtual ~LightSampler() = 0;
 
-	virtual void update(const CookedActorStorage& cookedActors) = 0;
+	// FIXME: should update with emitters only
+	virtual void update(const CookedDataStorage& cookedActors) = 0;
 	virtual const Emitter* pickEmitter(real* const out_PDF) const = 0;
 	virtual void genDirectSample(DirectLightSample& sample) const = 0;
 	virtual real calcDirectPdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Emitter* hitEmitter, const Primitive* hitPrim) const = 0;

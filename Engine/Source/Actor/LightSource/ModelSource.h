@@ -25,8 +25,17 @@ public:
 	virtual std::unique_ptr<Emitter> genEmitter(
 		CookingContext& context, EmitterBuildingMaterial&& data) const override;
 
+	virtual std::shared_ptr<Geometry> genGeometry(CookingContext& context) const override;
+
+	virtual std::shared_ptr<Material> genMaterial(CookingContext& context) const override;
+
+	void setGeometry(const std::shared_ptr<Geometry>& geometry);
+	void setMaterial(const std::shared_ptr<Material>& material);
+
 private:
-	std::shared_ptr<Image> m_emittedRadiance;
+	std::shared_ptr<Image>    m_emittedRadiance;
+	std::shared_ptr<Geometry> m_geometry;
+	std::shared_ptr<Material> m_material;
 
 	static const Logger logger;
 

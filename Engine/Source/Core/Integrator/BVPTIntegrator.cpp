@@ -99,7 +99,7 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 
 		BsdfSample bsdfSample;
 		bsdfSample.inputs.set(surfaceHit, V);
-		hitSurfaceBehavior.getSurfaceOptics()->genBsdfSample(bsdfSample);
+		hitSurfaceBehavior.getOptics()->genBsdfSample(bsdfSample);
 
 		const Vector3R& N = hitDetail.getShadingNormal();
 		const Vector3R& L = bsdfSample.outputs.L;

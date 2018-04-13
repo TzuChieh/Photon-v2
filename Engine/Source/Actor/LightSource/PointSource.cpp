@@ -22,9 +22,9 @@ PointSource::PointSource(const SampledSpectralStrength& color, real numWatts) :
 
 PointSource::~PointSource() = default;
 
-std::vector<std::unique_ptr<Geometry>> PointSource::genAreas() const
+std::shared_ptr<Geometry> PointSource::genAreas(CookingContext& context) const
 {
-	return m_sphereSource.genAreas();
+	return m_sphereSource.genAreas(context);
 }
 
 // command interface

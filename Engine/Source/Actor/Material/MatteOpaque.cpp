@@ -11,9 +11,15 @@ namespace ph
 {
 
 MatteOpaque::MatteOpaque() : 
-	Material(), 
-	m_albedo(std::make_shared<ConstantImage>(0.5_r))
+	MatteOpaque(Vector3R(0.5_r))
 {}
+
+MatteOpaque::MatteOpaque(const Vector3R& linearSrgbAlbedo) : 
+	Material(),
+	m_albedo(nullptr)
+{
+	setAlbedo(linearSrgbAlbedo);
+}
 
 MatteOpaque::~MatteOpaque() = default;
 
@@ -21,7 +27,7 @@ void MatteOpaque::populateSurfaceBehavior(CookingContext& context, SurfaceBehavi
 {
 	std::unique_ptr<LambertianDiffuse> surfaceOptics = std::make_unique<LambertianDiffuse>();
 	surfaceOptics->setAlbedo(m_albedo->genTextureSpectral(context));
-	out_surfaceBehavior->setSurfaceOptics(std::move(surfaceOptics));
+	out_surfaceBehavior->setOptics(std::move(surfaceOptics));
 }
 
 void MatteOpaque::setAlbedo(const Vector3R& albedo)

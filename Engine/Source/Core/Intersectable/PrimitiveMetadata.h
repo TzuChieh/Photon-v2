@@ -18,6 +18,9 @@ public:
 
 	PrimitiveMetadata();
 
+	// Adds a channel to the metadata. Returns a channel ID that can be used
+	// to access the channel.
+	//
 	uint32 addChannel(const PrimitiveChannel& channel);
 
 	inline const PrimitiveChannel& getChannel(const uint32 channelId) const

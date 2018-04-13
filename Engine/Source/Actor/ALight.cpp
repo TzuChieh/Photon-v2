@@ -24,17 +24,17 @@ const Logger ALight::logger(LogSender("Actor Light"));
 
 ALight::ALight() : 
 	PhysicalActor(), 
-	m_geometry(nullptr), m_material(nullptr), m_lightSource(nullptr)
+	m_lightSource(nullptr)
 {}
 
 ALight::ALight(const std::shared_ptr<LightSource>& lightSource) : 
 	PhysicalActor(),
-	m_geometry(nullptr), m_material(nullptr), m_lightSource(lightSource)
+	m_lightSource(lightSource)
 {}
 
 ALight::ALight(const ALight& other) : 
 	PhysicalActor(other),
-	m_geometry(other.m_geometry), m_material(other.m_material), m_lightSource(other.m_lightSource)
+	m_lightSource(other.m_lightSource)
 {}
 
 ALight::~ALight() = default;
@@ -56,33 +56,22 @@ CookedUnit ALight::cook(CookingContext& context) const
 		return CookedUnit();
 	}
 
+	PH_ASSERT(m_lightSource != nullptr);
+	std::shared_ptr<Geometry> geometry = m_lightSource->genGeometry(context);
+
 	CookedUnit cookedActor;
-	if(m_geometry)
+	if(geometry)
 	{
-		cookedActor = buildGeometricLight(context);
+		std::shared_ptr<Material> material = m_lightSource->genMaterial(context);
+		cookedActor = buildGeometricLight(context, geometry, material);
 	}
 	else
 	{
-		auto baseLW = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeForward(m_localToWorld));
-		auto baseWL = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeInverse(m_localToWorld));
-
-		EmitterBuildingMaterial emitterBuildingMaterial;
-		emitterBuildingMaterial.baseLocalToWorld = std::move(baseLW);
-		emitterBuildingMaterial.baseWorldToLocal = std::move(baseWL);
-		cookedActor.emitters.push_back(m_lightSource->genEmitter(context, std::move(emitterBuildingMaterial)));
+		std::unique_ptr<Emitter> emitter = m_lightSource->genEmitter(context, EmitterBuildingMaterial());
+		cookedActor.setEmitter(std::move(emitter));
 	}
 
 	return cookedActor;
-}
-
-const Geometry* ALight::getGeometry() const
-{
-	return m_geometry.get();
-}
-
-const Material* ALight::getMaterial() const
-{
-	return m_material.get();
 }
 
 const LightSource* ALight::getLightSource() const
@@ -90,24 +79,18 @@ const LightSource* ALight::getLightSource() const
 	return m_lightSource.get();
 }
 
-void ALight::setGeometry(const std::shared_ptr<Geometry>& geometry)
-{
-	m_geometry = geometry;
-}
-
-void ALight::setMaterial(const std::shared_ptr<Material>& material)
-{
-	m_material = material;
-}
-
 void ALight::setLightSource(const std::shared_ptr<LightSource>& lightSource)
 {
 	m_lightSource = lightSource;
 }
 
-CookedUnit ALight::buildGeometricLight(CookingContext& context) const
+CookedUnit ALight::buildGeometricLight(
+	CookingContext&           context,
+	std::shared_ptr<Geometry> geometry,
+	std::shared_ptr<Material> material) const
 {
-	std::shared_ptr<Material> material = m_material;
+	PH_ASSERT(geometry != nullptr);
+
 	if(!material)
 	{
 		logger.log(ELogLevel::NOTE_MED, 
@@ -117,14 +100,14 @@ CookedUnit ALight::buildGeometricLight(CookingContext& context) const
 	}
 
 	std::unique_ptr<RigidTransform> baseLW, baseWL;
-	auto sanifiedGeometry = getSanifiedEmitterGeometry(context, &baseLW, &baseWL);
+	auto sanifiedGeometry = getSanifiedGeometry(context, geometry, &baseLW, &baseWL);
 	if(!sanifiedGeometry)
 	{
 		logger.log(ELogLevel::WARNING_MED,
 		           "sanified geometry cannot be made during the process of "
 		           "geometric light building; proceed at your own risk");
 
-		sanifiedGeometry = m_geometry;
+		sanifiedGeometry = geometry;
 	}
 
 	CookedUnit cookedActor;
@@ -133,7 +116,7 @@ CookedUnit ALight::buildGeometricLight(CookingContext& context) const
 	{
 		auto primitiveMetadata = std::make_unique<PrimitiveMetadata>();
 		metadata = primitiveMetadata.get();
-		cookedActor.primitiveMetadatas.push_back(std::move(primitiveMetadata));
+		cookedActor.setPrimitiveMetadata(std::move(primitiveMetadata));
 	}
 
 	material->populateSurfaceBehavior(context, &(metadata->surfaceBehavior));
@@ -154,24 +137,25 @@ CookedUnit ALight::buildGeometricLight(CookingContext& context) const
 		primitives.push_back(transformedPrimitive.get());
 
 		context.addBackend(std::move(primitiveDatum));
-		cookedActor.intersectables.push_back(std::move(transformedPrimitive));
+		cookedActor.addIntersectable(std::move(transformedPrimitive));
 	}
 
 	EmitterBuildingMaterial emitterBuildingMaterial;
 	emitterBuildingMaterial.primitives = primitives;
+	emitterBuildingMaterial.metadata   = metadata;
 	auto emitter = m_lightSource->genEmitter(context, std::move(emitterBuildingMaterial));
 	metadata->surfaceBehavior.setEmitter(emitter.get());
+	cookedActor.setEmitter(std::move(emitter));
 
-	cookedActor.emitters.push_back(std::move(emitter));
-
-	cookedActor.transforms.push_back(std::move(baseLW));
-	cookedActor.transforms.push_back(std::move(baseWL));
+	cookedActor.addTransform(std::move(baseLW));
+	cookedActor.addTransform(std::move(baseWL));
 
 	return cookedActor;
 }
 
-std::shared_ptr<Geometry> ALight::getSanifiedEmitterGeometry(
-	CookingContext& context,
+std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
+	CookingContext&                        context,
+	const std::shared_ptr<Geometry>&       geometry,
 	std::unique_ptr<RigidTransform>* const out_baseLW,
 	std::unique_ptr<RigidTransform>* const out_baseWL) const
 {
@@ -184,7 +168,7 @@ std::shared_ptr<Geometry> ALight::getSanifiedEmitterGeometry(
 	{
 		const StaticTransform& baseLW = StaticTransform::makeForward(m_localToWorld);
 
-		sanifiedGeometry = m_geometry->genTransformApplied(baseLW);
+		sanifiedGeometry = geometry->genTransformApplied(baseLW);
 		if(sanifiedGeometry != nullptr)
 		{
 			// TODO: combine identity transforms...
@@ -205,7 +189,7 @@ std::shared_ptr<Geometry> ALight::getSanifiedEmitterGeometry(
 	}
 	else
 	{
-		sanifiedGeometry = m_geometry;
+		sanifiedGeometry = geometry;
 		*out_baseLW = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeForward(m_localToWorld));
 		*out_baseWL = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeInverse(m_localToWorld));
 	}
@@ -220,8 +204,6 @@ void swap(ALight& first, ALight& second)
 
 	// by swapping the members of two objects, the two objects are effectively swapped
 	swap(static_cast<PhysicalActor&>(first), static_cast<PhysicalActor&>(second));
-	swap(first.m_geometry,                   second.m_geometry);
-	swap(first.m_material,                   second.m_material);
 	swap(first.m_lightSource,                second.m_lightSource);
 }
 
@@ -254,16 +236,11 @@ void ALight::ciRegister(CommandRegister& cmdRegister)
 
 std::unique_ptr<ALight> ALight::ciLoad(const InputPacket& packet)
 {
-	const DataTreatment requiredData(EDataImportance::REQUIRED, 
-	                                 "ALight requires at least a LightSource");
-	const auto lightSource = packet.get<LightSource>("light-source", requiredData);
-	const auto geometry    = packet.get<Geometry>("geometry");
-	const auto material    = packet.get<Material>("material");
+	const auto lightSource = packet.get<LightSource>(
+		"light-source", 
+		DataTreatment(EDataImportance::REQUIRED, "ALight requires at least a LightSource"));
 
-	std::unique_ptr<ALight> light = std::make_unique<ALight>(lightSource);
-	light->setGeometry(geometry);
-	light->setMaterial(material);
-	return light;
+	return std::make_unique<ALight>(lightSource);
 }
 
 }// end namespace ph

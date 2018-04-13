@@ -9,18 +9,17 @@ namespace ph
 {
 
 class Primitive;
+class PrimitiveMetadata;
 
 class EmitterBuildingMaterial final
 {
 public:
-	std::vector<const Primitive*>   primitives;
-	std::unique_ptr<RigidTransform> baseLocalToWorld;
-	std::unique_ptr<RigidTransform> baseWorldToLocal;
+	std::vector<const Primitive*> primitives;
+	const PrimitiveMetadata*      metadata;
 
 	inline EmitterBuildingMaterial() : 
 		primitives(),
-		baseLocalToWorld(nullptr),
-		baseWorldToLocal(nullptr)
+		metadata(nullptr)
 	{}
 };
 

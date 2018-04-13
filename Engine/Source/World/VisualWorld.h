@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Core/Intersectable/Primitive.h"
-#include "Actor/CookedActorStorage.h"
+#include "Actor/CookedDataStorage.h"
 #include "Actor/Actor.h"
 #include "World/Scene.h"
 #include "Core/Intersectable/Intersector.h"
@@ -32,8 +32,8 @@ public:
 
 private:
 	std::vector<std::shared_ptr<Actor>> m_actors;
-	CookedActorStorage m_cookedActorStorage;
-	CookedActorStorage m_cookedBackendStorage;
+	CookedDataStorage m_cookedActorStorage;
+	CookedDataStorage m_cookedBackendStorage;
 
 	std::unique_ptr<Intersector>  m_intersector;
 	std::unique_ptr<LightSampler> m_lightSampler;

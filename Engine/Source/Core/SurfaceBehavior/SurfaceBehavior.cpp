@@ -1,23 +1,24 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-
-#include <iostream>
+#include "Common/assertion.h"
 
 namespace ph
 {
 
 SurfaceBehavior::SurfaceBehavior() : 
-	m_surfaceOptics(nullptr), m_emitter(nullptr)
-{
+	m_optics(nullptr), m_emitter(nullptr)
+{}
 
+void SurfaceBehavior::setOptics(std::unique_ptr<SurfaceOptics> optics)
+{
+	PH_ASSERT(optics != nullptr);
+
+	m_optics = std::move(optics);
 }
 
-void SurfaceBehavior::setSurfaceOptics(std::unique_ptr<SurfaceOptics> optics)
+void SurfaceBehavior::setEmitter(const Emitter* const emitter)
 {
-	m_surfaceOptics = std::move(optics);
-}
+	PH_ASSERT(emitter != nullptr);
 
-void SurfaceBehavior::setEmitter(const Emitter* emitter)
-{
 	m_emitter = emitter;
 }
 

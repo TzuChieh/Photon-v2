@@ -2,7 +2,7 @@
 #include "Actor/AModel.h"
 #include "Actor/ALight.h"
 #include "Math/Random.h"
-#include "Actor/CookedActorStorage.h"
+#include "Actor/CookedDataStorage.h"
 #include "Core/Sample/DirectLightSample.h"
 #include "Math/TVector3.h"
 
@@ -13,7 +13,7 @@ namespace ph
 
 UniformRandomLightSampler::~UniformRandomLightSampler() = default;
 
-void UniformRandomLightSampler::update(const CookedActorStorage& cookedActors)
+void UniformRandomLightSampler::update(const CookedDataStorage& cookedActors)
 {
 	m_emitters.clear();
 	m_emitters.shrink_to_fit();

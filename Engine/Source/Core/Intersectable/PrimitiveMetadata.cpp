@@ -12,6 +12,8 @@ PrimitiveMetadata::PrimitiveMetadata() :
 	surfaceBehavior(),
 	m_channels()
 {
+	// Adds a default channel.
+	//
 	addChannel(PrimitiveChannel());
 }
 
@@ -19,6 +21,9 @@ uint32 PrimitiveMetadata::addChannel(const PrimitiveChannel& channel)
 {
 	m_channels.push_back(channel);
 
+	// Making sure the maximum index of the channels does not exceed what
+	// a channel ID type can handle.
+	//
 	PH_ASSERT(m_channels.size() - 1 <= static_cast<std::size_t>(std::numeric_limits<uint32>::max()));
 
 	return static_cast<uint32>(m_channels.size() - 1);

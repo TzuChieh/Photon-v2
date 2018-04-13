@@ -11,7 +11,7 @@ namespace ph
 class Ray;
 class HitProbe;
 class Primitive;
-class CookedActorStorage;
+class CookedDataStorage;
 
 // TODO: rename to ClusteredIntersectable
 class Intersector : public Intersectable
@@ -19,7 +19,8 @@ class Intersector : public Intersectable
 public:
 	virtual ~Intersector() = 0;
 
-	virtual void update(const CookedActorStorage& cookedActors) = 0;
+	// FIXME: should update with intersectables only
+	virtual void update(const CookedDataStorage& cookedActors) = 0;
 	
 	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const = 0;
 

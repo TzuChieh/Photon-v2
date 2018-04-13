@@ -13,7 +13,7 @@ public:
 	SphereSource(real radius, const SampledSpectralStrength& color, real numWatts);
 	virtual ~SphereSource() override;
 
-	virtual std::vector<std::unique_ptr<Geometry>> genAreas() const override;
+	virtual std::shared_ptr<Geometry> genAreas(CookingContext& context) const override;
 
 	void setRadius(real radius);
 

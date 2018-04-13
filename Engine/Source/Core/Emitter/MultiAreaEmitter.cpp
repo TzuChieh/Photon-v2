@@ -15,9 +15,8 @@ namespace ph
 {
 
 MultiAreaEmitter::MultiAreaEmitter(const std::vector<PrimitiveAreaEmitter>& areaEmitters) :
-	Emitter(),
-	m_areaEmitters(areaEmitters),
-	m_emittedRadiance(nullptr)
+	SurfaceEmitter(),
+	m_areaEmitters(areaEmitters)
 {
 	PH_ASSERT(!areaEmitters.empty());
 
@@ -51,7 +50,7 @@ void MultiAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength
 
 	// TODO: able to specify channel or restrict it
 	TSampler<SpectralStrength> sampler(EQuantity::EMR);
-	*out_radiance = sampler.sample(*m_emittedRadiance, X);
+	*out_radiance = sampler.sample(getEmittedRadiance(), X);
 }
 
 void MultiAreaEmitter::genDirectSample(DirectLightSample& sample) const
@@ -88,13 +87,12 @@ real MultiAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vec
 
 void MultiAreaEmitter::setEmittedRadiance(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance)
 {
-	PH_ASSERT(emittedRadiance != nullptr);
+	SurfaceEmitter::setEmittedRadiance(emittedRadiance);
 
 	for(auto& areaEmitter : m_areaEmitters)
 	{
 		areaEmitter.setEmittedRadiance(emittedRadiance);
 	}
-	m_emittedRadiance = emittedRadiance;
 }
 
 }// end namespace ph
