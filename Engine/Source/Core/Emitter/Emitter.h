@@ -16,8 +16,6 @@ class DirectLightSample;
 class Ray;
 class Time;
 
-// TODO: supports motion blur on Emitters
-
 class Emitter
 {
 public:

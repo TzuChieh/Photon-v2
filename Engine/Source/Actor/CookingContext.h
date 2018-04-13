@@ -10,7 +10,7 @@
 namespace ph
 {
 
-// TODO: backends should be with CookedUnit
+// TODO: backends should be with CookedUnit to avoid possible double-adding
 
 class CookedDataStorage;
 
