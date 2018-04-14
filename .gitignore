@@ -65,6 +65,7 @@ ipch/
 .idea/
 
 # Photon-v2 Project Specific Files & Folders
+
 cloc-1.62.exe
 count.bat
 /ThirdParty/
@@ -74,3 +75,9 @@ count.bat
 __pycache__/
 /EditorApplication/*.p2cfg
 /EditorApplication/*.log
+
+# ignore resources
+/Resource/*
+
+# except for test related ones
+!/Resource/Test/
