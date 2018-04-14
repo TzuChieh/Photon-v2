@@ -16,6 +16,7 @@
 #include "Core/Emitter/MultiAreaEmitter.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/Primitive.h"
+#include "Actor/Material/MatteOpaque.h"
 
 #include <iostream>
 
@@ -148,8 +149,15 @@ std::unique_ptr<ModelSource> ModelSource::ciLoad(const InputPacket& packet)
 		source = std::make_unique<ModelSource>(image);
 	}
 
-	const auto geometry = packet.get<Geometry>("geometry", DataTreatment::REQUIRED());
-	const auto material = packet.get<Material>("material", DataTreatment::REQUIRED());
+	auto geometry = packet.get<Geometry>("geometry", DataTreatment::REQUIRED());
+	auto material = packet.get<Material>("material", DataTreatment::OPTIONAL());
+	if(material == nullptr)
+	{
+		logger.log(ELogLevel::NOTE_MED, 
+		           "material not specified, using diffusive material as default");
+		material = std::make_shared<MatteOpaque>(Vector3R(0.5_r));
+	}
+
 	source->setGeometry(geometry);
 	source->setMaterial(material);
 

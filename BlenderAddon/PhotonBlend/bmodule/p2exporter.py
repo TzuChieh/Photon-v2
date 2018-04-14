@@ -135,12 +135,12 @@ class Exporter:
 
 	def exportLightSource(self, lightSourceType, lightSourceName, **keywordArgs):
 
-		if lightSourceType == "area":
+		if lightSourceType == "model":
 
 			emittedRadiance = keywordArgs["emittedRadiance"]
 			command = RawCommand()
 			command.append_string(
-				"-> light-source(area) %s [vector3r emitted-radiance \"%.8f %.8f %.8f\"]\n" %
+				"-> light-source(model) %s [vector3r emitted-radiance \"%.8f %.8f %.8f\"]\n" %
 				("\"@" + lightSourceName + "\"", emittedRadiance[0], emittedRadiance[1], emittedRadiance[2])
 			)
 			self.__sdlconsole.queue_command(command)
@@ -360,7 +360,7 @@ def export_object_mesh(exporter, b_context, obj):
 				lightSourceName = naming.mangled_light_source_name(obj, mesh.name, str(matId))
 				actorLightName  = naming.mangled_actor_light_name(obj, "", str(matId))
 
-				exporter.exportLightSource("area", lightSourceName, emittedRadiance = material.ph_emitted_radiance)
+				exporter.exportLightSource("model", lightSourceName, emittedRadiance = material.ph_emitted_radiance)
 				exporter.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
 
 			else:

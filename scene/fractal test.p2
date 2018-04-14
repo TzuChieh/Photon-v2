@@ -1,6 +1,6 @@
 ## camera(pinhole) [real fov-degree 30] [vector3r position "0 7 60"] [vector3r direction "0 0 -1"]
 ## film(hdr-rgb) [integer width 1920] [integer height 1080] [string filter-name "gaussian"]
-## sample-generator(stratified) [integer sample-amount 4000][integer num-strata-2d-x 1920][integer num-strata-2d-y 1080]
+## sample-generator(stratified) [integer sample-amount 10000][integer num-strata-2d-x 1920][integer num-strata-2d-y 1080]
 ## integrator(bneept)
 
 -> geometry(rectangle) @plane [real width 15] [real height 15]
