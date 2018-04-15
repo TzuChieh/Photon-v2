@@ -135,7 +135,7 @@ CookedUnit ALight::buildGeometricLight(
 
 		primitives.push_back(transformedPrimitive.get());
 
-		context.addBackend(std::move(primitiveDatum));
+		cookedActor.addBackend(std::move(primitiveDatum));
 		cookedActor.addIntersectable(std::move(transformedPrimitive));
 	}
 

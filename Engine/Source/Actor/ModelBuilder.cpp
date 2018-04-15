@@ -33,7 +33,7 @@ ModelBuilder& ModelBuilder::transform(std::unique_ptr<Transform> LtoW,
 		auto newIsable = std::make_unique<TransformedIntersectable>(oldIsable.get(), 
 		                                                            LtoW.get(),
 		                                                            WtoL.get());
-		m_context.addBackend(std::move(oldIsable));
+		m_cookedResults.addBackend(std::move(oldIsable));
 		intersectable = std::move(newIsable);
 	}
 

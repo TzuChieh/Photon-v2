@@ -31,7 +31,10 @@ public:
 	void addTransform(std::unique_ptr<Transform> transform);
 	void setEmitter(std::unique_ptr<Emitter> emitter);
 
+	void addBackend(std::unique_ptr<Intersectable> intersectable);
+
 	void claimCookedData(CookedDataStorage& storage);
+	void claimCookedBackend(CookedDataStorage& storage);
 
 	CookedUnit& operator = (CookedUnit&& rhs);
 
@@ -45,6 +48,7 @@ private:
 	std::unique_ptr<PrimitiveMetadata>          m_primitiveMetadata;
 	std::vector<std::unique_ptr<Transform>>     m_transforms;
 	std::unique_ptr<Emitter>                    m_emitter;
+	std::vector<std::unique_ptr<Intersectable>> m_backendIntersectables;
 };
 
 }// end namespace ph
