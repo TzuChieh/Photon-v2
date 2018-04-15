@@ -23,15 +23,11 @@ class TMultiplyTexture : public TTextureFunction<InputType, OutputType>
 public:
 	inline TMultiplyTexture() :
 		TMultiplyTexture(MultiplierType(1))
-	{
-
-	}
+	{}
 
 	inline explicit TMultiplyTexture(const MultiplierType& multiplier) : 
 		m_multiplier(multiplier)
-	{
-
-	}
+	{}
 
 	inline virtual void sample(const SampleLocation& sampleLocation, OutputType* const out_value) const override
 	{

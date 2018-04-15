@@ -6,6 +6,7 @@
 #include "FileIO/InputPrototype.h"
 #include "FileIO/InputPacket.h"
 #include "Math/TVector3.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/IdealAbsorber.h"
 
 #include <string>
 #include <iostream>
@@ -56,7 +57,7 @@ std::unique_ptr<IdealSubstance> IdealSubstance::ciLoad(const InputPacket& packet
 	auto material = std::make_unique<IdealSubstance>();
 
 	const std::string type = packet.getString("type", 
-	                                          "dielectric-reflector", 
+	                                          "absorber", 
 	                                          DataTreatment::REQUIRED());
 	if(type == "dielectric-reflector")
 	{
@@ -101,6 +102,13 @@ std::unique_ptr<IdealSubstance> IdealSubstance::ciLoad(const InputPacket& packet
 			optics->setFresnelEffect(fresnel);
 
 			return optics;
+		};
+	}
+	else if(type == "absorber")
+	{
+		material->m_opticsGenerator = [=]()
+		{
+			return std::make_unique<IdealAbsorber>();
 		};
 	}
 

@@ -276,6 +276,7 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\ESurfacePhenomenon.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceBehavior.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics.h" />
+    <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\IdealAbsorber.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\IdealReflector.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\IdealTransmitter.h" />
     <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\LambertianDiffuse.h" />
@@ -502,6 +503,7 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\Property\ExactConductorDielectricFresnel.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceBehavior.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics.cpp" />
+    <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\IdealAbsorber.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\IdealReflector.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\IdealTransmitter.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\LambertianDiffuse.cpp" />

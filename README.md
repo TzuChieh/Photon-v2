@@ -14,7 +14,7 @@ Visit Project Website: https://tzuchieh.github.io/Photon-v2-site
 * **Material**
   * Lambertian diffuse
   * microfacet-based opaque & translucent model
-  * ideal reflector & transmitter
+  * ideal reflector, transmitter and absorber
   * measured IOR
 
 * **Geometry**
@@ -42,7 +42,7 @@ Visit Project Website: https://tzuchieh.github.io/Photon-v2-site
   * fully support common materials
   * basic addon for Blender
   * distributed rendering system
-  * binary version of Photon-SDL
+  * binary/modularized version of Photon-SDL
 
 * **Mid-term (in 3 ~ 6 months)**
   * material node editor & parser
@@ -63,9 +63,9 @@ Photon-v2 is being developed with cross-platformity in mind, but Windows is the 
 | :---: | :---: |
 | Gold Cups in Sponza | Arc Reactor (Iron Man) by "kuhn0362"|
 
-| <a href="./gallery/044_scenery glass dragon 6000spp.png"><img src="./gallery/044_scenery glass dragon 6000spp.png" align="left" width="450" ></a> | <a href="./gallery/045_water dragon color light.png"><img src="./gallery/045_water dragon color light.png" align="left" width="450" ></a> |
+| <a href="./gallery/044_scenery glass dragon 6000spp.png"><img src="./gallery/044_scenery glass dragon 6000spp.png" align="left" width="450" ></a> | <a href="./gallery/books.png"><img src="./gallery/books.png" align="left" width="450" ></a> |
 | :---: | :---: |
-| Scenery with Glass Dragon | Dragon in Fluid |
+| Scenery with Glass Dragon | Books by archemi |
 
 ## Scene Description Language
 The scene descripting language (SDL) designed by T.C. Chang can be stored into a text file (.p2 filename extension) and loaded by Photon-v2 for rendering. To create a scene, you can either open up a text file and start writing right away (visit folder "./scenes/" for reference) or install the Blender addon (in "./BlenderAddon/"), which contains a .p2 file exporter and a material editor currently.

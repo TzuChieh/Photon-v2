@@ -18,6 +18,9 @@ public:
 
 	virtual ValueType evaluate(ValueType x, ValueType y) const override;
 
+	// Sink the gaussian with specified amount; effectively subtract then
+	// clamp to zero.
+	//
 	inline void setSubmergeAmount(const ValueType amt)
 	{
 		m_submergeAmount = amt;
@@ -39,9 +42,7 @@ TGaussian2D<ValueType>::TGaussian2D(const ValueType sigmaX,
 	m_yExpMultiplier(static_cast<ValueType>(-1) / (static_cast<ValueType>(2) * sigmaY * sigmaY)),
 	m_amplitude(amplitude),
 	m_submergeAmount(0)
-{
-
-}
+{}
 
 template<typename ValueType>
 TGaussian2D<ValueType>::~TGaussian2D() = default;

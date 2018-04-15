@@ -7,9 +7,7 @@ namespace ph
 IdealTransmitter::IdealTransmitter() : 
 	SurfaceOptics(),
 	m_fresnel(std::make_shared<ExactDielectricFresnel>(1.0_r, 1.5_r))
-{
-
-}
+{}
 
 IdealTransmitter::~IdealTransmitter() = default;
 

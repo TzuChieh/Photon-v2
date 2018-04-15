@@ -804,6 +804,9 @@
     <ClInclude Include="Source\Actor\CookedDataStorage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\SurfaceBehavior\SurfaceOptics\IdealAbsorber.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">
@@ -1311,6 +1314,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Actor\CookingContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SurfaceBehavior\SurfaceOptics\IdealAbsorber.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

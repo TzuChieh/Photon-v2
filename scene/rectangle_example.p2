@@ -7,12 +7,13 @@
 -> geometry(rectangle) @target [real width 6] [real height 6]
 
 -> material(matte-opaque) @white [vector3r albedo "0.8 0.8 0.8"]
+-> material(ideal-substance) @black [string type absorber]
 
 -> actor(model) @ground [geometry geometry @plane] [material material @white]
 -> actor(model) rotate(@ground) [vector3r axis "1 0 0"] [real degree -90]
 -> actor(model) scale(@ground) [vector3r factor "10 10 10"]
 
--> actor(model) @object [geometry geometry @target]  [material material @white]
+-> actor(model) @object [geometry geometry @target]  [material material @black]
 -> actor(model) translate(@object) [vector3r factor "0 4 0"]
 -> actor(model) rotate(@object) [vector3r axis "1 1 0"] [real degree -30]
 

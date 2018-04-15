@@ -28,6 +28,7 @@ public:
 	inline T evaluate(T x) const;
 	inline T evaluate(T x, std::size_t p0Index, std::size_t p1Index) const;
 
+	// TODO: eliminate the need for update
 	inline void update();
 	
 	inline void addPoint(const TVector2<T>& point);
