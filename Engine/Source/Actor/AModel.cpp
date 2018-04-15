@@ -11,6 +11,7 @@
 #include "Actor/MotionSource/MotionSource.h"
 #include "Core/Quantity/Time.h"
 #include "Actor/ModelBuilder.h"
+#include "Actor/CookingContext.h"
 
 #include <algorithm>
 #include <iostream>

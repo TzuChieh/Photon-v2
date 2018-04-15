@@ -51,12 +51,30 @@ void VisualWorld::cook()
 {
 	logger.log(ELogLevel::NOTE_MED, "cooking visual world...");
 
+	// TODO: clear cooked data
+
 	CookingContext cookingContext;
-	for(const auto& actor : m_actors)
+
+	// cook root actors
+	//
+	cookActors(cookingContext);
+
+	// cook child actors (breadth first)
+	//
+	while(true)
 	{
-		CookedUnit cookedUnit = actor->cook(cookingContext);
-		cookedUnit.claimCookedData(m_cookedActorStorage);
-		cookedUnit.claimCookedBackend(m_cookedBackendStorage);
+		auto childActors = cookingContext.claimChildActors();
+		if(childActors.empty())
+		{
+			break;
+		}
+
+		for(const auto& actor : childActors)
+		{
+			CookedUnit cookedUnit = actor->cook(cookingContext);
+			cookedUnit.claimCookedData(m_cookedActorStorage);
+			cookedUnit.claimCookedBackend(m_cookedBackendStorage);
+		}
 	}
 
 	logger.log(ELogLevel::NOTE_MED, 
@@ -75,6 +93,16 @@ void VisualWorld::cook()
 	m_lightSampler->update(m_cookedActorStorage);
 
 	m_scene = Scene(m_intersector.get(), m_lightSampler.get());
+}
+
+void VisualWorld::cookActors(CookingContext& cookingContext)
+{
+	for(const auto& actor : m_actors)
+	{
+		CookedUnit cookedUnit = actor->cook(cookingContext);
+		cookedUnit.claimCookedData(m_cookedActorStorage);
+		cookedUnit.claimCookedBackend(m_cookedBackendStorage);
+	}
 }
 
 const Scene& VisualWorld::getScene() const

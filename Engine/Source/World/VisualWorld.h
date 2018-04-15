@@ -15,6 +15,8 @@
 namespace ph
 {
 
+class CookingContext;
+
 class VisualWorld final
 {
 public:
@@ -38,6 +40,8 @@ private:
 	std::unique_ptr<Intersector>  m_intersector;
 	std::unique_ptr<LightSampler> m_lightSampler;
 	Scene                         m_scene;
+
+	void cookActors(CookingContext& cookingContext);
 
 	static const Logger logger;
 };

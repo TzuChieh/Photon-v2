@@ -13,6 +13,7 @@
 #include "Actor/ModelBuilder.h"
 #include "Core/Intersectable/TransformedPrimitive.h"
 #include "Math/Transform/StaticRigidTransform.h"
+#include "Actor/CookingContext.h"
 
 #include <algorithm>
 #include <iostream>

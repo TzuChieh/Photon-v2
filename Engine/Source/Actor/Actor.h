@@ -2,10 +2,11 @@
 
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Actor/CookedUnit.h"
-#include "Actor/CookingContext.h"
 
 namespace ph
 {
+
+class CookingContext;
 
 class Actor : public TCommandInterface<Actor>
 {
