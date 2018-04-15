@@ -15,7 +15,7 @@ const Logger PictureLoader::logger(LogSender("Picture Loader"));
 LdrRgbFrame PictureLoader::loadLdr(const Path& picturePath)
 {
 	logger.log(ELogLevel::NOTE_MED, 
-	           "loading image <" + picturePath.toString() + ">");
+	           "loading picture <" + picturePath.toString() + ">");
 
 	LdrRgbFrame picture;
 
@@ -44,7 +44,35 @@ LdrRgbFrame PictureLoader::loadLdr(const Path& picturePath)
 		logger.log(ELogLevel::WARNING_MED,
 		           "picture <" + picturePath.toString() + "> is empty");
 	}
+	return picture;
+}
 
+HdrRgbFrame PictureLoader::loadHdr(const Path& picturePath)
+{
+	logger.log(ELogLevel::NOTE_MED, 
+	           "loading picture <" + picturePath.toString() + ">");
+
+	HdrRgbFrame picture;
+
+	const std::string& ext = picturePath.getExtension();
+	if(ext == ".hdr")
+	{
+		picture = loadHdrViaStb(picturePath.toAbsoluteString());
+	}
+	else
+	{
+		logger.log(ELogLevel::WARNING_MED, 
+		           "cannot load <" + 
+		           picturePath.toString() + 
+		           "> since the format is unsupported");
+		picture = HdrRgbFrame();
+	}
+
+	if(picture.isEmpty())
+	{
+		logger.log(ELogLevel::WARNING_MED,
+		           "picture <" + picturePath.toString() + "> is empty");
+	}
 	return picture;
 }
 
@@ -105,6 +133,61 @@ LdrRgbFrame PictureLoader::loadLdrViaStb(const std::string& fullFilename)
 	}
 
 	// free the image data loaded by stb
+	stbi_image_free(stbImageData);
+
+	return picture;
+}
+
+HdrRgbFrame PictureLoader::loadHdrViaStb(const std::string& fullFilename)
+{
+	// variables to retrieve image info from stbi_loadf()
+	//
+	int widthPx;
+	int heightPx;
+	int numComponents;
+
+	// stb's default origin is on the upper-left corner, this call made the 
+	// origin on the lower-left corner to meet with Photon's expectation
+	//
+	stbi_set_flip_vertically_on_load(true);
+
+	// the last parameter is "0" since we want the actual components the image has
+	// (replace "0" with "1" ~ "4" to force that many components per pixel)
+	//
+	float* stbImageData = stbi_loadf(fullFilename.c_str(), &widthPx, &heightPx, &numComponents, 0);
+
+	if(stbImageData == NULL)
+	{
+		logger.log(ELogLevel::WARNING_MED,
+		           "picture <" + fullFilename + "> loading failed");
+		return HdrRgbFrame();
+	}
+
+	if(numComponents != 3)
+	{
+		logger.log(ELogLevel::WARNING_MED,
+			"picture <" + fullFilename + ">'s number of components != 3 (has " +
+			std::to_string(numComponents) + " components), may produce error");
+	}
+
+	HdrRgbFrame picture(widthPx, heightPx);
+	for(uint32 y = 0; y < picture.heightPx(); y++)
+	{
+		for(uint32 x = 0; x < picture.widthPx(); x++)
+		{
+			const std::size_t i = (static_cast<std::size_t>(y) * picture.widthPx() + x) * numComponents;
+			PH_ASSERT(i < static_cast<std::size_t>(widthPx) * heightPx * numComponents);
+
+			HdrRgbFrame::Pixel rgbPixel;
+			rgbPixel[0] = static_cast<HdrComponent>(stbImageData[i + 0]);
+			rgbPixel[1] = static_cast<HdrComponent>(stbImageData[i + 1]);
+			rgbPixel[2] = static_cast<HdrComponent>(stbImageData[i + 2]);
+			picture.setPixel(x, y, rgbPixel);
+		}
+	}
+
+	// free the image data loaded by stb
+	//
 	stbi_image_free(stbImageData);
 
 	return picture;

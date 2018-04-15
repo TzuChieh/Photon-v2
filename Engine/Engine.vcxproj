@@ -294,6 +294,7 @@
     <ClInclude Include="Source\Core\SurfaceBehavior\Property\SchlickApproxDielectricFresnel.h" />
     <ClInclude Include="Source\Core\SurfaceHit.h" />
     <ClInclude Include="Source\Core\Texture\Function\TAddTexture.h" />
+    <ClInclude Include="Source\Core\Texture\HdrRgbTexture2D.h" />
     <ClInclude Include="Source\Core\Texture\SampleLocation.h" />
     <ClInclude Include="Source\Core\Texture\TAbstractPixelTex2D.h" />
     <ClInclude Include="Source\Core\Texture\TBilinearPixelTex2D.h" />
@@ -525,6 +526,7 @@
       <FileType>Document</FileType>
     </ClInclude>
     <ClCompile Include="Source\Core\SurfaceHit.cpp" />
+    <ClCompile Include="Source\Core\Texture\HdrRgbTexture2D.cpp" />
     <ClCompile Include="Source\Core\Texture\LdrRgbTexture2D.cpp" />
     <ClInclude Include="Source\Core\Texture\TTexture.ipp">
       <FileType>Document</FileType>

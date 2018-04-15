@@ -14,9 +14,11 @@ class PictureLoader final
 {
 public:
 	static LdrRgbFrame loadLdr(const Path& picturePath);
+	static HdrRgbFrame loadHdr(const Path& picturePath);
 
 private:
 	static LdrRgbFrame loadLdrViaStb(const std::string& fullFilename);
+	static HdrRgbFrame loadHdrViaStb(const std::string& fullFilename);
 
 	static const Logger logger;
 };
