@@ -19,7 +19,9 @@ LdrRgbTexture2D::LdrRgbTexture2D() :
 LdrRgbTexture2D::LdrRgbTexture2D(std::unique_ptr<TAbstractPixelTex2D<LdrComponent, 3>> texture) :
 	TTexture(),
 	m_texture(std::move(texture))
-{}
+{
+	PH_ASSERT(m_texture != nullptr);
+}
 
 LdrRgbTexture2D::~LdrRgbTexture2D() = default;
 

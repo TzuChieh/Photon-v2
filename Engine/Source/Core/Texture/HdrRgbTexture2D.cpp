@@ -13,7 +13,7 @@ HdrRgbTexture2D::HdrRgbTexture2D(std::unique_ptr<TAbstractPixelTex2D<HdrComponen
 	TTexture(),
 	m_texture(std::move(texture))
 {
-	PH_ASSERT(texture != nullptr);
+	PH_ASSERT(m_texture != nullptr);
 }
 
 HdrRgbTexture2D::~HdrRgbTexture2D() = default;
