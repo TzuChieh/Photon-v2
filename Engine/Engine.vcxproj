@@ -389,6 +389,7 @@
     <ClInclude Include="Source\World\Scene.h" />
     <ClInclude Include="Source\World\TManagedResource.h" />
     <ClInclude Include="Source\World\VisualWorld.h" />
+    <ClInclude Include="Source\World\VisualWorldInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Actor.cpp" />
@@ -521,6 +522,7 @@
     <ClCompile Include="Source\Core\SurfaceBehavior\Property\Microfacet.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\Property\SchlickApproxConductorDielectricFresnel.cpp" />
     <ClCompile Include="Source\Core\SurfaceBehavior\Property\SchlickApproxDielectricFresnel.cpp" />
+    <ClCompile Include="Source\World\VisualWorldInfo.cpp" />
     <ClInclude Include="Source\Core\Texture\TCheckerboardTexture.ipp">
       <FileType>Document</FileType>
     </ClInclude>

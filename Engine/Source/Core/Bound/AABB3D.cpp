@@ -13,21 +13,15 @@ AABB3D AABB3D::makeUnioned(const AABB3D& a, const AABB3D& b)
 
 AABB3D::AABB3D() :
 	m_minVertex(0, 0, 0), m_maxVertex(0, 0, 0)
-{
-
-}
+{}
 
 AABB3D::AABB3D(const Vector3R& point) :
 	m_minVertex(point), m_maxVertex(point)
-{
-
-}
+{}
 
 AABB3D::AABB3D(const Vector3R& minVertex, const Vector3R& maxVertex) :
 	m_minVertex(minVertex), m_maxVertex(maxVertex)
-{
-
-}
+{}
 
 // TODO: this method is basically duplicated
 bool AABB3D::isIntersectingVolume(const Ray& ray) const
@@ -237,6 +231,11 @@ std::vector<Vector3R> AABB3D::getVertices() const
 	        Vector3R(m_minVertex.x, m_maxVertex.y, m_maxVertex.z),
 	        Vector3R(m_maxVertex.x, m_minVertex.y, m_maxVertex.z),
 	        Vector3R(m_maxVertex.x, m_maxVertex.y, m_maxVertex.z)};
+}
+
+std::string AABB3D::toString() const
+{
+	return "min-vertex = " + m_minVertex.toString() + ", max-vertex = " + m_maxVertex.toString();
 }
 
 }// end namespace ph

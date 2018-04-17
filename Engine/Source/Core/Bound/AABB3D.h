@@ -3,6 +3,7 @@
 #include "Math/TVector3.h"
 
 #include <vector>
+#include <string>
 
 namespace ph
 {
@@ -75,6 +76,8 @@ public:
 		m_minVertex.subLocal(amount);
 		m_maxVertex.addLocal(amount);
 	}
+
+	std::string toString() const;
 
 private:
 	Vector3R m_minVertex;

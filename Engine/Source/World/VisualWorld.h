@@ -8,6 +8,7 @@
 #include "Core/Intersectable/Intersector.h"
 #include "World/LightSampler/LightSampler.h"
 #include "Common/Logger.h"
+#include "Core/Bound/AABB3D.h"
 
 #include <vector>
 #include <memory>
@@ -42,6 +43,8 @@ private:
 	Scene                         m_scene;
 
 	void cookActors(CookingContext& cookingContext);
+
+	static AABB3D calcIntersectableBound(const CookedDataStorage& storage);
 
 	static const Logger logger;
 };

@@ -8,6 +8,7 @@
 #include "Core/Intersectable/Kdtree/KdtreeIntersector.h"
 #include "World/LightSampler/UniformRandomLightSampler.h"
 #include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
+#include "World/VisualWorldInfo.h"
 
 #include <limits>
 #include <iostream>
@@ -59,6 +60,13 @@ void VisualWorld::cook()
 	//
 	cookActors(cookingContext);
 
+	VisualWorldInfo visualWorldInfo;
+	const AABB3D bound = calcIntersectableBound(m_cookedActorStorage);
+	visualWorldInfo.setRootActorsBound(bound);
+	cookingContext.setVisualWorldInfo(&visualWorldInfo);
+
+	logger.log(ELogLevel::NOTE_MED, "root actors bound calculated to be: " + bound.toString());
+
 	// cook child actors (breadth first)
 	//
 	while(true)
@@ -108,6 +116,24 @@ void VisualWorld::cookActors(CookingContext& cookingContext)
 const Scene& VisualWorld::getScene() const
 {
 	return m_scene;
+}
+
+AABB3D VisualWorld::calcIntersectableBound(const CookedDataStorage& storage)
+{
+	if(storage.numIntersectables() == 0)
+	{
+		return AABB3D();
+	}
+
+	AABB3D fullBound;
+	storage.intersectables().begin()->get()->calcAABB(&fullBound);
+	for(const auto& intersectable : storage.intersectables())
+	{
+		AABB3D bound;
+		intersectable->calcAABB(&bound);
+		fullBound.unionWith(bound);
+	}
+	return fullBound;
 }
 
 }// end namespace ph
