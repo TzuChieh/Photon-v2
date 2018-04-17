@@ -13,11 +13,16 @@
 -> actor(model) rotate(@ground) [vector3r axis "1 0 0"] [real degree -90]
 -> actor(model) scale(@ground) [vector3r factor "10 10 10"]
 
+-> actor(model) @sky [geometry geometry @plane] [material material @white]
+-> actor(model) rotate(@sky) [vector3r axis "1 0 0"] [real degree 90]
+-> actor(model) scale(@sky) [vector3r factor "10 10 10"]
+-> actor(model) translate(@sky) [vector3r factor "0 16 0"]
+
 -> actor(model) @object [geometry geometry @target]  [material material @black]
 -> actor(model) translate(@object) [vector3r factor "0 4 0"]
 -> actor(model) rotate(@object) [vector3r axis "1 1 0"] [real degree -30]
 
--> light-source(model) @modelSource [vector3r emitted-radiance "3.4 3.4 3.4"]
+-> light-source(model) @modelSource [vector3r emitted-radiance "3.4 3.4 3.4"] [string emit-mode back]
 [geometry geometry @plane] [material material @white]
 -> actor(light) @topLight [light-source light-source @modelSource]
 -> actor(light) translate(@topLight) [vector3r factor "0 10 0"]

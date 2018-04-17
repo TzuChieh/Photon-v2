@@ -27,7 +27,8 @@ const Logger ModelSource::logger(LogSender("Model Source"));
 
 ModelSource::ModelSource(const Vector3R& emittedRgbRadiance) :
 	LightSource(), 
-	m_emittedRadiance(nullptr)
+	m_emittedRadiance(nullptr),
+	m_isBackFaceEmit(false)
 {
 	m_emittedRadiance = std::make_shared<ConstantImage>(emittedRgbRadiance, 
 	                                                    ConstantImage::EType::EMR_LINEAR_SRGB);
@@ -35,14 +36,17 @@ ModelSource::ModelSource(const Vector3R& emittedRgbRadiance) :
 
 ModelSource::ModelSource(const Path& imagePath) :
 	LightSource(), 
-	m_emittedRadiance(nullptr)
+	m_emittedRadiance(nullptr),
+	m_isBackFaceEmit(false)
 {
 	auto image = std::make_shared<LdrPictureImage>(PictureLoader::loadLdr(imagePath));
 	m_emittedRadiance = image;
 }
 
 ModelSource::ModelSource(const std::shared_ptr<Image>& emittedRadiance) :
-	m_emittedRadiance(emittedRadiance)
+	LightSource(),
+	m_emittedRadiance(emittedRadiance),
+	m_isBackFaceEmit(false)
 {
 	PH_ASSERT(m_emittedRadiance != nullptr);
 }
@@ -69,9 +73,10 @@ std::unique_ptr<Emitter> ModelSource::genEmitter(
 		primitiveEmitters.push_back(emitter);
 	}
 
+	std::unique_ptr<SurfaceEmitter> emitter;
 	if(primitiveEmitters.size() == 1)
 	{
-		return std::make_unique<PrimitiveAreaEmitter>(primitiveEmitters[0]);
+		emitter = std::make_unique<PrimitiveAreaEmitter>(primitiveEmitters[0]);
 	}
 	else
 	{
@@ -79,10 +84,20 @@ std::unique_ptr<Emitter> ModelSource::genEmitter(
 
 		auto multiEmitter = std::make_unique<MultiAreaEmitter>(std::move(primitiveEmitters));
 		multiEmitter->setEmittedRadiance(emittedRadiance);
-		return multiEmitter;
+		emitter = std::move(multiEmitter);
 	}
 
-	PH_ASSERT_UNREACHABLE_SECTION();
+	PH_ASSERT(emitter != nullptr);
+	if(m_isBackFaceEmit)
+	{
+		emitter->setBackFaceEmit();
+	}
+	else
+	{
+		emitter->setFrontFaceEmit();
+	}
+
+	return emitter;
 }
 
 std::shared_ptr<Geometry> ModelSource::genGeometry(CookingContext& context) const
@@ -107,6 +122,11 @@ void ModelSource::setMaterial(const std::shared_ptr<Material>& material)
 	PH_ASSERT(material != nullptr);
 
 	m_material = material;
+}
+
+void ModelSource::setBackFaceEmit(bool isBackFaceEmit)
+{
+	m_isBackFaceEmit = isBackFaceEmit;
 }
 
 SdlTypeInfo ModelSource::ciTypeInfo()
@@ -160,6 +180,16 @@ std::unique_ptr<ModelSource> ModelSource::ciLoad(const InputPacket& packet)
 
 	source->setGeometry(geometry);
 	source->setMaterial(material);
+
+	const auto& emitMode = packet.getString("emit-mode", "front");
+	if(emitMode == "front")
+	{
+		source->setBackFaceEmit(false);
+	}
+	else if(emitMode == "back")
+	{
+		source->setBackFaceEmit(true);
+	}
 
 	return source;
 }

@@ -31,11 +31,13 @@ public:
 
 	void setGeometry(const std::shared_ptr<Geometry>& geometry);
 	void setMaterial(const std::shared_ptr<Material>& material);
+	void setBackFaceEmit(bool isBackFaceEmit);
 
 private:
 	std::shared_ptr<Image>    m_emittedRadiance;
 	std::shared_ptr<Geometry> m_geometry;
 	std::shared_ptr<Material> m_material;
+	bool                      m_isBackFaceEmit;
 
 	static const Logger logger;
 
