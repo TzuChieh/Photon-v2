@@ -74,4 +74,11 @@ void Math::formOrthonormalBasisFrisvad(const Vector3R& unitYaxis, Vector3R* cons
 		std::cerr << unitYaxis.dot(*out_unitXaxis) << std::endl;*/
 }
 
+bool Math::isSameHemisphere(const Vector3R& vector, const Vector3R& N)
+{
+	PH_ASSERT(N.length() > 0.0_r);
+
+	return N.dot(vector) >= 0.0_r;
+}
+
 }// end namespace ph

@@ -208,6 +208,11 @@ public:
 
 		return lowerBound + (value - lowerBound) % rangeSize;
 	}
+
+	// Checks whether the specified vector is within the hemisphere defined by
+	// the normal vector N. N points to the hemisphere's peak, i.e., theta = 0.
+	//
+	static bool isSameHemisphere(const Vector3R& vector, const Vector3R& N);
 };
 
 }// end namespace ph

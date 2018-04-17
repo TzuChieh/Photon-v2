@@ -43,6 +43,14 @@ public:
 		return *m_emittedRadiance;
 	}
 
+	virtual void setFrontFaceEmit();
+	virtual void setBackFaceEmit();
+
+protected:
+	bool m_isBackFaceEmission;
+
+	bool canEmit(const Vector3R& emitDirection, const Vector3R& N) const;
+
 private:
 	std::shared_ptr<TTexture<SpectralStrength>> m_emittedRadiance;
 };

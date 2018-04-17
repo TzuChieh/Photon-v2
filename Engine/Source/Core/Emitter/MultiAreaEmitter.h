@@ -23,10 +23,10 @@ public:
 	virtual real calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const override;
 	virtual void setEmittedRadiance(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance) override;
 
-	inline void addEmitter(const PrimitiveAreaEmitter& emitter)
-	{
-		m_areaEmitters.push_back(emitter);
-	}
+	virtual void setFrontFaceEmit() override;
+	virtual void setBackFaceEmit() override;
+
+	void addEmitter(const PrimitiveAreaEmitter& emitter);
 
 private:
 	std::vector<PrimitiveAreaEmitter>           m_areaEmitters;

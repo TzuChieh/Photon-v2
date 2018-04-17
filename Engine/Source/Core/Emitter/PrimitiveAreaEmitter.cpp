@@ -35,7 +35,7 @@ void PrimitiveAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStre
 {
 	// FIXME: sort of hacked... (the direction of ray is reversed)
 	// only front side of the emitter is emissive
-	if(X.getIncidentRay().getDirection().mul(-1.0_r).dot(X.getShadingNormal()) <= 0.0_r)
+	if(!canEmit(X.getIncidentRay().getDirection().mul(-1.0_r), X.getShadingNormal()))
 	{
 		out_radiance->setValues(0.0_r);
 		return;
@@ -58,12 +58,13 @@ void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
 	
 	sample.emitPos = positionSample.position;
 
-	const real emitDirDotNormal = emitDir.dot(positionSample.normal);
-	if(emitDirDotNormal <= 0.0_r)
+	if(!canEmit(emitDir, positionSample.normal))
 	{
 		sample.pdfW = 0.0_r;
 		return;
 	}
+
+	const real emitDirDotNormal = emitDir.dot(positionSample.normal);
 	sample.pdfW = positionSample.pdf / std::abs(emitDirDotNormal) * distSquared;
 	getEmittedRadiance().sample(SampleLocation(positionSample.uvw, EQuantity::EMR), &sample.radianceLe);
 }
@@ -73,12 +74,12 @@ real PrimitiveAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const
 	PH_ASSERT(hitPrim != nullptr);
 
 	const Vector3R emitDir(targetPos.sub(emitPos).normalizeLocal());
-	const real emitDirDotNormal = emitDir.dot(emitN);
-	if(emitDirDotNormal <= 0.0_r)
+	if(!canEmit(emitDir, emitN))
 	{
 		return 0.0_r;
 	}
 
+	const real emitDirDotNormal = emitDir.dot(emitN);
 	const real samplePdfA  = hitPrim->calcPositionSamplePdfA(emitPos);
 	const real distSquared = targetPos.sub(emitPos).lengthSquared();
 	return samplePdfA / std::abs(emitDirDotNormal) * distSquared;
