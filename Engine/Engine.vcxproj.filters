@@ -816,6 +816,9 @@
     <ClInclude Include="Source\World\VisualWorldInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Actor\LightSource\DomeSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Actor\Geometry\GCuboid.cpp">
@@ -1335,6 +1338,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\World\VisualWorldInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Actor\LightSource\DomeSource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -19,6 +19,14 @@ public:
 
 	virtual void populateSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const override;
 
+	void asDielectricReflector(real iorInner, real iorOuter);
+
+	// FIXME: specifying ior-outer is redundent, f0 already includes this
+	void asMetallicReflector(const Vector3R& linearSrgbF0, real iorOuter);
+
+	void asTransmitter(real iorInner, real iorOuter);
+	void asAbsorber();
+
 private:
 	std::function<std::unique_ptr<SurfaceOptics>()> m_opticsGenerator;
 

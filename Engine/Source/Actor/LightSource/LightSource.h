@@ -3,8 +3,6 @@
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "FileIO/InputPacket.h"
-#include "Actor/CookedUnit.h"
-#include "Math/Transform/TDecomposedTransform.h"
 #include "Common/primitive_type.h"
 
 #include <memory>
