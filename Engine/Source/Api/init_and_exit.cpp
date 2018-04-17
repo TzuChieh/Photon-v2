@@ -33,6 +33,7 @@
 #include "Actor/PhysicalActor.h"
 #include "Actor/AModel.h"
 #include "Actor/ALight.h"
+#include "Actor/ADome.h"
 
 // images
 #include "Actor/Image/Image.h"
@@ -116,6 +117,7 @@ bool init_command_parser()
 	register_command_interface<PhysicalActor>();
 	register_command_interface<AModel>();
 	register_command_interface<ALight>();
+	register_command_interface<ADome>();
 
 	// images
 	register_command_interface<Image>();

@@ -5,6 +5,7 @@
 #include "FileIO/InputPacket.h"
 #include "Actor/LightSource/LightSource.h"
 #include "Common/Logger.h"
+#include "FileIO/FileSystem/Path.h"
 
 #include <memory>
 
@@ -15,6 +16,7 @@ class DomeSource final : public LightSource, public TCommandInterface<DomeSource
 {
 public:
 	DomeSource();
+	DomeSource(const Path& sphericalEnvMap);
 	virtual ~DomeSource() override;
 
 	virtual std::unique_ptr<Emitter> genEmitter(
@@ -23,6 +25,9 @@ public:
 	virtual std::shared_ptr<Geometry> genGeometry(CookingContext& context) const override;
 
 	virtual std::shared_ptr<Material> genMaterial(CookingContext& context) const override;
+
+private:
+	Path m_sphericalEnvMap;
 
 // command interface
 public:

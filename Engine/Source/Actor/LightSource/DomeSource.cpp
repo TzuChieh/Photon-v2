@@ -3,6 +3,11 @@
 #include "Actor/Material/IdealSubstance.h"
 #include "Actor/CookingContext.h"
 #include "World/VisualWorldInfo.h"
+#include "Core/Emitter/PrimitiveAreaEmitter.h"
+#include "Core/Emitter/MultiAreaEmitter.h"
+#include "FileIO/PictureLoader.h"
+#include "Actor/Image/HdrPictureImage.h"
+#include "Common/assertion.h"
 
 namespace ph
 {
@@ -10,7 +15,12 @@ namespace ph
 const Logger DomeSource::logger(LogSender("Dome Source"));
 
 DomeSource::DomeSource() : 
-	LightSource()
+	DomeSource(Path())
+{}
+
+DomeSource::DomeSource(const Path& sphericalEnvMap) : 
+	LightSource(),
+	m_sphericalEnvMap(sphericalEnvMap)
 {}
 
 DomeSource::~DomeSource() = default;
@@ -18,7 +28,46 @@ DomeSource::~DomeSource() = default;
 std::unique_ptr<Emitter> DomeSource::genEmitter(
 	CookingContext& context, EmitterBuildingMaterial&& data) const
 {
-	// TODO
+	if(data.primitives.empty())
+	{
+		logger.log(ELogLevel::WARNING_MED, 
+			"no primitive provided; requires at least a primitive to build emitter");
+		return nullptr;
+	}
+
+	auto frame           = PictureLoader::loadHdr(m_sphericalEnvMap);
+	auto image           = std::make_shared<HdrPictureImage>(std::move(frame));
+	auto emittedRadiance = image->genTextureSpectral(context);
+
+	std::vector<PrimitiveAreaEmitter> primitiveEmitters;
+	for(const auto& primitive : data.primitives)
+	{
+		PrimitiveAreaEmitter emitter(primitive);
+		emitter.setEmittedRadiance(emittedRadiance);
+		primitiveEmitters.push_back(emitter);
+	}
+
+	std::unique_ptr<SurfaceEmitter> emitter;
+	if(primitiveEmitters.size() == 1)
+	{
+		emitter = std::make_unique<PrimitiveAreaEmitter>(primitiveEmitters[0]);
+	}
+	else
+	{
+		PH_ASSERT(!primitiveEmitters.empty());
+
+		auto multiEmitter = std::make_unique<MultiAreaEmitter>(std::move(primitiveEmitters));
+		multiEmitter->setEmittedRadiance(emittedRadiance);
+		emitter = std::move(multiEmitter);
+	}
+
+	PH_ASSERT(emitter != nullptr);
+
+	// We are inside a large sphere, so we need to make back face emitable.
+	//
+	emitter->setBackFaceEmit();
+
+	return emitter;
 }
 
 std::shared_ptr<Geometry> DomeSource::genGeometry(CookingContext& context) const
@@ -28,7 +77,14 @@ std::shared_ptr<Geometry> DomeSource::genGeometry(CookingContext& context) const
 	{
 		const AABB3D&  bound   = context.getVisualWorldInfo()->getRootActorsBound();
 		const Vector3R extends = bound.calcExtents();
-		rootActorBoundRadius = extends.max() * 4.0_r;
+
+		// Enlarge the root actor bound radius by this factor;
+		// notice that if this radius is too small the rendered dome may 
+		// exhibit distorsion even though the environment map is undistorted.
+		//
+		const real magnifier = 64.0_r;
+
+		rootActorBoundRadius = extends.max() * magnifier;
 	}
 	else
 	{
@@ -54,9 +110,10 @@ std::shared_ptr<Material> DomeSource::genMaterial(CookingContext& context) const
 // command interface
 
 DomeSource::DomeSource(const InputPacket& packet) : 
-	LightSource(packet)
+	LightSource(packet),
+	m_sphericalEnvMap()
 {
-	// TODO
+	// TODO: load env map file path
 }
 
 SdlTypeInfo DomeSource::ciTypeInfo()

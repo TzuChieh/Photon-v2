@@ -2,6 +2,7 @@
 #include "Math/TVector3.h"
 #include "Math/Math.h"
 #include "Math/constant.h"
+#include "Math/TOrthonormalBasis3.h"
 
 #include <iostream>
 #include <cmath>
@@ -22,14 +23,13 @@ void SphericalMapper::map(const Vector3R& position, Vector3R* const out_uvw) con
 	const Vector3R positionDir = position.normalize();
 
 	const real cosTheta = Math::clamp(positionDir.y, -1.0_r, 1.0_r);
-	const real cosPhi   = Math::clamp(positionDir.x, -1.0_r, 1.0_r);
-	const real sinPhi   = Math::clamp(positionDir.z, -1.0_r, 1.0_r);
 
-	const real theta = std::acos(cosTheta);       // [  0, pi]
-	const real phi   = std::atan2(sinPhi, cosPhi);// [-pi, pi]
+	const real theta  = std::acos(cosTheta);                                   // [  0,   pi]
+	const real phiRaw = std::atan2(positionDir.x, positionDir.z);              // [-pi,   pi]
+	const real phi    = phiRaw >= 0.0_r ? phiRaw : 2.0_r * PH_PI_REAL + phiRaw;// [  0, 2*pi]
 
-	out_uvw->x = (-phi + PH_PI_REAL) / (2.0_r * PH_PI_REAL);// [0, 1]
-	out_uvw->y = (PH_PI_REAL - theta) / PH_PI_REAL;         // [0, 1]
+	out_uvw->x = phi / (2.0_r * PH_PI_REAL);       // [0, 1]
+	out_uvw->y = (PH_PI_REAL - theta) / PH_PI_REAL;// [0, 1]
 	out_uvw->z = 0.0_r;
 }
 
