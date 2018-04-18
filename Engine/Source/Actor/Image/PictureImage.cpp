@@ -15,11 +15,15 @@ PictureImage::~PictureImage() = default;
 PictureImage& PictureImage::setSampleMode(EImgSampleMode mode)
 {
 	m_sampleMode = mode;
+
+	return *this;
 }
 
 PictureImage& PictureImage::setWrapMode(EImgWrapMode mode)
 {
 	m_wrapMode = mode;
+
+	return *this;
 }
 
 EImgSampleMode PictureImage::getSampleMode() const

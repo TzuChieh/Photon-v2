@@ -35,8 +35,12 @@ std::unique_ptr<Emitter> DomeSource::genEmitter(
 		return nullptr;
 	}
 
-	auto frame           = PictureLoader::loadHdr(m_sphericalEnvMap);
-	auto image           = std::make_shared<HdrPictureImage>(std::move(frame));
+	auto frame = PictureLoader::loadHdr(m_sphericalEnvMap);
+	frame.flipHorizontally();// since we are viewing it from inside a sphere
+
+	auto image = std::make_shared<HdrPictureImage>(std::move(frame));
+	image->setSampleMode(EImgSampleMode::BILINEAR);
+	image->setWrapMode(EImgWrapMode::REPEAT);
 	auto emittedRadiance = image->genTextureSpectral(context);
 
 	std::vector<PrimitiveAreaEmitter> primitiveEmitters;
