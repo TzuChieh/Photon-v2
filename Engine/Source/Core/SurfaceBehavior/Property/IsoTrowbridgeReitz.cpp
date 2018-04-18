@@ -2,6 +2,7 @@
 #include "Common/assertion.h"
 
 #include <cmath>
+#include <string>
 
 namespace ph
 {
@@ -77,6 +78,15 @@ void IsoTrowbridgeReitz::genDistributedH(
 	const real phi   = 2.0f * PH_PI_REAL * seedA_i0e1;
 	const real theta = std::atan(m_alpha * std::sqrt(seedB_i0e1 / (1.0_r - seedB_i0e1)));
 
+	// HACK: currently seed can be 1, which should be avoided; it can
+	// cause theta to be NaN if alpha = 0 or all kinds of crazy things
+	// (may be STL bug since seed should not include 1...)
+	if(std::isnan(theta) || std::isinf(theta))
+	{
+		out_H->set(N);
+		return;
+	}
+
 	const real sinTheta = std::sin(theta);
 	const real cosTheta = std::cos(theta);
 
@@ -92,6 +102,12 @@ void IsoTrowbridgeReitz::genDistributedH(
 	Math::formOrthonormalBasis(yAxis, &xAxis, &zAxis);
 	H = xAxis.mulLocal(H.x).addLocal(yAxis.mulLocal(H.y)).addLocal(zAxis.mulLocal(H.z));
 	H.normalizeLocal();
+
+	PH_ASSERT_MSG(!std::isnan(H.x) && !std::isnan(H.y) && !std::isnan(H.z) &&
+	              !std::isinf(H.x) && !std::isinf(H.y) && !std::isinf(H.z), "\n"
+		"seed-a = " + std::to_string(seedA_i0e1) + "\n"
+		"seed-b = " + std::to_string(seedB_i0e1) + "\n"
+		"alpha  = " + std::to_string(m_alpha) + "\n");
 }
 
 }// end namespace ph

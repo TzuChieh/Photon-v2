@@ -75,7 +75,8 @@ std::unique_ptr<AbradedOpaque> AbradedOpaque::loadITR(const InputPacket& packet)
 	albedo    = packet.getVector3r("albedo", albedo);
 	roughness = packet.getReal("roughness", roughness);
 
-	const real alpha = RoughnessToAlphaMapping::pbrtV3(roughness);
+	//const real alpha = RoughnessToAlphaMapping::pbrtV3(roughness);
+	const real alpha = RoughnessToAlphaMapping::squared(roughness);
 	SpectralStrength albedoSpectrum;
 	albedoSpectrum.setLinearSrgb(albedo, EQuantity::ECF);// FIXME: check color space
 

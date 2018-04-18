@@ -75,7 +75,12 @@ bool PSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 		const float64 t1 = (b - D) * reciA;
 		const float64 t2 = (b + D) * reciA;
 
-		PH_ASSERT(t1 <= t2);
+		PH_ASSERT_MSG(t1 <= t2, "\n"
+			"t1            = " + std::to_string(t1) + "\n"
+			"t2            = " + std::to_string(t2) + "\n"
+			"(a, b, c)     = (" + std::to_string(a) + ", " + std::to_string(b) + ", " + std::to_string(c) + ")\n"
+			"ray-origin    = " + rayO.toString() + "\n"
+			"ray-direction = " + rayD.toString());
 
 		// t1 is smaller than t2, we test t1 first
 		//
