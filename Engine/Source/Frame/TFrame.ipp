@@ -14,33 +14,25 @@ namespace ph
 template<typename T, std::size_t N>
 inline TFrame<T, N>::TFrame() :
 	TFrame(0, 0)
-{
-
-}
+{}
 
 template<typename T, std::size_t N>
 inline TFrame<T, N>::TFrame(const uint32 wPx, const uint32 hPx) :
 	m_widthPx(wPx), m_heightPx(hPx),
 	m_pixelData(wPx * hPx * N, 0)
-{
-
-}
+{}
 
 template<typename T, std::size_t N>
 inline TFrame<T, N>::TFrame(const TFrame& other) :
 	m_widthPx(other.m_widthPx), m_heightPx(other.m_heightPx),
 	m_pixelData(other.m_pixelData)
-{
-
-}
+{}
 
 template<typename T, std::size_t N>
 inline TFrame<T, N>::TFrame(TFrame&& other) :
 	m_widthPx(other.m_widthPx), m_heightPx(other.m_heightPx),
 	m_pixelData(std::move(other.m_pixelData))
-{
-
-}
+{}
 
 template<typename T, std::size_t N>
 inline void TFrame<T, N>::fill(const T value)
@@ -128,6 +120,44 @@ inline void TFrame<T, N>::sample(
 			sampled.setPixel(x, y, sampledPixel);
 		}// 
 	}    // end for each pixel in sampled frame
+}
+
+template<typename T, std::size_t N>
+inline void TFrame<T, N>::flipHorizontally()
+{
+	const uint32 halfWidthPx = m_widthPx / 2;
+
+	for(uint32 y = 0; y < m_heightPx; ++y)
+	{
+		for(uint32 x = 0; x < halfWidthPx; ++x)
+		{
+			const std::size_t leftPixelBegin  = calcPixelDataBaseIndex(x, y);
+			const std::size_t rightPixelBegin = calcPixelDataBaseIndex(m_widthPx - 1 - x, y);
+
+			for(std::size_t i = 0; i < N; ++i)
+			{
+				std::swap(m_pixelData[leftPixelBegin + i], m_pixelData[rightPixelBegin + i]);
+			}
+		}
+	}
+}
+
+template<typename T, std::size_t N>
+inline void TFrame<T, N>::flipVertically()
+{
+	const uint32      halfHeightPx   = m_heightPx / 2;
+	const std::size_t numRowElements = m_widthPx * N;
+
+	for(uint32 y = 0; y < halfHeightPx; ++y)
+	{
+		const std::size_t bottomRowBegin = calcPixelDataBaseIndex(0, y);
+		const std::size_t topRowBegin    = calcPixelDataBaseIndex(0, m_heightPx - 1 - y);
+
+		for(std::size_t i = 0; i < numRowElements; ++i)
+		{
+			std::swap(m_pixelData[bottomRowBegin + i], m_pixelData[topRowBegin + i]);
+		}
+	}
 }
 
 template<typename T, std::size_t N>

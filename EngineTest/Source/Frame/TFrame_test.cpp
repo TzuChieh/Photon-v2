@@ -100,3 +100,54 @@ TEST(TFrameTest, Sampling)
 		}
 	}
 }
+
+TEST(TFrameTest, Flipping)
+{
+	using namespace ph;
+
+	typedef TFrame<int, 2> Frame;
+
+	Frame::Pixel pixel;
+
+	// horizontal flip
+
+	Frame frame1(2, 2);
+
+	frame1.setPixel(0, 1, Frame::Pixel({0, 1})); frame1.setPixel(1, 1, Frame::Pixel({2, 3})); 
+	frame1.setPixel(0, 0, Frame::Pixel({4, 5})); frame1.setPixel(1, 0, Frame::Pixel({6, 7}));
+
+	frame1.flipHorizontally();
+
+	frame1.getPixel(0, 0, &pixel);
+	EXPECT_TRUE(pixel == Frame::Pixel({6, 7}));
+
+	frame1.getPixel(1, 0, &pixel);
+	EXPECT_TRUE(pixel == Frame::Pixel({4, 5}));
+
+	frame1.getPixel(0, 1, &pixel);
+	EXPECT_TRUE(pixel == Frame::Pixel({2, 3}));
+
+	frame1.getPixel(1, 1, &pixel);
+	EXPECT_TRUE(pixel == Frame::Pixel({0, 1}));
+
+	// vertical flip
+
+	Frame frame2(2, 2);
+
+	frame2.setPixel(0, 1, Frame::Pixel({0, 1})); frame2.setPixel(1, 1, Frame::Pixel({2, 3}));
+	frame2.setPixel(0, 0, Frame::Pixel({4, 5})); frame2.setPixel(1, 0, Frame::Pixel({6, 7}));
+
+	frame2.flipVertically();
+
+	frame2.getPixel(0, 0, &pixel);
+	EXPECT_TRUE(pixel == Frame::Pixel({0, 1}));
+
+	frame2.getPixel(1, 0, &pixel);
+	EXPECT_TRUE(pixel == Frame::Pixel({2, 3}));
+
+	frame2.getPixel(0, 1, &pixel);
+	EXPECT_TRUE(pixel == Frame::Pixel({4, 5}));
+
+	frame2.getPixel(1, 1, &pixel);
+	EXPECT_TRUE(pixel == Frame::Pixel({6, 7}));
+}

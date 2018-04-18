@@ -43,6 +43,9 @@ public:
 		TFrame& sampled, 
 		const TMathFunction2D<float64>& kernel, uint32 kernelRadiusPx) const;
 
+	inline void flipHorizontally();
+	inline void flipVertically();
+
 	// TODO: sampling texture
 
 	inline void getPixel(uint32 x, uint32 y, Pixel* out_pixel) const;

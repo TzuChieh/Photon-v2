@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <array>
 #include <string>
+#include <initializer_list>
 
 namespace ph
 {
@@ -71,6 +72,7 @@ public:
 
 	inline T& operator [] (std::size_t index);
 	inline const T& operator [] (std::size_t index) const;
+	inline bool operator == (const TArithmeticArray& other) const;
 
 	inline TArithmeticArray operator * (T rhs) const;
 	inline TArithmeticArray operator + (T rhs) const;

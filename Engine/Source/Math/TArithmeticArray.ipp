@@ -375,6 +375,19 @@ inline const T& TArithmeticArray<T, N>::operator [] (const std::size_t index) co
 }
 
 template<typename T, std::size_t N>
+inline bool TArithmeticArray<T, N>::operator == (const TArithmeticArray& other) const
+{
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		if(m[i] != other.m[i])
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+template<typename T, std::size_t N>
 inline TArithmeticArray<T, N> TArithmeticArray<T, N>::operator * (const T rhs) const
 {
 	return this->mul(rhs);
