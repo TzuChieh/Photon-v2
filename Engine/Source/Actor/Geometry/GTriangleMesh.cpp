@@ -36,17 +36,14 @@ GTriangleMesh::GTriangleMesh(const std::vector<Vector3R>& positions,
 		triangle.setUVWa(texCoords[i + 0]);
 		triangle.setUVWb(texCoords[i + 1]);
 		triangle.setUVWc(texCoords[i + 2]);
-		triangle.setNa(normals[i + 0].normalize());
-		triangle.setNb(normals[i + 1].normalize());
-		triangle.setNc(normals[i + 2].normalize());
+		triangle.setNa(normals[i + 0].lengthSquared() > 0 ? normals[i + 0].normalize() : Vector3R(0, 1, 0));
+		triangle.setNb(normals[i + 1].lengthSquared() > 0 ? normals[i + 1].normalize() : Vector3R(0, 1, 0));
+		triangle.setNc(normals[i + 2].lengthSquared() > 0 ? normals[i + 2].normalize() : Vector3R(0, 1, 0));
 		addTriangle(triangle);
 	}
 }
 
-GTriangleMesh::~GTriangleMesh()
-{
-
-}
+GTriangleMesh::~GTriangleMesh() = default;
 
 void GTriangleMesh::genPrimitive(const PrimitiveBuildingMaterial& data,
                                  std::vector<std::unique_ptr<Primitive>>& out_primitives) const

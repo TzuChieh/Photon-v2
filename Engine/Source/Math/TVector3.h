@@ -119,7 +119,7 @@ public:
 	inline bool isZero() const;
 	inline bool isNotZero() const;
 	inline bool hasNegativeComponent() const;
-	inline bool isRational() const;
+	inline bool isFinite() const;
 
 	inline std::string toString() const;
 

@@ -154,7 +154,7 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 				break;
 			}
 
-			PH_ASSERT(L.isRational());
+			PH_ASSERT(L.isFinite());
 
 			BsdfPdfQuery bsdfPdfQuery;
 			bsdfPdfQuery.inputs.set(bsdfSample);
@@ -231,7 +231,7 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 
 			V = tracingRay.getDirection().mul(-1.0_r);
 
-			PH_ASSERT_MSG(V.isRational(), V.toString());
+			PH_ASSERT_MSG(V.isFinite(), V.toString());
 		}
 	}// end for each bounces
 

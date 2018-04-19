@@ -32,7 +32,7 @@ namespace unit_hemisphere::uniform
 		out_sample->y = yValue;
 		out_sample->z = std::cos(phi) * yRadius;
 
-		PH_ASSERT_MSG(out_sample->isRational(), "\n"
+		PH_ASSERT_MSG(out_sample->isFinite(), "\n"
 			"vector = " + out_sample->toString() + "\n"
 			"seed-a = " + std::to_string(value_0_1_a) + "\n"
 			"seed-b = " + std::to_string(value_0_1_b) + "\n");
@@ -57,7 +57,7 @@ namespace unit_hemisphere::cosine_theta_weighted
 		out_sample->y = yValue;
 		out_sample->z = std::cos(phi) * yRadius;
 
-		PH_ASSERT_MSG(out_sample->isRational() && out_sample->length() > 0.9_r, "\n"
+		PH_ASSERT_MSG(out_sample->isFinite() && out_sample->length() > 0.9_r, "\n"
 			"vector = " + out_sample->toString() + "\n"
 			"seed-a = " + std::to_string(value_0_1_a) + "\n"
 			"seed-b = " + std::to_string(value_0_1_b) + "\n");
@@ -92,7 +92,7 @@ namespace unit_sphere::uniform
 		out_sample->z = r * std::cos(phi);
 		out_sample->normalizeLocal();
 
-		PH_ASSERT_MSG(out_sample->isRational(), "\n"
+		PH_ASSERT_MSG(out_sample->isFinite(), "\n"
 			"vector = " + out_sample->toString() + "\n"
 			"seed-a = " + std::to_string(value_0_1_a) + "\n"
 			"seed-b = " + std::to_string(value_0_1_b) + "\n");

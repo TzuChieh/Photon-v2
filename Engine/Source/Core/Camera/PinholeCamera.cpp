@@ -26,7 +26,7 @@ void PinholeCamera::genSensedRay(const Vector2R& rasterPosPx, Ray* const out_ray
 	time.relativeT = Random::genUniformReal_i0_e1();
 	out_ray->setTime(time);
 
-	PH_ASSERT_MSG(out_ray->getOrigin().isRational() && out_ray->getDirection().isRational(), "\n"
+	PH_ASSERT_MSG(out_ray->getOrigin().isFinite() && out_ray->getDirection().isFinite(), "\n"
 		"origin    = " + out_ray->getOrigin().toString() + "\n"
 		"direction = " + out_ray->getDirection().toString() + "\n");
 }

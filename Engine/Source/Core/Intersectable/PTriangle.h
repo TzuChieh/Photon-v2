@@ -2,6 +2,7 @@
 
 #include "Math/TVector3.h"
 #include "Core/Intersectable/Primitive.h"
+#include "Common/assertion.h"
 
 namespace ph
 {
@@ -29,16 +30,22 @@ public:
 
 	inline void setNa(const Vector3R& nA)
 	{
+		PH_ASSERT_MSG(nA.isFinite() && nA.length() > 0.9_r, nA.toString());
+
 		m_nA = nA;
 	}
 
 	inline void setNb(const Vector3R& nB)
 	{
+		PH_ASSERT_MSG(nB.isFinite() && nB.length() > 0.9_r, nB.toString());
+
 		m_nB = nB;
 	}
 
 	inline void setNc(const Vector3R& nC)
 	{
+		PH_ASSERT_MSG(nC.isFinite() && nC.length() > 0.9_r, nC.toString());
+
 		m_nC = nC;
 	}
 

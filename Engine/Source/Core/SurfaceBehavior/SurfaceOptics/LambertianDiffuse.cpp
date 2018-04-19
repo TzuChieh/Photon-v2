@@ -60,7 +60,7 @@ void LambertianDiffuse::genBsdfSample(const SurfaceHit& X, const Vector3R& V,
 	// generate and transform L to N's space
 
 	const Vector3R& N = X.getShadingNormal();
-	PH_ASSERT(N.isRational());
+	PH_ASSERT(N.isFinite());
 
 	Vector3R& L = *out_L;
 	sampling::unit_hemisphere::cosine_theta_weighted::gen(

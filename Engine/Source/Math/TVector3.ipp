@@ -208,6 +208,8 @@ inline void TVector3<T>::cross(const TVector3& rhs,
 template<typename T>
 inline TVector3<T> TVector3<T>::normalize() const
 {
+	PH_ASSERT(length() != static_cast<T>(0));
+
 	const T reciLen = 1 / length();
 	return TVector3(x * reciLen, y * reciLen, z * reciLen);
 }
@@ -647,7 +649,7 @@ inline bool TVector3<T>::hasNegativeComponent() const
 }
 
 template<typename T>
-inline bool TVector3<T>::isRational() const
+inline bool TVector3<T>::isFinite() const
 {
 	return std::isfinite(x) && std::isfinite(y) && std::isfinite(z);
 }

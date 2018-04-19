@@ -6,6 +6,7 @@
 #include "FileIO/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Common/assertion.h"
+#include "Math/Math.h"
 
 #include <iostream>
 
@@ -16,15 +17,28 @@ GTriangle::GTriangle(const Vector3R& vA, const Vector3R& vB, const Vector3R& vC)
 	Geometry(), 
 	m_vA(vA), m_vB(vB), m_vC(vC)
 {
-	PH_ASSERT_MSG(vB.sub(vA).cross(vC.sub(vA)).length() > 0.0_r, "\n"
+	PH_ASSERT_MSG(vA.isFinite() && vB.isFinite() && vC.isFinite(), "\n"
 		"vA = " + vA.toString() + "\n"
 		"vB = " + vB.toString() + "\n"
 		"vC = " + vC.toString() + "\n");
 
-	const Vector3R faceN = vB.sub(vA).cross(vC.sub(vA)).normalizeLocal();
-	m_nA = faceN;
-	m_nB = faceN;
-	m_nC = faceN;
+	// Calculates face normal. Note that the vertices may form a degenerate
+	// triangle, causing zero cross product and thus producing NaNs after
+	// being normalized. In such case an arbitrary vector will be chosen.
+	//
+	Vector3R faceNormal;
+	if(!isDegenerate())
+	{
+		faceNormal = vB.sub(vA).cross(vC.sub(vA)).normalizeLocal();
+	}
+	else
+	{
+		faceNormal = Vector3R(0, 1, 0);
+	}
+
+	m_nA = faceNormal;
+	m_nB = faceNormal;
+	m_nC = faceNormal;
 
 	m_uvwA.set(0, 0, 0);
 	m_uvwB.set(1, 0, 0);
@@ -83,6 +97,11 @@ std::shared_ptr<Geometry> GTriangle::genTransformApplied(const StaticTransform& 
 	transform.transformO(m_nC, &tTriangle->m_nC);
 
 	return tTriangle;
+}
+
+bool GTriangle::isDegenerate() const
+{
+	return m_vB.sub(m_vA).cross(m_vC.sub(m_vA)).lengthSquared() == 0.0_r;
 }
 
 }// end namespace ph

@@ -116,7 +116,7 @@ void PSphere::calcIntersectionDetail(
 	const Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
 	const Vector3R& hitNormal   = hitPosition.normalize();
 
-	PH_ASSERT_MSG(hitPosition.isRational() && hitNormal.isRational(), "\n"
+	PH_ASSERT_MSG(hitPosition.isFinite() && hitNormal.isFinite(), "\n"
 		"hit-position = " + hitPosition.toString() + "\n"
 		"hit-normal   = " + hitNormal.toString() + "\n");
 
@@ -176,8 +176,8 @@ void PSphere::calcIntersectionDetail(
 	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
 	out_detail->setMisc(this, hitUvw);
 
-	PH_ASSERT_MSG(dPdU.isRational() && dPdV.isRational() && 
-	              dNdU.isRational() && dNdV.isRational(), "\n"
+	PH_ASSERT_MSG(dPdU.isFinite() && dPdV.isFinite() &&
+	              dNdU.isFinite() && dNdV.isFinite(), "\n"
 		"dPdU = " + dPdU.toString() + ", dPdV = " + dPdV.toString() + "\n"
 		"dNdU = " + dNdU.toString() + ", dNdV = " + dNdV.toString() + "\n");
 }

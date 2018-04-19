@@ -26,10 +26,20 @@ PTriangle::PTriangle(const PrimitiveMetadata* const metadata, const Vector3R& vA
 	m_eAB = m_vB.sub(m_vA);
 	m_eAC = m_vC.sub(m_vA);
 
-	PH_ASSERT(m_eAB.cross(m_eAC).length() > 0.0_r);
-	m_faceNormal = m_eAB.cross(m_eAC).normalizeLocal();
+	// Calculates face normal. Note that the vertices may form a degenerate
+	// triangle, causing zero cross product and thus producing NaNs after
+	// being normalized. In such case an arbitrary vector will be chosen.
+	//
+	if(m_eAB.cross(m_eAC).lengthSquared() > 0.0_r)
+	{
+		m_faceNormal = m_eAB.cross(m_eAC).normalizeLocal();
+	}
+	else
+	{
+		m_faceNormal = Vector3R(0, 1, 0);
+	}
+	PH_ASSERT(m_faceNormal.isFinite() && m_faceNormal.length() > 0.0_r);
 
-	PH_ASSERT(m_faceNormal.isRational());
 	m_nA = m_faceNormal;
 	m_nB = m_faceNormal;
 	m_nC = m_faceNormal;
@@ -172,14 +182,14 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 	Vector3R hitBaryABC;
 	probe.getCachedReal3(0, &hitBaryABC);
 
-	PH_ASSERT_MSG(hitBaryABC.isRational(), hitBaryABC.toString());
+	PH_ASSERT_MSG(hitBaryABC.isFinite(), hitBaryABC.toString());
 
 	const Vector3R& hitShadingNormal = Vector3R::weightedSum(
 		m_nA, hitBaryABC.x,
 		m_nB, hitBaryABC.y,
 		m_nC, hitBaryABC.z).normalizeLocal();
 
-	PH_ASSERT_MSG(hitPosition.isRational() && hitShadingNormal.isRational(), "\n"
+	PH_ASSERT_MSG(hitPosition.isFinite() && hitShadingNormal.isFinite(), "\n"
 		"hit-position       = " + hitPosition.toString() + "\n"
 		"hit-shading-normal = " + hitShadingNormal.toString() + "\n");
 
@@ -218,8 +228,8 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
 	out_detail->setMisc(this, hitUVW);
 
-	PH_ASSERT_MSG(dPdU.isRational() && dPdV.isRational() && 
-	              dNdU.isRational() && dNdV.isRational(), "\n"
+	PH_ASSERT_MSG(dPdU.isFinite() && dPdV.isFinite() &&
+	              dNdU.isFinite() && dNdV.isFinite(), "\n"
 		"dPdU = " + dPdU.toString() + ", dPdV = " + dPdV.toString() + "\n"
 		"dNdU = " + dNdU.toString() + ", dNdV = " + dNdV.toString() + "\n");
 }

@@ -17,7 +17,7 @@ const int32 Math::Z_AXIS;
 
 void Math::formOrthonormalBasis(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis)
 {
-	PH_ASSERT_MSG(unitYaxis.isRational(), unitYaxis.toString());
+	PH_ASSERT_MSG(unitYaxis.length() > 0.9_r && unitYaxis.isFinite(), unitYaxis.toString());
 
 	// choose an axis deviate enough to specified y-axis to perform cross product in order to avoid some 
 	// numeric errors
@@ -34,7 +34,7 @@ void Math::formOrthonormalBasis(const Vector3R& unitYaxis, Vector3R* const out_u
 
 	out_unitXaxis->cross(unitYaxis, out_unitZaxis);
 
-	PH_ASSERT_MSG(out_unitXaxis->isRational() && out_unitZaxis->isRational(), "\n"
+	PH_ASSERT_MSG(out_unitXaxis->isFinite() && out_unitZaxis->isFinite(), "\n"
 		"unit-x-axis = " + out_unitXaxis->toString() + "\n"
 		"unit-z-axis = " + out_unitZaxis->toString() + "\n");
 

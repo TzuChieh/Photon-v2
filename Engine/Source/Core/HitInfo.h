@@ -77,7 +77,7 @@ public:
 			                           &m_shadingBasis.xAxis, &m_shadingBasis.zAxis);
 		}
 
-		PH_ASSERT_MSG(m_geometryBasis.yAxis.isRational() && m_shadingBasis.yAxis.isRational(), "\n"
+		PH_ASSERT_MSG(m_geometryBasis.yAxis.isFinite() && m_shadingBasis.yAxis.isFinite(), "\n"
 			"geometry-y-axis = " + m_geometryBasis.yAxis.toString() + "\n"
 			"shading-y-axis  = " + m_shadingBasis.yAxis.toString() + "\n");
 	}

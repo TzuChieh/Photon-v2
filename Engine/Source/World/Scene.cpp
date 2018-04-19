@@ -27,7 +27,7 @@ bool Scene::isIntersecting(const Ray& ray, HitProbe* const out_probe) const
 
 bool Scene::isIntersecting(const Ray& ray) const
 {
-	PH_ASSERT(ray.getOrigin().isRational() && ray.getDirection().isRational());
+	PH_ASSERT(ray.getOrigin().isFinite() && ray.getDirection().isFinite());
 
 	return m_intersector->isIntersecting(ray);
 }
