@@ -645,6 +645,12 @@ inline bool TVector3<T>::hasNegativeComponent() const
 }
 
 template<typename T>
+inline bool TVector3<T>::isRational() const
+{
+	return std::isfinite(x) && std::isfinite(y) && std::isfinite(z);
+}
+
+template<typename T>
 inline T& TVector3<T>::operator [] (const int32 axisIndex)
 {
 	PH_ASSERT(axisIndex >= 0 && axisIndex <= 2);

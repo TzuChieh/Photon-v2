@@ -58,7 +58,10 @@ void LambertianDiffuse::genBsdfSample(const SurfaceHit& X, const Vector3R& V,
 	SpectralStrength albedo = TSampler<SpectralStrength>(EQuantity::ECF).sample(*m_albedo, X);
 
 	// generate and transform L to N's space
+
 	const Vector3R& N = X.getShadingNormal();
+	PH_ASSERT(N.isRational());
+
 	Vector3R& L = *out_L;
 	sampling::unit_hemisphere::cosine_theta_weighted::gen(
 		Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), &L);

@@ -5,6 +5,7 @@
 #include "FileIO/InputPacket.h"
 #include "Math/Math.h"
 #include "Math/Random.h"
+#include "Common/assertion.h"
 
 #include <limits>
 
@@ -24,6 +25,10 @@ void PinholeCamera::genSensedRay(const Vector2R& rasterPosPx, Ray* const out_ray
 	Time time;
 	time.relativeT = Random::genUniformReal_i0_e1();
 	out_ray->setTime(time);
+
+	PH_ASSERT_MSG(out_ray->getOrigin().isRational() && out_ray->getDirection().isRational(), "\n"
+		"origin    = " + out_ray->getOrigin().toString() + "\n"
+		"direction = " + out_ray->getDirection().toString() + "\n");
 }
 
 Vector3R PinholeCamera::genSensedRayDir(const Vector2R& rasterPosPx) const

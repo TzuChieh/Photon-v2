@@ -4,6 +4,7 @@
 #include "Core/HitProbe.h"
 #include "Core/HitDetail.h"
 #include "Common/assertion.h"
+#include "Core/Ray.h"
 
 namespace ph
 {
@@ -26,6 +27,8 @@ bool Scene::isIntersecting(const Ray& ray, HitProbe* const out_probe) const
 
 bool Scene::isIntersecting(const Ray& ray) const
 {
+	PH_ASSERT(ray.getOrigin().isRational() && ray.getDirection().isRational());
+
 	return m_intersector->isIntersecting(ray);
 }
 

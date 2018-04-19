@@ -31,6 +31,11 @@ namespace unit_hemisphere::uniform
 		out_sample->x = std::sin(phi) * yRadius;
 		out_sample->y = yValue;
 		out_sample->z = std::cos(phi) * yRadius;
+
+		PH_ASSERT_MSG(out_sample->isRational(), "\n"
+			"vector = " + out_sample->toString() + "\n"
+			"seed-a = " + std::to_string(value_0_1_a) + "\n"
+			"seed-b = " + std::to_string(value_0_1_b) + "\n");
 	}
 }
 
@@ -46,11 +51,16 @@ namespace unit_hemisphere::cosine_theta_weighted
 
 		const real phi     = 2.0f * PH_PI_REAL * value_0_1_a;
 		const real yValue  = std::sqrt(value_0_1_b);
-		const real yRadius = std::sqrt(1.0f - yValue * yValue);
+		const real yRadius = std::sqrt(1.0f - yValue * yValue);// TODO: y*y is in fact valueB?
 
 		out_sample->x = std::sin(phi) * yRadius;
 		out_sample->y = yValue;
 		out_sample->z = std::cos(phi) * yRadius;
+
+		PH_ASSERT_MSG(out_sample->isRational() && out_sample->length() > 0.9_r, "\n"
+			"vector = " + out_sample->toString() + "\n"
+			"seed-a = " + std::to_string(value_0_1_a) + "\n"
+			"seed-b = " + std::to_string(value_0_1_b) + "\n");
 	}
 }
 
@@ -81,6 +91,11 @@ namespace unit_sphere::uniform
 		out_sample->y = y;
 		out_sample->z = r * std::cos(phi);
 		out_sample->normalizeLocal();
+
+		PH_ASSERT_MSG(out_sample->isRational(), "\n"
+			"vector = " + out_sample->toString() + "\n"
+			"seed-a = " + std::to_string(value_0_1_a) + "\n"
+			"seed-b = " + std::to_string(value_0_1_b) + "\n");
 	}
 }
 

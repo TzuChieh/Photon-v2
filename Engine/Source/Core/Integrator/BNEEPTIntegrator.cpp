@@ -15,6 +15,7 @@
 #include "Core/SurfaceBehavior/BsdfSample.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Core/Quantity/SpectralStrength.h"
+#include "Common/assertion.h"
 
 #include <iostream>
 
@@ -153,6 +154,8 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 				break;
 			}
 
+			PH_ASSERT(L.isRational());
+
 			BsdfPdfQuery bsdfPdfQuery;
 			bsdfPdfQuery.inputs.set(bsdfSample);
 			surfaceBehavior->getOptics()->calcBsdfSamplePdf(bsdfPdfQuery);
@@ -227,6 +230,8 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 			}
 
 			V = tracingRay.getDirection().mul(-1.0_r);
+
+			PH_ASSERT_MSG(V.isRational(), V.toString());
 		}
 	}// end for each bounces
 
