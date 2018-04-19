@@ -4,6 +4,7 @@
 #include "Math/TOrthonormalBasis3.h"
 #include "Math/Math.h"
 #include "Core/ECoordSys.h"
+#include "Common/assertion.h"
 
 namespace ph
 {
@@ -75,6 +76,10 @@ public:
 			Math::formOrthonormalBasis(m_shadingBasis.yAxis,
 			                           &m_shadingBasis.xAxis, &m_shadingBasis.zAxis);
 		}
+
+		PH_ASSERT_MSG(m_geometryBasis.yAxis.isRational() && m_shadingBasis.yAxis.isRational(), "\n"
+			"geometry-y-axis = " + m_geometryBasis.yAxis.toString() + "\n"
+			"shading-y-axis  = " + m_shadingBasis.yAxis.toString() + "\n");
 	}
 
 private:

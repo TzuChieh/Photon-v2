@@ -215,6 +215,8 @@ inline TVector3<T> TVector3<T>::normalize() const
 template<typename T>
 inline TVector3<T>& TVector3<T>::normalizeLocal()
 {
+	PH_ASSERT(length() != static_cast<T>(0));
+
 	const T reciLen = 1 / length();
 
 	x *= reciLen;

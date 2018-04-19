@@ -26,8 +26,10 @@ PTriangle::PTriangle(const PrimitiveMetadata* const metadata, const Vector3R& vA
 	m_eAB = m_vB.sub(m_vA);
 	m_eAC = m_vC.sub(m_vA);
 
+	PH_ASSERT(m_eAB.cross(m_eAC).length() > 0.0_r);
 	m_faceNormal = m_eAB.cross(m_eAC).normalizeLocal();
 
+	PH_ASSERT(m_faceNormal.isRational());
 	m_nA = m_faceNormal;
 	m_nB = m_faceNormal;
 	m_nC = m_faceNormal;
@@ -76,6 +78,8 @@ bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
 			// left as-is
 		}
 	}
+
+	PH_ASSERT_MSG(rayDir.z != 0.0_r && std::isfinite(rayDir.z), std::to_string(rayDir.z));
 
 	const real reciRayDirZ = 1.0_r / rayDir.z;
 	const real shearX = -rayDir.x * reciRayDirZ;
@@ -147,6 +151,8 @@ bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
 
 	// so the ray intersects the triangle
 
+	PH_ASSERT_MSG(determinant != 0 && std::isfinite(determinant), std::to_string(determinant));
+
 	const real reciDeterminant = 1.0_r / determinant;
 	const real baryA = funcEa * reciDeterminant;
 	const real baryB = funcEb * reciDeterminant;
@@ -166,10 +172,16 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 	Vector3R hitBaryABC;
 	probe.getCachedReal3(0, &hitBaryABC);
 
+	PH_ASSERT_MSG(hitBaryABC.isRational(), hitBaryABC.toString());
+
 	const Vector3R& hitShadingNormal = Vector3R::weightedSum(
 		m_nA, hitBaryABC.x,
 		m_nB, hitBaryABC.y,
 		m_nC, hitBaryABC.z).normalizeLocal();
+
+	PH_ASSERT_MSG(hitPosition.isRational() && hitShadingNormal.isRational(), "\n"
+		"hit-position       = " + hitPosition.toString() + "\n"
+		"hit-shading-normal = " + hitShadingNormal.toString() + "\n");
 
 	const Vector3R& hitUVW = Vector3R::weightedSum(
 		m_uvwA, hitBaryABC.x,
@@ -205,6 +217,11 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 
 	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
 	out_detail->setMisc(this, hitUVW);
+
+	PH_ASSERT_MSG(dPdU.isRational() && dPdV.isRational() && 
+	              dNdU.isRational() && dNdV.isRational(), "\n"
+		"dPdU = " + dPdU.toString() + ", dPdV = " + dPdV.toString() + "\n"
+		"dNdU = " + dNdU.toString() + ", dNdV = " + dNdV.toString() + "\n");
 }
 
 void PTriangle::calcAABB(AABB3D* const out_aabb) const

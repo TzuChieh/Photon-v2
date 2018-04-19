@@ -7,6 +7,7 @@
 
 #include <limits>
 #include <string>
+#include <cmath>
 
 namespace ph
 {
@@ -133,8 +134,7 @@ inline bool TMatrix2<T>::solve(
 	{
 		return false;
 	}
-	PH_ASSERT(reciDet != std::numeric_limits<T>::infinity());
-	PH_ASSERT(reciDet == reciDet);
+	PH_ASSERT_MSG(std::isfinite(reciDet), std::to_string(reciDet));
 
 	out_xx->x = (m[1][1] * bx.x - m[0][1] * by.x) * reciDet;
 	out_xy->x = (m[0][0] * by.x - m[1][0] * bx.x) * reciDet;

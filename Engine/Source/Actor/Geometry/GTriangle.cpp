@@ -5,6 +5,7 @@
 #include "Actor/AModel.h"
 #include "FileIO/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
+#include "Common/assertion.h"
 
 #include <iostream>
 
@@ -15,6 +16,11 @@ GTriangle::GTriangle(const Vector3R& vA, const Vector3R& vB, const Vector3R& vC)
 	Geometry(), 
 	m_vA(vA), m_vB(vB), m_vC(vC)
 {
+	PH_ASSERT_MSG(vB.sub(vA).cross(vC.sub(vA)).length() > 0.0_r, "\n"
+		"vA = " + vA.toString() + "\n"
+		"vB = " + vB.toString() + "\n"
+		"vC = " + vC.toString() + "\n");
+
 	const Vector3R faceN = vB.sub(vA).cross(vC.sub(vA)).normalizeLocal();
 	m_nA = faceN;
 	m_nB = faceN;

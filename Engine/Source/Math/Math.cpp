@@ -1,6 +1,7 @@
 #include "Math/Math.h"
 #include "Math/TVector3.h"
 #include "Math/constant.h"
+#include "Common/assertion.h"
 
 #include <iostream>
 #include <iomanip>
@@ -16,6 +17,8 @@ const int32 Math::Z_AXIS;
 
 void Math::formOrthonormalBasis(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis)
 {
+	PH_ASSERT_MSG(unitYaxis.isRational(), unitYaxis.toString());
+
 	// choose an axis deviate enough to specified y-axis to perform cross product in order to avoid some 
 	// numeric errors
 	if(std::abs(unitYaxis.y) < PH_RECI_SQRT_2_REAL)
@@ -30,6 +33,10 @@ void Math::formOrthonormalBasis(const Vector3R& unitYaxis, Vector3R* const out_u
 	}
 
 	out_unitXaxis->cross(unitYaxis, out_unitZaxis);
+
+	PH_ASSERT_MSG(out_unitXaxis->isRational() && out_unitZaxis->isRational(), "\n"
+		"unit-x-axis = " + out_unitXaxis->toString() + "\n"
+		"unit-z-axis = " + out_unitZaxis->toString() + "\n");
 
 	// TEST
 	/*std::cerr << std::setprecision(20);

@@ -116,6 +116,10 @@ void PSphere::calcIntersectionDetail(
 	const Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
 	const Vector3R& hitNormal   = hitPosition.normalize();
 
+	PH_ASSERT_MSG(hitPosition.isRational() && hitNormal.isRational(), "\n"
+		"hit-position = " + hitPosition.toString() + "\n"
+		"hit-normal   = " + hitNormal.toString() + "\n");
+
 	PH_ASSERT(mapper != nullptr);
 	Vector3R hitUvw;
 	mapper->map(hitPosition, &hitUvw);
@@ -171,6 +175,11 @@ void PSphere::calcIntersectionDetail(
 
 	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
 	out_detail->setMisc(this, hitUvw);
+
+	PH_ASSERT_MSG(dPdU.isRational() && dPdV.isRational() && 
+	              dNdU.isRational() && dNdV.isRational(), "\n"
+		"dPdU = " + dPdU.toString() + ", dPdV = " + dPdV.toString() + "\n"
+		"dNdU = " + dNdU.toString() + ", dNdV = " + dNdV.toString() + "\n");
 }
 
 // Intersection test for solid box and hollow sphere.
