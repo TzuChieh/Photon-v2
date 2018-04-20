@@ -25,6 +25,8 @@ DomeSource::DomeSource(const Path& sphericalEnvMap) :
 
 DomeSource::~DomeSource() = default;
 
+// TODO: specify uvw mapper explicitly
+
 std::unique_ptr<Emitter> DomeSource::genEmitter(
 	CookingContext& context, EmitterBuildingMaterial&& data) const
 {

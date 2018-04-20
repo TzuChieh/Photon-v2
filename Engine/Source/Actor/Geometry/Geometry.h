@@ -16,6 +16,7 @@ class UvwMapper;
 class InputPacket;
 class PrimitiveBuildingMaterial;
 class Transform;
+class PrimitiveMetadata;
 
 // TODO: use highest precision to perform geometry related operations
 
@@ -25,8 +26,10 @@ public:
 	Geometry();
 	virtual ~Geometry() = 0;
 
-	virtual void genPrimitive(const PrimitiveBuildingMaterial& data, 
-	                          std::vector<std::unique_ptr<Primitive>>& out_primitives) const = 0;
+	virtual void genPrimitive(
+		const PrimitiveBuildingMaterial&         data, 
+		std::vector<std::unique_ptr<Primitive>>& out_primitives) const;
+
 	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticTransform& transform) const;
 
 	const UvwMapper* getUvwMapper() const;

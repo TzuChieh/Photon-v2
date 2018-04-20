@@ -8,6 +8,8 @@
 namespace ph
 {
 
+const Logger PrimitiveMetadata::logger(LogSender("Primitive Metadata"));
+
 PrimitiveMetadata::PrimitiveMetadata() :
 	surfaceBehavior(),
 	m_channels()
@@ -27,6 +29,19 @@ uint32 PrimitiveMetadata::addChannel(const PrimitiveChannel& channel)
 	PH_ASSERT(m_channels.size() - 1 <= static_cast<std::size_t>(std::numeric_limits<uint32>::max()));
 
 	return static_cast<uint32>(m_channels.size() - 1);
+}
+
+void PrimitiveMetadata::setChannel(const uint32 channelId, const PrimitiveChannel& channel)
+{
+	if(isChannelIdValid(channelId))
+	{
+		m_channels[channelId] = channel;
+	}
+	else
+	{
+		logger.log(ELogLevel::WARNING_MED, 
+			"channel ID (" + std::to_string(channelId) + ") is invalid");
+	}
 }
 
 }// end namespace ph

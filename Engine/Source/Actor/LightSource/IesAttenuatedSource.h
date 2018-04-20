@@ -13,7 +13,7 @@ public:
 	IesAttenuatedSource(const Path& iesFilePath);
 	virtual ~IesAttenuatedSource() override;
 
-	virtual CookedUnit genEmitter(
+	virtual std::unique_ptr<Emitter> genEmitter(
 		CookingContext& context, EmitterBuildingMaterial&& data) const override;
 
 private:

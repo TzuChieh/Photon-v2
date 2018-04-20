@@ -18,19 +18,23 @@ IesAttenuatedSource::IesAttenuatedSource(const Path& iesFilePath) :
 
 IesAttenuatedSource::~IesAttenuatedSource() = default;
 
-CookedUnit IesAttenuatedSource::genEmitter(
+std::unique_ptr<Emitter> IesAttenuatedSource::genEmitter(
 	CookingContext& context, EmitterBuildingMaterial&& data) const
 {
 	const IesData iesData(m_iesFilePath);
 	
+	// TODO
+
+	return nullptr;
 }
 
 // command interface
 
 IesAttenuatedSource::IesAttenuatedSource(const InputPacket& packet) : 
-	LightSource(packet)
+	LightSource(packet),
+	m_iesFilePath()
 {
-	// TODO
+	m_iesFilePath = packet.getStringAsPath("ies", Path(), DataTreatment::REQUIRED());
 }
 
 SdlTypeInfo IesAttenuatedSource::ciTypeInfo()

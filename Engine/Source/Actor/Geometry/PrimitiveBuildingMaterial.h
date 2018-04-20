@@ -10,9 +10,9 @@ class PrimitiveMetadata;
 class PrimitiveBuildingMaterial final
 {
 public:
-	const PrimitiveMetadata* metadata;
+	PrimitiveMetadata* metadata;
 
-	inline PrimitiveBuildingMaterial(const PrimitiveMetadata* metadata) : 
+	inline PrimitiveBuildingMaterial(PrimitiveMetadata* const metadata) : 
 		metadata(metadata)
 	{
 		PH_ASSERT(metadata != nullptr);
