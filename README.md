@@ -26,6 +26,7 @@ Visit Project Website: https://tzuchieh.github.io/Photon-v2-site
   * point light
   * area light (sphere, rectangle)
   * geometric light
+  * HDR environment map
 
 * **Texture**
   * texture with ordinary file formats (.jpg, .png, etc)
@@ -79,7 +80,7 @@ E-mail:           r05922176@ntu.edu.tw <br />
 If you use Photon in your research project, you are hightly encouraged to cite it using the following BibTeX template:
 
 ```latex.bib
-@misc { Photon,
+@misc{Photon,
 	Author = {Tzu-Chieh Chang},
 	Year   = {2016--2018},
 	Title  = {Photon renderer},
