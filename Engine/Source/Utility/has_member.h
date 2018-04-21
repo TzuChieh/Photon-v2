@@ -44,4 +44,23 @@ struct has_add_operator
 	>
 > : std::true_type {};
 
+/******************************************************************************
+	Checks whether an object of type Built can be made from an object of 
+	type From. Both implicit and explicit conversions are considered.
+*/
+
+template<typename Built, typename From, typename = void>
+struct is_buildable : std::false_type {};
+
+template<typename Built, typename From>
+struct is_buildable
+<
+	Built, From,
+	std::enable_if_t
+	<
+		std::is_convertible_v<From, Built> || 
+		std::is_constructible_v<Built, From>
+	>
+> : std::true_type {};
+
 }// end namespace ph

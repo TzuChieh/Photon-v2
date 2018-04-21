@@ -7,6 +7,7 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Texture/SampleLocation.h"
 #include "Common/primitive_type.h"
+#include "Math/math_fwd.h"
 
 namespace ph
 {
@@ -37,6 +38,13 @@ public:
 
 		OutputType value;
 		texture.sample(SampleLocation(channeledDetail, m_sampledQuantity), &value);
+		return value;
+	}
+
+	inline OutputType sample(const TTexture<OutputType>& texture, const Vector3R& uvw) const
+	{
+		OutputType value;
+		texture.sample(SampleLocation(uvw, m_sampledQuantity), &value);
 		return value;
 	}
 

@@ -158,6 +158,7 @@
     <ClInclude Include="Source\Actor\Image\PictureImage.h" />
     <ClInclude Include="Source\Actor\Image\LdrPictureImage.h" />
     <ClInclude Include="Source\Actor\LightSource\DomeSource.h" />
+    <ClInclude Include="Source\Actor\LightSource\IesAttenuatedSource.h" />
     <ClInclude Include="Source\Actor\LightSource\ModelSource.h" />
     <ClInclude Include="Source\Actor\LightSource\EmitterBuildingMaterial.h" />
     <ClInclude Include="Source\Actor\LightSource\LightSource.h" />
@@ -201,6 +202,7 @@
     <ClInclude Include="Source\Core\Camera\RadianceSensor.h" />
     <ClInclude Include="Source\Core\Camera\ThinLensCamera.h" />
     <ClInclude Include="Source\Core\ECoordSys.h" />
+    <ClInclude Include="Source\Core\Emitter\OmniModulatedEmitter.h" />
     <ClInclude Include="Source\Core\Emitter\MultiAreaEmitter.h" />
     <ClInclude Include="Source\Core\Emitter\Emitter.h" />
     <ClInclude Include="Source\Core\Emitter\PrimitiveAreaEmitter.h" />
@@ -418,6 +420,7 @@
     <ClCompile Include="Source\Actor\Image\LdrPictureImage.cpp" />
     <ClCompile Include="Source\Actor\Image\PictureImage.cpp" />
     <ClCompile Include="Source\Actor\LightSource\DomeSource.cpp" />
+    <ClCompile Include="Source\Actor\LightSource\IesAttenuatedSource.cpp" />
     <ClCompile Include="Source\Actor\LightSource\ModelSource.cpp" />
     <ClCompile Include="Source\Actor\LightSource\LightSource.cpp" />
     <ClCompile Include="Source\Actor\LightSource\AreaSource.cpp" />
@@ -451,6 +454,7 @@
     <ClCompile Include="Source\Core\Camera\PerspectiveCamera.cpp" />
     <ClCompile Include="Source\Core\Camera\PinholeCamera.cpp" />
     <ClCompile Include="Source\Core\Camera\ThinLensCamera.cpp" />
+    <ClCompile Include="Source\Core\Emitter\OmniModulatedEmitter.cpp" />
     <ClCompile Include="Source\Core\Emitter\MultiAreaEmitter.cpp" />
     <ClCompile Include="Source\Core\Emitter\Emitter.cpp" />
     <ClCompile Include="Source\Core\Emitter\PrimitiveAreaEmitter.cpp" />

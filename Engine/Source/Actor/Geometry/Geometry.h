@@ -28,7 +28,7 @@ public:
 
 	virtual void genPrimitive(
 		const PrimitiveBuildingMaterial&         data, 
-		std::vector<std::unique_ptr<Primitive>>& out_primitives) const;
+		std::vector<std::unique_ptr<Primitive>>& out_primitives) const = 0;
 
 	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticTransform& transform) const;
 

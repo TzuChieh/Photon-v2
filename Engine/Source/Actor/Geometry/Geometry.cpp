@@ -16,13 +16,6 @@ Geometry::Geometry() :
 
 Geometry::~Geometry() = default;
 
-void Geometry::genPrimitiveData(
-	const PrimitiveBuildingMaterial&         data,
-	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
-{
-	genPrimitive(data.metadata, out_primitives);
-}
-
 void Geometry::setUvwMapper(const std::shared_ptr<UvwMapper>& uvwMapper)
 {
 	PH_ASSERT(uvwMapper != nullptr);

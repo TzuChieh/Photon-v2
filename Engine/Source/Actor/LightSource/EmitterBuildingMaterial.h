@@ -15,7 +15,7 @@ class EmitterBuildingMaterial final
 {
 public:
 	std::vector<const Primitive*> primitives;
-	const PrimitiveMetadata*      metadata;
+	PrimitiveMetadata*            metadata;
 
 	inline EmitterBuildingMaterial() : 
 		primitives(),

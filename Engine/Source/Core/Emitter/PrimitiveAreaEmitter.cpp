@@ -66,6 +66,8 @@ void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
 
 	const real emitDirDotNormal = emitDir.dot(positionSample.normal);
 	sample.pdfW = positionSample.pdf / std::abs(emitDirDotNormal) * distSquared;
+
+	// TODO: use sampler
 	getEmittedRadiance().sample(SampleLocation(positionSample.uvw, EQuantity::EMR), &sample.radianceLe);
 }
 

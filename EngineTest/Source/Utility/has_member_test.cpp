@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 #include <string>
+#include <vector>
 
 TEST(HasMemberTest, HasMultiplyOperator)
 {
@@ -84,4 +85,16 @@ TEST(HasMemberTest, HasAddOperator)
 
 	EXPECT_FALSE((ph::has_add_operator<D, B, D       >{}));
 	EXPECT_FALSE((ph::has_add_operator<D, B, const D&>{}));
+}
+
+TEST(HasMemberTest, IsBuildable)
+{
+	EXPECT_TRUE((ph::is_buildable<int, int>{}));
+	EXPECT_TRUE((ph::is_buildable<float, float>{}));
+	EXPECT_TRUE((ph::is_buildable<unsigned char, int>{}));
+	EXPECT_TRUE((ph::is_buildable<float, unsigned int>{}));
+	EXPECT_TRUE((ph::is_buildable<int, double>{}));
+
+	EXPECT_FALSE((ph::is_buildable<int, std::string()>{}));
+	EXPECT_FALSE((ph::is_buildable<std::string(), std::vector<float>()>{}));
 }

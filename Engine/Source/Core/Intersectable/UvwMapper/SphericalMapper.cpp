@@ -12,20 +12,20 @@ namespace ph
 
 SphericalMapper::~SphericalMapper() = default;
 
-void SphericalMapper::map(const Vector3R& position, Vector3R* const out_uvw) const
+void SphericalMapper::map(const Vector3R& vector, Vector3R* const out_uvw) const
 {
-	if(position.length() < 1e-8)
+	if(vector.lengthSquared() < 1e-8)
 	{
-		std::cerr << "warning: at SphericalMapper::map(), "
-		          << "positions too close to origin may induce errors during mapping" << std::endl;
+		out_uvw->set(0, 0, 0);
+		return;
 	}
 
-	const Vector3R positionDir = position.normalize();
+	const Vector3R& unitVector = vector.normalize();
 
-	const real cosTheta = Math::clamp(positionDir.y, -1.0_r, 1.0_r);
+	const real cosTheta = Math::clamp(unitVector.y, -1.0_r, 1.0_r);
 
 	const real theta  = std::acos(cosTheta);                                   // [  0,   pi]
-	const real phiRaw = std::atan2(positionDir.x, positionDir.z);              // [-pi,   pi]
+	const real phiRaw = std::atan2(unitVector.x, unitVector.z);                // [-pi,   pi]
 	const real phi    = phiRaw >= 0.0_r ? phiRaw : 2.0_r * PH_PI_REAL + phiRaw;// [  0, 2*pi]
 
 	out_uvw->x = phi / (2.0_r * PH_PI_REAL);       // [0, 1]
