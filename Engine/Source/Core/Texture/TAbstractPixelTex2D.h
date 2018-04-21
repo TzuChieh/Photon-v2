@@ -4,6 +4,7 @@
 #include "Math/TArithmeticArray.h"
 #include "Common/assertion.h"
 #include "Math/Math.h"
+#include "Core/Texture/SampleLocation.h"
 
 namespace ph
 {

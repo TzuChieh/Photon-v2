@@ -23,6 +23,8 @@ public:
 public:
 	inline TAbstractSpectralStrength();
 	explicit inline TAbstractSpectralStrength(real value);
+	explicit inline TAbstractSpectralStrength(const std::array<real, 1>& value);
+	explicit inline TAbstractSpectralStrength(const TArithmeticArray<real, 1>& value);
 	explicit inline TAbstractSpectralStrength(const std::array<real, N>& values);
 	explicit inline TAbstractSpectralStrength(const TArithmeticArray<real, N>& values);
 	explicit inline TAbstractSpectralStrength(const TAbstractSpectralStrength& other);

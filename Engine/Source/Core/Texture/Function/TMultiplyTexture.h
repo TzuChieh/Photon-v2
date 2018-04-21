@@ -25,11 +25,11 @@ public:
 		TMultiplyTexture(MultiplierType(1))
 	{}
 
-	inline explicit TMultiplyTexture(const MultiplierType& multiplier) : 
+	explicit inline TMultiplyTexture(const MultiplierType& multiplier) :
 		m_multiplier(multiplier)
 	{}
 
-	inline virtual void sample(const SampleLocation& sampleLocation, OutputType* const out_value) const override
+	virtual inline void sample(const SampleLocation& sampleLocation, OutputType* const out_value) const override
 	{
 		static_assert(has_multiply_operator<InputType, MultiplierType, OutputType>::value, 
 		              "must have multiply operator for OutputType = InputType * MultiplierType");

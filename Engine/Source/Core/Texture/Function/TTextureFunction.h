@@ -12,10 +12,9 @@ class TTextureFunction : public TTexture<OutputType>
 {
 public:
 	inline TTextureFunction();
-	inline TTextureFunction(const std::shared_ptr<TTexture<InputType>>& inputTexture);
-	inline virtual ~TTextureFunction() override;
+	virtual inline ~TTextureFunction() override;
 
-	inline virtual void sample(const SampleLocation& sampleLocation, OutputType* out_value) const = 0;
+	virtual inline void sample(const SampleLocation& sampleLocation, OutputType* out_value) const = 0;
 
 	inline TTextureFunction& setInputTexture(const std::shared_ptr<TTexture<InputType>>& parentTexture);
 

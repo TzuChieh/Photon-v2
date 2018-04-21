@@ -8,18 +8,8 @@ namespace ph
 
 template<typename InputType, typename OutputType>
 inline TTextureFunction<InputType, OutputType>::TTextureFunction() : 
-	TTextureFunction(nullptr)
-{
-
-}
-
-template<typename InputType, typename OutputType>
-inline TTextureFunction<InputType, OutputType>::TTextureFunction(
-	const std::shared_ptr<TTexture<InputType>>& inputTexture) :
-	m_inputTexture(inputTexture)
-{
-
-}
+	m_inputTexture(nullptr)
+{}
 
 template<typename InputType, typename OutputType>
 inline TTextureFunction<InputType, OutputType>::~TTextureFunction() = default;

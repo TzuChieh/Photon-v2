@@ -4,6 +4,10 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/PrimitiveChannel.h"
 #include "Frame/TFrame.h"
+#include "Core/Texture/TBilinearPixelTex2D.h"
+#include "Core/Texture/Function/TConversionTexture.h"
+#include "Math/constant.h"
+#include "Core/Emitter/OmniModulatedEmitter.h"
 
 namespace ph
 {
@@ -38,9 +42,33 @@ std::unique_ptr<Emitter> IesAttenuatedSource::genEmitter(
 
 	const IesData iesData(m_iesFile);
 	
-	// TODO
+	const uint32 pixelsPerDegree = 2;
+	const uint32 widthPx         = 360 * pixelsPerDegree;
+	const uint32 heightPx        = 180 * pixelsPerDegree;
 
-	return nullptr;
+	TFrame<real, 1> attenuationFactors(widthPx, heightPx);
+	for(uint32 y = 0; y < heightPx; y++)
+	{
+		for(uint32 x = 0; x < widthPx; x++)
+		{
+			const real u     = (static_cast<real>(x) + 0.5_r) / static_cast<real>(widthPx);
+			const real v     = (static_cast<real>(y) + 0.5_r) / static_cast<real>(heightPx);
+			const real phi   = u * 2.0_r * PH_PI_REAL;
+			const real theta = (1.0_r - v) * PH_PI_REAL;
+
+			const real factor = iesData.sampleAttenuationFactor(theta, phi);
+			attenuationFactors.setPixel(x, y, TFrame<real, 1>::Pixel({factor}));
+		}
+	}
+
+	auto attenuationTexture = std::make_shared<TBilinearPixelTex2D<real, 1>>(attenuationFactors);
+	auto sourceEmitter      = m_source->genEmitter(context, std::move(data));
+	auto attenuatedEmitter  = std::make_unique<OmniModulatedEmitter>(std::move(sourceEmitter));
+	auto convertedTexture   = std::make_shared<TConversionTexture<TTexPixel<real, 1>, SpectralStrength>>(attenuationTexture);
+
+	attenuatedEmitter->setFilter(convertedTexture);
+
+	return attenuatedEmitter;
 }
 
 std::shared_ptr<Geometry> IesAttenuatedSource::genGeometry(CookingContext& context) const
@@ -67,9 +95,10 @@ std::shared_ptr<Material> IesAttenuatedSource::genMaterial(CookingContext& conte
 
 IesAttenuatedSource::IesAttenuatedSource(const InputPacket& packet) : 
 	LightSource(packet),
-	m_iesFile()
+	m_iesFile(), m_source(nullptr)
 {
 	m_iesFile = packet.getStringAsPath("ies-file", Path(), DataTreatment::REQUIRED());
+	m_source  = packet.get<LightSource>("source", DataTreatment::REQUIRED());
 }
 
 SdlTypeInfo IesAttenuatedSource::ciTypeInfo()

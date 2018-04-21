@@ -68,9 +68,7 @@ DescriptionParser::DescriptionParser() :
 	m_nameTokenizer        ({},                      {{'\"', '\"'}}),
 	m_generatedNameCounter(0),
 	m_workingDirectory()
-{
-
-}
+{}
 
 void DescriptionParser::enter(const std::string& commandFragment, Description& out_data)
 {
