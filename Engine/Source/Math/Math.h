@@ -133,10 +133,13 @@ public:
 
 #if defined(PH_COMPILER_IS_CLANG) || defined(PH_COMPILER_IS_GCC)
 
-		static_assert(sizeof(uint32) == sizeof(unsigned long), 
+		static_assert(sizeof(uint32) == sizeof(unsigned int), 
 		              "expecting same size for conversion purposes");
 
-		return 31 - __builtin_clz(value);
+		const int numLeftZeros = __builtin_clz(value);
+		PH_ASSERT(numLeftZeros >= 0);
+
+		return 31 - static_cast<uint32>(numLeftZeros);
 
 #elif defined(PH_COMPILER_IS_MSVC)
 
