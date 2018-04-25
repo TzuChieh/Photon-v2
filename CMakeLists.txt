@@ -33,6 +33,12 @@ include(ExternalProject)
 #	CMAKE_ARGS      -DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_DIR}assimp/
 #)
 
+if(MSVC)
+    set(GOOGLETEST_CXX_FLAGS "/D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING")
+else()
+    set(GOOGLETEST_CXX_FLAGS "")
+endif()
+
 ExternalProject_Add(googletest
     GIT_REPOSITORY  "https://github.com/google/googletest"
     GIT_TAG         a868e618c0607259c63f37d948b72586a13922ff
@@ -40,7 +46,7 @@ ExternalProject_Add(googletest
 
     CMAKE_ARGS      
     	-DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_DIR}googletest/
-    	-DCMAKE_CXX_FLAGS=/D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
+    	-DCMAKE_CXX_FLAGS=${GOOGLETEST_CXX_FLAGS}
 )
 set(GOOGLETEST_INCLUDE_DIR "${THIRD_PARTY_DIR}googletest/include/")
 set(GOOGLETEST_BINARY_DIR  "${THIRD_PARTY_DIR}googletest/lib/")
