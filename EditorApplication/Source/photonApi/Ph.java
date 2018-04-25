@@ -8,8 +8,8 @@ public final class Ph
 	
 	static
 	{
-		System.loadLibrary("Engine/Lib/Engine");
-		System.loadLibrary("JNI/JNI");
+		//System.loadLibrary("Release/Engine");
+		System.loadLibrary("JNI");
 	}
 	
 	// core

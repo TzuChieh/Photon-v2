@@ -68,16 +68,19 @@ ipch/
 
 cloc-1.62.exe
 count.bat
-/ThirdParty/
 /scene/resource/
 /scene/complex/
 /EditorApplication/*.png
 __pycache__/
 /EditorApplication/*.p2cfg
 /EditorApplication/*.log
+/build/
 
 # ignore resources
 /Resource/*
 
 # except for test related ones
 !/Resource/Test/
+
+# ignore third-party libraries
+/ThirdParty/
