@@ -4,7 +4,6 @@
 #include "Math/Function/TPiecewiseLinear1D.h"
 #include "Math/Solver/TAnalyticalIntegrator1D.h"
 #include "Core/Quantity/ColorSpace.h"
-#include "Core/Quantity/SpectralStrength/TSampledSpectralStrength.h"
 
 namespace ph
 {
