@@ -19,7 +19,7 @@ public:
 	inline TTexture();
 	inline virtual ~TTexture() = 0;
 
-	inline virtual void sample(const SampleLocation& sampleLocation, Output* out_value) const = 0;
+	virtual void sample(const SampleLocation& sampleLocation, Output* out_value) const = 0;
 };
 
 }// end namespace ph
