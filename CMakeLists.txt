@@ -7,13 +7,23 @@ project(Photon-v2)
 # Builds third-party libraries required by Photon-v2.
 
 if(MSVC)
+
 	set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /std:c++17 /Zi")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
 	set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+
+elseif(${CMAKE_VERSION} VERSION_LESS "3.1.0")
+
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+
+else()
+
+    set(CMAKE_CXX_STANDARD          17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 endif()
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# TODO: add g++ MT MD equivalent flags?
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PROJECT_BINARY_DIR}/bin/)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PROJECT_BINARY_DIR}/bin/)
