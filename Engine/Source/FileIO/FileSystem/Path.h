@@ -63,7 +63,7 @@ public:
 	{
 		auto thisPath  = this->removeTrailingSeparator();
 		auto otherPath = other.removeLeadingSeparator();
-		return Path(thisPath.m_path.append(otherPath.m_path).string());
+		return Path((thisPath.m_path /= otherPath.m_path).string());
 	}
 
 	inline std::string toString() const
