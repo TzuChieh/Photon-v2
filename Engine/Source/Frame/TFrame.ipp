@@ -226,14 +226,4 @@ inline auto TFrame<T, N>::operator = (TFrame&& rhs)
 	return *this;
 }
 
-template<typename T, std::size_t N>
-inline void swap(TFrame<T, N>& first, TFrame<T, N>& second)
-{
-	using std::swap;
-
-	swap(first.m_widthPx,   second.m_widthPx);
-	swap(first.m_heightPx,  second.m_heightPx);
-	swap(first.m_pixelData, second.m_pixelData);
-}
-
 }// end namespace ph

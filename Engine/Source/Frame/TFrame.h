@@ -75,8 +75,6 @@ public:
 		return m_pixelData.empty();
 	}
 
-	friend inline void swap(TFrame& first, TFrame& second);
-
 	// HACK
 	inline std::vector<real> getRealData() const
 	{
