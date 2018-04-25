@@ -1,9 +1,17 @@
 #pragma once
 
-#include <filesystem>
+#include "Common/compiler.h"
+
 #include <string>
 #include <iostream>
 #include <cwchar>
+
+// TODO: other platforms and versions that do not need the "experimental" folder
+#if defined(PH_COMPILER_IS_MSVC)
+	#include <filesystem>
+#elif defined(PH_COMPILER_IS_GCC)
+	#include <experimental/filesystem>
+#endif
 
 namespace ph
 {
