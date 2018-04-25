@@ -6,6 +6,13 @@ add_library(JNI SHARED ${SOURCE_FILES})
 
 find_package(JNI)
 
+if(NOT JNI_FOUND)
+	message(WARNING 
+		"JDK not found, JNI related functionalities will not be available"
+	)
+	return()
+endif()
+
 target_include_directories(JNI
 	PRIVATE "./Source/"
 	PRIVATE ${ENGINE_INCLUDE_DIR}
