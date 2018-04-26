@@ -2,7 +2,6 @@
 
 #include "Actor/LightSource/LightSource.h"
 #include "Core/Quantity/SpectralStrength.h"
-#include "FileIO/InputPacket.h"
 #include "Actor/Geometry/Geometry.h"
 
 #include <memory>

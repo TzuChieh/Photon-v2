@@ -1,8 +1,5 @@
 #pragma once
 
-#include "Actor/Geometry/Geometry.h"
-#include "Actor/Material/Material.h"
-#include "Actor/LightSource/LightSource.h"
 #include "Actor/AModel.h"
 #include "Actor/ALight.h"
 #include "FileIO/DataTreatment.h"

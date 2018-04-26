@@ -1,4 +1,5 @@
 #include "Actor/LightSource/PointSource.h"
+#include "FileIO/InputPacket.h"
 
 namespace ph
 {

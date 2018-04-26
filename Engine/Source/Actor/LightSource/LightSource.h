@@ -2,7 +2,6 @@
 
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "FileIO/SDL/TCommandInterface.h"
-#include "FileIO/InputPacket.h"
 #include "Common/primitive_type.h"
 
 #include <memory>
@@ -14,6 +13,7 @@ class Emitter;
 class CookingContext;
 class Geometry;
 class Material;
+class InputPacket;
 
 class LightSource : public TCommandInterface<LightSource>
 {

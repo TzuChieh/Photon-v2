@@ -1,5 +1,6 @@
 #include "Actor/LightSource/SphereSource.h"
 #include "Actor/Geometry/GSphere.h"
+#include "FileIO/InputPacket.h"
 
 namespace ph
 {

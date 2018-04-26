@@ -1,6 +1,7 @@
 #include "Actor/LightSource/RectangleSource.h"
 #include "Common/assertion.h"
 #include "Actor/Geometry/GRectangle.h"
+#include "FileIO/InputPacket.h"
 
 #include <memory>
 
