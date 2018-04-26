@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/TVector2.h"
+#include "Common/assertion.h"
 
 #include <cstddef>
 
@@ -20,11 +21,12 @@ public:
 // method template implementations:
 
 template<typename T>
-static void SGUtil::shuffleDurstenfeld(T* const out_array, const std::size_t arraySize)
+void SGUtil::shuffleDurstenfeld(T* const out_array, const std::size_t arraySize)
 {
 	for(std::size_t i = arraySize - 1; i > 0; i--)
 	{
-
+		// TODO
+		PH_ASSERT_UNREACHABLE_SECTION();
 	}
 }
 

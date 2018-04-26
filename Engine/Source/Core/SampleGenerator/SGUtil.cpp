@@ -36,6 +36,7 @@ void SGUtil::genArray2dLatinHypercube(Vector2R* const out_coordArray2Ds,
 	}
 
 	// TODO: shuffle
+	PH_ASSERT_UNREACHABLE_SECTION();
 }
 
 }// end namespace ph
