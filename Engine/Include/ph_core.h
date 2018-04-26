@@ -21,33 +21,36 @@
 /////////////////////////////////////////////////////////////////////
 
 // HACK
-#define PH_EXPORT_API
+//#define PH_EXPORT_API
 
 // Checking the compiling environment.
-#if defined(_MSC_VER)
-/**************************************************** Microsoft Visual Studio */
-
-	// Note: The use of dllexport implies a definition, while dllimport implies a declaration. To force a declaration,
-	// an "extern" keyword with dllexport is needed; otherwise, a definition is implied.
-
-	#ifdef PH_EXPORT_API
-		#define PH_API __declspec(dllexport)
-	#else
-		#define PH_API __declspec(dllimport)
-	#endif
-
-#else
-/************************************************************ other compilers */
-
-	// TODO
-	#ifdef EXPORT_PHOTON_API
-		#define PH_API
-	#else
-		#define PH_API
-	#endif
-
-#endif
+//#if defined(_MSC_VER)
+///**************************************************** Microsoft Visual Studio */
+//
+//	// Note: The use of dllexport implies a definition, while dllimport implies a declaration. To force a declaration,
+//	// an "extern" keyword with dllexport is needed; otherwise, a definition is implied.
+//
+//	#ifdef PH_EXPORT_API
+//		#define PH_API __declspec(dllexport)
+//	#else
+//		#define PH_API __declspec(dllimport)
+//	#endif
+//
+//#else
+///************************************************************ other compilers */
+//
+//	// TODO
+//	#ifdef EXPORT_PHOTON_API
+//		#define PH_API
+//	#else
+//		#define PH_API
+//	#endif
+//
+//#endif
 // end compiling environment check
+
+// FIXME: sort of hacked
+#define PH_API
 
 // primitive data types
 
