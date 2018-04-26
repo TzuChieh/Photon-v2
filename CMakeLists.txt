@@ -4,6 +4,14 @@
 cmake_minimum_required(VERSION 2.8)
 project(Photon-v2)
 
+if(WIN32)
+    set(BUILD_JNI_DEFAULT ON)
+else()
+    set(BUILD_JNI_DEFAULT OFF)
+endif()
+
+option(BUILD_JNI "Build Photon-v2 JNI for GUI." ${BUILD_JNI_DEFAULT})
+
 # Builds third-party libraries required by Photon-v2.
 
 if(MSVC)
@@ -86,7 +94,11 @@ set(STB_INCLUDE_DIR "${THIRD_PARTY_DIR}stb/src/stb/")
 
 add_subdirectory("./Engine/")
 add_subdirectory("./EngineTest/")
-add_subdirectory("./JNI/")
+
+if(BUILD_JNI)
+    add_subdirectory("./JNI/")
+endif()
+
 add_subdirectory("./Application/")
 
 
