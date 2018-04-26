@@ -52,6 +52,7 @@ if(NOT WIN32)
 		${CMAKE_THREAD_LIBS_INIT}
 	)
 
+	target_compile_options(Engine PUBLIC "-D_GLIBCXX_USE_CXX11_ABI=0")
 	target_compile_options(Engine PUBLIC "-lstdc++fs")
 
 endif()
