@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Core/Quantity/SpectralStrength/LinearSrgbSpectralStrength.h"
-#include "Core/Quantity/SpectralStrength/TSampledSpectralStrength.h"
-#include "Core/Quantity/spectral_strength_fwd.h"
 #include "Common/config.h"
+#include "Core/Quantity/spectral_strength_fwd.h"
+#include "Core/Quantity/private_SpectralStrength/LinearSrgbSpectralStrength.h"
+#include "Core/Quantity/private_SpectralStrength/TSampledSpectralStrength.h"
 
 namespace ph
 {
@@ -23,3 +23,6 @@ namespace ph
 #endif
 
 }// end namespace ph
+
+#include "Core/Quantity/private_SpectralStrength/TAbstractSpectralStrength.tpp"
+#include "Core/Quantity/private_SpectralStrength/TSampledSpectralStrength.tpp"

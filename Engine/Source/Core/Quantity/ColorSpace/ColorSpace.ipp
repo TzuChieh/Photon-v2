@@ -2,7 +2,7 @@
 
 #include "Core/Quantity/ColorSpace.h"
 #include "Common/assertion.h"
-#include "Core/Quantity/SpectralStrength/TSampledSpectralStrength.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <type_traits>
 

@@ -1,5 +1,5 @@
 #include <Core/Quantity/ColorSpace.h>
-#include <Core/Quantity/SpectralStrength/TSampledSpectralStrength.h>
+#include <Core/Quantity/SpectralStrength.h>
 #include <Math/TVector3.h>
 
 #include <gtest/gtest.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Quantity/SpectralStrength/TSampledSpectralStrength.h"
+#include "Core/Quantity/private_SpectralStrength/TSampledSpectralStrength.h"
 #include "Core/Quantity/ColorSpace.h"
 #include "Common/assertion.h"
 

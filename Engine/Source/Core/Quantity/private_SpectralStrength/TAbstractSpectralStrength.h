@@ -99,5 +99,3 @@ protected:
 };
 
 }// end namespace ph
-
-#include "Core/Quantity/SpectralStrength/TAbstractSpectralStrength.ipp"

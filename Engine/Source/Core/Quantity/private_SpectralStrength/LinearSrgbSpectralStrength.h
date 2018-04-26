@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Core/Quantity/SpectralStrength/TAbstractSpectralStrength.h"
+#include "Core/Quantity/private_SpectralStrength/TAbstractSpectralStrength.h"
+#include "Math/TVector3.h"
 
 namespace ph
 {

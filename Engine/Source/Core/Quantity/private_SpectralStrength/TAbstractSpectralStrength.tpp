@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Quantity/SpectralStrength/TAbstractSpectralStrength.h"
+#include "Core/Quantity/private_SpectralStrength/TAbstractSpectralStrength.h"
 #include "Math/Function/TPiecewiseLinear1D.h"
 #include "Math/Solver/TAnalyticalIntegrator1D.h"
 #include "Core/Quantity/ColorSpace.h"

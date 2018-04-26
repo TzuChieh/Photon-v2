@@ -1,5 +1,6 @@
-#include "Core/Quantity/SpectralStrength/LinearSrgbSpectralStrength.h"
-#include "Core/Quantity/SpectralStrength/TSampledSpectralStrength.h"
+#include "Core/Quantity/private_SpectralStrength/LinearSrgbSpectralStrength.h"
+#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/ColorSpace.h"
 
 namespace ph
 {
