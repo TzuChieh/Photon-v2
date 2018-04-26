@@ -46,10 +46,14 @@ target_include_directories(Engine
 # other platforms do not link to threading libraries by default
 #
 if(NOT WIN32)
+
 	find_package(Threads)
 	target_link_libraries(Engine 
 		${CMAKE_THREAD_LIBS_INIT}
 	)
+
+	target_compile_options(Engine "-lstdc++fs")
+
 endif()
 
 target_compile_definitions(Engine
