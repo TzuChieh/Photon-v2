@@ -1,4 +1,5 @@
 #include <FileIO/FileSystem/Path.h>
+#include <Common/os.h>
 
 #include <gtest/gtest.h>
 
@@ -10,7 +11,11 @@ TEST(FileSystemPath, PathOperationTest)
 	EXPECT_TRUE(relativePath.isRelative());
 	EXPECT_FALSE(relativePath.isAbsolute());
 
+#if defined(PH_OPERATING_SYSTEM_IS_WINDOWS)
 	const ph::Path absolutePath("D:/some/path");
+#elif defined(PH_OPERATING_SYSTEM_IS_LINUX)
+	const ph::Path absolutePath("/some/path");
+#endif
 	EXPECT_FALSE(absolutePath.isRelative());
 	EXPECT_TRUE(absolutePath.isAbsolute());
 

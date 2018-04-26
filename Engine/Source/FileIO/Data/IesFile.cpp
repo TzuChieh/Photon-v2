@@ -33,12 +33,14 @@ bool IesFile::load()
 	logger.log(ELogLevel::NOTE_MED, 
 		"loading file <" + filePathStr + ">");
 
+	// TODO: consider using std::byte instead of char
 	std::vector<char> buffer{std::istreambuf_iterator<char>(file), 
 	                         std::istreambuf_iterator<char>()};
 	if(!parse(buffer))
 	{
 		logger.log(ELogLevel::WARNING_MED,
-			"file <" + filePathStr + "> parsing failed");
+			"file <" + filePathStr + "> parsing failed; "
+			"file content read has " + std::to_string(buffer.size()) + " bytes");
 		return false;
 	}
 
