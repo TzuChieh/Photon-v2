@@ -33,6 +33,15 @@ bool IesFile::load()
 	logger.log(ELogLevel::NOTE_MED, 
 		"loading file <" + filePathStr + ">");
 
+	file.seekg(0, std::ios_base::end);
+	const std::streampos fileSize = file.tellg();
+	PH_ASSERT(fileSize != std::streampos(-1) && fileSize != std::streampos(0));
+
+	std::vector<char> buffer(fileSize);
+	file.seekg(0, std::ios_base::beg);
+	file.read(&buffer[0], fileSize);
+
+	/*
 	// NOTE: Subsequent buffer reading process should be unformatted (preserving 
 	// all data such as <CR><LF>), but on g++ 7.2.0 this is not true (possibly 
 	// their implementation bug). Specifically forbid white space skipping here
@@ -43,6 +52,8 @@ bool IesFile::load()
 	// TODO: consider using std::byte instead of char
 	std::vector<char> buffer{std::istreambuf_iterator<char>(file), 
 	                         std::istreambuf_iterator<char>()};
+	*/
+
 	if(!parse(buffer))
 	{
 		logger.log(ELogLevel::WARNING_MED,
