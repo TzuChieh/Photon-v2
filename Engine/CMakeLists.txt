@@ -43,6 +43,15 @@ target_include_directories(Engine
 	PRIVATE ${STB_INCLUDE_DIR}
 )
 
+# other platforms do not link to threading libraries by default
+#
+if(NOT WIN32)
+	find_package(Threads)
+	target_link_libraries(Engine 
+		${CMAKE_THREAD_LIBS_INIT}
+	)
+endif()
+
 target_compile_definitions(Engine
 	PRIVATE _CRT_SECURE_NO_WARNINGS
 )
