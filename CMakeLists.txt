@@ -14,7 +14,7 @@ if(MSVC)
 
 elseif(${CMAKE_VERSION} VERSION_LESS "3.1.0")
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -D_GLIBCXX_USE_CXX11_ABI=0")
 
 else()
 
@@ -55,8 +55,8 @@ ExternalProject_Add(googletest
     PREFIX          ${THIRD_PARTY_DIR}googletest/
 
     CMAKE_ARGS      
-    	-DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_DIR}googletest/
-    	-DCMAKE_CXX_FLAGS=${GOOGLETEST_CXX_FLAGS}
+    	"-DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_DIR}googletest/"
+    	"-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS} ${GOOGLETEST_CXX_FLAGS}"
 )
 set(GOOGLETEST_INCLUDE_DIR "${THIRD_PARTY_DIR}googletest/include/")
 set(GOOGLETEST_BINARY_DIR  "${THIRD_PARTY_DIR}googletest/lib/")
