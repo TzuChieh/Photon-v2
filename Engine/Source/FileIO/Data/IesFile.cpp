@@ -33,6 +33,13 @@ bool IesFile::load()
 	logger.log(ELogLevel::NOTE_MED, 
 		"loading file <" + filePathStr + ">");
 
+	// NOTE: Subsequent buffer reading process should be unformatted (preserving 
+	// all data such as <CR><LF>), but on g++ 7.2.0 this is not true (possibly 
+	// their implementation bug). Specifically forbid white space skipping here
+	// to fix the issue.
+	//
+	file.unsetf(std::ios::skipws);
+
 	// TODO: consider using std::byte instead of char
 	std::vector<char> buffer{std::istreambuf_iterator<char>(file), 
 	                         std::istreambuf_iterator<char>()};

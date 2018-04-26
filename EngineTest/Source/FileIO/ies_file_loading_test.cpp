@@ -144,6 +144,8 @@ TEST(IesFileLoadingTest, DataProcessing)
 	const real PI               = std::atan(1.0_r) * 4.0_r;
 	const real ACCEPTABLE_ERROR = 0.0001_r;
 
+	// This file describes a light emitting 0.5 energy unit everywhere.
+	//
 	IesData iesData1(Path("./Resource/Test/IES/constant_point5_candela.IES"));
 
 	// sampled degrees: 0, 90, 180
