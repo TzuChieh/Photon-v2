@@ -2,7 +2,6 @@
 
 #include "Common/primitive_type.h"
 
-#include <random>
 #include <atomic>
 
 namespace ph
@@ -28,7 +27,6 @@ public:
 	                                         std::size_t upperBound);
 
 private:
-	static const std::uniform_real_distribution<real> distribution;
 	static std::atomic<int32> seed;
 	static const int32 incrementation;
 };

@@ -2,10 +2,11 @@
 #include "Math/Math.h"
 #include "Common/assertion.h"
 
+#include <random>
+
 namespace ph
 {
 
-const std::uniform_real_distribution<real> Random::distribution(0.0_r, 1.0_r);
 std::atomic<int32> Random::seed(37);
 const int32 Random::incrementation = 17;
 
@@ -14,6 +15,11 @@ real Random::genUniformReal_i0_e1()
 {
 	// TODO: check whether std::mt19937 can be used for 64-bit random number generating
 	static thread_local std::mt19937 generator(seed += incrementation);
+
+	// NOTE: we can just create a new distribution for each call
+	// (profile the code to find out which is better)
+	static thread_local std::uniform_real_distribution<real> distribution(0.0_r, 1.0_r);
+
 	return distribution(generator);
 }
 
