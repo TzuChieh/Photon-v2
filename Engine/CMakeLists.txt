@@ -52,7 +52,7 @@ if(NOT WIN32)
 		${CMAKE_THREAD_LIBS_INIT}
 	)
 
-	target_compile_options(Engine "-lstdc++fs")
+	target_compile_options(Engine PUBLIC "-lstdc++fs")
 
 endif()
 
