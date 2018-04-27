@@ -24,7 +24,7 @@ bool IesFile::load()
 	// it is necessary to read the file in binary mode in order to detect
 	// them on Unix-based systems.
 	//
-	std::ifstream file(filePathStr, std::ios::binary);
+	std::ifstream file(filePathStr, std::ios::in | std::ios::binary);
 	if(!file.is_open())
 	{
 		return false;
@@ -40,6 +40,8 @@ bool IesFile::load()
 	std::vector<char> buffer(fileSize);
 	file.seekg(0, std::ios_base::beg);
 	file.read(&buffer[0], fileSize);
+
+	std::cerr << "file size: " << buffer.size() << std::endl;
 
 	/*
 	// NOTE: Subsequent buffer reading process should be unformatted (preserving 
