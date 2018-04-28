@@ -8,9 +8,8 @@ import appModel.event.ProjectEvent;
 import appModel.event.ProjectEventListener;
 import appModel.event.ProjectEventType;
 import appModel.event.SettingListener;
-import appModel.project.ProjectProxy;
+import appModel.project.Project;
 import appModel.project.RenderSetting;
-import appModel.project.TaskType;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -50,7 +49,7 @@ public class EditorCtrl
 {
 	// TODO: make project able to pickup directly typed text
 	
-	private ProjectProxy m_project;
+	private Project m_project;
     
     private WritableImage m_displayImage;
     
@@ -115,9 +114,9 @@ public class EditorCtrl
 			return;
 		}
 		
-		final Task<String> loadSceneTask   = m_project.createTask(TaskType.LOAD_SCENE);
-		final Task<String> renderTask      = m_project.createTask(TaskType.RENDER);
-		final Task<String> developFilmTask = m_project.createTask(TaskType.DEVELOP_FILM);
+		final Task<String> loadSceneTask   = m_project.createLoadSceneTask();
+		final Task<String> renderTask      = m_project.createRenderTask();
+		final Task<String> developFilmTask = m_project.createUpdateStaticImageTask();
 		
 		// TODO: exit when render task is done
 		final Task<String> queryTask = new Task<String>()
@@ -348,7 +347,7 @@ public class EditorCtrl
 //    	messageTextArea.setScrollTop(Double.MAX_VALUE);
 	}
 	
-	public void setProject(ProjectProxy project)
+	public void setProject(Project project)
 	{
 		if(m_project != null)
 		{

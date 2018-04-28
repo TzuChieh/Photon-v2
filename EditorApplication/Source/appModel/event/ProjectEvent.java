@@ -1,9 +1,9 @@
 package appModel.event;
 
-import appModel.project.ProjectProxy;
+import appModel.project.Project;
 
 public final class ProjectEvent
 {
 	public ProjectEventType type;
-	public ProjectProxy     source;
+	public Project          source;
 }

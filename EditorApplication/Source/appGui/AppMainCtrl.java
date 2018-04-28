@@ -1,7 +1,7 @@
 package appGui;
 
 import appModel.EditorApp;
-import appModel.project.ProjectProxy;
+import appModel.project.Project;
 
 import java.io.IOException;
 
@@ -120,7 +120,7 @@ public class AppMainCtrl
     
     public void createNewProject(String projectName)
     {
-    	ProjectProxy project = m_editorApp.createProject(projectName);
+    	Project project = m_editorApp.createProject(projectName);
     	m_managerCtrl.registerProject(projectName);
     	m_editorCtrl.setProject(project);
     }

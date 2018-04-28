@@ -18,7 +18,7 @@ public final class ProjectEventDispatcher
 		m_listenersMap = new EnumMap<>(ProjectEventType.class);
 	}
 	
-	protected void notify(ProjectEventType eventType, ProjectProxy eventSource)
+	protected void notify(ProjectEventType eventType, Project eventSource)
 	{
 		List<ProjectEventListener> listeners = m_listenersMap.get(eventType);
 		if(listeners != null)

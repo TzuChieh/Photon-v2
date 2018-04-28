@@ -5,7 +5,6 @@ import java.util.Map;
 
 import appModel.console.Console;
 import appModel.project.Project;
-import appModel.project.ProjectProxy;
 import photonApi.Ph;
 
 public final class EditorApp extends ManageableResource
@@ -43,12 +42,12 @@ public final class EditorApp extends ManageableResource
 			System.err.println("Photon exiting failed");
 	}
 	
-	public ProjectProxy getProject(String projectName)
+	public Project getProject(String projectName)
 	{
-		return new ProjectProxy(m_projects.get(projectName));
+		return m_projects.get(projectName);
 	}
 	
-	public ProjectProxy createProject(String projectName)
+	public Project createProject(String projectName)
 	{
 		if(m_projects.get(projectName) != null)
 		{
@@ -60,7 +59,7 @@ public final class EditorApp extends ManageableResource
 			Project project = new Project(projectName, this);
 			project.create();
 			m_projects.put(projectName, project);
-			return new ProjectProxy(project);
+			return project;
 		}
 	}
 	

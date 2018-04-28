@@ -3,9 +3,12 @@ package appModel.project;
 import java.io.File;
 
 import appModel.EditorApp;
+import appModel.GeneralOption;
 import appModel.ManageableResource;
+import appModel.event.ProjectEventListener;
 import appModel.event.ProjectEventType;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import photonApi.FilmInfo;
 import photonApi.Frame;
 import photonApi.FrameRegion;
@@ -20,7 +23,6 @@ public final class Project extends ManageableResource
 	private String                 m_projectName;
 	private RenderSetting          m_renderSetting;
 	private EditorApp              m_editorApp;
-	private ProjectProxy           m_proxy;
 	private ProjectEventDispatcher m_eventDispatcher;
 	
 	private PhEngine  m_engine;
@@ -35,7 +37,6 @@ public final class Project extends ManageableResource
 		m_projectName     = projectName;
 		m_editorApp       = editorApp;
 		m_renderSetting   = new RenderSetting(editorApp.getGeneralOption());
-		m_proxy           = null;
 		m_eventDispatcher = new ProjectEventDispatcher();
 		
 		m_engine          = null;
@@ -44,54 +45,45 @@ public final class Project extends ManageableResource
 		m_localFinalFrame = new Frame();
 	}
 	
-	public void opRenderScene()
+	public Task<String> createRenderTask()
 	{
-		EditorApp.printToConsole("rendering scene...");
-		
-		m_engine.render();
-		
-		Platform.runLater(() ->
+		return new Task<String>()
 		{
-			m_eventDispatcher.notify(ProjectEventType.STATIC_FILM_READY, getProxy());
-		});
+			@Override
+			protected String call() throws Exception
+			{
+				opRenderScene();
+				return "render task done";
+			}
+		};
 	}
 	
-	public void opLoadSceneFile(String filename)
+	public Task<String> createLoadSceneTask()
 	{
-		EditorApp.printToConsole("loading scene file <" + filename + ">...");
+		final String sceneFileName = getRenderSetting().get(RenderSetting.SCENE_FILE_NAME);
 		
-		File sceneFile = new File(filename);
-		m_engine.setWorkingDirectory(sceneFile.getParent());
-		m_engine.loadCommand(filename);
-		m_engine.update();
-		
-		FilmInfo info = m_engine.getFilmInfo();
-		if(info.widthPx  != m_finalFrame.widthPx() || 
-		   info.heightPx != m_finalFrame.heightPx())
+		return new Task<String>()
 		{
-			m_finalFrame.dispose();
-			m_transientFrame.dispose();
-			m_finalFrame = new PhFrame(info.widthPx, info.heightPx);
-			m_transientFrame = new PhFrame(info.widthPx, info.heightPx);
-		}
-		
-		Platform.runLater(() ->
-		{
-			m_eventDispatcher.notify(ProjectEventType.STATIC_SCENE_READY, getProxy());
-		});
+			@Override
+			protected String call() throws Exception
+			{
+				opLoadSceneFile(sceneFileName);
+				return "load scene task done";
+			}
+		};
 	}
 	
-	public void opDevelopFilm()
+	public Task<String> createUpdateStaticImageTask()
 	{
-		EditorApp.printToConsole("developing film...");
-		
-		m_engine.developFilm(m_finalFrame);
-		m_finalFrame.getFullRgb(m_localFinalFrame);
-		
-		Platform.runLater(() ->
+		return new Task<String>()
 		{
-			m_eventDispatcher.notify(ProjectEventType.FINAL_FRAME_READY, getProxy());
-		});
+			@Override
+			protected String call() throws Exception
+			{
+				opDevelopFilm();
+				return "update static image task done";
+			}
+		};
 	}
 	
 	@Override
@@ -100,7 +92,6 @@ public final class Project extends ManageableResource
 		m_engine         = new PhEngine(10);
 		m_finalFrame     = new PhFrame(0, 0);
 		m_transientFrame = new PhFrame(0, 0);
-		m_proxy          = new ProjectProxy(this);
 		
 		m_renderSetting.setToDefaults();
 	}
@@ -130,11 +121,70 @@ public final class Project extends ManageableResource
 		return status;
 	}
 	
-	public String                 getProjectName()     { return m_projectName;          }
-	public RenderSetting          getRenderSetting()   { return m_renderSetting;        }
-	public ProjectProxy           getProxy()           { return m_proxy;                }
-	public ProjectEventDispatcher getEventDispatcher() { return m_eventDispatcher;      }
-	public Frame                  getLocalFinalFrame() { return m_localFinalFrame;      }
-	public FilmInfo               getFilmInfo()        { return m_engine.getFilmInfo(); }
-	public EditorApp              getEditorApp()       { return m_editorApp;            }
+	private void opRenderScene()
+	{
+		EditorApp.printToConsole("rendering scene...");
+		
+		m_engine.render();
+		
+		Platform.runLater(() ->
+		{
+			m_eventDispatcher.notify(ProjectEventType.STATIC_FILM_READY, this);
+		});
+	}
+	
+	private void opLoadSceneFile(String filename)
+	{
+		EditorApp.printToConsole("loading scene file <" + filename + ">...");
+		
+		File sceneFile = new File(filename);
+		m_engine.setWorkingDirectory(sceneFile.getParent());
+		m_engine.loadCommand(filename);
+		m_engine.update();
+		
+		FilmInfo info = m_engine.getFilmInfo();
+		if(info.widthPx  != m_finalFrame.widthPx() || 
+		   info.heightPx != m_finalFrame.heightPx())
+		{
+			m_finalFrame.dispose();
+			m_transientFrame.dispose();
+			m_finalFrame = new PhFrame(info.widthPx, info.heightPx);
+			m_transientFrame = new PhFrame(info.widthPx, info.heightPx);
+		}
+		
+		Platform.runLater(() ->
+		{
+			m_eventDispatcher.notify(ProjectEventType.STATIC_SCENE_READY, this);
+		});
+	}
+	
+	private void opDevelopFilm()
+	{
+		EditorApp.printToConsole("developing film...");
+		
+		m_engine.developFilm(m_finalFrame);
+		m_finalFrame.getFullRgb(m_localFinalFrame);
+		
+		Platform.runLater(() ->
+		{
+			m_eventDispatcher.notify(ProjectEventType.FINAL_FRAME_READY, this);
+		});
+	}
+	
+	public void addListener(ProjectEventType eventType, ProjectEventListener targetListener)
+	{
+		m_eventDispatcher.addListener(eventType, targetListener);
+	}
+	
+	public void removeListener(ProjectEventListener targetListener)
+	{
+		m_eventDispatcher.removeListener(targetListener);
+	}
+	
+	public String                 getProjectName()     { return m_projectName;                  }
+	public RenderSetting          getRenderSetting()   { return m_renderSetting;                }
+	public ProjectEventDispatcher getEventDispatcher() { return m_eventDispatcher;              }
+	public Frame                  getLocalFinalFrame() { return m_localFinalFrame;              }
+	public FilmInfo               getFilmInfo()        { return m_engine.getFilmInfo();         }
+	public GeneralOption          getGeneralOption()   { return m_editorApp.getGeneralOption(); }
 }
