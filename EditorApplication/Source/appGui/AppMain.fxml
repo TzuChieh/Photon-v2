@@ -6,6 +6,8 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.Pane?>
@@ -40,13 +42,27 @@
                 </Menu>
               </menus>
             </MenuBar>
-            <ToolBar prefHeight="30.0" prefWidth="200.0">
+            <ToolBar prefHeight="70.0" prefWidth="200.0">
               <items>
                 <Button mnemonicParsing="false" onMouseClicked="#newProjectBtnClicked" text="New Project" />
                   <Button mnemonicParsing="false" onMouseClicked="#managerBtnClicked" text="Manager" />
                   <Button mnemonicParsing="false" onMouseClicked="#editorBtnClicked" text="Editor" />
-                  <Button fx:id="renderBtn" mnemonicParsing="false" onMouseClicked="#renderBtnClicked" text="Render" />
-                  <Button mnemonicParsing="false" onMouseClicked="#saveImageBtnClicked" text="Save Image" />
+                  <Button fx:id="renderBtn" contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#renderBtnClicked" prefWidth="100.0" text="Render">
+                     <graphic>
+                        <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../internalRes/icon/render.png" />
+                           </image>
+                        </ImageView>
+                     </graphic></Button>
+                  <Button contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#saveImageBtnClicked" prefWidth="100.0" text="Save Image">
+                     <graphic>
+                        <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../internalRes/icon/save.png" />
+                           </image>
+                        </ImageView>
+                     </graphic></Button>
               </items>
             </ToolBar>
          </children>

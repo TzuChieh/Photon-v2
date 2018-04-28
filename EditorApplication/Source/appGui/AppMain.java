@@ -68,8 +68,15 @@ public class AppMain extends Application
 		appMainCtrl.setEditorApp(editorApp);
 		appMainCtrl.createNewProject("(default project)");
 		
+		Scene scene = new Scene(appMainView, 1280,	680);
+		
+		// Overrides this attribute to a dark color to get a dark theme.
+		// (many colors in default .css are dependent on this attribute)
+		//
+		scene.getRoot().setStyle("-fx-base: rgba(48, 50, 52, 255);");
+		
 		primaryStage.setTitle("Photon-v2 version 0.0 | Editor");
-		primaryStage.setScene(new Scene(appMainView, 1280,	680));
+		primaryStage.setScene(scene);
 //		primaryStage.setMaximized(true);
         primaryStage.show();
 	}
