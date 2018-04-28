@@ -44,9 +44,30 @@
             </MenuBar>
             <ToolBar prefHeight="70.0" prefWidth="200.0">
               <items>
-                <Button mnemonicParsing="false" onMouseClicked="#newProjectBtnClicked" text="New Project" />
-                  <Button mnemonicParsing="false" onMouseClicked="#managerBtnClicked" text="Manager" />
-                  <Button mnemonicParsing="false" onMouseClicked="#editorBtnClicked" text="Editor" />
+                <Button contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#newProjectBtnClicked" prefWidth="100.0" text="New Project">
+                     <graphic>
+                        <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../internalRes/icon/add_project.png" />
+                           </image>
+                        </ImageView>
+                     </graphic></Button>
+                  <Button contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#managerBtnClicked" prefWidth="100.0" text="Manager">
+                     <graphic>
+                        <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../internalRes/icon/select_project.png" />
+                           </image>
+                        </ImageView>
+                     </graphic></Button>
+                  <Button contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#editorBtnClicked" prefWidth="100.0" text="Editor">
+                     <graphic>
+                        <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../internalRes/icon/editor.png" />
+                           </image>
+                        </ImageView>
+                     </graphic></Button>
                   <Button fx:id="renderBtn" contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#renderBtnClicked" prefWidth="100.0" text="Render">
                      <graphic>
                         <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
