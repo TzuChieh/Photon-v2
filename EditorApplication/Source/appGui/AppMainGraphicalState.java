@@ -11,8 +11,8 @@ public final class AppMainGraphicalState
 	{
 		m_appMainController = appMainController;
 		
-		m_activeProjectName = "";
-		m_activeViewName    = "";
+		m_activeProjectName = null;
+		m_activeViewName    = null;
 	}
 	
 	public String getActiveProjectName()
@@ -31,7 +31,7 @@ public final class AppMainGraphicalState
 		m_appMainController.updateFooterText();
 	}
 	
-	public void setActiveProjectName(String name)
+	public void setActiveProject(String name)
 	{
 		m_activeProjectName = name;
 		m_appMainController.updateFooterText();

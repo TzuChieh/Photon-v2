@@ -4,7 +4,9 @@ import appModel.EditorApp;
 import appModel.project.Project;
 
 import java.io.IOException;
+import java.util.HashMap;
 
+import appGui.util.ViewCtrlPair;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -34,11 +36,10 @@ public class AppMainCtrl
 	private AppMainGraphicalState m_graphicalState;
 	
 	private Parent m_managerView;
-	private Parent m_editorView;
 	private Parent m_generalOptionsView;
 	
-	private ManagerCtrl        m_managerCtrl;
-	private EditorCtrl         m_editorCtrl;
+	private HashMap<String, ViewCtrlPair<EditorCtrl>> m_editorUIs;
+	private ManagerCtrl m_managerCtrl;
 	private GeneralOptionsCtrl m_generalOptionsCtrl;
 	
 	private Scene m_generalOptionsScene;
@@ -53,6 +54,8 @@ public class AppMainCtrl
     @FXML
     public void initialize()
     {
+    	m_editorUIs = new HashMap<>();
+    	
     	m_popupStage = new Stage();
     	m_popupStage.initModality(Modality.APPLICATION_MODAL);
     	m_popupStage.setOnHidden(event -> m_popupStage.setScene(null));
@@ -65,30 +68,45 @@ public class AppMainCtrl
     	m_graphicalState = new AppMainGraphicalState(this);
     	
     	loadManagerUI();
-    	loadEditorUI();
     	loadGeneralOptionsUI();
-    	
-    	setWorkbenchAsEditorView();
     }
 
 	@FXML
 	void newProjectBtnClicked(MouseEvent event)
 	{
+		// TODO: customizable project name
 		final String newProjectName = "project " + m_projectId++;
 		createNewProject(newProjectName);
+		m_graphicalState.setActiveProject(newProjectName);
+		setWorkbenchAsEditorView();
 	}
 	
 	@FXML
 	void saveImageBtnClicked(MouseEvent event)
 	{
+		ViewCtrlPair<EditorCtrl> editorUI = getActiveEditorUI();
+		if(editorUI == null)
+		{
+			// TODO: log
+			return;
+		}
+		
+		// TODO: customizable image name
 		String imageName = "result - " + m_graphicalState.getActiveProjectName();
-		m_editorCtrl.saveDisplayImage(imageName);
+		editorUI.getCtrl().saveDisplayImage(imageName);
 	}
 	
 	@FXML
 	void renderBtnClicked(MouseEvent event)
 	{
-		m_editorCtrl.startRenderingStaticScene();
+		ViewCtrlPair<EditorCtrl> editorUI = getActiveEditorUI();
+		if(editorUI == null)
+		{
+			// TODO: log
+			return;
+		}
+		
+		editorUI.getCtrl().startRenderingStaticScene();
 	}
 	
 	@FXML
@@ -100,9 +118,6 @@ public class AppMainCtrl
     @FXML
     void editorBtnClicked(MouseEvent event)
     {
-    	String activeProjectName = m_graphicalState.getActiveProjectName();
-    	m_editorCtrl.setProject(m_editorApp.getProject(activeProjectName));
-    	
     	setWorkbenchAsEditorView();
     }
     
@@ -121,8 +136,23 @@ public class AppMainCtrl
     public void createNewProject(String projectName)
     {
     	Project project = m_editorApp.createProject(projectName);
+    	if(project == null)
+    	{
+    		// TODO: log
+    		return;
+    	}
+    	
+    	ViewCtrlPair<EditorCtrl> editorUI = loadEditorUI();
+    	if(!editorUI.isValid())
+    	{
+    		// TODO: log
+    		return;
+    	}
+    	
+    	m_editorUIs.put(projectName, editorUI);
+    	
     	m_managerCtrl.registerProject(projectName);
-    	m_editorCtrl.setProject(project);
+    	editorUI.getCtrl().setProject(project);
     }
     
     public void setEditorApp(EditorApp editorApp)
@@ -134,15 +164,7 @@ public class AppMainCtrl
     
     public void setWorkbenchAsEditorView()
     {
-    	workbenchPane.getChildren().clear();
-    	workbenchPane.getChildren().add(m_editorView);
-    	
-    	AnchorPane.setTopAnchor(m_editorView, 0.0);
-    	AnchorPane.setBottomAnchor(m_editorView, 0.0);
-    	AnchorPane.setLeftAnchor(m_editorView, 0.0);
-    	AnchorPane.setRightAnchor(m_editorView, 0.0);
-    	
-    	m_graphicalState.setActiveViewName("project editor");
+    	setWorkbenchView(getActiveEditorUI().getView(), "project editor");
     }
     
     public void setWorkbenchAsManagerView()
@@ -182,20 +204,25 @@ public class AppMainCtrl
 		}
     }
     
-    private void loadEditorUI()
+    private static ViewCtrlPair<EditorCtrl> loadEditorUI()
     {
+    	Parent     editorView = null;
+		EditorCtrl editorCtrl = null;
+    	
     	try
 		{
-			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(EDITOR_FXML_FILENAME));
+			FXMLLoader fxmlLoader = new FXMLLoader(EditorCtrl.class.getResource(EDITOR_FXML_FILENAME));
 			
-			m_editorView = fxmlLoader.load();
-			m_editorCtrl = fxmlLoader.getController();
+			editorView = fxmlLoader.load();
+			editorCtrl = fxmlLoader.getController();
 		}
 		catch(IOException e)
 		{
 			e.printStackTrace();
 			new MessagePopup(e);
 		}
+    	
+    	return new ViewCtrlPair<>(editorView, editorCtrl);
     }
     
     private void loadGeneralOptionsUI()
@@ -220,5 +247,26 @@ public class AppMainCtrl
     	m_popupStage.setTitle("General Options");
     	m_popupStage.setScene(m_generalOptionsScene);
     	m_popupStage.show();
+    }
+    
+    private void setWorkbenchView(Parent view, String viewName)
+    {
+    	workbenchPane.getChildren().clear();
+    	workbenchPane.getChildren().add(view);
+    	
+    	AnchorPane.setTopAnchor(view, 0.0);
+    	AnchorPane.setBottomAnchor(view, 0.0);
+    	AnchorPane.setLeftAnchor(view, 0.0);
+    	AnchorPane.setRightAnchor(view, 0.0);
+    	
+    	m_graphicalState.setActiveViewName(viewName);
+    }
+    
+    private ViewCtrlPair<EditorCtrl> getActiveEditorUI()
+    {
+    	String                   activeProject = m_graphicalState.getActiveProjectName();
+    	ViewCtrlPair<EditorCtrl> editorUI      = m_editorUIs.get(activeProject);
+    	
+    	return editorUI;
     }
 }

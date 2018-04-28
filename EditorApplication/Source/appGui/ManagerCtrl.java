@@ -30,7 +30,7 @@ public class ManagerCtrl
 		projectListView.getSelectionModel().selectedItemProperty().addListener(
 		(observable, lastProjectName, currentProjectName) ->
 		{
-			m_appMainGraphicalState.setActiveProjectName(currentProjectName);
+			m_appMainGraphicalState.setActiveProject(currentProjectName);
 		});
     }
 	    
@@ -38,7 +38,6 @@ public class ManagerCtrl
     {
 		m_projectNames.add(projectName);
 		projectListView.getSelectionModel().select(projectName);
-    	m_appMainGraphicalState.setActiveProjectName(projectName);
     }
 	    
     public void setAppMainGraphicalState(AppMainGraphicalState state)
