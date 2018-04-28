@@ -1,4 +1,4 @@
-#include <Frame/FrameProcessor.h>
+#include <Frame/_mipmap_gen.h>
 
 #include <gtest/gtest.h>
 
@@ -27,7 +27,7 @@ TEST(FrameProcessorTest, GenerateMipmaps)
 		return true;
 	};
 
-	ph::FrameProcessor processor(3);
+	ph::mipmapgen processor(3);
 	ph::HdrRgbFrame src(127, 127);
 	src.fill(7);
 
