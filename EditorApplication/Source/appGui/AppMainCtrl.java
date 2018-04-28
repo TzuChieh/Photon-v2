@@ -30,6 +30,7 @@ public class AppMainCtrl
 	private static final String MANAGER_FXML_FILENAME         = "Manager.fxml";
 	private static final String EDITOR_FXML_FILENAME          = "Editor.fxml";
 	private static final String GENERAL_OPTIONS_FXML_FILENAME = "GeneralOptions.fxml";
+	private static final String ABOUT_FXML_FILENAME           = "About.fxml";
 	
 	private EditorApp             m_editorApp;
     private int                   m_projectId;
@@ -43,6 +44,7 @@ public class AppMainCtrl
 	private GeneralOptionsCtrl m_generalOptionsCtrl;
 	
 	private Scene m_generalOptionsScene;
+	private Scene m_aboutScene;
 	
 	private Stage m_popupStage;
 	
@@ -69,6 +71,7 @@ public class AppMainCtrl
     	
     	loadManagerUI();
     	loadGeneralOptionsUI();
+    	loadAboutUI();
     }
 
 	@FXML
@@ -125,6 +128,12 @@ public class AppMainCtrl
     void generalOptionsClicked(ActionEvent event)
     {
     	showGeneralOptionsPopup();
+    }
+    
+    @FXML
+    void aboutClicked(ActionEvent event)
+    {
+    	showAboutPopup();
     }
     
     public AppMainCtrl()
@@ -242,10 +251,33 @@ public class AppMainCtrl
 		}
     }
     
+    private void loadAboutUI()
+    {
+    	try
+		{
+			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(ABOUT_FXML_FILENAME));
+			
+			Parent aboutView  = fxmlLoader.load();
+			m_aboutScene = new Scene(aboutView);
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+			new MessagePopup(e);
+		}
+    }
+    
     private void showGeneralOptionsPopup()
     {
     	m_popupStage.setTitle("General Options");
     	m_popupStage.setScene(m_generalOptionsScene);
+    	m_popupStage.show();
+    }
+    
+    private void showAboutPopup()
+    {
+    	m_popupStage.setTitle("About");
+    	m_popupStage.setScene(m_aboutScene);
     	m_popupStage.show();
     }
     

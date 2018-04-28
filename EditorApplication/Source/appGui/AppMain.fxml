@@ -37,14 +37,14 @@
                   </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                   <items>
-                    <MenuItem mnemonicParsing="false" text="About" />
+                    <MenuItem mnemonicParsing="false" onAction="#aboutClicked" text="About" />
                   </items>
                 </Menu>
               </menus>
             </MenuBar>
             <ToolBar prefHeight="70.0" prefWidth="200.0">
               <items>
-                <Button contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#newProjectBtnClicked" prefWidth="100.0" text="New Project">
+                <Button contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#newProjectBtnClicked" prefWidth="100.0" style="-fx-base: #000000;" text="New Project">
                      <graphic>
                         <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -52,7 +52,7 @@
                            </image>
                         </ImageView>
                      </graphic></Button>
-                  <Button contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#managerBtnClicked" prefWidth="100.0" text="Manager">
+                  <Button contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#managerBtnClicked" prefWidth="100.0" style="-fx-base: #000000;" text="Manager">
                      <graphic>
                         <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -60,7 +60,7 @@
                            </image>
                         </ImageView>
                      </graphic></Button>
-                  <Button contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#editorBtnClicked" prefWidth="100.0" text="Editor">
+                  <Button contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#editorBtnClicked" prefWidth="100.0" style="-fx-base: #000000;" text="Editor">
                      <graphic>
                         <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -68,7 +68,7 @@
                            </image>
                         </ImageView>
                      </graphic></Button>
-                  <Button fx:id="renderBtn" contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#renderBtnClicked" prefWidth="100.0" text="Render">
+                  <Button fx:id="renderBtn" contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#renderBtnClicked" prefWidth="100.0" style="-fx-base: #000000;" text="Render">
                      <graphic>
                         <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -76,7 +76,7 @@
                            </image>
                         </ImageView>
                      </graphic></Button>
-                  <Button contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#saveImageBtnClicked" prefWidth="100.0" text="Save Image">
+                  <Button contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#saveImageBtnClicked" prefWidth="100.0" style="-fx-base: #000000;" text="Save Image">
                      <graphic>
                         <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
                            <image>
