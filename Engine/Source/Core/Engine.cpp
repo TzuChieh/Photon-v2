@@ -2,6 +2,7 @@
 #include "Frame/TFrame.h"
 #include "Core/Renderer/BulkRenderer.h"
 #include "Frame/FrameProcessor.h"
+#include "Frame/Operator/JRToneMapping.h"
 
 namespace ph
 {
@@ -20,9 +21,11 @@ void Engine::update()
 	// HACK
 	m_description.update(0.0_r);
 
+	// HACK
 	m_filmSet.setFilm(EFrameTag::RGB_COLOR, m_description.getFilm());
-	m_filmSet.setProcessor(EFrameTag::RGB_COLOR, std::make_shared<FrameProcessor>());
-
+	std::shared_ptr<FrameProcessor> processor = std::make_shared<FrameProcessor>();
+	processor->appendOperator(std::make_shared<JRToneMapping>());
+	m_filmSet.setProcessor(EFrameTag::RGB_COLOR, processor);
 }
 
 void Engine::render()
@@ -38,7 +41,7 @@ void Engine::developFilm(HdrRgbFrame& out_frame, const bool applyPostProcessing)
 	if(applyPostProcessing)
 	{
 		const FrameProcessor* processor = m_filmSet.getProcessor(EFrameTag::RGB_COLOR);
-		//processor
+		processor->process(out_frame);
 	}
 }
 
@@ -59,10 +62,16 @@ ERegionStatus Engine::asyncPollUpdatedRegion(Renderer::Region* const out_region)
 
 void Engine::asyncDevelopFilmRegion(
 	HdrRgbFrame&            out_frame,
-	const Renderer::Region& region, 
+	const Renderer::Region& region,
 	const bool              applyPostProcessing) const
 {
 	m_renderer->asyncDevelopFilmRegion(out_frame, region);
+
+	if(applyPostProcessing)
+	{
+		const FrameProcessor* processor = m_filmSet.getProcessor(EFrameTag::RGB_COLOR);
+		processor->process(out_frame);
+	}
 }
 
 void Engine::asyncQueryStatistics(

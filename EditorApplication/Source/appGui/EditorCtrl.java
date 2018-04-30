@@ -259,14 +259,7 @@ public class EditorCtrl
 					color.set(0, 0, 0);
 				}
 				
-				// Tone-mapping operator: Jim Hejl and Richard Burgess-Dawson (GDC)
-				// (no need of gamma correction)
-				color.subLocal(0.004f).clampLocal(0.0f, Float.MAX_VALUE);
-				Vector3f numerator   = color.mul(6.2f).addLocal(0.5f).mulLocal(color);
-				Vector3f denominator = color.mul(6.2f).addLocal(1.7f).mulLocal(color).addLocal(0.06f);
-				color.x = numerator.x / denominator.x;
-				color.y = numerator.y / denominator.y;
-				color.z = numerator.z / denominator.z;
+				color.clampLocal(0.0f, 1.0f);
 				
 				int inversedY = frameRegion.getFullHeightPx() - y - 1;
 				Color fxColor = new Color(color.x, color.y, color.z, 1.0);

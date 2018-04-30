@@ -6,13 +6,19 @@
 namespace ph
 {
 
+/*
+	An optimized formula proposed by Jim Hejl and Richard Burgess-Dawson 
+	in their GDC talk. 
+	
+	This operator does not need gamma correction afterwards.
+*/
 class JRToneMapping final : public FrameOperator
 {
 public:
 	JRToneMapping();
-	virtual ~JRToneMapping() = 0;
+	virtual ~JRToneMapping() override;
 
-	virtual void operate(const HdrRgbFrame& input, HdrRgbFrame& output) const = 0;
+	virtual void operate(HdrRgbFrame& frame) const override;
 
 	void setExposure(real exposure);
 
