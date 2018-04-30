@@ -27,7 +27,7 @@ public:
 
 	Description();
 
-	void update(const real deltaS);
+	void update(real deltaS);
 
 	inline std::shared_ptr<Camera>          getCamera()          const { return m_camera;          };
 	inline std::shared_ptr<Film>            getFilm()            const { return m_film;            };
@@ -39,7 +39,6 @@ private:
 	std::shared_ptr<Film>            m_film;
 	std::shared_ptr<Integrator>      m_integrator;
 	std::shared_ptr<SampleGenerator> m_sampleGenerator;
-
 };
 
 }// end namespace ph

@@ -8,9 +8,7 @@ namespace ph
 
 NamedResourceStorage::NamedResourceStorage() : 
 	m_resources(static_cast<std::size_t>(ETypeCategory::MAX) + 1)
-{
-
-}
+{}
 
 void NamedResourceStorage::addResource(
 	const SdlTypeInfo& typeInfo,

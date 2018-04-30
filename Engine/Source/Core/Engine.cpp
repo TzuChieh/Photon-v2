@@ -7,9 +7,7 @@ namespace ph
 
 Engine::Engine() : 
 	m_renderer(std::make_unique<BulkRenderer>())
-{
-
-}
+{}
 
 void Engine::enterCommand(const std::string& commandFragment)
 {
