@@ -25,14 +25,14 @@ namespace ph
 
 BulkRenderer::BulkRenderer() :
 	Renderer()
-{
-
-}
+{}
 
 BulkRenderer::~BulkRenderer() = default;
 
 void BulkRenderer::init(const Description& description)
 {
+	std::lock_guard<std::mutex> lock(m_rendererMutex);
+
 	const uint32 numWorks = m_numThreads;
 
 	clearWorkData();
@@ -115,7 +115,10 @@ void BulkRenderer::asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& 
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	m_film->develop(out_frame, region);
+	if(m_film != nullptr)
+	{
+		m_film->develop(out_frame, region);
+	}
 }
 
 void BulkRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)

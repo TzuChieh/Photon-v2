@@ -55,9 +55,15 @@ Visit Project Website: https://tzuchieh.github.io/Photon-v2-site
   * render a short CG film using Photon
 
 ## Build
-Photon-v2 is being developed with cross-platformity in mind, but Windows is the only platform that has been tested, for now. <br />
+Photon uses CMake as its build system. The built binaries will be in a folder named "bin". The compilers and toolkits you need is as follows:
 
-(building instructions will be added soon...) <br />
+* C++17 compliant compiler for Engine, Application, and JNI.
+* JDK 1.8+ for EditorApplication.
+* Python 3.5.2+ for BlenderAddon.
+
+Photon is being developed with cross-platformity in mind, but Windows is the only platform that has been tested, for now. <br />
+
+(build instructions will be added soon...) <br />
 
 ## Images Rendered by Photon-v2
 | <a href="./gallery/028_sponza gold cups 12800spp.png"><img src="./gallery/028_sponza gold cups 12800spp.png" align="left" width="450" ></a> | <a href="./gallery/048_Arc Reactor (Iron Man) by kuhn0362 8000spp.png"><img src="./gallery/048_Arc Reactor (Iron Man) by kuhn0362 8000spp.png" align="left" width="450" ></a> |

@@ -18,6 +18,8 @@ void Engine::update()
 {
 	// HACK
 	m_description.update(0.0_r);
+
+	m_filmSet.setFilm(EFrameTag::RGB_COLOR, m_description.getFilm());
 }
 
 void Engine::render()
@@ -26,7 +28,7 @@ void Engine::render()
 	m_renderer->render(m_description);
 }
 
-void Engine::developFilm(HdrRgbFrame& out_frame)
+void Engine::developFilm(HdrRgbFrame& out_frame, const bool applyPostProcessing)
 {
 	m_description.getFilm()->develop(out_frame);
 }
@@ -46,14 +48,17 @@ ERegionStatus Engine::asyncPollUpdatedRegion(Renderer::Region* const out_region)
 	return m_renderer->asyncPollUpdatedRegion(out_region);
 }
 
-void Engine::asyncDevelopFilmRegion(HdrRgbFrame& out_frame,
-                                    const Renderer::Region& region) const
+void Engine::asyncDevelopFilmRegion(
+	HdrRgbFrame&            out_frame,
+	const Renderer::Region& region, 
+	const bool              applyPostProcessing) const
 {
 	m_renderer->asyncDevelopFilmRegion(out_frame, region);
 }
 
-void Engine::asyncQueryStatistics(float32* const out_percentageProgress,
-                                  float32* const out_samplesPerSecond) const
+void Engine::asyncQueryStatistics(
+	float32* const out_percentageProgress,
+	float32* const out_samplesPerSecond) const
 {
 	m_renderer->asyncQueryStatistics(out_percentageProgress, out_samplesPerSecond);
 }

@@ -23,9 +23,7 @@ namespace ph
 
 Renderer::Renderer() : 
 	m_numThreads(0)
-{
-
-}
+{}
 
 Renderer::~Renderer() = default;
 
