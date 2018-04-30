@@ -20,6 +20,35 @@ bool PictureSaver::save(const LdrRgbFrame& frame, const Path& filePath)
 	return saveFrameViaStb(frame, filePath);
 }
 
+bool PictureSaver::save(const HdrRgbFrame& frame, const Path& filePath)
+{
+	const std::string& ext = filePath.getExtension();
+	if(ext == ".png" || ext == ".jpg" || ext == ".bmp" || ext == ".tga")
+	{
+		LdrRgbFrame        ldrFrame(frame.widthPx(), frame.heightPx());
+		HdrRgbFrame::Pixel hdrPixel;
+		for(uint32 y = 0; y < frame.heightPx(); y++)
+		{
+			for(uint32 x = 0; x < frame.widthPx(); x++)
+			{
+				frame.getPixel(x, y, &hdrPixel);
+				hdrPixel.mulLocal(255.0_r).addLocal(0.5_r).clampLocal(0.0_r, 255.0_r);
+				ldrFrame.setPixel(x, y, LdrRgbFrame::Pixel(hdrPixel));
+			}
+		}
+
+		return save(ldrFrame, filePath);
+	}
+	else
+	{
+		// TODO
+		logger.log(ELogLevel::WARNING_MED,
+			"file <" + filePath.toString() + "> is an unsupported saving format");
+
+		return false;
+	}
+}
+
 bool PictureSaver::saveFrameViaStb(const LdrRgbFrame& frame, const Path& path)
 {
 	stbi_flip_vertically_on_write(true);
@@ -56,7 +85,7 @@ bool PictureSaver::saveFrameViaStb(const LdrRgbFrame& frame, const Path& path)
 	else
 	{
 		logger.log(ELogLevel::WARNING_MED, 
-		           "file <" + path.toString() + "> is an unsupported saving format");
+			"file <" + path.toString() + "> has an unsupported saving format");
 	}
 
 	return returnValue != 0;

@@ -30,3 +30,12 @@ TEST(FileSystemPath, PathOperationTest)
 	const ph::Path fullPath = firstPath.append(secondPath);
 	EXPECT_TRUE(fullPath == Path("C:/first/second/third/fourth/"));
 }
+
+TEST(FileSystemPath, FileExtensionTest)
+{
+	const ph::Path pathWithExtension("/some/path/file.ext");
+	EXPECT_STREQ(pathWithExtension.getExtension().c_str(), ".ext");
+
+	const ph::Path pathWithoutExtension("/some/path/file");
+	EXPECT_STREQ(pathWithoutExtension.getExtension().c_str(), "");
+}

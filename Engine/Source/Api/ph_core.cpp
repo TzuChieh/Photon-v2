@@ -11,6 +11,7 @@
 #include "Core/Renderer/Renderer.h"
 #include "FileIO/FileSystem/Path.h"
 #include "Common/assertion.h"
+#include "FileIO/PictureSaver.h"
 
 #include <memory>
 #include <iostream>
@@ -165,6 +166,22 @@ void phDeleteFrame(const PHuint64 frameId)
 	else
 	{
 		std::cout << "error while deleting Frame<" << frameId << ">" << std::endl;
+	}
+}
+
+void phSaveFrame(const PHuint64 frameId, const PHchar* const filePath)
+{
+	PH_ASSERT(filePath != nullptr);
+
+	using namespace ph;
+
+	const HdrRgbFrame* frame = ApiDatabase::getFrame(frameId);
+	if(frame)
+	{
+		if(!PictureSaver::save(*frame, Path(filePath)))
+		{
+			std::cerr << "Frame<" << frameId << "> saving failed" << std::endl;
+		}
 	}
 }
 

@@ -102,6 +102,7 @@ extern PH_API void phCreateFrame(PHuint64* out_frameId, PHuint32 widthPx, PHuint
 extern PH_API void phGetFrameDimension(PHuint64 frameId, PHuint32* out_widthPx, PHuint32* out_heightPx);
 extern PH_API void phGetFrameRgbData(PHuint64 frameId, const PHfloat32** out_data);
 extern PH_API void phDeleteFrame(PHuint64 frameId);
+extern PH_API void phSaveFrame(PHuint64 frameId, const PHchar* filePath);
 
 ///////////////////////////////////////////////////////////////////////////////
 // asynchronous operations
