@@ -151,3 +151,29 @@ TEST(TFrameTest, Flipping)
 	frame2.getPixel(1, 1, &pixel);
 	EXPECT_TRUE(pixel == Frame::Pixel({6, 7}));
 }
+
+TEST(TFrameTest, ForEachOperation)
+{
+	using namespace ph;
+
+	typedef TFrame<float, 2> Float2Frame;
+
+	Float2Frame frame1(1, 2);
+	frame1.setPixel(0, 0, Float2Frame::Pixel({1, 2}));
+	frame1.setPixel(0, 1, Float2Frame::Pixel({3, 4}));
+
+	frame1.forEachPixel([](const Float2Frame::Pixel& pixel)
+	{
+		return pixel * 2;
+	});
+
+	Float2Frame::Pixel pixel;
+
+	frame1.getPixel(0, 0, &pixel);
+	EXPECT_FLOAT_EQ(pixel[0], 2);
+	EXPECT_FLOAT_EQ(pixel[1], 4);
+
+	frame1.getPixel(0, 1, &pixel);
+	EXPECT_FLOAT_EQ(pixel[0], 6);
+	EXPECT_FLOAT_EQ(pixel[1], 8);
+}

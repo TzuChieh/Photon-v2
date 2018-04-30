@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <cstddef>
+#include <functional>
 
 namespace ph
 {
@@ -45,6 +46,8 @@ public:
 
 	inline void flipHorizontally();
 	inline void flipVertically();
+
+	inline void forEachPixel(const std::function<Pixel(const Pixel& pixel)>& op);
 
 	// TODO: sampling texture
 

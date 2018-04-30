@@ -1,6 +1,7 @@
 #include "Core/Engine.h"
 #include "Frame/TFrame.h"
 #include "Core/Renderer/BulkRenderer.h"
+#include "Frame/FrameProcessor.h"
 
 namespace ph
 {
@@ -20,6 +21,8 @@ void Engine::update()
 	m_description.update(0.0_r);
 
 	m_filmSet.setFilm(EFrameTag::RGB_COLOR, m_description.getFilm());
+	m_filmSet.setProcessor(EFrameTag::RGB_COLOR, std::make_shared<FrameProcessor>());
+
 }
 
 void Engine::render()
@@ -31,6 +34,12 @@ void Engine::render()
 void Engine::developFilm(HdrRgbFrame& out_frame, const bool applyPostProcessing)
 {
 	m_description.getFilm()->develop(out_frame);
+
+	if(applyPostProcessing)
+	{
+		const FrameProcessor* processor = m_filmSet.getProcessor(EFrameTag::RGB_COLOR);
+		//processor
+	}
 }
 
 TVector2<int64> Engine::getFilmDimensionPx() const

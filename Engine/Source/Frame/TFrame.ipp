@@ -161,6 +161,20 @@ inline void TFrame<T, N>::flipVertically()
 }
 
 template<typename T, std::size_t N>
+inline void TFrame<T, N>::forEachPixel(const std::function<Pixel(const Pixel& pixel)>& op)
+{
+	Pixel pixel;
+	for(uint32 y = 0; y < m_heightPx; ++y)
+	{
+		for(uint32 x = 0; x < m_widthPx; ++x)
+		{
+			getPixel(x, y, &pixel);
+			setPixel(x, y, op(pixel));
+		}
+	}
+}
+
+template<typename T, std::size_t N>
 inline auto TFrame<T, N>::getPixel(
 	const uint32 x, const uint32 y, 
 	Pixel* const out_pixel) const
