@@ -87,7 +87,10 @@ extern PH_API int phExit();
 extern PH_API void phCreateEngine(PHuint64* out_engineId, const PHuint32 numRenderThreads);
 extern PH_API void phEnterCommand(PHuint64 engineId, const PHchar* commandFragment);
 extern PH_API void phRender(PHuint64 engineId);
+
+// TODO: documentation
 extern PH_API void phUpdate(PHuint64 engineId);
+
 extern PH_API void phDevelopFilm(PHuint64 engineId, PHuint64 frameId);
 extern PH_API void phGetFilmDimension(PHuint64 engineId, PHuint32* out_widthPx, PHuint32* out_heightPx);
 extern PH_API void phDeleteEngine(PHuint64 engineId);
