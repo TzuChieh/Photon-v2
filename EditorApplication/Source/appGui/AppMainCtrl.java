@@ -6,6 +6,7 @@ import appModel.project.Project;
 import java.io.IOException;
 import java.util.HashMap;
 
+import appGui.util.ChildWindow;
 import appGui.util.ViewCtrlPair;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -37,16 +38,13 @@ public class AppMainCtrl
 	private AppMainGraphicalState m_graphicalState;
 	
 	private Parent m_managerView;
-	private Parent m_generalOptionsView;
 	
 	private HashMap<String, ViewCtrlPair<EditorCtrl>> m_editorUIs;
 	private ManagerCtrl m_managerCtrl;
 	private GeneralOptionsCtrl m_generalOptionsCtrl;
 	
-	private Scene m_generalOptionsScene;
-	private Scene m_aboutScene;
-	
-	private Stage m_popupStage;
+	private ChildWindow m_generalOptionsWindow;
+	private ChildWindow m_aboutWindow;
 	
 	@FXML private AnchorPane workbenchPane;
 	@FXML private Pane       footerPane;
@@ -58,11 +56,8 @@ public class AppMainCtrl
     {
     	m_editorUIs = new HashMap<>();
     	
-    	m_popupStage = new Stage();
-    	m_popupStage.initModality(Modality.APPLICATION_MODAL);
-    	m_popupStage.setOnHidden(event -> m_popupStage.setScene(null));
-    	m_popupStage.hide();
-    	
+    	m_generalOptionsWindow = new ChildWindow();
+    	m_aboutWindow          = new ChildWindow();
     	
     	footerPane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 //    	renderBtn.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -127,13 +122,13 @@ public class AppMainCtrl
     @FXML
     void generalOptionsClicked(ActionEvent event)
     {
-    	showGeneralOptionsPopup();
+    	m_generalOptionsWindow.show();
     }
     
     @FXML
     void aboutClicked(ActionEvent event)
     {
-    	showAboutPopup();
+    	m_aboutWindow.show();
     }
     
     public AppMainCtrl()
@@ -240,9 +235,11 @@ public class AppMainCtrl
 		{
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(GENERAL_OPTIONS_FXML_FILENAME));
 			
-			m_generalOptionsView  = fxmlLoader.load();
-			m_generalOptionsCtrl  = fxmlLoader.getController();
-			m_generalOptionsScene = new Scene(m_generalOptionsView);
+			Parent view = fxmlLoader.load();
+			m_generalOptionsCtrl = fxmlLoader.getController();
+			
+			m_generalOptionsWindow.setContent(new Scene(view));
+			m_generalOptionsWindow.setTitle("General Options");
 		}
 		catch(IOException e)
 		{
@@ -256,29 +253,14 @@ public class AppMainCtrl
     	try
 		{
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(ABOUT_FXML_FILENAME));
-			
-			Parent aboutView  = fxmlLoader.load();
-			m_aboutScene = new Scene(aboutView);
+			m_aboutWindow.setContent(new Scene(fxmlLoader.load()));
+			m_aboutWindow.setTitle("About");
 		}
 		catch(IOException e)
 		{
 			e.printStackTrace();
 			new MessagePopup(e);
 		}
-    }
-    
-    private void showGeneralOptionsPopup()
-    {
-    	m_popupStage.setTitle("General Options");
-    	m_popupStage.setScene(m_generalOptionsScene);
-    	m_popupStage.show();
-    }
-    
-    private void showAboutPopup()
-    {
-    	m_popupStage.setTitle("About");
-    	m_popupStage.setScene(m_aboutScene);
-    	m_popupStage.show();
     }
     
     private void setWorkbenchView(Parent view, String viewName)
