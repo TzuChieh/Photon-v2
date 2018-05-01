@@ -7,6 +7,11 @@ public class ViewCtrlPair<Ctrl>
 	private Parent m_view;
 	private Ctrl   m_ctrl;
 	
+	public ViewCtrlPair()
+	{
+		this(null, null);
+	}
+	
 	public ViewCtrlPair(Parent view, Ctrl ctrl)
 	{
 		m_view = view;

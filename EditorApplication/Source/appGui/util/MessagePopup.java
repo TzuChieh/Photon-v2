@@ -1,4 +1,4 @@
-package appGui;
+package appGui.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

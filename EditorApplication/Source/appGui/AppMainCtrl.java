@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import appGui.util.ChildWindow;
+import appGui.util.MessagePopup;
+import appGui.util.UILoader;
 import appGui.util.ViewCtrlPair;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -46,6 +48,8 @@ public class AppMainCtrl
 	private ChildWindow m_generalOptionsWindow;
 	private ChildWindow m_aboutWindow;
 	
+	private UILoader m_uiLoader;
+	
 	@FXML private AnchorPane workbenchPane;
 	@FXML private Pane       footerPane;
 	@FXML private Button     renderBtn;
@@ -54,6 +58,8 @@ public class AppMainCtrl
     @FXML
     public void initialize()
     {
+    	m_uiLoader = new UILoader();
+    	
     	m_editorUIs = new HashMap<>();
     	
     	m_generalOptionsWindow = new ChildWindow();
@@ -210,57 +216,28 @@ public class AppMainCtrl
     
     private static ViewCtrlPair<EditorCtrl> loadEditorUI()
     {
-    	Parent     editorView = null;
-		EditorCtrl editorCtrl = null;
-    	
-    	try
-		{
-			FXMLLoader fxmlLoader = new FXMLLoader(EditorCtrl.class.getResource(EDITOR_FXML_FILENAME));
-			
-			editorView = fxmlLoader.load();
-			editorCtrl = fxmlLoader.getController();
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-			new MessagePopup(e);
-		}
-    	
-    	return new ViewCtrlPair<>(editorView, editorCtrl);
+    	return new UILoader().load(EditorCtrl.class.getResource(EDITOR_FXML_FILENAME));
     }
     
     private void loadGeneralOptionsUI()
     {
-    	try
-		{
-			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(GENERAL_OPTIONS_FXML_FILENAME));
-			
-			Parent view = fxmlLoader.load();
-			m_generalOptionsCtrl = fxmlLoader.getController();
-			
-			m_generalOptionsWindow.setContent(new Scene(view));
+    	ViewCtrlPair<GeneralOptionsCtrl> ui = m_uiLoader.load(getClass().getResource(GENERAL_OPTIONS_FXML_FILENAME));
+    	if(ui.isValid())
+    	{
+    		m_generalOptionsCtrl = ui.getCtrl();
+			m_generalOptionsWindow.setContent(new Scene(ui.getView()));
 			m_generalOptionsWindow.setTitle("General Options");
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-			new MessagePopup(e);
-		}
+    	}
     }
     
     private void loadAboutUI()
     {
-    	try
-		{
-			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(ABOUT_FXML_FILENAME));
-			m_aboutWindow.setContent(new Scene(fxmlLoader.load()));
-			m_aboutWindow.setTitle("About");
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-			new MessagePopup(e);
-		}
+    	Parent view = m_uiLoader.loadView(getClass().getResource(ABOUT_FXML_FILENAME));
+    	if(view != null)
+    	{
+    		m_aboutWindow.setContent(new Scene(view));
+    		m_aboutWindow.setTitle("About");
+    	}
     }
     
     private void setWorkbenchView(Parent view, String viewName)
