@@ -184,6 +184,8 @@ inline auto TFrame<T, N>::getPixel(
 
 	for(std::size_t i = 0; i < N; ++i)
 	{
+		PH_ASSERT(baseIndex + i < m_pixelData.size());
+
 		(*out_pixel)[i] = m_pixelData[baseIndex + i];
 	}
 }
@@ -197,6 +199,8 @@ inline auto TFrame<T, N>::setPixel(
 
 	for(std::size_t i = 0; i < N; ++i)
 	{
+		PH_ASSERT(baseIndex + i < m_pixelData.size());
+
 		m_pixelData[baseIndex + i] = pixel[i];
 	}
 }

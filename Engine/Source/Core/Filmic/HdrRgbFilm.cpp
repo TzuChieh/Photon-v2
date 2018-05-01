@@ -6,6 +6,7 @@
 #include "Math/Function/TConstant2D.h"
 #include "Math/Function/TGaussian2D.h"
 #include "Core/Filmic/SampleFilterFactory.h"
+#include "Common/assertion.h"
 
 #include <cstddef>
 #include <iostream>
@@ -82,6 +83,8 @@ std::unique_ptr<Film> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindow
 	HdrRgbFilm* child  = childFilm.get();
 	childFilm->m_merger = [=]() -> void
 	{
+		PH_ASSERT(parent != nullptr && child != nullptr);
+
 		parent->mergeWith(*child);
 	};
 

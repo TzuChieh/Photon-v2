@@ -2,6 +2,7 @@
 
 //#include "Common/logging.h"
 #include "Common/primitive_type.h"
+#include "Common/assertion.h"
 
 #include <vector>
 #include <utility>
@@ -113,8 +114,6 @@ std::size_t TStableIndexDenseArray<T>::add(const T& object)
 template<typename T>
 std::size_t TStableIndexDenseArray<T>::add(T&& object)
 {
-	//std::cout << "move called" << std::endl;
-
 	const std::size_t stableIndex = dispatchStableIndex();
 	
 	m_objects.push_back(std::move(object));
@@ -126,16 +125,18 @@ bool TStableIndexDenseArray<T>::remove(const std::size_t stableIndex)
 {
 	if(!isStableIndexValid(stableIndex))
 	{
-		//ENGINE_LOG(TStableIndexDenseArray, LogLevel::NOTE_WARNING, "at remove(), invalid stableIndex detected");
 		std::cerr << "at remove(), invalid stableIndex detected" << std::endl;
 		return false;
 	}
 
+	PH_ASSERT(stableIndex < m_indexToObjectMapValidityPairs.size());
 	const std::size_t objectIndex = m_indexToObjectMapValidityPairs[stableIndex].first;
 	const std::size_t lastIndex = length() - 1;
 
 	// Swap the target object with the last object; also copy the last object's stable
 	// index to new location.
+	PH_ASSERT(objectIndex < m_objects.size()          && lastIndex < m_objects.size());
+	PH_ASSERT(objectIndex < m_objectToIndexMap.size() && lastIndex < m_objectToIndexMap.size());
 	std::swap(m_objects[objectIndex], m_objects[lastIndex]);
 	m_objectToIndexMap[objectIndex] = m_objectToIndexMap[lastIndex];
 
@@ -143,6 +144,7 @@ bool TStableIndexDenseArray<T>::remove(const std::size_t stableIndex)
 	m_indexToObjectMapValidityPairs[stableIndex].second = false;
 
 	// Update swapped object's stable index mapping.
+	PH_ASSERT(m_objectToIndexMap[objectIndex] < m_indexToObjectMapValidityPairs.size());
 	m_indexToObjectMapValidityPairs[m_objectToIndexMap[objectIndex]].first = objectIndex;
 
 	// Add freed stable index for later use.
@@ -183,12 +185,18 @@ std::size_t TStableIndexDenseArray<T>::nextStableIndex() const
 template<typename T>
 T& TStableIndexDenseArray<T>::operator [] (const std::size_t stableIndex)
 {
+	PH_ASSERT(stableIndex < m_indexToObjectMapValidityPairs.size());
+	PH_ASSERT(m_indexToObjectMapValidityPairs[stableIndex].first < m_objects.size());
+
 	return m_objects[m_indexToObjectMapValidityPairs[stableIndex].first];
 }
 
 template<typename T>
 const T& TStableIndexDenseArray<T>::operator [] (const std::size_t stableIndex) const
 {
+	PH_ASSERT(stableIndex < m_indexToObjectMapValidityPairs.size());
+	PH_ASSERT(m_indexToObjectMapValidityPairs[stableIndex].first < m_objects.size());
+
 	return m_objects[m_indexToObjectMapValidityPairs[stableIndex].first];
 }
 
@@ -248,6 +256,8 @@ std::size_t TStableIndexDenseArray<T>::dispatchStableIndex()
 	{
 		stableIndex = m_freeIndices.back();
 		m_freeIndices.pop_back();
+
+		PH_ASSERT(stableIndex < m_indexToObjectMapValidityPairs.size());
 
 		m_indexToObjectMapValidityPairs[stableIndex].first = m_objects.size();
 		m_indexToObjectMapValidityPairs[stableIndex].second = true;

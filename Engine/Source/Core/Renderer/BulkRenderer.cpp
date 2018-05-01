@@ -11,6 +11,7 @@
 #include "Core/Renderer/RenderWork.h"
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
+#include "Common/assertion.h"
 
 #include <cmath>
 #include <iostream>
@@ -24,7 +25,18 @@ namespace ph
 {
 
 BulkRenderer::BulkRenderer() :
-	Renderer()
+	Renderer(),
+	m_scene(nullptr),
+	m_sg(nullptr),
+	m_integrator(nullptr),
+	m_film(nullptr),
+	m_camera(nullptr),
+	m_numRemainingWorks(0),
+	m_numFinishedWorks(0),
+	m_workSgs(),
+	m_workFilms(),
+	m_updatedRegions(),
+	m_rendererMutex()
 {}
 
 BulkRenderer::~BulkRenderer() = default;
@@ -54,6 +66,8 @@ void BulkRenderer::init(const Description& description)
 
 bool BulkRenderer::getNewWork(const uint32 workerId, RenderWork* out_work)
 {
+	PH_ASSERT(out_work != nullptr);
+
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 	if(m_numRemainingWorks == 0)
@@ -91,6 +105,8 @@ void BulkRenderer::clearWorkData()
 
 ERegionStatus BulkRenderer::asyncPollUpdatedRegion(Region* const out_region)
 {
+	PH_ASSERT(out_region != nullptr);
+
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 	if(m_updatedRegions.empty())

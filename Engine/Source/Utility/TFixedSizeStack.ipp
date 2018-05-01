@@ -35,12 +35,16 @@ inline void TFixedSizeStack<T, N>::pop()
 template<typename T, std::size_t N>
 inline T& TFixedSizeStack<T, N>::get()
 {
+	PH_ASSERT(m_currentIndex < m_data.size());
+
 	return m_data[m_currentIndex];
 }
 
 template<typename T, std::size_t N>
 inline const T& TFixedSizeStack<T, N>::get() const
 {
+	PH_ASSERT(m_currentIndex < m_data.size());
+
 	return m_data[m_currentIndex];
 }
 
@@ -74,7 +78,7 @@ inline TFixedSizeStack<T, N>& TFixedSizeStack<T, N>::operator = (const TFixedSiz
 template<typename T, std::size_t N>
 inline T& TFixedSizeStack<T, N>::operator [] (const std::size_t index)
 {
-	PH_ASSERT(index < N);
+	PH_ASSERT(index < m_data.size());
 
 	return m_data[index];
 }
@@ -82,7 +86,7 @@ inline T& TFixedSizeStack<T, N>::operator [] (const std::size_t index)
 template<typename T, std::size_t N>
 inline const T& TFixedSizeStack<T, N>::operator [] (const std::size_t index) const
 {
-	PH_ASSERT(index < N);
+	PH_ASSERT(index < m_data.size());
 
 	return m_data[index];
 }

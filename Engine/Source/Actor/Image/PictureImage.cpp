@@ -72,8 +72,6 @@ SdlTypeInfo PictureImage::ciTypeInfo()
 }
 
 void PictureImage::ciRegister(CommandRegister& cmdRegister)
-{
-
-}
+{}
 
 }// end namespace ph

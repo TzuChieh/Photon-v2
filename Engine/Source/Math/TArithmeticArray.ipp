@@ -17,9 +17,7 @@ inline std::size_t TArithmeticArray<T, N>::numElements()
 template<typename T, std::size_t N>
 inline TArithmeticArray<T, N>::TArithmeticArray() : 
 	m()
-{
-
-}
+{}
 
 template<typename T, std::size_t N>
 inline TArithmeticArray<T, N>::TArithmeticArray(const T value) : 
@@ -31,16 +29,12 @@ inline TArithmeticArray<T, N>::TArithmeticArray(const T value) :
 template<typename T, std::size_t N>
 inline TArithmeticArray<T, N>::TArithmeticArray(const std::array<T, N>& values) : 
 	m(values)
-{
-
-}
+{}
 
 template<typename T, std::size_t N>
 inline TArithmeticArray<T, N>::TArithmeticArray(const TArithmeticArray& other) : 
 	m(other.m)
-{
-
-}
+{}
 
 template<typename T, std::size_t N>
 template<typename U>
@@ -256,7 +250,7 @@ inline T TArithmeticArray<T, N>::sum() const
 template<typename T, std::size_t N>
 inline T TArithmeticArray<T, N>::avg() const
 {
-	return sum() / N;
+	return sum() / static_cast<T>(N);
 }
 
 template<typename T, std::size_t N>
@@ -365,12 +359,16 @@ inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::set(const std::array<T, N
 template<typename T, std::size_t N>
 inline T& TArithmeticArray<T, N>::operator [] (const std::size_t index)
 {
+	PH_ASSERT(index < N);
+
 	return m[index];
 }
 
 template<typename T, std::size_t N>
 inline const T& TArithmeticArray<T, N>::operator [] (const std::size_t index) const
 {
+	PH_ASSERT(index < N);
+
 	return m[index];
 }
 

@@ -1,6 +1,10 @@
 
 # Photon-v2 unit tests for engine.
 
+#set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /std:c++17 /Zi /MP /MT")
+#set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+#set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MT")
+
 file(GLOB_RECURSE SOURCE_FILES "./Source/*.cpp")
 add_executable(EngineTest ${SOURCE_FILES})
 
