@@ -180,6 +180,8 @@ inline auto TFrame<T, N>::getPixel(
 	Pixel* const out_pixel) const
 	-> void
 {
+	PH_ASSERT(out_pixel != nullptr);
+
 	const std::size_t baseIndex = calcPixelDataBaseIndex(x, y);
 
 	for(std::size_t i = 0; i < N; ++i)

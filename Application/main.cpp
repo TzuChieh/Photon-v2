@@ -21,6 +21,7 @@ int main(int argc, char* argv[])
 	int numRenderThreads = 1;
 	std::string sceneFilePath = "./";
 	std::string imageFilePath = "./result.png";
+	bool postProcessFrame = true;
 	for(int i = 1; i < argc; i++)
 	{
 		if(std::string(argv[i]) == "-s")
@@ -51,6 +52,10 @@ int main(int argc, char* argv[])
 					std::cerr << "use 1 instead" << std::endl;
 				}
 			}
+		}
+		else if(std::string(argv[i]) == "--raw")
+		{
+			postProcessFrame = false;
 		}
 		else if(std::string(argv[i]) == "--help")
 		{
@@ -138,7 +143,14 @@ int main(int argc, char* argv[])
 
 	PHuint64 frameId;
 	phCreateFrame(&frameId, filmWpx, filmHpx);
-	phDevelopFilm(engineId, frameId);
+	if(postProcessFrame)
+	{
+		phDevelopFilm(engineId, frameId);
+	}
+	else
+	{
+		phDevelopFilmRaw(engineId, frameId);
+	}
 	phSaveFrame(frameId, imageFilePath.c_str());
 
 	std::cout << "render completed, image saved to <" << imageFilePath << ">" << std::endl;
@@ -161,6 +173,7 @@ void printHelpMessage()
 	-s <path>      specify the scene file to render
 	-i <path>      specify the output image
 	-t <number>    number of thread for rendering
+	--raw          do not perform any post-processing
 	--help         print this help message then exit
 
 	)" << std::endl;

@@ -96,6 +96,7 @@ extern PH_API void phGetFilmDimension(PHuint64 engineId, PHuint32* out_widthPx, 
 extern PH_API void phDeleteEngine(PHuint64 engineId);
 extern PH_API void phSetWorkingDirectory(PHuint64 engineId, const PHchar* workingDirectory);
 
+extern PH_API void phDevelopFilmRaw(PHuint64 engineId, PHuint64 frameId);
 
 ///////////////////////////////////////////////////////////////////////////////
 // frame operations

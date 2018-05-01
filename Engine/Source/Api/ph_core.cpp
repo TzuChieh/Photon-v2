@@ -109,6 +109,18 @@ void phDevelopFilm(const PHuint64 engineId, const PHuint64 frameId)
 	}
 }
 
+void phDevelopFilmRaw(const PHuint64 engineId, const PHuint64 frameId)
+{
+	using namespace ph;
+
+	Engine*      engine = ApiDatabase::getEngine(engineId);
+	HdrRgbFrame* frame  = ApiDatabase::getFrame(frameId);
+	if(engine && frame)
+	{
+		engine->developFilm(*frame, false);
+	}
+}
+
 void phGetFilmDimension(const PHuint64 engineId, PHuint32* const out_widthPx, PHuint32* const out_heightPx)
 {
 	using namespace ph;
