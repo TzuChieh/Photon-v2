@@ -16,6 +16,8 @@ JRToneMapping::~JRToneMapping() = default;
 
 void JRToneMapping::operate(HdrRgbFrame& frame) const
 {
+	const HdrRgbFrame::Pixel& numerator = HdrRgbFrame::Pixel().addLocal(0.5_r);
+
 	frame.forEachPixel([this](const HdrRgbFrame::Pixel& pixel)
 	{
 		HdrRgbFrame::Pixel color = pixel;
