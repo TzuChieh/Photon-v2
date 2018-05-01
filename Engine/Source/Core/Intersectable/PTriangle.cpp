@@ -184,7 +184,7 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 
 	PH_ASSERT_MSG(hitBaryABC.isFinite(), hitBaryABC.toString());
 
-	const Vector3R& hitShadingNormal = Vector3R::weightedSum(
+	const Vector3R hitShadingNormal = Vector3R::weightedSum(
 		m_nA, hitBaryABC.x,
 		m_nB, hitBaryABC.y,
 		m_nC, hitBaryABC.z).normalizeLocal();

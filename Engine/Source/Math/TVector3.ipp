@@ -76,7 +76,7 @@ template<typename T>
 TVector3<T> TVector3<T>::rotate(const TQuaternion<T>& rotation) const
 {
 	const TQuaternion<T>& conjugatedRotation = rotation.conjugate();
-	const TQuaternion<T>& result = rotation.mul(*this).mulLocal(conjugatedRotation);
+	const TQuaternion<T> result = rotation.mul(*this).mulLocal(conjugatedRotation);
 
 	return TVector3(result.x, result.y, result.z);
 }
@@ -88,7 +88,7 @@ void TVector3<T>::rotate(const TQuaternion<T>& rotation,
 	PH_ASSERT(out_result != nullptr && out_result != this);
 
 	const TQuaternion<T>& conjugatedRotation = rotation.conjugate();
-	const TQuaternion<T>& result = rotation.mul(*this).mulLocal(conjugatedRotation);
+	const TQuaternion<T> result = rotation.mul(*this).mulLocal(conjugatedRotation);
 
 	out_result->x = result.x;
 	out_result->y = result.y;

@@ -142,10 +142,10 @@ void PSphere::calcIntersectionDetail(
 
 	// find delta positions on the sphere from displacement vectors
 	//
-	const Vector3R& negX = hitPosition.sub(dx).normalizeLocal().mulLocal(m_radius);
-	const Vector3R& posX = hitPosition.add(dx).normalizeLocal().mulLocal(m_radius);
-	const Vector3R& negZ = hitPosition.sub(dz).normalizeLocal().mulLocal(m_radius);
-	const Vector3R& posZ = hitPosition.add(dz).normalizeLocal().mulLocal(m_radius);
+	const Vector3R negX = hitPosition.sub(dx).normalizeLocal().mulLocal(m_radius);
+	const Vector3R posX = hitPosition.add(dx).normalizeLocal().mulLocal(m_radius);
+	const Vector3R negZ = hitPosition.sub(dz).normalizeLocal().mulLocal(m_radius);
+	const Vector3R posZ = hitPosition.add(dz).normalizeLocal().mulLocal(m_radius);
 
 	// find delta uvw vectors
 	//
