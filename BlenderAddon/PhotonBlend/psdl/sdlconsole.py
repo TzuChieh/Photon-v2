@@ -34,10 +34,10 @@ class SdlCommandQueue:
 
 class SdlConsole:
 
-	def __init__(self, working_directory):
+	def __init__(self, working_directory, scene_name):
 		self.__working_directory = working_directory
 		self.__command_queue     = SdlCommandQueue()
-		self.__command_filename  = "scene.p2"
+		self.__command_filename  = scene_name + ".p2"
 		self.__command_file      = None
 
 	def start(self):

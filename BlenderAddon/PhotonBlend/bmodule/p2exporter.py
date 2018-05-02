@@ -37,7 +37,7 @@ class Exporter:
 	def get_sdlconsole(self):
 		return self.__sdlconsole
 
-	def begin(self):
+	def begin(self, scene_name):
 
 		file_path            = self.__file_path
 		folder_path          = utility.get_folder_path(file_path)
@@ -49,7 +49,7 @@ class Exporter:
 
 		utility.create_folder(scene_folder_path)
 
-		self.__sdlconsole = SdlConsole(scene_folder_path)
+		self.__sdlconsole = SdlConsole(scene_folder_path, scene_name)
 		self.__sdlconsole.start()
 
 	def end(self):
@@ -449,6 +449,12 @@ class P2Exporter(Operator, ExportHelper):
 	# 	options={"HIDDEN"},
 	# )
 
+	is_export_animation_requested = BoolProperty(
+		name        = "Export Animation",
+		description = "Export each frame as a separate scene file.",
+		default     = False,
+	)
+
 	# List of operator properties, the attributes will be assigned
 	# to the class instance from the operator settings before calling.
 	use_setting = BoolProperty(
@@ -467,15 +473,35 @@ class P2Exporter(Operator, ExportHelper):
 
 	def execute(self, b_context):
 
-		exporter = Exporter(self.filepath)
-		exporter.begin()
+		scene = b_context.scene
 
-		exporter.export_core_commands(b_context)
-		exporter.export_world_commands(b_context)
+		if not P2Exporter.is_export_animation_requested:
 
-		exporter.end()
+			exporter = Exporter(self.filepath)
+			exporter.begin("scene")
 
-		return {"FINISHED"}
+			exporter.export_core_commands(b_context)
+			exporter.export_world_commands(b_context)
+
+			exporter.end()
+
+			return {"FINISHED"}
+
+		else:
+
+			for frame_number in range(scene.frame_start, scene.frame_end + 1):
+
+				scene.frame_set(frame_number)
+
+				exporter = Exporter(self.filepath)
+				exporter.begin("scene_" + str(frame_number))
+
+				exporter.export_core_commands(b_context)
+				exporter.export_world_commands(b_context)
+
+				exporter.end()
+
+			return {"FINISHED"}
 
 
 # Only needed if you want to add into a dynamic menu
