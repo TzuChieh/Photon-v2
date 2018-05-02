@@ -79,7 +79,7 @@ class Exporter:
 		)
 		self.__sdlconsole.queue_command(command)
 
-	def exportGeometry(self, geometryType, geometryName, **keywordArgs):
+	def export_triangle_mesh(self, geometryType, geometryName, **keywordArgs):
 
 		if geometryType == "triangle-mesh":
 			command = RawCommand()
@@ -228,217 +228,212 @@ class Exporter:
 												 blenderQuaternion.x))
 		return photonQuaternion
 
+	def export_geometry(self, geometryName, mesh, faces):
 
-def export_geometry(exporter, geometryName, mesh, faces):
+		# all UV maps for tessellated faces
+		uvMaps = mesh.tessface_uv_textures
 
-	# all UV maps for tessellated faces
-	uvMaps = mesh.tessface_uv_textures
+		uvLayers = None
 
-	uvLayers = None
-
-	if len(uvMaps) > 0:
-		if uvMaps.active != None:
-			uvLayers = uvMaps.active.data
-		else:
-			print("warning: mesh (%s) has %d uv maps, but no one is active (no uv map will be exported)" %(geometryName, len(uvMaps)))
-
-		if len(uvMaps) > 1:
-			print("warning: mesh (%s) has %d uv maps, only the active one is exported" %(geometryName, len(uvMaps)))
-
-	triPositions = []
-	triTexCoords = []
-	triNormals   = []
-
-	for face in faces:
-
-		faceVertexIndices = [0, 1, 2]
-
-		# identify and triangulate quads (assuming coplanar & CCW)
-		if len(face.vertices) > 3:
-			if len(face.vertices) == 4:
-				faceVertexIndices.extend([0, 2, 3])
+		if len(uvMaps) > 0:
+			if uvMaps.active != None:
+				uvLayers = uvMaps.active.data
 			else:
-				print("warning: face of mesh %s consists more than 4 vertices which is unsupported, ignoring" %(geometryName))
-				continue
+				print("warning: mesh (%s) has %d uv maps, but no one is active (no uv map will be exported)" %(geometryName, len(uvMaps)))
 
-		# gather triangle data
-		for faceVertexIndex in faceVertexIndices:
-			vertexIndex = face.vertices[faceVertexIndex]
-			triVertex = mesh.vertices[vertexIndex]
+			if len(uvMaps) > 1:
+				print("warning: mesh (%s) has %d uv maps, only the active one is exported" %(geometryName, len(uvMaps)))
 
-			triPosition = triVertex.co
-			triNormal   = triVertex.normal if face.use_smooth else face.normal
-			triTexCoord = [0, 0, 0]
+		triPositions = []
+		triTexCoords = []
+		triNormals   = []
 
-			if uvLayers != None:
-				faceUvLayer = uvLayers[face.index]
-				triTexCoord[0] = faceUvLayer.uv[faceVertexIndex][0]
-				triTexCoord[1] = faceUvLayer.uv[faceVertexIndex][1]
+		for face in faces:
 
-			triPositions.append(triPosition)
-			triTexCoords.append(triTexCoord)
-			triNormals.append(triNormal)
+			faceVertexIndices = [0, 1, 2]
 
-	exporter.exportGeometry("triangle-mesh", geometryName,
-							positions = triPositions,
-							texCoords = triTexCoords,
-							normals   = triNormals)
+			# identify and triangulate quads (assuming coplanar & CCW)
+			if len(face.vertices) > 3:
+				if len(face.vertices) == 4:
+					faceVertexIndices.extend([0, 2, 3])
+				else:
+					print("warning: face of mesh %s consists more than 4 vertices which is unsupported, ignoring" %(geometryName))
+					continue
 
+			# gather triangle data
+			for faceVertexIndex in faceVertexIndices:
+				vertexIndex = face.vertices[faceVertexIndex]
+				triVertex = mesh.vertices[vertexIndex]
 
-def export_object_mesh(exporter, b_context, obj):
+				triPosition = triVertex.co
+				triNormal   = triVertex.normal if face.use_smooth else face.normal
+				triTexCoord = [0, 0, 0]
 
-	scene = b_context.scene
+				if uvLayers != None:
+					faceUvLayer = uvLayers[face.index]
+					triTexCoord[0] = faceUvLayer.uv[faceVertexIndex][0]
+					triTexCoord[1] = faceUvLayer.uv[faceVertexIndex][1]
 
-	if len(obj.data.materials) != 0:
+				triPositions.append(triPosition)
+				triTexCoords.append(triTexCoord)
+				triNormals.append(triNormal)
 
-		# this creates a temporary mesh data with all modifiers applied for exporting
-		# (don't forget to delete it after exporting)
-		mesh = obj.to_mesh(scene, apply_modifiers = True, settings = "RENDER", calc_tessface = True)
+		self.export_triangle_mesh("triangle-mesh", geometryName,
+		                          positions = triPositions,
+		                          texCoords = triTexCoords,
+		                          normals   = triNormals)
 
-		if mesh == None:
-			print("warning: mesh object %s cannot convert to mesh, not exporting" %(obj.name))
+	def export_object_mesh(self, b_context, obj):
+
+		scene = b_context.scene
+
+		if len(obj.data.materials) != 0:
+
+			# this creates a temporary mesh data with all modifiers applied for exporting
+			# (don't forget to delete it after exporting)
+			mesh = obj.to_mesh(scene, apply_modifiers = True, settings = "RENDER", calc_tessface = True)
+
+			if mesh == None:
+				print("warning: mesh object %s cannot convert to mesh, not exporting" %(obj.name))
+				bpy.data.meshes.remove(mesh)
+				return
+
+			materialIdFacesMap = {}
+
+			# group faces with the same material, then export each face-material pair as a Photon-v2's actor
+
+			for face in mesh.tessfaces:
+				# note that this index refers to material slots (their stack order on the UI)
+				matId = face.material_index
+
+				if matId not in materialIdFacesMap.keys():
+					materialIdFacesMap[matId] = []
+
+				materialIdFacesMap[matId].append(face)
+
+			for matId in materialIdFacesMap.keys():
+
+				material = obj.material_slots[matId].material
+				faces    = materialIdFacesMap[matId]
+
+				# a material slot can be empty, this check is necessary
+				if material == None:
+					print("warning: no material is in mesh object %s's material slot %d, not exporting" %(obj.name, matId))
+					continue
+
+				# same material can be in different slots, with slot index as suffix we can ensure unique material
+				# names (required by Photon-v2 for creating unique materials)
+				geometryName = naming.mangled_geometry_name(obj, mesh.name, str(matId))
+				materialName = naming.mangled_material_name(obj, mesh.name + "_" + material.name, str(matId))
+
+				self.export_geometry(geometryName, mesh, faces)
+				material_export_result = self.exportMaterial(b_context, materialName, material)
+
+				# creating actor (can be either model or light depending on emissivity)
+				pos, rot, scale = obj.matrix_world.decompose()
+
+				if material_export_result.emission_image_command is not None:
+
+					lightSourceName = naming.mangled_light_source_name(obj, mesh.name, str(matId))
+					actorLightName  = naming.mangled_actor_light_name(obj, "", str(matId))
+
+					source_cmd = ModelLightCreator()
+					source_cmd.set_data_name(lightSourceName)
+					source_cmd.set_emitted_radiance_image(material_export_result.emission_image_command.get_data_name())
+					source_cmd.set_geometry(geometryName)
+					source_cmd.set_material(materialName)
+					exporter.get_sdlconsole().queue_command(source_cmd)
+
+					exporter.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
+
+				elif material.ph_is_emissive:
+
+					# FIXME: broken code here
+
+					lightSourceName = naming.mangled_light_source_name(obj, mesh.name, str(matId))
+					actorLightName  = naming.mangled_actor_light_name(obj, "", str(matId))
+
+					exporter.exportLightSource("model", lightSourceName, emittedRadiance = material.ph_emitted_radiance)
+					exporter.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
+
+				else:
+
+					actorModelName = naming.mangled_actor_model_name(obj, "", str(matId))
+
+					self.exportActorModel(actorModelName, geometryName, materialName, pos, rot, scale)
+
+			# delete the temporary mesh for exporting
 			bpy.data.meshes.remove(mesh)
-			return
 
-		materialIdFacesMap = {}
+		else:
+			print("warning: mesh object (%s) has no material, not exporting" %(obj.name))
 
-		# group faces with the same material, then export each face-material pair as a Photon-v2's actor
+	def export_camera(self, obj, scene):
 
-		for face in mesh.tessfaces:
-			# note that this index refers to material slots (their stack order on the UI)
-			matId = face.material_index
+		camera = obj.data
 
-			if matId not in materialIdFacesMap.keys():
-				materialIdFacesMap[matId] = []
+		if camera.type == "PERSP":
 
-			materialIdFacesMap[matId].append(face)
-
-		for matId in materialIdFacesMap.keys():
-
-			material = obj.material_slots[matId].material
-			faces    = materialIdFacesMap[matId]
-
-			# a material slot can be empty, this check is necessary
-			if material == None:
-				print("warning: no material is in mesh object %s's material slot %d, not exporting" %(obj.name, matId))
-				continue
-
-			# same material can be in different slots, with slot index as suffix we can ensure unique material
-			# names (required by Photon-v2 for creating unique materials)
-			geometryName = naming.mangled_geometry_name(obj, mesh.name, str(matId))
-			materialName = naming.mangled_material_name(obj, mesh.name + "_" + material.name, str(matId))
-
-			export_geometry(exporter, geometryName, mesh, faces)
-			material_export_result = exporter.exportMaterial(b_context, materialName, material)
-
-			# creating actor (can be either model or light depending on emissivity)
 			pos, rot, scale = obj.matrix_world.decompose()
+			if abs(scale.x - 1.0) > 0.0001 or abs(scale.y - 1.0) > 0.0001 or abs(scale.z - 1.0) > 0.0001:
+				print("warning: camera (%s) contains scale factor, ignoring" % camera.name)
 
-			if material_export_result.emission_image_command is not None:
+			# Blender's camera intially pointing (0, 0, -1) with up (0, 1, 0) in its math.py system
+			# (also note that Blender's quaternion works this way, does not require q*v*q').
+			cam_dir     = rot * mathutils.Vector((0, 0, -1))
+			cam_up_dir  = rot * mathutils.Vector((0, 1, 0))
+			fov_degrees = 70.0
 
-				lightSourceName = naming.mangled_light_source_name(obj, mesh.name, str(matId))
-				actorLightName  = naming.mangled_actor_light_name(obj, "", str(matId))
-
-				source_cmd = ModelLightCreator()
-				source_cmd.set_data_name(lightSourceName)
-				source_cmd.set_emitted_radiance_image(material_export_result.emission_image_command.get_data_name())
-				source_cmd.set_geometry(geometryName)
-				source_cmd.set_material(materialName)
-				exporter.get_sdlconsole().queue_command(source_cmd)
-
-				exporter.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
-
-			elif material.ph_is_emissive:
-
-				# FIXME: broken code here
-
-				lightSourceName = naming.mangled_light_source_name(obj, mesh.name, str(matId))
-				actorLightName  = naming.mangled_actor_light_name(obj, "", str(matId))
-
-				exporter.exportLightSource("model", lightSourceName, emittedRadiance = material.ph_emitted_radiance)
-				exporter.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
-
+			lens_unit = camera.lens_unit
+			if lens_unit == "FOV":
+				fov_degrees = math.degrees(camera.angle)
+			elif lens_unit == "MILLIMETERS":
+				sensor_width = camera.sensor_width
+				focal_length = camera.lens
+				fov_degrees  = math.degrees(math.atan((sensor_width / 2.0) / focal_length)) * 2.0
 			else:
+				print("warning: camera (%s) with lens unit %s is unsupported, not exporting"
+				      % (camera.name, camera.lens_unit))
 
-				actorModelName = naming.mangled_actor_model_name(obj, "", str(matId))
+			self.exportCamera("pinhole", fov_degrees, pos, cam_dir, cam_up_dir)
 
-				exporter.exportActorModel(actorModelName, geometryName, materialName, pos, rot, scale)
-
-		# delete the temporary mesh for exporting
-		bpy.data.meshes.remove(mesh)
-
-	else:
-		print("warning: mesh object (%s) has no material, not exporting" %(obj.name))
-
-
-def export_camera(exporter, obj, scene):
-
-	camera = obj.data
-
-	if camera.type == "PERSP":
-
-		pos, rot, scale = obj.matrix_world.decompose()
-		if abs(scale.x - 1.0) > 0.0001 or abs(scale.y - 1.0) > 0.0001 or abs(scale.z - 1.0) > 0.0001:
-			print("warning: camera (%s) contains scale factor, ignoring" % camera.name)
-
-		# Blender's camera intially pointing (0, 0, -1) with up (0, 1, 0) in its math.py system
-		# (also note that Blender's quaternion works this way, does not require q*v*q').
-		cam_dir     = rot * mathutils.Vector((0, 0, -1))
-		cam_up_dir  = rot * mathutils.Vector((0, 1, 0))
-		fov_degrees = 70.0
-
-		lens_unit = camera.lens_unit
-		if lens_unit == "FOV":
-			fov_degrees = math.degrees(camera.angle)
-		elif lens_unit == "MILLIMETERS":
-			sensor_width = camera.sensor_width
-			focal_length = camera.lens
-			fov_degrees  = math.degrees(math.atan((sensor_width / 2.0) / focal_length)) * 2.0
 		else:
-			print("warning: camera (%s) with lens unit %s is unsupported, not exporting"
-			      % (camera.name, camera.lens_unit))
+			print("warning: camera (%s) type (%s) is unsupported, not exporting" % (camera.name, camera.type))
 
-		exporter.exportCamera("pinhole", fov_degrees, pos, cam_dir, cam_up_dir)
+	def export_core_commands(self, context):
+		objs = context.scene.objects
+		for obj in objs:
+			if obj.type == "CAMERA":
+				self.export_camera(obj, context.scene)
 
-	else:
-		print("warning: camera (%s) type (%s) is unsupported, not exporting" % (camera.name, camera.type))
+		meta_info = meta.MetaGetter(context)
 
+		self.exportRaw("## film(hdr-rgb) [integer width %s] [integer height %s] [string filter-name %s]\n"
+		               % (meta_info.render_width_px(),
+		                  meta_info.render_height_px(),
+		                  meta_info.sample_filter_name()))
 
-def export_core_commands(exporter, context):
-	objs = context.scene.objects
-	for obj in objs:
-		if obj.type == "CAMERA":
-			export_camera(exporter, obj, context.scene)
+		self.exportRaw("## sample-generator(stratified) [integer sample-amount %s] "
+		               "[integer num-strata-2d-x %s] [integer num-strata-2d-y %s]\n"
+		               % (meta_info.spp(), meta_info.render_width_px(), meta_info.render_height_px()))
 
-	meta_info = meta.MetaGetter(context)
+		self.exportRaw("## integrator(%s) \n" % meta_info.integrator_type_name())
 
-	exporter.exportRaw("## film(hdr-rgb) [integer width %s] [integer height %s] [string filter-name %s]\n"
-	                   % (meta_info.render_width_px(),
-	                      meta_info.render_height_px(),
-	                      meta_info.sample_filter_name()))
-
-	exporter.exportRaw("## sample-generator(stratified) [integer sample-amount %s] "
-	                   "[integer num-strata-2d-x %s] [integer num-strata-2d-y %s]\n"
-	                   % (meta_info.spp(), meta_info.render_width_px(), meta_info.render_height_px()))
-
-	exporter.exportRaw("## integrator(%s) \n" % meta_info.integrator_type_name())
-
-
-# TODO: write/flush commands to disk once a while (reducing memory usage)
-def export_world_commands(exporter, b_context):
-	scene = b_context.scene
-	objs = scene.objects
-	for obj in objs:
-		if obj.type == "MESH":
-			print("exporting mesh " + obj.name)
-			export_object_mesh(exporter, b_context, obj)
-		elif obj.type == "LAMP":
-			light.to_sdl_commands(obj, exporter.get_sdlconsole())
-		elif obj.type == "CAMERA":
-			# do nothing since it belongs to core command
-			continue
-		else:
-			print("warning: object (%s) type (%s) is not supported, not exporting" %(obj.name, obj.type))
+	# TODO: write/flush commands to disk once a while (reducing memory usage)
+	def export_world_commands(self, b_context):
+		scene = b_context.scene
+		objs = scene.objects
+		for obj in objs:
+			if obj.type == "MESH":
+				print("exporting mesh " + obj.name)
+				self.export_object_mesh(b_context, obj)
+			elif obj.type == "LAMP":
+				light.to_sdl_commands(obj, self.get_sdlconsole())
+			elif obj.type == "CAMERA":
+				# do nothing since it belongs to core command
+				continue
+			else:
+				print("warning: object (%s) type (%s) is not supported, not exporting" %(obj.name, obj.type))
 
 
 class P2Exporter(Operator, ExportHelper):
@@ -475,8 +470,8 @@ class P2Exporter(Operator, ExportHelper):
 		exporter = Exporter(self.filepath)
 		exporter.begin()
 
-		export_core_commands(exporter, b_context)
-		export_world_commands(exporter, b_context)
+		exporter.export_core_commands(b_context)
+		exporter.export_world_commands(b_context)
 
 		exporter.end()
 

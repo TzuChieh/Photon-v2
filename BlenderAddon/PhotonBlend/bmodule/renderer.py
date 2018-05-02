@@ -47,7 +47,7 @@ class PhRenderingPanel(PhRenderPanel):
 		],
 		name        = "Rendering Method",
 		description = "Photon-v2's rendering methods",
-		default     = "BVPT"
+		default     = "BNEEPT"
 	)
 
 	def draw(self, context):
