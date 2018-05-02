@@ -82,6 +82,8 @@ void StaticImageRenderer::render() const
 	phSaveFrame(frameId, m_imageFilePath.c_str());
 
 	std::cout << "render completed, image saved to <" << m_imageFilePath << ">" << std::endl;
+
+	queryThread.join();
 }
 
 bool StaticImageRenderer::loadCommandsFromSceneFile() const
