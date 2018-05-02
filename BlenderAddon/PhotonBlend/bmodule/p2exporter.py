@@ -285,11 +285,6 @@ def export_geometry(exporter, geometryName, mesh, faces):
 							normals   = triNormals)
 
 
-def export_material(exporter, b_context, material_name, b_material):
-
-	return exporter.exportMaterial(b_context, material_name, b_material)
-
-
 def export_object_mesh(exporter, b_context, obj):
 
 	scene = b_context.scene
@@ -334,7 +329,7 @@ def export_object_mesh(exporter, b_context, obj):
 			materialName = naming.mangled_material_name(obj, mesh.name + "_" + material.name, str(matId))
 
 			export_geometry(exporter, geometryName, mesh, faces)
-			material_export_result = export_material(exporter, b_context, materialName, material)
+			material_export_result = exporter.exportMaterial(b_context, materialName, material)
 
 			# creating actor (can be either model or light depending on emissivity)
 			pos, rot, scale = obj.matrix_world.decompose()
@@ -374,11 +369,6 @@ def export_object_mesh(exporter, b_context, obj):
 
 	else:
 		print("warning: mesh object (%s) has no material, not exporting" %(obj.name))
-
-
-def export_object_lamp(exporter, b_context, obj):
-
-	light.to_sdl_commands(obj, exporter.get_sdlconsole())
 
 
 def export_camera(exporter, obj, scene):
@@ -443,7 +433,7 @@ def export_world_commands(exporter, b_context):
 			print("exporting mesh " + obj.name)
 			export_object_mesh(exporter, b_context, obj)
 		elif obj.type == "LAMP":
-			export_object_lamp(exporter, b_context, obj)
+			light.to_sdl_commands(obj, exporter.get_sdlconsole())
 		elif obj.type == "CAMERA":
 			# do nothing since it belongs to core command
 			continue
