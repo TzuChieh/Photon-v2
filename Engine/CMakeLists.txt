@@ -43,7 +43,7 @@ target_include_directories(Engine
 	PRIVATE ${STB_INCLUDE_DIR}
 )
 
-# other platforms do not link to threading libraries by default
+# other platforms do not link to threading and FS libraries by default
 #
 if(NOT WIN32)
 

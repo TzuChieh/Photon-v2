@@ -15,9 +15,14 @@ StaticImageRenderer::StaticImageRenderer(const CommandLineArguments& args) :
 	m_sceneFilePath(args.getSceneFilePath()),
 	m_imageFilePath(args.getImageFilePath()),
 	m_numRenderThreads(args.getNumRenderThreads()),
-	m_performPostProcessing(args.performPostPorcess())
+	m_isPostProcessRequested(args.isPostProcessRequested())
 {
 	phCreateEngine(&m_engineId, static_cast<PHuint32>(m_numRenderThreads));
+}
+
+StaticImageRenderer::~StaticImageRenderer()
+{
+	phDeleteEngine(m_engineId);
 }
 
 void StaticImageRenderer::render() const
@@ -65,13 +70,14 @@ void StaticImageRenderer::render() const
 
 	renderThread.join();
 	isRenderingCompleted = true;
+	std::cout << "render completed" << std::endl;
 
 	PHuint32 filmWpx, filmHpx;
 	phGetFilmDimension(m_engineId, &filmWpx, &filmHpx);
 
 	PHuint64 frameId;
 	phCreateFrame(&frameId, filmWpx, filmHpx);
-	if(m_performPostProcessing)
+	if(m_isPostProcessRequested)
 	{
 		phDevelopFilm(m_engineId, frameId);
 	}
@@ -79,11 +85,23 @@ void StaticImageRenderer::render() const
 	{
 		phDevelopFilmRaw(m_engineId, frameId);
 	}
+
+	std::cout << "saving image to <" << m_imageFilePath << ">" << std::endl;
 	phSaveFrame(frameId, m_imageFilePath.c_str());
 
-	std::cout << "render completed, image saved to <" << m_imageFilePath << ">" << std::endl;
+	phDeleteFrame(frameId);
 
 	queryThread.join();
+}
+
+void StaticImageRenderer::setSceneFilePath(const std::string& path)
+{
+	m_sceneFilePath = path;
+}
+
+void StaticImageRenderer::setImageFilePath(const std::string& path)
+{
+	m_imageFilePath = path;
 }
 
 bool StaticImageRenderer::loadCommandsFromSceneFile() const
@@ -97,6 +115,8 @@ bool StaticImageRenderer::loadCommandsFromSceneFile() const
 	}
 	else
 	{
+		std::cerr << "loading scene file <" << m_sceneFilePath << ">" << std::endl;
+
 		std::string lineCommand;
 		while(sceneFile.good())
 		{
@@ -105,6 +125,8 @@ bool StaticImageRenderer::loadCommandsFromSceneFile() const
 			phEnterCommand(m_engineId, lineCommand.c_str());
 		}
 		phEnterCommand(m_engineId, "->");
+
+		return true;
 	}
 }
 

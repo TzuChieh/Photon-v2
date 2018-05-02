@@ -9,8 +9,9 @@ CommandLineArguments::CommandLineArguments(const std::vector<std::string>& argv)
 	m_sceneFilePath       ("./scene.p2"),
 	m_imageFilePath       ("./rendered_scene.png"),
 	m_numRenderThreads    (1),
-	m_performPostProcess  (true),
-	m_helpMessageRequested(false)
+	m_isPostProcessRequested(true),
+	m_isHelpMessageRequested(false),
+	m_isImageSeriesRequested(false)
 {
 	for(std::size_t i = 1; i < argv.size(); i++)
 	{
@@ -22,7 +23,7 @@ CommandLineArguments::CommandLineArguments(const std::vector<std::string>& argv)
 				m_sceneFilePath = argv[i];
 			}
 		}
-		else if(argv[i] == "-i")
+		else if(argv[i] == "-o")
 		{
 			i++;
 			if(i < argv.size())
@@ -49,11 +50,15 @@ CommandLineArguments::CommandLineArguments(const std::vector<std::string>& argv)
 		}
 		else if(argv[i] == "--raw")
 		{
-			m_performPostProcess = false;
+			m_isPostProcessRequested = false;
 		}
 		else if(argv[i] == "--help")
 		{
-			m_helpMessageRequested = true;
+			m_isHelpMessageRequested = true;
+		}
+		else if(argv[i] == "--series")
+		{
+			m_isImageSeriesRequested = true;
 		}
 		else
 		{
@@ -61,6 +66,8 @@ CommandLineArguments::CommandLineArguments(const std::vector<std::string>& argv)
 			std::cerr << "ignored" << std::endl;
 		}
 	}
+
+	// TODO: check arguments
 }
 
 std::string CommandLineArguments::getSceneFilePath() const
@@ -78,25 +85,39 @@ int CommandLineArguments::getNumRenderThreads() const
 	return m_numRenderThreads;
 }
 
-bool CommandLineArguments::performPostPorcess() const
+bool CommandLineArguments::isPostProcessRequested() const
 {
-	return m_performPostProcess;
+	return m_isPostProcessRequested;
 }
 
-bool CommandLineArguments::helpMessageRequested() const
+bool CommandLineArguments::isHelpMessageRequested() const
 {
-	return m_helpMessageRequested;
+	return m_isHelpMessageRequested;
+}
+
+bool CommandLineArguments::isImageSeriesRequested() const
+{
+	return m_isImageSeriesRequested;
 }
 
 void CommandLineArguments::printHelpMessage()
 {
 	std::cout << R"(
 
-	-s <path>      specify the scene file to render
-	-i <path>      specify the output image
-	-t <number>    number of thread for rendering
-	--raw          do not perform any post-processing
-	--help         print this help message then exit
+	-s <path>      Specify path to scene file. To render an image series, you
+	               can specify "myScene#.p2" as <path> where # is a wildcard 
+	               for numbers.
+
+	-o <path>      Specify image output path. This should be a filename for
+	               single image and a path for image series.
+
+	-t <number>    Set number of threads for rendering.
+
+	--raw          Do not perform any post-processing.
+
+	--help         Print this help message then exit.
+
+	--series       Render an image series.
 
 	)" << std::endl;
 }

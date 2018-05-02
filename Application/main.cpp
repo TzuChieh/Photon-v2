@@ -7,8 +7,13 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <experimental/filesystem>
+#include <utility>
+#include <algorithm>
 
 using namespace PH_CLI_NAMESPACE;
+
+void renderImageSeries(const CommandLineArguments& args);
 
 int main(int argc, char* argv[])
 {
@@ -26,7 +31,7 @@ int main(int argc, char* argv[])
 	}
 
 	CommandLineArguments args(arguments);
-	if(args.helpMessageRequested())
+	if(args.isHelpMessageRequested())
 	{
 		CommandLineArguments::printHelpMessage();
 		return EXIT_SUCCESS;
@@ -38,8 +43,15 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
-	StaticImageRenderer renderer(args);
-	renderer.render();
+	if(!args.isImageSeriesRequested())
+	{
+		StaticImageRenderer renderer(args);
+		renderer.render();
+	}
+	else
+	{
+		renderImageSeries(args);
+	}
 
 	if(!phExit())
 	{
@@ -48,4 +60,56 @@ int main(int argc, char* argv[])
 	}
 
 	return EXIT_SUCCESS;
+}
+
+void renderImageSeries(const CommandLineArguments& args)
+{
+	namespace fs = std::experimental::filesystem;
+
+	const fs::path    sceneDirectory    = fs::path(args.getSceneFilePath()).parent_path();
+	const std::string sceneFilenameStar = fs::path(args.getSceneFilePath()).filename().string();
+	const std::string sceneFilenameBase = sceneFilenameStar.substr(0, sceneFilenameStar.find('#'));
+
+	std::vector<std::pair<int, std::string>> sceneFilePaths;
+	for(const auto& directory : fs::directory_iterator(sceneDirectory))
+	{
+		const fs::path path = directory.path();
+		if(path.extension() != ".p2")
+		{
+			continue;
+		}
+
+		const std::string filename     = path.filename().string();
+		const std::string filenameBase = filename.substr(0, sceneFilenameBase.size());
+		if(filenameBase != sceneFilenameBase)
+		{
+			continue;
+		}
+
+		const std::size_t numberSize = filename.size() - filenameBase.size() - 3;
+		const int         number     = std::stoi(filename.substr(filenameBase.size(), numberSize));
+
+		sceneFilePaths.push_back({number, path.string()});
+	}
+	std::sort(sceneFilePaths.begin(), sceneFilePaths.end());
+
+	if(sceneFilePaths.empty())
+	{
+		std::cout << "no file matching <" << args.getSceneFilePath() << "> found" << std::endl;
+		return;
+	}
+
+	fs::create_directories(args.getImageFilePath());
+
+	for(const auto& sceneFilePath : sceneFilePaths)
+	{
+		StaticImageRenderer renderer(args);
+		renderer.setSceneFilePath(sceneFilePath.second);
+
+		const std::string imageFilename = std::to_string(sceneFilePath.first) + ".png";
+		const fs::path    imageFilePath = fs::path(args.getImageFilePath()) / imageFilename;
+		renderer.setImageFilePath(imageFilePath.string());
+		
+		renderer.render();
+	}
 }
