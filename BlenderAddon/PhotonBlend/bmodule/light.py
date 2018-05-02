@@ -24,7 +24,8 @@ class PhLightPanel(bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		render_settings = context.scene.render
-		return render_settings.engine in cls.COMPATIBLE_ENGINES
+		return (render_settings.engine in cls.COMPATIBLE_ENGINES and
+		        context.lamp)
 
 
 class PhLightPropertyPanel(PhLightPanel):

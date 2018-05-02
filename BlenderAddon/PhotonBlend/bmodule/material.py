@@ -16,7 +16,8 @@ class PhMaterialPanel(bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		render_settings = context.scene.render
-		return render_settings.engine in cls.COMPATIBLE_ENGINES
+		return (render_settings.engine in cls.COMPATIBLE_ENGINES and
+		        context.material)
 
 
 class PhMainPropertyPanel(PhMaterialPanel):
