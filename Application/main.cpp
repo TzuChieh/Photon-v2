@@ -1,3 +1,6 @@
+#include "CommandLineArguments.h"
+#include "util.h"
+
 #include <ph_core.h>
 
 #include <iostream>
@@ -6,8 +9,9 @@
 #include <thread>
 #include <chrono>
 #include <atomic>
+#include <vector>
 
-void printHelpMessage();
+using namespace PH_CLI_NAMESPACE;
 
 int main(int argc, char* argv[])
 {
@@ -18,55 +22,17 @@ int main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 	}
 
-	int numRenderThreads = 1;
-	std::string sceneFilePath = "./";
-	std::string imageFilePath = "./result.png";
-	bool postProcessFrame = true;
-	for(int i = 1; i < argc; i++)
+	std::vector<std::string> arguments;
+	for(int i = 0; i < argc; i++)
 	{
-		if(std::string(argv[i]) == "-s")
-		{
-			i++;
-			if(i < argc)
-			{
-				sceneFilePath = argv[i];
-			}
-		}
-		else if(std::string(argv[i]) == "-i")
-		{
-			i++;
-			if(i < argc)
-			{
-				imageFilePath = argv[i];
-			}
-		}
-		else if(std::string(argv[i]) == "-t")
-		{
-			i++;
-			if(i < argc)
-			{
-				numRenderThreads = std::stoi(argv[i]);
-				if(numRenderThreads <= 0)
-				{
-					std::cerr << "warning: bad number of threads <" << argv[i] << std::endl;
-					std::cerr << "use 1 instead" << std::endl;
-				}
-			}
-		}
-		else if(std::string(argv[i]) == "--raw")
-		{
-			postProcessFrame = false;
-		}
-		else if(std::string(argv[i]) == "--help")
-		{
-			printHelpMessage();
-			return EXIT_SUCCESS;
-		}
-		else
-		{
-			std::cerr << "warning: unknown command <" << argv[i] << ">" << std::endl;
-			std::cerr << "ignored" << std::endl;
-		}
+		arguments.push_back(argv[i]);
+	}
+
+	CommandLineArguments args(arguments);
+	if(args.helpMessageRequested())
+	{
+		CommandLineArguments::printHelpMessage();
+		return EXIT_SUCCESS;
 	}
 
 	if(!phInit())
@@ -76,13 +42,13 @@ int main(int argc, char* argv[])
 	}
 
 	PHuint64 engineId;
-	phCreateEngine(&engineId, static_cast<PHuint32>(numRenderThreads));
+	phCreateEngine(&engineId, static_cast<PHuint32>(args.getNumRenderThreads()));
 
 	std::ifstream sceneFile;
-	sceneFile.open(sceneFilePath, std::ios::in);
+	sceneFile.open(args.getSceneFilePath(), std::ios::in);
 	if(!sceneFile.is_open())
 	{
-		std::cerr << "warning: scene file <" << sceneFilePath << "> opening failed" << std::endl;
+		std::cerr << "warning: scene file <" << args.getSceneFilePath() << "> opening failed" << std::endl;
 		return EXIT_FAILURE;
 	}
 	else
@@ -143,7 +109,7 @@ int main(int argc, char* argv[])
 
 	PHuint64 frameId;
 	phCreateFrame(&frameId, filmWpx, filmHpx);
-	if(postProcessFrame)
+	if(args.performPostPorcess())
 	{
 		phDevelopFilm(engineId, frameId);
 	}
@@ -151,9 +117,9 @@ int main(int argc, char* argv[])
 	{
 		phDevelopFilmRaw(engineId, frameId);
 	}
-	phSaveFrame(frameId, imageFilePath.c_str());
+	phSaveFrame(frameId, args.getImageFilePath().c_str());
 
-	std::cout << "render completed, image saved to <" << imageFilePath << ">" << std::endl;
+	std::cout << "render completed, image saved to <" << args.getImageFilePath() << ">" << std::endl;
 
 	if(!phExit())
 	{
@@ -164,17 +130,4 @@ int main(int argc, char* argv[])
 	queryThread.join();
 
 	return EXIT_SUCCESS;
-}
-
-void printHelpMessage()
-{
-	std::cout << R"(
-
-	-s <path>      specify the scene file to render
-	-i <path>      specify the output image
-	-t <number>    number of thread for rendering
-	--raw          do not perform any post-processing
-	--help         print this help message then exit
-
-	)" << std::endl;
 }
