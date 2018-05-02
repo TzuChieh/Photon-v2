@@ -83,6 +83,7 @@ ExternalProject_Add(googletest
     CMAKE_ARGS      
     	"-DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_DIR}googletest/"
     	"-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS} ${GOOGLETEST_CXX_FLAGS}"
+        "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
 )
 set(GOOGLETEST_INCLUDE_DIR "${THIRD_PARTY_DIR}googletest/include/")
 set(GOOGLETEST_BINARY_DIR  "${THIRD_PARTY_DIR}googletest/lib/")
