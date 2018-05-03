@@ -342,9 +342,9 @@ class Exporter:
 					source_cmd.set_emitted_radiance_image(material_export_result.emission_image_command.get_data_name())
 					source_cmd.set_geometry(geometryName)
 					source_cmd.set_material(materialName)
-					exporter.get_sdlconsole().queue_command(source_cmd)
+					self.get_sdlconsole().queue_command(source_cmd)
 
-					exporter.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
+					self.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
 
 				elif material.ph_is_emissive:
 
@@ -353,8 +353,8 @@ class Exporter:
 					lightSourceName = naming.mangled_light_source_name(obj, mesh.name, str(matId))
 					actorLightName  = naming.mangled_actor_light_name(obj, "", str(matId))
 
-					exporter.exportLightSource("model", lightSourceName, emittedRadiance = material.ph_emitted_radiance)
-					exporter.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
+					self.exportLightSource("model", lightSourceName, emittedRadiance = material.ph_emitted_radiance)
+					self.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
 
 				else:
 
@@ -475,7 +475,7 @@ class P2Exporter(Operator, ExportHelper):
 
 		scene = b_context.scene
 
-		if not P2Exporter.is_export_animation_requested:
+		if not self.is_export_animation_requested:
 
 			exporter = Exporter(self.filepath)
 			exporter.begin("scene")

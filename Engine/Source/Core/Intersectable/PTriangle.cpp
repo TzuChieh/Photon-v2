@@ -408,6 +408,8 @@ void PTriangle::genPositionSample(PositionSample* const out_sample) const
 	out_sample->normal = localNormal.normalize();
 
 	out_sample->pdf = this->PTriangle::calcPositionSamplePdfA(out_sample->position);
+
+	PH_ASSERT(out_sample->normal.isFinite() && out_sample->normal.length() > 0.9_r);
 }
 
 real PTriangle::calcExtendedArea() const
@@ -438,6 +440,12 @@ Vector3R PTriangle::calcBarycentricCoord(const Vector3R& position) const
 	const real d21 = eAP.dot(m_eAC);
 	
 	// TODO: check numeric stability
+
+	const real denominator = d00 * d11 - d01 * d01;
+	if(denominator == 0.0_r)
+	{
+		return Vector3R(0, 0, 0);
+	}
 
 	const real reciDenom = 1.0_r / (d00 * d11 - d01 * d01);
 	
