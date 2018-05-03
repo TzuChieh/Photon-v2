@@ -6,12 +6,14 @@
 PH_CLI_NAMESPACE_BEGIN
 
 CommandLineArguments::CommandLineArguments(const std::vector<std::string>& argv) : 
-	m_sceneFilePath       ("./scene.p2"),
-	m_imageFilePath       ("./rendered_scene.png"),
-	m_numRenderThreads    (1),
+	m_sceneFilePath         ("./scene.p2"),
+	m_imageFilePath         ("./rendered_scene.png"),
+	m_numRenderThreads      (1),
 	m_isPostProcessRequested(true),
 	m_isHelpMessageRequested(false),
-	m_isImageSeriesRequested(false)
+	m_isImageSeriesRequested(false),
+	m_wildcardBegin         (""),
+	m_wildcardEnd           ("")
 {
 	for(std::size_t i = 1; i < argv.size(); i++)
 	{
@@ -60,6 +62,30 @@ CommandLineArguments::CommandLineArguments(const std::vector<std::string>& argv)
 		{
 			m_isImageSeriesRequested = true;
 		}
+		else if(argv[i] == "--begin")
+		{
+			i++;
+			if(i < argv.size())
+			{
+				m_wildcardBegin = argv[i];
+			}
+			else
+			{
+				std::cerr << "warning: no wildcard string specified for --begin" << std::endl;
+			}
+		}
+		else if(argv[i] == "--end")
+		{
+			i++;
+			if(i < argv.size())
+			{
+				m_wildcardEnd = argv[i];
+			}
+			else
+			{
+				std::cerr << "warning: no wildcard string specified for --end" << std::endl;
+			}
+		}
 		else
 		{
 			std::cerr << "warning: unknown command <" << argv[i] << ">" << std::endl;
@@ -100,13 +126,23 @@ bool CommandLineArguments::isImageSeriesRequested() const
 	return m_isImageSeriesRequested;
 }
 
+std::string CommandLineArguments::wildcardBegin() const
+{
+	return m_wildcardBegin;
+}
+
+std::string CommandLineArguments::wildcardEnd() const
+{
+	return m_wildcardEnd;
+}
+
 void CommandLineArguments::printHelpMessage()
 {
 	std::cout << R"(
 
 	-s <path>      Specify path to scene file. To render an image series, you
 	               can specify "myScene*.p2" as <path> where * is a wildcard 
-	               for any string.
+	               for any string (and specify --series).
 
 	-o <path>      Specify image output path. This should be a filename for
 	               single image and a path for image series.
@@ -119,6 +155,12 @@ void CommandLineArguments::printHelpMessage()
 
 	--series       Render an image series. The order for rendering will be 
 	               lexicographical order of the wildcarded string.
+
+	--begin <*>    Render image series starting from a specific wildcarded 
+	               string.
+
+	--end <*>      Render image series until a specific wildcarded string is
+	               matched.
 
 	)" << std::endl;
 }
