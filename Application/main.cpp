@@ -68,9 +68,9 @@ void renderImageSeries(const CommandLineArguments& args)
 
 	const fs::path    sceneDirectory    = fs::path(args.getSceneFilePath()).parent_path();
 	const std::string sceneFilenameStar = fs::path(args.getSceneFilePath()).filename().string();
-	const std::string sceneFilenameBase = sceneFilenameStar.substr(0, sceneFilenameStar.find('#'));
+	const std::string sceneFilenameBase = sceneFilenameStar.substr(0, sceneFilenameStar.find('*'));
 
-	std::vector<std::pair<int, std::string>> sceneFilePaths;
+	std::vector<std::pair<std::string, std::string>> sceneFilePaths;
 	for(const auto& directory : fs::directory_iterator(sceneDirectory))
 	{
 		const fs::path path = directory.path();
@@ -86,10 +86,10 @@ void renderImageSeries(const CommandLineArguments& args)
 			continue;
 		}
 
-		const std::size_t numberSize = filename.size() - filenameBase.size() - 3;
-		const int         number     = std::stoi(filename.substr(filenameBase.size(), numberSize));
+		const std::size_t stringSize = filename.size() - filenameBase.size() - 3;
+		const std::string string     = filename.substr(filenameBase.size(), stringSize);
 
-		sceneFilePaths.push_back({number, path.string()});
+		sceneFilePaths.push_back({string, path.string()});
 	}
 	std::sort(sceneFilePaths.begin(), sceneFilePaths.end());
 
@@ -106,7 +106,7 @@ void renderImageSeries(const CommandLineArguments& args)
 		StaticImageRenderer renderer(args);
 		renderer.setSceneFilePath(sceneFilePath.second);
 
-		const std::string imageFilename = std::to_string(sceneFilePath.first) + ".png";
+		const std::string imageFilename = sceneFilePath.first + ".png";
 		const fs::path    imageFilePath = fs::path(args.getImageFilePath()) / imageFilename;
 		renderer.setImageFilePath(imageFilePath.string());
 		

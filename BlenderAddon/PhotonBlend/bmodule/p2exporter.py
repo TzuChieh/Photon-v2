@@ -494,7 +494,7 @@ class P2Exporter(Operator, ExportHelper):
 				scene.frame_set(frame_number)
 
 				exporter = Exporter(self.filepath)
-				exporter.begin("scene_" + str(frame_number))
+				exporter.begin("scene_" + str(frame_number).zfill(6))
 
 				exporter.export_core_commands(b_context)
 				exporter.export_world_commands(b_context)

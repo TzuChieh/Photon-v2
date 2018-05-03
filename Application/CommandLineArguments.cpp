@@ -105,8 +105,8 @@ void CommandLineArguments::printHelpMessage()
 	std::cout << R"(
 
 	-s <path>      Specify path to scene file. To render an image series, you
-	               can specify "myScene#.p2" as <path> where # is a wildcard 
-	               for numbers.
+	               can specify "myScene*.p2" as <path> where * is a wildcard 
+	               for any string.
 
 	-o <path>      Specify image output path. This should be a filename for
 	               single image and a path for image series.
@@ -117,7 +117,8 @@ void CommandLineArguments::printHelpMessage()
 
 	--help         Print this help message then exit.
 
-	--series       Render an image series.
+	--series       Render an image series. The order for rendering will be 
+	               lexicographical order of the wildcarded string.
 
 	)" << std::endl;
 }
