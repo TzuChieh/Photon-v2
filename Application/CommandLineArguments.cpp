@@ -12,8 +12,8 @@ CommandLineArguments::CommandLineArguments(const std::vector<std::string>& argv)
 	m_isPostProcessRequested(true),
 	m_isHelpMessageRequested(false),
 	m_isImageSeriesRequested(false),
-	m_wildcardBegin         (""),
-	m_wildcardEnd           ("")
+	m_wildcardStart         (""),
+	m_wildcardFinish        ("")
 {
 	for(std::size_t i = 1; i < argv.size(); i++)
 	{
@@ -62,28 +62,28 @@ CommandLineArguments::CommandLineArguments(const std::vector<std::string>& argv)
 		{
 			m_isImageSeriesRequested = true;
 		}
-		else if(argv[i] == "--begin")
+		else if(argv[i] == "--start")
 		{
 			i++;
 			if(i < argv.size())
 			{
-				m_wildcardBegin = argv[i];
+				m_wildcardStart = argv[i];
 			}
 			else
 			{
-				std::cerr << "warning: no wildcard string specified for --begin" << std::endl;
+				std::cerr << "warning: no wildcard string specified for --start" << std::endl;
 			}
 		}
-		else if(argv[i] == "--end")
+		else if(argv[i] == "--finish")
 		{
 			i++;
 			if(i < argv.size())
 			{
-				m_wildcardEnd = argv[i];
+				m_wildcardFinish = argv[i];
 			}
 			else
 			{
-				std::cerr << "warning: no wildcard string specified for --end" << std::endl;
+				std::cerr << "warning: no wildcard string specified for --finish" << std::endl;
 			}
 		}
 		else
@@ -126,14 +126,14 @@ bool CommandLineArguments::isImageSeriesRequested() const
 	return m_isImageSeriesRequested;
 }
 
-std::string CommandLineArguments::wildcardBegin() const
+std::string CommandLineArguments::wildcardStart() const
 {
-	return m_wildcardBegin;
+	return m_wildcardStart;
 }
 
-std::string CommandLineArguments::wildcardEnd() const
+std::string CommandLineArguments::wildcardFinish() const
 {
-	return m_wildcardEnd;
+	return m_wildcardFinish;
 }
 
 void CommandLineArguments::printHelpMessage()
@@ -156,11 +156,11 @@ void CommandLineArguments::printHelpMessage()
 	--series       Render an image series. The order for rendering will be 
 	               lexicographical order of the wildcarded string.
 
-	--begin <*>    Render image series starting from a specific wildcarded 
+	--start <*>    Render image series starting from a specific wildcarded 
 	               string.
 
-	--end <*>      Render image series until a specific wildcarded string is
-	               matched.
+	--finish <*>   Render image series until a specific wildcarded string is
+	               matched. (inclusive)
 
 	)" << std::endl;
 }

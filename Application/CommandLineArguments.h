@@ -21,8 +21,8 @@ public:
 	bool        isPostProcessRequested() const;
 	bool        isHelpMessageRequested() const;
 	bool        isImageSeriesRequested() const;
-	std::string wildcardBegin()          const;
-	std::string wildcardEnd()            const;
+	std::string wildcardStart()          const;
+	std::string wildcardFinish()         const;
 
 private:
 	std::string m_sceneFilePath;
@@ -31,8 +31,8 @@ private:
 	bool        m_isPostProcessRequested;
 	bool        m_isHelpMessageRequested;
 	bool        m_isImageSeriesRequested;
-	std::string m_wildcardBegin;
-	std::string m_wildcardEnd;
+	std::string m_wildcardStart;
+	std::string m_wildcardFinish;
 };
 
 PH_CLI_NAMESPACE_END

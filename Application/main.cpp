@@ -70,7 +70,8 @@ void renderImageSeries(const CommandLineArguments& args)
 	const std::string sceneFilenameStar = fs::path(args.getSceneFilePath()).filename().string();
 	const std::string sceneFilenameBase = sceneFilenameStar.substr(0, sceneFilenameStar.find('*'));
 
-	std::vector<std::pair<std::string, std::string>> sceneFilePaths;
+	typedef std::pair<std::string, std::string> StringPair;
+	std::vector<StringPair> sceneFiles;
 	for(const auto& directory : fs::directory_iterator(sceneDirectory))
 	{
 		const fs::path path = directory.path();
@@ -89,24 +90,40 @@ void renderImageSeries(const CommandLineArguments& args)
 		const std::size_t stringSize = filename.size() - filenameBase.size() - 3;
 		const std::string string     = filename.substr(filenameBase.size(), stringSize);
 
-		sceneFilePaths.push_back({string, path.string()});
+		sceneFiles.push_back({string, path.string()});
 	}
-	std::sort(sceneFilePaths.begin(), sceneFilePaths.end());
-
-	if(sceneFilePaths.empty())
-	{
-		std::cout << "no file matching <" << args.getSceneFilePath() << "> found" << std::endl;
-		return;
-	}
+	std::sort(sceneFiles.begin(), sceneFiles.end());
 
 	fs::create_directories(args.getImageFilePath());
 
-	for(const auto& sceneFilePath : sceneFilePaths)
+	auto sceneBegin = std::find_if(sceneFiles.begin(), sceneFiles.end(), 
+		[&args](const std::pair<std::string, std::string>& sceneFile)
+		{
+			return sceneFile.first == args.wildcardStart();
+		});
+	sceneBegin = sceneBegin != sceneFiles.end() ? sceneBegin : sceneFiles.begin();
+
+	auto sceneEnd = std::find_if(sceneBegin, sceneFiles.end(),
+		[&args](const std::pair<std::string, std::string>& sceneFile)
+		{
+			return sceneFile.first == args.wildcardFinish();
+		});
+	sceneEnd = sceneEnd != sceneFiles.end() ? sceneEnd + 1 : sceneEnd;
+
+	sceneFiles = std::vector<StringPair>(sceneBegin, sceneEnd);
+	if(sceneFiles.empty())
+	{
+		std::cout << "no file matching <" << args.getSceneFilePath() << "> found" << std::endl;
+		std::cout << "(within wildcard range [" << args.wildcardStart() << ", " << args.wildcardFinish() << "])" << std::endl;
+		return;
+	}
+
+	for(const auto& sceneFile : sceneFiles)
 	{
 		StaticImageRenderer renderer(args);
-		renderer.setSceneFilePath(sceneFilePath.second);
+		renderer.setSceneFilePath(sceneFile.second);
 
-		const std::string imageFilename = sceneFilePath.first + ".png";
+		const std::string imageFilename = sceneFile.first + ".png";
 		const fs::path    imageFilePath = fs::path(args.getImageFilePath()) / imageFilename;
 		renderer.setImageFilePath(imageFilePath.string());
 		
