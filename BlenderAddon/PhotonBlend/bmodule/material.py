@@ -14,10 +14,10 @@ class PhMaterialPanel(bpy.types.Panel):
 	                      settings.cycles_id_name}
 
 	@classmethod
-	def poll(cls, context):
-		render_settings = context.scene.render
+	def poll(cls, b_context):
+		render_settings = b_context.scene.render
 		return (render_settings.engine in cls.COMPATIBLE_ENGINES and
-		        context.material)
+		        b_context.material)
 
 
 class PhMainPropertyPanel(PhMaterialPanel):
