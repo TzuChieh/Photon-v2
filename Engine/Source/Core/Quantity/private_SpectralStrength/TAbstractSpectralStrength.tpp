@@ -358,13 +358,6 @@ inline auto TAbstractSpectralStrength<DerivedType, N>::operator + (const Derived
 }
 
 template<typename DerivedType, std::size_t N>
-inline auto TAbstractSpectralStrength<DerivedType, N>::operator * (const DerivedType& rhs) const
-	-> DerivedType
-{
-	return this->mul(rhs);
-}
-
-template<typename DerivedType, std::size_t N>
 inline auto TAbstractSpectralStrength<DerivedType, N>::operator + (const real rhs) const
 	-> DerivedType
 {
@@ -372,10 +365,45 @@ inline auto TAbstractSpectralStrength<DerivedType, N>::operator + (const real rh
 }
 
 template<typename DerivedType, std::size_t N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::operator - (const DerivedType& rhs) const
+	-> DerivedType
+{
+	return this->sub(rhs);
+}
+
+template<typename DerivedType, std::size_t N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::operator - (const real rhs) const
+	-> DerivedType
+{
+	return this->sub(rhs);
+}
+
+template<typename DerivedType, std::size_t N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::operator * (const DerivedType& rhs) const
+	-> DerivedType
+{
+	return this->mul(rhs);
+}
+
+template<typename DerivedType, std::size_t N>
 inline auto TAbstractSpectralStrength<DerivedType, N>::operator * (const real rhs) const
 	-> DerivedType
 {
 	return this->mul(rhs);
+}
+
+template<typename DerivedType, std::size_t N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::operator / (const DerivedType& rhs) const
+	-> DerivedType
+{
+	return this->div(rhs);
+}
+
+template<typename DerivedType, std::size_t N>
+inline auto TAbstractSpectralStrength<DerivedType, N>::operator / (const real rhs) const
+	-> DerivedType
+{
+	return this->div(rhs);
 }
 
 template<typename DerivedType, std::size_t N>

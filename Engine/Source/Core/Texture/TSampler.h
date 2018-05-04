@@ -1,10 +1,7 @@
 #pragma once
 
-#include "Core/Quantity/SpectralStrength.h"
 #include "Core/Texture/TTexture.h"
 #include "Core/SurfaceHit.h"
-#include "Core/Intersectable/Primitive.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Texture/SampleLocation.h"
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"

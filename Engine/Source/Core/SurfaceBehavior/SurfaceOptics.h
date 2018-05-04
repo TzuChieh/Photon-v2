@@ -16,6 +16,8 @@ class BsdfPdfQuery;
 
 class SurfaceOptics
 {
+	friend class LerpedSurfaceOptics;
+
 public:
 	virtual ~SurfaceOptics() = 0;
 

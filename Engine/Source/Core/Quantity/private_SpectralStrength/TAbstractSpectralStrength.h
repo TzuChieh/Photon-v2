@@ -87,8 +87,12 @@ public:
 
 	inline DerivedType operator + (const DerivedType& rhs) const;
 	inline DerivedType operator + (real rhs) const;
+	inline DerivedType operator - (const DerivedType& rhs) const;
+	inline DerivedType operator - (real rhs) const;
 	inline DerivedType operator * (const DerivedType& rhs) const;
 	inline DerivedType operator * (real rhs) const;
+	inline DerivedType operator / (const DerivedType& rhs) const;
+	inline DerivedType operator / (real rhs) const;
 
 	inline std::string toString() const;
 
