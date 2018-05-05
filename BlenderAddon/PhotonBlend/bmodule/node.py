@@ -1,6 +1,7 @@
 from ..utility import settings
 
 import bpy
+import nodeitems_utils
 
 from abc import abstractmethod
 
@@ -31,6 +32,16 @@ class PhMaterialNodeSocket(bpy.types.NodeSocketShader):
 	def draw_color(self, b_context, node):
 		return [0.0, 0.0, 0.0, 1.0]
 
+	# Blender: draw socket
+	def draw(self, b_context, b_layout, node, text):
+		if self.is_linked or self.is_output:
+			b_layout.label(text)
+		else:
+			row = b_layout.row()
+			row.label(text)
+			if node.inputs[text].default_value is not None:
+				row.prop(node.inputs[text], "default_value")
+
 
 class PhMaterialNode(bpy.types.Node):
 
@@ -38,41 +49,82 @@ class PhMaterialNode(bpy.types.Node):
 	bl_label  = "Photon Node"
 	bl_icon   = "MATERIAL"
 
-	def draw_buttons(self, b_context, layout):
+	# Blender: draw the buttons in node
+	def draw_buttons(self, b_context, b_layout):
 		pass
 
 
-class PhMaterialNodeFloatSocket(PhMaterialNodeSocket):
+class PhMaterialNodeRealSocket(PhMaterialNodeSocket):
 
 	bl_idname = "PH_MATERIAL_NODE_FLOAT_SOCKET"
-	bl_label  = "Photon Float Socket"
+	bl_label  = "Photon Real Socket"
+
+	default_value = bpy.props.FloatProperty(name = "Real", default=0.0, min=0.0, max=1.0)
 
 	def __init__(self):
 		super().__init__()
 
-	# gray
 	def draw_color(self, b_context, node):
-		return [0.5, 0.5, 0.5, 1.0]
+		return [0.5, 0.5, 0.5, 1.0]  # gray
 
 
+class PhSurfaceMaterialCategory(nodeitems_utils.NodeCategory):
+
+	@classmethod
+	def poll(cls, b_context):
+		return b_context.space_data.tree_type == PhMaterialNodeTree.bl_idname
+
+
+class PhDiffuseSurfaceNode(PhMaterialNode):
+
+	bl_idname = "PH_DIFFUSE_SURFACE"
+	bl_label  = "Diffuse Surface"
+
+	# Blender: draw the buttons in node
+	def draw_buttons(self, b_context, b_layout):
+		pass
+
+
+PH_MATERIAL_NODE_SOCKETS = [
+	PhMaterialNodeRealSocket
+]
+
+
+PH_MATERIAL_NODES = [
+	PhDiffuseSurfaceNode
+]
+
+
+PH_MATERIAL_NODE_CATEGORIES = [
+	PhSurfaceMaterialCategory("SURFACE_MATERIAL", "Surface Material", items = [
+		nodeitems_utils.NodeItem(PhDiffuseSurfaceNode.bl_idname)
+	])
+]
 
 
 def register():
+
 	bpy.utils.register_class(PhMaterialNodeTree)
-	bpy.utils.register_class(PhMaterialNodeFloatSocket)
-	bpy.utils.register_class(PhMaterialNode)
-	bpy.utils.register_class(CustomPanel)
-	bpy.utils.register_class(CustomNode)
-	bpy.types.Scene.custom_properties = PointerProperty(type=CustomPropertyGroup)
-	nodeitems_utils.register_node_categories("CUSTOM_CATEGORIES", categories)
+
+	for socket_type in PH_MATERIAL_NODE_SOCKETS:
+		bpy.utils.register_class(socket_type)
+
+	for node_type in PH_MATERIAL_NODES:
+		bpy.utils.register_class(node_type)
+
+	nodeitems_utils.register_node_categories("PH_MATERIAL_NODE_CATEGORIES", PH_MATERIAL_NODE_CATEGORIES)
+
 
 def unregister():
-  bpy.utils.unregister_class(CustomNodeTree)
-  bpy.utils.unregister_class(CustomNodeSocket)
-  bpy.utils.unregister_class(CustomPropertyGroup)
-  bpy.utils.unregister_class(CustomPanel)
-  bpy.utils.unregister_class(CustomNode)
-  del bpy.types.Scene.custom_properties
-nodeitems_utils.unregister_node_categories("CUSTOM_CATEGORIES")
+
+	bpy.utils.unregister_class(PhMaterialNodeTree)
+
+	for socket_type in PH_MATERIAL_NODE_SOCKETS:
+		bpy.utils.unregister_class(socket_type)
+
+	for node_type in PH_MATERIAL_NODES:
+		bpy.utils.unregister_class(node_type)
+
+	nodeitems_utils.unregister_node_categories("PH_MATERIAL_NODE_CATEGORIES")
 
 
