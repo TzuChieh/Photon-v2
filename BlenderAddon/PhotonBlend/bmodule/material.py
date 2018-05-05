@@ -5,6 +5,69 @@ import sys
 import bpy
 
 
+class PhMaterialHeaderPanel(bpy.types.Panel):
+	bl_label       = ""
+	bl_context     = "material"
+	bl_space_type  = "PROPERTIES"
+	bl_region_type = "WINDOW"
+	bl_options     = {"HIDE_HEADER"}
+
+	COMPATIBLE_ENGINES = {settings.renderer_id_name}
+
+	@classmethod
+	def poll(cls, b_context):
+		render_settings = b_context.scene.render
+		return (render_settings.engine in cls.COMPATIBLE_ENGINES and
+		        b_context.material or b_context.object)
+
+	def draw(self, b_context):
+		layout = self.layout
+
+		mat      = b_context.material
+		obj      = b_context.object
+		mat_slot = b_context.material_slot
+		space    = b_context.space_data
+
+		if obj:
+			is_sortable = len(obj.material_slots) > 1
+			rows = 1
+			if is_sortable:
+				rows = 4
+
+			row = layout.row()
+			row.template_list("MATERIAL_UL_matslots", "", obj, "material_slots", obj, "active_material_index", rows = rows)
+
+			col = row.column(align = True)
+			col.operator("object.material_slot_add",    icon = "ZOOMIN",  text = "")
+			col.operator("object.material_slot_remove", icon = "ZOOMOUT", text = "")
+			col.menu("MATERIAL_MT_specials", icon = "DOWNARROW_HLT", text = "")
+
+			if is_sortable:
+				col.separator()
+				col.operator("object.material_slot_move", icon = "TRIA_UP",   text = "").direction = "UP"
+				col.operator("object.material_slot_move", icon = "TRIA_DOWN", text = "").direction = "DOWN"
+
+			if obj.mode == 'EDIT':
+				row = layout.row(align = True)
+				row.operator("object.material_slot_assign",   text = "Assign")
+				row.operator("object.material_slot_select",   text = "Select")
+				row.operator("object.material_slot_deselect", text = "Deselect")
+
+		split = layout.split(percentage = 0.65)
+
+		if obj:
+			split.template_ID(obj, "active_material", new = "material.new")
+			row = split.row()
+
+			if mat_slot:
+				row.prop(mat_slot, "link", text = "")
+			else:
+				row.label()
+		elif mat:
+			split.template_ID(space, "pin_id")
+			split.separator()
+
+
 class PhMaterialPanel(bpy.types.Panel):
 	bl_space_type  = "PROPERTIES"
 	bl_region_type = "WINDOW"
@@ -70,7 +133,7 @@ class PhOptionPanel(PhMaterialPanel):
 		row.prop(material, "ph_emitted_radiance")
 
 
-MATERIAL_PANEL_TYPES = [PhMainPropertyPanel, PhOptionPanel]
+MATERIAL_PANEL_TYPES = [PhMaterialHeaderPanel, PhMainPropertyPanel, PhOptionPanel]
 
 
 def register():

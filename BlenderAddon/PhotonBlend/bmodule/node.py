@@ -80,9 +80,19 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 	bl_idname = "PH_DIFFUSE_SURFACE"
 	bl_label  = "Diffuse Surface"
 
+	diffusion_type = bpy.props.EnumProperty(
+		items = [
+			("LAMBERTIAN", "Lambertian", "")
+		],
+		name        = "Diffusion Type",
+		description = "surface diffusion types",
+		default     = "LAMBERTIAN"
+	)
+
 	# Blender: draw the buttons in node
 	def draw_buttons(self, b_context, b_layout):
-		pass
+		row = b_layout.row()
+		row.prop(self, "diffusion_type")
 
 
 PH_MATERIAL_NODE_SOCKETS = [
