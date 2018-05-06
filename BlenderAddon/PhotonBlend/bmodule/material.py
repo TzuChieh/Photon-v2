@@ -1,5 +1,6 @@
 from ..utility import settings
 from . import ui
+from . import common
 
 import sys
 import bpy
@@ -18,7 +19,7 @@ class PhMaterialHeaderPanel(bpy.types.Panel):
 	def poll(cls, b_context):
 		render_settings = b_context.scene.render
 		return (render_settings.engine in cls.COMPATIBLE_ENGINES and
-		        b_context.material or b_context.object)
+		        (b_context.material or b_context.object))
 
 	def draw(self, b_context):
 		layout = self.layout
@@ -68,6 +69,35 @@ class PhMaterialHeaderPanel(bpy.types.Panel):
 			split.separator()
 
 
+class PhAddMaterialNodesOperator(bpy.types.Operator):
+	"""Adds a node tree for a material."""
+	bl_idname = "photon.add_material_nodes"
+	bl_label  = "Add Material Nodes"
+
+	@classmethod
+	def poll(cls, b_context):
+		b_material = getattr(b_context, "material", None)
+		node_tree  = cls.__get_node_tree(b_material)
+		return b_material is not None and node_tree is None
+
+	def execute(self, b_context):
+		b_material     = b_context.material
+		node_tree_name = common.mangled_node_tree_name(b_material)
+
+		node_tree = bpy.data.node_groups.new(node_tree_name, type = "PH_MATERIAL_NODE_TREE")
+		#node_tree.use_fake_user = True
+		b_material.ph_node_tree_name = node_tree_name
+
+		return {"FINISHED"}
+
+	@classmethod
+	def __get_node_tree(cls, b_material):
+		if b_material is None:
+			return None
+		else:
+			return bpy.data.node_groups.get(b_material.ph_node_tree_name, None)
+
+
 class PhMaterialPanel(bpy.types.Panel):
 	bl_space_type  = "PROPERTIES"
 	bl_region_type = "WINDOW"
@@ -95,6 +125,8 @@ class PhMainPropertyPanel(PhMaterialPanel):
 
 		material = context.material
 		layout   = self.layout
+
+		layout.operator(PhAddMaterialNodesOperator.bl_idname)
 
 		ui.material.display_blender_props(layout, material)
 
@@ -133,20 +165,31 @@ class PhOptionPanel(PhMaterialPanel):
 		row.prop(material, "ph_emitted_radiance")
 
 
-MATERIAL_PANEL_TYPES = [PhMaterialHeaderPanel, PhMainPropertyPanel, PhOptionPanel]
+MATERIAL_PANEL_TYPES = [
+	PhMaterialHeaderPanel,
+	PhMainPropertyPanel,
+	PhOptionPanel
+]
+
+MATERIAL_OPERATOR_TYPES = [
+	PhAddMaterialNodesOperator
+]
 
 
 def register():
 
 	ui.material.define_blender_props()
 
-	for panel_type in MATERIAL_PANEL_TYPES:
-		bpy.utils.register_class(panel_type)
+	class_types = MATERIAL_PANEL_TYPES + MATERIAL_OPERATOR_TYPES
+	for class_type in class_types:
+		bpy.utils.register_class(class_type)
 
 
 def unregister():
-	for panel_type in MATERIAL_PANEL_TYPES:
-		bpy.utils.unregister_class(panel_type)
+
+	class_types = MATERIAL_PANEL_TYPES + MATERIAL_OPERATOR_TYPES
+	for class_type in class_types:
+		bpy.utils.unregister_class(class_type)
 
 
 if __name__ == "__main__":

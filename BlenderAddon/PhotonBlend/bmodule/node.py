@@ -1,4 +1,5 @@
 from ..utility import settings
+from . import common
 
 import bpy
 import nodeitems_utils
@@ -18,6 +19,34 @@ class PhMaterialNodeTree(bpy.types.NodeTree):
 	def poll(cls, b_context):
 		render_settings = b_context.scene.render
 		return render_settings.engine in cls.COMPATIBLE_ENGINES
+
+	# Blender: set the current node tree to the one the active material owns (update editor views)
+	@classmethod
+	def get_from_context(cls, b_context):
+		obj = b_context.active_object
+		if obj and obj.type not in {"LAMP", "CAMERA"}:
+			mat = obj.active_material
+			if mat is not None:
+				node_tree_name = mat.ph_node_tree_name
+				if node_tree_name != "":
+					return bpy.data.node_groups[node_tree_name], mat, mat
+		return None, None, None
+
+
+class PhMaterialNodeHeader(bpy.types.Header):
+	bl_space_type = "NODE_EDITOR"
+
+	def draw(self, b_context):
+		b_layout = self.layout
+		obj      = b_context.object
+
+		# TODO: remove node tree selection menu and prepend material.new like cycles
+
+		if obj and obj.type not in {"LAMP", "CAMERA"}:
+			row = b_layout.row()
+
+			# Show material.new when no active material exists
+			row.template_ID(obj, "active_material", new = "material.new")
 
 
 class PhMaterialNodeSocket(bpy.types.NodeSocketShader):
@@ -84,7 +113,7 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 		items = [
 			("LAMBERTIAN", "Lambertian", "")
 		],
-		name        = "Diffusion Type",
+		name        = "Type",
 		description = "surface diffusion types",
 		default     = "LAMBERTIAN"
 	)
@@ -122,6 +151,7 @@ def register():
 	for node_type in PH_MATERIAL_NODES:
 		bpy.utils.register_class(node_type)
 
+	bpy.utils.register_class(PhMaterialNodeHeader)
 	nodeitems_utils.register_node_categories("PH_MATERIAL_NODE_CATEGORIES", PH_MATERIAL_NODE_CATEGORIES)
 
 
@@ -135,6 +165,7 @@ def unregister():
 	for node_type in PH_MATERIAL_NODES:
 		bpy.utils.unregister_class(node_type)
 
+	bpy.utils.unregister_node_categories(PhMaterialNodeHeader)
 	nodeitems_utils.unregister_node_categories("PH_MATERIAL_NODE_CATEGORIES")
 
 

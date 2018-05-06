@@ -285,6 +285,11 @@ def define_blender_props():
 		default     = b_enum_items[0][0]
 	)
 
+	bpy.types.Material.ph_node_tree_name = bpy.props.StringProperty(
+		name    = "Photon Node Tree Name",
+		default = ""
+	)
+
 	for material_type in AVAILABLE_MATERIAL_TYPES:
 		material_type.define_blender_props()
 		bpy.utils.register_class(material_type)
