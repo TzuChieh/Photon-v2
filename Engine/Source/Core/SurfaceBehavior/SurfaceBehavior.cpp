@@ -8,11 +8,11 @@ SurfaceBehavior::SurfaceBehavior() :
 	m_optics(nullptr), m_emitter(nullptr)
 {}
 
-void SurfaceBehavior::setOptics(std::unique_ptr<SurfaceOptics> optics)
+void SurfaceBehavior::setOptics(const std::shared_ptr<SurfaceOptics>& optics)
 {
 	PH_ASSERT(optics != nullptr);
 
-	m_optics = std::move(optics);
+	m_optics = optics;
 }
 
 void SurfaceBehavior::setEmitter(const Emitter* const emitter)

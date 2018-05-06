@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Actor/Material/Material.h"
+#include "Actor/Material/SurfaceMaterial.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/Quantity/SpectralStrength.h"
 
@@ -11,7 +11,7 @@
 namespace ph
 {
 
-class IdealSubstance : public Material, public TCommandInterface<IdealSubstance>
+class IdealSubstance : public SurfaceMaterial, public TCommandInterface<IdealSubstance>
 {
 public:
 	IdealSubstance();
@@ -28,13 +28,15 @@ public:
 	void asAbsorber();
 
 private:
+	virtual std::shared_ptr<SurfaceOptics> genSurfaceOptics(CookingContext& context) const override;
+
 	std::function<std::unique_ptr<SurfaceOptics>()> m_opticsGenerator;
 
 // command interface
 public:
+	IdealSubstance(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
-	static std::unique_ptr<IdealSubstance> ciLoad(const InputPacket& packet);
 };
 
 }// end namespace ph

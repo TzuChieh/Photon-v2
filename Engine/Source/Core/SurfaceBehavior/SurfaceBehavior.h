@@ -15,7 +15,7 @@ class SurfaceBehavior final
 public:
 	SurfaceBehavior();
 
-	void setOptics(std::unique_ptr<SurfaceOptics> optics);
+	void setOptics(const std::shared_ptr<SurfaceOptics>& optics);
 	void setEmitter(const Emitter* emitter);
 
 	inline const SurfaceOptics* getOptics() const
@@ -29,7 +29,7 @@ public:
 	}
 
 private:
-	std::unique_ptr<SurfaceOptics> m_optics;
+	std::shared_ptr<SurfaceOptics> m_optics;
 	const Emitter*                 m_emitter;
 };
 

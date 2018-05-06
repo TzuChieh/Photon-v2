@@ -13,17 +13,15 @@ namespace ph
 {
 
 AbradedTranslucent::AbradedTranslucent() :
-	Material(),
+	SurfaceMaterial(),
 	m_optics()
-{
-	
-}
+{}
 
 AbradedTranslucent::~AbradedTranslucent() = default;
 
-void AbradedTranslucent::genSurfaceBehavior(CookingContext& context, SurfaceBehavior* const out_surfaceBehavior) const
+std::shared_ptr<SurfaceOptics> AbradedTranslucent::genSurfaceOptics(CookingContext& context) const
 {
-	out_surfaceBehavior->setOptics(std::make_unique<TranslucentMicrofacet>(m_optics));
+	return std::make_shared<TranslucentMicrofacet>(m_optics);
 }
 
 //void AbradedTranslucent::setAlbedo(const Vector3R& albedo)
@@ -55,19 +53,9 @@ void AbradedTranslucent::setRoughness(const real roughness)
 
 // command interface
 
-SdlTypeInfo AbradedTranslucent::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "abraded-translucent");
-}
-
-void AbradedTranslucent::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<AbradedTranslucent>(ciLoad);
-	cmdRegister.setLoader(loader);
-}
-
-std::unique_ptr<AbradedTranslucent> AbradedTranslucent::ciLoad(const InputPacket& packet)
+AbradedTranslucent::AbradedTranslucent(const InputPacket& packet) : 
+	SurfaceMaterial(packet),
+	m_optics()
 {
 	Vector3R albedo(0.5f, 0.5f, 0.5f);
 	Vector3R f0(0.04f, 0.04f, 0.04f);
@@ -79,12 +67,25 @@ std::unique_ptr<AbradedTranslucent> AbradedTranslucent::ciLoad(const InputPacket
 	roughness = packet.getReal("roughness", roughness);
 	ior       = packet.getReal("ior", ior);
 
-	std::unique_ptr<AbradedTranslucent> material = std::make_unique<AbradedTranslucent>();
 	//material->setAlbedo(albedo);
 	//material->setF0(f0);
-	material->setRoughness(roughness);
-	material->setIor(1, ior);
-	return material;
+	setRoughness(roughness);
+	setIor(1, ior);
+}
+
+SdlTypeInfo AbradedTranslucent::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "abraded-translucent");
+}
+
+void AbradedTranslucent::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc<AbradedTranslucent>([](const InputPacket& packet)
+	{
+		return std::make_unique<AbradedTranslucent>(packet);
+	});
+	cmdRegister.setLoader(loader);
 }
 
 }// end namespace ph

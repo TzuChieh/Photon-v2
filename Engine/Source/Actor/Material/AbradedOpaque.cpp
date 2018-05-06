@@ -17,12 +17,12 @@ namespace ph
 {
 
 AbradedOpaque::AbradedOpaque() : 
-	Material(),
+	SurfaceMaterial(),
 	m_opticsGenerator(nullptr)
 {
 	m_opticsGenerator = []()
 	{
-		std::cerr << "warning: at AbradedOpaque::genSurfaceBehavior(), "
+		std::cerr << "warning: at AbradedOpaque::genSurfaceOptics(), "
 		          << "no BSDF specified, using default one" << std::endl;
 		return nullptr;
 	};
@@ -30,12 +30,30 @@ AbradedOpaque::AbradedOpaque() :
 
 AbradedOpaque::~AbradedOpaque() = default;
 
-void AbradedOpaque::genSurfaceBehavior(CookingContext& context, SurfaceBehavior* const out_surfaceBehavior) const
+std::shared_ptr<SurfaceOptics> AbradedOpaque::genSurfaceOptics(CookingContext& context) const
 {
-	out_surfaceBehavior->setOptics(m_opticsGenerator());
+	PH_ASSERT(m_opticsGenerator != nullptr);
+
+	return m_opticsGenerator();
 }
 
 // command interface
+
+AbradedOpaque::AbradedOpaque(const InputPacket& packet) : 
+	SurfaceMaterial(packet),
+	m_opticsGenerator(nullptr)
+{
+	const std::string surfaceType = packet.getString("type", 
+		"iso-metallic-ggx", DataTreatment::REQUIRED());
+	if(surfaceType == "iso-metallic-ggx")
+	{
+		m_opticsGenerator = loadITR(packet);
+	}
+	else if(surfaceType == "aniso-metallic-ggx")
+	{
+		m_opticsGenerator = loadATR(packet);
+	}
+}
 
 SdlTypeInfo AbradedOpaque::ciTypeInfo()
 {
@@ -45,29 +63,14 @@ SdlTypeInfo AbradedOpaque::ciTypeInfo()
 void AbradedOpaque::ciRegister(CommandRegister& cmdRegister)
 {
 	SdlLoader loader;
-	loader.setFunc<AbradedOpaque>(ciLoad);
+	loader.setFunc<AbradedOpaque>([](const InputPacket& packet)
+	{
+		return std::make_unique<AbradedOpaque>(packet);
+	});
 	cmdRegister.setLoader(loader);
 }
 
-std::unique_ptr<AbradedOpaque> AbradedOpaque::ciLoad(const InputPacket& packet)
-{
-	std::unique_ptr<AbradedOpaque> material;
-	const std::string type = packet.getString("type",
-	                                          "iso-metallic-ggx",
-	                                          DataTreatment::REQUIRED());
-	if(type == "iso-metallic-ggx")
-	{
-		material = loadITR(packet);
-	}
-	else if(type == "aniso-metallic-ggx")
-	{
-		material = loadATR(packet);
-	}
-
-	return material;
-}
-
-std::unique_ptr<AbradedOpaque> AbradedOpaque::loadITR(const InputPacket& packet)
+std::function<std::unique_ptr<SurfaceOptics>()> AbradedOpaque::loadITR(const InputPacket& packet)
 {
 	Vector3R albedo    = Vector3R(0.5f, 0.5f, 0.5f);
 	real     roughness = 0.5f;
@@ -82,8 +85,7 @@ std::unique_ptr<AbradedOpaque> AbradedOpaque::loadITR(const InputPacket& packet)
 
 	std::shared_ptr<FresnelEffect> fresnelEffect = loadFresnelEffect(packet);
 
-	std::unique_ptr<AbradedOpaque> material = std::make_unique<AbradedOpaque>();
-	material->m_opticsGenerator = [=]()
+	return [=]()
 	{
 		auto optics = std::make_unique<OpaqueMicrofacet>();
 		optics->setMicrofacet(std::make_shared<IsoTrowbridgeReitz>(alpha));
@@ -91,10 +93,9 @@ std::unique_ptr<AbradedOpaque> AbradedOpaque::loadITR(const InputPacket& packet)
 		optics->setAlbedo(std::make_shared<TConstantTexture<SpectralStrength>>(albedoSpectrum));
 		return optics;
 	};
-	return material;
 }
 
-std::unique_ptr<AbradedOpaque> AbradedOpaque::loadATR(const InputPacket& packet)
+std::function<std::unique_ptr<SurfaceOptics>()> AbradedOpaque::loadATR(const InputPacket& packet)
 {
 	Vector3R albedo     = Vector3R(0.5f, 0.5f, 0.5f);
 	real     roughnessU = 0.5f;
@@ -111,8 +112,7 @@ std::unique_ptr<AbradedOpaque> AbradedOpaque::loadATR(const InputPacket& packet)
 
 	std::shared_ptr<FresnelEffect> fresnelEffect = loadFresnelEffect(packet);
 
-	std::unique_ptr<AbradedOpaque> material = std::make_unique<AbradedOpaque>();
-	material->m_opticsGenerator = [=]()
+	return [=]()
 	{
 		auto optics = std::make_unique<OpaqueMicrofacet>();
 		optics->setMicrofacet(std::make_shared<AnisoTrowbridgeReitz>(alphaU, alphaV));
@@ -120,7 +120,6 @@ std::unique_ptr<AbradedOpaque> AbradedOpaque::loadATR(const InputPacket& packet)
 		optics->setAlbedo(std::make_shared<TConstantTexture<SpectralStrength>>(albedoSpectrum));
 		return optics;
 	};
-	return material;
 }
 
 std::unique_ptr<FresnelEffect> AbradedOpaque::loadFresnelEffect(const InputPacket& packet)

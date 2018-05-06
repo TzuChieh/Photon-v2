@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Actor/Material/Material.h"
+#include "Actor/Material/SurfaceMaterial.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/OpaqueMicrofacet.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
@@ -13,24 +13,24 @@
 namespace ph
 {
 
-class AbradedOpaque : public Material, public TCommandInterface<AbradedOpaque>
+class AbradedOpaque : public SurfaceMaterial, public TCommandInterface<AbradedOpaque>
 {
 public:
 	AbradedOpaque();
 	virtual ~AbradedOpaque() override;
 
-	virtual void genSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const override;
-
 private:
+	virtual std::shared_ptr<SurfaceOptics> genSurfaceOptics(CookingContext& context) const override;
+
 	std::function<std::unique_ptr<SurfaceOptics>()> m_opticsGenerator;
 
 // command interface
 public:
+	AbradedOpaque(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
-	static std::unique_ptr<AbradedOpaque> ciLoad(const InputPacket& packet);
-	static std::unique_ptr<AbradedOpaque> loadITR(const InputPacket& packet);
-	static std::unique_ptr<AbradedOpaque> loadATR(const InputPacket& packet);
+	static std::function<std::unique_ptr<SurfaceOptics>()> loadITR(const InputPacket& packet);
+	static std::function<std::unique_ptr<SurfaceOptics>()> loadATR(const InputPacket& packet);
 	static std::unique_ptr<FresnelEffect> loadFresnelEffect(const InputPacket& packet);
 };
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Actor/Material/Material.h"
+#include "Actor/Material/SurfaceMaterial.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/TranslucentMicrofacet.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
@@ -9,26 +9,26 @@
 namespace ph
 {
 
-class AbradedTranslucent : public Material, public TCommandInterface<AbradedTranslucent>
+class AbradedTranslucent : public SurfaceMaterial, public TCommandInterface<AbradedTranslucent>
 {
 public:
 	AbradedTranslucent();
 	virtual ~AbradedTranslucent() override;
-
-	virtual void genSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const override;
 
 	//void setAlbedo(const Vector3R& albedo);
 	void setIor(const real iorOuter, const real iorInner);
 	void setRoughness(const real roughness);
 
 private:
+	virtual std::shared_ptr<SurfaceOptics> genSurfaceOptics(CookingContext& context) const override;
+
 	TranslucentMicrofacet m_optics;
 
 // command interface
 public:
+	AbradedTranslucent(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
-	static std::unique_ptr<AbradedTranslucent> ciLoad(const InputPacket& packet);
 };
 
 }// end namespace ph

@@ -16,7 +16,7 @@ namespace ph
 {
 
 IdealSubstance::IdealSubstance() : 
-	Material(),
+	SurfaceMaterial(),
 	m_opticsGenerator(nullptr)
 {
 	asAbsorber();
@@ -29,6 +29,13 @@ void IdealSubstance::genSurfaceBehavior(CookingContext& context, SurfaceBehavior
 	PH_ASSERT(m_opticsGenerator);
 
 	out_surfaceBehavior->setOptics(m_opticsGenerator());
+}
+
+std::shared_ptr<SurfaceOptics> IdealSubstance::genSurfaceOptics(CookingContext& context) const
+{
+	PH_ASSERT(m_opticsGenerator != nullptr);
+
+	return m_opticsGenerator();
 }
 
 void IdealSubstance::asDielectricReflector(const real iorInner, const real iorOuter)
@@ -80,31 +87,18 @@ void IdealSubstance::asAbsorber()
 
 // command interface
 
-SdlTypeInfo IdealSubstance::ciTypeInfo()
+IdealSubstance::IdealSubstance(const InputPacket& packet) : 
+	SurfaceMaterial(packet),
+	m_opticsGenerator(nullptr)
 {
-	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "ideal-substance");
-}
-
-void IdealSubstance::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<IdealSubstance>(ciLoad);
-	cmdRegister.setLoader(loader);
-}
-
-std::unique_ptr<IdealSubstance> IdealSubstance::ciLoad(const InputPacket& packet)
-{
-	auto material = std::make_unique<IdealSubstance>();
-
 	const std::string type = packet.getString("type", 
-	                                          "absorber", 
-	                                          DataTreatment::REQUIRED());
+		"absorber", DataTreatment::REQUIRED());
 	if(type == "dielectric-reflector")
 	{
 		const real iorInner = packet.getReal("ior-inner", 1.0_r, DataTreatment::REQUIRED());
 		const real iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
 
-		material->asDielectricReflector(iorInner, iorOuter);
+		asDielectricReflector(iorInner, iorOuter);
 	}
 	else if(type == "metallic-reflector")
 	{
@@ -113,21 +107,34 @@ std::unique_ptr<IdealSubstance> IdealSubstance::ciLoad(const InputPacket& packet
 		// FIXME: check color space
 		const Vector3R f0Rgb = packet.getVector3r("f0-rgb", Vector3R(1), DataTreatment::REQUIRED());
 
-		material->asMetallicReflector(f0Rgb, iorOuter);
+		asMetallicReflector(f0Rgb, iorOuter);
 	}
 	else if(type == "transmitter")
 	{
 		const real iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
 		const real iorInner = packet.getReal("ior-inner", 1.0_r, DataTreatment::REQUIRED());
 
-		material->asTransmitter(iorInner, iorOuter);
+		asTransmitter(iorInner, iorOuter);
 	}
 	else if(type == "absorber")
 	{
-		material->asAbsorber();
+		asAbsorber();
 	}
+}
 
-	return material;
+SdlTypeInfo IdealSubstance::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "ideal-substance");
+}
+
+void IdealSubstance::ciRegister(CommandRegister& cmdRegister)
+{
+	SdlLoader loader;
+	loader.setFunc<IdealSubstance>([](const InputPacket& packet)
+	{
+		return std::make_unique<IdealSubstance>(packet);
+	});
+	cmdRegister.setLoader(loader);
 }
 
 }// end namespace ph

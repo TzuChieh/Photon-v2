@@ -6,6 +6,8 @@
 #include "Actor/Image/ConstantImage.h"
 #include "FileIO/PictureLoader.h"
 #include "Actor/Image/LdrPictureImage.h"
+#include "Math/TVector3.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
 
 namespace ph
 {
@@ -15,7 +17,7 @@ MatteOpaque::MatteOpaque() :
 {}
 
 MatteOpaque::MatteOpaque(const Vector3R& linearSrgbAlbedo) : 
-	Material(),
+	SurfaceMaterial(),
 	m_albedo(nullptr)
 {
 	setAlbedo(linearSrgbAlbedo);
@@ -23,11 +25,11 @@ MatteOpaque::MatteOpaque(const Vector3R& linearSrgbAlbedo) :
 
 MatteOpaque::~MatteOpaque() = default;
 
-void MatteOpaque::genSurfaceBehavior(CookingContext& context, SurfaceBehavior* const out_surfaceBehavior) const
+std::shared_ptr<SurfaceOptics> MatteOpaque::genSurfaceOptics(CookingContext& context) const
 {
-	std::unique_ptr<LambertianDiffuse> surfaceOptics = std::make_unique<LambertianDiffuse>();
+	auto surfaceOptics = std::make_shared<LambertianDiffuse>();
 	surfaceOptics->setAlbedo(m_albedo->genTextureSpectral(context));
-	out_surfaceBehavior->setOptics(std::move(surfaceOptics));
+	return surfaceOptics;
 }
 
 void MatteOpaque::setAlbedo(const Vector3R& albedo)
@@ -47,6 +49,42 @@ void MatteOpaque::setAlbedo(const std::shared_ptr<Image>& albedo)
 
 // command interface
 
+MatteOpaque::MatteOpaque(const InputPacket& packet) :
+	SurfaceMaterial(packet),
+	m_albedo(nullptr)
+{
+	InputPrototype imageFileAlbedo;
+	imageFileAlbedo.addString("albedo");
+
+	InputPrototype constAlbedo;
+	constAlbedo.addVector3r("albedo");
+
+	if(packet.isPrototypeMatched(imageFileAlbedo))
+	{
+		const Path& imagePath = packet.getStringAsPath("albedo", Path(), DataTreatment::REQUIRED());
+		setAlbedo(std::make_shared<LdrPictureImage>(PictureLoader::loadLdr(imagePath)));
+	}
+	else if(packet.isPrototypeMatched(constAlbedo))
+	{
+		const Vector3R albedo = packet.getVector3r("albedo", Vector3R(0.5_r), 
+			DataTreatment::OPTIONAL("all components are set to 0.5"));
+		setAlbedo(albedo);
+	}
+	else
+	{
+		const auto& albedo = packet.get<Image>("albedo");
+		if(albedo != nullptr)
+		{
+			setAlbedo(albedo);
+		}
+		else
+		{
+			std::cerr << "warning: at MatteOpaque::ciLoad(), " 
+		              << "ill-formed input detected" << std::endl;
+		}
+	}
+}
+
 SdlTypeInfo MatteOpaque::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "matte-opaque");
@@ -55,46 +93,11 @@ SdlTypeInfo MatteOpaque::ciTypeInfo()
 void MatteOpaque::ciRegister(CommandRegister& cmdRegister)
 {
 	SdlLoader loader;
-	loader.setFunc<MatteOpaque>(ciLoad);
+	loader.setFunc<MatteOpaque>([](const InputPacket& packet)
+	{
+		return std::make_unique<MatteOpaque>(packet);
+	});
 	cmdRegister.setLoader(loader);
-}
-
-std::unique_ptr<MatteOpaque> MatteOpaque::ciLoad(const InputPacket& packet)
-{
-	InputPrototype imageFileAlbedo;
-	imageFileAlbedo.addString("albedo");
-
-	InputPrototype constAlbedo;
-	constAlbedo.addVector3r("albedo");
-
-	std::unique_ptr<MatteOpaque> material = std::make_unique<MatteOpaque>();
-	if(packet.isPrototypeMatched(imageFileAlbedo))
-	{
-		const Path& imagePath = packet.getStringAsPath("albedo", Path(), DataTreatment::REQUIRED());
-		const auto& albedo    = std::make_shared<LdrPictureImage>(PictureLoader::loadLdr(imagePath));
-		material->setAlbedo(albedo);
-	}
-	else if(packet.isPrototypeMatched(constAlbedo))
-	{
-		const Vector3R albedo = packet.getVector3r("albedo", Vector3R(0.5_r), 
-			DataTreatment::OPTIONAL("all components are set to 0.5"));
-		material->setAlbedo(albedo);
-	}
-	else
-	{
-		const auto& albedo = packet.get<Image>("albedo");
-		if(albedo != nullptr)
-		{
-			material->setAlbedo(albedo);
-		}
-		else
-		{
-			std::cerr << "warning: at MatteOpaque::ciLoad(), " 
-		              << "ill-formed input detected" << std::endl;
-		}
-	}
-	
-	return material;
 }
 
 }// end namespace ph

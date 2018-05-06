@@ -1,11 +1,8 @@
 #pragma once
 
-#include "Actor/Material/Material.h"
-#include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
-#include "Math/TVector3.h"
-#include "Core/Texture/TTexture.h"
+#include "Actor/Material/SurfaceMaterial.h"
+#include "Math/math_fwd.h"
 #include "FileIO/SDL/TCommandInterface.h"
-#include "Core/Quantity/SpectralStrength.h"
 #include "Actor/Image/Image.h"
 
 #include <memory>
@@ -13,27 +10,28 @@
 namespace ph
 {
 
-class MatteOpaque : public Material, public TCommandInterface<MatteOpaque>
+class MatteOpaque : public SurfaceMaterial, public TCommandInterface<MatteOpaque>
 {
 public:
 	MatteOpaque();
 	MatteOpaque(const Vector3R& linearSrgbAlbedo);
 	virtual ~MatteOpaque() override;
 
-	virtual void genSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const override;
-
 	void setAlbedo(const Vector3R& albedo);
 	void setAlbedo(const real r, const real g, const real b);
 	void setAlbedo(const std::shared_ptr<Image>& albedo);
+
+private:
+	virtual std::shared_ptr<SurfaceOptics> genSurfaceOptics(CookingContext& context) const override;
 
 private:
 	std::shared_ptr<Image> m_albedo;
 
 // command interface
 public:
+	MatteOpaque(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
-	static std::unique_ptr<MatteOpaque> ciLoad(const InputPacket& packet);
 };
 
 }// end namespace ph
