@@ -54,9 +54,6 @@ class PhMaterialNodeSocket(bpy.types.NodeSocketShader):
 	bl_idname = "PH_MATERIAL_NODE_SOCKET"
 	bl_label  = "Photon Socket"
 
-	def __init__(self):
-		super().__init__()
-
 	# Blender: draw socket's color
 	def draw_color(self, b_context, node):
 		return [0.0, 0.0, 0.0, 1.0]
@@ -67,45 +64,95 @@ class PhMaterialNodeSocket(bpy.types.NodeSocketShader):
 			b_layout.label(text)
 		else:
 			row = b_layout.row()
-			row.label(text)
-			if node.inputs[text].default_value is not None:
-				row.prop(node.inputs[text], "default_value")
+			if hasattr(node.inputs[text], "default_value"):
+				row.prop(node.inputs[text], "default_value", text)
+			else:
+				row.label(text)
 
 
 class PhMaterialNode(bpy.types.Node):
-
 	bl_idname = "PH_MATERIAL_NODE"
 	bl_label  = "Photon Node"
 	bl_icon   = "MATERIAL"
+
+	# Blender: called when node created
+	def init(self, b_context):
+		pass
 
 	# Blender: draw the buttons in node
 	def draw_buttons(self, b_context, b_layout):
 		pass
 
 
-class PhMaterialNodeRealSocket(PhMaterialNodeSocket):
+class PhSurfaceMaterialSocket(PhMaterialNodeSocket):
+	bl_idname = "PH_SURFACE_MATERIAL_SOCKET"
+	bl_label  = "Surface Material"
 
-	bl_idname = "PH_MATERIAL_NODE_FLOAT_SOCKET"
-	bl_label  = "Photon Real Socket"
+	def draw_color(self, b_context, node):
+		return [0.8, 0.1, 0.1, 1.0]  # red
+
+
+class PhRealSocket(PhMaterialNodeSocket):
+	bl_idname = "PH_FLOAT_SOCKET"
+	bl_label  = "Real"
 
 	default_value = bpy.props.FloatProperty(name = "Real", default=0.0, min=0.0, max=1.0)
-
-	def __init__(self):
-		super().__init__()
 
 	def draw_color(self, b_context, node):
 		return [0.5, 0.5, 0.5, 1.0]  # gray
 
 
-class PhSurfaceMaterialCategory(nodeitems_utils.NodeCategory):
+class PhColorSocket(PhMaterialNodeSocket):
+	bl_idname = "PH_COLOR_SOCKET"
+	bl_label  = "Color"
 
-	@classmethod
-	def poll(cls, b_context):
-		return b_context.space_data.tree_type == PhMaterialNodeTree.bl_idname
+	default_value = bpy.props.FloatVectorProperty(
+		name        = "Color",
+		description = "color value",
+		default     = [0.5, 0.5, 0.5],
+		min         = 0.0,
+		max         = 1.0,
+		subtype     = "COLOR",
+		size        = 3
+	)
+
+	def draw_color(self, b_context, node):
+		return [0.7, 0.7, 0.1, 1.0]  # yellow
+
+
+class PhOutputNode(PhMaterialNode):
+	bl_idname = "PH_OUTPUT"
+	bl_label  = "Output"
+
+	def init(self, b_context):
+		self.inputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
+
+
+class PhConstantColorInputNode(PhMaterialNode):
+	bl_idname = "PH_CONSTANT_COLOR"
+	bl_label  = "Constant Color"
+
+	color = bpy.props.FloatVectorProperty(
+		name        = "Color",
+		description = "color value",
+		default     = [0.5, 0.5, 0.5],
+		min         = 0.0,
+		max         = 1.0,
+		subtype     = "COLOR",
+		size        = 3
+	)
+
+	def init(self, b_context):
+		self.outputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
+
+	def draw_buttons(self, b_context, b_layout):
+		row = b_layout.row()
+		row.template_color_picker(self, "color", True)
+		row = b_layout.row()
+		row.prop(self, "color", "")
 
 
 class PhDiffuseSurfaceNode(PhMaterialNode):
-
 	bl_idname = "PH_DIFFUSE_SURFACE"
 	bl_label  = "Diffuse Surface"
 
@@ -118,24 +165,44 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 		default     = "LAMBERTIAN"
 	)
 
-	# Blender: draw the buttons in node
+	def init(self, b_context):
+		self.inputs.new(PhColorSocket.bl_idname, "Albedo")
+		self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
+
 	def draw_buttons(self, b_context, b_layout):
 		row = b_layout.row()
-		row.prop(self, "diffusion_type")
+		row.prop(self, "diffusion_type", "")
+
+
+class PhMaterialNodeCategory(nodeitems_utils.NodeCategory):
+
+	@classmethod
+	def poll(cls, b_context):
+		return b_context.space_data.tree_type == PhMaterialNodeTree.bl_idname
 
 
 PH_MATERIAL_NODE_SOCKETS = [
-	PhMaterialNodeRealSocket
+	PhSurfaceMaterialSocket,
+	PhRealSocket,
+	PhColorSocket
 ]
 
 
 PH_MATERIAL_NODES = [
+	PhOutputNode,
+	PhConstantColorInputNode,
 	PhDiffuseSurfaceNode
 ]
 
 
 PH_MATERIAL_NODE_CATEGORIES = [
-	PhSurfaceMaterialCategory("SURFACE_MATERIAL", "Surface Material", items = [
+	PhMaterialNodeCategory("OUTPUT", "Output", items = [
+		nodeitems_utils.NodeItem(PhOutputNode.bl_idname)
+	]),
+	PhMaterialNodeCategory("INPUT", "Input", items = [
+		nodeitems_utils.NodeItem(PhConstantColorInputNode.bl_idname)
+	]),
+	PhMaterialNodeCategory("SURFACE_MATERIAL", "Surface Material", items = [
 		nodeitems_utils.NodeItem(PhDiffuseSurfaceNode.bl_idname)
 	])
 ]
