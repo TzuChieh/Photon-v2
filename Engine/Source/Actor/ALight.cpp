@@ -119,7 +119,7 @@ CookedUnit ALight::buildGeometricLight(
 		cookedActor.setPrimitiveMetadata(std::move(primitiveMetadata));
 	}
 
-	material->populateSurfaceBehavior(context, &(metadata->surfaceBehavior));
+	material->genSurfaceBehavior(context, &(metadata->surfaceBehavior));
 
 	std::vector<std::unique_ptr<Primitive>> primitiveData;
 	sanifiedGeometry->genPrimitive(PrimitiveBuildingMaterial(metadata), primitiveData);

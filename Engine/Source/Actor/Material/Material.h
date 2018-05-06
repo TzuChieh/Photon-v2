@@ -16,7 +16,7 @@ public:
 	Material();
 	virtual ~Material() = 0;
 
-	virtual void populateSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const = 0;
+	virtual void genSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const = 0;
 
 // command interface
 public:

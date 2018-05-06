@@ -15,7 +15,7 @@ public:
 	AbradedTranslucent();
 	virtual ~AbradedTranslucent() override;
 
-	virtual void populateSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const override;
+	virtual void genSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const override;
 
 	//void setAlbedo(const Vector3R& albedo);
 	void setIor(const real iorOuter, const real iorInner);

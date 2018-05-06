@@ -24,7 +24,7 @@ IdealSubstance::IdealSubstance() :
 
 IdealSubstance::~IdealSubstance() = default;
 
-void IdealSubstance::populateSurfaceBehavior(CookingContext& context, SurfaceBehavior* const out_surfaceBehavior) const
+void IdealSubstance::genSurfaceBehavior(CookingContext& context, SurfaceBehavior* const out_surfaceBehavior) const
 {
 	PH_ASSERT(m_opticsGenerator);
 

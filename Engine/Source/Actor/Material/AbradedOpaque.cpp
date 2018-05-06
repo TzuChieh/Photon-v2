@@ -22,7 +22,7 @@ AbradedOpaque::AbradedOpaque() :
 {
 	m_opticsGenerator = []()
 	{
-		std::cerr << "warning: at AbradedOpaque::populateSurfaceBehavior(), "
+		std::cerr << "warning: at AbradedOpaque::genSurfaceBehavior(), "
 		          << "no BSDF specified, using default one" << std::endl;
 		return nullptr;
 	};
@@ -30,7 +30,7 @@ AbradedOpaque::AbradedOpaque() :
 
 AbradedOpaque::~AbradedOpaque() = default;
 
-void AbradedOpaque::populateSurfaceBehavior(CookingContext& context, SurfaceBehavior* const out_surfaceBehavior) const
+void AbradedOpaque::genSurfaceBehavior(CookingContext& context, SurfaceBehavior* const out_surfaceBehavior) const
 {
 	out_surfaceBehavior->setOptics(m_opticsGenerator());
 }

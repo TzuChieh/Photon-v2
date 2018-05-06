@@ -17,7 +17,7 @@ public:
 	IdealSubstance();
 	virtual ~IdealSubstance() override;
 
-	virtual void populateSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const override;
+	virtual void genSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const override;
 
 	void asDielectricReflector(real iorInner, real iorOuter);
 
