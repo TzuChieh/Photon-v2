@@ -15,6 +15,7 @@
 #include "Actor/Material/AbradedOpaque.h"
 #include "Actor/Material/AbradedTranslucent.h"
 #include "Actor/Material/IdealSubstance.h"
+#include "Actor/Material/BinaryMixedSurfaceMaterial.h"
 
 // light sources
 #include "Actor/LightSource/LightSource.h"
@@ -100,6 +101,7 @@ bool init_command_parser()
 	register_command_interface<AbradedOpaque>();
 	register_command_interface<AbradedTranslucent>();
 	register_command_interface<IdealSubstance>();
+	register_command_interface<BinaryMixedSurfaceMaterial>();
 
 	// light sources
 	register_command_interface<LightSource>();

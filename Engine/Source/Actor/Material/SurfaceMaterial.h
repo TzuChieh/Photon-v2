@@ -15,10 +15,8 @@ public:
 	SurfaceMaterial();
 	virtual ~SurfaceMaterial() override;
 
-	virtual void genSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const override;
-
-private:
 	virtual std::shared_ptr<SurfaceOptics> genSurfaceOptics(CookingContext& context) const = 0;
+	virtual void genSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const override;
 
 // command interface
 public:
