@@ -283,6 +283,45 @@ class PhBinaryMixedSurfaceNode(PhMaterialNode):
 		sdlconsole.queue_command(cmd)
 
 
+class PhAbradedOpaqueNode(PhMaterialNode):
+	bl_idname = "PH_ABRADED_OPAQUE"
+	bl_label  = "Abraded Opaque"
+
+	roughness = bpy.props.FloatProperty(
+		name    = "Factor",
+		default = 0.5,
+		min     = 0.0,
+		max     = 1.0
+	)
+
+	f0 = bpy.props.FloatVectorProperty(
+		name        = "Color",
+		description = "color value",
+		default     = [0.5, 0.5, 0.5],
+		min         = 0.0,
+		max         = 1.0,
+		subtype     = "COLOR",
+		size        = 3
+	)
+
+	def init(self, b_context):
+		self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
+
+	def draw_buttons(self, b_context, b_layout):
+		row = b_layout.row()
+		row.prop(self, "roughness")
+
+	def to_sdl(self, res_name, sdlconsole):
+		surface_mat_socket = self.outputs[0]
+
+		cmd = materialcmd.AbradedOpaqueCreator()
+		cmd.set_data_name(res_name + "_" + self.name + "_" + surface_mat_socket.identifier)
+		cmd.set_anisotropicity(False)
+		cmd.set_roughness(self.roughness)
+		cmd.set_f0(mathutils.Color((self.f0[0], self.f0[1], self.f0[2])))
+		sdlconsole.queue_command(cmd)
+
+
 class PhMaterialNodeCategory(nodeitems_utils.NodeCategory):
 
 	@classmethod
@@ -334,7 +373,8 @@ PH_MATERIAL_NODES = [
 	PhOutputNode,
 	PhConstantColorInputNode,
 	PhDiffuseSurfaceNode,
-	PhBinaryMixedSurfaceNode
+	PhBinaryMixedSurfaceNode,
+	PhAbradedOpaqueNode
 ]
 
 
@@ -347,7 +387,8 @@ PH_MATERIAL_NODE_CATEGORIES = [
 	]),
 	PhMaterialNodeCategory("SURFACE_MATERIAL", "Surface Material", items = [
 		nodeitems_utils.NodeItem(PhDiffuseSurfaceNode.bl_idname),
-		nodeitems_utils.NodeItem(PhBinaryMixedSurfaceNode.bl_idname)
+		nodeitems_utils.NodeItem(PhBinaryMixedSurfaceNode.bl_idname),
+		nodeitems_utils.NodeItem(PhAbradedOpaqueNode.bl_idname)
 	])
 ]
 
