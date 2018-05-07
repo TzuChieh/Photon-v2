@@ -8,6 +8,7 @@ from . import ui
 from . import export
 from .export import naming
 from . import light
+from . import node
 
 import bpy
 import mathutils
@@ -122,10 +123,15 @@ class Exporter:
 	def exportMaterial(self, b_context, material_name, b_material):
 
 		if not b_context.scene.ph_use_cycles_material:
-			command = RawCommand()
-			command.append_string(ui.material.to_sdl(b_material, self.__sdlconsole, material_name))
-			self.__sdlconsole.queue_command(command)
-			return MaterialExportStatus()
+			use_node_tree = b_material.ph_node_tree_name != ""
+			if use_node_tree:
+				node.to_sdl(material_name, b_material, self.get_sdlconsole())
+				return MaterialExportStatus()
+			else:
+				command = RawCommand()
+				command.append_string(ui.material.to_sdl(b_material, self.__sdlconsole, material_name))
+				self.__sdlconsole.queue_command(command)
+				return MaterialExportStatus()
 		else:
 			translate_result = export.cycles_material.translate(b_material, self.__sdlconsole, material_name)
 			if not translate_result.is_valid():

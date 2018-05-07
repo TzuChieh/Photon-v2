@@ -73,9 +73,11 @@ class PhMaterialNodeSocket(bpy.types.NodeSocketShader):
 				row.label(text)
 
 	def get_from_res_name(self, res_name, link_index = 0):
+		if not self.links:
+			return None
 		from_node   = self.links[link_index].from_node
 		from_socket = self.links[link_index].from_socket
-		return res_name + "->" + from_node.name + "->" + from_socket.identifier
+		return res_name + "_" + from_node.name + "_" + from_socket.identifier
 
 
 class PhMaterialNode(bpy.types.Node):
@@ -140,12 +142,16 @@ class PhOutputNode(PhMaterialNode):
 		self.inputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
 
 	def to_sdl(self, res_name, sdlconsole):
-		if not self.inputs[0].is_linked:
+		surface_socket   = self.inputs[0]
+		surface_res_name = surface_socket.get_from_res_name(res_name)
+		if surface_res_name is None:
 			print("material <%s>'s output node is not linked, ignored" % res_name)
 			return
 
-		from_node = self.inputs[0].links[0].from_node
-		from_node.to_sdl(res_name, sdlconsole)
+		cmd = materialcmd.FullCreator()
+		cmd.set_data_name(res_name)
+		cmd.set_surface_ref(surface_res_name)
+		sdlconsole.queue_command(cmd)
 
 
 class PhConstantColorInputNode(PhMaterialNode):
@@ -172,8 +178,9 @@ class PhConstantColorInputNode(PhMaterialNode):
 		row.prop(self, "color", "")
 
 	def to_sdl(self, res_name, sdlconsole):
+		output_socket = self.outputs[0]
 		cmd = imagecmd.ConstantImageCreator()
-		cmd.set_data_name(res_name)
+		cmd.set_data_name(res_name + "_" + self.name + "_" + output_socket.identifier)
 		cmd.set_rgb_value(mathutils.Color((self.color[0], self.color[1], self.color[2])))
 		sdlconsole.queue_command(cmd)
 
@@ -201,21 +208,20 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 
 	def to_sdl(self, res_name, sdlconsole):
 		albedo_socket           = self.inputs[0]
-		surface_material_socket = self.output[0]
+		surface_material_socket = self.outputs[0]
 
-		if albedo_socket.is_linked:
-			from_node = albedo_socket.links[0].from_node
-			from_node.to_sdl(res_name + albedo_socket.identifier, sdlconsole)
-		else:
+		albedo_res_name = albedo_socket.get_from_res_name(res_name)
+		if albedo_res_name is None:
 			cmd = imagecmd.ConstantImageCreator()
-			cmd.set_data_name(res_name + albedo_socket.identifier)
+			albedo_res_name = res_name + "_" + self.name + "_" + albedo_socket.identifier
+			cmd.set_data_name(albedo_res_name)
 			albedo = albedo_socket.default_value
 			cmd.set_rgb_value(mathutils.Color((albedo[0], albedo[1], albedo[2])))
 			sdlconsole.queue_command(cmd)
 
 		cmd = materialcmd.MatteOpaqueCreator()
-		cmd.set_data_name(res_name + surface_material_socket.identifier)
-		cmd.set_albedo_image_ref(res_name + albedo_socket.identifier)
+		cmd.set_data_name(res_name + "_" + self.name + "_" + surface_material_socket.identifier)
+		cmd.set_albedo_image_ref(albedo_res_name)
 		sdlconsole.queue_command(cmd)
 
 
@@ -224,6 +230,39 @@ class PhMaterialNodeCategory(nodeitems_utils.NodeCategory):
 	@classmethod
 	def poll(cls, b_context):
 		return b_context.space_data.tree_type == PhMaterialNodeTree.bl_idname
+
+
+def to_sdl_recursive(res_name, current_node, processed_nodes, sdlconsole):
+
+	for socket in current_node.inputs:
+		for link in socket.links:
+			from_node = link.from_node
+			if from_node not in processed_nodes:
+				to_sdl_recursive(res_name, from_node, processed_nodes, sdlconsole)
+				processed_nodes.add(from_node)
+
+	current_node.to_sdl(res_name, sdlconsole)
+
+
+def to_sdl(res_name, b_material, sdlconsole):
+
+	if b_material is None or b_material.ph_node_tree_name == "":
+		print("material <%s> has no node tree, ignoring" % res_name)
+		return
+
+	node_tree   = bpy.data.node_groups[b_material.ph_node_tree_name]
+	output_node = None
+	for node in node_tree.nodes:
+		if getattr(node, "bl_idname", None) == PhOutputNode.bl_idname:
+			output_node = node
+			break
+
+	if output_node is None:
+		print("material <%s> has no output node, ignoring" % res_name)
+		return
+
+	processed_nodes = set()
+	to_sdl_recursive(res_name, output_node, processed_nodes, sdlconsole)
 
 
 PH_MATERIAL_NODE_SOCKETS = [

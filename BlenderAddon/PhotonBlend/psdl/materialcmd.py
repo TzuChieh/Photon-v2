@@ -39,7 +39,11 @@ class MatteOpaqueCreator(MaterialCreator):
 		self.update_clause(SdlResourceIdentifierClause().set_name("albedo").set_data(sdlri))
 
 	def set_albedo_image_ref(self, ref_name):
-		self.update_clause(SdlReferenceClause().set_name("albedo").set_data(ref_name))
+		clause = SdlReferenceClause()
+		clause.set_name("albedo")
+		clause.set_data(ref_name)
+		clause.set_reference_category("image")
+		self.update_clause(clause)
 
 
 class AbstractAbradedCreator(MaterialCreator):
@@ -100,6 +104,10 @@ class FullCreator(MaterialCreator):
 		return "full"
 
 	def set_surface_ref(self, material_name):
-		self.update_clause(SdlReferenceClause().set_name("surface").set_data(material_name))
+		clause = SdlReferenceClause()
+		clause.set_name("surface")
+		clause.set_data(material_name)
+		clause.set_reference_category("material")
+		self.update_clause(clause)
 
 

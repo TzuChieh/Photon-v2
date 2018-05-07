@@ -32,7 +32,7 @@ void FullMaterial::genSurfaceBehavior(
 		return;
 	}
 
-	auto surfaceOptics = m_surfaceMaterial->genSurfaceOptics();
+	auto surfaceOptics = m_surfaceMaterial->genSurfaceOptics(context);
 	out_surfaceBehavior->setOptics(surfaceOptics);
 }
 
