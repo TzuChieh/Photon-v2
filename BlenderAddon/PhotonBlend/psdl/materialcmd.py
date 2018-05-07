@@ -111,3 +111,28 @@ class FullCreator(MaterialCreator):
 		self.update_clause(clause)
 
 
+class BinaryMixedSurfaceCreator(MaterialCreator):
+
+	def __init__(self):
+		super().__init__()
+
+	def get_type_name(self):
+		return "binary-mixed-surface"
+
+	def set_surface_material0_ref(self, name):
+		clause = SdlReferenceClause()
+		clause.set_name("material-0")
+		clause.set_data(name)
+		clause.set_reference_category("material")
+		self.update_clause(clause)
+
+	def set_surface_material1_ref(self, name):
+		clause = SdlReferenceClause()
+		clause.set_name("material-1")
+		clause.set_data(name)
+		clause.set_reference_category("material")
+		self.update_clause(clause)
+
+	def set_float_factor(self, factor):
+		self.update_clause(FloatClause().set_name("factor").set_data(factor))
+

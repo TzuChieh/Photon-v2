@@ -137,6 +137,7 @@ def translate_vector_math_node(node, sdlconsole, res_name):
 		operand_image_command.set_data_name("socket_0_value_" + res_name)  # FIXME: be aware of name collision
 		socket0_vec3 = vector_socket_0.inputs[0].default_value
 		operand_image_command.set_vec3_value(socket0_vec3)
+		operand_image_command.intent_is_raw()
 		sdlconsole.queue_command(operand_image_command)
 
 	vector_socket_1 = node.inputs[1]
@@ -185,6 +186,7 @@ def translate_emission_node(this_node, sdlconsole, res_name):
 	if image_command is None:
 		image_command = psdl.imagecmd.ConstantImageCreator()
 		image_command.set_data_name("emission_default_value_" + res_name)  # FIXME: be aware of name collision
+		image_command.intent_is_emission_srgb()
 		color_array = color_socket.default_value
 		image_command.set_rgb_value(mathutils.Color((color_array[0], color_array[1], color_array[2])))
 

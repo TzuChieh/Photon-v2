@@ -89,7 +89,7 @@ class PhMaterialNode(bpy.types.Node):
 	def init(self, b_context):
 		pass
 
-	# Blender: draw the buttons in node
+	# Blender: draw properties in node
 	def draw_buttons(self, b_context, b_layout):
 		pass
 
@@ -106,11 +106,16 @@ class PhSurfaceMaterialSocket(PhMaterialNodeSocket):
 		return [0.8, 0.1, 0.1, 1.0]  # red
 
 
-class PhRealSocket(PhMaterialNodeSocket):
+class PhFloatSocket(PhMaterialNodeSocket):
 	bl_idname = "PH_FLOAT_SOCKET"
 	bl_label  = "Real"
 
-	default_value = bpy.props.FloatProperty(name = "Real", default=0.0, min=0.0, max=1.0)
+	default_value = bpy.props.FloatProperty(
+		name    = "Float",
+		default = 0.5,
+		min     = 0.0,
+		max     = 1.0
+	)
 
 	def draw_color(self, b_context, node):
 		return [0.5, 0.5, 0.5, 1.0]  # gray
@@ -168,20 +173,33 @@ class PhConstantColorInputNode(PhMaterialNode):
 		size        = 3
 	)
 
+	usage = bpy.props.EnumProperty(
+		items = [
+			("EMISSION",    "Emission",    ""),
+			("REFLECTANCE", "Reflectance", "")
+		],
+		name        = "Usage",
+		description = "What is this color for?",
+		default     = "REFLECTANCE"
+	)
+
 	def init(self, b_context):
 		self.outputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
 
 	def draw_buttons(self, b_context, b_layout):
-		row = b_layout.row()
-		row.template_color_picker(self, "color", True)
-		row = b_layout.row()
-		row.prop(self, "color", "")
+		b_layout.template_color_picker(self, "color", True)
+		b_layout.prop(self, "color", "")
+		b_layout.prop(self, "usage", "")
 
 	def to_sdl(self, res_name, sdlconsole):
 		output_socket = self.outputs[0]
 		cmd = imagecmd.ConstantImageCreator()
 		cmd.set_data_name(res_name + "_" + self.name + "_" + output_socket.identifier)
 		cmd.set_rgb_value(mathutils.Color((self.color[0], self.color[1], self.color[2])))
+		if self.usage == "EMISSION":
+			cmd.intent_is_emission_srgb()
+		elif self.usage == "REFLECTANCE":
+			cmd.intent_is_reflectance_srgb()
 		sdlconsole.queue_command(cmd)
 
 
@@ -217,11 +235,51 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 			cmd.set_data_name(albedo_res_name)
 			albedo = albedo_socket.default_value
 			cmd.set_rgb_value(mathutils.Color((albedo[0], albedo[1], albedo[2])))
+			cmd.intent_is_reflectance_srgb()
 			sdlconsole.queue_command(cmd)
 
 		cmd = materialcmd.MatteOpaqueCreator()
 		cmd.set_data_name(res_name + "_" + self.name + "_" + surface_material_socket.identifier)
 		cmd.set_albedo_image_ref(albedo_res_name)
+		sdlconsole.queue_command(cmd)
+
+
+class PhBinaryMixedSurfaceNode(PhMaterialNode):
+	bl_idname = "PH_BINARY_MIXED_SURFACE"
+	bl_label  = "Binary Mixed Surface"
+
+	factor = bpy.props.FloatProperty(
+		name    = "Factor",
+		default = 0.5,
+		min     = 0.0,
+		max     = 1.0
+	)
+
+	def init(self, b_context):
+		self.inputs.new(PhSurfaceMaterialSocket.bl_idname, "Material A")
+		self.inputs.new(PhSurfaceMaterialSocket.bl_idname, "Material B")
+		self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
+
+	def draw_buttons(self, b_context, b_layout):
+		row = b_layout.row()
+		row.prop(self, "factor")
+
+	def to_sdl(self, res_name, sdlconsole):
+		mat0_socket        = self.inputs[0]
+		mat1_socket        = self.inputs[1]
+		surface_mat_socket = self.outputs[0]
+
+		mat0_res_name = mat0_socket.get_from_res_name(res_name)
+		mat1_res_name = mat1_socket.get_from_res_name(res_name)
+		if mat0_res_name is None or mat1_res_name is None:
+			print("warning: material <%s>'s binary mixed surface node is incomplete" % res_name)
+			return
+
+		cmd = materialcmd.BinaryMixedSurfaceCreator()
+		cmd.set_data_name(res_name + "_" + self.name + "_" + surface_mat_socket.identifier)
+		cmd.set_float_factor(self.factor)
+		cmd.set_surface_material0_ref(mat0_res_name)
+		cmd.set_surface_material1_ref(mat1_res_name)
 		sdlconsole.queue_command(cmd)
 
 
@@ -267,7 +325,7 @@ def to_sdl(res_name, b_material, sdlconsole):
 
 PH_MATERIAL_NODE_SOCKETS = [
 	PhSurfaceMaterialSocket,
-	PhRealSocket,
+	PhFloatSocket,
 	PhColorSocket
 ]
 
@@ -275,7 +333,8 @@ PH_MATERIAL_NODE_SOCKETS = [
 PH_MATERIAL_NODES = [
 	PhOutputNode,
 	PhConstantColorInputNode,
-	PhDiffuseSurfaceNode
+	PhDiffuseSurfaceNode,
+	PhBinaryMixedSurfaceNode
 ]
 
 
@@ -287,7 +346,8 @@ PH_MATERIAL_NODE_CATEGORIES = [
 		nodeitems_utils.NodeItem(PhConstantColorInputNode.bl_idname)
 	]),
 	PhMaterialNodeCategory("SURFACE_MATERIAL", "Surface Material", items = [
-		nodeitems_utils.NodeItem(PhDiffuseSurfaceNode.bl_idname)
+		nodeitems_utils.NodeItem(PhDiffuseSurfaceNode.bl_idname),
+		nodeitems_utils.NodeItem(PhBinaryMixedSurfaceNode.bl_idname)
 	])
 ]
 

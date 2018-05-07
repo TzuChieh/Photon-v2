@@ -15,7 +15,7 @@ class ImageCreator(CreationCommand):
 
 	@abstractmethod
 	def __init__(self):
-		super(ImageCreator, self).__init__()
+		super().__init__()
 
 	@abstractmethod
 	def get_type_name(self):
@@ -28,7 +28,7 @@ class ImageCreator(CreationCommand):
 class LdrPictureImageCreator(ImageCreator):
 
 	def __init__(self):
-		super(LdrPictureImageCreator, self).__init__()
+		super().__init__()
 
 	def get_type_name(self):
 		return "ldr-picture"
@@ -40,7 +40,7 @@ class LdrPictureImageCreator(ImageCreator):
 class RealMathImageCreator(ImageCreator):
 
 	def __init__(self):
-		super(RealMathImageCreator, self).__init__()
+		super().__init__()
 
 	def get_type_name(self):
 		return "real-math"
@@ -65,11 +65,10 @@ class RealMathImageCreator(ImageCreator):
 		self.set_math_op("add")
 
 
-# TODO: value type
 class ConstantImageCreator(ImageCreator):
 
 	def __init__(self):
-		super(ConstantImageCreator, self).__init__()
+		super().__init__()
 
 	def get_type_name(self):
 		return "constant"
@@ -82,6 +81,16 @@ class ConstantImageCreator(ImageCreator):
 
 	def set_rgb_value(self, rgb):
 		self.update_clause(ColorClause().set_name("value").set_data(rgb))
+
+	def intent_is_emission_srgb(self):
+		self.update_clause(StringClause().set_name("value-type").set_data("emr-linear-srgb"))
+
+	def intent_is_reflectance_srgb(self):
+		self.update_clause(StringClause().set_name("value-type").set_data("ecf-linear-srgb"))
+
+	def intent_is_raw(self):
+		self.update_clause(StringClause().set_name("value-type").set_data("raw"))
+
 
 
 	
