@@ -1,8 +1,11 @@
 from ..utility import settings
 from . import common
+from ..psdl import imagecmd
+from ..psdl import materialcmd
 
 import bpy
 import nodeitems_utils
+import mathutils
 
 from abc import abstractmethod
 
@@ -69,6 +72,11 @@ class PhMaterialNodeSocket(bpy.types.NodeSocketShader):
 			else:
 				row.label(text)
 
+	def get_from_res_name(self, res_name, link_index = 0):
+		from_node   = self.links[link_index].from_node
+		from_socket = self.links[link_index].from_socket
+		return res_name + "->" + from_node.name + "->" + from_socket.identifier
+
 
 class PhMaterialNode(bpy.types.Node):
 	bl_idname = "PH_MATERIAL_NODE"
@@ -81,6 +89,10 @@ class PhMaterialNode(bpy.types.Node):
 
 	# Blender: draw the buttons in node
 	def draw_buttons(self, b_context, b_layout):
+		pass
+
+	@abstractmethod
+	def to_sdl(self, res_name, sdlconsole):
 		pass
 
 
@@ -127,6 +139,14 @@ class PhOutputNode(PhMaterialNode):
 	def init(self, b_context):
 		self.inputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
 
+	def to_sdl(self, res_name, sdlconsole):
+		if not self.inputs[0].is_linked:
+			print("material <%s>'s output node is not linked, ignored" % res_name)
+			return
+
+		from_node = self.inputs[0].links[0].from_node
+		from_node.to_sdl(res_name, sdlconsole)
+
 
 class PhConstantColorInputNode(PhMaterialNode):
 	bl_idname = "PH_CONSTANT_COLOR"
@@ -151,6 +171,12 @@ class PhConstantColorInputNode(PhMaterialNode):
 		row = b_layout.row()
 		row.prop(self, "color", "")
 
+	def to_sdl(self, res_name, sdlconsole):
+		cmd = imagecmd.ConstantImageCreator()
+		cmd.set_data_name(res_name)
+		cmd.set_rgb_value(mathutils.Color((self.color[0], self.color[1], self.color[2])))
+		sdlconsole.queue_command(cmd)
+
 
 class PhDiffuseSurfaceNode(PhMaterialNode):
 	bl_idname = "PH_DIFFUSE_SURFACE"
@@ -172,6 +198,25 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 	def draw_buttons(self, b_context, b_layout):
 		row = b_layout.row()
 		row.prop(self, "diffusion_type", "")
+
+	def to_sdl(self, res_name, sdlconsole):
+		albedo_socket           = self.inputs[0]
+		surface_material_socket = self.output[0]
+
+		if albedo_socket.is_linked:
+			from_node = albedo_socket.links[0].from_node
+			from_node.to_sdl(res_name + albedo_socket.identifier, sdlconsole)
+		else:
+			cmd = imagecmd.ConstantImageCreator()
+			cmd.set_data_name(res_name + albedo_socket.identifier)
+			albedo = albedo_socket.default_value
+			cmd.set_rgb_value(mathutils.Color((albedo[0], albedo[1], albedo[2])))
+			sdlconsole.queue_command(cmd)
+
+		cmd = materialcmd.MatteOpaqueCreator()
+		cmd.set_data_name(res_name + surface_material_socket.identifier)
+		cmd.set_albedo_image_ref(res_name + albedo_socket.identifier)
+		sdlconsole.queue_command(cmd)
 
 
 class PhMaterialNodeCategory(nodeitems_utils.NodeCategory):

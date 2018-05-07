@@ -68,7 +68,7 @@ def translate_diffuse_bsdf_node(this_node, sdlconsole, res_name):
 
 		result = translate_node(color_socket.links[0].from_node, sdlconsole, res_name)
 		if result.sdl_resource_identifier is not None:
-			command.set_albedo_image(result.sdl_resource_identifier)
+			command.set_albedo_image_sdlri(result.sdl_resource_identifier)
 		else:
 			print("warning: material %s's albedo image is invalid" % res_name)
 		sdlconsole.queue_command(command)

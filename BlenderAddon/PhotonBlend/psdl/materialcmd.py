@@ -3,6 +3,7 @@ from .clause import ColorClause
 from .clause import FloatClause
 from .clause import StringClause
 from .clause import SdlResourceIdentifierClause
+from .clause import SdlReferenceClause
 
 import mathutils
 
@@ -13,7 +14,7 @@ class MaterialCreator(CreationCommand):
 
 	@abstractmethod
 	def __init__(self):
-		super(MaterialCreator, self).__init__()
+		super().__init__()
 
 	@abstractmethod
 	def get_type_name(self):
@@ -26,7 +27,7 @@ class MaterialCreator(CreationCommand):
 class MatteOpaqueCreator(MaterialCreator):
 
 	def __init__(self):
-		super(MatteOpaqueCreator, self).__init__()
+		super().__init__()
 
 	def get_type_name(self):
 		return "matte-opaque"
@@ -34,15 +35,18 @@ class MatteOpaqueCreator(MaterialCreator):
 	def set_albedo_color(self, albedo):
 		self.update_clause(ColorClause().set_name("albedo").set_data(albedo))
 
-	def set_albedo_image(self, image_sdlri):
-		self.update_clause(SdlResourceIdentifierClause().set_name("albedo").set_data(image_sdlri))
+	def set_albedo_image_sdlri(self, sdlri):
+		self.update_clause(SdlResourceIdentifierClause().set_name("albedo").set_data(sdlri))
+
+	def set_albedo_image_ref(self, ref_name):
+		self.update_clause(SdlReferenceClause().set_name("albedo").set_data(ref_name))
 
 
 class AbstractAbradedCreator(MaterialCreator):
 
 	@abstractmethod
 	def __init__(self):
-		super(AbstractAbradedCreator, self).__init__()
+		super().__init__()
 
 	def set_albedo(self, albedo):
 		self.update_clause(ColorClause().set_name("albedo").set_data(albedo))
@@ -57,7 +61,7 @@ class AbstractAbradedCreator(MaterialCreator):
 class AbradedOpaqueCreator(AbstractAbradedCreator):
 
 	def __init__(self):
-		super(AbradedOpaqueCreator, self).__init__()
+		super().__init__()
 
 	def get_type_name(self):
 		return "abraded-opaque"
@@ -78,12 +82,24 @@ class AbradedOpaqueCreator(AbstractAbradedCreator):
 class AbradedTranslucentCreator(AbstractAbradedCreator):
 
 	def __init__(self):
-		super(AbradedTranslucentCreator, self).__init__()
+		super().__init__()
 
 	def get_type_name(self):
 		return "abraded-translucent"
 
 	def set_ior(self, ior):
 		self.update_clause(FloatClause().set_name("ior").set_data(ior))
+
+
+class FullCreator(MaterialCreator):
+
+	def __init__(self):
+		super().__init__()
+
+	def get_type_name(self):
+		return "full"
+
+	def set_surface_ref(self, material_name):
+		self.update_clause(SdlReferenceClause().set_name("surface").set_data(material_name))
 
 

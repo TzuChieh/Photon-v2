@@ -88,7 +88,7 @@ class SdlReferenceClause(SdlClause):
 		super(SdlReferenceClause, self).__init__()
 		self.__reference_type_name = None
 
-	def set_reference_type(self, refence_type_name):
+	def set_reference_category(self, refence_type_name):
 		self.__reference_type_name = refence_type_name
 		return self
 

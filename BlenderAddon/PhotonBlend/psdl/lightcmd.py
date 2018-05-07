@@ -91,15 +91,15 @@ class ModelLightCreator(LightCreator):
 
 	def set_emitted_radiance_image(self, image_name):
 		ref_clause = SdlReferenceClause()
-		ref_clause.set_reference_type("image")
+		ref_clause.set_reference_category("image")
 		self.update_clause(ref_clause.set_name("emitted-radiance").set_data(image_name))
 
 	def set_geometry(self, geometry_name):
 		ref_clause = SdlReferenceClause()
-		ref_clause.set_reference_type("geometry")
+		ref_clause.set_reference_category("geometry")
 		self.update_clause(ref_clause.set_name("geometry").set_data(geometry_name))
 
 	def set_material(self, material_name):
 		ref_clause = SdlReferenceClause()
-		ref_clause.set_reference_type("material")
+		ref_clause.set_reference_category("material")
 		self.update_clause(ref_clause.set_name("material").set_data(material_name))

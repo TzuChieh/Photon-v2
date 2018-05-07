@@ -47,7 +47,7 @@ class RealMathImageCreator(ImageCreator):
 
 	def set_operand_image(self, image_name):
 		clause = SdlReferenceClause()
-		clause.set_reference_type("image")
+		clause.set_reference_category("image")
 		clause.set_name("operand")
 		clause.set_data(image_name)
 		self.update_clause(clause)
@@ -65,6 +65,7 @@ class RealMathImageCreator(ImageCreator):
 		self.set_math_op("add")
 
 
+# TODO: value type
 class ConstantImageCreator(ImageCreator):
 
 	def __init__(self):
