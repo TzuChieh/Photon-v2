@@ -5,8 +5,6 @@ from .clause import ColorClause
 from .clause import FloatClause
 from .clause import StringClause
 from .clause import Vector3Clause
-from .. import utility
-from . import sdlresource
 
 from abc import abstractmethod
 

@@ -9,6 +9,8 @@ from . import export
 from .export import naming
 from . import light
 from . import node
+from ..psdl import actorcmd
+from ..psdl import sdlresource
 
 import bpy
 import mathutils
@@ -20,7 +22,7 @@ from bpy.props import StringProperty, BoolProperty, EnumProperty
 from bpy.types import Operator
 
 import math
-
+import shutil
 
 class MaterialExportStatus:
 
@@ -406,6 +408,29 @@ class Exporter:
 		else:
 			print("warning: camera (%s) type (%s) is unsupported, not exporting" % (camera.name, camera.type))
 
+	def export_world(self, b_world):
+
+		if b_world.ph_envmap_file_path == "":
+			return
+
+		cmd = actorcmd.DomeCreator()
+		cmd.set_data_name("ph_" + b_world.name)
+
+		envmap_path  = bpy.path.abspath(b_world.ph_envmap_file_path)
+		envmap_sdlri = sdlresource.SdlResourceIdentifier()
+		envmap_sdlri.append_folder(b_world.name + "_data")
+		envmap_sdlri.set_file(utility.get_filename(envmap_path))
+		cmd.set_envmap_sdlri(envmap_sdlri)
+
+		# copy the envmap to scene folder
+		self.get_sdlconsole().create_resource_folder(envmap_sdlri)
+		dst_path = utility.get_appended_path(self.get_sdlconsole().get_working_directory(),
+		                                     envmap_sdlri.get_path())
+		shutil.copyfile(envmap_path, dst_path)
+
+		self.get_sdlconsole().queue_command(cmd)
+
+
 	def export_core_commands(self, context):
 		objs = context.scene.objects
 		for obj in objs:
@@ -440,6 +465,10 @@ class Exporter:
 				continue
 			else:
 				print("warning: object (%s) type (%s) is not supported, not exporting" %(obj.name, obj.type))
+
+		b_world = scene.world
+		if b_world is not None:
+			self.export_world(b_world)
 
 
 class P2Exporter(Operator, ExportHelper):
