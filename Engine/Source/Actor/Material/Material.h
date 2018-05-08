@@ -20,7 +20,7 @@ public:
 
 // command interface
 public:
-	Material(const InputPacket& packet);
+	explicit Material(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };

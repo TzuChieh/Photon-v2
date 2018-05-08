@@ -29,7 +29,7 @@ private:
 
 // command interface
 public:
-	MatteOpaque(const InputPacket& packet);
+	explicit MatteOpaque(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };

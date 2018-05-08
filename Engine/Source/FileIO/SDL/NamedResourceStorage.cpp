@@ -1,5 +1,6 @@
 #include "FileIO/SDL/NamedResourceStorage.h"
 #include "FileIO/SDL/Keyword.h"
+#include "Common/assertion.h"
 
 #include <iostream>
 
@@ -7,7 +8,7 @@ namespace ph
 {
 
 NamedResourceStorage::NamedResourceStorage() : 
-	m_resources(static_cast<std::size_t>(ETypeCategory::MAX) + 1)
+	m_resources()
 {}
 
 void NamedResourceStorage::addResource(
@@ -21,12 +22,7 @@ void NamedResourceStorage::addResource(
 		return;
 	}
 
-	const std::size_t categoryIndex = static_cast<std::size_t>(typeInfo.typeCategory);
-	if(!checkCategoryIndex(categoryIndex))
-	{
-		return;
-	}
-
+	const std::size_t categoryIndex = toCategoryIndex(typeInfo.typeCategory);
 	auto& resourcesNameMap = m_resources[categoryIndex];
 	const auto& iter = resourcesNameMap.find(resourceName);
 	if(iter != resourcesNameMap.end())
@@ -42,12 +38,7 @@ std::shared_ptr<ISdlResource> NamedResourceStorage::getResource(
 	const std::string& resourceName,
 	const DataTreatment& treatment) const
 {
-	const std::size_t categoryIndex = static_cast<std::size_t>(typeInfo.typeCategory);
-	if(!checkCategoryIndex(categoryIndex))
-	{
-		return nullptr;
-	}
-
+	const std::size_t categoryIndex = toCategoryIndex(typeInfo.typeCategory);
 	const auto& resourcesNameMap = m_resources[categoryIndex];
 	const auto& iter = resourcesNameMap.find(resourceName);
 	if(iter == resourcesNameMap.end())
@@ -104,15 +95,12 @@ void NamedResourceStorage::reportResourceNotFound(const std::string& categoryNam
 	}
 }
 
-bool NamedResourceStorage::checkCategoryIndex(const std::size_t index)
+std::size_t NamedResourceStorage::toCategoryIndex(const ETypeCategory category) const
 {
-	if(index >= (static_cast<std::size_t>(ETypeCategory::MAX) + 1))
-	{
-		std::cerr << "warning: at NamedResourceStorage::checkCategoryIndex(), category index overflow" << std::endl;
-		return false;
-	}
+	const std::size_t index = static_cast<std::size_t>(category);
+	PH_ASSERT(index < m_resources.size());
 
-	return true;
+	return index;
 }
 
 }// end namespace ph

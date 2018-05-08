@@ -34,7 +34,7 @@ private:
 
 // command interface
 public:
-	IdealSubstance(const InputPacket& packet);
+	explicit IdealSubstance(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };

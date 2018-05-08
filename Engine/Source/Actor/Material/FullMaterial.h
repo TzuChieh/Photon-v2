@@ -28,7 +28,7 @@ private:
 
 // command interface
 public:
-	FullMaterial(const InputPacket& packet);
+	explicit FullMaterial(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };

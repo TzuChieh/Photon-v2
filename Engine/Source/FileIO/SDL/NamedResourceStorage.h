@@ -11,6 +11,7 @@
 #include <memory>
 #include <vector>
 #include <iostream>
+#include <array>
 
 namespace ph
 {
@@ -35,14 +36,21 @@ public:
 		const std::string& resourceName, 
 		const DataTreatment& treatment = DataTreatment()) const;
 
+	template<typename T>
+	bool hasResource(const std::string& resourceName) const;
+
 	std::vector<std::shared_ptr<Actor>> getActors() const;
 
 private:
-	std::vector<std::unordered_map<std::string, std::shared_ptr<ISdlResource>>> m_resources;
+	std::array<
+		std::unordered_map<std::string, std::shared_ptr<ISdlResource>>, 
+		static_cast<std::size_t>(ETypeCategory::MAX)
+	> m_resources;
 	
 private:
+	std::size_t toCategoryIndex(ETypeCategory category) const;
+
 	static void reportResourceNotFound(const std::string& categoryName, const std::string& name, const DataTreatment& treatment);
-	static bool checkCategoryIndex(const std::size_t index);
 };
 
 // template implementations:
@@ -69,6 +77,17 @@ std::shared_ptr<T> NamedResourceStorage::getResource(
 	}
 
 	return castedResource;
+}
+
+template<typename T>
+bool NamedResourceStorage::hasResource(const std::string& resourceName) const
+{
+	const SdlTypeInfo& typeInfo         = T::ciTypeInfo();
+	const std::size_t  categoryIndex    = toCategoryIndex(typeInfo.typeCategory);
+	const auto&        resourcesNameMap = m_resources[categoryIndex];
+	const auto&        iter             = resourcesNameMap.find(resourceName);
+
+	return iter != resourcesNameMap.end();
 }
 
 }// end namespace ph

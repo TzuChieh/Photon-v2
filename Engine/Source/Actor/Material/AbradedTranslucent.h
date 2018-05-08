@@ -26,7 +26,7 @@ private:
 
 // command interface
 public:
-	AbradedTranslucent(const InputPacket& packet);
+	explicit AbradedTranslucent(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };

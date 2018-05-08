@@ -40,7 +40,7 @@ private:
 
 // command interface
 public:
-	BinaryMixedSurfaceMaterial(const InputPacket& packet);
+	explicit BinaryMixedSurfaceMaterial(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };

@@ -1,13 +1,13 @@
 #include "Actor/Material/MatteOpaque.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "FileIO/SDL/InputPacket.h"
-#include "FileIO/SDL/InputPrototype.h"
 #include "Actor/Image/Image.h"
 #include "Actor/Image/ConstantImage.h"
 #include "FileIO/PictureLoader.h"
 #include "Actor/Image/LdrPictureImage.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
+#include "Common/assertion.h"
 
 namespace ph
 {
@@ -53,36 +53,33 @@ MatteOpaque::MatteOpaque(const InputPacket& packet) :
 	SurfaceMaterial(packet),
 	m_albedo(nullptr)
 {
-	InputPrototype imageFileAlbedo;
-	imageFileAlbedo.addString("albedo");
-
-	InputPrototype constAlbedo;
-	constAlbedo.addVector3r("albedo");
-
-	if(packet.isPrototypeMatched(imageFileAlbedo))
+	if(packet.hasReference<Image>("albedo"))
 	{
-		const Path& imagePath = packet.getStringAsPath("albedo", Path(), DataTreatment::REQUIRED());
+		setAlbedo(packet.get<Image>("albedo"));
+	}
+	else if(packet.hasString("albedo"))
+	{
+		const Path& imagePath = packet.getStringAsPath("albedo", 
+			Path(), DataTreatment::REQUIRED());
+
 		setAlbedo(std::make_shared<LdrPictureImage>(PictureLoader::loadLdr(imagePath)));
 	}
-	else if(packet.isPrototypeMatched(constAlbedo))
+	else if(packet.hasVector3R("albedo"))
 	{
-		const Vector3R albedo = packet.getVector3r("albedo", Vector3R(0.5_r), 
-			DataTreatment::OPTIONAL("all components are set to 0.5"));
-		setAlbedo(albedo);
+		setAlbedo(packet.getVector3r("albedo"));
+	}
+	else if(packet.hasReal("albedo"))
+	{
+		setAlbedo(Vector3R(packet.getReal("albedo")));
 	}
 	else
 	{
-		const auto& albedo = packet.get<Image>("albedo");
-		if(albedo != nullptr)
-		{
-			setAlbedo(albedo);
-		}
-		else
-		{
-			std::cerr << "warning: at MatteOpaque::ciLoad(), " 
-		              << "ill-formed input detected" << std::endl;
-		}
+		std::cerr << "warning: at MatteOpaque ctor, "
+		          << "ill-formed input detected, all albedo components are set to 0.5" << std::endl;
+		setAlbedo(Vector3R(0.5_r));
 	}
+
+	PH_ASSERT(m_albedo != nullptr);
 }
 
 SdlTypeInfo MatteOpaque::ciTypeInfo()

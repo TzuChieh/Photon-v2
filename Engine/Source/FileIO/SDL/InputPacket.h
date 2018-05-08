@@ -90,7 +90,7 @@ public:
 	bool hasQuaternionR(const std::string& name) const;
 
 	template<typename T>
-	bool hasResource   (const std::string& name) const;
+	bool hasReference  (const std::string& name) const;
 
 	template<typename T>
 	std::shared_ptr<T> getCore(const DataTreatment& treatment = DataTreatment()) const;
@@ -133,19 +133,10 @@ std::shared_ptr<T> InputPacket::getCore(const DataTreatment& treatment) const
 }
 
 template<typename T>
-bool InputPacket::hasResource(const std::string& name) const
+bool InputPacket::hasReference(const std::string& name) const
 {
 	const SdlTypeInfo& typeInfo = T::ciTypeInfo();
-
-	std::string resourceName;
-	if(findStringValue(typeInfo.getCategoryName(), name, DataTreatment(), &resourceName))
-	{
-		return m_storage->getResource<T>(resourceName, DataTreatment()) != nullptr;
-	}
-	else
-	{
-		return false;
-	}
+	return findStringValue(typeInfo.getCategoryName(), name, DataTreatment(), nullptr);
 }
 
 }// end namespace ph

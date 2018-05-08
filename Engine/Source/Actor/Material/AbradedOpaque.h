@@ -26,7 +26,7 @@ private:
 
 // command interface
 public:
-	AbradedOpaque(const InputPacket& packet);
+	explicit AbradedOpaque(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 	static std::function<std::unique_ptr<SurfaceOptics>()> loadITR(const InputPacket& packet);
