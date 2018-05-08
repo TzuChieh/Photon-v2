@@ -1,6 +1,6 @@
 #include "Actor/Image/HdrPictureImage.h"
-#include "FileIO/InputPacket.h"
-#include "FileIO/InputPrototype.h"
+#include "FileIO/SDL/InputPacket.h"
+#include "FileIO/SDL/InputPrototype.h"
 #include "FileIO/PictureLoader.h"
 #include "Core/Texture/HdrRgbTexture2D.h"
 #include "Core/Texture/TNearestPixelTex2D.h"

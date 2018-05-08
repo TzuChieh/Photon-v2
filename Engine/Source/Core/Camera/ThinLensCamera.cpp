@@ -3,7 +3,7 @@
 #include "Core/Sample.h"
 #include "Core/Ray.h"
 #include "Math/Transform/Transform.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 #include "Math/Random.h"
 
 #include <iostream>

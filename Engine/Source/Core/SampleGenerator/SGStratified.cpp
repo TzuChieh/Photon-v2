@@ -2,7 +2,7 @@
 #include "Core/Filmic/Film.h"
 #include "Core/Sample.h"
 #include "Math/Random.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 
 #include <iostream>
 
@@ -15,9 +15,7 @@ SGStratified::SGStratified(const std::size_t numSamples,
 	//SampleGenerator(numSamples, numSamples)
 	SampleGenerator(numSamples, 4), // HACK
 	m_numStrata2dX(numStrata2dX), m_numStrata2dY(numStrata2dY)
-{
-
-}
+{}
 
 SGStratified::~SGStratified() = default;
 

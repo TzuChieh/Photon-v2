@@ -4,7 +4,7 @@
 #include "Actor/Geometry/GTriangle.h"
 #include "Math/TVector3.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 
 #include <iostream>

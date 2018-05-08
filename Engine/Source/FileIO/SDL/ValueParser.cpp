@@ -1,8 +1,9 @@
-#include "FileIO/ValueParser.h"
+#include "FileIO/SDL/ValueParser.h"
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
 #include "FileIO/TextFileLoader.h"
 #include "FileIO/SDL/SdlResourceIdentifier.h"
+#include "FileIO/SDL/Tokenizer.h"
 
 #include <iostream>
 #include <string>

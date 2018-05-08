@@ -8,7 +8,7 @@
 #include "Core/Texture/Function/TConversionTexture.h"
 #include "Math/constant.h"
 #include "Core/Emitter/OmniModulatedEmitter.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 
 namespace ph
 {

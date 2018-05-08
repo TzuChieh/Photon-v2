@@ -14,7 +14,7 @@
 #include "Math/Random.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Emitter/Emitter.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 #include "Core/SurfaceBehavior/BsdfSample.h"
 #include "Core/Quantity/SpectralStrength.h"
 

@@ -1,5 +1,5 @@
 #include "Actor/Material/AbradedTranslucent.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"

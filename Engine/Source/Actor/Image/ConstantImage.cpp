@@ -1,8 +1,8 @@
 #include "Actor/Image/ConstantImage.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Math/TVector3.h"
-#include "FileIO/InputPacket.h"
-#include "FileIO/InputPrototype.h"
+#include "FileIO/SDL/InputPacket.h"
+#include "FileIO/SDL/InputPrototype.h"
 
 #include <iostream>
 

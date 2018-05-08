@@ -5,7 +5,7 @@
 #include "World/VisualWorldInfo.h"
 #include "Actor/ALight.h"
 #include "Actor/LightSource/DomeSource.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 
 namespace ph
 {

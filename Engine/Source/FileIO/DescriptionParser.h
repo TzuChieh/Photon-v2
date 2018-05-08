@@ -1,7 +1,7 @@
 #pragma once
 
-#include "FileIO/Tokenizer.h"
-#include "FileIO/ValueClause.h"
+#include "FileIO/SDL/Tokenizer.h"
+#include "FileIO/SDL/ValueClause.h"
 #include "FileIO/FileSystem/Path.h"
 
 #include <vector>

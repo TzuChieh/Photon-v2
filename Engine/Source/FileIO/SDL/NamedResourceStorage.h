@@ -2,7 +2,7 @@
 
 #include "Actor/AModel.h"
 #include "Actor/ALight.h"
-#include "FileIO/DataTreatment.h"
+#include "FileIO/SDL/DataTreatment.h"
 #include "FileIO/SDL/SdlTypeInfo.h"
 #include "FileIO/SDL/ISdlResource.h"
 

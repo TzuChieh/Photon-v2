@@ -1,14 +1,14 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "FileIO/ValueClause.h"
+#include "FileIO/SDL/ValueClause.h"
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
-#include "FileIO/DataTreatment.h"
+#include "FileIO/SDL/DataTreatment.h"
 #include "FileIO/SDL/SdlTypeInfo.h"
-#include "FileIO/NamedResourceStorage.h"
+#include "FileIO/SDL/NamedResourceStorage.h"
 #include "FileIO/FileSystem/Path.h"
-#include "FileIO/ValueParser.h"
+#include "FileIO/SDL/ValueParser.h"
 
 #include <vector>
 #include <string>

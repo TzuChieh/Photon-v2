@@ -1,5 +1,5 @@
 #include "Actor/Geometry/GMengerSponge.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 #include "Common/assertion.h"
 #include "Actor/Geometry/GCuboid.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"

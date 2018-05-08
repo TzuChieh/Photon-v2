@@ -1,7 +1,7 @@
 #include "Actor/MotionSource/ConstantVelocityMotion.h"
 #include "Math/Transform/DynamicLinearTranslation.h"
 #include "Core/Quantity/Time.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 
 namespace ph
 {
@@ -9,9 +9,7 @@ namespace ph
 ConstantVelocityMotion::ConstantVelocityMotion(const Vector3R& velocity) :
 	MotionSource(),
 	m_velocity(velocity)
-{
-
-}
+{}
 
 ConstantVelocityMotion::~ConstantVelocityMotion() = default;
 

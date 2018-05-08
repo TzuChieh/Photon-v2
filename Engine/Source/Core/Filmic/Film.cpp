@@ -1,7 +1,7 @@
 #include "Core/Filmic/Film.h"
 #include "Math/TVector3.h"
 #include "Frame/TFrame.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 #include "Math/Function/TConstant2D.h"
 #include "Math/Function/TGaussian2D.h"
 #include "Core/Filmic/SampleFilter.h"

@@ -1,8 +1,8 @@
 #include "Actor/PhysicalActor.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 #include "Math/Math.h"
 #include "Math/TVector3.h"
-#include "FileIO/InputPrototype.h"
+#include "FileIO/SDL/InputPrototype.h"
 
 namespace ph
 {
@@ -10,16 +10,12 @@ namespace ph
 PhysicalActor::PhysicalActor() : 
 	Actor(), 
 	m_localToWorld()
-{
-
-}
+{}
 
 PhysicalActor::PhysicalActor(const PhysicalActor& other) : 
 	Actor(other), 
 	m_localToWorld()
-{
-
-}
+{}
 
 PhysicalActor::~PhysicalActor() = default;
 

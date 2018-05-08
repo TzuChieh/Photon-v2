@@ -8,7 +8,7 @@
 #include "FileIO/PictureLoader.h"
 #include "Actor/Image/HdrPictureImage.h"
 #include "Common/assertion.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 
 namespace ph
 {

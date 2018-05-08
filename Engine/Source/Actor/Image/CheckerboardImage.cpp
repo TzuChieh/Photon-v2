@@ -1,5 +1,5 @@
 #include "Actor/Image/CheckerboardImage.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 #include "Core/Texture/TCheckerboardTexture.h"
 
 #include <algorithm>

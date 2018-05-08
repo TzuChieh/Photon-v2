@@ -1,5 +1,5 @@
 #include "Actor/Material/BinaryMixedSurfaceMaterial.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 #include "Common/assertion.h"
 #include "Actor/Image/ConstantImage.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LerpedSurfaceOptics.h"

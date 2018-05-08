@@ -7,7 +7,7 @@
 #include "Core/Integrator/Integrator.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "FileIO/RenderOption.h"
-#include "FileIO/NamedResourceStorage.h"
+#include "FileIO/SDL/NamedResourceStorage.h"
 #include "Core/Renderer/Renderer.h"
 
 #include <vector>

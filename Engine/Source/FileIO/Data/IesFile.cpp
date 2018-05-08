@@ -1,6 +1,6 @@
 #include "FileIO/Data/IesFile.h"
 #include "Common/assertion.h"
-#include "FileIO/Tokenizer.h"
+#include "FileIO/SDL/Tokenizer.h"
 
 #include <fstream>
 #include <vector>

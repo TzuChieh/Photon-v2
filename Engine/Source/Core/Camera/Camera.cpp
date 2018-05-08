@@ -1,5 +1,5 @@
 #include "Core/Camera/Camera.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 #include "Core/RayDifferential.h"
 #include "Core/Ray.h"
 
@@ -8,9 +8,7 @@ namespace ph
 
 Camera::Camera() :
 	Camera(Vector3R(0, 0, 0), Vector3R(0, 0, -1), Vector3R(0, 1, 0))
-{
-
-}
+{}
 
 Camera::Camera(const Vector3R& position, const Vector3R& direction, const Vector3R& upAxis) : 
 	m_position(position), m_direction(direction.normalize()), m_upAxis(upAxis.normalize()),

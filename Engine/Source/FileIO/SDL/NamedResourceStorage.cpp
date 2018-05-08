@@ -1,5 +1,5 @@
-#include "FileIO/NamedResourceStorage.h"
-#include "FileIO/Keyword.h"
+#include "FileIO/SDL/NamedResourceStorage.h"
+#include "FileIO/SDL/Keyword.h"
 
 #include <iostream>
 

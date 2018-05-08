@@ -1,5 +1,5 @@
 #include "Actor/LightSource/PointSource.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 
 namespace ph
 {

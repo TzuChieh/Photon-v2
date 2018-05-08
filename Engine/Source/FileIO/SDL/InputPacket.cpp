@@ -1,8 +1,8 @@
-#include "FileIO/InputPacket.h"
-#include "FileIO/NamedResourceStorage.h"
-#include "FileIO/ValueParser.h"
-#include "FileIO/Keyword.h"
-#include "FileIO/InputPrototype.h"
+#include "FileIO/SDL/InputPacket.h"
+#include "FileIO/SDL/NamedResourceStorage.h"
+#include "FileIO/SDL/ValueParser.h"
+#include "FileIO/SDL/Keyword.h"
+#include "FileIO/SDL/InputPrototype.h"
 #include "FileIO/DescriptionParser.h"
 #include "FileIO/SDL/SdlResourceIdentifier.h"
 

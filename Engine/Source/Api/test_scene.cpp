@@ -14,8 +14,6 @@
 #include "Actor/ALight.h"
 #include "Actor/Geometry/GCuboid.h"
 #include "Actor/Geometry/GWave.h"
-#include "FileIO/ValueClause.h"
-#include "FileIO/Description.h"
 
 #include <memory>
 #include <string>
@@ -35,8 +33,8 @@ void loadTestScene(VisualWorld* const out_world)
 	std::cerr << testValuePacket.toString() << std::endl;
 	std::cerr << testValuePacket2.toString() << std::endl;*/
 
-	DescriptionParser descriptionParser;
-	Description description;
+	//DescriptionParser descriptionParser;
+	//Description description;
 	/*if(!descriptionParser.load("../SceneResource/testScene.p2", &description))
 	{
 		std::cerr << "description file loading failed" << std::endl;

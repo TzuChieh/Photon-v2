@@ -1,5 +1,5 @@
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 #include "Math/Random.h"
 
 #include <iostream>
@@ -12,9 +12,7 @@ SampleGenerator::SampleGenerator(const std::size_t numSamples,
 	m_numSamples(numSamples), 
 	m_sampleBatchSize(sampleBatchSize),
 	m_sampleHead(0)
-{
-	
-}
+{}
 
 SampleGenerator::~SampleGenerator() = default;
 

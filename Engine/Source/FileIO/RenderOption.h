@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 
 namespace ph
 {
@@ -13,9 +13,7 @@ public:
 
 	inline RenderOption() : 
 		numThreads(1)
-	{
-
-	}
+	{}
 
 	inline RenderOption(const InputPacket& packet) : 
 		RenderOption()

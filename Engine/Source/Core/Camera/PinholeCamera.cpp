@@ -2,7 +2,7 @@
 #include "Core/Ray.h"
 #include "Core/Sample.h"
 #include "Core/Filmic/Film.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 #include "Math/Math.h"
 #include "Math/Random.h"
 #include "Common/assertion.h"

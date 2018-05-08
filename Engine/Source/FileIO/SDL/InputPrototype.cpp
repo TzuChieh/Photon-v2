@@ -1,5 +1,5 @@
-#include "FileIO/InputPrototype.h"
-#include "FileIO/Keyword.h"
+#include "FileIO/SDL/InputPrototype.h"
+#include "FileIO/SDL/Keyword.h"
 
 namespace ph
 {

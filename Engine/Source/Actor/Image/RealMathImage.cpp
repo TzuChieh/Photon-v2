@@ -1,6 +1,6 @@
 #include "Actor/Image/RealMathImage.h"
 #include "Common/assertion.h"
-#include "FileIO/InputPacket.h"
+#include "FileIO/SDL/InputPacket.h"
 
 #include <memory>
 
@@ -9,16 +9,12 @@ namespace ph
 
 RealMathImage::RealMathImage() :
 	RealMathImage(EMathOp::MULTIPLY, 1.0_r)
-{
-
-}
+{}
 
 RealMathImage::RealMathImage(const EMathOp mathOp, const real value) :
 	Image(),
 	m_mathOp(mathOp), m_real(value), m_operandImage()
-{
-
-}
+{}
 
 std::shared_ptr<TTexture<real>> RealMathImage::genTextureReal(
 	CookingContext& context) const
