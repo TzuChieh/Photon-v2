@@ -107,6 +107,31 @@ Path InputPacket::getStringAsPath(
 	return SdlResourceIdentifier(identifierString, m_workingDirectory).getPathToResource();
 }
 
+bool InputPacket::hasString(const std::string& name) const
+{
+	return findStringValue(Keyword::TYPENAME_STRING, name, DataTreatment(), nullptr);
+}
+
+bool InputPacket::hasInteger(const std::string& name) const
+{
+	return findStringValue(Keyword::TYPENAME_INTEGER, name, DataTreatment(), nullptr);
+}
+
+bool InputPacket::hasReal(const std::string& name) const
+{
+	return findStringValue(Keyword::TYPENAME_REAL, name, DataTreatment(), nullptr);
+}
+
+bool InputPacket::hasVector3R(const std::string& name) const
+{
+	return findStringValue(Keyword::TYPENAME_VECTOR3R, name, DataTreatment(), nullptr);
+}
+
+bool InputPacket::hasQuaternionR(const std::string& name) const
+{
+	return findStringValue(Keyword::TYPENAME_QUATERNIONR, name, DataTreatment(), nullptr);
+}
+
 bool InputPacket::isPrototypeMatched(const InputPrototype& prototype) const
 {
 	for(const auto& typeNamePair : prototype.typeNamePairs)

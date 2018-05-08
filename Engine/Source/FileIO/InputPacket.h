@@ -36,19 +36,19 @@ public:
 	InputPacket(InputPacket&& other);
 	
 	std::string getString(
-		const std::string&   name, 
-		const std::string&   defaultString = "", 
-		const DataTreatment& treatment     = DataTreatment()) const;
+		const std::string&           name, 
+		const std::string&           defaultString        = "", 
+		const DataTreatment&         treatment            = DataTreatment()) const;
 
 	integer getInteger(
-		const std::string&   name, 
-		const integer        defaultInteger = 0, 
-		const DataTreatment& treatment      = DataTreatment()) const;
+		const std::string&           name, 
+		const integer                defaultInteger       = 0, 
+		const DataTreatment&         treatment            = DataTreatment()) const;
 
 	real getReal(
-		const std::string&   name, 
-		const real           defaultReal = 0.0f, 
-		const DataTreatment& treatment   = DataTreatment()) const;
+		const std::string&           name, 
+		const real                   defaultReal          = 0.0f, 
+		const DataTreatment&         treatment            = DataTreatment()) const;
 
 	Vector3R getVector3r(
 		const std::string&           name, 
@@ -72,15 +72,25 @@ public:
 
 	// Get the string as if the string is a SDL resource identifier and convert
 	// it to a path.
+	//
 	Path getStringAsPath(
-		const std::string&   name, 
-		const Path&          defaultPath = Path("/"), 
-		const DataTreatment& treatment   = DataTreatment()) const;
+		const std::string&           name, 
+		const Path&                  defaultPath          = Path("/"), 
+		const DataTreatment&         treatment            = DataTreatment()) const;
 
 	template<typename T>
 	std::shared_ptr<T> get(
-		const std::string&   dataName,
-		const DataTreatment& treatment = DataTreatment()) const;
+		const std::string&           dataName,
+		const DataTreatment&         treatment            = DataTreatment()) const;
+
+	bool hasString     (const std::string& name) const;
+	bool hasInteger    (const std::string& name) const;
+	bool hasReal       (const std::string& name) const;
+	bool hasVector3R   (const std::string& name) const;
+	bool hasQuaternionR(const std::string& name) const;
+
+	template<typename T>
+	bool hasResource   (const std::string& name) const;
 
 	template<typename T>
 	std::shared_ptr<T> getCore(const DataTreatment& treatment = DataTreatment()) const;
@@ -120,6 +130,22 @@ template<typename T>
 std::shared_ptr<T> InputPacket::getCore(const DataTreatment& treatment) const
 {
 	return get<T>(getCoreDataName(), treatment);
+}
+
+template<typename T>
+bool InputPacket::hasResource(const std::string& name) const
+{
+	const SdlTypeInfo& typeInfo = T::ciTypeInfo();
+
+	std::string resourceName;
+	if(findStringValue(typeInfo.getCategoryName(), name, DataTreatment(), &resourceName))
+	{
+		return m_storage->getResource<T>(resourceName, DataTreatment()) != nullptr;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 }// end namespace ph
