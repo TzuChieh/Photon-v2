@@ -463,6 +463,9 @@ class Exporter:
 			elif obj.type == "CAMERA":
 				# do nothing since it belongs to core command
 				continue
+			elif obj.type == "ARMATURE":
+				# not visible
+				continue
 			else:
 				print("warning: object (%s) type (%s) is not supported, not exporting" %(obj.name, obj.type))
 

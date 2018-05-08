@@ -125,6 +125,7 @@ def to_sdl_commands(b_obj, sdlconsole):
 
 	else:
 		print("warning: unsupported lamp type %s, ignoring" % b_lamp.type)
+		return
 
 	pos, rot, scale = b_obj.matrix_world.decompose()
 

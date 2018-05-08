@@ -85,7 +85,12 @@ class PhAddMaterialNodesOperator(bpy.types.Operator):
 		node_tree_name = common.mangled_node_tree_name(b_material)
 
 		node_tree = bpy.data.node_groups.new(node_tree_name, type = "PH_MATERIAL_NODE_TREE")
-		#node_tree.use_fake_user = True
+
+		# Since we use node tree name to remember which node tree is used by a material,
+		# the node tree's use count will not be increased, resulting in data not being
+		# stored in .blend file sometimes. Use fake user is sort of hacked.
+		node_tree.use_fake_user = True
+
 		b_material.ph_node_tree_name = node_tree_name
 
 		return {"FINISHED"}
