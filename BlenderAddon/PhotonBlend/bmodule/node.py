@@ -2,11 +2,14 @@ from ..utility import settings
 from . import common
 from ..psdl import imagecmd
 from ..psdl import materialcmd
+from ..psdl import sdlresource
+from .. import utility
 
 import bpy
 import nodeitems_utils
 import mathutils
 
+import shutil
 from abc import abstractmethod
 
 
@@ -84,6 +87,10 @@ class PhMaterialNode(bpy.types.Node):
 	bl_idname = "PH_MATERIAL_NODE"
 	bl_label  = "Photon Node"
 	bl_icon   = "MATERIAL"
+
+	@classmethod
+	def poll(cls, b_node_tree):
+		return b_node_tree.bl_idname == PhMaterialNodeTree.bl_idname
 
 	# Blender: called when node created
 	def init(self, b_context):
@@ -288,7 +295,7 @@ class PhAbradedOpaqueNode(PhMaterialNode):
 	bl_label  = "Abraded Opaque"
 
 	roughness = bpy.props.FloatProperty(
-		name    = "Factor",
+		name    = "Roughness",
 		default = 0.5,
 		min     = 0.0,
 		max     = 1.0
@@ -319,6 +326,49 @@ class PhAbradedOpaqueNode(PhMaterialNode):
 		cmd.set_anisotropicity(False)
 		cmd.set_roughness(self.roughness)
 		cmd.set_f0(mathutils.Color((self.f0[0], self.f0[1], self.f0[2])))
+		sdlconsole.queue_command(cmd)
+
+
+class PhPictureNode(bpy.types.Node):
+	bl_idname = "PH_PICTURE"
+	bl_label  = "Picture"
+
+	file_path = bpy.props.StringProperty(
+		name    = "File",
+		default = "",
+		subtype = "FILE_PATH"
+	)
+
+	def init(self, b_context):
+		self.outputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
+
+	def draw_buttons(self, b_context, b_layout):
+		b_layout.prop(self, "file_path")
+
+	def to_sdl(self, res_name, sdlconsole):
+		image_socket   = self.outputs[0]
+		image_res_name = res_name + "_" + self.name + "_" + image_socket.identifier
+
+		if self.file_path != "":
+			cmd         = imagecmd.LdrPictureImageCreator()
+			image_path  = bpy.path.abspath(self.file_path)
+			image_sdlri = sdlresource.SdlResourceIdentifier()
+			image_sdlri.append_folder(PhPictureNode.bl_idname + "_pictures")
+			image_sdlri.set_file(utility.get_filename(image_path))
+			cmd.set_image_sdlri(image_sdlri)
+
+			# copy the file to scene folder
+			sdlconsole.create_resource_folder(image_sdlri)
+			dst_path = utility.get_appended_path(sdlconsole.get_working_directory(),
+			                                     image_sdlri.get_path())
+			shutil.copyfile(image_path, dst_path)
+
+		else:
+			cmd = imagecmd.ConstantImageCreator()
+			cmd.intent_is_raw()
+			cmd.set_real_value(0)
+
+		cmd.set_data_name(image_res_name)
 		sdlconsole.queue_command(cmd)
 
 
@@ -374,7 +424,8 @@ PH_MATERIAL_NODES = [
 	PhConstantColorInputNode,
 	PhDiffuseSurfaceNode,
 	PhBinaryMixedSurfaceNode,
-	PhAbradedOpaqueNode
+	PhAbradedOpaqueNode,
+	PhPictureNode
 ]
 
 
@@ -383,7 +434,8 @@ PH_MATERIAL_NODE_CATEGORIES = [
 		nodeitems_utils.NodeItem(PhOutputNode.bl_idname)
 	]),
 	PhMaterialNodeCategory("INPUT", "Input", items = [
-		nodeitems_utils.NodeItem(PhConstantColorInputNode.bl_idname)
+		nodeitems_utils.NodeItem(PhConstantColorInputNode.bl_idname),
+		nodeitems_utils.NodeItem(PhPictureNode.bl_idname)
 	]),
 	PhMaterialNodeCategory("SURFACE_MATERIAL", "Surface Material", items = [
 		nodeitems_utils.NodeItem(PhDiffuseSurfaceNode.bl_idname),
