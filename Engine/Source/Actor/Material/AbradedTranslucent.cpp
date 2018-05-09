@@ -1,9 +1,11 @@
 #include "Actor/Material/AbradedTranslucent.h"
 #include "FileIO/SDL/InputPacket.h"
+#include "Core/SurfaceBehavior/Property/DielectricFresnel.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
 #include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
+#include "Common/assertion.h"
 
 #include <memory>
 #include <cmath>
@@ -47,7 +49,8 @@ void AbradedTranslucent::setIor(const real iorOuter, const real iorInner)
 
 void AbradedTranslucent::setRoughness(const real roughness)
 {
-	const real alpha = RoughnessToAlphaMapping::pbrtV3(roughness);
+	//const real alpha = RoughnessToAlphaMapping::pbrtV3(roughness);
+	const real alpha = RoughnessToAlphaMapping::squared(roughness);
 	m_optics.setMicrofacet(std::make_shared<IsoTrowbridgeReitz>(alpha));
 }
 
@@ -57,20 +60,27 @@ AbradedTranslucent::AbradedTranslucent(const InputPacket& packet) :
 	SurfaceMaterial(packet),
 	m_optics()
 {
-	Vector3R albedo(0.5f, 0.5f, 0.5f);
-	Vector3R f0(0.04f, 0.04f, 0.04f);
-	real roughness = 0.5f;
-	real ior       = 1.0f;
+	const Vector3R    albedo      = packet.getVector3r("albedo", Vector3R(0.5_r, 0.5_r, 0.5_r));
+	const real        roughness   = packet.getReal("roughness", 0.5_r);
+	const std::string fresnelType = packet.getString("fresnel-type", "schlick-approx");
+	const real        iorOuter    = packet.getReal("ior-outer", 1.0_r);
+	const real        iorInner    = packet.getReal("ior-inner", 1.5_r);
 
-	albedo    = packet.getVector3r("albedo", albedo);
-	f0        = packet.getVector3r("f0", f0);
-	roughness = packet.getReal("roughness", roughness);
-	ior       = packet.getReal("ior", ior);
+	std::shared_ptr<DielectricFresnel> fresnelEffect;
+	if(fresnelType == "schlick-approx")
+	{
+		fresnelEffect = std::make_shared<SchlickApproxDielectricFresnel>(iorOuter, iorInner);
+	}
+	else if(fresnelType == "exact")
+	{
+		fresnelEffect = std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner);
+	}
+	PH_ASSERT(fresnelEffect != nullptr);
 
 	//material->setAlbedo(albedo);
 	//material->setF0(f0);
 	setRoughness(roughness);
-	setIor(1, ior);
+	m_optics.setFrenelEffect(fresnelEffect);
 }
 
 SdlTypeInfo AbradedTranslucent::ciTypeInfo()

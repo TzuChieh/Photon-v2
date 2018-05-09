@@ -24,10 +24,10 @@ from bpy.types import Operator
 import math
 import shutil
 
-class MaterialExportStatus:
-
-	def __init__(self, emission_image_command = None):
-		self.emission_image_command = emission_image_command
+#class MaterialExportStatus:
+#
+#	def __init__(self, emission_image_command = None):
+#		self.emission_image_command = emission_image_command
 
 
 class Exporter:
@@ -127,18 +127,19 @@ class Exporter:
 		if not b_context.scene.ph_use_cycles_material:
 			use_node_tree = b_material.ph_node_tree_name != ""
 			if use_node_tree:
-				node.to_sdl(material_name, b_material, self.get_sdlconsole())
-				return MaterialExportStatus()
+				return node.to_sdl(material_name, b_material, self.get_sdlconsole())
 			else:
+				# BROKEN CODE
 				command = RawCommand()
 				command.append_string(ui.material.to_sdl(b_material, self.__sdlconsole, material_name))
 				self.__sdlconsole.queue_command(command)
-				return MaterialExportStatus()
+				return node.MaterialNodeTranslateResult()
 		else:
+			# BROKEN CODE
 			translate_result = export.cycles_material.translate(b_material, self.__sdlconsole, material_name)
 			if not translate_result.is_valid():
 				print("warning: cycles material %s translation failed" % material_name)
-			return MaterialExportStatus(translate_result.sdl_emission_image_command)
+			return node.MaterialNodeTranslateResult()
 
 
 	def exportLightSource(self, lightSourceType, lightSourceName, **keywordArgs):
@@ -335,34 +336,34 @@ class Exporter:
 				materialName = naming.mangled_material_name(obj, mesh.name + "_" + material.name, str(matId))
 
 				self.export_geometry(geometryName, mesh, faces)
-				material_export_result = self.exportMaterial(b_context, materialName, material)
+				mat_translate_result = self.exportMaterial(b_context, materialName, material)
 
 				# creating actor (can be either model or light depending on emissivity)
 				pos, rot, scale = obj.matrix_world.decompose()
 
-				if material_export_result.emission_image_command is not None:
+				if mat_translate_result.is_surface_emissive():
 
 					lightSourceName = naming.mangled_light_source_name(obj, mesh.name, str(matId))
 					actorLightName  = naming.mangled_actor_light_name(obj, "", str(matId))
 
 					source_cmd = ModelLightCreator()
 					source_cmd.set_data_name(lightSourceName)
-					source_cmd.set_emitted_radiance_image(material_export_result.emission_image_command.get_data_name())
+					source_cmd.set_emitted_radiance_image(mat_translate_result.surface_emi_res_name)
 					source_cmd.set_geometry(geometryName)
 					source_cmd.set_material(materialName)
 					self.get_sdlconsole().queue_command(source_cmd)
 
 					self.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
 
-				elif material.ph_is_emissive:
-
-					# FIXME: broken code here
-
-					lightSourceName = naming.mangled_light_source_name(obj, mesh.name, str(matId))
-					actorLightName  = naming.mangled_actor_light_name(obj, "", str(matId))
-
-					self.exportLightSource("model", lightSourceName, emittedRadiance = material.ph_emitted_radiance)
-					self.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
+				# elif material.ph_is_emissive:
+				#
+				# 	# FIXME: broken code here
+				#
+				# 	lightSourceName = naming.mangled_light_source_name(obj, mesh.name, str(matId))
+				# 	actorLightName  = naming.mangled_actor_light_name(obj, "", str(matId))
+				#
+				# 	self.exportLightSource("model", lightSourceName, emittedRadiance = material.ph_emitted_radiance)
+				# 	self.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
 
 				else:
 

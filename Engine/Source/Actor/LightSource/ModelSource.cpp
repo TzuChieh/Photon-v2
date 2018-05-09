@@ -144,31 +144,23 @@ void ModelSource::ciRegister(CommandRegister& cmdRegister)
 
 std::unique_ptr<ModelSource> ModelSource::ciLoad(const InputPacket& packet)
 {
-	InputPrototype rgbInput;
-	rgbInput.addVector3r("emitted-radiance");
-
-	InputPrototype pictureFilenameInput;
-	pictureFilenameInput.addString("emitted-radiance");
-
 	std::unique_ptr<ModelSource> source;
-	if(packet.isPrototypeMatched(rgbInput))
+	if(packet.hasReference<Image>("emitted-radiance"))
 	{
-		const auto& emittedRadiance = packet.getVector3r(
-			"emitted-radiance", Vector3R(0), DataTreatment::REQUIRED());
-		source = std::make_unique<ModelSource>(emittedRadiance);
+		source = std::make_unique<ModelSource>(packet.get<Image>("emitted-radiance"));
 	}
-	else if(packet.isPrototypeMatched(pictureFilenameInput))
+	else if(packet.hasString("emitted-radiance"))
 	{
-		const auto& imagePath = packet.getStringAsPath(
-			"emitted-radiance", Path(), DataTreatment::REQUIRED());
-		source = std::make_unique<ModelSource>(imagePath);
+		source = std::make_unique<ModelSource>(packet.getStringAsPath("emitted-radiance"));
 	}
 	else
 	{
-		const auto& image = packet.get<Image>(
-			"emitted-radiance", DataTreatment::REQUIRED());
-		source = std::make_unique<ModelSource>(image);
+		const auto& emittedRadiance = packet.getVector3r("emitted-radiance", 
+			Vector3R(0), DataTreatment::REQUIRED());
+
+		source = std::make_unique<ModelSource>(emittedRadiance);
 	}
+	PH_ASSERT(source != nullptr);
 
 	auto geometry = packet.get<Geometry>("geometry", DataTreatment::REQUIRED());
 	auto material = packet.get<Material>("material", DataTreatment::OPTIONAL());

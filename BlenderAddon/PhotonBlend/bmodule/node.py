@@ -13,6 +13,14 @@ import shutil
 from abc import abstractmethod
 
 
+class MaterialNodeTranslateResult:
+	def __init__(self, surface_emi_res_name = None):
+		self.surface_emi_res_name = surface_emi_res_name
+
+	def is_surface_emissive(self):
+		return self.surface_emi_res_name is not None
+
+
 class PhMaterialNodeTree(bpy.types.NodeTree):
 
 	bl_idname = "PH_MATERIAL_NODE_TREE"
@@ -60,20 +68,28 @@ class PhMaterialNodeSocket(bpy.types.NodeSocketShader):
 	bl_idname = "PH_MATERIAL_NODE_SOCKET"
 	bl_label  = "Photon Socket"
 
+	link_only = bpy.props.BoolProperty(
+		name        = "Link Only",
+		description = "Makes this node for linking only, its contained value(s) is ignored.",
+		default     = False
+	)
+
 	# Blender: draw socket's color
 	def draw_color(self, b_context, node):
 		return [0.0, 0.0, 0.0, 1.0]
 
 	# Blender: draw socket
 	def draw(self, b_context, b_layout, node, text):
-		if self.is_linked or self.is_output:
-			b_layout.label(text)
-		else:
-			row = b_layout.row()
-			if hasattr(node.inputs[text], "default_value"):
-				row.prop(node.inputs[text], "default_value", text)
+		if node.bl_idname != PhOutputNode.bl_idname:
+			if self.is_linked or self.is_output:
+				b_layout.label(text)
 			else:
-				row.label(text)
+				if hasattr(self, "default_value"):
+					b_layout.prop(self, "default_value", text)
+				else:
+					b_layout.label(text)
+		else:
+			b_layout.label(text)
 
 	def get_from_res_name(self, res_name, link_index = 0):
 		if not self.links:
@@ -152,18 +168,24 @@ class PhOutputNode(PhMaterialNode):
 
 	def init(self, b_context):
 		self.inputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
+		self.inputs.new(PhColorSocket.bl_idname, "Surface Emission")
+		self.inputs[1].link_only = True
 
 	def to_sdl(self, res_name, sdlconsole):
-		surface_socket   = self.inputs[0]
-		surface_res_name = surface_socket.get_from_res_name(res_name)
-		if surface_res_name is None:
+		surface_mat_socket   = self.inputs[0]
+		surface_mat_res_name = surface_mat_socket.get_from_res_name(res_name)
+		if surface_mat_res_name is None:
 			print("material <%s>'s output node is not linked, ignored" % res_name)
 			return
 
 		cmd = materialcmd.FullCreator()
 		cmd.set_data_name(res_name)
-		cmd.set_surface_ref(surface_res_name)
+		cmd.set_surface_ref(surface_mat_res_name)
 		sdlconsole.queue_command(cmd)
+
+	def get_surface_emi_res_name(self, res_name):
+		surface_emi_socket = self.inputs[1]
+		return surface_emi_socket.get_from_res_name(res_name)
 
 
 class PhConstantColorInputNode(PhMaterialNode):
@@ -395,7 +417,7 @@ def to_sdl(res_name, b_material, sdlconsole):
 
 	if b_material is None or b_material.ph_node_tree_name == "":
 		print("material <%s> has no node tree, ignoring" % res_name)
-		return
+		return MaterialNodeTranslateResult()
 
 	node_tree   = bpy.data.node_groups[b_material.ph_node_tree_name]
 	output_node = None
@@ -406,10 +428,12 @@ def to_sdl(res_name, b_material, sdlconsole):
 
 	if output_node is None:
 		print("material <%s> has no output node, ignoring" % res_name)
-		return
+		return MaterialNodeTranslateResult()
 
 	processed_nodes = set()
 	to_sdl_recursive(res_name, output_node, processed_nodes, sdlconsole)
+
+	return MaterialNodeTranslateResult(output_node.get_surface_emi_res_name(res_name))
 
 
 PH_MATERIAL_NODE_SOCKETS = [
