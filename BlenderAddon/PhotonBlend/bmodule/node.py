@@ -338,14 +338,15 @@ class PhAbradedOpaqueNode(PhMaterialNode):
 		self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
 
 	def draw_buttons(self, b_context, b_layout):
-		row = b_layout.row()
-		row.prop(self, "roughness")
+		b_layout.prop(self, "roughness")
+		b_layout.prop(self, "f0")
 
 	def to_sdl(self, res_name, sdlconsole):
-		surface_mat_socket = self.outputs[0]
+		surface_mat_socket   = self.outputs[0]
+		surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
 
 		cmd = materialcmd.AbradedOpaqueCreator()
-		cmd.set_data_name(res_name + "_" + self.name + "_" + surface_mat_socket.identifier)
+		cmd.set_data_name(surface_mat_res_name)
 		cmd.set_anisotropicity(False)
 		cmd.set_roughness(self.roughness)
 		cmd.set_f0(mathutils.Color((self.f0[0], self.f0[1], self.f0[2])))
@@ -401,9 +402,9 @@ class PhMultiplyNode(PhMaterialNode):
 
 	factor = bpy.props.FloatProperty(
 		name    = "Factor",
-		default = 0.5,
-		min     = 0.0,
-		max     = 1.0
+		default = 1.0,
+		min     = sys.float_info.min,
+		max     = sys.float_info.max
 	)
 
 	def init(self, b_context):
