@@ -7,6 +7,7 @@
 #include <thread>
 #include <chrono>
 #include <atomic>
+#include <experimental/filesystem>
 
 PH_CLI_NAMESPACE_BEGIN
 
@@ -97,6 +98,10 @@ void StaticImageRenderer::render() const
 void StaticImageRenderer::setSceneFilePath(const std::string& path)
 {
 	m_sceneFilePath = path;
+
+	namespace fs = std::experimental::filesystem;
+	const std::string sceneDirectory = fs::path(path).parent_path().string();
+	phSetWorkingDirectory(m_engineId, sceneDirectory.c_str());
 }
 
 void StaticImageRenderer::setImageFilePath(const std::string& path)
