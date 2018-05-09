@@ -394,6 +394,41 @@ class PhPictureNode(bpy.types.Node):
 		sdlconsole.queue_command(cmd)
 
 
+class PhMultiplyNode(PhMaterialNode):
+	bl_idname = "PH_MULTIPLY"
+	bl_label  = "Multiply"
+
+	factor = bpy.props.FloatProperty(
+		name    = "Factor",
+		default = 0.5,
+		min     = 0.0,
+		max     = 1.0
+	)
+
+	def init(self, b_context):
+		self.inputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
+		self.outputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
+
+	def draw_buttons(self, b_context, b_layout):
+		b_layout.prop(self, "factor")
+
+	def to_sdl(self, res_name, sdlconsole):
+		input_color_socket    = self.inputs[0]
+		output_color_socket   = self.outputs[0]
+		input_color_res_name  = input_color_socket.get_from_res_name(res_name)
+		output_color_res_name = res_name + "_" + self.name + "_" + output_color_socket.identifier
+		if input_color_res_name is None:
+			print("warning: node <%s> has no input linked, ignoring" % self.name)
+			return
+
+		cmd = imagecmd.RealMathImageCreator()
+		cmd.set_data_name(output_color_res_name)
+		cmd.set_operand_image(input_color_res_name)
+		cmd.set_multiply()
+		cmd.set_real_value(self.factor)
+		sdlconsole.queue_command(cmd)
+
+
 class PhMaterialNodeCategory(nodeitems_utils.NodeCategory):
 
 	@classmethod
@@ -449,7 +484,8 @@ PH_MATERIAL_NODES = [
 	PhDiffuseSurfaceNode,
 	PhBinaryMixedSurfaceNode,
 	PhAbradedOpaqueNode,
-	PhPictureNode
+	PhPictureNode,
+	PhMultiplyNode
 ]
 
 
@@ -465,6 +501,9 @@ PH_MATERIAL_NODE_CATEGORIES = [
 		nodeitems_utils.NodeItem(PhDiffuseSurfaceNode.bl_idname),
 		nodeitems_utils.NodeItem(PhBinaryMixedSurfaceNode.bl_idname),
 		nodeitems_utils.NodeItem(PhAbradedOpaqueNode.bl_idname)
+	]),
+	PhMaterialNodeCategory("MATH", "Math", items = [
+		nodeitems_utils.NodeItem(PhMultiplyNode.bl_idname)
 	])
 ]
 
