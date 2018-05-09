@@ -22,8 +22,10 @@ TranslucentMicrofacet::TranslucentMicrofacet() :
 
 TranslucentMicrofacet::~TranslucentMicrofacet() = default;
 
-void TranslucentMicrofacet::evalBsdf(const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-                                     SpectralStrength* const out_bsdf, ESurfacePhenomenon* const out_type) const
+void TranslucentMicrofacet::evalBsdf(
+	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
+	SpectralStrength* const   out_bsdf, 
+	ESurfacePhenomenon* const out_type) const
 {
 	const Vector3R& N = X.getShadingNormal();
 
@@ -33,7 +35,7 @@ void TranslucentMicrofacet::evalBsdf(const SurfaceHit& X, const Vector3R& L, con
 	// reflection
 	if(NoL * NoV >= 0.0_r)
 	{
-		// H is on the hemisphere of N
+		// make H on the same hemisphere with N
 		Vector3R H = L.add(V).normalizeLocal();
 		if(N.dot(H) < 0.0_r)
 		{
@@ -87,8 +89,11 @@ void TranslucentMicrofacet::evalBsdf(const SurfaceHit& X, const Vector3R& L, con
 	}
 }
 
-void TranslucentMicrofacet::genBsdfSample(const SurfaceHit& X, const Vector3R& V,
-                                      Vector3R* const out_L, SpectralStrength* const out_pdfAppliedBsdf, ESurfacePhenomenon* const out_type) const
+void TranslucentMicrofacet::genBsdfSample(
+	const SurfaceHit& X, const Vector3R& V,
+	Vector3R* const           out_L, 
+	SpectralStrength* const   out_pdfAppliedBsdf, 
+	ESurfacePhenomenon* const out_type) const
 {
 	// Cook-Torrance microfacet specular BRDF for translucent surface is:
 	// |HoL||HoV|/(|NoL||NoV|)*(iorO^2)*(D(H)*F(V, H)*G(L, V, H)) / (iorI*HoL + iorO*HoV)^2.
@@ -157,8 +162,9 @@ void TranslucentMicrofacet::genBsdfSample(const SurfaceHit& X, const Vector3R& V
 	out_pdfAppliedBsdf->setValues(F.mul(G * dotTerms));
 }
 
-void TranslucentMicrofacet::calcBsdfSamplePdf(const SurfaceHit& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
-                                              real* const out_pdfW) const
+void TranslucentMicrofacet::calcBsdfSamplePdf(
+	const SurfaceHit& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
+	real* const out_pdfW) const
 {
 	const Vector3R& N = X.getShadingNormal();
 	const real NoL = N.dot(L);
@@ -167,7 +173,7 @@ void TranslucentMicrofacet::calcBsdfSamplePdf(const SurfaceHit& X, const Vector3
 	{
 	case ESurfacePhenomenon::REFLECTION:
 	{
-		// H is on the hemisphere of N
+		// make H on the same hemisphere with N
 		Vector3R H = L.add(V).normalizeLocal();
 		if(NoL < 0.0_r)
 		{
@@ -196,7 +202,7 @@ void TranslucentMicrofacet::calcBsdfSamplePdf(const SurfaceHit& X, const Vector3
 			std::swap(etaI, etaT);
 		}
 
-		// H should be on the same hemisphere as N
+		// make H on the same hemisphere with N
 		Vector3R H = L.mul(-etaI).add(V.mul(-etaT)).normalizeLocal();
 		if(N.dot(H) < 0.0_r)
 		{
@@ -211,12 +217,12 @@ void TranslucentMicrofacet::calcBsdfSamplePdf(const SurfaceHit& X, const Vector3
 
 		SpectralStrength F;
 		m_fresnel->calcReflectance(HoL, &F);
-		const real reflectProb = 1.0_r - F.avg();
+		const real refractProb = 1.0_r - F.avg();
 
 		const real iorTerm = etaI * HoL + etaT * HoV;
-		const real multiplier = (etaI * etaI * HoV) / (iorTerm * iorTerm);
+		const real multiplier = (etaI * etaI * HoL) / (iorTerm * iorTerm);
 
-		*out_pdfW = std::abs(D * NoH * multiplier) * reflectProb;
+		*out_pdfW = std::abs(D * NoH * multiplier) * refractProb;
 		break;
 	}
 
