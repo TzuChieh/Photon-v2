@@ -256,7 +256,7 @@ class AbradedTranslucent(MaterialType):
 		command.set_data_name(res_name)
 		command.set_albedo(albedo)
 		command.set_f0(f0)
-		command.set_ior(b_prop_group.ior)
+		command.set_ior_outer(b_prop_group.ior)
 		command.set_roughness(MicrofacetProperty.get_roughness(b_prop_group))
 
 		return command.to_sdl(sdlconsole)

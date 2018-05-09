@@ -10,6 +10,7 @@ import nodeitems_utils
 import mathutils
 
 import shutil
+import sys
 from abc import abstractmethod
 
 
@@ -429,6 +430,66 @@ class PhMultiplyNode(PhMaterialNode):
 		sdlconsole.queue_command(cmd)
 
 
+class PhAbradedTranslucentNode(PhMaterialNode):
+	bl_idname = "PH_ABRADED_TRANSLUCENT"
+	bl_label  = "Abraded Translucent"
+
+	fresnel_type = bpy.props.EnumProperty(
+		items=[
+			("SCHLICK_APPROX", "Schlick Approx.", ""),
+			("EXACT",          "Exact",           "")
+		],
+		name        = "Fresnel Type",
+		description = "Types of Fresnel effect used.",
+		default     = "EXACT"
+	)
+
+	roughness = bpy.props.FloatProperty(
+		name    = "Roughness",
+		default = 0.5,
+		min     = 0.0,
+		max     = 1.0
+	)
+
+	ior_outer = bpy.props.FloatProperty(
+		name    = "IOR Outer",
+		default = 1.0,
+		min     = 0.0,
+		max     = sys.float_info.max
+	)
+
+	ior_inner = bpy.props.FloatProperty(
+		name    = "IOR Inner",
+		default = 1.5,
+		min     = 0.0,
+		max     = sys.float_info.max
+	)
+
+	def init(self, b_context):
+		self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
+
+	def draw_buttons(self, b_context, b_layout):
+		b_layout.prop(self, "fresnel_type", "")
+		b_layout.prop(self, "roughness")
+		b_layout.prop(self, "ior_outer")
+		b_layout.prop(self, "ior_inner")
+
+	def to_sdl(self, res_name, sdlconsole):
+		surface_mat_socket   = self.outputs[0]
+		surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
+
+		cmd = materialcmd.AbradedTranslucentCreator()
+		cmd.set_data_name(surface_mat_res_name)
+		cmd.set_roughness(self.roughness)
+		cmd.set_ior_outer(self.ior_outer)
+		cmd.set_ior_inner(self.ior_inner)
+		if self.fresnel_type == "SCHLICK_APPROX":
+			cmd.use_schlick_approx()
+		elif self.fresnel_type == "EXACT":
+			cmd.use_exact()
+		sdlconsole.queue_command(cmd)
+
+
 class PhMaterialNodeCategory(nodeitems_utils.NodeCategory):
 
 	@classmethod
@@ -484,6 +545,7 @@ PH_MATERIAL_NODES = [
 	PhDiffuseSurfaceNode,
 	PhBinaryMixedSurfaceNode,
 	PhAbradedOpaqueNode,
+	PhAbradedTranslucentNode,
 	PhPictureNode,
 	PhMultiplyNode
 ]
@@ -500,7 +562,8 @@ PH_MATERIAL_NODE_CATEGORIES = [
 	PhMaterialNodeCategory("SURFACE_MATERIAL", "Surface Material", items = [
 		nodeitems_utils.NodeItem(PhDiffuseSurfaceNode.bl_idname),
 		nodeitems_utils.NodeItem(PhBinaryMixedSurfaceNode.bl_idname),
-		nodeitems_utils.NodeItem(PhAbradedOpaqueNode.bl_idname)
+		nodeitems_utils.NodeItem(PhAbradedOpaqueNode.bl_idname),
+		nodeitems_utils.NodeItem(PhAbradedTranslucentNode.bl_idname)
 	]),
 	PhMaterialNodeCategory("MATH", "Math", items = [
 		nodeitems_utils.NodeItem(PhMultiplyNode.bl_idname)

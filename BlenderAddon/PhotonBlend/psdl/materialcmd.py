@@ -98,8 +98,20 @@ class AbradedTranslucentCreator(AbstractAbradedCreator):
 	def get_type_name(self):
 		return "abraded-translucent"
 
-	def set_ior(self, ior):
-		self.update_clause(FloatClause().set_name("ior").set_data(ior))
+	def set_ior_outer(self, ior):
+		self.update_clause(FloatClause().set_name("ior-outer").set_data(ior))
+
+	def set_ior_inner(self, ior):
+		self.update_clause(FloatClause().set_name("ior-inner").set_data(ior))
+
+	def set_roughness(self, roughness):
+		self.update_clause(FloatClause().set_name("roughness").set_data(roughness))
+
+	def use_schlick_approx(self):
+		self.update_clause(StringClause().set_name("fresnel-type").set_data("schlick-approx"))
+
+	def use_exact(self):
+		self.update_clause(StringClause().set_name("fresnel-type").set_data("exact"))
 
 
 class FullCreator(MaterialCreator):
