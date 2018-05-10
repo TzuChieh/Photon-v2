@@ -78,14 +78,14 @@ void LambertianDiffuse::genBsdfSample(const SurfaceHit& X, const Vector3R& V,
 
 	*out_type = ESurfacePhenomenon::REFLECTION;
 
-	const real NoL = N.dot(L);
-	if(NoL <= 0.0_r)
+	const real absNoL = N.absDot(L);
+	if(absNoL == 0.0_r)
 	{
 		out_pdfAppliedBsdf->setValues(0);
 		return;
 	}
 
-	out_pdfAppliedBsdf->setValues(albedo.mulLocal(1.0_r / N.dot(L)));
+	out_pdfAppliedBsdf->setValues(albedo.mulLocal(1.0_r / absNoL));
 }
 
 void LambertianDiffuse::calcBsdfSamplePdf(
@@ -93,7 +93,7 @@ void LambertianDiffuse::calcBsdfSamplePdf(
 	real* const out_pdfW) const
 {
 	const Vector3R& N = X.getShadingNormal();
-	*out_pdfW = L.dot(N) * PH_RECI_PI_REAL;
+	*out_pdfW = L.absDot(N) * PH_RECI_PI_REAL;
 }
 
 }// end namespace ph

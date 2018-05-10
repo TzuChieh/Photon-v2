@@ -106,6 +106,14 @@ void OpaqueMicrofacet::calcBsdfSamplePdf(const SurfaceHit& X, const Vector3R& L,
 	const Vector3R& N = X.getShadingNormal();
 
 	const real NoL = N.dot(L);
+	const real NoV = N.dot(V);
+
+	// check if L, V lies on different side of the surface
+	if(NoL * NoV <= 0.0_r)
+	{
+		*out_pdfW = 0;
+		return;
+	}
 
 	Vector3R H;
 	if(!BsdfHelper::makeHalfVectorSameHemisphere(L, V, N, &H))
