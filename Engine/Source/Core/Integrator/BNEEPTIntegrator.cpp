@@ -97,7 +97,8 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 
 			// sidedness agreement between real geometry and shading  normal
 			//
-			if(surfaceHit.getGeometryNormal().dot(toLightVec) * surfaceHit.getShadingNormal().dot(toLightVec) > 0.0_r)
+			if(toLightVec.lengthSquared() > RAY_DELTA_DIST * RAY_DELTA_DIST * 3 &&
+			   surfaceHit.getGeometryNormal().dot(toLightVec) * surfaceHit.getShadingNormal().dot(toLightVec) > 0.0_r)
 			{
 				const Ray visRay(surfaceHit.getPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2, ray.getTime());
 				if(!scene.isIntersecting(visRay))

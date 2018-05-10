@@ -7,6 +7,7 @@
 #include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
 #include "Math/Math.h"
 #include "Core/Texture/TConstantTexture.h"
+#include "Core/SurfaceBehavior/BsdfHelper.h"
 
 #include <cmath>
 #include <iostream>
@@ -39,11 +40,11 @@ void OpaqueMicrofacet::evalBsdf(const SurfaceHit& X, const Vector3R& L, const Ve
 		return;
 	}
 
-	// H is on the hemisphere of N
-	Vector3R H = L.add(V).normalizeLocal();
-	if(NoL < 0.0_r)
+	Vector3R H;
+	if(!BsdfHelper::makeHalfVectorSameHemisphere(L, V, N, &H))
 	{
-		H.mulLocal(-1.0_r);
+		out_bsdf->setValues(0);
+		return;
 	}
 
 	const real HoV = H.dot(V);
@@ -106,11 +107,11 @@ void OpaqueMicrofacet::calcBsdfSamplePdf(const SurfaceHit& X, const Vector3R& L,
 
 	const real NoL = N.dot(L);
 
-	// H is on the hemisphere of N
-	Vector3R H = L.add(V).normalizeLocal();
-	if(NoL < 0.0_r)
+	Vector3R H;
+	if(!BsdfHelper::makeHalfVectorSameHemisphere(L, V, N, &H))
 	{
-		H.mulLocal(-1.0_r);
+		*out_pdfW = 0;
+		return;
 	}
 
 	const real NoH = N.dot(H);

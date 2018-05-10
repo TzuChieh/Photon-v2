@@ -13,12 +13,14 @@ PH_CLI_NAMESPACE_BEGIN
 
 StaticImageRenderer::StaticImageRenderer(const CommandLineArguments& args) :
 	m_engineId(0),
-	m_sceneFilePath(args.getSceneFilePath()),
+	m_sceneFilePath(),
 	m_imageFilePath(args.getImageFilePath()),
 	m_numRenderThreads(args.getNumRenderThreads()),
 	m_isPostProcessRequested(args.isPostProcessRequested())
 {
 	phCreateEngine(&m_engineId, static_cast<PHuint32>(m_numRenderThreads));
+
+	setSceneFilePath(args.getSceneFilePath());
 }
 
 StaticImageRenderer::~StaticImageRenderer()

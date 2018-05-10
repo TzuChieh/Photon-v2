@@ -7,6 +7,7 @@
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
 #include "Math/Math.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
+#include "Core/SurfaceBehavior/BsdfHelper.h"
 
 #include <memory>
 #include <iostream>
@@ -35,11 +36,11 @@ void TranslucentMicrofacet::evalBsdf(
 	// reflection
 	if(NoL * NoV >= 0.0_r)
 	{
-		// make H on the same hemisphere with N
-		Vector3R H = L.add(V).normalizeLocal();
-		if(N.dot(H) < 0.0_r)
+		Vector3R H;
+		if(!BsdfHelper::makeHalfVectorSameHemisphere(L, V, N, &H))
 		{
-			H.mulLocal(-1.0_r);
+			out_bsdf->setValues(0);
+			return;
 		}
 
 		const real HoV = H.dot(V);
@@ -66,7 +67,13 @@ void TranslucentMicrofacet::evalBsdf(
 		}
 
 		// H should be on the same hemisphere as N
-		Vector3R H = L.mul(-etaI).add(V.mul(-etaT)).normalizeLocal();
+		Vector3R H = L.mul(-etaI).add(V.mul(-etaT));
+		if(H.isZero())
+		{
+			out_bsdf->setValues(0);
+			return;
+		}
+		H.normalizeLocal();
 		if(N.dot(H) < 0.0_r)
 		{
 			H.mulLocal(-1.0_r);
@@ -173,11 +180,11 @@ void TranslucentMicrofacet::calcBsdfSamplePdf(
 	{
 	case ESurfacePhenomenon::REFLECTION:
 	{
-		// make H on the same hemisphere with N
-		Vector3R H = L.add(V).normalizeLocal();
-		if(NoL < 0.0_r)
+		Vector3R H;
+		if(!BsdfHelper::makeHalfVectorSameHemisphere(L, V, N, &H))
 		{
-			H.mulLocal(-1.0_r);
+			*out_pdfW = 0;
+			return;
 		}
 
 		const real NoH = N.dot(H);
@@ -202,8 +209,14 @@ void TranslucentMicrofacet::calcBsdfSamplePdf(
 			std::swap(etaI, etaT);
 		}
 
-		// make H on the same hemisphere with N
-		Vector3R H = L.mul(-etaI).add(V.mul(-etaT)).normalizeLocal();
+		// H should be on the same hemisphere as N
+		Vector3R H = L.mul(-etaI).add(V.mul(-etaT));
+		if(H.isZero())
+		{
+			*out_pdfW = 0;
+			return;
+		}
+		H.normalizeLocal();
 		if(N.dot(H) < 0.0_r)
 		{
 			H.mulLocal(-1.0_r);
