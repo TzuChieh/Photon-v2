@@ -25,7 +25,7 @@ public:
 
 	static inline real equaled(const real roughness)
 	{
-		return roughness;
+		return roughness + 0.001_r;
 	}
 
 	// According to a course note in SIGGRAPH 2014:
@@ -33,12 +33,14 @@ public:
 	// they concluded that a squared mapping gives slightly better distribution 
 	// of the profiles (blur amount) among all mip levels in the case of pre-
 	// integrating diffuse IBL maps.
+	//
 	static inline real squared(const real roughness)
 	{
-		return roughness * roughness;
+		return roughness * roughness + 0.001_r;
 	}
 
 	// This mapping is used in PBRT-v3.
+	//
 	static inline real pbrtV3(const real roughness)
 	{
 		const real clampedRoughness = std::max(roughness, 0.001_r);
