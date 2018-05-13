@@ -1,8 +1,27 @@
-
 # Main build script for Photon-v2 renderer.
+
+###############################################################################
+# General Settings:
+#
 
 cmake_minimum_required(VERSION 2.8)
 project(Photon-v2)
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin/")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin/")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin/")
+
+# HACK: to eliminate extra "Release" folder on MSVC
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/bin/")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/bin/")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/bin/")
+
+#get_filename_component(PROJECT_DIR "./" ABSOLUTE)
+#set(PROJECT_DIR "${PROJECT_DIR}/")
+
+###############################################################################
+# Build Options
+#
 
 if(WIN32)
     set(BUILD_JNI_DEFAULT ON)
@@ -12,16 +31,24 @@ endif()
 
 option(BUILD_JNI "Build Photon-v2 JNI for GUI." ${BUILD_JNI_DEFAULT})
 
-# Builds third-party libraries required by Photon-v2.
+###############################################################################
+# Compiler Settings
+#
 
 if(MSVC)
 
-	set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /std:c++17 /Zi /MP")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-	set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+    # TODO: more standard ways exist, but requires newer CMake version
+    set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /std:c++17 /Zi /MP")
+
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+    set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
 else()
 
+    # TODO: G++ assumed here. Do not make this assumption.
+
+    # dealing with linker error on precompiled file system lib
+    #
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
 
     # compile with c++17 standard enabled
@@ -39,20 +66,11 @@ else()
 
 endif()
 
-
 # TODO: add g++ MT MD equivalent flags?
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin/")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin/")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin/")
-
-# HACK: to eliminate extra "Release" folder on MSVC
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/bin/")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/bin/")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/bin/")
-
-#get_filename_component(PROJECT_DIR "./" ABSOLUTE)
-#set(PROJECT_DIR "${PROJECT_DIR}/")
+###############################################################################
+# Third-party libraries required by Photon-v2.
+#
 
 set(THIRD_PARTY_DIR "${PROJECT_BINARY_DIR}/ThirdParty/")
 
@@ -88,7 +106,7 @@ ExternalProject_Add(googletest
 set(GOOGLETEST_INCLUDE_DIR "${THIRD_PARTY_DIR}googletest/include/")
 set(GOOGLETEST_BINARY_DIR  "${THIRD_PARTY_DIR}googletest/lib/")
 
-# a header only library
+# A header only library for image I/O.
 #
 ExternalProject_Add(stb
 	GIT_REPOSITORY    "https://github.com/nothings/stb"
@@ -101,6 +119,29 @@ ExternalProject_Add(stb
     LOG_DOWNLOAD      ON
 )
 set(STB_INCLUDE_DIR "${THIRD_PARTY_DIR}stb/src/stb/")
+
+# A header only library for stack trace.
+
+set(BOOST_STACKTRACE_UPDATE_ARGS "--with-libraries=stacktrace")
+if(MSVC)
+    set(BOOST_STACKTRACE_UPDATE_CMD "./bootstrap.bat ${BOOST_STACKTRACE_UPDATE_ARGS}")
+else()
+    set(BOOST_STACKTRACE_UPDATE_CMD "./bootstrap.sh ${BOOST_STACKTRACE_UPDATE_ARGS}")
+endif()
+
+ExternalProject_Add(BoostStacktrace
+    GIT_REPOSITORY    "https://github.com/boostorg/boost.git"
+    GIT_SUBMODULES    "stacktrace"
+    GIT_TAG           boost-1.67.0
+    PREFIX            ${THIRD_PARTY_DIR}BoostStacktrace/
+    UPDATE_COMMAND    ${BOOST_STACKTRACE_UPDATE_CMD}
+    CONFIGURE_COMMAND "./b2 headers"
+    CMAKE_ARGS        ""
+    BUILD_COMMAND     ""
+    INSTALL_COMMAND   ""
+    LOG_DOWNLOAD      ON
+)
+set(BOOST_STACKTRACE_INCLUDE_DIR "${THIRD_PARTY_DIR}BoostStacktrace/src/BoostStacktrace/include/")
 
 add_subdirectory("./Engine/")
 add_subdirectory("./EngineTest/")
