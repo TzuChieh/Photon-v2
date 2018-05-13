@@ -31,7 +31,6 @@ public:
 
 private:
 	static void rationalClamp(SpectralStrength& value);
-	static real misWeight(real pdf1W, real pdf2W);
 
 // command interface
 public:

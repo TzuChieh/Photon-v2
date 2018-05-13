@@ -16,6 +16,7 @@
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Common/assertion.h"
+#include "Core/Integrator/Utility/TMis.h"
 
 #include <iostream>
 
@@ -37,6 +38,7 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 {
 	const Scene&  scene  = *data.scene;
 	const Camera& camera = *data.camera;
+	const auto&   mis    = TMis<EMisStyle::POWER>();
 
 	// common variables
 	//
@@ -116,7 +118,7 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 						surfaceBehavior.getOptics()->calcBsdfSamplePdf(bsdfPdfQuery);
 
 						const real     bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
-						const real     misWeighting   = misWeight(directLightSample.pdfW, bsdfSamplePdfW);
+						const real     misWeighting   = mis.weight(directLightSample.pdfW, bsdfSamplePdfW);
 						const Vector3R N = surfaceHit.getShadingNormal();
 						const Vector3R L = visRay.getDirection();
 
@@ -189,7 +191,7 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 					surfaceHit.getShadingNormal(),
 					emitter, 
 					surfaceHit.getDetail().getPrimitive());
-				const real misWeighting = misWeight(bsdfSamplePdfW, directLightPdfW);
+				const real misWeighting = mis.weight(bsdfSamplePdfW, directLightPdfW);
 
 				SpectralStrength weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 				weight.mulLocal(accuLiWeight).mulLocal(misWeighting);
@@ -243,14 +245,6 @@ void BNEEPTIntegrator::rationalClamp(SpectralStrength& value)
 {
 	// TODO: should negative value be allowed?
 	value.clampLocal(0.0_r, 1000000000.0_r);
-}
-
-// power heuristic with beta = 2
-real BNEEPTIntegrator::misWeight(real pdf1W, real pdf2W)
-{
-	pdf1W *= pdf1W;
-	pdf2W *= pdf2W;
-	return pdf1W / (pdf1W + pdf2W);
 }
 
 // command interface
