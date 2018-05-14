@@ -9,7 +9,6 @@ file(GLOB_RECURSE SOURCE_FILES "./Source/*.cpp")
 add_executable(EngineTest ${SOURCE_FILES})
 
 add_dependencies(EngineTest Engine)
-add_dependencies(EngineTest googletest)
 
 target_include_directories(EngineTest 
 	PRIVATE "./Source/"
@@ -22,8 +21,7 @@ set(GMOCK_LIB_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}gmock${CMAKE_STATIC_LIBRARY_SUF
 set(GTEST_LIB_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}gtest${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 target_link_libraries(EngineTest Engine)
-target_link_libraries(EngineTest ${GOOGLETEST_BINARY_DIR}${GMOCK_LIB_NAME})
-target_link_libraries(EngineTest ${GOOGLETEST_BINARY_DIR}${GTEST_LIB_NAME})
+target_link_libraries(EngineTest ${GOOGLETEST_LIBS})
 
 if(MSVC)
     set_property(TARGET EngineTest 

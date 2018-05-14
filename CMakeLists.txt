@@ -72,76 +72,31 @@ endif()
 # Third-party libraries required by Photon-v2.
 #
 
-set(THIRD_PARTY_DIR "${PROJECT_BINARY_DIR}/ThirdParty/")
-
-include(ExternalProject)
-
-#ExternalProject_Add(assimp
-#	GIT_REPOSITORY  "https://github.com/assimp/assimp"
-#	GIT_TAG         v4.1.0
-#	PREFIX          ${THIRD_PARTY_DIR}assimp/
-#	CMAKE_ARGS      -DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_DIR}assimp/
-#)
+set(THIRD_PARTY_DIR "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty/")
 
 if(MSVC)
-    set(GOOGLETEST_CXX_FLAGS "/D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING")
-    #if(CMAKE_BUILD_TYPE MATCHES DEBUG)
-    #    #set(GOOGLETEST_CXX_FLAGS "${GOOGLETEST_CXX_FLAGS} /MTd")
-    #    set(GOOGLETEST_BUILD_TYPE "${GOOGLETEST_CXX_FLAGS} /MTd")
-    #endif()
+    set(THIRD_PARTY_PLATFORM "windows")
 else()
-    set(GOOGLETEST_CXX_FLAGS "")
+    set(THIRD_PARTY_PLATFORM "linux")
 endif()
 
-ExternalProject_Add(googletest
-    GIT_REPOSITORY  "https://github.com/google/googletest"
-    GIT_TAG         a868e618c0607259c63f37d948b72586a13922ff
-    PREFIX          ${THIRD_PARTY_DIR}googletest/
-
-    CMAKE_ARGS      
-    	"-DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_DIR}googletest/"
-    	"-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS} ${GOOGLETEST_CXX_FLAGS}"
-        "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
-)
 set(GOOGLETEST_INCLUDE_DIR "${THIRD_PARTY_DIR}googletest/include/")
-set(GOOGLETEST_BINARY_DIR  "${THIRD_PARTY_DIR}googletest/lib/")
+set(GOOGLETEST_BINARY_DIR  "${THIRD_PARTY_DIR}googletest/lib/${THIRD_PARTY_PLATFORM}/")
+find_library(GOOGLETEST_LIB_GTEST gtest
+    PATHS ${GOOGLETEST_BINARY_DIR}
+    NO_DEFAULT_PATH
+)
+find_library(GOOGLETEST_LIB_GMOCK gmock
+    PATHS ${GOOGLETEST_BINARY_DIR}
+    NO_DEFAULT_PATH
+)
+set(GOOGLETEST_LIBS "${GOOGLETEST_LIB_GTEST};${GOOGLETEST_LIB_GMOCK}")
 
-# A header only library for image I/O.
+set(STB_INCLUDE_DIR "${THIRD_PARTY_DIR}stb/include/")
+
+###############################################################################
+# Subdirectories:
 #
-ExternalProject_Add(stb
-	GIT_REPOSITORY    "https://github.com/nothings/stb"
-	PREFIX            ${THIRD_PARTY_DIR}stb/
-	UPDATE_COMMAND    ${GIT_EXECUTABLE} pull
-    CONFIGURE_COMMAND ""
-    CMAKE_ARGS        ""
-    BUILD_COMMAND     ""
-    INSTALL_COMMAND   ""
-    LOG_DOWNLOAD      ON
-)
-set(STB_INCLUDE_DIR "${THIRD_PARTY_DIR}stb/src/stb/")
-
-# A header only library for stack trace.
-
-set(BOOST_STACKTRACE_UPDATE_ARGS "--with-libraries=stacktrace")
-if(MSVC)
-    set(BOOST_STACKTRACE_UPDATE_CMD "./bootstrap.bat ${BOOST_STACKTRACE_UPDATE_ARGS}")
-else()
-    set(BOOST_STACKTRACE_UPDATE_CMD "./bootstrap.sh ${BOOST_STACKTRACE_UPDATE_ARGS}")
-endif()
-
-ExternalProject_Add(BoostStacktrace
-    GIT_REPOSITORY    "https://github.com/boostorg/boost.git"
-    GIT_SUBMODULES    "stacktrace"
-    GIT_TAG           boost-1.67.0
-    PREFIX            ${THIRD_PARTY_DIR}BoostStacktrace/
-    UPDATE_COMMAND    ${BOOST_STACKTRACE_UPDATE_CMD}
-    CONFIGURE_COMMAND "./b2 headers"
-    CMAKE_ARGS        ""
-    BUILD_COMMAND     ""
-    INSTALL_COMMAND   ""
-    LOG_DOWNLOAD      ON
-)
-set(BOOST_STACKTRACE_INCLUDE_DIR "${THIRD_PARTY_DIR}BoostStacktrace/src/BoostStacktrace/include/")
 
 add_subdirectory("./Engine/")
 add_subdirectory("./EngineTest/")

@@ -34,14 +34,10 @@ set_property(TARGET EngineObjLib PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 ]]
 
-add_dependencies(Engine stb)
-add_dependencies(Engine BoostStacktrace)
-
 target_include_directories(Engine 
 	PRIVATE ${ENGINE_INCLUDE_DIR}
 	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR}
 	PRIVATE ${STB_INCLUDE_DIR}
-	PRIVATE ${BOOST_STACKTRACE_INCLUDE_DIR}
 )
 
 # other platforms do not link to threading and FS libraries by default
