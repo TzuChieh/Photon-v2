@@ -17,11 +17,9 @@ target_include_directories(EngineTest
 	PRIVATE ${GOOGLETEST_INCLUDE_DIR}
 )
 
-set(GMOCK_LIB_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}gmock${CMAKE_STATIC_LIBRARY_SUFFIX})
-set(GTEST_LIB_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}gtest${CMAKE_STATIC_LIBRARY_SUFFIX})
-
 target_link_libraries(EngineTest Engine)
 target_link_libraries(EngineTest ${GOOGLETEST_LIBS})
+
 
 if(MSVC)
     set_property(TARGET EngineTest 

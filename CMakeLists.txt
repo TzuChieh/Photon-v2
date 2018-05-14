@@ -47,10 +47,6 @@ else()
 
     # TODO: G++ assumed here. Do not make this assumption.
 
-    # dealing with linker error on precompiled file system lib
-    #
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
-
     # compile with c++17 standard enabled
     #
     if(${CMAKE_VERSION} VERSION_LESS "3.8.0")
@@ -90,7 +86,7 @@ find_library(GOOGLETEST_LIB_GMOCK gmock
     PATHS ${GOOGLETEST_BINARY_DIR}
     NO_DEFAULT_PATH
 )
-set(GOOGLETEST_LIBS "${GOOGLETEST_LIB_GTEST};${GOOGLETEST_LIB_GMOCK}")
+set(GOOGLETEST_LIBS "${GOOGLETEST_LIB_GMOCK};${GOOGLETEST_LIB_GTEST}")
 
 set(STB_INCLUDE_DIR "${THIRD_PARTY_DIR}stb/include/")
 
