@@ -11,7 +11,7 @@ class Scene;
 class SurfaceHit;
 class Time;
 
-class PtBuildingBlock final
+class PtDirectLightEstimator final
 {
 public:
 	static bool sampleDirectLighting(

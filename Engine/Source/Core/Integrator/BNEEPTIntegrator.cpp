@@ -17,7 +17,7 @@
 #include "Core/Quantity/SpectralStrength.h"
 #include "Common/assertion.h"
 #include "Core/Integrator/Utility/TMis.h"
-#include "Core/Integrator/Utility/PtBuildingBlock.h"
+#include "Core/Integrator/Utility/PtDirectLightEstimator.h"
 
 #include <iostream>
 
@@ -94,7 +94,7 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 			Vector3R         L;
 			real             directPdfW;
 			SpectralStrength emittedRadiance;
-			if(PtBuildingBlock::sampleDirectLighting(
+			if(PtDirectLightEstimator::sampleDirectLighting(
 			   scene, surfaceHit, ray.getTime(),
 			   &L, &directPdfW, &emittedRadiance))
 			{

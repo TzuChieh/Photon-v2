@@ -1,4 +1,4 @@
-#include "Core/Integrator/Utility/PtBuildingBlock.h"
+#include "Core/Integrator/Utility/PtDirectLightEstimator.h"
 #include "Math/TVector3.h"
 #include "World/Scene.h"
 #include "Core/Sample/DirectLightSample.h"
@@ -18,7 +18,7 @@
 namespace ph
 {
 
-bool PtBuildingBlock::sampleDirectLighting(
+bool PtDirectLightEstimator::sampleDirectLighting(
 	const Scene&            scene,
 	const SurfaceHit&       targetPos,
 	const Time&             time,

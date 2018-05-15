@@ -4,8 +4,6 @@
 
 #ifdef PH_DEBUG
 
-	//#include <boost/stacktrace.hpp>
-
 	#include <iostream>
 	#include <string>
 	#include <cstdlib>
