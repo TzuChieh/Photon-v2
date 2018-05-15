@@ -166,6 +166,10 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 				break;
 			}
 			const SurfaceHit Xe = SurfaceHit(tracingRay, hitProbe);
+			if(Xe.getGeometryNormal().dot(L) * Xe.getShadingNormal().dot(L) <= 0.0_r)
+			{
+				break;
+			}
 
 			metadata        = Xe.getDetail().getPrimitive()->getMetadata();
 			surfaceBehavior = &(metadata->surfaceBehavior);
