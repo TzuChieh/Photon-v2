@@ -94,7 +94,7 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 			Vector3R         L;
 			real             directPdfW;
 			SpectralStrength emittedRadiance;
-			if(PtDirectLightEstimator::sampleDirectLighting(
+			if(PtDirectLightEstimator::sample(
 			   scene, surfaceHit, ray.getTime(),
 			   &L, &directPdfW, &emittedRadiance))
 			{
@@ -165,23 +165,19 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 			{
 				break;
 			}
-			surfaceHit = SurfaceHit(tracingRay, hitProbe);
+			const SurfaceHit Xe = SurfaceHit(tracingRay, hitProbe);
 
-			metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
+			metadata        = Xe.getDetail().getPrimitive()->getMetadata();
 			surfaceBehavior = &(metadata->surfaceBehavior);
 
 			const Emitter* emitter = metadata->surfaceBehavior.getEmitter();
 			if(emitter)
 			{
 				SpectralStrength radianceLe;
-				metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(surfaceHit, &radianceLe);
+				metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(Xe, &radianceLe);
 
-				const real directLightPdfW = scene.calcDirectPdfW(
-					directLitPos,
-					surfaceHit.getPosition(),
-					surfaceHit.getShadingNormal(),
-					emitter, 
-					surfaceHit.getDetail().getPrimitive());
+				const real directLightPdfW = PtDirectLightEstimator::sampleUnoccludedPdfW(
+					scene, surfaceHit, Xe, ray.getTime());
 				const real misWeighting = mis.weight(bsdfSamplePdfW, directLightPdfW);
 
 				SpectralStrength weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
@@ -226,6 +222,8 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 			V = tracingRay.getDirection().mul(-1.0_r);
 
 			PH_ASSERT_MSG(V.isFinite(), V.toString());
+
+			surfaceHit = Xe;
 		}
 	}// end for each bounces
 

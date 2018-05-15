@@ -18,7 +18,7 @@
 namespace ph
 {
 
-bool PtDirectLightEstimator::sampleDirectLighting(
+bool PtDirectLightEstimator::sample(
 	const Scene&            scene,
 	const SurfaceHit&       targetPos,
 	const Time&             time,
@@ -53,6 +53,24 @@ bool PtDirectLightEstimator::sampleDirectLighting(
 	}
 
 	return false;
+}
+
+real PtDirectLightEstimator::sampleUnoccludedPdfW(
+	const Scene&      scene,
+	const SurfaceHit& X,
+	const SurfaceHit& Xe,
+	const Time&       time)
+{
+	const Primitive* const emissivePrimitive = Xe.getDetail().getPrimitive();
+	const Emitter* const   emitter           = emissivePrimitive->getMetadata()->surfaceBehavior.getEmitter();
+	PH_ASSERT(emitter);
+
+	return scene.calcDirectPdfW(
+		X.getPosition(),
+		Xe.getPosition(),
+		Xe.getShadingNormal(),
+		emitter,
+		emissivePrimitive);
 }
 
 }// end namespace ph
