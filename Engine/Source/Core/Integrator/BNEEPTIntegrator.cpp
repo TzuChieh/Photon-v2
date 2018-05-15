@@ -9,7 +9,6 @@
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Math.h"
-#include "Math/Random.h"
 #include "Core/Sample/DirectLightSample.h"
 #include "Core/SurfaceBehavior/BsdfEvaluation.h"
 #include "Core/SurfaceBehavior/BsdfSample.h"
@@ -18,6 +17,7 @@
 #include "Common/assertion.h"
 #include "Core/Integrator/Utility/TMis.h"
 #include "Core/Integrator/Utility/PtDirectLightEstimator.h"
+#include "Core/Integrator/Utility/RussianRoulette.h"
 
 #include <iostream>
 
@@ -95,8 +95,8 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 			real             directPdfW;
 			SpectralStrength emittedRadiance;
 			if(PtDirectLightEstimator::sample(
-			   scene, surfaceHit, ray.getTime(),
-			   &L, &directPdfW, &emittedRadiance))
+				scene, surfaceHit, ray.getTime(),
+				&L, &directPdfW, &emittedRadiance))
 			{
 				const PrimitiveMetadata* metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
 				const SurfaceBehavior&   surfaceBehavior = metadata->surfaceBehavior;
@@ -193,20 +193,11 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 			SpectralStrength currentLiWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 			if(numBounces >= 3)
 			{
-				const real rrSurviveRate = Math::clamp(currentLiWeight.calcLuminance(), 0.0001_r, 1.0_r);
-				const real rrSpin = Random::genUniformReal_i0_e1();
+				SpectralStrength weightedCurrentLiWeight;
+				RussianRoulette::surviveOnLuminance(
+					currentLiWeight, &weightedCurrentLiWeight);
 
-				// russian roulette >> survive
-				if(rrSurviveRate > rrSpin)
-				{
-					const real rrScale = 1.0_r / rrSurviveRate;
-					currentLiWeight.mulLocal(rrScale);
-				}
-				// russian roulette >> dead
-				else
-				{
-					break;
-				}
+				currentLiWeight = weightedCurrentLiWeight;
 			}
 			accuLiWeight.mulLocal(currentLiWeight);
 
