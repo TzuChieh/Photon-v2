@@ -389,14 +389,15 @@ void PTriangle::genPositionSample(PositionSample* const out_sample) const
 {
 	const real A = std::sqrt(Random::genUniformReal_i0_e1());
 	const real B = Random::genUniformReal_i0_e1();
+	const Vector3R abc(1.0_r - A, A * (1.0_r - B), B * A);
 
-	const Vector3R localPos = Vector3R::weightedSum(m_vA, 1.0_r - A, m_vB, A * (1.0_r - B), m_vC, B * A);
+	const Vector3R localPos = Vector3R::weightedSum(m_vA, abc.x, m_vB, abc.y, m_vC, abc.z);
 	Vector3R worldPos;
 	//m_metadata->localToWorld.transformP(localPos, &worldPos);
 	//out_sample->position = worldPos;
 	out_sample->position = localPos;
 
-	const Vector3R abc = calcBarycentricCoord(localPos);
+	//const Vector3R abc = calcBarycentricCoord(localPos);
 	out_sample->uvw = m_uvwA.mul(1.0_r - abc.y - abc.z).addLocal(m_uvwB.mul(abc.y)).addLocal(m_uvwC.mul(abc.z));
 
 	const Vector3R localNormal(m_nA.mul(1.0_r - abc.y - abc.z).addLocal(m_nB.mul(abc.y)).addLocal(m_nC.mul(abc.z)));
@@ -447,7 +448,7 @@ Vector3R PTriangle::calcBarycentricCoord(const Vector3R& position) const
 		return Vector3R(0, 0, 0);
 	}
 
-	const real reciDenom = 1.0_r / (d00 * d11 - d01 * d01);
+	const real reciDenom = 1.0_r / denominator;
 	
 	const real b = (d11 * d20 - d01 * d21) * reciDenom;
 	const real c = (d00 * d21 - d01 * d20) * reciDenom;
