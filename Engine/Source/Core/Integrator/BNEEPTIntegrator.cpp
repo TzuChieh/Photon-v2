@@ -17,6 +17,7 @@
 #include "Core/Quantity/SpectralStrength.h"
 #include "Common/assertion.h"
 #include "Core/Integrator/Utility/TMis.h"
+#include "Core/Integrator/Utility/PtBuildingBlock.h"
 
 #include <iostream>
 
@@ -89,49 +90,39 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 	for(uint32 numBounces = 0; numBounces < MAX_RAY_BOUNCES; numBounces++)
 	{
 		// direct light sample
-		//
-		DirectLightSample directLightSample;
-		directLightSample.setDirectSample(surfaceHit.getPosition());
-		scene.genDirectSample(directLightSample);
-		if(directLightSample.isDirectSampleGood())
 		{
-			const Vector3R& toLightVec = directLightSample.emitPos.sub(directLightSample.targetPos);
-
-			// sidedness agreement between real geometry and shading  normal
-			//
-			if(toLightVec.lengthSquared() > RAY_DELTA_DIST * RAY_DELTA_DIST * 3 &&
-			   surfaceHit.getGeometryNormal().dot(toLightVec) * surfaceHit.getShadingNormal().dot(toLightVec) > 0.0_r)
+			Vector3R         L;
+			real             directPdfW;
+			SpectralStrength emittedRadiance;
+			if(PtBuildingBlock::sampleDirectLighting(
+			   scene, surfaceHit, ray.getTime(),
+			   &L, &directPdfW, &emittedRadiance))
 			{
-				const Ray visRay(surfaceHit.getPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2, ray.getTime());
-				if(!scene.isIntersecting(visRay))
+				const PrimitiveMetadata* metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
+				const SurfaceBehavior&   surfaceBehavior = metadata->surfaceBehavior;
+
+				BsdfEvaluation bsdfEval;
+				bsdfEval.inputs.set(surfaceHit, L, V);
+				surfaceBehavior.getOptics()->evalBsdf(bsdfEval);
+				if(bsdfEval.outputs.isGood())
 				{
-					const PrimitiveMetadata* metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
-					const SurfaceBehavior&   surfaceBehavior = metadata->surfaceBehavior;
+					BsdfPdfQuery bsdfPdfQuery;
+					bsdfPdfQuery.inputs.set(bsdfEval);
+					surfaceBehavior.getOptics()->calcBsdfSamplePdf(bsdfPdfQuery);
 
-					BsdfEvaluation bsdfEval;
-					bsdfEval.inputs.set(surfaceHit, visRay.getDirection(), V);
-					surfaceBehavior.getOptics()->evalBsdf(bsdfEval);
-					if(bsdfEval.outputs.isGood())
-					{
-						BsdfPdfQuery bsdfPdfQuery;
-						bsdfPdfQuery.inputs.set(bsdfEval);
-						surfaceBehavior.getOptics()->calcBsdfSamplePdf(bsdfPdfQuery);
+					const real     bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
+					const real     misWeighting = mis.weight(directPdfW, bsdfSamplePdfW);
+					const Vector3R N = surfaceHit.getShadingNormal();
 
-						const real     bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
-						const real     misWeighting   = mis.weight(directLightSample.pdfW, bsdfSamplePdfW);
-						const Vector3R N = surfaceHit.getShadingNormal();
-						const Vector3R L = visRay.getDirection();
+					SpectralStrength weight;
+					weight = bsdfEval.outputs.bsdf.mul(N.absDot(L));
+					weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directPdfW);
 
-						SpectralStrength weight;
-						weight = bsdfEval.outputs.bsdf.mul(N.absDot(L));
-						weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directLightSample.pdfW);
+					// avoid excessive, negative weight and possible NaNs
+					//
+					rationalClamp(weight);
 
-						// avoid excessive, negative weight and possible NaNs
-						//
-						rationalClamp(weight);
-
-						accuRadiance.addLocal(directLightSample.radianceLe.mul(weight));
-					}
+					accuRadiance.addLocal(emittedRadiance.mul(weight));
 				}
 			}
 		}// end direct light sample
