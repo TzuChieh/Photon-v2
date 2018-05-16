@@ -76,7 +76,7 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 		}
 
 		const PrimitiveMetadata* metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
-		const SurfaceBehavior&   surfaceBehavior = metadata->surfaceBehavior;
+		const SurfaceBehavior&   surfaceBehavior = metadata->getSurface();
 		if(surfaceBehavior.getEmitter())
 		{
 			SpectralStrength radianceLi;
@@ -99,7 +99,7 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 				&L, &directPdfW, &emittedRadiance))
 			{
 				const PrimitiveMetadata* metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
-				const SurfaceBehavior&   surfaceBehavior = metadata->surfaceBehavior;
+				const SurfaceBehavior&   surfaceBehavior = metadata->getSurface();
 
 				BsdfEvaluation bsdfEval;
 				bsdfEval.inputs.set(surfaceHit, L, V);
@@ -131,7 +131,7 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 		//
 		{
 			const PrimitiveMetadata* metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
-			const SurfaceBehavior*   surfaceBehavior = &(metadata->surfaceBehavior);
+			const SurfaceBehavior*   surfaceBehavior = &(metadata->getSurface());
 
 			BsdfSample bsdfSample;
 			bsdfSample.inputs.set(surfaceHit, V);
@@ -172,13 +172,13 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 			}
 
 			metadata        = Xe.getDetail().getPrimitive()->getMetadata();
-			surfaceBehavior = &(metadata->surfaceBehavior);
+			surfaceBehavior = &(metadata->getSurface());
 
-			const Emitter* emitter = metadata->surfaceBehavior.getEmitter();
+			const Emitter* emitter = surfaceBehavior->getEmitter();
 			if(emitter)
 			{
 				SpectralStrength radianceLe;
-				metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(Xe, &radianceLe);
+				emitter->evalEmittedRadiance(Xe, &radianceLe);
 
 				const real directLightPdfW = PtDirectLightEstimator::sampleUnoccludedPdfW(
 					scene, surfaceHit, Xe, ray.getTime());

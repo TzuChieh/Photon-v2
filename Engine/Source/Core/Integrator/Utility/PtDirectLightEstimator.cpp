@@ -62,7 +62,7 @@ real PtDirectLightEstimator::sampleUnoccludedPdfW(
 	const Time&       time)
 {
 	const Primitive* const emissivePrimitive = Xe.getDetail().getPrimitive();
-	const Emitter* const   emitter           = emissivePrimitive->getMetadata()->surfaceBehavior.getEmitter();
+	const Emitter* const   emitter           = emissivePrimitive->getMetadata()->getSurface().getEmitter();
 	PH_ASSERT(emitter);
 
 	return scene.calcDirectPdfW(

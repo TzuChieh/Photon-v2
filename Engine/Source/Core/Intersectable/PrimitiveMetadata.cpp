@@ -11,7 +11,9 @@ namespace ph
 const Logger PrimitiveMetadata::logger(LogSender("Primitive Metadata"));
 
 PrimitiveMetadata::PrimitiveMetadata() :
-	surfaceBehavior(),
+	m_surface(),
+	m_interior(),
+	m_exterior(),
 	m_channels()
 {
 	// Adds a default channel.

@@ -62,7 +62,7 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 		const HitDetail& hitDetail = surfaceHit.getDetail();
 
 		const auto* const metadata = hitDetail.getPrimitive()->getMetadata();
-		const SurfaceBehavior& hitSurfaceBehavior = metadata->surfaceBehavior;
+		const SurfaceBehavior& hitSurfaceBehavior = metadata->getSurface();
 		const Vector3R& V = tracingRay.getDirection().mul(-1.0f);
 
 		///////////////////////////////////////////////////////////////////////////////

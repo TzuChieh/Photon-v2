@@ -4,6 +4,7 @@
 #include "Math/Transform/StaticTransform.h"
 #include "Core/Intersectable/UvwMapper/UvwMapper.h"
 #include "Core/Intersectable/PrimitiveChannel.h"
+#include "Core/VolumeBehavior/VolumeBehavior.h"
 #include "Common/Logger.h"
 
 #include <memory>
@@ -16,8 +17,6 @@ class PrimitiveMetadata final
 {
 public:
 	static constexpr uint32 INVALID_ID = static_cast<uint32>(-1);
-
-	SurfaceBehavior surfaceBehavior;
 
 	PrimitiveMetadata();
 
@@ -52,7 +51,18 @@ public:
 		return channelId < m_channels.size();
 	}
 
+	inline SurfaceBehavior&       getSurface()  { return m_surface;  }
+	inline VolumeBehavior&        getInterior() { return m_interior; }
+	inline VolumeBehavior&        getExterior() { return m_exterior; }
+
+	inline const SurfaceBehavior& getSurface() const  { return m_surface;  }
+	inline const VolumeBehavior&  getInterior() const { return m_interior; }
+	inline const VolumeBehavior&  getExterior() const { return m_exterior; }
+
 private:
+	SurfaceBehavior               m_surface;
+	VolumeBehavior                m_interior;
+	VolumeBehavior                m_exterior;
 	std::vector<PrimitiveChannel> m_channels;
 
 	static const Logger logger;

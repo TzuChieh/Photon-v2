@@ -72,7 +72,7 @@ CookedUnit AModel::cook(CookingContext& context) const
 		builder.addIntersectable(std::move(primitive));
 	}
 
-	m_material->genSurfaceBehavior(context, &(metadata->surfaceBehavior));
+	m_material->genSurfaceBehavior(context, &(metadata->getSurface()));
 
 	builder.addPrimitiveMetadata(std::move(metadata));
 
