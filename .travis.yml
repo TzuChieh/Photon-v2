@@ -1,11 +1,11 @@
-sudo: required
+sudo: false
 
 os:
   - linux
 
 dist: trusty
 
-language: cpp 
+language: cpp
 
 compiler:
   - gcc
@@ -17,12 +17,12 @@ before_install:
 
 install: 
   # C++17
-  - sudo apt-get install -qq g++-6
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90
+  - sudo apt-get install -qq g++-7
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 90
 
 script:
-  - export CC=gcc-6
-  - export CXX=g++-6
+  - export CC=gcc-7
+  - export CXX=g++-7
   - mkdir build
   - cd ./build/
   - git clone https://github.com/TzuChieh/Photon-v2-ThirdParty
