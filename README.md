@@ -3,6 +3,11 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
 
 Visit Project Website: https://tzuchieh.github.io/Photon-v2-site
 
+| Branch        | Build         |
+| ------------- | ------------- |
+| Master        | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=master)](https://travis-ci.org/TzuChieh/Photon-v2) |
+| Develop       | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=develop)](https://travis-ci.org/TzuChieh/Photon-v2) |
+
 ## Features
 * **Rendering**
   * backward path tracing

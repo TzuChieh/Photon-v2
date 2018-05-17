@@ -1,0 +1,26 @@
+os:
+  - linux
+
+dist: trusty
+
+language: cpp
+
+compiler:
+  - gcc
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-7
+      - g++-7
+
+script:
+  - export CC=gcc-7
+  - export CXX=g++-7
+  - mkdir build
+  - cd ./build/
+  - git clone https://github.com/TzuChieh/Photon-v2-ThirdParty
+  - cmake ../ -DCMAKE_BUILD_TYPE=release
+  - make
