@@ -5,7 +5,7 @@ os:
 
 dist: trusty
 
-language: cpp
+language: cpp 
 
 compiler:
   - gcc
@@ -21,6 +21,8 @@ install:
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90
 
 script:
+  - export CC=gcc-6
+  - export CXX=g++-6
   - mkdir build
   - cd ./build/
   - git clone https://github.com/TzuChieh/Photon-v2-ThirdParty
