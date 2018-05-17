@@ -3,6 +3,7 @@ dist: trusty
 language: cpp
 
 matrix:
+  
   include:
 
     - os: linux
@@ -16,7 +17,6 @@ matrix:
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
-    include:
     - os: linux
       compiler: clang
       addons:
