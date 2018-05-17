@@ -1,3 +1,5 @@
+sudo: false
+
 os:
   - linux
 
@@ -10,10 +12,15 @@ compiler:
 
 addons:
   apt:
+
+    # installing installing g++7 alongside clang fixed the
+    # will upgrade the standard library
+
     sources:
+      - llvm-toolchain-trusty-5.0
       - ubuntu-toolchain-r-test
     packages:
-      - gcc-7
+      - clang-5.0
       - g++-7
 
 script:
@@ -23,4 +30,4 @@ script:
   - cd ./build/
   - git clone https://github.com/TzuChieh/Photon-v2-ThirdParty
   - cmake ../ -DCMAKE_BUILD_TYPE=release
-  - make
+  - make -j4
