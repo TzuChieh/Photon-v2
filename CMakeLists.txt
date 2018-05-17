@@ -49,16 +49,11 @@ else()
 
     # compile with c++17 standard enabled
     #
-    if(${CMAKE_VERSION} VERSION_LESS "3.8.0")
+    set(CMAKE_CXX_STANDARD          17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-
-    else()
-
-        set(CMAKE_CXX_STANDARD          17)
-        set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-    endif()
+    # as a fallback when CMake version < 3.8.0 or whatever reasons
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 endif()
 
