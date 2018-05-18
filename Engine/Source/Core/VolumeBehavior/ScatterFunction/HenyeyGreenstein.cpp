@@ -1,4 +1,4 @@
-#include "Core/VolumeBehavior/HenyeyGreenstein.h"
+#include "Core/VolumeBehavior/ScatterFunction/HenyeyGreenstein.h"
 #include "Common/assertion.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Core/SurfaceHit.h"
@@ -16,7 +16,7 @@ HenyeyGreenstein::HenyeyGreenstein(const real g) :
 {}
 
 HenyeyGreenstein::HenyeyGreenstein(const std::shared_ptr<TTexture<real>>& g) :
-	VolumeOptics(),
+	ScatterFunction(),
 	m_g(g)
 {
 	PH_ASSERT(g);
@@ -24,7 +24,7 @@ HenyeyGreenstein::HenyeyGreenstein(const std::shared_ptr<TTexture<real>>& g) :
 
 HenyeyGreenstein::~HenyeyGreenstein() = default;
 
-void HenyeyGreenstein::evalPhaseFunction(
+void HenyeyGreenstein::evalPhaseFunc(
 	const SurfaceHit& X,
 	const Vector3R&   I,
 	const Vector3R&   O,
