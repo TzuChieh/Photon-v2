@@ -43,12 +43,9 @@ matrix:
 before_install:
     - sudo apt-get install build-essential
     - sudo apt-get install libstdc++6
+    
     - sudo apt-get install binutils-2.26
     - export PATH=/usr/lib/binutils-2.26/bin:${PATH}
-
-    - sudo apt-get update        # fetches the list of available updates
-    - sudo apt-get upgrade       # strictly upgrades the current packages
-    - sudo apt-get dist-upgrade  # installs updates (new ones)
 
     - eval "${MATRIX_EVAL}"
 
