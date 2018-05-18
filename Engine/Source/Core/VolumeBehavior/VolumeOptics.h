@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <memory>
 
@@ -12,15 +13,22 @@ class SurfaceHit;
 class ScatterFunction;
 class BlockFunction;
 class EmitFunction;
+class VolumeDistanceSample;
 
 class VolumeOptics
 {
 public:
 	virtual ~VolumeOptics() = 0;
 
-	// TODO: sample
+	void sample(VolumeDistanceSample& sample) const;
 
 private:
+	virtual void sampleDistance(
+		const Vector3R& X, 
+		const Vector3R& V, 
+		real maxDist, 
+		real* out_dist, 
+		SpectralStrength* out_pdfAppliedWeight) const = 0;
 
 	// TODO: categorize into absorption-only volume or other common types
 

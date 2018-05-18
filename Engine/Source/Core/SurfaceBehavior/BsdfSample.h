@@ -35,12 +35,6 @@ public:
 		SpectralStrength   pdfAppliedBsdf;
 		ESurfacePhenomenon phenomenon;
 
-		inline void set(const Vector3R& L, const ESurfacePhenomenon phenomenon)
-		{
-			this->L          = L;
-			this->phenomenon = phenomenon;
-		}
-
 		inline bool isGood() const
 		{
 			return !pdfAppliedBsdf.isZero();

@@ -16,6 +16,7 @@ class BsdfPdfQuery;
 
 class SurfaceOptics
 {
+	// FIXME: sort-of hacked, should clarify the need of this in the future
 	friend class LerpedSurfaceOptics;
 
 public:

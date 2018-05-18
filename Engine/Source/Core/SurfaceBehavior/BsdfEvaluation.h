@@ -32,12 +32,6 @@ public:
 		SpectralStrength   bsdf;
 		ESurfacePhenomenon phenomenon;
 
-		inline void set(const SpectralStrength& bsdf, const ESurfacePhenomenon phenomenon)
-		{
-			this->bsdf       = bsdf;
-			this->phenomenon = phenomenon;
-		}
-
 		inline bool isGood() const
 		{
 			return !bsdf.isZero();

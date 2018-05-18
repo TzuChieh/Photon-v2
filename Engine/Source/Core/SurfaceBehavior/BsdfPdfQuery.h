@@ -37,11 +37,6 @@ public:
 	{
 	public:
 		real sampleDirPdfW;
-
-		inline void set(const real sampleDirPdfW)
-		{
-			this->sampleDirPdfW = sampleDirPdfW;
-		}
 	};
 
 	Input  inputs;
