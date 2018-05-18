@@ -37,4 +37,5 @@ script:
   - cd ./build/
   - git clone https://github.com/TzuChieh/Photon-v2-ThirdParty
   - cmake ../ -DCMAKE_BUILD_TYPE=release
-  - make -j4 -VERBOSE
+  #- make -j4 VERBOSE=1
+  - make -j4
