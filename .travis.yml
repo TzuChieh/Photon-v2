@@ -1,31 +1,23 @@
 dist: xenial
-
+os: linux
 language: cpp
+compiler: gcc
 
-matrix:
-
-  include:
-
-    - os: linux
-      compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ppa:ubuntu-toolchain-r/test
-          packages:
-            - g++-7
-      env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+install:
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - sudo apt update
+  - sudo apt install g++-7 -y
+  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 
+  - sudo update-alternatives --slave /usr/bin/g++ g++ /usr/bin/g++-7 
+  - sudo update-alternatives --config gcc
 
 before_script:
-    - eval "${MATRIX_EVAL}"
-    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 
-    - sudo update-alternatives --slave /usr/bin/g++ g++ /usr/bin/g++-7 
-    - sudo update-alternatives --config gcc
-    
-    - gcc --version
-    - g++ --version
-    - ld -v
+  - export CC=gcc-7
+  - export CXX=g++-7
+  
+  - gcc --version
+  - g++ --version
+  - ld -v
 
 script:
   - mkdir ./build/
