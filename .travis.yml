@@ -42,7 +42,7 @@ script:
   - mkdir ./build/
   - cd ./build/
   - cmake ../ -DCMAKE_BUILD_TYPE=release -DCMAKE_CXX_FLAGS="-std=c++17 -D_GLIBCXX_USE_CXX11_ABI=0" -DCMAKE_INSTALL_PREFIX=""
-  - make -j4 DESTDIR="../../Photon-v2-ThirdParty/googletest/lib/linux/"
+  - make -j4 DESTDIR="../../Photon-v2-ThirdParty/googletest/lib/linux/" install
   - cd ../../
 
   - cmake ../ -DCMAKE_BUILD_TYPE=release
