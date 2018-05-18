@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial
 
 language: cpp
 
@@ -19,10 +19,10 @@ matrix:
 
 before_install:
     - sudo apt-get install build-essential
-    - sudo apt-get install libstdc++6
+    #- sudo apt-get install libstdc++6
     
-    - sudo apt-get install binutils-2.26
-    - export PATH=/usr/lib/binutils-2.26/bin:${PATH}
+    #- sudo apt-get install binutils-2.26
+    #- export PATH=/usr/lib/binutils-2.26/bin:${PATH}
 
     - eval "${MATRIX_EVAL}"
 
@@ -37,13 +37,13 @@ script:
 
   # HACK: currently Travis's build toolchain is too old to handle pre-built binaries
   # build googletest locally and overwrite pre-builts to resolve some nasty issue
-  - git clone https://github.com/google/googletest.git
-  - cd ./googletest/
-  - mkdir ./build/
-  - cd ./build/
-  - cmake ../ -DCMAKE_BUILD_TYPE=release -DCMAKE_CXX_FLAGS="-std=c++17 -D_GLIBCXX_USE_CXX11_ABI=0" -DCMAKE_INSTALL_PREFIX=""
-  - make -j4 DESTDIR="../../Photon-v2-ThirdParty/googletest/lib/linux/" install
-  - cd ../../
+  #- git clone https://github.com/google/googletest.git
+  #- cd ./googletest/
+  #- mkdir ./build/
+  #- cd ./build/
+  #- cmake ../ -DCMAKE_BUILD_TYPE=release -DCMAKE_CXX_FLAGS="-std=c++17 -D_GLIBCXX_USE_CXX11_ABI=0" -DCMAKE_INSTALL_PREFIX=""
+  #- make -j4 DESTDIR="../../Photon-v2-ThirdParty/googletest/lib/linux/" install
+  #- cd ../../
 
   - cmake ../ -DCMAKE_BUILD_TYPE=release
   #- make -j4 VERBOSE=1
