@@ -1,10 +1,6 @@
 
 # Photon-v2 unit tests for engine.
 
-#set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /std:c++17 /Zi /MP /MT")
-#set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-#set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MT")
-
 file(GLOB_RECURSE SOURCE_FILES "./Source/*.cpp")
 add_executable(EngineTest ${SOURCE_FILES})
 
@@ -34,8 +30,3 @@ add_custom_command(TARGET EngineTest
 		"${PROJECT_SOURCE_DIR}/Resource/Test/" 
 		"${PROJECT_BINARY_DIR}/bin/Resource/Test/"
 )
-
-#set_target_properties(EngineTest
-#	PROPERTIES
-#	PDB_NAME EngineTest
-#)
