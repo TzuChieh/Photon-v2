@@ -13,6 +13,17 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
+            - g++-6
+      env:
+        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
             - g++-7
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
@@ -31,6 +42,13 @@ matrix:
 
 before_install:
     - eval "${MATRIX_EVAL}"
+
+    - sudo apt-get install binutils-2.26
+    - export PATH=/usr/lib/binutils-2.26/bin:${PATH}
+
+before_script:
+    - ld -v
+    - g++ -v
 
 script:
   - mkdir build
