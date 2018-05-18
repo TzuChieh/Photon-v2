@@ -13,32 +13,9 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-6
-      env:
-        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-
-    - os: linux
-      compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
             - g++-7
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-
-    - os: linux
-      compiler: clang
-      addons:
-        apt:
-          sources:
-            - llvm-toolchain-trusty-5.0
-            - ubuntu-toolchain-r-test
-          packages:
-            - clang-5.0
-            - g++-7
-      env: MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
 
 before_install:
     - sudo apt-get install build-essential
@@ -54,9 +31,20 @@ before_script:
     - g++ -v
 
 script:
-  - mkdir build
+  - mkdir ./build/
   - cd ./build/
-  - git clone https://github.com/TzuChieh/Photon-v2-ThirdParty
+  - git clone https://github.com/TzuChieh/Photon-v2-ThirdParty.git
+
+  # HACK: currently Travis's build toolchain is too old to handle pre-built binaries
+  # build googletest locally and overwrite pre-builts to resolve some nasty issue
+  - git clone https://github.com/google/googletest.git
+  - cd ./googletest/
+  - mkdir ./build/
+  - cd ./build/
+  - cmake ../ -DCMAKE_BUILD_TYPE=release -DCMAKE_CXX_FLAGS="-std=c++17 -D_GLIBCXX_USE_CXX11_ABI=0" -DCMAKE_INSTALL_PREFIX=""
+  - make -j4 DESTDIR="../../Photon-v2-ThirdParty/googletest/lib/linux/"
+  - cd ../../
+
   - cmake ../ -DCMAKE_BUILD_TYPE=release
   #- make -j4 VERBOSE=1
   - make -j4
