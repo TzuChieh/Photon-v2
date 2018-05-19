@@ -34,10 +34,12 @@ void HenyeyGreenstein::evalPhaseFunc(
 
 	const TSampler<real> sampler(EQuantity::RAW);
 
-	const real g         = sampler.sample(*m_g, X);
-	const real g2        = g * g;
-	const real cosTheta  = I.dot(O);
-	const real base      = 1.0_r + g2 + 2.0_r * g * cosTheta;
+	const real g = sampler.sample(*m_g, X);
+	PH_ASSERT(-1.0_r <= g && g <= 1.0_r);
+
+	const real g2       = g * g;
+	const real cosTheta = I.dot(O);
+	const real base     = 1.0_r + g2 + 2.0_r * g * cosTheta;
 
 	*out_pf = PH_RECI_4_PI_REAL * (1.0_r - g2) / (base * std::sqrt(base));
 }
