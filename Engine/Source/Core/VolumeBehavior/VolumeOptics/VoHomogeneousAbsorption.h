@@ -2,13 +2,15 @@
 
 #include "Core/VolumeBehavior/VolumeOptics.h"
 
+#include <memory>
+
 namespace ph
 {
 
-class VoHomogeneous final : public VolumeOptics
+class VoHomogeneousAbsorption final : public VolumeOptics
 {
 public:
-	virtual ~VoHomogeneous() override;
+	virtual ~VoHomogeneousAbsorption() override;
 
 private:
 	virtual void sampleDistance(
@@ -17,6 +19,8 @@ private:
 		real maxDist,
 		real* out_dist,
 		SpectralStrength* out_pdfAppliedWeight) const override;
+
+	std::shared_ptr<BlockFunction> m_blockFunc;
 };
 
 }// end namespace ph

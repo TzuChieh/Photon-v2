@@ -1,11 +1,11 @@
-#include "Core/VolumeBehavior/VolumeOptics/VoHomogeneous.h"
+#include "Core/VolumeBehavior/VolumeOptics/VoHomogeneousAbsorption.h"
 
 namespace ph
 {
 
-VoHomogeneous::~VoHomogeneous() = default;
+VoHomogeneousAbsorption::~VoHomogeneousAbsorption() = default;
 
-void VoHomogeneous::sampleDistance(
+void VoHomogeneousAbsorption::sampleDistance(
 	const Vector3R& X,
 	const Vector3R& V,
 	const real maxDist,

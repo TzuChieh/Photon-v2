@@ -30,11 +30,9 @@ private:
 		real* out_dist, 
 		SpectralStrength* out_pdfAppliedWeight) const = 0;
 
-	// TODO: categorize into absorption-only volume or other common types
-
-	std::shared_ptr<ScatterFunction> m_scatterFunc;
-	std::shared_ptr<BlockFunction> m_blockFunc;
-	std::shared_ptr<EmitFunction> m_emitFunc;
+	//std::shared_ptr<ScatterFunction> m_scatterFunc;
+	//std::shared_ptr<BlockFunction> m_blockFunc;
+	//std::shared_ptr<EmitFunction> m_emitFunc;
 };
 
 }// end namespace ph

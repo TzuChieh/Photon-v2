@@ -7,7 +7,7 @@ namespace ph
 
 class SurfaceHit;
 
-class BlockFunction final
+class BlockFunction
 {
 public:
 	virtual ~BlockFunction() = 0;
