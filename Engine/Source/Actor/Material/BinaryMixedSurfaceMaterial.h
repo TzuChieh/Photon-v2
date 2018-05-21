@@ -21,7 +21,9 @@ public:
 	};
 
 	BinaryMixedSurfaceMaterial();
-	virtual ~BinaryMixedSurfaceMaterial() override;
+	~BinaryMixedSurfaceMaterial() override;
+
+	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
 
 	void setMode(EMode mode);
 	void setMaterials(
@@ -31,8 +33,6 @@ public:
 	void setFactor(const std::shared_ptr<Image>& factor);
 
 private:
-	virtual std::shared_ptr<SurfaceOptics> genSurfaceOptics(CookingContext& context) const override;
-
 	EMode                            m_mode;
 	std::shared_ptr<SurfaceMaterial> m_material0;
 	std::shared_ptr<SurfaceMaterial> m_material1;

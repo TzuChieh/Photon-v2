@@ -3,6 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Core/Quantity/SpectralStrength.h"
+#include "Core/SurfaceHit.h"
 
 namespace ph
 {
@@ -13,11 +14,11 @@ public:
 	class Input final
 	{
 	public:
-		Vector3R X;
+		SurfaceHit X;
 		Vector3R V;
 		real maxDist;
 
-		inline void set(const Vector3R& X, const Vector3R& V, const real maxDist)
+		inline void set(const SurfaceHit& X, const Vector3R& V, const real maxDist)
 		{
 			this->X = X;
 			this->V = V;

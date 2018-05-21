@@ -22,4 +22,9 @@ void SurfaceBehavior::setEmitter(const Emitter* const emitter)
 	m_emitter = emitter;
 }
 
+std::shared_ptr<SurfaceOptics> SurfaceBehavior::getOpticsResource() const
+{
+	return m_optics;
+}
+
 }// end namespace ph

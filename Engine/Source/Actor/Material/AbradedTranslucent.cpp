@@ -6,6 +6,7 @@
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
 #include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
 #include "Common/assertion.h"
+#include "Core/SurfaceBehavior/SurfaceBehavior.h"
 
 #include <memory>
 #include <cmath>
@@ -21,9 +22,9 @@ AbradedTranslucent::AbradedTranslucent() :
 
 AbradedTranslucent::~AbradedTranslucent() = default;
 
-std::shared_ptr<SurfaceOptics> AbradedTranslucent::genSurfaceOptics(CookingContext& context) const
+void AbradedTranslucent::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
-	return std::make_shared<TranslucentMicrofacet>(m_optics);
+	behavior.setOptics(std::make_shared<TranslucentMicrofacet>(m_optics));
 }
 
 //void AbradedTranslucent::setAlbedo(const Vector3R& albedo)

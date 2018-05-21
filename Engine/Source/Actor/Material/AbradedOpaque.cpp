@@ -9,6 +9,7 @@
 #include "Core/SurfaceBehavior/Property/SchlickApproxConductorDielectricFresnel.h"
 #include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
 #include "Core/SurfaceBehavior/Property/ExactConductorDielectricFresnel.h"
+#include "Core/SurfaceBehavior/SurfaceBehavior.h"
 
 #include <memory>
 #include <algorithm>
@@ -30,11 +31,11 @@ AbradedOpaque::AbradedOpaque() :
 
 AbradedOpaque::~AbradedOpaque() = default;
 
-std::shared_ptr<SurfaceOptics> AbradedOpaque::genSurfaceOptics(CookingContext& context) const
+void AbradedOpaque::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
 	PH_ASSERT(m_opticsGenerator != nullptr);
 
-	return m_opticsGenerator();
+	behavior.setOptics(m_opticsGenerator());
 }
 
 // command interface

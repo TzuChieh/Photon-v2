@@ -7,20 +7,24 @@
 namespace ph
 {
 
-class VoHomogeneousAbsorption final : public VolumeOptics
+class BfConstant;
+
+class VoHomoAbsorption final : public VolumeOptics
 {
 public:
-	virtual ~VoHomogeneousAbsorption() override;
+	VoHomoAbsorption();
+	VoHomoAbsorption(const std::shared_ptr<BfConstant>& blockFunc);
+	virtual ~VoHomoAbsorption() override;
 
 private:
 	virtual void sampleDistance(
-		const Vector3R& X,
+		const SurfaceHit& X,
 		const Vector3R& V,
 		real maxDist,
 		real* out_dist,
 		SpectralStrength* out_pdfAppliedWeight) const override;
 
-	std::shared_ptr<BlockFunction> m_blockFunc;
+	std::shared_ptr<BfConstant> m_blockFunc;
 };
 
 }// end namespace ph

@@ -3,6 +3,7 @@
 #include "Common/assertion.h"
 #include "Actor/Image/ConstantImage.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LerpedSurfaceOptics.h"
+#include "Core/SurfaceBehavior/SurfaceBehavior.h"
 
 #include <iostream>
 
@@ -18,18 +19,28 @@ BinaryMixedSurfaceMaterial::BinaryMixedSurfaceMaterial() :
 
 BinaryMixedSurfaceMaterial::~BinaryMixedSurfaceMaterial() = default;
 
-std::shared_ptr<SurfaceOptics> BinaryMixedSurfaceMaterial::genSurfaceOptics(CookingContext& context) const
+void BinaryMixedSurfaceMaterial::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
-	if(m_material0 == nullptr || m_material1 == nullptr)
+	if(!m_material0 || !m_material1)
 	{
 		// TODO: logger
 		std::cerr << "warning: at BinaryMixedSurfaceMaterial(), " 
 		          << "material is empty" << std::endl;
-		return nullptr;
+		return;
 	}
 
-	auto optics0 = m_material0->genSurfaceOptics(context);
-	auto optics1 = m_material1->genSurfaceOptics(context);
+	SurfaceBehavior behavior0, behavior1;
+	m_material0->genSurface(context, behavior0);
+	m_material1->genSurface(context, behavior1);
+	auto optics0 = behavior0.getOpticsResource();
+	auto optics1 = behavior1.getOpticsResource();
+	if(!optics0 || !optics1)
+	{
+		// TODO: logger
+		std::cerr << "warning: at BinaryMixedSurfaceMaterial(), "
+		          << "optics is empty" << std::endl;
+		return;
+	}
 
 	switch(m_mode)
 	{
@@ -37,17 +48,19 @@ std::shared_ptr<SurfaceOptics> BinaryMixedSurfaceMaterial::genSurfaceOptics(Cook
 		if(m_factor != nullptr)
 		{
 			auto factor = m_factor->genTextureSpectral(context);
-			return std::make_shared<LerpedSurfaceOptics>(optics0, optics1, factor);
+			behavior.setOptics(std::make_shared<LerpedSurfaceOptics>(optics0, optics1, factor));
 		}
 		else
 		{
-			return std::make_shared<LerpedSurfaceOptics>(optics0, optics1);
+			behavior.setOptics(std::make_shared<LerpedSurfaceOptics>(optics0, optics1));
 		}
+		break;
+
 	default:
 		// TODO: logger
 		std::cerr << "warning: at BinaryMixedSurfaceMaterial(), " 
 		          << "unsupported material mixing mode" << std::endl;
-		return nullptr;
+		break;
 	}
 }
 

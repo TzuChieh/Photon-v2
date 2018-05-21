@@ -17,11 +17,11 @@ class AbradedOpaque : public SurfaceMaterial, public TCommandInterface<AbradedOp
 {
 public:
 	AbradedOpaque();
-	virtual ~AbradedOpaque() override;
+	~AbradedOpaque() override;
+
+	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
 
 private:
-	virtual std::shared_ptr<SurfaceOptics> genSurfaceOptics(CookingContext& context) const override;
-
 	std::function<std::unique_ptr<SurfaceOptics>()> m_opticsGenerator;
 
 // command interface

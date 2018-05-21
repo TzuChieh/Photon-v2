@@ -21,7 +21,7 @@ public:
 	FullMaterial(const std::shared_ptr<SurfaceMaterial>& surfaceMaterial);
 	virtual ~FullMaterial() override;
 
-	virtual void genSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const override;
+	void genBehaviors(CookingContext& context, PrimitiveMetadata& metadata) const override;
 
 private:
 	std::shared_ptr<SurfaceMaterial> m_surfaceMaterial;

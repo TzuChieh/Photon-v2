@@ -3,6 +3,7 @@
 #include "Common/assertion.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Actor/Material/SurfaceMaterial.h"
+#include "Core/Intersectable/PrimitiveMetadata.h"
 
 #include <iostream>
 
@@ -20,20 +21,18 @@ FullMaterial::FullMaterial(const std::shared_ptr<SurfaceMaterial>& surfaceMateri
 
 FullMaterial::~FullMaterial() = default;
 
-void FullMaterial::genSurfaceBehavior(
-	CookingContext&        context, 
-	SurfaceBehavior* const out_surfaceBehavior) const
+void FullMaterial::genBehaviors(
+	CookingContext&    context, 
+	PrimitiveMetadata& metadata) const
 {
-	PH_ASSERT(out_surfaceBehavior != nullptr);
-
-	if(m_surfaceMaterial == nullptr)
+	if(!m_surfaceMaterial)
 	{
+		// TODO: logger
 		std::cerr << "surface material is null" << std::endl;
 		return;
 	}
 
-	auto surfaceOptics = m_surfaceMaterial->genSurfaceOptics(context);
-	out_surfaceBehavior->setOptics(surfaceOptics);
+	m_surfaceMaterial->genSurface(context, metadata.getSurface());
 }
 
 // command interface

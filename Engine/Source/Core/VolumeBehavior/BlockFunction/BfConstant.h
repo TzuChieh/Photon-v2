@@ -2,6 +2,11 @@
 
 #include "Core/VolumeBehavior/BlockFunction.h"
 #include "Core/SurfaceHit.h"
+#include "Core/Quantity/SpectralStrength.h"
+#include "Common/assertion.h"
+
+#include <cmath>
+#include <string>
 
 namespace ph
 {
@@ -9,14 +14,41 @@ namespace ph
 class BfConstant final : public BlockFunction
 {
 public:
+	inline BfConstant() :
+		BfConstant(SpectralStrength(0.0_r))
+	{}
+
+	inline BfConstant(const SpectralStrength& coeff) :
+		BlockFunction(),
+		m_absorptionCoeff(coeff)
+	{}
+
 	virtual inline ~BfConstant() override = default;
 
 	virtual inline void evalAbsorptionCoeff(
-		const SurfaceHit& X, 
-		real* const       out_coeff) const override
+		const SurfaceHit&       /* X */, 
+		SpectralStrength* const out_coeff) const override
 	{
-		// TODO
+		PH_ASSERT(out_coeff);
+
+		*out_coeff = m_absorptionCoeff;
 	}
+
+	inline SpectralStrength calcTransmittance(const real dist) const
+	{
+		PH_ASSERT_MSG(dist >= 0.0_r, 
+			"dist = " + std::to_string(dist));
+
+		SpectralStrength transmittance;
+		for(std::size_t i = 0; i < SpectralStrength::NUM_VALUES; ++i)
+		{
+			transmittance[i] = std::exp(-m_absorptionCoeff[i] * dist);
+		}
+		return transmittance;
+	}
+
+private:
+	SpectralStrength m_absorptionCoeff;
 };
 
 }// end namespace ph

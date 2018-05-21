@@ -6,12 +6,10 @@ namespace ph
 enum class EQuantity
 {
 	// Raw data such as position, normal, density information.
-	//
 	RAW,
 
 	// EMR stands for Electromagnetic Radiation; the quantity typical light 
 	// sources emitted.
-	// 
 	EMR,
 
 	// ECF stands for Energy Conservative Fraction; surface albedo, 

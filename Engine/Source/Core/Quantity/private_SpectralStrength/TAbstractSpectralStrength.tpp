@@ -80,22 +80,28 @@ inline real TAbstractSpectralStrength<DerivedType, N>::calcLuminance(const EQuan
 }
 
 template<typename DerivedType, std::size_t N>
-inline void TAbstractSpectralStrength<DerivedType, N>::setSrgb(const Vector3R& srgb, const EQuantity valueType)
+inline DerivedType& TAbstractSpectralStrength<DerivedType, N>::setSrgb(const Vector3R& srgb, const EQuantity valueType)
 {
 	setLinearSrgb(ColorSpace::sRGB_to_linear_sRGB(srgb), valueType);
+
+	return static_cast<DerivedType&>(*this);
 }
 
 template<typename DerivedType, std::size_t N>
-inline void TAbstractSpectralStrength<DerivedType, N>::setLinearSrgb(const Vector3R& linearSrgb, const EQuantity valueType)
+inline DerivedType& TAbstractSpectralStrength<DerivedType, N>::setLinearSrgb(const Vector3R& linearSrgb, const EQuantity valueType)
 {
 	static_cast<DerivedType&>(*this).impl_setLinearSrgb(linearSrgb, valueType);
+
+	return static_cast<DerivedType&>(*this);
 }
 
 template<typename DerivedType, std::size_t N>
-inline void TAbstractSpectralStrength<DerivedType, N>::setSampled(
+inline DerivedType& TAbstractSpectralStrength<DerivedType, N>::setSampled(
 	const SampledSpectralStrength& sampled, const EQuantity valueType)
 {
 	static_cast<DerivedType&>(*this).impl_setSampled(sampled, valueType);
+
+	return static_cast<DerivedType&>(*this);
 }
 
 template<typename DerivedType, std::size_t N>

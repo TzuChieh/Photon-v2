@@ -8,6 +8,7 @@
 #include "Math/TVector3.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealAbsorber.h"
 #include "Common/assertion.h"
+#include "Core/SurfaceBehavior/SurfaceBehavior.h"
 
 #include <string>
 #include <iostream>
@@ -24,18 +25,11 @@ IdealSubstance::IdealSubstance() :
 
 IdealSubstance::~IdealSubstance() = default;
 
-void IdealSubstance::genSurfaceBehavior(CookingContext& context, SurfaceBehavior* const out_surfaceBehavior) const
+void IdealSubstance::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
 	PH_ASSERT(m_opticsGenerator);
 
-	out_surfaceBehavior->setOptics(m_opticsGenerator());
-}
-
-std::shared_ptr<SurfaceOptics> IdealSubstance::genSurfaceOptics(CookingContext& context) const
-{
-	PH_ASSERT(m_opticsGenerator != nullptr);
-
-	return m_opticsGenerator();
+	behavior.setOptics(m_opticsGenerator());
 }
 
 void IdealSubstance::asDielectricReflector(const real iorInner, const real iorOuter)

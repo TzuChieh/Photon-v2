@@ -8,6 +8,7 @@
 #include "Math/TVector3.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
 #include "Common/assertion.h"
+#include "Core/SurfaceBehavior/SurfaceBehavior.h"
 
 namespace ph
 {
@@ -25,11 +26,11 @@ MatteOpaque::MatteOpaque(const Vector3R& linearSrgbAlbedo) :
 
 MatteOpaque::~MatteOpaque() = default;
 
-std::shared_ptr<SurfaceOptics> MatteOpaque::genSurfaceOptics(CookingContext& context) const
+void MatteOpaque::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
 	auto surfaceOptics = std::make_shared<LambertianDiffuse>();
 	surfaceOptics->setAlbedo(m_albedo->genTextureSpectral(context));
-	return surfaceOptics;
+	behavior.setOptics(surfaceOptics);
 }
 
 void MatteOpaque::setAlbedo(const Vector3R& albedo)

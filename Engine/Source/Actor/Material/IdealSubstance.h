@@ -15,9 +15,9 @@ class IdealSubstance : public SurfaceMaterial, public TCommandInterface<IdealSub
 {
 public:
 	IdealSubstance();
-	virtual ~IdealSubstance() override;
+	~IdealSubstance() override;
 
-	virtual void genSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const override;
+	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
 
 	void asDielectricReflector(real iorInner, real iorOuter);
 
@@ -26,9 +26,6 @@ public:
 
 	void asTransmitter(real iorInner, real iorOuter);
 	void asAbsorber();
-
-private:
-	virtual std::shared_ptr<SurfaceOptics> genSurfaceOptics(CookingContext& context) const override;
 
 	std::function<std::unique_ptr<SurfaceOptics>()> m_opticsGenerator;
 

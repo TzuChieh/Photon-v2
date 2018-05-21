@@ -13,15 +13,15 @@ class AbradedTranslucent : public SurfaceMaterial, public TCommandInterface<Abra
 {
 public:
 	AbradedTranslucent();
-	virtual ~AbradedTranslucent() override;
+	~AbradedTranslucent() override;
+
+	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
 
 	//void setAlbedo(const Vector3R& albedo);
 	void setIor(const real iorOuter, const real iorInner);
 	void setRoughness(const real roughness);
 
 private:
-	virtual std::shared_ptr<SurfaceOptics> genSurfaceOptics(CookingContext& context) const override;
-
 	TranslucentMicrofacet m_optics;
 
 // command interface

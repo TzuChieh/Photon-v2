@@ -8,6 +8,7 @@ namespace ph
 {
 
 class SurfaceOptics;
+class SurfaceBehavior;
 
 class SurfaceMaterial : public Material, public TCommandInterface<SurfaceMaterial>
 {
@@ -15,8 +16,9 @@ public:
 	SurfaceMaterial();
 	virtual ~SurfaceMaterial() override;
 
-	virtual std::shared_ptr<SurfaceOptics> genSurfaceOptics(CookingContext& context) const = 0;
-	virtual void genSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const override;
+	virtual void genSurface(CookingContext& context, SurfaceBehavior& behavior) const = 0;
+
+	void genBehaviors(CookingContext& context, PrimitiveMetadata& metadata) const override;
 
 // command interface
 public:

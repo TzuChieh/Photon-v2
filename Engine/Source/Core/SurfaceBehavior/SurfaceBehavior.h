@@ -17,6 +17,7 @@ public:
 
 	void setOptics(const std::shared_ptr<SurfaceOptics>& optics);
 	void setEmitter(const Emitter* emitter);
+	std::shared_ptr<SurfaceOptics> getOpticsResource() const;
 
 	inline const SurfaceOptics* getOptics() const
 	{

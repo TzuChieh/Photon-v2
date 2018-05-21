@@ -24,7 +24,7 @@ public:
 
 private:
 	virtual void sampleDistance(
-		const Vector3R& X, 
+		const SurfaceHit& X, 
 		const Vector3R& V, 
 		real maxDist, 
 		real* out_dist, 

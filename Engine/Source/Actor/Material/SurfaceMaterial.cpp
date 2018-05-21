@@ -1,6 +1,7 @@
 #include "Actor/Material/SurfaceMaterial.h"
 #include "Common/assertion.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
+#include "Core/Intersectable/PrimitiveMetadata.h"
 
 namespace ph
 {
@@ -9,17 +10,11 @@ SurfaceMaterial::SurfaceMaterial() = default;
 
 SurfaceMaterial::~SurfaceMaterial() = default;
 
-void SurfaceMaterial::genSurfaceBehavior(
-	CookingContext&        context, 
-	SurfaceBehavior* const out_surfaceBehavior) const
+void SurfaceMaterial::genBehaviors(
+	CookingContext&    context, 
+	PrimitiveMetadata& metadata) const
 {
-	PH_ASSERT(out_surfaceBehavior != nullptr);
-
-	auto surfaceOptics = genSurfaceOptics(context);
-
-	// TODO: log on null
-
-	out_surfaceBehavior->setOptics(surfaceOptics);
+	genSurface(context, metadata.getSurface());
 }
 
 // command interface
