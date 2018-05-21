@@ -7,10 +7,10 @@
 namespace ph
 {
 
-class SurfaceBehavior;
 class InputPacket;
 class CookingContext;
 class SurfaceMaterial;
+class VolumeMaterial;
 
 // TODO: volume material
 
@@ -25,6 +25,8 @@ public:
 
 private:
 	std::shared_ptr<SurfaceMaterial> m_surfaceMaterial;
+	std::shared_ptr<VolumeMaterial>  m_interiorMaterial;
+	std::shared_ptr<VolumeMaterial>  m_exteriorMaterial;
 
 // command interface
 public:

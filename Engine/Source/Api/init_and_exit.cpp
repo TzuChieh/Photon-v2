@@ -17,6 +17,7 @@
 #include "Actor/Material/IdealSubstance.h"
 #include "Actor/Material/BinaryMixedSurfaceMaterial.h"
 #include "Actor/Material/FullMaterial.h"
+#include "Actor/Material/Volume/VAbsorptionOnly.h"
 
 // light sources
 #include "Actor/LightSource/LightSource.h"
@@ -104,6 +105,7 @@ bool init_command_parser()
 	register_command_interface<IdealSubstance>();
 	register_command_interface<BinaryMixedSurfaceMaterial>();
 	register_command_interface<FullMaterial>();
+	register_command_interface<VAbsorptionOnly>();
 
 	// light sources
 	register_command_interface<LightSource>();

@@ -11,12 +11,22 @@ class VolumeBehavior;
 class VolumeMaterial : public Material
 {
 public:
+	enum class ESidedness
+	{
+		INTERIOR,
+		EXTERIOR
+	};
+
 	VolumeMaterial();
 	~VolumeMaterial() override;
 
 	virtual void genVolume(CookingContext& context, VolumeBehavior& behavior) const = 0;
 
 	void genBehaviors(CookingContext& context, PrimitiveMetadata& metadata) const override;
+	void setSidedness(ESidedness sidedness);
+
+private:
+	ESidedness m_sidedness;
 
 // command interface
 public:
