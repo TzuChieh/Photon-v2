@@ -54,7 +54,7 @@ public:
 
 		PH_ASSERT(probe.getCurrentHit() == &m_intersectable);
 		m_intersectable.calcIntersectionDetail(ray, probe, out_detail);
-		out_detail->setMisc(this, out_detail->getUvw());
+		out_detail->setMisc(this, out_detail->getUvw(), out_detail->getRayT());
 	}
 
 	virtual inline bool isIntersectingVolumeConservative(const AABB3D& aabb) const override

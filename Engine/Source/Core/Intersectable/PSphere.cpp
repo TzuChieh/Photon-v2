@@ -127,8 +127,7 @@ void PSphere::calcIntersectionDetail(
 	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(
 		hitPosition, 
 		hitNormal,
-		hitNormal,
-		probe.getHitRayT());
+		hitNormal);
 
 	// compute partial derivatives using 2nd-order approximation
 
@@ -174,7 +173,7 @@ void PSphere::calcIntersectionDetail(
 		dPdU, dPdV, dNdU, dNdV);
 
 	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
-	out_detail->setMisc(this, hitUvw);
+	out_detail->setMisc(this, hitUvw, probe.getHitRayT());
 
 	PH_ASSERT_MSG(dPdU.isFinite() && dPdV.isFinite() &&
 	              dNdU.isFinite() && dNdV.isFinite(), "\n"

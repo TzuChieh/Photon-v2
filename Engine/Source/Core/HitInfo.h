@@ -21,7 +21,6 @@ public:
 	inline const Vector3R& getPosition() const       { return m_position;            }
 	inline const Vector3R& getShadingNormal() const  { return m_shadingBasis.yAxis;  }
 	inline const Vector3R& getGeometryNormal() const { return m_geometryBasis.yAxis; }
-	inline real            getRayT() const           { return m_rayT;                }
 	inline const Vector3R& getdPdU() const           { return m_dPdU;                }
 	inline const Vector3R& getdPdV() const           { return m_dPdV;                }
 	inline const Vector3R& getdNdU() const           { return m_dNdU;                }
@@ -32,13 +31,11 @@ public:
 	inline void setAttributes(
 		const Vector3R& position,
 		const Vector3R& geometryNormal,
-		const Vector3R& shadingNormal,
-		const real      rayT)
+		const Vector3R& shadingNormal)
 	{
 		m_position            = position;
 		m_geometryBasis.yAxis = geometryNormal;
 		m_shadingBasis.yAxis  = shadingNormal;
-		m_rayT                = rayT;
 	}
 
 	inline void setDerivatives(
@@ -84,7 +81,6 @@ public:
 
 private:
 	Vector3R m_position;
-	real     m_rayT;
 
 	Vector3R m_dPdU;
 	Vector3R m_dPdV;

@@ -11,9 +11,7 @@ TEST(PixelBasedTextureTest, NearestFilteredTexture)
 
 	auto uv = [](const real u, const real v)
 	{
-		HitDetail detail;
-		detail.setMisc(nullptr, Vector3R(u, v, 0));
-		return SampleLocation(detail);
+		return SampleLocation(Vector3R(u, v, 0), EQuantity::RAW);
 	};
 
 	// trial 1
@@ -90,9 +88,7 @@ TEST(PixelBasedTextureTest, BilinearFilteredTexture)
 
 	auto uv = [](const real u, const real v)
 	{
-		HitDetail detail;
-		detail.setMisc(nullptr, Vector3R(u, v, 0));
-		return SampleLocation(detail);
+		return SampleLocation(Vector3R(u, v, 0), EQuantity::RAW);
 	};
 
 	typedef TFrame<float, 1> Frame;

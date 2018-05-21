@@ -63,10 +63,13 @@ public:
 		return getHitInfo(coordSys).getShadingBasis();
 	}
 
-	// TODO: document this; this should not depend on coordinate system
-	inline real getRayT(const ECoordSys coordSys = ECoordSys::WORLD) const
+	// Gets the parametric distance from the incident ray's origin. Notice that
+	// parametric distance is not ordinary distance but defined in terms of a 
+	// ray direction vector's length.
+	//
+	inline real getRayT() const
 	{
-		return getHitInfo(coordSys).getRayT();
+		return m_rayT;
 	}
 
 	inline const Primitive* getPrimitive() const { return m_primitive; }
@@ -84,10 +87,12 @@ public:
 
 	inline HitDetail& setMisc(
 		const Primitive* const primitive,
-		const Vector3R&        uvw)
+		const Vector3R&        uvw,
+		const real             rayT)
 	{
 		m_primitive = primitive;
 		m_uvw       = uvw;
+		m_rayT      = rayT;
 
 		return *this;
 	}
@@ -103,6 +108,7 @@ public:
 private:
 	const Primitive* m_primitive;
 	Vector3R         m_uvw;
+	real             m_rayT;
 	HitInfo          m_hitInfos[static_cast<int>(ECoordSys::NUM_ELEMENTS)];
 };
 

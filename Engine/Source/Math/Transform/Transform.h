@@ -42,7 +42,7 @@ public:
 	                Vector3R* out_point) const;
 
 	// Notice that transforming a ray neither will change its parametric 
-	// length (t) nor renormalizing its direction vector even if the transform 
+	// distance (t) nor renormalizing its direction vector even if the transform 
 	// contains scale factor; because if users respect the ray segment's 
 	// definition:
 	// 

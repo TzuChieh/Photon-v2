@@ -4,6 +4,8 @@
 #include "Math/TVector3.h"
 #include "Core/Quantity/EQuantity.h"
 
+#include <limits>
+
 namespace ph
 {
 
@@ -21,7 +23,7 @@ public:
 	// Constructs a sample location at (u, v, w).
 	//
 	inline explicit SampleLocation(const Vector3R& uvw, const EQuantity quantity) :
-		SampleLocation(HitDetail().setMisc(nullptr, uvw), quantity)
+		SampleLocation(HitDetail().setMisc(nullptr, uvw, std::numeric_limits<real>::max()), quantity)
 	{}
 
 	// Constructs a sample location from hit information.
@@ -51,7 +53,7 @@ public:
 	inline SampleLocation getUvwScaled(const Vector3R& scale) const
 	{
 		HitDetail newDetail = m_hit;
-		newDetail.setMisc(m_hit.getPrimitive(), m_hit.getUvw().mul(scale));
+		newDetail.setMisc(m_hit.getPrimitive(), m_hit.getUvw().mul(scale), m_hit.getRayT());
 		return SampleLocation(newDetail, m_quantity);
 	}
 
@@ -63,6 +65,8 @@ public:
 	}
 
 private:
+	// TODO: seems we don't need all data in HitDetail for texture sampling;
+	// perhaps just store required data here
 	const HitDetail m_hit;
 	const EQuantity m_quantity;
 };

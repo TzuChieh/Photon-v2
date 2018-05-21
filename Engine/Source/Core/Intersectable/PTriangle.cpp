@@ -201,8 +201,7 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(
 		hitPosition, 
 		m_faceNormal, 
-		hitShadingNormal, 
-		probe.getHitRayT());
+		hitShadingNormal);
 
 	Vector3R dPdU(0.0_r), dPdV(0.0_r);
 	Vector3R dNdU(0.0_r), dNdV(0.0_r);
@@ -226,7 +225,7 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 		dPdU, dPdV, dNdU, dNdV);
 
 	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
-	out_detail->setMisc(this, hitUVW);
+	out_detail->setMisc(this, hitUVW, probe.getHitRayT());
 
 	PH_ASSERT_MSG(dPdU.isFinite() && dPdV.isFinite() &&
 	              dNdU.isFinite() && dNdV.isFinite(), "\n"
