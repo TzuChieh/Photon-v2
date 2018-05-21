@@ -17,6 +17,7 @@
 #include "FileIO/SDL/InputPacket.h"
 #include "Core/SurfaceBehavior/BsdfSample.h"
 #include "Core/Quantity/SpectralStrength.h"
+#include "Core/Integrator/Utility/PtVolumetricEstimator.h"
 
 #include <iostream>
 
@@ -156,13 +157,60 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 			break;
 		}
 
+		// volume test
+		{
+			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
+			const VolumeOptics* interior = metadata->getInterior().getOptics();
+			if(interior && surfaceHit.getShadingNormal().dot(V) * surfaceHit.getShadingNormal().dot(L) < 0.0_r)
+			{
+				SurfaceHit Xe;
+				Vector3R endV;
+				SpectralStrength weight;
+				SpectralStrength radiance;
+				PtVolumetricEstimator::sample(scene, surfaceHit, L, &Xe, &endV, &weight, &radiance);
+
+				accuLiWeight.mulLocal(weight);
+				if(accuLiWeight.isZero())
+				{
+					break;
+				}
+
+				BsdfSample bsdfSample;
+				bsdfSample.inputs.set(Xe, endV);
+				metadata->getSurface().getOptics()->genBsdfSample(bsdfSample);
+				if(!bsdfSample.outputs.isGood())
+				{
+					break;
+				}
+
+				accuLiWeight.mulLocal(bsdfSample.outputs.pdfAppliedBsdf);
+				if(accuLiWeight.isZero())
+				{
+					break;
+				}
+
+				const Vector3R nextRayOrigin(Xe.getPosition());
+				const Vector3R nextRayDirection(bsdfSample.outputs.L);
+				tracingRay.setOrigin(nextRayOrigin);
+				tracingRay.setDirection(nextRayDirection);
+			}
+			else
+			{
+				const Vector3R nextRayOrigin(hitDetail.getPosition());
+				const Vector3R nextRayDirection(L);
+				tracingRay.setOrigin(nextRayOrigin);
+				tracingRay.setDirection(nextRayDirection);
+			}
+		}
+		numBounces++;
+
 		// prepare for next iteration
 		//const Vector3R nextRayOrigin(hitDetail.getPosition().add(hitDetail.getGeometryNormal().mul(0.001_r)));
-		const Vector3R nextRayOrigin(hitDetail.getPosition());
+		/*const Vector3R nextRayOrigin(hitDetail.getPosition());
 		const Vector3R nextRayDirection(L);
 		tracingRay.setOrigin(nextRayOrigin);
 		tracingRay.setDirection(nextRayDirection);
-		numBounces++;
+		numBounces++;*/
 	}// end while
 
 	out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */accuRadiance));

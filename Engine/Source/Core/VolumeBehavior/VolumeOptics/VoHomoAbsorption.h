@@ -19,7 +19,7 @@ public:
 private:
 	virtual void sampleDistance(
 		const SurfaceHit& X,
-		const Vector3R& V,
+		const Vector3R& L,
 		real maxDist,
 		real* out_dist,
 		SpectralStrength* out_pdfAppliedWeight) const override;

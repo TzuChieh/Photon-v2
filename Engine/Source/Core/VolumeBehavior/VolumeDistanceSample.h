@@ -15,13 +15,13 @@ public:
 	{
 	public:
 		SurfaceHit X;
-		Vector3R V;
+		Vector3R L;
 		real maxDist;
 
-		inline void set(const SurfaceHit& X, const Vector3R& V, const real maxDist)
+		inline void set(const SurfaceHit& X, const Vector3R& L, const real maxDist)
 		{
 			this->X = X;
-			this->V = V;
+			this->L = L;
 			this->maxDist = maxDist;
 		}
 	};

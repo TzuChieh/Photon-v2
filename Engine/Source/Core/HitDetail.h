@@ -63,6 +63,7 @@ public:
 		return getHitInfo(coordSys).getShadingBasis();
 	}
 
+	// TODO: document this; this should not depend on coordinate system
 	inline real getRayT(const ECoordSys coordSys = ECoordSys::WORLD) const
 	{
 		return getHitInfo(coordSys).getRayT();
