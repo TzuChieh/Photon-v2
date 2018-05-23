@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/Transform/StaticTransform.h"
+#include "Math/Transform/StaticAffineTransform.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Actor/PhysicalActor.h"
 #include "FileIO/SDL/TCommandInterface.h"

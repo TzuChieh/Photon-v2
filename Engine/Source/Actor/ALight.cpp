@@ -166,7 +166,7 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 	// TODO: test "isRigid()" may be more appropriate
 	if(m_localToWorld.hasScaleEffect())
 	{
-		const StaticTransform& baseLW = StaticTransform::makeForward(m_localToWorld);
+		const StaticAffineTransform& baseLW = StaticAffineTransform::makeForward(m_localToWorld);
 
 		sanifiedGeometry = geometry->genTransformApplied(baseLW);
 		if(sanifiedGeometry != nullptr)

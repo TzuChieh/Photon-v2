@@ -7,14 +7,14 @@ const Logger StaticRigidTransform::logger(LogSender("StaticRigidTransform"));
 
 StaticRigidTransform StaticRigidTransform::makeIdentity()
 {
-	return StaticRigidTransform(StaticTransform::IDENTITY());
+	return StaticRigidTransform(StaticAffineTransform::IDENTITY());
 }
 
 StaticRigidTransform::StaticRigidTransform() : 
 	m_staticTransform()
 {}
 
-StaticRigidTransform::StaticRigidTransform(const StaticTransform& transform) : 
+StaticRigidTransform::StaticRigidTransform(const StaticAffineTransform& transform) :
 	m_staticTransform(transform)
 {
 	// TODO: assert on scale-free

@@ -2,7 +2,7 @@
 
 #include "Core/Intersectable/Primitive.h"
 #include "FileIO/SDL/TCommandInterface.h"
-#include "Math/Transform/StaticTransform.h"
+#include "Math/Transform/StaticAffineTransform.h"
 
 #include <vector>
 #include <memory>
@@ -30,7 +30,7 @@ public:
 		const PrimitiveBuildingMaterial&         data, 
 		std::vector<std::unique_ptr<Primitive>>& out_primitives) const = 0;
 
-	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticTransform& transform) const;
+	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticAffineTransform& transform) const;
 
 	const UvwMapper* getUvwMapper() const;
 	void setUvwMapper(const std::shared_ptr<UvwMapper>& uvwMapper);

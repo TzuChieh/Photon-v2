@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Actor/Actor.h"
-#include "Math/Transform/StaticTransform.h"
+#include "Math/Transform/StaticAffineTransform.h"
 #include "Math/Transform/TDecomposedTransform.h"
 #include "Math/math_fwd.h"
 #include "FileIO/SDL/TCommandInterface.h"

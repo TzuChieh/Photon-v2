@@ -92,7 +92,7 @@ void GMengerSponge::genMengerSpongeRecursive(
 	}// end iz
 }
 
-std::shared_ptr<Geometry> GMengerSponge::genTransformApplied(const StaticTransform& transform) const
+std::shared_ptr<Geometry> GMengerSponge::genTransformApplied(const StaticAffineTransform& transform) const
 {
 	return nullptr;
 }

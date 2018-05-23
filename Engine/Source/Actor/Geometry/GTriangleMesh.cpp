@@ -59,7 +59,7 @@ void GTriangleMesh::addTriangle(const GTriangle& gTriangle)
 	m_gTriangles.push_back(gTriangle);
 }
 
-std::shared_ptr<Geometry> GTriangleMesh::genTransformApplied(const StaticTransform& transform) const
+std::shared_ptr<Geometry> GTriangleMesh::genTransformApplied(const StaticAffineTransform& transform) const
 {
 	auto geometrySoup = std::make_shared<GeometrySoup>();
 	for(const auto& gTriangle : m_gTriangles)

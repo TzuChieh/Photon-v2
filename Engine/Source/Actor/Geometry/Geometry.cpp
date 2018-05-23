@@ -30,7 +30,7 @@ const UvwMapper* Geometry::getUvwMapper() const
 	return m_uvwMapper.get();
 }
 
-std::shared_ptr<Geometry> Geometry::genTransformApplied(const StaticTransform& transform) const
+std::shared_ptr<Geometry> Geometry::genTransformApplied(const StaticAffineTransform& transform) const
 {
 	return nullptr;
 }

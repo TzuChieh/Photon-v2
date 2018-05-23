@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Math/Transform/RigidTransform.h"
-#include "Math/Transform/StaticTransform.h"
+#include "Math/Transform/StaticAffineTransform.h"
 #include "Math/Transform/TDecomposedTransform.h"
 #include "Common/Logger.h"
 #include "Common/assertion.h"
@@ -61,11 +61,11 @@ private:
 		real*           out_lineMaxT) const override;
 
 private:
-	StaticTransform m_staticTransform;
+	StaticAffineTransform m_staticTransform;
 
 	static const Logger logger;
 
-	StaticRigidTransform(const StaticTransform& transform);
+	StaticRigidTransform(const StaticAffineTransform& transform);
 
 	template<typename U>
 	static inline std::vector<TDecomposedTransform<U>> getScaleFreeTransforms(
@@ -76,28 +76,28 @@ template<typename U>
 inline auto StaticRigidTransform::makeForward(const TDecomposedTransform<U>& transform)
 	-> StaticRigidTransform
 {
-	return StaticRigidTransform(StaticTransform::makeForward(getScaleFreeTransforms<U>({transform})[0]));
+	return StaticRigidTransform(StaticAffineTransform::makeForward(getScaleFreeTransforms<U>({transform})[0]));
 }
 
 template<typename U>
 inline auto StaticRigidTransform::makeInverse(const TDecomposedTransform<U>& transform)
 	-> StaticRigidTransform
 {
-	return StaticRigidTransform(StaticTransform::makeInverse(getScaleFreeTransforms<U>({transform})[0]));
+	return StaticRigidTransform(StaticAffineTransform::makeInverse(getScaleFreeTransforms<U>({transform})[0]));
 }
 
 template<typename U>
 inline auto StaticRigidTransform::makeParentedForward(const std::vector<TDecomposedTransform<U>>& fromRootToLocal)
 	-> StaticRigidTransform
 {
-	return StaticRigidTransform(StaticTransform::makeParentedForward(getScaleFreeTransforms<U>({fromRootToLocal})));
+	return StaticRigidTransform(StaticAffineTransform::makeParentedForward(getScaleFreeTransforms<U>({fromRootToLocal})));
 }
 
 template<typename U>
 inline auto StaticRigidTransform::makeParentedInverse(const std::vector<TDecomposedTransform<U>>& fromRootToLocal)
 	-> StaticRigidTransform
 {
-	return StaticRigidTransform(StaticTransform::makeParentedInverse(getScaleFreeTransforms<U>({fromRootToLocal})));
+	return StaticRigidTransform(StaticAffineTransform::makeParentedInverse(getScaleFreeTransforms<U>({fromRootToLocal})));
 }
 
 template<typename U>

@@ -34,7 +34,7 @@ void GRectangle::genPrimitive(const PrimitiveBuildingMaterial& data,
 	genTriangleMesh()->genPrimitive(data, out_primitives);
 }
 
-std::shared_ptr<Geometry> GRectangle::genTransformApplied(const StaticTransform& transform) const
+std::shared_ptr<Geometry> GRectangle::genTransformApplied(const StaticAffineTransform& transform) const
 {
 	return genTriangleMesh()->genTransformApplied(transform);
 }

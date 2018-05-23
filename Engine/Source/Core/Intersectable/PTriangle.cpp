@@ -1,6 +1,6 @@
 #include "Core/Intersectable/PTriangle.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Math/Transform/StaticTransform.h"
+#include "Math/Transform/StaticAffineTransform.h"
 #include "Core/Ray.h"
 #include "Core/HitProbe.h"
 #include "Core/HitDetail.h"

@@ -17,7 +17,7 @@ public:
 
 	virtual void genPrimitive(const PrimitiveBuildingMaterial& data,
 		std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
-	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticTransform& transform) const;
+	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticAffineTransform& transform) const;
 
 private:
 	uint32 m_numIteration;

@@ -59,7 +59,7 @@ void GSphere::genPrimitive(const PrimitiveBuildingMaterial& data,
 	out_primitives.push_back(std::make_unique<PSphere>(data.metadata, m_radius));
 }
 
-std::shared_ptr<Geometry> GSphere::genTransformApplied(const StaticTransform& transform) const
+std::shared_ptr<Geometry> GSphere::genTransformApplied(const StaticAffineTransform& transform) const
 {
 	return genTriangleMesh()->genTransformApplied(transform);
 }

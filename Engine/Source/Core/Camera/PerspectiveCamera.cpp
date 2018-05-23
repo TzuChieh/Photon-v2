@@ -31,9 +31,9 @@ void PerspectiveCamera::updateTransforms()
 	rasterToCameraTransform.translate(filmWidthMM / 2, filmHeightMM / 2, m_filmOffsetMM);
 
 	std::vector<TDecomposedTransform<hiReal>> rootToLocal{m_cameraToWorldTransform, rasterToCameraTransform};
-	m_rasterToWorld  = std::make_shared<StaticTransform>(StaticTransform::makeParentedForward(rootToLocal));
-	m_rasterToCamera = std::make_shared<StaticTransform>(StaticTransform::makeForward(rasterToCameraTransform));
-	m_cameraToWorld  = std::make_shared<StaticTransform>(StaticTransform::makeForward(m_cameraToWorldTransform));
+	m_rasterToWorld  = std::make_shared<StaticAffineTransform>(StaticAffineTransform::makeParentedForward(rootToLocal));
+	m_rasterToCamera = std::make_shared<StaticAffineTransform>(StaticAffineTransform::makeForward(rasterToCameraTransform));
+	m_cameraToWorld  = std::make_shared<StaticAffineTransform>(StaticAffineTransform::makeForward(m_cameraToWorldTransform));
 }
 
 // command interface
