@@ -321,6 +321,25 @@ inline T TMatrix4<T>::determinant() const
 }
 
 template<typename T>
+inline bool TMatrix4<T>::equals(const TMatrix4& other) const
+{
+	// TODO: branchless?
+
+	for(std::size_t i = 0; i < 4; ++i)
+	{
+		for(std::size_t j = 0; j < 4; ++j)
+		{
+			if(m[i][j] != other.m[i][j])
+			{
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+template<typename T>
 inline std::string TMatrix4<T>::toString() const
 {
 	std::string result;

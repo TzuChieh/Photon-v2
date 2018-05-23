@@ -52,6 +52,7 @@ public:
 
 	inline T determinant() const;
 
+	inline bool equals(const TMatrix4& other) const;
 	inline std::string toString() const;
 };
 
