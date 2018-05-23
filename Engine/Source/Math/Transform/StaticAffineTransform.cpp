@@ -19,7 +19,9 @@ StaticAffineTransform::StaticAffineTransform() :
 
 StaticAffineTransform::StaticAffineTransform(const Matrix4R& transform, const Matrix4R& inverseTransform) :
 	m_transformMatrix(transform), m_inverseTransformMatrix(inverseTransform)
-{}
+{
+	// TODO: assert on actually affine
+}
 
 StaticAffineTransform::~StaticAffineTransform() = default;
 
@@ -46,8 +48,8 @@ void StaticAffineTransform::transformOrientation(
 	const Time&     time,
 	Vector3R* const out_orientation) const
 {
-	// TODO: correctly transform orientation
-	m_transformMatrix.mul(orientation, 0.0_r, out_orientation);
+	const Matrix4R transposedInverse = m_inverseTransformMatrix.transpose();
+	transposedInverse.mul(orientation, 0.0_r, out_orientation);
 }
 
 void StaticAffineTransform::transformPoint(

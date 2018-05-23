@@ -74,14 +74,17 @@ TEST(StaticAffineTransformTest, TransformsVector3rAsVector)
 	// trial 4
 
 	const Transform& t4 = StaticAffineTransform(
-		Matrix4R().initScale( 1.0_r,  2.0_r, -1.0_r),
-		Matrix4R().initScale(-1.0_r, -2.0_r,  1.0_r));
-	const Vector3R v4(3.0_r, -2.0_r, 1.0_r);
+		Matrix4R().initScale(2.0_r,         1.0_r, 1.0_r),
+		Matrix4R().initScale(1.0_r / 2.0_r, 1.0_r, 1.0_r));
+
+	const Vector3R v4(1.0_r, 1.0_r, 0.0_r);
+
 	Vector3R answer4;
 	t4.transformO(v4, &answer4);
-	EXPECT_NEAR(v4.x *  1.0_r, answer4.x, TEST_REAL_EPSILON);
-	EXPECT_NEAR(v4.y *  2.0_r, answer4.y, TEST_REAL_EPSILON);
-	EXPECT_NEAR(v4.z * -1.0_r, answer4.z, TEST_REAL_EPSILON);
+	answer4.divLocal(answer4.x);// normalizing x component to 1
+	EXPECT_NEAR(answer4.x, 1.0_r, TEST_REAL_EPSILON);
+	EXPECT_NEAR(answer4.y, 2.0_r, TEST_REAL_EPSILON);
+	EXPECT_NEAR(answer4.z, 0.0_r, TEST_REAL_EPSILON);
 }
 
 TEST(StaticAffineTransformTest, GeneratesInversed)

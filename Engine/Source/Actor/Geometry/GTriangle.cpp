@@ -95,6 +95,9 @@ std::shared_ptr<Geometry> GTriangle::genTransformApplied(const StaticAffineTrans
 	transform.transformO(m_nA, &tTriangle->m_nA);
 	transform.transformO(m_nB, &tTriangle->m_nB);
 	transform.transformO(m_nC, &tTriangle->m_nC);
+	tTriangle->m_nA.normalizeLocal();
+	tTriangle->m_nB.normalizeLocal();
+	tTriangle->m_nC.normalizeLocal();
 
 	return tTriangle;
 }
