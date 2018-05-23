@@ -17,23 +17,35 @@ TMatrix4<T> TMatrix4<T>::IDENTITY()
 }
 
 template<typename T>
-inline TMatrix4<T>::TMatrix4()
+inline TMatrix4<T>::TMatrix4() : 
+	m{}
+{}
+
+template<typename T>
+inline TMatrix4<T>::TMatrix4(const T value) : 
+	m()
 {
-	for(uint32 i = 0; i < 4; i++)
+	for(std::size_t i = 0; i < 4; ++i)
 	{
-		for(uint32 j = 0; j < 4; j++)
+		for(std::size_t j = 0; j < 4; ++j)
 		{
-			m[i][j] = 0;
+			m[i][j] = value;
 		}
 	}
 }
 
 template<typename T>
-inline TMatrix4<T>::TMatrix4(const TMatrix4& other)
+inline TMatrix4<T>::TMatrix4(const Elements& elements) :
+	m(elements)
+{}
+
+template<typename T>
+inline TMatrix4<T>::TMatrix4(const TMatrix4& other) : 
+	m()
 {
-	for(uint32 i = 0; i < 4; i++)
+	for(std::size_t i = 0; i < 4; ++i)
 	{
-		for(uint32 j = 0; j < 4; j++)
+		for(std::size_t j = 0; j < 4; ++j)
 		{
 			m[i][j] = other.m[i][j];
 		}
@@ -45,11 +57,12 @@ inline TMatrix4<T>::~TMatrix4() = default;
 
 template<typename T>
 template<typename U>
-inline TMatrix4<T>::TMatrix4(const TMatrix4<U>& other)
+inline TMatrix4<T>::TMatrix4(const TMatrix4<U>& other) : 
+	m()
 {
-	for(uint32 i = 0; i < 4; i++)
+	for(std::size_t i = 0; i < 4; ++i)
 	{
-		for(uint32 j = 0; j < 4; j++)
+		for(std::size_t j = 0; j < 4; ++j)
 		{
 			m[i][j] = static_cast<T>(other.m[i][j]);
 		}
@@ -160,9 +173,9 @@ inline TMatrix4<T> TMatrix4<T>::mul(const TMatrix4& rhs) const
 {
 	TMatrix4 res;
 
-	for(uint32 i = 0; i < 4; i++)
+	for(std::size_t i = 0; i < 4; ++i)
 	{
-		for(uint32 j = 0; j < 4; j++)
+		for(std::size_t j = 0; j < 4; ++j)
 		{
 			res.m[i][j] = m[i][0] * rhs.m[0][j] +
 			              m[i][1] * rhs.m[1][j] +
@@ -179,9 +192,9 @@ inline void TMatrix4<T>::mul(const TMatrix4& rhs, TMatrix4* const out_result) co
 {
 	PH_ASSERT(out_result != nullptr && out_result != this);
 
-	for(uint32 i = 0; i < 4; i++)
+	for(std::size_t i = 0; i < 4; ++i)
 	{
-		for(uint32 j = 0; j < 4; j++)
+		for(std::size_t j = 0; j < 4; ++j)
 		{
 			out_result->m[i][j] = m[i][0] * rhs.m[0][j]
 			                    + m[i][1] * rhs.m[1][j]
@@ -269,6 +282,21 @@ inline TMatrix4<T>& TMatrix4<T>::inverse(TMatrix4* const out_result) const
 	                    - m[0][0] * m[1][2] * m[2][1] - m[0][1] * m[1][0] * m[2][2] + m[0][0] * m[1][1] * m[2][2];
 
 	return out_result->mulLocal(1 / determinant());
+}
+
+template<typename T>
+inline TMatrix4<T> TMatrix4<T>::transpose() const
+{
+	TMatrix4 result;
+	for(std::size_t i = 0; i < 4; ++i)
+	{
+		for(std::size_t j = 0; j < 4; ++j)
+		{
+			result.m[j][i] = m[i][j];
+		}
+	}
+
+	return result;
 }
 
 template<typename T>

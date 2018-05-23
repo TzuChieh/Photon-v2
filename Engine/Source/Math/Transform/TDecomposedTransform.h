@@ -10,10 +10,18 @@
 namespace ph
 {
 
+/*
+	Represents affine transformations in decomposed form. Specifically, 
+	decomposing an transformation into translation, rotation, and scale;
+	each of the transformation component can be accessed and modified
+	directly.
+*/
 template<typename T>
 class TDecomposedTransform final
 {
 public:
+	// Creates a transformation that will not have any effect.
+	//
 	TDecomposedTransform();
 
 	inline TDecomposedTransform& translate(const TVector3<T>& amount)
@@ -126,7 +134,11 @@ public:
 		*out_result = inverseScaleMatrix.mul(inverseRotationMatrix).mul(inverseTranslationMatrix);
 	}
 
+	// Inverts the transformation components. The effect of inverted and 
+	// un-inverted transforms will cancel each other out.
+	//
 	inline TDecomposedTransform invert() const;
+
 	inline bool hasScaleEffect(T margin = 0) const;
 	inline bool isScaleUniform(T margin = 0) const;
 
