@@ -3,6 +3,10 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
 
 Visit Project Website: https://tzuchieh.github.io/Photon-v2-site
 
+Support the Project:
+* BTC: 123ZDDMB38XcbPG3Q1fEH5WWHdMroYVuFm
+* ETH: 0x0ea47ec84f6abb0cee20a54dedfa8f286731c1f2
+
 | Branch        | Build         |
 | ------------- | ------------- |
 | Master        | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=master)](https://travis-ci.org/TzuChieh/Photon-v2) |
