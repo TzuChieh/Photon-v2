@@ -18,6 +18,7 @@
 #include "Core/SurfaceBehavior/BsdfSample.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Core/Integrator/Utility/PtVolumetricEstimator.h"
+#include "Core/Integrator/Utility/TSurfaceEventDispatcher.h"
 
 #include <iostream>
 
