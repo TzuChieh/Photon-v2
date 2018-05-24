@@ -7,6 +7,9 @@
 namespace ph
 {
 
+class SurfaceOptics;
+class VolumeOptics;
+
 class SurfaceHit final
 {
 public:
@@ -21,6 +24,10 @@ public:
 	}
 
 	SurfaceHit switchChannel(uint32 newChannel) const;
+
+	bool hasSurfaceOptics() const;
+	bool hasInteriorOptics() const;
+	bool hasExteriorOptics() const;
 
 	inline const HitDetail& getDetail() const
 	{
@@ -45,7 +52,7 @@ public:
 	inline const Vector3R& getGeometryNormal() const
 	{
 		return m_detail.getGeometryNormal();
-	}
+	} 
 
 private:
 	Ray       m_incidentRay;
