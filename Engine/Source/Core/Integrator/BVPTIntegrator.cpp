@@ -47,43 +47,22 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 	while(numBounces <= MAX_RAY_BOUNCES && 
 	      surfaceEventDispatcher.traceNextSurface(tracingRay, &surfaceHit))
 	{
-		const HitDetail& hitDetail = surfaceHit.getDetail();
-
-		const auto* const metadata = hitDetail.getPrimitive()->getMetadata();
+		const auto* const     metadata            = surfaceHit.getDetail().getPrimitive()->getMetadata();
 		const SurfaceBehavior& hitSurfaceBehavior = metadata->getSurface();
-		const Vector3R& V = tracingRay.getDirection().mul(-1.0f);
 
-		///////////////////////////////////////////////////////////////////////////////
-		// sample emitted radiance
-
-		// sidedness agreement between real geometry and shading (phong-interpolated) normal
-		if(hitDetail.getShadingNormal().dot(V) * hitDetail.getGeometryNormal().dot(V) <= 0.0f)
-		{
-			break;
-		}
-
-		// only forward side is emitable
-		//if(hitSurfaceBehavior.getEmitter() && V.dot(hitDetail.getShadingNormal()) > 0.0_r)
 		if(hitSurfaceBehavior.getEmitter())
 		{
 			SpectralStrength radianceLi;
 			hitSurfaceBehavior.getEmitter()->evalEmittedRadiance(surfaceHit, &radianceLi);
 
 			// avoid excessive, negative weight and possible NaNs
-			//accuLiWeight.clampLocal(0.0f, 1000.0f);
-
-			// avoid excessive, negative weight and possible NaNs
 			accuLiWeight.clampLocal(0.0_r, 1000000000.0_r);
-			if(accuLiWeight.isZero())
-			{
-				break;
-			}
 
 			accuRadiance.addLocal(radianceLi.mul(accuLiWeight));
 		}
 
-		///////////////////////////////////////////////////////////////////////////////
-		// sample BSDF
+		const Vector3R V = tracingRay.getDirection().mul(-1.0f);
+		const Vector3R N = surfaceHit.getShadingNormal();
 
 		BsdfSample bsdfSample;
 		bsdfSample.inputs.set(surfaceHit, V);
@@ -92,17 +71,14 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 		{
 			break;
 		}
-
-		const Vector3R& N = hitDetail.getShadingNormal();
-		const Vector3R& L = bsdfSample.outputs.L;
+		
+		const Vector3R L = bsdfSample.outputs.L;
 
 		switch(bsdfSample.outputs.phenomenon)
 		{
 		case ESurfacePhenomenon::REFLECTION:
 		case ESurfacePhenomenon::TRANSMISSION:
 		{
-			//rayOriginDelta.set(L).mulLocal(rayDeltaDist);
-
 			SpectralStrength liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 
 			if(numBounces >= 3)
