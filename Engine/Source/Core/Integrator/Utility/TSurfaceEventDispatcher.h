@@ -13,9 +13,18 @@ class BsdfSample;
 class BsdfEvaluation;
 class BsdfPdfQuery;
 
+/*
+	Options for dealing with situations where a vector is within the hemisphere
+	defined by geometry normal but outside the one defined by shading normal or
+	vice versa.
+*/
 enum class ESidednessAgreement
 {
+	// Perform any calculations without caring sidedness agreement.
 	DO_NOT_CARE,
+
+	// A vector must lies in hemispheres defined by geometry normal and shading
+	// normal simultaneously.
 	STRICT
 };
 

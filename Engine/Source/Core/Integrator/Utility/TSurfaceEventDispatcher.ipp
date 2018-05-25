@@ -15,6 +15,8 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 
+#include <limits>
+
 namespace ph
 {
 
@@ -74,6 +76,9 @@ inline bool TSurfaceEventDispatcher<SA>::doBsdfSample(
 	}
 
 	get_surface_optics(X)->genBsdfSample(bsdfSample);
+
+	// HACK: hard-coded number
+	*out_ray = Ray(X.getPosition(), bsdfSample.outputs.L, 0.0001_r, std::numeric_limits<real>::max());
 
 	return bsdfSample.outputs.isGood() &&
 	       isSidednessAgreed(X, bsdfSample.outputs.L);

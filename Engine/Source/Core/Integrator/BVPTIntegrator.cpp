@@ -1,24 +1,19 @@
 #include "Core/Integrator/BVPTIntegrator.h"
 #include "Core/Ray.h"
-#include "World/Scene.h"
-#include "Math/TVector3.h"
-#include "Core/HitProbe.h"
 #include "Core/HitDetail.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Math/Math.h"
-#include "Math/Color.h"
-#include "Math/Random.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Emitter/Emitter.h"
-#include "FileIO/SDL/InputPacket.h"
 #include "Core/SurfaceBehavior/BsdfSample.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Core/Integrator/Utility/PtVolumetricEstimator.h"
 #include "Core/Integrator/Utility/TSurfaceEventDispatcher.h"
+#include "Core/Integrator/Utility/RussianRoulette.h"
+#include "FileIO/SDL/InputPacket.h"
+#include "Math/TVector3.h"
 
 #include <iostream>
 
@@ -37,30 +32,21 @@ void BVPTIntegrator::update(const Scene& scene)
 
 void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
 {
-	const Scene&  scene  = *data.scene;
-	const Camera& camera = *data.camera;
-	
-	//const real rayDeltaDist = 0.00001_r;
+	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESidednessAgreement::STRICT>(data.scene);
 
 	uint32 numBounces = 0;
 	SpectralStrength accuRadiance(0);
 	SpectralStrength accuLiWeight(1);
-	//Vector3R rayOriginDelta;
-	HitProbe hitProbe;
-
-	/*Ray ray;
-	camera.genSensingRay(sample, &ray);*/
 
 	// backward tracing to light
 	Ray tracingRay = Ray(ray).reverse();
 	tracingRay.setMinT(0.0001_r);// HACK: hard-coded number
 	tracingRay.setMaxT(std::numeric_limits<real>::max());
 
-	while(numBounces <= MAX_RAY_BOUNCES && scene.isIntersecting(tracingRay, &hitProbe))
+	SurfaceHit surfaceHit;
+	while(numBounces <= MAX_RAY_BOUNCES && 
+	      surfaceEventDispatcher.traceNextSurface(tracingRay, &surfaceHit))
 	{
-		bool keepSampling = true;
-
-		const SurfaceHit surfaceHit(tracingRay, hitProbe);
 		const HitDetail& hitDetail = surfaceHit.getDetail();
 
 		const auto* const metadata = hitDetail.getPrimitive()->getMetadata();
@@ -101,17 +87,14 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 
 		BsdfSample bsdfSample;
 		bsdfSample.inputs.set(surfaceHit, V);
-		hitSurfaceBehavior.getOptics()->genBsdfSample(bsdfSample);
-
-		const Vector3R& N = hitDetail.getShadingNormal();
-		const Vector3R& L = bsdfSample.outputs.L;
-
-		// blackness check & sidedness agreement between real geometry and shading (phong-interpolated) normal
-		if(!bsdfSample.outputs.isGood() ||
-		   hitDetail.getShadingNormal().dot(L) * hitDetail.getGeometryNormal().dot(L) <= 0.0_r)
+		Ray nextRay;
+		if(!surfaceEventDispatcher.doBsdfSample(surfaceHit, bsdfSample, &nextRay))
 		{
 			break;
 		}
+
+		const Vector3R& N = hitDetail.getShadingNormal();
+		const Vector3R& L = bsdfSample.outputs.L;
 
 		switch(bsdfSample.outputs.phenomenon)
 		{
@@ -124,23 +107,10 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 
 			if(numBounces >= 3)
 			{
-				//const real rrSurviveRate = liWeight.clamp(0.0f, 1.0f).max();
-				//const real rrSurviveRate = Math::clamp(liWeight.avg(), 0.1_r, 1.0_r);
-				const real rrSurviveRate = Math::clamp(liWeight.calcLuminance(EQuantity::EMR), 0.1_r, 1.0_r);
-				//const real rrSurviveRate = Math::clamp(Color::linearRgbLuminance(liWeight), 0.0001f, 1.0f);
-				const real rrSpin = Random::genUniformReal_i0_e1();
+				SpectralStrength weightedLiWeight;
+				RussianRoulette::surviveOnLuminance(liWeight, &weightedLiWeight);
 
-				// russian roulette >> survive
-				if(rrSurviveRate > rrSpin)
-				{
-					const real rrScale = 1.0_r / rrSurviveRate;
-					liWeight.mulLocal(rrScale);
-				}
-				// russian roulette >> dead
-				else
-				{
-					keepSampling = false;
-				}
+				liWeight = weightedLiWeight;
 			}
 
 			accuLiWeight.mulLocal(liWeight);
@@ -149,11 +119,11 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 
 		default:
 			std::cerr << "warning: unknown surface phenomenon type in BVPTIntegrator detected" << std::endl;
-			keepSampling = false;
+			accuLiWeight.setValues(0.0_r);
 			break;
 		}// end switch surface sample type
 
-		if(!keepSampling)
+		if(accuLiWeight.isZero())
 		{
 			break;
 		}
@@ -167,7 +137,7 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 				Vector3R endV;
 				SpectralStrength weight;
 				SpectralStrength radiance;
-				PtVolumetricEstimator::sample(scene, surfaceHit, L, &Xe, &endV, &weight, &radiance);
+				PtVolumetricEstimator::sample(*(data.scene), surfaceHit, L, &Xe, &endV, &weight, &radiance);
 
 				accuLiWeight.mulLocal(weight);
 				if(accuLiWeight.isZero())
@@ -196,21 +166,10 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 			}
 			else
 			{
-				const Vector3R nextRayOrigin(hitDetail.getPosition());
-				const Vector3R nextRayDirection(L);
-				tracingRay.setOrigin(nextRayOrigin);
-				tracingRay.setDirection(nextRayDirection);
+				tracingRay = nextRay;
 			}
 		}
 		numBounces++;
-
-		// prepare for next iteration
-		//const Vector3R nextRayOrigin(hitDetail.getPosition().add(hitDetail.getGeometryNormal().mul(0.001_r)));
-		/*const Vector3R nextRayOrigin(hitDetail.getPosition());
-		const Vector3R nextRayDirection(L);
-		tracingRay.setOrigin(nextRayOrigin);
-		tracingRay.setDirection(nextRayDirection);
-		numBounces++;*/
 	}// end while
 
 	out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */accuRadiance));
