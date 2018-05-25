@@ -71,7 +71,7 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 		{
 			break;
 		}
-		
+
 		const Vector3R L = bsdfSample.outputs.L;
 
 		switch(bsdfSample.outputs.phenomenon)
@@ -88,7 +88,7 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 
 				liWeight = weightedLiWeight;
 			}
-
+			
 			accuLiWeight.mulLocal(liWeight);
 		}
 		break;
