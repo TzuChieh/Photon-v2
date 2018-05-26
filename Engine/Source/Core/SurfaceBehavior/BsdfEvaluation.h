@@ -2,7 +2,6 @@
 
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
-#include "Core/SurfaceBehavior/ESurfacePhenomenon.h"
 #include "Core/Quantity/SpectralStrength.h"
 
 namespace ph
@@ -29,8 +28,7 @@ public:
 	class Output final
 	{
 	public:
-		SpectralStrength   bsdf;
-		ESurfacePhenomenon phenomenon;
+		SpectralStrength bsdf;
 
 		inline bool isGood() const
 		{

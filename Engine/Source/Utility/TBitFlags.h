@@ -21,9 +21,10 @@ public:
 	//
 	TBitFlags();
 
-	void unionWith(const FlagsSet& flagsSet);
-	void intersectWith(const FlagsSet& flagsSet);
-	void set(const FlagsSet& flagsSet);
+	TBitFlags& unionWith(const FlagsSet& flagsSet);
+	TBitFlags& unionWith(const TBitFlags& flags);
+	TBitFlags& intersectWith(const FlagsSet& flagsSet);
+	TBitFlags& set(const FlagsSet& flagsSet);
 
 	bool hasNone(const FlagsSet& flagsSet) const;
 	bool hasAtLeastOne(const FlagsSet& flagsSet) const;

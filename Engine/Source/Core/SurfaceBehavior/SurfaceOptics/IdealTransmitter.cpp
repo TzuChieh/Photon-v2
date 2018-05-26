@@ -1,5 +1,6 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealTransmitter.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
+#include "Common/assertion.h"
 
 namespace ph
 {
@@ -7,26 +8,27 @@ namespace ph
 IdealTransmitter::IdealTransmitter() : 
 	SurfaceOptics(),
 	m_fresnel(std::make_shared<ExactDielectricFresnel>(1.0_r, 1.5_r))
-{}
+{
+	m_phenomena.set({ESP::SPECULAR_TRANSMISSION});
+}
 
 IdealTransmitter::~IdealTransmitter() = default;
 
 void IdealTransmitter::evalBsdf(
 	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-	SpectralStrength* const out_bsdf,
-	ESurfacePhenomenon* const out_type) const
+	SpectralStrength* const out_bsdf) const
 {
+	PH_ASSERT(out_bsdf);
+
 	out_bsdf->setValues(0.0_r);
-	*out_type = ESurfacePhenomenon::TRANSMISSION;
 }
 
 void IdealTransmitter::genBsdfSample(
 	const SurfaceHit& X, const Vector3R& V,
-	Vector3R* const out_L,
-	SpectralStrength* const out_pdfAppliedBsdf,
-	ESurfacePhenomenon* const out_type) const
+	Vector3R* const         out_L,
+	SpectralStrength* const out_pdfAppliedBsdf) const
 {
-	*out_type = ESurfacePhenomenon::TRANSMISSION;
+	PH_ASSERT(out_L && out_pdfAppliedBsdf);
 
 	const Vector3R& N = X.getShadingNormal();
 	Vector3R& L = *out_L;
@@ -54,9 +56,10 @@ void IdealTransmitter::genBsdfSample(
 
 void IdealTransmitter::calcBsdfSamplePdf(
 	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-	const ESurfacePhenomenon& type,
 	real* const out_pdfW) const
 {
+	PH_ASSERT(out_pdfW);
+
 	*out_pdfW = 0.0_r;
 }
 

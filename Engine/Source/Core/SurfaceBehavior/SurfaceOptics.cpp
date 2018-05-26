@@ -6,26 +6,30 @@
 namespace ph
 {
 
+SurfaceOptics::SurfaceOptics() : 
+	m_phenomena()
+{}
+
 SurfaceOptics::~SurfaceOptics() = default;
 
 void SurfaceOptics::evalBsdf(BsdfEvaluation& eval) const
 {
 	evalBsdf(
 		eval.inputs.X, eval.inputs.L, eval.inputs.V, 
-		&(eval.outputs.bsdf), &(eval.outputs.phenomenon));
+		&(eval.outputs.bsdf));
 }
 
 void SurfaceOptics::genBsdfSample(BsdfSample& sample) const
 {
 	genBsdfSample(
 		sample.inputs.X, sample.inputs.V,
-		&(sample.outputs.L), &(sample.outputs.pdfAppliedBsdf), &(sample.outputs.phenomenon));
+		&(sample.outputs.L), &(sample.outputs.pdfAppliedBsdf));
 }
 
 void SurfaceOptics::calcBsdfSamplePdf(BsdfPdfQuery& pdfQuery) const
 {
 	calcBsdfSamplePdf(
-		pdfQuery.inputs.X, pdfQuery.inputs.L, pdfQuery.inputs.V, pdfQuery.inputs.phenomenon, 
+		pdfQuery.inputs.X, pdfQuery.inputs.L, pdfQuery.inputs.V, 
 		&(pdfQuery.outputs.sampleDirPdfW));
 }
 

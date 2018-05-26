@@ -2,7 +2,6 @@
 
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
-#include "Core/SurfaceBehavior/ESurfacePhenomenon.h"
 #include "Core/Quantity/SpectralStrength.h"
 
 namespace ph
@@ -33,7 +32,6 @@ public:
 	public:
 		Vector3R           L;
 		SpectralStrength   pdfAppliedBsdf;
-		ESurfacePhenomenon phenomenon;
 
 		inline bool isGood() const
 		{

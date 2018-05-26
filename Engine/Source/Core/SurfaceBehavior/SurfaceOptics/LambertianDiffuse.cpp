@@ -8,6 +8,7 @@
 #include "Math/Math.h"
 #include "Core/Texture/TSampler.h"
 #include "Core/Texture/TConstantTexture.h"
+#include "Common/assertion.h"
 
 #include <cmath>
 
@@ -17,7 +18,9 @@ namespace ph
 LambertianDiffuse::LambertianDiffuse() :
 	SurfaceOptics(),
 	m_albedo(std::make_shared<TConstantTexture<SpectralStrength>>(SpectralStrength(0.5_r)))
-{}
+{
+	m_phenomena.set({ESP::DIFFUSE_REFLECTION});
+}
 
 LambertianDiffuse::~LambertianDiffuse() = default;
 
@@ -29,8 +32,10 @@ void LambertianDiffuse::setAlbedo(
 
 void LambertianDiffuse::evalBsdf(
 	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-	SpectralStrength* const out_bsdf, ESurfacePhenomenon* const out_type) const
+	SpectralStrength* const out_bsdf) const
 {
+	PH_ASSERT(out_bsdf);
+
 	const real NoL = X.getShadingNormal().dot(L);
 	const real NoV = X.getShadingNormal().dot(V);
 
@@ -44,12 +49,15 @@ void LambertianDiffuse::evalBsdf(
 	SpectralStrength albedo = TSampler<SpectralStrength>(EQuantity::ECF).sample(*m_albedo, X);
 
 	*out_bsdf = albedo.divLocal(PH_PI_REAL);
-	*out_type = ESurfacePhenomenon::REFLECTION;
 }
 
-void LambertianDiffuse::genBsdfSample(const SurfaceHit& X, const Vector3R& V,
-                                  Vector3R* const out_L, SpectralStrength* const out_pdfAppliedBsdf, ESurfacePhenomenon* const out_type) const
+void LambertianDiffuse::genBsdfSample(
+	const SurfaceHit& X, const Vector3R& V,
+	Vector3R* const         out_L, 
+	SpectralStrength* const out_pdfAppliedBsdf) const
 {
+	PH_ASSERT(out_L && out_pdfAppliedBsdf);
+
 	// Lambertian diffuse model's BRDF is simply albedo/pi.
 	// The importance sampling strategy is to use the cosine term in the rendering equation, 
 	// generating a cos(theta) weighted L corresponding to N, which PDF is cos(theta)/pi.
@@ -76,8 +84,6 @@ void LambertianDiffuse::genBsdfSample(const SurfaceHit& X, const Vector3R& V,
 		L.mulLocal(-1.0_r);
 	}
 
-	*out_type = ESurfacePhenomenon::REFLECTION;
-
 	const real absNoL = N.absDot(L);
 	if(absNoL == 0.0_r)
 	{
@@ -89,9 +95,11 @@ void LambertianDiffuse::genBsdfSample(const SurfaceHit& X, const Vector3R& V,
 }
 
 void LambertianDiffuse::calcBsdfSamplePdf(
-	const SurfaceHit& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
+	const SurfaceHit& X, const Vector3R& L, const Vector3R& V, 
 	real* const out_pdfW) const
 {
+	PH_ASSERT(out_pdfW);
+
 	const Vector3R& N = X.getShadingNormal();
 	*out_pdfW = L.absDot(N) * PH_RECI_PI_REAL;
 }

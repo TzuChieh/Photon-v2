@@ -11,21 +11,35 @@ inline TBitFlags<Value, Input>::TBitFlags() :
 {}
 
 template<typename Value, typename Input>
-inline void TBitFlags<Value, Input>::unionWith(const FlagsSet& flagsSet)
+inline TBitFlags<Value, Input>& TBitFlags<Value, Input>::unionWith(const FlagsSet& flagsSet)
 {
-	m_bits |= collectFlags(flagsSet);
+	TBitFlags flags;
+	flags.m_bits = collectFlags(flagsSet);
+	return unionWith(flags);
 }
 
 template<typename Value, typename Input>
-inline void TBitFlags<Value, Input>::intersectWith(const FlagsSet& flagsSet)
+inline TBitFlags<Value, Input>& TBitFlags<Value, Input>::unionWith(const TBitFlags& flags)
+{
+	m_bits |= flags.m_bits;
+
+	return *this;
+}
+
+template<typename Value, typename Input>
+inline TBitFlags<Value, Input>& TBitFlags<Value, Input>::intersectWith(const FlagsSet& flagsSet)
 {
 	m_bits &= collectFlags(flagsSet);
+
+	return *this;
 }
 
 template<typename Value, typename Input>
-inline void TBitFlags<Value, Input>::set(const FlagsSet& flagsSet)
+inline TBitFlags<Value, Input>& TBitFlags<Value, Input>::set(const FlagsSet& flagsSet)
 {
 	m_bits = collectFlags(flagsSet);
+
+	return *this;
 }
 
 template<typename Value, typename Input>

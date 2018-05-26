@@ -8,6 +8,7 @@
 #include "Math/Math.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Core/SurfaceBehavior/BsdfHelper.h"
+#include "Common/assertion.h"
 
 #include <cmath>
 #include <iostream>
@@ -20,14 +21,18 @@ OpaqueMicrofacet::OpaqueMicrofacet() :
 	m_albedo    (std::make_shared<TConstantTexture<SpectralStrength>>(SpectralStrength(0.5_r))),
 	m_microfacet(std::make_shared<IsoTrowbridgeReitz>(0.5_r)),
 	m_fresnel   (std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r))
-{}
+{
+	m_phenomena.set({ESP::GLOSSY_REFLECTION});
+}
 
 OpaqueMicrofacet::~OpaqueMicrofacet() = default;
 
-void OpaqueMicrofacet::evalBsdf(const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-                                SpectralStrength* const out_bsdf, 
-                                ESurfacePhenomenon* const out_type) const
+void OpaqueMicrofacet::evalBsdf(
+	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
+	SpectralStrength* const out_bsdf) const
 {
+	PH_ASSERT(out_bsdf);
+
 	const Vector3R& N = X.getShadingNormal();
 
 	const real NoL = N.dot(L);
@@ -58,14 +63,15 @@ void OpaqueMicrofacet::evalBsdf(const SurfaceHit& X, const Vector3R& L, const Ve
 	const real G = m_microfacet->shadowing(X, N, H, L, V);
 
 	*out_bsdf = F.mul(D * G / (4.0_r * std::abs(NoV * NoL)));
-	*out_type = ESurfacePhenomenon::REFLECTION;
 }
 
-void OpaqueMicrofacet::genBsdfSample(const SurfaceHit& X, const Vector3R& V,
-                                 Vector3R* const out_L, 
-                                 SpectralStrength* const out_pdfAppliedBsdf, 
-                                 ESurfacePhenomenon* const out_type) const
+void OpaqueMicrofacet::genBsdfSample(
+	const SurfaceHit& X, const Vector3R& V,
+	Vector3R* const         out_L, 
+	SpectralStrength* const out_pdfAppliedBsdf) const
 {
+	PH_ASSERT(out_L && out_pdfAppliedBsdf);
+
 	// Cook-Torrance microfacet specular BRDF is D(H)*F(V, H)*G(L, V, H)/(4*|NoL|*|NoV|).
 	// The importance sampling strategy is to generate a microfacet normal (H) which follows D(H)'s distribution, and
 	// generate L by reflecting -V using H.
@@ -96,13 +102,14 @@ void OpaqueMicrofacet::genBsdfSample(const SurfaceHit& X, const Vector3R& V,
 
 	const real multiplier = std::abs(HoL / (NoV * NoL * NoH));
 	out_pdfAppliedBsdf->setValues(F.mul(G).mulLocal(multiplier));
-
-	*out_type = ESurfacePhenomenon::REFLECTION;
 }
 
-void OpaqueMicrofacet::calcBsdfSamplePdf(const SurfaceHit& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
-                                         real* const out_pdfW) const
+void OpaqueMicrofacet::calcBsdfSamplePdf(
+	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
+	real* const out_pdfW) const
 {
+	PH_ASSERT(out_pdfW);
+
 	const Vector3R& N = X.getShadingNormal();
 
 	const real NoL = N.dot(L);

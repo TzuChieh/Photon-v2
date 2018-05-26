@@ -2,7 +2,7 @@
 
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
-#include "Core/SurfaceBehavior/ESurfacePhenomenon.h"
+#include "Core/SurfaceBehavior/surface_phenomena.h"
 
 namespace ph
 {
@@ -19,17 +19,15 @@ public:
 		SurfaceHit X;
 		Vector3R   L;
 		Vector3R   V;
-		ESurfacePhenomenon phenomenon;
 
 		void set(const BsdfEvaluation& bsdfEval);
 		void set(const BsdfSample& sample);
 
-		inline void set(const SurfaceHit& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon phenomenon)
+		inline void set(const SurfaceHit& X, const Vector3R& L, const Vector3R& V)
 		{
-			this->X          = X;
-			this->L          = L;
-			this->V          = V;
-			this->phenomenon = phenomenon;
+			this->X     = X;
+			this->L     = L;
+			this->V     = V;
 		}
 	};
 

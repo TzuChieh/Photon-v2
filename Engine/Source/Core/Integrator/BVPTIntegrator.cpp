@@ -74,30 +74,15 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 
 		const Vector3R L = bsdfSample.outputs.L;
 
-		switch(bsdfSample.outputs.phenomenon)
+		SpectralStrength liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+		if(numBounces >= 3)
 		{
-		case ESurfacePhenomenon::REFLECTION:
-		case ESurfacePhenomenon::TRANSMISSION:
-		{
-			SpectralStrength liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+			SpectralStrength weightedLiWeight;
+			RussianRoulette::surviveOnLuminance(liWeight, &weightedLiWeight);
 
-			if(numBounces >= 3)
-			{
-				SpectralStrength weightedLiWeight;
-				RussianRoulette::surviveOnLuminance(liWeight, &weightedLiWeight);
-
-				liWeight = weightedLiWeight;
-			}
-			
-			accuLiWeight.mulLocal(liWeight);
+			liWeight = weightedLiWeight;
 		}
-		break;
-
-		default:
-			std::cerr << "warning: unknown surface phenomenon type in BVPTIntegrator detected" << std::endl;
-			accuLiWeight.setValues(0.0_r);
-			break;
-		}// end switch surface sample type
+		accuLiWeight.mulLocal(liWeight);
 
 		if(accuLiWeight.isZero())
 		{

@@ -8,6 +8,7 @@
 #include "Math/Math.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
 #include "Core/SurfaceBehavior/BsdfHelper.h"
+#include "Common/assertion.h"
 
 #include <memory>
 #include <iostream>
@@ -19,15 +20,18 @@ TranslucentMicrofacet::TranslucentMicrofacet() :
 	SurfaceOptics(),
 	m_fresnel   (std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r)),
 	m_microfacet(std::make_shared<IsoTrowbridgeReitz>(0.5_r))
-{}
+{
+	m_phenomena.set({ESP::GLOSSY_REFLECTION, ESP::GLISSY_TRANSMISSION});
+}
 
 TranslucentMicrofacet::~TranslucentMicrofacet() = default;
 
 void TranslucentMicrofacet::evalBsdf(
 	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-	SpectralStrength* const   out_bsdf, 
-	ESurfacePhenomenon* const out_type) const
+	SpectralStrength* const out_bsdf) const
 {
+	PH_ASSERT(out_bsdf);
+
 	const Vector3R& N = X.getShadingNormal();
 
 	const real NoL = N.dot(L);
@@ -54,7 +58,6 @@ void TranslucentMicrofacet::evalBsdf(
 		const real G = m_microfacet->shadowing(X, N, H, L, V);
 
 		*out_bsdf = F.mul(D * G / (4.0_r * std::abs(NoV * NoL)));
-		*out_type = ESurfacePhenomenon::REFLECTION;
 	}
 	// refraction
 	else
@@ -92,16 +95,16 @@ void TranslucentMicrofacet::evalBsdf(
 		const real dotTerm = std::abs(HoL * HoV / (NoV * NoL));
 		const real iorTerm = etaI / (etaI * HoL + etaT * HoV);
 		*out_bsdf = F.complement().mul(D * G * dotTerm * (iorTerm * iorTerm));
-		*out_type = ESurfacePhenomenon::TRANSMISSION;
 	}
 }
 
 void TranslucentMicrofacet::genBsdfSample(
 	const SurfaceHit& X, const Vector3R& V,
-	Vector3R* const           out_L, 
-	SpectralStrength* const   out_pdfAppliedBsdf, 
-	ESurfacePhenomenon* const out_type) const
+	Vector3R* const         out_L, 
+	SpectralStrength* const out_pdfAppliedBsdf) const
 {
+	PH_ASSERT(out_L && out_pdfAppliedBsdf);
+
 	// Cook-Torrance microfacet specular BRDF for translucent surface is:
 	// |HoL||HoV|/(|NoL||NoV|)*(iorO^2)*(D(H)*F(V, H)*G(L, V, H)) / (iorI*HoL + iorO*HoV)^2.
 	// The importance sampling strategy is to generate a microfacet normal (H) which follows D(H)'s distribution, and
@@ -138,15 +141,11 @@ void TranslucentMicrofacet::genBsdfSample(
 
 		// account for probability
 		F.divLocal(reflectProb);
-
-		*out_type = ESurfacePhenomenon::REFLECTION;
 	}
 	// refract path
 	else if(m_fresnel->calcRefractDir(V, H, out_L))
 	{
 		m_fresnel->calcTransmittance(out_L->dot(H), &F);
-
-		*out_type = ESurfacePhenomenon::TRANSMISSION;
 
 		// account for probability
 		F.divLocal(1.0_r - reflectProb);
@@ -170,15 +169,17 @@ void TranslucentMicrofacet::genBsdfSample(
 }
 
 void TranslucentMicrofacet::calcBsdfSamplePdf(
-	const SurfaceHit& X, const Vector3R& L, const Vector3R& V, const ESurfacePhenomenon& type,
+	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
 	real* const out_pdfW) const
 {
+	PH_ASSERT(out_pdfW);
+
 	const Vector3R& N = X.getShadingNormal();
+	const real NoV = N.dot(V);
 	const real NoL = N.dot(L);
 
-	switch(type)
-	{
-	case ESurfacePhenomenon::REFLECTION:
+	// reflection
+	if(NoV * NoL > 0.0_r)
 	{
 		Vector3R H;
 		if(!BsdfHelper::makeHalfVectorSameHemisphere(L, V, N, &H))
@@ -197,10 +198,9 @@ void TranslucentMicrofacet::calcBsdfSamplePdf(
 		const real reflectProb = F.avg();
 
 		*out_pdfW = std::abs(D * NoH / (4.0_r * HoL)) * reflectProb;
-		break;
 	}
-
-	case ESurfacePhenomenon::TRANSMISSION:
+	// refraction
+	else if(NoV * NoL < 0.0_r)
 	{
 		real etaI = m_fresnel->getIorOuter();
 		real etaT = m_fresnel->getIorInner();
@@ -236,13 +236,11 @@ void TranslucentMicrofacet::calcBsdfSamplePdf(
 		const real multiplier = (etaI * etaI * HoL) / (iorTerm * iorTerm);
 
 		*out_pdfW = std::abs(D * NoH * multiplier) * refractProb;
-		break;
 	}
-
-	default:
+	else
+	{
 		std::cerr << "warning: at TranslucentMicrofacet::calcSampleDirPdfW(), invalid phenomenon type detected" << std::endl;
 		*out_pdfW = 0.0_r;
-		break;
 	}
 }
 
