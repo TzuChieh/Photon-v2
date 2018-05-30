@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Renderer/Renderer.h"
+#include "Core/Filmic/filmic_fwd.h"
 
 #include <vector>
 #include <memory>
@@ -12,7 +13,6 @@ class Scene;
 class Camera;
 class SampleGenerator;
 class Integrator;
-class Film;
 
 class BulkRenderer final : public Renderer
 {
@@ -27,17 +27,17 @@ public:
 	virtual void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region) override;
 
 private:
-	const Scene*     m_scene;
-	SampleGenerator* m_sg;
-	Integrator*      m_integrator;
-	Film*            m_film;
-	Camera*          m_camera;
+	const Scene*          m_scene;
+	SampleGenerator*      m_sg;
+	Integrator*           m_integrator;
+	SpectralSamplingFilm* m_film;
+	Camera*               m_camera;
 
-	uint32                                        m_numRemainingWorks;
-	uint32                                        m_numFinishedWorks;
-	std::vector<std::unique_ptr<SampleGenerator>> m_workSgs;
-	std::vector<std::unique_ptr<Film>>            m_workFilms;
-	std::deque<std::pair<Region, bool>>           m_updatedRegions;
+	uint32                                              m_numRemainingWorks;
+	uint32                                              m_numFinishedWorks;
+	std::vector<std::unique_ptr<SampleGenerator>>       m_workSgs;
+	std::vector<std::unique_ptr<SpectralSamplingFilm>>  m_workFilms;
+	std::deque<std::pair<Region, bool>>                 m_updatedRegions;
 	
 	std::mutex m_rendererMutex;
 

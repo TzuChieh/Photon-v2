@@ -1,5 +1,5 @@
 #include "Core/Renderer/RenderWorker.h"
-#include "Core/Filmic/Film.h"
+#include "Core/Filmic/TSamplingFilm.h"
 #include "Core/SampleGenerator/TSamplePhase.h"
 #include "Core/SampleGenerator/sample_array.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
@@ -25,17 +25,13 @@ RenderWorker::RenderWorker(const RendererProxy& renderer,
 	m_renderer(renderer),
 	m_id(id),
 	m_statistics()
-{
-
-}
+{}
 
 RenderWorker::RenderWorker(const RenderWorker& other) : 
 	m_renderer(other.m_renderer),
 	m_id(other.m_id),
 	m_statistics(other.m_statistics)
-{
-
-}
+{}
 
 void RenderWorker::run()
 {
@@ -49,11 +45,11 @@ void RenderWorker::run()
 
 void RenderWorker::doWork(RenderWork& work)
 {
-	const Camera* const     camera     = work.camera;
-	const Integrator* const integrator = work.integrator;
-	const Scene* const      scene      = work.scene;
-	SampleGenerator* const  sg         = work.sampleGenerator;
-	Film* const             film       = work.film;
+	const Camera* const         camera     = work.camera;
+	const Integrator* const     integrator = work.integrator;
+	const Scene* const          scene      = work.scene;
+	SampleGenerator* const      sg         = work.sampleGenerator;
+	SpectralSamplingFilm* const film       = work.film;
 
 	const uint64 filmWpx = film->getEffectiveResPx().x;
 	const uint64 filmHpx = film->getEffectiveResPx().y;

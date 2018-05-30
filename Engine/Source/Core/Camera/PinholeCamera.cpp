@@ -1,7 +1,7 @@
 #include "Core/Camera/PinholeCamera.h"
 #include "Core/Ray.h"
 #include "Core/Sample.h"
-#include "Core/Filmic/Film.h"
+#include "Core/Filmic/TSamplingFilm.h"
 #include "FileIO/SDL/InputPacket.h"
 #include "Math/Math.h"
 #include "Math/Random.h"

@@ -4,6 +4,7 @@
 #include "Math/TVector3.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Math/Transform/TDecomposedTransform.h"
+#include "Core/Filmic/filmic_fwd.h"
 
 #include <iostream>
 #include <memory>
@@ -14,7 +15,6 @@ namespace ph
 class Ray;
 class Sample;
 class SampleGenerator;
-class Film;
 class InputPacket;
 class Transform;
 class RayDifferential;
@@ -42,7 +42,7 @@ public:
 
 	virtual void evalEmittedImportanceAndPdfW(const Vector3R& targetPos, Vector2R* const out_filmCoord, Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const = 0;
 
-	inline void setFilm(const std::shared_ptr<Film>& film)
+	inline void setFilm(const std::shared_ptr<SpectralSamplingFilm>& film)
 	{
 		if(film == nullptr)
 		{
@@ -53,7 +53,7 @@ public:
 		onFilmSet(m_film.get());
 	}
 
-	inline Film* getFilm() const
+	inline SpectralSamplingFilm* getFilm() const
 	{
 		return m_film.get();
 	}
@@ -83,7 +83,7 @@ public:
 		m_direction.set(out_direction);
 	}
 
-	virtual void onFilmSet(Film* newFilm);
+	virtual void onFilmSet(SpectralSamplingFilm* newFilm);
 
 protected:
 	TDecomposedTransform<hiReal> m_cameraToWorldTransform;
@@ -93,7 +93,7 @@ private:
 	Vector3R m_direction;
 	Vector3R m_upAxis;
 
-	std::shared_ptr<Film> m_film;
+	std::shared_ptr<SpectralSamplingFilm> m_film;
 
 	void updateCameraToWorldTransform(const Vector3R& position, const Vector3R& direction, const Vector3R& upAxis);
 

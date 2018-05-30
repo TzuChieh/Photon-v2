@@ -14,7 +14,6 @@ class Scene;
 class Camera;
 class SampleGenerator;
 class Integrator;
-class Film;
 
 class TiledRenderer final : public Renderer
 {
@@ -32,11 +31,11 @@ private:
 	uint32 m_tileWpx, m_tileHpx;
 	std::mutex m_rendererMutex;
 
-	const Scene*     m_scene;
+	/*const Scene*     m_scene;
 	SampleGenerator* m_sg;
 	Integrator*      m_integrator;
 	Film*            m_film;
-	Camera*          m_camera;
+	Camera*          m_camera;*/
 
 	std::vector<std::unique_ptr<SampleGenerator>> m_workSgs;
 	std::vector<std::unique_ptr<Film>>            m_workFilms;

@@ -3,6 +3,7 @@
 #include "Core/Renderer/BulkRenderer.h"
 #include "Frame/FrameProcessor.h"
 #include "Frame/Operator/JRToneMapping.h"
+#include "Core/Filmic/TSamplingFilm.h"
 
 namespace ph
 {

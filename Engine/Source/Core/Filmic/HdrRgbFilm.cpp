@@ -12,28 +12,40 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include <memory>
 
 namespace ph
 {
 
-HdrRgbFilm::HdrRgbFilm(const int64 actualWidthPx, const int64 actualHeightPx,
-                       const std::shared_ptr<SampleFilter>& filter) : 
-	HdrRgbFilm(actualWidthPx, actualHeightPx,
-	           TAABB2D<int64>(TVector2<int64>(0, 0),
-	                          TVector2<int64>(actualWidthPx, actualHeightPx)),
-	           filter)
+HdrRgbFilm::HdrRgbFilm(
+	const int64 actualWidthPx, const int64 actualHeightPx,
+	const std::shared_ptr<SampleFilter>& filter) : 
+
+	HdrRgbFilm(
+		actualWidthPx, actualHeightPx,
+		TAABB2D<int64>(TVector2<int64>(0, 0),
+		               TVector2<int64>(actualWidthPx, actualHeightPx)),
+		filter)
 {}
 
-HdrRgbFilm::HdrRgbFilm(const int64 actualWidthPx, const int64 actualHeightPx,
-                       const TAABB2D<int64>& effectiveWindowPx,
-                       const std::shared_ptr<SampleFilter>& filter) :
-	Film(actualWidthPx, actualHeightPx, effectiveWindowPx, filter),
+HdrRgbFilm::HdrRgbFilm(
+	const int64 actualWidthPx, const int64 actualHeightPx,
+	const TAABB2D<int64>& effectiveWindowPx,
+	const std::shared_ptr<SampleFilter>& filter) :
+
+	SpectralSamplingFilm(
+		actualWidthPx, actualHeightPx, 
+		effectiveWindowPx, 
+		filter),
+
 	m_pixelRadianceSensors(effectiveWindowPx.calcArea(), RadianceSensor())
 {}
 
 HdrRgbFilm::~HdrRgbFilm() = default;
 
-void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const SpectralStrength& radiance)
+void HdrRgbFilm::addSample(
+	const float64 xPx, const float64 yPx, 
+	const SpectralStrength& radiance)
 {
 	const TVector2<float64> samplePosPx(xPx, yPx);
 
@@ -74,7 +86,7 @@ void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const SpectralS
 	}
 }
 
-std::unique_ptr<Film> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindowPx)
+std::unique_ptr<SpectralSamplingFilm> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindowPx)
 {
 	auto childFilm = std::make_unique<HdrRgbFilm>(m_actualResPx.x, m_actualResPx.y, 
 	                                              effectiveWindowPx, 
@@ -160,6 +172,13 @@ void HdrRgbFilm::mergeWith(const HdrRgbFilm& other)
 
 // command interface
 
+HdrRgbFilm::HdrRgbFilm(const InputPacket& packet) : 
+	SpectralSamplingFilm(packet),
+	m_pixelRadianceSensors(getEffectiveWindowPx().calcArea(), RadianceSensor())
+{
+	PH_ASSERT(!m_pixelRadianceSensors.empty());
+}
+
 SdlTypeInfo HdrRgbFilm::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_FILM, "hdr-rgb");
@@ -168,42 +187,11 @@ SdlTypeInfo HdrRgbFilm::ciTypeInfo()
 void HdrRgbFilm::ciRegister(CommandRegister& cmdRegister)
 {
 	SdlLoader loader;
-	loader.setFunc<HdrRgbFilm>(ciLoad);
+	loader.setFunc<HdrRgbFilm>([](const InputPacket& packet)
+	{
+		return std::make_unique<HdrRgbFilm>(packet);
+	});
 	cmdRegister.setLoader(loader);
-}
-
-std::unique_ptr<HdrRgbFilm> HdrRgbFilm::ciLoad(const InputPacket& packet)
-{
-	const integer     filmWidth  = packet.getInteger("width",  0, DataTreatment::REQUIRED());
-	const integer     filmHeight = packet.getInteger("height", 0, DataTreatment::REQUIRED());
-	const std::string filterName = packet.getString("filter-name", "box");
-	const integer     rectX      = packet.getInteger("rect-x", 0);
-	const integer     rectY      = packet.getInteger("rect-y", 0);
-	const integer     rectW      = packet.getInteger("rect-w", filmWidth);
-	const integer     rectH      = packet.getInteger("rect-h", filmHeight);
-
-	std::shared_ptr<SampleFilter> sampleFilter;
-	if(filterName == "box")
-	{
-		sampleFilter = std::make_shared<SampleFilter>(SampleFilterFactory::createBoxFilter());
-	}
-	else if(filterName == "gaussian")
-	{
-		sampleFilter = std::make_shared<SampleFilter>(SampleFilterFactory::createGaussianFilter());
-	}
-	else if(filterName == "mn")
-	{
-		sampleFilter = std::make_shared<SampleFilter>(SampleFilterFactory::createMNFilter());
-	}
-	else
-	{
-		std::cerr << "warning: at HdrRgbFilm::ciLoad(), " 
-		          << "unknown filter name specified: " << filterName << std::endl;
-	}
-
-	const TAABB2D<int64> effectWindowPx({rectX, rectY}, 
-	                                    {rectX + rectW, rectY + rectH});
-	return std::make_unique<HdrRgbFilm>(filmWidth, filmHeight, effectWindowPx, sampleFilter);
 }
 
 }// end namespace

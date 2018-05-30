@@ -17,7 +17,7 @@ TiledRenderer::~TiledRenderer() = default;
 
 void TiledRenderer::init(const Description& description)
 {
-	m_scene      = &description.visualWorld.getScene();
+	/*m_scene      = &description.visualWorld.getScene();
 	m_sg         = description.getSampleGenerator().get();
 	m_integrator = description.getIntegrator().get();
 	m_film       = description.getFilm().get();
@@ -26,21 +26,21 @@ void TiledRenderer::init(const Description& description)
 	m_workSgs.resize(m_numThreads);
 	m_workFilms.resize(m_numThreads);
 
-	m_nextTilePosPx = m_film->getEffectiveWindowPx().calcCenter();
+	m_nextTilePosPx = m_film->getEffectiveWindowPx().calcCenter();*/
 }
 
 bool TiledRenderer::getNewWork(const uint32 workerId, RenderWork* out_work)
 {
-	std::lock_guard<std::mutex> lock(m_rendererMutex);
+	//std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	TAABB2D<int64> workFilmWindow(m_nextTilePosPx, m_nextTilePosPx.add(m_tileWpx, m_tileHpx));
-	workFilmWindow.intersectWith(m_film->getEffectiveWindowPx());
-	if(!workFilmWindow.isValid())
-	{
-		return false;
-	}
+	//TAABB2D<int64> workFilmWindow(m_nextTilePosPx, m_nextTilePosPx.add(m_tileWpx, m_tileHpx));
+	//workFilmWindow.intersectWith(m_film->getEffectiveWindowPx());
+	//if(!workFilmWindow.isValid())
+	//{
+	//	return false;
+	//}
 
-	// TODO
+	//// TODO
 
 	return false;
 }
@@ -65,7 +65,7 @@ void TiledRenderer::asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region&
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	m_film->develop(out_frame, region);
+	//m_film->develop(out_frame, region);
 }
 
 }// end namespace ph

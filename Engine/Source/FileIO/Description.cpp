@@ -1,6 +1,7 @@
 #include "FileIO/Description.h"
 #include "FileIO/DescriptionParser.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
+#include "Core/Filmic/TSamplingFilm.h"
 
 #include <iostream>
 
@@ -13,18 +14,16 @@ Description::Description() :
 	m_film(nullptr), 
 	m_integrator(nullptr), 
 	m_sampleGenerator(nullptr)
-{
-
-}
+{}
 
 void Description::update(const real deltaS)
 {
 	const std::string& resourceName = DescriptionParser::CORE_DATA_NAME();
 
-	m_camera          = resources.getResource<Camera>         (resourceName, DataTreatment::REQUIRED());
-	m_film            = resources.getResource<Film>           (resourceName, DataTreatment::REQUIRED());
-	m_integrator      = resources.getResource<Integrator>     (resourceName, DataTreatment::REQUIRED());
-	m_sampleGenerator = resources.getResource<SampleGenerator>(resourceName, DataTreatment::REQUIRED());
+	m_camera          = resources.getResource<Camera>              (resourceName, DataTreatment::REQUIRED());
+	m_film            = resources.getResource<SpectralSamplingFilm>(resourceName, DataTreatment::REQUIRED());
+	m_integrator      = resources.getResource<Integrator>          (resourceName, DataTreatment::REQUIRED());
+	m_sampleGenerator = resources.getResource<SampleGenerator>     (resourceName, DataTreatment::REQUIRED());
 	if(!m_camera || !m_film || !m_integrator || !m_sampleGenerator)
 	{
 		std::cerr << "warning: at Description::update(), data incomplete" << std::endl;

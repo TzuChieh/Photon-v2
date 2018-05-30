@@ -15,7 +15,6 @@
 namespace ph
 {
 
-class Film;
 class Scene;
 class InputPacket;
 

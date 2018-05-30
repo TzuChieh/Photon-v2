@@ -17,7 +17,7 @@ TEST(HdrRgbFilmTest, CorrectRasterCoordinates)
 	const int64 filmHpx = 2;
 
 	const auto& filter = std::make_shared<SampleFilter>(SampleFilterFactory::createBoxFilter());
-	const Film& film = HdrRgbFilm(static_cast<uint64>(filmWpx), 
+	const auto& film = HdrRgbFilm(static_cast<uint64>(filmWpx), 
 	                              static_cast<uint64>(filmHpx), 
 	                              filter);
 

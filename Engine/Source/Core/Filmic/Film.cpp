@@ -2,46 +2,33 @@
 #include "Math/TVector3.h"
 #include "Frame/TFrame.h"
 #include "FileIO/SDL/InputPacket.h"
-#include "Math/Function/TConstant2D.h"
-#include "Math/Function/TGaussian2D.h"
-#include "Core/Filmic/SampleFilter.h"
 
-#include <cstddef>
 #include <iostream>
-#include <algorithm>
 
 namespace ph
 {
 
-Film::Film(const int64 actualWidthPx, const int64 actualHeightPx,
-           const std::shared_ptr<SampleFilter>& filter) :
-	Film(actualWidthPx, actualHeightPx,
-	     TAABB2D<int64>(TVector2<int64>(0, 0),
-	                    TVector2<int64>(actualWidthPx, actualHeightPx)),
-	     filter)
+Film::Film(
+	const int64 actualWidthPx, const int64 actualHeightPx) :
+
+	Film(
+		actualWidthPx, actualHeightPx,
+		TAABB2D<int64>(TVector2<int64>(0, 0),
+		               TVector2<int64>(actualWidthPx, actualHeightPx)))
 {}
 
-Film::Film(const int64 actualWidthPx, const int64 actualHeightPx,
-           const TAABB2D<int64>& effectiveWindowPx,
-           const std::shared_ptr<SampleFilter>& filter) : 
-	m_actualResPx(actualWidthPx, actualHeightPx), 
-	m_effectiveResPx(effectiveWindowPx.getWidth(), effectiveWindowPx.getHeight()),
-	m_sampleResPx(effectiveWindowPx.getWidth() - 1.0 + filter->getSizePx().x, 
-	              effectiveWindowPx.getHeight() - 1.0 + filter->getSizePx().y),
-	m_effectiveWindowPx(effectiveWindowPx),
-	m_sampleWindowPx(TVector2<float64>(effectiveWindowPx.minVertex).add(0.5).sub(filter->getHalfSizePx()),
-	                 TVector2<float64>(effectiveWindowPx.maxVertex).sub(0.5).add(filter->getHalfSizePx())),
-	m_filter(filter),
-	m_merger([]() -> void
-	{
-		std::cerr << "warning: at Film::m_merger(), " 
-		          << "calling empty merger" << std::endl;
-	})
+Film::Film(
+	const int64 actualWidthPx, const int64 actualHeightPx,
+	const TAABB2D<int64>& effectiveWindowPx) : 
+
+	m_actualResPx      (actualWidthPx, actualHeightPx), 
+	m_effectiveResPx   (effectiveWindowPx.getWidth(), effectiveWindowPx.getHeight()),
+	m_effectiveWindowPx(effectiveWindowPx)
 {
-	if(!m_effectiveWindowPx.isValid() || !m_sampleWindowPx.isValid())
+	if(!m_effectiveWindowPx.isValid())
 	{
 		std::cerr << "warning: at Film::Film(), "
-		          << "invalid window calculated" << std::endl;
+		          << "invalid effective window detected" << std::endl;
 	}
 }
 
@@ -58,6 +45,22 @@ void Film::develop(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const
 Film::~Film() = default;
 
 // command interface
+
+Film::Film(const InputPacket& packet)
+{
+	const integer     filmWidth  = packet.getInteger("width",  0, DataTreatment::REQUIRED());
+	const integer     filmHeight = packet.getInteger("height", 0, DataTreatment::REQUIRED());
+	const integer     rectX      = packet.getInteger("rect-x", 0);
+	const integer     rectY      = packet.getInteger("rect-y", 0);
+	const integer     rectW      = packet.getInteger("rect-w", filmWidth);
+	const integer     rectH      = packet.getInteger("rect-h", filmHeight);
+
+	m_actualResPx.x     = filmWidth;
+	m_actualResPx.y     = filmHeight;
+	m_effectiveResPx.x  = rectW;
+	m_effectiveResPx.y  = rectH;
+	m_effectiveWindowPx = TAABB2D<int64>({rectX, rectY}, {rectX + rectW, rectY + rectH});
+}
 
 SdlTypeInfo Film::ciTypeInfo()
 {

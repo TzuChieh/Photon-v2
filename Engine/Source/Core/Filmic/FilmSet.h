@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Filmic/Film.h"
+#include "Core/Filmic/filmic_fwd.h"
 #include "Frame/FrameProcessor.h"
 #include "Frame/EFrameTag.h"
 
@@ -14,15 +14,15 @@ namespace ph
 class FilmSet final
 {
 public:
-	const Film*           getFilm(EFrameTag tag)      const;
-	const FrameProcessor* getProcessor(EFrameTag tag) const;
+	const SpectralSamplingFilm* getFilm(EFrameTag tag)      const;
+	const FrameProcessor*       getProcessor(EFrameTag tag) const;
 
-	void setFilm(EFrameTag tag, const std::shared_ptr<Film>& film);
+	void setFilm(EFrameTag tag, const std::shared_ptr<SpectralSamplingFilm>& film);
 	void setProcessor(EFrameTag tag, const std::shared_ptr<FrameProcessor>& processor);
 
 private:
 	std::array<
-		std::shared_ptr<Film>, 
+		std::shared_ptr<SpectralSamplingFilm>,
 		static_cast<std::size_t>(EFrameTag::NUM_ELEMENTS)
 	> m_films;
 

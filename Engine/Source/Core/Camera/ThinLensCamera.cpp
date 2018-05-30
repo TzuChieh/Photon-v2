@@ -1,5 +1,4 @@
 #include "Core/Camera/ThinLensCamera.h"
-#include "Core/Filmic/Film.h"
 #include "Core/Sample.h"
 #include "Core/Ray.h"
 #include "Math/Transform/Transform.h"

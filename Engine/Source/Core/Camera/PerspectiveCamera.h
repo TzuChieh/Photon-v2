@@ -30,7 +30,7 @@ public:
 		real* out_filmArea, 
 		real* const out_pdfW) const = 0;
 
-	virtual void onFilmSet(Film* newFilm) override;
+	virtual void onFilmSet(SpectralSamplingFilm* newFilm) override;
 
 protected:
 	std::shared_ptr<Transform> m_rasterToCamera;

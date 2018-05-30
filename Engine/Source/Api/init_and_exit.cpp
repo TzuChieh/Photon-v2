@@ -54,7 +54,6 @@
 #include "Core/Camera/ThinLensCamera.h"
 
 // films
-#include "Core/Filmic/Film.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 
 // sample generators
@@ -142,7 +141,6 @@ bool init_command_parser()
 	register_command_interface<ThinLensCamera>();
 
 	// films
-	register_command_interface<Film>();
 	register_command_interface<HdrRgbFilm>();
 	
 	// sample generators

@@ -1,7 +1,7 @@
 #include "Core/Camera/PerspectiveCamera.h"
 #include "Core/Ray.h"
 #include "Core/Sample.h"
-#include "Core/Filmic/Film.h"
+#include "Core/Filmic/TSamplingFilm.h"
 #include "FileIO/SDL/InputPacket.h"
 #include "Math/Math.h"
 #include "FileIO/SDL/InputPrototype.h"
@@ -13,7 +13,7 @@ namespace ph
 
 PerspectiveCamera::~PerspectiveCamera() = default;
 
-void PerspectiveCamera::onFilmSet(Film* newFilm)
+void PerspectiveCamera::onFilmSet(SpectralSamplingFilm* /* newFilm */)
 {
 	updateTransforms();
 }

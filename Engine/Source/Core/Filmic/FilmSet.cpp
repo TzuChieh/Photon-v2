@@ -4,7 +4,7 @@
 namespace ph
 {
 
-const Film* FilmSet::getFilm(const EFrameTag tag) const
+const SpectralSamplingFilm* FilmSet::getFilm(const EFrameTag tag) const
 {
 	PH_ASSERT(tagToIndex(tag) < m_films.size());
 
@@ -18,7 +18,7 @@ const FrameProcessor* FilmSet::getProcessor(const EFrameTag tag) const
 	return m_processors[tagToIndex(tag)].get();
 }
 
-void FilmSet::setFilm(const EFrameTag tag, const std::shared_ptr<Film>& film)
+void FilmSet::setFilm(const EFrameTag tag, const std::shared_ptr<SpectralSamplingFilm>& film)
 {
 	PH_ASSERT(tagToIndex(tag) < m_films.size());
 

@@ -42,7 +42,7 @@ void Camera::calcSensedRayDifferentials(
 
 Camera::~Camera() = default;
 
-void Camera::onFilmSet(Film* newFilm)
+void Camera::onFilmSet(SpectralSamplingFilm* /* newFilm */)
 {
 	// do nothing
 }

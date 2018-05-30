@@ -2,10 +2,11 @@
 
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
+#include "Core/Filmic/filmic_fwd.h"
 #include "Core/Camera/RadianceSensor.h"
 #include "FileIO/SDL/ISdlResource.h"
 #include "FileIO/SDL/TCommandInterface.h"
-#include "Core/Filmic/Film.h"
+#include "Core/Filmic/TSamplingFilm.h"
 
 #include <vector>
 
@@ -19,22 +20,26 @@ class InputPacket;
 	added as spectral values, they are automatically converted to linear sRGB
 	values for storage. 
 */
-class HdrRgbFilm final : public Film, public TCommandInterface<HdrRgbFilm>
+class HdrRgbFilm final : public SpectralSamplingFilm, public TCommandInterface<HdrRgbFilm>
 {
 public:
-	HdrRgbFilm(int64 actualWidthPx, int64 actualHeightPx,
-	           const std::shared_ptr<SampleFilter>& filter);
-	HdrRgbFilm(int64 actualWidthPx, int64 actualHeightPx,
-	           const TAABB2D<int64>& effectiveWindowPx,
-	           const std::shared_ptr<SampleFilter>& filter);
-	virtual ~HdrRgbFilm() override;
+	HdrRgbFilm(
+		int64 actualWidthPx, int64 actualHeightPx,
+		const std::shared_ptr<SampleFilter>& filter);
 
-	virtual void addSample(float64 xPx, float64 yPx, const SpectralStrength& radiance) override;
-	virtual void clear() override;
-	virtual std::unique_ptr<Film> genChild(const TAABB2D<int64>& effectiveWindowPx) override;
+	HdrRgbFilm(
+		int64 actualWidthPx, int64 actualHeightPx,
+		const TAABB2D<int64>& effectiveWindowPx,
+		const std::shared_ptr<SampleFilter>& filter);
+
+	~HdrRgbFilm() override;
+
+	void addSample(float64 xPx, float64 yPx, const SpectralStrength& radiance) override;
+	void clear() override;
+	std::unique_ptr<SpectralSamplingFilm> genChild(const TAABB2D<int64>& effectiveWindowPx) override;
 
 private:
-	virtual void developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const override;
+	void developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const override;
 
 	std::vector<RadianceSensor> m_pixelRadianceSensors;
 
@@ -42,9 +47,9 @@ private:
 
 // command interface
 public:
+	explicit HdrRgbFilm(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
-	static std::unique_ptr<HdrRgbFilm> ciLoad(const InputPacket& packet);
 };
 
 }// end namespace ph
