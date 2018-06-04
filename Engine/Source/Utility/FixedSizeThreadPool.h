@@ -19,7 +19,7 @@ public:
 	typedef std::function<void()> Work;
 
 public:
-	FixedSizeThreadPool(const std::size_t numWorkers);
+	FixedSizeThreadPool(std::size_t numWorkers);
 	~FixedSizeThreadPool();
 
 	void queueWork(const Work& work);

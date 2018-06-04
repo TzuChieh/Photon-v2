@@ -17,6 +17,17 @@ TAttributeEntry<Value>::TAttributeEntry(ValueHandler* const handler) :
 }
 
 template<typename Value>
-TAttributeEntry<Value>::~TAttributeEntry() = default;
+void TAttributeEntry<Value>::put(const Value& value)
+{
+	PH_ASSERT(m_handler);
+
+	m_handler->handleSinglePut(value);
+}
+
+template<typename Value>
+bool TAttributeEntry<Value>::hasHandler() const
+{
+	return m_handler;
+}
 
 }// end namespace ph

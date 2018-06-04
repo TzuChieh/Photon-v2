@@ -6,16 +6,17 @@ namespace ph
 {
 
 template<typename Value>
-class TAttributeEntry
+class TAttributeEntry final
 {
 public:
 	using ValueHandler = TAttributeHandlerInterface<Value>;
 
 	TAttributeEntry();
 	TAttributeEntry(ValueHandler* handler);
-	virtual ~TAttributeEntry();
 
-	virtual void put(const Value& value) = 0;
+	void put(const Value& value);
+
+	bool hasHandler() const;
 
 private:
 	ValueHandler* m_handler;
