@@ -48,12 +48,12 @@ Film::~Film() = default;
 
 Film::Film(const InputPacket& packet)
 {
-	const integer     filmWidth  = packet.getInteger("width",  0, DataTreatment::REQUIRED());
-	const integer     filmHeight = packet.getInteger("height", 0, DataTreatment::REQUIRED());
-	const integer     rectX      = packet.getInteger("rect-x", 0);
-	const integer     rectY      = packet.getInteger("rect-y", 0);
-	const integer     rectW      = packet.getInteger("rect-w", filmWidth);
-	const integer     rectH      = packet.getInteger("rect-h", filmHeight);
+	const integer filmWidth  = packet.getInteger("width",  0, DataTreatment::REQUIRED());
+	const integer filmHeight = packet.getInteger("height", 0, DataTreatment::REQUIRED());
+	const integer rectX      = packet.getInteger("rect-x", 0);
+	const integer rectY      = packet.getInteger("rect-y", 0);
+	const integer rectW      = packet.getInteger("rect-w", filmWidth);
+	const integer rectH      = packet.getInteger("rect-h", filmHeight);
 
 	m_actualResPx.x     = filmWidth;
 	m_actualResPx.y     = filmHeight;

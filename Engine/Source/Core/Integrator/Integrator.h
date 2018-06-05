@@ -20,7 +20,9 @@ class Integrator : public TCommandInterface<Integrator>
 {
 public:
 	Integrator();
-	virtual ~Integrator() = 0;
+	virtual ~Integrator();
+
+	virtual void integrate();
 
 	virtual void update(const Scene& scene) = 0;
 	virtual void radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const = 0;
