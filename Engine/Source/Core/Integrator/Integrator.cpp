@@ -5,6 +5,8 @@ namespace ph
 
 Integrator::Integrator() = default;
 
+Integrator::Integrator(const Integrator& other) = default;
+
 Integrator::~Integrator() = default;
 
 Statistics::Record Integrator::asyncGetStatistics() const
@@ -20,13 +22,23 @@ void Integrator::updateStatistics(const Statistics::Record& statistics)
 	m_statistics.setWorkDone(statistics.workDone);
 }
 
+Integrator& Integrator::operator = (const Integrator& rhs)
+{
+	m_statistics = rhs.m_statistics;
+}
+
+void swap(Integrator& first, Integrator& second)
+{
+	using std::swap;
+
+	swap(first.m_statistics, second.m_statistics);
+}
+
 // command interface
 
 Integrator::Integrator(const InputPacket& packet) :
 	Integrator()
-{
-
-}
+{}
 
 SdlTypeInfo Integrator::ciTypeInfo()
 {

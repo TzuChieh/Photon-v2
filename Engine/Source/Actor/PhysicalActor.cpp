@@ -77,6 +77,8 @@ void PhysicalActor::setBaseTransform(const TDecomposedTransform<hiReal>& baseLoc
 
 PhysicalActor& PhysicalActor::operator = (const PhysicalActor& rhs)
 {
+	// FIXME: base?
+
 	m_localToWorld = rhs.m_localToWorld;
 
 	return *this;
