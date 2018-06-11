@@ -22,11 +22,6 @@ void Integrator::updateStatistics(const Statistics::Record& statistics)
 	m_statistics.setWorkDone(statistics.workDone);
 }
 
-Integrator& Integrator::operator = (const Integrator& rhs)
-{
-	m_statistics = rhs.m_statistics;
-}
-
 void swap(Integrator& first, Integrator& second)
 {
 	using std::swap;

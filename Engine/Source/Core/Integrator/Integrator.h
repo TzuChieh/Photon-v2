@@ -32,10 +32,8 @@ public:
 	virtual void setDomainPx(const TAABB2D<int64>& domain) = 0;
 	virtual void setIntegrand(const RenderWork& integrand) = 0;
 	virtual void integrate(const AttributeTags& requestedAttributes) = 0;
-	virtual void asyncGetDomainAttribute(EAttribute type, HdrRgbFrame& out_frame) = 0;
-
-	// TODO: semantics of integrator copying
-	virtual std::unique_ptr<Integrator> makeCopy() const = 0;
+	virtual void asyncGetAttribute(EAttribute type, HdrRgbFrame& out_frame) = 0;
+	virtual std::unique_ptr<Integrator> makeReproduction() const = 0;
 
 	Statistics::Record asyncGetStatistics() const;
 
@@ -44,7 +42,7 @@ protected:
 
 	void updateStatistics(const Statistics::Record& statistics);
 
-	Integrator& operator = (const Integrator& rhs);
+	Integrator& operator = (const Integrator& rhs) = delete;
 
 private:
 	Statistics m_statistics;

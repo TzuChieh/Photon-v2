@@ -21,18 +21,18 @@ public:
 	AbstractPathIntegrator();
 	~AbstractPathIntegrator() override = 0;
 
-	std::unique_ptr<Integrator> makeCopy() const override = 0;
+	std::unique_ptr<Integrator> makeReproduction() const override = 0;
 
 	AttributeTags supportedAttributes() const override;
 	void setDomainPx(const TAABB2D<int64>& domain) override;
 	void setIntegrand(const RenderWork& integrand) override;
 	void integrate(const AttributeTags& requestedAttributes) override;
-	void asyncGetDomainAttribute(EAttribute target, HdrRgbFrame& out_frame) override;
+	void asyncGetAttribute(EAttribute target, HdrRgbFrame& out_frame) override;
 
 protected:
 	AbstractPathIntegrator(const AbstractPathIntegrator& other);
 
-	AbstractPathIntegrator& operator = (const AbstractPathIntegrator& rhs);
+	AbstractPathIntegrator& operator = (const AbstractPathIntegrator& rhs) = delete;
 
 private:
 	virtual void tracePath(
@@ -46,7 +46,7 @@ private:
 
 	std::unique_ptr<TSamplingFilm<SpectralStrength>> m_lightEnergy;
 
-	void initFilms();
+	bool initFilms();
 
 	friend void swap(AbstractPathIntegrator& first, AbstractPathIntegrator& second);
 };
