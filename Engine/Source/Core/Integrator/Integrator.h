@@ -29,10 +29,13 @@ public:
 	virtual ~Integrator() = 0;
 
 	virtual AttributeTags supportedAttributes() const = 0;
-	virtual void setDomainPx(const TAABB2D<int64>& domain) = 0;
+
+	// FIXME: width & height should be obtained from camera (use a FilmInfo-like utility class)
+	virtual void setDomainPx(const TAABB2D<int64>& domain, uint32 widthPx, uint32 heightPx) = 0;
+
 	virtual void setIntegrand(const RenderWork& integrand) = 0;
 	virtual void integrate(const AttributeTags& requestedAttributes) = 0;
-	virtual void asyncGetAttribute(EAttribute type, HdrRgbFrame& out_frame) = 0;
+	virtual void asyncGetAttribute(EAttribute target, HdrRgbFrame& out_frame) = 0;
 	virtual std::unique_ptr<Integrator> makeReproduction() const = 0;
 
 	Statistics::Record asyncGetStatistics() const;
@@ -51,7 +54,7 @@ private:
 
 // command interface
 public:
-	Integrator(const InputPacket& packet);
+	explicit Integrator(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
