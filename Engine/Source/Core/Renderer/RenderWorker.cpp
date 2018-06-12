@@ -89,7 +89,7 @@ void RenderWorker::doWork(RenderWork& work)
 			Ray ray;
 			camera->genSensedRay(Vector2R(rasterPosPx), &ray);
 
-			integrator->radianceAlongRay(ray, work, senseEvents);
+			//integrator->radianceAlongRay(ray, work, senseEvents);
 
 			// HACK: sense event
 			for(const auto& senseEvent : senseEvents)

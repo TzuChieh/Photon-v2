@@ -23,16 +23,25 @@
 namespace ph
 {
 
-BVPTIntegrator::~BVPTIntegrator() = default;
+BVPTIntegrator::BVPTIntegrator() : 
+	AbstractPathIntegrator()
+{}
 
-void BVPTIntegrator::update(const Scene& scene)
+BVPTIntegrator::BVPTIntegrator(const BVPTIntegrator& other) : 
+	AbstractPathIntegrator(other)
+{}
+
+std::unique_ptr<Integrator> BVPTIntegrator::makeReproduction() const
 {
-	// update nothing
+	return std::make_unique<BVPTIntegrator>(*this);
 }
 
-void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
+void BVPTIntegrator::tracePath(
+	const Ray&              ray,
+	SpectralStrength* const out_lightEnergy,
+	SurfaceHit*       const out_firstHit) const
 {
-	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESidednessAgreement::STRICT>(data.scene);
+	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESidednessAgreement::STRICT>(m_scene);
 
 	uint32 numBounces = 0;
 	SpectralStrength accuRadiance(0);
@@ -98,7 +107,7 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 				Vector3R endV;
 				SpectralStrength weight;
 				SpectralStrength radiance;
-				PtVolumetricEstimator::sample(*(data.scene), surfaceHit, L, &Xe, &endV, &weight, &radiance);
+				PtVolumetricEstimator::sample(*m_scene, surfaceHit, L, &Xe, &endV, &weight, &radiance);
 
 				accuLiWeight.mulLocal(weight);
 				if(accuLiWeight.isZero())
@@ -133,13 +142,27 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 		numBounces++;
 	}// end while
 
-	out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */accuRadiance));
+	*out_lightEnergy = accuRadiance;
+}
+
+BVPTIntegrator& BVPTIntegrator::operator = (BVPTIntegrator rhs)
+{
+	swap(*this, rhs);
+
+	return *this;
+}
+
+void swap(BVPTIntegrator& first, BVPTIntegrator& second)
+{
+	using std::swap;
+
+	swap(static_cast<AbstractPathIntegrator&>(first), static_cast<AbstractPathIntegrator&>(second));
 }
 
 // command interface
 
 BVPTIntegrator::BVPTIntegrator(const InputPacket& packet) :
-	Integrator(packet)
+	AbstractPathIntegrator(packet)
 {}
 
 SdlTypeInfo BVPTIntegrator::ciTypeInfo()

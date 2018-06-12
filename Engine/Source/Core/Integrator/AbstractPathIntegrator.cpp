@@ -5,6 +5,8 @@
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Camera/Camera.h"
 #include "World/Scene.h"
+#include "Core/SurfaceHit.h"
+#include "FileIO/SDL/InputPacket.h"
 
 #include <iostream>
 
@@ -72,19 +74,87 @@ void AbstractPathIntegrator::integrate(const AttributeTags& requestedAttributes)
 		return;
 	}
 
-	// TODO
+	const Camera* const         camera     = m_camera;
+	const Scene* const          scene      = m_scene;
+	SampleGenerator* const      sg         = m_sg;
+	SpectralSamplingFilm* const film       = m_lightEnergy.get();
+
+	const uint64 filmWpx = film->getEffectiveResPx().x;
+	const uint64 filmHpx = film->getEffectiveResPx().y;
+
+	const Vector2D flooredSampleMinVertex = film->getSampleWindowPx().minVertex.floor();
+	const Vector2D ceiledSampleMaxVertex  = film->getSampleWindowPx().maxVertex.ceil();
+	const uint64 filmSampleWpx = static_cast<uint64>(ceiledSampleMaxVertex.x - flooredSampleMinVertex.x);
+	const uint64 filmSampleHpx = static_cast<uint64>(ceiledSampleMaxVertex.y - flooredSampleMinVertex.y);
+	const uint64 numCamPhaseSamples = filmSampleWpx * filmSampleHpx;
+
+	TSamplePhase<SampleArray2D> camSamplePhase = sg->declareArray2DPhase(numCamPhaseSamples);
+
+	m_statistics.setTotalWork(static_cast<uint32>(sg->numSamples()));
+	m_statistics.setWorkDone(0);
+
+	std::chrono::time_point<std::chrono::system_clock> t1;
+	std::chrono::time_point<std::chrono::system_clock> t2;
+
+	while(sg->singleSampleStart())
+	{
+		t1 = std::chrono::system_clock::now();
+
+		const SampleArray2D& camSamples = sg->getNextArray2D(camSamplePhase);
+
+		for(std::size_t si = 0; si < camSamples.numElements(); si++)
+		{
+			const Vector2D rasterPosPx(camSamples[si].x * filmSampleWpx + flooredSampleMinVertex.x,
+			                           camSamples[si].y * filmSampleHpx + flooredSampleMinVertex.y);
+
+			if(!film->getSampleWindowPx().isIntersectingArea(rasterPosPx))
+			{
+				continue;
+			}
+
+			Ray ray;
+			camera->genSensedRay(Vector2R(rasterPosPx), &ray);
+
+			SurfaceHit firstHit;
+			SpectralStrength lightEnergySample;
+			tracePath(ray, &lightEnergySample, &firstHit);
+
+			film->addSample(rasterPosPx.x, rasterPosPx.y, lightEnergySample);
+		}// end for
+
+		sg->singleSampleEnd();
+
+		//m_renderer.submitWork(m_id, work, true);
+		m_statistics.incrementWorkDone();
+	
+		t2 = std::chrono::system_clock::now();
+
+		m_statistics.setNumSamplesTaken(static_cast<uint32>(camSamples.numElements()));
+		m_statistics.setNumMsElapsed(static_cast<uint32>(std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count()));
+	}
+
+	// FIXME: sort of hacking
+	m_statistics.setNumSamplesTaken(0);
+	m_statistics.setNumMsElapsed(0);
 }
 
 void AbstractPathIntegrator::asyncGetAttribute(const EAttribute target, HdrRgbFrame& out_frame)
 {
 	std::lock_guard<std::mutex> lock(m_filmMutex);
 
-	// TODO
+	switch(target)
+	{
+	case EAttribute::LIGHT_ENERGY:
+		m_lightEnergy->develop(out_frame);
+		break;
+	}
 }
 
 void swap(AbstractPathIntegrator& first, AbstractPathIntegrator& second)
 {
 	using std::swap;
+
+	swap(static_cast<Integrator&>(first), static_cast<Integrator&>(second));
 
 	swap(first.m_scene,       second.m_scene);
 	swap(first.m_camera,      second.m_camera);
@@ -105,18 +175,46 @@ bool AbstractPathIntegrator::initFilms()
 	if(!m_domainPx.isValid() || m_domainPx.calcArea() == 0)
 	{
 		std::cerr << "integration domain invalid: " << m_domainPx.toString() << std::endl;
-		return;
+		return false;
 	}
 
 	// FIXME: filter should not be shared_ptr
-	m_lightEnergy = std::make_unique<HdrRgbFilm>(m_widthPx, m_heightPx, std::make_shared<SampleFilter>(m_filter));
+	m_lightEnergy = std::make_unique<HdrRgbFilm>(m_widthPx, m_heightPx, m_domainPx, std::make_shared<SampleFilter>(m_filter));
+
+	return true;
 }
 
 // command interface
 
 AbstractPathIntegrator::AbstractPathIntegrator(const InputPacket& packet) :
-	AbstractPathIntegrator(packet)
-{}
+
+	Integrator(packet),
+
+	m_scene(nullptr),
+	m_camera(nullptr),
+	m_sg(nullptr),
+	m_domainPx(),
+	m_widthPx(0), m_heightPx(0),
+	m_filter(SampleFilterFactory::createGaussianFilter()),
+	m_filmMutex(),
+
+	m_lightEnergy(nullptr)
+{
+	const std::string filterName = packet.getString("filter-name", "box");
+
+	if(filterName == "box")
+	{
+		m_filter = SampleFilterFactory::createBoxFilter();
+	}
+	else if(filterName == "gaussian")
+	{
+		m_filter = SampleFilterFactory::createGaussianFilter();
+	}
+	else if(filterName == "mn")
+	{
+		m_filter = SampleFilterFactory::createMNFilter();
+	}
+}
 
 SdlTypeInfo AbstractPathIntegrator::ciTypeInfo()
 {
@@ -124,8 +222,6 @@ SdlTypeInfo AbstractPathIntegrator::ciTypeInfo()
 }
 
 void AbstractPathIntegrator::ciRegister(CommandRegister& cmdRegister)
-{
-	// TODO
-}
+{}
 
 }// end namespace ph

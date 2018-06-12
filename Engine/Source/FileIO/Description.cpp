@@ -37,7 +37,7 @@ void Description::update(const real deltaS)
 	}
 
 	visualWorld.cook();
-	m_integrator->update(visualWorld.getScene());
+	//m_integrator->update(visualWorld.getScene());
 	m_camera->setFilm(m_film);
 }
 

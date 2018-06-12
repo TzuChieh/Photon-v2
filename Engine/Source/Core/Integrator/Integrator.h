@@ -9,6 +9,7 @@
 #include "Core/Integrator/Attribute/EAttribute.h"
 #include "Core/Bound/TAABB2D.h"
 #include "Core/Integrator/Attribute/AttributeTags.h"
+#include "Frame/frame_fwd.h"
 
 #include <vector>
 #include <memory>
@@ -20,7 +21,6 @@ class Scene;
 class Ray;
 class Camera;
 class InputPacket;
-class HdrRgbFrame;
 
 class Integrator : public TCommandInterface<Integrator>
 {
@@ -40,6 +40,8 @@ public:
 
 	Statistics::Record asyncGetStatistics() const;
 
+	friend void swap(Integrator& first, Integrator& second);
+
 protected:
 	Integrator(const Integrator& other);
 
@@ -47,10 +49,12 @@ protected:
 
 	Integrator& operator = (const Integrator& rhs) = delete;
 
-private:
 	Statistics m_statistics;
 
-	friend void swap(Integrator& first, Integrator& second);
+private:
+	
+
+	
 
 // command interface
 public:

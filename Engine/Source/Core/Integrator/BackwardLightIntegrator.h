@@ -11,8 +11,8 @@ class BackwardLightIntegrator final : public Integrator, public TCommandInterfac
 public:
 	virtual ~BackwardLightIntegrator() override;
 
-	virtual void update(const Scene& scene) override;
-	virtual void radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const override;
+	/*virtual void update(const Scene& scene) override;
+	virtual void radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const override;*/
 
 private:
 	static void rationalClamp(SpectralStrength& value);

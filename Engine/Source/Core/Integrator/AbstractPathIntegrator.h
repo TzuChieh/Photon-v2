@@ -22,7 +22,7 @@ class AbstractPathIntegrator : public Integrator, public TCommandInterface<Abstr
 {
 public:
 	AbstractPathIntegrator();
-	~AbstractPathIntegrator() override = 0;
+	~AbstractPathIntegrator() override;
 
 	std::unique_ptr<Integrator> makeReproduction() const override = 0;
 
@@ -32,10 +32,14 @@ public:
 	void integrate(const AttributeTags& requestedAttributes) override;
 	void asyncGetAttribute(EAttribute target, HdrRgbFrame& out_frame) override;
 
+	friend void swap(AbstractPathIntegrator& first, AbstractPathIntegrator& second);
+
 protected:
 	AbstractPathIntegrator(const AbstractPathIntegrator& other);
 
 	AbstractPathIntegrator& operator = (const AbstractPathIntegrator& rhs) = delete;
+
+	const Scene*   m_scene;
 
 private:
 	virtual void tracePath(
@@ -43,9 +47,9 @@ private:
 		SpectralStrength* out_lightEnergy, 
 		SurfaceHit*       out_firstHit) const = 0;
 
-	const Scene*   m_scene;
+	
 	const Camera*  m_camera;
-	const SampleGenerator* m_sg;
+	SampleGenerator* m_sg;
 	TAABB2D<int64> m_domainPx;
 	uint32 m_widthPx, m_heightPx;
 	SampleFilter   m_filter;
@@ -55,24 +59,22 @@ private:
 
 	bool initFilms();
 
-	friend void swap(AbstractPathIntegrator& first, AbstractPathIntegrator& second);
-
 // command interface
 public:
 	explicit AbstractPathIntegrator(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 	
-	template<typename IntegratorType>
-	static void registerAbstractIntegratorExecutors(CommandRegister& cmdRegister);
+	/*template<typename IntegratorType>
+	static void registerExecutors(CommandRegister& cmdRegister);*/
 };
 
 // In-header Implementations:
 
-template<typename IntegratorType>
-inline void AbstractPathIntegrator::registerAbstractIntegratorExecutors(CommandRegister& cmdRegister)
-{
-
-}
+//template<typename IntegratorType>
+//inline void AbstractPathIntegrator::registerExecutors(CommandRegister& cmdRegister)
+//{
+//
+//}
 
 }// end namespace ph

@@ -24,18 +24,14 @@ public:
 public:
 	inline Statistics() :
 		m_totalWork(0), m_workDone(0), m_numSamplesTaken(0), m_numMsElapsed(0)
-	{
-
-	}
+	{}
 
 	inline Statistics(const Statistics& other) :
 		m_totalWork      (other.m_totalWork.load()), 
 		m_workDone       (other.m_workDone.load()), 
 		m_numSamplesTaken(other.m_numSamplesTaken.load()), 
 		m_numMsElapsed   (other.m_numMsElapsed.load())
-	{
-
-	}
+	{}
 
 	inline void setTotalWork(const uint32 totalWork)
 	{
