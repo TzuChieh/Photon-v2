@@ -28,25 +28,17 @@
 namespace ph
 {
 
-BNEEPTIntegrator::BNEEPTIntegrator() : 
-	AbstractPathIntegrator()
-{}
+BNEEPTIntegrator::~BNEEPTIntegrator() = default;
 
-BNEEPTIntegrator::BNEEPTIntegrator(const BNEEPTIntegrator& other) : 
-	AbstractPathIntegrator(other)
-{}
-
-std::unique_ptr<Integrator> BNEEPTIntegrator::makeReproduction() const
+void BNEEPTIntegrator::update(const Scene& scene)
 {
-	return std::make_unique<BNEEPTIntegrator>(*this);
+	// update nothing
 }
 
-void BNEEPTIntegrator::tracePath(
-	const Ray&        ray,
-	SpectralStrength* out_lightEnergy,
-	SurfaceHit*       out_firstHit) const
+void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
 {
-	const Scene&  scene  = *m_scene;
+	const Scene&  scene  = *data.scene;
+	const Camera& camera = *data.camera;
 	const auto&   mis    = TMis<EMisStyle::POWER>();
 
 	// common variables
@@ -65,7 +57,7 @@ void BNEEPTIntegrator::tracePath(
 
 	if(!scene.isIntersecting(tracingRay, &hitProbe))
 	{
-		*out_lightEnergy = accuRadiance;
+		out_senseEvents.push_back(SenseEvent(accuRadiance));
 		return;
 	}
 
@@ -79,7 +71,7 @@ void BNEEPTIntegrator::tracePath(
 		V = tracingRay.getDirection().mul(-1.0_r);
 		if(surfaceHit.getGeometryNormal().dot(V) * surfaceHit.getShadingNormal().dot(V) <= 0.0_r)
 		{
-			*out_lightEnergy = accuRadiance;
+			out_senseEvents.push_back(SenseEvent(accuRadiance));
 			return;
 		}
 
@@ -230,21 +222,7 @@ void BNEEPTIntegrator::tracePath(
 		}
 	}// end for each bounces
 
-	*out_lightEnergy = accuRadiance;
-}
-
-BNEEPTIntegrator& BNEEPTIntegrator::operator = (BNEEPTIntegrator rhs)
-{
-	swap(*this, rhs);
-
-	return *this;
-}
-
-void swap(BNEEPTIntegrator& first, BNEEPTIntegrator& second)
-{
-	using std::swap;
-
-	swap(static_cast<AbstractPathIntegrator&>(first), static_cast<AbstractPathIntegrator&>(second));
+	out_senseEvents.push_back(SenseEvent(accuRadiance));
 }
 
 void BNEEPTIntegrator::rationalClamp(SpectralStrength& value)
@@ -256,7 +234,7 @@ void BNEEPTIntegrator::rationalClamp(SpectralStrength& value)
 // command interface
 
 BNEEPTIntegrator::BNEEPTIntegrator(const InputPacket& packet) :
-	AbstractPathIntegrator(packet)
+	Integrator(packet)
 {}
 
 SdlTypeInfo BNEEPTIntegrator::ciTypeInfo()

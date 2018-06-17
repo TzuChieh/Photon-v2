@@ -23,25 +23,16 @@
 namespace ph
 {
 
-BVPTIntegrator::BVPTIntegrator() : 
-	AbstractPathIntegrator()
-{}
+BVPTIntegrator::~BVPTIntegrator() = default;
 
-BVPTIntegrator::BVPTIntegrator(const BVPTIntegrator& other) : 
-	AbstractPathIntegrator(other)
-{}
-
-std::unique_ptr<Integrator> BVPTIntegrator::makeReproduction() const
+void BVPTIntegrator::update(const Scene& scene)
 {
-	return std::make_unique<BVPTIntegrator>(*this);
+	// update nothing
 }
 
-void BVPTIntegrator::tracePath(
-	const Ray&              ray,
-	SpectralStrength* const out_lightEnergy,
-	SurfaceHit*       const out_firstHit) const
+void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
 {
-	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESidednessAgreement::STRICT>(m_scene);
+	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESidednessAgreement::STRICT>(data.scene);
 
 	uint32 numBounces = 0;
 	SpectralStrength accuRadiance(0);
@@ -107,7 +98,7 @@ void BVPTIntegrator::tracePath(
 				Vector3R endV;
 				SpectralStrength weight;
 				SpectralStrength radiance;
-				PtVolumetricEstimator::sample(*m_scene, surfaceHit, L, &Xe, &endV, &weight, &radiance);
+				PtVolumetricEstimator::sample(*(data.scene), surfaceHit, L, &Xe, &endV, &weight, &radiance);
 
 				accuLiWeight.mulLocal(weight);
 				if(accuLiWeight.isZero())
@@ -142,27 +133,13 @@ void BVPTIntegrator::tracePath(
 		numBounces++;
 	}// end while
 
-	*out_lightEnergy = accuRadiance;
-}
-
-BVPTIntegrator& BVPTIntegrator::operator = (BVPTIntegrator rhs)
-{
-	swap(*this, rhs);
-
-	return *this;
-}
-
-void swap(BVPTIntegrator& first, BVPTIntegrator& second)
-{
-	using std::swap;
-
-	swap(static_cast<AbstractPathIntegrator&>(first), static_cast<AbstractPathIntegrator&>(second));
+	out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */accuRadiance));
 }
 
 // command interface
 
 BVPTIntegrator::BVPTIntegrator(const InputPacket& packet) :
-	AbstractPathIntegrator(packet)
+	Integrator(packet)
 {}
 
 SdlTypeInfo BVPTIntegrator::ciTypeInfo()

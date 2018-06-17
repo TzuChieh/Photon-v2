@@ -14,19 +14,25 @@ class Camera;
 class SampleGenerator;
 class Integrator;
 
-class BulkRenderer final : public Renderer
+class SamplingRenderer final : public Renderer, public TCommandInterface<SamplingRenderer>
 {
 public:
-	BulkRenderer();
-	virtual ~BulkRenderer() override;
+	SamplingRenderer();
+	virtual ~SamplingRenderer() override;
 
-	virtual void init(const Description& description) override;
-	virtual bool getNewWork(uint32 workerId, RenderWork* out_work) override;
-	virtual void submitWork(uint32 workerId, const RenderWork& work, bool isUpdating) override;
-	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;
-	virtual void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region) override;
+	AttributeTags supportedAttributes() const override;
+	void init(const Description& description) override;
+	bool getNewWork(uint32 workerId, RenderWork* out_work) override;
+	void submitWork(uint32 workerId, const RenderWork& work, bool isUpdating) override;
+	ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;
+	void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region) override;
 
 private:
+	SampleFilter m_filter;
+	std::mutex m_filmMutex;
+
+	std::unique_ptr<TSamplingFilm<SpectralStrength>> m_lightEnergy;
+
 	const Scene*          m_scene;
 	SampleGenerator*      m_sg;
 	Integrator*           m_integrator;
@@ -43,6 +49,12 @@ private:
 
 	void clearWorkData();
 	void addUpdatedRegion(const Region& region, bool isUpdating);
+
+// command interface
+public:
+	explicit SamplingRenderer(const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph

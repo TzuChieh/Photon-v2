@@ -9,6 +9,8 @@
 #include "Core/Renderer/ERegionStatus.h"
 #include "Core/Renderer/Statistics.h"
 #include "Frame/frame_fwd.h"
+#include "Core/Integrator/Attribute/AttributeTags.h"
+#include "FileIO/SDL/TCommandInterface.h"
 
 #include <vector>
 #include <mutex>
@@ -20,8 +22,9 @@ namespace ph
 {
 
 class Description;
+class InputPacket;
 
-class Renderer
+class Renderer: public TCommandInterface<Renderer>
 {
 public:
 	typedef TAABB2D<int64> Region;
@@ -30,6 +33,7 @@ public:
 	Renderer();
 	virtual ~Renderer() = 0;
 
+	virtual AttributeTags supportedAttributes() const = 0;
 	virtual void init(const Description& description) = 0;
 	virtual bool getNewWork(uint32 workerId, RenderWork* out_work) = 0;
 	virtual void submitWork(uint32 workerId, const RenderWork& work, bool isUpdating) = 0;
@@ -46,6 +50,12 @@ protected:
 
 private:
 	std::vector<RenderWorker> m_workers;
+
+// command interface
+public:
+	explicit Renderer(const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph

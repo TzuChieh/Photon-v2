@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Core/Integrator/AbstractPathIntegrator.h"
+#include "Core/Integrator/Integrator.h"
 #include "Math/math_fwd.h"
 
 namespace ph
@@ -21,24 +21,15 @@ namespace ph
 	His page:     http://pellacini.di.uniroma1.it/
 	Lecture Note: http://pellacini.di.uniroma1.it/teaching/graphics08/lectures/18_PathTracing_Web.pdf
 */
-class BNEEPTIntegrator final : public AbstractPathIntegrator, public TCommandInterface<BNEEPTIntegrator>
+class BNEEPTIntegrator final : public Integrator, public TCommandInterface<BNEEPTIntegrator>
 {
 public:
-	BNEEPTIntegrator();
-	BNEEPTIntegrator(const BNEEPTIntegrator& other);
+	virtual ~BNEEPTIntegrator() override;
 
-	std::unique_ptr<Integrator> makeReproduction() const override;
-
-	BNEEPTIntegrator& operator = (BNEEPTIntegrator rhs);
-
-	friend void swap(BNEEPTIntegrator& first, BNEEPTIntegrator& second);
+	virtual void update(const Scene& scene) override;
+	virtual void radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const override;
 
 private:
-	void tracePath(
-		const Ray&        ray,
-		SpectralStrength* out_lightEnergy,
-		SurfaceHit*       out_firstHit) const override;
-
 	static void rationalClamp(SpectralStrength& value);
 
 // command interface

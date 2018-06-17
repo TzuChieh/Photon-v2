@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Integrator/AbstractPathIntegrator.h"
+#include "Core/Integrator/Integrator.h"
 
 namespace ph
 {
@@ -15,23 +15,13 @@ namespace ph
 	simple but still unbiased, it is good for ground truth rendering if 
 	the correctness of another integrator is in doubt.
 */
-class BVPTIntegrator final : public AbstractPathIntegrator, public TCommandInterface<BVPTIntegrator>
+class BVPTIntegrator final : public Integrator, public TCommandInterface<BVPTIntegrator>
 {
 public:
-	BVPTIntegrator();
-	BVPTIntegrator(const BVPTIntegrator& other);
+	virtual ~BVPTIntegrator() override;
 
-	std::unique_ptr<Integrator> makeReproduction() const override;
-
-	BVPTIntegrator& operator = (BVPTIntegrator rhs);
-
-	friend void swap(BVPTIntegrator& first, BVPTIntegrator& second);
-
-private:
-	void tracePath(
-		const Ray&        ray,
-		SpectralStrength* out_lightEnergy,
-		SurfaceHit*       out_firstHit) const override;
+	virtual void update(const Scene& scene) override;
+	virtual void radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const override;
 
 // command interface
 public:

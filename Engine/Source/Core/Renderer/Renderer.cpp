@@ -91,4 +91,17 @@ void Renderer::asyncQueryStatistics(float32* const out_percentageProgress,
 	*out_samplesPerSecond = static_cast<float32>(samplesPerMs) * 1000.0f;
 }
 
+// command interface
+
+Renderer::Renderer(const InputPacket& packet) :
+	Renderer()
+{}
+
+SdlTypeInfo Renderer::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "renderer");
+}
+
+void Renderer::ciRegister(CommandRegister& cmdRegister) {}
+
 }// end namespace ph

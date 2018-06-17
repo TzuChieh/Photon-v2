@@ -1,4 +1,4 @@
-#include "Core/Renderer/BulkRenderer.h"
+#include "Core/Renderer/SamplingRenderer.h"
 #include "Common/primitive_type.h"
 #include "Core/Filmic/Film.h"
 #include "World/VisualWorld.h"
@@ -12,6 +12,7 @@
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
 #include "Common/assertion.h"
+#include "Core/Filmic/SampleFilterFactory.h"
 
 #include <cmath>
 #include <iostream>
@@ -24,7 +25,7 @@
 namespace ph
 {
 
-BulkRenderer::BulkRenderer() :
+SamplingRenderer::SamplingRenderer() :
 	Renderer(),
 	m_scene(nullptr),
 	m_sg(nullptr),
@@ -39,9 +40,16 @@ BulkRenderer::BulkRenderer() :
 	m_rendererMutex()
 {}
 
-BulkRenderer::~BulkRenderer() = default;
+SamplingRenderer::~SamplingRenderer() = default;
 
-void BulkRenderer::init(const Description& description)
+AttributeTags SamplingRenderer::supportedAttributes() const
+{
+	AttributeTags supports;
+	supports.tag(EAttribute::LIGHT_ENERGY);
+	return supports;
+}
+
+void SamplingRenderer::init(const Description& description)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
@@ -64,7 +72,7 @@ void BulkRenderer::init(const Description& description)
 	}
 }
 
-bool BulkRenderer::getNewWork(const uint32 workerId, RenderWork* out_work)
+bool SamplingRenderer::getNewWork(const uint32 workerId, RenderWork* out_work)
 {
 	PH_ASSERT(out_work != nullptr);
 
@@ -86,7 +94,7 @@ bool BulkRenderer::getNewWork(const uint32 workerId, RenderWork* out_work)
 	return true;
 }
 
-void BulkRenderer::submitWork(const uint32 workerId, const RenderWork& work, const bool isUpdating)
+void SamplingRenderer::submitWork(const uint32 workerId, const RenderWork& work, const bool isUpdating)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
@@ -96,14 +104,14 @@ void BulkRenderer::submitWork(const uint32 workerId, const RenderWork& work, con
 	addUpdatedRegion(work.film->getEffectiveWindowPx(), isUpdating);
 }
 
-void BulkRenderer::clearWorkData()
+void SamplingRenderer::clearWorkData()
 {
 	m_workSgs.clear();
 	m_workFilms.clear();
 	m_updatedRegions.clear();
 }
 
-ERegionStatus BulkRenderer::asyncPollUpdatedRegion(Region* const out_region)
+ERegionStatus SamplingRenderer::asyncPollUpdatedRegion(Region* const out_region)
 {
 	PH_ASSERT(out_region != nullptr);
 
@@ -127,7 +135,7 @@ ERegionStatus BulkRenderer::asyncPollUpdatedRegion(Region* const out_region)
 	}
 }
 
-void BulkRenderer::asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region)
+void SamplingRenderer::asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
@@ -137,7 +145,7 @@ void BulkRenderer::asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& 
 	}
 }
 
-void BulkRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)
+void SamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)
 {
 	if(!isUpdating)
 	{
@@ -155,5 +163,43 @@ void BulkRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)
 
 	m_updatedRegions.push_back(std::make_pair(region, isUpdating));
 }
+
+// command interface
+
+SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
+
+	Renderer(packet),
+
+	m_scene(nullptr),
+	m_camera(nullptr),
+	m_sg(nullptr),
+	m_filter(SampleFilterFactory::createGaussianFilter()),
+	m_filmMutex(),
+
+	m_lightEnergy(nullptr)
+{
+	const std::string filterName = packet.getString("filter-name", "box");
+
+	if(filterName == "box")
+	{
+		m_filter = SampleFilterFactory::createBoxFilter();
+	}
+	else if(filterName == "gaussian")
+	{
+		m_filter = SampleFilterFactory::createGaussianFilter();
+	}
+	else if(filterName == "mn")
+	{
+		m_filter = SampleFilterFactory::createMNFilter();
+	}
+}
+
+SdlTypeInfo SamplingRenderer::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "sampling-renderer");
+}
+
+void SamplingRenderer::ciRegister(CommandRegister& cmdRegister)
+{}
 
 }// end namespace ph
