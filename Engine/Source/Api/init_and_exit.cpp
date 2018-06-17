@@ -70,6 +70,10 @@
 #include "Core/Integrator/NormalBufferIntegrator.h"
 #include "Core/Integrator/DebugIntegrator.h"
 
+// renderers
+#include "Core/Renderer/Renderer.h"
+#include "Core/Renderer/SamplingRenderer.h"
+
 #include <iostream>
 
 namespace ph
@@ -156,6 +160,10 @@ bool init_command_parser()
 	register_command_interface<LightTracingIntegrator>();
 	register_command_interface<NormalBufferIntegrator>();
 	register_command_interface<DebugIntegrator>();
+
+	// renderers
+	register_command_interface<Renderer>();
+	register_command_interface<SamplingRenderer>();
 
 	return true;
 }

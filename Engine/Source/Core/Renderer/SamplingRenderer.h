@@ -28,10 +28,9 @@ public:
 	void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region) override;
 
 private:
-	SampleFilter m_filter;
-	std::mutex m_filmMutex;
+	/*SampleFilter m_filter;
 
-	std::unique_ptr<TSamplingFilm<SpectralStrength>> m_lightEnergy;
+	std::unique_ptr<TSamplingFilm<SpectralStrength>> m_lightEnergy;*/
 
 	const Scene*          m_scene;
 	SampleGenerator*      m_sg;

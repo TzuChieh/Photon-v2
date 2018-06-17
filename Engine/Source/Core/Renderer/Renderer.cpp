@@ -99,7 +99,7 @@ Renderer::Renderer(const InputPacket& packet) :
 
 SdlTypeInfo Renderer::ciTypeInfo()
 {
-	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "renderer");
+	return SdlTypeInfo(ETypeCategory::REF_RENDERER, "renderer");
 }
 
 void Renderer::ciRegister(CommandRegister& cmdRegister) {}

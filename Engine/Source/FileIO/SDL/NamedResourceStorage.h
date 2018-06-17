@@ -44,7 +44,7 @@ public:
 private:
 	std::array<
 		std::unordered_map<std::string, std::shared_ptr<ISdlResource>>, 
-		static_cast<std::size_t>(ETypeCategory::MAX)
+		static_cast<std::size_t>(ETypeCategory::MAX) + 1
 	> m_resources;
 	
 private:

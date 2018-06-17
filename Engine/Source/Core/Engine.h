@@ -40,7 +40,8 @@ public:
 private:
 	DescriptionParser m_parser;
 	Description m_description;
-	std::unique_ptr<Renderer> m_renderer;
+	std::shared_ptr<Renderer> m_renderer;
+	uint32 m_numRenderThreads;
 
 	FilmSet m_filmSet;
 };

@@ -22,11 +22,14 @@ std::string SdlTypeInfo::categoryToName(const ETypeCategory typeCategory)
 	case ETypeCategory::REF_LIGHT_SOURCE:     categoryName = "light-source";     break;
 	case ETypeCategory::REF_ACTOR:            categoryName = "actor";            break;
 	case ETypeCategory::REF_CAMERA:           categoryName = "camera";           break;
+
 	case ETypeCategory::REF_FILM:             categoryName = "film";             break;
+
 	case ETypeCategory::REF_INTEGRATOR:       categoryName = "integrator";       break;
 	case ETypeCategory::REF_SAMPLE_GENERATOR: categoryName = "sample-generator"; break;
 	case ETypeCategory::REF_IMAGE:            categoryName = "image";            break;
 	case ETypeCategory::REF_FRAME_PROCESSOR:  categoryName = "frame-processor";  break;
+	case ETypeCategory::REF_RENDERER:         categoryName = "renderer";         break;
 
 	default:
 		std::cerr << "warning: at SdlTypeInfo::categoryToName() " 
@@ -48,11 +51,14 @@ ETypeCategory SdlTypeInfo::nameToCategory(const std::string& name)
 		{categoryToName(ETypeCategory::REF_LIGHT_SOURCE),     ETypeCategory::REF_LIGHT_SOURCE},
 		{categoryToName(ETypeCategory::REF_ACTOR),            ETypeCategory::REF_ACTOR},
 		{categoryToName(ETypeCategory::REF_CAMERA),           ETypeCategory::REF_CAMERA},
+
 		{categoryToName(ETypeCategory::REF_FILM),             ETypeCategory::REF_FILM},
+
 		{categoryToName(ETypeCategory::REF_INTEGRATOR),       ETypeCategory::REF_INTEGRATOR},
 		{categoryToName(ETypeCategory::REF_SAMPLE_GENERATOR), ETypeCategory::REF_SAMPLE_GENERATOR},
 		{categoryToName(ETypeCategory::REF_IMAGE),            ETypeCategory::REF_IMAGE},
-		{categoryToName(ETypeCategory::REF_FRAME_PROCESSOR),  ETypeCategory::REF_FRAME_PROCESSOR}
+		{categoryToName(ETypeCategory::REF_FRAME_PROCESSOR),  ETypeCategory::REF_FRAME_PROCESSOR},
+		{categoryToName(ETypeCategory::REF_RENDERER),         ETypeCategory::REF_RENDERER}
 	};
 
 	const auto& iter = map.find(name);

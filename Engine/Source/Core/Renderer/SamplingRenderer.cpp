@@ -170,15 +170,24 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 
 	Renderer(packet),
 
+
 	m_scene(nullptr),
-	m_camera(nullptr),
 	m_sg(nullptr),
-	m_filter(SampleFilterFactory::createGaussianFilter()),
+	m_integrator(nullptr),
+	m_film(nullptr),
+	m_camera(nullptr),
+	m_numRemainingWorks(0),
+	m_numFinishedWorks(0),
+	m_workSgs(),
+	m_workFilms(),
+	m_updatedRegions(),
+	m_rendererMutex()
+	/*m_filter(SampleFilterFactory::createGaussianFilter()),
 	m_filmMutex(),
 
-	m_lightEnergy(nullptr)
+	m_lightEnergy(nullptr)*/
 {
-	const std::string filterName = packet.getString("filter-name", "box");
+	/*const std::string filterName = packet.getString("filter-name", "box");
 
 	if(filterName == "box")
 	{
@@ -191,15 +200,22 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 	else if(filterName == "mn")
 	{
 		m_filter = SampleFilterFactory::createMNFilter();
-	}
+	}*/
 }
 
 SdlTypeInfo SamplingRenderer::ciTypeInfo()
 {
-	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "sampling-renderer");
+	return SdlTypeInfo(ETypeCategory::REF_RENDERER, "sampling");
 }
 
 void SamplingRenderer::ciRegister(CommandRegister& cmdRegister)
-{}
+{
+	SdlLoader loader;
+	loader.setFunc<SamplingRenderer>([](const InputPacket& packet)
+	{
+		return std::make_unique<SamplingRenderer>(packet);
+	});
+	cmdRegister.setLoader(loader);
+}
 
 }// end namespace ph

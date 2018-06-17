@@ -1,6 +1,6 @@
 #include "Core/Engine.h"
 #include "Frame/TFrame.h"
-#include "Core/Renderer/BulkRenderer.h"
+#include "Core/Renderer/SamplingRenderer.h"
 #include "Frame/FrameProcessor.h"
 #include "Frame/Operator/JRToneMapping.h"
 #include "Core/Filmic/TSamplingFilm.h"
@@ -9,7 +9,7 @@ namespace ph
 {
 
 Engine::Engine() : 
-	m_renderer(std::make_unique<BulkRenderer>())
+	m_renderer(nullptr), m_numRenderThreads(1)
 {}
 
 void Engine::enterCommand(const std::string& commandFragment)
@@ -27,6 +27,9 @@ void Engine::update()
 	std::shared_ptr<FrameProcessor> processor = std::make_shared<FrameProcessor>();
 	processor->appendOperator(std::make_shared<JRToneMapping>());
 	m_filmSet.setProcessor(EFrameTag::RGB_COLOR, processor);
+
+	m_renderer = m_description.getRenderer();
+	m_renderer->setNumRenderThreads(m_numRenderThreads);
 }
 
 void Engine::render()
@@ -53,7 +56,7 @@ TVector2<int64> Engine::getFilmDimensionPx() const
 
 void Engine::setNumRenderThreads(const uint32 numThreads)
 {
-	m_renderer->setNumRenderThreads(numThreads);
+	m_numRenderThreads = numThreads;
 }
 
 ERegionStatus Engine::asyncPollUpdatedRegion(Renderer::Region* const out_region) const

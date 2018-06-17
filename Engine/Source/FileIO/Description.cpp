@@ -13,7 +13,8 @@ Description::Description() :
 	m_camera(nullptr), 
 	m_film(nullptr), 
 	m_integrator(nullptr), 
-	m_sampleGenerator(nullptr)
+	m_sampleGenerator(nullptr),
+	m_renderer(nullptr)
 {}
 
 void Description::update(const real deltaS)
@@ -24,7 +25,8 @@ void Description::update(const real deltaS)
 	m_film            = resources.getResource<SpectralSamplingFilm>(resourceName, DataTreatment::REQUIRED());
 	m_integrator      = resources.getResource<Integrator>          (resourceName, DataTreatment::REQUIRED());
 	m_sampleGenerator = resources.getResource<SampleGenerator>     (resourceName, DataTreatment::REQUIRED());
-	if(!m_camera || !m_film || !m_integrator || !m_sampleGenerator)
+	m_renderer        = resources.getResource<Renderer>            (resourceName, DataTreatment::REQUIRED());
+	if(!m_camera || !m_film || !m_integrator || !m_sampleGenerator || !m_renderer)
 	{
 		std::cerr << "warning: at Description::update(), data incomplete" << std::endl;
 		return;
@@ -37,7 +39,7 @@ void Description::update(const real deltaS)
 	}
 
 	visualWorld.cook();
-	//m_integrator->update(visualWorld.getScene());
+	m_integrator->update(visualWorld.getScene());
 	m_camera->setFilm(m_film);
 }
 

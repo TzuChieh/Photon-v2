@@ -1,28 +1,38 @@
 #pragma once
 
-#include "Core/Renderer/RenderProgress.h"
+#include "Core/Filmic/filmic_fwd.h"
 
 namespace ph
 {
 
+class Scene;
+class Camera;
 class Integrator;
-class Renderer;
+class SampleGenerator;
 
 class RenderWork final
 {
 public:
-	const Integrator* integrator;
-	RenderProgress    progress;
+	const Scene*          scene;
+	const Camera*         camera;
+	const Integrator*     integrator;
+	SampleGenerator*      sampleGenerator;
+	SpectralSamplingFilm* film;
 
-	inline RenderWork(
-		Renderer* const         renderer, 
-		const Integrator* const integrator) :
-		integrator(integrator),
-		progress(renderer)
+	inline RenderWork(const Scene* const          scene,
+	                  const Camera* const         camera,
+	                  const Integrator* const     integrator,
+	                  SampleGenerator* const      sampleGenerator,
+	                  SpectralSamplingFilm* const film) :
+		scene(scene), 
+		camera(camera), 
+		integrator(integrator), 
+		sampleGenerator(sampleGenerator),
+		film(film)
 	{}
 
 	inline RenderWork() :
-		RenderWork(nullptr)
+		RenderWork(nullptr, nullptr, nullptr, nullptr, nullptr)
 	{}
 };
 
