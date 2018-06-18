@@ -30,7 +30,6 @@ public:
 	typedef TAABB2D<int64> Region;
 
 public:
-	Renderer();
 	virtual ~Renderer() = 0;
 
 	virtual AttributeTags supportedAttributes() const = 0;
@@ -45,10 +44,17 @@ public:
 	void asyncQueryStatistics(float32* out_percentageProgress, 
 	                          float32* out_samplesPerSecond) const;
 
-protected:
-	uint32 m_numThreads;
+	uint32         getNumRenderThreads() const;
+	uint32         getRenderWidthPx()    const;
+	uint32         getRenderHeightPx()   const;
+	TAABB2D<int64> getRenderWindowPx()   const;
 
 private:
+	uint32         m_numThreads;
+	uint32         m_widthPx;
+	uint32         m_heightPx;
+	TAABB2D<int64> m_windowPx;
+
 	std::vector<RenderWorker> m_workers;
 
 // command interface
@@ -57,5 +63,27 @@ public:
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
+
+// In-header Implementations:
+
+inline uint32 Renderer::getNumRenderThreads() const
+{
+	return m_numThreads;
+}
+
+inline uint32 Renderer::getRenderWidthPx() const
+{
+	return m_widthPx;
+}
+
+inline uint32 Renderer::getRenderHeightPx() const
+{
+	return m_heightPx;
+}
+
+inline TAABB2D<int64> Renderer::getRenderWindowPx() const
+{
+	return m_windowPx;
+}
 
 }// end namespace ph

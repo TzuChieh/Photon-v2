@@ -19,7 +19,7 @@ TEST(FilmSampleWeightingTest, HdrRgbFilmDevelopesToFrame)
 	const int64 filmHpx = 2;
 
 	HdrRgbFrame frame(static_cast<uint32>(filmWpx), static_cast<uint32>(filmHpx));
-	const auto& filter = std::make_shared<SampleFilter>(SampleFilterFactory::createGaussianFilter());
+	const auto& filter = SampleFilterFactory::createGaussianFilter();
 	HdrRgbFilm film(static_cast<uint64>(filmWpx), static_cast<uint64>(filmHpx), filter);
 
 	const float64 testSamplePos1Xpx = film.getSampleWindowPx().minVertex.x + 0.2;
@@ -49,8 +49,8 @@ TEST(FilmSampleWeightingTest, HdrRgbFilmDevelopesToFrame)
 	const float64 pixelToSample1Ypx = 0 + 0.5 - testSamplePos1Ypx;
 	const float64 pixelToSample2Xpx = 0 + 0.5 - testSamplePos2Xpx;
 	const float64 pixelToSample2Ypx = 0 + 0.5 - testSamplePos2Ypx;
-	const real weight1 = static_cast<real>(filter->evaluate(pixelToSample1Xpx, pixelToSample1Ypx));
-	const real weight2 = static_cast<real>(filter->evaluate(pixelToSample2Xpx, pixelToSample2Ypx));
+	const real weight1 = static_cast<real>(filter.evaluate(pixelToSample1Xpx, pixelToSample1Ypx));
+	const real weight2 = static_cast<real>(filter.evaluate(pixelToSample2Xpx, pixelToSample2Ypx));
 
 	EXPECT_TRUE(weight1 > 0.0_r);
 	EXPECT_TRUE(weight2 > 0.0_r);

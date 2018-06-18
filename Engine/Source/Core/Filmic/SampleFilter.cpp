@@ -25,7 +25,7 @@ SampleFilter::SampleFilter(SampleFilter&& other) :
 	m_halfSizePx(other.m_halfSizePx)
 {}
 
-float64 SampleFilter::evaluate(const float64 xPx, const float64 yPx)
+float64 SampleFilter::evaluate(const float64 xPx, const float64 yPx) const
 {
 	return m_filter->evaluate(xPx, yPx);
 }

@@ -2,6 +2,7 @@
 
 #include "Core/Renderer/Renderer.h"
 #include "Core/Filmic/filmic_fwd.h"
+#include "Core/Filmic/SampleFilter.h"
 
 #include <vector>
 #include <memory>
@@ -17,7 +18,6 @@ class Integrator;
 class SamplingRenderer final : public Renderer, public TCommandInterface<SamplingRenderer>
 {
 public:
-	SamplingRenderer();
 	virtual ~SamplingRenderer() override;
 
 	AttributeTags supportedAttributes() const override;
@@ -28,15 +28,13 @@ public:
 	void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region) override;
 
 private:
-	/*SampleFilter m_filter;
-
-	std::unique_ptr<TSamplingFilm<SpectralStrength>> m_lightEnergy;*/
+	std::unique_ptr<TSamplingFilm<SpectralStrength>> m_lightEnergyFilm;
 
 	const Scene*          m_scene;
 	SampleGenerator*      m_sg;
 	Integrator*           m_integrator;
-	SpectralSamplingFilm* m_film;
 	Camera*               m_camera;
+	SampleFilter          m_filter;
 
 	uint32                                              m_numRemainingWorks;
 	uint32                                              m_numFinishedWorks;

@@ -51,7 +51,7 @@ void Engine::developFilm(HdrRgbFrame& out_frame, const bool applyPostProcessing)
 
 TVector2<int64> Engine::getFilmDimensionPx() const
 {
-	return m_description.getFilm()->getActualResPx();
+	return {m_renderer->getRenderWidthPx(), m_renderer->getRenderHeightPx()};
 }
 
 void Engine::setNumRenderThreads(const uint32 numThreads)

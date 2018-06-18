@@ -21,10 +21,6 @@
 namespace ph
 {
 
-Renderer::Renderer() : 
-	m_numThreads(0)
-{}
-
 Renderer::~Renderer() = default;
 
 void Renderer::render(const Description& description)
@@ -93,9 +89,21 @@ void Renderer::asyncQueryStatistics(float32* const out_percentageProgress,
 
 // command interface
 
-Renderer::Renderer(const InputPacket& packet) :
-	Renderer()
-{}
+Renderer::Renderer(const InputPacket& packet) : 
+	m_numThreads(1),
+	m_workers()
+{
+	const integer filmWidth  = packet.getInteger("width",  1280, DataTreatment::REQUIRED());
+	const integer filmHeight = packet.getInteger("height", 720,  DataTreatment::REQUIRED());
+	const integer rectX      = packet.getInteger("rect-x", 0);
+	const integer rectY      = packet.getInteger("rect-y", 0);
+	const integer rectW      = packet.getInteger("rect-w", filmWidth);
+	const integer rectH      = packet.getInteger("rect-h", filmHeight);
+
+	m_widthPx  = filmWidth;
+	m_heightPx = filmHeight;
+	m_windowPx = TAABB2D<int64>({rectX, rectY}, {rectX + rectW, rectY + rectH});
+}
 
 SdlTypeInfo Renderer::ciTypeInfo()
 {

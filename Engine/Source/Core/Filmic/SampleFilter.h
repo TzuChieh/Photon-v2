@@ -17,7 +17,7 @@ public:
 	SampleFilter(const SampleFilter& other);
 	SampleFilter(SampleFilter&& other);
 
-	float64 evaluate(float64 xPx, float64 yPx);
+	float64 evaluate(float64 xPx, float64 yPx) const;
 
 	inline const TVector2<float64>& getSizePx() const
 	{

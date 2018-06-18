@@ -25,12 +25,12 @@ class HdrRgbFilm final : public SpectralSamplingFilm, public TCommandInterface<H
 public:
 	HdrRgbFilm(
 		int64 actualWidthPx, int64 actualHeightPx,
-		const std::shared_ptr<SampleFilter>& filter);
+		const SampleFilter& filter);
 
 	HdrRgbFilm(
 		int64 actualWidthPx, int64 actualHeightPx,
 		const TAABB2D<int64>& effectiveWindowPx,
-		const std::shared_ptr<SampleFilter>& filter);
+		const SampleFilter& filter);
 
 	~HdrRgbFilm() override;
 

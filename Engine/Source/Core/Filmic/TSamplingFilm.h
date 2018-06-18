@@ -23,12 +23,12 @@ class TSamplingFilm : public Film, public TCommandInterface<TSamplingFilm<Sample
 public:
 	TSamplingFilm(
 		int64 actualWidthPx, int64 actualHeightPx,
-		const std::shared_ptr<SampleFilter>& filter);
+		const SampleFilter& filter);
 
 	TSamplingFilm(
 		int64 actualWidthPx, int64 actualHeightPx,
 		const TAABB2D<int64>& effectiveWindowPx,
-		const std::shared_ptr<SampleFilter>& filter);
+		const SampleFilter& filter);
 
 	~TSamplingFilm() override;
 
@@ -61,8 +61,8 @@ protected:
 	TVector2<float64> m_sampleResPx;
 	TAABB2D<float64>  m_sampleWindowPx;
 
-	std::shared_ptr<SampleFilter> m_filter;
-	std::function<void()>         m_merger;
+	SampleFilter          m_filter;
+	std::function<void()> m_merger;
 
 private:
 	void developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const override = 0;

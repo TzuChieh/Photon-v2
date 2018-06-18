@@ -25,21 +25,6 @@
 namespace ph
 {
 
-SamplingRenderer::SamplingRenderer() :
-	Renderer(),
-	m_scene(nullptr),
-	m_sg(nullptr),
-	m_integrator(nullptr),
-	m_film(nullptr),
-	m_camera(nullptr),
-	m_numRemainingWorks(0),
-	m_numFinishedWorks(0),
-	m_workSgs(),
-	m_workFilms(),
-	m_updatedRegions(),
-	m_rendererMutex()
-{}
-
 SamplingRenderer::~SamplingRenderer() = default;
 
 AttributeTags SamplingRenderer::supportedAttributes() const
@@ -53,13 +38,14 @@ void SamplingRenderer::init(const Description& description)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	const uint32 numWorks = m_numThreads;
+	const uint32 numWorks = getNumRenderThreads();
 
 	clearWorkData();
-	m_scene      = &description.visualWorld.getScene();
-	m_sg         = description.getSampleGenerator().get();
-	m_integrator = description.getIntegrator().get();
-	m_film       = description.getFilm().get();
+	m_scene           = &description.visualWorld.getScene();
+	m_sg              = description.getSampleGenerator().get();
+	m_integrator      = description.getIntegrator().get();
+	m_lightEnergyFilm = std::make_unique<HdrRgbFilm>(
+		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
 	m_camera     = description.getCamera().get();
 	m_numRemainingWorks = numWorks;
 	m_numFinishedWorks  = 0;
@@ -68,7 +54,7 @@ void SamplingRenderer::init(const Description& description)
 
 	for(uint32 i = 0; i < numWorks; i++)
 	{
-		m_workFilms.push_back(m_film->genChild(m_film->getEffectiveWindowPx()));
+		m_workFilms.push_back(m_lightEnergyFilm->genChild(m_lightEnergyFilm->getEffectiveWindowPx()));
 	}
 }
 
@@ -139,9 +125,9 @@ void SamplingRenderer::asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Regi
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	if(m_film != nullptr)
+	if(m_lightEnergyFilm != nullptr)
 	{
-		m_film->develop(out_frame, region);
+		m_lightEnergyFilm->develop(out_frame, region);
 	}
 }
 
@@ -170,24 +156,20 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 
 	Renderer(packet),
 
-
+	m_lightEnergyFilm(nullptr),
 	m_scene(nullptr),
 	m_sg(nullptr),
 	m_integrator(nullptr),
-	m_film(nullptr),
 	m_camera(nullptr),
 	m_numRemainingWorks(0),
 	m_numFinishedWorks(0),
 	m_workSgs(),
 	m_workFilms(),
 	m_updatedRegions(),
-	m_rendererMutex()
-	/*m_filter(SampleFilterFactory::createGaussianFilter()),
-	m_filmMutex(),
-
-	m_lightEnergy(nullptr)*/
+	m_rendererMutex(),
+	m_filter(SampleFilterFactory::createGaussianFilter())
 {
-	/*const std::string filterName = packet.getString("filter-name", "box");
+	const std::string filterName = packet.getString("filter-name");
 
 	if(filterName == "box")
 	{
@@ -200,7 +182,7 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 	else if(filterName == "mn")
 	{
 		m_filter = SampleFilterFactory::createMNFilter();
-	}*/
+	}
 }
 
 SdlTypeInfo SamplingRenderer::ciTypeInfo()

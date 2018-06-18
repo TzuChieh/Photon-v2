@@ -17,7 +17,7 @@ namespace ph
 template<typename Sample>
 inline TSamplingFilm<Sample>::TSamplingFilm(
 	const int64 actualWidthPx, const int64 actualHeightPx,
-	const std::shared_ptr<SampleFilter>& filter) :
+	const SampleFilter& filter) :
 
 	TSamplingFilm(
 		actualWidthPx, actualHeightPx,
@@ -30,7 +30,7 @@ template<typename Sample>
 inline TSamplingFilm<Sample>::TSamplingFilm(
 	const int64 actualWidthPx, const int64 actualHeightPx,
 	const TAABB2D<int64>& effectiveWindowPx,
-	const std::shared_ptr<SampleFilter>& filter) : 
+	const SampleFilter& filter) : 
 
 	Film(actualWidthPx, actualHeightPx, effectiveWindowPx),
 
@@ -39,7 +39,7 @@ inline TSamplingFilm<Sample>::TSamplingFilm(
 	m_filter        (filter),
 	m_merger        (makeDefaultMerger())
 {
-	PH_ASSERT(m_filter && m_merger);
+	PH_ASSERT(m_merger);
 
 	calcSampleDimensions();
 }
@@ -51,12 +51,12 @@ template<typename Sample>
 inline void TSamplingFilm<Sample>::calcSampleDimensions()
 {
 	m_sampleResPx = TVector2<float64>(
-		m_effectiveWindowPx.getWidth()  - 1.0 + m_filter->getSizePx().x,
-		m_effectiveWindowPx.getHeight() - 1.0 + m_filter->getSizePx().y);
+		m_effectiveWindowPx.getWidth()  - 1.0 + m_filter.getSizePx().x,
+		m_effectiveWindowPx.getHeight() - 1.0 + m_filter.getSizePx().y);
 
 	m_sampleWindowPx = TAABB2D<float64>(
-		TVector2<float64>(m_effectiveWindowPx.minVertex).add(0.5).sub(m_filter->getHalfSizePx()),
-		TVector2<float64>(m_effectiveWindowPx.maxVertex).sub(0.5).add(m_filter->getHalfSizePx()));
+		TVector2<float64>(m_effectiveWindowPx.minVertex).add(0.5).sub(m_filter.getHalfSizePx()),
+		TVector2<float64>(m_effectiveWindowPx.maxVertex).sub(0.5).add(m_filter.getHalfSizePx()));
 
 	if(!m_sampleWindowPx.isValid())
 	{
@@ -84,25 +84,25 @@ inline TSamplingFilm<Sample>::TSamplingFilm(const InputPacket& packet) :
 
 	m_sampleResPx   (),
 	m_sampleWindowPx(),
-	m_filter        (nullptr),
+	m_filter        (SampleFilterFactory::createGaussianFilter()),
 	m_merger        (makeDefaultMerger())
 {
 	const std::string filterName = packet.getString("filter-name", "box");
 
 	if(filterName == "box")
 	{
-		m_filter = std::make_shared<SampleFilter>(SampleFilterFactory::createBoxFilter());
+		m_filter = SampleFilterFactory::createBoxFilter();
 	}
 	else if(filterName == "gaussian")
 	{
-		m_filter = std::make_shared<SampleFilter>(SampleFilterFactory::createGaussianFilter());
+		m_filter = SampleFilterFactory::createGaussianFilter();
 	}
 	else if(filterName == "mn")
 	{
-		m_filter = std::make_shared<SampleFilter>(SampleFilterFactory::createMNFilter());
+		m_filter = SampleFilterFactory::createMNFilter();
 	}
 
-	PH_ASSERT(m_filter && m_merger);
+	PH_ASSERT(m_merger);
 }
 
 template<typename Sample>

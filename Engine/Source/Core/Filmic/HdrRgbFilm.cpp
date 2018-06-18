@@ -19,7 +19,7 @@ namespace ph
 
 HdrRgbFilm::HdrRgbFilm(
 	const int64 actualWidthPx, const int64 actualHeightPx,
-	const std::shared_ptr<SampleFilter>& filter) : 
+	const SampleFilter& filter) : 
 
 	HdrRgbFilm(
 		actualWidthPx, actualHeightPx,
@@ -31,7 +31,7 @@ HdrRgbFilm::HdrRgbFilm(
 HdrRgbFilm::HdrRgbFilm(
 	const int64 actualWidthPx, const int64 actualHeightPx,
 	const TAABB2D<int64>& effectiveWindowPx,
-	const std::shared_ptr<SampleFilter>& filter) :
+	const SampleFilter& filter) :
 
 	SpectralSamplingFilm(
 		actualWidthPx, actualHeightPx, 
@@ -50,8 +50,8 @@ void HdrRgbFilm::addSample(
 	const TVector2<float64> samplePosPx(xPx, yPx);
 
 	// compute filter bounds
-	TVector2<float64> filterMin(samplePosPx.sub(m_filter->getHalfSizePx()));
-	TVector2<float64> filterMax(samplePosPx.add(m_filter->getHalfSizePx()));
+	TVector2<float64> filterMin(samplePosPx.sub(m_filter.getHalfSizePx()));
+	TVector2<float64> filterMax(samplePosPx.add(m_filter.getHalfSizePx()));
 
 	// reduce to effective bounds
 	filterMin = filterMin.max(TVector2<float64>(m_effectiveWindowPx.minVertex));
@@ -75,7 +75,7 @@ void HdrRgbFilm::addSample(
 			const std::size_t fy = y - m_effectiveWindowPx.minVertex.y;
 			const std::size_t index = fy * static_cast<std::size_t>(m_effectiveResPx.x) + fx;
 			
-			const float64   weight = m_filter->evaluate(filterX, filterY);
+			const float64   weight = m_filter.evaluate(filterX, filterY);
 			const Vector3R& rgb    = radiance.genLinearSrgb(EQuantity::EMR);
 
 			m_pixelRadianceSensors[index].accuR      += rgb.x * weight;
