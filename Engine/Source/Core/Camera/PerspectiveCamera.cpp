@@ -13,15 +13,15 @@ namespace ph
 
 PerspectiveCamera::~PerspectiveCamera() = default;
 
-void PerspectiveCamera::onFilmSet(SpectralSamplingFilm* /* newFilm */)
+void PerspectiveCamera::onRasterSizeSet(uint32 /* newRasterWidth */, uint32 /* newRasterHeight */)
 {
 	updateTransforms();
 }
 
 void PerspectiveCamera::updateTransforms()
 {
-	const hiReal rasterWidthPx   = static_cast<hiReal>(getFilm()->getActualResPx().x);
-	const hiReal rasterHeightPx  = static_cast<hiReal>(getFilm()->getActualResPx().y);
+	const hiReal rasterWidthPx   = static_cast<hiReal>(getRasterWidth());
+	const hiReal rasterHeightPx  = static_cast<hiReal>(getRasterHeight());
 	const hiReal filmAspectRatio = rasterWidthPx / rasterHeightPx;
 	const hiReal filmWidthMM     = m_filmWidthMM;
 	const hiReal filmHeightMM    = filmWidthMM / filmAspectRatio;

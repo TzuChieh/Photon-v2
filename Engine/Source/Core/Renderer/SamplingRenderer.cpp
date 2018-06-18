@@ -131,6 +131,11 @@ void SamplingRenderer::asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Regi
 	}
 }
 
+void SamplingRenderer::develop(HdrRgbFrame& out_frame)
+{
+	m_lightEnergyFilm->develop(out_frame);
+}
+
 void SamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)
 {
 	if(!isUpdating)

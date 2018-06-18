@@ -38,6 +38,7 @@ public:
 	virtual void submitWork(uint32 workerId, const RenderWork& work, bool isUpdating) = 0;
 	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) = 0;
 	virtual void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region) = 0;
+	virtual void develop(HdrRgbFrame& out_frame) = 0;
 
 	void render(const Description& description);
 	void setNumRenderThreads(const uint32 numThreads);

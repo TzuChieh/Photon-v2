@@ -23,10 +23,9 @@ void Engine::update()
 	m_description.update(0.0_r);
 
 	// HACK
-	m_filmSet.setFilm(EFrameTag::RGB_COLOR, m_description.getFilm());
 	std::shared_ptr<FrameProcessor> processor = std::make_shared<FrameProcessor>();
 	processor->appendOperator(std::make_shared<JRToneMapping>());
-	m_filmSet.setProcessor(EFrameTag::RGB_COLOR, processor);
+	m_filmSet.setProcessor(EAttribute::LIGHT_ENERGY, processor);
 
 	m_renderer = m_description.getRenderer();
 	m_renderer->setNumRenderThreads(m_numRenderThreads);
@@ -40,11 +39,12 @@ void Engine::render()
 
 void Engine::developFilm(HdrRgbFrame& out_frame, const bool applyPostProcessing)
 {
-	m_description.getFilm()->develop(out_frame);
+	m_renderer->develop(out_frame);
 
 	if(applyPostProcessing)
 	{
-		const FrameProcessor* processor = m_filmSet.getProcessor(EFrameTag::RGB_COLOR);
+		// HACK
+		const FrameProcessor* processor = m_filmSet.getProcessor(EAttribute::LIGHT_ENERGY);
 		processor->process(out_frame);
 	}
 }
@@ -73,7 +73,8 @@ void Engine::asyncDevelopFilmRegion(
 
 	if(applyPostProcessing)
 	{
-		const FrameProcessor* processor = m_filmSet.getProcessor(EFrameTag::RGB_COLOR);
+		// HACK
+		const FrameProcessor* processor = m_filmSet.getProcessor(EAttribute::LIGHT_ENERGY);
 		processor->process(out_frame);
 	}
 }

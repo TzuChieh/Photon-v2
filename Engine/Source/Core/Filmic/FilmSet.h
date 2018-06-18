@@ -2,7 +2,7 @@
 
 #include "Core/Filmic/filmic_fwd.h"
 #include "Frame/FrameProcessor.h"
-#include "Frame/EFrameTag.h"
+#include "Core/Integrator/Attribute/EAttribute.h"
 
 #include <memory>
 #include <array>
@@ -11,27 +11,25 @@
 namespace ph
 {
 
+// TODO: change name to FrameProcessorSet
 class FilmSet final
 {
 public:
-	const SpectralSamplingFilm* getFilm(EFrameTag tag)      const;
-	const FrameProcessor*       getProcessor(EFrameTag tag) const;
-
-	void setFilm(EFrameTag tag, const std::shared_ptr<SpectralSamplingFilm>& film);
-	void setProcessor(EFrameTag tag, const std::shared_ptr<FrameProcessor>& processor);
+	const FrameProcessor* getProcessor(EAttribute tag) const;
+	void setProcessor(EAttribute tag, const std::shared_ptr<FrameProcessor>& processor);
 
 private:
 	std::array<
 		std::shared_ptr<SpectralSamplingFilm>,
-		static_cast<std::size_t>(EFrameTag::NUM_ELEMENTS)
+		static_cast<std::size_t>(EAttribute::SIZE)
 	> m_films;
 
 	std::array<
 		std::shared_ptr<FrameProcessor>, 
-		static_cast<std::size_t>(EFrameTag::NUM_ELEMENTS)
+		static_cast<std::size_t>(EAttribute::SIZE)
 	> m_processors;
 
-	static std::size_t tagToIndex(EFrameTag tag);
+	static std::size_t tagToIndex(EAttribute tag);
 };
 
 }// end namespace ph

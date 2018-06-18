@@ -11,7 +11,6 @@ namespace ph
 Description::Description() :
 	visualWorld(), renderOption(), 
 	m_camera(nullptr), 
-	m_film(nullptr), 
 	m_integrator(nullptr), 
 	m_sampleGenerator(nullptr),
 	m_renderer(nullptr)
@@ -21,12 +20,11 @@ void Description::update(const real deltaS)
 {
 	const std::string& resourceName = DescriptionParser::CORE_DATA_NAME();
 
-	m_camera          = resources.getResource<Camera>              (resourceName, DataTreatment::REQUIRED());
-	m_film            = resources.getResource<SpectralSamplingFilm>(resourceName, DataTreatment::REQUIRED());
-	m_integrator      = resources.getResource<Integrator>          (resourceName, DataTreatment::REQUIRED());
-	m_sampleGenerator = resources.getResource<SampleGenerator>     (resourceName, DataTreatment::REQUIRED());
-	m_renderer        = resources.getResource<Renderer>            (resourceName, DataTreatment::REQUIRED());
-	if(!m_camera || !m_film || !m_integrator || !m_sampleGenerator || !m_renderer)
+	m_camera          = resources.getResource<Camera>         (resourceName, DataTreatment::REQUIRED());
+	m_integrator      = resources.getResource<Integrator>     (resourceName, DataTreatment::REQUIRED());
+	m_sampleGenerator = resources.getResource<SampleGenerator>(resourceName, DataTreatment::REQUIRED());
+	m_renderer        = resources.getResource<Renderer>       (resourceName, DataTreatment::REQUIRED());
+	if(!m_camera || !m_integrator || !m_sampleGenerator || !m_renderer)
 	{
 		std::cerr << "warning: at Description::update(), data incomplete" << std::endl;
 		return;
@@ -40,7 +38,7 @@ void Description::update(const real deltaS)
 
 	visualWorld.cook();
 	m_integrator->update(visualWorld.getScene());
-	m_camera->setFilm(m_film);
+	m_camera->setRasterSize(m_renderer->getRenderWidthPx(), m_renderer->getRenderHeightPx());
 }
 
 }// end namespace ph

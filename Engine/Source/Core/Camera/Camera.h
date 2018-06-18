@@ -42,20 +42,26 @@ public:
 
 	virtual void evalEmittedImportanceAndPdfW(const Vector3R& targetPos, Vector2R* const out_filmCoord, Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const = 0;
 
-	inline void setFilm(const std::shared_ptr<SpectralSamplingFilm>& film)
+	inline void setRasterSize(const uint32 rasterWidth, const uint32 rasterHeight)
 	{
-		if(film == nullptr)
+		if(rasterWidth == 0 || rasterHeight == 0)
 		{
-			std::cerr << "warning: at Film::setFilm(), input is null" << std::endl;
+			std::cerr << "warning: at Camera::setRasterSize(), input contains zero" << std::endl;
 		}
 
-		m_film = film;
-		onFilmSet(m_film.get());
+		m_rasterWidth  = rasterWidth;
+		m_rasterHeight = rasterHeight;
+		onRasterSizeSet(rasterWidth, rasterHeight);
 	}
 
-	inline SpectralSamplingFilm* getFilm() const
+	inline uint32 getRasterWidth() const
 	{
-		return m_film.get();
+		return m_rasterWidth;
+	}
+
+	inline uint32 getRasterHeight() const
+	{
+		return m_rasterHeight;
 	}
 
 	inline const Vector3R& getPosition() const
@@ -83,7 +89,7 @@ public:
 		m_direction.set(out_direction);
 	}
 
-	virtual void onFilmSet(SpectralSamplingFilm* newFilm);
+	virtual void onRasterSizeSet(uint32 newRasterWidth, uint32 newRasterHeight);
 
 protected:
 	TDecomposedTransform<hiReal> m_cameraToWorldTransform;
@@ -93,7 +99,8 @@ private:
 	Vector3R m_direction;
 	Vector3R m_upAxis;
 
-	std::shared_ptr<SpectralSamplingFilm> m_film;
+	uint32 m_rasterWidth;
+	uint32 m_rasterHeight;
 
 	void updateCameraToWorldTransform(const Vector3R& position, const Vector3R& direction, const Vector3R& upAxis);
 

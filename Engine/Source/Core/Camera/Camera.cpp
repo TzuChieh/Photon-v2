@@ -12,7 +12,7 @@ Camera::Camera() :
 
 Camera::Camera(const Vector3R& position, const Vector3R& direction, const Vector3R& upAxis) : 
 	m_position(position), m_direction(direction.normalize()), m_upAxis(upAxis.normalize()),
-	m_film(nullptr)
+	m_rasterWidth(0), m_rasterHeight(0)
 {
 	// TODO: input maybe invalid (e.g., axes to close to each other)
 
@@ -42,7 +42,7 @@ void Camera::calcSensedRayDifferentials(
 
 Camera::~Camera() = default;
 
-void Camera::onFilmSet(SpectralSamplingFilm* /* newFilm */)
+void Camera::onRasterSizeSet(uint32 /* newRasterWidth */, uint32 /* newRasterHeight */)
 {
 	// do nothing
 }
