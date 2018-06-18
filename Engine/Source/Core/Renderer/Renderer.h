@@ -34,8 +34,8 @@ public:
 
 	virtual AttributeTags supportedAttributes() const = 0;
 	virtual void init(const Description& description) = 0;
-	virtual bool getNewWork(uint32 workerId, RenderWork* out_work) = 0;
-	virtual void submitWork(uint32 workerId, const RenderWork& work, bool isUpdating) = 0;
+	virtual bool asyncGetNewWork(uint32 workerId, RenderWork* out_work) = 0;
+	virtual void asyncSubmitWork(uint32 workerId, const RenderWork& work, bool isUpdating) = 0;
 	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) = 0;
 	virtual void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region) = 0;
 	virtual void develop(HdrRgbFrame& out_frame) = 0;

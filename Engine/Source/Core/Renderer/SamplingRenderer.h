@@ -22,8 +22,8 @@ public:
 
 	AttributeTags supportedAttributes() const override;
 	void init(const Description& description) override;
-	bool getNewWork(uint32 workerId, RenderWork* out_work) override;
-	void submitWork(uint32 workerId, const RenderWork& work, bool isUpdating) override;
+	bool asyncGetNewWork(uint32 workerId, RenderWork* out_work) override;
+	void asyncSubmitWork(uint32 workerId, const RenderWork& work, bool isUpdating) override;
 	ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;
 	void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region) override;
 	void develop(HdrRgbFrame& out_frame) override;

@@ -58,7 +58,7 @@ void SamplingRenderer::init(const Description& description)
 	}
 }
 
-bool SamplingRenderer::getNewWork(const uint32 workerId, RenderWork* out_work)
+bool SamplingRenderer::asyncGetNewWork(const uint32 workerId, RenderWork* out_work)
 {
 	PH_ASSERT(out_work != nullptr);
 
@@ -80,7 +80,7 @@ bool SamplingRenderer::getNewWork(const uint32 workerId, RenderWork* out_work)
 	return true;
 }
 
-void SamplingRenderer::submitWork(const uint32 workerId, const RenderWork& work, const bool isUpdating)
+void SamplingRenderer::asyncSubmitWork(const uint32 workerId, const RenderWork& work, const bool isUpdating)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
