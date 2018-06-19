@@ -1,4 +1,4 @@
-#include "Core/Integrator/BVPTIntegrator.h"
+#include "Core/Estimator/BVPTEstimator.h"
 #include "Core/Ray.h"
 #include "Core/HitDetail.h"
 #include "Core/SurfaceHit.h"
@@ -9,9 +9,9 @@
 #include "Core/Emitter/Emitter.h"
 #include "Core/SurfaceBehavior/BsdfSample.h"
 #include "Core/Quantity/SpectralStrength.h"
-#include "Core/Integrator/Utility/PtVolumetricEstimator.h"
-#include "Core/Integrator/Utility/TSurfaceEventDispatcher.h"
-#include "Core/Integrator/Utility/RussianRoulette.h"
+#include "Core/Estimator/Utility/PtVolumetricEstimator.h"
+#include "Core/Estimator/Utility/TSurfaceEventDispatcher.h"
+#include "Core/Estimator/Utility/RussianRoulette.h"
 #include "FileIO/SDL/InputPacket.h"
 #include "Math/TVector3.h"
 
@@ -23,14 +23,14 @@
 namespace ph
 {
 
-BVPTIntegrator::~BVPTIntegrator() = default;
+BVPTEstimator::~BVPTEstimator() = default;
 
-void BVPTIntegrator::update(const Scene& scene)
+void BVPTEstimator::update(const Scene& scene)
 {
 	// update nothing
 }
 
-void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
+void BVPTEstimator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
 {
 	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESidednessAgreement::STRICT>(data.scene);
 
@@ -138,25 +138,25 @@ void BVPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, st
 
 // command interface
 
-BVPTIntegrator::BVPTIntegrator(const InputPacket& packet) :
-	Integrator(packet)
+BVPTEstimator::BVPTEstimator(const InputPacket& packet) :
+	Estimator(packet)
 {}
 
-SdlTypeInfo BVPTIntegrator::ciTypeInfo()
+SdlTypeInfo BVPTEstimator::ciTypeInfo()
 {
-	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "bvpt");
+	return SdlTypeInfo(ETypeCategory::REF_ESTIMATOR, "bvpt");
 }
 
-void BVPTIntegrator::ciRegister(CommandRegister& cmdRegister)
+void BVPTEstimator::ciRegister(CommandRegister& cmdRegister)
 {
 	SdlLoader loader;
-	loader.setFunc<BVPTIntegrator>(ciLoad);
+	loader.setFunc<BVPTEstimator>(ciLoad);
 	cmdRegister.setLoader(loader);
 }
 
-std::unique_ptr<BVPTIntegrator> BVPTIntegrator::ciLoad(const InputPacket& packet)
+std::unique_ptr<BVPTEstimator> BVPTEstimator::ciLoad(const InputPacket& packet)
 {
-	return std::make_unique<BVPTIntegrator>(packet);
+	return std::make_unique<BVPTEstimator>(packet);
 }
 
 }// end namespace ph

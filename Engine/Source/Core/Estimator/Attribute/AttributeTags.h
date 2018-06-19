@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Integrator/Attribute/EAttribute.h"
+#include "Core/Estimator/Attribute/EAttribute.h"
 #include "Common/assertion.h"
 
 #include <array>

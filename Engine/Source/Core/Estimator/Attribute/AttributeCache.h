@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Core/Integrator/Attribute/EAttribute.h"
-#include "Core/Integrator/Attribute/TAttributeEntrySet.h"
+#include "Core/Estimator/Attribute/EAttribute.h"
+#include "Core/Estimator/Attribute/TAttributeEntrySet.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Math/TVector3.h"
 #include "Common/assertion.h"

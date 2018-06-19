@@ -1,4 +1,4 @@
-#include "Core/Integrator/Utility/PtVolumetricEstimator.h"
+#include "Core/Estimator/Utility/PtVolumetricEstimator.h"
 #include "Math/TVector3.h"
 #include "World/Scene.h"
 #include "Core/SurfaceHit.h"

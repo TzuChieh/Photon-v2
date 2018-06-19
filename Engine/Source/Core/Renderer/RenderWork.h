@@ -7,7 +7,7 @@ namespace ph
 
 class Scene;
 class Camera;
-class Integrator;
+class Estimator;
 class SampleGenerator;
 
 class RenderWork final
@@ -15,18 +15,18 @@ class RenderWork final
 public:
 	const Scene*          scene;
 	const Camera*         camera;
-	const Integrator*     integrator;
+	const Estimator*     estimator;
 	SampleGenerator*      sampleGenerator;
 	SpectralSamplingFilm* film;
 
 	inline RenderWork(const Scene* const          scene,
 	                  const Camera* const         camera,
-	                  const Integrator* const     integrator,
+	                  const Estimator* const     estimator,
 	                  SampleGenerator* const      sampleGenerator,
 	                  SpectralSamplingFilm* const film) :
 		scene(scene), 
 		camera(camera), 
-		integrator(integrator), 
+		estimator(estimator),
 		sampleGenerator(sampleGenerator),
 		film(film)
 	{}

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Integrator/Attribute/TAttributeHandlerInterface.h"
+#include "Core/Estimator/Attribute/TAttributeHandlerInterface.h"
 
 namespace ph
 {
@@ -24,4 +24,4 @@ private:
 
 }// end namespace ph
 
-#include "Core/Integrator/Attribute/TAttributeEntry.ipp"
+#include "Core/Estimator/Attribute/TAttributeEntry.ipp"

@@ -3,9 +3,9 @@
 #include "Core/SampleGenerator/TSamplePhase.h"
 #include "Core/SampleGenerator/sample_array.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "Core/Integrator/Utility/SenseEvent.h"
+#include "Core/Estimator/Utility/SenseEvent.h"
 #include "Core/Ray.h"
-#include "Core/Integrator/Integrator.h"
+#include "Core/Estimator/Estimator.h"
 #include "Core/Camera/Camera.h"
 #include "World/Scene.h"
 #include "Core/Renderer/RenderWork.h"
@@ -46,7 +46,7 @@ void RenderWorker::run()
 void RenderWorker::doWork(RenderWork& work)
 {
 	const Camera* const         camera     = work.camera;
-	const Integrator* const     integrator = work.integrator;
+	const Estimator* const     estimator = work.estimator;
 	const Scene* const          scene      = work.scene;
 	SampleGenerator* const      sg         = work.sampleGenerator;
 	SpectralSamplingFilm* const film       = work.film;
@@ -89,7 +89,7 @@ void RenderWorker::doWork(RenderWork& work)
 			Ray ray;
 			camera->genSensedRay(Vector2R(rasterPosPx), &ray);
 
-			integrator->radianceAlongRay(ray, work, senseEvents);
+			estimator->radianceAlongRay(ray, work, senseEvents);
 
 			// HACK: sense event
 			for(const auto& senseEvent : senseEvents)

@@ -9,7 +9,7 @@
 #include "Core/Renderer/ERegionStatus.h"
 #include "Frame/frame_fwd.h"
 #include "Core/Filmic/FilmSet.h"
-#include "Core/Integrator/Attribute/EAttribute.h"
+#include "Core/Estimator/Attribute/EAttribute.h"
 
 #include <string>
 #include <memory>

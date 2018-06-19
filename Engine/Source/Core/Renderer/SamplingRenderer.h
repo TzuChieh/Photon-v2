@@ -13,7 +13,7 @@ namespace ph
 class Scene;
 class Camera;
 class SampleGenerator;
-class Integrator;
+class Estimator;
 
 class SamplingRenderer final : public Renderer, public TCommandInterface<SamplingRenderer>
 {
@@ -34,7 +34,7 @@ private:
 
 	const Scene*          m_scene;
 	SampleGenerator*      m_sg;
-	Integrator*           m_integrator;
+	Estimator*           m_estimator;
 	Camera*               m_camera;
 	SampleFilter          m_filter;
 

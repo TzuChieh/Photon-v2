@@ -43,7 +43,7 @@ void SamplingRenderer::init(const Description& description)
 	clearWorkData();
 	m_scene           = &description.visualWorld.getScene();
 	m_sg              = description.getSampleGenerator().get();
-	m_integrator      = description.getIntegrator().get();
+	m_estimator = description.getEstimator().get();
 	m_lightEnergyFilm = std::make_unique<HdrRgbFilm>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
 	m_camera     = description.getCamera().get();
@@ -72,7 +72,7 @@ bool SamplingRenderer::asyncGetNewWork(const uint32 workerId, RenderWork* out_wo
 	const uint32 workIndex = m_numRemainingWorks - 1;
 	*out_work = RenderWork(m_scene,
 	                       m_camera,
-	                       m_integrator,
+	                       m_estimator,
 	                       m_workSgs[workIndex].get(),
 	                       m_workFilms[workIndex].get());
 	m_numRemainingWorks--;
@@ -171,7 +171,7 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 	m_lightEnergyFilm(nullptr),
 	m_scene(nullptr),
 	m_sg(nullptr),
-	m_integrator(nullptr),
+	m_estimator(nullptr),
 	m_camera(nullptr),
 	m_numRemainingWorks(0),
 	m_numFinishedWorks(0),

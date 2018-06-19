@@ -1,4 +1,4 @@
-#include "Core/Integrator/BNEEPTIntegrator.h"
+#include "Core/Estimator/BNEEPTEstimator.h"
 #include "Core/Ray.h"
 #include "World/Scene.h"
 #include "Math/TVector3.h"
@@ -15,9 +15,9 @@
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Common/assertion.h"
-#include "Core/Integrator/Utility/TMis.h"
-#include "Core/Integrator/Utility/PtDirectLightEstimator.h"
-#include "Core/Integrator/Utility/RussianRoulette.h"
+#include "Core/Estimator/Utility/TMis.h"
+#include "Core/Estimator/Utility/PtDirectLightEstimator.h"
+#include "Core/Estimator/Utility/RussianRoulette.h"
 
 #include <iostream>
 
@@ -28,14 +28,14 @@
 namespace ph
 {
 
-BNEEPTIntegrator::~BNEEPTIntegrator() = default;
+BNEEPTEstimator::~BNEEPTEstimator() = default;
 
-void BNEEPTIntegrator::update(const Scene& scene)
+void BNEEPTEstimator::update(const Scene& scene)
 {
 	// update nothing
 }
 
-void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
+void BNEEPTEstimator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
 {
 	const Scene&  scene  = *data.scene;
 	const Camera& camera = *data.camera;
@@ -225,7 +225,7 @@ void BNEEPTIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, 
 	out_senseEvents.push_back(SenseEvent(accuRadiance));
 }
 
-void BNEEPTIntegrator::rationalClamp(SpectralStrength& value)
+void BNEEPTEstimator::rationalClamp(SpectralStrength& value)
 {
 	// TODO: should negative value be allowed?
 	value.clampLocal(0.0_r, 1000000000.0_r);
@@ -233,25 +233,25 @@ void BNEEPTIntegrator::rationalClamp(SpectralStrength& value)
 
 // command interface
 
-BNEEPTIntegrator::BNEEPTIntegrator(const InputPacket& packet) :
-	Integrator(packet)
+BNEEPTEstimator::BNEEPTEstimator(const InputPacket& packet) :
+	Estimator(packet)
 {}
 
-SdlTypeInfo BNEEPTIntegrator::ciTypeInfo()
+SdlTypeInfo BNEEPTEstimator::ciTypeInfo()
 {
-	return SdlTypeInfo(ETypeCategory::REF_INTEGRATOR, "bneept");
+	return SdlTypeInfo(ETypeCategory::REF_ESTIMATOR, "bneept");
 }
 
-void BNEEPTIntegrator::ciRegister(CommandRegister& cmdRegister)
+void BNEEPTEstimator::ciRegister(CommandRegister& cmdRegister)
 {
 	SdlLoader loader;
-	loader.setFunc<BNEEPTIntegrator>(ciLoad);
+	loader.setFunc<BNEEPTEstimator>(ciLoad);
 	cmdRegister.setLoader(loader);
 }
 
-std::unique_ptr<BNEEPTIntegrator> BNEEPTIntegrator::ciLoad(const InputPacket& packet)
+std::unique_ptr<BNEEPTEstimator> BNEEPTEstimator::ciLoad(const InputPacket& packet)
 {
-	return std::make_unique<BNEEPTIntegrator>(packet);
+	return std::make_unique<BNEEPTEstimator>(packet);
 }
 
 }// end namespace ph
