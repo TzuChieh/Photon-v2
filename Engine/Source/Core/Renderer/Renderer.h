@@ -11,6 +11,7 @@
 #include "Frame/frame_fwd.h"
 #include "Core/Integrator/Attribute/AttributeTags.h"
 #include "FileIO/SDL/TCommandInterface.h"
+#include "Core/Integrator/Attribute/EAttribute.h"
 
 #include <vector>
 #include <mutex>
@@ -37,8 +38,14 @@ public:
 	virtual bool asyncGetNewWork(uint32 workerId, RenderWork* out_work) = 0;
 	virtual void asyncSubmitWork(uint32 workerId, const RenderWork& work, bool isUpdating) = 0;
 	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) = 0;
-	virtual void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region) = 0;
-	virtual void develop(HdrRgbFrame& out_frame) = 0;
+
+	virtual void develop(HdrRgbFrame& out_frame, EAttribute attribute) = 0;
+
+	virtual void asyncDevelopFilmRegion(
+		HdrRgbFrame&  out_frame, 
+		const Region& region, 
+		EAttribute    attribute) = 0;
+
 
 	void render(const Description& description);
 	void setNumRenderThreads(const uint32 numThreads);

@@ -9,6 +9,7 @@
 #include "Core/Renderer/ERegionStatus.h"
 #include "Frame/frame_fwd.h"
 #include "Core/Filmic/FilmSet.h"
+#include "Core/Integrator/Attribute/EAttribute.h"
 
 #include <string>
 #include <memory>
@@ -26,12 +27,23 @@ public:
 	void enterCommand(const std::string& commandFragment);
 	void update();
 	void render();
-	void developFilm(HdrRgbFrame& out_frame, bool applyPostProcessing = true);
+
+	void developFilm(
+		HdrRgbFrame& out_frame,
+		EAttribute   attribute,
+		bool         applyPostProcessing = true);
+
 	TVector2<int64> getFilmDimensionPx() const;
 	void setNumRenderThreads(uint32 numThreads);
 
 	ERegionStatus asyncPollUpdatedRegion(Renderer::Region* out_region) const;
-	void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Renderer::Region& region, bool applyPostProcessing = true) const;
+
+	void asyncDevelopFilmRegion(
+		HdrRgbFrame&            out_frame, 
+		const Renderer::Region& region, 
+		EAttribute              attribute,
+		bool                    applyPostProcessing = true) const;
+
 	void asyncQueryStatistics(float32* out_percentageProgress,
 	                          float32* out_samplesPerSecond) const;
 

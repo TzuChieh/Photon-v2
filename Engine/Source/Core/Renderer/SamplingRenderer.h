@@ -25,8 +25,9 @@ public:
 	bool asyncGetNewWork(uint32 workerId, RenderWork* out_work) override;
 	void asyncSubmitWork(uint32 workerId, const RenderWork& work, bool isUpdating) override;
 	ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;
-	void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region) override;
-	void develop(HdrRgbFrame& out_frame) override;
+
+	void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute) override;
+	void develop(HdrRgbFrame& out_frame, EAttribute attribute) override;
 
 private:
 	std::unique_ptr<TSamplingFilm<SpectralStrength>> m_lightEnergyFilm;

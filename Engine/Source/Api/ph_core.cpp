@@ -12,6 +12,7 @@
 #include "FileIO/FileSystem/Path.h"
 #include "Common/assertion.h"
 #include "FileIO/PictureSaver.h"
+#include "Api/ApiHelper.h"
 
 #include <memory>
 #include <iostream>
@@ -97,7 +98,10 @@ void phUpdate(const PHuint64 engineId)
 	}
 }
 
-void phDevelopFilm(const PHuint64 engineId, const PHuint64 frameId)
+void phDevelopFilm(
+	const PHuint64      engineId, 
+	const PHuint64      frameId, 
+	const PH_EATTRIBUTE attribute)
 {
 	using namespace ph;
 
@@ -105,11 +109,14 @@ void phDevelopFilm(const PHuint64 engineId, const PHuint64 frameId)
 	HdrRgbFrame* frame  = ApiDatabase::getFrame(frameId);
 	if(engine && frame)
 	{
-		engine->developFilm(*frame);
+		engine->developFilm(*frame, ApiHelper::toCppAttribute(attribute));
 	}
 }
 
-void phDevelopFilmRaw(const PHuint64 engineId, const PHuint64 frameId)
+void phDevelopFilmRaw(
+	const PHuint64      engineId, 
+	const PHuint64      frameId, 
+	const PH_EATTRIBUTE attribute)
 {
 	using namespace ph;
 
@@ -117,7 +124,7 @@ void phDevelopFilmRaw(const PHuint64 engineId, const PHuint64 frameId)
 	HdrRgbFrame* frame  = ApiDatabase::getFrame(frameId);
 	if(engine && frame)
 	{
-		engine->developFilm(*frame, false);
+		engine->developFilm(*frame, ApiHelper::toCppAttribute(attribute), false);
 	}
 }
 
@@ -242,9 +249,14 @@ int phAsyncPollUpdatedFilmRegion(const PHuint64 engineId,
 	return PH_FILM_REGION_STATUS_INVALID;
 }
 
-void phAsyncDevelopFilmRegion(const PHuint64 engineId, const PHuint64 frameId,
-                              const PHuint32 xPx, const PHuint32 yPx,
-                              const PHuint32 widthPx, const PHuint32 heightPx)
+void phAsyncDevelopFilmRegion(
+	const PHuint64      engineId,
+	const PHuint64      frameId,
+	const PHuint32      xPx, 
+	const PHuint32      yPx,
+	const PHuint32      widthPx, 
+	const PHuint32      heightPx, 
+	const PH_EATTRIBUTE attribute)
 {
 	using namespace ph;
 
@@ -253,7 +265,7 @@ void phAsyncDevelopFilmRegion(const PHuint64 engineId, const PHuint64 frameId,
 	if(engine && frame)
 	{
 		const Renderer::Region region({xPx, yPx}, {xPx + widthPx, yPx + heightPx});
-		engine->asyncDevelopFilmRegion(*frame, region);
+		engine->asyncDevelopFilmRegion(*frame, region, ApiHelper::toCppAttribute(attribute));
 	}
 }
 

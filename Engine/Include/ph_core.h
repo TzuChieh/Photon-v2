@@ -69,6 +69,13 @@ typedef char           PHchar;
 #define PH_TRUE  1
 #define PH_FALSE 0
 
+enum PH_EATTRIBUTE
+{
+	LIGHT_ENERGY,
+	NORMAL,
+	DEPTH
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -84,6 +91,8 @@ extern PH_API int phExit();
 // core engine operations
 //
 
+// TODO: remove <film> from develop functions
+
 extern PH_API void phCreateEngine(PHuint64* out_engineId, const PHuint32 numRenderThreads);
 extern PH_API void phEnterCommand(PHuint64 engineId, const PHchar* commandFragment);
 extern PH_API void phRender(PHuint64 engineId);
@@ -91,12 +100,12 @@ extern PH_API void phRender(PHuint64 engineId);
 // TODO: documentation
 extern PH_API void phUpdate(PHuint64 engineId);
 
-extern PH_API void phDevelopFilm(PHuint64 engineId, PHuint64 frameId);
 extern PH_API void phGetFilmDimension(PHuint64 engineId, PHuint32* out_widthPx, PHuint32* out_heightPx);
 extern PH_API void phDeleteEngine(PHuint64 engineId);
 extern PH_API void phSetWorkingDirectory(PHuint64 engineId, const PHchar* workingDirectory);
 
-extern PH_API void phDevelopFilmRaw(PHuint64 engineId, PHuint64 frameId);
+extern PH_API void phDevelopFilm(PHuint64 engineId, PHuint64 frameId, PH_EATTRIBUTE attribute);
+extern PH_API void phDevelopFilmRaw(PHuint64 engineId, PHuint64 frameId, PH_EATTRIBUTE attribute);
 
 ///////////////////////////////////////////////////////////////////////////////
 // frame operations
@@ -116,17 +125,26 @@ extern PH_API void phSaveFrame(PHuint64 frameId, const PHchar* filePath);
 #define PH_FILM_REGION_STATUS_UPDATING 1
 #define PH_FILM_REGION_STATUS_FINISHED 2
 
-extern PH_API void phAsyncGetRendererStatistics(PHuint64 engineId, 
-                                                PHfloat32* out_percentageProgress, 
-                                                PHfloat32* out_samplesPerSecond);
+extern PH_API void phAsyncGetRendererStatistics(
+	PHuint64                 engineId,
+	PHfloat32*               out_percentageProgress,
+	PHfloat32*               out_samplesPerSecond);
 
-extern PH_API int  phAsyncPollUpdatedFilmRegion(PHuint64 engineId,
-                                                PHuint32* out_xPx, PHuint32* out_yPx, 
-                                                PHuint32* out_widthPx, PHuint32* out_heightPx);
+extern PH_API int  phAsyncPollUpdatedFilmRegion(
+	PHuint64                 engineId,
+	PHuint32*                out_xPx,
+	PHuint32*                out_yPx,
+	PHuint32*                out_widthPx,
+	PHuint32*                out_heightPx);
 
-extern PH_API void phAsyncDevelopFilmRegion(PHuint64 engineId, PHuint64 frameId,
-                                            PHuint32 xPx, PHuint32 yPx,
-                                            PHuint32 widthPx, PHuint32 heightPx);
+extern PH_API void phAsyncDevelopFilmRegion(
+	PHuint64                 engineId, 
+	PHuint64                 frameId,
+	PHuint32                 xPx, 
+	PHuint32                 yPx,
+	PHuint32                 widthPx, 
+	PHuint32                 heightPx, 
+	PH_EATTRIBUTE            attribute);
 
 #ifdef __cplusplus
 }

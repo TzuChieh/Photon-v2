@@ -37,14 +37,16 @@ void Engine::render()
 	m_renderer->render(m_description);
 }
 
-void Engine::developFilm(HdrRgbFrame& out_frame, const bool applyPostProcessing)
+void Engine::developFilm(
+	HdrRgbFrame&     out_frame, 
+	const EAttribute attribute,
+	const bool       applyPostProcessing)
 {
-	m_renderer->develop(out_frame);
+	m_renderer->develop(out_frame, attribute);
 
 	if(applyPostProcessing)
 	{
-		// HACK
-		const FrameProcessor* processor = m_filmSet.getProcessor(EAttribute::LIGHT_ENERGY);
+		const FrameProcessor* processor = m_filmSet.getProcessor(attribute);
 		processor->process(out_frame);
 	}
 }
@@ -67,14 +69,14 @@ ERegionStatus Engine::asyncPollUpdatedRegion(Renderer::Region* const out_region)
 void Engine::asyncDevelopFilmRegion(
 	HdrRgbFrame&            out_frame,
 	const Renderer::Region& region,
+	const EAttribute        attribute,
 	const bool              applyPostProcessing) const
 {
-	m_renderer->asyncDevelopFilmRegion(out_frame, region);
+	m_renderer->asyncDevelopFilmRegion(out_frame, region, attribute);
 
 	if(applyPostProcessing)
 	{
-		// HACK
-		const FrameProcessor* processor = m_filmSet.getProcessor(EAttribute::LIGHT_ENERGY);
+		const FrameProcessor* processor = m_filmSet.getProcessor(attribute);
 		processor->process(out_frame);
 	}
 }

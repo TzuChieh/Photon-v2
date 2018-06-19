@@ -3,6 +3,7 @@
 #include "JLongRef.h"
 #include "JFloatRef.h"
 #include "JniUtil.h"
+#include "JniHelper.h"
 
 #include <ph_core.h>
 
@@ -87,9 +88,9 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phRender
 * Signature: (JJ)V
 */
 JNIEXPORT void JNICALL Java_photonApi_Ph_phDevelopFilm
-(JNIEnv* env, jclass thiz, jlong engineId, jlong frameId)
+(JNIEnv* env, jclass thiz, jlong engineId, jlong frameId, jint attribute)
 {
-	phDevelopFilm(static_cast<PHuint64>(engineId), static_cast<PHuint64>(frameId));
+	phDevelopFilm(static_cast<PHuint64>(engineId), static_cast<PHuint64>(frameId), ph::JniHelper::toCAttribute(attribute));
 }
 
 /*
@@ -277,12 +278,12 @@ JNIEXPORT jint JNICALL Java_photonApi_Ph_phAsyncPollUpdatedFilmRegion
 */
 JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncDevelopFilmRegion
 (JNIEnv* env, jclass thiz, jlong engineId, jlong frameId, 
-                           jint xPx, jint yPx, jint wPx, jint hPx)
+                           jint xPx, jint yPx, jint wPx, jint hPx, jint attribute)
 {
 	phAsyncDevelopFilmRegion(static_cast<PHuint64>(engineId), 
 	                         static_cast<PHuint64>(frameId),
 	                         static_cast<PHuint32>(xPx),
 	                         static_cast<PHuint32>(yPx),
 	                         static_cast<PHuint32>(wPx),
-	                         static_cast<PHuint32>(hPx));
+	                         static_cast<PHuint32>(hPx), ph::JniHelper::toCAttribute(attribute));
 }

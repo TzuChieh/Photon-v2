@@ -72,7 +72,7 @@ public final class PhEngine
 	
 	public void developFilm(PhFrame frame)
 	{
-		Ph.phDevelopFilm(m_engineId, frame.m_frameId);
+		Ph.phDevelopFilm(m_engineId, frame.m_frameId, Ph.ATTRIBUTE_LIGHT_ENERGY);
 	}
 	
 	public void asyncGetRendererStatistics(Statistics out_statistics)
@@ -103,7 +103,7 @@ public final class PhEngine
 //		System.out.println(hPx);
 		
 		Ph.phAsyncDevelopFilmRegion(m_engineId, out_frame.m_frameId, 
-		                            xPx.m_value, yPx.m_value, wPx.m_value, hPx.m_value);
+		                            xPx.m_value, yPx.m_value, wPx.m_value, hPx.m_value, Ph.ATTRIBUTE_LIGHT_ENERGY);
 		
 		out_updatedRegion.x = xPx.m_value;
 		out_updatedRegion.y = yPx.m_value;

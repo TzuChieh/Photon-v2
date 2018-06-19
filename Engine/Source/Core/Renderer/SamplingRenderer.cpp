@@ -121,8 +121,13 @@ ERegionStatus SamplingRenderer::asyncPollUpdatedRegion(Region* const out_region)
 	}
 }
 
-void SamplingRenderer::asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region)
+void SamplingRenderer::asyncDevelopFilmRegion(
+	HdrRgbFrame&     out_frame, 
+	const Region&    region, 
+	const EAttribute attribute)
 {
+	// TODO: attribute
+
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 	if(m_lightEnergyFilm != nullptr)
@@ -131,8 +136,10 @@ void SamplingRenderer::asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Regi
 	}
 }
 
-void SamplingRenderer::develop(HdrRgbFrame& out_frame)
+void SamplingRenderer::develop(HdrRgbFrame& out_frame, const EAttribute attribute)
 {
+	// TODO: attribute
+
 	m_lightEnergyFilm->develop(out_frame);
 }
 

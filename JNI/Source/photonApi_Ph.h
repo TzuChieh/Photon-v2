@@ -7,6 +7,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef photonApi_Ph_ATTRIBUTE_LIGHT_ENERGY
+#define photonApi_Ph_ATTRIBUTE_LIGHT_ENERGY 0L
+#undef photonApi_Ph_ATTRIBUTE_NORMAL
+#define photonApi_Ph_ATTRIBUTE_NORMAL 1L
+#undef photonApi_Ph_ATTRIBUTE_DEPTH
+#define photonApi_Ph_ATTRIBUTE_DEPTH 2L
 #undef photonApi_Ph_FILM_REGION_STATUS_INVALID
 #define photonApi_Ph_FILM_REGION_STATUS_INVALID 0L
 #undef photonApi_Ph_FILM_REGION_STATUS_UPDATING
@@ -64,10 +70,10 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phRender
 /*
  * Class:     photonApi_Ph
  * Method:    phDevelopFilm
- * Signature: (JJ)V
+ * Signature: (JJI)V
  */
 JNIEXPORT void JNICALL Java_photonApi_Ph_phDevelopFilm
-  (JNIEnv *, jclass, jlong, jlong);
+  (JNIEnv *, jclass, jlong, jlong, jint);
 
 /*
  * Class:     photonApi_Ph
@@ -144,10 +150,10 @@ JNIEXPORT jint JNICALL Java_photonApi_Ph_phAsyncPollUpdatedFilmRegion
 /*
  * Class:     photonApi_Ph
  * Method:    phAsyncDevelopFilmRegion
- * Signature: (JJIIII)V
+ * Signature: (JJIIIII)V
  */
 JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncDevelopFilmRegion
-  (JNIEnv *, jclass, jlong, jlong, jint, jint, jint, jint);
+  (JNIEnv *, jclass, jlong, jlong, jint, jint, jint, jint, jint);
 
 #ifdef __cplusplus
 }

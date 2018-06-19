@@ -82,11 +82,11 @@ void StaticImageRenderer::render() const
 	phCreateFrame(&frameId, filmWpx, filmHpx);
 	if(m_isPostProcessRequested)
 	{
-		phDevelopFilm(m_engineId, frameId);
+		phDevelopFilm(m_engineId, frameId, PH_EATTRIBUTE::LIGHT_ENERGY);
 	}
 	else
 	{
-		phDevelopFilmRaw(m_engineId, frameId);
+		phDevelopFilmRaw(m_engineId, frameId, PH_EATTRIBUTE::LIGHT_ENERGY);
 	}
 
 	std::cout << "saving image to <" << m_imageFilePath << ">" << std::endl;

@@ -9,8 +9,12 @@ public final class Ph
 	static
 	{
 		//System.loadLibrary("Release/Engine");
-		System.loadLibrary("JNI");
+		System.loadLibrary("Editor_JNI");
 	}
+	
+	public static final int ATTRIBUTE_LIGHT_ENERGY = 0;
+	public static final int ATTRIBUTE_NORMAL       = 1;
+	public static final int ATTRIBUTE_DEPTH        = 2;
 	
 	// core
 	
@@ -21,7 +25,7 @@ public final class Ph
 	public static native void phEnterCommand(long engineId, String commandFragment);
 	public static native void phUpdate(long engindId);
 	public static native void phRender(long engineId);
-	public static native void phDevelopFilm(long engineId, long frameId);
+	public static native void phDevelopFilm(long engineId, long frameId, int attribute);
 	public static native void phGetFilmDimension(long engineId, IntRef out_widthPx, IntRef out_heightPx);
 	public static native void phDeleteEngine(long engineId);
 	public static native void phSetWorkingDirectory(long engineId, String workingDirectory);
@@ -42,10 +46,16 @@ public final class Ph
 	                                                       FloatRef out_percentageProgress, 
 	                                                       FloatRef out_samplesPerSecond);
 	
-	public static native int  phAsyncPollUpdatedFilmRegion(long engineId, 
-	                                                       IntRef out_xPx, IntRef out_yPx, 
-	                                                       IntRef out_wPx, IntRef out_hPx);
+	public static native int phAsyncPollUpdatedFilmRegion(long engineId, 
+	                                                      IntRef out_xPx, IntRef out_yPx, 
+	                                                      IntRef out_wPx, IntRef out_hPx);
 	
-	public static native void phAsyncDevelopFilmRegion(long engineId, long frameId, 
-	                                                   int xPx, int yPx, int wPx, int hPx);
+	public static native void phAsyncDevelopFilmRegion(
+		long engineId, 
+		long frameId, 
+		int xPx, 
+		int yPx, 
+		int wPx, 
+		int hPx, 
+		int attribute);
 }
