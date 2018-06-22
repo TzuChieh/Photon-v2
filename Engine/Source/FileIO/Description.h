@@ -30,13 +30,11 @@ public:
 	void update(real deltaS);
 
 	inline std::shared_ptr<Camera>          getCamera()          const { return m_camera;          };
-	inline std::shared_ptr<Estimator>      getEstimator()      const { return m_estimator;      };
 	inline std::shared_ptr<SampleGenerator> getSampleGenerator() const { return m_sampleGenerator; };
 	inline std::shared_ptr<Renderer>        getRenderer() const        { return m_renderer;        };
 
 private:
 	std::shared_ptr<Camera>          m_camera;
-	std::shared_ptr<Estimator>      m_estimator;
 	std::shared_ptr<SampleGenerator> m_sampleGenerator;
 	std::shared_ptr<Renderer>        m_renderer;
 };

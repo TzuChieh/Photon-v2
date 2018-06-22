@@ -34,7 +34,7 @@ private:
 
 	const Scene*          m_scene;
 	SampleGenerator*      m_sg;
-	Estimator*           m_estimator;
+	std::unique_ptr<Estimator> m_estimator;
 	Camera*               m_camera;
 	SampleFilter          m_filter;
 

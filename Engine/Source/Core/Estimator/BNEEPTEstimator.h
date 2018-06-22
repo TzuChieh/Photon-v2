@@ -24,6 +24,7 @@ namespace ph
 class BNEEPTEstimator final : public Estimator, public TCommandInterface<BNEEPTEstimator>
 {
 public:
+	BNEEPTEstimator();
 	virtual ~BNEEPTEstimator() override;
 
 	virtual void update(const Scene& scene) override;

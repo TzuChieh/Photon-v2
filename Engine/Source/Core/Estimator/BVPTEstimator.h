@@ -18,6 +18,7 @@ namespace ph
 class BVPTEstimator final : public Estimator, public TCommandInterface<BVPTEstimator>
 {
 public:
+	BVPTEstimator();
 	virtual ~BVPTEstimator() override;
 
 	virtual void update(const Scene& scene) override;

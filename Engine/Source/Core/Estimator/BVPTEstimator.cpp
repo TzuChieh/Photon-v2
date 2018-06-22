@@ -23,6 +23,8 @@
 namespace ph
 {
 
+BVPTEstimator::BVPTEstimator() = default;
+
 BVPTEstimator::~BVPTEstimator() = default;
 
 void BVPTEstimator::update(const Scene& scene)

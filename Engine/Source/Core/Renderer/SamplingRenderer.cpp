@@ -13,6 +13,8 @@
 #include "Core/Renderer/RendererProxy.h"
 #include "Common/assertion.h"
 #include "Core/Filmic/SampleFilterFactory.h"
+#include "Core/Estimator/BVPTEstimator.h"
+#include "Core/Estimator/BNEEPTEstimator.h"
 
 #include <cmath>
 #include <iostream>
@@ -43,7 +45,6 @@ void SamplingRenderer::init(const Description& description)
 	clearWorkData();
 	m_scene           = &description.visualWorld.getScene();
 	m_sg              = description.getSampleGenerator().get();
-	m_estimator = description.getEstimator().get();
 	m_lightEnergyFilm = std::make_unique<HdrRgbFilm>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
 	m_camera     = description.getCamera().get();
@@ -56,6 +57,8 @@ void SamplingRenderer::init(const Description& description)
 	{
 		m_workFilms.push_back(m_lightEnergyFilm->genChild(m_lightEnergyFilm->getEffectiveWindowPx()));
 	}
+
+	m_estimator->update(*m_scene);
 }
 
 bool SamplingRenderer::asyncGetNewWork(const uint32 workerId, RenderWork* out_work)
@@ -72,7 +75,7 @@ bool SamplingRenderer::asyncGetNewWork(const uint32 workerId, RenderWork* out_wo
 	const uint32 workIndex = m_numRemainingWorks - 1;
 	*out_work = RenderWork(m_scene,
 	                       m_camera,
-	                       m_estimator,
+	                       m_estimator.get(),
 	                       m_workSgs[workIndex].get(),
 	                       m_workFilms[workIndex].get());
 	m_numRemainingWorks--;
@@ -182,7 +185,6 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 	m_filter(SampleFilterFactory::createGaussianFilter())
 {
 	const std::string filterName = packet.getString("filter-name");
-
 	if(filterName == "box")
 	{
 		m_filter = SampleFilterFactory::createBoxFilter();
@@ -195,6 +197,18 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 	{
 		m_filter = SampleFilterFactory::createMNFilter();
 	}
+
+	const std::string estimatorName = packet.getString("estimator", "bneept");
+	if(estimatorName == "bvpt")
+	{
+		m_estimator = std::make_unique<BVPTEstimator>();
+	}
+	else if(estimatorName == "bneept")
+	{
+		m_estimator = std::make_unique<BNEEPTEstimator>();
+	}
+
+	PH_ASSERT(m_estimator);
 }
 
 SdlTypeInfo SamplingRenderer::ciTypeInfo()

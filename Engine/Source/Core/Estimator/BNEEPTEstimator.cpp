@@ -28,6 +28,8 @@
 namespace ph
 {
 
+BNEEPTEstimator::BNEEPTEstimator() = default;
+
 BNEEPTEstimator::~BNEEPTEstimator() = default;
 
 void BNEEPTEstimator::update(const Scene& scene)
