@@ -69,7 +69,7 @@ bool SamplingRenderer::asyncGetNewWork(const uint32 workerId, RenderWork* out_wo
 
 	if(m_numRemainingWorks == 0)
 	{
-		return false;
+		return false;6
 	}
 
 	const uint32 workIndex = m_numRemainingWorks - 1;

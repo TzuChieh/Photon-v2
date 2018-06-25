@@ -1,39 +1,71 @@
 #pragma once
 
 #include "Core/Filmic/filmic_fwd.h"
+#include "Common/assertion.h"
+#include "Core/Renderer/RenderProgress.h"
+
+#include <atomic>
 
 namespace ph
 {
 
-class Scene;
-class Camera;
-class Estimator;
-class SampleGenerator;
+class RenderWorker;
 
-class RenderWork final
+class RenderWork
 {
 public:
-	const Scene*          scene;
-	const Camera*         camera;
-	const Estimator*     estimator;
-	SampleGenerator*      sampleGenerator;
-	SpectralSamplingFilm* film;
+	RenderWork();
+	virtual ~RenderWork() = 0;
 
-	inline RenderWork(const Scene* const          scene,
-	                  const Camera* const         camera,
-	                  const Estimator* const     estimator,
-	                  SampleGenerator* const      sampleGenerator,
-	                  SpectralSamplingFilm* const film) :
-		scene(scene), 
-		camera(camera), 
-		estimator(estimator),
-		sampleGenerator(sampleGenerator),
-		film(film)
-	{}
+	virtual void doWork() = 0;
 
-	inline RenderWork() :
-		RenderWork(nullptr, nullptr, nullptr, nullptr, nullptr)
-	{}
+	void setWorker(RenderWorker* worker);
+	void setTotalWork(uint32 totalWork);
+	void setWorkDone(uint32 workDone);
+	void incrementWorkDone();
+	RenderProgress asyncQueryProgress();
+
+private:
+	RenderWorker*        m_worker;
+	std::atomic_uint32_t m_totalWork;
+	std::atomic_uint32_t m_workDone;
 };
+
+// In-header Implementations:
+
+inline RenderWork::RenderWork() = default;
+
+inline RenderWork::~RenderWork() = default;
+
+inline void RenderWork::setWorker(RenderWorker* const worker)
+{
+	PH_ASSERT(worker);
+
+	m_worker = worker;
+}
+
+inline void RenderWork::setTotalWork(const uint32 totalWork)
+{
+	m_totalWork = totalWork;
+}
+
+inline void RenderWork::setWorkDone(const uint32 workDone)
+{
+	m_workDone = workDone;
+}
+
+inline void RenderWork::incrementWorkDone()
+{
+	m_workDone++;
+}
+
+inline RenderProgress RenderWork::asyncQueryProgress()
+{
+	RenderProgress progress;
+	progress.totalWork = m_totalWork;
+	progress.workDone  = m_workDone;
+
+	return progress;
+}
 
 }// end namespace ph

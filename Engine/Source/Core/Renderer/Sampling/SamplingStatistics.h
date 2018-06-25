@@ -5,10 +5,10 @@
 namespace ph
 {
 
-struct RenderProgress
+struct SamplingStatistics
 {
-	uint32 totalWork;
-	uint32 workDone;
+	uint32 numSamplesTaken;
+	uint32 numMsElapsed;
 };
 
 }// end namespace ph

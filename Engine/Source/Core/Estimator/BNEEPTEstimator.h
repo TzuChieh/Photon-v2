@@ -28,7 +28,7 @@ public:
 	virtual ~BNEEPTEstimator() override;
 
 	virtual void update(const Scene& scene) override;
-	virtual void radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const override;
+	virtual void radianceAlongRay(const Ray& ray, const Integrand& integrand, std::vector<SenseEvent>& out_senseEvents) const override;
 
 private:
 	static void rationalClamp(SpectralStrength& value);

@@ -32,9 +32,9 @@ void BVPTEstimator::update(const Scene& scene)
 	// update nothing
 }
 
-void BVPTEstimator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
+void BVPTEstimator::radianceAlongRay(const Ray& ray, const Integrand& integrand, std::vector<SenseEvent>& out_senseEvents) const
 {
-	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESidednessAgreement::STRICT>(data.scene);
+	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESidednessAgreement::STRICT>(&(integrand.getScene()));
 
 	uint32 numBounces = 0;
 	SpectralStrength accuRadiance(0);
@@ -100,7 +100,7 @@ void BVPTEstimator::radianceAlongRay(const Ray& ray, const RenderWork& data, std
 				Vector3R endV;
 				SpectralStrength weight;
 				SpectralStrength radiance;
-				PtVolumetricEstimator::sample(*(data.scene), surfaceHit, L, &Xe, &endV, &weight, &radiance);
+				PtVolumetricEstimator::sample(integrand.getScene(), surfaceHit, L, &Xe, &endV, &weight, &radiance);
 
 				accuLiWeight.mulLocal(weight);
 				if(accuLiWeight.isZero())

@@ -37,10 +37,10 @@ void BNEEPTEstimator::update(const Scene& scene)
 	// update nothing
 }
 
-void BNEEPTEstimator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
+void BNEEPTEstimator::radianceAlongRay(const Ray& ray, const Integrand& integrand, std::vector<SenseEvent>& out_senseEvents) const
 {
-	const Scene&  scene  = *data.scene;
-	const Camera& camera = *data.camera;
+	const Scene&  scene  = integrand.getScene();
+	const Camera& camera = integrand.getCamera();
 	const auto&   mis    = TMis<EMisStyle::POWER>();
 
 	// common variables
