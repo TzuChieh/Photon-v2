@@ -15,6 +15,7 @@
 #include "Core/Filmic/SampleFilterFactory.h"
 #include "Core/Estimator/BVPTEstimator.h"
 #include "Core/Estimator/BNEEPTEstimator.h"
+#include "Core/Estimator/Integrand.h"
 
 #include <cmath>
 #include <iostream>
@@ -53,14 +54,18 @@ void SamplingRenderer::init(const Description& description)
 
 	m_sg->genSplitted(numWorks, m_workSgs);
 
+	std::vector<std::unique_ptr<SpectralSamplingFilm>> workFilms;
 	for(uint32 i = 0; i < numWorks; i++)
 	{
-		m_workFilms.push_back(m_lightEnergyFilm->genChild(m_lightEnergyFilm->getEffectiveWindowPx()));
+		workFilms.push_back(m_lightEnergyFilm->genChild(m_lightEnergyFilm->getEffectiveWindowPx()));
 	}
 
+	const Integrand integrand(m_scene, m_camera);
 	for(uint32 i = 0; i < numWorks; i++)
 	{
-		m_works.push_back(SamplingRenderWork(this, m_scene, m_camera, m_estimator.get(), m_workSgs[i].get(), m_workFilms[i].get()));
+		SamplingRenderWork work(this, m_estimator.get(), integrand, std::move(workFilms[i]), std::move(m_workSgs[i]));
+		work.setDomainPx(getRenderWindowPx());
+		m_works.push_back(std::move(work));
 	}
 
 	m_estimator->update(*m_scene);
@@ -93,10 +98,10 @@ void SamplingRenderer::asyncSubmitWork(RenderWorker& worker)
 	addUpdatedRegion(work->m_film->getEffectiveWindowPx(), false);
 }
 
+// TODO: check this
 void SamplingRenderer::clearWorkData()
 {
 	m_workSgs.clear();
-	m_workFilms.clear();
 	m_updatedRegions.clear();
 }
 
@@ -114,7 +119,7 @@ ERegionStatus SamplingRenderer::asyncPollUpdatedRegion(Region* const out_region)
 	*out_region = m_updatedRegions.front().first;
 	m_updatedRegions.pop_front();
 
-	if(m_numFinishedWorks != m_workFilms.size())
+	if(m_numFinishedWorks != m_works.size())
 	{
 		return ERegionStatus::UPDATING;
 	}
@@ -201,7 +206,6 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 	m_numRemainingWorks(0),
 	m_numFinishedWorks(0),
 	m_workSgs(),
-	m_workFilms(),
 	m_updatedRegions(),
 	m_rendererMutex(),
 	m_filter(SampleFilterFactory::createGaussianFilter())

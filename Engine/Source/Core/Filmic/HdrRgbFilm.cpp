@@ -17,6 +17,8 @@
 namespace ph
 {
 
+// OPT: precalculate resolutions (the ones end with ...ResPx)
+
 HdrRgbFilm::HdrRgbFilm(
 	const int64 actualWidthPx, const int64 actualHeightPx,
 	const SampleFilter& filter) : 
@@ -38,8 +40,11 @@ HdrRgbFilm::HdrRgbFilm(
 		effectiveWindowPx, 
 		filter),
 
-	m_pixelRadianceSensors(effectiveWindowPx.calcArea(), RadianceSensor())
-{}
+	m_pixelRadianceSensors()
+{
+	resizeRadianceSensorBuffer();
+	clear();
+}
 
 HdrRgbFilm::~HdrRgbFilm() = default;
 
@@ -54,8 +59,8 @@ void HdrRgbFilm::addSample(
 	TVector2<float64> filterMax(samplePosPx.add(m_filter.getHalfSizePx()));
 
 	// reduce to effective bounds
-	filterMin = filterMin.max(TVector2<float64>(m_effectiveWindowPx.minVertex));
-	filterMax = filterMax.min(TVector2<float64>(m_effectiveWindowPx.maxVertex));
+	filterMin = filterMin.max(TVector2<float64>(getEffectiveWindowPx().minVertex));
+	filterMax = filterMax.min(TVector2<float64>(getEffectiveWindowPx().maxVertex));
 
 	// compute pixel index bounds (exclusive on x1y1)
 	TVector2<int64> x0y0(filterMin.sub(0.5).ceil());
@@ -71,9 +76,9 @@ void HdrRgbFilm::addSample(
 			const float64 filterX = x - (xPx - 0.5);
 			const float64 filterY = y - (yPx - 0.5);
 
-			const std::size_t fx = x - m_effectiveWindowPx.minVertex.x;
-			const std::size_t fy = y - m_effectiveWindowPx.minVertex.y;
-			const std::size_t index = fy * static_cast<std::size_t>(m_effectiveResPx.x) + fx;
+			const std::size_t fx = x - getEffectiveWindowPx().minVertex.x;
+			const std::size_t fy = y - getEffectiveWindowPx().minVertex.y;
+			const std::size_t index = fy * static_cast<std::size_t>(getEffectiveResPx().x) + fx;
 			
 			const float64   weight = m_filter.evaluate(filterX, filterY);
 			const Vector3R& rgb    = radiance.genLinearSrgb(EQuantity::EMR);
@@ -88,7 +93,7 @@ void HdrRgbFilm::addSample(
 
 std::unique_ptr<SpectralSamplingFilm> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindowPx)
 {
-	auto childFilm = std::make_unique<HdrRgbFilm>(m_actualResPx.x, m_actualResPx.y, 
+	auto childFilm = std::make_unique<HdrRgbFilm>(getActualResPx().x, getActualResPx().y,
 	                                              effectiveWindowPx, 
 	                                              m_filter);
 	HdrRgbFilm* parent = this;
@@ -105,15 +110,15 @@ std::unique_ptr<SpectralSamplingFilm> HdrRgbFilm::genChild(const TAABB2D<int64>&
 
 void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const
 {
-	if(out_frame.widthPx()  != m_actualResPx.x ||
-	   out_frame.heightPx() != m_actualResPx.y)
+	if(out_frame.widthPx()  != getActualResPx().x ||
+	   out_frame.heightPx() != getActualResPx().y)
 	{
 		std::cerr << "warning: at HdrRgbFilm::develop(), "
 		          << "input frame dimension mismatch" << std::endl;
 		return;
 	}
 
-	TAABB2D<int64> frameIndexBound(m_effectiveWindowPx);
+	TAABB2D<int64> frameIndexBound(getEffectiveWindowPx());
 	frameIndexBound.intersectWith(regionPx);
 	frameIndexBound.maxVertex.subLocal(1);
 
@@ -121,18 +126,18 @@ void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& reg
 	float64     reciWeight;
 	std::size_t fx, fy, filmIndex;
 
-	for(int64 y = 0; y < m_actualResPx.y; y++)
+	for(int64 y = 0; y < getActualResPx().y; y++)
 	{
-		for(int64 x = 0; x < m_actualResPx.x; x++)
+		for(int64 x = 0; x < getActualResPx().x; x++)
 		{
 			if(!frameIndexBound.isIntersectingArea({x, y}))
 			{
 				continue;
 			}
 
-			fx = x - m_effectiveWindowPx.minVertex.x;
-			fy = y - m_effectiveWindowPx.minVertex.y;
-			filmIndex = fy * static_cast<std::size_t>(m_effectiveResPx.x) + fx;
+			fx = x - getEffectiveWindowPx().minVertex.x;
+			fy = y - getEffectiveWindowPx().minVertex.y;
+			filmIndex = fy * static_cast<std::size_t>(getEffectiveResPx().x) + fx;
 
 			const float64 sensorWeight = m_pixelRadianceSensors[filmIndex].accuWeight;
 
@@ -168,6 +173,19 @@ void HdrRgbFilm::mergeWith(const HdrRgbFilm& other)
 		m_pixelRadianceSensors[i].accuB      += other.m_pixelRadianceSensors[i].accuB;
 		m_pixelRadianceSensors[i].accuWeight += other.m_pixelRadianceSensors[i].accuWeight;
 	}
+}
+
+void HdrRgbFilm::setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow)
+{
+	SpectralSamplingFilm::setEffectiveWindowPx(effectiveWindow);
+
+	resizeRadianceSensorBuffer();
+	clear();
+}
+
+void HdrRgbFilm::resizeRadianceSensorBuffer()
+{
+	m_pixelRadianceSensors.resize(getEffectiveWindowPx().calcArea());
 }
 
 // command interface

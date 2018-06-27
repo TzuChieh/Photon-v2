@@ -37,6 +37,7 @@ public:
 	void addSample(float64 xPx, float64 yPx, const SpectralStrength& radiance) override;
 	void clear() override;
 	std::unique_ptr<SpectralSamplingFilm> genChild(const TAABB2D<int64>& effectiveWindowPx) override;
+	void setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow) override;
 
 private:
 	void developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const override;
@@ -44,6 +45,7 @@ private:
 	std::vector<RadianceSensor> m_pixelRadianceSensors;
 
 	void mergeWith(const HdrRgbFilm& other);
+	void resizeRadianceSensorBuffer();
 
 // command interface
 public:

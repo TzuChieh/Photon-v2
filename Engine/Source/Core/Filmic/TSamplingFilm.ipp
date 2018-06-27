@@ -34,7 +34,6 @@ inline TSamplingFilm<Sample>::TSamplingFilm(
 
 	Film(actualWidthPx, actualHeightPx, effectiveWindowPx),
 
-	m_sampleResPx   (),
 	m_sampleWindowPx(),
 	m_filter        (filter),
 	m_merger        (makeDefaultMerger())
@@ -50,13 +49,9 @@ inline TSamplingFilm<Sample>::~TSamplingFilm() = default;
 template<typename Sample>
 inline void TSamplingFilm<Sample>::calcSampleDimensions()
 {
-	m_sampleResPx = TVector2<float64>(
-		m_effectiveWindowPx.getWidth()  - 1.0 + m_filter.getSizePx().x,
-		m_effectiveWindowPx.getHeight() - 1.0 + m_filter.getSizePx().y);
-
 	m_sampleWindowPx = TAABB2D<float64>(
-		TVector2<float64>(m_effectiveWindowPx.minVertex).add(0.5).sub(m_filter.getHalfSizePx()),
-		TVector2<float64>(m_effectiveWindowPx.maxVertex).sub(0.5).add(m_filter.getHalfSizePx()));
+		TVector2<float64>(getEffectiveWindowPx().minVertex).add(0.5).sub(m_filter.getHalfSizePx()),
+		TVector2<float64>(getEffectiveWindowPx().maxVertex).sub(0.5).add(m_filter.getHalfSizePx()));
 
 	if(!m_sampleWindowPx.isValid())
 	{
@@ -75,6 +70,32 @@ std::function<void()> TSamplingFilm<Sample>::makeDefaultMerger()
 	};
 }
 
+template<typename Sample>
+inline void TSamplingFilm<Sample>::setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow)
+{
+	Film::setEffectiveWindowPx(effectiveWindow);
+
+	calcSampleDimensions();
+}
+
+template<typename Sample>
+inline void TSamplingFilm<Sample>::mergeToParent() const
+{
+	m_merger();
+}
+
+template<typename Sample>
+inline TVector2<float64> TSamplingFilm<Sample>::getSampleResPx() const
+{
+	return {m_sampleWindowPx.getWidth(), m_sampleWindowPx.getHeight()};
+}
+
+template<typename Sample>
+inline const TAABB2D<float64>& TSamplingFilm<Sample>::getSampleWindowPx() const
+{
+	return m_sampleWindowPx;
+}
+
 // command interface
 
 template<typename Sample>
@@ -82,7 +103,6 @@ inline TSamplingFilm<Sample>::TSamplingFilm(const InputPacket& packet) :
 
 	Film(packet),
 
-	m_sampleResPx   (),
 	m_sampleWindowPx(),
 	m_filter        (SampleFilterFactory::createGaussianFilter()),
 	m_merger        (makeDefaultMerger())

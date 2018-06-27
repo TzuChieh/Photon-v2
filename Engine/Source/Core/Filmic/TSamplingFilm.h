@@ -42,33 +42,23 @@ public:
 
 	virtual void clear() override = 0;
 
-	inline void mergeToParent() const
-	{
-		m_merger();
-	}
+	void setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow) override;
 
-	inline const TVector2<float64>& getSampleResPx() const
-	{
-		return m_sampleResPx;
-	}
-
-	inline const TAABB2D<float64>& getSampleWindowPx() const
-	{
-		return m_sampleWindowPx;
-	}
+	void mergeToParent() const;
+	TVector2<float64> getSampleResPx() const;
+	const TAABB2D<float64>& getSampleWindowPx() const;
 
 protected:
-	TVector2<float64> m_sampleResPx;
-	TAABB2D<float64>  m_sampleWindowPx;
-
+	// TODO: move to private
 	SampleFilter          m_filter;
 	std::function<void()> m_merger;
 
 private:
 	void developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const override = 0;
 
-	void calcSampleDimensions();
+	TAABB2D<float64> m_sampleWindowPx;
 
+	void calcSampleDimensions();
 	static std::function<void()> makeDefaultMerger();
 
 // command interface

@@ -22,14 +22,9 @@ Film::Film(
 	const TAABB2D<int64>& effectiveWindowPx) : 
 
 	m_actualResPx      (actualWidthPx, actualHeightPx), 
-	m_effectiveResPx   (effectiveWindowPx.getWidth(), effectiveWindowPx.getHeight()),
-	m_effectiveWindowPx(effectiveWindowPx)
+	m_effectiveWindowPx()
 {
-	if(!m_effectiveWindowPx.isValid())
-	{
-		std::cerr << "warning: at Film::Film(), "
-		          << "invalid effective window detected" << std::endl;
-	}
+	Film::setEffectiveWindowPx(effectiveWindowPx);
 }
 
 void Film::develop(HdrRgbFrame& out_frame) const
@@ -57,8 +52,6 @@ Film::Film(const InputPacket& packet)
 
 	m_actualResPx.x     = filmWidth;
 	m_actualResPx.y     = filmHeight;
-	m_effectiveResPx.x  = rectW;
-	m_effectiveResPx.y  = rectH;
 	m_effectiveWindowPx = TAABB2D<int64>({rectX, rectY}, {rectX + rectW, rectY + rectH});
 }
 

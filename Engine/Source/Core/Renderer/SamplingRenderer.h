@@ -43,7 +43,6 @@ private:
 	uint32                                              m_numRemainingWorks;
 	uint32                                              m_numFinishedWorks;
 	std::vector<std::unique_ptr<SampleGenerator>>       m_workSgs;
-	std::vector<std::unique_ptr<SpectralSamplingFilm>>  m_workFilms;
 	std::vector<SamplingRenderWork> m_works;
 	std::deque<std::pair<Region, bool>>                 m_updatedRegions;
 	

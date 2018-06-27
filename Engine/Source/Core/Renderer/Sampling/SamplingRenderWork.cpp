@@ -6,18 +6,23 @@
 #include "Core/Estimator/Utility/SenseEvent.h"
 #include "Core/Estimator/Estimator.h"
 #include "Core/Estimator/Integrand.h"
+#include "Core/Filmic/SampleFilterFactory.h"
 
 namespace ph
 {
 
-SamplingRenderWork::SamplingRenderWork(const SamplingRenderWork& other) : 
-	SamplingRenderWork(
-		other.m_renderer,
-		other.m_scene,
-		other.m_camera,
-		other.m_estimator,
-		other.m_sampleGenerator,
-		other.m_film)
+SamplingRenderWork::SamplingRenderWork(SamplingRenderWork&& other) : 
+
+	RenderWork(other),
+
+	m_renderer(other.m_renderer),
+	m_integrand(other.m_integrand),
+	m_estimator(other.m_estimator),
+	m_sampleGenerator(std::move(other.m_sampleGenerator)),
+	m_film(std::move(other.m_film)),
+
+	m_numSamplesTaken(other.m_numSamplesTaken.load()),
+	m_numMsElapsed(other.m_numMsElapsed.load())
 {}
 
 void SamplingRenderWork::doWork()
@@ -34,8 +39,6 @@ void SamplingRenderWork::doWork()
 	TSamplePhase<SampleArray2D> camSamplePhase = m_sampleGenerator->declareArray2DPhase(numCamPhaseSamples);
 
 	std::vector<SenseEvent> senseEvents;
-
-	const Integrand integrand(m_scene, m_camera);
 
 	m_numSamplesTaken = 0;
 	m_numMsElapsed    = 0;
@@ -62,9 +65,9 @@ void SamplingRenderWork::doWork()
 			}
 
 			Ray ray;
-			m_camera->genSensedRay(Vector2R(rasterPosPx), &ray);
+			m_integrand.getCamera().genSensedRay(Vector2R(rasterPosPx), &ray);
 
-			m_estimator->radianceAlongRay(ray, integrand, senseEvents);
+			m_estimator->radianceAlongRay(ray, m_integrand, senseEvents);
 
 			// HACK: sense event
 			for(const auto& senseEvent : senseEvents)
@@ -89,6 +92,15 @@ void SamplingRenderWork::doWork()
 		m_numSamplesTaken = static_cast<uint32>(camSamples.numElements());
 		m_numMsElapsed    = static_cast<uint32>(std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count());
 	}
+}
+
+void SamplingRenderWork::setDomainPx(const TAABB2D<int64>& domainPx)
+{
+	PH_ASSERT(m_film && domainPx.isValid());
+
+	m_domainPx = domainPx;
+
+	m_film->setEffectiveWindowPx(domainPx);
 }
 
 }// end namespace ph

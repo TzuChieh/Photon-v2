@@ -3,6 +3,12 @@
 #include "Core/Renderer/RenderWork.h"
 #include "Core/Renderer/Sampling/SamplingStatistics.h"
 #include "Core/Filmic/filmic_fwd.h"
+#include "Core/SampleGenerator/SampleGenerator.h"
+#include "Core/Filmic/TSamplingFilm.h"
+#include "Utility/INoncopyable.h"
+#include "Core/Estimator/Integrand.h"
+#include "Core/Bound/TAABB2D.h"
+#include "Core/Filmic/SampleFilter.h"
 
 #include <atomic>
 
@@ -13,36 +19,37 @@ class SamplingRenderer;
 class Scene;
 class Camera;
 class Estimator;
-class SampleGenerator;
+class SampleFilter;
 
-class SamplingRenderWork : public RenderWork
+class SamplingRenderWork : public RenderWork, public INoncopyable
 {
 public:
 	SamplingRenderWork(
-		SamplingRenderer*     renderer,
-		const Scene*          scene,
-		const Camera*         camera,
-		const Estimator*      estimator,
-		SampleGenerator*      sampleGenerator,
-		SpectralSamplingFilm* film);
+		SamplingRenderer* renderer,
+		const Estimator* estimator,
+		const Integrand& integrand,
+		std::unique_ptr<SpectralSamplingFilm> film,
+		std::unique_ptr<SampleGenerator> sampleGenerator);
 
 	SamplingRenderWork();
-	SamplingRenderWork(const SamplingRenderWork& other);
+	SamplingRenderWork(SamplingRenderWork&& other);
 	~SamplingRenderWork() override;
 
 	void doWork() override;
 
+	void setDomainPx(const TAABB2D<int64>& domainPx);
+
 	SamplingStatistics asyncGetStatistics();
 
 	// HACK
-	SpectralSamplingFilm* m_film;
+	std::unique_ptr<SpectralSamplingFilm> m_film;
 
 private:
 	SamplingRenderer*     m_renderer;
-	const Scene*          m_scene;
-	const Camera*         m_camera;
+	Integrand             m_integrand;
 	const Estimator*      m_estimator;
-	SampleGenerator*      m_sampleGenerator;
+	std::unique_ptr<SampleGenerator> m_sampleGenerator;
+	TAABB2D<int64> m_domainPx;
 
 	std::atomic_uint32_t m_numSamplesTaken;
 	std::atomic_uint32_t m_numMsElapsed;
@@ -51,29 +58,26 @@ private:
 // In-header Implementations:
 
 inline SamplingRenderWork::SamplingRenderWork(
-
-	SamplingRenderer* const     renderer,
-	const Scene* const          scene,
-	const Camera* const         camera,
-	const Estimator* const      estimator,
-	SampleGenerator* const      sampleGenerator,
-	SpectralSamplingFilm* const film) :
+	SamplingRenderer* renderer,
+	const Estimator* estimator,
+	const Integrand& integrand,
+	std::unique_ptr<SpectralSamplingFilm> film,
+	std::unique_ptr<SampleGenerator> sampleGenerator) :
 
 	RenderWork(),
 
 	m_renderer(renderer),
-	m_scene(scene),
-	m_camera(camera),
+	m_integrand(integrand),
 	m_estimator(estimator),
-	m_sampleGenerator(sampleGenerator),
-	m_film(film),
+	m_sampleGenerator(std::move(sampleGenerator)),
+	m_film(std::move(film)),
 
 	m_numSamplesTaken(0),
 	m_numMsElapsed(0)
 {}
 
 inline SamplingRenderWork::SamplingRenderWork() :
-	SamplingRenderWork(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr)
+	SamplingRenderWork(nullptr, nullptr, Integrand(), nullptr, nullptr)
 {}
 
 inline SamplingRenderWork::~SamplingRenderWork() = default;
