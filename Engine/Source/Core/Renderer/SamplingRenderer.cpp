@@ -167,9 +167,23 @@ void SamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdat
 
 RenderStates SamplingRenderer::asyncQueryRenderStates()
 {
-	// HACK
+	uint64 totalElapsedMs  = 0;
+	uint64 totalNumSamples = 0;
+	for(auto& work : m_works)
+	{
+		const auto statistics = work.asyncGetStatistics();
+		totalElapsedMs  += statistics.numMsElapsed;
+		totalNumSamples += statistics.numSamplesTaken;
+	}
+
+	float32 samplesPerMs = 0.0f;
+	if(totalElapsedMs != 0)
+	{
+		samplesPerMs = static_cast<float32>(m_works.size() * totalNumSamples) / static_cast<float32>(totalElapsedMs);
+	}
+
 	RenderStates states;
-	states.fltStates[0] = 777.0f;
+	states.fltStates[0] = samplesPerMs;
 	return states;
 }
 
