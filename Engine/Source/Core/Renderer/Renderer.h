@@ -12,6 +12,7 @@
 #include "Core/Estimator/Attribute/AttributeTags.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Core/Estimator/Attribute/EAttribute.h"
+#include "Core/Renderer/RenderStates.h"
 
 #include <vector>
 #include <mutex>
@@ -24,6 +25,7 @@ namespace ph
 
 class Description;
 class InputPacket;
+class RenderWorker;
 
 class Renderer: public TCommandInterface<Renderer>
 {
@@ -35,9 +37,10 @@ public:
 
 	virtual AttributeTags supportedAttributes() const = 0;
 	virtual void init(const Description& description) = 0;
-	virtual bool asyncGetNewWork(uint32 workerId, RenderWork* out_work) = 0;
-	virtual void asyncSubmitWork(uint32 workerId, const RenderWork& work, bool isUpdating) = 0;
+	virtual bool asyncSupplyWork(RenderWorker& worker) = 0;
+	virtual void asyncSubmitWork(RenderWorker& worker) = 0;
 	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) = 0;
+	virtual RenderStates asyncQueryRenderStates() = 0;
 
 	virtual void develop(HdrRgbFrame& out_frame, EAttribute attribute) = 0;
 
@@ -50,7 +53,7 @@ public:
 	void render(const Description& description);
 	void setNumRenderThreads(const uint32 numThreads);
 	void asyncQueryStatistics(float32* out_percentageProgress, 
-	                          float32* out_samplesPerSecond) const;
+	                          float32* out_samplesPerSecond);
 
 	uint32         getNumRenderThreads() const;
 	uint32         getRenderWidthPx()    const;

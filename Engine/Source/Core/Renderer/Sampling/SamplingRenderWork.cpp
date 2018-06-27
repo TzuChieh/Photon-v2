@@ -10,6 +10,16 @@
 namespace ph
 {
 
+SamplingRenderWork::SamplingRenderWork(const SamplingRenderWork& other) : 
+	SamplingRenderWork(
+		other.m_renderer,
+		other.m_scene,
+		other.m_camera,
+		other.m_estimator,
+		other.m_sampleGenerator,
+		other.m_film)
+{}
+
 void SamplingRenderWork::doWork()
 {
 	const uint64 filmWpx = m_film->getEffectiveResPx().x;
@@ -21,7 +31,7 @@ void SamplingRenderWork::doWork()
 	const uint64 filmSampleHpx = static_cast<uint64>(ceiledSampleMaxVertex.y - flooredSampleMinVertex.y);
 	const uint64 numCamPhaseSamples = filmSampleWpx * filmSampleHpx;
 
-	TSamplePhase<SampleArray2D> camSamplePhase = sg->declareArray2DPhase(numCamPhaseSamples);
+	TSamplePhase<SampleArray2D> camSamplePhase = m_sampleGenerator->declareArray2DPhase(numCamPhaseSamples);
 
 	std::vector<SenseEvent> senseEvents;
 
@@ -72,7 +82,6 @@ void SamplingRenderWork::doWork()
 
 		m_sampleGenerator->singleSampleEnd();
 
-		m_renderer.submitWork(m_id, work, true);
 		incrementWorkDone();
 	
 		t2 = std::chrono::system_clock::now();

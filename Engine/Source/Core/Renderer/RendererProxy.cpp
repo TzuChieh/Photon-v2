@@ -1,5 +1,6 @@
 #include "Core/Renderer/RendererProxy.h"
 #include "Core/Renderer/Renderer.h"
+#include "Core/Renderer/RenderWorker.h"
 
 namespace ph
 {
@@ -12,14 +13,14 @@ RendererProxy::RendererProxy(Renderer* renderer) :
 	m_renderer(renderer)
 {}
 
-bool RendererProxy::getNewWork(const uint32 workerId, RenderWork* out_work)
+bool RendererProxy::supplyWork(RenderWorker& worker)
 {
-	return m_renderer->asyncGetNewWork(workerId, out_work);
+	return m_renderer->asyncSupplyWork(worker);
 }
 
-void RendererProxy::submitWork(const uint32 workerId, const RenderWork& work, bool isUpdating)
+void RendererProxy::submitWork(RenderWorker& worker)
 {
-	m_renderer->asyncSubmitWork(workerId, work, isUpdating);
+	m_renderer->asyncSubmitWork(worker);
 }
 
 }// end namespace ph

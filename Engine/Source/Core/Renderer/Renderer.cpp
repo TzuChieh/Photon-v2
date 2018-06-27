@@ -62,29 +62,25 @@ void Renderer::setNumRenderThreads(const uint32 numThreads)
 }
 
 void Renderer::asyncQueryStatistics(float32* const out_percentageProgress, 
-                                    float32* const out_samplesPerSecond) const
+                                    float32* const out_samplesPerSecond)
 {
 	uint64  totalWork     = 0;
 	uint64  totalWorkDone = 0;
-	float64 samplesPerMs  = 0.0;
-	for(const auto& worker : m_workers)
+	for(auto& worker : m_workers)
 	{
-		const auto& statistics = worker.getStatistics();
+		const auto progress = worker.asyncQueryProgress();
 
 		// FIXME: this calculation can be wrong if there are more works than workers
-		totalWork     += statistics.totalWork;
-		totalWorkDone += statistics.workDone;
-
-		if(statistics.numMsElapsed != 0)
-		{
-			samplesPerMs += static_cast<float64>(statistics.numSamplesTaken) / statistics.numMsElapsed;
-		}
+		totalWork     += progress.totalWork;
+		totalWorkDone += progress.workDone;
 	}
 
 	*out_percentageProgress = totalWork != 0 ? 
 		static_cast<float32>(totalWorkDone) / static_cast<float32>(totalWork) * 100.0f : 0.0f;
 
-	*out_samplesPerSecond = static_cast<float32>(samplesPerMs) * 1000.0f;
+	// HACK
+	const auto states = asyncQueryRenderStates();
+	*out_samplesPerSecond = static_cast<float32>(states.fltStates[0]) * 1000.0f;
 }
 
 // command interface

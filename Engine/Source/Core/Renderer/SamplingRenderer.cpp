@@ -58,39 +58,39 @@ void SamplingRenderer::init(const Description& description)
 		m_workFilms.push_back(m_lightEnergyFilm->genChild(m_lightEnergyFilm->getEffectiveWindowPx()));
 	}
 
+	for(uint32 i = 0; i < numWorks; i++)
+	{
+		m_works.push_back(SamplingRenderWork(this, m_scene, m_camera, m_estimator.get(), m_workSgs[i].get(), m_workFilms[i].get()));
+	}
+
 	m_estimator->update(*m_scene);
 }
 
-bool SamplingRenderer::asyncGetNewWork(const uint32 workerId, RenderWork* out_work)
+bool SamplingRenderer::asyncSupplyWork(RenderWorker& worker)
 {
-	PH_ASSERT(out_work != nullptr);
-
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 	if(m_numRemainingWorks == 0)
 	{
-		return false;6
+		return false;
 	}
 
-	const uint32 workIndex = m_numRemainingWorks - 1;
-	*out_work = RenderWork(m_scene,
-	                       m_camera,
-	                       m_estimator.get(),
-	                       m_workSgs[workIndex].get(),
-	                       m_workFilms[workIndex].get());
+	worker.setWork(&(m_works[worker.getId()]));
 	m_numRemainingWorks--;
 
 	return true;
 }
 
-void SamplingRenderer::asyncSubmitWork(const uint32 workerId, const RenderWork& work, const bool isUpdating)
+void SamplingRenderer::asyncSubmitWork(RenderWorker& worker)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	work.film->mergeToParent();
-	work.film->clear();
+	SamplingRenderWork* work = &(m_works[worker.getId()]);
 
-	addUpdatedRegion(work.film->getEffectiveWindowPx(), isUpdating);
+	work->m_film->mergeToParent();
+	work->m_film->clear();
+
+	addUpdatedRegion(work->m_film->getEffectiveWindowPx(), false);
 }
 
 void SamplingRenderer::clearWorkData()
@@ -163,6 +163,14 @@ void SamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdat
 	}
 
 	m_updatedRegions.push_back(std::make_pair(region, isUpdating));
+}
+
+RenderStates SamplingRenderer::asyncQueryRenderStates()
+{
+	// HACK
+	RenderStates states;
+	states.fltStates[0] = 777.0f;
+	return states;
 }
 
 // command interface

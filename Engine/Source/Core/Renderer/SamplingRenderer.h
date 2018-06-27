@@ -3,6 +3,7 @@
 #include "Core/Renderer/Renderer.h"
 #include "Core/Filmic/filmic_fwd.h"
 #include "Core/Filmic/SampleFilter.h"
+#include "Core/Renderer/Sampling/SamplingRenderWork.h"
 
 #include <vector>
 #include <memory>
@@ -22,9 +23,10 @@ public:
 
 	AttributeTags supportedAttributes() const override;
 	void init(const Description& description) override;
-	bool asyncGetNewWork(uint32 workerId, RenderWork* out_work) override;
-	void asyncSubmitWork(uint32 workerId, const RenderWork& work, bool isUpdating) override;
+	bool asyncSupplyWork(RenderWorker& worker) override;
+	void asyncSubmitWork(RenderWorker& worker) override;
 	ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;
+	RenderStates asyncQueryRenderStates() override;
 
 	void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute) override;
 	void develop(HdrRgbFrame& out_frame, EAttribute attribute) override;
@@ -42,6 +44,7 @@ private:
 	uint32                                              m_numFinishedWorks;
 	std::vector<std::unique_ptr<SampleGenerator>>       m_workSgs;
 	std::vector<std::unique_ptr<SpectralSamplingFilm>>  m_workFilms;
+	std::vector<SamplingRenderWork> m_works;
 	std::deque<std::pair<Region, bool>>                 m_updatedRegions;
 	
 	std::mutex m_rendererMutex;

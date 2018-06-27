@@ -8,6 +8,7 @@ namespace ph
 {
 
 class Renderer;
+class RenderWorker;
 
 class RendererProxy final
 {
@@ -18,8 +19,8 @@ public:
 	RendererProxy();
 	RendererProxy(Renderer* renderer);
 
-	bool getNewWork(uint32 workerId, RenderWork* out_work);
-	void submitWork(uint32 workerId, const RenderWork& work, bool isUpdating);
+	bool supplyWork(RenderWorker& worker);
+	void submitWork(RenderWorker& worker);
 
 private:
 	Renderer* m_renderer;

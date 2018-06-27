@@ -2,6 +2,7 @@
 
 #include "Core/Renderer/RenderWork.h"
 #include "Core/Renderer/Sampling/SamplingStatistics.h"
+#include "Core/Filmic/filmic_fwd.h"
 
 #include <atomic>
 
@@ -13,7 +14,6 @@ class Scene;
 class Camera;
 class Estimator;
 class SampleGenerator;
-class SpectralSamplingFilm;
 
 class SamplingRenderWork : public RenderWork
 {
@@ -27,11 +27,15 @@ public:
 		SpectralSamplingFilm* film);
 
 	SamplingRenderWork();
+	SamplingRenderWork(const SamplingRenderWork& other);
 	~SamplingRenderWork() override;
 
 	void doWork() override;
 
 	SamplingStatistics asyncGetStatistics();
+
+	// HACK
+	SpectralSamplingFilm* m_film;
 
 private:
 	SamplingRenderer*     m_renderer;
@@ -39,7 +43,6 @@ private:
 	const Camera*         m_camera;
 	const Estimator*      m_estimator;
 	SampleGenerator*      m_sampleGenerator;
-	SpectralSamplingFilm* m_film;
 
 	std::atomic_uint32_t m_numSamplesTaken;
 	std::atomic_uint32_t m_numMsElapsed;

@@ -5,10 +5,10 @@
 namespace ph
 {
 
-RenderProgress::RenderProgress(Renderer* const renderer) : 
-	m_renderer(renderer)
-{
-	PH_ASSERT(renderer);
-}
+//RenderProgress::RenderProgress(Renderer* const renderer) : 
+//	m_renderer(renderer)
+//{
+//	PH_ASSERT(renderer);
+//}
 
 }// end namespace ph
