@@ -165,6 +165,8 @@ void HdrRgbFilm::clear()
 
 void HdrRgbFilm::mergeWith(const HdrRgbFilm& other)
 {
+	// FIXME: this is wrong, must respect effective window
+
 	const std::size_t numSensors = other.m_pixelRadianceSensors.size();
 	for(std::size_t i = 0; i < numSensors; i++)
 	{

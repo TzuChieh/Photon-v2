@@ -28,6 +28,8 @@ public:
 	ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;
 	RenderStates asyncQueryRenderStates() override;
 
+	//void asyncMerge
+
 	void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute) override;
 	void develop(HdrRgbFrame& out_frame, EAttribute attribute) override;
 
