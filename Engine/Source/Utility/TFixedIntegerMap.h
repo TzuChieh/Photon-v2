@@ -33,6 +33,12 @@ public:
 
 	static constexpr std::size_t ENTRY_ARRAY_SIZE = std::tuple_size_v<EntryArray>;
 
+	TFixedIntegerMap() = default;
+
+	TFixedIntegerMap(Entries&&... entries) :
+		m_entries(entries...)
+	{}
+
 	template<fixed_integer_map_detail::Key KEY, std::size_t INDEX = 0>
 	decltype(auto) get()
 	{

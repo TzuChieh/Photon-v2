@@ -12,15 +12,15 @@ TEST(TFixedIntegerMapTest, GetMappedValues)
 		TFixedIntegerMapEntry<3, float>,
 		TFixedIntegerMapEntry<2, int>,
 		TFixedIntegerMapEntry<1, std::string>
-	> intToAnyMap;
+	> intToAnyMap1;
 
-	intToAnyMap.get<3>() = 33.0f;
-	intToAnyMap.get<2>() = 10000;
-	intToAnyMap.get<1>() = "hi";
+	intToAnyMap1.get<3>() = 33.0f;
+	intToAnyMap1.get<2>() = 10000;
+	intToAnyMap1.get<1>() = "hi";
 
-	EXPECT_EQ(intToAnyMap.get<3>(), 33.0f);
-	EXPECT_EQ(intToAnyMap.get<2>(), 10000);
-	EXPECT_EQ(intToAnyMap.get<1>(), "hi");
+	EXPECT_EQ(intToAnyMap1.get<3>(), 33.0f);
+	EXPECT_EQ(intToAnyMap1.get<2>(), 10000);
+	EXPECT_EQ(intToAnyMap1.get<1>(), "hi");
 }
 
 TEST(TFixedIntegerMapTest, GetIndexOfEntry)
