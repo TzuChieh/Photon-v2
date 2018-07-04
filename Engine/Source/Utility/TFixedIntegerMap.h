@@ -74,7 +74,7 @@ public:
 		}
 		else
 		{
-			return get<KEY, INDEX + 1>();
+			return getEntryIndex<KEY, INDEX + 1>();
 		}
 	}
 
