@@ -30,20 +30,25 @@ TEST(TFixedIntegerMapTest, GetIndexOfEntry)
 		TFixedIntegerMapEntry<100, int>,
 		TFixedIntegerMapEntry<200, int>,
 		TFixedIntegerMapEntry<300, int>
-	> intToIntMap;
+	> intToIntMap1;
 
-	EXPECT_EQ(intToIntMap.getEntryIndex<100>(), 0);
-	EXPECT_EQ(intToIntMap.getEntryIndex<200>(), 1);
-	EXPECT_EQ(intToIntMap.getEntryIndex<300>(), 2);
+	EXPECT_EQ(intToIntMap1.getEntryIndex<100>(), 0);
+	EXPECT_EQ(intToIntMap1.getEntryIndex<200>(), 1);
+	EXPECT_EQ(intToIntMap1.getEntryIndex<300>(), 2);
+}
+
+namespace
+{
+
+enum class TestEnum
+{
+	A, B, C
+};
+
 }
 
 TEST(TFixedEnumMapTest, GetMappedValues)
 {
-	enum class TestEnum
-	{
-		A, B, C
-	};
-
 	TFixedEnumMap<
 		TFixedEnumMapEntry<TestEnum::A, float>,
 		TFixedEnumMapEntry<TestEnum::B, int>,
@@ -54,25 +59,20 @@ TEST(TFixedEnumMapTest, GetMappedValues)
 	enumToAnyMap1.get<TestEnum::B>() = 2;
 	enumToAnyMap1.get<TestEnum::C>() = "yo";
 
-	EXPECT_EQ(enumToAnyMap1.get<TestEnum::A>(), 1.0f);
-	EXPECT_EQ(enumToAnyMap1.get<TestEnum::B>(), 2);
-	EXPECT_EQ(enumToAnyMap1.get<TestEnum::C>(), "yo");
+	EXPECT_EQ((enumToAnyMap1.get<TestEnum::A>()), 1.0f);
+	EXPECT_EQ((enumToAnyMap1.get<TestEnum::B>()), 2);
+	EXPECT_EQ((enumToAnyMap1.get<TestEnum::C>()), "yo");
 }
 
 TEST(TFixedEnumMapTest, GetIndexOfEntry)
 {
-	/*enum class TestEnum
-	{
-		A, B, C
-	};
-
 	TFixedEnumMap<
 		TFixedEnumMapEntry<TestEnum::A, int>,
 		TFixedEnumMapEntry<TestEnum::B, int>,
 		TFixedEnumMapEntry<TestEnum::C, int>
-	> enumToIntMap;
+	> enumToIntMap1;
 
-	EXPECT_EQ(enumToIntMap.getEntryIndex<TestEnum::A>(), 0);
-	EXPECT_EQ(enumToIntMap.getEntryIndex<TestEnum::B>(), 1);
-	EXPECT_EQ(enumToIntMap.getEntryIndex<TestEnum::C>(), 2);*/
+	EXPECT_EQ((enumToIntMap1.getEntryIndex<TestEnum::A>()), 0);
+	EXPECT_EQ((enumToIntMap1.getEntryIndex<TestEnum::B>()), 1);
+	EXPECT_EQ((enumToIntMap1.getEntryIndex<TestEnum::C>()), 2);
 }
