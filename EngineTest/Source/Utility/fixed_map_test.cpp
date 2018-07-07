@@ -59,9 +59,9 @@ TEST(TFixedEnumMapTest, GetMappedValues)
 	enumToAnyMap1.get<TestEnum::B>() = 2;
 	enumToAnyMap1.get<TestEnum::C>() = "yo";
 
-	EXPECT_EQ((enumToAnyMap1.get<TestEnum::A>()), 1.0f);
-	EXPECT_EQ((enumToAnyMap1.get<TestEnum::B>()), 2);
-	EXPECT_EQ((enumToAnyMap1.get<TestEnum::C>()), "yo");
+	EXPECT_EQ(enumToAnyMap1.get<TestEnum::A>(), 1.0f);
+	EXPECT_EQ(enumToAnyMap1.get<TestEnum::B>(), 2);
+	EXPECT_EQ(enumToAnyMap1.get<TestEnum::C>(), "yo");
 }
 
 TEST(TFixedEnumMapTest, GetIndexOfEntry)
@@ -72,7 +72,7 @@ TEST(TFixedEnumMapTest, GetIndexOfEntry)
 		TFixedEnumMapEntry<TestEnum::C, int>
 	> enumToIntMap1;
 
-	EXPECT_EQ((enumToIntMap1.entryIndex<TestEnum::A>()), 0);
-	EXPECT_EQ((enumToIntMap1.entryIndex<TestEnum::B>()), 1);
-	EXPECT_EQ((enumToIntMap1.entryIndex<TestEnum::C>()), 2);
+	EXPECT_EQ(enumToIntMap1.entryIndex<TestEnum::A>(), 0);
+	EXPECT_EQ(enumToIntMap1.entryIndex<TestEnum::B>(), 1);
+	EXPECT_EQ(enumToIntMap1.entryIndex<TestEnum::C>(), 2);
 }

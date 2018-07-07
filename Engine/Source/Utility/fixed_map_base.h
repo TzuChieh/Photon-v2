@@ -36,8 +36,8 @@ public:
 
 	using Key = typename std::tuple_element_t<0, EntryArray>::Key;
 
-	template<Key KEY>
-	using Entry = std::tuple_element_t<INDEX, EntryArray>;
+	template<std::size_t ENTRY_INDEX>
+	using Entry = std::tuple_element_t<ENTRY_INDEX, EntryArray>;
 
 	TFixedMapBase() = default;
 
@@ -45,67 +45,73 @@ public:
 		m_entries(std::move(entries)...)
 	{}
 
-	template<Key KEY, std::size_t INDEX = 0>
+	template<Key KEY, std::size_t D_ENTRY_INDEX = 0>
 	static constexpr bool hasKey()
 	{
-		if constexpr(INDEX == ENTRY_ARRAY_SIZE)
+		if constexpr(D_ENTRY_INDEX == ENTRY_ARRAY_SIZE)
 		{
 			return false;
 		}
 
-		if constexpr(std::tuple_element_t<INDEX, EntryArray>::KEY == KEY)
+		if constexpr(Entry<D_ENTRY_INDEX>::KEY == KEY)
 		{
 			return true;
 		}
 		else
 		{
-			return hasKey<KEY, INDEX + 1>();
+			return hasKey<KEY, D_ENTRY_INDEX + 1>();
 		}
 	}
 
-	template<Key KEY, std::size_t INDEX = 0>
-	decltype(auto) get()
+	template<std::size_t ENTRY_INDEX>
+	static constexpr Key entryKey()
 	{
-		static_assert(hasKey<KEY>());
+		static_assert(ENTRY_INDEX < ENTRY_ARRAY_SIZE);
 
-		if constexpr(std::tuple_element_t<INDEX, EntryArray>::KEY == KEY)
-		{
-			return std::get<INDEX>(m_entries).getValue();
-		}
-		else
-		{
-			return get<KEY, INDEX + 1>();
-		}
+		return Entry<ENTRY_INDEX>::KEY;
 	}
 
-	template<Key KEY, std::size_t INDEX = 0>
-	decltype(auto) get() const
-	{
-		static_assert(hasKey<KEY>());
-
-		if constexpr(std::tuple_element_t<INDEX, EntryArray>::KEY == KEY)
-		{
-			return std::get<INDEX>(m_entries).getValue();
-		}
-		else
-		{
-			return get<KEY, INDEX + 1>();
-		}
-	}
-
-	template<Key KEY, std::size_t INDEX = 0>
+	template<Key KEY, std::size_t D_ENTRY_INDEX = 0>
 	static constexpr std::size_t entryIndex()
 	{
 		static_assert(hasKey<KEY>());
 
-		if constexpr(std::tuple_element_t<INDEX, EntryArray>::KEY == KEY)
+		if constexpr(Entry<D_ENTRY_INDEX>::KEY == KEY)
 		{
-			return INDEX;
+			return D_ENTRY_INDEX;
 		}
 		else
 		{
-			return entryIndex<KEY, INDEX + 1>();
+			return entryIndex<KEY, D_ENTRY_INDEX + 1>();
 		}
+	}
+
+	template<std::size_t ENTRY_INDEX>
+	decltype(auto) getEntry()
+	{
+		static_assert(ENTRY_INDEX < ENTRY_ARRAY_SIZE);
+
+		return std::get<ENTRY_INDEX>(m_entries);
+	}
+
+	template<std::size_t ENTRY_INDEX>
+	decltype(auto) getEntry() const
+	{
+		static_assert(ENTRY_INDEX < ENTRY_ARRAY_SIZE);
+
+		return std::get<ENTRY_INDEX>(m_entries);
+	}
+
+	template<Key KEY>
+	decltype(auto) get()
+	{
+		return getEntry<entryIndex<KEY>()>().getValue();
+	}
+
+	template<Key KEY>
+	decltype(auto) get() const
+	{
+		return getEntry<entryIndex<KEY>()>().getValue();
 	}
 
 private:

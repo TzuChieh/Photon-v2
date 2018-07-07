@@ -10,7 +10,7 @@ protected:
 	~INoncopyable() = default;
 
 	INoncopyable(const INoncopyable& other) = delete;
-	INoncopyable& operator = (const INoncopyable& other) = delete;
+	INoncopyable& operator = (const INoncopyable& rhs) = delete;
 };
 
 }// end namespace ph

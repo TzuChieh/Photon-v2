@@ -37,7 +37,7 @@ public:
 	void addSample(float64 xPx, float64 yPx, const SpectralStrength& radiance) override;
 	void clear() override;
 	std::unique_ptr<SamplingFilmBase> genChild(const TAABB2D<int64>& effectiveWindowPx) override;
-	std::unique_ptr<SamplingFilmBase> genSelfChild(const TAABB2D<int64>& effectiveWindowPx);
+	std::unique_ptr<HdrRgbFilm> genSelfChild(const TAABB2D<int64>& effectiveWindowPx);
 	void setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow) override;
 
 private:

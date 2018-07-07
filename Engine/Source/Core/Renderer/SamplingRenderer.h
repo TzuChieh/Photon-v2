@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Renderer/Renderer.h"
-#include "Core/Filmic/filmic_fwd.h"
+#include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Filmic/SampleFilter.h"
 #include "Core/Renderer/Sampling/SamplingRenderWork.h"
 
@@ -34,7 +34,7 @@ public:
 	void develop(HdrRgbFrame& out_frame, EAttribute attribute) override;
 
 private:
-	std::unique_ptr<TSamplingFilm<SpectralStrength>> m_lightEnergyFilm;
+	std::unique_ptr<HdrRgbFilm> m_lightEnergyFilm;
 
 	const Scene*          m_scene;
 	SampleGenerator*      m_sg;

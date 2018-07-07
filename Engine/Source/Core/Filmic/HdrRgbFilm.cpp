@@ -93,6 +93,11 @@ void HdrRgbFilm::addSample(
 
 std::unique_ptr<SamplingFilmBase> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindowPx)
 {
+	return std::move(genSelfChild(effectiveWindowPx));
+}
+
+std::unique_ptr<HdrRgbFilm> HdrRgbFilm::genSelfChild(const TAABB2D<int64>& effectiveWindowPx)
+{
 	auto childFilm = std::make_unique<HdrRgbFilm>(getActualResPx().x, getActualResPx().y,
 	                                              effectiveWindowPx, 
 	                                              m_filter);

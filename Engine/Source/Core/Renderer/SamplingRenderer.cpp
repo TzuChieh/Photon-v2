@@ -54,10 +54,10 @@ void SamplingRenderer::init(const Description& description)
 
 	m_sg->genSplitted(numWorks, m_workSgs);
 
-	std::vector<std::unique_ptr<SpectralSamplingFilm>> workFilms;
+	std::vector<std::unique_ptr<HdrRgbFilm>> workFilms;
 	for(uint32 i = 0; i < numWorks; i++)
 	{
-		workFilms.push_back(m_lightEnergyFilm->genChild(m_lightEnergyFilm->getEffectiveWindowPx()));
+		workFilms.push_back(m_lightEnergyFilm->genSelfChild(m_lightEnergyFilm->getEffectiveWindowPx()));
 	}
 
 	const Integrand integrand(m_scene, m_camera);
