@@ -91,19 +91,19 @@ void HdrRgbFilm::addSample(
 	}
 }
 
-std::unique_ptr<SpectralSamplingFilm> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindowPx)
+std::unique_ptr<SamplingFilmBase> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindowPx)
 {
 	auto childFilm = std::make_unique<HdrRgbFilm>(getActualResPx().x, getActualResPx().y,
 	                                              effectiveWindowPx, 
 	                                              m_filter);
 	HdrRgbFilm* parent = this;
 	HdrRgbFilm* child  = childFilm.get();
-	childFilm->m_merger = [=]() -> void
+	childFilm->setMerger([=]() -> void
 	{
 		PH_ASSERT(parent != nullptr && child != nullptr);
 
 		parent->mergeWith(*child);
-	};
+	});
 
 	return std::move(childFilm);
 }

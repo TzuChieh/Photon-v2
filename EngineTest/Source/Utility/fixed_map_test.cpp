@@ -32,9 +32,9 @@ TEST(TFixedIntegerMapTest, GetIndexOfEntry)
 		TFixedIntegerMapEntry<300, int>
 	> intToIntMap1;
 
-	EXPECT_EQ(intToIntMap1.getEntryIndex<100>(), 0);
-	EXPECT_EQ(intToIntMap1.getEntryIndex<200>(), 1);
-	EXPECT_EQ(intToIntMap1.getEntryIndex<300>(), 2);
+	EXPECT_EQ(intToIntMap1.entryIndex<100>(), 0);
+	EXPECT_EQ(intToIntMap1.entryIndex<200>(), 1);
+	EXPECT_EQ(intToIntMap1.entryIndex<300>(), 2);
 }
 
 namespace
@@ -72,7 +72,7 @@ TEST(TFixedEnumMapTest, GetIndexOfEntry)
 		TFixedEnumMapEntry<TestEnum::C, int>
 	> enumToIntMap1;
 
-	EXPECT_EQ((enumToIntMap1.getEntryIndex<TestEnum::A>()), 0);
-	EXPECT_EQ((enumToIntMap1.getEntryIndex<TestEnum::B>()), 1);
-	EXPECT_EQ((enumToIntMap1.getEntryIndex<TestEnum::C>()), 2);
+	EXPECT_EQ((enumToIntMap1.entryIndex<TestEnum::A>()), 0);
+	EXPECT_EQ((enumToIntMap1.entryIndex<TestEnum::B>()), 1);
+	EXPECT_EQ((enumToIntMap1.entryIndex<TestEnum::C>()), 2);
 }

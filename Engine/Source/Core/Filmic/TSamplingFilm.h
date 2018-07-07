@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Filmic/Film.h"
+#include "Core/Filmic/SamplingFilmBase.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Core/Bound/TAABB2D.h"
 #include "Math/TVector2.h"
@@ -18,48 +18,20 @@ class SampleFilter;
 
 // TODO: not registered (how should we register class template)
 template<typename Sample>
-class TSamplingFilm : public Film, public TCommandInterface<TSamplingFilm<Sample>>
+class TSamplingFilm : public SamplingFilmBase, public TCommandInterface<TSamplingFilm<Sample>>
 {
 public:
-	TSamplingFilm(
-		int64 actualWidthPx, int64 actualHeightPx,
-		const SampleFilter& filter);
-
-	TSamplingFilm(
-		int64 actualWidthPx, int64 actualHeightPx,
-		const TAABB2D<int64>& effectiveWindowPx,
-		const SampleFilter& filter);
+	using SamplingFilmBase::SamplingFilmBase;
 
 	~TSamplingFilm() override;
 
 	virtual void addSample(float64 xPx, float64 yPx, const Sample& sample) = 0;
 
-	// Generates a child film with the same actual dimensions and filter as parent's, 
-	// but potentially has a different effective window.
-	// A child film can be merged into its parent by calling mergeToParent().
-	//
-	virtual std::unique_ptr<TSamplingFilm> genChild(const TAABB2D<int64>& effectiveWindowPx) = 0;
-
-	virtual void clear() override = 0;
-
-	void setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow) override;
-
-	void mergeToParent() const;
-	TVector2<float64> getSampleResPx() const;
-	const TAABB2D<float64>& getSampleWindowPx() const;
-
-protected:
-	// TODO: move to private
-	SampleFilter          m_filter;
-	std::function<void()> m_merger;
+	std::unique_ptr<SamplingFilmBase> genChild(const TAABB2D<int64>& effectiveWindowPx) override = 0;
+	void clear() override = 0;
 
 private:
 	void developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const override = 0;
-
-	TAABB2D<float64> m_sampleWindowPx;
-
-	void calcSampleDimensions();
-	static std::function<void()> makeDefaultMerger();
 
 // command interface
 public:

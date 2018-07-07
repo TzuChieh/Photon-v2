@@ -23,6 +23,8 @@ private:
 	Value m_value;
 };
 
+// TODO: ensure all keys are the same type, and entries are all TFixedMapEntry
+
 template<typename... Entries>
 class TFixedMapBase final
 {
@@ -34,16 +36,37 @@ public:
 
 	using Key = typename std::tuple_element_t<0, EntryArray>::Key;
 
+	template<Key KEY>
+	using Entry = std::tuple_element_t<INDEX, EntryArray>;
+
 	TFixedMapBase() = default;
 
 	TFixedMapBase(Entries&&... entries) :
-		m_entries(entries...)
+		m_entries(std::move(entries)...)
 	{}
+
+	template<Key KEY, std::size_t INDEX = 0>
+	static constexpr bool hasKey()
+	{
+		if constexpr(INDEX == ENTRY_ARRAY_SIZE)
+		{
+			return false;
+		}
+
+		if constexpr(std::tuple_element_t<INDEX, EntryArray>::KEY == KEY)
+		{
+			return true;
+		}
+		else
+		{
+			return hasKey<KEY, INDEX + 1>();
+		}
+	}
 
 	template<Key KEY, std::size_t INDEX = 0>
 	decltype(auto) get()
 	{
-		static_assert(INDEX < ENTRY_ARRAY_SIZE);
+		static_assert(hasKey<KEY>());
 
 		if constexpr(std::tuple_element_t<INDEX, EntryArray>::KEY == KEY)
 		{
@@ -58,7 +81,7 @@ public:
 	template<Key KEY, std::size_t INDEX = 0>
 	decltype(auto) get() const
 	{
-		static_assert(INDEX < ENTRY_ARRAY_SIZE);
+		static_assert(hasKey<KEY>());
 
 		if constexpr(std::tuple_element_t<INDEX, EntryArray>::KEY == KEY)
 		{
@@ -71,9 +94,9 @@ public:
 	}
 
 	template<Key KEY, std::size_t INDEX = 0>
-	std::size_t getEntryIndex() const
+	static constexpr std::size_t entryIndex()
 	{
-		static_assert(INDEX < ENTRY_ARRAY_SIZE);
+		static_assert(hasKey<KEY>());
 
 		if constexpr(std::tuple_element_t<INDEX, EntryArray>::KEY == KEY)
 		{
@@ -81,7 +104,7 @@ public:
 		}
 		else
 		{
-			return getEntryIndex<KEY, INDEX + 1>();
+			return entryIndex<KEY, INDEX + 1>();
 		}
 	}
 
