@@ -88,22 +88,24 @@ bool SamplingRenderer::asyncSupplyWork(RenderWorker& worker)
 	return true;
 }
 
-void SamplingRenderer::asyncMergeFilm(RenderWorker& worker)
+void SamplingRenderer::asyncUpdateFilm(SamplingRenderWork& work)
 {
-	// TODO
+	std::lock_guard<std::mutex> lock(m_rendererMutex);
+
+	mergeWorkFilms(work);
+
+	// HACK
+	addUpdatedRegion(work.m_films.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), false);
 }
 
 void SamplingRenderer::asyncSubmitWork(RenderWorker& worker)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	SamplingRenderWork* work = &(m_works[worker.getId()]);
+	mergeWorkFilms(m_works[worker.getId()]);
 
-	const auto& lightFilm = work->m_films.get<EAttribute::LIGHT_ENERGY>();
-	lightFilm->mergeToParent();
-	lightFilm->clear();
-
-	addUpdatedRegion(lightFilm->getEffectiveWindowPx(), false);
+	// HACK
+	addUpdatedRegion(m_works[worker.getId()].m_films.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), true);
 }
 
 // TODO: check this
@@ -160,6 +162,13 @@ void SamplingRenderer::develop(HdrRgbFrame& out_frame, const EAttribute attribut
 	{
 		film->develop(out_frame);
 	}
+}
+
+void SamplingRenderer::mergeWorkFilms(SamplingRenderWork& work)
+{
+	const auto& lightFilm = work.m_films.get<EAttribute::LIGHT_ENERGY>();
+	lightFilm->mergeToParent();
+	lightFilm->clear();
 }
 
 void SamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)

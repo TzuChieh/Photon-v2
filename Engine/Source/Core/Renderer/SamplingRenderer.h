@@ -29,7 +29,7 @@ public:
 	ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;
 	RenderStates asyncQueryRenderStates() override;
 
-	void asyncMergeFilm(RenderWorker& worker);
+	void asyncUpdateFilm(SamplingRenderWork& work);
 
 	void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute) override;
 	void develop(HdrRgbFrame& out_frame, EAttribute attribute) override;
@@ -47,11 +47,14 @@ private:
 	uint32                                              m_numFinishedWorks;
 	std::vector<std::unique_ptr<SampleGenerator>>       m_workSgs;
 	std::vector<SamplingRenderWork> m_works;
+
+	// TODO: use ERegionStatus instead of bool
 	std::deque<std::pair<Region, bool>>                 m_updatedRegions;
 	
 	std::mutex m_rendererMutex;
 
 	void clearWorkData();
+	void mergeWorkFilms(SamplingRenderWork& work);
 	void addUpdatedRegion(const Region& region, bool isUpdating);
 
 // command interface

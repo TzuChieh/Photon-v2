@@ -92,6 +92,8 @@ void SamplingRenderWork::doWork()
 
 		m_numSamplesTaken = static_cast<uint32>(camSamples.numElements());
 		m_numMsElapsed    = static_cast<uint32>(std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count());
+
+		m_renderer->asyncUpdateFilm(*this);
 	}
 }
 
