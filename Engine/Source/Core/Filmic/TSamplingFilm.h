@@ -26,9 +26,11 @@ public:
 	~TSamplingFilm() override;
 
 	virtual void addSample(float64 xPx, float64 yPx, const Sample& sample) = 0;
+	virtual std::unique_ptr<TSamplingFilm> genSamplingChild(const TAABB2D<int64>& effectiveWindowPx) = 0;
 
-	std::unique_ptr<SamplingFilmBase> genChild(const TAABB2D<int64>& effectiveWindowPx) override = 0;
 	void clear() override = 0;
+
+	std::unique_ptr<SamplingFilmBase> genChild(const TAABB2D<int64>& effectiveWindowPx) override;
 
 private:
 	void developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const override = 0;

@@ -43,7 +43,6 @@ public:
 
 	void setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow) override;
 
-	void setMerger(const Merger& merger);
 	void mergeToParent() const;
 	TVector2<float64> getSampleResPx() const;
 	const TAABB2D<float64>& getSampleWindowPx() const;
@@ -51,6 +50,8 @@ public:
 protected:
 	// TODO: move to private
 	SampleFilter          m_filter;
+
+	void setMerger(const Merger& merger);
 
 private:
 	Merger m_merger;

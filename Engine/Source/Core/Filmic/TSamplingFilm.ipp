@@ -25,6 +25,12 @@ inline TSamplingFilm<Sample>::TSamplingFilm(const InputPacket& packet) :
 {}
 
 template<typename Sample>
+inline std::unique_ptr<SamplingFilmBase> TSamplingFilm<Sample>::genChild(const TAABB2D<int64>& effectiveWindowPx)
+{
+	return genSamplingChild(effectiveWindowPx);
+}
+
+template<typename Sample>
 inline SdlTypeInfo TSamplingFilm<Sample>::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_FILM, "sampling-film");

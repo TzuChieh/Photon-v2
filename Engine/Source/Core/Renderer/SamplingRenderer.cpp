@@ -46,18 +46,20 @@ void SamplingRenderer::init(const Description& description)
 	clearWorkData();
 	m_scene           = &description.visualWorld.getScene();
 	m_sg              = description.getSampleGenerator().get();
-	m_lightEnergyFilm = std::make_unique<HdrRgbFilm>(
-		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
+
+	m_films.set<EAttribute::LIGHT_ENERGY>(std::make_unique<HdrRgbFilm>(
+		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
+
 	m_camera     = description.getCamera().get();
 	m_numRemainingWorks = numWorks;
 	m_numFinishedWorks  = 0;
 
 	m_sg->genSplitted(numWorks, m_workSgs);
 
-	std::vector<std::unique_ptr<HdrRgbFilm>> workFilms;
+	std::vector<SamplingFilmSet> workFilms;
 	for(uint32 i = 0; i < numWorks; i++)
 	{
-		workFilms.push_back(m_lightEnergyFilm->genSelfChild(m_lightEnergyFilm->getEffectiveWindowPx()));
+		workFilms.push_back(m_films.genChild(getRenderWindowPx()));
 	}
 
 	const Integrand integrand(m_scene, m_camera);
@@ -86,16 +88,22 @@ bool SamplingRenderer::asyncSupplyWork(RenderWorker& worker)
 	return true;
 }
 
+void SamplingRenderer::asyncMergeFilm(RenderWorker& worker)
+{
+	// TODO
+}
+
 void SamplingRenderer::asyncSubmitWork(RenderWorker& worker)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 	SamplingRenderWork* work = &(m_works[worker.getId()]);
 
-	work->m_film->mergeToParent();
-	work->m_film->clear();
+	const auto& lightFilm = work->m_films.get<EAttribute::LIGHT_ENERGY>();
+	lightFilm->mergeToParent();
+	lightFilm->clear();
 
-	addUpdatedRegion(work->m_film->getEffectiveWindowPx(), false);
+	addUpdatedRegion(lightFilm->getEffectiveWindowPx(), false);
 }
 
 // TODO: check this
@@ -138,17 +146,20 @@ void SamplingRenderer::asyncDevelopFilmRegion(
 
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	if(m_lightEnergyFilm != nullptr)
+	const SamplingFilmBase* film = m_films.get(attribute);
+	if(film)
 	{
-		m_lightEnergyFilm->develop(out_frame, region);
+		film->develop(out_frame, region);
 	}
 }
 
 void SamplingRenderer::develop(HdrRgbFrame& out_frame, const EAttribute attribute)
 {
-	// TODO: attribute
-
-	m_lightEnergyFilm->develop(out_frame);
+	const SamplingFilmBase* film = m_films.get(attribute);
+	if(film)
+	{
+		film->develop(out_frame);
+	}
 }
 
 void SamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)
@@ -198,7 +209,7 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 
 	Renderer(packet),
 
-	m_lightEnergyFilm(nullptr),
+	m_films(),
 	m_scene(nullptr),
 	m_sg(nullptr),
 	m_estimator(nullptr),

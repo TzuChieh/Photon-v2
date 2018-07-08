@@ -19,7 +19,7 @@ SamplingRenderWork::SamplingRenderWork(SamplingRenderWork&& other) :
 	m_integrand(other.m_integrand),
 	m_estimator(other.m_estimator),
 	m_sampleGenerator(std::move(other.m_sampleGenerator)),
-	m_film(std::move(other.m_film)),
+	m_films(std::move(other.m_films)),
 
 	m_numSamplesTaken(other.m_numSamplesTaken.load()),
 	m_numMsElapsed(other.m_numMsElapsed.load())
@@ -27,11 +27,12 @@ SamplingRenderWork::SamplingRenderWork(SamplingRenderWork&& other) :
 
 void SamplingRenderWork::doWork()
 {
-	const uint64 filmWpx = m_film->getEffectiveResPx().x;
-	const uint64 filmHpx = m_film->getEffectiveResPx().y;
+	const auto& lightFilm = m_films.get<EAttribute::LIGHT_ENERGY>();
+	const uint64 filmWpx = lightFilm->getEffectiveResPx().x;
+	const uint64 filmHpx = lightFilm->getEffectiveResPx().y;
 
-	const Vector2D flooredSampleMinVertex = m_film->getSampleWindowPx().minVertex.floor();
-	const Vector2D ceiledSampleMaxVertex  = m_film->getSampleWindowPx().maxVertex.ceil();
+	const Vector2D flooredSampleMinVertex = lightFilm->getSampleWindowPx().minVertex.floor();
+	const Vector2D ceiledSampleMaxVertex  = lightFilm->getSampleWindowPx().maxVertex.ceil();
 	const uint64 filmSampleWpx = static_cast<uint64>(ceiledSampleMaxVertex.x - flooredSampleMinVertex.x);
 	const uint64 filmSampleHpx = static_cast<uint64>(ceiledSampleMaxVertex.y - flooredSampleMinVertex.y);
 	const uint64 numCamPhaseSamples = filmSampleWpx * filmSampleHpx;
@@ -59,7 +60,7 @@ void SamplingRenderWork::doWork()
 			const Vector2D rasterPosPx(camSamples[si].x * filmSampleWpx + flooredSampleMinVertex.x,
 			                           camSamples[si].y * filmSampleHpx + flooredSampleMinVertex.y);
 
-			if(!m_film->getSampleWindowPx().isIntersectingArea(rasterPosPx))
+			if(!lightFilm->getSampleWindowPx().isIntersectingArea(rasterPosPx))
 			{
 				continue;
 			}
@@ -72,7 +73,7 @@ void SamplingRenderWork::doWork()
 			// HACK: sense event
 			for(const auto& senseEvent : senseEvents)
 			{
-				m_film->addSample(rasterPosPx.x, rasterPosPx.y, senseEvent.radiance);
+				lightFilm->addSample(rasterPosPx.x, rasterPosPx.y, senseEvent.radiance);
 			}
 
 			if(senseEvents.size() != 1)
@@ -96,11 +97,15 @@ void SamplingRenderWork::doWork()
 
 void SamplingRenderWork::setDomainPx(const TAABB2D<int64>& domainPx)
 {
-	PH_ASSERT(m_film && domainPx.isValid());
+	// HACK
+
+	PH_ASSERT(domainPx.isValid());
 
 	m_domainPx = domainPx;
 
-	m_film->setEffectiveWindowPx(domainPx);
+	const auto& lightFilm = m_films.get<EAttribute::LIGHT_ENERGY>();
+
+	lightFilm->setEffectiveWindowPx(domainPx);
 }
 
 }// end namespace ph

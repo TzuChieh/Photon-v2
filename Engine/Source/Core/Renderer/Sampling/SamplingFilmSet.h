@@ -11,6 +11,7 @@
 #include <memory>
 #include <array>
 #include <cstddef>
+#include <type_traits>
 
 namespace ph
 {
@@ -26,8 +27,8 @@ public:
 	template<EAttribute TAG>
 	decltype(auto) get() const;
 
-	template<EAttribute TAG, typename Sample>
-	void set(const std::shared_ptr<TSamplingFilm<Sample>>& film);
+	template<EAttribute TAG, typename FilmResource>
+	void set(FilmResource film);
 
 	template<std::size_t D_INDEX = 0>
 	SamplingFilmSet genChild(const TAABB2D<int64>& effectiveWindowPx);
@@ -79,11 +80,15 @@ inline decltype(auto) SamplingFilmSet::get() const
 	return m_tagToFilm.get<TAG>();
 }
 
-template<EAttribute TAG, typename Sample>
-inline void SamplingFilmSet::set(const std::shared_ptr<TSamplingFilm<Sample>>& film)
+template<EAttribute TAG, typename FilmResource>
+inline void SamplingFilmSet::set(FilmResource film)
 {
-	m_tagToFilm.get<TAG>()                   = film;
-	m_films[TagToFilmMap::entryIndex<TAG>()] = film.get();
+	static_assert(std::is_convertible_v<
+		FilmResource, 
+		TagToFilmMap::Entry<TagToFilmMap::entryIndex<TAG>()>::Value>);
+
+	m_tagToFilm.get<TAG>()                   = std::move(film);
+	m_films[TagToFilmMap::entryIndex<TAG>()] = m_tagToFilm.get<TAG>().get();
 }
 
 template<std::size_t D_INDEX>
@@ -100,8 +105,8 @@ inline SamplingFilmSet SamplingFilmSet::genChild(const TAABB2D<int64>& effective
 		auto& parentFilm = m_tagToFilm.getEntry<D_INDEX>().getValue();
 		if(parentFilm)
 		{
-			auto childFilm = parentFilm->genSelfChild(effectiveWindowPx);
-			childSet.set<TagToFilmMap::entryKey<D_INDEX>>(std::move(childFilm));
+			auto childFilm = parentFilm->genSamplingChild(effectiveWindowPx);
+			childSet.set<TagToFilmMap::entryKey<D_INDEX>()>(std::move(childFilm));
 		}
 
 		return std::move(childSet);

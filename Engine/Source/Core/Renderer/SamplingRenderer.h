@@ -4,6 +4,7 @@
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Filmic/SampleFilter.h"
 #include "Core/Renderer/Sampling/SamplingRenderWork.h"
+#include "Core/Renderer/Sampling/SamplingFilmSet.h"
 
 #include <vector>
 #include <memory>
@@ -28,13 +29,13 @@ public:
 	ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;
 	RenderStates asyncQueryRenderStates() override;
 
-	//void asyncMerge
+	void asyncMergeFilm(RenderWorker& worker);
 
 	void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute) override;
 	void develop(HdrRgbFrame& out_frame, EAttribute attribute) override;
 
 private:
-	std::unique_ptr<HdrRgbFilm> m_lightEnergyFilm;
+	SamplingFilmSet m_films;
 
 	const Scene*          m_scene;
 	SampleGenerator*      m_sg;

@@ -2,7 +2,7 @@
 
 #include "Core/Renderer/RenderWork.h"
 #include "Core/Renderer/Sampling/SamplingStatistics.h"
-#include "Core/Filmic/filmic_fwd.h"
+#include "Core/Renderer/Sampling/SamplingFilmSet.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Filmic/TSamplingFilm.h"
 #include "Utility/INoncopyable.h"
@@ -28,7 +28,7 @@ public:
 		SamplingRenderer* renderer,
 		const Estimator* estimator,
 		const Integrand& integrand,
-		std::unique_ptr<SpectralSamplingFilm> film,
+		SamplingFilmSet films,
 		std::unique_ptr<SampleGenerator> sampleGenerator);
 
 	SamplingRenderWork();
@@ -42,7 +42,7 @@ public:
 	SamplingStatistics asyncGetStatistics();
 
 	// HACK
-	std::unique_ptr<SpectralSamplingFilm> m_film;
+	SamplingFilmSet m_films;
 
 private:
 	SamplingRenderer*     m_renderer;
@@ -61,7 +61,7 @@ inline SamplingRenderWork::SamplingRenderWork(
 	SamplingRenderer* renderer,
 	const Estimator* estimator,
 	const Integrand& integrand,
-	std::unique_ptr<SpectralSamplingFilm> film,
+	SamplingFilmSet films,
 	std::unique_ptr<SampleGenerator> sampleGenerator) :
 
 	RenderWork(),
@@ -70,14 +70,14 @@ inline SamplingRenderWork::SamplingRenderWork(
 	m_integrand(integrand),
 	m_estimator(estimator),
 	m_sampleGenerator(std::move(sampleGenerator)),
-	m_film(std::move(film)),
+	m_films(std::move(films)),
 
 	m_numSamplesTaken(0),
 	m_numMsElapsed(0)
 {}
 
 inline SamplingRenderWork::SamplingRenderWork() :
-	SamplingRenderWork(nullptr, nullptr, Integrand(), nullptr, nullptr)
+	SamplingRenderWork(nullptr, nullptr, Integrand(), SamplingFilmSet(), nullptr)
 {}
 
 inline SamplingRenderWork::~SamplingRenderWork() = default;

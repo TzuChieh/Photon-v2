@@ -3,6 +3,8 @@
 namespace ph
 {
 
+// TODO: attribute should move out of folder <Estimator>
+
 enum class EAttribute : unsigned int
 {
 	LIGHT_ENERGY = 0,
