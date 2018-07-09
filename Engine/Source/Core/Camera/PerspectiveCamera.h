@@ -22,7 +22,7 @@ class PerspectiveCamera : public Camera, public TCommandInterface<PerspectiveCam
 public:
 	virtual ~PerspectiveCamera() = 0;
 
-	virtual void genSensedRay(const Vector2R& rasterPosPx, Ray* out_ray) const = 0;
+	virtual void genSensedRay(const Vector2R& filmNdcPos, Ray* out_ray) const = 0;
 	virtual void evalEmittedImportanceAndPdfW(
 		const Vector3R& targetPos, 
 		Vector2R* const out_filmCoord,
@@ -30,12 +30,12 @@ public:
 		real* out_filmArea, 
 		real* const out_pdfW) const = 0;
 
-	void onRasterSizeSet(uint32 newRasterWidth, uint32 newRasterHeight) override;
+	void setAspectRatio(real ratio) override;
 
 protected:
-	std::shared_ptr<Transform> m_rasterToCamera;
 	std::shared_ptr<Transform> m_cameraToWorld;
-	std::shared_ptr<Transform> m_rasterToWorld;
+	std::shared_ptr<Transform> m_filmToCamera;
+	std::shared_ptr<Transform> m_filmToWorld;
 	
 private:
 	real m_filmWidthMM;
@@ -45,9 +45,18 @@ private:
 
 // command interface
 public:
-	PerspectiveCamera(const InputPacket& packet);
+	explicit PerspectiveCamera(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
+
+// In-header Implementations:
+
+inline void PerspectiveCamera::setAspectRatio(const real ratio)
+{
+	Camera::setAspectRatio(ratio);
+
+	updateTransforms();
+}
 
 }// end namespace ph

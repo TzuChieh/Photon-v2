@@ -14,9 +14,9 @@ namespace ph
 
 PinholeCamera::~PinholeCamera() = default;
 
-void PinholeCamera::genSensedRay(const Vector2R& rasterPosPx, Ray* const out_ray) const
+void PinholeCamera::genSensedRay(const Vector2R& filmNdcPos, Ray* const out_ray) const
 {
-	out_ray->setDirection(genSensedRayDir(rasterPosPx));
+	out_ray->setDirection(genSensedRayDir(filmNdcPos));
 	out_ray->setOrigin(getPinholePos());
 	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
 	out_ray->setMaxT(std::numeric_limits<real>::max());
@@ -31,10 +31,10 @@ void PinholeCamera::genSensedRay(const Vector2R& rasterPosPx, Ray* const out_ray
 		"direction = " + out_ray->getDirection().toString() + "\n");
 }
 
-Vector3R PinholeCamera::genSensedRayDir(const Vector2R& rasterPosPx) const
+Vector3R PinholeCamera::genSensedRayDir(const Vector2R& filmNdcPos) const
 {
 	Vector3R filmPos;
-	m_rasterToWorld->transformP(Vector3R(rasterPosPx.x, rasterPosPx.y, 0), &filmPos);
+	m_filmToWorld->transformP(Vector3R(filmNdcPos.x, filmNdcPos.y, 0), &filmPos);
 	return filmPos.sub(getPinholePos()).normalizeLocal();
 }
 
@@ -78,15 +78,11 @@ void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3R& targetPos, Vect
 	*out_pdfW = 1.0_r / (*out_filmArea * cosTheta * cosTheta * cosTheta);*/
 }
 
-
-
 // command interface
 
 PinholeCamera::PinholeCamera(const InputPacket& packet) :
 	PerspectiveCamera(packet)
-{
-
-}
+{}
 
 SdlTypeInfo PinholeCamera::ciTypeInfo()
 {

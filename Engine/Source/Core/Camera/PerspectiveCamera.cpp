@@ -5,6 +5,7 @@
 #include "FileIO/SDL/InputPacket.h"
 #include "Math/Math.h"
 #include "FileIO/SDL/InputPrototype.h"
+#include "Common/assertion.h"
 
 #include <iostream>
 
@@ -13,27 +14,20 @@ namespace ph
 
 PerspectiveCamera::~PerspectiveCamera() = default;
 
-void PerspectiveCamera::onRasterSizeSet(uint32 /* newRasterWidth */, uint32 /* newRasterHeight */)
-{
-	updateTransforms();
-}
-
 void PerspectiveCamera::updateTransforms()
 {
-	const hiReal rasterWidthPx   = static_cast<hiReal>(getRasterWidth());
-	const hiReal rasterHeightPx  = static_cast<hiReal>(getRasterHeight());
-	const hiReal filmAspectRatio = rasterWidthPx / rasterHeightPx;
-	const hiReal filmWidthMM     = m_filmWidthMM;
-	const hiReal filmHeightMM    = filmWidthMM / filmAspectRatio;
+	const hiReal filmWidthMM  = m_filmWidthMM;
+	const hiReal filmHeightMM = filmWidthMM / getAspectRatio();
+	PH_ASSERT(filmWidthMM > 0.0_r && filmHeightMM >= 0.0_r);
 
-	TDecomposedTransform<hiReal> rasterToCameraTransform;
-	rasterToCameraTransform.scale(-filmWidthMM / rasterWidthPx, -filmHeightMM / rasterHeightPx, 1);
-	rasterToCameraTransform.translate(filmWidthMM / 2, filmHeightMM / 2, m_filmOffsetMM);
+	TDecomposedTransform<hiReal> filmToCameraTransform;
+	filmToCameraTransform.scale(-filmWidthMM, -filmHeightMM, 1);
+	filmToCameraTransform.translate(filmWidthMM / 2, filmHeightMM / 2, m_filmOffsetMM);
 
-	std::vector<TDecomposedTransform<hiReal>> rootToLocal{m_cameraToWorldTransform, rasterToCameraTransform};
-	m_rasterToWorld  = std::make_shared<StaticAffineTransform>(StaticAffineTransform::makeParentedForward(rootToLocal));
-	m_rasterToCamera = std::make_shared<StaticAffineTransform>(StaticAffineTransform::makeForward(rasterToCameraTransform));
-	m_cameraToWorld  = std::make_shared<StaticAffineTransform>(StaticAffineTransform::makeForward(m_cameraToWorldTransform));
+	std::vector<TDecomposedTransform<hiReal>> rootToLocal{m_cameraToWorldTransform, filmToCameraTransform};
+	m_filmToWorld   = std::make_shared<StaticAffineTransform>(StaticAffineTransform::makeParentedForward(rootToLocal));
+	m_filmToCamera  = std::make_shared<StaticAffineTransform>(StaticAffineTransform::makeForward(filmToCameraTransform));
+	m_cameraToWorld = std::make_shared<StaticAffineTransform>(StaticAffineTransform::makeForward(m_cameraToWorldTransform));
 }
 
 // command interface
@@ -70,6 +64,8 @@ PerspectiveCamera::PerspectiveCamera(const InputPacket& packet) :
 	{
 		std::cerr << "warning: in PerspectiveCamera::PerspectiveCamera(), bad input format" << std::endl;
 	}
+
+	updateTransforms();
 }
 
 SdlTypeInfo PerspectiveCamera::ciTypeInfo()

@@ -28,14 +28,17 @@ SamplingRenderWork::SamplingRenderWork(SamplingRenderWork&& other) :
 void SamplingRenderWork::doWork()
 {
 	const auto& lightFilm = m_films.get<EAttribute::LIGHT_ENERGY>();
-	const uint64 filmWpx = lightFilm->getEffectiveResPx().x;
-	const uint64 filmHpx = lightFilm->getEffectiveResPx().y;
 
-	const Vector2D flooredSampleMinVertex = lightFilm->getSampleWindowPx().minVertex.floor();
-	const Vector2D ceiledSampleMaxVertex  = lightFilm->getSampleWindowPx().maxVertex.ceil();
-	const uint64 filmSampleWpx = static_cast<uint64>(ceiledSampleMaxVertex.x - flooredSampleMinVertex.x);
-	const uint64 filmSampleHpx = static_cast<uint64>(ceiledSampleMaxVertex.y - flooredSampleMinVertex.y);
-	const uint64 numCamPhaseSamples = filmSampleWpx * filmSampleHpx;
+	const Vector2D rasterSize(lightFilm->getEffectiveResPx());
+	const Vector2D rasterSampleSize(lightFilm->getSampleResPx());
+
+	const Vector2D sampleMinVertex = lightFilm->getSampleWindowPx().minVertex;
+	const Vector2D sampleMaxVertex = lightFilm->getSampleWindowPx().maxVertex;
+	
+	const uint64 numCamPhaseSamples = static_cast<uint64>(rasterSampleSize.x * rasterSampleSize.y + 0.5);
+
+	const Vector2D ndcScale(rasterSampleSize.div(rasterSize));
+	const Vector2D ndcOffset(sampleMinVertex.div(rasterSize));
 
 	TSamplePhase<SampleArray2D> camSamplePhase = m_sampleGenerator->declareArray2DPhase(numCamPhaseSamples);
 
@@ -57,16 +60,19 @@ void SamplingRenderWork::doWork()
 
 		for(std::size_t si = 0; si < camSamples.numElements(); si++)
 		{
-			const Vector2D rasterPosPx(camSamples[si].x * filmSampleWpx + flooredSampleMinVertex.x,
-			                           camSamples[si].y * filmSampleHpx + flooredSampleMinVertex.y);
+			const Vector2D rasterPosPx(camSamples[si].x * rasterSampleSize.x + sampleMinVertex.x,
+			                           camSamples[si].y * rasterSampleSize.y + sampleMinVertex.y);
 
+			// TODO: this check is probably unnecessary now
 			if(!lightFilm->getSampleWindowPx().isIntersectingArea(rasterPosPx))
 			{
 				continue;
 			}
 
+			const Vector2R filmNdcPos(Vector2D(camSamples[si]).mul(ndcScale).add(ndcOffset));
+
 			Ray ray;
-			m_integrand.getCamera().genSensedRay(Vector2R(rasterPosPx), &ray);
+			m_integrand.getCamera().genSensedRay(filmNdcPos, &ray);
 
 			m_estimator->radianceAlongRay(ray, m_integrand, senseEvents);
 

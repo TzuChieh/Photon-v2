@@ -35,7 +35,9 @@ void Description::update(const real deltaS)
 	}
 
 	visualWorld.cook();
-	m_camera->setRasterSize(m_renderer->getRenderWidthPx(), m_renderer->getRenderHeightPx());
+
+	const real aspectRatio = static_cast<real>(m_renderer->getRenderWidthPx()) / m_renderer->getRenderHeightPx();
+	m_camera->setAspectRatio(aspectRatio);
 }
 
 }// end namespace ph

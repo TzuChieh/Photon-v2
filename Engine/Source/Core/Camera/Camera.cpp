@@ -11,8 +11,8 @@ Camera::Camera() :
 {}
 
 Camera::Camera(const Vector3R& position, const Vector3R& direction, const Vector3R& upAxis) : 
-	m_position(position), m_direction(direction.normalize()), m_upAxis(upAxis.normalize()),
-	m_rasterWidth(0), m_rasterHeight(0)
+	m_position(position), m_direction(direction.normalize()), m_upAxis(upAxis.normalize()), 
+	m_aspectRatio(16.0_r / 9.0_r)
 {
 	// TODO: input maybe invalid (e.g., axes to close to each other)
 
@@ -41,11 +41,6 @@ void Camera::calcSensedRayDifferentials(
 }
 
 Camera::~Camera() = default;
-
-void Camera::onRasterSizeSet(uint32 /* newRasterWidth */, uint32 /* newRasterHeight */)
-{
-	// do nothing
-}
 
 void Camera::updateCameraToWorldTransform(const Vector3R& position, const Vector3R& direction, const Vector3R& upAxis)
 {
