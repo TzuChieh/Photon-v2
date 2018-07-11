@@ -9,9 +9,8 @@
 #include "Core/Renderer/ERegionStatus.h"
 #include "Core/Renderer/Statistics.h"
 #include "Frame/frame_fwd.h"
-#include "Core/Estimator/Attribute/AttributeTags.h"
+#include "Core/Renderer/AttributeTags.h"
 #include "FileIO/SDL/TCommandInterface.h"
-#include "Core/Estimator/Attribute/EAttribute.h"
 #include "Core/Renderer/RenderStates.h"
 
 #include <vector>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Estimator/Attribute/EAttribute.h"
+#include "Core/Renderer/EAttribute.h"
 #include "Common/assertion.h"
 
 #include <array>
@@ -27,7 +27,7 @@ private:
 	static std::size_t targetToIndex(EAttribute target);
 };
 
-// Implementations:
+// In-header Implementations:
 
 inline AttributeTags::AttributeTags() : 
 	m_set()

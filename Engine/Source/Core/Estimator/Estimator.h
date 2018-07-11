@@ -5,6 +5,7 @@
 #include "Core/Camera/Camera.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Core/Estimator/Integrand.h"
+#include "Core/Renderer/AttributeTags.h"
 
 #include <vector>
 
@@ -22,6 +23,7 @@ public:
 	Estimator();
 	virtual ~Estimator() = 0;
 
+	//virtual 
 	virtual void update(const Scene& scene) = 0;
 	virtual void radianceAlongRay(const Ray& ray, const Integrand& integrand, std::vector<SenseEvent>& out_senseEvents) const = 0;
 

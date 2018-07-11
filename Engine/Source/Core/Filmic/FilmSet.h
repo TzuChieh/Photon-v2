@@ -2,7 +2,7 @@
 
 #include "Core/Filmic/filmic_fwd.h"
 #include "Frame/FrameProcessor.h"
-#include "Core/Estimator/Attribute/EAttribute.h"
+#include "Core/Renderer/EAttribute.h"
 
 #include <memory>
 #include <array>
