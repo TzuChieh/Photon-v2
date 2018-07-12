@@ -18,12 +18,14 @@ import javax.imageio.ImageIO;
 
 import appGui.util.FSBrowser;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
@@ -56,17 +58,18 @@ public class EditorCtrl
     private ProjectEventListener m_projectFinalFrameReadyListener;
     private SettingListener      m_renderSettingListener;
 	
-	@FXML private VBox        projectOverviewVbox;
-	@FXML private TitledPane  projectOverviewPane;
-	@FXML private TextField   sceneFileTextField;
-	@FXML private ProgressBar renderProgressBar;
-	@FXML private Label       percentageProgressLabel;
-	@FXML private AnchorPane  displayPane;
-	@FXML private Canvas      canvas;
-	@FXML private TextArea    messageTextArea;
-	@FXML private Label       spsLabel;
-	@FXML private Label       timeRemainingLabel;
-    @FXML private Label       timeSpentLabel;
+	@FXML private VBox         projectOverviewVbox;
+	@FXML private TitledPane   projectOverviewPane;
+	@FXML private TextField    sceneFileTextField;
+	@FXML private ProgressBar  renderProgressBar;
+	@FXML private Label        percentageProgressLabel;
+	@FXML private AnchorPane   displayPane;
+	@FXML private Canvas       canvas;
+	@FXML private TextArea     messageTextArea;
+	@FXML private Label        spsLabel;
+	@FXML private Label        timeRemainingLabel;
+    @FXML private Label        timeSpentLabel;
+    @FXML private ChoiceBox<String>    attributeChoiceBox;
     
     @FXML
     public void initialize()
@@ -102,6 +105,12 @@ public class EditorCtrl
     			sceneFileTextField.setText(event.newSettingValue);
     		}
     	};
+    	
+    	attributeChoiceBox.setItems(FXCollections.observableArrayList(
+    		"Light Energy",
+    		"Normal"
+    	));
+    	attributeChoiceBox.getSelectionModel().select("Light Energy");
     }
     
     public void startRenderingStaticScene()
