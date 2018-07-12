@@ -11,6 +11,8 @@ namespace ph
 	in their GDC talk. 
 	
 	This operator does not need gamma correction afterwards.
+
+	Reference: http://filmicworlds.com/blog/filmic-tonemapping-operators/
 */
 class JRToneMapping final : public FrameOperator
 {

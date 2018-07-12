@@ -13,6 +13,7 @@ import photonApi.FilmInfo;
 import photonApi.Frame;
 import photonApi.FrameRegion;
 import photonApi.FrameStatus;
+import photonApi.Ph;
 import photonApi.PhEngine;
 import photonApi.PhFrame;
 import photonApi.Rectangle;
@@ -111,8 +112,13 @@ public final class Project extends ManageableResource
 	
 	public FrameStatus asyncGetUpdatedFrame(FrameRegion out_frameRegion)
 	{
+		return asyncGetUpdatedFrame(Ph.ATTRIBUTE_LIGHT_ENERGY, out_frameRegion);
+	}
+	
+	public FrameStatus asyncGetUpdatedFrame(int attribute, FrameRegion out_frameRegion)
+	{
 		Rectangle region = new Rectangle();
-		FrameStatus status = m_engine.asyncGetUpdatedFrame(m_transientFrame, region);
+		FrameStatus status = m_engine.asyncGetUpdatedFrame(attribute, m_transientFrame, region);
 		if(status != FrameStatus.INVALID)
 		{
 			out_frameRegion.set(m_transientFrame.copyRegionRgb(region));

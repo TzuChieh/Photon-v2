@@ -144,8 +144,6 @@ void SamplingRenderer::asyncDevelopFilmRegion(
 	const Region&    region, 
 	const EAttribute attribute)
 {
-	// TODO: attribute
-
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 	const SamplingFilmBase* film = m_films.get(attribute);

@@ -87,6 +87,11 @@ public final class PhEngine
 	
 	public FrameStatus asyncGetUpdatedFrame(PhFrame out_frame, Rectangle out_updatedRegion)
 	{
+		return asyncGetUpdatedFrame(Ph.ATTRIBUTE_LIGHT_ENERGY, out_frame, out_updatedRegion);
+	}
+	
+	public FrameStatus asyncGetUpdatedFrame(int attribute, PhFrame out_frame, Rectangle out_updatedRegion)
+	{
 		IntRef xPx = new IntRef();
 		IntRef yPx = new IntRef();
 		IntRef wPx = new IntRef();
@@ -97,13 +102,8 @@ public final class PhEngine
 			return FrameStatus.INVALID;
 		}
 		
-//		System.out.println(xPx);
-//		System.out.println(yPx);
-//		System.out.println(wPx);
-//		System.out.println(hPx);
-		
 		Ph.phAsyncDevelopFilmRegion(m_engineId, out_frame.m_frameId, 
-		                            xPx.m_value, yPx.m_value, wPx.m_value, hPx.m_value, Ph.ATTRIBUTE_LIGHT_ENERGY);
+		                            xPx.m_value, yPx.m_value, wPx.m_value, hPx.m_value, attribute);
 		
 		out_updatedRegion.x = xPx.m_value;
 		out_updatedRegion.y = yPx.m_value;

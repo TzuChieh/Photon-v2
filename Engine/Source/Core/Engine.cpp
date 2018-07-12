@@ -26,6 +26,7 @@ void Engine::update()
 	std::shared_ptr<FrameProcessor> processor = std::make_shared<FrameProcessor>();
 	processor->appendOperator(std::make_shared<JRToneMapping>());
 	m_filmSet.setProcessor(EAttribute::LIGHT_ENERGY, processor);
+	m_filmSet.setProcessor(EAttribute::NORMAL, processor);
 
 	m_renderer = m_description.getRenderer();
 	m_renderer->setNumRenderThreads(m_numRenderThreads);
@@ -77,6 +78,7 @@ void Engine::asyncDevelopFilmRegion(
 	if(applyPostProcessing)
 	{
 		const FrameProcessor* processor = m_filmSet.getProcessor(attribute);
+		PH_ASSERT(processor);
 		processor->process(out_frame);
 	}
 }

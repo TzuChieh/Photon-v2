@@ -14,10 +14,14 @@ import appModel.project.RenderSetting;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.imageio.ImageIO;
 
 import appGui.util.FSBrowser;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
@@ -42,6 +46,7 @@ import javafx.stage.FileChooser;
 import photonApi.Frame;
 import photonApi.FrameRegion;
 import photonApi.FrameStatus;
+import photonApi.Ph;
 import photonApi.Rectangle;
 import photonApi.Statistics;
 import photonApi.Vector3f;
@@ -70,6 +75,8 @@ public class EditorCtrl
 	@FXML private Label        timeRemainingLabel;
     @FXML private Label        timeSpentLabel;
     @FXML private ChoiceBox<String>    attributeChoiceBox;
+    
+    private AtomicInteger m_chosenAttribute;
     
     @FXML
     public void initialize()
@@ -106,11 +113,21 @@ public class EditorCtrl
     		}
     	};
     	
+    	m_chosenAttribute = new AtomicInteger(Ph.ATTRIBUTE_LIGHT_ENERGY);
     	attributeChoiceBox.setItems(FXCollections.observableArrayList(
     		"Light Energy",
     		"Normal"
     	));
     	attributeChoiceBox.getSelectionModel().select("Light Energy");
+    	attributeChoiceBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
+			{
+				m_chosenAttribute.set(newValue.intValue());
+				System.err.println(m_chosenAttribute.get());
+			}
+		});
     }
     
     public void startRenderingStaticScene()
@@ -164,7 +181,7 @@ public class EditorCtrl
 					
 					// TODO: need to add these monitoring attributes to a project's data, 
 					// otherwise other finished projects (with work done = 100%) will cause
-					// this loop to break (thus not updating GUI anymore until rendering finished)
+					// this loop to break (thus not updating GUI anymore until rendering is finished)
 					
 					if(workDone >= totalWork)
 					{
@@ -173,7 +190,7 @@ public class EditorCtrl
 					}
 					
 					FrameRegion updatedFrameRegion = new FrameRegion();
-					FrameStatus frameStatus = m_project.asyncGetUpdatedFrame(updatedFrameRegion);
+					FrameStatus frameStatus = m_project.asyncGetUpdatedFrame(m_chosenAttribute.get(), updatedFrameRegion);
 					if(frameStatus != FrameStatus.INVALID)
 					{
 						Platform.runLater(() ->
