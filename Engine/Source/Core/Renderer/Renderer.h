@@ -41,6 +41,7 @@ public:
 	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) = 0;
 	virtual RenderStates asyncQueryRenderStates() = 0;
 
+	// TODO: this can somehow combine with its async version
 	virtual void develop(HdrRgbFrame& out_frame, EAttribute attribute) = 0;
 
 	// TODO: remove the word "Film"

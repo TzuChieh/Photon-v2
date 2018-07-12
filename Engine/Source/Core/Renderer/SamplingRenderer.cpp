@@ -151,6 +151,10 @@ void SamplingRenderer::asyncDevelopFilmRegion(
 	{
 		film->develop(out_frame, region);
 	}
+	else
+	{
+		out_frame.fill(0);
+	}
 }
 
 void SamplingRenderer::develop(HdrRgbFrame& out_frame, const EAttribute attribute)
@@ -159,6 +163,10 @@ void SamplingRenderer::develop(HdrRgbFrame& out_frame, const EAttribute attribut
 	if(film)
 	{
 		film->develop(out_frame);
+	}
+	else
+	{
+		out_frame.fill(0);
 	}
 }
 
