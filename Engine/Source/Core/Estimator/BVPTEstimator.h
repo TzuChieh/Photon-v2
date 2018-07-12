@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Estimator/Estimator.h"
+#include "Core/Estimator/PathEstimator.h"
 
 namespace ph
 {
@@ -15,18 +15,21 @@ namespace ph
 	simple but still unbiased, it is good for ground truth rendering if 
 	the correctness of another estimator is in doubt.
 */
-class BVPTEstimator final : public Estimator, public TCommandInterface<BVPTEstimator>
+class BVPTEstimator final : public PathEstimator, public TCommandInterface<BVPTEstimator>
 {
 public:
 	BVPTEstimator();
-	virtual ~BVPTEstimator() override;
+	~BVPTEstimator() override;
 
-	virtual void update(const Scene& scene) override;
-	virtual void radianceAlongRay(const Ray& ray, const Integrand& integrand, std::vector<SenseEvent>& out_senseEvents) const override;
+	virtual void radianceAlongRay(
+		const Ray&        ray,
+		const Integrand&  integrand,
+		SpectralStrength& out_radiance,
+		SurfaceHit&       out_firstHit) const override;
 
 // command interface
 public:
-	BVPTEstimator(const InputPacket& packet);
+	explicit BVPTEstimator(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 	static std::unique_ptr<BVPTEstimator> ciLoad(const InputPacket& packet);

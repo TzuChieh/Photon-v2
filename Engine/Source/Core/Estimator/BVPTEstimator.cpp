@@ -14,6 +14,7 @@
 #include "Core/Estimator/Utility/RussianRoulette.h"
 #include "FileIO/SDL/InputPacket.h"
 #include "Math/TVector3.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <iostream>
 
@@ -27,12 +28,11 @@ BVPTEstimator::BVPTEstimator() = default;
 
 BVPTEstimator::~BVPTEstimator() = default;
 
-void BVPTEstimator::update(const Scene& scene)
-{
-	// update nothing
-}
-
-void BVPTEstimator::radianceAlongRay(const Ray& ray, const Integrand& integrand, std::vector<SenseEvent>& out_senseEvents) const
+void BVPTEstimator::radianceAlongRay(
+	const Ray&        ray,
+	const Integrand&  integrand,
+	SpectralStrength& out_radiance,
+	SurfaceHit&       out_firstHit) const
 {
 	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESidednessAgreement::STRICT>(&(integrand.getScene()));
 
@@ -49,6 +49,11 @@ void BVPTEstimator::radianceAlongRay(const Ray& ray, const Integrand& integrand,
 	while(numBounces <= MAX_RAY_BOUNCES && 
 	      surfaceEventDispatcher.traceNextSurface(tracingRay, &surfaceHit))
 	{
+		if(numBounces == 0)
+		{
+			out_firstHit = surfaceHit;
+		}
+
 		const auto* const     metadata            = surfaceHit.getDetail().getPrimitive()->getMetadata();
 		const SurfaceBehavior& hitSurfaceBehavior = metadata->getSurface();
 
@@ -135,13 +140,13 @@ void BVPTEstimator::radianceAlongRay(const Ray& ray, const Integrand& integrand,
 		numBounces++;
 	}// end while
 
-	out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */accuRadiance));
+	out_radiance = accuRadiance;
 }
 
 // command interface
 
 BVPTEstimator::BVPTEstimator(const InputPacket& packet) :
-	Estimator(packet)
+	PathEstimator(packet)
 {}
 
 SdlTypeInfo BVPTEstimator::ciTypeInfo()

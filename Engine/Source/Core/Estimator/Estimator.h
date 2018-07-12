@@ -16,6 +16,7 @@ class Scene;
 class Ray;
 class Camera;
 class InputPacket;
+class Estimation;
 
 class Estimator : public TCommandInterface<Estimator>
 {
@@ -23,9 +24,9 @@ public:
 	Estimator();
 	virtual ~Estimator() = 0;
 
-	//virtual 
+	virtual AttributeTags supportedAttributes() const = 0;
 	virtual void update(const Scene& scene) = 0;
-	virtual void radianceAlongRay(const Ray& ray, const Integrand& integrand, std::vector<SenseEvent>& out_senseEvents) const = 0;
+	virtual void estimate(const Ray& ray, const Integrand& integrand, Estimation& estimation) const = 0;
 
 // command interface
 public:

@@ -18,6 +18,7 @@
 #include "Core/Estimator/Utility/TMis.h"
 #include "Core/Estimator/Utility/PtDirectLightEstimator.h"
 #include "Core/Estimator/Utility/RussianRoulette.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <iostream>
 
@@ -32,12 +33,11 @@ BNEEPTEstimator::BNEEPTEstimator() = default;
 
 BNEEPTEstimator::~BNEEPTEstimator() = default;
 
-void BNEEPTEstimator::update(const Scene& scene)
-{
-	// update nothing
-}
-
-void BNEEPTEstimator::radianceAlongRay(const Ray& ray, const Integrand& integrand, std::vector<SenseEvent>& out_senseEvents) const
+void BNEEPTEstimator::radianceAlongRay(
+	const Ray&        ray,
+	const Integrand&  integrand,
+	SpectralStrength& out_radiance,
+	SurfaceHit&       out_firstHit) const
 {
 	const Scene&  scene  = integrand.getScene();
 	const Camera& camera = integrand.getCamera();
@@ -59,7 +59,7 @@ void BNEEPTEstimator::radianceAlongRay(const Ray& ray, const Integrand& integran
 
 	if(!scene.isIntersecting(tracingRay, &hitProbe))
 	{
-		out_senseEvents.push_back(SenseEvent(accuRadiance));
+		out_radiance = accuRadiance;
 		return;
 	}
 
@@ -73,7 +73,7 @@ void BNEEPTEstimator::radianceAlongRay(const Ray& ray, const Integrand& integran
 		V = tracingRay.getDirection().mul(-1.0_r);
 		if(surfaceHit.getGeometryNormal().dot(V) * surfaceHit.getShadingNormal().dot(V) <= 0.0_r)
 		{
-			out_senseEvents.push_back(SenseEvent(accuRadiance));
+			out_radiance = accuRadiance;
 			return;
 		}
 
@@ -85,6 +85,8 @@ void BNEEPTEstimator::radianceAlongRay(const Ray& ray, const Integrand& integran
 			surfaceBehavior.getEmitter()->evalEmittedRadiance(surfaceHit, &radianceLi);
 			accuRadiance.addLocal(radianceLi);
 		}
+
+		out_firstHit = surfaceHit;
 	}
 
 	// ray bouncing around the scene (1 ~ N bounces)
@@ -224,7 +226,7 @@ void BNEEPTEstimator::radianceAlongRay(const Ray& ray, const Integrand& integran
 		}
 	}// end for each bounces
 
-	out_senseEvents.push_back(SenseEvent(accuRadiance));
+	out_radiance = accuRadiance;
 }
 
 void BNEEPTEstimator::rationalClamp(SpectralStrength& value)
@@ -236,7 +238,7 @@ void BNEEPTEstimator::rationalClamp(SpectralStrength& value)
 // command interface
 
 BNEEPTEstimator::BNEEPTEstimator(const InputPacket& packet) :
-	Estimator(packet)
+	PathEstimator(packet)
 {}
 
 SdlTypeInfo BNEEPTEstimator::ciTypeInfo()

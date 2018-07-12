@@ -7,6 +7,7 @@
 #include "Core/Estimator/Estimator.h"
 #include "Core/Estimator/Integrand.h"
 #include "Core/Filmic/SampleFilterFactory.h"
+#include "Core/Estimator/Estimation.h"
 
 namespace ph
 {
@@ -42,7 +43,7 @@ void SamplingRenderWork::doWork()
 
 	TSamplePhase<SampleArray2D> camSamplePhase = m_sampleGenerator->declareArray2DPhase(numCamPhaseSamples);
 
-	std::vector<SenseEvent> senseEvents;
+	Estimation estimation;
 
 	m_numSamplesTaken = 0;
 	m_numMsElapsed    = 0;
@@ -74,20 +75,9 @@ void SamplingRenderWork::doWork()
 			Ray ray;
 			m_integrand.getCamera().genSensedRay(filmNdcPos, &ray);
 
-			m_estimator->radianceAlongRay(ray, m_integrand, senseEvents);
+			m_estimator->estimate(ray, m_integrand, estimation);
 
-			// HACK: sense event
-			for(const auto& senseEvent : senseEvents)
-			{
-				lightFilm->addSample(rasterPosPx.x, rasterPosPx.y, senseEvent.radiance);
-			}
-
-			if(senseEvents.size() != 1)
-			{
-				std::cerr << "unexpected event occured" << std::endl;
-			}
-
-			senseEvents.clear();
+			lightFilm->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
 		}// end for
 
 		m_sampleGenerator->singleSampleEnd();
