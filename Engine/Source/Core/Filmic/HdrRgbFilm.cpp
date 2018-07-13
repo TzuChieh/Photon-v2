@@ -52,6 +52,12 @@ void HdrRgbFilm::addSample(
 	const float64 xPx, const float64 yPx, 
 	const SpectralStrength& radiance)
 {
+	const Vector3R rgb = radiance.genLinearSrgb(EQuantity::EMR);
+	addSample(xPx, yPx, rgb);
+}
+
+void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const Vector3R& rgb)
+{
 	const TVector2<float64> samplePosPx(xPx, yPx);
 
 	// compute filter bounds
@@ -80,8 +86,7 @@ void HdrRgbFilm::addSample(
 			const std::size_t fy = y - getEffectiveWindowPx().minVertex.y;
 			const std::size_t index = fy * static_cast<std::size_t>(getEffectiveResPx().x) + fx;
 			
-			const float64   weight = m_filter.evaluate(filterX, filterY);
-			const Vector3R& rgb    = radiance.genLinearSrgb(EQuantity::EMR);
+			const float64 weight = m_filter.evaluate(filterX, filterY);
 
 			m_pixelRadianceSensors[index].accuR      += rgb.x * weight;
 			m_pixelRadianceSensors[index].accuG      += rgb.y * weight;

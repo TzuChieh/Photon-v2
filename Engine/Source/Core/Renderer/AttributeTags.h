@@ -15,6 +15,7 @@ public:
 	AttributeTags();
 
 	void tag(EAttribute target);
+	void tag(const AttributeTags& targets);
 	void untag(EAttribute target);
 	bool isTagged(EAttribute target) const;
 
@@ -23,7 +24,7 @@ private:
 
 	Set m_set;
 
-	void setTag(EAttribute target, bool isOn);
+	void setTag(std::size_t targetIndex, bool isOn);
 	static std::size_t targetToIndex(EAttribute target);
 };
 
@@ -37,12 +38,20 @@ inline AttributeTags::AttributeTags() :
 
 inline void AttributeTags::tag(const EAttribute target)
 {
-	setTag(target, true);
+	setTag(targetToIndex(target), true);
+}
+
+inline void AttributeTags::tag(const AttributeTags& targets)
+{
+	for(std::size_t i = 0; i < targets.m_set.size(); i++)
+	{
+		setTag(i, m_set[i] || targets.m_set[i]);
+	}
 }
 
 inline void AttributeTags::untag(const EAttribute target)
 {
-	setTag(target, false);
+	setTag(targetToIndex(target), false);
 }
 
 inline bool AttributeTags::isTagged(const EAttribute target) const
@@ -50,15 +59,15 @@ inline bool AttributeTags::isTagged(const EAttribute target) const
 	return m_set[targetToIndex(target)];
 }
 
-inline void AttributeTags::setTag(const EAttribute target, const bool isOn)
+inline void AttributeTags::setTag(const std::size_t targetIndex, bool isOn)
 {
-	m_set[targetToIndex(target)] = isOn;
+	PH_ASSERT(targetIndex < std::tuple_size_v<Set>);
+
+	m_set[targetIndex] = isOn;
 }
 
 inline std::size_t AttributeTags::targetToIndex(const EAttribute target)
 {
-	PH_ASSERT(static_cast<std::size_t>(target) < std::tuple_size_v<Set>);
-
 	return static_cast<std::size_t>(target);
 }
 

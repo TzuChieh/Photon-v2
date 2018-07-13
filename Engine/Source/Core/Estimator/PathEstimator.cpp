@@ -14,21 +14,33 @@ AttributeTags PathEstimator::supportedAttributes() const
 {
 	AttributeTags supports;
 	supports.tag(EAttribute::LIGHT_ENERGY);
+	supports.tag(m_surfaceAttributeEstimator.supportedAttributes());
 	return supports;
 }
 
 void PathEstimator::update(const Scene& scene)
 {}
 
-void PathEstimator::estimate(const Ray& ray, const Integrand& integrand, Estimation& estimation) const
+void PathEstimator::estimate(
+	const Ray&           ray,
+	const Integrand&     integrand,
+	const AttributeTags& requestedAttributes,
+	Estimation&          out_estimation) const
 {
-	SpectralStrength radiance;
-	SurfaceHit       firstHit;
-	radianceAlongRay(ray, integrand, radiance, firstHit);
+	if(requestedAttributes.isTagged(EAttribute::LIGHT_ENERGY))
+	{
+		SpectralStrength radiance;
+		SurfaceHit       firstHit;
+		radianceAlongRay(ray, integrand, radiance, firstHit);
 
-	estimation.set<EAttribute::LIGHT_ENERGY>(radiance);
+		out_estimation.set<EAttribute::LIGHT_ENERGY>(radiance);
 
-	// TODO: other attributes from first hit
+		m_surfaceAttributeEstimator.estimate(firstHit, requestedAttributes, out_estimation);
+	}
+	else
+	{
+		m_surfaceAttributeEstimator.estimate(ray, integrand, requestedAttributes, out_estimation);
+	}
 }
 
 // command interface

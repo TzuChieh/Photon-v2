@@ -45,6 +45,11 @@ void SamplingRenderWork::doWork()
 
 	Estimation estimation;
 
+	// HACK
+	AttributeTags requestedAttributes;
+	requestedAttributes.tag(EAttribute::LIGHT_ENERGY);
+	requestedAttributes.tag(EAttribute::NORMAL);
+
 	m_numSamplesTaken = 0;
 	m_numMsElapsed    = 0;
 	setTotalWork(static_cast<uint32>(m_sampleGenerator->numSamples()));
@@ -75,9 +80,11 @@ void SamplingRenderWork::doWork()
 			Ray ray;
 			m_integrand.getCamera().genSensedRay(filmNdcPos, &ray);
 
-			m_estimator->estimate(ray, m_integrand, estimation);
+			m_estimator->estimate(ray, m_integrand, requestedAttributes, estimation);
 
-			lightFilm->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
+			m_films.get<EAttribute::LIGHT_ENERGY>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
+			m_films.get<EAttribute::NORMAL>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::NORMAL>());
+			
 		}// end for
 
 		m_sampleGenerator->singleSampleEnd();

@@ -34,7 +34,7 @@ public:
 	~SamplingFilmBase() override;
 
 	// Generates a child film with the same actual dimensions and filter as parent's, 
-	// but potentially has a different effective window.
+	// but potentially with a different effective window.
 	// A child film can be merged into its parent by calling mergeToParent().
 	//
 	virtual std::unique_ptr<SamplingFilmBase> genChild(const TAABB2D<int64>& effectiveWindowPx) = 0;

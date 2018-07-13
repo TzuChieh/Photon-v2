@@ -85,7 +85,8 @@ inline void SamplingFilmSet::set(FilmResource film)
 {
 	static_assert(std::is_convertible_v<
 		FilmResource, 
-		typename TagToFilmMap::Entry<TagToFilmMap::entryIndex<TAG>()>::Value>);
+		typename TagToFilmMap::Entry<TagToFilmMap::entryIndex<TAG>()>::Value>,
+		"The type of film resource is wrong.");
 
 	m_tagToFilm.get<TAG>()                   = std::move(film);
 	m_films[TagToFilmMap::entryIndex<TAG>()] = m_tagToFilm.get<TAG>().get();

@@ -16,6 +16,7 @@
 #include "Core/Estimator/BVPTEstimator.h"
 #include "Core/Estimator/BNEEPTEstimator.h"
 #include "Core/Estimator/Integrand.h"
+#include "Core/Filmic/Vec3Film.h"
 
 #include <cmath>
 #include <iostream>
@@ -32,9 +33,8 @@ SamplingRenderer::~SamplingRenderer() = default;
 
 AttributeTags SamplingRenderer::supportedAttributes() const
 {
-	AttributeTags supports;
-	supports.tag(EAttribute::LIGHT_ENERGY);
-	return supports;
+	PH_ASSERT(m_estimator);
+	return m_estimator->supportedAttributes();
 }
 
 void SamplingRenderer::init(const Description& description)
@@ -48,6 +48,8 @@ void SamplingRenderer::init(const Description& description)
 	m_sg              = description.getSampleGenerator().get();
 
 	m_films.set<EAttribute::LIGHT_ENERGY>(std::make_unique<HdrRgbFilm>(
+		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
+	m_films.set<EAttribute::NORMAL>(std::make_unique<Vec3Film>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
 
 	m_camera     = description.getCamera().get();
@@ -175,6 +177,10 @@ void SamplingRenderer::mergeWorkFilms(SamplingRenderWork& work)
 	const auto& lightFilm = work.m_films.get<EAttribute::LIGHT_ENERGY>();
 	lightFilm->mergeToParent();
 	lightFilm->clear();
+
+	const auto& normalFilm = work.m_films.get<EAttribute::NORMAL>();
+	normalFilm->mergeToParent();
+	normalFilm->clear();
 }
 
 void SamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)

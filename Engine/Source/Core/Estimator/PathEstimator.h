@@ -2,6 +2,7 @@
 
 #include "Core/Estimator/Estimator.h"
 #include "Core/Quantity/spectral_strength_fwd.h"
+#include "Core/Estimator/SurfaceAttributeEstimator.h"
 
 namespace ph
 {
@@ -22,7 +23,14 @@ public:
 
 	AttributeTags supportedAttributes() const override;
 	void update(const Scene& scene) override;
-	void estimate(const Ray& ray, const Integrand& integrand, Estimation& estimation) const override;
+	void estimate(
+		const Ray&           ray,
+		const Integrand&     integrand,
+		const AttributeTags& requestedAttributes,
+		Estimation&          out_estimation) const override;
+
+private:
+	SurfaceAttributeEstimator m_surfaceAttributeEstimator;
 
 // command interface
 public:

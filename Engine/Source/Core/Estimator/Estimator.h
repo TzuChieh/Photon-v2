@@ -25,8 +25,14 @@ public:
 	virtual ~Estimator() = 0;
 
 	virtual AttributeTags supportedAttributes() const = 0;
+
 	virtual void update(const Scene& scene) = 0;
-	virtual void estimate(const Ray& ray, const Integrand& integrand, Estimation& estimation) const = 0;
+
+	virtual void estimate(
+		const Ray&           ray, 
+		const Integrand&     integrand, 
+		const AttributeTags& requestedAttributes, 
+		Estimation&          out_estimation) const = 0;
 
 // command interface
 public:
