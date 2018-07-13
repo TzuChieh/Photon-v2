@@ -53,6 +53,8 @@ private:
 	
 	std::mutex m_rendererMutex;
 
+	AttributeTags m_requestedAttributes;
+
 	void clearWorkData();
 	void mergeWorkFilms(SamplingRenderWork& work);
 	void addUpdatedRegion(const Region& region, bool isUpdating);

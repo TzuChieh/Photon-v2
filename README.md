@@ -19,6 +19,7 @@ Support the Project:
   * ~~light/particle tracing~~
   * ~~backward light tracing (next event estimation)~~
   * RGB and spectral rendering modes
+  * AOV (normal)
 
 * **Material**
   * Lambertian diffuse

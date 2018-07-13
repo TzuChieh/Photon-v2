@@ -21,6 +21,7 @@ SamplingRenderWork::SamplingRenderWork(SamplingRenderWork&& other) :
 	m_estimator(other.m_estimator),
 	m_sampleGenerator(std::move(other.m_sampleGenerator)),
 	m_films(std::move(other.m_films)),
+	m_requestedAttributes(std::move(other.m_requestedAttributes)),
 
 	m_numSamplesTaken(other.m_numSamplesTaken.load()),
 	m_numMsElapsed(other.m_numMsElapsed.load())
@@ -44,11 +45,6 @@ void SamplingRenderWork::doWork()
 	TSamplePhase<SampleArray2D> camSamplePhase = m_sampleGenerator->declareArray2DPhase(numCamPhaseSamples);
 
 	Estimation estimation;
-
-	// HACK
-	AttributeTags requestedAttributes;
-	requestedAttributes.tag(EAttribute::LIGHT_ENERGY);
-	requestedAttributes.tag(EAttribute::NORMAL);
 
 	m_numSamplesTaken = 0;
 	m_numMsElapsed    = 0;
@@ -80,11 +76,17 @@ void SamplingRenderWork::doWork()
 			Ray ray;
 			m_integrand.getCamera().genSensedRay(filmNdcPos, &ray);
 
-			m_estimator->estimate(ray, m_integrand, requestedAttributes, estimation);
+			m_estimator->estimate(ray, m_integrand, m_requestedAttributes, estimation);
 
-			m_films.get<EAttribute::LIGHT_ENERGY>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
-			m_films.get<EAttribute::NORMAL>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::NORMAL>());
+			if(m_requestedAttributes.isTagged(EAttribute::LIGHT_ENERGY))
+			{
+				m_films.get<EAttribute::LIGHT_ENERGY>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
+			}
 			
+			if(m_requestedAttributes.isTagged(EAttribute::NORMAL))
+			{
+				m_films.get<EAttribute::NORMAL>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::NORMAL>());
+			}
 		}// end for
 
 		m_sampleGenerator->singleSampleEnd();
@@ -108,9 +110,8 @@ void SamplingRenderWork::setDomainPx(const TAABB2D<int64>& domainPx)
 
 	m_domainPx = domainPx;
 
-	const auto& lightFilm = m_films.get<EAttribute::LIGHT_ENERGY>();
-
-	lightFilm->setEffectiveWindowPx(domainPx);
+	m_films.get<EAttribute::LIGHT_ENERGY>()->setEffectiveWindowPx(domainPx);
+	m_films.get<EAttribute::NORMAL>()->setEffectiveWindowPx(domainPx);
 }
 
 }// end namespace ph

@@ -9,6 +9,7 @@
 #include "Core/Estimator/Integrand.h"
 #include "Core/Bound/TAABB2D.h"
 #include "Core/Filmic/SampleFilter.h"
+#include "Core/Renderer/AttributeTags.h"
 
 #include <atomic>
 
@@ -29,7 +30,8 @@ public:
 		const Estimator* estimator,
 		const Integrand& integrand,
 		SamplingFilmSet films,
-		std::unique_ptr<SampleGenerator> sampleGenerator);
+		std::unique_ptr<SampleGenerator> sampleGenerator,
+		const AttributeTags& requestedAttributes);
 
 	SamplingRenderWork();
 	SamplingRenderWork(SamplingRenderWork&& other);
@@ -50,6 +52,7 @@ private:
 	const Estimator*      m_estimator;
 	std::unique_ptr<SampleGenerator> m_sampleGenerator;
 	TAABB2D<int64> m_domainPx;
+	AttributeTags m_requestedAttributes;
 
 	std::atomic_uint32_t m_numSamplesTaken;
 	std::atomic_uint32_t m_numMsElapsed;
@@ -62,7 +65,8 @@ inline SamplingRenderWork::SamplingRenderWork(
 	const Estimator* estimator,
 	const Integrand& integrand,
 	SamplingFilmSet films,
-	std::unique_ptr<SampleGenerator> sampleGenerator) :
+	std::unique_ptr<SampleGenerator> sampleGenerator,
+	const AttributeTags& requestedAttributes) :
 
 	RenderWork(),
 
@@ -71,13 +75,14 @@ inline SamplingRenderWork::SamplingRenderWork(
 	m_estimator(estimator),
 	m_sampleGenerator(std::move(sampleGenerator)),
 	m_films(std::move(films)),
+	m_requestedAttributes(requestedAttributes),
 
 	m_numSamplesTaken(0),
 	m_numMsElapsed(0)
 {}
 
 inline SamplingRenderWork::SamplingRenderWork() :
-	SamplingRenderWork(nullptr, nullptr, Integrand(), SamplingFilmSet(), nullptr)
+	SamplingRenderWork(nullptr, nullptr, Integrand(), SamplingFilmSet(), nullptr, AttributeTags())
 {}
 
 inline SamplingRenderWork::~SamplingRenderWork() = default;

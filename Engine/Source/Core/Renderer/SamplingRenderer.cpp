@@ -67,7 +67,13 @@ void SamplingRenderer::init(const Description& description)
 	const Integrand integrand(m_scene, m_camera);
 	for(uint32 i = 0; i < numWorks; i++)
 	{
-		SamplingRenderWork work(this, m_estimator.get(), integrand, std::move(workFilms[i]), std::move(m_workSgs[i]));
+		SamplingRenderWork work(
+			this, 
+			m_estimator.get(), 
+			integrand, 
+			std::move(workFilms[i]), 
+			std::move(m_workSgs[i]),
+			m_requestedAttributes);
 		work.setDomainPx(getRenderWindowPx());
 		m_works.push_back(std::move(work));
 	}
@@ -240,7 +246,8 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 	m_workSgs(),
 	m_updatedRegions(),
 	m_rendererMutex(),
-	m_filter(SampleFilterFactory::createGaussianFilter())
+	m_filter(SampleFilterFactory::createGaussianFilter()),
+	m_requestedAttributes()
 {
 	const std::string filterName = packet.getString("filter-name");
 	if(filterName == "box")
@@ -264,6 +271,17 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 	else if(estimatorName == "bneept")
 	{
 		m_estimator = std::make_unique<BNEEPTEstimator>();
+	}
+
+	const std::string lightEnergyTag = packet.getString("light-energy-tag", "true");
+	const std::string normalTag      = packet.getString("normal-tag",       "false");
+	if(lightEnergyTag == "true")
+	{
+		m_requestedAttributes.tag(EAttribute::LIGHT_ENERGY);
+	}
+	if(normalTag == "true")
+	{
+		m_requestedAttributes.tag(EAttribute::NORMAL);
 	}
 
 	PH_ASSERT(m_estimator);
