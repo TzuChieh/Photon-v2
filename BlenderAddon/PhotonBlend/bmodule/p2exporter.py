@@ -440,16 +440,15 @@ class Exporter:
 
 		meta_info = meta.MetaGetter(context)
 
-		self.exportRaw("## film(hdr-rgb) [integer width %s] [integer height %s] [string filter-name %s]\n"
-		               % (meta_info.render_width_px(),
-		                  meta_info.render_height_px(),
-		                  meta_info.sample_filter_name()))
-
 		self.exportRaw("## sample-generator(stratified) [integer sample-amount %s] "
 		               "[integer num-strata-2d-x %s] [integer num-strata-2d-y %s]\n"
 		               % (meta_info.spp(), meta_info.render_width_px(), meta_info.render_height_px()))
 
-		self.exportRaw("## integrator(%s) \n" % meta_info.integrator_type_name())
+		self.exportRaw("## renderer(sampling) [integer width %s] [integer height %s] [string filter-name %s] [string estimator %s]\n"
+		               % (meta_info.render_width_px(),
+		                  meta_info.render_height_px(),
+		                  meta_info.sample_filter_name(),
+		                  meta_info.integrator_type_name()))
 
 	# TODO: write/flush commands to disk once a while (reducing memory usage)
 	def export_world_commands(self, b_context):

@@ -114,6 +114,7 @@ render_panel_types = [
 	PhRenderingPanel
 ]
 
+
 def register():
 	# Register the RenderEngine.
 	bpy.utils.register_class(PhotonRenderer)
