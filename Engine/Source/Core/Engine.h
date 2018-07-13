@@ -10,6 +10,7 @@
 #include "Frame/frame_fwd.h"
 #include "Core/Filmic/FilmSet.h"
 #include "Core/Renderer/EAttribute.h"
+#include "Core/Renderer/Region/Region.h"
 
 #include <string>
 #include <memory>
@@ -36,11 +37,11 @@ public:
 	TVector2<int64> getFilmDimensionPx() const;
 	void setNumRenderThreads(uint32 numThreads);
 
-	ERegionStatus asyncPollUpdatedRegion(Renderer::Region* out_region) const;
+	ERegionStatus asyncPollUpdatedRegion(Region* out_region) const;
 
 	void asyncDevelopFilmRegion(
 		HdrRgbFrame&            out_frame, 
-		const Renderer::Region& region, 
+		const Region& region,
 		EAttribute              attribute,
 		bool                    applyPostProcessing = true) const;
 

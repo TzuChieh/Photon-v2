@@ -13,6 +13,7 @@
 #include "Common/assertion.h"
 #include "FileIO/PictureSaver.h"
 #include "Api/ApiHelper.h"
+#include "Core/Renderer/Region/Region.h"
 
 #include <memory>
 #include <iostream>
@@ -230,7 +231,7 @@ int phAsyncPollUpdatedFilmRegion(const PHuint64 engineId,
 	Engine* engine = ApiDatabase::getEngine(engineId);
 	if(engine)
 	{
-		Renderer::Region region;
+		Region region;
 		const ERegionStatus status = engine->asyncPollUpdatedRegion(&region);
 
 		*out_xPx      = static_cast<PHuint32>(region.minVertex.x);
@@ -264,7 +265,7 @@ void phAsyncDevelopFilmRegion(
 	HdrRgbFrame* frame  = ApiDatabase::getFrame(frameId);
 	if(engine && frame)
 	{
-		const Renderer::Region region({xPx, yPx}, {xPx + widthPx, yPx + heightPx});
+		Region region({xPx, yPx}, {xPx + widthPx, yPx + heightPx});
 		engine->asyncDevelopFilmRegion(*frame, region, ApiHelper::toCppAttribute(attribute));
 	}
 }

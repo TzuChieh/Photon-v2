@@ -12,6 +12,7 @@
 #include "Core/Renderer/AttributeTags.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Core/Renderer/RenderStates.h"
+#include "Core/Renderer/Region/Region.h"
 
 #include <vector>
 #include <mutex>
@@ -28,9 +29,6 @@ class RenderWorker;
 
 class Renderer: public TCommandInterface<Renderer>
 {
-public:
-	typedef TAABB2D<int64> Region;
-
 public:
 	virtual ~Renderer() = 0;
 

@@ -62,14 +62,14 @@ void Engine::setNumRenderThreads(const uint32 numThreads)
 	m_numRenderThreads = numThreads;
 }
 
-ERegionStatus Engine::asyncPollUpdatedRegion(Renderer::Region* const out_region) const
+ERegionStatus Engine::asyncPollUpdatedRegion(Region* const out_region) const
 {
 	return m_renderer->asyncPollUpdatedRegion(out_region);
 }
 
 void Engine::asyncDevelopFilmRegion(
 	HdrRgbFrame&            out_frame,
-	const Renderer::Region& region,
+	const Region& region,
 	const EAttribute        attribute,
 	const bool              applyPostProcessing) const
 {
