@@ -1,4 +1,4 @@
-#include "Core/Renderer/SamplingRenderer.h"
+#include "Core/Renderer/Sampling/SamplingRenderer.h"
 #include "Common/primitive_type.h"
 #include "Core/Filmic/Film.h"
 #include "World/VisualWorld.h"

@@ -1,5 +1,5 @@
 #include "Core/Renderer/Sampling/SamplingRenderWork.h"
-#include "Core/Renderer/SamplingRenderer.h"
+#include "Core/Renderer/Sampling/SamplingRenderer.h"
 #include "Core/Filmic/TSamplingFilm.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Camera/Camera.h"

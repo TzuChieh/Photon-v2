@@ -72,7 +72,7 @@
 
 // renderers
 #include "Core/Renderer/Renderer.h"
-#include "Core/Renderer/SamplingRenderer.h"
+#include "Core/Renderer/Sampling/SamplingRenderer.h"
 
 #include <iostream>
 
