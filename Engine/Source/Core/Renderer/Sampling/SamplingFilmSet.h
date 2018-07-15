@@ -124,7 +124,10 @@ inline void SamplingFilmSet::setEffectiveWindowPx(const TAABB2D<int64>& effectiv
 	if constexpr(D_INDEX < TagToFilmMap::ENTRY_ARRAY_SIZE)
 	{
 		auto& film = m_tagToFilm.getEntry<D_INDEX>().getValue();
-		film->setEffectiveWindowPx(effectiveWindow);
+		if(film)
+		{
+			film->setEffectiveWindowPx(effectiveWindow);
+		}
 		setEffectiveWindowPx<D_INDEX + 1>(effectiveWindow);
 	}
 }
