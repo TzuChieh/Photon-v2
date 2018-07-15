@@ -14,14 +14,9 @@
 namespace ph
 {
 
-class InputPacket;
-class SampleFilter;
-
 class SamplingFilmBase : public Film, public TCommandInterface<SamplingFilmBase>
 {
 public:
-	using Merger = std::function<void()>;
-
 	SamplingFilmBase(
 		int64 actualWidthPx, int64 actualHeightPx,
 		const SampleFilter& filter);
@@ -46,18 +41,18 @@ public:
 	void mergeToParent() const;
 	TVector2<float64> getSampleResPx() const;
 	const TAABB2D<float64>& getSampleWindowPx() const;
+	const SampleFilter& getFilter() const;
 
 protected:
-	// TODO: move to private
-	SampleFilter          m_filter;
+	using Merger = std::function<void()>;
 
 	void setMerger(const Merger& merger);
 
 private:
-	Merger m_merger;
-
 	void developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const override = 0;
 
+	SampleFilter     m_filter;
+	Merger           m_merger;
 	TAABB2D<float64> m_sampleWindowPx;
 
 	void calcSampleDimensions();
@@ -69,5 +64,12 @@ public:
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
+
+// In-header Implementations:
+
+inline const SampleFilter& SamplingFilmBase::getFilter() const
+{
+	return m_filter;
+}
 
 }// end namespace ph

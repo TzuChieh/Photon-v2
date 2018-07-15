@@ -58,7 +58,7 @@ inline Vec3Film::Vec3Film(
 	m_film(actualWidthPx, actualHeightPx, effectiveWindowPx, filter)
 {}
 
-inline void Vec3Film::addSample(float64 xPx, float64 yPx, const Vector3R& vec3)
+inline void Vec3Film::addSample(const float64 xPx, const float64 yPx, const Vector3R& vec3)
 {
 	m_film.addSample(xPx, yPx, vec3);
 }
@@ -72,7 +72,7 @@ inline std::unique_ptr<TSamplingFilm<Vector3R>> Vec3Film::genSamplingChild(const
 {
 	auto childFilm = std::make_unique<Vec3Film>(getActualResPx().x, getActualResPx().y,
 	                                            effectiveWindowPx,
-	                                            m_filter);
+	                                            getFilter());
 
 	Vec3Film* child  = childFilm.get();
 	Vec3Film* parent = this;

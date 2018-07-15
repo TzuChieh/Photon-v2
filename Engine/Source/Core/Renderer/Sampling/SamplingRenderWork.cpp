@@ -110,8 +110,7 @@ void SamplingRenderWork::setDomainPx(const TAABB2D<int64>& domainPx)
 
 	m_domainPx = domainPx;
 
-	m_films.get<EAttribute::LIGHT_ENERGY>()->setEffectiveWindowPx(domainPx);
-	m_films.get<EAttribute::NORMAL>()->setEffectiveWindowPx(domainPx);
+	m_films.setEffectiveWindowPx(domainPx);
 }
 
 }// end namespace ph

@@ -13,16 +13,12 @@
 namespace ph
 {
 
-class InputPacket;
-class SampleFilter;
-
 // TODO: not registered (how should we register class template)
 template<typename Sample>
 class TSamplingFilm : public SamplingFilmBase, public TCommandInterface<TSamplingFilm<Sample>>
 {
 public:
 	using SamplingFilmBase::SamplingFilmBase;
-
 	~TSamplingFilm() override;
 
 	virtual void addSample(float64 xPx, float64 yPx, const Sample& sample) = 0;

@@ -61,8 +61,8 @@ void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const Vector3R&
 	const TVector2<float64> samplePosPx(xPx, yPx);
 
 	// compute filter bounds
-	TVector2<float64> filterMin(samplePosPx.sub(m_filter.getHalfSizePx()));
-	TVector2<float64> filterMax(samplePosPx.add(m_filter.getHalfSizePx()));
+	TVector2<float64> filterMin(samplePosPx.sub(getFilter().getHalfSizePx()));
+	TVector2<float64> filterMax(samplePosPx.add(getFilter().getHalfSizePx()));
 
 	// reduce to effective bounds
 	filterMin = filterMin.max(TVector2<float64>(getEffectiveWindowPx().minVertex));
@@ -86,7 +86,7 @@ void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const Vector3R&
 			const std::size_t fy = y - getEffectiveWindowPx().minVertex.y;
 			const std::size_t index = fy * static_cast<std::size_t>(getEffectiveResPx().x) + fx;
 			
-			const float64 weight = m_filter.evaluate(filterX, filterY);
+			const float64 weight = getFilter().evaluate(filterX, filterY);
 
 			m_pixelRadianceSensors[index].accuR      += rgb.x * weight;
 			m_pixelRadianceSensors[index].accuG      += rgb.y * weight;
@@ -100,7 +100,7 @@ std::unique_ptr<SpectralSamplingFilm> HdrRgbFilm::genSamplingChild(const TAABB2D
 {
 	auto childFilm = std::make_unique<HdrRgbFilm>(getActualResPx().x, getActualResPx().y,
 	                                              effectiveWindowPx, 
-	                                              m_filter);
+	                                              getFilter());
 	HdrRgbFilm* parent = this;
 	HdrRgbFilm* child  = childFilm.get();
 	childFilm->setMerger([=]() -> void

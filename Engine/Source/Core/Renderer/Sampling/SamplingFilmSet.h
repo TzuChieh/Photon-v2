@@ -7,6 +7,7 @@
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
 #include "Utility/INoncopyable.h"
+#include "Core/Bound/TAABB2D.h"
 
 #include <memory>
 #include <array>
@@ -32,6 +33,9 @@ public:
 
 	template<std::size_t D_INDEX = 0>
 	SamplingFilmSet genChild(const TAABB2D<int64>& effectiveWindowPx);
+
+	template<std::size_t D_INDEX = 0>
+	void setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow);
 
 	SamplingFilmSet& operator = (SamplingFilmSet&& rhs);
 
@@ -111,6 +115,17 @@ inline SamplingFilmSet SamplingFilmSet::genChild(const TAABB2D<int64>& effective
 		}
 
 		return std::move(childSet);
+	}
+}
+
+template<std::size_t D_INDEX>
+inline void SamplingFilmSet::setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow)
+{
+	if constexpr(D_INDEX < TagToFilmMap::ENTRY_ARRAY_SIZE)
+	{
+		auto& film = m_tagToFilm.getEntry<D_INDEX>().getValue();
+		film->setEffectiveWindowPx(effectiveWindow);
+		setEffectiveWindowPx<D_INDEX + 1>(effectiveWindow);
 	}
 }
 
