@@ -8,6 +8,7 @@
 #include "Core/Estimator/Integrand.h"
 #include "Core/Filmic/SampleFilterFactory.h"
 #include "Core/Estimator/Estimation.h"
+#include "Utility/Timer.h"
 
 namespace ph
 {
@@ -44,19 +45,17 @@ void SamplingRenderWork::doWork()
 
 	TSamplePhase<SampleArray2D> camSamplePhase = m_sampleGenerator->declareArray2DPhase(numCamPhaseSamples);
 
-	Estimation estimation;
-
 	m_numSamplesTaken = 0;
 	m_numMsElapsed    = 0;
 	setTotalWork(static_cast<uint32>(m_sampleGenerator->numSamples()));
 	setWorkDone(0);
 
-	std::chrono::time_point<std::chrono::system_clock> t1;
-	std::chrono::time_point<std::chrono::system_clock> t2;
+	Estimation estimation;
+	Timer sampleTimer;
 
 	while(m_sampleGenerator->singleSampleStart())
 	{
-		t1 = std::chrono::system_clock::now();
+		sampleTimer.start();
 
 		const SampleArray2D& camSamples = m_sampleGenerator->getNextArray2D(camSamplePhase);
 
@@ -65,7 +64,7 @@ void SamplingRenderWork::doWork()
 			const Vector2D rasterPosPx(camSamples[si].x * rasterSampleSize.x + sampleMinVertex.x,
 			                           camSamples[si].y * rasterSampleSize.y + sampleMinVertex.y);
 
-			// TODO: this check is probably unnecessary now
+			// TODO: check rare, this check is probably unnecessary now
 			if(!lightFilm->getSampleWindowPx().isIntersectingArea(rasterPosPx))
 			{
 				continue;
@@ -90,25 +89,19 @@ void SamplingRenderWork::doWork()
 		}// end for
 
 		m_sampleGenerator->singleSampleEnd();
+		m_renderer->asyncUpdateFilm(*this);
+		incrementWorkDone();		
 
-		incrementWorkDone();
-	
-		t2 = std::chrono::system_clock::now();
+		sampleTimer.finish();
 
 		m_numSamplesTaken = static_cast<uint32>(camSamples.numElements());
-		m_numMsElapsed    = static_cast<uint32>(std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count());
-
-		m_renderer->asyncUpdateFilm(*this);
+		m_numMsElapsed    = static_cast<uint32>(sampleTimer.getDeltaMs());
 	}
 }
 
 void SamplingRenderWork::setDomainPx(const TAABB2D<int64>& domainPx)
 {
-	// HACK
-
 	PH_ASSERT(domainPx.isValid());
-
-	m_domainPx = domainPx;
 
 	m_films.setEffectiveWindowPx(domainPx);
 }

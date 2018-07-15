@@ -7,7 +7,6 @@
 #include "Core/Filmic/TSamplingFilm.h"
 #include "Utility/INoncopyable.h"
 #include "Core/Estimator/Integrand.h"
-#include "Core/Bound/TAABB2D.h"
 #include "Core/Filmic/SampleFilter.h"
 #include "Core/Renderer/AttributeTags.h"
 
@@ -39,9 +38,8 @@ public:
 
 	void doWork() override;
 
-	void setDomainPx(const TAABB2D<int64>& domainPx);
-
 	SamplingStatistics asyncGetStatistics();
+	void setDomainPx(const TAABB2D<int64>& domainPx);
 
 	// HACK
 	SamplingFilmSet m_films;
@@ -51,7 +49,6 @@ private:
 	Integrand             m_integrand;
 	const Estimator*      m_estimator;
 	std::unique_ptr<SampleGenerator> m_sampleGenerator;
-	TAABB2D<int64> m_domainPx;
 	AttributeTags m_requestedAttributes;
 
 	std::atomic_uint32_t m_numSamplesTaken;
