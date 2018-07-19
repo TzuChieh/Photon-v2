@@ -1,4 +1,4 @@
 # IES file need CRLF to distinguish between lines of data
-# (so we forbid git to mess with line endings)
+# (so we forbid git to mess with line endings in them)
 *.ies binary
 *.IES binary

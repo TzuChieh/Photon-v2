@@ -76,10 +76,8 @@ __pycache__/
 /EditorApplication/*.log
 /build/
 
-# ignore resources
+# ignore resources, except for test related ones
 /Resource/*
-
-# except for test related ones
 !/Resource/Test/
 
 # ignore third-party libraries
