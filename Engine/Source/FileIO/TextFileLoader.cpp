@@ -1,4 +1,5 @@
 #include "FileIO/TextFileLoader.h"
+#include "Common/assertion.h"
 
 #include <fstream>
 #include <iostream>
@@ -11,6 +12,8 @@ const Logger TextFileLoader::logger(LogSender("Text File Loader"));
 
 bool TextFileLoader::load(const Path& filePath, std::string* const out_text)
 {
+	PH_ASSERT(out_text);
+
 	logger.log(ELogLevel::NOTE_MED, 
 	           "loading text file <" + filePath.toString() + ">");
 
