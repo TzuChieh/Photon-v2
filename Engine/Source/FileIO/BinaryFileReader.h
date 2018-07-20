@@ -13,7 +13,7 @@ namespace ph
 class BinaryFileReader
 {
 public:
-	explicit BinaryFileReader(const Path& path);
+	explicit BinaryFileReader(const Path& filePath);
 	virtual ~BinaryFileReader();
 
 	bool open();
@@ -23,7 +23,7 @@ public:
 	void read(T* out_buffer, std::size_t numElements = 1);
 
 private:
-	Path          m_path;
+	Path          m_filePath;
 	std::ifstream m_inputStream;
 
 	static const Logger logger;
@@ -31,8 +31,8 @@ private:
 
 // In-header Implementations:
 
-inline BinaryFileReader::BinaryFileReader(const Path& path) :
-	m_path(path), m_inputStream()
+inline BinaryFileReader::BinaryFileReader(const Path& filePath) :
+	m_filePath(filePath), m_inputStream()
 {}
 
 inline BinaryFileReader::~BinaryFileReader()
@@ -42,10 +42,10 @@ inline BinaryFileReader::~BinaryFileReader()
 
 inline bool BinaryFileReader::open()
 {
-	m_inputStream.open(m_path.toString(), std::ios_base::in | std::ios_base::binary);
+	m_inputStream.open(m_filePath.toString(), std::ios_base::in | std::ios_base::binary);
 	if(!m_inputStream.good())
 	{
-		logger.log(ELogLevel::WARNING_MED, "file <" + m_path.toString() + "> open failed");
+		logger.log(ELogLevel::WARNING_MED, "<" + m_filePath.toString() + "> open failed");
 		return false;
 	}
 
