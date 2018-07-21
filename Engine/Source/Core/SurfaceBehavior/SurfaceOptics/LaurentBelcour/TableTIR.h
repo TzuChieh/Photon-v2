@@ -81,6 +81,8 @@ inline bool TableTIR::loadFromFile(const Path& tableFilePath)
 		static_cast<std::size_t>(m_numIOR);
 	m_table.resize(tableSize, 0.0f);
 	reader.read(m_table.data(), m_table.size());
+
+	return true;
 }
 
 }// end namespace ph

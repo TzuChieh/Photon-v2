@@ -32,3 +32,16 @@
 #define PH_SPECTRUM_SAMPLED_NUM_SAMPLES       100
 #define PH_INTERSECTION_PROBE_DEPTH           8
 #define PH_INTERSECTION_PROBE_REAL_CACHE_SIZE 8
+
+namespace ph
+{
+
+class Path;
+
+class Config final
+{
+public:
+	static Path& CORE_RESOURCE_DIRECTORY();
+};
+
+}// end namespace ph

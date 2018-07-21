@@ -84,6 +84,8 @@ extern "C" {
 // starting and exiting Photon
 //
 
+extern PH_API void phConfigCoreResourceDirectory(const PHchar* directory);
+
 extern PH_API int phInit();
 extern PH_API int phExit();
 
@@ -91,7 +93,7 @@ extern PH_API int phExit();
 // core engine operations
 //
 
-// TODO: remove <film> from develop functions
+// TODO: remove the word "film" from develop functions
 
 extern PH_API void phCreateEngine(PHuint64* out_engineId, const PHuint32 numRenderThreads);
 extern PH_API void phEnterCommand(PHuint64 engineId, const PHchar* commandFragment);

@@ -14,9 +14,17 @@
 #include "FileIO/PictureSaver.h"
 #include "Api/ApiHelper.h"
 #include "Core/Renderer/Region/Region.h"
+#include "Common/config.h"
 
 #include <memory>
 #include <iostream>
+
+void phConfigCoreResourceDirectory(const PHchar* const directory)
+{
+	PH_ASSERT(directory);
+
+	ph::Config::CORE_RESOURCE_DIRECTORY() = ph::Path(directory);
+}
 
 int phInit()
 {
