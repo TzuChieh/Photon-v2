@@ -13,9 +13,7 @@ namespace ph
 class TableTIR final
 {
 public:
-	TableTIR();
-
-	bool loadFromFile(const Path& tableFilePath);
+	explicit TableTIR(const Path& tableFilePath);
 
 private:
 	std::vector<float> m_table;
@@ -33,9 +31,7 @@ private:
 
 // In-header Implementations:
 
-inline const Logger TableTIR::logger(LogSender("TIR Table"));
-
-inline TableTIR::TableTIR() : 
+inline TableTIR::TableTIR(const Path& tableFilePath) :
 	m_table(),
 
 	m_numProjectedWt(0), 
@@ -45,16 +41,13 @@ inline TableTIR::TableTIR() :
 	m_minProjectedWt(0.0f), m_maxProjectedWt(0.0f),
 	m_minAlpha      (0.0f), m_maxAlpha      (0.0f),
 	m_minIOR        (0.0f), m_maxIOR        (0.0f)
-{}
-
-inline bool TableTIR::loadFromFile(const Path& tableFilePath)
 {
 	logger.log(ELogLevel::NOTE_MED, "loading <" + tableFilePath.toString() + ">");
 
 	BinaryFileReader reader(tableFilePath);
 	if(!reader.open())
 	{
-		return false;
+		return;
 	}
 
 	reader.read(&m_numProjectedWt);
@@ -81,8 +74,6 @@ inline bool TableTIR::loadFromFile(const Path& tableFilePath)
 		static_cast<std::size_t>(m_numIOR);
 	m_table.resize(tableSize, 0.0f);
 	reader.read(m_table.data(), m_table.size());
-
-	return true;
 }
 
 }// end namespace ph

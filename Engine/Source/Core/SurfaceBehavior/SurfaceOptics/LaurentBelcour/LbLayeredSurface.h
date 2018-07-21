@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableFGD.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableTIR.h"
+#include "FileIO/FileSystem/CoreResource.h"
 
 namespace ph
 {
@@ -24,6 +27,22 @@ private:
 	void calcBsdfSamplePdf(
 		const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
 		real* out_pdfW) const override;
+
+	static const TableFGD& FGD();
+	static const TableTIR& TIR();
 };
+
+// In-header Implementations:
+
+inline const TableFGD& LbLayeredSurface::FGD()
+{
+	// TODO
+}
+
+inline const TableTIR& LbLayeredSurface::TIR()
+{
+	static const TableTIR table(CoreResource("LaurentBelcourBsdf/table_TIR.bin").getPath());
+	return table;
+}
 
 }// end namespace ph

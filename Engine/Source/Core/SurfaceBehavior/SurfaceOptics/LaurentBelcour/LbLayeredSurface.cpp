@@ -1,6 +1,4 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayeredSurface.h"
-#include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableFGD.h"
-#include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableTIR.h"
 
 namespace ph
 {
@@ -8,8 +6,7 @@ namespace ph
 LbLayeredSurface::LbLayeredSurface() : 
 	SurfaceOptics()
 {
-	TableTIR tir;
-	tir.loadFromFile(Path(""));
+	const TableTIR& tir = TIR();
 }
 
 LbLayeredSurface::~LbLayeredSurface() = default;

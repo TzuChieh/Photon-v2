@@ -52,7 +52,8 @@ void SurfaceAttributeEstimator::estimate(
 	const AttributeTags& requestedAttributes,
 	Estimation&          out_estimation) const
 {
-	PH_ASSERT(surface.getDetail().getPrimitive());
+	//PH_ASSERT(surface.getDetail().getPrimitive());
+	// FIXME: SurfaceHit can be invalid (hit nothing), how to handle it?
 
 	if(requestedAttributes.isTagged(EAttribute::NORMAL))
 	{

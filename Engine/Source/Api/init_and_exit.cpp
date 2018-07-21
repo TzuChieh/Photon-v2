@@ -18,6 +18,7 @@
 #include "Actor/Material/BinaryMixedSurfaceMaterial.h"
 #include "Actor/Material/FullMaterial.h"
 #include "Actor/Material/Volume/VAbsorptionOnly.h"
+#include "Actor/Material/LayeredSurface.h"
 
 // light sources
 #include "Actor/LightSource/LightSource.h"
@@ -109,6 +110,7 @@ bool init_command_parser()
 	register_command_interface<BinaryMixedSurfaceMaterial>();
 	register_command_interface<FullMaterial>();
 	register_command_interface<VAbsorptionOnly>();
+	register_command_interface<LayeredSurface>();
 
 	// light sources
 	register_command_interface<LightSource>();

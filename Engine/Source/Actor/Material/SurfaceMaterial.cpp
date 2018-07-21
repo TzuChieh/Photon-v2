@@ -8,8 +8,6 @@ namespace ph
 
 SurfaceMaterial::SurfaceMaterial() = default;
 
-SurfaceMaterial::~SurfaceMaterial() = default;
-
 void SurfaceMaterial::genBehaviors(
 	CookingContext&    context, 
 	PrimitiveMetadata& metadata) const

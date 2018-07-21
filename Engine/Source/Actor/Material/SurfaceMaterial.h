@@ -14,7 +14,6 @@ class SurfaceMaterial : public Material, public TCommandInterface<SurfaceMateria
 {
 public:
 	SurfaceMaterial();
-	virtual ~SurfaceMaterial() override;
 
 	virtual void genSurface(CookingContext& context, SurfaceBehavior& behavior) const = 0;
 

@@ -7,7 +7,7 @@ namespace ph
 
 Path& Config::CORE_RESOURCE_DIRECTORY()
 {
-	static Path directory("./");
+	static Path directory("./Resource/");
 
 	// TODO: assert is folder
 	return directory;
