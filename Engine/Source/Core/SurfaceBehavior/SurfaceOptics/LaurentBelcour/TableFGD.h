@@ -4,6 +4,7 @@
 #include "FileIO/FileSystem/Path.h"
 #include "Common/Logger.h"
 #include "Common/assertion.h"
+#include "Common/primitive_type.h"
 
 #include <vector>
 
@@ -14,6 +15,8 @@ class TableFGD final
 {
 public:
 	explicit TableFGD(const Path& tableFilePath);
+
+	real sample(real sinWi, real alpha, real iorN, real iorK) const;
 
 private:
 	std::vector<float> m_table;
