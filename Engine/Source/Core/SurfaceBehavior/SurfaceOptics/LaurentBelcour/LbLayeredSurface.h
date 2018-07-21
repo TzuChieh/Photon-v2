@@ -36,7 +36,8 @@ private:
 
 inline const TableFGD& LbLayeredSurface::FGD()
 {
-	// TODO
+	static const TableFGD table(CoreResource("LaurentBelcourBsdf/table_FGD.bin").getPath());
+	return table;
 }
 
 inline const TableTIR& LbLayeredSurface::TIR()

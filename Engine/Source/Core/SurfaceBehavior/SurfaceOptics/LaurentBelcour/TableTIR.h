@@ -35,8 +35,8 @@ inline TableTIR::TableTIR(const Path& tableFilePath) :
 	m_table(),
 
 	m_numProjectedWt(0), 
-	m_numAlpha(0),
-	m_numIOR(0),
+	m_numAlpha      (0),
+	m_numIOR        (0),
 
 	m_minProjectedWt(0.0f), m_maxProjectedWt(0.0f),
 	m_minAlpha      (0.0f), m_maxAlpha      (0.0f),

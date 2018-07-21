@@ -6,6 +6,7 @@ namespace ph
 LbLayeredSurface::LbLayeredSurface() : 
 	SurfaceOptics()
 {
+	const TableFGD& fgd = FGD();
 	const TableTIR& tir = TIR();
 }
 
