@@ -43,6 +43,9 @@ private:
 
 	static const TableFGD& FGD();
 	static const TableTIR& TIR();
+	static real alphaToVariance(real alpha);
+	static real varianceToAlpha(real variance);
+	static real gToVariance(real g);
 };
 
 // In-header Implementations:
