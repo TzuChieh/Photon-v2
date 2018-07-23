@@ -16,16 +16,16 @@ class TableTIR final
 public:
 	explicit TableTIR(const Path& tableFilePath);
 
-	real sample(real sinWt, real alpha, real relIor) const;
+	real sample(real cosWi, real alpha, real relIor) const;
 
 private:
 	std::vector<float> m_table;
 
-	int m_numSinWt;
+	int m_numCosWi;
 	int m_numAlpha;
 	int m_numRelIor;
 
-	float m_minSinWt,  m_maxSinWt;
+	float m_minCosWi,  m_maxCosWi;
 	float m_minAlpha,  m_maxAlpha;
 	float m_minRelIor, m_maxRelIor;
 
@@ -37,11 +37,11 @@ private:
 inline TableTIR::TableTIR(const Path& tableFilePath) :
 	m_table(),
 
-	m_numSinWt (0),
+	m_numCosWi (0),
 	m_numAlpha (0),
 	m_numRelIor(0),
 
-	m_minSinWt (0.0f), m_maxSinWt (0.0f),
+	m_minCosWi (0.0f), m_maxCosWi (0.0f),
 	m_minAlpha (0.0f), m_maxAlpha (0.0f),
 	m_minRelIor(0.0f), m_maxRelIor(0.0f)
 {
@@ -53,26 +53,26 @@ inline TableTIR::TableTIR(const Path& tableFilePath) :
 		return;
 	}
 
-	reader.read(&m_numSinWt);
+	reader.read(&m_numCosWi);
 	reader.read(&m_numAlpha);
 	reader.read(&m_numRelIor);
-	reader.read(&m_minSinWt);  reader.read(&m_maxSinWt);
+	reader.read(&m_minCosWi);  reader.read(&m_maxCosWi);
 	reader.read(&m_minAlpha);  reader.read(&m_maxAlpha);
 	reader.read(&m_minRelIor); reader.read(&m_maxRelIor);
 
 	logger.log(ELogLevel::DEBUG_MED, "dimension: "
-		"(sin-w_t = " +      std::to_string(m_numSinWt) + ", "
+		"(cos-w_i = " +      std::to_string(m_numCosWi) + ", "
 		 "alpha = " +        std::to_string(m_numAlpha) + ", "
 		 "relative-IOR = " + std::to_string(m_numRelIor) + ")");
 	logger.log(ELogLevel::DEBUG_MED, "range: "
-		"(sin-w_t = [" +      std::to_string(m_minSinWt) +  ", " + std::to_string(m_maxSinWt) +  "], "
+		"(cos-w_i = [" +      std::to_string(m_minCosWi) +  ", " + std::to_string(m_maxCosWi) +  "], "
 		 "alpha = [" +        std::to_string(m_minAlpha) +  ", " + std::to_string(m_maxAlpha) +  "], "
 		 "relative-IOR = [" + std::to_string(m_minRelIor) + ", " + std::to_string(m_maxRelIor) + "])");
 
-	PH_ASSERT(m_numSinWt > 0 && m_numAlpha > 0 && m_numRelIor > 0);
+	PH_ASSERT(m_numCosWi > 0 && m_numAlpha > 0 && m_numRelIor > 0);
 
 	const std::size_t tableSize = 
-		static_cast<std::size_t>(m_numSinWt) *
+		static_cast<std::size_t>(m_numCosWi) *
 		static_cast<std::size_t>(m_numAlpha) *
 		static_cast<std::size_t>(m_numRelIor);
 	m_table.resize(tableSize, 0.0f);

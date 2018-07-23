@@ -15,10 +15,9 @@ public:
 	real getAlpha() const;
 	const SpectralStrength& getIorN() const;
 	const SpectralStrength& getIorK() const;
+	bool isConductor() const;
 
 private:
-	static constexpr real INVALID_ALPHA = -1.0_r;
-
 	real             m_alpha;
 	SpectralStrength m_iorN, m_iorK;
 };
@@ -26,7 +25,7 @@ private:
 // In-header Implementations:
 
 inline LbLayer::LbLayer(const SpectralStrength& iorN) : 
-	LbLayer(INVALID_ALPHA, iorN)
+	LbLayer(0, iorN)
 {}
 
 inline LbLayer::LbLayer(const real alpha, const SpectralStrength& iorN) : 
@@ -47,6 +46,11 @@ inline const SpectralStrength& LbLayer::getIorN() const
 inline const SpectralStrength& LbLayer::getIorK() const
 {
 	return m_iorK;
+}
+
+inline bool LbLayer::isConductor() const
+{
+	return m_iorK.avg() > 0.0_r;
 }
 
 }// end namespace ph

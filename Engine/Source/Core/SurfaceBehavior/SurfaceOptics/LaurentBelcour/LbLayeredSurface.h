@@ -48,15 +48,6 @@ private:
 	std::vector<SpectralStrength> m_iorNs;
 	std::vector<SpectralStrength> m_iorKs;
 	std::vector<real>             m_alphas;
-
-	
-
-	bool performAddingDoubling(
-		std::size_t          newLayerIndex, 
-		real                 sinWi, 
-		InterfaceStatistics& currentStatistics) const;
-
-	
 };
 
 // In-header Implementations:

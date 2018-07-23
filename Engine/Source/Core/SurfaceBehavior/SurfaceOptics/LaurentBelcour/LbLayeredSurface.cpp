@@ -1,6 +1,8 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayeredSurface.h"
 #include "Common/assertion.h"
 #include "Core/SurfaceBehavior/BsdfHelper.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/InterfaceStatistics.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayer.h"
 
 #include <cmath>
 
@@ -20,8 +22,7 @@ LbLayeredSurface::LbLayeredSurface(
 	PH_ASSERT(m_iorNs.size() == m_iorKs.size() && m_iorKs.size() == m_alphas.size());
 
 	// DEBUG
-	const TableFGD& fgd = FGD();
-	const TableTIR& tir = TIR();
+	InterfaceStatistics test(1.0_r, LbLayer(SpectralStrength(1.0_r)));
 }
 
 LbLayeredSurface::~LbLayeredSurface() = default;

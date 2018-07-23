@@ -13,7 +13,11 @@ LayeredSurface::LayeredSurface() :
 
 void LayeredSurface::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
-	behavior.setOptics(std::make_shared<LbLayeredSurface>());
+	std::vector<SpectralStrength> iorNs{SpectralStrength()};
+	std::vector<SpectralStrength> iorKs{SpectralStrength()};
+	std::vector<real>             alphas{1.0_r};
+
+	behavior.setOptics(std::make_shared<LbLayeredSurface>(iorNs, iorKs, alphas));
 }
 
 // command interface

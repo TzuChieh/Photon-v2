@@ -16,7 +16,7 @@ class InterfaceStatistics
 public:
 	InterfaceStatistics(real cosWi, const LbLayer& layer1);
 
-	void appendLayer(const LbLayer& layer2);
+	bool addLayer(const LbLayer& layer2);
 
 	real getEquivalentAlpha() const;
 	const SpectralStrength& getEnergyScale() const;
@@ -25,7 +25,7 @@ private:
 	real             m_equivalentAlpha;
 	SpectralStrength m_energyScale;
 
-	LbLayer m_layer1;
+	LbLayer m_layer0, m_layer1;
 
 	real             m_cosWi;
 	SpectralStrength m_R0i,  m_Ri0,  m_T0i,  m_Ti0;
@@ -40,7 +40,7 @@ private:
 
 inline InterfaceStatistics::InterfaceStatistics(const real cosWi, const LbLayer& layer1) :
 
-	m_layer1(layer1),
+	m_layer0(layer1), m_layer1(layer1),
 
 	m_cosWi(cosWi),
 	m_R0i (0), m_Ri0 (0), m_T0i (1), m_Ti0 (1),
@@ -48,6 +48,10 @@ inline InterfaceStatistics::InterfaceStatistics(const real cosWi, const LbLayer&
 	m_J0i (1), m_Ji0 (1)
 {
 	PH_ASSERT(0.0_r <= m_cosWi && m_cosWi <= 1.0_r);
+
+	// DEBUG
+	const TableFGD& fgd = FGD();
+	const TableTIR& tir = TIR();
 }
 
 inline real InterfaceStatistics::getEquivalentAlpha() const
