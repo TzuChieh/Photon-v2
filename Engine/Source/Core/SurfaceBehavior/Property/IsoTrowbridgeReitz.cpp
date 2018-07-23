@@ -1,5 +1,6 @@
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
 #include "Common/assertion.h"
+#include "Math/Math.h"
 
 #include <cmath>
 #include <string>
@@ -8,9 +9,10 @@ namespace ph
 {
 
 IsoTrowbridgeReitz::IsoTrowbridgeReitz(const real alpha) :
-	Microfacet(),
-	m_alpha(alpha)
-{}
+	Microfacet()
+{
+	m_alpha = alpha > 0.0001_r ? alpha : 0.0001_r;
+}
 
 IsoTrowbridgeReitz::~IsoTrowbridgeReitz() = default;
 

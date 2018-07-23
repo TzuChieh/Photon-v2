@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableFGD.h"
-#include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableTIR.h"
-#include "FileIO/FileSystem/CoreResource.h"
+#include "Core/Quantity/SpectralStrength.h"
+#include "Common/primitive_type.h"
+
+#include <vector>
 
 namespace ph
 {
@@ -24,7 +25,10 @@ namespace ph
 class LbLayeredSurface : public SurfaceOptics
 {
 public:
-	LbLayeredSurface();
+	LbLayeredSurface(
+		const std::vector<SpectralStrength>& iorNs,
+		const std::vector<SpectralStrength>& iorKs,
+		const std::vector<real>&             alphas);
 	~LbLayeredSurface() override;
 
 private:
@@ -41,25 +45,22 @@ private:
 		const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
 		real* out_pdfW) const override;
 
-	static const TableFGD& FGD();
-	static const TableTIR& TIR();
-	static real alphaToVariance(real alpha);
-	static real varianceToAlpha(real variance);
-	static real gToVariance(real g);
+	std::vector<SpectralStrength> m_iorNs;
+	std::vector<SpectralStrength> m_iorKs;
+	std::vector<real>             m_alphas;
+
+	
+
+	bool performAddingDoubling(
+		std::size_t          newLayerIndex, 
+		real                 sinWi, 
+		InterfaceStatistics& currentStatistics) const;
+
+	
 };
 
 // In-header Implementations:
 
-inline const TableFGD& LbLayeredSurface::FGD()
-{
-	static const TableFGD table(CoreResource("LaurentBelcourBsdf/table_FGD.bin").getPath());
-	return table;
-}
 
-inline const TableTIR& LbLayeredSurface::TIR()
-{
-	static const TableTIR table(CoreResource("LaurentBelcourBsdf/table_TIR.bin").getPath());
-	return table;
-}
 
 }// end namespace ph

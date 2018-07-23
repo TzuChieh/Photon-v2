@@ -25,18 +25,18 @@ public:
 
 	static inline real equaled(const real roughness)
 	{
-		return roughness + 0.001_r;
+		return roughness;
 	}
 
 	// According to a course note in SIGGRAPH 2014:
 	// Moving Frostbite to Physically Based Rendering 3.0, P.68,
 	// they concluded that a squared mapping gives slightly better distribution 
 	// of the profiles (blur amount) among all mip levels in the case of pre-
-	// integrating diffuse IBL maps.
+	// integrated diffuse IBL maps.
 	//
 	static inline real squared(const real roughness)
 	{
-		return roughness * roughness + 0.001_r;
+		return roughness * roughness;
 	}
 
 	// This mapping is used in PBRT-v3.

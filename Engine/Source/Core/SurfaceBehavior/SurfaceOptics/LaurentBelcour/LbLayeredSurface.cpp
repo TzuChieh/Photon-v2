@@ -1,14 +1,25 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayeredSurface.h"
 #include "Common/assertion.h"
+#include "Core/SurfaceBehavior/BsdfHelper.h"
 
 #include <cmath>
 
 namespace ph
 {
 
-LbLayeredSurface::LbLayeredSurface() : 
-	SurfaceOptics()
+LbLayeredSurface::LbLayeredSurface(
+	const std::vector<SpectralStrength>& iorNs,
+	const std::vector<SpectralStrength>& iorKs,
+	const std::vector<real>&             alphas) :
+
+	SurfaceOptics(),
+
+	m_iorNs(iorNs), m_iorKs(iorKs), m_alphas(alphas)
 {
+	PH_ASSERT(m_iorNs.size() != 0);
+	PH_ASSERT(m_iorNs.size() == m_iorKs.size() && m_iorKs.size() == m_alphas.size());
+
+	// DEBUG
 	const TableFGD& fgd = FGD();
 	const TableTIR& tir = TIR();
 }
@@ -19,7 +30,16 @@ void LbLayeredSurface::evalBsdf(
 	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
 	SpectralStrength* out_bsdf) const
 {
-	// TODO
+	PH_ASSERT(out_bsdf);
+
+	out_bsdf->setValues(0);
+
+	Vector3R H;
+	if(!BsdfHelper::makeHalfVector(L, V, &H))
+	{
+		return;
+	}
+
 }
 
 void LbLayeredSurface::genBsdfSample(
@@ -35,26 +55,6 @@ void LbLayeredSurface::calcBsdfSamplePdf(
 	real* out_pdfW) const
 {
 	// TODO
-}
-
-real LbLayeredSurface::alphaToVariance(const real alpha)
-{
-	PH_ASSERT(alpha > 0.0_r);
-
-	const real alpha1p1 = std::pow(alpha, 1.1_r);
-	return alpha1p1 / (1.0_r - alpha1p1);
-}
-
-real LbLayeredSurface::varianceToAlpha(const real variance)
-{
-	return std::pow(variance / (1.0_r + variance), 1.0_r / 1.1_r);
-}
-
-real LbLayeredSurface::gToVariance(const real g)
-{
-	PH_ASSERT(0.0_r < g && g <= 1.0_r);
-
-	return std::pow((1.0_r - g) / g, 0.8_r) / (1.0_r + g);
 }
 
 }// end namespace ph

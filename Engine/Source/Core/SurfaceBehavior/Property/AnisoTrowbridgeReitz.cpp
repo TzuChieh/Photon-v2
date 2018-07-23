@@ -7,9 +7,13 @@ namespace ph
 {
 
 AnisoTrowbridgeReitz::AnisoTrowbridgeReitz(const real alphaU, const real alphaV) :
-	m_alphaU(alphaU), m_alphaV(alphaV),
-	m_reciAlphaU2(1.0_r / (alphaU * alphaU)), m_reciAlphaV2(1.0_r / (alphaV * alphaV))
-{}
+	Microfacet()
+{
+	m_alphaU      = alphaU > 0.0001_r ? alphaU : 0.0001_r;
+	m_alphaV      = alphaV > 0.0001_r ? alphaV : 0.0001_r;
+	m_reciAlphaU2 = 1.0_r / (m_alphaU * m_alphaU);
+	m_reciAlphaV2 = 1.0_r / (m_alphaV * m_alphaV);
+}
 
 AnisoTrowbridgeReitz::~AnisoTrowbridgeReitz() = default;
 

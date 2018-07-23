@@ -337,7 +337,6 @@ inline real TAbstractSpectralStrength<DerivedType, N>::avg() const
 	return m_values.avg();
 }
 
-
 template<typename DerivedType, std::size_t N>
 inline real TAbstractSpectralStrength<DerivedType, N>::max() const
 {

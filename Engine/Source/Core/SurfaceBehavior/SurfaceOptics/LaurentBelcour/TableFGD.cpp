@@ -8,28 +8,28 @@ namespace ph
 
 const Logger TableFGD::logger(LogSender("FGD Table"));
 
-real TableFGD::sample(const real sinWi, const real alpha, const real iorN, const real iorK) const
+real TableFGD::sample(const real cosWi, const real alpha, const real iorN, const real iorK) const
 {
 	// float indices
-	real fSinWi = m_numSinWi * (sinWi - m_minSinWi) / (m_maxSinWi - m_minSinWi);
+	real fCosWi = m_numCosWi * (cosWi - m_minCosWi) / (m_maxCosWi - m_minCosWi);
 	real fAlpha = m_numAlpha * (alpha - m_minAlpha) / (m_maxAlpha - m_minAlpha);
 	real fIorN  = m_numIorN  * (iorN  - m_minIorN ) / (m_maxIorN  - m_minIorN );
 	real fIorK  = m_numIorK  * (iorK  - m_minIorK ) / (m_maxIorK  - m_minIorK );
 
 	// integer indices
-	int iSinWi = static_cast<int>(std::floor(fSinWi));
+	int iCosWi = static_cast<int>(std::floor(fCosWi));
 	int iAlpha = static_cast<int>(std::floor(fAlpha));
 	int iIorN  = static_cast<int>(std::floor(fIorN));
 	int iIorK  = static_cast<int>(std::floor(fIorK));
 
 	// make sure the indices stay in the limits
-	iSinWi = Math::clamp(iSinWi, 0, m_numSinWi - 1);
+	iCosWi = Math::clamp(iCosWi, 0, m_numCosWi - 1);
 	iAlpha = Math::clamp(iAlpha, 0, m_numAlpha - 1);
 	iIorN  = Math::clamp(iIorN,  0, m_numIorN  - 1);
 	iIorK  = Math::clamp(iIorK,  0, m_numIorK  - 1);
 
 	// index of the texel
-	const int index      = iIorK + m_numIorK * (iIorN + m_numIorN * (iAlpha + m_numAlpha * iSinWi));
+	const int index      = iIorK + m_numIorK * (iIorN + m_numIorN * (iAlpha + m_numAlpha * iCosWi));
 	//const int indices[4] = {iSinWi, iAlpha, iIorN, iIorK};
 
 	return m_table[index];
