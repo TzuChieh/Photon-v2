@@ -145,6 +145,10 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 	m_J0i *= j12;
 	m_Ji0 *= j21;
 
+	// update layers
+	m_layer0 = m_layer1;
+	m_layer1 = layer2;
+
 	const bool canAddAnotherLayer = !(layer2.isConductor());
 	return canAddAnotherLayer;
 }

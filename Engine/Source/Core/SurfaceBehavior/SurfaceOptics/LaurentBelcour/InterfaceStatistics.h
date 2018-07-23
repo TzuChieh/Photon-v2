@@ -40,6 +40,9 @@ private:
 
 inline InterfaceStatistics::InterfaceStatistics(const real cosWi, const LbLayer& layer1) :
 
+	m_equivalentAlpha(0.0_r), 
+	m_energyScale(1.0_r),
+
 	m_layer0(layer1), m_layer1(layer1),
 
 	m_cosWi(cosWi),
