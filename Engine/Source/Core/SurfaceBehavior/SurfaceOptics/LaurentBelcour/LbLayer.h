@@ -11,6 +11,7 @@ class LbLayer
 public:
 	explicit LbLayer(const SpectralStrength& iorN);
 	LbLayer(real alpha, const SpectralStrength& iorN);
+	LbLayer(real alpha, const SpectralStrength& iorN, const SpectralStrength& iorK);
 
 	real getAlpha() const;
 	const SpectralStrength& getIorN() const;
@@ -25,12 +26,16 @@ private:
 // In-header Implementations:
 
 inline LbLayer::LbLayer(const SpectralStrength& iorN) : 
-	LbLayer(0, iorN)
+	LbLayer(0.0_r, iorN)
 {}
 
-inline LbLayer::LbLayer(const real alpha, const SpectralStrength& iorN) : 
+inline LbLayer::LbLayer(const real alpha, const SpectralStrength& iorN) :
+	LbLayer(alpha, iorN, SpectralStrength(0.0_r))
+{}
+
+inline LbLayer::LbLayer(const real alpha, const SpectralStrength& iorN, const SpectralStrength& iorK) :
 	m_alpha(alpha), 
-	m_iorN(iorN), m_iorK(0)
+	m_iorN(iorN), m_iorK(iorK)
 {}
 
 inline real LbLayer::getAlpha() const

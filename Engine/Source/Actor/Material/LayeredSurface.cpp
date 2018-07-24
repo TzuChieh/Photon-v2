@@ -13,9 +13,9 @@ LayeredSurface::LayeredSurface() :
 
 void LayeredSurface::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
-	std::vector<SpectralStrength> iorNs{SpectralStrength()};
-	std::vector<SpectralStrength> iorKs{SpectralStrength()};
-	std::vector<real>             alphas{1.0_r};
+	std::vector<SpectralStrength> iorNs{SpectralStrength(1.4_r), SpectralStrength(1.0_r)};
+	std::vector<SpectralStrength> iorKs{SpectralStrength(0), SpectralStrength(0.8_r)};
+	std::vector<real>             alphas{0.01_r, 0.1_r};
 
 	behavior.setOptics(std::make_shared<LbLayeredSurface>(iorNs, iorKs, alphas));
 }
