@@ -1,6 +1,7 @@
 #include "Actor/Material/LayeredSurface.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayeredSurface.h"
+#include "FileIO/SDL/InputPacket.h"
 
 namespace ph
 {
@@ -12,22 +13,56 @@ LayeredSurface::LayeredSurface() :
 
 void LayeredSurface::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
-	std::vector<SpectralStrength> iorNs{SpectralStrength(1.4_r), SpectralStrength(2.92_r)};
-	std::vector<SpectralStrength> iorKs{SpectralStrength(0), SpectralStrength(3.1_r)};
-	std::vector<real>             alphas{0.01_r, 0.1_r};
-
-	/*std::vector<SpectralStrength> iorNs{ SpectralStrength(1.4_r), SpectralStrength(1) };
-	std::vector<SpectralStrength> iorKs{ SpectralStrength(0), SpectralStrength(0.8_r) };
-	std::vector<real>             alphas{ 0.01_r, 0.1_r };*/
-
-	/*std::vector<SpectralStrength> iorNs{SpectralStrength(1.4_r)};
-	std::vector<SpectralStrength> iorKs{SpectralStrength(0)};
-	std::vector<real>             alphas{0.01_r};*/
+	std::vector<real>             alphas;
+	std::vector<SpectralStrength> iorNs;
+	std::vector<SpectralStrength> iorKs;
+	for(const auto& layer : m_layers)
+	{
+		alphas.push_back(layer.getAlpha());
+		iorNs.push_back(layer.getIorN());
+		iorKs.push_back(layer.getIorK());
+	}
 
 	behavior.setOptics(std::make_shared<LbLayeredSurface>(iorNs, iorKs, alphas));
 }
 
+void LayeredSurface::addLayer()
+{
+	m_layers.push_back(SurfaceLayerProperty());
+}
+
+void LayeredSurface::setLayer(const std::size_t layerIndex, const SurfaceLayerProperty& layer)
+{
+	if(layerIndex >= m_layers.size())
+	{
+		std::cerr << "warning: at LayeredSurface::setLayer(2), invalid index" << std::endl;
+		return;
+	}
+
+	m_layers[layerIndex] = layer;
+}
+
 // command interface
+
+namespace
+{
+
+	ExitStatus ciAddLayer(const std::shared_ptr<LayeredSurface>& target, const InputPacket& packet)
+	{
+		target->addLayer();
+
+		return ExitStatus::SUCCESS();
+	}
+
+	ExitStatus ciSetLayer(const std::shared_ptr<LayeredSurface>& target, const InputPacket& packet)
+	{
+		const integer layerIndex = packet.getInteger("index", -1, DataTreatment::REQUIRED());
+		target->setLayer(static_cast<std::size_t>(layerIndex), SurfaceLayerProperty(packet));
+
+		return ExitStatus::SUCCESS();
+	}
+
+}
 
 LayeredSurface::LayeredSurface(const InputPacket& packet) : 
 	SurfaceMaterial(packet),
@@ -45,6 +80,16 @@ void LayeredSurface::ciRegister(CommandRegister& cmdRegister)
 	{
 		return std::make_unique<LayeredSurface>(packet);
 	}));
+
+	SdlExecutor addLayerSE;
+	addLayerSE.setName("add");
+	addLayerSE.setFunc<LayeredSurface>(ciAddLayer);
+	cmdRegister.addExecutor(addLayerSE);
+
+	SdlExecutor setLayerSE;
+	setLayerSE.setName("set");
+	setLayerSE.setFunc<LayeredSurface>(ciSetLayer);
+	cmdRegister.addExecutor(setLayerSE);
 }
 
 }// end namespace ph

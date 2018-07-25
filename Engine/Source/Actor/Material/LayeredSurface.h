@@ -14,6 +14,9 @@ public:
 	LayeredSurface();
 
 	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
+	
+	void addLayer();
+	void setLayer(std::size_t layerIndex, const SurfaceLayerProperty& layer);
 
 private:
 	std::vector<SurfaceLayerProperty> m_layers;
