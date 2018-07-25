@@ -50,15 +50,21 @@ void LbLayeredSurface::evalBsdf(
 		return;
 	}
 
+	const real brdfDeno = 4.0_r * std::abs(NoV * NoL);
+	if(brdfDeno == 0.0_r)
+	{
+		return;
+	}
+
 	Vector3R H;
 	if(!BsdfHelper::makeHalfVectorSameHemisphere(L, V, N, &H))
 	{
 		return;
 	}
 	
-	const real absNoL = std::min(N.absDot(L), 1.0_r);
+	const real absHoL = std::min(H.absDot(L), 1.0_r);
 
-	InterfaceStatistics statistics(absNoL, LbLayer(0, SpectralStrength(1)));
+	InterfaceStatistics statistics(absHoL, LbLayer(0, SpectralStrength(1)));
 	for(std::size_t i = 0; i < m_alphas.size(); ++i)
 	{
 		const LbLayer addedLayer(m_alphas[i], m_iorNs[i], m_iorKs[i]);
@@ -71,7 +77,7 @@ void LbLayeredSurface::evalBsdf(
 		const real D = ggx.distribution(X, N, H);
 		const real G = ggx.shadowing(X, N, H, L, V);
 
-		out_bsdf->addLocal(statistics.getEnergyScale().mul(D * G / (4.0_r * std::abs(NoV * NoL))));
+		out_bsdf->addLocal(statistics.getEnergyScale().mul(D * G / brdfDeno));
 	}
 }
 
@@ -81,6 +87,8 @@ void LbLayeredSurface::genBsdfSample(
 	SpectralStrength* const out_pdfAppliedBsdf) const
 {
 	PH_ASSERT(out_L && out_pdfAppliedBsdf);
+
+	out_pdfAppliedBsdf->setValues(0);
 
 	const Vector3R& N = X.getShadingNormal();
 
@@ -108,6 +116,11 @@ void LbLayeredSurface::genBsdfSample(
 
 	const real D = ggx.distribution(X, N, H);
 	const real pdf = std::abs(D * NoH / (4.0_r * HoL));
+
+	if(pdf == 0.0_r || (4.0_r * HoL) == 0.0_r)
+	{
+		return;
+	}
 
 	SpectralStrength bsdf;
 	LbLayeredSurface::evalBsdf(X, L, V, &bsdf);

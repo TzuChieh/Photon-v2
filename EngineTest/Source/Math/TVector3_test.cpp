@@ -55,3 +55,16 @@ TEST(MathOperationsVector3R, ComparesEquality)
 	const Vector3R vecA3(0.0_r, -0.05_r, -0.1_r), vecB3(0.0_r, 0.03_r, 0.1_r);
 	EXPECT_FALSE(vecA3.equals(vecB3, 0.15_r));
 }
+
+TEST(MathOperationsVector3R, WeightedSum)
+{
+	const Vector3R vec1(1, 0, 0);
+	const Vector3R vec2(0, 1, 0);
+	const Vector3R vec3(0, 0, 1);
+
+	const Vector3R result1 = Vector3R::weightedSum(vec1, 1, vec2, 1, vec3, 1);
+	EXPECT_TRUE(result1.x == 1 && result1.y == 1 && result1.z == 1);
+
+	const Vector3R result2 = Vector3R::weightedSum(vec1, 1, vec1, 0, vec1, 0);
+	EXPECT_TRUE(result2.x == 1 && result2.y == 0 && result2.z == 0);
+}

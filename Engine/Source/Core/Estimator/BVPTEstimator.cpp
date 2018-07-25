@@ -140,6 +140,11 @@ void BVPTEstimator::radianceAlongRay(
 		numBounces++;
 	}// end while
 
+	/*if(!accuRadiance.isZero())
+	{
+		int a = 3;
+	}*/
+
 	out_radiance = accuRadiance;
 }
 

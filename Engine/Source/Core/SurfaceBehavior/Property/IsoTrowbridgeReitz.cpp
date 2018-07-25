@@ -11,7 +11,7 @@ namespace ph
 IsoTrowbridgeReitz::IsoTrowbridgeReitz(const real alpha) :
 	Microfacet()
 {
-	m_alpha = alpha > 0.0001_r ? alpha : 0.0001_r;
+	m_alpha = alpha > 0.001_r ? alpha : 0.001_r;
 }
 
 IsoTrowbridgeReitz::~IsoTrowbridgeReitz() = default;

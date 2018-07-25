@@ -22,7 +22,7 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 	real cosWt = -1.0_r;
 
 	// not being block by conductor
-	bool hasTransmission = layer2.getIorK().isZero();
+	bool hasTransmission = !(layer2.isConductor());
 	if(hasTransmission)
 	{
 		// refraction
@@ -46,6 +46,8 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 	// transmission variance terms
 	if(hasTransmission)
 	{
+		PH_ASSERT(cosWt >= 0.0_r);
+
 		// NOTE: this part is vastly different from the paper, but is how it was
 		// implemented in the reference code
 
@@ -77,7 +79,6 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 	}
 
 	// evaluate TIR using the decoupling approximation
-
 	const real n10 = (m_layer0.getIorN() / m_layer1.getIorN()).avg();
 	const real tir = TIR().sample(m_cosWi, alpha_, n10);
 	m_Ri0.addLocal(m_Ti0 * (1.0_r - tir));
