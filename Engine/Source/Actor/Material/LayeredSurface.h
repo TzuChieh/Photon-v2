@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Actor/Material/SurfaceMaterial.h"
+#include "Actor/Material/Utility/SurfaceLayerProperty.h"
+
+#include <vector>
 
 namespace ph
 {
@@ -11,6 +14,9 @@ public:
 	LayeredSurface();
 
 	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
+
+private:
+	std::vector<SurfaceLayerProperty> m_layers;
 
 // command interface
 public:

@@ -6,20 +6,19 @@ namespace ph
 {
 
 LayeredSurface::LayeredSurface() : 
-	SurfaceMaterial()
-{
-
-}
+	SurfaceMaterial(),
+	m_layers()
+{}
 
 void LayeredSurface::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
-	/*std::vector<SpectralStrength> iorNs{SpectralStrength(1.4_r), SpectralStrength(2.92_r)};
+	std::vector<SpectralStrength> iorNs{SpectralStrength(1.4_r), SpectralStrength(2.92_r)};
 	std::vector<SpectralStrength> iorKs{SpectralStrength(0), SpectralStrength(3.1_r)};
-	std::vector<real>             alphas{0.01_r, 0.1_r};*/
+	std::vector<real>             alphas{0.01_r, 0.1_r};
 
-	std::vector<SpectralStrength> iorNs{ SpectralStrength(1.4_r), SpectralStrength(1) };
+	/*std::vector<SpectralStrength> iorNs{ SpectralStrength(1.4_r), SpectralStrength(1) };
 	std::vector<SpectralStrength> iorKs{ SpectralStrength(0), SpectralStrength(0.8_r) };
-	std::vector<real>             alphas{ 0.01_r, 0.1_r };
+	std::vector<real>             alphas{ 0.01_r, 0.1_r };*/
 
 	/*std::vector<SpectralStrength> iorNs{SpectralStrength(1.4_r)};
 	std::vector<SpectralStrength> iorKs{SpectralStrength(0)};
@@ -31,10 +30,9 @@ void LayeredSurface::genSurface(CookingContext& context, SurfaceBehavior& behavi
 // command interface
 
 LayeredSurface::LayeredSurface(const InputPacket& packet) : 
-	SurfaceMaterial(packet)
-{
-
-}
+	SurfaceMaterial(packet),
+	m_layers()
+{}
 
 SdlTypeInfo LayeredSurface::ciTypeInfo()
 {
