@@ -48,10 +48,18 @@ private:
 	std::vector<SpectralStrength> m_iorNs;
 	std::vector<SpectralStrength> m_iorKs;
 	std::vector<real>             m_alphas;
+
+	static thread_local std::vector<real> sampleWeights;
+	static thread_local std::vector<real> alphas;
+
+	std::size_t numLayers() const;
 };
 
 // In-header Implementations:
 
-
+inline std::size_t LbLayeredSurface::numLayers() const
+{
+	return m_alphas.size();
+}
 
 }// end namespace ph

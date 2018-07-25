@@ -11,6 +11,9 @@
 namespace ph
 {
 
+thread_local std::vector<real> LbLayeredSurface::sampleWeights;
+thread_local std::vector<real> LbLayeredSurface::alphas;
+
 LbLayeredSurface::LbLayeredSurface(
 	const std::vector<SpectralStrength>& iorNs,
 	const std::vector<SpectralStrength>& iorKs,
@@ -24,9 +27,6 @@ LbLayeredSurface::LbLayeredSurface(
 	PH_ASSERT(m_iorNs.size() == m_iorKs.size() && m_iorKs.size() == m_alphas.size());
 
 	m_phenomena.set({ESP::GLOSSY_REFLECTION});
-
-	// DEBUG
-	InterfaceStatistics test(1.0_r, LbLayer(SpectralStrength(1.0_r)));
 }
 
 LbLayeredSurface::~LbLayeredSurface() = default;
@@ -91,21 +91,37 @@ void LbLayeredSurface::genBsdfSample(
 	out_pdfAppliedBsdf->setValues(0);
 
 	const Vector3R& N = X.getShadingNormal();
-
 	const real absNoV = std::min(N.absDot(V), 1.0_r);
-	InterfaceStatistics statistics(absNoV, LbLayer(0, SpectralStrength(1)));
 
-	const std::size_t layerIndex = Random::genUniformIndex_iL_eU(0, m_alphas.size());
-	for(std::size_t i = 0; i <= layerIndex; ++i)
+	sampleWeights.resize(numLayers());
+	alphas.resize(numLayers());
+
+	real summedSampleWeights = 0.0_r;
+	InterfaceStatistics statistics(absNoV, LbLayer(0, SpectralStrength(1)));
+	for(std::size_t i = 0; i < numLayers(); ++i)
 	{
 		const LbLayer addedLayer(m_alphas[i], m_iorNs[i], m_iorKs[i]);
 		if(!statistics.addLayer(addedLayer))
 		{
-			PH_ASSERT(i == m_alphas.size() - 1);
+			PH_ASSERT(i == numLayers() - 1);
 		}
+
+		const real sampleWeight = statistics.getEnergyScale().avg();
+		sampleWeights[i] = sampleWeight;
+		summedSampleWeights += sampleWeight;
+
+		alphas[i] = statistics.getEquivalentAlpha();
 	}
 
-	IsoTrowbridgeReitz ggx(statistics.getEquivalentAlpha());
+	real selectWeight = Random::genUniformReal_i0_e1() * summedSampleWeights - sampleWeights[0];
+	std::size_t selectIndex = 0;
+	for(selectIndex = 0; selectWeight > 0.0_r && selectIndex < numLayers(); ++selectIndex)
+	{
+		selectWeight -= sampleWeights[selectIndex + 1];
+	}
+	PH_ASSERT(selectIndex < numLayers());
+
+	IsoTrowbridgeReitz ggx(alphas[selectIndex]);
 	Vector3R H;
 	ggx.genDistributedH(X, Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), N, &H);
 	const Vector3R L = V.mul(-1.0_r).reflect(H).normalizeLocal();
@@ -114,9 +130,18 @@ void LbLayeredSurface::genBsdfSample(
 	const real NoH = N.dot(H);
 	const real HoL = H.dot(L);
 
-	const real D = ggx.distribution(X, N, H);
-	const real pdf = std::abs(D * NoH / (4.0_r * HoL));
+	real pdf = 0.0_r;
+	for(std::size_t i = 0; i < numLayers(); ++i)
+	{
+		IsoTrowbridgeReitz ggx(alphas[i]);
+		const real D = ggx.distribution(X, N, H);
+		const real G = ggx.shadowing(X, N, H, L, V);
 
+		const real weight = sampleWeights[i] / summedSampleWeights;
+		pdf += weight * std::abs(D * NoH / (4.0_r * HoL));
+	}
+
+	// TEST
 	if(pdf == 0.0_r || (4.0_r * HoL) == 0.0_r)
 	{
 		return;
