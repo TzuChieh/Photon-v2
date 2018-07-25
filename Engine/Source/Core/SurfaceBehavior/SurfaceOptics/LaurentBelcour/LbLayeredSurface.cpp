@@ -135,8 +135,6 @@ void LbLayeredSurface::genBsdfSample(
 	{
 		IsoTrowbridgeReitz ggx(alphas[i]);
 		const real D = ggx.distribution(X, N, H);
-		const real G = ggx.shadowing(X, N, H, L, V);
-
 		const real weight = sampleWeights[i] / summedSampleWeights;
 		pdf += weight * std::abs(D * NoH / (4.0_r * HoL));
 	}
@@ -154,11 +152,47 @@ void LbLayeredSurface::genBsdfSample(
 
 void LbLayeredSurface::calcBsdfSamplePdf(
 	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-	real* out_pdfW) const
+	real* const out_pdfW) const
 {
+	PH_ASSERT(out_pdfW);
 
+	*out_pdfW = 0.0_r;
 
-	// TODO
+	const Vector3R& N = X.getShadingNormal();
+
+	Vector3R H;
+	if(!BsdfHelper::makeHalfVectorSameHemisphere(L, V, N, &H))
+	{
+		return;
+	}
+
+	const real absNoV = std::min(N.absDot(V), 1.0_r);
+	const real NoH = N.dot(H);
+	const real HoL = H.dot(L);
+
+	real summedSampleWeights = 0.0_r;
+	real pdf = 0.0_r;
+	InterfaceStatistics statistics(absNoV, LbLayer(0, SpectralStrength(1)));
+	for(std::size_t i = 0; i < numLayers(); ++i)
+	{
+		const LbLayer addedLayer(m_alphas[i], m_iorNs[i], m_iorKs[i]);
+		if(!statistics.addLayer(addedLayer))
+		{
+			PH_ASSERT(i == numLayers() - 1);
+		}
+
+		const real sampleWeight = statistics.getEnergyScale().avg();
+		summedSampleWeights += sampleWeight;
+
+		IsoTrowbridgeReitz ggx(statistics.getEquivalentAlpha());
+		const real D = ggx.distribution(X, N, H);
+		pdf += sampleWeight * std::abs(D * NoH / (4.0_r * HoL));
+	}
+
+	if(summedSampleWeights > 0.0_r)
+	{
+		*out_pdfW = pdf / summedSampleWeights;
+	}
 }
 
 }// end namespace ph
