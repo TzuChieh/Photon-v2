@@ -63,17 +63,17 @@ TEST(ColorConversionTest, SpectrumToCieXyzConversion)
 
 	Vector3R color;
 
-	color = ColorSpace::SPD_to_CIE_XYZ_D65(ColorSpace::get_D65_SPD());
+	color = ColorSpace::SPD_to_CIE_XYZ_D65<ESourceHint::ILLUMINANT>(ColorSpace::get_D65_SPD());
 	EXPECT_NEAR(color.x, 0.95047_r, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.y, 1.00000_r, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.z, 1.08883_r, ACCEPTABLE_ERROR);
 
-	color = ColorSpace::SPD_to_CIE_XYZ_D65(SampledSpectralStrength(0));
+	color = ColorSpace::SPD_to_CIE_XYZ_D65<ESourceHint::ILLUMINANT>(SampledSpectralStrength(0));
 	EXPECT_NEAR(color.x, 0, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.y, 0, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.z, 0, ACCEPTABLE_ERROR);
 
-	color = ColorSpace::SPD_to_CIE_XYZ_E(ColorSpace::get_E_SPD());
+	color = ColorSpace::SPD_to_CIE_XYZ_E<ESourceHint::ILLUMINANT>(ColorSpace::get_E_SPD());
 	EXPECT_NEAR(color.x, 1.0_r, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.y, 1.0_r, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.z, 1.0_r, ACCEPTABLE_ERROR);

@@ -13,12 +13,11 @@ namespace ph
 SampledSpectralStrength ColorSpace::SPD_E;
 SampledSpectralStrength ColorSpace::SPD_D65;
 
-SampledSpectralStrength ColorSpace::kernel_X_E;
-SampledSpectralStrength ColorSpace::kernel_Y_E;
-SampledSpectralStrength ColorSpace::kernel_Z_E;
-SampledSpectralStrength ColorSpace::kernel_X_D65;
-SampledSpectralStrength ColorSpace::kernel_Y_D65;
-SampledSpectralStrength ColorSpace::kernel_Z_D65;
+SampledSpectralStrength ColorSpace::kernel_X;
+SampledSpectralStrength ColorSpace::kernel_Y;
+SampledSpectralStrength ColorSpace::kernel_Z;
+Vector3R ColorSpace::kernel_XYZ_E_norm;
+Vector3R ColorSpace::kernel_XYZ_D65_norm;
 
 SampledSpectralStrength ColorSpace::SPD_Smits_E_white;
 SampledSpectralStrength ColorSpace::SPD_Smits_E_cyan;
@@ -46,8 +45,8 @@ void ColorSpace::init()
 	// the expected amount of energy that 1 watt of total energy would distribute
 	// on each wavelength interval (implying that each SPD should sum to 1).
 	// 
-	/*SPD_E.divLocal(SPD_E.sum());
-	SPD_D65.divLocal(SPD_D65.sum());*/
+	SPD_E.divLocal(SPD_E.sum());
+	SPD_D65.divLocal(SPD_D65.sum());
 
 	// Sample XYZ color matching functions first, then later normalize it so 
 	// that dotting them with sampled E/D65 spectrum is equivalent to computing
@@ -72,34 +71,29 @@ void ColorSpace::init()
 		spectral_data::XYZ_CMF_CIE_1931_2_degree_Z().data(), 
 		numXyzCmfPoints);
 
-	kernel_X_E   = sampledCmfX;
-	kernel_Y_E   = sampledCmfY;
-	kernel_Z_E   = sampledCmfZ;
-	kernel_X_D65 = sampledCmfX;
-	kernel_Y_D65 = sampledCmfY;
-	kernel_Z_D65 = sampledCmfZ;
+	kernel_X = sampledCmfX;
+	kernel_Y = sampledCmfY;
+	kernel_Z = sampledCmfZ;
 
 	// normalizing
 
-	// multiplier of Riemann Sum
-	//
-	kernel_X_E.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
-	kernel_Y_E.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
-	kernel_Z_E.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
-	kernel_X_D65.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
-	kernel_Y_D65.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
-	kernel_Z_D65.mulLocal(SampledSpectralStrength::LAMBDA_INTERVAL_NM);
-	
-	// scaled to match E/D65
-	//
-	kernel_X_E.mulLocal(1.0_r / kernel_X_E.dot(SPD_E));
-	kernel_Y_E.mulLocal(1.0_r / kernel_Y_E.dot(SPD_E));
-	kernel_Z_E.mulLocal(1.0_r / kernel_Z_E.dot(SPD_E));
-	kernel_X_D65.mulLocal(0.95047_r / kernel_X_D65.dot(SPD_D65));
-	kernel_Y_D65.mulLocal(1.00000_r / kernel_Y_D65.dot(SPD_D65));
-	kernel_Z_D65.mulLocal(1.08883_r / kernel_Z_D65.dot(SPD_D65));
+	// Riemann Sum
+	const real integratedCmfY = (sampledCmfY * SampledSpectralStrength::LAMBDA_INTERVAL_NM).sum();
 
-	// Constructing sampled SPD for Smits' algorithm.
+	// multiplier of Riemann Sum and denominator
+	kernel_X = (sampledCmfX * SampledSpectralStrength::LAMBDA_INTERVAL_NM) / integratedCmfY;
+	kernel_Y = (sampledCmfY * SampledSpectralStrength::LAMBDA_INTERVAL_NM) / integratedCmfY;
+	kernel_Z = (sampledCmfZ * SampledSpectralStrength::LAMBDA_INTERVAL_NM) / integratedCmfY;
+	
+	// energy normalzing factor for E/D65
+	kernel_XYZ_E_norm.x   = 1.0_r / kernel_X.dot(SPD_E);
+	kernel_XYZ_E_norm.y   = 1.0_r / kernel_Y.dot(SPD_E);
+	kernel_XYZ_E_norm.z   = 1.0_r / kernel_Z.dot(SPD_E);
+	kernel_XYZ_D65_norm.x = 0.95047_r / kernel_X.dot(SPD_D65);
+	kernel_XYZ_D65_norm.y = 1.00000_r / kernel_Y.dot(SPD_D65);
+	kernel_XYZ_D65_norm.z = 1.08883_r / kernel_Z.dot(SPD_D65);
+
+	// Constructing sampled SPD bases for Smits' algorithm.
 	
 	const std::size_t numSmitsPoints = std::tuple_size<spectral_data::ArraySmits>::value;
 
@@ -139,24 +133,6 @@ void ColorSpace::init()
 		numSmitsPoints);
 
 	PH_ASSERT(isInitialized(true));
-}
-
-Vector3R ColorSpace::SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd)
-{
-	PH_ASSERT(isInitialized());
-
-	return Vector3R(kernel_X_D65.dot(spd),
-	                kernel_Y_D65.dot(spd),
-	                kernel_Z_D65.dot(spd));
-}
-
-Vector3R ColorSpace::SPD_to_CIE_XYZ_E(const SampledSpectralStrength& spd)
-{
-	PH_ASSERT(isInitialized());
-
-	return Vector3R(kernel_X_E.dot(spd),
-	                kernel_Y_E.dot(spd),
-	                kernel_Z_E.dot(spd));
 }
 
 }// end namespace ph

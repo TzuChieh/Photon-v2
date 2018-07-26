@@ -10,23 +10,98 @@ namespace ph
 {
 
 template<ESourceHint HINT>
+inline Vector3R ColorSpace::SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd)
+{
+	PH_ASSERT(isInitialized());
+
+	if constexpr(HINT == ESourceHint::ILLUMINANT)
+	{
+		Vector3R xyz(
+			kernel_X.dot(spd),
+			kernel_Y.dot(spd),
+			kernel_Z.dot(spd));
+
+		xyz.mulLocal(kernel_XYZ_D65_norm);
+
+		return xyz;
+	}
+	else if constexpr(HINT == ESourceHint::REFLECTANCE)
+	{
+		Vector3R xyz(
+			kernel_X.dot(spd),
+			kernel_Y.dot(spd),
+			kernel_Z.dot(spd));
+
+		xyz.clampLocal(0.0_r, 1.0_r);
+
+		return xyz;
+	}
+	else
+	{
+		Vector3R xyz(
+			kernel_X.dot(spd),
+			kernel_Y.dot(spd),
+			kernel_Z.dot(spd));
+
+		return xyz;
+	}
+}
+
+template<ESourceHint HINT>
+inline Vector3R ColorSpace::SPD_to_CIE_XYZ_E(const SampledSpectralStrength& spd)
+{
+	PH_ASSERT(isInitialized());
+
+	if constexpr(HINT == ESourceHint::ILLUMINANT)
+	{
+		Vector3R xyz(
+			kernel_X.dot(spd),
+			kernel_Y.dot(spd),
+			kernel_Z.dot(spd));
+
+		xyz.mulLocal(kernel_XYZ_E_norm);
+
+		return xyz;
+	}
+	else if constexpr(HINT == ESourceHint::REFLECTANCE)
+	{
+		Vector3R xyz(
+			kernel_X.dot(spd),
+			kernel_Y.dot(spd),
+			kernel_Z.dot(spd));
+
+		xyz.clampLocal(0.0_r, 1.0_r);
+
+		return xyz;
+	}
+	else
+	{
+		Vector3R xyz(
+			kernel_X.dot(spd),
+			kernel_Y.dot(spd),
+			kernel_Z.dot(spd));
+
+		return xyz;
+	}
+}
+
+template<ESourceHint HINT>
 inline Vector3R ColorSpace::SPD_to_CIE_XYZ(const SampledSpectralStrength& spd)
 {
 	PH_ASSERT(isInitialized());
 
 	if constexpr(HINT == ESourceHint::ILLUMINANT)
 	{
-		return SPD_to_CIE_XYZ_D65(spd);
+		return SPD_to_CIE_XYZ_D65<ESourceHint::ILLUMINANT>(spd);
 	}
-	
-	if constexpr(HINT == ESourceHint::REFLECTANCE)
+	else if constexpr(HINT == ESourceHint::REFLECTANCE)
 	{
-		return SPD_to_CIE_XYZ_E(spd);
+		return SPD_to_CIE_XYZ_E<ESourceHint::REFLECTANCE>(spd);
 	}
-
-	// Assuming E white point based SPD for other cases.
-	//
-	return SPD_to_CIE_XYZ_E(spd);
+	else
+	{
+		return SPD_to_CIE_XYZ_E<ESourceHint::RAW_DATA>(spd);
+	}
 }
 
 template<ESourceHint HINT>
@@ -34,17 +109,16 @@ inline Vector3R ColorSpace::SPD_to_linear_sRGB(const SampledSpectralStrength& sp
 {
 	if constexpr(HINT == ESourceHint::ILLUMINANT)
 	{
-		return CIE_XYZ_D65_to_linear_sRGB(SPD_to_CIE_XYZ_D65(spd));
+		return CIE_XYZ_D65_to_linear_sRGB(SPD_to_CIE_XYZ_D65<ESourceHint::ILLUMINANT>(spd));
 	}
-
-	if constexpr(HINT == ESourceHint::REFLECTANCE)
+	else if constexpr(HINT == ESourceHint::REFLECTANCE)
 	{
-		return CIE_XYZ_E_to_linear_sRGB(SPD_to_CIE_XYZ_E(spd));
+		return CIE_XYZ_E_to_linear_sRGB(SPD_to_CIE_XYZ_E<ESourceHint::REFLECTANCE>(spd));
 	}
-
-	// Assuming E white point based SPD for other cases.
-	//
-	return CIE_XYZ_E_to_linear_sRGB(SPD_to_CIE_XYZ_E(spd));
+	else
+	{
+		return CIE_XYZ_E_to_linear_sRGB(SPD_to_CIE_XYZ_E<ESourceHint::RAW_DATA>(spd));
+	}
 }
 
 template<ESourceHint HINT>

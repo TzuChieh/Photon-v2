@@ -59,15 +59,15 @@ impl_genLinearSrgb(const EQuantity valueType) const
 		switch(valueType)
 		{
 		case EQuantity::EMR:
-			return ColorSpace::SPD_to_linear_sRGB<ColorSpace::SourceHint::ILLUMINANT>(
+			return ColorSpace::SPD_to_linear_sRGB<ESourceHint::ILLUMINANT>(
 				static_cast<const SampledSpectralStrength&>(*this));
 
 		case EQuantity::ECF:
-			return ColorSpace::SPD_to_linear_sRGB<ColorSpace::SourceHint::REFLECTANCE>(
+			return ColorSpace::SPD_to_linear_sRGB<ESourceHint::REFLECTANCE>(
 				static_cast<const SampledSpectralStrength&>(*this));
 
 		default:
-			return ColorSpace::SPD_to_linear_sRGB<ColorSpace::SourceHint::NO_HINT>(
+			return ColorSpace::SPD_to_linear_sRGB<ESourceHint::RAW_DATA>(
 				static_cast<const SampledSpectralStrength&>(*this));
 		}
 	}

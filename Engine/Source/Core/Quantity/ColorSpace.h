@@ -115,22 +115,25 @@ public:
 		return cieXyzE.y;
 	}
 
+	template<ESourceHint HINT = ESourceHint::RAW_DATA>
 	static Vector3R SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd);
+
+	template<ESourceHint HINT = ESourceHint::RAW_DATA>
 	static Vector3R SPD_to_CIE_XYZ_E(const SampledSpectralStrength& spd);
 
-	template<ESourceHint HINT = ESourceHint::NO_HINT>
+	template<ESourceHint HINT = ESourceHint::RAW_DATA>
 	static inline Vector3R SPD_to_CIE_XYZ(const SampledSpectralStrength& spd);
 
-	template<ESourceHint HINT = ESourceHint::NO_HINT>
+	template<ESourceHint HINT = ESourceHint::RAW_DATA>
 	static inline Vector3R SPD_to_linear_sRGB(const SampledSpectralStrength& spd);
 
-	template<ESourceHint HINT = ESourceHint::NO_HINT>
+	template<ESourceHint HINT = ESourceHint::RAW_DATA>
 	static inline Vector3R SPD_to_sRGB(const SampledSpectralStrength& spd);
 
-	template<ESourceHint HINT = ESourceHint::NO_HINT>
+	template<ESourceHint HINT = ESourceHint::RAW_DATA>
 	static inline void linear_sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* out_spd);
 
-	template<ESourceHint HINT = ESourceHint::NO_HINT>
+	template<ESourceHint HINT = ESourceHint::RAW_DATA>
 	static inline void sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* out_spd);
 
 	static inline const SampledSpectralStrength& get_D65_SPD()
@@ -161,12 +164,11 @@ private:
 	static SampledSpectralStrength SPD_E;
 	static SampledSpectralStrength SPD_D65;
 
-	static SampledSpectralStrength kernel_X_E;
-	static SampledSpectralStrength kernel_Y_E;
-	static SampledSpectralStrength kernel_Z_E;
-	static SampledSpectralStrength kernel_X_D65;
-	static SampledSpectralStrength kernel_Y_D65;
-	static SampledSpectralStrength kernel_Z_D65;
+	static SampledSpectralStrength kernel_X;
+	static SampledSpectralStrength kernel_Y;
+	static SampledSpectralStrength kernel_Z;
+	static Vector3R kernel_XYZ_E_norm;
+	static Vector3R kernel_XYZ_D65_norm;
 
 	static SampledSpectralStrength SPD_Smits_E_white;
 	static SampledSpectralStrength SPD_Smits_E_cyan;
