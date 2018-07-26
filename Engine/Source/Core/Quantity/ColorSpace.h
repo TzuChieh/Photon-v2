@@ -12,21 +12,19 @@
 namespace ph
 {
 
+// These are hints that can be specified while converting data between 
+// color spaces. Specifying a hint to a method may results in better 
+// result depending on the implementation.
+//
+enum class ESourceHint
+{
+	RAW_DATA,
+	ILLUMINANT,
+	REFLECTANCE,
+};
+
 class ColorSpace final
 {
-public:
-	// These are enum-like tags that can be specified while converting data 
-	// between color spaces. Specifying a hint to a method may results in 
-	// better result depending on the implementation.
-	//
-	class SourceHint
-	{
-	public:
-		class NO_HINT;
-		class ILLUMINANT;
-		class REFLECTANCE;
-	};
-
 public:
 	// This method must be called once before using any other method.
 	//
@@ -120,19 +118,19 @@ public:
 	static Vector3R SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd);
 	static Vector3R SPD_to_CIE_XYZ_E(const SampledSpectralStrength& spd);
 
-	template<typename Hint = SourceHint::NO_HINT, typename = std::enable_if_t<std::is_base_of_v<SourceHint, Hint>>>
+	template<ESourceHint HINT = ESourceHint::NO_HINT>
 	static inline Vector3R SPD_to_CIE_XYZ(const SampledSpectralStrength& spd);
 
-	template<typename Hint = SourceHint::NO_HINT, typename = std::enable_if_t<std::is_base_of_v<SourceHint, Hint>>>
+	template<ESourceHint HINT = ESourceHint::NO_HINT>
 	static inline Vector3R SPD_to_linear_sRGB(const SampledSpectralStrength& spd);
 
-	template<typename Hint = SourceHint::NO_HINT, typename = std::enable_if_t<std::is_base_of_v<SourceHint, Hint>>>
+	template<ESourceHint HINT = ESourceHint::NO_HINT>
 	static inline Vector3R SPD_to_sRGB(const SampledSpectralStrength& spd);
 
-	template<typename Hint = SourceHint::NO_HINT, typename = std::enable_if_t<std::is_base_of_v<SourceHint, Hint>>>
+	template<ESourceHint HINT = ESourceHint::NO_HINT>
 	static inline void linear_sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* out_spd);
 
-	template<typename Hint = SourceHint::NO_HINT, typename = std::enable_if_t<std::is_base_of_v<SourceHint, Hint>>>
+	template<ESourceHint HINT = ESourceHint::NO_HINT>
 	static inline void sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* out_spd);
 
 	static inline const SampledSpectralStrength& get_D65_SPD()
@@ -142,10 +140,12 @@ public:
 		return SPD_D65;
 	}
 
-public:
-	class SourceHint::NO_HINT     final : public SourceHint{};
-	class SourceHint::REFLECTANCE final : public SourceHint{};
-	class SourceHint::ILLUMINANT  final : public SourceHint{};
+	static inline const SampledSpectralStrength& get_E_SPD()
+	{
+		PH_ASSERT(isInitialized());
+
+		return SPD_E;
+	}
 
 private:
 #ifdef PH_DEBUG

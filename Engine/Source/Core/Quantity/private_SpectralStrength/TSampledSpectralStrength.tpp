@@ -88,17 +88,17 @@ impl_setLinearSrgb(const Vector3R& linearSrgb, const EQuantity valueType)
 		switch(valueType)
 		{
 		case EQuantity::EMR:
-			ColorSpace::linear_sRGB_to_SPD<ColorSpace::SourceHint::ILLUMINANT>(
+			ColorSpace::linear_sRGB_to_SPD<ESourceHint::ILLUMINANT>(
 				linearSrgb, static_cast<SampledSpectralStrength*>(this));
 			break;
 
 		case EQuantity::ECF:
-			ColorSpace::linear_sRGB_to_SPD<ColorSpace::SourceHint::REFLECTANCE>(
+			ColorSpace::linear_sRGB_to_SPD<ESourceHint::REFLECTANCE>(
 				linearSrgb, static_cast<SampledSpectralStrength*>(this));
 			break;
 
 		default:
-			ColorSpace::linear_sRGB_to_SPD<ColorSpace::SourceHint::NO_HINT>(
+			ColorSpace::linear_sRGB_to_SPD<ESourceHint::RAW_DATA>(
 				linearSrgb, static_cast<SampledSpectralStrength*>(this));
 			break;
 		}

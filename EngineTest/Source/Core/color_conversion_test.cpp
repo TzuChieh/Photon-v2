@@ -72,4 +72,9 @@ TEST(ColorConversionTest, SpectrumToCieXyzConversion)
 	EXPECT_NEAR(color.x, 0, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.y, 0, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.z, 0, ACCEPTABLE_ERROR);
+
+	color = ColorSpace::SPD_to_CIE_XYZ_E(ColorSpace::get_E_SPD());
+	EXPECT_NEAR(color.x, 1.0_r, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(color.y, 1.0_r, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(color.z, 1.0_r, ACCEPTABLE_ERROR);
 }

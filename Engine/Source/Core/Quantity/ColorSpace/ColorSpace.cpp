@@ -46,8 +46,8 @@ void ColorSpace::init()
 	// the expected amount of energy that 1 watt of total energy would distribute
 	// on each wavelength interval (implying that each SPD should sum to 1).
 	// 
-	SPD_E.divLocal(SPD_E.sum());
-	SPD_D65.divLocal(SPD_D65.sum());
+	/*SPD_E.divLocal(SPD_E.sum());
+	SPD_D65.divLocal(SPD_D65.sum());*/
 
 	// Sample XYZ color matching functions first, then later normalize it so 
 	// that dotting them with sampled E/D65 spectrum is equivalent to computing

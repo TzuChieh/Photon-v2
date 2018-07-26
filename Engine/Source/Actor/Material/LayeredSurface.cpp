@@ -23,6 +23,8 @@ void LayeredSurface::genSurface(CookingContext& context, SurfaceBehavior& behavi
 		iorKs.push_back(layer.getIorK());
 	}
 
+	std::cout << iorKs.back().toString();
+
 	behavior.setOptics(std::make_shared<LbLayeredSurface>(iorNs, iorKs, alphas));
 }
 

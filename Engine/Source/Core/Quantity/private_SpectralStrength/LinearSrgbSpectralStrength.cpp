@@ -30,15 +30,15 @@ void LinearSrgbSpectralStrength::impl_setSampled(const SampledSpectralStrength& 
 	switch(valueType)
 	{
 	case EQuantity::EMR:
-		impl_setLinearSrgb(ColorSpace::SPD_to_linear_sRGB<ColorSpace::SourceHint::ILLUMINANT>(sampled), valueType);
+		impl_setLinearSrgb(ColorSpace::SPD_to_linear_sRGB<ESourceHint::ILLUMINANT>(sampled), valueType);
 		break;
 
 	case EQuantity::ECF:
-		impl_setLinearSrgb(ColorSpace::SPD_to_linear_sRGB<ColorSpace::SourceHint::REFLECTANCE>(sampled), valueType);
+		impl_setLinearSrgb(ColorSpace::SPD_to_linear_sRGB<ESourceHint::REFLECTANCE>(sampled), valueType);
 		break;
 
 	default:
-		impl_setLinearSrgb(ColorSpace::SPD_to_linear_sRGB<ColorSpace::SourceHint::NO_HINT>(sampled), valueType);
+		impl_setLinearSrgb(ColorSpace::SPD_to_linear_sRGB<ESourceHint::RAW_DATA>(sampled), valueType);
 		break;
 	}
 }
