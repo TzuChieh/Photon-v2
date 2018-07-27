@@ -1,80 +1,114 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableFGD.h"
 #include "Math/Math.h"
+#include "Math/Random.h"
 
 #include <cmath>
+#include <array>
 
 namespace ph
 {
+
+namespace
+{
+	enum class EInterpolationMode
+	{
+		NEAREST,
+		STOCHASTIC_QUADLINEAR
+	};
+
+	constexpr EInterpolationMode MODE = EInterpolationMode::STOCHASTIC_QUADLINEAR;
+}
 
 const Logger TableFGD::logger(LogSender("FGD Table"));
 
 real TableFGD::sample(const real cosWi, const real alpha, const real iorN, const real iorK) const
 {
 	// float indices
-	real fCosWi = m_numCosWi * (cosWi - m_minCosWi) / (m_maxCosWi - m_minCosWi);
-	real fAlpha = m_numAlpha * (alpha - m_minAlpha) / (m_maxAlpha - m_minAlpha);
-	real fIorN  = m_numIorN  * (iorN  - m_minIorN ) / (m_maxIorN  - m_minIorN );
-	real fIorK  = m_numIorK  * (iorK  - m_minIorK ) / (m_maxIorK  - m_minIorK );
+	real fCosWi = (m_numCosWi - 1) * (cosWi - m_minCosWi) / (m_maxCosWi - m_minCosWi);
+	real fAlpha = (m_numAlpha - 1) * (alpha - m_minAlpha) / (m_maxAlpha - m_minAlpha);
+	real fIorN  = (m_numIorN  - 1) * (iorN  - m_minIorN ) / (m_maxIorN  - m_minIorN );
+	real fIorK  = (m_numIorK  - 1) * (iorK  - m_minIorK ) / (m_maxIorK  - m_minIorK );
 
-	// integer indices
-	int iCosWi = static_cast<int>(std::floor(fCosWi));
-	int iAlpha = static_cast<int>(std::floor(fAlpha));
-	int iIorN  = static_cast<int>(std::floor(fIorN));
-	int iIorK  = static_cast<int>(std::floor(fIorK));
+	// ensure float indices stay in the limits
+	// (may have inputs exceeding tabled range)
+	fCosWi = Math::clamp(fCosWi, 0.0_r, static_cast<real>(m_numCosWi - 1));
+	fAlpha = Math::clamp(fAlpha, 0.0_r, static_cast<real>(m_numAlpha - 1));
+	fIorN  = Math::clamp(fIorN,  0.0_r, static_cast<real>(m_numIorN  - 1));
+	fIorK  = Math::clamp(fIorK,  0.0_r, static_cast<real>(m_numIorK  - 1));
 
-	// make sure the indices stay in the limits
-	iCosWi = Math::clamp(iCosWi, 0, m_numCosWi - 1);
-	iAlpha = Math::clamp(iAlpha, 0, m_numAlpha - 1);
-	iIorN  = Math::clamp(iIorN,  0, m_numIorN  - 1);
-	iIorK  = Math::clamp(iIorK,  0, m_numIorK  - 1);
+	if constexpr(MODE == EInterpolationMode::NEAREST)
+	{
+		// nearest integer indices
+		int iCosWi = static_cast<int>(fCosWi + 0.5_r);
+		int iAlpha = static_cast<int>(fAlpha + 0.5_r);
+		int iIorN  = static_cast<int>(fIorN  + 0.5_r);
+		int iIorK  = static_cast<int>(fIorK  + 0.5_r);
 
-	// index of the texel
-	const int index      = iIorK + m_numIorK * (iIorN + m_numIorN * (iAlpha + m_numAlpha * iCosWi));
-	//const int indices[4] = {iSinWi, iAlpha, iIorN, iIorK};
+		return m_table[calcIndex(iCosWi, iAlpha, iIorN, iIorK)];
+	}
+	else if constexpr(MODE == EInterpolationMode::STOCHASTIC_QUADLINEAR)
+	{
+		std::array<real, 4> biases{};
+		const real          randomNum = Random::genUniformReal_i0_e1() * 3.999_r;
+		const unsigned char biasIndex = static_cast<unsigned char>(randomNum);
+		const real          bias      = randomNum - static_cast<real>(biasIndex);
+		PH_ASSERT(0     <= biasIndex && biasIndex < 4    );
+		PH_ASSERT(0.0_r <= bias      && bias      < 1.0_r);
+		biases[biasIndex] = bias;
 
-	return m_table[index];
+		// target integer indices
+		int iCosWi = static_cast<int>(fCosWi + Random::genUniformReal_i0_e1());
+		int iAlpha = static_cast<int>(fAlpha + Random::genUniformReal_i0_e1());
+		int iIorN  = static_cast<int>(fIorN  + Random::genUniformReal_i0_e1());
+		int iIorK  = static_cast<int>(fIorK  + Random::genUniformReal_i0_e1());
 
-	//// calculate interpolation weights
-	//real weights[4] = {fSinWi - iSinWi, fAlpha - iAlpha, fIorN - iIorN, fIorK - iIorK};
-	//for(int i = 0; i < 4; ++i)
-	//{
-	//	weights[i] = Math::clamp(weights[i], 0.0_r, 1.0_r);
-	//}
+		// ensure indices stay in the limits
+		iCosWi = std::min(iCosWi, m_numCosWi - 1);
+		iAlpha = std::min(iAlpha, m_numAlpha - 1);
+		iIorN  = std::min(iIorN,  m_numIorN  - 1);
+		iIorK  = std::min(iIorK,  m_numIorK  - 1);
 
-	//real result = 0.0_r;
+		return m_table[calcIndex(iCosWi, iAlpha, iIorN, iIorK)];
+	}
+	else
+	{
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return 0.0_r;
+	}
+}
 
-	//// For every possible combinaison of index shift per dimension,
-	//// fetch the value in memory and do linear interpolation.
-	//// We fetch using shift of 0 and 1.
-	////
-	////     v(i+di, j+di, k+dk, l+dl),  where dk in [0,1]
-	////
-	//const unsigned int D = pow(2, 4);
-	//for(unsigned int d = 0; d<D; ++d) {
+void TableFGD::downSampleHalf()
+{
+	int newNumCosWi = m_numCosWi / 2;
+	int newNumAlpha = m_numAlpha / 2;
+	int newNumIorN  = m_numIorN  / 2;
+	int newNumIorK  = m_numIorK  / 2;
 
-	//	Float alpha = 1.0; // Global alpha
-	//	int   cid_s = 0;   // Id shift
+	std::vector<float> newTable(
+		newNumCosWi * newNumAlpha * newNumIorN * newNumIorK, 0.0f);
 
-	//					   // Evaluate the weight of the sample d which correspond to
-	//					   // one for the shifted configuration:
-	//					   // The weight is the product of the weights per dimension.
-	//					   //
-	//	for(int i = 0; i<4; ++i) {
-	//		bool  bitset = ((1 << i) & d);
-	//		Float calpha = (bitset) ? alphas[i] : 1.0 - alphas[i];
+	for(int iCosWi = 0; iCosWi < m_numCosWi; iCosWi += 2)
+	{
+		for(int iAlpha = 0; iAlpha < m_numAlpha; iAlpha += 2)
+		{
+			for(int iIorN = 0; iIorN < m_numIorN; iIorN += 2)
+			{
+				for(int iIorK = 0; iIorK < m_numIorK; iIorK += 2)
+				{
+					int oldIndex = iIorK + m_numIorK * (iIorN + m_numIorN * (iAlpha + m_numAlpha * iCosWi));
+					int newIndex = (iIorK / 2) + newNumIorK * ((iIorN / 2) + newNumIorN * ((iAlpha / 2) + newNumAlpha * (iCosWi / 2)));
+					newTable[newIndex] = m_table[oldIndex];
+				}
+			}
+		}
+	}
 
-	//		// Correct the shift to none if we go out of the grid
-	//		if(indices[i] + 1 >= sizes[i]) {
-	//			bitset = false;
-	//		}
+	m_numCosWi = newNumCosWi;
+	m_numAlpha = newNumAlpha;
+	m_numIorN  = newNumIorN;
+	m_numIorK  = newNumIorK;
 
-	//		alpha *= calpha;
-	//		cid_s = cid_s * sizes[i] + ((bitset) ? 1 : 0);
-	//	}
-
-	//	v += alpha * buff[index + cid_s];
-	//}
-	//return v;
+	m_table = newTable;
 }
 
 }// end namespace ph

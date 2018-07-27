@@ -43,6 +43,9 @@ private:
 	float m_minIorK,  m_maxIorK;
 
 	static const Logger logger;
+
+	int calcIndex(int iCosWi, int iAlpha, int iIorN, int iIorK) const;
+	void downSampleHalf();
 };
 
 // In-header Implementations:
@@ -97,6 +100,11 @@ inline TableFGD::TableFGD(const Path& tableFilePath) :
 		static_cast<std::size_t>(m_numIorK);
 	m_table.resize(tableSize, 0.0f);
 	reader.read(m_table.data(), m_table.size());
+
+	// TEST
+	/*downSampleHalf();
+	downSampleHalf();
+	downSampleHalf();*/
 }
 
 inline SpectralStrength TableFGD::sample(
@@ -111,6 +119,17 @@ inline SpectralStrength TableFGD::sample(
 		result[i] = sample(cosWi, alpha, iorN[i], iorK[i]);
 	}
 	return result;
+}
+
+inline int TableFGD::calcIndex(const int iCosWi, const int iAlpha, const int iIorN, const int iIorK) const
+{
+	// make sure the indices stay in the limits
+	PH_ASSERT(0 <= iCosWi && iCosWi < m_numCosWi);
+	PH_ASSERT(0 <= iAlpha && iAlpha < m_numAlpha);
+	PH_ASSERT(0 <= iIorN  && iIorN  < m_numIorN);
+	PH_ASSERT(0 <= iIorK  && iIorK  < m_numIorK);
+
+	return iIorK + m_numIorK * (iIorN + m_numIorN * (iAlpha + m_numAlpha * iCosWi));
 }
 
 }// end namespace ph

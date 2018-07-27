@@ -113,13 +113,17 @@ void LbLayeredSurface::genBsdfSample(
 		alphas[i] = statistics.getEquivalentAlpha();
 	}
 
+	// NOTE: watch out for the case where selectWeight cannot be reduced to <= 0 due to 
+	// numerical error (handled in current implmentation)
 	real selectWeight = Random::genUniformReal_i0_e1() * summedSampleWeights - sampleWeights[0];
 	std::size_t selectIndex = 0;
-	for(selectIndex = 0; selectWeight > 0.0_r && selectIndex < numLayers(); ++selectIndex)
+	for(selectIndex = 0; selectWeight > 0.0_r && selectIndex + 1 < numLayers(); ++selectIndex)
 	{
 		selectWeight -= sampleWeights[selectIndex + 1];
 	}
-	PH_ASSERT(selectIndex < numLayers());
+	PH_ASSERT_MSG(selectIndex < numLayers(), 
+		"selectIndex  = " + std::to_string(selectIndex)  + "\n"
+		"selectWeight = " + std::to_string(selectWeight) + "\n");
 
 	IsoTrowbridgeReitz ggx(alphas[selectIndex]);
 	Vector3R H;
