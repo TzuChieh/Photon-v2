@@ -163,6 +163,14 @@ class PhColorSocket(PhMaterialNodeSocket):
 		return [0.7, 0.7, 0.1, 1.0]  # yellow
 
 
+class PhSurfaceLayerSocket(PhMaterialNodeSocket):
+	bl_idname = "PH_SURFACE_LAYER_SOCKET"
+	bl_label  = "Surface Layer"
+
+	def draw_color(self, b_context, node):
+		return [0.0, 0.0, 0.0, 1.0]  # black
+
+
 class PhOutputNode(PhMaterialNode):
 	bl_idname = "PH_OUTPUT"
 	bl_label  = "Output"
@@ -491,6 +499,50 @@ class PhAbradedTranslucentNode(PhMaterialNode):
 		sdlconsole.queue_command(cmd)
 
 
+class PhLayeredSurfaceNode(PhMaterialNode):
+	bl_idname = "PH_LAYERED_SURFACE"
+	bl_label  = "Layered Surface"
+
+	def update_inputs(self, b_context):
+
+		specified_num_layers = self["num_layers"]
+
+		while len(self.inputs) != specified_num_layers:
+			if len(self.inputs) < specified_num_layers:
+				self.inputs.new(PhSurfaceLayerSocket.bl_idname, PhSurfaceLayerSocket.bl_label)
+			else:
+				self.inputs.remove(self.inputs[len(self.inputs) - 1])
+
+	num_layers = bpy.props.IntProperty(
+		name    = "# Layers",
+		default = 1,
+		min     = 1,
+		max     = 1024,
+		update  = update_inputs
+	)
+
+	def init(self, b_context):
+		self.inputs.new(PhSurfaceLayerSocket.bl_idname, PhSurfaceLayerSocket.bl_label)
+
+	def draw_buttons(self, b_context, b_layout):
+		b_layout.prop(self, "num_layers")
+
+	def to_sdl(self, res_name, sdlconsole):
+		surface_mat_socket   = self.outputs[0]
+		surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
+
+		cmd = materialcmd.AbradedTranslucentCreator()
+		cmd.set_data_name(surface_mat_res_name)
+		cmd.set_roughness(self.roughness)
+		cmd.set_ior_outer(self.ior_outer)
+		cmd.set_ior_inner(self.ior_inner)
+		if self.fresnel_type == "SCHLICK_APPROX":
+			cmd.use_schlick_approx()
+		elif self.fresnel_type == "EXACT":
+			cmd.use_exact()
+		sdlconsole.queue_command(cmd)
+
+
 class PhMaterialNodeCategory(nodeitems_utils.NodeCategory):
 
 	@classmethod
@@ -536,7 +588,8 @@ def to_sdl(res_name, b_material, sdlconsole):
 PH_MATERIAL_NODE_SOCKETS = [
 	PhSurfaceMaterialSocket,
 	PhFloatSocket,
-	PhColorSocket
+	PhColorSocket,
+	PhSurfaceLayerSocket
 ]
 
 
@@ -548,7 +601,8 @@ PH_MATERIAL_NODES = [
 	PhAbradedOpaqueNode,
 	PhAbradedTranslucentNode,
 	PhPictureNode,
-	PhMultiplyNode
+	PhMultiplyNode,
+	PhLayeredSurfaceNode
 ]
 
 
@@ -564,7 +618,8 @@ PH_MATERIAL_NODE_CATEGORIES = [
 		nodeitems_utils.NodeItem(PhDiffuseSurfaceNode.bl_idname),
 		nodeitems_utils.NodeItem(PhBinaryMixedSurfaceNode.bl_idname),
 		nodeitems_utils.NodeItem(PhAbradedOpaqueNode.bl_idname),
-		nodeitems_utils.NodeItem(PhAbradedTranslucentNode.bl_idname)
+		nodeitems_utils.NodeItem(PhAbradedTranslucentNode.bl_idname),
+		nodeitems_utils.NodeItem(PhLayeredSurfaceNode.bl_idname)
 	]),
 	PhMaterialNodeCategory("MATH", "Math", items = [
 		nodeitems_utils.NodeItem(PhMultiplyNode.bl_idname)
