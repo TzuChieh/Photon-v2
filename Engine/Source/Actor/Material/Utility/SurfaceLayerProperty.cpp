@@ -9,7 +9,11 @@ namespace ph
 SurfaceLayerProperty::SurfaceLayerProperty() : 
 	m_roughness(0.0_r), 
 	m_iorN(1.0_r), 
-	m_iorK(0.0_r)
+	m_iorK(0.0_r),
+	m_depth(0.0_r),
+	m_g(1.0_r),
+	m_sigmaA(0.0_r),
+	m_sigmaS(0.0_r)
 {}
 
 SurfaceLayerProperty::SurfaceLayerProperty(const InputPacket& packet) : 
@@ -50,6 +54,11 @@ SurfaceLayerProperty::SurfaceLayerProperty(const InputPacket& packet) :
 	{
 		m_iorK.setValues(packet.getReal("ior-k"));
 	}
+
+	m_depth = packet.getReal("depth", m_depth);
+	m_g     = packet.getReal("g", m_g);
+	m_sigmaA.setValues(packet.getReal("sigma-a", m_sigmaA.avg()));
+	m_sigmaS.setValues(packet.getReal("sigma-s", m_sigmaS.avg()));
 }
 
 }// end namespace ph

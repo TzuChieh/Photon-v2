@@ -17,14 +17,27 @@ thread_local std::vector<real> LbLayeredSurface::alphas;
 LbLayeredSurface::LbLayeredSurface(
 	const std::vector<SpectralStrength>& iorNs,
 	const std::vector<SpectralStrength>& iorKs,
-	const std::vector<real>&             alphas) :
+	const std::vector<real>&             alphas,
+	const std::vector<real>&             depths,
+	const std::vector<real>&             gs,
+	const std::vector<SpectralStrength>& sigmaAs,
+	const std::vector<SpectralStrength>& sigmaSs) :
 
 	SurfaceOptics(),
 
-	m_iorNs(iorNs), m_iorKs(iorKs), m_alphas(alphas)
+	m_iorNs(iorNs), m_iorKs(iorKs), 
+	m_alphas(alphas), 
+	m_depths(depths), 
+	m_gs(gs), 
+	m_sigmaAs(sigmaAs), m_sigmaSs(sigmaSs)
 {
 	PH_ASSERT(m_iorNs.size() != 0);
-	PH_ASSERT(m_iorNs.size() == m_iorKs.size() && m_iorKs.size() == m_alphas.size());
+	PH_ASSERT(m_iorNs.size() == m_iorKs.size() && 
+	          m_iorKs.size() == m_alphas.size() &&
+	          m_alphas.size() == m_depths.size() &&
+	          m_depths.size() == m_gs.size() &&
+	          m_gs.size() == m_sigmaAs.size() &&
+	          m_sigmaAs.size() == m_sigmaSs.size());
 
 	m_phenomena.set({ESP::GLOSSY_REFLECTION});
 }
@@ -64,13 +77,13 @@ void LbLayeredSurface::evalBsdf(
 	
 	const real absHoL = std::min(H.absDot(L), 1.0_r);
 
-	InterfaceStatistics statistics(absHoL, LbLayer(0, SpectralStrength(1)));
-	for(std::size_t i = 0; i < m_alphas.size(); ++i)
+	InterfaceStatistics statistics(absHoL, LbLayer());
+	for(std::size_t i = 0; i < numLayers(); ++i)
 	{
-		const LbLayer addedLayer(m_alphas[i], m_iorNs[i], m_iorKs[i]);
+		const LbLayer addedLayer = getLayer(i, statistics.getLastLayer());
 		if(!statistics.addLayer(addedLayer))
 		{
-			PH_ASSERT(i == m_alphas.size() - 1);
+			PH_ASSERT(i == numLayers() - 1);
 		}
 
 		IsoTrowbridgeReitz ggx(statistics.getEquivalentAlpha());
@@ -97,10 +110,10 @@ void LbLayeredSurface::genBsdfSample(
 	alphas.resize(numLayers());
 
 	real summedSampleWeights = 0.0_r;
-	InterfaceStatistics statistics(absNoV, LbLayer(0, SpectralStrength(1)));
+	InterfaceStatistics statistics(absNoV, LbLayer());
 	for(std::size_t i = 0; i < numLayers(); ++i)
 	{
-		const LbLayer addedLayer(m_alphas[i], m_iorNs[i], m_iorKs[i]);
+		const LbLayer addedLayer = getLayer(i, statistics.getLastLayer());
 		if(!statistics.addLayer(addedLayer))
 		{
 			PH_ASSERT(i == numLayers() - 1);
@@ -176,10 +189,10 @@ void LbLayeredSurface::calcBsdfSamplePdf(
 
 	real summedSampleWeights = 0.0_r;
 	real pdf = 0.0_r;
-	InterfaceStatistics statistics(absNoV, LbLayer(0, SpectralStrength(1)));
+	InterfaceStatistics statistics(absNoV, LbLayer());
 	for(std::size_t i = 0; i < numLayers(); ++i)
 	{
-		const LbLayer addedLayer(m_alphas[i], m_iorNs[i], m_iorKs[i]);
+		const LbLayer addedLayer = getLayer(i, statistics.getLastLayer());
 		if(!statistics.addLayer(addedLayer))
 		{
 			PH_ASSERT(i == numLayers() - 1);
@@ -196,6 +209,29 @@ void LbLayeredSurface::calcBsdfSamplePdf(
 	if(summedSampleWeights > 0.0_r)
 	{
 		*out_pdfW = pdf / summedSampleWeights;
+	}
+}
+
+LbLayer LbLayeredSurface::getLayer(const std::size_t layerIndex, const LbLayer& previousLayer) const
+{
+	PH_ASSERT(layerIndex < numLayers());
+
+	const real depth = m_depths[layerIndex];
+	if(depth == 0.0_r)
+	{
+		return LbLayer(
+			m_alphas[layerIndex], 
+			m_iorNs[layerIndex], 
+			m_iorKs[layerIndex]);
+	}
+	else
+	{
+		return LbLayer(
+			m_gs[layerIndex], 
+			depth, 
+			m_sigmaAs[layerIndex], 
+			m_sigmaSs[layerIndex], 
+			previousLayer);
 	}
 }
 

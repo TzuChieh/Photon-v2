@@ -20,6 +20,7 @@ public:
 
 	real getEquivalentAlpha() const;
 	const SpectralStrength& getEnergyScale() const;
+	LbLayer getLastLayer() const;
 
 private:
 	real             m_equivalentAlpha;
@@ -65,6 +66,11 @@ inline real InterfaceStatistics::getEquivalentAlpha() const
 inline const SpectralStrength& InterfaceStatistics::getEnergyScale() const
 {
 	return m_energyScale;
+}
+
+inline LbLayer InterfaceStatistics::getLastLayer() const
+{
+	return m_layer1;
 }
 
 inline const TableFGD& InterfaceStatistics::FGD()

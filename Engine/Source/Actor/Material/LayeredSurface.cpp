@@ -16,16 +16,24 @@ void LayeredSurface::genSurface(CookingContext& context, SurfaceBehavior& behavi
 	std::vector<real>             alphas;
 	std::vector<SpectralStrength> iorNs;
 	std::vector<SpectralStrength> iorKs;
+	std::vector<real>             depths;
+	std::vector<real>             gs;
+	std::vector<SpectralStrength> sigmaAs;
+	std::vector<SpectralStrength> sigmaSs;
 	for(const auto& layer : m_layers)
 	{
 		alphas.push_back(layer.getAlpha());
 		iorNs.push_back(layer.getIorN());
 		iorKs.push_back(layer.getIorK());
+		depths.push_back(layer.getDepth());
+		gs.push_back(layer.getG());
+		sigmaAs.push_back(layer.getSigmaA());
+		sigmaSs.push_back(layer.getSigmaS());
 	}
 
 	std::cout << iorKs.back().toString();
 
-	behavior.setOptics(std::make_shared<LbLayeredSurface>(iorNs, iorKs, alphas));
+	behavior.setOptics(std::make_shared<LbLayeredSurface>(iorNs, iorKs, alphas, depths, gs, sigmaAs, sigmaSs));
 }
 
 void LayeredSurface::addLayer()

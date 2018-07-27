@@ -31,6 +31,8 @@ public:
 	virtual inline ~TAbstractSpectralStrength() = 0;
 
 public:
+	static DerivedType exp(const DerivedType& exponent);
+
 	// Calculates relative luminance with D65 as reference white point.
 	//
 	inline real calcLuminance(EQuantity valueType = EQuantity::RAW) const;

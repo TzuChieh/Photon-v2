@@ -5,6 +5,8 @@
 #include "Math/Solver/TAnalyticalIntegrator1D.h"
 #include "Core/Quantity/ColorSpace.h"
 
+#include <cmath>
+
 namespace ph
 {
 
@@ -59,6 +61,17 @@ template<typename DerivedType, std::size_t N>
 inline Vector3R TAbstractSpectralStrength<DerivedType, N>::genLinearSrgb(const EQuantity valueType) const
 {
 	return static_cast<const DerivedType&>(*this).impl_genLinearSrgb(valueType);
+}
+
+template<typename DerivedType, std::size_t N>
+inline DerivedType TAbstractSpectralStrength<DerivedType, N>::exp(const DerivedType& exponent)
+{
+	DerivedType result;
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		result[i] = std::exp(exponent[i]);
+	}
+	return result;
 }
 
 template<typename DerivedType, std::size_t N>

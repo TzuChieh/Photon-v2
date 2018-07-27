@@ -48,14 +48,6 @@ real TableFGD::sample(const real cosWi, const real alpha, const real iorN, const
 	}
 	else if constexpr(MODE == EInterpolationMode::STOCHASTIC_QUADLINEAR)
 	{
-		std::array<real, 4> biases{};
-		const real          randomNum = Random::genUniformReal_i0_e1() * 3.999_r;
-		const unsigned char biasIndex = static_cast<unsigned char>(randomNum);
-		const real          bias      = randomNum - static_cast<real>(biasIndex);
-		PH_ASSERT(0     <= biasIndex && biasIndex < 4    );
-		PH_ASSERT(0.0_r <= bias      && bias      < 1.0_r);
-		biases[biasIndex] = bias;
-
 		// target integer indices
 		int iCosWi = static_cast<int>(fCosWi + Random::genUniformReal_i0_e1());
 		int iAlpha = static_cast<int>(fAlpha + Random::genUniformReal_i0_e1());

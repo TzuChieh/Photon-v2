@@ -22,11 +22,19 @@ public:
 	real getAlpha() const;
 	SpectralStrength getIorN() const;
 	SpectralStrength getIorK() const;
+	real getDepth() const;
+	real getG() const;
+	SpectralStrength getSigmaA() const;
+	SpectralStrength getSigmaS() const;
 
 private:
 	real             m_roughness;
 	SpectralStrength m_iorN;
 	SpectralStrength m_iorK;
+	real             m_depth;
+	real             m_g;
+	SpectralStrength m_sigmaA;
+	SpectralStrength m_sigmaS;
 };
 
 // In-header Implementations:
@@ -49,6 +57,26 @@ inline SpectralStrength SurfaceLayerProperty::getIorN() const
 inline SpectralStrength SurfaceLayerProperty::getIorK() const
 {
 	return m_iorK;
+}
+
+inline real SurfaceLayerProperty::getDepth() const
+{
+	return m_depth;
+}
+
+inline real SurfaceLayerProperty::getG() const
+{
+	return m_g;
+}
+
+inline SpectralStrength SurfaceLayerProperty::getSigmaA() const
+{
+	return m_sigmaA;
+}
+
+inline SpectralStrength SurfaceLayerProperty::getSigmaS() const
+{
+	return m_sigmaS;
 }
 
 }// end namespace ph

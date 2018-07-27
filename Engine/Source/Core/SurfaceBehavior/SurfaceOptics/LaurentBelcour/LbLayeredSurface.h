@@ -3,6 +3,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Common/primitive_type.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayer.h"
 
 #include <vector>
 
@@ -28,7 +29,11 @@ public:
 	LbLayeredSurface(
 		const std::vector<SpectralStrength>& iorNs,
 		const std::vector<SpectralStrength>& iorKs,
-		const std::vector<real>&             alphas);
+		const std::vector<real>&             alphas,
+		const std::vector<real>&             depths,
+		const std::vector<real>&             gs,
+		const std::vector<SpectralStrength>& sigmaAs,
+		const std::vector<SpectralStrength>& sigmaSs);
 	~LbLayeredSurface() override;
 
 private:
@@ -48,11 +53,16 @@ private:
 	std::vector<SpectralStrength> m_iorNs;
 	std::vector<SpectralStrength> m_iorKs;
 	std::vector<real>             m_alphas;
+	std::vector<real>             m_depths;
+	std::vector<real>             m_gs;
+	std::vector<SpectralStrength> m_sigmaAs;
+	std::vector<SpectralStrength> m_sigmaSs;
 
 	static thread_local std::vector<real> sampleWeights;
 	static thread_local std::vector<real> alphas;
 
 	std::size_t numLayers() const;
+	LbLayer getLayer(std::size_t layerIndex, const LbLayer& previousLayer) const;
 };
 
 // In-header Implementations:

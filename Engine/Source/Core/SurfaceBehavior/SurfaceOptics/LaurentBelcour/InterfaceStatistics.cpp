@@ -21,69 +21,95 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 
 	real cosWt = -1.0_r;
 
-	// not being block by conductor
-	bool hasTransmission = !(layer2.isConductor());
-	if(hasTransmission)
+	if(layer2.isSurface())
 	{
-		// refraction
-		const real sinWi = std::sqrt(1.0_r - m_cosWi * m_cosWi);
-		const real sinWt = sinWi / n12;
-		if(sinWi <= 1.0_r)
+		// not being block by conductor
+		bool hasTransmission = !(layer2.isConductor());
+		if(hasTransmission)
 		{
-			cosWt = std::sqrt(1.0_r - sinWt * sinWt);
+			// refraction
+			const real sinWi = std::sqrt(1.0_r - m_cosWi * m_cosWi);
+			const real sinWt = sinWi / n12;
+			if(sinWi <= 1.0_r)
+			{
+				cosWt = std::sqrt(1.0_r - sinWt * sinWt);
+			}
+			else
+			{
+				// total internal reflection occurred
+				hasTransmission = false;
+			}
+		}
+
+		// reflection variance terms
+		sR12 = conversions::alphaToVariance(layer2.getAlpha());
+		sR21 = sR12;
+
+		// transmission variance terms
+		if(hasTransmission)
+		{
+			PH_ASSERT(cosWt >= 0.0_r);
+
+			// NOTE: this part is vastly different from the paper, but is how it was
+			// implemented in the reference code
+
+			const real cosWt_ = 1.0_r;
+			const real cosWi_ = 1.0_r;
+
+			sT12 = conversions::alphaToVariance(
+				layer2.getAlpha() * 0.5_r * std::abs((cosWt_ * n12 - cosWi_)) / (cosWt_ * n12));
+			sT21 = conversions::alphaToVariance(
+				layer2.getAlpha() * 0.5_r * std::abs((cosWi_ / n12 - cosWt_)) / (cosWi_ / n12));
+			j12 = (cosWt   / m_cosWi) * n12;
+			j21 = (m_cosWi / cosWt  ) / n12;
+		}
+
+		// evaluate tables using a modified roughness accounting for top layers
+		const real alpha_ = conversions::varianceToAlpha(m_sT0i + sR12);
+
+		R12 = FGD().sample(m_cosWi, alpha_, iorN12, iorK12);
+		T12 = iorK12.isZero() ? SpectralStrength(1.0_r) - R12 : SpectralStrength(0.0_r);
+		if(hasTransmission)
+		{
+			R21 = R12;
+			T21 = T12;
 		}
 		else
 		{
-			// total internal reflection occurred
-			hasTransmission = false;
+			R21 = SpectralStrength(0.0_r);
+			T21 = SpectralStrength(0.0_r);
 		}
-	}
 
-	// reflection variance terms
-	sR12 = conversions::alphaToVariance(layer2.getAlpha());
-	sR21 = sR12;
-
-	// transmission variance terms
-	if(hasTransmission)
-	{
-		PH_ASSERT(cosWt >= 0.0_r);
-
-		// NOTE: this part is vastly different from the paper, but is how it was
-		// implemented in the reference code
-
-		const real cosWt_ = 1.0_r;
-		const real cosWi_ = 1.0_r;
-
-		sT12 = conversions::alphaToVariance(
-			layer2.getAlpha() * 0.5_r * std::abs((cosWt_ * n12 - cosWi_)) / (cosWt_ * n12));
-		sT21 = conversions::alphaToVariance(
-			layer2.getAlpha() * 0.5_r * std::abs((cosWi_ / n12 - cosWt_)) / (cosWi_ / n12));
-		j12 = (cosWt   / m_cosWi) * n12;
-		j21 = (m_cosWi / cosWt  ) / n12;
-	}
-
-	// evaluate tables using a modified roughness accounting for top layers
-	const real alpha_ = conversions::varianceToAlpha(m_sT0i + sR12);
-
-	R12 = FGD().sample(m_cosWi, alpha_, iorN12, iorK12);
-	T12 = iorK12.isZero() ? SpectralStrength(1.0_r) - R12 : SpectralStrength(0.0_r);
-	if(hasTransmission)
-	{
-		R21 = R12;
-		T21 = T12;
+		// evaluate TIR using the decoupling approximation
+		const real n10 = (m_layer0.getIorN() / m_layer1.getIorN()).avg();
+		const real tir = TIR().sample(m_cosWi, alpha_, n10);
+		m_Ri0.addLocal(m_Ti0 * (1.0_r - tir));
+		m_Ri0.clampLocal(0.0_r, 1.0_r);
+		m_Ti0.mulLocal(tir);
 	}
 	else
 	{
-		R21 = SpectralStrength(0.0_r);
-		T21 = SpectralStrength(0.0_r);
-	}
+		PH_ASSERT(layer2.isVolume());
 
-	// evaluate TIR using the decoupling approximation
-	const real n10 = (m_layer0.getIorN() / m_layer1.getIorN()).avg();
-	const real tir = TIR().sample(m_cosWi, alpha_, n10);
-	m_Ri0.addLocal(m_Ti0 * (1.0_r - tir));
-	m_Ri0.clampLocal(0.0_r, 1.0_r);
-	m_Ti0.mulLocal(tir);
+		// mean does not change with volumes
+		cosWt = m_cosWi;
+
+		const SpectralStrength sigmaT = layer2.getSigmaA() + layer2.getSigmaS();
+		if(cosWt != 0.0_r)
+		{
+			const real rayPenetrateDepth = layer2.getDepth() / cosWt;
+			T12 = (SpectralStrength(1.0_r) + layer2.getSigmaS() * rayPenetrateDepth) * SpectralStrength::exp(sigmaT * -rayPenetrateDepth);
+		}
+		else
+		{
+			T12.setValues(0.0_r);
+		}
+		T21 = T12;
+		R12.setValues(0.0_r);
+		R21.setValues(0.0_r);
+		sT12 = conversions::gToVariance(layer2.getG());
+		sT21 = sT12;
+	}
 
 	// terms for multiple scattering
 	const SpectralStrength denoTerm    = SpectralStrength(1.0_r) - m_Ri0 * R12;
