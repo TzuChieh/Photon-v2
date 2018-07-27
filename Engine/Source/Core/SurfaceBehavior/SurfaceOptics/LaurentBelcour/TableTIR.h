@@ -30,6 +30,8 @@ private:
 	float m_minRelIor, m_maxRelIor;
 
 	static const Logger logger;
+
+	int calcIndex(int iCosWi, int iAlpha, int iRelIor) const;
 };
 
 // In-header Implementations:
@@ -77,6 +79,16 @@ inline TableTIR::TableTIR(const Path& tableFilePath) :
 		static_cast<std::size_t>(m_numRelIor);
 	m_table.resize(tableSize, 0.0f);
 	reader.read(m_table.data(), m_table.size());
+}
+
+inline int TableTIR::calcIndex(const int iCosWi, const int iAlpha, const int iRelIor) const
+{
+	// make sure the indices stay in the limits
+	PH_ASSERT(0 <= iCosWi  && iCosWi  < m_numCosWi);
+	PH_ASSERT(0 <= iAlpha  && iAlpha  < m_numAlpha);
+	PH_ASSERT(0 <= iRelIor && iRelIor < m_numRelIor);
+
+	return iRelIor + m_numRelIor * (iAlpha + m_numAlpha * iCosWi);
 }
 
 }// end namespace ph

@@ -1,34 +1,64 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableTIR.h"
 #include "Math/Math.h"
+#include "Math/Random.h"
 
 namespace ph
 {
+
+namespace
+{
+	enum class EInterpolationMode
+	{
+		NEAREST,
+		STOCHASTIC_QUADLINEAR
+	};
+
+	constexpr EInterpolationMode MODE = EInterpolationMode::STOCHASTIC_QUADLINEAR;
+}
 
 const Logger TableTIR::logger(LogSender("TIR Table"));
 
 real TableTIR::sample(const real cosWi, const real alpha, const real relIor) const
 {
 	// float indices
-	real fCosWi  = m_numCosWi  * (cosWi  - m_minCosWi ) / (m_maxCosWi  - m_minCosWi );
-	real fAlpha  = m_numAlpha  * (alpha  - m_minAlpha ) / (m_maxAlpha  - m_minAlpha );
-	real fRelIor = m_numRelIor * (relIor - m_minRelIor) / (m_maxRelIor - m_minRelIor);
+	real fCosWi  = (m_numCosWi  - 1) * (cosWi  - m_minCosWi ) / (m_maxCosWi  - m_minCosWi );
+	real fAlpha  = (m_numAlpha  - 1) * (alpha  - m_minAlpha ) / (m_maxAlpha  - m_minAlpha );
+	real fRelIor = (m_numRelIor - 1) * (relIor - m_minRelIor) / (m_maxRelIor - m_minRelIor);
 
-	// TODO: simple cast-to-int is already adequate (no need to use floor())?
+	// ensure float indices stay in the limits
+	// (may have inputs exceeding tabled range)
+	fCosWi  = Math::clamp(fCosWi,  0.0_r, static_cast<real>(m_numCosWi  - 1));
+	fAlpha  = Math::clamp(fAlpha,  0.0_r, static_cast<real>(m_numAlpha  - 1));
+	fRelIor = Math::clamp(fRelIor, 0.0_r, static_cast<real>(m_numRelIor - 1));
 
-	// integer indices
-	int iCosWi = static_cast<int>(std::floor(fCosWi));
-	int iAlpha  = static_cast<int>(std::floor(fAlpha));
-	int iRelIor = static_cast<int>(std::floor(fRelIor));
+	if constexpr(MODE == EInterpolationMode::NEAREST)
+	{
+		// nearest integer indices
+		int iCosWi  = static_cast<int>(fCosWi  + 0.5_r);
+		int iAlpha  = static_cast<int>(fAlpha  + 0.5_r);
+		int iRelIor = static_cast<int>(fRelIor + 0.5_r);
 
-	// make sure the indices stay in the limits
-	iCosWi  = Math::clamp(iCosWi,  0, m_numCosWi - 1);
-	iAlpha  = Math::clamp(iAlpha,  0, m_numAlpha  - 1);
-	iRelIor = Math::clamp(iRelIor, 0, m_numRelIor - 1);
+		return m_table[calcIndex(iCosWi, iAlpha, iRelIor)];
+	}
+	else if constexpr(MODE == EInterpolationMode::STOCHASTIC_QUADLINEAR)
+	{
+		// target integer indices
+		int iCosWi  = static_cast<int>(fCosWi  + Random::genUniformReal_i0_e1());
+		int iAlpha  = static_cast<int>(fAlpha  + Random::genUniformReal_i0_e1());
+		int iRelIor = static_cast<int>(fRelIor + Random::genUniformReal_i0_e1());
 
-	// index of the texel
-	const int index = iRelIor + m_numRelIor * (iAlpha + m_numAlpha * iCosWi);
+		// ensure indices stay in the limits
+		iCosWi  = std::min(iCosWi,  m_numCosWi  - 1);
+		iAlpha  = std::min(iAlpha,  m_numAlpha  - 1);
+		iRelIor = std::min(iRelIor, m_numRelIor - 1);
 
-	return m_table[index];
+		return m_table[calcIndex(iCosWi, iAlpha, iRelIor)];
+	}
+	else
+	{
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return 0.0_r;
+	}
 }
 
 }// end namespace ph
