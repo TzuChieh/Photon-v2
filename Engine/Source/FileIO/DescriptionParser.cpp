@@ -65,7 +65,7 @@ DescriptionParser::DescriptionParser() :
 	m_commandCache(), 
 	m_coreCommandTokenizer ({' ', '\t', '\n', '\r'}, {{'(',  ')'}, {'[', ']'}}),
 	m_worldCommandTokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}, {'[', ']'}, {'(', ')'}}), 
-	m_nameTokenizer        ({},                      {{'\"', '\"'}}),
+	m_nameTokenizer        ({},                      {{'\"', '\"'}}),// TODO: there may be a need to skip spaces, e.g., fun(    "@ some name")
 	m_generatedNameCounter(0),
 	m_workingDirectory()
 {}

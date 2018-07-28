@@ -4,6 +4,8 @@ from ..psdl import imagecmd
 from ..psdl import materialcmd
 from ..psdl import sdlresource
 from .. import utility
+from ..psdl import clause
+from ..psdl.cmd import RawCommand
 
 import bpy
 import nodeitems_utils
@@ -499,6 +501,86 @@ class PhAbradedTranslucentNode(PhMaterialNode):
 		sdlconsole.queue_command(cmd)
 
 
+class PhSurfaceLayerNode(PhMaterialNode):
+	bl_idname = "PH_SURFACE_LAYER"
+	bl_label  = "Surface Layer"
+
+	roughness = bpy.props.FloatProperty(
+		name    = "Roughness",
+		default = 0.5,
+		min     = 0.0,
+		max     = 1.0
+	)
+
+	ior_n = bpy.props.FloatProperty(
+		name    = "IOR N",
+		default = 1.5,
+		min     = 0.0,
+		max     = sys.float_info.max
+	)
+
+	ior_k = bpy.props.FloatProperty(
+		name    = "IOR K",
+		default = 0.0,
+		min     = 0.0,
+		max     = sys.float_info.max
+	)
+
+	depth = bpy.props.FloatProperty(
+		name    = "depth",
+		default = 0.0,
+		min     = 0.0,
+		max     = sys.float_info.max
+	)
+
+	g = bpy.props.FloatProperty(
+		name    = "g",
+		default = 0.9,
+		min     = 0.5,
+		max     = 1.0
+	)
+
+	sigma_a = bpy.props.FloatProperty(
+		name    ="Sigma A",
+		default = 0.1,
+		min     = 0.0,
+		max     = sys.float_info.max
+	)
+
+	sigma_s = bpy.props.FloatProperty(
+		name    = "Sigma S",
+		default = 0.1,
+		min     = 0.0,
+		max     = sys.float_info.max
+	)
+
+	def init(self, b_context):
+		self.outputs.new(PhSurfaceLayerSocket.bl_idname, PhSurfaceLayerSocket.bl_label)
+
+	def draw_buttons(self, b_context, b_layout):
+		b_layout.prop(self, "roughness")
+		b_layout.prop(self, "ior_n")
+		b_layout.prop(self, "ior_k")
+		b_layout.prop(self, "depth")
+		b_layout.prop(self, "g")
+		b_layout.prop(self, "sigma_a")
+		b_layout.prop(self, "sigma_s")
+
+	def to_sdl(self, res_name, sdlconsole):
+		pass
+
+	def to_sdl_fragment(self):
+		sdl = ""
+		sdl += clause.FloatClause().set_name("roughness").set_data(self.roughness).to_sdl_fragment()
+		sdl += clause.FloatClause().set_name("ior-n").set_data(self.ior_n).to_sdl_fragment()
+		sdl += clause.FloatClause().set_name("ior-k").set_data(self.ior_k).to_sdl_fragment()
+		sdl += clause.FloatClause().set_name("depth").set_data(self.depth).to_sdl_fragment()
+		sdl += clause.FloatClause().set_name("g").set_data(self.g).to_sdl_fragment()
+		sdl += clause.FloatClause().set_name("sigma-a").set_data(self.sigma_a).to_sdl_fragment()
+		sdl += clause.FloatClause().set_name("sigma-s").set_data(self.sigma_s).to_sdl_fragment()
+		return sdl
+
+
 class PhLayeredSurfaceNode(PhMaterialNode):
 	bl_idname = "PH_LAYERED_SURFACE"
 	bl_label  = "Layered Surface"
@@ -523,6 +605,7 @@ class PhLayeredSurfaceNode(PhMaterialNode):
 
 	def init(self, b_context):
 		self.inputs.new(PhSurfaceLayerSocket.bl_idname, PhSurfaceLayerSocket.bl_label)
+		self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
 
 	def draw_buttons(self, b_context, b_layout):
 		b_layout.prop(self, "num_layers")
@@ -531,16 +614,26 @@ class PhLayeredSurfaceNode(PhMaterialNode):
 		surface_mat_socket   = self.outputs[0]
 		surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
 
-		cmd = materialcmd.AbradedTranslucentCreator()
-		cmd.set_data_name(surface_mat_res_name)
-		cmd.set_roughness(self.roughness)
-		cmd.set_ior_outer(self.ior_outer)
-		cmd.set_ior_inner(self.ior_inner)
-		if self.fresnel_type == "SCHLICK_APPROX":
-			cmd.use_schlick_approx()
-		elif self.fresnel_type == "EXACT":
-			cmd.use_exact()
+		cmd = RawCommand()
+		cmd.append_string("-> material(layered-surface) \"@%s\"\n" % surface_mat_res_name)
 		sdlconsole.queue_command(cmd)
+
+		for i in range(0, len(self.inputs)):
+			if not self.inputs[i].links:
+				continue
+
+			surface_layer_node = self.inputs[i].links[0].from_node
+
+			cmd = RawCommand()
+			cmd.append_string("-> material(layered-surface) add(\"@%s\")\n" % surface_mat_res_name)
+			sdlconsole.queue_command(cmd)
+
+			cmd = RawCommand()
+			cmd.append_string("-> material(layered-surface) set(\"@%s\") [integer index %d] %s\n" % (
+				surface_mat_res_name,
+				i,
+				surface_layer_node.to_sdl_fragment()))
+			sdlconsole.queue_command(cmd)
 
 
 class PhMaterialNodeCategory(nodeitems_utils.NodeCategory):
@@ -602,7 +695,8 @@ PH_MATERIAL_NODES = [
 	PhAbradedTranslucentNode,
 	PhPictureNode,
 	PhMultiplyNode,
-	PhLayeredSurfaceNode
+	PhLayeredSurfaceNode,
+	PhSurfaceLayerNode
 ]
 
 
@@ -619,7 +713,8 @@ PH_MATERIAL_NODE_CATEGORIES = [
 		nodeitems_utils.NodeItem(PhBinaryMixedSurfaceNode.bl_idname),
 		nodeitems_utils.NodeItem(PhAbradedOpaqueNode.bl_idname),
 		nodeitems_utils.NodeItem(PhAbradedTranslucentNode.bl_idname),
-		nodeitems_utils.NodeItem(PhLayeredSurfaceNode.bl_idname)
+		nodeitems_utils.NodeItem(PhLayeredSurfaceNode.bl_idname),
+		nodeitems_utils.NodeItem(PhSurfaceLayerNode.bl_idname)
 	]),
 	PhMaterialNodeCategory("MATH", "Math", items = [
 		nodeitems_utils.NodeItem(PhMultiplyNode.bl_idname)

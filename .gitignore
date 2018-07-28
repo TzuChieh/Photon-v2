@@ -77,7 +77,7 @@ __pycache__/
 /build/
 
 # ignore resources, except for test related ones
-/Resource/*
+Resource/
 !/Resource/Test/
 
 # ignore third-party libraries
