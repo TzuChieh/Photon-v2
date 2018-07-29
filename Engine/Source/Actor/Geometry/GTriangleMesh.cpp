@@ -33,6 +33,11 @@ GTriangleMesh::GTriangleMesh(const std::vector<Vector3R>& positions,
 	for(std::size_t i = 0; i < positions.size(); i += 3)
 	{
 		GTriangle triangle(positions[i + 0], positions[i + 1], positions[i + 2]);
+		if(triangle.isDegenerate())
+		{
+			continue;
+		}
+
 		triangle.setUVWa(texCoords[i + 0]);
 		triangle.setUVWb(texCoords[i + 1]);
 		triangle.setUVWc(texCoords[i + 2]);

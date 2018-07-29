@@ -53,6 +53,9 @@ real UniformRandomLightSampler::calcDirectPdfW(const Vector3R& targetPos, const 
 {
 	const real pickPdfW = 1.0_r / static_cast<real>(m_emitters.size());
 	const real samplePdfW = hitEmitter->calcDirectSamplePdfW(targetPos, emitPos, emitN, hitPrim);
+
+	const real samplePdfW2 = hitEmitter->calcDirectSamplePdfW(targetPos, emitPos, emitN, hitPrim);
+
 	return pickPdfW * samplePdfW;
 }
 

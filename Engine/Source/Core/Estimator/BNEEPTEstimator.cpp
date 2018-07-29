@@ -134,7 +134,7 @@ void BNEEPTEstimator::radianceAlongRay(
 		// BSDF sample + indirect light sample
 		//
 		{
-			const PrimitiveMetadata* metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
+			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 			const SurfaceBehavior*   surfaceBehavior = &(metadata->getSurface());
 
 			BsdfSample bsdfSample;
@@ -147,7 +147,7 @@ void BNEEPTEstimator::radianceAlongRay(
 			// blackness check & sidedness agreement between real geometry and shading normal
 			//
 			if(!bsdfSample.outputs.isGood() ||
-			   surfaceHit.getGeometryNormal().dot(L) * surfaceHit.getShadingNormal().dot(L) <= 0.0_r)
+				surfaceHit.getGeometryNormal().dot(L) * surfaceHit.getShadingNormal().dot(L) <= 0.0_r)
 			{
 				break;
 			}
@@ -158,8 +158,17 @@ void BNEEPTEstimator::radianceAlongRay(
 			bsdfPdfQuery.inputs.set(bsdfSample);
 			surfaceBehavior->getOptics()->calcBsdfSamplePdf(bsdfPdfQuery);
 
-			const real     bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
-			const Vector3R directLitPos   = surfaceHit.getPosition();
+			const real bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
+
+			// TODO: We should break right after bsdf sampling if the sample 
+			// is invalid, but current implementation applied pdf on bsdf
+			// beforehand, which might hide cases where pdf = 0.
+			if(bsdfSamplePdfW == 0.0_r)
+			{
+				break;
+			}
+
+			const Vector3R directLitPos = surfaceHit.getPosition();
 
 			// trace a ray using BSDF's suggestion
 			//
@@ -175,7 +184,7 @@ void BNEEPTEstimator::radianceAlongRay(
 				break;
 			}
 
-			metadata        = Xe.getDetail().getPrimitive()->getMetadata();
+			metadata = Xe.getDetail().getPrimitive()->getMetadata();
 			surfaceBehavior = &(metadata->getSurface());
 
 			const Emitter* emitter = surfaceBehavior->getEmitter();
@@ -183,19 +192,22 @@ void BNEEPTEstimator::radianceAlongRay(
 			{
 				SpectralStrength radianceLe;
 				emitter->evalEmittedRadiance(Xe, &radianceLe);
+				if(!radianceLe.isZero())
+				{
+					const real directLightPdfW = PtDirectLightEstimator::sampleUnoccludedPdfW(
+						scene, surfaceHit, Xe, ray.getTime());
 
-				const real directLightPdfW = PtDirectLightEstimator::sampleUnoccludedPdfW(
-					scene, surfaceHit, Xe, ray.getTime());
-				const real misWeighting = mis.weight(bsdfSamplePdfW, directLightPdfW);
+					const real misWeighting = mis.weight(bsdfSamplePdfW, directLightPdfW);
 
-				SpectralStrength weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
-				weight.mulLocal(accuLiWeight).mulLocal(misWeighting);
+					SpectralStrength weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+					weight.mulLocal(accuLiWeight).mulLocal(misWeighting);
 
-				// avoid excessive, negative weight and possible NaNs
-				//
-				rationalClamp(weight);
+					// avoid excessive, negative weight and possible NaNs
+					//
+					rationalClamp(weight);
 
-				accuRadiance.addLocal(radianceLe.mulLocal(weight));
+					accuRadiance.addLocal(radianceLe.mulLocal(weight));
+				}
 			}
 
 			SpectralStrength currentLiWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
@@ -218,8 +230,12 @@ void BNEEPTEstimator::radianceAlongRay(
 				break;
 			}
 
-			V = tracingRay.getDirection().mul(-1.0_r);
+			if(surfaceHit.getGeometryNormal().dot(V) * surfaceHit.getShadingNormal().dot(V) <= 0.0_r)
+			{
+				break;
+			}
 
+			V = tracingRay.getDirection().mul(-1.0_r);
 			PH_ASSERT_MSG(V.isFinite(), V.toString());
 
 			surfaceHit = Xe;
