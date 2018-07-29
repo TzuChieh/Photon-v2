@@ -230,11 +230,6 @@ void BNEEPTEstimator::radianceAlongRay(
 				break;
 			}
 
-			if(surfaceHit.getGeometryNormal().dot(V) * surfaceHit.getShadingNormal().dot(V) <= 0.0_r)
-			{
-				break;
-			}
-
 			V = tracingRay.getDirection().mul(-1.0_r);
 			PH_ASSERT_MSG(V.isFinite(), V.toString());
 
