@@ -28,6 +28,8 @@ public:
 		return roughness;
 	}
 
+	// Mapping for a perceptually linear roughness.
+	//
 	// According to a course note in SIGGRAPH 2014:
 	// Moving Frostbite to Physically Based Rendering 3.0, P.68,
 	// they concluded that a squared mapping gives slightly better distribution 

@@ -21,44 +21,71 @@ SurfaceLayerProperty::SurfaceLayerProperty(const InputPacket& packet) :
 {
 	m_roughness = packet.getReal("roughness", m_roughness);
 
+	m_iorN = loadIorN(packet, m_iorN);
+	m_iorK = loadIorK(packet, m_iorK);
+
+	m_depth = packet.getReal("depth", m_depth);
+	m_g     = packet.getReal("g", m_g);
+	m_sigmaA.setValues(packet.getReal("sigma-a", m_sigmaA.avg()));
+	m_sigmaS.setValues(packet.getReal("sigma-s", m_sigmaS.avg()));
+}
+
+SpectralStrength SurfaceLayerProperty::loadIorN(const InputPacket& packet, const SpectralStrength& defaultIorN)
+{
+	SpectralStrength iorN(defaultIorN);
+
 	InputPrototype exactIorN;
 	exactIorN.addRealArray("ior-n-wavelength-nm");
 	exactIorN.addRealArray("ior-n");
-
-	InputPrototype exactIorK;
-	exactIorK.addRealArray("ior-k-wavelength-nm");
-	exactIorK.addRealArray("ior-k");
 
 	if(packet.isPrototypeMatched(exactIorN))
 	{
 		const auto wavelengths = packet.getRealArray("ior-n-wavelength-nm");
 		const auto iorNs       = packet.getRealArray("ior-n");
 
-		m_iorN.setSampled(SpectralData::calcPiecewiseAveraged(
-			wavelengths.data(), iorNs.data(), wavelengths.size()));
+		iorN.setSampled(
+			SpectralData::calcPiecewiseAveraged(wavelengths.data(), iorNs.data(), wavelengths.size()), 
+			EQuantity::RAW);
+	}
+	else if(packet.hasVector3R("ior-n"))
+	{
+		iorN.setLinearSrgb(packet.getVector3r("ior-n"), EQuantity::RAW);
 	}
 	else if(packet.hasReal("ior-n"))
 	{
-		m_iorN.setValues(packet.getReal("ior-n"));
+		iorN.setValues(packet.getReal("ior-n"));
 	}
+
+	return iorN;
+}
+
+SpectralStrength SurfaceLayerProperty::loadIorK(const InputPacket& packet, const SpectralStrength& defaultIorK)
+{
+	SpectralStrength iorK(defaultIorK);
+
+	InputPrototype exactIorK;
+	exactIorK.addRealArray("ior-k-wavelength-nm");
+	exactIorK.addRealArray("ior-k");
 
 	if(packet.isPrototypeMatched(exactIorK))
 	{
 		const auto wavelengths = packet.getRealArray("ior-k-wavelength-nm");
 		const auto iorKs       = packet.getRealArray("ior-k");
 
-		m_iorK.setSampled(SpectralData::calcPiecewiseAveraged(
-			wavelengths.data(), iorKs.data(), wavelengths.size()));
+		iorK.setSampled(
+			SpectralData::calcPiecewiseAveraged(wavelengths.data(), iorKs.data(), wavelengths.size()), 
+			EQuantity::RAW);
+	}
+	else if(packet.hasVector3R("ior-k"))
+	{
+		iorK.setLinearSrgb(packet.getVector3r("ior-k"), EQuantity::RAW);
 	}
 	else if(packet.hasReal("ior-k"))
 	{
-		m_iorK.setValues(packet.getReal("ior-k"));
+		iorK.setValues(packet.getReal("ior-k"));
 	}
 
-	m_depth = packet.getReal("depth", m_depth);
-	m_g     = packet.getReal("g", m_g);
-	m_sigmaA.setValues(packet.getReal("sigma-a", m_sigmaA.avg()));
-	m_sigmaS.setValues(packet.getReal("sigma-s", m_sigmaS.avg()));
+	return iorK;
 }
 
 }// end namespace ph

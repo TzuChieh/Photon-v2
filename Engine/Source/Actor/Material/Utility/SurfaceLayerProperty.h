@@ -35,6 +35,9 @@ private:
 	real             m_g;
 	SpectralStrength m_sigmaA;
 	SpectralStrength m_sigmaS;
+
+	static SpectralStrength loadIorN(const InputPacket& packet, const SpectralStrength& defaultIorN);
+	static SpectralStrength loadIorK(const InputPacket& packet, const SpectralStrength& defaultIorK);
 };
 
 // In-header Implementations:

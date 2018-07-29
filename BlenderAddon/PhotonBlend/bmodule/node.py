@@ -451,7 +451,7 @@ class PhAbradedTranslucentNode(PhMaterialNode):
 			("EXACT",          "Exact",           "")
 		],
 		name        = "Fresnel Type",
-		description = "Types of Fresnel effect used.",
+		description = "Type of Fresnel effect used.",
 		default     = "EXACT"
 	)
 
@@ -512,18 +512,48 @@ class PhSurfaceLayerNode(PhMaterialNode):
 		max     = 1.0
 	)
 
+	ior_type = bpy.props.EnumProperty(
+		items = [
+			("SCALAR", "Scalar", ""),
+			("RGB",    "RGB",    "")
+		],
+		name        = "IoR Type",
+		description = "Type of IoR data used.",
+		default     = "SCALAR"
+	)
+
 	ior_n = bpy.props.FloatProperty(
-		name    = "IOR N",
+		name    = "IoR N",
 		default = 1.5,
 		min     = 0.0,
 		max     = sys.float_info.max
 	)
 
 	ior_k = bpy.props.FloatProperty(
-		name    = "IOR K",
+		name    = "IoR K",
 		default = 0.0,
 		min     = 0.0,
 		max     = sys.float_info.max
+	)
+
+	ior_n_rgb = bpy.props.FloatVectorProperty(
+		name        = "IoR N",
+		description = "RGB value of IoR N.",
+		default     = [1.5, 1.5, 1.5],
+		min         = 0.0,
+		max         = sys.float_info.max,
+		subtype     = "COLOR",
+		size        = 3
+	)
+
+	ior_k_rgb = bpy.props.FloatVectorProperty(
+		name        = "IoR K",
+		description = "RGB value of IoR K.",
+		default     = [0.0, 0.0, 0.0],
+		min         = 0.0,
+		max         = sys.float_info.max,
+		subtype     = "COLOR",
+		size        = 3
 	)
 
 	depth = bpy.props.FloatProperty(
@@ -558,9 +588,16 @@ class PhSurfaceLayerNode(PhMaterialNode):
 		self.outputs.new(PhSurfaceLayerSocket.bl_idname, PhSurfaceLayerSocket.bl_label)
 
 	def draw_buttons(self, b_context, b_layout):
+		b_layout.prop(self, "ior_type")
 		b_layout.prop(self, "roughness")
-		b_layout.prop(self, "ior_n")
-		b_layout.prop(self, "ior_k")
+
+		if self.ior_type == "SCALAR":
+			b_layout.prop(self, "ior_n")
+			b_layout.prop(self, "ior_k")
+		elif self.ior_type == "RGB":
+			b_layout.prop(self, "ior_n_rgb")
+			b_layout.prop(self, "ior_k_rgb")
+
 		b_layout.prop(self, "depth")
 		b_layout.prop(self, "g")
 		b_layout.prop(self, "sigma_a")
@@ -570,14 +607,22 @@ class PhSurfaceLayerNode(PhMaterialNode):
 		pass
 
 	def to_sdl_fragment(self):
+
 		sdl = ""
 		sdl += clause.FloatClause().set_name("roughness").set_data(self.roughness).to_sdl_fragment()
-		sdl += clause.FloatClause().set_name("ior-n").set_data(self.ior_n).to_sdl_fragment()
-		sdl += clause.FloatClause().set_name("ior-k").set_data(self.ior_k).to_sdl_fragment()
+
+		if self.ior_type == "SCALAR":
+			sdl += clause.FloatClause().set_name("ior-n").set_data(self.ior_n).to_sdl_fragment()
+			sdl += clause.FloatClause().set_name("ior-k").set_data(self.ior_k).to_sdl_fragment()
+		elif self.ior_type == "RGB":
+			sdl += clause.ColorClause().set_name("ior-n").set_data(self.ior_n_rgb).to_sdl_fragment()
+			sdl += clause.ColorClause().set_name("ior-k").set_data(self.ior_k_rgb).to_sdl_fragment()
+
 		sdl += clause.FloatClause().set_name("depth").set_data(self.depth).to_sdl_fragment()
 		sdl += clause.FloatClause().set_name("g").set_data(self.g).to_sdl_fragment()
 		sdl += clause.FloatClause().set_name("sigma-a").set_data(self.sigma_a).to_sdl_fragment()
 		sdl += clause.FloatClause().set_name("sigma-s").set_data(self.sigma_s).to_sdl_fragment()
+
 		return sdl
 
 
