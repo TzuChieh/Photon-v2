@@ -26,6 +26,7 @@ Support the Project:
   * microfacet-based opaque & translucent model
   * ideal reflector, transmitter and absorber
   * measured IOR
+  * layered surface material
 
 * **Geometry**
   * triangle, rectangle
@@ -76,9 +77,9 @@ Photon is being developed with cross-platformity in mind, but Windows is the onl
 (build instructions will be added soon...) <br />
 
 ## Images Rendered by Photon-v2
-| <a href="./gallery/028_sponza gold cups 12800spp.png"><img src="./gallery/028_sponza gold cups 12800spp.png" align="left" width="450" ></a> | <a href="./gallery/048_Arc Reactor (Iron Man) by kuhn0362 8000spp.png"><img src="./gallery/048_Arc Reactor (Iron Man) by kuhn0362 8000spp.png" align="left" width="450" ></a> |
+| <a href="./gallery/054_chess (based on _Transparent Chess For Cycle_ by yayel59) 4000spp.png"><img src="./gallery/054_chess (based on _Transparent Chess For Cycle_ by yayel59) 4000spp.png" align="left" width="450" ></a> | <a href="./gallery/048_Arc Reactor (Iron Man) by kuhn0362 8000spp.png"><img src="./gallery/048_Arc Reactor (Iron Man) by kuhn0362 8000spp.png" align="left" width="450" ></a> |
 | :---: | :---: |
-| Gold Cups in Sponza | Arc Reactor (Iron Man) by "kuhn0362"|
+| Chess (based on scene made by "yaye159") | Arc Reactor (Iron Man) by "kuhn0362"|
 
 | <a href="./gallery/044_scenery glass dragon 6000spp.png"><img src="./gallery/044_scenery glass dragon 6000spp.png" align="left" width="450" ></a> | <a href="./gallery/books.png"><img src="./gallery/books.png" align="left" width="450" ></a> |
 | :---: | :---: |

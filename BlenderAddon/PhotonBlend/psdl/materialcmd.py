@@ -68,6 +68,13 @@ class AbstractAbradedCreator(MaterialCreator):
 	def set_roughness(self, roughness):
 		self.update_clause(FloatClause().set_name("roughness").set_data(roughness))
 
+	def set_roughness_image_ref(self, ref_name):
+		clause = SdlReferenceClause()
+		clause.set_name("roughness")
+		clause.set_data(ref_name)
+		clause.set_reference_category("image")
+		self.update_clause(clause)
+
 
 class AbradedOpaqueCreator(AbstractAbradedCreator):
 

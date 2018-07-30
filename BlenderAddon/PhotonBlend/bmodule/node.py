@@ -327,13 +327,6 @@ class PhAbradedOpaqueNode(PhMaterialNode):
 	bl_idname = "PH_ABRADED_OPAQUE"
 	bl_label  = "Abraded Opaque"
 
-	roughness = bpy.props.FloatProperty(
-		name    = "Roughness",
-		default = 0.5,
-		min     = 0.0,
-		max     = 1.0
-	)
-
 	f0 = bpy.props.FloatVectorProperty(
 		name        = "Color",
 		description = "color value",
@@ -345,20 +338,34 @@ class PhAbradedOpaqueNode(PhMaterialNode):
 	)
 
 	def init(self, b_context):
+		self.inputs.new(PhFloatSocket.bl_idname, "Roughness")
 		self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
 
 	def draw_buttons(self, b_context, b_layout):
-		b_layout.prop(self, "roughness")
 		b_layout.prop(self, "f0")
 
 	def to_sdl(self, res_name, sdlconsole):
+
 		surface_mat_socket   = self.outputs[0]
 		surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
 
 		cmd = materialcmd.AbradedOpaqueCreator()
 		cmd.set_data_name(surface_mat_res_name)
 		cmd.set_anisotropicity(False)
-		cmd.set_roughness(self.roughness)
+
+		cmd.set_roughness(self.inputs[0].default_value)
+
+		# roughness_socket   = self.inputs[0]
+		# roughness_res_name = roughness_socket.get_from_res_name(res_name)
+		# if roughness_res_name is None:
+		# 	cmd = imagecmd.ConstantImageCreator()
+		# 	roughness_res_name = res_name + "_" + self.name + "_" + roughness_socket.identifier
+		# 	cmd.set_data_name(roughness_res_name)
+		# 	roughness = roughness_socket.default_value
+		# 	cmd.set_real_value(roughness)
+		# 	cmd.intent_is_raw()
+		# 	sdlconsole.queue_command(cmd)
+
 		cmd.set_f0(mathutils.Color((self.f0[0], self.f0[1], self.f0[2])))
 		sdlconsole.queue_command(cmd)
 
