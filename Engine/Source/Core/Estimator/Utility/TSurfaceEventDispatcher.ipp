@@ -34,16 +34,16 @@ namespace
 	}
 }
 
-template<ESidednessAgreement SA>
-inline TSurfaceEventDispatcher<SA>::TSurfaceEventDispatcher(
+template<ESaPolicy POLICY>
+inline TSurfaceEventDispatcher<POLICY>::TSurfaceEventDispatcher(
 	const Scene* const scene) :
 	m_scene(scene)
 {
 	PH_ASSERT(scene);
 }
 
-template<ESidednessAgreement SA>
-inline bool TSurfaceEventDispatcher<SA>::traceNextSurface(
+template<ESaPolicy POLICY>
+inline bool TSurfaceEventDispatcher<POLICY>::traceNextSurface(
 	const Ray&        ray,
 	SurfaceHit* const out_X) const
 {
@@ -56,13 +56,13 @@ inline bool TSurfaceEventDispatcher<SA>::traceNextSurface(
 	}
 
 	*out_X = SurfaceHit(ray, probe);
-	adjustForSidednessAgreement(*out_X);
+	TSidednessAgreement<POLICY>().adjustForSidednessAgreement(*out_X);
 
-	return isSidednessAgreed(*out_X, ray.getDirection());
+	return TSidednessAgreement<POLICY>().isSidednessAgreed(*out_X, ray.getDirection());
 }
 
-template<ESidednessAgreement SA>
-inline bool TSurfaceEventDispatcher<SA>::doBsdfSample(
+template<ESaPolicy POLICY>
+inline bool TSurfaceEventDispatcher<POLICY>::doBsdfSample(
 	const SurfaceHit& X,
 	BsdfSample&       bsdfSample,
 	Ray* const        out_ray) const
@@ -70,7 +70,7 @@ inline bool TSurfaceEventDispatcher<SA>::doBsdfSample(
 	PH_ASSERT(m_scene && out_ray);
 
 	if(!X.hasSurfaceOptics() || 
-	   !isSidednessAgreed(X, bsdfSample.inputs.V))
+	   !TSidednessAgreement<POLICY>().isSidednessAgreed(X, bsdfSample.inputs.V))
 	{
 		return false;
 	}
@@ -81,19 +81,19 @@ inline bool TSurfaceEventDispatcher<SA>::doBsdfSample(
 	*out_ray = Ray(X.getPosition(), bsdfSample.outputs.L, 0.0001_r, std::numeric_limits<real>::max());
 
 	return bsdfSample.outputs.isGood() &&
-	       isSidednessAgreed(X, bsdfSample.outputs.L);
+	       TSidednessAgreement<POLICY>().isSidednessAgreed(X, bsdfSample.outputs.L);
 }
 
-template<ESidednessAgreement SA>
-inline bool TSurfaceEventDispatcher<SA>::doBsdfEvaluation(
+template<ESaPolicy POLICY>
+inline bool TSurfaceEventDispatcher<POLICY>::doBsdfEvaluation(
 	const SurfaceHit& X,
 	BsdfEvaluation&   bsdfEvaluation) const
 {
 	PH_ASSERT(m_scene);
 
 	if(!X.hasSurfaceOptics() ||
-	   !isSidednessAgreed(X, bsdfEvaluation.inputs.V) ||
-	   !isSidednessAgreed(X, bsdfEvaluation.inputs.L))
+	   !TSidednessAgreement<POLICY>().isSidednessAgreed(X, bsdfEvaluation.inputs.V) ||
+	   !TSidednessAgreement<POLICY>().isSidednessAgreed(X, bsdfEvaluation.inputs.L))
 	{
 		return false;
 	}
@@ -103,16 +103,16 @@ inline bool TSurfaceEventDispatcher<SA>::doBsdfEvaluation(
 	return bsdfEvaluation.outputs.isGood();
 }
 
-template<ESidednessAgreement SA>
-inline bool TSurfaceEventDispatcher<SA>::doBsdfPdfQuery(
+template<ESaPolicy POLICY>
+inline bool TSurfaceEventDispatcher<POLICY>::doBsdfPdfQuery(
 	const SurfaceHit& X,
 	BsdfPdfQuery&     bsdfPdfQuery) const
 {
 	PH_ASSERT(m_scene);
 
 	if(!X.hasSurfaceOptics() ||
-	   !isSidednessAgreed(X, bsdfPdfQuery.inputs.V) ||
-	   !isSidednessAgreed(X, bsdfPdfQuery.inputs.L))
+	   !TSidednessAgreement<POLICY>().isSidednessAgreed(X, bsdfPdfQuery.inputs.V) ||
+	   !TSidednessAgreement<POLICY>().isSidednessAgreed(X, bsdfPdfQuery.inputs.L))
 	{
 		return false;
 	}
@@ -120,31 +120,6 @@ inline bool TSurfaceEventDispatcher<SA>::doBsdfPdfQuery(
 	get_surface_optics(X)->calcBsdfSamplePdf(bsdfPdfQuery);
 
 	return bsdfPdfQuery.outputs.sampleDirPdfW > 0.0_r;
-}
-
-template<ESidednessAgreement SA>
-inline bool TSurfaceEventDispatcher<SA>::isSidednessAgreed(
-	const SurfaceHit& X,
-	const Vector3R&   targetVector) const
-{
-	if constexpr(SA == ESidednessAgreement::DO_NOT_CARE)
-	{
-		return true;
-	}
-	else
-	{
-		const Vector3R& Ng = X.getGeometryNormal();
-		const Vector3R& Ns = X.getShadingNormal();
-
-		return Ng.dot(targetVector) * Ns.dot(targetVector) > 0.0_r;
-	}
-}
-
-template<ESidednessAgreement SA>
-inline void TSurfaceEventDispatcher<SA>::adjustForSidednessAgreement(
-	SurfaceHit& X) const
-{
-	// currently no adjustment
 }
 
 }// end namespace ph

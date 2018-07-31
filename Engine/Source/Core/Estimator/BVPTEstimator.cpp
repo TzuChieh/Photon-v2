@@ -34,7 +34,7 @@ void BVPTEstimator::radianceAlongRay(
 	SpectralStrength& out_radiance,
 	SurfaceHit&       out_firstHit) const
 {
-	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESidednessAgreement::STRICT>(&(integrand.getScene()));
+	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESaPolicy::STRICT>(&(integrand.getScene()));
 
 	uint32 numBounces = 0;
 	SpectralStrength accuRadiance(0);
