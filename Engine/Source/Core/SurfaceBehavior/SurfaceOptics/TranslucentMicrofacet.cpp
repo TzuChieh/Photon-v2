@@ -9,6 +9,7 @@
 #include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
 #include "Core/SurfaceBehavior/BsdfHelper.h"
 #include "Common/assertion.h"
+#include "Core/Estimator/Utility/TSidednessAgreement.h"
 
 #include <memory>
 #include <iostream>
@@ -21,7 +22,7 @@ TranslucentMicrofacet::TranslucentMicrofacet() :
 	m_fresnel   (std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r)),
 	m_microfacet(std::make_shared<IsoTrowbridgeReitz>(0.5_r))
 {
-	m_phenomena.set({ESP::GLOSSY_REFLECTION, ESP::GLISSY_TRANSMISSION});
+	m_phenomena.set({ESP::GLOSSY_REFLECTION, ESP::GLOSSY_TRANSMISSION});
 }
 
 TranslucentMicrofacet::~TranslucentMicrofacet() = default;
@@ -38,7 +39,7 @@ void TranslucentMicrofacet::evalBsdf(
 	const real NoV = N.dot(V);
 
 	// reflection
-	if(NoL * NoV >= 0.0_r)
+	if(NoL * NoV > 0.0_r && TSidednessAgreement<ESaPolicy::TRUST_GEOMETRY>().isSameHemisphere(X, V, L))
 	{
 		Vector3R H;
 		if(!BsdfHelper::makeHalfVectorSameHemisphere(L, V, N, &H))
@@ -60,7 +61,7 @@ void TranslucentMicrofacet::evalBsdf(
 		*out_bsdf = F.mul(D * G / (4.0_r * std::abs(NoV * NoL)));
 	}
 	// refraction
-	else
+	else if(NoL * NoV < 0.0_r && TSidednessAgreement<ESaPolicy::TRUST_GEOMETRY>().isOppositeHemisphere(X, V, L))
 	{
 		real etaI = m_fresnel->getIorOuter();
 		real etaT = m_fresnel->getIorInner();
@@ -96,6 +97,10 @@ void TranslucentMicrofacet::evalBsdf(
 		const real iorTerm = etaI / (etaI * HoL + etaT * HoV);
 		*out_bsdf = F.complement().mul(D * G * dotTerm * (iorTerm * iorTerm));
 	}
+	else
+	{
+		out_bsdf->setValues(0);
+	}
 }
 
 void TranslucentMicrofacet::genBsdfSample(
@@ -104,6 +109,8 @@ void TranslucentMicrofacet::genBsdfSample(
 	SpectralStrength* const out_pdfAppliedBsdf) const
 {
 	PH_ASSERT(out_L && out_pdfAppliedBsdf);
+
+	out_pdfAppliedBsdf->setValues(0);
 
 	// Cook-Torrance microfacet specular BRDF for translucent surface is:
 	// |HoL||HoV|/(|NoL||NoV|)*(iorO^2)*(D(H)*F(V, H)*G(L, V, H)) / (iorI*HoL + iorO*HoV)^2.
@@ -138,6 +145,10 @@ void TranslucentMicrofacet::genBsdfSample(
 	{
 		// calculate reflected L
 		*out_L = V.mul(-1.0_r).reflect(H).normalizeLocal();
+		if(!TSidednessAgreement<ESaPolicy::TRUST_GEOMETRY>().isSameHemisphere(X, V, *out_L))
+		{
+			return;
+		}
 
 		// account for probability
 		F.divLocal(reflectProb);
@@ -145,6 +156,11 @@ void TranslucentMicrofacet::genBsdfSample(
 	// refract path
 	else if(m_fresnel->calcRefractDir(V, H, out_L))
 	{
+		if(!TSidednessAgreement<ESaPolicy::TRUST_GEOMETRY>().isOppositeHemisphere(X, V, *out_L))
+		{
+			return;
+		}
+
 		m_fresnel->calcTransmittance(out_L->dot(H), &F);
 
 		// account for probability
@@ -152,7 +168,7 @@ void TranslucentMicrofacet::genBsdfSample(
 	}
 	else
 	{
-		// this may be called due to numerical error
+		// RARE: may be called due to numerical error
 		out_pdfAppliedBsdf->setValues(0);
 		return;
 	}
@@ -179,7 +195,7 @@ void TranslucentMicrofacet::calcBsdfSamplePdf(
 	const real NoL = N.dot(L);
 
 	// reflection
-	if(NoV * NoL > 0.0_r)
+	if(NoV * NoL > 0.0_r && TSidednessAgreement<ESaPolicy::TRUST_GEOMETRY>().isSameHemisphere(X, V, L))
 	{
 		Vector3R H;
 		if(!BsdfHelper::makeHalfVectorSameHemisphere(L, V, N, &H))
@@ -200,7 +216,7 @@ void TranslucentMicrofacet::calcBsdfSamplePdf(
 		*out_pdfW = std::abs(D * NoH / (4.0_r * HoL)) * reflectProb;
 	}
 	// refraction
-	else if(NoV * NoL < 0.0_r)
+	else if(NoV * NoL < 0.0_r && TSidednessAgreement<ESaPolicy::TRUST_GEOMETRY>().isOppositeHemisphere(X, V, L))
 	{
 		real etaI = m_fresnel->getIorOuter();
 		real etaT = m_fresnel->getIorInner();
@@ -239,7 +255,6 @@ void TranslucentMicrofacet::calcBsdfSamplePdf(
 	}
 	else
 	{
-		std::cerr << "warning: at TranslucentMicrofacet::calcSampleDirPdfW(), invalid phenomenon type detected" << std::endl;
 		*out_pdfW = 0.0_r;
 	}
 }

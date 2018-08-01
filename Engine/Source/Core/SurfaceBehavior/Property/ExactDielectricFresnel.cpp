@@ -1,19 +1,20 @@
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
+#include "Common/assertion.h"
 
 namespace ph
 {
 
 ExactDielectricFresnel::ExactDielectricFresnel(const real iorOuter, const real iorInner) :
 	DielectricFresnel(iorOuter, iorInner)
-{
-
-}
+{}
 
 ExactDielectricFresnel::~ExactDielectricFresnel() = default;
 
 void ExactDielectricFresnel::calcReflectance(const real cosThetaIncident,
                                              SpectralStrength* const out_reflectance) const
 {
+	PH_ASSERT(out_reflectance);
+
 	real etaI = m_iorOuter;
 	real etaT = m_iorInner;
 
