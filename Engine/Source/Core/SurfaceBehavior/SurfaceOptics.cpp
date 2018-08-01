@@ -2,7 +2,7 @@
 #include "Core/SurfaceBehavior/BsdfEvaluation.h"
 #include "Core/SurfaceBehavior/BsdfSample.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
-#include "Core/Estimator/Utility/TSidednessAgreement.h"
+#include "Core/SidednessAgreement.h"
 
 namespace ph
 {
@@ -15,7 +15,7 @@ SurfaceOptics::~SurfaceOptics() = default;
 
 void SurfaceOptics::evalBsdf(BsdfEvaluation& eval) const
 {
-	const TSidednessAgreement<ESaPolicy::STRICT> sidedness;
+	const SidednessAgreement sidedness(ESaPolicy::STRICT);
 	const bool isSameHemisphere = sidedness.isSameHemisphere(eval.inputs.X, eval.inputs.V, eval.inputs.L);
 	const bool isOppositeHemisphere = sidedness.isOppositeHemisphere(eval.inputs.X, eval.inputs.V, eval.inputs.L);
 
@@ -38,7 +38,7 @@ void SurfaceOptics::genBsdfSample(BsdfSample& sample) const
 		sample.inputs.X, sample.inputs.V,
 		&(sample.outputs.L), &(sample.outputs.pdfAppliedBsdf));
 
-	const TSidednessAgreement<ESaPolicy::STRICT> sidedness;
+	const SidednessAgreement sidedness(ESaPolicy::STRICT);
 	const bool isSameHemisphere = sidedness.isSameHemisphere(sample.inputs.X, sample.inputs.V, sample.outputs.L);
 	const bool isOppositeHemisphere = sidedness.isOppositeHemisphere(sample.inputs.X, sample.inputs.V, sample.outputs.L);
 
@@ -59,7 +59,7 @@ void SurfaceOptics::calcBsdfSamplePdf(BsdfPdfQuery& query) const
 		query.inputs.X, query.inputs.L, query.inputs.V,
 		&(query.outputs.sampleDirPdfW));
 
-	const TSidednessAgreement<ESaPolicy::STRICT> sidedness;
+	const SidednessAgreement sidedness(ESaPolicy::STRICT);
 	const bool isSameHemisphere = sidedness.isSameHemisphere(query.inputs.X, query.inputs.V, query.inputs.L);
 	const bool isOppositeHemisphere = sidedness.isOppositeHemisphere(query.inputs.X, query.inputs.V, query.inputs.L);
 

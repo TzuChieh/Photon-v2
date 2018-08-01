@@ -56,9 +56,9 @@ inline bool TSurfaceEventDispatcher<POLICY>::traceNextSurface(
 	}
 
 	*out_X = SurfaceHit(ray, probe);
-	TSidednessAgreement<POLICY>().adjustForSidednessAgreement(*out_X);
+	SidednessAgreement(POLICY).adjustForSidednessAgreement(*out_X);
 
-	return TSidednessAgreement<POLICY>().isSidednessAgreed(*out_X, ray.getDirection());
+	return SidednessAgreement(POLICY).isSidednessAgreed(*out_X, ray.getDirection());
 }
 
 template<ESaPolicy POLICY>
@@ -70,7 +70,7 @@ inline bool TSurfaceEventDispatcher<POLICY>::doBsdfSample(
 	PH_ASSERT(m_scene && out_ray);
 
 	if(!X.hasSurfaceOptics() || 
-	   !TSidednessAgreement<POLICY>().isSidednessAgreed(X, bsdfSample.inputs.V))
+	   !SidednessAgreement(POLICY).isSidednessAgreed(X, bsdfSample.inputs.V))
 	{
 		return false;
 	}
@@ -81,7 +81,7 @@ inline bool TSurfaceEventDispatcher<POLICY>::doBsdfSample(
 	*out_ray = Ray(X.getPosition(), bsdfSample.outputs.L, 0.0001_r, std::numeric_limits<real>::max());
 
 	return bsdfSample.outputs.isGood() &&
-	       TSidednessAgreement<POLICY>().isSidednessAgreed(X, bsdfSample.outputs.L);
+	       SidednessAgreement(POLICY).isSidednessAgreed(X, bsdfSample.outputs.L);
 }
 
 template<ESaPolicy POLICY>
@@ -92,8 +92,8 @@ inline bool TSurfaceEventDispatcher<POLICY>::doBsdfEvaluation(
 	PH_ASSERT(m_scene);
 
 	if(!X.hasSurfaceOptics() ||
-	   !TSidednessAgreement<POLICY>().isSidednessAgreed(X, bsdfEvaluation.inputs.V) ||
-	   !TSidednessAgreement<POLICY>().isSidednessAgreed(X, bsdfEvaluation.inputs.L))
+	   !SidednessAgreement(POLICY).isSidednessAgreed(X, bsdfEvaluation.inputs.V) ||
+	   !SidednessAgreement(POLICY).isSidednessAgreed(X, bsdfEvaluation.inputs.L))
 	{
 		return false;
 	}
@@ -111,8 +111,8 @@ inline bool TSurfaceEventDispatcher<POLICY>::doBsdfPdfQuery(
 	PH_ASSERT(m_scene);
 
 	if(!X.hasSurfaceOptics() ||
-	   !TSidednessAgreement<POLICY>().isSidednessAgreed(X, bsdfPdfQuery.inputs.V) ||
-	   !TSidednessAgreement<POLICY>().isSidednessAgreed(X, bsdfPdfQuery.inputs.L))
+	   !SidednessAgreement(POLICY).isSidednessAgreed(X, bsdfPdfQuery.inputs.V) ||
+	   !SidednessAgreement(POLICY).isSidednessAgreed(X, bsdfPdfQuery.inputs.L))
 	{
 		return false;
 	}

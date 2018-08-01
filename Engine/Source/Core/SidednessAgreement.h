@@ -28,13 +28,15 @@ enum class ESaPolicy
 	TRUST_SHADING
 };
 
-template<ESaPolicy POLICY>
-class TSidednessAgreement
+class SidednessAgreement
 {
 public:
+	SidednessAgreement();
+	explicit SidednessAgreement(ESaPolicy policy);
+
 	bool isSidednessAgreed(
 		const SurfaceHit& X, 
-		const Vector3R&   targetVector) const;
+		const Vector3R&   vec) const;
 
 	bool isSameHemisphere(
 		const SurfaceHit& X, 
@@ -50,45 +52,75 @@ public:
 		SurfaceHit& X) const;
 
 private:
-	// TODO: variables for runtime usage
+	ESaPolicy m_policy;
 };
 
 // In-header Implementations:
 
-template<ESaPolicy POLICY>
-inline bool TSidednessAgreement<POLICY>::isSidednessAgreed(
+inline SidednessAgreement::SidednessAgreement() : 
+	SidednessAgreement(ESaPolicy::DO_NOT_CARE)
+{}
+
+inline SidednessAgreement::SidednessAgreement(const ESaPolicy policy) : 
+	m_policy(policy)
+{}
+
+inline bool SidednessAgreement::isSidednessAgreed(
 	const SurfaceHit& X,
-	const Vector3R&   targetVector) const
+	const Vector3R&   vec) const
 {
-	if constexpr(
-		POLICY == ESaPolicy::DO_NOT_CARE    || 
-		POLICY == ESaPolicy::TRUST_GEOMETRY ||
-		POLICY == ESaPolicy::TRUST_SHADING)
+	switch(m_policy)
+	{
+	case ESaPolicy::DO_NOT_CARE: 
+	case ESaPolicy::TRUST_GEOMETRY:
+	case ESaPolicy::TRUST_SHADING:
 	{
 		// no agreement issue with single input vector with these policies
 		return true;
+		break;
 	}
-	else if constexpr(POLICY == ESaPolicy::STRICT)
+
+	case ESaPolicy::STRICT:
 	{
 		const Vector3R& Ng = X.getGeometryNormal();
 		const Vector3R& Ns = X.getShadingNormal();
 
-		return Ng.dot(targetVector) * Ns.dot(targetVector) > 0.0_r;
+		return Ng.dot(vec) * Ns.dot(vec) > 0.0_r;
+		break;
 	}
-	else
-	{
+
+	default:
 		PH_ASSERT_UNREACHABLE_SECTION();
 		return false;
+		break;
 	}
 }
 
-template<ESaPolicy POLICY>
-inline bool TSidednessAgreement<POLICY>::isSameHemisphere(
+inline bool SidednessAgreement::isSameHemisphere(
 	const SurfaceHit& X,
 	const Vector3R&   vecA,
 	const Vector3R&   vecB) const
 {
-	if constexpr(POLICY == ESaPolicy::STRICT)
+	switch(m_policy)
+	{
+	case ESaPolicy::TRUST_GEOMETRY:
+	case ESaPolicy::DO_NOT_CARE: 
+	{
+		const Vector3R& Ng = X.getGeometryNormal();
+
+		return Ng.dot(vecA) * Ng.dot(vecB) > 0.0_r;
+		break;
+	}
+
+	case ESaPolicy::TRUST_SHADING:
+	{
+		const Vector3R& Ns = X.getShadingNormal();
+
+		return Ns.dot(vecA) * Ns.dot(vecB) > 0.0_r;
+		break;
+	}
+
+	case ESaPolicy::STRICT:
 	{
 		const Vector3R& N = X.getGeometryNormal();
 
@@ -96,35 +128,41 @@ inline bool TSidednessAgreement<POLICY>::isSameHemisphere(
 		       isSidednessAgreed(X, vecB) &&     // agreed on sidedness.
 		       vecA.dot(N) * vecB.dot(N) > 0.0_r;// Then testing hemisphere with either normal
 		                                         // (the other normal would yield same sign)
+		break;
 	}
-	else if constexpr(POLICY == ESaPolicy::TRUST_GEOMETRY)
-	{
-		const Vector3R& Ng = X.getGeometryNormal();
 
-		return Ng.dot(vecA) * Ng.dot(vecB) > 0.0_r;
-	}
-	else if constexpr(
-		POLICY == ESaPolicy::TRUST_SHADING || 
-		POLICY == ESaPolicy::DO_NOT_CARE)
-	{
-		const Vector3R& Ns = X.getShadingNormal();
-
-		return Ns.dot(vecA) * Ns.dot(vecB) > 0.0_r;
-	}
-	else
-	{
+	default:
 		PH_ASSERT_UNREACHABLE_SECTION();
 		return false;
+		break;
 	}
 }
 
-template<ESaPolicy POLICY>
-inline bool TSidednessAgreement<POLICY>::isOppositeHemisphere(
+inline bool SidednessAgreement::isOppositeHemisphere(
 	const SurfaceHit& X,
 	const Vector3R&   vecA,
 	const Vector3R&   vecB) const
 {
-	if constexpr(POLICY == ESaPolicy::STRICT)
+	switch(m_policy)
+	{
+	case ESaPolicy::TRUST_GEOMETRY:
+	case ESaPolicy::DO_NOT_CARE: 
+	{
+		const Vector3R& Ng = X.getGeometryNormal();
+
+		return Ng.dot(vecA) * Ng.dot(vecB) < 0.0_r;
+		break;
+	}
+
+	case ESaPolicy::TRUST_SHADING:
+	{
+		const Vector3R& Ns = X.getShadingNormal();
+
+		return Ns.dot(vecA) * Ns.dot(vecB) < 0.0_r;
+		break;
+	}
+
+	case ESaPolicy::STRICT:
 	{
 		const Vector3R& N = X.getGeometryNormal();
 
@@ -133,29 +171,15 @@ inline bool TSidednessAgreement<POLICY>::isOppositeHemisphere(
 		       vecA.dot(N) * vecB.dot(N) < 0.0_r;// Then testing hemisphere with either normal
 		                                         // (the other normal would yield same sign)
 	}
-	else if constexpr(POLICY == ESaPolicy::TRUST_GEOMETRY)
-	{
-		const Vector3R& Ng = X.getGeometryNormal();
 
-		return Ng.dot(vecA) * Ng.dot(vecB) < 0.0_r;
-	}
-	else if constexpr(
-		POLICY == ESaPolicy::TRUST_SHADING || 
-		POLICY == ESaPolicy::DO_NOT_CARE)
-	{
-		const Vector3R& Ns = X.getShadingNormal();
-
-		return Ns.dot(vecA) * Ns.dot(vecB) < 0.0_r;
-	}
-	else
-	{
+	default:
 		PH_ASSERT_UNREACHABLE_SECTION();
 		return false;
+		break;
 	}
 }
 
-template<ESaPolicy POLICY>
-inline void TSidednessAgreement<POLICY>::adjustForSidednessAgreement(
+inline void SidednessAgreement::adjustForSidednessAgreement(
 	SurfaceHit& X) const
 {
 	// currently no adjustment
