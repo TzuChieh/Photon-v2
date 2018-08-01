@@ -13,6 +13,7 @@ class Ray;
 class BsdfEvaluation;
 class BsdfSample;
 class BsdfPdfQuery;
+class SidednessAgreement;
 
 class SurfaceOptics
 {
@@ -37,17 +38,25 @@ protected:
 
 private:
 	virtual void evalBsdf(
-		const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-		SpectralStrength* out_bsdf) const = 0;
+		const SurfaceHit&         X, 
+		const Vector3R&           L, 
+		const Vector3R&           V,
+		const SidednessAgreement& sidedness,
+		SpectralStrength*         out_bsdf) const = 0;
 
 	virtual void genBsdfSample(
-		const SurfaceHit& X, const Vector3R& V,
-		Vector3R* out_L, 
-		SpectralStrength* out_pdfAppliedBsdf) const = 0;
+		const SurfaceHit&         X, 
+		const Vector3R&           V,
+		const SidednessAgreement& sidedness,
+		Vector3R*                 out_L, 
+		SpectralStrength*         out_pdfAppliedBsdf) const = 0;
 
 	virtual void calcBsdfSamplePdf(
-		const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-		real* out_pdfW) const = 0;
+		const SurfaceHit&         X, 
+		const Vector3R&           L, 
+		const Vector3R&           V,
+		const SidednessAgreement& sidedness,
+		real*                     out_pdfW) const = 0;
 };
 
 }// end namespace ph

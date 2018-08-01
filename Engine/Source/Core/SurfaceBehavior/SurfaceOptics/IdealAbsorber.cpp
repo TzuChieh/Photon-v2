@@ -13,8 +13,11 @@ IdealAbsorber::IdealAbsorber() :
 IdealAbsorber::~IdealAbsorber() = default;
 
 void IdealAbsorber::evalBsdf(
-	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-	SpectralStrength* const out_bsdf) const
+	const SurfaceHit&         X,
+	const Vector3R&           L,
+	const Vector3R&           V,
+	const SidednessAgreement& sidedness,
+	SpectralStrength* const   out_bsdf) const
 {
 	PH_ASSERT(out_bsdf);
 
@@ -22,9 +25,11 @@ void IdealAbsorber::evalBsdf(
 }
 
 void IdealAbsorber::genBsdfSample(
-	const SurfaceHit& X, const Vector3R& V,
-	Vector3R* const         out_L,
-	SpectralStrength* const out_pdfAppliedBsdf) const
+	const SurfaceHit&         X,
+	const Vector3R&           V,
+	const SidednessAgreement& sidedness,
+	Vector3R* const           out_L,
+	SpectralStrength* const   out_pdfAppliedBsdf) const
 {
 	PH_ASSERT(out_L && out_pdfAppliedBsdf);
 
@@ -32,8 +37,11 @@ void IdealAbsorber::genBsdfSample(
 }
 
 void IdealAbsorber::calcBsdfSamplePdf(
-	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-	real* const out_pdfW) const
+	const SurfaceHit&         X,
+	const Vector3R&           L,
+	const Vector3R&           V,
+	const SidednessAgreement& sidedness,
+	real* const               out_pdfW) const
 {
 	PH_ASSERT(out_pdfW);
 

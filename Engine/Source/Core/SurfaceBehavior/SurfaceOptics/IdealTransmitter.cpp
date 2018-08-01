@@ -15,8 +15,11 @@ IdealTransmitter::IdealTransmitter() :
 IdealTransmitter::~IdealTransmitter() = default;
 
 void IdealTransmitter::evalBsdf(
-	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-	SpectralStrength* const out_bsdf) const
+	const SurfaceHit&         X,
+	const Vector3R&           L,
+	const Vector3R&           V,
+	const SidednessAgreement& sidedness,
+	SpectralStrength* const   out_bsdf) const
 {
 	PH_ASSERT(out_bsdf);
 
@@ -24,9 +27,11 @@ void IdealTransmitter::evalBsdf(
 }
 
 void IdealTransmitter::genBsdfSample(
-	const SurfaceHit& X, const Vector3R& V,
-	Vector3R* const         out_L,
-	SpectralStrength* const out_pdfAppliedBsdf) const
+	const SurfaceHit&         X,
+	const Vector3R&           V,
+	const SidednessAgreement& sidedness,
+	Vector3R* const           out_L,
+	SpectralStrength* const   out_pdfAppliedBsdf) const
 {
 	PH_ASSERT(out_L && out_pdfAppliedBsdf);
 
@@ -55,8 +60,11 @@ void IdealTransmitter::genBsdfSample(
 }
 
 void IdealTransmitter::calcBsdfSamplePdf(
-	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-	real* const out_pdfW) const
+	const SurfaceHit&         X,
+	const Vector3R&           L,
+	const Vector3R&           V,
+	const SidednessAgreement& sidedness,
+	real* const               out_pdfW) const
 {
 	PH_ASSERT(out_pdfW);
 

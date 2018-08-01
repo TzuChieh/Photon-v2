@@ -40,8 +40,8 @@ void SamplingRenderWork::doWork()
 	
 	const uint64 numCamPhaseSamples = static_cast<uint64>(rasterSampleSize.x * rasterSampleSize.y + 0.5);
 
-	const Vector2D ndcScale(rasterSampleSize.div(rasterSize));
-	const Vector2D ndcOffset(sampleMinVertex.div(rasterSize));
+	const Vector2D ndcScale(rasterSampleSize.div(Vector2D(lightFilm->getActualResPx())));
+	const Vector2D ndcOffset(sampleMinVertex.div(Vector2D(lightFilm->getActualResPx())));
 
 	TSamplePhase<SampleArray2D> camSamplePhase = m_sampleGenerator->declareArray2DPhase(numCamPhaseSamples);
 

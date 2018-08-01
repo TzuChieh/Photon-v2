@@ -5,6 +5,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayer.h"
 #include "Math/Random.h"
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
+#include "Core/SidednessAgreement.h"
 
 #include <cmath>
 
@@ -45,24 +46,24 @@ LbLayeredSurface::LbLayeredSurface(
 LbLayeredSurface::~LbLayeredSurface() = default;
 
 void LbLayeredSurface::evalBsdf(
-	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-	SpectralStrength* const out_bsdf) const
+	const SurfaceHit&         X,
+	const Vector3R&           L,
+	const Vector3R&           V,
+	const SidednessAgreement& sidedness,
+	SpectralStrength* const   out_bsdf) const
 {
 	PH_ASSERT(out_bsdf);
 
 	out_bsdf->setValues(0);
 
-	const Vector3R& N = X.getShadingNormal();
-
-	const real NoL = N.dot(L);
-	const real NoV = N.dot(V);
-
-	// check if L, V lies on different side of the surface
-	if(NoL * NoV <= 0.0_r)
+	if(!sidedness.isSameHemisphere(X, L, V))
 	{
 		return;
 	}
 
+	const Vector3R& N = X.getShadingNormal();
+	const real NoL = N.dot(L);
+	const real NoV = N.dot(V);
 	const real brdfDeno = 4.0_r * std::abs(NoV * NoL);
 	if(brdfDeno == 0.0_r)
 	{
@@ -95,9 +96,11 @@ void LbLayeredSurface::evalBsdf(
 }
 
 void LbLayeredSurface::genBsdfSample(
-	const SurfaceHit& X, const Vector3R& V,
-	Vector3R* const         out_L,
-	SpectralStrength* const out_pdfAppliedBsdf) const
+	const SurfaceHit&         X,
+	const Vector3R&           V,
+	const SidednessAgreement& sidedness,
+	Vector3R* const           out_L,
+	SpectralStrength* const   out_pdfAppliedBsdf) const
 {
 	PH_ASSERT(out_L && out_pdfAppliedBsdf);
 
@@ -142,10 +145,20 @@ void LbLayeredSurface::genBsdfSample(
 	Vector3R H;
 	ggx.genDistributedH(X, Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), N, &H);
 	const Vector3R L = V.mul(-1.0_r).reflect(H).normalizeLocal();
+
+	if(!sidedness.isSameHemisphere(X, L, V))
+	{
+		return;
+	}
+
 	*out_L = L;
 
 	const real NoH = N.dot(H);
 	const real HoL = H.dot(L);
+	if(HoL == 0.0_r)
+	{
+		return;
+	}
 
 	real pdf = 0.0_r;
 	for(std::size_t i = 0; i < numLayers(); ++i)
@@ -156,24 +169,31 @@ void LbLayeredSurface::genBsdfSample(
 		pdf += weight * std::abs(D * NoH / (4.0_r * HoL));
 	}
 
-	// TEST
-	if(pdf == 0.0_r || (4.0_r * HoL) == 0.0_r)
+	if(pdf == 0.0_r)
 	{
 		return;
 	}
 
 	SpectralStrength bsdf;
-	LbLayeredSurface::evalBsdf(X, L, V, &bsdf);
+	LbLayeredSurface::evalBsdf(X, L, V, sidedness, &bsdf);
 	*out_pdfAppliedBsdf = bsdf / pdf;
 }
 
 void LbLayeredSurface::calcBsdfSamplePdf(
-	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-	real* const out_pdfW) const
+	const SurfaceHit&         X,
+	const Vector3R&           L,
+	const Vector3R&           V,
+	const SidednessAgreement& sidedness,
+	real* const               out_pdfW) const
 {
 	PH_ASSERT(out_pdfW);
 
 	*out_pdfW = 0.0_r;
+
+	if(!sidedness.isSameHemisphere(X, L, V))
+	{
+		return;
+	}
 
 	const Vector3R& N = X.getShadingNormal();
 

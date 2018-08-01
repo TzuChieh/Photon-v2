@@ -9,6 +9,7 @@
 #include "Core/Texture/TSampler.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Common/assertion.h"
+#include "Core/SidednessAgreement.h"
 
 #include <cmath>
 
@@ -31,30 +32,31 @@ void LambertianDiffuse::setAlbedo(
 }
 
 void LambertianDiffuse::evalBsdf(
-	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-	SpectralStrength* const out_bsdf) const
+	const SurfaceHit&         X,
+	const Vector3R&           L,
+	const Vector3R&           V,
+	const SidednessAgreement& sidedness,
+	SpectralStrength* const   out_bsdf) const
 {
 	PH_ASSERT(out_bsdf);
 
-	const real NoL = X.getShadingNormal().dot(L);
-	const real NoV = X.getShadingNormal().dot(V);
+	out_bsdf->setValues(0);
 
-	// check if L, V lies on different side of the surface
-	if(NoL * NoV <= 0.0_r)
+	if(!sidedness.isSameHemisphere(X, L, V))
 	{
-		out_bsdf->setValues(0);
 		return;
 	}
 
 	SpectralStrength albedo = TSampler<SpectralStrength>(EQuantity::ECF).sample(*m_albedo, X);
-
 	*out_bsdf = albedo.divLocal(PH_PI_REAL);
 }
 
 void LambertianDiffuse::genBsdfSample(
-	const SurfaceHit& X, const Vector3R& V,
-	Vector3R* const         out_L, 
-	SpectralStrength* const out_pdfAppliedBsdf) const
+	const SurfaceHit&         X,
+	const Vector3R&           V,
+	const SidednessAgreement& sidedness,
+	Vector3R* const           out_L,
+	SpectralStrength* const   out_pdfAppliedBsdf) const
 {
 	PH_ASSERT(out_L && out_pdfAppliedBsdf);
 
@@ -102,8 +104,11 @@ void LambertianDiffuse::genBsdfSample(
 }
 
 void LambertianDiffuse::calcBsdfSamplePdf(
-	const SurfaceHit& X, const Vector3R& L, const Vector3R& V, 
-	real* const out_pdfW) const
+	const SurfaceHit&         X,
+	const Vector3R&           L,
+	const Vector3R&           V,
+	const SidednessAgreement& sidedness,
+	real* const               out_pdfW) const
 {
 	PH_ASSERT(out_pdfW);
 

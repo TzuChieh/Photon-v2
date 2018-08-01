@@ -28,8 +28,11 @@ TranslucentMicrofacet::TranslucentMicrofacet() :
 TranslucentMicrofacet::~TranslucentMicrofacet() = default;
 
 void TranslucentMicrofacet::evalBsdf(
-	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-	SpectralStrength* const out_bsdf) const
+	const SurfaceHit&         X,
+	const Vector3R&           L,
+	const Vector3R&           V,
+	const SidednessAgreement& sidedness,
+	SpectralStrength* const   out_bsdf) const
 {
 	PH_ASSERT(out_bsdf);
 
@@ -39,7 +42,7 @@ void TranslucentMicrofacet::evalBsdf(
 	const real NoV = N.dot(V);
 
 	// reflection
-	if(NoL * NoV > 0.0_r && SidednessAgreement(ESaPolicy::STRICT).isSameHemisphere(X, V, L))
+	if(sidedness.isSameHemisphere(X, L, V))
 	{
 		Vector3R H;
 		if(!BsdfHelper::makeHalfVectorSameHemisphere(L, V, N, &H))
@@ -61,7 +64,7 @@ void TranslucentMicrofacet::evalBsdf(
 		*out_bsdf = F.mul(D * G / (4.0_r * std::abs(NoV * NoL)));
 	}
 	// refraction
-	else if(NoL * NoV < 0.0_r && SidednessAgreement(ESaPolicy::STRICT).isOppositeHemisphere(X, V, L))
+	else if(sidedness.isOppositeHemisphere(X, L, V))
 	{
 		real etaI = m_fresnel->getIorOuter();
 		real etaT = m_fresnel->getIorInner();
@@ -104,9 +107,11 @@ void TranslucentMicrofacet::evalBsdf(
 }
 
 void TranslucentMicrofacet::genBsdfSample(
-	const SurfaceHit& X, const Vector3R& V,
-	Vector3R* const         out_L, 
-	SpectralStrength* const out_pdfAppliedBsdf) const
+	const SurfaceHit&         X,
+	const Vector3R&           V,
+	const SidednessAgreement& sidedness,
+	Vector3R* const           out_L,
+	SpectralStrength* const   out_pdfAppliedBsdf) const
 {
 	PH_ASSERT(out_L && out_pdfAppliedBsdf);
 
@@ -145,7 +150,7 @@ void TranslucentMicrofacet::genBsdfSample(
 	{
 		// calculate reflected L
 		*out_L = V.mul(-1.0_r).reflect(H).normalizeLocal();
-		if(!SidednessAgreement(ESaPolicy::STRICT).isSameHemisphere(X, V, *out_L))
+		if(!sidedness.isSameHemisphere(X, V, *out_L))
 		{
 			return;
 		}
@@ -156,7 +161,7 @@ void TranslucentMicrofacet::genBsdfSample(
 	// refract path
 	else if(m_fresnel->calcRefractDir(V, H, out_L))
 	{
-		if(!SidednessAgreement(ESaPolicy::STRICT).isOppositeHemisphere(X, V, *out_L))
+		if(!sidedness.isOppositeHemisphere(X, V, *out_L))
 		{
 			return;
 		}
@@ -185,17 +190,18 @@ void TranslucentMicrofacet::genBsdfSample(
 }
 
 void TranslucentMicrofacet::calcBsdfSamplePdf(
-	const SurfaceHit& X, const Vector3R& L, const Vector3R& V,
-	real* const out_pdfW) const
+	const SurfaceHit&         X,
+	const Vector3R&           L,
+	const Vector3R&           V,
+	const SidednessAgreement& sidedness,
+	real* const               out_pdfW) const
 {
 	PH_ASSERT(out_pdfW);
 
 	const Vector3R& N = X.getShadingNormal();
-	const real NoV = N.dot(V);
-	const real NoL = N.dot(L);
 
 	// reflection
-	if(NoV * NoL > 0.0_r && SidednessAgreement(ESaPolicy::STRICT).isSameHemisphere(X, V, L))
+	if(sidedness.isSameHemisphere(X, L, V))
 	{
 		Vector3R H;
 		if(!BsdfHelper::makeHalfVectorSameHemisphere(L, V, N, &H))
@@ -216,8 +222,11 @@ void TranslucentMicrofacet::calcBsdfSamplePdf(
 		*out_pdfW = std::abs(D * NoH / (4.0_r * HoL)) * reflectProb;
 	}
 	// refraction
-	else if(NoV * NoL < 0.0_r && SidednessAgreement(ESaPolicy::STRICT).isOppositeHemisphere(X, V, L))
+	else if(sidedness.isOppositeHemisphere(X, L, V))
 	{
+		const real NoV = N.dot(V);
+		const real NoL = N.dot(L);
+
 		real etaI = m_fresnel->getIorOuter();
 		real etaT = m_fresnel->getIorInner();
 		if(NoL < 0.0_r)

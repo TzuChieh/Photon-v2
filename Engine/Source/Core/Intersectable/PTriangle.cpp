@@ -193,6 +193,9 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 		"hit-position       = " + hitPosition.toString() + "\n"
 		"hit-shading-normal = " + hitShadingNormal.toString() + "\n");
 
+	// TODO: respect primitive channel
+	// (if it's default channel, use vertex uvw; otherwise, use mapper)
+
 	const Vector3R& hitUVW = Vector3R::weightedSum(
 		m_uvwA, hitBaryABC.x,
 		m_uvwB, hitBaryABC.y,
