@@ -24,7 +24,7 @@ class Geometry : public TCommandInterface<Geometry>
 {
 public:
 	Geometry();
-	virtual ~Geometry() = 0;
+	virtual ~Geometry();
 
 	virtual void genPrimitive(
 		const PrimitiveBuildingMaterial&         data, 

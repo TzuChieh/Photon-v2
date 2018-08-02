@@ -50,7 +50,7 @@ void PInfiniteSphere::calcIntersectionDetail(
 	// assuming ray origin can be approximated as (0, 0, 0) given this sphere
 	// is infinitely large
 	const Vector3R hitPos    = ray.getDirection() * probe.getHitRayT();
-	const Vector3R hitNormal = ray.getDirection().mul(-1);
+	const Vector3R hitNormal = ray.getDirection();
 
 	Vector3R uvw;
 	SphericalMapper().map(ray.getDirection(), &uvw);

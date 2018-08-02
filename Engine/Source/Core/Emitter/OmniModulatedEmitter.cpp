@@ -23,6 +23,8 @@ void OmniModulatedEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStre
 
 	m_source->evalEmittedRadiance(X, out_radiance);
 
+	// TODO: early out when radiance = 0
+
 	const Vector3R& emitDirection = X.getIncidentRay().getDirection().mul(-1);
 
 	Vector3R uv;
@@ -35,6 +37,10 @@ void OmniModulatedEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStre
 void OmniModulatedEmitter::genDirectSample(DirectLightSample& sample) const
 {
 	m_source->genDirectSample(sample);
+	if(sample.pdfW == 0.0_r)
+	{
+		return;
+	}
 
 	const Vector3R& emitDirection = sample.targetPos.sub(sample.emitPos);
 

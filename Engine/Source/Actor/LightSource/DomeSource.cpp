@@ -9,9 +9,15 @@
 #include "Actor/Image/HdrPictureImage.h"
 #include "Common/assertion.h"
 #include "FileIO/SDL/InputPacket.h"
+#include "Actor/Geometry/GInfiniteSphere.h"
 
 namespace ph
 {
+
+namespace
+{
+	constexpr bool USE_INFINITE_SPHERE = true;
+}
 
 const Logger DomeSource::logger(LogSender("Dome Source"));
 
@@ -79,28 +85,35 @@ std::unique_ptr<Emitter> DomeSource::genEmitter(
 
 std::shared_ptr<Geometry> DomeSource::genGeometry(CookingContext& context) const
 {
-	real rootActorBoundRadius = 1000.0_r;
-	if(context.getVisualWorldInfo())
+	if constexpr(USE_INFINITE_SPHERE)
 	{
-		const AABB3D&  bound   = context.getVisualWorldInfo()->getRootActorsBound();
-		const Vector3R extends = bound.calcExtents();
-
-		// Enlarge the root actor bound radius by this factor;
-		// notice that if this radius is too small the rendered dome may 
-		// exhibit distorsion even though the environment map is undistorted.
-		//
-		const real magnifier = 64.0_r;
-
-		rootActorBoundRadius = extends.max() * magnifier;
+		return std::make_shared<GInfiniteSphere>();
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"No visual world information available, cannot access root actor bounds."
-			"Using " + std::to_string(rootActorBoundRadius) + " as dome radius.");
-	}
+		real rootActorBoundRadius = 1000.0_r;
+		if(context.getVisualWorldInfo())
+		{
+			const AABB3D&  bound   = context.getVisualWorldInfo()->getRootActorsBound();
+			const Vector3R extends = bound.calcExtents();
 
-	return std::make_shared<GSphere>(rootActorBoundRadius);
+			// Enlarge the root actor bound radius by this factor;
+			// notice that if this radius is too small the rendered dome may 
+			// exhibit distorsion even though the environment map is undistorted.
+			//
+			const real magnifier = 64.0_r;
+
+			rootActorBoundRadius = extends.max() * magnifier;
+		}
+		else
+		{
+			logger.log(ELogLevel::WARNING_MED,
+				"No visual world information available, cannot access root actor bounds."
+				"Using " + std::to_string(rootActorBoundRadius) + " as dome radius.");
+		}
+
+		return std::make_shared<GSphere>(rootActorBoundRadius);
+	}
 }
 
 std::shared_ptr<Material> DomeSource::genMaterial(CookingContext& context) const

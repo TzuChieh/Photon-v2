@@ -47,10 +47,15 @@ void PrimitiveAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStre
 
 void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
 {
+	sample.pdfW = 0.0_r;
 	sample.sourcePrim = m_primitive;
 
 	PositionSample positionSample;
 	sample.sourcePrim->genPositionSample(&positionSample);
+	if(positionSample.pdf == 0.0_r)
+	{
+		return;
+	}
 
 	const Vector3R emitterToTargetPos(sample.targetPos.sub(positionSample.position));
 	const Vector3R emitDir(emitterToTargetPos.normalize());
@@ -60,7 +65,6 @@ void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
 
 	if(!canEmit(emitDir, positionSample.normal))
 	{
-		sample.pdfW = 0.0_r;
 		return;
 	}
 
