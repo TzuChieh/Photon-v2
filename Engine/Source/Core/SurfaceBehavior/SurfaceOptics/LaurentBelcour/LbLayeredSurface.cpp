@@ -109,6 +109,9 @@ void LbLayeredSurface::genBsdfSample(
 	const Vector3R& N = X.getShadingNormal();
 	const real absNoV = std::min(N.absDot(V), 1.0_r);
 
+	// Perform adding-doubling algorithm and gather information for later
+	// sampling process.
+	
 	sampleWeights.resize(numLayers());
 	alphas.resize(numLayers());
 
@@ -129,8 +132,10 @@ void LbLayeredSurface::genBsdfSample(
 		alphas[i] = statistics.getEquivalentAlpha();
 	}
 
+	// Selecting BSDF lobe to sample based on energy term.
 	// NOTE: watch out for the case where selectWeight cannot be reduced to <= 0 due to 
 	// numerical error (handled in current implmentation)
+	//
 	real selectWeight = Random::genUniformReal_i0_e1() * summedSampleWeights - sampleWeights[0];
 	std::size_t selectIndex = 0;
 	for(selectIndex = 0; selectWeight > 0.0_r && selectIndex + 1 < numLayers(); ++selectIndex)
@@ -160,6 +165,7 @@ void LbLayeredSurface::genBsdfSample(
 		return;
 	}
 
+	// MIS: Using balance heuristic.
 	real pdf = 0.0_r;
 	for(std::size_t i = 0; i < numLayers(); ++i)
 	{
@@ -175,6 +181,7 @@ void LbLayeredSurface::genBsdfSample(
 	}
 
 	SpectralStrength bsdf;
+	// FIXME: we already complete adding-doubling, reuse the computed results
 	LbLayeredSurface::evalBsdf(X, L, V, sidedness, &bsdf);
 	*out_pdfAppliedBsdf = bsdf / pdf;
 }
@@ -207,6 +214,9 @@ void LbLayeredSurface::calcBsdfSamplePdf(
 	const real NoH = N.dot(H);
 	const real HoL = H.dot(L);
 
+	// Similar to genBsdfSample(), here we perform adding-doubling then compute
+	// MIS'ed (balance heuristic) PDF value.
+	//
 	real summedSampleWeights = 0.0_r;
 	real pdf = 0.0_r;
 	InterfaceStatistics statistics(absNoV, LbLayer());

@@ -29,10 +29,19 @@ public:
 	bool isVolume() const;
 
 private:
+	// The alpha variable for GGX distribution.
 	real             m_alpha;
+
+	// Complex index of refraction n + ik.
 	SpectralStrength m_iorN, m_iorK;
+
+	// Thickness of the layer.
 	real             m_depth;
+
+	// The g variable in Henyey-Greenstein phase function.
 	real             m_g;
+
+	// Absorption and scattering coefficient in volume rendering.
 	SpectralStrength m_sigmaA, m_sigmaS;
 };
 

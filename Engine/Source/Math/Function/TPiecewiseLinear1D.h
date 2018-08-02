@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/TVector2.h"
+#include "Common/assertion.h"
 
 #include <vector>
 #include <algorithm>
@@ -25,23 +26,27 @@ template<typename T>
 class TPiecewiseLinear1D final
 {
 public:
-	inline T evaluate(T x) const;
-	inline T evaluate(T x, std::size_t p0Index, std::size_t p1Index) const;
+	// Evaluates function value at <x>.
+	T evaluate(T x) const;
+
+	// Evaluates function value at <x> by linearly interpolating two points.
+	// Note that the two points may not be neighbors.
+	T evaluate(T x, std::size_t p0Index, std::size_t p1Index) const;
 
 	// TODO: eliminate the need for update
-	inline void update();
+	void update();
 	
-	inline void addPoint(const TVector2<T>& point);
-	inline void addPoints(const TPiecewiseLinear1D& points);
-	inline TPiecewiseLinear1D getMirrored(T pivotX) const;
-	inline std::size_t numPoints() const;
-	inline TVector2<T> getPoint(std::size_t pointIndex) const;
-	inline std::string toString() const;
+	void addPoint(const TVector2<T>& point);
+	void addPoints(const TPiecewiseLinear1D& points);
+	TPiecewiseLinear1D getMirrored(T pivotX) const;
+	std::size_t numPoints() const;
+	TVector2<T> getPoint(std::size_t pointIndex) const;
+	std::string toString() const;
 
 private:
 	std::vector<TVector2<T>> m_points;
 
-	static inline bool pointDomainComparator(const TVector2<T>& pA, const TVector2<T>& pB);
+	static bool pointDomainComparator(const TVector2<T>& pA, const TVector2<T>& pB);
 };
 
 // implementations:
@@ -61,6 +66,7 @@ inline T TPiecewiseLinear1D<T>::evaluate(const T x) const
 
 	const auto& result = std::lower_bound(m_points.begin(), m_points.end(), TVector2<T>(x), 
 	                                      &TPiecewiseLinear1D::pointDomainComparator);
+	PH_ASSERT(result != m_points.begin() && result != m_points.end());
 	const std::size_t i1 = result - m_points.begin();
 	const std::size_t i0 = i1 - 1;
 
@@ -72,6 +78,8 @@ inline T TPiecewiseLinear1D<T>::evaluate(const T x,
                                          const std::size_t p0Index, 
                                          const std::size_t p1Index) const
 {
+	PH_ASSERT(p0Index < m_points.size() && p1Index < m_points.size());
+
 	const TVector2<T>& p0 = m_points[p0Index];
 	const TVector2<T>& p1 = m_points[p1Index];
 	return p0.x != p1.x ? (x - p0.x) / (p1.x - p0.x) * (p1.y - p0.y) + p0.y
