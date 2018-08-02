@@ -17,28 +17,52 @@ class PositionSample;
 class Primitive : public Intersectable
 {
 public:
-	Primitive(const PrimitiveMetadata* metadata);
-	virtual ~Primitive() override;
+	explicit Primitive(const PrimitiveMetadata* metadata);
+	~Primitive() override;
 
 	using Intersectable::isIntersecting;
 	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const = 0;
 	virtual void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 	                                    HitDetail* out_detail) const = 0;
 
-	virtual bool isIntersectingVolumeConservative(const AABB3D& aabb) const = 0;
+	virtual bool isIntersectingVolumeConservative(const AABB3D& volume) const = 0;
 	virtual void calcAABB(AABB3D* out_aabb) const = 0;
-	virtual real calcPositionSamplePdfA(const Vector3R& position) const = 0;
-	virtual void genPositionSample(PositionSample* out_sample) const = 0;
 
-	inline const PrimitiveMetadata* getMetadata() const
-	{
-		return m_metadata;
-	}
+	// Generates a sample point on the surface of this primitive. 
+	virtual void genPositionSample(PositionSample* out_sample) const;
 
-	virtual real calcExtendedArea() const = 0;
+	// Given a point on the surface of this primitive, calculates the PDF of
+	// sampling this point.
+	virtual real calcPositionSamplePdfA(const Vector3R& position) const;
+
+	// Calculates the area extended by this primitive. The term "extended"
+	// implies single-sided, e.g., a triangle's extended area is the absolute
+	// value of the cross product of its two edge vectors, no need to multiply
+	// by 2 for two sides. A zero return value means the concept of extended
+	// area does not apply to this primitive.
+	virtual real calcExtendedArea() const;
+
+	const PrimitiveMetadata* getMetadata() const;
 
 protected:
 	const PrimitiveMetadata* m_metadata;
 };
+
+// In-header Implementation:
+
+inline real Primitive::calcPositionSamplePdfA(const Vector3R& position) const
+{
+	return 0.0_r;
+}
+
+inline real Primitive::calcExtendedArea() const
+{
+	return 0.0_r;
+}
+
+inline const PrimitiveMetadata* Primitive::getMetadata() const
+{
+	return m_metadata;
+}
 
 }// end namespace ph

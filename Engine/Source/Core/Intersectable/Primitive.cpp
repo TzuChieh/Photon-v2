@@ -1,5 +1,6 @@
 #include "Core/Intersectable/Primitive.h"
 #include "Common/assertion.h"
+#include "Core/Sample/PositionSample.h"
 
 #include <iostream>
 
@@ -13,5 +14,12 @@ Primitive::Primitive(const PrimitiveMetadata* const metadata) :
 }
 
 Primitive::~Primitive() = default;
+
+void Primitive::genPositionSample(PositionSample* const out_sample) const
+{
+	PH_ASSERT(out_sample);
+
+	out_sample->pdf = 0.0_r;
+}
 
 }// end namespace ph

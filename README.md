@@ -38,6 +38,7 @@ Support the Project:
   * area light (sphere, rectangle)
   * geometric light
   * HDR environment map
+  * IES light profiles
 
 * **Texture**
   * texture with ordinary file formats (.jpg, .png, etc)

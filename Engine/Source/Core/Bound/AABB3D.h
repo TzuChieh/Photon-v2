@@ -27,6 +27,7 @@ public:
 	AABB3D& unionWith(const AABB3D& other);
 	AABB3D& unionWith(const Vector3R& point);
 
+	// FIXME: too slow
 	std::vector<Vector3R> getVertices() const;
 
 	inline void getMinMaxVertices(Vector3R* out_minVertex, Vector3R* out_maxVertex) const
