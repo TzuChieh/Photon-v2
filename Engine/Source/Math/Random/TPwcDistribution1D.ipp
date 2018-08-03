@@ -86,6 +86,9 @@ inline TPwcDistribution1D<T>::TPwcDistribution1D(const std::vector<T>& weights) 
 {}
 
 template<typename T>
+inline TPwcDistribution1D<T>::TPwcDistribution1D() = default;
+
+template<typename T>
 inline std::size_t TPwcDistribution1D<T>::sampleDiscrete(const T seed_i0_e1) const
 {
 	const auto& result = std::lower_bound(m_cdf.begin(), m_cdf.end(), seed_i0_e1);
@@ -110,6 +113,19 @@ inline T TPwcDistribution1D<T>::sampleContinuous(const T seed_i0_e1, T* const ou
 
 	*out_pdf = pdf(sampledColumn);
 	return calcContinuousSample(seed_i0_e1, sampledColumn);
+}
+
+template<typename T>
+inline T TPwcDistribution1D<T>::sampleContinuous(
+	const T            seed_i0_e1, 
+	T* const           out_pdf, 
+	std::size_t* const out_straddledColumn) const
+{
+	PH_ASSERT(out_pdf && out_straddledColumn);
+
+	*out_straddledColumn = sampleDiscrete(seed_i0_e1);
+	*out_pdf             = pdf(*out_straddledColumn);
+	return calcContinuousSample(seed_i0_e1, *out_straddledColumn);
 }
 
 template<typename T>

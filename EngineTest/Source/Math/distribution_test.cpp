@@ -1,8 +1,10 @@
 #include <Math/Random/TPwcDistribution1D.h>
+#include <Math/Random/TPwcDistribution2D.h>
 
 #include <gtest/gtest.h>
 
 #include <random>
+#include <cmath>
 
 using namespace ph;
 
@@ -38,4 +40,53 @@ TEST(PiecewiseConstantDistribution1DTest, ContinuousSampleInRange)
 		// must not sample entries with zero weight
 		EXPECT_TRUE(index != 0 && index != 1 && index != 3 && index != 6);
 	}
+}
+
+TEST(PiecewiseConstantDistribution2DTest, Construction)
+{
+	std::vector<float> weights = {1, 2, 3, 4};
+	TPwcDistribution2D<float> distribution(weights.data(), {2, 2});
+}
+
+TEST(PiecewiseConstantDistribution2DTest, ContinuousSampleInRange)
+{
+	std::vector<float> weights = 
+	{
+		0, 0, 1, 
+		1, 2, 1,
+		0, 0, 0
+	};
+	const TPwcDistribution2D<float> distribution(weights.data(), {3, 3});
+
+	//std::vector<std::size_t> counts(weights.size(), 0);
+
+	std::mt19937 generator(0);
+	std::uniform_real_distribution<float> seedDistribution(0.0f, 1.0f);
+	for(std::size_t i = 0; i < 10000; ++i)
+	{
+		const float seedX = seedDistribution(generator);
+		const float seedY = seedDistribution(generator);
+
+		float pdf;
+		TVector2<float> sample;
+		sample = distribution.sampleContinuous(seedX, seedY, &pdf);
+		
+		EXPECT_GE(sample.x, 0.0f);
+		EXPECT_LE(sample.x, 1.0f);
+		EXPECT_GE(sample.y, 0.0f);
+		EXPECT_LE(sample.y, 1.0f);
+		EXPECT_GT(pdf, 0.0f);
+
+		/*const TVector2<float> floatIndex = sample.mul(3.0f);
+		const std::size_t x = std::min(static_cast<std::size_t>(floatIndex.x), 
+		                               static_cast<std::size_t>(2));
+		const std::size_t y = std::min(static_cast<std::size_t>(floatIndex.y), 
+		                               static_cast<std::size_t>(2));
+		counts[y * 3 + x]++;*/
+	}
+
+	/*for(auto count : counts)
+	{
+		std::cout << count << std::endl;
+	}*/
 }

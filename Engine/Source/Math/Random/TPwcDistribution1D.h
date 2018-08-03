@@ -23,9 +23,12 @@ public:
 	// Constructs a distribution with range [0, 1].
 	explicit TPwcDistribution1D(const std::vector<T>& weights);
 
+	TPwcDistribution1D();
+
 	std::size_t sampleDiscrete(T seed_i0_e1) const;
 	T sampleContinuous(T seed_i0_e1) const;
 	T sampleContinuous(T seed_i0_e1, T* out_pdf) const;
+	T sampleContinuous(T seed_i0_e1, T* out_pdf, std::size_t* out_straddledColumn) const;
 	T pdf(std::size_t columnIndex) const;
 	std::size_t numColumns() const;
 
