@@ -13,6 +13,15 @@ template<typename T>
 inline TPwcDistribution1D<T>::TPwcDistribution1D(
 	const T min, const T max,
 	const std::vector<T>& weights) :
+	TPwcDistribution1D(min, max, weights.data(), weights.size())
+{}
+
+template<typename T>
+inline TPwcDistribution1D<T>::TPwcDistribution1D(
+	const T           min, 
+	const T           max,
+	const T* const    weights,
+	const std::size_t numWeights) :
 
 	m_min(min), m_max(max),
 
@@ -21,10 +30,10 @@ inline TPwcDistribution1D<T>::TPwcDistribution1D(
 	m_firstNonZeroPdfColumn(0),
 
 	// one more entry since we are storing values on endpoints
-	m_cdf(weights.size() + 1, 0)
+	m_cdf(numWeights + 1, 0)
 {
-	PH_ASSERT(max > min && !weights.empty());
-	m_delta = (max - min) / static_cast<T>(weights.size());
+	PH_ASSERT(max > min && weights && numWeights > 0);
+	m_delta = (max - min) / static_cast<T>(numWeights);
 
 	// construct CDF by first integrating the weights
 	m_cdf[0] = 0;
@@ -133,7 +142,11 @@ inline T TPwcDistribution1D<T>::calcContinuousSample(const T seed_i0_e1, const s
 	}
 	PH_ASSERT(0 <= overshoot && overshoot <= 1);
 
+	// NOTE: <sample> may have value straddling neighbor column's range due to
+	// numerical error. Currently this is considered acceptable since continuous
+	// sample does not require precise result.
 	const T sample = m_delta * (overshoot + static_cast<T>(straddledColumn));
+
 	// TODO: check rare, sample should rarely exceed [min, max]
 	return Math::clamp(sample, m_min, m_max);
 }

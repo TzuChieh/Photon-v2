@@ -17,6 +17,7 @@ class TPwcDistribution1D
 public:
 	// The range of the distribution is[<min>, <max>]; and corresponding sample
 	// weight of each column is specified via <weights>.
+	TPwcDistribution1D(T min, T max, const T* weights, std::size_t numWeights);
 	TPwcDistribution1D(T min, T max, const std::vector<T>& weights);
 
 	// Constructs a distribution with range [0, 1].
