@@ -86,9 +86,10 @@ Vector3R PInfiniteSphere::uvwToPosition(const Vector3R& uvw) const
 	const real phi   = uvw.x * PH_PI_REAL * 2.0_r;
 
 	const real zxPlaneRadius = std::sin(theta);
-	return Vector3R(zxPlaneRadius * std::sin(phi),
-	                std::cos(theta),
-	                zxPlaneRadius * std::cos(phi));
+	const Vector3R dir(zxPlaneRadius * std::sin(phi),
+	                   std::cos(theta),
+	                   zxPlaneRadius * std::cos(phi));
+	return dir.mul(EFFECTIVELY_INFINITE_RADIUS);
 }
 
 }// end namespace ph
