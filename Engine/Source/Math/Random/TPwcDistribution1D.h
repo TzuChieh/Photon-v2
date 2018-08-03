@@ -25,6 +25,7 @@ public:
 	std::size_t sampleDiscrete(T seed_i0_e1) const;
 	T sampleContinuous(T seed_i0_e1) const;
 	T sampleContinuous(T seed_i0_e1, T* out_pdf) const;
+	T pdf(std::size_t columnIndex) const;
 	std::size_t numColumns() const;
 
 private:
@@ -42,7 +43,6 @@ private:
 	// CDF values are stored on all turning points of the function. 
 	std::vector<T> m_cdf;
 
-	T pdf(std::size_t columnIndex) const;
 	T calcContinuousSample(T seed_i0_e1, std::size_t straddledColumn) const;
 };
 

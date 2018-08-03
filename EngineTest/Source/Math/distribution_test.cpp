@@ -16,7 +16,7 @@ TEST(PiecewiseConstantDistribution1DTest, Construction)
 
 TEST(PiecewiseConstantDistribution1DTest, ContinuousSampleInRange)
 {
-	const float min = 0.0f;
+	const float min = -5.0f;
 	const float max = 7.0f;
 	const TPwcDistribution1D<float> distribution(min, max, {0.0f, 0.0f, 1.0f, 0.0f, 2.0f, 3.0f, 0.0f});
 
