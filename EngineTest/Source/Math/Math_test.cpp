@@ -29,17 +29,21 @@ TEST(MathTest, NumberClamping)
 	EXPECT_TRUE(ph::Math::clamp(-1, 0, 4) == 0);
 	EXPECT_TRUE(ph::Math::clamp( 2, 0, 4) == 2);
 	EXPECT_TRUE(ph::Math::clamp( 7, 0, 4) == 4);
+	EXPECT_TRUE(ph::Math::clamp( 7, 7, 8) == 7);
+	EXPECT_TRUE(ph::Math::clamp( 8, 7, 8) == 8);
 
 	EXPECT_TRUE(ph::Math::clamp(-3.0f, 1.0f, 5.0f) == 1.0f);
 	EXPECT_TRUE(ph::Math::clamp( 2.5f, 1.0f, 5.0f) == 2.5f);
 	EXPECT_TRUE(ph::Math::clamp( 5.1f, 1.0f, 5.0f) == 5.0f);
+	EXPECT_TRUE(ph::Math::clamp( 5.1f, 5.1f, 6.1f) == 5.1f);
+	EXPECT_TRUE(ph::Math::clamp( 6.1f, 5.1f, 6.1f) == 6.1f);
 
-	if(std::numeric_limits<float>::has_quiet_NaN)
+	if constexpr(std::numeric_limits<float>::has_quiet_NaN)
 	{
 		EXPECT_TRUE(ph::Math::clamp(std::numeric_limits<float>::quiet_NaN(), 1.0f, 5.0f) == 1.0f);
 	}
 
-	if(std::numeric_limits<double>::has_quiet_NaN)
+	if constexpr(std::numeric_limits<double>::has_quiet_NaN)
 	{
 		EXPECT_TRUE(ph::Math::clamp(std::numeric_limits<double>::quiet_NaN(), 1.0, 5.0) == 1.0);
 	}
