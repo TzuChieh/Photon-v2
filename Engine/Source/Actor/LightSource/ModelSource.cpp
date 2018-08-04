@@ -1,6 +1,6 @@
 #include "Actor/LightSource/ModelSource.h"
 #include "Actor/AModel.h"
-#include "Core/Emitter/PrimitiveAreaEmitter.h"
+#include "Core/Emitter/DiffuseSurfaceEmitter.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Core/Texture/LdrRgbTexture2D.h"
 #include "Core/Texture/TextureLoader.h"
@@ -13,7 +13,7 @@
 #include "Actor/Image/ConstantImage.h"
 #include "Actor/Image/LdrPictureImage.h"
 #include "Common/assertion.h"
-#include "Core/Emitter/MultiAreaEmitter.h"
+#include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Actor/Material/MatteOpaque.h"
@@ -66,10 +66,10 @@ std::unique_ptr<Emitter> ModelSource::genEmitter(
 
 	auto emittedRadiance = m_emittedRadiance->genTextureSpectral(context);
 
-	std::vector<PrimitiveAreaEmitter> primitiveEmitters;
+	std::vector<DiffuseSurfaceEmitter> primitiveEmitters;
 	for(const auto& primitive : data.primitives)
 	{
-		PrimitiveAreaEmitter emitter(primitive);
+		DiffuseSurfaceEmitter emitter(primitive);
 		emitter.setEmittedRadiance(emittedRadiance);
 		primitiveEmitters.push_back(emitter);
 	}
@@ -77,13 +77,13 @@ std::unique_ptr<Emitter> ModelSource::genEmitter(
 	std::unique_ptr<SurfaceEmitter> emitter;
 	if(primitiveEmitters.size() == 1)
 	{
-		emitter = std::make_unique<PrimitiveAreaEmitter>(primitiveEmitters[0]);
+		emitter = std::make_unique<DiffuseSurfaceEmitter>(primitiveEmitters[0]);
 	}
 	else
 	{
 		PH_ASSERT(!primitiveEmitters.empty());
 
-		auto multiEmitter = std::make_unique<MultiAreaEmitter>(std::move(primitiveEmitters));
+		auto multiEmitter = std::make_unique<MultiDiffuseSurfaceEmitter>(std::move(primitiveEmitters));
 		multiEmitter->setEmittedRadiance(emittedRadiance);
 		emitter = std::move(multiEmitter);
 	}

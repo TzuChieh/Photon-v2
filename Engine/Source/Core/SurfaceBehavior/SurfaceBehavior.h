@@ -31,6 +31,8 @@ public:
 
 private:
 	std::shared_ptr<SurfaceOptics> m_optics;
+
+	// FIXME: store SurfaceEmitter only
 	const Emitter*                 m_emitter;
 };
 

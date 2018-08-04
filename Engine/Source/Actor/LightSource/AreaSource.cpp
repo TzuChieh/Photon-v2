@@ -7,8 +7,8 @@
 #include "Core/Intersectable/TransformedPrimitive.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Common/assertion.h"
-#include "Core/Emitter/PrimitiveAreaEmitter.h"
-#include "Core/Emitter/MultiAreaEmitter.h"
+#include "Core/Emitter/DiffuseSurfaceEmitter.h"
+#include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
 #include "Actor/Image/ConstantImage.h"
 #include "FileIO/SDL/InputPacket.h"
@@ -79,19 +79,19 @@ std::unique_ptr<Emitter> AreaSource::genEmitter(
 	{
 		if(areas.size() > 1)
 		{
-			std::vector<PrimitiveAreaEmitter> areaEmitters;
+			std::vector<DiffuseSurfaceEmitter> areaEmitters;
 			for(auto area : areas)
 			{
-				areaEmitters.push_back(PrimitiveAreaEmitter(area));
+				areaEmitters.push_back(DiffuseSurfaceEmitter(area));
 			}
 
-			auto emitterData = std::make_unique<MultiAreaEmitter>(areaEmitters);
+			auto emitterData = std::make_unique<MultiDiffuseSurfaceEmitter>(areaEmitters);
 			emitterData->setEmittedRadiance(emittedRadiance);
 			emitter = std::move(emitterData);
 		}
 		else
 		{
-			auto emitterData = std::make_unique<PrimitiveAreaEmitter>(areas[0]);
+			auto emitterData = std::make_unique<DiffuseSurfaceEmitter>(areas[0]);
 			emitterData->setEmittedRadiance(emittedRadiance);
 			emitter = std::move(emitterData);
 		}

@@ -1,4 +1,4 @@
-#include "Core/Emitter/MultiAreaEmitter.h"
+#include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
 #include "Common/assertion.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Texture/TSampler.h"
@@ -14,29 +14,29 @@
 namespace ph
 {
 
-MultiAreaEmitter::MultiAreaEmitter(const std::vector<PrimitiveAreaEmitter>& areaEmitters) :
+MultiDiffuseSurfaceEmitter::MultiDiffuseSurfaceEmitter(const std::vector<DiffuseSurfaceEmitter>& emitters) :
 	SurfaceEmitter(),
-	m_areaEmitters()
+	m_emitters()
 {
-	PH_ASSERT(!areaEmitters.empty());
+	PH_ASSERT(!emitters.empty());
 
 	m_extendedArea = 0.0_r;
-	for(const auto& areaEmitter : areaEmitters)
+	for(const auto& emitter : emitters)
 	{
-		const Primitive* primitive = areaEmitter.getPrimitive();
+		const Primitive* primitive = emitter.getSurface();
 
 		PH_ASSERT(primitive != nullptr);
 		m_extendedArea += primitive->calcExtendedArea();
 
-		addEmitter(areaEmitter);
+		addEmitter(emitter);
 	}
 	m_reciExtendedArea = 1.0_r / m_extendedArea;
 }
 
-MultiAreaEmitter::~MultiAreaEmitter() = default;
+MultiDiffuseSurfaceEmitter::~MultiDiffuseSurfaceEmitter() = default;
 
 //static int iii = 0;
-void MultiAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const
+void MultiDiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const
 {
 	// FIXME: sort of hacked... (the direction of ray is reversed)
 	// only front side of the emitter is emissive
@@ -54,22 +54,22 @@ void MultiAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength
 	*out_radiance = sampler.sample(getEmittedRadiance(), X);
 }
 
-void MultiAreaEmitter::genDirectSample(DirectLightSample& sample) const
+void MultiDiffuseSurfaceEmitter::genDirectSample(DirectLightSample& sample) const
 {
-	const PrimitiveAreaEmitter& emitter = m_areaEmitters[Random::genUniformIndex_iL_eU(0, m_areaEmitters.size())];
+	const DiffuseSurfaceEmitter& emitter = m_emitters[Random::genUniformIndex_iL_eU(0, m_emitters.size())];
 
 	emitter.genDirectSample(sample);
-	const real pickPdf = (1.0_r / static_cast<real>(m_areaEmitters.size()));
+	const real pickPdf = (1.0_r / static_cast<real>(m_emitters.size()));
 	sample.pdfW *= pickPdf;
 }
 
-void MultiAreaEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void MultiDiffuseSurfaceEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
 	// TODO
 	PH_ASSERT_UNREACHABLE_SECTION();
 }
 
-real MultiAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const
+real MultiDiffuseSurfaceEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const
 {
 	// HACK
 
@@ -80,51 +80,51 @@ real MultiAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vec
 	}
 	
 	const real emitDirDotNormal = emitDir.dot(emitN);
-	const real pickPdf = (1.0_r / static_cast<real>(m_areaEmitters.size()));
+	const real pickPdf = (1.0_r / static_cast<real>(m_emitters.size()));
 	const real samplePdfA  = hitPrim->calcPositionSamplePdfA(emitPos);
 	const real distSquared = targetPos.sub(emitPos).lengthSquared();
 	return samplePdfA / std::abs(emitDirDotNormal) * distSquared * pickPdf;
 }
 
-void MultiAreaEmitter::setEmittedRadiance(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance)
+void MultiDiffuseSurfaceEmitter::setEmittedRadiance(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance)
 {
 	SurfaceEmitter::setEmittedRadiance(emittedRadiance);
 
-	for(auto& areaEmitter : m_areaEmitters)
+	for(auto& emitter : m_emitters)
 	{
-		areaEmitter.setEmittedRadiance(emittedRadiance);
+		emitter.setEmittedRadiance(emittedRadiance);
 	}
 }
 
-void MultiAreaEmitter::addEmitter(const PrimitiveAreaEmitter& emitter)
+void MultiDiffuseSurfaceEmitter::addEmitter(const DiffuseSurfaceEmitter& emitter)
 {
-	m_areaEmitters.push_back(emitter);
+	m_emitters.push_back(emitter);
 
 	if(m_isBackFaceEmission)
 	{
-		m_areaEmitters.back().setBackFaceEmit();
+		m_emitters.back().setBackFaceEmit();
 	}
 	else
 	{
-		m_areaEmitters.back().setFrontFaceEmit();
+		m_emitters.back().setFrontFaceEmit();
 	}
 }
 
-void MultiAreaEmitter::setFrontFaceEmit()
+void MultiDiffuseSurfaceEmitter::setFrontFaceEmit()
 {
 	SurfaceEmitter::setFrontFaceEmit();
 
-	for(auto& emitter : m_areaEmitters)
+	for(auto& emitter : m_emitters)
 	{
 		emitter.setFrontFaceEmit();
 	}
 }
 
-void MultiAreaEmitter::setBackFaceEmit()
+void MultiDiffuseSurfaceEmitter::setBackFaceEmit()
 {
 	SurfaceEmitter::setBackFaceEmit();
 
-	for(auto& emitter : m_areaEmitters)
+	for(auto& emitter : m_emitters)
 	{
 		emitter.setBackFaceEmit();
 	}

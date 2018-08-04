@@ -29,12 +29,6 @@ public:
 	virtual void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const = 0;
 
 	virtual real calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const = 0;
-
-	// FIXME: move to surface emitter
-	virtual inline bool isSurfaceEmissive() const
-	{
-		return true;
-	}
 };
 
 }// end namespace ph

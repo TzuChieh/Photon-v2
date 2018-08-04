@@ -1,4 +1,4 @@
-#include "Core/Emitter/PrimitiveAreaEmitter.h"
+#include "Core/Emitter/DiffuseSurfaceEmitter.h"
 #include "Math/TVector3.h"
 #include "Actor/Geometry/Geometry.h"
 #include "Core/Texture/TConstantTexture.h"
@@ -20,18 +20,18 @@
 namespace ph
 {
 
-PrimitiveAreaEmitter::PrimitiveAreaEmitter(const Primitive* const primitive) :
+DiffuseSurfaceEmitter::DiffuseSurfaceEmitter(const Primitive* const surface) :
 	SurfaceEmitter(), 
-	m_primitive(primitive)
+	m_surface(surface)
 {
-	PH_ASSERT(primitive != nullptr);
+	PH_ASSERT(surface);
 
-	m_reciExtendedArea = 1.0_r / primitive->calcExtendedArea();
+	m_reciExtendedArea = 1.0_r / surface->calcExtendedArea();
 }
 
-PrimitiveAreaEmitter::~PrimitiveAreaEmitter() = default;
+DiffuseSurfaceEmitter::~DiffuseSurfaceEmitter() = default;
 
-void PrimitiveAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* const out_radiance) const
+void DiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* const out_radiance) const
 {
 	// FIXME: sort of hacked... (the direction of ray is reversed)
 	// only front side of the emitter is emissive
@@ -45,10 +45,10 @@ void PrimitiveAreaEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStre
 	*out_radiance = sampler.sample(getEmittedRadiance(), X);
 }
 
-void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
+void DiffuseSurfaceEmitter::genDirectSample(DirectLightSample& sample) const
 {
 	sample.pdfW = 0.0_r;
-	sample.sourcePrim = m_primitive;
+	sample.sourcePrim = m_surface;
 
 	PositionSample positionSample;
 	sample.sourcePrim->genPositionSample(&positionSample);
@@ -75,7 +75,7 @@ void PrimitiveAreaEmitter::genDirectSample(DirectLightSample& sample) const
 	getEmittedRadiance().sample(SampleLocation(positionSample.uvw, EQuantity::EMR), &sample.radianceLe);
 }
 
-real PrimitiveAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const
+real DiffuseSurfaceEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const
 {
 	PH_ASSERT(hitPrim != nullptr);
 
@@ -91,7 +91,7 @@ real PrimitiveAreaEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const
 	return samplePdfA / std::abs(emitDirDotNormal) * distSquared;
 }
 
-void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* const out_Le, Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const
+void DiffuseSurfaceEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* const out_Le, Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const
 {
 	//// randomly and uniformly pick a primitive
 	//const std::size_t picker = static_cast<std::size_t>(Random::genUniformReal_i0_e1() * static_cast<real>(m_primitives.size()));
@@ -137,9 +137,9 @@ void PrimitiveAreaEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* c
 	std::cerr << "PrimitiveAreaEmitter::genSensingRay() not implemented" << std::endl;
 }
 
-const Primitive* PrimitiveAreaEmitter::getPrimitive() const
+const Primitive* DiffuseSurfaceEmitter::getSurface() const
 {
-	return m_primitive;
+	return m_surface;
 }
 
 }// end namespace ph

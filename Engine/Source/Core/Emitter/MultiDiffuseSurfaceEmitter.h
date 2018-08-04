@@ -1,18 +1,18 @@
 #pragma once
 
 #include "Core/Emitter/SurfaceEmitter.h"
-#include "Core/Emitter/PrimitiveAreaEmitter.h"
+#include "Core/Emitter/DiffuseSurfaceEmitter.h"
 
 #include <vector>
 
 namespace ph
 {
 
-class MultiAreaEmitter final : public SurfaceEmitter
+class MultiDiffuseSurfaceEmitter final : public SurfaceEmitter
 {
 public:
-	MultiAreaEmitter(const std::vector<PrimitiveAreaEmitter>& areaEmitters);
-	virtual ~MultiAreaEmitter() override;
+	MultiDiffuseSurfaceEmitter(const std::vector<DiffuseSurfaceEmitter>& emitters);
+	virtual ~MultiDiffuseSurfaceEmitter() override;
 
 	virtual void evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const override;
 	virtual void genDirectSample(DirectLightSample& sample) const override;
@@ -26,10 +26,10 @@ public:
 	virtual void setFrontFaceEmit() override;
 	virtual void setBackFaceEmit() override;
 
-	void addEmitter(const PrimitiveAreaEmitter& emitter);
+	void addEmitter(const DiffuseSurfaceEmitter& emitter);
 
 private:
-	std::vector<PrimitiveAreaEmitter>           m_areaEmitters;
+	std::vector<DiffuseSurfaceEmitter>          m_emitters;
 	real                                        m_extendedArea;
 	real                                        m_reciExtendedArea;
 };
