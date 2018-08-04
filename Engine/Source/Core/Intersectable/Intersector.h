@@ -17,18 +17,16 @@ class CookedDataStorage;
 class Intersector : public Intersectable
 {
 public:
-	virtual ~Intersector() = 0;
-
 	// FIXME: should update with intersectables only
 	virtual void update(const CookedDataStorage& cookedActors) = 0;
 	
-	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const = 0;
+	bool isIntersecting(const Ray& ray, HitProbe& probe) const override = 0;
 
-	virtual void calcAABB(AABB3D* out_aabb) const = 0;
+	void calcAABB(AABB3D* out_aabb) const override = 0;
 	
 	using Intersectable::isIntersecting;
-	virtual void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
-	                                    HitDetail* out_detail) const override;
+	void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
+	                            HitDetail* out_detail) const override;
 };
 
 }// end namespace ph

@@ -85,6 +85,7 @@ public:
 		return m_hitInfos[static_cast<int>(coordSys)];
 	}
 
+	// TODO: consider renaming to setHitIntrinsic()
 	inline HitDetail& setMisc(
 		const Primitive* const primitive,
 		const Vector3R&        uvw,

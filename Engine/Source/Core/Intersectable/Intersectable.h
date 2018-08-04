@@ -11,7 +11,7 @@ class AABB3D;
 class Intersectable
 {
 public:
-	virtual ~Intersectable() = 0;
+	virtual ~Intersectable();
 
 	// Checks whether the specified ray intersects this intersectable.
 	// If there is an intersection, true is returned and a brief intersection

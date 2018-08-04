@@ -29,10 +29,12 @@ public:
 	virtual void calcAABB(AABB3D* out_aabb) const = 0;
 
 	// Generates a sample point on the surface of this primitive. 
+	//
 	virtual void genPositionSample(PositionSample* out_sample) const;
 
 	// Given a point on the surface of this primitive, calculates the PDF of
 	// sampling this point.
+	//
 	virtual real calcPositionSamplePdfA(const Vector3R& position) const;
 
 	// Calculates the area extended by this primitive. The term "extended"
@@ -40,7 +42,19 @@ public:
 	// value of the cross product of its two edge vectors, no need to multiply
 	// by 2 for two sides. A zero return value means the concept of extended
 	// area does not apply to this primitive.
+	//
 	virtual real calcExtendedArea() const;
+
+	// This method calculates the position mapped to the specified uvw 
+	// coordinates. This kind of inverse mapping may not be always possible; 
+	// if the mapping failed, false is returned. The probe used for calling 
+	// isIntersecting() must be provided. The process of calculating inverse 
+	// mapping will destroy the input probe.
+	//
+	virtual bool uvwToPosition(
+		const Vector3R& uvw, 
+		HitProbe&       probe, 
+		Vector3R*       out_position) const;
 
 	const PrimitiveMetadata* getMetadata() const;
 
@@ -63,6 +77,14 @@ inline real Primitive::calcExtendedArea() const
 inline const PrimitiveMetadata* Primitive::getMetadata() const
 {
 	return m_metadata;
+}
+
+inline bool Primitive::uvwToPosition(
+	const Vector3R& /* uvw */,
+	HitProbe&       /* probe */,
+	Vector3R*       /* out_position */) const
+{
+	return false;
 }
 
 }// end namespace ph

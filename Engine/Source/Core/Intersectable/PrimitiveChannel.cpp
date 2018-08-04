@@ -12,7 +12,7 @@ PrimitiveChannel::PrimitiveChannel() :
 PrimitiveChannel::PrimitiveChannel(const std::shared_ptr<UvwMapper>& mapper) :
 	m_mapper(mapper)
 {
-	PH_ASSERT(mapper != nullptr);
+	PH_ASSERT(mapper);
 }
 
 }// end namespace ph

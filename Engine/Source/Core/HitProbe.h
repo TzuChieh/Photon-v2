@@ -27,12 +27,17 @@ public:
 	{}
 
 	void calcIntersectionDetail(const Ray& ray, HitDetail* out_detail);
+	bool isOnDefaultChannel() const;
 
+	// Pushes a hit target that will aprticipate in hit detail's calculation 
+	// onto the stack.
 	inline void pushIntermediateHit(const Intersectable* const hitTarget)
 	{
 		m_hitStack.push(hitTarget);
 	}
 
+	// Similar to pushIntermediateHit(), except the parametric hit distance 
+	// <hitRayT> must also be reported.
 	inline void pushBaseHit(const Intersectable* const hitTarget,
 	                        const real hitRayT)
 	{

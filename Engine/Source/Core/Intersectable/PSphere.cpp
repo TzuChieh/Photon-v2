@@ -109,7 +109,7 @@ void PSphere::calcIntersectionDetail(
 	HitProbe&        probe,
 	HitDetail* const out_detail) const
 {
-	PH_ASSERT(m_metadata != nullptr);
+	PH_ASSERT(out_detail && m_metadata);
 	const UvwMapper* mapper = m_metadata->getChannel(probe.getChannel()).getMapper();
 
 	//const Vector3R& hitPosition = probe.getCachedReal3(0);
@@ -120,7 +120,7 @@ void PSphere::calcIntersectionDetail(
 		"hit-position = " + hitPosition.toString() + "\n"
 		"hit-normal   = " + hitNormal.toString() + "\n");
 
-	PH_ASSERT(mapper != nullptr);
+	PH_ASSERT(mapper);
 	Vector3R hitUvw;
 	mapper->map(hitPosition, &hitUvw);
 
@@ -131,7 +131,7 @@ void PSphere::calcIntersectionDetail(
 
 	// compute partial derivatives using 2nd-order approximation
 
-	// calculating displacement vectors on hit normals tangent plane
+	// calculating displacement vectors on hit normal's tangent plane
 	//
 	const real delta = m_radius / 128.0_r;
 	Vector3R dx, dz;

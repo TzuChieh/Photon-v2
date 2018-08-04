@@ -16,7 +16,8 @@ namespace ph
 class PrimitiveMetadata final
 {
 public:
-	static constexpr uint32 INVALID_ID = static_cast<uint32>(-1);
+	static constexpr uint32 INVALID_CHANNEL_ID = static_cast<uint32>(-1);
+	static constexpr uint32 DEFAULT_CHANNEL_ID = static_cast<uint32>( 0);
 
 	PrimitiveMetadata();
 
@@ -41,12 +42,12 @@ public:
 
 	inline const PrimitiveChannel& getDefaultChannel() const
 	{
-		return getChannel(0);
+		return getChannel(DEFAULT_CHANNEL_ID);
 	}
 
 	inline bool isChannelIdValid(const uint32 channelId) const
 	{
-		PH_ASSERT(channelId != INVALID_ID);
+		PH_ASSERT(channelId != INVALID_CHANNEL_ID);
 
 		return channelId < m_channels.size();
 	}

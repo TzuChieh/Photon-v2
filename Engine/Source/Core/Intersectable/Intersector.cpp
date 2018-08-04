@@ -4,8 +4,6 @@
 namespace ph
 {
 
-Intersector::~Intersector() = default;
-
 void Intersector::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
                                          HitDetail* const out_detail) const
 {
