@@ -53,6 +53,9 @@ inline TPwcDistribution2D<T>::TPwcDistribution2D(
 {}
 
 template<typename T>
+inline TPwcDistribution2D<T>::TPwcDistribution2D() = default;
+
+template<typename T>
 inline TVector2<T> TPwcDistribution2D<T>::sampleContinuous(
 	const T  seedX_i0_e1, 
 	const T  seedY_i0_e1, 

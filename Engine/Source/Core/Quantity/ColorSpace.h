@@ -92,7 +92,9 @@ public:
 		return linear_sRGB_to_sRGB(CIE_XYZ_E_to_linear_sRGB(color));
 	}
 
-	// Conversions from color to relative luminance.
+	// Conversions from color to relative luminance normalized to 1 for a 
+	// reference white.
+	//
 	// Reference: https://en.wikipedia.org/wiki/Relative_luminance
 
 	static inline real linear_sRGB_D65_to_luminance(const Vector3R& linearSrgb)

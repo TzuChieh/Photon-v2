@@ -45,6 +45,13 @@ public:
 		return value;
 	}
 
+	inline OutputType sample(const TTexture<OutputType>& texture, const Vector2R& uv) const
+	{
+		OutputType value;
+		texture.sample(SampleLocation(uv, m_sampledQuantity), &value);
+		return value;
+	}
+
 private:
 	EQuantity m_sampledQuantity;
 	uint32    m_sampledChannel;

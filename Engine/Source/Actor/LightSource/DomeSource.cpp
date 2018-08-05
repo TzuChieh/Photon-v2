@@ -10,6 +10,7 @@
 #include "Common/assertion.h"
 #include "FileIO/SDL/InputPacket.h"
 #include "Actor/Geometry/GInfiniteSphere.h"
+#include "Core/Emitter/BackgroundEmitter.h"
 
 namespace ph
 {
@@ -47,6 +48,9 @@ std::unique_ptr<Emitter> DomeSource::genEmitter(
 	auto frame = PictureLoader::loadHdr(m_sphericalEnvMap);
 	frame.flipHorizontally();// since we are viewing it from inside a sphere
 
+	// HACK
+	TVector2<std::size_t> resolution(frame.widthPx(), frame.heightPx());
+
 	auto image = std::make_shared<HdrPictureImage>(std::move(frame));
 	image->setSampleMode(EImgSampleMode::BILINEAR);
 	image->setWrapMode(EImgWrapMode::REPEAT);
@@ -75,6 +79,9 @@ std::unique_ptr<Emitter> DomeSource::genEmitter(
 	}
 
 	PH_ASSERT(emitter != nullptr);
+
+	// HACK
+	emitter = std::make_unique<BackgroundEmitter>(emittedRadiance, resolution);
 
 	// We are inside a large sphere, so we need to make back face emitable.
 	//

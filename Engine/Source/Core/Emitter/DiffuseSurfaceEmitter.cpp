@@ -37,9 +37,8 @@ DiffuseSurfaceEmitter::DiffuseSurfaceEmitter(const Primitive* const surface) :
 
 void DiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* const out_radiance) const
 {
-	// FIXME: sort of hacked... (the direction of ray is reversed)
-	// only front side of the emitter is emissive
-	if(!canEmit(X.getIncidentRay().getDirection().mul(-1.0_r), X.getShadingNormal()))
+	const Vector3R emitDir = X.getIncidentRay().getDirection().mul(-1.0_r);
+	if(!canEmit(emitDir, X.getShadingNormal()))
 	{
 		out_radiance->setValues(0.0_r);
 		return;

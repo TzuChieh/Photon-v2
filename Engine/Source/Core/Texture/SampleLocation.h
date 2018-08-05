@@ -2,6 +2,7 @@
 
 #include "Core/HitDetail.h"
 #include "Math/TVector3.h"
+#include "Math/TVector2.h"
 #include "Core/Quantity/EQuantity.h"
 
 #include <limits>
@@ -20,10 +21,14 @@ namespace ph
 class SampleLocation final
 {
 public:
-	// Constructs a sample location at (u, v, w).
-	//
-	inline explicit SampleLocation(const Vector3R& uvw, const EQuantity quantity) :
+	// Constructs a sample location at (u, v, (w)).
+
+	inline SampleLocation(const Vector3R& uvw, const EQuantity quantity) :
 		SampleLocation(HitDetail().setMisc(nullptr, uvw, std::numeric_limits<real>::max()), quantity)
+	{}
+
+	inline SampleLocation(const Vector2R& uv, const EQuantity quantity) :
+		SampleLocation(Vector3R(uv.x, uv.y, 0), quantity)
 	{}
 
 	// Constructs a sample location from hit information.
@@ -41,12 +46,10 @@ public:
 		SampleLocation(other.m_hit, other.m_quantity)
 	{}
 
-	// Gets the uvw coordinate of this sample location.
-	//
-	inline const Vector3R& uvw() const
-	{
-		return m_hit.getUvw();
-	}
+	// Gets and sets the uvw coordinates of this sample location.
+	const Vector3R& uvw() const;
+	void setUvw(const Vector3R& uvw);
+	void setUv(const Vector2R& uv);
 
 	// TODO: should use uvw remapper instead
 	// or update derivatives?
@@ -67,8 +70,25 @@ public:
 private:
 	// TODO: seems we don't need all data in HitDetail for texture sampling;
 	// perhaps just store required data here
-	const HitDetail m_hit;
+	HitDetail m_hit;
 	const EQuantity m_quantity;
 };
+
+// In-header Implementations:
+
+inline const Vector3R& SampleLocation::uvw() const
+{
+	return m_hit.getUvw();
+}
+
+inline void SampleLocation::setUvw(const Vector3R& uvw)
+{
+	m_hit.setMisc(m_hit.getPrimitive(), uvw, m_hit.getRayT());
+}
+
+inline void SampleLocation::setUv(const Vector2R& uv)
+{
+	m_hit.setMisc(m_hit.getPrimitive(), Vector3R(uv.x, uv.y, 0.0_r), m_hit.getRayT());
+}
 
 }// end namespace ph
