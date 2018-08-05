@@ -22,11 +22,17 @@ namespace ph
 
 DiffuseSurfaceEmitter::DiffuseSurfaceEmitter(const Primitive* const surface) :
 	SurfaceEmitter(), 
-	m_surface(surface)
+	m_surface(surface),
+	m_emittedRadiance(nullptr)
 {
 	PH_ASSERT(surface);
 
-	m_reciExtendedArea = 1.0_r / surface->calcExtendedArea();
+	const real extendedArea = surface->calcExtendedArea();
+	m_reciExtendedArea = extendedArea > 0.0_r ? 1.0_r / extendedArea : 0.0_r;
+
+	SpectralStrength defaultRadiance;
+	defaultRadiance.setSampled(ColorSpace::get_D65_SPD());
+	setEmittedRadiance(std::make_shared<TConstantTexture<SpectralStrength>>(defaultRadiance));
 }
 
 void DiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* const out_radiance) const
@@ -39,6 +45,7 @@ void DiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStr
 		return;
 	}
 
+	// TODO: able to specify channel or restrict it
 	TSampler<SpectralStrength> sampler(EQuantity::EMR);
 	*out_radiance = sampler.sample(getEmittedRadiance(), X);
 }
@@ -75,22 +82,7 @@ void DiffuseSurfaceEmitter::genDirectSample(DirectLightSample& sample) const
 
 real DiffuseSurfaceEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
 {
-	PH_ASSERT(emitPos.getDetail().getPrimitive());
-
-	const Vector3R& pE = emitPos.getPosition();
-	const Vector3R& pX = targetPos;
-	const Vector3R& N  = emitPos.getShadingNormal();
-
-	const Vector3R emitDir(pX.sub(pE).normalizeLocal());
-	if(!canEmit(emitDir, N))
-	{
-		return 0.0_r;
-	}
-
-	const real emitDirDotNormal = emitDir.dot(N);
-	const real samplePdfA  = emitPos.getDetail().getPrimitive()->calcPositionSamplePdfA(pE);
-	const real distSquared = pX.sub(pE).lengthSquared();
-	return samplePdfA / std::abs(emitDirDotNormal) * distSquared;
+	return calcPdfW(emitPos, targetPos);
 }
 
 void DiffuseSurfaceEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* const out_Le, Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const
@@ -142,6 +134,20 @@ void DiffuseSurfaceEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* 
 const Primitive* DiffuseSurfaceEmitter::getSurface() const
 {
 	return m_surface;
+}
+
+void DiffuseSurfaceEmitter::setEmittedRadiance(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance)
+{
+	PH_ASSERT(emittedRadiance);
+
+	m_emittedRadiance = emittedRadiance;
+}
+
+const TTexture<SpectralStrength>& DiffuseSurfaceEmitter::getEmittedRadiance() const
+{
+	PH_ASSERT(m_emittedRadiance);
+
+	return *m_emittedRadiance;
 }
 
 }// end namespace ph

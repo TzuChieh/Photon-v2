@@ -3,35 +3,17 @@
 #include "Core/Texture/TConstantTexture.h"
 #include "Core/Quantity/ColorSpace.h"
 #include "Math/Math.h"
+#include "Core/SurfaceHit.h"
+#include "Core/HitDetail.h"
+#include "Core/Intersectable/Primitive.h"
 
 namespace ph
 {
 
 SurfaceEmitter::SurfaceEmitter() : 
 	Emitter(),
-	m_emittedRadiance(nullptr),
 	m_isBackFaceEmission(false)
-{
-	SpectralStrength defaultRadiance;
-	defaultRadiance.setSampled(ColorSpace::get_D65_SPD());
-	setEmittedRadiance(std::make_shared<TConstantTexture<SpectralStrength>>(defaultRadiance));
-}
-
-SurfaceEmitter::SurfaceEmitter(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance) : 
-	Emitter(),
-	m_emittedRadiance(nullptr),
-	m_isBackFaceEmission(false)
-{
-	setEmittedRadiance(emittedRadiance);
-}
-
-void SurfaceEmitter::setEmittedRadiance(
-	const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance)
-{
-	PH_ASSERT(emittedRadiance != nullptr);
-
-	m_emittedRadiance = emittedRadiance;
-}
+{}
 
 bool SurfaceEmitter::canEmit(const Vector3R& emitDirection, const Vector3R& N) const
 {
@@ -46,6 +28,41 @@ void SurfaceEmitter::setFrontFaceEmit()
 void SurfaceEmitter::setBackFaceEmit()
 {
 	m_isBackFaceEmission = true;
+}
+
+real SurfaceEmitter::calcPdfW(
+	const Primitive* const emitSurface,
+	const Vector3R&        emitPos,
+	const Vector3R&        emitNormal,
+	const Vector3R&        targetPos) const
+{
+	PH_ASSERT(emitSurface);
+
+	Vector3R emitDir = targetPos.sub(emitPos);
+	if(!canEmit(emitDir, emitNormal))
+	{
+		return 0.0_r;
+	}
+	emitDir.normalizeLocal();
+
+	const real emitDirDotNormal = emitDir.dot(emitNormal);
+	if(emitDirDotNormal == 0.0_r)
+	{
+		return 0.0_r;
+	}
+
+	const real samplePdfA  = emitSurface->calcPositionSamplePdfA(emitPos);
+	const real distSquared = targetPos.sub(emitPos).lengthSquared();
+	return samplePdfA / std::abs(emitDirDotNormal) * distSquared;
+}
+
+real SurfaceEmitter::calcPdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
+{
+	return calcPdfW(
+		emitPos.getDetail().getPrimitive(), 
+		emitPos.getPosition(), 
+		emitPos.getShadingNormal(), 
+		targetPos);
 }
 
 }// end namespace ph

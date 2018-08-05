@@ -20,17 +20,18 @@ public:
 	void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;
 
 	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const override;
-	void setEmittedRadiance(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance) override;
 
 	void setFrontFaceEmit() override;
 	void setBackFaceEmit() override;
 
 	void addEmitter(const DiffuseSurfaceEmitter& emitter);
+	void setEmittedRadiance(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance);
+	const TTexture<SpectralStrength>& getEmittedRadiance() const;
 
 private:
-	std::vector<DiffuseSurfaceEmitter>          m_emitters;
-	real                                        m_extendedArea;
-	real                                        m_reciExtendedArea;
+	std::vector<DiffuseSurfaceEmitter> m_emitters;
+	real                               m_extendedArea;
+	real                               m_reciExtendedArea;
 };
 
 }// end namespace ph

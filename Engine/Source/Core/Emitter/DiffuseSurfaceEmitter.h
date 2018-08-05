@@ -22,10 +22,13 @@ public:
 	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const override;
 
 	const Primitive* getSurface() const;
+	void setEmittedRadiance(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance);
+	const TTexture<SpectralStrength>& getEmittedRadiance() const;
 
 private:
 	const Primitive* m_surface;
 	real m_reciExtendedArea;
+	std::shared_ptr<TTexture<SpectralStrength>> m_emittedRadiance;
 };
 
 }// end namespace ph

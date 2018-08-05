@@ -33,27 +33,17 @@ MultiDiffuseSurfaceEmitter::MultiDiffuseSurfaceEmitter(const std::vector<Diffuse
 	m_reciExtendedArea = 1.0_r / m_extendedArea;
 }
 
-//static int iii = 0;
-void MultiDiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const
+void MultiDiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* const out_radiance) const
 {
-	// FIXME: sort of hacked... (the direction of ray is reversed)
-	// only front side of the emitter is emissive
-	if(!canEmit(X.getIncidentRay().getDirection().mul(-1.0_r), X.getShadingNormal()))
-	{
-		/*std::cerr << X.getIncidentRay().getDirection().mul(-1.0_r).dot(X.getShadingNormal()) << std::endl;
-		std::cerr << ++iii << std::endl;*/
+	PH_ASSERT(!m_emitters.empty());
 
-		out_radiance->setValues(0.0_r);
-		return;
-	}
-
-	// TODO: able to specify channel or restrict it
-	TSampler<SpectralStrength> sampler(EQuantity::EMR);
-	*out_radiance = sampler.sample(getEmittedRadiance(), X);
+	m_emitters.front().evalEmittedRadiance(X, out_radiance);
 }
 
 void MultiDiffuseSurfaceEmitter::genDirectSample(DirectLightSample& sample) const
 {
+	PH_ASSERT(!m_emitters.empty());
+
 	const DiffuseSurfaceEmitter& emitter = m_emitters[Random::genUniformIndex_iL_eU(0, m_emitters.size())];
 
 	emitter.genDirectSample(sample);
@@ -69,31 +59,16 @@ void MultiDiffuseSurfaceEmitter::genSensingRay(Ray* out_ray, SpectralStrength* o
 
 real MultiDiffuseSurfaceEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
 {
-	// HACK
+	PH_ASSERT(!m_emitters.empty());
 
-	PH_ASSERT(emitPos.getDetail().getPrimitive());
-
-	const Vector3R& pE = emitPos.getPosition();
-	const Vector3R& pX = targetPos;
-	const Vector3R& N  = emitPos.getShadingNormal();
-
-	const Vector3R emitDir(pX.sub(pE).normalizeLocal());
-	if(!canEmit(emitDir, N))
-	{
-		return 0.0_r;
-	}
-	
-	const real emitDirDotNormal = emitDir.dot(N);
-	const real pickPdf = (1.0_r / static_cast<real>(m_emitters.size()));
-	const real samplePdfA  = emitPos.getDetail().getPrimitive()->calcPositionSamplePdfA(pE);
-	const real distSquared = pX.sub(pE).lengthSquared();
-	return samplePdfA / std::abs(emitDirDotNormal) * distSquared * pickPdf;
+	const real singlePdfW = calcPdfW(emitPos, targetPos);
+	const real pickPdf    = (1.0_r / static_cast<real>(m_emitters.size()));
+	return singlePdfW * pickPdf;
 }
 
-void MultiDiffuseSurfaceEmitter::setEmittedRadiance(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance)
+void MultiDiffuseSurfaceEmitter::setEmittedRadiance(
+	const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance)
 {
-	SurfaceEmitter::setEmittedRadiance(emittedRadiance);
-
 	for(auto& emitter : m_emitters)
 	{
 		emitter.setEmittedRadiance(emittedRadiance);
@@ -132,6 +107,13 @@ void MultiDiffuseSurfaceEmitter::setBackFaceEmit()
 	{
 		emitter.setBackFaceEmit();
 	}
+}
+
+const TTexture<SpectralStrength>& MultiDiffuseSurfaceEmitter::getEmittedRadiance() const
+{
+	PH_ASSERT(!m_emitters.empty());
+
+	return m_emitters.front().getEmittedRadiance();
 }
 
 }// end namespace ph
