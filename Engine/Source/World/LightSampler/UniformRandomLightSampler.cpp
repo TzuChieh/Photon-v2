@@ -5,6 +5,10 @@
 #include "Actor/CookedDataStorage.h"
 #include "Core/Sample/DirectLightSample.h"
 #include "Math/TVector3.h"
+#include "Core/SurfaceHit.h"
+#include "Core/Intersectable/Primitive.h"
+#include "Core/Emitter/Emitter.h"
+#include "Common/assertion.h"
 
 #include <iostream>
 
@@ -49,10 +53,15 @@ void UniformRandomLightSampler::genDirectSample(DirectLightSample& sample) const
 	sample.pdfW *= pickPdfW;
 }
 
-real UniformRandomLightSampler::calcDirectPdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Emitter* hitEmitter, const Primitive* hitPrim) const
+real UniformRandomLightSampler::calcDirectPdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
 {
 	const real pickPdfW = 1.0_r / static_cast<real>(m_emitters.size());
-	const real samplePdfW = hitEmitter->calcDirectSamplePdfW(targetPos, emitPos, emitN, hitPrim);
+
+	const Primitive* const hitPrim = emitPos.getDetail().getPrimitive();
+	PH_ASSERT(hitPrim);
+	const Emitter* const hitEmitter = hitPrim->getMetadata()->getSurface().getEmitter();
+	PH_ASSERT(hitEmitter);
+	const real samplePdfW = hitEmitter->calcDirectSamplePdfW(emitPos, targetPos);
 
 	return pickPdfW * samplePdfW;
 }

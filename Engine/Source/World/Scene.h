@@ -14,6 +14,7 @@ class DirectLightSample;
 class Ray;
 class Emitter;
 class Primitive;
+class SurfaceHit;
 
 class Scene final
 {
@@ -26,7 +27,7 @@ public:
 
 	const Emitter* pickEmitter(real* const out_PDF) const;
 	void genDirectSample(DirectLightSample& sample) const;
-	real calcDirectPdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Emitter* hitEmitter, const Primitive* hitPrim) const;
+	real calcDirectPdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const;
 
 private:
 	const Intersector*  m_intersector;

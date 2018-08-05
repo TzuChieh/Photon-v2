@@ -27,8 +27,12 @@ public:
 
 	std::size_t sampleDiscrete(T seed_i0_e1) const;
 	T sampleContinuous(T seed_i0_e1) const;
+
+	// PDFs returned by these methods are never zero.
+
 	T sampleContinuous(T seed_i0_e1, T* out_pdf) const;
 	T sampleContinuous(T seed_i0_e1, T* out_pdf, std::size_t* out_straddledColumn) const;
+
 	T pdf(std::size_t columnIndex) const;
 	std::size_t numColumns() const;
 

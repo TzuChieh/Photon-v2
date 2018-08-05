@@ -24,15 +24,14 @@ class SurfaceEmitter : public Emitter
 public:
 	SurfaceEmitter();
 	SurfaceEmitter(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance);
-	virtual ~SurfaceEmitter() override;
 
-	virtual void evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const = 0;
-	virtual void genDirectSample(DirectLightSample& sample) const = 0;
+	void evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const override = 0;
+	void genDirectSample(DirectLightSample& sample) const override = 0;
 
 	// FIXME: ray time
-	virtual void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const = 0;
+	void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override = 0;
 
-	virtual real calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const = 0;
+	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const override = 0;
 
 	virtual void setEmittedRadiance(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance);
 

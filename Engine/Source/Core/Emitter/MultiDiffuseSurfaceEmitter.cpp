@@ -33,8 +33,6 @@ MultiDiffuseSurfaceEmitter::MultiDiffuseSurfaceEmitter(const std::vector<Diffuse
 	m_reciExtendedArea = 1.0_r / m_extendedArea;
 }
 
-MultiDiffuseSurfaceEmitter::~MultiDiffuseSurfaceEmitter() = default;
-
 //static int iii = 0;
 void MultiDiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const
 {
@@ -69,20 +67,26 @@ void MultiDiffuseSurfaceEmitter::genSensingRay(Ray* out_ray, SpectralStrength* o
 	PH_ASSERT_UNREACHABLE_SECTION();
 }
 
-real MultiDiffuseSurfaceEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const
+real MultiDiffuseSurfaceEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
 {
 	// HACK
 
-	const Vector3R emitDir(targetPos.sub(emitPos).normalizeLocal());
-	if(!canEmit(emitDir, emitN))
+	PH_ASSERT(emitPos.getDetail().getPrimitive());
+
+	const Vector3R& pE = emitPos.getPosition();
+	const Vector3R& pX = targetPos;
+	const Vector3R& N  = emitPos.getShadingNormal();
+
+	const Vector3R emitDir(pX.sub(pE).normalizeLocal());
+	if(!canEmit(emitDir, N))
 	{
 		return 0.0_r;
 	}
 	
-	const real emitDirDotNormal = emitDir.dot(emitN);
+	const real emitDirDotNormal = emitDir.dot(N);
 	const real pickPdf = (1.0_r / static_cast<real>(m_emitters.size()));
-	const real samplePdfA  = hitPrim->calcPositionSamplePdfA(emitPos);
-	const real distSquared = targetPos.sub(emitPos).lengthSquared();
+	const real samplePdfA  = emitPos.getDetail().getPrimitive()->calcPositionSamplePdfA(pE);
+	const real distSquared = pX.sub(pE).lengthSquared();
 	return samplePdfA / std::abs(emitDirDotNormal) * distSquared * pickPdf;
 }
 

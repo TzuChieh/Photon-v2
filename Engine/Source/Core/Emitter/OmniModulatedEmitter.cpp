@@ -15,8 +15,6 @@ OmniModulatedEmitter::OmniModulatedEmitter(std::unique_ptr<Emitter> source) :
 	PH_ASSERT(m_source != nullptr);
 }
 
-OmniModulatedEmitter::~OmniModulatedEmitter() = default;
-
 void OmniModulatedEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const
 {
 	PH_ASSERT(m_filter != nullptr);
@@ -57,9 +55,9 @@ void OmniModulatedEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le,
 	PH_ASSERT_UNREACHABLE_SECTION();
 }
 
-real OmniModulatedEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const
+real OmniModulatedEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
 {
-	const real pdfW = m_source->calcDirectSamplePdfW(targetPos, emitPos, emitN, hitPrim);
+	const real pdfW = m_source->calcDirectSamplePdfW(emitPos, targetPos);
 
 	// TODO: if importance sampling is used, pdfW should be changed here
 

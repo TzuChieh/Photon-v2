@@ -22,6 +22,8 @@ public:
 		const T*                     weights,
 		const TVector2<std::size_t>& numWeights);
 
+	// PDFs returned by these methods are never zero.
+
 	TVector2<T> sampleContinuous(T seedX_i0_e1, T seedY_i0_e1, T* out_pdf) const;
 
 private:

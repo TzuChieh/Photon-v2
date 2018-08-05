@@ -16,15 +16,14 @@ class OmniModulatedEmitter final : public Emitter
 {
 public:
 	OmniModulatedEmitter(std::unique_ptr<Emitter> source);
-	virtual ~OmniModulatedEmitter() override;
 
-	virtual void evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const override;
-	virtual void genDirectSample(DirectLightSample& sample) const override;
+	void evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const override;
+	void genDirectSample(DirectLightSample& sample) const override;
 
 	// FIXME: ray time
-	virtual void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;
+	void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;
 
-	virtual real calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const override;
+	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const override;
 
 	void setFilter(const std::shared_ptr<TTexture<SpectralStrength>>& filter);
 

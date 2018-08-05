@@ -44,11 +44,9 @@ void Scene::genDirectSample(DirectLightSample& sample) const
 	m_lightSampler->genDirectSample(sample);
 }
 
-real Scene::calcDirectPdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Emitter* hitEmitter, const Primitive* hitPrim) const
+real Scene::calcDirectPdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
 {
-	PH_ASSERT(hitEmitter != nullptr && hitPrim != nullptr);
-
-	return m_lightSampler->calcDirectPdfW(targetPos, emitPos, emitN, hitEmitter, hitPrim);
+	return m_lightSampler->calcDirectPdfW(emitPos, targetPos);
 }
 
 }// end namespace ph

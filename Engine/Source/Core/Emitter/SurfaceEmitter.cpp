@@ -25,8 +25,6 @@ SurfaceEmitter::SurfaceEmitter(const std::shared_ptr<TTexture<SpectralStrength>>
 	setEmittedRadiance(emittedRadiance);
 }
 
-SurfaceEmitter::~SurfaceEmitter() = default;
-
 void SurfaceEmitter::setEmittedRadiance(
 	const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance)
 {

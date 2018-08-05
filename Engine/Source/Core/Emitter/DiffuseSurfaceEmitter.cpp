@@ -29,8 +29,6 @@ DiffuseSurfaceEmitter::DiffuseSurfaceEmitter(const Primitive* const surface) :
 	m_reciExtendedArea = 1.0_r / surface->calcExtendedArea();
 }
 
-DiffuseSurfaceEmitter::~DiffuseSurfaceEmitter() = default;
-
 void DiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* const out_radiance) const
 {
 	// FIXME: sort of hacked... (the direction of ray is reversed)
@@ -75,19 +73,23 @@ void DiffuseSurfaceEmitter::genDirectSample(DirectLightSample& sample) const
 	getEmittedRadiance().sample(SampleLocation(positionSample.uvw, EQuantity::EMR), &sample.radianceLe);
 }
 
-real DiffuseSurfaceEmitter::calcDirectSamplePdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Primitive* hitPrim) const
+real DiffuseSurfaceEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
 {
-	PH_ASSERT(hitPrim != nullptr);
+	PH_ASSERT(emitPos.getDetail().getPrimitive());
 
-	const Vector3R emitDir(targetPos.sub(emitPos).normalizeLocal());
-	if(!canEmit(emitDir, emitN))
+	const Vector3R& pE = emitPos.getPosition();
+	const Vector3R& pX = targetPos;
+	const Vector3R& N  = emitPos.getShadingNormal();
+
+	const Vector3R emitDir(pX.sub(pE).normalizeLocal());
+	if(!canEmit(emitDir, N))
 	{
 		return 0.0_r;
 	}
 
-	const real emitDirDotNormal = emitDir.dot(emitN);
-	const real samplePdfA  = hitPrim->calcPositionSamplePdfA(emitPos);
-	const real distSquared = targetPos.sub(emitPos).lengthSquared();
+	const real emitDirDotNormal = emitDir.dot(N);
+	const real samplePdfA  = emitPos.getDetail().getPrimitive()->calcPositionSamplePdfA(pE);
+	const real distSquared = pX.sub(pE).lengthSquared();
 	return samplePdfA / std::abs(emitDirDotNormal) * distSquared;
 }
 

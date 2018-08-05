@@ -14,6 +14,7 @@ class Model;
 class CookedDataStorage;
 class Primitive;
 class DirectLightSample;
+class SurfaceHit;
 
 class LightSampler
 {
@@ -24,7 +25,7 @@ public:
 	virtual void update(const CookedDataStorage& cookedActors) = 0;
 	virtual const Emitter* pickEmitter(real* const out_PDF) const = 0;
 	virtual void genDirectSample(DirectLightSample& sample) const = 0;
-	virtual real calcDirectPdfW(const Vector3R& targetPos, const Vector3R& emitPos, const Vector3R& emitN, const Emitter* hitEmitter, const Primitive* hitPrim) const = 0;
+	virtual real calcDirectPdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const = 0;
 };
 
 }// end namespace ph

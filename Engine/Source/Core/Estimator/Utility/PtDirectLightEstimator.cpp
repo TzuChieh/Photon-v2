@@ -65,12 +65,7 @@ real PtDirectLightEstimator::sampleUnoccludedPdfW(
 	const Emitter* const   emitter           = emissivePrimitive->getMetadata()->getSurface().getEmitter();
 	PH_ASSERT(emitter);
 
-	return scene.calcDirectPdfW(
-		X.getPosition(),
-		Xe.getPosition(),
-		Xe.getShadingNormal(),
-		emitter,
-		emissivePrimitive);
+	return scene.calcDirectPdfW(Xe, X.getPosition());
 }
 
 }// end namespace ph
