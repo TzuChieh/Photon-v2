@@ -23,7 +23,8 @@ VisualWorld::VisualWorld() :
 	//m_intersector(std::make_unique<KdtreeIntersector>()), 
 	m_intersector(std::make_unique<ClassicBvhIntersector>()), 
 	m_lightSampler(std::make_unique<UniformRandomLightSampler>()), 
-	m_scene()
+	m_scene(),
+	m_cameraPos(0)
 {}
 
 VisualWorld::VisualWorld(VisualWorld&& other) :
@@ -31,7 +32,8 @@ VisualWorld::VisualWorld(VisualWorld&& other) :
 	m_cookedActorStorage(std::move(other.m_cookedActorStorage)), 
 	m_intersector       (std::move(other.m_intersector)), 
 	m_lightSampler      (std::move(other.m_lightSampler)), 
-	m_scene             (std::move(other.m_scene))
+	m_scene             (std::move(other.m_scene)),
+	m_cameraPos         (std::move(other.m_cameraPos))
 {}
 
 void VisualWorld::addActor(std::shared_ptr<Actor> actor)
@@ -61,7 +63,11 @@ void VisualWorld::cook()
 	cookActors(cookingContext);
 
 	VisualWorldInfo visualWorldInfo;
-	const AABB3D bound = calcIntersectableBound(m_cookedActorStorage);
+	AABB3D bound = calcIntersectableBound(m_cookedActorStorage);
+
+	// TODO: should union with camera's bound instead
+	bound.unionWith(m_cameraPos);
+
 	visualWorldInfo.setRootActorsBound(bound);
 	cookingContext.setVisualWorldInfo(&visualWorldInfo);
 

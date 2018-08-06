@@ -2,6 +2,7 @@
 
 #include "Actor/Geometry/Geometry.h"
 #include "FileIO/SDL/TCommandInterface.h"
+#include "Common/primitive_type.h"
 
 namespace ph
 {
@@ -9,11 +10,14 @@ namespace ph
 class GInfiniteSphere final : public Geometry, public TCommandInterface<GInfiniteSphere>
 {
 public:
-	GInfiniteSphere();
+	explicit GInfiniteSphere(real boundRadius);
 
 	void genPrimitive(
 		const PrimitiveBuildingMaterial&         data,
 		std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
+
+private:
+	real m_boundRadius;
 
 // command interface
 public:

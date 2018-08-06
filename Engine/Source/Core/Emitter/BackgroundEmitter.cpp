@@ -3,6 +3,7 @@
 #include "Core/SurfaceHit.h"
 #include "Core/Texture/TSampler.h"
 #include "Common/Logger.h"
+#include "Core/Intersectable/UvwMapper/SphericalMapper.h"
 
 #include <vector>
 
@@ -16,10 +17,12 @@ namespace
 
 BackgroundEmitter::BackgroundEmitter(
 	const RadianceTexture&       radiance,
-	const TVector2<std::size_t>& resolution) :
+	const TVector2<std::size_t>& resolution,
+	const AABB3D&                worldBound) :
 
 	m_radiance(radiance),
-	m_sampleDistribution()
+	m_sampleDistribution(),
+	m_worldBound(worldBound)
 {
 	PH_ASSERT(radiance && resolution.x * resolution.y > 0);
 
@@ -37,6 +40,8 @@ BackgroundEmitter::BackgroundEmitter(
 			const real u = (static_cast<real>(x) + 0.5_r) / static_cast<real>(resolution.x);
 			const SpectralStrength energy = sampler.sample(*radiance, {u, v});
 			sampleWeights[baseIndex + x] = energy.calcLuminance();
+
+			// TODO: sin theta
 		}
 	}
 

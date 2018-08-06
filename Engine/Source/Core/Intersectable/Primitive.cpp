@@ -10,7 +10,7 @@ namespace ph
 Primitive::Primitive(const PrimitiveMetadata* const metadata) :
 	m_metadata(metadata)
 {
-	PH_ASSERT(metadata != nullptr);
+	PH_ASSERT(metadata);
 }
 
 Primitive::~Primitive() = default;

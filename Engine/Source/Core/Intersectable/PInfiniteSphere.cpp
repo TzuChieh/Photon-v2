@@ -14,22 +14,27 @@
 namespace ph
 {
 
-namespace
-{
-	constexpr real EFFECTIVELY_INFINITE_RADIUS = 1e30_r;
-}
+PInfiniteSphere::PInfiniteSphere(
+	const real                     boundingRadius,
+	const PrimitiveMetadata* const metadata) :
 
-PInfiniteSphere::PInfiniteSphere(const PrimitiveMetadata* const metadata) : 
-	Primitive(metadata)
-{}
+	Primitive(metadata),
+
+	m_boundingRadius(boundingRadius)
+{
+	PH_ASSERT(boundingRadius > 0.0_r);
+}
 
 bool PInfiniteSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
-	// assuming ray origin can be approximated as (0, 0, 0) given this sphere
-	// is infinitely large
-	if(ray.getMinT() < EFFECTIVELY_INFINITE_RADIUS && EFFECTIVELY_INFINITE_RADIUS < ray.getMaxT())
+	// Here we assume that <ray> always originated within the bounding radius.
+	// If the ray have max-t larger than 2*r, then it must have passed through
+	// the imaginary bounding sphere.
+
+	const real boundingDiameter = 2.0_r * m_boundingRadius;
+	if(ray.getMaxT() > boundingDiameter)
 	{
-		probe.pushBaseHit(this, EFFECTIVELY_INFINITE_RADIUS);
+		probe.pushBaseHit(this, boundingDiameter);
 		return true;
 	}
 	else
@@ -47,9 +52,7 @@ void PInfiniteSphere::calcIntersectionDetail(
 
 	PH_ASSERT(out_detail);
 
-	// assuming ray origin can be approximated as (0, 0, 0) given this sphere
-	// is infinitely large
-	const Vector3R hitPos    = ray.getDirection() * probe.getHitRayT();
+	const Vector3R hitPos    = ray.getOrigin() + ray.getDirection() * probe.getHitRayT();
 	const Vector3R hitNormal = ray.getDirection();
 
 	Vector3R uvw;
@@ -73,13 +76,16 @@ void PInfiniteSphere::calcAABB(AABB3D* const out_aabb) const
 {
 	PH_ASSERT(out_aabb);
 
-	*out_aabb = AABB3D(Vector3R(-EFFECTIVELY_INFINITE_RADIUS), 
-	                   Vector3R( EFFECTIVELY_INFINITE_RADIUS));
+	// Since we always make intersection point to be 2*r away from ray origin, 
+	// this suggests that the bounding box must cover at least [-3*r, 3*r].
+	const real rTimes3 = 3.0_r * m_boundingRadius;
+
+	*out_aabb = AABB3D(Vector3R(-rTimes3), Vector3R(rTimes3));
 }
 
 Vector3R PInfiniteSphere::uvwToPosition(const Vector3R& uvw) const
 {
-	PH_ASSERT(0.0_r <= uvw.x && uvw.x <= 1.0_r &&
+	/*PH_ASSERT(0.0_r <= uvw.x && uvw.x <= 1.0_r &&
 	          0.0_r <= uvw.y && uvw.y <= 1.0_r);
 
 	const real theta = uvw.y * PH_PI_REAL;
@@ -89,7 +95,10 @@ Vector3R PInfiniteSphere::uvwToPosition(const Vector3R& uvw) const
 	const Vector3R dir(zxPlaneRadius * std::sin(phi),
 	                   std::cos(theta),
 	                   zxPlaneRadius * std::cos(phi));
-	return dir.mul(EFFECTIVELY_INFINITE_RADIUS);
+	return dir.mul(EFFECTIVELY_INFINITE_RADIUS);*/
+
+	PH_ASSERT_UNREACHABLE_SECTION();
+	return Vector3R();
 }
 
 }// end namespace ph

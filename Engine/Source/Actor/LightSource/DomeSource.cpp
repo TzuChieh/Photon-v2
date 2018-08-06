@@ -81,7 +81,8 @@ std::unique_ptr<Emitter> DomeSource::genEmitter(
 	PH_ASSERT(emitter != nullptr);
 
 	// HACK
-	emitter = std::make_unique<BackgroundEmitter>(emittedRadiance, resolution);
+	PH_ASSERT(context.getVisualWorldInfo());
+	emitter = std::make_unique<BackgroundEmitter>(emittedRadiance, resolution, context.getVisualWorldInfo()->getRootActorsBound());
 
 	// We are inside a large sphere, so we need to make back face emitable.
 	//
@@ -92,34 +93,41 @@ std::unique_ptr<Emitter> DomeSource::genEmitter(
 
 std::shared_ptr<Geometry> DomeSource::genGeometry(CookingContext& context) const
 {
-	if constexpr(USE_INFINITE_SPHERE)
+	// The radius of a sphere on the origin that can encompass all root actors.
+	real rootActorBoundRadius = 1000.0_r;
+	if(context.getVisualWorldInfo())
 	{
-		return std::make_shared<GInfiniteSphere>();
+		const AABB3D bound = context.getVisualWorldInfo()->getRootActorsBound();
+		for(auto vertex : bound.getVertices())
+		{
+			const real ri = vertex.length();
+			if(rootActorBoundRadius < ri)
+			{
+				rootActorBoundRadius = ri;
+			}
+		}
 	}
 	else
 	{
-		real rootActorBoundRadius = 1000.0_r;
-		if(context.getVisualWorldInfo())
-		{
-			const AABB3D&  bound   = context.getVisualWorldInfo()->getRootActorsBound();
-			const Vector3R extends = bound.calcExtents();
+		logger.log(ELogLevel::WARNING_MED,
+			"No visual world information available, cannot access root actor bounds."
+			"Using " + std::to_string(rootActorBoundRadius) + " as dome radius.");
+	}
 
-			// Enlarge the root actor bound radius by this factor;
-			// notice that if this radius is too small the rendered dome may 
-			// exhibit distorsion even though the environment map is undistorted.
-			//
-			const real magnifier = 64.0_r;
+	if constexpr(USE_INFINITE_SPHERE)
+	{
+		// times 2 to satisfy the requirements of <BackgroundEmitter>
+		return std::make_shared<GInfiniteSphere>(rootActorBoundRadius * 2.0_r);
+	}
+	else
+	{
+		// Enlarge the root actor bound radius by this factor;
+		// notice that if this radius is too small the rendered dome may 
+		// exhibit distorsion even though the environment map is undistorted.
+		//
+		const real magnifier = 64.0_r;
 
-			rootActorBoundRadius = extends.max() * magnifier;
-		}
-		else
-		{
-			logger.log(ELogLevel::WARNING_MED,
-				"No visual world information available, cannot access root actor bounds."
-				"Using " + std::to_string(rootActorBoundRadius) + " as dome radius.");
-		}
-
-		return std::make_shared<GSphere>(rootActorBoundRadius);
+		return std::make_shared<GSphere>(rootActorBoundRadius * magnifier);
 	}
 }
 

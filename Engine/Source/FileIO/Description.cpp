@@ -28,6 +28,8 @@ void Description::update(const real deltaS)
 		return;
 	}
 
+	visualWorld.setCameraPosition(m_camera->getPosition());
+
 	const auto& actors = resources.getActors();
 	for(const auto& actor : actors)
 	{
