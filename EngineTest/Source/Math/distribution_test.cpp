@@ -117,8 +117,8 @@ TEST(PiecewiseConstantDistribution2DTest, PDF)
 	};
 	std::vector<float> weights2 =
 	{
-		1, 1,
-		1, 1
+		3, 3,
+		3, 3
 	};
 	TPwcDistribution2D<float> distribution1(weights1.data(), {1, 1});
 	TPwcDistribution2D<float> distribution2(weights2.data(), {2, 2});

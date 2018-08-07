@@ -70,10 +70,9 @@ public:
 	virtual real calcPositionSamplePdfA(const Vector3R& position) const override;
 	virtual void genPositionSample(PositionSample* out_sample) const override;
 
-	// TODO
-	/*bool uvwToPosition(
+	bool uvwToPosition(
 		const Vector3R& uvw,
-		Vector3R*       out_position) const override;*/
+		Vector3R*       out_position) const override;
 
 	virtual inline real calcExtendedArea() const override
 	{

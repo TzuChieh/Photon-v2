@@ -37,7 +37,7 @@ real TransformedPrimitive::calcPositionSamplePdfA(const Vector3R& position) cons
 
 void TransformedPrimitive::genPositionSample(PositionSample* const out_sample) const
 {
-	PH_ASSERT(out_sample != nullptr);
+	PH_ASSERT(out_sample);
 
 	PositionSample localSample;
 	m_primitive->genPositionSample(&localSample);
@@ -46,6 +46,22 @@ void TransformedPrimitive::genPositionSample(PositionSample* const out_sample) c
 	m_localToWorld->transformO(localSample.normal,   &out_sample->normal);
 	out_sample->uvw = localSample.uvw;
 	out_sample->pdf = localSample.pdf;
+}
+
+bool TransformedPrimitive::uvwToPosition(
+	const Vector3R& uvw,
+	Vector3R* const out_position) const
+{
+	PH_ASSERT(out_position);
+
+	Vector3R localPosition;
+	if(!m_primitive->uvwToPosition(uvw, &localPosition))
+	{
+		return false;
+	}
+
+	m_localToWorld->transformP(localPosition, out_position);
+	return true;
 }
 
 }// end namespace ph

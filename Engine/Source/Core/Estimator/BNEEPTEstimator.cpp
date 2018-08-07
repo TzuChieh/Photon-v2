@@ -194,6 +194,8 @@ void BNEEPTEstimator::radianceAlongRay(
 				emitter->evalEmittedRadiance(Xe, &radianceLe);
 				if(!radianceLe.isZero())
 				{
+					// TODO: <directLightPdfW> might be 0, should we terminate MIS if one of two 
+					// sampling techniques failed?
 					const real directLightPdfW = PtDirectLightEstimator::sampleUnoccludedPdfW(
 						scene, surfaceHit, Xe, ray.getTime());
 

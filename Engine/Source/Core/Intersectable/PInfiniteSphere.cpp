@@ -92,7 +92,7 @@ bool PInfiniteSphere::uvwToPosition(
 	          0.0_r <= uvw.y && uvw.y <= 1.0_r && 
 	          out_position);
 
-	const real theta = uvw.y * PH_PI_REAL;
+	const real theta = (1.0_r - uvw.y) * PH_PI_REAL;
 	const real phi   = uvw.x * PH_PI_REAL * 2.0_r;
 
 	const real zxPlaneRadius = std::sin(theta);

@@ -8,6 +8,7 @@
 #include "Core/Sample/DirectLightSample.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Math/constant.h"
+#include "Math/Math.h"
 
 #include <vector>
 
@@ -42,7 +43,7 @@ BackgroundEmitter::BackgroundEmitter(
 	{
 		const std::size_t baseIndex = y * resolution.x;
 		const real v        = (static_cast<real>(y) + 0.5_r) / static_cast<real>(resolution.y);
-		const real sinTheta = std::sin(v * PH_PI_REAL);
+		const real sinTheta = std::sin((1.0_r - v) * PH_PI_REAL);
 		for(std::size_t x = 0; x < resolution.x; ++x)
 		{
 			const real u = (static_cast<real>(x) + 0.5_r) / static_cast<real>(resolution.x);
@@ -92,8 +93,8 @@ void BackgroundEmitter::genDirectSample(DirectLightSample& sample) const
 	TSampler<SpectralStrength> sampler(EQuantity::EMR);
 	sample.radianceLe = sampler.sample(*m_radiance, uvSample);
 	
-	const real sinTheta = std::sin(uvSample.y * PH_PI_REAL);
-	if(sinTheta == 0.0_r)
+	const real sinTheta = std::sin((1.0_r - uvSample.y) * PH_PI_REAL);
+	if(sinTheta <= 0.0_r)
 	{
 		return;
 	}
@@ -117,11 +118,15 @@ real BackgroundEmitter::calcDirectSamplePdfW(
 	mapper.map(L, &uvw);*/
 
 	const Vector3R uvw = emitPos.getDetail().getUvw();
-	const real sinTheta = std::sin(uvw.y * PH_PI_REAL);
-	if(sinTheta == 0.0_r)
+	const real sinTheta = std::sin((1.0_r - uvw.y) * PH_PI_REAL);
+	if(sinTheta <= 0.0_r)
 	{
 		return 0.0_r;
 	}
+
+	// DEBUG
+	//real pdf = m_sampleDistribution.pdf({uvw.x, uvw.y}) / (2.0_r * PH_PI_REAL * PH_PI_REAL * sinTheta);
+
 	return m_sampleDistribution.pdf({uvw.x, uvw.y}) / (2.0_r * PH_PI_REAL * PH_PI_REAL * sinTheta);
 }
 
