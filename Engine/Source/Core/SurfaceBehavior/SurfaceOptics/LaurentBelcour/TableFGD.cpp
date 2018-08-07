@@ -13,10 +13,12 @@ namespace
 	enum class EInterpolationMode
 	{
 		NEAREST,
+
+		// NOTE: causing artifacts at grazing angles (especially low roughnesses)
 		STOCHASTIC_QUADLINEAR
 	};
 
-	constexpr EInterpolationMode MODE = EInterpolationMode::STOCHASTIC_QUADLINEAR;
+	constexpr EInterpolationMode MODE = EInterpolationMode::NEAREST;
 }
 
 const Logger TableFGD::logger(LogSender("FGD Table"));
