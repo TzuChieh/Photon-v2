@@ -142,7 +142,26 @@ inline T TPwcDistribution1D<T>::pdf(const std::size_t columnIndex) const
 	PH_ASSERT(!m_cdf.empty() && 
 	          0 <= columnIndex && columnIndex < numColumns());
 
-	return m_cdf[columnIndex + 1] - m_cdf[columnIndex];
+	return (m_cdf[columnIndex + 1] - m_cdf[columnIndex]) / m_delta;
+}
+
+template<typename T>
+inline T TPwcDistribution1D<T>::pdf(const T sample) const
+{
+	return pdf(continuousToDiscrete(sample));
+}
+
+template<typename T>
+std::size_t TPwcDistribution1D<T>::continuousToDiscrete(const T sample) const
+{
+	PH_ASSERT_MSG(m_min <= sample && sample <= m_max,
+		"m_min = "  + std::to_string(m_min) + ", "
+		"m_max = "  + std::to_string(m_max) + ", "
+		"sample = " + std::to_string(sample));
+
+	const T continuousColumn = (sample - m_min) / m_delta;
+	return Math::clamp(static_cast<std::size_t>(continuousColumn), 
+	                   static_cast<std::size_t>(0), numColumns() - 1);
 }
 
 template<typename T>

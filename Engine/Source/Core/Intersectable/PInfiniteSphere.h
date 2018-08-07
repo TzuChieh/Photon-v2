@@ -24,7 +24,9 @@ public:
 	bool isIntersectingVolumeConservative(const AABB3D& volume) const override;
 	void calcAABB(AABB3D* out_aabb) const override;
 
-	Vector3R uvwToPosition(const Vector3R& uvw) const;
+	bool uvwToPosition(
+		const Vector3R& uvw,
+		Vector3R*       out_position) const override;
 
 private:
 	real m_boundingRadius;

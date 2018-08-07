@@ -45,15 +45,13 @@ public:
 	//
 	virtual real calcExtendedArea() const;
 
+	// TODO: make this method for EmitablePrimitive
 	// This method calculates the position mapped to the specified uvw 
 	// coordinates. This kind of inverse mapping may not be always possible; 
-	// if the mapping failed, false is returned. The probe used for calling 
-	// isIntersecting() must be provided. The process of calculating inverse 
-	// mapping will destroy the input probe.
+	// if the mapping failed, false is returned. 
 	//
 	virtual bool uvwToPosition(
 		const Vector3R& uvw, 
-		HitProbe&       probe, 
 		Vector3R*       out_position) const;
 
 	const PrimitiveMetadata* getMetadata() const;
@@ -81,7 +79,6 @@ inline const PrimitiveMetadata* Primitive::getMetadata() const
 
 inline bool Primitive::uvwToPosition(
 	const Vector3R& /* uvw */,
-	HitProbe&       /* probe */,
 	Vector3R*       /* out_position */) const
 {
 	return false;

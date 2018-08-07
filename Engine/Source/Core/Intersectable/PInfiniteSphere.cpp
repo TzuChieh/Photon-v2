@@ -31,10 +31,11 @@ bool PInfiniteSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 	// If the ray have max-t larger than 2*r, then it must have passed through
 	// the imaginary bounding sphere.
 
-	const real boundingDiameter = 2.0_r * m_boundingRadius;
-	if(ray.getMaxT() > boundingDiameter)
+	const real rTimes2 = 2.0_r * m_boundingRadius;
+	const real rTimes6 = 6.0_r * m_boundingRadius;
+	if(ray.getMaxT() > rTimes6)
 	{
-		probe.pushBaseHit(this, boundingDiameter);
+		probe.pushBaseHit(this, rTimes2);
 		return true;
 	}
 	else
@@ -83,10 +84,13 @@ void PInfiniteSphere::calcAABB(AABB3D* const out_aabb) const
 	*out_aabb = AABB3D(Vector3R(-rTimes3), Vector3R(rTimes3));
 }
 
-Vector3R PInfiniteSphere::uvwToPosition(const Vector3R& uvw) const
+bool PInfiniteSphere::uvwToPosition(
+	const Vector3R& uvw,
+	Vector3R* const out_position) const
 {
-	/*PH_ASSERT(0.0_r <= uvw.x && uvw.x <= 1.0_r &&
-	          0.0_r <= uvw.y && uvw.y <= 1.0_r);
+	PH_ASSERT(0.0_r <= uvw.x && uvw.x <= 1.0_r &&
+	          0.0_r <= uvw.y && uvw.y <= 1.0_r && 
+	          out_position);
 
 	const real theta = uvw.y * PH_PI_REAL;
 	const real phi   = uvw.x * PH_PI_REAL * 2.0_r;
@@ -95,10 +99,8 @@ Vector3R PInfiniteSphere::uvwToPosition(const Vector3R& uvw) const
 	const Vector3R dir(zxPlaneRadius * std::sin(phi),
 	                   std::cos(theta),
 	                   zxPlaneRadius * std::cos(phi));
-	return dir.mul(EFFECTIVELY_INFINITE_RADIUS);*/
-
-	PH_ASSERT_UNREACHABLE_SECTION();
-	return Vector3R();
+	*out_position = m_boundingRadius * 2.0_r * dir;
+	return true;
 }
 
 }// end namespace ph

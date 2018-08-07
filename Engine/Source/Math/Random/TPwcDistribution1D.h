@@ -34,6 +34,8 @@ public:
 	T sampleContinuous(T seed_i0_e1, T* out_pdf, std::size_t* out_straddledColumn) const;
 
 	T pdf(std::size_t columnIndex) const;
+	T pdf(T sample) const;
+	std::size_t continuousToDiscrete(T sample) const;
 	std::size_t numColumns() const;
 
 private:

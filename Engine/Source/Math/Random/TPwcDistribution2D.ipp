@@ -73,4 +73,15 @@ inline TVector2<T> TPwcDistribution2D<T>::sampleContinuous(
 	return TVector2<T>(sampleX, sampleY);
 }
 
+template<typename T>
+inline real TPwcDistribution2D<T>::pdf(const TVector2<T>& sample) const
+{
+	const std::size_t y = m_marginalYs.continuousToDiscrete(sample.y);
+
+	const T pdfY       = m_marginalYs.pdf(y);
+	const T pdfXgivenY = m_conditionalXs[y].pdf(sample.x);
+
+	return pdfXgivenY * pdfY;
+}
+
 }// end namespace ph

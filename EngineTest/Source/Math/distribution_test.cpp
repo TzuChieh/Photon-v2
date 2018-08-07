@@ -42,6 +42,24 @@ TEST(PiecewiseConstantDistribution1DTest, ContinuousSampleInRange)
 	}
 }
 
+TEST(PiecewiseConstantDistribution1DTest, PDF)
+{
+	TPwcDistribution1D<float> distribution1({1.0f, 1.0f});
+	TPwcDistribution1D<float> distribution2({2.0f, 2.0f, 2.0f});
+
+	// constant distribution should have same PDF everywhere
+	EXPECT_FLOAT_EQ(distribution1.pdf(0.0f),   1.0f);
+	EXPECT_FLOAT_EQ(distribution1.pdf(0.3f),   1.0f);
+	EXPECT_FLOAT_EQ(distribution1.pdf(0.999f), 1.0f);
+	EXPECT_FLOAT_EQ(distribution1.pdf(1.0f),   1.0f);
+
+	// two constant distributions should have same PDF everywhere
+	EXPECT_FLOAT_EQ(distribution1.pdf(0.1f),   distribution2.pdf(0.1f));
+	EXPECT_FLOAT_EQ(distribution1.pdf(0.1f),   distribution2.pdf(0.2f));
+	EXPECT_FLOAT_EQ(distribution1.pdf(0.777f), distribution2.pdf(0.9f));
+	EXPECT_FLOAT_EQ(distribution1.pdf(1.0f),   distribution2.pdf(0.55f));
+}
+
 TEST(PiecewiseConstantDistribution2DTest, Construction)
 {
 	std::vector<float> weights = {1, 2, 3, 4};
@@ -89,4 +107,31 @@ TEST(PiecewiseConstantDistribution2DTest, ContinuousSampleInRange)
 	{
 		std::cout << count << std::endl;
 	}*/
+}
+
+TEST(PiecewiseConstantDistribution2DTest, PDF)
+{
+	std::vector<float> weights1 = 
+	{
+		1
+	};
+	std::vector<float> weights2 =
+	{
+		1, 1,
+		1, 1
+	};
+	TPwcDistribution2D<float> distribution1(weights1.data(), {1, 1});
+	TPwcDistribution2D<float> distribution2(weights2.data(), {2, 2});
+
+	// constant distribution should have same PDF everywhere
+	EXPECT_FLOAT_EQ(distribution1.pdf({0.0f,  0.0f}),  1.0f);
+	EXPECT_FLOAT_EQ(distribution1.pdf({0.2f,  0.5f}),  1.0f);
+	EXPECT_FLOAT_EQ(distribution1.pdf({0.99f, 0.01f}), 1.0f);
+	EXPECT_FLOAT_EQ(distribution1.pdf({1.0f,  1.0f}),  1.0f);
+
+	// two constant distributions should have same PDF everywhere
+	EXPECT_FLOAT_EQ(distribution1.pdf({0.3f,   0.3f}), distribution2.pdf({0.3f,   0.3f}));
+	EXPECT_FLOAT_EQ(distribution1.pdf({0.666f, 0.1f}), distribution2.pdf({0.357f, 0.432f}));
+	EXPECT_FLOAT_EQ(distribution1.pdf({0.0f,   0.0f}), distribution2.pdf({1.0f,   1.0f}));
+	EXPECT_FLOAT_EQ(distribution1.pdf({0.8f,   0.2f}), distribution2.pdf({0.0f,   1.0f}));
 }

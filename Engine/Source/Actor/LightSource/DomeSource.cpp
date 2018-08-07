@@ -50,6 +50,7 @@ std::unique_ptr<Emitter> DomeSource::genEmitter(
 
 	// HACK
 	TVector2<std::size_t> resolution(frame.widthPx(), frame.heightPx());
+	//resolution.divLocal(512);
 
 	auto image = std::make_shared<HdrPictureImage>(std::move(frame));
 	image->setSampleMode(EImgSampleMode::BILINEAR);
@@ -82,7 +83,7 @@ std::unique_ptr<Emitter> DomeSource::genEmitter(
 
 	// HACK
 	PH_ASSERT(context.getVisualWorldInfo());
-	emitter = std::make_unique<BackgroundEmitter>(emittedRadiance, resolution, context.getVisualWorldInfo()->getRootActorsBound());
+	emitter = std::make_unique<BackgroundEmitter>(data.primitives[0], emittedRadiance, resolution, context.getVisualWorldInfo()->getRootActorsBound());
 
 	// We are inside a large sphere, so we need to make back face emitable.
 	//

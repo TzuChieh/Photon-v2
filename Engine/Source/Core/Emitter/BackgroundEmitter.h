@@ -25,12 +25,16 @@ namespace ph
 	Associating surface primitives that do not meet these requirements may 
 	results in rendering artifacts.
 */
+
+class Primitive;
+
 class BackgroundEmitter : public SurfaceEmitter
 {
 public:
 	using RadianceTexture = std::shared_ptr<TTexture<SpectralStrength>>;
 
 	BackgroundEmitter(
+		const Primitive*             surface,
 		const RadianceTexture&       radiance,
 		const TVector2<std::size_t>& resolution,
 		const AABB3D&                worldBound);
@@ -44,6 +48,7 @@ public:
 	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const override;
 
 private:
+	const Primitive*         m_surface;
 	RadianceTexture          m_radiance;
 	TPwcDistribution2D<real> m_sampleDistribution;
 	AABB3D                   m_worldBound;
