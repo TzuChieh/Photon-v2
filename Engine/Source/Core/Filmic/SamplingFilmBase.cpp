@@ -105,20 +105,8 @@ SamplingFilmBase::SamplingFilmBase(const InputPacket& packet) :
 	m_filter        (SampleFilterFactory::createGaussianFilter()),
 	m_merger        (makeNoOpMerger())
 {
-	const std::string filterName = packet.getString("filter-name", "box");
-
-	if(filterName == "box")
-	{
-		m_filter = SampleFilterFactory::createBoxFilter();
-	}
-	else if(filterName == "gaussian")
-	{
-		m_filter = SampleFilterFactory::createGaussianFilter();
-	}
-	else if(filterName == "mn")
-	{
-		m_filter = SampleFilterFactory::createMNFilter();
-	}
+	const std::string filterName = packet.getString("filter-name");
+	m_filter = SampleFilterFactory::create(filterName);
 
 	PH_ASSERT(m_merger && m_sampleWindowPx.isValid());
 }

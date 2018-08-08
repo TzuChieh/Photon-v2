@@ -250,18 +250,7 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 	m_requestedAttributes()
 {
 	const std::string filterName = packet.getString("filter-name");
-	if(filterName == "box")
-	{
-		m_filter = SampleFilterFactory::createBoxFilter();
-	}
-	else if(filterName == "gaussian")
-	{
-		m_filter = SampleFilterFactory::createGaussianFilter();
-	}
-	else if(filterName == "mn")
-	{
-		m_filter = SampleFilterFactory::createMNFilter();
-	}
+	m_filter = SampleFilterFactory::create(filterName);
 
 	const std::string estimatorName = packet.getString("estimator", "bneept");
 	if(estimatorName == "bvpt")

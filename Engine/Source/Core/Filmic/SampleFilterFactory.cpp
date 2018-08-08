@@ -4,9 +4,32 @@
 #include "Math/Function/TMNCubic2D.h"
 
 #include <memory>
+#include <iostream>
 
 namespace ph
 {
+
+SampleFilter SampleFilterFactory::create(const std::string& name)
+{
+	if(name == BOX_NAME || name == BOX_ABBREV)
+	{
+		return createBoxFilter();
+	}
+	else if(name == GAUSSIAN_NAME || name == GAUSSIAN_ABBREV)
+	{
+		return createGaussianFilter();
+	}
+	else if(name == MITCHELL_NETRAVALI_NAME || name == MITCHELL_NETRAVALI_ABBREV)
+	{
+		return createMitchellNetravaliFilter();
+	}
+	else
+	{
+		std::cerr << "warning: at SampleFilterFactory::create(), "
+		          << "<" << name << "> is not supported, using " << GAUSSIAN_NAME << std::endl;
+		return createGaussianFilter();
+	}
+}
 
 SampleFilter SampleFilterFactory::createBoxFilter()
 {
@@ -27,7 +50,7 @@ SampleFilter SampleFilterFactory::createGaussianFilter()
 	// make the function evaluates to 0 on the filter edge
 	const float64 edgeValue = gaussianFunc->evaluate(filterSize / 2.0, filterSize / 2.0);
 
-	// FIXME: is submerging gaussian filter really make sense?
+	// NOTE: is submerging gaussian filter really make sense?
 	// see this thread for more discussion:
 	// https://developer.blender.org/D1453
 	gaussianFunc->setSubmergeAmount(edgeValue);
@@ -35,7 +58,7 @@ SampleFilter SampleFilterFactory::createGaussianFilter()
 	return SampleFilter(std::move(gaussianFunc), filterSize, filterSize);
 }
 
-SampleFilter SampleFilterFactory::createMNFilter()
+SampleFilter SampleFilterFactory::createMitchellNetravaliFilter()
 {
 	// Reference: Mitchell & Netravali's paper,
 	// Reconstruction Filters in Computer Graphics (1998), they 
