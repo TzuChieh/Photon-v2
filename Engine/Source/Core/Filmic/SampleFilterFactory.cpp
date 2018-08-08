@@ -26,6 +26,10 @@ SampleFilter SampleFilterFactory::createGaussianFilter()
 
 	// make the function evaluates to 0 on the filter edge
 	const float64 edgeValue = gaussianFunc->evaluate(filterSize / 2.0, filterSize / 2.0);
+
+	// FIXME: is submerging gaussian filter really make sense?
+	// see this thread for more discussion:
+	// https://developer.blender.org/D1453
 	gaussianFunc->setSubmergeAmount(edgeValue);
 
 	return SampleFilter(std::move(gaussianFunc), filterSize, filterSize);
@@ -33,10 +37,11 @@ SampleFilter SampleFilterFactory::createGaussianFilter()
 
 SampleFilter SampleFilterFactory::createMNFilter()
 {
-	// Mitchell & Netravali's paper:
-	// Reconstruction Filters in Computer Graphics (1998)
+	// Reference: Mitchell & Netravali's paper,
+	// Reconstruction Filters in Computer Graphics (1998), they 
 	// recommends b = c = 1/3, which produces excellent image quality in 
 	// their experiments.
+
 	const float64 b = 1.0 / 3.0;
 	const float64 c = 1.0 / 3.0;
 	auto mnCubicFunc = std::make_unique<TMNCubic2D<float64>>(b, c);

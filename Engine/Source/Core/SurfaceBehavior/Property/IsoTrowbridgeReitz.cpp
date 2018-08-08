@@ -36,7 +36,8 @@ real IsoTrowbridgeReitz::distribution(
 	return alpha2 / denominator;
 }
 
-// Smith's GGX Geometry Shadowing Function (H is expected to be on the hemisphere of N)
+// Smith's GGX Geometry Shadowing Function (H is expected to be on the 
+// hemisphere of N)
 real IsoTrowbridgeReitz::shadowing(
 	const SurfaceHit& X,
 	const Vector3R& N, const Vector3R& H,
@@ -52,15 +53,18 @@ real IsoTrowbridgeReitz::shadowing(
 	}
 
 	const real alpha2 = m_alpha * m_alpha;
+	const real NoL2   = NoL * NoL;
+	const real NoV2   = NoV * NoV;
+
+	const real lambdaL = 0.5_r * (-1.0_r + std::sqrt(1.0_r + alpha2 * (1.0_r / NoL2 - 1.0_r)));
+	const real lambdaV = 0.5_r * (-1.0_r + std::sqrt(1.0_r + alpha2 * (1.0_r / NoV2 - 1.0_r)));
 
 	// Here the shadowing factor uses a more accurate version than the one used
 	// by Walter et al. (2007).
+	//
 	// Reference: Eric Heitz, Understanding the Masking-Shadowing Function in 
 	// Microfacet Based BRDFs, Journal of Computer Graphics Techniques Vol. 3, 
 	// No. 2, 2014. Equation 99 is the one used here.
-
-	const real lambdaL = 0.5_r * (-1.0_r + std::sqrt(1.0_r + alpha2 * (NoL * NoL)));
-	const real lambdaV = 0.5_r * (-1.0_r + std::sqrt(1.0_r + alpha2 * (NoV * NoV)));
 
 	return 1.0_r / (1.0_r + lambdaL + lambdaV);
 }
