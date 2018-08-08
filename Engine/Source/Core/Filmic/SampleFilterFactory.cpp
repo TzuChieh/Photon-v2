@@ -2,6 +2,7 @@
 #include "Math/Function/TConstant2D.h"
 #include "Math/Function/TGaussian2D.h"
 #include "Math/Function/TMNCubic2D.h"
+#include "Math/Function/TBlackmanHarris2D.h"
 
 #include <memory>
 #include <iostream>
@@ -22,6 +23,10 @@ SampleFilter SampleFilterFactory::create(const std::string& name)
 	else if(name == MITCHELL_NETRAVALI_NAME || name == MITCHELL_NETRAVALI_ABBREV)
 	{
 		return createMitchellNetravaliFilter();
+	}
+	else if(name == BLACKMAN_HARRIS_NAME || name == BLACKMAN_HARRIS_ABBREV)
+	{
+		return createBlackmanHarrisFilter();
 	}
 	else
 	{
@@ -45,6 +50,7 @@ SampleFilter SampleFilterFactory::createGaussianFilter()
 	const float64 sigmaY     = 0.5;
 	const float64 amplitude  = 1.0;
 	const float64 filterSize = 4.0;
+
 	auto gaussianFunc = std::make_unique<TGaussian2D<float64>>(sigmaX, sigmaY, amplitude);
 
 	// make the function evaluates to 0 on the filter edge
@@ -67,9 +73,19 @@ SampleFilter SampleFilterFactory::createMitchellNetravaliFilter()
 
 	const float64 b = 1.0 / 3.0;
 	const float64 c = 1.0 / 3.0;
+
 	auto mnCubicFunc = std::make_unique<TMNCubic2D<float64>>(b, c);
 
 	return SampleFilter(std::move(mnCubicFunc), 4.0, 4.0);
+}
+
+SampleFilter SampleFilterFactory::createBlackmanHarrisFilter()
+{
+	const float64 radius = 2.0;
+
+	auto bhFunc = std::make_unique<TBlackmanHarris2D<float64>>(radius);
+
+	return SampleFilter(std::move(bhFunc), radius * 2.0, radius * 2.0);
 }
 
 }// end namespace ph

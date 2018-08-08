@@ -30,9 +30,7 @@ TMNCubic2D<ValueType>::TMNCubic2D(const ValueType b,
                                   const ValueType c) :
 	TMathFunction2D<ValueType>(),
 	m_b(b), m_c(c)
-{
-
-}
+{}
 
 template<typename ValueType>
 TMNCubic2D<ValueType>::~TMNCubic2D() = default;

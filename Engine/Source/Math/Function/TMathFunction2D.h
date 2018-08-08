@@ -7,7 +7,7 @@ template<typename ValueType>
 class TMathFunction2D
 {
 public:
-	virtual ~TMathFunction2D() = 0;
+	virtual ~TMathFunction2D();
 
 	virtual ValueType evaluate(ValueType x, ValueType y) const = 0;
 };

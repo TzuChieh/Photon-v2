@@ -74,11 +74,12 @@ class PhSamplingPanel(PhRenderPanel):
 		items = [
 			("BOX",      "Box",                "box filter"),
 			("GAUSSIAN", "Gaussian",           "Gaussian filter"),
-			("MN",       "Mitchell-Netravali", "Mitchell-Netravali filter")
+			("MN",       "Mitchell-Netravali", "Mitchell-Netravali filter"),
+			("BH",       "Blackman-Harris",    "Blackman-Harris filter")
 		],
 		name        = "Sample Filter Type",
 		description = "Photon-v2's sample filter types",
-		default     = "MN"
+		default     = "BH"
 	)
 
 	def draw(self, context):

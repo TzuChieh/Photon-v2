@@ -20,11 +20,13 @@ class MetaGetter:
 			return "box"
 		elif filter_type == "GAUSSIAN":
 			return "gaussian"
-		elif filter_type == 'MN':
+		elif filter_type == "MN":
 			return "mn"
+		elif filter_type == "BH":
+			return "bh"
 		else:
-			print("warning: unsupported filter type %s, using box MN instead" % filter_type)
-			return "mn"
+			print("warning: unsupported filter type %s, using box BH instead" % filter_type)
+			return "bh"
 
 	def integrator_type_name(self):
 		integrator_type = self.__context.scene.ph_render_integrator_type
