@@ -15,9 +15,7 @@ public:
 
 	TSamplePhase(const TSamplePhase& other) :
 		m_phaseIndex(other.m_phaseIndex)
-	{
-
-	}
+	{}
 
 	inline TSamplePhase& operator = (const TSamplePhase& rhs)
 	{
@@ -31,9 +29,7 @@ private:
 
 	inline explicit TSamplePhase(const std::size_t phaseIndex) :
 		m_phaseIndex(phaseIndex)
-	{
-
-	}
+	{}
 };
 
 }// end namespace ph

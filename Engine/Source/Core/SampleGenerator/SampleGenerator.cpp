@@ -7,30 +7,27 @@
 namespace ph
 {
 
-SampleGenerator::SampleGenerator(const std::size_t numSamples, 
-                                 const std::size_t sampleBatchSize) :
-	m_numSamples(numSamples), 
-	m_sampleBatchSize(sampleBatchSize),
-	m_sampleHead(0)
+SampleGenerator::SampleGenerator(const std::size_t numSampleBatches,
+                                 const std::size_t numCachedBatches) :
+	m_numSampleBatches(numSampleBatches),
+	m_numCachedBatches(numCachedBatches),
+	m_currentBatchNumber(0)
 {}
 
 SampleGenerator::~SampleGenerator() = default;
 
-bool SampleGenerator::singleSampleStart()
+bool SampleGenerator::prepareSampleBatch()
 {
-	const bool hasMoreSamples = m_sampleHead < m_numSamples;
-
-	if(hasMoreSamples && m_sampleHead % m_sampleBatchSize == 0)
+	const bool hasMoreBatches = m_currentBatchNumber < m_numSampleBatches;
+	const bool needsNewCache  = m_currentBatchNumber % m_numCachedBatches == 0;
+	if(hasMoreBatches && needsNewCache)
 	{
 		genSampleBatch();
 	}
 
-	return hasMoreSamples;
-}
+	m_currentBatchNumber++;
 
-void SampleGenerator::singleSampleEnd()
-{
-	m_sampleHead++;
+	return hasMoreBatches;
 }
 
 void SampleGenerator::genSplitted(const std::size_t numSplits,
@@ -41,7 +38,7 @@ void SampleGenerator::genSplitted(const std::size_t numSplits,
 		return;
 	}
 
-	const std::size_t splittedNumSamples = numSamples() / numSplits;
+	const std::size_t splittedNumSamples = numSampleBatches() / numSplits;
 	for(std::size_t i = 0; i < numSplits; i++)
 	{
 		out_sgs.push_back(genNewborn(splittedNumSamples));
@@ -50,7 +47,7 @@ void SampleGenerator::genSplitted(const std::size_t numSplits,
 
 std::unique_ptr<SampleGenerator> SampleGenerator::genCopied() const
 {
-	return genNewborn(m_numSamples);
+	return genNewborn(m_numSampleBatches);
 }
 
 real SampleGenerator::getNext1D(const TSamplePhase<real>& phase)
@@ -163,7 +160,7 @@ void SampleGenerator::alloc1DPhase(const std::size_t numElements,
 	*out_phaseIndex = static_cast<uint32>(m_phaseDataArray.size());
 
 	PhaseData phaseData;
-	phaseData.data.resize(m_sampleBatchSize * numElements);
+	phaseData.data.resize(m_numCachedBatches * numElements);
 	phaseData.head        = 0;
 	phaseData.numElements = numElements;
 	phaseData.dimension   = 1;
@@ -176,7 +173,7 @@ void SampleGenerator::alloc2DPhase(const std::size_t numElements,
 	*out_phaseIndex = static_cast<uint32>(m_phaseDataArray.size());
 
 	PhaseData phaseData;
-	phaseData.data.resize(m_sampleBatchSize * numElements * 2);
+	phaseData.data.resize(m_numCachedBatches * numElements * 2);
 	phaseData.head        = 0;
 	phaseData.numElements = numElements;
 	phaseData.dimension   = 2;
@@ -206,7 +203,7 @@ void SampleGenerator::genSampleBatch()
 void SampleGenerator::genSampleBatch1D(PhaseData& out_phase)
 {
 	out_phase.head = 0;
-	for(std::size_t b = 0; b < m_sampleBatchSize; b++)
+	for(std::size_t b = 0; b < m_numCachedBatches; b++)
 	{
 		SampleArray1D arrayProxy(&out_phase.data[b * out_phase.numPhaseReals()],
 		                         out_phase.numElements);
@@ -217,7 +214,7 @@ void SampleGenerator::genSampleBatch1D(PhaseData& out_phase)
 void SampleGenerator::genSampleBatch2D(PhaseData& out_phase)
 {
 	out_phase.head = 0;
-	for(std::size_t b = 0; b < m_sampleBatchSize; b++)
+	for(std::size_t b = 0; b < m_numCachedBatches; b++)
 	{
 		SampleArray2D arrayProxy(&out_phase.data[b * out_phase.numPhaseReals()],
 		                         out_phase.numElements);
@@ -234,11 +231,11 @@ bool SampleGenerator::canSplit(const std::size_t numSplits) const
 		return false;
 	}
 
-	if(m_numSamples % numSplits != 0)
+	if(m_numSampleBatches % numSplits != 0)
 	{
 		std::cerr << "warning: at SampleGenerator::canSplit(), "
 		          << "generator cannot evenly split into " << numSplits << " parts" << std::endl;
-		std::cerr << "(sample count: " << m_numSamples << ")" << std::endl;
+		std::cerr << "(sample batches: " << m_numSampleBatches << ")" << std::endl;
 		return false;
 	}
 

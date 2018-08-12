@@ -21,15 +21,14 @@ class InputPacket;
 class SampleGenerator : public TCommandInterface<SampleGenerator>
 {
 public:
-	SampleGenerator(std::size_t numSamples, std::size_t sampleBatchSize);
-	virtual ~SampleGenerator() = 0;
+	SampleGenerator(std::size_t numSampleBatches, std::size_t numCachedBatches);
+	virtual ~SampleGenerator();
 
 	void genSplitted(std::size_t numSplits,
 	                 std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) const;
 	std::unique_ptr<SampleGenerator> genCopied() const;
 
-	bool singleSampleStart();
-	void singleSampleEnd();
+	bool prepareSampleBatch();
 
 	TSamplePhase<real>     declare1DPhase(std::size_t numElements);
 	TSamplePhase<Vector2R> declare2DPhase(std::size_t numElements);
@@ -41,14 +40,14 @@ public:
 	SampleArray1D getNextArray1D(const TSamplePhase<SampleArray1D>& phase);
 	SampleArray2D getNextArray2D(const TSamplePhase<SampleArray2D>& phase);
 
-	inline std::size_t numSamples() const
+	inline std::size_t numSampleBatches() const
 	{
-		return m_numSamples;
+		return m_numSampleBatches;
 	}
 
-	inline std::size_t sampleBatchSize() const
+	inline std::size_t numCachedBatches() const
 	{
-		return m_sampleBatchSize;
+		return m_numCachedBatches;
 	}
 
 private:
@@ -63,9 +62,9 @@ private:
 		inline std::size_t numPhaseReals() const { return numElements * dimension; }
 	};
 
-	std::size_t m_numSamples;
-	std::size_t m_sampleBatchSize;
-	std::size_t m_sampleHead;
+	std::size_t m_numSampleBatches;
+	std::size_t m_numCachedBatches;
+	std::size_t m_currentBatchNumber;
 
 	std::vector<PhaseData> m_phaseDataArray;
 

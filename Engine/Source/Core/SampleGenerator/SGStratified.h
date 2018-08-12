@@ -12,7 +12,6 @@ public:
 	SGStratified(std::size_t numSamples,
 	             std::size_t numStrata2dX, 
 	             std::size_t numStrata2dY);
-	virtual ~SGStratified() override;
 
 private:
 	virtual std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;

@@ -13,15 +13,11 @@ class SampleArray
 public:
 	inline SampleArray() :
 		m_data(nullptr), m_numElements(0)
-	{
-
-	}
+	{}
 
 	inline SampleArray(real* const data, std::size_t numElements) :
 		m_data(data), m_numElements(numElements)
-	{
-
-	}
+	{}
 
 	inline std::size_t numElements() const
 	{

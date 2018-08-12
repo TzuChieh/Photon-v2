@@ -19,8 +19,6 @@ SGStratified::SGStratified(const std::size_t numSamples,
 	m_numStrata2dY(numStrata2dY > 0 ? numStrata2dY : 1)
 {}
 
-SGStratified::~SGStratified() = default;
-
 void SGStratified::genArray1D(SampleArray1D* const out_array)
 {
 	// TODO: generate stratified

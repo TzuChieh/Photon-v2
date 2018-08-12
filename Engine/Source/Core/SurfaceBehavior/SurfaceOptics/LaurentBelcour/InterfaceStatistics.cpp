@@ -136,7 +136,7 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 	// adding operator on the normalized variance
 	real sR0i = (mR0iAvg * m_sR0i + R0iTermAvg * (m_sTi0 + m_J0i * (m_sT0i + sR12 + RrTermAvg * (sR12 + m_sRi0))));/* / R0iAvg */
 	real sT0i = j12 * m_sT0i + sT12 + j12 * (sR12 + m_sRi0) * RrTermAvg;
-	real sRi0 = (R21Avg * sR21 + Ri0TermAvg * (sT12 + j12 * (sT21 + m_sRi0 + RrTermAvg * (sR12 + m_sRi0))));/* / R0iAvg */
+	real sRi0 = (R21Avg * sR21 + Ri0TermAvg * (sT12 + j12 * (sT21 + m_sRi0 + RrTermAvg * (sR12 + m_sRi0))));/* / Ri0Avg */
 	real sTi0 = m_Ji0 * sT21 + m_sTi0 + m_Ji0 * (sR12 + m_sRi0) * RrTermAvg;
 	sR0i = R0iAvg > 0.0_r ? sR0i / R0iAvg : 0.0_r;
 	sRi0 = Ri0Avg > 0.0_r ? sRi0 / Ri0Avg : 0.0_r;

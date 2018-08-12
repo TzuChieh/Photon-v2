@@ -10,7 +10,6 @@ class SGUniformRandom final : public SampleGenerator, public TCommandInterface<S
 {
 public:
 	SGUniformRandom(const std::size_t numSamples);
-	virtual ~SGUniformRandom() override;
 
 private:
 	virtual std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;
