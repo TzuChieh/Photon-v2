@@ -43,7 +43,7 @@ void SamplingRenderWork::doWork()
 	const Vector2D ndcScale(rasterSampleSize.div(Vector2D(lightFilm->getActualResPx())));
 	const Vector2D ndcOffset(sampleMinVertex.div(Vector2D(lightFilm->getActualResPx())));
 
-	TSampleStage<Samples2D> camSampleStage = m_sampleGenerator->declare2DStage(numCamStageSamples);
+	Samples2DStage camSampleStage = m_sampleGenerator->declare2DStage(numCamStageSamples);
 
 	m_numSamplesTaken = 0;
 	m_numMsElapsed    = 0;

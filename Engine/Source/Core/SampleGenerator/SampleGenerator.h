@@ -3,7 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Core/Sample.h"
 #include "Math/TVector2.h"
-#include "Core/SampleGenerator/TSampleStage.h"
+#include "Core/SampleGenerator/stages.h"
 #include "FileIO/SDL/ISdlResource.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Core/SampleGenerator/samples.h"
@@ -30,13 +30,13 @@ public:
 
 	bool prepareSampleBatch();
 
-	TSampleStage<Samples1D> declare1DStage(std::size_t numElements);
-	TSampleStage<Samples2D> declare2DStage(std::size_t numElements);
-	TSampleStage<SamplesND> declareNDStage(std::size_t numElements);
+	Samples1DStage declare1DStage(std::size_t numElements);
+	Samples2DStage declare2DStage(std::size_t numElements);
+	SamplesNDStage declareNDStage(std::size_t numElements);
 
-	Samples1D getSamples1D(const TSampleStage<Samples1D>& stage);
-	Samples2D getSamples2D(const TSampleStage<Samples2D>& stage);
-	SamplesND getSamplesND(const TSampleStage<SamplesND>& stage);
+	Samples1D getSamples1D(const Samples1DStage& stage);
+	Samples2D getSamples2D(const Samples2DStage& stage);
+	SamplesND getSamplesND(const SamplesNDStage& stage);
 
 	std::size_t numSampleBatches() const;
 	std::size_t numCachedBatches() const;

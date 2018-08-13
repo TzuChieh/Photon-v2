@@ -50,7 +50,7 @@ std::unique_ptr<SampleGenerator> SampleGenerator::genCopied() const
 	return genNewborn(m_numSampleBatches);
 }
 
-Samples1D SampleGenerator::getSamples1D(const TSampleStage<Samples1D>& stage)
+Samples1D SampleGenerator::getSamples1D(const Samples1DStage& stage)
 {
 	auto& stageData   = m_stageDataArray[stage.m_stageIndex];
 	auto& data        = stageData.data;
@@ -69,7 +69,7 @@ Samples1D SampleGenerator::getSamples1D(const TSampleStage<Samples1D>& stage)
 	}
 }
 
-Samples2D SampleGenerator::getSamples2D(const TSampleStage<Samples2D>& stage)
+Samples2D SampleGenerator::getSamples2D(const Samples2DStage& stage)
 {
 	auto& stageData   = m_stageDataArray[stage.m_stageIndex];
 	auto& data        = stageData.data;
@@ -88,32 +88,32 @@ Samples2D SampleGenerator::getSamples2D(const TSampleStage<Samples2D>& stage)
 	}
 }
 
-SamplesND SampleGenerator::getSamplesND(const TSampleStage<SamplesND>& stage)
+SamplesND SampleGenerator::getSamplesND(const SamplesNDStage& stage)
 {
 	// TODO
 	return SamplesND();
 }
 
-TSampleStage<Samples1D> SampleGenerator::declare1DStage(const std::size_t numElements)
+Samples1DStage SampleGenerator::declare1DStage(const std::size_t numElements)
 {
 	uint32 stageIndex;
 	alloc1DStage(numElements, &stageIndex);
 
-	return TSampleStage<Samples1D>(stageIndex);
+	return Samples1DStage(stageIndex);
 }
 
-TSampleStage<Samples2D> SampleGenerator::declare2DStage(const std::size_t numElements)
+Samples2DStage SampleGenerator::declare2DStage(const std::size_t numElements)
 {
 	uint32 stageIndex;
 	alloc2DStage(numElements, &stageIndex);
 
-	return TSampleStage<Samples2D>(stageIndex);
+	return Samples2DStage(stageIndex);
 }
 
-TSampleStage<SamplesND> SampleGenerator::declareNDStage(const std::size_t numElements)
+SamplesNDStage SampleGenerator::declareNDStage(const std::size_t numElements)
 {
 	// TODO
-	return TSampleStage<SamplesND>(0);
+	return SamplesNDStage(0);
 }
 
 void SampleGenerator::alloc1DStage(const std::size_t numElements, 
