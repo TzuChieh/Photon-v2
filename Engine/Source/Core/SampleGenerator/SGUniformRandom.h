@@ -12,9 +12,10 @@ public:
 	SGUniformRandom(const std::size_t numSamples);
 
 private:
-	virtual std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;
-	virtual void genArray1D(Samples1D* out_array) override;
-	virtual void genArray2D(Samples2D* out_array) override;
+	std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;
+	void genSamples1D(Samples1D* out_array) override;
+	void genSamples2D(Samples2D* out_array) override;
+	void genSamplesND(SamplesND* out_array) override;
 
 // command interface
 public:

@@ -50,47 +50,7 @@ std::unique_ptr<SampleGenerator> SampleGenerator::genCopied() const
 	return genNewborn(m_numSampleBatches);
 }
 
-real SampleGenerator::getNext1D(const TSampleStage<real>& stage)
-{
-	auto& stageData = m_stageDataArray[stage.m_stageIndex];
-	auto& data      = stageData.data;
-	auto& head      = stageData.head;
-
-	real coord1D;
-	if(head < data.size())
-	{
-		coord1D = data[head++];
-	}
-	else
-	{
-		coord1D = Random::genUniformReal_i0_e1();
-	}
-
-	return coord1D;
-}
-
-Vector2R SampleGenerator::getNext2D(const TSampleStage<Vector2R>& stage)
-{
-	auto& stageData = m_stageDataArray[stage.m_stageIndex];
-	auto& data      = stageData.data;
-	auto& head      = stageData.head;
-
-	Vector2R coord2D;
-	if(head + 1 < data.size())
-	{
-		coord2D.x = data[head++];
-		coord2D.y = data[head++];
-	}
-	else
-	{
-		coord2D.x = Random::genUniformReal_i0_e1();
-		coord2D.y = Random::genUniformReal_i0_e1();
-	}
-
-	return coord2D;
-}
-
-Samples1D SampleGenerator::getNextArray1D(const TSampleStage<Samples1D>& stage)
+Samples1D SampleGenerator::getSamples1D(const TSampleStage<Samples1D>& stage)
 {
 	auto& stageData   = m_stageDataArray[stage.m_stageIndex];
 	auto& data        = stageData.data;
@@ -109,7 +69,7 @@ Samples1D SampleGenerator::getNextArray1D(const TSampleStage<Samples1D>& stage)
 	}
 }
 
-Samples2D SampleGenerator::getNextArray2D(const TSampleStage<Samples2D>& stage)
+Samples2D SampleGenerator::getSamples2D(const TSampleStage<Samples2D>& stage)
 {
 	auto& stageData   = m_stageDataArray[stage.m_stageIndex];
 	auto& data        = stageData.data;
@@ -128,17 +88,13 @@ Samples2D SampleGenerator::getNextArray2D(const TSampleStage<Samples2D>& stage)
 	}
 }
 
-TSampleStage<real> SampleGenerator::declare1DStage(const std::size_t numElements)
+SamplesND SampleGenerator::getSamplesND(const TSampleStage<SamplesND>& stage)
 {
-	return TSampleStage<real>(declareArray1DStage(numElements).m_stageIndex);
+	// TODO
+	return SamplesND();
 }
 
-TSampleStage<Vector2R> SampleGenerator::declare2DStage(const std::size_t numElements)
-{
-	return TSampleStage<Vector2R>(declareArray2DStage(numElements).m_stageIndex);
-}
-
-TSampleStage<Samples1D> SampleGenerator::declareArray1DStage(const std::size_t numElements)
+TSampleStage<Samples1D> SampleGenerator::declare1DStage(const std::size_t numElements)
 {
 	uint32 stageIndex;
 	alloc1DStage(numElements, &stageIndex);
@@ -146,12 +102,18 @@ TSampleStage<Samples1D> SampleGenerator::declareArray1DStage(const std::size_t n
 	return TSampleStage<Samples1D>(stageIndex);
 }
 
-TSampleStage<Samples2D> SampleGenerator::declareArray2DStage(const std::size_t numElements)
+TSampleStage<Samples2D> SampleGenerator::declare2DStage(const std::size_t numElements)
 {
 	uint32 stageIndex;
 	alloc2DStage(numElements, &stageIndex);
 
 	return TSampleStage<Samples2D>(stageIndex);
+}
+
+TSampleStage<SamplesND> SampleGenerator::declareNDStage(const std::size_t numElements)
+{
+	// TODO
+	return TSampleStage<SamplesND>(0);
 }
 
 void SampleGenerator::alloc1DStage(const std::size_t numElements, 
@@ -178,6 +140,11 @@ void SampleGenerator::alloc2DStage(const std::size_t numElements,
 	stageData.numElements = numElements;
 	stageData.dimension   = 2;
 	m_stageDataArray.push_back(stageData);
+}
+
+void SampleGenerator::allocNDStage(std::size_t numElements, uint32* out_stageIndex)
+{
+	// TODO
 }
 
 void SampleGenerator::genSampleBatch()
@@ -207,7 +174,7 @@ void SampleGenerator::genSampleBatch1D(StageData& out_stage)
 	{
 		Samples1D arrayProxy(&out_stage.data[b * out_stage.numStageReals()],
 		                     out_stage.numElements);
-		genArray1D(&arrayProxy);
+		genSamples1D(&arrayProxy);
 	}
 }
 
@@ -218,8 +185,13 @@ void SampleGenerator::genSampleBatch2D(StageData& out_stage)
 	{
 		Samples2D arrayProxy(&out_stage.data[b * out_stage.numStageReals()],
 		                     out_stage.numElements);
-		genArray2D(&arrayProxy);
+		genSamples2D(&arrayProxy);
 	}
+}
+
+void SampleGenerator::genSampleBatchND(StageData& out_stage)
+{
+	// TODO
 }
 
 bool SampleGenerator::canSplit(const std::size_t numSplits) const

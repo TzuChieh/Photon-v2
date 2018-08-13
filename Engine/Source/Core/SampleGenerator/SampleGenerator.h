@@ -30,25 +30,16 @@ public:
 
 	bool prepareSampleBatch();
 
-	TSampleStage<real>     declare1DStage(std::size_t numElements);
-	TSampleStage<Vector2R> declare2DStage(std::size_t numElements);
-	TSampleStage<Samples1D> declareArray1DStage(std::size_t numElements);
-	TSampleStage<Samples2D> declareArray2DStage(std::size_t numElements);
+	TSampleStage<Samples1D> declare1DStage(std::size_t numElements);
+	TSampleStage<Samples2D> declare2DStage(std::size_t numElements);
+	TSampleStage<SamplesND> declareNDStage(std::size_t numElements);
 
-	real     getNext1D(const TSampleStage<real>&     stage);
-	Vector2R getNext2D(const TSampleStage<Vector2R>& stage);
-	Samples1D getNextArray1D(const TSampleStage<Samples1D>& stage);
-	Samples2D getNextArray2D(const TSampleStage<Samples2D>& stage);
+	Samples1D getSamples1D(const TSampleStage<Samples1D>& stage);
+	Samples2D getSamples2D(const TSampleStage<Samples2D>& stage);
+	SamplesND getSamplesND(const TSampleStage<SamplesND>& stage);
 
-	inline std::size_t numSampleBatches() const
-	{
-		return m_numSampleBatches;
-	}
-
-	inline std::size_t numCachedBatches() const
-	{
-		return m_numCachedBatches;
-	}
+	std::size_t numSampleBatches() const;
+	std::size_t numCachedBatches() const;
 
 private:
 	class StageData
@@ -69,14 +60,17 @@ private:
 	std::vector<StageData> m_stageDataArray;
 
 	virtual std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const = 0;
-	virtual void genArray1D(Samples1D* out_array) = 0;
-	virtual void genArray2D(Samples2D* out_array) = 0;
+	virtual void genSamples1D(Samples1D* out_array) = 0;
+	virtual void genSamples2D(Samples2D* out_array) = 0;
+	virtual void genSamplesND(SamplesND* out_array) = 0;
 
 	void alloc1DStage(std::size_t numElements, uint32* out_stageIndex);
 	void alloc2DStage(std::size_t numElements, uint32* out_stageIndex);
+	void allocNDStage(std::size_t numElements, uint32* out_stageIndex);
 	void genSampleBatch();
 	void genSampleBatch1D(StageData& out_stage);
 	void genSampleBatch2D(StageData& out_stage);
+	void genSampleBatchND(StageData& out_stage);
 	bool canSplit(std::size_t numSplits) const;
 
 // command interface
@@ -85,5 +79,17 @@ public:
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
+
+// In-header Implementations:
+
+inline std::size_t SampleGenerator::numSampleBatches() const
+{
+	return m_numSampleBatches;
+}
+
+inline std::size_t SampleGenerator::numCachedBatches() const
+{
+	return m_numCachedBatches;
+}
 
 }// end namespace ph
