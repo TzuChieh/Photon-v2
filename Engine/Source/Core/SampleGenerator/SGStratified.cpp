@@ -19,7 +19,7 @@ SGStratified::SGStratified(const std::size_t numSamples,
 	m_numStrata2dY(numStrata2dY > 0 ? numStrata2dY : 1)
 {}
 
-void SGStratified::genArray1D(SampleArray1D* const out_array)
+void SGStratified::genArray1D(Samples1D* const out_array)
 {
 	// TODO: generate stratified
 	for(std::size_t i = 0; i < out_array->numElements(); i++)
@@ -31,7 +31,7 @@ void SGStratified::genArray1D(SampleArray1D* const out_array)
 	out_array->perElementShuffle();
 }
 
-void SGStratified::genArray2D(SampleArray2D* const out_array)
+void SGStratified::genArray2D(Samples2D* const out_array)
 {
 	const std::size_t numStrata = m_numStrata2dX * m_numStrata2dY;
 	PH_ASSERT(numStrata > 0);

@@ -14,7 +14,7 @@ SGUniformRandom::SGUniformRandom(const std::size_t numSamples) :
 	SampleGenerator(numSamples, 4)// HACK
 {}
 
-void SGUniformRandom::genArray1D(SampleArray1D* const out_array)
+void SGUniformRandom::genArray1D(Samples1D* const out_array)
 {
 	for(std::size_t i = 0; i < out_array->numElements(); i++)
 	{
@@ -22,7 +22,7 @@ void SGUniformRandom::genArray1D(SampleArray1D* const out_array)
 	}
 }
 
-void SGUniformRandom::genArray2D(SampleArray2D* const out_array)
+void SGUniformRandom::genArray2D(Samples2D* const out_array)
 {
 	for(std::size_t i = 0; i < out_array->numElements(); i++)
 	{

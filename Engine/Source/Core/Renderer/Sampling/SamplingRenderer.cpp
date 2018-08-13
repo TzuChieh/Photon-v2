@@ -77,7 +77,7 @@ void SamplingRenderer::init(const Description& description)
 		work.setDomainPx(getRenderWindowPx());
 		m_works.push_back(std::move(work));
 	}
-
+	
 	m_estimator->update(*m_scene);
 }
 

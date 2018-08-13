@@ -13,8 +13,8 @@ public:
 
 private:
 	virtual std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;
-	virtual void genArray1D(SampleArray1D* out_array) override;
-	virtual void genArray2D(SampleArray2D* out_array) override;
+	virtual void genArray1D(Samples1D* out_array) override;
+	virtual void genArray2D(Samples2D* out_array) override;
 
 // command interface
 public:

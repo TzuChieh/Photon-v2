@@ -22,9 +22,7 @@ public:
 
 BvhBuilder::BvhBuilder(const EBvhType type) : 
 	m_type(type)
-{
-
-}
+{}
 
 const BvhInfoNode* BvhBuilder::buildInformativeBinaryBvh(const std::vector<const Intersectable*>& intersectables)
 {

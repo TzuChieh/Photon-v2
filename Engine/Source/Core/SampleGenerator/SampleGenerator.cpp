@@ -90,7 +90,7 @@ Vector2R SampleGenerator::getNext2D(const TSampleStage<Vector2R>& stage)
 	return coord2D;
 }
 
-SampleArray1D SampleGenerator::getNextArray1D(const TSampleStage<SampleArray1D>& stage)
+Samples1D SampleGenerator::getNextArray1D(const TSampleStage<Samples1D>& stage)
 {
 	auto& stageData   = m_stageDataArray[stage.m_stageIndex];
 	auto& data        = stageData.data;
@@ -101,15 +101,15 @@ SampleArray1D SampleGenerator::getNextArray1D(const TSampleStage<SampleArray1D>&
 	{
 		real* arrayHead = &data[head];
 		head += numElements;
-		return SampleArray1D(arrayHead, numElements);
+		return Samples1D(arrayHead, numElements);
 	}
 	else
 	{
-		return SampleArray1D();
+		return Samples1D();
 	}
 }
 
-SampleArray2D SampleGenerator::getNextArray2D(const TSampleStage<SampleArray2D>& stage)
+Samples2D SampleGenerator::getNextArray2D(const TSampleStage<Samples2D>& stage)
 {
 	auto& stageData   = m_stageDataArray[stage.m_stageIndex];
 	auto& data        = stageData.data;
@@ -120,11 +120,11 @@ SampleArray2D SampleGenerator::getNextArray2D(const TSampleStage<SampleArray2D>&
 	{
 		real* arrayHead = &data[head];
 		head += numElements * 2;
-		return SampleArray2D(arrayHead, numElements);
+		return Samples2D(arrayHead, numElements);
 	}
 	else
 	{
-		return SampleArray2D();
+		return Samples2D();
 	}
 }
 
@@ -138,20 +138,20 @@ TSampleStage<Vector2R> SampleGenerator::declare2DStage(const std::size_t numElem
 	return TSampleStage<Vector2R>(declareArray2DStage(numElements).m_stageIndex);
 }
 
-TSampleStage<SampleArray1D> SampleGenerator::declareArray1DStage(const std::size_t numElements)
+TSampleStage<Samples1D> SampleGenerator::declareArray1DStage(const std::size_t numElements)
 {
 	uint32 stageIndex;
 	alloc1DStage(numElements, &stageIndex);
 
-	return TSampleStage<SampleArray1D>(stageIndex);
+	return TSampleStage<Samples1D>(stageIndex);
 }
 
-TSampleStage<SampleArray2D> SampleGenerator::declareArray2DStage(const std::size_t numElements)
+TSampleStage<Samples2D> SampleGenerator::declareArray2DStage(const std::size_t numElements)
 {
 	uint32 stageIndex;
 	alloc2DStage(numElements, &stageIndex);
 
-	return TSampleStage<SampleArray2D>(stageIndex);
+	return TSampleStage<Samples2D>(stageIndex);
 }
 
 void SampleGenerator::alloc1DStage(const std::size_t numElements, 
@@ -205,8 +205,8 @@ void SampleGenerator::genSampleBatch1D(StageData& out_stage)
 	out_stage.head = 0;
 	for(std::size_t b = 0; b < m_numCachedBatches; b++)
 	{
-		SampleArray1D arrayProxy(&out_stage.data[b * out_stage.numStageReals()],
-		                         out_stage.numElements);
+		Samples1D arrayProxy(&out_stage.data[b * out_stage.numStageReals()],
+		                     out_stage.numElements);
 		genArray1D(&arrayProxy);
 	}
 }
@@ -216,8 +216,8 @@ void SampleGenerator::genSampleBatch2D(StageData& out_stage)
 	out_stage.head = 0;
 	for(std::size_t b = 0; b < m_numCachedBatches; b++)
 	{
-		SampleArray2D arrayProxy(&out_stage.data[b * out_stage.numStageReals()],
-		                         out_stage.numElements);
+		Samples2D arrayProxy(&out_stage.data[b * out_stage.numStageReals()],
+		                     out_stage.numElements);
 		genArray2D(&arrayProxy);
 	}
 }

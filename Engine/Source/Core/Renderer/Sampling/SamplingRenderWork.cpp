@@ -43,7 +43,7 @@ void SamplingRenderWork::doWork()
 	const Vector2D ndcScale(rasterSampleSize.div(Vector2D(lightFilm->getActualResPx())));
 	const Vector2D ndcOffset(sampleMinVertex.div(Vector2D(lightFilm->getActualResPx())));
 
-	TSampleStage<SampleArray2D> camSampleStage = m_sampleGenerator->declareArray2DStage(numCamStageSamples);
+	TSampleStage<Samples2D> camSampleStage = m_sampleGenerator->declareArray2DStage(numCamStageSamples);
 
 	m_numSamplesTaken = 0;
 	m_numMsElapsed    = 0;
@@ -57,7 +57,7 @@ void SamplingRenderWork::doWork()
 	{
 		sampleTimer.start();
 
-		const SampleArray2D& camSamples = m_sampleGenerator->getNextArray2D(camSampleStage);
+		const Samples2D& camSamples = m_sampleGenerator->getNextArray2D(camSampleStage);
 
 		for(std::size_t si = 0; si < camSamples.numElements(); si++)
 		{

@@ -1,30 +1,10 @@
-#include "Core/SampleGenerator/sample_array.h"
+#include "Core/SampleGenerator/SamplesBase.h"
 #include "Math/Random.h"
 
 namespace ph
 {
 
-void SampleArray1D::perElementShuffle()
-{
-	perElementShuffleDurstenfeld(1);
-}
-
-void SampleArray1D::perDimensionShuffle()
-{
-	perDimensionShuffleDurstenfeld(1);
-}
-
-void SampleArray2D::perElementShuffle()
-{
-	perElementShuffleDurstenfeld(2);
-}
-
-void SampleArray2D::perDimensionShuffle()
-{
-	perDimensionShuffleDurstenfeld(2);
-}
-
-void SampleArray::perElementShuffleDurstenfeld(const std::size_t dim)
+void SamplesBase::perElementShuffleDurstenfeld(const std::size_t dim)
 {
 	for(std::size_t e = 0; e < m_numElements; e++)
 	{
@@ -37,7 +17,7 @@ void SampleArray::perElementShuffleDurstenfeld(const std::size_t dim)
 	}
 }
 
-void SampleArray::perDimensionShuffleDurstenfeld(const std::size_t dim)
+void SamplesBase::perDimensionShuffleDurstenfeld(const std::size_t dim)
 {
 	for(std::size_t d = 0; d < dim; d++)
 	{

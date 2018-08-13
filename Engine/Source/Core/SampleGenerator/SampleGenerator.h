@@ -6,7 +6,7 @@
 #include "Core/SampleGenerator/TSampleStage.h"
 #include "FileIO/SDL/ISdlResource.h"
 #include "FileIO/SDL/TCommandInterface.h"
-#include "Core/SampleGenerator/sample_array.h"
+#include "Core/SampleGenerator/samples.h"
 
 #include <vector>
 #include <memory>
@@ -32,13 +32,13 @@ public:
 
 	TSampleStage<real>     declare1DStage(std::size_t numElements);
 	TSampleStage<Vector2R> declare2DStage(std::size_t numElements);
-	TSampleStage<SampleArray1D> declareArray1DStage(std::size_t numElements);
-	TSampleStage<SampleArray2D> declareArray2DStage(std::size_t numElements);
+	TSampleStage<Samples1D> declareArray1DStage(std::size_t numElements);
+	TSampleStage<Samples2D> declareArray2DStage(std::size_t numElements);
 
 	real     getNext1D(const TSampleStage<real>&     stage);
 	Vector2R getNext2D(const TSampleStage<Vector2R>& stage);
-	SampleArray1D getNextArray1D(const TSampleStage<SampleArray1D>& stage);
-	SampleArray2D getNextArray2D(const TSampleStage<SampleArray2D>& stage);
+	Samples1D getNextArray1D(const TSampleStage<Samples1D>& stage);
+	Samples2D getNextArray2D(const TSampleStage<Samples2D>& stage);
 
 	inline std::size_t numSampleBatches() const
 	{
@@ -69,8 +69,8 @@ private:
 	std::vector<StageData> m_stageDataArray;
 
 	virtual std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const = 0;
-	virtual void genArray1D(SampleArray1D* out_array) = 0;
-	virtual void genArray2D(SampleArray2D* out_array) = 0;
+	virtual void genArray1D(Samples1D* out_array) = 0;
+	virtual void genArray2D(Samples2D* out_array) = 0;
 
 	void alloc1DStage(std::size_t numElements, uint32* out_stageIndex);
 	void alloc2DStage(std::size_t numElements, uint32* out_stageIndex);
