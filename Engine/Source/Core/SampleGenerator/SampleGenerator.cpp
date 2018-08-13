@@ -1,6 +1,7 @@
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "FileIO/SDL/InputPacket.h"
 #include "Math/Random.h"
+#include "Common/assertion.h"
 
 #include <iostream>
 
@@ -11,22 +12,35 @@ SampleGenerator::SampleGenerator(const std::size_t numSampleBatches,
                                  const std::size_t numCachedBatches) :
 	m_numSampleBatches(numSampleBatches),
 	m_numCachedBatches(numCachedBatches),
-	m_currentBatchNumber(0)
-{}
+	m_numUsedBatches  (0),
+	m_numUsedCaches   (numCachedBatches),
+	m_totalElements   (0)
+{
+	PH_ASSERT(numCachedBatches > 0);
+}
 
 SampleGenerator::~SampleGenerator() = default;
 
 bool SampleGenerator::prepareSampleBatch()
 {
-	const bool hasMoreBatches = m_currentBatchNumber < m_numSampleBatches;
-	const bool needsNewCache  = m_currentBatchNumber % m_numCachedBatches == 0;
+	PH_ASSERT(m_numUsedBatches <= m_numSampleBatches &&
+	          m_numUsedCaches  <= m_numCachedBatches);
+
+	const bool hasMoreBatches = m_numUsedBatches < m_numSampleBatches;
+	const bool needsNewCache  = m_numUsedCaches == m_numCachedBatches;
+
 	if(hasMoreBatches && needsNewCache)
 	{
+		allocSampleBuffer();
 		genSampleBatch();
+		m_numUsedCaches = 0;
 	}
 
-	m_currentBatchNumber++;
-
+	if(hasMoreBatches)
+	{
+		m_numUsedBatches++;
+		m_numUsedCaches++;
+	}
 	return hasMoreBatches;
 }
 
@@ -52,62 +66,57 @@ std::unique_ptr<SampleGenerator> SampleGenerator::genCopied() const
 
 Samples1D SampleGenerator::getSamples1D(const Samples1DStage& stage)
 {
-	auto& stageData   = m_stageDataArray[stage.getStageIndex()];
-	auto& data        = stageData.data;
-	auto& head        = stageData.head;
-	auto& numElements = stageData.numElements;
+	PH_ASSERT(
+		m_numUsedCaches != 0 && 
+		stage.getStageIndex() + m_numUsedCaches * stage.numElements() <= m_sampleBuffer.size());
 
-	if(head + numElements - 1 < data.size())
-	{
-		real* arrayHead = &data[head];
-		head += numElements;
-		return Samples1D(arrayHead, numElements);
-	}
-	else
-	{
-		return Samples1D();
-	}
+	return Samples1D(
+		&(m_sampleBuffer[stage.getStageIndex() + (m_numUsedCaches - 1) * stage.numElements()]), 
+		stage.numSamples());
 }
 
 Samples2D SampleGenerator::getSamples2D(const Samples2DStage& stage)
 {
-	auto& stageData   = m_stageDataArray[stage.getStageIndex()];
-	auto& data        = stageData.data;
-	auto& head        = stageData.head;
-	auto& numElements = stageData.numElements;
+	PH_ASSERT(
+		m_numUsedCaches != 0 &&
+		stage.getStageIndex() + m_numUsedCaches * stage.numElements() <= m_sampleBuffer.size());
 
-	if(head + numElements * 2 - 1 < data.size())
-	{
-		real* arrayHead = &data[head];
-		head += numElements * 2;
-		return Samples2D(arrayHead, numElements);
-	}
-	else
-	{
-		return Samples2D();
-	}
+	return Samples2D(
+		&(m_sampleBuffer[stage.getStageIndex() + (m_numUsedCaches - 1) * stage.numElements()]),
+		stage.numSamples());
 }
 
 SamplesND SampleGenerator::getSamplesND(const SamplesNDStage& stage)
 {
-	// TODO
-	return SamplesND();
+	PH_ASSERT(
+		m_numUsedCaches != 0 &&
+		stage.getStageIndex() + m_numUsedCaches * stage.numElements() <= m_sampleBuffer.size());
+
+	return SamplesND(
+		&(m_sampleBuffer[stage.getStageIndex() + (m_numUsedCaches - 1) * stage.numElements()]),
+		stage.numSamples());
 }
 
 Samples1DStage SampleGenerator::declare1DStage(const std::size_t numSamples)
 {
-	std::size_t stageIndex;
-	alloc1DStage(numSamples, &stageIndex);
+	const std::size_t stageIndex = m_totalElements;
+	Samples1DStage stage(stageIndex, numSamples);
+	m_1DStages.push_back(stage);
 
-	return Samples1DStage(stageIndex, numSamples);
+	m_totalElements += m_numCachedBatches * stage.numElements();
+
+	return stage;
 }
 
 Samples2DStage SampleGenerator::declare2DStage(const std::size_t numSamples)
 {
-	std::size_t stageIndex;
-	alloc2DStage(numSamples, &stageIndex);
+	const std::size_t stageIndex = m_totalElements;
+	Samples2DStage stage(stageIndex, numSamples);
+	m_2DStages.push_back(stage);
 
-	return Samples2DStage(stageIndex, numSamples);
+	m_totalElements += m_numCachedBatches * stage.numElements();
+
+	return stage;
 }
 
 SamplesNDStage SampleGenerator::declareNDStage(const std::size_t numElements)
@@ -116,82 +125,61 @@ SamplesNDStage SampleGenerator::declareNDStage(const std::size_t numElements)
 	return SamplesNDStage(0, 0, 0);
 }
 
-void SampleGenerator::alloc1DStage(const std::size_t  numSamples, 
-                                   std::size_t* const out_stageIndex)
+void SampleGenerator::allocSampleBuffer()
 {
-	*out_stageIndex = m_stageDataArray.size();
-
-	StageData stageData;
-	stageData.data.resize(m_numCachedBatches * numSamples);
-	stageData.head        = 0;
-	stageData.numElements = numSamples;
-	stageData.dimension   = 1;
-	m_stageDataArray.push_back(stageData);
-}
-
-void SampleGenerator::alloc2DStage(const std::size_t  numSamples,
-                                   std::size_t* const out_stageIndex)
-{
-	*out_stageIndex = m_stageDataArray.size();
-
-	StageData stageData;
-	stageData.data.resize(m_numCachedBatches * numSamples * 2);
-	stageData.head        = 0;
-	stageData.numElements = numSamples;
-	stageData.dimension   = 2;
-	m_stageDataArray.push_back(stageData);
-}
-
-void SampleGenerator::allocNDStage(std::size_t numElements, std::size_t* const out_stageIndex)
-{
-	// TODO
+	m_sampleBuffer.resize(m_totalElements);
 }
 
 void SampleGenerator::genSampleBatch()
 {
-	for(auto& stage : m_stageDataArray)
+	genSamples1DBatch();
+	genSamples2DBatch();
+	genSamplesNDBatch();
+}
+
+void SampleGenerator::genSamples1DBatch()
+{
+	for(const auto& stage1D : m_1DStages)
 	{
-		if(stage.dimension == 1)
+		for(std::size_t b = 0; b < m_numCachedBatches; b++)
 		{
-			genSampleBatch1D(stage);
-		}
-		else if(stage.dimension == 2)
-		{
-			genSampleBatch2D(stage);
-		}
-		else
-		{
-			std::cerr << "warning: at SampleGenerator::genSampleBatch(), "
-			          << "unsupported number of dimensions detected: " << stage.dimension << std::endl;
+			Samples1D samples(
+				&(m_sampleBuffer[stage1D.getStageIndex() + b * stage1D.numElements()]),
+				stage1D.numSamples());
+
+			genSamples1D(&samples);
 		}
 	}
 }
 
-void SampleGenerator::genSampleBatch1D(StageData& out_stage)
+void SampleGenerator::genSamples2DBatch()
 {
-	out_stage.head = 0;
-	for(std::size_t b = 0; b < m_numCachedBatches; b++)
+	for(const auto& stage2D : m_2DStages)
 	{
-		Samples1D arrayProxy(&out_stage.data[b * out_stage.numStageReals()],
-		                     out_stage.numElements);
-		genSamples1D(&arrayProxy);
+		for(std::size_t b = 0; b < m_numCachedBatches; b++)
+		{
+			Samples2D samples(
+				&(m_sampleBuffer[stage2D.getStageIndex() + b * stage2D.numElements()]),
+				stage2D.numSamples());
+
+			genSamples2D(&samples);
+		}
 	}
 }
 
-void SampleGenerator::genSampleBatch2D(StageData& out_stage)
+void SampleGenerator::genSamplesNDBatch()
 {
-	out_stage.head = 0;
-	for(std::size_t b = 0; b < m_numCachedBatches; b++)
+	for(const auto& stageND : m_NDStages)
 	{
-		Samples2D arrayProxy(&out_stage.data[b * out_stage.numStageReals()],
-		                     out_stage.numElements);
-		genSamples2D(&arrayProxy);
-	}
-}
+		for(std::size_t b = 0; b < m_numCachedBatches; b++)
+		{
+			SamplesND samples(
+				&(m_sampleBuffer[stageND.getStageIndex() + b * stageND.numElements()]),
+				stageND.numSamples());
 
-void SampleGenerator::genSampleBatchND(StageData& out_stage)
-{
-	// TODO
+			genSamplesND(&samples);
+		}
+	}
 }
 
 bool SampleGenerator::canSplit(const std::size_t numSplits) const

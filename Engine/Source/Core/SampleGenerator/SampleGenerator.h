@@ -42,35 +42,27 @@ public:
 	std::size_t numCachedBatches() const;
 
 private:
-	class StageData
-	{
-	public:
-		std::vector<real> data;
-		std::size_t       head;
-		std::size_t       numElements;
-		std::size_t       dimension;
-
-		inline std::size_t numStageReals() const { return numElements * dimension; }
-	};
-
 	std::size_t m_numSampleBatches;
 	std::size_t m_numCachedBatches;
-	std::size_t m_currentBatchNumber;
+	std::size_t m_numUsedBatches;
+	std::size_t m_numUsedCaches;
+	std::size_t m_totalElements;
 
-	std::vector<StageData> m_stageDataArray;
+	std::vector<real>           m_sampleBuffer;
+	std::vector<Samples1DStage> m_1DStages;
+	std::vector<Samples2DStage> m_2DStages;
+	std::vector<SamplesNDStage> m_NDStages;
 
 	virtual std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const = 0;
 	virtual void genSamples1D(Samples1D* out_array) = 0;
 	virtual void genSamples2D(Samples2D* out_array) = 0;
 	virtual void genSamplesND(SamplesND* out_array) = 0;
 
-	void alloc1DStage(std::size_t numSamples, std::size_t* out_stageIndex);
-	void alloc2DStage(std::size_t numSamples, std::size_t* out_stageIndex);
-	void allocNDStage(std::size_t numSamples, std::size_t* out_stageIndex);
+	void allocSampleBuffer();
 	void genSampleBatch();
-	void genSampleBatch1D(StageData& out_stage);
-	void genSampleBatch2D(StageData& out_stage);
-	void genSampleBatchND(StageData& out_stage);
+	void genSamples1DBatch();
+	void genSamples2DBatch();
+	void genSamplesNDBatch();
 	bool canSplit(std::size_t numSplits) const;
 
 // command interface
