@@ -64,9 +64,9 @@ private:
 	virtual void genSamples2D(Samples2D* out_array) = 0;
 	virtual void genSamplesND(SamplesND* out_array) = 0;
 
-	void alloc1DStage(std::size_t numElements, uint32* out_stageIndex);
-	void alloc2DStage(std::size_t numElements, uint32* out_stageIndex);
-	void allocNDStage(std::size_t numElements, uint32* out_stageIndex);
+	void alloc1DStage(std::size_t numSamples, std::size_t* out_stageIndex);
+	void alloc2DStage(std::size_t numSamples, std::size_t* out_stageIndex);
+	void allocNDStage(std::size_t numSamples, std::size_t* out_stageIndex);
 	void genSampleBatch();
 	void genSampleBatch1D(StageData& out_stage);
 	void genSampleBatch2D(StageData& out_stage);
