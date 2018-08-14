@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/TVector2.h"
+#include "Common/assertion.h"
 
 #include <cstddef>
 
@@ -12,16 +13,18 @@ class SamplesBase
 {
 public:
 	inline SamplesBase() :
-		m_data(nullptr), m_numElements(0)
+		m_data(nullptr), m_numSamples(0)
 	{}
 
-	inline SamplesBase(real* const data, std::size_t numElements) :
-		m_data(data), m_numElements(numElements)
-	{}
-
-	inline std::size_t numElements() const
+	inline SamplesBase(real* const data, const std::size_t numSamples) :
+		m_data(data), m_numSamples(numSamples)
 	{
-		return m_numElements;
+		PH_ASSERT(data);
+	}
+
+	inline std::size_t numSamples() const
+	{
+		return m_numSamples;
 	}
 
 	bool isValid() const
@@ -31,11 +34,11 @@ public:
 
 protected:
 	real*       m_data;
-	std::size_t m_numElements;
+	std::size_t m_numSamples;
 
 	inline ~SamplesBase() = default;
 
-	void perElementShuffleDurstenfeld(std::size_t dim);
+	void perSampleShuffleDurstenfeld(std::size_t dim);
 	void perDimensionShuffleDurstenfeld(std::size_t dim);
 };
 

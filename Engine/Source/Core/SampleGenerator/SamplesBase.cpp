@@ -4,14 +4,14 @@
 namespace ph
 {
 
-void SamplesBase::perElementShuffleDurstenfeld(const std::size_t dim)
+void SamplesBase::perSampleShuffleDurstenfeld(const std::size_t dim)
 {
-	for(std::size_t e = 0; e < m_numElements; e++)
+	for(std::size_t s = 0; s < m_numSamples; ++s)
 	{
-		const std::size_t j = Random::genUniformIndex_iL_eU(e, m_numElements);
-		for(std::size_t d = 0; d < dim; d++)
+		const std::size_t j = Random::genUniformIndex_iL_eU(s, m_numSamples);
+		for(std::size_t d = 0; d < dim; ++d)
 		{
-			std::swap(m_data[e * dim + d], 
+			std::swap(m_data[s * dim + d], 
 			          m_data[j * dim + d]);
 		}
 	}
@@ -19,12 +19,12 @@ void SamplesBase::perElementShuffleDurstenfeld(const std::size_t dim)
 
 void SamplesBase::perDimensionShuffleDurstenfeld(const std::size_t dim)
 {
-	for(std::size_t d = 0; d < dim; d++)
+	for(std::size_t d = 0; d < dim; ++d)
 	{
-		for(std::size_t e = 0; e < m_numElements; e++)
+		for(std::size_t s = 0; s < m_numSamples; ++s)
 		{
-			const std::size_t j = Random::genUniformIndex_iL_eU(e, m_numElements);
-			std::swap(m_data[e * dim + d], 
+			const std::size_t j = Random::genUniformIndex_iL_eU(s, m_numSamples);
+			std::swap(m_data[s * dim + d], 
 			          m_data[j * dim + d]);
 			
 		}

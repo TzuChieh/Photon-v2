@@ -31,8 +31,12 @@ public:
 	bool prepareSampleBatch();
 
 	Samples1DStage declare1DStage(std::size_t numElements);
-	Samples2DStage declare2DStage(std::size_t numElements);
-	SamplesNDStage declareNDStage(std::size_t numElements);
+	Samples2DStage declare2DStage(
+		std::size_t numElements, 
+		const Vector2S& dimSizeHints = {1, 1});
+	SamplesNDStage declareNDStage(
+		std::size_t numElements, 
+		const std::vector<std::size_t>& dimSizeHints = {});
 
 	// TODO: these three methods can use a common helper method (input SamplesStageBase)
 	Samples1D getSamples1D(const Samples1DStage& stage);
@@ -43,6 +47,11 @@ public:
 	std::size_t numCachedBatches() const;
 
 private:
+	virtual std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const = 0;
+	virtual void genSamples1D(const Samples1DStage& stage, Samples1D* out_array) = 0;
+	virtual void genSamples2D(const Samples2DStage& stage, Samples2D* out_array) = 0;
+	virtual void genSamplesND(const SamplesNDStage& stage, SamplesND* out_array) = 0;
+
 	std::size_t m_numSampleBatches;
 	std::size_t m_numCachedBatches;
 	std::size_t m_numUsedBatches;
@@ -53,11 +62,6 @@ private:
 	std::vector<Samples1DStage> m_1DStages;
 	std::vector<Samples2DStage> m_2DStages;
 	std::vector<SamplesNDStage> m_NDStages;
-
-	virtual std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const = 0;
-	virtual void genSamples1D(Samples1D* out_array) = 0;
-	virtual void genSamples2D(Samples2D* out_array) = 0;
-	virtual void genSamplesND(SamplesND* out_array) = 0;
 
 	void allocSampleBuffer();
 	void genSampleBatch();

@@ -10,7 +10,7 @@ class Samples1D : public SamplesBase
 public:
 	using SamplesBase::SamplesBase;
 
-	void perElementShuffle();
+	void perSampleShuffle();
 	void perDimensionShuffle();
 
 	inline void set(const std::size_t index, const real value)
@@ -22,18 +22,13 @@ public:
 	{
 		return m_data[index];
 	}
-
-	inline std::size_t numReals() const
-	{
-		return m_numElements;
-	}
 };
 
 // In-header Implementations:
 
-inline void Samples1D::perElementShuffle()
+inline void Samples1D::perSampleShuffle()
 {
-	perElementShuffleDurstenfeld(1);
+	perSampleShuffleDurstenfeld(1);
 }
 
 inline void Samples1D::perDimensionShuffle()

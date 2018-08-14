@@ -43,7 +43,13 @@ void SamplingRenderWork::doWork()
 	const Vector2D ndcScale(rasterSampleSize.div(Vector2D(lightFilm->getActualResPx())));
 	const Vector2D ndcOffset(sampleMinVertex.div(Vector2D(lightFilm->getActualResPx())));
 
-	Samples2DStage camSampleStage = m_sampleGenerator->declare2DStage(numCamStageSamples);
+	Samples2DStage camSampleStage = m_sampleGenerator->declare2DStage(
+		numCamStageSamples,
+		Vector2S(lightFilm->getSampleResPx()));
+
+	/*Samples2DStage camSampleStage = m_sampleGenerator->declare2DStage(
+		numCamStageSamples,
+		{1, 1});*/
 
 	m_numSamplesTaken = 0;
 	m_numMsElapsed    = 0;
@@ -59,7 +65,7 @@ void SamplingRenderWork::doWork()
 
 		const Samples2D& camSamples = m_sampleGenerator->getSamples2D(camSampleStage);
 
-		for(std::size_t si = 0; si < camSamples.numElements(); si++)
+		for(std::size_t si = 0; si < camSamples.numSamples(); si++)
 		{
 			const Vector2D rasterPosPx(camSamples[si].x * rasterSampleSize.x + sampleMinVertex.x,
 			                           camSamples[si].y * rasterSampleSize.y + sampleMinVertex.y);
@@ -93,7 +99,7 @@ void SamplingRenderWork::doWork()
 
 		sampleTimer.finish();
 
-		m_numSamplesTaken = static_cast<uint32>(camSamples.numElements());
+		m_numSamplesTaken = static_cast<uint32>(camSamples.numSamples());
 		m_numMsElapsed    = static_cast<uint32>(sampleTimer.getDeltaMs());
 	}
 }

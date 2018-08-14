@@ -56,6 +56,7 @@ public:
 
 	inline TVector2 ceil() const;
 	inline TVector2 floor() const;
+	T product() const;
 
 	inline std::string toString() const;
 

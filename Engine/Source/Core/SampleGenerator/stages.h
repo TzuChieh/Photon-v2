@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/TVector2.h"
+#include "Common/assertion.h"
 
 #include <cstddef>
 #include <vector>
@@ -68,6 +69,9 @@ class Samples2DStage : public SamplesStageBase
 {
 	friend class SampleGenerator;
 
+public:
+	Vector2S getDimSizeHints() const;
+
 protected:
 	inline Samples2DStage(
 
@@ -90,6 +94,9 @@ class SamplesNDStage : public SamplesStageBase
 {
 	friend class SampleGenerator;
 
+public:
+	std::size_t getDimSizeHint(std::size_t dimIndex) const;
+
 protected:
 	inline SamplesNDStage(
 
@@ -109,5 +116,19 @@ protected:
 private:
 	std::vector<std::size_t> m_dimSizeHints;
 };
+
+// In-header Implementations:
+
+inline Vector2S Samples2DStage::getDimSizeHints() const
+{
+	return m_dimSizeHints;
+}
+
+inline std::size_t SamplesNDStage::getDimSizeHint(const std::size_t dimIndex) const
+{
+	PH_ASSERT(0 <= dimIndex && dimIndex < m_dimSizeHints.size());
+
+	return m_dimSizeHints[dimIndex];
+}
 
 }// end namespace ph

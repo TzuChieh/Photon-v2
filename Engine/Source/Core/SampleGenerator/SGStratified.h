@@ -9,18 +9,13 @@ namespace ph
 class SGStratified final : public SampleGenerator, public TCommandInterface<SGStratified>
 {
 public:
-	SGStratified(std::size_t numSamples,
-	             std::size_t numStrata2dX, 
-	             std::size_t numStrata2dY);
+	SGStratified(std::size_t numSamples);
 
 private:
 	std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;
-	void genSamples1D(Samples1D* out_array) override;
-	void genSamples2D(Samples2D* out_array) override;
-	void genSamplesND(SamplesND* out_array) override;
-
-	std::size_t m_numStrata2dX;
-	std::size_t m_numStrata2dY;
+	void genSamples1D(const Samples1DStage& stage, Samples1D* out_array) override;
+	void genSamples2D(const Samples2DStage& stage, Samples2D* out_array) override;
+	void genSamplesND(const SamplesNDStage& stage, SamplesND* out_array) override;
 
 // command interface
 public:

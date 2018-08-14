@@ -8,6 +8,9 @@
 namespace ph
 {
 
+// TODO: if numSampleBatches cannot be evenly divided by numCachedBatches,
+// some sample batches will be wasted
+
 SampleGenerator::SampleGenerator(const std::size_t numSampleBatches,
                                  const std::size_t numCachedBatches) :
 	m_numSampleBatches(numSampleBatches),
@@ -108,10 +111,12 @@ Samples1DStage SampleGenerator::declare1DStage(const std::size_t numSamples)
 	return stage;
 }
 
-Samples2DStage SampleGenerator::declare2DStage(const std::size_t numSamples)
+Samples2DStage SampleGenerator::declare2DStage(
+	const std::size_t numSamples, 
+	const Vector2S&   dimSizeHints)
 {
 	const std::size_t stageIndex = m_totalElements;
-	Samples2DStage stage(stageIndex, numSamples);
+	Samples2DStage stage(stageIndex, numSamples, dimSizeHints);
 	m_2DStages.push_back(stage);
 
 	m_totalElements += m_numCachedBatches * stage.numElements();
@@ -119,7 +124,9 @@ Samples2DStage SampleGenerator::declare2DStage(const std::size_t numSamples)
 	return stage;
 }
 
-SamplesNDStage SampleGenerator::declareNDStage(const std::size_t numElements)
+SamplesNDStage SampleGenerator::declareNDStage(
+	const std::size_t               numElements,
+	const std::vector<std::size_t>& dimSizeHints)
 {
 	// TODO
 	return SamplesNDStage(0, 0, 0);
@@ -147,7 +154,7 @@ void SampleGenerator::genSamples1DBatch()
 				&(m_sampleBuffer[stage1D.getStageIndex() + b * stage1D.numElements()]),
 				stage1D.numSamples());
 
-			genSamples1D(&samples);
+			genSamples1D(stage1D, &samples);
 		}
 	}
 }
@@ -162,7 +169,7 @@ void SampleGenerator::genSamples2DBatch()
 				&(m_sampleBuffer[stage2D.getStageIndex() + b * stage2D.numElements()]),
 				stage2D.numSamples());
 
-			genSamples2D(&samples);
+			genSamples2D(stage2D, &samples);
 		}
 	}
 }
@@ -177,7 +184,7 @@ void SampleGenerator::genSamplesNDBatch()
 				&(m_sampleBuffer[stageND.getStageIndex() + b * stageND.numElements()]),
 				stageND.numSamples());
 
-			genSamplesND(&samples);
+			genSamplesND(stageND, &samples);
 		}
 	}
 }

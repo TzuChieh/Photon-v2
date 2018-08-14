@@ -10,7 +10,7 @@ class Samples2D : public SamplesBase
 public:
 	using SamplesBase::SamplesBase;
 
-	void perElementShuffle();
+	void perSampleShuffle();
 	void perDimensionShuffle();
 
 	inline void set(const std::size_t index, const real valueX, const real valueY)
@@ -28,18 +28,13 @@ public:
 	{
 		return Vector2R(m_data[index * 2], m_data[index * 2 + 1]);
 	}
-
-	inline std::size_t numReals() const
-	{
-		return m_numElements * 2;
-	}
 };
 
 // In-header Implementations:
 
-inline void Samples2D::perElementShuffle()
+inline void Samples2D::perSampleShuffle()
 {
-	perElementShuffleDurstenfeld(2);
+	perSampleShuffleDurstenfeld(2);
 }
 
 inline void Samples2D::perDimensionShuffle()

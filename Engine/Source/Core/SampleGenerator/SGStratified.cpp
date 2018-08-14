@@ -10,30 +10,32 @@
 namespace ph
 {
 
-SGStratified::SGStratified(const std::size_t numSamples,
-                           const std::size_t numStrata2dX,
-                           const std::size_t numStrata2dY) :
+SGStratified::SGStratified(const std::size_t numSamples) :
 	//SampleGenerator(numSamples, numSamples)
-	SampleGenerator(numSamples, 4), // HACK
-	m_numStrata2dX(numStrata2dX > 0 ? numStrata2dX : 1), 
-	m_numStrata2dY(numStrata2dY > 0 ? numStrata2dY : 1)
+	SampleGenerator(numSamples, 4)// HACK
 {}
 
-void SGStratified::genSamples1D(Samples1D* const out_array)
+void SGStratified::genSamples1D(const Samples1DStage& stage, Samples1D* const out_array)
 {
-	// TODO: generate stratified
-	for(std::size_t i = 0; i < out_array->numElements(); i++)
+	PH_ASSERT(out_array);
+
+	const real dx = 1.0_r / static_cast<real>(out_array->numSamples());
+	for(std::size_t x = 0; x < out_array->numSamples(); ++x)
 	{
 		const real jitter = Random::genUniformReal_i0_e1();
-		out_array->set(i, i + jitter);
+		out_array->set(x, (static_cast<real>(x) + jitter) * dx);
 	}
 
-	out_array->perElementShuffle();
+	out_array->perSampleShuffle();
 }
 
-void SGStratified::genSamples2D(Samples2D* const out_array)
+void SGStratified::genSamples2D(const Samples2DStage& stage, Samples2D* const out_array)
 {
-	const std::size_t numStrata = m_numStrata2dX * m_numStrata2dY;
+	PH_ASSERT(out_array);
+
+	// TODO: automatically pick some nice hint if (1, 1) was given
+	const Vector2S    strataSizes = stage.getDimSizeHints();
+	const std::size_t numStrata   = strataSizes.product();
 	PH_ASSERT(numStrata > 0);
 
 	// OPT: It is possible to precompute how many samples will be in a
@@ -41,15 +43,16 @@ void SGStratified::genSamples2D(Samples2D* const out_array)
 
 	// Tries to generate <numStrata> samples over and over again until there 
 	// is no room in <out_array> to fit another <numStrata> samples.
-	//
+	
+	const real dx = 1.0_r / static_cast<real>(strataSizes.x);
+	const real dy = 1.0_r / static_cast<real>(strataSizes.y);
+
 	std::size_t currentIndex = 0;
-	while(currentIndex + numStrata <= out_array->numElements())
+	while(currentIndex + numStrata <= out_array->numSamples())
 	{
-		const real dx = 1.0_r / static_cast<real>(m_numStrata2dX);
-		const real dy = 1.0_r / static_cast<real>(m_numStrata2dY);
-		for(std::size_t y = 0; y < m_numStrata2dY; ++y)
+		for(std::size_t y = 0; y < strataSizes.y; ++y)
 		{
-			for(std::size_t x = 0; x < m_numStrata2dX; ++x)
+			for(std::size_t x = 0; x < strataSizes.x; ++x)
 			{
 				const real jitterX = Random::genUniformReal_i0_e1();
 				const real jitterY = Random::genUniformReal_i0_e1();
@@ -64,27 +67,25 @@ void SGStratified::genSamples2D(Samples2D* const out_array)
 	// There is no room to fit another <numStrata> samples. We fill the resting
 	// spaces with random ones.
 	//
-	PH_ASSERT(out_array->numElements() - currentIndex < numStrata);
-	for(std::size_t i = currentIndex; i < out_array->numElements(); ++i)
+	PH_ASSERT(out_array->numSamples() - currentIndex < numStrata);
+	for(std::size_t i = currentIndex; i < out_array->numSamples(); ++i)
 	{
 		out_array->set(i, 
 		               Random::genUniformReal_i0_e1(), 
 		               Random::genUniformReal_i0_e1());
 	}
 
-	out_array->perElementShuffle();
+	out_array->perSampleShuffle();
 }
 
-void SGStratified::genSamplesND(SamplesND* const out_array)
+void SGStratified::genSamplesND(const SamplesNDStage& stage, SamplesND* const out_array)
 {
 	// TODO
 }
 
 std::unique_ptr<SampleGenerator> SGStratified::genNewborn(const std::size_t numSamples) const
 {
-	return std::make_unique<SGStratified>(numSamples,
-	                                      m_numStrata2dX,
-	                                      m_numStrata2dY);
+	return std::make_unique<SGStratified>(numSamples);
 }
 
 // command interface
@@ -103,14 +104,10 @@ void SGStratified::ciRegister(CommandRegister& cmdRegister)
 
 std::unique_ptr<SGStratified> SGStratified::ciLoad(const InputPacket& packet)
 {
-	const integer numSamples   = packet.getInteger("sample-amount",   0, DataTreatment::REQUIRED());
-	const integer numStrata2dX = packet.getInteger("num-strata-2d-x", 0, DataTreatment::REQUIRED());
-	const integer numStrata2dY = packet.getInteger("num-strata-2d-y", 0, DataTreatment::REQUIRED());
+	const integer numSamples = packet.getInteger("sample-amount", 0, DataTreatment::REQUIRED());
 
 	// HACK: casting
-	return std::make_unique<SGStratified>(static_cast<std::size_t>(numSamples), 
-		static_cast<std::size_t>(numStrata2dX),
-		static_cast<std::size_t>(numStrata2dY));
+	return std::make_unique<SGStratified>(static_cast<std::size_t>(numSamples));
 }
 
 }// end namespace ph

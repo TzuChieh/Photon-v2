@@ -21,6 +21,7 @@
 namespace ph
 {
 
+// TODO: make this a namespace, not a class
 class Math final
 {
 public:

@@ -232,6 +232,12 @@ inline TVector2<T> TVector2<T>::floor() const
 }
 
 template<typename T>
+inline T TVector2<T>::product() const
+{
+	return x * y;
+}
+
+template<typename T>
 inline std::string TVector2<T>::toString() const
 {
 	return '(' + std::to_string(x) + ", " + std::to_string(y) + ')';
