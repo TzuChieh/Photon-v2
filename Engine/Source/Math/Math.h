@@ -12,6 +12,7 @@
 #include <utility>
 #include <limits>
 #include <array>
+#include <vector>
 
 #if defined(PH_COMPILER_IS_MSVC)
 	#include <intrin.h>
@@ -216,6 +217,17 @@ public:
 	// the normal vector N. N points to the hemisphere's peak, i.e., theta = 0.
 	//
 	static bool isSameHemisphere(const Vector3R& vector, const Vector3R& N);
+
+	template<typename T>
+	static T product(const std::vector<T>& values)
+	{
+		T result(1);
+		for(auto&& value : values)
+		{
+			result *= value;
+		}
+		return result;
+	}
 };
 
 }// end namespace ph

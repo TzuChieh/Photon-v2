@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
+#include "Math/TVector2.h"
 
 #include <cstddef>
 #include <vector>
@@ -73,8 +74,16 @@ protected:
 		const std::size_t stageIndex,
 		const std::size_t numSamples) :
 
-		SamplesStageBase(stageIndex, 2, numSamples)
+		Samples2DStage(stageIndex, numSamples, {1, 1})
 	{}
+
+	Samples2DStage(
+		std::size_t     stageIndex,
+		std::size_t     numSamples,
+		const Vector2S& dimSizeHints);
+
+private:
+	Vector2S m_dimSizeHints;
 };
 
 class SamplesNDStage : public SamplesStageBase
@@ -88,8 +97,17 @@ protected:
 		const uint32      numDim,
 		const std::size_t numSamples) :
 
-		SamplesStageBase(stageIndex, numDim, numSamples)
+		SamplesNDStage(stageIndex, numDim, numSamples, {})
 	{}
+
+	SamplesNDStage(
+		const std::size_t               stageIndex,
+		const uint32                    numDim,
+		const std::size_t               numSamples,
+		const std::vector<std::size_t>& dimSizeHints);
+
+private:
+	std::vector<std::size_t> m_dimSizeHints;
 };
 
 }// end namespace ph

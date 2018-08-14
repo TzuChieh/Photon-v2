@@ -28,13 +28,15 @@ class TMatrix4;
 template<typename T, std::size_t N>
 class TArithmeticArray;
 
-typedef TVector2<real>    Vector2R;
-typedef TVector2<float32> Vector2F;
-typedef TVector2<float64> Vector2D;
+typedef TVector2<real>        Vector2R;
+typedef TVector2<float32>     Vector2F;
+typedef TVector2<float64>     Vector2D;
+typedef TVector2<std::size_t> Vector2S;
 
-typedef TVector3<real>    Vector3R;
-typedef TVector3<float32> Vector3F;
-typedef TVector3<float64> Vector3D;
+typedef TVector3<real>        Vector3R;
+typedef TVector3<float32>     Vector3F;
+typedef TVector3<float64>     Vector3D;
+typedef TVector3<std::size_t> Vector3S;
 
 typedef TIndexedVector3<real>    IndexedVector3R;
 typedef TIndexedVector3<float32> IndexedVector3F;

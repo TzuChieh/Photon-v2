@@ -34,6 +34,7 @@ public:
 	Samples2DStage declare2DStage(std::size_t numElements);
 	SamplesNDStage declareNDStage(std::size_t numElements);
 
+	// TODO: these three methods can use a common helper method (input SamplesStageBase)
 	Samples1D getSamples1D(const Samples1DStage& stage);
 	Samples2D getSamples2D(const Samples2DStage& stage);
 	SamplesND getSamplesND(const SamplesNDStage& stage);
