@@ -68,7 +68,6 @@ private:
 	void genSamples1DBatch();
 	void genSamples2DBatch();
 	void genSamplesNDBatch();
-	bool canSplit(std::size_t numSplits) const;
 
 // command interface
 public:

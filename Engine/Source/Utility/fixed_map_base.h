@@ -41,6 +41,8 @@ public:
 
 	TFixedMapBase() = default;
 
+	TFixedMapBase(TFixedMapBase&& other) = default;
+
 	TFixedMapBase(Entries&&... entries) :
 		m_entries(std::move(entries)...)
 	{}
@@ -113,6 +115,8 @@ public:
 	{
 		return getEntry<entryIndex<KEY>()>().getValue();
 	}
+
+	TFixedMapBase& operator = (TFixedMapBase&& rhs) = default;
 
 private:
 	EntryArray m_entries;

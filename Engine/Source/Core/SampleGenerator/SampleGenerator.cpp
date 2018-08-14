@@ -4,6 +4,7 @@
 #include "Common/assertion.h"
 
 #include <iostream>
+#include <algorithm>
 
 namespace ph
 {
@@ -50,15 +51,22 @@ bool SampleGenerator::prepareSampleBatch()
 void SampleGenerator::genSplitted(const std::size_t numSplits,
                                   std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) const
 {
-	if(!canSplit(numSplits))
-	{
-		return;
-	}
+	PH_ASSERT(numSplits > 0);
 
-	const std::size_t splittedNumSamples = numSampleBatches() / numSplits;
-	for(std::size_t i = 0; i < numSplits; i++)
+	const std::size_t batchesPerSplit  = std::max(numSampleBatches() / numSplits, std::size_t(1));
+	std::size_t       remainingBatches = numSampleBatches();
+	for(std::size_t i = 0; i < numSplits && remainingBatches > 0; ++i)
 	{
-		out_sgs.push_back(genNewborn(splittedNumSamples));
+		if(remainingBatches >= batchesPerSplit)
+		{
+			out_sgs.push_back(genNewborn(batchesPerSplit));
+			remainingBatches -= batchesPerSplit;
+		}
+		else
+		{
+			out_sgs.push_back(genNewborn(remainingBatches));
+			return;
+		}
 	}
 }
 
@@ -187,26 +195,6 @@ void SampleGenerator::genSamplesNDBatch()
 			genSamplesND(stageND, &samples);
 		}
 	}
-}
-
-bool SampleGenerator::canSplit(const std::size_t numSplits) const
-{
-	if(numSplits == 0)
-	{
-		std::cerr << "warning: at SampleGenerator::canSplit(), "
-		          << "number of splits is 0" << std::endl;
-		return false;
-	}
-
-	if(m_numSampleBatches % numSplits != 0)
-	{
-		std::cerr << "warning: at SampleGenerator::canSplit(), "
-		          << "generator cannot evenly split into " << numSplits << " parts" << std::endl;
-		std::cerr << "(sample batches: " << m_numSampleBatches << ")" << std::endl;
-		return false;
-	}
-
-	return true;
 }
 
 // command interface

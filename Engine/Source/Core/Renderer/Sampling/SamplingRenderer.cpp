@@ -41,22 +41,23 @@ void SamplingRenderer::init(const Description& description)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	const uint32 numWorks = getNumRenderThreads();
-
 	clearWorkData();
-	m_scene           = &description.visualWorld.getScene();
-	m_sg              = description.getSampleGenerator().get();
 
+	m_scene  = &description.visualWorld.getScene();
+	m_camera = description.getCamera().get();
+	m_sg     = description.getSampleGenerator().get();
 	m_films.set<EAttribute::LIGHT_ENERGY>(std::make_unique<HdrRgbFilm>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
+
+	// HACK
 	m_films.set<EAttribute::NORMAL>(std::make_unique<Vec3Film>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
 
-	m_camera     = description.getCamera().get();
+	m_sg->genSplitted(getNumRenderThreads(), m_workSgs);
+	const uint32 numWorks = static_cast<uint32>(m_workSgs.size());
+
 	m_numRemainingWorks = numWorks;
 	m_numFinishedWorks  = 0;
-
-	m_sg->genSplitted(numWorks, m_workSgs);
 
 	std::vector<SamplingFilmSet> workFilms;
 	for(uint32 i = 0; i < numWorks; i++)
@@ -116,11 +117,12 @@ void SamplingRenderer::asyncSubmitWork(RenderWorker& worker)
 	addUpdatedRegion(m_works[worker.getId()].m_films.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), true);
 }
 
-// TODO: check this
 void SamplingRenderer::clearWorkData()
 {
 	m_workSgs.clear();
 	m_updatedRegions.clear();
+
+	// TODO: other data
 }
 
 ERegionStatus SamplingRenderer::asyncPollUpdatedRegion(Region* const out_region)
@@ -184,6 +186,7 @@ void SamplingRenderer::mergeWorkFilms(SamplingRenderWork& work)
 	lightFilm->mergeToParent();
 	lightFilm->clear();
 
+	// HACK
 	const auto& normalFilm = work.m_films.get<EAttribute::NORMAL>();
 	normalFilm->mergeToParent();
 	normalFilm->clear();
