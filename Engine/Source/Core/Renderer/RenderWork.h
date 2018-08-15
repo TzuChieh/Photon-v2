@@ -25,6 +25,9 @@ protected:
 	void setWorkDone(uint32 workDone);
 	void incrementWorkDone();
 
+	RenderWork& operator = (const RenderWork& rhs);
+	RenderWork& operator = (RenderWork&& rhs);
+
 private:
 	RenderWorker* m_worker;
 
@@ -46,6 +49,20 @@ inline void RenderWork::setWorker(RenderWorker* const worker)
 	PH_ASSERT(worker);
 
 	m_worker = worker;
+}
+
+inline RenderWork& RenderWork::operator = (const RenderWork& rhs)
+{
+	m_worker = rhs.m_worker;
+
+	return *this;
+}
+
+inline RenderWork& RenderWork::operator = (RenderWork&& rhs)
+{
+	m_worker = std::move(rhs.m_worker);
+
+	return *this;
 }
 
 }// end namespace ph

@@ -41,6 +41,8 @@ public:
 	SamplingStatistics asyncGetStatistics();
 	void setDomainPx(const TAABB2D<int64>& domainPx);
 
+	SamplingRenderWork& operator = (SamplingRenderWork&& rhs);
+
 	// HACK
 	SamplingFilmSet m_films;
 
@@ -91,6 +93,23 @@ inline SamplingStatistics SamplingRenderWork::asyncGetStatistics()
 	statistics.numMsElapsed    = m_numMsElapsed;
 	
 	return statistics;
+}
+
+inline SamplingRenderWork& SamplingRenderWork::operator = (SamplingRenderWork&& rhs)
+{
+	RenderWork::operator = (std::move(rhs));
+
+	m_renderer            = std::move(rhs.m_renderer);
+	m_integrand           = std::move(rhs.m_integrand);
+	m_estimator           = std::move(rhs.m_estimator);
+	m_sampleGenerator     = std::move(rhs.m_sampleGenerator);
+	m_films               = std::move(rhs.m_films);
+	m_requestedAttributes = std::move(rhs.m_requestedAttributes);
+
+	m_numSamplesTaken = rhs.m_numSamplesTaken.load();
+	m_numMsElapsed    = rhs.m_numMsElapsed.load();
+
+	return *this;
 }
 
 }// end namespace ph

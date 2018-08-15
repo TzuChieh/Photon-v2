@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <memory>
+#include <atomic>
 
 namespace ph
 {
@@ -20,7 +21,7 @@ class Estimator;
 class SamplingRenderer final : public Renderer, public TCommandInterface<SamplingRenderer>
 {
 public:
-	virtual ~SamplingRenderer() override;
+	~SamplingRenderer() override;
 
 	AttributeTags supportedAttributes() const override;
 	void init(const Description& description) override;
@@ -38,20 +39,17 @@ private:
 	SamplingFilmSet m_films;
 
 	const Scene*          m_scene;
+	Camera*               m_camera;
 	SampleGenerator*      m_sg;
 	std::unique_ptr<Estimator> m_estimator;
-	Camera*               m_camera;
 	SampleFilter          m_filter;
-
-	uint32                                              m_numRemainingWorks;
-	uint32                                              m_numFinishedWorks;
-	std::vector<std::unique_ptr<SampleGenerator>>       m_workSgs;
 	std::vector<SamplingRenderWork> m_works;
 
 	// TODO: use ERegionStatus instead of bool
 	std::deque<std::pair<Region, bool>>                 m_updatedRegions;
 	
 	std::mutex m_rendererMutex;
+	std::atomic_uint m_percentageProgress;
 
 	AttributeTags m_requestedAttributes;
 

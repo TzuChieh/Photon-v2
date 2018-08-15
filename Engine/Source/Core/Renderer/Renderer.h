@@ -13,6 +13,8 @@
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Core/Renderer/RenderStates.h"
 #include "Core/Renderer/Region/Region.h"
+#include "Core/Renderer/Region/RegionScheduler.h"
+#include "Common/assertion.h"
 
 #include <vector>
 #include <mutex>
@@ -54,10 +56,11 @@ public:
 	void asyncQueryStatistics(float32* out_percentageProgress, 
 	                          float32* out_samplesPerSecond);
 
-	uint32         getNumRenderThreads() const;
-	uint32         getRenderWidthPx()    const;
-	uint32         getRenderHeightPx()   const;
-	TAABB2D<int64> getRenderWindowPx()   const;
+	uint32           getNumRenderThreads() const;
+	uint32           getRenderWidthPx()    const;
+	uint32           getRenderHeightPx()   const;
+	TAABB2D<int64>   getRenderWindowPx()   const;
+	RegionScheduler* getRegionScheduler()  const;
 
 private:
 	uint32         m_numThreads;
@@ -66,6 +69,7 @@ private:
 	TAABB2D<int64> m_windowPx;
 
 	std::vector<RenderWorker> m_workers;
+	std::unique_ptr<RegionScheduler> m_regionScheduler;
 
 // command interface
 public:
@@ -94,6 +98,13 @@ inline uint32 Renderer::getRenderHeightPx() const
 inline TAABB2D<int64> Renderer::getRenderWindowPx() const
 {
 	return m_windowPx;
+}
+
+inline RegionScheduler* Renderer::getRegionScheduler() const
+{
+	PH_ASSERT(m_regionScheduler);
+
+	return m_regionScheduler.get();
 }
 
 }// end namespace ph

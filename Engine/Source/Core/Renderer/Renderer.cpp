@@ -11,6 +11,7 @@
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
 #include "Utility/Timer.h"
+#include "Core/Renderer/Region/BulkScheduler.h"
 
 #include <iostream>
 #include <vector>
@@ -99,6 +100,12 @@ Renderer::Renderer(const InputPacket& packet) :
 	m_widthPx  = filmWidth;
 	m_heightPx = filmHeight;
 	m_windowPx = TAABB2D<int64>({rectX, rectY}, {rectX + rectW, rectY + rectH});
+
+	const std::string regionSchedulerName = packet.getString("region-scheduler", "bulk");
+	if(regionSchedulerName == "bulk")
+	{
+		m_regionScheduler = std::make_unique<BulkScheduler>();
+	}
 }
 
 SdlTypeInfo Renderer::ciTypeInfo()

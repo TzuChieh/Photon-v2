@@ -70,9 +70,9 @@ void SampleGenerator::genSplitted(const std::size_t numSplits,
 	}
 }
 
-std::unique_ptr<SampleGenerator> SampleGenerator::genCopied() const
+std::unique_ptr<SampleGenerator> SampleGenerator::genCopied(const std::size_t numSampleBatches) const
 {
-	return genNewborn(m_numSampleBatches);
+	return genNewborn(numSampleBatches);
 }
 
 Samples1D SampleGenerator::getSamples1D(const Samples1DStage& stage)

@@ -46,6 +46,9 @@ void SamplingRenderer::init(const Description& description)
 	m_scene  = &description.visualWorld.getScene();
 	m_camera = description.getCamera().get();
 	m_sg     = description.getSampleGenerator().get();
+
+	m_estimator->update(*m_scene);
+
 	m_films.set<EAttribute::LIGHT_ENERGY>(std::make_unique<HdrRgbFilm>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
 
@@ -53,46 +56,43 @@ void SamplingRenderer::init(const Description& description)
 	m_films.set<EAttribute::NORMAL>(std::make_unique<Vec3Film>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
 
-	m_sg->genSplitted(getNumRenderThreads(), m_workSgs);
-	const uint32 numWorks = static_cast<uint32>(m_workSgs.size());
+	m_works.resize(getNumRenderThreads());
 
-	m_numRemainingWorks = numWorks;
-	m_numFinishedWorks  = 0;
-
-	std::vector<SamplingFilmSet> workFilms;
-	for(uint32 i = 0; i < numWorks; i++)
-	{
-		workFilms.push_back(m_films.genChild(getRenderWindowPx()));
-	}
-
-	const Integrand integrand(m_scene, m_camera);
-	for(uint32 i = 0; i < numWorks; i++)
-	{
-		SamplingRenderWork work(
-			this, 
-			m_estimator.get(), 
-			integrand, 
-			std::move(workFilms[i]), 
-			std::move(m_workSgs[i]),
-			m_requestedAttributes);
-		work.setDomainPx(getRenderWindowPx());
-		m_works.push_back(std::move(work));
-	}
-	
-	m_estimator->update(*m_scene);
+	RegionScheduler* scheduler = getRegionScheduler();
+	scheduler->setNumWorkers(getNumRenderThreads());
+	scheduler->setFullRegion(getRenderWindowPx());
+	scheduler->setSppBudget(m_sg->numSampleBatches());
+	scheduler->init();
 }
 
 bool SamplingRenderer::asyncSupplyWork(RenderWorker& worker)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	if(m_numRemainingWorks == 0)
+	RegionScheduler* scheduler = getRegionScheduler();
+	
+	Region region;
+	uint64 spp;
+	if(!scheduler->scheduleRegion(&region, &spp))
 	{
 		return false;
 	}
 
+	SamplingRenderWork work(
+		this,
+		m_estimator.get(),
+		Integrand(m_scene, m_camera),
+		m_films.genChild(getRenderWindowPx()),
+		m_sg->genCopied(spp),
+		m_requestedAttributes);
+	work.setDomainPx(getRenderWindowPx());
+	m_works[worker.getId()] = std::move(work);
+
 	worker.setWork(&(m_works[worker.getId()]));
-	m_numRemainingWorks--;
+
+	float bestProgress, worstProgress;
+	scheduler->percentageProgress(&bestProgress, &worstProgress);
+	m_percentageProgress = static_cast<unsigned int>(worstProgress);
 
 	return true;
 }
@@ -119,7 +119,6 @@ void SamplingRenderer::asyncSubmitWork(RenderWorker& worker)
 
 void SamplingRenderer::clearWorkData()
 {
-	m_workSgs.clear();
 	m_updatedRegions.clear();
 
 	// TODO: other data
@@ -136,10 +135,11 @@ ERegionStatus SamplingRenderer::asyncPollUpdatedRegion(Region* const out_region)
 		return ERegionStatus::INVALID;
 	}
 
-	*out_region = m_updatedRegions.front().first;
+	const auto regionInfo = m_updatedRegions.front();
 	m_updatedRegions.pop_front();
 
-	if(m_numFinishedWorks != m_works.size())
+	*out_region = regionInfo.first;
+	if(regionInfo.second)
 	{
 		return ERegionStatus::UPDATING;
 	}
@@ -194,11 +194,6 @@ void SamplingRenderer::mergeWorkFilms(SamplingRenderWork& work)
 
 void SamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)
 {
-	if(!isUpdating)
-	{
-		m_numFinishedWorks++;
-	}
-
 	for(auto& pendingRegion : m_updatedRegions)
 	{
 		if(pendingRegion.first.equals(region))
@@ -244,13 +239,11 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 	m_sg(nullptr),
 	m_estimator(nullptr),
 	m_camera(nullptr),
-	m_numRemainingWorks(0),
-	m_numFinishedWorks(0),
-	m_workSgs(),
 	m_updatedRegions(),
 	m_rendererMutex(),
 	m_filter(SampleFilterFactory::createGaussianFilter()),
-	m_requestedAttributes()
+	m_requestedAttributes(),
+	m_percentageProgress(0)
 {
 	const std::string filterName = packet.getString("filter-name");
 	m_filter = SampleFilterFactory::create(filterName);
