@@ -78,7 +78,7 @@ Photon is being developed with cross-platformity in mind, but Windows is the onl
 (build instructions will be added soon...) <br />
 
 ## Images Rendered by Photon-v2
-| <a href="./gallery/054_chess (based on _Transparent Chess For Cycle_ by yayel59) 4000spp.png"><img src="./gallery/054_chess (based on _Transparent Chess For Cycle_ by yayel59) 4000spp.png" align="left" width="450" ></a> | <a href="./gallery/048_Arc Reactor (Iron Man) by kuhn0362 8000spp.png"><img src="./gallery/048_Arc Reactor (Iron Man) by kuhn0362 8000spp.png" align="left" width="450" ></a> |
+| <a href="./gallery/054_chess (based on _Transparent Chess For Cycle_ by yayel59).png"><img src="./gallery/054_chess (based on _Transparent Chess For Cycle_ by yayel59).png" align="left" width="450" ></a> | <a href="./gallery/048_Arc Reactor (Iron Man) by kuhn0362 8000spp.png"><img src="./gallery/048_Arc Reactor (Iron Man) by kuhn0362 8000spp.png" align="left" width="450" ></a> |
 | :---: | :---: |
 | Chess (based on scene made by "yaye159") | Arc Reactor (Iron Man) by "kuhn0362"|
 

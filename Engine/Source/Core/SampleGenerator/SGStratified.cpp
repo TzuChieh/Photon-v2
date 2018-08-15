@@ -67,6 +67,7 @@ void SGStratified::genSamples2D(const Samples2DStage& stage, Samples2D* const ou
 	// There is no room to fit another <numStrata> samples. We fill the resting
 	// spaces with random ones.
 	//
+	// TODO: use hypercube sampling?
 	PH_ASSERT(out_array->numSamples() - currentIndex < numStrata);
 	for(std::size_t i = currentIndex; i < out_array->numSamples(); ++i)
 	{
