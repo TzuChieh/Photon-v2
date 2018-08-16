@@ -84,6 +84,13 @@ void Renderer::asyncQueryStatistics(float32* const out_percentageProgress,
 	*out_samplesPerSecond = static_cast<float32>(states.fltStates[0]) * 1000.0f;
 }
 
+RenderProgress Renderer::asyncQueryWorkerProgress(const uint32 workerId)
+{
+	PH_ASSERT(workerId < m_workers.size());
+
+	return m_workers[workerId].asyncQueryProgress();
+}
+
 // command interface
 
 Renderer::Renderer(const InputPacket& packet) : 

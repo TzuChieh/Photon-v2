@@ -52,9 +52,10 @@ public:
 
 
 	void render(const Description& description);
-	void setNumRenderThreads(const uint32 numThreads);
+	void setNumRenderThreads(uint32 numThreads);
 	void asyncQueryStatistics(float32* out_percentageProgress, 
 	                          float32* out_samplesPerSecond);
+	RenderProgress asyncQueryWorkerProgress(uint32 workerId);
 
 	uint32           getNumRenderThreads() const;
 	uint32           getRenderWidthPx()    const;

@@ -217,14 +217,26 @@ RenderStates SamplingRenderer::asyncQueryRenderStates()
 		totalNumSamples += statistics.numSamplesTaken;
 	}
 
-	float32 samplesPerMs = 0.0f;
-	if(totalElapsedMs != 0)
+	float32 samplesPerMs = totalElapsedMs != 0 ? 
+		static_cast<float32>(m_works.size() * totalNumSamples) / static_cast<float32>(totalElapsedMs) : 0.0f;
+
+	uint64 totalWork     = 0;
+	uint64 totalWorkDone = 0;
+	for(uint32 workerId = 0; workerId < getNumRenderThreads(); workerId++)
 	{
-		samplesPerMs = static_cast<float32>(m_works.size() * totalNumSamples) / static_cast<float32>(totalElapsedMs);
+		const auto progress = asyncQueryWorkerProgress(workerId);
+
+		totalWork     += progress.totalWork;
+		totalWorkDone += progress.workDone;
 	}
+
+	float32 workerProgress = totalWork != 0 ?
+		static_cast<float32>(totalWorkDone) / static_cast<float32>(totalWork) : 0.0f;
+
 
 	RenderStates states;
 	states.fltStates[0] = samplesPerMs;
+
 	return states;
 }
 
