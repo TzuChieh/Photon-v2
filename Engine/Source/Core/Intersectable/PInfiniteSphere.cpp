@@ -33,6 +33,9 @@ bool PInfiniteSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 
 	const real rTimes2 = 2.0_r * m_boundingRadius;
 	const real rTimes6 = 6.0_r * m_boundingRadius;
+
+	// TODO: maybe rTimes2 is enough; we do not need to support occlusion query for 
+	// this primitive
 	if(ray.getMaxT() > rTimes6)
 	{
 		probe.pushBaseHit(this, rTimes2);

@@ -48,6 +48,10 @@ BackgroundEmitter::BackgroundEmitter(
 		{
 			const real u = (static_cast<real>(x) + 0.5_r) / static_cast<real>(resolution.x);
 			const SpectralStrength energy = sampler.sample(*radiance, {u, v});
+
+			// FIXME: for non-nearest filtered textures, sample weights can be 0 while
+			// there is still energay around that point (because its neighbor may have
+			// non-zero energy), this can cause rendering artifacts
 			sampleWeights[baseIndex + x] = energy.calcLuminance(quantity) * sinTheta;
 		}
 	}
