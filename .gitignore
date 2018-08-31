@@ -30,7 +30,7 @@ bld/
 [Ll]ib/
 /Photon-v2_library/
 
-# Visual Studio 2015 Cache/Options Directory
+# Visual Studio Cache/Options Directory
 .vs/
 
 # Visual C++ Cache Files
@@ -63,6 +63,9 @@ ipch/
 
 # PyCharm Project Files
 .idea/
+
+# Visual Studio Code
+.vscode/
 
 # Photon-v2 Project Specific Files & Folders
 
