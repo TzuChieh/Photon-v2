@@ -19,6 +19,7 @@ public:
 
 	void buildTree(const std::vector<const Intersectable*>& intersectables);
 	bool findClosestIntersection(const Ray& ray, HitProbe& probe) const;
+	KdtreeAABB getAABB() const;
 
 private:
 	std::unique_ptr<KdtreeNode> m_positiveChild;
@@ -45,5 +46,12 @@ private:
 	static constexpr float64 COST_TRAVERSAL    = 1.0;
 	static constexpr float64 COST_INTERSECTION = 1.0;
 };
+
+// In-header Implementations:
+
+inline KdtreeAABB KdtreeNode::getAABB() const
+{
+	return m_aabb;
+}
 
 }// end namespace ph

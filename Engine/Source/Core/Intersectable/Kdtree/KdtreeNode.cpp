@@ -270,127 +270,114 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray,
                                                     const real rayDistMin, 
                                                     const real rayDistMax) const
 {
-	//if(!isLeaf())
-	//{
-	//	real splitAxisRayOrigin = 0.0_r;
-	//	real splitAxisRayDir    = 0.0_r;
+	if(!isLeaf())
+	{
+		real splitAxisRayOrigin = 0.0_r;
+		real splitAxisRayDir    = 0.0_r;
 
-	//	switch(m_splitAxis)
-	//	{
-	//	case KDTREE_X_AXIS:
-	//		splitAxisRayOrigin = ray.getOrigin().x;
-	//		splitAxisRayDir = ray.getDirection().x;
-	//		break;
+		switch(m_splitAxis)
+		{
+		case KDTREE_X_AXIS:
+			splitAxisRayOrigin = ray.getOrigin().x;
+			splitAxisRayDir = ray.getDirection().x;
+			break;
 
-	//	case KDTREE_Y_AXIS:
-	//		splitAxisRayOrigin = ray.getOrigin().y;
-	//		splitAxisRayDir = ray.getDirection().y;
-	//		break;
+		case KDTREE_Y_AXIS:
+			splitAxisRayOrigin = ray.getOrigin().y;
+			splitAxisRayDir = ray.getDirection().y;
+			break;
 
-	//	case KDTREE_Z_AXIS:
-	//		splitAxisRayOrigin = ray.getOrigin().z;
-	//		splitAxisRayDir = ray.getDirection().z;
-	//		break;
+		case KDTREE_Z_AXIS:
+			splitAxisRayOrigin = ray.getOrigin().z;
+			splitAxisRayDir = ray.getDirection().z;
+			break;
 
-	//	default:
-	//		std::cerr << "KdtreeNode: unidentified split axis detected" << std::endl;
-	//		break;
-	//	}
+		default:
+			std::cerr << "KdtreeNode: unidentified split axis detected" << std::endl;
+			break;
+		}
 
-	//	KdtreeNode* nearHitNode;
-	//	KdtreeNode* farHitNode;
+		KdtreeNode* nearHitNode;
+		KdtreeNode* farHitNode;
 
-	//	if(m_splitPos > splitAxisRayOrigin)
-	//	{
-	//		nearHitNode = m_negativeChild.get();
-	//		farHitNode = m_positiveChild.get();
-	//	}
-	//	else
-	//	{
-	//		nearHitNode = m_positiveChild.get();
-	//		farHitNode = m_negativeChild.get();
-	//	}
+		if(m_splitPos > splitAxisRayOrigin)
+		{
+			nearHitNode = m_negativeChild.get();
+			farHitNode = m_positiveChild.get();
+		}
+		else
+		{
+			nearHitNode = m_positiveChild.get();
+			farHitNode = m_negativeChild.get();
+		}
 
-	//	// The result can be NaN (the ray is lying on the splitting plane). In such case, traverse both
-	//	// positive and negative node (handled in Case III).
-	//	real raySplitPlaneDist = (m_splitPos - splitAxisRayOrigin) / splitAxisRayDir;
+		// The result can be NaN (the ray is lying on the splitting plane). In such case, traverse both
+		// positive and negative node (handled in Case III).
+		real raySplitPlaneDist = (m_splitPos - splitAxisRayOrigin) / splitAxisRayDir;
 
-	//	// Case I: Split plane is beyond ray's range or behind ray origin, only near node is hit.
-	//	if(raySplitPlaneDist >= rayDistMax || raySplitPlaneDist < 0.0_r)
-	//	{
-	//		if(nearHitNode != nullptr)
-	//		{
-	//			return nearHitNode->traverseAndFindClosestIntersection(ray, out_probe, rayDistMin, rayDistMax);
-	//		}
-	//	}
-	//	// Case II: Split plane is between ray origin and near intersection point, only far node is hit.
-	//	else if(raySplitPlaneDist <= rayDistMin && raySplitPlaneDist > 0.0_r)
-	//	{
-	//		if(farHitNode != nullptr)
-	//		{
-	//			return farHitNode->traverseAndFindClosestIntersection(ray, out_probe, rayDistMin, rayDistMax);
-	//		}
-	//	}
-	//	// Case III: Split plane is within ray's range, and both near and far node are hit.
-	//	else
-	//	{
-	//		if(nearHitNode != nullptr)
-	//		{
-	//			if(nearHitNode->traverseAndFindClosestIntersection(ray, out_probe, rayDistMin, raySplitPlaneDist))
-	//			{
-	//				return true;
-	//			}
-	//		}
+		// Case I: Split plane is beyond ray's range or behind ray origin, only near node is hit.
+		if(raySplitPlaneDist >= rayDistMax || raySplitPlaneDist < 0.0_r)
+		{
+			if(nearHitNode != nullptr)
+			{
+				return nearHitNode->traverseAndFindClosestIntersection(ray, probe, rayDistMin, rayDistMax);
+			}
+		}
+		// Case II: Split plane is between ray origin and near intersection point, only far node is hit.
+		else if(raySplitPlaneDist <= rayDistMin && raySplitPlaneDist > 0.0_r)
+		{
+			if(farHitNode != nullptr)
+			{
+				return farHitNode->traverseAndFindClosestIntersection(ray, probe, rayDistMin, rayDistMax);
+			}
+		}
+		// Case III: Split plane is within ray's range, and both near and far node are hit.
+		else
+		{
+			if(nearHitNode != nullptr)
+			{
+				if(nearHitNode->traverseAndFindClosestIntersection(ray, probe, rayDistMin, raySplitPlaneDist))
+				{
+					return true;
+				}
+			}
 
-	//		if(farHitNode != nullptr)
-	//		{
-	//			if(farHitNode->traverseAndFindClosestIntersection(ray, out_probe, raySplitPlaneDist, rayDistMax))
-	//			{
-	//				return true;
-	//			}
-	//		}
-	//	}
+			if(farHitNode != nullptr)
+			{
+				if(farHitNode->traverseAndFindClosestIntersection(ray, probe, raySplitPlaneDist, rayDistMax))
+				{
+					return true;
+				}
+			}
+		}
 
-	//	return false;
-	//}
-	//else
-	//{
-	//	IntersectionProbe closestProbe(*out_probe);
-	//	const Ray segmentRay(ray.getOrigin(), ray.getDirection(), rayDistMin, rayDistMax);
-	//	Vector3R temp;
+		return false;
+	}
+	else
+	{
+		const Ray segmentRay(ray.getOrigin(), ray.getDirection(), rayDistMin, rayDistMax);
 
-	//	// TODO: infinity may be unsafe on some machine
-	//	real closestHitSquaredDist = std::numeric_limits<real>::infinity();
+		for(std::size_t isableIndex = m_nodeBufferStartIndex; isableIndex < m_nodeBufferEndIndex; isableIndex++)
+		{
+			HitProbe currentProbe;
+			if((*m_intersectableBuffer)[isableIndex]->isIntersecting(segmentRay, currentProbe))
+			{
+				if(currentProbe.getHitRayT() < probe.getHitRayT())
+				{
+					probe = currentProbe;
+				}
+			}
+		}
 
-	//	if(closestProbe.getHitPrimitive() != nullptr)
-	//		closestHitSquaredDist = closestProbe.getHitPosition().sub(ray.getOrigin()).lengthSquared();
+		// Notice that rayDistMax can be NaN or +infinity, in such cases the return value (does the 
+		// closest intersection in the entire tree found) can be false even if we've actually found 
+		// one and stored it in the intersection. Since these are rare situations, and to properly 
+		// handle them may slow down the algorithm quite a bit, so I assumed that simply ignoring 
+		// these cases won't generate any noticeable visual artifacts.
+		return (probe.getHitRayT() < std::numeric_limits<real>::max());
+	}
 
-	//	for(std::size_t isableIndex = m_nodeBufferStartIndex; isableIndex < m_nodeBufferEndIndex; isableIndex++)
-	//	{
-	//		if((*m_intersectableBuffer)[isableIndex]->isIntersecting(segmentRay, out_probe))
-	//		{
-	//			out_probe->getHitPosition().sub(ray.getOrigin(), &temp);
-	//			const real squaredHitDist = temp.lengthSquared();
-
-	//			if(squaredHitDist < closestHitSquaredDist)
-	//			{
-	//				closestHitSquaredDist = squaredHitDist;
-	//				closestProbe = *out_probe;
-	//			}
-	//		}
-	//	}
-
-	//	*out_probe = closestProbe;
-
-	//	// Notice that rayDistMax can be NaN or +infinity, in such cases the return value (does the 
-	//	// closest intersection in the entire tree found) can be false even if we've actually found 
-	//	// one and stored it in the intersection. Since these are rare situations, and to properly 
-	//	// handle them may slow down the algorithm quite a bit, so I assumed that simply ignoring 
-	//	// these cases won't generate any noticeable visual artifacts.
-	//	return (closestHitSquaredDist < rayDistMax * rayDistMax);
-	//}
-
-	std::cerr << "warning: kdtree is broken" << std::endl;
+	//std::cerr << "warning: kdtree is broken" << std::endl;
 
 	return false;
 }

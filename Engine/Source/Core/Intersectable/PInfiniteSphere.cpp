@@ -28,17 +28,12 @@ PInfiniteSphere::PInfiniteSphere(
 bool PInfiniteSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	// Here we assume that <ray> always originated within the bounding radius.
-	// If the ray have max-t larger than 2*r, then it must have passed through
+	// If the ray have max-t larger than 6*r, then it must have passed through
 	// the imaginary bounding sphere.
 
-	const real rTimes2 = 2.0_r * m_boundingRadius;
-	const real rTimes6 = 6.0_r * m_boundingRadius;
-
-	// TODO: maybe rTimes2 is enough; we do not need to support occlusion query for 
-	// this primitive
-	if(ray.getMaxT() > rTimes6)
+	if(ray.getMaxT() > 6.0_r * m_boundingRadius)
 	{
-		probe.pushBaseHit(this, rTimes2);
+		probe.pushBaseHit(this, 2.0_r * m_boundingRadius);
 		return true;
 	}
 	else

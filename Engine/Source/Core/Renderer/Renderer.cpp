@@ -32,13 +32,6 @@ void Renderer::render(const Description& description)
 	init(description);
 
 	std::vector<std::thread> renderThreads(m_numThreads);
-
-	m_workers.resize(m_numThreads);
-	for(uint32 ti = 0; ti < m_numThreads; ti++)
-	{
-		m_workers[ti] = RenderWorker(RendererProxy(this), ti);
-	}
-
 	for(uint32 ti = 0; ti < m_numThreads; ti++)
 	{
 		renderThreads[ti] = std::thread(&RenderWorker::run, &m_workers[ti]);
@@ -60,6 +53,12 @@ void Renderer::render(const Description& description)
 void Renderer::setNumRenderThreads(const uint32 numThreads)
 {
 	m_numThreads = numThreads;
+
+	m_workers.resize(numThreads);
+	for(uint32 ti = 0; ti < numThreads; ti++)
+	{
+		m_workers[ti] = RenderWorker(RendererProxy(this), ti);
+	}
 }
 
 void Renderer::asyncQueryStatistics(float32* const out_percentageProgress, 
@@ -93,10 +92,10 @@ RenderProgress Renderer::asyncQueryWorkerProgress(const uint32 workerId)
 
 // command interface
 
-Renderer::Renderer(const InputPacket& packet) : 
-	m_numThreads(1),
-	m_workers()
+Renderer::Renderer(const InputPacket& packet)
 {
+	setNumRenderThreads(1);
+
 	const integer filmWidth  = packet.getInteger("width",  1280, DataTreatment::REQUIRED());
 	const integer filmHeight = packet.getInteger("height", 720,  DataTreatment::REQUIRED());
 	const integer rectX      = packet.getInteger("rect-x", 0);

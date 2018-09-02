@@ -1,6 +1,7 @@
 #include "Core/Intersectable/Kdtree/KdtreeIntersector.h"
 #include "Actor/CookedDataStorage.h"
 #include "Core/HitProbe.h"
+#include "Common/assertion.h"
 
 #include <iostream>
 
@@ -31,6 +32,14 @@ void KdtreeIntersector::update(const CookedDataStorage& cookedActors)
 bool KdtreeIntersector::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	return m_rootKdtreeNode.findClosestIntersection(ray, probe);
+}
+
+void KdtreeIntersector::calcAABB(AABB3D* const out_aabb) const
+{
+	PH_ASSERT(out_aabb);
+
+	const KdtreeAABB& kdtreeAABB = m_rootKdtreeNode.getAABB();
+	kdtreeAABB.getAABB(out_aabb);
 }
 
 }// end namespace ph
