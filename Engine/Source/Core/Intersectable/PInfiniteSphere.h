@@ -7,6 +7,8 @@
 namespace ph
 {
 
+// FIXME: flawed logic
+
 class PInfiniteSphere : public Primitive
 {
 public:

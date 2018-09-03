@@ -1,7 +1,9 @@
 #include "Core/Bound/AABB3D.h"
 #include "Core/Ray.h"
+#include "Common/assertion.h"
 
 #include <algorithm>
+#include <cmath>
 
 namespace ph
 {
@@ -23,14 +25,18 @@ AABB3D::AABB3D(const Vector3R& minVertex, const Vector3R& maxVertex) :
 	m_minVertex(minVertex), m_maxVertex(maxVertex)
 {}
 
-// TODO: this method is basically duplicated
+// REFACTOR: this method is duplicated with isIntersectingVolume(3)
 bool AABB3D::isIntersectingVolume(const Ray& ray) const
 {
 	// The starting ray interval (tMin, tMax) will be incrementally intersect
 	// against each ray-slab hitting interval (t1, t2) and be updated with the
 	// resulting interval.
+	//
 	// Note that the following implementation is NaN-aware 
 	// (tMin & tMax will never have NaNs)
+
+	PH_ASSERT(!std::isnan(ray.getMinT()) && !std::isnan(ray.getMaxT()));
+
 	real tMin = ray.getMinT();
 	real tMax = ray.getMaxT();
 
@@ -110,14 +116,23 @@ bool AABB3D::isIntersectingVolume(const Ray& ray) const
 //
 // Reference: Kay and Kayjia's "slab method" from a project of the ACM SIGGRAPH Education 
 // Committee named HyperGraph.
-bool AABB3D::isIntersectingVolume(const Ray& ray,
-                                  real* const out_rayNearHitT, real* const out_rayFarHitT) const
+//
+bool AABB3D::isIntersectingVolume(
+	const Ray&  ray,
+	real* const out_rayNearHitT, 
+	real* const out_rayFarHitT) const
 {
+	PH_ASSERT(out_rayNearHitT && out_rayFarHitT);
+
 	// The starting ray interval (tMin, tMax) will be incrementally intersect
 	// against each ray-slab hitting interval (t1, t2) and be updated with the
 	// resulting interval.
+	//
 	// Note that the following implementation is NaN-aware 
 	// (tMin & tMax will never have NaNs)
+
+	PH_ASSERT(!std::isnan(ray.getMinT()) && !std::isnan(ray.getMaxT()));
+
 	real tMin = ray.getMinT();
 	real tMax = ray.getMaxT();
 

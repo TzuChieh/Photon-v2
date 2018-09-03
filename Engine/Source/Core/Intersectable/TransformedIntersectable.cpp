@@ -76,6 +76,7 @@ bool TransformedIntersectable::isIntersectingVolumeConservative(const AABB3D& aa
 	return m_intersectable->isIntersectingVolumeConservative(localAABB);
 }
 
+// FIXME: static intersectable do not need to consider time
 void TransformedIntersectable::calcAABB(AABB3D* const out_aabb) const
 {
 	AABB3D localAABB;
