@@ -65,15 +65,18 @@ void BackgroundEmitter::evalEmittedRadiance(
 {
 	PH_ASSERT(out_radiance && m_radiance);
 
-	const Vector3R emitDir = X.getIncidentRay().getDirection().mul(-1.0_r);
-	if(!canEmit(emitDir, X.getShadingNormal()))
+	//const Vector3R emitDir = X.getIncidentRay().getDirection().mul(-1.0_r);
+	/*if(!canEmit(emitDir, X.getShadingNormal()))
 	{
 		out_radiance->setValues(0.0_r);
 		return;
-	}
+	}*/
+
+	Vector3R uvw;
+	SphericalMapper().map(X.getIncidentRay().getDirection(), &uvw);
 
 	TSampler<SpectralStrength> sampler(EQuantity::EMR);
-	*out_radiance = sampler.sample(*m_radiance, X);
+	*out_radiance = sampler.sample(*m_radiance, uvw);
 }
 
 void BackgroundEmitter::genDirectSample(DirectLightSample& sample) const
@@ -87,12 +90,18 @@ void BackgroundEmitter::genDirectSample(DirectLightSample& sample) const
 		Random::genUniformReal_i0_e1(),
 		&uvSamplePdf);
 
-	Vector3R position;
-	if(!m_surface->uvwToPosition(Vector3R(uvSample.x, uvSample.y, 0), &position))
-	{
-		return;
-	}
-	sample.emitPos = sample.targetPos + position;
+	PH_ASSERT(0.0_r <= uvSample.x && uvSample.x <= 1.0_r &&
+	          0.0_r <= uvSample.y && uvSample.y <= 1.0_r);
+
+	const real theta = (1.0_r - uvSample.y) * PH_PI_REAL;
+	const real phi   = uvSample.x * PH_PI_REAL * 2.0_r;
+
+	const real zxPlaneRadius = std::sin(theta);
+	const Vector3R dir(zxPlaneRadius * std::sin(phi),
+	                   std::cos(theta),
+	                   zxPlaneRadius * std::cos(phi));
+	const Vector3R direction = m_worldBound.calcExtents().max() * 2.0_r * dir;
+	sample.emitPos = sample.targetPos + direction;
 
 	TSampler<SpectralStrength> sampler(EQuantity::EMR);
 	sample.radianceLe = sampler.sample(*m_radiance, uvSample);

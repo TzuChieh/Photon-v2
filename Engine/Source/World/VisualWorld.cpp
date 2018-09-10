@@ -21,8 +21,8 @@ const Logger VisualWorld::logger(LogSender("Visual World"));
 VisualWorld::VisualWorld() :
 
 	//m_intersector(std::make_unique<BruteForceIntersector>()), 
-	m_intersector(std::make_unique<KdtreeIntersector>()), 
-	//m_intersector(std::make_unique<ClassicBvhIntersector>()), 
+	//m_intersector(std::make_unique<KdtreeIntersector>()), 
+	m_intersector(std::make_unique<ClassicBvhIntersector>()), 
 
 	m_lightSampler(std::make_unique<UniformRandomLightSampler>()), 
 	m_scene(),
@@ -116,6 +116,13 @@ void VisualWorld::cookActors(CookingContext& cookingContext)
 	for(const auto& actor : m_actors)
 	{
 		CookedUnit cookedUnit = actor->cook(cookingContext);
+
+		// HACK
+		if(cookedUnit.isBackgroundEmitter())
+		{
+
+		}
+
 		cookedUnit.claimCookedData(m_cookedActorStorage);
 		cookedUnit.claimCookedBackend(m_cookedBackendStorage);
 	}

@@ -11,6 +11,7 @@
 #include "FileIO/SDL/InputPacket.h"
 #include "Actor/Geometry/GInfiniteSphere.h"
 #include "Core/Emitter/BackgroundEmitter.h"
+#include "Actor/Geometry/GEmpty.h"
 
 namespace ph
 {
@@ -87,57 +88,58 @@ std::unique_ptr<Emitter> DomeSource::genEmitter(
 
 	// We are inside a large sphere, so we need to make back face emitable.
 	//
-	emitter->setBackFaceEmit();
+	//emitter->setBackFaceEmit();
 
 	return emitter;
 }
 
 std::shared_ptr<Geometry> DomeSource::genGeometry(CookingContext& context) const
 {
+	return std::make_shared<GEmpty>();
+
 	// The radius of a sphere on the origin that can encompass all root actors.
-	real rootActorBoundRadius = 1000.0_r;
-	if(context.getVisualWorldInfo())
-	{
-		const AABB3D bound = context.getVisualWorldInfo()->getRootActorsBound();
-		for(auto vertex : bound.getVertices())
-		{
-			const real ri = vertex.length();
-			if(rootActorBoundRadius < ri)
-			{
-				rootActorBoundRadius = ri;
-			}
-		}
-	}
-	else
-	{
-		logger.log(ELogLevel::WARNING_MED,
-			"No visual world information available, cannot access root actor bounds."
-			"Using " + std::to_string(rootActorBoundRadius) + " as dome radius.");
-	}
+	//real rootActorBoundRadius = 1000.0_r;
+	//if(context.getVisualWorldInfo())
+	//{
+	//	const AABB3D bound = context.getVisualWorldInfo()->getRootActorsBound();
+	//	for(auto vertex : bound.getVertices())
+	//	{
+	//		const real ri = vertex.length();
+	//		if(rootActorBoundRadius < ri)
+	//		{
+	//			rootActorBoundRadius = ri;
+	//		}
+	//	}
+	//}
+	//else
+	//{
+	//	logger.log(ELogLevel::WARNING_MED,
+	//		"No visual world information available, cannot access root actor bounds."
+	//		"Using " + std::to_string(rootActorBoundRadius) + " as dome radius.");
+	//}
 
-	if constexpr(USE_INFINITE_SPHERE)
-	{
-		// times 2 to satisfy the requirements of <BackgroundEmitter>
-		return std::make_shared<GInfiniteSphere>(rootActorBoundRadius * 2.0_r);
-	}
-	else
-	{
-		// Enlarge the root actor bound radius by this factor;
-		// notice that if this radius is too small the rendered dome may 
-		// exhibit distorsion even though the environment map is undistorted.
-		//
-		const real magnifier = 64.0_r;
+	//if constexpr(USE_INFINITE_SPHERE)
+	//{
+	//	// times 2 to satisfy the requirements of <BackgroundEmitter>
+	//	return std::make_shared<GInfiniteSphere>(rootActorBoundRadius * 2.0_r);
+	//}
+	//else
+	//{
+	//	// Enlarge the root actor bound radius by this factor;
+	//	// notice that if this radius is too small the rendered dome may 
+	//	// exhibit distorsion even though the environment map is undistorted.
+	//	//
+	//	const real magnifier = 64.0_r;
 
-		return std::make_shared<GSphere>(rootActorBoundRadius * magnifier);
-	}
+	//	return std::make_shared<GSphere>(rootActorBoundRadius * magnifier);
+	//}
 }
 
 std::shared_ptr<Material> DomeSource::genMaterial(CookingContext& context) const
 {
 	auto material = std::make_shared<IdealSubstance>();
 	
-	// A dome should not have any visible inter-reflection ideally.
-	//
+	// A dome should not have any visible inter-reflections, ideally.
 	material->asAbsorber();
 
 	return material;

@@ -29,9 +29,18 @@ public:
 	void genDirectSample(DirectLightSample& sample) const;
 	real calcDirectPdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const;
 
+	// HACK
+	void setBackgroundEmitterPrimitive(const Primitive* primitive)
+	{
+		m_backgroundEmitterPrimitive = primitive;
+	}
+
 private:
 	const Intersector*  m_intersector;
 	const LightSampler* m_lightSampler;
+
+	// HACK
+	const Primitive* m_backgroundEmitterPrimitive;
 };
 
 }// end namespace ph
