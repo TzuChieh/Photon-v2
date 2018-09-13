@@ -3,7 +3,7 @@
 #include "Core/Texture/TTexture.h"
 #include "Math/TArithmeticArray.h"
 #include "Common/assertion.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 #include "Core/Texture/SampleLocation.h"
 
 namespace ph
@@ -60,16 +60,16 @@ protected:
 		{
 		case ETexWrapMode::REPEAT:
 		{
-			const float64 fu = Math::fractionalPart(u);
-			const float64 fv = Math::fractionalPart(v);
+			const float64 fu = math::fractionalPart(u);
+			const float64 fv = math::fractionalPart(v);
 			*out_u = fu >= 0.0 ? fu : fu + 1.0;
 			*out_v = fv >= 0.0 ? fv : fv + 1.0;
 			break;
 		}
 		case ETexWrapMode::CLAMP_TO_EDGE:
 		{
-			*out_u = Math::clamp(u, 0.0, 1.0);
-			*out_v = Math::clamp(v, 0.0, 1.0);
+			*out_u = math::clamp(u, 0.0, 1.0);
+			*out_v = math::clamp(v, 0.0, 1.0);
 			break;
 		}
 		default:

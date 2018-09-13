@@ -2,7 +2,7 @@
 
 #include "Math/TVector3.h"
 #include "Math/TOrthonormalBasis3.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 #include "Core/ECoordSys.h"
 #include "Core/HitInfo.h"
 

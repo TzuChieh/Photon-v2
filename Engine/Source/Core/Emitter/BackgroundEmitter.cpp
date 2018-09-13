@@ -8,7 +8,7 @@
 #include "Core/Sample/DirectLightSample.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Math/constant.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 
 #include <vector>
 

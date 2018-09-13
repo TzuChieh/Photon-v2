@@ -1,5 +1,5 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableTIR.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 #include "Math/Random.h"
 
 namespace ph
@@ -29,9 +29,9 @@ real TableTIR::sample(const real cosWi, const real alpha, const real relIor) con
 
 	// ensure float indices stay in the limits
 	// (may have inputs exceeding tabled range)
-	fCosWi  = Math::clamp(fCosWi,  0.0_r, static_cast<real>(m_numCosWi  - 1));
-	fAlpha  = Math::clamp(fAlpha,  0.0_r, static_cast<real>(m_numAlpha  - 1));
-	fRelIor = Math::clamp(fRelIor, 0.0_r, static_cast<real>(m_numRelIor - 1));
+	fCosWi  = math::clamp(fCosWi,  0.0_r, static_cast<real>(m_numCosWi  - 1));
+	fAlpha  = math::clamp(fAlpha,  0.0_r, static_cast<real>(m_numAlpha  - 1));
+	fRelIor = math::clamp(fRelIor, 0.0_r, static_cast<real>(m_numRelIor - 1));
 
 	if constexpr(MODE == EInterpolationMode::NEAREST)
 	{

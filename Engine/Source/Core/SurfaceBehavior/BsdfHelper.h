@@ -2,7 +2,7 @@
 
 #include "Common/assertion.h"
 #include "Math/TVector3.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 
 namespace ph
 {
@@ -39,7 +39,7 @@ public:
 			return false;
 		}
 
-		out_H->mulLocal(static_cast<real>(Math::sign(N.dot(*out_H))));
+		out_H->mulLocal(static_cast<real>(math::sign(N.dot(*out_H))));
 		return !out_H->isZero();
 	}
 };

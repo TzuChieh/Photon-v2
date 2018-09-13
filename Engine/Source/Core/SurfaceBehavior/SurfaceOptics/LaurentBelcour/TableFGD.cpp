@@ -1,5 +1,5 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableFGD.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 #include "Math/Random.h"
 
 #include <cmath>
@@ -33,10 +33,10 @@ real TableFGD::sample(const real cosWi, const real alpha, const real iorN, const
 
 	// ensure float indices stay in the limits
 	// (may have inputs exceeding tabled range)
-	fCosWi = Math::clamp(fCosWi, 0.0_r, static_cast<real>(m_numCosWi - 1));
-	fAlpha = Math::clamp(fAlpha, 0.0_r, static_cast<real>(m_numAlpha - 1));
-	fIorN  = Math::clamp(fIorN,  0.0_r, static_cast<real>(m_numIorN  - 1));
-	fIorK  = Math::clamp(fIorK,  0.0_r, static_cast<real>(m_numIorK  - 1));
+	fCosWi = math::clamp(fCosWi, 0.0_r, static_cast<real>(m_numCosWi - 1));
+	fAlpha = math::clamp(fAlpha, 0.0_r, static_cast<real>(m_numAlpha - 1));
+	fIorN  = math::clamp(fIorN,  0.0_r, static_cast<real>(m_numIorN  - 1));
+	fIorK  = math::clamp(fIorK,  0.0_r, static_cast<real>(m_numIorK  - 1));
 
 	if constexpr(MODE == EInterpolationMode::NEAREST)
 	{

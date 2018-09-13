@@ -1,6 +1,6 @@
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
 #include "Common/assertion.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 
 #include <cmath>
 #include <string>
@@ -105,7 +105,7 @@ void IsoTrowbridgeReitz::genDistributedH(
 	Vector3R xAxis;
 	Vector3R yAxis(N);
 	Vector3R zAxis;
-	Math::formOrthonormalBasis(yAxis, &xAxis, &zAxis);
+	math::formOrthonormalBasis(yAxis, &xAxis, &zAxis);
 	H = xAxis.mulLocal(H.x).addLocal(yAxis.mulLocal(H.y)).addLocal(zAxis.mulLocal(H.z));
 	H.normalizeLocal();
 

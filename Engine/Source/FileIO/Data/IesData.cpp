@@ -1,5 +1,5 @@
 #include "FileIO/Data/IesData.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 #include "Math/constant.h"
 
 #include <cmath>
@@ -56,8 +56,8 @@ real IesData::sampleAttenuationFactor(const real theta, const real phi) const
 
 			// clamping theta index and wrapping phi index
 			//
-			const int thetaIndex = Math::clamp(ti, 0, numThetaSamples - 1);
-			const int phiIndex   = Math::wrap(pi, 0, numPhiSamples - 2);
+			const int thetaIndex = math::clamp(ti, 0, numThetaSamples - 1);
+			const int phiIndex   = math::wrap(pi, 0, numPhiSamples - 2);
 
 			factor += wPhi * wTheta * m_sphericalAttenuationFactors[phiIndex][thetaIndex];
 			weight += wPhi * wTheta;
@@ -68,7 +68,7 @@ real IesData::sampleAttenuationFactor(const real theta, const real phi) const
 	// FIXME: Bicubic interpolation will cause overshoot in some places.
 	// It is subtle but can be physically incorrect for attenuation factors.
 	// Need a "smoother" solution here.
-	return Math::clamp(factor, 0.0_r, 1.0_r);
+	return math::clamp(factor, 0.0_r, 1.0_r);
 }
 
 void IesData::processCandelaValues()

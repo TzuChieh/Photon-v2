@@ -7,7 +7,7 @@
 #include "Common/assertion.h"
 #include "Core/Texture/TConstantTexture.h"
 
-#include "Math/Math.h"
+#include "Math/math.h"
 
 namespace ph
 {
@@ -129,7 +129,7 @@ void LerpedSurfaceOptics::calcBsdfSamplePdf(
 
 real LerpedSurfaceOptics::pickOptics0Probability(const SpectralStrength& ratio)
 {
-	return Math::clamp(ratio.calcLuminance(EQuantity::ECF), 0.01_r, 1.0_r);
+	return math::clamp(ratio.calcLuminance(EQuantity::ECF), 0.01_r, 1.0_r);
 }
 
 }// end namespace ph

@@ -1,5 +1,5 @@
 #include "Actor/ALight.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Geometry/Geometry.h"
 #include "Actor/Material/Material.h"

@@ -8,7 +8,7 @@
 #include "Math/Random.h"
 #include "Core/Sample/PositionSample.h"
 #include "Math/TVector2.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 
 #include <limits>
 #include <iostream>

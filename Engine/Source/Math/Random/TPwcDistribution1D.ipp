@@ -2,7 +2,7 @@
 
 #include "Math/Random/TPwcDistribution1D.h"
 #include "Common/assertion.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 
 #include <algorithm>
 
@@ -160,7 +160,7 @@ std::size_t TPwcDistribution1D<T>::continuousToDiscrete(const T sample) const
 		"sample = " + std::to_string(sample));
 
 	const T continuousColumn = (sample - m_min) / m_delta;
-	return Math::clamp(static_cast<std::size_t>(continuousColumn), 
+	return math::clamp(static_cast<std::size_t>(continuousColumn),
 	                   static_cast<std::size_t>(0), numColumns() - 1);
 }
 
@@ -183,7 +183,7 @@ inline T TPwcDistribution1D<T>::calcContinuousSample(const T seed_i0_e1, const s
 	const T sample = m_delta * (overshoot + static_cast<T>(straddledColumn));
 
 	// TODO: check rare, sample should rarely exceed [min, max]
-	return Math::clamp(sample, m_min, m_max);
+	return math::clamp(sample, m_min, m_max);
 }
 
 }// end namespace ph

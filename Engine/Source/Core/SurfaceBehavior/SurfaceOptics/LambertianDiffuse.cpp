@@ -5,7 +5,7 @@
 #include "Math/constant.h"
 #include "Actor/Material/MatteOpaque.h"
 #include "Math/sampling.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 #include "Core/Texture/TSampler.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Common/assertion.h"
@@ -78,7 +78,7 @@ void LambertianDiffuse::genBsdfSample(
 	Vector3R u;
 	Vector3R v(N);
 	Vector3R w;
-	Math::formOrthonormalBasis(v, &u, &w);
+	math::formOrthonormalBasis(v, &u, &w);
 	L = u.mulLocal(L.x).addLocal(v.mulLocal(L.y)).addLocal(w.mulLocal(L.z));
 	L.normalizeLocal();
 	if(V.dot(N) < 0.0_r)

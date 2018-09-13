@@ -2,7 +2,7 @@
 #include "Common/assertion.h"
 #include "Math/constant.h"
 #include "Core/Bound/AABB3D.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 #include "Math/TVector3.h"
 #include "Core/Ray.h"
 #include "Core/HitProbe.h"
@@ -135,7 +135,7 @@ void PSphere::calcIntersectionDetail(
 	//
 	const real delta = m_radius / 128.0_r;
 	Vector3R dx, dz;
-	Math::formOrthonormalBasis(hitNormal, &dx, &dz);
+	math::formOrthonormalBasis(hitNormal, &dx, &dz);
 	dx.mulLocal(delta);
 	dz.mulLocal(delta);
 
@@ -161,7 +161,7 @@ void PSphere::calcIntersectionDetail(
 	                       posZuvw.x - negZuvw.x, posZuvw.y - negZuvw.y);
 	if(!uvwDiff.solve(posX.sub(negX), posZ.sub(negZ), &dPdU, &dPdV))
 	{
-		Math::formOrthonormalBasis(hitNormal, &dPdU, &dPdV);
+		math::formOrthonormalBasis(hitNormal, &dPdU, &dPdV);
 	}
 
 	// normal derivatives are actually scaled version of dPdU and dPdV
@@ -186,7 +186,7 @@ void PSphere::calcIntersectionDetail(
 //
 bool PSphere::isIntersectingVolumeConservative(const AABB3D& volume) const
 {
-	const real radius2 = Math::squared(m_radius);
+	const real radius2 = math::squared(m_radius);
 
 	// These variables are gonna store minimum and maximum squared distances 
 	// from the sphere's center to the AABB volume.
@@ -196,20 +196,20 @@ bool PSphere::isIntersectingVolumeConservative(const AABB3D& volume) const
 
 	real a, b;
 
-	a = Math::squared(volume.getMinVertex().x);
-	b = Math::squared(volume.getMaxVertex().x);
+	a = math::squared(volume.getMinVertex().x);
+	b = math::squared(volume.getMaxVertex().x);
 	maxDist2 += std::max(a, b);
 	if     (0.0_r < volume.getMinVertex().x) minDist2 += a;
 	else if(0.0_r > volume.getMaxVertex().x) minDist2 += b;
 
-	a = Math::squared(volume.getMinVertex().y);
-	b = Math::squared(volume.getMaxVertex().y);
+	a = math::squared(volume.getMinVertex().y);
+	b = math::squared(volume.getMaxVertex().y);
 	maxDist2 += std::max(a, b);
 	if     (0.0_r < volume.getMinVertex().y) minDist2 += a;
 	else if(0.0_r > volume.getMaxVertex().y) minDist2 += b;
 
-	a = Math::squared(volume.getMinVertex().z);
-	b = Math::squared(volume.getMaxVertex().z);
+	a = math::squared(volume.getMinVertex().z);
+	b = math::squared(volume.getMaxVertex().z);
 	maxDist2 += std::max(a, b);
 	if     (0.0_r < volume.getMinVertex().z) minDist2 += a;
 	else if(0.0_r > volume.getMaxVertex().z) minDist2 += b;

@@ -2,7 +2,7 @@
 
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 #include "Common/assertion.h"
 
 #include <cmath>
@@ -157,8 +157,8 @@ inline TVector3<T>& TVector3<T>::minLocal(const TVector3& rhs)
 template<typename T>
 inline int32 TVector3<T>::maxDimension() const
 {
-	return x > y ? (x > z ? Math::X_AXIS : Math::Z_AXIS) :
-	               (y > z ? Math::Y_AXIS : Math::Z_AXIS);
+	return x > y ? (x > z ? math::X_AXIS : math::Z_AXIS) :
+	               (y > z ? math::Y_AXIS : math::Z_AXIS);
 }
 
 template<typename T>
@@ -711,9 +711,9 @@ inline const T& TVector3<T>::operator [] (const int32 axisIndex) const
 
 	switch(axisIndex)
 	{
-	case Math::X_AXIS: return x;
-	case Math::Y_AXIS: return y;
-	case Math::Z_AXIS: return z;
+	case math::X_AXIS: return x;
+	case math::Y_AXIS: return y;
+	case math::Z_AXIS: return z;
 	}
 
 	return x;

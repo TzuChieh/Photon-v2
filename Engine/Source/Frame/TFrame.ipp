@@ -4,7 +4,7 @@
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
 #include "Math/TVector2.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 
 #include <limits>
 
@@ -107,7 +107,7 @@ inline void TFrame<T, N>::sample(
 				for(std::size_t i = 0; i < N; ++i)
 				{
 					float64 sampledValue = pixelSum[i] * reciWeightSum;
-					sampledValue = Math::clamp(sampledValue, 
+					sampledValue = math::clamp(sampledValue,
 					                           static_cast<float64>(std::numeric_limits<T>::min()),
 					                           static_cast<float64>(std::numeric_limits<T>::max()));
 					sampledPixel[i] = static_cast<T>(sampledValue);

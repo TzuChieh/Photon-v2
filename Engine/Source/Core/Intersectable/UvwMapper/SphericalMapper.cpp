@@ -1,6 +1,6 @@
 #include "Core/Intersectable/UvwMapper/SphericalMapper.h"
 #include "Math/TVector3.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 #include "Math/constant.h"
 #include "Math/TOrthonormalBasis3.h"
 
@@ -22,7 +22,7 @@ void SphericalMapper::map(const Vector3R& vector, Vector3R* const out_uvw) const
 
 	const Vector3R& unitVector = vector.normalize();
 
-	const real cosTheta = Math::clamp(unitVector.y, -1.0_r, 1.0_r);
+	const real cosTheta = math::clamp(unitVector.y, -1.0_r, 1.0_r);
 
 	const real theta  = std::acos(cosTheta);                                   // [  0,   pi]
 	const real phiRaw = std::atan2(unitVector.x, unitVector.z);                // [-pi,   pi]

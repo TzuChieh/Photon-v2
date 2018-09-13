@@ -5,7 +5,7 @@
 #include "Math/Random.h"
 #include "Math/constant.h"
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
 #include "Core/SurfaceBehavior/BsdfHelper.h"
 #include "Common/assertion.h"

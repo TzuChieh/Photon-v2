@@ -3,7 +3,7 @@
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
 #include "Math/TMatrix4.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 
 #include <cstdlib>
 
@@ -50,7 +50,7 @@ public:
 	inline TDecomposedTransform& rotate(const TVector3<T>& axis, const T degrees)
 	{
 		const TVector3<T> normalizedAxis(axis.normalize());
-		rotate(TQuaternion<T>(normalizedAxis, Math::toRadians(degrees)));
+		rotate(TQuaternion<T>(normalizedAxis, math::toRadians(degrees)));
 
 		return *this;
 	}

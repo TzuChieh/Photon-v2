@@ -8,7 +8,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 #include "Core/Sample/DirectLightSample.h"
 #include "Core/SurfaceBehavior/BsdfEvaluation.h"
 #include "Core/SurfaceBehavior/BsdfSample.h"

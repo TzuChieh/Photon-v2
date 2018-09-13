@@ -8,7 +8,7 @@
 //#include "Core/SurfaceBehavior/SurfaceOptics.h"
 //#include "Core/Intersectable/Primitive.h"
 //#include "Core/Intersectable/PrimitiveMetadata.h"
-//#include "Math/Math.h"
+//#include "Math/math.h"
 //#include "Math/Random.h"
 //#include "Core/Sample/DirectLightSample.h"
 //#include "FileIO/SDL/InputPacket.h"

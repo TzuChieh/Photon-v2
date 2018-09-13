@@ -2,7 +2,7 @@
 #include "Common/assertion.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Core/Quantity/ColorSpace.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 #include "Core/SurfaceHit.h"
 #include "Core/HitDetail.h"
 #include "Core/Intersectable/Primitive.h"
@@ -17,7 +17,7 @@ SurfaceEmitter::SurfaceEmitter() :
 
 bool SurfaceEmitter::canEmit(const Vector3R& emitDirection, const Vector3R& N) const
 {
-	return Math::isSameHemisphere(emitDirection, N) != m_isBackFaceEmission;
+	return math::isSameHemisphere(emitDirection, N) != m_isBackFaceEmission;
 }
 
 void SurfaceEmitter::setFrontFaceEmit()

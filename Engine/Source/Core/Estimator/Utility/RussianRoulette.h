@@ -3,7 +3,7 @@
 #include "Common/assertion.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Math/Random.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 
 namespace ph
 {
@@ -17,7 +17,7 @@ public:
 	{
 		PH_ASSERT(out_weightedS);
 
-		const real rrSurviveRate = Math::clamp(s.calcLuminance(), 0.0001_r, 1.0_r);
+		const real rrSurviveRate = math::clamp(s.calcLuminance(), 0.0001_r, 1.0_r);
 		const real rrSpin        = Random::genUniformReal_i0_e1();
 
 		// russian roulette >> survive

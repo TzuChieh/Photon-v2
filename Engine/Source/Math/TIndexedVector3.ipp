@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Math/TIndexedVector3.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 
 #include <iostream>
 

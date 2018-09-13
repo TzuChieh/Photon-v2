@@ -2,7 +2,7 @@
 
 #include "Core/Texture/TPixelTex2D.h"
 #include "Core/Texture/SampleLocation.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 
 namespace ph
 {

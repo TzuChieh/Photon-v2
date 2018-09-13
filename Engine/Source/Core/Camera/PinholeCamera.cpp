@@ -3,7 +3,7 @@
 #include "Core/Sample.h"
 #include "Core/Filmic/TSamplingFilm.h"
 #include "FileIO/SDL/InputPacket.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 #include "Math/Random.h"
 #include "Common/assertion.h"
 

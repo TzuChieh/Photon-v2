@@ -2,7 +2,7 @@
 #include <FileIO/Data/IesData.h>
 #include <FileIO/PictureSaver.h>
 #include <Frame/TFrame.h>
-#include <Math/Math.h>
+#include <Math/math.h>
 
 #include <gtest/gtest.h>
 

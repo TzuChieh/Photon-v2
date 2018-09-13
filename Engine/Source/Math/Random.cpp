@@ -1,5 +1,5 @@
 #include "Math/Random.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 #include "Common/assertion.h"
 
 #include <random>

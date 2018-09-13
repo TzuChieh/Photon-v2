@@ -6,7 +6,7 @@
 #include "FileIO/SDL/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Common/assertion.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 
 #include <iostream>
 

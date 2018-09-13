@@ -2,7 +2,7 @@
 
 #include "Math/TVector3.h"
 #include "Math/TOrthonormalBasis3.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 #include "Core/ECoordSys.h"
 #include "Common/assertion.h"
 
@@ -59,7 +59,7 @@ public:
 		}
 		else
 		{
-			Math::formOrthonormalBasis(m_geometryBasis.yAxis, 
+			math::formOrthonormalBasis(m_geometryBasis.yAxis,
 			                           &m_geometryBasis.xAxis, &m_geometryBasis.zAxis);
 		}
 		
@@ -70,7 +70,7 @@ public:
 		}
 		else
 		{
-			Math::formOrthonormalBasis(m_shadingBasis.yAxis,
+			math::formOrthonormalBasis(m_shadingBasis.yAxis,
 			                           &m_shadingBasis.xAxis, &m_shadingBasis.zAxis);
 		}
 

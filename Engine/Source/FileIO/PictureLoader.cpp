@@ -1,7 +1,7 @@
 #include "FileIO/PictureLoader.h"
 #include "Core/Quantity/ColorSpace.h"
 #include "Common/assertion.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 
 #include "Common/ThirdParty/lib_stb.h"
 

@@ -2,7 +2,7 @@
 
 #include "Common/assertion.h"
 #include "Common/primitive_type.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 
 #include <cmath>
 
@@ -14,7 +14,7 @@ namespace conversions
 
 inline real alphaToVariance(const real alpha)
 {
-	const real clampedAlpha = Math::clamp(alpha, 0.0_r, 0.9999_r);
+	const real clampedAlpha = math::clamp(alpha, 0.0_r, 0.9999_r);
 	const real alpha1p1 = std::pow(clampedAlpha, 1.1_r);
 	return alpha1p1 / (1.0_r - alpha1p1);
 }

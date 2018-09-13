@@ -1,5 +1,5 @@
 #include "Core/Intersectable/Bvh/BvhInfoNode.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 
 #include <iostream>
 
@@ -36,7 +36,7 @@ BvhInfoNode BvhInfoNode::makeBinaryLeaf(const std::vector<BvhIntersectableInfo>&
 }
 
 BvhInfoNode::BvhInfoNode() : 
-	children{}, aabb(), splitAxis(Math::UNKNOWN_AXIS), intersectables()
+	children{}, aabb(), splitAxis(math::UNKNOWN_AXIS), intersectables()
 {
 
 }

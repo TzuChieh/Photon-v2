@@ -1,7 +1,7 @@
 #include "Core/SampleGenerator/stages.h"
 #include "Common/Logger.h"
 #include "Common/assertion.h"
-#include "Math/Math.h"
+#include "Math/math.h"
 
 #include <cmath>
 
@@ -79,12 +79,12 @@ SamplesNDStage::SamplesNDStage(
 
 		logger.log(ELogLevel::NOTE_MED, 
 			"hinted size <" + std::to_string(hintSize) + "> exceeds # of samples <" +
-			std::to_string(numSamples) + ">, adjusted to " + std::to_string(Math::product(m_dimSizeHints)));
+			std::to_string(numSamples) + ">, adjusted to " + std::to_string(math::product(m_dimSizeHints)));
 	}
 
 	PH_ASSERT(
-		Math::product(m_dimSizeHints) > 0 &&
-		Math::product(m_dimSizeHints) <= numSamples);
+		math::product(m_dimSizeHints) > 0 &&
+		math::product(m_dimSizeHints) <= numSamples);
 }
 
 }// end namespace ph
