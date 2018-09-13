@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
+#include "Common/assertion.h"
 
 namespace ph
 {
@@ -32,6 +33,8 @@ public:
 	// HACK
 	void setBackgroundEmitterPrimitive(const Primitive* primitive)
 	{
+		PH_ASSERT(primitive);
+
 		m_backgroundEmitterPrimitive = primitive;
 	}
 

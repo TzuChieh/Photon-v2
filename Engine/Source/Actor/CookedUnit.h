@@ -49,11 +49,13 @@ public:
 	{
 		return m_backgroundEmitterPrimitive;
 	}
-
-	// HACK
 	void setBackgroundEmitterPrimitive(const Primitive* primitive)
 	{
 		m_backgroundEmitterPrimitive = primitive;
+	}
+	const Primitive* getBackgroundEmitterPrimitive() const
+	{
+		return m_backgroundEmitterPrimitive;
 	}
 
 private:

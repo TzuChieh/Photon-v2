@@ -43,7 +43,9 @@ inline T& TFixedSizeStack<T, N>::get()
 template<typename T, std::size_t N>
 inline const T& TFixedSizeStack<T, N>::get() const
 {
-	PH_ASSERT(m_currentIndex < m_data.size());
+	PH_ASSERT_MSG(m_currentIndex < m_data.size(), "\n"
+		"m_currentIndex = " + std::to_string(m_currentIndex) + "\n"
+		"m_data.size()  = " + std::to_string(m_data.size()));
 
 	return m_data[m_currentIndex];
 }

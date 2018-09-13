@@ -140,10 +140,20 @@ CookedUnit ALight::buildGeometricLight(
 		cookedActor.addIntersectable(std::move(transformedPrimitive));
 	}
 
+	// HACK
+	const Primitive* firstPrimitive = primitives.front();
+
 	EmitterBuildingMaterial emitterBuildingMaterial;
 	emitterBuildingMaterial.primitives = primitives;
 	emitterBuildingMaterial.metadata   = metadata;
 	auto emitter = m_lightSource->genEmitter(context, std::move(emitterBuildingMaterial));
+
+	// HACK
+	if(emitter->isBackground())
+	{
+		cookedActor.setBackgroundEmitterPrimitive(firstPrimitive);
+	}
+
 	metadata->getSurface().setEmitter(emitter.get());
 	cookedActor.setEmitter(std::move(emitter));
 

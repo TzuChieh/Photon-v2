@@ -26,7 +26,9 @@ VisualWorld::VisualWorld() :
 
 	m_lightSampler(std::make_unique<UniformRandomLightSampler>()), 
 	m_scene(),
-	m_cameraPos(0)
+	m_cameraPos(0),
+
+	m_backgroundEmitterPrimitive(nullptr)
 {}
 
 VisualWorld::VisualWorld(VisualWorld&& other) :
@@ -35,7 +37,9 @@ VisualWorld::VisualWorld(VisualWorld&& other) :
 	m_intersector       (std::move(other.m_intersector)), 
 	m_lightSampler      (std::move(other.m_lightSampler)), 
 	m_scene             (std::move(other.m_scene)),
-	m_cameraPos         (std::move(other.m_cameraPos))
+	m_cameraPos         (std::move(other.m_cameraPos)),
+
+	m_backgroundEmitterPrimitive(std::move(other.m_backgroundEmitterPrimitive))
 {}
 
 void VisualWorld::addActor(std::shared_ptr<Actor> actor)
@@ -88,6 +92,13 @@ void VisualWorld::cook()
 		for(const auto& actor : childActors)
 		{
 			CookedUnit cookedUnit = actor->cook(cookingContext);
+
+			// HACK
+			if(cookedUnit.isBackgroundEmitter())
+			{
+				m_backgroundEmitterPrimitive = cookedUnit.getBackgroundEmitterPrimitive();
+			}
+
 			cookedUnit.claimCookedData(m_cookedActorStorage);
 			cookedUnit.claimCookedBackend(m_cookedBackendStorage);
 		}
@@ -109,6 +120,12 @@ void VisualWorld::cook()
 	m_lightSampler->update(m_cookedActorStorage);
 
 	m_scene = Scene(m_intersector.get(), m_lightSampler.get());
+
+	// HACK
+	if(m_backgroundEmitterPrimitive)
+	{
+		m_scene.setBackgroundEmitterPrimitive(m_backgroundEmitterPrimitive);
+	}
 }
 
 void VisualWorld::cookActors(CookingContext& cookingContext)
@@ -120,7 +137,7 @@ void VisualWorld::cookActors(CookingContext& cookingContext)
 		// HACK
 		if(cookedUnit.isBackgroundEmitter())
 		{
-
+			m_backgroundEmitterPrimitive = cookedUnit.getBackgroundEmitterPrimitive();
 		}
 
 		cookedUnit.claimCookedData(m_cookedActorStorage);

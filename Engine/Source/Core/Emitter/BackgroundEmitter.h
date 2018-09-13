@@ -47,6 +47,12 @@ public:
 
 	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const override;
 
+	// HACK
+	bool isBackground() const override
+	{
+		return true;
+	}
+
 private:
 	const Primitive*         m_surface;
 	RadianceTexture          m_radiance;

@@ -21,9 +21,17 @@ KdtreeIntersector::~KdtreeIntersector() = default;
 void KdtreeIntersector::update(const CookedDataStorage& cookedActors)
 {
 	std::vector<const Intersectable*> intersectables;
-	for(const auto& primitive : cookedActors.intersectables())
+	for(const auto& intersectable : cookedActors.intersectables())
 	{
-		intersectables.push_back(primitive.get());
+		// HACK
+		AABB3D aabb;
+		intersectable->calcAABB(&aabb);
+		if(aabb.isPoint())
+		{
+			continue;
+		}
+
+		intersectables.push_back(intersectable.get());
 	}
 
 	m_rootKdtreeNode.buildTree(intersectables);

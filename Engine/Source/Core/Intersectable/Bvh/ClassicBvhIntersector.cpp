@@ -21,6 +21,14 @@ void ClassicBvhIntersector::update(const CookedDataStorage& cookedActors)
 	std::vector<const Intersectable*> intersectables;
 	for(const auto& intersectable : cookedActors.intersectables())
 	{
+		// HACK
+		AABB3D aabb;
+		intersectable->calcAABB(&aabb);
+		if(aabb.isPoint())
+		{
+			continue;
+		}
+
 		intersectables.push_back(intersectable.get());
 	}
 

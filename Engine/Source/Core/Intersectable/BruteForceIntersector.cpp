@@ -20,6 +20,14 @@ void BruteForceIntersector::update(const CookedDataStorage& cookedActors)
 
 	for(const auto& intersectable : cookedActors.intersectables())
 	{
+		// HACK
+		AABB3D aabb;
+		intersectable->calcAABB(&aabb);
+		if(aabb.isPoint())
+		{
+			continue;
+		}
+
 		m_intersectables.push_back(intersectable.get());
 	}
 }

@@ -13,6 +13,7 @@ public:
 	explicit PEmpty(const PrimitiveMetadata* metadata);
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+	bool isIntersecting(const Ray& ray) const override;
 
 	void calcIntersectionDetail(
 		const Ray& ray, 
@@ -28,11 +29,6 @@ public:
 inline PEmpty::PEmpty(const PrimitiveMetadata* const metadata) : 
 	Primitive(metadata)
 {}
-
-inline bool PEmpty::isIntersecting(const Ray& /* ray */, HitProbe& /* probe */) const
-{
-	return false;
-}
 
 inline bool PEmpty::isIntersectingVolumeConservative(const AABB3D& volume) const
 {

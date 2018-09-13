@@ -26,18 +26,16 @@ Scene::Scene(const Intersector* intersector, const LightSampler* lightSampler) :
 
 bool Scene::isIntersecting(const Ray& ray, HitProbe* const out_probe) const
 {
-	PH_ASSERT(out_probe != nullptr);
+	PH_ASSERT(out_probe && m_backgroundEmitterPrimitive);
 
 	out_probe->clear();
 	if(m_intersector->isIntersecting(ray, *out_probe))
 	{
 		return true;
 	}
-	else if(m_backgroundEmitterPrimitive && 
-	        ray.getMaxT() >= std::numeric_limits<real>::max())
+	else if(m_backgroundEmitterPrimitive)
 	{
-		out_probe->pushBaseHit(m_backgroundEmitterPrimitive, ray.getMaxT());
-		return true;
+		return m_backgroundEmitterPrimitive->isIntersecting(ray, *out_probe);
 	}
 
 	return false;
@@ -45,16 +43,15 @@ bool Scene::isIntersecting(const Ray& ray, HitProbe* const out_probe) const
 
 bool Scene::isIntersecting(const Ray& ray) const
 {
-	PH_ASSERT(ray.getOrigin().isFinite() && ray.getDirection().isFinite());
+	PH_ASSERT(ray.getOrigin().isFinite() && ray.getDirection().isFinite() && m_backgroundEmitterPrimitive);
 
 	if(m_intersector->isIntersecting(ray))
 	{
 		return true;
 	}
-	else if(m_backgroundEmitterPrimitive &&
-	        ray.getMaxT() >= std::numeric_limits<real>::max())
+	else if(m_backgroundEmitterPrimitive)
 	{
-		return true;
+		return m_backgroundEmitterPrimitive->isIntersecting(ray);
 	}
 
 	return false;

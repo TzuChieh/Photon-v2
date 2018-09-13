@@ -44,6 +44,9 @@ private:
 	std::unique_ptr<Intersector>  m_intersector;
 	std::unique_ptr<LightSampler> m_lightSampler;
 	Scene                         m_scene;
+	
+	// HACK
+	const Primitive* m_backgroundEmitterPrimitive;
 
 	void cookActors(CookingContext& cookingContext);
 
