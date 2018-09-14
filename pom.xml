@@ -1,0 +1,88 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>photon</groupId>
+
+    <artifactId>EditorApplication</artifactId>
+
+    <version>0.0</version>
+
+    <build>
+
+    	<sourceDirectory>${project.basedir}/EditorApplication/Source/</sourceDirectory>
+    	<outputDirectory>${project.basedir}/build/target/classes</outputDirectory>
+    	<directory>${project.basedir}/build/target/</directory>
+
+		<plugins>
+
+			<plugin>
+			<!-- Build an executable JAR -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.1.0</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<mainClass>appGui.AppMain</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+
+            <plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>copy-resources-0</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.basedir}/build/target/Resource/</outputDirectory>
+							<resources>          
+								<resource>
+									<directory>${project.basedir}/Resource/</directory>
+								</resource>
+							</resources>              
+						</configuration>            
+					</execution>
+
+					<execution>
+						<id>copy-resources-1</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.basedir}/build/target/</outputDirectory>
+							<resources>          
+								<resource>
+									<directory>${project.basedir}/build/bin/</directory>
+									<includes>
+                                    	<include>Editor_JNI.dll</include>
+                                	</includes>
+								</resource>
+							</resources>              
+						</configuration>            
+					</execution>
+
+				</executions>
+			</plugin>
+
+        </plugins>
+	</build>
+
+	<properties>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<java.library.path>some/path</java.library.path>
+	</properties>
+
+</project>

@@ -60,6 +60,7 @@ ipch/
 .recommenders/
 .settings/
 .classpath
+.project
 
 # PyCharm Project Files
 .idea/
@@ -85,3 +86,4 @@ Resource/
 
 # ignore third-party libraries
 /ThirdParty/
+/target/
