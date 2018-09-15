@@ -50,13 +50,26 @@ int phExit()
 	return PH_TRUE;
 }
 
-void phCreateEngine(PHuint64* out_engineId, const PHuint32 numRenderThreads)
+void phCreateEngine(PHuint64* const out_engineId, const PHuint32 numRenderThreads)
 {
+	PH_ASSERT(out_engineId);
+
 	using namespace ph;
 
 	auto engine = std::make_unique<Engine>();
 	engine->setNumRenderThreads(static_cast<std::size_t>(numRenderThreads));
 	*out_engineId = static_cast<std::size_t>(ApiDatabase::addEngine(std::move(engine)));
+}
+
+void phSetNumRenderThreads(const PHuint64 engineId, const PHuint32 numRenderThreads)
+{
+	using namespace ph;
+
+	Engine* engine = ApiDatabase::getEngine(engineId);
+	if(engine)
+	{
+		engine->setNumRenderThreads(static_cast<uint32>(numRenderThreads));
+	}
 }
 
 void phDeleteEngine(const PHuint64 engineId)

@@ -8,6 +8,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -238,15 +240,7 @@
                                                                   <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                                </rowConstraints>
                                                                <children>
-                                                                  <Label text="Render" GridPane.rowIndex="4">
-                                                                     <font>
-                                                                        <Font name="Arial Bold" size="12.0" />
-                                                                     </font>
-                                                                     <GridPane.margin>
-                                                                        <Insets left="5.0" right="5.0" />
-                                                                     </GridPane.margin>
-                                                                  </Label>
-                                                                  <Label text="Scene Options">
+                                                                  <Label text="Settings">
                                                                      <font>
                                                                         <Font name="Arial Bold" size="12.0" />
                                                                      </font>
@@ -281,6 +275,16 @@
                                                                      </GridPane.margin>
                                                                   </Label>
                                                                   <CheckBox disable="true" mnemonicParsing="false" selected="true" text="Use Scene File Directory" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                                  <Label text="Number of Threads" GridPane.rowIndex="3">
+                                                                     <padding>
+                                                                        <Insets left="5.0" />
+                                                                     </padding>
+                                                                  </Label>
+                                                                  <Spinner fx:id="threadsSpinner" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                                                     <valueFactory>
+                                                                        <SpinnerValueFactory.IntegerSpinnerValueFactory max="131072" min="1" />
+                                                                     </valueFactory>
+                                                                 </Spinner>
                                                                </children>
                                                                <padding>
                                                                   <Insets left="10.0" right="10.0" />

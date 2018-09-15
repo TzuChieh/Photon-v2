@@ -32,6 +32,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Spinner;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
@@ -75,6 +76,7 @@ public class EditorCtrl
 	@FXML private Label        timeRemainingLabel;
     @FXML private Label        timeSpentLabel;
     @FXML private ChoiceBox<String>    attributeChoiceBox;
+    @FXML private Spinner<Integer> threadsSpinner;
     
     private AtomicInteger m_chosenAttribute;
     
@@ -387,5 +389,9 @@ public class EditorCtrl
 		}
 		
 		sceneFileTextField.setText(project.getRenderSetting().get(RenderSetting.SCENE_FILE_NAME));
+		
+		int numRenderThreads = Integer.parseInt(m_project.getRenderSetting().get(RenderSetting.NUM_RENDER_THREADS));
+    	threadsSpinner.getValueFactory().setValue(numRenderThreads);
+    	threadsSpinner.valueProperty().addListener((observable, oldValue, newValue) -> m_project.setNumRenderThreads(newValue));
 	}
 }

@@ -5,17 +5,18 @@ import java.io.FileReader;
 
 public final class PhEngine
 {
-	private int m_numRenderThreads;
-	
 	protected final long m_engineId;
+	
+	private int m_numRenderThreads;	
 	
 	public PhEngine(int numRenderThreads)
 	{
-		m_numRenderThreads = numRenderThreads;
-		
 		LongRef engineId = new LongRef();
 		Ph.phCreateEngine(engineId, numRenderThreads);
+		
 		m_engineId = engineId.m_value;
+		
+		m_numRenderThreads = numRenderThreads;
 	}
 	
 	public void enterCommand(String commandFragment)
@@ -125,9 +126,14 @@ public final class PhEngine
 	
 	public void setNumRenderThreads(int numRenderThreads)
 	{
-		m_numRenderThreads = numRenderThreads;
+		Ph.phSetNumRenderThreads(m_engineId, numRenderThreads);
 		
-		// TODO: set
+		m_numRenderThreads = numRenderThreads;
+	}
+	
+	public int getNumRenderThreads()
+	{
+		return m_numRenderThreads;
 	}
 	
 	@Override

@@ -87,13 +87,28 @@ public final class Project extends ManageableResource
 		};
 	}
 	
+	public void setNumRenderThreads(int numRenderThreads)
+	{
+		m_engine.setNumRenderThreads(numRenderThreads);
+	}
+	
 	@Override
 	protected void initResource()
 	{
-		m_engine         = new PhEngine(10);
+		m_engine         = new PhEngine(1);
 		m_finalFrame     = new PhFrame(0, 0);
 		m_transientFrame = new PhFrame(0, 0);
 		
+		m_renderSetting.addSettingListener((event) -> 
+		{
+			if(!event.settingName.equals(RenderSetting.NUM_RENDER_THREADS))
+			{
+				return;
+			}
+			
+			int numRenderThreads = Integer.parseInt(event.newSettingValue);
+			m_engine.setNumRenderThreads(numRenderThreads);
+		});
 		m_renderSetting.setToDefaults();
 	}
 

@@ -3,13 +3,21 @@
 #include "Frame/FrameProcessor.h"
 #include "Frame/Operator/JRToneMapping.h"
 #include "Core/Filmic/TSamplingFilm.h"
+#include "Common/Logger.h"
 
 namespace ph
 {
 
+namespace
+{
+	const Logger logger(LogSender("Engine"));
+}
+
 Engine::Engine() : 
-	m_renderer(nullptr), m_numRenderThreads(1)
-{}
+	m_renderer(nullptr)
+{
+	setNumRenderThreads(1);
+}
 
 void Engine::enterCommand(const std::string& commandFragment)
 {
@@ -59,6 +67,8 @@ TVector2<int64> Engine::getFilmDimensionPx() const
 void Engine::setNumRenderThreads(const uint32 numThreads)
 {
 	m_numRenderThreads = numThreads;
+
+	logger.log("number of render threads set to " + std::to_string(numThreads));
 }
 
 ERegionStatus Engine::asyncPollUpdatedRegion(Region* const out_region) const
