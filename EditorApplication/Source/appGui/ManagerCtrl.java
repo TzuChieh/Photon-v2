@@ -34,7 +34,7 @@ public class ManagerCtrl
 		});
     }
 	    
-    public void registerProject(String projectName)
+    public void addProject(String projectName)
     {
 		m_projectNames.add(projectName);
 		projectListView.getSelectionModel().select(projectName);

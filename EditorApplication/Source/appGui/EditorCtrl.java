@@ -60,9 +60,6 @@ public class EditorCtrl
 	private Project m_project;
     
     private WritableImage m_displayImage;
-    
-    private ProjectEventListener m_projectFinalFrameReadyListener;
-    private SettingListener      m_renderSettingListener;
 	
 	@FXML private VBox         projectOverviewVbox;
 	@FXML private TitledPane   projectOverviewPane;
@@ -99,21 +96,6 @@ public class EditorCtrl
 			}
 		});
     	updateMessageTextArea();
-    	
-    	m_projectFinalFrameReadyListener = (event) -> 
-    	{
-			clearFrame();
-			loadFinalFrame();
-			drawFrame();
-    	};
-    	
-    	m_renderSettingListener = (event) ->
-    	{
-    		if(event.settingName.equals(RenderSetting.SCENE_FILE_NAME))
-    		{
-    			sceneFileTextField.setText(event.newSettingValue);
-    		}
-    	};
     	
     	m_chosenAttribute = new AtomicInteger(Ph.ATTRIBUTE_LIGHT_ENERGY);
     	attributeChoiceBox.setItems(FXCollections.observableArrayList(
@@ -368,30 +350,38 @@ public class EditorCtrl
 //    	messageTextArea.setScrollTop(Double.MAX_VALUE);
 	}
 	
-	public void setProject(Project project)
+	public void associateWithProject(Project project)
 	{
-		if(m_project != null)
-		{
-			m_project.removeListener(m_projectFinalFrameReadyListener);
-			m_project.getRenderSetting().removeSettingListener(m_renderSettingListener);
-		}
+		assert(m_project == null);
 		
 		m_project = project;
 		
-		project.addListener(ProjectEventType.FINAL_FRAME_READY, m_projectFinalFrameReadyListener);
-		project.getRenderSetting().addSettingListener(m_renderSettingListener);
-	    
-		clearFrame();
+		project.addListener(ProjectEventType.FINAL_FRAME_READY, (event) -> 
+    	{
+			clearFrame();
+			loadFinalFrame();
+			drawFrame();
+    	});
+		
+		project.getRenderSetting().addSettingListener((event) ->
+    	{
+    		if(event.settingName.equals(RenderSetting.SCENE_FILE_NAME))
+    		{
+    			sceneFileTextField.setText(event.newSettingValue);
+    		}
+    	});
+		
+		int numRenderThreads = Integer.parseInt(project.getRenderSetting().get(RenderSetting.NUM_RENDER_THREADS));
+    	threadsSpinner.getValueFactory().setValue(numRenderThreads);
+    	threadsSpinner.valueProperty().addListener((observable, oldValue, newValue) -> project.setNumRenderThreads(newValue));
+    	
+    	sceneFileTextField.setText(project.getRenderSetting().get(RenderSetting.SCENE_FILE_NAME));
+    	
+    	clearFrame();
 		if(project.getLocalFinalFrame().isValid())
 		{
 			loadFinalFrame();
 			drawFrame();
 		}
-		
-		sceneFileTextField.setText(project.getRenderSetting().get(RenderSetting.SCENE_FILE_NAME));
-		
-		int numRenderThreads = Integer.parseInt(m_project.getRenderSetting().get(RenderSetting.NUM_RENDER_THREADS));
-    	threadsSpinner.getValueFactory().setValue(numRenderThreads);
-    	threadsSpinner.valueProperty().addListener((observable, oldValue, newValue) -> m_project.setNumRenderThreads(newValue));
 	}
 }

@@ -161,8 +161,8 @@ public class AppMainCtrl
     	
     	m_editorUIs.put(projectName, editorUI);
     	
-    	m_managerCtrl.registerProject(projectName);
-    	editorUI.getCtrl().setProject(project);
+    	m_managerCtrl.addProject(projectName);
+    	editorUI.getCtrl().associateWithProject(project);
     }
     
     public void setEditorApp(EditorApp editorApp)
