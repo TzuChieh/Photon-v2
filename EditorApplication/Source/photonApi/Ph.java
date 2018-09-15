@@ -1,7 +1,5 @@
 package photonApi;
 
-import java.nio.FloatBuffer;
-
 public final class Ph
 {
 	// Notice: Photon-v2 library functions should not be called from threads other than the main thread.

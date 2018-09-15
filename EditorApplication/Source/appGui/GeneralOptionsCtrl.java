@@ -2,10 +2,8 @@ package appGui;
 
 import appGui.util.FSBrowser;
 import appModel.GeneralOption;
-import appModel.project.RenderSetting;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
 import javafx.scene.input.MouseEvent;
 
 public class GeneralOptionsCtrl
