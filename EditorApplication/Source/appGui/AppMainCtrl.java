@@ -30,10 +30,10 @@ import javafx.stage.Stage;
 
 public class AppMainCtrl
 {
-	private static final String MANAGER_FXML_FILENAME         = "Manager.fxml";
-	private static final String EDITOR_FXML_FILENAME          = "Editor.fxml";
-	private static final String GENERAL_OPTIONS_FXML_FILENAME = "GeneralOptions.fxml";
-	private static final String ABOUT_FXML_FILENAME           = "About.fxml";
+	private static final String MANAGER_FXML_FILENAME         = "/fxmls/Manager.fxml";
+	private static final String EDITOR_FXML_FILENAME          = "/fxmls/Editor.fxml";
+	private static final String GENERAL_OPTIONS_FXML_FILENAME = "/fxmls/GeneralOptions.fxml";
+	private static final String ABOUT_FXML_FILENAME           = "/fxmls/About.fxml";
 	
 	private EditorApp             m_editorApp;
     private int                   m_projectId;

@@ -51,25 +51,7 @@ public final class GeneralOption extends SettingGroup
 	
 	private String getDefaultSceneAbsPath()
 	{
-		String defaultScenePath = "/internalRes/default_scene.p2";
-		URL    defaultSceneUrl  = this.getClass().getResource(defaultScenePath);
-		try
-		{
-			File file = new File(defaultSceneUrl.toURI());
-			defaultScenePath = file.getCanonicalPath();
-			
-			// this code should be okay, but gives a leading "/" which is weird 
-//			defaultScenePath = defaultSceneUrl.getPath();
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			System.err.println("couldn't locate default scene file");
-			
-			defaultScenePath = "";
-		}
-		
-		return defaultScenePath;
+		return FSUtil.getResourcePath() + "scenes/default_scene.p2";
 	}
 	
 	private String getStoredP2CfgAbsPath()

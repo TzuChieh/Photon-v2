@@ -60,7 +60,7 @@ public class AppMain extends Application
 //		System.setOut(new PrintStream(consoleOutputStream, true));
 //		System.setErr(new PrintStream(consoleOutputStream, true));
 		
-		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("AppMain.fxml"));
+		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxmls/AppMain.fxml"));
 		
 		Parent      appMainView = fxmlLoader.load();
 		AppMainCtrl appMainCtrl = fxmlLoader.getController();
