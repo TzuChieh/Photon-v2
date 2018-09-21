@@ -3,7 +3,7 @@
 #include "FileIO/SDL/ValueParser.h"
 #include "FileIO/SDL/Keyword.h"
 #include "FileIO/SDL/InputPrototype.h"
-#include "FileIO/DescriptionParser.h"
+#include "FileIO/SDL/SdlParser.h"
 #include "FileIO/SDL/SdlResourceIdentifier.h"
 
 #include <iostream>
@@ -198,7 +198,7 @@ void InputPacket::reportDataNotFound(const std::string& typeName, const std::str
 
 std::string InputPacket::getCoreDataName()
 {
-	return DescriptionParser::CORE_DATA_NAME();
+	return SdlParser::CORE_DATA_NAME();
 }
 
 Path InputPacket::sdlResourceIdentifierToPath(const std::string& sdlResourceIdentifier) const

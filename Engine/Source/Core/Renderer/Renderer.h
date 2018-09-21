@@ -25,7 +25,7 @@
 namespace ph
 {
 
-class Description;
+class SdlResourcePack;
 class InputPacket;
 class RenderWorker;
 
@@ -35,7 +35,7 @@ public:
 	virtual ~Renderer() = 0;
 
 	virtual AttributeTags supportedAttributes() const = 0;
-	virtual void init(const Description& description) = 0;
+	virtual void init(const SdlResourcePack& data) = 0;
 	virtual bool asyncSupplyWork(RenderWorker& worker) = 0;
 	virtual void asyncSubmitWork(RenderWorker& worker) = 0;
 	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) = 0;
@@ -51,7 +51,7 @@ public:
 		EAttribute    attribute) = 0;
 
 
-	void render(const Description& description);
+	void render(const SdlResourcePack& description);
 	void setNumRenderThreads(uint32 numThreads);
 	void asyncQueryStatistics(float32* out_percentageProgress, 
 	                          float32* out_samplesPerSecond);

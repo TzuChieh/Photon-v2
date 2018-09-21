@@ -24,7 +24,7 @@ public:
 	~SamplingRenderer() override;
 
 	AttributeTags supportedAttributes() const override;
-	void init(const Description& description) override;
+	void init(const SdlResourcePack& data) override;
 	bool asyncSupplyWork(RenderWorker& worker) override;
 	void asyncSubmitWork(RenderWorker& worker) override;
 	ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;

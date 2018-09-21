@@ -2,8 +2,8 @@
 
 #include "World/VisualWorld.h"
 #include "Core/Renderer/Renderer.h"
-#include "FileIO/DescriptionParser.h"
-#include "FileIO/Description.h"
+#include "FileIO/SDL/SdlParser.h"
+#include "FileIO/SDL/SdlResourcePack.h"
 #include "Math/TVector2.h"
 #include "Core/Renderer/Renderer.h"
 #include "Core/Renderer/ERegionStatus.h"
@@ -51,8 +51,8 @@ public:
 	void setWorkingDirectory(const Path& path);
 
 private:
-	DescriptionParser m_parser;
-	Description m_description;
+	SdlParser       m_parser;
+	SdlResourcePack m_data;
 	std::shared_ptr<Renderer> m_renderer;
 	uint32 m_numRenderThreads;
 

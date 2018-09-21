@@ -1,5 +1,5 @@
-#include "FileIO/Description.h"
-#include "FileIO/DescriptionParser.h"
+#include "FileIO/SDL/SdlResourcePack.h"
+#include "FileIO/SDL/SdlParser.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Filmic/TSamplingFilm.h"
 
@@ -8,16 +8,16 @@
 namespace ph
 {
 
-Description::Description() :
+SdlResourcePack::SdlResourcePack() :
 	visualWorld(), renderOption(), 
 	m_camera(nullptr), 
 	m_sampleGenerator(nullptr),
 	m_renderer(nullptr)
 {}
 
-void Description::update(const real deltaS)
+void SdlResourcePack::update(const real deltaS)
 {
-	const std::string& resourceName = DescriptionParser::CORE_DATA_NAME();
+	const std::string& resourceName = SdlParser::CORE_DATA_NAME();
 
 	m_camera          = resources.getResource<Camera>         (resourceName, DataTreatment::REQUIRED());
 	m_sampleGenerator = resources.getResource<SampleGenerator>(resourceName, DataTreatment::REQUIRED());
