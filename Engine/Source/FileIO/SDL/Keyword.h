@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include <string_view>
 
 namespace ph
 {
@@ -9,21 +9,21 @@ class Keyword final
 {
 public:
 	// value types
-	static const std::string TYPENAME_STRING;
-	static const std::string TYPENAME_INTEGER;
-	static const std::string TYPENAME_REAL;
-	static const std::string TYPENAME_VECTOR3R;
-	static const std::string TYPENAME_QUATERNIONR;
-	static const std::string TYPENAME_REAL_ARRAY;
-	static const std::string TYPENAME_VECTOR3R_ARRAY;
+	constexpr static std::string_view TYPENAME_STRING         = "string";
+	constexpr static std::string_view TYPENAME_INTEGER        = "integer";
+	constexpr static std::string_view TYPENAME_REAL           = "real";
+	constexpr static std::string_view TYPENAME_VECTOR3R       = "vector3r";
+	constexpr static std::string_view TYPENAME_QUATERNIONR    = "quaternionR";
+	constexpr static std::string_view TYPENAME_REAL_ARRAY     = "real-array";
+	constexpr static std::string_view TYPENAME_VECTOR3R_ARRAY = "vector3r-array";
 
 	// reference types
-	static const std::string TYPENAME_GEOMETRY;
-	static const std::string TYPENAME_TEXTURE;
-	static const std::string TYPENAME_MATERIAL;
-	static const std::string TYPENAME_LIGHTSOURCE;
-	static const std::string TYPENAME_ACTOR_MODEL;
-	static const std::string TYPENAME_ACTOR_LIGHT;
+	constexpr static std::string_view TYPENAME_GEOMETRY    = "geometry";
+	constexpr static std::string_view TYPENAME_TEXTURE     = "texture";
+	constexpr static std::string_view TYPENAME_MATERIAL    = "material";
+	constexpr static std::string_view TYPENAME_LIGHTSOURCE = "light-source";
+	constexpr static std::string_view TYPENAME_ACTOR_MODEL = "actor-model";
+	constexpr static std::string_view TYPENAME_ACTOR_LIGHT = "actor-light";
 };
 
 }// end namespace ph

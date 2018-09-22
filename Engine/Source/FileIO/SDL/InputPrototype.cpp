@@ -44,7 +44,7 @@ std::string InputPrototype::toString() const
 	std::string result;
 	for(const auto& typeNamePair : typeNamePairs)
 	{
-		const std::string& typeString = typeNamePair.first;
+		const std::string& typeString = std::string(typeNamePair.first);
 		const std::string& nameString = typeNamePair.second;
 		result += " [" + typeString + " " + nameString + " <value>] ";
 	}

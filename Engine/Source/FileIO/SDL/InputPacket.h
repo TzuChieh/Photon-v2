@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <string_view>
 
 namespace ph
 {
@@ -107,11 +108,11 @@ private:
 	const Path                        m_workingDirectory;
 	const ValueParser                 m_valueParser;
 
-	bool findStringValue(const std::string& typeName, const std::string& dataName, const DataTreatment& treatment,
+	bool findStringValue(std::string_view typeName, const std::string& dataName, const DataTreatment& treatment,
 	                     std::string* const out_value) const;
 	Path sdlResourceIdentifierToPath(const std::string& sdlResourceIdentifier) const;
 
-	static void reportDataNotFound(const std::string& typeName, const std::string& name, const DataTreatment& treatment);
+	static void reportDataNotFound(std::string_view typeName, const std::string& name, const DataTreatment& treatment);
 	static std::string getCoreDataName();
 };
 
