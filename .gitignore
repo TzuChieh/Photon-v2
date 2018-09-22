@@ -87,3 +87,8 @@ Resource/
 # ignore third-party libraries
 /ThirdParty/
 /target/
+
+# HACKING REGION
+
+# avoiding Eclipse generated src folder in root directory (Maven project)
+/src/

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "FileIO/SDL/CommandEntry.h"
-#include "FileIO/DescriptionParser.h"
+#include "FileIO/SDL/SdlParser.h"
 #include "FileIO/SDL/SdlTypeInfo.h"
 #include "FileIO/SDL/ISdlResource.h"
 #include "FileIO/SDL/ExitStatus.h"
@@ -51,7 +51,7 @@ void TCommandInterface<DerivedType>::registerInterface()
 	CommandRegister cmdRegister(cmdEntry);
 	registerFunc(cmdRegister);
 
-	if(!DescriptionParser::addCommandEntry(cmdEntry))
+	if(!SdlParser::addCommandEntry(cmdEntry))
 	{
 		std::cerr << "warning: at TCommandInterface<DerivedType>::registerInterface(), " 
 		          << "command registering failed for <" 

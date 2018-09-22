@@ -6,7 +6,7 @@
 #include "Core/Ray.h"
 #include "Math/constant.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "FileIO/Description.h"
+#include "FileIO/SDL/SdlResourcePack.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/RenderWork.h"
 #include "Core/Renderer/RenderWorker.h"
@@ -37,15 +37,15 @@ AttributeTags SamplingRenderer::supportedAttributes() const
 	return m_estimator->supportedAttributes();
 }
 
-void SamplingRenderer::init(const Description& description)
+void SamplingRenderer::init(const SdlResourcePack& data)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 	clearWorkData();
 
-	m_scene  = &description.visualWorld.getScene();
-	m_camera = description.getCamera().get();
-	m_sg     = description.getSampleGenerator().get();
+	m_scene  = &data.visualWorld.getScene();
+	m_camera = data.getCamera().get();
+	m_sg     = data.getSampleGenerator().get();
 
 	m_estimator->update(*m_scene);
 

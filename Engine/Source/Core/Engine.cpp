@@ -21,13 +21,13 @@ Engine::Engine() :
 
 void Engine::enterCommand(const std::string& commandFragment)
 {
-	m_parser.enter(commandFragment, m_description);
+	m_parser.enter(commandFragment, m_data);
 }
 
 void Engine::update()
 {
 	// HACK
-	m_description.update(0.0_r);
+	m_data.update(0.0_r);
 
 	// HACK
 	std::shared_ptr<FrameProcessor> processor = std::make_shared<FrameProcessor>();
@@ -35,14 +35,14 @@ void Engine::update()
 	m_filmSet.setProcessor(EAttribute::LIGHT_ENERGY, processor);
 	m_filmSet.setProcessor(EAttribute::NORMAL, processor);
 
-	m_renderer = m_description.getRenderer();
+	m_renderer = m_data.getRenderer();
 	m_renderer->setNumRenderThreads(m_numRenderThreads);
 }
 
 void Engine::render()
 {
 	// HACK
-	m_renderer->render(m_description);
+	m_renderer->render(m_data);
 }
 
 void Engine::developFilm(

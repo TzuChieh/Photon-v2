@@ -280,7 +280,7 @@
                                                                         <Insets left="5.0" />
                                                                      </padding>
                                                                   </Label>
-                                                                  <Spinner fx:id="threadsSpinner" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                                                  <Spinner fx:id="threadsSpinner" editable="true" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                                                      <valueFactory>
                                                                         <SpinnerValueFactory.IntegerSpinnerValueFactory max="131072" min="1" />
                                                                      </valueFactory>

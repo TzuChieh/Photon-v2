@@ -17,7 +17,7 @@
 namespace ph
 {
 
-class Description final
+class SdlResourcePack final
 {
 public:
 	RenderOption         renderOption;
@@ -25,7 +25,7 @@ public:
 
 	VisualWorld visualWorld;
 
-	Description();
+	SdlResourcePack();
 
 	void update(real deltaS);
 
