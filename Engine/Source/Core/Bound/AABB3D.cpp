@@ -18,7 +18,7 @@ AABB3D::AABB3D() :
 {}
 
 AABB3D::AABB3D(const Vector3R& point) :
-	AABB3D(point)
+	AABB3D(point, point)
 {}
 
 AABB3D::AABB3D(const Vector3R& minVertex, const Vector3R& maxVertex) :
