@@ -26,7 +26,7 @@ void OmniModulatedEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStre
 	const Vector3R& emitDirection = X.getIncidentRay().getDirection().mul(-1);
 
 	Vector3R uv;
-	m_dirToUv.map(emitDirection, &uv);
+	m_dirToUv.directionToUvw(emitDirection, &uv);
 
 	const auto& filterValue = TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_filter, uv);
 	out_radiance->mulLocal(filterValue);
@@ -43,7 +43,7 @@ void OmniModulatedEmitter::genDirectSample(DirectLightSample& sample) const
 	const Vector3R& emitDirection = sample.targetPos.sub(sample.emitPos);
 
 	Vector3R uv;
-	m_dirToUv.map(emitDirection, &uv);
+	m_dirToUv.directionToUvw(emitDirection, &uv);
 
 	const auto& filterValue = TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_filter, uv);
 	sample.radianceLe.mulLocal(filterValue);

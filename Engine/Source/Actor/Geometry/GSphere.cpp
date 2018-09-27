@@ -178,13 +178,13 @@ std::shared_ptr<GTriangleMesh> GSphere::genTriangleMesh() const
 
 		Vector3R mappedUVW;
 
-		m_uvwMapper->map(vA, &mappedUVW);
+		m_uvwMapper->positionToUvw(vA, &mappedUVW);
 		triangle.setUVWa(mappedUVW);
 
-		m_uvwMapper->map(vB, &mappedUVW);
+		m_uvwMapper->positionToUvw(vB, &mappedUVW);
 		triangle.setUVWb(mappedUVW);
 
-		m_uvwMapper->map(vC, &mappedUVW);
+		m_uvwMapper->positionToUvw(vC, &mappedUVW);
 		triangle.setUVWc(mappedUVW);
 
 		triangleMesh->addTriangle(triangle);

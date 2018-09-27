@@ -55,7 +55,7 @@ void PInfiniteSphere::calcIntersectionDetail(
 	const Vector3R hitNormal = ray.getDirection();
 
 	Vector3R uvw;
-	SphericalMapper().map(ray.getDirection(), &uvw);
+	SphericalMapper().directionToUvw(ray.getDirection(), &uvw);
 
 	out_detail->setMisc(this, uvw, probe.getHitRayT());
 	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(hitPos, hitNormal, hitNormal);

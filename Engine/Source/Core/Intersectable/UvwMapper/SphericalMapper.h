@@ -5,12 +5,10 @@
 namespace ph
 {
 
-class SphericalMapper final : public UvwMapper
+class SphericalMapper : public UvwMapper
 {
 public:
-	virtual ~SphericalMapper() override;
-
-	virtual void map(const Vector3R& vector, Vector3R* out_uvw) const override;
+	void positionToUvw(const Vector3R& position, Vector3R* out_uvw) const override;
 };
 
 }// end namespace ph

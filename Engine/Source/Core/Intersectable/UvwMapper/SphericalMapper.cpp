@@ -10,17 +10,15 @@
 namespace ph
 {
 
-SphericalMapper::~SphericalMapper() = default;
-
-void SphericalMapper::map(const Vector3R& vector, Vector3R* const out_uvw) const
+void SphericalMapper::positionToUvw(const Vector3R& position, Vector3R* const out_uvw) const
 {
-	if(vector.lengthSquared() < 1e-8)
+	if(position.lengthSquared() < 1e-8)
 	{
 		out_uvw->set(0, 0, 0);
 		return;
 	}
 
-	const Vector3R& unitVector = vector.normalize();
+	const Vector3R& unitVector = position.normalize();
 
 	const real cosTheta = math::clamp(unitVector.y, -1.0_r, 1.0_r);
 
