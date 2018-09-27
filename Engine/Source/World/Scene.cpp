@@ -26,7 +26,7 @@ Scene::Scene(const Intersector* intersector, const LightSampler* lightSampler) :
 
 bool Scene::isIntersecting(const Ray& ray, HitProbe* const out_probe) const
 {
-	PH_ASSERT(out_probe && m_backgroundEmitterPrimitive);
+	PH_ASSERT(out_probe);
 
 	out_probe->clear();
 	if(m_intersector->isIntersecting(ray, *out_probe))
@@ -43,7 +43,7 @@ bool Scene::isIntersecting(const Ray& ray, HitProbe* const out_probe) const
 
 bool Scene::isIntersecting(const Ray& ray) const
 {
-	PH_ASSERT(ray.getOrigin().isFinite() && ray.getDirection().isFinite() && m_backgroundEmitterPrimitive);
+	PH_ASSERT(ray.getOrigin().isFinite() && ray.getDirection().isFinite());
 
 	if(m_intersector->isIntersecting(ray))
 	{

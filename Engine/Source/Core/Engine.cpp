@@ -3,23 +3,31 @@
 #include "Frame/FrameProcessor.h"
 #include "Frame/Operator/JRToneMapping.h"
 #include "Core/Filmic/TSamplingFilm.h"
+#include "Common/Logger.h"
 
 namespace ph
 {
 
+namespace
+{
+	const Logger logger(LogSender("Engine"));
+}
+
 Engine::Engine() : 
-	m_renderer(nullptr), m_numRenderThreads(1)
-{}
+	m_renderer(nullptr)
+{
+	setNumRenderThreads(1);
+}
 
 void Engine::enterCommand(const std::string& commandFragment)
 {
-	m_parser.enter(commandFragment, m_description);
+	m_parser.enter(commandFragment, m_data);
 }
 
 void Engine::update()
 {
 	// HACK
-	m_description.update(0.0_r);
+	m_data.update(0.0_r);
 
 	// HACK
 	std::shared_ptr<FrameProcessor> processor = std::make_shared<FrameProcessor>();
@@ -27,14 +35,14 @@ void Engine::update()
 	m_filmSet.setProcessor(EAttribute::LIGHT_ENERGY, processor);
 	m_filmSet.setProcessor(EAttribute::NORMAL, processor);
 
-	m_renderer = m_description.getRenderer();
+	m_renderer = m_data.getRenderer();
 	m_renderer->setNumRenderThreads(m_numRenderThreads);
 }
 
 void Engine::render()
 {
 	// HACK
-	m_renderer->render(m_description);
+	m_renderer->render(m_data);
 }
 
 void Engine::developFilm(
@@ -59,6 +67,8 @@ TVector2<int64> Engine::getFilmDimensionPx() const
 void Engine::setNumRenderThreads(const uint32 numThreads)
 {
 	m_numRenderThreads = numThreads;
+
+	logger.log("number of render threads set to " + std::to_string(numThreads));
 }
 
 ERegionStatus Engine::asyncPollUpdatedRegion(Region* const out_region) const

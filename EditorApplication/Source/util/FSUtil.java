@@ -1,6 +1,8 @@
 package util;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 public final class FSUtil
 {
@@ -12,5 +14,21 @@ public final class FSUtil
 		}
 		
 		return path; 
+	}
+	
+	public static String getResourcePath()
+	{
+		URL location = FSUtil.class.getProtectionDomain().getCodeSource().getLocation();
+		
+		try
+		{
+			return toSeparatorEnded(new File(location.toURI()).getPath().toString());
+		}
+		catch(URISyntaxException e)
+		{
+			e.printStackTrace();
+		}
+		
+		return "";
 	}
 }

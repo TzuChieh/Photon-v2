@@ -3,6 +3,7 @@
 #include <vector>
 #include <utility>
 #include <string>
+#include <string_view>
 
 namespace ph
 {
@@ -10,7 +11,7 @@ namespace ph
 class InputPrototype final
 {
 public:
-	std::vector<std::pair<std::string, std::string>> typeNamePairs;
+	std::vector<std::pair<std::string_view, std::string>> typeNamePairs;
 
 	void addInteger(const std::string& name);
 	void addReal(const std::string& name);

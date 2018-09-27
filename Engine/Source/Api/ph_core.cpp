@@ -1,8 +1,6 @@
 #include "ph_core.h"
 #include "Api/ApiDatabase.h"
 #include "Core/Engine.h"
-#include "FileIO/Description.h"
-#include "FileIO/DescriptionParser.h"
 #include "Core/Camera/Camera.h"
 #include "Api/test_scene.h"
 #include "Frame/TFrame.h"
@@ -50,13 +48,26 @@ int phExit()
 	return PH_TRUE;
 }
 
-void phCreateEngine(PHuint64* out_engineId, const PHuint32 numRenderThreads)
+void phCreateEngine(PHuint64* const out_engineId, const PHuint32 numRenderThreads)
 {
+	PH_ASSERT(out_engineId);
+
 	using namespace ph;
 
 	auto engine = std::make_unique<Engine>();
 	engine->setNumRenderThreads(static_cast<std::size_t>(numRenderThreads));
 	*out_engineId = static_cast<std::size_t>(ApiDatabase::addEngine(std::move(engine)));
+}
+
+void phSetNumRenderThreads(const PHuint64 engineId, const PHuint32 numRenderThreads)
+{
+	using namespace ph;
+
+	Engine* engine = ApiDatabase::getEngine(engineId);
+	if(engine)
+	{
+		engine->setNumRenderThreads(static_cast<uint32>(numRenderThreads));
+	}
 }
 
 void phDeleteEngine(const PHuint64 engineId)

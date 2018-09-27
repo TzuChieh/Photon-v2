@@ -67,14 +67,15 @@ Support the Project:
   * render a short CG film using Photon
 
 ## Build
-Photon uses CMake as its build system. The built binaries will be in a folder named "bin". The compilers and toolkits you need is as follows:
+Photon uses CMake as its main build system. The built binaries will be in a folder named "bin". The compilers and toolkits you need is as follows:
 
 * C++17 compliant compiler for Engine, Application, and JNI.
-* JDK 1.8+ for EditorApplication.
+* JDK 1.8+ and Maven for EditorApplication.
 * Python 3.5.2+ for BlenderAddon.
 
-Photon is being developed with cross-platformity in mind, but Windows is the only platform that has been tested, for now. <br />
+Good news is that Photon depends on 2 third-party libraries only, and we have [precompiled binaries](https://github.com/TzuChieh/Photon-v2-ThirdParty) for them (git clone into the build folder of your choice). You will also need to [download](https://drive.google.com/file/d/1ucr1ESGtJadkqoe2igbhje5QEeM2FgUE/view?usp=sharing) a data folder used by Photon (simply extract it in the project's root folder, replacing the existing "./Resource/" folder).
 
+Photon is being developed with cross-platformity in mind, but Windows is the only platform that has been tested, for now. <br />
 (build instructions will be added soon...) <br />
 
 ## Images Rendered by Photon-v2

@@ -3,7 +3,7 @@
 #include "FileIO/SDL/ValueParser.h"
 #include "FileIO/SDL/Keyword.h"
 #include "FileIO/SDL/InputPrototype.h"
-#include "FileIO/DescriptionParser.h"
+#include "FileIO/SDL/SdlParser.h"
 #include "FileIO/SDL/SdlResourceIdentifier.h"
 
 #include <iostream>
@@ -136,8 +136,8 @@ bool InputPacket::isPrototypeMatched(const InputPrototype& prototype) const
 {
 	for(const auto& typeNamePair : prototype.typeNamePairs)
 	{
-		const std::string& typeString = typeNamePair.first;
-		const std::string& nameString = typeNamePair.second;
+		const std::string_view& typeString = typeNamePair.first;
+		const std::string&      nameString = typeNamePair.second;
 		if(!findStringValue(typeString, nameString, DataTreatment(), nullptr))
 		{
 			return false;
@@ -147,8 +147,9 @@ bool InputPacket::isPrototypeMatched(const InputPrototype& prototype) const
 	return true;
 }
 
-bool InputPacket::findStringValue(const std::string& typeName, const std::string& dataName, const DataTreatment& treatment,
-                                  std::string* const out_value) const
+bool InputPacket::findStringValue(
+	const std::string_view typeName, const std::string& dataName, const DataTreatment& treatment,
+	std::string* const out_value) const
 {
 	if(out_value)
 	{
@@ -172,7 +173,7 @@ bool InputPacket::findStringValue(const std::string& typeName, const std::string
 	return false;
 }
 
-void InputPacket::reportDataNotFound(const std::string& typeName, const std::string& dataName, const DataTreatment& treatment)
+void InputPacket::reportDataNotFound(const std::string_view typeName, const std::string& dataName, const DataTreatment& treatment)
 {
 	const std::string& message = treatment.notFoundInfo;
 
@@ -198,7 +199,7 @@ void InputPacket::reportDataNotFound(const std::string& typeName, const std::str
 
 std::string InputPacket::getCoreDataName()
 {
-	return DescriptionParser::CORE_DATA_NAME();
+	return SdlParser::CORE_DATA_NAME();
 }
 
 Path InputPacket::sdlResourceIdentifierToPath(const std::string& sdlResourceIdentifier) const

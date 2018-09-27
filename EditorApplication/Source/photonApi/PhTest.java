@@ -1,7 +1,5 @@
 package photonApi;
 
-import static photonApi.Ph.*;
-
 public class PhTest
 {
 	public PhTest() 

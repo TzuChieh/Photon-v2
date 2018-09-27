@@ -2,24 +2,30 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-    <groupId>photon</groupId>
+	<groupId>photon</groupId>
 
-    <artifactId>EditorApplication</artifactId>
+	<artifactId>EditorApplication</artifactId>
 
-    <version>0.0</version>
+	<version>0.0</version>
 
-    <build>
+	<build>
 
-    	<sourceDirectory>${project.basedir}/EditorApplication/Source/</sourceDirectory>
-    	<outputDirectory>${project.basedir}/build/target/classes</outputDirectory>
-    	<directory>${project.basedir}/build/target/</directory>
+		<sourceDirectory>${project.basedir}/EditorApplication/Source/</sourceDirectory>
+		<outputDirectory>${project.basedir}/build/target/classes</outputDirectory>
+		<directory>${project.basedir}/build/target/</directory>
+
+		<resources>
+			<resource>
+				<directory>${project.basedir}/EditorApplication/GuiResource/</directory>
+			</resource>
+		</resources>
 
 		<plugins>
 
 			<plugin>
-			<!-- Build an executable JAR -->
+				<!-- Build an executable JAR -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>3.1.0</version>
@@ -34,7 +40,7 @@
 				</configuration>
 			</plugin>
 
-            <plugin>
+			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>3.1.0</version>
 				<executions>
@@ -46,12 +52,12 @@
 						</goals>
 						<configuration>
 							<outputDirectory>${project.basedir}/build/target/Resource/</outputDirectory>
-							<resources>          
+							<resources>
 								<resource>
 									<directory>${project.basedir}/Resource/</directory>
 								</resource>
-							</resources>              
-						</configuration>            
+							</resources>
+						</configuration>
 					</execution>
 
 					<execution>
@@ -62,27 +68,26 @@
 						</goals>
 						<configuration>
 							<outputDirectory>${project.basedir}/build/target/</outputDirectory>
-							<resources>          
+							<resources>
 								<resource>
 									<directory>${project.basedir}/build/bin/</directory>
 									<includes>
-                                    	<include>Editor_JNI.dll</include>
-                                	</includes>
+										<include>Editor_JNI.dll</include>
+									</includes>
 								</resource>
-							</resources>              
-						</configuration>            
+							</resources>
+						</configuration>
 					</execution>
 
 				</executions>
 			</plugin>
 
-        </plugins>
+		</plugins>
 	</build>
 
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<java.library.path>some/path</java.library.path>
 	</properties>
 
 </project>

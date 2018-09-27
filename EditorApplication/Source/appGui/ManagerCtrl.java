@@ -4,11 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 
 public class ManagerCtrl
 {
@@ -34,7 +30,7 @@ public class ManagerCtrl
 		});
     }
 	    
-    public void registerProject(String projectName)
+    public void addProject(String projectName)
     {
 		m_projectNames.add(projectName);
 		projectListView.getSelectionModel().select(projectName);

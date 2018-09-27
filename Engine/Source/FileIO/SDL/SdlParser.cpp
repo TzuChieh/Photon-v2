@@ -1,5 +1,5 @@
-#include "FileIO/DescriptionParser.h"
-#include "FileIO/Description.h"
+#include "FileIO/SDL/SdlParser.h"
+#include "FileIO/SDL/SdlResourcePack.h"
 #include "FileIO/RenderOption.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "FileIO/SDL/CommandEntry.h"
@@ -11,12 +11,12 @@
 namespace ph
 {
 
-std::string DescriptionParser::CORE_DATA_NAME()
+std::string SdlParser::CORE_DATA_NAME()
 {
 	return "@__sdl_core_name";
 }
 
-bool DescriptionParser::addCommandEntry(const CommandEntry& entry)
+bool SdlParser::addCommandEntry(const CommandEntry& entry)
 {
 	if(!entry.typeInfo().isValid())
 	{
@@ -40,7 +40,7 @@ bool DescriptionParser::addCommandEntry(const CommandEntry& entry)
 	return true;
 }
 
-CommandEntry DescriptionParser::getCommandEntry(const SdlTypeInfo& typeInfo)
+CommandEntry SdlParser::getCommandEntry(const SdlTypeInfo& typeInfo)
 {
 	const std::string& fullTypeName = getFullTypeName(typeInfo);
 	const auto&        iter         = NAMED_INTERFACE_MAP().find(fullTypeName);
@@ -55,13 +55,13 @@ CommandEntry DescriptionParser::getCommandEntry(const SdlTypeInfo& typeInfo)
 	return NAMED_INTERFACE_MAP()[fullTypeName];
 }
 
-std::unordered_map<std::string, CommandEntry>& DescriptionParser::NAMED_INTERFACE_MAP()
+std::unordered_map<std::string, CommandEntry>& SdlParser::NAMED_INTERFACE_MAP()
 {
 	static std::unordered_map<std::string, CommandEntry> namedInterfaceMap;
 	return namedInterfaceMap;
 }
 
-DescriptionParser::DescriptionParser() : 
+SdlParser::SdlParser() :
 	m_commandCache(), 
 	m_coreCommandTokenizer ({' ', '\t', '\n', '\r'}, {{'(',  ')'}, {'[', ']'}}),
 	m_worldCommandTokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}, {'[', ']'}, {'(', ')'}}), 
@@ -70,7 +70,7 @@ DescriptionParser::DescriptionParser() :
 	m_workingDirectory()
 {}
 
-void DescriptionParser::enter(const std::string& commandFragment, Description& out_data)
+void SdlParser::enter(const std::string& commandFragment, SdlResourcePack& out_data)
 {
 	if(getCommandType(commandFragment) != ECommandType::UNKNOWN)
 	{
@@ -82,7 +82,7 @@ void DescriptionParser::enter(const std::string& commandFragment, Description& o
 	m_commandCache += commandFragment;
 }
 
-void DescriptionParser::parseCommand(const std::string& command, Description& out_data)
+void SdlParser::parseCommand(const std::string& command, SdlResourcePack& out_data)
 {
 	if(command.empty())
 	{
@@ -110,7 +110,7 @@ void DescriptionParser::parseCommand(const std::string& command, Description& ou
 	}
 }
 
-void DescriptionParser::parseCoreCommand(const std::string& command, Description& out_data)
+void SdlParser::parseCoreCommand(const std::string& command, SdlResourcePack& out_data)
 {
 	auto& resources = out_data.resources;
 
@@ -141,7 +141,7 @@ void DescriptionParser::parseCoreCommand(const std::string& command, Description
 	out_data.resources.addResource(typeInfo, CORE_DATA_NAME(), std::move(loadedResource));
 }
 
-void DescriptionParser::parseWorldCommand(const std::string& command, Description& out_data)
+void SdlParser::parseWorldCommand(const std::string& command, SdlResourcePack& out_data)
 {
 	std::vector<std::string> tokens;
 	m_worldCommandTokenizer.tokenize(command, tokens);
@@ -235,12 +235,12 @@ void DescriptionParser::parseWorldCommand(const std::string& command, Descriptio
 	}
 }
 
-std::string DescriptionParser::genName()
+std::string SdlParser::genName()
 {
 	return "@__item-" + std::to_string(m_generatedNameCounter++);
 }
 
-std::string DescriptionParser::getName(const std::string& nameToken) const
+std::string SdlParser::getName(const std::string& nameToken) const
 {
 	std::vector<std::string> tokens;
 	m_nameTokenizer.tokenize(nameToken, tokens);
@@ -259,12 +259,12 @@ std::string DescriptionParser::getName(const std::string& nameToken) const
 	}
 }
 
-void DescriptionParser::setWorkingDirectory(const Path& path)
+void SdlParser::setWorkingDirectory(const Path& path)
 {
 	m_workingDirectory = path;
 }
 
-std::vector<ValueClause> DescriptionParser::getValueClauses(const std::vector<std::string>& clauseStrings)
+std::vector<ValueClause> SdlParser::getValueClauses(const std::vector<std::string>& clauseStrings)
 {
 	std::vector<ValueClause> vClauses;
 	for(const auto& clauseString : clauseStrings)
@@ -274,7 +274,7 @@ std::vector<ValueClause> DescriptionParser::getValueClauses(const std::vector<st
 	return vClauses;
 }
 
-ECommandType DescriptionParser::getCommandType(const std::string& command)
+ECommandType SdlParser::getCommandType(const std::string& command)
 {
 	if(command.compare(0, 2, "->") == 0)
 	{
@@ -294,19 +294,19 @@ ECommandType DescriptionParser::getCommandType(const std::string& command)
 	}
 }
 
-bool DescriptionParser::isResourceName(const std::string& token) const
+bool SdlParser::isResourceName(const std::string& token) const
 {
 	return !getName(token).empty();
 }
 
-std::string DescriptionParser::getFullTypeName(const SdlTypeInfo& typeInfo)
+std::string SdlParser::getFullTypeName(const SdlTypeInfo& typeInfo)
 {
 	const std::string& categoryName = typeInfo.getCategoryName();
 	const std::string& typeName     = typeInfo.typeName;
 	return categoryName + '_' + typeName;
 }
 
-bool DescriptionParser::isLoadCommand(const std::vector<std::string>& commandTokens) const
+bool SdlParser::isLoadCommand(const std::vector<std::string>& commandTokens) const
 {
 	if(commandTokens.size() >= 4)
 	{
@@ -319,7 +319,7 @@ bool DescriptionParser::isLoadCommand(const std::vector<std::string>& commandTok
 	return false;
 }
 
-bool DescriptionParser::isExecuteCommand(const std::vector<std::string>& commandTokens) const
+bool SdlParser::isExecuteCommand(const std::vector<std::string>& commandTokens) const
 {
 	if(commandTokens.size() >= 5)
 	{

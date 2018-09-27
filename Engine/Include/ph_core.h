@@ -96,6 +96,7 @@ extern PH_API int phExit();
 // TODO: remove the word "film" from develop functions
 
 extern PH_API void phCreateEngine(PHuint64* out_engineId, const PHuint32 numRenderThreads);
+extern PH_API void phSetNumRenderThreads(PHuint64 engineId, const PHuint32 numRenderThreads);
 extern PH_API void phEnterCommand(PHuint64 engineId, const PHchar* commandFragment);
 extern PH_API void phRender(PHuint64 engineId);
 

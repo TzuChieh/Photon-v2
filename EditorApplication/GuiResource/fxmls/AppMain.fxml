@@ -48,7 +48,7 @@
                      <graphic>
                         <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../internalRes/icon/add_project.png" />
+                              <Image url="@../images/add_project.png" />
                            </image>
                         </ImageView>
                      </graphic></Button>
@@ -56,7 +56,7 @@
                      <graphic>
                         <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../internalRes/icon/select_project.png" />
+                              <Image url="@../images/select_project.png" />
                            </image>
                         </ImageView>
                      </graphic></Button>
@@ -64,7 +64,7 @@
                      <graphic>
                         <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../internalRes/icon/editor.png" />
+                              <Image url="@../images/editor.png" />
                            </image>
                         </ImageView>
                      </graphic></Button>
@@ -72,7 +72,7 @@
                      <graphic>
                         <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../internalRes/icon/render.png" />
+                              <Image url="@../images/render.png" />
                            </image>
                         </ImageView>
                      </graphic></Button>
@@ -80,7 +80,7 @@
                      <graphic>
                         <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../internalRes/icon/save.png" />
+                              <Image url="@../images/save.png" />
                            </image>
                         </ImageView>
                      </graphic></Button>

@@ -45,6 +45,14 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateEngine
 
 /*
  * Class:     photonApi_Ph
+ * Method:    phSetNumRenderThreads
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phSetNumRenderThreads
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     photonApi_Ph
  * Method:    phEnterCommand
  * Signature: (JLjava/lang/String;)V
  */

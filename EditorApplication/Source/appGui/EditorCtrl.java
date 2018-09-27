@@ -4,10 +4,7 @@ import appModel.EditorApp;
 import appModel.GeneralOption;
 import appModel.console.Console;
 import appModel.console.MessageListener;
-import appModel.event.ProjectEvent;
-import appModel.event.ProjectEventListener;
 import appModel.event.ProjectEventType;
-import appModel.event.SettingListener;
 import appModel.project.Project;
 import appModel.project.RenderSetting;
 
@@ -25,24 +22,22 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Spinner;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.FileChooser;
 import photonApi.Frame;
 import photonApi.FrameRegion;
 import photonApi.FrameStatus;
@@ -59,9 +54,6 @@ public class EditorCtrl
 	private Project m_project;
     
     private WritableImage m_displayImage;
-    
-    private ProjectEventListener m_projectFinalFrameReadyListener;
-    private SettingListener      m_renderSettingListener;
 	
 	@FXML private VBox         projectOverviewVbox;
 	@FXML private TitledPane   projectOverviewPane;
@@ -75,6 +67,7 @@ public class EditorCtrl
 	@FXML private Label        timeRemainingLabel;
     @FXML private Label        timeSpentLabel;
     @FXML private ChoiceBox<String>    attributeChoiceBox;
+    @FXML private Spinner<Integer> threadsSpinner;
     
     private AtomicInteger m_chosenAttribute;
     
@@ -97,21 +90,6 @@ public class EditorCtrl
 			}
 		});
     	updateMessageTextArea();
-    	
-    	m_projectFinalFrameReadyListener = (event) -> 
-    	{
-			clearFrame();
-			loadFinalFrame();
-			drawFrame();
-    	};
-    	
-    	m_renderSettingListener = (event) ->
-    	{
-    		if(event.settingName.equals(RenderSetting.SCENE_FILE_NAME))
-    		{
-    			sceneFileTextField.setText(event.newSettingValue);
-    		}
-    	};
     	
     	m_chosenAttribute = new AtomicInteger(Ph.ATTRIBUTE_LIGHT_ENERGY);
     	attributeChoiceBox.setItems(FXCollections.observableArrayList(
@@ -366,26 +344,38 @@ public class EditorCtrl
 //    	messageTextArea.setScrollTop(Double.MAX_VALUE);
 	}
 	
-	public void setProject(Project project)
+	public void associateWithProject(Project project)
 	{
-		if(m_project != null)
-		{
-			m_project.removeListener(m_projectFinalFrameReadyListener);
-			m_project.getRenderSetting().removeSettingListener(m_renderSettingListener);
-		}
+		assert(m_project == null);
 		
 		m_project = project;
 		
-		project.addListener(ProjectEventType.FINAL_FRAME_READY, m_projectFinalFrameReadyListener);
-		project.getRenderSetting().addSettingListener(m_renderSettingListener);
-	    
-		clearFrame();
+		project.addListener(ProjectEventType.FINAL_FRAME_READY, (event) -> 
+    	{
+			clearFrame();
+			loadFinalFrame();
+			drawFrame();
+    	});
+		
+		project.getRenderSetting().addSettingListener((event) ->
+    	{
+    		if(event.settingName.equals(RenderSetting.SCENE_FILE_NAME))
+    		{
+    			sceneFileTextField.setText(event.newSettingValue);
+    		}
+    	});
+		
+		int numRenderThreads = Integer.parseInt(project.getRenderSetting().get(RenderSetting.NUM_RENDER_THREADS));
+    	threadsSpinner.getValueFactory().setValue(numRenderThreads);
+    	threadsSpinner.valueProperty().addListener((observable, oldValue, newValue) -> project.setNumRenderThreads(newValue));
+    	
+    	sceneFileTextField.setText(project.getRenderSetting().get(RenderSetting.SCENE_FILE_NAME));
+    	
+    	clearFrame();
 		if(project.getLocalFinalFrame().isValid())
 		{
 			loadFinalFrame();
 			drawFrame();
 		}
-		
-		sceneFileTextField.setText(project.getRenderSetting().get(RenderSetting.SCENE_FILE_NAME));
 	}
 }

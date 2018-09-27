@@ -1,7 +1,5 @@
 package photonApi;
 
-import java.nio.FloatBuffer;
-
 public final class Ph
 {
 	// Notice: Photon-v2 library functions should not be called from threads other than the main thread.
@@ -22,6 +20,7 @@ public final class Ph
 	public static native boolean phExit();
 	
 	public static native void phCreateEngine(LongRef out_engineId, int numRenderThreads);
+	public static native void phSetNumRenderThreads(long engineId, int numRenderThreads);
 	public static native void phEnterCommand(long engineId, String commandFragment);
 	public static native void phUpdate(long engindId);
 	public static native void phRender(long engineId);

@@ -12,7 +12,7 @@
 namespace ph
 {
 
-class Description;
+class SdlResourcePack;
 class CommandEntry;
 class SdlTypeInfo;
 
@@ -24,7 +24,7 @@ enum class ECommandType
 	COMMENT
 };
 
-class DescriptionParser final
+class SdlParser final
 {
 public:
 	static std::string CORE_DATA_NAME();
@@ -32,9 +32,9 @@ public:
 	static CommandEntry getCommandEntry(const SdlTypeInfo& typeInfo);
 
 public:
-	DescriptionParser();
+	SdlParser();
 
-	void enter(const std::string& commandFragment, Description& out_data);
+	void enter(const std::string& commandFragment, SdlResourcePack& out_data);
 	void setWorkingDirectory(const Path& path);
 
 private:
@@ -45,9 +45,9 @@ private:
 	Tokenizer   m_nameTokenizer;
 	std::size_t m_generatedNameCounter;
 
-	void parseCommand(const std::string& command, Description& out_data);
-	void parseCoreCommand(const std::string& command, Description& out_data);
-	void parseWorldCommand(const std::string& command, Description& out_data);
+	void parseCommand(const std::string& command, SdlResourcePack& out_data);
+	void parseCoreCommand(const std::string& command, SdlResourcePack& out_data);
+	void parseWorldCommand(const std::string& command, SdlResourcePack& out_data);
 
 	std::string genName();
 	std::string getName(const std::string& nameToken) const;

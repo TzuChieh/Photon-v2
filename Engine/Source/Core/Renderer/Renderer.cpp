@@ -6,7 +6,6 @@
 #include "Core/Ray.h"
 #include "Math/constant.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "FileIO/Description.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
@@ -24,12 +23,12 @@ namespace ph
 
 Renderer::~Renderer() = default;
 
-void Renderer::render(const Description& description)
+void Renderer::render(const SdlResourcePack& data)
 {
 	Timer renderTimer;
 	renderTimer.start();
 
-	init(description);
+	init(data);
 
 	std::vector<std::thread> renderThreads(m_numThreads);
 	for(uint32 ti = 0; ti < m_numThreads; ti++)
