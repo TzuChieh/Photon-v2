@@ -1,7 +1,7 @@
 # Main build script for Photon-v2 renderer.
 
 ###############################################################################
-# General Settings:
+# General Settings
 #
 
 cmake_minimum_required(VERSION 2.8)
@@ -24,12 +24,16 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/bin/")
 #
 
 if(WIN32)
-    set(BUILD_JNI_DEFAULT ON)
+    set(BUILD_ENGINE_TEST_DEFAULT ON)
+    set(BUILD_EDITOR_JNI_DEFAULT  ON)
 else()
-    set(BUILD_JNI_DEFAULT OFF)
+    set(BUILD_ENGINE_TEST_DEFAULT OFF)
+    set(BUILD_EDITOR_JNI_DEFAULT  OFF)
 endif()
 
-option(BUILD_JNI "Build Photon-v2 JNI for GUI." ${BUILD_JNI_DEFAULT})
+
+option(BUILD_ENGINE_TEST "Build unit tests for core engine." ${BUILD_ENGINE_TEST_DEFAULT})
+option(BUILD_EDITOR_JNI "Build JNI for GUI."                 ${BUILD_EDITOR_JNI_DEFAULT})
 
 ###############################################################################
 # Compiler Settings
@@ -66,7 +70,7 @@ endif()
 # TODO: add g++ MT MD equivalent flags?
 
 ###############################################################################
-# Third-party libraries required by Photon-v2.
+# Gather Third-party Libraries Required by Photon-v2
 #
 
 set(THIRD_PARTY_DIR "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty/")
@@ -77,28 +81,33 @@ else()
     set(THIRD_PARTY_PLATFORM "linux")
 endif()
 
-set(GOOGLETEST_INCLUDE_DIR "${THIRD_PARTY_DIR}googletest/include/")
-set(GOOGLETEST_BINARY_DIR  "${THIRD_PARTY_DIR}googletest/lib/${THIRD_PARTY_PLATFORM}/")
-find_library(GOOGLETEST_LIB_GTEST gtest
-    PATHS ${GOOGLETEST_BINARY_DIR}
-    NO_DEFAULT_PATH
-)
-find_library(GOOGLETEST_LIB_GMOCK gmock
-    PATHS ${GOOGLETEST_BINARY_DIR}
-    NO_DEFAULT_PATH
-)
-set(GOOGLETEST_LIBS "${GOOGLETEST_LIB_GMOCK};${GOOGLETEST_LIB_GTEST}")
+if(BUILD_ENGINE_TEST)
+    set(GOOGLETEST_INCLUDE_DIR "${THIRD_PARTY_DIR}googletest/include/")
+    set(GOOGLETEST_BINARY_DIR  "${THIRD_PARTY_DIR}googletest/lib/${THIRD_PARTY_PLATFORM}/")
+    find_library(GOOGLETEST_LIB_GTEST gtest
+        PATHS ${GOOGLETEST_BINARY_DIR}
+        NO_DEFAULT_PATH
+    )
+    find_library(GOOGLETEST_LIB_GMOCK gmock
+        PATHS ${GOOGLETEST_BINARY_DIR}
+        NO_DEFAULT_PATH
+    )
+    set(GOOGLETEST_LIBS "${GOOGLETEST_LIB_GMOCK};${GOOGLETEST_LIB_GTEST}")
+endif()
 
 set(STB_INCLUDE_DIR "${THIRD_PARTY_DIR}stb/include/")
 
 ###############################################################################
-# Subdirectories:
+# Add Subdirectories
 #
 
 add_subdirectory("./Engine/")
-add_subdirectory("./EngineTest/")
 
-if(BUILD_JNI)
+if(BUILD_ENGINE_TEST)
+    add_subdirectory("./EngineTest/")
+endif()
+
+if(BUILD_EDITOR_JNI)
     add_subdirectory("./JNI/")
 endif()
 
