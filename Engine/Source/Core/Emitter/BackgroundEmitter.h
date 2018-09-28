@@ -18,9 +18,8 @@ namespace ph
 	distances from the world geometries. As a surface emitter, it expects
 	the associated surface primitive to satisfy the following properties:
 	
-	1. sufficiently large (at least twice the size of the scene's bounding 
-	   sphere)
-	2. surface parameterization should depend on directions only
+	1. large enough to contain the entire scene
+	2. normalized and one-to-one position <-> uvw mapping
 
 	Associating surface primitives that do not meet these requirements may 
 	results in rendering artifacts.
@@ -36,8 +35,7 @@ public:
 	BackgroundEmitter(
 		const Primitive*             surface,
 		const RadianceTexture&       radiance,
-		const TVector2<std::size_t>& resolution,
-		const AABB3D&                worldBound);
+		const TVector2<std::size_t>& resolution);
 
 	void evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const override;
 	void genDirectSample(DirectLightSample& sample) const override;
@@ -57,7 +55,6 @@ private:
 	const Primitive*         m_surface;
 	RadianceTexture          m_radiance;
 	TPwcDistribution2D<real> m_sampleDistribution;
-	AABB3D                   m_worldBound;
 };
 
 }// end namespace ph

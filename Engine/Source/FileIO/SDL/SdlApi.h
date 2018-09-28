@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 
 namespace ph
 {
@@ -8,6 +9,13 @@ namespace ph
 class SdlApi final
 {
 public:
+	struct Parameter
+	{
+		std::string_view typeName;
+		std::string      varName;
+	};
+
+
 
 private:
 	

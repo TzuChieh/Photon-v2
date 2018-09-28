@@ -23,18 +23,18 @@ namespace
 BackgroundEmitter::BackgroundEmitter(
 	const Primitive* const       surface,
 	const RadianceTexture&       radiance,
-	const TVector2<std::size_t>& resolution,
-	const AABB3D&                worldBound) :
+	const TVector2<std::size_t>& resolution) :
 
 	m_surface(surface),
 	m_radiance(radiance),
-	m_sampleDistribution(),
-	m_worldBound(worldBound)
+	m_sampleDistribution()
 {
 	PH_ASSERT(surface && radiance && resolution.x * resolution.y > 0);
 
 	logger.log(ELogLevel::NOTE_MED, 
 		"constructing sample distribution with resolution " + resolution.toString());
+
+	// FIXME: assuming spherical uv mapping us used
 
 	const EQuantity            quantity = EQuantity::EMR;
 	TSampler<SpectralStrength> sampler(quantity);
@@ -65,18 +65,8 @@ void BackgroundEmitter::evalEmittedRadiance(
 {
 	PH_ASSERT(out_radiance && m_radiance);
 
-	//const Vector3R emitDir = X.getIncidentRay().getDirection().mul(-1.0_r);
-	/*if(!canEmit(emitDir, X.getShadingNormal()))
-	{
-		out_radiance->setValues(0.0_r);
-		return;
-	}*/
-
-	Vector3R uvw;
-	SphericalMapper().directionToUvw(X.getIncidentRay().getDirection(), &uvw);
-
 	TSampler<SpectralStrength> sampler(EQuantity::EMR);
-	*out_radiance = sampler.sample(*m_radiance, uvw);
+	*out_radiance = sampler.sample(*m_radiance, X);
 }
 
 void BackgroundEmitter::genDirectSample(DirectLightSample& sample) const
@@ -90,22 +80,15 @@ void BackgroundEmitter::genDirectSample(DirectLightSample& sample) const
 		Random::genUniformReal_i0_e1(),
 		&uvSamplePdf);
 
-	PH_ASSERT(0.0_r <= uvSample.x && uvSample.x <= 1.0_r &&
-	          0.0_r <= uvSample.y && uvSample.y <= 1.0_r);
-
-	const real theta = (1.0_r - uvSample.y) * PH_PI_REAL;
-	const real phi   = uvSample.x * PH_PI_REAL * 2.0_r;
-
-	const real zxPlaneRadius = std::sin(theta);
-	const Vector3R dir(zxPlaneRadius * std::sin(phi),
-	                   std::cos(theta),
-	                   zxPlaneRadius * std::cos(phi));
-	const Vector3R direction = m_worldBound.calcExtents().max() * 2.0_r * dir;
-	sample.emitPos = sample.targetPos + direction;
+	m_surface->uvwToPosition(
+		Vector3R(uvSample.x, uvSample.y, 0),
+		sample.targetPos, 
+		&(sample.emitPos));
 
 	TSampler<SpectralStrength> sampler(EQuantity::EMR);
 	sample.radianceLe = sampler.sample(*m_radiance, uvSample);
 	
+	// FIXME: assuming spherical uv mapping us used
 	const real sinTheta = std::sin((1.0_r - uvSample.y) * PH_PI_REAL);
 	if(sinTheta <= 0.0_r)
 	{
@@ -124,21 +107,13 @@ real BackgroundEmitter::calcDirectSamplePdfW(
 	const SurfaceHit& emitPos, 
 	const Vector3R&   targetPos) const
 {
-	/*const Vector3R L = emitPos.getPosition().sub(targetPos).normalize();
-	
-	Vector3R uvw;
-	SphericalMapper mapper;
-	mapper.map(L, &uvw);*/
-
+	// FIXME: assuming spherical uv mapping us used
 	const Vector3R uvw = emitPos.getDetail().getUvw();
 	const real sinTheta = std::sin((1.0_r - uvw.y) * PH_PI_REAL);
 	if(sinTheta <= 0.0_r)
 	{
 		return 0.0_r;
 	}
-
-	// DEBUG
-	//real pdf = m_sampleDistribution.pdf({uvw.x, uvw.y}) / (2.0_r * PH_PI_REAL * PH_PI_REAL * sinTheta);
 
 	return m_sampleDistribution.pdf({uvw.x, uvw.y}) / (2.0_r * PH_PI_REAL * PH_PI_REAL * sinTheta);
 }

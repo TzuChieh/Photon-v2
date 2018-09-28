@@ -52,6 +52,7 @@ public:
 	//
 	virtual bool uvwToPosition(
 		const Vector3R& uvw, 
+		const Vector3R& observationPoint,
 		Vector3R*       out_position) const;
 
 	const PrimitiveMetadata* getMetadata() const;
@@ -79,6 +80,7 @@ inline const PrimitiveMetadata* Primitive::getMetadata() const
 
 inline bool Primitive::uvwToPosition(
 	const Vector3R& /* uvw */,
+	const Vector3R& /* observationPoint */,
 	Vector3R*       /* out_position */) const
 {
 	return false;

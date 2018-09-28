@@ -4,6 +4,7 @@
 #include "Math/TVector3.h"
 #include "Core/HitInfo.h"
 #include "Core/Bound/AABB3D.h"
+#include "Common/assertion.h"
 
 namespace ph
 {
@@ -88,12 +89,19 @@ void Transform::transform(const HitInfo& info, const Time& time,
 void Transform::transform(const AABB3D& aabb, const Time& time,
                           AABB3D* const out_aabb) const
 {
+	PH_ASSERT(out_aabb);
+
+	// FIXME: slow!
 	auto vertices = aabb.getVertices();
 	for(auto& vertex : vertices)
 	{
-		Vector3R tVertex;
-		transformPoint(vertex, time, &tVertex);
-		vertex = tVertex;
+		// TODO: consider moving this check to transformPoint()
+		if(vertex.isFinite())
+		{
+			Vector3R tVertex;
+			transformPoint(vertex, time, &tVertex);
+			vertex = tVertex;
+		}
 	}
 	
 	*out_aabb = AABB3D(vertices[0]);

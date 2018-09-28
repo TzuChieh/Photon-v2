@@ -76,21 +76,20 @@ void PInfiniteSphere::calcAABB(AABB3D* const out_aabb) const
 
 bool PInfiniteSphere::uvwToPosition(
 	const Vector3R& uvw,
+	const Vector3R& observationPoint,
 	Vector3R* const out_position) const
 {
 	PH_ASSERT(0.0_r <= uvw.x && uvw.x <= 1.0_r &&
 	          0.0_r <= uvw.y && uvw.y <= 1.0_r && 
 	          out_position);
 
-	const real theta = (1.0_r - uvw.y) * PH_PI_REAL;
-	const real phi   = uvw.x * PH_PI_REAL * 2.0_r;
+	Vector3R direction;
+	const bool mappingSucceeded = SphericalMapper().uvwToDirection(uvw, &direction);
+	PH_ASSERT(mappingSucceeded);
 
-	const real zxPlaneRadius = std::sin(theta);
-	const Vector3R dir(zxPlaneRadius * std::sin(phi),
-	                   std::cos(theta),
-	                   zxPlaneRadius * std::cos(phi));
-	*out_position = m_effectivelyInfiniteRadius * 2.0_r * dir;
-	return SphericalMapper().u;
+	direction.normalizeLocal();
+	*out_position = observationPoint + direction * m_effectivelyInfiniteRadius;
+	return true;
 }
 
 }// end namespace ph

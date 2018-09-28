@@ -79,24 +79,27 @@ bool TransformedIntersectable::isIntersectingVolumeConservative(const AABB3D& aa
 // FIXME: static intersectable do not need to consider time
 void TransformedIntersectable::calcAABB(AABB3D* const out_aabb) const
 {
-	AABB3D localAABB;
-	AABB3D worldAABB;
+	PH_ASSERT(out_aabb);
+
+	AABB3D localAABB, worldAABB;
 	m_intersectable->calcAABB(&localAABB);
 	m_localToWorld->transform(localAABB, &worldAABB);
 
 	// TODO: modify time interval base on transform properties or aabb size
 
-	for(size_t i = 0; i < 101; i++)
-	{
-		Time time;
-		time.absoluteS = 0;// HACK
-		time.relativeS = 0;// HACK
-		time.relativeT = static_cast<real>(1.0 / 100.0 * i);
+	// TODO: motions
 
-		AABB3D aabb;
-		m_localToWorld->transform(localAABB, time, &aabb);
-		worldAABB.unionWith(aabb);
-	}
+	//for(size_t i = 0; i < 101; i++)
+	//{
+	//	Time time;
+	//	time.absoluteS = 0;// HACK
+	//	time.relativeS = 0;// HACK
+	//	time.relativeT = static_cast<real>(1.0 / 100.0 * i);
+
+	//	AABB3D aabb;
+	//	m_localToWorld->transform(localAABB, time, &aabb);
+	//	worldAABB.unionWith(aabb);
+	//}
 
 	*out_aabb = worldAABB;
 }
