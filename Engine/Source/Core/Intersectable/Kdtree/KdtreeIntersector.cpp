@@ -26,7 +26,7 @@ void KdtreeIntersector::update(const CookedDataStorage& cookedActors)
 		// HACK
 		AABB3D aabb;
 		intersectable->calcAABB(&aabb);
-		if(aabb.isPoint())
+		if(!aabb.isFiniteVolume())
 		{
 			continue;
 		}

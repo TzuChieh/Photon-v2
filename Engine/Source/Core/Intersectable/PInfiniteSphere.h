@@ -13,10 +13,11 @@ class PInfiniteSphere : public Primitive
 {
 public:
 	PInfiniteSphere(
-		real                     boundingRadius, 
+		real effectivelyInfiniteRadius, 
 		const PrimitiveMetadata* metadata);
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+	bool isIntersecting(const Ray& ray) const override;
 
 	void calcIntersectionDetail(
 		const Ray& ray, 
@@ -31,7 +32,7 @@ public:
 		Vector3R*       out_position) const override;
 
 private:
-	real m_boundingRadius;
+	real m_effectivelyInfiniteRadius;
 };
 
 }// end namespace ph

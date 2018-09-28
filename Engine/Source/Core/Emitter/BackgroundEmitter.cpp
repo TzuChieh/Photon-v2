@@ -73,7 +73,7 @@ void BackgroundEmitter::evalEmittedRadiance(
 	}*/
 
 	Vector3R uvw;
-	SphericalMapper().map(X.getIncidentRay().getDirection(), &uvw);
+	SphericalMapper().directionToUvw(X.getIncidentRay().getDirection(), &uvw);
 
 	TSampler<SpectralStrength> sampler(EQuantity::EMR);
 	*out_radiance = sampler.sample(*m_radiance, uvw);

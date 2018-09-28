@@ -14,16 +14,20 @@ AABB3D AABB3D::makeUnioned(const AABB3D& a, const AABB3D& b)
 }
 
 AABB3D::AABB3D() :
-	m_minVertex(0, 0, 0), m_maxVertex(0, 0, 0)
+	AABB3D(Vector3R(0, 0, 0))
 {}
 
 AABB3D::AABB3D(const Vector3R& point) :
-	m_minVertex(point), m_maxVertex(point)
+	AABB3D(point, point)
 {}
 
 AABB3D::AABB3D(const Vector3R& minVertex, const Vector3R& maxVertex) :
 	m_minVertex(minVertex), m_maxVertex(maxVertex)
-{}
+{
+	PH_ASSERT(maxVertex.x >= minVertex.x &&
+	          maxVertex.y >= minVertex.y &&
+	          maxVertex.z >= minVertex.z);
+}
 
 // REFACTOR: this method is duplicated with isIntersectingVolume(3)
 bool AABB3D::isIntersectingVolume(const Ray& ray) const
@@ -213,11 +217,6 @@ bool AABB3D::isIntersectingVolume(const AABB3D& other) const
 	return m_minVertex.x <= other.m_maxVertex.x && m_maxVertex.x >= other.m_minVertex.x &&
 	       m_minVertex.y <= other.m_maxVertex.y && m_maxVertex.y >= other.m_minVertex.y &&
 	       m_minVertex.z <= other.m_maxVertex.z && m_maxVertex.z >= other.m_minVertex.z;
-}
-
-bool AABB3D::isPoint() const
-{
-	return m_minVertex.equals(m_maxVertex);
 }
 
 AABB3D& AABB3D::unionWith(const AABB3D& other)

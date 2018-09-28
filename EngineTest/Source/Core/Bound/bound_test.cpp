@@ -6,6 +6,8 @@
 
 #include <gtest/gtest.h>
 
+#include <limits>
+
 using namespace ph;
 
 TEST(BoundTest, IntersectingTwoAABB3DsAsVolumes)
@@ -27,6 +29,33 @@ TEST(BoundTest, IntersectingTwoAABB3DsAsVolumes)
 	const AABB3D aabb3a(Vector3R(-1, -1, -1),    Vector3R(1, 1, 1));
 	const AABB3D aabb3b(Vector3R(-1, -1, 1.1_r), Vector3R(1, 1, 1.2_r));
 	EXPECT_FALSE(aabb3a.isIntersectingVolume(aabb3b));
+}
+
+TEST(BoundTest, IsAABB3DActuallyPoint)
+{
+	AABB3D point({99, 99, 99}, {99, 99, 99});
+	EXPECT_TRUE(point.isPoint());
+
+	AABB3D volume({0, 0, 0}, {1, 1, 1});
+	EXPECT_FALSE(volume.isPoint());
+}
+
+TEST(BoundTest, IsAABB3DRepresentFiniteVolume)
+{
+	AABB3D volume({-1, -1, -1}, {1, 1, 1});
+	EXPECT_TRUE(volume.isFiniteVolume());
+
+	AABB3D point({33, 33, 33}, {33, 33, 33});
+	EXPECT_FALSE(point.isFiniteVolume());
+
+	const real positiveInfinity = std::numeric_limits<real>::infinity();
+	const real negativeInfinity = -positiveInfinity;
+
+	AABB3D infiniteBounds1{Vector3R(negativeInfinity), Vector3R(positiveInfinity)};
+	EXPECT_FALSE(infiniteBounds1.isFiniteVolume());
+
+	AABB3D infiniteBounds2(Vector3R(negativeInfinity, 0, 0), Vector3R(positiveInfinity, 1, 1));
+	EXPECT_FALSE(infiniteBounds2.isFiniteVolume());
 }
 
 TEST(BoundTest, IntersectingTwoAABB2DsAsAreas)
@@ -52,7 +81,7 @@ TEST(BoundTest, IntersectingTwoAABB2DsAsAreas)
 	EXPECT_FALSE(aabb3a.isIntersectingArea(aabb3b));
 }
 
-TEST(BoundTest, IntersectingAABB2DwithPoint)
+TEST(BoundTest, IntersectingAABB2DWithPoint)
 {
 	typedef TAABB2D<real> AABB2DR;
 
@@ -90,7 +119,7 @@ TEST(BoundTest, AABB2Dvalidity)
 	EXPECT_FALSE(aabb2.isValid());
 }
 
-TEST(BoundTest, IsAABB2DactuallyPoint)
+TEST(BoundTest, IsAABB2DActuallyPoint)
 {
 	typedef TAABB2D<real> AABB2DR;
 

@@ -15,31 +15,30 @@ namespace ph
 {
 
 PInfiniteSphere::PInfiniteSphere(
-	const real                     boundingRadius,
+	const real effectivelyInfiniteRadius,
 	const PrimitiveMetadata* const metadata) :
 
 	Primitive(metadata),
 
-	m_boundingRadius(boundingRadius)
+	m_effectivelyInfiniteRadius(effectivelyInfiniteRadius)
 {
-	PH_ASSERT(boundingRadius > 0.0_r);
+	PH_ASSERT(std::isnormal(effectivelyInfiniteRadius));
 }
 
 bool PInfiniteSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
-	// Here we assume that <ray> always originated within the bounding radius.
-	// If the ray have max-t larger than 6*r, then it must have passed through
-	// the imaginary bounding sphere.
-
-	if(ray.getMaxT() > 6.0_r * m_boundingRadius)
+	if(ray.getMaxT() >= std::numeric_limits<real>::max())
 	{
-		probe.pushBaseHit(this, 2.0_r * m_boundingRadius);
+		probe.pushBaseHit(this, ray.getMaxT());
 		return true;
 	}
-	else
-	{
-		return false;
-	}
+
+	return false;
+}
+
+bool PInfiniteSphere::isIntersecting(const Ray& ray) const
+{
+	return ray.getMaxT() >= std::numeric_limits<real>::max();
 }
 
 void PInfiniteSphere::calcIntersectionDetail(
@@ -51,11 +50,11 @@ void PInfiniteSphere::calcIntersectionDetail(
 
 	PH_ASSERT(out_detail);
 
-	const Vector3R hitPos    = ray.getOrigin() + ray.getDirection() * probe.getHitRayT();
-	const Vector3R hitNormal = ray.getDirection();
+	const Vector3R hitPos    = ray.getOrigin() + ray.getDirection() * m_effectivelyInfiniteRadius;
+	const Vector3R hitNormal = ray.getDirection().mul(-1);
 
 	Vector3R uvw;
-	SphericalMapper().map(ray.getDirection(), &uvw);
+	SphericalMapper().directionToUvw(ray.getDirection(), &uvw);
 
 	out_detail->setMisc(this, uvw, probe.getHitRayT());
 	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(hitPos, hitNormal, hitNormal);
@@ -64,22 +63,15 @@ void PInfiniteSphere::calcIntersectionDetail(
 
 bool PInfiniteSphere::isIntersectingVolumeConservative(const AABB3D& volume) const
 {
-	// TODO: assert on aabb is valid
-
-	AABB3D aabb;
-	calcAABB(&aabb);
-	return aabb.isIntersectingVolume(volume);
+	return false;
 }
 
 void PInfiniteSphere::calcAABB(AABB3D* const out_aabb) const
 {
 	PH_ASSERT(out_aabb);
 
-	// Since we always make intersection point to be 2*r away from ray origin, 
-	// this suggests that the bounding box must cover at least [-3*r, 3*r].
-	const real rTimes3 = 3.0_r * m_boundingRadius;
-
-	*out_aabb = AABB3D(Vector3R(-rTimes3), Vector3R(rTimes3));
+	*out_aabb = AABB3D(Vector3R(-std::numeric_limits<real>::infinity()), 
+	                   Vector3R( std::numeric_limits<real>::infinity()));
 }
 
 bool PInfiniteSphere::uvwToPosition(
@@ -97,8 +89,8 @@ bool PInfiniteSphere::uvwToPosition(
 	const Vector3R dir(zxPlaneRadius * std::sin(phi),
 	                   std::cos(theta),
 	                   zxPlaneRadius * std::cos(phi));
-	*out_position = m_boundingRadius * 2.0_r * dir;
-	return true;
+	*out_position = m_effectivelyInfiniteRadius * 2.0_r * dir;
+	return SphericalMapper().u;
 }
 
 }// end namespace ph

@@ -122,7 +122,7 @@ void PSphere::calcIntersectionDetail(
 
 	PH_ASSERT(mapper);
 	Vector3R hitUvw;
-	mapper->map(hitPosition, &hitUvw);
+	mapper->positionToUvw(hitPosition, &hitUvw);
 
 	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(
 		hitPosition, 
@@ -149,10 +149,10 @@ void PSphere::calcIntersectionDetail(
 	// find delta uvw vectors
 	//
 	Vector3R negXuvw, posXuvw, negZuvw, posZuvw;
-	mapper->map(negX, &negXuvw);
-	mapper->map(posX, &posXuvw);
-	mapper->map(negZ, &negZuvw);
-	mapper->map(posZ, &posZuvw);
+	mapper->positionToUvw(negX, &negXuvw);
+	mapper->positionToUvw(posX, &posXuvw);
+	mapper->positionToUvw(negZ, &negZuvw);
+	mapper->positionToUvw(posZ, &posZuvw);
 
 	// calculating positional partial derivatives
 	//
@@ -242,7 +242,7 @@ void PSphere::genPositionSample(PositionSample* const out_sample) const
 	// FIXME: able to specify mapper channel
 	const UvwMapper* mapper = m_metadata->getDefaultChannel().getMapper();
 	PH_ASSERT(mapper != nullptr);
-	mapper->map(out_sample->position, &out_sample->uvw);
+	mapper->positionToUvw(out_sample->position, &out_sample->uvw);
 
 	out_sample->pdf = this->PSphere::calcPositionSamplePdfA(out_sample->position);
 }
