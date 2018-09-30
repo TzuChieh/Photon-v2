@@ -654,21 +654,6 @@ inline bool TVector3<T>::isFinite() const
 }
 
 template<typename T>
-inline T& TVector3<T>::operator [] (const int32 axisIndex)
-{
-	PH_ASSERT(axisIndex >= 0 && axisIndex <= 2);
-
-	switch(axisIndex)
-	{
-	case Math::X_AXIS: return x;
-	case Math::Y_AXIS: return y;
-	case Math::Z_AXIS: return z;
-	}
-
-	return x;
-}
-
-template<typename T>
 inline TVector3<T> TVector3<T>::operator * (const T rhs) const
 {
 	return this->mul(rhs);
@@ -702,6 +687,21 @@ template<typename T>
 inline TVector3<T> TVector3<T>::operator - (const TVector3& rhs) const
 {
 	return this->sub(rhs);
+}
+
+template<typename T>
+inline T& TVector3<T>::operator [] (const int32 axisIndex)
+{
+	PH_ASSERT(axisIndex >= 0 && axisIndex <= 2);
+
+	switch(axisIndex)
+	{
+	case math::X_AXIS: return x;
+	case math::Y_AXIS: return y;
+	case math::Z_AXIS: return z;
+	}
+
+	return x;
 }
 
 template<typename T>
