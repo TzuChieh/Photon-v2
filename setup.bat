@@ -1,0 +1,1 @@
+python "./scripts/download_resource.py"
