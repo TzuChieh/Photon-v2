@@ -40,8 +40,8 @@ TEST(TBitFlagsTest, Union)
 	EXPECT_TRUE(flags1b.equals(flags1b));
 
 	UintFlags flags2a, flags2b;
-	flags2a.unionWith({unsigned int(1) << 2, unsigned int(1) << 2});
-	flags2b.unionWith({unsigned int(1) << 2});
+	flags2a.unionWith({static_cast<unsigned int>(1) << 2, static_cast<unsigned int>(1) << 2});
+	flags2b.unionWith({static_cast<unsigned int>(1) << 2});
 
 	EXPECT_TRUE(flags2a.equals(flags2b));
 
