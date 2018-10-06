@@ -15,9 +15,14 @@ addons:
 before_script:
   - export CC=gcc-7
   - export CXX=g++-7
+  - ld -v
   - gcc --version
   - g++ --version
-  - ld -v
+  - gcc-7 --version
+  - g++-7 --version
+  - cmake --version
+  - python --version
+  - python3 --version
 
 script:
   - mkdir ./build/
@@ -33,7 +38,8 @@ script:
   #- cmake ../ -DCMAKE_BUILD_TYPE=release -DCMAKE_CXX_FLAGS="-std=c++17 -D_GLIBCXX_USE_CXX11_ABI=0" -DCMAKE_INSTALL_PREFIX=""
   #- make -j4 DESTDIR="../../Photon-v2-ThirdParty/googletest/lib/linux/" install
   #- cd ../../
-
+  
+  - bash ./setup.sh
   - cmake ../ -DCMAKE_BUILD_TYPE=release
   #- make -j4 VERBOSE=1
   - make -j4
