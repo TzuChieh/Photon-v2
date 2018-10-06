@@ -25,10 +25,11 @@ before_script:
   - python3 --version
 
 script:
+  - git clone https://github.com/TzuChieh/Photon-v2-ThirdParty.git
+  - bash ./setup.sh
   - mkdir ./build/
   - cd ./build/
-  - git clone https://github.com/TzuChieh/Photon-v2-ThirdParty.git
-
+  
   # HACK: currently Travis's build toolchain is too old to handle pre-built binaries
   # build googletest locally and overwrite pre-builts to resolve some nasty issue
   #- git clone https://github.com/google/googletest.git
@@ -39,7 +40,7 @@ script:
   #- make -j4 DESTDIR="../../Photon-v2-ThirdParty/googletest/lib/linux/" install
   #- cd ../../
   
-  - bash ./setup.sh
+  
   - cmake ../ -DCMAKE_BUILD_TYPE=release
   #- make -j4 VERBOSE=1
   - make -j4
