@@ -1,2 +1,2 @@
 #!/bin/sh
-python "./scripts/download_resource.py"
+python3 "./scripts/download_resource.py"
