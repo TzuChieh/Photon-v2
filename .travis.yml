@@ -13,6 +13,12 @@ addons:
       - cmake
 
 before_script:
+
+  # HACK: Travis's binutils version is too old, the best we can get here is 2.26
+  # ref: https://github.com/Project-OSRM/osrm-backend/issues/4169
+  - sudo apt-get install binutils-2.26
+  - export PATH=/usr/lib/binutils-2.26/bin:${PATH}
+
   - export CC=gcc-7
   - export CXX=g++-7
   - ld -v
@@ -25,12 +31,6 @@ before_script:
   - python3 --version
 
 script:
-
-  # HACK: Travis's binutils version is too old, the best we can get is 2.26
-  # ref: https://github.com/Project-OSRM/osrm-backend/issues/4169
-  - sudo apt-get install binutils-2.26
-  - export PATH=/usr/lib/binutils-2.26/bin:${PATH}
-
   - git clone https://github.com/TzuChieh/Photon-v2-ThirdParty.git
   - bash ./setup.sh
   - mkdir -p ./build/
@@ -50,3 +50,6 @@ script:
   - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_ENGINE_TEST=ON ../ 
   #- make -j4 VERBOSE=1
   - make -j4
+
+  # Engine's unit test (working directory should be "./build/")
+  - ./bin/EngineTest

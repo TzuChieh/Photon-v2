@@ -8,8 +8,8 @@ Support the Project:
 * BTC: 123ZDDMB38XcbPG3Q1fEH5WWHdMroYVuFm
 * ETH: 0x0ea47ec84f6abb0cee20a54dedfa8f286731c1f2
 
-| Branch        | Build         |
-| ------------- | ------------- |
+| Branch        | Continuous Integration |
+| ------------- | -----------------------|
 | Master        | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=master)](https://travis-ci.org/TzuChieh/Photon-v2) |
 | Develop       | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=develop)](https://travis-ci.org/TzuChieh/Photon-v2) |
 
@@ -111,3 +111,5 @@ If you use Photon in your research project, you are hightly encouraged to cite i
 ```
 
 Feel free to send me an e-mail for any questions or ideas about my project (= <br />
+
+[![HitCount](http://hits.dwyl.io/TzuChieh/Photon-v2.svg)](http://hits.dwyl.io/TzuChieh/Photon-v2)
