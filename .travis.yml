@@ -27,9 +27,9 @@ before_script:
 script:
   - git clone https://github.com/TzuChieh/Photon-v2-ThirdParty.git
   - bash ./setup.sh
-  - mkdir ./build/
+  - mkdir -p ./build/
   - cd ./build/
-  
+
   # HACK: currently Travis's build toolchain is too old to handle pre-built binaries
   # build googletest locally and overwrite pre-builts to resolve some nasty issue
   #- git clone https://github.com/google/googletest.git
