@@ -41,6 +41,6 @@ script:
   #- cd ../../
   
   
-  - cmake ../ -DCMAKE_BUILD_TYPE=release
+  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_ENGINE_TEST=ON ../ 
   #- make -j4 VERBOSE=1
   - make -j4
