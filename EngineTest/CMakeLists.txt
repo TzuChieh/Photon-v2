@@ -24,9 +24,9 @@ if(MSVC)
     )
 endif()
 
-add_custom_command(TARGET EngineTest
-	POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-		"${PROJECT_SOURCE_DIR}/Resource/Test/" 
-		"${PROJECT_BINARY_DIR}/bin/Resource/Test/"
-)
+#add_custom_command(TARGET EngineTest
+#	POST_BUILD
+#	COMMAND ${CMAKE_COMMAND} -E copy_directory
+#		"${PROJECT_SOURCE_DIR}/Resource/Test/" 
+#		"${PROJECT_BINARY_DIR}/bin/Resource/Test/"
+#)

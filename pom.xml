@@ -54,7 +54,7 @@
 							<outputDirectory>${project.basedir}/build/target/Resource/</outputDirectory>
 							<resources>
 								<resource>
-									<directory>${project.basedir}/Resource/</directory>
+									<directory>${project.basedir}/build/Resource/</directory>
 								</resource>
 							</resources>
 						</configuration>

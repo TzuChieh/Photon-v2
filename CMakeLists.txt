@@ -73,7 +73,7 @@ endif()
 # Gather Third-party Libraries Required by Photon-v2
 #
 
-set(THIRD_PARTY_DIR "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty/")
+set(THIRD_PARTY_DIR "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty-master/")
 
 if(MSVC)
     set(THIRD_PARTY_PLATFORM "windows")

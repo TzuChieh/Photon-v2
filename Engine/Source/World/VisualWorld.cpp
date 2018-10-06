@@ -21,8 +21,8 @@ const Logger VisualWorld::logger(LogSender("Visual World"));
 VisualWorld::VisualWorld() :
 
 	//m_intersector(std::make_unique<BruteForceIntersector>()), 
-	m_intersector(std::make_unique<KdtreeIntersector>()), 
-	//m_intersector(std::make_unique<ClassicBvhIntersector>()), 
+	//m_intersector(std::make_unique<KdtreeIntersector>()), 
+	m_intersector(std::make_unique<ClassicBvhIntersector>()), 
 
 	m_lightSampler(std::make_unique<UniformRandomLightSampler>()), 
 	m_scene(),

@@ -69,7 +69,6 @@ ipch/
 .vscode/
 
 # Photon-v2 Project Specific Files & Folders
-
 cloc-1.62.exe
 count.bat
 /scene/resource/
@@ -79,10 +78,10 @@ __pycache__/
 /EditorApplication/*.p2cfg
 /EditorApplication/*.log
 /build/
+/*.zip
 
-# ignore resources, except for test related ones
+# ignore resources
 Resource/
-!/Resource/Test/
 
 # ignore third-party libraries
 /ThirdParty/

@@ -1,4 +1,5 @@
 ## What is Photon-v2?
+
 Photon-v2 is a rendering engine made out of my personal interest in computer graphics. A rendering engine is what takes geometrical descriptions and material properties of a 3-D scene as input, and outputs a 2-D image of that scene from a specific point of view. In layman's terms, it is like taking a photograph, except the scene and the camera are both computer simulated. Different from its previous version, Photon, which was written entirely in Java, Photon-v2 utilizes the powerful C++17 for the rendering core and builds a GUI on top of it with Java via JNI. This project is currently in development and more features are expected to come. <br />
 
 Visit Project Website: https://tzuchieh.github.io/Photon-v2-site
@@ -13,6 +14,7 @@ Support the Project:
 | Develop       | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=develop)](https://travis-ci.org/TzuChieh/Photon-v2) |
 
 ## Features
+
 * **Rendering**
   * backward path tracing
   * backward path tracing with next event estimation
@@ -50,6 +52,7 @@ Support the Project:
   * simple GUI for rendering
 
 ## Roadmap
+
 * **Near Future (in 1 ~ 3 months)**
   * stabilize core engine structure
   * fully support common materials
@@ -67,18 +70,16 @@ Support the Project:
   * render a short CG film using Photon
 
 ## Build
-Photon uses CMake as its main build system. The built binaries will be in a folder named "bin". The compilers and toolkits you need is as follows:
 
-* C++17 compliant compiler for Engine, Application, and JNI.
-* JDK 1.8+ and Maven for EditorApplication.
-* Python 3.5.2+ for BlenderAddon.
+Before building the project, please run the setup script (depending on your system, choose either "./setup.bat" or "./setup.sh"). Photon uses CMake as its main build system, and the binaries built will be in a folder named "bin". The compilers and toolkits you need is as follows:
 
-Good news is that Photon depends on 2 third-party libraries only, and we have [precompiled binaries](https://github.com/TzuChieh/Photon-v2-ThirdParty) for them (git clone into the build folder of your choice). You will also need to [download](https://drive.google.com/file/d/1ucr1ESGtJadkqoe2igbhje5QEeM2FgUE/view?usp=sharing) a data folder used by Photon (simply extract it in the project's root folder, replacing the existing "./Resource/" folder).
+* C++17 compliant compiler and Python 3 (both necessary)
+* JDK 1.8+ and Maven (if you want to build editor)
 
-Photon is being developed with cross-platformity in mind, but Windows is the only platform that has been tested, for now. <br />
-(build instructions will be added soon...) <br />
+NOTE: Please use "./build/" as build folder for now, since build scripts are more or less hard-coded to use this path, currently.
 
 ## Images Rendered by Photon-v2
+
 | <a href="./gallery/054_chess (based on _Transparent Chess For Cycle_ by yayel59).png"><img src="./gallery/054_chess (based on _Transparent Chess For Cycle_ by yayel59).png" align="left" width="450" ></a> | <a href="./gallery/048_Arc Reactor (Iron Man) by kuhn0362 8000spp.png"><img src="./gallery/048_Arc Reactor (Iron Man) by kuhn0362 8000spp.png" align="left" width="450" ></a> |
 | :---: | :---: |
 | Chess (based on scene made by "yaye159") | Arc Reactor (Iron Man) by "kuhn0362"|
@@ -88,9 +89,11 @@ Photon is being developed with cross-platformity in mind, but Windows is the onl
 | Scenery with Glass Dragon | Books by archemi |
 
 ## Scene Description Language
-The scene descripting language (SDL) designed by T.C. Chang can be stored into a text file (.p2 filename extension) and loaded by Photon-v2 for rendering. To create a scene, you can either open up a text file and start writing right away (visit folder "./scenes/" for reference) or install the Blender addon (in "./BlenderAddon/"), which contains a .p2 file exporter and a material editor currently.
+
+The scene descripting language (SDL) designed by T.C. Chang can be stored into a text file (.p2 filename extension) and loaded by Photon-v2 for rendering. To create a scene, you can either open up a text file and start writing right away (visit "./scenes/" for references) or install the Blender addon (in "./BlenderAddon/"), which contains a .p2 file exporter and a material editor currently.
 
 ## About the Author
+
 Development Blog: http://tcchangs.blogspot.tw/ <br />
 YouTube Channel:  https://www.youtube.com/channel/UCKdlogjqjuFsuv06wajp-2g <br />
 Facebook Page:    https://www.facebook.com/tccthedeveloper/ <br />
