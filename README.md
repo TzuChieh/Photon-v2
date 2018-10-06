@@ -51,6 +51,20 @@ Support the Project:
   * easy-to-write custom scene description language
   * simple GUI for rendering
 
+## Build
+
+**Run the setup script before building the project** (depending on your system, choose either "./setup.bat" or "./setup.sh"). Photon uses CMake as its main build system, and the toolkits you need are as follows:
+
+* CMake 3.5.2+ (recommended)
+* C++17 compliant compiler (necessary)
+* Python 3 (recommended)
+
+If you want to build editor, you will also need:
+
+* JDK 1.8+ and Maven
+
+NOTE: Please use "./build/" as build folder for now, since build scripts are more or less hard-coded to use this path, currently.
+
 ## Roadmap
 
 * **Near Future (in 1 ~ 3 months)**
@@ -68,15 +82,6 @@ Support the Project:
 * **Future Works (~1 year or later)**
   * documentation & website
   * render a short CG film using Photon
-
-## Build
-
-Before building the project, please run the setup script (depending on your system, choose either "./setup.bat" or "./setup.sh"). Photon uses CMake as its main build system, and the binaries built will be in a folder named "bin". The compilers and toolkits you need is as follows:
-
-* C++17 compliant compiler and Python 3 (both necessary)
-* JDK 1.8+ and Maven (if you want to build editor)
-
-NOTE: Please use "./build/" as build folder for now, since build scripts are more or less hard-coded to use this path, currently.
 
 ## Images Rendered by Photon-v2
 
