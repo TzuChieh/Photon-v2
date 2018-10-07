@@ -75,7 +75,7 @@ inline bool TSurfaceEventDispatcher<POLICY>::doBsdfSample(
 		return false;
 	}
 
-	get_surface_optics(X)->genBsdfSample(bsdfSample);
+	get_surface_optics(X)->calcBsdfSample(bsdfSample);
 
 	// HACK: hard-coded number
 	*out_ray = Ray(X.getPosition(), bsdfSample.outputs.L, 0.0001_r, std::numeric_limits<real>::max());
@@ -117,7 +117,7 @@ inline bool TSurfaceEventDispatcher<POLICY>::doBsdfPdfQuery(
 		return false;
 	}
 
-	get_surface_optics(X)->calcBsdfSamplePdf(bsdfPdfQuery);
+	get_surface_optics(X)->calcBsdfSamplePdfW(bsdfPdfQuery);
 
 	return bsdfPdfQuery.outputs.sampleDirPdfW > 0.0_r;
 }

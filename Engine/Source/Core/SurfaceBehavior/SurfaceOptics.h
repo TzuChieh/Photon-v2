@@ -22,11 +22,11 @@ class SurfaceOptics
 
 public:
 	SurfaceOptics();
-	virtual ~SurfaceOptics() = 0;
+	virtual ~SurfaceOptics();
 
-	void evalBsdf(BsdfEvaluation& eval) const;
-	void genBsdfSample(BsdfSample& sample) const;
-	void calcBsdfSamplePdf(BsdfPdfQuery& pdfQuery) const;
+	void calcBsdf(BsdfEvaluation& eval) const;
+	void calcBsdfSample(BsdfSample& sample) const;
+	void calcBsdfSamplePdfW(BsdfPdfQuery& pdfQuery) const;
 
 	inline const SurfacePhenomena& getPhenomena() const
 	{
@@ -37,21 +37,21 @@ protected:
 	SurfacePhenomena m_phenomena;
 
 private:
-	virtual void evalBsdf(
+	virtual void calcBsdf(
 		const SurfaceHit&         X, 
 		const Vector3R&           L, 
 		const Vector3R&           V,
 		const SidednessAgreement& sidedness,
 		SpectralStrength*         out_bsdf) const = 0;
 
-	virtual void genBsdfSample(
+	virtual void calcBsdfSample(
 		const SurfaceHit&         X, 
 		const Vector3R&           V,
 		const SidednessAgreement& sidedness,
 		Vector3R*                 out_L, 
 		SpectralStrength*         out_pdfAppliedBsdf) const = 0;
 
-	virtual void calcBsdfSamplePdf(
+	virtual void calcBsdfSamplePdfW(
 		const SurfaceHit&         X, 
 		const Vector3R&           L, 
 		const Vector3R&           V,

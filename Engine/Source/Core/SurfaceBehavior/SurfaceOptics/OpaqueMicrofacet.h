@@ -12,11 +12,10 @@
 namespace ph
 {
 
-class OpaqueMicrofacet final : public SurfaceOptics
+class OpaqueMicrofacet : public SurfaceOptics
 {
 public:
 	OpaqueMicrofacet();
-	virtual ~OpaqueMicrofacet() override;
 
 	inline void setAlbedo(const std::shared_ptr<TTexture<SpectralStrength>>& albedo)
 	{
@@ -34,21 +33,21 @@ public:
 	}
 
 private:
-	virtual void evalBsdf(
+	void calcBsdf(
 		const SurfaceHit&         X,
 		const Vector3R&           L,
 		const Vector3R&           V,
 		const SidednessAgreement& sidedness,
 		SpectralStrength*         out_bsdf) const override;
 
-	virtual void genBsdfSample(
+	void calcBsdfSample(
 		const SurfaceHit&         X,
 		const Vector3R&           V,
 		const SidednessAgreement& sidedness,
 		Vector3R*                 out_L,
 		SpectralStrength*         out_pdfAppliedBsdf) const override;
 
-	virtual void calcBsdfSamplePdf(
+	void calcBsdfSamplePdfW(
 		const SurfaceHit&         X,
 		const Vector3R&           L,
 		const Vector3R&           V,

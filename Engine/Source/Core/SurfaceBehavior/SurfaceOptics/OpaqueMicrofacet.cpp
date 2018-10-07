@@ -25,9 +25,7 @@ OpaqueMicrofacet::OpaqueMicrofacet() :
 	m_phenomena.set({ESP::GLOSSY_REFLECTION});
 }
 
-OpaqueMicrofacet::~OpaqueMicrofacet() = default;
-
-void OpaqueMicrofacet::evalBsdf(
+void OpaqueMicrofacet::calcBsdf(
 	const SurfaceHit&         X,
 	const Vector3R&           L,
 	const Vector3R&           V,
@@ -68,7 +66,7 @@ void OpaqueMicrofacet::evalBsdf(
 	*out_bsdf = F.mul(D * G / (4.0_r * std::abs(NoV * NoL)));
 }
 
-void OpaqueMicrofacet::genBsdfSample(
+void OpaqueMicrofacet::calcBsdfSample(
 	const SurfaceHit&         X,
 	const Vector3R&           V,
 	const SidednessAgreement& sidedness,
@@ -109,7 +107,7 @@ void OpaqueMicrofacet::genBsdfSample(
 	out_pdfAppliedBsdf->setValues(F.mul(G).mulLocal(multiplier));
 }
 
-void OpaqueMicrofacet::calcBsdfSamplePdf(
+void OpaqueMicrofacet::calcBsdfSamplePdfW(
 	const SurfaceHit&         X,
 	const Vector3R&           L,
 	const Vector3R&           V,

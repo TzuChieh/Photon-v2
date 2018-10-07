@@ -25,9 +25,7 @@ TranslucentMicrofacet::TranslucentMicrofacet() :
 	m_phenomena.set({ESP::GLOSSY_REFLECTION, ESP::GLOSSY_TRANSMISSION});
 }
 
-TranslucentMicrofacet::~TranslucentMicrofacet() = default;
-
-void TranslucentMicrofacet::evalBsdf(
+void TranslucentMicrofacet::calcBsdf(
 	const SurfaceHit&         X,
 	const Vector3R&           L,
 	const Vector3R&           V,
@@ -106,7 +104,7 @@ void TranslucentMicrofacet::evalBsdf(
 	}
 }
 
-void TranslucentMicrofacet::genBsdfSample(
+void TranslucentMicrofacet::calcBsdfSample(
 	const SurfaceHit&         X,
 	const Vector3R&           V,
 	const SidednessAgreement& sidedness,
@@ -189,7 +187,7 @@ void TranslucentMicrofacet::genBsdfSample(
 	out_pdfAppliedBsdf->setValues(F.mul(G * dotTerms));
 }
 
-void TranslucentMicrofacet::calcBsdfSamplePdf(
+void TranslucentMicrofacet::calcBsdfSamplePdfW(
 	const SurfaceHit&         X,
 	const Vector3R&           L,
 	const Vector3R&           V,

@@ -10,9 +10,7 @@ IdealAbsorber::IdealAbsorber() :
 	m_phenomena.set({});
 }
 
-IdealAbsorber::~IdealAbsorber() = default;
-
-void IdealAbsorber::evalBsdf(
+void IdealAbsorber::calcBsdf(
 	const SurfaceHit&         X,
 	const Vector3R&           L,
 	const Vector3R&           V,
@@ -24,7 +22,7 @@ void IdealAbsorber::evalBsdf(
 	out_bsdf->setValues(0.0_r);
 }
 
-void IdealAbsorber::genBsdfSample(
+void IdealAbsorber::calcBsdfSample(
 	const SurfaceHit&         X,
 	const Vector3R&           V,
 	const SidednessAgreement& sidedness,
@@ -36,7 +34,7 @@ void IdealAbsorber::genBsdfSample(
 	out_pdfAppliedBsdf->setValues(0.0_r);
 }
 
-void IdealAbsorber::calcBsdfSamplePdf(
+void IdealAbsorber::calcBsdfSamplePdfW(
 	const SurfaceHit&         X,
 	const Vector3R&           L,
 	const Vector3R&           V,

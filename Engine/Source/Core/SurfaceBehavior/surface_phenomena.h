@@ -6,6 +6,9 @@
 namespace ph
 {
 
+/*
+	Available surface phenomena.
+*/
 enum class ESP : uint32
 {
 	DIFFUSE_REFLECTION    = uint32(1) << 0,

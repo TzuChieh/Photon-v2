@@ -115,7 +115,7 @@ void BVPTEstimator::radianceAlongRay(
 
 				BsdfSample bsdfSample;
 				bsdfSample.inputs.set(Xe, endV);
-				metadata->getSurface().getOptics()->genBsdfSample(bsdfSample);
+				metadata->getSurface().getOptics()->calcBsdfSample(bsdfSample);
 				if(!bsdfSample.outputs.isGood())
 				{
 					break;

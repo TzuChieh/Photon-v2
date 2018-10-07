@@ -8,7 +8,7 @@ Support the Project:
 * BTC: 123ZDDMB38XcbPG3Q1fEH5WWHdMroYVuFm
 * ETH: 0x0ea47ec84f6abb0cee20a54dedfa8f286731c1f2
 
-| Branch        | Continuous Integration |
+| Branch        | CI Status |
 | ------------- | -----------------------|
 | Master        | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=master)](https://travis-ci.org/TzuChieh/Photon-v2) |
 | Develop       | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=develop)](https://travis-ci.org/TzuChieh/Photon-v2) |

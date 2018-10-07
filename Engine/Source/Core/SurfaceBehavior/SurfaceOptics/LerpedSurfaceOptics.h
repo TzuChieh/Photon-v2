@@ -11,7 +11,7 @@
 namespace ph
 {
 
-class LerpedSurfaceOptics final : public SurfaceOptics
+class LerpedSurfaceOptics : public SurfaceOptics
 {
 public:
 	LerpedSurfaceOptics(
@@ -25,7 +25,6 @@ public:
 		const std::shared_ptr<SurfaceOptics>& optics0, 
 		const std::shared_ptr<SurfaceOptics>& optics1,
 		const std::shared_ptr<TTexture<SpectralStrength>>& ratio);
-	virtual ~LerpedSurfaceOptics() override;
 
 private:
 	std::shared_ptr<SurfaceOptics>              m_optics0;
@@ -33,21 +32,21 @@ private:
 	std::shared_ptr<TTexture<SpectralStrength>> m_ratio;
 	TSampler<SpectralStrength>                  m_sampler;
 
-	virtual void evalBsdf(
+	void calcBsdf(
 		const SurfaceHit&         X,
 		const Vector3R&           L,
 		const Vector3R&           V,
 		const SidednessAgreement& sidedness,
 		SpectralStrength*         out_bsdf) const override;
 
-	virtual void genBsdfSample(
+	void calcBsdfSample(
 		const SurfaceHit&         X,
 		const Vector3R&           V,
 		const SidednessAgreement& sidedness,
 		Vector3R*                 out_L,
 		SpectralStrength*         out_pdfAppliedBsdf) const override;
 
-	virtual void calcBsdfSamplePdf(
+	void calcBsdfSamplePdfW(
 		const SurfaceHit&         X,
 		const Vector3R&           L,
 		const Vector3R&           V,

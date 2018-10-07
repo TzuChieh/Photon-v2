@@ -107,12 +107,12 @@ void BNEEPTEstimator::radianceAlongRay(
 
 				BsdfEvaluation bsdfEval;
 				bsdfEval.inputs.set(surfaceHit, L, V);
-				surfaceBehavior.getOptics()->evalBsdf(bsdfEval);
+				surfaceBehavior.getOptics()->calcBsdf(bsdfEval);
 				if(bsdfEval.outputs.isGood())
 				{
 					BsdfPdfQuery bsdfPdfQuery;
 					bsdfPdfQuery.inputs.set(bsdfEval);
-					surfaceBehavior.getOptics()->calcBsdfSamplePdf(bsdfPdfQuery);
+					surfaceBehavior.getOptics()->calcBsdfSamplePdfW(bsdfPdfQuery);
 
 					const real     bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
 					const real     misWeighting = mis.weight(directPdfW, bsdfSamplePdfW);
@@ -139,7 +139,7 @@ void BNEEPTEstimator::radianceAlongRay(
 
 			BsdfSample bsdfSample;
 			bsdfSample.inputs.set(surfaceHit, V);
-			surfaceBehavior->getOptics()->genBsdfSample(bsdfSample);
+			surfaceBehavior->getOptics()->calcBsdfSample(bsdfSample);
 
 			const Vector3R N = surfaceHit.getShadingNormal();
 			const Vector3R L = bsdfSample.outputs.L;
@@ -156,7 +156,7 @@ void BNEEPTEstimator::radianceAlongRay(
 
 			BsdfPdfQuery bsdfPdfQuery;
 			bsdfPdfQuery.inputs.set(bsdfSample);
-			surfaceBehavior->getOptics()->calcBsdfSamplePdf(bsdfPdfQuery);
+			surfaceBehavior->getOptics()->calcBsdfSamplePdfW(bsdfPdfQuery);
 
 			const real bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
 

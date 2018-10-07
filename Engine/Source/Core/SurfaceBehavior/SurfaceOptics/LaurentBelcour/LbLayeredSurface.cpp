@@ -33,19 +33,18 @@ LbLayeredSurface::LbLayeredSurface(
 	m_sigmaAs(sigmaAs), m_sigmaSs(sigmaSs)
 {
 	PH_ASSERT(m_iorNs.size() != 0);
-	PH_ASSERT(m_iorNs.size() == m_iorKs.size() && 
-	          m_iorKs.size() == m_alphas.size() &&
-	          m_alphas.size() == m_depths.size() &&
-	          m_depths.size() == m_gs.size() &&
-	          m_gs.size() == m_sigmaAs.size() &&
+
+	PH_ASSERT(m_iorNs.size()   == m_iorKs.size()   && 
+	          m_iorKs.size()   == m_alphas.size()  &&
+	          m_alphas.size()  == m_depths.size()  &&
+	          m_depths.size()  == m_gs.size()      &&
+	          m_gs.size()      == m_sigmaAs.size() &&
 	          m_sigmaAs.size() == m_sigmaSs.size());
 
 	m_phenomena.set({ESP::GLOSSY_REFLECTION});
 }
 
-LbLayeredSurface::~LbLayeredSurface() = default;
-
-void LbLayeredSurface::evalBsdf(
+void LbLayeredSurface::calcBsdf(
 	const SurfaceHit&         X,
 	const Vector3R&           L,
 	const Vector3R&           V,
@@ -95,7 +94,7 @@ void LbLayeredSurface::evalBsdf(
 	}
 }
 
-void LbLayeredSurface::genBsdfSample(
+void LbLayeredSurface::calcBsdfSample(
 	const SurfaceHit&         X,
 	const Vector3R&           V,
 	const SidednessAgreement& sidedness,
@@ -182,11 +181,11 @@ void LbLayeredSurface::genBsdfSample(
 
 	SpectralStrength bsdf;
 	// FIXME: we already complete adding-doubling, reuse the computed results
-	LbLayeredSurface::evalBsdf(X, L, V, sidedness, &bsdf);
+	LbLayeredSurface::calcBsdf(X, L, V, sidedness, &bsdf);
 	*out_pdfAppliedBsdf = bsdf / pdf;
 }
 
-void LbLayeredSurface::calcBsdfSamplePdf(
+void LbLayeredSurface::calcBsdfSamplePdfW(
 	const SurfaceHit&         X,
 	const Vector3R&           L,
 	const Vector3R&           V,

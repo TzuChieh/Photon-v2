@@ -50,9 +50,7 @@ LerpedSurfaceOptics::LerpedSurfaceOptics(
 	m_phenomena.unionWith(m_optics1->m_phenomena);
 }
 
-LerpedSurfaceOptics::~LerpedSurfaceOptics() = default;
-
-void LerpedSurfaceOptics::evalBsdf(
+void LerpedSurfaceOptics::calcBsdf(
 	const SurfaceHit&         X,
 	const Vector3R&           L,
 	const Vector3R&           V,
@@ -62,13 +60,13 @@ void LerpedSurfaceOptics::evalBsdf(
 	const SpectralStrength ratio = m_sampler.sample(*m_ratio, X);
 
 	SpectralStrength bsdf0, bsdf1;
-	m_optics0->evalBsdf(X, L, V, sidedness, &bsdf0);
-	m_optics1->evalBsdf(X, L, V, sidedness, &bsdf1);
+	m_optics0->calcBsdf(X, L, V, sidedness, &bsdf0);
+	m_optics1->calcBsdf(X, L, V, sidedness, &bsdf1);
 
 	*out_bsdf  = bsdf0 * ratio + bsdf1 * (SpectralStrength(1) - ratio);
 }
 
-void LerpedSurfaceOptics::genBsdfSample(
+void LerpedSurfaceOptics::calcBsdfSample(
 	const SurfaceHit&         X,
 	const Vector3R&           V,
 	const SidednessAgreement& sidedness,
@@ -84,12 +82,12 @@ void LerpedSurfaceOptics::genBsdfSample(
 	if(dart < prob)
 	{
 		SpectralStrength pdfAppliedBsdf0, bsdf1;
-		m_optics0->genBsdfSample(X, V, sidedness, out_L, &pdfAppliedBsdf0);
-		m_optics1->evalBsdf(X, *out_L, V, sidedness, &bsdf1);
+		m_optics0->calcBsdfSample(X, V, sidedness, out_L, &pdfAppliedBsdf0);
+		m_optics1->calcBsdf(X, *out_L, V, sidedness, &bsdf1);
 
 		real pdfW0, pdfW1;
-		m_optics0->calcBsdfSamplePdf(X, *out_L, V, sidedness, &pdfW0);
-		m_optics1->calcBsdfSamplePdf(X, *out_L, V, sidedness, &pdfW1);
+		m_optics0->calcBsdfSamplePdfW(X, *out_L, V, sidedness, &pdfW0);
+		m_optics1->calcBsdfSamplePdfW(X, *out_L, V, sidedness, &pdfW1);
 
 		const SpectralStrength bsdf = pdfAppliedBsdf0 * pdfW0 * ratio + bsdf1 * (SpectralStrength(1) - ratio);
 		const real             pdfW = pdfW0 * prob + pdfW1 * (1.0_r - prob);
@@ -98,12 +96,12 @@ void LerpedSurfaceOptics::genBsdfSample(
 	else
 	{
 		SpectralStrength pdfAppliedBsdf1, bsdf0;
-		m_optics1->genBsdfSample(X, V, sidedness, out_L, &pdfAppliedBsdf1);
-		m_optics0->evalBsdf(X, *out_L, V, sidedness, &bsdf0);
+		m_optics1->calcBsdfSample(X, V, sidedness, out_L, &pdfAppliedBsdf1);
+		m_optics0->calcBsdf(X, *out_L, V, sidedness, &bsdf0);
 
 		real pdfW0, pdfW1;
-		m_optics1->calcBsdfSamplePdf(X, *out_L, V, sidedness, &pdfW1);
-		m_optics0->calcBsdfSamplePdf(X, *out_L, V, sidedness, &pdfW0);
+		m_optics1->calcBsdfSamplePdfW(X, *out_L, V, sidedness, &pdfW1);
+		m_optics0->calcBsdfSamplePdfW(X, *out_L, V, sidedness, &pdfW0);
 
 		const SpectralStrength bsdf = bsdf0 * ratio + pdfAppliedBsdf1 * pdfW1 * (SpectralStrength(1) - ratio);
 		const real             pdfW = pdfW0 * prob + pdfW1 * (1.0_r - prob);
@@ -111,7 +109,7 @@ void LerpedSurfaceOptics::genBsdfSample(
 	}
 }
 
-void LerpedSurfaceOptics::calcBsdfSamplePdf(
+void LerpedSurfaceOptics::calcBsdfSamplePdfW(
 	const SurfaceHit&         X,
 	const Vector3R&           L,
 	const Vector3R&           V,
@@ -122,8 +120,8 @@ void LerpedSurfaceOptics::calcBsdfSamplePdf(
 	const real             prob  = pickOptics0Probability(ratio);
 
 	real pdf0, pdf1;
-	m_optics0->calcBsdfSamplePdf(X, L, V, sidedness, &pdf0);
-	m_optics1->calcBsdfSamplePdf(X, L, V, sidedness, &pdf1);
+	m_optics0->calcBsdfSamplePdfW(X, L, V, sidedness, &pdf0);
+	m_optics1->calcBsdfSamplePdfW(X, L, V, sidedness, &pdf1);
 	*out_pdfW = pdf0 * prob + pdf1 * (1.0_r - prob);
 }
 

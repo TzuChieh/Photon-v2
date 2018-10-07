@@ -15,9 +15,7 @@ IdealReflector::IdealReflector() :
 	m_phenomena.set({ESP::SPECULAR_REFLECTION});
 }
 
-IdealReflector::~IdealReflector() = default;
-
-void IdealReflector::evalBsdf(
+void IdealReflector::calcBsdf(
 	const SurfaceHit&         X,
 	const Vector3R&           L,
 	const Vector3R&           V,
@@ -29,7 +27,7 @@ void IdealReflector::evalBsdf(
 	out_bsdf->setValues(0.0_r);
 }
 
-void IdealReflector::genBsdfSample(
+void IdealReflector::calcBsdfSample(
 	const SurfaceHit&         X,
 	const Vector3R&           V,
 	const SidednessAgreement& sidedness,
@@ -46,7 +44,7 @@ void IdealReflector::genBsdfSample(
 	out_pdfAppliedBsdf->mulLocal(1.0_r / std::abs(NoL));
 }
 
-void IdealReflector::calcBsdfSamplePdf(
+void IdealReflector::calcBsdfSamplePdfW(
 	const SurfaceHit&         X,
 	const Vector3R&           L,
 	const Vector3R&           V,

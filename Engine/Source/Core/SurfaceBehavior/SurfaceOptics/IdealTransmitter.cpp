@@ -12,9 +12,7 @@ IdealTransmitter::IdealTransmitter() :
 	m_phenomena.set({ESP::SPECULAR_TRANSMISSION});
 }
 
-IdealTransmitter::~IdealTransmitter() = default;
-
-void IdealTransmitter::evalBsdf(
+void IdealTransmitter::calcBsdf(
 	const SurfaceHit&         X,
 	const Vector3R&           L,
 	const Vector3R&           V,
@@ -26,7 +24,7 @@ void IdealTransmitter::evalBsdf(
 	out_bsdf->setValues(0.0_r);
 }
 
-void IdealTransmitter::genBsdfSample(
+void IdealTransmitter::calcBsdfSample(
 	const SurfaceHit&         X,
 	const Vector3R&           V,
 	const SidednessAgreement& sidedness,
@@ -59,7 +57,7 @@ void IdealTransmitter::genBsdfSample(
 	out_pdfAppliedBsdf->setValues(F.mul(iorRatio2 / cosI));
 }
 
-void IdealTransmitter::calcBsdfSamplePdf(
+void IdealTransmitter::calcBsdfSamplePdfW(
 	const SurfaceHit&         X,
 	const Vector3R&           L,
 	const Vector3R&           V,

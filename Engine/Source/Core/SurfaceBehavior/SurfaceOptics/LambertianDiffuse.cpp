@@ -23,15 +23,13 @@ LambertianDiffuse::LambertianDiffuse() :
 	m_phenomena.set({ESP::DIFFUSE_REFLECTION});
 }
 
-LambertianDiffuse::~LambertianDiffuse() = default;
-
 void LambertianDiffuse::setAlbedo(
 	const std::shared_ptr<TTexture<SpectralStrength>>& albedo)
 {
 	m_albedo = albedo;
 }
 
-void LambertianDiffuse::evalBsdf(
+void LambertianDiffuse::calcBsdf(
 	const SurfaceHit&         X,
 	const Vector3R&           L,
 	const Vector3R&           V,
@@ -51,7 +49,7 @@ void LambertianDiffuse::evalBsdf(
 	*out_bsdf = albedo.divLocal(PH_PI_REAL);
 }
 
-void LambertianDiffuse::genBsdfSample(
+void LambertianDiffuse::calcBsdfSample(
 	const SurfaceHit&         X,
 	const Vector3R&           V,
 	const SidednessAgreement& sidedness,
@@ -103,7 +101,7 @@ void LambertianDiffuse::genBsdfSample(
 	out_pdfAppliedBsdf->setValues(albedo.mulLocal(1.0_r / absNoL));
 }
 
-void LambertianDiffuse::calcBsdfSamplePdf(
+void LambertianDiffuse::calcBsdfSamplePdfW(
 	const SurfaceHit&         X,
 	const Vector3R&           L,
 	const Vector3R&           V,

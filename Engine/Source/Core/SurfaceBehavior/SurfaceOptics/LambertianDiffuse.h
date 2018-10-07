@@ -9,30 +9,29 @@
 namespace ph
 {
 
-class LambertianDiffuse final : public SurfaceOptics
+class LambertianDiffuse : public SurfaceOptics
 {
 public:
 	LambertianDiffuse();
-	virtual ~LambertianDiffuse() override;
 
 	void setAlbedo(const std::shared_ptr<TTexture<SpectralStrength>>& albedo);
 
 private:
-	virtual void evalBsdf(
+	void calcBsdf(
 		const SurfaceHit&         X,
 		const Vector3R&           L,
 		const Vector3R&           V,
 		const SidednessAgreement& sidedness,
 		SpectralStrength*         out_bsdf) const override;
 
-	virtual void genBsdfSample(
+	void calcBsdfSample(
 		const SurfaceHit&         X,
 		const Vector3R&           V,
 		const SidednessAgreement& sidedness,
 		Vector3R*                 out_L,
 		SpectralStrength*         out_pdfAppliedBsdf) const override;
 
-	virtual void calcBsdfSamplePdf(
+	void calcBsdfSamplePdfW(
 		const SurfaceHit&         X,
 		const Vector3R&           L,
 		const Vector3R&           V,

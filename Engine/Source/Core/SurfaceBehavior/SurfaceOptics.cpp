@@ -13,11 +13,11 @@ SurfaceOptics::SurfaceOptics() :
 
 SurfaceOptics::~SurfaceOptics() = default;
 
-void SurfaceOptics::evalBsdf(BsdfEvaluation& eval) const
+void SurfaceOptics::calcBsdf(BsdfEvaluation& eval) const
 {
 	const SidednessAgreement sidedness(ESaPolicy::STRICT);
 
-	evalBsdf(
+	calcBsdf(
 		eval.inputs.X, 
 		eval.inputs.L, 
 		eval.inputs.V, 
@@ -25,22 +25,22 @@ void SurfaceOptics::evalBsdf(BsdfEvaluation& eval) const
 		&(eval.outputs.bsdf));
 }
 
-void SurfaceOptics::genBsdfSample(BsdfSample& sample) const
+void SurfaceOptics::calcBsdfSample(BsdfSample& sample) const
 {
 	const SidednessAgreement sidedness(ESaPolicy::STRICT);
 
-	genBsdfSample(
+	calcBsdfSample(
 		sample.inputs.X, 
 		sample.inputs.V,
 		sidedness,
 		&(sample.outputs.L), &(sample.outputs.pdfAppliedBsdf));
 }
 
-void SurfaceOptics::calcBsdfSamplePdf(BsdfPdfQuery& query) const
+void SurfaceOptics::calcBsdfSamplePdfW(BsdfPdfQuery& query) const
 {
 	const SidednessAgreement sidedness(ESaPolicy::STRICT);
 
-	calcBsdfSamplePdf(
+	calcBsdfSamplePdfW(
 		query.inputs.X, 
 		query.inputs.L, 
 		query.inputs.V,
