@@ -6,6 +6,8 @@
 namespace ph
 {
 
+// TODO: make rvalue input possible? (beware of dangling reference after return!)
+
 template<typename T>
 inline decltype(auto) pointer_access(T& t)
 {

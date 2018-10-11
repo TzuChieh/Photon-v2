@@ -36,7 +36,7 @@ TEST(UtilityTest, RegularAccess)
 
 	SomeClass  value;
 	SomeClass* pointer = &value;
-	EXPECT_EQ(ph::regular_access(SomeClass()).t,   3);
+	EXPECT_EQ(ph::regular_access(value).t,   3);
 	EXPECT_EQ(ph::regular_access(pointer).t, 3);
 	EXPECT_TRUE(std::is_reference_v<decltype(ph::regular_access(pointer))>);
 
