@@ -3,7 +3,7 @@
 namespace ph
 {
 
-template<typename Index>
-class TIndexedKdtree
+//template<typename Index>
+//class TIndexedKdtree
 
 }// end namespace ph
