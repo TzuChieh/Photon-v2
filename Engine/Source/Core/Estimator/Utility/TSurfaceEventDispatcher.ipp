@@ -98,7 +98,7 @@ inline bool TSurfaceEventDispatcher<POLICY>::doBsdfEvaluation(
 		return false;
 	}
 
-	get_surface_optics(X)->evalBsdf(bsdfEvaluation);
+	get_surface_optics(X)->calcBsdf(bsdfEvaluation);
 
 	return bsdfEvaluation.outputs.isGood();
 }
