@@ -15,7 +15,7 @@ public:
 	static IndexedKdtreeNode makeInner(
 		real splitPos,
 		int splitAxisIndex, 
-		std::size_t rightChildIndex);
+		std::size_t positiveChildIndex);
 
 	static IndexedKdtreeNode makeLeaf(
 		const int* itemIndices,// TODO: templatize
@@ -25,7 +25,7 @@ public:
 	IndexedKdtreeNode();
 
 	bool isLeaf() const;
-	std::size_t rightChildIndex() const;
+	std::size_t positiveChildIndex() const;
 	std::size_t numItems() const;
 	real getSplitPos() const;
 	int splitAxisIndex() const;
@@ -42,7 +42,7 @@ private:
 	{
 		int  u1_flags;
 		int  u1_numItems;
-		int  u1_rightChildIndex;
+		int  u1_positiveChildIndex;
 	};
 };
 
@@ -62,7 +62,7 @@ inline IndexedKdtreeNode IndexedKdtreeNode::makeInner(
 	const int shiftedIndex = static_cast<int>(rightChildIndex) << 2;
 
 	node.u1_flags = splitAxisIndex;// TODO: check it's 0, 1, 2
-	node.u1_rightChildIndex |= shiftedIndex;
+	node.u1_positiveChildIndex |= shiftedIndex;
 
 	return node;
 }
@@ -108,9 +108,9 @@ inline bool IndexedKdtreeNode::isLeaf() const
 	return (u1_flags & 0b11) == 0b11;
 }
 
-inline std::size_t IndexedKdtreeNode::rightChildIndex() const
+inline std::size_t IndexedKdtreeNode::positiveChildIndex() const
 {
-	return u1_rightChildIndex >> 2;
+	return u1_positiveChildIndex >> 2;
 }
 
 inline std::size_t IndexedKdtreeNode::numItems() const
