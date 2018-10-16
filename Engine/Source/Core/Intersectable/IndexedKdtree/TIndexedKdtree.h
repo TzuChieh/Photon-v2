@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Core/Bound/AABB3D.h"
-#include "Core/Accelerator/Kdtree/IndexedKdtreeNode.h"
+#include "Core/Intersectable/IndexedKdtree/IndexedKdtreeNode.h"
 #include "Utility/utility.h"
-#include "Core/Accelerator/Kdtree/IndexedItemEndpoint.h"
+#include "Core/Intersectable/IndexedKdtree/IndexedItemEndpoint.h"
+#include "Core/Ray.h"
+#include "Core/HitProbe.h"
 
 #include <vector>
 #include <utility>
@@ -21,13 +23,14 @@ class TIndexedKdtree
 {
 public:
 	TIndexedKdtree(
-		std::vector<Item>&& items, 
 		int traversalCost, 
 		int intersectionCost,
 		float emptyBonus,
 		std::size_t maxNodeItems);
 
-	void build();
+	void build(std::vector<Item>&& items);
+	bool isIntersecting(const Ray& ray, HitProbe& probe) const;
+	void getAABB(AABB3D* out_aabb) const;
 
 private:
 	std::vector<Item> m_items;
@@ -37,7 +40,8 @@ private:
 	std::size_t m_maxNodeItems;
 	std::size_t m_maxNodeDepth;
 	AABB3D m_rootAABB;
-	std::vector<IndexedKdtreeNode> m_nodes;
+	std::vector<IndexedKdtreeNode> m_nodeBuffer;
+	std::size_t m_numNodes;
 	std::vector<Index> m_itemIndices;
 
 	void buildNodeRecursive(
@@ -58,26 +62,27 @@ private:
 template<typename Item, typename Index>
 inline TIndexedKdtree<Item, Index>::TIndexedKdtree(
 
-	std::vector<Item>&& items,
 	const int traversalCost,
 	const int intersectionCost,
 	const float emptyBonus,
 	const std::size_t maxNodeItems) :
 
-	m_items(std::move(items)),
+	m_items(),
 	m_traversalCost(traversalCost),
 	m_intersectionCost(intersectionCost),
 	m_emptyBonus(emptyBonus),
 	m_maxNodeItems(maxNodeItems),
 	m_maxNodeDepth(0),
 	m_rootAABB(),
-	m_nodes(),
+	m_nodeBuffer(),
+	m_numNodes(0),
 	m_itemIndices()
 {}
 
 template<typename Item, typename Index>
-inline void TIndexedKdtree<Item, Index>::build()
+inline void TIndexedKdtree<Item, Index>::build(std::vector<Item>&& items)
 {
+	m_items = std::move(items);
 	if(m_items.empty())
 	{
 		return;
@@ -123,6 +128,129 @@ inline void TIndexedKdtree<Item, Index>::build()
 }
 
 template<typename Item, typename Index>
+inline bool TIndexedKdtree<Item, Index>::isIntersecting(const Ray& ray, HitProbe& probe) const
+{
+	struct NodeState
+	{
+		const IndexedKdtreeNode* node;
+		real minT;
+		real maxT;
+	};
+
+	real minT, maxT;
+	if(!m_rootAABB.isIntersectingVolume(ray, &minT, &maxT))
+	{
+		return false;
+	}
+
+	const Vector3R reciRayDir(ray.getDirection().reciprocal());
+
+	std::array<NodeState, 64> nodeStack;
+	int stackHeight = 0;
+	const IndexedKdtreeNode* currentNode = &(m_nodeBuffer[0]);
+	while(true)
+	{
+		if(!currentNode->isLeaf())
+		{
+			const int splitAxis = currentNode->splitAxisIndex();
+			const real splitPlaneT = (currentNode->getSplitPos() - ray.getOrigin()[splitAxis]) * reciRayDir[splitAxis];
+
+			const IndexedKdtreeNode* nearHitNode;
+			const IndexedKdtreeNode* farHitNode;
+			if((ray.getOrigin()[splitAxis] < currentNode->getSplitPos()) ||
+			   (ray.getOrigin()[splitAxis] == currentNode->getSplitPos() && ray.getDirection()[splitAxis] <= 0))
+			{
+				nearHitNode = currentNode + 1;
+				farHitNode  = &(m_nodeBuffer[currentNode->positiveChildIndex()]);
+			}
+			else
+			{
+				nearHitNode = &(m_nodeBuffer[currentNode->positiveChildIndex()]);
+				farHitNode  = currentNode + 1;
+			}
+
+			// Case I: Only near node is hit.
+			//         (split plane is beyond t-max or behind ray origin)
+			if(splitPlaneT > maxT || splitPlaneT < 0)
+			{
+				currentNode = nearHitNode;
+			}
+			// Case II: Only far node is hit.
+			//          (split plane is between ray origin and t-min)
+			else if(splitPlaneT < minT)
+			{
+				currentNode = farHitNode;
+			}
+			// Case III: Both near and far nodes are hit.
+			//           (split plane is within [t-min, t-max])
+			else
+			{
+				nodeStack[stackHeight].node = farHitNode;
+				nodeStack[stackHeight].minT = splitPlaneT;
+				nodeStack[stackHeight].maxT = maxT;
+				++stackHeight;
+
+				currentNode = nearHitNode;
+				maxT = splitPlaneT;
+			}
+		}
+		// current node is leaf
+		else
+		{
+			const Ray segment(ray.getOrigin(), ray.getDirection(), minT, maxT);
+			const std::size_t numItems = currentNode->numItems();
+
+			if(numItems == 1)
+			{
+				const Item& item = m_items[currentNode->getSingleItemDirectIndex()];
+
+				HitProbe hitProbe(probe);
+				if(regular_access(item).isIntersecting(segment, hitProbe))
+				{
+					probe = hitProbe;
+					return true;
+				}
+			}
+			else
+			{
+				HitProbe closestProbe;
+				for(std::size_t i = 0; i < numItems; ++i)
+				{
+					const Index itemIndex = m_itemIndices[currentNode->getItemIndexOffset() + i];
+					const Item& item      = m_items[itemIndex];
+
+					HitProbe hitProbe(probe);
+					if(regular_access(item).isIntersecting(segment, hitProbe))
+					{
+						closestProbe = hitProbe;
+					}
+				}
+
+				if(closestProbe.getHitRayT() < std::numeric_limits<real>::max())
+				{
+					probe = closestProbe;
+					return true;
+				}
+			}
+
+			if(stackHeight > 0)
+			{
+				--stackHeight;
+				currentNode = nodeStack[stackHeight].node;
+				minT        = nodeStack[stackHeight].minT;
+				maxT        = nodeStack[stackHeight].maxT;
+			}
+			else
+			{
+				break;
+			}
+		}// end is leaf node
+	}// end infinite loop
+
+	return false;
+}
+
+template<typename Item, typename Index>
 inline void TIndexedKdtree<Item, Index>::buildNodeRecursive(
 	const std::size_t nodeIndex,
 	const AABB3D& nodeAABB,
@@ -135,9 +263,15 @@ inline void TIndexedKdtree<Item, Index>::buildNodeRecursive(
 	Index* const positiveItemIndicesCache,
 	std::array<std::unique_ptr<IndexedItemEndpoint[]>, 3>& endpointsCache)
 {
+	++m_numNodes;
+	if(m_numNodes > m_nodeBuffer.size())
+	{
+		m_nodeBuffer.resize(m_nodeBuffer.size() * 2));
+	}
+
 	if(currentNodeDepth == m_maxNodeDepth || numNodeItems <= m_maxNodeItems)
 	{
-		m_nodes.push_back(IndexedKdtreeNode::makeLeaf(nodeItemIndices, numNodeItems, m_itemIndices));
+		m_nodeBuffer[nodeIndex] = IndexedKdtreeNode::makeLeaf(nodeItemIndices, numNodeItems, m_itemIndices);
 		return;
 	}
 
@@ -220,7 +354,7 @@ inline void TIndexedKdtree<Item, Index>::buildNodeRecursive(
 	   bestAxis == -1 ||
 	   newNumBadRefines == 3)
 	{
-		m_nodes.push_back(IndexedKdtreeNode::makeLeaf(nodeItemIndices, numNodeItems, m_itemIndices));
+		m_nodeBuffer[nodeIndex] = IndexedKdtreeNode::makeLeaf(nodeItemIndices, numNodeItems, m_itemIndices);
 		return;
 	}
 
@@ -263,10 +397,11 @@ inline void TIndexedKdtree<Item, Index>::buildNodeRecursive(
 		positiveItemIndicesCache + numNodeItems,
 		endpointsCache);
 
-	m_nodes.push_back(IndexedKdtreeNode::makeInner(bestSplitPos, bestAxis, m_nodes.size()));
+	const std::size_t positiveChildIndex = m_numNodes;
+	m_nodeBuffer[nodeIndex] = IndexedKdtreeNode::makeInner(bestSplitPos, bestAxis, positiveChildIndex);
 
 	buildNodeRecursive(
-		m_nodes.size(),
+		positiveChildIndex,
 		positiveNodeAABB,
 		positiveItemIndicesCache,
 		numPositiveItems,
@@ -276,6 +411,12 @@ inline void TIndexedKdtree<Item, Index>::buildNodeRecursive(
 		negativeItemIndicesCache,
 		positiveItemIndicesCache + numNodeItems,
 		endpointsCache);
+}
+
+template<typename Item, typename Index>
+void TIndexedKdtree<Item, Index>::getAABB(AABB3D* const out_aabb) const
+{
+	*out_aabb = m_rootAABB;
 }
 
 }// end namespace ph

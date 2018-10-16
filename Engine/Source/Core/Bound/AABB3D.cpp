@@ -113,14 +113,17 @@ bool AABB3D::isIntersectingVolume(const Ray& ray) const
 	return true;
 }
 
-// Returned boolean value indicates whether the ray is intersecting with the AABB's 
-// volume or not. If there's an intersection, the near and far hit distance will be
-// returned via (out_rayNearHitDist, out_rayFarHitDist); if the ray origin is inside 
-// the AABB, near hit distance will be 0 since volume intersection starts at ray origin.
-//
-// Reference: Kay and Kayjia's "slab method" from a project of the ACM SIGGRAPH Education 
-// Committee named HyperGraph.
-//
+/*
+	Returned boolean value indicates whether the ray is intersecting with the
+	AABB's volume or not. If there's an intersection, the near and far hit
+	distances will be returned via (out_rayNearHitDist, out_rayFarHitDist); if
+	the starting point of the ray is inside the AABB, near hit distance will be
+	the ray's t_min since volume intersection starts immediately on the ray's 
+	starting point.
+
+	Reference: Kay and Kayjia's "slab method" from a project of the ACM 
+	SIGGRAPH Education Committee named HyperGraph.
+*/
 bool AABB3D::isIntersectingVolume(
 	const Ray&  ray,
 	real* const out_rayNearHitT, 

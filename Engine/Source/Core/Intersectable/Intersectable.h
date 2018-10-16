@@ -35,7 +35,6 @@ public:
 	//
 	virtual bool isIntersecting(const Ray& ray) const;
 
-
 	// The default implementation performs conservative intersecting test using the
 	// AABB calculated by calcAABB(). Although false-positives are allowed for this
 	// method, providing an implementation with higher accuracy is benefitial for

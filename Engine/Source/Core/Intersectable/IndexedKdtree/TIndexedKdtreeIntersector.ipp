@@ -1,0 +1,48 @@
+#pragma once
+
+#include "Core/Intersectable/IndexedKdtree/TIndexedKdtreeIntersector.h"
+#include "Actor/CookedDataStorage.h"
+#include "Core/Ray.h"
+#include "Core/HitProbe.h"
+#include "Core/Intersectable/IndexedKdtree/IndexedKdtreeNode.h"
+
+#include <vector>
+
+namespace ph
+{
+
+template<typename IndexedKdtree>
+void TIndexedKdtreeIntersector<IndexedKdtree>::update(const CookedDataStorage& cookedActors)
+{
+	std::vector<const Intersectable*> intersectables;
+	for(const auto& intersectable : cookedActors.intersectables())
+	{
+		// HACK
+		AABB3D aabb;
+		intersectable->calcAABB(&aabb);
+		if(!aabb.isFiniteVolume())
+		{
+			continue;
+		}
+
+		intersectables.push_back(intersectable.get());
+	}
+	m_tree.build(std::move(intersectables));
+}
+
+template<typename IndexedKdtree>
+bool TIndexedKdtreeIntersector<IndexedKdtree>::isIntersecting(const Ray& ray, HitProbe& probe) const
+{
+	struct NodeState
+	{
+		const IndexedKdtreeNode* node;
+		real minT;
+		real maxT;
+	};
+
+
+
+	return false;
+}
+
+}// end namespace ph

@@ -29,6 +29,8 @@ public:
 	std::size_t numItems() const;
 	real getSplitPos() const;
 	int splitAxisIndex() const;
+	std::size_t getSingleItemDirectIndex() const;
+	std::size_t getItemIndexOffset() const;
 
 private:
 	union
@@ -126,6 +128,16 @@ inline real IndexedKdtreeNode::getSplitPos() const
 inline int IndexedKdtreeNode::splitAxisIndex() const
 {
 	return u1_flags & 0b11;
+}
+
+inline std::size_t IndexedKdtreeNode::getSingleItemDirectIndex() const
+{
+	return u0_oneItemIndex;
+}
+
+inline std::size_t IndexedKdtreeNode::getItemIndexOffset() const
+{
+	return u0_itemIndexOffset;
 }
 
 }// end namespace ph
