@@ -94,7 +94,7 @@ inline void TIndexedKdtree<Item, Index>::build(std::vector<Item>&& items)
 	regular_access(m_items.front()).calcAABB(&m_rootAABB);
 	for(const auto& item : m_items)
 	{
-		const AABB3D aabb;
+		AABB3D aabb;
 		regular_access(item).calcAABB(&aabb);
 
 		itemAABBs.push_back(aabb);
@@ -152,7 +152,7 @@ inline bool TIndexedKdtree<Item, Index>::isIntersecting(const Ray& ray, HitProbe
 	{
 		if(!currentNode->isLeaf())
 		{
-			const int splitAxis = currentNode->splitAxisIndex();
+			const int  splitAxis   = currentNode->splitAxisIndex();
 			const real splitPlaneT = (currentNode->getSplitPos() - ray.getOrigin()[splitAxis]) * reciRayDir[splitAxis];
 
 			const IndexedKdtreeNode* nearHitNode;
@@ -191,14 +191,14 @@ inline bool TIndexedKdtree<Item, Index>::isIntersecting(const Ray& ray, HitProbe
 				++stackHeight;
 
 				currentNode = nearHitNode;
-				maxT = splitPlaneT;
+				maxT        = splitPlaneT;
 			}
 		}
 		// current node is leaf
 		else
 		{
-			const Ray segment(ray.getOrigin(), ray.getDirection(), minT, maxT);
 			const std::size_t numItems = currentNode->numItems();
+			Ray segment(ray.getOrigin(), ray.getDirection(), minT, maxT);
 
 			if(numItems == 1)
 			{
@@ -222,7 +222,11 @@ inline bool TIndexedKdtree<Item, Index>::isIntersecting(const Ray& ray, HitProbe
 					HitProbe hitProbe(probe);
 					if(regular_access(item).isIntersecting(segment, hitProbe))
 					{
-						closestProbe = hitProbe;
+						if(hitProbe.getHitRayT() < closestProbe.getHitRayT())
+						{
+							closestProbe = hitProbe;
+							segment.setMaxT(hitProbe.getHitRayT());
+						}
 					}
 				}
 
@@ -266,7 +270,7 @@ inline void TIndexedKdtree<Item, Index>::buildNodeRecursive(
 	++m_numNodes;
 	if(m_numNodes > m_nodeBuffer.size())
 	{
-		m_nodeBuffer.resize(m_nodeBuffer.size() * 2));
+		m_nodeBuffer.resize(m_numNodes * 2);
 	}
 
 	if(currentNodeDepth == m_maxNodeDepth || numNodeItems <= m_maxNodeItems)

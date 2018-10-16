@@ -33,16 +33,7 @@ void TIndexedKdtreeIntersector<IndexedKdtree>::update(const CookedDataStorage& c
 template<typename IndexedKdtree>
 bool TIndexedKdtreeIntersector<IndexedKdtree>::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
-	struct NodeState
-	{
-		const IndexedKdtreeNode* node;
-		real minT;
-		real maxT;
-	};
-
-
-
-	return false;
+	return m_tree.isIntersecting(ray, probe);
 }
 
 }// end namespace ph

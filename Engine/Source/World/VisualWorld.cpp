@@ -9,6 +9,7 @@
 #include "World/LightSampler/UniformRandomLightSampler.h"
 #include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
 #include "World/VisualWorldInfo.h"
+#include "Core/Intersectable/IndexedKdtree/TIndexedKdtreeIntersector.h"
 
 #include <limits>
 #include <iostream>
@@ -21,8 +22,9 @@ const Logger VisualWorld::logger(LogSender("Visual World"));
 VisualWorld::VisualWorld() :
 
 	//m_intersector(std::make_unique<BruteForceIntersector>()), 
-	m_intersector(std::make_unique<KdtreeIntersector>()), 
+	//m_intersector(std::make_unique<KdtreeIntersector>()), 
 	//m_intersector(std::make_unique<ClassicBvhIntersector>()), 
+	m_intersector(std::make_unique<TIndexedKdtreeIntersector<TIndexedKdtree<const Intersectable*, int>>>()),
 
 	m_lightSampler(std::make_unique<UniformRandomLightSampler>()), 
 	m_scene(),
