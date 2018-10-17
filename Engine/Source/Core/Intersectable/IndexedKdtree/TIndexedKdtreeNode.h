@@ -7,6 +7,7 @@
 #include <vector>
 #include <limits>
 #include <cmath>
+#include <climits>
 
 namespace ph
 {
