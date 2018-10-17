@@ -18,6 +18,8 @@ namespace ph
 template<typename Index>
 class TIndexedKdtreeNode
 {
+	// TODO: add constants for max allowed items and index
+
 public:
 	static TIndexedKdtreeNode makeInner(
 		real                splitPos,
@@ -133,7 +135,7 @@ inline TIndexedKdtreeNode<Index> TIndexedKdtreeNode<Index>::makeLeaf(
 		// is signed type, value conversion from negative Index back to std::size_t 
 		// can mess up the stored bits. So here we check that we did not overflow Index.
 		// OPT: try to find an efficient way to make use of the sign bit for storing index
-		PH_ASSERT(indicesBuffer.size() <= std::numeric_limits<Index>::max());
+		PH_ASSERT(indicesBuffer.size() <= static_cast<std::size_t>(std::numeric_limits<Index>::max()));
 
 		node.u0_itemIndexOffset = static_cast<Index>(indicesBuffer.size());
 		for(std::size_t i = 0; i < numItems; ++i)
