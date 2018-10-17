@@ -123,8 +123,8 @@ public:
 
 	inline std::string toString() const;
 
-	inline T& operator [] (int32 axisIndex);
-	inline const T& operator [] (int32 axisIndex) const;
+	inline T& operator [] (int axisIndex);
+	inline const T& operator [] (int axisIndex) const;
 
 	inline TVector3 operator * (T rhs) const;
 	inline TVector3 operator / (T rhs) const;

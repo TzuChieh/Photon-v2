@@ -25,7 +25,7 @@ private:
 template<typename IndexedKdtree>
 inline TIndexedKdtreeIntersector<IndexedKdtree>::TIndexedKdtreeIntersector() :
 	Intersector(),
-	m_tree(1.0_r, 80.0_r, 0.5_r, 1)
+	m_tree(1, 80, 0.5_r, 1)
 {}
 
 template<typename IndexedKdtree>

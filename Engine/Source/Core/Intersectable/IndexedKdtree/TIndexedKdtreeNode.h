@@ -11,6 +11,10 @@
 namespace ph
 {
 
+/*
+	An indexed kD-tree node with compacted memory layout without regarding
+	alignment issues.
+*/
 template<typename Index>
 class TIndexedKdtreeNode
 {
@@ -30,15 +34,23 @@ public:
 	bool isLeaf() const;
 	std::size_t positiveChildIndex() const;
 	std::size_t numItems() const;
-	real getSplitPos() const;
+	real splitPos() const;
 	int splitAxisIndex() const;
-	std::size_t getSingleItemDirectIndex() const;
-	std::size_t getItemIndexOffset() const;
+	std::size_t singleItemDirectIndex() const;
+	std::size_t itemIndexOffset() const;
 
 private:
-	constexpr std::size_t NUM_U1_NUMBER_BITS = sizeof(Index) * CHAR_BIT - 2;
-	constexpr std::size_t MAX_U1_NUMBER      = (std::size_t(1) << (NUM_U1_NUMBER_BITS - 1)) - 1;
+	constexpr static std::size_t NUM_U1_NUMBER_BITS = sizeof(Index) * CHAR_BIT - 2;
+	constexpr static std::size_t MAX_U1_NUMBER      = (std::size_t(1) << (NUM_U1_NUMBER_BITS - 1)) - 1;
 
+	/*
+		For inner nodes: splitting position <splitPos> along the axis of 
+		splitting is stored.
+		
+		For leaf nodes:  the beginning of the indices for accessing item 
+		index buffer is stored in <itemIndexOffset> (an exception is when 
+		there is only one item, its index is directly stored in <oneItemIndex>).
+	*/
 	union
 	{
 		real  u0_splitPos;
@@ -46,6 +58,18 @@ private:
 		Index u0_itemIndexOffset;
 	};
 
+	/*
+		Assuming Index type has N bits, we divide it into two parts: 
+		[N - 2 bits][2 bits]. The [2 bits] part <flags> has the following meaning
+
+		0b00: splitting axis is X // indicates this node is inner
+		0b01: splitting axis is Y //
+		0b10: splitting axis is Z //
+		0b11: this node is leaf
+
+		For inner nodes, <positiveChildIndex> is stored in the upper [N - 2 bits].
+		For leaf nodes, <numItems> is stored in the upper [N - 2 bits] instead. 
+	*/
 	union
 	{
 		Index u1_flags;
@@ -91,9 +115,8 @@ inline TIndexedKdtreeNode<Index> TIndexedKdtreeNode<Index>::makeLeaf(
 
 	TIndexedKdtreeNode node;
 
-	node.u1_flags = 0b11;
-
 	const Index shiftedNumItems = static_cast<Index>(numItems << 2);
+	node.u1_flags = 0b11;
 	node.u1_numItems |= shiftedNumItems;
 
 	if(numItems == 0)
@@ -106,7 +129,11 @@ inline TIndexedKdtreeNode<Index> TIndexedKdtreeNode<Index>::makeLeaf(
 	}
 	else
 	{
-		PH_ASSERT(indicesBuffer.size() <= static_cast<std::size_t>(~Index(0)));
+		// For leaf nodes we directly store index offset value in <u0>. If Index
+		// is signed type, value conversion from negative Index back to std::size_t 
+		// can mess up the stored bits. So here we check that we did not overflow Index.
+		// OPT: try to find an efficient way to make use of the sign bit for storing index
+		PH_ASSERT(indicesBuffer.size() <= std::numeric_limits<Index>::max());
 
 		node.u0_itemIndexOffset = static_cast<Index>(indicesBuffer.size());
 		for(std::size_t i = 0; i < numItems; ++i)
@@ -141,7 +168,7 @@ inline std::size_t TIndexedKdtreeNode<Index>::numItems() const
 }
 
 template<typename Index>
-inline real TIndexedKdtreeNode<Index>::getSplitPos() const
+inline real TIndexedKdtreeNode<Index>::splitPos() const
 {
 	PH_ASSERT(!isLeaf());
 
@@ -157,7 +184,7 @@ inline int TIndexedKdtreeNode<Index>::splitAxisIndex() const
 }
 
 template<typename Index>
-inline std::size_t TIndexedKdtreeNode<Index>::getSingleItemDirectIndex() const
+inline std::size_t TIndexedKdtreeNode<Index>::singleItemDirectIndex() const
 {
 	PH_ASSERT(isLeaf() && numItems() == 1);
 
@@ -165,7 +192,7 @@ inline std::size_t TIndexedKdtreeNode<Index>::getSingleItemDirectIndex() const
 }
 
 template<typename Index>
-inline std::size_t TIndexedKdtreeNode<Index>::getItemIndexOffset() const
+inline std::size_t TIndexedKdtreeNode<Index>::itemIndexOffset() const
 {
 	PH_ASSERT(isLeaf());
 

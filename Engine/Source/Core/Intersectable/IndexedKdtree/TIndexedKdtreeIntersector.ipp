@@ -4,7 +4,6 @@
 #include "Actor/CookedDataStorage.h"
 #include "Core/Ray.h"
 #include "Core/HitProbe.h"
-#include "Core/Intersectable/IndexedKdtree/IndexedKdtreeNode.h"
 
 #include <vector>
 

@@ -690,7 +690,7 @@ inline TVector3<T> TVector3<T>::operator - (const TVector3& rhs) const
 }
 
 template<typename T>
-inline T& TVector3<T>::operator [] (const int32 axisIndex)
+inline T& TVector3<T>::operator [] (const int axisIndex)
 {
 	PH_ASSERT(axisIndex >= 0 && axisIndex <= 2);
 
@@ -705,9 +705,9 @@ inline T& TVector3<T>::operator [] (const int32 axisIndex)
 }
 
 template<typename T>
-inline const T& TVector3<T>::operator [] (const int32 axisIndex) const
+inline const T& TVector3<T>::operator [] (const int axisIndex) const
 {
-	PH_ASSERT(axisIndex >= 0 && axisIndex <= 2);
+	PH_ASSERT(0 <= axisIndex && axisIndex <= 2);
 
 	switch(axisIndex)
 	{

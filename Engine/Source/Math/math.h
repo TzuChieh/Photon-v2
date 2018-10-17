@@ -24,10 +24,10 @@ namespace ph
 namespace math
 {
 
-constexpr int32 UNKNOWN_AXIS = -1;
-constexpr int32 X_AXIS       = 0;
-constexpr int32 Y_AXIS       = 1;
-constexpr int32 Z_AXIS       = 2;
+constexpr int UNKNOWN_AXIS = -1;
+constexpr int X_AXIS       = 0;
+constexpr int Y_AXIS       = 1;
+constexpr int Z_AXIS       = 2;
 
 template<typename T>
 inline auto matrix2x2(const T e00, const T e01, const T e10, const T e11)
