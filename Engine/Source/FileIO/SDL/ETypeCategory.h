@@ -22,11 +22,12 @@ enum class ETypeCategory
 	REF_ESTIMATOR,
 	REF_SAMPLE_GENERATOR,
 	REF_RENDERER,
+	REF_OPTION,
 	
 	// special values
 	//
 	MIN         = REF_GEOMETRY,
-	MAX         = REF_RENDERER,
+	MAX         = REF_OPTION,
 	UNSPECIFIED = MAX + 1
 };
 

@@ -10,6 +10,8 @@
 #include "Common/Logger.h"
 #include "Core/Bound/AABB3D.h"
 #include "Math/TVector3.h"
+#include "World/CookSettings.h"
+#include "Common/assertion.h"
 
 #include <vector>
 #include <memory>
@@ -27,7 +29,11 @@ public:
 
 	void cook();
 	void addActor(std::shared_ptr<Actor> actor);
+
+	// HACK
 	void setCameraPosition(const Vector3R& cameraPos);
+
+	void setCookSettings(const std::shared_ptr<CookSettings>& settings);
 
 	const Scene& getScene() const;
 
@@ -44,11 +50,13 @@ private:
 	std::unique_ptr<Intersector>  m_intersector;
 	std::unique_ptr<LightSampler> m_lightSampler;
 	Scene                         m_scene;
+	std::shared_ptr<CookSettings> m_cookSettings;
 	
 	// HACK
 	const Primitive* m_backgroundEmitterPrimitive;
 
 	void cookActors(CookingContext& cookingContext);
+	void createTopLevelAccelerator();
 
 	static AABB3D calcIntersectableBound(const CookedDataStorage& storage);
 
@@ -60,6 +68,13 @@ private:
 inline void VisualWorld::setCameraPosition(const Vector3R& cameraPos)
 {
 	m_cameraPos = cameraPos;
+}
+
+inline void VisualWorld::setCookSettings(const std::shared_ptr<CookSettings>& settings)
+{
+	PH_ASSERT(settings);
+
+	m_cookSettings = settings;
 }
 
 }// end namespace ph

@@ -21,17 +21,16 @@ const Logger VisualWorld::logger(LogSender("Visual World"));
 
 VisualWorld::VisualWorld() :
 
-	//m_intersector(std::make_unique<BruteForceIntersector>()), 
-	//m_intersector(std::make_unique<KdtreeIntersector>()), 
-	//m_intersector(std::make_unique<ClassicBvhIntersector>()), 
-	m_intersector(std::make_unique<TIndexedKdtreeIntersector<TIndexedKdtree<const Intersectable*, int>>>()),
-
+	m_intersector(),
 	m_lightSampler(std::make_unique<UniformRandomLightSampler>()), 
 	m_scene(),
 	m_cameraPos(0),
+	m_cookSettings(),
 
 	m_backgroundEmitterPrimitive(nullptr)
-{}
+{
+	setCookSettings(std::make_shared<CookSettings>());
+}
 
 VisualWorld::VisualWorld(VisualWorld&& other) :
 	m_actors            (std::move(other.m_actors)), 
@@ -40,6 +39,7 @@ VisualWorld::VisualWorld(VisualWorld&& other) :
 	m_lightSampler      (std::move(other.m_lightSampler)), 
 	m_scene             (std::move(other.m_scene)),
 	m_cameraPos         (std::move(other.m_cameraPos)),
+	m_cookSettings      (std::move(other.m_cookSettings)),
 
 	m_backgroundEmitterPrimitive(std::move(other.m_backgroundEmitterPrimitive))
 {}
@@ -115,7 +115,8 @@ void VisualWorld::cook()
 	           "number of emitters: " + 
 	           std::to_string(m_cookedActorStorage.numEmitters()));
 
-	logger.log(ELogLevel::NOTE_MED, "updating intersector...");
+	logger.log(ELogLevel::NOTE_MED, "updating accelerator...");
+	createTopLevelAccelerator();
 	m_intersector->update(m_cookedActorStorage);
 
 	logger.log(ELogLevel::NOTE_MED, "updating light sampler...");
@@ -145,6 +146,44 @@ void VisualWorld::cookActors(CookingContext& cookingContext)
 		cookedUnit.claimCookedData(m_cookedActorStorage);
 		cookedUnit.claimCookedBackend(m_cookedBackendStorage);
 	}
+}
+
+void VisualWorld::createTopLevelAccelerator()
+{
+	PH_ASSERT(m_cookSettings);
+
+	const EAccelerator type = m_cookSettings->getTopLevelAccelerator();
+
+	std::string name;
+	switch(type)
+	{
+	case EAccelerator::BRUTE_FORCE:
+		m_intersector = std::make_unique<BruteForceIntersector>();
+		name = "Brute-Force";
+		break;
+
+	case EAccelerator::BVH:
+		m_intersector = std::make_unique<ClassicBvhIntersector>();
+		name = "BVH";
+		break;
+
+	case EAccelerator::KDTREE:
+		m_intersector = std::make_unique<KdtreeIntersector>();
+		name = "kD-Tree";
+		break;
+
+	case EAccelerator::INDEXED_KDTREE:
+		m_intersector = std::make_unique<TIndexedKdtreeIntersector<TIndexedKdtree<const Intersectable*, int>>>();
+		name = "Indexed kD-Tree";
+		break;
+
+	default:
+		m_intersector = std::make_unique<ClassicBvhIntersector>();
+		name = "BVH";
+		break;
+	}
+
+	logger.log("top level accelerator type: " + name);
 }
 
 const Scene& VisualWorld::getScene() const

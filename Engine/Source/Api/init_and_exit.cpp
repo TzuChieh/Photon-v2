@@ -76,6 +76,9 @@
 #include "Core/Renderer/Renderer.h"
 #include "Core/Renderer/Sampling/SamplingRenderer.h"
 
+// options
+#include "World/CookSettings.h"
+
 #include <iostream>
 
 namespace ph
@@ -168,6 +171,9 @@ bool init_command_parser()
 	// renderers
 	register_command_interface<Renderer>();
 	register_command_interface<SamplingRenderer>();
+
+	// options
+	register_command_interface<CookSettings>();
 
 	return true;
 }

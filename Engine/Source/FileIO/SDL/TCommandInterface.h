@@ -28,7 +28,7 @@ class TCommandInterface : public virtual ISdlResource
 	friend void register_command_interface<DerivedType>();
 
 public:
-	virtual ~TCommandInterface() = 0;
+	virtual ~TCommandInterface();
 
 private:
 	typedef std::function<SdlTypeInfo()>          TypeInfoFuncType;
@@ -57,6 +57,7 @@ void TCommandInterface<DerivedType>::registerInterface()
 		          << "command registering failed for <" 
 		          << typeInfoFunc().toString() 
 		          << ">" << std::endl;
+		return;
 	}
 
 	// TODO: use logger

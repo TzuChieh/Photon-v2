@@ -17,18 +17,25 @@ SdlResourcePack::SdlResourcePack() :
 
 void SdlResourcePack::update(const real deltaS)
 {
-	const std::string& resourceName = SdlParser::CORE_DATA_NAME();
+	const std::string& coreResourceName = SdlParser::CORE_DATA_NAME();
 
-	m_camera          = resources.getResource<Camera>         (resourceName, DataTreatment::REQUIRED());
-	m_sampleGenerator = resources.getResource<SampleGenerator>(resourceName, DataTreatment::REQUIRED());
-	m_renderer        = resources.getResource<Renderer>       (resourceName, DataTreatment::REQUIRED());
+	m_camera          = resources.getResource<Camera>         (coreResourceName, DataTreatment::REQUIRED());
+	m_sampleGenerator = resources.getResource<SampleGenerator>(coreResourceName, DataTreatment::REQUIRED());
+	m_renderer        = resources.getResource<Renderer>       (coreResourceName, DataTreatment::REQUIRED());
 	if(!m_camera || !m_sampleGenerator || !m_renderer)
 	{
 		std::cerr << "warning: at Description::update(), data incomplete" << std::endl;
 		return;
 	}
 
+	m_cookSettings = resources.getResource<CookSettings>(coreResourceName);
+	if(!m_cookSettings)
+	{
+		m_cookSettings = std::make_shared<CookSettings>();
+	}
+
 	visualWorld.setCameraPosition(m_camera->getPosition());
+	visualWorld.setCookSettings(m_cookSettings);
 
 	const auto& actors = resources.getActors();
 	for(const auto& actor : actors)
