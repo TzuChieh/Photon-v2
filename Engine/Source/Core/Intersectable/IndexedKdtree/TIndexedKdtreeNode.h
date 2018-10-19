@@ -29,9 +29,13 @@ public:
 		std::size_t         positiveChildIndex);
 
 	static TIndexedKdtreeNode makeLeaf(
+		Index               index,
+		std::size_t         numItems);
+
+	static TIndexedKdtreeNode makeLeaf(
 		const Index*        itemIndices,
 		std::size_t         numItems,
-		std::vector<Index>& indicesBuffer);
+		std::vector<Index>& indexBuffer);
 
 	TIndexedKdtreeNode();
 
@@ -40,29 +44,27 @@ public:
 	std::size_t numItems() const;
 	real splitPos() const;
 	int splitAxisIndex() const;
-	std::size_t itemIndexOffset() const;
+	std::size_t index() const;
 
 	template<typename U = std::enable_if_t<USE_SINGLE_ITEM_OPT>>
 	std::size_t singleItemDirectIndex() const;
+
+	std::size_t indexBufferOffset() const;
 
 private:
 	constexpr static std::size_t NUM_U1_NUMBER_BITS = sizeof(Index) * CHAR_BIT - 2;
 	constexpr static std::size_t MAX_U1_NUMBER      = (std::size_t(1) << (NUM_U1_NUMBER_BITS - 1)) - 1;
 
 	/*
-		For inner nodes: splitting position <splitPos> along the axis of 
+		For inner nodes: Splitting position <splitPos> along the axis of 
 		splitting is stored.
 		
-		For leaf nodes:  the beginning of the indices for accessing item 
-		index buffer is stored in <itemIndexOffset> (an exception is when 
-		there is only one item, its index is directly stored in 
-		<singleItemDirectIndex>).
+		For leaf nodes:  An index value for accessing item is stored in <index>.
 	*/
 	union
 	{
 		real  u0_splitPos;
-		Index u0_singleItemDirectIndex;
-		Index u0_itemIndexOffset;
+		Index u0_index;
 	};
 
 	/*
@@ -117,11 +119,10 @@ inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
 inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 	makeLeaf(
-		const Index* const  itemIndices,
-		const std::size_t   numItems,
-		std::vector<Index>& indicesBuffer) -> TIndexedKdtreeNode
+		const Index       index,
+		const std::size_t numItems) -> TIndexedKdtreeNode
 {
-	PH_ASSERT(itemIndices && numItems <= MAX_U1_NUMBER);
+	PH_ASSERT(numItems <= MAX_U1_NUMBER);
 
 	TIndexedKdtreeNode node;
 
@@ -129,26 +130,40 @@ inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 	node.u1_flags = 0b11;
 	node.u1_numItems |= shiftedNumItems;
 
+	node.u0_index = index;
+
+	return node;
+}
+
+template<typename Index, bool USE_SINGLE_ITEM_OPT>
+inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
+	makeLeaf(
+		const Index* const  itemIndices,
+		const std::size_t   numItems,
+		std::vector<Index>& indexBuffer) -> TIndexedKdtreeNode
+{
+	PH_ASSERT(itemIndices && numItems <= MAX_U1_NUMBER);
+
 	if(!(USE_SINGLE_ITEM_OPT && numItems == 1))
 	{
 		// For leaf nodes we directly store index offset value in <u0>. If Index is signed type, 
 		// value conversion from negative Index back to std::size_t can mess up the stored bits. 
-		// So here we check that we did not overflow Index.
+		// So here we make sure that we will not overflow Index.
 		// OPT: try to find an efficient way to make use of the sign bit for storing index
-		PH_ASSERT(indicesBuffer.size() <= static_cast<std::size_t>(std::numeric_limits<Index>::max()));
+		PH_ASSERT(indexBuffer.size() <= static_cast<std::size_t>(std::numeric_limits<Index>::max()));
+		const Index indexBufferOffset = static_cast<Index>(indexBuffer.size());
 
-		node.u0_itemIndexOffset = static_cast<Index>(indicesBuffer.size());
 		for(std::size_t i = 0; i < numItems; ++i)
 		{
-			indicesBuffer.push_back(itemIndices[i]);
+			indexBuffer.push_back(itemIndices[i]);
 		}
+
+		return makeLeaf(indexBufferOffset, numItems);
 	}
 	else
 	{
-		node.u0_singleItemDirectIndex = itemIndices[0];
+		return makeLeaf(itemIndices[0], numItems);
 	}
-
-	return node;
 }
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
@@ -195,26 +210,31 @@ inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 }
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
+inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
+	index() const -> std::size_t
+{
+	PH_ASSERT(isLeaf());
+
+	return static_cast<std::size_t>(u0_index);
+}
+
+template<typename Index, bool USE_SINGLE_ITEM_OPT>
 template<typename>
 inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 	singleItemDirectIndex() const -> std::size_t
 {
-	PH_ASSERT(
-		isLeaf() && 
-		(USE_SINGLE_ITEM_OPT && numItems() == 1));
+	PH_ASSERT(USE_SINGLE_ITEM_OPT && numItems() == 1);
 
-	return static_cast<std::size_t>(u0_singleItemDirectIndex);
+	return index();
 }
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
 inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
-	itemIndexOffset() const -> std::size_t
+	indexBufferOffset() const -> std::size_t
 {
-	PH_ASSERT(
-		isLeaf() && 
-		!(USE_SINGLE_ITEM_OPT && numItems() == 1));
+	PH_ASSERT(!(USE_SINGLE_ITEM_OPT && numItems() == 1));
 
-	return static_cast<std::size_t>(u0_itemIndexOffset);
+	return index();
 }
 
 }// end namespace ph

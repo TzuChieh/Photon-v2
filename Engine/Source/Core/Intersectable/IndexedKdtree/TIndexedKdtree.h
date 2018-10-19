@@ -227,7 +227,7 @@ inline bool TIndexedKdtree<Item, Index>::isIntersecting(const Ray& ray, HitProbe
 				HitProbe closestProbe;
 				for(std::size_t i = 0; i < numItems; ++i)
 				{
-					const Index itemIndex = m_itemIndices[currentNode->itemIndexOffset() + i];
+					const Index itemIndex = m_itemIndices[currentNode->indexBufferOffset() + i];
 					const Item& item      = m_items[itemIndex];
 
 					HitProbe hitProbe(probe);

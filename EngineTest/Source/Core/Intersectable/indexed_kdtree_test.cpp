@@ -15,7 +15,7 @@ void indexed_node_test()
 
 	const auto leafNode1 = TIndexedKdtreeNode<Index>::makeLeaf(itemIndices.data(), itemIndices.size(), indexBuffer);
 	EXPECT_TRUE(leafNode1.isLeaf());
-	EXPECT_EQ(leafNode1.itemIndexOffset(), 0);
+	EXPECT_EQ(leafNode1.indexBufferOffset(), 0);
 	EXPECT_EQ(leafNode1.numItems(), 3);
 
 	EXPECT_EQ(indexBuffer.size(), 3);
@@ -37,7 +37,7 @@ void indexed_node_test()
 
 	const auto leafNodeNoSingleItemOpt = TIndexedKdtreeNode<Index, false>::makeLeaf(itemIndices.data() + 1, 1, indexBuffer);
 	EXPECT_TRUE(leafNodeNoSingleItemOpt.isLeaf());
-	EXPECT_EQ(leafNodeNoSingleItemOpt.itemIndexOffset(), 3);
+	EXPECT_EQ(leafNodeNoSingleItemOpt.indexBufferOffset(), 3);
 	EXPECT_EQ(leafNodeNoSingleItemOpt.numItems(), 1);
 
 	EXPECT_EQ(indexBuffer.size(), 4);

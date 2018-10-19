@@ -2,6 +2,7 @@
 
 #include "Common/assertion.h"
 #include "Math/TVector3.h"
+#include "Core/Intersectable/IndexedKdtree/TIndexedKdtreeNode.h"
 
 #include <vector>
 #include <utility>
@@ -14,6 +15,8 @@ template<typename Item, typename T, typename CenterCalculator>
 class TNearestNeighborKdtree
 {
 public:
+	using Node = TIndexedKdtreeNode<Item, false>;
+
 	void build(std::vector<Item>&& items);
 
 	template<typename KNNResult>
