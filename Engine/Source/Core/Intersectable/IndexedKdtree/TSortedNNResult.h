@@ -9,7 +9,7 @@ namespace ph
 {
 
 template<typename Item>
-class TSortedKNNResult
+class TSortedNNResult
 {
 	// TODO
 };
