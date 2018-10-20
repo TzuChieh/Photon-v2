@@ -16,12 +16,12 @@ namespace ph
 {
 
 template<typename Item, typename Index, typename CenterCalculator>
-class TNearestNeighborKdtree
+class TCenterKdtree
 {
 public:
 	using Node = TIndexedKdtreeNode<Index, false>;
 
-	TNearestNeighborKdtree(std::size_t maxNodeItems);
+	TCenterKdtree(std::size_t maxNodeItems);
 
 	void build(std::vector<Item>&& items);
 
@@ -61,8 +61,8 @@ private:
 // In-header Implementations:
 
 template<typename Item, typename Index, typename CenterCalculator>
-inline TNearestNeighborKdtree<Item, Index, CenterCalculator>::
-	TNearestNeighborKdtree(const std::size_t maxNodeItems) : 
+inline TCenterKdtree<Item, Index, CenterCalculator>::
+TCenterKdtree(const std::size_t maxNodeItems) :
 
 	m_nodeBuffer(),
 	m_items(),
@@ -75,7 +75,7 @@ inline TNearestNeighborKdtree<Item, Index, CenterCalculator>::
 }
 
 template<typename Item, typename Index, typename CenterCalculator>
-inline void TNearestNeighborKdtree<Item, Index, CenterCalculator>::
+inline void TCenterKdtree<Item, Index, CenterCalculator>::
 	build(std::vector<Item>&& items)
 {
 	m_nodeBuffer.clear();
@@ -116,7 +116,7 @@ inline void TNearestNeighborKdtree<Item, Index, CenterCalculator>::
 }
 
 template<typename Item, typename Index, typename CenterCalculator>
-inline void TNearestNeighborKdtree<Item, Index, CenterCalculator>::
+inline void TCenterKdtree<Item, Index, CenterCalculator>::
 	findWithinRange(
 		const Vector3R&    location,
 		const real         searchRadius,
@@ -191,7 +191,7 @@ inline void TNearestNeighborKdtree<Item, Index, CenterCalculator>::
 
 template<typename Item, typename Index, typename CenterCalculator>
 template<typename NNResult>
-inline void TNearestNeighborKdtree<Item, Index, CenterCalculator>::
+inline void TCenterKdtree<Item, Index, CenterCalculator>::
 	findNearestNeighbors(
 		const Vector3R& location,
 		const real      maxSearchRadius,
@@ -204,7 +204,7 @@ inline void TNearestNeighborKdtree<Item, Index, CenterCalculator>::
 }
 
 template<typename Item, typename Index, typename CenterCalculator>
-inline void TNearestNeighborKdtree<Item, Index, CenterCalculator>::
+inline void TCenterKdtree<Item, Index, CenterCalculator>::
 	buildNodeRecursive(
 		const std::size_t            nodeIndex,
 		const AABB3D&                nodeAABB,
@@ -272,7 +272,7 @@ inline void TNearestNeighborKdtree<Item, Index, CenterCalculator>::
 }
 
 template<typename Item, typename Index, typename CenterCalculator>
-inline AABB3D TNearestNeighborKdtree<Item, Index, CenterCalculator>::
+inline AABB3D TCenterKdtree<Item, Index, CenterCalculator>::
 	calcCentersAABB(
 		const Index* const           itemIndices,
 		const std::size_t            numItems,
