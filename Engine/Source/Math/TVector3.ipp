@@ -730,6 +730,18 @@ inline TVector3<T>& TVector3<T>::operator = (const TVector3& rhs)
 }
 
 template<typename T>
+inline bool TVector3<T>::operator == (const TVector3& rhs) const
+{
+	return this->equals(rhs);
+}
+
+template<typename T>
+inline bool TVector3<T>::operator != (const TVector3& rhs) const
+{
+	return !(this->equals(rhs));
+}
+
+template<typename T>
 inline TVector3<T> operator * (const T rhs, const TVector3<T>& lhs)
 {
 	return lhs.mul(rhs);

@@ -134,6 +134,9 @@ public:
 	inline TVector3 operator - (const TVector3& rhs) const;
 
 	inline TVector3& operator = (const TVector3& rhs);
+
+	inline bool operator == (const TVector3& rhs) const;
+	inline bool operator != (const TVector3& rhs) const;
 };
 
 template<typename T>

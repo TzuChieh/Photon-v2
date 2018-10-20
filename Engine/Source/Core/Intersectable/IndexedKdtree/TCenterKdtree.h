@@ -21,7 +21,7 @@ class TCenterKdtree
 public:
 	using Node = TIndexedKdtreeNode<Index, false>;
 
-	TCenterKdtree(std::size_t maxNodeItems);
+	TCenterKdtree(std::size_t maxNodeItems, const CenterCalculator& centerCalculator);
 
 	void build(std::vector<Item>&& items);
 
@@ -43,6 +43,7 @@ private:
 	std::size_t        m_numNodes;
 	std::size_t        m_maxNodeItems;
 	std::vector<Index> m_indexBuffer;
+	CenterCalculator   m_centerCalculator;
 
 	void buildNodeRecursive(
 		std::size_t                  nodeIndex,
@@ -62,14 +63,15 @@ private:
 
 template<typename Item, typename Index, typename CenterCalculator>
 inline TCenterKdtree<Item, Index, CenterCalculator>::
-TCenterKdtree(const std::size_t maxNodeItems) :
+TCenterKdtree(const std::size_t maxNodeItems, const CenterCalculator& centerCalculator) :
 
 	m_nodeBuffer(),
 	m_items(),
 	m_rootAABB(),
 	m_numNodes(0),
 	m_maxNodeItems(maxNodeItems),
-	m_indexBuffer()
+	m_indexBuffer(),
+	m_centerCalculator(centerCalculator)
 {
 	PH_ASSERT(maxNodeItems > 0);
 }
@@ -88,11 +90,10 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 		return;
 	}
 
-	const CenterCalculator centerCalculator;
 	std::vector<Vector3R> itemCenters;
 	for(const auto& item : m_items)
 	{
-		const Vector3R& center = centerCalculator(regular_access(item));
+		const Vector3R& center = m_centerCalculator(regular_access(item));
 		itemCenters.push_back(center);
 	}
 
@@ -130,8 +131,7 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 	std::array<const Node*, MAX_STACK_HEIGHT> nodeStack;
 
 	const Node* currentNode = &(m_nodeBuffer[0]);
-	std::size_t stackHeight = 1;
-	nodeStack[0] = currentNode;
+	std::size_t stackHeight = 0;
 	while(true)
 	{
 		PH_ASSERT(currentNode);
@@ -155,8 +155,9 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 			}
 
 			currentNode = nearNode;
-			if(splitPlaneDiff * splitPlaneDiff >= searchRadius2)
+			if(searchRadius2 >= splitPlaneDiff * splitPlaneDiff)
 			{
+				PH_ASSERT(stackHeight < MAX_STACK_HEIGHT);
 				nodeStack[stackHeight++] = farNode;
 			}
 		}
@@ -169,7 +170,7 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 			{
 				const Index     itemIndex  = m_indexBuffer[indexBufferOffset + i];
 				const Item&     item       = m_items[itemIndex];
-				const Vector3R& itemCenter = CenterCalculator()(item);
+				const Vector3R& itemCenter = m_centerCalculator(item);
 				const real      dist2      = (itemCenter - location).lengthSquared();
 				if(dist2 <= searchRadius2)
 				{
@@ -231,9 +232,9 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 
 	const std::size_t midItemIndex = numNodeItems / 2;
 	std::nth_element(
-		std::begin(nodeItemIndices), 
-		std::begin(nodeItemIndices) + midItemIndex,
-		std::begin(nodeItemIndices) + numNodeItems, 
+		nodeItemIndices, 
+		nodeItemIndices + midItemIndex,
+		nodeItemIndices + numNodeItems, 
 		[&](const Index& a, const Index& b) -> bool
 		{
 			return itemCenters[a][splitAxis] < itemCenters[b][splitAxis];
@@ -266,8 +267,9 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 	buildNodeRecursive(
 		positiveChildIndex,
 		positiveNodeAABB,
-		nodeItemIndices,
+		nodeItemIndices + midItemIndex,
 		numPositiveItems,
+		itemCenters,
 		currentNodeDepth + 1);
 }
 
