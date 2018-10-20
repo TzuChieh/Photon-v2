@@ -48,7 +48,7 @@ public:
 	inline TVector3& maxLocal(const TVector3& rhs);
 	inline TVector3 min(const TVector3& rhs) const;
 	inline TVector3& minLocal(const TVector3& rhs);
-	inline int32 maxDimension() const;
+	inline int maxDimension() const;
 	inline TVector3 abs() const;
 	inline TVector3& absLocal();
 

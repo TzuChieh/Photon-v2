@@ -155,7 +155,7 @@ inline TVector3<T>& TVector3<T>::minLocal(const TVector3& rhs)
 }
 
 template<typename T>
-inline int32 TVector3<T>::maxDimension() const
+inline int TVector3<T>::maxDimension() const
 {
 	return x > y ? (x > z ? math::X_AXIS : math::Z_AXIS) :
 	               (y > z ? math::Y_AXIS : math::Z_AXIS);
