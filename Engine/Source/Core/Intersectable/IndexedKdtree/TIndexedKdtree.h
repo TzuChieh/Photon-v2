@@ -135,7 +135,7 @@ inline void TIndexedKdtree<Item, Index>::build(std::vector<Item>&& items)
 template<typename Item, typename Index>
 inline bool TIndexedKdtree<Item, Index>::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
-	PH_ASSERT(!m_nodeBuffer.empty());
+	PH_ASSERT(m_numNodes > 0);
 
 	struct NodeState
 	{

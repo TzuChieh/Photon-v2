@@ -10,6 +10,7 @@
 #include <utility>
 #include <cstddef>
 #include <algorithm>
+#include <array>
 
 namespace ph
 {
@@ -24,11 +25,16 @@ public:
 
 	void build(std::vector<Item>&& items);
 
+	void findWithinRange(
+		const Vector3R&    location,
+		real               searchRadius,
+		std::vector<Item>& results) const;
+
 	template<typename NNResult>
 	void findNearestNeighbors(
-		const Vector3R& location, 
-		const real      maxSearchRadius, 
-		NNResult&       results) const;
+		const Vector3R&    location, 
+		real               maxSearchRadius, 
+		NNResult&          results) const;
 
 private:
 	std::vector<Node>  m_nodeBuffer;
@@ -110,6 +116,80 @@ inline void TNearestNeighborKdtree<Item, Index, CenterCalculator>::
 }
 
 template<typename Item, typename Index, typename CenterCalculator>
+inline void TNearestNeighborKdtree<Item, Index, CenterCalculator>::
+	findWithinRange(
+		const Vector3R&    location,
+		const real         searchRadius,
+		std::vector<Item>& results) const
+{
+	PH_ASSERT(m_numNodes > 0);
+
+	const real searchRadius2 = searchRadius * searchRadius;
+
+	constexpr std::size_t MAX_STACK_HEIGHT = 64;
+	std::array<const Node*, MAX_STACK_HEIGHT> nodeStack;
+
+	const Node* currentNode = &(m_nodeBuffer[0]);
+	std::size_t stackHeight = 1;
+	nodeStack[0] = currentNode;
+	while(true)
+	{
+		PH_ASSERT(currentNode);
+		if(!currentNode->isLeaf())
+		{
+			const int  splitAxis      = currentNode->splitAxisIndex();
+			const real splitPos       = currentNode->splitPos();
+			const real splitPlaneDiff = location[splitAxis] - splitPos;
+
+			const Node* nearNode;
+			const Node* farNode;
+			if(splitPlaneDiff < 0)
+			{
+				nearNode = currentNode + 1;
+				farNode  = &(m_nodeBuffer[currentNode->positiveChildIndex()]);
+			}
+			else
+			{
+				nearNode = &(m_nodeBuffer[currentNode->positiveChildIndex()]);
+				farNode  = currentNode + 1;
+			}
+
+			currentNode = nearNode;
+			if(splitPlaneDiff * splitPlaneDiff >= searchRadius2)
+			{
+				nodeStack[stackHeight++] = farNode;
+			}
+		}
+		// current node is leaf
+		else
+		{
+			const std::size_t numItems          = currentNode->numItems();
+			const std::size_t indexBufferOffset = currentNode->indexBufferOffset();
+			for(std::size_t i = 0; i < numItems; ++i)
+			{
+				const Index     itemIndex  = m_indexBuffer[indexBufferOffset + i];
+				const Item&     item       = m_items[itemIndex];
+				const Vector3R& itemCenter = CenterCalculator()(item);
+				const real      dist2      = (itemCenter - location).lengthSquared();
+				if(dist2 <= searchRadius2)
+				{
+					results.push_back(item);
+				}
+			}
+
+			if(stackHeight > 0)
+			{
+				currentNode = nodeStack[--stackHeight];
+			}
+			else
+			{
+				break;
+			}
+		}
+	}// end while stackHeight > 0
+}
+
+template<typename Item, typename Index, typename CenterCalculator>
 template<typename NNResult>
 inline void TNearestNeighborKdtree<Item, Index, CenterCalculator>::
 	findNearestNeighbors(
@@ -120,6 +200,7 @@ inline void TNearestNeighborKdtree<Item, Index, CenterCalculator>::
 	PH_ASSERT(k > 0);
 
 	// TODO
+	PH_ASSERT_UNREACHABLE_SECTION();
 }
 
 template<typename Item, typename Index, typename CenterCalculator>

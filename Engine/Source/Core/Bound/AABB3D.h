@@ -10,6 +10,9 @@ namespace ph
 
 class Ray;
 
+// TODO: 
+// 1: templatize
+// 2: add a split method (useful for kdtree)
 class AABB3D final
 {
 public:
