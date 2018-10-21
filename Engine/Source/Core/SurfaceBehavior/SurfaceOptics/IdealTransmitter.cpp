@@ -9,7 +9,7 @@ IdealTransmitter::IdealTransmitter() :
 	SurfaceOptics(),
 	m_fresnel(std::make_shared<ExactDielectricFresnel>(1.0_r, 1.5_r))
 {
-	m_phenomena.set({ESP::SPECULAR_TRANSMISSION});
+	m_phenomena.set({ESP::DELTA_TRANSMISSION});
 }
 
 void IdealTransmitter::calcBsdf(
