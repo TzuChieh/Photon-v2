@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <algorithm>
 #include <array>
+#include <memory>
 
 namespace ph
 {
