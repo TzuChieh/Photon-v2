@@ -199,7 +199,7 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 		const real      maxSearchRadius,
 		NNResult&       results) const
 {
-	PH_ASSERT(k > 0);
+	//PH_ASSERT(k > 0);
 
 	// TODO
 	PH_ASSERT_UNREACHABLE_SECTION();
