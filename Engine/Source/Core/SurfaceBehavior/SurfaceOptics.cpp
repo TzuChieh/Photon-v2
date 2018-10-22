@@ -8,7 +8,8 @@ namespace ph
 {
 
 SurfaceOptics::SurfaceOptics() : 
-	m_phenomena()
+	m_phenomena(),
+	m_numComponents(1)
 {}
 
 SurfaceOptics::~SurfaceOptics() = default;

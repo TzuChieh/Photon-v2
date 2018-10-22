@@ -18,7 +18,6 @@ private:
 
 public:
 	// Creats an instance with no flags.
-	//
 	TBitFlags();
 
 	// Unions specified flags into this instance.

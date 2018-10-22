@@ -53,7 +53,7 @@ private:
 		const SidednessAgreement& sidedness,
 		real*                     out_pdfW) const override;
 
-	static real pickOptics0Probability(const SpectralStrength& ratio);
+	static real probabilityOfPickingOptics0(const SpectralStrength& ratio);
 };
 
 }// end namespace ph

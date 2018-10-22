@@ -28,13 +28,12 @@ public:
 	void calcBsdfSample(BsdfSample& sample) const;
 	void calcBsdfSamplePdfW(BsdfPdfQuery& pdfQuery) const;
 
-	inline const SurfacePhenomena& getPhenomena() const
-	{
-		return m_phenomena;
-	}
+	const SurfacePhenomena& getPhenomena() const;
+	unsigned int numComponents() const;
 
 protected:
 	SurfacePhenomena m_phenomena;
+	unsigned int     m_numComponents;
 
 private:
 	virtual void calcBsdf(
@@ -58,5 +57,17 @@ private:
 		const SidednessAgreement& sidedness,
 		real*                     out_pdfW) const = 0;
 };
+
+// In-header Implementations:
+
+inline const SurfacePhenomena& SurfaceOptics::getPhenomena() const
+{
+	return m_phenomena;
+}
+
+inline unsigned int SurfaceOptics::numComponents() const
+{
+	return m_numComponents;
+}
 
 }// end namespace ph

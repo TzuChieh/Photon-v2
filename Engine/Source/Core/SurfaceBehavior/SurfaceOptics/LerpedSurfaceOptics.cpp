@@ -76,7 +76,7 @@ void LerpedSurfaceOptics::calcBsdfSample(
 	PH_ASSERT(out_L && out_pdfAppliedBsdf);
 
 	const SpectralStrength ratio = m_sampler.sample(*m_ratio, X);
-	const real             prob  = pickOptics0Probability(ratio);
+	const real             prob  = probabilityOfPickingOptics0(ratio);
 
 	const real dart = Random::genUniformReal_i0_e1();
 	if(dart < prob)
@@ -117,7 +117,7 @@ void LerpedSurfaceOptics::calcBsdfSamplePdfW(
 	real* const               out_pdfW) const
 {
 	const SpectralStrength ratio = m_sampler.sample(*m_ratio, X);
-	const real             prob  = pickOptics0Probability(ratio);
+	const real             prob  = probabilityOfPickingOptics0(ratio);
 
 	real pdf0, pdf1;
 	m_optics0->calcBsdfSamplePdfW(X, L, V, sidedness, &pdf0);
@@ -125,7 +125,7 @@ void LerpedSurfaceOptics::calcBsdfSamplePdfW(
 	*out_pdfW = pdf0 * prob + pdf1 * (1.0_r - prob);
 }
 
-real LerpedSurfaceOptics::pickOptics0Probability(const SpectralStrength& ratio)
+real LerpedSurfaceOptics::probabilityOfPickingOptics0(const SpectralStrength& ratio)
 {
 	return math::clamp(ratio.calcLuminance(EQuantity::ECF), 0.01_r, 1.0_r);
 }

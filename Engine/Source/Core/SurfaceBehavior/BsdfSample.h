@@ -3,6 +3,7 @@
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Quantity/SpectralStrength.h"
+#include "Core/SurfaceBehavior/surface_phenomena.h"
 
 namespace ph
 {
