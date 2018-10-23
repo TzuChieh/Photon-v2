@@ -2,7 +2,7 @@
 
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
-#include "Core/SurfaceBehavior/surface_phenomena.h"
+#include "Core/SurfaceBehavior/surface_optics_fwd.h"
 
 namespace ph
 {

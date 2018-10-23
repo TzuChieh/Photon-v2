@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
-#include "Core/SurfaceBehavior/surface_phenomena.h"
+#include "Core/SurfaceBehavior/surface_optics_fwd.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Core/SurfaceHit.h"
 
