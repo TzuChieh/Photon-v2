@@ -16,23 +16,36 @@ public:
 	class Input final
 	{
 	public:
-		SurfaceHit X;
-		Vector3R   V;
+		SurfaceHit       X;
+		Vector3R         V;
+		SurfaceElemental elemental;
 
 		void set(const BsdfEvaluation& bsdfEval);
 
-		inline void set(const SurfaceHit& X, const Vector3R& V)
+		inline void set(
+			const SurfaceHit&      X, 
+			const Vector3R&        V)
 		{
-			this->X = X;
-			this->V = V;
+			set(X, V, ALL_ELEMENTALS);
+		}
+
+		inline void set(
+			const SurfaceHit&      X, 
+			const Vector3R&        V,
+			const SurfaceElemental elemental)
+		{
+			this->X         = X;
+			this->V         = V;
+			this->elemental = elemental;
 		}
 	};
 
 	class Output final
 	{
 	public:
-		Vector3R           L;
-		SpectralStrength   pdfAppliedBsdf;
+		Vector3R         L;
+		SpectralStrength pdfAppliedBsdf;
+		SurfaceElemental elemental;
 
 		inline bool isGood() const
 		{

@@ -19,5 +19,8 @@ enum class ESP : uint32
 };
 
 using SurfacePhenomena = TBitFlags<uint32, ESP>;
+using SurfaceElemental = int;
+
+constexpr SurfaceElemental ALL_ELEMENTALS = -1;
 
 }// end namespace ph

@@ -6,7 +6,10 @@ namespace ph
 
 void BsdfSample::Input::set(const BsdfEvaluation& bsdfEval)
 {
-	set(bsdfEval.inputs.X, bsdfEval.inputs.V);
+	set(
+		bsdfEval.inputs.X, 
+		bsdfEval.inputs.V, 
+		bsdfEval.inputs.elemental);
 }
 
 }// end namespace ph

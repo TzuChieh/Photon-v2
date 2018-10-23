@@ -16,9 +16,10 @@ public:
 	class Input final
 	{
 	public:
-		SurfaceHit X;
-		Vector3R   L;
-		Vector3R   V;
+		SurfaceHit       X;
+		Vector3R         L;
+		Vector3R         V;
+		SurfaceElemental elemental;
 
 		void set(const BsdfEvaluation& bsdfEval);
 		void set(const BsdfSample& sample);
