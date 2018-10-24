@@ -16,17 +16,13 @@
 namespace ph
 {
 
-LambertianDiffuse::LambertianDiffuse() :
+LambertianDiffuse::LambertianDiffuse(const std::shared_ptr<TTexture<SpectralStrength>>& albedo) :
 	SurfaceOptics(),
-	m_albedo(std::make_shared<TConstantTexture<SpectralStrength>>(SpectralStrength(0.5_r)))
+	m_albedo(albedo)
 {
-	m_phenomena.set({ESP::DIFFUSE_REFLECTION});
-}
+	PH_ASSERT(albedo);
 
-void LambertianDiffuse::setAlbedo(
-	const std::shared_ptr<TTexture<SpectralStrength>>& albedo)
-{
-	m_albedo = albedo;
+	m_phenomena.set({ESP::DIFFUSE_REFLECTION});
 }
 
 void LambertianDiffuse::calcBsdf(

@@ -19,7 +19,7 @@ MatteOpaque::MatteOpaque() :
 
 MatteOpaque::MatteOpaque(const Vector3R& linearSrgbAlbedo) : 
 	SurfaceMaterial(),
-	m_albedo(nullptr)
+	m_albedo()
 {
 	setAlbedo(linearSrgbAlbedo);
 }
@@ -28,9 +28,12 @@ MatteOpaque::~MatteOpaque() = default;
 
 void MatteOpaque::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
-	auto surfaceOptics = std::make_shared<LambertianDiffuse>();
-	surfaceOptics->setAlbedo(m_albedo->genTextureSpectral(context));
-	behavior.setOptics(surfaceOptics);
+	PH_ASSERT(m_albedo);
+
+	auto optics = std::make_shared<LambertianDiffuse>(
+		m_albedo->genTextureSpectral(context));
+
+	behavior.setOptics(optics);
 }
 
 void MatteOpaque::setAlbedo(const Vector3R& albedo)
@@ -52,7 +55,7 @@ void MatteOpaque::setAlbedo(const std::shared_ptr<Image>& albedo)
 
 MatteOpaque::MatteOpaque(const InputPacket& packet) :
 	SurfaceMaterial(packet),
-	m_albedo(nullptr)
+	m_albedo()
 {
 	if(packet.hasReference<Image>("albedo"))
 	{
@@ -80,7 +83,7 @@ MatteOpaque::MatteOpaque(const InputPacket& packet) :
 		setAlbedo(Vector3R(0.5_r));
 	}
 
-	PH_ASSERT(m_albedo != nullptr);
+	PH_ASSERT(m_albedo);
 }
 
 SdlTypeInfo MatteOpaque::ciTypeInfo()

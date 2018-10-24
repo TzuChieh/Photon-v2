@@ -17,11 +17,17 @@
 namespace ph
 {
 
-TranslucentMicrofacet::TranslucentMicrofacet() :
+TranslucentMicrofacet::TranslucentMicrofacet(
+	const std::shared_ptr<DielectricFresnel>& fresnel,
+	const std::shared_ptr<Microfacet>&        microfacet) :
+
 	SurfaceOptics(),
-	m_fresnel   (std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r)),
-	m_microfacet(std::make_shared<IsoTrowbridgeReitz>(0.5_r))
+
+	m_fresnel   (fresnel),
+	m_microfacet(microfacet)
 {
+	PH_ASSERT(fresnel && microfacet);
+
 	m_phenomena.set({ESP::GLOSSY_REFLECTION, ESP::GLOSSY_TRANSMISSION});
 }
 

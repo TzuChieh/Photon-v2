@@ -88,24 +88,23 @@ class Exporter:
 			command = RawCommand()
 			command.append_string("-> geometry(triangle-mesh) %s \n" % ("\"@" + geometryName + "\""))
 
-			positions = ""
+			positions = []
 			for position in keywordArgs["positions"]:
 				triPosition = self.__blendToPhotonVector(position)
-				positions += "\"%.8f %.8f %.8f\" " %(triPosition.x, triPosition.y, triPosition.z)
+				positions.append("\"%.8f %.8f %.8f\" " % (triPosition.x, triPosition.y, triPosition.z))
 
-			texCoords = ""
+			texCoords = []
 			for texCoord in keywordArgs["texCoords"]:
-				texCoords += "\"%.8f %.8f %.8f\" " %(texCoord[0], texCoord[1], texCoord[2])
+				texCoords.append("\"%.8f %.8f %.8f\" " % (texCoord[0], texCoord[1], texCoord[2]))
 
-			normals = ""
+			normals = []
 			for normal in keywordArgs["normals"]:
 				triNormal = self.__blendToPhotonVector(normal)
-				normals += "\"%.8f %.8f %.8f\" " %(triNormal.x, triNormal.y, triNormal.z)
+				normals.append("\"%.8f %.8f %.8f\" " % (triNormal.x, triNormal.y, triNormal.z))
 
-
-			command.append_string("[vector3r-array positions {%s}]\n"           % positions)
-			command.append_string("[vector3r-array texture-coordinates {%s}]\n" % texCoords)
-			command.append_string("[vector3r-array normals {%s}]\n"             % normals)
+			command.append_string("[vector3r-array positions {%s}]\n"           % "".join(positions))
+			command.append_string("[vector3r-array texture-coordinates {%s}]\n" % "".join(texCoords))
+			command.append_string("[vector3r-array normals {%s}]\n"             % "".join(normals))
 			self.__sdlconsole.queue_command(command)
 
 		elif geometryType == "rectangle":

@@ -15,22 +15,14 @@ namespace ph
 class OpaqueMicrofacet : public SurfaceOptics
 {
 public:
-	OpaqueMicrofacet();
+	OpaqueMicrofacet(
+		const std::shared_ptr<FresnelEffect>& fresnel,
+		const std::shared_ptr<Microfacet>&    microfacet);
 
-	inline void setAlbedo(const std::shared_ptr<TTexture<SpectralStrength>>& albedo)
+	/*inline void setAlbedo(const std::shared_ptr<TTexture<SpectralStrength>>& albedo)
 	{
 		m_albedo = albedo;
-	}
-
-	inline void setMicrofacet(const std::shared_ptr<Microfacet>& microfacet)
-	{
-		m_microfacet = microfacet;
-	}
-
-	inline void setFresnelEffect(const std::shared_ptr<FresnelEffect>& fresnel)
-	{
-		m_fresnel = fresnel;
-	}
+	}*/
 
 private:
 	void calcBsdf(
@@ -55,7 +47,7 @@ private:
 		real*                     out_pdfW) const override;
 
 private:
-	std::shared_ptr<TTexture<SpectralStrength>> m_albedo;
+	//std::shared_ptr<TTexture<SpectralStrength>> m_albedo;
 	std::shared_ptr<Microfacet>                 m_microfacet;
 	std::shared_ptr<FresnelEffect>              m_fresnel;
 };

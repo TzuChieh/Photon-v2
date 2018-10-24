@@ -6,6 +6,8 @@
 #include "Math/TVector3.h"
 #include "FileIO/SDL/TCommandInterface.h"
 
+#include <functional>
+
 namespace ph
 {
 
@@ -18,11 +20,9 @@ public:
 	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
 
 	//void setAlbedo(const Vector3R& albedo);
-	void setIor(const real iorOuter, const real iorInner);
-	void setRoughness(const real roughness);
 
 private:
-	TranslucentMicrofacet m_optics;
+	std::function<std::unique_ptr<SurfaceOptics>()> m_opticsGenerator;
 
 // command interface
 public:

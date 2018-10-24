@@ -12,9 +12,7 @@ namespace ph
 class LambertianDiffuse : public SurfaceOptics
 {
 public:
-	LambertianDiffuse();
-
-	void setAlbedo(const std::shared_ptr<TTexture<SpectralStrength>>& albedo);
+	LambertianDiffuse(const std::shared_ptr<TTexture<SpectralStrength>>& albedo);
 
 private:
 	void calcBsdf(

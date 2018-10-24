@@ -1,5 +1,6 @@
 #include "Common/Logger.h"
 #include "Utility/Timestamp.h"
+#include "Common/config.h"
 
 #include <iostream>
 #include <string>
@@ -123,8 +124,13 @@ void Logger::log(const LogSender& logSender, const ELogLevel& logLevel, const st
 	case ELogLevel::NOTE_MIN:
 	case ELogLevel::NOTE_MED:
 	case ELogLevel::NOTE_MAX:
+#ifndef PH_UNBUFFERED_LOG
 		std::cout << "[" + timestamp.toString() + "] " 
 		          << "[" << logSender.getSenderName() << "] " << message << std::endl;
+#else
+		std::cerr << "[" + timestamp.toString() + "] "
+		          << "[" << logSender.getSenderName() << "] " << message << std::endl;
+#endif
 		break;
 
 	case ELogLevel::WARNING_MIN:

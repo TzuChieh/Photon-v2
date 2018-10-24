@@ -66,8 +66,22 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phSetNumRenderThreads
 JNIEXPORT void JNICALL Java_photonApi_Ph_phEnterCommand
 (JNIEnv* env, jclass thiz, jlong engineId, jstring commandFragment)
 {
-	const char* commandFragmentString = env->GetStringUTFChars(commandFragment, JNI_FALSE);
-	phEnterCommand(static_cast<PHuint64>(engineId), commandFragmentString);
+	const char* commandFragmentString = env->GetStringUTFChars(commandFragment, nullptr);
+	if(commandFragmentString)
+	{
+		phEnterCommand(static_cast<PHuint64>(engineId), commandFragmentString);
+		
+	}
+	else
+	{
+		if(env->ExceptionCheck())
+		{
+			env->ExceptionDescribe();
+			env->ExceptionClear();
+		}
+
+		std::cerr << "warning: " << "GetStringUTFChars() returns null for engine " << std::to_string(engineId) << std::endl;
+	}
 	env->ReleaseStringUTFChars(commandFragment, commandFragmentString);
 }
 

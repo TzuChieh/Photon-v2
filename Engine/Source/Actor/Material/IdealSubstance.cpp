@@ -18,7 +18,7 @@ namespace ph
 
 IdealSubstance::IdealSubstance() : 
 	SurfaceMaterial(),
-	m_opticsGenerator(nullptr)
+	m_opticsGenerator()
 {
 	asAbsorber();
 }
@@ -36,10 +36,8 @@ void IdealSubstance::asDielectricReflector(const real iorInner, const real iorOu
 {
 	m_opticsGenerator = [=]()
 	{
-		auto optics  = std::make_unique<IdealReflector>();
 		auto fresnel = std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner);
-		optics->setFresnelEffect(fresnel);
-
+		auto optics  = std::make_unique<IdealReflector>(fresnel);
 		return optics;
 	};
 }
@@ -51,10 +49,8 @@ void IdealSubstance::asMetallicReflector(const Vector3R& linearSrgbF0, const rea
 
 	m_opticsGenerator = [=]()
 	{
-		auto optics  = std::make_unique<IdealReflector>();
 		auto fresnel = std::make_shared<SchlickApproxConductorDielectricFresnel>(f0Spectral);
-		optics->setFresnelEffect(fresnel);
-
+		auto optics  = std::make_unique<IdealReflector>(fresnel);
 		return optics;
 	};
 }
@@ -63,10 +59,8 @@ void IdealSubstance::asTransmitter(const real iorInner, const real iorOuter)
 {
 	m_opticsGenerator = [=]()
 	{
-		auto optics  = std::make_unique<IdealTransmitter>();
 		auto fresnel = std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner);
-		optics->setFresnelEffect(fresnel);
-
+		auto optics  = std::make_unique<IdealTransmitter>(fresnel);
 		return optics;
 	};
 }
@@ -83,7 +77,7 @@ void IdealSubstance::asAbsorber()
 
 IdealSubstance::IdealSubstance(const InputPacket& packet) : 
 	SurfaceMaterial(packet),
-	m_opticsGenerator(nullptr)
+	m_opticsGenerator()
 {
 	const std::string type = packet.getString("type", 
 		"absorber", DataTreatment::REQUIRED());

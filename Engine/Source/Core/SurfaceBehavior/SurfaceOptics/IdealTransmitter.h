@@ -11,12 +11,7 @@ namespace ph
 class IdealTransmitter : public SurfaceOptics
 {
 public:
-	IdealTransmitter();
-
-	inline void setFresnelEffect(const std::shared_ptr<DielectricFresnel>& fresnel)
-	{
-		m_fresnel = fresnel;
-	}
+	IdealTransmitter(const std::shared_ptr<DielectricFresnel>& fresnel);
 
 private:
 	void calcBsdf(

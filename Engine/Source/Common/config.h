@@ -5,12 +5,13 @@
 //
 
 // Define this for debug mode build. Assertions will be on in this mode.
-//
 #define PH_DEBUG
 
 // Define this if such behavior is desired.
-//
 #define PH_ABORT_ON_ASSERTION_FAILED
+
+// Log as soon as possible (primarily for debugging).
+//#define PH_UNBUFFERED_LOG
 
 ///////////////////////////////////////////////////////////////////////////////
 // Render Mode Selections:

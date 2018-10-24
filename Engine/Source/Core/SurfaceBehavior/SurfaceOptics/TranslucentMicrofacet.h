@@ -12,17 +12,9 @@ namespace ph
 class TranslucentMicrofacet : public SurfaceOptics
 {
 public:
-	TranslucentMicrofacet();
-
-	inline void setFrenelEffect(const std::shared_ptr<DielectricFresnel>& fresnel)
-	{
-		m_fresnel = fresnel;
-	}
-
-	inline void setMicrofacet(const std::shared_ptr<Microfacet>& microfacet)
-	{
-		m_microfacet = microfacet;
-	}
+	TranslucentMicrofacet(
+		const std::shared_ptr<DielectricFresnel>& fresnel, 
+		const std::shared_ptr<Microfacet>&        microfacet);
 
 private:
 	void calcBsdf(

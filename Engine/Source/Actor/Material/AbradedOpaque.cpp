@@ -19,21 +19,14 @@ namespace ph
 
 AbradedOpaque::AbradedOpaque() : 
 	SurfaceMaterial(),
-	m_opticsGenerator(nullptr)
-{
-	m_opticsGenerator = []()
-	{
-		std::cerr << "warning: at AbradedOpaque::genSurfaceOptics(), "
-		          << "no BSDF specified, using default one" << std::endl;
-		return nullptr;
-	};
-}
+	m_opticsGenerator()
+{}
 
 AbradedOpaque::~AbradedOpaque() = default;
 
 void AbradedOpaque::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
-	PH_ASSERT(m_opticsGenerator != nullptr);
+	PH_ASSERT(m_opticsGenerator);
 
 	behavior.setOptics(m_opticsGenerator());
 }
@@ -42,7 +35,7 @@ void AbradedOpaque::genSurface(CookingContext& context, SurfaceBehavior& behavio
 
 AbradedOpaque::AbradedOpaque(const InputPacket& packet) : 
 	SurfaceMaterial(packet),
-	m_opticsGenerator(nullptr)
+	m_opticsGenerator()
 {
 	const std::string surfaceType = packet.getString("type", 
 		"iso-metallic-ggx", DataTreatment::REQUIRED());
@@ -88,10 +81,10 @@ std::function<std::unique_ptr<SurfaceOptics>()> AbradedOpaque::loadITR(const Inp
 
 	return [=]()
 	{
-		auto optics = std::make_unique<OpaqueMicrofacet>();
-		optics->setMicrofacet(std::make_shared<IsoTrowbridgeReitz>(alpha));
-		optics->setFresnelEffect(fresnelEffect);
-		optics->setAlbedo(std::make_shared<TConstantTexture<SpectralStrength>>(albedoSpectrum));
+		auto optics = std::make_unique<OpaqueMicrofacet>(
+			fresnelEffect, 
+			std::make_shared<IsoTrowbridgeReitz>(alpha));
+		//optics->setAlbedo(std::make_shared<TConstantTexture<SpectralStrength>>(albedoSpectrum));
 		return optics;
 	};
 }
@@ -115,10 +108,10 @@ std::function<std::unique_ptr<SurfaceOptics>()> AbradedOpaque::loadATR(const Inp
 
 	return [=]()
 	{
-		auto optics = std::make_unique<OpaqueMicrofacet>();
-		optics->setMicrofacet(std::make_shared<AnisoTrowbridgeReitz>(alphaU, alphaV));
-		optics->setFresnelEffect(fresnelEffect);
-		optics->setAlbedo(std::make_shared<TConstantTexture<SpectralStrength>>(albedoSpectrum));
+		auto optics = std::make_unique<OpaqueMicrofacet>(
+			fresnelEffect, 
+			std::make_shared<AnisoTrowbridgeReitz>(alphaU, alphaV));
+		//optics->setAlbedo(std::make_shared<TConstantTexture<SpectralStrength>>(albedoSpectrum));
 		return optics;
 	};
 }

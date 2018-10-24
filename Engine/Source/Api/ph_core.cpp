@@ -84,8 +84,8 @@ void phDeleteEngine(const PHuint64 engineId)
 
 void phEnterCommand(const PHuint64 engineId, const PHchar* const commandFragment)
 {
-	// TODO: static assertion
-	PH_ASSERT(sizeof(PHchar) == sizeof(char));
+	static_assert(sizeof(PHchar) == sizeof(char));
+	PH_ASSERT(commandFragment);
 
 	using namespace ph;
 

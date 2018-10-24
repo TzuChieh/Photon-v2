@@ -54,6 +54,8 @@ JObject<T>::JObject(jobject m_jobject, JNIEnv* m_env) :
 template<typename T>
 JObject<T>::~JObject() = default;
 
+// FIXME: possible race condition on caching variables
+
 template<typename T>
 void JObject<T>::cacheJavaClass(const std::string& className, JNIEnv* env)
 {

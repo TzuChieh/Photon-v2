@@ -17,14 +17,16 @@ namespace ph
 
 AbradedTranslucent::AbradedTranslucent() :
 	SurfaceMaterial(),
-	m_optics()
+	m_opticsGenerator()
 {}
 
 AbradedTranslucent::~AbradedTranslucent() = default;
 
 void AbradedTranslucent::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
-	behavior.setOptics(std::make_shared<TranslucentMicrofacet>(m_optics));
+	PH_ASSERT(m_opticsGenerator);
+
+	behavior.setOptics(m_opticsGenerator());
 }
 
 //void AbradedTranslucent::setAlbedo(const Vector3R& albedo)
@@ -42,24 +44,11 @@ void AbradedTranslucent::genSurface(CookingContext& context, SurfaceBehavior& be
 //	m_bsdf.setF0(std::make_shared<ConstantTexture>(r, g, b));
 //}
 
-void AbradedTranslucent::setIor(const real iorOuter, const real iorInner)
-{
-	//m_bsdf.setFrenelEffect(std::make_shared<SchlickApproxDielectricFresnel>(iorOuter, iorInner));
-	m_optics.setFrenelEffect(std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner));
-}
-
-void AbradedTranslucent::setRoughness(const real roughness)
-{
-	//const real alpha = RoughnessToAlphaMapping::pbrtV3(roughness);
-	const real alpha = RoughnessToAlphaMapping::squared(roughness);
-	m_optics.setMicrofacet(std::make_shared<IsoTrowbridgeReitz>(alpha));
-}
-
 // command interface
 
 AbradedTranslucent::AbradedTranslucent(const InputPacket& packet) : 
 	SurfaceMaterial(packet),
-	m_optics()
+	m_opticsGenerator()
 {
 	const Vector3R    albedo      = packet.getVector3r("albedo", Vector3R(0.5_r, 0.5_r, 0.5_r));
 	const real        roughness   = packet.getReal("roughness", 0.5_r);
@@ -80,8 +69,17 @@ AbradedTranslucent::AbradedTranslucent(const InputPacket& packet) :
 
 	//material->setAlbedo(albedo);
 	//material->setF0(f0);
-	setRoughness(roughness);
-	m_optics.setFrenelEffect(fresnelEffect);
+
+	m_opticsGenerator = [=]()
+	{
+		const real alpha = RoughnessToAlphaMapping::squared(roughness);
+
+		auto optics = std::make_unique<TranslucentMicrofacet>(
+			std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner),
+			std::make_shared<IsoTrowbridgeReitz>(alpha));
+
+		return optics;
+	};
 }
 
 SdlTypeInfo AbradedTranslucent::ciTypeInfo()

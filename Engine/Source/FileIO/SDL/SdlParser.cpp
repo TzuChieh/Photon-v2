@@ -89,6 +89,9 @@ void SdlParser::parseCommand(const std::string& command, SdlResourcePack& out_da
 		return;
 	}
 
+	// DEBUG
+	//std::cerr << "parsing (length = " << command.length() << ")" << std::endl;
+
 	const ECommandType commandType = getCommandType(command);
 
 	if(commandType == ECommandType::WORLD)

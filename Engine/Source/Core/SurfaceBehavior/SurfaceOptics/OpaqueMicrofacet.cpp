@@ -16,12 +16,18 @@
 namespace ph
 {
 
-OpaqueMicrofacet::OpaqueMicrofacet() :
+OpaqueMicrofacet::OpaqueMicrofacet(
+	const std::shared_ptr<FresnelEffect>& fresnel,
+	const std::shared_ptr<Microfacet>&    microfacet) :
+
 	SurfaceOptics(),
-	m_albedo    (std::make_shared<TConstantTexture<SpectralStrength>>(SpectralStrength(0.5_r))),
-	m_microfacet(std::make_shared<IsoTrowbridgeReitz>(0.5_r)),
-	m_fresnel   (std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r))
+
+	//m_albedo    (std::make_shared<TConstantTexture<SpectralStrength>>(SpectralStrength(0.5_r))),
+	m_fresnel   (fresnel),
+	m_microfacet(microfacet)
 {
+	PH_ASSERT(fresnel && microfacet);
+
 	m_phenomena.set({ESP::GLOSSY_REFLECTION});
 }
 

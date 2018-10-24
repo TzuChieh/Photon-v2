@@ -11,12 +11,7 @@ namespace ph
 class IdealReflector : public SurfaceOptics
 {
 public:
-	IdealReflector();
-
-	inline void setFresnelEffect(const std::shared_ptr<FresnelEffect>& fresnel)
-	{
-		m_fresnel = fresnel;
-	}
+	IdealReflector(const std::shared_ptr<FresnelEffect>& fresnel);
 
 private:
 	void calcBsdf(

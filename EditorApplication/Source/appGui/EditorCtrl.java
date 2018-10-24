@@ -122,6 +122,15 @@ public class EditorCtrl
 		final Task<String> renderTask      = m_project.createRenderTask();
 		final Task<String> developFilmTask = m_project.createUpdateStaticImageTask();
 		
+//		Thread loadSceneThread = new Thread(loadSceneTask);
+//		loadSceneThread.start();
+//		try {
+//			loadSceneThread.join();
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
 		// TODO: exit when render task is done
 		final Task<String> queryTask = new Task<String>()
 		{
