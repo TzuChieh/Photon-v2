@@ -107,6 +107,13 @@ void BNEEPTEstimator::radianceAlongRay(
 
 				BsdfEvaluation bsdfEval;
 				bsdfEval.inputs.set(surfaceHit, L, V);
+
+				// DEBUG
+				/*if(surfaceBehavior.getOptics()->getAllPhenomena().hasAtLeastOne({ESP::GLOSSY_TRANSMISSION}))
+				{
+					bsdfEval.inputs.elemental = 0;
+				}*/
+
 				surfaceBehavior.getOptics()->calcBsdf(bsdfEval);
 				if(bsdfEval.outputs.isGood())
 				{
@@ -139,6 +146,13 @@ void BNEEPTEstimator::radianceAlongRay(
 
 			BsdfSample bsdfSample;
 			bsdfSample.inputs.set(surfaceHit, V);
+
+			// DEBUG
+			/*if(surfaceBehavior->getOptics()->getAllPhenomena().hasAtLeastOne({ESP::GLOSSY_TRANSMISSION}))
+			{
+				bsdfSample.inputs.elemental = 0;
+			}*/
+
 			surfaceBehavior->getOptics()->calcBsdfSample(bsdfSample);
 
 			const Vector3R N = surfaceHit.getShadingNormal();

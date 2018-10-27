@@ -64,7 +64,7 @@ void LambertianDiffuse::calcBsdfSample(
 	Vector3R u;
 	Vector3R v(N);
 	Vector3R w;
-	math::formOrthonormalBasis(v, &u, &w);
+	math::form_orthonormal_basis(v, &u, &w);
 	L = u.mulLocal(L.x).addLocal(v.mulLocal(L.y)).addLocal(w.mulLocal(L.z));
 	L.normalizeLocal();
 	if(in.V.dot(N) < 0.0_r)

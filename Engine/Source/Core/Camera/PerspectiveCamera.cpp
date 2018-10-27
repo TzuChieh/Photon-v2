@@ -51,7 +51,7 @@ PerspectiveCamera::PerspectiveCamera(const InputPacket& packet) :
 	{
 		// Respect film dimensions; modify film offset to satisfy FOV requirement.
 		const real fovDegree = packet.getReal(NAME_FOV_DEGREE);
-		const real halfFov   = math::toRadians(fovDegree) * 0.5_r;
+		const real halfFov   = math::to_radians(fovDegree) * 0.5_r;
 		m_filmWidthMM  = packet.getReal(NAME_FILM_WIDTH_MM, m_filmWidthMM);
 		m_filmOffsetMM = (m_filmWidthMM * 0.5_r) / std::tan(halfFov);
 	}

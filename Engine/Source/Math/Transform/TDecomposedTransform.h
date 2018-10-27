@@ -50,7 +50,7 @@ public:
 	inline TDecomposedTransform& rotate(const TVector3<T>& axis, const T degrees)
 	{
 		const TVector3<T> normalizedAxis(axis.normalize());
-		rotate(TQuaternion<T>(normalizedAxis, math::toRadians(degrees)));
+		rotate(TQuaternion<T>(normalizedAxis, math::to_radians(degrees)));
 
 		return *this;
 	}

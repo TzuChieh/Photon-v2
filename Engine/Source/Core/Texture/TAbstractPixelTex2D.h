@@ -60,8 +60,8 @@ protected:
 		{
 		case ETexWrapMode::REPEAT:
 		{
-			const float64 fu = math::fractionalPart(u);
-			const float64 fv = math::fractionalPart(v);
+			const float64 fu = math::fractional_part(u);
+			const float64 fv = math::fractional_part(v);
 			*out_u = fu >= 0.0 ? fu : fu + 1.0;
 			*out_v = fv >= 0.0 ? fv : fv + 1.0;
 			break;

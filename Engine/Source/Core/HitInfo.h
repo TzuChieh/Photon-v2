@@ -59,8 +59,8 @@ public:
 		}
 		else
 		{
-			math::formOrthonormalBasis(m_geometryBasis.yAxis,
-			                           &m_geometryBasis.xAxis, &m_geometryBasis.zAxis);
+			math::form_orthonormal_basis(m_geometryBasis.yAxis,
+			                             &m_geometryBasis.xAxis, &m_geometryBasis.zAxis);
 		}
 		
 		if(m_dNdU.lengthSquared() > 0.0_r)
@@ -70,8 +70,8 @@ public:
 		}
 		else
 		{
-			math::formOrthonormalBasis(m_shadingBasis.yAxis,
-			                           &m_shadingBasis.xAxis, &m_shadingBasis.zAxis);
+			math::form_orthonormal_basis(m_shadingBasis.yAxis,
+			                             &m_shadingBasis.xAxis, &m_shadingBasis.zAxis);
 		}
 
 		PH_ASSERT_MSG(m_geometryBasis.yAxis.isFinite() && m_shadingBasis.yAxis.isFinite(), "\n"

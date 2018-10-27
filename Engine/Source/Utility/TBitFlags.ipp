@@ -11,6 +11,11 @@ inline TBitFlags<Value, Input>::TBitFlags() :
 {}
 
 template<typename Value, typename Input>
+inline TBitFlags<Value, Input>::TBitFlags(const FlagsSet& flagsSet) :
+	m_bits(collectFlags(flagsSet))
+{}
+
+template<typename Value, typename Input>
 inline TBitFlags<Value, Input>& TBitFlags<Value, Input>::unionWith(const FlagsSet& flagsSet)
 {
 	TBitFlags flags;

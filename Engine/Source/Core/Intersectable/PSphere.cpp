@@ -135,7 +135,7 @@ void PSphere::calcIntersectionDetail(
 	//
 	const real delta = m_radius / 128.0_r;
 	Vector3R dx, dz;
-	math::formOrthonormalBasis(hitNormal, &dx, &dz);
+	math::form_orthonormal_basis(hitNormal, &dx, &dz);
 	dx.mulLocal(delta);
 	dz.mulLocal(delta);
 
@@ -161,7 +161,7 @@ void PSphere::calcIntersectionDetail(
 	                       posZuvw.x - negZuvw.x, posZuvw.y - negZuvw.y);
 	if(!uvwDiff.solve(posX.sub(negX), posZ.sub(negZ), &dPdU, &dPdV))
 	{
-		math::formOrthonormalBasis(hitNormal, &dPdU, &dPdV);
+		math::form_orthonormal_basis(hitNormal, &dPdU, &dPdV);
 	}
 
 	// normal derivatives are actually scaled version of dPdU and dPdV

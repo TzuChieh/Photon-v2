@@ -44,20 +44,20 @@ public:
 		m_workers.queueWork([workingResult = promisedMipmaps, src = source]()
 		{
 			TFrame<T, N> level0;
-			if(math::isPowerOf2(src.widthPx()) && math::isPowerOf2(src.heightPx()))
+			if(math::is_power_of_2(src.widthPx()) && math::is_power_of_2(src.heightPx()))
 			{
 				level0 = src;
 			}
 			else
 			{
-				const uint32 newWidthPx  = math::nextPowerOf2(src.widthPx());
-				const uint32 newHeightPx = math::nextPowerOf2(src.heightPx());
+				const uint32 newWidthPx  = math::next_power_of_2(src.widthPx());
+				const uint32 newHeightPx = math::next_power_of_2(src.heightPx());
 				level0 = TFrame<T, N>(newWidthPx, newHeightPx);
 
 				src.sample(level0, TConstant2D<float64>(1.0), 2);
 			}
 
-			const std::size_t numMipmapLevels = 1 + math::log2Floor(std::max(level0.widthPx(), level0.heightPx()));
+			const std::size_t numMipmapLevels = 1 + math::log2_floor(std::max(level0.widthPx(), level0.heightPx()));
 			Mipmaps<T, N> mipmaps(numMipmapLevels);
 			mipmaps[0] = level0;
 			for(std::size_t level = 1; level < numMipmapLevels; ++level)

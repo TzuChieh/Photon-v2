@@ -27,6 +27,8 @@ public:
 		const std::shared_ptr<SurfaceOptics>& optics1,
 		const std::shared_ptr<TTexture<SpectralStrength>>& ratio);
 
+	SurfacePhenomena getPhenomenaOf(SurfaceElemental elemental) const override;
+
 private:
 	std::shared_ptr<SurfaceOptics>              m_optics0;
 	std::shared_ptr<SurfaceOptics>              m_optics1;

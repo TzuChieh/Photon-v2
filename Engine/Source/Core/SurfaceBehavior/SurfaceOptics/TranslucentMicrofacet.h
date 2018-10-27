@@ -16,6 +16,8 @@ public:
 		const std::shared_ptr<DielectricFresnel>& fresnel, 
 		const std::shared_ptr<Microfacet>&        microfacet);
 
+	SurfacePhenomena getPhenomenaOf(SurfaceElemental elemental) const override;
+
 private:
 	void calcBsdf(
 		const BsdfEvaluation::Input& in,

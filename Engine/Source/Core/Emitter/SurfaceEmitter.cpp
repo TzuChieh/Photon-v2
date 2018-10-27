@@ -17,7 +17,7 @@ SurfaceEmitter::SurfaceEmitter() :
 
 bool SurfaceEmitter::canEmit(const Vector3R& emitDirection, const Vector3R& N) const
 {
-	return math::isSameHemisphere(emitDirection, N) != m_isBackFaceEmission;
+	return math::is_same_hemisphere(emitDirection, N) != m_isBackFaceEmission;
 }
 
 void SurfaceEmitter::setFrontFaceEmit()

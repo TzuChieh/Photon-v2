@@ -105,7 +105,7 @@ void IsoTrowbridgeReitz::genDistributedH(
 	Vector3R xAxis;
 	Vector3R yAxis(N);
 	Vector3R zAxis;
-	math::formOrthonormalBasis(yAxis, &xAxis, &zAxis);
+	math::form_orthonormal_basis(yAxis, &xAxis, &zAxis);
 	H = xAxis.mulLocal(H.x).addLocal(yAxis.mulLocal(H.y)).addLocal(zAxis.mulLocal(H.z));
 	H.normalizeLocal();
 

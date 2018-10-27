@@ -32,6 +32,17 @@ TranslucentMicrofacet::TranslucentMicrofacet(
 	m_numElementals = 2;
 }
 
+SurfacePhenomena TranslucentMicrofacet::getPhenomenaOf(const SurfaceElemental elemental) const
+{
+	switch(elemental)
+	{
+	case ALL_ELEMENTALS: return m_phenomena;
+	case REFLECTION:     return SurfacePhenomena{ESP::GLOSSY_REFLECTION};
+	case TRANSMISSION:   return SurfacePhenomena{ESP::GLOSSY_TRANSMISSION};
+	default:             return SurfacePhenomena();
+	}
+}
+
 void TranslucentMicrofacet::calcBsdf(
 	const BsdfEvaluation::Input& in,
 	BsdfEvaluation::Output&      out,

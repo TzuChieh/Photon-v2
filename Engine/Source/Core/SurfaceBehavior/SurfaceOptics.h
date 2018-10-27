@@ -24,11 +24,13 @@ public:
 	SurfaceOptics();
 	virtual ~SurfaceOptics();
 
+	virtual SurfacePhenomena getPhenomenaOf(SurfaceElemental elemental) const;
+
 	void calcBsdf(BsdfEvaluation& eval) const;
 	void calcBsdfSample(BsdfSample& sample) const;
 	void calcBsdfSamplePdfW(BsdfPdfQuery& pdfQuery) const;
 
-	const SurfacePhenomena& getPhenomena() const;
+	SurfacePhenomena getAllPhenomena() const;
 	SurfaceElemental numElementals() const;
 
 protected:
@@ -54,7 +56,19 @@ private:
 
 // In-header Implementations:
 
-inline const SurfacePhenomena& SurfaceOptics::getPhenomena() const
+inline SurfacePhenomena SurfaceOptics::getPhenomenaOf(const SurfaceElemental elemental) const
+{
+	if(elemental == ALL_ELEMENTALS || elemental == 0)
+	{
+		return m_phenomena;
+	}
+	else
+	{
+		return SurfacePhenomena();
+	}
+}
+
+inline SurfacePhenomena SurfaceOptics::getAllPhenomena() const
 {
 	return m_phenomena;
 }

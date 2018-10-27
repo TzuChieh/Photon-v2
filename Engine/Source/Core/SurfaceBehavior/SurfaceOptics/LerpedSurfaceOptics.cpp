@@ -52,6 +52,28 @@ LerpedSurfaceOptics::LerpedSurfaceOptics(
 	m_numElementals = m_optics0->m_numElementals + m_optics1->m_numElementals;
 }
 
+SurfacePhenomena LerpedSurfaceOptics::getPhenomenaOf(const SurfaceElemental elemental) const
+{
+	if(elemental == ALL_ELEMENTALS)
+	{
+		return m_phenomena;
+	}
+	else
+	{
+		PH_ASSERT(elemental < m_numElementals);
+
+		if(elemental < m_optics0->m_numElementals)
+		{
+			return m_optics0->getPhenomenaOf(elemental);
+		}
+		else
+		{
+			const SurfaceElemental localElemental = elemental - m_optics0->m_numElementals;
+			return m_optics1->getPhenomenaOf(localElemental);
+		}
+	}
+}
+
 void LerpedSurfaceOptics::calcBsdf(
 	const BsdfEvaluation::Input& in,
 	BsdfEvaluation::Output&      out,

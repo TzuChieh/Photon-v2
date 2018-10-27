@@ -17,8 +17,11 @@ private:
 	typedef std::initializer_list<Input> FlagsSet;
 
 public:
-	// Creats an instance with no flags.
+	// Creates an instance with no flags.
 	TBitFlags();
+
+	// Create with initial flags set.
+	explicit TBitFlags(const FlagsSet& flagsSet);
 
 	// Unions specified flags into this instance.
 	TBitFlags& unionWith(const FlagsSet& flagsSet);

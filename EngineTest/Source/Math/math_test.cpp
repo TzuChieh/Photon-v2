@@ -6,8 +6,8 @@
 
 TEST(MathTest, AngleUnitConversion)
 {
-	EXPECT_FLOAT_EQ(ph::math::toDegrees(3.14159265359f), 180.0f);
-	EXPECT_FLOAT_EQ(ph::math::toRadians(180.0f), 3.14159265359f);
+	EXPECT_FLOAT_EQ(ph::math::to_degrees(3.14159265359f), 180.0f);
+	EXPECT_FLOAT_EQ(ph::math::to_radians(180.0f), 3.14159265359f);
 }
 
 TEST(MathTest, NumberSignExtraction)
@@ -51,69 +51,69 @@ TEST(MathTest, NumberClamping)
 
 TEST(MathTest, EvaluateNextPowerOf2)
 {
-	EXPECT_EQ(ph::math::nextPowerOf2(1), 1);
-	EXPECT_EQ(ph::math::nextPowerOf2(2), 2);
-	EXPECT_EQ(ph::math::nextPowerOf2(3), 4);
-	EXPECT_EQ(ph::math::nextPowerOf2(4), 4);
-	EXPECT_EQ(ph::math::nextPowerOf2(5), 8);
-	EXPECT_EQ(ph::math::nextPowerOf2(6), 8);
-	EXPECT_EQ(ph::math::nextPowerOf2(7), 8);
-	EXPECT_EQ(ph::math::nextPowerOf2(8), 8);
+	EXPECT_EQ(ph::math::next_power_of_2(1), 1);
+	EXPECT_EQ(ph::math::next_power_of_2(2), 2);
+	EXPECT_EQ(ph::math::next_power_of_2(3), 4);
+	EXPECT_EQ(ph::math::next_power_of_2(4), 4);
+	EXPECT_EQ(ph::math::next_power_of_2(5), 8);
+	EXPECT_EQ(ph::math::next_power_of_2(6), 8);
+	EXPECT_EQ(ph::math::next_power_of_2(7), 8);
+	EXPECT_EQ(ph::math::next_power_of_2(8), 8);
 
 	// TODO: test by calculating using log functions
 
-	EXPECT_EQ(ph::math::nextPowerOf2(1023),  1024);
-	EXPECT_EQ(ph::math::nextPowerOf2(32700), 32768);
+	EXPECT_EQ(ph::math::next_power_of_2(1023),  1024);
+	EXPECT_EQ(ph::math::next_power_of_2(32700), 32768);
 
 	// special case (this behavior is part of spec.)
-	EXPECT_EQ(ph::math::nextPowerOf2(0), 0);
+	EXPECT_EQ(ph::math::next_power_of_2(0), 0);
 }
 
 TEST(MathTest, CheckIsPowerOf2)
 {
-	EXPECT_FALSE(ph::math::isPowerOf2(0));
-	EXPECT_TRUE (ph::math::isPowerOf2(1));
-	EXPECT_TRUE (ph::math::isPowerOf2(2));
-	EXPECT_FALSE(ph::math::isPowerOf2(3));
-	EXPECT_TRUE (ph::math::isPowerOf2(1 << 17));
-	EXPECT_FALSE(ph::math::isPowerOf2((1 << 17) + 1));
-	EXPECT_FALSE(ph::math::isPowerOf2(-1));
-	EXPECT_FALSE(ph::math::isPowerOf2(std::numeric_limits<int>::max()));
-	EXPECT_FALSE(ph::math::isPowerOf2(std::numeric_limits<int>::min()));
-	EXPECT_FALSE(ph::math::isPowerOf2(std::numeric_limits<unsigned int>::max()));
-	EXPECT_FALSE(ph::math::isPowerOf2(0ULL));
-	EXPECT_TRUE (ph::math::isPowerOf2(1ULL << 50));
-	EXPECT_FALSE(ph::math::isPowerOf2((1ULL << 50) + 1));
-	EXPECT_FALSE(ph::math::isPowerOf2(std::numeric_limits<unsigned long long>::max()));
+	EXPECT_FALSE(ph::math::is_power_of_2(0));
+	EXPECT_TRUE (ph::math::is_power_of_2(1));
+	EXPECT_TRUE (ph::math::is_power_of_2(2));
+	EXPECT_FALSE(ph::math::is_power_of_2(3));
+	EXPECT_TRUE (ph::math::is_power_of_2(1 << 17));
+	EXPECT_FALSE(ph::math::is_power_of_2((1 << 17) + 1));
+	EXPECT_FALSE(ph::math::is_power_of_2(-1));
+	EXPECT_FALSE(ph::math::is_power_of_2(std::numeric_limits<int>::max()));
+	EXPECT_FALSE(ph::math::is_power_of_2(std::numeric_limits<int>::min()));
+	EXPECT_FALSE(ph::math::is_power_of_2(std::numeric_limits<unsigned int>::max()));
+	EXPECT_FALSE(ph::math::is_power_of_2(0ULL));
+	EXPECT_TRUE (ph::math::is_power_of_2(1ULL << 50));
+	EXPECT_FALSE(ph::math::is_power_of_2((1ULL << 50) + 1));
+	EXPECT_FALSE(ph::math::is_power_of_2(std::numeric_limits<unsigned long long>::max()));
 }
 
 TEST(MathTest, CalculateIntegerBase2Logarithm)
 {
-	EXPECT_EQ(ph::math::log2Floor(1), 0);
-	EXPECT_EQ(ph::math::log2Floor(2), 1);
-	EXPECT_EQ(ph::math::log2Floor(3), 1);
-	EXPECT_EQ(ph::math::log2Floor(4), 2);
-	EXPECT_EQ(ph::math::log2Floor(5), 2);
-	EXPECT_EQ(ph::math::log2Floor(6), 2);
-	EXPECT_EQ(ph::math::log2Floor(7), 2);
-	EXPECT_EQ(ph::math::log2Floor(8), 3);
+	EXPECT_EQ(ph::math::log2_floor(1), 0);
+	EXPECT_EQ(ph::math::log2_floor(2), 1);
+	EXPECT_EQ(ph::math::log2_floor(3), 1);
+	EXPECT_EQ(ph::math::log2_floor(4), 2);
+	EXPECT_EQ(ph::math::log2_floor(5), 2);
+	EXPECT_EQ(ph::math::log2_floor(6), 2);
+	EXPECT_EQ(ph::math::log2_floor(7), 2);
+	EXPECT_EQ(ph::math::log2_floor(8), 3);
 
-	EXPECT_EQ(ph::math::log2Floor(1024), 10);
-	EXPECT_EQ(ph::math::log2Floor(1 << 20), 20);
-	EXPECT_EQ(ph::math::log2Floor(std::numeric_limits<ph::uint32>::max()), 31);
+	EXPECT_EQ(ph::math::log2_floor(1024), 10);
+	EXPECT_EQ(ph::math::log2_floor(1 << 20), 20);
+	EXPECT_EQ(ph::math::log2_floor(std::numeric_limits<ph::uint32>::max()), 31);
 }
 
 TEST(MathTest, RetrieveFractionalPartOfANumber)
 {
-	EXPECT_FLOAT_EQ(ph::math::fractionalPart( 0.00f),  0.00f);
-	EXPECT_FLOAT_EQ(ph::math::fractionalPart( 0.22f),  0.22f);
-	EXPECT_FLOAT_EQ(ph::math::fractionalPart( 2.33f),  0.33f);
-	EXPECT_FLOAT_EQ(ph::math::fractionalPart(-2.44f), -0.44f);
+	EXPECT_FLOAT_EQ(ph::math::fractional_part( 0.00f),  0.00f);
+	EXPECT_FLOAT_EQ(ph::math::fractional_part( 0.22f),  0.22f);
+	EXPECT_FLOAT_EQ(ph::math::fractional_part( 2.33f),  0.33f);
+	EXPECT_FLOAT_EQ(ph::math::fractional_part(-2.44f), -0.44f);
 
-	EXPECT_DOUBLE_EQ(ph::math::fractionalPart( 0.00), 0.00);
-	EXPECT_DOUBLE_EQ(ph::math::fractionalPart( 0.44), 0.44);
-	EXPECT_DOUBLE_EQ(ph::math::fractionalPart( 3.55), 0.55);
-	EXPECT_DOUBLE_EQ(ph::math::fractionalPart(-3.66),-0.66);
+	EXPECT_DOUBLE_EQ(ph::math::fractional_part( 0.00), 0.00);
+	EXPECT_DOUBLE_EQ(ph::math::fractional_part( 0.44), 0.44);
+	EXPECT_DOUBLE_EQ(ph::math::fractional_part( 3.55), 0.55);
+	EXPECT_DOUBLE_EQ(ph::math::fractional_part(-3.66),-0.66);
 }
 
 TEST(MathTest, ConstructsMatrix)
@@ -140,7 +140,7 @@ TEST(MathTest, SolvesLinearSystem)
 		0.0f, 1.0f
 	);
 
-	const bool isX1Solved = ph::math::solveLinearSystem2x2(A1, {{1.0f, 1.0f}}, &x1);
+	const bool isX1Solved = ph::math::solve_linear_system_2x2(A1, {{1.0f, 1.0f}}, &x1);
 	ASSERT_TRUE(isX1Solved);
 
 	EXPECT_FLOAT_EQ(x1[0], 1.0f);
@@ -155,7 +155,7 @@ TEST(MathTest, SolvesLinearSystem)
 		1.0f, 2.0f
 	);
 
-	const bool isX2Solved = ph::math::solveLinearSystem2x2(A2, {{3.0f, 3.0f}}, &x2);
+	const bool isX2Solved = ph::math::solve_linear_system_2x2(A2, {{3.0f, 3.0f}}, &x2);
 	ASSERT_TRUE(isX2Solved);
 
 	EXPECT_FLOAT_EQ(x2[0], 1.0f);
@@ -170,7 +170,7 @@ TEST(MathTest, SolvesLinearSystem)
 		-7.0f, -7.0f
 	);
 
-	const bool isX3Solved = ph::math::solveLinearSystem2x2(A3, {{14.0f, 14.0f}}, &x3);
+	const bool isX3Solved = ph::math::solve_linear_system_2x2(A3, {{14.0f, 14.0f}}, &x3);
 	ASSERT_FALSE(isX3Solved);
 }
 

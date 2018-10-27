@@ -46,7 +46,7 @@ inline T squared(const T value)
 	return value * value;
 }
 
-void formOrthonormalBasis(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis);
+void form_orthonormal_basis(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis);
 
 // A fast, without sqrt(), nearly branchless method. Notice that Photon uses y-axis as the up/normal vector. This
 // static method implements the y-is-normal version which is different from the original paper.
@@ -55,7 +55,7 @@ void formOrthonormalBasis(const Vector3R& unitYaxis, Vector3R* const out_unitXax
 // Note: This method seems to have larger numerical error (at least 10^3 larger than my naive method), 
 // thus it is not used currently.
 //
-void formOrthonormalBasisFrisvad(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis);
+void form_orthonormal_basis_frisvad(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis);
 
 // Clamp a real value to specific range. If the real value is NaN, its 
 // value is clamped to lower bound. Neither lower bound or upper bound 
@@ -74,13 +74,13 @@ inline T clamp(const T value, const T lowerBound, const T upperBound)
 }
 
 template<typename T>
-inline T toDegrees(const T radians)
+inline T to_degrees(const T radians)
 {
 	return radians * static_cast<T>(PH_RECI_PI * 180.0);
 }
 
 template<typename T>
-inline T toRadians(const T degrees)
+inline T to_radians(const T degrees)
 {
 	return degrees * static_cast<T>(PH_PI / 180.0);
 }
@@ -104,7 +104,7 @@ inline int sign(const T value)
 // Reference:
 // Stanford CG Lab's webpage: "Bit Twiddling Hacks" by Sean Eron Anderson
 //
-inline uint32 nextPowerOf2(uint32 value)
+inline uint32 next_power_of_2(uint32 value)
 {
 	PH_ASSERT(value <= (1UL << 31));
 
@@ -120,7 +120,7 @@ inline uint32 nextPowerOf2(uint32 value)
 }
 
 template<typename T>
-inline bool isPowerOf2(const T value)
+inline bool is_power_of_2(const T value)
 {
 	return (value > 0) && !(value & (value - 1));
 }
@@ -128,7 +128,7 @@ inline bool isPowerOf2(const T value)
 // Calculate a positive integer's base 2 logarithm (floored). 
 // <input> shall not be 0, or the behavior of this method is undefined.
 //
-inline uint32 log2Floor(const uint32 value)
+inline uint32 log2_floor(const uint32 value)
 {
 	PH_ASSERT(value != 0);
 
@@ -156,7 +156,7 @@ inline uint32 log2Floor(const uint32 value)
 	return static_cast<uint32>(std::log2(static_cast<float>(value)));
 
 #endif
-}// end log2Floor(1)
+}// end log2_floor(1)
 
 // Retrieve the fractional part of <value> (with the same sign 
 // as <value>). The result is not guaranteed to be the same as the bit 
@@ -164,7 +164,7 @@ inline uint32 log2Floor(const uint32 value)
 // The result is undefined if input value is NaN or +-Inf.
 //
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
-inline T fractionalPart(const T value)
+inline T fractional_part(const T value)
 {
 	long double integralPart;
 	return static_cast<T>(std::modf(static_cast<long double>(value), &integralPart));
@@ -175,7 +175,7 @@ inline T fractionalPart(const T value)
 // answer; otherwise, false is returned and what <out_x> stores is undefined.
 //
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
-inline bool solveLinearSystem2x2(
+inline bool solve_linear_system_2x2(
 	const std::array<std::array<T, 2>, 2>& A,
 	const std::array<T, 2>& b,
 	std::array<T, 2>* const out_x)
@@ -216,7 +216,7 @@ inline T wrap(T value, const T lowerBound, const T upperBound)
 // Checks whether the specified vector is within the hemisphere defined by
 // the normal vector N. N points to the hemisphere's peak, i.e., theta = 0.
 //
-bool isSameHemisphere(const Vector3R& vector, const Vector3R& N);
+bool is_same_hemisphere(const Vector3R& vector, const Vector3R& N);
 
 template<typename T>
 T product(const std::vector<T>& values)

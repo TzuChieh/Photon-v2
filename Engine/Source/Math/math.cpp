@@ -13,7 +13,7 @@ namespace ph
 namespace math
 {
 
-void formOrthonormalBasis(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis)
+void form_orthonormal_basis(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis)
 {
 	PH_ASSERT_MSG(unitYaxis.length() > 0.9_r && unitYaxis.isFinite(), unitYaxis.toString());
 
@@ -50,7 +50,7 @@ void formOrthonormalBasis(const Vector3R& unitYaxis, Vector3R* const out_unitXax
 		std::cerr << unitYaxis.dot(*out_unitXaxis) << std::endl;*/
 }
 
-void formOrthonormalBasisFrisvad(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis)
+void form_orthonormal_basis_frisvad(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis)
 {
 	// Handle the singularity occurred when y is close to -1.
 	if(unitYaxis.y < -0.9999999_r)
@@ -79,7 +79,7 @@ void formOrthonormalBasisFrisvad(const Vector3R& unitYaxis, Vector3R* const out_
 		std::cerr << unitYaxis.dot(*out_unitXaxis) << std::endl;*/
 }
 
-bool isSameHemisphere(const Vector3R& vector, const Vector3R& N)
+bool is_same_hemisphere(const Vector3R& vector, const Vector3R& N)
 {
 	PH_ASSERT(N.length() > 0.0_r);
 
