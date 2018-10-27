@@ -7,6 +7,7 @@
 #include "Core/Texture/TSampler.h"
 
 #include <memory>
+#include <vector>
 
 namespace ph
 {
