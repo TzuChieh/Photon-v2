@@ -29,11 +29,11 @@ public:
 	void calcBsdfSamplePdfW(BsdfPdfQuery& pdfQuery) const;
 
 	const SurfacePhenomena& getPhenomena() const;
-	unsigned int numElementals() const;
+	SurfaceElemental numElementals() const;
 
 protected:
 	SurfacePhenomena m_phenomena;
-	unsigned int     m_numElementals;
+	SurfaceElemental m_numElementals;
 
 private:
 	virtual void calcBsdf(
@@ -59,7 +59,7 @@ inline const SurfacePhenomena& SurfaceOptics::getPhenomena() const
 	return m_phenomena;
 }
 
-inline unsigned int SurfaceOptics::numElementals() const
+inline SurfaceElemental SurfaceOptics::numElementals() const
 {
 	return m_numElementals;
 }

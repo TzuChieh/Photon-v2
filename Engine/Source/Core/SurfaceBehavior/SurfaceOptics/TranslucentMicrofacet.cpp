@@ -144,9 +144,10 @@ void TranslucentMicrofacet::calcBsdfSample(
 
 	bool sampleReflect  = canReflect;
 	bool sampleTransmit = canTransmit;
+
+	// we cannot sample both path, choose one randomly
 	if(sampleReflect && sampleTransmit)
 	{
-		// we cannot sample both path, choose one randomly
 		const real dart = Random::genUniformReal_i0_e1();
 		if(dart < reflectProb)
 		{
@@ -157,6 +158,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 			sampleReflect = false;
 		}
 	}
+
 	PH_ASSERT(sampleReflect || sampleTransmit);
 
 	if(sampleReflect)
@@ -169,7 +171,10 @@ void TranslucentMicrofacet::calcBsdfSample(
 		}
 
 		// account for probability
-		F.divLocal(reflectProb);
+		if(in.elemental == ALL_ELEMENTALS)
+		{
+			F.divLocal(reflectProb);
+		}
 	}
 	else if(sampleTransmit && m_fresnel->calcRefractDir(in.V, H, &(out.L)))
 	{
@@ -181,7 +186,10 @@ void TranslucentMicrofacet::calcBsdfSample(
 		m_fresnel->calcTransmittance(out.L.dot(H), &F);
 
 		// account for probability
-		F.divLocal(1.0_r - reflectProb);
+		if(in.elemental == ALL_ELEMENTALS)
+		{
+			F.divLocal(1.0_r - reflectProb);
+		}
 	}
 	else
 	{
@@ -229,7 +237,7 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 
 		SpectralStrength F;
 		m_fresnel->calcReflectance(HoL, &F);
-		const real reflectProb = F.avg();
+		const real reflectProb = in.elemental == ALL_ELEMENTALS ? F.avg() : 1.0_r;
 
 		out.sampleDirPdfW = std::abs(D * NoH / (4.0_r * HoL)) * reflectProb;
 	}
@@ -269,7 +277,7 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 
 		SpectralStrength F;
 		m_fresnel->calcReflectance(HoL, &F);
-		const real refractProb = 1.0_r - F.avg();
+		const real refractProb = in.elemental == ALL_ELEMENTALS ? 1.0_r - F.avg() : 1.0_r;
 
 		const real iorTerm    = etaI * HoL + etaT * HoV;
 		const real multiplier = (etaI * etaI * HoL) / (iorTerm * iorTerm);
