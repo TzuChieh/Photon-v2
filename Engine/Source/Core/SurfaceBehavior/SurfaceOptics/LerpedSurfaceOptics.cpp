@@ -75,47 +75,45 @@ void LerpedSurfaceOptics::calcBsdfSample(
 	const real dart = Random::genUniformReal_i0_e1();
 	if(dart < prob)
 	{
-		BsdfSample sample0;
-		sample0.inputs = in;
-		m_optics0->calcBsdfSample(sample0.inputs, sample0.outputs, sidedness);
+		BsdfSample::Output sample0;
+		m_optics0->calcBsdfSample(in, sample0, sidedness);
 
 		BsdfEvaluation eval1;
-		eval1.inputs.set(in.X, sample0.outputs.L, in.V, in.elemental, in.transported);
+		eval1.inputs.set(in, sample0);
 		m_optics1->calcBsdf(eval1.inputs, eval1.outputs, sidedness);
 
 		BsdfPdfQuery query0, query1;
-		query0.inputs.set(sample0);
+		query0.inputs.set(in, sample0);
 		query1.inputs.set(eval1);
 		m_optics0->calcBsdfSamplePdfW(query0.inputs, query0.outputs, sidedness);
 		m_optics1->calcBsdfSamplePdfW(query1.inputs, query1.outputs, sidedness);
 
-		const SpectralStrength bsdf0 = sample0.outputs.pdfAppliedBsdf * query0.outputs.sampleDirPdfW;
+		const SpectralStrength bsdf0 = sample0.pdfAppliedBsdf * query0.outputs.sampleDirPdfW;
 		const SpectralStrength bsdf = bsdf0 * ratio + eval1.outputs.bsdf * (SpectralStrength(1) - ratio);
 		const real             pdfW = query0.outputs.sampleDirPdfW * prob + query1.outputs.sampleDirPdfW * (1.0_r - prob);
 		out.pdfAppliedBsdf = bsdf / pdfW;
-		out.L = sample0.outputs.L;
+		out.L = sample0.L;
 	}
 	else
 	{
-		BsdfSample sample1;
-		sample1.inputs = in;
-		m_optics1->calcBsdfSample(sample1.inputs, sample1.outputs, sidedness);
+		BsdfSample::Output sample1;
+		m_optics1->calcBsdfSample(in, sample1, sidedness);
 
 		BsdfEvaluation eval0;
-		eval0.inputs.set(in.X, sample1.outputs.L, in.V, in.elemental, in.transported);
+		eval0.inputs.set(in, sample1);
 		m_optics0->calcBsdf(eval0.inputs, eval0.outputs, sidedness);
 
 		BsdfPdfQuery query0, query1;
-		query1.inputs.set(sample1);
+		query1.inputs.set(in, sample1);
 		query0.inputs.set(eval0);
 		m_optics1->calcBsdfSamplePdfW(query1.inputs, query1.outputs, sidedness);
 		m_optics0->calcBsdfSamplePdfW(query0.inputs, query0.outputs, sidedness);
 
-		const SpectralStrength bsdf1 = sample1.outputs.pdfAppliedBsdf * query1.outputs.sampleDirPdfW;
+		const SpectralStrength bsdf1 = sample1.pdfAppliedBsdf * query1.outputs.sampleDirPdfW;
 		const SpectralStrength bsdf = eval0.outputs.bsdf * ratio + bsdf1 * (SpectralStrength(1) - ratio);
 		const real             pdfW = query0.outputs.sampleDirPdfW * prob + query1.outputs.sampleDirPdfW * (1.0_r - prob);
 		out.pdfAppliedBsdf = bsdf / pdfW;
-		out.L = sample1.outputs.L;
+		out.L = sample1.L;
 	}
 }
 

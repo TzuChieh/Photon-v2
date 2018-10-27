@@ -4,7 +4,7 @@
 namespace ph
 {
 
-void BsdfSample::Input::set(const BsdfEvaluation& bsdfEval)
+void BsdfSampleInput::set(const BsdfEvaluation& bsdfEval)
 {
 	set(
 		bsdfEval.inputs.X, 
