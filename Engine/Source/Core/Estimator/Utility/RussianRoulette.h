@@ -11,27 +11,29 @@ namespace ph
 class RussianRoulette final
 {
 public:
-	static void surviveOnLuminance(
+	static bool surviveOnLuminance(
 		const SpectralStrength& s, 
 		SpectralStrength* const out_weightedS)
 	{
 		PH_ASSERT(out_weightedS);
 
-		const real rrSurviveRate = math::clamp(s.calcLuminance(), 0.0001_r, 1.0_r);
+		// survive rate is not allowed to be 100% to avoid immortal rays (e.g., TIR)
+		const real rrSurviveRate = math::clamp(s.calcLuminance(), 0.0_r, 0.95_r);
 		const real rrSpin        = Random::genUniformReal_i0_e1();
 
-		// russian roulette >> survive
-		if(rrSurviveRate > rrSpin)
+		// survived
+		if(rrSpin < rrSurviveRate)
 		{
 			PH_ASSERT(0.0_r < rrSurviveRate && rrSurviveRate <= 1.0_r);
 
 			const real rrScale = 1.0_r / rrSurviveRate;
 			*out_weightedS = s.mul(rrScale);
+			return true;
 		}
-		// russian roulette >> dead
+		// dead
 		else
 		{
-			out_weightedS->setValues(0.0_r);
+			return false;
 		}
 	}
 };

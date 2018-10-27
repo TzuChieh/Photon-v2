@@ -212,16 +212,22 @@ void BNEEPTEstimator::radianceAlongRay(
 				}
 			}
 
-			SpectralStrength currentLiWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+			const SpectralStrength currentLiWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+			accuLiWeight.mulLocal(currentLiWeight);
+
 			if(numBounces >= 3)
 			{
-				SpectralStrength weightedCurrentLiWeight;
-				RussianRoulette::surviveOnLuminance(
-					currentLiWeight, &weightedCurrentLiWeight);
-
-				currentLiWeight = weightedCurrentLiWeight;
+				SpectralStrength weightedAccuLiWeight;
+				if(RussianRoulette::surviveOnLuminance(
+					accuLiWeight, &weightedAccuLiWeight))
+				{
+					accuLiWeight = weightedAccuLiWeight;
+				}
+				else
+				{
+					break;
+				}
 			}
-			accuLiWeight.mulLocal(currentLiWeight);
 
 			// avoid excessive, negative weight and possible NaNs
 			//

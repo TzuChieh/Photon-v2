@@ -81,15 +81,22 @@ void BVPTEstimator::radianceAlongRay(
 
 		const Vector3R L = bsdfSample.outputs.L;
 
-		SpectralStrength liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+		const SpectralStrength liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+		accuLiWeight.mulLocal(liWeight);
+
 		if(numBounces >= 3)
 		{
-			SpectralStrength weightedLiWeight;
-			RussianRoulette::surviveOnLuminance(liWeight, &weightedLiWeight);
-
-			liWeight = weightedLiWeight;
+			SpectralStrength weightedAccuLiWeight;
+			if(RussianRoulette::surviveOnLuminance(
+				accuLiWeight, &weightedAccuLiWeight))
+			{
+				accuLiWeight = weightedAccuLiWeight;
+			}
+			else
+			{
+				break;
+			}
 		}
-		accuLiWeight.mulLocal(liWeight);
 
 		if(accuLiWeight.isZero())
 		{
