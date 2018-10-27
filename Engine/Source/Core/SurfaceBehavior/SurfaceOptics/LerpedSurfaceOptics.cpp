@@ -43,11 +43,13 @@ LerpedSurfaceOptics::LerpedSurfaceOptics(
 	m_ratio(ratio),
 	m_sampler(EQuantity::ECF)
 {
-	PH_ASSERT(optics0 != nullptr && optics1 != nullptr && ratio != nullptr);
+	PH_ASSERT(optics0 && optics1 && ratio);
 
 	m_phenomena.set({});
 	m_phenomena.unionWith(m_optics0->m_phenomena);
 	m_phenomena.unionWith(m_optics1->m_phenomena);
+
+	m_numElementals = m_optics0->m_numElementals + m_optics1->m_numElementals;
 }
 
 void LerpedSurfaceOptics::calcBsdf(

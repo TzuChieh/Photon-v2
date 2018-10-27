@@ -35,6 +35,9 @@ private:
 private:
 	std::shared_ptr<DielectricFresnel> m_fresnel;
 	std::shared_ptr<Microfacet>        m_microfacet;
+
+	constexpr static SurfaceElemental REFLECTION   = 0;
+	constexpr static SurfaceElemental TRANSMISSION = 1;
 };
 
 }// end namespace ph

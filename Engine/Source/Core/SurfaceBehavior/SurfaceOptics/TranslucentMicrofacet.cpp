@@ -29,6 +29,7 @@ TranslucentMicrofacet::TranslucentMicrofacet(
 	PH_ASSERT(fresnel && microfacet);
 
 	m_phenomena.set({ESP::GLOSSY_REFLECTION, ESP::GLOSSY_TRANSMISSION});
+	m_numElementals = 2;
 }
 
 void TranslucentMicrofacet::calcBsdf(
@@ -36,13 +37,13 @@ void TranslucentMicrofacet::calcBsdf(
 	BsdfEvaluation::Output&      out,
 	const SidednessAgreement&    sidedness) const
 {
-	const Vector3R& N = in.X.getShadingNormal();
-
-	const real NoL = N.dot(in.L);
-	const real NoV = N.dot(in.V);
+	const Vector3R& N   = in.X.getShadingNormal();
+	const real      NoL = N.dot(in.L);
+	const real      NoV = N.dot(in.V);
 
 	// reflection
-	if(sidedness.isSameHemisphere(in.X, in.L, in.V))
+	if(sidedness.isSameHemisphere(in.X, in.L, in.V) && 
+	   (in.elemental == ALL_ELEMENTALS || in.elemental == REFLECTION))
 	{
 		Vector3R H;
 		if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
@@ -64,7 +65,8 @@ void TranslucentMicrofacet::calcBsdf(
 		out.bsdf = F.mul(D * G / (4.0_r * std::abs(NoV * NoL)));
 	}
 	// refraction
-	else if(sidedness.isOppositeHemisphere(in.X, in.L, in.V))
+	else if(sidedness.isOppositeHemisphere(in.X, in.L, in.V) &&
+	        (in.elemental == ALL_ELEMENTALS || in.elemental == TRANSMISSION))
 	{
 		real etaI = m_fresnel->getIorOuter();
 		real etaT = m_fresnel->getIorInner();
@@ -106,20 +108,26 @@ void TranslucentMicrofacet::calcBsdf(
 	}
 }
 
+// Cook-Torrance microfacet specular BRDF for translucent surface is:
+// |HoL||HoV|/(|NoL||NoV|)*(iorO^2)*(D(H)*F(V, H)*G(L, V, H))/(iorI*HoL+iorO*HoV)^2.
+// The importance sampling strategy is to generate a microfacet normal (H) which 
+// follows D(H)'s distribution, and generate L by reflecting/refracting -V using H.
+// The PDF for this sampling scheme is (D(H)*|NoH|)*(iorO^2*|HoV|/((iorI*HoL+iorO*HoV)^2)).
+// The reason that the latter multiplier in the PDF exists is because there's a 
+// jacobian involved (from H's probability space to L's).
+//
 void TranslucentMicrofacet::calcBsdfSample(
 	const BsdfSample::Input&  in,
 	BsdfSample::Output&       out,
 	const SidednessAgreement& sidedness) const
 {
-	out.pdfAppliedBsdf.setValues(0);
+	const bool canReflect  = in.elemental == ALL_ELEMENTALS || in.elemental == REFLECTION;
+	const bool canTransmit = in.elemental == ALL_ELEMENTALS || in.elemental == TRANSMISSION;
 
-	// Cook-Torrance microfacet specular BRDF for translucent surface is:
-	// |HoL||HoV|/(|NoL||NoV|)*(iorO^2)*(D(H)*F(V, H)*G(L, V, H)) / (iorI*HoL + iorO*HoV)^2.
-	// The importance sampling strategy is to generate a microfacet normal (H) which follows D(H)'s distribution, and
-	// generate L by reflecting/refracting -V using H.
-	// The PDF for this sampling scheme is (D(H)*|NoH|) * (iorO^2 * |HoV| / ((iorI*HoL + iorO*HoV)^2)).
-	// The reason that the latter multiplier in the PDF exists is because there's a jacobian involved 
-	// (from H's probability space to L's).
+	if(!canReflect && !canTransmit)
+	{
+		out.pdfAppliedBsdf.setValues(0);
+	}
 
 	const Vector3R& N = in.X.getShadingNormal();
 
@@ -130,20 +138,28 @@ void TranslucentMicrofacet::calcBsdfSample(
 		Random::genUniformReal_i0_e1(), 
 		N, &H);
 
-	const real NoV = N.dot(in.V);
-	const real HoV = H.dot(in.V);
-	const real NoH = N.dot(H);
-
 	SpectralStrength F;
-	m_fresnel->calcReflectance(HoV, &F);
-
-	// use Fresnel term to select which path to take and calculate L
-
-	const real dart = Random::genUniformReal_i0_e1();
+	m_fresnel->calcReflectance(H.dot(in.V), &F);
 	const real reflectProb = F.avg();
 
-	// reflect path
-	if(dart < reflectProb)
+	bool sampleReflect  = canReflect;
+	bool sampleTransmit = canTransmit;
+	if(sampleReflect && sampleTransmit)
+	{
+		// we cannot sample both path, choose one randomly
+		const real dart = Random::genUniformReal_i0_e1();
+		if(dart < reflectProb)
+		{
+			sampleTransmit = false;
+		}
+		else
+		{
+			sampleReflect = false;
+		}
+	}
+	PH_ASSERT(sampleReflect || sampleTransmit);
+
+	if(sampleReflect)
 	{
 		// calculate reflected L
 		out.L = in.V.mul(-1.0_r).reflect(H).normalizeLocal();
@@ -155,8 +171,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 		// account for probability
 		F.divLocal(reflectProb);
 	}
-	// refract path
-	else if(m_fresnel->calcRefractDir(in.V, H, &(out.L)))
+	else if(sampleTransmit && m_fresnel->calcRefractDir(in.V, H, &(out.L)))
 	{
 		if(!sidedness.isOppositeHemisphere(in.X, in.V, out.L))
 		{
@@ -179,9 +194,10 @@ void TranslucentMicrofacet::calcBsdfSample(
 
 	const real NoL = N.dot(L);
 	const real HoL = H.dot(L);
+	const real NoV = N.dot(in.V);
+	const real NoH = N.dot(H);
 
-	const real G = m_microfacet->shadowing(in.X, N, H, L, in.V);
-
+	const real G        = m_microfacet->shadowing(in.X, N, H, L, in.V);
 	const real dotTerms = std::abs(HoL / (NoV * NoL * NoH));
 	out.pdfAppliedBsdf.setValues(F.mul(G * dotTerms));
 }
@@ -191,10 +207,13 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 	BsdfPdfQuery::Output&      out,
 	const SidednessAgreement&  sidedness) const
 {
+	const bool canReflect  = in.elemental == ALL_ELEMENTALS || in.elemental == REFLECTION;
+	const bool canTransmit = in.elemental == ALL_ELEMENTALS || in.elemental == TRANSMISSION;
+
 	const Vector3R& N = in.X.getShadingNormal();
 
 	// reflection
-	if(sidedness.isSameHemisphere(in.X, in.L, in.V))
+	if(canReflect && sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
 		Vector3R H;
 		if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
@@ -206,7 +225,7 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 		const real NoH = N.dot(H);
 		const real HoL = H.dot(in.L);
 		const real HoV = H.dot(in.V);
-		const real D = m_microfacet->distribution(in.X, N, H);
+		const real D   = m_microfacet->distribution(in.X, N, H);
 
 		SpectralStrength F;
 		m_fresnel->calcReflectance(HoL, &F);
@@ -214,8 +233,8 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 
 		out.sampleDirPdfW = std::abs(D * NoH / (4.0_r * HoL)) * reflectProb;
 	}
-	// refraction
-	else if(sidedness.isOppositeHemisphere(in.X, in.L, in.V))
+	// transmission
+	else if(canTransmit && sidedness.isOppositeHemisphere(in.X, in.L, in.V))
 	{
 		const real NoV = N.dot(in.V);
 		const real NoL = N.dot(in.L);
@@ -227,7 +246,8 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 			std::swap(etaI, etaT);
 		}
 
-		// H should be on the same hemisphere as N
+		// here H will point into the medium with lower IoR
+		// (see: B. Walter et al., Microfacet Models for Refraction, near the end of P.5)
 		Vector3R H = in.L.mul(-etaI).add(in.V.mul(-etaT));
 		if(H.isZero())
 		{
@@ -235,6 +255,8 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 			return;
 		}
 		H.normalizeLocal();
+
+		// make H in N's hemisphere
 		if(N.dot(H) < 0.0_r)
 		{
 			H.mulLocal(-1.0_r);
@@ -243,14 +265,13 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 		const real HoV = H.dot(in.V);
 		const real NoH = N.dot(H);
 		const real HoL = H.dot(in.L);
-
-		const real D = m_microfacet->distribution(in.X, N, H);
+		const real D   = m_microfacet->distribution(in.X, N, H);
 
 		SpectralStrength F;
 		m_fresnel->calcReflectance(HoL, &F);
 		const real refractProb = 1.0_r - F.avg();
 
-		const real iorTerm = etaI * HoL + etaT * HoV;
+		const real iorTerm    = etaI * HoL + etaT * HoV;
 		const real multiplier = (etaI * etaI * HoL) / (iorTerm * iorTerm);
 
 		out.sampleDirPdfW = std::abs(D * NoH * multiplier) * refractProb;
