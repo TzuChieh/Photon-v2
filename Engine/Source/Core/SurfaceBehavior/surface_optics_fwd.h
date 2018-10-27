@@ -18,6 +18,12 @@ enum class ESP : uint32
 	GLOSSY_TRANSMISSION = uint32(1) << 4
 };
 
+enum class ETransport
+{
+	RADIANCE,
+	IMPORTANCE
+};
+
 using SurfacePhenomena = TBitFlags<uint32, ESP>;
 using SurfaceElemental = int;
 

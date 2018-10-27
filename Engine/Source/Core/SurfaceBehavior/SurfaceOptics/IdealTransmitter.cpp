@@ -15,31 +15,23 @@ IdealTransmitter::IdealTransmitter(const std::shared_ptr<DielectricFresnel>& fre
 }
 
 void IdealTransmitter::calcBsdf(
-	const SurfaceHit&         X,
-	const Vector3R&           L,
-	const Vector3R&           V,
-	const SidednessAgreement& sidedness,
-	SpectralStrength* const   out_bsdf) const
+	const BsdfEvaluation::Input& in,
+	BsdfEvaluation::Output&      out,
+	const SidednessAgreement&    sidedness) const
 {
-	PH_ASSERT(out_bsdf);
-
-	out_bsdf->setValues(0.0_r);
+	out.bsdf.setValues(0.0_r);
 }
 
 void IdealTransmitter::calcBsdfSample(
-	const SurfaceHit&         X,
-	const Vector3R&           V,
-	const SidednessAgreement& sidedness,
-	Vector3R* const           out_L,
-	SpectralStrength* const   out_pdfAppliedBsdf) const
+	const BsdfSample::Input&  in,
+	BsdfSample::Output&       out,
+	const SidednessAgreement& sidedness) const
 {
-	PH_ASSERT(out_L && out_pdfAppliedBsdf);
-
-	const Vector3R& N = X.getShadingNormal();
-	Vector3R& L = *out_L;
-	if(!m_fresnel->calcRefractDir(V, N, &L))
+	const Vector3R& N = in.X.getShadingNormal();
+	Vector3R& L = out.L;
+	if(!m_fresnel->calcRefractDir(in.V, N, &L))
 	{
-		out_pdfAppliedBsdf->setValues(0.0_r);
+		out.pdfAppliedBsdf.setValues(0.0_r);
 		return;
 	}
 
@@ -56,19 +48,15 @@ void IdealTransmitter::calcBsdfSample(
 	}
 
 	const real iorRatio2 = (etaT * etaT) / (etaI * etaI);
-	out_pdfAppliedBsdf->setValues(F.mul(iorRatio2 / cosI));
+	out.pdfAppliedBsdf.setValues(F.mul(iorRatio2 / cosI));
 }
 
 void IdealTransmitter::calcBsdfSamplePdfW(
-	const SurfaceHit&         X,
-	const Vector3R&           L,
-	const Vector3R&           V,
-	const SidednessAgreement& sidedness,
-	real* const               out_pdfW) const
+	const BsdfPdfQuery::Input& in,
+	BsdfPdfQuery::Output&      out,
+	const SidednessAgreement&  sidedness) const
 {
-	PH_ASSERT(out_pdfW);
-
-	*out_pdfW = 0.0_r;
+	out.sampleDirPdfW = 0.0_r;
 }
 
 }// end namespace ph

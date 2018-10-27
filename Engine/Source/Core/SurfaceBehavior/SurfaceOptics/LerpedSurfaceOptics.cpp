@@ -51,78 +51,87 @@ LerpedSurfaceOptics::LerpedSurfaceOptics(
 }
 
 void LerpedSurfaceOptics::calcBsdf(
-	const SurfaceHit&         X,
-	const Vector3R&           L,
-	const Vector3R&           V,
-	const SidednessAgreement& sidedness,
-	SpectralStrength* const   out_bsdf) const
+	const BsdfEvaluation::Input& in,
+	BsdfEvaluation::Output&      out,
+	const SidednessAgreement&    sidedness) const
 {
-	const SpectralStrength ratio = m_sampler.sample(*m_ratio, X);
+	const SpectralStrength ratio = m_sampler.sample(*m_ratio, in.X);
 
-	SpectralStrength bsdf0, bsdf1;
-	m_optics0->calcBsdf(X, L, V, sidedness, &bsdf0);
-	m_optics1->calcBsdf(X, L, V, sidedness, &bsdf1);
+	BsdfEvaluation::Output eval0, eval1;
+	m_optics0->calcBsdf(in, eval0, sidedness);
+	m_optics1->calcBsdf(in, eval1, sidedness);
 
-	*out_bsdf  = bsdf0 * ratio + bsdf1 * (SpectralStrength(1) - ratio);
+	out.bsdf = eval0.bsdf * ratio + eval1.bsdf * (SpectralStrength(1) - ratio);
 }
 
 void LerpedSurfaceOptics::calcBsdfSample(
-	const SurfaceHit&         X,
-	const Vector3R&           V,
-	const SidednessAgreement& sidedness,
-	Vector3R* const           out_L,
-	SpectralStrength* const   out_pdfAppliedBsdf) const
+	const BsdfSample::Input&  in,
+	BsdfSample::Output&       out,
+	const SidednessAgreement& sidedness) const
 {
-	PH_ASSERT(out_L && out_pdfAppliedBsdf);
-
-	const SpectralStrength ratio = m_sampler.sample(*m_ratio, X);
+	const SpectralStrength ratio = m_sampler.sample(*m_ratio, in.X);
 	const real             prob  = probabilityOfPickingOptics0(ratio);
 
 	const real dart = Random::genUniformReal_i0_e1();
 	if(dart < prob)
 	{
-		SpectralStrength pdfAppliedBsdf0, bsdf1;
-		m_optics0->calcBsdfSample(X, V, sidedness, out_L, &pdfAppliedBsdf0);
-		m_optics1->calcBsdf(X, *out_L, V, sidedness, &bsdf1);
+		BsdfSample sample0;
+		sample0.inputs = in;
+		m_optics0->calcBsdfSample(sample0.inputs, sample0.outputs, sidedness);
 
-		real pdfW0, pdfW1;
-		m_optics0->calcBsdfSamplePdfW(X, *out_L, V, sidedness, &pdfW0);
-		m_optics1->calcBsdfSamplePdfW(X, *out_L, V, sidedness, &pdfW1);
+		BsdfEvaluation eval1;
+		eval1.inputs.set(in.X, sample0.outputs.L, in.V, in.elemental, in.transported);
+		m_optics1->calcBsdf(eval1.inputs, eval1.outputs, sidedness);
 
-		const SpectralStrength bsdf = pdfAppliedBsdf0 * pdfW0 * ratio + bsdf1 * (SpectralStrength(1) - ratio);
-		const real             pdfW = pdfW0 * prob + pdfW1 * (1.0_r - prob);
-		*out_pdfAppliedBsdf = bsdf / pdfW;
+		BsdfPdfQuery query0, query1;
+		query0.inputs.set(sample0);
+		query1.inputs.set(eval1);
+		m_optics0->calcBsdfSamplePdfW(query0.inputs, query0.outputs, sidedness);
+		m_optics1->calcBsdfSamplePdfW(query1.inputs, query1.outputs, sidedness);
+
+		const SpectralStrength bsdf0 = sample0.outputs.pdfAppliedBsdf * query0.outputs.sampleDirPdfW;
+		const SpectralStrength bsdf = bsdf0 * ratio + eval1.outputs.bsdf * (SpectralStrength(1) - ratio);
+		const real             pdfW = query0.outputs.sampleDirPdfW * prob + query1.outputs.sampleDirPdfW * (1.0_r - prob);
+		out.pdfAppliedBsdf = bsdf / pdfW;
+		out.L = sample0.outputs.L;
 	}
 	else
 	{
-		SpectralStrength pdfAppliedBsdf1, bsdf0;
-		m_optics1->calcBsdfSample(X, V, sidedness, out_L, &pdfAppliedBsdf1);
-		m_optics0->calcBsdf(X, *out_L, V, sidedness, &bsdf0);
+		BsdfSample sample1;
+		sample1.inputs = in;
+		m_optics1->calcBsdfSample(sample1.inputs, sample1.outputs, sidedness);
 
-		real pdfW0, pdfW1;
-		m_optics1->calcBsdfSamplePdfW(X, *out_L, V, sidedness, &pdfW1);
-		m_optics0->calcBsdfSamplePdfW(X, *out_L, V, sidedness, &pdfW0);
+		BsdfEvaluation eval0;
+		eval0.inputs.set(in.X, sample1.outputs.L, in.V, in.elemental, in.transported);
+		m_optics0->calcBsdf(eval0.inputs, eval0.outputs, sidedness);
 
-		const SpectralStrength bsdf = bsdf0 * ratio + pdfAppliedBsdf1 * pdfW1 * (SpectralStrength(1) - ratio);
-		const real             pdfW = pdfW0 * prob + pdfW1 * (1.0_r - prob);
-		*out_pdfAppliedBsdf = bsdf / pdfW;
+		BsdfPdfQuery query0, query1;
+		query1.inputs.set(sample1);
+		query0.inputs.set(eval0);
+		m_optics1->calcBsdfSamplePdfW(query1.inputs, query1.outputs, sidedness);
+		m_optics0->calcBsdfSamplePdfW(query0.inputs, query0.outputs, sidedness);
+
+		const SpectralStrength bsdf1 = sample1.outputs.pdfAppliedBsdf * query1.outputs.sampleDirPdfW;
+		const SpectralStrength bsdf = eval0.outputs.bsdf * ratio + bsdf1 * (SpectralStrength(1) - ratio);
+		const real             pdfW = query0.outputs.sampleDirPdfW * prob + query1.outputs.sampleDirPdfW * (1.0_r - prob);
+		out.pdfAppliedBsdf = bsdf / pdfW;
+		out.L = sample1.outputs.L;
 	}
 }
 
 void LerpedSurfaceOptics::calcBsdfSamplePdfW(
-	const SurfaceHit&         X,
-	const Vector3R&           L,
-	const Vector3R&           V,
-	const SidednessAgreement& sidedness,
-	real* const               out_pdfW) const
+	const BsdfPdfQuery::Input& in,
+	BsdfPdfQuery::Output&      out,
+	const SidednessAgreement&  sidedness) const
 {
-	const SpectralStrength ratio = m_sampler.sample(*m_ratio, X);
+	const SpectralStrength ratio = m_sampler.sample(*m_ratio, in.X);
 	const real             prob  = probabilityOfPickingOptics0(ratio);
 
-	real pdf0, pdf1;
-	m_optics0->calcBsdfSamplePdfW(X, L, V, sidedness, &pdf0);
-	m_optics1->calcBsdfSamplePdfW(X, L, V, sidedness, &pdf1);
-	*out_pdfW = pdf0 * prob + pdf1 * (1.0_r - prob);
+	BsdfPdfQuery::Output query0, query1;
+	m_optics0->calcBsdfSamplePdfW(in, query0, sidedness);
+	m_optics1->calcBsdfSamplePdfW(in, query1, sidedness);
+
+	out.sampleDirPdfW = query0.sampleDirPdfW * prob + query1.sampleDirPdfW * (1.0_r - prob);
 }
 
 real LerpedSurfaceOptics::probabilityOfPickingOptics0(const SpectralStrength& ratio)

@@ -24,11 +24,16 @@ public:
 		void set(const BsdfEvaluation& bsdfEval);
 		void set(const BsdfSample& sample);
 
-		inline void set(const SurfaceHit& X, const Vector3R& L, const Vector3R& V)
+		inline void set(
+			const SurfaceHit&      X, 
+			const Vector3R&        L,
+			const Vector3R&        V,
+			const SurfaceElemental elemental)
 		{
-			this->X     = X;
-			this->L     = L;
-			this->V     = V;
+			this->X         = X;
+			this->L         = L;
+			this->V         = V;
+			this->elemental = elemental;
 		}
 	};
 

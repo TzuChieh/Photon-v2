@@ -26,25 +26,19 @@ public:
 
 private:
 	void calcBsdf(
-		const SurfaceHit&         X,
-		const Vector3R&           L,
-		const Vector3R&           V,
-		const SidednessAgreement& sidedness,
-		SpectralStrength*         out_bsdf) const override;
+		const BsdfEvaluation::Input& in,
+		BsdfEvaluation::Output&      out,
+		const SidednessAgreement&    sidedness) const override;
 
 	void calcBsdfSample(
-		const SurfaceHit&         X,
-		const Vector3R&           V,
-		const SidednessAgreement& sidedness,
-		Vector3R*                 out_L,
-		SpectralStrength*         out_pdfAppliedBsdf) const override;
+		const BsdfSample::Input&     in,
+		BsdfSample::Output&          out,
+		const SidednessAgreement&    sidedness) const override;
 
 	void calcBsdfSamplePdfW(
-		const SurfaceHit&         X,
-		const Vector3R&           L,
-		const Vector3R&           V,
-		const SidednessAgreement& sidedness,
-		real*                     out_pdfW) const override;
+		const BsdfPdfQuery::Input&   in,
+		BsdfPdfQuery::Output&        out,
+		const SidednessAgreement&    sidedness) const override;
 
 private:
 	//std::shared_ptr<TTexture<SpectralStrength>> m_albedo;

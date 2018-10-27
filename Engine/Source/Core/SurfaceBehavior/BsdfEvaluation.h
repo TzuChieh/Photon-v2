@@ -18,25 +18,46 @@ public:
 		Vector3R         L;
 		Vector3R         V;
 		SurfaceElemental elemental;
+		ETransport       transported;
 
 		inline void set(
 			const SurfaceHit&      X, 
 			const Vector3R&        L, 
 			const Vector3R&        V)
 		{
-			set(X, L, V, ALL_ELEMENTALS);
+			set(X, L, V, ALL_ELEMENTALS, ETransport::RADIANCE);
+		}
+
+		inline void set(
+			const SurfaceHit&      X,
+			const Vector3R&        L,
+			const Vector3R&        V,
+			const SurfaceElemental elemental)
+		{
+			set(X, L, V, elemental, ETransport::RADIANCE);
+		}
+
+		inline void set(
+			const SurfaceHit&      X,
+			const Vector3R&        L,
+			const Vector3R&        V,
+			const ETransport       transported)
+		{
+			set(X, L, V, ALL_ELEMENTALS, transported);
 		}
 
 		inline void set(
 			const SurfaceHit&      X, 
 			const Vector3R&        L, 
 			const Vector3R&        V, 
-			const SurfaceElemental elemental)
+			const SurfaceElemental elemental,
+			const ETransport       transported)
 		{
-			this->X         = X;
-			this->L         = L;
-			this->V         = V;
-			this->elemental = elemental;
+			this->X           = X;
+			this->L           = L;
+			this->V           = V;
+			this->elemental   = elemental;
+			this->transported = transported;
 		}
 	};
 

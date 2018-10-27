@@ -45,24 +45,20 @@ LbLayeredSurface::LbLayeredSurface(
 }
 
 void LbLayeredSurface::calcBsdf(
-	const SurfaceHit&         X,
-	const Vector3R&           L,
-	const Vector3R&           V,
-	const SidednessAgreement& sidedness,
-	SpectralStrength* const   out_bsdf) const
+	const BsdfEvaluation::Input& in,
+	BsdfEvaluation::Output&      out,
+	const SidednessAgreement&    sidedness) const
 {
-	PH_ASSERT(out_bsdf);
+	out.bsdf.setValues(0);
 
-	out_bsdf->setValues(0);
-
-	if(!sidedness.isSameHemisphere(X, L, V))
+	if(!sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
 		return;
 	}
 
-	const Vector3R& N = X.getShadingNormal();
-	const real NoL = N.dot(L);
-	const real NoV = N.dot(V);
+	const Vector3R& N = in.X.getShadingNormal();
+	const real NoL = N.dot(in.L);
+	const real NoV = N.dot(in.V);
 	const real brdfDeno = 4.0_r * std::abs(NoV * NoL);
 	if(brdfDeno == 0.0_r)
 	{
@@ -70,12 +66,12 @@ void LbLayeredSurface::calcBsdf(
 	}
 
 	Vector3R H;
-	if(!BsdfHelper::makeHalfVectorSameHemisphere(L, V, N, &H))
+	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
 	{
 		return;
 	}
 	
-	const real absHoL = std::min(H.absDot(L), 1.0_r);
+	const real absHoL = std::min(H.absDot(in.L), 1.0_r);
 
 	InterfaceStatistics statistics(absHoL, LbLayer());
 	for(std::size_t i = 0; i < numLayers(); ++i)
@@ -87,26 +83,22 @@ void LbLayeredSurface::calcBsdf(
 		}
 
 		IsoTrowbridgeReitz ggx(statistics.getEquivalentAlpha());
-		const real D = ggx.distribution(X, N, H);
-		const real G = ggx.shadowing(X, N, H, L, V);
+		const real D = ggx.distribution(in.X, N, H);
+		const real G = ggx.shadowing(in.X, N, H, in.L, in.V);
 
-		out_bsdf->addLocal(statistics.getEnergyScale().mul(D * G / brdfDeno));
+		out.bsdf.addLocal(statistics.getEnergyScale().mul(D * G / brdfDeno));
 	}
 }
 
 void LbLayeredSurface::calcBsdfSample(
-	const SurfaceHit&         X,
-	const Vector3R&           V,
-	const SidednessAgreement& sidedness,
-	Vector3R* const           out_L,
-	SpectralStrength* const   out_pdfAppliedBsdf) const
+	const BsdfSample::Input&  in,
+	BsdfSample::Output&       out,
+	const SidednessAgreement& sidedness) const
 {
-	PH_ASSERT(out_L && out_pdfAppliedBsdf);
+	out.pdfAppliedBsdf.setValues(0);
 
-	out_pdfAppliedBsdf->setValues(0);
-
-	const Vector3R& N = X.getShadingNormal();
-	const real absNoV = std::min(N.absDot(V), 1.0_r);
+	const Vector3R& N = in.X.getShadingNormal();
+	const real absNoV = std::min(N.absDot(in.V), 1.0_r);
 
 	// Perform adding-doubling algorithm and gather information for later
 	// sampling process.
@@ -147,15 +139,15 @@ void LbLayeredSurface::calcBsdfSample(
 
 	IsoTrowbridgeReitz ggx(alphas[selectIndex]);
 	Vector3R H;
-	ggx.genDistributedH(X, Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), N, &H);
-	const Vector3R L = V.mul(-1.0_r).reflect(H).normalizeLocal();
+	ggx.genDistributedH(in.X, Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), N, &H);
+	const Vector3R L = in.V.mul(-1.0_r).reflect(H).normalizeLocal();
 
-	if(!sidedness.isSameHemisphere(X, L, V))
+	if(!sidedness.isSameHemisphere(in.X, L, in.V))
 	{
 		return;
 	}
 
-	*out_L = L;
+	out.L = L;
 
 	const real NoH = N.dot(H);
 	const real HoL = H.dot(L);
@@ -169,7 +161,7 @@ void LbLayeredSurface::calcBsdfSample(
 	for(std::size_t i = 0; i < numLayers(); ++i)
 	{
 		IsoTrowbridgeReitz ggx(alphas[i]);
-		const real D = ggx.distribution(X, N, H);
+		const real D = ggx.distribution(in.X, N, H);
 		const real weight = sampleWeights[i] / summedSampleWeights;
 		pdf += weight * std::abs(D * NoH / (4.0_r * HoL));
 	}
@@ -179,39 +171,36 @@ void LbLayeredSurface::calcBsdfSample(
 		return;
 	}
 
-	SpectralStrength bsdf;
+	BsdfEvaluation eval;
+	eval.inputs.set(in.X, L, in.V, in.elemental, in.transported);
 	// FIXME: we already complete adding-doubling, reuse the computed results
-	LbLayeredSurface::calcBsdf(X, L, V, sidedness, &bsdf);
-	*out_pdfAppliedBsdf = bsdf / pdf;
+	LbLayeredSurface::calcBsdf(eval.inputs, eval.outputs, sidedness);
+	out.pdfAppliedBsdf = eval.outputs.bsdf / pdf;
 }
 
 void LbLayeredSurface::calcBsdfSamplePdfW(
-	const SurfaceHit&         X,
-	const Vector3R&           L,
-	const Vector3R&           V,
-	const SidednessAgreement& sidedness,
-	real* const               out_pdfW) const
+	const BsdfPdfQuery::Input& in,
+	BsdfPdfQuery::Output&      out,
+	const SidednessAgreement&  sidedness) const
 {
-	PH_ASSERT(out_pdfW);
+	out.sampleDirPdfW = 0.0_r;
 
-	*out_pdfW = 0.0_r;
-
-	if(!sidedness.isSameHemisphere(X, L, V))
+	if(!sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
 		return;
 	}
 
-	const Vector3R& N = X.getShadingNormal();
+	const Vector3R& N = in.X.getShadingNormal();
 
 	Vector3R H;
-	if(!BsdfHelper::makeHalfVectorSameHemisphere(L, V, N, &H))
+	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
 	{
 		return;
 	}
 
-	const real absNoV = std::min(N.absDot(V), 1.0_r);
+	const real absNoV = std::min(N.absDot(in.V), 1.0_r);
 	const real NoH = N.dot(H);
-	const real HoL = H.dot(L);
+	const real HoL = H.dot(in.L);
 
 	// Similar to genBsdfSample(), here we perform adding-doubling then compute
 	// MIS'ed (balance heuristic) PDF value.
@@ -231,13 +220,13 @@ void LbLayeredSurface::calcBsdfSamplePdfW(
 		summedSampleWeights += sampleWeight;
 
 		IsoTrowbridgeReitz ggx(statistics.getEquivalentAlpha());
-		const real D = ggx.distribution(X, N, H);
+		const real D = ggx.distribution(in.X, N, H);
 		pdf += sampleWeight * std::abs(D * NoH / (4.0_r * HoL));
 	}
 
 	if(summedSampleWeights > 0.0_r)
 	{
-		*out_pdfW = pdf / summedSampleWeights;
+		out.sampleDirPdfW = pdf / summedSampleWeights;
 	}
 }
 

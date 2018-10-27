@@ -18,44 +18,32 @@ IdealReflector::IdealReflector(const std::shared_ptr<FresnelEffect>& fresnel) :
 }
 
 void IdealReflector::calcBsdf(
-	const SurfaceHit&         X,
-	const Vector3R&           L,
-	const Vector3R&           V,
-	const SidednessAgreement& sidedness,
-	SpectralStrength* const   out_bsdf) const
+	const BsdfEvaluation::Input& in,
+	BsdfEvaluation::Output&      out,
+	const SidednessAgreement&    sidedness) const
 {
-	PH_ASSERT(out_bsdf);
-
-	out_bsdf->setValues(0.0_r);
+	out.bsdf.setValues(0.0_r);
 }
 
 void IdealReflector::calcBsdfSample(
-	const SurfaceHit&         X,
-	const Vector3R&           V,
-	const SidednessAgreement& sidedness,
-	Vector3R* const           out_L,
-	SpectralStrength* const   out_pdfAppliedBsdf) const
+	const BsdfSample::Input&  in,
+	BsdfSample::Output&       out,
+	const SidednessAgreement& sidedness) const
 {
-	PH_ASSERT(out_L && out_pdfAppliedBsdf);
+	const Vector3R& N = in.X.getShadingNormal();
+	out.L = in.V.mul(-1.0_r).reflect(N);
 
-	const Vector3R& N = X.getShadingNormal();
-	*out_L = V.mul(-1.0_r).reflect(N);
-
-	const real NoL = N.dot(*out_L);
-	m_fresnel->calcReflectance(NoL, out_pdfAppliedBsdf);
-	out_pdfAppliedBsdf->mulLocal(1.0_r / std::abs(NoL));
+	const real NoL = N.dot(out.L);
+	m_fresnel->calcReflectance(NoL, &(out.pdfAppliedBsdf));
+	out.pdfAppliedBsdf.mulLocal(1.0_r / std::abs(NoL));
 }
 
 void IdealReflector::calcBsdfSamplePdfW(
-	const SurfaceHit&         X,
-	const Vector3R&           L,
-	const Vector3R&           V,
-	const SidednessAgreement& sidedness,
-	real* const               out_pdfW) const
+	const BsdfPdfQuery::Input& in,
+	BsdfPdfQuery::Output&      out,
+	const SidednessAgreement&  sidedness) const
 {
-	PH_ASSERT(out_pdfW);
-
-	*out_pdfW = 0.0_r;
+	out.sampleDirPdfW = 0.0_r;
 }
 
 }// end namespace ph

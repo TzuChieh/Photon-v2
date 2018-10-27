@@ -7,12 +7,20 @@ namespace ph
 
 void BsdfPdfQuery::Input::set(const BsdfEvaluation& bsdfEval)
 {
-	set(bsdfEval.inputs.X, bsdfEval.inputs.L, bsdfEval.inputs.V);
+	set(
+		bsdfEval.inputs.X, 
+		bsdfEval.inputs.L, 
+		bsdfEval.inputs.V, 
+		bsdfEval.inputs.elemental);
 }
 
 void BsdfPdfQuery::Input::set(const BsdfSample& sample)
 {
-	set(sample.inputs.X, sample.outputs.L, sample.inputs.V);
+	set(
+		sample.inputs.X, 
+		sample.outputs.L, 
+		sample.inputs.V,
+		sample.inputs.elemental);
 }
 
 }// end namespace ph

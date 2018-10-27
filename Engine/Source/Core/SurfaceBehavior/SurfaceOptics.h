@@ -5,14 +5,14 @@
 #include "Core/SurfaceBehavior/surface_optics_fwd.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Core/SurfaceHit.h"
+#include "Core/SurfaceBehavior/BsdfEvaluation.h"
+#include "Core/SurfaceBehavior/BsdfSample.h"
+#include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 
 namespace ph
 {
 
 class Ray;
-class BsdfEvaluation;
-class BsdfSample;
-class BsdfPdfQuery;
 class SidednessAgreement;
 
 class SurfaceOptics
@@ -37,25 +37,19 @@ protected:
 
 private:
 	virtual void calcBsdf(
-		const SurfaceHit&         X, 
-		const Vector3R&           L, 
-		const Vector3R&           V,
-		const SidednessAgreement& sidedness,
-		SpectralStrength*         out_bsdf) const = 0;
+		const BsdfEvaluation::Input& in,
+		BsdfEvaluation::Output&      out,
+		const SidednessAgreement&    sidedness) const = 0;
 
 	virtual void calcBsdfSample(
-		const SurfaceHit&         X, 
-		const Vector3R&           V,
-		const SidednessAgreement& sidedness,
-		Vector3R*                 out_L, 
-		SpectralStrength*         out_pdfAppliedBsdf) const = 0;
+		const BsdfSample::Input&     in,
+		BsdfSample::Output&          out,
+		const SidednessAgreement&    sidedness) const = 0;
 
 	virtual void calcBsdfSamplePdfW(
-		const SurfaceHit&         X, 
-		const Vector3R&           L, 
-		const Vector3R&           V,
-		const SidednessAgreement& sidedness,
-		real*                     out_pdfW) const = 0;
+		const BsdfPdfQuery::Input&   in,
+		BsdfPdfQuery::Output&        out,
+		const SidednessAgreement&    sidedness) const = 0;
 };
 
 // In-header Implementations:

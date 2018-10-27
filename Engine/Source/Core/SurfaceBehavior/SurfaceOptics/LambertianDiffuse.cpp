@@ -26,47 +26,39 @@ LambertianDiffuse::LambertianDiffuse(const std::shared_ptr<TTexture<SpectralStre
 }
 
 void LambertianDiffuse::calcBsdf(
-	const SurfaceHit&         X,
-	const Vector3R&           L,
-	const Vector3R&           V,
-	const SidednessAgreement& sidedness,
-	SpectralStrength* const   out_bsdf) const
+	const BsdfEvaluation::Input& in,
+	BsdfEvaluation::Output&      out,
+	const SidednessAgreement&    sidedness) const
 {
-	PH_ASSERT(out_bsdf);
+	out.bsdf.setValues(0);
 
-	out_bsdf->setValues(0);
-
-	if(!sidedness.isSameHemisphere(X, L, V))
+	if(!sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
 		return;
 	}
 
-	SpectralStrength albedo = TSampler<SpectralStrength>(EQuantity::ECF).sample(*m_albedo, X);
-	*out_bsdf = albedo.divLocal(PH_PI_REAL);
+	SpectralStrength albedo = TSampler<SpectralStrength>(EQuantity::ECF).sample(*m_albedo, in.X);
+	out.bsdf = albedo.divLocal(PH_PI_REAL);
 }
 
 void LambertianDiffuse::calcBsdfSample(
-	const SurfaceHit&         X,
-	const Vector3R&           V,
-	const SidednessAgreement& sidedness,
-	Vector3R* const           out_L,
-	SpectralStrength* const   out_pdfAppliedBsdf) const
+	const BsdfSample::Input&  in,
+	BsdfSample::Output&       out,
+	const SidednessAgreement& sidedness) const
 {
-	PH_ASSERT(out_L && out_pdfAppliedBsdf);
-
 	// Lambertian diffuse model's BRDF is simply albedo/pi.
 	// The importance sampling strategy is to use the cosine term in the rendering equation, 
 	// generating a cos(theta) weighted L corresponding to N, which PDF is cos(theta)/pi.
 	// Thus, BRDF_lambertian/PDF = albedo/cos(theta).
 
-	SpectralStrength albedo = TSampler<SpectralStrength>(EQuantity::ECF).sample(*m_albedo, X);
+	SpectralStrength albedo = TSampler<SpectralStrength>(EQuantity::ECF).sample(*m_albedo, in.X);
 
 	// generate and transform L to N's space
 
-	const Vector3R& N = X.getShadingNormal();
+	const Vector3R& N = in.X.getShadingNormal();
 	PH_ASSERT(N.isFinite());
 
-	Vector3R& L = *out_L;
+	Vector3R& L = out.L;
 	sampling::unit_hemisphere::cosine_theta_weighted::gen(
 		Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), &L);
 	Vector3R u;
@@ -75,7 +67,7 @@ void LambertianDiffuse::calcBsdfSample(
 	math::formOrthonormalBasis(v, &u, &w);
 	L = u.mulLocal(L.x).addLocal(v.mulLocal(L.y)).addLocal(w.mulLocal(L.z));
 	L.normalizeLocal();
-	if(V.dot(N) < 0.0_r)
+	if(in.V.dot(N) < 0.0_r)
 	{
 		L.mulLocal(-1.0_r);
 	}
@@ -90,24 +82,20 @@ void LambertianDiffuse::calcBsdfSample(
 	const real absNoL = N.absDot(L);
 	if(absNoL == 0.0_r)
 	{
-		out_pdfAppliedBsdf->setValues(0);
+		out.pdfAppliedBsdf.setValues(0);
 		return;
 	}
 
-	out_pdfAppliedBsdf->setValues(albedo.mulLocal(1.0_r / absNoL));
+	out.pdfAppliedBsdf.setValues(albedo.mulLocal(1.0_r / absNoL));
 }
 
 void LambertianDiffuse::calcBsdfSamplePdfW(
-	const SurfaceHit&         X,
-	const Vector3R&           L,
-	const Vector3R&           V,
-	const SidednessAgreement& sidedness,
-	real* const               out_pdfW) const
+	const BsdfPdfQuery::Input& in,
+	BsdfPdfQuery::Output&      out,
+	const SidednessAgreement&  sidedness) const
 {
-	PH_ASSERT(out_pdfW);
-
-	const Vector3R& N = X.getShadingNormal();
-	*out_pdfW = L.absDot(N) * PH_RECI_PI_REAL;
+	const Vector3R& N = in.X.getShadingNormal();
+	out.sampleDirPdfW = in.L.absDot(N) * PH_RECI_PI_REAL;
 }
 
 }// end namespace ph

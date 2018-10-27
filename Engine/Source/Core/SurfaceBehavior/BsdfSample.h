@@ -19,6 +19,7 @@ public:
 		SurfaceHit       X;
 		Vector3R         V;
 		SurfaceElemental elemental;
+		ETransport       transported;
 
 		void set(const BsdfEvaluation& bsdfEval);
 
@@ -26,17 +27,19 @@ public:
 			const SurfaceHit&      X, 
 			const Vector3R&        V)
 		{
-			set(X, V, ALL_ELEMENTALS);
+			set(X, V, ALL_ELEMENTALS, ETransport::RADIANCE);
 		}
 
 		inline void set(
 			const SurfaceHit&      X, 
 			const Vector3R&        V,
-			const SurfaceElemental elemental)
+			const SurfaceElemental elemental,
+			const ETransport       transported)
 		{
-			this->X         = X;
-			this->V         = V;
-			this->elemental = elemental;
+			this->X           = X;
+			this->V           = V;
+			this->elemental   = elemental;
+			this->transported = transported;
 		}
 	};
 
@@ -45,7 +48,6 @@ public:
 	public:
 		Vector3R         L;
 		SpectralStrength pdfAppliedBsdf;
-		SurfaceElemental elemental;
 
 		inline bool isGood() const
 		{
