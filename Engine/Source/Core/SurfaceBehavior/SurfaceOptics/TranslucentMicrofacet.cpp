@@ -110,7 +110,7 @@ void TranslucentMicrofacet::calcBsdf(
 		const real G = m_microfacet->shadowing(in.X, N, H, in.L, in.V);
 
 		const real dotTerm = std::abs(HoL * HoV / (NoV * NoL));
-		const real iorTerm = etaI / (etaI * HoL + etaT * HoV);
+		const real iorTerm = etaT / (etaI * HoL + etaT * HoV);
 		out.bsdf = F.complement().mul(D * G * dotTerm * (iorTerm * iorTerm));
 	}
 	else
@@ -194,7 +194,15 @@ void TranslucentMicrofacet::calcBsdfSample(
 			return;
 		}
 
-		m_fresnel->calcTransmittance(out.L.dot(H), &F);
+		m_fresnel->calcTransmittance(H.dot(out.L), &F);
+
+		real etaI = m_fresnel->getIorOuter();
+		real etaT = m_fresnel->getIorInner();
+		if(N.dot(out.L) < 0.0_r)
+		{
+			std::swap(etaI, etaT);
+		}
+		F.mulLocal(etaT * etaT / (etaI * etaI));
 
 		// account for probability
 		if(in.elemental == ALL_ELEMENTALS)
@@ -212,12 +220,12 @@ void TranslucentMicrofacet::calcBsdfSample(
 	const Vector3R& L = out.L;
 
 	const real NoL = N.dot(L);
-	const real HoL = H.dot(L);
+	const real HoV = H.dot(in.V);
 	const real NoV = N.dot(in.V);
 	const real NoH = N.dot(H);
 
 	const real G        = m_microfacet->shadowing(in.X, N, H, L, in.V);
-	const real dotTerms = std::abs(HoL / (NoV * NoL * NoH));
+	const real dotTerms = std::abs(HoV / (NoV * NoL * NoH));
 	out.pdfAppliedBsdf.setValues(F.mul(G * dotTerms));
 }
 
