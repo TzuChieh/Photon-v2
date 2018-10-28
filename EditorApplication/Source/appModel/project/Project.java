@@ -61,14 +61,14 @@ public final class Project extends ManageableResource
 	
 	public Task<String> createLoadSceneTask()
 	{
-		final String sceneFileName = getRenderSetting().get(RenderSetting.SCENE_FILE_NAME);
+		final String sceneFilePath = getRenderSetting().get(RenderSetting.SCENE_FILE_PATH);
 		
 		return new Task<String>()
 		{
 			@Override
 			protected String call() throws Exception
 			{
-				opLoadSceneFile(sceneFileName);
+				opLoadSceneFile(sceneFilePath);
 				return "load scene task done";
 			}
 		};
@@ -154,13 +154,13 @@ public final class Project extends ManageableResource
 		});
 	}
 	
-	private void opLoadSceneFile(String filename)
+	private void opLoadSceneFile(String filePath)
 	{
-		EditorApp.printToConsole("loading scene file <" + filename + ">...");
+		EditorApp.printToConsole("loading scene file <" + filePath + ">...");
 		
-		File sceneFile = new File(filename);
+		File sceneFile = new File(filePath);
 		m_engine.setWorkingDirectory(sceneFile.getParent());
-		m_engine.loadCommand(filename);
+		m_engine.loadCommand(filePath);
 		m_engine.update();
 		
 		FilmInfo info = m_engine.getFilmInfo();

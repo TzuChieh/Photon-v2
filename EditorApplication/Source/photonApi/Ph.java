@@ -1,13 +1,14 @@
 package photonApi;
 
+import util.FSUtil;
+
 public final class Ph
 {
-	// Notice: Photon-v2 library functions should not be called from threads other than the main thread.
-	
 	static
 	{
-		//System.loadLibrary("Release/Engine");
-		System.loadLibrary("Editor_JNI");
+		final String NATIVE_LIBRARY_PATH     = FSUtil.getBuildDirectory() + "bin/";
+		final String ENGINE_LIBRARY_FILENAME = System.mapLibraryName("Editor_JNI");
+		System.load(NATIVE_LIBRARY_PATH + ENGINE_LIBRARY_FILENAME);
 	}
 	
 	public static final int ATTRIBUTE_LIGHT_ENERGY = 0;

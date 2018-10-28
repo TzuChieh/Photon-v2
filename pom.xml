@@ -13,8 +13,14 @@
 	<build>
 
 		<sourceDirectory>${project.basedir}/EditorApplication/Source/</sourceDirectory>
-		<outputDirectory>${project.basedir}/build/target/classes</outputDirectory>
+		<outputDirectory>${project.basedir}/build/target/classes/</outputDirectory>
 		<directory>${project.basedir}/build/target/</directory>
+
+		<!-- not used currently, set to an empty/non-exist folder -->
+		<testSourceDirectory>${project.basedir}/EditorApplication/TestSource/</testSourceDirectory>
+
+		<!-- not used currently, set to ./build/target/ -->
+		<testOutputDirectory>${project.basedir}/build/target/</testOutputDirectory>
 
 		<resources>
 			<resource>
@@ -44,6 +50,8 @@
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>3.1.0</version>
 				<executions>
+
+					<!--
 					<execution>
 						<id>copy-resources-0</id>
 						<phase>validate</phase>
@@ -59,7 +67,9 @@
 							</resources>
 						</configuration>
 					</execution>
+					-->
 
+					<!--
 					<execution>
 						<id>copy-resources-1</id>
 						<phase>validate</phase>
@@ -67,7 +77,6 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.basedir}/build/target/</outputDirectory>
 							<resources>
 								<resource>
 									<directory>${project.basedir}/build/bin/</directory>
@@ -76,8 +85,10 @@
 									</includes>
 								</resource>
 							</resources>
+							<outputDirectory>${project.basedir}/build/target/</outputDirectory>
 						</configuration>
 					</execution>
+					-->
 
 				</executions>
 			</plugin>

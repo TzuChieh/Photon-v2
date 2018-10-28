@@ -1,24 +1,21 @@
 #pragma once
 
-/////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // 
 // To correctly use Photon-v2 API, please read the following notes:
 //
-// 1. phInit() must be called before any other use of the API.
-// 
-// 2. phExit() must be called after finishing the use of the API.
-// 
-// 3. phInit() and phExit() must be called on the same thread.
+// 1. phInit() and phExit() must be called before and after the use of the API,
+//    and should be called on the same thread.
 //
-// 4. phCreate<X>() and phAsync<X>() functions can be used in a
+// 2. phCreate<X>() and phAsync<X>() functions can be used in a
 //    multithreaded environment, namely, they are thread-safe.
 // 
-// 5. Resources created by phCreate<X>() cannot be manipulated 
+// 3. Resources created by phCreate<X>() cannot be manipulated 
 //    concurrently. Any function requiring some resource ID inputs 
 //    (except phAsync<X>() functions) is considered a resource 
 //    manipulating operation on those resources.
 // 
-/////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // HACK
 //#define PH_EXPORT_API

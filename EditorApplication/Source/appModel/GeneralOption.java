@@ -7,8 +7,8 @@ import util.FSUtil;
 
 public final class GeneralOption extends SettingGroup
 {
-	public static final String WORKING_DIRECTORY      = "working-directory";
-	public static final String DEFAULT_SCENE_ABS_PATH = "default-scene-abs-path";
+	public static final String WORKING_DIRECTORY       = "working-directory";
+	public static final String DEFAULT_SCENE_FILE_PATH = "default-scene-file-path";
 	
 	public GeneralOption()
 	{
@@ -18,8 +18,8 @@ public final class GeneralOption extends SettingGroup
 	@Override
 	public void setToDefaults()
 	{
-		set(WORKING_DIRECTORY,      getDefaultAbsWorkingDirectory());
-		set(DEFAULT_SCENE_ABS_PATH, getDefaultSceneAbsPath());
+		set(WORKING_DIRECTORY,       getDefaultAbsWorkingDirectory());
+		set(DEFAULT_SCENE_FILE_PATH, getDefaultSceneFilePath());
 	}
 	
 	public void save()
@@ -42,14 +42,14 @@ public final class GeneralOption extends SettingGroup
 	
 	private String getDefaultAbsWorkingDirectory()
 	{
-		String directory = Paths.get(".").toAbsolutePath().normalize().toString();
+		String directory = Paths.get("./").toAbsolutePath().normalize().toString();
 		
 		return FSUtil.toSeparatorEnded(directory);
 	}
 	
-	private String getDefaultSceneAbsPath()
+	private String getDefaultSceneFilePath()
 	{
-		return FSUtil.getResourcePath() + "scenes/default_scene.p2";
+		return FSUtil.getResourceDirectory() + "scenes/default_scene.p2";
 	}
 	
 	private String getStoredP2CfgAbsPath()

@@ -112,7 +112,7 @@ public class EditorCtrl
     {
     	final double renderStartMs = Time.getTimeMs();
     	
-		String sceneFileName = m_project.getRenderSetting().get(RenderSetting.SCENE_FILE_NAME);
+		String sceneFileName = m_project.getRenderSetting().get(RenderSetting.SCENE_FILE_PATH);
 		if(sceneFileName == null)
 		{
 			return;
@@ -226,7 +226,7 @@ public class EditorCtrl
     	String fileAbsPath = browser.getSelectedFileAbsPath();
 		if(fileAbsPath != "")
 		{
-			m_project.getRenderSetting().set(RenderSetting.SCENE_FILE_NAME, fileAbsPath);
+			m_project.getRenderSetting().set(RenderSetting.SCENE_FILE_PATH, fileAbsPath);
 		}
     }
     
@@ -368,7 +368,7 @@ public class EditorCtrl
 		
 		project.getRenderSetting().addSettingListener((event) ->
     	{
-    		if(event.settingName.equals(RenderSetting.SCENE_FILE_NAME))
+    		if(event.settingName.equals(RenderSetting.SCENE_FILE_PATH))
     		{
     			sceneFileTextField.setText(event.newSettingValue);
     		}
@@ -378,7 +378,7 @@ public class EditorCtrl
     	threadsSpinner.getValueFactory().setValue(numRenderThreads);
     	threadsSpinner.valueProperty().addListener((observable, oldValue, newValue) -> project.setNumRenderThreads(newValue));
     	
-    	sceneFileTextField.setText(project.getRenderSetting().get(RenderSetting.SCENE_FILE_NAME));
+    	sceneFileTextField.setText(project.getRenderSetting().get(RenderSetting.SCENE_FILE_PATH));
     	
     	clearFrame();
 		if(project.getLocalFinalFrame().isValid())
