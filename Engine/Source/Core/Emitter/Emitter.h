@@ -35,6 +35,15 @@ public:
 	{
 		return false;
 	}
+
+	virtual real calcRadiantFluxApprox() const;
 };
+
+// In-header Implementations:
+
+real Emitter::calcRadiantFluxApprox() const
+{
+	return 1.0_r;
+}
 
 }// end namespace ph
