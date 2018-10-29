@@ -109,8 +109,11 @@ void TranslucentMicrofacet::calcBsdf(
 		const real D = m_microfacet->distribution(in.X, N, H);
 		const real G = m_microfacet->shadowing(in.X, N, H, in.L, in.V);
 
+		const real transportFactor = in.transported == ETransport::RADIANCE ?
+			etaT / etaI : 1.0_r;
+
 		const real dotTerm = std::abs(HoL * HoV / (NoV * NoL));
-		const real iorTerm = etaT / (etaI * HoL + etaT * HoV);
+		const real iorTerm = transportFactor * etaI / (etaI * HoL + etaT * HoV);
 		out.bsdf = F.complement().mul(D * G * dotTerm * (iorTerm * iorTerm));
 	}
 	else
@@ -196,13 +199,16 @@ void TranslucentMicrofacet::calcBsdfSample(
 
 		m_fresnel->calcTransmittance(H.dot(out.L), &F);
 
-		real etaI = m_fresnel->getIorOuter();
-		real etaT = m_fresnel->getIorInner();
-		if(N.dot(out.L) < 0.0_r)
+		if(in.transported == ETransport::RADIANCE)
 		{
-			std::swap(etaI, etaT);
+			real etaI = m_fresnel->getIorOuter();
+			real etaT = m_fresnel->getIorInner();
+			if(N.dot(out.L) < 0.0_r)
+			{
+				std::swap(etaI, etaT);
+			}
+			F.mulLocal(etaT * etaT / (etaI * etaI));
 		}
-		F.mulLocal(etaT * etaT / (etaI * etaI));
 
 		// account for probability
 		if(in.elemental == ALL_ELEMENTALS)

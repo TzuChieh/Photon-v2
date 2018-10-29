@@ -2,11 +2,7 @@
 
 Photon-v2 is a rendering engine made out of my personal interest in computer graphics. A rendering engine is what takes geometrical descriptions and material properties of a 3-D scene as input, and outputs a 2-D image of that scene from a specific point of view. In layman's terms, it is like taking a photograph, except the scene and the camera are both computer simulated. Different from its previous version, Photon, which was written entirely in Java, Photon-v2 utilizes the powerful C++17 for the rendering core and builds a GUI on top of it with Java via JNI. This project is currently in development and more features are expected to come. <br />
 
-Visit Project Website: https://tzuchieh.github.io/Photon-v2-site
-
-Support the Project:
-* BTC: 123ZDDMB38XcbPG3Q1fEH5WWHdMroYVuFm
-* ETH: 0x0ea47ec84f6abb0cee20a54dedfa8f286731c1f2
+Project Website: https://tzuchieh.github.io/
 
 | Branch        | CI Status |
 | ------------- | -----------------------|
@@ -99,7 +95,7 @@ The scene descripting language (SDL) designed by T.C. Chang can be stored into a
 
 ## About the Author
 
-Development Blog: http://tcchangs.blogspot.tw/ <br />
+Development Blog: https://tzuchieh.github.io/ <br />
 YouTube Channel:  https://www.youtube.com/channel/UCKdlogjqjuFsuv06wajp-2g <br />
 Facebook Page:    https://www.facebook.com/tccthedeveloper/ <br />
 E-mail:           r05922176@ntu.edu.tw <br />
@@ -116,5 +112,9 @@ If you use Photon in your research project, you are hightly encouraged to cite i
 ```
 
 Feel free to send me an e-mail for any questions or ideas about my project (= <br />
+
+Support the Project:
+* BTC: 123ZDDMB38XcbPG3Q1fEH5WWHdMroYVuFm
+* ETH: 0x0ea47ec84f6abb0cee20a54dedfa8f286731c1f2
 
 [![HitCount](http://hits.dwyl.io/TzuChieh/Photon-v2.svg)](http://hits.dwyl.io/TzuChieh/Photon-v2)

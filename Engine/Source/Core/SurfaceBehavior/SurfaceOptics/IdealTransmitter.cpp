@@ -39,16 +39,20 @@ void IdealTransmitter::calcBsdfSample(
 	SpectralStrength F;
 	m_fresnel->calcTransmittance(cosI, &F);
 
-	real etaI = m_fresnel->getIorOuter();
-	real etaT = m_fresnel->getIorInner();
-	if(cosI < 0.0_r)
+	real transportFactor = 1.0_r;
+	if(in.transported == ETransport::RADIANCE)
 	{
-		std::swap(etaI, etaT);
-		cosI = std::abs(cosI);
-	}
+		real etaI = m_fresnel->getIorOuter();
+		real etaT = m_fresnel->getIorInner();
+		if(cosI < 0.0_r)
+		{
+			std::swap(etaI, etaT);
+		}
 
-	const real iorRatio2 = (etaT * etaT) / (etaI * etaI);
-	out.pdfAppliedBsdf.setValues(F.mul(iorRatio2 / cosI));
+		transportFactor = (etaT * etaT) / (etaI * etaI);
+	}
+	
+	out.pdfAppliedBsdf.setValues(F.mul(transportFactor / std::abs(cosI)));
 }
 
 void IdealTransmitter::calcBsdfSamplePdfW(
