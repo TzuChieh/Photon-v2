@@ -120,7 +120,7 @@ real BackgroundEmitter::calcDirectSamplePdfW(
 		return 0.0_r;
 	}
 
-	return m_sampleDistribution.pdf({uvw.x, uvw.y}) / (2.0_r * PH_PI_REAL * PH_PI_REAL * sinTheta);
+	return m_sampleDistribution.pdfContinuous({uvw.x, uvw.y}) / (2.0_r * PH_PI_REAL * PH_PI_REAL * sinTheta);
 }
 
 real BackgroundEmitter::calcRadiantFluxApprox() const

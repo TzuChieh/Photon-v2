@@ -7,7 +7,10 @@ namespace ph
 {
 
 /*
-	A 1-D piecewise constant distribution of floating-point type <T>.
+	A 1-D piecewise constant distribution of floating-point type <T>. The 
+	sample weights can be seen as a histogram, and samples are drawn according
+	to each column's relative heights. Each generated sample is guaranteed to
+	have a non-zero PDF.
 */
 template<typename T>
 class TPwcDistribution1D
@@ -25,17 +28,29 @@ public:
 
 	TPwcDistribution1D();
 
-	std::size_t sampleDiscrete(T seed_i0_e1) const;
+	// Given a uniform random seed in [0, 1), generates a continuous sample 
+	// according to the sample weights.
 	T sampleContinuous(T seed_i0_e1) const;
-
-	// PDFs returned by these methods are never zero.
-
 	T sampleContinuous(T seed_i0_e1, T* out_pdf) const;
 	T sampleContinuous(T seed_i0_e1, T* out_pdf, std::size_t* out_straddledColumn) const;
 
-	T pdf(std::size_t columnIndex) const;
-	T pdf(T sample) const;
+	// Given a uniform random seed in [0, 1), generates a column index 
+	// according to the sample weights.
+	std::size_t sampleDiscrete(T seed_i0_e1) const;
+
+	// PDF of a continuous sample.
+	T pdfContinuous(T sample) const;
+
+	// PDF of a continuous sample given its corresponding column index.
+	T pdfContinuous(std::size_t columnIndex) const;
+
+	// PDF of a discrete sample.
+	T pdfDiscrete(std::size_t columnIndex) const;
+
+	// Calculates the sampled column index given a continuous sample.
 	std::size_t continuousToDiscrete(T sample) const;
+
+	// Gets the number of sample weights originally provided.
 	std::size_t numColumns() const;
 
 private:

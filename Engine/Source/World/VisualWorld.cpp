@@ -10,6 +10,7 @@
 #include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
 #include "World/VisualWorldInfo.h"
 #include "Core/Intersectable/IndexedKdtree/TIndexedKdtreeIntersector.h"
+#include "Core/Emitter/Sampler/ESPowerFavoring.h"
 
 #include <limits>
 #include <iostream>
@@ -22,7 +23,8 @@ const Logger VisualWorld::logger(LogSender("Visual World"));
 VisualWorld::VisualWorld() :
 
 	m_intersector(),
-	m_emitterSampler(std::make_unique<ESUniformRandom>()),
+	//m_emitterSampler(std::make_unique<ESUniformRandom>()),
+	m_emitterSampler(std::make_unique<ESPowerFavoring>()),
 	m_scene(),
 	m_cameraPos(0),
 	m_cookSettings(),

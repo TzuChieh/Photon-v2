@@ -72,7 +72,7 @@ inline TPwcDistribution1D<T>::TPwcDistribution1D(
 	// find first column with non-zero PDF
 	for(std::size_t i = 0; i < numColumns(); ++i)
 	{
-		if(pdf(i) > 0)
+		if(pdfContinuous(i) > 0)
 		{
 			m_firstNonZeroPdfColumn = i;
 			break;
@@ -111,7 +111,7 @@ inline T TPwcDistribution1D<T>::sampleContinuous(const T seed_i0_e1, T* const ou
 
 	const std::size_t sampledColumn = sampleDiscrete(seed_i0_e1);
 
-	*out_pdf = pdf(sampledColumn);
+	*out_pdf = pdfContinuous(sampledColumn);
 	return calcContinuousSample(seed_i0_e1, sampledColumn);
 }
 
@@ -124,7 +124,7 @@ inline T TPwcDistribution1D<T>::sampleContinuous(
 	PH_ASSERT(out_pdf && out_straddledColumn);
 
 	*out_straddledColumn = sampleDiscrete(seed_i0_e1);
-	*out_pdf             = pdf(*out_straddledColumn);
+	*out_pdf             = pdfContinuous(*out_straddledColumn);
 	return calcContinuousSample(seed_i0_e1, *out_straddledColumn);
 }
 
@@ -137,7 +137,13 @@ inline std::size_t TPwcDistribution1D<T>::numColumns() const
 }
 
 template<typename T>
-inline T TPwcDistribution1D<T>::pdf(const std::size_t columnIndex) const
+inline T TPwcDistribution1D<T>::pdfContinuous(const T sample) const
+{
+	return pdfContinuous(continuousToDiscrete(sample));
+}
+
+template<typename T>
+inline T TPwcDistribution1D<T>::pdfContinuous(const std::size_t columnIndex) const
 {
 	PH_ASSERT(!m_cdf.empty() && 
 	          0 <= columnIndex && columnIndex < numColumns());
@@ -146,9 +152,12 @@ inline T TPwcDistribution1D<T>::pdf(const std::size_t columnIndex) const
 }
 
 template<typename T>
-inline T TPwcDistribution1D<T>::pdf(const T sample) const
+inline T TPwcDistribution1D<T>::pdfDiscrete(const std::size_t columnIndex) const
 {
-	return pdf(continuousToDiscrete(sample));
+	PH_ASSERT(!m_cdf.empty() && 
+	          0 <= columnIndex && columnIndex < numColumns());
+
+	return m_cdf[columnIndex + 1] - m_cdf[columnIndex];
 }
 
 template<typename T>

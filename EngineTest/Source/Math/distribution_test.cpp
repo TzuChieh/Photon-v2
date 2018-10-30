@@ -47,17 +47,26 @@ TEST(PiecewiseConstantDistribution1DTest, PDF)
 	TPwcDistribution1D<float> distribution1({1.0f, 1.0f});
 	TPwcDistribution1D<float> distribution2({2.0f, 2.0f, 2.0f});
 
-	// constant distribution should have same PDF everywhere
-	EXPECT_FLOAT_EQ(distribution1.pdf(0.0f),   1.0f);
-	EXPECT_FLOAT_EQ(distribution1.pdf(0.3f),   1.0f);
-	EXPECT_FLOAT_EQ(distribution1.pdf(0.999f), 1.0f);
-	EXPECT_FLOAT_EQ(distribution1.pdf(1.0f),   1.0f);
+	// constant distribution should have same continuous PDF everywhere
+	EXPECT_FLOAT_EQ(distribution1.pdfContinuous(0.0f),   1.0f);
+	EXPECT_FLOAT_EQ(distribution1.pdfContinuous(0.3f),   1.0f);
+	EXPECT_FLOAT_EQ(distribution1.pdfContinuous(0.999f), 1.0f);
+	EXPECT_FLOAT_EQ(distribution1.pdfContinuous(1.0f),   1.0f);
 
-	// two constant distributions should have same PDF everywhere
-	EXPECT_FLOAT_EQ(distribution1.pdf(0.1f),   distribution2.pdf(0.1f));
-	EXPECT_FLOAT_EQ(distribution1.pdf(0.1f),   distribution2.pdf(0.2f));
-	EXPECT_FLOAT_EQ(distribution1.pdf(0.777f), distribution2.pdf(0.9f));
-	EXPECT_FLOAT_EQ(distribution1.pdf(1.0f),   distribution2.pdf(0.55f));
+	// two constant distributions should have same continuous PDF everywhere
+	EXPECT_FLOAT_EQ(distribution1.pdfContinuous(0.1f),   distribution2.pdfContinuous(0.1f));
+	EXPECT_FLOAT_EQ(distribution1.pdfContinuous(0.1f),   distribution2.pdfContinuous(0.2f));
+	EXPECT_FLOAT_EQ(distribution1.pdfContinuous(0.777f), distribution2.pdfContinuous(0.9f));
+	EXPECT_FLOAT_EQ(distribution1.pdfContinuous(1.0f),   distribution2.pdfContinuous(0.55f));
+
+	// distribution 1 has 2 equal-height columns, discrete PDF should be 1/2
+	EXPECT_FLOAT_EQ(distribution1.pdfDiscrete(0), 1.0f / 2.0f);
+	EXPECT_FLOAT_EQ(distribution1.pdfDiscrete(1), 1.0f / 2.0f);
+
+	// distribution 2 has 3 equal-height columns, discrete PDF should be 1/3
+	EXPECT_FLOAT_EQ(distribution2.pdfDiscrete(0), 1.0f / 3.0f);
+	EXPECT_FLOAT_EQ(distribution2.pdfDiscrete(1), 1.0f / 3.0f);
+	EXPECT_FLOAT_EQ(distribution2.pdfDiscrete(2), 1.0f / 3.0f);
 }
 
 TEST(PiecewiseConstantDistribution2DTest, Construction)
@@ -124,14 +133,14 @@ TEST(PiecewiseConstantDistribution2DTest, PDF)
 	TPwcDistribution2D<float> distribution2(weights2.data(), {2, 2});
 
 	// constant distribution should have same PDF everywhere
-	EXPECT_FLOAT_EQ(distribution1.pdf({0.0f,  0.0f}),  1.0f);
-	EXPECT_FLOAT_EQ(distribution1.pdf({0.2f,  0.5f}),  1.0f);
-	EXPECT_FLOAT_EQ(distribution1.pdf({0.99f, 0.01f}), 1.0f);
-	EXPECT_FLOAT_EQ(distribution1.pdf({1.0f,  1.0f}),  1.0f);
+	EXPECT_FLOAT_EQ(distribution1.pdfContinuous({0.0f,  0.0f}),  1.0f);
+	EXPECT_FLOAT_EQ(distribution1.pdfContinuous({0.2f,  0.5f}),  1.0f);
+	EXPECT_FLOAT_EQ(distribution1.pdfContinuous({0.99f, 0.01f}), 1.0f);
+	EXPECT_FLOAT_EQ(distribution1.pdfContinuous({1.0f,  1.0f}),  1.0f);
 
 	// two constant distributions should have same PDF everywhere
-	EXPECT_FLOAT_EQ(distribution1.pdf({0.3f,   0.3f}), distribution2.pdf({0.3f,   0.3f}));
-	EXPECT_FLOAT_EQ(distribution1.pdf({0.666f, 0.1f}), distribution2.pdf({0.357f, 0.432f}));
-	EXPECT_FLOAT_EQ(distribution1.pdf({0.0f,   0.0f}), distribution2.pdf({1.0f,   1.0f}));
-	EXPECT_FLOAT_EQ(distribution1.pdf({0.8f,   0.2f}), distribution2.pdf({0.0f,   1.0f}));
+	EXPECT_FLOAT_EQ(distribution1.pdfContinuous({0.3f,   0.3f}), distribution2.pdfContinuous({0.3f,   0.3f}));
+	EXPECT_FLOAT_EQ(distribution1.pdfContinuous({0.666f, 0.1f}), distribution2.pdfContinuous({0.357f, 0.432f}));
+	EXPECT_FLOAT_EQ(distribution1.pdfContinuous({0.0f,   0.0f}), distribution2.pdfContinuous({1.0f,   1.0f}));
+	EXPECT_FLOAT_EQ(distribution1.pdfContinuous({0.8f,   0.2f}), distribution2.pdfContinuous({0.0f,   1.0f}));
 }

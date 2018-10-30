@@ -74,12 +74,12 @@ inline TVector2<T> TPwcDistribution2D<T>::sampleContinuous(
 }
 
 template<typename T>
-inline real TPwcDistribution2D<T>::pdf(const TVector2<T>& sample) const
+inline real TPwcDistribution2D<T>::pdfContinuous(const TVector2<T>& sample) const
 {
 	const std::size_t y = m_marginalYs.continuousToDiscrete(sample.y);
 
-	const T pdfY       = m_marginalYs.pdf(y);
-	const T pdfXgivenY = m_conditionalXs[y].pdf(sample.x);
+	const T pdfY       = m_marginalYs.pdfContinuous(y);
+	const T pdfXgivenY = m_conditionalXs[y].pdfContinuous(sample.x);
 
 	return pdfXgivenY * pdfY;
 }

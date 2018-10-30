@@ -27,7 +27,7 @@ public:
 	// PDFs returned by these methods are never zero.
 	TVector2<T> sampleContinuous(T seedX_i0_e1, T seedY_i0_e1, T* out_pdf) const;
 
-	real pdf(const TVector2<T>& sample) const;
+	real pdfContinuous(const TVector2<T>& sample) const;
 
 private:
 	TPwcDistribution1D<T>              m_marginalYs;
