@@ -8,7 +8,7 @@ namespace ph
 {
 
 class Intersector;
-class LightSampler;
+class EmitterSampler;
 class HitProbe;
 class HitDetail;
 class DirectLightSample;
@@ -21,7 +21,7 @@ class Scene final
 {
 public:
 	Scene();
-	Scene(const Intersector* intersector, const LightSampler* lightSampler);
+	Scene(const Intersector* intersector, const EmitterSampler* emitterSampler);
 
 	bool isIntersecting(const Ray& ray) const;
 	bool isIntersecting(const Ray& ray, HitProbe* out_probe) const;
@@ -39,8 +39,8 @@ public:
 	}
 
 private:
-	const Intersector*  m_intersector;
-	const LightSampler* m_lightSampler;
+	const Intersector*    m_intersector;
+	const EmitterSampler* m_emitterSampler;
 
 	// HACK
 	const Primitive* m_backgroundEmitterPrimitive;

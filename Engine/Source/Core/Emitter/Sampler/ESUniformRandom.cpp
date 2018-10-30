@@ -1,4 +1,4 @@
-#include "World/LightSampler/UniformRandomLightSampler.h"
+#include "Core/Emitter/Sampler/ESUniformRandom.h"
 #include "Actor/AModel.h"
 #include "Actor/ALight.h"
 #include "Math/Random.h"
@@ -15,9 +15,7 @@
 namespace ph
 {
 
-UniformRandomLightSampler::~UniformRandomLightSampler() = default;
-
-void UniformRandomLightSampler::update(const CookedDataStorage& cookedActors)
+void ESUniformRandom::update(const CookedDataStorage& cookedActors)
 {
 	m_emitters.clear();
 	m_emitters.shrink_to_fit();
@@ -29,11 +27,11 @@ void UniformRandomLightSampler::update(const CookedDataStorage& cookedActors)
 
 	if(m_emitters.empty())
 	{
-		std::cerr << "warning: at UniformRandomLightSampler::update(), no Emitter detected" << std::endl;
+		std::cerr << "warning: at ESUniformRandom::update(), no Emitter detected" << std::endl;
 	}
 }
 
-const Emitter* UniformRandomLightSampler::pickEmitter(real* const out_PDF) const
+const Emitter* ESUniformRandom::pickEmitter(real* const out_PDF) const
 {
 	const std::size_t picker = static_cast<std::size_t>(Random::genUniformReal_i0_e1() * static_cast<real>(m_emitters.size()));
 	const std::size_t pickedIndex = picker == m_emitters.size() ? picker - 1 : picker;
@@ -42,7 +40,7 @@ const Emitter* UniformRandomLightSampler::pickEmitter(real* const out_PDF) const
 	return m_emitters[pickedIndex];
 }
 
-void UniformRandomLightSampler::genDirectSample(DirectLightSample& sample) const
+void ESUniformRandom::genDirectSample(DirectLightSample& sample) const
 {
 	// randomly and uniformly select an emitter
 	const std::size_t picker = static_cast<std::size_t>(Random::genUniformReal_i0_e1() * static_cast<real>(m_emitters.size()));
@@ -53,7 +51,7 @@ void UniformRandomLightSampler::genDirectSample(DirectLightSample& sample) const
 	sample.pdfW *= pickPdfW;
 }
 
-real UniformRandomLightSampler::calcDirectPdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
+real ESUniformRandom::calcDirectPdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
 {
 	const real pickPdfW = 1.0_r / static_cast<real>(m_emitters.size());
 

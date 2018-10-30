@@ -16,10 +16,10 @@ class Primitive;
 class DirectLightSample;
 class SurfaceHit;
 
-class LightSampler
+class EmitterSampler
 {
 public:
-	virtual ~LightSampler() = 0;
+	virtual ~EmitterSampler();
 
 	// FIXME: should update with emitters only
 	virtual void update(const CookedDataStorage& cookedActors) = 0;

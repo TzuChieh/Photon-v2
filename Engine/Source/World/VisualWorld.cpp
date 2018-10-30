@@ -6,7 +6,7 @@
 #include "Actor/CookingContext.h"
 #include "Core/Intersectable/BruteForceIntersector.h"
 #include "Core/Intersectable/Kdtree/KdtreeIntersector.h"
-#include "World/LightSampler/UniformRandomLightSampler.h"
+#include "Core/Emitter/Sampler/ESUniformRandom.h"
 #include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
 #include "World/VisualWorldInfo.h"
 #include "Core/Intersectable/IndexedKdtree/TIndexedKdtreeIntersector.h"
@@ -22,7 +22,7 @@ const Logger VisualWorld::logger(LogSender("Visual World"));
 VisualWorld::VisualWorld() :
 
 	m_intersector(),
-	m_lightSampler(std::make_unique<UniformRandomLightSampler>()), 
+	m_emitterSampler(std::make_unique<ESUniformRandom>()),
 	m_scene(),
 	m_cameraPos(0),
 	m_cookSettings(),
@@ -36,7 +36,7 @@ VisualWorld::VisualWorld(VisualWorld&& other) :
 	m_actors            (std::move(other.m_actors)), 
 	m_cookedActorStorage(std::move(other.m_cookedActorStorage)), 
 	m_intersector       (std::move(other.m_intersector)), 
-	m_lightSampler      (std::move(other.m_lightSampler)), 
+	m_emitterSampler    (std::move(other.m_emitterSampler)),
 	m_scene             (std::move(other.m_scene)),
 	m_cameraPos         (std::move(other.m_cameraPos)),
 	m_cookSettings      (std::move(other.m_cookSettings)),
@@ -120,9 +120,9 @@ void VisualWorld::cook()
 	m_intersector->update(m_cookedActorStorage);
 
 	logger.log(ELogLevel::NOTE_MED, "updating light sampler...");
-	m_lightSampler->update(m_cookedActorStorage);
+	m_emitterSampler->update(m_cookedActorStorage);
 
-	m_scene = Scene(m_intersector.get(), m_lightSampler.get());
+	m_scene = Scene(m_intersector.get(), m_emitterSampler.get());
 
 	// HACK
 	if(m_backgroundEmitterPrimitive)

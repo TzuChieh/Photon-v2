@@ -6,7 +6,7 @@
 #include "Actor/Actor.h"
 #include "World/Scene.h"
 #include "Core/Intersectable/Intersector.h"
-#include "World/LightSampler/LightSampler.h"
+#include "Core/Emitter/Sampler/EmitterSampler.h"
 #include "Common/Logger.h"
 #include "Core/Bound/AABB3D.h"
 #include "Math/TVector3.h"
@@ -47,10 +47,10 @@ private:
 	CookedDataStorage m_cookedBackendStorage;
 	Vector3R m_cameraPos;
 
-	std::unique_ptr<Intersector>  m_intersector;
-	std::unique_ptr<LightSampler> m_lightSampler;
-	Scene                         m_scene;
-	std::shared_ptr<CookSettings> m_cookSettings;
+	std::unique_ptr<Intersector>    m_intersector;
+	std::unique_ptr<EmitterSampler> m_emitterSampler;
+	Scene                           m_scene;
+	std::shared_ptr<CookSettings>   m_cookSettings;
 	
 	// HACK
 	const Primitive* m_backgroundEmitterPrimitive;
