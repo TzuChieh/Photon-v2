@@ -116,4 +116,15 @@ const TTexture<SpectralStrength>& MultiDiffuseSurfaceEmitter::getEmittedRadiance
 	return m_emitters.front().getEmittedRadiance();
 }
 
+real MultiDiffuseSurfaceEmitter::calcRadiantFluxApprox() const
+{
+	real totalRadiantFlux = 0.0_r;
+	for(const auto& emitter : m_emitters)
+	{
+		totalRadiantFlux += emitter.calcRadiantFluxApprox();
+	}
+
+	return totalRadiantFlux > 0.0_r ? totalRadiantFlux : SurfaceEmitter::calcRadiantFluxApprox();
+}
+
 }// end namespace ph

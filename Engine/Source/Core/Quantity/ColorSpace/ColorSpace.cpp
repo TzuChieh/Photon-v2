@@ -71,10 +71,6 @@ void ColorSpace::init()
 		spectral_data::XYZ_CMF_CIE_1931_2_degree_Z().data(), 
 		numXyzCmfPoints);
 
-	kernel_X = sampledCmfX;
-	kernel_Y = sampledCmfY;
-	kernel_Z = sampledCmfZ;
-
 	// normalizing
 
 	// Riemann Sum

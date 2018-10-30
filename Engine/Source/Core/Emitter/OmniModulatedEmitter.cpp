@@ -71,4 +71,11 @@ void OmniModulatedEmitter::setFilter(const std::shared_ptr<TTexture<SpectralStre
 	m_filter = filter;
 }
 
+real OmniModulatedEmitter::calcRadiantFluxApprox() const
+{
+	PH_ASSERT(m_source);
+
+	return m_source->calcRadiantFluxApprox();
+}
+
 }// end namespace ph

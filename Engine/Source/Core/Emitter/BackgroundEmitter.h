@@ -44,6 +44,7 @@ public:
 	void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;
 
 	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const override;
+	real calcRadiantFluxApprox() const override;
 
 	// HACK
 	bool isBackground() const override
@@ -55,6 +56,7 @@ private:
 	const Primitive*         m_surface;
 	RadianceTexture          m_radiance;
 	TPwcDistribution2D<real> m_sampleDistribution;
+	real                     m_radiantFluxApprox;
 };
 
 }// end namespace ph

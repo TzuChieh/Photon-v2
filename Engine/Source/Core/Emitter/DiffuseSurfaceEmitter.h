@@ -20,6 +20,7 @@ public:
 	void genDirectSample(DirectLightSample& sample) const override;
 	void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;
 	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const override;
+	real calcRadiantFluxApprox() const override;
 
 	const Primitive* getSurface() const;
 	void setEmittedRadiance(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance);

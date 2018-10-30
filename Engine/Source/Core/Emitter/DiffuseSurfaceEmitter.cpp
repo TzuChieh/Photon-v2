@@ -149,4 +149,31 @@ const TTexture<SpectralStrength>& DiffuseSurfaceEmitter::getEmittedRadiance() co
 	return *m_emittedRadiance;
 }
 
+real DiffuseSurfaceEmitter::calcRadiantFluxApprox() const
+{
+	PH_ASSERT(m_emittedRadiance && m_surface);
+
+	// randomly pick a point on the surface
+
+	PositionSample sample;
+	m_surface->genPositionSample(&sample);
+	if(sample.pdf == 0.0_r)
+	{
+		return SurfaceEmitter::calcRadiantFluxApprox();
+	}
+
+	// and assume the surface emits constant radiance sampled from that point
+
+	constexpr EQuantity QUANTITY = EQuantity::EMR;
+
+	const SpectralStrength sampledL = 
+		TSampler<SpectralStrength>(QUANTITY).sample(*m_emittedRadiance, sample.uvw);
+	SampledSpectralStrength spectralL;
+	spectralL.setLinearSrgb(sampledL.genLinearSrgb(QUANTITY), QUANTITY);
+
+	const real extendedArea = m_surface->calcExtendedArea();
+	const real radiantFlux  = spectralL.sum() * extendedArea * PH_PI_REAL;
+	return radiantFlux > 0.0_r ? radiantFlux : SurfaceEmitter::calcRadiantFluxApprox();
+}
+
 }// end namespace ph

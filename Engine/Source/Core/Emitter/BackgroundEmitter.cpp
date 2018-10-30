@@ -27,7 +27,8 @@ BackgroundEmitter::BackgroundEmitter(
 
 	m_surface(surface),
 	m_radiance(radiance),
-	m_sampleDistribution()
+	m_sampleDistribution(),
+	m_radiantFluxApprox(0)
 {
 	PH_ASSERT(surface && radiance && resolution.x * resolution.y > 0);
 
@@ -36,9 +37,10 @@ BackgroundEmitter::BackgroundEmitter(
 
 	// FIXME: assuming spherical uv mapping us used
 
-	const EQuantity            quantity = EQuantity::EMR;
-	TSampler<SpectralStrength> sampler(quantity);
-	std::vector<real>          sampleWeights(resolution.x * resolution.y);
+	constexpr EQuantity QUANTITY = EQuantity::EMR;
+	const TSampler<SpectralStrength> sampler(QUANTITY);
+
+	std::vector<real> sampleWeights(resolution.x * resolution.y);
 	for(std::size_t y = 0; y < resolution.y; ++y)
 	{
 		const std::size_t baseIndex = y * resolution.x;
@@ -47,16 +49,19 @@ BackgroundEmitter::BackgroundEmitter(
 		for(std::size_t x = 0; x < resolution.x; ++x)
 		{
 			const real u = (static_cast<real>(x) + 0.5_r) / static_cast<real>(resolution.x);
-			const SpectralStrength energy = sampler.sample(*radiance, {u, v});
+			const SpectralStrength sampledL = sampler.sample(*radiance, {u, v});
 
 			// FIXME: for non-nearest filtered textures, sample weights can be 0 while
 			// there is still energay around that point (because its neighbor may have
 			// non-zero energy), this can cause rendering artifacts
-			sampleWeights[baseIndex + x] = energy.calcLuminance(quantity) * sinTheta;
+			sampleWeights[baseIndex + x] = sampledL.calcLuminance(QUANTITY) * sinTheta;
+
+			m_radiantFluxApprox += sampleWeights[baseIndex + x];
 		}
 	}
 
 	m_sampleDistribution = TPwcDistribution2D<real>(sampleWeights.data(), resolution);
+	m_radiantFluxApprox  = m_radiantFluxApprox * m_surface->calcExtendedArea() * PH_PI_REAL;
 }
 
 void BackgroundEmitter::evalEmittedRadiance(
@@ -116,6 +121,13 @@ real BackgroundEmitter::calcDirectSamplePdfW(
 	}
 
 	return m_sampleDistribution.pdf({uvw.x, uvw.y}) / (2.0_r * PH_PI_REAL * PH_PI_REAL * sinTheta);
+}
+
+real BackgroundEmitter::calcRadiantFluxApprox() const
+{
+	PH_ASSERT(m_surface && m_radiance);
+
+	return m_radiantFluxApprox;
 }
 
 }// end namespace ph

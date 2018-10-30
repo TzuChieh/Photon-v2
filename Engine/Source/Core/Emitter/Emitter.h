@@ -41,7 +41,7 @@ public:
 
 // In-header Implementations:
 
-real Emitter::calcRadiantFluxApprox() const
+inline real Emitter::calcRadiantFluxApprox() const
 {
 	return 1.0_r;
 }
