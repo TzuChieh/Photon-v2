@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Core/Estimator/Utility/SenseEvent.h"
 #include "Core/Sample.h"
 #include "Core/Camera/Camera.h"
 #include "FileIO/SDL/TCommandInterface.h"

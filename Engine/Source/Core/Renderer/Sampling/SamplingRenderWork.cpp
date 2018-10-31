@@ -3,7 +3,6 @@
 #include "Core/Filmic/TSamplingFilm.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Camera/Camera.h"
-#include "Core/Estimator/Utility/SenseEvent.h"
 #include "Core/Estimator/Estimator.h"
 #include "Core/Estimator/Integrand.h"
 #include "Core/Filmic/SampleFilterFactory.h"
