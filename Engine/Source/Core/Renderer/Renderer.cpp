@@ -60,6 +60,7 @@ void Renderer::setNumRenderThreads(const uint32 numThreads)
 	}
 }
 
+// FIXME: without synchronizing, other threads may never observe m_workers being changed
 void Renderer::asyncQueryStatistics(float32* const out_percentageProgress, 
                                     float32* const out_samplesPerSecond)
 {
@@ -82,6 +83,7 @@ void Renderer::asyncQueryStatistics(float32* const out_percentageProgress,
 	*out_samplesPerSecond = static_cast<float32>(states.fltStates[0]) * 1000.0f;
 }
 
+// FIXME: without synchronizing, other threads may never observe m_workers being changed
 RenderProgress Renderer::asyncQueryWorkerProgress(const uint32 workerId)
 {
 	PH_ASSERT(workerId < m_workers.size());
