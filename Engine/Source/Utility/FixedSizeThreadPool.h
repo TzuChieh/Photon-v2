@@ -13,6 +13,7 @@
 namespace ph
 {
 
+// TODO: templatize size
 class FixedSizeThreadPool final : public INoncopyable
 {
 public:

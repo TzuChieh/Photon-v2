@@ -16,7 +16,7 @@ class RenderWork
 public:
 	RenderWork();
 	RenderWork(const RenderWork& other);
-	virtual ~RenderWork() = 0;
+	virtual ~RenderWork();
 
 	virtual void doWork() = 0;
 

@@ -32,7 +32,7 @@ class RenderWorker;
 class Renderer: public TCommandInterface<Renderer>
 {
 public:
-	virtual ~Renderer() = 0;
+	virtual ~Renderer();
 
 	virtual AttributeTags supportedAttributes() const = 0;
 	virtual void init(const SdlResourcePack& data) = 0;

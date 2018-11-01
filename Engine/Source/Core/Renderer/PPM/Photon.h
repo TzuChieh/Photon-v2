@@ -3,7 +3,7 @@
 namespace ph
 {
 
-class PhotonMapper
+struct Photon
 {
 
 };
