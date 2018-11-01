@@ -245,6 +245,7 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 	const std::size_t numPositiveItems = numNodeItems - midItemIndex;
 	PH_ASSERT(numNegativeItems + numPositiveItems >= 2);
 
+	// FIXME: bug here, indirect index should be used
 	const real splitPos = itemCenters[midItemIndex][splitAxis];
 
 	Vector3R splitPosMinVertex = nodeAABB.getMinVertex();

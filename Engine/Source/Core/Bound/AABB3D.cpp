@@ -24,9 +24,11 @@ AABB3D::AABB3D(const Vector3R& point) :
 AABB3D::AABB3D(const Vector3R& minVertex, const Vector3R& maxVertex) :
 	m_minVertex(minVertex), m_maxVertex(maxVertex)
 {
-	PH_ASSERT(maxVertex.x >= minVertex.x &&
-	          maxVertex.y >= minVertex.y &&
-	          maxVertex.z >= minVertex.z);
+	PH_ASSERT_MSG(maxVertex.x >= minVertex.x &&
+	              maxVertex.y >= minVertex.y &&
+	              maxVertex.z >= minVertex.z, 
+		"minVertex = " + minVertex.toString() +
+		"maxVertex = " + maxVertex.toString());
 }
 
 // REFACTOR: this method is duplicated with isIntersectingVolume(3)
