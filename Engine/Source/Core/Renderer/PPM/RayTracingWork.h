@@ -17,8 +17,8 @@ class RayTracingWork : public RenderWork
 {
 public:
 	RayTracingWork(
-		Scene* scene,
-		Camera* camera, 
+		const Scene* scene,
+		const Camera* camera,
 		std::unique_ptr<SampleGenerator> sampleGenerator,
 		Viewpoint* viewpointBuffer, 
 		std::size_t numViewpoints);
@@ -26,8 +26,8 @@ public:
 	void doWork() override;
 
 private:
-	Scene* m_scene;
-	Camera* m_camera;
+	const Scene* m_scene;
+	const Camera* m_camera;
 	std::unique_ptr<SampleGenerator> m_sampleGenerator;
 	Viewpoint* m_viewpointBuffer;
 	std::size_t m_numViewpoints;

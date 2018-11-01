@@ -12,6 +12,7 @@
 #include "Core/Quantity/SpectralStrength.h"
 #include "Common/assertion.h"
 #include "Core/Texture/SampleLocation.h"
+#include "Math/sampling.h"
 
 #include <iostream>
 #include <algorithm>
@@ -86,48 +87,28 @@ real DiffuseSurfaceEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, cons
 
 void DiffuseSurfaceEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* const out_Le, Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const
 {
-	//// randomly and uniformly pick a primitive
-	//const std::size_t picker = static_cast<std::size_t>(Random::genUniformReal_i0_e1() * static_cast<real>(m_primitives.size()));
-	//const std::size_t pickedIndex = picker == m_primitives.size() ? picker - 1 : picker;
-	//const Primitive* primitive = m_primitives[pickedIndex];
-	//const real pickPdfW = (1.0_r / primitive->getReciExtendedArea()) * m_reciExtendedArea;
+	PositionSample positionSample;
+	m_surface->genPositionSample(&positionSample);
 
-	//PositionSample positionSample;
-	//primitive->genPositionSample(&positionSample);
+	Vector3R rayDir;
+	sampling::unit_hemisphere::uniform::gen(Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), &rayDir);
+	Vector3R u;
+	Vector3R v(positionSample.normal);
+	Vector3R w;
+	math::form_orthonormal_basis(v, &u, &w);
+	rayDir = u.mulLocal(rayDir.x).addLocal(v.mulLocal(rayDir.y)).addLocal(w.mulLocal(rayDir.z));
+	rayDir.normalizeLocal();
 
-	//PositionSample tPositionSample;
-	//m_localToWorld->transformP(positionSample.position, &tPositionSample.position);
-	//m_localToWorld->transformO(positionSample.normal, &tPositionSample.normal);
-	//tPositionSample.normal.normalizeLocal();
-	//tPositionSample.uvw = positionSample.uvw;
-	//tPositionSample.pdf = positionSample.pdf;
+	// TODO: time
 
-	//// DEBUG
-	////tPositionSample = positionSample;
-
-	//// random & uniform direction on a unit sphere
-	//Vector3R rayDir;
-	//const real r1 = Random::genUniformReal_i0_e1();
-	//const real r2 = Random::genUniformReal_i0_e1();
-	//const real sqrtTerm = std::sqrt(r2 * (1.0_r - r2));
-	//const real anglTerm = 2.0_r * PH_PI_REAL * r1;
-	//rayDir.x = 2.0_r * std::cos(anglTerm) * sqrtTerm;
-	//rayDir.y = 2.0_r * std::sin(anglTerm) * sqrtTerm;
-	//rayDir.z = 1.0_r - 2.0_r * r2;
-	//rayDir.normalizeLocal();
-
-	//// TODO: time
-
-	//out_ray->setDirection(rayDir);
-	//out_ray->setOrigin(tPositionSample.position);
-	//out_ray->setMinT(0.0001_r);// HACK: hard-code number
-	//out_ray->setMaxT(Ray::MAX_T);
-	//out_eN->set(tPositionSample.normal);
-	//*out_pdfA = pickPdfW * tPositionSample.pdf;
-	//*out_pdfW = 1.0_r / (4.0_r * PH_PI_REAL) / out_ray->getDirection().absDot(tPositionSample.normal);
-	//m_emittedRadiance->sample(tPositionSample.uvw, out_Le);
-
-	std::cerr << "PrimitiveAreaEmitter::genSensingRay() not implemented" << std::endl;
+	out_ray->setDirection(rayDir);
+	out_ray->setOrigin(positionSample.position);
+	out_ray->setMinT(0.0001_r);// HACK: hard-code number
+	out_ray->setMaxT(std::numeric_limits<real>::max());
+	out_eN->set(positionSample.normal);
+	*out_pdfA = positionSample.pdf;
+	*out_pdfW = 1 / (2 * PH_PI_REAL);
+	*out_Le = TSampler<SpectralStrength>(EQuantity::EMR).sample(*m_emittedRadiance, positionSample.uvw);
 }
 
 const Primitive* DiffuseSurfaceEmitter::getSurface() const

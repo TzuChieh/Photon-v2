@@ -6,6 +6,7 @@
 #include "Common/assertion.h"
 #include "Core/Ray.h"
 #include "Core/Intersectable/Primitive.h"
+#include "Core/Emitter/Emitter.h"
 
 #include <limits>
 
@@ -72,6 +73,15 @@ void Scene::genDirectSample(DirectLightSample& sample) const
 real Scene::calcDirectPdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
 {
 	return m_emitterSampler->calcDirectPdfW(emitPos, targetPos);
+}
+
+void Scene::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+{
+	real pickPdf;
+	const Emitter* emitter = m_emitterSampler->pickEmitter(&pickPdf);
+
+	emitter->genSensingRay(out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
+	*out_pdfA *= pickPdf;
 }
 
 }// end namespace ph

@@ -53,8 +53,49 @@ void MultiDiffuseSurfaceEmitter::genDirectSample(DirectLightSample& sample) cons
 
 void MultiDiffuseSurfaceEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
-	// TODO
-	PH_ASSERT_UNREACHABLE_SECTION();
+	// randomly and uniformly pick a primitive
+
+	const auto& emitter = m_emitters[Random::genUniformIndex_iL_eU(0, m_emitters.size())];
+	const real pickPdfW = 1.0_r / static_cast<real>(m_emitters.size());
+
+	emitter.genSensingRay(out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
+	*out_pdfA *= pickPdfW;
+
+
+
+	/*PositionSample tPositionSample;
+	m_localToWorld->transformP(positionSample.position, &tPositionSample.position);
+	m_localToWorld->transformO(positionSample.normal, &tPositionSample.normal);
+	tPositionSample.normal.normalizeLocal();
+	tPositionSample.uvw = positionSample.uvw;
+	tPositionSample.pdf = positionSample.pdf;*/
+
+	// DEBUG
+	//tPositionSample = positionSample;
+
+	// random & uniform direction on a unit sphere
+	/*Vector3R rayDir;
+	const real r1 = Random::genUniformReal_i0_e1();
+	const real r2 = Random::genUniformReal_i0_e1();
+	const real sqrtTerm = std::sqrt(r2 * (1.0_r - r2));
+	const real anglTerm = 2.0_r * PH_PI_REAL * r1;
+	rayDir.x = 2.0_r * std::cos(anglTerm) * sqrtTerm;
+	rayDir.y = 2.0_r * std::sin(anglTerm) * sqrtTerm;
+	rayDir.z = 1.0_r - 2.0_r * r2;
+	rayDir.normalizeLocal();*/
+
+	// TODO: time
+
+	//out_ray->setDirection(rayDir);
+	//out_ray->setOrigin(tPositionSample.position);
+	//out_ray->setMinT(0.0001_r);// HACK: hard-code number
+	//out_ray->setMaxT(Ray::MAX_T);
+	//out_eN->set(tPositionSample.normal);
+	//*out_pdfA = pickPdfW * tPositionSample.pdf;
+	//*out_pdfW = 1.0_r / (4.0_r * PH_PI_REAL) / out_ray->getDirection().absDot(tPositionSample.normal);
+	//m_emittedRadiance->sample(tPositionSample.uvw, out_Le);
+
+	//std::cerr << "PrimitiveAreaEmitter::genSensingRay() not implemented" << std::endl;
 }
 
 real MultiDiffuseSurfaceEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const

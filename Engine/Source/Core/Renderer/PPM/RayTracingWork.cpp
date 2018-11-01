@@ -16,14 +16,14 @@ namespace ph
 {
 
 RayTracingWork::RayTracingWork(
-	Scene* const scene,
-	Camera* const camera,
+	const Scene* const scene,
+	const Camera* const camera,
 	std::unique_ptr<SampleGenerator> sampleGenerator,
 	Viewpoint* const viewpointBuffer, 
 	const std::size_t numViewpoints) : 
 	m_scene(scene),
 	m_camera(camera),
-	m_sampleGenerator(sampleGenerator),
+	m_sampleGenerator(std::move(sampleGenerator)),
 	m_viewpointBuffer(viewpointBuffer), 
 	m_numViewpoints(numViewpoints)
 {}

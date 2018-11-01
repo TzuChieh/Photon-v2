@@ -75,6 +75,7 @@
 // renderers
 #include "Core/Renderer/Renderer.h"
 #include "Core/Renderer/Sampling/SamplingRenderer.h"
+#include "Core/Renderer/PPM/PPMRenderer.h"
 
 // options
 #include "World/CookSettings.h"
@@ -171,6 +172,7 @@ bool init_command_parser()
 	// renderers
 	register_command_interface<Renderer>();
 	register_command_interface<SamplingRenderer>();
+	register_command_interface<PPMRenderer>();
 
 	// options
 	register_command_interface<CookSettings>();
