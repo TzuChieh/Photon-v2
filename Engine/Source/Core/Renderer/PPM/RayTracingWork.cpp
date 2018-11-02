@@ -54,11 +54,11 @@ void RayTracingWork::doWork()
 
 			Viewpoint viewpoint;
 			viewpoint.filmNdcPos = filmNdcPos;
-			viewpoint.hit = surfaceHit.getDetail();
+			viewpoint.hit = surfaceHit;
 			viewpoint.numPhotons = 0;
 			viewpoint.radius = 0.1_r;
 			viewpoint.throughput = SpectralStrength(1.0_r);
-			viewpoint.V = tracingRay.getDirection().mul(-1);
+			viewpoint.L = tracingRay.getDirection().mul(-1);
 			m_viewpointBuffer[i] = viewpoint;
 		}
 	}

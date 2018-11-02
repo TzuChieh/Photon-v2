@@ -3,7 +3,7 @@
 #include "FileIO/SDL/SdlResourcePack.h"
 #include "Core/Renderer/PPM/RayTracingWork.h"
 #include "Core/Renderer/PPM/PhotonMappingWork.h"
-#include "Core/Intersectable/IndexedKdtree/TCenterKdtree.h"
+#include "Core/Renderer/PPM/PhotonMap.h"
 
 namespace ph
 {
@@ -55,11 +55,7 @@ void PPMRenderer::init(const SdlResourcePack& data)
 
 	std::cerr << "building photon map" << std::endl;
 
-	auto photonCenterCalculator = [](const Photon& photon)
-	{
-		return photon.position;
-	};
-	TCenterKdtree<Photon, int, decltype(photonCenterCalculator)> photonMap(2, photonCenterCalculator);
+	PhotonMap photonMap(2, PhotonCenterCalculator());
 	photonMap.build(std::move(photonBuffer));
 
 	std::cerr << "photon map built" << std::endl;

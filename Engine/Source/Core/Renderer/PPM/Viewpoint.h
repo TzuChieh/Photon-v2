@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Core/HitDetail.h"
+#include "Core/SurfaceHit.h"
 #include "Math/TVector2.h"
 #include "Core/Quantity/SpectralStrength.h"
 
@@ -12,12 +12,12 @@ namespace ph
 
 struct Viewpoint
 {
-	HitDetail hit;
+	SurfaceHit hit;
 	Vector2R filmNdcPos;
 	real radius;
 	std::size_t numPhotons;
 	SpectralStrength throughput;
-	Vector3R V;
+	Vector3R L;
 };
 
 }// end namespace ph
