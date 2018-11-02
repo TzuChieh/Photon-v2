@@ -62,7 +62,7 @@ void PPMRenderer::init(const SdlResourcePack& data)
 	TCenterKdtree<Photon, int, decltype(photonCenterCalculator)> photonMap(2, photonCenterCalculator);
 	photonMap.build(std::move(photonBuffer));
 
-	std::cerr << "photon mapping built" << std::endl;
+	std::cerr << "photon map built" << std::endl;
 
 	// DEBUG
 	for(std::size_t y = 0; y < getRenderHeightPx(); ++y)

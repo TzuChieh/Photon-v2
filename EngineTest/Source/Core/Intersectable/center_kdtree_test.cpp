@@ -6,7 +6,50 @@
 #include <vector>
 #include <algorithm>
 
-TEST(CenterKdtreeTest, RangeSearch)
+TEST(CenterKdtreeTest, RangeSearchPointsOnAxis)
+{
+	using namespace ph;
+
+	// treat input points as on y-axis
+	auto pointToCenter = [](const float& point)
+	{
+		return Vector3R(0, static_cast<real>(point), 0);
+	};
+
+	// points on x axis
+	std::vector<float> points = {
+		6, 1, 3, 9, 5, 2, 7, 6, 6, 6
+	};
+	
+	auto tree = TCenterKdtree<float, int, decltype(pointToCenter)>(1, pointToCenter);
+	tree.build(std::move(points));
+
+	std::vector<float> results;
+
+	results.clear();
+	tree.findWithinRange({0, 0, 0}, 0.5_r, results);
+	EXPECT_EQ(results.size(), 0);
+
+	results.clear();
+	tree.findWithinRange({0, 1, 0}, 0.5_r, results);
+	EXPECT_EQ(results.size(), 1);
+	EXPECT_EQ(results[0], 1.0f);
+
+	results.clear();
+	tree.findWithinRange({0, 9, 0}, 0.5_r, results);
+	EXPECT_EQ(results.size(), 1); 
+	EXPECT_EQ(results[0], 9.0f);
+
+	results.clear();
+	tree.findWithinRange({0, 6, 0}, 0.5_r, results);
+	EXPECT_EQ(results.size(), 4);
+	EXPECT_EQ(results[0], 6.0f);
+	EXPECT_EQ(results[1], 6.0f);
+	EXPECT_EQ(results[2], 6.0f);
+	EXPECT_EQ(results[3], 6.0f);
+}
+
+TEST(CenterKdtreeTest, RangeSearchCubeVertices)
 {
 	using namespace ph;
 
@@ -28,7 +71,7 @@ TEST(CenterKdtreeTest, RangeSearch)
 		{1, 1, 1},
 	};
 	
-	auto tree = TCenterKdtree<Vector3R, int, decltype(trivialCenterCalculator)>(1, trivialCenterCalculator);
+	auto tree = TCenterKdtree<Vector3R, int, decltype(trivialCenterCalculator)>(2, trivialCenterCalculator);
 	tree.build(std::move(points));
 
 	std::vector<Vector3R> results;

@@ -231,22 +231,21 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 	const Vector3R& nodeExtents = nodeAABB.calcExtents();
 	const int       splitAxis   = nodeExtents.maxDimension();
 
-	const std::size_t midItemIndex = numNodeItems / 2;
+	const std::size_t midIndicesIndex = numNodeItems / 2;
 	std::nth_element(
 		nodeItemIndices, 
-		nodeItemIndices + midItemIndex,
+		nodeItemIndices + midIndicesIndex,
 		nodeItemIndices + numNodeItems, 
 		[&](const Index& a, const Index& b) -> bool
 		{
 			return itemCenters[a][splitAxis] < itemCenters[b][splitAxis];
 		});
 
-	const std::size_t numNegativeItems = midItemIndex;
-	const std::size_t numPositiveItems = numNodeItems - midItemIndex;
+	const std::size_t numNegativeItems = midIndicesIndex;
+	const std::size_t numPositiveItems = numNodeItems - midIndicesIndex;
 	PH_ASSERT(numNegativeItems + numPositiveItems >= 2);
 
-	// FIXME: bug here, indirect index should be used
-	const real splitPos = itemCenters[midItemIndex][splitAxis];
+	const real splitPos = itemCenters[nodeItemIndices[midIndicesIndex]][splitAxis];
 
 	Vector3R splitPosMinVertex = nodeAABB.getMinVertex();
 	Vector3R splitPosMaxVertex = nodeAABB.getMaxVertex();
@@ -269,7 +268,7 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 	buildNodeRecursive(
 		positiveChildIndex,
 		positiveNodeAABB,
-		nodeItemIndices + midItemIndex,
+		nodeItemIndices + midIndicesIndex,
 		numPositiveItems,
 		itemCenters,
 		currentNodeDepth + 1);
