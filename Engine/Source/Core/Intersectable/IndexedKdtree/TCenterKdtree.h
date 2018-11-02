@@ -37,6 +37,8 @@ public:
 		real               maxSearchRadius, 
 		NNResult&          results) const;
 
+	std::size_t numItems() const;
+
 private:
 	std::vector<Node>  m_nodeBuffer;
 	std::vector<Item>  m_items;
@@ -289,6 +291,13 @@ inline AABB3D TCenterKdtree<Item, Index, CenterCalculator>::
 		centersAABB.unionWith(itemCenters[itemIndices[i]]);
 	}
 	return centersAABB;
+}
+
+template<typename Item, typename Index, typename CenterCalculator>
+inline std::size_t TCenterKdtree<Item, Index, CenterCalculator>::
+	numItems() const
+{
+	return m_items.size();
 }
 
 }// end namespace ph

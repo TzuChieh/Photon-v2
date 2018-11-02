@@ -4,6 +4,7 @@
 #include "Core/Renderer/PPM/RayTracingWork.h"
 #include "Core/Renderer/PPM/PhotonMappingWork.h"
 #include "Core/Renderer/PPM/PhotonMap.h"
+#include "Core/Renderer/PPM/RadianceEstimateWork.h"
 
 namespace ph
 {
@@ -60,8 +61,15 @@ void PPMRenderer::init(const SdlResourcePack& data)
 
 	std::cerr << "photon map built" << std::endl;
 
+	std::cerr << "estimating radiance" << std::endl;
+
+	RadianceEstimateWork radianceEstimator(&photonMap, viewpointBuffer.data(), viewpointBuffer.size(), m_film.get());
+	radianceEstimator.doWork();
+
+	std::cerr << "estimation complete" << std::endl;
+
 	// DEBUG
-	for(std::size_t y = 0; y < getRenderHeightPx(); ++y)
+	/*for(std::size_t y = 0; y < getRenderHeightPx(); ++y)
 	{
 		for(std::size_t x = 0; x < getRenderWidthPx(); ++x)
 		{
@@ -70,7 +78,7 @@ void PPMRenderer::init(const SdlResourcePack& data)
 			real filmYPx = viewpoint.filmNdcPos.y * static_cast<real>(getRenderHeightPx());
 			m_film->addSample(filmXPx, filmYPx, viewpointBuffer[y * getRenderWidthPx() + x].hit.getShadingNormal());
 		}
-	}
+	}*/
 }
 
 bool PPMRenderer::asyncSupplyWork(RenderWorker& worker)

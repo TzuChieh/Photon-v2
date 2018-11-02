@@ -23,16 +23,16 @@ RadianceEstimateWork::RadianceEstimateWork(
 
 void RadianceEstimateWork::doWork()
 {
-	const real radius = 1.0_r;
-
 	std::vector<Photon> photons;
 	for(std::size_t i = 0; i < m_numViewpoints; ++i)
 	{
 		Viewpoint* viewpoint = &(m_viewpoints[i]);
 
 		photons.clear();
-		m_photonMap->findWithinRange(viewpoint->hit.getPosition(), radius, photons);
+		m_photonMap->findWithinRange(viewpoint->hit.getPosition(), viewpoint->radius, photons);
 
+		const real r = viewpoint->radius;
+		SpectralStrength radiance(0);
 		for(const auto& photon : photons)
 		{
 			const Vector3R V = photon.V;
@@ -54,12 +54,17 @@ void RadianceEstimateWork::doWork()
 			}
 
 			SpectralStrength throughput(1.0_r);
-			throughput.mulLocal(photon.throughput);
-			throughput.mulLocal(bsdf);
-			throughput.mulLocal(Ns.absDot(L));
-			throughput.mulLocal(Ns.absDot(V) * Ng.absDot(L) / Ng.absDot(V) / Ns.absDot(L));
 			throughput.mulLocal(viewpoint->throughput);
+			throughput.mulLocal(Ns.absDot(L));
+			throughput.mulLocal(bsdf);
+			throughput.mulLocal(Ns.absDot(V) * Ng.absDot(L) / Ng.absDot(V) / Ns.absDot(L));
+			throughput.mulLocal(photon.throughput);
+			
+			radiance.addLocal(throughput * photon.radiance / (r * r * PH_PI_REAL) / static_cast<real>(m_photonMap->numItems()));
 		}
+		real filmXPx = viewpoint->filmNdcPos.x * static_cast<real>(m_film->getActualResPx().x);
+		real filmYPx = viewpoint->filmNdcPos.y * static_cast<real>(m_film->getActualResPx().y);
+		m_film->addSample(filmXPx, filmYPx, radiance);
 	}
 }
 
