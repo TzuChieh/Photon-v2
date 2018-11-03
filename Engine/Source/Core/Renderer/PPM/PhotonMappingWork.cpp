@@ -31,7 +31,7 @@ PhotonMappingWork::PhotonMappingWork(
 
 void PhotonMappingWork::doWork()
 {
-	for(std::size_t i = 0; i < m_numPhotons; ++i)
+	for(std::size_t i = 0; i < m_numPhotons;)
 	{
 		Ray tracingRay;
 		SpectralStrength emittedRadiance;
@@ -43,17 +43,13 @@ void PhotonMappingWork::doWork()
 		SpectralStrength throughput(1.0_r);
 		throughput.divLocal(pdfA);
 		throughput.divLocal(pdfW);
+		throughput.mulLocal(emitN.absDot(tracingRay.getDirection()));
 
-		Photon photon;
 		while(true)
 		{
 			HitProbe probe;
 			if(!m_scene->isIntersecting(tracingRay, &probe))
 			{
-				photon.position = tracingRay.getOrigin();
-				photon.radiance = emittedRadiance;
-				photon.throughput.setValues(0);
-				photon.V = tracingRay.getDirection().mul(-1);
 				break;
 			}
 
@@ -62,25 +58,28 @@ void PhotonMappingWork::doWork()
 			const SurfaceOptics* optics = metadata->getSurface().getOptics();
 
 			SpectralStrength weightedThroughput;
-			if(!RussianRoulette::surviveOnLuminance(throughput, &weightedThroughput))
+			if(RussianRoulette::surviveOnLuminance(throughput, &weightedThroughput))
 			{
+				throughput = weightedThroughput;
+
+				Photon photon;
 				photon.position = surfaceHit.getPosition();
 				photon.radiance = emittedRadiance;
 				photon.throughput.setValues(throughput);
 				photon.V = tracingRay.getDirection().mul(-1);
+				m_photonBuffer[i++] = photon;
 				break;
 			}
-			throughput = weightedThroughput;
+			else
+			{
+				break;
+			}
 
 			BsdfSample bsdfSample;
 			bsdfSample.inputs.set(surfaceHit, tracingRay.getDirection().mul(-1), ALL_ELEMENTALS, ETransport::IMPORTANCE);
 			optics->calcBsdfSample(bsdfSample);
 			if(!bsdfSample.outputs.isGood())
 			{
-				photon.position = surfaceHit.getPosition();
-				photon.radiance = emittedRadiance;
-				photon.throughput.setValues(0);
-				photon.V = tracingRay.getDirection().mul(-1);
 				break;
 			}
 
@@ -95,7 +94,6 @@ void PhotonMappingWork::doWork()
 			tracingRay.setOrigin(surfaceHit.getPosition());
 			tracingRay.setDirection(L);
 		}
-		m_photonBuffer[i] = photon;
 	}
 }
 
