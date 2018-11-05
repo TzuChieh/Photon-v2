@@ -114,7 +114,7 @@ void TranslucentMicrofacet::calcBsdf(
 
 		const real dotTerm = std::abs(HoL * HoV / (NoV * NoL));
 		const real iorTerm = transportFactor * etaI / (etaI * HoL + etaT * HoV);
-		out.bsdf = F.complement().mul(D * G * dotTerm * (iorTerm * iorTerm));
+		out.bsdf = F.mul(D * G * dotTerm * (iorTerm * iorTerm));
 	}
 	else
 	{

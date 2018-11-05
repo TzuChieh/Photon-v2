@@ -48,7 +48,8 @@ void PPMRenderer::init(const SdlResourcePack& data)
 	std::cerr << "numPhotons = " << numPhotons << std::endl;
 	std::cerr << "photon mapping work start" << std::endl;
 
-	PhotonMappingWork photonMappingWork(m_scene, m_camera, m_sg->genCopied(1), photonBuffer.data(), numPhotons);
+	std::size_t numEmittedPhotons;
+	PhotonMappingWork photonMappingWork(m_scene, m_camera, m_sg->genCopied(1), photonBuffer.data(), numPhotons, &numEmittedPhotons);
 	photonMappingWork.doWork();
 
 	std::cerr << "photon mapping work finished" << std::endl;
@@ -63,7 +64,7 @@ void PPMRenderer::init(const SdlResourcePack& data)
 
 	std::cerr << "estimating radiance" << std::endl;
 
-	RadianceEstimateWork radianceEstimator(&photonMap, viewpointBuffer.data(), viewpointBuffer.size(), m_film.get());
+	RadianceEstimateWork radianceEstimator(&photonMap, viewpointBuffer.data(), viewpointBuffer.size(), m_film.get(), numEmittedPhotons);
 	radianceEstimator.doWork();
 
 	std::cerr << "estimation complete" << std::endl;

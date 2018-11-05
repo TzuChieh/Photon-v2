@@ -56,10 +56,10 @@ void MultiDiffuseSurfaceEmitter::genSensingRay(Ray* out_ray, SpectralStrength* o
 	// randomly and uniformly pick a primitive
 
 	const auto& emitter = m_emitters[Random::genUniformIndex_iL_eU(0, m_emitters.size())];
-	const real pickPdfW = 1.0_r / static_cast<real>(m_emitters.size());
+	const real pickPdf = 1.0_r / static_cast<real>(m_emitters.size());
 
 	emitter.genSensingRay(out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
-	*out_pdfA *= pickPdfW;
+	*out_pdfA *= pickPdf;
 
 
 

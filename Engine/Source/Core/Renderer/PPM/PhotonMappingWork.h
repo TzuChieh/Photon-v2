@@ -21,7 +21,8 @@ public:
 		const Camera* camera,
 		std::unique_ptr<SampleGenerator> sampleGenerator,
 		Photon* photonBuffer, 
-		std::size_t numPhotons);
+		std::size_t numPhotons,
+		std::size_t* out_numEmittedPhotons);
 
 	void doWork() override;
 
@@ -31,6 +32,7 @@ private:
 	std::unique_ptr<SampleGenerator> m_sampleGenerator;
 	Photon* m_photonBuffer;
 	std::size_t m_numPhotons;
+	std::size_t* m_numEmittedPhotons;
 };
 
 }// end namespace ph

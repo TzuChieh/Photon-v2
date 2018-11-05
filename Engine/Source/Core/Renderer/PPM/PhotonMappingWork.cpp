@@ -12,6 +12,7 @@
 #include "Core/HitDetail.h"
 #include "Math/Random.h"
 #include "Core/Estimator/BuildingBlock/RussianRoulette.h"
+#include "Common/assertion.h"
 
 namespace ph
 {
@@ -21,24 +22,32 @@ PhotonMappingWork::PhotonMappingWork(
 	const Camera* camera,
 	std::unique_ptr<SampleGenerator> sampleGenerator,
 	Photon* photonBuffer,
-	std::size_t numPhotons) : 
+	std::size_t numPhotons,
+	std::size_t* out_numEmittedPhotons) :
 	m_scene(scene),
 	m_camera(camera),
 	m_sampleGenerator(std::move(sampleGenerator)),
 	m_photonBuffer(photonBuffer),
-	m_numPhotons(numPhotons)
+	m_numPhotons(numPhotons),
+	m_numEmittedPhotons(out_numEmittedPhotons)
 {}
 
 void PhotonMappingWork::doWork()
 {
+	*m_numEmittedPhotons = 0;
+	//int bounces = 0;
 	for(std::size_t i = 0; i < m_numPhotons;)
 	{
+		++(*m_numEmittedPhotons);
+
 		Ray tracingRay;
 		SpectralStrength emittedRadiance;
 		Vector3R emitN;
 		real pdfA;
 		real pdfW;
 		m_scene->genSensingRay(&tracingRay, &emittedRadiance, &emitN, &pdfA, &pdfW);
+
+		PH_ASSERT_MSG(emittedRadiance.isNonNegative(), "emittedRadiance = " + emittedRadiance.toString());
 
 		SpectralStrength throughput(1.0_r);
 		throughput.divLocal(pdfA);
@@ -50,6 +59,19 @@ void PhotonMappingWork::doWork()
 			HitProbe probe;
 			if(!m_scene->isIntersecting(tracingRay, &probe))
 			{
+				// DEBUG
+				//Photon photon;
+				//photon.position = tracingRay.getOrigin();
+				//photon.radiance.setValues(0);
+				//photon.throughput.setValues(throughput);
+				//photon.V = tracingRay.getDirection().mul(-1);
+				//m_photonBuffer[i++] = photon;
+				//PH_ASSERT_MSG(throughput.isNonNegative(), "throughput = " + throughput.toString());
+				//if(i == m_numPhotons /*|| ++bounces == 5*/)
+				//{
+				//	break;
+				//}
+
 				break;
 			}
 
@@ -68,7 +90,13 @@ void PhotonMappingWork::doWork()
 				photon.throughput.setValues(throughput);
 				photon.V = tracingRay.getDirection().mul(-1);
 				m_photonBuffer[i++] = photon;
-				break;
+
+				PH_ASSERT_MSG(throughput.isNonNegative(), "throughput = " + throughput.toString());
+
+				if(i == m_numPhotons /*|| ++bounces == 5*/)
+				{
+					break;
+				}
 			}
 			else
 			{
@@ -89,7 +117,8 @@ void PhotonMappingWork::doWork()
 			Vector3R Ns = surfaceHit.getShadingNormal();
 			throughput.mulLocal(bsdfSample.outputs.pdfAppliedBsdf);
 			throughput.mulLocal(Ns.absDot(L));
-			throughput.mulLocal(Ns.absDot(V) * Ng.absDot(L) / Ng.absDot(V) / Ns.absDot(L));
+			//throughput.mulLocal(Ns.absDot(V));
+			//throughput.mulLocal(Ns.absDot(V) * Ng.absDot(L) / Ng.absDot(V) / Ns.absDot(L));
 
 			tracingRay.setOrigin(surfaceHit.getPosition());
 			tracingRay.setDirection(L);

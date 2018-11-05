@@ -15,7 +15,8 @@ public:
 		const PhotonMap* photonMap,
 		Viewpoint* viewpoints,
 		std::size_t numViewpoints,
-		HdrRgbFilm* film);
+		HdrRgbFilm* film,
+		std::size_t numEmittedPhotons);
 
 	void doWork() override;
 
@@ -24,6 +25,7 @@ private:
 	Viewpoint* m_viewpoints;
 	std::size_t m_numViewpoints;
 	HdrRgbFilm* m_film;
+	std::size_t m_numEmittedPhotons;
 };
 
 }// end namespace ph

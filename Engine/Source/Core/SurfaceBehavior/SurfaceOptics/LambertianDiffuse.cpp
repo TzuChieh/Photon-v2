@@ -30,10 +30,9 @@ void LambertianDiffuse::calcBsdf(
 	BsdfEvaluation::Output&      out,
 	const SidednessAgreement&    sidedness) const
 {
-	out.bsdf.setValues(0);
-
 	if(!sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
+		out.bsdf.setValues(0);
 		return;
 	}
 
