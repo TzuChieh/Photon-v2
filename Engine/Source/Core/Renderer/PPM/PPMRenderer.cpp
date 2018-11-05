@@ -16,7 +16,7 @@ AttributeTags PPMRenderer::supportedAttributes() const
 	return supported;
 }
 
-void PPMRenderer::init(const SdlResourcePack& data)
+void PPMRenderer::doUpdate(const SdlResourcePack& data)
 {
 	m_film = std::make_unique<HdrRgbFilm>(getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
 
@@ -82,7 +82,7 @@ void PPMRenderer::init(const SdlResourcePack& data)
 	}*/
 }
 
-void PPMRenderer::render()
+void PPMRenderer::doRender()
 {}
 
 //bool PPMRenderer::asyncSupplyWork(RenderWorker& worker)
@@ -98,10 +98,14 @@ ERegionStatus PPMRenderer::asyncPollUpdatedRegion(Region* out_region)
 	return ERegionStatus::INVALID;
 }
 
-RenderStates PPMRenderer::asyncQueryRenderStates()
+RenderState PPMRenderer::asyncQueryRenderState()
 {
-	RenderStates states;
-	return RenderStates();
+	return RenderState();
+}
+
+RenderProgress PPMRenderer::asyncQueryRenderProgress()
+{
+	return RenderProgress(0, 0);
 }
 
 void PPMRenderer::asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute)

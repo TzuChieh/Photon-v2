@@ -27,7 +27,7 @@ public:
 	void setWorkDone(uint32 workDone);
 	void incrementWorkDone();
 	uint32 getId() const;
-	RenderProgress asyncQueryProgress();
+	//RenderProgress asyncQueryProgress();
 
 	RenderWorker& operator = (const RenderWorker& rhs);
 
@@ -63,13 +63,13 @@ inline void RenderWorker::incrementWorkDone()
 	m_workDone++;
 }
 
-inline RenderProgress RenderWorker::asyncQueryProgress()
-{
-	RenderProgress progress;
-	progress.totalWork = m_totalWork;
-	progress.workDone  = m_workDone;
-
-	return progress;
-}
+//inline RenderProgress RenderWorker::asyncQueryProgress()
+//{
+//	RenderProgress progress;
+//	progress.totalWork = m_totalWork;
+//	progress.workDone  = m_workDone;
+//
+//	return progress;
+//}
 
 }// end namespace ph

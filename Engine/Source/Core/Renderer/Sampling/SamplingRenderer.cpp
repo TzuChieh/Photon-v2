@@ -38,10 +38,8 @@ AttributeTags SamplingRenderer::supportedAttributes() const
 	return m_estimator->supportedAttributes();
 }
 
-void SamplingRenderer::init(const SdlResourcePack& data)
+void SamplingRenderer::doUpdate(const SdlResourcePack& data)
 {
-	std::lock_guard<std::mutex> lock(m_rendererMutex);
-
 	clearWorkData();
 
 	m_scene  = &data.visualWorld.getScene();
@@ -64,22 +62,18 @@ void SamplingRenderer::init(const SdlResourcePack& data)
 	scheduler->setFullRegion(getRenderWindowPx());
 	scheduler->setSppBudget(m_sg->numSampleBatches());
 	scheduler->init();
-}
 
-void SamplingRenderer::render()
-{
-	FixedSizeThreadPool workers(getNumWorkers());
 	for(std::size_t i = 0; i < getNumWorkers(); ++i)
 	{
 		RegionScheduler* scheduler = getRegionScheduler();
-			
+
 		Region region;
 		uint64 spp;
 		if(!scheduler->scheduleRegion(&region, &spp))
 		{
 			break;
 		}
-		
+
 		SamplingRenderWork work(
 			this,
 			m_estimator.get(),
@@ -89,50 +83,27 @@ void SamplingRenderer::render()
 			m_requestedAttributes);
 		work.setDomainPx(getRenderWindowPx());
 		m_works[i] = std::move(work);
+	}
+}
+
+void SamplingRenderer::doRender()
+{
+	FixedSizeThreadPool workers(getNumWorkers());
+	for(std::size_t i = 0; i < getNumWorkers(); ++i)
+	{
+		//std::lock_guard<std::mutex> lock(m_rendererMutex);
 		
 		workers.queueWork([this, i]()
 		{
 			m_works[i].doWork();
 		});
 		
-		float bestProgress, worstProgress;
-		scheduler->percentageProgress(&bestProgress, &worstProgress);
-		m_percentageProgress = static_cast<unsigned int>(worstProgress);
+		//float bestProgress, worstProgress;
+		//scheduler->percentageProgress(&bestProgress, &worstProgress);
+		//m_percentageProgress = static_cast<unsigned int>(worstProgress);
 	}
 	workers.waitAllWorks();
 }
-
-//bool SamplingRenderer::asyncSupplyWork(RenderWorker& worker)
-//{
-//	std::lock_guard<std::mutex> lock(m_rendererMutex);
-//
-//	RegionScheduler* scheduler = getRegionScheduler();
-//	
-//	Region region;
-//	uint64 spp;
-//	if(!scheduler->scheduleRegion(&region, &spp))
-//	{
-//		return false;
-//	}
-//
-//	SamplingRenderWork work(
-//		this,
-//		m_estimator.get(),
-//		Integrand(m_scene, m_camera),
-//		m_films.genChild(getRenderWindowPx()),
-//		m_sg->genCopied(spp),
-//		m_requestedAttributes);
-//	work.setDomainPx(getRenderWindowPx());
-//	m_works[worker.getId()] = std::move(work);
-//
-//	worker.setWork(&(m_works[worker.getId()]));
-//
-//	float bestProgress, worstProgress;
-//	scheduler->percentageProgress(&bestProgress, &worstProgress);
-//	m_percentageProgress = static_cast<unsigned int>(worstProgress);
-//
-//	return true;
-//}
 
 void SamplingRenderer::asyncUpdateFilm(SamplingRenderWork& work)
 {
@@ -143,16 +114,6 @@ void SamplingRenderer::asyncUpdateFilm(SamplingRenderWork& work)
 	// HACK
 	addUpdatedRegion(work.m_films.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), false);
 }
-
-//void SamplingRenderer::asyncSubmitWork(RenderWorker& worker)
-//{
-//	std::lock_guard<std::mutex> lock(m_rendererMutex);
-//
-//	mergeWorkFilms(m_works[worker.getId()]);
-//
-//	// HACK
-//	addUpdatedRegion(m_works[worker.getId()].m_films.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), true);
-//}
 
 void SamplingRenderer::clearWorkData()
 {
@@ -206,15 +167,7 @@ void SamplingRenderer::asyncDevelopFilmRegion(
 
 void SamplingRenderer::develop(HdrRgbFrame& out_frame, const EAttribute attribute)
 {
-	const SamplingFilmBase* film = m_films.get(attribute);
-	if(film)
-	{
-		film->develop(out_frame);
-	}
-	else
-	{
-		out_frame.fill(0);
-	}
+	asyncDevelopFilmRegion(out_frame, getRenderWindowPx(), attribute);
 }
 
 void SamplingRenderer::mergeWorkFilms(SamplingRenderWork& work)
@@ -243,38 +196,37 @@ void SamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdat
 	m_updatedRegions.push_back(std::make_pair(region, isUpdating));
 }
 
-RenderStates SamplingRenderer::asyncQueryRenderStates()
+RenderState SamplingRenderer::asyncQueryRenderState()
 {
 	uint64 totalElapsedMs  = 0;
 	uint64 totalNumSamples = 0;
-	for(auto& work : m_works)
+	for(auto&& work : m_works)
 	{
 		const auto statistics = work.asyncGetStatistics();
 		totalElapsedMs  += statistics.numMsElapsed;
 		totalNumSamples += statistics.numSamplesTaken;
 	}
 
-	float32 samplesPerMs = totalElapsedMs != 0 ? 
+	const float32 samplesPerMs = totalElapsedMs != 0 ?
 		static_cast<float32>(m_works.size() * totalNumSamples) / static_cast<float32>(totalElapsedMs) : 0.0f;
 
-	uint64 totalWork     = 0;
-	uint64 totalWorkDone = 0;
-	for(uint32 workerId = 0; workerId < getNumWorkers(); workerId++)
-	{
-		const auto progress = asyncQueryWorkerProgress(workerId);
 
-		totalWork     += progress.totalWork;
-		totalWorkDone += progress.workDone;
+	RenderState state;
+	state.setRealState(0, samplesPerMs);
+	return state;
+}
+
+RenderProgress SamplingRenderer::asyncQueryRenderProgress()
+{
+	RenderProgress totalProgress(0, 0);
+	{
+		for(auto&& work : m_works)
+		{
+			totalProgress += work.asyncGetProgress();
+		}
 	}
 
-	float32 workerProgress = totalWork != 0 ?
-		static_cast<float32>(totalWorkDone) / static_cast<float32>(totalWork) : 0.0f;
-
-
-	RenderStates states;
-	states.fltStates[0] = samplesPerMs;
-
-	return states;
+	return totalProgress;
 }
 
 // command interface

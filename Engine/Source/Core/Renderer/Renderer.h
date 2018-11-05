@@ -11,7 +11,7 @@
 #include "Frame/frame_fwd.h"
 #include "Core/Renderer/AttributeTags.h"
 #include "FileIO/SDL/TCommandInterface.h"
-#include "Core/Renderer/RenderStates.h"
+#include "Core/Renderer/RenderState.h"
 #include "Core/Renderer/Region/Region.h"
 #include "Core/Renderer/Region/RegionScheduler.h"
 #include "Common/assertion.h"
@@ -35,10 +35,11 @@ public:
 	virtual ~Renderer();
 
 	virtual AttributeTags supportedAttributes() const = 0;
-	virtual void init(const SdlResourcePack& data) = 0;
-	virtual void render() = 0;
+	virtual void doUpdate(const SdlResourcePack& data) = 0;
+	virtual void doRender() = 0;
 	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) = 0;
-	virtual RenderStates asyncQueryRenderStates() = 0;
+	virtual RenderState asyncQueryRenderState() = 0;
+	virtual RenderProgress asyncQueryRenderProgress() = 0;
 
 	// TODO: this can somehow combine with its async version
 	virtual void develop(HdrRgbFrame& out_frame, EAttribute attribute) = 0;
@@ -49,11 +50,9 @@ public:
 		const Region& region, 
 		EAttribute    attribute) = 0;
 
-	void start(const SdlResourcePack& description);
+	void update(const SdlResourcePack& data);
+	void render();
 	void setNumWorkers(uint32 numWorkers);
-	void asyncQueryStatistics(float32* out_percentageProgress, 
-	                          float32* out_samplesPerSecond);
-	RenderProgress asyncQueryWorkerProgress(uint32 workerId);
 
 	uint32           getNumWorkers()       const;
 	uint32           getRenderWidthPx()    const;

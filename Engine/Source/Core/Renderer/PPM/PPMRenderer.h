@@ -15,10 +15,11 @@ class PPMRenderer final : public Renderer, public TCommandInterface<PPMRenderer>
 {
 public:
 	AttributeTags supportedAttributes() const override;
-	void init(const SdlResourcePack& data) override;
-	void render() override;
+	void doUpdate(const SdlResourcePack& data) override;
+	void doRender() override;
 	ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;
-	RenderStates asyncQueryRenderStates() override;
+	RenderState asyncQueryRenderState() override;
+	RenderProgress asyncQueryRenderProgress() override;
 	void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute) override;
 	void develop(HdrRgbFrame& out_frame, EAttribute attribute) override;
 

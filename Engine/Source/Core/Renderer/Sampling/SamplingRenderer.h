@@ -24,15 +24,15 @@ public:
 	~SamplingRenderer() override;
 
 	AttributeTags supportedAttributes() const override;
-	void init(const SdlResourcePack& data) override;
-	void render() override;
+	void doUpdate(const SdlResourcePack& data) override;
+	void doRender() override;
 	ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;
-	RenderStates asyncQueryRenderStates() override;
-
-	void asyncUpdateFilm(SamplingRenderWork& work);
-
+	RenderState asyncQueryRenderState() override;
+	RenderProgress asyncQueryRenderProgress() override;
 	void asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute) override;
 	void develop(HdrRgbFrame& out_frame, EAttribute attribute) override;
+
+	void asyncUpdateFilm(SamplingRenderWork& work);
 
 private:
 	SamplingFilmSet m_films;

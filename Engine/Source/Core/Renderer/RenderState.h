@@ -1,0 +1,63 @@
+#pragma once
+
+#include "Common/primitive_type.h"
+#include "Common/assertion.h"
+
+#include <cstddef>
+
+namespace ph
+{
+
+class RenderState
+{
+public:
+	using IntegerState = int64;
+	using RealState    = float32;
+
+	constexpr static std::size_t NUM_INTEGER_STATES = 3;
+	constexpr static std::size_t NUM_REAL_STATES    = 3;
+
+	RenderState() = default;
+
+	IntegerState getIntegerState(std::size_t index) const;
+	RealState    getRealState(std::size_t index) const;
+
+	void setIntegerState(std::size_t index, IntegerState state);
+	void setRealState(std::size_t index, RealState state);
+
+private:
+	IntegerState m_integerStates[3];
+	RealState    m_realStates[3];
+};
+
+// In-header Implementations:
+
+inline auto RenderState::getIntegerState(const std::size_t index) const -> IntegerState
+{
+	PH_ASSERT_LT(index, NUM_INTEGER_STATES);
+
+	return m_integerStates[index];
+}
+
+inline auto RenderState::getRealState(const std::size_t index) const -> RealState
+{
+	PH_ASSERT_LT(index, NUM_REAL_STATES);
+
+	return m_realStates[index];
+}
+
+inline void RenderState::setIntegerState(const std::size_t index, const IntegerState state)
+{
+	PH_ASSERT_LT(index, NUM_INTEGER_STATES);
+
+	m_integerStates[index] = state;
+}
+
+inline void RenderState::setRealState(const std::size_t index, const RealState state)
+{
+	PH_ASSERT_LT(index, NUM_REAL_STATES);
+
+	m_realStates[index] = state;
+}
+
+}// end namespace ph

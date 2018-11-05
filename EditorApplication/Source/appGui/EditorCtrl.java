@@ -149,14 +149,14 @@ public class EditorCtrl
 				{
 					m_project.asyncGetRendererStatistics(statistics);
 					
-					//final long workDone  = (long)(statistics.percentageProgress + 0.5f);
-					//final long totalWork = 100;
-					//updateProgress(workDone, totalWork);
+					final long workDone  = (long)(statistics.percentageProgress + 0.5f);
+					final long totalWork = 100;
+					updateProgress(workDone, totalWork);
 					
 					// HACK
-					long workDone  = 100;
-					long totalWork = 100;
-					updateProgress(workDone, totalWork);
+//					long workDone  = 100;
+//					long totalWork = 100;
+//					updateProgress(workDone, totalWork);
 					
 					final double workDoneFraction      = statistics.percentageProgress / 100.0;
 					final double renderTimeMs          = Time.getTimeMs() - renderStartMs;

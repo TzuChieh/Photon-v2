@@ -4,15 +4,15 @@
 #include "Common/assertion.h"
 #include "Core/Renderer/RenderProgress.h"
 
+#include <atomic>
+#include <cstddef>
+#include <limits>
+
 namespace ph
 {
 
-class RenderWorker;
-
 class RenderWork
 {
-	//friend class RenderWorker;
-
 public:
 	RenderWork();
 	RenderWork(const RenderWork& other);
@@ -20,47 +20,64 @@ public:
 
 	virtual void doWork() = 0;
 
+	RenderProgress asyncGetProgress();
+
 protected:
-	/*void setTotalWork(uint32 totalWork);
-	void setWorkDone(uint32 workDone);
-	void incrementWorkDone();*/
+	void setTotalWork(std::size_t totalWork);
+	void setWorkDone(std::size_t workDone);
+	void incrementWorkDone();
 
 	RenderWork& operator = (const RenderWork& rhs);
-	RenderWork& operator = (RenderWork&& rhs);
 
 private:
-	//RenderWorker* m_worker;
-
-	//void setWorker(RenderWorker* worker);
+	std::atomic_uint32_t m_totalWork;
+	std::atomic_uint32_t m_workDone;
 };
 
 // In-header Implementations:
 
-inline RenderWork::RenderWork()// : 
-	//m_worker(nullptr)
+inline RenderWork::RenderWork() : 
+	m_totalWork(0),
+	m_workDone(0)
 {}
 
-inline RenderWork::RenderWork(const RenderWork& other) = default;
+inline RenderWork::RenderWork(const RenderWork& other) : 
+	m_totalWork(other.m_totalWork.load()),
+	m_workDone(other.m_workDone.load())
+{}
 
 inline RenderWork::~RenderWork() = default;
 
-//inline void RenderWork::setWorker(RenderWorker* const worker)
-//{
-//	PH_ASSERT(worker);
-//
-//	m_worker = worker;
-//}
+inline void RenderWork::setTotalWork(const std::size_t totalWork)
+{
+	PH_ASSERT_LE(totalWork, std::numeric_limits<std::uint32_t>::max());
+
+	m_totalWork = static_cast<std::uint32_t>(totalWork);
+}
+
+inline void RenderWork::setWorkDone(const std::size_t workDone)
+{
+	PH_ASSERT_LE(workDone, std::numeric_limits<std::uint32_t>::max());
+
+	m_workDone = static_cast<std::uint32_t>(workDone);
+}
+
+inline void RenderWork::incrementWorkDone()
+{
+	PH_ASSERT_LT(m_workDone, m_totalWork);
+
+	++m_workDone;
+}
+
+inline RenderProgress RenderWork::asyncGetProgress()
+{
+	return RenderProgress(m_totalWork, m_workDone);
+}
 
 inline RenderWork& RenderWork::operator = (const RenderWork& rhs)
 {
-	//m_worker = rhs.m_worker;
-
-	return *this;
-}
-
-inline RenderWork& RenderWork::operator = (RenderWork&& rhs)
-{
-	//m_worker = std::move(rhs.m_worker);
+	m_totalWork = rhs.m_totalWork.load();
+	m_workDone  = rhs.m_workDone.load();
 
 	return *this;
 }

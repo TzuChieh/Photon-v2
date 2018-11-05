@@ -23,31 +23,26 @@ namespace ph
 
 Renderer::~Renderer() = default;
 
-void Renderer::start(const SdlResourcePack& data)
+void Renderer::update(const SdlResourcePack& data)
+{
+	Timer updateTimer;
+	updateTimer.start();
+
+	doUpdate(data);
+
+	updateTimer.finish();
+	std::cout << "update time: " << updateTimer.getDeltaMs() << " ms" << std::endl;
+}
+
+void Renderer::render()
 {
 	Timer renderTimer;
 	renderTimer.start();
 
-	init(data);
-	render();
-
-	/*std::vector<std::thread> renderThreads(m_numWorkers);
-	for(uint32 ti = 0; ti < m_numThreads; ti++)
-	{
-		renderThreads[ti] = std::thread(&RenderWorker::run, &m_workers[ti]);
-
-		std::cout << "worker<" << ti << "> started" << std::endl;
-	}
-
-	for(std::size_t ti = 0; ti < m_numThreads; ti++)
-	{
-		renderThreads[ti].join();
-
-		std::cout << "worker<" << ti << "> finished" << std::endl;
-	}*/
+	doRender();
 
 	renderTimer.finish();
-	std::cout << "rendering time: " << renderTimer.getDeltaMs() << " ms" << std::endl;
+	std::cout << "render time: " << renderTimer.getDeltaMs() << " ms" << std::endl;
 }
 
 void Renderer::setNumWorkers(const uint32 numWorkers)
@@ -62,36 +57,27 @@ void Renderer::setNumWorkers(const uint32 numWorkers)
 }
 
 // FIXME: without synchronizing, other threads may never observe m_workers being changed
-void Renderer::asyncQueryStatistics(float32* const out_percentageProgress, 
-                                    float32* const out_samplesPerSecond)
-{
-	uint64  totalWork     = 0;
-	uint64  totalWorkDone = 0;
-	for(auto& worker : m_workers)
-	{
-		const auto progress = worker.asyncQueryProgress();
-
-		// FIXME: this calculation can be wrong if there are more works than workers
-		totalWork     += progress.totalWork;
-		totalWorkDone += progress.workDone;
-	}
-
-	*out_percentageProgress = totalWork != 0 ? 
-		static_cast<float32>(totalWorkDone) / static_cast<float32>(totalWork) * 100.0f : 0.0f;
-
-	// HACK
-	const auto states = asyncQueryRenderStates();
-	*out_samplesPerSecond = static_cast<float32>(states.fltStates[0]) * 1000.0f;
-}
-
-// FIXME: without synchronizing, other threads may never observe m_workers being changed
-RenderProgress Renderer::asyncQueryWorkerProgress(const uint32 workerId)
-{
-	/*PH_ASSERT(workerId < m_workers.size());
-
-	return m_workers[workerId].asyncQueryProgress();*/
-	return RenderProgress();
-}
+//void Renderer::asyncQueryStatistics(float32* const out_percentageProgress, 
+//                                    float32* const out_samplesPerSecond)
+//{
+//	uint64  totalWork     = 0;
+//	uint64  totalWorkDone = 0;
+//	for(auto& worker : m_workers)
+//	{
+//		const auto progress = worker.asyncQueryProgress();
+//
+//		// FIXME: this calculation can be wrong if there are more works than workers
+//		totalWork     += progress.totalWork;
+//		totalWorkDone += progress.workDone;
+//	}
+//
+//	*out_percentageProgress = totalWork != 0 ? 
+//		static_cast<float32>(totalWorkDone) / static_cast<float32>(totalWork) * 100.0f : 0.0f;
+//
+//	// HACK
+//	const auto states = asyncQueryRenderStates();
+//	*out_samplesPerSecond = static_cast<float32>(states.fltStates[0]) * 1000.0f;
+//}
 
 // command interface
 

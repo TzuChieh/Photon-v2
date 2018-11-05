@@ -37,12 +37,13 @@ void Engine::update()
 
 	m_renderer = m_data.getRenderer();
 	m_renderer->setNumWorkers(m_numRenderThreads);
+	m_renderer->update(m_data);
 }
 
 void Engine::render()
 {
 	// HACK
-	m_renderer->start(m_data);
+	m_renderer->render();
 }
 
 void Engine::developFilm(
@@ -96,7 +97,12 @@ void Engine::asyncQueryStatistics(
 	float32* const out_percentageProgress,
 	float32* const out_samplesPerSecond) const
 {
-	m_renderer->asyncQueryStatistics(out_percentageProgress, out_samplesPerSecond);
+	// HACK
+	RenderProgress progress = m_renderer->asyncQueryRenderProgress();
+	RenderState state = m_renderer->asyncQueryRenderState();
+	*out_percentageProgress = progress.getPercentageProgress();
+	float32 samplesPerMs = state.getRealState(0);
+	*out_samplesPerSecond = samplesPerMs * 1000;
 }
 
 void Engine::setWorkingDirectory(const Path& path)

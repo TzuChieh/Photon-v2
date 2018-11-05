@@ -52,8 +52,8 @@ void SamplingRenderWork::doWork()
 
 	m_numSamplesTaken = 0;
 	m_numMsElapsed    = 0;
-	/*setTotalWork(static_cast<uint32>(m_sampleGenerator->numSampleBatches()));
-	setWorkDone(0);*/
+	setTotalWork(m_sampleGenerator->numSampleBatches());
+	setWorkDone(0);
 
 	Estimation estimation;
 	Timer sampleTimer;
@@ -94,7 +94,7 @@ void SamplingRenderWork::doWork()
 		}// end for
 
 		m_renderer->asyncUpdateFilm(*this);
-		//incrementWorkDone();		
+		incrementWorkDone();		
 
 		sampleTimer.finish();
 
