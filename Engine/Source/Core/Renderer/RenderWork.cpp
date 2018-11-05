@@ -5,25 +5,25 @@
 namespace ph
 {
 
-void RenderWork::setTotalWork(const uint32 totalWork)
-{
-	PH_ASSERT(m_worker);
-
-	m_worker->setTotalWork(totalWork);
-}
-
-void RenderWork::setWorkDone(const uint32 workDone)
-{
-	PH_ASSERT(m_worker);
-
-	m_worker->setWorkDone(workDone);
-}
-
-void RenderWork::incrementWorkDone()
-{
-	PH_ASSERT(m_worker);
-
-	m_worker->incrementWorkDone();
-}
+//void RenderWork::setTotalWork(const uint32 totalWork)
+//{
+//	PH_ASSERT(m_worker);
+//
+//	m_worker->setTotalWork(totalWork);
+//}
+//
+//void RenderWork::setWorkDone(const uint32 workDone)
+//{
+//	PH_ASSERT(m_worker);
+//
+//	m_worker->setWorkDone(workDone);
+//}
+//
+//void RenderWork::incrementWorkDone()
+//{
+//	PH_ASSERT(m_worker);
+//
+//	m_worker->incrementWorkDone();
+//}
 
 }// end namespace ph

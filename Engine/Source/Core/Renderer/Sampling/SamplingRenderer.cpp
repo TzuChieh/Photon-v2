@@ -17,6 +17,7 @@
 #include "Core/Estimator/BNEEPTEstimator.h"
 #include "Core/Estimator/Integrand.h"
 #include "Core/Filmic/Vec3Film.h"
+#include "Utility/FixedSizeThreadPool.h"
 
 #include <cmath>
 #include <iostream>
@@ -56,46 +57,82 @@ void SamplingRenderer::init(const SdlResourcePack& data)
 	m_films.set<EAttribute::NORMAL>(std::make_unique<Vec3Film>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
 
-	m_works.resize(getNumRenderThreads());
+	m_works.resize(getNumWorkers());
 
 	RegionScheduler* scheduler = getRegionScheduler();
-	scheduler->setNumWorkers(getNumRenderThreads());
+	scheduler->setNumWorkers(getNumWorkers());
 	scheduler->setFullRegion(getRenderWindowPx());
 	scheduler->setSppBudget(m_sg->numSampleBatches());
 	scheduler->init();
 }
 
-bool SamplingRenderer::asyncSupplyWork(RenderWorker& worker)
+void SamplingRenderer::render()
 {
-	std::lock_guard<std::mutex> lock(m_rendererMutex);
-
-	RegionScheduler* scheduler = getRegionScheduler();
-	
-	Region region;
-	uint64 spp;
-	if(!scheduler->scheduleRegion(&region, &spp))
+	FixedSizeThreadPool workers(getNumWorkers());
+	for(std::size_t i = 0; i < getNumWorkers(); ++i)
 	{
-		return false;
+		RegionScheduler* scheduler = getRegionScheduler();
+			
+		Region region;
+		uint64 spp;
+		if(!scheduler->scheduleRegion(&region, &spp))
+		{
+			break;
+		}
+		
+		SamplingRenderWork work(
+			this,
+			m_estimator.get(),
+			Integrand(m_scene, m_camera),
+			m_films.genChild(getRenderWindowPx()),
+			m_sg->genCopied(spp),
+			m_requestedAttributes);
+		work.setDomainPx(getRenderWindowPx());
+		m_works[i] = std::move(work);
+		
+		workers.queueWork([this, i]()
+		{
+			m_works[i].doWork();
+		});
+		
+		float bestProgress, worstProgress;
+		scheduler->percentageProgress(&bestProgress, &worstProgress);
+		m_percentageProgress = static_cast<unsigned int>(worstProgress);
 	}
-
-	SamplingRenderWork work(
-		this,
-		m_estimator.get(),
-		Integrand(m_scene, m_camera),
-		m_films.genChild(getRenderWindowPx()),
-		m_sg->genCopied(spp),
-		m_requestedAttributes);
-	work.setDomainPx(getRenderWindowPx());
-	m_works[worker.getId()] = std::move(work);
-
-	worker.setWork(&(m_works[worker.getId()]));
-
-	float bestProgress, worstProgress;
-	scheduler->percentageProgress(&bestProgress, &worstProgress);
-	m_percentageProgress = static_cast<unsigned int>(worstProgress);
-
-	return true;
+	workers.waitAllWorks();
 }
+
+//bool SamplingRenderer::asyncSupplyWork(RenderWorker& worker)
+//{
+//	std::lock_guard<std::mutex> lock(m_rendererMutex);
+//
+//	RegionScheduler* scheduler = getRegionScheduler();
+//	
+//	Region region;
+//	uint64 spp;
+//	if(!scheduler->scheduleRegion(&region, &spp))
+//	{
+//		return false;
+//	}
+//
+//	SamplingRenderWork work(
+//		this,
+//		m_estimator.get(),
+//		Integrand(m_scene, m_camera),
+//		m_films.genChild(getRenderWindowPx()),
+//		m_sg->genCopied(spp),
+//		m_requestedAttributes);
+//	work.setDomainPx(getRenderWindowPx());
+//	m_works[worker.getId()] = std::move(work);
+//
+//	worker.setWork(&(m_works[worker.getId()]));
+//
+//	float bestProgress, worstProgress;
+//	scheduler->percentageProgress(&bestProgress, &worstProgress);
+//	m_percentageProgress = static_cast<unsigned int>(worstProgress);
+//
+//	return true;
+//}
 
 void SamplingRenderer::asyncUpdateFilm(SamplingRenderWork& work)
 {
@@ -107,15 +144,15 @@ void SamplingRenderer::asyncUpdateFilm(SamplingRenderWork& work)
 	addUpdatedRegion(work.m_films.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), false);
 }
 
-void SamplingRenderer::asyncSubmitWork(RenderWorker& worker)
-{
-	std::lock_guard<std::mutex> lock(m_rendererMutex);
-
-	mergeWorkFilms(m_works[worker.getId()]);
-
-	// HACK
-	addUpdatedRegion(m_works[worker.getId()].m_films.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), true);
-}
+//void SamplingRenderer::asyncSubmitWork(RenderWorker& worker)
+//{
+//	std::lock_guard<std::mutex> lock(m_rendererMutex);
+//
+//	mergeWorkFilms(m_works[worker.getId()]);
+//
+//	// HACK
+//	addUpdatedRegion(m_works[worker.getId()].m_films.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), true);
+//}
 
 void SamplingRenderer::clearWorkData()
 {
@@ -222,7 +259,7 @@ RenderStates SamplingRenderer::asyncQueryRenderStates()
 
 	uint64 totalWork     = 0;
 	uint64 totalWorkDone = 0;
-	for(uint32 workerId = 0; workerId < getNumRenderThreads(); workerId++)
+	for(uint32 workerId = 0; workerId < getNumWorkers(); workerId++)
 	{
 		const auto progress = asyncQueryWorkerProgress(workerId);
 

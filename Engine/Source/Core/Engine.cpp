@@ -36,13 +36,13 @@ void Engine::update()
 	m_filmSet.setProcessor(EAttribute::NORMAL, processor);
 
 	m_renderer = m_data.getRenderer();
-	m_renderer->setNumRenderThreads(m_numRenderThreads);
+	m_renderer->setNumWorkers(m_numRenderThreads);
 }
 
 void Engine::render()
 {
 	// HACK
-	m_renderer->render(m_data);
+	m_renderer->start(m_data);
 }
 
 void Engine::developFilm(

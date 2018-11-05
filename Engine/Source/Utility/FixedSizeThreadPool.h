@@ -13,7 +13,6 @@
 namespace ph
 {
 
-// TODO: templatize size
 class FixedSizeThreadPool final : public INoncopyable
 {
 public:
@@ -21,17 +20,25 @@ public:
 
 public:
 	FixedSizeThreadPool(std::size_t numWorkers);
+
+	// Terminates the pool, effectively the same as calling 
+	// requestTermination(). 
 	~FixedSizeThreadPool();
 
 	void queueWork(const Work& work);
 	void queueWork(Work&& work);
-	void requestExit();
+
+	// Blocks until all queued works are finished. New works can be queued
+	// after waiting is finished.
 	void waitAllWorks();
 
-	inline std::size_t numWorkers() const
-	{
-		return m_workers.size();
-	}
+	// Workers will stop processing queued works as soon as possible. Works 
+	// that are already being processed will still complete. No other 
+	// operations should be further performed after requesting termination. 
+	// Requesting termination multiple times has the same effect.
+	void requestTermination();
+
+	std::size_t numWorkers() const;
 
 private:
 	std::vector<std::thread> m_workers;
@@ -39,11 +46,18 @@ private:
 	std::mutex               m_poolMutex;
 	std::condition_variable  m_workersCv;
 	std::condition_variable  m_allWorksDoneCv;
-	bool                     m_isExitRequested;
+	bool                     m_isTerminationRequested;
 	uint64                   m_numQueuedWorks;
 	uint64                   m_numProcessedWorks;
 
 	void asyncProcessWork();
 };
+
+// In-header Implementations:
+
+inline std::size_t FixedSizeThreadPool::numWorkers() const
+{
+	return m_workers.size();
+}
 
 }// end namespace ph

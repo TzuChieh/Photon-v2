@@ -32,12 +32,30 @@
 			}\
 		} while(0)
 
-	#define PH_ASSERT(condition) PH_ASSERT_MSG(condition, "")
-
-	#define PH_ASSERT_UNREACHABLE_SECTION() PH_ASSERT_MSG(false, "executing supposedly unreachable code")
-
 #else
 	#define PH_ASSERT_MSG(condition, message)
-	#define PH_ASSERT(condition)
-	#define PH_ASSERT_UNREACHABLE_SECTION()
 #endif
+
+#define PH_ASSERT(condition)\
+	PH_ASSERT_MSG(condition, "")
+
+#define PH_ASSERT_UNREACHABLE_SECTION()\
+	PH_ASSERT_MSG(false, "executing supposedly unreachable code")
+
+#define PH_ASSERT_EQ(a, b)\
+	PH_ASSERT_MSG(a == b, std::string(#a) + " = " + std::to_string(a) + ", " + #b + " = " + std::to_string(b))
+
+#define PH_ASSERT_NE(a, b)\
+	PH_ASSERT_MSG(a != b, std::string(#a) + " = " + std::to_string(a) + ", " + #b + " = " + std::to_string(b))
+
+#define PH_ASSERT_GT(a, b)\
+	PH_ASSERT_MSG(a > b, std::string(#a) + " = " + std::to_string(a) + ", " + #b + " = " + std::to_string(b))
+
+#define PH_ASSERT_LT(a, b)\
+	PH_ASSERT_MSG(a < b, std::string(#a) + " = " + std::to_string(a) + ", " + #b + " = " + std::to_string(b))
+
+#define PH_ASSERT_GE(a, b)\
+	PH_ASSERT_MSG(a >= b, std::string(#a) + " = " + std::to_string(a) + ", " + #b + " = " + std::to_string(b))
+
+#define PH_ASSERT_LE(a, b)\
+	PH_ASSERT_MSG(a <= b, std::string(#a) + " = " + std::to_string(a) + ", " + #b + " = " + std::to_string(b))

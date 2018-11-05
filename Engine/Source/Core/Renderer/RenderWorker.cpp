@@ -25,11 +25,11 @@ RenderWorker::RenderWorker(const RenderWorker& other) :
 
 void RenderWorker::run()
 {
-	while(m_renderer.supplyWork(*this))
-	{
+	/*while(m_renderer.supplyWork(*this))
+	{*/
 		doWork();
-		m_renderer.submitWork(*this);
-	}
+		/*m_renderer.submitWork(*this);
+	}*/
 }
 
 void RenderWorker::doWork()
@@ -47,7 +47,7 @@ void RenderWorker::setWork(RenderWork* const work)
 	m_work = work;
 	if(m_work)
 	{
-		m_work->setWorker(this);
+		//m_work->setWorker(this);
 	}
 }
 

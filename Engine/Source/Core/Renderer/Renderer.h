@@ -36,8 +36,7 @@ public:
 
 	virtual AttributeTags supportedAttributes() const = 0;
 	virtual void init(const SdlResourcePack& data) = 0;
-	virtual bool asyncSupplyWork(RenderWorker& worker) = 0;
-	virtual void asyncSubmitWork(RenderWorker& worker) = 0;
+	virtual void render() = 0;
 	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) = 0;
 	virtual RenderStates asyncQueryRenderStates() = 0;
 
@@ -50,21 +49,20 @@ public:
 		const Region& region, 
 		EAttribute    attribute) = 0;
 
-
-	void render(const SdlResourcePack& description);
-	void setNumRenderThreads(uint32 numThreads);
+	void start(const SdlResourcePack& description);
+	void setNumWorkers(uint32 numWorkers);
 	void asyncQueryStatistics(float32* out_percentageProgress, 
 	                          float32* out_samplesPerSecond);
 	RenderProgress asyncQueryWorkerProgress(uint32 workerId);
 
-	uint32           getNumRenderThreads() const;
+	uint32           getNumWorkers()       const;
 	uint32           getRenderWidthPx()    const;
 	uint32           getRenderHeightPx()   const;
 	TAABB2D<int64>   getRenderWindowPx()   const;
 	RegionScheduler* getRegionScheduler()  const;
 
 private:
-	uint32         m_numThreads;
+	uint32         m_numWorkers;
 	uint32         m_widthPx;
 	uint32         m_heightPx;
 	TAABB2D<int64> m_windowPx;
@@ -81,9 +79,9 @@ public:
 
 // In-header Implementations:
 
-inline uint32 Renderer::getNumRenderThreads() const
+inline uint32 Renderer::getNumWorkers() const
 {
-	return m_numThreads;
+	return m_numWorkers;
 }
 
 inline uint32 Renderer::getRenderWidthPx() const

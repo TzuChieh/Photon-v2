@@ -19,7 +19,10 @@ class mipmapgen final : public INoncopyable
 {
 public:
 	mipmapgen(const std::size_t numThreads);
-	~mipmapgen() = default;
+	~mipmapgen()
+	{
+		m_workers.waitAllWorks();
+	}
 
 	// Generates a series of MIP levels from specified source frame.
 	// Mipmaps are stored in the returned vector, where level 0 is source frame.

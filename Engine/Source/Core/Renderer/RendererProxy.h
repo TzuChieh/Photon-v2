@@ -19,8 +19,8 @@ public:
 	RendererProxy();
 	RendererProxy(Renderer* renderer);
 
-	bool supplyWork(RenderWorker& worker);
-	void submitWork(RenderWorker& worker);
+	/*bool supplyWork(RenderWorker& worker);
+	void submitWork(RenderWorker& worker);*/
 
 private:
 	Renderer* m_renderer;

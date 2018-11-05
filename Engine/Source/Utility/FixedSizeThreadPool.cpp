@@ -1,4 +1,5 @@
 #include "Utility/FixedSizeThreadPool.h"
+#include "Common/assertion.h"
 
 #include <iostream>
 
@@ -8,7 +9,7 @@ namespace ph
 FixedSizeThreadPool::FixedSizeThreadPool(const std::size_t numThreads) : 
 	m_workers(numThreads), m_works(), 
 	m_poolMutex(), m_workersCv(), m_allWorksDoneCv(),
-	m_isExitRequested(false),
+	m_isTerminationRequested(false),
 	m_numQueuedWorks(0), m_numProcessedWorks(0)
 {
 	for(auto& worker : m_workers)
@@ -22,10 +23,9 @@ FixedSizeThreadPool::FixedSizeThreadPool(const std::size_t numThreads) :
 
 FixedSizeThreadPool::~FixedSizeThreadPool()
 {
-	requestExit();
-	waitAllWorks();
+	requestTermination();
 
-	// wait for works that are still processing to finish
+	// wait for any workers that are still processing to finish
 	for(auto& worker : m_workers)
 	{
 		if(worker.joinable())
@@ -46,7 +46,7 @@ void FixedSizeThreadPool::queueWork(const Work& work)
 		m_numQueuedWorks++;
 	}
 
-	m_workersCv.notify_all();
+	m_workersCv.notify_one();
 }
 
 // Essentially the same as its const reference variant, except work is moved.
@@ -59,7 +59,7 @@ void FixedSizeThreadPool::queueWork(Work&& work)
 		m_numQueuedWorks++;
 	}
 
-	m_workersCv.notify_all();
+	m_workersCv.notify_one();
 }
 
 void FixedSizeThreadPool::asyncProcessWork()
@@ -72,11 +72,11 @@ void FixedSizeThreadPool::asyncProcessWork()
 		// be processed
 		m_workersCv.wait(lock, [this]()
 		{
-			return !m_works.empty() || m_isExitRequested;
+			return !m_works.empty() || m_isTerminationRequested;
 		});
 
 		// we now own the lock after waiting
-		if(!m_works.empty())
+		if(!m_works.empty() && !m_isTerminationRequested)
 		{
 			Work work = std::move(m_works.front());
 			m_works.pop();
@@ -89,21 +89,23 @@ void FixedSizeThreadPool::asyncProcessWork()
 			// current thread must own the lock before calling wait(2)
 			lock.lock();
 
+			PH_ASSERT_GT(m_numQueuedWorks, m_numProcessedWorks);
+
 			m_numProcessedWorks++;
 			if(m_numQueuedWorks == m_numProcessedWorks)
 			{
 				m_allWorksDoneCv.notify_all();
 			}
 		}
-	} while(!m_isExitRequested);
+	} while(!m_isTerminationRequested);
 }
 
-void FixedSizeThreadPool::requestExit()
+void FixedSizeThreadPool::requestTermination()
 {
 	{
 		std::lock_guard<std::mutex> lock(m_poolMutex);
 
-		m_isExitRequested = true;
+		m_isTerminationRequested = true;
 	}
 
 	m_workersCv.notify_all();
@@ -113,11 +115,20 @@ void FixedSizeThreadPool::waitAllWorks()
 {
 	std::unique_lock<std::mutex> lock(m_poolMutex);
 
-	// wait until being notified and all queued works are done
-	m_allWorksDoneCv.wait(lock, [this]()
+	PH_ASSERT(!m_isTerminationRequested);
+
+	if(m_numQueuedWorks != m_numProcessedWorks)
 	{
-		return m_numQueuedWorks == m_numProcessedWorks;
-	});
+		PH_ASSERT_GT(m_numQueuedWorks, m_numProcessedWorks);
+
+		// wait until being notified that all queued works are done
+		m_allWorksDoneCv.wait(lock, [this]()
+		{
+			return m_numQueuedWorks == m_numProcessedWorks;
+		});
+	}
+
+	PH_ASSERT_EQ(m_numQueuedWorks, m_numProcessedWorks);
 }
 
 }// end namespace ph

@@ -23,14 +23,15 @@ namespace ph
 
 Renderer::~Renderer() = default;
 
-void Renderer::render(const SdlResourcePack& data)
+void Renderer::start(const SdlResourcePack& data)
 {
 	Timer renderTimer;
 	renderTimer.start();
 
 	init(data);
+	render();
 
-	std::vector<std::thread> renderThreads(m_numThreads);
+	/*std::vector<std::thread> renderThreads(m_numWorkers);
 	for(uint32 ti = 0; ti < m_numThreads; ti++)
 	{
 		renderThreads[ti] = std::thread(&RenderWorker::run, &m_workers[ti]);
@@ -43,21 +44,21 @@ void Renderer::render(const SdlResourcePack& data)
 		renderThreads[ti].join();
 
 		std::cout << "worker<" << ti << "> finished" << std::endl;
-	}
+	}*/
 
 	renderTimer.finish();
 	std::cout << "rendering time: " << renderTimer.getDeltaMs() << " ms" << std::endl;
 }
 
-void Renderer::setNumRenderThreads(const uint32 numThreads)
+void Renderer::setNumWorkers(const uint32 numWorkers)
 {
-	m_numThreads = numThreads;
+	m_numWorkers = numWorkers;
 
-	m_workers.resize(numThreads);
+	/*m_workers.resize(numThreads);
 	for(uint32 ti = 0; ti < numThreads; ti++)
 	{
 		m_workers[ti] = RenderWorker(RendererProxy(this), ti);
-	}
+	}*/
 }
 
 // FIXME: without synchronizing, other threads may never observe m_workers being changed
@@ -86,16 +87,17 @@ void Renderer::asyncQueryStatistics(float32* const out_percentageProgress,
 // FIXME: without synchronizing, other threads may never observe m_workers being changed
 RenderProgress Renderer::asyncQueryWorkerProgress(const uint32 workerId)
 {
-	PH_ASSERT(workerId < m_workers.size());
+	/*PH_ASSERT(workerId < m_workers.size());
 
-	return m_workers[workerId].asyncQueryProgress();
+	return m_workers[workerId].asyncQueryProgress();*/
+	return RenderProgress();
 }
 
 // command interface
 
 Renderer::Renderer(const InputPacket& packet)
 {
-	setNumRenderThreads(1);
+	setNumWorkers(1);
 
 	const integer filmWidth  = packet.getInteger("width",  1280, DataTreatment::REQUIRED());
 	const integer filmHeight = packet.getInteger("height", 720,  DataTreatment::REQUIRED());

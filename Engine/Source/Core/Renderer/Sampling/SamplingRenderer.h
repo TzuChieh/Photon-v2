@@ -25,8 +25,7 @@ public:
 
 	AttributeTags supportedAttributes() const override;
 	void init(const SdlResourcePack& data) override;
-	bool asyncSupplyWork(RenderWorker& worker) override;
-	void asyncSubmitWork(RenderWorker& worker) override;
+	void render() override;
 	ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;
 	RenderStates asyncQueryRenderStates() override;
 

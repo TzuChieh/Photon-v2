@@ -42,7 +42,7 @@ void PPMRenderer::init(const SdlResourcePack& data)
 	std::cerr << "ray tracing work finished" << std::endl;
 	std::cerr << "size of viewpoint buffer: " << sizeof(Viewpoint) * numPixels / 1024 / 1024 << " MB" << std::endl;
 
-	std::size_t numPhotons = 400000;
+	std::size_t numPhotons = 200000;
 	std::vector<Photon> photonBuffer(numPhotons);
 
 	std::cerr << "numPhotons = " << numPhotons << std::endl;
@@ -82,13 +82,16 @@ void PPMRenderer::init(const SdlResourcePack& data)
 	}*/
 }
 
-bool PPMRenderer::asyncSupplyWork(RenderWorker& worker)
-{
-	return false;
-}
-
-void PPMRenderer::asyncSubmitWork(RenderWorker& worker)
+void PPMRenderer::render()
 {}
+
+//bool PPMRenderer::asyncSupplyWork(RenderWorker& worker)
+//{
+//	return false;
+//}
+//
+//void PPMRenderer::asyncSubmitWork(RenderWorker& worker)
+//{}
 
 ERegionStatus PPMRenderer::asyncPollUpdatedRegion(Region* out_region)
 {
