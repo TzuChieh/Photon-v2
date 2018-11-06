@@ -9,13 +9,6 @@
 namespace ph
 {
 
-AttributeTags PPMRenderer::supportedAttributes() const
-{
-	AttributeTags supported;
-	supported.tag(EAttribute::LIGHT_ENERGY);
-	return supported;
-}
-
 void PPMRenderer::doUpdate(const SdlResourcePack& data)
 {
 	m_film = std::make_unique<HdrRgbFilm>(getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
@@ -85,14 +78,6 @@ void PPMRenderer::doUpdate(const SdlResourcePack& data)
 void PPMRenderer::doRender()
 {}
 
-//bool PPMRenderer::asyncSupplyWork(RenderWorker& worker)
-//{
-//	return false;
-//}
-//
-//void PPMRenderer::asyncSubmitWork(RenderWorker& worker)
-//{}
-
 ERegionStatus PPMRenderer::asyncPollUpdatedRegion(Region* out_region)
 {
 	return ERegionStatus::INVALID;
@@ -108,12 +93,41 @@ RenderProgress PPMRenderer::asyncQueryRenderProgress()
 	return RenderProgress(0, 0);
 }
 
-void PPMRenderer::asyncDevelopFilmRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute)
+void PPMRenderer::asyncDevelopRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute)
 {}
 
 void PPMRenderer::develop(HdrRgbFrame& out_frame, EAttribute attribute)
 {
 	m_film->develop(out_frame);
+}
+
+AttributeTags PPMRenderer::supportedAttributes() const
+{
+	AttributeTags supported;
+	supported.tag(EAttribute::LIGHT_ENERGY);
+	return supported;
+}
+
+std::string PPMRenderer::renderStateName(const RenderState::EType type, const std::size_t index) const
+{
+	PH_ASSERT_LT(index, RenderState::numStates(type));
+
+	if(type == RenderState::EType::INTEGER)
+	{
+		return "";
+	}
+	else if(type == RenderState::EType::REAL)
+	{
+		switch(index)
+		{
+		//case 0: return "samples/second";
+		default: return "";
+		}
+	}
+	else
+	{
+		return "";
+	}
 }
 
 // command interface

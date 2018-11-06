@@ -32,12 +32,6 @@ namespace ph
 
 SamplingRenderer::~SamplingRenderer() = default;
 
-AttributeTags SamplingRenderer::supportedAttributes() const
-{
-	PH_ASSERT(m_estimator);
-	return m_estimator->supportedAttributes();
-}
-
 void SamplingRenderer::doUpdate(const SdlResourcePack& data)
 {
 	clearWorkData();
@@ -147,7 +141,7 @@ ERegionStatus SamplingRenderer::asyncPollUpdatedRegion(Region* const out_region)
 	}
 }
 
-void SamplingRenderer::asyncDevelopFilmRegion(
+void SamplingRenderer::asyncDevelopRegion(
 	HdrRgbFrame&     out_frame, 
 	const Region&    region, 
 	const EAttribute attribute)
@@ -167,7 +161,7 @@ void SamplingRenderer::asyncDevelopFilmRegion(
 
 void SamplingRenderer::develop(HdrRgbFrame& out_frame, const EAttribute attribute)
 {
-	asyncDevelopFilmRegion(out_frame, getRenderWindowPx(), attribute);
+	asyncDevelopRegion(out_frame, getRenderWindowPx(), attribute);
 }
 
 void SamplingRenderer::mergeWorkFilms(SamplingRenderWork& work)
@@ -210,9 +204,8 @@ RenderState SamplingRenderer::asyncQueryRenderState()
 	const float32 samplesPerMs = totalElapsedMs != 0 ?
 		static_cast<float32>(m_works.size() * totalNumSamples) / static_cast<float32>(totalElapsedMs) : 0.0f;
 
-
 	RenderState state;
-	state.setRealState(0, samplesPerMs);
+	state.setRealState(0, samplesPerMs * 1000);
 	return state;
 }
 
@@ -227,6 +220,34 @@ RenderProgress SamplingRenderer::asyncQueryRenderProgress()
 	}
 
 	return totalProgress;
+}
+
+AttributeTags SamplingRenderer::supportedAttributes() const
+{
+	PH_ASSERT(m_estimator);
+	return m_estimator->supportedAttributes();
+}
+
+std::string SamplingRenderer::renderStateName(const RenderState::EType type, const std::size_t index) const
+{
+	PH_ASSERT_LT(index, RenderState::numStates(type));
+
+	if(type == RenderState::EType::INTEGER)
+	{
+		return "";
+	}
+	else if(type == RenderState::EType::REAL)
+	{
+		switch(index)
+		{
+		case 0: return "samples/second";
+		default: return "";
+		}
+	}
+	else
+	{
+		return "";
+	}
 }
 
 // command interface

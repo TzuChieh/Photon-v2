@@ -161,6 +161,43 @@ void phGetFilmDimension(const PHuint64 engineId, PHuint32* const out_widthPx, PH
 	}
 }
 
+void phGetRenderStateName(
+	const PHuint64            engineId,
+	const PH_ERenderStateType type,
+	const PHuint32            stateIndex,
+	PHchar* const             out_nameBuffer,
+	const PHuint32            bufferSize)
+{
+	PH_ASSERT(out_nameBuffer);
+
+	using namespace ph;
+
+	Engine* engine = ApiDatabase::getEngine(engineId);
+	if(engine)
+	{
+		std::string name;
+		if(type == INTEGER)
+		{
+			name = engine->getRenderer()->renderStateName(
+				RenderState::EType::INTEGER, 
+				static_cast<std::size_t>(stateIndex));
+		}
+		else if(type == REAL)
+		{
+			name = engine->getRenderer()->renderStateName(
+				RenderState::EType::REAL,
+				static_cast<std::size_t>(stateIndex));
+		}
+
+		std::size_t nameLength = std::min(name.length(), static_cast<std::size_t>(bufferSize - 1));
+		for(std::size_t i = 0; i < nameLength; ++i)
+		{
+			out_nameBuffer[i] = name[i];
+		}
+		out_nameBuffer[nameLength] = '\0';
+	}
+}
+
 void phCreateFrame(PHuint64* const out_frameId,
                    const PHuint32 widthPx, const PHuint32 heightPx)
 {
@@ -238,6 +275,30 @@ void phAsyncGetRendererStatistics(const PHuint64 engineId,
 
 		*out_percentageProgress = static_cast<PHfloat32>(percentageProgress);
 		*out_samplesPerSecond   = static_cast<PHfloat32>(samplesPerSecond);
+	}
+}
+
+void phAsyncGetRendererState(
+	const PHuint64               engineId,
+	struct PH_RenderState* const out_state)
+{
+	PH_ASSERT(out_state);
+
+	using namespace ph;
+
+	Engine* engine = ApiDatabase::getEngine(engineId);
+	if(engine)
+	{
+		const RenderState state = engine->getRenderer()->asyncQueryRenderState();
+
+		for(std::size_t i = 0; i < PH_NUM_RENDER_STATE_INTEGERS; ++i)
+		{
+			out_state->integers[i] = static_cast<PHint64>(state.getIntegerState(i));
+		}
+		for(std::size_t i = 0; i < PH_NUM_RENDER_STATE_REALS; ++i)
+		{
+			out_state->reals[i] = static_cast<PHfloat32>(state.getRealState(i));
+		}
 	}
 }
 

@@ -21,6 +21,7 @@
 #include <memory>
 #include <atomic>
 #include <deque>
+#include <string>
 
 namespace ph
 {
@@ -34,21 +35,21 @@ class Renderer: public TCommandInterface<Renderer>
 public:
 	virtual ~Renderer();
 
-	virtual AttributeTags supportedAttributes() const = 0;
 	virtual void doUpdate(const SdlResourcePack& data) = 0;
 	virtual void doRender() = 0;
+	virtual void develop(HdrRgbFrame& out_frame, EAttribute attribute) = 0;
+
 	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) = 0;
 	virtual RenderState asyncQueryRenderState() = 0;
 	virtual RenderProgress asyncQueryRenderProgress() = 0;
 
-	// TODO: this can somehow combine with its async version
-	virtual void develop(HdrRgbFrame& out_frame, EAttribute attribute) = 0;
-
-	// TODO: remove the word "Film"
-	virtual void asyncDevelopFilmRegion(
+	virtual void asyncDevelopRegion(
 		HdrRgbFrame&  out_frame, 
 		const Region& region, 
 		EAttribute    attribute) = 0;
+
+	virtual AttributeTags supportedAttributes() const = 0;
+	virtual std::string renderStateName(RenderState::EType type, std::size_t index) const = 0;
 
 	void update(const SdlResourcePack& data);
 	void render();

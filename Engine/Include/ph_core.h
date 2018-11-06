@@ -73,6 +73,25 @@ enum PH_EATTRIBUTE
 	DEPTH
 };
 
+#define PH_NUM_RENDER_STATE_INTEGERS 3
+#define PH_NUM_RENDER_STATE_REALS    3
+
+struct PH_RenderState
+{
+	PHint64   integers[PH_NUM_RENDER_STATE_INTEGERS];
+	PHfloat32 reals[PH_NUM_RENDER_STATE_REALS];
+};
+
+enum PH_ERenderStateType
+{
+	INTEGER,
+	REAL
+};
+
+#define PH_FILM_REGION_STATUS_INVALID  -1
+#define PH_FILM_REGION_STATUS_UPDATING 1
+#define PH_FILM_REGION_STATUS_FINISHED 2
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -101,6 +120,14 @@ extern PH_API void phRender(PHuint64 engineId);
 extern PH_API void phUpdate(PHuint64 engineId);
 
 extern PH_API void phGetFilmDimension(PHuint64 engineId, PHuint32* out_widthPx, PHuint32* out_heightPx);
+
+extern PH_API void phGetRenderStateName(
+	PHuint64            engineId, 
+	PH_ERenderStateType type,
+	PHuint32            stateIndex, 
+	PHchar*             out_nameBuffer, 
+	PHuint32            bufferSize);
+
 extern PH_API void phDeleteEngine(PHuint64 engineId);
 extern PH_API void phSetWorkingDirectory(PHuint64 engineId, const PHchar* workingDirectory);
 
@@ -121,14 +148,14 @@ extern PH_API void phSaveFrame(PHuint64 frameId, const PHchar* filePath);
 // asynchronous operations
 //
 
-#define PH_FILM_REGION_STATUS_INVALID  -1
-#define PH_FILM_REGION_STATUS_UPDATING 1
-#define PH_FILM_REGION_STATUS_FINISHED 2
-
 extern PH_API void phAsyncGetRendererStatistics(
 	PHuint64                 engineId,
 	PHfloat32*               out_percentageProgress,
 	PHfloat32*               out_samplesPerSecond);
+
+extern PH_API void phAsyncGetRendererState(
+	PHuint64                 engineId,
+	struct PH_RenderState*   out_state);
 
 extern PH_API int  phAsyncPollUpdatedFilmRegion(
 	PHuint64                 engineId,

@@ -83,7 +83,7 @@ void Engine::asyncDevelopFilmRegion(
 	const EAttribute        attribute,
 	const bool              applyPostProcessing) const
 {
-	m_renderer->asyncDevelopFilmRegion(out_frame, region, attribute);
+	m_renderer->asyncDevelopRegion(out_frame, region, attribute);
 
 	if(applyPostProcessing)
 	{
@@ -101,8 +101,7 @@ void Engine::asyncQueryStatistics(
 	RenderProgress progress = m_renderer->asyncQueryRenderProgress();
 	RenderState state = m_renderer->asyncQueryRenderState();
 	*out_percentageProgress = progress.getPercentageProgress();
-	float32 samplesPerMs = state.getRealState(0);
-	*out_samplesPerSecond = samplesPerMs * 1000;
+	*out_samplesPerSecond = state.getRealState(0);
 }
 
 void Engine::setWorkingDirectory(const Path& path)

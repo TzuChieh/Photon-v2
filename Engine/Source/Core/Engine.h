@@ -50,6 +50,8 @@ public:
 
 	void setWorkingDirectory(const Path& path);
 
+	Renderer* getRenderer() const;
+
 private:
 	SdlParser       m_parser;
 	SdlResourcePack m_data;
@@ -58,5 +60,14 @@ private:
 
 	FilmSet m_filmSet;
 };
+
+// In-header Implementations:
+
+inline Renderer* Engine::getRenderer() const
+{
+	PH_ASSERT(m_renderer);
+
+	return m_renderer.get();
+}
 
 }// end namespace ph
