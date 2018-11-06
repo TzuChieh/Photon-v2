@@ -17,6 +17,7 @@ import photonApi.Ph;
 import photonApi.PhEngine;
 import photonApi.PhFrame;
 import photonApi.Rectangle;
+import photonApi.RenderState;
 import photonApi.Statistics;
 
 public final class Project extends ManageableResource
@@ -142,6 +143,11 @@ public final class Project extends ManageableResource
 		return status;
 	}
 	
+	public RenderState asyncGetRenderState()
+	{
+		return m_engine.asyncGetRenderState();
+	}
+	
 	private void opRenderScene()
 	{
 		EditorApp.printToConsole("rendering scene...");
@@ -161,7 +167,18 @@ public final class Project extends ManageableResource
 		File sceneFile = new File(filePath);
 		m_engine.setWorkingDirectory(sceneFile.getParent());
 		m_engine.loadCommand(filePath);
+		
 		m_engine.update();
+		
+		// HACK
+		for(int i = 0; i < 3; ++i)
+		{
+			System.out.println("integer render state name " + i + " = " + m_engine.getIntegerRenderStateName(i));
+		}
+		for(int i = 0; i < 3; ++i)
+		{
+			System.out.println("real render state name " + i + " = " + m_engine.getRealRenderStateName(i));
+		}
 		
 		FilmInfo info = m_engine.getFilmInfo();
 		if(info.widthPx  != m_finalFrame.widthPx() || 

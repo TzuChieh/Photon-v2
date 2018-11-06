@@ -136,6 +136,30 @@ public final class PhEngine
 		return m_numRenderThreads;
 	}
 	
+	public RenderState asyncGetRenderState()
+	{
+		RenderState state = new RenderState();
+		Ph.phAsyncGetRendererState(m_engineId, state);
+		return state;
+	}
+	
+	public String getIntegerRenderStateName(int index)
+	{
+		return getRenderStateName(Ph.RENDER_STATE_INTEGER, index);
+	}
+	
+	public String getRealRenderStateName(int index)
+	{
+		return getRenderStateName(Ph.RENDER_STATE_REAL, index);
+	}
+	
+	private String getRenderStateName(int type, int index)
+	{
+		StringRef name = new StringRef();
+		Ph.phGetRenderStateName(m_engineId, type, index, name);
+		return name.m_value;
+	}
+	
 	@Override
 	protected void finalize()
 	{

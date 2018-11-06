@@ -358,25 +358,23 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncGetRendererState
 	struct PH_RenderState state;
 	phAsyncGetRendererState(static_cast<PHuint64>(engineId), &state);
 
-	jclass   class_RenderState   = env->GetObjectClass(out_RenderState_state);
-	jfieldID field_integerStates = env->GetFieldID(class_RenderState, "integerStates", JAVA_LONG_ARRAY_SIGNATURE);
-	jfieldID field_realStates    = env->GetFieldID(class_RenderState, "realStates",    JAVA_FLOAT_ARRAY_SIGNATURE);
+	jlongArray jLongArray = env->NewLongArray(PH_NUM_RENDER_STATE_INTEGERS);
+	for(std::size_t i = 0; i < PH_NUM_RENDER_STATE_INTEGERS; ++i)
+	{
+		const jlong value = static_cast<jlong>(state.integers[i]);
+		env->SetLongArrayRegion(jLongArray, static_cast<jsize>(i), 1, &value);
+	}
 
 	jfloatArray jFloatArray = env->NewFloatArray(PH_NUM_RENDER_STATE_REALS);
 	for(std::size_t i = 0; i < PH_NUM_RENDER_STATE_REALS; ++i)
 	{
-		const std::size_t dataStartIndex = (static_cast<std::size_t>(y) * widthPx +
-			static_cast<std::size_t>(xPx)) * static_cast<std::size_t>(numComp);
-
-		const jsize arrayOffset = static_cast<jsize>(y - yPx) * static_cast<jsize>(wPx) * numComp;
-		const jsize length = static_cast<jsize>(wPx) * numComp;
-
-		env->SetFloatArrayRegion(object_float_array,
-			arrayOffset, length,
-			static_cast<const jfloat*>(rgbData + dataStartIndex));
+		const jfloat value = static_cast<jfloat>(state.reals[i]);
+		env->SetFloatArrayRegion(jFloatArray, static_cast<jsize>(i), 1, &value);
 	}
 
-	jclass   class_FloatArrayRef = env->GetObjectClass(out_FloatArrayRef_rgbData);
-	jfieldID field_m_value = env->GetFieldID(class_FloatArrayRef, "m_value", JAVA_FLOAT_ARRAY_SIGNATURE);
-	env->SetObjectField(out_FloatArrayRef_rgbData, field_m_value, object_float_array);
+	jclass   class_RenderState   = env->GetObjectClass(out_RenderState_state);
+	jfieldID field_integerStates = env->GetFieldID(class_RenderState, "integerStates", JAVA_LONG_ARRAY_SIGNATURE);
+	jfieldID field_realStates    = env->GetFieldID(class_RenderState, "realStates",    JAVA_FLOAT_ARRAY_SIGNATURE);
+	env->SetObjectField(out_RenderState_state, field_integerStates, jLongArray);
+	env->SetObjectField(out_RenderState_state, field_realStates,    jFloatArray);
 }

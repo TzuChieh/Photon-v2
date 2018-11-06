@@ -43,6 +43,7 @@ import photonApi.FrameRegion;
 import photonApi.FrameStatus;
 import photonApi.Ph;
 import photonApi.Rectangle;
+import photonApi.RenderState;
 import photonApi.Statistics;
 import photonApi.Vector3f;
 import util.Time;
@@ -170,6 +171,17 @@ public class EditorCtrl
 						timeSpentLabel.setText((long)(renderTimeMs / 1000.0) + " s");
 						timeRemainingLabel.setText((long)(remainingRenderTimeMs / 1000.0) + " s");
 					});
+					
+					// HACK
+					RenderState state = m_project.asyncGetRenderState();
+					for(int i = 0; i < 3; ++i)
+					{
+						System.out.println("integer state " + i + " = " + state.integerStates[i]);
+					}
+					for(int i = 0; i < 3; ++i)
+					{
+						System.out.println("real state " + i + " = " + state.realStates[i]);
+					}
 					
 					// TODO: need to add these monitoring attributes to a project's data, 
 					// otherwise other finished projects (with work done = 100%) will cause
