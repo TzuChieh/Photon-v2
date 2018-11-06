@@ -47,9 +47,7 @@ std::unordered_map<std::string, jfieldID> JObject<T>::map_fieldName_jfieldID;
 template<typename T>
 JObject<T>::JObject(jobject m_jobject, JNIEnv* m_env) : 
 	m_jobject(m_jobject), m_env(m_env)
-{
-
-}
+{}
 
 template<typename T>
 JObject<T>::~JObject() = default;

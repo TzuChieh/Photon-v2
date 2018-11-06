@@ -4,10 +4,12 @@
 #include "JFloatRef.h"
 #include "JniUtil.h"
 #include "JniHelper.h"
+#include "java_type_signature.h"
 
 #include <ph_core.h>
 
 #include <iostream>
+#include <array>
 
 /*
 * Class:     photonApi_Ph
@@ -241,7 +243,7 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phCopyFrameRgbData__JIIIILphotonApi_Flo
 	}
 
 	jclass   class_FloatArrayRef = env->GetObjectClass(out_FloatArrayRef_rgbData);
-	jfieldID field_m_value       = env->GetFieldID(class_FloatArrayRef, "m_value", "[F");
+	jfieldID field_m_value       = env->GetFieldID(class_FloatArrayRef, "m_value", JAVA_FLOAT_ARRAY_SIGNATURE);
 	env->SetObjectField(out_FloatArrayRef_rgbData, field_m_value, object_float_array);
 }
 
@@ -311,4 +313,70 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncDevelopFilmRegion
 	                         static_cast<PHuint32>(yPx),
 	                         static_cast<PHuint32>(wPx),
 	                         static_cast<PHuint32>(hPx), ph::JniHelper::toCAttribute(attribute));
+}
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phGetRenderStateName
+ * Signature: (JIILphotonApi/StringRef;)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phGetRenderStateName
+(JNIEnv* env, jclass thiz, jlong engineId, jint type, jint index, jobject out_StringRef_name)
+{
+	enum PH_ERenderStateType stateType;
+	if(type == photonApi_Ph_RENDER_STATE_INTEGER)
+	{
+		stateType = INTEGER;
+	}
+	else if(type == photonApi_Ph_RENDER_STATE_REAL)
+	{
+		stateType = REAL;
+	}
+
+	std::array<PHchar, 128> nameBuffer;
+	phGetRenderStateName(
+		static_cast<PHuint64>(engineId), 
+		stateType, 
+		static_cast<PHuint32>(index), 
+		nameBuffer.data(), 
+		static_cast<PHuint32>(nameBuffer.size()));
+
+	jclass   class_StringRef = env->GetObjectClass(out_StringRef_name);
+	jfieldID field_m_value   = env->GetFieldID(class_StringRef, "m_value", JAVA_STRING_SIGNATURE);
+	jstring  jNameString     = env->NewStringUTF(nameBuffer.data());
+	env->SetObjectField(out_StringRef_name, field_m_value, jNameString);
+}
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phAsyncGetRendererState
+ * Signature: (JLphotonApi/RenderState;)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncGetRendererState
+(JNIEnv* env, jclass thiz, jlong engineId, jobject out_RenderState_state)
+{
+	struct PH_RenderState state;
+	phAsyncGetRendererState(static_cast<PHuint64>(engineId), &state);
+
+	jclass   class_RenderState   = env->GetObjectClass(out_RenderState_state);
+	jfieldID field_integerStates = env->GetFieldID(class_RenderState, "integerStates", JAVA_LONG_ARRAY_SIGNATURE);
+	jfieldID field_realStates    = env->GetFieldID(class_RenderState, "realStates",    JAVA_FLOAT_ARRAY_SIGNATURE);
+
+	jfloatArray jFloatArray = env->NewFloatArray(PH_NUM_RENDER_STATE_REALS);
+	for(std::size_t i = 0; i < PH_NUM_RENDER_STATE_REALS; ++i)
+	{
+		const std::size_t dataStartIndex = (static_cast<std::size_t>(y) * widthPx +
+			static_cast<std::size_t>(xPx)) * static_cast<std::size_t>(numComp);
+
+		const jsize arrayOffset = static_cast<jsize>(y - yPx) * static_cast<jsize>(wPx) * numComp;
+		const jsize length = static_cast<jsize>(wPx) * numComp;
+
+		env->SetFloatArrayRegion(object_float_array,
+			arrayOffset, length,
+			static_cast<const jfloat*>(rgbData + dataStartIndex));
+	}
+
+	jclass   class_FloatArrayRef = env->GetObjectClass(out_FloatArrayRef_rgbData);
+	jfieldID field_m_value = env->GetFieldID(class_FloatArrayRef, "m_value", JAVA_FLOAT_ARRAY_SIGNATURE);
+	env->SetObjectField(out_FloatArrayRef_rgbData, field_m_value, object_float_array);
 }

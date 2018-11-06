@@ -19,6 +19,10 @@ extern "C" {
 #define photonApi_Ph_FILM_REGION_STATUS_UPDATING 1L
 #undef photonApi_Ph_FILM_REGION_STATUS_FINISHED
 #define photonApi_Ph_FILM_REGION_STATUS_FINISHED 2L
+#undef photonApi_Ph_RENDER_STATE_INTEGER
+#define photonApi_Ph_RENDER_STATE_INTEGER 0L
+#undef photonApi_Ph_RENDER_STATE_REAL
+#define photonApi_Ph_RENDER_STATE_REAL 1L
 /*
  * Class:     photonApi_Ph
  * Method:    phInit
@@ -93,6 +97,14 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phGetFilmDimension
 
 /*
  * Class:     photonApi_Ph
+ * Method:    phGetRenderStateName
+ * Signature: (JIILphotonApi/StringRef;)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phGetRenderStateName
+  (JNIEnv *, jclass, jlong, jint, jint, jobject);
+
+/*
+ * Class:     photonApi_Ph
  * Method:    phDeleteEngine
  * Signature: (J)V
  */
@@ -162,6 +174,14 @@ JNIEXPORT jint JNICALL Java_photonApi_Ph_phAsyncPollUpdatedFilmRegion
  */
 JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncDevelopFilmRegion
   (JNIEnv *, jclass, jlong, jlong, jint, jint, jint, jint, jint);
+
+/*
+ * Class:     photonApi_Ph
+ * Method:    phAsyncGetRendererState
+ * Signature: (JLphotonApi/RenderState;)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncGetRendererState
+  (JNIEnv *, jclass, jlong, jobject);
 
 #ifdef __cplusplus
 }

@@ -15,6 +15,13 @@ public final class Ph
 	public static final int ATTRIBUTE_NORMAL       = 1;
 	public static final int ATTRIBUTE_DEPTH        = 2;
 	
+	public static final int FILM_REGION_STATUS_INVALID  = 0;
+	public static final int FILM_REGION_STATUS_UPDATING = 1;
+	public static final int FILM_REGION_STATUS_FINISHED = 2;
+	
+	public static final int RENDER_STATE_INTEGER = 0;
+	public static final int RENDER_STATE_REAL    = 1;
+	
 	// core
 	
 	public static native boolean phInit();
@@ -27,6 +34,8 @@ public final class Ph
 	public static native void phRender(long engineId);
 	public static native void phDevelopFilm(long engineId, long frameId, int attribute);
 	public static native void phGetFilmDimension(long engineId, IntRef out_widthPx, IntRef out_heightPx);
+	public static native void phGetRenderStateName(long engineId, int type, int index, StringRef out_name);
+	
 	public static native void phDeleteEngine(long engineId);
 	public static native void phSetWorkingDirectory(long engineId, String workingDirectory);
 	
@@ -38,24 +47,32 @@ public final class Ph
 	
 	// asynchronous operations
 	
-	public static final int FILM_REGION_STATUS_INVALID  = 0;
-	public static final int FILM_REGION_STATUS_UPDATING = 1;
-	public static final int FILM_REGION_STATUS_FINISHED = 2;
+	public static native 
+	void phAsyncGetRendererStatistics(
+		long     engineId, 
+		FloatRef out_percentageProgress, 
+		FloatRef out_samplesPerSecond);
 	
-	public static native void phAsyncGetRendererStatistics(long engineId, 
-	                                                       FloatRef out_percentageProgress, 
-	                                                       FloatRef out_samplesPerSecond);
+	public static native 
+	int phAsyncPollUpdatedFilmRegion(
+		long   engineId, 
+		IntRef out_xPx, 
+		IntRef out_yPx, 
+		IntRef out_wPx, 
+		IntRef out_hPx);
 	
-	public static native int phAsyncPollUpdatedFilmRegion(long engineId, 
-	                                                      IntRef out_xPx, IntRef out_yPx, 
-	                                                      IntRef out_wPx, IntRef out_hPx);
-	
-	public static native void phAsyncDevelopFilmRegion(
+	public static native
+	void phAsyncDevelopFilmRegion(
 		long engineId, 
 		long frameId, 
-		int xPx, 
-		int yPx, 
-		int wPx, 
-		int hPx, 
-		int attribute);
+		int  xPx, 
+		int  yPx, 
+		int  wPx, 
+		int  hPx, 
+		int  attribute);
+	
+	public static native 
+	void phAsyncGetRendererState(
+		long        engineId, 
+		RenderState out_state);
 }

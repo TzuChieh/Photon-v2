@@ -122,17 +122,17 @@ extern PH_API void phUpdate(PHuint64 engineId);
 extern PH_API void phGetFilmDimension(PHuint64 engineId, PHuint32* out_widthPx, PHuint32* out_heightPx);
 
 extern PH_API void phGetRenderStateName(
-	PHuint64            engineId, 
-	PH_ERenderStateType type,
-	PHuint32            stateIndex, 
-	PHchar*             out_nameBuffer, 
-	PHuint32            bufferSize);
+	PHuint64                 engineId, 
+	enum PH_ERenderStateType type,
+	PHuint32                 stateIndex, 
+	PHchar*                  out_nameBuffer, 
+	PHuint32                 bufferSize);
 
 extern PH_API void phDeleteEngine(PHuint64 engineId);
 extern PH_API void phSetWorkingDirectory(PHuint64 engineId, const PHchar* workingDirectory);
 
-extern PH_API void phDevelopFilm(PHuint64 engineId, PHuint64 frameId, PH_EATTRIBUTE attribute);
-extern PH_API void phDevelopFilmRaw(PHuint64 engineId, PHuint64 frameId, PH_EATTRIBUTE attribute);
+extern PH_API void phDevelopFilm(PHuint64 engineId, PHuint64 frameId, enum PH_EATTRIBUTE attribute);
+extern PH_API void phDevelopFilmRaw(PHuint64 engineId, PHuint64 frameId, enum PH_EATTRIBUTE attribute);
 
 ///////////////////////////////////////////////////////////////////////////////
 // frame operations
@@ -171,7 +171,7 @@ extern PH_API void phAsyncDevelopFilmRegion(
 	PHuint32                 yPx,
 	PHuint32                 widthPx, 
 	PHuint32                 heightPx, 
-	PH_EATTRIBUTE            attribute);
+	enum PH_EATTRIBUTE       attribute);
 
 #ifdef __cplusplus
 }

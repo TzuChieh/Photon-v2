@@ -119,9 +119,9 @@ void phUpdate(const PHuint64 engineId)
 }
 
 void phDevelopFilm(
-	const PHuint64      engineId, 
-	const PHuint64      frameId, 
-	const PH_EATTRIBUTE attribute)
+	const PHuint64           engineId, 
+	const PHuint64           frameId, 
+	const enum PH_EATTRIBUTE attribute)
 {
 	using namespace ph;
 
@@ -134,9 +134,9 @@ void phDevelopFilm(
 }
 
 void phDevelopFilmRaw(
-	const PHuint64      engineId, 
-	const PHuint64      frameId, 
-	const PH_EATTRIBUTE attribute)
+	const PHuint64           engineId, 
+	const PHuint64           frameId, 
+	const enum PH_EATTRIBUTE attribute)
 {
 	using namespace ph;
 
@@ -162,11 +162,11 @@ void phGetFilmDimension(const PHuint64 engineId, PHuint32* const out_widthPx, PH
 }
 
 void phGetRenderStateName(
-	const PHuint64            engineId,
-	const PH_ERenderStateType type,
-	const PHuint32            stateIndex,
-	PHchar* const             out_nameBuffer,
-	const PHuint32            bufferSize)
+	const PHuint64                 engineId,
+	const enum PH_ERenderStateType type,
+	const PHuint32                 stateIndex,
+	PHchar* const                  out_nameBuffer,
+	const PHuint32                 bufferSize)
 {
 	PH_ASSERT(out_nameBuffer);
 
@@ -175,19 +175,19 @@ void phGetRenderStateName(
 	Engine* engine = ApiDatabase::getEngine(engineId);
 	if(engine)
 	{
-		std::string name;
+		RenderState::EType stateType;
 		if(type == INTEGER)
 		{
-			name = engine->getRenderer()->renderStateName(
-				RenderState::EType::INTEGER, 
-				static_cast<std::size_t>(stateIndex));
+			stateType = RenderState::EType::INTEGER;
 		}
-		else if(type == REAL)
+		else
 		{
-			name = engine->getRenderer()->renderStateName(
-				RenderState::EType::REAL,
-				static_cast<std::size_t>(stateIndex));
+			stateType = RenderState::EType::REAL;
 		}
+
+		const std::string name = engine->getRenderer()->renderStateName(
+			stateType,
+			static_cast<std::size_t>(stateIndex));
 
 		std::size_t nameLength = std::min(name.length(), static_cast<std::size_t>(bufferSize - 1));
 		for(std::size_t i = 0; i < nameLength; ++i)
@@ -331,13 +331,13 @@ int phAsyncPollUpdatedFilmRegion(const PHuint64 engineId,
 }
 
 void phAsyncDevelopFilmRegion(
-	const PHuint64      engineId,
-	const PHuint64      frameId,
-	const PHuint32      xPx, 
-	const PHuint32      yPx,
-	const PHuint32      widthPx, 
-	const PHuint32      heightPx, 
-	const PH_EATTRIBUTE attribute)
+	const PHuint64           engineId,
+	const PHuint64           frameId,
+	const PHuint32           xPx, 
+	const PHuint32           yPx,
+	const PHuint32           widthPx, 
+	const PHuint32           heightPx, 
+	const enum PH_EATTRIBUTE attribute)
 {
 	using namespace ph;
 
