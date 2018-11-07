@@ -212,10 +212,10 @@ public class AppMainCtrl
 		}
     }
     
-    private static ViewCtrlPair<EditorCtrl> loadEditorUI()
-    {
-    	return new UILoader().load(EditorCtrl.class.getResource(EDITOR_FXML_FILENAME));
-    }
+	private static ViewCtrlPair<EditorCtrl> loadEditorUI()
+	{
+		return new UILoader().load(EditorCtrl.class.getResource(EDITOR_FXML_FILENAME));
+	}
     
     private void loadGeneralOptionsUI()
     {

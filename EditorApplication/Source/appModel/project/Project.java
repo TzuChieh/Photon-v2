@@ -47,43 +47,43 @@ public final class Project extends ManageableResource
 		m_localFinalFrame = new Frame();
 	}
 	
-	public Task<String> createRenderTask()
+	public Task<Void> createRenderTask()
 	{
-		return new Task<String>()
+		return new Task<Void>()
 		{
 			@Override
-			protected String call() throws Exception
+			protected Void call() throws Exception
 			{
 				opRenderScene();
-				return "render task done";
+				return null;
 			}
 		};
 	}
 	
-	public Task<String> createLoadSceneTask()
+	public Task<Void> createLoadSceneTask()
 	{
 		final String sceneFilePath = getRenderSetting().get(RenderSetting.SCENE_FILE_PATH);
 		
-		return new Task<String>()
+		return new Task<Void>()
 		{
 			@Override
-			protected String call() throws Exception
+			protected Void call() throws Exception
 			{
 				opLoadSceneFile(sceneFilePath);
-				return "load scene task done";
+				return null;
 			}
 		};
 	}
 	
-	public Task<String> createUpdateStaticImageTask()
+	public Task<Void> createUpdateStaticImageTask()
 	{
-		return new Task<String>()
+		return new Task<Void>()
 		{
 			@Override
-			protected String call() throws Exception
+			protected Void call() throws Exception
 			{
 				opDevelopFilm();
-				return "update static image task done";
+				return null;
 			}
 		};
 	}

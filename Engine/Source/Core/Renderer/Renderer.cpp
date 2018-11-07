@@ -25,6 +25,8 @@ Renderer::~Renderer() = default;
 
 void Renderer::update(const SdlResourcePack& data)
 {
+	m_isUpdating.store(true, std::memory_order_relaxed);
+
 	Timer updateTimer;
 	updateTimer.start();
 
@@ -32,10 +34,14 @@ void Renderer::update(const SdlResourcePack& data)
 
 	updateTimer.finish();
 	std::cout << "update time: " << updateTimer.getDeltaMs() << " ms" << std::endl;
+
+	m_isUpdating.store(false, std::memory_order_relaxed);
 }
 
 void Renderer::render()
 {
+	m_isRendering.store(true, std::memory_order_relaxed);
+
 	Timer renderTimer;
 	renderTimer.start();
 
@@ -43,6 +49,8 @@ void Renderer::render()
 
 	renderTimer.finish();
 	std::cout << "render time: " << renderTimer.getDeltaMs() << " ms" << std::endl;
+
+	m_isRendering.store(false, std::memory_order_relaxed);
 }
 
 void Renderer::setNumWorkers(const uint32 numWorkers)
@@ -81,7 +89,9 @@ void Renderer::setNumWorkers(const uint32 numWorkers)
 
 // command interface
 
-Renderer::Renderer(const InputPacket& packet)
+Renderer::Renderer(const InputPacket& packet) : 
+	m_isUpdating(false),
+	m_isRendering(false)
 {
 	setNumWorkers(1);
 

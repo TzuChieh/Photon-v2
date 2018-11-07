@@ -11,11 +11,15 @@ import appModel.project.RenderSetting;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
 
 import appGui.util.FSBrowser;
+import appGui.util.UILoader;
+import appGui.util.ViewCtrlPair;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -28,6 +32,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -56,21 +61,17 @@ public class EditorCtrl
     
     private WritableImage m_displayImage;
 	
-	@FXML private VBox         projectOverviewVbox;
-	@FXML private TitledPane   projectOverviewPane;
-	@FXML private TextField    sceneFileTextField;
-	@FXML private ProgressBar  renderProgressBar;
-	@FXML private Label        percentageProgressLabel;
-	@FXML private AnchorPane   displayPane;
-	@FXML private Canvas       canvas;
-	@FXML private TextArea     messageTextArea;
-	@FXML private Label        spsLabel;
-	@FXML private Label        timeRemainingLabel;
-    @FXML private Label        timeSpentLabel;
-    @FXML private ChoiceBox<String>    attributeChoiceBox;
+	@FXML private VBox             projectOverviewVbox;
+	@FXML private TitledPane       projectOverviewPane;
+	@FXML private TextField        sceneFileTextField;
+	@FXML private ProgressBar      renderProgressBar;
+	@FXML private AnchorPane       displayPane;
+	@FXML private Canvas           canvas;
+	@FXML private TextArea         messageTextArea;
     @FXML private Spinner<Integer> threadsSpinner;
+	@FXML private AnchorPane       progressMonitorPane;
     
-    private AtomicInteger m_chosenAttribute;
+    private RenderProgressMonitorCtrl m_renderProgressMonitor;
     
     @FXML
     public void initialize()
@@ -92,142 +93,47 @@ public class EditorCtrl
 		});
     	updateMessageTextArea();
     	
-    	m_chosenAttribute = new AtomicInteger(Ph.ATTRIBUTE_LIGHT_ENERGY);
-    	attributeChoiceBox.setItems(FXCollections.observableArrayList(
-    		"Light Energy",
-    		"Normal"
-    	));
-    	attributeChoiceBox.getSelectionModel().select("Light Energy");
-    	attributeChoiceBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>()
-		{
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
-			{
-				m_chosenAttribute.set(newValue.intValue());
-				System.err.println(m_chosenAttribute.get());
-			}
-		});
+    	ViewCtrlPair<RenderProgressMonitorCtrl> renderProgressMonitorUI = loadRenderProgressMonitorUI();
+    	progressMonitorPane.getChildren().clear();
+    	progressMonitorPane.getChildren().add(renderProgressMonitorUI.getView());
+    	AnchorPane.setTopAnchor(renderProgressMonitorUI.getView(), 0.0);
+    	AnchorPane.setBottomAnchor(renderProgressMonitorUI.getView(), 0.0);
+    	AnchorPane.setLeftAnchor(renderProgressMonitorUI.getView(), 0.0);
+    	AnchorPane.setRightAnchor(renderProgressMonitorUI.getView(), 0.0);
+    	m_renderProgressMonitor = renderProgressMonitorUI.getCtrl();
+    	m_renderProgressMonitor.setDisplay(this);
     }
     
     public void startRenderingStaticScene()
     {
-    	final double renderStartMs = Time.getTimeMs();
-    	
 		String sceneFileName = m_project.getRenderSetting().get(RenderSetting.SCENE_FILE_PATH);
 		if(sceneFileName == null)
 		{
 			return;
 		}
 		
-		final Task<String> loadSceneTask   = m_project.createLoadSceneTask();
-		final Task<String> renderTask      = m_project.createRenderTask();
-		final Task<String> developFilmTask = m_project.createUpdateStaticImageTask();
-		
-//		Thread loadSceneThread = new Thread(loadSceneTask);
-//		loadSceneThread.start();
-//		try {
-//			loadSceneThread.join();
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		
-		// TODO: exit when render task is done
-		final Task<String> queryTask = new Task<String>()
+		ExecutorService executor = Executors.newSingleThreadExecutor();
 		{
-			@Override
-			protected String call() throws Exception
-			{
-				Thread loadSceneThread = new Thread(loadSceneTask);
-				loadSceneThread.start();
-				loadSceneThread.join();
-				
-				Thread renderSceneThread = new Thread(renderTask);
-				renderSceneThread.start();
-				
-				Statistics statistics = new Statistics();
-				while(true)
-				{
-					m_project.asyncGetRendererStatistics(statistics);
-					
-					final long workDone  = (long)(statistics.percentageProgress + 0.5f);
-					final long totalWork = 100;
-					updateProgress(workDone, totalWork);
-					
-					// HACK
-//					long workDone  = 100;
-//					long totalWork = 100;
-//					updateProgress(workDone, totalWork);
-					
-					final double workDoneFraction      = statistics.percentageProgress / 100.0;
-					final double renderTimeMs          = Time.getTimeMs() - renderStartMs;
-					final double totalRenderTimeMs     = renderTimeMs / workDoneFraction;
-					final double remainingRenderTimeMs = totalRenderTimeMs * (1.0 - workDoneFraction);
-					
-					Platform.runLater(() -> 
-					{
-						percentageProgressLabel.setText(Float.toString(statistics.percentageProgress));
-						spsLabel.setText(Long.toString((long)statistics.samplesPerSecond));
-						timeSpentLabel.setText((long)(renderTimeMs / 1000.0) + " s");
-						timeRemainingLabel.setText((long)(remainingRenderTimeMs / 1000.0) + " s");
-					});
-					
-					// HACK
-					RenderState state = m_project.asyncGetRenderState();
-					for(int i = 0; i < 3; ++i)
-					{
-						System.out.println("integer state " + i + " = " + state.integerStates[i]);
-					}
-					for(int i = 0; i < 3; ++i)
-					{
-						System.out.println("real state " + i + " = " + state.realStates[i]);
-					}
-					
-					// TODO: need to add these monitoring attributes to a project's data, 
-					// otherwise other finished projects (with work done = 100%) will cause
-					// this loop to break (thus not updating GUI anymore until rendering is finished)
-					
-					if(workDone >= totalWork)
-					{
-						Platform.runLater(() -> percentageProgressLabel.setText("100"));
-						break;
-					}
-					
-					FrameRegion updatedFrameRegion = new FrameRegion();
-					FrameStatus frameStatus = m_project.asyncGetUpdatedFrame(m_chosenAttribute.get(), updatedFrameRegion);
-					if(frameStatus != FrameStatus.INVALID)
-					{
-						Platform.runLater(() ->
-						{
-							loadFrameBuffer(updatedFrameRegion);
-							drawFrame();
-						});
-					}
-					
-					try
-					{
-						Thread.sleep(1000);
-					}
-					catch(InterruptedException e)
-					{
-						e.printStackTrace();
-					}
-				}
-				
-				renderSceneThread.join();
-				
-				Thread developFilmThread = new Thread(developFilmTask);
-				developFilmThread.start();
-				developFilmThread.join();
-				
-				return "";
-			}
-		};
-		
-		renderProgressBar.progressProperty().bind(queryTask.progressProperty());
-		
-		Thread queryThread = new Thread(queryTask);
-		queryThread.start();
+			// TODO: load scene implicitly contains engine update, should make this explicit
+			Task<Void> loadSceneTask = m_project.createLoadSceneTask();
+			loadSceneTask.setOnSucceeded((event) -> {
+				m_renderProgressMonitor.startMonitoring();
+			});
+			executor.submit(loadSceneTask);
+			
+			Task<Void> renderTask = m_project.createRenderTask();
+			renderTask.setOnSucceeded((event) -> {
+				m_renderProgressMonitor.stopMonitoring();
+			});
+			renderTask.setOnFailed((event) -> {
+				m_renderProgressMonitor.stopMonitoring();
+			});
+			executor.submit(renderTask);
+			
+			Task<Void> developFilmTask = m_project.createUpdateStaticImageTask();
+			executor.submit(developFilmTask);
+		}
+		executor.shutdown();
     }
     
     @FXML
@@ -247,7 +153,7 @@ public class EditorCtrl
 		}
     }
     
-    private void loadFinalFrame()
+    public void loadFinalFrame()
     {
     	final Frame frame = m_project.getLocalFinalFrame();
     	if(frame.isValid())
@@ -256,7 +162,7 @@ public class EditorCtrl
     	}
     }
 	
-	private void loadFrameBuffer(FrameRegion frameRegion)
+    public void loadFrameBuffer(FrameRegion frameRegion)
 	{
 		if(!frameRegion.isValid() || frameRegion.getNumComp() != 3)
 		{
@@ -305,7 +211,7 @@ public class EditorCtrl
 		g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 	}
     
-	private void drawFrame()
+	public void drawFrame()
 	{
 		final float canvasWidth       = (float)(canvas.getWidth());
 		final float canvasHeight      = (float)(canvas.getHeight());
@@ -403,5 +309,12 @@ public class EditorCtrl
 			loadFinalFrame();
 			drawFrame();
 		}
+		
+		m_renderProgressMonitor.setMonitoredProject(m_project);
 	}
+	
+	private static ViewCtrlPair<RenderProgressMonitorCtrl> loadRenderProgressMonitorUI()
+    {
+    	return new UILoader().load(EditorCtrl.class.getResource("/fxmls/RenderProgressMonitor.fxml"));
+    }
 }

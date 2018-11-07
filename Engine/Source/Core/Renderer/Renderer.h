@@ -61,6 +61,9 @@ public:
 	TAABB2D<int64>   getRenderWindowPx()   const;
 	RegionScheduler* getRegionScheduler()  const;
 
+	bool asyncIsUpdating() const;
+	bool asyncIsRendering() const;
+
 private:
 	uint32         m_numWorkers;
 	uint32         m_widthPx;
@@ -69,6 +72,9 @@ private:
 
 	std::vector<RenderWorker> m_workers;
 	std::unique_ptr<RegionScheduler> m_regionScheduler;
+
+	std::atomic_bool m_isUpdating;
+	std::atomic_bool m_isRendering;
 
 // command interface
 public:
@@ -104,6 +110,16 @@ inline RegionScheduler* Renderer::getRegionScheduler() const
 	PH_ASSERT(m_regionScheduler);
 
 	return m_regionScheduler.get();
+}
+
+inline bool Renderer::asyncIsUpdating() const
+{
+	return m_isUpdating.load(std::memory_order_relaxed);
+}
+
+inline bool Renderer::asyncIsRendering() const
+{
+	return m_isRendering.load(std::memory_order_relaxed);
 }
 
 }// end namespace ph
