@@ -69,7 +69,7 @@ public class EditorCtrl
 	@FXML private Canvas           canvas;
 	@FXML private TextArea         messageTextArea;
     @FXML private Spinner<Integer> threadsSpinner;
-	@FXML private AnchorPane       progressMonitorPane;
+    @FXML private ScrollPane       progressMonitorScrollPane;
     
     private RenderProgressMonitorCtrl m_renderProgressMonitor;
     
@@ -94,12 +94,13 @@ public class EditorCtrl
     	updateMessageTextArea();
     	
     	ViewCtrlPair<RenderProgressMonitorCtrl> renderProgressMonitorUI = loadRenderProgressMonitorUI();
-    	progressMonitorPane.getChildren().clear();
-    	progressMonitorPane.getChildren().add(renderProgressMonitorUI.getView());
-    	AnchorPane.setTopAnchor(renderProgressMonitorUI.getView(), 0.0);
-    	AnchorPane.setBottomAnchor(renderProgressMonitorUI.getView(), 0.0);
-    	AnchorPane.setLeftAnchor(renderProgressMonitorUI.getView(), 0.0);
-    	AnchorPane.setRightAnchor(renderProgressMonitorUI.getView(), 0.0);
+//    	progressMonitorPane.getChildren().clear();
+//    	progressMonitorPane.getChildren().add(renderProgressMonitorUI.getView());
+//    	AnchorPane.setTopAnchor(renderProgressMonitorUI.getView(), 0.0);
+//    	AnchorPane.setBottomAnchor(renderProgressMonitorUI.getView(), 0.0);
+//    	AnchorPane.setLeftAnchor(renderProgressMonitorUI.getView(), 0.0);
+//    	AnchorPane.setRightAnchor(renderProgressMonitorUI.getView(), 0.0);
+    	progressMonitorScrollPane.setContent(renderProgressMonitorUI.getView());
     	m_renderProgressMonitor = renderProgressMonitorUI.getCtrl();
     	m_renderProgressMonitor.setDisplay(this);
     }

@@ -219,6 +219,16 @@ public final class Project extends ManageableResource
 		m_eventDispatcher.removeListener(targetListener);
 	}
 	
+	public String getIntegerRenderStateName(int index)
+	{
+		return m_engine.getIntegerRenderStateName(index);
+	}
+	
+	public String getRealRenderStateName(int index)
+	{
+		return m_engine.getRealRenderStateName(index);
+	}
+	
 	public String                 getProjectName()     { return m_projectName;                  }
 	public RenderSetting          getRenderSetting()   { return m_renderSetting;                }
 	public ProjectEventDispatcher getEventDispatcher() { return m_eventDispatcher;              }

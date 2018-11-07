@@ -53,11 +53,7 @@
                                              <tabs>
                                                 <Tab text="Progress Monitor">
                                                    <content>
-                                                      <ScrollPane fitToWidth="true" prefHeight="217.0" prefWidth="200.0">
-                                                         <content>
-                                                            <AnchorPane fx:id="progressMonitorPane" prefHeight="200.0" prefWidth="200.0" />
-                                                         </content>
-                                                      </ScrollPane>
+                                                      <ScrollPane fitToWidth="true" prefHeight="217.0" prefWidth="200.0" />
                                                    </content>
                                                 </Tab>
                                                 <Tab text="Untitled Tab 2">
@@ -159,9 +155,22 @@
                                        </children></VBox>
                                  </children>
                               </AnchorPane>
-                              <AnchorPane fx:id="displayPane" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                                  <children>
-                                    <Canvas fx:id="canvas" height="200.0" layoutX="82.0" layoutY="43.0" width="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                    <SplitPane dividerPositions="0.7" layoutX="496.0" layoutY="32.0" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                      <items>
+                                        <AnchorPane fx:id="displayPane" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                                             <children>
+                                                <Canvas fx:id="canvas" height="200.0" width="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                             </children>
+                                          </AnchorPane>
+                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                                             <children>
+                                                <ScrollPane fx:id="progressMonitorScrollPane" fitToWidth="true" layoutX="3.0" layoutY="34.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                             </children>
+                                          </AnchorPane>
+                                      </items>
+                                    </SplitPane>
                                  </children>
                               </AnchorPane>
                            </items>

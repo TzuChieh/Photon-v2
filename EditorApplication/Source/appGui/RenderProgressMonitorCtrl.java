@@ -1,5 +1,6 @@
 package appGui;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import appModel.project.Project;
@@ -14,7 +15,12 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import photonApi.FrameRegion;
 import photonApi.FrameStatus;
 import photonApi.Ph;
@@ -24,10 +30,9 @@ import util.Time;
 
 public class RenderProgressMonitorCtrl
 {
-	@FXML private GridPane          variableGridPane;
+	@FXML private VBox              variablesVBox;
 	@FXML private ProgressBar       renderProgressBar;
 	@FXML private Label             percentageProgressLabel;
-	@FXML private Label             spsLabel;
 	@FXML private Label             timeRemainingLabel;
 	@FXML private Label             timeSpentLabel;
 	@FXML private ChoiceBox<String> attributeChoiceBox;
@@ -35,6 +40,11 @@ public class RenderProgressMonitorCtrl
 	private volatile boolean m_isMonitoring;
 	private AtomicInteger    m_chosenAttribute;
 	private Service<Void>    m_monitorService;
+	
+	public ArrayList<String> m_integerNames;
+	public ArrayList<String> m_realNames;
+	public ArrayList<Label>  m_integers;
+	public ArrayList<Label>  m_reals;
 	
 	private Project    m_project;
 	private EditorCtrl m_display;
@@ -44,6 +54,11 @@ public class RenderProgressMonitorCtrl
 		m_isMonitoring    = false;
 		m_chosenAttribute = new AtomicInteger(Ph.ATTRIBUTE_LIGHT_ENERGY);
 		m_monitorService  = genMonitorService();
+		
+		m_integerNames = new ArrayList<>();
+		m_realNames    = new ArrayList<>();
+		m_integers     = new ArrayList<>();
+		m_reals        = new ArrayList<>();
 	}
 	
 	@FXML
@@ -72,6 +87,7 @@ public class RenderProgressMonitorCtrl
 		// we should not start until previous one has stopped
 		waitForStopMonitoring();
 		
+		gatherMonitoredVariables();
 		m_isMonitoring = true;
 		m_monitorService.restart();
 	}
@@ -137,20 +153,34 @@ public class RenderProgressMonitorCtrl
 					Platform.runLater(() -> 
 					{
 						percentageProgressLabel.setText(Float.toString(statistics.percentageProgress));
-						spsLabel.setText(Long.toString((long)statistics.samplesPerSecond));
 						timeSpentLabel.setText((long)(renderTimeMs / 1000.0) + " s");
 						timeRemainingLabel.setText((long)(remainingRenderTimeMs / 1000.0) + " s");
 					});
 					
-					// HACK
 					RenderState state = m_project.asyncGetRenderState();
 					for(int i = 0; i < 3; ++i)
 					{
-						System.out.println("integer state " + i + " = " + state.integerStates[i]);
+						if(!m_integerNames.get(i).isEmpty())
+						{
+							Label  label = m_integers.get(i);
+							String value = Long.toString(state.integerStates[i]);
+							Platform.runLater(() -> 
+							{
+								label.setText(value);
+							});
+						}
 					}
 					for(int i = 0; i < 3; ++i)
 					{
-						System.out.println("real state " + i + " = " + state.realStates[i]);
+						if(!m_realNames.get(i).isEmpty())
+						{
+							Label  label = m_reals.get(i);
+							String value = Float.toString(state.realStates[i]);
+							Platform.runLater(() -> 
+							{
+								label.setText(value);
+							});
+						}
 					}
 					
 					// TODO: need to add these monitoring attributes to a project's data, 
@@ -197,5 +227,44 @@ public class RenderProgressMonitorCtrl
 				return null;
 			}
 		};
+	}
+	
+	private void gatherMonitoredVariables()
+	{
+		int currentRow = 3;
+		
+		m_integerNames.clear();
+		for(int i = 0; i < 3; ++i)
+		{
+			String name  = m_project.getIntegerRenderStateName(i);
+			Label  label = new Label();
+			
+			m_integerNames.add(name);
+			m_integers.add(label);
+			//variableGridPane.add(new Label(name), 0, currentRow++);
+		}
+		
+		m_realNames.clear();
+		for(int i = 0; i < 3; ++i)
+		{
+			String name  = m_project.getRealRenderStateName(i);
+			Label  label = new Label();
+			
+			m_realNames.add(name);
+			m_reals.add(label);
+			
+			Label nameLabel = new Label(name);
+			
+			GridPane cell = new GridPane();
+			cell.add(nameLabel, 0, 0);
+			cell.add(label, 1, 0);
+			
+			ColumnConstraints cc = new ColumnConstraints();
+            cc.setPercentWidth(50.0);
+            cc.setHgrow(Priority.ALWAYS);
+            cell.getColumnConstraints().add(cc);
+			
+			variablesVBox.getChildren().add(cell);
+		}
 	}
 }

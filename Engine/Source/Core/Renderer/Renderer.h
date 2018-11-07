@@ -35,11 +35,20 @@ class Renderer: public TCommandInterface<Renderer>
 public:
 	virtual ~Renderer();
 
+	// Perform necessary updates for rendering. 
 	virtual void doUpdate(const SdlResourcePack& data) = 0;
+
+	// Start rendering.
 	virtual void doRender() = 0;
+
+	// Develop the rendered result.
 	virtual void develop(HdrRgbFrame& out_frame, EAttribute attribute) = 0;
 
+	// Notice that no asynchronous operation is allowed during renderer update.
+
+	// Get the rendering region that has been updated.
 	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) = 0;
+
 	virtual RenderState asyncQueryRenderState() = 0;
 	virtual RenderProgress asyncQueryRenderProgress() = 0;
 
