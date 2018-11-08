@@ -21,7 +21,8 @@ public:
 		const Camera* camera,
 		std::unique_ptr<SampleGenerator> sampleGenerator,
 		Viewpoint* viewpointBuffer, 
-		std::size_t numViewpoints);
+		std::size_t numViewpoints,
+		real kernelRadius);
 
 	void doWork() override;
 
@@ -31,6 +32,7 @@ private:
 	std::unique_ptr<SampleGenerator> m_sampleGenerator;
 	Viewpoint* m_viewpointBuffer;
 	std::size_t m_numViewpoints;
+	real m_kernelRadius;
 };
 
 }// end namespace ph

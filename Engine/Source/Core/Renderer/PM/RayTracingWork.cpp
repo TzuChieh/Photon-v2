@@ -20,12 +20,14 @@ RayTracingWork::RayTracingWork(
 	const Camera* const camera,
 	std::unique_ptr<SampleGenerator> sampleGenerator,
 	Viewpoint* const viewpointBuffer, 
-	const std::size_t numViewpoints) : 
+	const std::size_t numViewpoints,
+	const real kernelRadius) : 
 	m_scene(scene),
 	m_camera(camera),
 	m_sampleGenerator(std::move(sampleGenerator)),
 	m_viewpointBuffer(viewpointBuffer), 
-	m_numViewpoints(numViewpoints)
+	m_numViewpoints(numViewpoints),
+	m_kernelRadius(kernelRadius)
 {}
 
 void RayTracingWork::doWork()
@@ -56,7 +58,7 @@ void RayTracingWork::doWork()
 			viewpoint.filmNdcPos = filmNdcPos;
 			viewpoint.hit = surfaceHit;
 			viewpoint.numPhotons = 0;
-			viewpoint.radius = 0.04_r;
+			viewpoint.radius = m_kernelRadius;
 			viewpoint.throughput = SpectralStrength(1.0_r);
 			viewpoint.L = tracingRay.getDirection().mul(-1);
 			m_viewpointBuffer[i] = viewpoint;

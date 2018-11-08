@@ -5,6 +5,10 @@
 #include "Core/Renderer/PM/PhotonMappingWork.h"
 #include "Core/Renderer/PM/PhotonMap.h"
 #include "Core/Renderer/PM/RadianceEstimateWork.h"
+#include "FileIO/SDL/InputPacket.h"
+#include "Utility/FixedSizeThreadPool.h"
+
+#include <numeric>
 
 namespace ph
 {
@@ -23,19 +27,19 @@ void PMRenderer::doUpdate(const SdlResourcePack& data)
 		Viewpoint* viewpointBuffer,
 		std::size_t numViewpoints*/
 
-	std::size_t numPixels = getRenderWindowPx().calcArea();
+	/*std::size_t numPixels = getRenderWindowPx().calcArea() * m_perPixelSamples;
 	std::vector<Viewpoint> viewpointBuffer(numPixels);
 
 	std::cerr << "numPixels = " << numPixels << std::endl;
 	std::cerr << "ray tracing work start" << std::endl;
 
-	RayTracingWork rayTracingWork(m_scene, m_camera, m_sg->genCopied(1), viewpointBuffer.data(), numPixels);
+	RayTracingWork rayTracingWork(m_scene, m_camera, m_sg->genCopied(1), viewpointBuffer.data(), numPixels, m_kernelRadius);
 	rayTracingWork.doWork();
 
 	std::cerr << "ray tracing work finished" << std::endl;
 	std::cerr << "size of viewpoint buffer: " << sizeof(Viewpoint) * numPixels / 1024 / 1024 << " MB" << std::endl;
 
-	std::size_t numPhotons = 200000;
+	std::size_t numPhotons = m_numPhotons;
 	std::vector<Photon> photonBuffer(numPhotons);
 
 	std::cerr << "numPhotons = " << numPhotons << std::endl;
@@ -60,7 +64,7 @@ void PMRenderer::doUpdate(const SdlResourcePack& data)
 	RadianceEstimateWork radianceEstimator(&photonMap, viewpointBuffer.data(), viewpointBuffer.size(), m_film.get(), numEmittedPhotons);
 	radianceEstimator.doWork();
 
-	std::cerr << "estimation complete" << std::endl;
+	std::cerr << "estimation complete" << std::endl;*/
 
 	// DEBUG
 	/*for(std::size_t y = 0; y < getRenderHeightPx(); ++y)
@@ -76,7 +80,87 @@ void PMRenderer::doUpdate(const SdlResourcePack& data)
 }
 
 void PMRenderer::doRender()
-{}
+{
+	renderWithVanillaPM();
+}
+
+void PMRenderer::renderWithVanillaPM()
+{
+	FixedSizeThreadPool workers(getNumWorkers());
+
+	std::size_t numPixels = getRenderWindowPx().calcArea() * m_perPixelSamples;
+	std::vector<Viewpoint> viewpointBuffer(numPixels);
+
+	std::cerr << "numPixels = " << numPixels << std::endl;
+	std::cerr << "ray tracing work start" << std::endl;
+
+	RayTracingWork rayTracingWork(m_scene, m_camera, m_sg->genCopied(1), viewpointBuffer.data(), numPixels, m_kernelRadius);
+	rayTracingWork.doWork();
+
+	std::cerr << "ray tracing work finished" << std::endl;
+	std::cerr << "size of viewpoint buffer: " << sizeof(Viewpoint) * numPixels / 1024 / 1024 << " MB" << std::endl;
+
+	std::size_t numPhotons = m_numPhotons;
+	std::vector<Photon> photonBuffer(numPhotons);
+
+	std::cerr << "numPhotons = " << numPhotons << std::endl;
+	std::cerr << "photon mapping work start" << std::endl;
+
+	std::vector<std::size_t> numEmittedPhotons(getNumWorkers(), 0);
+	std::size_t bufferOffset = 0;
+	for(std::size_t i = 0; i < getNumWorkers(); ++i)
+	{
+		std::size_t nextBufferOffset = bufferOffset + numPhotons / getNumWorkers();
+		if(i == getNumWorkers() - 1)
+		{
+			nextBufferOffset = numPhotons;
+		}
+
+		std::cerr << nextBufferOffset - bufferOffset << std::endl;
+
+		workers.queueWork([this, &photonBuffer, bufferOffset, nextBufferOffset, &numEmittedPhotons, i]()
+		{
+			PhotonMappingWork photonMappingWork(
+				m_scene,
+				m_camera,
+				m_sg->genCopied(1),
+				photonBuffer.data() + bufferOffset,
+				nextBufferOffset - bufferOffset,
+				&(numEmittedPhotons[i]));
+			photonMappingWork.doWork();
+		});
+
+		bufferOffset = nextBufferOffset;
+	}
+	workers.waitAllWorks();
+
+	std::size_t totalPhotons = std::accumulate(numEmittedPhotons.begin(), numEmittedPhotons.end(), std::size_t(0));
+	
+
+	std::cerr << "photon mapping work finished" << std::endl;
+	std::cerr << "size of photon buffer: " << sizeof(Photon) * numPhotons / 1024 / 1024 << " MB" << std::endl;
+
+	std::cerr << "building photon map" << std::endl;
+
+	PhotonMap photonMap(2, PhotonCenterCalculator());
+	photonMap.build(std::move(photonBuffer));
+
+	std::cerr << "photon map built" << std::endl;
+
+	std::cerr << "estimating radiance" << std::endl;
+
+	RadianceEstimateWork radianceEstimator(&photonMap, viewpointBuffer.data(), viewpointBuffer.size(), m_film.get(), totalPhotons);
+	radianceEstimator.doWork();
+
+	std::cerr << "estimation complete" << std::endl;
+
+
+	
+
+
+
+	workers.waitAllWorks();
+}
 
 ERegionStatus PMRenderer::asyncPollUpdatedRegion(Region* out_region)
 {
@@ -138,8 +222,31 @@ PMRenderer::PMRenderer(const InputPacket& packet) :
 	m_scene(nullptr),
 	m_camera(nullptr),
 	m_sg(nullptr),
-	m_filter(SampleFilterFactory::createBlackmanHarrisFilter())
-{}
+	m_filter(SampleFilterFactory::createBlackmanHarrisFilter()),
+
+	m_mode(),
+	m_numPhotons(),
+	m_kernelRadius(),
+	m_perPixelSamples()
+{
+	const std::string& mode = packet.getString("mode", "vanilla");
+	if(mode == "vanilla")
+	{
+		m_mode = EPMMode::VANILLA;
+	}
+	else if(mode == "progressive")
+	{
+		m_mode = EPMMode::PROGRESSIVE;
+	}
+	else if(mode == "stochastic-progressive")
+	{
+		m_mode = EPMMode::STOCHASTIC_PROGRESSIVE;
+	}
+
+	m_numPhotons = packet.getInteger("num-photons", 100000);
+	m_kernelRadius = packet.getReal("radius", 0.1_r);
+	m_perPixelSamples = packet.getInteger("per-pixel-samples", 1);
+}
 
 SdlTypeInfo PMRenderer::ciTypeInfo()
 {

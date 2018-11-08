@@ -18,7 +18,7 @@ class Camera;
 class SampleGenerator;
 class Estimator;
 
-class SamplingRenderer final : public Renderer, public TCommandInterface<SamplingRenderer>
+class SamplingRenderer : public Renderer, public TCommandInterface<SamplingRenderer>
 {
 public:
 	~SamplingRenderer() override;

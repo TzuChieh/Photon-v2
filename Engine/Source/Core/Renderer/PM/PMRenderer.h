@@ -3,15 +3,17 @@
 #include "Core/Renderer/Renderer.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Filmic/SampleFilter.h"
+#include "Core/Renderer/PM/EPMMode.h"
 
 #include <vector>
 #include <memory>
 #include <atomic>
+#include <cstddef>
 
 namespace ph
 {
 
-class PMRenderer final : public Renderer, public TCommandInterface<PMRenderer>
+class PMRenderer : public Renderer, public TCommandInterface<PMRenderer>
 {
 public:
 	void doUpdate(const SdlResourcePack& data) override;
@@ -33,6 +35,13 @@ private:
 	const Camera*         m_camera;
 	SampleGenerator*      m_sg;
 	SampleFilter          m_filter;
+
+	EPMMode m_mode;
+	std::size_t m_numPhotons;
+	real m_kernelRadius;
+	std::size_t m_perPixelSamples;
+
+	void renderWithVanillaPM();
 
 // command interface
 public:
