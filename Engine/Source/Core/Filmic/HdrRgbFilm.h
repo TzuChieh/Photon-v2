@@ -18,6 +18,9 @@ namespace ph
 	added as spectral values, they are automatically converted to linear sRGB
 	values for storage. 
 */
+
+	// TODO: make film copyable
+
 class HdrRgbFilm final : public SpectralSamplingFilm, public TCommandInterface<HdrRgbFilm>
 {
 public:

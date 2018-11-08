@@ -87,16 +87,9 @@ void PMRenderer::doRender()
 
 void PMRenderer::renderWithVanillaPM()
 {
-	//FixedSizeThreadPool workers(getNumWorkers());
-
 	std::size_t numPixels = getRenderWindowPx().calcArea() * m_perPixelSamples;
 	std::vector<Viewpoint> viewpointBuffer(numPixels);
 
-	std::cerr << "numPixels = " << numPixels << std::endl;
-	std::cerr << "ray tracing work start" << std::endl;
-
-	RayTracingWork rayTracingWork(m_scene, m_camera, m_sg->genCopied(1), viewpointBuffer.data(), numPixels, m_kernelRadius);
-	rayTracingWork.doWork();
 
 	std::cerr << "ray tracing work finished" << std::endl;
 	std::cerr << "size of viewpoint buffer: " << sizeof(Viewpoint) * numPixels / 1024 / 1024 << " MB" << std::endl;
@@ -143,22 +136,75 @@ void PMRenderer::renderWithVanillaPM()
 
 	std::cerr << "estimating radiance" << std::endl;
 
-	RadianceEstimateWork radianceEstimator(&photonMap, viewpointBuffer.data(), viewpointBuffer.size(), m_film.get(), totalPhotons);
-	radianceEstimator.doWork();
+	std::vector<std::unique_ptr<HdrRgbFilm>> workerFilms(getNumWorkers());
+	for(auto&& workerFilm : workerFilms)
+	{
+		workerFilm = std::make_unique<HdrRgbFilm>(
+			getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
+	}
+
+	parallel_work(getNumWorkers(), getNumWorkers(), 
+		[this, &photonMap, &viewpointBuffer, &workerFilms, totalPhotons](
+			const std::size_t workerIdx, 
+			const std::size_t workStart, 
+			const std::size_t workEnd)
+		{
+			RadianceEstimateWork radianceEstimator(
+				&photonMap, 
+				viewpointBuffer.data(), 
+				viewpointBuffer.size(), 
+				m_film.get(), 
+				totalPhotons);
+
+			auto workerSg = m_sg->genCopied(9999999);
+			const Samples2DStage filmStage = workerSg->declare2DStage(getRenderWindowPx().calcArea());// FIXME: consider sample filter extent & size hints
+			const bool isSamplePrepared = workerSg->prepareSampleBatch();
+			PH_ASSERT(isSamplePrepared);
+
+			auto& workerFilm = workerFilms[workerIdx];
+
+			while(workerSg->prepareSampleBatch())
+			{
+				const Samples2D samples = workerSg->getSamples2D(filmStage);
+				for(std::size_t i = 0; i < samples.numSamples(); ++i)
+				{
+					const Vector2R filmNdcPos = samples[i];
+
+					Ray tracingRay;
+					m_camera->genSensedRay(filmNdcPos, &tracingRay);
+					tracingRay.reverse();
+
+					HitProbe probe;
+					if(m_scene->isIntersecting(tracingRay, &probe))
+					{
+						SurfaceHit surfaceHit(tracingRay, probe);
+						const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
+						const SurfaceOptics* surfaceOptics = metadata->getSurface().getOptics();
+
+						// TODO: handle specular path
+
+						const Vector3R L = tracingRay.getDirection().mul(-1);
+						const SpectralStrength radiance = radianceEstimator.evaluateRadiance(surfaceHit, L, m_kernelRadius);
+
+						
+						const real filmXPx = filmNdcPos.x * static_cast<real>(workerFilm->getActualResPx().x);
+						const real filmYPx = filmNdcPos.y * static_cast<real>(workerFilm->getActualResPx().y);
+						workerFilm->addSample(filmXPx, filmYPx, radiance);
+					}
+				}
+
+				std::lock_guard<std::mutex> m_filmLock(m_filmMutex);
+				m_film->mergeWith(*workerFilm);
+			}
+		});
 
 	std::cerr << "estimation complete" << std::endl;
-
-
-	
-
-
-
-	//workers.waitAllWorks();
 }
 
 ERegionStatus PMRenderer::asyncPollUpdatedRegion(Region* out_region)
 {
-	return ERegionStatus::INVALID;
+	*out_region = getRenderWindowPx();
+	return ERegionStatus::UPDATING;
 }
 
 RenderState PMRenderer::asyncQueryRenderState()
@@ -172,7 +218,10 @@ RenderProgress PMRenderer::asyncQueryRenderProgress()
 }
 
 void PMRenderer::asyncDevelopRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute)
-{}
+{
+	std::lock_guard<std::mutex> m_filmLock(m_filmMutex);
+	m_film->develop(out_frame, region);
+}
 
 void PMRenderer::develop(HdrRgbFrame& out_frame, EAttribute attribute)
 {

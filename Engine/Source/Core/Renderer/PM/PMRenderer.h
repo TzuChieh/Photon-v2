@@ -9,6 +9,7 @@
 #include <memory>
 #include <atomic>
 #include <cstddef>
+#include <mutex>
 
 namespace ph
 {
@@ -40,6 +41,8 @@ private:
 	std::size_t m_numPhotons;
 	real m_kernelRadius;
 	std::size_t m_perPixelSamples;
+
+	std::mutex m_filmMutex;
 
 	void renderWithVanillaPM();
 
