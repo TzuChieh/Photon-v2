@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Intersectable/IndexedKdtree/TCenterKdtree.h"
-#include "Core/Renderer/PPM/Photon.h"
+#include "Core/Renderer/PM/Photon.h"
 #include "Math/TVector3.h"
 
 namespace ph

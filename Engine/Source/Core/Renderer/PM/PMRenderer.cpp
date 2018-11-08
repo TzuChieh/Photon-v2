@@ -1,15 +1,15 @@
-#include "Core/Renderer/PPM/PPMRenderer.h"
+#include "Core/Renderer/PM/PMRenderer.h"
 #include "Core/Filmic/SampleFilterFactory.h"
 #include "FileIO/SDL/SdlResourcePack.h"
-#include "Core/Renderer/PPM/RayTracingWork.h"
-#include "Core/Renderer/PPM/PhotonMappingWork.h"
-#include "Core/Renderer/PPM/PhotonMap.h"
-#include "Core/Renderer/PPM/RadianceEstimateWork.h"
+#include "Core/Renderer/PM/RayTracingWork.h"
+#include "Core/Renderer/PM/PhotonMappingWork.h"
+#include "Core/Renderer/PM/PhotonMap.h"
+#include "Core/Renderer/PM/RadianceEstimateWork.h"
 
 namespace ph
 {
 
-void PPMRenderer::doUpdate(const SdlResourcePack& data)
+void PMRenderer::doUpdate(const SdlResourcePack& data)
 {
 	m_film = std::make_unique<HdrRgbFilm>(getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
 
@@ -75,40 +75,40 @@ void PPMRenderer::doUpdate(const SdlResourcePack& data)
 	}*/
 }
 
-void PPMRenderer::doRender()
+void PMRenderer::doRender()
 {}
 
-ERegionStatus PPMRenderer::asyncPollUpdatedRegion(Region* out_region)
+ERegionStatus PMRenderer::asyncPollUpdatedRegion(Region* out_region)
 {
 	return ERegionStatus::INVALID;
 }
 
-RenderState PPMRenderer::asyncQueryRenderState()
+RenderState PMRenderer::asyncQueryRenderState()
 {
 	return RenderState();
 }
 
-RenderProgress PPMRenderer::asyncQueryRenderProgress()
+RenderProgress PMRenderer::asyncQueryRenderProgress()
 {
 	return RenderProgress(0, 0);
 }
 
-void PPMRenderer::asyncDevelopRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute)
+void PMRenderer::asyncDevelopRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute)
 {}
 
-void PPMRenderer::develop(HdrRgbFrame& out_frame, EAttribute attribute)
+void PMRenderer::develop(HdrRgbFrame& out_frame, EAttribute attribute)
 {
 	m_film->develop(out_frame);
 }
 
-AttributeTags PPMRenderer::supportedAttributes() const
+AttributeTags PMRenderer::supportedAttributes() const
 {
 	AttributeTags supported;
 	supported.tag(EAttribute::LIGHT_ENERGY);
 	return supported;
 }
 
-std::string PPMRenderer::renderStateName(const RenderState::EType type, const std::size_t index) const
+std::string PMRenderer::renderStateName(const RenderState::EType type, const std::size_t index) const
 {
 	PH_ASSERT_LT(index, RenderState::numStates(type));
 
@@ -132,7 +132,7 @@ std::string PPMRenderer::renderStateName(const RenderState::EType type, const st
 
 // command interface
 
-PPMRenderer::PPMRenderer(const InputPacket& packet) : 
+PMRenderer::PMRenderer(const InputPacket& packet) : 
 	Renderer(packet),
 	m_film(),
 	m_scene(nullptr),
@@ -141,16 +141,16 @@ PPMRenderer::PPMRenderer(const InputPacket& packet) :
 	m_filter(SampleFilterFactory::createBlackmanHarrisFilter())
 {}
 
-SdlTypeInfo PPMRenderer::ciTypeInfo()
+SdlTypeInfo PMRenderer::ciTypeInfo()
 {
-	return SdlTypeInfo(ETypeCategory::REF_RENDERER, "ppm");
+	return SdlTypeInfo(ETypeCategory::REF_RENDERER, "pm");
 }
 
-void PPMRenderer::ciRegister(CommandRegister& cmdRegister)
+void PMRenderer::ciRegister(CommandRegister& cmdRegister)
 {
 	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
 	{
-		return std::make_unique<PPMRenderer>(packet);
+		return std::make_unique<PMRenderer>(packet);
 	}));
 }
 

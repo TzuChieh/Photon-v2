@@ -1,4 +1,4 @@
-#include "Core/Renderer/PPM/RadianceEstimateWork.h"
+#include "Core/Renderer/PM/RadianceEstimateWork.h"
 #include "Math/constant.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"

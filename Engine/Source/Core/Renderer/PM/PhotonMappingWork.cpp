@@ -1,4 +1,4 @@
-#include "Core/Renderer/PPM/PhotonMappingWork.h"
+#include "Core/Renderer/PM/PhotonMappingWork.h"
 #include "World/Scene.h"
 #include "Core/Camera/Camera.h"
 #include "Core/SampleGenerator/SampleGenerator.h"

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Renderer/RenderWork.h"
-#include "Core/Renderer/PPM/Photon.h"
+#include "Core/Renderer/PM/Photon.h"
 
 #include <cstddef>
 #include <memory>

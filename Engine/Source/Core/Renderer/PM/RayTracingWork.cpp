@@ -1,4 +1,4 @@
-#include "Core/Renderer/PPM/RayTracingWork.h"
+#include "Core/Renderer/PM/RayTracingWork.h"
 #include "World/Scene.h"
 #include "Core/Camera/Camera.h"
 #include "Core/SampleGenerator/SampleGenerator.h"

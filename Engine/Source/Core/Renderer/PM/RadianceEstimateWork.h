@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core/Renderer/RenderWork.h"
-#include "Core/Renderer/PPM/PhotonMap.h"
-#include "Core/Renderer/PPM/Viewpoint.h"
+#include "Core/Renderer/PM/PhotonMap.h"
+#include "Core/Renderer/PM/Viewpoint.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 
 namespace ph

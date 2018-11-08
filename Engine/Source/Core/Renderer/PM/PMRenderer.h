@@ -11,7 +11,7 @@
 namespace ph
 {
 
-class PPMRenderer final : public Renderer, public TCommandInterface<PPMRenderer>
+class PMRenderer final : public Renderer, public TCommandInterface<PMRenderer>
 {
 public:
 	void doUpdate(const SdlResourcePack& data) override;
@@ -36,7 +36,7 @@ private:
 
 // command interface
 public:
-	explicit PPMRenderer(const InputPacket& packet);
+	explicit PMRenderer(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
