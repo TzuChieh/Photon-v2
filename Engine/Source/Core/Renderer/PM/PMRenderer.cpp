@@ -7,6 +7,7 @@
 #include "Core/Renderer/PM/RadianceEstimateWork.h"
 #include "FileIO/SDL/InputPacket.h"
 #include "Utility/FixedSizeThreadPool.h"
+#include "Utility/concurrent.h"
 
 #include <numeric>
 
@@ -86,7 +87,7 @@ void PMRenderer::doRender()
 
 void PMRenderer::renderWithVanillaPM()
 {
-	FixedSizeThreadPool workers(getNumWorkers());
+	//FixedSizeThreadPool workers(getNumWorkers());
 
 	std::size_t numPixels = getRenderWindowPx().calcArea() * m_perPixelSamples;
 	std::vector<Viewpoint> viewpointBuffer(numPixels);
@@ -108,31 +109,24 @@ void PMRenderer::renderWithVanillaPM()
 
 	std::vector<std::size_t> numEmittedPhotons(getNumWorkers(), 0);
 	std::size_t bufferOffset = 0;
-	for(std::size_t i = 0; i < getNumWorkers(); ++i)
-	{
-		std::size_t nextBufferOffset = bufferOffset + numPhotons / getNumWorkers();
-		if(i == getNumWorkers() - 1)
-		{
-			nextBufferOffset = numPhotons;
-		}
 
-		std::cerr << nextBufferOffset - bufferOffset << std::endl;
-
-		workers.queueWork([this, &photonBuffer, bufferOffset, nextBufferOffset, &numEmittedPhotons, i]()
+	parallel_work(numPhotons, getNumWorkers(), 
+		[this, &photonBuffer, &numEmittedPhotons](
+			const std::size_t workerIdx, 
+			const std::size_t workStart, 
+			const std::size_t workEnd)
 		{
+			std::cerr << workEnd - workStart << std::endl;
+
 			PhotonMappingWork photonMappingWork(
 				m_scene,
 				m_camera,
 				m_sg->genCopied(1),
-				photonBuffer.data() + bufferOffset,
-				nextBufferOffset - bufferOffset,
-				&(numEmittedPhotons[i]));
+				&(photonBuffer[workStart]),
+				workEnd - workStart,
+				&(numEmittedPhotons[workerIdx]));
 			photonMappingWork.doWork();
 		});
-
-		bufferOffset = nextBufferOffset;
-	}
-	workers.waitAllWorks();
 
 	std::size_t totalPhotons = std::accumulate(numEmittedPhotons.begin(), numEmittedPhotons.end(), std::size_t(0));
 	
@@ -159,7 +153,7 @@ void PMRenderer::renderWithVanillaPM()
 
 
 
-	workers.waitAllWorks();
+	//workers.waitAllWorks();
 }
 
 ERegionStatus PMRenderer::asyncPollUpdatedRegion(Region* out_region)
