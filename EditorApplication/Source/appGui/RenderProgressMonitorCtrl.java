@@ -231,7 +231,9 @@ public class RenderProgressMonitorCtrl
 	
 	private void gatherMonitoredVariables()
 	{
-		int currentRow = 3;
+		ColumnConstraints colLayout = new ColumnConstraints();
+		colLayout.setPercentWidth(50.0);
+		colLayout.setHgrow(Priority.ALWAYS);
 		
 		m_integerNames.clear();
 		for(int i = 0; i < 3; ++i)
@@ -241,7 +243,15 @@ public class RenderProgressMonitorCtrl
 			
 			m_integerNames.add(name);
 			m_integers.add(label);
-			//variableGridPane.add(new Label(name), 0, currentRow++);
+			
+			if(!name.isEmpty())
+			{
+				GridPane cell = new GridPane();
+				cell.add(new Label(name), 0, 0);
+				cell.add(label, 1, 0);
+	            cell.getColumnConstraints().add(colLayout);
+				variablesVBox.getChildren().add(cell);
+			}
 		}
 		
 		m_realNames.clear();
@@ -253,18 +263,14 @@ public class RenderProgressMonitorCtrl
 			m_realNames.add(name);
 			m_reals.add(label);
 			
-			Label nameLabel = new Label(name);
-			
-			GridPane cell = new GridPane();
-			cell.add(nameLabel, 0, 0);
-			cell.add(label, 1, 0);
-			
-			ColumnConstraints cc = new ColumnConstraints();
-            cc.setPercentWidth(50.0);
-            cc.setHgrow(Priority.ALWAYS);
-            cell.getColumnConstraints().add(cc);
-			
-			variablesVBox.getChildren().add(cell);
+			if(!name.isEmpty())
+			{
+				GridPane cell = new GridPane();
+				cell.add(new Label(name), 0, 0);
+				cell.add(label, 1, 0);
+	            cell.getColumnConstraints().add(colLayout);
+				variablesVBox.getChildren().add(cell);
+			}
 		}
 	}
 }

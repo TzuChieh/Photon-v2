@@ -52,6 +52,7 @@ private:
 	
 	std::mutex m_rendererMutex;
 	std::atomic_uint m_percentageProgress;
+	std::atomic_uint32_t m_samplesPerPixel;
 
 	AttributeTags m_requestedAttributes;
 

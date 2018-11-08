@@ -101,12 +101,16 @@ void SamplingRenderer::doRender()
 
 void SamplingRenderer::asyncUpdateFilm(SamplingRenderWork& work)
 {
-	std::lock_guard<std::mutex> lock(m_rendererMutex);
+	{
+		std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	mergeWorkFilms(work);
+		mergeWorkFilms(work);
 
-	// HACK
-	addUpdatedRegion(work.m_films.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), false);
+		// HACK
+		addUpdatedRegion(work.m_films.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), false);
+	}
+
+	m_samplesPerPixel.fetch_add(1, std::memory_order_relaxed);
 }
 
 void SamplingRenderer::clearWorkData()
@@ -205,6 +209,7 @@ RenderState SamplingRenderer::asyncQueryRenderState()
 		static_cast<float32>(m_works.size() * totalNumSamples) / static_cast<float32>(totalElapsedMs) : 0.0f;
 
 	RenderState state;
+	state.setIntegerState(0, static_cast<int64>(m_samplesPerPixel.load(std::memory_order_relaxed)));
 	state.setRealState(0, samplesPerMs * 1000);
 	return state;
 }
@@ -234,13 +239,17 @@ std::string SamplingRenderer::renderStateName(const RenderState::EType type, con
 
 	if(type == RenderState::EType::INTEGER)
 	{
-		return "";
+		switch(index)
+		{
+		case 0:  return "samples/pixel";
+		default: return "";
+		}
 	}
 	else if(type == RenderState::EType::REAL)
 	{
 		switch(index)
 		{
-		case 0: return "samples/second";
+		case 0:  return "samples/second";
 		default: return "";
 		}
 	}
@@ -265,7 +274,8 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 	m_rendererMutex(),
 	m_filter(SampleFilterFactory::createGaussianFilter()),
 	m_requestedAttributes(),
-	m_percentageProgress(0)
+	m_percentageProgress(0),
+	m_samplesPerPixel(0)
 {
 	const std::string filterName = packet.getString("filter-name");
 	m_filter = SampleFilterFactory::create(filterName);
