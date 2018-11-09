@@ -1,13 +1,16 @@
-## What is Photon-v2?
+# Photon-v2 Renderer
 
-Photon-v2 is a rendering engine made out of my personal interest in computer graphics. A rendering engine is what takes geometrical descriptions and material properties of a 3-D scene as input, and outputs a 2-D image of that scene from a specific point of view. In layman's terms, it is like taking a photograph, except the scene and the camera are both computer simulated. Different from its previous version, Photon, which was written entirely in Java, Photon-v2 utilizes the powerful C++17 for the rendering core and builds a GUI on top of it with Java via JNI. This project is currently in development and more features are expected to come. <br />
+<a href="./gallery/bathroom_(based on Salle de bain by nacimus).png"><img src="./gallery/bathroom_(based on Salle de bain by nacimus).png"></a><br />
+
+## What is Photon-v2
+
+Photon-v2 is a rendering engine made out of my personal interest in computer graphics. A rendering engine is what takes geometrical descriptions and material properties of a 3-D scene as input, and outputs a 2-D image of that scene from a specific point of view. In layman's terms, it is like taking a photograph, except the scene and the camera are both computer simulated. This project is actively being developeed and more features are expected to come.
 
 Project Website: https://tzuchieh.github.io/
 
-| Branch        | CI Status |
-| ------------- | -----------------------|
-| Master        | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=master)](https://travis-ci.org/TzuChieh/Photon-v2) |
-| Develop       | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=develop)](https://travis-ci.org/TzuChieh/Photon-v2) |
+|| Master branch | Develop branch |
+| ------------- | -----------------------|-----------------------|
+| **CI Status**     | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=master)](https://travis-ci.org/TzuChieh/Photon-v2) | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=develop)](https://travis-ci.org/TzuChieh/Photon-v2) |
 
 ## Features
 
@@ -78,16 +81,6 @@ NOTE: Please use "./build/" as build folder for now, since build scripts are mor
 * **Future Works (~1 year or later)**
   * documentation & website
   * render a short CG film using Photon
-
-## Images Rendered by Photon-v2
-
-| <a href="./gallery/054_chess (based on _Transparent Chess For Cycle_ by yayel59).png"><img src="./gallery/054_chess (based on _Transparent Chess For Cycle_ by yayel59).png" align="left" width="450" ></a> | <a href="./gallery/048_Arc Reactor (Iron Man) by kuhn0362 8000spp.png"><img src="./gallery/048_Arc Reactor (Iron Man) by kuhn0362 8000spp.png" align="left" width="450" ></a> |
-| :---: | :---: |
-| Chess (based on scene made by "yaye159") | Arc Reactor (Iron Man) by "kuhn0362"|
-
-| <a href="./gallery/044_scenery glass dragon 6000spp.png"><img src="./gallery/044_scenery glass dragon 6000spp.png" align="left" width="450" ></a> | <a href="./gallery/books.png"><img src="./gallery/books.png" align="left" width="450" ></a> |
-| :---: | :---: |
-| Scenery with Glass Dragon | Books by archemi |
 
 ## Scene Description Language
 
