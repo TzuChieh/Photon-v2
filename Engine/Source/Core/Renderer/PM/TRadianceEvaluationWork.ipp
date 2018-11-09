@@ -48,7 +48,7 @@ inline SpectralStrength TRadianceEvaluationWork<Photon>::evaluateRadiance(
 	const Vector3R&   excitant,
 	const real        kernelRadius)
 {
-	static_assert(
+	/*static_assert(
 		Photon::has<EPhotonData::INCIDENT_DIR>() &&
 		Photon::has<EPhotonData::RADIANCE>()     &&
 		Photon::has<EPhotonData::THROUGHPUT>(),
@@ -58,35 +58,35 @@ inline SpectralStrength TRadianceEvaluationWork<Photon>::evaluateRadiance(
 	const real reciNumEmittedPhotons = 1.0_r / static_cast<real>(m_numEmittedPhotons);
 
 	m_photonCache.clear();
-	m_photonMap->findWithinRange(location.getPosition(), kernelRadius, m_photonCache);
+	m_photonMap->findWithinRange(location.getPosition(), kernelRadius, m_photonCache);*/
 
 	BsdfEvaluation   bsdfEval;
 	SpectralStrength radiance(0);
-	for(const auto& photon : m_photonCache)
-	{
-		const Vector3R V  = excitant;
-		const Vector3R L  = photon.get<EPhotonData::INCIDENT_DIR>();
-		const Vector3R Ng = location.getGeometryNormal();
-		const Vector3R Ns = location.getShadingNormal();
+	//for(const auto& photon : m_photonCache)
+	//{
+	//	const Vector3R V  = excitant;
+	//	const Vector3R L  = photon.get<EPhotonData::INCIDENT_DIR>();
+	//	const Vector3R Ng = location.getGeometryNormal();
+	//	const Vector3R Ns = location.getShadingNormal();
 
-		const PrimitiveMetadata* const metadata = location.getDetail().getPrimitive()->getMetadata();
-		const SurfaceOptics*     const optics = metadata->getSurface().getOptics();
+	//	const PrimitiveMetadata* const metadata = location.getDetail().getPrimitive()->getMetadata();
+	//	const SurfaceOptics*     const optics = metadata->getSurface().getOptics();
 
-		bsdfEval.inputs.set(location, L, V, ALL_ELEMENTALS, ETransport::RADIANCE);
-		optics->calcBsdf(bsdfEval);
+	//	bsdfEval.inputs.set(location, L, V, ALL_ELEMENTALS, ETransport::RADIANCE);
+	//	optics->calcBsdf(bsdfEval);
 
-		if(!bsdfEval.outputs.isGood())
-		{
-			continue;
-		}
+	//	if(!bsdfEval.outputs.isGood())
+	//	{
+	//		continue;
+	//	}
 
-		SpectralStrength throughput(1.0_r);
-		throughput.mulLocal(bsdfEval.outputs.bsdf);
-		//throughput.mulLocal(Ns.absDot(V) * Ng.absDot(L) / Ng.absDot(V) / Ns.absDot(L));
-		throughput.mulLocal(photon.get<EPhotonData::THROUGHPUT>());
+	//	SpectralStrength throughput(1.0_r);
+	//	throughput.mulLocal(bsdfEval.outputs.bsdf);
+	//	//throughput.mulLocal(Ns.absDot(V) * Ng.absDot(L) / Ng.absDot(V) / Ns.absDot(L));
+	//	throughput.mulLocal(photon.get<EPhotonData::THROUGHPUT>());
 
-		radiance.addLocal(throughput * photon.get<EPhotonData::RADIANCE>() * reciKernelArea * reciNumEmittedPhotons);
-	}
+	//	radiance.addLocal(throughput * photon.get<EPhotonData::RADIANCE>() * reciKernelArea * reciNumEmittedPhotons);
+	//}
 
 	/*for(std::size_t i = 0; i < radiance.NUM_VALUES; ++i)
 	{

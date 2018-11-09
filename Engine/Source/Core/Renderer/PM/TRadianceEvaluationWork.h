@@ -21,8 +21,6 @@ public:
 		const TPhotonMap<Photon>* photonMap,
 		std::size_t               numPhotonPaths);
 
-	void doWork() override = 0;
-
 	SpectralStrength evaluateRadiance(
 		const SurfaceHit& location,
 		const Vector3R&   excitant,
@@ -33,6 +31,8 @@ protected:
 	const std::size_t         numPhotonPaths() const;
 
 private:
+	void doWork() override = 0;
+
 	const TPhotonMap<Photon>* m_photonMap;
 	Viewpoint* m_viewpoints;
 	std::size_t m_numViewpoints;

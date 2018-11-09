@@ -15,6 +15,7 @@ class Scene;
 class Camera;
 class SampleGenerator;
 class PMStatistics;
+class PMRenderer;
 
 class VPMRadianceEvaluationWork : public TRadianceEvaluationWork<VPMPhoton>
 {
@@ -27,28 +28,35 @@ public:
 		SampleGenerator*             sampleGenerator,
 		HdrRgbFilm*                  film);
 
-	void doWork() override;
-
 	void setPMStatistics(PMStatistics* statistics);
+	void setPMRenderer(PMRenderer* renderer);
 	void setKernelRadius(real radius);
 
 private:
+	void doWork() override;
+
 	const Scene*     m_scene;
 	const Camera*    m_camera;
 	SampleGenerator* m_sampleGenerator;
 	HdrRgbFilm*      m_film;
 	PMStatistics*    m_statistics;
+	PMRenderer*      m_renderer;
 	real             m_kernelRadius;
 };
 
 // In-header Implementations:
 
-void VPMRadianceEvaluationWork::setPMStatistics(PMStatistics* const statistics)
+inline void VPMRadianceEvaluationWork::setPMStatistics(PMStatistics* const statistics)
 {
 	m_statistics = statistics;
 }
 
-void VPMRadianceEvaluationWork::setKernelRadius(const real radius)
+inline void VPMRadianceEvaluationWork::setPMRenderer(PMRenderer* const renderer)
+{
+	m_renderer = renderer;
+}
+
+inline void VPMRadianceEvaluationWork::setKernelRadius(const real radius)
 {
 	PH_ASSERT_GT(radius, 0.0_r);
 

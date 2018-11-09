@@ -30,6 +30,8 @@ public:
 	AttributeTags supportedAttributes() const override;
 	std::string renderStateName(RenderState::EType type, std::size_t index) const override;
 
+	void asyncMergeFilm(HdrRgbFilm& srcFilm);
+
 private:
 	std::unique_ptr<HdrRgbFilm> m_film;
 
@@ -45,7 +47,7 @@ private:
 
 	std::mutex m_filmMutex;
 
-	PMStatistics m_pmStatistics;
+	PMStatistics m_statistics;
 
 	void renderWithVanillaPM();
 

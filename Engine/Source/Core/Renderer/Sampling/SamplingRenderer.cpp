@@ -89,7 +89,7 @@ void SamplingRenderer::doRender()
 		
 		workers.queueWork([this, i]()
 		{
-			m_works[i].doWork();
+			m_works[i].work();
 		});
 		
 		//float bestProgress, worstProgress;

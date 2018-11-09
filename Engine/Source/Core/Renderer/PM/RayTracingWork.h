@@ -24,9 +24,9 @@ public:
 		std::size_t numViewpoints,
 		real kernelRadius);
 
+private:
 	void doWork() override;
 
-private:
 	const Scene* m_scene;
 	const Camera* m_camera;
 	std::unique_ptr<SampleGenerator> m_sampleGenerator;

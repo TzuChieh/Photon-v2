@@ -16,6 +16,7 @@
 #include "Core/Estimator/BuildingBlock/RussianRoulette.h"
 #include "Common/assertion.h"
 #include "Utility/Timer.h"
+#include "Core/Renderer/PM/PMStatistics.h"
 
 namespace ph
 {
@@ -35,11 +36,10 @@ inline TPhotonMappingWork<Photon>::TPhotonMappingWork(
 	m_sampleGenerator(sampleGenerator),
 	m_photonBuffer(photonBuffer),
 	m_numPhotons(numPhotons),
-	m_numPhotonPaths(out_numPhotonPaths),
-
-	m_numTracedPhotons(0),
-	m_numElapsedMs(0)
-{}
+	m_numPhotonPaths(out_numPhotonPaths)
+{
+	setPMStatistics(nullptr);
+}
 
 template<typename Photon>
 inline void TPhotonMappingWork<Photon>::doWork()
@@ -49,7 +49,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 
 	std::size_t numStoredPhotons = 0;
 	*m_numPhotonPaths            = 0;
-	std::size_t reportCounter    = 0;
+	std::size_t photonCounter    = 0;
 	while(numStoredPhotons < m_numPhotons)
 	{
 		++(*m_numPhotonPaths);
@@ -109,6 +109,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 				}
 
 				m_photonBuffer[numStoredPhotons++] = photon;
+				++photonCounter;
 
 				if(numStoredPhotons == m_numPhotons)
 				{
@@ -138,32 +139,35 @@ inline void TPhotonMappingWork<Photon>::doWork()
 
 			tracingRay.setOrigin(surfaceHit.getPosition());
 			tracingRay.setDirection(L);
-		}
+		}// end single photon path
 
-		++reportCounter;
-		if(reportCounter == 16384)
+		if(photonCounter >= 16384)
 		{
 			timer.finish();
+			setElapsedMs(timer.getDeltaMs());
 
-			m_numTracedPhotons.store(static_cast<std::uint64_t>(m_numPhotons), std::memory_order_relaxed);
-			m_numElapsedMs.store(static_cast<std::uint32_t>(timer.getDeltaMs()), std::memory_order_relaxed);
+			if(m_statistics)
+			{
+				m_statistics->asyncAddNumTracedPhotons(photonCounter);
+			}
 
-			reportCounter = 0;
+			photonCounter = 0;
 		}
 	}// end while photon buffer is not full
+
+	timer.finish();
+	setElapsedMs(timer.getDeltaMs());
+
+	if(m_statistics)
+	{
+		m_statistics->asyncAddNumTracedPhotons(photonCounter);
+	}
 }
 
 template<typename Photon>
-inline std::size_t TPhotonMappingWork<Photon>::asyncGetNumTracedPhotons() const
+inline void TPhotonMappingWork<Photon>::setPMStatistics(PMStatistics* const statistics)
 {
-	return static_cast<std::size_t>(m_numTracedPhotons.load(std::memory_order_relaxed));
+	m_statistics = statistics;
 }
-
-template<typename Photon>
-inline std::size_t TPhotonMappingWork<Photon>::asyncGetNumElapsedMs() const
-{
-	return static_cast<std::size_t>(m_numElapsedMs.load(std::memory_order_relaxed));
-}
-
 
 }// end namespace ph

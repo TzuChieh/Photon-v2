@@ -8,6 +8,7 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/SurfaceHit.h"
+#include "Core/Renderer/PM/PMRenderer.h"
 
 namespace ph
 {
@@ -33,6 +34,7 @@ VPMRadianceEvaluationWork::VPMRadianceEvaluationWork(
 	PH_ASSERT(film);
 
 	setPMStatistics(nullptr);
+	setPMRenderer(nullptr);
 	setKernelRadius(0.1_r);
 }
 
@@ -102,6 +104,16 @@ void VPMRadianceEvaluationWork::doWork()
 			const real filmXPx = filmNdcPos.x * static_cast<real>(m_film->getActualResPx().x);
 			const real filmYPx = filmNdcPos.y * static_cast<real>(m_film->getActualResPx().y);
 			m_film->addSample(filmXPx, filmYPx, radiance);
+		}
+
+		if(m_statistics)
+		{
+			m_statistics->asyncIncrementNumPasses();
+		}
+
+		if(m_renderer)
+		{
+			m_renderer->asyncMergeFilm(*m_film);
 		}
 	}// end while
 }

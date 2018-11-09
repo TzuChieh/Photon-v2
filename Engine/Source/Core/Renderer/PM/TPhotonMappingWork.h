@@ -14,6 +14,7 @@ namespace ph
 class Scene;
 class Camera;
 class SampleGenerator;
+class PMStatistics;
 
 template<typename Photon>
 class TPhotonMappingWork : public RenderWork
@@ -29,21 +30,18 @@ public:
 		std::size_t      numPhotons,
 		std::size_t*     out_numPhotonPaths);
 
-	void doWork() override;
-
-	std::size_t asyncGetNumTracedPhotons() const;
-	std::size_t asyncGetNumElapsedMs() const;
+	void setPMStatistics(PMStatistics* statistics);
 
 private:
+	void doWork() override;
+
 	const Scene*     m_scene;
 	const Camera*    m_camera;
 	SampleGenerator* m_sampleGenerator;
 	Photon*          m_photonBuffer;
 	std::size_t      m_numPhotons;
 	std::size_t*     m_numPhotonPaths;
-
-	std::atomic_uint64_t m_numTracedPhotons;
-	std::atomic_uint32_t m_numElapsedMs;
+	PMStatistics*    m_statistics;
 };
 
 }// end namespace ph

@@ -36,8 +36,6 @@ public:
 	SamplingRenderWork(SamplingRenderWork&& other);
 	~SamplingRenderWork() override;
 
-	void doWork() override;
-
 	SamplingStatistics asyncGetStatistics();
 	void setDomainPx(const TAABB2D<int64>& domainPx);
 
@@ -47,6 +45,8 @@ public:
 	SamplingFilmSet m_films;
 
 private:
+	void doWork() override;
+
 	SamplingRenderer*     m_renderer;
 	Integrand             m_integrand;
 	const Estimator*      m_estimator;

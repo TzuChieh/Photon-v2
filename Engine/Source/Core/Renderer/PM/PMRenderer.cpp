@@ -4,8 +4,8 @@
 #include "Core/Renderer/PM/RayTracingWork.h"
 #include "Core/Renderer/PM/TPhotonMappingWork.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
-#include "Core/Renderer/PM/TRadianceEvaluationWork.h"
-#include "Core/Renderer/PM/PMPhoton.h"
+#include "Core/Renderer/PM/VPMRadianceEvaluationWork.h"
+#include "Core/Renderer/PM/VPMPhoton.h"
 #include "FileIO/SDL/InputPacket.h"
 #include "Utility/FixedSizeThreadPool.h"
 #include "Utility/concurrent.h"
@@ -23,7 +23,7 @@ void PMRenderer::doUpdate(const SdlResourcePack& data)
 	m_camera = data.getCamera().get();
 	m_sg = data.getSampleGenerator().get();
 
-	m_pmStatistics.zero();
+	m_statistics.zero();
 	
 	/*Scene* scene,
 		Camera* camera,
@@ -98,107 +98,73 @@ void PMRenderer::renderWithVanillaPM()
 	std::cerr << "size of viewpoint buffer: " << sizeof(Viewpoint) * numPixels / 1024 / 1024 << " MB" << std::endl;
 
 	std::size_t numPhotons = m_numPhotons;
-	std::vector<PMPhoton> photonBuffer(numPhotons);
+	std::vector<VPMPhoton> photonBuffer(numPhotons);
 
 	std::cerr << "numPhotons = " << numPhotons << std::endl;
 	std::cerr << "photon mapping work start" << std::endl;
 
-	std::vector<std::size_t> numEmittedPhotons(getNumWorkers(), 0);
+	std::vector<std::size_t> numPhotonPaths(getNumWorkers(), 0);
 	std::size_t bufferOffset = 0;
 
 	parallel_work(numPhotons, getNumWorkers(), 
-		[this, &photonBuffer, &numEmittedPhotons](
+		[this, &photonBuffer, &numPhotonPaths](
 			const std::size_t workerIdx, 
 			const std::size_t workStart, 
 			const std::size_t workEnd)
 		{
 			auto sampleGenerator = m_sg->genCopied(1);
 
-			TPhotonMappingWork<PMPhoton> photonMappingWork(
+			TPhotonMappingWork<VPMPhoton> photonMappingWork(
 				m_scene,
 				m_camera,
 				sampleGenerator.get(),
 				&(photonBuffer[workStart]),
 				workEnd - workStart,
-				&(numEmittedPhotons[workerIdx]));
-			photonMappingWork.doWork();
+				&(numPhotonPaths[workerIdx]));
+
+			photonMappingWork.setPMStatistics(&m_statistics);
+
+			photonMappingWork.work();
 		});
 
-	std::size_t totalPhotons = std::accumulate(numEmittedPhotons.begin(), numEmittedPhotons.end(), std::size_t(0));
+	std::size_t totalPhotonPaths = std::accumulate(numPhotonPaths.begin(), numPhotonPaths.end(), std::size_t(0));
 	
 
 	std::cerr << "photon mapping work finished" << std::endl;
-	std::cerr << "size of photon buffer: " << sizeof(PMPhoton) * numPhotons / 1024 / 1024 << " MB" << std::endl;
+	std::cerr << "size of photon buffer: " << sizeof(VPMPhoton) * numPhotons / 1024 / 1024 << " MB" << std::endl;
 
 	std::cerr << "building photon map" << std::endl;
 
-	TPhotonMap<PMPhoton> photonMap(2, TPhotonCenterCalculator<PMPhoton>());
+	TPhotonMap<VPMPhoton> photonMap(2, TPhotonCenterCalculator<VPMPhoton>());
 	photonMap.build(std::move(photonBuffer));
 
 	std::cerr << "photon map built" << std::endl;
 
 	std::cerr << "estimating radiance" << std::endl;
 
-	std::vector<std::unique_ptr<HdrRgbFilm>> workerFilms(getNumWorkers());
-	for(auto&& workerFilm : workerFilms)
-	{
-		workerFilm = std::make_unique<HdrRgbFilm>(
-			getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
-	}
-
 	parallel_work(getNumWorkers(), getNumWorkers(), 
-		[this, &photonMap, &viewpointBuffer, &workerFilms, totalPhotons](
+		[this, &photonMap, &viewpointBuffer, totalPhotonPaths](
 			const std::size_t workerIdx, 
 			const std::size_t workStart, 
 			const std::size_t workEnd)
 		{
-			TRadianceEvaluationWork<PMPhoton> radianceEstimator(
+			auto sampleGenerator = m_sg->genCopied(9999999);// FIXME
+			auto film            = std::make_unique<HdrRgbFilm>(
+				getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
+
+			VPMRadianceEvaluationWork radianceEstimator(
 				&photonMap, 
-				viewpointBuffer.data(), 
-				viewpointBuffer.size(), 
-				m_film.get(), 
-				totalPhotons);
+				totalPhotonPaths,
+				m_scene,
+				m_camera,
+				sampleGenerator.get(),
+				film.get());
 
-			auto workerSg = m_sg->genCopied(9999999);
-			const Samples2DStage filmStage = workerSg->declare2DStage(getRenderWindowPx().calcArea());// FIXME: consider sample filter extent & size hints
-			const bool isSamplePrepared = workerSg->prepareSampleBatch();
-			PH_ASSERT(isSamplePrepared);
+			radianceEstimator.setPMRenderer(this);
+			radianceEstimator.setPMStatistics(&m_statistics);
+			radianceEstimator.setKernelRadius(m_kernelRadius);
 
-			auto& workerFilm = workerFilms[workerIdx];
-
-			while(workerSg->prepareSampleBatch())
-			{
-				const Samples2D samples = workerSg->getSamples2D(filmStage);
-				for(std::size_t i = 0; i < samples.numSamples(); ++i)
-				{
-					const Vector2R filmNdcPos = samples[i];
-
-					Ray tracingRay;
-					m_camera->genSensedRay(filmNdcPos, &tracingRay);
-					tracingRay.reverse();
-
-					HitProbe probe;
-					if(m_scene->isIntersecting(tracingRay, &probe))
-					{
-						SurfaceHit surfaceHit(tracingRay, probe);
-						const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
-						const SurfaceOptics* surfaceOptics = metadata->getSurface().getOptics();
-
-						// TODO: handle specular path
-
-						const Vector3R L = tracingRay.getDirection().mul(-1);
-						const SpectralStrength radiance = radianceEstimator.evaluateRadiance(surfaceHit, L, m_kernelRadius);
-
-						
-						const real filmXPx = filmNdcPos.x * static_cast<real>(workerFilm->getActualResPx().x);
-						const real filmYPx = filmNdcPos.y * static_cast<real>(workerFilm->getActualResPx().y);
-						workerFilm->addSample(filmXPx, filmYPx, radiance);
-					}
-				}
-
-				std::lock_guard<std::mutex> m_filmLock(m_filmMutex);
-				m_film->mergeWith(*workerFilm);
-			}
+			radianceEstimator.work();
 		});
 
 	std::cerr << "estimation complete" << std::endl;
@@ -210,23 +176,19 @@ ERegionStatus PMRenderer::asyncPollUpdatedRegion(Region* out_region)
 	return ERegionStatus::UPDATING;
 }
 
-RenderState PMRenderer::asyncQueryRenderState()
-{
-	return RenderState();
-}
-
 RenderProgress PMRenderer::asyncQueryRenderProgress()
 {
 	return RenderProgress(0, 0, 0);
 }
 
-void PMRenderer::asyncDevelopRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute)
+void PMRenderer::asyncDevelopRegion(HdrRgbFrame& out_frame, const Region& region, const EAttribute attribute)
 {
-	std::lock_guard<std::mutex> m_filmLock(m_filmMutex);
+	std::lock_guard<std::mutex> lock(m_filmMutex);
+
 	m_film->develop(out_frame, region);
 }
 
-void PMRenderer::develop(HdrRgbFrame& out_frame, EAttribute attribute)
+void PMRenderer::develop(HdrRgbFrame& out_frame, const EAttribute attribute)
 {
 	m_film->develop(out_frame);
 }
@@ -244,7 +206,12 @@ std::string PMRenderer::renderStateName(const RenderState::EType type, const std
 
 	if(type == RenderState::EType::INTEGER)
 	{
-		return "";
+		switch(index)
+		{
+		case 0: return "finished passes";
+		case 1: return "traced photons";
+		default: return "";
+		}
 	}
 	else if(type == RenderState::EType::REAL)
 	{
@@ -258,6 +225,22 @@ std::string PMRenderer::renderStateName(const RenderState::EType type, const std
 	{
 		return "";
 	}
+}
+
+RenderState PMRenderer::asyncQueryRenderState()
+{
+	RenderState state;
+	state.setIntegerState(0, m_statistics.asyncGetNumPasses());
+	state.setIntegerState(1, m_statistics.asyncGetNumTracedPhotons());
+	return state;
+}
+
+void PMRenderer::asyncMergeFilm(HdrRgbFilm& srcFilm)
+{
+	std::lock_guard<std::mutex> lock(m_filmMutex);
+
+	m_film->mergeWith(srcFilm);
+	srcFilm.clear();
 }
 
 // command interface
@@ -276,7 +259,7 @@ PMRenderer::PMRenderer(const InputPacket& packet) :
 	m_perPixelSamples(),
 
 	m_filmMutex(),
-	m_pmStatistics()
+	m_statistics()
 {
 	const std::string& mode = packet.getString("mode", "vanilla");
 	if(mode == "vanilla")

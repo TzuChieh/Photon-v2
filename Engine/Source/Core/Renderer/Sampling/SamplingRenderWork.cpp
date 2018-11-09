@@ -92,10 +92,11 @@ void SamplingRenderWork::doWork()
 		}// end for
 
 		m_renderer->asyncUpdateFilm(*this);
-		incrementWorkDone();		
-		setElapsedMs(sampleTimer.getDeltaMs());
+		incrementWorkDone();	
 
 		sampleTimer.finish();
+		setElapsedMs(sampleTimer.getDeltaMs());
+
 
 		m_numSamplesTaken = static_cast<uint32>(camSamples.numSamples());
 	}
