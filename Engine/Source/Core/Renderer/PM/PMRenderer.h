@@ -4,6 +4,7 @@
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Filmic/SampleFilter.h"
 #include "Core/Renderer/PM/EPMMode.h"
+#include "Core/Renderer/PM/PMStatistics.h"
 
 #include <vector>
 #include <memory>
@@ -43,6 +44,8 @@ private:
 	std::size_t m_perPixelSamples;
 
 	std::mutex m_filmMutex;
+
+	PMStatistics m_pmStatistics;
 
 	void renderWithVanillaPM();
 

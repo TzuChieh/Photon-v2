@@ -2,9 +2,10 @@
 #include "Core/Filmic/SampleFilterFactory.h"
 #include "FileIO/SDL/SdlResourcePack.h"
 #include "Core/Renderer/PM/RayTracingWork.h"
-#include "Core/Renderer/PM/PhotonMappingWork.h"
-#include "Core/Renderer/PM/PhotonMap.h"
-#include "Core/Renderer/PM/RadianceEstimateWork.h"
+#include "Core/Renderer/PM/TPhotonMappingWork.h"
+#include "Core/Renderer/PM/TPhotonMap.h"
+#include "Core/Renderer/PM/TRadianceEvaluationWork.h"
+#include "Core/Renderer/PM/PMPhoton.h"
 #include "FileIO/SDL/InputPacket.h"
 #include "Utility/FixedSizeThreadPool.h"
 #include "Utility/concurrent.h"
@@ -21,6 +22,8 @@ void PMRenderer::doUpdate(const SdlResourcePack& data)
 	m_scene = &(data.visualWorld.getScene());
 	m_camera = data.getCamera().get();
 	m_sg = data.getSampleGenerator().get();
+
+	m_pmStatistics.zero();
 	
 	/*Scene* scene,
 		Camera* camera,
@@ -95,7 +98,7 @@ void PMRenderer::renderWithVanillaPM()
 	std::cerr << "size of viewpoint buffer: " << sizeof(Viewpoint) * numPixels / 1024 / 1024 << " MB" << std::endl;
 
 	std::size_t numPhotons = m_numPhotons;
-	std::vector<Photon> photonBuffer(numPhotons);
+	std::vector<PMPhoton> photonBuffer(numPhotons);
 
 	std::cerr << "numPhotons = " << numPhotons << std::endl;
 	std::cerr << "photon mapping work start" << std::endl;
@@ -109,12 +112,12 @@ void PMRenderer::renderWithVanillaPM()
 			const std::size_t workStart, 
 			const std::size_t workEnd)
 		{
-			std::cerr << workEnd - workStart << std::endl;
+			auto sampleGenerator = m_sg->genCopied(1);
 
-			PhotonMappingWork photonMappingWork(
+			TPhotonMappingWork<PMPhoton> photonMappingWork(
 				m_scene,
 				m_camera,
-				m_sg->genCopied(1),
+				sampleGenerator.get(),
 				&(photonBuffer[workStart]),
 				workEnd - workStart,
 				&(numEmittedPhotons[workerIdx]));
@@ -125,11 +128,11 @@ void PMRenderer::renderWithVanillaPM()
 	
 
 	std::cerr << "photon mapping work finished" << std::endl;
-	std::cerr << "size of photon buffer: " << sizeof(Photon) * numPhotons / 1024 / 1024 << " MB" << std::endl;
+	std::cerr << "size of photon buffer: " << sizeof(PMPhoton) * numPhotons / 1024 / 1024 << " MB" << std::endl;
 
 	std::cerr << "building photon map" << std::endl;
 
-	PhotonMap photonMap(2, PhotonCenterCalculator());
+	TPhotonMap<PMPhoton> photonMap(2, TPhotonCenterCalculator<PMPhoton>());
 	photonMap.build(std::move(photonBuffer));
 
 	std::cerr << "photon map built" << std::endl;
@@ -149,7 +152,7 @@ void PMRenderer::renderWithVanillaPM()
 			const std::size_t workStart, 
 			const std::size_t workEnd)
 		{
-			RadianceEstimateWork radianceEstimator(
+			TRadianceEvaluationWork<PMPhoton> radianceEstimator(
 				&photonMap, 
 				viewpointBuffer.data(), 
 				viewpointBuffer.size(), 
@@ -214,7 +217,7 @@ RenderState PMRenderer::asyncQueryRenderState()
 
 RenderProgress PMRenderer::asyncQueryRenderProgress()
 {
-	return RenderProgress(0, 0);
+	return RenderProgress(0, 0, 0);
 }
 
 void PMRenderer::asyncDevelopRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute)
@@ -270,7 +273,10 @@ PMRenderer::PMRenderer(const InputPacket& packet) :
 	m_mode(),
 	m_numPhotons(),
 	m_kernelRadius(),
-	m_perPixelSamples()
+	m_perPixelSamples(),
+
+	m_filmMutex(),
+	m_pmStatistics()
 {
 	const std::string& mode = packet.getString("mode", "vanilla");
 	if(mode == "vanilla")

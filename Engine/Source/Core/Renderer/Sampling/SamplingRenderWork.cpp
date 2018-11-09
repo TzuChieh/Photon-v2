@@ -23,8 +23,7 @@ SamplingRenderWork::SamplingRenderWork(SamplingRenderWork&& other) :
 	m_films(std::move(other.m_films)),
 	m_requestedAttributes(std::move(other.m_requestedAttributes)),
 
-	m_numSamplesTaken(other.m_numSamplesTaken.load()),
-	m_numMsElapsed(other.m_numMsElapsed.load())
+	m_numSamplesTaken(other.m_numSamplesTaken.load())
 {}
 
 void SamplingRenderWork::doWork()
@@ -51,7 +50,6 @@ void SamplingRenderWork::doWork()
 		{1, 1});*/
 
 	m_numSamplesTaken = 0;
-	m_numMsElapsed    = 0;
 	setTotalWork(m_sampleGenerator->numSampleBatches());
 	setWorkDone(0);
 
@@ -95,11 +93,11 @@ void SamplingRenderWork::doWork()
 
 		m_renderer->asyncUpdateFilm(*this);
 		incrementWorkDone();		
+		setElapsedMs(sampleTimer.getDeltaMs());
 
 		sampleTimer.finish();
 
 		m_numSamplesTaken = static_cast<uint32>(camSamples.numSamples());
-		m_numMsElapsed    = static_cast<uint32>(sampleTimer.getDeltaMs());
 	}
 }
 

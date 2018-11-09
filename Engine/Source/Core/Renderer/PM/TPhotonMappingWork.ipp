@@ -1,4 +1,6 @@
-#include "Core/Renderer/PM/PhotonMappingWork.h"
+#pragma once
+
+#include "Core/Renderer/PM/TPhotonMappingWork.h"
 #include "World/Scene.h"
 #include "Core/Camera/Camera.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
@@ -13,32 +15,44 @@
 #include "Math/Random.h"
 #include "Core/Estimator/BuildingBlock/RussianRoulette.h"
 #include "Common/assertion.h"
+#include "Utility/Timer.h"
 
 namespace ph
 {
 
-PhotonMappingWork::PhotonMappingWork(
-	const Scene* scene,
-	const Camera* camera,
-	std::unique_ptr<SampleGenerator> sampleGenerator,
-	Photon* photonBuffer,
-	std::size_t numPhotons,
-	std::size_t* out_numEmittedPhotons) :
+template<typename Photon>
+inline TPhotonMappingWork<Photon>::TPhotonMappingWork(
+
+	const Scene* const     scene,
+	const Camera* const    camera,
+	SampleGenerator* const sampleGenerator,
+	Photon* const          photonBuffer,
+	const std::size_t      numPhotons,
+	std::size_t* const     out_numPhotonPaths) :
+
 	m_scene(scene),
 	m_camera(camera),
-	m_sampleGenerator(std::move(sampleGenerator)),
+	m_sampleGenerator(sampleGenerator),
 	m_photonBuffer(photonBuffer),
 	m_numPhotons(numPhotons),
-	m_numEmittedPhotons(out_numEmittedPhotons)
+	m_numPhotonPaths(out_numPhotonPaths),
+
+	m_numTracedPhotons(0),
+	m_numElapsedMs(0)
 {}
 
-void PhotonMappingWork::doWork()
+template<typename Photon>
+inline void TPhotonMappingWork<Photon>::doWork()
 {
-	*m_numEmittedPhotons = 0;
-	//int bounces = 0;
-	for(std::size_t i = 0; i < m_numPhotons;)
+	Timer timer;
+	timer.start();
+
+	std::size_t numStoredPhotons = 0;
+	*m_numPhotonPaths            = 0;
+	std::size_t reportCounter    = 0;
+	while(numStoredPhotons < m_numPhotons)
 	{
-		++(*m_numEmittedPhotons);
+		++(*m_numPhotonPaths);
 
 		Ray tracingRay;
 		SpectralStrength emittedRadiance;
@@ -54,24 +68,12 @@ void PhotonMappingWork::doWork()
 		throughput.divLocal(pdfW);
 		throughput.mulLocal(emitN.absDot(tracingRay.getDirection()));
 
+		// start tracing single photon path
 		while(true)
 		{
 			HitProbe probe;
 			if(!m_scene->isIntersecting(tracingRay, &probe))
 			{
-				// DEBUG
-				//Photon photon;
-				//photon.position = tracingRay.getOrigin();
-				//photon.radiance.setValues(0);
-				//photon.throughput.setValues(throughput);
-				//photon.V = tracingRay.getDirection().mul(-1);
-				//m_photonBuffer[i++] = photon;
-				//PH_ASSERT_MSG(throughput.isNonNegative(), "throughput = " + throughput.toString());
-				//if(i == m_numPhotons /*|| ++bounces == 5*/)
-				//{
-				//	break;
-				//}
-
 				break;
 			}
 
@@ -85,19 +87,34 @@ void PhotonMappingWork::doWork()
 				throughput = weightedThroughput;
 
 				Photon photon;
-				photon.position = surfaceHit.getPosition();
-				photon.radiance = emittedRadiance;
-				photon.throughput.setValues(throughput);
-				photon.V = tracingRay.getDirection().mul(-1);
-				m_photonBuffer[i++] = photon;
 
-				PH_ASSERT_MSG(throughput.isNonNegative(), "throughput = " + throughput.toString());
+				if constexpr(Photon::has<EPhotonData::POSITION>())
+				{
+					photon.set<EPhotonData::POSITION>(surfaceHit.getPosition());
+				}
 
-				if(i == m_numPhotons /*|| ++bounces == 5*/)
+				if constexpr(Photon::has<EPhotonData::RADIANCE>())
+				{
+					photon.set<EPhotonData::RADIANCE>(emittedRadiance);
+				}
+
+				if constexpr(Photon::has<EPhotonData::THROUGHPUT>())
+				{
+					photon.set<EPhotonData::THROUGHPUT>(throughput);
+				}
+
+				if constexpr(Photon::has<EPhotonData::INCIDENT_DIR>())
+				{
+					photon.set<EPhotonData::INCIDENT_DIR>(tracingRay.getDirection().mul(-1));
+				}
+
+				m_photonBuffer[numStoredPhotons++] = photon;
+
+				if(numStoredPhotons == m_numPhotons)
 				{
 					break;
 				}
-			}
+			}// end if photon survived
 			else
 			{
 				break;
@@ -117,13 +134,35 @@ void PhotonMappingWork::doWork()
 			Vector3R Ns = surfaceHit.getShadingNormal();
 			throughput.mulLocal(bsdfSample.outputs.pdfAppliedBsdf);
 			throughput.mulLocal(Ns.absDot(L));
-			//throughput.mulLocal(Ns.absDot(V));
 			//throughput.mulLocal(Ns.absDot(V) * Ng.absDot(L) / Ng.absDot(V) / Ns.absDot(L));
 
 			tracingRay.setOrigin(surfaceHit.getPosition());
 			tracingRay.setDirection(L);
 		}
-	}
+
+		++reportCounter;
+		if(reportCounter == 16384)
+		{
+			timer.finish();
+
+			m_numTracedPhotons.store(static_cast<std::uint64_t>(m_numPhotons), std::memory_order_relaxed);
+			m_numElapsedMs.store(static_cast<std::uint32_t>(timer.getDeltaMs()), std::memory_order_relaxed);
+
+			reportCounter = 0;
+		}
+	}// end while photon buffer is not full
+}
+
+template<typename Photon>
+inline std::size_t TPhotonMappingWork<Photon>::asyncGetNumTracedPhotons() const
+{
+	return static_cast<std::size_t>(m_numTracedPhotons.load(std::memory_order_relaxed));
+}
+
+template<typename Photon>
+inline std::size_t TPhotonMappingWork<Photon>::asyncGetNumElapsedMs() const
+{
+	return static_cast<std::size_t>(m_numElapsedMs.load(std::memory_order_relaxed));
 }
 
 }// end namespace ph

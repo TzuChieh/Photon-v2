@@ -11,10 +11,17 @@ namespace ph
 class RenderProgress
 {
 public:
-	RenderProgress(std::size_t totalWork, std::size_t workDone);
+	// Represents no progress.
+	RenderProgress();
+
+	RenderProgress(
+		std::size_t totalWork, 
+		std::size_t workDone,
+		std::size_t elapsedMs);
 
 	std::size_t getTotalWork() const;
 	std::size_t getWorkDone() const;
+	std::size_t getElapsedMs() const;
 	real getNormalizedProgress() const;
 	real getPercentageProgress() const;
 
@@ -23,13 +30,22 @@ public:
 private:
 	std::size_t m_totalWork;
 	std::size_t m_workDone;
+	std::size_t m_elapsedMs;
 };
 
 // In-header Implementations:
 
-inline RenderProgress::RenderProgress(const std::size_t totalWork, const std::size_t workDone) : 
+inline RenderProgress::RenderProgress() : 
+	RenderProgress(0, 0, 0)
+{}
+
+inline RenderProgress::RenderProgress(
+	const std::size_t totalWork, 
+	const std::size_t workDone,
+	const std::size_t elapsedMs) : 
 	m_totalWork(totalWork),
-	m_workDone(workDone)
+	m_workDone(workDone),
+	m_elapsedMs(elapsedMs)
 {
 	PH_ASSERT_GE(m_totalWork, m_workDone);
 }
@@ -42,6 +58,11 @@ inline std::size_t RenderProgress::getTotalWork() const
 inline std::size_t RenderProgress::getWorkDone() const
 {
 	return m_workDone;
+}
+
+inline std::size_t RenderProgress::getElapsedMs() const
+{
+	return m_elapsedMs;
 }
 
 inline real RenderProgress::getNormalizedProgress() const
@@ -65,6 +86,7 @@ inline RenderProgress& RenderProgress::operator += (const RenderProgress& rhs)
 {
 	m_totalWork += rhs.m_totalWork;
 	m_workDone  += rhs.m_workDone;
+	m_elapsedMs += rhs.m_elapsedMs;
 
 	return *this;
 }

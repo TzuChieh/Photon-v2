@@ -6,7 +6,6 @@
 #include "Core/Renderer/RenderProgress.h"
 
 #include <atomic>
-#include <mutex>
 #include <utility>
 
 namespace ph
@@ -37,6 +36,7 @@ private:
 	RenderWork*          m_work;
 	std::atomic_uint32_t m_totalWork;
 	std::atomic_uint32_t m_workDone;
+	std::atomic_uint32_t m_numElapsedMs;
 
 	void doWork();
 };

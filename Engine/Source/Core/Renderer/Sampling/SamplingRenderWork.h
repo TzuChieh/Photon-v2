@@ -54,7 +54,6 @@ private:
 	AttributeTags m_requestedAttributes;
 
 	std::atomic_uint32_t m_numSamplesTaken;
-	std::atomic_uint32_t m_numMsElapsed;
 };
 
 // In-header Implementations:
@@ -76,8 +75,7 @@ inline SamplingRenderWork::SamplingRenderWork(
 	m_films(std::move(films)),
 	m_requestedAttributes(requestedAttributes),
 
-	m_numSamplesTaken(0),
-	m_numMsElapsed(0)
+	m_numSamplesTaken(0)
 {}
 
 inline SamplingRenderWork::SamplingRenderWork() :
@@ -90,7 +88,6 @@ inline SamplingStatistics SamplingRenderWork::asyncGetStatistics()
 {
 	SamplingStatistics statistics;
 	statistics.numSamplesTaken = m_numSamplesTaken;
-	statistics.numMsElapsed    = m_numMsElapsed;
 	
 	return statistics;
 }
@@ -107,7 +104,6 @@ inline SamplingRenderWork& SamplingRenderWork::operator = (SamplingRenderWork&& 
 	m_requestedAttributes = std::move(rhs.m_requestedAttributes);
 
 	m_numSamplesTaken = rhs.m_numSamplesTaken.load();
-	m_numMsElapsed    = rhs.m_numMsElapsed.load();
 
 	return *this;
 }

@@ -201,7 +201,7 @@ RenderState SamplingRenderer::asyncQueryRenderState()
 	for(auto&& work : m_works)
 	{
 		const auto statistics = work.asyncGetStatistics();
-		totalElapsedMs  += statistics.numMsElapsed;
+		totalElapsedMs  += work.asyncGetProgress().getElapsedMs();
 		totalNumSamples += statistics.numSamplesTaken;
 	}
 
@@ -216,7 +216,7 @@ RenderState SamplingRenderer::asyncQueryRenderState()
 
 RenderProgress SamplingRenderer::asyncQueryRenderProgress()
 {
-	RenderProgress totalProgress(0, 0);
+	RenderProgress totalProgress(0, 0, 0);
 	{
 		for(auto&& work : m_works)
 		{
