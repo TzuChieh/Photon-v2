@@ -165,4 +165,5 @@ inline std::size_t TPhotonMappingWork<Photon>::asyncGetNumElapsedMs() const
 	return static_cast<std::size_t>(m_numElapsedMs.load(std::memory_order_relaxed));
 }
 
+
 }// end namespace ph

@@ -19,24 +19,25 @@ class TRadianceEvaluationWork : public RenderWork
 public:
 	TRadianceEvaluationWork(
 		const TPhotonMap<Photon>* photonMap,
-		Viewpoint* viewpoints,
-		std::size_t numViewpoints,
-		HdrRgbFilm* film,
-		std::size_t numEmittedPhotons);
+		std::size_t               numPhotonPaths);
 
-	void doWork() override;
+	void doWork() override = 0;
 
 	SpectralStrength evaluateRadiance(
 		const SurfaceHit& location,
 		const Vector3R&   excitant,
 		real              kernelRadius);
 
+protected:
+	const TPhotonMap<Photon>* getPhotonMap() const;
+	const std::size_t         numPhotonPaths() const;
+
 private:
 	const TPhotonMap<Photon>* m_photonMap;
 	Viewpoint* m_viewpoints;
 	std::size_t m_numViewpoints;
 	HdrRgbFilm* m_film;
-	std::size_t m_numEmittedPhotons;
+	std::size_t m_numPhotonPaths;
 	std::vector<Photon> m_photonCache;
 };
 

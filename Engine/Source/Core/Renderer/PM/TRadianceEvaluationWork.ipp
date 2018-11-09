@@ -6,6 +6,7 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
+#include "Common/assertion.h"
 
 #include <vector>
 
@@ -15,16 +16,13 @@ namespace ph
 template<typename Photon>
 inline TRadianceEvaluationWork<Photon>::TRadianceEvaluationWork(
 	const TPhotonMap<Photon>* photonMap,
-	Viewpoint* viewpoints,
-	std::size_t numViewpoints,
-	HdrRgbFilm* film,
-	std::size_t numEmittedPhotons) :
+	const std::size_t         numPhotonPaths) :
 	m_photonMap(photonMap),
-	m_viewpoints(viewpoints),
-	m_numViewpoints(numViewpoints),
-	m_film(film),
-	m_numEmittedPhotons(numEmittedPhotons)
-{}
+	m_numPhotonPaths(numPhotonPaths)
+{
+	PH_ASSERT(photonMap);
+	PH_ASSERT_GT(numPhotonPaths, 0);
+}
 
 template<typename Photon>
 inline void TRadianceEvaluationWork<Photon>::doWork()
@@ -97,6 +95,18 @@ inline SpectralStrength TRadianceEvaluationWork<Photon>::evaluateRadiance(
 	}*/
 
 	return radiance;
+}
+
+template<typename Photon>
+inline const TPhotonMap<Photon>* TRadianceEvaluationWork<Photon>::getPhotonMap() const
+{
+	return m_photonMap;
+}
+
+template<typename Photon>
+inline const std::size_t TRadianceEvaluationWork<Photon>::numPhotonPaths() const
+{
+	return m_numPhotonPaths;
 }
 
 }// end namespace ph
