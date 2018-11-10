@@ -688,6 +688,79 @@ class PhLayeredSurfaceNode(PhMaterialNode):
 			sdlconsole.queue_command(cmd)
 
 
+class PhIdealSubstanceNode(PhMaterialNode):
+	bl_idname = "PH_IDEAL_SUBSTANCE"
+	bl_label  = "Ideal Substance"
+
+	substance_type = bpy.props.EnumProperty(
+		items = [
+			("DIELECTRIC_REFLECTOR",   "Dielectric Reflector",   ""),
+			("METALLIC_REFLECTOR",     "Metallic Reflector",     ""),
+			("DIELECTRIC_TRANSMITTER", "Dielectric Transmitter", "")
+		],
+		name        = "Substance Type",
+		description = "Type of ideal substancee.",
+		default     = "METALLIC_REFLECTOR"
+	)
+
+	f0 = bpy.props.FloatVectorProperty(
+		name        = "F0",
+		description = "F0 value",
+		default     = [0.9, 0.9, 0.9],
+		min         = 0.0,
+		max         = 1.0,
+		subtype     = "COLOR",
+		size        = 3
+	)
+
+	ior_outer = bpy.props.FloatProperty(
+		name    = "IOR Outer",
+		default = 1.0,
+		min     = .0,
+		max     = sys.float_info.max
+	)
+
+	ior_inner = bpy.props.FloatProperty(
+		name    = "IOR Inner",
+		default = 1.5,
+		min     = 0.0,
+		max     = sys.float_info.max
+	)
+
+	def init(self, b_context):
+		self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
+
+	def draw_buttons(self, b_context, b_layout):
+		b_layout.prop(self, "substance_type", "")
+		b_layout.prop(self, "ior_outer")
+
+		if self.substance_type == "DIELECTRIC_REFLECTOR" or self.substance_type == "DIELECTRIC_TRANSMITTER":
+			b_layout.prop(self, "ior_inner")
+
+		if self.substance_type == "METALLIC_REFLECTOR":
+			b_layout.prop(self, "f0")
+
+	def to_sdl(self, res_name, sdlconsole):
+
+		surface_mat_socket   = self.outputs[0]
+		surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
+
+		cmd = materialcmd.IdealCreator()
+		cmd.set_data_name(surface_mat_res_name)
+		cmd.set_ior_outer(self.ior_outer)
+		cmd.set_ior_inner(self.ior_inner)
+		cmd.set_f0_rgb(self.f0)
+
+		if self.substance_type == "DIELECTRIC_REFLECTOR":
+			cmd.set_type("dielectric-reflector")
+		elif self.substance_type == "METALLIC_REFLECTOR":
+			cmd.set_type("metallic-reflector")
+		elif self.substance_type == "DIELECTRIC_TRANSMITTER":
+			cmd.set_type("transmitter")
+
+		sdlconsole.queue_command(cmd)
+
+
 class PhMaterialNodeCategory(nodeitems_utils.NodeCategory):
 
 	@classmethod
@@ -748,7 +821,8 @@ PH_MATERIAL_NODES = [
 	PhPictureNode,
 	PhMultiplyNode,
 	PhLayeredSurfaceNode,
-	PhSurfaceLayerNode
+	PhSurfaceLayerNode,
+	PhIdealSubstanceNode
 ]
 
 
@@ -766,7 +840,8 @@ PH_MATERIAL_NODE_CATEGORIES = [
 		nodeitems_utils.NodeItem(PhAbradedOpaqueNode.bl_idname),
 		nodeitems_utils.NodeItem(PhAbradedTranslucentNode.bl_idname),
 		nodeitems_utils.NodeItem(PhLayeredSurfaceNode.bl_idname),
-		nodeitems_utils.NodeItem(PhSurfaceLayerNode.bl_idname)
+		nodeitems_utils.NodeItem(PhSurfaceLayerNode.bl_idname),
+		nodeitems_utils.NodeItem(PhIdealSubstanceNode.bl_idname)
 	]),
 	PhMaterialNodeCategory("MATH", "Math", items = [
 		nodeitems_utils.NodeItem(PhMultiplyNode.bl_idname)

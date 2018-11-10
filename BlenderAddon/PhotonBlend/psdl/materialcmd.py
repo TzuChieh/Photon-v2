@@ -162,3 +162,27 @@ class BinaryMixedSurfaceCreator(MaterialCreator):
 	def set_float_factor(self, factor):
 		self.update_clause(FloatClause().set_name("factor").set_data(factor))
 
+
+class IdealCreator(MaterialCreator):
+
+	def __init__(self):
+		super().__init__()
+
+	def get_type_name(self):
+		return "ideal-substance"
+
+	def set_type(self, type_name):
+		clause = StringClause()
+		clause.set_name("type")
+		clause.set_data(type_name)
+		self.update_clause(clause)
+
+	def set_ior_outer(self, ior):
+		self.update_clause(FloatClause().set_name("ior-outer").set_data(ior))
+
+	def set_ior_inner(self, ior):
+		self.update_clause(FloatClause().set_name("ior-inner").set_data(ior))
+
+	def set_f0_rgb(self, f0_rgb):
+		self.update_clause(ColorClause().set_name("f0-rgb").set_data(f0_rgb))
+
