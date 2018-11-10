@@ -35,7 +35,8 @@ public:
 	BackgroundEmitter(
 		const Primitive*             surface,
 		const RadianceTexture&       radiance,
-		const TVector2<std::size_t>& resolution);
+		const TVector2<std::size_t>& resolution,
+		real sceneBoundRadius);
 
 	void evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const override;
 	void genDirectSample(DirectLightSample& sample) const override;
@@ -57,6 +58,7 @@ private:
 	RadianceTexture          m_radiance;
 	TPwcDistribution2D<real> m_sampleDistribution;
 	real                     m_radiantFluxApprox;
+	real m_sceneBoundRadius;
 };
 
 }// end namespace ph

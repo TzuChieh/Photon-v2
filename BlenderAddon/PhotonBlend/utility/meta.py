@@ -28,6 +28,9 @@ class MetaGetter:
 			print("warning: unsupported filter type %s, using box BH instead" % filter_type)
 			return "bh"
 
+	def render_method(self):
+		return self.__context.scene.ph_render_integrator_type
+
 	def integrator_type_name(self):
 		integrator_type = self.__context.scene.ph_render_integrator_type
 		if integrator_type == "BVPT":

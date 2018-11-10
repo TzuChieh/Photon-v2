@@ -51,8 +51,13 @@ void OmniModulatedEmitter::genDirectSample(DirectLightSample& sample) const
 
 void OmniModulatedEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
-	// TODO
-	PH_ASSERT_UNREACHABLE_SECTION();
+	m_source->genSensingRay(out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
+
+	Vector3R uv;
+	m_dirToUv.directionToUvw(out_ray->getDirection(), &uv);
+
+	const auto& filterValue = TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_filter, uv);
+	out_Le->mulLocal(filterValue);
 }
 
 real OmniModulatedEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const

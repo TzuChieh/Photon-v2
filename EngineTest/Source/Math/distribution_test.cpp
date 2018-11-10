@@ -67,6 +67,28 @@ TEST(PiecewiseConstantDistribution1DTest, PDF)
 	EXPECT_FLOAT_EQ(distribution2.pdfDiscrete(0), 1.0f / 3.0f);
 	EXPECT_FLOAT_EQ(distribution2.pdfDiscrete(1), 1.0f / 3.0f);
 	EXPECT_FLOAT_EQ(distribution2.pdfDiscrete(2), 1.0f / 3.0f);
+
+	// single weight constant distribution has same PDF everywhere
+	TPwcDistribution1D<float> distribution3({99999.0f});
+	EXPECT_FLOAT_EQ(distribution3.pdfContinuous(0.0f), 1.0f);
+	EXPECT_FLOAT_EQ(distribution3.pdfContinuous(0.5f), 1.0f);
+	EXPECT_FLOAT_EQ(distribution3.pdfContinuous(1.0f), 1.0f);
+	EXPECT_FLOAT_EQ(distribution3.pdfDiscrete(0), 1.0f);
+}
+
+TEST(PiecewiseConstantDistribution1DTest, CornerCases)
+{
+	TPwcDistribution1D<float> zeroWeightDistribution1({0.0f});
+
+	// should result in uniform distribution
+	EXPECT_FLOAT_EQ(zeroWeightDistribution1.pdfDiscrete(0), 1.0f);
+
+	TPwcDistribution1D<float> zeroWeightDistribution2({0.0f, 0.0f, 0.0f});
+
+	// should result in uniform distribution
+	EXPECT_FLOAT_EQ(zeroWeightDistribution2.pdfDiscrete(0), 1.0f / 3.0f);
+	EXPECT_FLOAT_EQ(zeroWeightDistribution2.pdfDiscrete(1), 1.0f / 3.0f);
+	EXPECT_FLOAT_EQ(zeroWeightDistribution2.pdfDiscrete(2), 1.0f / 3.0f);
 }
 
 TEST(PiecewiseConstantDistribution2DTest, Construction)

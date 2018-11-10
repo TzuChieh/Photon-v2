@@ -9,6 +9,7 @@
 #include "Core/Intersectable/Primitive.h"
 #include "Math/constant.h"
 #include "Math/math.h"
+#include "Math/sampling.h"
 
 #include <vector>
 
@@ -23,12 +24,15 @@ namespace
 BackgroundEmitter::BackgroundEmitter(
 	const Primitive* const       surface,
 	const RadianceTexture&       radiance,
-	const TVector2<std::size_t>& resolution) :
+	const TVector2<std::size_t>& resolution,
+	real sceneBoundRadius) :
 
 	m_surface(surface),
 	m_radiance(radiance),
 	m_sampleDistribution(),
-	m_radiantFluxApprox(0)
+	m_radiantFluxApprox(0),
+
+	m_sceneBoundRadius(sceneBoundRadius)
 {
 	PH_ASSERT(surface && radiance && resolution.x * resolution.y > 0);
 
@@ -61,7 +65,9 @@ BackgroundEmitter::BackgroundEmitter(
 	}
 
 	m_sampleDistribution = TPwcDistribution2D<real>(sampleWeights.data(), resolution);
-	m_radiantFluxApprox  = m_radiantFluxApprox * m_surface->calcExtendedArea() * PH_PI_REAL;
+
+	//m_radiantFluxApprox = m_radiantFluxApprox * m_surface->calcExtendedArea() * PH_PI_REAL;
+	m_radiantFluxApprox  = m_radiantFluxApprox * 4 * m_sceneBoundRadius * m_sceneBoundRadius * PH_PI_REAL;
 }
 
 void BackgroundEmitter::evalEmittedRadiance(
@@ -105,7 +111,52 @@ void BackgroundEmitter::genDirectSample(DirectLightSample& sample) const
 // FIXME: ray time
 void BackgroundEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
-	PH_ASSERT_UNREACHABLE_SECTION();
+	real uvSamplePdf;
+	const Vector2R uvSample = m_sampleDistribution.sampleContinuous(
+		Random::genUniformReal_i0_e1(),
+		Random::genUniformReal_i0_e1(),
+		&uvSamplePdf);
+
+	TSampler<SpectralStrength> sampler(EQuantity::EMR);
+	*out_Le = sampler.sample(*m_radiance, uvSample);
+
+	// FIXME: assuming spherical uv mapping us used
+	const real sinTheta = std::sin((1.0_r - uvSample.y) * PH_PI_REAL);
+	if(sinTheta <= 0.0_r)
+	{
+		return;
+	}
+	*out_pdfW = uvSamplePdf / (2.0_r * PH_PI_REAL * PH_PI_REAL * sinTheta);
+
+	// HACK
+	Vector3R direction;
+	m_surface->uvwToPosition(
+		Vector3R(uvSample.x, uvSample.y, 0),
+		Vector3R(0, 0, 0),
+		&direction);
+	direction.normalizeLocal();
+	direction.mulLocal(-1);
+	*out_eN = direction;
+	
+	Vector2R diskPos;
+	real diskPdf;
+	sampling::unit_disk::uniform::gen(
+		Random::genUniformReal_i0_e1(),
+		Random::genUniformReal_i0_e1(),
+		&diskPos,
+		&diskPdf);
+	*out_pdfA = diskPdf / (m_sceneBoundRadius * m_sceneBoundRadius);
+
+	Vector3R xAxis, zAxis;
+	math::form_orthonormal_basis(direction, &xAxis, &zAxis);
+	Vector3R position = direction.mul(-1) * m_sceneBoundRadius + 
+		(zAxis * diskPos.x * m_sceneBoundRadius) +
+		(xAxis * diskPos.y * m_sceneBoundRadius);
+
+	out_ray->setDirection(direction);
+	out_ray->setOrigin(position);
+	out_ray->setMinT(0.0001_r);// HACK: hard-code number
+	out_ray->setMaxT(std::numeric_limits<real>::max());
 }
 
 real BackgroundEmitter::calcDirectSamplePdfW(

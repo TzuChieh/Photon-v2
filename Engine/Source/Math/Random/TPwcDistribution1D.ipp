@@ -56,18 +56,18 @@ inline TPwcDistribution1D<T>::TPwcDistribution1D(
 			// to one.
 			m_cdf[i] /= sum;
 		}
-		PH_ASSERT(m_cdf.back() == 1);
 	}
 	else
 	{
-		PH_ASSERT(sum == 0);
+		PH_ASSERT_EQ(sum, T(0));
 
-		// If the sum is zero, make a simple uniform CDF.
+		// If the sum is zero, make a simple linear CDF.
 		for(std::size_t i = 1; i < m_cdf.size(); ++i)
 		{
-			m_cdf[i] = static_cast<T>(i) / static_cast<T>(m_cdf.size());
+			m_cdf[i] = static_cast<T>(i) / static_cast<T>(numWeights);
 		}
 	}
+	PH_ASSERT_EQ(m_cdf.back(), T(1));
 
 	// find first column with non-zero PDF
 	for(std::size_t i = 0; i < numColumns(); ++i)
@@ -92,7 +92,9 @@ template<typename T>
 inline std::size_t TPwcDistribution1D<T>::sampleDiscrete(const T seed_i0_e1) const
 {
 	const auto& result = std::lower_bound(m_cdf.begin(), m_cdf.end(), seed_i0_e1);
-	PH_ASSERT(result != m_cdf.end());
+	PH_ASSERT_MSG(result != m_cdf.end(), 
+		"seed_i0_e1 = "     + std::to_string(seed_i0_e1) + ", "
+		"last CDF value = " + std::to_string(m_cdf.back()));
 
 	return result != m_cdf.begin() ? result - m_cdf.begin() - 1 : m_firstNonZeroPdfColumn;
 }

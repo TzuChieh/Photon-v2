@@ -42,12 +42,34 @@ class PhRenderingPanel(PhRenderPanel):
 
 	bpy.types.Scene.ph_render_integrator_type = bpy.props.EnumProperty(
 		items = [
-			("BVPT",   "Pure Path Tracing",  "slow but unbiased"),
-			("BNEEPT", "NEE Path Tracing",   "fairly slow but good on rendering small lights")
+			("BVPT",   "Pure Path Tracing", "slow but unbiased"),
+			("BNEEPT", "NEE Path Tracing",  "fairly slow but good on rendering small lights"),
+			("VPM",    "Photon Mapping",    "rough preview, good at caustics")
 		],
 		name        = "Rendering Method",
 		description = "Photon-v2's rendering methods",
 		default     = "BNEEPT"
+	)
+
+	bpy.types.Scene.ph_render_num_photons = bpy.props.IntProperty(
+		name        = "Number of Photons",
+		description = "Number of photons used.",
+		default     = 200000,
+		min         = 1
+	)
+
+	bpy.types.Scene.ph_render_num_passes = bpy.props.IntProperty(
+		name        = "Number of Passes",
+		description = "Number of rendering passes.",
+		default     = 40,
+		min         = 1
+	)
+
+	bpy.types.Scene.ph_render_kernel_radius = bpy.props.FloatProperty(
+		name        = "Photon Radius",
+		description = "larger radius results in blurrier images",
+		default     = 0.1,
+		min         = 0
 	)
 
 	def draw(self, context):
@@ -56,6 +78,17 @@ class PhRenderingPanel(PhRenderPanel):
 		layout = self.layout
 
 		layout.prop(scene, "ph_render_integrator_type")
+
+		render_method = scene.ph_render_integrator_type
+		if render_method == "BVPT" or render_method == "BNEEPT":
+			layout.prop(scene, "ph_render_num_spp")
+			layout.prop(scene, "ph_render_sample_filter_type")
+		elif render_method == "VPM":
+			layout.prop(scene, "ph_render_num_photons")
+			layout.prop(scene, "ph_render_num_passes")
+			layout.prop(scene, "ph_render_kernel_radius")
+		else:
+			pass
 
 
 class PhSamplingPanel(PhRenderPanel):
