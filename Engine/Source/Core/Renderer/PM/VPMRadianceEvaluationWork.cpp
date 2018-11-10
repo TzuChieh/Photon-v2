@@ -95,9 +95,8 @@ void VPMRadianceEvaluationWork::doWork()
 				SpectralStrength throughput(1.0_r);// TODO: this is not true after ray bounces
 				throughput.mulLocal(bsdfEval.outputs.bsdf);
 				//throughput.mulLocal(Ns.absDot(V) * Ng.absDot(L) / Ng.absDot(V) / Ns.absDot(L));
-				throughput.mulLocal(photon.get<EPhotonData::THROUGHPUT>());
 
-				radiance.addLocal(throughput * photon.get<EPhotonData::RADIANCE>());
+				radiance.addLocal(throughput * photon.get<EPhotonData::THROUGHPUT_RADIANCE>());
 			}
 			radiance.mulLocal(radianceMultiplier);
 

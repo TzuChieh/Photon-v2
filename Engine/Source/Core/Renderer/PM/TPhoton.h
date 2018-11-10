@@ -5,8 +5,7 @@ namespace ph
 
 enum class EPhotonData
 {
-	RADIANCE,
-	THROUGHPUT,
+	THROUGHPUT_RADIANCE,
 	POSITION,
 	INCIDENT_DIR
 };

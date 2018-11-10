@@ -60,16 +60,18 @@ inline void TPhotonMappingWork<Photon>::doWork()
 		real pdfA;
 		real pdfW;
 		m_scene->genSensingRay(&tracingRay, &emittedRadiance, &emitN, &pdfA, &pdfW);
+		if(pdfA * pdfW == 0.0_r)
+		{
+			continue;
+		}
 
-		PH_ASSERT_MSG(emittedRadiance.isNonNegative(), "emittedRadiance = " + emittedRadiance.toString());
-
-		SpectralStrength throughput(1.0_r);
-		throughput.divLocal(pdfA);
-		throughput.divLocal(pdfW);
-		throughput.mulLocal(emitN.absDot(tracingRay.getDirection()));
+		SpectralStrength throughputRadiance(emittedRadiance);
+		throughputRadiance.divLocal(pdfA);
+		throughputRadiance.divLocal(pdfW);
+		throughputRadiance.mulLocal(emitN.absDot(tracingRay.getDirection()));
 
 		// start tracing single photon path
-		while(true)
+		while(!throughputRadiance.isZero())
 		{
 			HitProbe probe;
 			if(!m_scene->isIntersecting(tracingRay, &probe))
@@ -81,10 +83,10 @@ inline void TPhotonMappingWork<Photon>::doWork()
 			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 			const SurfaceOptics* optics = metadata->getSurface().getOptics();
 
-			SpectralStrength weightedThroughput;
-			if(RussianRoulette::surviveOnLuminance(throughput, &weightedThroughput))
+			SpectralStrength weightedThroughputRadiance;
+			if(RussianRoulette::surviveOnLuminance(throughputRadiance, &weightedThroughputRadiance))
 			{
-				throughput = weightedThroughput;
+				throughputRadiance = weightedThroughputRadiance;
 
 				Photon photon;
 
@@ -93,14 +95,9 @@ inline void TPhotonMappingWork<Photon>::doWork()
 					photon.template set<EPhotonData::POSITION>(surfaceHit.getPosition());
 				}
 
-				if constexpr(Photon::template has<EPhotonData::RADIANCE>())
+				if constexpr(Photon::template has<EPhotonData::THROUGHPUT_RADIANCE>())
 				{
-					photon.template set<EPhotonData::RADIANCE>(emittedRadiance);
-				}
-
-				if constexpr(Photon::template has<EPhotonData::THROUGHPUT>())
-				{
-					photon.template set<EPhotonData::THROUGHPUT>(throughput);
+					photon.template set<EPhotonData::THROUGHPUT_RADIANCE>(throughputRadiance);
 				}
 
 				if constexpr(Photon::template has<EPhotonData::INCIDENT_DIR>())
@@ -133,8 +130,8 @@ inline void TPhotonMappingWork<Photon>::doWork()
 			Vector3R L = bsdfSample.outputs.L;
 			Vector3R Ng = surfaceHit.getGeometryNormal();
 			Vector3R Ns = surfaceHit.getShadingNormal();
-			throughput.mulLocal(bsdfSample.outputs.pdfAppliedBsdf);
-			throughput.mulLocal(Ns.absDot(L));
+			throughputRadiance.mulLocal(bsdfSample.outputs.pdfAppliedBsdf);
+			throughputRadiance.mulLocal(Ns.absDot(L));
 			//throughput.mulLocal(Ns.absDot(V) * Ng.absDot(L) / Ng.absDot(V) / Ns.absDot(L));
 
 			tracingRay.setOrigin(surfaceHit.getPosition());

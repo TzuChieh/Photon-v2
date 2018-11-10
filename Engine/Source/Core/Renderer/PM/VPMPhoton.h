@@ -23,8 +23,7 @@ public:
 	void impl_set(const T& value);
 
 private:
-	SpectralStrength m_radiance;
-	SpectralStrength m_throughput;
+	SpectralStrength m_throughputRadiance;
 	Vector3R         m_position;
 	Vector3R         m_incidentDir;
 };
@@ -33,9 +32,8 @@ template<EPhotonData TYPE>
 inline constexpr bool VPMPhoton::impl_has()
 {
 	if constexpr(
-		TYPE == EPhotonData::RADIANCE   || 
-		TYPE == EPhotonData::THROUGHPUT || 
-		TYPE == EPhotonData::POSITION   || 
+		TYPE == EPhotonData::THROUGHPUT_RADIANCE ||
+		TYPE == EPhotonData::POSITION            || 
 		TYPE == EPhotonData::INCIDENT_DIR)
 	{
 		return true;
@@ -49,13 +47,9 @@ inline constexpr bool VPMPhoton::impl_has()
 template<EPhotonData TYPE>
 inline decltype(auto) VPMPhoton::impl_get() const
 {
-	if constexpr(TYPE == EPhotonData::RADIANCE)
+	if constexpr(TYPE == EPhotonData::THROUGHPUT_RADIANCE)
 	{
-		return m_radiance;
-	}
-	else if constexpr(TYPE == EPhotonData::THROUGHPUT)
-	{
-		return m_throughput;
+		return m_throughputRadiance;
 	}
 	else if constexpr(TYPE == EPhotonData::POSITION)
 	{
@@ -75,13 +69,9 @@ inline decltype(auto) VPMPhoton::impl_get() const
 template<EPhotonData TYPE, typename T>
 inline void VPMPhoton::impl_set(const T& value)
 {
-	if constexpr(TYPE == EPhotonData::RADIANCE)
+	if constexpr(TYPE == EPhotonData::THROUGHPUT_RADIANCE)
 	{
-		m_radiance = value;
-	}
-	else if constexpr(TYPE == EPhotonData::THROUGHPUT)
-	{
-		m_throughput = value;
+		m_throughputRadiance = value;
 	}
 	else if constexpr(TYPE == EPhotonData::POSITION)
 	{
