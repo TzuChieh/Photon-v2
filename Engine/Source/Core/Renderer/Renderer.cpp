@@ -10,6 +10,7 @@
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
 #include "Core/Renderer/Region/BulkScheduler.h"
+#include "Common/Logger.h"
 
 #include <iostream>
 #include <vector>
@@ -20,36 +21,43 @@
 namespace ph
 {
 
+namespace
+{
+	const Logger logger(LogSender("Renderer"));
+}
+
 Renderer::~Renderer() = default;
 
 void Renderer::update(const SdlResourcePack& data)
 {
-	m_isUpdating.store(true, std::memory_order_relaxed);
+	logger.log("updating...");
 
 	Timer updateTimer;
 	updateTimer.start();
+	m_isUpdating.store(true, std::memory_order_relaxed);
 
 	doUpdate(data);
 
-	updateTimer.finish();
-	std::cout << "update time: " << updateTimer.getDeltaMs() << " ms" << std::endl;
-
 	m_isUpdating.store(false, std::memory_order_relaxed);
+	updateTimer.finish();
+
+	logger.log("update time: " + std::to_string(updateTimer.getDeltaMs()) + " ms");
 }
 
 void Renderer::render()
 {
-	m_isRendering.store(true, std::memory_order_relaxed);
+	logger.log("rendering...");
 
 	Timer renderTimer;
 	renderTimer.start();
+	m_isRendering.store(true, std::memory_order_relaxed);
 
 	doRender();
 
-	renderTimer.finish();
-	std::cout << "render time: " << renderTimer.getDeltaMs() << " ms" << std::endl;
-
 	m_isRendering.store(false, std::memory_order_relaxed);
+	renderTimer.finish();
+
+	logger.log("render time: " + std::to_string(renderTimer.getDeltaMs()) + " ms");
 }
 
 void Renderer::setNumWorkers(const uint32 numWorkers)

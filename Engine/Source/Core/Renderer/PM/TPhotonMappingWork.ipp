@@ -88,22 +88,22 @@ inline void TPhotonMappingWork<Photon>::doWork()
 
 				Photon photon;
 
-				if constexpr(Photon::has<EPhotonData::POSITION>())
+				if constexpr(Photon::template has<EPhotonData::POSITION>())
 				{
 					photon.set<EPhotonData::POSITION>(surfaceHit.getPosition());
 				}
 
-				if constexpr(Photon::has<EPhotonData::RADIANCE>())
+				if constexpr(Photon::template has<EPhotonData::RADIANCE>())
 				{
 					photon.set<EPhotonData::RADIANCE>(emittedRadiance);
 				}
 
-				if constexpr(Photon::has<EPhotonData::THROUGHPUT>())
+				if constexpr(Photon::template has<EPhotonData::THROUGHPUT>())
 				{
 					photon.set<EPhotonData::THROUGHPUT>(throughput);
 				}
 
-				if constexpr(Photon::has<EPhotonData::INCIDENT_DIR>())
+				if constexpr(Photon::template has<EPhotonData::INCIDENT_DIR>())
 				{
 					photon.set<EPhotonData::INCIDENT_DIR>(tracingRay.getDirection().mul(-1));
 				}

@@ -16,9 +16,9 @@ struct TPhotonCenterCalculator
 
 	Vector3R operator () (const Photon& photon) const
 	{
-		static_assert(Photon::has<EPhotonData::POSITION>());
+		static_assert(Photon::template has<EPhotonData::POSITION>());
 
-		return photon.get<EPhotonData::POSITION>();
+		return photon.template get<EPhotonData::POSITION>();
 	}
 };
 

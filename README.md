@@ -1,6 +1,7 @@
 # Photon-v2 Renderer
 
 <a href="./gallery/bathroom_(based on Salle de bain by nacimus).jpg"><img src="./gallery/bathroom_(based on Salle de bain by nacimus).jpg"></a><br />
+<p align="center"> <i>Bathroom Scene Rendered with Photon-v2 (based on Salle de bain scene by nacimus)</i> </p>
 
 ## What is Photon-v2
 

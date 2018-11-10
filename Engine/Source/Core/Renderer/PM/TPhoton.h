@@ -36,21 +36,21 @@ template<typename Derived>
 template<EPhotonData TYPE>
 inline constexpr bool TPhoton<Derived>::has()
 {
-	return Derived::impl_has<TYPE>();
+	return Derived::template impl_has<TYPE>();
 }
 
 template<typename Derived>
 template<EPhotonData TYPE>
 inline decltype(auto) TPhoton<Derived>::get() const
 {
-	return static_cast<const Derived&>(*this).impl_get<TYPE>();
+	return static_cast<const Derived&>(*this).template impl_get<TYPE>();
 }
 
 template<typename Derived>
 template<EPhotonData TYPE, typename T>
 inline void TPhoton<Derived>::set(const T& value)
 {
-	static_cast<Derived&>(*this).impl_set<TYPE>(value);
+	static_cast<Derived&>(*this).template impl_set<TYPE>(value);
 }
 
 }// end namespace ph

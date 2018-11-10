@@ -9,11 +9,17 @@
 #include "FileIO/SDL/InputPacket.h"
 #include "Utility/FixedSizeThreadPool.h"
 #include "Utility/concurrent.h"
+#include "Common/Logger.h"
 
 #include <numeric>
 
 namespace ph
 {
+
+namespace
+{
+	const Logger logger(LogSender("PM Renderer"));
+}
 
 void PMRenderer::doUpdate(const SdlResourcePack& data)
 {
@@ -85,28 +91,26 @@ void PMRenderer::doUpdate(const SdlResourcePack& data)
 
 void PMRenderer::doRender()
 {
-	renderWithVanillaPM();
+	if(m_mode == EPMMode::VANILLA)
+	{
+		logger.log("rendering mode: vanilla photon mapping");
+		renderWithVanillaPM();
+	}
+	else
+	{
+		logger.log(ELogLevel::WARNING_MED, "unsupported PM mode, renders nothing");
+	}
 }
 
 void PMRenderer::renderWithVanillaPM()
 {
-	std::size_t numPixels = getRenderWindowPx().calcArea() * m_perPixelSamples;
-	std::vector<Viewpoint> viewpointBuffer(numPixels);
+	logger.log("target number of photons: " + std::to_string(m_numPhotons));
+	logger.log("size of photon buffer: " + std::to_string(sizeof(VPMPhoton) * m_numPhotons / 1024 / 1024) + " MB");
+	logger.log("start shooting photons...");
 
-
-	std::cerr << "ray tracing work finished" << std::endl;
-	std::cerr << "size of viewpoint buffer: " << sizeof(Viewpoint) * numPixels / 1024 / 1024 << " MB" << std::endl;
-
-	std::size_t numPhotons = m_numPhotons;
-	std::vector<VPMPhoton> photonBuffer(numPhotons);
-
-	std::cerr << "numPhotons = " << numPhotons << std::endl;
-	std::cerr << "photon mapping work start" << std::endl;
-
+	std::vector<VPMPhoton>   photonBuffer(m_numPhotons);
 	std::vector<std::size_t> numPhotonPaths(getNumWorkers(), 0);
-	std::size_t bufferOffset = 0;
-
-	parallel_work(numPhotons, getNumWorkers(), 
+	parallel_work(m_numPhotons, getNumWorkers(),
 		[this, &photonBuffer, &numPhotonPaths](
 			const std::size_t workerIdx, 
 			const std::size_t workStart, 
@@ -126,29 +130,22 @@ void PMRenderer::renderWithVanillaPM()
 
 			photonMappingWork.work();
 		});
+	const std::size_t totalPhotonPaths = std::accumulate(numPhotonPaths.begin(), numPhotonPaths.end(), std::size_t(0));
 
-	std::size_t totalPhotonPaths = std::accumulate(numPhotonPaths.begin(), numPhotonPaths.end(), std::size_t(0));
-	
-
-	std::cerr << "photon mapping work finished" << std::endl;
-	std::cerr << "size of photon buffer: " << sizeof(VPMPhoton) * numPhotons / 1024 / 1024 << " MB" << std::endl;
-
-	std::cerr << "building photon map" << std::endl;
+	logger.log("building photon map...");
 
 	TPhotonMap<VPMPhoton> photonMap(2, TPhotonCenterCalculator<VPMPhoton>());
 	photonMap.build(std::move(photonBuffer));
 
-	std::cerr << "photon map built" << std::endl;
-
-	std::cerr << "estimating radiance" << std::endl;
+	logger.log("estimating radiance...");
 
 	parallel_work(getNumWorkers(), getNumWorkers(), 
-		[this, &photonMap, &viewpointBuffer, totalPhotonPaths](
+		[this, &photonMap, totalPhotonPaths](
 			const std::size_t workerIdx, 
 			const std::size_t workStart, 
 			const std::size_t workEnd)
 		{
-			auto sampleGenerator = m_sg->genCopied(9999999);// FIXME
+			auto sampleGenerator = m_sg->genCopied(m_numPasses);
 			auto film            = std::make_unique<HdrRgbFilm>(
 				getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
 
@@ -166,8 +163,6 @@ void PMRenderer::renderWithVanillaPM()
 
 			radianceEstimator.work();
 		});
-
-	std::cerr << "estimation complete" << std::endl;
 }
 
 ERegionStatus PMRenderer::asyncPollUpdatedRegion(Region* out_region)
@@ -217,7 +212,7 @@ std::string PMRenderer::renderStateName(const RenderState::EType type, const std
 	{
 		switch(index)
 		{
-		//case 0: return "samples/second";
+		case 0: return "photons/second";
 		default: return "";
 		}
 	}
@@ -256,7 +251,7 @@ PMRenderer::PMRenderer(const InputPacket& packet) :
 	m_mode(),
 	m_numPhotons(),
 	m_kernelRadius(),
-	m_perPixelSamples(),
+	m_numPasses(),
 
 	m_filmMutex(),
 	m_statistics()
@@ -277,7 +272,7 @@ PMRenderer::PMRenderer(const InputPacket& packet) :
 
 	m_numPhotons = packet.getInteger("num-photons", 100000);
 	m_kernelRadius = packet.getReal("radius", 0.1_r);
-	m_perPixelSamples = packet.getInteger("per-pixel-samples", 1);
+	m_numPasses = packet.getInteger("num-passes", 1);
 }
 
 SdlTypeInfo PMRenderer::ciTypeInfo()
