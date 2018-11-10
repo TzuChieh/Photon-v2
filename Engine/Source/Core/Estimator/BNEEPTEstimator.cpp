@@ -121,6 +121,8 @@ void BNEEPTEstimator::radianceAlongRay(
 					bsdfPdfQuery.inputs.set(bsdfEval);
 					surfaceBehavior.getOptics()->calcBsdfSamplePdfW(bsdfPdfQuery);
 
+					// FIXME: <bsdfSamplePdfW>, <bsdfEval> is 0 for delta distributions,
+					// this will cause direct light sample to have 0 contribution even though MIS weight is finite
 					const real     bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
 					const real     misWeighting = mis.weight(directPdfW, bsdfSamplePdfW);
 					const Vector3R N = surfaceHit.getShadingNormal();
@@ -208,8 +210,9 @@ void BNEEPTEstimator::radianceAlongRay(
 				emitter->evalEmittedRadiance(Xe, &radianceLe);
 				if(!radianceLe.isZero())
 				{
-					// TODO: <directLightPdfW> might be 0, should we terminate MIS if one of two 
-					// sampling techniques failed?
+					// TODO: <directLightPdfW> might be 0, should we stop  using MIS if one of two 
+					// sampling techniques has failed?
+					// <bsdfSamplePdfW> can also be 0 for delta distributions
 					const real directLightPdfW = PtDirectLightEstimator::sampleUnoccludedPdfW(
 						scene, surfaceHit, Xe, ray.getTime());
 
