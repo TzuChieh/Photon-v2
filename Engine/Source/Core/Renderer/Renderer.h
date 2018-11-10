@@ -15,6 +15,7 @@
 #include "Core/Renderer/Region/Region.h"
 #include "Core/Renderer/Region/RegionScheduler.h"
 #include "Common/assertion.h"
+#include "Utility/Timer.h"
 
 #include <vector>
 #include <mutex>
@@ -84,6 +85,7 @@ private:
 
 	std::atomic_bool m_isUpdating;
 	std::atomic_bool m_isRendering;
+
 
 // command interface
 public:

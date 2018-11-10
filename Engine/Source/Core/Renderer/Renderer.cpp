@@ -9,7 +9,6 @@
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
-#include "Utility/Timer.h"
 #include "Core/Renderer/Region/BulkScheduler.h"
 
 #include <iostream>

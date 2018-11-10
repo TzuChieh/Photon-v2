@@ -5,12 +5,12 @@ namespace ph
 
 void Timer::start()
 {
-	m_startTime = std::chrono::high_resolution_clock::now();
+	m_startTime = Clock::now();
 }
 
 void Timer::finish()
 {
-	m_finishTime = std::chrono::high_resolution_clock::now();
+	m_finishTime = Clock::now();
 }
 
 uint64 Timer::getDeltaS() const

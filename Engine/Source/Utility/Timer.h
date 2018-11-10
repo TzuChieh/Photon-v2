@@ -19,8 +19,10 @@ public:
 	uint64 getDeltaNs() const;
 
 private:
-	std::chrono::high_resolution_clock::time_point m_startTime;
-	std::chrono::high_resolution_clock::time_point m_finishTime;
+	using Clock = std::chrono::steady_clock;
+
+	Clock::time_point m_startTime;
+	Clock::time_point m_finishTime;
 
 	template<typename TimeUnit>
 	inline uint64 getDelta() const
