@@ -44,6 +44,8 @@ inline TPhotonMappingWork<Photon>::TPhotonMappingWork(
 template<typename Photon>
 inline void TPhotonMappingWork<Photon>::doWork()
 {
+	// FIXME: currently we exit immediately when photon buffer is full; we should trace a full path instead
+
 	Timer timer;
 	timer.start();
 
@@ -64,6 +66,8 @@ inline void TPhotonMappingWork<Photon>::doWork()
 		{
 			continue;
 		}
+
+		// here 0-bounce lighting is not accounted for
 
 		SpectralStrength throughputRadiance(emittedRadiance);
 		throughputRadiance.divLocal(pdfA);

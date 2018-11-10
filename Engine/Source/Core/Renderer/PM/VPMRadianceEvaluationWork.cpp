@@ -9,6 +9,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Renderer/PM/PMRenderer.h"
+#include "Core/Emitter/Emitter.h"
 
 namespace ph
 {
@@ -59,9 +60,14 @@ void VPMRadianceEvaluationWork::doWork()
 			m_camera->genSensedRay(filmNdcPos, &tracingRay);
 			tracingRay.reverse();
 
+			const real filmXPx = filmNdcPos.x * static_cast<real>(m_film->getActualResPx().x);
+			const real filmYPx = filmNdcPos.y * static_cast<real>(m_film->getActualResPx().y);
+			SpectralStrength zeroBounceRadiance(0);
+
 			HitProbe probe;
 			if(!m_scene->isIntersecting(tracingRay, &probe))
 			{
+				m_film->addSample(filmXPx, filmYPx, zeroBounceRadiance);
 				continue;
 			}
 
@@ -74,6 +80,11 @@ void VPMRadianceEvaluationWork::doWork()
 			const Vector3R V  = tracingRay.getDirection().mul(-1);
 			const Vector3R Ng = surfaceHit.getGeometryNormal();
 			const Vector3R Ns = surfaceHit.getShadingNormal();
+
+			if(metadata->getSurface().getEmitter())
+			{
+				metadata->getSurface().getEmitter()->evalEmittedRadiance(surfaceHit, &zeroBounceRadiance);
+			}
 
 			photonCache.clear();
 			getPhotonMap()->findWithinRange(surfaceHit.getPosition(), m_kernelRadius, photonCache);
@@ -100,9 +111,7 @@ void VPMRadianceEvaluationWork::doWork()
 			}
 			radiance.mulLocal(radianceMultiplier);
 
-			const real filmXPx = filmNdcPos.x * static_cast<real>(m_film->getActualResPx().x);
-			const real filmYPx = filmNdcPos.y * static_cast<real>(m_film->getActualResPx().y);
-			m_film->addSample(filmXPx, filmYPx, radiance);
+			m_film->addSample(filmXPx, filmYPx, radiance + zeroBounceRadiance);
 		}
 
 		if(m_statistics)

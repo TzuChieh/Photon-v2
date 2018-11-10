@@ -139,13 +139,14 @@ void PMRenderer::renderWithVanillaPM()
 
 	logger.log("estimating radiance...");
 
-	parallel_work(getNumWorkers(), getNumWorkers(), 
+	parallel_work(m_numPasses, getNumWorkers(),
 		[this, &photonMap, totalPhotonPaths](
 			const std::size_t workerIdx, 
 			const std::size_t workStart, 
 			const std::size_t workEnd)
 		{
-			auto sampleGenerator = m_sg->genCopied(m_numPasses);
+			auto numPasses       = workEnd - workStart;
+			auto sampleGenerator = m_sg->genCopied(numPasses);
 			auto film            = std::make_unique<HdrRgbFilm>(
 				getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
 
