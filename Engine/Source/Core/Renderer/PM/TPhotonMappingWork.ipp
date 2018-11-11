@@ -17,6 +17,7 @@
 #include "Common/assertion.h"
 #include "Utility/Timer.h"
 #include "Core/Renderer/PM/PMStatistics.h"
+#include "Core/Estimator/BuildingBlock/TSurfaceEventDispatcher.h"
 
 namespace ph
 {
@@ -74,16 +75,17 @@ inline void TPhotonMappingWork<Photon>::doWork()
 		throughputRadiance.divLocal(pdfW);
 		throughputRadiance.mulLocal(emitN.absDot(tracingRay.getDirection()));
 
+		TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
+
 		// start tracing single photon path
 		while(!throughputRadiance.isZero())
 		{
-			HitProbe probe;
-			if(!m_scene->isIntersecting(tracingRay, &probe))
+			SurfaceHit surfaceHit;
+			if(!surfaceEvent.traceNextSurface(tracingRay, &surfaceHit))
 			{
 				break;
 			}
 
-			SurfaceHit surfaceHit(tracingRay, probe);
 			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 			const SurfaceOptics* optics = metadata->getSurface().getOptics();
 
@@ -123,9 +125,9 @@ inline void TPhotonMappingWork<Photon>::doWork()
 			}
 
 			BsdfSample bsdfSample;
+			Ray sampledRay;
 			bsdfSample.inputs.set(surfaceHit, tracingRay.getDirection().mul(-1), ALL_ELEMENTALS, ETransport::IMPORTANCE);
-			optics->calcBsdfSample(bsdfSample);
-			if(!bsdfSample.outputs.isGood())
+			if(!surfaceEvent.doBsdfSample(surfaceHit, bsdfSample, &sampledRay))
 			{
 				break;
 			}
@@ -136,10 +138,9 @@ inline void TPhotonMappingWork<Photon>::doWork()
 			Vector3R Ns = surfaceHit.getShadingNormal();
 			throughputRadiance.mulLocal(bsdfSample.outputs.pdfAppliedBsdf);
 			throughputRadiance.mulLocal(Ns.absDot(L));
-			//throughput.mulLocal(Ns.absDot(V) * Ng.absDot(L) / Ng.absDot(V) / Ns.absDot(L));
+			throughputRadiance.mulLocal(Ns.absDot(V) * Ng.absDot(L) / Ng.absDot(V) / Ns.absDot(L));
 
-			tracingRay.setOrigin(surfaceHit.getPosition());
-			tracingRay.setDirection(L);
+			tracingRay = sampledRay;
 		}// end single photon path
 
 		if(photonCounter >= 16384)

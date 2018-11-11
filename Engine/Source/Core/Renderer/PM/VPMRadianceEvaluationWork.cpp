@@ -10,6 +10,7 @@
 #include "Core/SurfaceHit.h"
 #include "Core/Renderer/PM/PMRenderer.h"
 #include "Core/Emitter/Emitter.h"
+#include "Core/Estimator/BuildingBlock/TSurfaceEventDispatcher.h"
 
 namespace ph
 {
@@ -48,6 +49,7 @@ void VPMRadianceEvaluationWork::doWork()
 	const Samples2DStage filmStage = m_sampleGenerator->declare2DStage(numPixels);// FIXME: consider sample filter extent & size hints
 
 	std::vector<VPMPhoton> photonCache;
+	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
 
 	while(m_sampleGenerator->prepareSampleBatch())
 	{
@@ -64,14 +66,13 @@ void VPMRadianceEvaluationWork::doWork()
 			const real filmYPx = filmNdcPos.y * static_cast<real>(m_film->getActualResPx().y);
 			SpectralStrength zeroBounceRadiance(0);
 
-			HitProbe probe;
-			if(!m_scene->isIntersecting(tracingRay, &probe))
+			SurfaceHit surfaceHit;
+			if(!surfaceEvent.traceNextSurface(tracingRay, &surfaceHit))
 			{
 				m_film->addSample(filmXPx, filmYPx, zeroBounceRadiance);
 				continue;
 			}
-
-			SurfaceHit surfaceHit(tracingRay, probe);
+			
 			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 			const SurfaceOptics* surfaceOptics = metadata->getSurface().getOptics();
 
@@ -96,16 +97,18 @@ void VPMRadianceEvaluationWork::doWork()
 				const Vector3R L = photon.get<EPhotonData::INCIDENT_DIR>();
 
 				bsdfEval.inputs.set(surfaceHit, L, V, ALL_ELEMENTALS, ETransport::RADIANCE);
-				surfaceOptics->calcBsdf(bsdfEval);
-
-				if(!bsdfEval.outputs.isGood())
+				if(!surfaceEvent.doBsdfEvaluation(surfaceHit, bsdfEval))
 				{
 					continue;
 				}
 
 				SpectralStrength throughput(1.0_r);// TODO: this is not true after ray bounces
 				throughput.mulLocal(bsdfEval.outputs.bsdf);
-				//throughput.mulLocal(Ns.absDot(V) * Ng.absDot(L) / Ng.absDot(V) / Ns.absDot(L));
+				throughput.mulLocal(Ns.absDot(L) * Ng.absDot(V) / Ng.absDot(L) / Ns.absDot(V));
+				//throughput.mulLocal(Ns.absDot(L) / Ng.absDot(L));
+				//throughput.mulLocal(Ns.absDot(V) / Ng.absDot(V));
+				//throughput.mulLocal(Ng.absDot(V) / Ns.absDot(V));
+
 
 				radiance.addLocal(throughput * photon.get<EPhotonData::THROUGHPUT_RADIANCE>());
 			}
