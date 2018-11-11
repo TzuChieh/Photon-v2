@@ -116,6 +116,7 @@ public class EditorCtrl
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		{
 			// TODO: load scene implicitly contains engine update, should make this explicit
+			// TODO: better if we stop the rendering process on failed file loading
 			Task<Void> loadSceneTask = m_project.createLoadSceneTask();
 			loadSceneTask.setOnSucceeded((event) -> {
 				m_renderProgressMonitor.startMonitoring();

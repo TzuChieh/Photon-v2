@@ -15,9 +15,9 @@
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Common/assertion.h"
-#include "Core/Estimator/BuildingBlock/TMis.h"
-#include "Core/Estimator/BuildingBlock/PtDirectLightEstimator.h"
-#include "Core/Estimator/BuildingBlock/RussianRoulette.h"
+#include "Core/LTABuildingBlock/TMis.h"
+#include "Core/LTABuildingBlock/PtDirectLightEstimator.h"
+#include "Core/LTABuildingBlock/RussianRoulette.h"
 #include "Core/Quantity/SpectralStrength.h"
 
 #include <iostream>

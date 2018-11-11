@@ -10,7 +10,7 @@
 #include "Core/SurfaceHit.h"
 #include "Core/Renderer/PM/PMRenderer.h"
 #include "Core/Emitter/Emitter.h"
-#include "Core/Estimator/BuildingBlock/TSurfaceEventDispatcher.h"
+#include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
 
 namespace ph
 {

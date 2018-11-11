@@ -13,11 +13,11 @@
 #include "Core/HitProbe.h"
 #include "Core/HitDetail.h"
 #include "Math/Random.h"
-#include "Core/Estimator/BuildingBlock/RussianRoulette.h"
+#include "Core/LTABuildingBlock/RussianRoulette.h"
 #include "Common/assertion.h"
 #include "Utility/Timer.h"
 #include "Core/Renderer/PM/PMStatistics.h"
-#include "Core/Estimator/BuildingBlock/TSurfaceEventDispatcher.h"
+#include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
 
 namespace ph
 {

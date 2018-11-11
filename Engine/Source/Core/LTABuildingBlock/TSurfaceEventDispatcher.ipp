@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Estimator/BuildingBlock/TSurfaceEventDispatcher.h"
+#include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
 #include "Common/assertion.h"
 #include "World/Scene.h"
 #include "Core/HitProbe.h"

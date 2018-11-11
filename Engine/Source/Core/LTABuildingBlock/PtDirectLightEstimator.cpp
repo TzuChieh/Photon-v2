@@ -1,4 +1,4 @@
-#include "Core/Estimator/BuildingBlock/PtDirectLightEstimator.h"
+#include "Core/LTABuildingBlock/PtDirectLightEstimator.h"
 #include "Math/TVector3.h"
 #include "World/Scene.h"
 #include "Core/Sample/DirectLightSample.h"
