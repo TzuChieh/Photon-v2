@@ -329,6 +329,20 @@ inline bool TArithmeticArray<T, N>::isNonNegative() const
 }
 
 template<typename T, std::size_t N>
+inline bool TArithmeticArray<T, N>::isFinite() const
+{
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		if(!std::isfinite(m[i]))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+template<typename T, std::size_t N>
 inline std::size_t TArithmeticArray<T, N>::size() const
 {
 	return N;

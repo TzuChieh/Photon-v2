@@ -30,7 +30,6 @@ PPMRadianceEvaluationWork::PPMRadianceEvaluationWork(
 	PH_ASSERT(film);
 
 	setPMStatistics(nullptr);
-	setPMRenderer(nullptr);
 }
 
 void PPMRadianceEvaluationWork::doWork()
@@ -51,15 +50,15 @@ void PPMRadianceEvaluationWork::doWork()
 		const Vector3R V = viewpoint.get<EViewpointData::VIEW_DIR>();
 		const Vector3R Ng = surfaceHit.getGeometryNormal();
 		const Vector3R Ns = surfaceHit.getShadingNormal();
-		const real r = viewpoint.get<EViewpointData::RADIUS>();
+		const real R = viewpoint.get<EViewpointData::RADIUS>();
 
 		photonCache.clear();
-		getPhotonMap()->findWithinRange(surfaceHit.getPosition(), r, photonCache);
+		getPhotonMap()->findWithinRange(surfaceHit.getPosition(), R, photonCache);
 
 		const real N = viewpoint.get<EViewpointData::NUM_PHOTONS>();
 		const real M = static_cast<real>(photonCache.size());
 		const real newN = N + alpha * M;
-		const real newR = (N + M) != 0.0_r ? r * std::sqrt(newN / (N + M)) : r;
+		const real newR = (N + M) != 0.0_r ? R * std::sqrt(newN / (N + M)) : R;
 
 		BsdfEvaluation bsdfEval;
 		
@@ -86,13 +85,13 @@ void PPMRadianceEvaluationWork::doWork()
 
 			tauM.addLocal(tau);
 		}
-		const SpectralStrength newTau = (tauN + tauM) * (newN / (N + M));// FIXME
+		const SpectralStrength newTau = (N + M) != 0.0_r ? (tauN + tauM) * (newN / (N + M)) : SpectralStrength(0);
 
 		viewpoint.set<EViewpointData::RADIUS>(newR);
 		viewpoint.set<EViewpointData::NUM_PHOTONS>(newN);
 		viewpoint.set<EViewpointData::TAU>(newTau);
 		
-		const real kernelArea = r * r * PH_PI_REAL;
+		const real kernelArea = newR * newR * PH_PI_REAL;
 		const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(numPhotonPaths()));
 
 		SpectralStrength radiance(viewpoint.get<EViewpointData::TAU>());
@@ -103,16 +102,6 @@ void PPMRadianceEvaluationWork::doWork()
 		const real filmXPx = filmNdc.x * static_cast<real>(m_film->getActualResPx().x);
 		const real filmYPx = filmNdc.y * static_cast<real>(m_film->getActualResPx().y);
 		m_film->addSample(filmXPx, filmYPx, radiance);
-	}
-
-	if(m_statistics)
-	{
-		m_statistics->asyncIncrementNumPasses();
-	}
-
-	if(m_renderer)
-	{
-		m_renderer->asyncMergeFilm(*m_film);
 	}
 }
 

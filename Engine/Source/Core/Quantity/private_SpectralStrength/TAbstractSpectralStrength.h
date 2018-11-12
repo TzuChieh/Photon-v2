@@ -80,6 +80,7 @@ public:
 
 	inline bool isZero() const;
 	inline bool isNonNegative() const;
+	inline bool isFinite() const;
 	inline real sum() const;
 	inline real avg() const;
 	inline real max() const;

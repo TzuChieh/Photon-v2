@@ -189,11 +189,11 @@ public class EditorCtrl
 			for(int x = region.x; x < maxX; x++)
 			{
 				color.set(frameRegion.getRgb(x, y));
-				if(color.x != color.x || 
-				   color.y != color.y || 
-				   color.z != color.z)
+				if(!Float.isFinite(color.x) ||
+				   !Float.isFinite(color.y) || 
+				   !Float.isFinite(color.z))
 				{
-					System.err.println("NaN in frame");
+					System.err.println("color is not finite: " + color);
 					color.set(0, 0, 0);
 				}
 				

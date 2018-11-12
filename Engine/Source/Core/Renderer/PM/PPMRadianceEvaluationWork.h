@@ -28,14 +28,12 @@ public:
 		const Scene* scene);
 
 	void setPMStatistics(PMStatistics* statistics);
-	void setPMRenderer(PMRenderer* renderer);
 
 private:
 	void doWork() override;
 
 	HdrRgbFilm*      m_film;
 	PMStatistics*    m_statistics;
-	PMRenderer*      m_renderer;
 	PPMViewpoint* m_viewpoints;
 	std::size_t m_numViewpoints;
 	const Scene* m_scene;
@@ -46,11 +44,6 @@ private:
 inline void PPMRadianceEvaluationWork::setPMStatistics(PMStatistics* const statistics)
 {
 	m_statistics = statistics;
-}
-
-inline void PPMRadianceEvaluationWork::setPMRenderer(PMRenderer* const renderer)
-{
-	m_renderer = renderer;
 }
 
 }// end namespace ph

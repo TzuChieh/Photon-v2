@@ -43,6 +43,7 @@ private:
 	EPMMode m_mode;
 	std::size_t m_numPhotons;
 	std::size_t m_numPasses;
+	std::size_t m_numSamplesPerPixel;
 	real m_kernelRadius;
 
 	std::mutex m_filmMutex;

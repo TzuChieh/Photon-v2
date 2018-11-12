@@ -222,6 +222,8 @@ public class RenderProgressMonitorCtrl
 				Platform.runLater(() -> percentageProgressLabel.setText("100"));
 				updateProgress(100, 100);
 				
+				// TODO: update other statistics for the last time
+				
 				m_isMonitoring = false;
 				
 				return null;

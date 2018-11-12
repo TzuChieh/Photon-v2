@@ -65,6 +65,7 @@ public:
 
 	inline bool isZero() const;
 	inline bool isNonNegative() const;
+	inline bool isFinite() const;
 	inline std::size_t size() const;
 
 	inline TArithmeticArray& set(T value);

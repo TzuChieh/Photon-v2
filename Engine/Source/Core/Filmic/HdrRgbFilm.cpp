@@ -52,6 +52,8 @@ void HdrRgbFilm::addSample(
 	const float64 xPx, const float64 yPx, 
 	const SpectralStrength& radiance)
 {
+	PH_ASSERT_MSG(radiance.isFinite(), radiance.toString());
+
 	const Vector3R rgb = radiance.genLinearSrgb(EQuantity::EMR);
 	addSample(xPx, yPx, rgb);
 }

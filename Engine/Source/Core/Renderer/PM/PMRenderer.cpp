@@ -180,12 +180,9 @@ void PMRenderer::renderWithProgressivePM()
 {
 	logger.log("start gathering viewpoints...");
 
-	/*auto resultFilm = std::make_unique<HdrRgbFilm>(
-		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);*/
-
 	std::vector<PPMViewpoint> viewpoints;
 	{
-		auto viewpointSampleGenerator = m_sg->genCopied(1);
+		auto viewpointSampleGenerator = m_sg->genCopied(m_numSamplesPerPixel);
 		TViewpointGatheringWork<PPMViewpoint> viewpointWork(
 			m_scene, 
 			m_camera, 
@@ -209,12 +206,8 @@ void PMRenderer::renderWithProgressivePM()
 	std::size_t totalPhotonPaths = 0;
 	while(numFinishedPasses < m_numPasses)
 	{
-		{
-			std::lock_guard<std::mutex> lock(m_filmMutex);
-			m_film->clear();
-			/*m_film = std::make_unique<HdrRgbFilm>(
-				getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);*/
-		}
+		auto resultFilm = std::make_unique<HdrRgbFilm>(
+			getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
 
 		std::vector<PPMPhoton> photonBuffer(numPhotonsPerPass);
 
@@ -246,7 +239,7 @@ void PMRenderer::renderWithProgressivePM()
 		photonMap.build(std::move(photonBuffer));
 
 		parallel_work(viewpoints.size(), getNumWorkers(),
-			[this, &photonMap, &viewpoints, totalPhotonPaths](
+			[this, &photonMap, &viewpoints, &resultFilm, totalPhotonPaths](
 				const std::size_t workerIdx, 
 				const std::size_t workStart, 
 				const std::size_t workEnd)
@@ -263,12 +256,25 @@ void PMRenderer::renderWithProgressivePM()
 					numViewpoints,
 					m_scene);
 
-				radianceEstimator.setPMRenderer(this);
 				radianceEstimator.setPMStatistics(&m_statistics);
 
 				radianceEstimator.work();
+
+				{
+					std::lock_guard<std::mutex> lock(m_filmMutex);// TODO: use another lock
+
+					resultFilm->mergeWith(*film);
+				}
 			});
 
+		{
+			std::lock_guard<std::mutex> lock(m_filmMutex);
+
+			m_film->clear();
+			m_film->mergeWith(*resultFilm);
+		}
+
+		m_statistics.asyncIncrementNumPasses();
 		++numFinishedPasses;
 	}// end while more pass needed
 }
@@ -360,6 +366,7 @@ PMRenderer::PMRenderer(const InputPacket& packet) :
 	m_numPhotons(),
 	m_kernelRadius(),
 	m_numPasses(),
+	m_numSamplesPerPixel(),
 
 	m_filmMutex(),
 	m_statistics()
@@ -381,6 +388,7 @@ PMRenderer::PMRenderer(const InputPacket& packet) :
 	m_numPhotons = packet.getInteger("num-photons", 100000);
 	m_kernelRadius = packet.getReal("radius", 0.1_r);
 	m_numPasses = packet.getInteger("num-passes", 1);
+	m_numSamplesPerPixel = packet.getInteger("num-samples-per-pixel", 4);
 }
 
 SdlTypeInfo PMRenderer::ciTypeInfo()

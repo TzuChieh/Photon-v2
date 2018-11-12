@@ -339,6 +339,12 @@ inline bool TAbstractSpectralStrength<DerivedType, N>::isNonNegative() const
 }
 
 template<typename DerivedType, std::size_t N>
+inline bool TAbstractSpectralStrength<DerivedType, N>::isFinite() const
+{
+	return m_values.isFinite();
+}
+
+template<typename DerivedType, std::size_t N>
 inline real TAbstractSpectralStrength<DerivedType, N>::sum() const
 {
 	return m_values.sum();
