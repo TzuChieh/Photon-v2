@@ -31,7 +31,7 @@ inline TViewpointGatheringWork<Viewpoint>::TViewpointGatheringWork(
 	m_kernelRadius(kernelRadius),
 	m_viewpoints(),
 	m_filmRegion(filmRegion),
-	m_maxViewpointDepth(3)
+	m_maxViewpointDepth(6)
 {}
 
 template<typename Viewpoint>
@@ -90,10 +90,12 @@ inline void TViewpointGatheringWork<Viewpoint>::gatherViewpointsRecursive(
 				Ray sampledRay;
 				if(surfaceEvent.doBsdfSample(surfaceHit, sample, &sampledRay))
 				{
+					// TODO: what about emitter with delta BSDF? cannot capture its radiance here
+
 					gatherViewpointsRecursive(
 						sampledRay, 
 						filmNdc, 
-						throughput.mul(sample.outputs.pdfAppliedBsdf).mul(N.absDot(V)), 
+						throughput.mul(sample.outputs.pdfAppliedBsdf).mul(N.absDot(sampledRay.getDirection())),
 						currentViewpointDepth + 1);
 				}
 			}
@@ -121,6 +123,17 @@ inline void TViewpointGatheringWork<Viewpoint>::gatherViewpointsRecursive(
 				}
 				if constexpr(Viewpoint::template has<EViewpointData::VIEW_DIR>()) {
 					viewpoint.template set<EViewpointData::VIEW_DIR>(V);
+				}
+
+				if constexpr(Viewpoint::template has<EViewpointData::VIEW_RADIANCE>())
+				{
+					SpectralStrength surfaceRadiance(0);
+					if(metadata->getSurface().getEmitter())
+					{
+						metadata->getSurface().getEmitter()->evalEmittedRadiance(surfaceHit, &surfaceRadiance);
+						surfaceRadiance.mulLocal(throughput);
+					}
+					viewpoint.template set<EViewpointData::VIEW_RADIANCE>(surfaceRadiance);
 				}
 
 				m_viewpoints.push_back(viewpoint);

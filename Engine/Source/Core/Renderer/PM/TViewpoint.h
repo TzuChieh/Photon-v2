@@ -11,7 +11,8 @@ enum class EViewpointData
 	NUM_PHOTONS,
 	TAU,
 	VIEW_THROUGHPUT,
-	VIEW_DIR
+	VIEW_DIR,
+	VIEW_RADIANCE
 };
 
 template<typename Derived>

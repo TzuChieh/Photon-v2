@@ -12,6 +12,7 @@
 namespace ph
 {
 
+// FIXME: lerping between delta distribution(s) seems broken
 class LerpedSurfaceOptics : public SurfaceOptics
 {
 public:

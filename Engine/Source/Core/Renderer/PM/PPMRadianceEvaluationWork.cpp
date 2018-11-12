@@ -97,6 +97,7 @@ void PPMRadianceEvaluationWork::doWork()
 		SpectralStrength radiance(viewpoint.get<EViewpointData::TAU>());
 		radiance.mulLocal(viewpoint.get<EViewpointData::VIEW_THROUGHPUT>());
 		radiance.mulLocal(radianceMultiplier);
+		radiance.addLocal(viewpoint.get<EViewpointData::VIEW_RADIANCE>());
 
 		const Vector2R filmNdc = viewpoint.get<EViewpointData::FILM_NDC>();
 		const real filmXPx = filmNdc.x * static_cast<real>(m_film->getActualResPx().x);

@@ -34,6 +34,7 @@ private:
 	SpectralStrength m_tau;
 	SpectralStrength m_viewThroughput;
 	Vector3R         m_viewDir;
+	SpectralStrength m_viewRadiance;
 };
 
 // In-header Implementations:
@@ -48,7 +49,8 @@ inline constexpr bool PPMViewpoint::impl_has()
 		TYPE == EViewpointData::NUM_PHOTONS     ||
 		TYPE == EViewpointData::TAU             ||
 		TYPE == EViewpointData::VIEW_THROUGHPUT || 
-		TYPE == EViewpointData::VIEW_DIR)
+		TYPE == EViewpointData::VIEW_DIR        || 
+		TYPE == EViewpointData::VIEW_RADIANCE)
 	{
 		return true;
 	}
@@ -82,6 +84,9 @@ inline decltype(auto) PPMViewpoint::impl_get() const
 	else if constexpr(TYPE == EViewpointData::VIEW_DIR) {
 		return m_viewDir;
 	}
+	else if constexpr(TYPE == EViewpointData::VIEW_RADIANCE) {
+		return m_viewRadiance;
+	}
 	else {
 		PH_ASSERT_UNREACHABLE_SECTION();
 		return false;
@@ -111,6 +116,9 @@ inline void PPMViewpoint::impl_set(const T& value)
 	}
 	else if constexpr(TYPE == EViewpointData::VIEW_DIR) {
 		m_viewDir = value;
+	}
+	else if constexpr(TYPE == EViewpointData::VIEW_RADIANCE) {
+		m_viewRadiance = value;
 	}
 	else {
 		PH_ASSERT_UNREACHABLE_SECTION();
