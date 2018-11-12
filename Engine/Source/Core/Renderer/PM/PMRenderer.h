@@ -50,6 +50,7 @@ private:
 	PMStatistics m_statistics;
 
 	void renderWithVanillaPM();
+	void renderWithProgressivePM();
 
 // command interface
 public:

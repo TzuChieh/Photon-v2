@@ -3,51 +3,55 @@
 namespace ph
 {
 
-enum class EPhotonData
+enum class EViewpointData
 {
-	THROUGHPUT_RADIANCE,
-	POSITION,
-	FROM_DIR
+	SURFACE_HIT,
+	FILM_NDC,
+	RADIUS,
+	NUM_PHOTONS,
+	TAU,
+	VIEW_THROUGHPUT,
+	VIEW_DIR
 };
 
 template<typename Derived>
-class TPhoton
+class TViewpoint
 {
 	friend Derived;
 
 public:
-	template<EPhotonData TYPE>
+	template<EViewpointData TYPE>
 	static constexpr bool has();
 
-	template<EPhotonData TYPE>
+	template<EViewpointData TYPE>
 	decltype(auto) get() const;
 
-	template<EPhotonData TYPE, typename T>
+	template<EViewpointData TYPE, typename T>
 	void set(const T& value);
 
 private:
-	TPhoton() = default;
+	TViewpoint() = default;
 };
 
 // In-header Implementations:
 
 template<typename Derived>
-template<EPhotonData TYPE>
-inline constexpr bool TPhoton<Derived>::has()
+template<EViewpointData TYPE>
+inline constexpr bool TViewpoint<Derived>::has()
 {
 	return Derived::template impl_has<TYPE>();
 }
 
 template<typename Derived>
-template<EPhotonData TYPE>
-inline decltype(auto) TPhoton<Derived>::get() const
+template<EViewpointData TYPE>
+inline decltype(auto) TViewpoint<Derived>::get() const
 {
 	return static_cast<const Derived&>(*this).template impl_get<TYPE>();
 }
 
 template<typename Derived>
-template<EPhotonData TYPE, typename T>
-inline void TPhoton<Derived>::set(const T& value)
+template<EViewpointData TYPE, typename T>
+inline void TViewpoint<Derived>::set(const T& value)
 {
 	static_cast<Derived&>(*this).template impl_set<TYPE>(value);
 }

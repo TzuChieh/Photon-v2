@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Renderer/RenderWork.h"
-#include "Core/Renderer/PM/Viewpoint.h"
+#include "Core/Renderer/PM/TViewpoint.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/PM/TPhoton.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
@@ -34,7 +34,7 @@ private:
 	void doWork() override = 0;
 
 	const TPhotonMap<Photon>* m_photonMap;
-	Viewpoint* m_viewpoints;
+	//Viewpoint* m_viewpoints;
 	std::size_t m_numViewpoints;
 	HdrRgbFilm* m_film;
 	std::size_t m_numPhotonPaths;

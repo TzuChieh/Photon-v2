@@ -1,7 +1,7 @@
 #include "Core/Renderer/PM/PMRenderer.h"
 #include "Core/Filmic/SampleFilterFactory.h"
 #include "FileIO/SDL/SdlResourcePack.h"
-#include "Core/Renderer/PM/RayTracingWork.h"
+#include "Core/Renderer/PM/TViewpointGatheringWork.h"
 #include "Core/Renderer/PM/TPhotonMappingWork.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Core/Renderer/PM/VPMRadianceEvaluationWork.h"
@@ -10,6 +10,9 @@
 #include "Utility/FixedSizeThreadPool.h"
 #include "Utility/concurrent.h"
 #include "Common/Logger.h"
+#include "Core/Renderer/PM/PPMRadianceEvaluationWork.h"
+#include "Core/Renderer/PM/PPMPhoton.h"
+#include "Core/Renderer/PM/PPMViewpoint.h"
 
 #include <numeric>
 
@@ -94,7 +97,14 @@ void PMRenderer::doRender()
 	if(m_mode == EPMMode::VANILLA)
 	{
 		logger.log("rendering mode: vanilla photon mapping");
+
 		renderWithVanillaPM();
+	}
+	else if(m_mode == EPMMode::PROGRESSIVE)
+	{
+		logger.log("rendering mode: progressive photon mapping");
+
+		renderWithProgressivePM();
 	}
 	else
 	{
@@ -164,6 +174,103 @@ void PMRenderer::renderWithVanillaPM()
 
 			radianceEstimator.work();
 		});
+}
+
+void PMRenderer::renderWithProgressivePM()
+{
+	logger.log("start gathering viewpoints...");
+
+	/*auto resultFilm = std::make_unique<HdrRgbFilm>(
+		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);*/
+
+	std::vector<PPMViewpoint> viewpoints;
+	{
+		auto viewpointSampleGenerator = m_sg->genCopied(1);
+		TViewpointGatheringWork<PPMViewpoint> viewpointWork(
+			m_scene, 
+			m_camera, 
+			viewpointSampleGenerator.get(),
+			getRenderWindowPx(),
+			m_kernelRadius);
+		viewpointWork.work();
+
+		viewpoints = viewpointWork.claimViewpoints();
+	}
+	
+	logger.log("size of viewpoint buffer: " + std::to_string(sizeof(PPMViewpoint) * viewpoints.size() / 1024 / 1024) + " MB");
+
+	std::size_t numPhotonsPerPass = m_numPhotons;
+	logger.log("number of photons per pass: " + std::to_string(numPhotonsPerPass));
+	logger.log("size of photon buffer: " + std::to_string(sizeof(VPMPhoton) * numPhotonsPerPass / 1024 / 1024) + " MB");
+
+	logger.log("start accumulating passes...");
+
+	std::size_t numFinishedPasses = 0;
+	std::size_t totalPhotonPaths = 0;
+	while(numFinishedPasses < m_numPasses)
+	{
+		{
+			std::lock_guard<std::mutex> lock(m_filmMutex);
+			m_film->clear();
+			/*m_film = std::make_unique<HdrRgbFilm>(
+				getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);*/
+		}
+
+		std::vector<PPMPhoton> photonBuffer(numPhotonsPerPass);
+
+		std::vector<std::size_t> numPhotonPaths(getNumWorkers(), 0);
+		parallel_work(numPhotonsPerPass, getNumWorkers(),
+			[this, &photonBuffer, &numPhotonPaths](
+				const std::size_t workerIdx, 
+				const std::size_t workStart, 
+				const std::size_t workEnd)
+			{
+				auto sampleGenerator = m_sg->genCopied(1);
+
+				TPhotonMappingWork<PPMPhoton> photonMappingWork(
+					m_scene,
+					m_camera,
+					sampleGenerator.get(),
+					&(photonBuffer[workStart]),
+					workEnd - workStart,
+					&(numPhotonPaths[workerIdx]));
+
+				photonMappingWork.setPMStatistics(&m_statistics);
+
+				photonMappingWork.work();
+			});
+
+		totalPhotonPaths = std::accumulate(numPhotonPaths.begin(), numPhotonPaths.end(), totalPhotonPaths);
+
+		TPhotonMap<PPMPhoton> photonMap(2, TPhotonCenterCalculator<PPMPhoton>());
+		photonMap.build(std::move(photonBuffer));
+
+		parallel_work(viewpoints.size(), getNumWorkers(),
+			[this, &photonMap, &viewpoints, totalPhotonPaths](
+				const std::size_t workerIdx, 
+				const std::size_t workStart, 
+				const std::size_t workEnd)
+			{
+				auto numViewpoints   = workEnd - workStart;
+				auto film            = std::make_unique<HdrRgbFilm>(
+					getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
+
+				PPMRadianceEvaluationWork radianceEstimator(
+					&photonMap, 
+					totalPhotonPaths,
+					film.get(),
+					&(viewpoints[workStart]),
+					numViewpoints,
+					m_scene);
+
+				radianceEstimator.setPMRenderer(this);
+				radianceEstimator.setPMStatistics(&m_statistics);
+
+				radianceEstimator.work();
+			});
+
+		++numFinishedPasses;
+	}// end while more pass needed
 }
 
 ERegionStatus PMRenderer::asyncPollUpdatedRegion(Region* out_region)

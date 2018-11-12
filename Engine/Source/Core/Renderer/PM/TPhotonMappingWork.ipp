@@ -96,19 +96,14 @@ inline void TPhotonMappingWork<Photon>::doWork()
 
 				Photon photon;
 
-				if constexpr(Photon::template has<EPhotonData::POSITION>())
-				{
+				if constexpr(Photon::template has<EPhotonData::POSITION>()) {
 					photon.template set<EPhotonData::POSITION>(surfaceHit.getPosition());
 				}
-
-				if constexpr(Photon::template has<EPhotonData::THROUGHPUT_RADIANCE>())
-				{
+				if constexpr(Photon::template has<EPhotonData::THROUGHPUT_RADIANCE>()) {
 					photon.template set<EPhotonData::THROUGHPUT_RADIANCE>(throughputRadiance);
 				}
-
-				if constexpr(Photon::template has<EPhotonData::INCIDENT_DIR>())
-				{
-					photon.template set<EPhotonData::INCIDENT_DIR>(tracingRay.getDirection().mul(-1));
+				if constexpr(Photon::template has<EPhotonData::FROM_DIR>()) {
+					photon.template set<EPhotonData::FROM_DIR>(tracingRay.getDirection().mul(-1));
 				}
 
 				m_photonBuffer[numStoredPhotons++] = photon;
@@ -138,6 +133,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 			Vector3R Ns = surfaceHit.getShadingNormal();
 			throughputRadiance.mulLocal(bsdfSample.outputs.pdfAppliedBsdf);
 			throughputRadiance.mulLocal(Ns.absDot(L));
+			//throughputRadiance.mulLocal(Ng.absDot(L));
 			throughputRadiance.mulLocal(Ns.absDot(V) * Ng.absDot(L) / Ng.absDot(V) / Ns.absDot(L));
 
 			tracingRay = sampledRay;

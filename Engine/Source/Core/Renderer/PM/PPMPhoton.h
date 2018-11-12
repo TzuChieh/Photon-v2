@@ -8,10 +8,10 @@
 namespace ph
 {
 
-class VPMPhoton : public TPhoton<VPMPhoton>
+class PPMPhoton : public TPhoton<PPMPhoton>
 {
 public:
-	VPMPhoton() = default;
+	PPMPhoton() = default;
 
 	template<EPhotonData TYPE>
 	static constexpr bool impl_has();
@@ -31,7 +31,7 @@ private:
 // In-header Implementations:
 
 template<EPhotonData TYPE>
-inline constexpr bool VPMPhoton::impl_has()
+inline constexpr bool PPMPhoton::impl_has()
 {
 	if constexpr(
 		TYPE == EPhotonData::THROUGHPUT_RADIANCE ||
@@ -47,7 +47,7 @@ inline constexpr bool VPMPhoton::impl_has()
 }
 
 template<EPhotonData TYPE>
-inline decltype(auto) VPMPhoton::impl_get() const
+inline decltype(auto) PPMPhoton::impl_get() const
 {
 	if constexpr(TYPE == EPhotonData::THROUGHPUT_RADIANCE)
 	{
@@ -69,7 +69,7 @@ inline decltype(auto) VPMPhoton::impl_get() const
 }
 
 template<EPhotonData TYPE, typename T>
-inline void VPMPhoton::impl_set(const T& value)
+inline void PPMPhoton::impl_set(const T& value)
 {
 	if constexpr(TYPE == EPhotonData::THROUGHPUT_RADIANCE)
 	{

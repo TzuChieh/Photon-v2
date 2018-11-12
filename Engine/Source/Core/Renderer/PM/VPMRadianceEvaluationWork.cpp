@@ -94,7 +94,7 @@ void VPMRadianceEvaluationWork::doWork()
 			SpectralStrength radiance(0);
 			for(const auto& photon : photonCache)
 			{
-				const Vector3R L = photon.get<EPhotonData::INCIDENT_DIR>();
+				const Vector3R L = photon.get<EPhotonData::FROM_DIR>();
 
 				bsdfEval.inputs.set(surfaceHit, L, V, ALL_ELEMENTALS, ETransport::RADIANCE);
 				if(!surfaceEvent.doBsdfEvaluation(surfaceHit, bsdfEval))

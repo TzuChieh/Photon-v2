@@ -27,7 +27,7 @@ inline TRadianceEvaluationWork<Photon>::TRadianceEvaluationWork(
 template<typename Photon>
 inline void TRadianceEvaluationWork<Photon>::doWork()
 {
-	for(std::size_t i = 0; i < m_numViewpoints; ++i)
+	/*for(std::size_t i = 0; i < m_numViewpoints; ++i)
 	{
 		const Viewpoint& viewpoint = m_viewpoints[i];
 		
@@ -39,7 +39,7 @@ inline void TRadianceEvaluationWork<Photon>::doWork()
 		real filmXPx = viewpoint.filmNdcPos.x * static_cast<real>(m_film->getActualResPx().x);
 		real filmYPx = viewpoint.filmNdcPos.y * static_cast<real>(m_film->getActualResPx().y);
 		m_film->addSample(filmXPx, filmYPx, radiance);
-	}
+	}*/
 }
 
 template<typename Photon>
