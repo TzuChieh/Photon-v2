@@ -13,6 +13,7 @@
 #include "Core/Renderer/PM/PPMRadianceEvaluationWork.h"
 #include "Core/Renderer/PM/PPMPhoton.h"
 #include "Core/Renderer/PM/PPMViewpoint.h"
+#include "Utility/Timer.h"
 
 #include <numeric>
 
@@ -33,6 +34,7 @@ void PMRenderer::doUpdate(const SdlResourcePack& data)
 	m_sg = data.getSampleGenerator().get();
 
 	m_statistics.zero();
+	m_photonsPerSecond = 0;
 	
 	/*Scene* scene,
 		Camera* camera,
@@ -135,7 +137,6 @@ void PMRenderer::renderWithVanillaPM()
 				&(photonBuffer[workStart]),
 				workEnd - workStart,
 				&(numPhotonPaths[workerIdx]));
-
 			photonMappingWork.setPMStatistics(&m_statistics);
 
 			photonMappingWork.work();
@@ -149,14 +150,13 @@ void PMRenderer::renderWithVanillaPM()
 
 	logger.log("estimating radiance...");
 
-	parallel_work(m_numPasses, getNumWorkers(),
+	parallel_work(m_numSamplesPerPixel, getNumWorkers(),
 		[this, &photonMap, totalPhotonPaths](
 			const std::size_t workerIdx, 
 			const std::size_t workStart, 
 			const std::size_t workEnd)
 		{
-			auto numPasses       = workEnd - workStart;
-			auto sampleGenerator = m_sg->genCopied(numPasses);
+			auto sampleGenerator = m_sg->genCopied(workEnd - workStart);
 			auto film            = std::make_unique<HdrRgbFilm>(
 				getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
 
@@ -167,7 +167,6 @@ void PMRenderer::renderWithVanillaPM()
 				m_camera,
 				sampleGenerator.get(),
 				film.get());
-
 			radianceEstimator.setPMRenderer(this);
 			radianceEstimator.setPMStatistics(&m_statistics);
 			radianceEstimator.setKernelRadius(m_kernelRadius);
@@ -183,32 +182,39 @@ void PMRenderer::renderWithProgressivePM()
 	std::vector<PPMViewpoint> viewpoints;
 	{
 		auto viewpointSampleGenerator = m_sg->genCopied(m_numSamplesPerPixel);
+
 		TViewpointGatheringWork<PPMViewpoint> viewpointWork(
 			m_scene, 
 			m_camera, 
 			viewpointSampleGenerator.get(),
 			getRenderWindowPx(),
 			m_kernelRadius);
+
 		viewpointWork.work();
 
 		viewpoints = viewpointWork.claimViewpoints();
 	}
 	
-	logger.log("size of viewpoint buffer: " + std::to_string(sizeof(PPMViewpoint) * viewpoints.size() / 1024 / 1024) + " MB");
+	logger.log("size of viewpoint buffer: " + 
+		std::to_string(math::byte_to_MB<real>(sizeof(PPMViewpoint) * viewpoints.size())) + " MB");
 
-	std::size_t numPhotonsPerPass = m_numPhotons;
+	const std::size_t numPhotonsPerPass = m_numPhotons;
+
 	logger.log("number of photons per pass: " + std::to_string(numPhotonsPerPass));
-	logger.log("size of photon buffer: " + std::to_string(sizeof(VPMPhoton) * numPhotonsPerPass / 1024 / 1024) + " MB");
-
+	logger.log("size of photon buffer: " 
+		+ std::to_string(math::byte_to_MB<real>(sizeof(PPMPhoton) * numPhotonsPerPass)) + " MB");
 	logger.log("start accumulating passes...");
 
+	auto resultFilm = std::make_unique<HdrRgbFilm>(
+		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
+
+	Timer passTimer;
 	std::size_t numFinishedPasses = 0;
-	std::size_t totalPhotonPaths = 0;
+	std::size_t totalPhotonPaths  = 0;
 	while(numFinishedPasses < m_numPasses)
 	{
-		auto resultFilm = std::make_unique<HdrRgbFilm>(
-			getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
-
+		passTimer.start();
+		resultFilm->clear();
 		std::vector<PPMPhoton> photonBuffer(numPhotonsPerPass);
 
 		std::vector<std::size_t> numPhotonPaths(getNumWorkers(), 0);
@@ -227,12 +233,10 @@ void PMRenderer::renderWithProgressivePM()
 					&(photonBuffer[workStart]),
 					workEnd - workStart,
 					&(numPhotonPaths[workerIdx]));
-
 				photonMappingWork.setPMStatistics(&m_statistics);
 
 				photonMappingWork.work();
 			});
-
 		totalPhotonPaths = std::accumulate(numPhotonPaths.begin(), numPhotonPaths.end(), totalPhotonPaths);
 
 		TPhotonMap<PPMPhoton> photonMap(2, TPhotonCenterCalculator<PPMPhoton>());
@@ -244,8 +248,7 @@ void PMRenderer::renderWithProgressivePM()
 				const std::size_t workStart, 
 				const std::size_t workEnd)
 			{
-				auto numViewpoints   = workEnd - workStart;
-				auto film            = std::make_unique<HdrRgbFilm>(
+				auto film = std::make_unique<HdrRgbFilm>(
 					getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
 
 				PPMRadianceEvaluationWork radianceEstimator(
@@ -253,9 +256,8 @@ void PMRenderer::renderWithProgressivePM()
 					totalPhotonPaths,
 					film.get(),
 					&(viewpoints[workStart]),
-					numViewpoints,
+					workEnd - workStart,
 					m_scene);
-
 				radianceEstimator.setPMStatistics(&m_statistics);
 
 				radianceEstimator.work();
@@ -273,6 +275,11 @@ void PMRenderer::renderWithProgressivePM()
 			m_film->clear();
 			m_film->mergeWith(*resultFilm);
 		}
+		passTimer.finish();
+
+		const real passTimeMs   = static_cast<real>(passTimer.getDeltaMs());
+		const real photonsPerMs = passTimeMs != 0 ? static_cast<real>(numPhotonsPerPass) / passTimeMs : 0;
+		m_photonsPerSecond.store(static_cast<std::uint32_t>(photonsPerMs * 1000 + 0.5_r), std::memory_order_relaxed);
 
 		m_statistics.asyncIncrementNumPasses();
 		++numFinishedPasses;
@@ -287,7 +294,10 @@ ERegionStatus PMRenderer::asyncPollUpdatedRegion(Region* out_region)
 
 RenderProgress PMRenderer::asyncQueryRenderProgress()
 {
-	return RenderProgress(0, 0, 0);
+	return RenderProgress(
+		m_numPasses, 
+		m_statistics.asyncGetNumPasses(), 
+		0);
 }
 
 void PMRenderer::asyncDevelopRegion(HdrRgbFrame& out_frame, const Region& region, const EAttribute attribute)
@@ -319,16 +329,13 @@ std::string PMRenderer::renderStateName(const RenderState::EType type, const std
 		{
 		case 0: return "finished passes";
 		case 1: return "traced photons";
+		case 2: return "photons/second";
 		default: return "";
 		}
 	}
 	else if(type == RenderState::EType::REAL)
 	{
-		switch(index)
-		{
-		case 0: return "photons/second";
-		default: return "";
-		}
+		return "";
 	}
 	else
 	{
@@ -341,6 +348,7 @@ RenderState PMRenderer::asyncQueryRenderState()
 	RenderState state;
 	state.setIntegerState(0, m_statistics.asyncGetNumPasses());
 	state.setIntegerState(1, m_statistics.asyncGetNumTracedPhotons());
+	state.setIntegerState(2, static_cast<RenderState::IntegerState>(m_photonsPerSecond.load(std::memory_order_relaxed)));
 	return state;
 }
 

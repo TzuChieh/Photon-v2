@@ -229,6 +229,24 @@ T product(const std::vector<T>& values)
 	return result;
 }
 
+template<typename KBType, typename ByteType>
+KBType byte_to_KB(const ByteType numBytes)
+{
+	return static_cast<KBType>(numBytes) / KBType(1024);
+}
+
+template<typename MBType, typename ByteType>
+MBType byte_to_MB(const ByteType numBytes)
+{
+	return static_cast<MBType>(numBytes) / MBType(1024 * 1024);
+}
+
+template<typename GBType, typename ByteType>
+GBType byte_to_GB(const ByteType numBytes)
+{
+	return static_cast<GBType>(numBytes) / GBType(1024 * 1024 * 1024);
+}
+
 }// end namespace math
 
 }// end namespace ph

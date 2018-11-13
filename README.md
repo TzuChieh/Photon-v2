@@ -15,41 +15,42 @@ Project Website: https://tzuchieh.github.io/
 
 ## Features
 
-* **Rendering**
-  * backward path tracing
-  * backward path tracing with next event estimation
+* **Rendering Mode**
+  * Backward Path Tracing
+  * Backward Path Tracing with Next Event Estimation
+  * Photon Mapping
+  * Progressive Photon Mapping
   * ~~light/particle tracing~~
   * ~~backward light tracing (next event estimation)~~
-  * RGB and spectral rendering modes
-  * AOV (normal)
+  * RGB and Spectral Rendering
+  * AOV Rendering (normal)
 
 * **Material**
-  * Lambertian diffuse
-  * microfacet-based opaque & translucent model
-  * ideal reflector, transmitter and absorber
-  * measured IOR
-  * layered surface material
+  * Lambertian Diffuse
+  * Microfacet-based Opaque & Translucent Model
+  * Ideal Reflector, Transmitter and Absorber
+  * Supports Spectral Complex IoR
+  * Layered Surface Material (Belcour's model)
+  * Lerped BSDF
 
 * **Geometry**
-  * triangle, rectangle
-  * sphere, cuboid, triangle mesh
-  * simple 2-D wave, fractal
+  * Triangle, Rectangle, Sphere, Cuboid, Triangle Mesh
+  * Simple 2-D Wave, Fractal
 
 * **Light**
-  * point light
-  * area light (sphere, rectangle)
-  * geometric light
-  * HDR environment map
-  * IES light profiles
+  * Point Light, Area Light (sphere, rectangle)
+  * Geometric Light
+  * HDR Environment Map
+  * IES Light Profiles
 
 * **Texture**
-  * texture with ordinary file formats (.jpg, .png, etc)
-  * mathematical modifiers (add, multiply)
+  * Texturing with Ordinary File Formats (.jpg, .png, etc)
+  * Mathematical Modifiers (add, multiply)
 
 * **Misc.**
-  * Blender addon for scene creation
-  * easy-to-write custom scene description language
-  * simple GUI for rendering
+  * Blender Addon for Scene Creation
+  * Easy-to-write Custom Scene Description Language
+  * GUI for Rendering
 
 ## Build
 
@@ -69,15 +70,16 @@ NOTE: Please use "./build/" as build folder for now, since build scripts are mor
 
 * **Near Future (in 1 ~ 3 months)**
   * stabilize core engine structure
+  * automatic generation of SDL interface
   * fully support common materials
   * basic addon for Blender
-  * distributed rendering system
+  * distributed (network) rendering
   * binary/modularized version of Photon-SDL
 
 * **Mid-term (in 3 ~ 6 months)**
-  * material node editor & parser
-  * able to convert Cycles material for use in Photon
+  * better material node editor & parser
   * a complete Blender addon
+  * able to convert Cycles material for use in Photon
 
 * **Future Works (~1 year or later)**
   * documentation & website

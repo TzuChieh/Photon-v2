@@ -171,14 +171,14 @@ public final class Project extends ManageableResource
 		m_engine.update();
 		
 		// HACK
-		for(int i = 0; i < 3; ++i)
-		{
-			System.out.println("integer render state name " + i + " = " + m_engine.getIntegerRenderStateName(i));
-		}
-		for(int i = 0; i < 3; ++i)
-		{
-			System.out.println("real render state name " + i + " = " + m_engine.getRealRenderStateName(i));
-		}
+//		for(int i = 0; i < 3; ++i)
+//		{
+//			System.out.println("integer render state name " + i + " = " + m_engine.getIntegerRenderStateName(i));
+//		}
+//		for(int i = 0; i < 3; ++i)
+//		{
+//			System.out.println("real render state name " + i + " = " + m_engine.getRealRenderStateName(i));
+//		}
 		
 		FilmInfo info = m_engine.getFilmInfo();
 		if(info.widthPx  != m_finalFrame.widthPx() || 

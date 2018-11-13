@@ -49,6 +49,7 @@ private:
 	std::mutex m_filmMutex;
 
 	PMStatistics m_statistics;
+	std::atomic_uint32_t m_photonsPerSecond;
 
 	void renderWithVanillaPM();
 	void renderWithProgressivePM();
