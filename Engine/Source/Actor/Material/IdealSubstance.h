@@ -26,6 +26,7 @@ public:
 
 	void asTransmitter(real iorInner, real iorOuter);
 	void asAbsorber();
+	void asDielectric(real iorInner, real iorOuter);
 
 	std::function<std::unique_ptr<SurfaceOptics>()> m_opticsGenerator;
 

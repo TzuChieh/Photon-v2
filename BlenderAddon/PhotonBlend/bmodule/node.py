@@ -696,7 +696,8 @@ class PhIdealSubstanceNode(PhMaterialNode):
 		items = [
 			("DIELECTRIC_REFLECTOR",   "Dielectric Reflector",   ""),
 			("METALLIC_REFLECTOR",     "Metallic Reflector",     ""),
-			("DIELECTRIC_TRANSMITTER", "Dielectric Transmitter", "")
+			("DIELECTRIC_TRANSMITTER", "Dielectric Transmitter", ""),
+			("DIELECTRIC",             "Dielectric",             "")
 		],
 		name        = "Substance Type",
 		description = "Type of ideal substancee.",
@@ -734,7 +735,9 @@ class PhIdealSubstanceNode(PhMaterialNode):
 		b_layout.prop(self, "substance_type", "")
 		b_layout.prop(self, "ior_outer")
 
-		if self.substance_type == "DIELECTRIC_REFLECTOR" or self.substance_type == "DIELECTRIC_TRANSMITTER":
+		if (self.substance_type == "DIELECTRIC_REFLECTOR" or
+		    self.substance_type == "DIELECTRIC_TRANSMITTER" or
+		    self.substance_type == "DIELECTRIC"):
 			b_layout.prop(self, "ior_inner")
 
 		if self.substance_type == "METALLIC_REFLECTOR":
@@ -757,6 +760,8 @@ class PhIdealSubstanceNode(PhMaterialNode):
 			cmd.set_type("metallic-reflector")
 		elif self.substance_type == "DIELECTRIC_TRANSMITTER":
 			cmd.set_type("transmitter")
+		elif self.substance_type == "DIELECTRIC":
+			cmd.set_type("dielectric")
 
 		sdlconsole.queue_command(cmd)
 

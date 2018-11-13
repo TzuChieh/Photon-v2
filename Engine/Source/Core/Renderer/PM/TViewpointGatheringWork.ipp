@@ -31,7 +31,7 @@ inline TViewpointGatheringWork<Viewpoint>::TViewpointGatheringWork(
 	m_kernelRadius(kernelRadius),
 	m_viewpoints(),
 	m_filmRegion(filmRegion),
-	m_maxViewpointDepth(6)
+	m_maxViewpointDepth(3)
 {}
 
 template<typename Viewpoint>

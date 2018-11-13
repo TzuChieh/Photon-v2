@@ -9,6 +9,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealAbsorber.h"
 #include "Common/assertion.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/IdealDielectric.h"
 
 #include <string>
 #include <iostream>
@@ -73,6 +74,16 @@ void IdealSubstance::asAbsorber()
 	};
 }
 
+void IdealSubstance::asDielectric(const real iorInner, const real iorOuter)
+{
+	m_opticsGenerator = [=]()
+	{
+		auto fresnel = std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner);
+		auto optics  = std::make_unique<IdealDielectric>(fresnel);
+		return optics;
+	};
+}
+
 // command interface
 
 IdealSubstance::IdealSubstance(const InputPacket& packet) : 
@@ -107,6 +118,13 @@ IdealSubstance::IdealSubstance(const InputPacket& packet) :
 	else if(type == "absorber")
 	{
 		asAbsorber();
+	}
+	else if(type == "dielectric")
+	{
+		const real iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
+		const real iorInner = packet.getReal("ior-inner", 1.5_r, DataTreatment::REQUIRED());
+
+		asDielectric(iorInner, iorOuter);
 	}
 }
 
