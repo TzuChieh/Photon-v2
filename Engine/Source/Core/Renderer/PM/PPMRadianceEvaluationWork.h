@@ -16,6 +16,16 @@ class Scene;
 class PMStatistics;
 class PMRenderer;
 
+/*
+	Implements the progressive photon mapping technique developed by 
+	Hachisuka et al. The radiance evaluation process progressively shrinks 
+	the kernel radius and increases the number of photons, reaching a 
+	consistent result in the limit. 
+
+	References:
+
+	Hachisuka et al., "Progressive Photon Mapping", ACM SIGGRAPH Asia 2008.
+*/
 class PPMRadianceEvaluationWork : public TRadianceEvaluationWork<PPMPhoton>
 {
 public:
@@ -23,20 +33,24 @@ public:
 		const TPhotonMap<PPMPhoton>* photonMap,
 		std::size_t                  numPhotonPaths,
 		HdrRgbFilm*                  film,
-		PPMViewpoint* viewpoints,
-		std::size_t numViewpoints,
-		const Scene* scene);
+		PPMViewpoint*                viewpoints,
+		std::size_t                  numViewpoints,
+		const Scene*                 scene);
 
 	void setPMStatistics(PMStatistics* statistics);
+	void setAlpha(real alpha);
 
 private:
 	void doWork() override;
 
-	HdrRgbFilm*      m_film;
-	PMStatistics*    m_statistics;
+	HdrRgbFilm*   m_film;
+	PMStatistics* m_statistics;
 	PPMViewpoint* m_viewpoints;
-	std::size_t m_numViewpoints;
-	const Scene* m_scene;
+	std::size_t   m_numViewpoints;
+	const Scene*  m_scene;
+	real          m_alpha;
+
+	void sanitizeVariables();
 };
 
 // In-header Implementations:
@@ -44,6 +58,11 @@ private:
 inline void PPMRadianceEvaluationWork::setPMStatistics(PMStatistics* const statistics)
 {
 	m_statistics = statistics;
+}
+
+inline void PPMRadianceEvaluationWork::setAlpha(const real alpha)
+{
+	m_alpha = alpha;
 }
 
 }// end namespace ph

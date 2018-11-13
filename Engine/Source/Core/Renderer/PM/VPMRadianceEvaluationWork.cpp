@@ -11,6 +11,7 @@
 #include "Core/Renderer/PM/PMRenderer.h"
 #include "Core/Emitter/Emitter.h"
 #include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
+#include "Core/LTABuildingBlock/lta.h"
 
 namespace ph
 {
@@ -78,9 +79,9 @@ void VPMRadianceEvaluationWork::doWork()
 
 			// TODO: handle specular path
 
-			const Vector3R V  = tracingRay.getDirection().mul(-1);
-			const Vector3R Ng = surfaceHit.getGeometryNormal();
+			const Vector3R L  = tracingRay.getDirection().mul(-1);
 			const Vector3R Ns = surfaceHit.getShadingNormal();
+			const Vector3R Ng = surfaceHit.getGeometryNormal();
 
 			if(metadata->getSurface().getEmitter())
 			{
@@ -94,9 +95,9 @@ void VPMRadianceEvaluationWork::doWork()
 			SpectralStrength radiance(0);
 			for(const auto& photon : photonCache)
 			{
-				const Vector3R L = photon.get<EPhotonData::FROM_DIR>();
+				const Vector3R V = photon.get<EPhotonData::FROM_DIR>();
 
-				bsdfEval.inputs.set(surfaceHit, L, V, ALL_ELEMENTALS, ETransport::RADIANCE);
+				bsdfEval.inputs.set(surfaceHit, L, V, ALL_ELEMENTALS, ETransport::IMPORTANCE);
 				if(!surfaceEvent.doBsdfEvaluation(surfaceHit, bsdfEval))
 				{
 					continue;
@@ -104,11 +105,7 @@ void VPMRadianceEvaluationWork::doWork()
 
 				SpectralStrength throughput(1.0_r);// TODO: this is not true after ray bounces
 				throughput.mulLocal(bsdfEval.outputs.bsdf);
-				throughput.mulLocal(Ns.absDot(L) * Ng.absDot(V) / Ng.absDot(L) / Ns.absDot(V));
-				//throughput.mulLocal(Ns.absDot(L) / Ng.absDot(L));
-				//throughput.mulLocal(Ns.absDot(V) / Ng.absDot(V));
-				//throughput.mulLocal(Ng.absDot(V) / Ns.absDot(V));
-
+				throughput.mulLocal(lta::importance_BSDF_Ns_corrector(Ns, Ng, L, V));
 
 				radiance.addLocal(throughput * photon.get<EPhotonData::THROUGHPUT_RADIANCE>());
 			}

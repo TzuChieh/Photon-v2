@@ -111,7 +111,7 @@ inline void BsdfEvaluationInput::set(
 
 inline bool BsdfEvaluationOutput::isGood() const
 {
-	return !bsdf.isZero();
+	return bsdf.isFinite();
 }
 
 }// end namespace ph

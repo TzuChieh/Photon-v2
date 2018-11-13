@@ -8,34 +8,43 @@
 #include "Core/Renderer/PM/PMRenderer.h"
 #include "Core/Emitter/Emitter.h"
 #include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
+#include "Core/LTABuildingBlock/lta.h"
+#include "Common/Logger.h"
 
 namespace ph
 {
 
+namespace
+{
+	const Logger logger(LogSender("PPM Radiance Evaluator"));
+}
+
 PPMRadianceEvaluationWork::PPMRadianceEvaluationWork(
-	const TPhotonMap<PPMPhoton>* photonMap,
-	const std::size_t            numPhotonPaths,
-	HdrRgbFilm* const            film,
-	PPMViewpoint* viewpoints,
-	std::size_t numViewpoints,
-	const Scene* scene) :
+
+	const TPhotonMap<PPMPhoton>* const photonMap,
+	const std::size_t                  numPhotonPaths,
+
+	HdrRgbFilm* const   film,
+	PPMViewpoint* const viewpoints,
+	const std::size_t   numViewpoints,
+	const Scene* const  scene) :
 
 	TRadianceEvaluationWork(photonMap, numPhotonPaths),
 
-	m_film           (film),
-	m_viewpoints(viewpoints),
+	m_film         (film),
+	m_viewpoints   (viewpoints),
 	m_numViewpoints(numViewpoints),
-	m_scene(scene)
+	m_scene        (scene)
 {
 	PH_ASSERT(film);
 
 	setPMStatistics(nullptr);
+	setAlpha(2.0_r / 3.0_r);
 }
 
 void PPMRadianceEvaluationWork::doWork()
 {
-	const real alpha = 0.5_r;
-	
+	sanitizeVariables();
 	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
 
 	std::vector<PPMPhoton> photonCache;
@@ -44,32 +53,26 @@ void PPMRadianceEvaluationWork::doWork()
 		PPMViewpoint& viewpoint = m_viewpoints[i];
 
 		const SurfaceHit& surfaceHit = viewpoint.get<EViewpointData::SURFACE_HIT>();
-		const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
-		const SurfaceOptics* surfaceOptics = metadata->getSurface().getOptics();
-
-		const Vector3R V = viewpoint.get<EViewpointData::VIEW_DIR>();
-		const Vector3R Ng = surfaceHit.getGeometryNormal();
-		const Vector3R Ns = surfaceHit.getShadingNormal();
-		const real R = viewpoint.get<EViewpointData::RADIUS>();
+		const Vector3R    L          = viewpoint.get<EViewpointData::VIEW_DIR>();
+		const Vector3R    Ng         = surfaceHit.getGeometryNormal();
+		const Vector3R    Ns         = surfaceHit.getShadingNormal();
+		const real        R          = viewpoint.get<EViewpointData::RADIUS>();
 
 		photonCache.clear();
 		getPhotonMap()->findWithinRange(surfaceHit.getPosition(), R, photonCache);
 
-		const real N = viewpoint.get<EViewpointData::NUM_PHOTONS>();
-		const real M = static_cast<real>(photonCache.size());
-		const real newN = N + alpha * M;
+		const real N    = viewpoint.get<EViewpointData::NUM_PHOTONS>();
+		const real M    = static_cast<real>(photonCache.size());
+		const real newN = N + m_alpha * M;
 		const real newR = (N + M) != 0.0_r ? R * std::sqrt(newN / (N + M)) : R;
 
-		BsdfEvaluation bsdfEval;
-		
-
-		SpectralStrength tauN = viewpoint.get<EViewpointData::TAU>();
 		SpectralStrength tauM(0);
+		BsdfEvaluation   bsdfEval;
 		for(const auto& photon : photonCache)
 		{
-			const Vector3R L = photon.get<EPhotonData::FROM_DIR>();
+			const Vector3R V = photon.get<EPhotonData::FROM_DIR>();
 
-			bsdfEval.inputs.set(surfaceHit, L, V, ALL_ELEMENTALS, ETransport::RADIANCE);
+			bsdfEval.inputs.set(surfaceHit, L, V, ALL_ELEMENTALS, ETransport::IMPORTANCE);
 			if(!surfaceEvent.doBsdfEvaluation(surfaceHit, bsdfEval))
 			{
 				continue;
@@ -77,26 +80,25 @@ void PPMRadianceEvaluationWork::doWork()
 
 			SpectralStrength tau = photon.get<EPhotonData::THROUGHPUT_RADIANCE>();
 			tau.mulLocal(bsdfEval.outputs.bsdf);
-			tau.mulLocal(Ns.absDot(L) * Ng.absDot(V) / Ng.absDot(L) / Ns.absDot(V));
-			//throughput.mulLocal(Ns.absDot(L) / Ng.absDot(L));
-			//throughput.mulLocal(Ns.absDot(V) / Ng.absDot(V));
-			//throughput.mulLocal(Ng.absDot(V) / Ns.absDot(V));
-
+			tau.mulLocal(lta::importance_BSDF_Ns_corrector(Ns, Ng, L, V));
 
 			tauM.addLocal(tau);
 		}
+		const SpectralStrength tauN   = viewpoint.get<EViewpointData::TAU>();
 		const SpectralStrength newTau = (N + M) != 0.0_r ? (tauN + tauM) * (newN / (N + M)) : SpectralStrength(0);
 
 		viewpoint.set<EViewpointData::RADIUS>(newR);
 		viewpoint.set<EViewpointData::NUM_PHOTONS>(newN);
 		viewpoint.set<EViewpointData::TAU>(newTau);
 		
-		const real kernelArea = newR * newR * PH_PI_REAL;
+		// evaluate radiance using current iteration's data
+
+		const real kernelArea         = newR * newR * PH_PI_REAL;
 		const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(numPhotonPaths()));
 
 		SpectralStrength radiance(viewpoint.get<EViewpointData::TAU>());
-		radiance.mulLocal(viewpoint.get<EViewpointData::VIEW_THROUGHPUT>());
 		radiance.mulLocal(radianceMultiplier);
+		radiance.mulLocal(viewpoint.get<EViewpointData::VIEW_THROUGHPUT>());
 		radiance.addLocal(viewpoint.get<EViewpointData::VIEW_RADIANCE>());
 
 		const Vector2R filmNdc = viewpoint.get<EViewpointData::FILM_NDC>();
@@ -104,6 +106,20 @@ void PPMRadianceEvaluationWork::doWork()
 		const real filmYPx = filmNdc.y * static_cast<real>(m_film->getActualResPx().y);
 		m_film->addSample(filmXPx, filmYPx, radiance);
 	}
+}
+
+void PPMRadianceEvaluationWork::sanitizeVariables()
+{
+	real sanitizedAlpha = m_alpha;
+	if(m_alpha < 0.0_r || m_alpha > 1.0_r)
+	{
+		logger.log(ELogLevel::WARNING_MED, 
+			"alpha must be in [0, 1], " + std::to_string(m_alpha) + " provided, clamping");
+
+		sanitizedAlpha = math::clamp(m_alpha, 0.0_r, 1.0_r);
+	}
+
+	m_alpha = sanitizedAlpha;
 }
 
 }// end namespace ph

@@ -18,6 +18,7 @@
 #include "Utility/Timer.h"
 #include "Core/Renderer/PM/PMStatistics.h"
 #include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
+#include "Core/LTABuildingBlock/lta.h"
 
 namespace ph
 {
@@ -132,9 +133,8 @@ inline void TPhotonMappingWork<Photon>::doWork()
 			Vector3R Ng = surfaceHit.getGeometryNormal();
 			Vector3R Ns = surfaceHit.getShadingNormal();
 			throughputRadiance.mulLocal(bsdfSample.outputs.pdfAppliedBsdf);
+			throughputRadiance.mulLocal(lta::importance_BSDF_Ns_corrector(Ns, Ng, L, V));
 			throughputRadiance.mulLocal(Ns.absDot(L));
-			//throughputRadiance.mulLocal(Ng.absDot(L));
-			throughputRadiance.mulLocal(Ns.absDot(V) * Ng.absDot(L) / Ng.absDot(V) / Ns.absDot(L));
 
 			tracingRay = sampledRay;
 		}// end single photon path

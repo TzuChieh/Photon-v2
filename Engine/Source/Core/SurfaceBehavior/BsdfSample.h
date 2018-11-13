@@ -73,7 +73,7 @@ inline void BsdfSampleInput::set(
 
 inline bool BsdfSampleOutput::isGood() const
 {
-	return !pdfAppliedBsdf.isZero();
+	return pdfAppliedBsdf.isFinite();
 }
 
 }// end namespace ph
