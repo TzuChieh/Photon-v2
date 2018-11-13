@@ -123,6 +123,8 @@ void VPMRadianceEvaluationWork::doWork()
 		{
 			m_renderer->asyncMergeFilm(*m_film);
 		}
+
+		m_film->clear();
 	}// end while
 }
 

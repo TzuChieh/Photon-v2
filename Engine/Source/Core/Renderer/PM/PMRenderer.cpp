@@ -35,63 +35,7 @@ void PMRenderer::doUpdate(const SdlResourcePack& data)
 
 	m_statistics.zero();
 	m_photonsPerSecond = 0;
-	
-	/*Scene* scene,
-		Camera* camera,
-		std::unique_ptr<SampleGenerator> sampleGenerator,
-		Viewpoint* viewpointBuffer,
-		std::size_t numViewpoints*/
-
-	/*std::size_t numPixels = getRenderWindowPx().calcArea() * m_perPixelSamples;
-	std::vector<Viewpoint> viewpointBuffer(numPixels);
-
-	std::cerr << "numPixels = " << numPixels << std::endl;
-	std::cerr << "ray tracing work start" << std::endl;
-
-	RayTracingWork rayTracingWork(m_scene, m_camera, m_sg->genCopied(1), viewpointBuffer.data(), numPixels, m_kernelRadius);
-	rayTracingWork.doWork();
-
-	std::cerr << "ray tracing work finished" << std::endl;
-	std::cerr << "size of viewpoint buffer: " << sizeof(Viewpoint) * numPixels / 1024 / 1024 << " MB" << std::endl;
-
-	std::size_t numPhotons = m_numPhotons;
-	std::vector<Photon> photonBuffer(numPhotons);
-
-	std::cerr << "numPhotons = " << numPhotons << std::endl;
-	std::cerr << "photon mapping work start" << std::endl;
-
-	std::size_t numEmittedPhotons;
-	PhotonMappingWork photonMappingWork(m_scene, m_camera, m_sg->genCopied(1), photonBuffer.data(), numPhotons, &numEmittedPhotons);
-	photonMappingWork.doWork();
-
-	std::cerr << "photon mapping work finished" << std::endl;
-	std::cerr << "size of photon buffer: " << sizeof(Photon) * numPhotons / 1024 / 1024 << " MB" << std::endl;
-
-	std::cerr << "building photon map" << std::endl;
-
-	PhotonMap photonMap(2, PhotonCenterCalculator());
-	photonMap.build(std::move(photonBuffer));
-
-	std::cerr << "photon map built" << std::endl;
-
-	std::cerr << "estimating radiance" << std::endl;
-
-	RadianceEstimateWork radianceEstimator(&photonMap, viewpointBuffer.data(), viewpointBuffer.size(), m_film.get(), numEmittedPhotons);
-	radianceEstimator.doWork();
-
-	std::cerr << "estimation complete" << std::endl;*/
-
-	// DEBUG
-	/*for(std::size_t y = 0; y < getRenderHeightPx(); ++y)
-	{
-		for(std::size_t x = 0; x < getRenderWidthPx(); ++x)
-		{
-			Viewpoint viewpoint = viewpointBuffer[y * getRenderWidthPx() + x];
-			real filmXPx = viewpoint.filmNdcPos.x * static_cast<real>(getRenderWidthPx());
-			real filmYPx = viewpoint.filmNdcPos.y * static_cast<real>(getRenderHeightPx());
-			m_film->addSample(filmXPx, filmYPx, viewpointBuffer[y * getRenderWidthPx() + x].hit.getShadingNormal());
-		}
-	}*/
+	m_isFilmUpdated = false;
 }
 
 void PMRenderer::doRender()
@@ -205,6 +149,7 @@ void PMRenderer::renderWithProgressivePM()
 		+ std::to_string(math::byte_to_MB<real>(sizeof(PPMPhoton) * numPhotonsPerPass)) + " MB");
 	logger.log("start accumulating passes...");
 
+	std::mutex resultFilmMutex;
 	auto resultFilm = std::make_unique<HdrRgbFilm>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
 
@@ -214,7 +159,6 @@ void PMRenderer::renderWithProgressivePM()
 	while(numFinishedPasses < m_numPasses)
 	{
 		passTimer.start();
-		resultFilm->clear();
 		std::vector<PPMPhoton> photonBuffer(numPhotonsPerPass);
 
 		std::vector<std::size_t> numPhotonPaths(getNumWorkers(), 0);
@@ -243,7 +187,7 @@ void PMRenderer::renderWithProgressivePM()
 		photonMap.build(std::move(photonBuffer));
 
 		parallel_work(viewpoints.size(), getNumWorkers(),
-			[this, &photonMap, &viewpoints, &resultFilm, totalPhotonPaths](
+			[this, &photonMap, &viewpoints, &resultFilm, &resultFilmMutex, totalPhotonPaths](
 				const std::size_t workerIdx, 
 				const std::size_t workStart, 
 				const std::size_t workEnd)
@@ -263,18 +207,15 @@ void PMRenderer::renderWithProgressivePM()
 				radianceEstimator.work();
 
 				{
-					std::lock_guard<std::mutex> lock(m_filmMutex);// TODO: use another lock
+					std::lock_guard<std::mutex> lock(resultFilmMutex);
 
 					resultFilm->mergeWith(*film);
 				}
 			});
 
-		{
-			std::lock_guard<std::mutex> lock(m_filmMutex);
+		asyncReplaceFilm(*resultFilm);
+		resultFilm->clear();
 
-			m_film->clear();
-			m_film->mergeWith(*resultFilm);
-		}
 		passTimer.finish();
 
 		const real passTimeMs   = static_cast<real>(passTimer.getDeltaMs());
@@ -286,10 +227,21 @@ void PMRenderer::renderWithProgressivePM()
 	}// end while more pass needed
 }
 
-ERegionStatus PMRenderer::asyncPollUpdatedRegion(Region* out_region)
+ERegionStatus PMRenderer::asyncPollUpdatedRegion(Region* const out_region)
 {
-	*out_region = getRenderWindowPx();
-	return ERegionStatus::UPDATING;
+	PH_ASSERT(out_region);
+
+	if(m_isFilmUpdated.load(std::memory_order_relaxed))
+	{
+		*out_region = getRenderWindowPx();
+		m_isFilmUpdated.store(false, std::memory_order_relaxed);
+
+		return ERegionStatus::UPDATING;
+	}
+	else
+	{
+		return ERegionStatus::INVALID;
+	}
 }
 
 RenderProgress PMRenderer::asyncQueryRenderProgress()
@@ -352,12 +304,27 @@ RenderState PMRenderer::asyncQueryRenderState()
 	return state;
 }
 
-void PMRenderer::asyncMergeFilm(HdrRgbFilm& srcFilm)
+void PMRenderer::asyncMergeFilm(const HdrRgbFilm& srcFilm)
 {
-	std::lock_guard<std::mutex> lock(m_filmMutex);
+	{
+		std::lock_guard<std::mutex> lock(m_filmMutex);
 
-	m_film->mergeWith(srcFilm);
-	srcFilm.clear();
+		m_film->mergeWith(srcFilm);
+	}
+	
+	m_isFilmUpdated.store(true, std::memory_order_relaxed);
+}
+
+void PMRenderer::asyncReplaceFilm(const HdrRgbFilm& srcFilm)
+{
+	{
+		std::lock_guard<std::mutex> lock(m_filmMutex);
+
+		m_film->clear();
+		m_film->mergeWith(srcFilm);
+	}
+
+	m_isFilmUpdated.store(true, std::memory_order_relaxed);
 }
 
 // command interface
