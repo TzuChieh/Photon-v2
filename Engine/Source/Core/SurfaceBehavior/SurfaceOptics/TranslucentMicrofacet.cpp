@@ -141,6 +141,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 	if(!canReflect && !canTransmit)
 	{
 		out.pdfAppliedBsdf.setValues(0);
+		return;
 	}
 
 	const Vector3R& N = in.X.getShadingNormal();
@@ -181,6 +182,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 		out.L = in.V.mul(-1.0_r).reflect(H).normalizeLocal();
 		if(!sidedness.isSameHemisphere(in.X, in.V, out.L))
 		{
+			out.pdfAppliedBsdf.setValues(0);
 			return;
 		}
 
@@ -194,6 +196,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 	{
 		if(!sidedness.isOppositeHemisphere(in.X, in.V, out.L))
 		{
+			out.pdfAppliedBsdf.setValues(0);
 			return;
 		}
 
