@@ -453,11 +453,21 @@ class Exporter:
 							  meta_info.integrator_type_name()))
 		elif render_method == "VPM":
 			self.exportRaw(
-				"## renderer(pm) [integer width %s] [integer height %s] [string filter-name %s] [string mode vanilla][integer num-photons %d][integer num-passes %d][real radius %.8f]\n"
+				"## renderer(pm) [integer width %s] [integer height %s] [string filter-name %s] [string mode vanilla][integer num-photons %d][integer num-samples-per-pixel %d][real radius %.8f]\n"
 				% (meta_info.render_width_px(),
 				   meta_info.render_height_px(),
 				   meta_info.sample_filter_name(),
 				   b_scene.ph_render_num_photons,
+				   b_scene.ph_render_num_spp_pm,
+				   b_scene.ph_render_kernel_radius))
+		elif render_method == "PPM":
+			self.exportRaw(
+				"## renderer(pm) [integer width %s] [integer height %s] [string filter-name %s] [string mode progressive][integer num-photons %d][integer num-samples-per-pixel %d][integer num-passes %d][real radius %.8f]\n"
+				% (meta_info.render_width_px(),
+				   meta_info.render_height_px(),
+				   meta_info.sample_filter_name(),
+				   b_scene.ph_render_num_photons,
+				   b_scene.ph_render_num_spp_pm,
 				   b_scene.ph_render_num_passes,
 				   b_scene.ph_render_kernel_radius))
 		else:

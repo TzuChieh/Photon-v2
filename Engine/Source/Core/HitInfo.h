@@ -87,6 +87,7 @@ private:
 	Vector3R m_dNdU;
 	Vector3R m_dNdV;
 
+	// TODO: basis may be constructed on demand (will this be costly?)
 	Basis m_geometryBasis;
 	Basis m_shadingBasis;
 };

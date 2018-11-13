@@ -81,7 +81,7 @@ void ColorSpace::init()
 	kernel_Y = (sampledCmfY * SampledSpectralStrength::LAMBDA_INTERVAL_NM) / integratedCmfY;
 	kernel_Z = (sampledCmfZ * SampledSpectralStrength::LAMBDA_INTERVAL_NM) / integratedCmfY;
 	
-	// energy normalzing factor for E/D65
+	// energy normalizing factor for E/D65
 	kernel_XYZ_E_norm.x   = 1.0_r / kernel_X.dot(SPD_E);
 	kernel_XYZ_E_norm.y   = 1.0_r / kernel_Y.dot(SPD_E);
 	kernel_XYZ_E_norm.z   = 1.0_r / kernel_Z.dot(SPD_E);
