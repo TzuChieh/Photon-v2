@@ -52,6 +52,12 @@ void PMRenderer::doRender()
 
 		renderWithProgressivePM();
 	}
+	else if(m_mode == EPMMode::STOCHASTIC_PROGRESSIVE)
+	{
+		logger.log("rendering mode: stochastic progressive photon mapping");
+
+		renderWithStochasticProgressivePM();
+	}
 	else
 	{
 		logger.log(ELogLevel::WARNING_MED, "unsupported PM mode, renders nothing");
@@ -225,6 +231,11 @@ void PMRenderer::renderWithProgressivePM()
 		m_statistics.asyncIncrementNumPasses();
 		++numFinishedPasses;
 	}// end while more pass needed
+}
+
+void PMRenderer::renderWithStochasticProgressivePM()
+{
+	// TODO
 }
 
 ERegionStatus PMRenderer::asyncPollUpdatedRegion(Region* const out_region)

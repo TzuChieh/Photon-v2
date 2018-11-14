@@ -55,6 +55,7 @@ private:
 
 	void renderWithVanillaPM();
 	void renderWithProgressivePM();
+	void renderWithStochasticProgressivePM();
 
 // command interface
 public:
