@@ -8,10 +8,15 @@
 namespace ph
 {
 
-class VPMPhoton : public TPhoton<VPMPhoton>
+/*
+	This photon type stores all possible photon data without any loss of 
+	information. It is unrecommended to use this kind of photon if low memory
+	usage is desired.
+*/
+class FullPhoton : public TPhoton<FullPhoton>
 {
 public:
-	VPMPhoton() = default;
+	FullPhoton() = default;
 
 	template<EPhotonData TYPE>
 	static constexpr bool impl_has();
@@ -31,7 +36,7 @@ private:
 // In-header Implementations:
 
 template<EPhotonData TYPE>
-inline constexpr bool VPMPhoton::impl_has()
+inline constexpr bool FullPhoton::impl_has()
 {
 	if constexpr(
 		TYPE == EPhotonData::THROUGHPUT_RADIANCE ||
@@ -47,7 +52,7 @@ inline constexpr bool VPMPhoton::impl_has()
 }
 
 template<EPhotonData TYPE>
-inline decltype(auto) VPMPhoton::impl_get() const
+inline decltype(auto) FullPhoton::impl_get() const
 {
 	if constexpr(TYPE == EPhotonData::THROUGHPUT_RADIANCE)
 	{
@@ -69,7 +74,7 @@ inline decltype(auto) VPMPhoton::impl_get() const
 }
 
 template<EPhotonData TYPE, typename T>
-inline void VPMPhoton::impl_set(const T& value)
+inline void FullPhoton::impl_set(const T& value)
 {
 	if constexpr(TYPE == EPhotonData::THROUGHPUT_RADIANCE)
 	{

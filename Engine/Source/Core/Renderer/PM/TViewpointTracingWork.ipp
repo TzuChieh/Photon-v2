@@ -19,7 +19,7 @@ namespace ph
 {
 
 template<typename Viewpoint>
-inline TViewpointGatheringWork<Viewpoint>::TViewpointGatheringWork(
+inline TViewpointTracingWork<Viewpoint>::TViewpointTracingWork(
 	const Scene* const scene,
 	const Camera* const camera,
 	SampleGenerator* sampleGenerator,
@@ -35,7 +35,7 @@ inline TViewpointGatheringWork<Viewpoint>::TViewpointGatheringWork(
 {}
 
 template<typename Viewpoint>
-inline void TViewpointGatheringWork<Viewpoint>::doWork()
+inline void TViewpointTracingWork<Viewpoint>::doWork()
 {
 	const Samples2DStage filmStage = m_sampleGenerator->declare2DStage(m_filmRegion.calcArea());// FIXME: size hints
 	while(m_sampleGenerator->prepareSampleBatch())
@@ -55,7 +55,7 @@ inline void TViewpointGatheringWork<Viewpoint>::doWork()
 }
 
 template<typename Viewpoint>
-inline void TViewpointGatheringWork<Viewpoint>::gatherViewpointsRecursive(
+inline void TViewpointTracingWork<Viewpoint>::gatherViewpointsRecursive(
 	const Ray& tracingRay, 
 	const Vector2R& filmNdc,
 	const SpectralStrength& throughput,

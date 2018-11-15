@@ -27,6 +27,7 @@ public:
 
 private:
 	TPhoton() = default;
+	~TPhoton() = default;
 };
 
 // In-header Implementations:

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Renderer/RenderWork.h"
-#include "Core/Renderer/PM/TViewpoint.h"
+#include "Core/Renderer/PM/TViewpointHandler.h"
 #include "Core/Renderer/Region/Region.h"
 #include "Math/TVector2.h"
 #include "Core/Quantity/SpectralStrength.h"
@@ -19,23 +19,24 @@ class Camera;
 class SampleGenerator;
 class Ray;
 
-template<typename Viewpoint>
-class TViewpointGatheringWork : public RenderWork
+template<typename ViewpointHandler>
+class TViewpointTracingWork : public RenderWork
 {
-	static_assert(std::is_base_of_v<TViewpoint<Viewpoint>, Viewpoint>);
+	static_assert(std::is_base_of_v<TViewpointHandler<ViewpointHandler>, ViewpointHandler>);
 
 public:
-	TViewpointGatheringWork(
+	TViewpointTracingWork(
+		ViewpointHandler* handler,
 		const Scene* scene,
 		const Camera* camera,
 		SampleGenerator* sampleGenerator,
 		const Region& filmRegion,
 		real kernelRadius);
 
-	std::vector<Viewpoint> claimViewpoints();
-
 private:
 	void doWork() override;
+
+	ViewpointHandler* m_handler;
 
 	const Scene*     m_scene;
 	const Camera*    m_camera;
