@@ -1,11 +1,11 @@
 #include "Core/Renderer/PM/PMRenderer.h"
 #include "Core/Filmic/SampleFilterFactory.h"
 #include "FileIO/SDL/SdlResourcePack.h"
-#include "Core/Renderer/PM/TViewpointGatheringWork.h"
+#include "Core/Renderer/PM/TViewpointTracingWork.h"
 #include "Core/Renderer/PM/TPhotonMappingWork.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
-#include "Core/Renderer/PM/VPMRadianceEvaluationWork.h"
-#include "Core/Renderer/PM/VPMPhoton.h"
+#include "Core/Renderer/PM/VPMRadianceEvaluator.h"
+#include "Core/Renderer/PM/FullPhoton.h"
 #include "FileIO/SDL/InputPacket.h"
 #include "Utility/FixedSizeThreadPool.h"
 #include "Utility/concurrent.h"
@@ -67,10 +67,10 @@ void PMRenderer::doRender()
 void PMRenderer::renderWithVanillaPM()
 {
 	logger.log("target number of photons: " + std::to_string(m_numPhotons));
-	logger.log("size of photon buffer: " + std::to_string(sizeof(VPMPhoton) * m_numPhotons / 1024 / 1024) + " MB");
+	logger.log("size of photon buffer: " + std::to_string(sizeof(FullPhoton) * m_numPhotons / 1024 / 1024) + " MB");
 	logger.log("start shooting photons...");
 
-	std::vector<VPMPhoton>   photonBuffer(m_numPhotons);
+	std::vector<FullPhoton>  photonBuffer(m_numPhotons);
 	std::vector<std::size_t> numPhotonPaths(getNumWorkers(), 0);
 	parallel_work(m_numPhotons, getNumWorkers(),
 		[this, &photonBuffer, &numPhotonPaths](
@@ -80,7 +80,7 @@ void PMRenderer::renderWithVanillaPM()
 		{
 			auto sampleGenerator = m_sg->genCopied(1);
 
-			TPhotonMappingWork<VPMPhoton> photonMappingWork(
+			TPhotonMappingWork<FullPhoton> photonMappingWork(
 				m_scene,
 				m_camera,
 				sampleGenerator.get(),
@@ -95,7 +95,7 @@ void PMRenderer::renderWithVanillaPM()
 
 	logger.log("building photon map...");
 
-	TPhotonMap<VPMPhoton> photonMap(2, TPhotonCenterCalculator<VPMPhoton>());
+	TPhotonMap<FullPhoton> photonMap(2, TPhotonCenterCalculator<FullPhoton>());
 	photonMap.build(std::move(photonBuffer));
 
 	logger.log("estimating radiance...");
@@ -110,16 +110,21 @@ void PMRenderer::renderWithVanillaPM()
 			auto film            = std::make_unique<HdrRgbFilm>(
 				getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
 
-			VPMRadianceEvaluationWork radianceEstimator(
+			VPMRadianceEvaluator evaluator(
 				&photonMap, 
-				totalPhotonPaths,
+				totalPhotonPaths, 
+				film.get(), 
+				m_scene);
+			evaluator.setPMRenderer(this);
+			evaluator.setPMStatistics(&m_statistics);
+			evaluator.setKernelRadius(m_kernelRadius);
+
+			TViewpointTracingWork<VPMRadianceEvaluator> radianceEstimator(
+				&evaluator,
 				m_scene,
 				m_camera,
 				sampleGenerator.get(),
-				film.get());
-			radianceEstimator.setPMRenderer(this);
-			radianceEstimator.setPMStatistics(&m_statistics);
-			radianceEstimator.setKernelRadius(m_kernelRadius);
+				getRenderWindowPx());
 
 			radianceEstimator.work();
 		});
@@ -131,9 +136,10 @@ void PMRenderer::renderWithProgressivePM()
 
 	std::vector<PPMViewpoint> viewpoints;
 	{
-		auto viewpointSampleGenerator = m_sg->genCopied(m_numSamplesPerPixel);
+		// TODO
+		/*auto viewpointSampleGenerator = m_sg->genCopied(m_numSamplesPerPixel);
 
-		TViewpointGatheringWork<PPMViewpoint> viewpointWork(
+		TViewpointTracingWork<PPMViewpoint> viewpointWork(
 			m_scene, 
 			m_camera, 
 			viewpointSampleGenerator.get(),
@@ -142,7 +148,7 @@ void PMRenderer::renderWithProgressivePM()
 
 		viewpointWork.work();
 
-		viewpoints = viewpointWork.claimViewpoints();
+		viewpoints = viewpointWork.claimViewpoints();*/
 	}
 	
 	logger.log("size of viewpoint buffer: " + 

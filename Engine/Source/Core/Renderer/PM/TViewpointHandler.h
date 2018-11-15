@@ -15,53 +15,61 @@ class TViewpointHandler
 	friend Derived;
 
 public:
-	void onPathStart(
+	bool onPathStart(
 		const Vector2R&         filmNdc,
 		const SpectralStrength& pathThroughput);
 
-	void onPathSurfaceHit(
-		std::size_t             nthSurfaceHit,
+	bool onPathHitSurface(
+		std::size_t             pathLength,
 		const SurfaceHit&       surfaceHit,
 		const SpectralStrength& pathThroughput);
 
 	void onPathEnd(
-		std::size_t             numHits);
+		std::size_t             pathLength);
+
+	void onSampleBatchFinished();
 
 private:
-	TViewpointListener() = default;
-	~TViewpointListener() = default;
+	TViewpointHandler() = default;
+	~TViewpointHandler() = default;
 };
 
 // In-header Implementations:
 
 template<typename Derived>
-void TViewpointHandler<Derived>::onPathStart(
+bool TViewpointHandler<Derived>::onPathStart(
 	const Vector2R&         filmNdc,
 	const SpectralStrength& pathThroughput)
 {
-	static_cast<Derived&>(*this).impl_onPathStart(
+	return static_cast<Derived&>(*this).impl_onPathStart(
 		filmNdc, 
 		pathThroughput);
 }
 
 template<typename Derived>
-void TViewpointHandler<Derived>::onPathSurfaceHit(
-	const std::size_t       nthSurfaceHit,
+bool TViewpointHandler<Derived>::onPathHitSurface(
+	const std::size_t       pathLength,
 	const SurfaceHit&       surfaceHit,
 	const SpectralStrength& pathThroughput)
 {
-	static_cast<Derived&>(*this).impl_onPathSurfaceHit(
-		nthSurfaceHit, 
+	return static_cast<Derived&>(*this).impl_onPathHitSurface(
+		pathLength,
 		surfaceHit, 
 		pathThroughput);
 }
 
 template<typename Derived>
 void TViewpointHandler<Derived>::onPathEnd(
-	const std::size_t       numHits)
+	const std::size_t       pathLength)
 {
 	static_cast<Derived&>(*this).impl_onPathEnd(
-		numHits);
+		pathLength);
+}
+
+template<typename Derived>
+void TViewpointHandler<Derived>::onSampleBatchFinished()
+{
+	static_cast<Derived&>(*this).impl_onSampleBatchFinished();
 }
 
 }// end namespace ph

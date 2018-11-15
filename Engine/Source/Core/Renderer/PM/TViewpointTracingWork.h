@@ -30,8 +30,8 @@ public:
 		const Scene* scene,
 		const Camera* camera,
 		SampleGenerator* sampleGenerator,
-		const Region& filmRegion,
-		real kernelRadius);
+		const Region& filmRegion);
+		//real kernelRadius);
 
 private:
 	void doWork() override;
@@ -42,25 +42,25 @@ private:
 	const Camera*    m_camera;
 	SampleGenerator* m_sampleGenerator;
 	Region m_filmRegion;
-	std::vector<Viewpoint> m_viewpoints;
-	real             m_kernelRadius;
+	//std::vector<Viewpoint> m_viewpoints;
+	//real             m_kernelRadius;
 	std::size_t m_maxViewpointDepth;
 
-	void gatherViewpointsRecursive(
+	/*void gatherViewpointsRecursive(
 		const Ray& tracingRay, 
 		const Vector2R& filmNdc,
 		const SpectralStrength& throughput,
-		std::size_t currentViewpointDepth);
+		std::size_t currentViewpointDepth);*/
 };
 
 // In-header Implementations:
 
-template<typename Viewpoint>
-inline std::vector<Viewpoint> TViewpointGatheringWork<Viewpoint>::claimViewpoints()
-{
-	return std::move(m_viewpoints);
-}
+//template<typename Viewpoint>
+//inline std::vector<Viewpoint> TViewpointGatheringWork<Viewpoint>::claimViewpoints()
+//{
+//	return std::move(m_viewpoints);
+//}
 
 }// end namespace ph
 
-#include "Core/Renderer/PM/TViewpointGatheringWork.ipp"
+#include "Core/Renderer/PM/TViewpointTracingWork.ipp"
