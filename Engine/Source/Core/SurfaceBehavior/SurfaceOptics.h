@@ -24,7 +24,7 @@ public:
 	SurfaceOptics();
 	virtual ~SurfaceOptics();
 
-	virtual SurfacePhenomena getPhenomenaOf(SurfaceElemental elemental) const;
+	virtual ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const = 0;
 
 	void calcBsdf(BsdfEvaluation& eval) const;
 	void calcBsdfSample(BsdfSample& sample) const;
@@ -55,18 +55,6 @@ private:
 };
 
 // In-header Implementations:
-
-inline SurfacePhenomena SurfaceOptics::getPhenomenaOf(const SurfaceElemental elemental) const
-{
-	if(elemental == ALL_ELEMENTALS || elemental == 0)
-	{
-		return m_phenomena;
-	}
-	else
-	{
-		return SurfacePhenomena();
-	}
-}
 
 inline SurfacePhenomena SurfaceOptics::getAllPhenomena() const
 {

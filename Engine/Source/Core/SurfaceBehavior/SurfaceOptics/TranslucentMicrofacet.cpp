@@ -28,19 +28,16 @@ TranslucentMicrofacet::TranslucentMicrofacet(
 {
 	PH_ASSERT(fresnel && microfacet);
 
-	m_phenomena.set({ESP::GLOSSY_REFLECTION, ESP::GLOSSY_TRANSMISSION});
+	m_phenomena.set({ESurfacePhenomenon::GLOSSY_REFLECTION, ESurfacePhenomenon::GLOSSY_TRANSMISSION});
 	m_numElementals = 2;
 }
 
-SurfacePhenomena TranslucentMicrofacet::getPhenomenaOf(const SurfaceElemental elemental) const
+ESurfacePhenomenon TranslucentMicrofacet::getPhenomenonOf(const SurfaceElemental elemental) const
 {
-	switch(elemental)
-	{
-	case ALL_ELEMENTALS: return m_phenomena;
-	case REFLECTION:     return SurfacePhenomena{ESP::GLOSSY_REFLECTION};
-	case TRANSMISSION:   return SurfacePhenomena{ESP::GLOSSY_TRANSMISSION};
-	default:             return SurfacePhenomena();
-	}
+	PH_ASSERT_LT(elemental, 2);
+
+	return elemental == REFLECTION ? ESurfacePhenomenon::GLOSSY_REFLECTION : 
+	                                 ESurfacePhenomenon::GLOSSY_TRANSMISSION;
 }
 
 void TranslucentMicrofacet::calcBsdf(

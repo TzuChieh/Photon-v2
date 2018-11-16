@@ -13,6 +13,8 @@ class IdealReflector : public SurfaceOptics
 public:
 	IdealReflector(const std::shared_ptr<FresnelEffect>& fresnel);
 
+	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
+
 private:
 	void calcBsdf(
 		const BsdfEvaluation::Input& in,

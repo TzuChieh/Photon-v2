@@ -3,9 +3,9 @@
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 #include "Core/Renderer/PM/TRadianceEvaluationWork.h"
-#include "Core/Renderer/PM/PPMPhoton.h"
+#include "Core/Renderer/PM/FullPhoton.h"
 #include "Core/Filmic/HdrRgbFilm.h"
-#include "Core/Renderer/PM/PPMViewpoint.h"
+#include "Core/Renderer/PM/FullViewpoint.h"
 
 #include <vector>
 
@@ -26,16 +26,16 @@ class PMRenderer;
 
 	Hachisuka et al., "Progressive Photon Mapping", ACM SIGGRAPH Asia 2008.
 */
-class PPMRadianceEvaluationWork : public TRadianceEvaluationWork<PPMPhoton>
+class PPMRadianceEvaluationWork : public TRadianceEvaluationWork<FullPhoton>
 {
 public:
 	PPMRadianceEvaluationWork(
-		const TPhotonMap<PPMPhoton>* photonMap,
-		std::size_t                  numPhotonPaths,
-		HdrRgbFilm*                  film,
-		PPMViewpoint*                viewpoints,
-		std::size_t                  numViewpoints,
-		const Scene*                 scene);
+		const TPhotonMap<FullPhoton>* photonMap,
+		std::size_t                   numPhotonPaths,
+		HdrRgbFilm*                   film,
+		FullViewpoint*                viewpoints,
+		std::size_t                   numViewpoints,
+		const Scene*                  scene);
 
 	void setPMStatistics(PMStatistics* statistics);
 	void setAlpha(real alpha);
@@ -43,12 +43,12 @@ public:
 private:
 	void doWork() override;
 
-	HdrRgbFilm*   m_film;
-	PMStatistics* m_statistics;
-	PPMViewpoint* m_viewpoints;
-	std::size_t   m_numViewpoints;
-	const Scene*  m_scene;
-	real          m_alpha;
+	HdrRgbFilm*    m_film;
+	PMStatistics*  m_statistics;
+	FullViewpoint* m_viewpoints;
+	std::size_t    m_numViewpoints;
+	const Scene*   m_scene;
+	real           m_alpha;
 
 	void sanitizeVariables();
 };

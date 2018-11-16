@@ -14,6 +14,8 @@ class LambertianDiffuse : public SurfaceOptics
 public:
 	LambertianDiffuse(const std::shared_ptr<TTexture<SpectralStrength>>& albedo);
 
+	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
+
 private:
 	void calcBsdf(
 		const BsdfEvaluation::Input& in,

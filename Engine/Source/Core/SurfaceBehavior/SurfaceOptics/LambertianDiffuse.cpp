@@ -22,7 +22,14 @@ LambertianDiffuse::LambertianDiffuse(const std::shared_ptr<TTexture<SpectralStre
 {
 	PH_ASSERT(albedo);
 
-	m_phenomena.set({ESP::DIFFUSE_REFLECTION});
+	m_phenomena.set({ESurfacePhenomenon::DIFFUSE_REFLECTION});
+}
+
+ESurfacePhenomenon LambertianDiffuse::getPhenomenonOf(const SurfaceElemental elemental) const
+{
+	PH_ASSERT_EQ(elemental, 0);
+
+	return ESurfacePhenomenon::DIFFUSE_REFLECTION;
 }
 
 void LambertianDiffuse::calcBsdf(

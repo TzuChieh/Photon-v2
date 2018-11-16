@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
-#include "Core/Renderer/PM/TViewpointHandler.h"
+#include "Core/Renderer/PM/TViewPathHandler.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Core/Renderer/PM/FullPhoton.h"
 #include "Core/Filmic/HdrRgbFilm.h"
@@ -27,7 +27,7 @@ class SampleGenerator;
 class PMStatistics;
 class PMRenderer;
 
-class VPMRadianceEvaluator : public TViewpointHandler<VPMRadianceEvaluator>
+class VPMRadianceEvaluator : public TViewPathHandler<VPMRadianceEvaluator>
 {
 public:
 	VPMRadianceEvaluator(
@@ -36,17 +36,16 @@ public:
 		HdrRgbFilm*                   film,
 		const Scene*                  scene);
 
-	bool impl_onPathStart(
+	bool impl_onCameraSampleStart(
 		const Vector2R&         filmNdc,
 		const SpectralStrength& pathThroughput);
 
-	bool impl_onPathHitSurface(
+	ViewPathTracingPolicy impl_onPathHitSurface(
 		std::size_t             pathLength,
 		const SurfaceHit&       surfaceHit,
 		const SpectralStrength& pathThroughput);
 
-	void impl_onPathEnd(
-		std::size_t             pathLength);
+	void impl_onCameraSampleEnd();
 
 	void impl_onSampleBatchFinished();
 
@@ -93,7 +92,7 @@ inline VPMRadianceEvaluator::VPMRadianceEvaluator(
 	m_film->clear();
 }
 
-inline bool VPMRadianceEvaluator::impl_onPathStart(
+inline bool VPMRadianceEvaluator::impl_onCameraSampleStart(
 	const Vector2R&         filmNdc,
 	const SpectralStrength& pathThroughput)
 {
@@ -103,7 +102,7 @@ inline bool VPMRadianceEvaluator::impl_onPathStart(
 	return true;
 }
 
-inline bool VPMRadianceEvaluator::impl_onPathHitSurface(
+inline ViewPathTracingPolicy VPMRadianceEvaluator::impl_onPathHitSurface(
 	const std::size_t       pathLength,
 	const SurfaceHit&       surfaceHit,
 	const SpectralStrength& pathThroughput)
@@ -158,14 +157,11 @@ inline bool VPMRadianceEvaluator::impl_onPathHitSurface(
 
 	m_sampledRadiance.addLocal(radiance);
 
-	return false;
+	return ViewPathTracingPolicy().kill();
 }
 
-inline void VPMRadianceEvaluator::impl_onPathEnd(
-	const std::size_t       pathLength)
+inline void VPMRadianceEvaluator::impl_onCameraSampleEnd()
 {
-	PH_ASSERT_LE(pathLength, 1);
-
 	const real filmXPx = m_filmNdc.x * static_cast<real>(m_film->getActualResPx().x);
 	const real filmYPx = m_filmNdc.y * static_cast<real>(m_film->getActualResPx().y);
 

@@ -19,6 +19,8 @@ public:
 		const std::shared_ptr<FresnelEffect>& fresnel,
 		const std::shared_ptr<Microfacet>&    microfacet);
 
+	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
+
 	/*inline void setAlbedo(const std::shared_ptr<TTexture<SpectralStrength>>& albedo)
 	{
 		m_albedo = albedo;

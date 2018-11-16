@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Renderer/RenderWork.h"
-#include "Core/Renderer/PM/TViewpointHandler.h"
+#include "Core/Renderer/PM/TViewPathHandler.h"
 #include "Core/Renderer/Region/Region.h"
 #include "Math/TVector2.h"
 #include "Core/Quantity/SpectralStrength.h"
@@ -19,38 +19,41 @@ class Camera;
 class SampleGenerator;
 class Ray;
 
-template<typename ViewpointHandler>
-class TViewpointTracingWork : public RenderWork
+template<typename ViewPathHandler>
+class TViewPathTracingWork : public RenderWork
 {
-	static_assert(std::is_base_of_v<TViewpointHandler<ViewpointHandler>, ViewpointHandler>);
+	static_assert(std::is_base_of_v<TViewPathHandler<ViewPathHandler>, ViewPathHandler>);
 
 public:
-	TViewpointTracingWork(
-		ViewpointHandler* handler,
+	TViewPathTracingWork(
+		ViewPathHandler* handler,
 		const Scene* scene,
 		const Camera* camera,
 		SampleGenerator* sampleGenerator,
 		const Region& filmRegion);
-		//real kernelRadius);
 
 private:
 	void doWork() override;
 
-	ViewpointHandler* m_handler;
+	ViewPathHandler* m_handler;
 
 	const Scene*     m_scene;
 	const Camera*    m_camera;
 	SampleGenerator* m_sampleGenerator;
 	Region m_filmRegion;
-	//std::vector<Viewpoint> m_viewpoints;
-	//real             m_kernelRadius;
-	std::size_t m_maxViewpointDepth;
 
-	/*void gatherViewpointsRecursive(
-		const Ray& tracingRay, 
-		const Vector2R& filmNdc,
-		const SpectralStrength& throughput,
-		std::size_t currentViewpointDepth);*/
+	void traceViewPath(
+		Ray tracingRay, 
+		SpectralStrength pathThroughput,
+		std::size_t pathLength);
+
+	void traceElementallyBranchedPath(
+		const ViewPathTracingPolicy& policy,
+		const Vector3R& V,
+		const Vector3R& N,
+		const SurfaceHit& surfaceHit,
+		const SpectralStrength& pathThroughput,
+		std::size_t pathLength);
 };
 
 // In-header Implementations:
@@ -63,4 +66,4 @@ private:
 
 }// end namespace ph
 
-#include "Core/Renderer/PM/TViewpointTracingWork.ipp"
+#include "Core/Renderer/PM/TViewPathTracingWork.ipp"

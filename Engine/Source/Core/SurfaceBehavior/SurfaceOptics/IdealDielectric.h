@@ -13,7 +13,7 @@ class IdealDielectric : public SurfaceOptics
 public:
 	IdealDielectric(const std::shared_ptr<DielectricFresnel>& fresnel);
 
-	SurfacePhenomena getPhenomenaOf(SurfaceElemental elemental) const override;
+	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
 private:
 	void calcBsdf(

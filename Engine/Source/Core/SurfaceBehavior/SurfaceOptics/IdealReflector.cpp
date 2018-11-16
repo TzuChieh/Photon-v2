@@ -14,7 +14,14 @@ IdealReflector::IdealReflector(const std::shared_ptr<FresnelEffect>& fresnel) :
 {
 	PH_ASSERT(fresnel);
 
-	m_phenomena.set({ESP::DELTA_REFLECTION});
+	m_phenomena.set({ESurfacePhenomenon::DELTA_REFLECTION});
+}
+
+ESurfacePhenomenon IdealReflector::getPhenomenonOf(const SurfaceElemental elemental) const
+{
+	PH_ASSERT_EQ(elemental, 0);
+
+	return ESurfacePhenomenon::DELTA_REFLECTION;
 }
 
 void IdealReflector::calcBsdf(

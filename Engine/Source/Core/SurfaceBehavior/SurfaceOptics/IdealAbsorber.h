@@ -16,6 +16,8 @@ class IdealAbsorber : public SurfaceOptics
 public:
 	IdealAbsorber();
 
+	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
+
 private:
 	void calcBsdf(
 		const BsdfEvaluation::Input& in,

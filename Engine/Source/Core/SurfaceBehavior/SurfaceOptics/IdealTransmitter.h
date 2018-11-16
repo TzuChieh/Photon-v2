@@ -13,6 +13,8 @@ class IdealTransmitter : public SurfaceOptics
 public:
 	IdealTransmitter(const std::shared_ptr<DielectricFresnel>& fresnel);
 
+	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
+
 private:
 	void calcBsdf(
 		const BsdfEvaluation::Input& in,

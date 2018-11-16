@@ -13,21 +13,16 @@ IdealDielectric::IdealDielectric(const std::shared_ptr<DielectricFresnel>& fresn
 {
 	PH_ASSERT(fresnel);
 
-	m_phenomena.set({ESP::DELTA_REFLECTION, ESP::DELTA_TRANSMISSION});
+	m_phenomena.set({ESurfacePhenomenon::DELTA_REFLECTION, ESurfacePhenomenon::DELTA_TRANSMISSION});
 	m_numElementals = 2;
 }
 
-SurfacePhenomena IdealDielectric::getPhenomenaOf(const SurfaceElemental elemental) const
+ESurfacePhenomenon IdealDielectric::getPhenomenonOf(const SurfaceElemental elemental) const
 {
-	PH_ASSERT(elemental < m_numElementals);
+	PH_ASSERT_LT(elemental, 2);
 
-	switch(elemental)
-	{
-	case ALL_ELEMENTALS: return m_phenomena;
-	case REFLECTION:     return SurfacePhenomena{ESP::DELTA_REFLECTION};
-	case TRANSMISSION:   return SurfacePhenomena{ESP::DELTA_TRANSMISSION};
-	default:             return SurfacePhenomena();
-	}
+	return elemental == REFLECTION ? ESurfacePhenomenon::DELTA_REFLECTION : 
+	                                 ESurfacePhenomenon::DELTA_TRANSMISSION;
 }
 
 void IdealDielectric::calcBsdf(

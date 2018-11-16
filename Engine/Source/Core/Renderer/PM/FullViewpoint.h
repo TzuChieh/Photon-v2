@@ -6,16 +6,22 @@
 #include "Math/TVector2.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Common/assertion.h"
+#include "Core/SurfaceBehavior/surface_optics_fwd.h"
 
 #include <cstddef>
 
 namespace ph
 {
 
-class PPMViewpoint : public TViewpoint<PPMViewpoint>
+/*
+	This viewpoint type stores all possible viewpoint data without any loss of
+	information. It is unrecommended to use this kind of viewpoint if low memory
+	usage is desired.
+*/
+class FullViewpoint : public TViewpoint<FullViewpoint>
 {
 public:
-	PPMViewpoint() = default;
+	FullViewpoint() = default;
 
 	template<EViewpointData TYPE>
 	static constexpr bool impl_has();
@@ -28,6 +34,7 @@ public:
 
 private:
 	SurfaceHit       m_surfaceHit;
+	SurfaceElemental m_surfaceElemental;
 	Vector2R         m_filmNdc;
 	real             m_radius;
 	real             m_numPhotons;
@@ -40,16 +47,17 @@ private:
 // In-header Implementations:
 
 template<EViewpointData TYPE>
-inline constexpr bool PPMViewpoint::impl_has()
+inline constexpr bool FullViewpoint::impl_has()
 {
 	if constexpr(
-		TYPE == EViewpointData::SURFACE_HIT     ||
-		TYPE == EViewpointData::FILM_NDC        ||
-		TYPE == EViewpointData::RADIUS          ||
-		TYPE == EViewpointData::NUM_PHOTONS     ||
-		TYPE == EViewpointData::TAU             ||
-		TYPE == EViewpointData::VIEW_THROUGHPUT || 
-		TYPE == EViewpointData::VIEW_DIR        || 
+		TYPE == EViewpointData::SURFACE_HIT       ||
+		TYPE == EViewpointData::SURFACE_ELEMENTAL || 
+		TYPE == EViewpointData::FILM_NDC          ||
+		TYPE == EViewpointData::RADIUS            ||
+		TYPE == EViewpointData::NUM_PHOTONS       ||
+		TYPE == EViewpointData::TAU               ||
+		TYPE == EViewpointData::VIEW_THROUGHPUT   || 
+		TYPE == EViewpointData::VIEW_DIR          || 
 		TYPE == EViewpointData::VIEW_RADIANCE)
 	{
 		return true;
@@ -61,10 +69,13 @@ inline constexpr bool PPMViewpoint::impl_has()
 }
 
 template<EViewpointData TYPE>
-inline decltype(auto) PPMViewpoint::impl_get() const
+inline decltype(auto) FullViewpoint::impl_get() const
 {
 	if constexpr(TYPE == EViewpointData::SURFACE_HIT) {
 		return m_surfaceHit;
+	}
+	else if constexpr(TYPE == EViewpointData::SURFACE_ELEMENTAL) {
+		return m_surfaceElemental;
 	}
 	else if constexpr(TYPE == EViewpointData::FILM_NDC) {
 		return m_filmNdc;
@@ -94,10 +105,13 @@ inline decltype(auto) PPMViewpoint::impl_get() const
 }
 
 template<EViewpointData TYPE, typename T>
-inline void PPMViewpoint::impl_set(const T& value)
+inline void FullViewpoint::impl_set(const T& value)
 {
 	if constexpr(TYPE == EViewpointData::SURFACE_HIT) {
 		m_surfaceHit = value;
+	}
+	else if constexpr(TYPE == EViewpointData::SURFACE_ELEMENTAL) {
+		m_surfaceElemental = value;
 	}
 	else if constexpr(TYPE == EViewpointData::FILM_NDC) {
 		m_filmNdc = value;

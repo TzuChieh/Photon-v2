@@ -9,7 +9,7 @@ namespace ph
 /*
 	Available surface phenomena.
 */
-enum class ESP : uint32
+enum class ESurfacePhenomenon : uint32
 {
 	DIFFUSE_REFLECTION  = uint32(1) << 0,
 	DELTA_REFLECTION    = uint32(1) << 1,
@@ -24,7 +24,7 @@ enum class ETransport
 	IMPORTANCE
 };
 
-using SurfacePhenomena = TBitFlags<uint32, ESP>;
+using SurfacePhenomena = TBitFlags<uint32, ESurfacePhenomenon>;
 using SurfaceElemental = int;
 
 constexpr SurfaceElemental ALL_ELEMENTALS = -1;

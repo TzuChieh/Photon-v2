@@ -11,7 +11,14 @@ IdealTransmitter::IdealTransmitter(const std::shared_ptr<DielectricFresnel>& fre
 {
 	PH_ASSERT(fresnel);
 
-	m_phenomena.set({ESP::DELTA_TRANSMISSION});
+	m_phenomena.set({ESurfacePhenomenon::DELTA_TRANSMISSION});
+}
+
+ESurfacePhenomenon IdealTransmitter::getPhenomenonOf(const SurfaceElemental elemental) const
+{
+	PH_ASSERT_EQ(elemental, 0);
+
+	return ESurfacePhenomenon::DELTA_TRANSMISSION;
 }
 
 void IdealTransmitter::calcBsdf(

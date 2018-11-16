@@ -35,6 +35,8 @@ public:
 		const std::vector<SpectralStrength>& sigmaAs,
 		const std::vector<SpectralStrength>& sigmaSs);
 
+	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
+
 private:
 	void calcBsdf(
 		const BsdfEvaluation::Input& in,

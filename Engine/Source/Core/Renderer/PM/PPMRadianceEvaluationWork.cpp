@@ -21,13 +21,13 @@ namespace
 
 PPMRadianceEvaluationWork::PPMRadianceEvaluationWork(
 
-	const TPhotonMap<PPMPhoton>* const photonMap,
-	const std::size_t                  numPhotonPaths,
+	const TPhotonMap<FullPhoton>* const photonMap,
+	const std::size_t                   numPhotonPaths,
 
-	HdrRgbFilm* const   film,
-	PPMViewpoint* const viewpoints,
-	const std::size_t   numViewpoints,
-	const Scene* const  scene) :
+	HdrRgbFilm* const    film,
+	FullViewpoint* const viewpoints,
+	const std::size_t    numViewpoints,
+	const Scene* const   scene) :
 
 	TRadianceEvaluationWork(photonMap, numPhotonPaths),
 
@@ -47,10 +47,10 @@ void PPMRadianceEvaluationWork::doWork()
 	sanitizeVariables();
 	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
 
-	std::vector<PPMPhoton> photonCache;
+	std::vector<FullPhoton> photonCache;
 	for(std::size_t i = 0; i < m_numViewpoints; ++i)
 	{
-		PPMViewpoint& viewpoint = m_viewpoints[i];
+		FullViewpoint& viewpoint = m_viewpoints[i];
 
 		const SurfaceHit& surfaceHit = viewpoint.get<EViewpointData::SURFACE_HIT>();
 		const Vector3R    L          = viewpoint.get<EViewpointData::VIEW_DIR>();

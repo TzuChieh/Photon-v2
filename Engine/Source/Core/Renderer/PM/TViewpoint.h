@@ -6,6 +6,7 @@ namespace ph
 enum class EViewpointData
 {
 	SURFACE_HIT,
+	SURFACE_ELEMENTAL,
 	FILM_NDC,
 	RADIUS,
 	NUM_PHOTONS,

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Renderer/PM/TViewpointTracingWork.h"
+#include "Core/Renderer/PM/TViewPathTracingWork.h"
 #include "World/Scene.h"
 #include "Core/Camera/Camera.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
@@ -19,30 +19,24 @@
 namespace ph
 {
 
-template<typename ViewpointHandler>
-inline TViewpointTracingWork<ViewpointHandler>::TViewpointTracingWork(
-	ViewpointHandler* const handler,
+template<typename ViewPathHandler>
+inline TViewPathTracingWork<ViewPathHandler>::TViewPathTracingWork(
+	ViewPathHandler* const handler,
 	const Scene* const scene,
 	const Camera* const camera,
 	SampleGenerator* sampleGenerator,
-	const Region& filmRegion
-	/*const real kernelRadius*/) : 
+	const Region& filmRegion) : 
 	m_handler(handler),
 	m_scene(scene),
 	m_camera(camera),
 	m_sampleGenerator(std::move(sampleGenerator)),
-	//m_kernelRadius(kernelRadius),
-	//m_viewpoints(),
-	m_filmRegion(filmRegion),
-	m_maxViewpointDepth(6)// TODO: expose this parameter
+	m_filmRegion(filmRegion)
 {}
 
-template<typename ViewpointHandler>
-inline void TViewpointTracingWork<ViewpointHandler>::doWork()
+template<typename ViewPathHandler>
+inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 {
 	PH_ASSERT(m_handler);
-
-	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
 
 	const Samples2DStage filmStage = m_sampleGenerator->declare2DStage(m_filmRegion.calcArea());// FIXME: size hints
 	while(m_sampleGenerator->prepareSampleBatch())
@@ -56,65 +50,144 @@ inline void TViewpointTracingWork<ViewpointHandler>::doWork()
 			m_camera->genSensedRay(filmNdc, &tracingRay);
 			tracingRay.reverse();
 
-			std::size_t pathLength = 0;
-			SpectralStrength pathThroughput(1);
-			if(!m_handler->onPathStart(filmNdc, pathThroughput))
+			const std::size_t pathLength = 0;
+			SpectralStrength  pathThroughput(1);// FIXME: camera might affect initial throughput
+			if(!m_handler->onCameraSampleStart(filmNdc, pathThroughput))
 			{
-				m_handler->onPathEnd(pathLength);
+				m_handler->onCameraSampleEnd();
 				continue;
 			}
 			
-			while(true)
+			traceViewPath(
+				tracingRay, 
+				pathThroughput, 
+				pathLength);
+			
+			m_handler->onCameraSampleEnd();
+		}// end for single sample
+
+		m_handler->onSampleBatchFinished();
+	}// end while single sample batch
+}
+
+template<typename ViewPathHandler>
+inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
+	Ray              tracingRay,
+	SpectralStrength pathThroughput,
+	std::size_t      pathLength)
+{	
+	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
+	while(true)
+	{
+		PH_ASSERT_LT(pathLength, m_maxPathLength);
+
+		SurfaceHit surfaceHit;
+		if(!surfaceEvent.traceNextSurface(tracingRay, &surfaceHit))
+		{
+			break;
+		}
+
+		++pathLength;
+		const ViewPathTracingPolicy& policy = m_handler->onPathHitSurface(pathLength, surfaceHit, pathThroughput);
+		if(policy.isKilled() || pathLength == m_maxPathLength)
+		{
+			break;
+		}
+
+		const Vector3R V = tracingRay.getDirection().mulLocal(-1);
+		const Vector3R N = surfaceHit.getShadingNormal();
+
+		if(policy.getSampleMode() == EViewPathSampleMode::SINGLE_PATH)
+		{
+			BsdfSample bsdfSample;
+			Ray sampledRay;
+			bsdfSample.inputs.set(surfaceHit, V, ALL_ELEMENTALS, ETransport::RADIANCE);
+			if(!surfaceEvent.doBsdfSample(surfaceHit, bsdfSample, &sampledRay))
 			{
-				SurfaceHit surfaceHit;
-				if(!surfaceEvent.traceNextSurface(tracingRay, &surfaceHit))
-				{
-					break;
-				}
+				break;
+			}
 
-				++pathLength;
-				if(!m_handler->onPathHitSurface(pathLength, surfaceHit, pathThroughput))
-				{
-					break;
-				}
+			pathThroughput.mulLocal(bsdfSample.outputs.pdfAppliedBsdf);
+			pathThroughput.mulLocal(N.absDot(bsdfSample.outputs.L));
 
-				const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
-				const SurfaceOptics*     optics   = metadata->getSurface().getOptics();
-
-				SpectralStrength weightedPathThroughput;
-				if(RussianRoulette::surviveOnLuminance(pathThroughput, &weightedPathThroughput))
+			if(policy.useRussianRoulette())
+			{
+				SpectralStrength weightedThroughput;
+				if(RussianRoulette::surviveOnLuminance(pathThroughput, &weightedThroughput))
 				{
-					pathThroughput = weightedPathThroughput;
+					pathThroughput = weightedThroughput;
 				}
 				else
 				{
 					break;
 				}
-
-				Vector3R V = tracingRay.getDirection().mulLocal(-1);
-
-				BsdfSample bsdfSample;
-				Ray sampledRay;
-				bsdfSample.inputs.set(surfaceHit, V, ALL_ELEMENTALS, ETransport::RADIANCE);
-				if(!surfaceEvent.doBsdfSample(surfaceHit, bsdfSample, &sampledRay))
-				{
-					break;
-				}
-
-				Vector3R L  = bsdfSample.outputs.L;
-				Vector3R Ng = surfaceHit.getGeometryNormal();
-				Vector3R Ns = surfaceHit.getShadingNormal();
-				pathThroughput.mulLocal(bsdfSample.outputs.pdfAppliedBsdf);
-				pathThroughput.mulLocal(Ns.absDot(L));
-
-				tracingRay = sampledRay;
 			}
 
-			m_handler->onPathEnd(pathLength);
-		}// end for single sample
+			tracingRay = sampledRay;
+		}
+		else
+		{
+			traceElementallyBranchedPath(policy, V, N, surfaceHit, pathThroughput, pathLength);
+			break;
+		}
+	}// end while true
+}
 
-		m_handler->onSampleBatchFinished();
-	}// end while single sample batch
+template<typename ViewPathHandler>
+inline void TViewPathTracingWork<ViewPathHandler>::traceElementallyBranchedPath(
+	const ViewPathTracingPolicy& policy,
+	const Vector3R& V,
+	const Vector3R& N,
+	const SurfaceHit& surfaceHit,
+	const SpectralStrength& pathThroughput,
+	const std::size_t pathLength)
+{
+	PH_ASSERT_EQ(policy.getSampleMode(), EViewPathSampleMode::ELEMENTAL_BRANCH);
+
+	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
+
+	const PrimitiveMetadata* metadata      = surfaceHit.getDetail().getPrimitive()->getMetadata();
+	const SurfaceOptics*     surfaceOptics = metadata->getSurface().getOptics();
+
+	const SurfacePhenomena targetPhenomena = policy.getTargetPhenomena();
+	for(SurfaceElemental i = 0; i < surfaceOptics->numElementals(); ++i)
+	{
+		if(targetPhenomena.hasNone(SurfaceElemental(surfaceOptics->getPhenomenonOf(i))))
+		{
+			continue;
+		}
+
+		BsdfSample sample;
+		sample.inputs.set(surfaceHit, V, i, ETransport::RADIANCE);
+
+		Ray sampledRay;
+		if(!surfaceEvent.doBsdfSample(surfaceHit, sample, &sampledRay))
+		{
+			continue;
+		}
+
+		SpectralStrength elementalPathThroughput(pathThroughput);
+		elementalPathThroughput.mulLocal(sample.outputs.pdfAppliedBsdf);
+		elementalPathThroughput.mulLocal(N.absDot(sampledRay.getDirection()));
+
+		if(policy.useRussianRoulette())
+		{
+			SpectralStrength weightedThroughput;
+			if(RussianRoulette::surviveOnLuminance(elementalPathThroughput, &weightedThroughput))
+			{
+				elementalPathThroughput = weightedThroughput;
+			}
+			else
+			{
+				continue;
+			}
+		}
+
+		traceViewPath(
+			sampledRay,
+			elementalPathThroughput,
+			pathLength);
+	}// end for each phenomenon
 }
 
 //template<typename Viewpoint>

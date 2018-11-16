@@ -3,6 +3,7 @@
 #include "Core/SurfaceHit.h"
 #include "Math/TVector2.h"
 #include "Core/Quantity/SpectralStrength.h"
+#include "Core/Renderer/PM/ViewPathTracingPolicy.h"
 
 #include <cstddef>
 
@@ -10,44 +11,43 @@ namespace ph
 {
 
 template<typename Derived>
-class TViewpointHandler
+class TViewPathHandler
 {
 	friend Derived;
 
 public:
-	bool onPathStart(
+	bool onCameraSampleStart(
 		const Vector2R&         filmNdc,
 		const SpectralStrength& pathThroughput);
 
-	bool onPathHitSurface(
+	ViewPathTracingPolicy onPathHitSurface(
 		std::size_t             pathLength,
 		const SurfaceHit&       surfaceHit,
 		const SpectralStrength& pathThroughput);
 
-	void onPathEnd(
-		std::size_t             pathLength);
+	void onCameraSampleEnd();
 
 	void onSampleBatchFinished();
 
 private:
-	TViewpointHandler() = default;
-	~TViewpointHandler() = default;
+	TViewPathHandler() = default;
+	~TViewPathHandler() = default;
 };
 
 // In-header Implementations:
 
 template<typename Derived>
-bool TViewpointHandler<Derived>::onPathStart(
+bool TViewPathHandler<Derived>::onCameraSampleStart(
 	const Vector2R&         filmNdc,
 	const SpectralStrength& pathThroughput)
 {
-	return static_cast<Derived&>(*this).impl_onPathStart(
+	return static_cast<Derived&>(*this).impl_onCameraSampleStart(
 		filmNdc, 
 		pathThroughput);
 }
 
 template<typename Derived>
-bool TViewpointHandler<Derived>::onPathHitSurface(
+ViewPathTracingPolicy TViewPathHandler<Derived>::onPathHitSurface(
 	const std::size_t       pathLength,
 	const SurfaceHit&       surfaceHit,
 	const SpectralStrength& pathThroughput)
@@ -59,15 +59,13 @@ bool TViewpointHandler<Derived>::onPathHitSurface(
 }
 
 template<typename Derived>
-void TViewpointHandler<Derived>::onPathEnd(
-	const std::size_t       pathLength)
+void TViewPathHandler<Derived>::onCameraSampleEnd()
 {
-	static_cast<Derived&>(*this).impl_onPathEnd(
-		pathLength);
+	static_cast<Derived&>(*this).impl_onCameraSampleEnd();
 }
 
 template<typename Derived>
-void TViewpointHandler<Derived>::onSampleBatchFinished()
+void TViewPathHandler<Derived>::onSampleBatchFinished()
 {
 	static_cast<Derived&>(*this).impl_onSampleBatchFinished();
 }
