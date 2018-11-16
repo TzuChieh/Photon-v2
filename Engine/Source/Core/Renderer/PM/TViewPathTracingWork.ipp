@@ -79,8 +79,6 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
 	while(true)
 	{
-		PH_ASSERT_LT(pathLength, m_maxPathLength);
-
 		SurfaceHit surfaceHit;
 		if(!surfaceEvent.traceNextSurface(tracingRay, &surfaceHit))
 		{
@@ -89,7 +87,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 
 		++pathLength;
 		const ViewPathTracingPolicy& policy = m_handler->onPathHitSurface(pathLength, surfaceHit, pathThroughput);
-		if(policy.isKilled() || pathLength == m_maxPathLength)
+		if(policy.isKilled())
 		{
 			break;
 		}
@@ -142,7 +140,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceElementallyBranchedPath(
 	const SpectralStrength& pathThroughput,
 	const std::size_t pathLength)
 {
-	PH_ASSERT_EQ(policy.getSampleMode(), EViewPathSampleMode::ELEMENTAL_BRANCH);
+	PH_ASSERT(policy.getSampleMode() == EViewPathSampleMode::ELEMENTAL_BRANCH);
 
 	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
 
@@ -152,7 +150,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceElementallyBranchedPath(
 	const SurfacePhenomena targetPhenomena = policy.getTargetPhenomena();
 	for(SurfaceElemental i = 0; i < surfaceOptics->numElementals(); ++i)
 	{
-		if(targetPhenomena.hasNone(SurfaceElemental(surfaceOptics->getPhenomenonOf(i))))
+		if(targetPhenomena.hasNone({surfaceOptics->getPhenomenonOf(i)}))
 		{
 			continue;
 		}

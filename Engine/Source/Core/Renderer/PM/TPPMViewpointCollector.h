@@ -78,6 +78,7 @@ inline bool TPPMViewpointCollector<Viewpoint>::impl_onCameraSampleStart(
 {
 	if(pathThroughput.isZero())
 	{
+		// TODO: should we add a 0-contribution viewpoint?
 		return false;
 	}
 
@@ -105,20 +106,17 @@ inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
 	const SurfaceHit&       surfaceHit,
 	const SpectralStrength& pathThroughput) -> ViewPathTracingPolicy
 {
-	PH_ASSERT_GE(pathLength, 1);
-
 	const PrimitiveMetadata* const metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 	const SurfaceOptics* const     optics   = metadata->getSurface().getOptics();
-
-	for(SurfaceElemental i = 0; i < optics->numElementals(); ++i)
-	{
-		
-	}
 
 	if(optics->getAllPhenomena().hasNone({
 		ESurfacePhenomenon::DELTA_REFLECTION,
 		ESurfacePhenomenon::DELTA_TRANSMISSION}))
 	{
+		// It is okay to add a viewpoint without specifying which surface
+		// elemental is used--since it is impossible for delta distributions
+		// to have non-zero contribution in any BSDF evaluation process, so
+		// we will not double-count any path throughput.
 		addViewpoint(
 			surfaceHit, 
 			ALL_ELEMENTALS, 
@@ -129,23 +127,41 @@ inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
 	}
 	else
 	{
+		if(pathLength < m_maxViewpointDepth)
+		{
+			return ViewPathTracingPolicy().
+				traceBranchedPathFor(SurfacePhenomena({
+					ESurfacePhenomenon::DELTA_REFLECTION,
+					ESurfacePhenomenon::DELTA_TRANSMISSION})).
+				useRussianRoulette(false);// TODO: change this to some finite value
+		}
+		else
+		{
+			PH_ASSERT_EQ(pathLength, m_maxViewpointDepth);
 
-
-		// TODO
-
-		return ViewPathTracingPolicy().
-			traceBranchedPathFor({
-				ESurfacePhenomenon::DELTA_REFLECTION,
-				ESurfacePhenomenon::DELTA_TRANSMISSION}).
-			useRussianRoulette(false);
+			return ViewPathTracingPolicy().kill();
+		}
 	}
-
-	return false;
 }
 
 template<typename Viewpoint>
 inline void TPPMViewpointCollector<Viewpoint>::impl_onCameraSampleEnd()
-{}
+{
+	if constexpr(!Viewpoint::template has<EViewpointData::VIEW_THROUGHPUT>())
+	{
+		return;
+	}
+
+	// Normalize current camera sample's path throughput.
+	for(std::size_t i = m_viewpoints.size() - m_cameraSampleViewpoints; i < m_viewpoints.size(); ++i)
+	{
+		auto& viewpoint = m_viewpoints[i];
+
+		SpectralStrength pathThroughput = viewpoint.template get<EViewpointData::VIEW_THROUGHPUT>();
+		pathThroughput.mulLocal(static_cast<real>(m_cameraSampleViewpoints));
+		viewpoint.template set<EViewpointData::VIEW_THROUGHPUT>(pathThroughput);
+	}
+}
 
 template<typename Viewpoint>
 inline void TPPMViewpointCollector<Viewpoint>::impl_onSampleBatchFinished()
@@ -164,22 +180,18 @@ void TPPMViewpointCollector<Viewpoint>::addViewpoint(
 	const Vector3R&         viewDir,
 	const SpectralStrength& pathThroughput)
 {
-	const PrimitiveMetadata* const metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
-	PH_ASSERT(metadata);
-
 	if constexpr(Viewpoint::template has<EViewpointData::VIEW_RADIANCE>())
 	{
+		const PrimitiveMetadata* const metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
+		PH_ASSERT(metadata);
+
 		SpectralStrength viewRadiance(0);
 		if(metadata->getSurface().getEmitter())
 		{
 			metadata->getSurface().getEmitter()->evalEmittedRadiance(surfaceHit, &viewRadiance);
-			viewRadiance.mulLocal(pathThroughput);
 		}
 		m_viewpoint.template set<EViewpointData::VIEW_RADIANCE>(viewRadiance);
 	}
-
-	const SurfaceOptics* const optics = metadata->getSurface().getOptics();
-	PH_ASSERT(optics);
 
 	if constexpr(Viewpoint::template has<EViewpointData::SURFACE_HIT>()) {
 		m_viewpoint.template set<EViewpointData::SURFACE_HIT>(surfaceHit);

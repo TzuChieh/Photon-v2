@@ -34,7 +34,6 @@ public:
 
 private:
 	SurfaceHit       m_surfaceHit;
-	SurfaceElemental m_surfaceElemental;
 	Vector2R         m_filmNdc;
 	real             m_radius;
 	real             m_numPhotons;
@@ -51,7 +50,6 @@ inline constexpr bool FullViewpoint::impl_has()
 {
 	if constexpr(
 		TYPE == EViewpointData::SURFACE_HIT       ||
-		TYPE == EViewpointData::SURFACE_ELEMENTAL || 
 		TYPE == EViewpointData::FILM_NDC          ||
 		TYPE == EViewpointData::RADIUS            ||
 		TYPE == EViewpointData::NUM_PHOTONS       ||
@@ -73,9 +71,6 @@ inline decltype(auto) FullViewpoint::impl_get() const
 {
 	if constexpr(TYPE == EViewpointData::SURFACE_HIT) {
 		return m_surfaceHit;
-	}
-	else if constexpr(TYPE == EViewpointData::SURFACE_ELEMENTAL) {
-		return m_surfaceElemental;
 	}
 	else if constexpr(TYPE == EViewpointData::FILM_NDC) {
 		return m_filmNdc;
@@ -109,9 +104,6 @@ inline void FullViewpoint::impl_set(const T& value)
 {
 	if constexpr(TYPE == EViewpointData::SURFACE_HIT) {
 		m_surfaceHit = value;
-	}
-	else if constexpr(TYPE == EViewpointData::SURFACE_ELEMENTAL) {
-		m_surfaceElemental = value;
 	}
 	else if constexpr(TYPE == EViewpointData::FILM_NDC) {
 		m_filmNdc = value;

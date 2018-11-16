@@ -96,10 +96,9 @@ void PPMRadianceEvaluationWork::doWork()
 		const real kernelArea         = newR * newR * PH_PI_REAL;
 		const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(numPhotonPaths()));
 
-		SpectralStrength radiance(viewpoint.get<EViewpointData::TAU>());
-		radiance.mulLocal(radianceMultiplier);
-		radiance.mulLocal(viewpoint.get<EViewpointData::VIEW_THROUGHPUT>());
+		SpectralStrength radiance(viewpoint.get<EViewpointData::TAU>() * radianceMultiplier);
 		radiance.addLocal(viewpoint.get<EViewpointData::VIEW_RADIANCE>());
+		radiance.mulLocal(viewpoint.get<EViewpointData::VIEW_THROUGHPUT>());
 
 		const Vector2R filmNdc = viewpoint.get<EViewpointData::FILM_NDC>();
 		const real filmXPx = filmNdc.x * static_cast<real>(m_film->getActualResPx().x);

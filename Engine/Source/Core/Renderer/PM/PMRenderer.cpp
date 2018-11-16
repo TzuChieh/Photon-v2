@@ -1,7 +1,7 @@
 #include "Core/Renderer/PM/PMRenderer.h"
 #include "Core/Filmic/SampleFilterFactory.h"
 #include "FileIO/SDL/SdlResourcePack.h"
-#include "Core/Renderer/PM/TViewpointTracingWork.h"
+#include "Core/Renderer/PM/TViewPathTracingWork.h"
 #include "Core/Renderer/PM/TPhotonMappingWork.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Core/Renderer/PM/VPMRadianceEvaluator.h"
@@ -120,14 +120,14 @@ void PMRenderer::renderWithVanillaPM()
 			evaluator.setPMStatistics(&m_statistics);
 			evaluator.setKernelRadius(m_kernelRadius);
 
-			TViewpointTracingWork<VPMRadianceEvaluator> radianceEstimator(
+			TViewPathTracingWork<VPMRadianceEvaluator> radianceEvaluator(
 				&evaluator,
 				m_scene,
 				m_camera,
 				sampleGenerator.get(),
 				getRenderWindowPx());
 
-			radianceEstimator.work();
+			radianceEvaluator.work();
 		});
 }
 
@@ -142,7 +142,7 @@ void PMRenderer::renderWithProgressivePM()
 
 		auto viewpointSampleGenerator = m_sg->genCopied(m_numSamplesPerPixel);
 
-		TViewpointTracingWork<ViewpointCollector> viewpointWork(
+		TViewPathTracingWork<ViewpointCollector> viewpointWork(
 			&viewpointCollector,
 			m_scene, 
 			m_camera, 
@@ -380,7 +380,7 @@ PMRenderer::PMRenderer(const InputPacket& packet) :
 		m_mode = EPMMode::STOCHASTIC_PROGRESSIVE;
 	}
 
-	m_numPhotons = packet.getInteger("num-photons", 100000);
+	m_numPhotons = packet.getInteger("num-photons", 200000);
 	m_kernelRadius = packet.getReal("radius", 0.1_r);
 	m_numPasses = packet.getInteger("num-passes", 1);
 	m_numSamplesPerPixel = packet.getInteger("num-samples-per-pixel", 4);
