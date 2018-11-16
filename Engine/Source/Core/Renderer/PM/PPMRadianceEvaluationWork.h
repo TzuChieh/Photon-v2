@@ -26,6 +26,8 @@ class PMRenderer;
 
 	Hachisuka et al., "Progressive Photon Mapping", ACM SIGGRAPH Asia 2008.
 */
+
+// TODO: templatize photon type
 class PPMRadianceEvaluationWork : public TRadianceEvaluationWork<FullPhoton>
 {
 public:

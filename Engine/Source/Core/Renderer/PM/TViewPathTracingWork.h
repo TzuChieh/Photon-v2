@@ -56,14 +56,6 @@ private:
 		std::size_t pathLength);
 };
 
-// In-header Implementations:
-
-//template<typename Viewpoint>
-//inline std::vector<Viewpoint> TViewpointGatheringWork<Viewpoint>::claimViewpoints()
-//{
-//	return std::move(m_viewpoints);
-//}
-
 }// end namespace ph
 
 #include "Core/Renderer/PM/TViewPathTracingWork.ipp"

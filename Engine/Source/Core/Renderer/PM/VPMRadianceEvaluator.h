@@ -40,10 +40,10 @@ public:
 		const Vector2R&         filmNdc,
 		const SpectralStrength& pathThroughput);
 
-	ViewPathTracingPolicy impl_onPathHitSurface(
+	auto impl_onPathHitSurface(
 		std::size_t             pathLength,
 		const SurfaceHit&       surfaceHit,
-		const SpectralStrength& pathThroughput);
+		const SpectralStrength& pathThroughput) -> ViewPathTracingPolicy;
 
 	void impl_onCameraSampleEnd();
 
@@ -102,10 +102,10 @@ inline bool VPMRadianceEvaluator::impl_onCameraSampleStart(
 	return true;
 }
 
-inline ViewPathTracingPolicy VPMRadianceEvaluator::impl_onPathHitSurface(
+inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 	const std::size_t       pathLength,
 	const SurfaceHit&       surfaceHit,
-	const SpectralStrength& pathThroughput)
+	const SpectralStrength& pathThroughput) -> ViewPathTracingPolicy
 {
 	PH_ASSERT_EQ(pathLength, 1);
 
