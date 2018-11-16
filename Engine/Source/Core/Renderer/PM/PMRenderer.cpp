@@ -234,7 +234,7 @@ void PMRenderer::renderWithProgressivePM()
 		const real photonsPerMs = passTimeMs != 0 ? static_cast<real>(numPhotonsPerPass) / passTimeMs : 0;
 		m_photonsPerSecond.store(static_cast<std::uint32_t>(photonsPerMs * 1000 + 0.5_r), std::memory_order_relaxed);
 
-		m_statistics.asyncIncrementNumPasses();
+		m_statistics.asyncIncrementNumIterations();
 		++numFinishedPasses;
 	}// end while more pass needed
 }
@@ -264,8 +264,8 @@ ERegionStatus PMRenderer::asyncPollUpdatedRegion(Region* const out_region)
 RenderProgress PMRenderer::asyncQueryRenderProgress()
 {
 	return RenderProgress(
-		m_numPasses, 
-		m_statistics.asyncGetNumPasses(), 
+		m_mode != EPMMode::VANILLA ? m_numPasses : m_numSamplesPerPixel, 
+		m_statistics.asyncGetNumIterations(), 
 		0);
 }
 
@@ -296,7 +296,7 @@ std::string PMRenderer::renderStateName(const RenderState::EType type, const std
 	{
 		switch(index)
 		{
-		case 0: return "finished passes";
+		case 0: return m_mode != EPMMode::VANILLA ? "finished passes" : "finished samples";
 		case 1: return "traced photons";
 		case 2: return "photons/second";
 		default: return "";
@@ -315,7 +315,7 @@ std::string PMRenderer::renderStateName(const RenderState::EType type, const std
 RenderState PMRenderer::asyncQueryRenderState()
 {
 	RenderState state;
-	state.setIntegerState(0, m_statistics.asyncGetNumPasses());
+	state.setIntegerState(0, m_statistics.asyncGetNumIterations());
 	state.setIntegerState(1, m_statistics.asyncGetNumTracedPhotons());
 	state.setIntegerState(2, static_cast<RenderState::IntegerState>(m_photonsPerSecond.load(std::memory_order_relaxed)));
 	return state;

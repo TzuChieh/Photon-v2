@@ -176,7 +176,7 @@ inline void VPMRadianceEvaluator::impl_onSampleBatchFinished()
 {
 	if(m_statistics)
 	{
-		//m_statistics->asyncIncrementNumPasses();
+		m_statistics->asyncIncrementNumIterations();
 	}
 
 	if(m_renderer)
