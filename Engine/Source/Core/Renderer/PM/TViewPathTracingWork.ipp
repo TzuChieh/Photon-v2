@@ -99,7 +99,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 		{
 			BsdfSample bsdfSample;
 			Ray sampledRay;
-			bsdfSample.inputs.set(surfaceHit, V, ALL_ELEMENTALS, ETransport::RADIANCE);
+			bsdfSample.inputs.set(surfaceHit, V, policy.getTargetElemental(), ETransport::RADIANCE);
 			if(!surfaceEvent.doBsdfSample(surfaceHit, bsdfSample, &sampledRay))
 			{
 				break;

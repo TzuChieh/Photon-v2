@@ -10,6 +10,7 @@
 #include "Core/Emitter/Emitter.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
+#include "Math/Random.h"
 
 #include <vector>
 #include <type_traits>
@@ -53,7 +54,6 @@ private:
 
 	void addViewpoint(
 		const SurfaceHit&       surfaceHit, 
-		SurfaceElemental        elemental, 
 		const Vector3R&         viewDir, 
 		const SpectralStrength& pathThroughput);
 };
@@ -109,64 +109,106 @@ inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
 	const PrimitiveMetadata* const metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 	const SurfaceOptics* const     optics   = metadata->getSurface().getOptics();
 
+	// check if there's any non-delta elemental
 	SurfacePhenomena phenomena = optics->getAllPhenomena();
 	phenomena.turnOff({
 		ESurfacePhenomenon::DELTA_REFLECTION,
 		ESurfacePhenomenon::DELTA_TRANSMISSION});
-
-
-	// TODO: viewpoint should not be add like this? always add if non-delta exists?
-	if(optics->getAllPhenomena().hasNone({
-		ESurfacePhenomenon::DELTA_REFLECTION,
-		ESurfacePhenomenon::DELTA_TRANSMISSION}))
+	if(!phenomena.isEmpty())
 	{
 		// It is okay to add a viewpoint without specifying which surface
-		// elemental is used--since it is impossible for delta distributions
+		// elemental is used--since it is impossible for delta elementals
 		// to have non-zero contribution in any BSDF evaluation process, so
 		// we will not double-count any path throughput.
 		addViewpoint(
 			surfaceHit, 
-			ALL_ELEMENTALS, 
 			surfaceHit.getIncidentRay().getDirection().mul(-1), 
 			pathThroughput);
+	}
 
-		return ViewPathTracingPolicy().kill();
+	if(pathLength < m_maxViewpointDepth && 
+	   optics->getAllPhenomena().hasAtLeastOne({
+		ESurfacePhenomenon::DELTA_REFLECTION,
+		ESurfacePhenomenon::DELTA_TRANSMISSION}))
+	{
+		SurfaceElemental numDeltaElementals = 0;
+		for(SurfaceElemental i = 0; i < optics->numElementals(); ++i)
+		{
+			const ESurfacePhenomenon phenomenon = optics->getPhenomenonOf(i);
+			if(phenomenon == ESurfacePhenomenon::DELTA_REFLECTION || 
+			   phenomenon == ESurfacePhenomenon::DELTA_TRANSMISSION)
+			{
+				++numDeltaElementals;
+			}
+		}
+		PH_ASSERT_GE(numDeltaElementals, 1);
+
+		const SurfaceElemental selectedNthElemental =
+			static_cast<SurfaceElemental>(Random::genUniformIndex_iL_eU(0, static_cast<std::size_t>(numDeltaElementals)));
+
+		SurfaceElemental selectedElemental = ALL_ELEMENTALS;
+		for(SurfaceElemental i = 0, n = 0; i < optics->numElementals(); ++i)
+		{
+			PH_ASSERT_LE(i, n);
+
+			const ESurfacePhenomenon phenomenon = optics->getPhenomenonOf(i);
+			if(phenomenon == ESurfacePhenomenon::DELTA_REFLECTION || 
+			   phenomenon == ESurfacePhenomenon::DELTA_TRANSMISSION)
+			{
+				if(n == selectedNthElemental)
+				{
+					selectedElemental = i;
+					break;
+				}
+				else
+				{
+					++n;
+				}
+			}
+		}
+		PH_ASSERT_NE(selectedElemental, ALL_ELEMENTALS);
+
+		return ViewPathTracingPolicy().
+			traceSinglePathFor(selectedElemental).
+			useRussianRoulette(false);
 	}
 	else
 	{
-		if(pathLength < m_maxViewpointDepth)
-		{
-			return ViewPathTracingPolicy().
-				traceBranchedPathFor(SurfacePhenomena({
-					ESurfacePhenomenon::DELTA_REFLECTION,
-					ESurfacePhenomenon::DELTA_TRANSMISSION})).
-				useRussianRoulette(pathLength >= 3);
-		}
-		else
-		{
-			PH_ASSERT_EQ(pathLength, m_maxViewpointDepth);
+		PH_ASSERT_LE(pathLength, m_maxViewpointDepth);
 
-			return ViewPathTracingPolicy().kill();
-		}
+		return ViewPathTracingPolicy().kill();
 	}
 }
 
 template<typename Viewpoint>
 inline void TPPMViewpointCollector<Viewpoint>::impl_onCameraSampleEnd()
 {
-	if constexpr(!Viewpoint::template has<EViewpointData::VIEW_THROUGHPUT>())
+	if(m_cameraSampleViewpoints > 0)
 	{
-		return;
+		// Normalize current camera sample's path throughput.
+		if constexpr(Viewpoint::template has<EViewpointData::VIEW_THROUGHPUT>())
+		{
+			for(std::size_t i = m_viewpoints.size() - m_cameraSampleViewpoints; i < m_viewpoints.size(); ++i)
+			{
+				auto& viewpoint = m_viewpoints[i];
+
+				SpectralStrength pathThroughput = viewpoint.template get<EViewpointData::VIEW_THROUGHPUT>();
+				pathThroughput.mulLocal(static_cast<real>(m_cameraSampleViewpoints));
+				viewpoint.template set<EViewpointData::VIEW_THROUGHPUT>(pathThroughput);
+			}
+		}
 	}
-
-	// Normalize current camera sample's path throughput.
-	for(std::size_t i = m_viewpoints.size() - m_cameraSampleViewpoints; i < m_viewpoints.size(); ++i)
+	else
 	{
-		auto& viewpoint = m_viewpoints[i];
+		//// If no viewpoint is found for current camera sample, we should add an
+		//// zero-contribution viewpoint.
 
-		SpectralStrength pathThroughput = viewpoint.template get<EViewpointData::VIEW_THROUGHPUT>();
-		pathThroughput.mulLocal(static_cast<real>(m_cameraSampleViewpoints));
-		viewpoint.template set<EViewpointData::VIEW_THROUGHPUT>(pathThroughput);
+		//// HACK
+		//m_viewpoint.template set<EViewpointData::RADIUS>(0.0_r);
+		//addViewpoint(
+		//	SurfaceHit(),
+		//	Vector3R(),
+		//	SpectralStrength());
 	}
 }
 
@@ -183,7 +225,6 @@ std::vector<Viewpoint> TPPMViewpointCollector<Viewpoint>::claimViewpoints()
 template<typename Viewpoint>
 void TPPMViewpointCollector<Viewpoint>::addViewpoint(
 	const SurfaceHit&       surfaceHit,
-	const SurfaceElemental  elemental,
 	const Vector3R&         viewDir,
 	const SpectralStrength& pathThroughput)
 {

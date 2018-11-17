@@ -71,6 +71,8 @@ inline void BsdfSampleInput::set(
 	this->transported = transported;
 }
 
+// FIXME: is good should check if PDF = 0 or something equivalent (e.g., a bool);
+// once this is properly implemented, pdfAppliedBsdf = 0 can still be good
 inline bool BsdfSampleOutput::isGood() const
 {
 	return pdfAppliedBsdf.isFinite();
