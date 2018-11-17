@@ -109,3 +109,23 @@ TEST(TBitFlagsTest, HasNone)
 	EXPECT_FALSE(flags1.hasNone({ETest::B}));
 	EXPECT_FALSE(flags1.hasNone({ETest::C, ETest::D}));
 }
+
+TEST(TBitFlagsTest, TurnOnSpecificFlags)
+{
+	IntFlags flags1;
+	flags1.turnOn({int(1) << 2, int(1) << 4});
+	flags1.turnOn({int(1) << 2, int(1) << 4, int(1) << 5});
+	flags1.turnOn({int(1) << 2});
+
+	EXPECT_TRUE(flags1.hasExactly({int(1) << 2, int(1) << 4, int(1) << 5}));
+}
+
+TEST(TBitFlagsTest, TurnOffSpecificFlags)
+{
+	IntFlags flags1({int(1) << 0, int(1) << 3, int(1) << 6});
+	flags1.turnOff({int(1) << 0, int(1) << 3});
+	flags1.turnOff({int(1) << 3, int(1) << 0, int(1) << 7});
+	flags1.turnOff({int(1) << 3});
+
+	EXPECT_TRUE(flags1.hasExactly({int(1) << 6}));
+}

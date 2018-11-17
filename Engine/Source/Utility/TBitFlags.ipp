@@ -48,6 +48,20 @@ inline TBitFlags<Value, Input>& TBitFlags<Value, Input>::set(const FlagsSet& fla
 }
 
 template<typename Value, typename Input>
+inline TBitFlags<Value, Input>& TBitFlags<Value, Input>::turnOn(const FlagsSet& flagsSet)
+{
+	return unionWith(flagsSet);
+}
+
+template<typename Value, typename Input>
+inline TBitFlags<Value, Input>& TBitFlags<Value, Input>::turnOff(const FlagsSet& flagsSet)
+{
+	m_bits &= ~(collectFlags(flagsSet));
+
+	return *this;
+}
+
+template<typename Value, typename Input>
 inline bool TBitFlags<Value, Input>::hasNone(const FlagsSet& flagsSet) const
 {
 	return (m_bits & collectFlags(flagsSet)) == 0;

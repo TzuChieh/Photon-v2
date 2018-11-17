@@ -65,6 +65,7 @@ inline ViewPathTracingPolicy& ViewPathTracingPolicy::traceSinglePath()
 
 inline ViewPathTracingPolicy& ViewPathTracingPolicy::traceBranchedPathFor(const SurfacePhenomena phenomena)
 {
+	m_sampleMode      = EViewPathSampleMode::ELEMENTAL_BRANCH;
 	m_targetPhenomena = phenomena;
 
 	return *this;

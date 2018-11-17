@@ -108,12 +108,6 @@ void BNEEPTEstimator::radianceAlongRay(
 				BsdfEvaluation bsdfEval;
 				bsdfEval.inputs.set(surfaceHit, L, V);
 
-				// DEBUG
-				/*if(surfaceBehavior.getOptics()->getAllPhenomena().hasAtLeastOne({ESP::GLOSSY_TRANSMISSION}))
-				{
-					bsdfEval.inputs.elemental = 0;
-				}*/
-
 				surfaceBehavior.getOptics()->calcBsdf(bsdfEval);
 				if(bsdfEval.outputs.isGood())
 				{
@@ -121,8 +115,6 @@ void BNEEPTEstimator::radianceAlongRay(
 					bsdfPdfQuery.inputs.set(bsdfEval);
 					surfaceBehavior.getOptics()->calcBsdfSamplePdfW(bsdfPdfQuery);
 
-					// FIXME: <bsdfSamplePdfW>, <bsdfEval> is 0 for delta distributions,
-					// this will cause direct light sample to have 0 contribution even though MIS weight is finite
 					const real     bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
 					const real     misWeighting = mis.weight(directPdfW, bsdfSamplePdfW);
 					const Vector3R N = surfaceHit.getShadingNormal();
@@ -149,12 +141,6 @@ void BNEEPTEstimator::radianceAlongRay(
 			BsdfSample bsdfSample;
 			bsdfSample.inputs.set(surfaceHit, V);
 
-			// DEBUG
-			/*if(surfaceBehavior->getOptics()->getAllPhenomena().hasAtLeastOne({ESP::GLOSSY_TRANSMISSION}))
-			{
-				bsdfSample.inputs.elemental = 0;
-			}*/
-
 			surfaceBehavior->getOptics()->calcBsdfSample(bsdfSample);
 
 			const Vector3R N = surfaceHit.getShadingNormal();
@@ -170,19 +156,19 @@ void BNEEPTEstimator::radianceAlongRay(
 
 			PH_ASSERT(L.isFinite());
 
-			BsdfPdfQuery bsdfPdfQuery;
-			bsdfPdfQuery.inputs.set(bsdfSample);
-			surfaceBehavior->getOptics()->calcBsdfSamplePdfW(bsdfPdfQuery);
+			//BsdfPdfQuery bsdfPdfQuery;
+			//bsdfPdfQuery.inputs.set(bsdfSample);
+			//surfaceBehavior->getOptics()->calcBsdfSamplePdfW(bsdfPdfQuery);
 
-			const real bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
+			//const real bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
 
-			// TODO: We should break right after bsdf sampling if the sample 
-			// is invalid, but current implementation applied pdf on bsdf
-			// beforehand, which might hide cases where pdf = 0.
-			if(bsdfSamplePdfW == 0.0_r)
-			{
-				break;
-			}
+			//// TODO: We should break right after bsdf sampling if the sample 
+			//// is invalid, but current implementation applied pdf on bsdf
+			//// beforehand, which might hide cases where pdf = 0.
+			//if(bsdfSamplePdfW == 0.0_r)
+			//{
+			//	break;
+			//}
 
 			const Vector3R directLitPos = surfaceHit.getPosition();
 
@@ -208,13 +194,25 @@ void BNEEPTEstimator::radianceAlongRay(
 			{
 				SpectralStrength radianceLe;
 				emitter->evalEmittedRadiance(Xe, &radianceLe);
-				if(!radianceLe.isZero())
+
+				// TODO: not doing MIS if delta elemental exists is too harsh--we can do regular sample for
+				// deltas and MIS for non-deltas
+
+				// do MIS
+				if(!radianceLe.isZero() && surfaceBehavior->getOptics()->getAllPhenomena().hasNone({
+					ESurfacePhenomenon::DELTA_REFLECTION, ESurfacePhenomenon::DELTA_TRANSMISSION}))
 				{
 					// TODO: <directLightPdfW> might be 0, should we stop  using MIS if one of two 
 					// sampling techniques has failed?
 					// <bsdfSamplePdfW> can also be 0 for delta distributions
 					const real directLightPdfW = PtDirectLightEstimator::sampleUnoccludedPdfW(
 						scene, surfaceHit, Xe, ray.getTime());
+
+					BsdfPdfQuery bsdfPdfQuery;
+					bsdfPdfQuery.inputs.set(bsdfSample);
+					surfaceBehavior->getOptics()->calcBsdfSamplePdfW(bsdfPdfQuery);
+
+					const real bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
 
 					const real misWeighting = mis.weight(bsdfSamplePdfW, directLightPdfW);
 
@@ -224,6 +222,14 @@ void BNEEPTEstimator::radianceAlongRay(
 					// avoid excessive, negative weight and possible NaNs
 					//
 					rationalClamp(weight);
+
+					accuRadiance.addLocal(radianceLe.mulLocal(weight));
+				}
+				// not do MIS
+				else
+				{
+					SpectralStrength weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+					weight.mulLocal(accuLiWeight);
 
 					accuRadiance.addLocal(radianceLe.mulLocal(weight));
 				}

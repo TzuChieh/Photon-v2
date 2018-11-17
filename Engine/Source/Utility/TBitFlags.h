@@ -30,7 +30,8 @@ public:
 	// Intersects this instance with the specified flags.
 	TBitFlags& intersectWith(const FlagsSet& flagsSet);
 	
-	TBitFlags& set(const FlagsSet& flagsSet);
+	TBitFlags& turnOn(const FlagsSet& flagsSet);
+	TBitFlags& turnOff(const FlagsSet& flagsSet);
 
 	// Checks whether this instance contains no specified flags.
 	bool hasNone(const FlagsSet& flagsSet) const;
@@ -49,7 +50,8 @@ public:
 
 	bool equals(const TBitFlags& other) const;
 
-	// TODO: clear all flags or clear specific ones
+	// TODO: method for clear all flags
+	TBitFlags& set(const FlagsSet& flagsSet);
 
 private:
 	Value m_bits;

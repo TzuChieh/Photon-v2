@@ -138,7 +138,7 @@ void PMRenderer::renderWithProgressivePM()
 	std::vector<FullViewpoint> viewpoints;
 	{
 		using ViewpointCollector = TPPMViewpointCollector<FullViewpoint>;
-		ViewpointCollector viewpointCollector(6, m_kernelRadius);
+		ViewpointCollector viewpointCollector(1024, m_kernelRadius);
 
 		auto viewpointSampleGenerator = m_sg->genCopied(m_numSamplesPerPixel);
 

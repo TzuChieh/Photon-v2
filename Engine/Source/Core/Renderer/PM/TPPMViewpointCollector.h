@@ -109,6 +109,13 @@ inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
 	const PrimitiveMetadata* const metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 	const SurfaceOptics* const     optics   = metadata->getSurface().getOptics();
 
+	SurfacePhenomena phenomena = optics->getAllPhenomena();
+	phenomena.turnOff({
+		ESurfacePhenomenon::DELTA_REFLECTION,
+		ESurfacePhenomenon::DELTA_TRANSMISSION});
+
+
+	// TODO: viewpoint should not be add like this? always add if non-delta exists?
 	if(optics->getAllPhenomena().hasNone({
 		ESurfacePhenomenon::DELTA_REFLECTION,
 		ESurfacePhenomenon::DELTA_TRANSMISSION}))
@@ -133,7 +140,7 @@ inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
 				traceBranchedPathFor(SurfacePhenomena({
 					ESurfacePhenomenon::DELTA_REFLECTION,
 					ESurfacePhenomenon::DELTA_TRANSMISSION})).
-				useRussianRoulette(false);// TODO: change this to some finite value
+				useRussianRoulette(pathLength >= 3);
 		}
 		else
 		{
