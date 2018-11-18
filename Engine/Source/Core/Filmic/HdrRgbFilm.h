@@ -43,6 +43,9 @@ public:
 	void addSample(float64 xPx, float64 yPx, const Vector3R& rgb);
 	void mergeWith(const HdrRgbFilm& other);
 
+	// HACK
+	void setPixel(float64 xPx, float64 yPx, const SpectralStrength& spectrum) override;
+
 private:
 	void developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const override;
 

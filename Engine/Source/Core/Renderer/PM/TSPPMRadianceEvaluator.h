@@ -64,6 +64,8 @@ private:
 	std::size_t m_maxViewpointDepth;
 
 	Viewpoint* m_viewpoint;
+
+	void addViewRadiance(const SpectralStrength& radiance);
 };
 
 // In-header Implementations:
@@ -99,12 +101,6 @@ inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleStart(
 	const Vector2R&         filmNdc,
 	const SpectralStrength& pathThroughput)
 {
-	if(pathThroughput.isZero())
-	{
-		// TODO: should we add a 0-contribution viewpoint?
-		return false;
-	}
-
 	const real fFilmXPx = filmNdc.x * static_cast<real>(m_film->getActualResPx().x);
 	const real fFilmYPx = filmNdc.y * static_cast<real>(m_film->getActualResPx().y);
 	const std::size_t filmX = std::min(static_cast<std::size_t>(fFilmXPx), static_cast<std::size_t>(m_film->getActualResPx().x) - 1);
@@ -113,6 +109,10 @@ inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleStart(
 	const std::size_t viewpointIdx = filmY * static_cast<std::size_t>(m_film->getActualResPx().y) + filmX;
 	PH_ASSERT_LT(viewpointIdx, m_numViewpoints);
 	m_viewpoint = &(m_viewpoints[viewpointIdx]);
+	
+	if constexpr(Viewpoint::template has<EViewpointData::VIEW_THROUGHPUT>()) {
+		m_viewpoint.template set<EViewpointData::VIEW_THROUGHPUT>(SpectralStrength(0));
+	}
 
 	return true;
 }
@@ -123,7 +123,45 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 	const SurfaceHit&       surfaceHit,
 	const SpectralStrength& pathThroughput) -> ViewPathTracingPolicy
 {
+	const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
+	const SurfaceOptics* optics = metadata->getSurface().getOptics();
+
 	// TODO
+
+	///*Vector3R L;
+	//real pdfW;
+	//SpectralStrength emittedRadiance;
+	//if(PtDirectLightEstimator::sample(
+	//	*m_scene,
+	//	surfaceHit,
+	//	surfaceHit.getIncidentRay().getTime(),
+	//	&L, &pdfW, &emittedRadiance))
+	//{
+	//	addViewRadiance(emittedRadiance.div(pdfW));
+	//}*/
+
+	if(optics->getAllPhenomena().hasAtLeastOne({
+		ESurfacePhenomenon::DELTA_REFLECTION, 
+		ESurfacePhenomenon::DELTA_TRANSMISSION}))
+	{
+		return ViewPathTracingPolicy().
+			traceSinglePathFor(ALL_ELEMENTALS).
+			useRussianRoulette(true);
+	}
+
+	if(optics->getAllPhenomena().hasAtLeastOne({ESurfacePhenomenon::DIFFUSE_REFLECTION}) ||
+		pathLength >= 4)
+	{
+		if constexpr(Viewpoint::template has<EViewpointData::SURFACE_HIT>()) {
+			m_viewpoint.template set<EViewpointData::SURFACE_HIT>(surfaceHit);
+		}
+		if constexpr(Viewpoint::template has<EViewpointData::VIEW_THROUGHPUT>()) {
+			m_viewpoint.template set<EViewpointData::VIEW_THROUGHPUT>(pathThroughput);
+		}
+		if constexpr(Viewpoint::template has<EViewpointData::VIEW_DIR>()) {
+			m_viewpoint.template set<EViewpointData::VIEW_DIR>(surfaceHit.getIncidentRay().getDirection().mul(-1));
+		}
+	}
 }
 
 template<typename Viewpoint, typename Photon>
@@ -135,5 +173,16 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleEnd()
 template<typename Viewpoint, typename Photon>
 inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onSampleBatchFinished()
 {}
+
+template<typename Viewpoint, typename Photon>
+inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::addViewRadiance(const SpectralStrength& radiance)
+{
+	if constexpr(Viewpoint::template has<EViewpointData::VIEW_RADIANCE>())
+	{
+		SpectralStrength viewRadiance = m_viewpoint.template get<EViewpointData::VIEW_RADIANCE>();
+		viewRadiance.addLocal(radiance);
+		m_viewpoint.template set<EViewpointData::VIEW_RADIANCE>(viewRadiance);
+	}
+}
 
 }// end namespace ph

@@ -197,6 +197,23 @@ void HdrRgbFilm::resizeRadianceSensorBuffer()
 	m_pixelRadianceSensors.resize(getEffectiveWindowPx().calcArea());
 }
 
+void HdrRgbFilm::setPixel(const float64 xPx, const float64 yPx, const SpectralStrength& spectrum)
+{
+	const std::size_t filmX = std::min(static_cast<std::size_t>(xPx), static_cast<std::size_t>(getActualResPx().x) - 1);
+	const std::size_t filmY = std::min(static_cast<std::size_t>(yPx), static_cast<std::size_t>(getActualResPx().y) - 1);
+
+	const std::size_t ix = filmX - getEffectiveWindowPx().minVertex.x;
+	const std::size_t iy = filmY - getEffectiveWindowPx().minVertex.y;
+	const std::size_t index = iy * static_cast<std::size_t>(getEffectiveResPx().x) + ix;
+
+	const Vector3R rgb = spectrum.genLinearSrgb(EQuantity::EMR);
+
+	m_pixelRadianceSensors[index].accuR      = rgb.x;
+	m_pixelRadianceSensors[index].accuG      = rgb.y;
+	m_pixelRadianceSensors[index].accuB      = rgb.z;
+	m_pixelRadianceSensors[index].accuWeight = 1.0;
+}
+
 // command interface
 
 HdrRgbFilm::HdrRgbFilm(const InputPacket& packet) : 
