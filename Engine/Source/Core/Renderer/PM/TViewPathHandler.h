@@ -10,23 +10,34 @@
 namespace ph
 {
 
+/*
+	Controls a view path tracing process. Derived classes need to implement
+	all methods with "impl_" prefixed names and with the exact signature.
+*/
 template<typename Derived>
 class TViewPathHandler
 {
 	friend Derived;
 
 public:
+	// Called after a camera sample is generated.
+	// Returns whether this camera sample should be used.
 	bool onCameraSampleStart(
 		const Vector2R&         filmNdc,
 		const SpectralStrength& pathThroughput);
 
-	ViewPathTracingPolicy onPathHitSurface(
+	// Called after the view path hits a surface, corresponding hit information
+	// is given.
+	// Returns a policy for controlling how to trace the next path.
+	auto onPathHitSurface(
 		std::size_t             pathLength,
 		const SurfaceHit&       surfaceHit,
-		const SpectralStrength& pathThroughput);
+		const SpectralStrength& pathThroughput) -> ViewPathTracingPolicy;
 
+	// Called after a camera sample is ended.
 	void onCameraSampleEnd();
 
+	// Called after a batch of camera samples has been consumed.
 	void onSampleBatchFinished();
 
 private:
@@ -47,10 +58,10 @@ bool TViewPathHandler<Derived>::onCameraSampleStart(
 }
 
 template<typename Derived>
-ViewPathTracingPolicy TViewPathHandler<Derived>::onPathHitSurface(
+auto TViewPathHandler<Derived>::onPathHitSurface(
 	const std::size_t       pathLength,
 	const SurfaceHit&       surfaceHit,
-	const SpectralStrength& pathThroughput)
+	const SpectralStrength& pathThroughput) -> ViewPathTracingPolicy
 {
 	return static_cast<Derived&>(*this).impl_onPathHitSurface(
 		pathLength,

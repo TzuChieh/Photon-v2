@@ -15,6 +15,7 @@
 #include "Core/Renderer/PM/FullViewpoint.h"
 #include "Utility/Timer.h"
 #include "Core/Renderer/PM/TPPMViewpointCollector.h"
+#include "Core/Renderer/PM/TSPPMRadianceEvaluator.h"
 
 #include <numeric>
 
@@ -254,7 +255,126 @@ void PMRenderer::renderWithProgressivePM()
 
 void PMRenderer::renderWithStochasticProgressivePM()
 {
-	// TODO
+	using Photon    = FullPhoton;
+	using Viewpoint = FullViewpoint;
+
+	logger.log("photon size: " + std::to_string(sizeof(Photon)) + " bytes");
+	logger.log("viewpoint size: " + std::to_string(sizeof(Viewpoint)) + " bytes");
+
+	logger.log("start generating viewpoints...");
+
+	std::vector<Viewpoint> viewpoints(getRenderWindowPx().calcArea());
+	for(std::size_t y = 0; y < getRenderHeightPx(); ++y)
+	{
+		for(std::size_t x = 0; x < getRenderWidthPx(); ++x)
+		{
+			auto& viewpoint = viewpoints[y * getRenderHeightPx() + x];
+
+			if constexpr(Viewpoint::template has<EViewpointData::RADIUS>()) {
+				viewpoint.template set<EViewpointData::RADIUS>(m_kernelRadius);
+			}
+			if constexpr(Viewpoint::template has<EViewpointData::NUM_PHOTONS>()) {
+				viewpoint.template set<EViewpointData::NUM_PHOTONS>(0.0_r);
+			}
+			if constexpr(Viewpoint::template has<EViewpointData::TAU>()) {
+				viewpoint.template set<EViewpointData::TAU>(SpectralStrength(0));
+			}
+			if constexpr(Viewpoint::template has<EViewpointData::VIEW_RADIANCE>()) {
+				viewpoint.template set<EViewpointData::VIEW_RADIANCE>(SpectralStrength(0));
+			}
+		}
+	}
+
+	logger.log("size of viewpoint buffer: " +
+		std::to_string(math::byte_to_MB<real>(sizeof(Viewpoint) * viewpoints.size())) + " MB");
+
+	const std::size_t numPhotonsPerPass = m_numPhotons;
+
+	logger.log("number of photons per pass: " + std::to_string(numPhotonsPerPass));
+	logger.log("size of photon buffer: " 
+		+ std::to_string(math::byte_to_MB<real>(sizeof(Photon) * numPhotonsPerPass)) + " MB");
+	logger.log("start accumulating passes...");
+
+	std::mutex resultFilmMutex;
+	auto resultFilm = std::make_unique<HdrRgbFilm>(
+		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
+
+	Timer passTimer;
+	std::size_t numFinishedPasses = 0;
+	std::size_t totalPhotonPaths  = 0;
+	while(numFinishedPasses < m_numPasses)
+	{
+		passTimer.start();
+		std::vector<Photon> photonBuffer(numPhotonsPerPass);
+
+		std::vector<std::size_t> numPhotonPaths(getNumWorkers(), 0);
+		parallel_work(numPhotonsPerPass, getNumWorkers(),
+			[this, &photonBuffer, &numPhotonPaths](
+				const std::size_t workerIdx, 
+				const std::size_t workStart, 
+				const std::size_t workEnd)
+			{
+				auto sampleGenerator = m_sg->genCopied(1);
+
+				TPhotonMappingWork<Photon> photonMappingWork(
+					m_scene,
+					m_camera,
+					sampleGenerator.get(),
+					&(photonBuffer[workStart]),
+					workEnd - workStart,
+					&(numPhotonPaths[workerIdx]));
+				photonMappingWork.setPMStatistics(&m_statistics);
+
+				photonMappingWork.work();
+			});
+		totalPhotonPaths = std::accumulate(numPhotonPaths.begin(), numPhotonPaths.end(), totalPhotonPaths);
+
+		TPhotonMap<Photon> photonMap(2, TPhotonCenterCalculator<Photon>());
+		photonMap.build(std::move(photonBuffer));
+
+		parallel_work(viewpoints.size(), getNumWorkers(),
+			[this, &photonMap, &viewpoints, &resultFilm, &resultFilmMutex, totalPhotonPaths](
+				const std::size_t workerIdx, 
+				const std::size_t workStart, 
+				const std::size_t workEnd)
+			{
+				auto film = std::make_unique<HdrRgbFilm>(
+					getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
+
+				using RadianceEvaluator = TSPPMRadianceEvaluator<Viewpoint, Photon>;
+
+				
+
+				/*PPMRadianceEvaluationWork radianceEstimator(
+					&photonMap, 
+					totalPhotonPaths,
+					film.get(),
+					&(viewpoints[workStart]),
+					workEnd - workStart,
+					m_scene);
+				radianceEstimator.setPMStatistics(&m_statistics);
+
+				radianceEstimator.work();
+
+				{
+					std::lock_guard<std::mutex> lock(resultFilmMutex);
+
+					resultFilm->mergeWith(*film);
+				}*/
+			});
+
+		asyncReplaceFilm(*resultFilm);
+		resultFilm->clear();
+
+		passTimer.finish();
+
+		const real passTimeMs   = static_cast<real>(passTimer.getDeltaMs());
+		const real photonsPerMs = passTimeMs != 0 ? static_cast<real>(numPhotonsPerPass) / passTimeMs : 0;
+		m_photonsPerSecond.store(static_cast<std::uint32_t>(photonsPerMs * 1000 + 0.5_r), std::memory_order_relaxed);
+
+		m_statistics.asyncIncrementNumIterations();
+		++numFinishedPasses;
+	}// end while more pass needed
 }
 
 ERegionStatus PMRenderer::asyncPollUpdatedRegion(Region* const out_region)
