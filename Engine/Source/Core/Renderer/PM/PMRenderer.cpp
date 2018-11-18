@@ -67,11 +67,15 @@ void PMRenderer::doRender()
 
 void PMRenderer::renderWithVanillaPM()
 {
+	using Photon = FullPhoton;
+
+	logger.log("photon size: " + std::to_string(sizeof(Photon)) + " bytes");
+
 	logger.log("target number of photons: " + std::to_string(m_numPhotons));
-	logger.log("size of photon buffer: " + std::to_string(sizeof(FullPhoton) * m_numPhotons / 1024 / 1024) + " MB");
+	logger.log("size of photon buffer: " + std::to_string(sizeof(Photon) * m_numPhotons / 1024 / 1024) + " MB");
 	logger.log("start shooting photons...");
 
-	std::vector<FullPhoton>  photonBuffer(m_numPhotons);
+	std::vector<Photon>  photonBuffer(m_numPhotons);
 	std::vector<std::size_t> numPhotonPaths(getNumWorkers(), 0);
 	parallel_work(m_numPhotons, getNumWorkers(),
 		[this, &photonBuffer, &numPhotonPaths](
@@ -81,7 +85,7 @@ void PMRenderer::renderWithVanillaPM()
 		{
 			auto sampleGenerator = m_sg->genCopied(1);
 
-			TPhotonMappingWork<FullPhoton> photonMappingWork(
+			TPhotonMappingWork<Photon> photonMappingWork(
 				m_scene,
 				m_camera,
 				sampleGenerator.get(),
@@ -96,7 +100,7 @@ void PMRenderer::renderWithVanillaPM()
 
 	logger.log("building photon map...");
 
-	TPhotonMap<FullPhoton> photonMap(2, TPhotonCenterCalculator<FullPhoton>());
+	TPhotonMap<Photon> photonMap(2, TPhotonCenterCalculator<Photon>());
 	photonMap.build(std::move(photonBuffer));
 
 	logger.log("estimating radiance...");
@@ -133,11 +137,17 @@ void PMRenderer::renderWithVanillaPM()
 
 void PMRenderer::renderWithProgressivePM()
 {
+	using Photon    = FullPhoton;
+	using Viewpoint = FullViewpoint;
+
+	logger.log("photon size: " + std::to_string(sizeof(Photon)) + " bytes");
+	logger.log("viewpoint size: " + std::to_string(sizeof(Viewpoint)) + " bytes");
+
 	logger.log("start gathering viewpoints...");
 
-	std::vector<FullViewpoint> viewpoints;
+	std::vector<Viewpoint> viewpoints;
 	{
-		using ViewpointCollector = TPPMViewpointCollector<FullViewpoint>;
+		using ViewpointCollector = TPPMViewpointCollector<Viewpoint>;
 		ViewpointCollector viewpointCollector(6, m_kernelRadius);
 
 		auto viewpointSampleGenerator = m_sg->genCopied(m_numSamplesPerPixel);
@@ -155,13 +165,13 @@ void PMRenderer::renderWithProgressivePM()
 	}
 	
 	logger.log("size of viewpoint buffer: " + 
-		std::to_string(math::byte_to_MB<real>(sizeof(FullViewpoint) * viewpoints.size())) + " MB");
+		std::to_string(math::byte_to_MB<real>(sizeof(Viewpoint) * viewpoints.size())) + " MB");
 
 	const std::size_t numPhotonsPerPass = m_numPhotons;
 
 	logger.log("number of photons per pass: " + std::to_string(numPhotonsPerPass));
 	logger.log("size of photon buffer: " 
-		+ std::to_string(math::byte_to_MB<real>(sizeof(FullPhoton) * numPhotonsPerPass)) + " MB");
+		+ std::to_string(math::byte_to_MB<real>(sizeof(Photon) * numPhotonsPerPass)) + " MB");
 	logger.log("start accumulating passes...");
 
 	std::mutex resultFilmMutex;
@@ -174,7 +184,7 @@ void PMRenderer::renderWithProgressivePM()
 	while(numFinishedPasses < m_numPasses)
 	{
 		passTimer.start();
-		std::vector<FullPhoton> photonBuffer(numPhotonsPerPass);
+		std::vector<Photon> photonBuffer(numPhotonsPerPass);
 
 		std::vector<std::size_t> numPhotonPaths(getNumWorkers(), 0);
 		parallel_work(numPhotonsPerPass, getNumWorkers(),
@@ -185,7 +195,7 @@ void PMRenderer::renderWithProgressivePM()
 			{
 				auto sampleGenerator = m_sg->genCopied(1);
 
-				TPhotonMappingWork<FullPhoton> photonMappingWork(
+				TPhotonMappingWork<Photon> photonMappingWork(
 					m_scene,
 					m_camera,
 					sampleGenerator.get(),
@@ -198,7 +208,7 @@ void PMRenderer::renderWithProgressivePM()
 			});
 		totalPhotonPaths = std::accumulate(numPhotonPaths.begin(), numPhotonPaths.end(), totalPhotonPaths);
 
-		TPhotonMap<FullPhoton> photonMap(2, TPhotonCenterCalculator<FullPhoton>());
+		TPhotonMap<Photon> photonMap(2, TPhotonCenterCalculator<Photon>());
 		photonMap.build(std::move(photonBuffer));
 
 		parallel_work(viewpoints.size(), getNumWorkers(),
