@@ -43,6 +43,7 @@ void IdealReflector::calcBsdfSample(
 	const real NoL = N.dot(out.L);
 	m_fresnel->calcReflectance(NoL, &(out.pdfAppliedBsdf));
 	out.pdfAppliedBsdf.mulLocal(1.0_r / std::abs(NoL));
+	out.setValidity(true);
 }
 
 void IdealReflector::calcBsdfSamplePdfW(

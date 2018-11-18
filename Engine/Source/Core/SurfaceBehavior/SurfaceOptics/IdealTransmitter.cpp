@@ -38,7 +38,7 @@ void IdealTransmitter::calcBsdfSample(
 	Vector3R& L = out.L;
 	if(!m_fresnel->calcRefractDir(in.V, N, &L))
 	{
-		out.pdfAppliedBsdf.setValues(0.0_r);
+		out.setValidity(false);
 		return;
 	}
 
@@ -60,6 +60,7 @@ void IdealTransmitter::calcBsdfSample(
 	}
 	
 	out.pdfAppliedBsdf.setValues(F.mul(transportFactor / std::abs(cosI)));
+	out.setValidity(true);
 }
 
 void IdealTransmitter::calcBsdfSamplePdfW(

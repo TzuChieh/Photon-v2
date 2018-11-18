@@ -151,6 +151,7 @@ void LbLayeredSurface::calcBsdfSample(
 
 	if(!sidedness.isSameHemisphere(in.X, L, in.V))
 	{
+		out.setValidity(false);
 		return;
 	}
 
@@ -160,6 +161,7 @@ void LbLayeredSurface::calcBsdfSample(
 	const real HoL = H.dot(L);
 	if(HoL == 0.0_r)
 	{
+		out.setValidity(false);
 		return;
 	}
 
@@ -175,6 +177,7 @@ void LbLayeredSurface::calcBsdfSample(
 
 	if(pdf == 0.0_r)
 	{
+		out.setValidity(false);
 		return;
 	}
 
@@ -183,6 +186,7 @@ void LbLayeredSurface::calcBsdfSample(
 	// FIXME: we already complete adding-doubling, reuse the computed results
 	LbLayeredSurface::calcBsdf(eval.inputs, eval.outputs, sidedness);
 	out.pdfAppliedBsdf = eval.outputs.bsdf / pdf;
+	out.setValidity(true);
 }
 
 void LbLayeredSurface::calcBsdfSamplePdfW(

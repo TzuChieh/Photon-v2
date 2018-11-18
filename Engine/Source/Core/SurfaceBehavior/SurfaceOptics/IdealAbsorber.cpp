@@ -31,6 +31,7 @@ void IdealAbsorber::calcBsdfSample(
 	const SidednessAgreement& sidedness) const
 {
 	out.pdfAppliedBsdf.setValues(0.0_r);
+	out.setValidity(true);
 }
 
 void IdealAbsorber::calcBsdfSamplePdfW(

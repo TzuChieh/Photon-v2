@@ -154,6 +154,9 @@ void LerpedSurfaceOptics::calcBsdfSample(
 			out.pdfAppliedBsdf = bsdf / pdfW;
 			out.L = sample1.L;
 		}
+
+		// FIXME: should check individual optics has valid sample
+		out.setValidity(true);
 	}
 	else
 	{

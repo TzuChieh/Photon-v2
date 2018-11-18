@@ -43,7 +43,7 @@ void IdealDielectric::calcBsdfSample(
 
 	if(!canReflect && !canTransmit)
 	{
-		out.pdfAppliedBsdf.setValues(0);
+		out.setValidity(false);
 		return;
 	}
 
@@ -78,7 +78,7 @@ void IdealDielectric::calcBsdfSample(
 		out.L = in.V.mul(-1.0_r).reflect(N).normalizeLocal();
 		if(!sidedness.isSameHemisphere(in.X, in.V, out.L))
 		{
-			out.pdfAppliedBsdf.setValues(0);
+			out.setValidity(false);
 			return;
 		}
 
@@ -92,7 +92,7 @@ void IdealDielectric::calcBsdfSample(
 	{
 		if(!sidedness.isOppositeHemisphere(in.X, in.V, out.L))
 		{
-			out.pdfAppliedBsdf.setValues(0);
+			out.setValidity(false);
 			return;
 		}
 
@@ -119,11 +119,12 @@ void IdealDielectric::calcBsdfSample(
 	else
 	{
 		// RARE: may be called due to numerical error
-		out.pdfAppliedBsdf.setValues(0);
+		out.setValidity(false);
 		return;
 	}
 
 	out.pdfAppliedBsdf.setValues(F / N.absDot(out.L));
+	out.setValidity(true);
 }
 
 void IdealDielectric::calcBsdfSamplePdfW(

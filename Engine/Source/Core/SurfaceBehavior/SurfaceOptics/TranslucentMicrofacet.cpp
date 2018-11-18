@@ -137,7 +137,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 
 	if(!canReflect && !canTransmit)
 	{
-		out.pdfAppliedBsdf.setValues(0);
+		out.setValidity(false);
 		return;
 	}
 
@@ -179,7 +179,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 		out.L = in.V.mul(-1.0_r).reflect(H).normalizeLocal();
 		if(!sidedness.isSameHemisphere(in.X, in.V, out.L))
 		{
-			out.pdfAppliedBsdf.setValues(0);
+			out.setValidity(false);
 			return;
 		}
 
@@ -193,7 +193,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 	{
 		if(!sidedness.isOppositeHemisphere(in.X, in.V, out.L))
 		{
-			out.pdfAppliedBsdf.setValues(0);
+			out.setValidity(false);
 			return;
 		}
 
@@ -219,7 +219,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 	else
 	{
 		// RARE: may be called due to numerical error
-		out.pdfAppliedBsdf.setValues(0);
+		out.setValidity(false);
 		return;
 	}
 
@@ -233,6 +233,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 	const real G        = m_microfacet->shadowing(in.X, N, H, L, in.V);
 	const real dotTerms = std::abs(HoV / (NoV * NoL * NoH));
 	out.pdfAppliedBsdf.setValues(F.mul(G * dotTerms));
+	out.setValidity(true);
 }
 
 void TranslucentMicrofacet::calcBsdfSamplePdfW(

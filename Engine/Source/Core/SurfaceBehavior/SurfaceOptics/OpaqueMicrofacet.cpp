@@ -111,6 +111,7 @@ void OpaqueMicrofacet::calcBsdfSample(
 	
 	const real multiplier = std::abs(HoL / (NoV * NoL * NoH));
 	out.pdfAppliedBsdf.setValues(F.mul(G).mulLocal(multiplier));
+	out.setValidity(true);
 }
 
 void OpaqueMicrofacet::calcBsdfSamplePdfW(

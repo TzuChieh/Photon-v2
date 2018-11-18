@@ -37,7 +37,18 @@ public:
 	Vector3R         L;
 	SpectralStrength pdfAppliedBsdf;
 
+	// Returns the validity of this sample. A valid sample means the sampling
+	// process succeeded. Usable sample data can be expected.
+	bool isValid() const;
+
+	// For a sample to be good, it should not only be valid but also has a 
+	// sample weight with finite value.
 	bool isGood() const;
+
+	void setValidity(bool isValid);
+
+private:
+	bool m_isValid{false};
 };
 
 class BsdfSample final
@@ -71,11 +82,19 @@ inline void BsdfSampleInput::set(
 	this->transported = transported;
 }
 
-// FIXME: is good should check if PDF = 0 or something equivalent (e.g., a bool);
-// once this is properly implemented, pdfAppliedBsdf = 0 can still be good
+inline bool BsdfSampleOutput::isValid() const
+{
+	return m_isValid;
+}
+
 inline bool BsdfSampleOutput::isGood() const
 {
-	return pdfAppliedBsdf.isFinite();
+	return m_isValid && pdfAppliedBsdf.isFinite();
+}
+
+inline void BsdfSampleOutput::setValidity(const bool isValid)
+{
+	m_isValid = isValid;
 }
 
 }// end namespace ph
