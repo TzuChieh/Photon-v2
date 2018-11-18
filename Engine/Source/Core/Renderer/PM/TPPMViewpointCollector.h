@@ -131,45 +131,10 @@ inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
 		ESurfacePhenomenon::DELTA_REFLECTION,
 		ESurfacePhenomenon::DELTA_TRANSMISSION}))
 	{
-		SurfaceElemental numDeltaElementals = 0;
-		for(SurfaceElemental i = 0; i < optics->numElementals(); ++i)
-		{
-			const ESurfacePhenomenon phenomenon = optics->getPhenomenonOf(i);
-			if(phenomenon == ESurfacePhenomenon::DELTA_REFLECTION || 
-			   phenomenon == ESurfacePhenomenon::DELTA_TRANSMISSION)
-			{
-				++numDeltaElementals;
-			}
-		}
-		PH_ASSERT_GE(numDeltaElementals, 1);
-
-		const SurfaceElemental selectedNthElemental =
-			static_cast<SurfaceElemental>(Random::genUniformIndex_iL_eU(0, static_cast<std::size_t>(numDeltaElementals)));
-
-		SurfaceElemental selectedElemental = ALL_ELEMENTALS;
-		for(SurfaceElemental i = 0, n = 0; i < optics->numElementals(); ++i)
-		{
-			PH_ASSERT_LE(i, n);
-
-			const ESurfacePhenomenon phenomenon = optics->getPhenomenonOf(i);
-			if(phenomenon == ESurfacePhenomenon::DELTA_REFLECTION || 
-			   phenomenon == ESurfacePhenomenon::DELTA_TRANSMISSION)
-			{
-				if(n == selectedNthElemental)
-				{
-					selectedElemental = i;
-					break;
-				}
-				else
-				{
-					++n;
-				}
-			}
-		}
-		PH_ASSERT_NE(selectedElemental, ALL_ELEMENTALS);
-
 		return ViewPathTracingPolicy().
-			traceSinglePathFor(selectedElemental).
+			traceBranchedPathFor(SurfacePhenomena({
+				ESurfacePhenomenon::DELTA_REFLECTION,
+				ESurfacePhenomenon::DELTA_TRANSMISSION})).
 			useRussianRoulette(false);
 	}
 	else
