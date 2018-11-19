@@ -20,6 +20,7 @@ Project Website: https://tzuchieh.github.io/
   * Backward Path Tracing with Next Event Estimation
   * Photon Mapping
   * Progressive Photon Mapping
+  * Stochastic Progressive Photon Mapping
   * ~~light/particle tracing~~
   * ~~backward light tracing (next event estimation)~~
   * RGB and Spectral Rendering

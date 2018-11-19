@@ -5,6 +5,7 @@
 #include "Core/Filmic/SampleFilter.h"
 #include "Core/Renderer/Sampling/SamplingRenderWork.h"
 #include "Core/Renderer/Sampling/SamplingFilmSet.h"
+#include "Core/Renderer/Region/PlateScheduler.h"
 
 #include <vector>
 #include <memory>
@@ -46,6 +47,7 @@ private:
 	std::unique_ptr<Estimator> m_estimator;
 	SampleFilter          m_filter;
 	std::vector<SamplingRenderWork> m_works;
+	std::unique_ptr<WorkScheduler> m_workScheduler;
 
 	// TODO: use ERegionStatus instead of bool
 	std::deque<std::pair<Region, bool>>                 m_updatedRegions;

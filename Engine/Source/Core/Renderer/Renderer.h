@@ -13,7 +13,6 @@
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Core/Renderer/RenderState.h"
 #include "Core/Renderer/Region/Region.h"
-#include "Core/Renderer/Region/RegionScheduler.h"
 #include "Common/assertion.h"
 #include "Utility/Timer.h"
 
@@ -65,11 +64,10 @@ public:
 	void render();
 	void setNumWorkers(uint32 numWorkers);
 
-	uint32           getNumWorkers()       const;
-	uint32           getRenderWidthPx()    const;
-	uint32           getRenderHeightPx()   const;
-	TAABB2D<int64>   getRenderWindowPx()   const;
-	RegionScheduler* getRegionScheduler()  const;
+	uint32           getNumWorkers()     const;
+	uint32           getRenderWidthPx()  const;
+	uint32           getRenderHeightPx() const;
+	TAABB2D<int64>   getRenderWindowPx() const;
 
 	bool asyncIsUpdating() const;
 	bool asyncIsRendering() const;
@@ -81,7 +79,6 @@ private:
 	TAABB2D<int64> m_windowPx;
 
 	std::vector<RenderWorker> m_workers;
-	std::unique_ptr<RegionScheduler> m_regionScheduler;
 
 	std::atomic_bool m_isUpdating;
 	std::atomic_bool m_isRendering;
@@ -114,13 +111,6 @@ inline uint32 Renderer::getRenderHeightPx() const
 inline TAABB2D<int64> Renderer::getRenderWindowPx() const
 {
 	return m_windowPx;
-}
-
-inline RegionScheduler* Renderer::getRegionScheduler() const
-{
-	PH_ASSERT(m_regionScheduler);
-
-	return m_regionScheduler.get();
 }
 
 inline bool Renderer::asyncIsUpdating() const

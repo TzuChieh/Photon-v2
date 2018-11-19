@@ -51,22 +51,23 @@ void SamplingRenderer::doUpdate(const SdlResourcePack& data)
 
 	m_works.resize(getNumWorkers());
 
-	RegionScheduler* scheduler = getRegionScheduler();
-	scheduler->setNumWorkers(getNumWorkers());
+	//WorkScheduler* scheduler = getWorkScheduler();
+	/*scheduler->setNumWorkers(getNumWorkers());
 	scheduler->setFullRegion(getRenderWindowPx());
 	scheduler->setSppBudget(m_sg->numSampleBatches());
-	scheduler->init();
+	scheduler->init();*/
+
+	m_workScheduler = std::make_unique<PlateScheduler>(getNumWorkers(), WorkVolume(TAABB2D<std::size_t>(getRenderWindowPx()), m_sg->numSampleBatches()));
 
 	for(std::size_t i = 0; i < getNumWorkers(); ++i)
 	{
-		RegionScheduler* scheduler = getRegionScheduler();
-
-		Region region;
-		uint64 spp;
-		if(!scheduler->scheduleRegion(&region, &spp))
+		WorkVolume workVolume;
+		if(!m_workScheduler->schedule(&workVolume))
 		{
 			break;
 		}
+
+		const std::size_t spp = workVolume.getWorkDepth();
 
 		SamplingRenderWork work(
 			this,
@@ -300,6 +301,12 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 	{
 		m_requestedAttributes.tag(EAttribute::NORMAL);
 	}
+
+	/*const std::string regionSchedulerName = packet.getString("region-scheduler", "bulk");
+	if(regionSchedulerName == "bulk")
+	{
+		m_workScheduler = std::make_unique<PlateScheduler>();
+	}*/
 
 	PH_ASSERT(m_estimator);
 }
