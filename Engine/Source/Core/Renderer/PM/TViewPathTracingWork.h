@@ -30,7 +30,8 @@ public:
 		const Scene* scene,
 		const Camera* camera,
 		SampleGenerator* sampleGenerator,
-		const Region& filmRegion);
+		const Region& filmRegion,
+		const TVector2<int64>& filmSize);
 
 private:
 	void doWork() override;
@@ -41,6 +42,7 @@ private:
 	const Camera*    m_camera;
 	SampleGenerator* m_sampleGenerator;
 	Region m_filmRegion;
+	TVector2<int64> m_filmSize;
 
 	void traceViewPath(
 		Ray tracingRay, 

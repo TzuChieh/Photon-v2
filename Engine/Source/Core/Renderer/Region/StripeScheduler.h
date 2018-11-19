@@ -14,6 +14,9 @@ public:
 	StripeScheduler(std::size_t numWorkers, const WorkVolume& totalWorkVolume);
 
 private:
+	std::size_t m_remainingWidth;
+	std::size_t m_perWorkerWidth;
+
 	bool scheduleOne(WorkVolume* out_workVolume) override;
 };
 
@@ -25,18 +28,22 @@ inline StripeScheduler::StripeScheduler() :
 
 inline StripeScheduler::StripeScheduler(const std::size_t numWorkers, const WorkVolume& totalWorkVolume) :
 	WorkScheduler(numWorkers, totalWorkVolume)
-{}
+{
+	m_remainingWidth = std::max(totalWorkVolume.getWorkArea().getWidth(), 
+	                            totalWorkVolume.getWorkArea().getHeight());
+	m_perWorkerWidth = std::max(m_remainingWidth / numWorkers, std::size_t(1));
+}
 
 inline bool StripeScheduler::scheduleOne(WorkVolume* const out_workVolume)
 {
-	if(m_remainingDepth == 0)
+	/*if(m_remainingWidth == 0)
 	{
 		return false;
 	}
 
-	const std::size_t depthPerWorker = std::max(m_totalWorkVolume.getWorkDepth() / m_numWorkers, std::size_t(1));
-	if(m_remainingDepth >= depthPerWorker)
+	if(m_remainingWidth >= m_perWorkerWidth)
 	{
+		TAABB2D<std::size_t> min = m_totalWorkVolume.getWorkArea().maxVertex;
 		*out_workVolume = WorkVolume(m_totalWorkVolume.getWorkArea(), depthPerWorker);
 		m_remainingDepth -= depthPerWorker;
 		return true;
@@ -46,7 +53,9 @@ inline bool StripeScheduler::scheduleOne(WorkVolume* const out_workVolume)
 		*out_workVolume = WorkVolume(m_totalWorkVolume.getWorkArea(), m_remainingDepth);
 		m_remainingDepth = 0;
 		return true;
-	}
+	}*/
+
+	return false;
 }
 
 }// end namespace ph

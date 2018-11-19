@@ -130,7 +130,8 @@ void PMRenderer::renderWithVanillaPM()
 				m_scene,
 				m_camera,
 				sampleGenerator.get(),
-				getRenderWindowPx());
+				getRenderWindowPx(),
+				{getRenderWidthPx(), getRenderHeightPx()});
 
 			radianceEvaluator.work();
 		});
@@ -158,7 +159,8 @@ void PMRenderer::renderWithProgressivePM()
 			m_scene, 
 			m_camera, 
 			viewpointSampleGenerator.get(),
-			getRenderWindowPx());
+			getRenderWindowPx(),
+			{getRenderWidthPx(), getRenderHeightPx()});
 
 		viewpointWork.work();
 
@@ -332,14 +334,16 @@ void PMRenderer::renderWithStochasticProgressivePM()
 		TPhotonMap<Photon> photonMap(2, TPhotonCenterCalculator<Photon>());
 		photonMap.build(std::move(photonBuffer));
 
-		parallel_work(viewpoints.size(), getNumWorkers(),
+		parallel_work(getRenderWidthPx(), getNumWorkers(),
 			[this, &photonMap, &viewpoints, &resultFilm, &resultFilmMutex, totalPhotonPaths, numFinishedPasses](
 				const std::size_t workerIdx, 
 				const std::size_t workStart, 
 				const std::size_t workEnd)
 			{
-				auto film = std::make_unique<HdrRgbFilm>(
-					getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
+				Region region = getRenderWindowPx();
+				region.minVertex.x = workStart;
+				region.maxVertex.x = workEnd;
+
 				auto sampleGenerator = m_sg->genCopied(1);
 
 				using RadianceEvaluator = TSPPMRadianceEvaluator<Viewpoint, Photon>;
@@ -350,7 +354,8 @@ void PMRenderer::renderWithStochasticProgressivePM()
 					&photonMap,
 					totalPhotonPaths,
 					m_scene,
-					film.get(),
+					resultFilm.get(),
+					region,
 					numFinishedPasses + 1,
 					6);
 
@@ -359,11 +364,11 @@ void PMRenderer::renderWithStochasticProgressivePM()
 					m_scene,
 					m_camera,
 					sampleGenerator.get(),
-					getRenderWindowPx());
+					region,
+					{getRenderWidthPx(), getRenderHeightPx()});
 
 				viewpointWork.work();
 			});
-
 
 		// evaluate radiance using current iteration's data
 		for(std::size_t y = 0; y < getRenderHeightPx(); ++y)
@@ -381,7 +386,6 @@ void PMRenderer::renderWithStochasticProgressivePM()
 				resultFilm->setPixel(static_cast<float64>(x), static_cast<float64>(y), radiance);
 			}
 		}
-
 		asyncReplaceFilm(*resultFilm);
 		resultFilm->clear();
 

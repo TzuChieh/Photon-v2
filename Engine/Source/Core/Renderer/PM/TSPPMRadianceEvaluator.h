@@ -17,6 +17,7 @@
 #include "Core/LTABuildingBlock/PtDirectLightEstimator.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Math/math.h"
+#include "Core/Renderer/Region/Region.h"
 
 #include <vector>
 #include <type_traits>
@@ -39,6 +40,7 @@ public:
 		std::size_t numPhotonPaths,
 		const Scene* scene,
 		HdrRgbFilm* film,
+		const Region& filmRegion,
 		std::size_t numSamplesPerPixel,
 		std::size_t maxViewpointDepth);
 
@@ -62,6 +64,7 @@ private:
 	std::size_t m_numPhotonPaths;
 	const Scene* m_scene;
 	HdrRgbFilm* m_film;
+	Region m_filmRegion;
 	std::size_t m_numSamplesPerPixel;
 	std::size_t m_maxViewpointDepth;
 
@@ -82,6 +85,7 @@ inline TSPPMRadianceEvaluator<Viewpoint, Photon>::TSPPMRadianceEvaluator(
 	std::size_t numPhotonPaths,
 	const Scene* scene,
 	HdrRgbFilm* film,
+	const Region& filmRegion,
 	std::size_t numSamplesPerPixel,
 	std::size_t maxViewpointDepth) :
 
@@ -91,6 +95,7 @@ inline TSPPMRadianceEvaluator<Viewpoint, Photon>::TSPPMRadianceEvaluator(
 	m_numPhotonPaths(numPhotonPaths),
 	m_scene(scene),
 	m_film(film),
+	m_filmRegion(filmRegion),
 	m_numSamplesPerPixel(numSamplesPerPixel),
 	m_maxViewpointDepth(maxViewpointDepth)
 {
@@ -107,10 +112,17 @@ inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleStart(
 	const Vector2R&         filmNdc,
 	const SpectralStrength& pathThroughput)
 {
+	// FIXME: sample res
+
 	const real fFilmXPx = filmNdc.x * static_cast<real>(m_film->getActualResPx().x);
 	const real fFilmYPx = filmNdc.y * static_cast<real>(m_film->getActualResPx().y);
-	m_filmPosPx.x = std::min(static_cast<std::size_t>(fFilmXPx), static_cast<std::size_t>(m_film->getActualResPx().x) - 1);
-	m_filmPosPx.y = std::min(static_cast<std::size_t>(fFilmYPx), static_cast<std::size_t>(m_film->getActualResPx().y) - 1);
+
+	m_filmPosPx.x = math::clamp(static_cast<std::size_t>(fFilmXPx), 
+		static_cast<std::size_t>(m_filmRegion.minVertex.x),
+		static_cast<std::size_t>(m_filmRegion.maxVertex.x - 1));
+	m_filmPosPx.y = math::clamp(static_cast<std::size_t>(fFilmYPx),
+		static_cast<std::size_t>(m_filmRegion.minVertex.y),
+		static_cast<std::size_t>(m_filmRegion.maxVertex.y - 1));
 
 	const std::size_t viewpointIdx = m_filmPosPx.y * static_cast<std::size_t>(m_film->getActualResPx().x) + m_filmPosPx.x;
 	PH_ASSERT_LT(viewpointIdx, m_numViewpoints);
@@ -214,6 +226,16 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleEnd()
 	m_viewpoint->set<EViewpointData::RADIUS>(newR);
 	m_viewpoint->set<EViewpointData::NUM_PHOTONS>(newN);
 	m_viewpoint->set<EViewpointData::TAU>(newTau);
+
+	// evaluate radiance using current iteration's data
+
+	/*const real r = m_viewpoint->get<EViewpointData::RADIUS>();
+	const real kernelArea = r * r * PH_PI_REAL;
+	const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(m_numPhotonPaths));
+
+	SpectralStrength radiance(m_viewpoint->get<EViewpointData::TAU>() * radianceMultiplier);
+	radiance.addLocal(m_viewpoint->get<EViewpointData::VIEW_RADIANCE>() / static_cast<real>(m_numSamplesPerPixel));
+	m_film->setPixel(static_cast<float64>(m_filmPosPx.x), static_cast<float64>(m_filmPosPx.y), radiance);*/
 }
 
 template<typename Viewpoint, typename Photon>

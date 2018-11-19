@@ -25,12 +25,14 @@ inline TViewPathTracingWork<ViewPathHandler>::TViewPathTracingWork(
 	const Scene* const scene,
 	const Camera* const camera,
 	SampleGenerator* sampleGenerator,
-	const Region& filmRegion) : 
+	const Region& filmRegion,
+	const TVector2<int64>& filmSize) :
 	m_handler(handler),
 	m_scene(scene),
 	m_camera(camera),
 	m_sampleGenerator(sampleGenerator),
-	m_filmRegion(filmRegion)
+	m_filmRegion(filmRegion),
+	m_filmSize(filmSize)
 {}
 
 template<typename ViewPathHandler>
@@ -38,13 +40,21 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 {
 	PH_ASSERT(m_handler);
 
-	const Samples2DStage filmStage = m_sampleGenerator->declare2DStage(m_filmRegion.calcArea());// FIXME: size hints
+	const Samples2DStage filmStage = m_sampleGenerator->declare2DStage(
+		m_filmRegion.calcArea(),
+		{static_cast<std::size_t>(m_filmRegion.getWidth()), static_cast<std::size_t>(m_filmRegion.getHeight())});
+
 	while(m_sampleGenerator->prepareSampleBatch())
 	{
 		const Samples2D samples = m_sampleGenerator->getSamples2D(filmStage);
 		for(std::size_t i = 0; i < samples.numSamples(); ++i)
 		{
-			const Vector2R filmNdc = samples[i];
+			const TAABB2D<real> fRegion(m_filmRegion);
+			const Vector2R regionSample{
+				fRegion.minVertex.x + fRegion.getWidth() * samples[i].x,
+				fRegion.minVertex.y + fRegion.getHeight() * samples[i].y};
+
+			const Vector2R filmNdc = regionSample.div(Vector2R(m_filmSize));
 
 			Ray tracingRay;
 			m_camera->genSensedRay(filmNdc, &tracingRay);
