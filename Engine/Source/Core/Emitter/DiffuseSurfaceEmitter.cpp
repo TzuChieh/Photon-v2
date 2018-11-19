@@ -12,7 +12,7 @@
 #include "Core/Quantity/SpectralStrength.h"
 #include "Common/assertion.h"
 #include "Core/Texture/SampleLocation.h"
-#include "Math/sampling.h"
+#include "Math/Mapping/UniformUnitHemisphere.h"
 
 #include <iostream>
 #include <algorithm>
@@ -90,8 +90,11 @@ void DiffuseSurfaceEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* 
 	PositionSample positionSample;
 	m_surface->genPositionSample(&positionSample);
 
-	Vector3R rayDir;
-	sampling::unit_hemisphere::uniform::gen(Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), &rayDir);
+	real pdfW;
+	Vector3R rayDir = UniformUnitHemisphere::map(
+		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()},
+		&pdfW);
+
 	Vector3R u;
 	Vector3R v(positionSample.normal);
 	Vector3R w;
@@ -107,7 +110,7 @@ void DiffuseSurfaceEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* 
 	out_ray->setMaxT(std::numeric_limits<real>::max());
 	out_eN->set(positionSample.normal);
 	*out_pdfA = positionSample.pdf;
-	*out_pdfW = 1 / (2 * PH_PI_REAL);
+	*out_pdfW = pdfW;
 	*out_Le = TSampler<SpectralStrength>(EQuantity::EMR).sample(*m_emittedRadiance, positionSample.uvw);
 }
 

@@ -10,9 +10,9 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/UvwMapper/UvwMapper.h"
 #include "Math/TMatrix2.h"
-#include "Math/sampling.h"
 #include "Math/Random.h"
 #include "Core/Sample/PositionSample.h"
+#include "Math/Mapping/UniformUnitSphere.h"
 
 #include <algorithm>
 #include <cmath>
@@ -235,8 +235,9 @@ void PSphere::genPositionSample(PositionSample* const out_sample) const
 {
 	PH_ASSERT(out_sample != nullptr && m_metadata != nullptr);
 
-	sampling::unit_sphere::uniform::gen(
-		Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), &out_sample->normal);
+	out_sample->normal = UniformUnitSphere::map(
+		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()});
+
 	out_sample->position = out_sample->normal.mul(m_radius);
 
 	// FIXME: able to specify mapper channel
@@ -244,6 +245,7 @@ void PSphere::genPositionSample(PositionSample* const out_sample) const
 	PH_ASSERT(mapper != nullptr);
 	mapper->positionToUvw(out_sample->position, &out_sample->uvw);
 
+	// FIXME: assumed uniform PDF
 	out_sample->pdf = this->PSphere::calcPositionSamplePdfA(out_sample->position);
 }
 

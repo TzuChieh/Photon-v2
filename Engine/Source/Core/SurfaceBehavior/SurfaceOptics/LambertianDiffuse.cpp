@@ -4,12 +4,12 @@
 #include "Math/Random.h"
 #include "Math/constant.h"
 #include "Actor/Material/MatteOpaque.h"
-#include "Math/sampling.h"
 #include "Math/math.h"
 #include "Core/Texture/TSampler.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Common/assertion.h"
 #include "Core/SidednessAgreement.h"
+#include "Math/Mapping/CosThetaWeightedUnitHemisphere.h"
 
 #include <cmath>
 
@@ -65,8 +65,10 @@ void LambertianDiffuse::calcBsdfSample(
 	PH_ASSERT(N.isFinite());
 
 	Vector3R& L = out.L;
-	sampling::unit_hemisphere::cosine_theta_weighted::gen(
-		Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), &L);
+
+	L = CosThetaWeightedUnitHemisphere::map(
+		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()});
+
 	Vector3R u;
 	Vector3R v(N);
 	Vector3R w;

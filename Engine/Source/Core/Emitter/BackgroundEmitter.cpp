@@ -9,7 +9,7 @@
 #include "Core/Intersectable/Primitive.h"
 #include "Math/constant.h"
 #include "Math/math.h"
-#include "Math/sampling.h"
+#include "Math/Mapping/UniformUnitDisk.h"
 
 #include <vector>
 
@@ -138,13 +138,11 @@ void BackgroundEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Ve
 	direction.mulLocal(-1);
 	*out_eN = direction;
 	
-	Vector2R diskPos;
 	real diskPdf;
-	sampling::unit_disk::uniform::gen(
-		Random::genUniformReal_i0_e1(),
-		Random::genUniformReal_i0_e1(),
-		&diskPos,
+	Vector2R diskPos = UniformUnitDisk::map(
+		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()}, 
 		&diskPdf);
+
 	*out_pdfA = diskPdf / (m_sceneBoundRadius * m_sceneBoundRadius);
 
 	Vector3R xAxis, zAxis;
