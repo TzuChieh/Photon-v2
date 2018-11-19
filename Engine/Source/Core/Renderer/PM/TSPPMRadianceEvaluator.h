@@ -71,6 +71,7 @@ private:
 	Viewpoint* m_viewpoint;
 	std::vector<Photon> m_photonCache;
 	Vector2S m_filmPosPx;
+	bool m_isViewpointFound;
 
 	void addViewRadiance(const SpectralStrength& radiance);
 };
@@ -128,9 +129,7 @@ inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleStart(
 	PH_ASSERT_LT(viewpointIdx, m_numViewpoints);
 	m_viewpoint = &(m_viewpoints[viewpointIdx]);
 	
-	if constexpr(Viewpoint::template has<EViewpointData::VIEW_THROUGHPUT>()) {
-		m_viewpoint->template set<EViewpointData::VIEW_THROUGHPUT>(SpectralStrength(0));
-	}
+	m_isViewpointFound = false;
 
 	return true;
 }
@@ -168,6 +167,8 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 			m_viewpoint->template set<EViewpointData::VIEW_DIR>(surfaceHit.getIncidentRay().getDirection().mul(-1));
 		}
 
+		m_isViewpointFound = true;
+
 		return ViewPathTracingPolicy().kill();
 	}
 	else
@@ -181,6 +182,11 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 template<typename Viewpoint, typename Photon>
 inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleEnd()
 {
+	if(!m_isViewpointFound)
+	{
+		return;
+	}
+
 	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
 
 	const SurfaceHit& surfaceHit = m_viewpoint->get<EViewpointData::SURFACE_HIT>();
@@ -226,16 +232,6 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleEnd()
 	m_viewpoint->set<EViewpointData::RADIUS>(newR);
 	m_viewpoint->set<EViewpointData::NUM_PHOTONS>(newN);
 	m_viewpoint->set<EViewpointData::TAU>(newTau);
-
-	// evaluate radiance using current iteration's data
-
-	/*const real r = m_viewpoint->get<EViewpointData::RADIUS>();
-	const real kernelArea = r * r * PH_PI_REAL;
-	const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(m_numPhotonPaths));
-
-	SpectralStrength radiance(m_viewpoint->get<EViewpointData::TAU>() * radianceMultiplier);
-	radiance.addLocal(m_viewpoint->get<EViewpointData::VIEW_RADIANCE>() / static_cast<real>(m_numSamplesPerPixel));
-	m_film->setPixel(static_cast<float64>(m_filmPosPx.x), static_cast<float64>(m_filmPosPx.y), radiance);*/
 }
 
 template<typename Viewpoint, typename Photon>
