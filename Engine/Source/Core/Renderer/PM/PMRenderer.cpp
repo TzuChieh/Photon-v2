@@ -268,7 +268,7 @@ void PMRenderer::renderWithStochasticProgressivePM()
 	{
 		for(std::size_t x = 0; x < getRenderWidthPx(); ++x)
 		{
-			auto& viewpoint = viewpoints[y * getRenderHeightPx() + x];
+			auto& viewpoint = viewpoints[y * getRenderWidthPx() + x];
 
 			if constexpr(Viewpoint::template has<EViewpointData::RADIUS>()) {
 				viewpoint.template set<EViewpointData::RADIUS>(m_kernelRadius);
@@ -333,35 +333,54 @@ void PMRenderer::renderWithStochasticProgressivePM()
 		photonMap.build(std::move(photonBuffer));
 
 		parallel_work(viewpoints.size(), getNumWorkers(),
-			[this, &photonMap, &viewpoints, &resultFilm, &resultFilmMutex, totalPhotonPaths](
+			[this, &photonMap, &viewpoints, &resultFilm, &resultFilmMutex, totalPhotonPaths, numFinishedPasses](
 				const std::size_t workerIdx, 
 				const std::size_t workStart, 
 				const std::size_t workEnd)
 			{
 				auto film = std::make_unique<HdrRgbFilm>(
 					getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
+				auto sampleGenerator = m_sg->genCopied(1);
 
 				using RadianceEvaluator = TSPPMRadianceEvaluator<Viewpoint, Photon>;
 
-				
-
-				/*PPMRadianceEvaluationWork radianceEstimator(
-					&photonMap, 
+				RadianceEvaluator radianceEvaluator(
+					viewpoints.data(),
+					viewpoints.size(),
+					&photonMap,
 					totalPhotonPaths,
+					m_scene,
 					film.get(),
-					&(viewpoints[workStart]),
-					workEnd - workStart,
-					m_scene);
-				radianceEstimator.setPMStatistics(&m_statistics);
+					numFinishedPasses + 1,
+					6);
 
-				radianceEstimator.work();
+				TViewPathTracingWork<RadianceEvaluator> viewpointWork(
+					&radianceEvaluator,
+					m_scene,
+					m_camera,
+					sampleGenerator.get(),
+					getRenderWindowPx());
 
-				{
-					std::lock_guard<std::mutex> lock(resultFilmMutex);
-
-					resultFilm->mergeWith(*film);
-				}*/
+				viewpointWork.work();
 			});
+
+
+		// evaluate radiance using current iteration's data
+		for(std::size_t y = 0; y < getRenderHeightPx(); ++y)
+		{
+			for(std::size_t x = 0; x < getRenderWidthPx(); ++x)
+			{
+				const auto& viewpoint = viewpoints[y * getRenderWidthPx() + x];
+
+				const real r = viewpoint.get<EViewpointData::RADIUS>();
+				const real kernelArea = r * r * PH_PI_REAL;
+				const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(totalPhotonPaths));
+
+				SpectralStrength radiance(viewpoint.get<EViewpointData::TAU>() * radianceMultiplier);
+				radiance.addLocal(viewpoint.get<EViewpointData::VIEW_RADIANCE>() / static_cast<real>(numFinishedPasses + 1));
+				resultFilm->setPixel(static_cast<float64>(x), static_cast<float64>(y), radiance);
+			}
+		}
 
 		asyncReplaceFilm(*resultFilm);
 		resultFilm->clear();
