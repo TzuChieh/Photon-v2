@@ -49,8 +49,6 @@ void SamplingRenderer::doUpdate(const SdlResourcePack& data)
 	m_films.set<EAttribute::NORMAL>(std::make_unique<Vec3Film>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
 
-	m_works.resize(getNumWorkers());
-
 	//WorkScheduler* scheduler = getWorkScheduler();
 	/*scheduler->setNumWorkers(getNumWorkers());
 	scheduler->setFullRegion(getRenderWindowPx());
@@ -59,6 +57,7 @@ void SamplingRenderer::doUpdate(const SdlResourcePack& data)
 
 	m_workScheduler = std::make_unique<PlateScheduler>(getNumWorkers(), WorkVolume(TAABB2D<std::size_t>(getRenderWindowPx()), m_sg->numSampleBatches()));
 
+	m_works.clear();
 	for(std::size_t i = 0; i < getNumWorkers(); ++i)
 	{
 		WorkVolume workVolume;
@@ -77,20 +76,20 @@ void SamplingRenderer::doUpdate(const SdlResourcePack& data)
 			m_sg->genCopied(spp),
 			m_requestedAttributes);
 		work.setDomainPx(getRenderWindowPx());
-		m_works[i] = std::move(work);
+		m_works.push_back(std::move(work));
 	}
 }
 
 void SamplingRenderer::doRender()
 {
 	FixedSizeThreadPool workers(getNumWorkers());
-	for(std::size_t i = 0; i < getNumWorkers(); ++i)
+	for(auto& work : m_works)
 	{
 		//std::lock_guard<std::mutex> lock(m_rendererMutex);
 		
-		workers.queueWork([this, i]()
+		workers.queueWork([&work]()
 		{
-			m_works[i].work();
+			work.work();
 		});
 		
 		//float bestProgress, worstProgress;
