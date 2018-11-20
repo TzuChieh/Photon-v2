@@ -85,6 +85,12 @@ inline T TAABB2D<T>::getHeight() const
 }
 
 template<typename T>
+inline TVector2<T> TAABB2D<T>::getExtents() const
+{
+	return TVector2<T>(getWidth(), getHeight());
+}
+
+template<typename T>
 inline TVector2<T> TAABB2D<T>::calcCenter() const
 {
 	return TVector2<T>((minVertex.x + maxVertex.x) / 2, 

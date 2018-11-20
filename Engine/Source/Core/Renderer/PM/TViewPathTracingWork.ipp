@@ -15,6 +15,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
+#include "Math/Mapping/UniformRectangle.h"
 
 namespace ph
 {
@@ -44,17 +45,15 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 		m_filmRegion.calcArea(),
 		{static_cast<std::size_t>(m_filmRegion.getWidth()), static_cast<std::size_t>(m_filmRegion.getHeight())});
 
+	const TAABB2D<real> rRegion(m_filmRegion);
+	const Vector2R rFilmSize(m_filmSize);
+
 	while(m_sampleGenerator->prepareSampleBatch())
 	{
 		const Samples2D samples = m_sampleGenerator->getSamples2D(filmStage);
 		for(std::size_t i = 0; i < samples.numSamples(); ++i)
 		{
-			const TAABB2D<real> fRegion(m_filmRegion);
-			const Vector2R regionSample{
-				fRegion.minVertex.x + fRegion.getWidth() * samples[i].x,
-				fRegion.minVertex.y + fRegion.getHeight() * samples[i].y};
-
-			const Vector2R filmNdc = regionSample.div(Vector2R(m_filmSize));
+			const Vector2R& filmNdc = UniformRectangle::map(samples[i], rRegion).div(rFilmSize);
 
 			Ray tracingRay;
 			m_camera->genSensedRay(filmNdc, &tracingRay);

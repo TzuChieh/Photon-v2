@@ -370,22 +370,6 @@ void PMRenderer::renderWithStochasticProgressivePM()
 				viewpointWork.work();
 			});
 
-		// evaluate radiance using current iteration's data
-		for(std::size_t y = 0; y < getRenderHeightPx(); ++y)
-		{
-			for(std::size_t x = 0; x < getRenderWidthPx(); ++x)
-			{
-				const auto& viewpoint = viewpoints[y * getRenderWidthPx() + x];
-
-				const real r = viewpoint.get<EViewpointData::RADIUS>();
-				const real kernelArea = r * r * PH_PI_REAL;
-				const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(totalPhotonPaths));
-
-				SpectralStrength radiance(viewpoint.get<EViewpointData::TAU>() * radianceMultiplier);
-				radiance.addLocal(viewpoint.get<EViewpointData::VIEW_RADIANCE>() / static_cast<real>(numFinishedPasses + 1));
-				resultFilm->setPixel(static_cast<float64>(x), static_cast<float64>(y), radiance);
-			}
-		}
 		asyncReplaceFilm(*resultFilm);
 		resultFilm->clear();
 

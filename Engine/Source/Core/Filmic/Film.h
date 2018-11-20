@@ -21,7 +21,7 @@ public:
 		int64 actualWidthPx, int64 actualHeightPx,
 		const TAABB2D<int64>& effectiveWindowPx);
 
-	virtual ~Film() = 0;
+	virtual ~Film();
 
 	virtual void clear() = 0;
 

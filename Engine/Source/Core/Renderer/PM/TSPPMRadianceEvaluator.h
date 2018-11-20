@@ -189,11 +189,11 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleEnd()
 
 	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
 
-	const SurfaceHit& surfaceHit = m_viewpoint->get<EViewpointData::SURFACE_HIT>();
-	const Vector3R    L          = m_viewpoint->get<EViewpointData::VIEW_DIR>();
+	const SurfaceHit& surfaceHit = m_viewpoint->template get<EViewpointData::SURFACE_HIT>();
+	const Vector3R    L          = m_viewpoint->template get<EViewpointData::VIEW_DIR>();
 	const Vector3R    Ng         = surfaceHit.getGeometryNormal();
 	const Vector3R    Ns         = surfaceHit.getShadingNormal();
-	const real        R          = m_viewpoint->get<EViewpointData::RADIUS>();
+	const real        R          = m_viewpoint->template get<EViewpointData::RADIUS>();
 
 	m_photonCache.clear();
 	m_photonMap->findWithinRange(surfaceHit.getPosition(), R, m_photonCache);
@@ -201,7 +201,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleEnd()
 	// FIXME: as a parameter
 	const real alpha = 2.0_r / 3.0_r;
 
-	const real N    = m_viewpoint->get<EViewpointData::NUM_PHOTONS>();
+	const real N    = m_viewpoint->template get<EViewpointData::NUM_PHOTONS>();
 	const real M    = static_cast<real>(m_photonCache.size());
 	const real newN = N + alpha * M;
 	const real newR = (N + M) != 0.0_r ? R * std::sqrt(newN / (N + M)) : R;
@@ -210,7 +210,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleEnd()
 	BsdfEvaluation   bsdfEval;
 	for(const auto& photon : m_photonCache)
 	{
-		const Vector3R V = photon.get<EPhotonData::FROM_DIR>();
+		const Vector3R V = photon.template get<EPhotonData::FROM_DIR>();
 
 		bsdfEval.inputs.set(surfaceHit, L, V, ALL_ELEMENTALS, ETransport::IMPORTANCE);
 		if(!surfaceEvent.doBsdfEvaluation(surfaceHit, bsdfEval))
@@ -218,25 +218,42 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleEnd()
 			continue;
 		}
 
-		SpectralStrength tau = photon.get<EPhotonData::THROUGHPUT_RADIANCE>();
+		SpectralStrength tau = photon.template get<EPhotonData::THROUGHPUT_RADIANCE>();
 		tau.mulLocal(bsdfEval.outputs.bsdf);
 		tau.mulLocal(lta::importance_BSDF_Ns_corrector(Ns, Ng, L, V));
 
 		tauM.addLocal(tau);
 	}
-	tauM.mulLocal(m_viewpoint->get<EViewpointData::VIEW_THROUGHPUT>());
+	tauM.mulLocal(m_viewpoint->template get<EViewpointData::VIEW_THROUGHPUT>());
 
 	const SpectralStrength tauN   = m_viewpoint->get<EViewpointData::TAU>();
 	const SpectralStrength newTau = (N + M) != 0.0_r ? (tauN + tauM) * (newN / (N + M)) : SpectralStrength(0);
 
-	m_viewpoint->set<EViewpointData::RADIUS>(newR);
-	m_viewpoint->set<EViewpointData::NUM_PHOTONS>(newN);
-	m_viewpoint->set<EViewpointData::TAU>(newTau);
+	m_viewpoint->template set<EViewpointData::RADIUS>(newR);
+	m_viewpoint->template set<EViewpointData::NUM_PHOTONS>(newN);
+	m_viewpoint->template set<EViewpointData::TAU>(newTau);
 }
 
 template<typename Viewpoint, typename Photon>
 inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onSampleBatchFinished()
-{}
+{
+	// evaluate radiance using current iteration's data
+	for(int64 y = m_filmRegion.minVertex.y; y < m_filmRegion.maxVertex.y; ++y)
+	{
+		for(int64 x = m_filmRegion.minVertex.x; x < m_filmRegion.maxVertex.x; ++x)
+		{
+			const auto& viewpoint = m_viewpoints[y * m_film->getActualResPx().x + x];
+
+			const real radius             = viewpoint.template get<EViewpointData::RADIUS>();
+			const real kernelArea         = radius * radius * PH_PI_REAL;
+			const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(m_numPhotonPaths));
+
+			SpectralStrength radiance(viewpoint.template get<EViewpointData::TAU>() * radianceMultiplier);
+			radiance.addLocal(viewpoint.template get<EViewpointData::VIEW_RADIANCE>() / static_cast<real>(m_numSamplesPerPixel));
+			m_film->setPixel(static_cast<float64>(x), static_cast<float64>(y), radiance);
+		}
+	}
+}
 
 template<typename Viewpoint, typename Photon>
 inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::addViewRadiance(const SpectralStrength& radiance)
