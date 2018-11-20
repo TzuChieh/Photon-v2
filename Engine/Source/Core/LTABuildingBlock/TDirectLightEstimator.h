@@ -3,6 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
 #include "Core/Quantity/SpectralStrength.h"
+#include "Core/LTABuildingBlock/SidednessAgreement.h"
 
 namespace ph
 {
@@ -11,22 +12,28 @@ class Scene;
 class SurfaceHit;
 class Time;
 
-class PtDirectLightEstimator final
+template<ESaPolicy POLICY>
+class TDirectLightEstimator
 {
 public:
-	static bool sample(
-		const Scene&      scene, 
+	explicit TDirectLightEstimator(const Scene* scene);
+
+	bool sample(
 		const SurfaceHit& X,
 		const Time&       time,
 		Vector3R*         out_L,
 		real*             out_pdfW,
 		SpectralStrength* out_emittedRadiance);
 
-	static real sampleUnoccludedPdfW(
-		const Scene&      scene, 
+	real samplePdfWUnoccluded(
 		const SurfaceHit& X,
 		const SurfaceHit& Xe,
 		const Time&       time);
+
+private:
+	const Scene* m_scene;
 };
 
 }// end namespace ph
+
+#include "Core/LTABuildingBlock/TDirectLightEstimator.ipp"

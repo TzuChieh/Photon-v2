@@ -14,7 +14,6 @@
 #include "Math/Random.h"
 #include "World/Scene.h"
 #include "Core/Filmic/HdrRgbFilm.h"
-#include "Core/LTABuildingBlock/PtDirectLightEstimator.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Math/math.h"
 #include "Core/Renderer/Region/Region.h"

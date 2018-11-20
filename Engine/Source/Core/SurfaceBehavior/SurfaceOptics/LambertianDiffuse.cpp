@@ -8,7 +8,7 @@
 #include "Core/Texture/TSampler.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Common/assertion.h"
-#include "Core/SidednessAgreement.h"
+#include "Core/LTABuildingBlock/SidednessAgreement.h"
 #include "Math/Mapping/CosThetaWeightedUnitHemisphere.h"
 
 #include <cmath>

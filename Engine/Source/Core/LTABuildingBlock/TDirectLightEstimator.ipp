@@ -1,4 +1,4 @@
-#include "Core/LTABuildingBlock/PtDirectLightEstimator.h"
+#include "Core/LTABuildingBlock/TDirectLightEstimator.h"
 #include "Math/TVector3.h"
 #include "World/Scene.h"
 #include "Core/Sample/DirectLightSample.h"
@@ -18,8 +18,15 @@
 namespace ph
 {
 
-bool PtDirectLightEstimator::sample(
-	const Scene&            scene,
+template<ESaPolicy POLICY>
+inline TDirectLightEstimator<POLICY>::TDirectLightEstimator(const Scene* const scene) : 
+	m_scene(scene)
+{
+	PH_ASSERT(scene);
+}
+
+template<ESaPolicy POLICY>
+inline bool TDirectLightEstimator<POLICY>::sample(
 	const SurfaceHit&       targetPos,
 	const Time&             time,
 	Vector3R* const         out_L,
@@ -35,18 +42,18 @@ bool PtDirectLightEstimator::sample(
 
 	DirectLightSample directLightSample;
 	directLightSample.setDirectSample(targetPos.getPosition());
-	scene.genDirectSample(directLightSample);
+	m_scene->genDirectSample(directLightSample);
 	if(directLightSample.isDirectSampleGood())
 	{
 		const Vector3R& toLightVec = directLightSample.emitPos.sub(directLightSample.targetPos);
 
-		// sidedness agreement between real geometry and shading  normal
+		// sidedness agreement between real geometry and shading normal
 		//
 		if(toLightVec.lengthSquared() > RAY_DELTA_DIST * RAY_DELTA_DIST * 3 &&
-		   targetPos.getGeometryNormal().dot(toLightVec) * targetPos.getShadingNormal().dot(toLightVec) > 0.0_r)
+		   SidednessAgreement(POLICY).isSidednessAgreed(targetPos, toLightVec))
 		{
 			const Ray visRay(targetPos.getPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2, time);
-			if(!scene.isIntersecting(visRay))
+			if(!m_scene->isIntersecting(visRay))
 			{
 				PH_ASSERT(out_L && out_pdfW && out_emittedRadiance);
 
@@ -62,8 +69,8 @@ bool PtDirectLightEstimator::sample(
 	return false;
 }
 
-real PtDirectLightEstimator::sampleUnoccludedPdfW(
-	const Scene&      scene,
+template<ESaPolicy POLICY>
+inline real TDirectLightEstimator<POLICY>::samplePdfWUnoccluded(
 	const SurfaceHit& X,
 	const SurfaceHit& Xe,
 	const Time&       time)
@@ -72,7 +79,7 @@ real PtDirectLightEstimator::sampleUnoccludedPdfW(
 	const Emitter* const   emitter           = emissivePrimitive->getMetadata()->getSurface().getEmitter();
 	PH_ASSERT(emitter);
 
-	return scene.calcDirectPdfW(Xe, X.getPosition());
+	return m_scene->calcDirectPdfW(Xe, X.getPosition());
 }
 
 }// end namespace ph

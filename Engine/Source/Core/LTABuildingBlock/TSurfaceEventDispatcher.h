@@ -2,7 +2,7 @@
 
 #include "Utility/INoncopyable.h"
 #include "Math/math_fwd.h"
-#include "Core/SidednessAgreement.h"
+#include "Core/LTABuildingBlock/SidednessAgreement.h"
 
 namespace ph
 {
@@ -18,7 +18,7 @@ template<ESaPolicy POLICY>
 class TSurfaceEventDispatcher final : public INoncopyable
 {
 public:
-	TSurfaceEventDispatcher(const Scene* scene);
+	explicit TSurfaceEventDispatcher(const Scene* scene);
 
 	bool traceNextSurface(
 		const Ray&  ray, 

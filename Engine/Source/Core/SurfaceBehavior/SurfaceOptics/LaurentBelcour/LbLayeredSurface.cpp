@@ -5,7 +5,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayer.h"
 #include "Math/Random.h"
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
-#include "Core/SidednessAgreement.h"
+#include "Core/LTABuildingBlock/SidednessAgreement.h"
 
 #include <cmath>
 

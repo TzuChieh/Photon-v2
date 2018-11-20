@@ -2,7 +2,7 @@
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Common/assertion.h"
 #include "Math/Random.h"
-#include "Core/SidednessAgreement.h"
+#include "Core/LTABuildingBlock/SidednessAgreement.h"
 
 namespace ph
 {

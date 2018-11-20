@@ -1,5 +1,5 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Core/SidednessAgreement.h"
+#include "Core/LTABuildingBlock/SidednessAgreement.h"
 
 namespace ph
 {

@@ -16,7 +16,7 @@
 #include "Core/Quantity/SpectralStrength.h"
 #include "Common/assertion.h"
 #include "Core/LTABuildingBlock/TMis.h"
-#include "Core/LTABuildingBlock/PtDirectLightEstimator.h"
+#include "Core/LTABuildingBlock/TDirectLightEstimator.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
 #include "Core/Quantity/SpectralStrength.h"
 
@@ -98,8 +98,8 @@ void BNEEPTEstimator::radianceAlongRay(
 			Vector3R         L;
 			real             directPdfW;
 			SpectralStrength emittedRadiance;
-			if(PtDirectLightEstimator::sample(
-				scene, surfaceHit, ray.getTime(),
+			if(TDirectLightEstimator<ESaPolicy::STRICT>(&scene).sample(
+				surfaceHit, ray.getTime(),
 				&L, &directPdfW, &emittedRadiance))
 			{
 				const PrimitiveMetadata* metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
@@ -205,8 +205,8 @@ void BNEEPTEstimator::radianceAlongRay(
 					// TODO: <directLightPdfW> might be 0, should we stop  using MIS if one of two 
 					// sampling techniques has failed?
 					// <bsdfSamplePdfW> can also be 0 for delta distributions
-					const real directLightPdfW = PtDirectLightEstimator::sampleUnoccludedPdfW(
-						scene, surfaceHit, Xe, ray.getTime());
+					const real directLightPdfW = TDirectLightEstimator<ESaPolicy::STRICT>(&scene).samplePdfWUnoccluded(
+						surfaceHit, Xe, ray.getTime());
 
 					BsdfPdfQuery bsdfPdfQuery;
 					bsdfPdfQuery.inputs.set(bsdfSample);
