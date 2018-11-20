@@ -1,15 +1,30 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealTransmitter.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Common/assertion.h"
+#include "Core/Texture/TConstantTexture.h"
+#include "Core/Texture/TSampler.h"
 
 namespace ph
 {
 
 IdealTransmitter::IdealTransmitter(const std::shared_ptr<DielectricFresnel>& fresnel) :
+	
+	IdealTransmitter(
+		fresnel, 
+		std::make_shared<TConstantTexture<SpectralStrength>>(SpectralStrength(1.0_r)))
+{}
+
+IdealTransmitter::IdealTransmitter(
+	const std::shared_ptr<DielectricFresnel>&          fresnel,
+	const std::shared_ptr<TTexture<SpectralStrength>>& transmissionScale) : 
+
 	SurfaceOptics(),
-	m_fresnel(fresnel)
+
+	m_fresnel(fresnel),
+	m_transmissionScale(transmissionScale)
 {
 	PH_ASSERT(fresnel);
+	PH_ASSERT(transmissionScale);
 
 	m_phenomena.set({ESurfacePhenomenon::DELTA_TRANSMISSION});
 }
@@ -60,6 +75,12 @@ void IdealTransmitter::calcBsdfSample(
 	}
 	
 	out.pdfAppliedBsdf.setValues(F.mul(transportFactor / std::abs(cosI)));
+
+	// a scale factor for artistic control
+	const SpectralStrength& transmissionScale =
+		TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_transmissionScale, in.X);
+	out.pdfAppliedBsdf.mulLocal(transmissionScale);
+
 	out.setValidity(true);
 }
 

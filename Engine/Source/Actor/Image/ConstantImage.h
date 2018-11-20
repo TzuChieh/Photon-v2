@@ -15,7 +15,8 @@ public:
 	{
 		RAW,
 		EMR_LINEAR_SRGB,
-		ECF_LINEAR_SRGB
+		ECF_LINEAR_SRGB,
+		RAW_LINEAR_SRGB
 	};
 
 public:

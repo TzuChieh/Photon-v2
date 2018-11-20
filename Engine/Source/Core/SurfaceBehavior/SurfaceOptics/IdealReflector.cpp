@@ -1,6 +1,8 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealReflector.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Common/assertion.h"
+#include "Core/Texture/TConstantTexture.h"
+#include "Core/Texture/TSampler.h"
 
 #include <iostream>
 #include <cmath>
@@ -9,10 +11,23 @@ namespace ph
 {
 
 IdealReflector::IdealReflector(const std::shared_ptr<FresnelEffect>& fresnel) :
+
+	IdealReflector(
+		fresnel, 
+		std::make_shared<TConstantTexture<SpectralStrength>>(SpectralStrength(1.0_r)))
+{}
+
+IdealReflector::IdealReflector(
+	const std::shared_ptr<FresnelEffect>&              fresnel,
+	const std::shared_ptr<TTexture<SpectralStrength>>& reflectionScale) : 
+
 	SurfaceOptics(),
-	m_fresnel(fresnel)
+
+	m_fresnel(fresnel),
+	m_reflectionScale(reflectionScale)
 {
 	PH_ASSERT(fresnel);
+	PH_ASSERT(reflectionScale);
 
 	m_phenomena.set({ESurfacePhenomenon::DELTA_REFLECTION});
 }
@@ -43,6 +58,12 @@ void IdealReflector::calcBsdfSample(
 	const real NoL = N.dot(out.L);
 	m_fresnel->calcReflectance(NoL, &(out.pdfAppliedBsdf));
 	out.pdfAppliedBsdf.mulLocal(1.0_r / std::abs(NoL));
+
+	// a scale factor for artistic control
+	const SpectralStrength& reflectionScale = 
+		TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_reflectionScale, in.X);
+	out.pdfAppliedBsdf.mulLocal(reflectionScale);
+
 	out.setValidity(true);
 }
 

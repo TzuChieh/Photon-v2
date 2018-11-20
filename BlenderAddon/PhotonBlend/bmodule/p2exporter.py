@@ -460,12 +460,14 @@ class Exporter:
 				   b_scene.ph_render_num_photons,
 				   b_scene.ph_render_num_spp_pm,
 				   b_scene.ph_render_kernel_radius))
-		elif render_method == "PPM":
+		elif render_method == "PPM" or render_method == "SPPM":
+			mode_name = "progressive" if render_method == "PPM" else "stochastic-progressive"
 			self.exportRaw(
-				"## renderer(pm) [integer width %s] [integer height %s] [string filter-name %s] [string mode progressive][integer num-photons %d][integer num-samples-per-pixel %d][integer num-passes %d][real radius %.8f]\n"
+				"## renderer(pm) [integer width %s] [integer height %s] [string filter-name %s] [string mode %s][integer num-photons %d][integer num-samples-per-pixel %d][integer num-passes %d][real radius %.8f]\n"
 				% (meta_info.render_width_px(),
 				   meta_info.render_height_px(),
 				   meta_info.sample_filter_name(),
+				   mode_name,
 				   b_scene.ph_render_num_photons,
 				   b_scene.ph_render_num_spp_pm,
 				   b_scene.ph_render_num_passes,

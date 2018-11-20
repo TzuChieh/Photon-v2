@@ -186,3 +186,8 @@ class IdealCreator(MaterialCreator):
 	def set_f0_rgb(self, f0_rgb):
 		self.update_clause(ColorClause().set_name("f0-rgb").set_data(f0_rgb))
 
+	def set_reflection_scale(self, rgb):
+		self.update_clause(ColorClause().set_name("reflection-scale").set_data(rgb))
+
+	def set_transmission_scale(self, rgb):
+		self.update_clause(ColorClause().set_name("transmission-scale").set_data(rgb))

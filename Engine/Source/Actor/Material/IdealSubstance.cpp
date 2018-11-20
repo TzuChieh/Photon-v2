@@ -10,6 +10,7 @@
 #include "Common/assertion.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealDielectric.h"
+#include "Actor/Image/ConstantImage.h"
 
 #include <string>
 #include <iostream>
@@ -30,12 +31,12 @@ void IdealSubstance::genSurface(CookingContext& context, SurfaceBehavior& behavi
 {
 	PH_ASSERT(m_opticsGenerator);
 
-	behavior.setOptics(m_opticsGenerator());
+	behavior.setOptics(m_opticsGenerator(context));
 }
 
 void IdealSubstance::asDielectricReflector(const real iorInner, const real iorOuter)
 {
-	m_opticsGenerator = [=]()
+	m_opticsGenerator = [=](CookingContext& context)
 	{
 		auto fresnel = std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner);
 		auto optics  = std::make_unique<IdealReflector>(fresnel);
@@ -48,7 +49,7 @@ void IdealSubstance::asMetallicReflector(const Vector3R& linearSrgbF0, const rea
 	SpectralStrength f0Spectral;
 	f0Spectral.setLinearSrgb(linearSrgbF0);// FIXME: check color space
 
-	m_opticsGenerator = [=]()
+	m_opticsGenerator = [=](CookingContext& context)
 	{
 		auto fresnel = std::make_shared<SchlickApproxConductorDielectricFresnel>(f0Spectral);
 		auto optics  = std::make_unique<IdealReflector>(fresnel);
@@ -58,7 +59,7 @@ void IdealSubstance::asMetallicReflector(const Vector3R& linearSrgbF0, const rea
 
 void IdealSubstance::asTransmitter(const real iorInner, const real iorOuter)
 {
-	m_opticsGenerator = [=]()
+	m_opticsGenerator = [=](CookingContext& context)
 	{
 		auto fresnel = std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner);
 		auto optics  = std::make_unique<IdealTransmitter>(fresnel);
@@ -68,19 +69,36 @@ void IdealSubstance::asTransmitter(const real iorInner, const real iorOuter)
 
 void IdealSubstance::asAbsorber()
 {
-	m_opticsGenerator = [=]()
+	m_opticsGenerator = [=](CookingContext& context)
 	{
 		return std::make_unique<IdealAbsorber>();
 	};
 }
 
-void IdealSubstance::asDielectric(const real iorInner, const real iorOuter)
+void IdealSubstance::asDielectric(
+	const real iorInner,
+	const real iorOuter,
+	const Vector3R& linearSrgbReflectionScale,
+	const Vector3R& linearSrgbTransmissionScale)
 {
-	m_opticsGenerator = [=]()
+	m_opticsGenerator = [=](CookingContext& context)
 	{
 		auto fresnel = std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner);
-		auto optics  = std::make_unique<IdealDielectric>(fresnel);
-		return optics;
+
+		if(linearSrgbReflectionScale == Vector3R(1.0_r) && linearSrgbTransmissionScale == Vector3R(1.0_r))
+		{
+			return std::make_unique<IdealDielectric>(fresnel);
+		}
+		else
+		{
+			auto reflectionScale = ConstantImage(linearSrgbReflectionScale, ConstantImage::EType::RAW_LINEAR_SRGB);
+			auto transmissionScale = ConstantImage(linearSrgbTransmissionScale, ConstantImage::EType::RAW_LINEAR_SRGB);
+
+			return std::make_unique<IdealDielectric>(
+				fresnel, 
+				reflectionScale.genTextureSpectral(context), 
+				transmissionScale.genTextureSpectral(context));
+		}
 	};
 }
 
@@ -123,8 +141,10 @@ IdealSubstance::IdealSubstance(const InputPacket& packet) :
 	{
 		const real iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
 		const real iorInner = packet.getReal("ior-inner", 1.5_r, DataTreatment::REQUIRED());
+		const Vector3R reflectionScale = packet.getVector3r("reflection-scale", Vector3R(1.0_r), DataTreatment::OPTIONAL());
+		const Vector3R transmissionScale = packet.getVector3r("transmission-scale", Vector3R(1.0_r), DataTreatment::OPTIONAL());
 
-		asDielectric(iorInner, iorOuter);
+		asDielectric(iorInner, iorOuter, reflectionScale, transmissionScale);
 	}
 }
 

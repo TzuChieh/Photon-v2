@@ -3,15 +3,34 @@
 #include "Common/assertion.h"
 #include "Math/Random.h"
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
+#include "Core/Texture/TConstantTexture.h"
+#include "Core/Texture/TSampler.h"
 
 namespace ph
 {
 
 IdealDielectric::IdealDielectric(const std::shared_ptr<DielectricFresnel>& fresnel) :
+
+	IdealDielectric(
+		fresnel, 
+		std::make_shared<TConstantTexture<SpectralStrength>>(SpectralStrength(1.0_r)),
+		std::make_shared<TConstantTexture<SpectralStrength>>(SpectralStrength(1.0_r)))
+{}
+
+IdealDielectric::IdealDielectric(
+	const std::shared_ptr<DielectricFresnel>&          fresnel,
+	const std::shared_ptr<TTexture<SpectralStrength>>& reflectionScale,
+	const std::shared_ptr<TTexture<SpectralStrength>>& transmissionScale) : 
+
 	SurfaceOptics(),
-	m_fresnel(fresnel)
+
+	m_fresnel(fresnel),
+	m_reflectionScale(reflectionScale),
+	m_transmissionScale(transmissionScale)
 {
 	PH_ASSERT(fresnel);
+	PH_ASSERT(reflectionScale);
+	PH_ASSERT(transmissionScale);
 
 	m_phenomena.set({ESurfacePhenomenon::DELTA_REFLECTION, ESurfacePhenomenon::DELTA_TRANSMISSION});
 	m_numElementals = 2;
@@ -82,6 +101,11 @@ void IdealDielectric::calcBsdfSample(
 			return;
 		}
 
+		// a scale factor for artistic control
+		const SpectralStrength& reflectionScale =
+			TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_reflectionScale, in.X);
+		F.mulLocal(reflectionScale);
+
 		// account for probability
 		if(in.elemental == ALL_ELEMENTALS)
 		{
@@ -109,6 +133,11 @@ void IdealDielectric::calcBsdfSample(
 			}
 			F.mulLocal(etaT * etaT / (etaI * etaI));
 		}
+
+		// a scale factor for artistic control
+		const SpectralStrength& transmissionScale =
+			TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_transmissionScale, in.X);
+		F.mulLocal(transmissionScale);
 
 		// account for probability
 		if(in.elemental == ALL_ELEMENTALS)

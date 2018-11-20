@@ -26,9 +26,15 @@ public:
 
 	void asTransmitter(real iorInner, real iorOuter);
 	void asAbsorber();
-	void asDielectric(real iorInner, real iorOuter);
 
-	std::function<std::unique_ptr<SurfaceOptics>()> m_opticsGenerator;
+	void asDielectric(
+		real iorInner, 
+		real iorOuter, 
+		const Vector3R& linearSrgbReflectionScale, 
+		const Vector3R& linearSrgbTransmissionScale);
+
+private:
+	std::function<std::unique_ptr<SurfaceOptics>(CookingContext& context)> m_opticsGenerator;
 
 // command interface
 public:

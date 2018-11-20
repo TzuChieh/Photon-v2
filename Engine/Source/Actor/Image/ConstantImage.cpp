@@ -129,6 +129,10 @@ std::shared_ptr<TTexture<SpectralStrength>> ConstantImage::genTextureSpectral(
 			values.setLinearSrgb(Vector3R(m_values[0], m_values[1], m_values[2]), EQuantity::ECF);
 			break;
 
+		case EType::RAW_LINEAR_SRGB:
+			values.setLinearSrgb(Vector3R(m_values[0], m_values[1], m_values[2]), EQuantity::RAW);
+			break;
+
 		default:
 			std::cerr << "warning: at ConstantImage::genTextureSpectral(), "
 			          << "unsupported value type, assuming ECF linear sRGB" << std::endl;

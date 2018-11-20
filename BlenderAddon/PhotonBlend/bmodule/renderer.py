@@ -45,7 +45,8 @@ class PhRenderingPanel(PhRenderPanel):
 			("BVPT",   "Pure Path Tracing",          "slow but versatile"),
 			("BNEEPT", "NEE Path Tracing",           "similar to pure PT but good on rendering small lights"),
 			("VPM",    "Photon Mapping",             "rough preview, fairly good at caustics"),
-			("PPM",    "Progressive Photon Mapping", "good at complex lighting condition")
+			("PPM",    "Progressive Photon Mapping", "good at complex lighting condition"),
+			("SPPM", "Stochastic Progressive Photon Mapping", "good at complex lighting condition")
 		],
 		name        = "Rendering Method",
 		description = "Photon-v2's rendering methods",
@@ -91,7 +92,7 @@ class PhRenderingPanel(PhRenderPanel):
 		if render_method == "BVPT" or render_method == "BNEEPT":
 			layout.prop(scene, "ph_render_num_spp")
 			layout.prop(scene, "ph_render_sample_filter_type")
-		elif render_method == "VPM" or render_method == "PPM":
+		elif render_method == "VPM" or render_method == "PPM" or render_method == "SPPM":
 			layout.prop(scene, "ph_render_num_photons")
 			layout.prop(scene, "ph_render_num_spp_pm")
 			layout.prop(scene, "ph_render_num_passes")

@@ -728,6 +728,26 @@ class PhIdealSubstanceNode(PhMaterialNode):
 		max     = sys.float_info.max
 	)
 
+	reflection_scale = bpy.props.FloatVectorProperty(
+		name="Reflection Scale",
+		description="for artistic control",
+		default=[1.0, 1.0, 1.0],
+		min=0.0,
+		max=sys.float_info.max,
+		subtype="COLOR",
+		size=3
+	)
+
+	transmission_scale = bpy.props.FloatVectorProperty(
+		name="Transmission Scale",
+		description="for artistic control",
+		default=[1.0, 1.0, 1.0],
+		min=0.0,
+		max=1.0,
+		subtype="COLOR",
+		size=3
+	)
+
 	def init(self, b_context):
 		self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
 
@@ -743,6 +763,9 @@ class PhIdealSubstanceNode(PhMaterialNode):
 		if self.substance_type == "METALLIC_REFLECTOR":
 			b_layout.prop(self, "f0")
 
+		b_layout.prop(self, "reflection_scale")
+		b_layout.prop(self, "transmission_scale")
+
 	def to_sdl(self, res_name, sdlconsole):
 
 		surface_mat_socket   = self.outputs[0]
@@ -753,6 +776,8 @@ class PhIdealSubstanceNode(PhMaterialNode):
 		cmd.set_ior_outer(self.ior_outer)
 		cmd.set_ior_inner(self.ior_inner)
 		cmd.set_f0_rgb(self.f0)
+		cmd.set_reflection_scale(self.reflection_scale)
+		cmd.set_transmission_scale(self.transmission_scale)
 
 		if self.substance_type == "DIELECTRIC_REFLECTOR":
 			cmd.set_type("dielectric-reflector")
