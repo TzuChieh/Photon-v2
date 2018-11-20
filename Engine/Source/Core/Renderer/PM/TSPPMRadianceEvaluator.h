@@ -152,7 +152,8 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 			addViewRadiance(pathThroughput * viewRadiance);
 		}
 	}
-
+	
+	// TODO: better handling of glossy optics
 	if(optics->getAllPhenomena().hasAtLeastOne({ESurfacePhenomenon::DIFFUSE_REFLECTION}) ||
 		pathLength >= m_maxViewpointDepth)
 	{

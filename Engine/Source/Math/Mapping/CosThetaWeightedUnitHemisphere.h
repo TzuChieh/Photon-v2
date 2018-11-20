@@ -38,9 +38,11 @@ inline Vector3R CosThetaWeightedUnitHemisphere::map(const Vector2R& seed, real* 
 	const Vector3R& mapped = map(seed);
 	PH_ASSERT_GE(mapped.y, 0.0_r);
 
-	// PDF is cos(theta)
+	// PDF is cos(theta)/pi
 	PH_ASSERT(out_pdf);
-	*out_pdf = mapped.y;
+	*out_pdf = mapped.y / PH_PI_REAL;
+
+	return mapped;
 }
 
 }// end namespace ph

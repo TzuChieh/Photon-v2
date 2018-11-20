@@ -13,6 +13,7 @@
 #include "Common/assertion.h"
 #include "Core/Texture/SampleLocation.h"
 #include "Math/Mapping/UniformUnitHemisphere.h"
+#include "Math/Mapping/CosThetaWeightedUnitHemisphere.h"
 
 #include <iostream>
 #include <algorithm>
@@ -90,8 +91,13 @@ void DiffuseSurfaceEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* 
 	PositionSample positionSample;
 	m_surface->genPositionSample(&positionSample);
 
-	real pdfW;
+	/*real pdfW;
 	Vector3R rayDir = UniformUnitHemisphere::map(
+		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()},
+		&pdfW);*/
+
+	real pdfW;
+	Vector3R rayDir = CosThetaWeightedUnitHemisphere::map(
 		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()},
 		&pdfW);
 

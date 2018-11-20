@@ -357,7 +357,7 @@ void PMRenderer::renderWithStochasticProgressivePM()
 					resultFilm.get(),
 					region,
 					numFinishedPasses + 1,
-					1024);
+					6);
 
 				TViewPathTracingWork<RadianceEvaluator> viewpointWork(
 					&radianceEvaluator,
