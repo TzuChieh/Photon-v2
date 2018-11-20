@@ -226,7 +226,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleEnd()
 	}
 	tauM.mulLocal(m_viewpoint->template get<EViewpointData::VIEW_THROUGHPUT>());
 
-	const SpectralStrength tauN   = m_viewpoint->get<EViewpointData::TAU>();
+	const SpectralStrength tauN   = m_viewpoint->template get<EViewpointData::TAU>();
 	const SpectralStrength newTau = (N + M) != 0.0_r ? (tauN + tauM) * (newN / (N + M)) : SpectralStrength(0);
 
 	m_viewpoint->template set<EViewpointData::RADIUS>(newR);
