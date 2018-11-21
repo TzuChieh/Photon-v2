@@ -12,11 +12,14 @@
 #include "Core/SurfaceBehavior/BsdfSample.h"
 #include "Common/assertion.h"
 
-// TODO: better size; without macro
-#define RAY_DELTA_DIST 0.0001_r
-
 namespace ph
 {
+
+namespace
+{
+	// FIXME: hardcoded number
+	constexpr real DL_RAY_DELTA_DIST = 0.0001_r;
+}
 
 template<ESaPolicy POLICY>
 inline TDirectLightEstimator<POLICY>::TDirectLightEstimator(const Scene* const scene) : 
@@ -49,10 +52,10 @@ inline bool TDirectLightEstimator<POLICY>::sample(
 
 		// sidedness agreement between real geometry and shading normal
 		//
-		if(toLightVec.lengthSquared() > RAY_DELTA_DIST * RAY_DELTA_DIST * 3 &&
+		if(toLightVec.lengthSquared() > DL_RAY_DELTA_DIST * DL_RAY_DELTA_DIST * 3 &&
 		   SidednessAgreement(POLICY).isSidednessAgreed(targetPos, toLightVec))
 		{
-			const Ray visRay(targetPos.getPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2, time);
+			const Ray visRay(targetPos.getPosition(), toLightVec.normalize(), DL_RAY_DELTA_DIST, toLightVec.length() - DL_RAY_DELTA_DIST * 2, time);
 			if(!m_scene->isIntersecting(visRay))
 			{
 				PH_ASSERT(out_L && out_pdfW && out_emittedRadiance);

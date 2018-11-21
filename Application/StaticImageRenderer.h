@@ -13,7 +13,7 @@ class CommandLineArguments;
 class StaticImageRenderer final
 {
 public:
-	StaticImageRenderer(const CommandLineArguments& args);
+	explicit StaticImageRenderer(const CommandLineArguments& args);
 	~StaticImageRenderer();
 
 	void render() const;

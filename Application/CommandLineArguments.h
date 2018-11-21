@@ -13,7 +13,7 @@ public:
 	static void printHelpMessage();
 
 public:
-	CommandLineArguments(const std::vector<std::string>& argv);
+	explicit CommandLineArguments(const std::vector<std::string>& argv);
 
 	std::string getSceneFilePath()       const;
 	std::string getImageFilePath()       const;
