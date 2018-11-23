@@ -8,7 +8,7 @@ class SDLCreator:
 	def __init__(self, root_element: ElementTree):
 		self.inputs = []
 
-		if root_element.tag != "input":
+		if root_element.tag != "command":
 			print("warning: invalid SDL creator root element detected: %s" % root_element.tag)
 			return
 

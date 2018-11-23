@@ -87,6 +87,9 @@ Resource/
 /ThirdParty/
 /target/
 
+# ignore script output folder
+/scripts/output/
+
 # HACKING REGION
 
 # avoiding Eclipse generated src folder in root directory (Maven project)

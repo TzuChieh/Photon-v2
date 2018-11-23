@@ -26,8 +26,8 @@ class SDLInput:
 
 		result = "SDL Input \n"
 
-		result += "Name: " + self.name
-		result += "Type Name: " + self.type_name
-		result += "Description: " + self.description
+		result += "Name: " + self.name + "\n"
+		result += "Type Name: " + self.type_name + "\n"
+		result += "Description: " + self.description + "\n"
 
 		return result

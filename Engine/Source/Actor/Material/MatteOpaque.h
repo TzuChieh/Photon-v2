@@ -47,19 +47,17 @@ public:
 		A material model for surfaces with matte look, such as chalk and moon.
 	</description>
 
-	<command type=creator>
+	<command type="creator">
 
-		<input name=albedo type=real>
+		<input name="albedo" type="real">
 			<description>A constant albedo in linear SRGB.</description>
 		</input>
 
-		<input name=albedo type=Vector3R>
+		<input name="albedo" type="Vector3R">
 			<description>An albedo value in linear SRGB.</description>
 		</input>
 
 	</command>
 
 	</SDL_interface>
-
-	<!-- SDL Interface End -->
 */
