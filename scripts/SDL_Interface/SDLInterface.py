@@ -1,5 +1,5 @@
-from .SDLCreator import SDLCreator
-from .SDLExecutor import SDLExecutor
+from SDLCreator import SDLCreator
+from SDLExecutor import SDLExecutor
 
 import xml.etree.ElementTree as ElementTree
 
@@ -14,26 +14,52 @@ class SDLInterface:
 		self.name = ""
 		self.description = ""
 		self.creator = None
-		self.executor = []
+		self.executors = []
 
 		if root_element.tag != "SDL_interface":
 			print("warning: invalid SDL interface root element detected: %s" % root_element.tag)
 			return
 
-		# TODO: remove some spaces and newline chars
 		for element in root_element:
 			if element.tag == "category":
-				self.category_name = element.text
+				self.category_name = element.text.strip()
 			elif element.tag == "type_name":
-				self.type_name = element.text
+				self.type_name = element.text.strip()
 			elif element.tag == "inherit":
-				self.inherited_target = element.text
+				self.inherited_target = element.text.strip()
 			elif element.tag == "name":
-				self.name = element.text
+				self.name = element.text.strip()
 			elif element.tag == "description":
-				self.description = element.text
+				processed_text = element.text.strip()
+				processed_text.replace("\n", "")
+				processed_text.replace("\r", "")
+				self.description = processed_text
 			elif element.tag == "command":
 				if element.attrib["type"] == "creator":
 					self.creator = SDLCreator(element)
 				elif element.attrib["type"] == "executor":
-					self.executor = SDLExecutor(element)
+					self.executors.append(SDLExecutor(element))
+
+	def has_creator(self):
+		return self.creator is not None
+
+	def has_executor(self):
+		return self.executors
+
+	def __str__(self):
+
+		result = "SDL Interface \n"
+
+		result += "Category Name: " + self.category_name + "\n"
+		result += "Type Name: " + self.type_name + "\n"
+		result += "Inherited Target: " + self.inherited_target + "\n"
+		result += "Name: " + self.name + "\n"
+		result += "Description: " + self.description + "\n"
+
+		if self.has_creator():
+			result += str(self.creator)
+
+		for executor in self.executors:
+			result += str(executor)
+
+		return result

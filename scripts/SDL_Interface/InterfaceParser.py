@@ -1,4 +1,4 @@
-from .SDLInterface import SDLInterface
+from SDLInterface import SDLInterface
 
 import xml.etree.ElementTree as ElementTree
 
