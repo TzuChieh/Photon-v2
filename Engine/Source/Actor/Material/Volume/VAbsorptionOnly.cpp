@@ -32,9 +32,9 @@ VAbsorptionOnly::VAbsorptionOnly(const InputPacket& packet) :
 	VolumeMaterial(packet),
 	m_absorptionCoeff(0.5_r)
 {
-	if(packet.hasVector3R("coeff"))
+	if(packet.hasVector3("coeff"))
 	{
-		m_absorptionCoeff.setLinearSrgb(packet.getVector3r("coeff"), EQuantity::RAW);
+		m_absorptionCoeff.setLinearSrgb(packet.getVector3("coeff"), EQuantity::RAW);
 	}
 	else
 	{

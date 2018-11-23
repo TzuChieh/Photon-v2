@@ -194,7 +194,7 @@ void ConstantImage::ciRegister(CommandRegister& cmdRegister)
 		realInput.addReal("value");
 
 		InputPrototype vec3Input;
-		vec3Input.addVector3r("value");
+		vec3Input.addVector3("value");
 
 		// TODO: array input
 
@@ -205,7 +205,7 @@ void ConstantImage::ciRegister(CommandRegister& cmdRegister)
 		}
 		else if(packet.isPrototypeMatched(vec3Input))
 		{
-			const Vector3R value = packet.getVector3r("value");
+			const Vector3R value = packet.getVector3("value");
 			return std::make_unique<ConstantImage>(value, type);
 		}
 		else

@@ -47,9 +47,9 @@ SpectralStrength SurfaceLayerProperty::loadIorN(const InputPacket& packet, const
 			SpectralData::calcPiecewiseAveraged(wavelengths.data(), iorNs.data(), wavelengths.size()), 
 			EQuantity::RAW);
 	}
-	else if(packet.hasVector3R("ior-n"))
+	else if(packet.hasVector3("ior-n"))
 	{
-		iorN.setLinearSrgb(packet.getVector3r("ior-n"), EQuantity::RAW);
+		iorN.setLinearSrgb(packet.getVector3("ior-n"), EQuantity::RAW);
 	}
 	else if(packet.hasReal("ior-n"))
 	{
@@ -76,9 +76,9 @@ SpectralStrength SurfaceLayerProperty::loadIorK(const InputPacket& packet, const
 			SpectralData::calcPiecewiseAveraged(wavelengths.data(), iorKs.data(), wavelengths.size()), 
 			EQuantity::RAW);
 	}
-	else if(packet.hasVector3R("ior-k"))
+	else if(packet.hasVector3("ior-k"))
 	{
-		iorK.setLinearSrgb(packet.getVector3r("ior-k"), EQuantity::RAW);
+		iorK.setLinearSrgb(packet.getVector3("ior-k"), EQuantity::RAW);
 	}
 	else if(packet.hasReal("ior-k"))
 	{

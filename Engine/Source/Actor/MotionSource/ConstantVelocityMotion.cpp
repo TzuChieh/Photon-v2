@@ -36,8 +36,8 @@ void ConstantVelocityMotion::ciRegister(CommandRegister& cmdRegister)
 
 std::unique_ptr<ConstantVelocityMotion> ConstantVelocityMotion::ciLoad(const InputPacket& packet)
 {
-	const Vector3R velocity = packet.getVector3r("velocity", Vector3R(0), 
-	                                             DataTreatment::REQUIRED());
+	const Vector3R velocity = packet.getVector3("velocity", Vector3R(0), 
+	                                            DataTreatment::REQUIRED());
 
 	return std::make_unique<ConstantVelocityMotion>(velocity);
 }

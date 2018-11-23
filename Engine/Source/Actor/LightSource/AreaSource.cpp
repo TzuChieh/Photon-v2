@@ -114,12 +114,12 @@ AreaSource::AreaSource(const InputPacket& packet) :
 	LightSource(packet)
 {
 	InputPrototype rgbInput;
-	rgbInput.addVector3r("linear-srgb");
+	rgbInput.addVector3("linear-srgb");
 	rgbInput.addReal("watts");
 
 	if(packet.isPrototypeMatched(rgbInput))
 	{
-		m_color.setLinearSrgb(packet.getVector3r("linear-srgb"));
+		m_color.setLinearSrgb(packet.getVector3("linear-srgb"));
 		m_numWatts = packet.getReal("watts");
 	}
 	else

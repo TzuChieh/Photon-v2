@@ -16,10 +16,10 @@ public:
 	void addInteger(const std::string& name);
 	void addReal(const std::string& name);
 	void addString(const std::string& name);
-	void addVector3r(const std::string& name);
-	void addQuaternionR(const std::string& name);
+	void addVector3(const std::string& name);
+	void addQuaternion(const std::string& name);
 	void addRealArray(const std::string& name);
-	void addVec3Array(const std::string& name);
+	void addVector3Array(const std::string& name);
 
 	std::string toString() const;
 

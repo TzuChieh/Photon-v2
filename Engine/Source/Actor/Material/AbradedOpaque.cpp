@@ -69,7 +69,7 @@ std::function<std::unique_ptr<SurfaceOptics>()> AbradedOpaque::loadITR(const Inp
 	Vector3R albedo    = Vector3R(0.5f, 0.5f, 0.5f);
 	real     roughness = 0.5f;
 
-	albedo    = packet.getVector3r("albedo", albedo);
+	albedo    = packet.getVector3("albedo", albedo);
 	roughness = packet.getReal("roughness", roughness);
 
 	//const real alpha = RoughnessToAlphaMapping::pbrtV3(roughness);
@@ -95,7 +95,7 @@ std::function<std::unique_ptr<SurfaceOptics>()> AbradedOpaque::loadATR(const Inp
 	real     roughnessU = 0.5f;
 	real     roughnessV = 0.5f;
 
-	albedo     = packet.getVector3r("albedo", albedo);
+	albedo     = packet.getVector3("albedo", albedo);
 	roughnessU = packet.getReal("roughness-u", roughnessU);
 	roughnessV = packet.getReal("roughness-v", roughnessV);
 
@@ -122,7 +122,7 @@ std::unique_ptr<FresnelEffect> AbradedOpaque::loadFresnelEffect(const InputPacke
 
 	// FIXME: f0's color space
 	InputPrototype approxInput;
-	approxInput.addVector3r("f0");
+	approxInput.addVector3("f0");
 
 	InputPrototype exactInput;
 	exactInput.addReal("ior-outer");
@@ -145,7 +145,7 @@ std::unique_ptr<FresnelEffect> AbradedOpaque::loadFresnelEffect(const InputPacke
 	}
 	else if(packet.isPrototypeMatched(approxInput))
 	{
-		const auto& f0 = packet.getVector3r("f0");
+		const auto& f0 = packet.getVector3("f0");
 
 		SpectralStrength spectralF0;
 		spectralF0.setLinearSrgb(f0);// FIXME: check color space

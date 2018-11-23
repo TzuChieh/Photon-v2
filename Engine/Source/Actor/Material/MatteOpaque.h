@@ -53,7 +53,7 @@ public:
 			<description>A constant albedo in linear SRGB.</description>
 		</input>
 
-		<input name="albedo" type="Vector3R">
+		<input name="albedo" type="vector3">
 			<description>An albedo value in linear SRGB.</description>
 		</input>
 

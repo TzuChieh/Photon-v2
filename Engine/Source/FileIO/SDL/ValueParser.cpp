@@ -31,16 +31,16 @@ std::string ValueParser::parseString(const std::string& stringString) const
 	return stringString;
 }
 
-Vector3R ValueParser::parseVector3r(const std::string& vector3rString) const
+Vector3R ValueParser::parseVector3(const std::string& vector3String) const
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
 	std::vector<std::string> tokens;
-	tokenizer.tokenize(vector3rString, tokens);
+	tokenizer.tokenize(vector3String, tokens);
 
 	if(tokens.size() != 3)
 	{
-		std::cerr << "warning: at ValueParser::parseVector3r(), bad string representation <" + vector3rString + ">, " <<
+		std::cerr << "warning: at ValueParser::parseVector3(), bad string representation <" + vector3String + ">, " <<
 		             Vector3R().toString() << " is returned "<< std::endl;
 		return Vector3R();
 	}
@@ -50,16 +50,16 @@ Vector3R ValueParser::parseVector3r(const std::string& vector3rString) const
 	                static_cast<real>(std::stold(tokens[2])));
 }
 
-QuaternionR ValueParser::parseQuaternionR(const std::string& quaternionRstring) const
+QuaternionR ValueParser::parseQuaternion(const std::string& quaternionString) const
 {
 	static const Tokenizer tokenizer({ ' ', '\t', '\n', '\r' }, {});
 
 	std::vector<std::string> tokens;
-	tokenizer.tokenize(quaternionRstring, tokens);
+	tokenizer.tokenize(quaternionString, tokens);
 
 	if(tokens.size() != 4)
 	{
-		std::cerr << "warning: at ValueParser::parseQuaternionR(), bad string representation <" + quaternionRstring + ">, " <<
+		std::cerr << "warning: at ValueParser::parseQuaternion(), bad string representation <" + quaternionString + ">, " <<
 		             QuaternionR().toString() << " is returned " << std::endl;
 		return QuaternionR();
 	}
@@ -99,17 +99,17 @@ std::vector<real> ValueParser::parseRealArray(const std::string& realArrayString
 	return std::move(realArray);
 }
 
-std::vector<Vector3R> ValueParser::parseVector3rArray(const std::string& vector3rArrayString) const
+std::vector<Vector3R> ValueParser::parseVector3Array(const std::string& vector3ArrayString) const
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}});
 
 	std::vector<std::string> tokens;
-	tokenizer.tokenize(vector3rArrayString, tokens);
+	tokenizer.tokenize(vector3ArrayString, tokens);
 
 	std::vector<Vector3R> results;
 	for(const auto& token : tokens)
 	{
-		results.push_back(parseVector3r(token));
+		results.push_back(parseVector3(token));
 	}
 
 	return results;

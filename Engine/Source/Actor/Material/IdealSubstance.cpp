@@ -122,7 +122,7 @@ IdealSubstance::IdealSubstance(const InputPacket& packet) :
 		const real iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
 
 		// FIXME: check color space
-		const Vector3R f0Rgb = packet.getVector3r("f0-rgb", Vector3R(1), DataTreatment::REQUIRED());
+		const Vector3R f0Rgb = packet.getVector3("f0-rgb", Vector3R(1), DataTreatment::REQUIRED());
 
 		asMetallicReflector(f0Rgb, iorOuter);
 	}
@@ -141,8 +141,8 @@ IdealSubstance::IdealSubstance(const InputPacket& packet) :
 	{
 		const real iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
 		const real iorInner = packet.getReal("ior-inner", 1.5_r, DataTreatment::REQUIRED());
-		const Vector3R reflectionScale = packet.getVector3r("reflection-scale", Vector3R(1.0_r), DataTreatment::OPTIONAL());
-		const Vector3R transmissionScale = packet.getVector3r("transmission-scale", Vector3R(1.0_r), DataTreatment::OPTIONAL());
+		const Vector3R reflectionScale = packet.getVector3("reflection-scale", Vector3R(1.0_r), DataTreatment::OPTIONAL());
+		const Vector3R transmissionScale = packet.getVector3("transmission-scale", Vector3R(1.0_r), DataTreatment::OPTIONAL());
 
 		asDielectric(iorInner, iorOuter, reflectionScale, transmissionScale);
 	}

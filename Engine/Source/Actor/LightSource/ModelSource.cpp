@@ -155,7 +155,7 @@ std::unique_ptr<ModelSource> ModelSource::ciLoad(const InputPacket& packet)
 	}
 	else
 	{
-		const auto& emittedRadiance = packet.getVector3r("emitted-radiance", 
+		const auto& emittedRadiance = packet.getVector3("emitted-radiance", 
 			Vector3R(0), DataTreatment::REQUIRED());
 
 		source = std::make_unique<ModelSource>(emittedRadiance);

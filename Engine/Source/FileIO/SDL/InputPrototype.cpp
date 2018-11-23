@@ -19,14 +19,14 @@ void InputPrototype::addString(const std::string& name)
 	typeNamePairs.push_back({Keyword::TYPENAME_STRING, name});
 }
 
-void InputPrototype::addVector3r(const std::string& name)
+void InputPrototype::addVector3(const std::string& name)
 {
-	typeNamePairs.push_back({Keyword::TYPENAME_VECTOR3R, name});
+	typeNamePairs.push_back({Keyword::TYPENAME_VECTOR3, name});
 }
 
-void InputPrototype::addQuaternionR(const std::string& name)
+void InputPrototype::addQuaternion(const std::string& name)
 {
-	typeNamePairs.push_back({Keyword::TYPENAME_QUATERNIONR, name});
+	typeNamePairs.push_back({Keyword::TYPENAME_QUATERNION, name});
 }
 
 void InputPrototype::addRealArray(const std::string& name)
@@ -34,9 +34,9 @@ void InputPrototype::addRealArray(const std::string& name)
 	typeNamePairs.push_back({Keyword::TYPENAME_REAL_ARRAY, name});
 }
 
-void InputPrototype::addVec3Array(const std::string& name)
+void InputPrototype::addVector3Array(const std::string& name)
 {
-	typeNamePairs.push_back({Keyword::TYPENAME_VECTOR3R_ARRAY, name});
+	typeNamePairs.push_back({Keyword::TYPENAME_VECTOR3_ARRAY, name});
 }
 
 std::string InputPrototype::toString() const

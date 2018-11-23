@@ -68,9 +68,9 @@ MatteOpaque::MatteOpaque(const InputPacket& packet) :
 
 		setAlbedo(std::make_shared<LdrPictureImage>(PictureLoader::loadLdr(imagePath)));
 	}
-	else if(packet.hasVector3R("albedo"))
+	else if(packet.hasVector3("albedo"))
 	{
-		setAlbedo(packet.getVector3r("albedo"));
+		setAlbedo(packet.getVector3("albedo"));
 	}
 	else if(packet.hasReal("albedo"))
 	{

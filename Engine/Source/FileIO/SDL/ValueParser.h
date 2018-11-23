@@ -18,10 +18,10 @@ public:
 	integer               parseInteger(const std::string& integerString) const;
 	real                  parseReal(const std::string& realString) const;
 	std::string           parseString(const std::string& stringString) const;
-	Vector3R              parseVector3r(const std::string& vector3rString) const;
-	QuaternionR           parseQuaternionR(const std::string& quaternionRstring) const;
+	Vector3R              parseVector3(const std::string& vector3String) const;
+	QuaternionR           parseQuaternion(const std::string& quaternionstring) const;
 	std::vector<real>     parseRealArray(const std::string& realArrayString) const;
-	std::vector<Vector3R> parseVector3rArray(const std::string& vector3rArrayString) const;
+	std::vector<Vector3R> parseVector3Array(const std::string& vector3ArrayString) const;
 
 private:
 	Path m_workingDirectory;

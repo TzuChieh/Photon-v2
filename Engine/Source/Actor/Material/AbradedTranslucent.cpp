@@ -50,7 +50,7 @@ AbradedTranslucent::AbradedTranslucent(const InputPacket& packet) :
 	SurfaceMaterial(packet),
 	m_opticsGenerator()
 {
-	const Vector3R    albedo      = packet.getVector3r("albedo", Vector3R(0.5_r, 0.5_r, 0.5_r));
+	const Vector3R    albedo      = packet.getVector3("albedo", Vector3R(0.5_r, 0.5_r, 0.5_r));
 	const real        roughness   = packet.getReal("roughness", 0.5_r);
 	const std::string fresnelType = packet.getString("fresnel-type", "schlick-approx");
 	const real        iorOuter    = packet.getReal("ior-outer", 1.0_r);

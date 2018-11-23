@@ -63,9 +63,9 @@ Camera::Camera(const InputPacket& packet) :
 {
 	// TODO: input maybe invalid (e.g., axes to close to each other)
 
-	m_position  = packet.getVector3r("position",  m_position,  DataTreatment::REQUIRED());
-	m_direction = packet.getVector3r("direction", m_direction, DataTreatment::REQUIRED());
-	m_upAxis    = packet.getVector3r("up-axis",   m_upAxis,    DataTreatment::OPTIONAL());
+	m_position  = packet.getVector3("position",  m_position,  DataTreatment::REQUIRED());
+	m_direction = packet.getVector3("direction", m_direction, DataTreatment::REQUIRED());
+	m_upAxis    = packet.getVector3("up-axis",   m_upAxis,    DataTreatment::OPTIONAL());
 
 	m_direction.normalizeLocal();
 	m_upAxis.normalizeLocal();

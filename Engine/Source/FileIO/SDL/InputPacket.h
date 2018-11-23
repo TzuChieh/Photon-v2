@@ -51,14 +51,14 @@ public:
 		const real                   defaultReal          = 0.0f, 
 		const DataTreatment&         treatment            = DataTreatment()) const;
 
-	Vector3R getVector3r(
+	Vector3R getVector3(
 		const std::string&           name, 
-		const Vector3R&              defaultVector3r      = Vector3R(), 
+		const Vector3R&              defaultVector3       = Vector3R(), 
 		const DataTreatment&         treatment            = DataTreatment()) const;
 
-	QuaternionR getQuaternionR(
+	QuaternionR getQuaternion(
 		const std::string&           name,
-		const QuaternionR&           defaultQuaternionR   = QuaternionR(),
+		const QuaternionR&           defaultQuaternion    = QuaternionR(),
 		const DataTreatment&         treatment            = DataTreatment()) const;
 
 	std::vector<real> getRealArray(
@@ -66,9 +66,9 @@ public:
 		const std::vector<real>&     defaultRealArray     = std::vector<real>(), 
 		const DataTreatment&         treatment            = DataTreatment()) const;
 
-	std::vector<Vector3R> getVector3rArray(
+	std::vector<Vector3R> getVector3Array(
 		const std::string&           name, 
-		const std::vector<Vector3R>& defaultVector3rArray = std::vector<Vector3R>(), 
+		const std::vector<Vector3R>& defaultVector3Array  = std::vector<Vector3R>(), 
 		const DataTreatment&         treatment            = DataTreatment()) const;
 
 	// Get the string as if the string is a SDL resource identifier and convert
@@ -87,8 +87,8 @@ public:
 	bool hasString     (const std::string& name) const;
 	bool hasInteger    (const std::string& name) const;
 	bool hasReal       (const std::string& name) const;
-	bool hasVector3R   (const std::string& name) const;
-	bool hasQuaternionR(const std::string& name) const;
+	bool hasVector3    (const std::string& name) const;
+	bool hasQuaternion (const std::string& name) const;
 
 	template<typename T>
 	bool hasReference  (const std::string& name) const;

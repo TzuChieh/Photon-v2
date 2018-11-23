@@ -12,10 +12,10 @@ public:
 	constexpr static std::string_view TYPENAME_STRING         = "string";
 	constexpr static std::string_view TYPENAME_INTEGER        = "integer";
 	constexpr static std::string_view TYPENAME_REAL           = "real";
-	constexpr static std::string_view TYPENAME_VECTOR3R       = "vector3r";
-	constexpr static std::string_view TYPENAME_QUATERNIONR    = "quaternionR";
+	constexpr static std::string_view TYPENAME_VECTOR3        = "vector3";
+	constexpr static std::string_view TYPENAME_QUATERNION     = "quaternion";
 	constexpr static std::string_view TYPENAME_REAL_ARRAY     = "real-array";
-	constexpr static std::string_view TYPENAME_VECTOR3R_ARRAY = "vector3r-array";
+	constexpr static std::string_view TYPENAME_VECTOR3_ARRAY  = "vector3-array";
 
 	// reference types
 	constexpr static std::string_view TYPENAME_GEOMETRY    = "geometry";

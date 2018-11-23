@@ -124,11 +124,11 @@ ExitStatus PhysicalActor::ciTranslate(
 	const InputPacket& packet)
 {
 	InputPrototype translationInput;
-	translationInput.addVector3r("factor");
+	translationInput.addVector3("factor");
 
 	if(packet.isPrototypeMatched(translationInput))
 	{
-		const Vector3R translation = packet.getVector3r("factor");
+		const Vector3R translation = packet.getVector3("factor");
 		targetResource->translate(translation);
 		return ExitStatus::SUCCESS();
 	}
@@ -143,21 +143,21 @@ ExitStatus PhysicalActor::ciRotate(
 	const InputPacket& packet)
 {
 	InputPrototype quaternionInput;
-	quaternionInput.addQuaternionR("factor");
+	quaternionInput.addQuaternion("factor");
 
 	InputPrototype axisDegreeInput;
-	axisDegreeInput.addVector3r("axis");
+	axisDegreeInput.addVector3("axis");
 	axisDegreeInput.addReal("degree");
 
 	if(packet.isPrototypeMatched(quaternionInput))
 	{
-		const QuaternionR rotation = packet.getQuaternionR("factor");
+		const QuaternionR rotation = packet.getQuaternion("factor");
 		targetResource->rotate(rotation.normalize());
 		return ExitStatus::SUCCESS();
 	}
 	else if(packet.isPrototypeMatched(axisDegreeInput))
 	{
-		const Vector3R axis = packet.getVector3r("axis");
+		const Vector3R axis = packet.getVector3("axis");
 		const real     degrees = packet.getReal("degree");
 		targetResource->rotate(axis.normalize(), degrees);
 		return ExitStatus::SUCCESS();
@@ -176,11 +176,11 @@ ExitStatus PhysicalActor::ciScale(
 	const InputPacket& packet)
 {
 	InputPrototype scalationInput;
-	scalationInput.addVector3r("factor");
+	scalationInput.addVector3("factor");
 
 	if(packet.isPrototypeMatched(scalationInput))
 	{
-		const Vector3R scalation = packet.getVector3r("factor");
+		const Vector3R scalation = packet.getVector3("factor");
 		targetResource->scale(scalation);
 		return ExitStatus::SUCCESS();
 	}

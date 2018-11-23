@@ -91,9 +91,9 @@ void GTriangleMesh::ciRegister(CommandRegister& cmdRegister)
 
 std::unique_ptr<GTriangleMesh> GTriangleMesh::ciLoad(const InputPacket& packet)
 {
-	const std::vector<Vector3R> positions = packet.getVector3rArray("positions");
-	const std::vector<Vector3R> texCoords = packet.getVector3rArray("texture-coordinates");
-	const std::vector<Vector3R> normals   = packet.getVector3rArray("normals");
+	const std::vector<Vector3R> positions = packet.getVector3Array("positions");
+	const std::vector<Vector3R> texCoords = packet.getVector3Array("texture-coordinates");
+	const std::vector<Vector3R> normals   = packet.getVector3Array("normals");
 
 	return std::make_unique<GTriangleMesh>(positions, texCoords, normals);
 }

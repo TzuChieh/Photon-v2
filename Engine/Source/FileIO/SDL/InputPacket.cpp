@@ -58,24 +58,24 @@ real InputPacket::getReal(
 	       m_valueParser.parseReal(stringValue) : defaultReal;
 }
 
-Vector3R InputPacket::getVector3r(
+Vector3R InputPacket::getVector3(
 	const std::string&   name,
-	const Vector3R&      defaultVector3r, 
+	const Vector3R&      defaultVector3, 
 	const DataTreatment& treatment) const
 {
 	std::string stringValue;
-	return findStringValue(Keyword::TYPENAME_VECTOR3R, name, treatment, &stringValue) ?
-	       m_valueParser.parseVector3r(stringValue) : defaultVector3r;
+	return findStringValue(Keyword::TYPENAME_VECTOR3, name, treatment, &stringValue) ?
+	       m_valueParser.parseVector3(stringValue) : defaultVector3;
 }
 
-QuaternionR InputPacket::getQuaternionR(
+QuaternionR InputPacket::getQuaternion(
 	const std::string&   name,
-	const QuaternionR&   defaultQuaternionR,
+	const QuaternionR&    defaultQuaternion,
 	const DataTreatment& treatment) const
 {
 	std::string stringValue;
-	return findStringValue(Keyword::TYPENAME_QUATERNIONR, name, treatment, &stringValue) ?
-	       m_valueParser.parseQuaternionR(stringValue) : defaultQuaternionR;
+	return findStringValue(Keyword::TYPENAME_QUATERNION, name, treatment, &stringValue) ?
+	       m_valueParser.parseQuaternion(stringValue) : defaultQuaternion;
 }
 
 std::vector<real> InputPacket::getRealArray(
@@ -88,14 +88,14 @@ std::vector<real> InputPacket::getRealArray(
 	       m_valueParser.parseRealArray(stringValue) : defaultRealArray;
 }
 
-std::vector<Vector3R> InputPacket::getVector3rArray(
+std::vector<Vector3R> InputPacket::getVector3Array(
 	const std::string&           name,
-	const std::vector<Vector3R>& defaultVector3rArray,
+	const std::vector<Vector3R>& defaultVector3Array,
 	const DataTreatment&         treatment) const
 {
 	std::string stringValue;
-	return findStringValue(Keyword::TYPENAME_VECTOR3R_ARRAY, name, treatment, &stringValue) ?
-	       m_valueParser.parseVector3rArray(stringValue) : defaultVector3rArray;
+	return findStringValue(Keyword::TYPENAME_VECTOR3_ARRAY, name, treatment, &stringValue) ?
+	       m_valueParser.parseVector3Array(stringValue) : defaultVector3Array;
 }
 
 Path InputPacket::getStringAsPath(
@@ -122,14 +122,14 @@ bool InputPacket::hasReal(const std::string& name) const
 	return findStringValue(Keyword::TYPENAME_REAL, name, DataTreatment(), nullptr);
 }
 
-bool InputPacket::hasVector3R(const std::string& name) const
+bool InputPacket::hasVector3(const std::string& name) const
 {
-	return findStringValue(Keyword::TYPENAME_VECTOR3R, name, DataTreatment(), nullptr);
+	return findStringValue(Keyword::TYPENAME_VECTOR3, name, DataTreatment(), nullptr);
 }
 
-bool InputPacket::hasQuaternionR(const std::string& name) const
+bool InputPacket::hasQuaternion(const std::string& name) const
 {
-	return findStringValue(Keyword::TYPENAME_QUATERNIONR, name, DataTreatment(), nullptr);
+	return findStringValue(Keyword::TYPENAME_QUATERNION, name, DataTreatment(), nullptr);
 }
 
 bool InputPacket::isPrototypeMatched(const InputPrototype& prototype) const
