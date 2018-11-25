@@ -40,7 +40,7 @@ public:
 
 	<category>  material          </category>
 	<type_name> matte-opaque      </type_name>
-	<inherit>   material.material </inherit>
+	<extend>    material.material </extend>
 
 	<name> Matte Opaque </name>
 	<description>

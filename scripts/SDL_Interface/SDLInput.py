@@ -2,6 +2,17 @@ import xml.etree.ElementTree as ElementTree
 
 
 class SDLInput:
+
+	VALUE_TYPE_NAMES = [
+		"string",
+		"integer",
+		"real",
+		"vector3",
+		"quaternion",
+		"real-array",
+		"vector3-array"
+	]
+
 	def __init__(self, root_element: ElementTree):
 		self.name = ""
 		self.type_name = ""
@@ -21,6 +32,15 @@ class SDLInput:
 				processed_text.replace("\n", "")
 				processed_text.replace("\r", "")
 				self.description = processed_text
+
+	def is_value(self):
+		for name in SDLInput.VALUE_TYPE_NAMES:
+			if self.type_name == name:
+				return True
+		return False
+
+	def is_reference(self):
+		return not self.is_value()
 
 	def __str__(self):
 

@@ -14,7 +14,10 @@ class SDLCreator:
 
 		for element in root_element:
 			if element.tag == "input":
-				self.inputs.append(SDLInput(element))
+				self.add_input(SDLInput(element))
+
+	def add_input(self, sdl_input: SDLInput):
+		self.inputs.append(sdl_input)
 
 	def __str__(self):
 

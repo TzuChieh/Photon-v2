@@ -1,12 +1,14 @@
 from InterfaceParser import InterfaceParser
 from RawGenerator.RawGenerator import RawGenerator
+from PythonGenerator.PythonGenerator import PythonGenerator
 
 import os
 import sys
 
 
 AVAILABLE_GENERATORS = [
-	RawGenerator
+	RawGenerator,
+	PythonGenerator
 ]
 
 print("available generators: ")
