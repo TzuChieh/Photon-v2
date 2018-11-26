@@ -6,13 +6,10 @@ from . import pysdl_header
 
 import copy
 import inspect
+from string import capwords
 
 
 class PythonGenerator(InterfaceGenerator):
-
-	TYPE_ABBR = {
-
-	}
 
 	def __init__(self):
 		super().__init__()
@@ -24,11 +21,15 @@ class PythonGenerator(InterfaceGenerator):
 	def generate(self, output_directory):
 
 		if not self.resolve_interface_extension():
-			print("warning: cannot resolve interface extension, may be possible cyclic extensions")
+			print("warning: cannot resolve interface extension, suggestions: ")
+			print("1. check for typo")
+			print("2. is the extended target actually exist")
+			print("3. may be possible cyclic extensions")
 			return
 
 		file = open(output_directory + "pysdl.py", "w+")
 		file.write(inspect.getsource(pysdl_header))
+		file.write("\n\n")
 		for interface in self.interfaces:
 			file.write(PythonGenerator.gen_interface_classes(interface))
 		file.close()
@@ -78,30 +79,34 @@ class PythonGenerator(InterfaceGenerator):
 			clazz = PythonClass(class_base_name + "Creator")
 			clazz.set_inherited_class_name("SDLCreatorCommand")
 
+			full_type_method = PythonMethod("get_full_type")
+			full_type_method.add_content_line("return \"%s\"" % sdl_interface.get_full_type_name())
+			clazz.add_method(full_type_method)
+
 			for sdl_input in sdl_interface.creator.inputs:
 
 				method_name = "set_"
-				method_name += sdl_input.type_name.replace("-", "_") + "_"
 				method_name += sdl_input.name.replace("-", "_")
-				method = PythonMethod(method_name)
-				method.add_input(sdl_input.name)
+				input_name = sdl_input.name.replace("-", "_")
 
-				if sdl_input.is_value():
-					method.add_content_line("self.set_value_input(\"%s\", \"%s\", %s)" % (
-						sdl_input.type_name, sdl_input.name, "str(%s)" % sdl_input.name))
-				else:
-					method.add_content_line("self.set_reference_input(\"%s\", \"%s\", %s)" % (
-						sdl_input.type_name, sdl_input.name, sdl_input.name))
+				if clazz.has_method(method_name):
+					continue
+
+				method = PythonMethod(method_name)
+				method.add_input(input_name, "SDLInput")
+				method.add_content_line("self.set_input(%s)" % input_name)
 
 				clazz.add_method(method)
 
 			code += clazz.gen_code()
 
+		# TODO: executor
+
 		return code
 
 	@classmethod
 	def gen_class_name(cls, sdl_interface: SDLInterface):
-		category_norm = sdl_interface.category_name.capwords("-")
-		type_norm = sdl_interface.type_name.capwords("-")
+		category_norm = capwords(sdl_interface.category_name, "-").replace("-", "")
+		type_norm = capwords(sdl_interface.type_name, "-").replace("-", "")
 		return type_norm + category_norm
 

@@ -58,6 +58,8 @@ class SDLInterface:
 					self.creator = SDLCreator(element)
 				elif element.attrib["type"] == "executor":
 					self.executors.append(SDLExecutor(element))
+			else:
+				print("note: tag %s ignored" % element.tag)
 
 	def has_creator(self):
 		return self.creator is not None
@@ -92,6 +94,9 @@ class SDLInterface:
 		return category_name + "(" + type_name + ")"
 
 	def extend(self, other_interface: "SDLInterface"):
+
+		if other_interface.creator is None:
+			return
 
 		for creator_input in other_interface.creator.inputs:
 			self.creator.add_input(creator_input)
