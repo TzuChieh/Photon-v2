@@ -41,3 +41,24 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  geometry          </category>
+	<type_name> sphere            </type_name>
+	<extend>    geometry.geometry </extend>
+
+	<name> Sphere </name>
+	<description>
+		A perfectly round shape centering around origin. 
+	</description>
+
+	<command type="creator">
+		<input name="radius" type="real">
+			<description>Size of the sphere.</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/

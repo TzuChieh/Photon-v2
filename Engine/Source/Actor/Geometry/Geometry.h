@@ -45,3 +45,17 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  geometry </category>
+	<type_name> geometry </type_name>
+
+	<name> Geometry </name>
+	<description>
+		Defining the shape of scene elements.
+	</description>
+
+	</SDL_interface>
+*/

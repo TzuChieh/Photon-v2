@@ -25,6 +25,8 @@ public:
 	static void ciRegister(CommandRegister& cmdRegister);
 };
 
+}// end namespace ph
+
 /*
 	<SDL_interface>
 
@@ -38,5 +40,3 @@ public:
 
 	</SDL_interface>
 */
-
-}// end namespace ph

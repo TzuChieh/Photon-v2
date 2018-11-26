@@ -49,9 +49,8 @@ class SDLInterface:
 			elif element.tag == "name":
 				self.name = element.text.strip()
 			elif element.tag == "description":
-				processed_text = element.text.strip()
-				processed_text.replace("\n", "")
-				processed_text.replace("\r", "")
+				processed_text = element.text.split()
+				processed_text = " ".join(processed_text)
 				self.description = processed_text
 			elif element.tag == "command":
 				if element.attrib["type"] == "creator":

@@ -39,3 +39,33 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  geometry          </category>
+	<type_name> rectangle         </type_name>
+	<extend>    geometry.geometry </extend>
+
+	<name> Rectangle </name>
+	<description>
+		A rectangular shape on xy-plane. It is centered around origin.
+	</description>
+
+	<command type="creator">
+		<input name="width" type="real">
+			<description>Width of the rectangle.</description>
+		</input>
+		<input name="height" type="real">
+			<description>Height of the rectangle.</description>
+		</input>
+		<input name="texcoord-scale" type="real">
+			<description>
+				A scaling factor that scales the default-generated texture 
+				coordinates.
+			</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/
