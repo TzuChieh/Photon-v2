@@ -15,13 +15,18 @@ from ..psdl import sdlresource
 from ..psdl.pysdl import (
 	SDLReal,
 	SDLVector3,
+	SDLQuaternion,
 	SDLString,
-	SDLVector3Array)
+	SDLVector3Array,
+	SDLReference)
 
 from ..psdl.pysdl import (
 	TriangleMeshGeometryCreator,
 	ModelActorCreator,
-	LightActorCreator)
+	LightActorCreator,
+	ModelActorTranslate,
+	ModelActorRotate,
+	ModelActorScale)
 
 import bpy
 import mathutils
@@ -98,34 +103,23 @@ class Exporter:
 		if geometryType == "triangle-mesh":
 			creator = TriangleMeshGeometryCreator()
 			creator.set_data_name(geometryName)
-			# command.append_string("-> geometry(triangle-mesh) %s \n" % ("\"@" + geometryName + "\""))
 
-			# positions = []
 			positions = SDLVector3Array()
 			for position in keywordArgs["positions"]:
 				triPosition = self.__blendToPhotonVector(position)
 				positions.add(triPosition)
-				# positions.append("\"%.8f %.8f %.8f\" " % (triPosition.x, triPosition.y, triPosition.z))
 			creator.set_positions(positions)
 
-			# texCoords = []
 			tex_coords = SDLVector3Array()
 			for texCoord in keywordArgs["texCoords"]:
 				tex_coords.add(texCoord)
-				# texCoords.append("\"%.8f %.8f %.8f\" " % (texCoord[0], texCoord[1], texCoord[2]))
 			creator.set_texture_coordinates(tex_coords)
 
-			# normals = []
 			normals = SDLVector3Array()
 			for normal in keywordArgs["normals"]:
 				triNormal = self.__blendToPhotonVector(normal)
 				normals.add(triNormal)
-				# normals.append("\"%.8f %.8f %.8f\" " % (triNormal.x, triNormal.y, triNormal.z))
 			creator.set_normals(normals)
-
-			# command.append_string("[vector3r-array positions {%s}]\n"           % "".join(positions))
-			# command.append_string("[vector3r-array texture-coordinates {%s}]\n" % "".join(texCoords))
-			# command.append_string("[vector3r-array normals {%s}]\n"             % "".join(normals))
 
 			command = RawCommand()
 			command.append_string(creator.generate())
@@ -229,15 +223,26 @@ class Exporter:
 		rotation = self.__blendToPhotonQuaternion(rotation)
 		scale    = self.__blendToPhotonVector(scale)
 
-		command.append_string("-> actor(model) %s [geometry geometry %s] [material material %s]\n"
-					 %("\"@" + actorModelName + "\"", "\"@" + geometryName + "\"", "\"@" + materialName + "\""))
+		creator = ModelActorCreator()
+		creator.set_data_name(actorModelName)
+		creator.set_geometry(SDLReference("geometry", geometryName))
+		creator.set_material(SDLReference("material", materialName))
+		command.append_string(creator.generate())
 
-		command.append_string("-> actor(model) translate(%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
-					 %("\"@" + actorModelName + "\"", position.x, position.y, position.z))
-		command.append_string("-> actor(model) scale    (%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
-					 %("\"@" + actorModelName + "\"", scale.x, scale.y, scale.z))
-		command.append_string("-> actor(model) rotate   (%s) [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
-					 %("\"@" + actorModelName + "\"", rotation.x, rotation.y, rotation.z, rotation.w))
+		translator = ModelActorTranslate()
+		translator.set_target_name(actorModelName)
+		translator.set_factor(SDLVector3(position))
+		command.append_string(translator.generate())
+
+		rotator = ModelActorRotate()
+		rotator.set_target_name(actorModelName)
+		rotator.set_factor(SDLQuaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
+		command.append_string(rotator.generate())
+
+		scaler = ModelActorScale()
+		scaler.set_target_name(actorModelName)
+		scaler.set_factor(SDLVector3(scale))
+		command.append_string(scaler.generate())
 
 		self.__sdlconsole.queue_command(command)
 

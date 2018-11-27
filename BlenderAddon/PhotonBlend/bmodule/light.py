@@ -186,23 +186,6 @@ def to_sdl_commands(b_obj, sdlconsole):
 	scaler.set_factor(SDLVector3(scale))
 	actor_cmd.append_string(scaler.generate())
 
-	# actor_cmd.append_string(
-	# 	"-> actor(light) @%s [light-source light-source @%s] \n" %
-	# 	(actor_name, source_name)
-	# )
-	# actor_cmd.append_string(
-	# 	"-> actor(light) translate(@%s) [vector3r factor \"%.8f %.8f %.8f\"] \n" %
-	# 	(actor_name, pos.x, pos.y, pos.z)
-	# )
-	# actor_cmd.append_string(
-	# 	"-> actor(light) rotate(@%s) [quaternionR factor \"%.8f %.8f %.8f %.8f\"] \n" %
-	# 	(actor_name, rot.x, rot.y, rot.z, rot.w)
-	# )
-	# actor_cmd.append_string(
-	# 	"-> actor(light) scale(@%s) [vector3r factor \"%.8f %.8f %.8f\"] \n" %
-	# 	(actor_name, scale.x, scale.y, scale.z)
-	# )
-
 	sdlconsole.queue_command(actor_cmd)
 
 

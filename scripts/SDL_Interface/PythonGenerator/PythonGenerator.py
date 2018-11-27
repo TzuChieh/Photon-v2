@@ -7,6 +7,7 @@ from . import pysdl_header
 import copy
 import inspect
 from string import capwords
+import datetime
 
 
 class PythonGenerator(InterfaceGenerator):
@@ -28,6 +29,14 @@ class PythonGenerator(InterfaceGenerator):
 			return
 
 		file = open(output_directory + "pysdl.py", "w+")
+
+		file.write(
+			"# ========================================\n"
+			"# NOTE: THIS FILE CONTAINS GENERATED CODE \n"
+			"#       DO NOT MODIFY                     \n"
+			"# ========================================\n")
+		file.write("# last generated: %s \n" % datetime.datetime.now())
+
 		file.write(inspect.getsource(pysdl_header))
 		file.write("\n\n")
 		for interface in self.interfaces:
