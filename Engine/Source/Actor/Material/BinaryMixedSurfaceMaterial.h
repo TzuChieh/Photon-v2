@@ -46,3 +46,42 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  material             </category>
+	<type_name> binary-mixed-surface </type_name>
+	<extend>    material.material    </extend>
+
+	<name> Binary Mixed Surface </name>
+	<description>
+		Mixing two surface materials in various ways.
+	</description>
+
+	<command type="creator">
+		<input name="mode" type="string">
+			<description>
+				Specifying how two materials are mixed. The only mode supported
+				now is "lerp".
+			</description>
+		</input>
+		<input name="factor" type="real">
+			<description>
+				A number in [0, 1] controlling the contribution from each material.
+			</description>
+		</input>
+		<input name="material-0" type="material">
+			<description>
+				The material that participates the mixing process.
+			</description>
+		</input>
+		<input name="material-1" type="material">
+			<description>
+				The material that participates the mixing process.
+			</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/

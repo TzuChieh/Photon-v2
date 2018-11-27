@@ -69,6 +69,8 @@ namespace
 		const integer layerIndex = packet.getInteger("index", -1, DataTreatment::REQUIRED());
 		target->setLayer(static_cast<std::size_t>(layerIndex), SurfaceLayerProperty(packet));
 
+		// TODO: return failed if index is invalid
+
 		return ExitStatus::SUCCESS();
 	}
 

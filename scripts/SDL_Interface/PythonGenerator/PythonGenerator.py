@@ -74,11 +74,14 @@ class PythonGenerator(InterfaceGenerator):
 
 		code = ""
 
+		# generating creator code
+
 		if sdl_interface.has_creator():
 
 			clazz = PythonClass(class_base_name + "Creator")
 			clazz.set_inherited_class_name("SDLCreatorCommand")
 
+			# overriding get_full_type
 			full_type_method = PythonMethod("get_full_type")
 			full_type_method.add_content_line("return \"%s\"" % sdl_interface.get_full_type_name())
 			clazz.add_method(full_type_method)
@@ -100,7 +103,40 @@ class PythonGenerator(InterfaceGenerator):
 
 			code += clazz.gen_code()
 
-		# TODO: executor
+		# generating executor code
+
+		for sdl_executor in sdl_interface.executors:
+
+			name_norm = capwords(sdl_executor.name, "-").replace("-", "")
+			clazz = PythonClass(class_base_name + name_norm)
+			clazz.set_inherited_class_name("SDLExecutorCommand")
+
+			# overriding get_full_type
+			full_type_method = PythonMethod("get_full_type")
+			full_type_method.add_content_line("return \"%s\"" % sdl_interface.get_full_type_name())
+			clazz.add_method(full_type_method)
+
+			# overriding get_name
+			get_name_method = PythonMethod("get_name")
+			get_name_method.add_content_line("return \"%s\"" % sdl_executor.name)
+			clazz.add_method(get_name_method)
+
+			for sdl_input in sdl_executor.inputs:
+
+				method_name = "set_"
+				method_name += sdl_input.name.replace("-", "_")
+				input_name = sdl_input.name.replace("-", "_")
+
+				if clazz.has_method(method_name):
+					continue
+
+				method = PythonMethod(method_name)
+				method.add_input(input_name, "SDLInput")
+				method.add_content_line("self.set_input(%s)" % input_name)
+
+				clazz.add_method(method)
+
+			code += clazz.gen_code()
 
 		return code
 

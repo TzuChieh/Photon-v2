@@ -36,3 +36,30 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  material          </category>
+	<type_name> full              </type_name>
+	<extend>    material.material </extend>
+
+	<name> Full Material </name>
+	<description>
+		A material model that combines surface and volume properties.
+	</description>
+
+	<command type="creator">
+		<input name="surface" type="material">
+			<description>A surface material.</description>
+		</input>
+		<input name="interior" type="material">
+			<description>A volume material describing the inside of the surface.</description>
+		</input>
+		<input name="exterior" type="material">
+			<description>A volume material describing the outside of the surface.</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/

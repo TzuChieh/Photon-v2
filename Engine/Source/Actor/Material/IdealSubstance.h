@@ -44,3 +44,60 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  material          </category>
+	<type_name> ideal-substance   </type_name>
+	<extend>    material.material </extend>
+
+	<name> Ideal Substance </name>
+	<description>
+		Models a perfectly smooth surface with various physical properties.
+	</description>
+
+	<command type="creator">
+		<input name="type" type="string">
+			<description>
+				Specifying the physical behavior of the surface. Available types are
+				"dielectric-reflector", "metallic-reflector", "transmitter", "absorber",
+				and "dielectric".
+			</description>
+		</input>
+		<input name="ior-outer" type="real">
+			<description>
+				The index of refraction outside of this material.
+			</description>
+		</input>
+		<input name="ior-inner" type="real">
+			<description>
+				The index of refraction inside of this material.
+			</description>
+		</input>
+		<input name="f0-rgb" type="vector3">
+			<description>
+				Surface reflectance on normal incidence. This value is expected
+				to be given in linear-SRGB. When this parameter is used,
+				the underlying Fresnel model will be an approximated one which
+				is pretty popular in real-time graphics.
+			</description>
+		</input>
+		<input name="reflection-scale" type="vector3">
+			<description>
+				A scaling factor for reflected energy. Note that this is only for
+				artistic control and is not physically correct. This value is expected
+				to be given in linear-SRGB.
+			</description>
+		</input>
+		<input name="transmission-scale" type="vector3">
+			<description>
+				A scaling factor for transmitted energy. Note that this is only for
+				artistic control and is not physically correct. This value is expected
+				to be given in linear-SRGB.
+			</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/

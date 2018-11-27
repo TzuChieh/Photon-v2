@@ -224,3 +224,46 @@ class SDLCreatorCommand(SDLCommand):
 
 	def set_input(self, sdl_input: SDLInput):
 		self.__inputs.append(sdl_input)
+
+
+class SDLExecutorCommand(SDLCommand):
+
+	def __init__(self):
+		super().__init__()
+		self.__target_name = ""
+		self.__inputs = []
+
+	@abstractmethod
+	def get_full_type(self):
+		pass
+
+	@abstractmethod
+	def get_name(self):
+		pass
+
+	def get_prefix(self):
+		return "->"
+
+	def generate(self):
+
+		# TODO: some part can be pre-generated
+		fragments = [
+			self.get_prefix(), " ",
+			self.get_full_type(), " ",
+			self.get_name(), "(",
+			"\"@" + self.__target_name + "\")", " "]
+
+		for sdl_input in self.__inputs:
+			fragments.append("[")
+			fragments.append(sdl_input.to_clause())
+			fragments.append("]")
+
+		fragments.append("\n")
+
+		return "".join(fragments)
+
+	def set_target_name(self, data_name):
+		self.__target_name = data_name
+
+	def set_input(self, sdl_input: SDLInput):
+		self.__inputs.append(sdl_input)
