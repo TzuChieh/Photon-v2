@@ -80,7 +80,7 @@ inline void PerspectiveCamera::setAspectRatio(const real ratio)
 		<input name="film-width-mm" type="real">
 			<description>Width of the film used by this camera in millimeters.</description>
 		</input>
-		<input name="film-offset-mm" type="rea;">
+		<input name="film-offset-mm" type="real">
 			<description>Distance from the film to the camera's lens.</description>
 		</input>
 	</command>

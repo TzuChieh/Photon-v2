@@ -89,3 +89,17 @@ inline std::size_t SampleGenerator::numCachedBatches() const
 }
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  sample-generator </category>
+	<type_name> sample-generator </type_name>
+
+	<name> Sample Generator </name>
+	<description>
+		Engine component for generating sample values.
+	</description>
+
+	</SDL_interface>
+*/

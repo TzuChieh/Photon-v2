@@ -124,3 +124,38 @@ inline bool Renderer::asyncIsRendering() const
 }
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  renderer </category>
+	<type_name> renderer </type_name>
+
+	<name> Renderer </name>
+	<description>
+		The main engine component for producing images.
+	</description>
+
+	<command type="creator" intent="blueprint">
+		<input name="width" type="integer">
+			<description>Width of the film in pixels.</description>
+		</input>
+		<input name="height" type="integer">
+			<description>Height of the film in pixels.</description>
+		</input>
+		<input name="rect-x" type="integer">
+			<description>X coordinate of the lower-left corner of the film cropping window.</description>
+		</input>
+		<input name="rect-y" type="integer">
+			<description>Y coordinate of the lower-left corner of the film cropping window.</description>
+		</input>
+		<input name="rect-w" type="integer">
+			<description>Width of the film cropping window.</description>
+		</input>
+		<input name="rect-h" type="integer">
+			<description>Height of the film cropping window.</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/
