@@ -134,7 +134,7 @@ ExitStatus PhysicalActor::ciTranslate(
 	}
 	else
 	{
-		return ExitStatus::BAD_INPUT("requiring a vector3r factor");
+		return ExitStatus::BAD_INPUT("requiring a vector3 factor");
 	}
 }
 
@@ -186,7 +186,7 @@ ExitStatus PhysicalActor::ciScale(
 	}
 	else
 	{
-		return ExitStatus::BAD_INPUT("requiring a vector3r factor");
+		return ExitStatus::BAD_INPUT("requiring a vector3 factor");
 	}
 }
 

@@ -96,8 +96,8 @@ class PythonGenerator(InterfaceGenerator):
 					continue
 
 				method = PythonMethod(method_name)
-				method.add_input(input_name, "SDLInput")
-				method.add_content_line("self.set_input(%s)" % input_name)
+				method.add_input(input_name, "SDLData")
+				method.add_content_line("self.set_input(\"%s\", %s)" % (sdl_input.name, input_name))
 
 				clazz.add_method(method)
 
@@ -131,8 +131,8 @@ class PythonGenerator(InterfaceGenerator):
 					continue
 
 				method = PythonMethod(method_name)
-				method.add_input(input_name, "SDLInput")
-				method.add_content_line("self.set_input(%s)" % input_name)
+				method.add_input(input_name, "SDLData")
+				method.add_content_line("self.set_input(\"%s\", %s)" % (sdl_input.name, input_name))
 
 				clazz.add_method(method)
 

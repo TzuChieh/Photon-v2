@@ -54,6 +54,9 @@ public:
 		<input name="albedo" type="vector3">
 			<description>An albedo value in linear SRGB.</description>
 		</input>
+		<input name="albedo" type="image">
+			<description>An image that will be used for describing albedo.</description>
+		</input>
 	</command>
 
 	</SDL_interface>

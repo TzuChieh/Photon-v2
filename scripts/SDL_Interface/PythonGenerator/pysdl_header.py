@@ -1,11 +1,10 @@
 from abc import ABC, abstractmethod
 
 
-class SDLInput(ABC):
+class SDLData(ABC):
 
 	def __init__(self):
 		super().__init__()
-		self.name = ""
 
 	@abstractmethod
 	def get_type(self):
@@ -15,15 +14,8 @@ class SDLInput(ABC):
 	def generate_data(self):
 		pass
 
-	def set_name(self, name):
-		self.name = name
-		return self
 
-	def to_clause(self):
-		return self.get_type() + " " + self.name + " " + self.generate_data()
-
-
-class SDLString(SDLInput):
+class SDLString(SDLData):
 
 	def __init__(self, string=""):
 		super().__init__()
@@ -36,7 +28,7 @@ class SDLString(SDLInput):
 		return self.string
 
 
-class SDLInteger(SDLInput):
+class SDLInteger(SDLData):
 
 	def __init__(self, integer=0):
 		super().__init__()
@@ -49,7 +41,7 @@ class SDLInteger(SDLInput):
 		return str(self.integer)
 
 
-class SDLReal(SDLInput):
+class SDLReal(SDLData):
 
 	def __init__(self, real=0):
 		super().__init__()
@@ -62,7 +54,7 @@ class SDLReal(SDLInput):
 		return str(self.real)
 
 
-class SDLVector3(SDLInput):
+class SDLVector3(SDLData):
 
 	def __init__(self, vector=(0, 0, 0)):
 		super().__init__()
@@ -75,7 +67,7 @@ class SDLVector3(SDLInput):
 		return "\"%f %f %f\"" % (self.vector[0], self.vector[1], self.vector[2])
 
 
-class SDLQuaternion(SDLInput):
+class SDLQuaternion(SDLData):
 	def __init__(self, quaternion=(0, 0, 0, 0)):
 		super().__init__()
 		self.quaternion = quaternion
@@ -87,7 +79,7 @@ class SDLQuaternion(SDLInput):
 		return "\"%f %f %f %f\"" % (self.quaternion[0], self.quaternion[1], self.quaternion[2], self.quaternion[3])
 
 
-class SDLRealArray(SDLInput):
+class SDLRealArray(SDLData):
 
 	def __init__(self, array=None):
 		super().__init__()
@@ -115,7 +107,7 @@ class SDLRealArray(SDLInput):
 		return self
 
 
-class SDLVector3Array(SDLInput):
+class SDLVector3Array(SDLData):
 
 	def __init__(self, array=None):
 		super().__init__()
@@ -143,7 +135,8 @@ class SDLVector3Array(SDLInput):
 		return self
 
 
-class SDLReference(SDLInput):
+# TODO: make a reference type for each category
+class SDLReference(SDLData):
 	def __init__(self, ref_type="", ref_name=""):
 		super().__init__()
 		self.ref_type = ref_type
@@ -156,7 +149,7 @@ class SDLReference(SDLInput):
 		return "\"@%s\"" % self.ref_name
 
 
-class SDLRaw(SDLInput):
+class SDLRaw(SDLData):
 
 	def __init__(self, type_string="", data_string=""):
 		super().__init__()
@@ -174,6 +167,7 @@ class SDLCommand(ABC):
 
 	def __init__(self):
 		super().__init__()
+		self._inputs = []
 
 	@abstractmethod
 	def get_prefix(self):
@@ -187,13 +181,15 @@ class SDLCommand(ABC):
 	def generate(self):
 		pass
 
+	def set_input(self, name, data: SDLData):
+		self._inputs.append((name, data))
+
 
 class SDLCreatorCommand(SDLCommand):
 
 	def __init__(self):
 		super().__init__()
 		self.__data_name = ""
-		self.__inputs = []
 
 	@abstractmethod
 	def get_full_type(self):
@@ -210,9 +206,11 @@ class SDLCreatorCommand(SDLCommand):
 			self.get_full_type(), " ",
 			"\"@" + self.__data_name + "\"", " "]
 
-		for sdl_input in self.__inputs:
+		for name, data in self._inputs:
 			fragments.append("[")
-			fragments.append(sdl_input.to_clause())
+			fragments.append(data.get_type() + " ")
+			fragments.append(name + " ")
+			fragments.append(data.generate_data())
 			fragments.append("]")
 
 		fragments.append("\n")
@@ -221,9 +219,6 @@ class SDLCreatorCommand(SDLCommand):
 
 	def set_data_name(self, data_name):
 		self.__data_name = data_name
-
-	def set_input(self, sdl_input: SDLInput):
-		self.__inputs.append(sdl_input)
 
 
 class SDLExecutorCommand(SDLCommand):
@@ -253,9 +248,11 @@ class SDLExecutorCommand(SDLCommand):
 			self.get_name(), "(",
 			"\"@" + self.__target_name + "\")", " "]
 
-		for sdl_input in self.__inputs:
+		for name, data in self._inputs:
 			fragments.append("[")
-			fragments.append(sdl_input.to_clause())
+			fragments.append(data.get_type() + " ")
+			fragments.append(name + " ")
+			fragments.append(data.generate_data())
 			fragments.append("]")
 
 		fragments.append("\n")
@@ -264,6 +261,3 @@ class SDLExecutorCommand(SDLCommand):
 
 	def set_target_name(self, data_name):
 		self.__target_name = data_name
-
-	def set_input(self, sdl_input: SDLInput):
-		self.__inputs.append(sdl_input)

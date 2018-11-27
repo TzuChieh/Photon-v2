@@ -7,6 +7,23 @@ from .. import utility
 from ..psdl import clause
 from ..psdl.cmd import RawCommand
 
+from ..psdl.pysdl import (
+	SDLInteger,
+	SDLReal,
+	SDLString,
+	SDLVector3,
+	SDLReference)
+
+from ..psdl.pysdl import (
+	MatteOpaqueMaterialCreator,
+	AbradedOpaqueMaterialCreator,
+	AbradedTranslucentMaterialCreator,
+	LayeredSurfaceMaterialCreator,
+	LayeredSurfaceMaterialAdd,
+	LayeredSurfaceMaterialSet,
+	FullMaterialCreator,
+	BinaryMixedSurfaceMaterialCreator)
+
 import bpy
 import nodeitems_utils
 import mathutils
@@ -278,9 +295,14 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 			cmd.intent_is_reflectance_srgb()
 			sdlconsole.queue_command(cmd)
 
-		cmd = materialcmd.MatteOpaqueCreator()
-		cmd.set_data_name(res_name + "_" + self.name + "_" + surface_material_socket.identifier)
-		cmd.set_albedo_image_ref(albedo_res_name)
+		cmd = RawCommand()
+		creator = MatteOpaqueMaterialCreator()
+		creator.set_data_name(res_name + "_" + self.name + "_" + surface_material_socket.identifier)
+		creator.set_albedo(SDLReference("image", albedo_res_name))
+		cmd.append_string(creator.generate())
+		#cmd = materialcmd.MatteOpaqueCreator()
+		#cmd.set_data_name(res_name + "_" + self.name + "_" + surface_material_socket.identifier)
+		#cmd.set_albedo_image_ref(albedo_res_name)
 		sdlconsole.queue_command(cmd)
 
 
