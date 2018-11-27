@@ -52,7 +52,7 @@ public:
 		as long as the emitting source is within the area.
 	</description>
 
-	<command type="creator">
+	<command type="creator" intent="blueprint">
 		<input name="linear-srgb" type="vector3">
 			<description>The color of this light source in linear-SRGB.</description>
 		</input>

@@ -26,7 +26,8 @@ from ..psdl.pysdl import (
 	LightActorCreator,
 	ModelActorTranslate,
 	ModelActorRotate,
-	ModelActorScale)
+	ModelActorScale,
+	PinholeCameraCreator)
 
 import bpy
 import mathutils
@@ -89,13 +90,12 @@ class Exporter:
 		clauze = clause.Vector3Clause()
 
 		command = RawCommand()
-		command.append_string(
-			"""## camera(%s) [real fov-degree %.8f] %s %s %s \n""" %
-			(cameraType, fovDegrees,
-			 clauze.set_name("position").set_data(position).to_sdl_fragment(),
-			 clauze.set_name("direction").set_data(direction).to_sdl_fragment(),
-			 clauze.set_name("up-axis").set_data(upDirection).to_sdl_fragment())
-		)
+		creator = PinholeCameraCreator()
+		creator.set_fov_degree(SDLReal(fovDegrees))
+		creator.set_position(SDLVector3(position))
+		creator.set_direction(SDLVector3(direction))
+		creator.set_up_axis(SDLVector3(upDirection))
+		command.append_string(creator.generate())
 		self.__sdlconsole.queue_command(command)
 
 	def export_triangle_mesh(self, geometryType, geometryName, **keywordArgs):

@@ -67,13 +67,13 @@ class SDLInterface:
 		return self.executors
 
 	def is_core(self):
-		for category in SDLInterface.WORLD_CATEGORIES:
+		for category in SDLInterface.CORE_CATEGORIES:
 			if self.category_name == category:
 				return True
 		return False
 
 	def is_world(self):
-		for category in SDLInterface.CORE_CATEGORIES:
+		for category in SDLInterface.WORLD_CATEGORIES:
 			if self.category_name == category:
 				return True
 		return False

@@ -1,3 +1,9 @@
+# ========================================
+# NOTE: THIS FILE CONTAINS GENERATED CODE
+#       DO NOT MODIFY
+# ========================================
+# last generated: 2018-11-28 01:37:25.473388
+
 from abc import ABC, abstractmethod
 
 
@@ -184,6 +190,14 @@ class SDLCommand(ABC):
 	def set_input(self, name, data: SDLData):
 		self._inputs.append((name, data))
 
+	def _generate_input_fragments(self, out_fragments):
+		for name, data in self._inputs:
+			out_fragments.append("[")
+			out_fragments.append(data.get_type() + " ")
+			out_fragments.append(name + " ")
+			out_fragments.append(data.generate_data())
+			out_fragments.append("]")
+
 
 class SDLCreatorCommand(SDLCommand):
 
@@ -205,14 +219,7 @@ class SDLCreatorCommand(SDLCommand):
 			self.get_prefix(), " ",
 			self.get_full_type(), " ",
 			"\"@" + self.__data_name + "\"", " "]
-
-		for name, data in self._inputs:
-			fragments.append("[")
-			fragments.append(data.get_type() + " ")
-			fragments.append(name + " ")
-			fragments.append(data.generate_data())
-			fragments.append("]")
-
+		self._generate_input_fragments(fragments)
 		fragments.append("\n")
 
 		return "".join(fragments)
@@ -247,20 +254,36 @@ class SDLExecutorCommand(SDLCommand):
 			self.get_full_type(), " ",
 			self.get_name(), "(",
 			"\"@" + self.__target_name + "\")", " "]
-
-		for name, data in self._inputs:
-			fragments.append("[")
-			fragments.append(data.get_type() + " ")
-			fragments.append(name + " ")
-			fragments.append(data.generate_data())
-			fragments.append("]")
-
+		self._generate_input_fragments(fragments)
 		fragments.append("\n")
 
 		return "".join(fragments)
 
 	def set_target_name(self, data_name):
 		self.__target_name = data_name
+
+
+class SDLCoreCommand(SDLCommand):
+
+	def __init__(self):
+		super().__init__()
+
+	@abstractmethod
+	def get_full_type(self):
+		pass
+
+	def get_prefix(self):
+		return "##"
+
+	def generate(self):
+
+		fragments = [
+			self.get_prefix(), " ",
+			self.get_full_type(), " "]
+		self._generate_input_fragments(fragments)
+		fragments.append("\n")
+
+		return "".join(fragments)
 
 
 class LightActorCreator(SDLCreatorCommand):
@@ -489,21 +512,6 @@ class TriangleMeshGeometryCreator(SDLCreatorCommand):
 
     def set_normals(self, normals: SDLData):
         self.set_input("normals", normals)
-
-
-class AreaLightSourceCreator(SDLCreatorCommand):
-
-    def __init__(self):
-        super().__init__()
-
-    def get_full_type(self):
-        return "light-source(area)"
-
-    def set_linear_srgb(self, linear_srgb: SDLData):
-        self.set_input("linear-srgb", linear_srgb)
-
-    def set_watts(self, watts: SDLData):
-        self.set_input("watts", watts)
 
 
 class ModelLightSourceCreator(SDLCreatorCommand):
@@ -744,5 +752,32 @@ class MatteOpaqueMaterialCreator(SDLCreatorCommand):
 
     def set_albedo(self, albedo: SDLData):
         self.set_input("albedo", albedo)
+
+
+class PinholeCameraCreator(SDLCoreCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "camera(pinhole)"
+
+    def set_fov_degree(self, fov_degree: SDLData):
+        self.set_input("fov-degree", fov_degree)
+
+    def set_film_width_mm(self, film_width_mm: SDLData):
+        self.set_input("film-width-mm", film_width_mm)
+
+    def set_film_offset_mm(self, film_offset_mm: SDLData):
+        self.set_input("film-offset-mm", film_offset_mm)
+
+    def set_position(self, position: SDLData):
+        self.set_input("position", position)
+
+    def set_direction(self, direction: SDLData):
+        self.set_input("direction", direction)
+
+    def set_up_axis(self, up_axis: SDLData):
+        self.set_input("up-axis", up_axis)
 
 

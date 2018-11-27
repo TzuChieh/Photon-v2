@@ -107,3 +107,29 @@ inline real Camera::getAspectRatio() const
 }
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  camera </category>
+	<type_name> camera </type_name>
+
+	<name> Camera </name>
+	<description>
+		A camera for observing the scene.
+	</description>
+
+	<command type="creator" intent="blueprint">
+		<input name="position" type="vector3">
+			<description>Position of the camera.</description>
+		</input>
+		<input name="direction" type="vector3">
+			<description>Direction that this camera is looking at.</description>
+		</input>
+		<input name="up-axis" type="vector3">
+			<description>The direction that this camera consider as upward.</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/

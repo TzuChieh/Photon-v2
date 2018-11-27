@@ -33,3 +33,22 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  camera             </category>
+	<type_name> pinhole            </type_name>
+	<extend>    camera.perspective </extend>
+
+	<name> Pinhole Camera </name>
+	<description>
+		This type of camera is simply composed of a hole (which serves as its lens system) and a 
+		film. Images captured by this camera is similar to how a normal human perceives the world 
+		but with several simplifications.
+	</description>
+
+	<command type="creator"/>
+
+	</SDL_interface>
+*/

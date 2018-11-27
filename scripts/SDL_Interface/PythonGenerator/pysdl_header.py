@@ -184,6 +184,14 @@ class SDLCommand(ABC):
 	def set_input(self, name, data: SDLData):
 		self._inputs.append((name, data))
 
+	def _generate_input_fragments(self, out_fragments):
+		for name, data in self._inputs:
+			out_fragments.append("[")
+			out_fragments.append(data.get_type() + " ")
+			out_fragments.append(name + " ")
+			out_fragments.append(data.generate_data())
+			out_fragments.append("]")
+
 
 class SDLCreatorCommand(SDLCommand):
 
@@ -205,14 +213,7 @@ class SDLCreatorCommand(SDLCommand):
 			self.get_prefix(), " ",
 			self.get_full_type(), " ",
 			"\"@" + self.__data_name + "\"", " "]
-
-		for name, data in self._inputs:
-			fragments.append("[")
-			fragments.append(data.get_type() + " ")
-			fragments.append(name + " ")
-			fragments.append(data.generate_data())
-			fragments.append("]")
-
+		self._generate_input_fragments(fragments)
 		fragments.append("\n")
 
 		return "".join(fragments)
@@ -247,17 +248,33 @@ class SDLExecutorCommand(SDLCommand):
 			self.get_full_type(), " ",
 			self.get_name(), "(",
 			"\"@" + self.__target_name + "\")", " "]
-
-		for name, data in self._inputs:
-			fragments.append("[")
-			fragments.append(data.get_type() + " ")
-			fragments.append(name + " ")
-			fragments.append(data.generate_data())
-			fragments.append("]")
-
+		self._generate_input_fragments(fragments)
 		fragments.append("\n")
 
 		return "".join(fragments)
 
 	def set_target_name(self, data_name):
 		self.__target_name = data_name
+
+
+class SDLCoreCommand(SDLCommand):
+
+	def __init__(self):
+		super().__init__()
+
+	@abstractmethod
+	def get_full_type(self):
+		pass
+
+	def get_prefix(self):
+		return "##"
+
+	def generate(self):
+
+		fragments = [
+			self.get_prefix(), " ",
+			self.get_full_type(), " "]
+		self._generate_input_fragments(fragments)
+		fragments.append("\n")
+
+		return "".join(fragments)

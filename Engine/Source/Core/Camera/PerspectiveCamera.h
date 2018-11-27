@@ -60,3 +60,30 @@ inline void PerspectiveCamera::setAspectRatio(const real ratio)
 }
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  camera        </category>
+	<type_name> perspective   </type_name>
+	<extend>    camera.camera </extend>
+
+	<name> Perspective Camera </name>
+	<description>
+		For cameras that have perspective effect.
+	</description>
+
+	<command type="creator" intent="blueprint">
+		<input name="fov-degree" type="real">
+			<description>Field of view of this camera in degrees.</description>
+		</input>
+		<input name="film-width-mm" type="real">
+			<description>Width of the film used by this camera in millimeters.</description>
+		</input>
+		<input name="film-offset-mm" type="rea;">
+			<description>Distance from the film to the camera's lens.</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/

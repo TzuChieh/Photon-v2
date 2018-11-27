@@ -35,7 +35,7 @@ class PythonGenerator(InterfaceGenerator):
 			"# NOTE: THIS FILE CONTAINS GENERATED CODE \n"
 			"#       DO NOT MODIFY                     \n"
 			"# ========================================\n")
-		file.write("# last generated: %s \n" % datetime.datetime.now())
+		file.write("# last generated: %s \n\n" % datetime.datetime.now())
 
 		file.write(inspect.getsource(pysdl_header))
 		file.write("\n\n")
@@ -85,10 +85,13 @@ class PythonGenerator(InterfaceGenerator):
 
 		# generating creator code
 
-		if sdl_interface.has_creator():
+		if sdl_interface.has_creator() and not sdl_interface.creator.is_blueprint:
 
 			clazz = PythonClass(class_base_name + "Creator")
-			clazz.set_inherited_class_name("SDLCreatorCommand")
+			if sdl_interface.is_world():
+				clazz.set_inherited_class_name("SDLCreatorCommand")
+			else:
+				clazz.set_inherited_class_name("SDLCoreCommand")
 
 			# overriding get_full_type
 			full_type_method = PythonMethod("get_full_type")

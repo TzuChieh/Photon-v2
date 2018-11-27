@@ -22,8 +22,8 @@ class SDLInput:
 			print("warning: invalid SDL input root element detected: %s" % root_element.tag)
 			return
 
-		self.name = root_element.get("name")
-		self.type_name = root_element.get("type")
+		self.name = root_element.attrib["name"]
+		self.type_name = root_element.attrib["type"]
 
 		# TODO: remove spaces and some newline chars
 		for element in root_element:

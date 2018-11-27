@@ -8,6 +8,9 @@ class SDLCreator:
 	def __init__(self, root_element: ElementTree):
 		self.inputs = []
 
+		intent = root_element.get("intent", "")
+		self.is_blueprint = intent == "blueprint"
+
 		if root_element.tag != "command":
 			print("warning: invalid SDL creator root element detected: %s" % root_element.tag)
 			return
