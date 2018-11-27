@@ -94,11 +94,9 @@ class SDLInterface:
 
 	def extend(self, other_interface: "SDLInterface"):
 
-		if other_interface.creator is None:
-			return
-
-		for creator_input in other_interface.creator.inputs:
-			self.creator.add_input(creator_input)
+		if other_interface.creator is not None:
+			for creator_input in other_interface.creator.inputs:
+				self.creator.add_input(creator_input)
 
 		self.executors.extend(other_interface.executors)
 

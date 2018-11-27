@@ -29,3 +29,28 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  light-source      </category>
+	<type_name> rectangle         </type_name>
+	<extend>    light-source.area </extend>
+
+	<name> Rectangle Source </name>
+	<description>
+		This type of light emits energy from a rectangular shape. Note that energy
+		is only allowed to emit from one side of the rectangle, not both sides.
+	</description>
+
+	<command type="creator">
+		<input name="width" type="real">
+			<description>The width of the rectangle.</description>
+		</input>
+		<input name="height" type="real">
+			<description>The height of the rectangle.</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/

@@ -49,3 +49,27 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  actor          </category>
+	<type_name> model          </type_name>
+	<extend>    actor.physical </extend>
+
+	<name> Model Actor </name>
+	<description>
+		An actor that has a certain 3-D shape in the scene.
+	</description>
+
+	<command type="creator">
+		<input name="geometry" type="geometry">
+			<description>A geometry that represent this actor's shape.</description>
+		</input>
+		<input name="material" type="material">
+			<description>A material that describes this actor's surface appearance.</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/

@@ -12,6 +12,17 @@ from . import node
 from ..psdl import actorcmd
 from ..psdl import sdlresource
 
+from ..psdl.pysdl import (
+	SDLReal,
+	SDLVector3,
+	SDLString,
+	SDLVector3Array)
+
+from ..psdl.pysdl import (
+	TriangleMeshGeometryCreator,
+	ModelActorCreator,
+	LightActorCreator)
+
 import bpy
 import mathutils
 
@@ -85,26 +96,39 @@ class Exporter:
 	def export_triangle_mesh(self, geometryType, geometryName, **keywordArgs):
 
 		if geometryType == "triangle-mesh":
-			command = RawCommand()
-			command.append_string("-> geometry(triangle-mesh) %s \n" % ("\"@" + geometryName + "\""))
+			creator = TriangleMeshGeometryCreator()
+			creator.set_data_name(geometryName)
+			# command.append_string("-> geometry(triangle-mesh) %s \n" % ("\"@" + geometryName + "\""))
 
-			positions = []
+			# positions = []
+			positions = SDLVector3Array()
 			for position in keywordArgs["positions"]:
 				triPosition = self.__blendToPhotonVector(position)
-				positions.append("\"%.8f %.8f %.8f\" " % (triPosition.x, triPosition.y, triPosition.z))
+				positions.add(triPosition)
+				# positions.append("\"%.8f %.8f %.8f\" " % (triPosition.x, triPosition.y, triPosition.z))
+			creator.set_positions(positions)
 
-			texCoords = []
+			# texCoords = []
+			tex_coords = SDLVector3Array()
 			for texCoord in keywordArgs["texCoords"]:
-				texCoords.append("\"%.8f %.8f %.8f\" " % (texCoord[0], texCoord[1], texCoord[2]))
+				tex_coords.add(texCoord)
+				# texCoords.append("\"%.8f %.8f %.8f\" " % (texCoord[0], texCoord[1], texCoord[2]))
+			creator.set_texture_coordinates(tex_coords)
 
-			normals = []
+			# normals = []
+			normals = SDLVector3Array()
 			for normal in keywordArgs["normals"]:
 				triNormal = self.__blendToPhotonVector(normal)
-				normals.append("\"%.8f %.8f %.8f\" " % (triNormal.x, triNormal.y, triNormal.z))
+				normals.add(triNormal)
+				# normals.append("\"%.8f %.8f %.8f\" " % (triNormal.x, triNormal.y, triNormal.z))
+			creator.set_normals(normals)
 
-			command.append_string("[vector3r-array positions {%s}]\n"           % "".join(positions))
-			command.append_string("[vector3r-array texture-coordinates {%s}]\n" % "".join(texCoords))
-			command.append_string("[vector3r-array normals {%s}]\n"             % "".join(normals))
+			# command.append_string("[vector3r-array positions {%s}]\n"           % "".join(positions))
+			# command.append_string("[vector3r-array texture-coordinates {%s}]\n" % "".join(texCoords))
+			# command.append_string("[vector3r-array normals {%s}]\n"             % "".join(normals))
+
+			command = RawCommand()
+			command.append_string(creator.generate())
 			self.__sdlconsole.queue_command(command)
 
 		elif geometryType == "rectangle":

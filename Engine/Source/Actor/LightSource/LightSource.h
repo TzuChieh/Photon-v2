@@ -46,3 +46,17 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  light-source </category>
+	<type_name> light-source </type_name>
+
+	<name> Light Source </name>
+	<description>
+		The source of all energy emitting entity in the scene.
+	</description>
+
+	</SDL_interface>
+*/

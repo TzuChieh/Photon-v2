@@ -38,3 +38,28 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  light-source              </category>
+	<type_name> area                      </type_name>
+	<extend>    light-source.light-source </extend>
+
+	<name> Area Source </name>
+	<description>
+		This type of light source has a finite area. Energy is allowed to emit
+		as long as the emitting source is within the area.
+	</description>
+
+	<command type="creator">
+		<input name="linear-srgb" type="vector3">
+			<description>The color of this light source in linear-SRGB.</description>
+		</input>
+		<input name="watts" type="real">
+			<description>Energy emitted by this light source.</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/

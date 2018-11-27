@@ -63,3 +63,24 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  actor          </category>
+	<type_name> light          </type_name>
+	<extend>    actor.physical </extend>
+
+	<name> Light Actor </name>
+	<description>
+		An actor that represents a light in the scene.
+	</description>
+
+	<command type="creator">
+		<input name="light-source" type="light-source">
+			<description>The source of the energy.</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/

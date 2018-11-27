@@ -6,6 +6,21 @@ from .export import naming
 from .. import utility
 from ..psdl import clause
 
+from ..psdl.pysdl import (
+	SDLReal,
+	SDLVector3,
+	SDLQuaternion,
+	SDLString,
+	SDLReference)
+
+from ..psdl.pysdl import (
+	LightActorCreator,
+	SphereLightSourceCreator,
+	RectangleLightSourceCreator,
+	LightActorTranslate,
+	LightActorRotate,
+	LightActorScale)
+
 import bpy
 import mathutils
 
@@ -107,12 +122,22 @@ def to_sdl_commands(b_obj, sdlconsole):
 		rec_width  = b_lamp.size
 		rec_height = b_lamp.size_y if b_lamp.shape == "RECTANGLE" else b_lamp.size
 
-		source_cmd = lightcmd.RectangleLightCreator()
-		source_cmd.set_data_name(source_name)
-		source_cmd.set_width(rec_width)
-		source_cmd.set_height(rec_height)
-		source_cmd.set_linear_srgb_color(b_lamp.ph_light_color_linear_srgb)
-		source_cmd.set_watts(b_lamp.ph_light_watts)
+		source_cmd = RawCommand()
+		creator = RectangleLightSourceCreator()
+		creator.set_data_name(source_name)
+		creator.set_width(SDLReal(rec_width))
+		creator.set_height(SDLReal(rec_height))
+		creator.set_linear_srgb(SDLVector3(b_lamp.ph_light_color_linear_srgb))
+		creator.set_watts(SDLReal(b_lamp.ph_light_watts))
+		source_cmd.append_string(creator.generate())
+
+		# source_cmd = lightcmd.RectangleLightCreator()
+		# source_cmd.set_data_name(source_name)
+		# source_cmd.set_width(rec_width)
+		# source_cmd.set_height(rec_height)
+		# source_cmd.set_linear_srgb_color(b_lamp.ph_light_color_linear_srgb)
+		# source_cmd.set_watts(b_lamp.ph_light_watts)
+
 		sdlconsole.queue_command(source_cmd)
 
 	elif b_lamp.type == "POINT":
@@ -140,22 +165,44 @@ def to_sdl_commands(b_obj, sdlconsole):
 	scale = utility.to_photon_vec3(scale)
 
 	actor_cmd = RawCommand()
-	actor_cmd.append_string(
-		"-> actor(light) @%s [light-source light-source @%s] \n" %
-		(actor_name, source_name)
-	)
-	actor_cmd.append_string(
-		"-> actor(light) translate(@%s) [vector3r factor \"%.8f %.8f %.8f\"] \n" %
-		(actor_name, pos.x, pos.y, pos.z)
-	)
-	actor_cmd.append_string(
-		"-> actor(light) rotate(@%s) [quaternionR factor \"%.8f %.8f %.8f %.8f\"] \n" %
-		(actor_name, rot.x, rot.y, rot.z, rot.w)
-	)
-	actor_cmd.append_string(
-		"-> actor(light) scale(@%s) [vector3r factor \"%.8f %.8f %.8f\"] \n" %
-		(actor_name, scale.x, scale.y, scale.z)
-	)
+
+	creator = LightActorCreator()
+	creator.set_data_name(actor_name)
+	creator.set_light_source(SDLReference("light-source", source_name))
+	actor_cmd.append_string(creator.generate())
+
+	translator = LightActorTranslate()
+	translator.set_target_name(actor_name)
+	translator.set_factor(SDLVector3(pos))
+	actor_cmd.append_string(translator.generate())
+
+	rotator = LightActorRotate()
+	rotator.set_target_name(actor_name)
+	rotator.set_factor(SDLQuaternion((rot.x, rot.y, rot.z, rot.w)))
+	actor_cmd.append_string(rotator.generate())
+
+	scaler = LightActorScale()
+	scaler.set_target_name(actor_name)
+	scaler.set_factor(SDLVector3(scale))
+	actor_cmd.append_string(scaler.generate())
+
+	# actor_cmd.append_string(
+	# 	"-> actor(light) @%s [light-source light-source @%s] \n" %
+	# 	(actor_name, source_name)
+	# )
+	# actor_cmd.append_string(
+	# 	"-> actor(light) translate(@%s) [vector3r factor \"%.8f %.8f %.8f\"] \n" %
+	# 	(actor_name, pos.x, pos.y, pos.z)
+	# )
+	# actor_cmd.append_string(
+	# 	"-> actor(light) rotate(@%s) [quaternionR factor \"%.8f %.8f %.8f %.8f\"] \n" %
+	# 	(actor_name, rot.x, rot.y, rot.z, rot.w)
+	# )
+	# actor_cmd.append_string(
+	# 	"-> actor(light) scale(@%s) [vector3r factor \"%.8f %.8f %.8f\"] \n" %
+	# 	(actor_name, scale.x, scale.y, scale.z)
+	# )
+
 	sdlconsole.queue_command(actor_cmd)
 
 

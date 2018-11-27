@@ -98,7 +98,7 @@ void swap(PhysicalActor& first, PhysicalActor& second)
 
 SdlTypeInfo PhysicalActor::ciTypeInfo()
 {
-	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "physical-actor");
+	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "physical");
 }
 
 void PhysicalActor::ciRegister(CommandRegister& cmdRegister)

@@ -105,7 +105,7 @@ class Vector3Clause(SdlClause):
 		super(Vector3Clause, self).__init__()
 
 	def get_type_name(self):
-		return "vector3r"
+		return "vector3"
 
 	def data_to_string(self, vec3):
 		return "\"%.8f %.8f %.8f\"" % (vec3.x, vec3.y, vec3.z)

@@ -263,6 +263,186 @@ class SDLExecutorCommand(SDLCommand):
 		self.__target_name = data_name
 
 
+class LightActorCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(light)"
+
+    def set_light_source(self, light_source: SDLData):
+        self.set_input("light-source", light_source)
+
+
+class LightActorTranslate(SDLExecutorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(light)"
+
+    def get_name(self):
+        return "translate"
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class LightActorRotate(SDLExecutorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(light)"
+
+    def get_name(self):
+        return "rotate"
+
+    def set_axis(self, axis: SDLData):
+        self.set_input("axis", axis)
+
+    def set_degree(self, degree: SDLData):
+        self.set_input("degree", degree)
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class LightActorScale(SDLExecutorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(light)"
+
+    def get_name(self):
+        return "scale"
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class ModelActorCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(model)"
+
+    def set_geometry(self, geometry: SDLData):
+        self.set_input("geometry", geometry)
+
+    def set_material(self, material: SDLData):
+        self.set_input("material", material)
+
+
+class ModelActorTranslate(SDLExecutorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(model)"
+
+    def get_name(self):
+        return "translate"
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class ModelActorRotate(SDLExecutorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(model)"
+
+    def get_name(self):
+        return "rotate"
+
+    def set_axis(self, axis: SDLData):
+        self.set_input("axis", axis)
+
+    def set_degree(self, degree: SDLData):
+        self.set_input("degree", degree)
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class ModelActorScale(SDLExecutorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(model)"
+
+    def get_name(self):
+        return "scale"
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class PhysicalActorTranslate(SDLExecutorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(physical)"
+
+    def get_name(self):
+        return "translate"
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class PhysicalActorRotate(SDLExecutorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(physical)"
+
+    def get_name(self):
+        return "rotate"
+
+    def set_axis(self, axis: SDLData):
+        self.set_input("axis", axis)
+
+    def set_degree(self, degree: SDLData):
+        self.set_input("degree", degree)
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class PhysicalActorScale(SDLExecutorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(physical)"
+
+    def get_name(self):
+        return "scale"
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
 class RectangleGeometryCreator(SDLCreatorCommand):
 
     def __init__(self):
@@ -291,6 +471,99 @@ class SphereGeometryCreator(SDLCreatorCommand):
 
     def set_radius(self, radius: SDLData):
         self.set_input("radius", radius)
+
+
+class TriangleMeshGeometryCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "geometry(triangle-mesh)"
+
+    def set_positions(self, positions: SDLData):
+        self.set_input("positions", positions)
+
+    def set_texture_coordinates(self, texture_coordinates: SDLData):
+        self.set_input("texture-coordinates", texture_coordinates)
+
+    def set_normals(self, normals: SDLData):
+        self.set_input("normals", normals)
+
+
+class AreaLightSourceCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "light-source(area)"
+
+    def set_linear_srgb(self, linear_srgb: SDLData):
+        self.set_input("linear-srgb", linear_srgb)
+
+    def set_watts(self, watts: SDLData):
+        self.set_input("watts", watts)
+
+
+class ModelLightSourceCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "light-source(model)"
+
+    def set_geometry(self, geometry: SDLData):
+        self.set_input("geometry", geometry)
+
+    def set_material(self, material: SDLData):
+        self.set_input("material", material)
+
+    def set_emitted_radiance(self, emitted_radiance: SDLData):
+        self.set_input("emitted-radiance", emitted_radiance)
+
+    def set_emit_mode(self, emit_mode: SDLData):
+        self.set_input("emit-mode", emit_mode)
+
+
+class RectangleLightSourceCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "light-source(rectangle)"
+
+    def set_width(self, width: SDLData):
+        self.set_input("width", width)
+
+    def set_height(self, height: SDLData):
+        self.set_input("height", height)
+
+    def set_linear_srgb(self, linear_srgb: SDLData):
+        self.set_input("linear-srgb", linear_srgb)
+
+    def set_watts(self, watts: SDLData):
+        self.set_input("watts", watts)
+
+
+class SphereLightSourceCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "light-source(sphere)"
+
+    def set_radius(self, radius: SDLData):
+        self.set_input("radius", radius)
+
+    def set_linear_srgb(self, linear_srgb: SDLData):
+        self.set_input("linear-srgb", linear_srgb)
+
+    def set_watts(self, watts: SDLData):
+        self.set_input("watts", watts)
 
 
 class AbradedOpaqueMaterialCreator(SDLCreatorCommand):

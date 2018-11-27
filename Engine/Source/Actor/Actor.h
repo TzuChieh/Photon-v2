@@ -28,3 +28,18 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  actor </category>
+	<type_name> actor </type_name>
+
+	<name> Actor </name>
+	<description>
+		Represents an entity in the scene. Every entity that participates in a scene
+		is an actor. 
+	</description>
+
+	</SDL_interface>
+*/

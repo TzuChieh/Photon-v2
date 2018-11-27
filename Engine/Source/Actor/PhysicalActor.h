@@ -59,3 +59,51 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  actor       </category>
+	<type_name> physical    </type_name>
+	<extend>    actor.actor </extend>
+
+	<name> Physical Actor </name>
+	<description>
+		An actor that is visible and can be transformed.
+	</description>
+
+	<command type="executor" name="translate">
+		<description>
+			Moves the actor away from the original location with a specified amount.
+		</description>
+		<input name="factor" type="vector3">
+			<description>The amount to move in each axis.</description>
+		</input>
+	</command>
+
+	<command type="executor" name="rotate">
+		<description>
+			Rotates the actor along an axis with a specified amount.
+		</description>
+		<input name="axis" type="vector3">
+			<description>The axis for rotation.</description>
+		</input>
+		<input name="degree" type="real">
+			<description>The amount of the rotation.</description>
+		</input>
+		<input name="factor" type="quaternion">
+			<description>Specifying the rotating axis and amount with a quaternion directly.</description>
+		</input>
+	</command>
+
+	<command type="executor" name="scale">
+		<description>
+			Enlarges or shrinks the actor with some specified amount.
+		</description>
+		<input name="factor" type="vector3">
+			<description>The amount to scale in each axis.</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/
