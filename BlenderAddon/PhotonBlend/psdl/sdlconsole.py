@@ -67,7 +67,7 @@ class SdlConsole:
 	def write_queued_commands(self):
 		command = self.__command_queue.pop_command()
 		while command is not None:
-			self.__command_file.write(command.to_sdl(self))
+			self.__command_file.write(command.generate())
 			command = self.__command_queue.pop_command()
 
 

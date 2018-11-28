@@ -77,6 +77,16 @@ public:
 				The imaginary part of the layer's index of refraction in linear-SRGB.
 			</description>
 		</input>
+		<input name="ior-n" type="real">
+			<description>
+				The real part of the layer's index of refraction as a raw constant.
+			</description>
+		</input>
+		<input name="ior-k" type="real">
+			<description>
+				The imaginary part of the layer's index of refraction as a raw constant.
+			</description>
+		</input>
 		<input name="depth" type="real">
 			<description>
 				Thickness of the layer.

@@ -2,7 +2,7 @@
 # NOTE: THIS FILE CONTAINS GENERATED CODE
 #       DO NOT MODIFY
 # ========================================
-# last generated: 2018-11-28 14:47:10.264643
+# last generated: 2018-11-28 16:45:17.286998
 
 from abc import ABC, abstractmethod
 
@@ -604,6 +604,24 @@ class LdrPictureImageCreator(SDLCreatorCommand):
         self.set_input("image", image)
 
 
+class RealMathImageCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "image(real-math)"
+
+    def set_math_op(self, math_op: SDLData):
+        self.set_input("math-op", math_op)
+
+    def set_value(self, value: SDLData):
+        self.set_input("value", value)
+
+    def set_operand(self, operand: SDLData):
+        self.set_input("operand", operand)
+
+
 class DomeLightSourceCreator(SDLCreatorCommand):
 
     def __init__(self):
@@ -893,6 +911,87 @@ class PinholeCameraCreator(SDLCoreCommand):
 
     def set_up_axis(self, up_axis: SDLData):
         self.set_input("up-axis", up_axis)
+
+
+class PmRendererCreator(SDLCoreCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "renderer(pm)"
+
+    def set_mode(self, mode: SDLData):
+        self.set_input("mode", mode)
+
+    def set_num_photons(self, num_photons: SDLData):
+        self.set_input("num-photons", num_photons)
+
+    def set_radius(self, radius: SDLData):
+        self.set_input("radius", radius)
+
+    def set_num_passes(self, num_passes: SDLData):
+        self.set_input("num-passes", num_passes)
+
+    def set_num_samples_per_pixel(self, num_samples_per_pixel: SDLData):
+        self.set_input("num-samples-per-pixel", num_samples_per_pixel)
+
+    def set_width(self, width: SDLData):
+        self.set_input("width", width)
+
+    def set_height(self, height: SDLData):
+        self.set_input("height", height)
+
+    def set_rect_x(self, rect_x: SDLData):
+        self.set_input("rect-x", rect_x)
+
+    def set_rect_y(self, rect_y: SDLData):
+        self.set_input("rect-y", rect_y)
+
+    def set_rect_w(self, rect_w: SDLData):
+        self.set_input("rect-w", rect_w)
+
+    def set_rect_h(self, rect_h: SDLData):
+        self.set_input("rect-h", rect_h)
+
+
+class SamplingRendererCreator(SDLCoreCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "renderer(sampling)"
+
+    def set_filter_name(self, filter_name: SDLData):
+        self.set_input("filter-name", filter_name)
+
+    def set_estimator(self, estimator: SDLData):
+        self.set_input("estimator", estimator)
+
+    def set_light_energy_tag(self, light_energy_tag: SDLData):
+        self.set_input("light-energy-tag", light_energy_tag)
+
+    def set_normal_tag(self, normal_tag: SDLData):
+        self.set_input("normal-tag", normal_tag)
+
+    def set_width(self, width: SDLData):
+        self.set_input("width", width)
+
+    def set_height(self, height: SDLData):
+        self.set_input("height", height)
+
+    def set_rect_x(self, rect_x: SDLData):
+        self.set_input("rect-x", rect_x)
+
+    def set_rect_y(self, rect_y: SDLData):
+        self.set_input("rect-y", rect_y)
+
+    def set_rect_w(self, rect_w: SDLData):
+        self.set_input("rect-w", rect_w)
+
+    def set_rect_h(self, rect_h: SDLData):
+        self.set_input("rect-h", rect_h)
 
 
 class StratifiedSampleGeneratorCreator(SDLCoreCommand):

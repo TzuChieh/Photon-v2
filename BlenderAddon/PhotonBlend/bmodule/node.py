@@ -22,7 +22,11 @@ from ..psdl.pysdl import (
 	LayeredSurfaceMaterialAdd,
 	LayeredSurfaceMaterialSet,
 	FullMaterialCreator,
-	BinaryMixedSurfaceMaterialCreator)
+	BinaryMixedSurfaceMaterialCreator,
+	ConstantImageCreator,
+	LdrPictureImageCreator,
+	RealMathImageCreator,
+	IdealSubstanceMaterialCreator)
 
 import bpy
 import nodeitems_utils
@@ -206,10 +210,10 @@ class PhOutputNode(PhMaterialNode):
 			print("material <%s>'s output node is not linked, ignored" % res_name)
 			return
 
-		cmd = materialcmd.FullCreator()
-		cmd.set_data_name(res_name)
-		cmd.set_surface_ref(surface_mat_res_name)
-		sdlconsole.queue_command(cmd)
+		creator = FullMaterialCreator()
+		creator.set_data_name(res_name)
+		creator.set_surface(SDLReference("material", surface_mat_res_name))
+		sdlconsole.queue_command(creator)
 
 	def get_surface_emi_res_name(self, res_name):
 		surface_emi_socket = self.inputs[1]
@@ -250,14 +254,14 @@ class PhConstantColorInputNode(PhMaterialNode):
 
 	def to_sdl(self, res_name, sdlconsole):
 		output_socket = self.outputs[0]
-		cmd = imagecmd.ConstantImageCreator()
-		cmd.set_data_name(res_name + "_" + self.name + "_" + output_socket.identifier)
-		cmd.set_rgb_value(mathutils.Color((self.color[0], self.color[1], self.color[2])))
+		creator = ConstantImageCreator()
+		creator.set_data_name(res_name + "_" + self.name + "_" + output_socket.identifier)
+		creator.set_value(SDLVector3(mathutils.Color((self.color[0], self.color[1], self.color[2]))))
 		if self.usage == "EMISSION":
-			cmd.intent_is_emission_srgb()
+			creator.set_value_type(SDLString("emr-linear-srgb"))
 		elif self.usage == "REFLECTANCE":
-			cmd.intent_is_reflectance_srgb()
-		sdlconsole.queue_command(cmd)
+			creator.set_value_type(SDLString("ecf-linear-srgb"))
+		sdlconsole.queue_command(creator)
 
 
 class PhDiffuseSurfaceNode(PhMaterialNode):
@@ -287,23 +291,18 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 
 		albedo_res_name = albedo_socket.get_from_res_name(res_name)
 		if albedo_res_name is None:
-			cmd = imagecmd.ConstantImageCreator()
+			creator = ConstantImageCreator()
 			albedo_res_name = res_name + "_" + self.name + "_" + albedo_socket.identifier
-			cmd.set_data_name(albedo_res_name)
+			creator.set_data_name(albedo_res_name)
 			albedo = albedo_socket.default_value
-			cmd.set_rgb_value(mathutils.Color((albedo[0], albedo[1], albedo[2])))
-			cmd.intent_is_reflectance_srgb()
-			sdlconsole.queue_command(cmd)
+			creator.set_value(SDLVector3(mathutils.Color((albedo[0], albedo[1], albedo[2]))))
+			creator.set_value_type(SDLString("ecf-linear-srgb"))
+			sdlconsole.queue_command(creator)
 
-		cmd = RawCommand()
 		creator = MatteOpaqueMaterialCreator()
 		creator.set_data_name(res_name + "_" + self.name + "_" + surface_material_socket.identifier)
 		creator.set_albedo(SDLReference("image", albedo_res_name))
-		cmd.append_string(creator.generate())
-		#cmd = materialcmd.MatteOpaqueCreator()
-		#cmd.set_data_name(res_name + "_" + self.name + "_" + surface_material_socket.identifier)
-		#cmd.set_albedo_image_ref(albedo_res_name)
-		sdlconsole.queue_command(cmd)
+		sdlconsole.queue_command(creator)
 
 
 class PhBinaryMixedSurfaceNode(PhMaterialNode):
@@ -337,12 +336,12 @@ class PhBinaryMixedSurfaceNode(PhMaterialNode):
 			print("warning: material <%s>'s binary mixed surface node is incomplete" % res_name)
 			return
 
-		cmd = materialcmd.BinaryMixedSurfaceCreator()
-		cmd.set_data_name(res_name + "_" + self.name + "_" + surface_mat_socket.identifier)
-		cmd.set_float_factor(self.factor)
-		cmd.set_surface_material0_ref(mat0_res_name)
-		cmd.set_surface_material1_ref(mat1_res_name)
-		sdlconsole.queue_command(cmd)
+		creator = BinaryMixedSurfaceMaterialCreator()
+		creator.set_data_name(res_name + "_" + self.name + "_" + surface_mat_socket.identifier)
+		creator.set_factor(SDLReal(self.factor))
+		creator.set_material_0(SDLReference("material", mat0_res_name))
+		creator.set_material_1(SDLReference("material", mat1_res_name))
+		sdlconsole.queue_command(creator)
 
 
 class PhAbradedOpaqueNode(PhMaterialNode):
@@ -371,25 +370,12 @@ class PhAbradedOpaqueNode(PhMaterialNode):
 		surface_mat_socket   = self.outputs[0]
 		surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
 
-		cmd = materialcmd.AbradedOpaqueCreator()
-		cmd.set_data_name(surface_mat_res_name)
-		cmd.set_anisotropicity(False)
-
-		cmd.set_roughness(self.inputs[0].default_value)
-
-		# roughness_socket   = self.inputs[0]
-		# roughness_res_name = roughness_socket.get_from_res_name(res_name)
-		# if roughness_res_name is None:
-		# 	cmd = imagecmd.ConstantImageCreator()
-		# 	roughness_res_name = res_name + "_" + self.name + "_" + roughness_socket.identifier
-		# 	cmd.set_data_name(roughness_res_name)
-		# 	roughness = roughness_socket.default_value
-		# 	cmd.set_real_value(roughness)
-		# 	cmd.intent_is_raw()
-		# 	sdlconsole.queue_command(cmd)
-
-		cmd.set_f0(mathutils.Color((self.f0[0], self.f0[1], self.f0[2])))
-		sdlconsole.queue_command(cmd)
+		creator = AbradedOpaqueMaterialCreator()
+		creator.set_data_name(surface_mat_res_name)
+		creator.set_type(SDLString("iso-metallic-ggx"))
+		creator.set_roughness(SDLReal(self.inputs[0].default_value))
+		creator.set_f0(SDLVector3(mathutils.Color((self.f0[0], self.f0[1], self.f0[2]))))
+		sdlconsole.queue_command(creator)
 
 
 class PhPictureNode(bpy.types.Node):
@@ -409,16 +395,18 @@ class PhPictureNode(bpy.types.Node):
 		b_layout.prop(self, "file_path")
 
 	def to_sdl(self, res_name, sdlconsole):
+
 		image_socket   = self.outputs[0]
 		image_res_name = res_name + "_" + self.name + "_" + image_socket.identifier
 
 		if self.file_path != "":
-			cmd         = imagecmd.LdrPictureImageCreator()
+
+			creator = LdrPictureImageCreator()
 			image_path  = bpy.path.abspath(self.file_path)
 			image_sdlri = sdlresource.SdlResourceIdentifier()
 			image_sdlri.append_folder(PhPictureNode.bl_idname + "_pictures")
 			image_sdlri.set_file(utility.get_filename(image_path))
-			cmd.set_image_sdlri(image_sdlri)
+			creator.set_image(SDLString(image_sdlri.get_identifier()))
 
 			# copy the file to scene folder
 			sdlconsole.create_resource_folder(image_sdlri)
@@ -427,12 +415,13 @@ class PhPictureNode(bpy.types.Node):
 			shutil.copyfile(image_path, dst_path)
 
 		else:
-			cmd = imagecmd.ConstantImageCreator()
-			cmd.intent_is_raw()
-			cmd.set_real_value(0)
 
-		cmd.set_data_name(image_res_name)
-		sdlconsole.queue_command(cmd)
+			creator = ConstantImageCreator()
+			creator.set_value_type(SDLString("raw"))
+			creator.set_value(SDLReal(0))
+
+		creator.set_data_name(image_res_name)
+		sdlconsole.queue_command(creator)
 
 
 class PhMultiplyNode(PhMaterialNode):
@@ -462,12 +451,12 @@ class PhMultiplyNode(PhMaterialNode):
 			print("warning: node <%s> has no input linked, ignoring" % self.name)
 			return
 
-		cmd = imagecmd.RealMathImageCreator()
-		cmd.set_data_name(output_color_res_name)
-		cmd.set_operand_image(input_color_res_name)
-		cmd.set_multiply()
-		cmd.set_real_value(self.factor)
-		sdlconsole.queue_command(cmd)
+		creator = RealMathImageCreator()
+		creator.set_data_name(SDLString(output_color_res_name))
+		creator.set_operand(SDLReference("image", input_color_res_name))
+		creator.set_math_op(SDLString("multiply"))
+		creator.set_value(SDLReal(self.factor))
+		sdlconsole.queue_command(creator)
 
 
 class PhAbradedTranslucentNode(PhMaterialNode):
@@ -518,16 +507,16 @@ class PhAbradedTranslucentNode(PhMaterialNode):
 		surface_mat_socket   = self.outputs[0]
 		surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
 
-		cmd = materialcmd.AbradedTranslucentCreator()
-		cmd.set_data_name(surface_mat_res_name)
-		cmd.set_roughness(self.roughness)
-		cmd.set_ior_outer(self.ior_outer)
-		cmd.set_ior_inner(self.ior_inner)
+		creator = AbradedTranslucentMaterialCreator()
+		creator.set_data_name(surface_mat_res_name)
+		creator.set_roughness(SDLReal(self.roughness))
+		creator.set_ior_inner(SDLReal(self.ior_inner))
+		creator.set_ior_outer(SDLReal(self.ior_outer))
 		if self.fresnel_type == "SCHLICK_APPROX":
-			cmd.use_schlick_approx()
+			creator.set_fresnel_type(SDLString("schlick-approx"))
 		elif self.fresnel_type == "EXACT":
-			cmd.use_exact()
-		sdlconsole.queue_command(cmd)
+			creator.set_fresnel_type(SDLString("exact"))
+		sdlconsole.queue_command(creator)
 
 
 class PhSurfaceLayerNode(PhMaterialNode):
@@ -635,25 +624,6 @@ class PhSurfaceLayerNode(PhMaterialNode):
 	def to_sdl(self, res_name, sdlconsole):
 		pass
 
-	def to_sdl_fragment(self):
-
-		sdl = ""
-		sdl += clause.FloatClause().set_name("roughness").set_data(self.roughness).to_sdl_fragment()
-
-		if self.ior_type == "SCALAR":
-			sdl += clause.FloatClause().set_name("ior-n").set_data(self.ior_n).to_sdl_fragment()
-			sdl += clause.FloatClause().set_name("ior-k").set_data(self.ior_k).to_sdl_fragment()
-		elif self.ior_type == "RGB":
-			sdl += clause.ColorClause().set_name("ior-n").set_data(self.ior_n_rgb).to_sdl_fragment()
-			sdl += clause.ColorClause().set_name("ior-k").set_data(self.ior_k_rgb).to_sdl_fragment()
-
-		sdl += clause.FloatClause().set_name("depth").set_data(self.depth).to_sdl_fragment()
-		sdl += clause.FloatClause().set_name("g").set_data(self.g).to_sdl_fragment()
-		sdl += clause.FloatClause().set_name("sigma-a").set_data(self.sigma_a).to_sdl_fragment()
-		sdl += clause.FloatClause().set_name("sigma-s").set_data(self.sigma_s).to_sdl_fragment()
-
-		return sdl
-
 
 class PhLayeredSurfaceNode(PhMaterialNode):
 	bl_idname = "PH_LAYERED_SURFACE"
@@ -688,26 +658,37 @@ class PhLayeredSurfaceNode(PhMaterialNode):
 		surface_mat_socket   = self.outputs[0]
 		surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
 
-		cmd = RawCommand()
-		cmd.append_string("-> material(layered-surface) \"@%s\"\n" % surface_mat_res_name)
-		sdlconsole.queue_command(cmd)
+		creator = LayeredSurfaceMaterialCreator()
+		creator.set_data_name(surface_mat_res_name)
+		sdlconsole.queue_command(creator)
 
 		for i in range(0, len(self.inputs)):
 			if not self.inputs[i].links:
 				continue
 
-			surface_layer_node = self.inputs[i].links[0].from_node
+			layer_node = self.inputs[i].links[0].from_node
 
-			cmd = RawCommand()
-			cmd.append_string("-> material(layered-surface) add(\"@%s\")\n" % surface_mat_res_name)
-			sdlconsole.queue_command(cmd)
+			adder = LayeredSurfaceMaterialAdd()
+			adder.set_target_name(surface_mat_res_name)
+			sdlconsole.queue_command(adder)
 
-			cmd = RawCommand()
-			cmd.append_string("-> material(layered-surface) set(\"@%s\") [integer index %d] %s\n" % (
-				surface_mat_res_name,
-				i,
-				surface_layer_node.to_sdl_fragment()))
-			sdlconsole.queue_command(cmd)
+			setter = LayeredSurfaceMaterialSet()
+			setter.set_target_name(surface_mat_res_name)
+			setter.set_index(SDLInteger(i))
+
+			setter.set_roughness(SDLReal(layer_node.roughness))
+			if layer_node.ior_type == "SCALAR":
+				setter.set_ior_n(SDLReal(layer_node.ior_n))
+				setter.set_ior_k(SDLReal(layer_node.ior_k))
+			elif layer_node.ior_type == "RGB":
+				setter.set_ior_n(SDLVector3(layer_node.ior_n))
+				setter.set_ior_k(SDLVector3(layer_node.ior_k))
+			setter.set_depth(SDLReal(layer_node.depth))
+			setter.set_g(SDLReal(layer_node.g))
+			setter.set_sigma_a(SDLReal(layer_node.sigma_a))
+			setter.set_sigma_s(SDLReal(layer_node.sigma_s))
+
+			sdlconsole.queue_command(setter)
 
 
 class PhIdealSubstanceNode(PhMaterialNode):
@@ -793,24 +774,24 @@ class PhIdealSubstanceNode(PhMaterialNode):
 		surface_mat_socket   = self.outputs[0]
 		surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
 
-		cmd = materialcmd.IdealCreator()
-		cmd.set_data_name(surface_mat_res_name)
-		cmd.set_ior_outer(self.ior_outer)
-		cmd.set_ior_inner(self.ior_inner)
-		cmd.set_f0_rgb(self.f0)
-		cmd.set_reflection_scale(self.reflection_scale)
-		cmd.set_transmission_scale(self.transmission_scale)
+		creator = IdealSubstanceMaterialCreator()
+		creator.set_data_name(surface_mat_res_name)
+		creator.set_ior_outer(SDLReal(self.ior_outer))
+		creator.set_ior_inner(SDLReal(self.ior_inner))
+		creator.set_f0_rgb(SDLVector3(self.f0))
+		creator.set_reflection_scale(SDLVector3(self.reflection_scale))
+		creator.set_transmission_scale(SDLVector3(self.transmission_scale))
 
 		if self.substance_type == "DIELECTRIC_REFLECTOR":
-			cmd.set_type("dielectric-reflector")
+			creator.set_type(SDLString("dielectric-reflector"))
 		elif self.substance_type == "METALLIC_REFLECTOR":
-			cmd.set_type("metallic-reflector")
+			creator.set_type(SDLString("metallic-reflector"))
 		elif self.substance_type == "DIELECTRIC_TRANSMITTER":
-			cmd.set_type("transmitter")
+			creator.set_type(SDLString("transmitter"))
 		elif self.substance_type == "DIELECTRIC":
-			cmd.set_type("dielectric")
+			creator.set_type(SDLString("dielectric"))
 
-		sdlconsole.queue_command(cmd)
+		sdlconsole.queue_command(creator)
 
 
 class PhMaterialNodeCategory(nodeitems_utils.NodeCategory):

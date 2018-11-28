@@ -14,6 +14,7 @@ from ..psdl import sdlresource
 
 from ..psdl.pysdl import (
 	SDLReal,
+	SDLInteger,
 	SDLVector3,
 	SDLQuaternion,
 	SDLString,
@@ -22,12 +23,18 @@ from ..psdl.pysdl import (
 
 from ..psdl.pysdl import (
 	TriangleMeshGeometryCreator,
+	RectangleGeometryCreator,
 	ModelActorCreator,
 	LightActorCreator,
 	ModelActorTranslate,
 	ModelActorRotate,
 	ModelActorScale,
-	PinholeCameraCreator)
+	PinholeCameraCreator,
+	SamplingRendererCreator,
+	PmRendererCreator,
+	ModelLightSourceCreator,
+	DomeActorCreator,
+	StratifiedSampleGeneratorCreator)
 
 import bpy
 import mathutils
@@ -87,16 +94,12 @@ class Exporter:
 		direction   = utility.to_photon_vec3(direction)
 		upDirection = utility.to_photon_vec3(upDirection)
 
-		clauze = clause.Vector3Clause()
-
-		command = RawCommand()
 		creator = PinholeCameraCreator()
 		creator.set_fov_degree(SDLReal(fovDegrees))
 		creator.set_position(SDLVector3(position))
 		creator.set_direction(SDLVector3(direction))
 		creator.set_up_axis(SDLVector3(upDirection))
-		command.append_string(creator.generate())
-		self.__sdlconsole.queue_command(command)
+		self.__sdlconsole.queue_command(creator)
 
 	def export_triangle_mesh(self, geometryType, geometryName, **keywordArgs):
 
@@ -121,20 +124,17 @@ class Exporter:
 				normals.add(triNormal)
 			creator.set_normals(normals)
 
-			command = RawCommand()
-			command.append_string(creator.generate())
-			self.__sdlconsole.queue_command(command)
+			self.__sdlconsole.queue_command(creator)
 
 		elif geometryType == "rectangle":
 
 			# TODO: width & height may correspond to different axes in Blender and Photon-v2
 
-			command = RawCommand()
-			command.append_string(
-				"-> geometry(rectangle) %s [real width %.8f] [real height %.8f]\n" %
-				("\"@" + geometryName + "\"", keywordArgs["width"], keywordArgs["height"])
-			)
-			self.__sdlconsole.queue_command(command)
+			creator = RectangleGeometryCreator()
+			creator.set_data_name(geometryName)
+			creator.set_width(SDLReal(keywordArgs["width"]))
+			creator.set_height(SDLReal(keywordArgs["height"]))
+			self.__sdlconsole.queue_command(creator)
 
 		else:
 			print("warning: geometry (%s) with type %s is not supported, not exporting" % (geometryName, geometryType))
@@ -147,68 +147,74 @@ class Exporter:
 				return node.to_sdl(material_name, b_material, self.get_sdlconsole())
 			else:
 				# BROKEN CODE
-				command = RawCommand()
-				command.append_string(ui.material.to_sdl(b_material, self.__sdlconsole, material_name))
-				self.__sdlconsole.queue_command(command)
-				return node.MaterialNodeTranslateResult()
+				# command = RawCommand()
+				# command.append_string(ui.material.to_sdl(b_material, self.__sdlconsole, material_name))
+				# self.__sdlconsole.queue_command(command)
+				# return node.MaterialNodeTranslateResult()
+				return None
 		else:
 			# BROKEN CODE
-			translate_result = export.cycles_material.translate(b_material, self.__sdlconsole, material_name)
-			if not translate_result.is_valid():
-				print("warning: cycles material %s translation failed" % material_name)
-			return node.MaterialNodeTranslateResult()
+			# translate_result = export.cycles_material.translate(b_material, self.__sdlconsole, material_name)
+			# if not translate_result.is_valid():
+			# 	print("warning: cycles material %s translation failed" % material_name)
+			# return node.MaterialNodeTranslateResult()
+			return None
 
 
-	def exportLightSource(self, lightSourceType, lightSourceName, **keywordArgs):
-
-		if lightSourceType == "model":
-
-			emittedRadiance = keywordArgs["emittedRadiance"]
-			command = RawCommand()
-			command.append_string(
-				"-> light-source(model) %s [vector3r emitted-radiance \"%.8f %.8f %.8f\"]\n" %
-				("\"@" + lightSourceName + "\"", emittedRadiance[0], emittedRadiance[1], emittedRadiance[2])
-			)
-			self.__sdlconsole.queue_command(command)
-
-		else:
-			print("warning: light source (%s) with type %s is unsuppoprted, not exporting"
-				  %("\"@" + lightSourceName + "\"", lightSourceType))
+	# def exportLightSource(self, lightSourceType, lightSourceName, **keywordArgs):
+	#
+	# 	if lightSourceType == "model":
+	#
+	# 		emittedRadiance = keywordArgs["emittedRadiance"]
+	# 		command = RawCommand()
+	# 		command.append_string(
+	# 			"-> light-source(model) %s [vector3r emitted-radiance \"%.8f %.8f %.8f\"]\n" %
+	# 			("\"@" + lightSourceName + "\"", emittedRadiance[0], emittedRadiance[1], emittedRadiance[2])
+	# 		)
+	# 		self.__sdlconsole.queue_command(command)
+	#
+	# 	else:
+	# 		print("warning: light source (%s) with type %s is unsuppoprted, not exporting"
+	# 			  %("\"@" + lightSourceName + "\"", lightSourceType))
 
 
 	def exportActorLight(self, actorLightName, lightSourceName, geometryName, materialName, position, rotation, scale):
 
 		# TODO: check non-uniform scale
 
-		command = RawCommand()
-
 		position = self.__blendToPhotonVector(position)
 		rotation = self.__blendToPhotonQuaternion(rotation)
 		scale    = self.__blendToPhotonVector(scale)
 
 		if lightSourceName != None:
-			command.append_string("-> actor(light) %s [light-source light-source %s] "
-						 %("\"@" + actorLightName + "\"", "\"@" + lightSourceName + "\""))
+			creator = LightActorCreator()
+			creator.set_data_name(actorLightName)
+			creator.set_light_source(SDLReference("light-source", lightSourceName))
+			self.__sdlconsole.queue_command(creator)
 		else:
 			print("warning: expecting a non-None light source name for actor-light %s, not exporting" %(actorLightName))
 			return
 
-		if geometryName != None:
-			command.append_string("[geometry geometry %s] " %("\"@" + geometryName + "\""))
+		# if geometryName != None:
+		# 	command.append_string("[geometry geometry %s] " %("\"@" + geometryName + "\""))
+		#
+		# if materialName != None:
+		# 	command.append_string("[material material %s] " %("\"@" + materialName + "\""))
 
-		if materialName != None:
-			command.append_string("[material material %s] " %("\"@" + materialName + "\""))
+		translator = ModelActorTranslate()
+		translator.set_target_name(actorLightName)
+		translator.set_factor(SDLVector3(position))
+		self.__sdlconsole.queue_command(translator)
 
-		command.append_string("\n")
+		rotator = ModelActorRotate()
+		rotator.set_target_name(actorLightName)
+		rotator.set_factor(SDLQuaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
+		self.__sdlconsole.queue_command(rotator)
 
-		command.append_string("-> actor(light) translate(%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
-					 %("\"@" + actorLightName + "\"", position.x, position.y, position.z))
-		command.append_string("-> actor(light) scale    (%s) [vector3r factor \"%.8f %.8f %.8f\"]\n"
-					 %("\"@" + actorLightName + "\"", scale.x, scale.y, scale.z))
-		command.append_string("-> actor(light) rotate   (%s) [quaternionR factor \"%.8f %.8f %.8f %.8f\"]\n"
-					 %("\"@" + actorLightName + "\"", rotation.x, rotation.y, rotation.z, rotation.w))
-
-		self.__sdlconsole.queue_command(command)
+		scaler = ModelActorScale()
+		scaler.set_target_name(actorLightName)
+		scaler.set_factor(SDLVector3(scale))
+		self.__sdlconsole.queue_command(scaler)
 
 
 	def exportActorModel(self, actorModelName, geometryName, materialName, position, rotation, scale):
@@ -216,8 +222,6 @@ class Exporter:
 		if (actorModelName == None) or (geometryName == None) or (materialName == None):
 			print("warning: no name should be none, not exporting")
 			return
-
-		command = RawCommand()
 
 		position = self.__blendToPhotonVector(position)
 		rotation = self.__blendToPhotonQuaternion(rotation)
@@ -227,29 +231,27 @@ class Exporter:
 		creator.set_data_name(actorModelName)
 		creator.set_geometry(SDLReference("geometry", geometryName))
 		creator.set_material(SDLReference("material", materialName))
-		command.append_string(creator.generate())
+		self.__sdlconsole.queue_command(creator)
 
 		translator = ModelActorTranslate()
 		translator.set_target_name(actorModelName)
 		translator.set_factor(SDLVector3(position))
-		command.append_string(translator.generate())
+		self.__sdlconsole.queue_command(translator)
 
 		rotator = ModelActorRotate()
 		rotator.set_target_name(actorModelName)
 		rotator.set_factor(SDLQuaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
-		command.append_string(rotator.generate())
+		self.__sdlconsole.queue_command(rotator)
 
 		scaler = ModelActorScale()
 		scaler.set_target_name(actorModelName)
 		scaler.set_factor(SDLVector3(scale))
-		command.append_string(scaler.generate())
+		self.__sdlconsole.queue_command(scaler)
 
-		self.__sdlconsole.queue_command(command)
-
-	def exportRaw(self, rawText):
-		command = RawCommand()
-		command.append_string(rawText)
-		self.__sdlconsole.queue_command(command)
+	# def exportRaw(self, rawText):
+	# 	command = RawCommand()
+	# 	command.append_string(rawText)
+	# 	self.__sdlconsole.queue_command(command)
 
 	def __blendToPhotonVector(self, blenderVector):
 		photonVector = mathutils.Vector((blenderVector.y,
@@ -374,12 +376,12 @@ class Exporter:
 					lightSourceName = naming.mangled_light_source_name(obj, mesh.name, str(matId))
 					actorLightName  = naming.mangled_actor_light_name(obj, "", str(matId))
 
-					source_cmd = ModelLightCreator()
-					source_cmd.set_data_name(lightSourceName)
-					source_cmd.set_emitted_radiance_image(mat_translate_result.surface_emi_res_name)
-					source_cmd.set_geometry(geometryName)
-					source_cmd.set_material(materialName)
-					self.get_sdlconsole().queue_command(source_cmd)
+					creator = ModelLightSourceCreator()
+					creator.set_data_name(lightSourceName)
+					creator.set_emitted_radiance(SDLReference("image", mat_translate_result.surface_emi_res_name))
+					creator.set_geometry(SDLReference("geometry", geometryName))
+					creator.set_material(SDLReference("material", materialName))
+					self.get_sdlconsole().queue_command(creator)
 
 					self.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
 
@@ -442,14 +444,14 @@ class Exporter:
 		if b_world.ph_envmap_file_path == "":
 			return
 
-		cmd = actorcmd.DomeCreator()
-		cmd.set_data_name("ph_" + b_world.name)
+		creator = DomeActorCreator()
+		creator.set_data_name("ph_" + b_world.name)
 
 		envmap_path  = bpy.path.abspath(b_world.ph_envmap_file_path)
 		envmap_sdlri = sdlresource.SdlResourceIdentifier()
 		envmap_sdlri.append_folder(b_world.name + "_data")
 		envmap_sdlri.set_file(utility.get_filename(envmap_path))
-		cmd.set_envmap_sdlri(envmap_sdlri)
+		creator.set_env_map(SDLString(envmap_sdlri.get_identifier()))
 
 		# copy the envmap to scene folder
 		self.get_sdlconsole().create_resource_folder(envmap_sdlri)
@@ -457,7 +459,7 @@ class Exporter:
 		                                     envmap_sdlri.get_path())
 		shutil.copyfile(envmap_path, dst_path)
 
-		self.get_sdlconsole().queue_command(cmd)
+		self.get_sdlconsole().queue_command(creator)
 
 
 	def export_core_commands(self, context):
@@ -468,39 +470,46 @@ class Exporter:
 
 		meta_info = meta.MetaGetter(context)
 
-		self.exportRaw("## sample-generator(stratified) [integer sample-amount %s] "
-		               "[integer num-strata-2d-x %s] [integer num-strata-2d-y %s]\n"
-		               % (meta_info.spp(), meta_info.render_width_px(), meta_info.render_height_px()))
+		creator = StratifiedSampleGeneratorCreator()
+		creator.set_sample_amount(SDLInteger(meta_info.spp()))
+		self.get_sdlconsole().queue_command(creator)
 
 		render_method = meta_info.render_method()
 		b_scene = context.scene
+
 		if render_method == "BVPT" or render_method == "BNEEPT":
-			self.exportRaw("## renderer(sampling) [integer width %s] [integer height %s] [string filter-name %s] [string estimator %s]\n"
-						   % (meta_info.render_width_px(),
-							  meta_info.render_height_px(),
-							  meta_info.sample_filter_name(),
-							  meta_info.integrator_type_name()))
+
+			creator = SamplingRendererCreator()
+			creator.set_width(SDLInteger(meta_info.render_width_px()))
+			creator.set_height(SDLInteger(meta_info.render_height_px()))
+			creator.set_filter_name(SDLString(meta_info.sample_filter_name()))
+			creator.set_estimator(SDLString(meta_info.integrator_type_name()))
+			self.get_sdlconsole().queue_command(creator)
+
 		elif render_method == "VPM":
-			self.exportRaw(
-				"## renderer(pm) [integer width %s] [integer height %s] [string filter-name %s] [string mode vanilla][integer num-photons %d][integer num-samples-per-pixel %d][real radius %.8f]\n"
-				% (meta_info.render_width_px(),
-				   meta_info.render_height_px(),
-				   meta_info.sample_filter_name(),
-				   b_scene.ph_render_num_photons,
-				   b_scene.ph_render_num_spp_pm,
-				   b_scene.ph_render_kernel_radius))
+
+			creator = PmRendererCreator()
+			creator.set_width(SDLInteger(meta_info.render_width_px()))
+			creator.set_height(SDLInteger(meta_info.render_height_px()))
+			creator.set_mode(SDLString("vanilla"))
+			creator.set_num_photons(SDLInteger(b_scene.ph_render_num_photons))
+			creator.set_num_samples_per_pixel(SDLInteger(b_scene.ph_render_num_spp_pm))
+			creator.set_radius(SDLReal(b_scene.ph_render_kernel_radius))
+			self.get_sdlconsole().queue_command(creator)
+
 		elif render_method == "PPM" or render_method == "SPPM":
+
 			mode_name = "progressive" if render_method == "PPM" else "stochastic-progressive"
-			self.exportRaw(
-				"## renderer(pm) [integer width %s] [integer height %s] [string filter-name %s] [string mode %s][integer num-photons %d][integer num-samples-per-pixel %d][integer num-passes %d][real radius %.8f]\n"
-				% (meta_info.render_width_px(),
-				   meta_info.render_height_px(),
-				   meta_info.sample_filter_name(),
-				   mode_name,
-				   b_scene.ph_render_num_photons,
-				   b_scene.ph_render_num_spp_pm,
-				   b_scene.ph_render_num_passes,
-				   b_scene.ph_render_kernel_radius))
+			creator = PmRendererCreator()
+			creator.set_width(SDLInteger(meta_info.render_width_px()))
+			creator.set_height(SDLInteger(meta_info.render_height_px()))
+			creator.set_mode(SDLString(mode_name))
+			creator.set_num_photons(SDLInteger(b_scene.ph_render_num_photons))
+			creator.set_num_samples_per_pixel(SDLInteger(b_scene.ph_render_num_spp_pm))
+			creator.set_radius(SDLReal(b_scene.ph_render_kernel_radius))
+			creator.set_num_passes(SDLInteger(b_scene.ph_render_num_passes))
+			self.get_sdlconsole().queue_command(creator)
+
 		else:
 			print("warning: render method %s is not supported" % render_method)
 
