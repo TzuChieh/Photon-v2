@@ -191,10 +191,10 @@ void BNEEPTEstimator::radianceAlongRay(
 				break;
 			}
 
+			// FIXME: this is dangerous... setting metadata to new hit point
 			metadata = Xe.getDetail().getPrimitive()->getMetadata();
-			surfaceBehavior = &(metadata->getSurface());
 
-			const Emitter* emitter = surfaceBehavior->getEmitter();
+			const Emitter* emitter = metadata->getSurface().getEmitter();
 			if(emitter)
 			{
 				SpectralStrength radianceLe;
