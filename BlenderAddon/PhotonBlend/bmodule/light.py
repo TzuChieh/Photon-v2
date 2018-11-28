@@ -158,20 +158,22 @@ def to_sdl_commands(b_obj, sdlconsole):
 	creator = LightActorCreator()
 	creator.set_data_name(actor_name)
 	creator.set_light_source(SDLReference("light-source", source_name))
+	sdlconsole.queue_command(creator)
 
 	translator = LightActorTranslate()
 	translator.set_target_name(actor_name)
 	translator.set_factor(SDLVector3(pos))
+	sdlconsole.queue_command(translator)
 
 	rotator = LightActorRotate()
 	rotator.set_target_name(actor_name)
 	rotator.set_factor(SDLQuaternion((rot.x, rot.y, rot.z, rot.w)))
+	sdlconsole.queue_command(rotator)
 
 	scaler = LightActorScale()
 	scaler.set_target_name(actor_name)
 	scaler.set_factor(SDLVector3(scale))
-
-	sdlconsole.queue_command(creator)
+	sdlconsole.queue_command(scaler)
 
 
 LIGHT_PANEL_TYPES = [PhLightPropertyPanel]
