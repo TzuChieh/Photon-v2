@@ -52,3 +52,17 @@ public:
 }// end namespace ph
 
 #include "Actor/Image/Image.ipp"
+
+/*
+	<SDL_interface>
+
+	<category>  image </category>
+	<type_name> image </type_name>
+
+	<name> Image </name>
+	<description>
+		A block of data.
+	</description>
+
+	</SDL_interface>
+*/

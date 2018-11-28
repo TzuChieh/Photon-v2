@@ -2,7 +2,7 @@
 # NOTE: THIS FILE CONTAINS GENERATED CODE
 #       DO NOT MODIFY
 # ========================================
-# last generated: 2018-11-28 02:25:27.596236
+# last generated: 2018-11-28 14:47:10.264643
 
 from abc import ABC, abstractmethod
 
@@ -286,6 +286,69 @@ class SDLCoreCommand(SDLCommand):
 		return "".join(fragments)
 
 
+class DomeActorCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(dome)"
+
+    def set_env_map(self, env_map: SDLData):
+        self.set_input("env-map", env_map)
+
+
+class DomeActorTranslate(SDLExecutorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(dome)"
+
+    def get_name(self):
+        return "translate"
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class DomeActorRotate(SDLExecutorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(dome)"
+
+    def get_name(self):
+        return "rotate"
+
+    def set_axis(self, axis: SDLData):
+        self.set_input("axis", axis)
+
+    def set_degree(self, degree: SDLData):
+        self.set_input("degree", degree)
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class DomeActorScale(SDLExecutorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(dome)"
+
+    def get_name(self):
+        return "scale"
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
 class LightActorCreator(SDLCreatorCommand):
 
     def __init__(self):
@@ -514,6 +577,42 @@ class TriangleMeshGeometryCreator(SDLCreatorCommand):
         self.set_input("normals", normals)
 
 
+class ConstantImageCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "image(constant)"
+
+    def set_value_type(self, value_type: SDLData):
+        self.set_input("value-type", value_type)
+
+    def set_value(self, value: SDLData):
+        self.set_input("value", value)
+
+
+class LdrPictureImageCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "image(ldr-picture)"
+
+    def set_image(self, image: SDLData):
+        self.set_input("image", image)
+
+
+class DomeLightSourceCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "light-source(dome)"
+
+
 class ModelLightSourceCreator(SDLCreatorCommand):
 
     def __init__(self):
@@ -533,6 +632,21 @@ class ModelLightSourceCreator(SDLCreatorCommand):
 
     def set_emit_mode(self, emit_mode: SDLData):
         self.set_input("emit-mode", emit_mode)
+
+
+class PointLightSourceCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "light-source(point)"
+
+    def set_linear_srgb(self, linear_srgb: SDLData):
+        self.set_input("linear-srgb", linear_srgb)
+
+    def set_watts(self, watts: SDLData):
+        self.set_input("watts", watts)
 
 
 class RectangleLightSourceCreator(SDLCreatorCommand):
@@ -779,5 +893,29 @@ class PinholeCameraCreator(SDLCoreCommand):
 
     def set_up_axis(self, up_axis: SDLData):
         self.set_input("up-axis", up_axis)
+
+
+class StratifiedSampleGeneratorCreator(SDLCoreCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "sample-generator(stratified)"
+
+    def set_sample_amount(self, sample_amount: SDLData):
+        self.set_input("sample-amount", sample_amount)
+
+
+class UniformRandomSampleGeneratorCreator(SDLCoreCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "sample-generator(uniform-random)"
+
+    def set_sample_amount(self, sample_amount: SDLData):
+        self.set_input("sample-amount", sample_amount)
 
 

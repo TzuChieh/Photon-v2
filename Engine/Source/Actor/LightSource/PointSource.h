@@ -27,3 +27,21 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  light-source      </category>
+	<type_name> point             </type_name>
+	<extend>    light-source.area </extend>
+
+	<name> Point Source </name>
+	<description>
+		Power emitting source from a small but not infinitesimal region. Resembling
+		a small light bulb.
+	</description>
+
+	<command type="creator"/>
+
+	</SDL_interface>
+*/

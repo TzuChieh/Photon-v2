@@ -37,3 +37,26 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  actor          </category>
+	<type_name> dome           </type_name>
+	<extend>    actor.physical </extend>
+
+	<name> Dome Actor </name>
+	<description>
+		A large energy emitting source encompassing the whole scene.
+	</description>
+
+	<command type="creator">
+		<input name="env-map" type="string">
+			<description>
+				Resource identifier for a HDRI describing the energy distribution.
+			</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/

@@ -38,3 +38,20 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  light-source              </category>
+	<type_name> dome                      </type_name>
+	<extend>    light-source.light-source </extend>
+
+	<name> Dome Source </name>
+	<description>
+		A large energy emitting source encompassing the whole scene.
+	</description>
+
+	<command type="creator"/>
+
+	</SDL_interface>
+*/

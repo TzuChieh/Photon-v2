@@ -34,3 +34,26 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  image       </category>
+	<type_name> ldr-picture </type_name>
+	<extend>    image.image </extend>
+
+	<name> LDR Picture Image </name>
+	<description>
+		Low dynamic range images.
+	</description>
+
+	<command type="creator">
+		<input name="image" type="string">
+			<description>
+				Resource identifier for a LDR image file.
+			</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/

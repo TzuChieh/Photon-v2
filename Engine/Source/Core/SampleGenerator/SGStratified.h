@@ -25,3 +25,26 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  sample-generator                  </category>
+	<type_name> stratified                        </type_name>
+	<extend>    sample-generator.sample-generator </extend>
+
+	<name> Stratified Sample Generator </name>
+	<description>
+		Generating samples based on engine provided dimensional hints.
+	</description>
+
+	<command type="creator">
+		<input name="sample-amount" type="integer">
+			<description>
+				Controls the number of sample batches that will be generated.
+			</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/
