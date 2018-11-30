@@ -18,6 +18,7 @@ void NamedResourceStorage::addResource(
 {
 	if(resource == nullptr || resourceName.empty())
 	{
+		// TODO: also print type
 		std::cerr << "warning: at NamedResourceStorage::addResource(), name <" << resourceName << "> or resource is null, ignoring" << std::endl;
 		return;
 	}
@@ -27,7 +28,9 @@ void NamedResourceStorage::addResource(
 	const auto& iter = resourcesNameMap.find(resourceName);
 	if(iter != resourcesNameMap.end())
 	{
-		std::cerr << "warning: at NamedResourceStorage::addResource(), name <" << resourceName << "> duplicated, overwriting" << std::endl;
+		std::cerr << "warning: at NamedResourceStorage::addResource(), "
+		          << "name <" << resourceName << "> " 
+		          << "type <" << typeInfo.toString() << "> duplicated, overwriting" << std::endl;
 	}
 
 	resourcesNameMap[resourceName] = std::move(resource);

@@ -454,7 +454,7 @@ class PhMultiplyNode(PhMaterialNode):
 			return
 
 		creator = RealMathImageCreator()
-		creator.set_data_name(SDLString(output_color_res_name))
+		creator.set_data_name(output_color_res_name)
 		creator.set_operand(SDLImage(input_color_res_name))
 		creator.set_math_op(SDLString("multiply"))
 		creator.set_value(SDLReal(self.factor))
@@ -722,7 +722,7 @@ class PhIdealSubstanceNode(PhMaterialNode):
 	ior_outer = bpy.props.FloatProperty(
 		name    = "IOR Outer",
 		default = 1.0,
-		min     = .0,
+		min     = 0.0,
 		max     = sys.float_info.max
 	)
 

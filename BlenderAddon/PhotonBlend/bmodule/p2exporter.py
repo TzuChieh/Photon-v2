@@ -36,6 +36,9 @@ from ..psdl.pysdl import (
 	ModelActorTranslate,
 	ModelActorRotate,
 	ModelActorScale,
+	LightActorTranslate,
+	LightActorRotate,
+	LightActorScale,
 	PinholeCameraCreator,
 	SamplingRendererCreator,
 	PmRendererCreator,
@@ -208,17 +211,17 @@ class Exporter:
 		# if materialName != None:
 		# 	command.append_string("[material material %s] " %("\"@" + materialName + "\""))
 
-		translator = ModelActorTranslate()
+		translator = LightActorTranslate()
 		translator.set_target_name(actorLightName)
 		translator.set_factor(SDLVector3(position))
 		self.__sdlconsole.queue_command(translator)
 
-		rotator = ModelActorRotate()
+		rotator = LightActorRotate()
 		rotator.set_target_name(actorLightName)
 		rotator.set_factor(SDLQuaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
 		self.__sdlconsole.queue_command(rotator)
 
-		scaler = ModelActorScale()
+		scaler = LightActorScale()
 		scaler.set_target_name(actorLightName)
 		scaler.set_factor(SDLVector3(scale))
 		self.__sdlconsole.queue_command(scaler)
@@ -468,12 +471,14 @@ class Exporter:
 
 		self.get_sdlconsole().queue_command(creator)
 
-
 	def export_core_commands(self, context):
-		objs = context.scene.objects
-		for obj in objs:
-			if obj.type == "CAMERA":
-				self.export_camera(obj, context.scene)
+
+		# a scene may contain multiple cameras, export the active one only
+		camera = context.scene.camera
+		if camera is not None:
+			self.export_camera(camera, context.scene)
+		else:
+			print("warning: no active camera")
 
 		meta_info = meta.MetaGetter(context)
 
