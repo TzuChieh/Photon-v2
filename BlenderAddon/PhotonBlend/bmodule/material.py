@@ -1,6 +1,7 @@
 from ..utility import settings
 from . import ui
 from . import common
+from . import node
 
 import sys
 import bpy
@@ -128,12 +129,16 @@ class PhMainPropertyPanel(PhMaterialPanel):
 
 	def draw(self, context):
 
-		material = context.material
-		layout   = self.layout
-
+		layout = self.layout
 		layout.operator(PhAddMaterialNodesOperator.bl_idname)
 
-		ui.material.display_blender_props(layout, material)
+		node_tree = node.find_node_tree(context.material)
+		output_node = node.find_output_node(node_tree)
+		if output_node is not None:
+			for input_socket in output_node.inputs:
+				layout.template_node_view(node_tree, output_node, input_socket)
+
+		# ui.material.display_blender_props(layout, material)
 
 
 class PhOptionPanel(PhMaterialPanel):

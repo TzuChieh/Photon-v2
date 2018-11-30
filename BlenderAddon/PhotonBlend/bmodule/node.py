@@ -813,19 +813,30 @@ def to_sdl_recursive(res_name, current_node, processed_nodes, sdlconsole):
 	current_node.to_sdl(res_name, sdlconsole)
 
 
-def to_sdl(res_name, b_material, sdlconsole):
+def find_node_tree(b_material):
 
 	if b_material is None or b_material.ph_node_tree_name == "":
-		print("material <%s> has no node tree, ignoring" % res_name)
-		return MaterialNodeTranslateResult()
+		return None
 
-	node_tree   = bpy.data.node_groups[b_material.ph_node_tree_name]
-	output_node = None
+	return bpy.data.node_groups[b_material.ph_node_tree_name]
+
+
+def find_output_node(node_tree):
+
+	if node_tree is None:
+		return None
+
 	for node in node_tree.nodes:
 		if getattr(node, "bl_idname", None) == PhOutputNode.bl_idname:
-			output_node = node
-			break
+			return node
 
+	return None
+
+
+def to_sdl(res_name, b_material, sdlconsole):
+
+	node_tree = find_node_tree(b_material)
+	output_node = find_output_node(node_tree)
 	if output_node is None:
 		print("material <%s> has no output node, ignoring" % res_name)
 		return MaterialNodeTranslateResult()
