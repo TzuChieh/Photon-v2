@@ -2,7 +2,7 @@
 # NOTE: THIS FILE CONTAINS GENERATED CODE
 #       DO NOT MODIFY
 # ========================================
-# last generated: 2018-11-28 16:45:17.286998
+# last generated: 2018-11-30 06:38:30.630997
 
 from abc import ABC, abstractmethod
 
@@ -141,7 +141,6 @@ class SDLVector3Array(SDLData):
 		return self
 
 
-# TODO: make a reference type for each category
 class SDLReference(SDLData):
 	def __init__(self, ref_type="", ref_name=""):
 		super().__init__()
@@ -286,6 +285,86 @@ class SDLCoreCommand(SDLCommand):
 		return "".join(fragments)
 
 
+class SDLCamera(SDLReference):
+
+    def __init__(self, ref_name = ""):
+        super().__init__("camera", ref_name)
+
+
+class SDLFilm(SDLReference):
+
+    def __init__(self, ref_name = ""):
+        super().__init__("film", ref_name)
+
+
+class SDLEstimator(SDLReference):
+
+    def __init__(self, ref_name = ""):
+        super().__init__("estimator", ref_name)
+
+
+class SDLSampleGenerator(SDLReference):
+
+    def __init__(self, ref_name = ""):
+        super().__init__("sample-generator", ref_name)
+
+
+class SDLRenderer(SDLReference):
+
+    def __init__(self, ref_name = ""):
+        super().__init__("renderer", ref_name)
+
+
+class SDLOption(SDLReference):
+
+    def __init__(self, ref_name = ""):
+        super().__init__("option", ref_name)
+
+
+class SDLGeometry(SDLReference):
+
+    def __init__(self, ref_name = ""):
+        super().__init__("geometry", ref_name)
+
+
+class SDLMaterial(SDLReference):
+
+    def __init__(self, ref_name = ""):
+        super().__init__("material", ref_name)
+
+
+class SDLMotion(SDLReference):
+
+    def __init__(self, ref_name = ""):
+        super().__init__("motion", ref_name)
+
+
+class SDLLightSource(SDLReference):
+
+    def __init__(self, ref_name = ""):
+        super().__init__("light-source", ref_name)
+
+
+class SDLActor(SDLReference):
+
+    def __init__(self, ref_name = ""):
+        super().__init__("actor", ref_name)
+
+
+class SDLImage(SDLReference):
+
+    def __init__(self, ref_name = ""):
+        super().__init__("image", ref_name)
+
+
+class SDLFrameProcessor(SDLReference):
+
+    def __init__(self, ref_name = ""):
+        super().__init__("frame-processor", ref_name)
+
+
+
+
 class DomeActorCreator(SDLCreatorCommand):
 
     def __init__(self):
@@ -300,9 +379,6 @@ class DomeActorCreator(SDLCreatorCommand):
 
 class DomeActorTranslate(SDLExecutorCommand):
 
-    def __init__(self):
-        super().__init__()
-
     def get_full_type(self):
         return "actor(dome)"
 
@@ -314,9 +390,6 @@ class DomeActorTranslate(SDLExecutorCommand):
 
 
 class DomeActorRotate(SDLExecutorCommand):
-
-    def __init__(self):
-        super().__init__()
 
     def get_full_type(self):
         return "actor(dome)"
@@ -335,9 +408,6 @@ class DomeActorRotate(SDLExecutorCommand):
 
 
 class DomeActorScale(SDLExecutorCommand):
-
-    def __init__(self):
-        super().__init__()
 
     def get_full_type(self):
         return "actor(dome)"
@@ -363,9 +433,6 @@ class LightActorCreator(SDLCreatorCommand):
 
 class LightActorTranslate(SDLExecutorCommand):
 
-    def __init__(self):
-        super().__init__()
-
     def get_full_type(self):
         return "actor(light)"
 
@@ -377,9 +444,6 @@ class LightActorTranslate(SDLExecutorCommand):
 
 
 class LightActorRotate(SDLExecutorCommand):
-
-    def __init__(self):
-        super().__init__()
 
     def get_full_type(self):
         return "actor(light)"
@@ -398,9 +462,6 @@ class LightActorRotate(SDLExecutorCommand):
 
 
 class LightActorScale(SDLExecutorCommand):
-
-    def __init__(self):
-        super().__init__()
 
     def get_full_type(self):
         return "actor(light)"
@@ -429,9 +490,6 @@ class ModelActorCreator(SDLCreatorCommand):
 
 class ModelActorTranslate(SDLExecutorCommand):
 
-    def __init__(self):
-        super().__init__()
-
     def get_full_type(self):
         return "actor(model)"
 
@@ -443,9 +501,6 @@ class ModelActorTranslate(SDLExecutorCommand):
 
 
 class ModelActorRotate(SDLExecutorCommand):
-
-    def __init__(self):
-        super().__init__()
 
     def get_full_type(self):
         return "actor(model)"
@@ -465,9 +520,6 @@ class ModelActorRotate(SDLExecutorCommand):
 
 class ModelActorScale(SDLExecutorCommand):
 
-    def __init__(self):
-        super().__init__()
-
     def get_full_type(self):
         return "actor(model)"
 
@@ -480,9 +532,6 @@ class ModelActorScale(SDLExecutorCommand):
 
 class PhysicalActorTranslate(SDLExecutorCommand):
 
-    def __init__(self):
-        super().__init__()
-
     def get_full_type(self):
         return "actor(physical)"
 
@@ -494,9 +543,6 @@ class PhysicalActorTranslate(SDLExecutorCommand):
 
 
 class PhysicalActorRotate(SDLExecutorCommand):
-
-    def __init__(self):
-        super().__init__()
 
     def get_full_type(self):
         return "actor(physical)"
@@ -515,9 +561,6 @@ class PhysicalActorRotate(SDLExecutorCommand):
 
 
 class PhysicalActorScale(SDLExecutorCommand):
-
-    def __init__(self):
-        super().__init__()
 
     def get_full_type(self):
         return "actor(physical)"
@@ -828,9 +871,6 @@ class LayeredSurfaceMaterialCreator(SDLCreatorCommand):
 
 class LayeredSurfaceMaterialAdd(SDLExecutorCommand):
 
-    def __init__(self):
-        super().__init__()
-
     def get_full_type(self):
         return "material(layered-surface)"
 
@@ -839,9 +879,6 @@ class LayeredSurfaceMaterialAdd(SDLExecutorCommand):
 
 
 class LayeredSurfaceMaterialSet(SDLExecutorCommand):
-
-    def __init__(self):
-        super().__init__()
 
     def get_full_type(self):
         return "material(layered-surface)"

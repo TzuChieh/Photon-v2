@@ -12,7 +12,9 @@ from ..psdl.pysdl import (
 	SDLReal,
 	SDLString,
 	SDLVector3,
-	SDLReference)
+	SDLReference,
+	SDLImage,
+	SDLMaterial)
 
 from ..psdl.pysdl import (
 	MatteOpaqueMaterialCreator,
@@ -212,7 +214,7 @@ class PhOutputNode(PhMaterialNode):
 
 		creator = FullMaterialCreator()
 		creator.set_data_name(res_name)
-		creator.set_surface(SDLReference("material", surface_mat_res_name))
+		creator.set_surface(SDLMaterial(surface_mat_res_name))
 		sdlconsole.queue_command(creator)
 
 	def get_surface_emi_res_name(self, res_name):
@@ -301,7 +303,7 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 
 		creator = MatteOpaqueMaterialCreator()
 		creator.set_data_name(res_name + "_" + self.name + "_" + surface_material_socket.identifier)
-		creator.set_albedo(SDLReference("image", albedo_res_name))
+		creator.set_albedo(SDLImage(albedo_res_name))
 		sdlconsole.queue_command(creator)
 
 
@@ -339,8 +341,8 @@ class PhBinaryMixedSurfaceNode(PhMaterialNode):
 		creator = BinaryMixedSurfaceMaterialCreator()
 		creator.set_data_name(res_name + "_" + self.name + "_" + surface_mat_socket.identifier)
 		creator.set_factor(SDLReal(self.factor))
-		creator.set_material_0(SDLReference("material", mat0_res_name))
-		creator.set_material_1(SDLReference("material", mat1_res_name))
+		creator.set_material_0(SDLMaterial(mat0_res_name))
+		creator.set_material_1(SDLMaterial(mat1_res_name))
 		sdlconsole.queue_command(creator)
 
 
@@ -453,7 +455,7 @@ class PhMultiplyNode(PhMaterialNode):
 
 		creator = RealMathImageCreator()
 		creator.set_data_name(SDLString(output_color_res_name))
-		creator.set_operand(SDLReference("image", input_color_res_name))
+		creator.set_operand(SDLImage(input_color_res_name))
 		creator.set_math_op(SDLString("multiply"))
 		creator.set_value(SDLReal(self.factor))
 		sdlconsole.queue_command(creator)

@@ -135,7 +135,6 @@ class SDLVector3Array(SDLData):
 		return self
 
 
-# TODO: make a reference type for each category
 class SDLReference(SDLData):
 	def __init__(self, ref_type="", ref_name=""):
 		super().__init__()

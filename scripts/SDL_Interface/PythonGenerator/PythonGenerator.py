@@ -38,6 +38,10 @@ class PythonGenerator(InterfaceGenerator):
 		file.write("# last generated: %s \n\n" % datetime.datetime.now())
 
 		file.write(inspect.getsource(pysdl_header))
+
+		file.write("\n\n")
+		file.write(PythonGenerator.gen_reference_data_classes())
+
 		file.write("\n\n")
 		for interface in self.interfaces:
 			file.write(PythonGenerator.gen_interface_classes(interface))
@@ -77,6 +81,28 @@ class PythonGenerator(InterfaceGenerator):
 		return True
 
 	@classmethod
+	def gen_reference_data_classes(cls):
+
+		reference_types = SDLInterface.get_reference_types()
+
+		code = ""
+		for type_name in reference_types:
+
+			class_name = capwords(type_name, "-").replace("-", "")
+
+			clazz = PythonClass("SDL" + class_name)
+			clazz.set_inherited_class_name("SDLReference")
+
+			init_method = PythonMethod("__init__")
+			init_method.add_input("ref_name", default_value="\"\"")
+			init_method.add_content_line("super().__init__(\"%s\", ref_name)" % type_name)
+			clazz.add_method(init_method)
+
+			code += clazz.gen_code()
+
+		return code
+
+	@classmethod
 	def gen_interface_classes(cls, sdl_interface: SDLInterface):
 
 		class_base_name = cls.gen_class_name(sdl_interface)
@@ -93,6 +119,8 @@ class PythonGenerator(InterfaceGenerator):
 			else:
 				clazz.set_inherited_class_name("SDLCoreCommand")
 
+			clazz.add_default_init()
+
 			# overriding get_full_type
 			full_type_method = PythonMethod("get_full_type")
 			full_type_method.add_content_line("return \"%s\"" % sdl_interface.get_full_type_name())
@@ -108,7 +136,7 @@ class PythonGenerator(InterfaceGenerator):
 					continue
 
 				method = PythonMethod(method_name)
-				method.add_input(input_name, "SDLData")
+				method.add_input(input_name, expected_type="SDLData")
 				method.add_content_line("self.set_input(\"%s\", %s)" % (sdl_input.name, input_name))
 
 				clazz.add_method(method)
@@ -143,7 +171,7 @@ class PythonGenerator(InterfaceGenerator):
 					continue
 
 				method = PythonMethod(method_name)
-				method.add_input(input_name, "SDLData")
+				method.add_input(input_name, expected_type="SDLData")
 				method.add_content_line("self.set_input(\"%s\", %s)" % (sdl_input.name, input_name))
 
 				clazz.add_method(method)

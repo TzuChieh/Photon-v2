@@ -11,11 +11,14 @@ class PythonMethod:
 	def set_name(self, name):
 		self.name = name
 
-	def add_input(self, name, expected_type=""):
-		if not expected_type:
-			self.inputs.append(name)
-		else:
-			self.inputs.append(name + ": " + expected_type)
+	# TODO: use keyword arg, otherwise we cannot default to None
+	def add_input(self, name, **kwargs):
+		input_string = name
+		if "expected_type" in kwargs:
+			input_string += ": " + kwargs["expected_type"]
+		elif "default_value" in kwargs:
+			input_string += " = " + kwargs["default_value"]
+		self.inputs.append(input_string)
 
 	def add_content_line(self, content):
 		self.content_lines.append(PythonMethod.UNIT_INDENT + content + "\n")

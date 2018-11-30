@@ -19,7 +19,14 @@ from ..psdl.pysdl import (
 	SDLQuaternion,
 	SDLString,
 	SDLVector3Array,
-	SDLReference)
+	SDLReference,
+	SDLImage,
+	SDLGeometry,
+	SDLMaterial,
+	SDLLightSource,
+	SDLSampleGenerator,
+	SDLCamera,
+	SDLRenderer)
 
 from ..psdl.pysdl import (
 	TriangleMeshGeometryCreator,
@@ -189,7 +196,7 @@ class Exporter:
 		if lightSourceName != None:
 			creator = LightActorCreator()
 			creator.set_data_name(actorLightName)
-			creator.set_light_source(SDLReference("light-source", lightSourceName))
+			creator.set_light_source(SDLLightSource(lightSourceName))
 			self.__sdlconsole.queue_command(creator)
 		else:
 			print("warning: expecting a non-None light source name for actor-light %s, not exporting" %(actorLightName))
@@ -229,8 +236,8 @@ class Exporter:
 
 		creator = ModelActorCreator()
 		creator.set_data_name(actorModelName)
-		creator.set_geometry(SDLReference("geometry", geometryName))
-		creator.set_material(SDLReference("material", materialName))
+		creator.set_geometry(SDLGeometry(geometryName))
+		creator.set_material(SDLMaterial(materialName))
 		self.__sdlconsole.queue_command(creator)
 
 		translator = ModelActorTranslate()
@@ -378,9 +385,9 @@ class Exporter:
 
 					creator = ModelLightSourceCreator()
 					creator.set_data_name(lightSourceName)
-					creator.set_emitted_radiance(SDLReference("image", mat_translate_result.surface_emi_res_name))
-					creator.set_geometry(SDLReference("geometry", geometryName))
-					creator.set_material(SDLReference("material", materialName))
+					creator.set_emitted_radiance(SDLImage(mat_translate_result.surface_emi_res_name))
+					creator.set_geometry(SDLGeometry(geometryName))
+					creator.set_material(SDLMaterial(materialName))
 					self.get_sdlconsole().queue_command(creator)
 
 					self.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)

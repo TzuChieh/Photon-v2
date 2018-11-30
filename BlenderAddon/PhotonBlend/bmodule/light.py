@@ -11,7 +11,8 @@ from ..psdl.pysdl import (
 	SDLVector3,
 	SDLQuaternion,
 	SDLString,
-	SDLReference)
+	SDLReference,
+	SDLLightSource)
 
 from ..psdl.pysdl import (
 	LightActorCreator,
@@ -157,7 +158,7 @@ def to_sdl_commands(b_obj, sdlconsole):
 
 	creator = LightActorCreator()
 	creator.set_data_name(actor_name)
-	creator.set_light_source(SDLReference("light-source", source_name))
+	creator.set_light_source(SDLLightSource(source_name))
 	sdlconsole.queue_command(creator)
 
 	translator = LightActorTranslate()

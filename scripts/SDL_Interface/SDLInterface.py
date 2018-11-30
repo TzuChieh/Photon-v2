@@ -103,6 +103,10 @@ class SDLInterface:
 	def get_full_type_name(self):
 		return self.category_name + "(" + self.type_name + ")"
 
+	@classmethod
+	def get_reference_types(cls):
+		return cls.CORE_CATEGORIES + cls.WORLD_CATEGORIES
+
 	def __str__(self):
 
 		result = "SDL Interface \n"

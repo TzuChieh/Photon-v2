@@ -11,6 +11,11 @@ class PythonClass:
 	def add_method(self, method: PythonMethod):
 		self.methods.append(method)
 
+	def add_default_init(self):
+		method = PythonMethod("__init__")
+		method.add_content_line("super().__init__()")
+		self.add_method(method)
+
 	def set_inherited_class_name(self, name):
 		self.inherited_class_name = name
 
@@ -30,8 +35,6 @@ class PythonClass:
 
 		if self.inherited_class_name:
 			code += "class %s(%s):\n\n" % (self.name, self.inherited_class_name)
-			code += "    def __init__(self):\n"
-			code += "        super().__init__()\n\n"
 		else:
 			code += "class %s:\n\n" % self.name
 
