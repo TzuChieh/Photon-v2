@@ -614,6 +614,14 @@ inline void TVector3<T>::set(TVector3* const out_value) const
 }
 
 template<typename T>
+inline TVector3<T>& TVector3<T>::set(const int axis, const T value)
+{
+	operator [] (axis) = value;
+
+	return *this;
+}
+
+template<typename T>
 inline bool TVector3<T>::equals(const TVector3& other) const
 {
 	return x == other.x &&

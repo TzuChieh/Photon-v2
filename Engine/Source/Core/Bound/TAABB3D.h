@@ -2,9 +2,11 @@
 
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
+#include "Math/math.h"
 
 #include <vector>
 #include <string>
+#include <utility>
 
 namespace ph
 {
@@ -16,8 +18,6 @@ class TAABB3D;
 
 using AABB3D = TAABB3D<real>;
 
-// TODO: 
-// * add a split method (useful for kdtree)
 template<typename T>
 class TAABB3D
 {
@@ -29,13 +29,17 @@ public:
 	TAABB3D(const TVector3<T>& point);
 	TAABB3D(const TVector3<T>& minVertex, const TVector3<T>& maxVertex);
 
+	TAABB3D& unionWith(const TAABB3D& other);
+	TAABB3D& unionWith(const TVector3<T>& point);
+	void setMinVertex(const TVector3<T>& minVertex);
+	void setMaxVertex(const TVector3<T>& maxVertex);
+	void expand(const TVector3<T>& amount);
+
 	bool isIntersectingVolume(const Ray& ray) const;
 	bool isIntersectingVolume(const Ray& ray, real* out_rayNearHitT, real* out_rayFarHitT) const;
 	bool isIntersectingVolume(const TAABB3D& other) const;
 	bool isPoint() const;
 	bool isFiniteVolume() const;
-	TAABB3D& unionWith(const TAABB3D& other);
-	TAABB3D& unionWith(const TVector3<T>& point);
 
 	// FIXME: too slow
 	std::vector<TVector3<T>> getVertices() const;
@@ -47,9 +51,7 @@ public:
 	TVector3<T> getExtents() const;
 	T getSurfaceArea() const;
 	T getVolume() const;
-	void setMinVertex(const TVector3<T>& minVertex);
-	void setMaxVertex(const TVector3<T>& maxVertex);
-	void expand(const TVector3<T>& amount);
+	std::pair<TAABB3D, TAABB3D> getSplitted(int axis, T splitPoint) const;
 
 	std::string toString() const;
 

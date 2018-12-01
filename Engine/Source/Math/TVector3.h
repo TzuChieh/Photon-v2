@@ -113,6 +113,7 @@ public:
 	inline TVector3& set(T rhs);
 	inline TVector3& set(const TVector3& rhs);
 	inline void set(TVector3* const out_value) const;
+	inline TVector3& set(int axis, T value);
 
 	inline bool equals(const TVector3& other) const;
 	inline bool equals(const TVector3& other, T margin) const;

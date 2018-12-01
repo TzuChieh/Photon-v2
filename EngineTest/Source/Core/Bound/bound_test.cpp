@@ -58,6 +58,22 @@ TEST(BoundTest, IsAABB3DRepresentFiniteVolume)
 	EXPECT_FALSE(infiniteBounds2.isFiniteVolume());
 }
 
+TEST(BoundTest, SplittingAABB3D)
+{
+	const AABB3D bound1({-1, -1, -1}, {1, 1, 1});
+	const auto splittedBound1 = bound1.getSplitted(math::X_AXIS, 0);
+
+	EXPECT_TRUE(splittedBound1.first.getMinVertex() == bound1.getMinVertex());
+	EXPECT_EQ(splittedBound1.first.getMaxVertex().x, 0);
+	EXPECT_EQ(splittedBound1.first.getMaxVertex().y, bound1.getMaxVertex().y);
+	EXPECT_EQ(splittedBound1.first.getMaxVertex().z, bound1.getMaxVertex().z);
+
+	EXPECT_TRUE(splittedBound1.second.getMaxVertex() == bound1.getMaxVertex());
+	EXPECT_EQ(splittedBound1.second.getMinVertex().x, 0);
+	EXPECT_EQ(splittedBound1.second.getMinVertex().y, bound1.getMinVertex().y);
+	EXPECT_EQ(splittedBound1.second.getMinVertex().z, bound1.getMinVertex().z);
+}
+
 TEST(BoundTest, IntersectingTwoAABB2DsAsAreas)
 {
 	typedef TAABB2D<real> AABB2DR;
