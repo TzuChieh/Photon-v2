@@ -4,7 +4,7 @@
 #include "Core/Ray.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Actor/CookedDataStorage.h"
-#include "Core/Bound/AABB3D.h"
+#include "Core/Bound/TAABB3D.h"
 
 #include <limits>
 

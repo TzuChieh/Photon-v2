@@ -1,6 +1,6 @@
 #include "constants_for_test.h"
 
-#include <Core/Bound/AABB3D.h>
+#include <Core/Bound/TAABB3D.h>
 #include <Core/Bound/TAABB2D.h>
 #include <Math/TVector3.h>
 

@@ -12,7 +12,7 @@ BvhIntersectableInfo::BvhIntersectableInfo(
 	index(index), aabb(), aabbCentroid(), intersectable(intersectable)
 {
 	intersectable->calcAABB(&aabb);
-	aabbCentroid = aabb.calcCentroid();
+	aabbCentroid = aabb.getCentroid();
 }
 
 }// end namespace ph

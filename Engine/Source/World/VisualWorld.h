@@ -8,7 +8,7 @@
 #include "Core/Intersectable/Intersector.h"
 #include "Core/Emitter/Sampler/EmitterSampler.h"
 #include "Common/Logger.h"
-#include "Core/Bound/AABB3D.h"
+#include "Core/Bound/TAABB3D.h"
 #include "Math/TVector3.h"
 #include "World/CookSettings.h"
 #include "Common/assertion.h"

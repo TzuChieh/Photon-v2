@@ -1,12 +1,13 @@
 #pragma once
 
+#include "Core/Bound/TAABB3D.h"
+
 namespace ph
 {
 
 class Ray;
 class HitProbe;
 class HitDetail;
-class AABB3D;
 
 class Intersectable
 {

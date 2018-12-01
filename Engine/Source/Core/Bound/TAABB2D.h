@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Common/primitive_type.h"
 #include "Math/TVector2.h"
 
 #include <string>
@@ -8,7 +9,12 @@ namespace ph
 {
 
 template<typename T>
-class TAABB2D final
+class TAABB2D;
+
+using AABB2D = TAABB2D<real>;
+
+template<typename T>
+class TAABB2D
 {
 public:
 	TVector2<T> minVertex;

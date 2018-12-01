@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/math_fwd.h"
+#include "Core/Bound/TAABB3D.h"
 
 #include <memory>
 
@@ -10,7 +11,6 @@ namespace ph
 class Ray;
 class Time;
 class HitInfo;
-class AABB3D;
 
 class Transform
 {

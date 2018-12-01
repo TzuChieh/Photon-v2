@@ -3,6 +3,7 @@
 #include "Core/Intersectable/Intersectable.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
+#include "Core/Bound/TAABB3D.h"
 
 namespace ph
 {
@@ -10,7 +11,6 @@ namespace ph
 class Ray;
 class HitProbe;
 class HitDetail;
-class AABB3D;
 class PrimitiveMetadata;
 class PositionSample;
 

@@ -1,5 +1,5 @@
 #include "Core/Intersectable/Intersectable.h"
-#include "Core/Bound/AABB3D.h"
+#include "Core/Bound/TAABB3D.h"
 #include "Core/HitProbe.h"
 
 namespace ph

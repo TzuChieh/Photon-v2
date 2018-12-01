@@ -8,7 +8,6 @@ namespace ph
 {
 
 class Ray;
-class AABB3D;
 
 class PTriangle final : public Primitive
 {

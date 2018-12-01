@@ -9,8 +9,6 @@
 
 namespace ph
 {
-
-class AABB;
 class Ray;
 
 class StaticAffineTransform final : public Transform

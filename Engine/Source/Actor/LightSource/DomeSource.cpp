@@ -84,7 +84,7 @@ std::unique_ptr<Emitter> DomeSource::genEmitter(
 
 	// HACK
 	PH_ASSERT(context.getVisualWorldInfo());
-	real sceneBoundRadius = context.getVisualWorldInfo()->getRootActorsBound().calcExtents().length();
+	real sceneBoundRadius = context.getVisualWorldInfo()->getRootActorsBound().getExtents().length();
 	emitter = std::make_unique<BackgroundEmitter>(data.primitives[0], emittedRadiance, resolution, sceneBoundRadius);
 
 	// We are inside a large sphere, so we need to make back face emitable.

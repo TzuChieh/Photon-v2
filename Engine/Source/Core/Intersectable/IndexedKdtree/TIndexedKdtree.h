@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Bound/AABB3D.h"
+#include "Core/Bound/TAABB3D.h"
 #include "Core/Intersectable/IndexedKdtree/TIndexedKdtreeNode.h"
 #include "Utility/utility.h"
 #include "Core/Intersectable/IndexedKdtree/IndexedItemEndpoint.h"
@@ -292,8 +292,8 @@ inline void TIndexedKdtree<Item, Index>::buildNodeRecursive(
 	}
 
 	const real     noSplitCost         = m_intersectionCost * static_cast<real>(numNodeItems);
-	const real     reciNodeSurfaceArea = 1.0_r / nodeAABB.calcSurfaceArea();
-	const Vector3R nodeExtents         = nodeAABB.calcExtents();
+	const real     reciNodeSurfaceArea = 1.0_r / nodeAABB.getSurfaceArea();
+	const Vector3R nodeExtents         = nodeAABB.getExtents();
 
 	real        bestSplitCost     = std::numeric_limits<real>::max();
 	int         bestAxis          = -1;
@@ -336,8 +336,8 @@ inline void TIndexedKdtree<Item, Index>::buildNodeRecursive(
 				endpointMinVertex[axis] = endpoint;
 				endpointMaxVertex[axis] = endpoint;
 
-				const real probNegative     = AABB3D(nodeAABB.getMinVertex(), endpointMaxVertex).calcSurfaceArea() * reciNodeSurfaceArea;
-				const real probPositive     = AABB3D(endpointMinVertex, nodeAABB.getMaxVertex()).calcSurfaceArea() * reciNodeSurfaceArea;
+				const real probNegative     = AABB3D(nodeAABB.getMinVertex(), endpointMaxVertex).getSurfaceArea() * reciNodeSurfaceArea;
+				const real probPositive     = AABB3D(endpointMinVertex, nodeAABB.getMaxVertex()).getSurfaceArea() * reciNodeSurfaceArea;
 				const real emptyBonus       = (numNegativeItems == 0 || numPositiveItems == 0) ? m_emptyBonus : 0.0_r;
 				const real currentSplitCost = m_traversalCost + (1.0_r - emptyBonus) * m_intersectionCost * 
 					(probNegative * static_cast<real>(numNegativeItems) + probPositive * static_cast<real>(numPositiveItems));

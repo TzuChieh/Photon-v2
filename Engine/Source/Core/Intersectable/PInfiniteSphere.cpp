@@ -2,7 +2,7 @@
 #include "Common/assertion.h"
 #include "Core/Ray.h"
 #include "Core/HitProbe.h"
-#include "Core/Bound/AABB3D.h"
+#include "Core/Bound/TAABB3D.h"
 #include "Math/TVector3.h"
 #include "Core/Sample/PositionSample.h"
 #include "Core/Intersectable/UvwMapper/SphericalMapper.h"

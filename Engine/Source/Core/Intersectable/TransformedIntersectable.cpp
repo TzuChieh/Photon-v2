@@ -2,7 +2,7 @@
 #include "Core/Ray.h"
 #include "Core/HitDetail.h"
 #include "Core/HitProbe.h"
-#include "Core/Bound/AABB3D.h"
+#include "Core/Bound/TAABB3D.h"
 #include "Common/assertion.h"
 
 namespace ph

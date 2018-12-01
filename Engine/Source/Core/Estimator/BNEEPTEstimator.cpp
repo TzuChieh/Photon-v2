@@ -206,7 +206,7 @@ void BNEEPTEstimator::radianceAlongRay(
 				// do MIS
 				if(canDoMis && !radianceLe.isZero())
 				{
-					// TODO: <directLightPdfW> might be 0, should we stop  using MIS if one of two 
+					// TODO: <directLightPdfW> might be 0, should we stop using MIS if one of two 
 					// sampling techniques has failed?
 					// <bsdfSamplePdfW> can also be 0 for delta distributions
 					const real directLightPdfW = TDirectLightEstimator<ESaPolicy::STRICT>(&scene).samplePdfWUnoccluded(

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Bound/AABB3D.h"
+#include "Core/Bound/TAABB3D.h"
 
 namespace ph
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Core/Bound/AABB3D.h"
+#include "Core/Bound/TAABB3D.h"
 
 namespace ph
 {

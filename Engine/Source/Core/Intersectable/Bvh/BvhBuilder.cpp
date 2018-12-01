@@ -110,7 +110,7 @@ const BvhInfoNode* BvhBuilder::buildBinaryBvhInfoNodeRecursive(const std::vector
 			centroidsAABB = AABB3D::makeUnioned(centroidsAABB, intersectable.aabbCentroid);
 		}
 
-		Vector3R extents = centroidsAABB.calcExtents();
+		Vector3R extents = centroidsAABB.getExtents();
 		if(extents.hasNegativeComponent())
 		{
 			std::cerr << "warning: at BvhBuilder::buildBinaryBvhNodeRecursive(), " 
@@ -296,7 +296,7 @@ bool BvhBuilder::splitWithSahBuckets(const std::vector<BvhIntersectableInfo>& in
 	const int32 numBuckets = 64;
 
 	const int32    dim         = splitDimension;
-	const Vector3R extents     = centroidsAABB.calcExtents();
+	const Vector3R extents     = centroidsAABB.getExtents();
 	const real     splitExtent = extents[dim];
 
 	BvhSahBucket buckets[numBuckets];
@@ -348,8 +348,8 @@ bool BvhBuilder::splitWithSahBuckets(const std::vector<BvhIntersectableInfo>& in
 			numIntersectablesB += buckets[j].numIntersectables;
 		}
 
-		const real probTestingA = aabbA.calcSurfaceArea() / primitivesAABB.calcSurfaceArea();
-		const real probTestingB = aabbB.calcSurfaceArea() / primitivesAABB.calcSurfaceArea();
+		const real probTestingA = aabbA.getSurfaceArea() / primitivesAABB.getSurfaceArea();
+		const real probTestingB = aabbB.getSurfaceArea() / primitivesAABB.getSurfaceArea();
 
 		costs[i] = traversalCost + 
 		           static_cast<real>(numIntersectablesA) * intersectCost * probTestingA +

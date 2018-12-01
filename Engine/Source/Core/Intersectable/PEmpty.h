@@ -2,7 +2,7 @@
 
 #include "Core/Intersectable/Primitive.h"
 #include "Common/assertion.h"
-#include "Core/Bound/AABB3D.h"
+#include "Core/Bound/TAABB3D.h"
 
 namespace ph
 {

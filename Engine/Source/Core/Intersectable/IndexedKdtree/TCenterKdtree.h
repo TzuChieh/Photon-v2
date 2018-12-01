@@ -3,7 +3,7 @@
 #include "Common/assertion.h"
 #include "Math/TVector3.h"
 #include "Core/Intersectable/IndexedKdtree/TIndexedKdtreeNode.h"
-#include "Core/Bound/AABB3D.h"
+#include "Core/Bound/TAABB3D.h"
 #include "Utility/utility.h"
 
 #include <vector>
@@ -230,7 +230,7 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 		return;
 	}
 
-	const Vector3R& nodeExtents = nodeAABB.calcExtents();
+	const Vector3R& nodeExtents = nodeAABB.getExtents();
 	const int       splitAxis   = nodeExtents.maxDimension();
 
 	const std::size_t midIndicesIndex = numNodeItems / 2;
