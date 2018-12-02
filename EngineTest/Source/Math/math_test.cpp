@@ -207,3 +207,37 @@ TEST(MathTest, IntegerWrapping)
 	EXPECT_EQ(math::wrap(maxUint - 11, maxUint - 10, maxUint - 8), maxUint - 8);
 	EXPECT_EQ(math::wrap(maxUint - 7,  maxUint - 10, maxUint - 8), maxUint - 10);
 }
+
+TEST(MathTest, EvenlyDividedRanges)
+{
+	const std::size_t size1 = 10;
+	const std::size_t numDivisions1 = 10;
+	for(std::size_t i = 0; i < numDivisions1; ++i)
+	{
+		const auto range = ph::math::ith_evenly_divided_range(i, size1, numDivisions1);
+		EXPECT_EQ(range.first + 1, range.second);
+	}
+
+	const std::size_t size2 = 98765;
+	const std::size_t numDivisions2 = 77;
+
+	std::size_t summedSize2 = 0;
+	for(std::size_t i = 0; i < numDivisions2; ++i)
+	{
+		const auto range     = ph::math::ith_evenly_divided_range(i, size2, numDivisions2);
+		const auto rangeSize = range.second - range.first;
+		summedSize2 += rangeSize;
+
+		// 98765 / 1282 = 1282.6623...
+		EXPECT_TRUE(rangeSize == 1282 || rangeSize == 1283);
+	}
+	EXPECT_EQ(summedSize2, size2);
+
+	const std::size_t size3 = 0;
+	const std::size_t numDivisions3 = 9;
+	for(std::size_t i = 0; i < numDivisions3; ++i)
+	{
+		const auto range = ph::math::ith_evenly_divided_range(i, size3, numDivisions3);
+		EXPECT_EQ(range.first, range.second);
+	}
+}

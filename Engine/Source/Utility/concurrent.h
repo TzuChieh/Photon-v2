@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/assertion.h"
+#include "Math/math.h"
 
 #include <functional>
 #include <cstddef>
@@ -16,7 +17,7 @@ namespace ph
 	<totalWorkSize>: total amount of work
 	<numWorkers>:    number of workers running the works
 	<work>:          The actual work that is going to be executed; where the
-	                 index range [workStart, workEnd) is specified as input,
+	                 index range [workBegin, workEnd) is specified as input,
 	                 as well as the index of the executing worker.
 */
 inline void parallel_work(
@@ -24,22 +25,18 @@ inline void parallel_work(
 	const std::size_t numWorkers,
 
 	const std::function<
-		void(std::size_t workerIdx, std::size_t workStart, std::size_t workEnd)
+		void(std::size_t workerIdx, std::size_t workBegin, std::size_t workEnd)
 	>& work)
 {
 	PH_ASSERT(numWorkers > 0);
 
-	const std::size_t workSize = totalWorkSize / numWorkers;
-
 	std::vector<std::thread> workers(numWorkers);
 	for(std::size_t workerIdx = 0; workerIdx < numWorkers; ++workerIdx)
 	{
-		const std::size_t workStart = workerIdx * workSize;
-		const std::size_t workEnd   = (workerIdx != numWorkers - 1) ? (workerIdx + 1) * workSize 
-		                                                            : totalWorkSize;
-		PH_ASSERT_GE(workEnd, workStart);
-		
-		workers[workerIdx] = std::thread(work, workerIdx, workStart, workEnd);
+		const auto workRange = math::ith_evenly_divided_range(workerIdx, totalWorkSize, numWorkers);
+
+		// TODO: should we execute 0-sized works? (currently they are executed)
+		workers[workerIdx] = std::thread(work, workerIdx, workRange.first, workRange.second);
 	}
 
 	for(std::size_t workerIdx = 0; workerIdx < numWorkers; ++workerIdx)

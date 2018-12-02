@@ -219,7 +219,7 @@ inline T wrap(T value, const T lowerBound, const T upperBound)
 bool is_same_hemisphere(const Vector3R& vector, const Vector3R& N);
 
 template<typename T>
-T product(const std::vector<T>& values)
+inline T product(const std::vector<T>& values)
 {
 	T result(1);
 	for(auto&& value : values)
@@ -230,21 +230,38 @@ T product(const std::vector<T>& values)
 }
 
 template<typename KBType, typename ByteType>
-KBType byte_to_KB(const ByteType numBytes)
+inline KBType byte_to_KB(const ByteType numBytes)
 {
 	return static_cast<KBType>(numBytes) / KBType(1024);
 }
 
 template<typename MBType, typename ByteType>
-MBType byte_to_MB(const ByteType numBytes)
+inline MBType byte_to_MB(const ByteType numBytes)
 {
 	return static_cast<MBType>(numBytes) / MBType(1024 * 1024);
 }
 
 template<typename GBType, typename ByteType>
-GBType byte_to_GB(const ByteType numBytes)
+inline GBType byte_to_GB(const ByteType numBytes)
 {
 	return static_cast<GBType>(numBytes) / GBType(1024 * 1024 * 1024);
+}
+
+// TODO: it is possible to generalize to signed range
+/*
+	Gets the i-th range [beginIndex, endIndex) which is the result of dividing
+	<totalSize> into <numDivisions> parts as evenly as possible.
+*/
+inline std::pair<std::size_t, std::size_t> ith_evenly_divided_range(
+	const std::size_t rangeIndex, 
+	const std::size_t totalSize,
+	const std::size_t numDivisions)
+{
+	PH_ASSERT_GT(numDivisions, 0);
+	PH_ASSERT_LT(rangeIndex, numDivisions);
+
+	return {rangeIndex * totalSize / numDivisions,
+	        (rangeIndex + 1) * totalSize / numDivisions};
 }
 
 }// end namespace math
