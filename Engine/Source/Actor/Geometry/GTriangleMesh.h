@@ -23,9 +23,11 @@ public:
 	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticAffineTransform& transform) const override;
 
 	void addTriangle(const GTriangle& gTriangle);
+	void useTriangleKdtree(bool value);
 
 private:
 	std::vector<GTriangle> m_gTriangles;
+	bool m_useTriangleKdtree;
 
 // command interface
 public:
@@ -66,6 +68,9 @@ public:
 				Similar to positions, except that the array stores normal vectors for 
 				each triangle.
 			</description>
+		</input>
+		<input name="use-triangle-kdtree" type="string">
+			<description>Builds a kD-tree for this triangle mesh if "true" is given.</description>
 		</input>
 	</command>
 

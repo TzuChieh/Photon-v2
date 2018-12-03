@@ -5,15 +5,24 @@
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "FileIO/SDL/InputPacket.h"
 #include "Actor/Geometry/GeometrySoup.h"
+#include "Common/Logger.h"
+#include "Core/Intersectable/TriangleKdtree/TriangleKdtree.h"
+#include "Utility/Timer.h"
 
 #include <iostream>
 
 namespace ph
 {
 
+namespace
+{
+	const Logger logger(LogSender("Triangle Mesh"));
+}
+
 GTriangleMesh::GTriangleMesh() : 
 	Geometry(), 
-	m_gTriangles()
+	m_gTriangles(),
+	m_useTriangleKdtree(false)
 {}
 
 GTriangleMesh::GTriangleMesh(const std::vector<Vector3R>& positions,
@@ -53,15 +62,57 @@ GTriangleMesh::~GTriangleMesh() = default;
 void GTriangleMesh::genPrimitive(const PrimitiveBuildingMaterial& data,
                                  std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
-	for(const auto& gTriangle : m_gTriangles)
+	if(!m_useTriangleKdtree)
 	{
-		gTriangle.genPrimitive(data, out_primitives);
+		for(const auto& gTriangle : m_gTriangles)
+		{
+			gTriangle.genPrimitive(data, out_primitives);
+		}
+	}
+	else
+	{
+		logger.log("start building triangle kD-tree...");
+
+		Timer timer;
+		timer.start();
+
+		Triangles triangles;
+		for(const auto& gTriangle : m_gTriangles)
+		{
+			// FIXME: leak
+			Triangle* triangle = new Triangle();
+			triangle->setTvertices(
+				gTriangle.getVa().x, 
+				gTriangle.getVa().y,
+				gTriangle.getVa().z,
+				gTriangle.getVb().x,
+				gTriangle.getVb().y,
+				gTriangle.getVb().z, 
+				gTriangle.getVc().x,
+				gTriangle.getVc().y,
+				gTriangle.getVc().z);
+
+			triangles.tris.push_back(triangle);
+		}
+
+		auto kdNode = std::make_unique<KDNode>(data.metadata);
+		kdNode->build_KD_tree(triangles);
+		out_primitives.push_back(std::move(kdNode));
+
+		timer.finish();
+
+		logger.log("kD-tree build time: " + std::to_string(timer.getDeltaMs()) + " ms");
 	}
 }
 
 void GTriangleMesh::addTriangle(const GTriangle& gTriangle)
 {
 	m_gTriangles.push_back(gTriangle);
+}
+
+void GTriangleMesh::useTriangleKdtree(const bool value)
+{
+	m_useTriangleKdtree = value;
 }
 
 std::shared_ptr<Geometry> GTriangleMesh::genTransformApplied(const StaticAffineTransform& transform) const
@@ -95,7 +146,14 @@ std::unique_ptr<GTriangleMesh> GTriangleMesh::ciLoad(const InputPacket& packet)
 	const std::vector<Vector3R> texCoords = packet.getVector3Array("texture-coordinates");
 	const std::vector<Vector3R> normals   = packet.getVector3Array("normals");
 
-	return std::make_unique<GTriangleMesh>(positions, texCoords, normals);
+	auto triangleMesh = std::make_unique<GTriangleMesh>(positions, texCoords, normals);
+
+	if(packet.getString("use-triangle-kdtree") == "true")
+	{
+		triangleMesh->useTriangleKdtree(true);
+	}
+
+	return triangleMesh;
 }
 
 }// end namespace ph

@@ -66,7 +66,7 @@ class Vec3 {
 		}
 };
 
-float Three_Vec3_delta(const Vec3 A, const Vec3 B, const Vec3 C){
+inline float Three_Vec3_delta(const Vec3 A, const Vec3 B, const Vec3 C){
 	return A.x * B.y * C.z + B.x * C.y * A.z + C.x * A.y * B.z + C.x * A.y * B.z
 			- A.z * B.y * C.z - B.z * C.y * A.x - C.z * A.y * B.x;
 }
