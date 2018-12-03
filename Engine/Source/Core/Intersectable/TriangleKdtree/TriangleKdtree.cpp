@@ -5,8 +5,6 @@
 namespace ph
 {
 
-using namespace std;
-
 std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int index){
 	float min_x = std::numeric_limits<float>::max();
 	float max_x = std::numeric_limits<float>::lowest();
@@ -43,7 +41,7 @@ std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int i
 
 	t->setIndex(index);
 	
-	return make_tuple(min_x,min_y,min_z,max_x,max_y,max_z);
+	return std::make_tuple(min_x,min_y,min_z,max_x,max_y,max_z);
 }
 
 void drawBounds(Voxel& V, Triangles& T){
@@ -58,12 +56,12 @@ void drawBounds(Voxel& V, Triangles& T){
 
 	for(int i = 0; i < T.tris.size(); i++){
 		auto local = TriangleBound(T.tris[i] , i);
-		float local_min_x = get<0>(local);
-		float local_min_y = get<1>(local);
-		float local_min_z = get<2>(local);;
-		float local_max_x = get<3>(local);;
-		float local_max_y = get<4>(local);;
-		float local_max_z = get<5>(local);;
+		float local_min_x = std::get<0>(local);
+		float local_min_y = std::get<1>(local);
+		float local_min_z = std::get<2>(local);;
+		float local_max_x = std::get<3>(local);;
+		float local_max_y = std::get<4>(local);;
+		float local_max_z = std::get<5>(local);;
 
 		if(local_min_x < min_x){
 			min_x = local_min_x;
@@ -184,7 +182,7 @@ float SAH(Plane& p, Voxel& V, int left_traingles_n, int right_traingles_n){
 
 
 
-void setTriBoundingEdge(Triangles& T, int LongestAxis, vector<BoundEdge>& Edges){
+void setTriBoundingEdge(Triangles& T, int LongestAxis, std::vector<BoundEdge>& Edges){
 	for(int i = 0; i < T.tris.size(); i++){
 		auto LeftAndRightBound = T.tris[i]->getBoundingEdge(LongestAxis);
 		/*
@@ -193,11 +191,11 @@ void setTriBoundingEdge(Triangles& T, int LongestAxis, vector<BoundEdge>& Edges)
 		left.EdgeType = BEGIN_EDGE;
 		Edge.push_back(left);
 		*/
-		Edges.push_back( {get<0>(LeftAndRightBound) , BEGIN_EDGE} );
+		Edges.push_back( { std::get<0>(LeftAndRightBound) , BEGIN_EDGE} );
 
 
 		//Edge.push_back( get<1>(LeftAndRightBound) );
-		Edges.push_back( {get<1>(LeftAndRightBound) , END_EDGE} );
+		Edges.push_back( { std::get<1>(LeftAndRightBound) , END_EDGE} );
 
 	} 
 }
@@ -234,7 +232,7 @@ bool edgeCmp(BoundEdge a, BoundEdge b){
 Plane find_plane(Triangles& T, Voxel& V){
 
 	int LongestAxis = V.LongestAxis();
-	vector<BoundEdge> Edges;
+	std::vector<BoundEdge> Edges;
 	//use parameters to update BoundEdge
 	setTriBoundingEdge(T, LongestAxis, Edges);
 	//sort edges

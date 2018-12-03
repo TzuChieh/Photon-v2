@@ -35,8 +35,6 @@
 namespace ph
 {
 
-using namespace std;
-
 class Vec3 {
 	public:
 		float x;
@@ -290,13 +288,13 @@ class Triangle{
 			Vec3 temp1 = TBoundingBox.getVertexMax();
 			Vec3 temp2 = TBoundingBox.getVertexMin();
 			if(LongestAxis == math::X_AXIS){
-				return make_tuple(temp2.x,temp1.x);
+				return std::make_tuple(temp2.x,temp1.x);
 			}
 			else if(LongestAxis == math::Y_AXIS){
-				return make_tuple(temp2.y,temp1.y);
+				return std::make_tuple(temp2.y,temp1.y);
 			}
 			else if(LongestAxis == math::Z_AXIS){
-				return make_tuple(temp2.z,temp1.z);
+				return std::make_tuple(temp2.z,temp1.z);
 			}
 			else{
 				exit(1);
@@ -496,7 +494,7 @@ float SA(Voxel& V);
 
 void split_voxel(Voxel& V,Plane& P, Voxel& left_voxel, Voxel& right_voxel);
 float SAH(Plane& p, Voxel& V, int left_traingles_n, int right_traingles_n);
-void setTriBoundingEdge(Triangles& T, int LongestAxis, vector<BoundEdge>& Edge);
+void setTriBoundingEdge(Triangles& T, int LongestAxis, std::vector<BoundEdge>& Edge);
 bool terminate(Triangles& T, Voxel& V, int depth);
 bool edgeCmp(BoundEdge a, BoundEdge b);
 Plane find_plane(Triangles& T, Voxel& V);
