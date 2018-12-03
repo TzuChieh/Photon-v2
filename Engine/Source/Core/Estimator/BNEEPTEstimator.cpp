@@ -110,7 +110,7 @@ void BNEEPTEstimator::radianceAlongRay(
 			real             directPdfW;
 			SpectralStrength emittedRadiance;
 
-			if(TDirectLightEstimator<ESaPolicy::STRICT>(&scene).sample(
+			if(canDoMis && TDirectLightEstimator<ESaPolicy::STRICT>(&scene).sample(
 				surfaceHit, ray.getTime(),
 				&L, &directPdfW, &emittedRadiance))
 			{
