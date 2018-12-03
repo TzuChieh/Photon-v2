@@ -2,7 +2,7 @@
 # NOTE: THIS FILE CONTAINS GENERATED CODE
 #       DO NOT MODIFY
 # ========================================
-# last generated: 2018-11-30 06:38:30.630997
+# last generated: 2018-12-04 01:08:43.552496
 
 from abc import ABC, abstractmethod
 
@@ -618,6 +618,9 @@ class TriangleMeshGeometryCreator(SDLCreatorCommand):
 
     def set_normals(self, normals: SDLData):
         self.set_input("normals", normals)
+
+    def set_use_triangle_kdtree(self, use_triangle_kdtree: SDLData):
+        self.set_input("use-triangle-kdtree", use_triangle_kdtree)
 
 
 class ConstantImageCreator(SDLCreatorCommand):
