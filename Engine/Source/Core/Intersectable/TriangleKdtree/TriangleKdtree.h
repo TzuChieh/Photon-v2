@@ -33,7 +33,9 @@
 //accelerate by turn Triangle to pointer
 //primitive bound make first
 //traversal use bit shift
-namespace ph{
+namespace ph
+{
+
 using namespace std;
 
 class Vec3 {
@@ -500,4 +502,4 @@ bool terminate(Triangles& T, Voxel& V, int depth);
 bool edgeCmp(BoundEdge a, BoundEdge b);
 Plane find_plane(Triangles& T, Voxel& V);
 
-}
+}// end namespace ph

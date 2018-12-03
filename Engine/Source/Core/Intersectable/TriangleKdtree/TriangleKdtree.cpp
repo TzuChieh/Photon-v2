@@ -1,6 +1,8 @@
-#include "KDtree.h"
+#include "Core/Intersectable/TriangleKdtree/TriangleKdtree.h"
 
-namespace ph{
+namespace ph
+{
+
 using namespace std;
 
 std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int index){
@@ -397,5 +399,5 @@ void KDNode::calcAABB(AABB3D* out_aabb) const {
 	out_aabb->setMaxVertex(Vector3R(myMaxVec.x, myMaxVec.y, myMaxVec.z ));
 }
 
-}
+}// end namespace ph
 
