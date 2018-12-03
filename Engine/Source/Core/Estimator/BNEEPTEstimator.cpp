@@ -93,7 +93,16 @@ void BNEEPTEstimator::radianceAlongRay(
 	//
 	for(uint32 numBounces = 0; numBounces < MAX_RAY_BOUNCES; numBounces++)
 	{
-		bool canDoMis = false;
+		// FIXME: too hacky
+		bool canDoMis = true;
+		{
+			const PrimitiveMetadata* me = surfaceHit.getDetail().getPrimitive()->getMetadata();
+			const SurfaceOptics* op = me->getSurface().getOptics();
+			if(op->getAllPhenomena().hasAtLeastOne({ESurfacePhenomenon::DELTA_REFLECTION, ESurfacePhenomenon::DELTA_TRANSMISSION}))
+			{
+				canDoMis = false;
+			}
+		}
 
 		// direct light sample
 		{
@@ -101,11 +110,9 @@ void BNEEPTEstimator::radianceAlongRay(
 			real             directPdfW;
 			SpectralStrength emittedRadiance;
 
-			canDoMis = TDirectLightEstimator<ESaPolicy::STRICT>(&scene).sample(
+			if(TDirectLightEstimator<ESaPolicy::STRICT>(&scene).sample(
 				surfaceHit, ray.getTime(),
-				&L, &directPdfW, &emittedRadiance);
-
-			if(canDoMis)
+				&L, &directPdfW, &emittedRadiance))
 			{
 				const PrimitiveMetadata* metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
 				const SurfaceBehavior&   surfaceBehavior = metadata->getSurface();
