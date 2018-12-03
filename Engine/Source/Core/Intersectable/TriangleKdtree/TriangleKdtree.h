@@ -1,3 +1,11 @@
+#include "Core/Ray.h"
+#include "Core/HitProbe.h"
+#include "Core/Bound/TAABB3D.h"
+#include "Core/Intersectable/Primitive.h"
+#include "Math/TVector3.h"
+#include "Math/math.h"
+//#include "Core/Intersectable/PTriangle.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -7,12 +15,6 @@
 #include <vector>
 #include <assert.h>
 #include <limits.h>
-#include "Core/Ray.h"
-#include "Core/HitProbe.h"
-#include "Core/Bound/TAABB3D.h"
-#include "Core/Intersectable/Primitive.h"
-#include "Math/TVector3.h"
-//#include "Core/Intersectable/PTriangle.h"
 
 #define traversal_constant 1
 #define intersection_constant 80
@@ -23,9 +25,6 @@
 #define BEGIN_EDGE 0
 #define END_EDGE 1
 
-#define AXIS_X 0
-#define AXIS_Y 1
-#define AXIS_Z 2
 //normal sutuation inherits Intersector
 //inherits primitive
 
@@ -290,13 +289,13 @@ class Triangle{
 			}
 			Vec3 temp1 = TBoundingBox.getVertexMax();
 			Vec3 temp2 = TBoundingBox.getVertexMin();
-			if(LongestAxis == AXIS_X){
+			if(LongestAxis == math::X_AXIS){
 				return make_tuple(temp2.x,temp1.x);
 			}
-			else if(LongestAxis == AXIS_Y){
+			else if(LongestAxis == math::Y_AXIS){
 				return make_tuple(temp2.y,temp1.y);
 			}
-			else if(LongestAxis == AXIS_Z){
+			else if(LongestAxis == math::Z_AXIS){
 				return make_tuple(temp2.z,temp1.z);
 			}
 			else{
@@ -421,13 +420,13 @@ class Voxel{
 			if(box.is_set()){		
 				Vec3 temp = box.getVertexMax() - box.getVertexMin();
 				if(temp.x > temp.y && temp.x > temp.z){
-					return AXIS_X;
+					return math::X_AXIS;
 				}
 				else if(temp.y > temp.x && temp.y > temp.z){
-					return AXIS_Y;
+					return math::Y_AXIS;
 				}
 				else{
-					return AXIS_Z;
+					return math::Z_AXIS;
 				}
 			}
 

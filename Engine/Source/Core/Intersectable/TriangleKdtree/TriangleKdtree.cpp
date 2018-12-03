@@ -1,19 +1,21 @@
 #include "Core/Intersectable/TriangleKdtree/TriangleKdtree.h"
 
+#include <limits>
+
 namespace ph
 {
 
 using namespace std;
 
 std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int index){
-	float min_x = FLT_MAX;
-	float max_x = -FLT_MAX;;
+	float min_x = std::numeric_limits<float>::max();
+	float max_x = std::numeric_limits<float>::lowest();
 
-	float min_y = FLT_MAX;
-	float max_y = -FLT_MAX;;
+	float min_y = std::numeric_limits<float>::max();
+	float max_y = std::numeric_limits<float>::lowest();
 
-	float min_z = FLT_MAX;
-	float max_z = -FLT_MAX;;
+	float min_z = std::numeric_limits<float>::max();
+	float max_z = std::numeric_limits<float>::lowest();
 
 	for(int j = 0; j < 3; j++){
 		if(t->getTverticies()[j].x < min_x){
@@ -45,15 +47,14 @@ std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int i
 }
 
 void drawBounds(Voxel& V, Triangles& T){
-	//FLT_MIN is positive approx to 0
-	float min_x = FLT_MAX;
-	float max_x = -FLT_MAX;
+	float min_x = std::numeric_limits<float>::max();
+	float max_x = std::numeric_limits<float>::lowest();
 
-	float min_y = FLT_MAX;
-	float max_y = -FLT_MAX;
+	float min_y = std::numeric_limits<float>::max();
+	float max_y = std::numeric_limits<float>::lowest();
 
-	float min_z = FLT_MAX;
-	float max_z = -FLT_MAX;
+	float min_z = std::numeric_limits<float>::max();
+	float max_z = std::numeric_limits<float>::lowest();
 
 	for(int i = 0; i < T.tris.size(); i++){
 		auto local = TriangleBound(T.tris[i] , i);
@@ -140,15 +141,15 @@ void split_voxel(Voxel& V,Plane& P, Voxel& left_voxel, Voxel& right_voxel){
 	right_voxel.box.copyVertexMax(V.box);
 
 	switch(P.getNormal()){
-		case AXIS_X:
+		case math::X_AXIS:
 			left_voxel.box.setVertexMax(-P.get_d(), V.box.getVertexMax().y, V.box.getVertexMax().z );
 			right_voxel.box.setVertexMin(-P.get_d(), V.box.getVertexMin().y, V.box.getVertexMin().z );
 			break;
-		case AXIS_Y:
+		case math::Y_AXIS:
 			left_voxel.box.setVertexMax(V.box.getVertexMax().x, -P.get_d(), V.box.getVertexMax().z );
 			right_voxel.box.setVertexMin(V.box.getVertexMin().x, -P.get_d(), V.box.getVertexMin().z );
 			break;
-		case AXIS_Z:
+		case math::Z_AXIS:
 			left_voxel.box.setVertexMax(V.box.getVertexMax().x, V.box.getVertexMax().y , -P.get_d() );
 			right_voxel.box.setVertexMin(V.box.getVertexMin().x, V.box.getVertexMin().y, -P.get_d());
 			break;
