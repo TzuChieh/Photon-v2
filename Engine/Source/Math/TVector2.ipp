@@ -252,4 +252,30 @@ inline TVector2<T>& TVector2<T>::operator = (const TVector2& rhs)
 	return *this;
 }
 
+template<typename T>
+inline T TVector2<T>::operator [] (const int axisId) const
+{
+	switch(axisId)
+	{
+	case math::X_AXIS: return x;
+	case math::Y_AXIS: return y;
+	}
+
+	PH_ASSERT_UNREACHABLE_SECTION();
+	return x;
+}
+
+template<typename T>
+inline T& TVector2<T>::operator [] (const int axisId)
+{
+	switch(axisId)
+	{
+	case math::X_AXIS: return x;
+	case math::Y_AXIS: return y;
+	}
+
+	PH_ASSERT_UNREACHABLE_SECTION();
+	return x;
+}
+
 }// end namespace ph

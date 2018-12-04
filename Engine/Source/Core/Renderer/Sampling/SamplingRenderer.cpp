@@ -55,7 +55,7 @@ void SamplingRenderer::doUpdate(const SdlResourcePack& data)
 	scheduler->setSppBudget(m_sg->numSampleBatches());
 	scheduler->init();*/
 
-	m_workScheduler = std::make_unique<PlateScheduler>(getNumWorkers(), WorkVolume(TAABB2D<std::size_t>(getRenderWindowPx()), m_sg->numSampleBatches()));
+	m_workScheduler = std::make_unique<PlateScheduler>(getNumWorkers(), WorkVolume(Region(getRenderWindowPx()), m_sg->numSampleBatches()));
 
 	m_works.clear();
 	for(std::size_t i = 0; i < getNumWorkers(); ++i)
@@ -66,7 +66,7 @@ void SamplingRenderer::doUpdate(const SdlResourcePack& data)
 			break;
 		}
 
-		const std::size_t spp = workVolume.getWorkDepth();
+		const std::size_t spp = workVolume.getDepth();
 
 		SamplingRenderWork work(
 			this,

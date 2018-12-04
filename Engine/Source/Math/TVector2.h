@@ -61,6 +61,8 @@ public:
 	inline std::string toString() const;
 
 	inline TVector2& operator = (const TVector2& rhs);
+	inline T operator [] (int axisId) const;
+	inline T& operator [] (int axisId);
 };
 
 }// end namespace ph
