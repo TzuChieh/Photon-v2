@@ -39,7 +39,6 @@ void ThinFilm::genSurface(CookingContext& context, SurfaceBehavior& behavior) co
 	}
 
 	auto optics = std::make_shared<ThinDielectricFilm>(
-		std::make_shared<ExactDielectricFresnel>(1.0_r, 1.5_r),
 		reflectanceTable, 
 		transmittanceTable);
 
