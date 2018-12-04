@@ -61,13 +61,19 @@ void ThinDielectricFilm::calcBsdfSample(
 	const Vector3R reflectDir  = in.V.mul(-1.0_r).reflect(N).normalizeLocal();
 	const Vector3R transmitDir = in.V.mul(-1.0_r);
 
-	const real        cosIncident     = std::min(N.absDot(reflectDir), 1.0_r);
-	const real        incidentDegrees = math::to_degrees(std::acos(cosIncident));
-	const std::size_t tableIndex      = math::clamp(
-		static_cast<std::size_t>(incidentDegrees + 0.5_r), std::size_t(0), std::size_t(90));
+	const real cosIncident     = std::min(N.absDot(reflectDir), 1.0_r);
+	const real incidentDegrees = math::to_degrees(std::acos(cosIncident));
+	const real fraction        = math::fractional_part(incidentDegrees);
 
-	const SampledSpectralStrength& reflectance   = m_reflectanceTable[tableIndex];
-	const SampledSpectralStrength& transmittance = m_transmittanceTable[tableIndex];
+	const std::size_t tableIndex0 = math::clamp(
+		static_cast<std::size_t>(incidentDegrees), std::size_t(0), std::size_t(90));
+	const std::size_t tableIndex1 = math::clamp(
+		tableIndex0 + 1, std::size_t(0), std::size_t(90));
+
+	const SampledSpectralStrength& reflectance   = 
+		m_reflectanceTable[tableIndex0] * (1 - fraction) + m_reflectanceTable[tableIndex1] * fraction;
+	const SampledSpectralStrength& transmittance =
+		m_transmittanceTable[tableIndex0] * (1 - fraction) + m_transmittanceTable[tableIndex1] * fraction;
 
 	const real reflectFactor  = reflectance.avg();
 	const real transmitFactor = transmittance.avg();
