@@ -119,6 +119,7 @@ inline uint32 next_power_of_2(uint32 value)
 	return value + 1;
 }
 
+// Determines whether <value> is a power of 2 number.
 template<typename T>
 inline bool is_power_of_2(const T value)
 {

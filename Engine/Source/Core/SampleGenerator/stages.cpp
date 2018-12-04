@@ -27,12 +27,14 @@ Samples2DStage::Samples2DStage(
 	const std::size_t hintSize = dimSizeHints.x * dimSizeHints.y;
 	if(hintSize > numSamples)
 	{
+		// FIXME: the product of the new size hints may still be larger due to numerical errors?
+
 		const float sizeRatio   = static_cast<float>(numSamples) / static_cast<float>(hintSize);
 		const float shrinkRatio = std::sqrt(sizeRatio);
 
 		m_dimSizeHints.x = static_cast<std::size_t>(shrinkRatio * static_cast<float>(dimSizeHints.x));
 		m_dimSizeHints.y = static_cast<std::size_t>(shrinkRatio * static_cast<float>(dimSizeHints.y));
-		m_dimSizeHints.max({1, 1});
+		m_dimSizeHints = m_dimSizeHints.max({1, 1});
 
 		logger.log(ELogLevel::NOTE_MED, 
 			"hint size " + dimSizeHints.toString() + " exceeds # of samples <" + 

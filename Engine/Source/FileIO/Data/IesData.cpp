@@ -177,7 +177,7 @@ void IesData::processAttenuationFactors()
 {
 	// Assuming candela values has been processed.
 
-	real maxCandela = std::numeric_limits<real>::min();
+	real maxCandela = std::numeric_limits<real>::lowest();
 	real minCandela = std::numeric_limits<real>::max();
 	for(const auto& candelas : m_sphericalCandelas)
 	{
