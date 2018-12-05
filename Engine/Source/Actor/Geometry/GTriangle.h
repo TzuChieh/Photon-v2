@@ -10,6 +10,7 @@ namespace ph
 class GTriangle final : public Geometry
 {
 public:
+	// FIXME: more constructors, each for different default values
 	GTriangle(const Vector3R& vA, const Vector3R& vB, const Vector3R& vC);
 	//GTriangle(const InputPacket& packet);
 	virtual ~GTriangle() override;
@@ -99,6 +100,20 @@ public:
 	inline void setUVWc(const Vector3R& uvwC)
 	{
 		m_uvwC = uvwC;
+	}
+
+	inline Vector3R calcFaceNormal() const
+	{
+		Vector3R faceNormal;
+		if(!isDegenerate())
+		{
+			faceNormal = m_vB.sub(m_vA).cross(m_vC.sub(m_vA)).normalizeLocal();
+		}
+		else
+		{
+			faceNormal = Vector3R(0, 1, 0);
+		}
+		return faceNormal;
 	}
 
 private:

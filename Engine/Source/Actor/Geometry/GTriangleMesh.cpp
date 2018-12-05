@@ -30,13 +30,42 @@ GTriangleMesh::GTriangleMesh(const std::vector<Vector3R>& positions,
                              const std::vector<Vector3R>& normals) : 
 	GTriangleMesh()
 {
-	if(!(positions.size() == texCoords.size() && texCoords.size() == normals.size()) ||
-	    (positions.empty() || texCoords.empty() || normals.empty()) ||
-	    (positions.size() % 3 != 0 || texCoords.size() % 3 != 0 || normals.size() % 3 != 0))
+	if(positions.empty() || positions.size() % 3 != 0)
 	{
-		std::cerr << "warning: at GTriangleMesh::GTriangleMesh(), " 
-		          << "bad input detected" << std::endl;
+		logger.log(ELogLevel::WARNING_MED, "position buffer is empty or ill-formed");
 		return;
+	}
+
+	// now we are sure that position buffer is with valid format
+
+	// FIXME: duplicated checking code
+
+	const bool isTexCoordsGood = texCoords.size() == positions.size();
+	if(!isTexCoordsGood)
+	{
+		if(texCoords.empty())
+		{
+			logger.log("texture coordinates buffer is empty, using default value");
+		}
+		else
+		{
+			logger.log(ELogLevel::WARNING_MED, 
+				"texture coordinates buffer is ill-formed, using default value");
+		}
+	}
+
+	const bool isNormalsGood = normals.size() == positions.size();
+	if(!isNormalsGood)
+	{
+		if(normals.empty())
+		{
+			logger.log("normal buffer is empty, using face normal");
+		}
+		else
+		{
+			logger.log(ELogLevel::WARNING_MED, 
+				"normal buffer is ill-formed, using face normal");
+		}
 	}
 
 	for(std::size_t i = 0; i < positions.size(); i += 3)
@@ -47,17 +76,38 @@ GTriangleMesh::GTriangleMesh(const std::vector<Vector3R>& positions,
 			continue;
 		}
 
-		triangle.setUVWa(texCoords[i + 0]);
-		triangle.setUVWb(texCoords[i + 1]);
-		triangle.setUVWc(texCoords[i + 2]);
-		triangle.setNa(normals[i + 0].lengthSquared() > 0 ? normals[i + 0].normalize() : Vector3R(0, 1, 0));
-		triangle.setNb(normals[i + 1].lengthSquared() > 0 ? normals[i + 1].normalize() : Vector3R(0, 1, 0));
-		triangle.setNc(normals[i + 2].lengthSquared() > 0 ? normals[i + 2].normalize() : Vector3R(0, 1, 0));
+		// TODO: we should rely on GTriangle's default value instead
+
+		if(isTexCoordsGood)
+		{
+			triangle.setUVWa(texCoords[i + 0]);
+			triangle.setUVWb(texCoords[i + 1]);
+			triangle.setUVWc(texCoords[i + 2]);
+		}
+		else
+		{
+			triangle.setUVWa(Vector3R(0));
+			triangle.setUVWb(Vector3R(0));
+			triangle.setUVWc(Vector3R(0));
+		}
+		
+		if(isNormalsGood)
+		{
+			triangle.setNa(normals[i + 0].lengthSquared() > 0 ? normals[i + 0].normalize() : Vector3R(0, 1, 0));
+			triangle.setNb(normals[i + 1].lengthSquared() > 0 ? normals[i + 1].normalize() : Vector3R(0, 1, 0));
+			triangle.setNc(normals[i + 2].lengthSquared() > 0 ? normals[i + 2].normalize() : Vector3R(0, 1, 0));
+		}
+		else
+		{
+			const Vector3R faceNormal = triangle.calcFaceNormal();
+			triangle.setNa(faceNormal);
+			triangle.setNb(faceNormal);
+			triangle.setNc(faceNormal);
+		}
+		
 		addTriangle(triangle);
 	}
 }
-
-GTriangleMesh::~GTriangleMesh() = default;
 
 void GTriangleMesh::genPrimitive(const PrimitiveBuildingMaterial& data,
                                  std::vector<std::unique_ptr<Primitive>>& out_primitives) const
