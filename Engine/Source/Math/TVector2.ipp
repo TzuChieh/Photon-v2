@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Math/TVector2.h"
+#include "Math/math.h"
+#include "Common/assertion.h"
 
 #include <cmath>
 #include <algorithm>
@@ -11,38 +13,28 @@ namespace ph
 template<typename T>
 inline TVector2<T>::TVector2() : 
 	x(0), y(0)
-{
-
-}
+{}
 
 template<typename T>
 inline TVector2<T>::TVector2(const T x, const T y) : 
 	x(x), y(y)
-{
-
-}
+{}
 
 template<typename T>
 inline TVector2<T>::TVector2(const T value) : 
 	x(value), y(value)
-{
-
-}
+{}
 
 template<typename T>
 inline TVector2<T>::TVector2(const TVector2& other) : 
 	x(other.x), y(other.y)
-{
-
-}
+{}
 
 template<typename T>
 template<typename U>
 inline TVector2<T>::TVector2(const TVector2<U>& other) : 
 	x(static_cast<T>(other.x)), y(static_cast<T>(other.y))
-{
-
-}
+{}
 
 template<typename T>
 inline TVector2<T>::~TVector2() = default;

@@ -25,11 +25,11 @@ private:
 
 // In-header Implementations:
 
-GammaCorrection::GammaCorrection(const real gamma) :
+inline GammaCorrection::GammaCorrection(const real gamma) :
 	m_reciGamma(1.0_r / gamma), m_useSrgbStandard(true)
 {}
 
-void GammaCorrection::operate(HdrRgbFrame& frame) const
+inline void GammaCorrection::operate(HdrRgbFrame& frame) const
 {
 	if(m_useSrgbStandard)
 	{
@@ -55,7 +55,7 @@ void GammaCorrection::operate(HdrRgbFrame& frame) const
 	}
 }
 
-void GammaCorrection::useSrgbStandard(const bool value)
+inline void GammaCorrection::useSrgbStandard(const bool value)
 {
 	m_useSrgbStandard = value;
 }
