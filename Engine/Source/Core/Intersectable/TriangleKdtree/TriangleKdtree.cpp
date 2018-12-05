@@ -1,4 +1,6 @@
 #include "Core/Intersectable/TriangleKdtree/TriangleKdtree.h"
+#include "Core/HitProbe.h"
+#include "Core/HitDetail.h"
 
 #include <limits>
 
@@ -386,7 +388,7 @@ void KDNode::calcIntersectionDetail(const Ray& ray, HitProbe& probe, HitDetail* 
 
 //3. accept false positive, tell if two box overlapping.implement bool isIntersectingVolumeConservative(const AABB3D& volume) const = 0;
 bool KDNode::isIntersectingVolumeConservative(const AABB3D& volume) const {
-	return 0;
+	return true;
 }
 	
 //4. pointer send bounding box. implement void calcAABB(AABB3D* out_aabb) const = 0;
