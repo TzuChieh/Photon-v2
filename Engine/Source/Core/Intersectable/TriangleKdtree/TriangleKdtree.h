@@ -4,6 +4,7 @@
 #include "Core/Intersectable/Primitive.h"
 #include "Math/TVector3.h"
 #include "Math/math.h"
+#include "Common/assertion.h"
 //#include "Core/Intersectable/PTriangle.h"
 
 #include <stdio.h>
@@ -16,14 +17,14 @@
 #include <assert.h>
 #include <limits.h>
 
-#define traversal_constant 1
-#define intersection_constant 80
+constexpr int traversal_constant = 1;
+constexpr int intersection_constant = 80;
 
-#define LEFT 0
-#define RIGHT 1
+constexpr int LEFT = 0;
+constexpr int RIGHT = 1;
 
-#define BEGIN_EDGE 0
-#define END_EDGE 1
+constexpr int BEGIN_EDGE = 0;
+constexpr int END_EDGE = 1;
 
 //normal sutuation inherits Intersector
 //inherits primitive
@@ -34,7 +35,8 @@
 //traversal use bit shift
 namespace ph
 {
-
+class KDNode;
+class Voxel;
 class Vec3 {
 	public:
 		float x;
@@ -76,65 +78,46 @@ class AABB{
 	private:
 		Vec3 VertexMin;
 		Vec3 VertexMax;
-		bool _is_set = 0;
-		bool min_set = 0;
-		bool max_set = 0;
 	public:
 		AABB(){
-			_is_set = 0;
-			min_set = 0;
-			max_set = 0;
-		}
-		bool is_set(){
-			return _is_set;
+
 		}
 		void setVertexMin(float x, float y, float z){
-			min_set = 1;
 
 			VertexMin.x = x;
 			VertexMin.y = y;
 			VertexMin.z = z;
 
-			if(max_set==1){
-				if(VertexMax.x < VertexMin.x || VertexMax.y < VertexMin.y || VertexMax.z < VertexMin.z){
+			if(VertexMax.x < VertexMin.x || VertexMax.y < VertexMin.y || VertexMax.z < VertexMin.z){
 					
-					fprintf(stderr,"VertexMin is not logical, VertexMin somehow is bigger than VertexMax\n");
-					printf("VertexMin.x:%f VertexMin.y:%f VertexMin.z:%f\n",VertexMin.x,VertexMin.y,VertexMin.z);
-					printf("VertexMax.x:%f VertexMax.y:%f VertexMax.z:%f\n",VertexMax.x,VertexMax.y,VertexMax.z);
-					exit(1);
-				}
-				_is_set=1;
+				fprintf(stderr,"VertexMin is not logical, VertexMin somehow is bigger than VertexMax\n");
+				printf("VertexMin.x:%f VertexMin.y:%f VertexMin.z:%f\n",VertexMin.x,VertexMin.y,VertexMin.z);
+				printf("VertexMax.x:%f VertexMax.y:%f VertexMax.z:%f\n",VertexMax.x,VertexMax.y,VertexMax.z);
+				exit(1);
 			}
+			
 		}
 		void setVertexMax(float x, float y, float z){
-			max_set = 1;
 
 			VertexMax.x = x;
 			VertexMax.y = y;
 			VertexMax.z = z;
 
-			if(min_set==1){
-				if(VertexMax.x < VertexMin.x || VertexMax.y < VertexMin.y || VertexMax.z < VertexMin.z){
-					fprintf(stderr,"VertexMax is not logical, VertexMin somehow is bigger than VertexMax\n");
-					exit(1);
-				}
-				_is_set=1;
+			if(VertexMax.x < VertexMin.x || VertexMax.y < VertexMin.y || VertexMax.z < VertexMin.z){
+				fprintf(stderr,"VertexMax is not logical, VertexMin somehow is bigger than VertexMax\n");
+				exit(1);
 			}
+
 		}
 		Vec3 getVertexMin(){
-			if(_is_set)
-				return VertexMin;
-			fprintf(stderr,"set AABB box first, use copyVertexMin/Max or set VertexMin/Max\n");
-			exit(1);		
+			return VertexMin;		
 		}
 		Vec3 getVertexMax(){
-			if(_is_set)
-				return VertexMax;
-			fprintf(stderr,"set AABB box first, use copyVertexMin/Max or set VertexMin/Max\n");
-			exit(1);
+			return VertexMax;
 		}
+		/*
 		void copyVertexMin(AABB src){
-			min_set = 1;
+			min_set = true;
 
 			if(src.is_set())
 				VertexMin = src.getVertexMin();
@@ -143,16 +126,16 @@ class AABB{
 				exit(1);	
 			}
 			
-			if(max_set==1){
+			if(max_set == true){
 				if(VertexMax.x < VertexMin.x || VertexMax.y < VertexMin.y || VertexMax.z < VertexMin.z){
 					fprintf(stderr,"VertexMin is not logical, VertexMin somehow is bigger than VertexMax\n");
 					exit(1);
 				}
-				_is_set=1;
+				_is_set = true;
 			}
 		}
 		void copyVertexMax(AABB src){
-			max_set = 1;
+			max_set = true;
 			
 			if(src.is_set())
 				VertexMax = src.getVertexMax();
@@ -160,56 +143,47 @@ class AABB{
 				fprintf(stderr,"the VertexMin/Max of the copied AABB box has not be set\n");
 				exit(1);
 			}
-			if(min_set==1){
+			if(min_set == true){
 				if(VertexMax.x < VertexMin.x || VertexMax.y < VertexMin.y || VertexMax.z < VertexMin.z){
 					fprintf(stderr,"VertexMax is not logical, VertexMin somehow is bigger than VertexMax\n");
 					exit(1);
 				}
-				_is_set=1;
+				_is_set = true;
 			}
 		}
+		*/
 };
 
 
 
 class BoundEdge{
 	private:
-		bool perp_is_set = 0;
-		bool type_is_set = 0;
-		float axis_perp;
+		float split_pos;
 		//0 is begin edge, 1 is end edge;
 		int EdgeType;
 	public:
 		BoundEdge(){
-			perp_is_set = 0;
-			type_is_set = 0;
+			split_pos = 0;
+			EdgeType = -1;
 		}
-		BoundEdge(float in_axis_perp ,int in_EdgeType ){
-			axis_perp = in_axis_perp;
+		BoundEdge(float in_split_pos ,int in_EdgeType ){
+			split_pos = in_split_pos;
 			EdgeType = in_EdgeType;
-			perp_is_set = 1;
-			type_is_set = 1;
 		}
-		void setAxisPerp(float in){
-			axis_perp = in;
-			perp_is_set = 1;
+		void setSplitPos(float in){
+			split_pos = in;
 		}
-		float getAxisPerp(){
-			if(perp_is_set)
-				return axis_perp;
-			fprintf(stderr,"setAxisPerp(in) first\n");
-			exit(1);
+		float getSplitPos(){
+			PH_ASSERT_NE(EdgeType, -1);
+			return split_pos;
 		}
 
 		void setEdgeType(int in){
 			EdgeType = in;
-			type_is_set = 1;
 		}
 		int getEdgeType(){
-			if(type_is_set)
-				return EdgeType;
-			fprintf(stderr,"setEdgeType(in) first\n");
-			exit(1);
+			PH_ASSERT_NE(EdgeType, -1);
+			return EdgeType;
 		}
 };
 
@@ -244,7 +218,7 @@ class Plane{
 
 		Plane(BoundEdge Edge, int LongestAxis ){
 			Normal = LongestAxis;
-			d = -1 * Edge.getAxisPerp();
+			d = -1 * Edge.getSplitPos();
 		}
 
 		void set_d(float in_d){
@@ -267,9 +241,8 @@ class Triangle{
 		}
 		int getIndex(){
 			if(index==-2){
-
-			}
-			fprintf(stderr, "Triangle getIndex err:Triangle verticies does not set, first run setTvertices\n");
+				fprintf(stderr, "Triangle getIndex err:Triangle verticies does not set, first run setTvertices\n");
+			}	
 			return index;
 		}
 
@@ -316,7 +289,7 @@ class Triangle{
 			return vertex;
 		}
 
-		bool Intersect(const Ray& ray){
+		bool Intersect(const Ray& ray, float *out_t){
 			float o_x = ray.getOrigin().x;
 			float o_y = ray.getOrigin().y;
 			float o_z = ray.getOrigin().z;
@@ -340,18 +313,21 @@ class Triangle{
 				//the ray origin lies on the plane which span by AB and AC
 				return false;
 			} 
-
+			float inv_delta = 1.0/delta;
 			float deltax_1 = Three_Vec3_delta(ray_vector, edgeOB, edgeOC);
 			float deltax_2 = Three_Vec3_delta(edgeOA, ray_vector, edgeOC);
 			float deltax_3 = Three_Vec3_delta(edgeOA, edgeOB, ray_vector);
 			bool all_positive = (deltax_1 > 0 && deltax_2 > 0 && deltax_3 > 0);	
-			if(deltax_1 + deltax_2 + deltax_3 >= 1 && all_positive){
+			if((deltax_1 + deltax_2 + deltax_3) * inv_delta >= 1 && all_positive){
+				float inv_temp = 1.0/ ((deltax_1 + deltax_2 + deltax_3) * inv_delta);
+				*out_t = ray.getMaxT() * inv_temp;
 				return true;
 			}
 
 			return false;
 
  		}
+
 };
 
 class Triangles{
@@ -385,7 +361,7 @@ class Triangles{
 		}
 		
 };
-class Voxel;
+
 class KDNode: public Primitive{
 	public:
 		KDNode *left;
@@ -414,22 +390,17 @@ class Voxel{
 		Voxel(){
 
 		}
-		int LongestAxis(){
-			if(box.is_set()){		
-				Vec3 temp = box.getVertexMax() - box.getVertexMin();
-				if(temp.x > temp.y && temp.x > temp.z){
-					return math::X_AXIS;
-				}
-				else if(temp.y > temp.x && temp.y > temp.z){
-					return math::Y_AXIS;
-				}
-				else{
-					return math::Z_AXIS;
-				}
+		int LongestAxis(){	
+			Vec3 temp = box.getVertexMax() - box.getVertexMin();
+			if(temp.x > temp.y && temp.x > temp.z){
+				return math::X_AXIS;
 			}
-
-			fprintf(stderr,"set AABB box of Voxel first, use copyVertexMin/Max or set VertexMin/Max");
-			exit(1);
+			else if(temp.y > temp.x && temp.y > temp.z){
+				return math::Y_AXIS;
+			}
+			else{
+				return math::Z_AXIS;
+			}
 		}
 		bool intersect(const Ray& ray, Voxel World_Voxel,float *outTMin, float *outTMax){
 			//base by pbrt			
@@ -475,11 +446,6 @@ class Voxel{
 		}
 };
 
-
-typedef struct s{
-	KDNode *node;
-    float tMin, tMax;
-}KDQueue;
 
 std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int index);
 void drawBounds(Voxel& V, Triangles& T);

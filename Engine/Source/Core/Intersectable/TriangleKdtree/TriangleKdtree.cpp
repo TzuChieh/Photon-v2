@@ -1,11 +1,12 @@
 #include "Core/Intersectable/TriangleKdtree/TriangleKdtree.h"
-#include "Core/HitProbe.h"
-#include "Core/HitDetail.h"
 
 #include <limits>
-
 namespace ph
 {
+typedef struct s{
+	KDNode *node;
+    float tMin, tMax;
+}KDQueue;
 
 std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int index){
 	float min_x = std::numeric_limits<float>::max();
@@ -85,7 +86,7 @@ void drawBounds(Voxel& V, Triangles& T){
 		}
 
 	}
-	printf("minx:%f,min_y:%f,min_z:%f\n",min_x,min_y,min_z);
+	//printf("minx:%f,min_y:%f,min_z:%f\n",min_x,min_y,min_z);
 	V.box.setVertexMin(min_x, min_y, min_z);
 	V.box.setVertexMax(max_x, max_y, max_z);
 }
@@ -137,8 +138,8 @@ float SA(Voxel& V){
 
 void split_voxel(Voxel& V,Plane& P, Voxel& left_voxel, Voxel& right_voxel){
 
-	left_voxel.box.copyVertexMin(V.box);
-	right_voxel.box.copyVertexMax(V.box);
+	left_voxel.box.setVertexMin(V.box.getVertexMin().x,V.box.getVertexMin().y,V.box.getVertexMin().z);
+	right_voxel.box.setVertexMax(V.box.getVertexMax().x,V.box.getVertexMax().y,V.box.getVertexMax().z);
 
 	switch(P.getNormal()){
 		case math::X_AXIS:
@@ -216,7 +217,7 @@ bool terminate(Triangles& T, Voxel& V, int depth){
 //becareful of overlapping
 bool edgeCmp(BoundEdge a, BoundEdge b){
 
-	if(a.getAxisPerp() == b.getAxisPerp()){
+	if(a.getSplitPos() == b.getSplitPos()){
 		/*
 		if(a.getEdgeType() == 0 && b.getEdgeType() == 1){
 			return 0;
@@ -228,7 +229,7 @@ bool edgeCmp(BoundEdge a, BoundEdge b){
 		return ( a.getEdgeType() > b.getEdgeType() );
 	}
 
-	return ( a.getAxisPerp() < b.getAxisPerp() );
+	return ( a.getSplitPos() < b.getSplitPos() );
 }
 
 Plane find_plane(Triangles& T, Voxel& V){
@@ -309,6 +310,7 @@ KDNode* KDNode::build_KD_tree(Triangles& T){
 //implement virtual functions of primitive.h
 //1. implement virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const = 0;
 bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
+	//return false;
 	float tMin , tMax;
 	bool is_hit = 0;
 	KDNode *cur_node = &KDtree_root[0];
@@ -364,7 +366,7 @@ bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
 		}
 		else{
 			for(int i = 0; i < cur_node->Tprim.tris.size(); i++){
-				if( cur_node->Tprim.tris[i]->Intersect(ray)){
+				if( cur_node->Tprim.tris[i]->Intersect(ray,NULL)){
 					is_hit = true;
 					break;
 				}
@@ -388,7 +390,7 @@ void KDNode::calcIntersectionDetail(const Ray& ray, HitProbe& probe, HitDetail* 
 
 //3. accept false positive, tell if two box overlapping.implement bool isIntersectingVolumeConservative(const AABB3D& volume) const = 0;
 bool KDNode::isIntersectingVolumeConservative(const AABB3D& volume) const {
-	return true;
+	return 0;
 }
 	
 //4. pointer send bounding box. implement void calcAABB(AABB3D* out_aabb) const = 0;
