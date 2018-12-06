@@ -9,17 +9,31 @@
 // TODO: other platforms and versions that do not need the "experimental" folder
 // NOTE: g++ 8.0 supports filesystem finally
 #if defined(PH_COMPILER_IS_MSVC)
+
 	#include <filesystem>
 	namespace std_filesystem = std::filesystem;
-#else
+
+#elif defined(PH_COMPILER_IS_GCC)
+
 	#include <experimental/filesystem>
 	namespace std_filesystem = std::experimental::filesystem;
+
+#else
+
+	/*
+		Since OSX has no support for filesystem library before Xcode 10.1, we use
+		an alternative Path implementation that does not depend on STL.
+	*/
+	#define PH_USE_NON_STL_BASED_PATH_IMPL
+
 #endif
 
 namespace ph
 {
 
-class Path final
+#ifndef PH_USE_NON_STL_BASED_PATH_IMPL
+
+class Path
 {
 public:
 	inline Path() : 
@@ -140,5 +154,13 @@ private:
 		return static_cast<wchar_t>(wch);
 	}
 };
+
+#else
+
+	#include "FileIO/FileSystem/AltPath.h"
+
+	using Path = AltPath;
+
+#endif
 
 }// end namespace ph
