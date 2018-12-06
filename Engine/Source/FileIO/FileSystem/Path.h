@@ -7,12 +7,12 @@
 #include <cwchar>
 
 // TODO: other platforms and versions that do not need the "experimental" folder
-#if defined(PH_COMPILER_IS_GCC)
-	#include <experimental/filesystem>
-	namespace std_filesystem = std::experimental::filesystem;
-#else
+#if defined(PH_COMPILER_IS_MSVC)
 	#include <filesystem>
 	namespace std_filesystem = std::filesystem;
+#else
+	#include <experimental/filesystem>
+	namespace std_filesystem = std::experimental::filesystem;
 #endif
 
 namespace ph
