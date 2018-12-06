@@ -34,9 +34,9 @@ install:
   # xcode 10.1 supports C++17 language features, but not standard library features...
   # need to manually install clang
   # see https://stackoverflow.com/questions/49577343/filesystem-with-c17-doesnt-work-on-my-mac-os-x-high-sierra/49600206
-  brew install --with-toolchain llvm # llvm but with all the headers
-  xcode-select --install # installs additional headers that you might be mimssing.
-  echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.bash_profile # exports the custom llvm path into the shell
+  - brew install --with-toolchain llvm # llvm but with all the headers
+  - xcode-select --install # installs additional headers that you might be mimssing.
+  - echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.bash_profile # exports the custom llvm path into the shell
 
 before_script:
   - if [ $TRAVIS_OS_NAME == linux ]; then export CC=gcc-7 && export CXX=g++-7; fi
