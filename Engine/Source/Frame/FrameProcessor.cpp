@@ -1,26 +1,58 @@
 #include "Frame/FrameProcessor.h"
 #include "Common/assertion.h"
 
+#include <iostream>
+
 namespace ph
 {
-void FrameProcessor::process(HdrRgbFrame& frame) const
-{
-	for(const auto& frameOperator : m_operators)
-	{
-		PH_ASSERT(frameOperator != nullptr);
 
-		frameOperator->operate(frame);
-	}
-}
-
-void FrameProcessor::appendOperator(std::unique_ptr<FrameOperator> op)
+void FrameProcessor::process(HdrRgbFrame& frame, const PipelineId pipeline) const
 {
-	if(!op)
+	const FrameProcessingPipeline* const targetPipeline = getPipeline(pipeline);
+	if(!targetPipeline)
 	{
 		return;
 	}
 
-	m_operators.push_back(std::move(op));
+	targetPipeline->process(frame);
+}
+
+FrameProcessor::PipelineId FrameProcessor::addPipeline()
+{
+	m_pipelines.push_back(FrameProcessingPipeline());
+
+	return m_pipelines.size() - 1;
+}
+
+FrameProcessingPipeline* FrameProcessor::getPipeline(const PipelineId pipeline)
+{
+	if(!checkPipelineId(pipeline))
+	{
+		return nullptr;
+	}
+
+	return &(m_pipelines[pipeline]);
+}
+
+const FrameProcessingPipeline* FrameProcessor::getPipeline(const PipelineId pipeline) const
+{
+	if(!checkPipelineId(pipeline))
+	{
+		return nullptr;
+	}
+
+	return &(m_pipelines[pipeline]);
+}
+
+bool FrameProcessor::checkPipelineId(const PipelineId id) const
+{
+	if(id >= m_pipelines.size())
+	{
+		std::cerr << "warning: invalid pipeline ID detected" << std::endl;
+		return false;
+	}
+	
+	return true;
 }
 
 }// end namespace ph

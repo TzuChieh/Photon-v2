@@ -8,8 +8,8 @@
 #include "Core/Renderer/Renderer.h"
 #include "Core/Renderer/ERegionStatus.h"
 #include "Frame/frame_fwd.h"
-#include "Core/Filmic/FilmSet.h"
-#include "Core/Renderer/EAttribute.h"
+#include "Frame/FrameProcessor.h"
+#include "Core/Quantity/EAttribute.h"
 #include "Core/Renderer/Region/Region.h"
 
 #include <string>
@@ -58,7 +58,9 @@ private:
 	std::shared_ptr<Renderer> m_renderer;
 	uint32 m_numRenderThreads;
 
-	FilmSet m_filmSet;
+	FrameProcessor m_frameProcessor;
+	// TODO: associate each attribute with a pipeline
+	FrameProcessor::PipelineId m_id;
 };
 
 // In-header Implementations:
