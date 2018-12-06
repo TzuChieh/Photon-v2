@@ -14,10 +14,10 @@ class FrameProcessor final
 public:
 	void process(HdrRgbFrame& frame) const;
 
-	void appendOperator(const std::shared_ptr<FrameOperator>& op);
+	void appendOperator(std::unique_ptr<FrameOperator> op);
 
 private:
-	std::vector<std::shared_ptr<FrameOperator>> m_operators;
+	std::vector<std::unique_ptr<FrameOperator>> m_operators;
 };
 
 }// end namespace ph

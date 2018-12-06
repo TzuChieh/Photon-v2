@@ -13,14 +13,14 @@ void FrameProcessor::process(HdrRgbFrame& frame) const
 	}
 }
 
-void FrameProcessor::appendOperator(const std::shared_ptr<FrameOperator>& op)
+void FrameProcessor::appendOperator(std::unique_ptr<FrameOperator> op)
 {
-	if(op == nullptr)
+	if(!op)
 	{
 		return;
 	}
 
-	m_operators.push_back(op);
+	m_operators.push_back(std::move(op));
 }
 
 }// end namespace ph

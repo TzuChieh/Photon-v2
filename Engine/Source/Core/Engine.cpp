@@ -31,7 +31,7 @@ void Engine::update()
 
 	// HACK
 	std::shared_ptr<FrameProcessor> processor = std::make_shared<FrameProcessor>();
-	processor->appendOperator(std::make_shared<JRToneMapping>());
+	processor->appendOperator(std::make_unique<JRToneMapping>());
 	m_filmSet.setProcessor(EAttribute::LIGHT_ENERGY, processor);
 	m_filmSet.setProcessor(EAttribute::NORMAL, processor);
 
