@@ -1,51 +1,44 @@
-dist: trusty
 sudo: require
-language: cpp
-compiler: gcc
 
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - gcc-7
-      - g++-7
-      - cmake
+matrix:
+  include:
+
+    - os: linux
+      dist: xenial
+      compiler: gcc
+      language: cpp
+      addons:
+        apt:
+          packages:
+            - gcc-7
+            - g++-7
+        env:
+          - CC=gcc-7
+          - CXX=g++-7
+
+    - os: osx
+      osx_image: xcode7.3
+      compiler: clang
+      language: cpp
 
 before_script:
-
-  # HACK: Travis's binutils version is too old, the best we can get here is 2.26
-  # ref: https://github.com/Project-OSRM/osrm-backend/issues/4169
-  - sudo apt-get install binutils-2.26
-  - export PATH=/usr/lib/binutils-2.26/bin:${PATH}
-
-  - export CC=gcc-7
-  - export CXX=g++-7
   - ld -v
-  - gcc --version
-  - g++ --version
-  - gcc-7 --version
-  - g++-7 --version
   - cmake --version
   - python --version
   - python3 --version
 
+  - if [$TRAVIS_OS_NAME == linux]; then gcc --version; fi
+  - if [$TRAVIS_OS_NAME == linux]; then g++ --version; fi
+  - if [$TRAVIS_OS_NAME == linux]; then gcc-7 --version; fi
+  - if [$TRAVIS_OS_NAME == linux]; then g++-7 --version; fi
+
+  - if [$TRAVIS_OS_NAME == osx]; then clang --version; fi
+  
 script:
   - git clone https://github.com/TzuChieh/Photon-v2-ThirdParty.git
   - bash ./setup.sh
   - mkdir -p ./build/
   - cd ./build/
-
-  # HACK: currently Travis's build toolchain is too old to handle pre-built binaries
-  # build googletest locally and overwrite pre-builts to resolve some nasty issue
-  #- git clone https://github.com/google/googletest.git
-  #- cd ./googletest/
-  #- mkdir ./build/
-  #- cd ./build/
-  #- cmake ../ -DCMAKE_BUILD_TYPE=release -DCMAKE_CXX_FLAGS="-std=c++17 -D_GLIBCXX_USE_CXX11_ABI=0" -DCMAKE_INSTALL_PREFIX=""
-  #- make -j4 DESTDIR="../../Photon-v2-ThirdParty/googletest/lib/linux/" install
-  #- cd ../../
-  
   
   - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_ENGINE_TEST=ON ../ 
   #- make -j4 VERBOSE=1
