@@ -14,8 +14,6 @@ matrix:
           packages:
             - gcc-7
             - g++-7
-      env:
-        - MATRIX_EVAL="export CC=gcc-7 && export CXX=g++-7"
 
     # Xcode 6.4 (6E35b)
     # Apple LLVM version 6.1.0 (clang-602.0.53) (based on LLVM 3.6.0svn)
@@ -25,16 +23,16 @@ matrix:
       osx_image: xcode6.4
       compiler: clang
       language: cpp
-      env:
-        - MATRIX_EVAL=""
 
 install:
   # manually install python3 since Travis does not support python on osx
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew update; fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install python3; fi
 
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew upgrade cmake; fi
+
 before_script:
-  - eval "${MATRIX_EVAL}"
+  - if [ $TRAVIS_OS_NAME == linux ]; then export CC=gcc-7 && export CXX=g++-7; fi
 
   - ld -v
   - cmake --version
@@ -46,7 +44,7 @@ before_script:
   - if [ $TRAVIS_OS_NAME == linux ]; then gcc-7 --version; fi
   - if [ $TRAVIS_OS_NAME == linux ]; then g++-7 --version; fi
 
-  - if [$TRAVIS_OS_NAME == osx]; then clang --version; fi
+  - if [ $TRAVIS_OS_NAME == osx ]; then clang --version; fi
   
 script:
   - git clone https://github.com/TzuChieh/Photon-v2-ThirdParty.git
