@@ -15,12 +15,13 @@ matrix:
             - gcc-7
             - g++-7
 
-    # Xcode 6.4 (6E35b)
-    # Apple LLVM version 6.1.0 (clang-602.0.53) (based on LLVM 3.6.0svn)
-    # Target: x86_64-apple-darwin14.3.0
+    # Xcode 7.3.1 (7D1014)
+    # Apple LLVM version 7.3.0 (clang-703.0.31)
+    # Target: x86_64-apple-darwin15.4.0
     # Thread model: posix
+    # InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
     - os: osx
-      osx_image: xcode6.4
+      osx_image: xcode7.3
       compiler: clang
       language: cpp
 
@@ -52,9 +53,12 @@ script:
   - mkdir -p ./build/
   - cd ./build/
   
-  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_ENGINE_TEST=ON ../ 
+  - if [ $TRAVIS_OS_NAME == linux ]; then BUILD_ENGINE_TESTS=ON; fi
+  - if [ $TRAVIS_OS_NAME == osx ]; then BUILD_ENGINE_TESTS=OFF; fi
+
+  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_ENGINE_TEST=${BUILD_ENGINE_TESTS} ../ 
   #- make -j4 VERBOSE=1
   - make -j4
 
   # Engine's unit test (working directory should be "./build/")
-  - ./bin/EngineTest
+  - if [ $TRAVIS_OS_NAME == linux ]; then ./bin/EngineTest; fi
