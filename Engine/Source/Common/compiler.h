@@ -1,5 +1,7 @@
 #pragma once
 
+// TODO: distinguish between versions
+
 #if defined(__clang__)
 	#define PH_COMPILER_IS_CLANG
 #elif defined(__GNUG__)

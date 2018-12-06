@@ -7,10 +7,12 @@
 #include <cwchar>
 
 // TODO: other platforms and versions that do not need the "experimental" folder
-#if defined(PH_COMPILER_IS_MSVC)
-	#include <filesystem>
-#elif defined(PH_COMPILER_IS_GCC)
+#if defined(PH_COMPILER_IS_GCC)
 	#include <experimental/filesystem>
+	namespace std_filesystem = std::experimental::filesystem;
+#else
+	#include <filesystem>
+	namespace std_filesystem = std::filesystem;
 #endif
 
 namespace ph
@@ -20,7 +22,7 @@ class Path final
 {
 public:
 	inline Path() : 
-		Path(std::experimental::filesystem::current_path().string())
+		Path(std_filesystem::current_path().string())
 	{}
 
 	// Constructing a path from some string representing of the path. The string 
@@ -29,7 +31,7 @@ public:
 	// one.
 	//
 	inline explicit Path(const std::string& path) : 
-		m_path(std::experimental::filesystem::path(path).make_preferred())
+		m_path(std_filesystem::path(path).make_preferred())
 	{}
 
 	inline bool isRelative() const
@@ -44,7 +46,7 @@ public:
 
 	inline std::string toAbsoluteString() const
 	{
-		const std::string& absPath = std::experimental::filesystem::absolute(m_path).string();
+		const std::string& absPath = std_filesystem::absolute(m_path).string();
 		if(!Path(absPath).isAbsolute())
 		{
 			std::cerr << "warning: at Path::getAbsoluteString(), " 
@@ -122,7 +124,7 @@ public:
 	}
 
 private:
-	std::experimental::filesystem::path m_path;
+	std_filesystem::path m_path;
 
 	inline static wchar_t charToWchar(const char ch)
 	{
