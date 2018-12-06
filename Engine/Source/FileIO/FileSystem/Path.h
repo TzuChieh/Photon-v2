@@ -7,6 +7,7 @@
 #include <cwchar>
 
 // TODO: other platforms and versions that do not need the "experimental" folder
+// NOTE: g++ 8.0 supports filesystem finally
 #if defined(PH_COMPILER_IS_MSVC)
 	#include <filesystem>
 	namespace std_filesystem = std::filesystem;
