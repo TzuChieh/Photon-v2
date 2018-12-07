@@ -20,15 +20,13 @@ class InputPacket;
 class PerspectiveCamera : public Camera, public TCommandInterface<PerspectiveCamera>
 {
 public:
-	virtual ~PerspectiveCamera() = 0;
-
-	virtual void genSensedRay(const Vector2R& filmNdcPos, Ray* out_ray) const = 0;
-	virtual void evalEmittedImportanceAndPdfW(
+	void genSensedRay(const Vector2R& filmNdcPos, Ray* out_ray) const override = 0;
+	void evalEmittedImportanceAndPdfW(
 		const Vector3R& targetPos, 
 		Vector2R* const out_filmCoord,
 		Vector3R* const out_importance, 
 		real* out_filmArea, 
-		real* const out_pdfW) const = 0;
+		real* const out_pdfW) const override = 0;
 
 	void setAspectRatio(real ratio) override;
 

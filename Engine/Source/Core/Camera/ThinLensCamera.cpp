@@ -10,8 +10,6 @@
 namespace ph
 {
 
-ThinLensCamera::~ThinLensCamera() = default;
-
 void ThinLensCamera::genSensedRay(const Vector2R& filmNdcPos, Ray* const out_ray) const
 {
 	Vector3R camFilmPos;

@@ -40,8 +40,6 @@ void Camera::calcSensedRayDifferentials(
 	                         (dpyRay.getDirection() - dnyRay.getDirection()).divLocal(reciIntervalPx));
 }
 
-Camera::~Camera() = default;
-
 void Camera::updateCameraToWorldTransform(const Vector3R& position, const Vector3R& direction, const Vector3R& upAxis)
 {
 	m_cameraToWorldTransform.setPosition(TVector3<hiReal>(position));

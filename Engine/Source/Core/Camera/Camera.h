@@ -24,7 +24,7 @@ class Camera : public TCommandInterface<Camera>
 public:
 	Camera();
 	Camera(const Vector3R& position, const Vector3R& direction, const Vector3R& upAxis);
-	virtual ~Camera() = 0;
+	virtual ~Camera() = default;
 
 	// TODO: consider changing <filmNdcPos> to 64-bit float
 

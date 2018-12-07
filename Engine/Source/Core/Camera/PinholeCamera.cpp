@@ -12,8 +12,6 @@
 namespace ph
 {
 
-PinholeCamera::~PinholeCamera() = default;
-
 void PinholeCamera::genSensedRay(const Vector2R& filmNdcPos, Ray* const out_ray) const
 {
 	out_ray->setDirection(genSensedRayDir(filmNdcPos));
