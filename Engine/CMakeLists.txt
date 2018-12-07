@@ -40,8 +40,7 @@ target_include_directories(Engine
 	PRIVATE ${STB_INCLUDE_DIR}
 )
 
-# other platforms do not link to threading and FS libraries by default
-#
+# other platforms do not link to threading and filesystem libraries by default
 if(NOT WIN32)
 
 	find_package(Threads)
@@ -49,7 +48,10 @@ if(NOT WIN32)
 		${CMAKE_THREAD_LIBS_INIT}
 	)
 
-	target_link_libraries(Engine stdc++fs)
+	# FIXME: remove this when osx supports STL filesystem
+	if(NOT APPLE)
+		target_link_libraries(Engine stdc++fs)
+	endif()
 
 endif()
 
