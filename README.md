@@ -9,6 +9,8 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
 
 Project Website: https://tzuchieh.github.io/
 
+Supported Platforms: Windows, Linux, macOS
+
 || Master branch | Develop branch |
 | ------------- | -----------------------|-----------------------|
 | **CI Status**     | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=master)](https://travis-ci.org/TzuChieh/Photon-v2) | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=develop)](https://travis-ci.org/TzuChieh/Photon-v2) |
