@@ -22,11 +22,11 @@ public:
 	static inline std::pair<real, real> lambdaRangeNmOf(std::size_t index);
 
 public:
-	typedef TAbstractSpectralStrength<TSampledSpectralStrength, N> Parent;
+	using Parent = TAbstractSpectralStrength<TSampledSpectralStrength, N>;
 
 	inline TSampledSpectralStrength();
 	inline TSampledSpectralStrength(const TSampledSpectralStrength& other);
-	using Parent::TAbstractSpectralStrength;
+	using Parent::Parent;
 	virtual inline ~TSampledSpectralStrength() override = default;
 
 	//void asAveraged(const real* lambdasNm, const real* strengths, std::size_t numElements);

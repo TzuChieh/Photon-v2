@@ -9,10 +9,9 @@ class DielectricFresnel : public FresnelEffect
 {
 public:
 	DielectricFresnel(real iorOuter, real iorInner);
-	virtual ~DielectricFresnel() override;
 
 	// TODO: add a dielectric specific form (not spectral)
-	virtual void calcReflectance(real cosThetaIncident, SpectralStrength* out_reflectance) const = 0;
+	void calcReflectance(real cosThetaIncident, SpectralStrength* out_reflectance) const override = 0;
 
 	bool calcRefractDir(const Vector3R& I, const Vector3R& N, Vector3R* out_refractDir) const;
 

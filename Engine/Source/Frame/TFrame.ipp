@@ -108,7 +108,7 @@ inline void TFrame<T, N>::sample(
 				{
 					float64 sampledValue = pixelSum[i] * reciWeightSum;
 					sampledValue = math::clamp(sampledValue,
-					                           static_cast<float64>(std::numeric_limits<T>::min()),
+					                           static_cast<float64>(std::numeric_limits<T>::lowest()),
 					                           static_cast<float64>(std::numeric_limits<T>::max()));
 					sampledPixel[i] = static_cast<T>(sampledValue);
 				}

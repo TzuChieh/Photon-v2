@@ -14,9 +14,8 @@ class PhysicalActor : public Actor, public TCommandInterface<PhysicalActor>
 public:
 	PhysicalActor();
 	PhysicalActor(const PhysicalActor& other);
-	virtual ~PhysicalActor() override;
 
-	virtual CookedUnit cook(CookingContext& context) const = 0;
+	CookedUnit cook(CookingContext& context) const override = 0;
 
 	// FIXME: precision loss using real
 	void translate(const Vector3R& translation);

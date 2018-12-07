@@ -30,10 +30,10 @@ void Engine::update()
 	m_data.update(0.0_r);
 
 	// HACK
-	std::shared_ptr<FrameProcessor> processor = std::make_shared<FrameProcessor>();
-	processor->appendOperator(std::make_shared<JRToneMapping>());
-	m_filmSet.setProcessor(EAttribute::LIGHT_ENERGY, processor);
-	m_filmSet.setProcessor(EAttribute::NORMAL, processor);
+	m_id = m_frameProcessor.addPipeline();
+	m_frameProcessor.getPipeline(m_id)->appendOperator(std::make_unique<JRToneMapping>());
+	/*m_filmSet.setProcessor(EAttribute::LIGHT_ENERGY, processor);
+	m_filmSet.setProcessor(EAttribute::NORMAL, processor);*/
 
 	m_renderer = m_data.getRenderer();
 	m_renderer->setNumWorkers(m_numRenderThreads);
@@ -55,8 +55,7 @@ void Engine::developFilm(
 
 	if(applyPostProcessing)
 	{
-		const FrameProcessor* processor = m_filmSet.getProcessor(attribute);
-		processor->process(out_frame);
+		m_frameProcessor.process(out_frame, m_id);
 	}
 }
 
@@ -87,9 +86,7 @@ void Engine::asyncDevelopFilmRegion(
 
 	if(applyPostProcessing)
 	{
-		const FrameProcessor* processor = m_filmSet.getProcessor(attribute);
-		PH_ASSERT(processor);
-		processor->process(out_frame);
+		m_frameProcessor.process(out_frame, m_id);
 	}
 }
 

@@ -119,6 +119,7 @@ inline uint32 next_power_of_2(uint32 value)
 	return value + 1;
 }
 
+// Determines whether <value> is a power of 2 number.
 template<typename T>
 inline bool is_power_of_2(const T value)
 {
@@ -248,6 +249,8 @@ inline GBType byte_to_GB(const ByteType numBytes)
 }
 
 // TODO: it is possible to generalize to signed range
+//       maybe use ith_evenly_divided_size() as function name and 
+//       ith_evenly_divided_range() for signed/unsigned range
 /*
 	Gets the i-th range [beginIndex, endIndex) which is the result of dividing
 	<totalSize> into <numDivisions> parts as evenly as possible.

@@ -10,9 +10,9 @@ class SphericalMapper : public UvwMapper
 {
 public:
 	void positionToUvw(const Vector3R& position, Vector3R* out_uvw) const override;
-	void directionToUvw(const Vector3R& direction, Vector3R* out_uvw) const;
-	bool uvwToPosition(const Vector3R& uvw, Vector3R* out_position) const;
-	bool uvwToDirection(const Vector3R& uvw, Vector3R* out_direction) const;
+	void directionToUvw(const Vector3R& direction, Vector3R* out_uvw) const override;
+	bool uvwToPosition(const Vector3R& uvw, Vector3R* out_position) const override;
+	bool uvwToDirection(const Vector3R& uvw, Vector3R* out_direction) const override;
 };
 
 // In-header Implementations:

@@ -45,8 +45,6 @@ PTriangle::PTriangle(const PrimitiveMetadata* const metadata, const Vector3R& vA
 	m_nC = m_faceNormal;
 }
 
-PTriangle::~PTriangle() = default;
-
 bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	Vector3R rayDir = ray.getDirection();

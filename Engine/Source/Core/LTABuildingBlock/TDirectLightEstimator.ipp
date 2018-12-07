@@ -36,12 +36,12 @@ inline bool TDirectLightEstimator<POLICY>::sample(
 	real* const             out_pdfW,
 	SpectralStrength* const out_emittedRadiance)
 {
-	const PrimitiveMetadata* metadata = targetPos.getDetail().getPrimitive()->getMetadata();
+	/*const PrimitiveMetadata* metadata = targetPos.getDetail().getPrimitive()->getMetadata();
 	const SurfaceOptics* optics = metadata->getSurface().getOptics();
 	if(optics->getAllPhenomena().hasAtLeastOne({ESurfacePhenomenon::DELTA_REFLECTION, ESurfacePhenomenon::DELTA_TRANSMISSION}))
 	{
 		return false;
-	}
+	}*/
 
 	DirectLightSample directLightSample;
 	directLightSample.setDirectSample(targetPos.getPosition());

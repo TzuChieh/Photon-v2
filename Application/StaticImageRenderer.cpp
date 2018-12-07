@@ -7,7 +7,13 @@
 #include <thread>
 #include <chrono>
 #include <atomic>
-#include <experimental/filesystem>
+
+// FIXME: add osx fs headers once it is supported
+#if defined(_WIN32)
+	#include <filesystem>
+#elif defined(__linux__)
+	#include <experimental/filesystem>
+#endif
 
 PH_CLI_NAMESPACE_BEGIN
 
@@ -101,9 +107,22 @@ void StaticImageRenderer::setSceneFilePath(const std::string& path)
 {
 	m_sceneFilePath = path;
 
+#ifndef __APPLE__
 	namespace fs = std::experimental::filesystem;
 	const std::string sceneDirectory = fs::path(path).parent_path().string();
 	phSetWorkingDirectory(m_engineId, sceneDirectory.c_str());
+#else
+	const std::size_t slashIndex = path.find_last_of('/');
+	if(slashIndex != std::string::npos)
+	{
+		const std::string sceneDirectory = path.substr(0, slashIndex + 1);
+		phSetWorkingDirectory(m_engineId, sceneDirectory.c_str());
+	}
+	else
+	{
+		std::cerr << "warning: cannot retrieve scene directory from path <" << path << ">" << std::endl;
+	}
+#endif
 }
 
 void StaticImageRenderer::setImageFilePath(const std::string& path)

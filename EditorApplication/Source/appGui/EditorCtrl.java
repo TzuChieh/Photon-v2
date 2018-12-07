@@ -1,5 +1,6 @@
 package appGui;
 
+import appModel.Display;
 import appModel.EditorApp;
 import appModel.GeneralOption;
 import appModel.console.Console;
@@ -8,58 +9,36 @@ import appModel.event.ProjectEventType;
 import appModel.project.Project;
 import appModel.project.RenderSetting;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.imageio.ImageIO;
 
 import appGui.util.FSBrowser;
 import appGui.util.UILoader;
 import appGui.util.ViewCtrlPair;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import photonApi.Frame;
 import photonApi.FrameRegion;
-import photonApi.FrameStatus;
-import photonApi.Ph;
-import photonApi.Rectangle;
-import photonApi.RenderState;
-import photonApi.Statistics;
-import photonApi.Vector3f;
-import util.Time;
 
 public class EditorCtrl
 {
 	// TODO: make project able to pickup directly typed text
 	
 	private Project m_project;
-    
-    private WritableImage m_displayImage;
+    private Display m_display;
 	
 	@FXML private VBox             projectOverviewVbox;
 	@FXML private TitledPane       projectOverviewPane;
@@ -76,7 +55,7 @@ public class EditorCtrl
     @FXML
     public void initialize()
     {
-    	m_displayImage = new WritableImage(1, 1);
+    	m_display = new Display();
     	
     	canvas.widthProperty().addListener(observable -> {clearFrame(); drawFrame();});
     	canvas.heightProperty().addListener(observable -> {clearFrame(); drawFrame();});
@@ -102,6 +81,8 @@ public class EditorCtrl
 //    	AnchorPane.setRightAnchor(renderProgressMonitorUI.getView(), 0.0);
     	progressMonitorScrollPane.setContent(renderProgressMonitorUI.getView());
     	m_renderProgressMonitor = renderProgressMonitorUI.getCtrl();
+    	
+    	// FIXME: set to actual display class
     	m_renderProgressMonitor.setDisplay(this);
     }
     
@@ -166,44 +147,7 @@ public class EditorCtrl
 	
     public void loadFrameBuffer(FrameRegion frameRegion)
 	{
-		if(!frameRegion.isValid() || frameRegion.getNumComp() != 3)
-		{
-			System.err.println("unexpected frame format; unable to load");
-			return;
-		}
-		
-		if(m_displayImage.getWidth()  != frameRegion.getFullWidthPx() || 
-		   m_displayImage.getHeight() != frameRegion.getFullHeightPx())
-		{
-			m_displayImage = new WritableImage(frameRegion.getFullWidthPx(), frameRegion.getFullHeightPx());
-		}
-		
-		final PixelWriter pixelWriter = m_displayImage.getPixelWriter();
-		Rectangle region = frameRegion.getRegion();
-		int maxX = region.x + region.w;
-		int maxY = region.y + region.h;
-		Vector3f color = new Vector3f();
-		
-		for(int y = region.y; y < maxY; y++)
-		{
-			for(int x = region.x; x < maxX; x++)
-			{
-				color.set(frameRegion.getRgb(x, y));
-				if(!Float.isFinite(color.x) ||
-				   !Float.isFinite(color.y) || 
-				   !Float.isFinite(color.z))
-				{
-					System.err.println("color is not finite: " + color);
-					color.set(0, 0, 0);
-				}
-				
-				color.clampLocal(0.0f, 1.0f);
-				
-				int inversedY = frameRegion.getFullHeightPx() - y - 1;
-				Color fxColor = new Color(color.x, color.y, color.z, 1.0);
-				pixelWriter.setColor(x, inversedY, fxColor);
-			}
-		}
+		m_display.loadFrameBuffer(frameRegion);
 	}
 	
 	private void clearFrame()
@@ -218,7 +162,7 @@ public class EditorCtrl
 		final float canvasWidth       = (float)(canvas.getWidth());
 		final float canvasHeight      = (float)(canvas.getHeight());
 		final float canvasAspectRatio = canvasWidth / canvasHeight;
-		final float frameAspectRatio  = (float)(m_displayImage.getWidth()) / (float)(m_displayImage.getHeight());
+		final float frameAspectRatio  = (float)(m_display.getWidth()) / (float)(m_display.getHeight());
 		
 		int imageWidth;
 		int imageHeight;
@@ -234,27 +178,14 @@ public class EditorCtrl
 		}
 		
 		GraphicsContext g = canvas.getGraphicsContext2D();
-		g.drawImage(m_displayImage, 
+		g.drawImage(m_display.getImage(), 
 		            (canvas.getWidth() - imageWidth) * 0.5, (canvas.getHeight() - imageHeight) * 0.5, 
 		            imageWidth, imageHeight);
 	}
     
     public void saveDisplayImage(String imageName)
     {
-    	BufferedImage image = SwingFXUtils.fromFXImage(m_displayImage, null);
-    	try 
-		{
-		    File outputfile = new File("./" + imageName + ".png");
-		    ImageIO.write(image, "png", outputfile);
-		    
-		    EditorApp.printToConsole("image saved");
-		} 
-		catch(IOException e)
-		{
-			e.printStackTrace();
-			
-			EditorApp.printToConsole("image saving failed");
-		}
+    	m_display.saveImage("./", imageName);
     }
     
     private void updateMessageTextArea()

@@ -37,8 +37,6 @@ ConstantImage::ConstantImage(const std::vector<real>& values, const EType type) 
 	m_values(values), m_type(type)
 {}
 
-ConstantImage::~ConstantImage() = default;
-
 std::shared_ptr<TTexture<real>> ConstantImage::genTextureReal(
 	CookingContext& context) const
 {

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Math/TVector2.h"
+#include "Math/math.h"
+#include "Common/assertion.h"
 
 #include <cmath>
 #include <algorithm>
@@ -11,38 +13,28 @@ namespace ph
 template<typename T>
 inline TVector2<T>::TVector2() : 
 	x(0), y(0)
-{
-
-}
+{}
 
 template<typename T>
 inline TVector2<T>::TVector2(const T x, const T y) : 
 	x(x), y(y)
-{
-
-}
+{}
 
 template<typename T>
 inline TVector2<T>::TVector2(const T value) : 
 	x(value), y(value)
-{
-
-}
+{}
 
 template<typename T>
 inline TVector2<T>::TVector2(const TVector2& other) : 
 	x(other.x), y(other.y)
-{
-
-}
+{}
 
 template<typename T>
 template<typename U>
 inline TVector2<T>::TVector2(const TVector2<U>& other) : 
 	x(static_cast<T>(other.x)), y(static_cast<T>(other.y))
-{
-
-}
+{}
 
 template<typename T>
 inline TVector2<T>::~TVector2() = default;
@@ -250,6 +242,32 @@ inline TVector2<T>& TVector2<T>::operator = (const TVector2& rhs)
 	y = rhs.y;
 
 	return *this;
+}
+
+template<typename T>
+inline T TVector2<T>::operator [] (const int axisId) const
+{
+	switch(axisId)
+	{
+	case math::X_AXIS: return x;
+	case math::Y_AXIS: return y;
+	}
+
+	PH_ASSERT_UNREACHABLE_SECTION();
+	return x;
+}
+
+template<typename T>
+inline T& TVector2<T>::operator [] (const int axisId)
+{
+	switch(axisId)
+	{
+	case math::X_AXIS: return x;
+	case math::Y_AXIS: return y;
+	}
+
+	PH_ASSERT_UNREACHABLE_SECTION();
+	return x;
 }
 
 }// end namespace ph

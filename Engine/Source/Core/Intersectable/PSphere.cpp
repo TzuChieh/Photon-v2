@@ -28,8 +28,6 @@ PSphere::PSphere(const PrimitiveMetadata* const metadata, const real radius) :
 	PH_ASSERT(radius > 0.0_r);
 }
 
-PSphere::~PSphere() = default;
-
 bool PSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	// ray origin:         o

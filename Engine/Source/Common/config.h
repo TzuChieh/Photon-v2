@@ -34,15 +34,15 @@
 #define PH_INTERSECTION_PROBE_DEPTH           8
 #define PH_INTERSECTION_PROBE_REAL_CACHE_SIZE 8
 
+#include <string>
+
 namespace ph
 {
-
-class Path;
 
 class Config final
 {
 public:
-	static Path& CORE_RESOURCE_DIRECTORY();
+	static std::string& CORE_RESOURCE_DIRECTORY();
 };
 
 }// end namespace ph

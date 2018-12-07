@@ -2,12 +2,17 @@
 
 #include "Core/Renderer/Region/WorkScheduler.h"
 #include "Common/assertion.h"
+#include "Math/math.h"
 
 #include <algorithm>
 
 namespace ph
 {
 
+/*
+	Schedules a complete region, without any division, to each worker. Only
+	work depth is distributed among workers.
+*/
 class PlateScheduler : public WorkScheduler
 {
 public:
@@ -15,7 +20,7 @@ public:
 	PlateScheduler(std::size_t numWorkers, const WorkVolume& totalWorkVolume);
 
 private:
-	std::size_t m_remainingDepth;
+	std::size_t m_numScheduled;
 
 	bool scheduleOne(WorkVolume* out_workVolume) override;
 };
@@ -28,28 +33,25 @@ inline PlateScheduler::PlateScheduler() :
 
 inline PlateScheduler::PlateScheduler(const std::size_t numWorkers, const WorkVolume& totalWorkVolume) : 
 	WorkScheduler(numWorkers, totalWorkVolume),
-	m_remainingDepth(totalWorkVolume.getWorkDepth())
+	m_numScheduled(0)
 {}
 
 inline bool PlateScheduler::scheduleOne(WorkVolume* const out_workVolume)
 {
-	if(m_remainingDepth == 0)
+	if(m_numScheduled < m_numWorkers)
 	{
-		return false;
-	}
+		PH_ASSERT(out_workVolume);
 
-	const std::size_t depthPerWorker = std::max(m_totalWorkVolume.getWorkDepth() / m_numWorkers, std::size_t(1));
-	if(m_remainingDepth >= depthPerWorker)
-	{
-		*out_workVolume = WorkVolume(m_totalWorkVolume.getWorkArea(), depthPerWorker);
-		m_remainingDepth -= depthPerWorker;
+		const auto depthRange = math::ith_evenly_divided_range(
+			m_numScheduled, m_totalWorkVolume.getDepth(), m_numWorkers);
+		*out_workVolume = WorkVolume(m_totalWorkVolume.getRegion(), depthRange.second - depthRange.first);
+
+		++m_numScheduled;
 		return true;
 	}
 	else
 	{
-		*out_workVolume = WorkVolume(m_totalWorkVolume.getWorkArea(), m_remainingDepth);
-		m_remainingDepth = 0;
-		return true;
+		return false;
 	}
 }
 

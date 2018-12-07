@@ -94,3 +94,6 @@ Resource/
 
 # avoiding Eclipse generated src folder in root directory (Maven project)
 /src/
+
+# osx
+.DS_Store

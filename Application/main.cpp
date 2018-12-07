@@ -7,9 +7,15 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <experimental/filesystem>
 #include <utility>
 #include <algorithm>
+
+// FIXME: add osx fs headers once it is supported
+#if defined(_WIN32)
+	#include <filesystem>
+#elif defined(__linux__)
+	#include <experimental/filesystem>
+#endif
 
 using namespace PH_CLI_NAMESPACE;
 
@@ -61,6 +67,8 @@ int main(int argc, char* argv[])
 
 	return EXIT_SUCCESS;
 }
+
+#ifndef __APPLE__
 
 void renderImageSeries(const CommandLineArguments& args)
 {
@@ -130,3 +138,12 @@ void renderImageSeries(const CommandLineArguments& args)
 		renderer.render();
 	}
 }
+
+#else
+
+void renderImageSeries(const CommandLineArguments& args)
+{
+	std::cerr << "ERROR: currently image series rendering is not supported on OSX" << std::endl;
+}
+
+#endif

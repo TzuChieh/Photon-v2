@@ -7,20 +7,38 @@
 #include <cwchar>
 
 // TODO: other platforms and versions that do not need the "experimental" folder
+// NOTE: g++ 8.0 supports filesystem finally
 #if defined(PH_COMPILER_IS_MSVC)
+
 	#include <filesystem>
+	namespace std_filesystem = std::filesystem;
+
 #elif defined(PH_COMPILER_IS_GCC)
+
 	#include <experimental/filesystem>
+	namespace std_filesystem = std::experimental::filesystem;
+
+#else
+
+	/*
+		Assuming OSX here.
+		Since OSX has no support for filesystem library before Xcode 10.1, we use
+		an alternative Path implementation that does not depend on STL's filesystem.
+	*/
+	#define PH_USE_ALTERNATIVE_PATH_IMPL
+
 #endif
+
+#ifndef PH_USE_ALTERNATIVE_PATH_IMPL
 
 namespace ph
 {
 
-class Path final
+class Path
 {
 public:
 	inline Path() : 
-		Path(std::experimental::filesystem::current_path().string())
+		Path(std_filesystem::current_path().string())
 	{}
 
 	// Constructing a path from some string representing of the path. The string 
@@ -29,7 +47,7 @@ public:
 	// one.
 	//
 	inline explicit Path(const std::string& path) : 
-		m_path(std::experimental::filesystem::path(path).make_preferred())
+		m_path(std_filesystem::path(path).make_preferred())
 	{}
 
 	inline bool isRelative() const
@@ -44,7 +62,7 @@ public:
 
 	inline std::string toAbsoluteString() const
 	{
-		const std::string& absPath = std::experimental::filesystem::absolute(m_path).string();
+		const std::string& absPath = std_filesystem::absolute(m_path).string();
 		if(!Path(absPath).isAbsolute())
 		{
 			std::cerr << "warning: at Path::getAbsoluteString(), " 
@@ -122,7 +140,7 @@ public:
 	}
 
 private:
-	std::experimental::filesystem::path m_path;
+	std_filesystem::path m_path;
 
 	inline static wchar_t charToWchar(const char ch)
 	{
@@ -139,3 +157,16 @@ private:
 };
 
 }// end namespace ph
+
+#else
+
+#include "FileIO/FileSystem/AltPath.h"
+
+namespace ph
+{
+
+using Path = AltPath;
+
+}// end namespace ph
+	
+#endif

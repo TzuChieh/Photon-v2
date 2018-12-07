@@ -31,21 +31,19 @@ public:
 	                         const std::vector<const Primitive*>& primitives, 
 	                         std::size_t                          mainPrimitiveIndex);
 
-	virtual ~SuperpositionedPrimitive() override;
+	bool isIntersecting(const Ray& ray) const override;
+	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+	bool isIntersectingVolumeConservative(const AABB3D& aabb) const override;
 
-	virtual bool isIntersecting(const Ray& ray) const override;
-	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
-	virtual bool isIntersectingVolumeConservative(const AABB3D& aabb) const override;
-
-	virtual void calcIntersectionDetail(
+	void calcIntersectionDetail(
 		const Ray& ray, 
 		HitProbe&  probe,
 		HitDetail* out_detail) const override;
-	virtual void calcAABB(AABB3D* out_aabb) const override;
-	virtual real calcPositionSamplePdfA(const Vector3R& position) const override;
-	virtual real calcExtendedArea() const override;
+	void calcAABB(AABB3D* out_aabb) const override;
+	real calcPositionSamplePdfA(const Vector3R& position) const override;
+	real calcExtendedArea() const override;
 
-	virtual void genPositionSample(PositionSample* out_sample) const override;
+	void genPositionSample(PositionSample* out_sample) const override;
 
 private:
 	std::vector<const Primitive*> m_primitives;

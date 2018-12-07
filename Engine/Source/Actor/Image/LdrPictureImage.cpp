@@ -21,8 +21,6 @@ LdrPictureImage::LdrPictureImage(const LdrRgbFrame& picture) :
 	m_picture(picture)
 {}
 
-LdrPictureImage::~LdrPictureImage() = default;
-
 std::shared_ptr<TTexture<SpectralStrength>> LdrPictureImage::genTextureSpectral(
 	CookingContext& context) const
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Utility/TFixedEnumMap.h"
-#include "Core/Renderer/EAttribute.h"
+#include "Core/Quantity/EAttribute.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Math/TVector3.h"
 
