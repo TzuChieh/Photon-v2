@@ -26,8 +26,6 @@ TransformedPrimitive::TransformedPrimitive(
 	PH_ASSERT(worldToLocal != nullptr);
 }
 
-TransformedPrimitive::~TransformedPrimitive() = default;
-
 real TransformedPrimitive::calcPositionSamplePdfA(const Vector3R& position) const
 {
 	Vector3R localPosition;

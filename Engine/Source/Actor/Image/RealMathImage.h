@@ -21,15 +21,14 @@ public:
 
 	RealMathImage();
 	RealMathImage(EMathOp mathOp, real value);
-	virtual ~RealMathImage() override = default;
 
-	virtual std::shared_ptr<TTexture<real>> genTextureReal(
+	std::shared_ptr<TTexture<real>> genTextureReal(
 		CookingContext& context) const override;
 
-	virtual std::shared_ptr<TTexture<Vector3R>> genTextureVector3R(
+	std::shared_ptr<TTexture<Vector3R>> genTextureVector3R(
 		CookingContext& context) const override;
 
-	virtual std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(
+	std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(
 		CookingContext& context) const override;
 
 	RealMathImage& setOperandImage(const std::shared_ptr<Image>& operand);

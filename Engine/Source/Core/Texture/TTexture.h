@@ -17,7 +17,7 @@ public:
 
 public:
 	inline TTexture();
-	inline virtual ~TTexture() = 0;
+	inline virtual ~TTexture() = default;
 
 	virtual void sample(const SampleLocation& sampleLocation, Output* out_value) const = 0;
 };

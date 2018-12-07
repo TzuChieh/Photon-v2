@@ -9,8 +9,6 @@ Actor::Actor() = default;
 
 Actor::Actor(const Actor& other) = default;
 
-Actor::~Actor() = default;
-
 Actor& Actor::operator = (const Actor& rhs)
 {
 	// nothing to assign

@@ -18,15 +18,14 @@ class Primitive : public Intersectable
 {
 public:
 	explicit Primitive(const PrimitiveMetadata* metadata);
-	~Primitive() override;
 
 	using Intersectable::isIntersecting;
-	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const = 0;
-	virtual void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
-	                                    HitDetail* out_detail) const = 0;
+	bool isIntersecting(const Ray& ray, HitProbe& probe) const override = 0;
+	void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
+	                            HitDetail* out_detail) const override = 0;
 
-	virtual bool isIntersectingVolumeConservative(const AABB3D& volume) const = 0;
-	virtual void calcAABB(AABB3D* out_aabb) const = 0;
+	bool isIntersectingVolumeConservative(const AABB3D& volume) const override = 0;
+	void calcAABB(AABB3D* out_aabb) const override = 0;
 
 	// Generates a sample point on the surface of this primitive. 
 	//

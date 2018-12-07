@@ -26,8 +26,6 @@ TransformedIntersectable::TransformedIntersectable(const TransformedIntersectabl
 	m_worldToLocal(other.m_worldToLocal)
 {}
 
-TransformedIntersectable::~TransformedIntersectable() = default;
-
 // FIXME: intersecting routines' time correctness
 
 bool TransformedIntersectable::isIntersecting(const Ray& ray) const

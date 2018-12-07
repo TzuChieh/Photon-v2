@@ -10,7 +10,6 @@ class PSphere final : public Primitive
 {
 public:
 	explicit PSphere(const PrimitiveMetadata* metadata, real radius);
-	~PSphere() override;
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 

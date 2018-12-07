@@ -13,9 +13,8 @@ public:
 	ConductorDielectricFresnel(real iorOuter, 
 	                           const SpectralStrength& iorInner, 
 	                           const SpectralStrength& iorInnerK);
-	virtual ~ConductorDielectricFresnel() override;
 
-	virtual void calcReflectance(real cosThetaIncident, SpectralStrength* out_reflectance) const = 0;
+	void calcReflectance(real cosThetaIncident, SpectralStrength* out_reflectance) const override = 0;
 
 protected:
 	real             m_iorOuter;

@@ -12,9 +12,6 @@ inline TTextureFunction<InputType, OutputType>::TTextureFunction() :
 {}
 
 template<typename InputType, typename OutputType>
-inline TTextureFunction<InputType, OutputType>::~TTextureFunction() = default;
-
-template<typename InputType, typename OutputType>
 inline auto TTextureFunction<InputType, OutputType>::setInputTexture(
 	const std::shared_ptr<TTexture<InputType>>& inputTexture)
 	-> TTextureFunction<InputType, OutputType>&

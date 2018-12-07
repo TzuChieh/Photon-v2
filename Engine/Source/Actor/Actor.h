@@ -13,7 +13,7 @@ class Actor : public TCommandInterface<Actor>
 public:
 	Actor();
 	Actor(const Actor& other);
-	virtual ~Actor() = 0;
+	virtual ~Actor() = default;
 
 	virtual CookedUnit cook(CookingContext& context) const = 0;
 

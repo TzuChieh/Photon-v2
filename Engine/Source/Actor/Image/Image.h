@@ -20,7 +20,7 @@ class Image : public TCommandInterface<Image>
 {
 public:
 	Image();
-	virtual ~Image() = 0;
+	virtual ~Image() = default;
 
 	virtual std::shared_ptr<TTexture<real>> genTextureReal(
 		CookingContext& context) const;

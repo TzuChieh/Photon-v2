@@ -15,14 +15,13 @@ public:
 	                         const Transform*     localToWorld, 
 	                         const Transform*     worldToLocal);
 	TransformedIntersectable(const TransformedIntersectable& other);
-	virtual ~TransformedIntersectable() override;
 
-	virtual bool isIntersecting(const Ray& ray) const override;
-	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
-	virtual void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
+	bool isIntersecting(const Ray& ray) const override;
+	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+	void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 	                                    HitDetail* out_detail) const override;
-	virtual bool isIntersectingVolumeConservative(const AABB3D& aabb) const override;
-	virtual void calcAABB(AABB3D* out_aabb) const override;
+	bool isIntersectingVolumeConservative(const AABB3D& aabb) const override;
+	void calcAABB(AABB3D* out_aabb) const override;
 
 	TransformedIntersectable& operator = (const TransformedIntersectable& rhs);
 
