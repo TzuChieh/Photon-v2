@@ -1,18 +1,23 @@
 #pragma once
 
-#include "Common/ThirdParty/lib_stb.h"
 #include "Common/assertion.h"
+#include "Common/os.h"
 
 #include <string>
-#include <vector>
 #include <iostream>
+
+#ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
+	#include <direct.h>
+#else
+	#include <unistd.h>
+#endif
 
 namespace ph
 {
 
 /*
 	This path class has exactly the same interface as FileIO/FileSystem/Path.h,
-	except that its implementation does not depend on STL.
+	except that its implementation does not depend on STL's filesystem.
 */
 class AltPath
 {
@@ -27,10 +32,15 @@ public:
 	// one.
 	//
 	inline explicit AltPath(const std::string& path) :
-		m_path(path.begin(), path.end())
+		m_path(path)
 	{
-		m_path.push_back('\0');
-		stb_fixpath(m_path.data());
+		for(char& ch : m_path)
+		{
+			if(ch == '\\')
+			{
+				ch = '/';
+			}
+		}
 	}
 
 	inline bool isRelative() const
@@ -40,27 +50,41 @@ public:
 
 	inline bool isAbsolute() const
 	{
+		if(m_path.empty())
+		{
+			return false;
+		}
+		else
+		{
+		#ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
+			return m_path.length() >= 3 && m_path[1] == ':' && m_path[2] == '/';
+		#else
+			return m_path[0] == '/' || m_path[0] == '~';
+		#endif
+		}
+
 		return !m_path.empty() && (m_path[0] == '/' || m_path[0] == '~');
 	}
 
 	inline std::string toAbsoluteString() const
 	{
-		std::vector<char> absolutePath(m_path.size() + 1024);
-		if(stb_fullpath(
-			absolutePath.data(), 
-			absolutePath.size(), 
-			std::vector<char>(m_path).data()) == STB_TRUE)
+		if(isAbsolute())
 		{
-			return std::string(absolutePath.data());
+			return m_path;
 		}
-		else
-		{
-			std::cerr << "warning: at StbPath::getAbsoluteString(), " 
-			          << "path <" 
-			          << std::string(absolutePath.data())
-			          << "> cannot convert to absolute path" << std::endl;
-			return std::string();
-		}
+
+		constexpr std::size_t BUFFER_SIZE = 1024;
+		std::string buffer(BUFFER_SIZE, '\0');
+		AltPath workingDirectory;
+	#ifdef _WIN32
+		workingDirectory = AltPath(std::string(_getcwd(buffer.data(), BUFFER_SIZE)));
+	#else
+		workingDirectory = AltPath(std::string(getcwd(buffer.data(), BUFFER_SIZE)));
+	#endif
+
+		workingDirectory = workingDirectory.removeTrailingSeparator();
+
+		return workingDirectory.append(this->removeLeadingSeparator()).toString();
 	}
 
 	// Appending one path to another. System specific directory separators are
@@ -68,22 +92,10 @@ public:
 	//
 	inline AltPath append(const AltPath& other) const
 	{
-		auto thisPath  = this->removeTrailingSeparator();
-		auto otherPath = other.removeLeadingSeparator();
+		const auto thisPath  = this->removeTrailingSeparator().m_path;
+		const auto otherPath = other.removeLeadingSeparator().m_path;
 
-		PH_ASSERT_GT(thisPath.m_path.size(),  0);
-		PH_ASSERT_GT(otherPath.m_path.size(), 0);
-
-		if(thisPath.m_path.size() <= 1)
-		{
-			return thisPath;
-		}
-
-		std::vector<char> resultPath(thisPath.m_path);
-		resultPath.back() = '/';
-		resultPath.insert(resultPath.end(), otherPath.m_path.begin(), otherPath.m_path.end());
-
-		return AltPath(resultPath.data());
+		return AltPath(thisPath + '/' + otherPath);
 	}
 
 	inline std::string toString() const
@@ -93,10 +105,10 @@ public:
 
 	inline AltPath removeLeadingSeparator() const
 	{
-		std::vector<char> resultPath(m_path);
+		std::string resultPath(m_path);
 		while(!resultPath.empty())
 		{
-			if(resultPath.front() == '/' || resultPath.front() == '\\')
+			if(resultPath.front() == '/')
 			{
 				resultPath.erase(resultPath.begin());
 			}
@@ -106,19 +118,17 @@ public:
 			}
 		}
 
-		return AltPath(std::string(resultPath.data()));
+		return AltPath(resultPath);
 	}
 
 	inline AltPath removeTrailingSeparator() const
 	{
-		std::vector<char> resultPath(m_path);
-		while(resultPath.size() >= 2)
+		std::string resultPath(m_path);
+		while(!resultPath.empty())
 		{
-			const char lastChar = resultPath[resultPath.size() - 2];
-			if(lastChar == '/' || lastChar == '\\')
+			if(resultPath.back() == '/')
 			{
 				resultPath.pop_back();
-				resultPath.back() = '\0';
 			}
 			else
 			{
@@ -126,7 +136,7 @@ public:
 			}
 		}
 
-		return AltPath(std::string(resultPath.data()));
+		return AltPath(resultPath);
 	}
 
 	// Returns filename extension if present. The extension string will 
@@ -135,11 +145,10 @@ public:
 	//
 	inline std::string getExtension() const
 	{
-		std::string path(m_path.data());
-		const std::size_t dotIndex = path.find_last_of('.');
+		const std::size_t dotIndex = m_path.find_last_of('.');
 		if(dotIndex != std::string::npos)
 		{
-			return path.substr(dotIndex);
+			return m_path.substr(dotIndex);
 		}
 		else
 		{
@@ -153,7 +162,7 @@ public:
 	}
 
 private:
-	std::vector<char> m_path;
+	std::string m_path;
 };
 
 }// end namespace ph

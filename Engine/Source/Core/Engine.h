@@ -18,8 +18,6 @@
 namespace ph
 {
 
-class Path;
-
 class Engine final
 {
 public:

@@ -21,17 +21,18 @@
 #else
 
 	/*
+		Assuming OSX here.
 		Since OSX has no support for filesystem library before Xcode 10.1, we use
-		an alternative Path implementation that does not depend on STL.
+		an alternative Path implementation that does not depend on STL's filesystem.
 	*/
-	#define PH_USE_NON_STL_BASED_PATH_IMPL
+	#define PH_USE_ALTERNATIVE_PATH_IMPL
 
 #endif
 
+#ifndef PH_USE_ALTERNATIVE_PATH_IMPL
+
 namespace ph
 {
-
-#ifndef PH_USE_NON_STL_BASED_PATH_IMPL
 
 class Path
 {
@@ -155,12 +156,17 @@ private:
 	}
 };
 
+}// end namespace ph
+
 #else
 
-	#include "FileIO/FileSystem/AltPath.h"
+#include "FileIO/FileSystem/AltPath.h"
 
-	using Path = AltPath;
+namespace ph
+{
 
-#endif
+using Path = AltPath;
 
 }// end namespace ph
+	
+#endif

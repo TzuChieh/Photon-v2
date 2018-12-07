@@ -21,7 +21,7 @@ void phConfigCoreResourceDirectory(const PHchar* const directory)
 {
 	PH_ASSERT(directory);
 
-	ph::Config::CORE_RESOURCE_DIRECTORY() = ph::Path(directory);
+	ph::Config::CORE_RESOURCE_DIRECTORY() = std::string(directory);
 }
 
 int phInit()
