@@ -51,13 +51,10 @@ script:
   - bash ./setup.sh
   - mkdir -p ./build/
   - cd ./build/
-  
-  - if [ $TRAVIS_OS_NAME == linux ]; then BUILD_ENGINE_TESTS=ON; fi
-  - if [ $TRAVIS_OS_NAME == osx ]; then BUILD_ENGINE_TESTS=OFF; fi
 
-  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_ENGINE_TEST=${BUILD_ENGINE_TESTS} ../ 
+  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_ENGINE_TEST=ON ../ 
   #- make -j4 VERBOSE=1
   - make -j4
 
-  # Engine's unit test (working directory should be "./build/")
-  - if [ $TRAVIS_OS_NAME == linux ]; then ./bin/EngineTest; fi
+  # Run engine unit test (working directory should be "./build/")
+  - ./bin/EngineTest
