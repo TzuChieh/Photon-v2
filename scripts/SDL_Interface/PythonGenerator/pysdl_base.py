@@ -226,7 +226,6 @@ class SDLExecutorCommand(SDLCommand):
 	def __init__(self):
 		super().__init__()
 		self.__target_name = ""
-		self.__inputs = []
 
 	@abstractmethod
 	def get_full_type(self):
