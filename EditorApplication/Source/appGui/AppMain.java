@@ -2,6 +2,8 @@ package appGui;
 
 import java.io.PrintStream;
 
+import com.sun.javafx.application.LauncherImpl;
+
 import appModel.EditorApp;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -11,7 +13,7 @@ import javafx.stage.Stage;
 
 public class AppMain extends Application
 {
-	private static final EditorApp editorApp = new EditorApp();
+	private EditorApp m_editorApp;
 	
 //	private static final OutputStream consoleOutputStream = new OutputStream()
 //	{
@@ -38,13 +40,22 @@ public class AppMain extends Application
 	
 	public static void main(String[] args)
 	{
-		Application.launch(args);
+		//Application.launch(args);
+		
+		// FIXME: use the standard way
+		LauncherImpl.launchApplication(AppMain.class, AppPreloader.class, args);
+	}
+	
+	@Override
+	public void init() throws Exception
+	{
+		m_editorApp = new EditorApp();
 	}
 
 	@Override
 	public void start(Stage primaryStage) throws Exception
 	{
-		editorApp.create();
+		m_editorApp.create();
 		
 //		System.setOut(new PrintStream(consoleOutputStream, true));
 //		System.setErr(new PrintStream(consoleOutputStream, true));
@@ -54,11 +65,11 @@ public class AppMain extends Application
 		Parent      appMainView = fxmlLoader.load();
 		AppMainCtrl appMainCtrl = fxmlLoader.getController();
 		
-		appMainCtrl.setEditorApp(editorApp);
+		appMainCtrl.setEditorApp(m_editorApp);
 		appMainCtrl.createNewProject("(default project)");
 		appMainCtrl.setWorkbenchAsEditorView();
 		
-		Scene scene = new Scene(appMainView, 1280,	680);
+		Scene scene = new Scene(appMainView, 1280, 680);
 		
 		// Overrides this attribute to a dark color to get a dark theme.
 		// (many colors in default .css are dependent on this attribute)
@@ -77,6 +88,6 @@ public class AppMain extends Application
 		System.setOut(originalOut);
 		System.setErr(originalErr);
 		
-		editorApp.decompose();
+		m_editorApp.decompose();
 	}
 }
