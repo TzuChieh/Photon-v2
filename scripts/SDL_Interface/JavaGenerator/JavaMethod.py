@@ -5,8 +5,9 @@ class JavaMethod:
 
 	def __init__(self, name=""):
 		self.name = name
-		self.return_type = "void"
-		self.access_level = "public"
+		self.return_type = ""
+		self.access_level = ""
+		self.annotation = ""
 		self.inputs = []
 		self.content_lines = []
 
@@ -44,6 +45,9 @@ class JavaMethod:
 
 		input_list = ", ".join(self.inputs)
 		indention = JavaMethod.UNIT_INDENT * indent_amount
+
+		if self.annotation:
+			code += "%s%s\n" % (indention, self.annotation)
 
 		code += "%s%s %s %s(%s)\n" % (
 			indention,
