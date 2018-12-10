@@ -65,14 +65,21 @@ public class AppPreloader extends Preloader
 	{
 		if(stateChangeNotification.getType() == Type.BEFORE_START)
 		{
-            KeyFrame keyFrame = new KeyFrame(
-            	Duration.millis(2500),
+			// fully opaque for 1 second
+            KeyFrame keyFrame1 = new KeyFrame(
+            	Duration.millis(1000),
+            	new KeyValue(m_preloaderStage.getScene().getRoot().opacityProperty(), 1));
+            
+            // then linearly fade out in 1 second
+            KeyFrame keyFrame2 = new KeyFrame(
+            	Duration.millis(2000),
             	new KeyValue(m_preloaderStage.getScene().getRoot().opacityProperty(), 0));
             
-            Timeline timeline = new Timeline();
-            timeline.getKeyFrames().add(keyFrame);
-            timeline.setOnFinished((ae) -> m_preloaderStage.hide());
-            timeline.play();
+			Timeline timeline = new Timeline();
+			timeline.getKeyFrames().add(keyFrame1);
+			timeline.getKeyFrames().add(keyFrame2);
+			timeline.setOnFinished((ae) -> m_preloaderStage.hide());
+			timeline.play();
 		}
 	}
 }
