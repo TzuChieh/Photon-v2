@@ -2,9 +2,10 @@
 #include "Core/HitProbe.h"
 #include "Core/Bound/TAABB3D.h"
 #include "Core/Intersectable/Primitive.h"
-#include "Math/TVector3.h"
+#include "Math/math_fwd.h"
 #include "Math/math.h"
 #include "Common/assertion.h"
+#include "Core/Intersectable/PTriangle.h"
 //#include "Core/Intersectable/PTriangle.h"
 
 #include <stdio.h>
@@ -33,10 +34,12 @@ constexpr int END_EDGE = 1;
 //accelerate by turn Triangle to pointer
 //primitive bound make first
 //traversal use bit shift
+
 namespace ph
 {
 class KDNode;
 class Voxel;
+/*
 class Vec3 {
 	public:
 		float x;
@@ -67,19 +70,19 @@ class Vec3 {
 			z = in_z;
 		}
 };
-
-inline float Three_Vec3_delta(const Vec3 A, const Vec3 B, const Vec3 C){
+*/
+inline float Three_Vec3_delta(const Vector3F& A, const Vector3F& B, const Vector3F& C){
 	return A.x * B.y * C.z + B.x * C.y * A.z + C.x * A.y * B.z + C.x * A.y * B.z
 			- A.z * B.y * C.z - B.z * C.y * A.x - C.z * A.y * B.x;
 }
 
-
-class AABB{
+/*
+class AABB3D{
 	private:
-		Vec3 VertexMin;
-		Vec3 VertexMax;
+		Vector3F VertexMin;
+		Vector3F VertexMax;
 	public:
-		AABB(){
+		AABB3D(){
 
 		}
 		void setVertexMin(float x, float y, float z){
@@ -95,7 +98,7 @@ class AABB{
 				printf("VertexMax.x:%f VertexMax.y:%f VertexMax.z:%f\n",VertexMax.x,VertexMax.y,VertexMax.z);
 				exit(1);
 			}
-			
+
 		}
 		void setVertexMax(float x, float y, float z){
 
@@ -109,20 +112,20 @@ class AABB{
 			}
 
 		}
-		Vec3 getVertexMin(){
+		Vector3F getMinVertex(){
 			return VertexMin;		
 		}
-		Vec3 getVertexMax(){
+		Vector3F getMaxVertex(){
 			return VertexMax;
 		}
-		/*
-		void copyVertexMin(AABB src){
+
+		void copyVertexMin(AABB3D src){
 			min_set = true;
 
 			if(src.is_set())
-				VertexMin = src.getVertexMin();
+				VertexMin = src.getMinVertex();
 			else{
-				fprintf(stderr,"the VertexMin/Max of the copied AABB box has not be set\n");
+				fprintf(stderr,"the VertexMin/Max of the copied AABB3D box has not be set\n");
 				exit(1);	
 			}
 			
@@ -134,13 +137,13 @@ class AABB{
 				_is_set = true;
 			}
 		}
-		void copyVertexMax(AABB src){
+		void copyVertexMax(AABB3D src){
 			max_set = true;
 			
 			if(src.is_set())
-				VertexMax = src.getVertexMax();
+				VertexMax = src.getMaxVertex();
 			else{
-				fprintf(stderr,"the VertexMin/Max of the copied AABB box has not be set\n");
+				fprintf(stderr,"the VertexMin/Max of the copied AABB3D box has not be set\n");
 				exit(1);
 			}
 			if(min_set == true){
@@ -151,9 +154,9 @@ class AABB{
 				_is_set = true;
 			}
 		}
-		*/
-};
 
+};
+*/
 
 
 class BoundEdge{
@@ -229,11 +232,16 @@ class Plane{
 		}
 };
 
-class Triangle{
+class Triangle {
 	private:
 	    //get from initilize
-		Vec3 vertex[3];
+
+		//bug? TVector3.ipp
+		//Vector3F vertex[3];
 		//get from runtime
+		Vector3F vertexA;
+		Vector3F vertexB;
+		Vector3F vertexC;
 		int index = -2;
     public:
 		void setIndex(int in){
@@ -245,8 +253,8 @@ class Triangle{
 			}	
 			return index;
 		}
-
-		AABB TBoundingBox;
+		
+		AABB3D TBoundingBox;
 		std::tuple<float, float> getBoundingEdge(int LongestAxis){
 			switch(index){
 				case -2:
@@ -258,8 +266,8 @@ class Triangle{
 					exit(1);
 					break;
 			}
-			Vec3 temp1 = TBoundingBox.getVertexMax();
-			Vec3 temp2 = TBoundingBox.getVertexMin();
+			Vector3F temp1 = TBoundingBox.getMaxVertex();
+			Vector3F temp2 = TBoundingBox.getMinVertex();
 			if(LongestAxis == math::X_AXIS){
 				return std::make_tuple(temp2.x,temp1.x);
 			}
@@ -276,35 +284,60 @@ class Triangle{
         void setTvertices(float x1, float y1, float z1, float x2, float y2, float z2,
                             float x3, float y3, float z3){
 			index = -1;
-            vertex[0].setVec3(x1,y1,z1);
-            vertex[1].setVec3(x2,y2,z2);
-            vertex[2].setVec3(x3,y3,z3);
+			/*
+            vertex[0].set(x1,y1,z1);
+            vertex[1].set(x2,y2,z2);
+            vertex[2].set(x3,y3,z3);
+			*/
+			vertexA.set(x1,y1,z1);
+            vertexB.set(x2,y2,z2);
+            vertexC.set(x3,y3,z3);
         }
-		
-		Vec3* getTverticies(){
+		/*
+		Vector3F* getTverticies(){
 			if(index == -2){
 				fprintf(stderr, "Triangle getTverticies err:Triangle verticies does not set, first run setTvertices\n");
 				exit(1);
 			}
 			return vertex;
 		}
+		*/
+		Vector3R& getVertexA()
+		{
+			return vertexA;
+		}
+
+		Vector3R& getVertexB()
+		{
+			return vertexB;
+		}
+
+		Vector3R& getVertexC()
+		{
+			return vertexC;
+		}
 
 		bool Intersect(const Ray& ray, float *out_t){
 			float o_x = ray.getOrigin().x;
 			float o_y = ray.getOrigin().y;
 			float o_z = ray.getOrigin().z;
-			Vec3 Origin(o_x,o_y,o_z);
+			Vector3F Origin(o_x,o_y,o_z);
 			float temp_x = ray.getMaxT() * ray.getDirection().x;
 			float temp_y = ray.getMaxT() * ray.getDirection().y;
 			float temp_z = ray.getMaxT() * ray.getDirection().z;
-			Vec3 ray_vector( temp_x, temp_y ,temp_z);
+			Vector3F ray_vector( temp_x, temp_y ,temp_z);
 			//x0 * edgeOA + x1 * edgeOB + x2 * edge OC
 			//when x0 + x1 + x2 >= 1 and x0,x1,x2 > 0 has intersect with triangle
 			//find the matrix[OA OB OC] whether singular
 			// normalize x0,x1,x2 and plus O will find the intersect point 
-			Vec3 edgeOA = vertex[0] - Origin;
-			Vec3 edgeOB = vertex[1] - Origin;
-			Vec3 edgeOC = vertex[2] - Origin;
+			/*
+			Vector3F edgeOA = vertex[0] - Origin;
+			Vector3F edgeOB = vertex[1] - Origin;
+			Vector3F edgeOC = vertex[2] - Origin;
+			*/
+			Vector3F edgeOA = vertexA - Origin;
+			Vector3F edgeOB = vertexB - Origin;
+			Vector3F edgeOC = vertexC - Origin;
 			//find delta of the matrix
 			float delta = Three_Vec3_delta(edgeOA,edgeOB,edgeOC);
 			float epsilon = 0.0000001;
@@ -327,7 +360,7 @@ class Triangle{
 			return false;
 
  		}
-
+		
 };
 
 class Triangles{
@@ -386,12 +419,12 @@ class KDNode: public Primitive{
 };
 class Voxel{
 	public:
-		AABB box;
+		AABB3D box;
 		Voxel(){
 
 		}
 		int LongestAxis(){	
-			Vec3 temp = box.getVertexMax() - box.getVertexMin();
+			Vector3F temp = box.getMaxVertex() - box.getMinVertex();
 			if(temp.x > temp.y && temp.x > temp.z){
 				return math::X_AXIS;
 			}
@@ -406,7 +439,7 @@ class Voxel{
 			//base by pbrt			
 			float t0 = 0;
 			float t1 = ray.getMaxT();
-			Vector3R temp = ray.getDirection();
+			Vector3F temp = ray.getDirection();
 			float dir[3];
 			dir[0] = temp.x;
 			dir[1] = temp.y;
@@ -420,13 +453,13 @@ class Voxel{
 
 			float boxMax[3];
 			float boxMin[3];
-			boxMin[0] = World_Voxel.box.getVertexMin().x;
-			boxMin[1] = World_Voxel.box.getVertexMin().y;
-			boxMin[2] = World_Voxel.box.getVertexMin().z;
+			boxMin[0] = World_Voxel.box.getMinVertex().x;
+			boxMin[1] = World_Voxel.box.getMinVertex().y;
+			boxMin[2] = World_Voxel.box.getMinVertex().z;
 
-			boxMax[0] = World_Voxel.box.getVertexMax().x;
-			boxMax[1] = World_Voxel.box.getVertexMax().y;
-			boxMax[2] = World_Voxel.box.getVertexMax().z;						
+			boxMax[0] = World_Voxel.box.getMaxVertex().x;
+			boxMax[1] = World_Voxel.box.getMaxVertex().y;
+			boxMax[2] = World_Voxel.box.getMaxVertex().z;						
 
 			for(int i = 0; i < 3; i ++){
 				float inv = 1/dir[i];
@@ -450,8 +483,8 @@ class Voxel{
 std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int index);
 void drawBounds(Voxel& V, Triangles& T);
 
-bool PointInAABB(Vec3 Point, AABB& Box);
-bool TriangleInAABB(Triangle* tri, AABB& Box);
+bool PointInAABB3D(Vector3F Point, AABB3D& Box);
+bool TriangleInAABB3D(Triangle* tri, AABB3D& Box);
 
 Triangles Union(Triangles& T, Voxel& V);
 

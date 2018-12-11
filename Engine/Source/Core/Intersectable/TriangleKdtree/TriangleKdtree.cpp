@@ -17,7 +17,7 @@ std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int i
 
 	float min_z = std::numeric_limits<float>::max();
 	float max_z = std::numeric_limits<float>::lowest();
-
+	/*
 	for(int j = 0; j < 3; j++){
 		if(t->getTverticies()[j].x < min_x){
 			min_x = t->getTverticies()[j].x;
@@ -38,9 +38,67 @@ std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int i
 			max_z = t->getTverticies()[j].z;
 		}
 	}
-	t->TBoundingBox.setVertexMin(min_x, min_y, min_z);
+	*/
 
-	t->TBoundingBox.setVertexMax(max_x, max_y, max_z);
+	if(t->getVertexA().x < min_x){
+		min_x = t->getVertexA().x;
+	}
+	if(t->getVertexA().y < min_y){
+		min_y = t->getVertexA().y;
+	}
+	if(t->getVertexA().z < min_z){
+		min_z = t->getVertexA().z;
+	}
+	if(t->getVertexA().x > max_x){
+		max_x = t->getVertexA().x;
+	}
+	if(t->getVertexA().y > max_y){
+		max_y = t->getVertexA().y;
+	}
+	if(t->getVertexA().z > max_z){
+		max_z = t->getVertexA().z;
+	}
+
+	if(t->getVertexB().x < min_x){
+		min_x = t->getVertexB().x;
+	}
+	if(t->getVertexB().y < min_y){
+		min_y = t->getVertexB().y;
+	}
+	if(t->getVertexB().z < min_z){
+		min_z = t->getVertexB().z;
+	}
+	if(t->getVertexB().x > max_x){
+		max_x = t->getVertexB().x;
+	}
+	if(t->getVertexB().y > max_y){
+		max_y = t->getVertexB().y;
+	}
+	if(t->getVertexB().z > max_z){
+		max_z = t->getVertexB().z;
+	}
+
+	if(t->getVertexC().x < min_x){
+		min_x = t->getVertexC().x;
+	}
+	if(t->getVertexC().y < min_y){
+		min_y = t->getVertexC().y;
+	}
+	if(t->getVertexC().z < min_z){
+		min_z = t->getVertexC().z;
+	}
+	if(t->getVertexC().x > max_x){
+		max_x = t->getVertexC().x;
+	}
+	if(t->getVertexC().y > max_y){
+		max_y = t->getVertexC().y;
+	}
+	if(t->getVertexC().z > max_z){
+		max_z = t->getVertexC().z;
+	}
+	t->TBoundingBox.setMinVertex( Vector3F(min_x, min_y, min_z) );
+
+	t->TBoundingBox.setMaxVertex( Vector3F(max_x, max_y, max_z) );
 
 	t->setIndex(index);
 	
@@ -87,23 +145,29 @@ void drawBounds(Voxel& V, Triangles& T){
 
 	}
 	//printf("minx:%f,min_y:%f,min_z:%f\n",min_x,min_y,min_z);
-	V.box.setVertexMin(min_x, min_y, min_z);
-	V.box.setVertexMax(max_x, max_y, max_z);
+	V.box.setMinVertex(Vector3F(min_x, min_y, min_z));
+	V.box.setMaxVertex(Vector3F(max_x, max_y, max_z));
 }
 
-bool PointInAABB(Vec3 Point, AABB& Box){
-    if(Point.x > Box.getVertexMin().x && Point.x < Box.getVertexMax().x &&
-       Point.y > Box.getVertexMin().y && Point.y < Box.getVertexMax().y &&
-       Point.z > Box.getVertexMin().z && Point.z < Box.getVertexMax().z)
+bool PointInAABB3D(Vector3F Point, AABB3D& Box){
+    if(Point.x > Box.getMinVertex().x && Point.x < Box.getMaxVertex().x &&
+       Point.y > Box.getMinVertex().y && Point.y < Box.getMaxVertex().y &&
+       Point.z > Box.getMinVertex().z && Point.z < Box.getMaxVertex().z)
         return true;
  	else
 		return false;
 }
 
-bool TriangleInAABB(Triangle* tri, AABB& Box){
-	if( PointInAABB(tri->getTverticies()[0], Box) &&
-		PointInAABB(tri->getTverticies()[1], Box) &&
-		PointInAABB(tri->getTverticies()[2], Box))
+bool TriangleInAABB3D(Triangle* tri, AABB3D& Box){
+	/*
+	if( PointInAABB3D(tri->getTverticies()[0], Box) &&
+		PointInAABB3D(tri->getTverticies()[1], Box) &&
+		PointInAABB3D(tri->getTverticies()[2], Box))
+		return true;
+	*/
+	if( PointInAABB3D(tri->getVertexA(), Box) &&
+		PointInAABB3D(tri->getVertexB(), Box) &&
+		PointInAABB3D(tri->getVertexC(), Box))
 		return true;
 	else
 		return false;
@@ -113,7 +177,7 @@ bool TriangleInAABB(Triangle* tri, AABB& Box){
 Triangles Union(Triangles& T, Voxel& V){
 	Triangles union_set = Triangles();
 	for(int i = 0; i < T.tris.size(); i++){
-		if( TriangleInAABB(T.tris[i], V.box) ){
+		if( TriangleInAABB3D(T.tris[i], V.box) ){
 			union_set.tris.push_back(T.tris[i]);
 		}
 	}
@@ -127,9 +191,9 @@ float Cost(float K_t, float K_i, float P_left, float P_right, int left_traingles
 }
 
 float SA(Voxel& V){
-	float dx = V.box.getVertexMax().x - V.box.getVertexMin().x;
-	float dy = V.box.getVertexMax().y - V.box.getVertexMin().y;
-	float dz = V.box.getVertexMax().z - V.box.getVertexMin().z;
+	float dx = V.box.getMaxVertex().x - V.box.getMinVertex().x;
+	float dy = V.box.getMaxVertex().y - V.box.getMinVertex().y;
+	float dz = V.box.getMaxVertex().z - V.box.getMinVertex().z;
 	assert(dx>=0);
 	assert(dy>=0);
 	assert(dz>=0);
@@ -138,21 +202,21 @@ float SA(Voxel& V){
 
 void split_voxel(Voxel& V,Plane& P, Voxel& left_voxel, Voxel& right_voxel){
 
-	left_voxel.box.setVertexMin(V.box.getVertexMin().x,V.box.getVertexMin().y,V.box.getVertexMin().z);
-	right_voxel.box.setVertexMax(V.box.getVertexMax().x,V.box.getVertexMax().y,V.box.getVertexMax().z);
+	left_voxel.box.setMinVertex(V.box.getMinVertex());
+	right_voxel.box.setMaxVertex(V.box.getMaxVertex());
 
 	switch(P.getNormal()){
 		case math::X_AXIS:
-			left_voxel.box.setVertexMax(-P.get_d(), V.box.getVertexMax().y, V.box.getVertexMax().z );
-			right_voxel.box.setVertexMin(-P.get_d(), V.box.getVertexMin().y, V.box.getVertexMin().z );
+			left_voxel.box.setMaxVertex(Vector3F(-P.get_d(), V.box.getMaxVertex().y, V.box.getMaxVertex().z ));
+			right_voxel.box.setMinVertex(Vector3F(-P.get_d(), V.box.getMinVertex().y, V.box.getMinVertex().z ));
 			break;
 		case math::Y_AXIS:
-			left_voxel.box.setVertexMax(V.box.getVertexMax().x, -P.get_d(), V.box.getVertexMax().z );
-			right_voxel.box.setVertexMin(V.box.getVertexMin().x, -P.get_d(), V.box.getVertexMin().z );
+			left_voxel.box.setMaxVertex( Vector3F(V.box.getMaxVertex().x, -P.get_d(), V.box.getMaxVertex().z) );
+			right_voxel.box.setMinVertex( Vector3F(V.box.getMinVertex().x, -P.get_d(), V.box.getMinVertex().z) );
 			break;
 		case math::Z_AXIS:
-			left_voxel.box.setVertexMax(V.box.getVertexMax().x, V.box.getVertexMax().y , -P.get_d() );
-			right_voxel.box.setVertexMin(V.box.getVertexMin().x, V.box.getVertexMin().y, -P.get_d());
+			left_voxel.box.setMaxVertex( Vector3F(V.box.getMaxVertex().x, V.box.getMaxVertex().y , -P.get_d()) );
+			right_voxel.box.setMinVertex( Vector3F(V.box.getMinVertex().x, V.box.getMinVertex().y, -P.get_d()) );
 			break;
 	}
 }
@@ -393,13 +457,13 @@ bool KDNode::isIntersectingVolumeConservative(const AABB3D& volume) const {
 	return 0;
 }
 	
-//4. pointer send bounding box. implement void calcAABB(AABB3D* out_aabb) const = 0;
+//4. pointer send bounding box. implement void calcAABB3D(AABB3D* out_aabb) const = 0;
 void KDNode::calcAABB(AABB3D* out_aabb) const {
-	//setMinVertex(const Vector3R& minVertex)
-	Vec3 myMinVec = World_Voxel.box.getVertexMin();	
-	Vec3 myMaxVec = World_Voxel.box.getVertexMax();
-	out_aabb->setMinVertex(Vector3R(myMinVec.x, myMinVec.y, myMinVec.z ));
-	out_aabb->setMaxVertex(Vector3R(myMaxVec.x, myMaxVec.y, myMaxVec.z ));
+	//setMinVertex(const Vector3F& minVertex)
+	Vector3F myMinVec = World_Voxel.box.getMinVertex();	
+	Vector3F myMaxVec = World_Voxel.box.getMaxVertex();
+	out_aabb->setMinVertex(Vector3F(myMinVec.x, myMinVec.y, myMinVec.z ));
+	out_aabb->setMaxVertex(Vector3F(myMaxVec.x, myMaxVec.y, myMaxVec.z ));
 }
 
 }// end namespace ph
