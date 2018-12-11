@@ -12,6 +12,66 @@ public class NBTData
 		m_namedData = new HashMap<>();
 	}
 	
+	public byte getByte(String name)
+	{
+		return (byte)getData(name);
+	}
+	
+	public short getShort(String name)
+	{
+		return (short)getData(name);
+	}
+	
+	public int getInt(String name)
+	{
+		return (int)getData(name);
+	}
+	
+	public long getLong(String name)
+	{
+		return (long)getData(name);
+	}
+	
+	public float getFloat(String name)
+	{
+		return (float)getData(name);
+	}
+	
+	public double getDouble(String name)
+	{
+		return (double)getData(name);
+	}
+	
+	public byte[] getByteArray(String name)
+	{
+		return (byte[])getData(name);
+	}
+	
+	public String getString(String name)
+	{
+		return (String)getData(name);
+	}
+	
+	public NBTList getList(String name)
+	{
+		return (NBTList)getData(name);
+	}
+	
+	public NBTData getCompound(String name)
+	{
+		return (NBTData)getData(name);
+	}
+	
+	public int[] getIntArray(String name)
+	{
+		return (int[])getData(name);
+	}
+	
+	public long[] getLongArray(String name)
+	{
+		return (long[])getData(name);
+	}
+	
 	public void addByte(String name, byte data)
 	{
 		addData(name, data);
@@ -86,5 +146,15 @@ public class NBTData
 		}
 		
 		m_namedData.put(name, data);
+	}
+	
+	private Object getData(String name)
+	{
+		if(!m_namedData.containsKey(name))
+		{
+			System.err.println("warning: data name <" + name + "> not exist");
+		}
+		
+		return m_namedData.get(name);
 	}
 }
