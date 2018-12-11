@@ -1,8 +1,11 @@
 #include "Core/Intersectable/TriangleKdtree/TriangleKdtree.h"
+#include "Core/HitDetail.h"
 
 #include <limits>
+
 namespace ph
 {
+
 typedef struct s{
 	KDNode *node;
     float tMin, tMax;
@@ -430,8 +433,12 @@ bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
 		}
 		else{
 			for(int i = 0; i < cur_node->Tprim.tris.size(); i++){
-				if( cur_node->Tprim.tris[i]->Intersect(ray,NULL)){
+				Triangle* triangle = cur_node->Tprim.tris[i];
+				float hitT;
+				if(triangle->Intersect(ray, &hitT)){
 					is_hit = true;
+					probe.pushBaseHit(this, hitT);
+					probe.cachePointer(triangle);
 					break;
 				}
 			}
@@ -450,11 +457,18 @@ bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
 //2. implement virtual void calcIntersectionDetail(const Ray& ray, HitProbe& probe, HitDetail* out_detail) const = 0
 void KDNode::calcIntersectionDetail(const Ray& ray, HitProbe& probe, HitDetail* out_detail) const {
 
+	Triangle* hitTriangle = (Triangle*)(probe.getCachedPointer());
+	const Vector3R hitPosition = ray.getOrigin() + ray.getDirection() * probe.getHitRayT();
+
+
+	out_detail->setMisc(this, Vector3R(0), probe.getHitRayT());
+	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(hitPosition, Vector3R(0, 1, 0), Vector3R(0, 1, 0));
+	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
 }
 
 //3. accept false positive, tell if two box overlapping.implement bool isIntersectingVolumeConservative(const AABB3D& volume) const = 0;
 bool KDNode::isIntersectingVolumeConservative(const AABB3D& volume) const {
-	return 0;
+	return true;
 }
 	
 //4. pointer send bounding box. implement void calcAABB3D(AABB3D* out_aabb) const = 0;
