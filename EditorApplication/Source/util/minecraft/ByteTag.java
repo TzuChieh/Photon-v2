@@ -1,5 +1,8 @@
 package util.minecraft;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 public class ByteTag extends NBTTag
 {
 	private byte m_value;
@@ -16,8 +19,11 @@ public class ByteTag extends NBTTag
 		return m_value;
 	}
 	
-	public void setValue(byte value)
+	@Override
+	public int setPayload(InputStream rawData) throws IOException
 	{
-		m_value = value;
+		m_value = (byte)rawData.read();
+		
+		return Byte.BYTES;
 	}
 }

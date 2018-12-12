@@ -1,5 +1,8 @@
 package util.minecraft;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 public class CompoundTag extends NBTTag
 {
 	private NBTData m_data;
@@ -16,8 +19,57 @@ public class CompoundTag extends NBTTag
 		return m_data;
 	}
 	
-	public void setData(NBTData data)
+	@Override
+	public int setPayload(InputStream rawData) throws IOException
 	{
-		m_data = data;
+		m_data = new NBTData();
+		
+		int numPayloadBytes = 0;
+		while(true)
+		{
+			int id = rawData.read();
+			if(id == -1)
+			{
+				break;
+			}
+			
+			// the end of compound tag
+			if(id == 0)
+			{
+				NBTTag tag = new EndTag().fromRawData(rawData);
+				m_data.add(tag);
+				numPayloadBytes += tag.numTagBytes();
+				break;
+			}
+			
+			NBTTag tag = null;
+			switch(id)
+			{
+			case 1:  tag = new ByteTag();      break;
+			case 2:  tag = new ShortTag();     break;
+			case 3:  tag = new IntTag();       break;
+			case 4:  tag = new LongTag();      break;
+			case 5:  tag = new FloatTag();     break;
+			case 6:  tag = new DoubleTag();    break;
+			case 7:  tag = new ByteArrayTag(); break;
+			case 8:  tag = new StringTag();    break;
+			case 9:  tag = new ListTag();      break;
+			case 10: tag = new CompoundTag();  break;
+			case 11: tag = new IntArrayTag();  break;
+			case 12: tag = new LongArrayTag(); break;
+			
+			default:
+				System.err.println("warning: unknown id <" + id + ">, ignoring");
+				break;
+			}
+			
+			if(tag != null)
+			{
+				m_data.add(tag);
+				numPayloadBytes += tag.numTagBytes();
+			}
+		}
+		
+		return numPayloadBytes;
 	}
 }

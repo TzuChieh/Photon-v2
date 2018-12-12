@@ -1,5 +1,9 @@
 package util.minecraft;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
 public class StringTag extends NBTTag
 {
 	private String m_data;
@@ -16,8 +20,15 @@ public class StringTag extends NBTTag
 		return m_data;
 	}
 	
-	public void setData(String data)
+	@Override
+	public int setPayload(InputStream rawData) throws IOException
 	{
-		m_data = data;
+		int numStringBytes = ((rawData.read() << 8) | rawData.read());
+		byte[] stringBytes = new byte[numStringBytes];
+		rawData.read(stringBytes);
+		
+		m_data = new String(stringBytes, StandardCharsets.UTF_8);
+		
+		return numStringBytes + 2;
 	}
 }

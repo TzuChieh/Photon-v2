@@ -1,5 +1,8 @@
 package util.minecraft;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 public class FloatTag extends NBTTag
 {
 	private float m_value;
@@ -16,8 +19,17 @@ public class FloatTag extends NBTTag
 		return m_value;
 	}
 	
-	public void setValue(float value)
+	@Override
+	public int setPayload(InputStream rawData) throws IOException
 	{
-		m_value = value;
+		int bits = 
+			(rawData.read() << 24) | 
+	     	(rawData.read() << 16) | 
+	    	(rawData.read() << 8 ) | 
+	    	(rawData.read());
+		
+		m_value = Float.intBitsToFloat(bits);
+		
+		return Float.BYTES;
 	}
 }
