@@ -26,4 +26,10 @@ public class ShortTag extends NBTTag
 		
 		return Short.BYTES;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "Short: " + getName() + " <" + m_value + ">";
+	}
 }

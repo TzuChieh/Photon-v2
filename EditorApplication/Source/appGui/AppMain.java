@@ -1,6 +1,10 @@
 package appGui;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.util.zip.GZIPInputStream;
 
 import com.sun.javafx.application.LauncherImpl;
 
@@ -10,6 +14,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import util.minecraft.NBTData;
+import util.minecraft.NBTParser;
 
 public class AppMain extends Application
 {
@@ -50,6 +56,14 @@ public class AppMain extends Application
 	public void init() throws Exception
 	{
 		m_editorApp = new EditorApp();
+		
+		// DEBUG
+		
+//		GZIPInputStream input = new GZIPInputStream(new FileInputStream("./level.dat"));
+//		NBTParser parser = new NBTParser(input);
+//		NBTData data = parser.getData();
+//		System.out.println(data);
+//		System.exit(0);
 	}
 
 	@Override

@@ -33,11 +33,10 @@ public class CompoundTag extends NBTTag
 				break;
 			}
 			
-			// the end of compound tag
+			// an end tag, marks the end of compound tag
 			if(id == 0)
 			{
 				NBTTag tag = new EndTag().fromRawData(rawData);
-				m_data.add(tag);
 				numPayloadBytes += tag.numTagBytes();
 				break;
 			}
@@ -65,11 +64,21 @@ public class CompoundTag extends NBTTag
 			
 			if(tag != null)
 			{
-				m_data.add(tag);
+				tag.fromRawData(rawData);
 				numPayloadBytes += tag.numTagBytes();
+				m_data.add(tag);
 			}
 		}
 		
 		return numPayloadBytes;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return 
+			"Compound Begin: " + getName() + "\n" + 
+			m_data.toString() + 
+			"Compound End: " + getName() + "\n";
 	}
 }

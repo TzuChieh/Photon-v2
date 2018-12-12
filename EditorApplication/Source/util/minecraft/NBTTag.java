@@ -2,6 +2,13 @@ package util.minecraft;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
 import java.nio.charset.StandardCharsets;
 
 public abstract class NBTTag
@@ -65,19 +72,63 @@ public abstract class NBTTag
 	public int numTagBytes()
 	{
 		return m_numTagBytes;
-		
-//		final int NUM_ID_BYTES          = 1;
-//		final int NUM_NAME_LENGTH_BYTES = 2;
-//		
-//		return
-//			NUM_ID_BYTES + 
-//			NUM_NAME_LENGTH_BYTES + 
-//			m_numNameBytes + 
-//			m_numPayloadBytes;
 	}
 	
 	public int numPayloadBytes()
 	{
 		return m_numPayloadBytes;
+	}
+	
+	public static ByteBuffer readData(int numBytes, InputStream rawData) throws IOException
+	{
+		byte[] buffer = new byte[numBytes];
+		rawData.read(buffer);
+		
+		return ByteBuffer.wrap(buffer).order(ByteOrder.BIG_ENDIAN);
+	}
+	
+	public static short[] readShortArray(int size, InputStream rawData) throws IOException
+	{
+		ShortBuffer shortBuffer = readData(size * Short.BYTES, rawData).asShortBuffer();
+		
+		short[] array = new short[shortBuffer.remaining()];
+		shortBuffer.get(array);
+		return array;
+	}
+	
+	public static int[] readIntArray(int size, InputStream rawData) throws IOException
+	{
+		IntBuffer intBuffer = readData(size * Integer.BYTES, rawData).asIntBuffer();
+		
+		int[] array = new int[intBuffer.remaining()];
+		intBuffer.get(array);
+		return array;
+	}
+	
+	public static long[] readLongArray(int size, InputStream rawData) throws IOException
+	{
+		LongBuffer longBuffer = readData(size * Long.BYTES, rawData).asLongBuffer();
+		
+		long[] array = new long[longBuffer.remaining()];
+		longBuffer.get(array);
+		return array;
+	}
+	
+	public static float[] readFloatArray(int size, InputStream rawData) throws IOException
+	{
+		FloatBuffer floatBuffer = readData(size * Float.BYTES, rawData).asFloatBuffer();
+		
+		float[] array = new float[floatBuffer.remaining()];
+		floatBuffer.get(array);
+		return array;
+	}
+	
+	public static double[] readDoubleArray(int size, InputStream rawData) throws IOException
+	{
+		DoubleBuffer doubleBuffer = readData(size * Double.BYTES, rawData).asDoubleBuffer();
+		
+		double[] array = new double[doubleBuffer.remaining()];
+		doubleBuffer.get(array);
+		return array;
 	}
 }

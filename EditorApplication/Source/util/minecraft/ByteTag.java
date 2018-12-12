@@ -26,4 +26,10 @@ public class ByteTag extends NBTTag
 		
 		return Byte.BYTES;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "Byte: " + getName() + " <" + m_value + ">";
+	}
 }

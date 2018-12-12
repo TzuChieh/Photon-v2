@@ -31,4 +31,10 @@ public class StringTag extends NBTTag
 		
 		return numStringBytes + 2;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "String: " + getName() + " <" + m_data + ">";
+	}
 }

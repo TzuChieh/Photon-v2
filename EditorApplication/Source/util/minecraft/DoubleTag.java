@@ -36,4 +36,10 @@ public class DoubleTag extends NBTTag
 		
 		return Double.BYTES;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "Double: " + getName() + " <" + m_value + ">";
+	}
 }

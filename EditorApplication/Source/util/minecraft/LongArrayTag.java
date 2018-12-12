@@ -2,9 +2,6 @@ package util.minecraft;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.LongBuffer;
 
 public class LongArrayTag extends NBTTag
 {
@@ -30,18 +27,9 @@ public class LongArrayTag extends NBTTag
 			(rawData.read() << 16) | 
 			(rawData.read() << 8 ) | 
 			(rawData.read());
-		int numArrayBytes = size * Long.BYTES;
-		byte[] buffer = new byte[numArrayBytes];
-		rawData.read(buffer);
 		
-		LongBuffer longBuffer = 
-			ByteBuffer.wrap(buffer).
-			order(ByteOrder.BIG_ENDIAN).
-			asLongBuffer();
+		m_array = readLongArray(size, rawData);
 		
-		m_array = new long[longBuffer.remaining()];
-		longBuffer.get(m_array);
-		
-		return numArrayBytes + 4;
+		return size * Long.BYTES + 4;
 	}
 }

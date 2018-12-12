@@ -34,4 +34,10 @@ public class LongTag extends NBTTag
 		
 		return Long.BYTES;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "Long: " + getName() + " <" + m_value + ">";
+	}
 }

@@ -2,14 +2,10 @@ package util.minecraft;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ListTag extends NBTTag
 {
@@ -42,95 +38,89 @@ public class ListTag extends NBTTag
 		{
 		case 0:
 		{
-			m_list = Arrays.asList(new Void[size]);
 			numPayloadBytes += 0;
+			
+			m_list = Arrays.asList(new Void[size]);
 		}
 		break;
 		
 		case 1:
 		{
-			ByteArrayTag tag = new ByteArrayTag();
-			numPayloadBytes += tag.setPayload(rawData);
-			m_list = Arrays.asList(tag.getPayload());
+			numPayloadBytes += size;
+			
+			byte[] values = new byte[size];
+			rawData.read(values);
+			
+			List<Byte> bytes = new ArrayList<>();
+			for(byte value : values)
+			{
+				bytes.add(value);
+			}
+			m_list = bytes;
 		}
 		break;
 		
 		case 2:
 		{
-			int numBufferBytes = size * Short.BYTES;
-			numPayloadBytes += numBufferBytes;
-			byte[] buffer = new byte[numBufferBytes];
-			rawData.read(buffer);
+			numPayloadBytes += size * Short.BYTES;
 			
-			ShortBuffer shortBuffer = 
-				ByteBuffer.wrap(buffer).
-				order(ByteOrder.BIG_ENDIAN).
-				asShortBuffer();
+			List<Short> shorts = new ArrayList<>();
+			for(short value : NBTTag.readShortArray(size, rawData))
+			{
+				shorts.add(value);
+			}
+			m_list = shorts;
 			
-			short[] array = new short[shortBuffer.remaining()];
-			shortBuffer.get(array);
-			
-			m_list = Arrays.asList(array);
 		}
 		break;
 		
 		case 3:
 		{
-			IntArrayTag tag = new IntArrayTag();
-			numPayloadBytes += tag.setPayload(rawData);
-			m_list = Arrays.asList(tag.getPayload());
+			numPayloadBytes += size * Integer.BYTES;
+			
+			int[] integers = NBTTag.readIntArray(size, rawData);
+			m_list = Arrays.stream(integers).boxed().collect(Collectors.toList());
 		}
 		break;	
 		
 		case 4:
 		{
-			LongArrayTag tag = new LongArrayTag();
-			numPayloadBytes += tag.setPayload(rawData);
-			m_list = Arrays.asList(tag.getPayload());
+			numPayloadBytes += size * Long.BYTES;
+			
+			long[] longs = NBTTag.readLongArray(size, rawData);
+			m_list = Arrays.stream(longs).boxed().collect(Collectors.toList());
 		}
 		break;
 		
 		case 5:
 		{
-			int numBufferBytes = size * Float.BYTES;
-			numPayloadBytes += numBufferBytes;
-			byte[] buffer = new byte[numBufferBytes];
-			rawData.read(buffer);
+			numPayloadBytes += size * Float.BYTES;
 			
-			FloatBuffer floatBuffer = 
-				ByteBuffer.wrap(buffer).
-				order(ByteOrder.BIG_ENDIAN).
-				asFloatBuffer();
-			
-			float[] array = new float[floatBuffer.remaining()];
-			floatBuffer.get(array);
-			
-			m_list = Arrays.asList(array);
+			List<Float> floats = new ArrayList<>();
+			for(float value : NBTTag.readFloatArray(size, rawData))
+			{
+				floats.add(value);
+			}
+			m_list = floats;
 		}
 		break;
 		
 		case 6:
 		{
-			int numBufferBytes = size * Double.BYTES;
-			numPayloadBytes += numBufferBytes;
-			byte[] buffer = new byte[numBufferBytes];
-			rawData.read(buffer);
+			numPayloadBytes += size * Double.BYTES;
 			
-			DoubleBuffer doubleBuffer = 
-				ByteBuffer.wrap(buffer).
-				order(ByteOrder.BIG_ENDIAN).
-				asDoubleBuffer();
-			
-			double[] array = new double[doubleBuffer.remaining()];
-			doubleBuffer.get(array);
-			
-			m_list = Arrays.asList(array);
+			List<Double> doubles = new ArrayList<>();
+			for(double value : NBTTag.readDoubleArray(size, rawData))
+			{
+				doubles.add(value);
+			}
+			m_list = doubles;
 		}
 		break;
 		
 		case 7:
 		{
-			ArrayList<byte[]> list = new ArrayList<>();
+			List<byte[]> list = new ArrayList<>();
 			for(int i = 0; i < size; ++i)
 			{
 				ByteArrayTag tag = new ByteArrayTag();
@@ -143,7 +133,7 @@ public class ListTag extends NBTTag
 		
 		case 8:
 		{
-			ArrayList<String> list = new ArrayList<>();
+			List<String> list = new ArrayList<>();
 			for(int i = 0; i < size; ++i)
 			{
 				StringTag tag = new StringTag();
@@ -156,7 +146,7 @@ public class ListTag extends NBTTag
 		
 		case 9:
 		{
-			ArrayList<List<?>> list = new ArrayList<>();
+			List<List<?>> list = new ArrayList<>();
 			for(int i = 0; i < size; ++i)
 			{
 				ListTag tag = new ListTag();
@@ -169,7 +159,7 @@ public class ListTag extends NBTTag
 		
 		case 10:
 		{
-			ArrayList<NBTData> list = new ArrayList<>();
+			List<NBTData> list = new ArrayList<>();
 			for(int i = 0; i < size; ++i)
 			{
 				CompoundTag tag = new CompoundTag();
@@ -182,7 +172,7 @@ public class ListTag extends NBTTag
 		
 		case 11:
 		{
-			ArrayList<int[]> list = new ArrayList<>();
+			List<int[]> list = new ArrayList<>();
 			for(int i = 0; i < size; ++i)
 			{
 				IntArrayTag tag = new IntArrayTag();
@@ -194,7 +184,7 @@ public class ListTag extends NBTTag
 		
 		case 12:
 		{
-			ArrayList<long[]> list = new ArrayList<>();
+			List<long[]> list = new ArrayList<>();
 			for(int i = 0; i < size; ++i)
 			{
 				LongArrayTag tag = new LongArrayTag();
@@ -210,5 +200,18 @@ public class ListTag extends NBTTag
 		}
 		
 		return numPayloadBytes;
+	}
+	
+	@Override
+	public String toString()
+	{
+		String result = "List Begin: " + getName() + "\n";
+		for(int i = 0; i < m_list.size(); ++i)
+		{
+			result += i + ": " + m_list.get(i).toString() + "\n";
+		}
+		result += "List End: " + getName() + "\n";
+		
+		return result;
 	}
 }

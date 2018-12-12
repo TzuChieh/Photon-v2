@@ -30,4 +30,10 @@ public class IntTag extends NBTTag
 		
 		return Integer.BYTES;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "Int: " + getName() + " <" + m_value + ">";
+	}
 }

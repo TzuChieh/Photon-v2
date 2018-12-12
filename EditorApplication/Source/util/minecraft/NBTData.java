@@ -1,6 +1,7 @@
 package util.minecraft;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class NBTData
 {
@@ -36,5 +37,16 @@ public class NBTData
 		}
 		
 		m_tags.put(tag.getName(), tag);
+	}
+	
+	@Override
+	public String toString()
+	{
+		String result = "";
+		for(Map.Entry<String, NBTTag> entry : m_tags.entrySet())
+		{
+			result += entry.getValue().toString() + "\n";
+		}
+		return result;
 	}
 }

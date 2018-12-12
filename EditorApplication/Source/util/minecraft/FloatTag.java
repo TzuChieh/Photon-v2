@@ -32,4 +32,10 @@ public class FloatTag extends NBTTag
 		
 		return Float.BYTES;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "Float: " + getName() + " <" + m_value + ">";
+	}
 }
