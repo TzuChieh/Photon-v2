@@ -211,7 +211,7 @@ class Plane{
 		void setNormal(int direction){
 			Normal = direction;
 		}
-		int getNormal() const{
+		int getNormal(){
 			if(Normal == -1){
 				fprintf(stderr,"Plane d does not initilize, use constructor Plane(BoundEdge Edge, int LongestAxis) or Plane.set_d()\n");
 				exit(1);
@@ -227,7 +227,7 @@ class Plane{
 		void set_d(float in_d){
 			d = in_d;
 		}
-		float get_d() const{
+		float get_d() {
 			return d;
 		}
 };
@@ -415,7 +415,7 @@ class KDNode: public Primitive{
         	left = NULL; 
         	right = NULL; 
     	} 
-		bool isLeaf() const{
+		bool isLeaf() {
 			return (left==NULL && right==NULL);
 		}
 		

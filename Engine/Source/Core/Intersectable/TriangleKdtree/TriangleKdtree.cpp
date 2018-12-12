@@ -1,6 +1,6 @@
 #include "Core/Intersectable/TriangleKdtree/TriangleKdtree.h"
 #include "Core/HitDetail.h"
-
+#include <unistd.h>
 #include <limits>
 
 namespace ph
@@ -338,6 +338,8 @@ Plane find_plane(Triangles& T, Voxel& V){
 }
 //std::shared_ptr<KDNode> KDNode::recBuild(Triangles& T, Voxel& V, int depth){
 KDNode *KDNode::recBuild(Triangles& T, Voxel& V, int depth){
+	printf("depth:%d\n",depth);
+	
 	if(terminate(T,V,depth)){
 		//std::shared_ptr<KDNode> root = std::make_shared<KDNode>(m_metadata);
 		KDNode *root = new KDNode(m_metadata);
@@ -373,23 +375,25 @@ KDNode *KDNode::recBuild(Triangles& T, Voxel& V, int depth){
 	return root;
 }
 
-//KDNode *KDtree_root;
+KDNode *KDtree_root;
 Voxel World_Voxel;
 //std::shared_ptr<KDNode> KDNode::build_KD_tree(Triangles& T){
 KDNode *KDNode::build_KD_tree(Triangles& T){
 	//drawBounds can only call once
 	drawBounds(World_Voxel,T);
-	return recBuild(T,World_Voxel,0);
+	KDtree_root = recBuild(T,World_Voxel,0);
+	return KDtree_root;
 }
 //implement virtual functions of primitive.h
 //1. implement virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const = 0;
 bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
 	//return false;
-	
+	//puts("KDNode::isIntersecting called");
 	float tMin , tMax;
 	bool is_hit = 0;
-	const KDNode *cur_node = this;
+	KDNode *cur_node = KDtree_root;
 	if( !World_Voxel.intersect( ray, World_Voxel, &tMin, &tMax) ){
+		//puts("KDNode::isIntersecting end");
 		return false;
 	}
 	
@@ -409,9 +413,10 @@ bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
 	while(cur_node != NULL){
 		if(ray.getMaxT() < tMin)
 			break;
-		
-
+		//printf("cur_node:%lu to_doPos=%d\n",cur_node,todoPos);
+		//sleep(1);
 		if(!cur_node->isLeaf()){
+			//puts("not leaf");
 			int split_axis = cur_node->plane.getNormal();
 			float split_pos = cur_node->plane.get_d();
 			float tPlane = (split_pos - ray.getOrigin()[split_axis]) * invDir[split_axis];
@@ -444,6 +449,7 @@ bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
             }
 		}
 		else{
+			//puts("leaf");
 			for(int i = 0; i < cur_node->Tprim.tris.size(); i++){
 				Triangle* triangle = cur_node->Tprim.tris[i];
 				float hitT;
@@ -460,10 +466,14 @@ bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
 				tMin = queue[todoPos].tMin;
 				tMax = queue[todoPos].tMax;
 			}
+			else{
+				break;
+			}
 		}
 
 		
 	}
+	//puts("KDNode::isIntersecting end");
 	return is_hit;
 	
 }
