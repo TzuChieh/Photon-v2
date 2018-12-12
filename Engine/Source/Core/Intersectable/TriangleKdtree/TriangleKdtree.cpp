@@ -20,7 +20,7 @@ std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int i
 
 	float min_z = std::numeric_limits<float>::max();
 	float max_z = std::numeric_limits<float>::lowest();
-	/*
+	
 	for(int j = 0; j < 3; j++){
 		if(t->getTverticies()[j].x < min_x){
 			min_x = t->getTverticies()[j].x;
@@ -41,8 +41,8 @@ std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int i
 			max_z = t->getTverticies()[j].z;
 		}
 	}
-	*/
-
+	
+	/*
 	if(t->getVertexA().x < min_x){
 		min_x = t->getVertexA().x;
 	}
@@ -99,6 +99,7 @@ std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int i
 	if(t->getVertexC().z > max_z){
 		max_z = t->getVertexC().z;
 	}
+	*/
 	t->TBoundingBox.setMinVertex( Vector3F(min_x, min_y, min_z) );
 
 	t->TBoundingBox.setMaxVertex( Vector3F(max_x, max_y, max_z) );
@@ -162,18 +163,21 @@ bool PointInAABB3D(Vector3F Point, AABB3D& Box){
 }
 
 bool TriangleInAABB3D(Triangle* tri, AABB3D& Box){
-	/*
+	
 	if( PointInAABB3D(tri->getTverticies()[0], Box) &&
 		PointInAABB3D(tri->getTverticies()[1], Box) &&
 		PointInAABB3D(tri->getTverticies()[2], Box))
 		return true;
-	*/
+	else
+		return false;
+	/*
 	if( PointInAABB3D(tri->getVertexA(), Box) &&
 		PointInAABB3D(tri->getVertexB(), Box) &&
 		PointInAABB3D(tri->getVertexC(), Box))
 		return true;
 	else
 		return false;
+	*/
 }
 
 //write R value of Triangles constructor, use std::move
@@ -332,10 +336,12 @@ Plane find_plane(Triangles& T, Voxel& V){
 	}
 	return best_plane;
 }
-
-KDNode* KDNode::recBuild(Triangles& T, Voxel& V, int depth){
+//std::shared_ptr<KDNode> KDNode::recBuild(Triangles& T, Voxel& V, int depth){
+KDNode *KDNode::recBuild(Triangles& T, Voxel& V, int depth){
 	if(terminate(T,V,depth)){
+		//std::shared_ptr<KDNode> root = std::make_shared<KDNode>(m_metadata);
 		KDNode *root = new KDNode(m_metadata);
+
 		root->left = NULL;
 		root->right = NULL;
 		root->Tprim = T;
@@ -358,6 +364,7 @@ KDNode* KDNode::recBuild(Triangles& T, Voxel& V, int depth){
 	left_tris = Union(T , left_voxel);
 	right_tris = Union(T , right_voxel);
 
+	//std::shared_ptr<KDNode> root = std::make_shared<KDNode>(m_metadata);
 	KDNode *root = new KDNode(m_metadata);
 	root->Tprim = T;
 	root->left = recBuild(left_tris, left_voxel, depth+1);
@@ -366,27 +373,29 @@ KDNode* KDNode::recBuild(Triangles& T, Voxel& V, int depth){
 	return root;
 }
 
-KDNode *KDtree_root;
+//KDNode *KDtree_root;
 Voxel World_Voxel;
-KDNode* KDNode::build_KD_tree(Triangles& T){
+//std::shared_ptr<KDNode> KDNode::build_KD_tree(Triangles& T){
+KDNode *KDNode::build_KD_tree(Triangles& T){
 	//drawBounds can only call once
 	drawBounds(World_Voxel,T);
-	KDtree_root = recBuild(T,World_Voxel,0);
-	return KDtree_root;
+	return recBuild(T,World_Voxel,0);
 }
 //implement virtual functions of primitive.h
 //1. implement virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const = 0;
 bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
 	//return false;
+	
 	float tMin , tMax;
 	bool is_hit = 0;
-	KDNode *cur_node = &KDtree_root[0];
+	const KDNode *cur_node = this;
 	if( !World_Voxel.intersect( ray, World_Voxel, &tMin, &tMax) ){
 		return false;
 	}
 	
 	KDQueue queue[64];
-	int todoPos = 63;
+	int max_todoPos = 63;
+	int todoPos = 0;
 	float invDir[3];
 	float rayDir[3];
 	rayDir[0] = ray.getDirection().x;
@@ -408,7 +417,10 @@ bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
 			float tPlane = (split_pos - ray.getOrigin()[split_axis]) * invDir[split_axis];
 			bool left_first = (ray.getOrigin()[split_axis] < split_pos) 
 								|| (ray.getOrigin()[split_axis] == split_pos && rayDir[split_axis]<=0);
-			KDNode *cand1,*cand2;
+			//std::shared_ptr<KDNode> cand1;
+			//std::shared_ptr<KDNode> cand2;
+			KDNode *cand1;
+			KDNode *cand2;
 			if(left_first){
 				cand1 = cur_node->left;
 				cand2 = cur_node->right;
@@ -426,7 +438,7 @@ bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
                 queue[todoPos].tMin = tPlane;
                 queue[todoPos].tMax = tMax;
                 ++todoPos;
-
+				assert(todoPos<=max_todoPos);
                 cur_node = cand1;
                 tMax = tPlane;
             }
@@ -453,6 +465,7 @@ bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
 		
 	}
 	return is_hit;
+	
 }
 //2. implement virtual void calcIntersectionDetail(const Ray& ray, HitProbe& probe, HitDetail* out_detail) const = 0
 void KDNode::calcIntersectionDetail(const Ray& ray, HitProbe& probe, HitDetail* out_detail) const {

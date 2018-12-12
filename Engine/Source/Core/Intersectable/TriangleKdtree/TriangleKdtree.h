@@ -211,7 +211,7 @@ class Plane{
 		void setNormal(int direction){
 			Normal = direction;
 		}
-		int getNormal(){
+		int getNormal() const{
 			if(Normal == -1){
 				fprintf(stderr,"Plane d does not initilize, use constructor Plane(BoundEdge Edge, int LongestAxis) or Plane.set_d()\n");
 				exit(1);
@@ -227,7 +227,7 @@ class Plane{
 		void set_d(float in_d){
 			d = in_d;
 		}
-		float get_d(){
+		float get_d() const{
 			return d;
 		}
 };
@@ -237,11 +237,13 @@ class Triangle {
 	    //get from initilize
 
 		//bug? TVector3.ipp
-		//Vector3F vertex[3];
+		Vector3F vertex[3];
 		//get from runtime
+		/*
 		Vector3F vertexA;
 		Vector3F vertexB;
 		Vector3F vertexC;
+		*/
 		int index = -2;
     public:
 		void setIndex(int in){
@@ -284,16 +286,18 @@ class Triangle {
         void setTvertices(float x1, float y1, float z1, float x2, float y2, float z2,
                             float x3, float y3, float z3){
 			index = -1;
-			/*
+			
             vertex[0].set(x1,y1,z1);
             vertex[1].set(x2,y2,z2);
             vertex[2].set(x3,y3,z3);
-			*/
+			
+			/*
 			vertexA.set(x1,y1,z1);
             vertexB.set(x2,y2,z2);
             vertexC.set(x3,y3,z3);
+			*/
         }
-		/*
+		
 		Vector3F* getTverticies(){
 			if(index == -2){
 				fprintf(stderr, "Triangle getTverticies err:Triangle verticies does not set, first run setTvertices\n");
@@ -301,7 +305,7 @@ class Triangle {
 			}
 			return vertex;
 		}
-		*/
+		/*
 		Vector3R& getVertexA()
 		{
 			return vertexA;
@@ -316,7 +320,7 @@ class Triangle {
 		{
 			return vertexC;
 		}
-
+		*/
 		bool Intersect(const Ray& ray, float *out_t){
 			float o_x = ray.getOrigin().x;
 			float o_y = ray.getOrigin().y;
@@ -330,14 +334,15 @@ class Triangle {
 			//when x0 + x1 + x2 >= 1 and x0,x1,x2 > 0 has intersect with triangle
 			//find the matrix[OA OB OC] whether singular
 			// normalize x0,x1,x2 and plus O will find the intersect point 
-			/*
+			
 			Vector3F edgeOA = vertex[0] - Origin;
 			Vector3F edgeOB = vertex[1] - Origin;
 			Vector3F edgeOC = vertex[2] - Origin;
-			*/
+			/*
 			Vector3F edgeOA = vertexA - Origin;
 			Vector3F edgeOB = vertexB - Origin;
 			Vector3F edgeOC = vertexC - Origin;
+			*/
 			//find delta of the matrix
 			float delta = Three_Vec3_delta(edgeOA,edgeOB,edgeOC);
 			float epsilon = 0.0000001;
@@ -397,6 +402,10 @@ class Triangles{
 
 class KDNode: public Primitive{
 	public:
+		/*
+		std::shared_ptr<KDNode> left;
+		std::shared_ptr<KDNode> right;
+		*/
 		KDNode *left;
 		KDNode *right;
 		Triangles Tprim;
@@ -406,7 +415,7 @@ class KDNode: public Primitive{
         	left = NULL; 
         	right = NULL; 
     	} 
-		bool isLeaf(){
+		bool isLeaf() const{
 			return (left==NULL && right==NULL);
 		}
 		
@@ -414,8 +423,10 @@ class KDNode: public Primitive{
 		void calcIntersectionDetail(const Ray& ray, HitProbe& probe, HitDetail* out_detail)  const override;
 		bool isIntersectingVolumeConservative(const AABB3D& volume) const override;
 		void calcAABB(AABB3D* out_aabb) const override;
-		KDNode* recBuild(Triangles& T, Voxel& V, int depth);
-		KDNode* build_KD_tree(Triangles& T);
+		//std::shared_ptr<KDNode> recBuild(Triangles& T, Voxel& V, int depth);
+		//std::shared_ptr<KDNode> build_KD_tree(Triangles& T);
+		KDNode *recBuild(Triangles& T, Voxel& V, int depth);
+		KDNode *build_KD_tree(Triangles& T);
 };
 class Voxel{
 	public:
