@@ -1,5 +1,6 @@
 package util.minecraft;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -15,9 +16,11 @@ public class MCAParser
 	{
 		m_chunks = new ChunkData[32][32];
 		
+		ChunkParser chunkParser = new ChunkParser();
 		try
 		{
-			byte[] header = BinaryData.readByteArray(NUM_HEADER_BYTES, rawData);
+			byte[] header    = BinaryData.readByteArray(NUM_HEADER_BYTES, rawData);
+			byte[] remaining = BinaryData.readAll(rawData);
 			for(int chunkZ = 0; chunkZ < 32; ++chunkZ)
 			{
 				for(int chunkX = 0; chunkX < 32; ++chunkX)
@@ -29,7 +32,10 @@ public class MCAParser
 						((header[offset + 2] & 0xFF));
 					int num4KiBSectors = header[offset + 3] & 0xFF;
 					
-					// TODO
+					int chunkDataOffset = (num4KiBOffsets - 2) * 4096;
+					int chunkSize       = num4KiBSectors * 4096;
+					ByteArrayInputStream chunkData = new ByteArrayInputStream(remaining, chunkDataOffset, chunkSize);
+					m_chunks[chunkZ][chunkX] = chunkParser.parse(chunkData);
 				}
 			}
 		}

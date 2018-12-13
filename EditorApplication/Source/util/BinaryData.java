@@ -1,5 +1,6 @@
 package util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -128,5 +129,28 @@ public class BinaryData
 	public static double readDouble(InputStream rawData) throws IOException
 	{
 		return Double.longBitsToDouble(readLong(rawData));
+	}
+	
+	public static byte[] readAll(InputStream rawData) throws IOException
+	{
+		final int BUFFER_SIZE = 8192;
+		
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		
+		byte[] buffer = new byte[BUFFER_SIZE];
+		while(true)
+		{
+			int readBytes = rawData.read(buffer, 0, BUFFER_SIZE);
+			if(readBytes != -1)
+			{
+				output.write(buffer, 0, readBytes);
+			}
+			else
+			{
+				break;
+			}
+		}
+		
+		return output.toByteArray();
 	}
 }
