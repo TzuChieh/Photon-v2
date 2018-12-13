@@ -3,6 +3,7 @@ package appGui;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.zip.GZIPInputStream;
 
@@ -15,6 +16,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import sun.misc.IOUtils;
+import util.minecraft.MCAParser;
 import util.minecraft.NBTData;
 import util.minecraft.NBTParser;
 
@@ -77,7 +79,12 @@ public class AppMain extends Application
 //		output2.close();
 		
 		
-		System.exit(0);
+//		InputStream input = new FileInputStream("./r.0.-1.mca");
+//		InputStream input = new FileInputStream("./r.0.0.mca");
+//		MCAParser parser = new MCAParser(input);
+		
+		
+//		System.exit(0);
 	}
 
 	@Override

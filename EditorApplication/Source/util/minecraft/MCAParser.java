@@ -25,12 +25,20 @@ public class MCAParser
 			{
 				for(int chunkX = 0; chunkX < 32; ++chunkX)
 				{
+					System.out.println("x: " + chunkX + ", z: " + chunkZ);
+					
 					int offset = 4 * (chunkZ * 32 + chunkX);
 					int num4KiBOffsets = 
 						((header[offset]     & 0xFF) << 16) | 
 						((header[offset + 1] & 0xFF) << 8 ) | 
 						((header[offset + 2] & 0xFF));
 					int num4KiBSectors = header[offset + 3] & 0xFF;
+					
+					// this means the chunk data is not present (has not been generated or migrated)
+					if(num4KiBOffsets == 0 && num4KiBSectors == 0)
+					{
+						continue;
+					}
 					
 					int chunkDataOffset = (num4KiBOffsets - 2) * 4096;
 					int chunkSize       = num4KiBSectors * 4096;

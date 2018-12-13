@@ -24,7 +24,7 @@ public class BinaryData
 			if(read == -1)
 			{
 				throw new IOException(
-					"expected " + numBytes + "available for reading, only " + readBytes + " present");
+					"expected " + numBytes + " available for reading, only " + readBytes + " present");
 			}
 			readBytes += read;
 		}
