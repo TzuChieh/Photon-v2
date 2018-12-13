@@ -26,8 +26,8 @@ public class ByteArrayTag extends NBTTag
 		           (rawData.read() << 16) | 
 		           (rawData.read() << 8 ) | 
 		           (rawData.read());
-		m_array = new byte[size];
-		rawData.read(m_array);
+		
+		m_array = readArray(size, rawData);
 		
 		return size + 4;
 	}

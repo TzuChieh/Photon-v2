@@ -41,10 +41,8 @@ public abstract class NBTTag
 		}
 		
 		int numNameBytes = ((rawData.read() << 8) | rawData.read());
-		byte[] nameBytes = new byte[numNameBytes];
-		rawData.read(nameBytes);
 		
-		String tagName = new String(nameBytes, StandardCharsets.UTF_8);
+		String tagName = readStringUTF8(numNameBytes, rawData);
 		setName(tagName);
 		
 		m_numPayloadBytes = setPayload(rawData);
@@ -79,17 +77,32 @@ public abstract class NBTTag
 		return m_numPayloadBytes;
 	}
 	
-	public static ByteBuffer readData(int numBytes, InputStream rawData) throws IOException
+	public static byte[] readArray(int numBytes, InputStream rawData) throws IOException
 	{
 		byte[] buffer = new byte[numBytes];
-		rawData.read(buffer);
-		
-		return ByteBuffer.wrap(buffer).order(ByteOrder.BIG_ENDIAN);
+		int readBytes = 0;
+		while(readBytes < numBytes)
+		{
+			int read = rawData.read(buffer, readBytes, numBytes - readBytes);
+			if(read == -1)
+			{
+				throw new IOException(
+					"expected " + numBytes + "available for reading, only " + readBytes + " present");
+			}
+			readBytes += read;
+		}
+		return buffer;
+	}
+	
+	public static ByteBuffer readBuffer(int numBytes, InputStream rawData) throws IOException
+	{
+		byte[] array = readArray(numBytes, rawData);
+		return ByteBuffer.wrap(array).order(ByteOrder.BIG_ENDIAN);
 	}
 	
 	public static short[] readShortArray(int size, InputStream rawData) throws IOException
 	{
-		ShortBuffer shortBuffer = readData(size * Short.BYTES, rawData).asShortBuffer();
+		ShortBuffer shortBuffer = readBuffer(size * Short.BYTES, rawData).asShortBuffer();
 		
 		short[] array = new short[shortBuffer.remaining()];
 		shortBuffer.get(array);
@@ -98,7 +111,7 @@ public abstract class NBTTag
 	
 	public static int[] readIntArray(int size, InputStream rawData) throws IOException
 	{
-		IntBuffer intBuffer = readData(size * Integer.BYTES, rawData).asIntBuffer();
+		IntBuffer intBuffer = readBuffer(size * Integer.BYTES, rawData).asIntBuffer();
 		
 		int[] array = new int[intBuffer.remaining()];
 		intBuffer.get(array);
@@ -107,7 +120,7 @@ public abstract class NBTTag
 	
 	public static long[] readLongArray(int size, InputStream rawData) throws IOException
 	{
-		LongBuffer longBuffer = readData(size * Long.BYTES, rawData).asLongBuffer();
+		LongBuffer longBuffer = readBuffer(size * Long.BYTES, rawData).asLongBuffer();
 		
 		long[] array = new long[longBuffer.remaining()];
 		longBuffer.get(array);
@@ -116,7 +129,7 @@ public abstract class NBTTag
 	
 	public static float[] readFloatArray(int size, InputStream rawData) throws IOException
 	{
-		FloatBuffer floatBuffer = readData(size * Float.BYTES, rawData).asFloatBuffer();
+		FloatBuffer floatBuffer = readBuffer(size * Float.BYTES, rawData).asFloatBuffer();
 		
 		float[] array = new float[floatBuffer.remaining()];
 		floatBuffer.get(array);
@@ -125,10 +138,16 @@ public abstract class NBTTag
 	
 	public static double[] readDoubleArray(int size, InputStream rawData) throws IOException
 	{
-		DoubleBuffer doubleBuffer = readData(size * Double.BYTES, rawData).asDoubleBuffer();
+		DoubleBuffer doubleBuffer = readBuffer(size * Double.BYTES, rawData).asDoubleBuffer();
 		
 		double[] array = new double[doubleBuffer.remaining()];
 		doubleBuffer.get(array);
 		return array;
+	}
+	
+	public static String readStringUTF8(int numBytes, InputStream rawData) throws IOException
+	{
+		byte[] stringBytes = readArray(numBytes, rawData);
+		return new String(stringBytes, StandardCharsets.UTF_8);
 	}
 }

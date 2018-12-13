@@ -14,6 +14,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import sun.misc.IOUtils;
 import util.minecraft.NBTData;
 import util.minecraft.NBTParser;
 
@@ -63,7 +64,20 @@ public class AppMain extends Application
 //		NBTParser parser = new NBTParser(input);
 //		NBTData data = parser.getData();
 //		System.out.println(data);
-//		System.exit(0);
+		
+//		GZIPInputStream input2 = new GZIPInputStream(new FileInputStream("./level.dat"));
+//		FileOutputStream output2 = new FileOutputStream("./level_decompressed.dat");
+//		byte[] buffer = new byte[1024];
+//		while(input2.available() == 1)
+//		{
+//			int read = input2.read(buffer);
+//			if(read != -1)
+//				output2.write(buffer, 0, read);
+//		}
+//		output2.close();
+		
+		
+		System.exit(0);
 	}
 
 	@Override
