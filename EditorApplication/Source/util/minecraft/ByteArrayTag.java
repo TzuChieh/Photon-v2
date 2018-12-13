@@ -3,6 +3,8 @@ package util.minecraft;
 import java.io.IOException;
 import java.io.InputStream;
 
+import util.BinaryData;
+
 public class ByteArrayTag extends NBTTag
 {
 	private byte[] m_array;
@@ -27,7 +29,7 @@ public class ByteArrayTag extends NBTTag
 		           (rawData.read() << 8 ) | 
 		           (rawData.read());
 		
-		m_array = readArray(size, rawData);
+		m_array = BinaryData.readArray(size, rawData);
 		
 		return size + 4;
 	}

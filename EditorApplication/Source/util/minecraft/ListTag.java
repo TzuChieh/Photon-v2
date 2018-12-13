@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import util.BinaryData;
+
 public class ListTag extends NBTTag
 {
 	private List<?> m_list;
@@ -49,7 +51,7 @@ public class ListTag extends NBTTag
 			numPayloadBytes += size;
 			
 			List<Byte> bytes = new ArrayList<>();
-			for(byte value : readArray(size, rawData))
+			for(byte value : BinaryData.readArray(size, rawData))
 			{
 				bytes.add(value);
 			}
@@ -62,7 +64,7 @@ public class ListTag extends NBTTag
 			numPayloadBytes += size * Short.BYTES;
 			
 			List<Short> shorts = new ArrayList<>();
-			for(short value : readShortArray(size, rawData))
+			for(short value : BinaryData.readShortArray(size, rawData))
 			{
 				shorts.add(value);
 			}
@@ -75,7 +77,7 @@ public class ListTag extends NBTTag
 		{
 			numPayloadBytes += size * Integer.BYTES;
 			
-			int[] integers = readIntArray(size, rawData);
+			int[] integers = BinaryData.readIntArray(size, rawData);
 			m_list = Arrays.stream(integers).boxed().collect(Collectors.toList());
 		}
 		break;	
@@ -84,7 +86,7 @@ public class ListTag extends NBTTag
 		{
 			numPayloadBytes += size * Long.BYTES;
 			
-			long[] longs = readLongArray(size, rawData);
+			long[] longs = BinaryData.readLongArray(size, rawData);
 			m_list = Arrays.stream(longs).boxed().collect(Collectors.toList());
 		}
 		break;
@@ -94,7 +96,7 @@ public class ListTag extends NBTTag
 			numPayloadBytes += size * Float.BYTES;
 			
 			List<Float> floats = new ArrayList<>();
-			for(float value : readFloatArray(size, rawData))
+			for(float value : BinaryData.readFloatArray(size, rawData))
 			{
 				floats.add(value);
 			}
@@ -107,7 +109,7 @@ public class ListTag extends NBTTag
 			numPayloadBytes += size * Double.BYTES;
 			
 			List<Double> doubles = new ArrayList<>();
-			for(double value : readDoubleArray(size, rawData))
+			for(double value : BinaryData.readDoubleArray(size, rawData))
 			{
 				doubles.add(value);
 			}

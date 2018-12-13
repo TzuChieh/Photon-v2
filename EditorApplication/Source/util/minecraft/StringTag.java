@@ -3,6 +3,8 @@ package util.minecraft;
 import java.io.IOException;
 import java.io.InputStream;
 
+import util.BinaryData;
+
 public class StringTag extends NBTTag
 {
 	private String m_data;
@@ -24,7 +26,7 @@ public class StringTag extends NBTTag
 	{
 		int numStringBytes = ((rawData.read() << 8) | rawData.read());
 		
-		m_data = readStringUTF8(numStringBytes, rawData);
+		m_data = BinaryData.readStringUTF8(numStringBytes, rawData);
 		
 		return numStringBytes + 2;
 	}
