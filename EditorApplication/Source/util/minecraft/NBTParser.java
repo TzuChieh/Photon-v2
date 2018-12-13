@@ -19,7 +19,7 @@ public class NBTParser
 		}
 		catch(IOException e)
 		{
-			System.err.println("error during parsing, parsed data may be corrupted");
+			System.err.println("error parsing NBT, parsed data may be corrupted");
 			e.printStackTrace();
 		}
 		

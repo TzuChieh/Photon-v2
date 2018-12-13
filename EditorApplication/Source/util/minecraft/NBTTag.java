@@ -34,8 +34,7 @@ public abstract class NBTTag
 			return this;
 		}
 		
-		int numNameBytes = ((rawData.read() << 8) | rawData.read());
-		
+		short numNameBytes = BinaryData.readShort(rawData);
 		String tagName = BinaryData.readStringUTF8(numNameBytes, rawData);
 		setName(tagName);
 		

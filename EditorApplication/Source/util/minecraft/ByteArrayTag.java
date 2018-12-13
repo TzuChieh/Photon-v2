@@ -24,12 +24,8 @@ public class ByteArrayTag extends NBTTag
 	@Override
 	public int setPayload(InputStream rawData) throws IOException
 	{
-		int size = (rawData.read() << 24) | 
-		           (rawData.read() << 16) | 
-		           (rawData.read() << 8 ) | 
-		           (rawData.read());
-		
-		m_array = BinaryData.readArray(size, rawData);
+		int size = BinaryData.readInt(rawData);
+		m_array = BinaryData.readByteArray(size, rawData);
 		
 		return size + 4;
 	}

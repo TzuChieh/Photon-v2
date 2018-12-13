@@ -24,8 +24,7 @@ public class StringTag extends NBTTag
 	@Override
 	public int setPayload(InputStream rawData) throws IOException
 	{
-		int numStringBytes = ((rawData.read() << 8) | rawData.read());
-		
+		short numStringBytes = BinaryData.readShort(rawData);
 		m_data = BinaryData.readStringUTF8(numStringBytes, rawData);
 		
 		return numStringBytes + 2;

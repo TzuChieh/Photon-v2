@@ -29,13 +29,9 @@ public class ListTag extends NBTTag
 	public int setPayload(InputStream rawData) throws IOException
 	{
 		int tagId = rawData.read();
-		int size = 
-			(rawData.read() << 24) | 
-			(rawData.read() << 16) | 
-			(rawData.read() << 8 ) | 
-			(rawData.read());
+		int size  = BinaryData.readInt(rawData);
 		
-		int numPayloadBytes = 1 + 4;
+		int numPayloadBytes = Byte.BYTES + Integer.BYTES;
 		switch(tagId)
 		{
 		case 0:
@@ -51,7 +47,7 @@ public class ListTag extends NBTTag
 			numPayloadBytes += size;
 			
 			List<Byte> bytes = new ArrayList<>();
-			for(byte value : BinaryData.readArray(size, rawData))
+			for(byte value : BinaryData.readByteArray(size, rawData))
 			{
 				bytes.add(value);
 			}

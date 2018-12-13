@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 
 public class BinaryData
 {
-	public static byte[] readArray(int numBytes, InputStream rawData) throws IOException
+	public static byte[] readByteArray(int numBytes, InputStream rawData) throws IOException
 	{
 		byte[] buffer = new byte[numBytes];
 		int readBytes = 0;
@@ -30,15 +30,15 @@ public class BinaryData
 		return buffer;
 	}
 	
-	public static ByteBuffer readBuffer(int numBytes, InputStream rawData) throws IOException
+	public static ByteBuffer readByteBuffer(int numBytes, InputStream rawData) throws IOException
 	{
-		byte[] array = readArray(numBytes, rawData);
+		byte[] array = readByteArray(numBytes, rawData);
 		return ByteBuffer.wrap(array).order(ByteOrder.BIG_ENDIAN);
 	}
 	
 	public static short[] readShortArray(int size, InputStream rawData) throws IOException
 	{
-		ShortBuffer shortBuffer = readBuffer(size * Short.BYTES, rawData).asShortBuffer();
+		ShortBuffer shortBuffer = readByteBuffer(size * Short.BYTES, rawData).asShortBuffer();
 		
 		short[] array = new short[shortBuffer.remaining()];
 		shortBuffer.get(array);
@@ -47,7 +47,7 @@ public class BinaryData
 	
 	public static int[] readIntArray(int size, InputStream rawData) throws IOException
 	{
-		IntBuffer intBuffer = readBuffer(size * Integer.BYTES, rawData).asIntBuffer();
+		IntBuffer intBuffer = readByteBuffer(size * Integer.BYTES, rawData).asIntBuffer();
 		
 		int[] array = new int[intBuffer.remaining()];
 		intBuffer.get(array);
@@ -56,7 +56,7 @@ public class BinaryData
 	
 	public static long[] readLongArray(int size, InputStream rawData) throws IOException
 	{
-		LongBuffer longBuffer = readBuffer(size * Long.BYTES, rawData).asLongBuffer();
+		LongBuffer longBuffer = readByteBuffer(size * Long.BYTES, rawData).asLongBuffer();
 		
 		long[] array = new long[longBuffer.remaining()];
 		longBuffer.get(array);
@@ -65,7 +65,7 @@ public class BinaryData
 	
 	public static float[] readFloatArray(int size, InputStream rawData) throws IOException
 	{
-		FloatBuffer floatBuffer = readBuffer(size * Float.BYTES, rawData).asFloatBuffer();
+		FloatBuffer floatBuffer = readByteBuffer(size * Float.BYTES, rawData).asFloatBuffer();
 		
 		float[] array = new float[floatBuffer.remaining()];
 		floatBuffer.get(array);
@@ -74,7 +74,7 @@ public class BinaryData
 	
 	public static double[] readDoubleArray(int size, InputStream rawData) throws IOException
 	{
-		DoubleBuffer doubleBuffer = readBuffer(size * Double.BYTES, rawData).asDoubleBuffer();
+		DoubleBuffer doubleBuffer = readByteBuffer(size * Double.BYTES, rawData).asDoubleBuffer();
 		
 		double[] array = new double[doubleBuffer.remaining()];
 		doubleBuffer.get(array);
@@ -83,7 +83,50 @@ public class BinaryData
 	
 	public static String readStringUTF8(int numBytes, InputStream rawData) throws IOException
 	{
-		byte[] stringBytes = readArray(numBytes, rawData);
+		byte[] stringBytes = readByteArray(numBytes, rawData);
 		return new String(stringBytes, StandardCharsets.UTF_8);
+	}
+	
+	public static short readShort(InputStream rawData) throws IOException
+	{
+		byte[] bytes = readByteArray(Short.BYTES, rawData);
+		
+		return (short)(((bytes[0] & 0xFF) << 8) | (bytes[1] & 0xFF));
+	}
+	
+	public static int readInt(InputStream rawData) throws IOException
+	{
+		byte[] bytes = readByteArray(Integer.BYTES, rawData);
+		
+		return 
+			((bytes[0] & 0xFF) << 24) | 
+			((bytes[1] & 0xFF) << 16) | 
+			((bytes[2] & 0xFF) << 8 ) | 
+			((bytes[3] & 0xFF));
+	}
+	
+	public static long readLong(InputStream rawData) throws IOException
+	{
+		byte[] bytes = readByteArray(Long.BYTES, rawData);
+		
+		return 
+			((long)(bytes[0] & 0xFF) << 56) | 
+			((long)(bytes[1] & 0xFF) << 48) | 
+			((long)(bytes[2] & 0xFF) << 40) | 
+			((long)(bytes[3] & 0xFF) << 32) | 
+			((long)(bytes[4] & 0xFF) << 24) | 
+			((long)(bytes[5] & 0xFF) << 16) | 
+			((long)(bytes[6] & 0xFF) << 8 ) | 
+			((long)(bytes[7] & 0xFF));
+	}
+	
+	public static float readFloat(InputStream rawData) throws IOException
+	{
+		return Float.intBitsToFloat(readInt(rawData));
+	}
+	
+	public static double readDouble(InputStream rawData) throws IOException
+	{
+		return Double.longBitsToDouble(readLong(rawData));
 	}
 }

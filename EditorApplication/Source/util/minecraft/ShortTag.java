@@ -3,6 +3,8 @@ package util.minecraft;
 import java.io.IOException;
 import java.io.InputStream;
 
+import util.BinaryData;
+
 public class ShortTag extends NBTTag
 {
 	private short m_value;
@@ -22,7 +24,7 @@ public class ShortTag extends NBTTag
 	@Override
 	public int setPayload(InputStream rawData) throws IOException
 	{
-		m_value = (short)((rawData.read() << 8) | rawData.read());
+		m_value = BinaryData.readShort(rawData);
 		
 		return Short.BYTES;
 	}

@@ -3,6 +3,8 @@ package util.minecraft;
 import java.io.IOException;
 import java.io.InputStream;
 
+import util.BinaryData;
+
 public class IntTag extends NBTTag
 {
 	private int m_value;
@@ -22,11 +24,7 @@ public class IntTag extends NBTTag
 	@Override
 	public int setPayload(InputStream rawData) throws IOException
 	{
-		m_value = 
-			(rawData.read() << 24) | 
-			(rawData.read() << 16) | 
-			(rawData.read() << 8 ) | 
-			(rawData.read());
+		m_value = BinaryData.readInt(rawData);
 		
 		return Integer.BYTES;
 	}
