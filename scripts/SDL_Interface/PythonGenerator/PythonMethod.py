@@ -11,7 +11,6 @@ class PythonMethod:
 	def set_name(self, name):
 		self.name = name
 
-	# TODO: use keyword arg, otherwise we cannot default to None
 	def add_input(self, name, **kwargs):
 		input_string = name
 		if "expected_type" in kwargs:

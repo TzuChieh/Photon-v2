@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="appGui.AppMainCtrl">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="appGui.AppMainCtrl">
    <top>
       <VBox BorderPane.alignment="CENTER">
          <children>
@@ -52,7 +52,7 @@
                            </image>
                         </ImageView>
                      </graphic></Button>
-                  <Button contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#managerBtnClicked" prefWidth="100.0" style="-fx-base: #000000;" text="Manager">
+                  <Button contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#managerBtnClicked" prefWidth="100.0" style="-fx-base: #000000;" text="Projects">
                      <graphic>
                         <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -68,6 +68,15 @@
                            </image>
                         </ImageView>
                      </graphic></Button>
+                  <Button contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#minecraftBtnClicked" prefWidth="100.0" style="-fx-base: #000000;" text="Minecraft">
+                     <graphic>
+                        <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../images/minecraft.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
                   <Button fx:id="renderBtn" contentDisplay="TOP" mnemonicParsing="false" onMouseClicked="#renderBtnClicked" prefWidth="100.0" style="-fx-base: #000000;" text="Render">
                      <graphic>
                         <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">

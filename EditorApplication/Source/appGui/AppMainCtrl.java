@@ -28,20 +28,20 @@ import javafx.scene.paint.Color;
 
 public class AppMainCtrl
 {
-	private static final String MANAGER_FXML_FILENAME         = "/fxmls/Manager.fxml";
-	private static final String EDITOR_FXML_FILENAME          = "/fxmls/Editor.fxml";
-	private static final String GENERAL_OPTIONS_FXML_FILENAME = "/fxmls/GeneralOptions.fxml";
-	private static final String ABOUT_FXML_FILENAME           = "/fxmls/About.fxml";
+	private static final String MANAGER_FXML_PATH         = "/fxmls/Manager.fxml";
+	private static final String EDITOR_FXML_PATH          = "/fxmls/Editor.fxml";
+	private static final String MINECRAFT_FXML_PATH       = "/fxmls/Minecraft.fxml";
+	private static final String GENERAL_OPTIONS_FXML_PATH = "/fxmls/GeneralOptions.fxml";
+	private static final String ABOUT_FXML_PATH           = "/fxmls/About.fxml";
 	
 	private EditorApp             m_editorApp;
     private int                   m_projectId;
 	private AppMainGraphicalState m_graphicalState;
 	
-	private Parent m_managerView;
-	
 	private HashMap<String, ViewCtrlPair<EditorCtrl>> m_editorUIs;
-	private ManagerCtrl m_managerCtrl;
 	private GeneralOptionsCtrl m_generalOptionsCtrl;
+	private ViewCtrlPair<ManagerCtrl> m_managerUI;
+	private ViewCtrlPair<MinecraftCtrl> m_minecraftUI;
 	
 	private ChildWindow m_generalOptionsWindow;
 	private ChildWindow m_aboutWindow;
@@ -53,25 +53,29 @@ public class AppMainCtrl
 	@FXML private Button     renderBtn;
 	@FXML private Label      footerMsgLbl;
     
-    @FXML
-    public void initialize()
-    {
-    	m_uiLoader = new UILoader();
-    	
-    	m_editorUIs = new HashMap<>();
-    	
-    	m_generalOptionsWindow = new ChildWindow();
-    	m_aboutWindow          = new ChildWindow();
-    	
-    	footerPane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-//    	renderBtn.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
-    	
-    	m_graphicalState = new AppMainGraphicalState(this);
-    	
-    	loadManagerUI();
-    	loadGeneralOptionsUI();
-    	loadAboutUI();
-    }
+	@FXML
+	public void initialize()
+	{
+		m_uiLoader = new UILoader();
+		
+		m_editorUIs = new HashMap<>();
+		
+		m_generalOptionsWindow = new ChildWindow();
+		m_aboutWindow          = new ChildWindow();
+		
+		footerPane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+	//    	renderBtn.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+		
+		m_graphicalState = new AppMainGraphicalState(this);
+		
+		loadGeneralOptionsUI();
+		loadAboutUI();
+		
+		m_managerUI = m_uiLoader.load(getClass().getResource(MANAGER_FXML_PATH));
+		m_managerUI.getCtrl().setAppMainGraphicalState(m_graphicalState);
+		
+		m_minecraftUI = m_uiLoader.load(getClass().getResource(MINECRAFT_FXML_PATH));
+	}
 
 	@FXML
 	void newProjectBtnClicked(MouseEvent event)
@@ -114,20 +118,26 @@ public class AppMainCtrl
 	@FXML
 	void managerBtnClicked(MouseEvent event)
 	{
-		setWorkbenchAsManagerView();
+		setWorkbenchView(m_managerUI.getView(), "project manager");
 	}
-    
-    @FXML
-    void editorBtnClicked(MouseEvent event)
-    {
-    	setWorkbenchAsEditorView();
-    }
-    
-    @FXML
-    void generalOptionsClicked(ActionEvent event)
-    {
-    	m_generalOptionsWindow.show();
-    }
+	
+	@FXML
+	void editorBtnClicked(MouseEvent event)
+	{
+		setWorkbenchAsEditorView();
+	}
+	
+	@FXML
+	void minecraftBtnClicked(MouseEvent event)
+	{
+		setWorkbenchView(m_minecraftUI.getView(), "minecraft");
+	}
+	
+	@FXML
+	void generalOptionsClicked(ActionEvent event)
+	{
+		m_generalOptionsWindow.show();
+	}
     
     @FXML
     void aboutClicked(ActionEvent event)
@@ -159,7 +169,7 @@ public class AppMainCtrl
     	
     	m_editorUIs.put(projectName, editorUI);
     	
-    	m_managerCtrl.addProject(projectName);
+    	m_managerUI.getCtrl().addProject(projectName);
     	editorUI.getCtrl().associateWithProject(project);
     }
     
@@ -170,56 +180,25 @@ public class AppMainCtrl
     	m_generalOptionsCtrl.setGeneralOption(editorApp.getGeneralOption());
     }
     
-    public void setWorkbenchAsEditorView()
-    {
-    	setWorkbenchView(getActiveEditorUI().getView(), "project editor");
-    }
-    
-    public void setWorkbenchAsManagerView()
-    {
-    	workbenchPane.getChildren().clear();
-    	workbenchPane.getChildren().add(m_managerView);
-    	
-    	AnchorPane.setTopAnchor(m_managerView, 0.0);
-    	AnchorPane.setBottomAnchor(m_managerView, 0.0);
-    	AnchorPane.setLeftAnchor(m_managerView, 0.0);
-    	AnchorPane.setRightAnchor(m_managerView, 0.0);
-    	
-    	m_graphicalState.setActiveViewName("project manager");
-    }
-    
     public void updateFooterText()
     {
     	footerMsgLbl.setText("Project: "   + m_graphicalState.getActiveProjectName() + " | " + 
     	                     "Workbench: " + m_graphicalState.getActiveViewName());
     }
     
-    private void loadManagerUI()
+    public void setWorkbenchAsEditorView()
     {
-    	try
-		{
-			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(MANAGER_FXML_FILENAME));
-			
-			m_managerView = fxmlLoader.load();
-			m_managerCtrl = fxmlLoader.getController();
-			
-			m_managerCtrl.setAppMainGraphicalState(m_graphicalState);
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-			new MessagePopup(e);
-		}
+    	setWorkbenchView(getActiveEditorUI().getView(), "project editor");
     }
     
 	private static ViewCtrlPair<EditorCtrl> loadEditorUI()
 	{
-		return new UILoader().load(EditorCtrl.class.getResource(EDITOR_FXML_FILENAME));
+		return new UILoader().load(EditorCtrl.class.getResource(EDITOR_FXML_PATH));
 	}
     
     private void loadGeneralOptionsUI()
     {
-    	ViewCtrlPair<GeneralOptionsCtrl> ui = m_uiLoader.load(getClass().getResource(GENERAL_OPTIONS_FXML_FILENAME));
+    	ViewCtrlPair<GeneralOptionsCtrl> ui = m_uiLoader.load(getClass().getResource(GENERAL_OPTIONS_FXML_PATH));
     	if(ui.isValid())
     	{
     		m_generalOptionsCtrl = ui.getCtrl();
@@ -230,7 +209,7 @@ public class AppMainCtrl
     
     private void loadAboutUI()
     {
-    	Parent view = m_uiLoader.loadView(getClass().getResource(ABOUT_FXML_FILENAME));
+    	Parent view = m_uiLoader.loadView(getClass().getResource(ABOUT_FXML_PATH));
     	if(view != null)
     	{
     		m_aboutWindow.setContent(new Scene(view));

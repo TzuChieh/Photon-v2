@@ -103,6 +103,16 @@ endif()
 
 set(STB_INCLUDE_DIR "${THIRD_PARTY_DIR}stb/include/")
 
+# TODO: debug build?
+if(WIN32)
+    set(STACKWALKER_INCLUDE_DIR "${THIRD_PARTY_DIR}StackWalker/include/")
+    set(STACKWALKER_BINARY_DIR  "${THIRD_PARTY_DIR}StackWalker/lib/")
+    find_library(STACKWALKER_LIB StackWalker
+        PATHS ${STACKWALKER_BINARY_DIR}
+        NO_DEFAULT_PATH
+    )
+endif()
+
 ###############################################################################
 # Add Subdirectories
 #

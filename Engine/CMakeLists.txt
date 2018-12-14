@@ -40,8 +40,15 @@ target_include_directories(Engine
 	PRIVATE ${STB_INCLUDE_DIR}
 )
 
+if(WIN32)
+
+	target_include_directories(Engine 
+		PRIVATE ${STACKWALKER_INCLUDE_DIR}
+	)
+	target_link_libraries(Engine ${STACKWALKER_LIB})
+
 # other platforms do not link to threading and filesystem libraries by default
-if(NOT WIN32)
+else()
 
 	find_package(Threads)
 	target_link_libraries(Engine 

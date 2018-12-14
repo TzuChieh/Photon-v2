@@ -6,13 +6,11 @@
 
 	#include <iostream>
 	#include <string>
-	#include <cstdlib>
 
-	#ifdef PH_ABORT_ON_ASSERTION_FAILED
-		#define PH_INTERNAL_ASSERTION_ABORT() std::abort()
-	#else
-		#define PH_INTERNAL_ASSERTION_ABORT()
-	#endif
+	namespace ph
+	{
+		extern void on_assertion_failed();
+	}
 
 	#define PH_ASSERT_MSG(condition, message)\
 		do\
@@ -28,12 +26,17 @@
 				}\
 				std::cerr << std::endl;\
 				\
-				PH_INTERNAL_ASSERTION_ABORT();\
+				ph::on_assertion_failed();\
 			}\
 		} while(0)
 
+	#define PH_INTERNAL_RANGE_MSG(value, lowerBound, upperBound, lowerBoundSymbol, upperBoundSymbol)\
+		(std::string(#value) + " = " + std::to_string(value) + ", asserted to be in range = " + \
+		lowerBoundSymbol + std::to_string(lowerBound) + ", " + std::to_string(upperBound) + upperBoundSymbol)
+
 #else
 	#define PH_ASSERT_MSG(condition, message)
+	#define PH_INTERNAL_RANGE_MSG(value, lowerBound, upperBound, lowerBoundSymbol, upperBoundSymbol)
 #endif
 
 #define PH_ASSERT(condition)\
@@ -59,3 +62,21 @@
 
 #define PH_ASSERT_LE(a, b)\
 	PH_ASSERT_MSG(a <= b, std::string(#a) + " = " + std::to_string(a) + ", " + #b + " = " + std::to_string(b))
+
+/*
+	Asserting that <value> is within [<begin>, <end>).
+*/
+#define PH_ASSERT_IN_RANGE(value, begin, end)\
+	PH_ASSERT_MSG(begin <= value && value < end, PH_INTERNAL_RANGE_MSG(value, begin, end, "[", ")"))
+
+/*
+	Similar to PH_ASSERT_IN_RANGE(3), except the bounds are inclusive.
+*/
+#define PH_ASSERT_IN_RANGE_INCLUSIVE(value, lowerBound, upperBound)\
+	PH_ASSERT_MSG(lowerBound <= value && value <= upperBound, PH_INTERNAL_RANGE_MSG(value, lowerBound, upperBound, "[", "]"))
+
+/*
+	Similar to PH_ASSERT_IN_RANGE(3), except the bounds are exclusive.
+*/
+#define PH_ASSERT_IN_RANGE_EXCLUSIVE(value, lowerBound, upperBound)\
+	PH_ASSERT_MSG(lowerBound < value && value < upperBound, PH_INTERNAL_RANGE_MSG(value, lowerBound, upperBound, "(", ")"))

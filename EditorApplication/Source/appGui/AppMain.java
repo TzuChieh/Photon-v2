@@ -1,6 +1,13 @@
 package appGui;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.zip.GZIPInputStream;
+
+import com.sun.javafx.application.LauncherImpl;
 
 import appModel.EditorApp;
 import javafx.application.Application;
@@ -8,10 +15,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import sun.misc.IOUtils;
+import util.minecraft.MCAParser;
+import util.minecraft.NBTData;
+import util.minecraft.NBTParser;
 
 public class AppMain extends Application
 {
-	private static final EditorApp editorApp = new EditorApp();
+	private EditorApp m_editorApp;
 	
 //	private static final OutputStream consoleOutputStream = new OutputStream()
 //	{
@@ -38,13 +49,48 @@ public class AppMain extends Application
 	
 	public static void main(String[] args)
 	{
-		Application.launch(args);
+		//Application.launch(args);
+		
+		// FIXME: use the standard way
+		LauncherImpl.launchApplication(AppMain.class, AppPreloader.class, args);
+	}
+	
+	@Override
+	public void init() throws Exception
+	{
+		m_editorApp = new EditorApp();
+		
+		// DEBUG
+		
+//		GZIPInputStream input = new GZIPInputStream(new FileInputStream("./level.dat"));
+//		NBTParser parser = new NBTParser(input);
+//		NBTData data = parser.getData();
+//		System.out.println(data);
+		
+//		GZIPInputStream input2 = new GZIPInputStream(new FileInputStream("./level.dat"));
+//		FileOutputStream output2 = new FileOutputStream("./level_decompressed.dat");
+//		byte[] buffer = new byte[1024];
+//		while(input2.available() == 1)
+//		{
+//			int read = input2.read(buffer);
+//			if(read != -1)
+//				output2.write(buffer, 0, read);
+//		}
+//		output2.close();
+		
+		
+//		InputStream input = new FileInputStream("./r.0.-1.mca");
+//		InputStream input = new FileInputStream("./r.0.0.mca");
+//		MCAParser parser = new MCAParser(input);
+		
+		
+//		System.exit(0);
 	}
 
 	@Override
 	public void start(Stage primaryStage) throws Exception
 	{
-		editorApp.create();
+		m_editorApp.create();
 		
 //		System.setOut(new PrintStream(consoleOutputStream, true));
 //		System.setErr(new PrintStream(consoleOutputStream, true));
@@ -54,11 +100,11 @@ public class AppMain extends Application
 		Parent      appMainView = fxmlLoader.load();
 		AppMainCtrl appMainCtrl = fxmlLoader.getController();
 		
-		appMainCtrl.setEditorApp(editorApp);
+		appMainCtrl.setEditorApp(m_editorApp);
 		appMainCtrl.createNewProject("(default project)");
 		appMainCtrl.setWorkbenchAsEditorView();
 		
-		Scene scene = new Scene(appMainView, 1280,	680);
+		Scene scene = new Scene(appMainView, 1280, 680);
 		
 		// Overrides this attribute to a dark color to get a dark theme.
 		// (many colors in default .css are dependent on this attribute)
@@ -77,6 +123,6 @@ public class AppMain extends Application
 		System.setOut(originalOut);
 		System.setErr(originalErr);
 		
-		editorApp.decompose();
+		m_editorApp.decompose();
 	}
 }

@@ -1,6 +1,7 @@
 from InterfaceParser import InterfaceParser
 from RawGenerator.RawGenerator import RawGenerator
 from PythonGenerator.PythonGenerator import PythonGenerator
+from JavaGenerator.JavaGenerator import JavaGenerator
 
 import os
 import sys
@@ -8,7 +9,8 @@ import sys
 
 AVAILABLE_GENERATORS = [
 	RawGenerator,
-	PythonGenerator
+	PythonGenerator,
+	JavaGenerator
 ]
 
 print("available generators: ")
