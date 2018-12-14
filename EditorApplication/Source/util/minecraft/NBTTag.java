@@ -38,6 +38,8 @@ public abstract class NBTTag
 		String tagName = BinaryData.readStringUTF8(numNameBytes, rawData);
 		setName(tagName);
 		
+		System.err.println(tagName.length());
+		
 		m_numPayloadBytes = setPayload(rawData);
 		m_numTagBytes = 
 			NUM_ID_BYTES + 

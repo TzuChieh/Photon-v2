@@ -33,6 +33,7 @@ public class StringTag extends NBTTag
 	@Override
 	public String toString()
 	{
-		return "String: " + getName() + " <" + m_data + ">";
+		//return "String: " + getName() + " <" + m_data + ">";
+		return "String: " + getName();
 	}
 }

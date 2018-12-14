@@ -6,13 +6,11 @@
 
 	#include <iostream>
 	#include <string>
-	#include <cstdlib>
 
-	#ifdef PH_ABORT_ON_ASSERTION_FAILED
-		#define PH_INTERNAL_ON_ASSERTION_FAILED() std::abort()
-	#else
-		#define PH_INTERNAL_ON_ASSERTION_FAILED()
-	#endif
+	namespace ph
+	{
+		extern void on_assertion_failed();
+	}
 
 	#define PH_ASSERT_MSG(condition, message)\
 		do\
@@ -28,7 +26,7 @@
 				}\
 				std::cerr << std::endl;\
 				\
-				PH_INTERNAL_ON_ASSERTION_FAILED();\
+				ph::on_assertion_failed();\
 			}\
 		} while(0)
 
