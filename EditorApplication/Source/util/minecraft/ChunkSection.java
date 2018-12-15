@@ -21,6 +21,11 @@ public class ChunkSection
 		m_blockIndices    = new short[SIZE_Y][SIZE_Z][SIZE_X];
 	}
 	
+	public int numBlockTypes()
+	{
+		return m_blockIdNames.size();
+	}
+	
 	public void addBlock(String blockIdName, Map<String, String> stateProperties)
 	{
 		m_blockIdNames.add(blockIdName);

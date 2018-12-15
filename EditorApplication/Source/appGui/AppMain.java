@@ -80,11 +80,11 @@ public class AppMain extends Application
 		
 		
 //		InputStream input = new FileInputStream("./r.0.-1.mca");
-//		InputStream input = new FileInputStream("./r.0.0.mca");
-//		MCAParser parser = new MCAParser(input);
+		InputStream input = new FileInputStream("./r.0.0.mca");
+		MCAParser parser = new MCAParser(input);
 		
 		
-//		System.exit(0);
+		System.exit(0);
 	}
 
 	@Override

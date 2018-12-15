@@ -57,4 +57,19 @@ public class ChunkData
 	{
 		m_sections[sectionIndex] = section;
 	}
+	
+	@Override
+	public String toString()
+	{
+		int numSectionData = 0;
+		for(ChunkSection data : m_sections)
+		{
+			if(data != null)
+			{
+				++numSectionData;
+			}
+		}
+		
+		return "Chunk Data @ (" + m_chunkX + ", " + m_chunkZ + "), contains " + numSectionData + " section data";
+	}
 }

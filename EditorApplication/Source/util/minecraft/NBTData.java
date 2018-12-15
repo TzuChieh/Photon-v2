@@ -1,5 +1,6 @@
 package util.minecraft;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,6 +58,11 @@ public class NBTData
 	public boolean hasTag(String name)
 	{
 		return m_tags.containsKey(name);
+	}
+	
+	public Collection<NBTTag> getTags()
+	{
+		return m_tags.values();
 	}
 	
 	@Override

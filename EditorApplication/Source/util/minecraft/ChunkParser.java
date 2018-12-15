@@ -3,7 +3,9 @@ package util.minecraft;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -52,7 +54,7 @@ public class ChunkParser
 		return chunk;
 	}
 	
-	private ChunkData parseChunkNBT(NBTData data)
+	private static ChunkData parseChunkNBT(NBTData data)
 	{
 		NBTData root  = data.get("");
 		NBTData level = root.get("Level");
@@ -65,26 +67,89 @@ public class ChunkParser
 		List<NBTData> sections = level.get("Sections");
 		for(NBTData section : sections)
 		{
-			byte y = section.get("Y");
-			List<NBTData> palette = section.get("Palette");
+			ChunkSection chunkSection = new ChunkSection();
 			
-			for(NBTData blockStates : palette)
+			List<NBTData> palette = section.get("Palette");
+			for(NBTData block : palette)
 			{
-				String blockIdName = blockStates.get("Name");
+				String blockIdName = block.get("Name");
 				
-				System.out.println(blockIdName);
-				
-				if(blockStates.hasTag("Properties"))
+				Map<String, String> stateProperties = null;
+				if(block.hasTag("Properties"))
 				{
-					NBTData stateProperties = blockStates.get("Properties");
-					System.out.println(stateProperties);
+					stateProperties = new HashMap<>();
+					NBTData properties = block.get("Properties");
+					for(NBTTag property : properties.getTags())
+					{
+						stateProperties.put(property.getName(), property.getPayload());
+					}
 				}
 				
+				chunkSection.addBlock(blockIdName, stateProperties);
 			}
+			
+			long[] blockStates = section.get("BlockStates");
+			parseBlockIndices(blockStates, numBitsNeeded(chunkSection.numBlockTypes()), chunkSection);
+			
+			byte y = section.get("Y");
+			chunkData.setSection(y, chunkSection);
 		}
 		
-		System.err.println("x: " + xPos + ", z: " + zPos);
-		
 		return chunkData;
+	}
+	
+	private static void parseBlockIndices(long[] indexData, int numIndexBits, ChunkSection out_section)
+	{
+		// Minumum: 4 bits; The maximum should be 12 since each section has at
+		// most 16^3=4096 blocks. (if every block is unique, then we will need
+		// 4096=2^12 palette entries)
+		assert(4 <= numIndexBits && numIndexBits <= 12);
+		
+		short[][] layer = new short[ChunkSection.SIZE_Z][ChunkSection.SIZE_X];
+		int bitHead = 0;
+		
+		for(int y = 0; y < ChunkSection.SIZE_Y; ++y)
+		{
+			for(int z = 0; z < ChunkSection.SIZE_Z; ++z)
+			{
+				for(int x = 0; x < ChunkSection.SIZE_X; ++x)
+				{
+					int dataIndex = bitHead / Long.SIZE;
+					int startBit  = bitHead - dataIndex * Long.SIZE;
+					int endBit    = startBit + numIndexBits;
+					
+					short index = 0;
+					if(endBit <= Long.SIZE)
+					{
+						index = (short)((indexData[dataIndex] >> startBit) & bitMask(numIndexBits));
+					}
+					else
+					{
+						long data0       = indexData[dataIndex];
+						long data1       = indexData[dataIndex + 1];
+						int  bitsInData0 = Long.SIZE - startBit;
+						int  bitsInData1 = endBit - Long.SIZE;
+						
+						index |= (short)((data0 >> startBit) & bitMask(bitsInData0));
+						index |= (short)((data1 & bitMask(bitsInData1)) << bitsInData0);
+					}
+					layer[z][x] = index;
+					
+					bitHead += numIndexBits;
+				}
+			}
+			
+			out_section.setLayer(y, layer);
+		}
+	}
+	
+	private static int bitMask(int numBits)
+	{
+		return (1 << numBits) - 1;
+	}
+	
+	private static int numBitsNeeded(int number)
+	{
+		return Integer.SIZE - Integer.numberOfLeadingZeros(number);
 	}
 }

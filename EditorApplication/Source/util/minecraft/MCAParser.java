@@ -25,8 +25,6 @@ public class MCAParser
 			{
 				for(int chunkX = 0; chunkX < 32; ++chunkX)
 				{
-//					System.out.println("x: " + chunkX + ", z: " + chunkZ);
-					
 					int offset = 4 * (chunkZ * 32 + chunkX);
 					int num4KiBOffsets = 
 						((header[offset]     & 0xFF) << 16) | 
@@ -44,6 +42,8 @@ public class MCAParser
 					int chunkSize       = num4KiBSectors * 4096;
 					ByteArrayInputStream chunkData = new ByteArrayInputStream(remaining, chunkDataOffset, chunkSize);
 					m_chunks[chunkZ][chunkX] = chunkParser.parse(chunkData);
+					
+					System.err.println(m_chunks[chunkZ][chunkX]);
 				}
 			}
 		}
