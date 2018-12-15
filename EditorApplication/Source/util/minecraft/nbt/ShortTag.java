@@ -1,20 +1,22 @@
-package util.minecraft;
+package util.minecraft.nbt;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ByteTag extends NBTTag
+import util.BinaryData;
+
+public class ShortTag extends NBTTag
 {
-	private byte m_value;
+	private short m_value;
 	
-	public ByteTag()
+	public ShortTag()
 	{
 		m_value = 0;
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public Byte getPayload()
+	public Short getPayload()
 	{
 		return m_value;
 	}
@@ -22,14 +24,14 @@ public class ByteTag extends NBTTag
 	@Override
 	public int setPayload(InputStream rawData) throws IOException
 	{
-		m_value = (byte)rawData.read();
+		m_value = BinaryData.readShort(rawData);
 		
-		return Byte.BYTES;
+		return Short.BYTES;
 	}
 	
 	@Override
 	public String toString()
 	{
-		return "Byte: " + getName() + " <" + m_value + ">";
+		return "Short: " + getName() + " <" + m_value + ">";
 	}
 }

@@ -4,9 +4,9 @@ public class ChunkData
 {
 	public static final int NUM_SECTIONS = 16;
 	
-	private int            m_chunkX;
-	private int            m_chunkZ;
-	private ChunkSection[] m_sections;
+	private int           m_chunkX;
+	private int           m_chunkZ;
+	private SectionData[] m_sections;
 	
 	/**
 	 * Creates a data block representing a chunk.
@@ -17,7 +17,7 @@ public class ChunkData
 	{
 		m_chunkX   = chunkX;
 		m_chunkZ   = chunkZ;
-		m_sections = new ChunkSection[NUM_SECTIONS];
+		m_sections = new SectionData[NUM_SECTIONS];
 	}
 	
 	/**
@@ -43,7 +43,7 @@ public class ChunkData
 	 * @param sectionIndex Index of the section to get, ranging from 0 to 15 (bottom to top).
 	 * @return The section data.
 	 */
-	public ChunkSection getSection(int sectionIndex)
+	public SectionData getSection(int sectionIndex)
 	{
 		return m_sections[sectionIndex];
 	}
@@ -53,7 +53,7 @@ public class ChunkData
 	 * @param sectionIndex Index of the section to set, ranging from 0 to 15 (bottom to top).
 	 * @param section Data describing the section.
 	 */
-	public void setSection(int sectionIndex, ChunkSection section)
+	public void setSection(int sectionIndex, SectionData section)
 	{
 		m_sections[sectionIndex] = section;
 	}
@@ -62,7 +62,7 @@ public class ChunkData
 	public String toString()
 	{
 		int numSectionData = 0;
-		for(ChunkSection data : m_sections)
+		for(SectionData data : m_sections)
 		{
 			if(data != null)
 			{

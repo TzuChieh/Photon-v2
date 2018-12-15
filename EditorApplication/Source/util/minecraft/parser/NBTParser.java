@@ -1,7 +1,10 @@
-package util.minecraft;
+package util.minecraft.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import util.minecraft.nbt.CompoundTag;
+import util.minecraft.nbt.NBTData;
 
 public class NBTParser
 {

@@ -1,4 +1,4 @@
-package util.minecraft;
+package util.minecraft.nbt;
 
 import java.util.Collection;
 import java.util.HashMap;

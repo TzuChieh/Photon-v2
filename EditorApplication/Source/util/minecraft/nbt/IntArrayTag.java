@@ -1,22 +1,22 @@
-package util.minecraft;
+package util.minecraft.nbt;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import util.BinaryData;
 
-public class LongArrayTag extends NBTTag
+public class IntArrayTag extends NBTTag
 {
-	private long[] m_array;
+	private int[] m_array;
 	
-	public LongArrayTag()
+	public IntArrayTag()
 	{
 		m_array = null;
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public long[] getPayload()
+	public int[] getPayload()
 	{
 		return m_array;
 	}
@@ -25,8 +25,8 @@ public class LongArrayTag extends NBTTag
 	public int setPayload(InputStream rawData) throws IOException
 	{
 		int size = BinaryData.readInt(rawData);
-		m_array = BinaryData.readLongArray(size, rawData);
+		m_array = BinaryData.readIntArray(size, rawData);
 		
-		return size * Long.BYTES + Integer.BYTES;
+		return size * Integer.BYTES + 4;
 	}
 }

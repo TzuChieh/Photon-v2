@@ -16,9 +16,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import sun.misc.IOUtils;
-import util.minecraft.MCAParser;
-import util.minecraft.NBTData;
-import util.minecraft.NBTParser;
+import util.minecraft.RegionData;
+import util.minecraft.nbt.NBTData;
+import util.minecraft.parser.MCAParser;
+import util.minecraft.parser.NBTParser;
 
 public class AppMain extends Application
 {
@@ -81,8 +82,9 @@ public class AppMain extends Application
 		
 //		InputStream input = new FileInputStream("./r.0.-1.mca");
 		InputStream input = new FileInputStream("./r.0.0.mca");
-		MCAParser parser = new MCAParser(input);
-		
+		MCAParser parser = new MCAParser();
+		RegionData region = parser.parse(input);
+		System.err.println(region);
 		
 		System.exit(0);
 	}

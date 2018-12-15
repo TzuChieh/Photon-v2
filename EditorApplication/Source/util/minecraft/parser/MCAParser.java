@@ -1,24 +1,35 @@
-package util.minecraft;
+package util.minecraft.parser;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import util.BinaryData;
+import util.minecraft.RegionData;
 
 public class MCAParser
 {
 	private static final int NUM_HEADER_BYTES = 8192;
 	
-	private ChunkData[][] m_chunks;
+	private ChunkParser m_chunkParser;
 	
-	public MCAParser(InputStream rawData)
+	public MCAParser()
 	{
-		m_chunks = new ChunkData[32][32];
-		
-		ChunkParser chunkParser = new ChunkParser();
+		m_chunkParser = new ChunkParser();
+	}
+	
+	public RegionData parse(InputStream rawData)
+	{
+		return parse(0, 0, rawData);
+	}
+	
+	public RegionData parse(int regionX, int regionZ, InputStream rawData)
+	{
+		RegionData region = null;
 		try
 		{
+			region = new RegionData(regionX, regionZ);
+			
 			byte[] header    = BinaryData.readByteArray(NUM_HEADER_BYTES, rawData);
 			byte[] remaining = BinaryData.readAll(rawData);
 			for(int chunkZ = 0; chunkZ < 32; ++chunkZ)
@@ -41,9 +52,7 @@ public class MCAParser
 					int chunkDataOffset = (num4KiBOffsets - 2) * 4096;
 					int chunkSize       = num4KiBSectors * 4096;
 					ByteArrayInputStream chunkData = new ByteArrayInputStream(remaining, chunkDataOffset, chunkSize);
-					m_chunks[chunkZ][chunkX] = chunkParser.parse(chunkData);
-					
-					System.err.println(m_chunks[chunkZ][chunkX]);
+					region.setChunk(chunkX, chunkZ, m_chunkParser.parse(chunkData));
 				}
 			}
 		}
@@ -52,5 +61,7 @@ public class MCAParser
 			System.err.println("error parsing MCA, parsed data may be corrupted");
 			e.printStackTrace();
 		}
+		
+		return region;
 	}
 }

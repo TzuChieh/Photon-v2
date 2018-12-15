@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ChunkSection
+public class SectionData
 {
 	public static final int SIZE_X = 16;
 	public static final int SIZE_Y = 16;
@@ -14,7 +14,7 @@ public class ChunkSection
 	private List<Map<String, String>> m_stateProperties;
 	private short[][][]               m_blockIndices;
 	
-	public ChunkSection()
+	public SectionData()
 	{
 		m_blockIdNames    = new ArrayList<>();
 		m_stateProperties = new ArrayList<>();

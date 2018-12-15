@@ -1,4 +1,4 @@
-package util.minecraft;
+package util.minecraft.parser;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -10,6 +10,10 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
 import util.BinaryData;
+import util.minecraft.ChunkData;
+import util.minecraft.SectionData;
+import util.minecraft.nbt.NBTData;
+import util.minecraft.nbt.NBTTag;
 
 public class ChunkParser
 {
@@ -19,7 +23,6 @@ public class ChunkParser
 	public ChunkData parse(InputStream rawData)
 	{
 		ChunkData chunk = null;
-		
 		try
 		{
 			int    numBytes        = BinaryData.readInt(rawData);
@@ -67,7 +70,7 @@ public class ChunkParser
 		List<NBTData> sections = level.get("Sections");
 		for(NBTData section : sections)
 		{
-			ChunkSection chunkSection = new ChunkSection();
+			SectionData chunkSection = new SectionData();
 			
 			List<NBTData> palette = section.get("Palette");
 			for(NBTData block : palette)
@@ -99,21 +102,21 @@ public class ChunkParser
 		return chunkData;
 	}
 	
-	private static void parseBlockIndices(long[] indexData, int numIndexBits, ChunkSection out_section)
+	private static void parseBlockIndices(long[] indexData, int numIndexBits, SectionData out_section)
 	{
 		// Minumum: 4 bits; The maximum should be 12 since each section has at
 		// most 16^3=4096 blocks. (if every block is unique, then we will need
 		// 4096=2^12 palette entries)
 		assert(4 <= numIndexBits && numIndexBits <= 12);
 		
-		short[][] layer = new short[ChunkSection.SIZE_Z][ChunkSection.SIZE_X];
+		short[][] layer = new short[SectionData.SIZE_Z][SectionData.SIZE_X];
 		int bitHead = 0;
 		
-		for(int y = 0; y < ChunkSection.SIZE_Y; ++y)
+		for(int y = 0; y < SectionData.SIZE_Y; ++y)
 		{
-			for(int z = 0; z < ChunkSection.SIZE_Z; ++z)
+			for(int z = 0; z < SectionData.SIZE_Z; ++z)
 			{
-				for(int x = 0; x < ChunkSection.SIZE_X; ++x)
+				for(int x = 0; x < SectionData.SIZE_X; ++x)
 				{
 					int dataIndex = bitHead / Long.SIZE;
 					int startBit  = bitHead - dataIndex * Long.SIZE;
