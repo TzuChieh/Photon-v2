@@ -29,4 +29,10 @@ public class ByteArrayTag extends NBTTag
 		
 		return size + 4;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "Byte Array: " + getName() + " <" + m_array + ">";
+	}
 }

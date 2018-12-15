@@ -84,7 +84,7 @@ public class AppMain extends Application
 //		MCAParser parser = new MCAParser(input);
 		
 		
-//		System.exit(0);
+		System.exit(0);
 	}
 
 	@Override

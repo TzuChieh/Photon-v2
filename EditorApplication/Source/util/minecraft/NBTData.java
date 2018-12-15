@@ -39,6 +39,11 @@ public class NBTData
 		m_tags.put(tag.getName(), tag);
 	}
 	
+	public boolean has(String name)
+	{
+		return m_tags.containsKey(name);
+	}
+	
 	@Override
 	public String toString()
 	{

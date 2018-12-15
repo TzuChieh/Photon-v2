@@ -25,7 +25,7 @@ public class MCAParser
 			{
 				for(int chunkX = 0; chunkX < 32; ++chunkX)
 				{
-					System.out.println("x: " + chunkX + ", z: " + chunkZ);
+//					System.out.println("x: " + chunkX + ", z: " + chunkZ);
 					
 					int offset = 4 * (chunkZ * 32 + chunkX);
 					int num4KiBOffsets = 

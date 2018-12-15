@@ -3,6 +3,7 @@ package util.minecraft;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -53,10 +54,37 @@ public class ChunkParser
 	
 	private ChunkData parseChunkNBT(NBTData data)
 	{
-		// TODO
+		NBTData root  = data.get("").getPayload();
+		NBTData level = root.get("Level").getPayload();
 		
-		System.out.println(data);
+		int xPos = level.get("xPos").getPayload();
+		int zPos = level.get("zPos").getPayload();
 		
-		return new ChunkData();
+		ChunkData chunkData = new ChunkData(xPos, zPos);
+		
+		List<NBTData> sections = level.get("Sections").getPayload();
+		for(NBTData section : sections)
+		{
+			byte y = section.get("Y").getPayload();
+			List<NBTData> palette = section.get("Palette").getPayload();
+			
+			for(NBTData blockStates : palette)
+			{
+				String blockIdName = blockStates.get("Name").getPayload();
+				
+				System.out.println(blockIdName);
+				
+				if(blockStates.has("Properties"))
+				{
+					NBTData stateProperties = blockStates.get("Properties").getPayload();
+					System.out.println(stateProperties);
+				}
+				
+			}
+		}
+		
+		System.err.println("x: " + xPos + ", z: " + zPos);
+		
+		return chunkData;
 	}
 }
