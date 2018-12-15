@@ -89,7 +89,8 @@ public class ChunkParser
 			}
 			
 			long[] blockStates = section.get("BlockStates");
-			parseBlockIndices(blockStates, numBitsNeeded(chunkSection.numBlockTypes()), chunkSection);
+			int numIndexBits = Math.max(numBitsNeeded(chunkSection.numBlockTypes() - 1), 4);
+			parseBlockIndices(blockStates, numIndexBits, chunkSection);
 			
 			byte y = section.get("Y");
 			chunkData.setSection(y, chunkSection);
@@ -133,6 +134,7 @@ public class ChunkParser
 						index |= (short)((data0 >> startBit) & bitMask(bitsInData0));
 						index |= (short)((data1 & bitMask(bitsInData1)) << bitsInData0);
 					}
+					assert(numBitsNeeded(index) <= numIndexBits);
 					layer[z][x] = index;
 					
 					bitHead += numIndexBits;

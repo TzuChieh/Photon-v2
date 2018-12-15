@@ -27,7 +27,7 @@ public class StringTag extends NBTTag
 		short numStringBytes = BinaryData.readShort(rawData);
 		m_data = BinaryData.readStringUTF8(numStringBytes, rawData);
 		
-		return numStringBytes + 2;
+		return numStringBytes + Short.BYTES;
 	}
 	
 	@Override

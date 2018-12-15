@@ -23,8 +23,8 @@ public abstract class NBTTag
 	
 	public NBTTag fromRawData(InputStream rawData) throws IOException
 	{
-		final int NUM_ID_BYTES          = 1;
-		final int NUM_NAME_LENGTH_BYTES = 2;
+		final int NUM_ID_BYTES          = Byte.BYTES;
+		final int NUM_NAME_LENGTH_BYTES = Short.BYTES;
 		
 		if(this instanceof EndTag)
 		{
