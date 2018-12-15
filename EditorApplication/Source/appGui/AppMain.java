@@ -1,6 +1,7 @@
 package appGui;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -80,10 +81,9 @@ public class AppMain extends Application
 //		output2.close();
 		
 		
-//		InputStream input = new FileInputStream("./r.0.-1.mca");
-		InputStream input = new FileInputStream("./r.0.0.mca");
 		MCAParser parser = new MCAParser();
-		RegionData region = parser.parse(input);
+//		RegionData region = parser.parse(new File("./r.1.2.mca"));
+		RegionData region = parser.parse(new File("./r.0.0.mca"));
 		System.err.println(region);
 		
 		System.exit(0);
