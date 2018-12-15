@@ -66,7 +66,7 @@ public class CompoundTag extends NBTTag
 			{
 				tag.fromRawData(rawData);
 				numPayloadBytes += tag.numTagBytes();
-				m_data.add(tag);
+				m_data.addTag(tag);
 			}
 		}
 		

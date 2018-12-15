@@ -54,29 +54,29 @@ public class ChunkParser
 	
 	private ChunkData parseChunkNBT(NBTData data)
 	{
-		NBTData root  = data.get("").getPayload();
-		NBTData level = root.get("Level").getPayload();
+		NBTData root  = data.get("");
+		NBTData level = root.get("Level");
 		
-		int xPos = level.get("xPos").getPayload();
-		int zPos = level.get("zPos").getPayload();
+		int xPos = level.get("xPos");
+		int zPos = level.get("zPos");
 		
 		ChunkData chunkData = new ChunkData(xPos, zPos);
 		
-		List<NBTData> sections = level.get("Sections").getPayload();
+		List<NBTData> sections = level.get("Sections");
 		for(NBTData section : sections)
 		{
-			byte y = section.get("Y").getPayload();
-			List<NBTData> palette = section.get("Palette").getPayload();
+			byte y = section.get("Y");
+			List<NBTData> palette = section.get("Palette");
 			
 			for(NBTData blockStates : palette)
 			{
-				String blockIdName = blockStates.get("Name").getPayload();
+				String blockIdName = blockStates.get("Name");
 				
 				System.out.println(blockIdName);
 				
-				if(blockStates.has("Properties"))
+				if(blockStates.hasTag("Properties"))
 				{
-					NBTData stateProperties = blockStates.get("Properties").getPayload();
+					NBTData stateProperties = blockStates.get("Properties");
 					System.out.println(stateProperties);
 				}
 				

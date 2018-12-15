@@ -12,8 +12,23 @@ public class NBTData
 		m_tags = new HashMap<>();
 	}
 	
+	/**
+	 * Gets a tag's payload.
+	 * @param name Name of the tag.
+	 * @return The payload of the target tag.
+	 */
+	public <T> T get(String name)
+	{
+		return getTag(name).getPayload();
+	}
+	
+	/**
+	 * Gets a NBT tag.
+	 * @param name Name of the tag.
+	 * @return The tag with the specified name. Returns null if tag is not found.
+	 */
 	@SuppressWarnings("unchecked")
-	public <T extends NBTTag> T get(String name)
+	public <T extends NBTTag> T getTag(String name)
 	{
 		if(!m_tags.containsKey(name))
 		{
@@ -23,7 +38,7 @@ public class NBTData
 		return (T)m_tags.get(name);
 	}
 	
-	public <T extends NBTTag> void add(T tag)
+	public <T extends NBTTag> void addTag(T tag)
 	{
 		if(m_tags.containsKey(tag.getName()))
 		{
@@ -39,7 +54,7 @@ public class NBTData
 		m_tags.put(tag.getName(), tag);
 	}
 	
-	public boolean has(String name)
+	public boolean hasTag(String name)
 	{
 		return m_tags.containsKey(name);
 	}
