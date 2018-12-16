@@ -20,6 +20,13 @@ public class ChunkParser
 	private static final int GZIP = 1;
 	private static final int ZLIB = 2;
 	
+	private NBTParser m_nbtParser;
+	
+	public ChunkParser()
+	{
+		m_nbtParser = new NBTParser();
+	}
+	
 	public ChunkData parse(InputStream rawData)
 	{
 		ChunkData chunk = null;
@@ -46,7 +53,7 @@ public class ChunkParser
 				decompressedChunk = new ByteArrayInputStream(compressedChunk);
 			}
 			
-			chunk = parseChunkNBT(new NBTParser(decompressedChunk).getData());
+			chunk = parseChunkNBT(m_nbtParser.parse(decompressedChunk));
 		}
 		catch(IOException e)
 		{
@@ -92,8 +99,7 @@ public class ChunkParser
 			}
 			
 			long[] blockStates = section.get("BlockStates");
-			int numIndexBits = Math.max(numBitsNeeded(chunkSection.numBlockTypes() - 1), 4);
-			parseBlockIndices(blockStates, numIndexBits, chunkSection);
+			parseBlockIndices(blockStates, chunkSection.numBlockTypes(), chunkSection);
 			
 			byte y = section.get("Y");
 			chunkData.setSection(y, chunkSection);
@@ -102,8 +108,10 @@ public class ChunkParser
 		return chunkData;
 	}
 	
-	private static void parseBlockIndices(long[] indexData, int numIndexBits, SectionData out_section)
+	private static void parseBlockIndices(long[] indexData, int numBlockTypes, SectionData out_section)
 	{
+		final int numIndexBits = Math.max(numBitsNeeded(numBlockTypes - 1), 4);
+		
 		// Minumum: 4 bits; The maximum should be 12 since each section has at
 		// most 16^3=4096 blocks. (if every block is unique, then we will need
 		// 4096=2^12 palette entries)
@@ -137,7 +145,7 @@ public class ChunkParser
 						index |= (short)((data0 >> startBit) & bitMask(bitsInData0));
 						index |= (short)((data1 & bitMask(bitsInData1)) << bitsInData0);
 					}
-					assert(numBitsNeeded(index) <= numIndexBits);
+					assert(index < numBlockTypes);
 					layer[z][x] = index;
 					
 					bitHead += numIndexBits;

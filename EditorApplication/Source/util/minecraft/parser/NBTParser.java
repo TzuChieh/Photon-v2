@@ -8,16 +8,17 @@ import util.minecraft.nbt.NBTData;
 
 public class NBTParser
 {
-	private NBTData m_data;
+	public NBTParser()
+	{}
 	
-	public NBTParser(InputStream rawData)
+	public NBTData parse(InputStream rawData)
 	{
 		// treating the file itself as a compound tag
 		CompoundTag fileTag = new CompoundTag();
 		
-		// the content of the file is its payload
 		try
 		{
+			// the content of the file is its payload
 			fileTag.setPayload(rawData);
 		}
 		catch(IOException e)
@@ -26,11 +27,6 @@ public class NBTParser
 			e.printStackTrace();
 		}
 		
-		m_data = fileTag.getPayload();
-	}
-	
-	public NBTData getData()
-	{
-		return m_data;
+		return fileTag.getPayload();
 	}
 }
