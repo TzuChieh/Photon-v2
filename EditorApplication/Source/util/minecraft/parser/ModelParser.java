@@ -3,7 +3,7 @@ package util.minecraft.parser;
 import java.io.InputStream;
 
 import util.Vector3f;
-import util.minecraft.CubicElement;
+import util.minecraft.CuboidElement;
 import util.minecraft.JSONObject;
 import util.minecraft.ModelData;
 

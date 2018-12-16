@@ -9,6 +9,7 @@
 #include "Actor/Geometry/GTriangleMesh.h"
 #include "Actor/Geometry/GMengerSponge.h"
 #include "Actor/Geometry/GInfiniteSphere.h"
+#include "Actor/Geometry/GCuboid.h"
 
 // materials
 #include "Actor/Material/Material.h"
@@ -107,6 +108,7 @@ bool init_command_parser()
 	register_command_interface<GTriangleMesh>();
 	register_command_interface<GMengerSponge>();
 	register_command_interface<GInfiniteSphere>();
+	register_command_interface<GCuboid>();
 
 	// materials
 	register_command_interface<Material>();

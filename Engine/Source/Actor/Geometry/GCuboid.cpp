@@ -5,9 +5,11 @@
 #include "Actor/AModel.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Common/assertion.h"
+#include "FileIO/SDL/InputPacket.h"
 
 #include <cmath>
 #include <iostream>
+#include <memory>
 
 namespace ph
 {
@@ -48,8 +50,6 @@ GCuboid::GCuboid(const GCuboid& other) :
 	m_zLen(other.m_zLen), 
 	m_offset(other.m_offset)
 {}
-
-GCuboid::~GCuboid() = default;
 
 void GCuboid::genPrimitive(const PrimitiveBuildingMaterial& data,
                            std::vector<std::unique_ptr<Primitive>>& out_primitives) const
@@ -121,6 +121,24 @@ bool GCuboid::checkData(const PrimitiveBuildingMaterial& data, const real xLen, 
 	}
 
 	return true;
+}
+
+// command interface
+
+SdlTypeInfo GCuboid::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "cuboid");
+}
+
+void GCuboid::ciRegister(CommandRegister& cmdRegister)
+{
+	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
+	{
+		const Vector3R minVertex = packet.getVector3("min-vertex", Vector3R(), DataTreatment::REQUIRED());
+		const Vector3R maxVertex = packet.getVector3("max-vertex", Vector3R(), DataTreatment::REQUIRED());
+
+		return std::make_unique<GCuboid>(minVertex, maxVertex);
+	}));
 }
 
 }// end namespace ph

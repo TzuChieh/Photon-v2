@@ -2,7 +2,7 @@ package util.minecraft;
 
 import util.Vector3f;
 
-public class CubicElement
+public class CuboidElement
 {
 	private static final int NUM_FACES = EFacing.values().length;
 	
@@ -15,12 +15,12 @@ public class CubicElement
 	
 	private Face[]   m_faces;
 	
-	public CubicElement()
+	public CuboidElement()
 	{
 		this(new Vector3f(0), new Vector3f(0));
 	}
 	
-	public CubicElement(Vector3f from, Vector3f to)
+	public CuboidElement(Vector3f from, Vector3f to)
 	{
 		m_from = from;
 		m_to   = to;
