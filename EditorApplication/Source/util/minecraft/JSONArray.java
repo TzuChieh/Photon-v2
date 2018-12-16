@@ -3,7 +3,6 @@ package util.minecraft;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 public class JSONArray implements Iterable<Object>
 {

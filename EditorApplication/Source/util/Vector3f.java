@@ -1,4 +1,4 @@
-package photonApi;
+package util;
 
 public class Vector3f
 {

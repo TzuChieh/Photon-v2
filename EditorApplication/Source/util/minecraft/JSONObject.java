@@ -3,8 +3,6 @@ package util.minecraft;
 import java.util.HashMap;
 import java.util.Map;
 
-import util.minecraft.nbt.NBTTag;
-
 public class JSONObject
 {
 	private Map<String, Object> m_nameToValues;
@@ -29,7 +27,7 @@ public class JSONObject
 		return (String)get(name);
 	}
 	
-	public JSONObject getObject(String name)
+	public JSONObject getChild(String name)
 	{
 		return (JSONObject)get(name);
 	}

@@ -26,6 +26,17 @@ public class SectionData
 		return m_blockIdNames.size();
 	}
 	
+	public String getBlockIdName(int index)
+	{
+		return m_blockIdNames.get(index);
+	}
+	
+	public String getBlockIdName(int x, int y, int z)
+	{
+		int referencedBlockIndex = m_blockIndices[y][z][x];
+		return getBlockIdName(referencedBlockIndex);
+	}
+	
 	public void addBlock(String blockIdName, Map<String, String> stateProperties)
 	{
 		m_blockIdNames.add(blockIdName);
