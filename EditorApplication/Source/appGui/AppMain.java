@@ -17,8 +17,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import sun.misc.IOUtils;
+import util.minecraft.JSONObject;
 import util.minecraft.RegionData;
 import util.minecraft.nbt.NBTData;
+import util.minecraft.parser.JSONParser;
 import util.minecraft.parser.MCAParser;
 import util.minecraft.parser.NBTParser;
 
@@ -81,10 +83,14 @@ public class AppMain extends Application
 //		output2.close();
 		
 		
-		MCAParser parser = new MCAParser();
-//		RegionData region = parser.parse(new File("./r.1.2.mca"));
-		RegionData region = parser.parse(new File("./r.0.0.mca"));
-		System.err.println(region);
+//		MCAParser parser = new MCAParser();
+////		RegionData region = parser.parse(new File("./r.1.2.mca"));
+//		RegionData region = parser.parse(new File("./r.0.0.mca"));
+//		System.err.println(region);
+		
+		JSONParser parser = new JSONParser();
+		JSONObject object = parser.parse(new FileInputStream("./birch_stairs.json"));
+		System.err.println(object);
 		
 		System.exit(0);
 	}

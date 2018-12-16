@@ -3,6 +3,7 @@ package util.minecraft;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class JSONArray implements Iterable<Object>
 {
@@ -57,5 +58,16 @@ public class JSONArray implements Iterable<Object>
 	public Iterator<Object> iterator()
 	{
 		return m_values.iterator();
+	}
+	
+	@Override
+	public String toString()
+	{
+		String result = "JSON Array: [\n";
+		for(int i = 0; i < m_values.size(); ++i)
+		{
+			result += i + ": <" + m_values.get(i).toString() + ">\n";
+		}
+		return result + "]";
 	}
 }

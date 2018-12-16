@@ -52,7 +52,7 @@ public class JSONParser
 		final int dataLength = data.length();
 		while(currentIndex < dataLength)
 		{
-			final int colonIndex = data.indexOf(':', currentIndex + 1);
+			final int colonIndex = data.indexOf(':', currentIndex);
 			assert(colonIndex != -1);
 			
 			String name = data.substring(currentIndex, colonIndex);
@@ -101,7 +101,7 @@ public class JSONParser
 				out_object.add(name, value);
 			}
 			
-			currentIndex = findValueDelimiter(data, currentIndex + 1);
+			currentIndex = findValueDelimiter(data, currentIndex);
 			if(data.charAt(currentIndex) == '}')
 			{
 				break;
@@ -168,13 +168,14 @@ public class JSONParser
 				out_array.add(value);
 			}
 			
-			currentIndex = findValueDelimiter(data, currentIndex + 1);
+			currentIndex = findValueDelimiter(data, currentIndex);
 			if(data.charAt(currentIndex) == ']')
 			{
 				break;
 			}
-			assert(data.charAt(currentIndex) == ',');
-			++currentIndex;
+			
+			assert(data.charAt(currentIndex) == ',') : "char is " + data.charAt(currentIndex);
+			currentIndex = findNonWhitespace(data, currentIndex + 1);
 		}
 		
 		return currentIndex;

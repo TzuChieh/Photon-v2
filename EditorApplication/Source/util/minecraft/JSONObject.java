@@ -3,6 +3,8 @@ package util.minecraft;
 import java.util.HashMap;
 import java.util.Map;
 
+import util.minecraft.nbt.NBTTag;
+
 public class JSONObject
 {
 	private Map<String, Object> m_nameToValues;
@@ -60,5 +62,16 @@ public class JSONObject
 	public boolean has(String name)
 	{
 		return m_nameToValues.containsKey(name);
+	}
+	
+	@Override
+	public String toString()
+	{
+		String result = "JSON Object: {\n";
+		for(Map.Entry<String, Object> entry : m_nameToValues.entrySet())
+		{
+			result += "name = <" + entry.getKey() + ">, value = <" + entry.getValue().toString() + ">\n";
+		}
+		return result + "}";
 	}
 }
