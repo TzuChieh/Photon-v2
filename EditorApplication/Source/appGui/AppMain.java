@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import com.sun.javafx.application.LauncherImpl;
@@ -16,9 +18,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import jsdl.SDLCommand;
 import sun.misc.IOUtils;
 import util.minecraft.JSONObject;
 import util.minecraft.RegionData;
+import util.minecraft.TerrainData;
 import util.minecraft.nbt.NBTData;
 import util.minecraft.parser.JSONParser;
 import util.minecraft.parser.MCAParser;
@@ -83,14 +87,26 @@ public class AppMain extends Application
 //		output2.close();
 		
 		
-//		MCAParser parser = new MCAParser();
-////		RegionData region = parser.parse(new File("./r.1.2.mca"));
-//		RegionData region = parser.parse(new File("./r.0.0.mca"));
+		MCAParser parser = new MCAParser();
+//		RegionData region = parser.parse(new File("./r.1.2.mca"));
+		RegionData region = parser.parse(new File("./r.0.0.mca"));
 //		System.err.println(region);
 		
-		JSONParser parser = new JSONParser();
-		JSONObject object = parser.parse(new FileInputStream("./birch_stairs.json"));
-		System.err.println(object);
+//		JSONParser parser = new JSONParser();
+//		JSONObject object = parser.parse(new FileInputStream("./birch_stairs.json"));
+//		System.err.println(object);
+		
+		TerrainData terrain = new TerrainData();
+		terrain.addRegion(region);
+		List<SDLCommand> commands = terrain.genSDLCommands();
+		
+		try(PrintWriter sdl = new PrintWriter("./mc.p2"))
+		{
+			for(SDLCommand cmd : commands)
+			{
+				sdl.print(cmd.generate());
+			}
+		}
 		
 		System.exit(0);
 	}
