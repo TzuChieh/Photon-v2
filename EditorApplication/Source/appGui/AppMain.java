@@ -87,28 +87,28 @@ public class AppMain extends Application
 //		output2.close();
 		
 		
-		MCAParser parser = new MCAParser();
-//		RegionData region = parser.parse(new File("./r.1.2.mca"));
-		RegionData region = parser.parse(new File("./r.0.0.mca"));
-//		System.err.println(region);
-		
-//		JSONParser parser = new JSONParser();
-//		JSONObject object = parser.parse(new FileInputStream("./birch_stairs.json"));
-//		System.err.println(object);
-		
-		TerrainData terrain = new TerrainData();
-		terrain.addRegion(region);
-		List<SDLCommand> commands = terrain.genSDLCommands();
-		
-		try(PrintWriter sdl = new PrintWriter("./mc.p2"))
-		{
-			for(SDLCommand cmd : commands)
-			{
-				sdl.print(cmd.generate());
-			}
-		}
-		
-		System.exit(0);
+//		MCAParser parser = new MCAParser();
+////		RegionData region = parser.parse(new File("./r.1.2.mca"));
+//		RegionData region = parser.parse(new File("./r.0.0.mca"));
+////		System.err.println(region);
+//		
+////		JSONParser parser = new JSONParser();
+////		JSONObject object = parser.parse(new FileInputStream("./birch_stairs.json"));
+////		System.err.println(object);
+//		
+//		TerrainData terrain = new TerrainData();
+//		terrain.addRegion(region);
+//		List<SDLCommand> commands = terrain.genSDLCommands();
+//		
+//		try(PrintWriter sdl = new PrintWriter("./mc.p2"))
+//		{
+//			for(SDLCommand cmd : commands)
+//			{
+//				sdl.print(cmd.generate());
+//			}
+//		}
+//		
+//		System.exit(0);
 	}
 
 	@Override

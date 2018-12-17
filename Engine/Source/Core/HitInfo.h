@@ -56,9 +56,10 @@ public:
 		// (this condition can rarely happen)
 		// (which will result in 0-length vector and cause normalization to fail)
 
-		if(m_dPdU.lengthSquared() > 0.0_r && m_geometryBasis.yAxis.dot(m_dPdU) != 1.0_r)
+		m_geometryBasis.xAxis = m_geometryBasis.yAxis.cross(m_dPdU);
+		if(m_geometryBasis.xAxis.lengthSquared() > 0.0_r)
 		{
-			m_geometryBasis.xAxis = m_geometryBasis.yAxis.cross(m_dPdU).normalizeLocal();
+			m_geometryBasis.xAxis.normalizeLocal();
 			m_geometryBasis.zAxis = m_geometryBasis.xAxis.cross(m_geometryBasis.yAxis);
 		}
 		else
@@ -66,10 +67,11 @@ public:
 			math::form_orthonormal_basis(m_geometryBasis.yAxis,
 			                             &m_geometryBasis.xAxis, &m_geometryBasis.zAxis);
 		}
-		
-		if(m_dNdU.lengthSquared() > 0.0_r && m_shadingBasis.yAxis.dot(m_dNdU) != 1.0_r)
+
+		m_shadingBasis.xAxis = m_shadingBasis.yAxis.cross(m_dNdU);
+		if(m_shadingBasis.xAxis.lengthSquared() > 0.0_r)
 		{
-			m_shadingBasis.xAxis = m_shadingBasis.yAxis.cross(m_dNdU).normalizeLocal();
+			m_shadingBasis.xAxis.normalizeLocal();
 			m_shadingBasis.zAxis = m_shadingBasis.xAxis.cross(m_shadingBasis.yAxis);
 		}
 		else
