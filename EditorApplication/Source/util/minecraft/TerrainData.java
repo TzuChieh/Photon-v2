@@ -3,7 +3,9 @@ package util.minecraft;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import jsdl.CuboidGeometryCreator;
 import jsdl.MatteOpaqueMaterialCreator;
@@ -12,19 +14,25 @@ import jsdl.SDLCommand;
 import jsdl.SDLGeometry;
 import jsdl.SDLMaterial;
 import jsdl.SDLVector3;
+import util.Vector3f;
 
 public class TerrainData
 {
-	private List<RegionData> m_regions;
+	private Map<RegionCoord, RegionData> m_regions;
 	
 	public TerrainData()
 	{
-		m_regions = new ArrayList<>();
+		m_regions = new HashMap<>();
+	}
+	
+	public RegionData getRegion(int regionX, int regionZ)
+	{
+		return m_regions.get(new RegionCoord(regionX, regionZ));
 	}
 	
 	public void addRegion(RegionData region)
 	{
-		m_regions.add(region);
+		m_regions.put(region.getRegionCoord(), region);
 	}
 	
 	public void genSDLCommands()
@@ -44,7 +52,7 @@ public class TerrainData
 		material.setDataName(materialName);
 		material.generate(sdlBuffer);
 		
-		for(RegionData region : m_regions)
+		for(RegionData region : m_regions.values())
 		{
 			for(int chunkZ = 0; chunkZ < RegionData.NUM_CHUNKS_Z; ++chunkZ)
 			{

@@ -8,8 +8,7 @@ public class RegionData
 	public static final int SIZE_Y       = ChunkData.SIZE_Y;
 	public static final int SIZE_Z       = ChunkData.SIZE_Z * NUM_CHUNKS_Z;
 	
-	private int           m_regionX;
-	private int           m_regionZ;
+	private RegionCoord   m_regionCoord;
 	private ChunkData[][] m_chunks;
 	
 	/**
@@ -19,27 +18,32 @@ public class RegionData
 	 */
 	public RegionData(int regionX, int regionZ)
 	{
-		m_regionX = regionX;
-		m_regionZ = regionZ;
-		m_chunks  = new ChunkData[NUM_CHUNKS_Z][NUM_CHUNKS_X];
+		m_regionCoord = new RegionCoord(regionX, regionZ);
+		m_chunks      = new ChunkData[NUM_CHUNKS_Z][NUM_CHUNKS_X];
 	}
 	
 	/**
-	 * Gets the x coordinate of this region.
+	 * Gets the (x, z) coordinate of this region.
 	 * @return Coordinate value in regions.
 	 */
-	public int getRegionX()
+	public RegionCoord getRegionCoord()
 	{
-		return m_regionX;
+		return m_regionCoord;
 	}
 	
-	/**
-	 * Gets the z coordinate of this region.
-	 * @return Coordinate value in regions.
-	 */
-	public int getRegionZ()
+	public int getX()
 	{
-		return m_regionZ;
+		return m_regionCoord.x * SIZE_X;
+	}
+	
+	public int getY()
+	{
+		return 0;
+	}
+	
+	public int getZ()
+	{
+		return m_regionCoord.z * SIZE_Z;
 	}
 	
 	public ChunkData getChunk(int x, int z)
@@ -67,6 +71,6 @@ public class RegionData
 			}
 		}
 		
-		return "Region Data @ (" + m_regionX + ", " + m_regionZ + "), contains " + numChunkData + " chunk data";
+		return "Region Data @ " + m_regionCoord.toString() + ", contains " + numChunkData + " chunk data";
 	}
 }

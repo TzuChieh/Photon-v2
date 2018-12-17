@@ -7,7 +7,14 @@ public enum EFacing
 	SOUTH(2),
 	WEST (3),
 	UP   (4),
-	DOWN (5);
+	DOWN (5),
+	
+	NEGATIVE_X(WEST.getValue()),
+	POSITIVE_X(EAST.getValue()),
+	NEGATIVE_Y(DOWN.getValue()),
+	POSITIVE_Y(UP.getValue()),
+	NEGATIVE_Z(NORTH.getValue()),
+	POSITIVE_Z(SOUTH.getValue());
 	
 	private final int m_value;
 	

@@ -1,19 +1,19 @@
-package util;
+package util.minecraft;
 
-public class Vector2f
+public class RegionCoord
 {
-	public float x;
-	public float y;
+	public int x;
+	public int z;
 	
-	public Vector2f()
+	public RegionCoord()
 	{
-		this(0.0f, 0.0f);
+		this(0, 0);
 	}
 	
-	public Vector2f(float x, float y)
+	public RegionCoord(int x, int z)
 	{
 		this.x = x;
-		this.y = y;
+		this.z = z;
 	}
 	
 	@Override
@@ -28,10 +28,10 @@ public class Vector2f
         if(getClass() != obj.getClass())
             return false;
         
-        final Vector2f other = (Vector2f)obj;
+        final RegionCoord other = (RegionCoord)obj;
 		
 		return x == other.x && 
-			   y == other.y;
+		       z == other.z;
 	}
 
 	@Override
@@ -39,9 +39,15 @@ public class Vector2f
 	{
 		int result = 7;
 
-		result = 37 * result + Float.floatToIntBits(x);
-		result = 37 * result + Float.floatToIntBits(y);
+		result = 37 * result + x;
+		result = 37 * result + z;
 
 		return result;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "(" + x + ", " + z + ")"; 
 	}
 }
