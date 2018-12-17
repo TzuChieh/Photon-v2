@@ -7,24 +7,34 @@ public enum EFacing
 	SOUTH(2),
 	WEST (3),
 	UP   (4),
-	DOWN (5),
+	DOWN (5);
 	
-	NEGATIVE_X(WEST.getValue()),
-	POSITIVE_X(EAST.getValue()),
-	NEGATIVE_Y(DOWN.getValue()),
-	POSITIVE_Y(UP.getValue()),
-	NEGATIVE_Z(NORTH.getValue()),
-	POSITIVE_Z(SOUTH.getValue());
+	public static final int SIZE = 6;
 	
 	private final int m_value;
 	
-    private EFacing(int value)
-    {
-    	m_value = value;
-    }
-
-    public int getValue()
-    {
-        return m_value;
-    }
+	private EFacing(int value)
+	{
+		m_value = value;
+	}
+	
+	public int getValue()
+	{
+		return m_value;
+	}
+	    
+	public static EFacing fromValue(int value)
+	{
+		switch(value)
+		{
+		case 0: return NORTH;
+		case 1: return EAST;
+		case 2: return SOUTH;
+		case 3: return WEST;
+		case 4: return UP;
+		case 5: return DOWN;
+		}
+		
+		return null;
+	}
 }

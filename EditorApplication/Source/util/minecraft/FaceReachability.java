@@ -16,6 +16,11 @@ public class FaceReachability
 		return bit == 1 ? true : false;
 	}
 	
+	public boolean isFullyReachable()
+	{
+		return m_reachabilityBits == 0b0111_1111_1111_1111;
+	}
+	
 	public void setReachability(EFacing enter, EFacing exit, boolean isReachable)
 	{
 		final int bitIndex = getBitIndex(enter, exit);
@@ -27,6 +32,11 @@ public class FaceReachability
 		{
 			m_reachabilityBits &= (short)(0 << bitIndex);
 		}
+	}
+	
+	public void addReachables(FaceReachability reachables)
+	{
+		m_reachabilityBits |= reachables.m_reachabilityBits;
 	}
 	
 	private int getBitIndex(EFacing enter, EFacing exit)
@@ -55,5 +65,13 @@ public class FaceReachability
 		assert(bitIndex <= 14);
 		
 		return bitIndex;
+	}
+	
+	@Override
+	public String toString()
+	{
+		String binary = String.format("%15s", Integer.toBinaryString(m_reachabilityBits));
+		binary = binary.replace(' ', '0');
+		return "Face Reachability: " + binary;
 	}
 }

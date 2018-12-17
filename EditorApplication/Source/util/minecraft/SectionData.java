@@ -43,6 +43,8 @@ public class SectionData
 	
 	public void addBlock(String blockIdName, Map<String, String> stateProperties)
 	{
+		System.err.println(blockIdName);
+		
 		m_blockIdNames.add(blockIdName);
 		m_stateProperties.add(stateProperties);
 	}
@@ -65,24 +67,136 @@ public class SectionData
 	 * 
 	 * See <a href="https://tomcc.github.io/2014/08/31/visibility-1.html">https://tomcc.github.io/2014/08/31/visibility-1.html</a>
 	 */
-//	public FaceReachability determinReachability(EFacing visible)
-//	{
-//		EFacing[] reachedFaces = new EFacing[EFacing.values().length];
-//		reachedFaces.
-//		
-//		for(int z = 0; z < SIZE_Z; ++z)
-//		{
-//			for(int x = 0; x < SIZE_X; ++x)
-//			{
-//				m_blockIndices[y][z][x] = indices[z][x];
-//			}
-//		}
-//		
-//		return new FaceReachability();
-//	}
+	public FaceReachability determinReachability()
+	{
+		FaceReachability reachability = new FaceReachability();
+		boolean[][][]    floodTable   = makeFloodTable();
+		for(int y = 0; y < SIZE_Y; ++y)
+		{
+			for(int z = 0; z < SIZE_Z; ++z)
+			{
+				for(int x = 0; x < SIZE_X; ++x)
+				{
+					boolean[] reachedFaces = new boolean[EFacing.SIZE];
+					floodFromBlockDFS(x, y, z, floodTable, reachedFaces);
+					
+					for(int a = 0; a < EFacing.SIZE - 1; ++a)
+					{
+						if(!reachedFaces[a])
+						{
+							continue;
+						}
+						
+						for(int b = a + 1; b < EFacing.SIZE; ++b)
+						{
+							if(!reachedFaces[b])
+							{
+								continue;
+							}
+							
+							reachability.setReachability(
+								EFacing.fromValue(a), 
+								EFacing.fromValue(b), 
+								true);
+						}
+					}
+					
+					if(reachability.isFullyReachable())
+					{
+						return reachability;
+					}
+				}
+			}
+		}
+		
+		return reachability;
+	}
 	
-	public void addBlockingBlock(String blockIdName)
+	public static void addBlockingBlock(String blockIdName)
 	{
 		blockingBlocks.add(blockIdName);
+	}
+	
+	private boolean[][][] makeFloodTable()
+	{
+		boolean[][][] floodTable = new boolean[SIZE_Y][SIZE_Z][SIZE_X];
+		for(int y = 0; y < SIZE_Y; ++y)
+		{
+			for(int z = 0; z < SIZE_Z; ++z)
+			{
+				for(int x = 0; x < SIZE_X; ++x)
+				{
+					if(blockingBlocks.contains(getBlockIdName(x, y, z)))
+					{
+						floodTable[y][z][x] = true;
+					}
+				}
+			}
+		}
+		return floodTable;
+	}
+	
+	private static void floodFromBlockDFS(int x, int y, int z, boolean[][][] isFlooded, boolean[] reachedFaces)
+	{
+		if(isFlooded[y][z][x])
+		{
+			return;
+		}
+		
+		isFlooded[y][z][x] = true;
+		
+		if(x == 0)
+		{
+			reachedFaces[EFacing.WEST.getValue()] = true;
+			floodFromBlockDFS(x + 1, y, z, isFlooded, reachedFaces);
+		}
+		else if(x + 1 < SIZE_X)
+		{
+			floodFromBlockDFS(x - 1, y, z, isFlooded, reachedFaces);
+			floodFromBlockDFS(x + 1, y, z, isFlooded, reachedFaces);
+		}
+		else
+		{
+			reachedFaces[EFacing.EAST.getValue()] = true;
+			floodFromBlockDFS(x - 1, y, z, isFlooded, reachedFaces);
+		}
+		
+		if(z == 0)
+		{
+			reachedFaces[EFacing.NORTH.getValue()] = true;
+			floodFromBlockDFS(x, y, z + 1, isFlooded, reachedFaces);
+		}
+		else if(z + 1 < SIZE_Z)
+		{
+			floodFromBlockDFS(x, y, z - 1, isFlooded, reachedFaces);
+			floodFromBlockDFS(x, y, z + 1, isFlooded, reachedFaces);
+		}
+		else
+		{
+			reachedFaces[EFacing.SOUTH.getValue()] = true;
+			floodFromBlockDFS(x, y, z - 1, isFlooded, reachedFaces);
+		}
+		
+		if(y == 0)
+		{
+			reachedFaces[EFacing.DOWN.getValue()] = true;
+			floodFromBlockDFS(x, y + 1, z, isFlooded, reachedFaces);
+		}
+		else if(y + 1 < SIZE_Y)
+		{
+			floodFromBlockDFS(x, y - 1, z, isFlooded, reachedFaces);
+			floodFromBlockDFS(x, y + 1, z, isFlooded, reachedFaces);
+		}
+		else
+		{
+			reachedFaces[EFacing.UP.getValue()] = true;
+			floodFromBlockDFS(x, y - 1, z, isFlooded, reachedFaces);
+		}
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "Section: " + m_blockIdNames;
 	}
 }

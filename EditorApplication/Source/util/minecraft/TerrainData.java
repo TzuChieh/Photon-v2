@@ -37,6 +37,10 @@ public class TerrainData
 	
 	public void genSDLCommands()
 	{
+		SectionData.addBlockingBlock("minecraft:dirt");
+		SectionData.addBlockingBlock("minecraft:bedrock");
+		SectionData.addBlockingBlock("minecraft:grass_block");
+		
 		StringBuilder sdlBuffer = new StringBuilder();
 		PrintWriter sdl = null;
 		try {
@@ -73,6 +77,13 @@ public class TerrainData
 						{
 							continue;
 						}
+						
+						FaceReachability reachability = section.determinReachability();
+						if(reachability.isFullyReachable())
+						{
+							System.err.println(section);
+						}
+						System.err.println("section: " + s + ", " + reachability);
 						
 						for(int y = 0; y < SectionData.SIZE_Y; ++y)
 						{
