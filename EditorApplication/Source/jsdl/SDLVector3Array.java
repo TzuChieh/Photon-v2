@@ -18,25 +18,23 @@ public class SDLVector3Array implements SDLData
 	}
 
 	@Override
-	public String generateData()
+	public void generateData(StringBuilder out_sdlBuffer)
 	{
 		assert(m_array.size() % 3 == 0);
 		
-		StringBuilder fragments = new StringBuilder();
-		fragments.append('{');
+		out_sdlBuffer.append('{');
 		for(int i = 0; i < m_array.size(); i += 3)
 		{
 			float x = m_array.get(i);
 			float y = m_array.get(i + 1);
 			float z = m_array.get(i + 2);
-			fragments.append('\"');
-			fragments.append(Float.toString(x) + ' ');
-			fragments.append(Float.toString(y) + ' ');
-			fragments.append(Float.toString(z));
-			fragments.append("\" ");
+			out_sdlBuffer.append('\"');
+			out_sdlBuffer.append(Float.toString(x) + ' ');
+			out_sdlBuffer.append(Float.toString(y) + ' ');
+			out_sdlBuffer.append(Float.toString(z));
+			out_sdlBuffer.append("\" ");
 		}
-		fragments.append('}');
-		return fragments.toString();
+		out_sdlBuffer.append('}');
 	}
 	
 	public void add(float x, float y, float z)

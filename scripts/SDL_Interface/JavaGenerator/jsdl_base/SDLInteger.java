@@ -16,8 +16,8 @@ public class SDLInteger implements SDLData
 	}
 
 	@Override
-	public String generateData()
+	public void generateData(StringBuilder out_sdlBuffer)
 	{
-		return Integer.toString(m_integer);
+		out_sdlBuffer.append(Integer.toString(m_integer));
 	}
 }

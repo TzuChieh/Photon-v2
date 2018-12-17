@@ -1,5 +1,7 @@
 package util.minecraft;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,15 +27,22 @@ public class TerrainData
 		m_regions.add(region);
 	}
 	
-	public List<SDLCommand> genSDLCommands()
+	public void genSDLCommands()
 	{
-		List<SDLCommand> commands = new ArrayList<>();
+		StringBuilder sdlBuffer = new StringBuilder();
+		PrintWriter sdl = null;
+		try {
+			sdl = new PrintWriter("./mc.p2");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		String materialName = "mat";
 		MatteOpaqueMaterialCreator material = new MatteOpaqueMaterialCreator();
 		material.setAlbedo(new SDLVector3(0.5f, 0.5f, 0.5f));
 		material.setDataName(materialName);
-		commands.add(material);
+		material.generate(sdlBuffer);
 		
 		for(RegionData region : m_regions)
 		{
@@ -41,6 +50,8 @@ public class TerrainData
 			{
 				for(int chunkX = 0; chunkX < RegionData.NUM_CHUNKS_X; ++chunkX)
 				{
+					System.err.println("generating chunk (" + chunkX + ", " + chunkZ + ")");
+					
 					ChunkData chunk = region.getChunk(chunkX, chunkZ);
 					if(chunk == null)
 					{
@@ -77,14 +88,14 @@ public class TerrainData
 										cube.setMinVertex(new SDLVector3(coordX, coordY, coordZ));
 										cube.setMaxVertex(new SDLVector3(coordX + 1, coordY + 1, coordZ + 1));
 										
-										commands.add(cube);
+										cube.generate(sdlBuffer);
 										
 										ModelActorCreator actor = new ModelActorCreator();
 										actor.setDataName("actor:" + cubeName);
 										actor.setMaterial(new SDLMaterial(materialName));
 										actor.setGeometry(new SDLGeometry(cubeName));
 										
-										commands.add(actor);
+										actor.generate(sdlBuffer);
 									}
 									
 //									if(blockIdName.equals("minecraft:air"))
@@ -95,10 +106,13 @@ public class TerrainData
 							}
 						}
 					}
+					
+					sdl.append(sdlBuffer);
+					sdlBuffer.setLength(0);
 				}
 			}
 		}
 		
-		return commands;
+		sdl.close();
 	}
 }

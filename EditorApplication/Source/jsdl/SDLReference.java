@@ -18,8 +18,10 @@ public class SDLReference implements SDLData
 	}
 
 	@Override
-	public String generateData()
+	public void generateData(StringBuilder out_sdlBuffer)
 	{
-		return "\"@" + m_name + "\"";
+		out_sdlBuffer.append("\"@");
+		out_sdlBuffer.append(m_name);
+		out_sdlBuffer.append("\"");
 	}
 }

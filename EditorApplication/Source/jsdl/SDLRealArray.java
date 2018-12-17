@@ -18,16 +18,15 @@ public class SDLRealArray implements SDLData
 	}
 
 	@Override
-	public String generateData()
+	public void generateData(StringBuilder out_sdlBuffer)
 	{
-		StringBuilder fragments = new StringBuilder();
-		fragments.append('{');
+		out_sdlBuffer.append('{');
 		for(float real : m_array)
 		{
-			fragments.append(Float.toString(real) + ' ');
+			out_sdlBuffer.append(Float.toString(real));
+			out_sdlBuffer.append(' ');
 		}
-		fragments.append('}');
-		return fragments.toString();
+		out_sdlBuffer.append('}');
 	}
 	
 	public void add(float real)

@@ -16,8 +16,8 @@ public class SDLReal implements SDLData
 	}
 
 	@Override
-	public String generateData()
+	public void generateData(StringBuilder out_sdlBuffer)
 	{
-		return Float.toString(m_real);
+		out_sdlBuffer.append(Float.toString(m_real));
 	}
 }

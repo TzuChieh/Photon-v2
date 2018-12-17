@@ -19,15 +19,15 @@ public abstract class SDLCreatorCommand extends SDLCommand
 	}
 
 	@Override
-	public String generate()
+	public void generate(StringBuilder out_sdlBuffer)
 	{
-		StringBuilder fragments = new StringBuilder();
-		fragments.append(getPrefix() + ' ');
-		fragments.append(getFullType() + ' ');
-		fragments.append("\"@" + m_dataName + "\" ");
-		generateInputs(fragments);
-		fragments.append('\n');
-		return fragments.toString();
+		out_sdlBuffer.append(getPrefix());
+		out_sdlBuffer.append(' ');
+		out_sdlBuffer.append(getFullType());
+		out_sdlBuffer.append(' ');
+		out_sdlBuffer.append("\"@" + m_dataName + "\" ");
+		generateInputs(out_sdlBuffer);
+		out_sdlBuffer.append('\n');
 	}
 	
 	public void setDataName(String name)

@@ -13,18 +13,18 @@ public abstract class SDLCommand
 	
 	public abstract String getPrefix();
 	public abstract String getFullType();
-	public abstract String generate();
+	public abstract void generate(StringBuilder out_sdlBuffer);
 	
 	public void setInput(String name, SDLData data)
 	{
 		m_inputs.add(new SDLInput(name, data));
 	}
 	
-	protected void generateInputs(StringBuilder out_fragments)
+	protected void generateInputs(StringBuilder out_sdlBuffer)
 	{
 		for(SDLInput input : m_inputs)
 		{
-			input.generateInput(out_fragments);
+			input.generateInput(out_sdlBuffer);
 		}
 	}
 	
@@ -39,13 +39,15 @@ public abstract class SDLCommand
 			m_data = data;
 		}
 		
-		public void generateInput(StringBuilder out_fragments)
+		public void generateInput(StringBuilder out_sdlBuffer)
 		{
-			out_fragments.append('[');
-			out_fragments.append(m_data.getType() + ' ');
-			out_fragments.append(m_name + ' ');
-			out_fragments.append(m_data.generateData());
-			out_fragments.append(']');
+			out_sdlBuffer.append('[');
+			out_sdlBuffer.append(m_data.getType());
+			out_sdlBuffer.append(' ');
+			out_sdlBuffer.append(m_name);
+			out_sdlBuffer.append(' ');
+			m_data.generateData(out_sdlBuffer);
+			out_sdlBuffer.append(']');
 		}
 	}
 }

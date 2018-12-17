@@ -98,15 +98,9 @@ public class AppMain extends Application
 //		
 //		TerrainData terrain = new TerrainData();
 //		terrain.addRegion(region);
-//		List<SDLCommand> commands = terrain.genSDLCommands();
+//		terrain.genSDLCommands();
 //		
-//		try(PrintWriter sdl = new PrintWriter("./mc.p2"))
-//		{
-//			for(SDLCommand cmd : commands)
-//			{
-//				sdl.print(cmd.generate());
-//			}
-//		}
+//		
 //		
 //		System.exit(0);
 	}

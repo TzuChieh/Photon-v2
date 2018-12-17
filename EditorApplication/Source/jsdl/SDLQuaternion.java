@@ -27,8 +27,8 @@ public class SDLQuaternion implements SDLData
 	}
 
 	@Override
-	public String generateData()
+	public void generateData(StringBuilder out_sdlBuffer)
 	{
-		return String.format("\"%f %f %f %f\"", m_x, m_y, m_z, m_w);
+		out_sdlBuffer.append(String.format("\"%f %f %f %f\"", m_x, m_y, m_z, m_w));
 	}
 }

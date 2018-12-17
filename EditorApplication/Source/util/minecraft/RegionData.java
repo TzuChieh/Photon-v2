@@ -4,11 +4,19 @@ public class RegionData
 {
 	public static final int NUM_CHUNKS_X = 32;
 	public static final int NUM_CHUNKS_Z = 32;
+	public static final int SIZE_X       = ChunkData.SIZE_X * NUM_CHUNKS_X;
+	public static final int SIZE_Y       = ChunkData.SIZE_Y;
+	public static final int SIZE_Z       = ChunkData.SIZE_Z * NUM_CHUNKS_Z;
 	
 	private int           m_regionX;
 	private int           m_regionZ;
 	private ChunkData[][] m_chunks;
 	
+	/**
+	 * Creates a data block representing a region.
+	 * @param regionX The x coordinate of this region, in regions.
+	 * @param regionZ The z coordinate of this region, in regions.
+	 */
 	public RegionData(int regionX, int regionZ)
 	{
 		m_regionX = regionX;
@@ -16,11 +24,19 @@ public class RegionData
 		m_chunks  = new ChunkData[NUM_CHUNKS_Z][NUM_CHUNKS_X];
 	}
 	
+	/**
+	 * Gets the x coordinate of this region.
+	 * @return Coordinate value in regions.
+	 */
 	public int getRegionX()
 	{
 		return m_regionX;
 	}
 	
+	/**
+	 * Gets the z coordinate of this region.
+	 * @return Coordinate value in regions.
+	 */
 	public int getRegionZ()
 	{
 		return m_regionZ;

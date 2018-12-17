@@ -18,8 +18,8 @@ public class SDLRawData implements SDLData
 	}
 
 	@Override
-	public String generateData()
+	public void generateData(StringBuilder out_sdlBuffer)
 	{
-		return m_data;
+		out_sdlBuffer.append(m_data);
 	}
 }

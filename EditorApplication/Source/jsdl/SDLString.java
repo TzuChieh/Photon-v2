@@ -16,8 +16,8 @@ public class SDLString implements SDLData
 	}
 
 	@Override
-	public String generateData()
+	public void generateData(StringBuilder out_sdlBuffer)
 	{
-		return m_string;
+		out_sdlBuffer.append(m_string);
 	}
 }

@@ -3,39 +3,15 @@ package util.minecraft;
 public class ChunkData
 {
 	public static final int NUM_SECTIONS = 16;
+	public static final int SIZE_X       = SectionData.SIZE_X;
+	public static final int SIZE_Y       = SectionData.SIZE_Y * NUM_SECTIONS;
+	public static final int SIZE_Z       = SectionData.SIZE_Z;
 	
-	private int           m_chunkX;
-	private int           m_chunkZ;
 	private SectionData[] m_sections;
 	
-	/**
-	 * Creates a data block representing a chunk.
-	 * @param chunkX The x coordinate of this chunk, in chunks.
-	 * @param chunkZ The z coordinate of this chunk, in chunks.
-	 */
-	public ChunkData(int chunkX, int chunkZ)
+	public ChunkData()
 	{
-		m_chunkX   = chunkX;
-		m_chunkZ   = chunkZ;
 		m_sections = new SectionData[NUM_SECTIONS];
-	}
-	
-	/**
-	 * Gets the x coordinate of this chunk.
-	 * @return Coordinate value in chunks.
-	 */
-	public int getChunkX()
-	{
-		return m_chunkX;
-	}
-	
-	/**
-	 * Gets the z coordinate of this chunk.
-	 * @return Coordinate value in chunks.
-	 */
-	public int getChunkZ()
-	{
-		return m_chunkZ;
 	}
 	
 	/**
@@ -70,6 +46,6 @@ public class ChunkData
 			}
 		}
 		
-		return "Chunk Data @ (" + m_chunkX + ", " + m_chunkZ + "), contains " + numSectionData + " section data";
+		return "Chunk Data, contains " + numSectionData + " section data";
 	}
 }

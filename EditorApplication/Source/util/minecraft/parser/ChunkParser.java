@@ -69,10 +69,7 @@ public class ChunkParser
 		NBTData root  = data.get("");
 		NBTData level = root.get("Level");
 		
-		int xPos = level.get("xPos");
-		int zPos = level.get("zPos");
-		
-		ChunkData chunkData = new ChunkData(xPos, zPos);
+		ChunkData chunkData = new ChunkData();
 		
 		List<NBTData> sections = level.get("Sections");
 		for(NBTData section : sections)
