@@ -46,14 +46,14 @@ public class RegionData
 		return m_regionCoord.z * SIZE_Z;
 	}
 	
-	public ChunkData getChunk(int x, int z)
+	public ChunkData getChunk(int chunkX, int chunkZ)
 	{
-		return m_chunks[z][x];
+		return m_chunks[chunkZ][chunkX];
 	}
 	
-	public void setChunk(int x, int z, ChunkData chunk)
+	public void setChunk(int chunkX, int chunkZ, ChunkData chunk)
 	{
-		m_chunks[z][x] = chunk;
+		m_chunks[chunkZ][chunkX] = chunk;
 	}
 	
 	@Override

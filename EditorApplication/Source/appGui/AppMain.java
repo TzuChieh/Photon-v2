@@ -20,7 +20,9 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import jsdl.SDLCommand;
 import sun.misc.IOUtils;
+import util.SDLConsole;
 import util.minecraft.JSONObject;
+import util.minecraft.MinecraftWorld;
 import util.minecraft.RegionData;
 import util.minecraft.TerrainData;
 import util.minecraft.nbt.NBTData;
@@ -98,11 +100,18 @@ public class AppMain extends Application
 		
 		TerrainData terrain = new TerrainData();
 		terrain.addRegion(region);
-		terrain.genSDLCommands();
+		
+		MinecraftWorld mcWorld = new MinecraftWorld();
+		mcWorld.setTerrain(terrain);
+		
+		SDLConsole console = new SDLConsole("mcw_export");
+		console.start();
+		mcWorld.toSDL(console);
+		console.exit();
 		
 		
 		
-		System.exit(0);
+//		System.exit(0);
 	}
 
 	@Override

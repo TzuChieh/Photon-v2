@@ -3,11 +3,11 @@ package util.minecraft;
 public enum EFacing
 {
 	NORTH(0),
-	EAST (1),
-	SOUTH(2),
+	SOUTH(1),
+	EAST (2),
 	WEST (3),
-	UP   (4),
-	DOWN (5);
+	DOWN (4),
+	UP   (5);
 	
 	public static final int SIZE = 6;
 	
@@ -22,17 +22,32 @@ public enum EFacing
 	{
 		return m_value;
 	}
+	
+	public EFacing getOpposite()
+	{
+		switch(m_value)
+		{
+		case 0: return SOUTH;
+		case 1: return NORTH;
+		case 2: return WEST;
+		case 3: return EAST;
+		case 4: return UP;
+		case 5: return DOWN;
+		}
+		
+		return null;
+	}
 	    
 	public static EFacing fromValue(int value)
 	{
 		switch(value)
 		{
 		case 0: return NORTH;
-		case 1: return EAST;
-		case 2: return SOUTH;
+		case 1: return SOUTH;
+		case 2: return EAST;
 		case 3: return WEST;
-		case 4: return UP;
-		case 5: return DOWN;
+		case 4: return DOWN;
+		case 5: return UP;
 		}
 		
 		return null;
