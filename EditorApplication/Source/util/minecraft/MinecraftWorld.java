@@ -22,12 +22,16 @@ import util.Vector3i;
 public class MinecraftWorld
 {
 	private Vector3f    m_viewpoint;
+	private Vector3f    m_viewDirection;
+	private float       m_fovDegrees;
 	private TerrainData m_terrain;
 	
 	public MinecraftWorld()
 	{
-		m_viewpoint = new Vector3f(0);
-		m_terrain   = null;
+		m_viewpoint     = new Vector3f(0);
+		m_viewDirection = new Vector3f(0, 0, -1);
+		m_fovDegrees    = 70.0f;
+		m_terrain       = null;
 	}
 	
 	public void toSDL(SDLConsole out_console)
@@ -37,9 +41,9 @@ public class MinecraftWorld
 //		SectionData.addBlockingBlock("minecraft:grass_block");
 		
 		PinholeCameraCreator camera = new PinholeCameraCreator();
-		camera.setFovDegree(new SDLReal(50.0f));
-		camera.setPosition(new SDLVector3(60, 15, 240));
-		camera.setDirection(new SDLVector3(1, -0.5f, 3));
+		camera.setFovDegree(new SDLReal(m_fovDegrees));
+		camera.setPosition(new SDLVector3(m_viewpoint.x, m_viewpoint.y, m_viewpoint.z));
+		camera.setDirection(new SDLVector3(m_viewDirection.x, m_viewDirection.y, m_viewDirection.z));
 		camera.setUpAxis(new SDLVector3(0, 1, 0));
 		out_console.queue(camera);
 		
@@ -108,6 +112,16 @@ public class MinecraftWorld
 	public void setViewpoint(Vector3f viewpoint)
 	{
 		m_viewpoint = viewpoint;
+	}
+	
+	public void setViewDirection(Vector3f viewDirection)
+	{
+		m_viewDirection = viewDirection;
+	}
+	
+	public void setFovDegrees(float fovDegrees)
+	{
+		m_fovDegrees = fovDegrees;
 	}
 	
 	public void setTerrain(TerrainData terrain)

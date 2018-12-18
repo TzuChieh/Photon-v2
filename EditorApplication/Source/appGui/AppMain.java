@@ -19,8 +19,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import jsdl.SDLCommand;
+import jsdl.SDLVector3;
 import sun.misc.IOUtils;
 import util.SDLConsole;
+import util.Vector3f;
 import util.minecraft.JSONObject;
 import util.minecraft.MinecraftWorld;
 import util.minecraft.RegionData;
@@ -103,6 +105,10 @@ public class AppMain extends Application
 		
 		MinecraftWorld mcWorld = new MinecraftWorld();
 		mcWorld.setTerrain(terrain);
+		
+		mcWorld.setViewpoint(new Vector3f(60, 15, 240));
+		mcWorld.setViewDirection(new Vector3f(1, -0.5f, 3));
+		mcWorld.setFovDegrees(70.0f);
 		
 		SDLConsole console = new SDLConsole("mcw_export");
 		console.start();
