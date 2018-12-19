@@ -17,6 +17,8 @@
 #include <vector>
 #include <assert.h>
 #include <limits.h>
+#include <unistd.h>
+#include <cmath>
 
 constexpr int traversal_constant = 1;
 constexpr int intersection_constant = 80;
@@ -26,6 +28,8 @@ constexpr int RIGHT = 1;
 
 constexpr int BEGIN_EDGE = 0;
 constexpr int END_EDGE = 1;
+
+constexpr int MAX_DEPTH = 64;
 
 //normal sutuation inherits Intersector
 //inherits primitive
@@ -71,16 +75,26 @@ class Vec3 {
 		}
 };
 */
-inline float Three_Vec3_delta(const Vector3F& A, const Vector3F& B, const Vector3F& C){
-	return A.x * B.y * C.z + B.x * C.y * A.z + C.x * A.y * B.z + C.x * A.y * B.z
+inline float Three_Vec3_delta(const Vector3R& A, const Vector3R& B, const Vector3R& C){
+	return A.x * B.y * C.z + B.x * C.y * A.z + C.x * A.y * B.z
 			- A.z * B.y * C.z - B.z * C.y * A.x - C.z * A.y * B.x;
 }
 
+inline float fMax3(float a, float b, float c)
+{
+	return fmax(fmax(a,b),fmax(a,c)); 
+}
+
+
+inline float fMin3(float a, float b, float c)
+{
+	return fmin(fmin(a,b),fmin(a,c)); 
+}
 /*
 class AABB3D{
 	private:
-		Vector3F VertexMin;
-		Vector3F VertexMax;
+		Vector3R VertexMin;
+		Vector3R VertexMax;
 	public:
 		AABB3D(){
 
@@ -112,10 +126,10 @@ class AABB3D{
 			}
 
 		}
-		Vector3F getMinVertex(){
+		Vector3R getMinVertex(){
 			return VertexMin;		
 		}
-		Vector3F getMaxVertex(){
+		Vector3R getMaxVertex(){
 			return VertexMax;
 		}
 
@@ -193,13 +207,12 @@ class BoundEdge{
 class Plane{
 	//Use 2 points to refer a plane with margin
 	private:
+		//0 point to x, 1 point to y, 2 point to z
+		//ax + by + cz  = d if normal is  (1,0,0),need to know the d
 		int Normal;
 		float d;
 	public:
-		//margin
-		//0 point to x, 1 point to y, 2 point to z
-		//ax + by + cz  = d if normal is  (1,0,0),need to know the d
-		
+		//margin	
 		Plane(){
 			Normal = -1;
 		}
@@ -212,16 +225,12 @@ class Plane{
 			Normal = direction;
 		}
 		int getNormal(){
-			if(Normal == -1){
-				fprintf(stderr,"Plane d does not initilize, use constructor Plane(BoundEdge Edge, int LongestAxis) or Plane.set_d()\n");
-				exit(1);
-			}
 			return ((Normal>>1) == 1)? 2 : Normal;
 		}
 
-		Plane(BoundEdge Edge, int LongestAxis ){
+		Plane(BoundEdge& Edge, int LongestAxis ){
 			Normal = LongestAxis;
-			d = -1 * Edge.getSplitPos();
+			d = Edge.getSplitPos();
 		}
 
 		void set_d(float in_d){
@@ -236,13 +245,11 @@ class Triangle {
 	private:
 	    //get from initilize
 
-		//bug? TVector3.ipp
-		Vector3F vertex[3];
-		//get from runtime
+		Vector3R vertex[3];
 		/*
-		Vector3F vertexA;
-		Vector3F vertexB;
-		Vector3F vertexC;
+		Vector3R vertexA;
+		Vector3R vertexB;
+		Vector3R vertexC;
 		*/
 		int index = -2;
     public:
@@ -268,8 +275,8 @@ class Triangle {
 					exit(1);
 					break;
 			}
-			Vector3F temp1 = TBoundingBox.getMaxVertex();
-			Vector3F temp2 = TBoundingBox.getMinVertex();
+			Vector3R temp1 = TBoundingBox.getMaxVertex();
+			Vector3R temp2 = TBoundingBox.getMinVertex();
 			if(LongestAxis == math::X_AXIS){
 				return std::make_tuple(temp2.x,temp1.x);
 			}
@@ -298,59 +305,49 @@ class Triangle {
 			*/
         }
 		
-		Vector3F* getTverticies(){
+		Vector3R* getTverticies(){
 			if(index == -2){
 				fprintf(stderr, "Triangle getTverticies err:Triangle verticies does not set, first run setTvertices\n");
 				exit(1);
 			}
 			return vertex;
 		}
-		/*
-		Vector3R& getVertexA()
-		{
-			return vertexA;
-		}
 
-		Vector3R& getVertexB()
-		{
-			return vertexB;
-		}
-
-		Vector3R& getVertexC()
-		{
-			return vertexC;
-		}
-		*/
 		bool Intersect(const Ray& ray, float *out_t){
-			float o_x = ray.getOrigin().x;
-			float o_y = ray.getOrigin().y;
-			float o_z = ray.getOrigin().z;
-			Vector3F Origin(o_x,o_y,o_z);
-			float temp_x = ray.getMaxT() * ray.getDirection().x;
-			float temp_y = ray.getMaxT() * ray.getDirection().y;
-			float temp_z = ray.getMaxT() * ray.getDirection().z;
-			Vector3F ray_vector( temp_x, temp_y ,temp_z);
+			Vector3R Origin = ray.getOrigin();
+			float temp_x = (std::numeric_limits<float>::max() == ray.getMaxT()) ? std::numeric_limits<float>::max() : ray.getMaxT() * ray.getDirection().x;
+			float temp_y = (std::numeric_limits<float>::max() == ray.getMaxT()) ? std::numeric_limits<float>::max() : ray.getMaxT() * ray.getDirection().y;
+			float temp_z = (std::numeric_limits<float>::max() == ray.getMaxT()) ? std::numeric_limits<float>::max() : ray.getMaxT() * ray.getDirection().z;
+			//printf("ray max:%lf\n",ray.getMaxT());
+			//printf("tpx:%lf ,tpy:%lf, tpz:%lf\n",temp_x,temp_y,temp_z);
+			//sleep(1);
+			Vector3R ray_vector( temp_x, temp_y ,temp_z);
 			//x0 * edgeOA + x1 * edgeOB + x2 * edge OC
-			//when x0 + x1 + x2 >= 1 and x0,x1,x2 > 0 has intersect with triangle
+			//when x0 + x1 + x2 >= 1 and x0,x1,x2 > 0 has intersected with triangle
 			//find the matrix[OA OB OC] whether singular
 			// normalize x0,x1,x2 and plus O will find the intersect point 
 			
-			Vector3F edgeOA = vertex[0] - Origin;
-			Vector3F edgeOB = vertex[1] - Origin;
-			Vector3F edgeOC = vertex[2] - Origin;
+			Vector3R edgeOA = vertex[0] - Origin;
+			Vector3R edgeOB = vertex[1] - Origin;
+			Vector3R edgeOC = vertex[2] - Origin;
 			/*
-			Vector3F edgeOA = vertexA - Origin;
-			Vector3F edgeOB = vertexB - Origin;
-			Vector3F edgeOC = vertexC - Origin;
+			Vector3R edgeOA = vertexA - Origin;
+			Vector3R edgeOB = vertexB - Origin;
+			Vector3R edgeOC = vertexC - Origin;
 			*/
 			//find delta of the matrix
 			float delta = Three_Vec3_delta(edgeOA,edgeOB,edgeOC);
 			float epsilon = 0.0000001;
+			/*
 			if(delta < epsilon && delta > -epsilon){
 				//singular case
 				//the ray origin lies on the plane which span by AB and AC
 				return false;
 			} 
+			*/
+			if(delta == 0)
+				return false;
+
 			float inv_delta = 1.0/delta;
 			float deltax_1 = Three_Vec3_delta(ray_vector, edgeOB, edgeOC);
 			float deltax_2 = Three_Vec3_delta(edgeOA, ray_vector, edgeOC);
@@ -399,18 +396,36 @@ class Triangles{
 		}
 		
 };
-
-class KDNode: public Primitive{
+/*
+class TriangleKDAccel: public Primitive
+{
 	public:
-		/*
-		std::shared_ptr<KDNode> left;
-		std::shared_ptr<KDNode> right;
-		*/
+		KDNode *KDtree_root;
+		TriangleKDAccel(const PrimitiveMetadata* metadata): Primitive(metadata)
+		{
+
+		}
+		bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+		void calcIntersectionDetail(const Ray& ray, HitProbe& probe, HitDetail* out_detail)  const override;
+		bool isIntersectingVolumeConservative(const AABB3D& volume) const override;
+		void calcAABB(AABB3D* out_aabb) const override;
+		std::shared_ptr<KDNode> recBuild(Triangles& T, Voxel& V, int depth);
+		void build_KD_tree(Triangles& T);
+};
+*/
+
+class KDNode : public Primitive{
+	public:
+		
+		//std::shared_ptr<KDNode> left;
+		//std::shared_ptr<KDNode> right;
+		
 		KDNode *left;
 		KDNode *right;
+		
 		Triangles Tprim;
 		Plane plane;
-   		KDNode(const PrimitiveMetadata* metadata) : Primitive(metadata)
+   		KDNode(const PrimitiveMetadata* metadata): Primitive(metadata)
     	{ 
         	left = NULL; 
         	right = NULL; 
@@ -425,8 +440,10 @@ class KDNode: public Primitive{
 		void calcAABB(AABB3D* out_aabb) const override;
 		//std::shared_ptr<KDNode> recBuild(Triangles& T, Voxel& V, int depth);
 		//std::shared_ptr<KDNode> build_KD_tree(Triangles& T);
+		
 		KDNode *recBuild(Triangles& T, Voxel& V, int depth);
 		KDNode *build_KD_tree(Triangles& T);
+		
 };
 class Voxel{
 	public:
@@ -435,7 +452,10 @@ class Voxel{
 
 		}
 		int LongestAxis(){	
-			Vector3F temp = box.getMaxVertex() - box.getMinVertex();
+			Vector3R temp = box.getMaxVertex() - box.getMinVertex();
+			PH_ASSERT_GE(temp.x, 0);
+			PH_ASSERT_GE(temp.y, 0);
+			PH_ASSERT_GE(temp.z, 0);
 			if(temp.x > temp.y && temp.x > temp.z){
 				return math::X_AXIS;
 			}
@@ -450,7 +470,7 @@ class Voxel{
 			//base by pbrt			
 			float t0 = 0;
 			float t1 = ray.getMaxT();
-			Vector3F temp = ray.getDirection();
+			Vector3R temp = ray.getDirection();
 			float dir[3];
 			dir[0] = temp.x;
 			dir[1] = temp.y;
@@ -494,8 +514,8 @@ class Voxel{
 std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int index);
 void drawBounds(Voxel& V, Triangles& T);
 
-bool PointInAABB3D(Vector3F Point, AABB3D& Box);
-bool TriangleInAABB3D(Triangle* tri, AABB3D& Box);
+bool PointInAABB3D(Vector3R Point, AABB3D& Box);
+bool TriangleOverlapAABB3D(Triangle* tri, AABB3D& Box);
 
 Triangles Union(Triangles& T, Voxel& V);
 
