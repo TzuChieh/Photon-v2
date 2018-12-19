@@ -30,7 +30,18 @@ public class FaceReachability
 		}
 		else
 		{
-			m_reachabilityBits &= (short)(0 << bitIndex);
+			m_reachabilityBits &= (short)(~(1 << bitIndex) & 0b0111_1111_1111_1111);
+		}
+	}
+	
+	public void makeUnreachable(EFacing target)
+	{
+		for(int f = 0; f < EFacing.SIZE; ++f)
+		{
+			if(f != target.getValue())
+			{
+				setReachability(target, EFacing.fromValue(f), false);
+			}
 		}
 	}
 	

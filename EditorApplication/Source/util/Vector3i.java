@@ -23,6 +23,16 @@ public class Vector3i
 		return new Vector3i(x + rhs.x, y + rhs.y, z + rhs.z);
 	}
 	
+	public Vector3i add(int rhs)
+	{
+		return new Vector3i(x + rhs, y + rhs, z + rhs);
+	}
+	
+	public Vector3f toVector3f()
+	{
+		return new Vector3f(x, y, z);
+	}
+	
 	@Override
 	public boolean equals(Object obj)
 	{

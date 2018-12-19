@@ -18,6 +18,11 @@ public class SectionUnit
 		return m_coord;
 	}
 	
+	public Vector3i getCenterCoord()
+	{
+		return m_coord.add(new Vector3i(SectionData.SIZE_X / 2, SectionData.SIZE_Y / 2, SectionData.SIZE_Z / 2));
+	}
+	
 	public SectionData getData()
 	{
 		return m_data;

@@ -24,7 +24,7 @@ public class MinecraftWorld
 	private Vector3f    m_viewpoint;
 	private Vector3f    m_viewDirection;
 	private float       m_fovDegrees;
-	private TerrainData m_terrain;
+	private Terrain m_terrain;
 	
 	public MinecraftWorld()
 	{
@@ -124,16 +124,8 @@ public class MinecraftWorld
 		m_fovDegrees = fovDegrees;
 	}
 	
-	public void setTerrain(TerrainData terrain)
+	public void setTerrain(Terrain terrain)
 	{
 		m_terrain = terrain;
-	}
-	
-	private RegionData getCurrentRegion(Vector3f viewpoint)
-	{
-		int regionX = (int)viewpoint.x / RegionData.SIZE_X;
-		int regionZ = (int)viewpoint.z / RegionData.SIZE_Z;
-		
-		return m_terrain.getRegion(regionX, regionZ);
 	}
 }

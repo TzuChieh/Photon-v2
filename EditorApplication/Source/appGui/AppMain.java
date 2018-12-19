@@ -26,7 +26,7 @@ import util.Vector3f;
 import util.minecraft.JSONObject;
 import util.minecraft.MinecraftWorld;
 import util.minecraft.RegionData;
-import util.minecraft.TerrainData;
+import util.minecraft.Terrain;
 import util.minecraft.nbt.NBTData;
 import util.minecraft.parser.JSONParser;
 import util.minecraft.parser.MCAParser;
@@ -100,7 +100,7 @@ public class AppMain extends Application
 //		JSONObject object = parser.parse(new FileInputStream("./birch_stairs.json"));
 //		System.err.println(object);
 		
-		TerrainData terrain = new TerrainData();
+		Terrain terrain = new Terrain();
 		terrain.addRegion(region);
 		
 		MinecraftWorld mcWorld = new MinecraftWorld();
