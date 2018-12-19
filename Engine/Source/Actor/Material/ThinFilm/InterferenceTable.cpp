@@ -85,11 +85,16 @@ namespace ph
     	float n3 = ior_vec[2];
         int thickness = thickness_vec[1];
 
-        float crit_angle_1 = 90;
-        float crit_angle_2 = 90;
-        if (n2 < n1)  crit_angle_1 = angle_asin(n2/n1);
-        if (n3 < n1)  crit_angle_2 = angle_asin(n3/n1);
-        float crit_angle = std::min(crit_angle_1, crit_angle_2);
+        // n1sin1=n2sin2=n3sin3
+
+        float crit_angle = 90;
+        if (n1 > std::min(n2, n3))
+        {
+            if (n2 < n3)
+                crit_angle = angle_asin(n2/n1);
+            else
+                crit_angle = angle_asin(n3/n1);
+        }
 
     	for (int wl = wl_min; wl <= wl_max; wl += delta_wl)
     	{
@@ -104,7 +109,7 @@ namespace ph
     		{
     			float Reff = 1;
 
-    			if (theta_1 <= crit_angle)
+    			if (theta_1 < crit_angle)
     			{
                     float product_1 = n1*angle_sin(theta_1);
     				float theta_2 = angle_asin(product_1/n2); // n1sin1=n2sin2=n3sin3
@@ -126,9 +131,6 @@ namespace ph
 
     float InterferenceTable::calc_recur_R(const float n1, const float n2, const float n3, const float theta_1, const float theta_2, const float theta_3, const int wl, const int d)
     {
-    	// bugs to be fixed:
-    	// when caluclating theta_3 at crit_angle, value of angle_asin can be "nan"
-
     	float rs1 = calc_rs(n1, n2, theta_1, theta_2);
     	float rp1 = calc_rp(n1, n2, theta_1, theta_2);
     	float rs2 = calc_rs(n2, n3, theta_2, theta_3);
