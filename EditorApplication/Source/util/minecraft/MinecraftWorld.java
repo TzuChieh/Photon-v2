@@ -36,9 +36,34 @@ public class MinecraftWorld
 	
 	public void toSDL(SDLConsole out_console)
 	{
-		SectionData.addBlockingBlock("minecraft:dirt");
-		SectionData.addBlockingBlock("minecraft:bedrock");
-		SectionData.addBlockingBlock("minecraft:grass_block");
+//		SectionData.addTransparentBlock("minecraft:dirt");
+//		SectionData.addTransparentBlock("minecraft:bedrock");
+//		SectionData.addTransparentBlock("minecraft:grass_block");
+//		SectionData.addTransparentBlock("minecraft:stone");
+//		SectionData.addTransparentBlock("minecraft:stone:1");
+//		SectionData.addTransparentBlock("minecraft:stone:2");
+//		SectionData.addTransparentBlock("minecraft:stone:3");
+//		SectionData.addTransparentBlock("minecraft:stone:4");
+//		SectionData.addTransparentBlock("minecraft:stone:5");
+//		SectionData.addTransparentBlock("minecraft:stone:6");
+//		SectionData.addTransparentBlock("minecraft:grass");
+//		SectionData.addTransparentBlock("minecraft:sand");
+//		SectionData.addTransparentBlock("minecraft:coal_ore");
+//		SectionData.addTransparentBlock("minecraft:iron_ore");
+//		SectionData.addTransparentBlock("minecraft:gold_ore");
+//		SectionData.addTransparentBlock("minecraft:sandstone");
+//		SectionData.addTransparentBlock("minecraft:lava");
+//		SectionData.addTransparentBlock("minecraft:cobblestone");
+//		SectionData.addTransparentBlock("minecraft:water");
+		
+//		SectionData.addTransparentBlock("minecraft:andesite");
+//		SectionData.addTransparentBlock("minecraft:granite");
+//		SectionData.addTransparentBlock("minecraft:diorite");
+//		SectionData.addTransparentBlock("minecraft:granite");
+//		SectionData.addTransparentBlock("minecraft:gravel");
+		
+		SectionData.addTransparentBlock("minecraft:air");
+//		SectionData.addTransparentBlock("minecraft:snow");
 		
 		PinholeCameraCreator camera = new PinholeCameraCreator();
 		camera.setFovDegree(new SDLReal(m_fovDegrees));

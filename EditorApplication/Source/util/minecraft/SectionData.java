@@ -12,7 +12,7 @@ public class SectionData
 	public static final int SIZE_Y = 16;
 	public static final int SIZE_Z = 16;
 	
-	private static Set<String> blockingBlocks = new HashSet<>();
+	private static Set<String> transparentBlocks = new HashSet<>();
 	
 	private List<String>              m_blockIdNames;
 	private List<Map<String, String>> m_stateProperties;
@@ -43,6 +43,8 @@ public class SectionData
 	
 	public void addBlock(String blockIdName, Map<String, String> stateProperties)
 	{
+		System.out.println(blockIdName);
+		
 		m_blockIdNames.add(blockIdName);
 		m_stateProperties.add(stateProperties);
 	}
@@ -110,9 +112,9 @@ public class SectionData
 		return reachability;
 	}
 	
-	public static void addBlockingBlock(String blockIdName)
+	public static void addTransparentBlock(String blockIdName)
 	{
-		blockingBlocks.add(blockIdName);
+		transparentBlocks.add(blockIdName);
 	}
 	
 	private boolean[][][] makeFloodTable()
@@ -124,7 +126,11 @@ public class SectionData
 			{
 				for(int x = 0; x < SIZE_X; ++x)
 				{
-					if(blockingBlocks.contains(getBlockIdName(x, y, z)))
+					if(transparentBlocks.contains(getBlockIdName(x, y, z)))
+					{
+						floodTable[y][z][x] = false;
+					}
+					else
 					{
 						floodTable[y][z][x] = true;
 					}

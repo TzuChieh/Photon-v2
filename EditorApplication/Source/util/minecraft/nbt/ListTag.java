@@ -176,6 +176,7 @@ public class ListTag extends NBTTag
 			}
 			m_list = list;
 		}
+		break;
 		
 		case 12:
 		{
@@ -188,6 +189,7 @@ public class ListTag extends NBTTag
 			}
 			m_list = list;
 		}
+		break;
 		
 		default:
 			System.err.println("warning: unknown id <" + tagId + ">, ignoring");

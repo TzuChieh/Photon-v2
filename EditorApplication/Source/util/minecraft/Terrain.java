@@ -76,7 +76,7 @@ public class Terrain
 	public List<SectionUnit> getReachableSections(Vector3f viewpoint)
 	{
 		// HACK
-		int MAX_RADIUS = 5;
+		int MAX_RADIUS = 9999999;
 		
 		Vector3f pv = toSectionCoord(viewpoint).toVector3f();
 		System.err.println("pv: " + pv);
@@ -149,8 +149,6 @@ public class Terrain
 				continue;
 			}
 			
-			System.err.println(coord);
-			
 			if(coord.toVector3f().sub(pv).length() > MAX_RADIUS)
 			{
 				break;
@@ -181,17 +179,14 @@ public class Terrain
 					if(flood.front != nextFront &&
 					   reachability.isReachable(flood.front, nextFront))
 					{
-						System.out.println(nextFront);
 						floodQueue.add(new Flood(coord, nextFront));
 						reachability.setReachability(flood.front, nextFront, false);
 					}
 				}
 				floodQueue.add(new Flood(coord, flood.front));
 				
-				System.err.println(reachability);
 				if(reachability.isFullyUnreachable())
 				{
-					System.out.println("luuuauaa");
 					floodedArea.setSection(coord, true);
 				}
 			}

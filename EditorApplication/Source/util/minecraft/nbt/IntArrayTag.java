@@ -27,6 +27,6 @@ public class IntArrayTag extends NBTTag
 		int size = BinaryData.readInt(rawData);
 		m_array = BinaryData.readIntArray(size, rawData);
 		
-		return size * Integer.BYTES + 4;
+		return size * Integer.BYTES + Integer.BYTES;
 	}
 }

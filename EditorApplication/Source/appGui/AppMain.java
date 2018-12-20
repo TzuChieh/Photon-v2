@@ -84,27 +84,29 @@ public class AppMain extends Application
 //		reachability.setReachability(EFacing.DOWN, f, false);
 //		System.err.println(reachability);
 		
-//		MCAParser parser = new MCAParser();
-////		RegionData region = parser.parse(new File("./r.1.2.mca"));
-//		RegionData region = parser.parse(new File("./r.0.0.mca"));
-//		
-//		Terrain terrain = new Terrain();
-//		terrain.addRegion(region);
-//		
-//		MinecraftWorld mcWorld = new MinecraftWorld();
-//		mcWorld.setTerrain(terrain);
-//		
-////		mcWorld.setViewpoint(new Vector3f(60, 15, 240));
-//		mcWorld.setViewpoint(new Vector3f(60, 100, 240));
+		MCAParser parser = new MCAParser();
+//		RegionData region = parser.parse(new File("./r.1.2.mca"));
+		RegionData region = parser.parse(new File("./r.0.0.mca"));
+//		RegionData region = parser.parse(new File("./r.0.-1.mca"));
+		
+		Terrain terrain = new Terrain();
+		terrain.addRegion(region);
+		
+		MinecraftWorld mcWorld = new MinecraftWorld();
+		mcWorld.setTerrain(terrain);
+		
+//		mcWorld.setViewpoint(new Vector3f(60, 15, 240));
+		mcWorld.setViewpoint(new Vector3f(0, 100, 0));
 //		mcWorld.setViewDirection(new Vector3f(1, -0.5f, 3));
-//		mcWorld.setFovDegrees(70.0f);
-//		
-//		SDLConsole console = new SDLConsole("mcw_export");
-//		console.start();
-//		mcWorld.toSDL(console);
-//		console.exit();
-//		
-//		System.exit(0);
+		mcWorld.setViewDirection(new Vector3f(1, -0.4f, 1));
+		mcWorld.setFovDegrees(70.0f);
+		
+		SDLConsole console = new SDLConsole("mcw_export");
+		console.start();
+		mcWorld.toSDL(console);
+		console.exit();
+		
+		System.exit(0);
 	}
 
 	@Override
