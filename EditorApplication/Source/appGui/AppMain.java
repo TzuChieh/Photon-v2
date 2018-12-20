@@ -115,8 +115,6 @@ public class AppMain extends Application
 		mcWorld.toSDL(console);
 		console.exit();
 		
-		
-		
 //		System.exit(0);
 	}
 

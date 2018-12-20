@@ -117,6 +117,18 @@ public class Terrain
 		}
 		
 		PriorityQueue<Chamber> chamberQueue = new PriorityQueue<>();
+		
+		{
+			SectionUnit section = sectionMap.get(toSectionCoord(viewpoint));
+			FaceReachability reachability;
+			if(section == null)
+			{
+				reachability = new FaceReachability();
+				reachability.makeFullyReachable();
+			}
+		}
+		
+//		Chamber root = new Chamber()
 //		chamberQueue.add(toSectionCoord(viewpoint));
 //		while(!coordQueue.isEmpty())
 //		{

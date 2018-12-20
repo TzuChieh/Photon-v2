@@ -45,6 +45,11 @@ public class FaceReachability
 		}
 	}
 	
+	public void makeFullyReachable()
+	{
+		m_reachabilityBits = 0b0111_1111_1111_1111;
+	}
+	
 	public void addReachables(FaceReachability reachables)
 	{
 		m_reachabilityBits |= reachables.m_reachabilityBits;
