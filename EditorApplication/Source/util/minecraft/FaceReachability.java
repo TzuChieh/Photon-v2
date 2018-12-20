@@ -21,6 +21,24 @@ public class FaceReachability
 		return m_reachabilityBits == 0b0111_1111_1111_1111;
 	}
 	
+	public boolean isFullyUnreachable()
+	{
+		return m_reachabilityBits == 0;
+	}
+	
+	public boolean isReachable(EFacing from)
+	{
+		for(int f = 0; f < EFacing.SIZE; ++f)
+		{
+			if(f != from.getValue() && isReachable(from, EFacing.fromValue(f)))
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	public void setReachability(EFacing enter, EFacing exit, boolean isReachable)
 	{
 		final int bitIndex = getBitIndex(enter, exit);

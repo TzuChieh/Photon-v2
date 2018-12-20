@@ -75,24 +75,30 @@ public class Terrain
 	
 	public List<SectionUnit> getReachableSections(Vector3f viewpoint)
 	{
-		class Chamber implements Comparable<Chamber>
+		// HACK
+		int MAX_RADIUS = 128;
+		
+		Vector3f pv = toSectionCoord(viewpoint).toVector3f();
+		System.err.println("pv: " + pv);
+		
+		class Flood implements Comparable<Flood>
 		{
-			Vector3i coord     = null;
-			EFacing  floodFrom = null;
+			Vector3i coord;
+			EFacing  front;
 			
-			Chamber(Vector3i coord, EFacing floodFrom)
+			Flood(Vector3i coord, EFacing front)
 			{
-				this.coord     = coord;
-				this.floodFrom = floodFrom;
+				this.coord = coord;
+				this.front = front;
 			}
 			
 			@Override
-			public int compareTo(Chamber other)
+			public int compareTo(Flood other)
 			{
 				Vector3f p1 = coord.toVector3f();
 				Vector3f p2 = other.coord.toVector3f();
-				float value1 = viewpoint.sub(p1).squareLength();
-				float value2 = viewpoint.sub(p2).squareLength();
+				float value1 = pv.sub(p1).squareLength();
+				float value2 = pv.sub(p2).squareLength();
 				return value1 < value2 ? -1 : (value1 > value2 ? 1 : 0);
 			}
 		}
@@ -106,89 +112,87 @@ public class Terrain
 			new Vector3i( 0,  1,  0)
 		};
 		
-		SectionStateMap floodedChamber = new SectionStateMap();
-		Map<Vector3i, SectionUnit> sectionReachability = new HashMap<>();
+		SectionStateMap floodedArea = new SectionStateMap();
+		Map<Vector3i, FaceReachability> sectionReachability = new HashMap<>();
 		List<SectionUnit> reachableSections = new ArrayList<>();
 		
 		Map<Vector3i, SectionUnit> sectionMap = new HashMap<>();
 		for(SectionUnit section : getAllSections())
 		{
-			sectionMap.put(section.getCoord(), section);
+			int x = Math.floorDiv(section.getCoord().x, SectionData.SIZE_X);
+			int y = Math.floorDiv(section.getCoord().y, SectionData.SIZE_Y);
+			int z = Math.floorDiv(section.getCoord().z, SectionData.SIZE_Z);
+			sectionMap.put(new Vector3i(x, y, z), section);
 		}
 		
-		PriorityQueue<Chamber> chamberQueue = new PriorityQueue<>();
+		PriorityQueue<Flood> floodQueue = new PriorityQueue<>();
 		
 		{
-			SectionUnit section = sectionMap.get(toSectionCoord(viewpoint));
-			FaceReachability reachability;
-			if(section == null)
+			Vector3i rootCoord = toSectionCoord(viewpoint);
+			for(EFacing front : EFacing.values())
 			{
-				reachability = new FaceReachability();
-				reachability.makeFullyReachable();
+				floodQueue.add(new Flood(rootCoord, front));
 			}
+			floodedArea.setSection(rootCoord, true);
 		}
 		
-//		Chamber root = new Chamber()
-//		chamberQueue.add(toSectionCoord(viewpoint));
-//		while(!coordQueue.isEmpty())
-//		{
-//			Vector3i currentCoord = coordQueue.poll();
-//			Chamber currentVertex = vertexMap.get(currentCoord);
-//			
-//			Vector3i currentCoord = vertexQueue.poll();
-//			Vertex currentVertex = vertexMap.get(currentCoord);
-//			if(currentVertex != null)
-//			{
-//				currentVertex.isVisited = true;
-//				
-//				if(currentVertex.isSpace())
-//				{
-//					for(int facing = 0; facing < EFacing.SIZE; ++facing)
-//					{
-//						Vector3i nextCoord = currentCoord.add(coordOffsets[facing]);
-//						Vertex nextVertex = vertexMap.get(nextCoord);
-//						
-//						// unexplored space found
-//						if(nextVertex == null)
-//						{
-//							nextVertex = new Vertex();
-//							vertexMap.put(nextCoord, nextVertex);
-//							vertexQueue.add(nextCoord);
-//						}
-//						else if(!nextVertex.isVisited)
-//						{
-//							if(!nextVertex.isSpace() && !nextVertex.isAdded())
-//							{
-//								SectionData nextData = nextVertex.section.getData();
-//								currentVertex.reachability = nextData.determinReachability();
-//								reachableSections.add(nextVertex.section);
-//							}
-//							
-//							vertexQueue.add(nextCoord);
-//						}
-//					}
-//				}
-//				else
-//				{
-//					SectionData sectionData = currentVertex.section.getData();
-//				}
-//				
-//				
-//				
-//			}
-//			else
-//			{
-//				
-//			}
+		while(!floodQueue.isEmpty())
+		{
+			Flood flood = floodQueue.poll();
+			Vector3i coord = flood.coord.add(coordOffsets[flood.front.getValue()]);
+			if(coord.y < 0 || coord.y >= ChunkData.NUM_SECTIONS || 
+			   floodedArea.getSection(coord))
+			{
+				continue;
+			}
 			
-//			if(sectionMap.isEmpty())
-//			{
-//				break;
-//			}
-//		}
+			System.err.println(coord);
+			
+			if(coord.toVector3f().sub(pv).length() > MAX_RADIUS)
+			{
+				break;
+			}
+			
+			SectionUnit section = sectionMap.get(coord);
+			
+			if(section == null)
+			{
+				for(EFacing nextFront : EFacing.values())
+				{
+					floodQueue.add(new Flood(coord, nextFront));
+				}
+				floodedArea.setSection(coord, true);
+			}
+			else
+			{
+				FaceReachability reachability = sectionReachability.get(coord);
+				if(reachability == null)
+				{
+					reachability = section.getData().determinReachability();
+					sectionReachability.put(coord, reachability);
+					reachableSections.add(section);
+				}
+				
+				for(EFacing nextFront : EFacing.values())
+				{
+					if(flood.front != nextFront &&
+					   reachability.isReachable(flood.front, nextFront))
+					{
+						floodQueue.add(new Flood(coord, nextFront));
+						reachability.setReachability(flood.front, nextFront, false);
+					}
+				}
+				
+				System.err.println(reachability);
+				if(reachability.isFullyUnreachable())
+				{
+					System.out.println("luuuauaa");
+					floodedArea.setSection(coord, true);
+				}
+			}
+		}// end while
 		
-		
-		return null;
+		return reachableSections;
 	}
 	
 	private static Vector3i toSectionCoord(Vector3f viewpoint)
@@ -196,9 +200,9 @@ public class Terrain
 		float clampedY = Math.max(0.0f, Math.min(viewpoint.y, ChunkData.SIZE_Y));
 		
 		return new Vector3i(
-			Math.floorDiv((int)Math.floor(viewpoint.x), RegionData.NUM_CHUNKS_X),
-			Math.max((int)clampedY / ChunkData.NUM_SECTIONS, ChunkData.NUM_SECTIONS - 1),
-			Math.floorDiv((int)Math.floor(viewpoint.z), RegionData.NUM_CHUNKS_Z));
+			Math.floorDiv((int)Math.floor(viewpoint.x), SectionData.SIZE_X),
+			Math.min((int)clampedY / SectionData.SIZE_Y, ChunkData.NUM_SECTIONS - 1),
+			Math.floorDiv((int)Math.floor(viewpoint.z), SectionData.SIZE_Z));
 	}
 	
 	// FIXME: this is wrong, use floor

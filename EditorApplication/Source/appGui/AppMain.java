@@ -23,6 +23,8 @@ import jsdl.SDLVector3;
 import sun.misc.IOUtils;
 import util.SDLConsole;
 import util.Vector3f;
+import util.minecraft.EFacing;
+import util.minecraft.FaceReachability;
 import util.minecraft.JSONObject;
 import util.minecraft.MinecraftWorld;
 import util.minecraft.RegionData;
@@ -74,31 +76,17 @@ public class AppMain extends Application
 		
 		// DEBUG
 		
-//		GZIPInputStream input = new GZIPInputStream(new FileInputStream("./level.dat"));
-//		NBTParser parser = new NBTParser(input);
-//		NBTData data = parser.getData();
-//		System.out.println(data);
-		
-//		GZIPInputStream input2 = new GZIPInputStream(new FileInputStream("./level.dat"));
-//		FileOutputStream output2 = new FileOutputStream("./level_decompressed.dat");
-//		byte[] buffer = new byte[1024];
-//		while(input2.available() == 1)
-//		{
-//			int read = input2.read(buffer);
-//			if(read != -1)
-//				output2.write(buffer, 0, read);
-//		}
-//		output2.close();
-		
+//		EFacing f = EFacing.UP;
+//		FaceReachability reachability = new FaceReachability();
+//		System.err.println(reachability);
+//		reachability.setReachability(EFacing.DOWN, f, true);
+//		System.err.println(reachability);
+//		reachability.setReachability(EFacing.DOWN, f, false);
+//		System.err.println(reachability);
 		
 		MCAParser parser = new MCAParser();
 //		RegionData region = parser.parse(new File("./r.1.2.mca"));
 		RegionData region = parser.parse(new File("./r.0.0.mca"));
-//		System.err.println(region);
-		
-//		JSONParser parser = new JSONParser();
-//		JSONObject object = parser.parse(new FileInputStream("./birch_stairs.json"));
-//		System.err.println(object);
 		
 		Terrain terrain = new Terrain();
 		terrain.addRegion(region);
@@ -115,7 +103,7 @@ public class AppMain extends Application
 		mcWorld.toSDL(console);
 		console.exit();
 		
-//		System.exit(0);
+		System.exit(0);
 	}
 
 	@Override

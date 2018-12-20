@@ -43,8 +43,6 @@ public class SectionData
 	
 	public void addBlock(String blockIdName, Map<String, String> stateProperties)
 	{
-		System.err.println(blockIdName);
-		
 		m_blockIdNames.add(blockIdName);
 		m_stateProperties.add(stateProperties);
 	}

@@ -69,7 +69,15 @@ public class MinecraftWorld
 		material.setDataName(materialName);
 		out_console.queue(material);
 		
-		List<SectionUnit> sections = m_terrain.getAllSections();
+		List<SectionUnit> allSections = m_terrain.getAllSections();
+		List<SectionUnit> reachableSections = m_terrain.getReachableSections(m_viewpoint);
+		
+		
+		
+		List<SectionUnit> sections = reachableSections;
+		
+		
+		
 		for(SectionUnit section : sections)
 		{
 			System.err.println("generating... " + section);
@@ -107,6 +115,9 @@ public class MinecraftWorld
 				}
 			}
 		}
+		
+		System.err.println("all sections: " + allSections.size());
+		System.err.println("reachable sections: " + reachableSections.size());
 	}
 	
 	public void setViewpoint(Vector3f viewpoint)
