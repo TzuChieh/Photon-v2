@@ -28,7 +28,7 @@ public class SectionStateMap
 	
 	private boolean[][][] getRegionStates(Vector3i section)
 	{
-		return getRegionStates(toRegionCoord(section));
+		return getRegionStates(Coordinate.sectionToRegion(section));
 	}
 	
 	private boolean[][][] getRegionStates(RegionCoord region)
@@ -42,16 +42,9 @@ public class SectionStateMap
 		return bits;
 	}
 	
-	private static RegionCoord toRegionCoord(Vector3i section)
-	{
-		return new RegionCoord(
-			Math.floorDiv(section.x, RegionData.NUM_CHUNKS_X),
-			Math.floorDiv(section.z, RegionData.NUM_CHUNKS_Z));
-	}
-	
 	private static Vector3i toRegionStateIndex(Vector3i section)
 	{
-		RegionCoord region = toRegionCoord(section);
+		RegionCoord region = Coordinate.sectionToRegion(section);
 		
 		return new Vector3i(
 			section.x - region.x * RegionData.NUM_CHUNKS_X,

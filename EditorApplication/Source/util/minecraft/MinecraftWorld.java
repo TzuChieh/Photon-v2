@@ -36,9 +36,9 @@ public class MinecraftWorld
 	
 	public void toSDL(SDLConsole out_console)
 	{
-//		SectionData.addBlockingBlock("minecraft:dirt");
-//		SectionData.addBlockingBlock("minecraft:bedrock");
-//		SectionData.addBlockingBlock("minecraft:grass_block");
+		SectionData.addBlockingBlock("minecraft:dirt");
+		SectionData.addBlockingBlock("minecraft:bedrock");
+		SectionData.addBlockingBlock("minecraft:grass_block");
 		
 		PinholeCameraCreator camera = new PinholeCameraCreator();
 		camera.setFovDegree(new SDLReal(m_fovDegrees));

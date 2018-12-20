@@ -62,9 +62,9 @@ public class Terrain
 							continue;
 						}
 						
-						final int x = region.getX() + chunkX * ChunkData.SIZE_X;
-						final int y = region.getY() + s * ChunkData.SIZE_Y;
-						final int z = region.getZ() + chunkZ * ChunkData.SIZE_Z;
+						final int x = region.getX() + chunkX * SectionData.SIZE_X;
+						final int y = region.getY() + s * SectionData.SIZE_Y;
+						final int z = region.getZ() + chunkZ * SectionData.SIZE_Z;
 						sections.add(new SectionUnit(new Vector3i(x, y, z), section));
 					}
 				}
@@ -76,7 +76,7 @@ public class Terrain
 	public List<SectionUnit> getReachableSections(Vector3f viewpoint)
 	{
 		// HACK
-		int MAX_RADIUS = 128;
+		int MAX_RADIUS = 5;
 		
 		Vector3f pv = toSectionCoord(viewpoint).toVector3f();
 		System.err.println("pv: " + pv);
@@ -119,10 +119,7 @@ public class Terrain
 		Map<Vector3i, SectionUnit> sectionMap = new HashMap<>();
 		for(SectionUnit section : getAllSections())
 		{
-			int x = Math.floorDiv(section.getCoord().x, SectionData.SIZE_X);
-			int y = Math.floorDiv(section.getCoord().y, SectionData.SIZE_Y);
-			int z = Math.floorDiv(section.getCoord().z, SectionData.SIZE_Z);
-			sectionMap.put(new Vector3i(x, y, z), section);
+			sectionMap.put(Coordinate.toSection(section.getCoord()), section);
 		}
 		
 		PriorityQueue<Flood> floodQueue = new PriorityQueue<>();
@@ -134,13 +131,19 @@ public class Terrain
 				floodQueue.add(new Flood(rootCoord, front));
 			}
 			floodedArea.setSection(rootCoord, true);
+			
+			if(sectionMap.get(rootCoord) != null)
+			{
+				reachableSections.add(sectionMap.get(rootCoord));
+			}
 		}
 		
 		while(!floodQueue.isEmpty())
 		{
-			Flood flood = floodQueue.poll();
+			Flood    flood = floodQueue.poll();
 			Vector3i coord = flood.coord.add(coordOffsets[flood.front.getValue()]);
-			if(coord.y < 0 || coord.y >= ChunkData.NUM_SECTIONS || 
+			if(!isInBound(coord) ||
+			   coord.y < 0 || coord.y >= ChunkData.NUM_SECTIONS || 
 			   floodedArea.getSection(coord))
 			{
 				continue;
@@ -178,10 +181,12 @@ public class Terrain
 					if(flood.front != nextFront &&
 					   reachability.isReachable(flood.front, nextFront))
 					{
+						System.out.println(nextFront);
 						floodQueue.add(new Flood(coord, nextFront));
 						reachability.setReachability(flood.front, nextFront, false);
 					}
 				}
+				floodQueue.add(new Flood(coord, flood.front));
 				
 				System.err.println(reachability);
 				if(reachability.isFullyUnreachable())
@@ -203,6 +208,12 @@ public class Terrain
 			Math.floorDiv((int)Math.floor(viewpoint.x), SectionData.SIZE_X),
 			Math.min((int)clampedY / SectionData.SIZE_Y, ChunkData.NUM_SECTIONS - 1),
 			Math.floorDiv((int)Math.floor(viewpoint.z), SectionData.SIZE_Z));
+	}
+	
+	private boolean isInBound(Vector3i section)
+	{
+		RegionCoord region = Coordinate.sectionToRegion(section);
+		return m_regions.containsKey(region);
 	}
 	
 	// FIXME: this is wrong, use floor
