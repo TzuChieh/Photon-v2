@@ -54,7 +54,7 @@ public class MinecraftWorld
 //		SectionData.addTransparentBlock("minecraft:sandstone");
 //		SectionData.addTransparentBlock("minecraft:lava");
 //		SectionData.addTransparentBlock("minecraft:cobblestone");
-//		SectionData.addTransparentBlock("minecraft:water");
+		SectionData.addTransparentBlock("minecraft:water");
 		
 //		SectionData.addTransparentBlock("minecraft:andesite");
 //		SectionData.addTransparentBlock("minecraft:granite");

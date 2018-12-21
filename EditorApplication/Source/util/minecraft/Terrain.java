@@ -76,7 +76,7 @@ public class Terrain
 	public List<SectionUnit> getReachableSections(Vector3f viewpoint)
 	{
 		// HACK
-		int MAX_RADIUS = 9999999;
+		int MAX_RADIUS = 8;
 		
 		Vector3f pv = toSectionCoord(viewpoint).toVector3f();
 		System.err.println("pv: " + pv);
@@ -174,16 +174,25 @@ public class Terrain
 					reachableSections.add(section);
 				}
 				
-				for(EFacing nextFront : EFacing.values())
+				EFacing from = flood.front.getOpposite();
+				for(EFacing to : EFacing.values())
 				{
-					if(flood.front != nextFront &&
-					   reachability.isReachable(flood.front, nextFront))
+					if(from != to && reachability.isReachable(from, to))
 					{
-						floodQueue.add(new Flood(coord, nextFront));
-						reachability.setReachability(flood.front, nextFront, false);
+						floodQueue.add(new Flood(coord, to));
+						reachability.setReachability(from, to, false);
 					}
 				}
-				floodQueue.add(new Flood(coord, flood.front));
+				
+				// it is possible for flood to flow within the same section
+				if(!floodedArea.getSection(flood.coord))
+				{
+					FaceReachability fromReachability = sectionReachability.get(flood.coord);
+					if(fromReachability.isReachable(flood.front))
+					{
+						floodQueue.add(new Flood(coord, from));
+					}
+				}
 				
 				if(reachability.isFullyUnreachable())
 				{
@@ -210,13 +219,4 @@ public class Terrain
 		RegionCoord region = Coordinate.sectionToRegion(section);
 		return m_regions.containsKey(region);
 	}
-	
-	// FIXME: this is wrong, use floor
-//	private static RegionCoord toRegionCoord(Vector3f viewpoint)
-//	{
-//		int regionX = (int)viewpoint.x / RegionData.SIZE_X;
-//		int regionZ = (int)viewpoint.z / RegionData.SIZE_Z;
-//		
-//		return new RegionCoord(regionX, regionZ);
-//	}
 }
