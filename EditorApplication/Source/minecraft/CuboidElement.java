@@ -17,7 +17,7 @@ public class CuboidElement
 	
 	public CuboidElement()
 	{
-		this(new Vector3f(0), new Vector3f(0));
+		this(new Vector3f(0), new Vector3f(16));
 	}
 	
 	public CuboidElement(Vector3f from, Vector3f to)
@@ -25,7 +25,7 @@ public class CuboidElement
 		m_from = from;
 		m_to   = to;
 		
-		m_rotOrigin  = new Vector3f(8.0f, 8.0f, 8.0f);
+		m_rotOrigin  = from.add(to).div(2.0f);
 		m_rotAxis    = new Vector3f(0.0f, 1.0f, 0.0f);
 		m_rotDegrees = 0.0f;
 		
@@ -49,6 +49,46 @@ public class CuboidElement
 	
 	public void setFace(EFacing facing, Face face)
 	{
+		// defaults to values equal to xyz position of the element
+		if(!face.hasUV())
+		{
+			switch(facing)
+			{
+			case DOWN:
+			case UP:
+				face.setUVMin(m_from.z, m_from.x);
+				face.setUVMax(m_to.z, m_to.x);
+				break;
+				
+			case NORTH:
+			case SOUTH:
+				face.setUVMin(m_from.x, m_from.y);
+				face.setUVMax(m_to.x, m_to.y);
+				break;
+				
+			case EAST:
+			case WEST:
+				face.setUVMin(m_from.z, m_from.y);
+				face.setUVMax(m_to.z, m_to.y);
+				break;
+			}
+		}
+		
 		m_faces[facing.getValue()] = face;
+	}
+	
+	@Override
+	public String toString()
+	{
+		String result = "Cuboid Element: from " + m_from + ", to " + m_to;
+		for(int f = 0; f < EFacing.SIZE; ++f)
+		{
+			Face face = m_faces[f];
+			if(face != null)
+			{
+				result += "\n(" + EFacing.fromValue(f) + ") " + face;
+			}
+		}
+		return result;
 	}
 }

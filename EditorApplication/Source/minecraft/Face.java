@@ -10,8 +10,8 @@ public class Face
 	
 	public Face()
 	{
-		m_uvMin           = new Vector2f();
-		m_uvMax           = new Vector2f();
+		m_uvMin           = null;
+		m_uvMax           = null;
 		m_textureVariable = null;
 	}
 	
@@ -35,16 +35,19 @@ public class Face
 		return m_textureVariable != null;
 	}
 	
+	public boolean hasUV()
+	{
+		return m_uvMin != null && m_uvMax != null;
+	}
+	
 	public void setUVMin(float u1, float v1)
 	{
-		m_uvMin.x = u1;
-		m_uvMin.y = v1;
+		m_uvMin = new Vector2f(u1, v1);
 	}
 	
 	public void setUVMax(float u2, float v2)
 	{
-		m_uvMax.x = u2;
-		m_uvMax.y = v2;
+		m_uvMax = new Vector2f(u2, v2);
 	}
 	
 	public void setTextureVariable(String variable)
@@ -62,4 +65,10 @@ public class Face
 //			
 //		}
 //	}
+	
+	@Override
+	public String toString()
+	{
+		return "Face: texture variable = " + m_textureVariable;
+	}
 }

@@ -2,6 +2,7 @@ package minecraft;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class JSONObject
 {
@@ -45,6 +46,11 @@ public class JSONObject
 		}
 		
 		return m_nameToValues.get(name);
+	}
+	
+	public Set<String> getNames()
+	{
+		return m_nameToValues.keySet();
 	}
 	
 	public void add(String name, Object value)
