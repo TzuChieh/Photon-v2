@@ -63,7 +63,7 @@ public:
 
 	inline const Intersectable* getCurrentHit() const
 	{
-		return m_hitStack.get();
+		return m_hitStack.top();
 	}
 
 	inline real getHitRayT() const

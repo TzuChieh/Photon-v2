@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Common/primitive_type.h"
-
 #include <cstddef>
 #include <array>
 
@@ -12,25 +10,28 @@ template<typename T, std::size_t N>
 class TFixedSizeStack final
 {
 public:
-	inline TFixedSizeStack();
-	inline TFixedSizeStack(const TFixedSizeStack& other);
-	inline ~TFixedSizeStack() = default;
+	TFixedSizeStack();
+	TFixedSizeStack(const TFixedSizeStack& other);
+	~TFixedSizeStack() = default;
 
-	inline void push(const T& item);
-	inline void pop();
-	inline T& get();
-	inline const T& get() const;
-	inline std::size_t height() const;
-	inline void clear();
-	inline bool isEmpty() const;
+	void push(const T& item);
+	void pop();
+	T& top();
+	const T& top() const;
+	std::size_t height() const;
+	void clear();
+	bool isEmpty() const;
 
-	inline TFixedSizeStack& operator = (const TFixedSizeStack& rhs);
-	inline T& operator [] (std::size_t index);
-	inline const T& operator [] (std::size_t index) const;
+	TFixedSizeStack& operator = (const TFixedSizeStack& rhs);
+	T& operator [] (std::size_t index);
+	const T& operator [] (std::size_t index) const;
 
 private:
+	// must be signed type
+	using Index = int;
+
 	std::array<T, N> m_data;
-	int32            m_currentIndex;
+	Index            m_currentIndex;
 };
 
 }// end namespace ph

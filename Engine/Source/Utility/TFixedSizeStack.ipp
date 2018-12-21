@@ -19,7 +19,7 @@ inline TFixedSizeStack<T, N>::TFixedSizeStack(const TFixedSizeStack& other) :
 template<typename T, std::size_t N>
 inline void TFixedSizeStack<T, N>::push(const T& item)
 {
-	PH_ASSERT(m_currentIndex + 1 >= 0 && m_currentIndex + 1 < static_cast<int32>(N));
+	PH_ASSERT_IN_RANGE(m_currentIndex + 1, Index(0), Index(N));
 
 	m_data[++m_currentIndex] = item;
 }
@@ -27,25 +27,23 @@ inline void TFixedSizeStack<T, N>::push(const T& item)
 template<typename T, std::size_t N>
 inline void TFixedSizeStack<T, N>::pop()
 {
-	PH_ASSERT(m_currentIndex - 1 >= -1 && m_currentIndex - 1 < static_cast<int32>(N) - 1);
+	PH_ASSERT_IN_RANGE(m_currentIndex - 1, Index(-1), Index(N - 1));
 	
 	--m_currentIndex;
 }
 
 template<typename T, std::size_t N>
-inline T& TFixedSizeStack<T, N>::get()
+inline T& TFixedSizeStack<T, N>::top()
 {
-	PH_ASSERT(m_currentIndex < m_data.size());
+	PH_ASSERT_IN_RANGE(m_currentIndex, Index(0), Index(N));
 
 	return m_data[m_currentIndex];
 }
 
 template<typename T, std::size_t N>
-inline const T& TFixedSizeStack<T, N>::get() const
+inline const T& TFixedSizeStack<T, N>::top() const
 {
-	PH_ASSERT_MSG(m_currentIndex < m_data.size(), "\n"
-		"m_currentIndex = " + std::to_string(m_currentIndex) + "\n"
-		"m_data.size()  = " + std::to_string(m_data.size()));
+	PH_ASSERT_IN_RANGE(m_currentIndex, Index(0), Index(N));
 
 	return m_data[m_currentIndex];
 }
@@ -53,6 +51,8 @@ inline const T& TFixedSizeStack<T, N>::get() const
 template<typename T, std::size_t N>
 inline std::size_t TFixedSizeStack<T, N>::height() const
 {
+	PH_ASSERT_GE(m_currentIndex + 1, Index(0));
+
 	return static_cast<std::size_t>(m_currentIndex + 1);
 }
 
@@ -80,7 +80,7 @@ inline TFixedSizeStack<T, N>& TFixedSizeStack<T, N>::operator = (const TFixedSiz
 template<typename T, std::size_t N>
 inline T& TFixedSizeStack<T, N>::operator [] (const std::size_t index)
 {
-	PH_ASSERT(index < m_data.size());
+	PH_ASSERT_IN_RANGE(index, 0, m_data.size());
 
 	return m_data[index];
 }
@@ -88,7 +88,7 @@ inline T& TFixedSizeStack<T, N>::operator [] (const std::size_t index)
 template<typename T, std::size_t N>
 inline const T& TFixedSizeStack<T, N>::operator [] (const std::size_t index) const
 {
-	PH_ASSERT(index < m_data.size());
+	PH_ASSERT_IN_RANGE(index, 0, m_data.size());
 
 	return m_data[index];
 }

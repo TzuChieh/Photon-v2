@@ -108,11 +108,11 @@ public class AppMain extends Application
 //		mcWorld.toSDL(console);
 //		console.exit();
 		
-		ModelParser modelParser = new ModelParser();
-		ModelData modelData = modelParser.parse(new FileInputStream("./birch_log.json"));
-		System.out.println(modelData);
+//		ModelParser modelParser = new ModelParser();
+//		ModelData modelData = modelParser.parse(new FileInputStream("./birch_log.json"));
+//		System.out.println(modelData);
 		
-		System.exit(0);
+//		System.exit(0);
 	}
 
 	@Override
