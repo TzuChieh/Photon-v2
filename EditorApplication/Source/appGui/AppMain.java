@@ -20,19 +20,19 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import jsdl.SDLCommand;
 import jsdl.SDLVector3;
+import minecraft.EFacing;
+import minecraft.FaceReachability;
+import minecraft.JSONObject;
+import minecraft.MinecraftWorld;
+import minecraft.RegionData;
+import minecraft.Terrain;
+import minecraft.nbt.NBTData;
+import minecraft.parser.JSONParser;
+import minecraft.parser.MCAParser;
+import minecraft.parser.NBTParser;
 import sun.misc.IOUtils;
 import util.SDLConsole;
 import util.Vector3f;
-import util.minecraft.EFacing;
-import util.minecraft.FaceReachability;
-import util.minecraft.JSONObject;
-import util.minecraft.MinecraftWorld;
-import util.minecraft.RegionData;
-import util.minecraft.Terrain;
-import util.minecraft.nbt.NBTData;
-import util.minecraft.parser.JSONParser;
-import util.minecraft.parser.MCAParser;
-import util.minecraft.parser.NBTParser;
 
 public class AppMain extends Application
 {
@@ -95,10 +95,10 @@ public class AppMain extends Application
 		MinecraftWorld mcWorld = new MinecraftWorld();
 		mcWorld.setTerrain(terrain);
 		
-//		mcWorld.setViewpoint(new Vector3f(60, 15, 240));
-		mcWorld.setViewpoint(new Vector3f(0, 100, 0));
-//		mcWorld.setViewDirection(new Vector3f(1, -0.5f, 3));
-		mcWorld.setViewDirection(new Vector3f(1, -0.4f, 1));
+		mcWorld.setViewpoint(new Vector3f(60, 15, 240));
+		mcWorld.setViewDirection(new Vector3f(1, -0.5f, 3));
+//		mcWorld.setViewpoint(new Vector3f(0, 100, 0));
+//		mcWorld.setViewDirection(new Vector3f(1, -0.4f, 1));
 		mcWorld.setFovDegrees(70.0f);
 		
 		SDLConsole console = new SDLConsole("mcw_export");
