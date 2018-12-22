@@ -41,8 +41,8 @@ Vector3R ValueParser::parseVector3(const std::string& vector3String) const
 	if(tokens.size() != 3)
 	{
 		std::cerr << "warning: at ValueParser::parseVector3(), bad string representation <" + vector3String + ">, " <<
-		             Vector3R().toString() << " is returned "<< std::endl;
-		return Vector3R();
+		             Vector3R(0).toString() << " is returned "<< std::endl;
+		return Vector3R(0);
 	}
 
 	return Vector3R(static_cast<real>(std::stold(tokens[0])), 
@@ -60,8 +60,8 @@ QuaternionR ValueParser::parseQuaternion(const std::string& quaternionString) co
 	if(tokens.size() != 4)
 	{
 		std::cerr << "warning: at ValueParser::parseQuaternion(), bad string representation <" + quaternionString + ">, " <<
-		             QuaternionR().toString() << " is returned " << std::endl;
-		return QuaternionR();
+		             QuaternionR(0, 0, 0, 1).toString() << " is returned " << std::endl;
+		return QuaternionR(0, 0, 0, 1);
 	}
 
 	return QuaternionR(static_cast<real>(std::stold(tokens[0])),
