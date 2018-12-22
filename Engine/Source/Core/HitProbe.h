@@ -8,6 +8,7 @@
 
 #include <limits>
 #include <array>
+#include <cstdint>
 
 namespace ph
 {
@@ -22,7 +23,7 @@ public:
 	inline HitProbe() :
 		m_hitStack(),
 		m_hitRayT(std::numeric_limits<real>::infinity()),
-		m_realCache(),
+		m_cache(),
 		m_hitDetailChannel(0)
 	{}
 
@@ -112,13 +113,31 @@ public:
 		return result;
 	}
 
-private:
-	typedef TFixedSizeStack<const Intersectable*, PH_INTERSECTION_PROBE_DEPTH> Stack;
+	template<typename T>
+	const T* getCache() const;
 
-	Stack  m_hitStack;
-	real   m_hitRayT;
-	real   m_realCache[PH_INTERSECTION_PROBE_REAL_CACHE_SIZE];
-	uint32 m_hitDetailChannel;
+private:
+	using Stack = TFixedSizeStack<const Intersectable*, PH_HIT_PROBE_DEPTH>;
+	constexpr static std::size_t CACHE_SIZE = (PH_HIT_PROBE_CACHE_BYTES * 8 + (CHAR_BIT - 1)) / CHAR_BIT;
+
+	Stack         m_hitStack;
+	real          m_hitRayT;
+	uint32        m_hitDetailChannel;
+
+	// unsigned char is guaranteed to not have any padding, and 
+	// does not violate strict aliasing rule
+	unsigned char m_cache[CACHE_SIZE];
 };
+
+// In-header Implementations:
+
+template<typename T>
+inline const T* HitProbe::getCache() const
+{
+	static_assert(sizeof(T) <= sizeof(m_cache), 
+		"not enough cache, consider increasing config.PH_HIT_PROBE_CACHE_BYTES");
+
+	return reinterpret_cast<const T*>(&m_cache[0]);
+}
 
 }// end namespace ph
