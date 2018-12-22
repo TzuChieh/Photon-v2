@@ -11,7 +11,7 @@ namespace ph
 {
 
 template<typename T>
-class TVector3
+class TVector3 final
 {
 public:
 	static inline TVector3 weightedSum(const TVector3& vA, T wA, 
@@ -26,15 +26,13 @@ public:
 	T z;
 
 public:
-	inline TVector3();
+	inline TVector3() = default;
 	inline TVector3(T x, T y, T z);
 	inline explicit TVector3(T value);
-	inline TVector3(const TVector3& other);
+	inline TVector3(const TVector3& other) = default;
 
 	template<typename U>
 	inline explicit TVector3(const TVector3<U>& other);
-
-	virtual inline ~TVector3() = default;
 
 	TVector3 rotate(const TQuaternion<T>& rotation) const;
 	void rotate(const TQuaternion<T>& rotation, TVector3* out_result) const;
@@ -133,8 +131,6 @@ public:
 	inline TVector3 operator + (const TVector3& rhs) const;
 	inline TVector3 operator - (T rhs) const;
 	inline TVector3 operator - (const TVector3& rhs) const;
-
-	inline TVector3& operator = (const TVector3& rhs);
 
 	inline bool operator == (const TVector3& rhs) const;
 	inline bool operator != (const TVector3& rhs) const;

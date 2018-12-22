@@ -168,7 +168,7 @@ bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
 	const real hitT = hitTscaled * reciDeterminant;
 
 	probe.pushBaseHit(this, hitT);
-	probe.cacheReal3(0, Vector3R(baryA, baryB, baryC));
+	probe.cache(Vector3R(baryA, baryB, baryC));
 
 	return true;
 }
@@ -178,9 +178,9 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 {
 	const Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
 	Vector3R hitBaryABC;
-	probe.getCachedReal3(0, &hitBaryABC);
+	probe.getCached(&hitBaryABC);
 
-	PH_ASSERT_MSG(hitBaryABC.isFinite(), hitBaryABC.toString());
+	PH_ASSERT_MSG(hitBaryABC.isNotZero() && hitBaryABC.isFinite(), hitBaryABC.toString());
 
 	const Vector3R hitShadingNormal = Vector3R::weightedSum(
 		m_nA, hitBaryABC.x,
@@ -392,7 +392,7 @@ void PTriangle::genPositionSample(PositionSample* const out_sample) const
 	const Vector3R abc(1.0_r - A, A * (1.0_r - B), B * A);
 
 	const Vector3R localPos = Vector3R::weightedSum(m_vA, abc.x, m_vB, abc.y, m_vC, abc.z);
-	Vector3R worldPos;
+	//Vector3R worldPos;
 	//m_metadata->localToWorld.transformP(localPos, &worldPos);
 	//out_sample->position = worldPos;
 	out_sample->position = localPos;
@@ -401,7 +401,7 @@ void PTriangle::genPositionSample(PositionSample* const out_sample) const
 	out_sample->uvw = m_uvwA.mul(1.0_r - abc.y - abc.z).addLocal(m_uvwB.mul(abc.y)).addLocal(m_uvwC.mul(abc.z));
 
 	const Vector3R localNormal(m_nA.mul(1.0_r - abc.y - abc.z).addLocal(m_nB.mul(abc.y)).addLocal(m_nC.mul(abc.z)));
-	Vector3R worldN;
+	//Vector3R worldN;
 	//m_metadata->localToWorld.transformVector(m_faceNormal, &worldN);
 
 	//m_metadata->localToWorld.transformO(localNormal, &worldN);

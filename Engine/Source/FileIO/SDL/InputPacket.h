@@ -53,12 +53,12 @@ public:
 
 	Vector3R getVector3(
 		const std::string&           name, 
-		const Vector3R&              defaultVector3       = Vector3R(), 
+		const Vector3R&              defaultVector3       = Vector3R(0), 
 		const DataTreatment&         treatment            = DataTreatment()) const;
 
 	QuaternionR getQuaternion(
 		const std::string&           name,
-		const QuaternionR&           defaultQuaternion    = QuaternionR(),
+		const QuaternionR&           defaultQuaternion    = QuaternionR(0, 0, 0, 1),
 		const DataTreatment&         treatment            = DataTreatment()) const;
 
 	std::vector<real> getRealArray(

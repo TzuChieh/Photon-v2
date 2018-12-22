@@ -8,14 +8,21 @@ import java.util.Map;
 public class ModelData
 {
 	private String              m_parentModelId;
+	private ModelData           m_parent;
 	private List<CuboidElement> m_elements;
 	private Map<String, String> m_textureAssignments;
 	
 	public ModelData()
 	{
 		m_parentModelId      = null;
-		m_elements           = new ArrayList<CuboidElement>();
+		m_parent             = null;
+		m_elements           = new ArrayList<>();
 		m_textureAssignments = new HashMap<>();
+	}
+	
+	public String getParentModelId()
+	{
+		return m_parentModelId;
 	}
 	
 	public void addElement(CuboidElement element)
@@ -28,9 +35,14 @@ public class ModelData
 		m_textureAssignments.put(variable, textureIdOrVariable);
 	}
 	
-	public void setParentModel(String modelId)
+	public void setParentModelId(String modelId)
 	{
 		m_parentModelId = modelId;
+	}
+	
+	public void setParent(ModelData model)
+	{
+		m_parent = model;
 	}
 	
 	@Override

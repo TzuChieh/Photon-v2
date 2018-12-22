@@ -38,10 +38,6 @@ typedef TVector3<float32>     Vector3F;
 typedef TVector3<float64>     Vector3D;
 typedef TVector3<std::size_t> Vector3S;
 
-typedef TIndexedVector3<real>    IndexedVector3R;
-typedef TIndexedVector3<float32> IndexedVector3F;
-typedef TIndexedVector3<float64> IndexedVector3D;
-
 typedef TQuaternion<real>    QuaternionR;
 typedef TQuaternion<float32> QuaternionF;
 typedef TQuaternion<float64> QuaternionD;

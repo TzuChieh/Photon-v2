@@ -21,6 +21,7 @@ public class MCAParser
 		m_chunkParser = new ChunkParser();
 	}
 	
+	// TODO: use Path
 	public RegionData parse(File mcaFile)
 	{
 		RegionData region = null;

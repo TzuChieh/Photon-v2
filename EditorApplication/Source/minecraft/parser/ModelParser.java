@@ -26,7 +26,7 @@ public class ModelParser
 		
 		if(root.has("parent"))
 		{
-			model.setParentModel(root.getString("parent"));
+			model.setParentModelId(root.getString("parent"));
 		}
 		
 		if(root.has("elements"))

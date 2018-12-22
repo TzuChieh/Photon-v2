@@ -134,8 +134,8 @@ void GCuboid::ciRegister(CommandRegister& cmdRegister)
 {
 	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
 	{
-		const Vector3R minVertex = packet.getVector3("min-vertex", Vector3R(), DataTreatment::REQUIRED());
-		const Vector3R maxVertex = packet.getVector3("max-vertex", Vector3R(), DataTreatment::REQUIRED());
+		const Vector3R minVertex = packet.getVector3("min-vertex", Vector3R(0), DataTreatment::REQUIRED());
+		const Vector3R maxVertex = packet.getVector3("max-vertex", Vector3R(0), DataTreatment::REQUIRED());
 
 		return std::make_unique<GCuboid>(minVertex, maxVertex);
 	}));

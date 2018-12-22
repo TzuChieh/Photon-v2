@@ -53,9 +53,6 @@ inline TMatrix4<T>::TMatrix4(const TMatrix4& other) :
 }
 
 template<typename T>
-inline TMatrix4<T>::~TMatrix4() = default;
-
-template<typename T>
 template<typename U>
 inline TMatrix4<T>::TMatrix4(const TMatrix4<U>& other) : 
 	m()

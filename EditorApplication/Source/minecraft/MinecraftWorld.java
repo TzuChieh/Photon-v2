@@ -21,10 +21,11 @@ import util.Vector3i;
 
 public class MinecraftWorld
 {
-	private Vector3f    m_viewpoint;
-	private Vector3f    m_viewDirection;
-	private float       m_fovDegrees;
-	private Terrain m_terrain;
+	private Vector3f m_viewpoint;
+	private Vector3f m_viewDirection;
+	private float    m_fovDegrees;
+	private Terrain  m_terrain;
+	private Asset    m_asset;
 	
 	public MinecraftWorld()
 	{
@@ -32,6 +33,7 @@ public class MinecraftWorld
 		m_viewDirection = new Vector3f(0, 0, -1);
 		m_fovDegrees    = 70.0f;
 		m_terrain       = null;
+		m_asset         = null;
 	}
 	
 	public void toSDL(SDLConsole out_console)
@@ -163,5 +165,10 @@ public class MinecraftWorld
 	public void setTerrain(Terrain terrain)
 	{
 		m_terrain = terrain;
+	}
+	
+	public void setAsset(Asset asset)
+	{
+		m_asset = asset;
 	}
 }
