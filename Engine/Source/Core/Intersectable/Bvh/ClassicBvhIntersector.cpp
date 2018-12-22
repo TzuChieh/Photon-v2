@@ -62,19 +62,20 @@ void ClassicBvhIntersector::update(const CookedDataStorage& cookedActors)
 
 bool ClassicBvhIntersector::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
+	const int32 isDirNeg[3] = {ray.getDirection().x < 0, ray.getDirection().y < 0, ray.getDirection().z < 0};
+
 	std::size_t todoNodes[NODE_STACK_SIZE];
 	int32       numTodoNodes     = 0;
 	std::size_t currentNodeIndex = 0;
 
 	Ray bvhRay(ray);
-	const int32 isDirNeg[3] = {bvhRay.getDirection().x < 0.0_r, bvhRay.getDirection().y < 0.0_r, bvhRay.getDirection().z < 0.0_r};
-	HitProbe currentProbe;
+	HitProbe closestProbe;
 
 	real minT    = 0.0_r;
 	real maxT    = 0.0_r;
-	real minHitT = std::numeric_limits<real>::infinity();
+	real minHitT = std::numeric_limits<real>::max();
 
-	// TODO: thinking of making use of minT & maxT found by AABB intersection
+	// TODO: possibly make use of minT & maxT found by AABB intersection?
 
 	while(!m_nodes.empty())
 	{
@@ -86,7 +87,7 @@ bool ClassicBvhIntersector::isIntersecting(const Ray& ray, HitProbe& probe) cons
 			{
 				for(int32 i = 0; i < node.numPrimitives; i++)
 				{
-					currentProbe.clear();// FIXME: this will erroneously clear the output probe if BVH is nested
+					HitProbe currentProbe(probe);
 					if(m_intersectables[node.primitivesOffset + i]->isIntersecting(bvhRay, currentProbe))
 					{
 						const real hitT = currentProbe.getHitRayT();
@@ -94,7 +95,7 @@ bool ClassicBvhIntersector::isIntersecting(const Ray& ray, HitProbe& probe) cons
 						{
 							minHitT = hitT;
 							bvhRay.setMaxT(hitT);
-							probe = currentProbe;// FIXME: erroneously clear the output probe if BVH is nested
+							closestProbe = currentProbe;
 						}
 					}
 				}
@@ -127,7 +128,16 @@ bool ClassicBvhIntersector::isIntersecting(const Ray& ray, HitProbe& probe) cons
 		}
 	}
 	
-	return minHitT != std::numeric_limits<real>::infinity();
+	// FIXME: need better condition
+	if(minHitT < std::numeric_limits<real>::max())
+	{
+		probe = closestProbe;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void ClassicBvhIntersector::calcAABB(AABB3D* const out_aabb) const
