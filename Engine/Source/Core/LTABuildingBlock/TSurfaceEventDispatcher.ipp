@@ -80,7 +80,7 @@ inline bool TSurfaceEventDispatcher<POLICY>::doBsdfSample(
 	// HACK: hard-coded number
 	*out_ray = Ray(X.getPosition(), bsdfSample.outputs.L, 0.0001_r, std::numeric_limits<real>::max());
 
-	return bsdfSample.outputs.isGood() &&
+	return bsdfSample.outputs.isMeasurable() &&
 	       SidednessAgreement(POLICY).isSidednessAgreed(X, bsdfSample.outputs.L);
 }
 

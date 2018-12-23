@@ -160,7 +160,7 @@ void BNEEPTEstimator::radianceAlongRay(
 
 			// blackness check & sidedness agreement between real geometry and shading normal
 			//
-			if(!bsdfSample.outputs.isGood() ||
+			if(!bsdfSample.outputs.isMeasurable() ||
 			   surfaceHit.getGeometryNormal().dot(L) * surfaceHit.getShadingNormal().dot(L) <= 0.0_r)
 			{
 				break;

@@ -83,12 +83,12 @@ void LambertianDiffuse::calcBsdfSample(
 	const real absNoL = N.absDot(L);
 	if(absNoL == 0.0_r)
 	{
-		out.setValidity(false);
+		out.setMeasurability(false);
 		return;
 	}
 
 	out.pdfAppliedBsdf.setValues(albedo.mulLocal(1.0_r / absNoL));
-	out.setValidity(true);
+	out.setMeasurability(true);
 }
 
 void LambertianDiffuse::calcBsdfSamplePdfW(

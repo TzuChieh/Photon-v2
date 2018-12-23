@@ -55,7 +55,7 @@ void ThinDielectricFilm::calcBsdfSample(
 
 	if(!canReflect && !canTransmit)
 	{
-		out.setValidity(false);
+		out.setMeasurability(false);
 		return;
 	}
 
@@ -96,7 +96,7 @@ void ThinDielectricFilm::calcBsdfSample(
 	{
 		if(!sidedness.isSameHemisphere(in.X, in.V, out.L))
 		{
-			out.setValidity(false);
+			out.setMeasurability(false);
 			return;
 		}
 
@@ -112,7 +112,7 @@ void ThinDielectricFilm::calcBsdfSample(
 	{
 		if(!sidedness.isOppositeHemisphere(in.X, in.V, out.L))
 		{
-			out.setValidity(false);
+			out.setMeasurability(false);
 			return;
 		}
 
@@ -138,14 +138,14 @@ void ThinDielectricFilm::calcBsdfSample(
 	else
 	{
 		// RARE: may be called due to numerical error
-		out.setValidity(false);
+		out.setMeasurability(false);
 		return;
 	}
 
 	SpectralStrength value;
 	value.setSampled(scale / N.absDot(out.L));
 	out.pdfAppliedBsdf.setValues(value);
-	out.setValidity(true);
+	out.setMeasurability(true);
 }
 
 void ThinDielectricFilm::calcBsdfSamplePdfW(

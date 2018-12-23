@@ -123,7 +123,7 @@ void BVPTEstimator::radianceAlongRay(
 				BsdfSample bsdfSample;
 				bsdfSample.inputs.set(Xe, endV);
 				metadata->getSurface().getOptics()->calcBsdfSample(bsdfSample);
-				if(!bsdfSample.outputs.isGood())
+				if(!bsdfSample.outputs.isMeasurable())
 				{
 					break;
 				}
