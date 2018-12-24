@@ -131,7 +131,7 @@ void GTriangleMesh::genPrimitive(const PrimitiveBuildingMaterial& data,
 		{
 			// FIXME: leak
 			Triangle* triangle = new Triangle();
-			triangle->setTvertices(
+			triangle->setVertices(
 				gTriangle.getVa().x, 
 				gTriangle.getVa().y,
 				gTriangle.getVa().z,

@@ -22,23 +22,23 @@ std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int i
 	float max_z = std::numeric_limits<float>::lowest();
 	
 	for(int j = 0; j < 3; j++){
-		if(t->getTverticies()[j].x < min_x){
-			min_x = t->getTverticies()[j].x;
+		if(t->getVerticies()[j].x < min_x){
+			min_x = t->getVerticies()[j].x;
 		}
-		if(t->getTverticies()[j].y < min_y){
-			min_y = t->getTverticies()[j].y;
+		if(t->getVerticies()[j].y < min_y){
+			min_y = t->getVerticies()[j].y;
 		}
-		if(t->getTverticies()[j].z < min_z){
-			min_z = t->getTverticies()[j].z;
+		if(t->getVerticies()[j].z < min_z){
+			min_z = t->getVerticies()[j].z;
 		}
-		if(t->getTverticies()[j].x > max_x){
-			max_x = t->getTverticies()[j].x;
+		if(t->getVerticies()[j].x > max_x){
+			max_x = t->getVerticies()[j].x;
 		}
-		if(t->getTverticies()[j].y > max_y){
-			max_y = t->getTverticies()[j].y;
+		if(t->getVerticies()[j].y > max_y){
+			max_y = t->getVerticies()[j].y;
 		}
-		if(t->getTverticies()[j].z > max_z){
-			max_z = t->getTverticies()[j].z;
+		if(t->getVerticies()[j].z > max_z){
+			max_z = t->getVerticies()[j].z;
 		}
 	}
 	
@@ -182,9 +182,9 @@ bool TriangleOverlapAABB3D(Triangle* tri, AABB3D& Box){
 	triVertexMin[1] = tri->TBoundingBox.getMinVertex().y - BoxCenter.y;
 	triVertexMin[2] = tri->TBoundingBox.getMinVertex().z - BoxCenter.z;
 
-	Vector3R edgeOA = tri->getTverticies()[1] - tri->getTverticies()[0];
-	Vector3R edgeOB = tri->getTverticies()[2] - tri->getTverticies()[0];
-	Vector3R edgeAB = tri->getTverticies()[1] - tri->getTverticies()[2];
+	Vector3R edgeOA = tri->getVerticies()[1] - tri->getVerticies()[0];
+	Vector3R edgeOB = tri->getVerticies()[2] - tri->getVerticies()[0];
+	Vector3R edgeAB = tri->getVerticies()[1] - tri->getVerticies()[2];
 
 	Vector3R a00(0, -edgeOA.z, edgeOA.y);
 	Vector3R a01(0, -edgeOB.z, edgeOB.y);
@@ -198,9 +198,9 @@ bool TriangleOverlapAABB3D(Triangle* tri, AABB3D& Box){
 	Vector3R a21(-edgeOB.y, edgeOB.x, 0);
 	Vector3R a22(-edgeAB.y, edgeAB.x, 0);
 
-	Vector3R v0 = tri->getTverticies()[0] - BoxCenter;
-	Vector3R v1 = tri->getTverticies()[1] - BoxCenter;
-	Vector3R v2 = tri->getTverticies()[2] - BoxCenter;
+	Vector3R v0 = tri->getVerticies()[0] - BoxCenter;
+	Vector3R v1 = tri->getVerticies()[1] - BoxCenter;
+	Vector3R v2 = tri->getVerticies()[2] - BoxCenter;
 	float p0,p1,p2,r;
 	//test 1
 	//test all axises
@@ -304,7 +304,7 @@ bool TriangleOverlapAABB3D(Triangle* tri, AABB3D& Box){
 	Vector3R triangle_normal = edgeOA.cross(edgeOB).normalize();
 	//L(t) = box.center + t * triangle.normal
 	r = Origin_box_Max.x * std::abs(triangle_normal.x) + Origin_box_Max.y * std::abs(triangle_normal.y) + Origin_box_Max.z * std::abs(triangle_normal.z);
-	float plane_constant = triangle_normal.dot(tri->getTverticies()[0]);
+	float plane_constant = triangle_normal.dot(tri->getVerticies()[0]);
 	float dis_to_plane = triangle_normal.dot(BoxCenter) - plane_constant;
 
 	return std::abs(dis_to_plane) <= r;
@@ -689,11 +689,24 @@ void KDNode::calcIntersectionDetail(const Ray& ray, HitProbe& probe, HitDetail* 
 
 	Triangle* hitTriangle;
 	probe.getCached(&hitTriangle);
+
 	const Vector3R hitPosition = ray.getOrigin() + ray.getDirection() * probe.getHitRayT();
 
+	const Vector3R e01 = hitTriangle->getVerticies()[1] - hitTriangle->getVerticies()[0];
+	const Vector3R e02 = hitTriangle->getVerticies()[2] - hitTriangle->getVerticies()[0];
 
+	Vector3R faceNormal = e01.cross(e02);
+	if(faceNormal.lengthSquared() > 0)
+	{
+		faceNormal.normalizeLocal();
+	}
+	else
+	{
+		faceNormal.set(0, 1, 0);
+	}
+	
 	out_detail->setMisc(this	, Vector3R(0), probe.getHitRayT());
-	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(hitPosition, Vector3R(0, 1, 0), Vector3R(0, 1, 0));
+	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(hitPosition, faceNormal, faceNormal);
 	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
 }
 

@@ -289,7 +289,7 @@ class Triangle {
 				exit(1);
 			}
 		}
-        void setTvertices(float x1, float y1, float z1, float x2, float y2, float z2,
+        void setVertices(float x1, float y1, float z1, float x2, float y2, float z2,
                             float x3, float y3, float z3){
 			index = -1;
 			
@@ -304,7 +304,7 @@ class Triangle {
 			*/
         }
 		
-		Vector3R* getTverticies(){
+		Vector3R* getVerticies(){
 			if(index == -2){
 				fprintf(stderr, "Triangle getTverticies err:Triangle verticies does not set, first run setTvertices\n");
 				exit(1);
