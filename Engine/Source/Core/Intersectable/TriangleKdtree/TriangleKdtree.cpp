@@ -1,6 +1,6 @@
 #include "Core/Intersectable/TriangleKdtree/TriangleKdtree.h"
 #include "Core/HitDetail.h"
-#include <unistd.h>
+
 #include <limits>
 
 namespace ph
@@ -679,7 +679,7 @@ bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
 	if(is_hit == true)
 	{
 		probe.pushBaseHit(hitNode, besthitT);
-		probe.cachePointer(hitTriangle);
+		probe.cache(hitTriangle);
 	}
 	return is_hit;
 	
@@ -687,7 +687,8 @@ bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
 //2. implement virtual void calcIntersectionDetail(const Ray& ray, HitProbe& probe, HitDetail* out_detail) const = 0
 void KDNode::calcIntersectionDetail(const Ray& ray, HitProbe& probe, HitDetail* out_detail) const {
 
-	Triangle* hitTriangle = (Triangle*)(probe.getCachedPointer());
+	Triangle* hitTriangle;
+	probe.getCached(&hitTriangle);
 	const Vector3R hitPosition = ray.getOrigin() + ray.getDirection() * probe.getHitRayT();
 
 

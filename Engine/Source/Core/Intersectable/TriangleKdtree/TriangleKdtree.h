@@ -17,7 +17,6 @@
 #include <vector>
 #include <assert.h>
 #include <limits.h>
-#include <unistd.h>
 #include <cmath>
 
 constexpr int traversal_constant = 1;

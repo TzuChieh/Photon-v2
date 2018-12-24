@@ -89,18 +89,6 @@ public:
 	template<typename T>
 	void getCached(T* out_data);
 
-	// HACK
-	inline void cachePointer(const void* const pointer)
-	{
-		((const real**)(m_realCache))[0] = (const real*)pointer;
-	}
-
-	// HACK
-	inline const void* getCachedPointer() const
-	{
-		return ((const real**)(m_realCache))[0];
-	}
-
 private:
 	using Stack = TFixedSizeStack<const Intersectable*, PH_HIT_PROBE_DEPTH>;
 
