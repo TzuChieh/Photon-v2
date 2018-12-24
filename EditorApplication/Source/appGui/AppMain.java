@@ -1,10 +1,13 @@
 package appGui;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import com.sun.javafx.application.LauncherImpl;
@@ -15,10 +18,23 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import jsdl.SDLCommand;
+import jsdl.SDLVector3;
+import minecraft.EFacing;
+import minecraft.FaceReachability;
+import minecraft.JSONObject;
+import minecraft.MinecraftWorld;
+import minecraft.ModelData;
+import minecraft.RegionData;
+import minecraft.Terrain;
+import minecraft.nbt.NBTData;
+import minecraft.parser.JSONParser;
+import minecraft.parser.MCAParser;
+import minecraft.parser.ModelParser;
+import minecraft.parser.NBTParser;
 import sun.misc.IOUtils;
-import util.minecraft.MCAParser;
-import util.minecraft.NBTData;
-import util.minecraft.NBTParser;
+import util.SDLConsole;
+import util.Vector3f;
 
 public class AppMain extends Application
 {
@@ -62,27 +78,39 @@ public class AppMain extends Application
 		
 		// DEBUG
 		
-//		GZIPInputStream input = new GZIPInputStream(new FileInputStream("./level.dat"));
-//		NBTParser parser = new NBTParser(input);
-//		NBTData data = parser.getData();
-//		System.out.println(data);
+//		EFacing f = EFacing.UP;
+//		FaceReachability reachability = new FaceReachability();
+//		System.err.println(reachability);
+//		reachability.setReachability(EFacing.DOWN, f, true);
+//		System.err.println(reachability);
+//		reachability.setReachability(EFacing.DOWN, f, false);
+//		System.err.println(reachability);
 		
-//		GZIPInputStream input2 = new GZIPInputStream(new FileInputStream("./level.dat"));
-//		FileOutputStream output2 = new FileOutputStream("./level_decompressed.dat");
-//		byte[] buffer = new byte[1024];
-//		while(input2.available() == 1)
-//		{
-//			int read = input2.read(buffer);
-//			if(read != -1)
-//				output2.write(buffer, 0, read);
-//		}
-//		output2.close();
+//		MCAParser parser = new MCAParser();
+////		RegionData region = parser.parse(new File("./r.1.2.mca"));
+//		RegionData region = parser.parse(new File("./r.0.0.mca"));
+////		RegionData region = parser.parse(new File("./r.0.-1.mca"));
+//		
+//		Terrain terrain = new Terrain();
+//		terrain.addRegion(region);
+//		
+//		MinecraftWorld mcWorld = new MinecraftWorld();
+//		mcWorld.setTerrain(terrain);
+//		
+//		mcWorld.setViewpoint(new Vector3f(60, 15, 240));
+//		mcWorld.setViewDirection(new Vector3f(1, -0.5f, 3));
+////		mcWorld.setViewpoint(new Vector3f(0, 100, 0));
+////		mcWorld.setViewDirection(new Vector3f(1, -0.4f, 1));
+//		mcWorld.setFovDegrees(70.0f);
+//		
+//		SDLConsole console = new SDLConsole("mcw_export");
+//		console.start();
+//		mcWorld.toSDL(console);
+//		console.exit();
 		
-		
-//		InputStream input = new FileInputStream("./r.0.-1.mca");
-//		InputStream input = new FileInputStream("./r.0.0.mca");
-//		MCAParser parser = new MCAParser(input);
-		
+//		ModelParser modelParser = new ModelParser();
+//		ModelData modelData = modelParser.parse(new FileInputStream("./birch_log.json"));
+//		System.out.println(modelData);
 		
 //		System.exit(0);
 	}

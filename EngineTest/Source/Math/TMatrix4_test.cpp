@@ -38,7 +38,7 @@ namespace
 
 TEST(TMatrix4Test, Constructs)
 {
-	Matrix mat1;
+	Matrix mat1(0);
 
 	expect_all_zero(mat1);
 

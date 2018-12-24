@@ -12,7 +12,7 @@ namespace ph
 
 class GTriangleMesh;
 
-class GSphere final : public Geometry, public TCommandInterface<GSphere>
+class GSphere : public Geometry, public TCommandInterface<GSphere>
 {
 public:
 	GSphere();

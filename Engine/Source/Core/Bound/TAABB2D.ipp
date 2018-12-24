@@ -8,31 +8,23 @@ namespace ph
 template<typename T>
 inline TAABB2D<T>::TAABB2D() :
 	minVertex(0), maxVertex(0)
-{
-
-}
+{}
 
 template<typename T>
 inline TAABB2D<T>::TAABB2D(const TAABB2D& other) : 
 	minVertex(other.minVertex), maxVertex(other.maxVertex)
-{
-
-}
+{}
 
 template<typename T>
 inline TAABB2D<T>::TAABB2D(const TVector2<T>& minVertex, const TVector2<T>& maxVertex) : 
 	minVertex(minVertex), maxVertex(maxVertex)
-{
-
-}
+{}
 
 template<typename T>
 template<typename U>
 inline TAABB2D<T>::TAABB2D(const TAABB2D<U>& other) : 
 	minVertex(other.minVertex), maxVertex(other.maxVertex)
-{
-
-}
+{}
 
 template<typename T>
 inline bool TAABB2D<T>::isIntersectingArea(const TAABB2D& other) const

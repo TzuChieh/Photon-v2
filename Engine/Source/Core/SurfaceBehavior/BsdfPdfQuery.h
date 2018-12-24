@@ -31,6 +31,7 @@ public:
 		const SurfaceElemental elemental);
 };
 
+// TODO: method for checking validity
 class BsdfPdfQueryOutput final
 {
 public:

@@ -13,7 +13,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import photonApi.FrameRegion;
 import photonApi.Rectangle;
-import photonApi.Vector3f;
+import util.Vector3f;
 
 public class Display
 {

@@ -34,8 +34,11 @@
 #define PH_SPECTRUM_SAMPLED_MIN_WAVELENGTH_NM 350
 #define PH_SPECTRUM_SAMPLED_MAX_WAVELENGTH_NM 850
 #define PH_SPECTRUM_SAMPLED_NUM_SAMPLES       100
-#define PH_INTERSECTION_PROBE_DEPTH           8
-#define PH_INTERSECTION_PROBE_REAL_CACHE_SIZE 8
+#define PH_HIT_PROBE_DEPTH                    8
+
+// Number of available bytes for a probe's cache. Note that a byte is not 
+// necessarily 8-bit.
+#define PH_HIT_PROBE_CACHE_BYTES 12
 
 #include <string>
 

@@ -19,7 +19,7 @@ void ThinLensCamera::genSensedRay(const Vector2R& filmNdcPos, Ray* const out_ray
 	const real     hitParamDist    = m_focalDistanceMM / (-camCenterRayDir.z);
 	const Vector3R camFocusPos     = camCenterRayDir.mul(hitParamDist);
 
-	Vector3R camLensPos;
+	Vector3R camLensPos(0);
 	genRandomSampleOnDisk(m_lensRadiusMM, &camLensPos.x, &camLensPos.y);
 
 	Vector3R worldLensPos, worldFocusPos;

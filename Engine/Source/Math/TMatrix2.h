@@ -12,12 +12,15 @@ template<typename T>
 class TMatrix2 final
 {
 public:
+	static TMatrix2 makeIdentity();
+
+public:
 	std::array<std::array<T, 2>, 2> m;
 
-	inline TMatrix2();
+	inline TMatrix2() = default;
 	explicit inline TMatrix2(T value);
 	inline TMatrix2(T m00, T m01, T m10, T m11);
-	inline TMatrix2(const TMatrix2& other);
+	inline TMatrix2(const TMatrix2& other) = default;
 
 	template<typename U>
 	explicit inline TMatrix2(const TMatrix2<U>& other);

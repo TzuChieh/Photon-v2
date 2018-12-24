@@ -152,7 +152,7 @@ private:
 
 template<typename T>
 TDecomposedTransform<T>::TDecomposedTransform() : 
-	m_position(0, 0, 0), m_rotation(0, 0, 0, 1), m_scale(1, 1, 1)
+	m_position(0, 0, 0), m_rotation(TQuaternion<T>::makeNoRotation()), m_scale(1, 1, 1)
 {}
 
 template<typename T>

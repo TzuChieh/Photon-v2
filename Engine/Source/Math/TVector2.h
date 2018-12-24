@@ -8,21 +8,19 @@ namespace ph
 {
 
 template<typename T>
-class TVector2
+class TVector2 final
 {
 public:
 	T x;
 	T y;
 
-	inline TVector2();
+	inline TVector2() = default;
 	inline TVector2(T x, T y);
 	inline explicit TVector2(T value);
-	inline TVector2(const TVector2& other);
+	inline TVector2(const TVector2& other) = default;
 
 	template<typename U>
 	explicit inline TVector2(const TVector2<U>& other);
-
-	virtual inline ~TVector2();
 
 	inline void add(const TVector2& rhs, TVector2* out_result) const;
 	inline TVector2 add(const TVector2& rhs) const;
@@ -60,7 +58,6 @@ public:
 
 	inline std::string toString() const;
 
-	inline TVector2& operator = (const TVector2& rhs);
 	inline T operator [] (int axisId) const;
 	inline T& operator [] (int axisId);
 };

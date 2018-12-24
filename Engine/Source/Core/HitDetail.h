@@ -5,6 +5,7 @@
 #include "Math/math.h"
 #include "Core/ECoordSys.h"
 #include "Core/HitInfo.h"
+#include "Common/assertion.h"
 
 namespace ph
 {
@@ -77,11 +78,15 @@ public:
 
 	inline const HitInfo& getHitInfo(const ECoordSys coordSys = ECoordSys::WORLD) const
 	{
+		PH_ASSERT_LT(static_cast<int>(coordSys), static_cast<int>(ECoordSys::NUM_ELEMENTS));
+
 		return m_hitInfos[static_cast<int>(coordSys)];
 	}
 
 	inline HitInfo& getHitInfo(const ECoordSys coordSys = ECoordSys::WORLD)
 	{
+		PH_ASSERT_LT(static_cast<int>(coordSys), static_cast<int>(ECoordSys::NUM_ELEMENTS));
+
 		return m_hitInfos[static_cast<int>(coordSys)];
 	}
 

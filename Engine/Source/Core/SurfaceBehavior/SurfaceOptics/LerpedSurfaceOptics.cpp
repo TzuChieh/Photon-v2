@@ -156,7 +156,7 @@ void LerpedSurfaceOptics::calcBsdfSample(
 		}
 
 		// FIXME: should check individual optics has valid sample
-		out.setValidity(true);
+		out.setMeasurability(true);
 	}
 	else
 	{

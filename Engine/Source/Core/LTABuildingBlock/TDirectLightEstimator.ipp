@@ -78,6 +78,7 @@ inline real TDirectLightEstimator<POLICY>::samplePdfWUnoccluded(
 	const SurfaceHit& Xe,
 	const Time&       time)
 {
+	// FIXME: redundant pointers
 	const Primitive* const emissivePrimitive = Xe.getDetail().getPrimitive();
 	const Emitter* const   emitter           = emissivePrimitive->getMetadata()->getSurface().getEmitter();
 	PH_ASSERT(emitter);

@@ -64,7 +64,7 @@ void IdealReflector::calcBsdfSample(
 		TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_reflectionScale, in.X);
 	out.pdfAppliedBsdf.mulLocal(reflectionScale);
 
-	out.setValidity(true);
+	out.setMeasurability(true);
 }
 
 void IdealReflector::calcBsdfSamplePdfW(

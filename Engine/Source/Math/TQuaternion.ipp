@@ -8,33 +8,21 @@ namespace ph
 {
 
 template<typename T>
-inline TQuaternion<T>::TQuaternion() :
-	x(0), y(0), z(0), w(1)
+inline TQuaternion<T> TQuaternion<T>::makeNoRotation()
 {
-
-}
-
-template<typename T>
-inline TQuaternion<T>::TQuaternion(const TQuaternion& other) :
-	x(other.x), y(other.y), z(other.z), w(other.w)
-{
-
-}
-
-template<typename T>
-template<typename U>
-inline TQuaternion<T>::TQuaternion(const TQuaternion<U>& other) : 
-	x(static_cast<T>(other.x)), y(static_cast<T>(other.y)), z(static_cast<T>(other.z)), w(static_cast<T>(other.w))
-{
-
+	return TQuaternion(0, 0, 0, 1);
 }
 
 template<typename T>
 inline TQuaternion<T>::TQuaternion(const T x, const T y, const T z, const T w) :
 	x(x), y(y), z(z), w(w)
-{
+{}
 
-}
+template<typename T>
+template<typename U>
+inline TQuaternion<T>::TQuaternion(const TQuaternion<U>& other) : 
+	x(static_cast<T>(other.x)), y(static_cast<T>(other.y)), z(static_cast<T>(other.z)), w(static_cast<T>(other.w))
+{}
 
 template<typename T>
 inline TQuaternion<T>::TQuaternion(const TVector3<T>& normalizedAxis, const T radians) :

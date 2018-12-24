@@ -53,7 +53,7 @@ void IdealTransmitter::calcBsdfSample(
 	Vector3R& L = out.L;
 	if(!m_fresnel->calcRefractDir(in.V, N, &L))
 	{
-		out.setValidity(false);
+		out.setMeasurability(false);
 		return;
 	}
 
@@ -81,7 +81,7 @@ void IdealTransmitter::calcBsdfSample(
 		TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_transmissionScale, in.X);
 	out.pdfAppliedBsdf.mulLocal(transmissionScale);
 
-	out.setValidity(true);
+	out.setMeasurability(true);
 }
 
 void IdealTransmitter::calcBsdfSamplePdfW(
