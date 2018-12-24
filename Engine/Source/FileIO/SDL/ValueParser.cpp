@@ -60,8 +60,8 @@ QuaternionR ValueParser::parseQuaternion(const std::string& quaternionString) co
 	if(tokens.size() != 4)
 	{
 		std::cerr << "warning: at ValueParser::parseQuaternion(), bad string representation <" + quaternionString + ">, " <<
-		             QuaternionR(0, 0, 0, 1).toString() << " is returned " << std::endl;
-		return QuaternionR(0, 0, 0, 1);
+		             QuaternionR::makeNoRotation().toString() << " is returned " << std::endl;
+		return QuaternionR::makeNoRotation();
 	}
 
 	return QuaternionR(static_cast<real>(std::stold(tokens[0])),

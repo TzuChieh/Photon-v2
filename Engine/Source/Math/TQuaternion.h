@@ -13,14 +13,17 @@ template<typename T>
 class TQuaternion final
 {
 public:
+	static TQuaternion makeNoRotation();
+
+public:
 	T x;
 	T y;
 	T z;
 	T w;
 
 public:
-	inline TQuaternion();
-	inline TQuaternion(const TQuaternion& other);
+	inline TQuaternion() = default;
+	inline TQuaternion(const TQuaternion& other) = default;
 
 	template<typename U>
 	inline explicit TQuaternion(const TQuaternion<U>& other);

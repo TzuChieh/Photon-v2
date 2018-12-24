@@ -70,7 +70,7 @@ Vector3R InputPacket::getVector3(
 
 QuaternionR InputPacket::getQuaternion(
 	const std::string&   name,
-	const QuaternionR&    defaultQuaternion,
+	const QuaternionR&   defaultQuaternion,
 	const DataTreatment& treatment) const
 {
 	std::string stringValue;

@@ -58,7 +58,7 @@ public:
 
 	QuaternionR getQuaternion(
 		const std::string&           name,
-		const QuaternionR&           defaultQuaternion    = QuaternionR(0, 0, 0, 1),
+		const QuaternionR&           defaultQuaternion    = QuaternionR::makeNoRotation(),
 		const DataTreatment&         treatment            = DataTreatment()) const;
 
 	std::vector<real> getRealArray(
