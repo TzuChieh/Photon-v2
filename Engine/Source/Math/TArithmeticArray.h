@@ -12,80 +12,76 @@ namespace ph
 {
 
 template<typename T, std::size_t N>
-class TArithmeticArray
+class TArithmeticArray final
 {
 public:
-	static inline std::size_t numElements();
+	static std::size_t numElements();
 
 public:
-	inline TArithmeticArray();
-	explicit inline TArithmeticArray(T value);
-	explicit inline TArithmeticArray(const std::array<T, N>& values);
-	inline TArithmeticArray(const TArithmeticArray& other);
+	inline TArithmeticArray() = default;
+	explicit TArithmeticArray(T value);
+	explicit TArithmeticArray(const std::array<T, N>& values);
+	inline TArithmeticArray(const TArithmeticArray& other) = default;
 
 	template<typename U>
-	explicit inline TArithmeticArray(const TArithmeticArray<U, N>& other);
+	explicit TArithmeticArray(const TArithmeticArray<U, N>& other);
 
-	virtual inline ~TArithmeticArray() = default;
+	TArithmeticArray add(const TArithmeticArray& rhs) const;
+	TArithmeticArray add(T rhs) const;
+	TArithmeticArray sub(const TArithmeticArray& rhs) const;
+	TArithmeticArray sub(T rhs) const;
+	TArithmeticArray mul(const TArithmeticArray& rhs) const;
+	TArithmeticArray mul(T rhs) const;
+	TArithmeticArray div(const TArithmeticArray& rhs) const;
+	TArithmeticArray div(T rhs) const;
 
-	inline TArithmeticArray add(const TArithmeticArray& rhs) const;
-	inline TArithmeticArray add(T rhs) const;
-	inline TArithmeticArray sub(const TArithmeticArray& rhs) const;
-	inline TArithmeticArray sub(T rhs) const;
-	inline TArithmeticArray mul(const TArithmeticArray& rhs) const;
-	inline TArithmeticArray mul(T rhs) const;
-	inline TArithmeticArray div(const TArithmeticArray& rhs) const;
-	inline TArithmeticArray div(T rhs) const;
+	TArithmeticArray& addLocal(const TArithmeticArray& rhs);
+	TArithmeticArray& addLocal(T rhs);
+	TArithmeticArray& subLocal(const TArithmeticArray& rhs);
+	TArithmeticArray& subLocal(T rhs);
+	TArithmeticArray& mulLocal(const TArithmeticArray& rhs);
+	TArithmeticArray& mulLocal(T rhs);
+	TArithmeticArray& divLocal(const TArithmeticArray& rhs);
+	TArithmeticArray& divLocal(T rhs);
 
-	inline TArithmeticArray& addLocal(const TArithmeticArray& rhs);
-	inline TArithmeticArray& addLocal(T rhs);
-	inline TArithmeticArray& subLocal(const TArithmeticArray& rhs);
-	inline TArithmeticArray& subLocal(T rhs);
-	inline TArithmeticArray& mulLocal(const TArithmeticArray& rhs);
-	inline TArithmeticArray& mulLocal(T rhs);
-	inline TArithmeticArray& divLocal(const TArithmeticArray& rhs);
-	inline TArithmeticArray& divLocal(T rhs);
-
-	inline TArithmeticArray pow(integer exponent) const;
-	inline TArithmeticArray& sqrtLocal();
+	TArithmeticArray pow(integer exponent) const;
+	TArithmeticArray& sqrtLocal();
 
 	// Inputs must not contain any NaN. 
 	// (NaNs are clamped to lower bound)
-	inline TArithmeticArray& clampLocal(T lowerBound, T upperBound);
+	TArithmeticArray& clampLocal(T lowerBound, T upperBound);
 
-	inline T dot(const TArithmeticArray& rhs) const;
-	inline T sum() const;
-	inline T avg() const;
-	inline T max() const;
-	inline TArithmeticArray complement() const;
-	inline TArithmeticArray& complementLocal();
+	T dot(const TArithmeticArray& rhs) const;
+	T sum() const;
+	T avg() const;
+	T max() const;
+	TArithmeticArray complement() const;
+	TArithmeticArray& complementLocal();
 
 	template<typename U>
-	inline TArithmeticArray<U, N> lerp(const TArithmeticArray& rhs, U factor) const;
+	TArithmeticArray<U, N> lerp(const TArithmeticArray& rhs, U factor) const;
 
-	inline bool isZero() const;
-	inline bool isNonNegative() const;
-	inline bool isFinite() const;
-	inline std::size_t size() const;
+	bool isZero() const;
+	bool isNonNegative() const;
+	bool isFinite() const;
+	std::size_t size() const;
 
-	inline TArithmeticArray& set(T value);
-	inline TArithmeticArray& set(const std::array<T, N>& values);
+	TArithmeticArray& set(T value);
+	TArithmeticArray& set(const std::array<T, N>& values);
 
-	inline T& operator [] (std::size_t index);
-	inline const T& operator [] (std::size_t index) const;
-	inline bool operator == (const TArithmeticArray& other) const;
+	T& operator [] (std::size_t index);
+	const T& operator [] (std::size_t index) const;
+	bool operator == (const TArithmeticArray& other) const;
 
-	inline TArithmeticArray operator * (T rhs) const;
-	inline TArithmeticArray operator + (T rhs) const;
+	TArithmeticArray operator * (T rhs) const;
+	TArithmeticArray operator + (T rhs) const;
 
-	inline TArithmeticArray& operator = (const TArithmeticArray& rhs);
+	typename std::array<T, N>::iterator       begin() noexcept;
+	typename std::array<T, N>::const_iterator begin() const noexcept;
+	typename std::array<T, N>::iterator       end()   noexcept;
+	typename std::array<T, N>::const_iterator end()   const noexcept;
 
-	inline typename std::array<T, N>::iterator       begin() noexcept;
-	inline typename std::array<T, N>::const_iterator begin() const noexcept;
-	inline typename std::array<T, N>::iterator       end()   noexcept;
-	inline typename std::array<T, N>::const_iterator end()   const noexcept;
-
-	inline std::string toString() const;
+	std::string toString() const;
 
 protected:
 	std::array<T, N> m;
