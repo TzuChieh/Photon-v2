@@ -528,14 +528,8 @@ KDNode *KDNode::recBuild(Triangles& T, Voxel& V, int depth)
 	//std::shared_ptr<KDNode> root = std::make_shared<KDNode>(m_metadata);
 	KDNode *root = new KDNode(m_metadata);
 	root->Tprim = T;
-	if(left_tris.tris.size() > 0 )
-		root->left = recBuild(left_tris, left_voxel, depth+1);
-	else
-		root->left = NULL;
-	if(right_tris.tris.size() > 0 )
-		root->right = recBuild(right_tris, right_voxel, depth+1);
-	else
-		root->right = NULL;
+	root->left = recBuild(left_tris, left_voxel, depth+1);
+	root->right = recBuild(right_tris, right_voxel, depth+1);
 	root->plane = p;
 	PH_ASSERT_LE(root->plane.getNormal(), 2);
 	PH_ASSERT_GE(root->plane.getNormal(), 0);
