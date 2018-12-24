@@ -11,11 +11,6 @@ namespace ph
 {
 
 template<typename T>
-inline TVector2<T>::TVector2() : 
-	x(0), y(0)
-{}
-
-template<typename T>
 inline TVector2<T>::TVector2(const T x, const T y) : 
 	x(x), y(y)
 {}
@@ -26,18 +21,10 @@ inline TVector2<T>::TVector2(const T value) :
 {}
 
 template<typename T>
-inline TVector2<T>::TVector2(const TVector2& other) : 
-	x(other.x), y(other.y)
-{}
-
-template<typename T>
 template<typename U>
 inline TVector2<T>::TVector2(const TVector2<U>& other) : 
 	x(static_cast<T>(other.x)), y(static_cast<T>(other.y))
 {}
-
-template<typename T>
-inline TVector2<T>::~TVector2() = default;
 
 template<typename T>
 inline void TVector2<T>::add(const TVector2& rhs, TVector2* const out_result) const
@@ -233,15 +220,6 @@ template<typename T>
 inline std::string TVector2<T>::toString() const
 {
 	return '(' + std::to_string(x) + ", " + std::to_string(y) + ')';
-}
-
-template<typename T>
-inline TVector2<T>& TVector2<T>::operator = (const TVector2& rhs)
-{
-	x = rhs.x;
-	y = rhs.y;
-
-	return *this;
 }
 
 template<typename T>

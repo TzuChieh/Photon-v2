@@ -9,32 +9,26 @@ using namespace ph;
 
 TEST(MathOperationsVector2R, Constructs)
 {
-	// trial 1: defaults to (0, 0)
-
-	const Vector2R vec1;
-	EXPECT_EQ(vec1.x, 0.0_r);
-	EXPECT_EQ(vec1.y, 0.0_r);
-
-	// trial 2: element-by-element construct
+	// trial 1: element-by-element construct
 
 	const Vector2R vec2(-1.1_r, 2.2_r);
 	EXPECT_EQ(vec2.x, -1.1_r);
 	EXPECT_EQ(vec2.y,  2.2_r);
 
-	// trial 3: fill with scalar
+	// trial 2: fill with scalar
 
 	const Vector2R vec3(5.0_r);
 	EXPECT_EQ(vec3.x, 5.0_r);
 	EXPECT_EQ(vec3.y, 5.0_r);
 
-	// trial 4: copying
+	// trial 3: copying
 
 	const Vector2R vec4a(1.0_r, 2.0_r);
 	const Vector2R vec4b(vec4a);
 	EXPECT_EQ(vec4a.x, vec4b.x);
 	EXPECT_EQ(vec4a.y, vec4b.y);
 
-	// trial 5: assigning
+	// trial 4: assigning
 
 	Vector2R vec5a;
 	const Vector2R vec5b(1.0_r, 2.0_r);
@@ -42,7 +36,7 @@ TEST(MathOperationsVector2R, Constructs)
 	EXPECT_EQ(vec5a.x, vec5b.x);
 	EXPECT_EQ(vec5a.y, vec5b.y);
 
-	// trial 6: casting
+	// trial 5: casting
 
 	Vector2R vec6r;
 	const TVector2<int32> vec6i(-3, 3);
