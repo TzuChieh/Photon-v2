@@ -16,43 +16,43 @@ public:
 	static TMatrix4 IDENTITY();
 
 public:
-	typedef std::array<std::array<T, 4>, 4> Elements;
+	using Elements = std::array<std::array<T, 4>, 4>;
 
 	Elements m;
 
 public:
-	inline TMatrix4();
-	explicit inline TMatrix4(T value);
-	explicit inline TMatrix4(const Elements& elements);
-	inline TMatrix4(const TMatrix4& other);
+	inline TMatrix4() = default;
+	explicit TMatrix4(T value);
+	explicit TMatrix4(const Elements& elements);
+	inline TMatrix4(const TMatrix4& other) = default;
 
 	template<typename U>
-	explicit inline TMatrix4(const TMatrix4<U>& other);
+	explicit TMatrix4(const TMatrix4<U>& other);
 
-	inline TMatrix4& initIdentity();
-	inline TMatrix4& initTranslation(T x, T y, T z);
-	inline TMatrix4& initTranslation(const TVector3<T>& value);
-	inline TMatrix4& initRotation(const TQuaternion<T>& rot);
-	inline TMatrix4& initRotation(const TVector3<T>& orthBasisX, const TVector3<T>& orthBasisY, const TVector3<T>& orthBasisZ);
-	inline TMatrix4& initScale(T x, T y, T z);
-	inline TMatrix4& initScale(const TVector3<T>& scale);
-	inline TMatrix4& initPerspectiveProjection(T fov,
-	                                           T aspectRatio,
-	                                           T zNear,
-	                                           T zFar);
+	TMatrix4& initIdentity();
+	TMatrix4& initTranslation(T x, T y, T z);
+	TMatrix4& initTranslation(const TVector3<T>& value);
+	TMatrix4& initRotation(const TQuaternion<T>& rot);
+	TMatrix4& initRotation(const TVector3<T>& orthBasisX, const TVector3<T>& orthBasisY, const TVector3<T>& orthBasisZ);
+	TMatrix4& initScale(T x, T y, T z);
+	TMatrix4& initScale(const TVector3<T>& scale);
+	TMatrix4& initPerspectiveProjection(T fov,
+	                                    T aspectRatio,
+	                                    T zNear,
+	                                    T zFar);
 
-	inline TMatrix4 mul(const TMatrix4& rhs) const;
-	inline void mul(const TMatrix4& rhs, TMatrix4* out_result) const;
-	inline void mul(const TVector3<T>& rhsXYZ, T rhsW, TVector3<T>* out_result) const;
-	inline TMatrix4& mulLocal(T rhs);
+	TMatrix4 mul(const TMatrix4& rhs) const;
+	void mul(const TMatrix4& rhs, TMatrix4* out_result) const;
+	void mul(const TVector3<T>& rhsXYZ, T rhsW, TVector3<T>* out_result) const;
+	TMatrix4& mulLocal(T rhs);
 
-	inline TMatrix4& inverse(TMatrix4* out_result) const;
-	inline TMatrix4 transpose() const;
+	TMatrix4& inverse(TMatrix4* out_result) const;
+	TMatrix4 transpose() const;
 
-	inline T determinant() const;
+	T determinant() const;
 
-	inline bool equals(const TMatrix4& other) const;
-	inline std::string toString() const;
+	bool equals(const TMatrix4& other) const;
+	std::string toString() const;
 };
 
 }// end namespace ph

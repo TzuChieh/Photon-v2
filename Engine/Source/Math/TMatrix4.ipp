@@ -17,13 +17,7 @@ TMatrix4<T> TMatrix4<T>::IDENTITY()
 }
 
 template<typename T>
-inline TMatrix4<T>::TMatrix4() : 
-	m{}
-{}
-
-template<typename T>
-inline TMatrix4<T>::TMatrix4(const T value) : 
-	m()
+inline TMatrix4<T>::TMatrix4(const T value)
 {
 	for(std::size_t i = 0; i < 4; ++i)
 	{
@@ -40,22 +34,8 @@ inline TMatrix4<T>::TMatrix4(const Elements& elements) :
 {}
 
 template<typename T>
-inline TMatrix4<T>::TMatrix4(const TMatrix4& other) : 
-	m()
-{
-	for(std::size_t i = 0; i < 4; ++i)
-	{
-		for(std::size_t j = 0; j < 4; ++j)
-		{
-			m[i][j] = other.m[i][j];
-		}
-	}
-}
-
-template<typename T>
 template<typename U>
-inline TMatrix4<T>::TMatrix4(const TMatrix4<U>& other) : 
-	m()
+inline TMatrix4<T>::TMatrix4(const TMatrix4<U>& other)
 {
 	for(std::size_t i = 0; i < 4; ++i)
 	{
