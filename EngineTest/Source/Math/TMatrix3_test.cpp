@@ -35,7 +35,7 @@ namespace
 
 TEST(TMatrix3Test, Construction)
 {
-	Matrix mat1;
+	Matrix mat1(0);
 
 	expect_all_zero(mat1);
 
