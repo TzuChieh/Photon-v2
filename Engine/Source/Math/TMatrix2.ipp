@@ -13,10 +13,9 @@ namespace ph
 {
 
 template<typename T>
-inline TMatrix2<T>::TMatrix2() : 
-	m()
+inline TMatrix2<T> TMatrix2<T>::makeIdentity() 
 {
-	initIdentity();
+	return TMatrix2().initIdentity();
 }
 
 template<typename T>
@@ -25,17 +24,11 @@ inline TMatrix2<T>::TMatrix2(const T value) :
 {}
 
 template<typename T>
-inline TMatrix2<T>::TMatrix2(const T m00, const T m01, const T m10, const T m11) : 
-	m()
+inline TMatrix2<T>::TMatrix2(const T m00, const T m01, const T m10, const T m11)
 {
 	m[0][0] = m00; m[0][1] = m01;
 	m[1][0] = m10; m[1][1] = m11;
 }
-
-template<typename T>
-inline TMatrix2<T>::TMatrix2(const TMatrix2& other) : 
-	m(other.m)
-{}
 
 template<typename T>
 template<typename U>
