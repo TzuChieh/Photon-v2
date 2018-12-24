@@ -1,5 +1,6 @@
 #include "Core/Intersectable/TriangleKdtree/TriangleKdtree.h"
 #include "Core/HitDetail.h"
+#include "Core/Intersectable/PTriangle.h"
 
 #include <limits>
 
@@ -587,7 +588,7 @@ bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
 	invDir[1] = 1/ray.getDirection().y;
 	invDir[2] = 1/ray.getDirection().z;
 	
-	float besthitT;
+	float besthitT = std::numeric_limits<float>::max();
 	Triangle *hitTriangle;
 	KDNode *hitNode;
 	while(cur_node != NULL){
@@ -650,16 +651,34 @@ bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
 				float hitT;
 				//puts("b1");
 
-				//bug here cant go inside 
-				if(triangle->Intersect(ray, &hitT)){
-					is_hit = true;
-					//probe.pushBaseHit(this, hitT);
-					hitTriangle = triangle;
-					hitNode = cur_node;
-					besthitT = hitT;
-					//puts("hit!");
-					break;
+				// DEBUG
+				PTriangle tri(
+					cur_node->getMetadata(), 
+					triangle->getVerticies()[0],
+					triangle->getVerticies()[1],
+					triangle->getVerticies()[2]);
+				HitProbe triProbe;
+				if(tri.isIntersecting(ray, triProbe))
+				{
+					if(triProbe.getHitRayT() < besthitT)
+					{
+						is_hit = true;
+						hitTriangle = triangle;
+						hitNode = cur_node;
+						besthitT = triProbe.getHitRayT();
+					}
 				}
+
+				//bug here cant go inside 
+				//if(triangle->Intersect(ray, &hitT)){
+				//	is_hit = true;
+				//	//probe.pushBaseHit(this, hitT);
+				//	hitTriangle = triangle;
+				//	hitNode = cur_node;
+				//	besthitT = hitT;
+				//	//puts("hit!");
+				//	break;
+				//}
 				//puts("b2");
 			}
 			if(todoPos > 0 ){
