@@ -24,14 +24,11 @@ public:
 public:
 	using Parent = TAbstractSpectralStrength<TSampledSpectralStrength, N>;
 
-	inline TSampledSpectralStrength();
-	inline TSampledSpectralStrength(const TSampledSpectralStrength& other);
+	inline TSampledSpectralStrength() = default;
+	inline TSampledSpectralStrength(const TSampledSpectralStrength& other) = default;
 	using Parent::Parent;
-	virtual inline ~TSampledSpectralStrength() override = default;
 
 	//void asAveraged(const real* lambdasNm, const real* strengths, std::size_t numElements);
-
-	inline TSampledSpectralStrength& operator = (const TSampledSpectralStrength& rhs);
 
 	inline Vector3R impl_genLinearSrgb(EQuantity valueType) const;
 	inline void impl_setLinearSrgb(const Vector3R& rgb, EQuantity valueType);

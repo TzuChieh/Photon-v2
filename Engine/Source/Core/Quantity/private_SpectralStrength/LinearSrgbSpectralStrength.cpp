@@ -5,14 +5,6 @@
 namespace ph
 {
 
-LinearSrgbSpectralStrength::LinearSrgbSpectralStrength() :
-	Parent()
-{}
-
-LinearSrgbSpectralStrength::LinearSrgbSpectralStrength(const LinearSrgbSpectralStrength& other) :
-	Parent(other)
-{}
-
 Vector3R LinearSrgbSpectralStrength::impl_genLinearSrgb(const EQuantity valueType) const
 {
 	return Vector3R(m_values[0], m_values[1], m_values[2]);
