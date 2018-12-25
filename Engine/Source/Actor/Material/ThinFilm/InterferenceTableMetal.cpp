@@ -25,7 +25,7 @@ namespace ph
         m_transmittance.push_back(T);
     }
 
-    void InterferenceTableMetal::read_iorfile(const std::string filename, const int layer) // not done
+    void InterferenceTableMetal::read_iorfile(const std::string filename, const int layer)
     {
     	std::string line;
     	std::ifstream myfile(filename);
