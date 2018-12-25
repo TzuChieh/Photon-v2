@@ -5,24 +5,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ModelData
+public class BlockData
 {
-	private String              m_parentModelId;
-	private ModelData           m_parent;
+	private String              m_parentBlockId;
+	private BlockData           m_parent;
 	private List<CuboidElement> m_elements;
 	private Map<String, String> m_textureAssignments;
 	
-	public ModelData()
+	public BlockData()
 	{
-		m_parentModelId      = null;
+		m_parentBlockId      = null;
 		m_parent             = null;
 		m_elements           = new ArrayList<>();
 		m_textureAssignments = new HashMap<>();
 	}
 	
-	public String getParentModelId()
+	public String getParentBlockId()
 	{
-		return m_parentModelId;
+		return m_parentBlockId;
 	}
 	
 	public void addElement(CuboidElement element)
@@ -37,20 +37,20 @@ public class ModelData
 	
 	public void setParentModelId(String modelId)
 	{
-		m_parentModelId = modelId;
+		m_parentBlockId = modelId;
 	}
 	
-	public void setParent(ModelData model)
+	public void setParent(BlockData block)
 	{
-		m_parent = model;
+		m_parent = block;
 	}
 	
 	@Override
 	public String toString()
 	{
 		return 
-			"Model Data:\n" + 
-			"\tparent: " + m_parentModelId + "\n" +
+			"Block Data:\n" + 
+			"\tparent: " + m_parentBlockId + "\n" +
 			"\telements: " + m_elements + "\n" + 
 			"\ttexture assignments: " + m_textureAssignments;
 	}

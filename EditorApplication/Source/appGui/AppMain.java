@@ -24,7 +24,7 @@ import minecraft.EFacing;
 import minecraft.FaceReachability;
 import minecraft.JSONObject;
 import minecraft.MinecraftWorld;
-import minecraft.ModelData;
+import minecraft.BlockData;
 import minecraft.RegionData;
 import minecraft.Terrain;
 import minecraft.nbt.NBTData;

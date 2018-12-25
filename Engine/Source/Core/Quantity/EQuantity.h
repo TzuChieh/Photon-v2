@@ -8,7 +8,7 @@ enum class EQuantity
 	// Raw data such as position, normal, density information.
 	RAW,
 
-	// EMR stands for Electromagnetic Radiation; the quantity typical light 
+	// EMR stands for ElectroMagnetic Radiation; the quantity typical light 
 	// sources emitted.
 	EMR,
 
