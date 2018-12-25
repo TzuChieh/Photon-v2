@@ -27,13 +27,13 @@ public class MinecraftWorld
 	private Terrain  m_terrain;
 	private Asset    m_asset;
 	
-	public MinecraftWorld()
+	public MinecraftWorld(Terrain terrain, Asset asset)
 	{
 		m_viewpoint     = new Vector3f(0);
 		m_viewDirection = new Vector3f(0, 0, -1);
 		m_fovDegrees    = 70.0f;
-		m_terrain       = null;
-		m_asset         = null;
+		m_terrain       = terrain;
+		m_asset         = asset;
 	}
 	
 	public void toSDL(SDLConsole out_console)
@@ -96,15 +96,7 @@ public class MinecraftWorld
 		material.setDataName(materialName);
 		out_console.queue(material);
 		
-		List<SectionUnit> allSections = m_terrain.getAllSections();
-		List<SectionUnit> reachableSections = m_terrain.getReachableSections(m_viewpoint);
-		
-		
-		
-		List<SectionUnit> sections = reachableSections;
-		
-		
-		
+		List<SectionUnit> sections = m_terrain.getReachableSections(m_viewpoint);
 		for(SectionUnit section : sections)
 		{
 			System.err.println("generating... " + section);
@@ -141,10 +133,7 @@ public class MinecraftWorld
 					}
 				}
 			}
-		}
-		
-		System.err.println("all sections: " + allSections.size());
-		System.err.println("reachable sections: " + reachableSections.size());
+		}// end for each section
 	}
 	
 	public void setViewpoint(Vector3f viewpoint)
@@ -160,15 +149,5 @@ public class MinecraftWorld
 	public void setFovDegrees(float fovDegrees)
 	{
 		m_fovDegrees = fovDegrees;
-	}
-	
-	public void setTerrain(Terrain terrain)
-	{
-		m_terrain = terrain;
-	}
-	
-	public void setAsset(Asset asset)
-	{
-		m_asset = asset;
 	}
 }

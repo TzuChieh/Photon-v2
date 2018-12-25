@@ -1,7 +1,10 @@
 package minecraft;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -9,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.stream.Stream;
 
 import jsdl.CuboidGeometryCreator;
 import jsdl.MatteOpaqueMaterialCreator;
@@ -17,6 +21,7 @@ import jsdl.SDLCommand;
 import jsdl.SDLGeometry;
 import jsdl.SDLMaterial;
 import jsdl.SDLVector3;
+import minecraft.parser.MCAParser;
 import util.Vector3f;
 import util.Vector3i;
 
@@ -70,13 +75,19 @@ public class Terrain
 				}
 			}
 		}
+		
+		MCLogger.log("found " + sections.size() + " non-empty sections");
+		
 		return sections;
 	}
 	
+	// NOTE: unconnected regions is not reachable in the current implementation 
 	public List<SectionUnit> getReachableSections(Vector3f viewpoint)
 	{
+		MCLogger.log("determining reachable sections...");
+		
 		// HACK
-		int MAX_RADIUS = 8;
+		int MAX_RADIUS = 6;
 		
 		Vector3f pv = toSectionCoord(viewpoint).toVector3f();
 		System.err.println("pv: " + pv);
@@ -184,7 +195,7 @@ public class Terrain
 					}
 				}
 				
-				// it is possible for flood to flow within the same section
+				// it is possible for flood to flow within the section it came from
 				if(!floodedArea.getSection(flood.coord))
 				{
 					FaceReachability fromReachability = sectionReachability.get(flood.coord);
@@ -201,7 +212,36 @@ public class Terrain
 			}
 		}// end while
 		
+		MCLogger.log("found " + reachableSections.size() + " reachable sections");
+		
 		return reachableSections;
+	}
+	
+	public void loadRegions(Path mcaStorage)
+	{
+		MCAParser parser = new MCAParser();
+		try(Stream<Path> paths = Files.list(mcaStorage))
+		{
+		    paths.filter(Files::isRegularFile).forEach((Path mcaFile) -> 
+		    {
+		    	MCLogger.log("parsing MCA file <" + mcaFile + ">");
+		    	
+		    	RegionData region = parser.parse(mcaFile);
+		    	if(region != null)
+		    	{
+		    		addRegion(parser.parse(mcaFile));
+		    	}
+		    	else
+		    	{
+		    		MCLogger.warn("MCA file <" + mcaFile + "> parsing failed");
+		    	}
+		    });
+		}
+		catch(IOException e)
+		{
+			MCLogger.warn("error during region loading, data may be incomplete");
+			e.printStackTrace();
+		} 
 	}
 	
 	private static Vector3i toSectionCoord(Vector3f viewpoint)

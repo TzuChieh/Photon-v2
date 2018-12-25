@@ -1,11 +1,14 @@
 package minecraft.parser;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import minecraft.RegionData;
 import util.BinaryData;
@@ -21,28 +24,25 @@ public class MCAParser
 		m_chunkParser = new ChunkParser();
 	}
 	
-	// TODO: use Path
-	public RegionData parse(File mcaFile)
+	public RegionData parse(Path mcaFile)
 	{
 		RegionData region = null;
-		try
+		try(InputStream rawData = new BufferedInputStream(Files.newInputStream(mcaFile)))
 		{
-			InputStream input    = new FileInputStream(mcaFile);
-			String      filename = mcaFile.getName();
-			
-			String[] tokens = filename.split("[.]");
+			String   filename = mcaFile.getFileName().toString();
+			String[] tokens   = filename.split("[.]");
 			if(tokens.length == 4 && tokens[0].equals("r") && tokens[3].equals("mca"))
 			{
 				int regionX = Integer.valueOf(tokens[1]);
 				int regionZ = Integer.valueOf(tokens[2]);
-				region = parse(regionX, regionZ, input);
+				region = parse(regionX, regionZ, rawData);
 			}
 			else
 			{
 				System.err.println("unknown format of the MCA filename <" + filename + ">, region not parsed");
 			}
 		}
-		catch(FileNotFoundException e)
+		catch(IOException e)
 		{
 			System.err.println("error opening MCA file: " + mcaFile);
 			e.printStackTrace();

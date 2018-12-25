@@ -7,7 +7,16 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.LogManager;
 import java.util.zip.GZIPInputStream;
 
 import com.sun.javafx.application.LauncherImpl;
@@ -20,11 +29,14 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import jsdl.SDLCommand;
 import jsdl.SDLVector3;
+import minecraft.Asset;
 import minecraft.EFacing;
 import minecraft.FaceReachability;
 import minecraft.JSONObject;
+import minecraft.MCLogger;
+import minecraft.MinecraftInstallation;
 import minecraft.MinecraftWorld;
-import minecraft.BlockData;
+import minecraft.ModelData;
 import minecraft.RegionData;
 import minecraft.Terrain;
 import minecraft.nbt.NBTData;
@@ -111,6 +123,41 @@ public class AppMain extends Application
 //		ModelParser modelParser = new ModelParser();
 //		ModelData modelData = modelParser.parse(new FileInputStream("./birch_log.json"));
 //		System.out.println(modelData);
+		
+		
+		MinecraftInstallation mcInstallation = new MinecraftInstallation();
+		
+		Path jarPath = mcInstallation.getJarPath(13, 2);
+        
+		try(FileSystem zipfs = FileSystems.newFileSystem(jarPath, null))
+		{
+			Path modelStorage = zipfs.getPath("assets", "minecraft", "models");
+			Path textureStorage = zipfs.getPath("assets", "minecraft", "textures");
+			
+			List<String> modelIds = new ArrayList<>();
+			modelIds.add("block/block");
+			
+			List<String> textureIds = new ArrayList<>();
+			textureIds.add("block/acacia_log_top");
+			textureIds.add("block/acacia_log");
+			
+			Asset asset = new Asset();
+			asset.loadModels(modelStorage, modelIds);
+			asset.loadTextures(textureStorage, textureIds);
+			
+			Terrain terrain = new Terrain();
+			Path regionFolder = mcInstallation.getHomePath().resolve("saves").resolve("New World").resolve("region");
+			terrain.loadRegions(regionFolder);
+			
+			MinecraftWorld mcWorld = new MinecraftWorld(terrain, asset);
+			mcWorld.setViewpoint(new Vector3f(0, 80, 0));
+			mcWorld.setViewDirection(new Vector3f(-0.5f, -1, -0.5f));
+			
+			SDLConsole console = new SDLConsole("mcw_export");
+			console.start();
+			mcWorld.toSDL(console);
+			console.exit();
+		}
 		
 //		System.exit(0);
 	}

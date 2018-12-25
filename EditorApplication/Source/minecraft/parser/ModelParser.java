@@ -7,7 +7,7 @@ import minecraft.EFacing;
 import minecraft.Face;
 import minecraft.JSONArray;
 import minecraft.JSONObject;
-import minecraft.BlockData;
+import minecraft.ModelData;
 import util.Vector3f;
 
 public class ModelParser
@@ -19,10 +19,10 @@ public class ModelParser
 		m_jsonParser = new JSONParser();
 	}
 	
-	public BlockData parse(InputStream rawData)
+	public ModelData parse(InputStream rawData)
 	{
 		JSONObject root = m_jsonParser.parse(rawData);
-		BlockData model = new BlockData();
+		ModelData model = new ModelData();
 		
 		if(root.has("parent"))
 		{

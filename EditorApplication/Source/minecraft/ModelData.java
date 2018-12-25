@@ -5,14 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BlockData
+public class ModelData
 {
 	private String              m_parentBlockId;
-	private BlockData           m_parent;
+	private ModelData           m_parent;
 	private List<CuboidElement> m_elements;
 	private Map<String, String> m_textureAssignments;
 	
-	public BlockData()
+	public ModelData()
 	{
 		m_parentBlockId      = null;
 		m_parent             = null;
@@ -40,7 +40,7 @@ public class BlockData
 		m_parentBlockId = modelId;
 	}
 	
-	public void setParent(BlockData block)
+	public void setParent(ModelData block)
 	{
 		m_parent = block;
 	}
