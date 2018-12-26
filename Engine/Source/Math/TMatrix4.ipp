@@ -100,6 +100,7 @@ inline TMatrix4<T>& TMatrix4<T>::initRotation(const TQuaternion<T>& rot)
 	return *this;
 }
 
+// FIXME: this is worldToLocal, should be localToWorld
 template<typename T>
 inline TMatrix4<T>& TMatrix4<T>::initRotation(const TVector3<T>& orthBasisX, const TVector3<T>& orthBasisY, const TVector3<T>& orthBasisZ)
 {

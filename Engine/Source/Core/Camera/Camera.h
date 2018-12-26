@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
+#include "Math/TQuaternion.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Math/Transform/TDecomposedTransform.h"
 #include "Core/Filmic/filmic_fwd.h"
@@ -23,7 +24,8 @@ class Camera : public TCommandInterface<Camera>
 {
 public:
 	Camera();
-	Camera(const Vector3R& position, const Vector3R& direction, const Vector3R& upAxis);
+	// FIXME: currently rotation is worldToCamera, should be cameraToWorld
+	Camera(const Vector3R& position, const QuaternionR& rotation);
 	virtual ~Camera() = default;
 
 	// TODO: consider changing <filmNdcPos> to 64-bit float
@@ -53,14 +55,15 @@ public:
 
 protected:
 	TDecomposedTransform<hiReal> m_cameraToWorldTransform;
-
-private:
 	Vector3R m_position;
 	Vector3R m_direction;
-	Vector3R m_upAxis;
-	real     m_aspectRatio;
 
-	void updateCameraToWorldTransform(const Vector3R& position, const Vector3R& direction, const Vector3R& upAxis);
+private:
+	real m_aspectRatio;
+
+	void updateCameraPose(const TVector3<hiReal>& position, const TQuaternion<hiReal>& rotation);
+	static TQuaternion<hiReal> getWorldToCameraRotation(const Vector3R& direction, const Vector3R& upAxis);
+	static TQuaternion<hiReal> getWorldToCameraRotation(real yawDegrees, real pitchDegrees);
 
 // command interface
 public:
@@ -84,11 +87,6 @@ inline const Vector3R& Camera::getPosition() const
 inline const Vector3R& Camera::getDirection() const
 {
 	return m_direction;
-}
-
-inline const Vector3R& Camera::getUpAxis() const
-{
-	return m_upAxis;
 }
 
 inline void Camera::getPosition(Vector3R* const out_position) const

@@ -241,7 +241,7 @@ public class Terrain
 		{
 			MCLogger.warn("error during region loading, data may be incomplete");
 			e.printStackTrace();
-		} 
+		}
 	}
 	
 	private static Vector3i toSectionCoord(Vector3f viewpoint)

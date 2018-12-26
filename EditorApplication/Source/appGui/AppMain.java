@@ -125,39 +125,41 @@ public class AppMain extends Application
 //		System.out.println(modelData);
 		
 		
-		MinecraftInstallation mcInstallation = new MinecraftInstallation();
-		
-		Path jarPath = mcInstallation.getJarPath(13, 2);
-        
-		try(FileSystem zipfs = FileSystems.newFileSystem(jarPath, null))
-		{
-			Path modelStorage = zipfs.getPath("assets", "minecraft", "models");
-			Path textureStorage = zipfs.getPath("assets", "minecraft", "textures");
-			
-			List<String> modelIds = new ArrayList<>();
-			modelIds.add("block/block");
-			
-			List<String> textureIds = new ArrayList<>();
-			textureIds.add("block/acacia_log_top");
-			textureIds.add("block/acacia_log");
-			
-			Asset asset = new Asset();
-			asset.loadModels(modelStorage, modelIds);
-			asset.loadTextures(textureStorage, textureIds);
-			
-			Terrain terrain = new Terrain();
-			Path regionFolder = mcInstallation.getHomePath().resolve("saves").resolve("New World").resolve("region");
-			terrain.loadRegions(regionFolder);
-			
-			MinecraftWorld mcWorld = new MinecraftWorld(terrain, asset);
-			mcWorld.setViewpoint(new Vector3f(0, 80, 0));
-			mcWorld.setViewDirection(new Vector3f(-0.5f, -1, -0.5f));
-			
-			SDLConsole console = new SDLConsole("mcw_export");
-			console.start();
-			mcWorld.toSDL(console);
-			console.exit();
-		}
+//		MinecraftInstallation mcInstallation = new MinecraftInstallation();
+//		
+//		System.err.println(mcInstallation.getLevels());
+//		
+//		Path jarPath = mcInstallation.getJar(13, 2);
+//        
+//		try(FileSystem zipfs = FileSystems.newFileSystem(jarPath, null))
+//		{
+//			Path modelStorage = zipfs.getPath("assets", "minecraft", "models");
+//			Path textureStorage = zipfs.getPath("assets", "minecraft", "textures");
+//			
+//			List<String> modelIds = new ArrayList<>();
+//			modelIds.add("block/block");
+//			
+//			List<String> textureIds = new ArrayList<>();
+//			textureIds.add("block/acacia_log_top");
+//			textureIds.add("block/acacia_log");
+//			
+//			Asset asset = new Asset();
+//			asset.loadModels(modelStorage, modelIds);
+//			asset.loadTextures(textureStorage, textureIds);
+//			
+//			Terrain terrain = new Terrain();
+//			Path regionFolder = mcInstallation.getHome().resolve("saves").resolve("New World").resolve("region");
+//			terrain.loadRegions(regionFolder);
+//			
+//			MinecraftWorld mcWorld = new MinecraftWorld(terrain, asset);
+//			mcWorld.setViewpoint(new Vector3f(0, 80, 0));
+//			mcWorld.setViewDirection(new Vector3f(-0.5f, -1, -0.5f));
+//			
+//			SDLConsole console = new SDLConsole("mcw_export");
+//			console.start();
+//			mcWorld.toSDL(console);
+//			console.exit();
+//		}
 		
 //		System.exit(0);
 	}

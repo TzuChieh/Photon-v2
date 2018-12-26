@@ -2,12 +2,12 @@ package minecraft;
 
 public enum EFacing
 {
-	NORTH(0),
-	SOUTH(1),
-	WEST (2),
-	EAST (3),
-	DOWN (4),
-	UP   (5);
+	NORTH(0),// -z
+	SOUTH(1),// +z
+	WEST (2),// -x
+	EAST (3),// +x
+	DOWN (4),// -y
+	UP   (5);// +y
 	
 	public static final int SIZE = 6;
 	
