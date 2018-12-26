@@ -212,3 +212,19 @@ TEST(TMatrix4Test, Equality)
 	EXPECT_TRUE(mat1.equals(mat2));
 	EXPECT_FALSE(mat1.equals(Matrix(999.0f)));
 }
+
+TEST(TMatrix4Test, RotationMatrixFromBasis)
+{
+	Matrix mat1;
+	mat1.initRotation({1, 0, 0}, {0, 1, 0}, {0, 0, 1});
+	EXPECT_TRUE(mat1.equals(Matrix::IDENTITY()));
+
+	Matrix mat2;
+	mat2.initRotation({0, 0, 1}, {-1, 0, 0}, {0, -1, 0});
+
+	ph::Vector3R result;
+	mat2.mul({1, 1, 1}, 0, &result);
+	EXPECT_FLOAT_EQ(result.x, -1);
+	EXPECT_FLOAT_EQ(result.y, -1);
+	EXPECT_FLOAT_EQ(result.z,  1);
+}

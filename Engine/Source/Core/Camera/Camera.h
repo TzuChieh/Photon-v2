@@ -24,7 +24,6 @@ class Camera : public TCommandInterface<Camera>
 {
 public:
 	Camera();
-	// FIXME: currently rotation is worldToCamera, should be cameraToWorld
 	Camera(const Vector3R& position, const QuaternionR& rotation);
 	virtual ~Camera() = default;
 

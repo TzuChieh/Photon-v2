@@ -53,10 +53,10 @@ void Camera::updateCameraPose(const TVector3<hiReal>& position, const TQuaternio
 	// changes unit from mm to m
 	m_cameraToWorldTransform.setScale(TVector3<hiReal>(0.001));
 
-	m_cameraToWorldTransform.setRotation(rotation.conjugate());
+	m_cameraToWorldTransform.setRotation(rotation);
 
 	m_position  = Vector3R(position);
-	m_direction = Vector3R(TVector3<hiReal>(0, 0, -1).rotate(rotation.conjugate()));
+	m_direction = Vector3R(TVector3<hiReal>(0, 0, -1).rotate(rotation));
 }
 
 TQuaternion<hiReal> Camera::getWorldToCameraRotation(const Vector3R& direction, const Vector3R& upAxis)
