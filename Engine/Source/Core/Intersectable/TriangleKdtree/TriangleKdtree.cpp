@@ -171,7 +171,7 @@ bool TriangleOverlapAABB3D(Triangle* tri, AABB3D& Box){
 	float triVertexMax[3];
 	float triVertexMin[3];
 	//Compute AABB center
-	Vector3R BoxCenter = (Box.getMinVertex() + Box.getMinVertex()) * 0.5f;
+	Vector3R BoxCenter = (Box.getMinVertex() + Box.getMaxVertex()) * 0.5f;
 	//Compute Box translate to center at origin
 	Vector3R Origin_box_Max = Box.getMaxVertex() - BoxCenter;
 	Vector3R Origin_box_Min = Box.getMinVertex() - BoxCenter;
@@ -365,7 +365,7 @@ float SAH(Plane& p, Voxel& V, int left_traingles_n, int right_traingles_n)
 	Voxel left_voxel;
 	Voxel right_voxel;
 	split_voxel(V, p, left_voxel, right_voxel);
-	printf("SAH !:left_voxel,Min%lf %lf %lf Max:%lf %lf %lf\n right_voxel,Min:%lf %lf %lf Max:%lf %lf %lf\n",left_voxel.box.getMinVertex().x,left_voxel.box.getMinVertex().y,left_voxel.box.getMinVertex().z,left_voxel.box.getMaxVertex().x,left_voxel.box.getMaxVertex().y,left_voxel.box.getMaxVertex().z,right_voxel.box.getMinVertex().x,right_voxel.box.getMinVertex().y,right_voxel.box.getMinVertex().z,right_voxel.box.getMaxVertex().x,right_voxel.box.getMaxVertex().y,right_voxel.box.getMaxVertex().z);
+	//printf("SAH !:left_voxel,Min%lf %lf %lf Max:%lf %lf %lf\n right_voxel,Min:%lf %lf %lf Max:%lf %lf %lf\n",left_voxel.box.getMinVertex().x,left_voxel.box.getMinVertex().y,left_voxel.box.getMinVertex().z,left_voxel.box.getMaxVertex().x,left_voxel.box.getMaxVertex().y,left_voxel.box.getMaxVertex().z,right_voxel.box.getMinVertex().x,right_voxel.box.getMinVertex().y,right_voxel.box.getMinVertex().z,right_voxel.box.getMaxVertex().x,right_voxel.box.getMaxVertex().y,right_voxel.box.getMaxVertex().z);
 	float total_SA = SA(V);
 	float P_left = SA(left_voxel)/total_SA;
 	float P_right = SA(right_voxel)/total_SA;
@@ -431,7 +431,7 @@ bool edgeCmp(BoundEdge a, BoundEdge b)
 Plane find_plane(Triangles& T, Voxel& V)
 {
 	int LongestAxis = V.LongestAxis();
-	printf("LongestAxis:%d\n",LongestAxis);
+	//printf("LongestAxis:%d\n",LongestAxis);
 	std::vector<BoundEdge> Edges;
 	//use parameters to update BoundEdge
 	setTriBoundingEdge(V, T, LongestAxis, Edges);
@@ -462,7 +462,7 @@ Plane find_plane(Triangles& T, Voxel& V)
 	float COST_MIN = std::numeric_limits<float>::max();
 	Plane best_plane;
 	//iterate all edges candidate
-	printf("Edges.size:%lu\n",Edges.size());
+	//printf("Edges.size:%lu\n",Edges.size());
 	for(int i = 0; i < Edges.size(); i++){
 		if( Edges[i].getEdgeType() == 1){
 			num_right_tris --;
@@ -471,7 +471,7 @@ Plane find_plane(Triangles& T, Voxel& V)
 		{
 			Plane p(Edges[i], LongestAxis);
 			//SAH(Plane& p, Voxel& V, int left_traingles_n, int right_traingles_n, int overlap_triangles_n) overlap is not used
-			printf("d is :%lf\n",Edges[i].getSplitPos());
+			//printf("d is :%lf\n",Edges[i].getSplitPos());
 			float cost = SAH(p,V,num_left_tris,num_right_tris);
 			if(cost<COST_MIN){
 				best_plane = p;
@@ -480,7 +480,7 @@ Plane find_plane(Triangles& T, Voxel& V)
 			if( Edges[i].getEdgeType() == 0){
 				num_left_tris ++;
 			}
-			puts("inside!");
+			//puts("inside!");
 		}
 	}
 
@@ -490,7 +490,7 @@ Plane find_plane(Triangles& T, Voxel& V)
 KDNode *KDNode::recBuild(Triangles& T, Voxel& V, int depth)
 {
 	//printf("depth:%d\n",depth);
-	printf("recbuild T.size():%lu\n",T.tris.size());
+	//printf("recbuild T.size():%lu\n",T.tris.size());
 	Plane p = find_plane(T,V);
 	//when p.getNormal == -1, it means all the triangle bounding edge does not exist inside the rectangle
 	if(terminate(T,V,depth) || p.getNormal()==-1){
@@ -500,12 +500,12 @@ KDNode *KDNode::recBuild(Triangles& T, Voxel& V, int depth)
 		root->right = NULL;
 		root->Tprim = T;
 		PH_ASSERT_EQ(root->isLeaf(),1);
-		printf("leaf T.size():%lu\n",root->Tprim.tris.size());
+		//printf("leaf T.size():%lu\n",root->Tprim.tris.size());
 		return root;
 		//return leaf_node(T)
 	}
 	
-	printf("p normal:%d p getd:%lf\n",p.getNormal(),p.get_d());
+	//printf("p normal:%d p getd:%lf\n",p.getNormal(),p.get_d());
 	PH_ASSERT_LE(p.getNormal(), 2);
 	PH_ASSERT_GE(p.getNormal(), 0);
 
@@ -515,16 +515,16 @@ KDNode *KDNode::recBuild(Triangles& T, Voxel& V, int depth)
 	//V split by p, use parameters to update left_voxel and right_voxel.
 	split_voxel(V, p, left_voxel, right_voxel);
 
-	printf("left_voxel,Min%lf %lf %lf Max:%lf %lf %lf\n right_voxel,Min:%lf %lf %lf Max:%lf %lf %lf\n",left_voxel.box.getMinVertex().x,left_voxel.box.getMinVertex().y,left_voxel.box.getMinVertex().z,left_voxel.box.getMaxVertex().x,left_voxel.box.getMaxVertex().y,left_voxel.box.getMaxVertex().z,right_voxel.box.getMinVertex().x,right_voxel.box.getMinVertex().y,right_voxel.box.getMinVertex().z,right_voxel.box.getMaxVertex().x,right_voxel.box.getMaxVertex().y,right_voxel.box.getMaxVertex().z);
+	//printf("left_voxel,Min%lf %lf %lf Max:%lf %lf %lf\n right_voxel,Min:%lf %lf %lf Max:%lf %lf %lf\n",left_voxel.box.getMinVertex().x,left_voxel.box.getMinVertex().y,left_voxel.box.getMinVertex().z,left_voxel.box.getMaxVertex().x,left_voxel.box.getMaxVertex().y,left_voxel.box.getMaxVertex().z,right_voxel.box.getMinVertex().x,right_voxel.box.getMinVertex().y,right_voxel.box.getMinVertex().z,right_voxel.box.getMaxVertex().x,right_voxel.box.getMaxVertex().y,right_voxel.box.getMaxVertex().z);
 	Triangles left_tris;
 	Triangles right_tris;
 
 	//left_tris beyond in left_voxel , so does right_tris.
 	left_tris = Union(T , left_voxel);
 	right_tris = Union(T , right_voxel);
-	//PH_ASSERT_GE(left_tris.tris.size()+right_tris.tris.size(),T.tris.size());
-	printf("BUG:tris_size:%lu left_tris_size:%lu, right_tris_size:%lu\n",T.tris.size(),left_tris.tris.size(),right_tris.tris.size());
 
+	printf("BUG:tris_size:%lu left_tris_size:%lu, right_tris_size:%lu\n",T.tris.size(),left_tris.tris.size(),right_tris.tris.size());
+	//PH_ASSERT_GE(left_tris.tris.size()+right_tris.tris.size(),T.tris.size());
 	//std::shared_ptr<KDNode> root = std::make_shared<KDNode>(m_metadata);
 	KDNode *root = new KDNode(m_metadata);
 	root->Tprim = T;
@@ -533,7 +533,7 @@ KDNode *KDNode::recBuild(Triangles& T, Voxel& V, int depth)
 	root->plane = p;
 	PH_ASSERT_LE(root->plane.getNormal(), 2);
 	PH_ASSERT_GE(root->plane.getNormal(), 0);
-	printf("node:%p node plane normal:%d\n",root,root->plane.getNormal());
+	//printf("node:%p node plane normal:%d\n",root,root->plane.getNormal());
 	//printf("T.size():%lu\n",root->Tprim.tris.size());
 	//printf("node:%p node plane normal:%d\n",root.get(),root->plane.getNormal());
 	return root;
@@ -550,11 +550,11 @@ KDNode *KDNode::build_KD_tree(Triangles& T)
 	KDNode *temp = recBuild(T,World_Voxel,0);
 	PH_ASSERT_LE(temp->plane.getNormal(), 2);
 	PH_ASSERT_GE(temp->plane.getNormal(), 0);
-	printf("Tree root_normal:%d\n",temp->plane.getNormal());
+	//printf("Tree root_normal:%d\n",temp->plane.getNormal());
 	//KDtree_root = temp.get();
 	KDtree_root = temp;
-	printf("Tree root_normal:%d\n",KDtree_root->plane.getNormal());
-	printf("KDtree_root:%p\n",KDtree_root);
+	//printf("Tree root_normal:%d\n",KDtree_root->plane.getNormal());
+	//printf("KDtree_root:%p\n",KDtree_root);
 	return temp;
 }
 //implement virtual functions of primitive.h
