@@ -443,6 +443,8 @@ class KDNode : public Primitive{
 		KDNode *recBuild(Triangles& T, Voxel& V, int depth);
 		KDNode *build_KD_tree(Triangles& T);
 		
+		void exportObj();
+
 };
 class Voxel{
 	public:

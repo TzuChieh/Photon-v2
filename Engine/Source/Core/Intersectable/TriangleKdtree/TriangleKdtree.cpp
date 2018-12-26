@@ -3,6 +3,8 @@
 #include "Core/Intersectable/PTriangle.h"
 
 #include <limits>
+#include <fstream>
+#include <array>
 
 namespace ph
 {
@@ -735,6 +737,90 @@ void KDNode::calcAABB(AABB3D* out_aabb) const {
 	Vector3R myMaxVec = World_Voxel.box.getMaxVertex();
 	out_aabb->setMinVertex(Vector3R(myMinVec.x, myMinVec.y, myMinVec.z ));
 	out_aabb->setMaxVertex(Vector3R(myMaxVec.x, myMaxVec.y, myMaxVec.z ));
+}
+
+namespace
+{
+	void exportFace(std::ofstream& objFile, std::size_t& numVertices, const Vector3R& vA, const Vector3R& vB, const Vector3R& vC, const Vector3R& vD)
+	{
+		objFile << "v " << std::to_string(vA.x) << ' ' << std::to_string(vA.y) << ' ' << std::to_string(vA.z) << std::endl;
+		objFile << "v " << std::to_string(vB.x) << ' ' << std::to_string(vB.y) << ' ' << std::to_string(vB.z) << std::endl;
+		objFile << "v " << std::to_string(vC.x) << ' ' << std::to_string(vC.y) << ' ' << std::to_string(vC.z) << std::endl;
+		objFile << "v " << std::to_string(vD.x) << ' ' << std::to_string(vD.y) << ' ' << std::to_string(vD.z) << std::endl;
+
+		objFile << "f " 
+			<< std::to_string(numVertices + 1) << ' ' 
+			<< std::to_string(numVertices + 2) << ' ' 
+			<< std::to_string(numVertices + 3) << ' ' 
+			<< std::to_string(numVertices + 4) << std::endl;
+
+		numVertices += 4;
+	}
+
+	void exportAABB(std::ofstream& objFile, std::size_t& numVertices, const AABB3D& aabb)
+	{
+		// vertices[z][x][y], 0 = "-", 1 = "+"
+		Vector3R vertices[2][2][2];
+		vertices[0][0][0] = {aabb.getMinVertex().x, aabb.getMinVertex().y, aabb.getMinVertex().z};
+		vertices[0][0][1] = {aabb.getMaxVertex().x, aabb.getMinVertex().y, aabb.getMinVertex().z};
+		vertices[0][1][0] = {aabb.getMinVertex().x, aabb.getMaxVertex().y, aabb.getMinVertex().z};
+		vertices[0][1][1] = {aabb.getMaxVertex().x, aabb.getMaxVertex().y, aabb.getMinVertex().z};
+		vertices[1][0][0] = {aabb.getMinVertex().x, aabb.getMinVertex().y, aabb.getMaxVertex().z};
+		vertices[1][0][1] = {aabb.getMaxVertex().x, aabb.getMinVertex().y, aabb.getMaxVertex().z};
+		vertices[1][1][0] = {aabb.getMinVertex().x, aabb.getMaxVertex().y, aabb.getMaxVertex().z};
+		vertices[1][1][1] = {aabb.getMaxVertex().x, aabb.getMaxVertex().y, aabb.getMaxVertex().z};
+
+		// +-x faces
+		exportFace(objFile, numVertices, vertices[0][0][0], vertices[1][0][0], vertices[1][1][0], vertices[0][1][0]);
+		exportFace(objFile, numVertices, vertices[0][0][1], vertices[1][0][1], vertices[1][1][1], vertices[0][1][1]);
+
+		// +-y faces
+		exportFace(objFile, numVertices, vertices[0][0][0], vertices[1][0][0], vertices[1][0][1], vertices[0][0][1]);
+		exportFace(objFile, numVertices, vertices[0][1][0], vertices[1][1][0], vertices[1][1][1], vertices[0][1][1]);
+
+		// +-z faces
+		exportFace(objFile, numVertices, vertices[0][0][0], vertices[0][0][1], vertices[0][1][1], vertices[0][1][0]);
+		exportFace(objFile, numVertices, vertices[1][0][0], vertices[1][0][1], vertices[1][1][1], vertices[1][1][0]);
+	}
+}
+
+void KDNode::exportObj()
+{
+	{
+		std::ofstream objFile("./triangle_kdtree.obj");
+		std::size_t numVertices = 0;
+
+		struct Node
+		{
+			KDNode* node;
+			AABB3D  aabb;
+		};
+		std::vector<Node> nodes;
+
+		nodes.push_back({this, World_Voxel.box});
+		while(!nodes.empty())
+		{
+			auto current = nodes.back();
+			nodes.pop_back();
+
+			exportAABB(objFile, numVertices, current.aabb);
+
+			if(current.node->isLeaf())
+			{
+				continue;
+			}
+
+			auto childAABBs = current.aabb.getSplitted(current.node->plane.getNormal(), current.node->plane.get_d());
+			if(current.node->left)
+			{
+				nodes.push_back({current.node->left, childAABBs.first});
+			}
+			if(current.node->right)
+			{
+				nodes.push_back({current.node->right, childAABBs.second});
+			}
+		}
+	}
 }
 
 }// end namespace ph

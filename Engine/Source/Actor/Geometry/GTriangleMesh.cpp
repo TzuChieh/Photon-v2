@@ -10,6 +10,7 @@
 #include "Utility/Timer.h"
 
 #include <iostream>
+#include <fstream>
 
 namespace ph
 {
@@ -145,8 +146,38 @@ void GTriangleMesh::genPrimitive(const PrimitiveBuildingMaterial& data,
 			triangles.tris.push_back(triangle);
 		}
 
+		// DEBUG
+		// export triangle obj file
+		{
+			std::ofstream triangleObj("./triangles.obj");
+
+			for(std::size_t ti = 0; ti < triangles.tris.size(); ++ti)
+			{
+				Triangle* triangle = triangles.tris[ti];
+
+				for(std::size_t vi = 0; vi < 3; ++vi)
+				{
+					const Vector3R vertex = triangle->getVerticies()[vi];
+
+					triangleObj << "v "
+						<< std::to_string(vertex.x) << ' '
+						<< std::to_string(vertex.y) << ' '
+						<< std::to_string(vertex.z) << std::endl;
+				}
+
+				triangleObj << "f "
+					<< std::to_string(3 * ti + 1) << ' '
+					<< std::to_string(3 * ti + 2) << ' '
+					<< std::to_string(3 * ti + 3) << std::endl;
+			}
+		}
+
 		auto kdNode = std::make_unique<KDNode>(data.metadata);
 		kdNode->build_KD_tree(triangles);
+
+		// DEBUG
+		kdNode->exportObj();
+
 		out_primitives.push_back(std::move(kdNode));
 
 		timer.finish();
