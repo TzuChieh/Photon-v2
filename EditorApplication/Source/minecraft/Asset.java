@@ -26,35 +26,28 @@ public class Asset
 	
 	public void add(String modelId, ModelData model)
 	{
-		m_models.put(modelId, model);
+		System.err.println("adding model " + model);
+		
+		if(model != null)
+		{
+			m_models.put(modelId, model);
+		}
 	}
 	
 	public void add(String textureId, BufferedImage image)
 	{
-		m_textures.put(textureId, image);
+		if(image != null)
+		{
+			m_textures.put(textureId, image);
+		}
 	}
 	
-	public void loadModels(Path modelStorage, Set<String> modelIds)
+	public void loadModels(Path modelFolder, Set<String> modelIds)
 	{
 		ModelParser parser = new ModelParser();
 		for(String modelId : modelIds)
 		{
-			Path modelPath = modelStorage.resolve(modelId + ".json");
-			try
-			{
-				byte[] modelData = Files.readAllBytes(modelPath);
-				
-				ByteArrayInputStream rawData = new ByteArrayInputStream(modelData);
-				ModelData model = parser.parse(rawData);
-				m_models.put(modelId, model);
-				
-				System.err.println(model);
-			}
-			catch(IOException e)
-			{
-				System.err.println("error loading model with ID = " + modelId);
-				e.printStackTrace();
-			}
+			loadModel(modelFolder, modelId, parser);
 		}
 	}
 	
@@ -76,6 +69,37 @@ public class Asset
 				System.err.println("error loading texture with ID = " + textureId);
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	private void loadModel(Path modelFolder, String modelId, ModelParser parser)
+	{
+		if(m_models.containsKey(modelId))
+		{
+			return;
+		}
+		
+		Path modelPath = modelFolder.resolve(modelId + ".json");
+		
+		ModelData model = null;
+		try
+		{
+			byte[] modelData = Files.readAllBytes(modelPath);
+			ByteArrayInputStream rawData = new ByteArrayInputStream(modelData);
+			model = parser.parse(rawData);
+			add(modelId, model);
+		}
+		catch(IOException e)
+		{
+			System.err.println("error loading model " + modelPath);
+			e.printStackTrace();
+		}
+		
+		if(model != null && model.hasParent())
+		{
+			String parentModelId = model.getParentId();
+			loadModel(modelFolder, parentModelId, parser);
+			model.setParent(m_models.get(parentModelId));
 		}
 	}
 }

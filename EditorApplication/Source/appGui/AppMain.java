@@ -212,11 +212,7 @@ public class AppMain extends Application
 		System.err.println(mcInstallation.getLevels());
 		
 		
-		List<Path> levels = mcInstallation.getLevels();
-		LevelData level = new LevelParser().parse(levels.get(0));
 		
-		System.err.println(level.getMetadata().getSpPlayerPosition());
-		System.err.println(level.getMetadata().getSpPlayerYawPitchDegrees());
 		
 		
 		Path jarPath = mcInstallation.getJar(13, 2);
@@ -227,7 +223,7 @@ public class AppMain extends Application
 			Path textureStorage = zipfs.getPath("assets", "minecraft", "textures");
 			
 			Set<String> modelIds = new HashSet<>();
-			modelIds.add("block/block");
+			modelIds.add("block/cobblestone");
 			
 			Set<String> textureIds = new HashSet<>();
 			textureIds.add("block/acacia_log_top");
@@ -236,6 +232,12 @@ public class AppMain extends Application
 			Asset asset = new Asset();
 			asset.loadModels(modelStorage, modelIds);
 			asset.loadTextures(textureStorage, textureIds);
+			
+			List<Path> levels = mcInstallation.getLevels();
+			LevelData level = new LevelParser().parse(levels.get(0));
+			
+			System.err.println(level.getMetadata().getSpPlayerPosition());
+			System.err.println(level.getMetadata().getSpPlayerYawPitchDegrees());
 			
 			Terrain terrain = level.getReachableTerrain(level.getMetadata().getSpPlayerPosition());
 			

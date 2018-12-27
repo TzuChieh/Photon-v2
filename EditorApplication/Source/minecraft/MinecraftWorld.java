@@ -44,10 +44,10 @@ public class MinecraftWorld
 		out_console.queue(sampleGenerator);
 		
 		SamplingRendererCreator renderer = new SamplingRendererCreator();
-//		renderer.setWidth(new SDLInteger(960));
-//		renderer.setHeight(new SDLInteger(540));
-		renderer.setWidth(new SDLInteger(1920));
-		renderer.setHeight(new SDLInteger(1080));
+		renderer.setWidth(new SDLInteger(960));
+		renderer.setHeight(new SDLInteger(540));
+//		renderer.setWidth(new SDLInteger(1920));
+//		renderer.setHeight(new SDLInteger(1080));
 		renderer.setFilterName(new SDLString("gaussian"));
 		renderer.setEstimator(new SDLString("bneept"));
 		out_console.queue(renderer);
