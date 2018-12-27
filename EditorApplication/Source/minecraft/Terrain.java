@@ -57,18 +57,18 @@ public class Terrain implements Iterable<SectionUnit>
 		return m_sections.size();
 	}
 	
-	public Set<String> getRequiredModels(List<SectionUnit> sections)
+	public Set<String> getRequiredBlocks()
 	{
-		Set<String> modelIds = new HashSet<>();
-		for(SectionUnit sectionUnit : sections)
+		Set<String> blockIds = new HashSet<>();
+		for(SectionUnit sectionUnit : m_sections)
 		{
 			SectionData section = sectionUnit.getData();
 			for(int i = 0; i < section.numBlockTypes(); ++i)
 			{
-				modelIds.add(section.getBlockIdName(i));
+				blockIds.add(section.getBlockIdName(i));
 			}
 		}
-		return modelIds;
+		return blockIds;
 	}
 
 	@Override

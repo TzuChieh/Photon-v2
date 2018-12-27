@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,11 +18,13 @@ public class Asset
 {
 	private Map<String, ModelData>     m_models;
 	private Map<String, BufferedImage> m_textures;
+	private Map<String, BlockData>     m_blocks;
 	
 	public Asset()
 	{
 		m_models   = new HashMap<>();
 		m_textures = new HashMap<>();
+		m_blocks   = new HashMap<>();
 	}
 	
 	public void add(String modelId, ModelData model)
@@ -42,31 +45,45 @@ public class Asset
 		}
 	}
 	
+	public void add(String blockId, BlockData block)
+	{
+		if(block != null)
+		{
+			m_blocks.put(blockId, block);
+		}
+	}
+	
 	public void loadModels(Path modelFolder, Set<String> modelIds)
 	{
 		ModelParser parser = new ModelParser();
 		for(String modelId : modelIds)
 		{
 			loadModel(modelFolder, modelId, parser);
+			
+			System.err.println(m_models.get(modelId).getRequiredTextures());
 		}
 	}
 	
-	public void loadTextures(Path textureStorage, Set<String> textureIds)
+	public void loadTextures(Path textureFolder, Set<String> textureIds)
 	{
 		for(String textureId : textureIds)
 		{
-			Path texturePath = textureStorage.resolve(textureId + ".png");
+			if(m_textures.containsKey(textureId))
+			{
+				continue;
+			}
+			
+			Path texturePath = textureFolder.resolve(textureId + ".png");
 			try
 			{
 				byte[] textureData = Files.readAllBytes(texturePath);
-				
 				ByteArrayInputStream rawData = new ByteArrayInputStream(textureData);
 				BufferedImage texture = ImageIO.read(rawData);
 				m_textures.put(textureId, texture);
 			}
 			catch(IOException e)
 			{
-				System.err.println("error loading texture with ID = " + textureId);
+				System.err.println("error loading texture " + texturePath);
 				e.printStackTrace();
 			}
 		}

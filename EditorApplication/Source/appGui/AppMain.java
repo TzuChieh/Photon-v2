@@ -219,8 +219,8 @@ public class AppMain extends Application
         
 		try(FileSystem zipfs = FileSystems.newFileSystem(jarPath, null))
 		{
-			Path modelStorage = zipfs.getPath("assets", "minecraft", "models");
-			Path textureStorage = zipfs.getPath("assets", "minecraft", "textures");
+			Path modelFolder = zipfs.getPath("assets", "minecraft", "models");
+			Path textureFolder = zipfs.getPath("assets", "minecraft", "textures");
 			
 			Set<String> modelIds = new HashSet<>();
 			modelIds.add("block/cobblestone");
@@ -230,8 +230,10 @@ public class AppMain extends Application
 			textureIds.add("block/acacia_log");
 			
 			Asset asset = new Asset();
-			asset.loadModels(modelStorage, modelIds);
-			asset.loadTextures(textureStorage, textureIds);
+			asset.loadModels(modelFolder, modelIds);
+			asset.loadTextures(textureFolder, textureIds);
+			
+			asset.loadModelTextures(textureFolder);
 			
 			List<Path> levels = mcInstallation.getLevels();
 			LevelData level = new LevelParser().parse(levels.get(0));

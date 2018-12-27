@@ -32,6 +32,11 @@ public class CuboidElement
 		m_faces = new Face[NUM_FACES];
 	}
 	
+	public Face getFace(EFacing facing)
+	{
+		return m_faces[facing.getValue()];
+	}
+	
 	public void setRotOrigin(Vector3f origin)
 	{
 		m_rotOrigin = origin;
