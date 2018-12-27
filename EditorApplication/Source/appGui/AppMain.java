@@ -243,7 +243,9 @@ public class AppMain extends Application
 			System.err.println(level.getMetadata().getSpPlayerYawPitchDegrees());
 			
 			Terrain terrain = level.getReachableTerrain(level.getMetadata().getSpPlayerPosition());
-			System.err.println(terrain.getRequiredBlocks());
+//			Terrain terrain = level.getNearTerrain(level.getMetadata().getSpPlayerPosition(), 20);
+//			System.err.println(terrain.getRequiredBlocks());
+//			System.err.println(terrain);
 			asset.loadBlocks(blockFolder, terrain.getRequiredBlocks());
 			
 			asset.loadAllIdentified(modelFolder, textureFolder);

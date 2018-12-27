@@ -65,8 +65,6 @@ public class Asset
 		for(String modelId : modelIds)
 		{
 			loadModel(modelFolder, modelId, parser);
-			
-			System.err.println(m_models.get(modelId).getRequiredTextures());
 		}
 	}
 	
@@ -104,6 +102,8 @@ public class Asset
 			{
 				continue;
 			}
+			
+			System.err.println("block " + blockId);
 			
 			// block ID is in the format <namespace>:<actual ID>, we need to 
 			// remove the namespace for path resolving

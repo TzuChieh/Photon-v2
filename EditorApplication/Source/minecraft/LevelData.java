@@ -40,6 +40,23 @@ public class LevelData
 		return new Terrain(getAllSections());
 	}
 	
+	public Terrain getNearTerrain(Vector3f viewpoint, float radius)
+	{
+		List<SectionUnit> nearSections = new ArrayList<>();
+		for(SectionUnit section : getAllSections())
+		{
+			Vector3f sectionCenter = section.getCenterCoord().toVector3f();
+			if(sectionCenter.sub(viewpoint).squareLength() < radius * radius)
+			{
+				nearSections.add(section);
+			}
+		}
+		
+		MCLogger.log("found " + nearSections.size() + " sections in " + radius + " blocks around " + viewpoint);
+		
+		return new Terrain(nearSections);
+	}
+	
 	// NOTE: unconnected regions is not reachable in the current implementation 
 	public Terrain getReachableTerrain(Vector3f viewpoint)
 	{

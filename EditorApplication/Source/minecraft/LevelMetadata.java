@@ -39,7 +39,7 @@ public class LevelMetadata
 		// converts to Photon's expectations
 		float ccwDeg         = 360 - degrees;
 		float dueNorthIs0Deg = ccwDeg - 180;
-		float photonDeg      = dueNorthIs0Deg < 0 ? 180 + dueNorthIs0Deg : dueNorthIs0Deg;
+		float photonDeg      = dueNorthIs0Deg < 0 ? 360 + dueNorthIs0Deg : dueNorthIs0Deg;
 		
 		m_spPlayerYawDegrees = photonDeg;
 	}

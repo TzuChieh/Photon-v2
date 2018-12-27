@@ -31,6 +31,6 @@ public class SectionUnit
 	@Override
 	public String toString()
 	{
-		return "Section Position: " + m_coord.toString();
+		return "Section Position: " + m_coord.toString() + ", data: " + m_data;
 	}
 }

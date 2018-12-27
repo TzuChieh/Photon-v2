@@ -20,31 +20,34 @@ public class BlockParser
 	public BlockData parse(InputStream rawData)
 	{
 		BlockData block = new BlockData();
-		
 		JSONObject root = m_jsonParser.parse(rawData);
-		JSONObject variants = root.getChild("variants");
 		
-		// (variant name consists of the relevant block states separated by commas)
-		for(String variantName : variants.getNames())
+		if(root.has("variants"))
 		{
-			BlockVariant blockVariant = new BlockVariant();
+			JSONObject variants = root.getChild("variants");
 			
-			if(variants.get(variantName) instanceof JSONObject)
+			// (variant name consists of the relevant block states separated by commas)
+			for(String variantName : variants.getNames())
 			{
-				JSONObject model = variants.getChild(variantName);
-				blockVariant.addModel(parseBlockModel(model));
-			}
-			else
-			{
-				JSONArray models = variants.getArray(variantName);
-				for(int i = 0; i < models.numValues(); ++i)
+				BlockVariant blockVariant = new BlockVariant();
+				
+				if(variants.get(variantName) instanceof JSONObject)
 				{
-					JSONObject model = models.getObject(i);
+					JSONObject model = variants.getChild(variantName);
 					blockVariant.addModel(parseBlockModel(model));
 				}
+				else
+				{
+					JSONArray models = variants.getArray(variantName);
+					for(int i = 0; i < models.numValues(); ++i)
+					{
+						JSONObject model = models.getObject(i);
+						blockVariant.addModel(parseBlockModel(model));
+					}
+				}
+				
+				block.addVariant(variantName, blockVariant);
 			}
-			
-			block.addVariant(variantName, blockVariant);
 		}
 		
 		return block;

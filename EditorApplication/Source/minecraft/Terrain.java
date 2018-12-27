@@ -76,4 +76,10 @@ public class Terrain implements Iterable<SectionUnit>
 	{
 		return m_sections.iterator();
 	}
+	
+	@Override
+	public String toString()
+	{
+		return m_sections.toString();
+	}
 }
