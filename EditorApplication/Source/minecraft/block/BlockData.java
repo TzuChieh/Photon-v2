@@ -1,7 +1,9 @@
 package minecraft.block;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class BlockData
 {
@@ -20,6 +22,19 @@ public class BlockData
 	public void addVariant(String name, BlockVariant variant)
 	{
 		m_variants.put(name, variant);
+	}
+	
+	public Set<String> getRequiredModels()
+	{
+		Set<String> modelIds = new HashSet<>();
+		for(BlockVariant variant : m_variants.values())
+		{
+			for(BlockModel model : variant)
+			{
+				modelIds.add(model.getModelId());
+			}
+		}
+		return modelIds;
 	}
 	
 	@Override

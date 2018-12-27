@@ -1,9 +1,10 @@
 package minecraft.block;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class BlockVariant
+public class BlockVariant implements Iterable<BlockModel>
 {
 	private List<BlockModel> m_models;
 	
@@ -31,5 +32,11 @@ public class BlockVariant
 	public String toString()
 	{
 		return m_models.toString();
+	}
+
+	@Override
+	public Iterator<BlockModel> iterator()
+	{
+		return m_models.iterator();
 	}
 }

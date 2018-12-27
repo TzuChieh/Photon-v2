@@ -246,6 +246,8 @@ public class AppMain extends Application
 			System.err.println(terrain.getRequiredBlocks());
 			asset.loadBlocks(blockFolder, terrain.getRequiredBlocks());
 			
+			asset.loadAllIdentified(modelFolder, textureFolder);
+			
 			MinecraftWorld mcWorld = new MinecraftWorld(terrain, asset);
 			SDLConsole console = new SDLConsole("mcw_export");
 			

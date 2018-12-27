@@ -41,6 +41,8 @@ public class Asset
 	
 	public void add(String textureId, BufferedImage image)
 	{
+		System.err.println("adding texture " + textureId);
+		
 		if(image != null)
 		{
 			m_textures.put(textureId, image);
@@ -121,6 +123,24 @@ public class Asset
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void loadAllIdentified(Path modelFolder, Path textureFolder)
+	{
+		Set<String> requiredModels = new HashSet<>();
+		for(BlockData block : m_blocks.values())
+		{
+			requiredModels.addAll(block.getRequiredModels());
+		}
+		loadModels(modelFolder, requiredModels);
+		
+		Set<String> requiredTextures = new HashSet<>();
+		for(String modelId : requiredModels)
+		{
+			ModelData model = m_models.get(modelId);
+			requiredTextures.addAll(model.getRequiredTextures());
+		}
+		loadTextures(textureFolder, requiredTextures);
 	}
 	
 	private void loadModel(Path modelFolder, String modelId, ModelParser parser)
