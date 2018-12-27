@@ -221,6 +221,7 @@ public class AppMain extends Application
 		{
 			Path modelFolder = zipfs.getPath("assets", "minecraft", "models");
 			Path textureFolder = zipfs.getPath("assets", "minecraft", "textures");
+			Path blockFolder = zipfs.getPath("assets", "minecraft", "blockstates");
 			
 			Set<String> modelIds = new HashSet<>();
 			modelIds.add("block/cobblestone");
@@ -233,7 +234,7 @@ public class AppMain extends Application
 			asset.loadModels(modelFolder, modelIds);
 			asset.loadTextures(textureFolder, textureIds);
 			
-			asset.loadModelTextures(textureFolder);
+//			asset.loadModelTextures(textureFolder);
 			
 			List<Path> levels = mcInstallation.getLevels();
 			LevelData level = new LevelParser().parse(levels.get(0));
@@ -242,6 +243,8 @@ public class AppMain extends Application
 			System.err.println(level.getMetadata().getSpPlayerYawPitchDegrees());
 			
 			Terrain terrain = level.getReachableTerrain(level.getMetadata().getSpPlayerPosition());
+			System.err.println(terrain.getRequiredBlocks());
+			asset.loadBlocks(blockFolder, terrain.getRequiredBlocks());
 			
 			MinecraftWorld mcWorld = new MinecraftWorld(terrain, asset);
 			SDLConsole console = new SDLConsole("mcw_export");

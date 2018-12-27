@@ -12,6 +12,8 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 
+import minecraft.block.BlockData;
+import minecraft.parser.BlockParser;
 import minecraft.parser.ModelParser;
 
 public class Asset
@@ -47,6 +49,8 @@ public class Asset
 	
 	public void add(String blockId, BlockData block)
 	{
+		System.err.println("adding block " + block);
+		
 		if(block != null)
 		{
 			m_blocks.put(blockId, block);
@@ -79,11 +83,41 @@ public class Asset
 				byte[] textureData = Files.readAllBytes(texturePath);
 				ByteArrayInputStream rawData = new ByteArrayInputStream(textureData);
 				BufferedImage texture = ImageIO.read(rawData);
-				m_textures.put(textureId, texture);
+				add(textureId, texture);
 			}
 			catch(IOException e)
 			{
 				System.err.println("error loading texture " + texturePath);
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void loadBlocks(Path blockFolder, Set<String> blockIds)
+	{
+		BlockParser parser = new BlockParser();
+		for(String blockId : blockIds)
+		{
+			if(m_blocks.containsKey(blockId))
+			{
+				continue;
+			}
+			
+			// block ID is in the format <namespace>:<actual ID>, we need to 
+			// remove the namespace for path resolving
+			String actualId = blockId.substring(blockId.indexOf(':') + 1);
+			Path blockPath = blockFolder.resolve(actualId + ".json");
+			
+			try
+			{
+				byte[] blockData = Files.readAllBytes(blockPath);
+				ByteArrayInputStream rawData = new ByteArrayInputStream(blockData);
+				BlockData block = parser.parse(rawData);
+				add(blockId, block);
+			}
+			catch(IOException e)
+			{
+				System.err.println("error loading block " + blockPath);
 				e.printStackTrace();
 			}
 		}

@@ -93,6 +93,9 @@ public class ChunkParser
 				}
 				
 				chunkSection.addBlock(blockIdName, stateProperties);
+				
+//				System.err.println("block id: " + blockIdName);
+//				System.err.println("prop: " + stateProperties);
 			}
 			
 			long[] blockStates = section.get("BlockStates");

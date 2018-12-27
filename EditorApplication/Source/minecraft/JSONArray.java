@@ -6,7 +6,7 @@ import java.util.List;
 
 public class JSONArray implements Iterable<Object>
 {
-	public List<Object> m_values;
+	private List<Object> m_values;
 	
 	public JSONArray()
 	{
