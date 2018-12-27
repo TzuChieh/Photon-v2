@@ -22,69 +22,32 @@ import util.Vector3i;
 
 public class MinecraftWorld
 {
-	private float    m_fovDegrees;
-	private Terrain  m_terrain;
-	private Asset    m_asset;
-	private LevelMetadata m_levelMetadata;
+	private float   m_fovDegrees;
+	private Terrain m_terrain;
+	private Asset   m_asset;
+	
+	// TODO: a MC camera class
 	
 	public MinecraftWorld(Terrain terrain, Asset asset)
 	{
-		m_fovDegrees    = 105.0f;
-		m_terrain       = terrain;
-		m_asset         = asset;
-		m_levelMetadata = new LevelMetadata();
+		m_fovDegrees = 105.0f;
+		m_terrain    = terrain;
+		m_asset      = asset;
 	}
 	
 	public void toSDL(SDLConsole out_console)
 	{
-//		SectionData.addTransparentBlock("minecraft:dirt");
-//		SectionData.addTransparentBlock("minecraft:bedrock");
-//		SectionData.addTransparentBlock("minecraft:grass_block");
-//		SectionData.addTransparentBlock("minecraft:stone");
-//		SectionData.addTransparentBlock("minecraft:stone:1");
-//		SectionData.addTransparentBlock("minecraft:stone:2");
-//		SectionData.addTransparentBlock("minecraft:stone:3");
-//		SectionData.addTransparentBlock("minecraft:stone:4");
-//		SectionData.addTransparentBlock("minecraft:stone:5");
-//		SectionData.addTransparentBlock("minecraft:stone:6");
-//		SectionData.addTransparentBlock("minecraft:grass");
-//		SectionData.addTransparentBlock("minecraft:sand");
-//		SectionData.addTransparentBlock("minecraft:coal_ore");
-//		SectionData.addTransparentBlock("minecraft:iron_ore");
-//		SectionData.addTransparentBlock("minecraft:gold_ore");
-//		SectionData.addTransparentBlock("minecraft:sandstone");
-//		SectionData.addTransparentBlock("minecraft:lava");
-//		SectionData.addTransparentBlock("minecraft:cobblestone");
-		SectionData.addTransparentBlock("minecraft:water");
 		
-//		SectionData.addTransparentBlock("minecraft:andesite");
-//		SectionData.addTransparentBlock("minecraft:granite");
-//		SectionData.addTransparentBlock("minecraft:diorite");
-//		SectionData.addTransparentBlock("minecraft:granite");
-//		SectionData.addTransparentBlock("minecraft:gravel");
-		
-		SectionData.addTransparentBlock("minecraft:air");
-//		SectionData.addTransparentBlock("minecraft:snow");
-		
-		PinholeCameraCreator camera = new PinholeCameraCreator();
-		camera.setFovDegree(new SDLReal(m_fovDegrees));
-		
-		Vector3f camPos = m_levelMetadata.getSpPlayerPosition();
-		camera.setPosition(new SDLVector3(camPos.x, camPos.y, camPos.z));
-		
-		Vector2f yawPitch = m_levelMetadata.getSpPlayerYawPitchDegrees();
-		camera.setYawDegrees(new SDLReal(yawPitch.x));
-		camera.setPitchDegrees(new SDLReal(yawPitch.y));
-		
-		out_console.queue(camera);
 		
 		StratifiedSampleGeneratorCreator sampleGenerator = new StratifiedSampleGeneratorCreator();
 		sampleGenerator.setSampleAmount(new SDLInteger(10000));
 		out_console.queue(sampleGenerator);
 		
 		SamplingRendererCreator renderer = new SamplingRendererCreator();
-		renderer.setWidth(new SDLInteger(960));
-		renderer.setHeight(new SDLInteger(540));
+//		renderer.setWidth(new SDLInteger(960));
+//		renderer.setHeight(new SDLInteger(540));
+		renderer.setWidth(new SDLInteger(1920));
+		renderer.setHeight(new SDLInteger(1080));
 		renderer.setFilterName(new SDLString("gaussian"));
 		renderer.setEstimator(new SDLString("bneept"));
 		out_console.queue(renderer);
@@ -100,8 +63,7 @@ public class MinecraftWorld
 		material.setDataName(materialName);
 		out_console.queue(material);
 		
-		List<SectionUnit> sections = m_terrain.getReachableSections(camPos);
-		for(SectionUnit section : sections)
+		for(SectionUnit section : m_terrain)
 		{
 			System.err.println("generating... " + section);
 			
@@ -143,10 +105,5 @@ public class MinecraftWorld
 	public void setFovDegrees(float fovDegrees)
 	{
 		m_fovDegrees = fovDegrees;
-	}
-	
-	public void setLevelMetadata(LevelMetadata data)
-	{
-		m_levelMetadata = data;
 	}
 }

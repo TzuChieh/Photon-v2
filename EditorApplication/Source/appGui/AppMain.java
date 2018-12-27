@@ -14,8 +14,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.LogManager;
 import java.util.zip.GZIPInputStream;
 
@@ -27,27 +29,32 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import jsdl.PinholeCameraCreator;
 import jsdl.SDLCommand;
+import jsdl.SDLReal;
 import jsdl.SDLVector3;
 import minecraft.Asset;
 import minecraft.EFacing;
 import minecraft.FaceReachability;
 import minecraft.JSONObject;
+import minecraft.LevelData;
 import minecraft.LevelMetadata;
 import minecraft.MCLogger;
 import minecraft.MinecraftInstallation;
 import minecraft.MinecraftWorld;
 import minecraft.ModelData;
 import minecraft.RegionData;
+import minecraft.SectionData;
 import minecraft.Terrain;
 import minecraft.nbt.NBTData;
 import minecraft.parser.JSONParser;
-import minecraft.parser.LevelMetadataParser;
+import minecraft.parser.LevelParser;
 import minecraft.parser.MCAParser;
 import minecraft.parser.ModelParser;
 import minecraft.parser.NBTParser;
 import sun.misc.IOUtils;
 import util.SDLConsole;
+import util.Vector2f;
 import util.Vector3f;
 
 public class AppMain extends Application
@@ -91,88 +98,7 @@ public class AppMain extends Application
 		m_editorApp = new EditorApp();
 		
 		// DEBUG
-		
-//		EFacing f = EFacing.UP;
-//		FaceReachability reachability = new FaceReachability();
-//		System.err.println(reachability);
-//		reachability.setReachability(EFacing.DOWN, f, true);
-//		System.err.println(reachability);
-//		reachability.setReachability(EFacing.DOWN, f, false);
-//		System.err.println(reachability);
-		
-//		MCAParser parser = new MCAParser();
-////		RegionData region = parser.parse(new File("./r.1.2.mca"));
-//		RegionData region = parser.parse(new File("./r.0.0.mca"));
-////		RegionData region = parser.parse(new File("./r.0.-1.mca"));
-//		
-//		Terrain terrain = new Terrain();
-//		terrain.addRegion(region);
-//		
-//		MinecraftWorld mcWorld = new MinecraftWorld();
-//		mcWorld.setTerrain(terrain);
-//		
-//		mcWorld.setViewpoint(new Vector3f(60, 15, 240));
-//		mcWorld.setViewDirection(new Vector3f(1, -0.5f, 3));
-////		mcWorld.setViewpoint(new Vector3f(0, 100, 0));
-////		mcWorld.setViewDirection(new Vector3f(1, -0.4f, 1));
-//		mcWorld.setFovDegrees(70.0f);
-//		
-//		SDLConsole console = new SDLConsole("mcw_export");
-//		console.start();
-//		mcWorld.toSDL(console);
-//		console.exit();
-		
-//		ModelParser modelParser = new ModelParser();
-//		ModelData modelData = modelParser.parse(new FileInputStream("./birch_log.json"));
-//		System.out.println(modelData);
-		
-		
-		MinecraftInstallation mcInstallation = new MinecraftInstallation();
-		
-		
-		
-		System.err.println(mcInstallation.getLevels());
-		
-		
-		List<Path> levels = mcInstallation.getLevels();
-		LevelMetadata levelMetata = new LevelMetadataParser().parse(levels.get(0));
-		
-		System.err.println(levelMetata.getSpPlayerPosition());
-		System.err.println(levelMetata.getSpPlayerYawPitchDegrees());
-		
-		
-		Path jarPath = mcInstallation.getJar(13, 2);
-        
-		try(FileSystem zipfs = FileSystems.newFileSystem(jarPath, null))
-		{
-			Path modelStorage = zipfs.getPath("assets", "minecraft", "models");
-			Path textureStorage = zipfs.getPath("assets", "minecraft", "textures");
-			
-			List<String> modelIds = new ArrayList<>();
-			modelIds.add("block/block");
-			
-			List<String> textureIds = new ArrayList<>();
-			textureIds.add("block/acacia_log_top");
-			textureIds.add("block/acacia_log");
-			
-			Asset asset = new Asset();
-			asset.loadModels(modelStorage, modelIds);
-			asset.loadTextures(textureStorage, textureIds);
-			
-			Terrain terrain = new Terrain();
-			Path regionFolder = mcInstallation.getHome().resolve("saves").resolve("New World").resolve("region");
-			terrain.loadRegions(regionFolder);
-			
-			MinecraftWorld mcWorld = new MinecraftWorld(terrain, asset);
-			mcWorld.setLevelMetadata(levelMetata);
-			
-			SDLConsole console = new SDLConsole("mcw_export");
-			console.start();
-			mcWorld.toSDL(console);
-			console.exit();
-		}
-		
-//		System.exit(0);
+		minecraftTest();
 	}
 
 	@Override
@@ -212,5 +138,128 @@ public class AppMain extends Application
 		System.setErr(originalErr);
 		
 		m_editorApp.decompose();
+	}
+	
+	private static void minecraftTest() throws Exception
+	{
+//		SectionData.addTransparentBlock("minecraft:dirt");
+//		SectionData.addTransparentBlock("minecraft:bedrock");
+//		SectionData.addTransparentBlock("minecraft:grass_block");
+//		SectionData.addTransparentBlock("minecraft:stone");
+//		SectionData.addTransparentBlock("minecraft:stone:1");
+//		SectionData.addTransparentBlock("minecraft:stone:2");
+//		SectionData.addTransparentBlock("minecraft:stone:3");
+//		SectionData.addTransparentBlock("minecraft:stone:4");
+//		SectionData.addTransparentBlock("minecraft:stone:5");
+//		SectionData.addTransparentBlock("minecraft:stone:6");
+//		SectionData.addTransparentBlock("minecraft:grass");
+//		SectionData.addTransparentBlock("minecraft:sand");
+//		SectionData.addTransparentBlock("minecraft:coal_ore");
+//		SectionData.addTransparentBlock("minecraft:iron_ore");
+//		SectionData.addTransparentBlock("minecraft:gold_ore");
+//		SectionData.addTransparentBlock("minecraft:sandstone");
+//		SectionData.addTransparentBlock("minecraft:lava");
+//		SectionData.addTransparentBlock("minecraft:cobblestone");
+		SectionData.addTransparentBlock("minecraft:water");
+		
+//		SectionData.addTransparentBlock("minecraft:andesite");
+//		SectionData.addTransparentBlock("minecraft:granite");
+//		SectionData.addTransparentBlock("minecraft:diorite");
+//		SectionData.addTransparentBlock("minecraft:granite");
+//		SectionData.addTransparentBlock("minecraft:gravel");
+		
+		SectionData.addTransparentBlock("minecraft:air");
+//		SectionData.addTransparentBlock("minecraft:snow");
+		
+//		EFacing f = EFacing.UP;
+//		FaceReachability reachability = new FaceReachability();
+//		System.err.println(reachability);
+//		reachability.setReachability(EFacing.DOWN, f, true);
+//		System.err.println(reachability);
+//		reachability.setReachability(EFacing.DOWN, f, false);
+//		System.err.println(reachability);
+		
+//		MCAParser parser = new MCAParser();
+////		RegionData region = parser.parse(new File("./r.1.2.mca"));
+//		RegionData region = parser.parse(new File("./r.0.0.mca"));
+////		RegionData region = parser.parse(new File("./r.0.-1.mca"));
+//		
+//		Terrain terrain = new Terrain();
+//		terrain.addRegion(region);
+//		
+//		MinecraftWorld mcWorld = new MinecraftWorld();
+//		mcWorld.setTerrain(terrain);
+//		
+//		mcWorld.setViewpoint(new Vector3f(60, 15, 240));
+//		mcWorld.setViewDirection(new Vector3f(1, -0.5f, 3));
+////		mcWorld.setViewpoint(new Vector3f(0, 100, 0));
+////		mcWorld.setViewDirection(new Vector3f(1, -0.4f, 1));
+//		mcWorld.setFovDegrees(70.0f);
+//		
+//		SDLConsole console = new SDLConsole("mcw_export");
+//		console.start();
+//		mcWorld.toSDL(console);
+//		console.exit();
+		
+//		ModelParser modelParser = new ModelParser();
+//		ModelData modelData = modelParser.parse(new FileInputStream("./birch_log.json"));
+//		System.out.println(modelData);
+		
+		
+		MinecraftInstallation mcInstallation = new MinecraftInstallation();
+		
+		
+		System.err.println(mcInstallation.getLevels());
+		
+		
+		List<Path> levels = mcInstallation.getLevels();
+		LevelData level = new LevelParser().parse(levels.get(0));
+		
+		System.err.println(level.getMetadata().getSpPlayerPosition());
+		System.err.println(level.getMetadata().getSpPlayerYawPitchDegrees());
+		
+		
+		Path jarPath = mcInstallation.getJar(13, 2);
+        
+		try(FileSystem zipfs = FileSystems.newFileSystem(jarPath, null))
+		{
+			Path modelStorage = zipfs.getPath("assets", "minecraft", "models");
+			Path textureStorage = zipfs.getPath("assets", "minecraft", "textures");
+			
+			Set<String> modelIds = new HashSet<>();
+			modelIds.add("block/block");
+			
+			Set<String> textureIds = new HashSet<>();
+			textureIds.add("block/acacia_log_top");
+			textureIds.add("block/acacia_log");
+			
+			Asset asset = new Asset();
+			asset.loadModels(modelStorage, modelIds);
+			asset.loadTextures(textureStorage, textureIds);
+			
+			Terrain terrain = level.getReachableTerrain(level.getMetadata().getSpPlayerPosition());
+			
+			MinecraftWorld mcWorld = new MinecraftWorld(terrain, asset);
+			SDLConsole console = new SDLConsole("mcw_export");
+			
+			PinholeCameraCreator camera = new PinholeCameraCreator();
+			camera.setFovDegree(new SDLReal(105.0f));
+			
+			Vector3f camPos = level.getMetadata().getSpPlayerPosition();
+			camera.setPosition(new SDLVector3(camPos.x, camPos.y, camPos.z));
+			
+			Vector2f yawPitch = level.getMetadata().getSpPlayerYawPitchDegrees();
+			camera.setYawDegrees(new SDLReal(yawPitch.x));
+			camera.setPitchDegrees(new SDLReal(yawPitch.y));
+			
+			console.queue(camera);
+			
+			
+			console.start();
+			mcWorld.toSDL(console);
+			console.exit();
+		}
+		
+//		System.exit(0);
 	}
 }

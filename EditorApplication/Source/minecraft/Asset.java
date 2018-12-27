@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 
@@ -34,7 +34,7 @@ public class Asset
 		m_textures.put(textureId, image);
 	}
 	
-	public void loadModels(Path modelStorage, List<String> modelIds)
+	public void loadModels(Path modelStorage, Set<String> modelIds)
 	{
 		ModelParser parser = new ModelParser();
 		for(String modelId : modelIds)
@@ -58,7 +58,7 @@ public class Asset
 		}
 	}
 	
-	public void loadTextures(Path textureStorage, List<String> textureIds)
+	public void loadTextures(Path textureStorage, Set<String> textureIds)
 	{
 		for(String textureId : textureIds)
 		{
