@@ -117,15 +117,29 @@ inline real Camera::getAspectRatio() const
 	</description>
 
 	<command type="creator" intent="blueprint">
+
 		<input name="position" type="vector3">
 			<description>Position of the camera.</description>
 		</input>
+
+		<input name="rotation" type="quaternion">
+			<description>The orientation of the camera.</description>
+		</input>
+
 		<input name="direction" type="vector3">
 			<description>Direction that this camera is looking at.</description>
 		</input>
 		<input name="up-axis" type="vector3">
 			<description>The direction that this camera consider as upward.</description>
 		</input>
+
+		<input name="yaw-degrees" type="real">
+			<description>Rotation of the camera around +y axis in [0, 360].</description>
+		</input>
+		<input name="pitch-degrees" type="real">
+			<description>The camera's declination from the horizon in [-90, 90].</description>
+		</input>
+
 	</command>
 
 	</SDL_interface>

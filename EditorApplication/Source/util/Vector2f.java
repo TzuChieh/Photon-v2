@@ -44,4 +44,10 @@ public class Vector2f
 
 		return result;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "(" + x + ", " + y + ")";
+	}
 }

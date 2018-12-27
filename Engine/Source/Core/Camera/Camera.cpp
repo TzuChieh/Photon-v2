@@ -56,7 +56,7 @@ void Camera::updateCameraPose(const TVector3<hiReal>& position, const TQuaternio
 	m_cameraToWorldTransform.setRotation(rotation);
 
 	m_position  = Vector3R(position);
-	m_direction = Vector3R(TVector3<hiReal>(0, 0, -1).rotate(rotation));
+	m_direction = Vector3R(TVector3<hiReal>(0, 0, -1).rotate(rotation).normalize());
 }
 
 TQuaternion<hiReal> Camera::getWorldToCameraRotation(const Vector3R& direction, const Vector3R& upAxis)
@@ -127,7 +127,7 @@ TQuaternion<hiReal> Camera::getWorldToCameraRotation(real yawDegrees, real pitch
 
 	const TQuaternion<hiReal> yawRot({0, 1, 0}, math::to_radians(yawDegrees));
 	const TQuaternion<hiReal> pitchRot({1, 0, 0}, math::to_radians(pitchDegrees));
-	return pitchRot.mul(yawRot).normalize();
+	return yawRot.mul(pitchRot).normalize();
 }
 
 // command interface

@@ -16,24 +16,23 @@ import jsdl.SDLVector3;
 import jsdl.SamplingRendererCreator;
 import jsdl.StratifiedSampleGeneratorCreator;
 import util.SDLConsole;
+import util.Vector2f;
 import util.Vector3f;
 import util.Vector3i;
 
 public class MinecraftWorld
 {
-	private Vector3f m_viewpoint;
-	private Vector3f m_viewDirection;
 	private float    m_fovDegrees;
 	private Terrain  m_terrain;
 	private Asset    m_asset;
+	private LevelMetadata m_levelMetadata;
 	
 	public MinecraftWorld(Terrain terrain, Asset asset)
 	{
-		m_viewpoint     = new Vector3f(0);
-		m_viewDirection = new Vector3f(0, 0, -1);
-		m_fovDegrees    = 70.0f;
+		m_fovDegrees    = 105.0f;
 		m_terrain       = terrain;
 		m_asset         = asset;
+		m_levelMetadata = new LevelMetadata();
 	}
 	
 	public void toSDL(SDLConsole out_console)
@@ -69,9 +68,14 @@ public class MinecraftWorld
 		
 		PinholeCameraCreator camera = new PinholeCameraCreator();
 		camera.setFovDegree(new SDLReal(m_fovDegrees));
-		camera.setPosition(new SDLVector3(m_viewpoint.x, m_viewpoint.y, m_viewpoint.z));
-		camera.setDirection(new SDLVector3(m_viewDirection.x, m_viewDirection.y, m_viewDirection.z));
-		camera.setUpAxis(new SDLVector3(0, 1, 0));
+		
+		Vector3f camPos = m_levelMetadata.getSpPlayerPosition();
+		camera.setPosition(new SDLVector3(camPos.x, camPos.y, camPos.z));
+		
+		Vector2f yawPitch = m_levelMetadata.getSpPlayerYawPitchDegrees();
+		camera.setYawDegrees(new SDLReal(yawPitch.x));
+		camera.setPitchDegrees(new SDLReal(yawPitch.y));
+		
 		out_console.queue(camera);
 		
 		StratifiedSampleGeneratorCreator sampleGenerator = new StratifiedSampleGeneratorCreator();
@@ -96,7 +100,7 @@ public class MinecraftWorld
 		material.setDataName(materialName);
 		out_console.queue(material);
 		
-		List<SectionUnit> sections = m_terrain.getReachableSections(m_viewpoint);
+		List<SectionUnit> sections = m_terrain.getReachableSections(camPos);
 		for(SectionUnit section : sections)
 		{
 			System.err.println("generating... " + section);
@@ -136,18 +140,13 @@ public class MinecraftWorld
 		}// end for each section
 	}
 	
-	public void setViewpoint(Vector3f viewpoint)
-	{
-		m_viewpoint = viewpoint;
-	}
-	
-	public void setViewDirection(Vector3f viewDirection)
-	{
-		m_viewDirection = viewDirection;
-	}
-	
 	public void setFovDegrees(float fovDegrees)
 	{
 		m_fovDegrees = fovDegrees;
+	}
+	
+	public void setLevelMetadata(LevelMetadata data)
+	{
+		m_levelMetadata = data;
 	}
 }
