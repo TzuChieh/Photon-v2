@@ -12,4 +12,19 @@ void GEmpty::genPrimitive(
 	out_primitives.push_back(std::make_unique<PEmpty>(data.metadata));
 }
 
+// command interface
+
+SdlTypeInfo GEmpty::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "empty");
+}
+
+void GEmpty::ciRegister(CommandRegister& cmdRegister)
+{
+	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
+	{
+		return std::make_unique<GEmpty>();
+	}));
+}
+
 }// end namespace ph

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core/Intersectable/Primitive.h"
-#include "Common/assertion.h"
 #include "Core/Bound/TAABB3D.h"
+#include "Common/assertion.h"
 
 namespace ph
 {
@@ -30,6 +30,26 @@ inline PEmpty::PEmpty(const PrimitiveMetadata* const metadata) :
 	Primitive(metadata)
 {}
 
+inline bool PEmpty::isIntersecting(const Ray& ray, HitProbe& probe) const
+{
+	return false;
+}
+
+inline bool PEmpty::isIntersecting(const Ray& ray) const
+{
+	return false;
+}
+
+inline void PEmpty::calcIntersectionDetail(
+	const Ray& ray,
+	HitProbe&  probe,
+	HitDetail* const out_detail) const
+{
+	// An empty always returns false for intersection probing, it is therefore
+	// impossible to have this method called with a valid HitProbe instance.
+	PH_ASSERT_UNREACHABLE_SECTION();
+}
+
 inline bool PEmpty::isIntersectingVolumeConservative(const AABB3D& volume) const
 {
 	return false;
@@ -37,7 +57,7 @@ inline bool PEmpty::isIntersectingVolumeConservative(const AABB3D& volume) const
 
 inline void PEmpty::calcAABB(AABB3D* const out_aabb) const
 {
-	// FIXME: better return an invalid AABB
+	// TODO: return a point or an invalid AABB?
 
 	PH_ASSERT(out_aabb);
 

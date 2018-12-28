@@ -12,9 +12,16 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 
+import jsdl.CuboidGeometryCreator;
+import jsdl.ModelActorCreator;
+import jsdl.SDLGeometry;
+import jsdl.SDLMaterial;
+import jsdl.SDLVector3;
 import minecraft.block.BlockData;
 import minecraft.parser.BlockParser;
 import minecraft.parser.ModelParser;
+import util.SDLConsole;
+import util.Vector3i;
 
 public class Asset
 {
@@ -22,11 +29,20 @@ public class Asset
 	private Map<String, BufferedImage> m_textures;
 	private Map<String, BlockData>     m_blocks;
 	
+	private Map<String, String> m_blockIdToActorName;
+	
 	public Asset()
 	{
 		m_models   = new HashMap<>();
 		m_textures = new HashMap<>();
 		m_blocks   = new HashMap<>();
+		
+		m_blockIdToActorName = new HashMap<>();
+	}
+	
+	public String getBlockActorName(String blockId)
+	{
+		return m_blockIdToActorName.get(blockId);
 	}
 	
 	public void add(String modelId, ModelData model)
@@ -173,4 +189,39 @@ public class Asset
 			model.setParent(m_models.get(parentModelId));
 		}
 	}
+	
+	public void genBlockActors(SDLConsole out_console)
+	{
+		for(Map.Entry<String, BlockData> block : m_blocks.entrySet())
+		{
+//			String blockActorName = genBlockActor(block.getKey(), block.getValue(), out_console);
+//			m_blockIdToActorName.put(block.getKey(), blockActorName);
+		}
+	}
+	
+//	private String genBlockActor(String blockId, BlockData blockData, SDLConsole out_console)
+//	{
+//		if(!blockIdName.equals("minecraft:air"))
+//		{
+//			Vector3i blockPos = section.getCoord().add(new Vector3i(x, y, z));
+//			String cubeName = blockPos.toString();
+//			
+//			CuboidGeometryCreator cube = new CuboidGeometryCreator();
+//			cube.setDataName(cubeName);
+//			
+//			cube.setMinVertex(new SDLVector3(blockPos.x, blockPos.y, blockPos.z));
+//			cube.setMaxVertex(new SDLVector3(blockPos.x + 1, blockPos.y + 1, blockPos.z + 1));
+//			
+//			out_console.queue(cube);
+//			
+//			ModelActorCreator actor = new ModelActorCreator();
+//			actor.setDataName("actor:" + cubeName);
+//			actor.setMaterial(new SDLMaterial(materialName));
+//			actor.setGeometry(new SDLGeometry(cubeName));
+//			
+//			out_console.queue(actor);
+//		}
+//		
+//		return "";
+//	}
 }
