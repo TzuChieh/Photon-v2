@@ -1,6 +1,7 @@
 #include "Api/init_and_exit.h"
 #include "Api/ApiDatabase.h"
 #include "Core/Quantity/ColorSpace.h"
+#include "Common/Logger.h"
 
 // geometries
 #include "Actor/Geometry/Geometry.h"
@@ -90,9 +91,15 @@
 namespace ph
 {
 
+namespace
+{
+	const Logger logger(LogSender("Init & Exit"));
+}
+
 void init_core_infrastructure()
 {
-	std::cout << "initializing color transform functions" << std::endl;
+	logger.log("initializing color transform functions...");
+
 	ColorSpace::init();
 }
 

@@ -59,9 +59,6 @@ void TCommandInterface<DerivedType>::registerInterface()
 		          << ">" << std::endl;
 		return;
 	}
-
-	// TODO: use logger
-	std::cout << "entry added: " << typeInfoFunc().toString() << std::endl;
 }
 
 template<typename DerivedType>
