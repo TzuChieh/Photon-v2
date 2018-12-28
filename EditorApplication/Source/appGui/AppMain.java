@@ -260,6 +260,8 @@ public class AppMain extends Application
 			camera.setFovDegree(new SDLReal(105.0f));
 			
 			Vector3f camPos = level.getMetadata().getSpPlayerPosition();
+			// account for player height
+			camPos.y += 1.7f;
 			camera.setPosition(new SDLVector3(camPos.x, camPos.y, camPos.z));
 			
 			Vector2f yawPitch = level.getMetadata().getSpPlayerYawPitchDegrees();

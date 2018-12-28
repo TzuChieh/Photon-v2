@@ -2,6 +2,7 @@ package minecraft;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,10 +14,12 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 
 import jsdl.CuboidGeometryCreator;
+import jsdl.LdrPictureImageCreator;
 import jsdl.MatteOpaqueMaterialCreator;
 import jsdl.ModelActorCreator;
 import jsdl.PhantomModelActorCreator;
 import jsdl.SDLGeometry;
+import jsdl.SDLImage;
 import jsdl.SDLMaterial;
 import jsdl.SDLString;
 import jsdl.SDLVector3;
@@ -209,26 +212,28 @@ public class Asset
 		for(Map.Entry<String, BlockData> blockEntry : m_blocks.entrySet())
 		{
 			Block block = blockEntry.getValue().getVariant("");
-			if(block != null)
+			if(block == null)
 			{
-				String blockActorName = genBlockActor(blockEntry.getKey(), block, out_console);
-				assert(blockActorName != null);
-				
-				m_blockIdToActorName.put(blockEntry.getKey(), blockActorName);
+				for(Block ttt : blockEntry.getValue().getVariants())
+				{
+					block = ttt;
+					break;
+				}
 			}
-			else
-			{
-				m_blockIdToActorName.put(blockEntry.getKey(), INVALID_BLOCK_ACTOR_NAME);
-			}
+			
+			String blockActorName = genBlockActor(blockEntry.getKey(), block, out_console);
+			assert(blockActorName != null);
+			
+			m_blockIdToActorName.put(blockEntry.getKey(), blockActorName);
 		}
 	}
 	
 	private String genBlockActor(String blockId, Block block, SDLConsole out_console)
 	{
-		if(!block.hasSingleModel())
-		{
-			return INVALID_BLOCK_ACTOR_NAME;
-		}
+//		if(!block.hasSingleModel())
+//		{
+//			return INVALID_BLOCK_ACTOR_NAME;
+//		}
 		
 		Vector3i blockPos = new Vector3i(0, 0, 0);
 		String cubeName = blockId + "_geometry";
@@ -240,10 +245,43 @@ public class Asset
 		
 		out_console.queue(cube);
 		
+		// HACK
+		LdrPictureImageCreator image = new LdrPictureImageCreator();
+		image.setDataName(blockId + "_image");
+		ModelData model = m_models.get(block.getSingleModel().getModelId());
+		for(String textureId : model.getRequiredTextures())
+		{
+			BufferedImage texture = m_textures.get(textureId);
+			try {
+				File outputFile = new File("./test/" + textureId + ".png");
+				outputFile.getParentFile().mkdirs();
+				ImageIO.write(texture, "png", outputFile);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			image.setImage(new SDLString("test/" + textureId + ".png"));
+			break;
+		}
+		if(!model.getRequiredTextures().isEmpty())
+		{
+			out_console.queue(image);
+		}
+		
 		String materialName = blockId + "_material";
 		MatteOpaqueMaterialCreator material = new MatteOpaqueMaterialCreator();
-		material.setAlbedo(new SDLVector3(0.5f, 0.5f, 0.5f));
+		
+		if(!model.getRequiredTextures().isEmpty())
+		{
+			material.setAlbedo(new SDLImage(blockId + "_image"));
+		}
+		else
+		{
+			material.setAlbedo(new SDLVector3(0.5f, 0.5f, 0.5f));
+		}
+		
 		material.setDataName(materialName);
+		
 		
 		out_console.queue(material);
 		
