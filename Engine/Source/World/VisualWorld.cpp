@@ -84,7 +84,6 @@ void VisualWorld::cook()
 	logger.log(ELogLevel::NOTE_MED, "root actors bound calculated to be: " + bound.toString());
 
 	// cook child actors (breadth first)
-	//
 	while(true)
 	{
 		auto childActors = cookingContext.claimChildActors();
@@ -106,6 +105,12 @@ void VisualWorld::cook()
 			cookedUnit.claimCookedData(m_cookedActorStorage);
 			cookedUnit.claimCookedBackend(m_cookedBackendStorage);
 		}
+	}
+
+	for(auto& phantom : cookingContext.m_phantoms)
+	{
+		phantom.second.claimCookedData(m_phantomStorage);
+		phantom.second.claimCookedBackend(m_phantomStorage);
 	}
 
 	logger.log(ELogLevel::NOTE_MED, 

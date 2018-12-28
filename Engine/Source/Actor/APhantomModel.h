@@ -50,11 +50,8 @@ public:
 	</description>
 
 	<command type="creator">
-		<input name="geometry" type="geometry">
-			<description>A geometry that represent this actor's shape.</description>
-		</input>
-		<input name="material" type="material">
-			<description>A material that describes this actor's surface appearance.</description>
+		<input name="name" type="string">
+			<description>Phantom's name.</description>
 		</input>
 	</command>
 

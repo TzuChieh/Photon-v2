@@ -45,6 +45,7 @@ private:
 	std::vector<std::shared_ptr<Actor>> m_actors;
 	CookedDataStorage m_cookedActorStorage;
 	CookedDataStorage m_cookedBackendStorage;
+	CookedDataStorage m_phantomStorage;
 	Vector3R m_cameraPos;
 
 	std::unique_ptr<Intersector>    m_intersector;

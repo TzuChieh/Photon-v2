@@ -93,7 +93,7 @@ public:
 			<description>The amount of the rotation.</description>
 		</input>
 		<input name="factor" type="quaternion">
-			<description>Specifying the rotating axis and amount with a quaternion directly.</description>
+			<description>Specifying the rotation with a quaternion directly.</description>
 		</input>
 	</command>
 
