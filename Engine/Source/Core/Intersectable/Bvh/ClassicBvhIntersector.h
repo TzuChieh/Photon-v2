@@ -21,6 +21,8 @@ public:
 	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 	virtual void calcAABB(AABB3D* out_aabb) const override;
 
+	void rebuildWithIntersectables(std::vector<const Intersectable*> intersectables);
+
 private:
 	std::vector<const Intersectable*> m_intersectables;
 	std::vector<BvhLinearNode>        m_nodes;

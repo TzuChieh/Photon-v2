@@ -11,9 +11,11 @@
 #include "World/VisualWorldInfo.h"
 #include "Core/Intersectable/IndexedKdtree/TIndexedKdtreeIntersector.h"
 #include "Core/Emitter/Sampler/ESPowerFavoring.h"
+#include "Actor/APhantomModel.h"
 
 #include <limits>
 #include <iostream>
+#include <algorithm>
 
 namespace ph
 {
@@ -69,7 +71,6 @@ void VisualWorld::cook()
 	CookingContext cookingContext;
 
 	// cook root actors
-	//
 	cookActors(cookingContext);
 
 	VisualWorldInfo visualWorldInfo;
@@ -140,6 +141,13 @@ void VisualWorld::cook()
 
 void VisualWorld::cookActors(CookingContext& cookingContext)
 {
+	// HACK
+	std::sort(m_actors.begin(), m_actors.end(), [](const std::shared_ptr<Actor>& a, const std::shared_ptr<Actor>& b)
+	{
+		auto castedA = std::dynamic_pointer_cast<APhantomModel>(a);
+		return castedA != nullptr;
+	});
+
 	for(const auto& actor : m_actors)
 	{
 		CookedUnit cookedUnit = actor->cook(cookingContext);

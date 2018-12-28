@@ -3,7 +3,6 @@
 #include "Actor/AModel.h"
 #include "FileIO/SDL/TCommandInterface.h"
 
-#include <vector>
 #include <string>
 
 namespace ph

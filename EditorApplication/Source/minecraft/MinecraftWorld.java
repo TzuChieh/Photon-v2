@@ -15,6 +15,8 @@ import jsdl.SDLString;
 import jsdl.SDLVector3;
 import jsdl.SamplingRendererCreator;
 import jsdl.StratifiedSampleGeneratorCreator;
+import jsdl.TransformedInstanceActorCreator;
+import jsdl.TransformedInstanceActorTranslate;
 import util.SDLConsole;
 import util.Vector2f;
 import util.Vector3f;
@@ -37,8 +39,6 @@ public class MinecraftWorld
 	
 	public void toSDL(SDLConsole out_console)
 	{
-		
-		
 		StratifiedSampleGeneratorCreator sampleGenerator = new StratifiedSampleGeneratorCreator();
 		sampleGenerator.setSampleAmount(new SDLInteger(10000));
 		out_console.queue(sampleGenerator);
@@ -76,25 +76,28 @@ public class MinecraftWorld
 						SectionData sectionData = section.getData();
 						String blockIdName = sectionData.getBlockIdName(x, y, z);
 						
+						Vector3i blockPos = section.getCoord().add(new Vector3i(x, y, z));
+						
+						assert(blockIdName != null) : "block position: " + blockPos;
+						
 						if(!blockIdName.equals("minecraft:air"))
 						{
-							Vector3i blockPos = section.getCoord().add(new Vector3i(x, y, z));
-							String cubeName = blockPos.toString();
+							String actorName = "actor:" + blockPos.x + "_" + blockPos.y + "_" + blockPos.z;
 							
-							CuboidGeometryCreator cube = new CuboidGeometryCreator();
-							cube.setDataName(cubeName);
+							TransformedInstanceActorCreator actor = new TransformedInstanceActorCreator();
+							actor.setDataName(actorName);
 							
-							cube.setMinVertex(new SDLVector3(blockPos.x, blockPos.y, blockPos.z));
-							cube.setMaxVertex(new SDLVector3(blockPos.x + 1, blockPos.y + 1, blockPos.z + 1));
-							
-							out_console.queue(cube);
-							
-							ModelActorCreator actor = new ModelActorCreator();
-							actor.setDataName("actor:" + cubeName);
-							actor.setMaterial(new SDLMaterial(materialName));
-							actor.setGeometry(new SDLGeometry(cubeName));
+							String blockActorName = m_asset.getBlockActorName(blockIdName);
+							assert(blockActorName != null) : "block ID: " + blockIdName;
+							actor.setName(new SDLString(blockActorName));
 							
 							out_console.queue(actor);
+							
+							TransformedInstanceActorTranslate translation = new TransformedInstanceActorTranslate();
+							translation.setTargetName(actorName);
+							translation.setFactor(new SDLVector3(blockPos.x, blockPos.y, blockPos.z));
+							
+							out_console.queue(translation);
 						}
 					}
 				}

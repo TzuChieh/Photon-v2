@@ -12,10 +12,12 @@
 #include "Core/Quantity/Time.h"
 #include "Actor/ModelBuilder.h"
 #include "Actor/CookingContext.h"
+#include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
 
 #include <algorithm>
 #include <iostream>
 #include <memory>
+#include <vector>
 
 namespace ph
 {
@@ -44,7 +46,21 @@ APhantomModel& APhantomModel::operator = (APhantomModel rhs)
 
 CookedUnit APhantomModel::cook(CookingContext& context) const
 {
-	context.addPhantom(m_phantomName, AModel::cook(context));
+	CookedUnit cooked = AModel::cook(context);
+
+	std::vector<const Intersectable*> intersectables;
+	for(auto& intersectable : cooked.intersectables())
+	{
+		intersectables.push_back(intersectable.get());
+		cooked.addBackend(std::move(intersectable));
+	}
+	cooked.intersectables().clear();
+
+	auto bvh = std::make_unique<ClassicBvhIntersector>();
+	bvh->rebuildWithIntersectables(std::move(intersectables));
+	cooked.addIntersectable(std::move(bvh));
+
+	context.addPhantom(m_phantomName, std::move(cooked));
 
 	return CookedUnit();
 }

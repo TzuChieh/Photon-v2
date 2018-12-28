@@ -250,8 +250,11 @@ public class AppMain extends Application
 			
 			asset.loadAllIdentified(modelFolder, textureFolder);
 			
-			MinecraftWorld mcWorld = new MinecraftWorld(terrain, asset);
+			
 			SDLConsole console = new SDLConsole("mcw_export");
+			console.start();
+			
+			MinecraftWorld mcWorld = new MinecraftWorld(terrain, asset);
 			
 			PinholeCameraCreator camera = new PinholeCameraCreator();
 			camera.setFovDegree(new SDLReal(105.0f));
@@ -264,10 +267,9 @@ public class AppMain extends Application
 			camera.setPitchDegrees(new SDLReal(yawPitch.y));
 			
 			console.queue(camera);
-			
-			
-			console.start();
+			asset.genBlockActors(console);
 			mcWorld.toSDL(console);
+			
 			console.exit();
 		}
 		

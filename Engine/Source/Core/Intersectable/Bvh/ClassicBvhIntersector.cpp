@@ -32,32 +32,16 @@ void ClassicBvhIntersector::update(const CookedDataStorage& cookedActors)
 		intersectables.push_back(intersectable.get());
 	}
 
-	//BvhBuilder bvhBuilder(EBvhType::HALF);
-	BvhBuilder bvhBuilder(EBvhType::SAH_BUCKET);
-	const BvhInfoNode* root = bvhBuilder.buildInformativeBinaryBvh(intersectables);
-	bvhBuilder.buildLinearDepthFirstBinaryBvh(root, &m_nodes, &m_intersectables);
+	rebuildWithIntersectables(std::move(intersectables));
 
-	// checking and printing information about the constructed BVH
+	// printing information about the constructed BVH
 
-	const std::size_t treeDepth = BvhBuilder::calcMaxDepth(root);
-	if(treeDepth > NODE_STACK_SIZE)
-	{
-		std::cerr << "warning: at ClassicBvhIntersector::update(), " 
-		          << "BVH depth exceeds stack size (" << NODE_STACK_SIZE << ")" << std::endl;
-	}
-
-	if(m_intersectables.empty() || m_nodes.empty())
-	{
-		std::cerr << "warning: at ClassicBvhIntersector::update(), " 
-		          << "no primitive or node is present" << std::endl;
-	}
-
-	std::cout << "intersector:             classic BVH" << std::endl;
+	/*std::cout << "intersector:             classic BVH" << std::endl;
 	std::cout << "total primitives inside: " << BvhBuilder::calcTotalIntersectables(root) << " (info), " << 
 	             m_intersectables.size() << " (linear)" << std::endl;
 	std::cout << "total nodes:             " << BvhBuilder::calcTotalNodes(root) << " (info), " <<
 	             m_nodes.size() << " (linear)" << std::endl;
-	std::cout << "max tree depth:          " << treeDepth << std::endl;
+	std::cout << "max tree depth:          " << treeDepth << std::endl;*/
 }
 
 bool ClassicBvhIntersector::isIntersecting(const Ray& ray, HitProbe& probe) const
@@ -154,6 +138,28 @@ void ClassicBvhIntersector::calcAABB(AABB3D* const out_aabb) const
 		AABB3D aabb;
 		intersectable->calcAABB(&aabb);
 		out_aabb->unionWith(aabb);
+	}
+}
+
+void ClassicBvhIntersector::rebuildWithIntersectables(std::vector<const Intersectable*> intersectables)
+{
+	BvhBuilder bvhBuilder(EBvhType::SAH_BUCKET);
+	const BvhInfoNode* root = bvhBuilder.buildInformativeBinaryBvh(intersectables);
+	bvhBuilder.buildLinearDepthFirstBinaryBvh(root, &m_nodes, &m_intersectables);
+
+	// TODO: try to turn some checking into assertions
+
+	const std::size_t treeDepth = BvhBuilder::calcMaxDepth(root);
+	if(treeDepth > NODE_STACK_SIZE)
+	{
+		std::cerr << "warning: at ClassicBvhIntersector::update(), " 
+		          << "BVH depth exceeds stack size (" << NODE_STACK_SIZE << ")" << std::endl;
+	}
+
+	if(m_intersectables.empty() || m_nodes.empty())
+	{
+		std::cerr << "warning: at ClassicBvhIntersector::update(), " 
+		          << "no intersectable or node is present" << std::endl;
 	}
 }
 
