@@ -2,21 +2,21 @@
 // NOTE: THIS FILE CONTAINS GENERATED CODE 
 //       DO NOT MODIFY                     
 // ========================================
-// last generated: 2018-12-28 11:02:25.289296 
+// last generated: 2018-12-28 11:02:25.001252 
 
 package jsdl;
 
-public class StratifiedSampleGeneratorCreator extends SDLCoreCommand
+public class TransformedInstanceActorCreator extends SDLCreatorCommand
 {
 	@Override
 	public String getFullType()
 	{
-		return "sample-generator(stratified)";
+		return "actor(transformed-instance)";
 	}
 
-	public void setSampleAmount(SDLInteger data)
+	public void setName(SDLString data)
 	{
-		setInput("sample-amount", data);
+		setInput("name", data);
 	}
 
 }

@@ -2,16 +2,16 @@
 // NOTE: THIS FILE CONTAINS GENERATED CODE 
 //       DO NOT MODIFY                     
 // ========================================
-// last generated: 2018-12-28 11:02:25.066212 
+// last generated: 2018-12-28 11:02:24.986261 
 
 package jsdl;
 
-public class PhysicalActorRotate extends SDLExecutorCommand
+public class PhantomModelActorRotate extends SDLExecutorCommand
 {
 	@Override
 	public String getFullType()
 	{
-		return "actor(physical)";
+		return "actor(phantom-model)";
 	}
 
 	@Override

@@ -66,6 +66,11 @@ TVector2<int64> Engine::getFilmDimensionPx() const
 
 void Engine::setNumRenderThreads(const uint32 numThreads)
 {
+	if(m_numRenderThreads == numThreads)
+	{
+		return;
+	}
+
 	m_numRenderThreads = numThreads;
 
 	logger.log("number of render threads set to " + std::to_string(numThreads));
