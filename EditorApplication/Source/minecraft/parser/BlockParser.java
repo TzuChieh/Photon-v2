@@ -6,7 +6,7 @@ import minecraft.JSONArray;
 import minecraft.JSONObject;
 import minecraft.block.BlockData;
 import minecraft.block.BlockModel;
-import minecraft.block.BlockVariant;
+import minecraft.block.Block;
 
 public class BlockParser
 {
@@ -29,7 +29,7 @@ public class BlockParser
 			// (variant name consists of the relevant block states separated by commas)
 			for(String variantName : variants.getNames())
 			{
-				BlockVariant blockVariant = new BlockVariant();
+				Block blockVariant = new Block();
 				
 				if(variants.get(variantName) instanceof JSONObject)
 				{

@@ -7,6 +7,7 @@ namespace ph
 {
 
 class CookingContext;
+class InputPacket;
 
 class Actor : public TCommandInterface<Actor>
 {
@@ -23,6 +24,7 @@ public:
 
 // command interface
 public:
+	explicit Actor(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };

@@ -15,16 +15,15 @@ class Material;
 class TextureMapper;
 class MotionSource;
 
-class AModel final : public PhysicalActor, public TCommandInterface<AModel>
+class AModel : public PhysicalActor, public TCommandInterface<AModel>
 {
 public:
 	AModel();
 	AModel(const std::shared_ptr<Geometry>& geometry, 
 	       const std::shared_ptr<Material>& material);
 	AModel(const AModel& other);
-	virtual ~AModel() override;
 
-	virtual CookedUnit cook(CookingContext& context) const override;
+	CookedUnit cook(CookingContext& context) const override;
 
 	AModel& operator = (AModel rhs);
 
@@ -43,9 +42,9 @@ private:
 
 // command interface
 public:
+	explicit AModel(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
-	static std::unique_ptr<AModel> ciLoad(const InputPacket& packet);
 };
 
 }// end namespace ph

@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class BlockVariant implements Iterable<BlockModel>
+public class Block implements Iterable<BlockModel>
 {
 	private List<BlockModel> m_models;
 	
-	public BlockVariant()
+	public Block()
 	{
 		m_models = new ArrayList<BlockModel>();
 	}

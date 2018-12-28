@@ -32,7 +32,7 @@ private:
 
 // command interface
 public:
-	AreaSource(const InputPacket& packet);
+	explicit AreaSource(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };

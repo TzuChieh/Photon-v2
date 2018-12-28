@@ -10,6 +10,9 @@ namespace ph
 */
 class VisualWorldInfo final
 {
+	// TODO: we may add another bound that records current actor bounds on
+	// each child actor cooking iteration
+
 public:
 	AABB3D getRootActorsBound() const;
 

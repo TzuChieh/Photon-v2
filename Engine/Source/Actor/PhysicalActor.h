@@ -43,6 +43,8 @@ protected:
 
 // command interface
 public:
+	explicit PhysicalActor(const InputPacket& packet);
+
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 

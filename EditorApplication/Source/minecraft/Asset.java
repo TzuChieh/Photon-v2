@@ -18,6 +18,7 @@ import jsdl.SDLGeometry;
 import jsdl.SDLMaterial;
 import jsdl.SDLVector3;
 import minecraft.block.BlockData;
+import minecraft.block.Block;
 import minecraft.parser.BlockParser;
 import minecraft.parser.ModelParser;
 import util.SDLConsole;
@@ -25,6 +26,8 @@ import util.Vector3i;
 
 public class Asset
 {
+	private static final String INVALID_BLOCK_ACTOR_NAME = "invalid_asset_block";
+	
 	private Map<String, ModelData>     m_models;
 	private Map<String, BufferedImage> m_textures;
 	private Map<String, BlockData>     m_blocks;
@@ -192,36 +195,44 @@ public class Asset
 	
 	public void genBlockActors(SDLConsole out_console)
 	{
-		for(Map.Entry<String, BlockData> block : m_blocks.entrySet())
+		for(Map.Entry<String, BlockData> blockEntry : m_blocks.entrySet())
 		{
-//			String blockActorName = genBlockActor(block.getKey(), block.getValue(), out_console);
-//			m_blockIdToActorName.put(block.getKey(), blockActorName);
+			Block block = blockEntry.getValue().getVariant("");
+			if(block != null)
+			{
+				String blockActorName = genBlockActor(blockEntry.getKey(), block, out_console);
+				m_blockIdToActorName.put(blockEntry.getKey(), blockActorName);
+			}
 		}
 	}
 	
-//	private String genBlockActor(String blockId, BlockData blockData, SDLConsole out_console)
-//	{
-//		if(!blockIdName.equals("minecraft:air"))
-//		{
-//			Vector3i blockPos = section.getCoord().add(new Vector3i(x, y, z));
-//			String cubeName = blockPos.toString();
-//			
-//			CuboidGeometryCreator cube = new CuboidGeometryCreator();
-//			cube.setDataName(cubeName);
-//			
-//			cube.setMinVertex(new SDLVector3(blockPos.x, blockPos.y, blockPos.z));
-//			cube.setMaxVertex(new SDLVector3(blockPos.x + 1, blockPos.y + 1, blockPos.z + 1));
-//			
-//			out_console.queue(cube);
-//			
-//			ModelActorCreator actor = new ModelActorCreator();
-//			actor.setDataName("actor:" + cubeName);
-//			actor.setMaterial(new SDLMaterial(materialName));
-//			actor.setGeometry(new SDLGeometry(cubeName));
-//			
-//			out_console.queue(actor);
-//		}
+	private String genBlockActor(String blockId, Block block, SDLConsole out_console)
+	{
+//		block.hasSingleModel()
 //		
-//		return "";
-//	}
+//		Vector3i blockPos = section.getCoord().add(new Vector3i(x, y, z));
+//		String cubeName = blockPos.toString();
+//		
+//		CuboidGeometryCreator cube = new CuboidGeometryCreator();
+//		cube.setDataName(cubeName);
+//		
+//		cube.setMinVertex(new SDLVector3(blockPos.x, blockPos.y, blockPos.z));
+//		cube.setMaxVertex(new SDLVector3(blockPos.x + 1, blockPos.y + 1, blockPos.z + 1));
+//		
+//		out_console.queue(cube);
+//		
+//		ModelActorCreator actor = new ModelActorCreator();
+//		actor.setDataName("actor:" + cubeName);
+//		actor.setMaterial(new SDLMaterial(materialName));
+//		actor.setGeometry(new SDLGeometry(cubeName));
+//		
+//		out_console.queue(actor);
+		
+		return "";
+	}
+	
+	private void genInvalidBlockActor(SDLConsole out_console)
+	{
+		
+	}
 }

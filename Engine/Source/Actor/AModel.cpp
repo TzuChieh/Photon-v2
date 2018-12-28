@@ -41,8 +41,6 @@ AModel::AModel(const AModel& other) :
 	m_motionSource(other.m_motionSource)
 {}
 
-AModel::~AModel() = default;
-
 AModel& AModel::operator = (AModel rhs)
 {
 	swap(*this, rhs);
@@ -136,6 +134,20 @@ void swap(AModel& first, AModel& second)
 
 // command interface
 
+AModel::AModel(const InputPacket& packet) : 
+	PhysicalActor(packet),
+	m_geometry(nullptr),
+	m_material(nullptr),
+	m_motionSource(nullptr)
+{
+	const DataTreatment requiredDT(EDataImportance::REQUIRED,
+		"AModel needs both a Geometry and a Material");
+
+	m_geometry     = packet.get<Geometry>("geometry", requiredDT);
+	m_material     = packet.get<Material>("material", requiredDT);
+	m_motionSource = packet.get<MotionSource>("motion", DataTreatment::OPTIONAL());
+}
+
 SdlTypeInfo AModel::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "model");
@@ -143,9 +155,10 @@ SdlTypeInfo AModel::ciTypeInfo()
 
 void AModel::ciRegister(CommandRegister& cmdRegister)
 {
-	SdlLoader loader;
-	loader.setFunc<AModel>(ciLoad);
-	cmdRegister.setLoader(loader);
+	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
+	{
+		return std::make_unique<AModel>(packet);
+	}));
 
 	SdlExecutor translateSE;
 	translateSE.setName("translate");
@@ -161,19 +174,6 @@ void AModel::ciRegister(CommandRegister& cmdRegister)
 	scaleSE.setName("scale");
 	scaleSE.setFunc<AModel>(ciScale);
 	cmdRegister.addExecutor(scaleSE);
-}
-
-std::unique_ptr<AModel> AModel::ciLoad(const InputPacket& packet)
-{
-	const DataTreatment requiredDT(EDataImportance::REQUIRED, 
-	                               "AModel needs both a Geometry and a Material");
-	const auto& geometry     = packet.get<Geometry>("geometry", requiredDT);
-	const auto& material     = packet.get<Material>("material", requiredDT);
-	const auto& motionSource = packet.get<MotionSource>("motion", DataTreatment::OPTIONAL());
-
-	std::unique_ptr<AModel> model = std::make_unique<AModel>(geometry, material);
-	model->setMotionSource(motionSource);
-	return model;
 }
 
 }// end namespace ph

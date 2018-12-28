@@ -1,5 +1,6 @@
 package minecraft.block;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -7,29 +8,34 @@ import java.util.Set;
 
 public class BlockData
 {
-	private Map<String, BlockVariant> m_variants;
+	private Map<String, Block> m_variants;
 	
 	public BlockData()
 	{
 		m_variants = new HashMap<>();
 	}
 	
-	public BlockVariant getVariant(String name)
+	public Block getVariant(String name)
 	{
 		return m_variants.get(name);
 	}
 	
-	public void addVariant(String name, BlockVariant variant)
+	public Collection<Block> getVariants()
 	{
-		m_variants.put(name, variant);
+		return m_variants.values();
+	}
+	
+	public void addVariant(String name, Block block)
+	{
+		m_variants.put(name, block);
 	}
 	
 	public Set<String> getRequiredModels()
 	{
 		Set<String> modelIds = new HashSet<>();
-		for(BlockVariant variant : m_variants.values())
+		for(Block block : m_variants.values())
 		{
-			for(BlockModel model : variant)
+			for(BlockModel model : block)
 			{
 				modelIds.add(model.getModelId());
 			}

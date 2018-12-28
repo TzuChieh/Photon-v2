@@ -43,6 +43,7 @@
 #include "Actor/AModel.h"
 #include "Actor/ALight.h"
 #include "Actor/ADome.h"
+#include "Actor/APhantomModel.h"
 
 // images
 #include "Actor/Image/Image.h"
@@ -143,6 +144,7 @@ bool init_command_parser()
 	register_command_interface<AModel>();
 	register_command_interface<ALight>();
 	register_command_interface<ADome>();
+	register_command_interface<APhantomModel>();
 
 	// images
 	register_command_interface<Image>();
