@@ -206,74 +206,74 @@ public class AppMain extends Application
 //		System.out.println(modelData);
 		
 		
-		MinecraftInstallation mcInstallation = new MinecraftInstallation();
-		
-		
-		System.err.println(mcInstallation.getLevels());
-		
-		
-		
-		
-		
-		Path jarPath = mcInstallation.getJar(13, 2);
-        
-		try(FileSystem zipfs = FileSystems.newFileSystem(jarPath, null))
-		{
-			Path modelFolder = zipfs.getPath("assets", "minecraft", "models");
-			Path textureFolder = zipfs.getPath("assets", "minecraft", "textures");
-			Path blockFolder = zipfs.getPath("assets", "minecraft", "blockstates");
-			
-			Set<String> modelIds = new HashSet<>();
-			modelIds.add("block/cobblestone");
-			
-			Set<String> textureIds = new HashSet<>();
-			textureIds.add("block/acacia_log_top");
-			textureIds.add("block/acacia_log");
-			
-			Asset asset = new Asset();
-			asset.loadModels(modelFolder, modelIds);
-			asset.loadTextures(textureFolder, textureIds);
-			
-//			asset.loadModelTextures(textureFolder);
-			
-			List<Path> levels = mcInstallation.getLevels();
-			LevelData level = new LevelParser().parse(levels.get(0));
-			
-			System.err.println(level.getMetadata().getSpPlayerPosition());
-			System.err.println(level.getMetadata().getSpPlayerYawPitchDegrees());
-			
-			Terrain terrain = level.getReachableTerrain(level.getMetadata().getSpPlayerPosition());
-//			Terrain terrain = level.getNearTerrain(level.getMetadata().getSpPlayerPosition(), 20);
-//			System.err.println(terrain.getRequiredBlocks());
-//			System.err.println(terrain);
-			asset.loadBlocks(blockFolder, terrain.getRequiredBlocks());
-			
-			asset.loadAllIdentified(modelFolder, textureFolder);
-			
-			
-			SDLConsole console = new SDLConsole("mcw_export");
-			console.start();
-			
-			MinecraftWorld mcWorld = new MinecraftWorld(terrain, asset);
-			
-			PinholeCameraCreator camera = new PinholeCameraCreator();
-			camera.setFovDegree(new SDLReal(105.0f));
-			
-			Vector3f camPos = level.getMetadata().getSpPlayerPosition();
-			// account for player height
-			camPos.y += 1.7f;
-			camera.setPosition(new SDLVector3(camPos.x, camPos.y, camPos.z));
-			
-			Vector2f yawPitch = level.getMetadata().getSpPlayerYawPitchDegrees();
-			camera.setYawDegrees(new SDLReal(yawPitch.x));
-			camera.setPitchDegrees(new SDLReal(yawPitch.y));
-			
-			console.queue(camera);
-			asset.genBlockActors(console);
-			mcWorld.toSDL(console);
-			
-			console.exit();
-		}
+//		MinecraftInstallation mcInstallation = new MinecraftInstallation();
+//		
+//		
+//		System.err.println(mcInstallation.getLevels());
+//		
+//		
+//		
+//		
+//		
+//		Path jarPath = mcInstallation.getJar(13, 2);
+//        
+//		try(FileSystem zipfs = FileSystems.newFileSystem(jarPath, null))
+//		{
+//			Path modelFolder = zipfs.getPath("assets", "minecraft", "models");
+//			Path textureFolder = zipfs.getPath("assets", "minecraft", "textures");
+//			Path blockFolder = zipfs.getPath("assets", "minecraft", "blockstates");
+//			
+//			Set<String> modelIds = new HashSet<>();
+//			modelIds.add("block/cobblestone");
+//			
+//			Set<String> textureIds = new HashSet<>();
+//			textureIds.add("block/acacia_log_top");
+//			textureIds.add("block/acacia_log");
+//			
+//			Asset asset = new Asset();
+//			asset.loadModels(modelFolder, modelIds);
+//			asset.loadTextures(textureFolder, textureIds);
+//			
+////			asset.loadModelTextures(textureFolder);
+//			
+//			List<Path> levels = mcInstallation.getLevels();
+//			LevelData level = new LevelParser().parse(levels.get(0));
+//			
+//			System.err.println(level.getMetadata().getSpPlayerPosition());
+//			System.err.println(level.getMetadata().getSpPlayerYawPitchDegrees());
+//			
+//			Terrain terrain = level.getReachableTerrain(level.getMetadata().getSpPlayerPosition());
+////			Terrain terrain = level.getNearTerrain(level.getMetadata().getSpPlayerPosition(), 20);
+////			System.err.println(terrain.getRequiredBlocks());
+////			System.err.println(terrain);
+//			asset.loadBlocks(blockFolder, terrain.getRequiredBlocks());
+//			
+//			asset.loadAllIdentified(modelFolder, textureFolder);
+//			
+//			
+//			SDLConsole console = new SDLConsole("mcw_export");
+//			console.start();
+//			
+//			MinecraftWorld mcWorld = new MinecraftWorld(terrain, asset);
+//			
+//			PinholeCameraCreator camera = new PinholeCameraCreator();
+//			camera.setFovDegree(new SDLReal(105.0f));
+//			
+//			Vector3f camPos = level.getMetadata().getSpPlayerPosition();
+//			// account for player height
+//			camPos.y += 1.7f;
+//			camera.setPosition(new SDLVector3(camPos.x, camPos.y, camPos.z));
+//			
+//			Vector2f yawPitch = level.getMetadata().getSpPlayerYawPitchDegrees();
+//			camera.setYawDegrees(new SDLReal(yawPitch.x));
+//			camera.setPitchDegrees(new SDLReal(yawPitch.y));
+//			
+//			console.queue(camera);
+//			asset.genBlockActors(console);
+//			mcWorld.toSDL(console);
+//			
+//			console.exit();
+//		}
 		
 //		System.exit(0);
 	}

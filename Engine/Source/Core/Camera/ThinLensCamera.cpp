@@ -12,6 +12,8 @@ namespace ph
 
 void ThinLensCamera::genSensedRay(const Vector2R& filmNdcPos, Ray* const out_ray) const
 {
+	// TODO: check for numerical precision (avoid the error like it was in pinhole camera)
+
 	Vector3R camFilmPos;
 	m_filmToCamera->transformP(Vector3R(filmNdcPos.x, filmNdcPos.y, 0), &camFilmPos);
 
