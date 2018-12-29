@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import minecraft.block.StateProperties;
+
 public class SectionData
 {
 	public static final int SIZE_X = 16;
@@ -14,9 +16,9 @@ public class SectionData
 	
 	private static Set<String> transparentBlocks = new HashSet<>();
 	
-	private List<String>              m_blockIdNames;
-	private List<Map<String, String>> m_stateProperties;
-	private short[][][]               m_blockIndices;
+	private List<String>                m_blockIdNames;
+	private List<StateProperties> m_stateProperties;
+	private short[][][]                 m_blockIndices;
 	
 	public SectionData()
 	{
@@ -41,7 +43,13 @@ public class SectionData
 		return getBlockIdName(referencedBlockIndex);
 	}
 	
-	public void addBlock(String blockIdName, Map<String, String> stateProperties)
+	public StateProperties getProperties(int x, int y, int z)
+	{
+		int referencedBlockIndex = m_blockIndices[y][z][x];
+		return m_stateProperties.get(referencedBlockIndex);
+	}
+	
+	public void addBlock(String blockIdName, StateProperties stateProperties)
 	{
 //		System.out.println(blockIdName);
 		

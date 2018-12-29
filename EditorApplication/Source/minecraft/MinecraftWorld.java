@@ -1,16 +1,8 @@
 package minecraft;
 
-import java.util.List;
-
-import jsdl.CuboidGeometryCreator;
 import jsdl.DomeActorCreator;
 import jsdl.MatteOpaqueMaterialCreator;
-import jsdl.ModelActorCreator;
-import jsdl.PinholeCameraCreator;
-import jsdl.SDLGeometry;
 import jsdl.SDLInteger;
-import jsdl.SDLMaterial;
-import jsdl.SDLReal;
 import jsdl.SDLString;
 import jsdl.SDLVector3;
 import jsdl.SamplingRendererCreator;
@@ -18,8 +10,6 @@ import jsdl.StratifiedSampleGeneratorCreator;
 import jsdl.TransformedInstanceActorCreator;
 import jsdl.TransformedInstanceActorTranslate;
 import util.SDLConsole;
-import util.Vector2f;
-import util.Vector3f;
 import util.Vector3i;
 
 public class MinecraftWorld

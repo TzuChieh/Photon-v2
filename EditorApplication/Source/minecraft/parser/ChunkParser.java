@@ -11,6 +11,7 @@ import java.util.zip.InflaterInputStream;
 
 import minecraft.ChunkData;
 import minecraft.SectionData;
+import minecraft.block.StateProperties;
 import minecraft.nbt.NBTData;
 import minecraft.nbt.NBTTag;
 import util.BinaryData;
@@ -81,18 +82,25 @@ public class ChunkParser
 			{
 				String blockIdName = block.get("Name");
 				
-				Map<String, String> stateProperties = null;
+				StateProperties stateProperties = new StateProperties();
 				if(block.hasTag("Properties"))
 				{
-					stateProperties = new HashMap<>();
+					Map<String, String> props = new HashMap<>();
 					NBTData properties = block.get("Properties");
 					for(NBTTag property : properties.getTags())
 					{
-						stateProperties.put(property.getName(), property.getPayload());
+						props.put(property.getName(), property.getPayload());
 					}
+					stateProperties = new StateProperties(props);
 				}
-				
 				chunkSection.addBlock(blockIdName, stateProperties);
+				
+				// DEBUG
+				if(blockIdName.contains("fence"))
+				{
+					System.err.println("block id: " + blockIdName);
+					System.err.println("prop: " + stateProperties);
+				}
 				
 //				System.err.println("block id: " + blockIdName);
 //				System.err.println("prop: " + stateProperties);

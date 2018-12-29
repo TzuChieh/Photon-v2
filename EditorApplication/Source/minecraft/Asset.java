@@ -16,7 +16,6 @@ import javax.imageio.ImageIO;
 import jsdl.CuboidGeometryCreator;
 import jsdl.LdrPictureImageCreator;
 import jsdl.MatteOpaqueMaterialCreator;
-import jsdl.ModelActorCreator;
 import jsdl.PhantomModelActorCreator;
 import jsdl.SDLGeometry;
 import jsdl.SDLImage;

@@ -3,16 +3,13 @@ package appGui;
 import appModel.EditorApp;
 import appModel.project.Project;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 import appGui.util.ChildWindow;
-import appGui.util.MessagePopup;
 import appGui.util.UILoader;
 import appGui.util.ViewCtrlPair;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
