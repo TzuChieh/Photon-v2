@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import minecraft.block.StateProperties;
+import minecraft.block.StateAggregate;
 
 public class SectionData
 {
@@ -17,7 +17,7 @@ public class SectionData
 	private static Set<String> transparentBlocks = new HashSet<>();
 	
 	private List<String>                m_blockIdNames;
-	private List<StateProperties> m_stateProperties;
+	private List<StateAggregate> m_stateProperties;
 	private short[][][]                 m_blockIndices;
 	
 	public SectionData()
@@ -43,13 +43,13 @@ public class SectionData
 		return getBlockIdName(referencedBlockIndex);
 	}
 	
-	public StateProperties getProperties(int x, int y, int z)
+	public StateAggregate getProperties(int x, int y, int z)
 	{
 		int referencedBlockIndex = m_blockIndices[y][z][x];
 		return m_stateProperties.get(referencedBlockIndex);
 	}
 	
-	public void addBlock(String blockIdName, StateProperties stateProperties)
+	public void addBlock(String blockIdName, StateAggregate stateProperties)
 	{
 //		System.out.println(blockIdName);
 		

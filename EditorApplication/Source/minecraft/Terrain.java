@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import minecraft.block.BlockStateProvider;
 import util.Vector3i;
 
 public class Terrain implements Iterable<SectionUnit>

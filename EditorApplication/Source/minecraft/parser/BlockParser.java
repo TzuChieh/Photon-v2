@@ -6,6 +6,7 @@ import minecraft.JSONArray;
 import minecraft.JSONObject;
 import minecraft.block.BlockData;
 import minecraft.block.BlockModel;
+import minecraft.block.AllMatchedConditional;
 import minecraft.block.Block;
 
 public class BlockParser
@@ -19,14 +20,12 @@ public class BlockParser
 	
 	public BlockData parse(InputStream rawData)
 	{
-		BlockData block = new BlockData();
+		BlockData blockData = new BlockData();
 		JSONObject root = m_jsonParser.parse(rawData);
 		
 		if(root.has("variants"))
 		{
 			JSONObject variants = root.getChild("variants");
-			
-			// (variant name consists of the relevant block states separated by commas)
 			for(String variantName : variants.getNames())
 			{
 				Block blockVariant = new Block();
@@ -46,11 +45,15 @@ public class BlockParser
 					}
 				}
 				
-				block.addVariant(variantName, blockVariant);
+				// (variant name consists of the relevant block states separated by commas)
+				AllMatchedConditional conditional = new AllMatchedConditional();
+				conditional.addTargetStates(variantName);
+				
+				blockData.addBlock(conditional, blockVariant);
 			}
 		}
 		
-		return block;
+		return blockData;
 	}
 	
 	private static BlockModel parseBlockModel(JSONObject model)

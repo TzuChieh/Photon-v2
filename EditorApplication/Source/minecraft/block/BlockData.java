@@ -1,39 +1,57 @@
 package minecraft.block;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class BlockData
 {
-	private Map<String, Block> m_variants;
+	private List<StateConditional> m_conditionals;
+	private List<Block>            m_blocks;
 	
 	public BlockData()
 	{
-		m_variants = new HashMap<>();
+		m_conditionals = new ArrayList<>();
+		m_blocks       = new ArrayList<>();
 	}
 	
-	public Block getVariant(String name)
+	public Block getBlock(StateAggregate states)
 	{
-		return m_variants.get(name);
+		for(int i = 0; i < m_conditionals.size(); ++i)
+		{
+			StateConditional conditional = m_conditionals.get(i);
+			if(conditional.evaluate(states))
+			{
+				return m_blocks.get(i);
+			}
+		}
+		return null;
 	}
 	
-	public Collection<Block> getVariants()
+	public Block getBlock(int blockIndex)
 	{
-		return m_variants.values();
+		return m_blocks.get(blockIndex);
 	}
 	
-	public void addVariant(String name, Block block)
+	public int numBlocks()
 	{
-		m_variants.put(name, block);
+		return m_blocks.size();
+	}
+	
+	public void addBlock(StateConditional conditional, Block block)
+	{
+		m_conditionals.add(conditional);
+		m_blocks.add(block);
 	}
 	
 	public Set<String> getRequiredModels()
 	{
 		Set<String> modelIds = new HashSet<>();
-		for(Block block : m_variants.values())
+		for(Block block : m_blocks)
 		{
 			for(BlockModel model : block)
 			{
@@ -46,6 +64,6 @@ public class BlockData
 	@Override
 	public String toString()
 	{
-		return "Block Data: " + m_variants;
+		return "Block Data: conditionals = " + m_conditionals + ", models = " + m_blocks;
 	}
 }

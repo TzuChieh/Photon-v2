@@ -50,7 +50,7 @@ public class Asset
 	
 	public String getBlockActorName(String blockId)
 	{
-		return m_blockIdToActorName.get(blockId);
+		return m_blockIdToActorName.getOrDefault(blockId, INVALID_BLOCK_ACTOR_NAME);
 	}
 	
 	public void add(String modelId, ModelData model)
@@ -210,20 +210,14 @@ public class Asset
 		
 		for(Map.Entry<String, BlockData> blockEntry : m_blocks.entrySet())
 		{
-			Block block = blockEntry.getValue().getVariant("");
-			if(block == null)
+			for(int i = 0; i < blockEntry.getValue().numBlocks(); ++i)
 			{
-				for(Block ttt : blockEntry.getValue().getVariants())
-				{
-					block = ttt;
-					break;
-				}
+				Block block = blockEntry.getValue().getBlock(i);
+				String blockActorName = genBlockActor(blockEntry.getKey(), block, out_console);
+				assert(blockActorName != null);
+				
+				m_blockIdToActorName.put(blockEntry.getKey(), blockActorName);
 			}
-			
-			String blockActorName = genBlockActor(blockEntry.getKey(), block, out_console);
-			assert(blockActorName != null);
-			
-			m_blockIdToActorName.put(blockEntry.getKey(), blockActorName);
 		}
 	}
 	
