@@ -3,6 +3,9 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
+#include "Core/Bound/TAABB2D.h"
+
+#include <array>
 
 namespace ph
 {
@@ -24,12 +27,12 @@ public:
 	GCuboid& operator = (const GCuboid& rhs);
 
 private:
-	real     m_xLen;
-	real     m_yLen;
-	real     m_zLen;
-	Vector3R m_offset;
+	Vector3R              m_size;
+	Vector3R              m_offset;
+	std::array<AABB2D, 6> m_faceUVs;
 
 	static bool checkData(const PrimitiveBuildingMaterial& data, const real xLen, const real yLen, const real zLen);
+	static std::array<AABB2D, 6> genNormalizedFaceUVs();
 
 // command interface
 public:

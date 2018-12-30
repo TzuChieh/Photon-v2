@@ -6,6 +6,7 @@
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Common/assertion.h"
 #include "FileIO/SDL/InputPacket.h"
+#include "Math/math.h"
 
 #include <cmath>
 #include <iostream>
@@ -39,68 +40,147 @@ GCuboid::GCuboid(const Vector3R& minVertex, const Vector3R& maxVertex) :
 
 GCuboid::GCuboid(const real xLen, const real yLen, const real zLen, const Vector3R& offset) :
 	Geometry(),
-	m_xLen(xLen), m_yLen(yLen), m_zLen(zLen), m_offset(offset)
+	m_size(xLen, yLen, zLen), m_offset(offset), m_faceUVs(genNormalizedFaceUVs())
 {
 	PH_ASSERT(xLen > 0.0_r && yLen > 0.0_r && zLen > 0.0_r);
 }
 
 GCuboid::GCuboid(const GCuboid& other) :
-	m_xLen(other.m_xLen), 
-	m_yLen(other.m_yLen), 
-	m_zLen(other.m_zLen), 
-	m_offset(other.m_offset)
+	m_size(other.m_size),
+	m_offset(other.m_offset),
+	m_faceUVs(other.m_faceUVs)
 {}
 
 void GCuboid::genPrimitive(const PrimitiveBuildingMaterial& data,
                            std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
-	if(!checkData(data, m_xLen, m_yLen, m_zLen))
+	if(!checkData(data, m_size.x, m_size.y, m_size.z))
 	{
 		return;
 	}
 
 	// TODO: UVW mapping
 
-	const real halfXlen = m_xLen * 0.5_r;
-	const real halfYlen = m_yLen * 0.5_r;
-	const real halfZlen = m_zLen * 0.5_r;
+	const Vector3R halfSize = m_size * 0.5_r;
 
 	// 8 vertices of a cuboid
-	const Vector3R vPPP = Vector3R( halfXlen,  halfYlen,  halfZlen).add(m_offset);
-	const Vector3R vNPP = Vector3R(-halfXlen,  halfYlen,  halfZlen).add(m_offset);
-	const Vector3R vNNP = Vector3R(-halfXlen, -halfYlen,  halfZlen).add(m_offset);
-	const Vector3R vPNP = Vector3R( halfXlen, -halfYlen,  halfZlen).add(m_offset);
-	const Vector3R vPPN = Vector3R( halfXlen,  halfYlen, -halfZlen).add(m_offset);
-	const Vector3R vNPN = Vector3R(-halfXlen,  halfYlen, -halfZlen).add(m_offset);
-	const Vector3R vNNN = Vector3R(-halfXlen, -halfYlen, -halfZlen).add(m_offset);
-	const Vector3R vPNN = Vector3R( halfXlen, -halfYlen, -halfZlen).add(m_offset);
+	const Vector3R vPPP = Vector3R( halfSize.x,  halfSize.y,  halfSize.z).add(m_offset);
+	const Vector3R vNPP = Vector3R(-halfSize.x,  halfSize.y,  halfSize.z).add(m_offset);
+	const Vector3R vNNP = Vector3R(-halfSize.x, -halfSize.y,  halfSize.z).add(m_offset);
+	const Vector3R vPNP = Vector3R( halfSize.x, -halfSize.y,  halfSize.z).add(m_offset);
+	const Vector3R vPPN = Vector3R( halfSize.x,  halfSize.y, -halfSize.z).add(m_offset);
+	const Vector3R vNPN = Vector3R(-halfSize.x,  halfSize.y, -halfSize.z).add(m_offset);
+	const Vector3R vNNN = Vector3R(-halfSize.x, -halfSize.y, -halfSize.z).add(m_offset);
+	const Vector3R vPNN = Vector3R( halfSize.x, -halfSize.y, -halfSize.z).add(m_offset);
 
 	// 12 triangles (all CCW)
 
-	// xy-plane
-	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vPPP, vNPP, vNNP));
-	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vPPP, vNNP, vPNP));
-	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vNPN, vPPN, vPNN));
-	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vNPN, vPNN, vNNN));
+	// +z face (+y as upward)
+	const int pz = math::Z_AXIS;
+	{
+		auto upperTriangle = std::make_unique<PTriangle>(data.metadata, vPPP, vNPP, vNNP);
+		upperTriangle->setUVWa({m_faceUVs[pz].maxVertex.x, m_faceUVs[pz].maxVertex.y, 0});
+		upperTriangle->setUVWb({m_faceUVs[pz].minVertex.x, m_faceUVs[pz].maxVertex.y, 0});
+		upperTriangle->setUVWc({m_faceUVs[pz].minVertex.x, m_faceUVs[pz].minVertex.y, 0});
 
-	// yz-plane
-	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vPPN, vPPP, vPNP));
-	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vPPN, vPNP, vPNN));
-	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vNPP, vNPN, vNNN));
-	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vNPP, vNNN, vNNP));
+		auto lowerTriangle = std::make_unique<PTriangle>(data.metadata, vPPP, vNNP, vPNP);
+		lowerTriangle->setUVWa({m_faceUVs[pz].maxVertex.x, m_faceUVs[pz].maxVertex.y, 0});
+		lowerTriangle->setUVWb({m_faceUVs[pz].minVertex.x, m_faceUVs[pz].minVertex.y, 0});
+		lowerTriangle->setUVWc({m_faceUVs[pz].maxVertex.x, m_faceUVs[pz].minVertex.y, 0});
 
-	// xz-plane
-	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vPPN, vNPN, vNPP));
-	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vPPN, vNPP, vPPP));
-	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vPNP, vNNP, vNNN));
-	out_primitives.push_back(std::make_unique<PTriangle>(data.metadata, vPNP, vNNN, vPNN));
+		out_primitives.push_back(std::move(upperTriangle));
+		out_primitives.push_back(std::move(lowerTriangle));
+	}
+
+	// -z face (+y as upward)
+	const int nz = math::Z_AXIS + 3;
+	{
+		auto upperTriangle = std::make_unique<PTriangle>(data.metadata, vNPN, vPPN, vPNN);
+		upperTriangle->setUVWa({m_faceUVs[nz].maxVertex.x, m_faceUVs[nz].maxVertex.y, 0});
+		upperTriangle->setUVWb({m_faceUVs[nz].minVertex.x, m_faceUVs[nz].maxVertex.y, 0});
+		upperTriangle->setUVWc({m_faceUVs[nz].minVertex.x, m_faceUVs[nz].minVertex.y, 0});
+
+		auto lowerTriangle = std::make_unique<PTriangle>(data.metadata, vNPN, vPNN, vNNN);
+		lowerTriangle->setUVWa({m_faceUVs[nz].maxVertex.x, m_faceUVs[nz].maxVertex.y, 0});
+		lowerTriangle->setUVWb({m_faceUVs[nz].minVertex.x, m_faceUVs[nz].minVertex.y, 0});
+		lowerTriangle->setUVWc({m_faceUVs[nz].maxVertex.x, m_faceUVs[nz].minVertex.y, 0});
+
+		out_primitives.push_back(std::move(upperTriangle));
+		out_primitives.push_back(std::move(lowerTriangle));
+	}
+
+	// +x face (+y as upward)
+	const int px = math::X_AXIS;
+	{
+		auto upperTriangle = std::make_unique<PTriangle>(data.metadata, vPPN, vPPP, vPNP);
+		upperTriangle->setUVWa({m_faceUVs[px].maxVertex.x, m_faceUVs[px].maxVertex.y, 0});
+		upperTriangle->setUVWb({m_faceUVs[px].minVertex.x, m_faceUVs[px].maxVertex.y, 0});
+		upperTriangle->setUVWc({m_faceUVs[px].minVertex.x, m_faceUVs[px].minVertex.y, 0});
+
+		auto lowerTriangle = std::make_unique<PTriangle>(data.metadata, vPPN, vPNP, vPNN);
+		lowerTriangle->setUVWa({m_faceUVs[px].maxVertex.x, m_faceUVs[px].maxVertex.y, 0});
+		lowerTriangle->setUVWb({m_faceUVs[px].minVertex.x, m_faceUVs[px].minVertex.y, 0});
+		lowerTriangle->setUVWc({m_faceUVs[px].maxVertex.x, m_faceUVs[px].minVertex.y, 0});
+
+		out_primitives.push_back(std::move(upperTriangle));
+		out_primitives.push_back(std::move(lowerTriangle));
+	}
+
+	// -x face (+y as upward)
+	const int nx = math::X_AXIS + 3;
+	{
+		auto upperTriangle = std::make_unique<PTriangle>(data.metadata, vNPP, vNPN, vNNN);
+		upperTriangle->setUVWa({m_faceUVs[nx].maxVertex.x, m_faceUVs[nx].maxVertex.y, 0});
+		upperTriangle->setUVWb({m_faceUVs[nx].minVertex.x, m_faceUVs[nx].maxVertex.y, 0});
+		upperTriangle->setUVWc({m_faceUVs[nx].minVertex.x, m_faceUVs[nx].minVertex.y, 0});
+
+		auto lowerTriangle = std::make_unique<PTriangle>(data.metadata, vNPP, vNNN, vNNP);
+		lowerTriangle->setUVWa({m_faceUVs[nx].maxVertex.x, m_faceUVs[nx].maxVertex.y, 0});
+		lowerTriangle->setUVWb({m_faceUVs[nx].minVertex.x, m_faceUVs[nx].minVertex.y, 0});
+		lowerTriangle->setUVWc({m_faceUVs[nx].maxVertex.x, m_faceUVs[nx].minVertex.y, 0});
+
+		out_primitives.push_back(std::move(upperTriangle));
+		out_primitives.push_back(std::move(lowerTriangle));
+	}
+
+	// +y face (-z as upward)
+	const int py = math::Y_AXIS;
+	{
+		auto upperTriangle = std::make_unique<PTriangle>(data.metadata, vPPN, vNPN, vNPP);
+		upperTriangle->setUVWa({m_faceUVs[py].maxVertex.x, m_faceUVs[py].maxVertex.y, 0});
+		upperTriangle->setUVWb({m_faceUVs[py].minVertex.x, m_faceUVs[py].maxVertex.y, 0});
+		upperTriangle->setUVWc({m_faceUVs[py].minVertex.x, m_faceUVs[py].minVertex.y, 0});
+
+		auto lowerTriangle = std::make_unique<PTriangle>(data.metadata, vPPN, vNPP, vPPP);
+		lowerTriangle->setUVWa({m_faceUVs[py].maxVertex.x, m_faceUVs[py].maxVertex.y, 0});
+		lowerTriangle->setUVWb({m_faceUVs[py].minVertex.x, m_faceUVs[py].minVertex.y, 0});
+		lowerTriangle->setUVWc({m_faceUVs[py].maxVertex.x, m_faceUVs[py].minVertex.y, 0});
+
+		out_primitives.push_back(std::move(upperTriangle));
+		out_primitives.push_back(std::move(lowerTriangle));
+	}
+
+	// +y face (+z as upward)
+	const int ny = math::Y_AXIS + 3;
+	{
+		auto upperTriangle = std::make_unique<PTriangle>(data.metadata, vPNP, vNNP, vNNN);
+		upperTriangle->setUVWa({m_faceUVs[ny].maxVertex.x, m_faceUVs[ny].maxVertex.y, 0});
+		upperTriangle->setUVWb({m_faceUVs[ny].minVertex.x, m_faceUVs[ny].maxVertex.y, 0});
+		upperTriangle->setUVWc({m_faceUVs[ny].minVertex.x, m_faceUVs[ny].minVertex.y, 0});
+
+		auto lowerTriangle = std::make_unique<PTriangle>(data.metadata, vPNP, vNNN, vPNN);
+		lowerTriangle->setUVWa({m_faceUVs[ny].maxVertex.x, m_faceUVs[ny].maxVertex.y, 0});
+		lowerTriangle->setUVWb({m_faceUVs[ny].minVertex.x, m_faceUVs[ny].minVertex.y, 0});
+		lowerTriangle->setUVWc({m_faceUVs[ny].maxVertex.x, m_faceUVs[ny].minVertex.y, 0});
+
+		out_primitives.push_back(std::move(upperTriangle));
+		out_primitives.push_back(std::move(lowerTriangle));
+	}
 }
 
 GCuboid& GCuboid::operator = (const GCuboid& rhs)
 {
-	m_xLen   = rhs.m_xLen;
-	m_yLen   = rhs.m_yLen;
-	m_zLen   = rhs.m_zLen;
+	m_size   = rhs.m_size;
 	m_offset = rhs.m_offset;
 
 	return *this;
@@ -121,6 +201,13 @@ bool GCuboid::checkData(const PrimitiveBuildingMaterial& data, const real xLen, 
 	}
 
 	return true;
+}
+
+std::array<AABB2D, 6> GCuboid::genNormalizedFaceUVs()
+{
+	std::array<AABB2D, 6> faceUVs;
+	faceUVs.fill({{0, 0}, {1, 1}});
+	return faceUVs;
 }
 
 // command interface
