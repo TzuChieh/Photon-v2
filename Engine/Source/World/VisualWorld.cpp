@@ -141,12 +141,11 @@ void VisualWorld::cook()
 
 void VisualWorld::cookActors(CookingContext& cookingContext)
 {
-	// HACK
-	std::sort(m_actors.begin(), m_actors.end(), [](const std::shared_ptr<Actor>& a, const std::shared_ptr<Actor>& b)
-	{
-		auto castedA = std::dynamic_pointer_cast<APhantomModel>(a);
-		return castedA != nullptr;
-	});
+	std::sort(m_actors.begin(), m_actors.end(), 
+		[](const std::shared_ptr<Actor>& a, const std::shared_ptr<Actor>& b)
+		{
+			return a->getCookPriority() < b->getCookPriority();
+		});
 
 	for(const auto& actor : m_actors)
 	{

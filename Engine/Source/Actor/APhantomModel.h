@@ -18,6 +18,7 @@ public:
 	APhantomModel(const APhantomModel& other);
 
 	CookedUnit cook(CookingContext& context) const override;
+	CookPriority getCookPriority() const override;
 
 	APhantomModel& operator = (APhantomModel rhs);
 
@@ -32,6 +33,13 @@ public:
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
+
+// In-header Implementations:
+
+inline CookPriority APhantomModel::getCookPriority() const
+{
+	return static_cast<CookPriority>(ECookPriority::HIGH);
+}
 
 }// end namespace ph
 

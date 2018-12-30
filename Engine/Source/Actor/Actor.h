@@ -2,6 +2,7 @@
 
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Actor/CookedUnit.h"
+#include "Actor/cook_priority.h"
 
 namespace ph
 {
@@ -17,6 +18,7 @@ public:
 	virtual ~Actor() = default;
 
 	virtual CookedUnit cook(CookingContext& context) const = 0;
+	virtual CookPriority getCookPriority() const;
 
 	Actor& operator = (const Actor& rhs);
 
@@ -28,6 +30,13 @@ public:
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
+
+// In-header Implementations:
+
+inline CookPriority Actor::getCookPriority() const
+{
+	return static_cast<CookPriority>(ECookPriority::NORMAL);
+}
 
 }// end namespace ph
 
