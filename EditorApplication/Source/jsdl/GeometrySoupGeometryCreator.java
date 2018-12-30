@@ -2,15 +2,16 @@
 // NOTE: THIS FILE CONTAINS GENERATED CODE 
 //       DO NOT MODIFY                     
 // ========================================
-// last generated: 2018-12-30 09:20:21.107696 
+// last generated: 2018-12-30 09:20:21.311580 
 
 package jsdl;
 
-public class SDLFrameProcessor extends SDLReference
+public class GeometrySoupGeometryCreator extends SDLCreatorCommand
 {
-	public  SDLFrameProcessor(String name)
+	@Override
+	public String getFullType()
 	{
-		super("frame-processor", name);
+		return "geometry(geometry-soup)";
 	}
 
 }

@@ -224,7 +224,45 @@ void GCuboid::ciRegister(CommandRegister& cmdRegister)
 		const Vector3R minVertex = packet.getVector3("min-vertex", Vector3R(0), DataTreatment::REQUIRED());
 		const Vector3R maxVertex = packet.getVector3("max-vertex", Vector3R(0), DataTreatment::REQUIRED());
 
-		return std::make_unique<GCuboid>(minVertex, maxVertex);
+		auto cuboid = std::make_unique<GCuboid>(minVertex, maxVertex);
+
+		if(packet.hasQuaternion("px-face-uv"))
+		{
+			const QuaternionR uv = packet.getQuaternion("px-face-uv");
+			cuboid->m_faceUVs[math::X_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
+		}
+		
+		if(packet.hasQuaternion("nx-face-uv"))
+		{
+			const QuaternionR uv = packet.getQuaternion("nx-face-uv");
+			cuboid->m_faceUVs[math::X_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
+		}
+
+		if(packet.hasQuaternion("py-face-uv"))
+		{
+			const QuaternionR uv = packet.getQuaternion("py-face-uv");
+			cuboid->m_faceUVs[math::Y_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
+		}
+
+		if(packet.hasQuaternion("ny-face-uv"))
+		{
+			const QuaternionR uv = packet.getQuaternion("ny-face-uv");
+			cuboid->m_faceUVs[math::Y_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
+		}
+
+		if(packet.hasQuaternion("pz-face-uv"))
+		{
+			const QuaternionR uv = packet.getQuaternion("pz-face-uv");
+			cuboid->m_faceUVs[math::Z_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
+		}
+
+		if(packet.hasQuaternion("nz-face-uv"))
+		{
+			const QuaternionR uv = packet.getQuaternion("nz-face-uv");
+			cuboid->m_faceUVs[math::Z_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
+		}
+
+		return cuboid;
 	}));
 }
 

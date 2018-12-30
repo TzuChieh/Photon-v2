@@ -2,27 +2,27 @@
 // NOTE: THIS FILE CONTAINS GENERATED CODE 
 //       DO NOT MODIFY                     
 // ========================================
-// last generated: 2018-12-30 09:20:21.154669 
+// last generated: 2018-12-30 09:20:21.318576 
 
 package jsdl;
 
-public class DomeActorTranslate extends SDLExecutorCommand
+public class GeometrySoupGeometryAdd extends SDLExecutorCommand
 {
 	@Override
 	public String getFullType()
 	{
-		return "actor(dome)";
+		return "geometry(geometry-soup)";
 	}
 
 	@Override
 	public String getName()
 	{
-		return "translate";
+		return "add";
 	}
 
-	public void setFactor(SDLVector3 data)
+	public void setGeometry(SDLGeometry data)
 	{
-		setInput("factor", data);
+		setInput("geometry", data);
 	}
 
 }

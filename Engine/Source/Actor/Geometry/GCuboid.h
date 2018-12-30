@@ -62,6 +62,24 @@ public:
 		<input name="max-vertex" type="vector3">
 			<description>Vertex in the (+++) octant.</description>
 		</input>
+		<input name="px-face-uv" type="quaternion">
+			<description>UV coordinates of the +x face (+y as upward), in (min-u, min-v, max-u, max-v).</description>
+		</input>
+		<input name="nx-face-uv" type="quaternion">
+			<description>UV coordinates of the -x face (+y as upward), in (min-u, min-v, max-u, max-v).</description>
+		</input>
+		<input name="pz-face-uv" type="quaternion">
+			<description>UV coordinates of the +z face (+y as upward), in (min-u, min-v, max-u, max-v).</description>
+		</input>
+		<input name="nz-face-uv" type="quaternion">
+			<description>UV coordinates of the -z face (+y as upward), in (min-u, min-v, max-u, max-v).</description>
+		</input>
+		<input name="py-face-uv" type="quaternion">
+			<description>UV coordinates of the +y face (-z as upward), in (min-u, min-v, max-u, max-v).</description>
+		</input>
+		<input name="ny-face-uv" type="quaternion">
+			<description>UV coordinates of the -y face (+z as upward), in (min-u, min-v, max-u, max-v).</description>
+		</input>
 	</command>
 
 	</SDL_interface>

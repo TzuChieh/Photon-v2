@@ -1,4 +1,5 @@
 #include "Actor/Geometry/GeometrySoup.h"
+#include "FileIO/SDL/InputPacket.h"
 
 #include <iostream>
 
@@ -10,10 +11,9 @@ GeometrySoup::GeometrySoup() :
 	m_geometries()
 {}
 
-GeometrySoup::~GeometrySoup() = default;
-
-void GeometrySoup::genPrimitive(const PrimitiveBuildingMaterial& data,
-                                std::vector<std::unique_ptr<Primitive>>& out_primitives) const
+void GeometrySoup::genPrimitive(
+	const PrimitiveBuildingMaterial& data,
+	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
 	for(const auto& geometry : m_geometries)
 	{
@@ -43,6 +43,38 @@ std::shared_ptr<Geometry> GeometrySoup::genTransformApplied(const StaticAffineTr
 void GeometrySoup::addGeometry(const std::shared_ptr<Geometry>& geometry)
 {
 	m_geometries.push_back(geometry);
+}
+
+// command interface
+
+namespace
+{
+	ExitStatus add_geometry(
+		const std::shared_ptr<GeometrySoup>& soup,
+		const InputPacket& packet)
+	{
+		soup->addGeometry(packet.get<Geometry>("geometry"));
+
+		return ExitStatus::SUCCESS();
+	}
+}
+
+SdlTypeInfo GeometrySoup::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "geometry-soup");
+}
+
+void GeometrySoup::ciRegister(CommandRegister& cmdRegister)
+{
+	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
+	{
+		return std::make_unique<GeometrySoup>();
+	}));
+
+	SdlExecutor addGeometry;
+	addGeometry.setName("add");
+	addGeometry.setFunc<GeometrySoup>(add_geometry);
+	cmdRegister.addExecutor(addGeometry);
 }
 
 }// end namespace ph
