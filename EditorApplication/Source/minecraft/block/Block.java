@@ -23,6 +23,11 @@ public class Block implements Iterable<BlockModel>
 		return m_models.get(0);
 	}
 	
+	public List<BlockModel> getModels()
+	{
+		return m_models;
+	}
+	
 	public void addModel(BlockModel model)
 	{
 		m_models.add(model);

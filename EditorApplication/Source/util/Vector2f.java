@@ -7,6 +7,11 @@ public class Vector2f
 	
 	public Vector2f()
 	{
+		this(0.0f);
+	}
+	
+	public Vector2f(float value)
+	{
 		this(0.0f, 0.0f);
 	}
 	

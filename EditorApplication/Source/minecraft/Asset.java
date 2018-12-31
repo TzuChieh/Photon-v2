@@ -1,5 +1,6 @@
 package minecraft;
 
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -8,25 +9,33 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
 
 import jsdl.CuboidGeometryCreator;
+import jsdl.GeometrySoupGeometryAdd;
+import jsdl.GeometrySoupGeometryCreator;
 import jsdl.LdrPictureImageCreator;
 import jsdl.MatteOpaqueMaterialCreator;
 import jsdl.PhantomModelActorCreator;
 import jsdl.SDLGeometry;
 import jsdl.SDLImage;
 import jsdl.SDLMaterial;
+import jsdl.SDLQuaternion;
 import jsdl.SDLString;
 import jsdl.SDLVector3;
 import minecraft.block.BlockData;
+import minecraft.block.BlockModel;
 import minecraft.block.Block;
 import minecraft.parser.BlockParser;
 import minecraft.parser.ModelParser;
+import util.AABB2D;
 import util.SDLConsole;
+import util.Vector2f;
+import util.Vector3f;
 import util.Vector3i;
 
 public class Asset
@@ -221,72 +230,76 @@ public class Asset
 		}
 	}
 	
-	private String genBlockActor(String blockId, Block block, SDLConsole out_console)
+	private String genBlockActor(String blockName, Block block, SDLConsole out_console)
 	{
-//		if(!block.hasSingleModel())
-//		{
-//			return INVALID_BLOCK_ACTOR_NAME;
-//		}
-		
-		Vector3i blockPos = new Vector3i(0, 0, 0);
-		String cubeName = blockId + "_geometry";
-		
-		CuboidGeometryCreator cube = new CuboidGeometryCreator();
-		cube.setDataName(cubeName);
-		cube.setMinVertex(new SDLVector3(blockPos.x, blockPos.y, blockPos.z));
-		cube.setMaxVertex(new SDLVector3(blockPos.x + 1, blockPos.y + 1, blockPos.z + 1));
-		
-		out_console.queue(cube);
-		
-		// HACK
-		LdrPictureImageCreator image = new LdrPictureImageCreator();
-		image.setDataName(blockId + "_image");
-		ModelData model = m_models.get(block.getSingleModel().getModelId());
-		for(String textureId : model.getRequiredTextures())
+		List<BlockModel> blockModels = block.getModels();
+		for(int i = 0; i < blockModels.size(); ++i)
 		{
-			BufferedImage texture = m_textures.get(textureId);
+			BlockModel blockModel = blockModels.get(i);
+			
+			ModelData model = m_models.get(blockModel.getModelId());
+			Set<String> textureIds = model.getRequiredTextures();
+			
+			TextureAtlas atlas = new TextureAtlas();
+			for(String textureId : textureIds)
+			{
+				BufferedImage texture = m_textures.get(textureId);
+				atlas.addImage(texture, textureId);
+			}
+			
+			String modelName = blockName + "_model_" + i;
+			String geometryName = genModelGeometry(modelName, model, atlas, out_console);
+			
+			// HACK
+			LdrPictureImageCreator texture = new LdrPictureImageCreator();
+			String textureName = modelName.replace(':', '_') + "_texture";
+			texture.setDataName(textureName);
 			try {
-				File outputFile = new File("./test/" + textureId + ".png");
+				File outputFile = new File("./test/" + textureName + ".png");
 				outputFile.getParentFile().mkdirs();
-				ImageIO.write(texture, "png", outputFile);
+				
+				BufferedImage image = atlas.genImage();
+				if(image != null)
+				{
+					ImageIO.write(image, "png", outputFile);
+				}
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			image.setImage(new SDLString("test/" + textureId + ".png"));
-			break;
+			texture.setImage(new SDLString("test/" + textureName + ".png"));
+			if(!model.getRequiredTextures().isEmpty())
+			{
+				out_console.queue(texture);
+			}
+			
+			String materialName = blockName + "_material_" + i;
+			MatteOpaqueMaterialCreator material = new MatteOpaqueMaterialCreator();
+			if(!model.getRequiredTextures().isEmpty())
+			{
+				material.setAlbedo(new SDLImage(textureName));
+			}
+			else
+			{
+				material.setAlbedo(new SDLVector3(0.5f, 0.5f, 0.5f));
+			}
+			material.setDataName(materialName);
+			out_console.queue(material);
+			
+			PhantomModelActorCreator actor = new PhantomModelActorCreator();
+			String actorName = blockName + "_actor_" + i;
+			actor.setDataName(actorName);
+			actor.setName(new SDLString(actorName));
+			actor.setMaterial(new SDLMaterial(materialName));
+			actor.setGeometry(new SDLGeometry(geometryName));
+			out_console.queue(actor);
+			
+			// HACK
+			return actorName;
 		}
-		if(!model.getRequiredTextures().isEmpty())
-		{
-			out_console.queue(image);
-		}
 		
-		String materialName = blockId + "_material";
-		MatteOpaqueMaterialCreator material = new MatteOpaqueMaterialCreator();
-		
-		if(!model.getRequiredTextures().isEmpty())
-		{
-			material.setAlbedo(new SDLImage(blockId + "_image"));
-		}
-		else
-		{
-			material.setAlbedo(new SDLVector3(0.5f, 0.5f, 0.5f));
-		}
-		
-		material.setDataName(materialName);
-		
-		
-		out_console.queue(material);
-		
-		PhantomModelActorCreator actor = new PhantomModelActorCreator();
-		actor.setDataName(blockId);
-		actor.setName(new SDLString(blockId));
-		actor.setMaterial(new SDLMaterial(materialName));
-		actor.setGeometry(new SDLGeometry(cubeName));
-		
-		out_console.queue(actor);
-		
-		return blockId;
+		return null;
 	}
 	
 	private void genInvalidBlockActor(SDLConsole out_console)
@@ -315,5 +328,67 @@ public class Asset
 		actor.setGeometry(new SDLGeometry(cubeName));
 		
 		out_console.queue(actor);
+	}
+	
+	private String genModelGeometry(String modelName, ModelData model, TextureAtlas texture, SDLConsole out_console)
+	{
+		GeometrySoupGeometryCreator geometry = new GeometrySoupGeometryCreator();
+		String geometryName = modelName + "_geometry";
+		geometry.setDataName(geometryName);
+		out_console.queue(geometry);
+		
+		List<CuboidElement> elements = model.getElements();
+		for(int i = 0; i < elements.size(); ++i)
+		{
+			CuboidElement element = elements.get(i);
+			Vector3f minVertex = element.getMinVertex().div(16.0f);
+			Vector3f maxVertex = element.getMaxVertex().div(16.0f);
+			
+			if(minVertex.x == maxVertex.x || minVertex.y == maxVertex.y || minVertex.z == maxVertex.z)
+			{
+				System.err.println("model: " + modelName + ", i: " + i + ", " + minVertex + ", " + maxVertex);
+				continue;
+			}
+			
+			CuboidGeometryCreator cuboid = new CuboidGeometryCreator();
+			String cuboidName = modelName + "_element_" + i;
+			cuboid.setDataName(cuboidName);
+			cuboid.setMinVertex(new SDLVector3(minVertex.x, minVertex.y, minVertex.z));
+			cuboid.setMaxVertex(new SDLVector3(maxVertex.x, maxVertex.y, maxVertex.z));
+			for(EFacing facing : EFacing.values())
+			{
+				Face face = element.getFace(facing);
+				if(face == null)
+				{
+					continue;
+				}
+				
+				String faceTextureId = model.getTextureAssignment(face.getTextureVariable());
+				
+				AABB2D pixelCoord = new AABB2D();
+				pixelCoord.min = face.getUVMin();
+				pixelCoord.max = face.getUVMax();
+				AABB2D pixelUV = texture.getNormalizedCoord(faceTextureId, pixelCoord);
+				
+				SDLQuaternion uv = new SDLQuaternion(pixelUV.min.x, pixelUV.min.y, pixelUV.max.x, pixelUV.max.y);
+				switch(facing)
+				{
+				case NORTH: cuboid.setNzFaceUv(uv); break;
+				case SOUTH: cuboid.setPzFaceUv(uv); break;
+				case WEST:  cuboid.setNxFaceUv(uv); break;
+				case EAST:  cuboid.setPxFaceUv(uv); break;
+				case DOWN:  cuboid.setNyFaceUv(uv); break;
+				case UP:    cuboid.setPyFaceUv(uv); break;
+				}
+			}
+			out_console.queue(cuboid);
+			
+			GeometrySoupGeometryAdd addToSoup = new GeometrySoupGeometryAdd();
+			addToSoup.setTargetName(geometryName);
+			addToSoup.setGeometry(new SDLGeometry(cuboidName));
+			out_console.queue(addToSoup);
+		}
+		
+		return geometryName;
 	}
 }

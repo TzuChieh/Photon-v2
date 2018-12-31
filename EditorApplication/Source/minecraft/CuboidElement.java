@@ -37,6 +37,16 @@ public class CuboidElement
 		return m_faces[facing.getValue()];
 	}
 	
+	public Vector3f getMinVertex()
+	{
+		return m_from;
+	}
+	
+	public Vector3f getMaxVertex()
+	{
+		return m_to;
+	}
+	
 	public void setRotOrigin(Vector3f origin)
 	{
 		m_rotOrigin = origin;

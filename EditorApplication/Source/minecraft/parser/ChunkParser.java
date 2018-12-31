@@ -94,12 +94,11 @@ public class ChunkParser
 				chunkSection.addBlock(blockIdName, stateProperties);
 				
 				// DEBUG
-				if(blockIdName.contains("fence"))
-				{
-					System.err.println("block id: " + blockIdName);
-					System.err.println("prop: " + stateProperties);
-				}
-				
+//				if(blockIdName.contains("fence"))
+//				{
+//					System.err.println("block id: " + blockIdName);
+//					System.err.println("prop: " + stateProperties);
+//				}
 //				System.err.println("block id: " + blockIdName);
 //				System.err.println("prop: " + stateProperties);
 			}
