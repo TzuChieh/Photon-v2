@@ -88,7 +88,7 @@ public class Asset
 	
 	public void add(String blockId, BlockData block)
 	{
-		System.err.println("adding block " + block);
+//		System.err.println("adding block " + block);
 		
 		assert(blockId != null);
 		
@@ -222,7 +222,8 @@ public class Asset
 			for(int i = 0; i < blockEntry.getValue().numBlocks(); ++i)
 			{
 				Block block = blockEntry.getValue().getBlock(i);
-				String blockActorName = genBlockActor(blockEntry.getKey(), block, out_console);
+				String blockName = blockEntry.getKey() + "_" + i;
+				String blockActorName = genBlockActor(blockName, block, out_console);
 				assert(blockActorName != null);
 				
 				m_blockIdToActorName.put(blockEntry.getKey(), blockActorName);
@@ -252,7 +253,7 @@ public class Asset
 			
 			// HACK
 			LdrPictureImageCreator texture = new LdrPictureImageCreator();
-			String textureName = modelName.replace(':', '_') + "_texture";
+			String textureName = modelName.replace(':', '_') + "_texture_" + i;
 			texture.setDataName(textureName);
 			try {
 				File outputFile = new File("./test/" + textureName + ".png");
@@ -332,23 +333,30 @@ public class Asset
 	
 	private String genModelGeometry(String modelName, ModelData model, TextureAtlas texture, SDLConsole out_console)
 	{
+		List<CuboidElement> elements = model.getElements();
+		if(elements.isEmpty())
+		{
+			System.err.println("model: " + modelName);
+		}
+		
 		GeometrySoupGeometryCreator geometry = new GeometrySoupGeometryCreator();
 		String geometryName = modelName + "_geometry";
 		geometry.setDataName(geometryName);
 		out_console.queue(geometry);
 		
-		List<CuboidElement> elements = model.getElements();
 		for(int i = 0; i < elements.size(); ++i)
 		{
 			CuboidElement element = elements.get(i);
-			Vector3f minVertex = element.getMinVertex().div(16.0f);
-			Vector3f maxVertex = element.getMaxVertex().div(16.0f);
+			Vector3f minVertex = new Vector3f(element.getMinVertex());
+			Vector3f maxVertex = new Vector3f(element.getMaxVertex());
 			
-			if(minVertex.x == maxVertex.x || minVertex.y == maxVertex.y || minVertex.z == maxVertex.z)
-			{
-				System.err.println("model: " + modelName + ", i: " + i + ", " + minVertex + ", " + maxVertex);
-				continue;
-			}
+			// every 16 units is one meter
+			minVertex.divLocal(16.0f);
+			maxVertex.divLocal(16.0f);
+			
+			// to make planar geometry have at least some thickness
+			Vector3f diagonal = maxVertex.sub(minVertex).maxLocal(new Vector3f(0.01f));
+			maxVertex = minVertex.add(diagonal);
 			
 			CuboidGeometryCreator cuboid = new CuboidGeometryCreator();
 			String cuboidName = modelName + "_element_" + i;
