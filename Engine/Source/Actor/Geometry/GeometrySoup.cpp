@@ -21,13 +21,13 @@ void GeometrySoup::genPrimitive(
 	}
 }
 
-std::shared_ptr<Geometry> GeometrySoup::genTransformApplied(const StaticAffineTransform& transform) const
+std::shared_ptr<Geometry> GeometrySoup::genTransformed(const StaticAffineTransform& transform) const
 {
 	auto tGeometrySoup = std::make_shared<GeometrySoup>();
 	for(const auto& geometry : m_geometries)
 	{
-		const auto& tGeometry = geometry->genTransformApplied(transform);
-		if(tGeometry == nullptr)
+		const auto& tGeometry = geometry->genTransformed(transform);
+		if(!tGeometry)
 		{
 			std::cerr << "warning: at GeometrySoup::genTransformApplied(), "
 			          << "a geometry cannot apply specified transform" << std::endl;

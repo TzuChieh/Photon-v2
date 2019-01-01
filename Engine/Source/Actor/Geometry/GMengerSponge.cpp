@@ -20,8 +20,6 @@ GMengerSponge::GMengerSponge(const uint32 numIteration) :
 	m_numIteration(numIteration)
 {}
 
-GMengerSponge::~GMengerSponge() = default;
-
 void GMengerSponge::genPrimitive(
 	const PrimitiveBuildingMaterial&         data,
 	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
@@ -90,11 +88,6 @@ void GMengerSponge::genMengerSpongeRecursive(
 			}// end ix
 		}// end iy
 	}// end iz
-}
-
-std::shared_ptr<Geometry> GMengerSponge::genTransformApplied(const StaticAffineTransform& transform) const
-{
-	return nullptr;
 }
 
 // command interface

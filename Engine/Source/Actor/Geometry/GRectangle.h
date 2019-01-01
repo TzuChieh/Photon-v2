@@ -14,11 +14,13 @@ class GRectangle : public Geometry, public TCommandInterface<GRectangle>
 public:
 	GRectangle();
 	GRectangle(real width, real height);
-	virtual ~GRectangle() override;
 
-	virtual void genPrimitive(const PrimitiveBuildingMaterial& data,
-	                          std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
-	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticAffineTransform& transform) const override;
+	void genPrimitive(
+		const PrimitiveBuildingMaterial& data,
+		std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
+
+	std::shared_ptr<Geometry> genTransformed(
+		const StaticAffineTransform& transform) const override;
 
 	void setTexCoordScale(const real scale);
 

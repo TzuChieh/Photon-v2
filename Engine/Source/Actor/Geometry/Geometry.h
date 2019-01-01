@@ -11,12 +11,9 @@ namespace ph
 {
 
 class Primitive;
-class PrimitiveStorage;
 class UvwMapper;
 class InputPacket;
 class PrimitiveBuildingMaterial;
-class Transform;
-class PrimitiveMetadata;
 
 // TODO: use highest precision to perform geometry related operations
 
@@ -24,13 +21,16 @@ class Geometry : public TCommandInterface<Geometry>
 {
 public:
 	Geometry();
-	virtual ~Geometry();
+	virtual ~Geometry() = default;
 
 	virtual void genPrimitive(
 		const PrimitiveBuildingMaterial&         data, 
 		std::vector<std::unique_ptr<Primitive>>& out_primitives) const = 0;
 
-	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticAffineTransform& transform) const;
+	virtual std::shared_ptr<Geometry> genTransformed(
+		const StaticAffineTransform& transform) const;
+
+	virtual std::shared_ptr<Geometry> genTriangulated() const;
 
 	const UvwMapper* getUvwMapper() const;
 	void setUvwMapper(const std::shared_ptr<UvwMapper>& uvwMapper);
@@ -43,6 +43,25 @@ public:
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
+
+// In-header Implementations:
+
+inline std::shared_ptr<Geometry> Geometry::genTransformed(
+	const StaticAffineTransform& transform) const
+{
+	const auto& triangulated = genTriangulated();
+	if(!triangulated)
+	{
+		return nullptr;
+	}
+
+	return triangulated->genTransformed(transform);
+}
+
+inline std::shared_ptr<Geometry> Geometry::genTriangulated() const
+{
+	return nullptr;
+}
 
 }// end namespace ph
 

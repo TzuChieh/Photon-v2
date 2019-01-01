@@ -61,10 +61,9 @@ GTriangle::GTriangle(const Vector3R& vA, const Vector3R& vB, const Vector3R& vC)
 //	m_uvwC = packet.getVector3r("uvwC", Vector3R(0), requiredDT);
 //}
 
-GTriangle::~GTriangle() = default;
-
-void GTriangle::genPrimitive(const PrimitiveBuildingMaterial& data,
-                             std::vector<std::unique_ptr<Primitive>>& out_primitives) const
+void GTriangle::genPrimitive(
+	const PrimitiveBuildingMaterial& data,
+	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
 	if(!data.metadata)
 	{
@@ -86,7 +85,8 @@ void GTriangle::genPrimitive(const PrimitiveBuildingMaterial& data,
 	out_primitives.push_back(std::make_unique<PTriangle>(triangle));
 }
 
-std::shared_ptr<Geometry> GTriangle::genTransformApplied(const StaticAffineTransform& transform) const
+std::shared_ptr<Geometry> GTriangle::genTransformed(
+	const StaticAffineTransform& transform) const
 {
 	auto tTriangle = std::make_shared<GTriangle>(*this);
 	transform.transformP(m_vA, &tTriangle->m_vA);

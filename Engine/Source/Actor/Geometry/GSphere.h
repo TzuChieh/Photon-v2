@@ -18,11 +18,13 @@ public:
 	GSphere();
 	GSphere(real radius);
 	GSphere(const GSphere& other);
-	virtual ~GSphere() override;
 
-	virtual void genPrimitive(const PrimitiveBuildingMaterial& data,
-	                          std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
-	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticAffineTransform& transform) const override;
+	void genPrimitive(
+		const PrimitiveBuildingMaterial& data,
+		std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
+
+	std::shared_ptr<Geometry> genTransformed(
+		const StaticAffineTransform& transform) const override;
 
 	GSphere& operator = (const GSphere& rhs);
 

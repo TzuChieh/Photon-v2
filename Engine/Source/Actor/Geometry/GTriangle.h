@@ -12,11 +12,13 @@ class GTriangle final : public Geometry
 public:
 	GTriangle(const Vector3R& vA, const Vector3R& vB, const Vector3R& vC);
 	//GTriangle(const InputPacket& packet);
-	virtual ~GTriangle() override;
 
-	virtual void genPrimitive(const PrimitiveBuildingMaterial& data,
-	                          std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
-	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticAffineTransform& transform) const override;
+	void genPrimitive(
+		const PrimitiveBuildingMaterial& data,
+		std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
+
+	std::shared_ptr<Geometry> genTransformed(
+		const StaticAffineTransform& transform) const override;
 
 	bool isDegenerate() const;
 

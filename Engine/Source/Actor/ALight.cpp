@@ -176,8 +176,8 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 	{
 		const StaticAffineTransform& baseLW = StaticAffineTransform::makeForward(m_localToWorld);
 
-		sanifiedGeometry = geometry->genTransformApplied(baseLW);
-		if(sanifiedGeometry != nullptr)
+		sanifiedGeometry = geometry->genTransformed(baseLW);
+		if(!sanifiedGeometry)
 		{
 			// TODO: combine identity transforms...
 			*out_baseLW = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeIdentity());

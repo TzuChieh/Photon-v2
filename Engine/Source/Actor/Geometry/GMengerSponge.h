@@ -12,12 +12,11 @@ class GMengerSponge final : public Geometry, public TCommandInterface<GMengerSpo
 {
 public:
 	GMengerSponge();
-	GMengerSponge(uint32 numIteration);
-	virtual ~GMengerSponge() override;
+	explicit GMengerSponge(uint32 numIteration);
 
-	void genPrimitive(const PrimitiveBuildingMaterial& data,
+	void genPrimitive(
+		const PrimitiveBuildingMaterial& data,
 		std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
-	std::shared_ptr<Geometry> genTransformApplied(const StaticAffineTransform& transform) const override;
 
 private:
 	uint32 m_numIteration;

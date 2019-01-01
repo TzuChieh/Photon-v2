@@ -41,11 +41,10 @@ GSphere::GSphere(const GSphere& other) :
 	m_radius(other.m_radius)
 {}
 
-GSphere::~GSphere() = default;
-
 // discretize the sphere into an icosphere
-void GSphere::genPrimitive(const PrimitiveBuildingMaterial& data,
-                           std::vector<std::unique_ptr<Primitive>>& out_primitives) const
+void GSphere::genPrimitive(
+	const PrimitiveBuildingMaterial& data,
+	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
 	if(!data.metadata)
 	{
@@ -59,9 +58,10 @@ void GSphere::genPrimitive(const PrimitiveBuildingMaterial& data,
 	out_primitives.push_back(std::make_unique<PSphere>(data.metadata, m_radius));
 }
 
-std::shared_ptr<Geometry> GSphere::genTransformApplied(const StaticAffineTransform& transform) const
+std::shared_ptr<Geometry> GSphere::genTransformed(
+	const StaticAffineTransform& transform) const
 {
-	return genTriangleMesh()->genTransformApplied(transform);
+	return genTriangleMesh()->genTransformed(transform);
 }
 
 std::size_t GSphere::addVertex(const Vector3R& vertex, std::vector<Vector3R>* const out_vertices) const
