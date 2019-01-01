@@ -20,7 +20,11 @@ public:
 	std::shared_ptr<Geometry> genTransformed(
 		const StaticAffineTransform& transform) const override;
 
-	void addGeometry(const std::shared_ptr<Geometry>& geometry);
+	void add(const std::shared_ptr<Geometry>& geometry);
+
+	bool addTransformed(
+		const std::shared_ptr<Geometry>& geometry, 
+		const StaticAffineTransform& transform);
 
 private:
 	std::vector<std::shared_ptr<Geometry>> m_geometries;
@@ -53,6 +57,27 @@ public:
 		</description>
 		<input name="geometry" type="geometry">
 			<description>The geometry to be added.</description>
+		</input>
+	</command>
+
+	<command type="executor" name="add-transformed">
+		<description>
+			Applies transformations on a geometry then add it to the soup.
+		</description>
+		<input name="geometry" type="geometry">
+			<description>The geometry to be added.</description>
+		</input>
+		<input name="translation" type="vector3">
+			<description>Offset amount.</description>
+		</input>
+		<input name="rotation-axis" type="vector3">
+			<description>Axis of rotation.</description>
+		</input>
+		<input name="rotation-degrees" type="real">
+			<description>Amount of rotation along the rotation axis in degrees.</description>
+		</input>
+		<input name="scale" type="vector3">
+			<description>Magnify/minify factor to be applied on the geometry.</description>
 		</input>
 	</command>
 

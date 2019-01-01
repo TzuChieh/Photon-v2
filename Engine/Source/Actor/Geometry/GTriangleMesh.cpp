@@ -69,7 +69,7 @@ std::shared_ptr<Geometry> GTriangleMesh::genTransformed(
 	auto geometrySoup = std::make_shared<GeometrySoup>();
 	for(const auto& gTriangle : m_gTriangles)
 	{
-		geometrySoup->addGeometry(std::make_shared<GTriangle>(gTriangle));
+		geometrySoup->add(std::make_shared<GTriangle>(gTriangle));
 	}
 
 	return geometrySoup->genTransformed(transform);

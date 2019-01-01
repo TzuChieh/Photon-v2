@@ -21,7 +21,6 @@ class TDecomposedTransform final
 {
 public:
 	// Creates a transformation that will not have any effect.
-	//
 	TDecomposedTransform();
 
 	inline TDecomposedTransform& translate(const TVector3<T>& amount)
