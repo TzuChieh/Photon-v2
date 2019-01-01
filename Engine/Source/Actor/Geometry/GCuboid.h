@@ -21,8 +21,11 @@ public:
 	GCuboid(real xLen, real yLen, real zLen, const Vector3R& offset);
 	GCuboid(const GCuboid& other);
 
-	void genPrimitive(const PrimitiveBuildingMaterial& data,
-	                  std::vector<std::unique_ptr<Primitive>>& out_primitives) const;
+	void genPrimitive(
+		const PrimitiveBuildingMaterial& data,
+		std::vector<std::unique_ptr<Primitive>>& out_primitives) const;
+
+	std::shared_ptr<Geometry> genTriangulated() const override;
 
 	GCuboid& operator = (const GCuboid& rhs);
 

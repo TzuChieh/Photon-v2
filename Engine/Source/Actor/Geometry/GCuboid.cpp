@@ -7,6 +7,7 @@
 #include "Common/assertion.h"
 #include "FileIO/SDL/InputPacket.h"
 #include "Math/math.h"
+#include "Actor/Geometry/GTriangleMesh.h"
 
 #include <cmath>
 #include <iostream>
@@ -59,7 +60,12 @@ void GCuboid::genPrimitive(const PrimitiveBuildingMaterial& data,
 		return;
 	}
 
-	// TODO: UVW mapping
+	GCuboid::genTriangulated()->genPrimitive(data, out_primitives);
+}
+
+std::shared_ptr<Geometry> GCuboid::genTriangulated() const
+{
+	auto triangleMesh = std::make_shared<GTriangleMesh>();
 
 	const Vector3R halfSize = m_size * 0.5_r;
 
@@ -78,104 +84,106 @@ void GCuboid::genPrimitive(const PrimitiveBuildingMaterial& data,
 	// +z face (+y as upward)
 	const int pz = math::Z_AXIS;
 	{
-		auto upperTriangle = std::make_unique<PTriangle>(data.metadata, vPPP, vNPP, vNNP);
-		upperTriangle->setUVWa({m_faceUVs[pz].maxVertex.x, m_faceUVs[pz].maxVertex.y, 0});
-		upperTriangle->setUVWb({m_faceUVs[pz].minVertex.x, m_faceUVs[pz].maxVertex.y, 0});
-		upperTriangle->setUVWc({m_faceUVs[pz].minVertex.x, m_faceUVs[pz].minVertex.y, 0});
+		GTriangle upperTriangle(vPPP, vNPP, vNNP);
+		upperTriangle.setUVWa({m_faceUVs[pz].maxVertex.x, m_faceUVs[pz].maxVertex.y, 0});
+		upperTriangle.setUVWb({m_faceUVs[pz].minVertex.x, m_faceUVs[pz].maxVertex.y, 0});
+		upperTriangle.setUVWc({m_faceUVs[pz].minVertex.x, m_faceUVs[pz].minVertex.y, 0});
 
-		auto lowerTriangle = std::make_unique<PTriangle>(data.metadata, vPPP, vNNP, vPNP);
-		lowerTriangle->setUVWa({m_faceUVs[pz].maxVertex.x, m_faceUVs[pz].maxVertex.y, 0});
-		lowerTriangle->setUVWb({m_faceUVs[pz].minVertex.x, m_faceUVs[pz].minVertex.y, 0});
-		lowerTriangle->setUVWc({m_faceUVs[pz].maxVertex.x, m_faceUVs[pz].minVertex.y, 0});
+		GTriangle lowerTriangle(vPPP, vNNP, vPNP);
+		lowerTriangle.setUVWa({m_faceUVs[pz].maxVertex.x, m_faceUVs[pz].maxVertex.y, 0});
+		lowerTriangle.setUVWb({m_faceUVs[pz].minVertex.x, m_faceUVs[pz].minVertex.y, 0});
+		lowerTriangle.setUVWc({m_faceUVs[pz].maxVertex.x, m_faceUVs[pz].minVertex.y, 0});
 
-		out_primitives.push_back(std::move(upperTriangle));
-		out_primitives.push_back(std::move(lowerTriangle));
+		triangleMesh->addTriangle(upperTriangle);
+		triangleMesh->addTriangle(lowerTriangle);
 	}
 
 	// -z face (+y as upward)
 	const int nz = math::Z_AXIS + 3;
 	{
-		auto upperTriangle = std::make_unique<PTriangle>(data.metadata, vNPN, vPPN, vPNN);
-		upperTriangle->setUVWa({m_faceUVs[nz].maxVertex.x, m_faceUVs[nz].maxVertex.y, 0});
-		upperTriangle->setUVWb({m_faceUVs[nz].minVertex.x, m_faceUVs[nz].maxVertex.y, 0});
-		upperTriangle->setUVWc({m_faceUVs[nz].minVertex.x, m_faceUVs[nz].minVertex.y, 0});
+		GTriangle upperTriangle(vNPN, vPPN, vPNN);
+		upperTriangle.setUVWa({m_faceUVs[nz].maxVertex.x, m_faceUVs[nz].maxVertex.y, 0});
+		upperTriangle.setUVWb({m_faceUVs[nz].minVertex.x, m_faceUVs[nz].maxVertex.y, 0});
+		upperTriangle.setUVWc({m_faceUVs[nz].minVertex.x, m_faceUVs[nz].minVertex.y, 0});
 
-		auto lowerTriangle = std::make_unique<PTriangle>(data.metadata, vNPN, vPNN, vNNN);
-		lowerTriangle->setUVWa({m_faceUVs[nz].maxVertex.x, m_faceUVs[nz].maxVertex.y, 0});
-		lowerTriangle->setUVWb({m_faceUVs[nz].minVertex.x, m_faceUVs[nz].minVertex.y, 0});
-		lowerTriangle->setUVWc({m_faceUVs[nz].maxVertex.x, m_faceUVs[nz].minVertex.y, 0});
+		GTriangle lowerTriangle(vNPN, vPNN, vNNN);
+		lowerTriangle.setUVWa({m_faceUVs[nz].maxVertex.x, m_faceUVs[nz].maxVertex.y, 0});
+		lowerTriangle.setUVWb({m_faceUVs[nz].minVertex.x, m_faceUVs[nz].minVertex.y, 0});
+		lowerTriangle.setUVWc({m_faceUVs[nz].maxVertex.x, m_faceUVs[nz].minVertex.y, 0});
 
-		out_primitives.push_back(std::move(upperTriangle));
-		out_primitives.push_back(std::move(lowerTriangle));
+		triangleMesh->addTriangle(upperTriangle);
+		triangleMesh->addTriangle(lowerTriangle);
 	}
 
 	// +x face (+y as upward)
 	const int px = math::X_AXIS;
 	{
-		auto upperTriangle = std::make_unique<PTriangle>(data.metadata, vPPN, vPPP, vPNP);
-		upperTriangle->setUVWa({m_faceUVs[px].maxVertex.x, m_faceUVs[px].maxVertex.y, 0});
-		upperTriangle->setUVWb({m_faceUVs[px].minVertex.x, m_faceUVs[px].maxVertex.y, 0});
-		upperTriangle->setUVWc({m_faceUVs[px].minVertex.x, m_faceUVs[px].minVertex.y, 0});
+		GTriangle upperTriangle(vPPN, vPPP, vPNP);
+		upperTriangle.setUVWa({m_faceUVs[px].maxVertex.x, m_faceUVs[px].maxVertex.y, 0});
+		upperTriangle.setUVWb({m_faceUVs[px].minVertex.x, m_faceUVs[px].maxVertex.y, 0});
+		upperTriangle.setUVWc({m_faceUVs[px].minVertex.x, m_faceUVs[px].minVertex.y, 0});
 
-		auto lowerTriangle = std::make_unique<PTriangle>(data.metadata, vPPN, vPNP, vPNN);
-		lowerTriangle->setUVWa({m_faceUVs[px].maxVertex.x, m_faceUVs[px].maxVertex.y, 0});
-		lowerTriangle->setUVWb({m_faceUVs[px].minVertex.x, m_faceUVs[px].minVertex.y, 0});
-		lowerTriangle->setUVWc({m_faceUVs[px].maxVertex.x, m_faceUVs[px].minVertex.y, 0});
+		GTriangle lowerTriangle(vPPN, vPNP, vPNN);
+		lowerTriangle.setUVWa({m_faceUVs[px].maxVertex.x, m_faceUVs[px].maxVertex.y, 0});
+		lowerTriangle.setUVWb({m_faceUVs[px].minVertex.x, m_faceUVs[px].minVertex.y, 0});
+		lowerTriangle.setUVWc({m_faceUVs[px].maxVertex.x, m_faceUVs[px].minVertex.y, 0});
 
-		out_primitives.push_back(std::move(upperTriangle));
-		out_primitives.push_back(std::move(lowerTriangle));
+		triangleMesh->addTriangle(upperTriangle);
+		triangleMesh->addTriangle(lowerTriangle);
 	}
 
 	// -x face (+y as upward)
 	const int nx = math::X_AXIS + 3;
 	{
-		auto upperTriangle = std::make_unique<PTriangle>(data.metadata, vNPP, vNPN, vNNN);
-		upperTriangle->setUVWa({m_faceUVs[nx].maxVertex.x, m_faceUVs[nx].maxVertex.y, 0});
-		upperTriangle->setUVWb({m_faceUVs[nx].minVertex.x, m_faceUVs[nx].maxVertex.y, 0});
-		upperTriangle->setUVWc({m_faceUVs[nx].minVertex.x, m_faceUVs[nx].minVertex.y, 0});
+		GTriangle upperTriangle(vNPP, vNPN, vNNN);
+		upperTriangle.setUVWa({m_faceUVs[nx].maxVertex.x, m_faceUVs[nx].maxVertex.y, 0});
+		upperTriangle.setUVWb({m_faceUVs[nx].minVertex.x, m_faceUVs[nx].maxVertex.y, 0});
+		upperTriangle.setUVWc({m_faceUVs[nx].minVertex.x, m_faceUVs[nx].minVertex.y, 0});
 
-		auto lowerTriangle = std::make_unique<PTriangle>(data.metadata, vNPP, vNNN, vNNP);
-		lowerTriangle->setUVWa({m_faceUVs[nx].maxVertex.x, m_faceUVs[nx].maxVertex.y, 0});
-		lowerTriangle->setUVWb({m_faceUVs[nx].minVertex.x, m_faceUVs[nx].minVertex.y, 0});
-		lowerTriangle->setUVWc({m_faceUVs[nx].maxVertex.x, m_faceUVs[nx].minVertex.y, 0});
+		GTriangle lowerTriangle(vNPP, vNNN, vNNP);
+		lowerTriangle.setUVWa({m_faceUVs[nx].maxVertex.x, m_faceUVs[nx].maxVertex.y, 0});
+		lowerTriangle.setUVWb({m_faceUVs[nx].minVertex.x, m_faceUVs[nx].minVertex.y, 0});
+		lowerTriangle.setUVWc({m_faceUVs[nx].maxVertex.x, m_faceUVs[nx].minVertex.y, 0});
 
-		out_primitives.push_back(std::move(upperTriangle));
-		out_primitives.push_back(std::move(lowerTriangle));
+		triangleMesh->addTriangle(upperTriangle);
+		triangleMesh->addTriangle(lowerTriangle);
 	}
 
 	// +y face (-z as upward)
 	const int py = math::Y_AXIS;
 	{
-		auto upperTriangle = std::make_unique<PTriangle>(data.metadata, vPPN, vNPN, vNPP);
-		upperTriangle->setUVWa({m_faceUVs[py].maxVertex.x, m_faceUVs[py].maxVertex.y, 0});
-		upperTriangle->setUVWb({m_faceUVs[py].minVertex.x, m_faceUVs[py].maxVertex.y, 0});
-		upperTriangle->setUVWc({m_faceUVs[py].minVertex.x, m_faceUVs[py].minVertex.y, 0});
+		GTriangle upperTriangle(vPPN, vNPN, vNPP);
+		upperTriangle.setUVWa({m_faceUVs[py].maxVertex.x, m_faceUVs[py].maxVertex.y, 0});
+		upperTriangle.setUVWb({m_faceUVs[py].minVertex.x, m_faceUVs[py].maxVertex.y, 0});
+		upperTriangle.setUVWc({m_faceUVs[py].minVertex.x, m_faceUVs[py].minVertex.y, 0});
 
-		auto lowerTriangle = std::make_unique<PTriangle>(data.metadata, vPPN, vNPP, vPPP);
-		lowerTriangle->setUVWa({m_faceUVs[py].maxVertex.x, m_faceUVs[py].maxVertex.y, 0});
-		lowerTriangle->setUVWb({m_faceUVs[py].minVertex.x, m_faceUVs[py].minVertex.y, 0});
-		lowerTriangle->setUVWc({m_faceUVs[py].maxVertex.x, m_faceUVs[py].minVertex.y, 0});
+		GTriangle lowerTriangle(vPPN, vNPP, vPPP);
+		lowerTriangle.setUVWa({m_faceUVs[py].maxVertex.x, m_faceUVs[py].maxVertex.y, 0});
+		lowerTriangle.setUVWb({m_faceUVs[py].minVertex.x, m_faceUVs[py].minVertex.y, 0});
+		lowerTriangle.setUVWc({m_faceUVs[py].maxVertex.x, m_faceUVs[py].minVertex.y, 0});
 
-		out_primitives.push_back(std::move(upperTriangle));
-		out_primitives.push_back(std::move(lowerTriangle));
+		triangleMesh->addTriangle(upperTriangle);
+		triangleMesh->addTriangle(lowerTriangle);
 	}
 
 	// +y face (+z as upward)
 	const int ny = math::Y_AXIS + 3;
 	{
-		auto upperTriangle = std::make_unique<PTriangle>(data.metadata, vPNP, vNNP, vNNN);
-		upperTriangle->setUVWa({m_faceUVs[ny].maxVertex.x, m_faceUVs[ny].maxVertex.y, 0});
-		upperTriangle->setUVWb({m_faceUVs[ny].minVertex.x, m_faceUVs[ny].maxVertex.y, 0});
-		upperTriangle->setUVWc({m_faceUVs[ny].minVertex.x, m_faceUVs[ny].minVertex.y, 0});
+		GTriangle upperTriangle(vPNP, vNNP, vNNN);
+		upperTriangle.setUVWa({m_faceUVs[ny].maxVertex.x, m_faceUVs[ny].maxVertex.y, 0});
+		upperTriangle.setUVWb({m_faceUVs[ny].minVertex.x, m_faceUVs[ny].maxVertex.y, 0});
+		upperTriangle.setUVWc({m_faceUVs[ny].minVertex.x, m_faceUVs[ny].minVertex.y, 0});
 
-		auto lowerTriangle = std::make_unique<PTriangle>(data.metadata, vPNP, vNNN, vPNN);
-		lowerTriangle->setUVWa({m_faceUVs[ny].maxVertex.x, m_faceUVs[ny].maxVertex.y, 0});
-		lowerTriangle->setUVWb({m_faceUVs[ny].minVertex.x, m_faceUVs[ny].minVertex.y, 0});
-		lowerTriangle->setUVWc({m_faceUVs[ny].maxVertex.x, m_faceUVs[ny].minVertex.y, 0});
+		GTriangle lowerTriangle(vPNP, vNNN, vPNN);
+		lowerTriangle.setUVWa({m_faceUVs[ny].maxVertex.x, m_faceUVs[ny].maxVertex.y, 0});
+		lowerTriangle.setUVWb({m_faceUVs[ny].minVertex.x, m_faceUVs[ny].minVertex.y, 0});
+		lowerTriangle.setUVWc({m_faceUVs[ny].maxVertex.x, m_faceUVs[ny].minVertex.y, 0});
 
-		out_primitives.push_back(std::move(upperTriangle));
-		out_primitives.push_back(std::move(lowerTriangle));
+		triangleMesh->addTriangle(upperTriangle);
+		triangleMesh->addTriangle(lowerTriangle);
 	}
+
+	return triangleMesh;
 }
 
 GCuboid& GCuboid::operator = (const GCuboid& rhs)

@@ -39,12 +39,27 @@ public class CuboidElement
 	
 	public Vector3f getMinVertex()
 	{
-		return m_from;
+		return m_from.div(16.0f);
 	}
 	
 	public Vector3f getMaxVertex()
 	{
-		return m_to;
+		return m_to.div(16.0f);
+	}
+	
+	public Vector3f getRotOrigin()
+	{
+		return m_rotOrigin.sub(8.0f).div(16.0f);
+	}
+	
+	public Vector3f getRotAxis()
+	{
+		return m_rotAxis.normalize();
+	}
+	
+	public float getRotDegrees()
+	{
+		return m_rotDegrees;
 	}
 	
 	public void setRotOrigin(Vector3f origin)

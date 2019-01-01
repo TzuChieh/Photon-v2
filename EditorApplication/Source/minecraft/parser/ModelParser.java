@@ -7,6 +7,7 @@ import minecraft.EFacing;
 import minecraft.Face;
 import minecraft.JSONArray;
 import minecraft.JSONObject;
+import minecraft.MCLogger;
 import minecraft.ModelData;
 import util.Vector3f;
 
@@ -76,6 +77,36 @@ public class ModelParser
 					{
 						parseFace(faces.getChild("east"), EFacing.EAST, cuboid);
 					}
+				}
+				
+				if(element.has("rotation"))
+				{
+					JSONObject rotation = element.getChild("rotation");
+					
+					JSONArray origin = rotation.getArray("origin");
+					cuboid.setRotOrigin(new Vector3f((float)origin.getNumber(0), (float)origin.getNumber(1), (float)origin.getNumber(2)));
+					
+					String axis = rotation.getString("axis");
+					if(axis.equals("x"))
+					{
+						cuboid.setRotAxis(new Vector3f(1, 0, 0));
+					}
+					else if(axis.equals("y"))
+					{
+						cuboid.setRotAxis(new Vector3f(0, 1, 0));
+					}
+					else if(axis.equals("z"))
+					{
+						cuboid.setRotAxis(new Vector3f(0, 0, 1));
+					}
+					else
+					{
+						MCLogger.warn("unknown axis of rotation <" + axis + "> specified in model");
+					}
+					
+					cuboid.setRotDegrees((float)rotation.getNumber("angle"));
+					
+					// TODO: rescale
 				}
 				
 				model.addElement(cuboid);

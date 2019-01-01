@@ -17,6 +17,7 @@ import javax.imageio.ImageIO;
 
 import jsdl.CuboidGeometryCreator;
 import jsdl.GeometrySoupGeometryAdd;
+import jsdl.GeometrySoupGeometryAddTransformed;
 import jsdl.GeometrySoupGeometryCreator;
 import jsdl.LdrPictureImageCreator;
 import jsdl.MatteOpaqueMaterialCreator;
@@ -25,6 +26,7 @@ import jsdl.SDLGeometry;
 import jsdl.SDLImage;
 import jsdl.SDLMaterial;
 import jsdl.SDLQuaternion;
+import jsdl.SDLReal;
 import jsdl.SDLString;
 import jsdl.SDLVector3;
 import minecraft.block.BlockData;
@@ -142,6 +144,7 @@ public class Asset
 				continue;
 			}
 			
+			// DEBUG
 			System.err.println("block " + blockId);
 			
 			// block ID is in the format <namespace>:<actual ID>, we need to 
@@ -350,10 +353,6 @@ public class Asset
 			Vector3f minVertex = new Vector3f(element.getMinVertex());
 			Vector3f maxVertex = new Vector3f(element.getMaxVertex());
 			
-			// every 16 units is one meter
-			minVertex.divLocal(16.0f);
-			maxVertex.divLocal(16.0f);
-			
 			// to make planar geometry have at least some thickness
 			Vector3f diagonal = maxVertex.sub(minVertex).maxLocal(new Vector3f(0.01f));
 			maxVertex = minVertex.add(diagonal);
@@ -391,9 +390,12 @@ public class Asset
 			}
 			out_console.queue(cuboid);
 			
-			GeometrySoupGeometryAdd addToSoup = new GeometrySoupGeometryAdd();
+			GeometrySoupGeometryAddTransformed addToSoup = new GeometrySoupGeometryAddTransformed();
 			addToSoup.setTargetName(geometryName);
 			addToSoup.setGeometry(new SDLGeometry(cuboidName));
+			addToSoup.setTranslation(element.getRotOrigin().toSDL());
+			addToSoup.setRotationAxis(element.getRotAxis().toSDL());
+			addToSoup.setRotationDegrees(new SDLReal(element.getRotDegrees()));
 			out_console.queue(addToSoup);
 		}
 		

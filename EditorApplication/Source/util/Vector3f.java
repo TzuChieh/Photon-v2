@@ -1,5 +1,7 @@
 package util;
 
+import jsdl.SDLVector3;
+
 public class Vector3f
 {
 	public static final Vector3f VEC3_ONE_ONE_ONE     = new Vector3f(1, 1, 1);
@@ -527,6 +529,11 @@ public class Vector3f
 	public void setZ(float z) 
 	{
 		this.z = z;
+	}
+	
+	public SDLVector3 toSDL()
+	{
+		return new SDLVector3(x, y, z);
 	}
 	
 	@Override
