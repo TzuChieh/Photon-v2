@@ -97,16 +97,9 @@ namespace ph
                 crit_angle = angle_asin(n3/n1);
         }
 
-    	for (int wl = wl_min; wl <= wl_max; wl += delta_wl)
+        for (int theta_1 = 0; theta_1 <= 90; theta_1 += delta_angle)
     	{
-    		// float n2 = ior_file[wl];
-    		// float crit_angle = 90;
-    		// if (n2 < n1)
-    		// {
-    		//    crit_angle = angle_asin(n2/n1);
-    		// }
-
-    		for (int theta_1 = 0; theta_1 <= 90; theta_1 += delta_angle)
+            for (int wl = wl_min; wl <= wl_max; wl += delta_wl)
     		{
     			float Reff = 1;
 

@@ -36,7 +36,7 @@ public:
 	// HACK
 	std::vector<float> getWavelengthsNm() const
 	{
-		return m_incidentAngles;
+		return m_wavelengths;
 	}
 
 	std::vector<float> getReflectances() const
