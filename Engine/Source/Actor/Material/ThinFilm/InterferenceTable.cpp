@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <complex>
+#include <algorithm>
 
 namespace ph
 {
