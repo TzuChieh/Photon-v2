@@ -33,6 +33,21 @@ public:
 	void output_result();
 	void output_log();
 
+	// HACK
+	std::vector<float> getWavelengthsNm() const
+	{
+		return m_incidentAngles;
+	}
+
+	std::vector<float> getReflectances() const
+	{
+		return m_reflectances;
+	}
+
+	std::vector<float> getTransmittance() const
+	{
+		return m_transmittance;
+	}
 
 private:
 	std::vector<float> m_incidentAngles;

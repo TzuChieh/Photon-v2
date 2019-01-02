@@ -5,6 +5,7 @@
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Actor/Image/Image.h"
 #include "FileIO/FileSystem/Path.h"
+#include "Common/primitive_type.h"
 
 #include <memory>
 #include <vector>
@@ -20,9 +21,14 @@ public:
 	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
 
 private:
-	std::vector<real> m_wavelengthTable;
+	/*std::vector<real> m_wavelengthTable;
 	std::vector<real> m_reflectanceTable;
-	std::vector<real> m_transmittanceTable;
+	std::vector<real> m_transmittanceTable;*/
+
+	real m_iorOuter;
+	real m_iorFilm;
+	real m_iorInner;
+	real m_thicknessNm;
 
 // command interface
 public:
