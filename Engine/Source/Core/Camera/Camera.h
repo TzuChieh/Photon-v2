@@ -47,7 +47,6 @@ public:
 
 	const Vector3R& getPosition() const;
 	const Vector3R& getDirection() const;
-	const Vector3R& getUpAxis() const;
 	void getPosition(Vector3R* out_position) const;
 	void getDirection(Vector3R* out_direction) const;
 	real getAspectRatio() const;

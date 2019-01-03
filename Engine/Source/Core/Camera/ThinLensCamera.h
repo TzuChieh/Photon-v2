@@ -30,7 +30,6 @@ public:
 	explicit ThinLensCamera(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
-	static std::unique_ptr<ThinLensCamera> ciLoad(const InputPacket& packet);
 };
 
 }// end namespace ph

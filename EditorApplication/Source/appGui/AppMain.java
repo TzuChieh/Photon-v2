@@ -98,7 +98,7 @@ public class AppMain extends Application
 		m_editorApp = new EditorApp();
 		
 		// DEBUG
-		minecraftTest();
+//		minecraftTest();
 	}
 
 	@Override
