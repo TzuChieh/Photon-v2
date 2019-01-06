@@ -11,9 +11,11 @@
 #include "World/VisualWorldInfo.h"
 #include "Core/Intersectable/IndexedKdtree/TIndexedKdtreeIntersector.h"
 #include "Core/Emitter/Sampler/ESPowerFavoring.h"
+#include "Actor/APhantomModel.h"
 
 #include <limits>
 #include <iostream>
+#include <algorithm>
 
 namespace ph
 {
@@ -69,7 +71,6 @@ void VisualWorld::cook()
 	CookingContext cookingContext;
 
 	// cook root actors
-	//
 	cookActors(cookingContext);
 
 	VisualWorldInfo visualWorldInfo;
@@ -84,7 +85,6 @@ void VisualWorld::cook()
 	logger.log(ELogLevel::NOTE_MED, "root actors bound calculated to be: " + bound.toString());
 
 	// cook child actors (breadth first)
-	//
 	while(true)
 	{
 		auto childActors = cookingContext.claimChildActors();
@@ -106,6 +106,12 @@ void VisualWorld::cook()
 			cookedUnit.claimCookedData(m_cookedActorStorage);
 			cookedUnit.claimCookedBackend(m_cookedBackendStorage);
 		}
+	}
+
+	for(auto& phantom : cookingContext.m_phantoms)
+	{
+		phantom.second.claimCookedData(m_phantomStorage);
+		phantom.second.claimCookedBackend(m_phantomStorage);
 	}
 
 	logger.log(ELogLevel::NOTE_MED, 
@@ -135,6 +141,12 @@ void VisualWorld::cook()
 
 void VisualWorld::cookActors(CookingContext& cookingContext)
 {
+	std::sort(m_actors.begin(), m_actors.end(), 
+		[](const std::shared_ptr<Actor>& a, const std::shared_ptr<Actor>& b)
+		{
+			return a->getCookPriority() < b->getCookPriority();
+		});
+
 	for(const auto& actor : m_actors)
 	{
 		CookedUnit cookedUnit = actor->cook(cookingContext);

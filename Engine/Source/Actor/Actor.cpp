@@ -9,8 +9,6 @@ Actor::Actor() = default;
 
 Actor::Actor(const Actor& other) = default;
 
-Actor::~Actor() = default;
-
 Actor& Actor::operator = (const Actor& rhs)
 {
 	// nothing to assign
@@ -25,11 +23,16 @@ void swap(Actor& first, Actor& second)
 
 // command interface
 
+Actor::Actor(const InputPacket& packet) : 
+	Actor()
+{}
+
 SdlTypeInfo Actor::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "actor");
 }
 
-void Actor::ciRegister(CommandRegister& cmdRegister) {}
+void Actor::ciRegister(CommandRegister& cmdRegister)
+{}
 
 }// end namespace ph

@@ -17,13 +17,7 @@ TMatrix4<T> TMatrix4<T>::IDENTITY()
 }
 
 template<typename T>
-inline TMatrix4<T>::TMatrix4() : 
-	m{}
-{}
-
-template<typename T>
-inline TMatrix4<T>::TMatrix4(const T value) : 
-	m()
+inline TMatrix4<T>::TMatrix4(const T value)
 {
 	for(std::size_t i = 0; i < 4; ++i)
 	{
@@ -40,25 +34,8 @@ inline TMatrix4<T>::TMatrix4(const Elements& elements) :
 {}
 
 template<typename T>
-inline TMatrix4<T>::TMatrix4(const TMatrix4& other) : 
-	m()
-{
-	for(std::size_t i = 0; i < 4; ++i)
-	{
-		for(std::size_t j = 0; j < 4; ++j)
-		{
-			m[i][j] = other.m[i][j];
-		}
-	}
-}
-
-template<typename T>
-inline TMatrix4<T>::~TMatrix4() = default;
-
-template<typename T>
 template<typename U>
-inline TMatrix4<T>::TMatrix4(const TMatrix4<U>& other) : 
-	m()
+inline TMatrix4<T>::TMatrix4(const TMatrix4<U>& other)
 {
 	for(std::size_t i = 0; i < 4; ++i)
 	{
@@ -126,9 +103,9 @@ inline TMatrix4<T>& TMatrix4<T>::initRotation(const TQuaternion<T>& rot)
 template<typename T>
 inline TMatrix4<T>& TMatrix4<T>::initRotation(const TVector3<T>& orthBasisX, const TVector3<T>& orthBasisY, const TVector3<T>& orthBasisZ)
 {
-	m[0][0] = orthBasisX.x; m[0][1] = orthBasisX.y; m[0][2] = orthBasisX.z; m[0][3] = 0;
-	m[1][0] = orthBasisY.x; m[1][1] = orthBasisY.y; m[1][2] = orthBasisY.z; m[1][3] = 0;
-	m[2][0] = orthBasisZ.x; m[2][1] = orthBasisZ.y; m[2][2] = orthBasisZ.z; m[2][3] = 0;
+	m[0][0] = orthBasisX.x; m[0][1] = orthBasisY.x; m[0][2] = orthBasisZ.x; m[0][3] = 0;
+	m[1][0] = orthBasisX.y; m[1][1] = orthBasisY.y; m[1][2] = orthBasisZ.y; m[1][3] = 0;
+	m[2][0] = orthBasisX.z; m[2][1] = orthBasisY.z; m[2][2] = orthBasisZ.z; m[2][3] = 0;
 	m[3][0] = 0;            m[3][1] = 0;            m[3][2] = 0;            m[3][3] = 1;
 
 	return *this;

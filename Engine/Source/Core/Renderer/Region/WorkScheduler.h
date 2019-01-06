@@ -43,7 +43,7 @@ inline WorkScheduler::WorkScheduler() :
 inline WorkScheduler::WorkScheduler(const std::size_t numWorkers, const WorkVolume& totalWorkVolume) : 
 	m_numWorkers(numWorkers),
 	m_totalWorkVolume(totalWorkVolume),
-	m_totalVolume(totalWorkVolume.getWorkArea().calcArea() * totalWorkVolume.getWorkDepth()),
+	m_totalVolume(totalWorkVolume.getVolume()),
 	m_scheduledVolume(0),
 	m_submittedVolume(0)
 {}
@@ -54,7 +54,7 @@ inline bool WorkScheduler::schedule(WorkVolume* const out_workVolume)
 
 	if(scheduleOne(out_workVolume))
 	{
-		m_scheduledVolume += out_workVolume->getWorkArea().calcArea() * out_workVolume->getWorkDepth();
+		m_scheduledVolume += out_workVolume->getVolume();
 		return true;
 	}
 	else
@@ -74,7 +74,7 @@ inline void WorkScheduler::scheduleAll(std::vector<WorkVolume>& out_workVolumes)
 
 inline void WorkScheduler::submit(const WorkVolume& workVolume)
 {
-	m_submittedVolume += workVolume.getWorkArea().calcArea() * workVolume.getWorkDepth();
+	m_submittedVolume += workVolume.getVolume();
 }
 
 inline float WorkScheduler::getScheduledFraction() const

@@ -15,13 +15,7 @@ inline std::size_t TArithmeticArray<T, N>::numElements()
 }
 
 template<typename T, std::size_t N>
-inline TArithmeticArray<T, N>::TArithmeticArray() : 
-	m()
-{}
-
-template<typename T, std::size_t N>
-inline TArithmeticArray<T, N>::TArithmeticArray(const T value) : 
-	m()
+inline TArithmeticArray<T, N>::TArithmeticArray(const T value)
 {
 	m.fill(value);
 }
@@ -32,14 +26,8 @@ inline TArithmeticArray<T, N>::TArithmeticArray(const std::array<T, N>& values) 
 {}
 
 template<typename T, std::size_t N>
-inline TArithmeticArray<T, N>::TArithmeticArray(const TArithmeticArray& other) : 
-	m(other.m)
-{}
-
-template<typename T, std::size_t N>
 template<typename U>
-inline TArithmeticArray<T, N>::TArithmeticArray(const TArithmeticArray<U, N>& other) : 
-	TArithmeticArray()
+inline TArithmeticArray<T, N>::TArithmeticArray(const TArithmeticArray<U, N>& other)
 {
 	for(std::size_t i = 0; i < N; ++i)
 	{
@@ -409,14 +397,6 @@ template<typename T, std::size_t N>
 inline TArithmeticArray<T, N> TArithmeticArray<T, N>::operator + (const T rhs) const
 {
 	return this->add(rhs);
-}
-
-template<typename T, std::size_t N>
-inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::operator = (const TArithmeticArray& rhs)
-{
-	m = rhs.m;
-
-	return *this;
 }
 
 template<typename T, std::size_t N>

@@ -14,13 +14,12 @@ namespace ph
 
 	Reference: http://filmicworlds.com/blog/filmic-tonemapping-operators/
 */
-class JRToneMapping final : public FrameOperator
+class JRToneMapping : public FrameOperator
 {
 public:
 	JRToneMapping();
-	virtual ~JRToneMapping() override;
 
-	virtual void operate(HdrRgbFrame& frame) const override;
+	void operate(HdrRgbFrame& frame) const override;
 
 	void setExposure(real exposure);
 

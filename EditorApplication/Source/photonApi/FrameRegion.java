@@ -1,5 +1,7 @@
 package photonApi;
 
+import util.Vector3f;
+
 public final class FrameRegion
 {
 	private int   m_originXpx;

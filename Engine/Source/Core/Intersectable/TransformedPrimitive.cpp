@@ -26,8 +26,6 @@ TransformedPrimitive::TransformedPrimitive(
 	PH_ASSERT(worldToLocal != nullptr);
 }
 
-TransformedPrimitive::~TransformedPrimitive() = default;
-
 real TransformedPrimitive::calcPositionSamplePdfA(const Vector3R& position) const
 {
 	Vector3R localPosition;
@@ -42,10 +40,17 @@ void TransformedPrimitive::genPositionSample(PositionSample* const out_sample) c
 	PositionSample localSample;
 	m_primitive->genPositionSample(&localSample);
 
-	m_localToWorld->transformP(localSample.position, &out_sample->position);
-	m_localToWorld->transformO(localSample.normal,   &out_sample->normal);
-	out_sample->uvw = localSample.uvw;
-	out_sample->pdf = localSample.pdf;
+	if(localSample.pdf > 0)
+	{
+		m_localToWorld->transformP(localSample.position, &out_sample->position);
+		m_localToWorld->transformO(localSample.normal, &out_sample->normal);
+		out_sample->uvw = localSample.uvw;
+		out_sample->pdf = localSample.pdf;
+	}
+	else
+	{
+		out_sample->pdf = 0;
+	}
 }
 
 bool TransformedPrimitive::uvwToPosition(

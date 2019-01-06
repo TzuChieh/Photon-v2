@@ -14,11 +14,6 @@ template<typename DerivedType, std::size_t N>
 constexpr std::size_t TAbstractSpectralStrength<DerivedType, N>::NUM_VALUES;
 
 template<typename DerivedType, std::size_t N>
-inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength() :
-	TAbstractSpectralStrength(0)
-{}
-
-template<typename DerivedType, std::size_t N>
 inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(const real value) :
 	TAbstractSpectralStrength(TArithmeticArray<real, N>(value))
 {}
@@ -42,14 +37,6 @@ template<typename DerivedType, std::size_t N>
 inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(const TArithmeticArray<real, N>& values) :
 	m_values(values)
 {}
-
-template<typename DerivedType, std::size_t N>
-inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(const TAbstractSpectralStrength& other) :
-	m_values(other.m_values)
-{}
-
-template<typename DerivedType, std::size_t N>
-inline TAbstractSpectralStrength<DerivedType, N>::~TAbstractSpectralStrength() = default;
 
 template<typename DerivedType, std::size_t N>
 inline Vector3R TAbstractSpectralStrength<DerivedType, N>::genSrgb(const EQuantity valueType) const
@@ -428,15 +415,6 @@ inline auto TAbstractSpectralStrength<DerivedType, N>::operator / (const real rh
 	-> DerivedType
 {
 	return this->div(rhs);
-}
-
-template<typename DerivedType, std::size_t N>
-inline auto TAbstractSpectralStrength<DerivedType, N>::operator = (const TAbstractSpectralStrength& rhs)
-	-> TAbstractSpectralStrength&
-{
-	m_values = rhs.m_values;
-
-	return *this;
 }
 
 template<typename DerivedType, std::size_t N>

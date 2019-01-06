@@ -5,5 +5,5 @@
 #elif defined(__linux__)
 	#define PH_OPERATING_SYSTEM_IS_LINUX
 #else
-	#define PH_OPERATING_SYSTEM_IS_WINDOWS
+	#define PH_OPERATING_SYSTEM_IS_OSX
 #endif

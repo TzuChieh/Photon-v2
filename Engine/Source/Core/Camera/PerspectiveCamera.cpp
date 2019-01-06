@@ -12,8 +12,6 @@
 namespace ph
 {
 
-PerspectiveCamera::~PerspectiveCamera() = default;
-
 void PerspectiveCamera::updateTransforms()
 {
 	const hiReal filmWidthMM  = m_filmWidthMM;

@@ -4,32 +4,39 @@
 #include "Math/Transform/Transform.h"
 #include "FileIO/SDL/InputPacket.h"
 #include "Math/Random.h"
+#include "Common/assertion.h"
 
 #include <iostream>
 
 namespace ph
 {
 
-ThinLensCamera::~ThinLensCamera() = default;
-
 void ThinLensCamera::genSensedRay(const Vector2R& filmNdcPos, Ray* const out_ray) const
 {
-	Vector3R camFilmPos;
-	m_filmToCamera->transformP(Vector3R(filmNdcPos.x, filmNdcPos.y, 0), &camFilmPos);
+	Vector3R filmPosMM;
+	m_filmToCamera->transformP(Vector3R(filmNdcPos.x, filmNdcPos.y, 0), &filmPosMM);
 
-	const Vector3R camCenterRayDir = camFilmPos.mul(-1);
-	const real     hitParamDist    = m_focalDistanceMM / (-camCenterRayDir.z);
-	const Vector3R camFocusPos     = camCenterRayDir.mul(hitParamDist);
+	// subtracting lens' center position is omitted since it is at (0, 0, 0) mm
+	const Vector3R lensCenterToFilmDir = filmPosMM.normalize();
 
-	Vector3R camLensPos;
-	genRandomSampleOnDisk(m_lensRadiusMM, &camLensPos.x, &camLensPos.y);
+	PH_ASSERT_GT(lensCenterToFilmDir.z, 0);
+	const real     focalPlaneDistMM = m_focalDistanceMM / lensCenterToFilmDir.z;
+	const Vector3R focalPlanePosMM  = lensCenterToFilmDir.mul(-focalPlaneDistMM);
 
-	Vector3R worldLensPos, worldFocusPos;
-	m_cameraToWorld->transformP(camLensPos,  &worldLensPos);
-	m_cameraToWorld->transformP(camFocusPos, &worldFocusPos);
+	Vector3R lensPosMM;
+	lensPosMM.z = 0;
+	genRandomSampleOnDisk(m_lensRadiusMM, &lensPosMM.x, &lensPosMM.y);
 
+	Vector3R worldLensPos;
+	m_cameraToWorld->transformP(lensPosMM, &worldLensPos);
 
-	out_ray->setDirection(worldLensPos.sub(worldFocusPos).normalizeLocal());
+	// XXX: numerical error can be large when focalPlanePosMM is far away
+	Vector3R worldSensedRayDir;
+	m_cameraToWorld->transformV(lensPosMM - focalPlanePosMM, &worldSensedRayDir);
+	worldSensedRayDir.normalizeLocal();
+
+	PH_ASSERT(out_ray);
+	out_ray->setDirection(worldSensedRayDir);
 	out_ray->setOrigin(worldLensPos);
 	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
 	out_ray->setMaxT(std::numeric_limits<real>::max());
@@ -70,14 +77,11 @@ SdlTypeInfo ThinLensCamera::ciTypeInfo()
 
 void ThinLensCamera::ciRegister(CommandRegister& cmdRegister)
 {
-	SdlLoader loader;
-	loader.setFunc<ThinLensCamera>(ciLoad);
-	cmdRegister.setLoader(loader);
-}
-
-std::unique_ptr<ThinLensCamera> ThinLensCamera::ciLoad(const InputPacket& packet)
-{
-	return std::make_unique<ThinLensCamera>(packet);
+	cmdRegister.setLoader(
+		SdlLoader([](const InputPacket& packet)
+		{
+			return std::make_unique<ThinLensCamera>(packet);
+		}));
 }
 
 }// end namespace ph

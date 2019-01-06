@@ -45,10 +45,7 @@ public:
 	real splitPos() const;
 	int splitAxisIndex() const;
 	std::size_t index() const;
-
-	template<typename U = std::enable_if_t<USE_SINGLE_ITEM_OPT>>
 	std::size_t singleItemDirectIndex() const;
-
 	std::size_t indexBufferOffset() const;
 
 private:
@@ -219,13 +216,20 @@ inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 }
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
-template<typename>
 inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 	singleItemDirectIndex() const -> std::size_t
 {
-	PH_ASSERT(USE_SINGLE_ITEM_OPT && numItems() == 1);
+	if constexpr(USE_SINGLE_ITEM_OPT)
+	{
+		PH_ASSERT(USE_SINGLE_ITEM_OPT && numItems() == 1);
 
-	return index();
+		return index();
+	}
+	else
+	{
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return std::size_t(-1);
+	}
 }
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>

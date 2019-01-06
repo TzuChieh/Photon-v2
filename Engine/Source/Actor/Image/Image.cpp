@@ -6,8 +6,6 @@ namespace ph
 Image::Image()
 {}
 
-Image::~Image() = default;
-
 std::shared_ptr<TTexture<real>> Image::genTextureReal(
 	CookingContext& context) const
 {

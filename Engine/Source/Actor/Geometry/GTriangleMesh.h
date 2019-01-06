@@ -13,14 +13,17 @@ class GTriangleMesh final : public Geometry, public TCommandInterface<GTriangleM
 {
 public:
 	GTriangleMesh();
-	GTriangleMesh(const std::vector<Vector3R>& positions, 
-	              const std::vector<Vector3R>& texCoords, 
-	              const std::vector<Vector3R>& normals);
-	virtual ~GTriangleMesh() override;
+	GTriangleMesh(
+		const std::vector<Vector3R>& positions, 
+		const std::vector<Vector3R>& texCoords, 
+		const std::vector<Vector3R>& normals);
 
-	virtual void genPrimitive(const PrimitiveBuildingMaterial& data,
-	                          std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
-	virtual std::shared_ptr<Geometry> genTransformApplied(const StaticAffineTransform& transform) const override;
+	void genPrimitive(
+		const PrimitiveBuildingMaterial& data,
+		std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
+
+	std::shared_ptr<Geometry> genTransformed(
+		const StaticAffineTransform& transform) const override;
 
 	void addTriangle(const GTriangle& gTriangle);
 

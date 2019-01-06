@@ -21,8 +21,6 @@ HdrPictureImage::HdrPictureImage(const HdrRgbFrame& picture) :
 	m_picture(picture)
 {}
 
-HdrPictureImage::~HdrPictureImage() = default;
-
 std::shared_ptr<TTexture<SpectralStrength>> HdrPictureImage::genTextureSpectral(
 	CookingContext& context) const
 {

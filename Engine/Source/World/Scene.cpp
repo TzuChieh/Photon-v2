@@ -36,6 +36,7 @@ bool Scene::isIntersecting(const Ray& ray, HitProbe* const out_probe) const
 	}
 	else if(m_backgroundEmitterPrimitive)
 	{
+		out_probe->clear();
 		return m_backgroundEmitterPrimitive->isIntersecting(ray, *out_probe);
 	}
 

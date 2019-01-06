@@ -4,7 +4,9 @@
 # General Settings
 #
 
-cmake_minimum_required(VERSION 2.8)
+cmake_policy(SET CMP0054 NEW)
+
+cmake_minimum_required(VERSION 3.1)
 project(Photon-v2)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin/")
@@ -39,7 +41,10 @@ option(BUILD_EDITOR_JNI "Build JNI for GUI."                 ${BUILD_EDITOR_JNI_
 # Compiler Settings
 #
 
-if(MSVC)
+# using Visual Studio C++
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+
+    set(THIRD_PARTY_PLATFORM "windows")
 
     # TODO: more standard ways exist, but requires newer CMake version
     set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /std:c++17 /Zi /MP")
@@ -47,23 +52,30 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
     set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
-else()
+# using GCC
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
-    # compiler is GCC
-    #
+    set(THIRD_PARTY_PLATFORM "linux")
+
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
     endif()
 
-    # TODO: G++ assumed here. Do not make this assumption.
-
     # compile with c++17 standard enabled
-    #
     set(CMAKE_CXX_STANDARD          17)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
     # as a fallback when CMake version < 3.8.0 or whatever reasons
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+
+# using regular Clang or AppleClang
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    
+    set(THIRD_PARTY_PLATFORM "osx")
+
+    # compile with c++17 standard enabled
+    set(CMAKE_CXX_STANDARD          17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 endif()
 
@@ -74,12 +86,6 @@ endif()
 #
 
 set(THIRD_PARTY_DIR "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty-master/")
-
-if(MSVC)
-    set(THIRD_PARTY_PLATFORM "windows")
-else()
-    set(THIRD_PARTY_PLATFORM "linux")
-endif()
 
 if(BUILD_ENGINE_TEST)
     set(GOOGLETEST_INCLUDE_DIR "${THIRD_PARTY_DIR}googletest/include/")
@@ -96,6 +102,16 @@ if(BUILD_ENGINE_TEST)
 endif()
 
 set(STB_INCLUDE_DIR "${THIRD_PARTY_DIR}stb/include/")
+
+# TODO: debug build?
+if(WIN32)
+    set(STACKWALKER_INCLUDE_DIR "${THIRD_PARTY_DIR}StackWalker/include/")
+    set(STACKWALKER_BINARY_DIR  "${THIRD_PARTY_DIR}StackWalker/lib/")
+    find_library(STACKWALKER_LIB StackWalker
+        PATHS ${STACKWALKER_BINARY_DIR}
+        NO_DEFAULT_PATH
+    )
+endif()
 
 ###############################################################################
 # Add Subdirectories

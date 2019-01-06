@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
+#include "Math/TQuaternion.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Math/Transform/TDecomposedTransform.h"
 #include "Core/Filmic/filmic_fwd.h"
@@ -23,8 +24,8 @@ class Camera : public TCommandInterface<Camera>
 {
 public:
 	Camera();
-	Camera(const Vector3R& position, const Vector3R& direction, const Vector3R& upAxis);
-	virtual ~Camera() = 0;
+	Camera(const Vector3R& position, const QuaternionR& rotation);
+	virtual ~Camera() = default;
 
 	// TODO: consider changing <filmNdcPos> to 64-bit float
 
@@ -46,21 +47,21 @@ public:
 
 	const Vector3R& getPosition() const;
 	const Vector3R& getDirection() const;
-	const Vector3R& getUpAxis() const;
 	void getPosition(Vector3R* out_position) const;
 	void getDirection(Vector3R* out_direction) const;
 	real getAspectRatio() const;
 
 protected:
 	TDecomposedTransform<hiReal> m_cameraToWorldTransform;
-
-private:
 	Vector3R m_position;
 	Vector3R m_direction;
-	Vector3R m_upAxis;
-	real     m_aspectRatio;
 
-	void updateCameraToWorldTransform(const Vector3R& position, const Vector3R& direction, const Vector3R& upAxis);
+private:
+	real m_aspectRatio;
+
+	void updateCameraPose(const TVector3<hiReal>& position, const TQuaternion<hiReal>& rotation);
+	static TQuaternion<hiReal> getWorldToCameraRotation(const Vector3R& direction, const Vector3R& upAxis);
+	static TQuaternion<hiReal> getWorldToCameraRotation(real yawDegrees, real pitchDegrees);
 
 // command interface
 public:
@@ -84,11 +85,6 @@ inline const Vector3R& Camera::getPosition() const
 inline const Vector3R& Camera::getDirection() const
 {
 	return m_direction;
-}
-
-inline const Vector3R& Camera::getUpAxis() const
-{
-	return m_upAxis;
 }
 
 inline void Camera::getPosition(Vector3R* const out_position) const
@@ -120,15 +116,29 @@ inline real Camera::getAspectRatio() const
 	</description>
 
 	<command type="creator" intent="blueprint">
+
 		<input name="position" type="vector3">
 			<description>Position of the camera.</description>
 		</input>
+
+		<input name="rotation" type="quaternion">
+			<description>The orientation of the camera.</description>
+		</input>
+
 		<input name="direction" type="vector3">
 			<description>Direction that this camera is looking at.</description>
 		</input>
 		<input name="up-axis" type="vector3">
 			<description>The direction that this camera consider as upward.</description>
 		</input>
+
+		<input name="yaw-degrees" type="real">
+			<description>Rotation of the camera around +y axis in [0, 360].</description>
+		</input>
+		<input name="pitch-degrees" type="real">
+			<description>The camera's declination from the horizon in [-90, 90].</description>
+		</input>
+
 	</command>
 
 	</SDL_interface>

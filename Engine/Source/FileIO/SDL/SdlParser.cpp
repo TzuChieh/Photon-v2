@@ -4,12 +4,18 @@
 #include "FileIO/SDL/TCommandInterface.h"
 #include "FileIO/SDL/CommandEntry.h"
 #include "FileIO/SDL/SdlTypeInfo.h"
+#include "Common/Logger.h"
 
 #include <iostream>
 #include <sstream>
 
 namespace ph
 {
+
+namespace
+{
+	const Logger logger(LogSender("SDL Parser"));
+}
 
 std::string SdlParser::CORE_DATA_NAME()
 {
@@ -37,6 +43,10 @@ bool SdlParser::addCommandEntry(const CommandEntry& entry)
 	}
 
 	NAMED_INTERFACE_MAP()[fullTypeName] = entry;
+
+	/*logger.log(ELogLevel::NOTE_MIN,
+		"entry added: " + entry.typeInfo().toString());*/
+
 	return true;
 }
 

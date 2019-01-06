@@ -249,6 +249,8 @@ inline GBType byte_to_GB(const ByteType numBytes)
 }
 
 // TODO: it is possible to generalize to signed range
+//       maybe use ith_evenly_divided_size() as function name and 
+//       ith_evenly_divided_range() for signed/unsigned range
 /*
 	Gets the i-th range [beginIndex, endIndex) which is the result of dividing
 	<totalSize> into <numDivisions> parts as evenly as possible.

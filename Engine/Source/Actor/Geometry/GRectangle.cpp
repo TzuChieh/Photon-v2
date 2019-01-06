@@ -21,10 +21,9 @@ GRectangle::GRectangle(const real width, const real height) :
 	m_texCoordScale(1)
 {}
 
-GRectangle::~GRectangle() = default;
-
-void GRectangle::genPrimitive(const PrimitiveBuildingMaterial& data,
-                              std::vector<std::unique_ptr<Primitive>>& out_primitives) const
+void GRectangle::genPrimitive(
+	const PrimitiveBuildingMaterial& data,
+	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
 	if(!checkData(data, m_width, m_height))
 	{
@@ -34,9 +33,10 @@ void GRectangle::genPrimitive(const PrimitiveBuildingMaterial& data,
 	genTriangleMesh()->genPrimitive(data, out_primitives);
 }
 
-std::shared_ptr<Geometry> GRectangle::genTransformApplied(const StaticAffineTransform& transform) const
+std::shared_ptr<Geometry> GRectangle::genTransformed(
+	const StaticAffineTransform& transform) const
 {
-	return genTriangleMesh()->genTransformApplied(transform);
+	return genTriangleMesh()->genTransformed(transform);
 }
 
 void GRectangle::setTexCoordScale(const real scale)

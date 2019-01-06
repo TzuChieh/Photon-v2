@@ -2,7 +2,7 @@ from InterfaceGenerator import InterfaceGenerator
 from SDLInterface import SDLInterface
 from .PythonClass import PythonClass
 from .PythonMethod import PythonMethod
-from . import pysdl_header
+from . import pysdl_base
 
 import copy
 import inspect
@@ -37,7 +37,7 @@ class PythonGenerator(InterfaceGenerator):
 			"# ========================================\n")
 		file.write("# last generated: %s \n\n" % datetime.datetime.now())
 
-		file.write(inspect.getsource(pysdl_header))
+		file.write(inspect.getsource(pysdl_base))
 
 		file.write("\n\n")
 		file.write(PythonGenerator.gen_reference_data_classes())

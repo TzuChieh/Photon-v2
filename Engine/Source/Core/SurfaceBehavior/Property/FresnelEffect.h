@@ -10,7 +10,7 @@ namespace ph
 class FresnelEffect
 {
 public:
-	virtual ~FresnelEffect() = 0;
+	virtual ~FresnelEffect() = default;
 
 	virtual void calcReflectance(real cosThetaIncident, SpectralStrength* out_reflectance) const = 0;
 

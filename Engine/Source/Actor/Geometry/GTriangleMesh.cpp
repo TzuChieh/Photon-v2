@@ -48,10 +48,9 @@ GTriangleMesh::GTriangleMesh(const std::vector<Vector3R>& positions,
 	}
 }
 
-GTriangleMesh::~GTriangleMesh() = default;
-
-void GTriangleMesh::genPrimitive(const PrimitiveBuildingMaterial& data,
-                                 std::vector<std::unique_ptr<Primitive>>& out_primitives) const
+void GTriangleMesh::genPrimitive(
+	const PrimitiveBuildingMaterial& data,
+	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
 	for(const auto& gTriangle : m_gTriangles)
 	{
@@ -64,15 +63,16 @@ void GTriangleMesh::addTriangle(const GTriangle& gTriangle)
 	m_gTriangles.push_back(gTriangle);
 }
 
-std::shared_ptr<Geometry> GTriangleMesh::genTransformApplied(const StaticAffineTransform& transform) const
+std::shared_ptr<Geometry> GTriangleMesh::genTransformed(
+	const StaticAffineTransform& transform) const
 {
 	auto geometrySoup = std::make_shared<GeometrySoup>();
 	for(const auto& gTriangle : m_gTriangles)
 	{
-		geometrySoup->addGeometry(std::make_shared<GTriangle>(gTriangle));
+		geometrySoup->add(std::make_shared<GTriangle>(gTriangle));
 	}
 
-	return geometrySoup->genTransformApplied(transform);
+	return geometrySoup->genTransformed(transform);
 }
 
 // command interface

@@ -17,8 +17,6 @@ PhysicalActor::PhysicalActor(const PhysicalActor& other) :
 	m_localToWorld()
 {}
 
-PhysicalActor::~PhysicalActor() = default;
-
 void PhysicalActor::translate(const Vector3R& translation)
 {
 	m_localToWorld.translate(TVector3<hiReal>(translation));
@@ -95,6 +93,11 @@ void swap(PhysicalActor& first, PhysicalActor& second)
 }
 
 // command interface
+
+PhysicalActor::PhysicalActor(const InputPacket& packet) : 
+	Actor(packet),
+	m_localToWorld()
+{}
 
 SdlTypeInfo PhysicalActor::ciTypeInfo()
 {

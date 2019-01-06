@@ -14,8 +14,6 @@ Geometry::Geometry() :
 	PH_ASSERT(m_uvwMapper != nullptr);
 }
 
-Geometry::~Geometry() = default;
-
 void Geometry::setUvwMapper(const std::shared_ptr<UvwMapper>& uvwMapper)
 {
 	PH_ASSERT(uvwMapper != nullptr);
@@ -28,11 +26,6 @@ const UvwMapper* Geometry::getUvwMapper() const
 	PH_ASSERT(m_uvwMapper != nullptr);
 
 	return m_uvwMapper.get();
-}
-
-std::shared_ptr<Geometry> Geometry::genTransformApplied(const StaticAffineTransform& transform) const
-{
-	return nullptr;
 }
 
 // command interface

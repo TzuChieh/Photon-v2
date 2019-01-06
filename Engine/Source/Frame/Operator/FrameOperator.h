@@ -8,7 +8,7 @@ namespace ph
 class FrameOperator
 {
 public:
-	virtual ~FrameOperator() = 0;
+	virtual ~FrameOperator();
 
 	virtual void operate(HdrRgbFrame& frame) const = 0;
 };

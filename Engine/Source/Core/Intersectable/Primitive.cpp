@@ -13,8 +13,6 @@ Primitive::Primitive(const PrimitiveMetadata* const metadata) :
 	PH_ASSERT(metadata);
 }
 
-Primitive::~Primitive() = default;
-
 void Primitive::genPositionSample(PositionSample* const out_sample) const
 {
 	PH_ASSERT(out_sample);

@@ -19,15 +19,14 @@ class TextureMapper;
 class LightSource;
 class Transform;
 
-class ALight final : public PhysicalActor, public TCommandInterface<ALight>
+class ALight : public PhysicalActor, public TCommandInterface<ALight>
 {
 public:
 	ALight();
 	ALight(const std::shared_ptr<LightSource>& lightSource);
 	ALight(const ALight& other);
-	virtual ~ALight() override;
 
-	virtual CookedUnit cook(CookingContext& context) const override;
+	CookedUnit cook(CookingContext& context) const override;
 
 	const LightSource* getLightSource() const;
 	void setLightSource(const std::shared_ptr<LightSource>& lightSource);
@@ -57,9 +56,9 @@ private:
 
 // command interface
 public:
+	explicit ALight(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
-	static std::unique_ptr<ALight> ciLoad(const InputPacket& packet);
 };
 
 }// end namespace ph

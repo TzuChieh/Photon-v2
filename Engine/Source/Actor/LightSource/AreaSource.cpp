@@ -119,14 +119,14 @@ AreaSource::AreaSource(const InputPacket& packet) :
 
 	if(packet.isPrototypeMatched(rgbInput))
 	{
-		m_color.setLinearSrgb(packet.getVector3("linear-srgb"));
+		m_color.setLinearSrgb(packet.getVector3("linear-srgb"), EQuantity::EMR);
 		m_numWatts = packet.getReal("watts");
 	}
 	else
 	{
 		std::cerr << "warning: at AreaSource ctor, "
 		          << "invalid input format" << std::endl;
-		m_color.setLinearSrgb(Vector3R(1, 1, 1));
+		m_color.setLinearSrgb(Vector3R(1, 1, 1), EQuantity::EMR);
 		m_numWatts = 100.0_r;
 	}
 }

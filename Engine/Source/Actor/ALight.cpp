@@ -38,8 +38,6 @@ ALight::ALight(const ALight& other) :
 	m_lightSource(other.m_lightSource)
 {}
 
-ALight::~ALight() = default;
-
 ALight& ALight::operator = (ALight rhs)
 {
 	swap(*this, rhs);
@@ -178,8 +176,8 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 	{
 		const StaticAffineTransform& baseLW = StaticAffineTransform::makeForward(m_localToWorld);
 
-		sanifiedGeometry = geometry->genTransformApplied(baseLW);
-		if(sanifiedGeometry != nullptr)
+		sanifiedGeometry = geometry->genTransformed(baseLW);
+		if(!sanifiedGeometry)
 		{
 			// TODO: combine identity transforms...
 			*out_baseLW = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeIdentity());
@@ -217,6 +215,17 @@ void swap(ALight& first, ALight& second)
 	swap(first.m_lightSource,                second.m_lightSource);
 }
 
+// command interface
+
+ALight::ALight(const InputPacket& packet) : 
+	PhysicalActor(packet),
+	m_lightSource(nullptr)
+{
+	m_lightSource = packet.get<LightSource>(
+		"light-source",
+		DataTreatment(EDataImportance::REQUIRED, "ALight requires at least a LightSource"));
+}
+
 SdlTypeInfo ALight::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "light");
@@ -224,9 +233,10 @@ SdlTypeInfo ALight::ciTypeInfo()
 
 void ALight::ciRegister(CommandRegister& cmdRegister)
 {
-	SdlLoader loader;
-	loader.setFunc<ALight>(ciLoad);
-	cmdRegister.setLoader(loader);
+	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
+	{
+		return std::make_unique<ALight>(packet);
+	}));
 
 	SdlExecutor translateSE;
 	translateSE.setName("translate");
@@ -242,15 +252,6 @@ void ALight::ciRegister(CommandRegister& cmdRegister)
 	scaleSE.setName("scale");
 	scaleSE.setFunc<ALight>(ciScale);
 	cmdRegister.addExecutor(scaleSE);
-}
-
-std::unique_ptr<ALight> ALight::ciLoad(const InputPacket& packet)
-{
-	const auto lightSource = packet.get<LightSource>(
-		"light-source", 
-		DataTreatment(EDataImportance::REQUIRED, "ALight requires at least a LightSource"));
-
-	return std::make_unique<ALight>(lightSource);
 }
 
 }// end namespace ph

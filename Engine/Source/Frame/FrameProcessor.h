@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Frame/Operator/FrameOperator.h"
-#include "Frame/TFrame.h"
+#include "Frame/FrameProcessingPipeline.h"
 
 #include <vector>
 #include <memory>
@@ -9,15 +8,25 @@
 namespace ph
 {
 
+// FIXME: if frame processor is used concurrently, things may break
+// if some frame operators used cached data internally, need to solve
+// this issue
+
 class FrameProcessor final 
 {
 public:
-	void process(HdrRgbFrame& frame) const;
+	using PipelineId = std::size_t;
 
-	void appendOperator(const std::shared_ptr<FrameOperator>& op);
+	void process(HdrRgbFrame& frame, PipelineId pipeline) const;
+
+	PipelineId addPipeline();
+	FrameProcessingPipeline* getPipeline(PipelineId pipeline);
+	const FrameProcessingPipeline* getPipeline(PipelineId pipeline) const;
 
 private:
-	std::vector<std::shared_ptr<FrameOperator>> m_operators;
+	std::vector<FrameProcessingPipeline> m_pipelines;
+
+	bool checkPipelineId(PipelineId id) const;
 };
 
 }// end namespace ph

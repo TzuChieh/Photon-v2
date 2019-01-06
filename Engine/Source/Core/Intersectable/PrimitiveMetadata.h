@@ -23,7 +23,6 @@ public:
 
 	// Adds a channel to the metadata. Returns a channel ID that can be used
 	// to access the just added channel.
-	//
 	uint32 addChannel(const PrimitiveChannel& channel);
 
 	void setChannel(uint32 channelId, const PrimitiveChannel& channel);

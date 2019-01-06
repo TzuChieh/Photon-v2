@@ -15,9 +15,8 @@ class LdrPictureImage final : public PictureImage, public TCommandInterface<LdrP
 public:
 	LdrPictureImage();
 	explicit LdrPictureImage(const LdrRgbFrame& picture);
-	virtual ~LdrPictureImage() override;
 
-	virtual std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(
+	std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(
 		CookingContext& context) const override;
 
 	void setPicture(const LdrRgbFrame& picture);

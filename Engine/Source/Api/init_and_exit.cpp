@@ -1,6 +1,7 @@
 #include "Api/init_and_exit.h"
 #include "Api/ApiDatabase.h"
 #include "Core/Quantity/ColorSpace.h"
+#include "Common/Logger.h"
 
 // geometries
 #include "Actor/Geometry/Geometry.h"
@@ -9,6 +10,9 @@
 #include "Actor/Geometry/GTriangleMesh.h"
 #include "Actor/Geometry/GMengerSponge.h"
 #include "Actor/Geometry/GInfiniteSphere.h"
+#include "Actor/Geometry/GCuboid.h"
+#include "Actor/Geometry/GEmpty.h"
+#include "Actor/Geometry/GeometrySoup.h"
 
 // materials
 #include "Actor/Material/Material.h"
@@ -41,6 +45,8 @@
 #include "Actor/AModel.h"
 #include "Actor/ALight.h"
 #include "Actor/ADome.h"
+#include "Actor/APhantomModel.h"
+#include "Actor/ATransformedInstance.h"
 
 // images
 #include "Actor/Image/Image.h"
@@ -86,9 +92,15 @@
 namespace ph
 {
 
+namespace
+{
+	const Logger logger(LogSender("Init & Exit"));
+}
+
 void init_core_infrastructure()
 {
-	std::cout << "initializing color transform functions" << std::endl;
+	logger.log("initializing color transform functions...");
+
 	ColorSpace::init();
 }
 
@@ -107,6 +119,9 @@ bool init_command_parser()
 	register_command_interface<GTriangleMesh>();
 	register_command_interface<GMengerSponge>();
 	register_command_interface<GInfiniteSphere>();
+	register_command_interface<GCuboid>();
+	register_command_interface<GEmpty>();
+	register_command_interface<GeometrySoup>();
 
 	// materials
 	register_command_interface<Material>();
@@ -139,6 +154,8 @@ bool init_command_parser()
 	register_command_interface<AModel>();
 	register_command_interface<ALight>();
 	register_command_interface<ADome>();
+	register_command_interface<APhantomModel>();
+	register_command_interface<ATransformedInstance>();
 
 	// images
 	register_command_interface<Image>();

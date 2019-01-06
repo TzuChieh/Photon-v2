@@ -15,6 +15,4 @@ ConductorDielectricFresnel::ConductorDielectricFresnel(
 	m_iorOuter(iorOuter), m_iorInner(iorInner), m_iorInnerK(iorInnerK)
 {}
 
-ConductorDielectricFresnel::~ConductorDielectricFresnel() = default;
-
 }// end namespace ph

@@ -10,14 +10,11 @@ class LinearSrgbSpectralStrength final :
 	public TAbstractSpectralStrength<LinearSrgbSpectralStrength, 3>
 {
 public:
-	typedef TAbstractSpectralStrength<LinearSrgbSpectralStrength, 3> Parent;
+	using Parent = TAbstractSpectralStrength<LinearSrgbSpectralStrength, 3>;
 
-	LinearSrgbSpectralStrength();
-	LinearSrgbSpectralStrength(const LinearSrgbSpectralStrength& other);
-	using Parent::TAbstractSpectralStrength;
-	virtual inline ~LinearSrgbSpectralStrength() override = default;
-
-	using Parent::operator = ;
+	inline LinearSrgbSpectralStrength() = default;
+	inline LinearSrgbSpectralStrength(const LinearSrgbSpectralStrength& other) = default;
+	using Parent::Parent;
 
 	Vector3R impl_genLinearSrgb(EQuantity valueType) const;
 	void impl_setLinearSrgb(const Vector3R& rgb, EQuantity valueType);

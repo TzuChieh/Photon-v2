@@ -25,7 +25,7 @@ inline TVector3<T> TVector3<T>::weightedSum(const TVector3& vA, const T wA,
 }
 
 template<typename T>
-TVector3<T> TVector3<T>::lerp(const TVector3& vA, const TVector3& vB, const T parametricT)
+inline TVector3<T> TVector3<T>::lerp(const TVector3& vA, const TVector3& vB, const T parametricT)
 {
 	const T oneMinusT = 1 - parametricT;
 	return TVector3(vA.x * oneMinusT + vB.x * parametricT, 
@@ -34,32 +34,14 @@ TVector3<T> TVector3<T>::lerp(const TVector3& vA, const TVector3& vB, const T pa
 }
 
 template<typename T>
-inline TVector3<T>::TVector3() : 
-	x(0), y(0), z(0)
-{
-
-}
-
-template<typename T>
 inline TVector3<T>::TVector3(const T x, const T y, const T z) : 
 	x(x), y(y), z(z)
-{
-
-}
+{}
 
 template<typename T>
 inline TVector3<T>::TVector3(const T value) :
 	x(value), y(value), z(value)
-{
-
-}
-
-template<typename T>
-inline TVector3<T>::TVector3(const TVector3& other) : 
-	x(other.x), y(other.y), z(other.z)
-{
-
-}
+{}
 
 template<typename T>
 template<typename U>
@@ -67,12 +49,10 @@ inline TVector3<T>::TVector3(const TVector3<U>& other) :
 	x(static_cast<T>(other.x)), 
 	y(static_cast<T>(other.y)), 
 	z(static_cast<T>(other.z))
-{
-
-}
+{}
 
 template<typename T>
-TVector3<T> TVector3<T>::rotate(const TQuaternion<T>& rotation) const
+inline TVector3<T> TVector3<T>::rotate(const TQuaternion<T>& rotation) const
 {
 	const TQuaternion<T>& conjugatedRotation = rotation.conjugate();
 	const TQuaternion<T> result = rotation.mul(*this).mulLocal(conjugatedRotation);
@@ -81,8 +61,8 @@ TVector3<T> TVector3<T>::rotate(const TQuaternion<T>& rotation) const
 }
 
 template<typename T>
-void TVector3<T>::rotate(const TQuaternion<T>& rotation, 
-                         TVector3* const out_result) const
+inline void TVector3<T>::rotate(const TQuaternion<T>& rotation,
+                                TVector3* const out_result) const
 {
 	PH_ASSERT(out_result != nullptr && out_result != this);
 
@@ -725,16 +705,6 @@ inline const T& TVector3<T>::operator [] (const int axisIndex) const
 	}
 
 	return x;
-}
-
-template<typename T>
-inline TVector3<T>& TVector3<T>::operator = (const TVector3& rhs)
-{
-	x = rhs.x;
-	y = rhs.y;
-	z = rhs.z;
-
-	return *this;
 }
 
 template<typename T>

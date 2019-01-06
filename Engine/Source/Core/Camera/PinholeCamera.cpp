@@ -12,10 +12,9 @@
 namespace ph
 {
 
-PinholeCamera::~PinholeCamera() = default;
-
 void PinholeCamera::genSensedRay(const Vector2R& filmNdcPos, Ray* const out_ray) const
 {
+	PH_ASSERT(out_ray);
 	out_ray->setDirection(genSensedRayDir(filmNdcPos));
 	out_ray->setOrigin(getPinholePos());
 	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
@@ -33,9 +32,19 @@ void PinholeCamera::genSensedRay(const Vector2R& filmNdcPos, Ray* const out_ray)
 
 Vector3R PinholeCamera::genSensedRayDir(const Vector2R& filmNdcPos) const
 {
-	Vector3R filmPos;
-	m_filmToWorld->transformP(Vector3R(filmNdcPos.x, filmNdcPos.y, 0), &filmPos);
-	return filmPos.sub(getPinholePos()).normalizeLocal();
+	// Direction vector is computed in camera space then transformed to world
+	// space for better numerical precision. Subtracting two world space 
+	// points can lead to high numerical error when camera is far from origin
+	// (edge aliasing-like artifacts can be observed ~100 meters away from origin).
+
+	Vector3R filmPosMM;
+	m_filmToCamera->transformP(Vector3R(filmNdcPos.x, filmNdcPos.y, 0), &filmPosMM);
+
+	// subtracting pinhole position is omitted since it is at (0, 0, 0) mm
+	Vector3R sensedRayDir;
+	m_cameraToWorld->transformV(filmPosMM, &sensedRayDir);
+
+	return sensedRayDir.normalize();
 }
 
 void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3R& targetPos, Vector2R* const out_filmCoord, Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const

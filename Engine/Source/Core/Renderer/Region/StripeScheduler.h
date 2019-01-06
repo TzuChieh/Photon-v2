@@ -1,21 +1,31 @@
 #pragma once
 
 #include "Core/Renderer/Region/WorkScheduler.h"
+#include "Math/math.h"
+#include "Common/assertion.h"
 
 #include <algorithm>
 
 namespace ph
 {
 
+/*
+	Divide work region into stripes, each stripe has the complete depth. This
+	scheduler is essentially a plate scheduler, just in different dimensions.
+*/
 class StripeScheduler : public WorkScheduler
 {
 public:
 	StripeScheduler();
-	StripeScheduler(std::size_t numWorkers, const WorkVolume& totalWorkVolume);
+	StripeScheduler(
+		std::size_t       numWorkers, 
+		const WorkVolume& totalWorkVolume,
+		int               slicedAxis);
 
 private:
-	std::size_t m_remainingWidth;
-	std::size_t m_perWorkerWidth;
+	int         m_slicedAxis;
+	std::size_t m_numScheduled;
+	std::size_t m_sideLength;
 
 	bool scheduleOne(WorkVolume* out_workVolume) override;
 };
@@ -26,36 +36,39 @@ inline StripeScheduler::StripeScheduler() :
 	WorkScheduler()
 {}
 
-inline StripeScheduler::StripeScheduler(const std::size_t numWorkers, const WorkVolume& totalWorkVolume) :
-	WorkScheduler(numWorkers, totalWorkVolume)
-{
-	m_remainingWidth = std::max(totalWorkVolume.getWorkArea().getWidth(), 
-	                            totalWorkVolume.getWorkArea().getHeight());
-	m_perWorkerWidth = std::max(m_remainingWidth / numWorkers, std::size_t(1));
-}
+inline StripeScheduler::StripeScheduler(
+	const std::size_t numWorkers,
+	const WorkVolume& totalWorkVolume,
+	const int         slicedAxis) :
+
+	WorkScheduler(numWorkers, totalWorkVolume),
+
+	m_slicedAxis(slicedAxis),
+	m_numScheduled(0),
+	m_sideLength(static_cast<std::size_t>(m_totalWorkVolume.getRegion().getExtents()[slicedAxis]))
+{}
 
 inline bool StripeScheduler::scheduleOne(WorkVolume* const out_workVolume)
 {
-	/*if(m_remainingWidth == 0)
+	if(m_numScheduled < m_numWorkers)
 	{
-		return false;
-	}
+		PH_ASSERT(out_workVolume);
 
-	if(m_remainingWidth >= m_perWorkerWidth)
-	{
-		TAABB2D<std::size_t> min = m_totalWorkVolume.getWorkArea().maxVertex;
-		*out_workVolume = WorkVolume(m_totalWorkVolume.getWorkArea(), depthPerWorker);
-		m_remainingDepth -= depthPerWorker;
+		const auto sideRange = math::ith_evenly_divided_range(m_numScheduled, m_sideLength, m_numWorkers);
+
+		Region stripRegion = m_totalWorkVolume.getRegion();
+		stripRegion.minVertex[m_slicedAxis] += static_cast<int64>(sideRange.first);
+		stripRegion.maxVertex[m_slicedAxis] -= static_cast<int64>(m_sideLength - sideRange.second);
+
+		*out_workVolume = WorkVolume(stripRegion, m_totalWorkVolume.getDepth());
+
+		++m_numScheduled;
 		return true;
 	}
 	else
 	{
-		*out_workVolume = WorkVolume(m_totalWorkVolume.getWorkArea(), m_remainingDepth);
-		m_remainingDepth = 0;
-		return true;
-	}*/
-
-	return false;
+		return false;
+	}
 }
 
 }// end namespace ph

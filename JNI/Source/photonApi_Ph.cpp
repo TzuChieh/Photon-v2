@@ -159,8 +159,22 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phSetWorkingDirectory
 	static_assert(sizeof(PHchar) == sizeof(char), 
 	              "character size mismatch between Photon's char and C++'s.");
 
-	const PHchar* workingDirectoryString = env->GetStringUTFChars(workingDirectory, JNI_FALSE);
-	phSetWorkingDirectory(static_cast<PHuint64>(engineId), workingDirectoryString);
+	const char* workingDirectoryString = env->GetStringUTFChars(workingDirectory, nullptr);
+	if(workingDirectoryString)
+	{
+		phSetWorkingDirectory(static_cast<PHuint64>(engineId), workingDirectoryString);
+
+	}
+	else
+	{
+		if(env->ExceptionCheck())
+		{
+			env->ExceptionDescribe();
+			env->ExceptionClear();
+		}
+
+		std::cerr << "warning: " << "GetStringUTFChars() returns null for engine " << std::to_string(engineId) << std::endl;
+	}
 	env->ReleaseStringUTFChars(workingDirectory, workingDirectoryString);
 }
 

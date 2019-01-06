@@ -7,13 +7,13 @@ namespace ph
 {
 
 template<typename T>
-inline TMatrix3<T>::TMatrix3() : 
-	m{}
-{}
+inline TMatrix3<T> TMatrix3<T>::makeIdentity()
+{
+	return TMatrix3().initIdentity();
+}
 
 template<typename T>
-inline TMatrix3<T>::TMatrix3(const T value) :
-	m()
+inline TMatrix3<T>::TMatrix3(const T value)
 {
 	m[0][0] = value; m[0][1] = value; m[0][2] = value;
 	m[1][0] = value; m[1][1] = value; m[1][2] = value;
@@ -26,14 +26,8 @@ inline TMatrix3<T>::TMatrix3(const Elements& elements) :
 {}
 
 template<typename T>
-inline TMatrix3<T>::TMatrix3(const TMatrix3& other) : 
-	m(other.m)
-{}
-
-template<typename T>
 template<typename U>
-inline TMatrix3<T>::TMatrix3(const TMatrix3<U>& other) : 
-	m()
+inline TMatrix3<T>::TMatrix3(const TMatrix3<U>& other)
 {
 	for(std::size_t i = 0; i < 3; ++i)
 	{

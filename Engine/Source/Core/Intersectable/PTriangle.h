@@ -13,17 +13,16 @@ class PTriangle final : public Primitive
 {
 public:
 	PTriangle(const PrimitiveMetadata* metadata, const Vector3R& vA, const Vector3R& vB, const Vector3R& vC);
-	virtual ~PTriangle() override;
 
-	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
-	virtual void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
-	                                    HitDetail* out_detail) const override;
-	virtual bool isIntersectingVolumeConservative(const AABB3D& volume) const override;
-	virtual void calcAABB(AABB3D* out_aabb) const override;
-	virtual real calcPositionSamplePdfA(const Vector3R& position) const override;
-	virtual void genPositionSample(PositionSample* out_sample) const override;
+	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+	void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
+	                            HitDetail* out_detail) const override;
+	bool isIntersectingVolumeConservative(const AABB3D& volume) const override;
+	void calcAABB(AABB3D* out_aabb) const override;
+	real calcPositionSamplePdfA(const Vector3R& position) const override;
+	void genPositionSample(PositionSample* out_sample) const override;
 
-	virtual real calcExtendedArea() const override;
+	real calcExtendedArea() const override;
 
 	// TODO: update internal data like area when setters are called
 

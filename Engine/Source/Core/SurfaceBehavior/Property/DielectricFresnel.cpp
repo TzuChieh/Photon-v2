@@ -12,8 +12,6 @@ DielectricFresnel::DielectricFresnel(const real iorOuter, const real iorInner) :
 
 }
 
-DielectricFresnel::~DielectricFresnel() = default;
-
 bool DielectricFresnel::calcRefractDir(const Vector3R& I, const Vector3R& N,
                                              Vector3R* const out_refractDir) const
 {

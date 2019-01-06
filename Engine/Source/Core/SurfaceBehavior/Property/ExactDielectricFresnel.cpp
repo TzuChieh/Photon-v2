@@ -8,8 +8,6 @@ ExactDielectricFresnel::ExactDielectricFresnel(const real iorOuter, const real i
 	DielectricFresnel(iorOuter, iorInner)
 {}
 
-ExactDielectricFresnel::~ExactDielectricFresnel() = default;
-
 void ExactDielectricFresnel::calcReflectance(const real cosThetaIncident,
                                              SpectralStrength* const out_reflectance) const
 {

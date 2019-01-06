@@ -14,9 +14,8 @@ class PhysicalActor : public Actor, public TCommandInterface<PhysicalActor>
 public:
 	PhysicalActor();
 	PhysicalActor(const PhysicalActor& other);
-	virtual ~PhysicalActor() override;
 
-	virtual CookedUnit cook(CookingContext& context) const = 0;
+	CookedUnit cook(CookingContext& context) const override = 0;
 
 	// FIXME: precision loss using real
 	void translate(const Vector3R& translation);
@@ -44,6 +43,8 @@ protected:
 
 // command interface
 public:
+	explicit PhysicalActor(const InputPacket& packet);
+
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 
@@ -92,7 +93,7 @@ public:
 			<description>The amount of the rotation.</description>
 		</input>
 		<input name="factor" type="quaternion">
-			<description>Specifying the rotating axis and amount with a quaternion directly.</description>
+			<description>Specifying the rotation with a quaternion directly.</description>
 		</input>
 	</command>
 

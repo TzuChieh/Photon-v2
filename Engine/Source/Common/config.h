@@ -1,7 +1,7 @@
 #pragma once
 
 ///////////////////////////////////////////////////////////////////////////////
-// Core Compiling Mode:
+// Core Settings:
 //
 
 // Define this for debug mode build. Assertions will be on in this mode.
@@ -9,6 +9,9 @@
 
 // Define this if such behavior is desired.
 #define PH_ABORT_ON_ASSERTION_FAILED
+
+// Performing a stack trae when assertion failed.
+#define PH_PRINT_STACK_TRACE_ON_ASSERTION_FAILED
 
 // Log as soon as possible (primarily for debugging).
 //#define PH_UNBUFFERED_LOG
@@ -31,18 +34,21 @@
 #define PH_SPECTRUM_SAMPLED_MIN_WAVELENGTH_NM 350
 #define PH_SPECTRUM_SAMPLED_MAX_WAVELENGTH_NM 850
 #define PH_SPECTRUM_SAMPLED_NUM_SAMPLES       100
-#define PH_INTERSECTION_PROBE_DEPTH           8
-#define PH_INTERSECTION_PROBE_REAL_CACHE_SIZE 8
+#define PH_HIT_PROBE_DEPTH                    8
+
+// Number of available bytes for a probe's cache. Note that a byte is not 
+// necessarily 8-bit.
+#define PH_HIT_PROBE_CACHE_BYTES 12
+
+#include <string>
 
 namespace ph
 {
 
-class Path;
-
 class Config final
 {
 public:
-	static Path& CORE_RESOURCE_DIRECTORY();
+	static std::string& CORE_RESOURCE_DIRECTORY();
 };
 
 }// end namespace ph

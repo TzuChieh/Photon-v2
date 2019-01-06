@@ -25,14 +25,12 @@ public:
 		const RigidTransform* localToWorld,
 		const RigidTransform* worldToLocal);
 
-	virtual ~TransformedPrimitive() override;
-
-	virtual inline bool isIntersecting(const Ray& ray) const override
+	inline bool isIntersecting(const Ray& ray) const override
 	{
 		return m_intersectable.isIntersecting(ray);
 	}
 
-	virtual inline bool isIntersecting(const Ray& ray, HitProbe& probe) const override
+	inline bool isIntersecting(const Ray& ray, HitProbe& probe) const override
 	{
 		if(m_intersectable.isIntersecting(ray, probe))
 		{
@@ -45,7 +43,7 @@ public:
 		}
 	}
 
-	virtual inline void calcIntersectionDetail(
+	inline void calcIntersectionDetail(
 		const Ray&       ray,
 		HitProbe&        probe,
 		HitDetail* const out_detail) const override
@@ -57,25 +55,25 @@ public:
 		out_detail->setMisc(this, out_detail->getUvw(), out_detail->getRayT());
 	}
 
-	virtual inline bool isIntersectingVolumeConservative(const AABB3D& aabb) const override
+	inline bool isIntersectingVolumeConservative(const AABB3D& aabb) const override
 	{
 		return m_intersectable.isIntersectingVolumeConservative(aabb);
 	}
 
-	virtual inline void calcAABB(AABB3D* const out_aabb) const override
+	inline void calcAABB(AABB3D* const out_aabb) const override
 	{
 		m_intersectable.calcAABB(out_aabb);
 	}
 
-	virtual real calcPositionSamplePdfA(const Vector3R& position) const override;
-	virtual void genPositionSample(PositionSample* out_sample) const override;
+	real calcPositionSamplePdfA(const Vector3R& position) const override;
+	void genPositionSample(PositionSample* out_sample) const override;
 
 	bool uvwToPosition(
 		const Vector3R& uvw,
 		const Vector3R& observationPoint,
 		Vector3R*       out_position) const override;
 
-	virtual inline real calcExtendedArea() const override
+	inline real calcExtendedArea() const override
 	{
 		// does not change under rigid transform
 		return m_primitive->calcExtendedArea();

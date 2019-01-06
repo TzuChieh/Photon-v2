@@ -26,6 +26,10 @@ public:
 	{
 		return m_intersectables;
 	}
+	const std::vector<std::unique_ptr<Intersectable>>& intersectables() const
+	{
+		return m_intersectables;
+	}
 
 	void addIntersectable(std::unique_ptr<Intersectable> intersectable);
 	void setPrimitiveMetadata(std::unique_ptr<PrimitiveMetadata> metadata);

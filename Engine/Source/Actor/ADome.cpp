@@ -26,8 +26,6 @@ ADome::ADome(const ADome& other) :
 	m_sphericalEnvMap(other.m_sphericalEnvMap)
 {}
 
-ADome::~ADome() = default;
-
 CookedUnit ADome::cook(CookingContext& context) const
 {
 	auto lightSource = std::make_shared<DomeSource>(m_sphericalEnvMap);
@@ -58,6 +56,13 @@ void swap(ADome& first, ADome& second)
 
 // command interface
 
+ADome::ADome(const InputPacket& packet) : 
+	PhysicalActor(packet),
+	m_sphericalEnvMap()
+{
+	m_sphericalEnvMap = packet.getStringAsPath("env-map", Path(), DataTreatment::REQUIRED());
+}
+
 SdlTypeInfo ADome::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "dome");
@@ -65,9 +70,10 @@ SdlTypeInfo ADome::ciTypeInfo()
 
 void ADome::ciRegister(CommandRegister& cmdRegister)
 {
-	SdlLoader loader;
-	loader.setFunc<ADome>(ciLoad);
-	cmdRegister.setLoader(loader);
+	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
+	{
+		return std::make_unique<ADome>(packet);
+	}));
 
 	SdlExecutor translateSE;
 	translateSE.setName("translate");
@@ -83,13 +89,6 @@ void ADome::ciRegister(CommandRegister& cmdRegister)
 	scaleSE.setName("scale");
 	scaleSE.setFunc<ADome>(ciScale);
 	cmdRegister.addExecutor(scaleSE);
-}
-
-std::unique_ptr<ADome> ADome::ciLoad(const InputPacket& packet)
-{
-	const Path& envMapPath = packet.getStringAsPath("env-map", Path(), DataTreatment::REQUIRED());
-
-	return std::make_unique<ADome>(envMapPath);
 }
 
 }// end namespace ph

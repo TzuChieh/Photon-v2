@@ -28,8 +28,6 @@ SuperpositionedPrimitive::SuperpositionedPrimitive(
 	m_mainPrimitive = primitives[mainPrimitiveIndex];
 }
 
-SuperpositionedPrimitive::~SuperpositionedPrimitive() = default;
-
 bool SuperpositionedPrimitive::isIntersecting(const Ray& ray) const
 {
 	PH_ASSERT(m_mainPrimitive != nullptr);

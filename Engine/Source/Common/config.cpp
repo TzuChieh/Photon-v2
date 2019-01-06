@@ -1,13 +1,12 @@
 #include "Common/config.h"
-#include "FileIO/FileSystem/Path.h"
 #include "Common/assertion.h"
 
 namespace ph
 {
 
-Path& Config::CORE_RESOURCE_DIRECTORY()
+std::string& Config::CORE_RESOURCE_DIRECTORY()
 {
-	static Path directory("./Resource/");
+	static std::string directory("./Resource/");
 
 	// TODO: assert is folder
 	return directory;

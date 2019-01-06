@@ -12,8 +12,6 @@ JRToneMapping::JRToneMapping() :
 	m_exposure(1.0_r)
 {}
 
-JRToneMapping::~JRToneMapping() = default;
-
 void JRToneMapping::operate(HdrRgbFrame& frame) const
 {
 	frame.forEachPixel([this](const HdrRgbFrame::Pixel& pixel)

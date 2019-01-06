@@ -15,9 +15,8 @@ class HdrPictureImage final : public PictureImage, public TCommandInterface<HdrP
 public:
 	HdrPictureImage();
 	explicit HdrPictureImage(const HdrRgbFrame& picture);
-	virtual ~HdrPictureImage() override;
 
-	virtual std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(
+	std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(
 		CookingContext& context) const override;
 
 	void setPicture(const HdrRgbFrame& picture);

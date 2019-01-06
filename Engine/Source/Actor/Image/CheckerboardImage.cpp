@@ -12,8 +12,6 @@ CheckerboardImage::CheckerboardImage() :
 	m_numTilesX(2), m_numTilesY(2)
 {}
 
-CheckerboardImage::~CheckerboardImage() = default;
-
 std::shared_ptr<TTexture<real>> CheckerboardImage::genTextureReal(
 	CookingContext& context) const
 {

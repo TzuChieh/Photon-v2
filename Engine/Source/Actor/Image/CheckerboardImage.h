@@ -14,15 +14,14 @@ class CheckerboardImage final : public Image, public TCommandInterface<Checkerbo
 {
 public:
 	CheckerboardImage();
-	virtual ~CheckerboardImage() override;
 
-	virtual std::shared_ptr<TTexture<real>> genTextureReal(
+	std::shared_ptr<TTexture<real>> genTextureReal(
 		CookingContext& context) const override;
 
-	virtual std::shared_ptr<TTexture<Vector3R>> genTextureVector3R(
+	std::shared_ptr<TTexture<Vector3R>> genTextureVector3R(
 		CookingContext& context) const override;
 
-	virtual std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(
+	std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(
 		CookingContext& context) const override;
 
 	void setNumTiles(real numTilesX, real numTilesY);

@@ -10,15 +10,14 @@ namespace ph
 /*
 	An actor that represents the sky of the scene.
 */
-class ADome final : public PhysicalActor, public TCommandInterface<ADome>
+class ADome : public PhysicalActor, public TCommandInterface<ADome>
 {
 public:
 	ADome();
-	ADome(const Path& envMap);
+	explicit ADome(const Path& envMap);
 	ADome(const ADome& other);
-	virtual ~ADome() override;
 
-	virtual CookedUnit cook(CookingContext& context) const override;
+	CookedUnit cook(CookingContext& context) const override;
 
 	ADome& operator = (ADome rhs);
 
@@ -31,9 +30,9 @@ private:
 
 // command interface
 public:
+	explicit ADome(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
-	static std::unique_ptr<ADome> ciLoad(const InputPacket& packet);
 };
 
 }// end namespace ph

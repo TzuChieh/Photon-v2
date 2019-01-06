@@ -45,8 +45,6 @@ ExactConductorDielectricFresnel::ExactConductorDielectricFresnel(
 	setIors(iorOuter, iorInnerN, iorInnerK);
 }
 
-ExactConductorDielectricFresnel::~ExactConductorDielectricFresnel() = default;
-
 // Implementation follows the excellent blog post written by Sebastien Lagarde.
 // Reference: https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
 //

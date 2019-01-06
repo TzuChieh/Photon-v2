@@ -10,8 +10,6 @@ PictureImage::PictureImage() :
 	m_wrapMode(EImgWrapMode::REPEAT)
 {}
 
-PictureImage::~PictureImage() = default;
-
 PictureImage& PictureImage::setSampleMode(EImgSampleMode mode)
 {
 	m_sampleMode = mode;

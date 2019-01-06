@@ -21,14 +21,16 @@ public:
 	static constexpr std::size_t NUM_VALUES = N;
 
 public:
-	inline TAbstractSpectralStrength();
 	explicit inline TAbstractSpectralStrength(real value);
 	explicit inline TAbstractSpectralStrength(const std::array<real, 1>& value);
 	explicit inline TAbstractSpectralStrength(const TArithmeticArray<real, 1>& value);
 	explicit inline TAbstractSpectralStrength(const std::array<real, N>& values);
 	explicit inline TAbstractSpectralStrength(const TArithmeticArray<real, N>& values);
-	explicit inline TAbstractSpectralStrength(const TAbstractSpectralStrength& other);
-	virtual inline ~TAbstractSpectralStrength() = 0;
+
+protected:
+	inline TAbstractSpectralStrength() = default;
+	inline TAbstractSpectralStrength(const TAbstractSpectralStrength& other) = default;
+	inline ~TAbstractSpectralStrength() = default;
 
 public:
 	static DerivedType exp(const DerivedType& exponent);
@@ -101,8 +103,6 @@ public:
 
 protected:
 	TArithmeticArray<real, N> m_values;
-
-	inline TAbstractSpectralStrength& operator = (const TAbstractSpectralStrength& rhs);
 };
 
 }// end namespace ph

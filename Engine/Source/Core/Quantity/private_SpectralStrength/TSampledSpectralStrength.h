@@ -22,16 +22,13 @@ public:
 	static inline std::pair<real, real> lambdaRangeNmOf(std::size_t index);
 
 public:
-	typedef TAbstractSpectralStrength<TSampledSpectralStrength, N> Parent;
+	using Parent = TAbstractSpectralStrength<TSampledSpectralStrength, N>;
 
-	inline TSampledSpectralStrength();
-	inline TSampledSpectralStrength(const TSampledSpectralStrength& other);
-	using Parent::TAbstractSpectralStrength;
-	virtual inline ~TSampledSpectralStrength() override = default;
+	inline TSampledSpectralStrength() = default;
+	inline TSampledSpectralStrength(const TSampledSpectralStrength& other) = default;
+	using Parent::Parent;
 
 	//void asAveraged(const real* lambdasNm, const real* strengths, std::size_t numElements);
-
-	inline TSampledSpectralStrength& operator = (const TSampledSpectralStrength& rhs);
 
 	inline Vector3R impl_genLinearSrgb(EQuantity valueType) const;
 	inline void impl_setLinearSrgb(const Vector3R& rgb, EQuantity valueType);

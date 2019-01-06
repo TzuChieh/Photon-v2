@@ -28,28 +28,6 @@ lambdaRangeNmOf(const std::size_t index)
 }
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
-inline TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
-TSampledSpectralStrength() :
-	Parent(0)
-{}
-
-template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
-inline TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
-TSampledSpectralStrength(const TSampledSpectralStrength& other) :
-	Parent(other)
-{}
-
-template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
-inline auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
-operator = (const TSampledSpectralStrength& rhs)
-	-> TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>&
-{
-	this->Parent::operator = (rhs);
-
-	return *this;
-}
-
-template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
 inline auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
 impl_genLinearSrgb(const EQuantity valueType) const
 	-> Vector3R

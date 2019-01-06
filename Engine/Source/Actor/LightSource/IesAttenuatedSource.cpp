@@ -58,7 +58,7 @@ std::unique_ptr<Emitter> IesAttenuatedSource::genEmitter(
 			const real theta = (1.0_r - v) * PH_PI_REAL;
 
 			const real factor = iesData.sampleAttenuationFactor(theta, phi);
-			attenuationFactors.setPixel(x, y, TFrame<real, 1>::Pixel({factor}));
+			attenuationFactors.setPixel(x, y, TFrame<real, 1>::Pixel(factor));
 		}
 	}
 
