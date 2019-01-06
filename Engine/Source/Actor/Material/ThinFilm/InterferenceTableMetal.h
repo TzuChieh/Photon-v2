@@ -44,7 +44,7 @@ public:
 	complex_f angle_acos(complex_f n) { return r2a(acos(n)); }
 	complex_f a2r(complex_f a) { return a*(PI/180); } // angle to rad
 	complex_f r2a(complex_f r) { return r*(180/PI); } // rad to angle
-	float PI = 3.14159265;
+	float PI = 3.14159265f;
 	const int wl_min = 400;
 	const int wl_max = 700;
 	const int delta_wl = 10;

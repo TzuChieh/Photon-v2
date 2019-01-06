@@ -79,7 +79,7 @@ void ThinDielectricFilm::calcBsdfSample(
 	const real transmitFactor = transmittance.avg();
 	if(reflectFactor + transmitFactor <= 0.0_r)
 	{
-		out.setValidity(false);
+		out.setMeasurability(false);
 		return;
 	}
 	const real reflectProb = reflectFactor / (reflectFactor + transmitFactor);
