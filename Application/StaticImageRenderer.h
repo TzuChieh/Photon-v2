@@ -27,6 +27,7 @@ private:
 	std::string m_imageFilePath;
 	int         m_numRenderThreads;
 	bool        m_isPostProcessRequested;
+	float       m_outputPercentageProgress;
 
 	bool loadCommandsFromSceneFile() const;
 };
