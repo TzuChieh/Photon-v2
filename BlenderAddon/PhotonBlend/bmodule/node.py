@@ -683,8 +683,8 @@ class PhLayeredSurfaceNode(PhMaterialNode):
 				setter.set_ior_n(SDLReal(layer_node.ior_n))
 				setter.set_ior_k(SDLReal(layer_node.ior_k))
 			elif layer_node.ior_type == "RGB":
-				setter.set_ior_n(SDLVector3(layer_node.ior_n))
-				setter.set_ior_k(SDLVector3(layer_node.ior_k))
+				setter.set_ior_n(SDLVector3(layer_node.ior_n_rgb))
+				setter.set_ior_k(SDLVector3(layer_node.ior_k_rgb))
 			setter.set_depth(SDLReal(layer_node.depth))
 			setter.set_g(SDLReal(layer_node.g))
 			setter.set_sigma_a(SDLReal(layer_node.sigma_a))
