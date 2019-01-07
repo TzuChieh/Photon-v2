@@ -2,18 +2,27 @@
 #include "util.h"
 
 #include <iostream>
+#include <string_view>
+#include <limits>
 
 PH_CLI_NAMESPACE_BEGIN
 
+namespace
+{
+	constexpr std::string_view DEFAULT_SCENE_FILE_PATH         = "./scene.p2";
+	constexpr std::string_view DEFAULT_DEFAULT_IMAGE_FILE_PATH = "./rendered_scene.png";
+}
+
 CommandLineArguments::CommandLineArguments(const std::vector<std::string>& argv) : 
-	m_sceneFilePath         ("./scene.p2"),
-	m_imageFilePath         ("./rendered_scene.png"),
-	m_numRenderThreads      (1),
-	m_isPostProcessRequested(true),
-	m_isHelpMessageRequested(false),
-	m_isImageSeriesRequested(false),
-	m_wildcardStart         (""),
-	m_wildcardFinish        ("")
+	m_sceneFilePath           (DEFAULT_SCENE_FILE_PATH),
+	m_imageFilePath           (DEFAULT_DEFAULT_IMAGE_FILE_PATH),
+	m_numRenderThreads        (1),
+	m_isPostProcessRequested  (true),
+	m_isHelpMessageRequested  (false),
+	m_isImageSeriesRequested  (false),
+	m_wildcardStart           (""),
+	m_wildcardFinish          (""),
+	m_outputPercentageProgress(std::numeric_limits<float>::max())
 {
 	for(std::size_t i = 1; i < argv.size(); i++)
 	{
@@ -47,6 +56,23 @@ CommandLineArguments::CommandLineArguments(const std::vector<std::string>& argv)
 				{
 					std::cerr << "warning: bad number of threads <" << argv[i] << ">" << std::endl;
 					std::cerr << "use " << m_numRenderThreads << " instead" << std::endl;
+				}
+			}
+		}
+		else if(argv[i] == "-p")
+		{
+			i++;
+			if(i < argv.size())
+			{
+				const float outputPercentageProgress = std::stof(argv[i]);
+				if(0 < outputPercentageProgress && outputPercentageProgress < 100)
+				{
+					m_outputPercentageProgress = outputPercentageProgress;
+				}
+				else
+				{
+					std::cerr << "warning: intermediate output percentage specified <" 
+					          << outputPercentageProgress << "> is not sensible" << std::endl;
 				}
 			}
 		}
@@ -136,18 +162,30 @@ std::string CommandLineArguments::wildcardFinish() const
 	return m_wildcardFinish;
 }
 
+float CommandLineArguments::getOutputPercentageProgress() const
+{
+	return m_outputPercentageProgress;
+}
+
 void CommandLineArguments::printHelpMessage()
 {
 	std::cout << R"(
 
 	-s <path>      Specify path to scene file. To render an image series, you
 	               can specify "myScene*.p2" as <path> where * is a wildcard 
-	               for any string (and specify --series).
+	               for any string (--series is required in this case). 
+	               (default path: "./scene.p2")
 
 	-o <path>      Specify image output path. This should be a filename for
 	               single image and a path for image series.
+	               (default path: "./rendered_scene.png")
 
-	-t <number>    Set number of threads for rendering.
+	-t <number>    Set number of threads used for rendering.
+	               (default: single thread)
+
+	-p <number>    Output an intermediate image whenever the render has 
+	               progressed <number> %.
+	               (default: never output intermediate image)
 
 	--raw          Do not perform any post-processing.
 

@@ -22,7 +22,8 @@ StaticImageRenderer::StaticImageRenderer(const CommandLineArguments& args) :
 	m_sceneFilePath(),
 	m_imageFilePath(args.getImageFilePath()),
 	m_numRenderThreads(args.getNumRenderThreads()),
-	m_isPostProcessRequested(args.isPostProcessRequested())
+	m_isPostProcessRequested(args.isPostProcessRequested()),
+	m_outputPercentageProgress(args.getOutputPercentageProgress())
 {
 	phCreateEngine(&m_engineId, static_cast<PHuint32>(m_numRenderThreads));
 
@@ -48,29 +49,44 @@ void StaticImageRenderer::render() const
 		phRender(m_engineId);
 	});
 
+	PHuint32 filmWpx, filmHpx;
+	phGetFilmDimension(m_engineId, &filmWpx, &filmHpx);
+
 	std::atomic<bool> isRenderingCompleted = false;
 	std::thread queryThread([&]()
 	{
-		/*PHuint32 x, y, w, h;
-		int regionStatus = phAsyncPollUpdatedFilmRegion(engineId, &x, &y, &w, &h);
-		if(regionStatus != PH_FILM_REGION_STATUS_INVALID)
-		{
-			std::cout << "xywh: " << x << ", " << y << ", " << w << ", " << h << std::endl;
-		}*/
-
 		using namespace std::chrono_literals;
 
-		PHfloat32 currentProgress = 0, samplesPerSecond = 0;
+		// OPT: does not need to create this frame if intermediate frame is not requested
+		PHuint64 queryFrameId;
+		phCreateFrame(&queryFrameId, filmWpx, filmHpx);
+
 		PHfloat32 lastProgress = 0;
+		PHfloat32 lastOutputProgress = 0;
 		while(!isRenderingCompleted)
 		{
+			PHfloat32 currentProgress;
+			PHfloat32 samplesPerSecond;
 			phAsyncGetRendererStatistics(m_engineId, &currentProgress, &samplesPerSecond);
 
-			if((currentProgress - lastProgress) > 1.0f)
+			if(currentProgress - lastProgress > 1.0f)
 			{
 				lastProgress = currentProgress;
 				std::cout << "progress: " << currentProgress << " % | " 
 				          << "samples/sec: " << samplesPerSecond << std::endl;
+			}
+
+			if(currentProgress - lastOutputProgress > m_outputPercentageProgress)
+			{
+				PHuint32 qx, qy, qw, qh;
+				int regionStatus = phAsyncPollUpdatedFilmRegion(m_engineId, &qx, &qy, &qw, &qh);
+				if(regionStatus != PH_FILM_REGION_STATUS_INVALID)
+				{
+					phAsyncDevelopFilmRegion(m_engineId, queryFrameId, qx, qy, qw, qh, LIGHT_ENERGY);
+					phSaveFrame(queryFrameId, (m_imageFilePath + "_" + std::to_string(currentProgress) + "%.png").c_str());
+				}
+
+				lastOutputProgress = currentProgress;
 			}
 
 			std::this_thread::sleep_for(2s);
@@ -80,9 +96,6 @@ void StaticImageRenderer::render() const
 	renderThread.join();
 	isRenderingCompleted = true;
 	std::cout << "render completed" << std::endl;
-
-	PHuint32 filmWpx, filmHpx;
-	phGetFilmDimension(m_engineId, &filmWpx, &filmHpx);
 
 	PHuint64 frameId;
 	phCreateFrame(&frameId, filmWpx, filmHpx);
