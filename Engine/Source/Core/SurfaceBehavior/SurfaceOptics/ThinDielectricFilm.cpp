@@ -11,17 +11,14 @@ namespace ph
 {
 
 ThinDielectricFilm::ThinDielectricFilm(
-	const std::shared_ptr<DielectricFresnel>& fresnel,
 	const std::vector<SampledSpectralStrength>& reflectanceTable,
 	const std::vector<SampledSpectralStrength>& transmittanceTable) :
 
 	SurfaceOptics(),
 
-	m_fresnel(fresnel),
 	m_reflectanceTable(reflectanceTable),
 	m_transmittanceTable(transmittanceTable)
 {
-	PH_ASSERT(fresnel);
 	PH_ASSERT_EQ(reflectanceTable.size(), 91);
 	PH_ASSERT_EQ(transmittanceTable.size(), 91);
 
@@ -61,9 +58,31 @@ void ThinDielectricFilm::calcBsdfSample(
 
 	const Vector3R& N = in.X.getShadingNormal();
 
-	SpectralStrength F;
-	m_fresnel->calcReflectance(N.dot(in.V), &F);
-	const real reflectProb = F.avg();
+	const Vector3R reflectDir  = in.V.mul(-1.0_r).reflect(N).normalizeLocal();
+	const Vector3R transmitDir = in.V.mul(-1.0_r);
+
+	const real cosIncident     = std::min(N.absDot(reflectDir), 1.0_r);
+	const real incidentDegrees = math::to_degrees(std::acos(cosIncident));
+	const real fraction        = math::fractional_part(incidentDegrees);
+
+	const std::size_t tableIndex0 = math::clamp(
+		static_cast<std::size_t>(incidentDegrees), std::size_t(0), std::size_t(90));
+	const std::size_t tableIndex1 = math::clamp(
+		tableIndex0 + 1, std::size_t(0), std::size_t(90));
+
+	const SampledSpectralStrength& reflectance   = 
+		m_reflectanceTable[tableIndex0] * (1 - fraction) + m_reflectanceTable[tableIndex1] * fraction;
+	const SampledSpectralStrength& transmittance =
+		m_transmittanceTable[tableIndex0] * (1 - fraction) + m_transmittanceTable[tableIndex1] * fraction;
+
+	const real reflectFactor  = reflectance.avg();
+	const real transmitFactor = transmittance.avg();
+	if(reflectFactor + transmitFactor <= 0.0_r)
+	{
+		out.setMeasurability(false);
+		return;
+	}
+	const real reflectProb = reflectFactor / (reflectFactor + transmitFactor);
 
 	bool sampleReflect  = canReflect;
 	bool sampleTransmit = canTransmit;
@@ -84,39 +103,34 @@ void ThinDielectricFilm::calcBsdfSample(
 
 	PH_ASSERT(sampleReflect || sampleTransmit);
 
-	// calculate reflected L
-	out.L = in.V.mul(-1.0_r).reflect(N).normalizeLocal();
-
-	real degree = math::to_degrees(N.absDot(out.L));
-	std::size_t index = math::clamp(static_cast<std::size_t>(degree + 0.5_r), std::size_t(0), std::size_t(90));
-
-	SampledSpectralStrength scale(0);
-
+	SampledSpectralStrength energyScale(0);
 	if(sampleReflect)
 	{
-		if(!sidedness.isSameHemisphere(in.X, in.V, out.L))
+		if(!sidedness.isSameHemisphere(in.X, in.V, reflectDir))
 		{
 			out.setMeasurability(false);
 			return;
 		}
 
-		scale = m_reflectanceTable[index];
+		out.L = reflectDir;
+		energyScale = reflectance;
 
 		// account for probability
 		if(in.elemental == ALL_ELEMENTALS)
 		{
-			scale.divLocal(reflectProb);
+			energyScale.divLocal(reflectProb);
 		}
 	}
-	else if(sampleTransmit && m_fresnel->calcRefractDir(in.V, N, &(out.L)))
+	else if(sampleTransmit)
 	{
-		if(!sidedness.isOppositeHemisphere(in.X, in.V, out.L))
+		if(!sidedness.isOppositeHemisphere(in.X, in.V, transmitDir))
 		{
 			out.setMeasurability(false);
 			return;
 		}
 
-		scale = m_transmittanceTable[index];
+		out.L = transmitDir;
+		energyScale = transmittance;
 
 		/*if(in.transported == ETransport::RADIANCE)
 		{
@@ -132,7 +146,7 @@ void ThinDielectricFilm::calcBsdfSample(
 		// account for probability
 		if(in.elemental == ALL_ELEMENTALS)
 		{
-			scale.divLocal(1.0_r - reflectProb);
+			energyScale.divLocal(1.0_r - reflectProb);
 		}
 	}
 	else
@@ -143,7 +157,7 @@ void ThinDielectricFilm::calcBsdfSample(
 	}
 
 	SpectralStrength value;
-	value.setSampled(scale / N.absDot(out.L));
+	value.setSampled(energyScale / N.absDot(out.L));
 	out.pdfAppliedBsdf.setValues(value);
 	out.setMeasurability(true);
 }

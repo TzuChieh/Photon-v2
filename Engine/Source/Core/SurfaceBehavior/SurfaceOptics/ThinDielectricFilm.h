@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Core/SurfaceBehavior/Property/DielectricFresnel.h"
 #include "Core/Texture/TTexture.h"
 #include "Core/Quantity/SpectralStrength.h"
 
@@ -15,7 +14,6 @@ class ThinDielectricFilm : public SurfaceOptics
 {
 public:
 	ThinDielectricFilm(
-		const std::shared_ptr<DielectricFresnel>& fresnel,
 		const std::vector<SampledSpectralStrength>& reflectanceTable,
 		const std::vector<SampledSpectralStrength>& transmittanceTable);
 
@@ -41,7 +39,6 @@ private:
 	constexpr static SurfaceElemental REFLECTION   = 0;
 	constexpr static SurfaceElemental TRANSMISSION = 1;
 
-	std::shared_ptr<DielectricFresnel> m_fresnel;
 	std::vector<SampledSpectralStrength> m_reflectanceTable;
 	std::vector<SampledSpectralStrength> m_transmittanceTable;
 };

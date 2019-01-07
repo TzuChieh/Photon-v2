@@ -13,33 +13,54 @@
 #include "Core/Quantity/SpectralStrength.h"
 #include "Core/Quantity/SpectralData.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
+#include "Actor/Material/ThinFilm/InterferenceTable.h"
 
 namespace ph
 {
 
 ThinFilm::ThinFilm() :
-	SurfaceMaterial()
+
+	SurfaceMaterial(),
+
+	m_iorOuter(1.0_r),
+	m_iorFilm(1.5_r),
+	m_iorInner(1.0_r),
+	m_thicknessNm(500.0_r)
 {}
 
 void ThinFilm::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
+	InterferenceTable table({m_iorOuter, m_iorFilm, m_iorInner}, {0, m_thicknessNm, 0});
+	table.simulate_single_thin_film();
+
+	const auto wavelengthsNm = table.getWavelengthsNm();
+	const auto reflectances = table.getReflectances();
+	const auto transmittances = table.getTransmittance();
+
 	std::vector<SampledSpectralStrength> reflectanceTable(91);
 	std::vector<SampledSpectralStrength> transmittanceTable(91);
-
 	for(std::size_t i = 0; i <= 90; ++i)
 	{
-		reflectanceTable[i] = SpectralData::calcPiecewiseAveraged(
+		/*reflectanceTable[i] = SpectralData::calcPiecewiseAveraged(
 			m_wavelengthTable.data() + i * 31,
 			m_reflectanceTable.data() + i * 31,
 			31);
 		transmittanceTable[i] = SpectralData::calcPiecewiseAveraged(
 			m_wavelengthTable.data() + i * 31,
 			m_transmittanceTable.data() + i * 31,
+			31);*/
+
+		reflectanceTable[i] = SpectralData::calcPiecewiseAveraged(
+			wavelengthsNm.data() + i * 31,
+			reflectances.data() + i * 31,
+			31);
+		transmittanceTable[i] = SpectralData::calcPiecewiseAveraged(
+			wavelengthsNm.data() + i * 31,
+			transmittances.data() + i * 31,
 			31);
 	}
 
 	auto optics = std::make_shared<ThinDielectricFilm>(
-		std::make_shared<ExactDielectricFresnel>(1.0_r, 1.5_r),
 		reflectanceTable, 
 		transmittanceTable);
 
@@ -51,9 +72,14 @@ void ThinFilm::genSurface(CookingContext& context, SurfaceBehavior& behavior) co
 ThinFilm::ThinFilm(const InputPacket& packet) :
 	SurfaceMaterial(packet)
 {
-	m_wavelengthTable = packet.getRealArray("wavelength");
+	/*m_wavelengthTable = packet.getRealArray("wavelength");
 	m_reflectanceTable = packet.getRealArray("reflectance");
-	m_transmittanceTable = packet.getRealArray("transmittance");
+	m_transmittanceTable = packet.getRealArray("transmittance");*/
+
+	m_iorOuter = packet.getReal("ior-outer", 1.0_r);
+	m_iorFilm = packet.getReal("ior-film", 1.5_r);
+	m_iorInner = packet.getReal("ior-inner", 1.0_r);
+	m_thicknessNm = packet.getReal("thickness-nm", 500.0_r);
 }
 
 SdlTypeInfo ThinFilm::ciTypeInfo()
