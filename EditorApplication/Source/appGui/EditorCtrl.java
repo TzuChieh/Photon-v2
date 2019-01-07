@@ -243,6 +243,7 @@ public class EditorCtrl
 			drawFrame();
 		}
 		
+		// FIXME: this is not thread safe, should redesign monitor with swappable project
 		m_renderProgressMonitor.setMonitoredProject(m_project);
 	}
 	

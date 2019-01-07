@@ -13,9 +13,15 @@
 #include "Api/ApiHelper.h"
 #include "Core/Renderer/Region/Region.h"
 #include "Common/config.h"
+#include "Common/Logger.h"
 
 #include <memory>
 #include <iostream>
+
+namespace
+{
+	const ph::Logger logger(ph::LogSender("Core API"));
+}
 
 void phConfigCoreResourceDirectory(const PHchar* const directory)
 {
@@ -30,7 +36,8 @@ int phInit()
 
 	if(!ph::init_command_parser())
 	{
-		std::cerr << "command parser initialization failed" << std::endl;
+		logger.log(ph::ELogLevel::FATAL_ERROR, 
+			"command parser initialization failed");
 		return PH_FALSE;
 	}
 
@@ -41,7 +48,8 @@ int phExit()
 {
 	if(!ph::exit_api_database())
 	{
-		std::cerr << "API database exiting failed" << std::endl;
+		logger.log(ph::ELogLevel::FATAL_ERROR,
+			"API database exiting failed");
 		return PH_FALSE;
 	}
 
@@ -57,6 +65,8 @@ void phCreateEngine(PHuint64* const out_engineId, const PHuint32 numRenderThread
 	auto engine = std::make_unique<Engine>();
 	engine->setNumRenderThreads(static_cast<std::size_t>(numRenderThreads));
 	*out_engineId = static_cast<std::size_t>(ApiDatabase::addEngine(std::move(engine)));
+
+	logger.log("engine<" + std::to_string(*out_engineId) + "> created");
 }
 
 void phSetNumRenderThreads(const PHuint64 engineId, const PHuint32 numRenderThreads)
@@ -74,11 +84,11 @@ void phDeleteEngine(const PHuint64 engineId)
 {
 	if(ph::ApiDatabase::removeEngine(engineId))
 	{
-		std::cout << "Engine<" << engineId << "> deleted" << std::endl;
+		logger.log("engine<" + std::to_string(engineId) + "> deleted");
 	}
 	else
 	{
-		std::cerr << "error while deleting Engine<" << engineId << ">" << std::endl;
+		logger.log("error while deleting engine<" + std::to_string(engineId) + ">");
 	}
 }
 
@@ -204,7 +214,7 @@ void phCreateFrame(PHuint64* const out_frameId,
 	auto frame = std::make_unique<ph::HdrRgbFrame>(widthPx, heightPx);
 	*out_frameId = ph::ApiDatabase::addFrame(std::move(frame));
 
-	std::cout << "Frame<" << *out_frameId << "> created" << std::endl;
+	logger.log("frame<" + std::to_string(*out_frameId) + "> created");
 }
 
 void phGetFrameDimension(const PHuint64 frameId, 
@@ -237,11 +247,11 @@ void phDeleteFrame(const PHuint64 frameId)
 {
 	if(ph::ApiDatabase::removeFrame(frameId))
 	{
-		std::cout << "Frame<" << frameId << "> deleted" << std::endl;
+		logger.log("frame<" + std::to_string(frameId) + "> deleted");
 	}
 	else
 	{
-		std::cout << "error while deleting Frame<" << frameId << ">" << std::endl;
+		logger.log("error while deleting frame<" + std::to_string(frameId) + ">");
 	}
 }
 
@@ -256,7 +266,7 @@ void phSaveFrame(const PHuint64 frameId, const PHchar* const filePath)
 	{
 		if(!PictureSaver::save(*frame, Path(filePath)))
 		{
-			std::cerr << "Frame<" << frameId << "> saving failed" << std::endl;
+			logger.log("frame<" + std::to_string(frameId) + "> saving failed");
 		}
 	}
 }
