@@ -179,20 +179,21 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 		sanifiedGeometry = geometry->genTransformed(baseLW);
 		if(!sanifiedGeometry)
 		{
-			// TODO: combine identity transforms...
-			*out_baseLW = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeIdentity());
-			*out_baseWL = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeIdentity());
+			logger.log(ELogLevel::WARNING_MED,
+				"scale detected and has failed to apply it to the geometry; "
+				"scaling on light with attached geometry may have unexpected "
+				"behaviors such as miscalculated primitive surface area, which "
+				"can cause severe rendering artifacts");
+
+			sanifiedGeometry = geometry;
+			*out_baseLW = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeForward(m_localToWorld));
+			*out_baseWL = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeInverse(m_localToWorld));
 		}
 		else
 		{
-			std::cerr << "warning: at ALight::getSanifiedEmitterGeometry(), "
-			          << "scale detected and has failed to apply it to the geometry; "
-			          << "scaling on light with attached geometry may have unexpected "
-			          << "behaviors such as miscalculated primitive surface area, which "
-			          << "can cause severe rendering artifacts" << std::endl;
-
-			*out_baseLW = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeForward(m_localToWorld));
-			*out_baseWL = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeInverse(m_localToWorld));
+			// TODO: combine identity transforms...
+			*out_baseLW = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeIdentity());
+			*out_baseWL = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeIdentity());
 		}
 	}
 	else
