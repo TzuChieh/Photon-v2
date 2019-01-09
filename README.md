@@ -72,20 +72,18 @@ NOTE: Please use "./build/" as build folder for now, since build scripts are mor
 ## Roadmap
 
 * **Near Future (in 1 ~ 3 months)**
+  * first release
   * stabilize core engine structure
-  * automatic generation of SDL interface
-  * fully support common materials
-  * basic addon for Blender
+  * advanced addon for Blender (with render preview)
   * distributed (network) rendering
   * binary/modularized version of Photon-SDL
 
 * **Mid-term (in 3 ~ 6 months)**
   * better material node editor & parser
   * a complete Blender addon
-  * able to convert Cycles material for use in Photon
 
 * **Future Works (~1 year or later)**
-  * documentation & website
+  * full documentation & website
   * render a short CG film using Photon
 
 ## Scene Description Language
@@ -104,7 +102,7 @@ If you use Photon in your research project, you are hightly encouraged to cite i
 ```latex.bib
 @misc{Photon,
 	Author = {Tzu-Chieh Chang},
-	Year   = {2016--2018},
+	Year   = {2016--2019},
 	Title  = {Photon renderer},
 	Note   = {https://github.com/TzuChieh/Photon-v2}
 } 
