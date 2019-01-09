@@ -38,6 +38,8 @@ private:
 	std::shared_ptr<DielectricFresnel> m_fresnel;
 	std::shared_ptr<Microfacet>        m_microfacet;
 
+	static real getReflectionProbability(const SpectralStrength& F);
+
 	constexpr static SurfaceElemental REFLECTION   = 0;
 	constexpr static SurfaceElemental TRANSMISSION = 1;
 };
