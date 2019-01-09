@@ -3,12 +3,15 @@
 #include "Math/constant.h"
 #include "Common/assertion.h"
 
+#include <cmath>
+
 namespace ph
 {
 
 AnisoTrowbridgeReitz::AnisoTrowbridgeReitz(const real alphaU, const real alphaV) :
 	Microfacet()
 {
+	// TODO: clamping is unnecessary if alpha is properly mapped from roughness
 	m_alphaU      = alphaU > 0.0001_r ? alphaU : 0.0001_r;
 	m_alphaV      = alphaV > 0.0001_r ? alphaV : 0.0001_r;
 	m_reciAlphaU2 = 1.0_r / (m_alphaU * m_alphaU);
@@ -38,7 +41,8 @@ real AnisoTrowbridgeReitz::distribution(
 
 	const real tanTerm = 1.0_r + tan2ThetaH * (cos2PhiH * m_reciAlphaU2 + 
 	                                           sin2PhiH * m_reciAlphaV2);
-	return 1.0_r / (PH_PI_REAL * m_alphaU * m_alphaV * cos4ThetaH * tanTerm * tanTerm);
+	const real D = 1.0_r / (PH_PI_REAL * m_alphaU * m_alphaV * cos4ThetaH * tanTerm * tanTerm);
+	return std::isfinite(D) ? D : 0;
 }
 
 real AnisoTrowbridgeReitz::shadowing(

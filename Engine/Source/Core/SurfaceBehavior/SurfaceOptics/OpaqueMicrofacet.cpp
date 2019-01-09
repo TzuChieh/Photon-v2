@@ -104,12 +104,17 @@ void OpaqueMicrofacet::calcBsdfSample(
 	const real HoL = H.dot(L);
 	const real NoH = N.dot(H);
 
+	const real multiplier = std::abs(HoL / (NoV * NoL * NoH));
+	if(!std::isfinite(multiplier))
+	{
+		out.setMeasurability(false);
+		return;
+	}
+
 	SpectralStrength F;
 	m_fresnel->calcReflectance(HoL, &F);
 
 	const real G = m_microfacet->shadowing(in.X, N, H, L, in.V);
-	
-	const real multiplier = std::abs(HoL / (NoV * NoL * NoH));
 	out.pdfAppliedBsdf.setValues(F.mul(G).mulLocal(multiplier));
 	out.setMeasurability(true);
 }
@@ -143,6 +148,10 @@ void OpaqueMicrofacet::calcBsdfSamplePdfW(
 	const real D = m_microfacet->distribution(in.X, N, H);
 
 	out.sampleDirPdfW = std::abs(D * NoH / (4.0_r * HoL));
+	if(!std::isfinite(out.sampleDirPdfW))
+	{
+		out.sampleDirPdfW = 0;
+	}
 }
 
 }// end namespace ph
