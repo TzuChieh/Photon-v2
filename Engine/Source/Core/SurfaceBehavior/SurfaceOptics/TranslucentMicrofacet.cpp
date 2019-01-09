@@ -13,6 +13,7 @@
 
 #include <memory>
 #include <iostream>
+#include <cmath>
 
 namespace ph
 {
@@ -49,6 +50,13 @@ void TranslucentMicrofacet::calcBsdf(
 	const real      NoL = N.dot(in.L);
 	const real      NoV = N.dot(in.V);
 
+	const real NoLmulNoV = NoL * NoV;
+	if(NoLmulNoV == 0.0_r)
+	{
+		out.bsdf.setValues(0);
+		return;
+	}
+
 	// reflection
 	if(sidedness.isSameHemisphere(in.X, in.L, in.V) && 
 	   (in.elemental == ALL_ELEMENTALS || in.elemental == REFLECTION))
@@ -70,7 +78,7 @@ void TranslucentMicrofacet::calcBsdf(
 		const real D = m_microfacet->distribution(in.X, N, H);
 		const real G = m_microfacet->shadowing(in.X, N, H, in.L, in.V);
 
-		out.bsdf = F.mul(D * G / (4.0_r * std::abs(NoV * NoL)));
+		out.bsdf = F.mul(D * G / (4.0_r * std::abs(NoLmulNoV)));
 	}
 	// refraction
 	else if(sidedness.isOppositeHemisphere(in.X, in.L, in.V) &&
@@ -109,8 +117,15 @@ void TranslucentMicrofacet::calcBsdf(
 		const real transportFactor = in.transported == ETransport::RADIANCE ?
 			etaT / etaI : 1.0_r;
 
-		const real dotTerm = std::abs(HoL * HoV / (NoV * NoL));
 		const real iorTerm = transportFactor * etaI / (etaI * HoL + etaT * HoV);
+		if(!std::isfinite(iorTerm))
+		{
+			out.bsdf.setValues(0);
+			return;
+		}
+
+		const real dotTerm = std::abs(HoL * HoV / NoLmulNoV);
+
 		out.bsdf = F.mul(D * G * dotTerm * (iorTerm * iorTerm));
 	}
 	else
@@ -152,7 +167,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 
 	SpectralStrength F;
 	m_fresnel->calcReflectance(H.dot(in.V), &F);
-	const real reflectProb = F.avg();
+	const real reflectProb = math::clamp(F.avg(), 0.0001_r, 1.0_r);
 
 	bool sampleReflect  = canReflect;
 	bool sampleTransmit = canTransmit;
@@ -232,6 +247,12 @@ void TranslucentMicrofacet::calcBsdfSample(
 
 	const real G        = m_microfacet->shadowing(in.X, N, H, L, in.V);
 	const real dotTerms = std::abs(HoV / (NoV * NoL * NoH));
+	if(!std::isfinite(dotTerms))
+	{
+		out.setMeasurability(false);
+		return;
+	}
+
 	out.pdfAppliedBsdf.setValues(F.mul(G * dotTerms));
 	out.setMeasurability(true);
 }
@@ -256,8 +277,8 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 			return;
 		}
 
-		const real NoH = N.dot(H);
 		const real HoL = H.dot(in.L);
+		const real NoH = N.dot(H);
 		const real HoV = H.dot(in.V);
 		const real D   = m_microfacet->distribution(in.X, N, H);
 
@@ -313,6 +334,11 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 	else
 	{
 		out.sampleDirPdfW = 0.0_r;
+	}
+
+	if(!std::isfinite(out.sampleDirPdfW))
+	{
+		out.sampleDirPdfW = 0;
 	}
 }
 
