@@ -90,7 +90,7 @@ NOTE: Please use "./build/" as build folder for now, since build scripts are mor
 
 ## Scene Description Language
 
-The scene descripting language (SDL) designed by T.C. Chang can be stored into a text file (.p2 filename extension) and loaded by Photon-v2 for rendering. To create a scene, you can either open up a text file and start writing right away (visit "./scenes/" for references) or install the Blender addon (in "./BlenderAddon/"), which contains a .p2 file exporter and a material editor currently.
+The scene descripting language (SDL) designed by T.C. Chang can be stored into a text file (.p2 filename extension) and loaded by Photon-v2 for rendering. To create a scene, you can either open up a text file and start writing right away (visit "./scenes/" for reference) or install the Blender addon (in "./BlenderAddon/"), which contains a .p2 file exporter and a material editor currently.
 
 ## About the Author
 

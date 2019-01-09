@@ -1,0 +1,20 @@
+## camera(pinhole) [real fov-degree 30] [vector3 position "0 6 40"] [vector3 direction "0 0 -1"] [vector3 up-axis "0 1 0"]
+## sample-generator(stratified) [integer sample-amount 10]
+## renderer(sampling) [integer width 512][integer height 512][string filter-name gaussian][string estimator bneept]
+
+-> geometry(rectangle) @plane [real width 15] [real height 15]
+-> geometry(sphere)    @ball  [real radius 2.5]
+
+-> material(matte-opaque) @white [vector3 albedo "0.9 0.9 0.9"]
+
+-> actor(model) @ground [geometry geometry @plane] [material material @white]
+-> actor(model) rotate(@ground) [vector3 axis "1 0 0"] [real degree -90]
+-> actor(model) scale(@ground) [vector3 factor "10 10 10"]
+
+-> actor(model) @object [geometry geometry @ball]  [material material @white]
+-> actor(model) translate(@object) [vector3 factor "0 2.5 0"]
+
+-> light-source(rectangle) @areaSource [vector3 linear-srgb "1 1 0.8"] [real watts 400] [real width 2] [real height 2]
+-> actor(light) @topLight [light-source light-source @areaSource]
+-> actor(light) translate(@topLight) [vector3 factor "0 10 0"]
+-> actor(light) rotate(@topLight) [vector3 axis "1 0 0"] [real degree 90]

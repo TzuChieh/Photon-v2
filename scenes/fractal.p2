@@ -1,0 +1,24 @@
+## camera(pinhole) [real fov-degree 30] [vector3 position "0 7 60"] [vector3 direction "0 0 -1"] [vector3 up-axis "0 1 0"]
+## sample-generator(stratified) [integer sample-amount 40]
+## renderer(sampling) [integer width 720][integer height 480][string filter-name gaussian][string estimator bneept]
+
+-> geometry(rectangle) @plane [real width 15] [real height 15]
+-> geometry(rectangle) @smallPlane [real width 0.5] [real height 0.5]
+-> geometry(menger-sponge) @target [integer iterations 2]
+
+-> material(matte-opaque) @white [vector3 albedo "0.8 0.8 0.8"]
+
+-> actor(model) @ground [geometry geometry @plane] [material material @white]
+-> actor(model) rotate(@ground) [vector3 axis "1 0 0"] [real degree -90]
+-> actor(model) scale(@ground) [vector3 factor "10 10 10"]
+
+-> actor(model) @object [geometry geometry @target]  [material material @white]
+-> actor(model) translate(@object) [vector3 factor "0 7 0"]
+-> actor(model) scale(@object) [vector3 factor "10 10 10"]
+-> actor(model) rotate(@object) [vector3 axis "1 0 0"] [real degree 20]
+-> actor(model) rotate(@object) [vector3 axis "0 0 1"] [real degree 20]
+-> actor(model) rotate(@object) [vector3 axis "0 1 0"] [real degree 35]
+
+-> light-source(point) @lightSource [vector3 linear-srgb "1 1 0.95"] [real watts 5000]
+-> actor(light) @light [light-source light-source @lightSource]
+-> actor(light) translate(@light) [vector3 factor "0 7 0"]
