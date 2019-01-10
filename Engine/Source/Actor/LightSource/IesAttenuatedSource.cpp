@@ -34,7 +34,7 @@ IesAttenuatedSource::~IesAttenuatedSource() = default;
 std::unique_ptr<Emitter> IesAttenuatedSource::genEmitter(
 	CookingContext& context, EmitterBuildingMaterial&& data) const
 {
-	if(m_source == nullptr)
+	if(!m_source)
 	{
 		logger.log(ELogLevel::WARNING_MED, 
 			"no light source specified, ignoring");
@@ -74,7 +74,7 @@ std::unique_ptr<Emitter> IesAttenuatedSource::genEmitter(
 
 std::shared_ptr<Geometry> IesAttenuatedSource::genGeometry(CookingContext& context) const
 {
-	if(m_source == nullptr)
+	if(!m_source)
 	{
 		return nullptr;
 	}
@@ -84,7 +84,7 @@ std::shared_ptr<Geometry> IesAttenuatedSource::genGeometry(CookingContext& conte
 
 std::shared_ptr<Material> IesAttenuatedSource::genMaterial(CookingContext& context) const
 {
-	if(m_source == nullptr)
+	if(!m_source)
 	{
 		return nullptr;
 	}

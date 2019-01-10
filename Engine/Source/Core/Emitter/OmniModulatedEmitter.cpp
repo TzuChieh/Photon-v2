@@ -12,12 +12,12 @@ OmniModulatedEmitter::OmniModulatedEmitter(std::unique_ptr<Emitter> source) :
 	m_source(std::move(source)),
 	m_filter(nullptr)
 {
-	PH_ASSERT(m_source != nullptr);
+	PH_ASSERT(m_source);
 }
 
 void OmniModulatedEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const
 {
-	PH_ASSERT(m_filter != nullptr);
+	PH_ASSERT(m_filter);
 
 	m_source->evalEmittedRadiance(X, out_radiance);
 
@@ -27,6 +27,9 @@ void OmniModulatedEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStre
 
 	Vector3R uv;
 	m_dirToUv.directionToUvw(emitDirection, &uv);
+
+	// HACK
+	uv.y = 1.0_r - uv.y;
 
 	const auto& filterValue = TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_filter, uv);
 	out_radiance->mulLocal(filterValue);
@@ -45,6 +48,9 @@ void OmniModulatedEmitter::genDirectSample(DirectLightSample& sample) const
 	Vector3R uv;
 	m_dirToUv.directionToUvw(emitDirection, &uv);
 
+	// HACK
+	uv.y = 1.0_r - uv.y;
+
 	const auto& filterValue = TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_filter, uv);
 	sample.radianceLe.mulLocal(filterValue);
 }
@@ -55,6 +61,9 @@ void OmniModulatedEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le,
 
 	Vector3R uv;
 	m_dirToUv.directionToUvw(out_ray->getDirection(), &uv);
+
+	// HACK
+	uv.y = 1.0_r - uv.y;
 
 	const auto& filterValue = TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_filter, uv);
 	out_Le->mulLocal(filterValue);
@@ -71,7 +80,7 @@ real OmniModulatedEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const
 
 void OmniModulatedEmitter::setFilter(const std::shared_ptr<TTexture<SpectralStrength>>& filter)
 {
-	PH_ASSERT(filter != nullptr);
+	PH_ASSERT(filter);
 
 	m_filter = filter;
 }
