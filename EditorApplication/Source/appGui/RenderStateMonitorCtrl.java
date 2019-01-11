@@ -1,8 +1,10 @@
 package appGui;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import appGui.util.RenderStateEntry;
 import appModel.project.Project;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -25,7 +27,7 @@ import photonApi.RenderState;
 import photonApi.Statistics;
 import util.Time;
 
-public class RenderProgressMonitorCtrl
+public class RenderStateMonitorCtrl
 {
 	@FXML private VBox              variablesVBox;
 	@FXML private ProgressBar       renderProgressBar;
@@ -38,24 +40,20 @@ public class RenderProgressMonitorCtrl
 	private AtomicInteger    m_chosenAttribute;
 	private Service<Void>    m_monitorService;
 	
-	public ArrayList<String> m_integerNames;
-	public ArrayList<String> m_realNames;
-	public ArrayList<Label>  m_integers;
-	public ArrayList<Label>  m_reals;
+	private ArrayList<RenderStateEntry> m_states;
+	private int m_numVBoxBaseChildren;
 	
 	private Project    m_project;
 	private EditorCtrl m_display;
 	
-	public RenderProgressMonitorCtrl()
+	public RenderStateMonitorCtrl()
 	{
 		m_isMonitoring    = false;
 		m_chosenAttribute = new AtomicInteger(Ph.ATTRIBUTE_LIGHT_ENERGY);
 		m_monitorService  = genMonitorService();
 		
-		m_integerNames = new ArrayList<>();
-		m_realNames    = new ArrayList<>();
-		m_integers     = new ArrayList<>();
-		m_reals        = new ArrayList<>();
+		m_states = new ArrayList<>();
+		m_numVBoxBaseChildren = 0;
 	}
 	
 	@FXML
@@ -77,6 +75,8 @@ public class RenderProgressMonitorCtrl
 		});
     	
     	renderProgressBar.progressProperty().bind(m_monitorService.progressProperty());
+    	
+    	m_numVBoxBaseChildren = variablesVBox.getChildren().size();
 	}
 	
 	public void startMonitoring()
@@ -84,7 +84,7 @@ public class RenderProgressMonitorCtrl
 		// we should not start until previous one has stopped
 		waitForStopMonitoring();
 		
-		gatherMonitoredVariables();
+		updateStateNames();
 		m_isMonitoring = true;
 		m_monitorService.restart();
 	}
@@ -155,29 +155,23 @@ public class RenderProgressMonitorCtrl
 					});
 					
 					RenderState state = m_project.asyncGetRenderState();
-					for(int i = 0; i < 3; ++i)
+					for(RenderStateEntry entry : m_states)
 					{
-						if(!m_integerNames.get(i).isEmpty())
+						String stringValue = "invalid";
+						if(entry.isInteger())
 						{
-							Label  label = m_integers.get(i);
-							String value = Long.toString(state.integerStates[i]);
-							Platform.runLater(() -> 
-							{
-								label.setText(value);
-							});
+							stringValue = Long.toString(state.integerStates[entry.getIndex()]);
 						}
-					}
-					for(int i = 0; i < 3; ++i)
-					{
-						if(!m_realNames.get(i).isEmpty())
+						else if(entry.isReal())
 						{
-							Label  label = m_reals.get(i);
-							String value = Float.toString(state.realStates[i]);
-							Platform.runLater(() -> 
-							{
-								label.setText(value);
-							});
+							stringValue = Float.toString(state.realStates[entry.getIndex()]);
 						}
+						
+						String text = stringValue;
+						Platform.runLater(() -> 
+						{
+							entry.getValueLabel().setText(text);
+						});
 					}
 					
 					// TODO: need to add these monitoring attributes to a project's data, 
@@ -228,48 +222,40 @@ public class RenderProgressMonitorCtrl
 		};
 	}
 	
-	private void gatherMonitoredVariables()
+	private void updateStateNames()
 	{
-		ColumnConstraints colLayout = new ColumnConstraints();
-		colLayout.setPercentWidth(50.0);
-		colLayout.setHgrow(Priority.ALWAYS);
+		while(variablesVBox.getChildren().size() != m_numVBoxBaseChildren)
+		{
+			variablesVBox.getChildren().remove(variablesVBox.getChildren().size() - 1);
+		}
+		m_states.clear();
 		
-		m_integerNames.clear();
 		for(int i = 0; i < 3; ++i)
 		{
-			String name  = m_project.getIntegerRenderStateName(i);
-			Label  label = new Label();
-			
-			m_integerNames.add(name);
-			m_integers.add(label);
-			
-			if(!name.isEmpty())
+			RenderStateEntry integerState = RenderStateEntry.newInteger(m_project.getIntegerRenderStateName(i), i);
+			if(!integerState.isEmpty())
 			{
-				GridPane cell = new GridPane();
-				cell.add(new Label(name), 0, 0);
-				cell.add(label, 1, 0);
-	            cell.getColumnConstraints().add(colLayout);
-				variablesVBox.getChildren().add(cell);
+				m_states.add(integerState);
+			}
+			
+			RenderStateEntry realState = RenderStateEntry.newReal(m_project.getRealRenderStateName(i), i);
+			if(!realState.isEmpty())
+			{
+				m_states.add(realState);
 			}
 		}
 		
-		m_realNames.clear();
-		for(int i = 0; i < 3; ++i)
+		ColumnConstraints stateLayout = new ColumnConstraints();
+		stateLayout.setPercentWidth(50.0);
+		stateLayout.setHgrow(Priority.ALWAYS);
+		
+		for(RenderStateEntry state : m_states)
 		{
-			String name  = m_project.getRealRenderStateName(i);
-			Label  label = new Label();
-			
-			m_realNames.add(name);
-			m_reals.add(label);
-			
-			if(!name.isEmpty())
-			{
-				GridPane cell = new GridPane();
-				cell.add(new Label(name), 0, 0);
-				cell.add(label, 1, 0);
-	            cell.getColumnConstraints().add(colLayout);
-				variablesVBox.getChildren().add(cell);
-			}
+			GridPane cell = new GridPane();
+			cell.add(state.getNameLabel(),  0, 0);
+			cell.add(state.getValueLabel(), 1, 0);
+            cell.getColumnConstraints().add(stateLayout);
+			variablesVBox.getChildren().add(cell);
 		}
 	}
 }

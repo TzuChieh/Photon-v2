@@ -50,7 +50,7 @@ public class EditorCtrl
     @FXML private Spinner<Integer> threadsSpinner;
     @FXML private ScrollPane       progressMonitorScrollPane;
     
-    private RenderProgressMonitorCtrl m_renderProgressMonitor;
+    private RenderStateMonitorCtrl m_renderProgressMonitor;
     
     @FXML
     public void initialize()
@@ -72,7 +72,7 @@ public class EditorCtrl
 		});
     	updateMessageTextArea();
     	
-    	ViewCtrlPair<RenderProgressMonitorCtrl> renderProgressMonitorUI = loadRenderProgressMonitorUI();
+    	ViewCtrlPair<RenderStateMonitorCtrl> renderProgressMonitorUI = loadRenderProgressMonitorUI();
 //    	progressMonitorPane.getChildren().clear();
 //    	progressMonitorPane.getChildren().add(renderProgressMonitorUI.getView());
 //    	AnchorPane.setTopAnchor(renderProgressMonitorUI.getView(), 0.0);
@@ -247,7 +247,7 @@ public class EditorCtrl
 		m_renderProgressMonitor.setMonitoredProject(m_project);
 	}
 	
-	private static ViewCtrlPair<RenderProgressMonitorCtrl> loadRenderProgressMonitorUI()
+	private static ViewCtrlPair<RenderStateMonitorCtrl> loadRenderProgressMonitorUI()
     {
     	return new UILoader().load(EditorCtrl.class.getResource("/fxmls/RenderProgressMonitor.fxml"));
     }
