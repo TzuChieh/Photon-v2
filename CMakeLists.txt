@@ -127,6 +127,6 @@ if(BUILD_EDITOR_JNI)
     add_subdirectory("./JNI/")
 endif()
 
-add_subdirectory("./Application/")
+add_subdirectory("./PhotonCLI/")
 
 
