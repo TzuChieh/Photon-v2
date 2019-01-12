@@ -1,5 +1,6 @@
-package appGui.util;
+package appGui.projectMonitor;
 
+import javafx.application.Platform;
 import javafx.scene.control.Label;
 
 public class RenderStateEntry
@@ -45,12 +46,6 @@ public class RenderStateEntry
 		return m_index;
 	}
 	
-	public boolean isEmpty()
-	{
-		return (m_name.getText() == null || m_name.getText().isEmpty()) &&
-		       (m_value.getText() == null || m_value.getText().isEmpty());
-	}
-	
 	public boolean isInteger()
 	{
 		return m_type == INTEGER;
@@ -63,11 +58,17 @@ public class RenderStateEntry
 	
 	public void setName(String name)
 	{
-		m_name.setText(name);
+		Platform.runLater(() -> 
+		{
+			m_name.setText(name);
+		});
 	}
 	
 	public void setValue(String value)
 	{
-		m_value.setText(value);
+		Platform.runLater(() -> 
+		{
+			m_value.setText(value);
+		});
 	}
 }

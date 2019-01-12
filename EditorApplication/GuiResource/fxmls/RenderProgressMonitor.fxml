@@ -13,7 +13,7 @@
 <?import javafx.scene.text.Font?>
 
 
-<VBox fx:id="variablesVBox" alignment="TOP_CENTER" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="appGui.RenderStateMonitorCtrl">
+<VBox fx:id="variablesVBox" alignment="TOP_CENTER" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="appGui.projectMonitor.ProjectMonitorCtrl">
    <children>
       <Separator prefWidth="200.0">
          <padding>
