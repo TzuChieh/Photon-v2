@@ -6,25 +6,25 @@
 
 	<groupId>photon</groupId>
 
-	<artifactId>EditorApplication</artifactId>
+	<artifactId>PhotonStudio</artifactId>
 
-	<version>0.0</version>
+	<version>2.0</version>
 
 	<build>
 
-		<sourceDirectory>${project.basedir}/EditorApplication/Source/</sourceDirectory>
+		<sourceDirectory>${project.basedir}/PhotonStudio/Source/</sourceDirectory>
 		<outputDirectory>${project.basedir}/build/target/classes/</outputDirectory>
 		<directory>${project.basedir}/build/target/</directory>
 
 		<!-- not used currently, set to an empty/non-exist folder -->
-		<testSourceDirectory>${project.basedir}/EditorApplication/TestSource/</testSourceDirectory>
+		<testSourceDirectory>${project.basedir}/PhotonStudio/TestSource/</testSourceDirectory>
 
 		<!-- not used currently, set to ./build/target/ -->
 		<testOutputDirectory>${project.basedir}/build/target/</testOutputDirectory>
 
 		<resources>
 			<resource>
-				<directory>${project.basedir}/EditorApplication/GuiResource/</directory>
+				<directory>${project.basedir}/PhotonStudio/GuiResource/</directory>
 			</resource>
 		</resources>
 
