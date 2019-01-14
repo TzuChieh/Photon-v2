@@ -23,7 +23,7 @@ import java.util.zip.GZIPInputStream;
 
 import com.sun.javafx.application.LauncherImpl;
 
-import appModel.EditorApp;
+import appModel.Studio;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -59,7 +59,7 @@ import util.Vector3f;
 
 public class AppMain extends Application
 {
-	private EditorApp m_editorApp;
+	private Studio m_studio;
 	
 //	private static final OutputStream consoleOutputStream = new OutputStream()
 //	{
@@ -95,7 +95,7 @@ public class AppMain extends Application
 	@Override
 	public void init() throws Exception
 	{
-		m_editorApp = new EditorApp();
+		m_studio = new Studio();
 		
 		// DEBUG
 //		minecraftTest();
@@ -104,7 +104,7 @@ public class AppMain extends Application
 	@Override
 	public void start(Stage primaryStage) throws Exception
 	{
-		m_editorApp.create();
+		m_studio.create();
 		
 //		System.setOut(new PrintStream(consoleOutputStream, true));
 //		System.setErr(new PrintStream(consoleOutputStream, true));
@@ -114,7 +114,7 @@ public class AppMain extends Application
 		Parent      appMainView = fxmlLoader.load();
 		AppMainCtrl appMainCtrl = fxmlLoader.getController();
 		
-		appMainCtrl.setEditorApp(m_editorApp);
+		appMainCtrl.setStudio(m_studio);
 		appMainCtrl.createNewProject("(default project)");
 		appMainCtrl.setWorkbenchAsEditorView();
 		
@@ -137,7 +137,7 @@ public class AppMain extends Application
 		System.setOut(originalOut);
 		System.setErr(originalErr);
 		
-		m_editorApp.decompose();
+		m_studio.decompose();
 	}
 	
 	private static void minecraftTest() throws Exception

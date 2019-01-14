@@ -74,13 +74,13 @@ public class Display
 		    File outputfile = new File(imageDirectory + imageName + ".png");
 		    ImageIO.write(image, "png", outputfile);
 		    
-		    EditorApp.printToConsole("image saved");
+		    Studio.printToConsole("image saved");
 		} 
 		catch(IOException e)
 		{
 			e.printStackTrace();
 			
-			EditorApp.printToConsole("image saving failed");
+			Studio.printToConsole("image saving failed");
 		}
     }
 	

@@ -4,13 +4,6 @@ import util.FSUtil;
 
 public final class Ph
 {
-	static
-	{
-		final String NATIVE_LIBRARY_PATH     = FSUtil.getBuildDirectory() + "bin/";
-		final String ENGINE_LIBRARY_FILENAME = System.mapLibraryName("Editor_JNI");
-		System.load(NATIVE_LIBRARY_PATH + ENGINE_LIBRARY_FILENAME);
-	}
-	
 	public static final int ATTRIBUTE_LIGHT_ENERGY = 0;
 	public static final int ATTRIBUTE_NORMAL       = 1;
 	public static final int ATTRIBUTE_DEPTH        = 2;
@@ -21,6 +14,13 @@ public final class Ph
 	
 	public static final int RENDER_STATE_INTEGER = 0;
 	public static final int RENDER_STATE_REAL    = 1;
+	
+	public static void loadLibrary()
+	{
+		final String NATIVE_LIBRARY_PATH     = FSUtil.getBuildDirectory() + "bin/";
+		final String ENGINE_LIBRARY_FILENAME = System.mapLibraryName("Editor_JNI");
+		System.load(NATIVE_LIBRARY_PATH + ENGINE_LIBRARY_FILENAME);
+	}
 	
 	// core
 	

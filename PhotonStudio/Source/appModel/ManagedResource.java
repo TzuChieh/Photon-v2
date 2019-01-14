@@ -6,11 +6,11 @@ import java.util.List;
 import appModel.event.LifeCycleEvent;
 import appModel.event.LifeCycleListener;
 
-public abstract class ManageableResource
+public abstract class ManagedResource
 {
 	List<LifeCycleListener> m_lifeCycleListeners;
 	
-	protected ManageableResource()
+	protected ManagedResource()
 	{
 		m_lifeCycleListeners = new ArrayList<>();
 	}

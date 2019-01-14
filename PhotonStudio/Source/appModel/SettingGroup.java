@@ -15,18 +15,19 @@ import java.util.Properties;
 
 import appModel.event.SettingEvent;
 import appModel.event.SettingListener;
+import appView.SettingGroupView;
 
 public abstract class SettingGroup
 {
 	// TODO: consider making listener listening to specific setting
 	
-	private Map<String, String>   m_settings;
-	private List<SettingListener> m_settingListeners;
+	private Map<String, String>    m_settings;
+	private List<SettingGroupView> m_views;
 	
 	protected SettingGroup()
 	{
-		m_settings         = new HashMap<>();
-		m_settingListeners = new ArrayList<>();
+		m_settings = new HashMap<>();
+		m_views    = new ArrayList<>();
 	}
 	
 	public abstract void setToDefaults();
@@ -46,26 +47,26 @@ public abstract class SettingGroup
 		
 		m_settings.put(settingName, newSettingValue);
 		
-		for(SettingListener listener : m_settingListeners)
+		for(SettingGroupView view : m_views)
 		{
-			SettingEvent event    = new SettingEvent();
-			event.source          = this;
-			event.settingName     = settingName;
-			event.oldSettingValue = oldSettingValue;
-			event.newSettingValue = newSettingValue;
-			
-			listener.onSettingChanged(event);
+			view.showSetting(settingName, oldSettingValue, newSettingValue);
 		}
 	}
 	
-	public void addSettingListener(SettingListener listener)
+	public void addView(SettingGroupView view)
 	{
-		m_settingListeners.add(listener);
+		m_views.add(view);
+		
+		// show all settings when adding a view
+		for(Map.Entry<String, String> setting : m_settings.entrySet())
+		{
+			view.showSetting(setting.getKey(), setting.getValue());
+		}
 	}
 	
-	public void removeSettingListener(SettingListener listener)
+	public void removeView(SettingGroupView view)
 	{
-		while(m_settingListeners.remove(listener));
+		m_views.remove(view);
 	}
 	
 	public void saveToFile(String fullFilename)

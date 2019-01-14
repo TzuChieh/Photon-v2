@@ -1,6 +1,7 @@
 package appGui;
 
-import appModel.EditorApp;
+import appModel.Editor;
+import appModel.Studio;
 import appModel.project.Project;
 
 import java.util.HashMap;
@@ -31,7 +32,7 @@ public class AppMainCtrl
 	private static final String GENERAL_OPTIONS_FXML_PATH = "/fxmls/GeneralOptions.fxml";
 	private static final String ABOUT_FXML_PATH           = "/fxmls/About.fxml";
 	
-	private EditorApp             m_editorApp;
+	private Studio             m_studio;
     private int                   m_projectId;
 	private AppMainGraphicalState m_graphicalState;
 	
@@ -144,13 +145,13 @@ public class AppMainCtrl
     
     public AppMainCtrl()
     {
-    	m_editorApp = null;
+    	m_studio = null;
     	m_projectId = 0;
     }
     
     public void createNewProject(String projectName)
     {
-    	Project project = m_editorApp.createProject(projectName);
+    	Project project = m_studio.newProject(projectName);
     	if(project == null)
     	{
     		// TODO: log
@@ -164,17 +165,18 @@ public class AppMainCtrl
     		return;
     	}
     	
+    	Editor editor = m_studio.newEditor();
+    	editor.setProject(project);
+    	editorUI.getCtrl().setEditor(editor);
     	m_editorUIs.put(projectName, editorUI);
     	
     	m_managerUI.getCtrl().addProject(projectName);
-    	editorUI.getCtrl().associateWithProject(project);
     }
     
-    public void setEditorApp(EditorApp editorApp)
+    public void setStudio(Studio studio)
     {
-    	m_editorApp = editorApp;
-    	
-    	m_generalOptionsCtrl.setGeneralOption(editorApp.getGeneralOption());
+    	m_studio = studio;
+    	m_generalOptionsCtrl.setGeneralOption(studio.getGeneralOption());
     }
     
     public void updateFooterText()
