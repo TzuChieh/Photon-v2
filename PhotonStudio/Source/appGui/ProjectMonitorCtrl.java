@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import appModel.project.Project;
+import appModel.project.RenderProject;
 import appModel.task.RenderFrameQuery;
 import appModel.task.RenderStateEntry;
 import appModel.task.RenderStatusQuery;

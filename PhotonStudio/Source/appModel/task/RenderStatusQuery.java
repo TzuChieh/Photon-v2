@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import appGui.EditorCtrl;
-import appModel.project.Project;
+import appModel.project.RenderProject;
 import appView.RenderStatusView;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -22,7 +22,7 @@ import util.Time;
 
 public class RenderStatusQuery implements Runnable
 {
-	private Project m_project;
+	private RenderProject m_project;
 	private List<RenderStateEntry> m_states;
 	private RenderStatusView m_view;
 	
@@ -32,7 +32,7 @@ public class RenderStatusQuery implements Runnable
 	private double m_startTimeMs;
 	
 	public RenderStatusQuery(
-		Project project,
+		RenderProject project,
 		List<RenderStateEntry> states,
 		RenderStatusView view)
 	{
@@ -57,6 +57,8 @@ public class RenderStatusQuery implements Runnable
 	@Override
 	public void run()
 	{
+		// FIXME: try-catch all
+		
 		m_project.asyncGetRendererStatistics(m_statistics);
 		
 		final double normalizedProgress    = m_statistics.percentageProgress / 100.0;
@@ -64,9 +66,12 @@ public class RenderStatusQuery implements Runnable
 		final double totalRenderTimeMs     = renderTimeMs / normalizedProgress;
 		final double remainingRenderTimeMs = totalRenderTimeMs * (1.0 - normalizedProgress);
 		
-		m_view.showProgress((float)normalizedProgress);
-		m_view.showTimeSpent((long)(renderTimeMs + 0.5));
-		m_view.showTimeRemaining((long)(remainingRenderTimeMs + 0.5));
+		Platform.runLater(() -> 
+		{
+			m_view.showProgress((float)normalizedProgress);
+			m_view.showTimeSpent((long)(renderTimeMs + 0.5));
+			m_view.showTimeRemaining((long)(remainingRenderTimeMs + 0.5));
+		});
 		
 		RenderState state = m_project.asyncGetRenderState();
 		for(RenderStateEntry entry : m_states)
@@ -84,6 +89,9 @@ public class RenderStatusQuery implements Runnable
 			m_values[entry.getIndex()] = value;
 		}
 		
-		m_view.showStates(m_names, m_values);
+		Platform.runLater(() -> 
+		{
+			m_view.showStates(m_names, m_values);
+		});
 	}
 }

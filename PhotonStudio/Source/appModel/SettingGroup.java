@@ -1,141 +1,102 @@
 package appModel;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 
-import appModel.event.SettingEvent;
-import appModel.event.SettingListener;
-import appView.SettingGroupView;
-
-public abstract class SettingGroup
+public class SettingGroup
 {
-	// TODO: consider making listener listening to specific setting
+	private Map<String, Setting> m_settings;
 	
-	private Map<String, String>    m_settings;
-	private List<SettingGroupView> m_views;
-	
-	protected SettingGroup()
+	public SettingGroup()
 	{
 		m_settings = new HashMap<>();
-		m_views    = new ArrayList<>();
 	}
 	
-	public abstract void setToDefaults();
-	
-	public String get(String settingName)
+	public String get(final String name)
 	{
-		return m_settings.get(settingName);
+		return getSetting(name).getValue();
 	}
 	
-	public void set(final String settingName, final String newSettingValue)
+	public Setting getSetting(final String name)
 	{
-		final String oldSettingValue = m_settings.get(settingName);
-		if(Objects.equals(oldSettingValue, newSettingValue))
-		{
-			return;
-		}
+		return m_settings.get(name);
+	}
+	
+	public boolean has(final String name)
+	{
+		return m_settings.containsKey(name);
+	}
+	
+	public void set(final String name, final String value)
+	{
+		getSetting(name).setValue(value);
+	}
+	
+	public void add(final String name, final String value)
+	{
+		assert(!has(name));
 		
-		m_settings.put(settingName, newSettingValue);
-		
-		for(SettingGroupView view : m_views)
+		Setting setting = new Setting(name);
+		setting.setValue(value);
+		m_settings.put(name, setting);
+	}
+	
+	public void add(SettingGroup other)
+	{
+		for(Setting setting : other.m_settings.values())
 		{
-			view.showSetting(settingName, oldSettingValue, newSettingValue);
+			add(setting.getName(), setting.getValue());
 		}
 	}
 	
-	public void addView(SettingGroupView view)
+	public void removeSetting(final String name)
 	{
-		m_views.add(view);
-		
-		// show all settings when adding a view
-		for(Map.Entry<String, String> setting : m_settings.entrySet())
-		{
-			view.showSetting(setting.getKey(), setting.getValue());
-		}
+		m_settings.remove(name);
 	}
 	
-	public void removeView(SettingGroupView view)
+	public void save(final Path path)
 	{
-		m_views.remove(view);
-	}
-	
-	public void saveToFile(String fullFilename)
-	{
-		OutputStream ostream = null;
-
-		try
+		try(OutputStream ostream = Files.newOutputStream(path))
 		{
 			Properties props = new Properties();
-			for(Map.Entry<String, String> mapEntry : m_settings.entrySet())
+			for(Setting setting : m_settings.values())
 			{
-				props.setProperty(mapEntry.getKey(), mapEntry.getValue());
+				props.setProperty(setting.getName(), setting.getValue());
 			}
-			
-			ostream = new FileOutputStream(new File(fullFilename));
 			props.store(ostream, null);
 		}
-		catch(IOException e)
+		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
-		finally
-		{
-			if(ostream != null)
-			{
-				try
-				{
-					ostream.close();
-				}
-				catch(IOException e)
-				{
-					e.printStackTrace();
-				}
-			}
-		}
 	}
 	
-	public void loadFromFile(String fullFilename)
+	public void load(final Path path)
 	{
-    	InputStream istream = null;
-
-    	try
+    	try(InputStream istream = Files.newInputStream(path))
     	{
-    		istream = new FileInputStream(new File(fullFilename));
-    		
     		Properties props = new Properties();
     		props.load(istream);
-			for(final String keyName : props.stringPropertyNames())
+			for(String keyName : props.stringPropertyNames())
 			{
-				m_settings.put(keyName, props.getProperty(keyName));
+				if(has(keyName))
+				{
+					set(keyName, props.getProperty(keyName));
+				}
+				else
+				{
+					add(keyName, props.getProperty(keyName));
+				}
 			}
     	}
-    	catch(IOException e)
+    	catch(Exception e)
     	{
     		e.printStackTrace();
-        }
-    	finally
-    	{
-        	if(istream != null)
-        	{
-        		try
-        		{
-        			istream.close();
-        		}
-        		catch(IOException e)
-        		{
-        			e.printStackTrace();
-        		}
-        	}
         }
 	}
 }

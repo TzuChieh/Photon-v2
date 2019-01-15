@@ -1,6 +1,8 @@
 package appModel;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import util.FSUtil;
@@ -13,30 +15,22 @@ public final class GeneralOption extends SettingGroup
 	public GeneralOption()
 	{
 		super();
-	}
-	
-	@Override
-	public void setToDefaults()
-	{
-		set(WORKING_DIRECTORY,       getDefaultAbsWorkingDirectory());
-		set(DEFAULT_SCENE_FILE_PATH, getDefaultSceneFilePath());
+		
+		add(WORKING_DIRECTORY,       getDefaultAbsWorkingDirectory());
+		add(DEFAULT_SCENE_FILE_PATH, getDefaultSceneFilePath());
 	}
 	
 	public void save()
 	{
-		saveToFile(getStoredP2CfgAbsPath());
+		save(Paths.get(getStoredP2CfgAbsPath()));
 	}
 	
 	public void load()
 	{
-		File file = new File(getStoredP2CfgAbsPath());
-		if(file.exists())
+		Path path = Paths.get(getStoredP2CfgAbsPath());
+		if(Files.exists(path))
 		{
-			loadFromFile(getStoredP2CfgAbsPath());
-		}
-		else
-		{
-			setToDefaults();
+			load(path);
 		}
 	}
 	

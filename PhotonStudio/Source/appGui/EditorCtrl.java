@@ -7,10 +7,11 @@ import appModel.GeneralOption;
 import appModel.console.Console;
 import appModel.console.MessageListener;
 import appModel.event.ProjectEventType;
-import appModel.project.Project;
+import appModel.project.RenderProject;
 import appModel.project.RenderSetting;
+import appView.ProjectLogView;
 import appView.RenderFrameView;
-import appView.SettingGroupView;
+import appView.SettingListener;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,7 +41,7 @@ public class EditorCtrl
 {
 	// TODO: make project able to pickup directly typed text
 	
-	private Editor m_editor;
+	private RenderProject m_project;
     private Display m_display;
 	
 	@FXML private VBox             projectOverviewVbox;
@@ -72,7 +73,7 @@ public class EditorCtrl
 			@Override
 			public void onMessageWritten(String message)
 			{
-				Platform.runLater(() -> updateMessageTextArea());
+				updateMessageTextArea();
 			}
 		});
     	updateMessageTextArea();
@@ -93,48 +94,36 @@ public class EditorCtrl
     		@Override
     		public void showIntermediate(FrameRegion frame)
     		{
-    			Platform.runLater(() -> 
-    			{
-    				loadFrameBuffer(frame);
-    				drawFrame();
-    			});
+				loadFrameBuffer(frame);
+				drawFrame();
     		}
     		
     		@Override
     		public void showFinal(Frame frame)
     		{
-    			Platform.runLater(() -> 
-    			{
-    				if(frame.isValid())
-    		    	{
-    		    		loadFrameBuffer(new FrameRegion(0, 0, frame.getWidthPx(), frame.getHeightPx(), frame));
-    		    		drawFrame();
-    		    	}
-    			});
+				if(frame.isValid())
+		    	{
+		    		loadFrameBuffer(new FrameRegion(0, 0, frame.getWidthPx(), frame.getHeightPx(), frame));
+		    		drawFrame();
+		    	}
     		}
 		};
     }
     
     public void startRenderingStaticScene()
     {
-		String sceneFileName = m_editor.getProject().getRenderSetting().get(RenderSetting.SCENE_FILE_PATH);
-		if(sceneFileName == null)
-		{
-			return;
-		}
-		
 		// TODO: load scene implicitly contains engine update, should make this explicit
 		// TODO: better if we stop the rendering process on failed file loading
 		
-		m_editor.runLoadSceneTask();
-		m_editor.runRenderTask();
-		m_editor.runUpdateStaticImageTask();
+		m_project.runLoadSceneTask();
+		m_project.runRenderTask();
+		m_project.runUpdateStaticImageTask();
     }
     
     @FXML
     void sceneFileBrowseBtnClicked(MouseEvent event)
     {
-    	String workingDirectory = m_editor.getProject().getGeneralOption().get(GeneralOption.WORKING_DIRECTORY);
+    	String workingDirectory = m_project.getGeneralOption().get(GeneralOption.WORKING_DIRECTORY);
     	
     	FSBrowser browser = new FSBrowser(projectOverviewPane.getScene().getWindow());
     	browser.setBrowserTitle("Open Scene File");
@@ -144,7 +133,8 @@ public class EditorCtrl
     	String fileAbsPath = browser.getSelectedFileAbsPath();
 		if(fileAbsPath != "")
 		{
-			m_editor.getProject().getRenderSetting().set(RenderSetting.SCENE_FILE_PATH, fileAbsPath);
+			m_project.getRenderSetting().getSceneFilePath().setValue(fileAbsPath);
+			sceneFileTextField.setText(fileAbsPath);
 		}
     }
 	
@@ -212,48 +202,56 @@ public class EditorCtrl
 //    	messageTextArea.setScrollTop(Double.MAX_VALUE);
 	}
 	
-	public void setEditor(Editor editor)
+	public void setProject(RenderProject project)
 	{
-		m_editor = editor;
+		// TODO: if editor ctrl is reused, need to remove registered view or listeners
 		
-		m_editor.getProject().getRenderSetting().addView(new SettingGroupView()
+		m_project = project;
+		
+		m_project.getRenderSetting().getSceneFilePath().addListener(new SettingListener()
     	{
 			@Override
-			public void showSetting(String name, String value)
+			public void onChanged(String name, String oldValue, String newValue)
 			{
-				Platform.runLater(() -> 
-				{
-					if(name.equals(RenderSetting.SCENE_FILE_PATH))
-		    		{
-		    			sceneFileTextField.setText(value);
-		    		}
-				});
-			}
-			
-			@Override
-			public void showSetting(String name, String oldValue, String newValue)
-			{
-				showSetting(name, newValue);
+		    	sceneFileTextField.setText(newValue);
 			}
     	});
 		
-		int numRenderThreads = Integer.parseInt(m_editor.getProject().getRenderSetting().get(RenderSetting.NUM_RENDER_THREADS));
-    	threadsSpinner.getValueFactory().setValue(numRenderThreads);
-    	threadsSpinner.valueProperty().addListener((observable, oldValue, newValue) -> m_editor.getProject().setNumThreads(newValue));
-    	
-    	sceneFileTextField.setText(m_editor.getProject().getRenderSetting().get(RenderSetting.SCENE_FILE_PATH));
+		m_project.getRenderSetting().getNumThreads().addListener(new SettingListener()
+    	{
+			@Override
+			public void onChanged(String name, String oldValue, String newValue)
+			{
+				int numThreads = Integer.parseInt(newValue);
+		    	threadsSpinner.getValueFactory().setValue(numThreads);
+			}
+    	});
+		
+    	threadsSpinner.valueProperty().addListener((observable, oldValue, newValue) -> 
+    		m_project.getRenderSetting().getNumThreads().setValue(Integer.toString(newValue)));
     	
     	clearFrame();
-//		if(project.getLocalFinalFrame().isValid())
+		if(project.getLocalFinalFrame().isValid())
 		{
-//			loadFinalFrame();
+			Frame frame = project.getLocalFinalFrame();
+			loadFrameBuffer(new FrameRegion(0, 0, frame.getWidthPx(), frame.getHeightPx(), frame));
 			drawFrame();
 		}
 		
-		m_editor.setRenderFrameView(m_renderFrameView);
-		m_editor.setRenderStatusView(m_renderProgressMonitor.getRenderStatusView());
+		m_project.setRenderFrameView(m_renderFrameView);
+		m_project.setRenderStatusView(m_renderProgressMonitor.getRenderStatusView());
 		// FIXME: this is not thread safe, should redesign monitor with swappable project
 //		m_renderProgressMonitor.setMonitoredProject(m_editor.getProject());
+		
+		
+		m_project.setLogView(new ProjectLogView()
+		{
+			@Override
+			public void showLog(String message)
+			{
+				Studio.printToConsole(message);
+			}
+		});
 	}
 	
 	private static ViewCtrlPair<ProjectMonitorCtrl> loadRenderProgressMonitorUI()

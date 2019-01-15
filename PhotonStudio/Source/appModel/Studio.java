@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 
 import appModel.console.Console;
 import appModel.project.Project;
+import appModel.project.RenderProject;
 import photonApi.Ph;
 
 public final class Studio extends ManagedResource
@@ -18,7 +19,6 @@ public final class Studio extends ManagedResource
 	
 	private Map<String, Project> m_projects;
 	private GeneralOption        m_generalOption;
-	private List<Editor>         m_editors;
 	
 	public Studio()
 	{
@@ -26,7 +26,6 @@ public final class Studio extends ManagedResource
 		
 		m_projects      = new HashMap<>();
 		m_generalOption = new GeneralOption();
-		m_editors       = new ArrayList<>();
 	}
 	
 	@Override
@@ -52,11 +51,6 @@ public final class Studio extends ManagedResource
 		for(String projectName : m_projects.keySet())
 		{
 			deleteProject(projectName);
-		}
-		
-		for(Editor editor : m_editors)
-		{
-			deleteEditor(editor);
 		}
 		
 		if(Ph.phExit())
@@ -85,7 +79,7 @@ public final class Studio extends ManagedResource
 		return m_projects.get(projectName);
 	}
 	
-	public Project newProject(String projectName)
+	public RenderProject newRenderProject(String projectName)
 	{
 		if(hasProject(projectName))
 		{
@@ -94,23 +88,13 @@ public final class Studio extends ManagedResource
 		}
 		else
 		{
-			Project project = new Project(projectName, this);
+			RenderProject project = new RenderProject(projectName, this);
 			project.create();
 			
 			m_projects.put(projectName, project);
 			
 			return project;
 		}
-	}
-	
-	public Editor newEditor()
-	{
-		Editor editor = new Editor();
-		editor.create();
-		
-		m_editors.add(editor);
-		
-		return editor;
 	}
 	
 	public void deleteProject(String projectName)
@@ -122,24 +106,9 @@ public final class Studio extends ManagedResource
 		}
 		else
 		{
-			for(Editor editor : m_editors)
-			{
-				if(editor.getProject() == project)
-				{
-					editor.setProject(null);
-				}
-			}
-			
 			project.decompose();
 			m_projects.remove(projectName, project);
 		}
-	}
-	
-	public void deleteEditor(Editor editor)
-	{
-		editor.decompose();
-		
-		m_editors.remove(editor);
 	}
 	
 	public GeneralOption getGeneralOption()

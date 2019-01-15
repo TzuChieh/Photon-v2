@@ -1,9 +1,9 @@
 package appModel.event;
 
-import appModel.project.Project;
+import appModel.project.RenderProject;
 
 public final class ProjectEvent
 {
 	public ProjectEventType type;
-	public Project          source;
+	public RenderProject          source;
 }

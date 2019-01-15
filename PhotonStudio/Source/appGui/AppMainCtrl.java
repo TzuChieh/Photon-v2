@@ -2,7 +2,7 @@ package appGui;
 
 import appModel.Editor;
 import appModel.Studio;
-import appModel.project.Project;
+import appModel.project.RenderProject;
 
 import java.util.HashMap;
 
@@ -151,7 +151,7 @@ public class AppMainCtrl
     
     public void createNewProject(String projectName)
     {
-    	Project project = m_studio.newProject(projectName);
+    	RenderProject project = m_studio.newRenderProject(projectName);
     	if(project == null)
     	{
     		// TODO: log
@@ -165,9 +165,7 @@ public class AppMainCtrl
     		return;
     	}
     	
-    	Editor editor = m_studio.newEditor();
-    	editor.setProject(project);
-    	editorUI.getCtrl().setEditor(editor);
+    	editorUI.getCtrl().setProject(project);
     	m_editorUIs.put(projectName, editorUI);
     	
     	m_managerUI.getCtrl().addProject(projectName);

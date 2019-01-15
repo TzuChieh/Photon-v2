@@ -43,7 +43,8 @@ public class GeneralOptionsCtrl
     @FXML
     void loadDefaultsBtnClicked(MouseEvent event)
     {
-    	m_generalOption.setToDefaults();
+    	// FIXME: broken
+//    	m_generalOption.setToDefaults();
     	
     	setWorkingDirectoryLabel(m_generalOption.get(GeneralOption.WORKING_DIRECTORY));
     }

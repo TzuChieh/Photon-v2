@@ -3,7 +3,7 @@ package appModel.task;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import appGui.EditorCtrl;
-import appModel.project.Project;
+import appModel.project.RenderProject;
 import appView.RenderFrameView;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -13,11 +13,11 @@ import photonApi.Ph;
 
 public class RenderFrameQuery implements Runnable
 {
-	private Project m_project;
+	private RenderProject m_project;
 	private RenderFrameView m_view;
 	
 	public RenderFrameQuery(
-		Project project,
+		RenderProject project,
 		RenderFrameView view)
 	{
 		super();
@@ -29,11 +29,16 @@ public class RenderFrameQuery implements Runnable
 	@Override
 	public void run()
 	{
+		// FIXME: try-catch all
+		
 		FrameRegion updatedFrameRegion = new FrameRegion();
 		FrameStatus frameStatus = m_project.asyncGetUpdatedFrame(Ph.ATTRIBUTE_LIGHT_ENERGY, updatedFrameRegion);
 		if(frameStatus != FrameStatus.INVALID)
 		{
-			m_view.showIntermediate(updatedFrameRegion);
+			Platform.runLater(() -> 
+			{
+				m_view.showIntermediate(updatedFrameRegion);
+			});
 		}
 	}
 }

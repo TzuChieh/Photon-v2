@@ -1,12 +1,13 @@
 package appModel.project;
 
 import appModel.GeneralOption;
+import appModel.Setting;
 import appModel.SettingGroup;
 
-public final class RenderSetting extends SettingGroup
+public class RenderSetting extends SettingGroup
 {
-	public static final String SCENE_FILE_PATH    = "scene-file-path";
-	public static final String NUM_RENDER_THREADS = "num-render-threads";
+	public static final String SCENE_FILE_PATH = "scene-file-path";
+	public static final String NUM_THREADS     = "num-threads";
 	
 	private GeneralOption m_generalOption;
 	
@@ -15,12 +16,18 @@ public final class RenderSetting extends SettingGroup
 		super();
 		
 		m_generalOption = generalOption;
+		
+		add(SCENE_FILE_PATH, m_generalOption.get(GeneralOption.DEFAULT_SCENE_FILE_PATH));
+		add(NUM_THREADS,     "4");
 	}
 	
-	@Override
-	public void setToDefaults()
+	public Setting getSceneFilePath()
 	{
-		set(SCENE_FILE_PATH,    m_generalOption.get(GeneralOption.DEFAULT_SCENE_FILE_PATH));
-		set(NUM_RENDER_THREADS, "4");
+		return getSetting(SCENE_FILE_PATH);
+	}
+	
+	public Setting getNumThreads()
+	{
+		return getSetting(NUM_THREADS);
 	}
 }
