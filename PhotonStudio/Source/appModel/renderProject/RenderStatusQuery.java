@@ -1,45 +1,33 @@
 package appModel.renderProject;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import appGui.renderProject.RenderProjectCtrl;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
-import javafx.fxml.FXML;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.layout.VBox;
-import photonApi.FrameRegion;
-import photonApi.FrameStatus;
-import photonApi.Ph;
 import photonApi.RenderState;
 import photonApi.Statistics;
 import util.Time;
 
 public class RenderStatusQuery implements Runnable
 {
-	private RenderProject m_project;
+	private RenderProject          m_project;
 	private List<RenderStateEntry> m_states;
-	private RenderStatusView m_view;
+	private RenderStatusView       m_view;
 	
-	private String[] m_names;
-	private String[] m_values;
+	private String[]   m_names;
+	private String[]   m_values;
 	private Statistics m_statistics;
-	private double m_startTimeMs;
+	private double     m_startTimeMs;
 	
 	public RenderStatusQuery(
-		RenderProject project,
+		RenderProject          project,
 		List<RenderStateEntry> states,
-		RenderStatusView view)
+		RenderStatusView       view)
 	{
 		super();
 		
 		m_project = project;
-		m_states = states;
-		m_view = view;
+		m_states  = states;
+		m_view    = view;
 		
 		m_names = new String[states.size()];
 		for(int i = 0; i < m_names.length; ++i)
@@ -47,9 +35,8 @@ public class RenderStatusQuery implements Runnable
 			m_names[i] = states.get(i).getName();
 		}
 		
-		m_values = new String[states.size()];
-		
-		m_statistics = new Statistics();
+		m_values      = new String[states.size()];
+		m_statistics  = new Statistics();
 		m_startTimeMs = Time.getTimeMs();
 	}
 

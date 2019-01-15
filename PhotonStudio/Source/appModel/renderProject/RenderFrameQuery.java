@@ -1,10 +1,6 @@
 package appModel.renderProject;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import appGui.renderProject.RenderProjectCtrl;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import photonApi.FrameRegion;
 import photonApi.FrameStatus;
 import photonApi.Ph;

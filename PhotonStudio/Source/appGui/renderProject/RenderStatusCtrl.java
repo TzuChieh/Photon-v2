@@ -1,21 +1,12 @@
 package appGui.renderProject;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import appModel.renderProject.RenderFrameQuery;
-import appModel.renderProject.RenderProject;
-import appModel.renderProject.RenderStateEntry;
-import appModel.renderProject.RenderStatusQuery;
 import appModel.renderProject.RenderStatusView;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
@@ -24,15 +15,12 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import photonApi.FrameRegion;
-import photonApi.FrameStatus;
 import photonApi.Ph;
-import photonApi.RenderState;
-import photonApi.Statistics;
-import util.Time;
 
 public class RenderStatusCtrl
 {
+	// TODO: able to select target attribute to display
+	
 	@FXML private VBox              variablesVBox;
 	@FXML private ProgressBar       renderProgressBar;
 	@FXML private Label             percentageProgressLabel;

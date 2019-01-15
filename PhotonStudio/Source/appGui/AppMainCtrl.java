@@ -18,7 +18,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -34,11 +33,6 @@ public class AppMainCtrl
 	private static final String GENERAL_OPTIONS_FXML_PATH = "/fxmls/GeneralOptions.fxml";
 	private static final String ABOUT_FXML_PATH           = "/fxmls/About.fxml";
 	
-	private Studio             m_studio;
-    private int                   m_projectId;
-//	private AppMainGraphicalState m_graphicalState;
-    private String m_workbenchName;
-	
 	private HashMap<String, ViewCtrlPair<RenderProjectCtrl>> m_projectUIs;
 	private GeneralOptionsCtrl m_generalOptionsCtrl;
 	private ViewCtrlPair<ProjectManagerCtrl> m_projectManagerUI;
@@ -53,6 +47,10 @@ public class AppMainCtrl
 	@FXML private Pane       footerPane;
 	@FXML private Button     renderBtn;
 	@FXML private Label      footerMessagLabel;
+	
+	private Studio m_studio;
+    private int    m_projectId;
+    private String m_workbenchName;
     
 	public AppMainCtrl()
     {

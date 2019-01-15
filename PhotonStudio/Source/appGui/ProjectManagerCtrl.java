@@ -11,11 +11,12 @@ import javafx.scene.layout.BorderPane;
 
 public class ProjectManagerCtrl
 {
-	private Studio m_studio;
 	private ObservableList<String> m_projectNames;
 	
 	@FXML private BorderPane       mainPane;
 	@FXML private ListView<String> projectListView;
+	
+	private Studio m_studio;
     
     @FXML
     public void initialize()

@@ -7,26 +7,18 @@ import appModel.ProjectLogView;
 import appModel.SettingListener;
 import appModel.console.Console;
 import appModel.console.MessageListener;
-import appModel.event.ProjectEventType;
 import appModel.renderProject.RenderFrameView;
 import appModel.renderProject.RenderProject;
-import appModel.renderProject.RenderSetting;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.imageio.ImageIO;
 
 import appGui.util.FSBrowser;
 import appGui.util.UILoader;
 import appGui.util.ViewCtrlPair;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
@@ -50,30 +42,26 @@ import photonApi.FrameRegion;
 
 public class RenderProjectCtrl
 {
-	// TODO: make project able to pickup directly typed text
-	
-	private RenderProject m_project;
-    private Display m_display;
-	
-	@FXML private VBox             projectOverviewVbox;
-	@FXML private TitledPane       projectOverviewPane;
-	@FXML private TextField        sceneFileTextField;
-	@FXML private ProgressBar      renderProgressBar;
-	@FXML private AnchorPane       displayPane;
-	@FXML private Canvas           canvas;
-	@FXML private TextArea         messageTextArea;
-    @FXML private Spinner<Integer> threadsSpinner;
-    @FXML private ScrollPane       progressMonitorScrollPane;
+	@FXML private VBox              projectOverviewVbox;
+	@FXML private TitledPane        projectOverviewPane;
+	@FXML private TextField         sceneFileTextField;
+	@FXML private ProgressBar       renderProgressBar;
+	@FXML private AnchorPane        displayPane;
+	@FXML private Canvas            canvas;
+	@FXML private TextArea          messageTextArea;
+    @FXML private Spinner<Integer>  threadsSpinner;
+    @FXML private ScrollPane        progressMonitorScrollPane;
 	@FXML private ProgressIndicator renderingIndicator;
-	@FXML private Label renderingIndicatorLabel;
-	@FXML private Button startRenderingBtn;
-	@FXML private TextField imageFileSaveFolder;
+	@FXML private Label             renderingIndicatorLabel;
+	@FXML private Button            startRenderingBtn;
+	@FXML private TextField         imageFileSaveFolder;
 	@FXML private ChoiceBox<String> imageFileSaveFormat;
-	@FXML private TextField imageFileSaveName;
+	@FXML private TextField         imageFileSaveName;
     
     private RenderStatusCtrl m_renderProgressMonitor;
-    
-    private RenderFrameView m_renderFrameView;
+    private RenderFrameView  m_renderFrameView;
+    private RenderProject    m_project;
+    private Display          m_display;
     
     @FXML
     public void initialize()
@@ -111,15 +99,8 @@ public class RenderProjectCtrl
 		updateMessageTextArea();
 		
 		ViewCtrlPair<RenderStatusCtrl> renderProgressMonitorUI = loadRenderProgressMonitorUI();
-		//    	progressMonitorPane.getChildren().clear();
-		//    	progressMonitorPane.getChildren().add(renderProgressMonitorUI.getView());
-		//    	AnchorPane.setTopAnchor(renderProgressMonitorUI.getView(), 0.0);
-		//    	AnchorPane.setBottomAnchor(renderProgressMonitorUI.getView(), 0.0);
-		//    	AnchorPane.setLeftAnchor(renderProgressMonitorUI.getView(), 0.0);
-		//    	AnchorPane.setRightAnchor(renderProgressMonitorUI.getView(), 0.0);
 		progressMonitorScrollPane.setContent(renderProgressMonitorUI.getView());
 		m_renderProgressMonitor = renderProgressMonitorUI.getCtrl();
-		
 		
 		m_renderFrameView = new RenderFrameView()
 		{
@@ -320,9 +301,6 @@ public class RenderProjectCtrl
 		
 		m_project.setRenderFrameView(m_renderFrameView);
 		m_project.setRenderStatusView(m_renderProgressMonitor.getRenderStatusView());
-		// FIXME: this is not thread safe, should redesign monitor with swappable project
-//		m_renderProgressMonitor.setMonitoredProject(m_editor.getProject());
-		
 		
 		m_project.setLogView(new ProjectLogView()
 		{

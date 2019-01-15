@@ -1,8 +1,5 @@
 package appModel.renderProject;
 
-import javafx.application.Platform;
-import javafx.scene.control.Label;
-
 public class RenderStateEntry
 {
 	private static final int INTEGER = 1;

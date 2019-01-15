@@ -11,11 +11,8 @@ import java.util.concurrent.TimeUnit;
 
 import appModel.Studio;
 import appModel.GeneralOption;
-import appModel.ManagedResource;
 import appModel.Project;
 import appModel.ShowView;
-import appModel.event.ProjectEventListener;
-import appModel.event.ProjectEventType;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import photonApi.FilmInfo;
@@ -31,39 +28,37 @@ import photonApi.Statistics;
 
 public class RenderProject extends Project
 {
-	private RenderSetting m_renderSetting;
-	
 	private PhEngine m_engine;
 	private PhFrame  m_finalFrame;
 	private PhFrame  m_transientFrame;
 	private Frame    m_localFinalFrame;
 	
-	private RenderStatusView m_renderStatusView;
-	private RenderFrameView m_renderFrameView;
-	private ExecutorService m_projectTaskExecutor;
-	private ScheduledExecutorService m_monitorExecutor;
-	private List<Future<?>> m_monitorHandles;
+	private Studio        m_studio;
+	private RenderSetting m_renderSetting;
 	
-	private Studio m_studio;
+	private RenderStatusView         m_renderStatusView;
+	private RenderFrameView          m_renderFrameView;
+	private ExecutorService          m_projectTaskExecutor;
+	private ScheduledExecutorService m_monitorExecutor;
+	private List<Future<?>>          m_monitorHandles;
 	
 	public RenderProject(String projectName, Studio studio)
 	{
 		super(projectName);
-		
-		m_renderSetting   = new RenderSetting(studio.getGeneralOption());
 		
 		m_engine          = null;
 		m_finalFrame      = null;
 		m_transientFrame  = null;
 		m_localFinalFrame = new Frame();
 		
-		m_renderStatusView = new RenderStatusView(){};
-		m_renderFrameView = new RenderFrameView(){};
-		m_projectTaskExecutor = null;
-		m_monitorExecutor = null;
-		m_monitorHandles = new ArrayList<>();
+		m_studio        = studio;
+		m_renderSetting = new RenderSetting(studio.getGeneralOption());
 		
-		m_studio = studio;
+		m_renderStatusView    = new RenderStatusView(){};
+		m_renderFrameView     = new RenderFrameView(){};
+		m_projectTaskExecutor = null;
+		m_monitorExecutor     = null;
+		m_monitorHandles      = new ArrayList<>();
 	}
 	
 	@Override
@@ -74,7 +69,7 @@ public class RenderProject extends Project
 		m_transientFrame = new PhFrame(0, 0);
 		
 		m_projectTaskExecutor = Executors.newSingleThreadExecutor();
-		m_monitorExecutor = Executors.newSingleThreadScheduledExecutor();
+		m_monitorExecutor     = Executors.newSingleThreadScheduledExecutor();
 	}
 
 	@Override
