@@ -114,7 +114,7 @@ public class AppMainCtrl
 	{
 		// TODO: customizable project name
 		final String newProjectName = "project " + m_projectId++;
-		createNewProject(newProjectName);
+		createRenderProject(newProjectName);
 //		m_graphicalState.setActiveProject(newProjectName);
 		setWorkbenchAsProjectView();
 	}
@@ -193,7 +193,7 @@ public class AppMainCtrl
     	m_aboutWindow.show();
     }
     
-    public void createNewProject(String projectName)
+    public void createRenderProject(String projectName)
     {
     	RenderProject project = m_studio.newRenderProject(projectName);
     	if(project == null)

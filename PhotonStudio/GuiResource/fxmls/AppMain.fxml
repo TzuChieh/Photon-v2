@@ -47,6 +47,7 @@
             </MenuBar>
             <ToolBar prefHeight="70.0" prefWidth="200.0">
               <items>
+                  <Separator orientation="VERTICAL" />
                   <Group>
                      <children>
                         <Label rotate="-90.0" text="Workbenches" textFill="LIGHTSKYBLUE">

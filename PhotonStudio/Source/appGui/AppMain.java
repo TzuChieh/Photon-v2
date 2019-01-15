@@ -115,7 +115,7 @@ public class AppMain extends Application
 		AppMainCtrl appMainCtrl = fxmlLoader.getController();
 		
 		appMainCtrl.setStudio(m_studio);
-		appMainCtrl.createNewProject("(default project)");
+		appMainCtrl.createRenderProject("(default project)");
 		appMainCtrl.setWorkbenchAsProjectView();
 		
 		Scene scene = new Scene(appMainView, 1280, 680);
