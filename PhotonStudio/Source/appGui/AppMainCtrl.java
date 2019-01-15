@@ -92,13 +92,13 @@ public class AppMainCtrl
 	@FXML
 	void editImageBtnClicked(ActionEvent event)
 	{
-	
+		// TODO
 	}
 	
 	@FXML
 	void minecraftBtnClicked(ActionEvent event)
 	{
-		
+		// TODO
 	}
 	
 	@FXML
@@ -120,7 +120,13 @@ public class AppMainCtrl
 	@FXML
 	void saveProjectBtnClicked(ActionEvent event)
 	{
+		// TODO
+	}
 	
+	@FXML
+	void scenesBtnClicked(ActionEvent event)
+	{
+		// TODO
 	}
 
 //	@FXML

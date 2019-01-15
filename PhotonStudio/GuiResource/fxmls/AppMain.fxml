@@ -123,6 +123,28 @@
                         </ImageView>
                      </graphic>
                   </Button>
+                  <Separator orientation="VERTICAL" />
+                  <Group>
+                     <children>
+                        <Label rotate="-90.0" text="Resources" textFill="LIGHTSKYBLUE">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <padding>
+                              <Insets bottom="5.0" top="5.0" />
+                           </padding>
+                        </Label>
+                     </children>
+                  </Group>
+                  <Button contentDisplay="TOP" mnemonicParsing="false" onAction="#scenesBtnClicked" prefWidth="100.0" style="-fx-base: #000000;" text="Scenes">
+                     <graphic>
+                        <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../images/scenes.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
               </items>
             </ToolBar>
          </children>
