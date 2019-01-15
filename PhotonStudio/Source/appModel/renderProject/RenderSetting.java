@@ -1,4 +1,4 @@
-package appModel.project;
+package appModel.renderProject;
 
 import appModel.GeneralOption;
 import appModel.Setting;

@@ -1,9 +1,8 @@
-package appModel.task;
+package appModel.renderProject;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import appGui.EditorCtrl;
-import appModel.project.RenderProject;
+import appGui.renderProject.RenderProjectCtrl;
 import appView.RenderFrameView;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -29,8 +28,20 @@ public class RenderFrameQuery implements Runnable
 	@Override
 	public void run()
 	{
-		// FIXME: try-catch all
-		
+		// Scheduled executors will silently consumes errors and stop running,
+		// at least we can get an error message by this try-catch block.
+		try
+		{
+			query();
+		}
+		catch(Throwable t)
+		{
+			t.printStackTrace();
+		}
+	}
+	
+	private void query()
+	{
 		FrameRegion updatedFrameRegion = new FrameRegion();
 		FrameStatus frameStatus = m_project.asyncGetUpdatedFrame(Ph.ATTRIBUTE_LIGHT_ENERGY, updatedFrameRegion);
 		if(frameStatus != FrameStatus.INVALID)

@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import appModel.project.RenderProject;
-import appModel.task.RenderFrameQuery;
-import appModel.task.RenderStateEntry;
-import appModel.task.RenderStatusQuery;
+import appModel.renderProject.RenderFrameQuery;
+import appModel.renderProject.RenderProject;
+import appModel.renderProject.RenderStateEntry;
+import appModel.renderProject.RenderStatusQuery;
 import appView.RenderStatusView;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;

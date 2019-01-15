@@ -1,4 +1,4 @@
-package appModel.project;
+package appModel.renderProject;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,11 +12,9 @@ import java.util.concurrent.TimeUnit;
 import appModel.Studio;
 import appModel.GeneralOption;
 import appModel.ManagedResource;
+import appModel.Project;
 import appModel.event.ProjectEventListener;
 import appModel.event.ProjectEventType;
-import appModel.task.RenderFrameQuery;
-import appModel.task.RenderStateEntry;
-import appModel.task.RenderStatusQuery;
 import appView.RenderFrameView;
 import appView.RenderStatusView;
 import javafx.application.Platform;

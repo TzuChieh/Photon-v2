@@ -9,8 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import appModel.console.Console;
-import appModel.project.Project;
-import appModel.project.RenderProject;
+import appModel.renderProject.RenderProject;
 import photonApi.Ph;
 
 public final class Studio extends ManagedResource
@@ -19,13 +18,15 @@ public final class Studio extends ManagedResource
 	
 	private Map<String, Project> m_projects;
 	private GeneralOption        m_generalOption;
+	private Project              m_currentProject;
 	
 	public Studio()
 	{
 		super();
 		
-		m_projects      = new HashMap<>();
-		m_generalOption = new GeneralOption();
+		m_projects       = new HashMap<>();
+		m_generalOption  = new GeneralOption();
+		m_currentProject = null;
 	}
 	
 	@Override
@@ -109,6 +110,20 @@ public final class Studio extends ManagedResource
 			project.decompose();
 			m_projects.remove(projectName, project);
 		}
+	}
+	
+	public void setCurrentProject(String projectName)
+	{
+		Project project = getProject(projectName);
+		if(project != null)
+		{
+			m_currentProject = project;
+		}
+	}
+	
+	public Project getCurrentProject()
+	{
+		return m_currentProject;
 	}
 	
 	public GeneralOption getGeneralOption()

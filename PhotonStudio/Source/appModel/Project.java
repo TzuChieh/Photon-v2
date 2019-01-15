@@ -1,11 +1,9 @@
-package appModel.project;
+package appModel;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import appModel.ManagedResource;
-import appModel.SettingGroup;
 import appView.ProjectLogView;
 
 public abstract class Project extends ManagedResource

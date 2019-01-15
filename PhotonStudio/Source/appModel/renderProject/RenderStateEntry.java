@@ -1,4 +1,4 @@
-package appModel.task;
+package appModel.renderProject;
 
 import javafx.application.Platform;
 import javafx.scene.control.Label;

@@ -1,7 +1,4 @@
-package appModel.project;
-
-import appModel.Setting;
-import appModel.SettingGroup;
+package appModel;
 
 public class ProjectSetting extends SettingGroup
 {

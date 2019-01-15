@@ -1,11 +1,11 @@
 package appGui;
 
-import appModel.Editor;
 import appModel.Studio;
-import appModel.project.RenderProject;
+import appModel.renderProject.RenderProject;
 
 import java.util.HashMap;
 
+import appGui.renderProject.RenderProjectCtrl;
 import appGui.util.ChildWindow;
 import appGui.util.UILoader;
 import appGui.util.ViewCtrlPair;
@@ -27,7 +27,7 @@ import javafx.scene.paint.Color;
 public class AppMainCtrl
 {
 	private static final String MANAGER_FXML_PATH         = "/fxmls/Manager.fxml";
-	private static final String EDITOR_FXML_PATH          = "/fxmls/Editor.fxml";
+	private static final String RENDER_PROJECT_FXML_PATH  = "/fxmls/renderProject/RenderProject.fxml";
 	private static final String MINECRAFT_FXML_PATH       = "/fxmls/Minecraft.fxml";
 	private static final String GENERAL_OPTIONS_FXML_PATH = "/fxmls/GeneralOptions.fxml";
 	private static final String ABOUT_FXML_PATH           = "/fxmls/About.fxml";
@@ -36,7 +36,7 @@ public class AppMainCtrl
     private int                   m_projectId;
 	private AppMainGraphicalState m_graphicalState;
 	
-	private HashMap<String, ViewCtrlPair<EditorCtrl>> m_editorUIs;
+	private HashMap<String, ViewCtrlPair<RenderProjectCtrl>> m_editorUIs;
 	private GeneralOptionsCtrl m_generalOptionsCtrl;
 	private ViewCtrlPair<ManagerCtrl> m_managerUI;
 	private ViewCtrlPair<MinecraftCtrl> m_minecraftUI;
@@ -88,7 +88,7 @@ public class AppMainCtrl
 	@FXML
 	void saveImageBtnClicked(MouseEvent event)
 	{
-		ViewCtrlPair<EditorCtrl> editorUI = getActiveEditorUI();
+		ViewCtrlPair<RenderProjectCtrl> editorUI = getActiveEditorUI();
 		if(editorUI == null)
 		{
 			// TODO: log
@@ -103,7 +103,7 @@ public class AppMainCtrl
 	@FXML
 	void renderBtnClicked(MouseEvent event)
 	{
-		ViewCtrlPair<EditorCtrl> editorUI = getActiveEditorUI();
+		ViewCtrlPair<RenderProjectCtrl> editorUI = getActiveEditorUI();
 		if(editorUI == null)
 		{
 			// TODO: log
@@ -158,7 +158,7 @@ public class AppMainCtrl
     		return;
     	}
     	
-    	ViewCtrlPair<EditorCtrl> editorUI = loadEditorUI();
+    	ViewCtrlPair<RenderProjectCtrl> editorUI = loadEditorUI();
     	if(!editorUI.isValid())
     	{
     		// TODO: log
@@ -188,9 +188,9 @@ public class AppMainCtrl
     	setWorkbenchView(getActiveEditorUI().getView(), "project editor");
     }
     
-	private static ViewCtrlPair<EditorCtrl> loadEditorUI()
+	private static ViewCtrlPair<RenderProjectCtrl> loadEditorUI()
 	{
-		return new UILoader().load(EditorCtrl.class.getResource(EDITOR_FXML_PATH));
+		return new UILoader().load(RenderProjectCtrl.class.getResource(RENDER_PROJECT_FXML_PATH));
 	}
     
     private void loadGeneralOptionsUI()
@@ -227,10 +227,10 @@ public class AppMainCtrl
     	m_graphicalState.setActiveViewName(viewName);
     }
     
-    private ViewCtrlPair<EditorCtrl> getActiveEditorUI()
+    private ViewCtrlPair<RenderProjectCtrl> getActiveEditorUI()
     {
     	String                   activeProject = m_graphicalState.getActiveProjectName();
-    	ViewCtrlPair<EditorCtrl> editorUI      = m_editorUIs.get(activeProject);
+    	ViewCtrlPair<RenderProjectCtrl> editorUI      = m_editorUIs.get(activeProject);
     	
     	return editorUI;
     }

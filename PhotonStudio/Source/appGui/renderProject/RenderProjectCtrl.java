@@ -1,14 +1,13 @@
-package appGui;
+package appGui.renderProject;
 
 import appModel.Display;
-import appModel.Editor;
 import appModel.Studio;
 import appModel.GeneralOption;
 import appModel.console.Console;
 import appModel.console.MessageListener;
 import appModel.event.ProjectEventType;
-import appModel.project.RenderProject;
-import appModel.project.RenderSetting;
+import appModel.renderProject.RenderProject;
+import appModel.renderProject.RenderSetting;
 import appView.ProjectLogView;
 import appView.RenderFrameView;
 import appView.SettingListener;
@@ -16,6 +15,7 @@ import appView.SettingListener;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import appGui.ProjectMonitorCtrl;
 import appGui.util.FSBrowser;
 import appGui.util.UILoader;
 import appGui.util.ViewCtrlPair;
@@ -37,7 +37,7 @@ import javafx.scene.paint.Color;
 import photonApi.Frame;
 import photonApi.FrameRegion;
 
-public class EditorCtrl
+public class RenderProjectCtrl
 {
 	// TODO: make project able to pickup directly typed text
 	
@@ -256,6 +256,6 @@ public class EditorCtrl
 	
 	private static ViewCtrlPair<ProjectMonitorCtrl> loadRenderProgressMonitorUI()
     {
-    	return new UILoader().load(EditorCtrl.class.getResource("/fxmls/RenderProgressMonitor.fxml"));
+    	return new UILoader().load(RenderProjectCtrl.class.getResource("/fxmls/RenderProgressMonitor.fxml"));
     }
 }

@@ -1,6 +1,6 @@
 package appModel.event;
 
-import appModel.project.RenderProject;
+import appModel.renderProject.RenderProject;
 
 public final class ProjectEvent
 {

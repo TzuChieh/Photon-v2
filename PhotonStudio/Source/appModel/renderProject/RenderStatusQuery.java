@@ -1,11 +1,10 @@
-package appModel.task;
+package appModel.renderProject;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import appGui.EditorCtrl;
-import appModel.project.RenderProject;
+import appGui.renderProject.RenderProjectCtrl;
 import appView.RenderStatusView;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -16,6 +15,7 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
 import photonApi.FrameRegion;
 import photonApi.FrameStatus;
+import photonApi.Ph;
 import photonApi.RenderState;
 import photonApi.Statistics;
 import util.Time;
@@ -57,8 +57,20 @@ public class RenderStatusQuery implements Runnable
 	@Override
 	public void run()
 	{
-		// FIXME: try-catch all
-		
+		// Scheduled executors will silently consumes errors and stop running,
+		// at least we can get an error message by this try-catch block.
+		try
+		{
+			query();
+		}
+		catch(Throwable t)
+		{
+			t.printStackTrace();
+		}
+	}
+	
+	private void query()
+	{
 		m_project.asyncGetRendererStatistics(m_statistics);
 		
 		final double normalizedProgress    = m_statistics.percentageProgress / 100.0;

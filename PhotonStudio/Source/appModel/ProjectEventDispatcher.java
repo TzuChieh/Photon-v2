@@ -1,4 +1,4 @@
-package appModel.project;
+package appModel;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -8,6 +8,7 @@ import java.util.Map;
 import appModel.event.ProjectEvent;
 import appModel.event.ProjectEventListener;
 import appModel.event.ProjectEventType;
+import appModel.renderProject.RenderProject;
 
 public final class ProjectEventDispatcher
 {
