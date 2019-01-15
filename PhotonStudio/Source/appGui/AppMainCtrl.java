@@ -32,11 +32,13 @@ public class AppMainCtrl
 	private static final String MINECRAFT_FXML_PATH       = "/fxmls/Minecraft.fxml";
 	private static final String GENERAL_OPTIONS_FXML_PATH = "/fxmls/GeneralOptions.fxml";
 	private static final String ABOUT_FXML_PATH           = "/fxmls/About.fxml";
+	private static final String SCENES_FXML_PATH          = "/fxmls/Scenes.fxml";
 	
 	private HashMap<String, ViewCtrlPair<RenderProjectCtrl>> m_projectUIs;
 	private GeneralOptionsCtrl m_generalOptionsCtrl;
 	private ViewCtrlPair<ProjectManagerCtrl> m_projectManagerUI;
 	private ViewCtrlPair<MinecraftCtrl> m_minecraftUI;
+	private ViewCtrlPair<MinecraftCtrl> m_scenesUI;
 	
 	private ChildWindow m_generalOptionsWindow;
 	private ChildWindow m_aboutWindow;
@@ -81,6 +83,7 @@ public class AppMainCtrl
 //		m_managerUI.getCtrl().setAppMainGraphicalState(m_graphicalState);
 		
 		m_minecraftUI = m_uiLoader.load(getClass().getResource(MINECRAFT_FXML_PATH));
+		m_scenesUI = m_uiLoader.load(getClass().getResource(SCENES_FXML_PATH));
 	}
 	
 	@FXML
@@ -98,13 +101,13 @@ public class AppMainCtrl
 	@FXML
 	void minecraftBtnClicked(ActionEvent event)
 	{
-		// TODO
+		setWorkbenchView(m_minecraftUI.getView(), "Minecraft");
 	}
 	
 	@FXML
 	void projectsBtnClicked(ActionEvent event)
 	{
-		setWorkbenchView(m_projectManagerUI.getView(), "project manager");
+		setWorkbenchView(m_projectManagerUI.getView(), "Project Manager");
 	}
 	
 	@FXML
@@ -126,7 +129,7 @@ public class AppMainCtrl
 	@FXML
 	void scenesBtnClicked(ActionEvent event)
 	{
-		// TODO
+		setWorkbenchView(m_scenesUI.getView(), "Scenes");
 	}
 
 //	@FXML
@@ -245,7 +248,7 @@ public class AppMainCtrl
     
     public void setWorkbenchAsProjectView()
     {
-    	setWorkbenchView(getCurrentProjectUI().getView(), "project editor");
+    	setWorkbenchView(getCurrentProjectUI().getView(), "Render Project Editor");
     }
     
 	private static ViewCtrlPair<RenderProjectCtrl> loadProjectUI()
