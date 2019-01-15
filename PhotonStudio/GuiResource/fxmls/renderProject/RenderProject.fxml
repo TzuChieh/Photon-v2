@@ -4,6 +4,7 @@
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.ScrollPane?>
@@ -55,13 +56,63 @@
                                                    </padding>
                                                    <children>
                                                       <Button fx:id="startRenderingBtn" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#startRenderingBtnClicked" text="Start Rendering" />
-                                                      <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#saveImageBtnClicked" text="Save Image" GridPane.rowIndex="1" />
                                                       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1">
                                                          <children>
                                                             <ProgressIndicator fx:id="renderingIndicator" />
                                                             <Label fx:id="renderingIndicatorLabel" text="System Standby..." />
                                                          </children>
                                                       </HBox>
+                                                      <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="70.0" prefWidth="100.0" />
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                         <children>
+                                                            <TextField fx:id="imageFileSaveFolder" maxWidth="1.7976931348623157E308" prefHeight="23.0" prefWidth="147.0">
+                                                               <GridPane.margin>
+                                                                  <Insets left="5.0" />
+                                                               </GridPane.margin>
+                                                            </TextField>
+                                                            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onMouseClicked="#saveImageFolderBtnClicked" text="Folder" GridPane.columnIndex="1" />
+                                                         </children>
+                                                      </GridPane>
+                                                      <GridPane GridPane.rowIndex="2">
+                                                        <columnConstraints>
+                                                          <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                        </columnConstraints>
+                                                        <rowConstraints>
+                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                        </rowConstraints>
+                                                         <children>
+                                                            <ChoiceBox fx:id="imageFileSaveFormat" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1">
+                                                               <opaqueInsets>
+                                                                  <Insets />
+                                                               </opaqueInsets>
+                                                               <GridPane.margin>
+                                                                  <Insets />
+                                                               </GridPane.margin>
+                                                            </ChoiceBox>
+                                                            <Label text="Image Format" />
+                                                         </children>
+                                                      </GridPane>
+                                                      <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#saveImageBtnClicked" prefHeight="30.0" prefWidth="132.0" text="Save Image" GridPane.rowIndex="1" />
+                                                      <GridPane GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                                        <columnConstraints>
+                                                          <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="89.0" minWidth="10.0" prefWidth="52.0" />
+                                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="143.0" minWidth="10.0" prefWidth="143.0" />
+                                                        </columnConstraints>
+                                                        <rowConstraints>
+                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                        </rowConstraints>
+                                                         <children>
+                                                            <Label text="Name" />
+                                                            <TextField fx:id="imageFileSaveName" GridPane.columnIndex="1" />
+                                                         </children>
+                                                      </GridPane>
                                                    </children>
                                                 </GridPane>
                                              </content></ScrollPane>

@@ -3,6 +3,7 @@ package appModel;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import javax.imageio.ImageIO;
 
@@ -66,21 +67,32 @@ public class Display
 		}
 	}
 	
-	public void saveImage(String imageDirectory, String imageName)
+	public void saveImage(Path filePath)
     {
     	BufferedImage image = SwingFXUtils.fromFXImage(m_image, null);
-    	try 
+    	
+    	String filename = filePath.getFileName().toString();
+		int    dotIndex = filename.lastIndexOf('.');
+		if(dotIndex != -1)
 		{
-		    File outputfile = new File(imageDirectory + imageName + ".png");
-		    ImageIO.write(image, "png", outputfile);
-		    
-		    Studio.printToConsole("image saved");
-		} 
-		catch(IOException e)
+			try 
+			{
+				String extension = filename.substring(dotIndex + 1);
+				
+			    ImageIO.write(image, extension.toLowerCase(), filePath.toFile());
+			    
+			    Studio.printToConsole("image saved to <" + filePath + ">");
+			} 
+			catch(IOException e)
+			{
+				e.printStackTrace();
+				
+				Studio.printToConsole("image saving failed");
+			}
+		}
+		else
 		{
-			e.printStackTrace();
-			
-			Studio.printToConsole("image saving failed");
+			Studio.printToConsole("image saving failed, bad file path");
 		}
     }
 	

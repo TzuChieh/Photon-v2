@@ -12,19 +12,27 @@ import appModel.renderProject.RenderFrameView;
 import appModel.renderProject.RenderProject;
 import appModel.renderProject.RenderSetting;
 
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.imageio.ImageIO;
 
 import appGui.util.FSBrowser;
 import appGui.util.UILoader;
 import appGui.util.ViewCtrlPair;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
@@ -59,6 +67,9 @@ public class RenderProjectCtrl
 	@FXML private ProgressIndicator renderingIndicator;
 	@FXML private Label renderingIndicatorLabel;
 	@FXML private Button startRenderingBtn;
+	@FXML private TextField imageFileSaveFolder;
+	@FXML private ChoiceBox<String> imageFileSaveFormat;
+	@FXML private TextField imageFileSaveName;
     
     private RenderStatusCtrl m_renderProgressMonitor;
     
@@ -71,6 +82,18 @@ public class RenderProjectCtrl
 		
 		renderingIndicator.setManaged(false);
 		renderingIndicator.setVisible(false);
+		
+		ObservableList<String> imageFormats = FXCollections.observableArrayList();
+		String[] supportedFormats = ImageIO.getWriterFormatNames();
+		for(String supportedFormat : supportedFormats)
+		{
+			if(Character.isLowerCase(supportedFormat.charAt(0)))
+			{
+				imageFormats.add(supportedFormat);
+			}
+		}
+		imageFileSaveFormat.setItems(imageFormats);
+		imageFileSaveFormat.setValue("png");
 		
 		canvas.widthProperty().addListener(observable -> {clearFrame(); drawFrame();});
 		canvas.heightProperty().addListener(observable -> {clearFrame(); drawFrame();});
@@ -127,7 +150,7 @@ public class RenderProjectCtrl
     	FSBrowser browser = new FSBrowser(projectOverviewPane.getScene().getWindow());
     	browser.setBrowserTitle("Open Scene File");
     	browser.setStartingAbsDirectory(workingDirectory);
-    	browser.startBrowsingFile();
+    	browser.startOpeningFile();
     	
     	String fileAbsPath = browser.getSelectedFileAbsPath();
 		if(fileAbsPath != "")
@@ -170,8 +193,28 @@ public class RenderProjectCtrl
 	@FXML
 	void saveImageBtnClicked(ActionEvent event)
 	{
-		String imageName = "image - " + m_project.getProjectSetting().getProjectName().getValue();
-		m_display.saveImage("./", imageName);
+		String folder    = imageFileSaveFolder.getText();
+		String name      = imageFileSaveName.getText();
+		String extension = imageFileSaveFormat.getValue();
+		
+		m_display.saveImage(Paths.get(folder + "/" + name + "." + extension));
+	}
+	
+	@FXML
+	void saveImageFolderBtnClicked(MouseEvent event)
+	{
+		String workingDirectory = m_project.getGeneralOption().get(GeneralOption.WORKING_DIRECTORY);
+    	
+    	FSBrowser browser = new FSBrowser(projectOverviewPane.getScene().getWindow());
+    	browser.setBrowserTitle("Open Scene File");
+    	browser.setStartingAbsDirectory(workingDirectory);
+    	browser.startOpeningDirectory();
+    	
+    	String folderAbsPath = browser.getSelectedDirectoryAbsPath();
+		if(folderAbsPath != "")
+		{
+			imageFileSaveFolder.setText(folderAbsPath);
+		}
 	}
 	
     public void loadFrameBuffer(FrameRegion frameRegion)
@@ -238,6 +281,12 @@ public class RenderProjectCtrl
 		// TODO: if editor ctrl is reused, need to remove registered view or listeners
 		
 		m_project = project;
+		
+		String projectName = m_project.getProjectSetting().getProjectName().getValue();
+		
+		String imageName = "image - " + projectName;
+		imageFileSaveName.setText(imageName);
+		imageFileSaveFolder.setText("./");
 		
 		m_project.getRenderSetting().getSceneFilePath().addListener(new SettingListener()
     	{

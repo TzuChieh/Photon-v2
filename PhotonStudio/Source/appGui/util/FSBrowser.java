@@ -23,7 +23,7 @@ public final class FSBrowser
 		m_selectedTarget    = null;
 	}
 	
-	public void startBrowsingFile()
+	public void startOpeningFile()
 	{
 		FileChooser chooser = new FileChooser();
 		chooser.setTitle(m_browserTitle);
@@ -32,7 +32,16 @@ public final class FSBrowser
 		m_selectedTarget = chooser.showOpenDialog(m_ownerWindow);
 	}
 	
-	public void startBrowsingDirectory()
+	public void startSavingFile()
+	{
+		FileChooser chooser = new FileChooser();
+		chooser.setTitle(m_browserTitle);
+		chooser.setInitialDirectory(m_startingDirectory);
+			    
+		m_selectedTarget = chooser.showSaveDialog(m_ownerWindow);
+	}
+	
+	public void startOpeningDirectory()
 	{
 		DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle(m_browserTitle);

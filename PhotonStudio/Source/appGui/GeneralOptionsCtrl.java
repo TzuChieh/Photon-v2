@@ -23,7 +23,7 @@ public class GeneralOptionsCtrl
     {
     	FSBrowser browser = new FSBrowser(workingDirectoryLabel.getScene().getWindow());
     	browser.setBrowserTitle("Select Working Directory");
-		browser.startBrowsingDirectory();
+		browser.startOpeningDirectory();
 		
 		String directoryAbsPath = browser.getSelectedDirectoryAbsPath();
 		if(directoryAbsPath != "")
