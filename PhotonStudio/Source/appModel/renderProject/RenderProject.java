@@ -13,6 +13,7 @@ import appModel.Studio;
 import appModel.GeneralOption;
 import appModel.ManagedResource;
 import appModel.Project;
+import appModel.ShowView;
 import appModel.event.ProjectEventListener;
 import appModel.event.ProjectEventType;
 import javafx.application.Platform;
@@ -89,25 +90,58 @@ public class RenderProject extends Project
 		m_transientFrame.dispose();
 	}
 	
-	public void runLoadSceneTask()
+	public void runLoadSceneTask(ShowView before, ShowView after)
 	{
-		m_projectTaskExecutor.submit(newLoadSceneTask());
+		runTask(newLoadSceneTask(), before, after);
 	}
 	
-	public void runRenderTask()
+	public void runRenderTask(ShowView before, ShowView after)
 	{
 		Task<Void> renderTask = newRenderTask();
 		renderTask.setOnRunning((event) -> startMonitoring());
 		renderTask.setOnFailed((event) -> stopMonitoring());
 		renderTask.setOnSucceeded((event) -> stopMonitoring());
-		m_projectTaskExecutor.submit(renderTask);
+		
+		runTask(renderTask, before, after);
 	}
 	
-	public void runUpdateStaticImageTask()
+	public void runUpdateStaticImageTask(ShowView before, ShowView after)
 	{
 		Task<Void> updateStaticImageTask = newUpdateStaticImageTask();
 		updateStaticImageTask.setOnSucceeded((event) -> m_renderFrameView.showFinal(getLocalFinalFrame()));
-		m_projectTaskExecutor.submit(updateStaticImageTask);
+		
+		runTask(updateStaticImageTask, before, after);
+	}
+	
+	public void runTask(Task<Void> task, ShowView before, ShowView after)
+	{
+		if(before != null)
+		{
+			m_projectTaskExecutor.submit(new Task<Void>()
+			{
+				@Override
+				protected Void call() throws Exception
+				{
+					Platform.runLater(() -> before.show());
+					return null;
+				}
+			});
+		}
+		
+		m_projectTaskExecutor.submit(task);
+		
+		if(after != null)
+		{
+			m_projectTaskExecutor.submit(new Task<Void>()
+			{
+				@Override
+				protected Void call() throws Exception
+				{
+					Platform.runLater(() -> after.show());
+					return null;
+				}
+			});
+		}
 	}
 	
 	public void asyncGetRendererStatistics(Statistics out_statistics)

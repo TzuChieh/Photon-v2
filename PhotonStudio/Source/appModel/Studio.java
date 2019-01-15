@@ -2,9 +2,11 @@ package appModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -51,7 +53,10 @@ public final class Studio extends ManagedResource
 	@Override
 	protected void decomposeResource()
 	{
-		for(String projectName : m_projects.keySet())
+		// Iterates through all project names and delete them. A copied set is
+		// required since the project map is modified during deletion.
+		Set<String> projectNames = new HashSet<>(m_projects.keySet());
+		for(String projectName : projectNames)
 		{
 			deleteProject(projectName);
 		}

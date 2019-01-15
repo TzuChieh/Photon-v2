@@ -20,10 +20,14 @@ import appGui.util.UILoader;
 import appGui.util.ViewCtrlPair;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextArea;
@@ -52,6 +56,9 @@ public class RenderProjectCtrl
 	@FXML private TextArea         messageTextArea;
     @FXML private Spinner<Integer> threadsSpinner;
     @FXML private ScrollPane       progressMonitorScrollPane;
+	@FXML private ProgressIndicator renderingIndicator;
+	@FXML private Label renderingIndicatorLabel;
+	@FXML private Button startRenderingBtn;
     
     private RenderStatusCtrl m_renderProgressMonitor;
     
@@ -60,14 +67,17 @@ public class RenderProjectCtrl
     @FXML
     public void initialize()
     {
-    	m_display = new Display();
-    	
-    	canvas.widthProperty().addListener(observable -> {clearFrame(); drawFrame();});
-    	canvas.heightProperty().addListener(observable -> {clearFrame(); drawFrame();});
-    	canvas.widthProperty().bind(displayPane.widthProperty());
-    	canvas.heightProperty().bind(displayPane.heightProperty());
-    	
-    	Studio.getConsole().addListener(new MessageListener()
+		m_display = new Display();
+		
+		renderingIndicator.setManaged(false);
+		renderingIndicator.setVisible(false);
+		
+		canvas.widthProperty().addListener(observable -> {clearFrame(); drawFrame();});
+		canvas.heightProperty().addListener(observable -> {clearFrame(); drawFrame();});
+		canvas.widthProperty().bind(displayPane.widthProperty());
+		canvas.heightProperty().bind(displayPane.heightProperty());
+		
+		Studio.getConsole().addListener(new MessageListener()
 		{
 			@Override
 			public void onMessageWritten(String message)
@@ -75,48 +85,38 @@ public class RenderProjectCtrl
 				updateMessageTextArea();
 			}
 		});
-    	updateMessageTextArea();
-    	
-    	ViewCtrlPair<RenderStatusCtrl> renderProgressMonitorUI = loadRenderProgressMonitorUI();
-//    	progressMonitorPane.getChildren().clear();
-//    	progressMonitorPane.getChildren().add(renderProgressMonitorUI.getView());
-//    	AnchorPane.setTopAnchor(renderProgressMonitorUI.getView(), 0.0);
-//    	AnchorPane.setBottomAnchor(renderProgressMonitorUI.getView(), 0.0);
-//    	AnchorPane.setLeftAnchor(renderProgressMonitorUI.getView(), 0.0);
-//    	AnchorPane.setRightAnchor(renderProgressMonitorUI.getView(), 0.0);
-    	progressMonitorScrollPane.setContent(renderProgressMonitorUI.getView());
-    	m_renderProgressMonitor = renderProgressMonitorUI.getCtrl();
-    	
-    	
-    	m_renderFrameView = new RenderFrameView()
+		updateMessageTextArea();
+		
+		ViewCtrlPair<RenderStatusCtrl> renderProgressMonitorUI = loadRenderProgressMonitorUI();
+		//    	progressMonitorPane.getChildren().clear();
+		//    	progressMonitorPane.getChildren().add(renderProgressMonitorUI.getView());
+		//    	AnchorPane.setTopAnchor(renderProgressMonitorUI.getView(), 0.0);
+		//    	AnchorPane.setBottomAnchor(renderProgressMonitorUI.getView(), 0.0);
+		//    	AnchorPane.setLeftAnchor(renderProgressMonitorUI.getView(), 0.0);
+		//    	AnchorPane.setRightAnchor(renderProgressMonitorUI.getView(), 0.0);
+		progressMonitorScrollPane.setContent(renderProgressMonitorUI.getView());
+		m_renderProgressMonitor = renderProgressMonitorUI.getCtrl();
+		
+		
+		m_renderFrameView = new RenderFrameView()
 		{
-    		@Override
-    		public void showIntermediate(FrameRegion frame)
-    		{
+			@Override
+			public void showIntermediate(FrameRegion frame)
+			{
 				loadFrameBuffer(frame);
 				drawFrame();
-    		}
-    		
-    		@Override
-    		public void showFinal(Frame frame)
-    		{
+			}
+			
+			@Override
+			public void showFinal(Frame frame)
+			{
 				if(frame.isValid())
 		    	{
 		    		loadFrameBuffer(new FrameRegion(0, 0, frame.getWidthPx(), frame.getHeightPx(), frame));
 		    		drawFrame();
 		    	}
-    		}
+			}
 		};
-    }
-    
-    public void startRenderingStaticScene()
-    {
-		// TODO: load scene implicitly contains engine update, should make this explicit
-		// TODO: better if we stop the rendering process on failed file loading
-		
-		m_project.runLoadSceneTask();
-		m_project.runRenderTask();
-		m_project.runUpdateStaticImageTask();
     }
     
     @FXML
@@ -136,6 +136,43 @@ public class RenderProjectCtrl
 			sceneFileTextField.setText(fileAbsPath);
 		}
     }
+    
+	@FXML
+	void startRenderingBtnClicked(ActionEvent event)
+	{
+		// TODO: load scene implicitly contains engine update, should make this explicit
+		// TODO: better if we stop the rendering process on failed file loading
+		
+		final String oldText = renderingIndicatorLabel.getText();
+		
+		m_project.runLoadSceneTask(() -> 
+		{
+			renderingIndicatorLabel.setText("Loading Scene...");
+			renderingIndicator.setManaged(true);
+			renderingIndicator.setVisible(true);
+			startRenderingBtn.setDisable(true);
+		}, null);
+		
+		m_project.runRenderTask(() -> 
+		{
+			renderingIndicatorLabel.setText("Rendering Scene...");
+		}, null);
+		
+		m_project.runUpdateStaticImageTask(null, () -> 
+		{
+			renderingIndicatorLabel.setText(oldText);
+			renderingIndicator.setManaged(false);
+			renderingIndicator.setVisible(false);
+			startRenderingBtn.setDisable(false);
+		});
+	}
+    
+	@FXML
+	void saveImageBtnClicked(ActionEvent event)
+	{
+		String imageName = "image - " + m_project.getProjectSetting().getProjectName().getValue();
+		m_display.saveImage("./", imageName);
+	}
 	
     public void loadFrameBuffer(FrameRegion frameRegion)
 	{
@@ -174,11 +211,6 @@ public class RenderProjectCtrl
 		            (canvas.getWidth() - imageWidth) * 0.5, (canvas.getHeight() - imageHeight) * 0.5, 
 		            imageWidth, imageHeight);
 	}
-    
-    public void saveDisplayImage(String imageName)
-    {
-    	m_display.saveImage("./", imageName);
-    }
     
     private void updateMessageTextArea()
     {

@@ -84,9 +84,33 @@ public class AppMainCtrl
 		
 		m_minecraftUI = m_uiLoader.load(getClass().getResource(MINECRAFT_FXML_PATH));
 	}
+	
+	@FXML
+	void editProjectBtnClicked(ActionEvent event)
+	{
+		setWorkbenchAsProjectView();
+	}
 
 	@FXML
-	void newProjectBtnClicked(MouseEvent event)
+	void editImageBtnClicked(ActionEvent event)
+	{
+	
+	}
+	
+	@FXML
+	void minecraftBtnClicked(ActionEvent event)
+	{
+		
+	}
+	
+	@FXML
+	void projectsBtnClicked(ActionEvent event)
+	{
+		setWorkbenchView(m_projectManagerUI.getView(), "project manager");
+	}
+	
+	@FXML
+	void renderBtnClicked(ActionEvent event)
 	{
 		// TODO: customizable project name
 		final String newProjectName = "project " + m_projectId++;
@@ -96,50 +120,66 @@ public class AppMainCtrl
 	}
 	
 	@FXML
-	void saveImageBtnClicked(MouseEvent event)
+	void saveProjectBtnClicked(ActionEvent event)
 	{
-		ViewCtrlPair<RenderProjectCtrl> projectUI = getCurrentProjectUI();
-		if(projectUI == null)
-		{
-			// TODO: log
-			return;
-		}
-		
-		// TODO: customizable image name
-		String imageName = "result - " + m_studio.getCurrentProject().getProjectSetting().getProjectName().getValue();
-		projectUI.getCtrl().saveDisplayImage(imageName);
-	}
 	
-	@FXML
-	void renderBtnClicked(MouseEvent event)
-	{
-		ViewCtrlPair<RenderProjectCtrl> projectUI = getCurrentProjectUI();
-		if(projectUI == null)
-		{
-			// TODO: log
-			return;
-		}
-		
-		projectUI.getCtrl().startRenderingStaticScene();
 	}
+
+//	@FXML
+//	void newProjectBtnClicked(MouseEvent event)
+//	{
+//		// TODO: customizable project name
+//		final String newProjectName = "project " + m_projectId++;
+//		createNewProject(newProjectName);
+////		m_graphicalState.setActiveProject(newProjectName);
+//		setWorkbenchAsProjectView();
+//	}
 	
-	@FXML
-	void managerBtnClicked(MouseEvent event)
-	{
-		setWorkbenchView(m_projectManagerUI.getView(), "project manager");
-	}
+//	@FXML
+//	void saveImageBtnClicked(MouseEvent event)
+//	{
+//		ViewCtrlPair<RenderProjectCtrl> projectUI = getCurrentProjectUI();
+//		if(projectUI == null)
+//		{
+//			// TODO: log
+//			return;
+//		}
+//		
+//		// TODO: customizable image name
+//		String imageName = "result - " + m_studio.getCurrentProject().getProjectSetting().getProjectName().getValue();
+//		projectUI.getCtrl().saveDisplayImage(imageName);
+//	}
 	
-	@FXML
-	void editorBtnClicked(MouseEvent event)
-	{
-		setWorkbenchAsProjectView();
-	}
+//	@FXML
+//	void renderBtnClicked(MouseEvent event)
+//	{
+//		ViewCtrlPair<RenderProjectCtrl> projectUI = getCurrentProjectUI();
+//		if(projectUI == null)
+//		{
+//			// TODO: log
+//			return;
+//		}
+//		
+//		projectUI.getCtrl().startRenderingStaticScene();
+//	}
 	
-	@FXML
-	void minecraftBtnClicked(MouseEvent event)
-	{
-		setWorkbenchView(m_minecraftUI.getView(), "minecraft");
-	}
+//	@FXML
+//	void managerBtnClicked(MouseEvent event)
+//	{
+//		
+//	}
+	
+//	@FXML
+//	void editorBtnClicked(MouseEvent event)
+//	{
+//		setWorkbenchAsProjectView();
+//	}
+	
+//	@FXML
+//	void minecraftBtnClicked(MouseEvent event)
+//	{
+//		
+//	}
 	
 	@FXML
 	void generalOptionsClicked(ActionEvent event)
