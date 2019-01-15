@@ -71,20 +71,23 @@ public class RenderStatusQuery implements Runnable
 			m_view.showTimeRemaining((long)(remainingRenderTimeMs + 0.5));
 		});
 		
+		// TODO: use Number, abstract away long & float
 		RenderState state = m_project.asyncGetRenderState();
-		for(RenderStateEntry entry : m_states)
+		for(int i = 0; i < m_states.size(); ++i)
 		{
-			String value = "invalid";
+			RenderStateEntry entry = m_states.get(i);
 			if(entry.isInteger())
 			{
-				value = Long.toString(state.integerStates[entry.getIndex()]);
+				m_values[i] = Long.toString(state.integerStates[entry.getIndex()]);
 			}
 			else if(entry.isReal())
 			{
-				value = Float.toString(state.realStates[entry.getIndex()]);
+				m_values[i] = Float.toString(state.realStates[entry.getIndex()]);
 			}
-			
-			m_values[entry.getIndex()] = value;
+			else
+			{
+				m_values[i] = "invalid";
+			}
 		}
 		
 		Platform.runLater(() -> 
