@@ -15,12 +15,12 @@ public abstract class ManagedResource
 		m_lifeCycleListeners = new ArrayList<>();
 	}
 	
-	protected abstract void initResource();
-	protected abstract void freeResource();
+	protected abstract void createResource();
+	protected abstract void decomposeResource();
 	
 	public void create()
 	{
-		initResource();
+		createResource();
 		
 		for(LifeCycleListener listener : m_lifeCycleListeners)
 		{
@@ -41,7 +41,7 @@ public abstract class ManagedResource
 			listener.onDecompose(event);
 		}
 		
-		freeResource();
+		decomposeResource();
 	}
 	
 	public void addLifeCycleListener(LifeCycleListener listener)

@@ -19,6 +19,7 @@ public final class Studio extends ManagedResource
 	private Map<String, Project> m_projects;
 	private GeneralOption        m_generalOption;
 	private Project              m_currentProject;
+	private StudioStatusView     m_statusView;
 	
 	public Studio()
 	{
@@ -27,10 +28,11 @@ public final class Studio extends ManagedResource
 		m_projects       = new HashMap<>();
 		m_generalOption  = new GeneralOption();
 		m_currentProject = null;
+		m_statusView     = new StudioStatusView(){};
 	}
 	
 	@Override
-	protected void initResource()
+	protected void createResource()
 	{
 		Ph.loadLibrary();
 		
@@ -47,7 +49,7 @@ public final class Studio extends ManagedResource
 	}
 	
 	@Override
-	protected void freeResource()
+	protected void decomposeResource()
 	{
 		for(String projectName : m_projects.keySet())
 		{
@@ -71,7 +73,7 @@ public final class Studio extends ManagedResource
 	
 	public Project getProject(String projectName)
 	{
-		if(hasProject(projectName))
+		if(!hasProject(projectName))
 		{
 			System.err.println("no project named " + projectName);
 			return null;
@@ -118,7 +120,13 @@ public final class Studio extends ManagedResource
 		if(project != null)
 		{
 			m_currentProject = project;
+			m_statusView.showCurrentProject(project);
 		}
+	}
+	
+	public void setStatusView(StudioStatusView view)
+	{
+		m_statusView = view;
 	}
 	
 	public Project getCurrentProject()

@@ -3,19 +3,18 @@ package appGui.renderProject;
 import appModel.Display;
 import appModel.Studio;
 import appModel.GeneralOption;
+import appModel.ProjectLogView;
+import appModel.SettingListener;
 import appModel.console.Console;
 import appModel.console.MessageListener;
 import appModel.event.ProjectEventType;
+import appModel.renderProject.RenderFrameView;
 import appModel.renderProject.RenderProject;
 import appModel.renderProject.RenderSetting;
-import appView.ProjectLogView;
-import appView.RenderFrameView;
-import appView.SettingListener;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import appGui.ProjectMonitorCtrl;
 import appGui.util.FSBrowser;
 import appGui.util.UILoader;
 import appGui.util.ViewCtrlPair;
@@ -54,7 +53,7 @@ public class RenderProjectCtrl
     @FXML private Spinner<Integer> threadsSpinner;
     @FXML private ScrollPane       progressMonitorScrollPane;
     
-    private ProjectMonitorCtrl m_renderProgressMonitor;
+    private RenderStatusCtrl m_renderProgressMonitor;
     
     private RenderFrameView m_renderFrameView;
     
@@ -78,7 +77,7 @@ public class RenderProjectCtrl
 		});
     	updateMessageTextArea();
     	
-    	ViewCtrlPair<ProjectMonitorCtrl> renderProgressMonitorUI = loadRenderProgressMonitorUI();
+    	ViewCtrlPair<RenderStatusCtrl> renderProgressMonitorUI = loadRenderProgressMonitorUI();
 //    	progressMonitorPane.getChildren().clear();
 //    	progressMonitorPane.getChildren().add(renderProgressMonitorUI.getView());
 //    	AnchorPane.setTopAnchor(renderProgressMonitorUI.getView(), 0.0);
@@ -254,8 +253,8 @@ public class RenderProjectCtrl
 		});
 	}
 	
-	private static ViewCtrlPair<ProjectMonitorCtrl> loadRenderProgressMonitorUI()
+	private static ViewCtrlPair<RenderStatusCtrl> loadRenderProgressMonitorUI()
     {
-    	return new UILoader().load(RenderProjectCtrl.class.getResource("/fxmls/RenderProgressMonitor.fxml"));
+    	return new UILoader().load(RenderProjectCtrl.class.getResource("/fxmls/renderProject/RenderStatus.fxml"));
     }
 }

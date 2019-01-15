@@ -1,6 +1,8 @@
 package appGui;
 
+import appModel.Project;
 import appModel.Studio;
+import appModel.StudioStatusView;
 import appModel.renderProject.RenderProject;
 
 import java.util.HashMap;
@@ -26,7 +28,7 @@ import javafx.scene.paint.Color;
 
 public class AppMainCtrl
 {
-	private static final String MANAGER_FXML_PATH         = "/fxmls/Manager.fxml";
+	private static final String PROJECT_MANAGER_FXML_PATH = "/fxmls/ProjectManager.fxml";
 	private static final String RENDER_PROJECT_FXML_PATH  = "/fxmls/renderProject/RenderProject.fxml";
 	private static final String MINECRAFT_FXML_PATH       = "/fxmls/Minecraft.fxml";
 	private static final String GENERAL_OPTIONS_FXML_PATH = "/fxmls/GeneralOptions.fxml";
@@ -34,11 +36,12 @@ public class AppMainCtrl
 	
 	private Studio             m_studio;
     private int                   m_projectId;
-	private AppMainGraphicalState m_graphicalState;
+//	private AppMainGraphicalState m_graphicalState;
+    private String m_workbenchName;
 	
-	private HashMap<String, ViewCtrlPair<RenderProjectCtrl>> m_editorUIs;
+	private HashMap<String, ViewCtrlPair<RenderProjectCtrl>> m_projectUIs;
 	private GeneralOptionsCtrl m_generalOptionsCtrl;
-	private ViewCtrlPair<ManagerCtrl> m_managerUI;
+	private ViewCtrlPair<ProjectManagerCtrl> m_projectManagerUI;
 	private ViewCtrlPair<MinecraftCtrl> m_minecraftUI;
 	
 	private ChildWindow m_generalOptionsWindow;
@@ -49,14 +52,20 @@ public class AppMainCtrl
 	@FXML private AnchorPane workbenchPane;
 	@FXML private Pane       footerPane;
 	@FXML private Button     renderBtn;
-	@FXML private Label      footerMsgLbl;
+	@FXML private Label      footerMessagLabel;
     
+	public AppMainCtrl()
+    {
+    	m_studio = null;
+    	m_projectId = 0;
+    }
+	
 	@FXML
 	public void initialize()
 	{
 		m_uiLoader = new UILoader();
 		
-		m_editorUIs = new HashMap<>();
+		m_projectUIs = new HashMap<>();
 		
 		m_generalOptionsWindow = new ChildWindow();
 		m_aboutWindow          = new ChildWindow();
@@ -64,13 +73,14 @@ public class AppMainCtrl
 		footerPane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 	//    	renderBtn.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
 		
-		m_graphicalState = new AppMainGraphicalState(this);
+//		m_graphicalState = new AppMainGraphicalState(this);
+		m_workbenchName = "";
 		
 		loadGeneralOptionsUI();
 		loadAboutUI();
 		
-		m_managerUI = m_uiLoader.load(getClass().getResource(MANAGER_FXML_PATH));
-		m_managerUI.getCtrl().setAppMainGraphicalState(m_graphicalState);
+		m_projectManagerUI = m_uiLoader.load(getClass().getResource(PROJECT_MANAGER_FXML_PATH));
+//		m_managerUI.getCtrl().setAppMainGraphicalState(m_graphicalState);
 		
 		m_minecraftUI = m_uiLoader.load(getClass().getResource(MINECRAFT_FXML_PATH));
 	}
@@ -81,48 +91,48 @@ public class AppMainCtrl
 		// TODO: customizable project name
 		final String newProjectName = "project " + m_projectId++;
 		createNewProject(newProjectName);
-		m_graphicalState.setActiveProject(newProjectName);
-		setWorkbenchAsEditorView();
+//		m_graphicalState.setActiveProject(newProjectName);
+		setWorkbenchAsProjectView();
 	}
 	
 	@FXML
 	void saveImageBtnClicked(MouseEvent event)
 	{
-		ViewCtrlPair<RenderProjectCtrl> editorUI = getActiveEditorUI();
-		if(editorUI == null)
+		ViewCtrlPair<RenderProjectCtrl> projectUI = getCurrentProjectUI();
+		if(projectUI == null)
 		{
 			// TODO: log
 			return;
 		}
 		
 		// TODO: customizable image name
-		String imageName = "result - " + m_graphicalState.getActiveProjectName();
-		editorUI.getCtrl().saveDisplayImage(imageName);
+		String imageName = "result - " + m_studio.getCurrentProject().getProjectSetting().getProjectName().getValue();
+		projectUI.getCtrl().saveDisplayImage(imageName);
 	}
 	
 	@FXML
 	void renderBtnClicked(MouseEvent event)
 	{
-		ViewCtrlPair<RenderProjectCtrl> editorUI = getActiveEditorUI();
-		if(editorUI == null)
+		ViewCtrlPair<RenderProjectCtrl> projectUI = getCurrentProjectUI();
+		if(projectUI == null)
 		{
 			// TODO: log
 			return;
 		}
 		
-		editorUI.getCtrl().startRenderingStaticScene();
+		projectUI.getCtrl().startRenderingStaticScene();
 	}
 	
 	@FXML
 	void managerBtnClicked(MouseEvent event)
 	{
-		setWorkbenchView(m_managerUI.getView(), "project manager");
+		setWorkbenchView(m_projectManagerUI.getView(), "project manager");
 	}
 	
 	@FXML
 	void editorBtnClicked(MouseEvent event)
 	{
-		setWorkbenchAsEditorView();
+		setWorkbenchAsProjectView();
 	}
 	
 	@FXML
@@ -143,59 +153,65 @@ public class AppMainCtrl
     	m_aboutWindow.show();
     }
     
-    public AppMainCtrl()
-    {
-    	m_studio = null;
-    	m_projectId = 0;
-    }
-    
     public void createNewProject(String projectName)
     {
     	RenderProject project = m_studio.newRenderProject(projectName);
     	if(project == null)
     	{
-    		// TODO: log
+    		System.err.println("error on creating project");
     		return;
     	}
     	
-    	ViewCtrlPair<RenderProjectCtrl> editorUI = loadEditorUI();
-    	if(!editorUI.isValid())
+    	ViewCtrlPair<RenderProjectCtrl> projectUI = loadProjectUI();
+    	if(!projectUI.isValid())
     	{
-    		// TODO: log
+    		System.err.println("error on loading project UI");
     		return;
     	}
     	
-    	editorUI.getCtrl().setProject(project);
-    	m_editorUIs.put(projectName, editorUI);
+    	projectUI.getCtrl().setProject(project);
+    	m_projectUIs.put(projectName, projectUI);
+    	m_projectManagerUI.getCtrl().addProject(projectName);
     	
-    	m_managerUI.getCtrl().addProject(projectName);
+    	m_studio.setCurrentProject(projectName);
     }
     
     public void setStudio(Studio studio)
     {
     	m_studio = studio;
+    	
+    	m_projectManagerUI.getCtrl().setStudio(studio);
     	m_generalOptionsCtrl.setGeneralOption(studio.getGeneralOption());
+    	
+    	m_studio.setStatusView(new StudioStatusView()
+		{
+    		@Override
+    		public void showCurrentProject(Project project)
+    		{
+    			assert(project != null);
+    			
+    			setWorkbenchAsProjectView();
+    			
+    			footerMessagLabel.setText(
+					"Project: "   + project.getProjectSetting().getProjectName().getValue() + " | " + 
+                    "Workbench: " + m_workbenchName);
+    		}
+		});
     }
     
-    public void updateFooterText()
+    public void setWorkbenchAsProjectView()
     {
-    	footerMsgLbl.setText("Project: "   + m_graphicalState.getActiveProjectName() + " | " + 
-    	                     "Workbench: " + m_graphicalState.getActiveViewName());
+    	setWorkbenchView(getCurrentProjectUI().getView(), "project editor");
     }
     
-    public void setWorkbenchAsEditorView()
-    {
-    	setWorkbenchView(getActiveEditorUI().getView(), "project editor");
-    }
-    
-	private static ViewCtrlPair<RenderProjectCtrl> loadEditorUI()
+	private static ViewCtrlPair<RenderProjectCtrl> loadProjectUI()
 	{
-		return new UILoader().load(RenderProjectCtrl.class.getResource(RENDER_PROJECT_FXML_PATH));
+		return new UILoader().load(AppMainCtrl.class.getResource(RENDER_PROJECT_FXML_PATH));
 	}
     
     private void loadGeneralOptionsUI()
     {
-    	ViewCtrlPair<GeneralOptionsCtrl> ui = m_uiLoader.load(getClass().getResource(GENERAL_OPTIONS_FXML_PATH));
+    	ViewCtrlPair<GeneralOptionsCtrl> ui = m_uiLoader.load(AppMainCtrl.class.getResource(GENERAL_OPTIONS_FXML_PATH));
     	if(ui.isValid())
     	{
     		m_generalOptionsCtrl = ui.getCtrl();
@@ -206,7 +222,7 @@ public class AppMainCtrl
     
     private void loadAboutUI()
     {
-    	Parent view = m_uiLoader.loadView(getClass().getResource(ABOUT_FXML_PATH));
+    	Parent view = m_uiLoader.loadView(AppMainCtrl.class.getResource(ABOUT_FXML_PATH));
     	if(view != null)
     	{
     		m_aboutWindow.setContent(new Scene(view));
@@ -214,7 +230,7 @@ public class AppMainCtrl
     	}
     }
     
-    private void setWorkbenchView(Parent view, String viewName)
+    private void setWorkbenchView(Parent view, String workbenchName)
     {
     	workbenchPane.getChildren().clear();
     	workbenchPane.getChildren().add(view);
@@ -224,14 +240,14 @@ public class AppMainCtrl
     	AnchorPane.setLeftAnchor(view, 0.0);
     	AnchorPane.setRightAnchor(view, 0.0);
     	
-    	m_graphicalState.setActiveViewName(viewName);
+    	m_workbenchName = workbenchName;
     }
     
-    private ViewCtrlPair<RenderProjectCtrl> getActiveEditorUI()
+    private ViewCtrlPair<RenderProjectCtrl> getCurrentProjectUI()
     {
-    	String                   activeProject = m_graphicalState.getActiveProjectName();
-    	ViewCtrlPair<RenderProjectCtrl> editorUI      = m_editorUIs.get(activeProject);
+    	assert(m_studio != null);
     	
-    	return editorUI;
+    	String currentProject = m_studio.getCurrentProject().getProjectSetting().getProjectName().getValue();
+    	return m_projectUIs.get(currentProject);
     }
 }

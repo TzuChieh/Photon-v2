@@ -116,7 +116,7 @@ public class AppMain extends Application
 		
 		appMainCtrl.setStudio(m_studio);
 		appMainCtrl.createNewProject("(default project)");
-		appMainCtrl.setWorkbenchAsEditorView();
+		appMainCtrl.setWorkbenchAsProjectView();
 		
 		Scene scene = new Scene(appMainView, 1280, 680);
 		

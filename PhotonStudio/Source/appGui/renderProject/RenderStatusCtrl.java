@@ -1,4 +1,4 @@
-package appGui;
+package appGui.renderProject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import appModel.renderProject.RenderFrameQuery;
 import appModel.renderProject.RenderProject;
 import appModel.renderProject.RenderStateEntry;
 import appModel.renderProject.RenderStatusQuery;
-import appView.RenderStatusView;
+import appModel.renderProject.RenderStatusView;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -31,7 +31,7 @@ import photonApi.RenderState;
 import photonApi.Statistics;
 import util.Time;
 
-public class ProjectMonitorCtrl
+public class RenderStatusCtrl
 {
 	@FXML private VBox              variablesVBox;
 	@FXML private ProgressBar       renderProgressBar;
@@ -45,7 +45,7 @@ public class ProjectMonitorCtrl
 	
 	private RenderStatusView m_renderStatusView;
 	
-	public ProjectMonitorCtrl()
+	public RenderStatusCtrl()
 	{
 		m_chosenAttribute = new AtomicInteger(Ph.ATTRIBUTE_LIGHT_ENERGY);
 		

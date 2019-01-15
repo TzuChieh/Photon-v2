@@ -3,7 +3,6 @@ package appModel.renderProject;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import appGui.renderProject.RenderProjectCtrl;
-import appView.RenderFrameView;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import photonApi.FrameRegion;

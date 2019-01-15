@@ -1,4 +1,4 @@
-package appView;
+package appModel;
 
 public interface ProjectLogView
 {

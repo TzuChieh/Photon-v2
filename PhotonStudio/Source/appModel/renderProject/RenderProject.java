@@ -15,8 +15,6 @@ import appModel.ManagedResource;
 import appModel.Project;
 import appModel.event.ProjectEventListener;
 import appModel.event.ProjectEventType;
-import appView.RenderFrameView;
-import appView.RenderStatusView;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import photonApi.FilmInfo;
@@ -68,7 +66,7 @@ public class RenderProject extends Project
 	}
 	
 	@Override
-	protected void initResource()
+	protected void createResource()
 	{
 		m_engine         = new PhEngine(1);
 		m_finalFrame     = new PhFrame(0, 0);
@@ -79,7 +77,7 @@ public class RenderProject extends Project
 	}
 
 	@Override
-	protected void freeResource()
+	protected void decomposeResource()
 	{
 		// TODO: stop all engine work
 		

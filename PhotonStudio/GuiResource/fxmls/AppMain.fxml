@@ -104,7 +104,7 @@
    <bottom>
       <Pane fx:id="footerPane" BorderPane.alignment="BOTTOM_CENTER">
          <children>
-            <Label fx:id="footerMsgLbl" text="Label" textFill="#32c832">
+            <Label fx:id="footerMessagLabel" text="Label" textFill="#32c832">
                <font>
                   <Font name="Consolas Bold" size="12.0" />
                </font>

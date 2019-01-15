@@ -1,4 +1,4 @@
-package appView;
+package appModel.renderProject;
 
 import photonApi.Frame;
 import photonApi.FrameRegion;

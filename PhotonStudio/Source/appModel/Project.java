@@ -4,8 +4,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import appView.ProjectLogView;
-
 public abstract class Project extends ManagedResource
 {
 	private ProjectSetting m_projectSetting;
@@ -20,10 +18,10 @@ public abstract class Project extends ManagedResource
 	}
 	
 	@Override
-	protected abstract void initResource();
+	protected abstract void createResource();
 	
 	@Override
-	protected abstract void freeResource();
+	protected abstract void decomposeResource();
 	
 	public void save(Path path)
 	{

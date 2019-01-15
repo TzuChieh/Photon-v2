@@ -1,4 +1,4 @@
-package appView;
+package appModel.renderProject;
 
 public interface RenderStatusView
 {
