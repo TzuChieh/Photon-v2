@@ -6,8 +6,8 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
 <TitledPane animated="false" collapsible="false" prefHeight="200.0" prefWidth="400.0" text="Display Information" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="appGui.DisplayInfoCtrl">
@@ -84,7 +84,7 @@
                      </font></Label>
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="2">
                      <children>
-                        <Pane fx:id="colorPane" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" prefHeight="20.0" prefWidth="20.0" />
+                        <Rectangle fx:id="colorRectangle" arcHeight="5.0" arcWidth="5.0" height="20.0" stroke="BLACK" strokeType="INSIDE" width="20.0" />
                         <Label text=" RGB = (">
                            <font>
                               <Font name="Courier New" size="12.0" />
@@ -97,10 +97,15 @@
                            <font>
                               <Font name="Courier New" size="12.0" />
                            </font></Label>
-                        <Label fx:id="cursorG" text="255, ">
+                        <Label fx:id="cursorG" text="255">
                            <font>
                               <Font name="Courier New" size="12.0" />
                            </font></Label>
+                        <Label text=", ">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font>
+                        </Label>
                         <Label fx:id="cursorB" text="255">
                            <font>
                               <Font name="Courier New" size="12.0" />

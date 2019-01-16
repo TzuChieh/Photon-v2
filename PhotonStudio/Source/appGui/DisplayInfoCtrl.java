@@ -5,20 +5,22 @@ import appModel.DisplayView;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 public class DisplayInfoCtrl
 {
-	@FXML private Label frameResolutionX;
-	@FXML private Label frameResolutionY;
-	@FXML private Label cursorX;
-	@FXML private Label cursorY;
-	@FXML private Label cursorR;
-	@FXML private Label cursorG;
-	@FXML private Label cursorB;
-	@FXML private Label percentageZoom;
-	@FXML private Pane  colorPane;
-	@FXML private Label displayResolutionX;
-	@FXML private Label displayResolutionY;
+	@FXML private Label     frameResolutionX;
+	@FXML private Label     frameResolutionY;
+	@FXML private Label     cursorX;
+	@FXML private Label     cursorY;
+	@FXML private Label     cursorR;
+	@FXML private Label     cursorG;
+	@FXML private Label     cursorB;
+	@FXML private Label     percentageZoom;
+	@FXML private Rectangle colorRectangle;
+	@FXML private Label     displayResolutionX;
+	@FXML private Label     displayResolutionY;
 	
 	private Display m_display;
 	
@@ -59,6 +61,9 @@ public class DisplayInfoCtrl
 				cursorR.setText(Integer.toString(r255));
 				cursorG.setText(Integer.toString(g255));
 				cursorB.setText(Integer.toString(b255));
+				
+				Color color = new Color(r255 / 255.0, g255 / 255.0, b255 / 255.0, 1.0);
+				colorRectangle.setFill(color);
 			}
 			
 			@Override

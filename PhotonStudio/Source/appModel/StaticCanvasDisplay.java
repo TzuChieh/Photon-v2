@@ -53,8 +53,20 @@ public class StaticCanvasDisplay extends Display
 			@Override
 			public void handle(MouseEvent event)
 			{
-				System.out.println(event.getX());
-		        System.out.println(event.getY());
+				Vector2f canvasCoordPx = new Vector2f((float)event.getX(), (float)event.getY());
+				Vector2f frameCoordPx  = getFrameCoordPx(canvasCoordPx);
+				getDisplayView().showCursorCoord((int)frameCoordPx.x, (int)frameCoordPx.y);
+				
+				int x = (int)frameCoordPx.x;
+				int y = (int)(m_image.getHeight() - frameCoordPx.y);
+				x = Math.min(x, getFrameWidthPx() - 1);
+				y = Math.min(y, getFrameHeightPx() - 1);
+				
+				Color color = m_image.getPixelReader().getColor(x, y);
+				getDisplayView().showCursorColor(
+					(int)(color.getRed() * 255.0), 
+					(int)(color.getGreen() * 255.0), 
+					(int)(color.getBlue() * 255.0));
 			}
 		});
 		
@@ -178,8 +190,26 @@ public class StaticCanvasDisplay extends Display
 			(float)(m_canvas.getHeight() - drawSizePx.y) * 0.5f);
 	}
 	
-//	private Vector2i getFrameCoordPx(Vector2f canvasCoordPx)
-//	{
-//		
-//	}
+	private Vector2f getFrameCoordPx(Vector2f canvasCoordPx)
+	{
+		// FIXME: centered and fitted frame assumed
+		Vector2f drawResPx = getFittedDrawResPx();
+		Vector2f originPx  = getCenteredOriginPx(drawResPx);
+		
+		// flipping canvas y
+		Vector2f coordPx = new Vector2f(canvasCoordPx.x, (float)m_canvas.getHeight() - canvasCoordPx.y);
+		
+		// relative to drawed frame
+		coordPx = coordPx.sub(originPx);
+		
+		// normalize and scale to match actual frame size
+		Vector2f frameSizePx = new Vector2f((float)m_image.getWidth(), (float)m_image.getHeight());
+		coordPx = coordPx.div(drawResPx).mul(frameSizePx);
+		
+		// clamp to edge
+		coordPx.x = Math.max(Math.min(coordPx.x, frameSizePx.x), 0);
+		coordPx.y = Math.max(Math.min(coordPx.y, frameSizePx.y), 0);
+		
+		return coordPx;
+	}
 }

@@ -21,6 +21,46 @@ public class Vector2f
 		this.y = y;
 	}
 	
+	public Vector2f add(Vector2f rhs)
+	{
+		return new Vector2f(x + rhs.x, y + rhs.y);
+	}
+	
+	public Vector2f add(float rhs)
+	{
+		return new Vector2f(x + rhs, y + rhs);
+	}
+	
+	public Vector2f sub(Vector2f rhs)
+	{
+		return new Vector2f(x - rhs.x, y - rhs.y);
+	}
+	
+	public Vector2f sub(float rhs)
+	{
+		return new Vector2f(x - rhs, y - rhs);
+	}
+	
+	public Vector2f mul(Vector2f rhs)
+	{
+		return new Vector2f(x * rhs.x, y * rhs.y);
+	}
+	
+	public Vector2f mul(float rhs)
+	{
+		return new Vector2f(x * rhs, y * rhs);
+	}
+	
+	public Vector2f div(Vector2f rhs)
+	{
+		return new Vector2f(x / rhs.x, y / rhs.y);
+	}
+	
+	public Vector2f div(float rhs)
+	{
+		return new Vector2f(x / rhs, y / rhs);
+	}
+	
 	@Override
 	public boolean equals(Object obj)
 	{
