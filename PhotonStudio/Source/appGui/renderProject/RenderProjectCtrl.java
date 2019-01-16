@@ -1,6 +1,6 @@
 package appGui.renderProject;
 
-import appModel.Display;
+import appModel.StaticCanvasDisplay;
 import appModel.Studio;
 import appModel.GeneralOption;
 import appModel.ProjectLogView;
@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import javax.imageio.ImageIO;
 
 import appGui.widget.FSBrowser;
+import appGui.widget.Layouts;
 import appGui.widget.UILoader;
 import appGui.widget.UI;
 import javafx.collections.FXCollections;
@@ -47,7 +48,6 @@ public class RenderProjectCtrl
 	@FXML private TextField         sceneFileTextField;
 	@FXML private ProgressBar       renderProgressBar;
 	@FXML private AnchorPane        displayPane;
-	@FXML private Canvas            canvas;
 	@FXML private TextArea          messageTextArea;
     @FXML private Spinner<Integer>  threadsSpinner;
     @FXML private ScrollPane        progressMonitorScrollPane;
@@ -59,15 +59,15 @@ public class RenderProjectCtrl
 	@FXML private TextField         imageFileSaveName;
 	@FXML private AnchorPane        displayInfoPane;
     
-    private RenderStatusCtrl m_renderProgressMonitor;
-    private RenderFrameView  m_renderFrameView;
-    private RenderProject    m_project;
-    private Display          m_display;
+    private RenderStatusCtrl    m_renderProgressMonitor;
+    private RenderFrameView     m_renderFrameView;
+    private RenderProject       m_project;
+    private StaticCanvasDisplay m_display;
     
     @FXML
     public void initialize()
     {
-		m_display = new Display();
+		m_display = new StaticCanvasDisplay();
 		
 		renderingIndicator.setManaged(false);
 		renderingIndicator.setVisible(false);
@@ -84,10 +84,13 @@ public class RenderProjectCtrl
 		imageFileSaveFormat.setItems(imageFormats);
 		imageFileSaveFormat.setValue("png");
 		
-		canvas.widthProperty().addListener(observable -> {clearFrame(); drawFrame();});
-		canvas.heightProperty().addListener(observable -> {clearFrame(); drawFrame();});
+		m_display = new StaticCanvasDisplay();
+		Canvas canvas = m_display.getCanvas();
+		canvas.widthProperty().addListener(observable -> {m_display.clearFrame(); m_display.drawFrame();});
+		canvas.heightProperty().addListener(observable -> {m_display.clearFrame(); m_display.drawFrame();});
 		canvas.widthProperty().bind(displayPane.widthProperty());
 		canvas.heightProperty().bind(displayPane.heightProperty());
+		Layouts.addAnchored(displayPane, canvas);
 		
 		Studio.getConsole().addListener(new MessageListener()
 		{
@@ -108,8 +111,8 @@ public class RenderProjectCtrl
 			@Override
 			public void showIntermediate(FrameRegion frame)
 			{
-				loadFrameBuffer(frame);
-				drawFrame();
+				m_display.loadFrame(frame);
+				m_display.drawFrame();
 			}
 			
 			@Override
@@ -117,8 +120,8 @@ public class RenderProjectCtrl
 			{
 				if(frame.isValid())
 		    	{
-		    		loadFrameBuffer(new FrameRegion(0, 0, frame.getWidthPx(), frame.getHeightPx(), frame));
-		    		drawFrame();
+					m_display.loadFrame(new FrameRegion(0, 0, frame.getWidthPx(), frame.getHeightPx(), frame));
+					m_display.drawFrame();
 		    	}
 			}
 		};
@@ -204,44 +207,6 @@ public class RenderProjectCtrl
 	{
 		// TODO
 	}
-	
-    public void loadFrameBuffer(FrameRegion frameRegion)
-	{
-		m_display.loadFrameBuffer(frameRegion);
-	}
-	
-	private void clearFrame()
-	{
-		GraphicsContext g = canvas.getGraphicsContext2D();
-		g.setFill(Color.DARKBLUE);
-		g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-	}
-    
-	public void drawFrame()
-	{
-		final float canvasWidth       = (float)(canvas.getWidth());
-		final float canvasHeight      = (float)(canvas.getHeight());
-		final float canvasAspectRatio = canvasWidth / canvasHeight;
-		final float frameAspectRatio  = (float)(m_display.getWidth()) / (float)(m_display.getHeight());
-		
-		int imageWidth;
-		int imageHeight;
-		if(frameAspectRatio > canvasAspectRatio)
-		{
-			imageWidth  = (int)canvasWidth;
-			imageHeight = (int)(canvasWidth / frameAspectRatio);
-		}
-		else
-		{
-			imageHeight = (int)canvasHeight;
-			imageWidth  = (int)(canvasHeight * frameAspectRatio);
-		}
-		
-		GraphicsContext g = canvas.getGraphicsContext2D();
-		g.drawImage(m_display.getImage(), 
-		            (canvas.getWidth() - imageWidth) * 0.5, (canvas.getHeight() - imageHeight) * 0.5, 
-		            imageWidth, imageHeight);
-	}
     
     private void updateMessageTextArea()
     {
@@ -298,12 +263,12 @@ public class RenderProjectCtrl
     	threadsSpinner.valueProperty().addListener((observable, oldValue, newValue) -> 
     		m_project.getRenderSetting().getNumThreads().setValue(Integer.toString(newValue)));
     	
-    	clearFrame();
+    	m_display.clearFrame();
 		if(project.getLocalFinalFrame().isValid())
 		{
 			Frame frame = project.getLocalFinalFrame();
-			loadFrameBuffer(new FrameRegion(0, 0, frame.getWidthPx(), frame.getHeightPx(), frame));
-			drawFrame();
+			m_display.loadFrame(new FrameRegion(0, 0, frame.getWidthPx(), frame.getHeightPx(), frame));
+			m_display.drawFrame();
 		}
 		
 		m_project.setRenderFrameView(m_renderFrameView);

@@ -1,11 +1,11 @@
 package appGui.widget;
 
-import javafx.scene.Parent;
+import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 
 public final class Layouts
 {
-	public static void addAnchored(AnchorPane parent, Parent child)
+	public static void addAnchored(AnchorPane parent, Node child)
 	{
 		parent.getChildren().add(child);
     	

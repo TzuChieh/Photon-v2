@@ -41,9 +41,9 @@
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
                      <children>
                         <Label text="x: " />
-                        <Label fx:id="cursorX" text="123" />
+                        <Label fx:id="cursorX" text="1280" />
                         <Label text=", y: " />
-                        <Label fx:id="cursorY" text="456" />
+                        <Label fx:id="cursorY" text="720" />
                      </children>
                   </HBox>
                   <Label text="Color" GridPane.rowIndex="2" />
@@ -61,7 +61,7 @@
                   <Label text="Zoom" GridPane.rowIndex="3" />
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="3">
                      <children>
-                        <Label fx:id="percentageZoom" text="120" />
+                        <Label fx:id="percentageZoom" text="100" />
                         <Label text=" %" />
                      </children>
                   </HBox>
