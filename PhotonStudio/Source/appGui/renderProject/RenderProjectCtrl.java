@@ -14,10 +14,12 @@ import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 
+import appGui.DisplayInfoCtrl;
 import appGui.widget.FSBrowser;
 import appGui.widget.Layouts;
 import appGui.widget.UILoader;
 import appGui.widget.UI;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -64,9 +66,9 @@ public class RenderProjectCtrl
     private RenderProject       m_project;
     private StaticCanvasDisplay m_display;
     
-    @FXML
-    public void initialize()
-    {
+	@FXML
+	public void initialize()
+	{
 		m_display = new StaticCanvasDisplay();
 		
 		renderingIndicator.setManaged(false);
@@ -86,8 +88,6 @@ public class RenderProjectCtrl
 		
 		m_display = new StaticCanvasDisplay();
 		Canvas canvas = m_display.getCanvas();
-		canvas.widthProperty().addListener(observable -> {m_display.clearFrame(); m_display.drawFrame();});
-		canvas.heightProperty().addListener(observable -> {m_display.clearFrame(); m_display.drawFrame();});
 		canvas.widthProperty().bind(displayPane.widthProperty());
 		canvas.heightProperty().bind(displayPane.heightProperty());
 		Layouts.addAnchored(displayPane, canvas);
@@ -125,25 +125,29 @@ public class RenderProjectCtrl
 		    	}
 			}
 		};
-    }
+		
+		UI<DisplayInfoCtrl> displayInfoUI = new UILoader().load(getClass().getResource("/fxmls/DisplayInfo.fxml"));
+		Layouts.addAnchored(displayInfoPane, displayInfoUI.getView());
+		displayInfoUI.getCtrl().setDisplay(m_display);
+	}
     
-    @FXML
-    void sceneFileBrowseBtnClicked(MouseEvent event)
-    {
-    	String workingDirectory = m_project.getGeneralOption().get(GeneralOption.WORKING_DIRECTORY);
-    	
-    	FSBrowser browser = new FSBrowser(projectOverviewPane.getScene().getWindow());
-    	browser.setBrowserTitle("Open Scene File");
-    	browser.setStartingAbsDirectory(workingDirectory);
-    	browser.startOpeningFile();
-    	
-    	String fileAbsPath = browser.getSelectedFileAbsPath();
+	@FXML
+	void sceneFileBrowseBtnClicked(MouseEvent event)
+	{
+		String workingDirectory = m_project.getGeneralOption().get(GeneralOption.WORKING_DIRECTORY);
+		
+		FSBrowser browser = new FSBrowser(projectOverviewPane.getScene().getWindow());
+		browser.setBrowserTitle("Open Scene File");
+		browser.setStartingAbsDirectory(workingDirectory);
+		browser.startOpeningFile();
+		
+		String fileAbsPath = browser.getSelectedFileAbsPath();
 		if(fileAbsPath != "")
 		{
 			m_project.getRenderSetting().getSceneFilePath().setValue(fileAbsPath);
 			sceneFileTextField.setText(fileAbsPath);
 		}
-    }
+	}
     
 	@FXML
 	void startRenderingBtnClicked(ActionEvent event)

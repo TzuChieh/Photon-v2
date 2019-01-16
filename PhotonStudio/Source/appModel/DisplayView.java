@@ -2,7 +2,10 @@ package appModel;
 
 public interface DisplayView
 {
-	default void showResolution(int widthPx, int heightPx)
+	default void showFrameResolution(int widthPx, int heightPx)
+	{}
+	
+	default void showDisplayResolution(int widthPx, int heightPx)
 	{}
 	
 	default void showCursorCoord(int xPx, int yPx)

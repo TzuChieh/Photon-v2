@@ -6,15 +6,19 @@ import java.nio.file.Path;
 
 import javax.imageio.ImageIO;
 
+import javafx.beans.value.ChangeListener;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import photonApi.FrameRegion;
 import photonApi.Rectangle;
+import util.Vector2f;
 import util.Vector3f;
 
 public class StaticCanvasDisplay extends Display
@@ -31,10 +35,31 @@ public class StaticCanvasDisplay extends Display
 	{
 		super();
 		
-		m_image = new WritableImage(widthPx, heightPx);
-		m_canvas = new Canvas();
+		m_image  = new WritableImage(widthPx, heightPx);
+		m_canvas = new Canvas(widthPx, heightPx);
 		
-		getDisplayView().showResolution(widthPx, heightPx);
+		ChangeListener<Number> sizeChangeListener = (ovservable, oldValue, newValue) ->
+			getDisplayView().showDisplayResolution((int)(m_canvas.getWidth() + 0.5), (int)(m_canvas.getHeight() + 0.5));
+		m_canvas.widthProperty().addListener(sizeChangeListener);
+		m_canvas.heightProperty().addListener(sizeChangeListener);
+		
+		ChangeListener<Number> redrawListener = (ovservable, oldValue, newValue) ->
+			{clearFrame(); drawFrame();};
+		m_canvas.widthProperty().addListener(redrawListener);
+		m_canvas.heightProperty().addListener(redrawListener);
+		
+		m_canvas.setOnMouseMoved(new EventHandler<MouseEvent>()
+		{
+			@Override
+			public void handle(MouseEvent event)
+			{
+				System.out.println(event.getX());
+		        System.out.println(event.getY());
+			}
+		});
+		
+		getDisplayView().showFrameResolution(widthPx, heightPx);
+		getDisplayView().showDisplayResolution(widthPx, heightPx);
 	}
 	
 	@Override
@@ -51,7 +76,7 @@ public class StaticCanvasDisplay extends Display
 		{
 			m_image = new WritableImage(frameRegion.getFullWidthPx(), frameRegion.getFullHeightPx());
 			
-			getDisplayView().showResolution(frameRegion.getFullWidthPx(), frameRegion.getFullHeightPx());
+			getDisplayView().showFrameResolution(frameRegion.getFullWidthPx(), frameRegion.getFullHeightPx());
 		}
 		
 		final PixelWriter pixelWriter = m_image.getPixelWriter();
@@ -85,28 +110,14 @@ public class StaticCanvasDisplay extends Display
 	@Override
 	public void drawFrame()
 	{
-		final float canvasWidth       = (float)(m_canvas.getWidth());
-		final float canvasHeight      = (float)(m_canvas.getHeight());
-		final float canvasAspectRatio = canvasWidth / canvasHeight;
-		final float frameAspectRatio  = (float)(m_image.getWidth()) / (float)(m_image.getHeight());
-		
-		int imageWidth;
-		int imageHeight;
-		if(frameAspectRatio > canvasAspectRatio)
-		{
-			imageWidth  = (int)canvasWidth;
-			imageHeight = (int)(canvasWidth / frameAspectRatio);
-		}
-		else
-		{
-			imageHeight = (int)canvasHeight;
-			imageWidth  = (int)(canvasHeight * frameAspectRatio);
-		}
+		Vector2f drawResPx = getFittedDrawResPx();
+		Vector2f originPx  = getCenteredOriginPx(drawResPx);
 		
 		GraphicsContext g = m_canvas.getGraphicsContext2D();
-		g.drawImage(m_image, 
-		            (m_canvas.getWidth() - imageWidth) * 0.5, (m_canvas.getHeight() - imageHeight) * 0.5, 
-		            imageWidth, imageHeight);
+		g.drawImage(
+			m_image, 
+			originPx.x, (m_canvas.getHeight() - originPx.y) - drawResPx.y, 
+			drawResPx.x, drawResPx.y);
 	}
 	
 	@Override
@@ -128,13 +139,47 @@ public class StaticCanvasDisplay extends Display
 		return m_canvas;
 	}
 	
-	public int getWidth()
+	public int getFrameWidthPx()
 	{
 		return (int)(m_image.getWidth());
 	}
 	
-	public int getHeight()
+	public int getFrameHeightPx()
 	{
 		return (int)(m_image.getHeight());
 	}
+	
+	private Vector2f getFittedDrawResPx()
+	{
+		final float canvasWidth       = (float)(m_canvas.getWidth());
+		final float canvasHeight      = (float)(m_canvas.getHeight());
+		final float canvasAspectRatio = canvasWidth / canvasHeight;
+		final float frameAspectRatio  = (float)(m_image.getWidth()) / (float)(m_image.getHeight());
+		
+		Vector2f resPx = new Vector2f();
+		if(frameAspectRatio > canvasAspectRatio)
+		{
+			resPx.x  = (int)canvasWidth;
+			resPx.y = (int)(canvasWidth / frameAspectRatio);
+		}
+		else
+		{
+			resPx.x = (int)(canvasHeight * frameAspectRatio);
+			resPx.y = (int)canvasHeight;
+		}
+		
+		return resPx;
+	}
+	
+	private Vector2f getCenteredOriginPx(Vector2f drawSizePx)
+	{
+		return new Vector2f(
+			(float)(m_canvas.getWidth() - drawSizePx.x) * 0.5f, 
+			(float)(m_canvas.getHeight() - drawSizePx.y) * 0.5f);
+	}
+	
+//	private Vector2i getFrameCoordPx(Vector2f canvasCoordPx)
+//	{
+//		
+//	}
 }

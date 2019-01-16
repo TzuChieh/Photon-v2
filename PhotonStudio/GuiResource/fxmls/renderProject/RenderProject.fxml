@@ -56,7 +56,10 @@
                                                             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1">
                                                                <children>
                                                                   <ProgressIndicator fx:id="renderingIndicator" />
-                                                                  <Label fx:id="renderingIndicatorLabel" prefHeight="15.0" prefWidth="117.0" text="System Standby..." />
+                                                                  <Label fx:id="renderingIndicatorLabel" prefHeight="15.0" prefWidth="150.0" text="System Standby...">
+                                                                     <font>
+                                                                        <Font name="Courier New" size="12.0" />
+                                                                     </font></Label>
                                                                </children>
                                                             </HBox>
                                                          </children>

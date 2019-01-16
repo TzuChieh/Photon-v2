@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
 
 <TitledPane animated="false" collapsible="false" prefHeight="200.0" prefWidth="400.0" text="Display Information" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="appGui.DisplayInfoCtrl">
    <content>
@@ -15,9 +16,9 @@
          <children>
             <GridPane layoutX="42.0" layoutY="34.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <columnConstraints>
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="123.0" minWidth="10.0" prefWidth="114.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="88.0" minWidth="1.0" prefWidth="22.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="243.0" minWidth="10.0" prefWidth="243.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="136.0" minWidth="10.0" prefWidth="136.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="88.0" minWidth="0.0" prefWidth="13.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="243.0" minWidth="10.0" prefWidth="230.0" />
                </columnConstraints>
                <rowConstraints>
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -26,43 +27,128 @@
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
-                  <Label text="Resolution" />
+                  <Label text="Frame Resolution">
+                     <font>
+                        <Font name="Courier New Bold" size="12.0" />
+                     </font></Label>
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2">
                      <children>
-                        <Label fx:id="resolutionX" text="1280" />
-                        <Label text=" * " />
-                        <Label fx:id="resolutionY" text="720" />
-                        <Label text=" px" />
+                        <Label fx:id="frameResolutionX" text="1280">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
+                        <Label text=" * ">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
+                        <Label fx:id="frameResolutionY" text="720">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
+                        <Label text=" px">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
                      </children>
                   </HBox>
-                  <Label text="Cursor Coordinates" GridPane.rowIndex="1" />
+                  <Label text="Cursor Coordinates" GridPane.rowIndex="1">
+                     <font>
+                        <Font name="Courier New Bold" size="12.0" />
+                     </font></Label>
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
                      <children>
-                        <Label text="x: " />
-                        <Label fx:id="cursorX" text="1280" />
-                        <Label text=", y: " />
-                        <Label fx:id="cursorY" text="720" />
+                        <Label text="x: ">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
+                        <Label fx:id="cursorX" text="1280">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
+                        <Label text=", y: ">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
+                        <Label fx:id="cursorY" text="720">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
                      </children>
                   </HBox>
-                  <Label text="Color" GridPane.rowIndex="2" />
+                  <Label text="Color on Cursor" GridPane.rowIndex="2">
+                     <font>
+                        <Font name="Courier New Bold" size="12.0" />
+                     </font></Label>
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="2">
                      <children>
-                        <Pane maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" prefHeight="20.0" prefWidth="20.0" />
-                        <Label text=" RGB = (" />
-                        <Label fx:id="cursorR" text="255" />
-                        <Label text=", " />
-                        <Label fx:id="cursorG" text="255, " />
-                        <Label fx:id="cursorB" text="255" />
-                        <Label text=")" />
+                        <Pane fx:id="colorPane" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" prefHeight="20.0" prefWidth="20.0" />
+                        <Label text=" RGB = (">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
+                        <Label fx:id="cursorR" text="255">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
+                        <Label text=", ">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
+                        <Label fx:id="cursorG" text="255, ">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
+                        <Label fx:id="cursorB" text="255">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
+                        <Label text=")">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
                      </children>
                   </HBox>
-                  <Label text="Zoom" GridPane.rowIndex="3" />
+                  <Label text="Frame Zoom" GridPane.rowIndex="3">
+                     <font>
+                        <Font name="Courier New Bold" size="12.0" />
+                     </font></Label>
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="3">
                      <children>
-                        <Label fx:id="percentageZoom" text="100" />
-                        <Label text=" %" />
+                        <Label fx:id="percentageZoom" text="100">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
+                        <Label text=" %">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
+                     </children>
+                  </HBox>
+                  <Label text="Display Resolution" GridPane.rowIndex="4">
+                     <font>
+                        <Font name="Courier New Bold" size="12.0" />
+                     </font></Label>
+                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="4">
+                     <children>
+                        <Label fx:id="displayResolutionX" text="1280">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
+                        <Label text=" * ">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
+                        <Label fx:id="displayResolutionY" text="720">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
+                        <Label text=" px">
+                           <font>
+                              <Font name="Courier New" size="12.0" />
+                           </font></Label>
                      </children>
                   </HBox>
                </children>
