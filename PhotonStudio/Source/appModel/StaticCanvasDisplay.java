@@ -130,6 +130,8 @@ public class StaticCanvasDisplay extends Display
 			m_image, 
 			originPx.x, (m_canvas.getHeight() - originPx.y) - drawResPx.y, 
 			drawResPx.x, drawResPx.y);
+		
+		getDisplayView().showZoom(getDrawnScale(drawResPx) * 100.0f);
 	}
 	
 	@Override
@@ -211,5 +213,11 @@ public class StaticCanvasDisplay extends Display
 		coordPx.y = Math.max(Math.min(coordPx.y, frameSizePx.y), 0);
 		
 		return coordPx;
+	}
+	
+	private float getDrawnScale(Vector2f drawSizePx)
+	{
+		// FIXME: retained aspect ratio assumed
+		return (float)(drawSizePx.x / m_image.getWidth());
 	}
 }
