@@ -122,10 +122,9 @@ public class AppMain extends Application
 		
 		// Overrides this attribute to a dark color to get a dark theme.
 		// (many colors in default .css are dependent on this attribute)
-		//
-		scene.getRoot().setStyle("-fx-base: rgba(25, 25, 25, 255);");
+		scene.getRoot().setStyle("-fx-base: rgba(30, 30, 30, 255);");
 		
-		primaryStage.setTitle("Photon-v2 version 0.0 | Editor");
+		primaryStage.setTitle("Photon Renderer 2.0.0 - Photon Studio");
 		primaryStage.setScene(scene);
 //		primaryStage.setMaximized(true);
         primaryStage.show();
