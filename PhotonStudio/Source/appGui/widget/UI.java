@@ -1,18 +1,18 @@
-package appGui.util;
+package appGui.widget;
 
 import javafx.scene.Parent;
 
-public class ViewCtrlPair<Ctrl>
+public class UI<Ctrl>
 {
 	private Parent m_view;
 	private Ctrl   m_ctrl;
 	
-	public ViewCtrlPair()
+	public UI()
 	{
 		this(null, null);
 	}
 	
-	public ViewCtrlPair(Parent view, Ctrl ctrl)
+	public UI(Parent view, Ctrl ctrl)
 	{
 		m_view = view;
 		m_ctrl = ctrl;

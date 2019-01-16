@@ -1,4 +1,4 @@
-package appGui.util;
+package appGui.widget;
 
 import java.io.IOException;
 import java.net.URL;
@@ -11,12 +11,12 @@ public class UILoader
 	public UILoader()
 	{}
 	
-	public <T> ViewCtrlPair<T> load(URL fxmlFile)
+	public <T> UI<T> load(URL fxmlFile)
 	{
 		try
 		{
 			FXMLLoader fxmlLoader = new FXMLLoader(fxmlFile);
-			return new ViewCtrlPair<T>(fxmlLoader.load(), fxmlLoader.getController());
+			return new UI<T>(fxmlLoader.load(), fxmlLoader.getController());
 		}
 		catch(IOException e)
 		{
@@ -24,7 +24,7 @@ public class UILoader
 			new MessagePopup(e);
 		}
 		
-		return new ViewCtrlPair<T>();
+		return new UI<T>();
 	}
 	
 	public Parent loadView(URL fxmlFile)

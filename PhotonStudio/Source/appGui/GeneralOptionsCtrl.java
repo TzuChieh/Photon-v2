@@ -1,6 +1,6 @@
 package appGui;
 
-import appGui.util.FSBrowser;
+import appGui.widget.FSBrowser;
 import appModel.GeneralOption;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

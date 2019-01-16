@@ -14,9 +14,9 @@ import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 
-import appGui.util.FSBrowser;
-import appGui.util.UILoader;
-import appGui.util.ViewCtrlPair;
+import appGui.widget.FSBrowser;
+import appGui.widget.UILoader;
+import appGui.widget.UI;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -57,6 +57,7 @@ public class RenderProjectCtrl
 	@FXML private TextField         imageFileSaveFolder;
 	@FXML private ChoiceBox<String> imageFileSaveFormat;
 	@FXML private TextField         imageFileSaveName;
+	@FXML private AnchorPane        displayInfoPane;
     
     private RenderStatusCtrl m_renderProgressMonitor;
     private RenderFrameView  m_renderFrameView;
@@ -98,7 +99,7 @@ public class RenderProjectCtrl
 		});
 		updateMessageTextArea();
 		
-		ViewCtrlPair<RenderStatusCtrl> renderProgressMonitorUI = loadRenderProgressMonitorUI();
+		UI<RenderStatusCtrl> renderProgressMonitorUI = loadRenderProgressMonitorUI();
 		progressMonitorScrollPane.setContent(renderProgressMonitorUI.getView());
 		m_renderProgressMonitor = renderProgressMonitorUI.getCtrl();
 		
@@ -196,6 +197,12 @@ public class RenderProjectCtrl
 		{
 			imageFileSaveFolder.setText(folderAbsPath);
 		}
+	}
+	
+	@FXML
+	void transferImageToEditorBtnClicked(ActionEvent event)
+	{
+		// TODO
 	}
 	
     public void loadFrameBuffer(FrameRegion frameRegion)
@@ -312,7 +319,7 @@ public class RenderProjectCtrl
 		});
 	}
 	
-	private static ViewCtrlPair<RenderStatusCtrl> loadRenderProgressMonitorUI()
+	private static UI<RenderStatusCtrl> loadRenderProgressMonitorUI()
     {
     	return new UILoader().load(RenderProjectCtrl.class.getResource("/fxmls/renderProject/RenderStatus.fxml"));
     }

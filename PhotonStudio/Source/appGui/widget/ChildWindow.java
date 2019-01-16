@@ -1,4 +1,4 @@
-package appGui.util;
+package appGui.widget;
 
 import javafx.scene.Scene;
 import javafx.stage.Modality;

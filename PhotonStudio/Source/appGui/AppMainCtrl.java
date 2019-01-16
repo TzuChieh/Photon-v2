@@ -8,9 +8,10 @@ import appModel.renderProject.RenderProject;
 import java.util.HashMap;
 
 import appGui.renderProject.RenderProjectCtrl;
-import appGui.util.ChildWindow;
-import appGui.util.UILoader;
-import appGui.util.ViewCtrlPair;
+import appGui.widget.ChildWindow;
+import appGui.widget.Layouts;
+import appGui.widget.UILoader;
+import appGui.widget.UI;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -34,11 +35,11 @@ public class AppMainCtrl
 	private static final String ABOUT_FXML_PATH           = "/fxmls/About.fxml";
 	private static final String SCENES_FXML_PATH          = "/fxmls/Scenes.fxml";
 	
-	private HashMap<String, ViewCtrlPair<RenderProjectCtrl>> m_projectUIs;
+	private HashMap<String, UI<RenderProjectCtrl>> m_projectUIs;
 	private GeneralOptionsCtrl m_generalOptionsCtrl;
-	private ViewCtrlPair<ProjectManagerCtrl> m_projectManagerUI;
-	private ViewCtrlPair<MinecraftCtrl> m_minecraftUI;
-	private ViewCtrlPair<MinecraftCtrl> m_scenesUI;
+	private UI<ProjectManagerCtrl> m_projectManagerUI;
+	private UI<MinecraftCtrl> m_minecraftUI;
+	private UI<MinecraftCtrl> m_scenesUI;
 	
 	private ChildWindow m_generalOptionsWindow;
 	private ChildWindow m_aboutWindow;
@@ -209,7 +210,7 @@ public class AppMainCtrl
     		return;
     	}
     	
-    	ViewCtrlPair<RenderProjectCtrl> projectUI = loadProjectUI();
+    	UI<RenderProjectCtrl> projectUI = loadProjectUI();
     	if(!projectUI.isValid())
     	{
     		System.err.println("error on loading project UI");
@@ -251,14 +252,14 @@ public class AppMainCtrl
     	setWorkbenchView(getCurrentProjectUI().getView(), "Render Project Editor");
     }
     
-	private static ViewCtrlPair<RenderProjectCtrl> loadProjectUI()
+	private static UI<RenderProjectCtrl> loadProjectUI()
 	{
 		return new UILoader().load(AppMainCtrl.class.getResource(RENDER_PROJECT_FXML_PATH));
 	}
     
     private void loadGeneralOptionsUI()
     {
-    	ViewCtrlPair<GeneralOptionsCtrl> ui = m_uiLoader.load(AppMainCtrl.class.getResource(GENERAL_OPTIONS_FXML_PATH));
+    	UI<GeneralOptionsCtrl> ui = m_uiLoader.load(AppMainCtrl.class.getResource(GENERAL_OPTIONS_FXML_PATH));
     	if(ui.isValid())
     	{
     		m_generalOptionsCtrl = ui.getCtrl();
@@ -280,17 +281,12 @@ public class AppMainCtrl
     private void setWorkbenchView(Parent view, String workbenchName)
     {
     	workbenchPane.getChildren().clear();
-    	workbenchPane.getChildren().add(view);
-    	
-    	AnchorPane.setTopAnchor(view, 0.0);
-    	AnchorPane.setBottomAnchor(view, 0.0);
-    	AnchorPane.setLeftAnchor(view, 0.0);
-    	AnchorPane.setRightAnchor(view, 0.0);
+    	Layouts.addAnchored(workbenchPane, view);
     	
     	m_workbenchName = workbenchName;
     }
     
-    private ViewCtrlPair<RenderProjectCtrl> getCurrentProjectUI()
+    private UI<RenderProjectCtrl> getCurrentProjectUI()
     {
     	assert(m_studio != null);
     	

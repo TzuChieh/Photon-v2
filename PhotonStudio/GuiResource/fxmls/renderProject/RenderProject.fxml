@@ -34,7 +34,7 @@
                <children>
                   <SplitPane dividerPositions="0.5" layoutX="166.0" layoutY="20.0" prefHeight="160.0" prefWidth="400.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <items>
-                        <AnchorPane maxWidth="500.0" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="500.0">
+                        <AnchorPane maxWidth="400.0" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="400.0">
                            <children>
                               <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                  <tabs>
@@ -57,7 +57,7 @@
                                                             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1">
                                                                <children>
                                                                   <ProgressIndicator fx:id="renderingIndicator" />
-                                                                  <Label fx:id="renderingIndicatorLabel" text="System Standby..." />
+                                                                  <Label fx:id="renderingIndicatorLabel" prefHeight="15.0" prefWidth="117.0" text="System Standby..." />
                                                                </children>
                                                             </HBox>
                                                          </children>
@@ -72,6 +72,7 @@
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                                                          </columnConstraints>
                                                          <rowConstraints>
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                          </rowConstraints>
@@ -96,16 +97,16 @@
                                                                   <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onMouseClicked="#saveImageFolderBtnClicked" text="Folder" GridPane.columnIndex="1" />
                                                                </children>
                                                             </GridPane>
-                                                            <GridPane GridPane.rowIndex="1">
+                                                            <GridPane GridPane.columnIndex="1" GridPane.rowIndex="2">
                                                                <columnConstraints>
-                                                                  <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                                  <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="111.0" minWidth="10.0" prefWidth="99.0" />
+                                                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="89.0" />
                                                                </columnConstraints>
                                                                <rowConstraints>
                                                                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                                </rowConstraints>
                                                                <children>
-                                                                  <ChoiceBox fx:id="imageFileSaveFormat" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1">
+                                                                  <ChoiceBox fx:id="imageFileSaveFormat" maxHeight="23.0" maxWidth="1.7976931348623157E308" prefHeight="23.0" prefWidth="123.0" GridPane.columnIndex="1">
                                                                      <opaqueInsets>
                                                                         <Insets />
                                                                      </opaqueInsets>
@@ -113,23 +114,30 @@
                                                                         <Insets />
                                                                      </GridPane.margin>
                                                                   </ChoiceBox>
-                                                                  <Label text="Image Format" />
+                                                                  <Label text="Image Format">
+                                                                     <GridPane.margin>
+                                                                        <Insets left="5.0" />
+                                                                     </GridPane.margin></Label>
                                                                </children>
                                                             </GridPane>
                                                             <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#saveImageBtnClicked" prefHeight="30.0" prefWidth="132.0" text="Save Image" />
                                                             <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1">
                                                                <columnConstraints>
-                                                                  <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="89.0" minWidth="10.0" prefWidth="57.0" />
-                                                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="181.0" minWidth="10.0" prefWidth="181.0" />
+                                                                  <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="89.0" minWidth="10.0" prefWidth="51.0" />
+                                                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="10.0" prefWidth="137.0" />
                                                                </columnConstraints>
                                                                <rowConstraints>
                                                                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                                </rowConstraints>
                                                                <children>
-                                                                  <Label text="Name" />
-                                                                  <TextField fx:id="imageFileSaveName" GridPane.columnIndex="1" />
+                                                                  <Label text="Name">
+                                                                     <GridPane.margin>
+                                                                        <Insets left="5.0" />
+                                                                     </GridPane.margin></Label>
+                                                                  <TextField fx:id="imageFileSaveName" prefHeight="23.0" prefWidth="146.0" GridPane.columnIndex="1" />
                                                                </children>
                                                             </GridPane>
+                                                            <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#transferImageToEditorBtnClicked" prefHeight="30.0" prefWidth="132.0" text="Transfer Image to Editor" GridPane.rowIndex="1" />
                                                          </children>
                                                       </GridPane>
                                                    </children>
@@ -143,15 +151,24 @@
                         </AnchorPane>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                            <children>
-                              <TitledPane animated="false" collapsible="false" text="System Message" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                 <content>
-                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                              <SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <items>
+                                  <AnchorPane fx:id="displayInfoPane" maxWidth="400.0" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="400.0" />
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                                        <children>
-                                          <TextArea fx:id="messageTextArea" editable="false" layoutX="-13.0" layoutY="-26.0" prefHeight="200.0" prefWidth="200.0" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                          <TitledPane animated="false" collapsible="false" text="System Message" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                             <content>
+                                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                   <children>
+                                                      <TextArea fx:id="messageTextArea" editable="false" layoutX="-13.0" layoutY="-26.0" prefHeight="200.0" prefWidth="200.0" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                   </children>
+                                                </AnchorPane>
+                                             </content>
+                                          </TitledPane>
                                        </children>
                                     </AnchorPane>
-                                 </content>
-                              </TitledPane>
+                                </items>
+                              </SplitPane>
                            </children>
                         </AnchorPane>
                      </items>
