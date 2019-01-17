@@ -42,6 +42,9 @@ namespace ph
 {
 class KDNode;
 class Voxel;
+inline std::vector<std::unique_ptr<KDNode>> nodes;
+//std::vector<std::unique_ptr<KDNode>> nodes;
+//int nextFreeNode,nAllocatedNodes;
 /*
 class Vec3 {
 	public:
@@ -395,23 +398,18 @@ class Triangles{
 		}
 		
 };
-/*
-class TriangleKDAccel: public Primitive
-{
-	public:
-		KDNode *KDtree_root;
-		TriangleKDAccel(const PrimitiveMetadata* metadata): Primitive(metadata)
-		{
 
-		}
-		bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
-		void calcIntersectionDetail(const Ray& ray, HitProbe& probe, HitDetail* out_detail)  const override;
-		bool isIntersectingVolumeConservative(const AABB3D& volume) const override;
-		void calcAABB(AABB3D* out_aabb) const override;
-		std::shared_ptr<KDNode> recBuild(Triangles& T, Voxel& V, int depth);
-		void build_KD_tree(Triangles& T);
+class KDAccel {
+	public:
+		const PrimitiveMetadata *m_metadata;
+		std::unique_ptr<KDNode> root;
+		KDAccel(const PrimitiveMetadata *metadata)
+    	{ 
+			m_metadata = metadata;
+    	} 
+		void build_KD_tree(Triangles& T, const PrimitiveMetadata *metadata);
 };
-*/
+
 
 class KDNode : public Primitive{
 	public:
@@ -432,19 +430,13 @@ class KDNode : public Primitive{
 		bool isLeaf() {
 			return (left==NULL && right==NULL);
 		}
-		
+
 		bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 		void calcIntersectionDetail(const Ray& ray, HitProbe& probe, HitDetail* out_detail)  const override;
 		bool isIntersectingVolumeConservative(const AABB3D& volume) const override;
 		void calcAABB(AABB3D* out_aabb) const override;
-		//std::shared_ptr<KDNode> recBuild(Triangles& T, Voxel& V, int depth);
-		//std::shared_ptr<KDNode> build_KD_tree(Triangles& T);
-		
-		KDNode *recBuild(Triangles& T, Voxel& V, int depth);
-		KDNode *build_KD_tree(Triangles& T);
-		
 		void exportObj();
-
+		void recBuild(const PrimitiveMetadata *metadata, Triangles& T, Voxel& V, int depth);
 };
 class Voxel{
 	public:

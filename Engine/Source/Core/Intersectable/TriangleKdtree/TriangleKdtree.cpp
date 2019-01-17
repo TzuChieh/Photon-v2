@@ -13,7 +13,33 @@ typedef struct s{
 	KDNode *node;
     float tMin, tMax;
 }KDQueue;
-
+KDNode* new_KDNode(const PrimitiveMetadata *metadata)
+{
+	
+	nodes.push_back( std::move( std::make_unique<KDNode>(metadata) )  );
+	return nodes[size(nodes)-1].get();
+	
+	/*
+	if(nextFreeNode==nAllocatedNodes)
+	{
+		int nNewAllocNodes = std::max(2 * nAllocatedNodes, 512);
+        KDNode *n = std::make_unique<KDNode[]>(new KDNode[nNewAllocNodes](metadata));
+        if (nAllocatedNodes > 0) {
+			
+            //memcpy(n, nodes, nAllocedNodes * sizeof(KdAccelNode));
+            //FreeAligned(nodes);
+			
+			for(int i = 0; i < nAllocatedNodes; i++)
+			{
+				n[i] = std::move(nodes[i]);
+			}
+        }
+        nodes = std::move(n);
+        nAllocatedNodes = nNewAllocNodes;
+    }
+    ++nextFreeNode;
+	*/
+}
 std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int index){
 	float min_x = std::numeric_limits<float>::max();
 	float max_x = std::numeric_limits<float>::lowest();
@@ -106,6 +132,8 @@ std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int i
 	t->TBoundingBox.setMinVertex( Vector3R(min_x, min_y, min_z) );
 
 	t->TBoundingBox.setMaxVertex( Vector3R(max_x, max_y, max_z) );
+
+	t->TBoundingBox.expand( Vector3R(0.001, 0.001, 0.001) );
 
 	t->setIndex(index);
 	
@@ -489,7 +517,7 @@ Plane find_plane(Triangles& T, Voxel& V)
 	return best_plane;
 }
 //std::shared_ptr<KDNode> KDNode::recBuild(Triangles& T, Voxel& V, int depth){
-KDNode *KDNode::recBuild(Triangles& T, Voxel& V, int depth)
+void KDNode::recBuild(const PrimitiveMetadata *metadata, Triangles& T, Voxel& V, int depth)
 {
 	//printf("depth:%d\n",depth);
 	//printf("recbuild T.size():%lu\n",T.tris.size());
@@ -497,13 +525,13 @@ KDNode *KDNode::recBuild(Triangles& T, Voxel& V, int depth)
 	//when p.getNormal == -1, it means all the triangle bounding edge does not exist inside the rectangle
 	if(terminate(T,V,depth) || p.getNormal()==-1){
 		//std::shared_ptr<KDNode> root = std::make_shared<KDNode>(m_metadata);
-		KDNode *root = new KDNode(m_metadata);
-		root->left = NULL;
-		root->right = NULL;
-		root->Tprim = T;
-		PH_ASSERT_EQ(root->isLeaf(),1);
+		//KDNode *root = new KDNode(m_metadata);
+		this->left = NULL;
+		this->right = NULL;
+		this->Tprim = T;
+		PH_ASSERT_EQ(this->isLeaf(),1);
 		//printf("leaf T.size():%lu\n",root->Tprim.tris.size());
-		return root;
+		return;
 		//return leaf_node(T)
 	}
 	
@@ -525,39 +553,51 @@ KDNode *KDNode::recBuild(Triangles& T, Voxel& V, int depth)
 	left_tris = Union(T , left_voxel);
 	right_tris = Union(T , right_voxel);
 
-	printf("BUG:tris_size:%lu left_tris_size:%lu, right_tris_size:%lu\n",T.tris.size(),left_tris.tris.size(),right_tris.tris.size());
-	//PH_ASSERT_GE(left_tris.tris.size()+right_tris.tris.size(),T.tris.size());
+	//printf("BUG:tris_size:%lu left_tris_size:%lu, right_tris_size:%lu\n",T.tris.size(),left_tris.tris.size(),right_tris.tris.size());
+	PH_ASSERT_GE(left_tris.tris.size()+right_tris.tris.size(),T.tris.size());
 	//std::shared_ptr<KDNode> root = std::make_shared<KDNode>(m_metadata);
-	KDNode *root = new KDNode(m_metadata);
-	root->Tprim = T;
-	root->left = recBuild(left_tris, left_voxel, depth+1);
-	root->right = recBuild(right_tris, right_voxel, depth+1);
-	root->plane = p;
-	PH_ASSERT_LE(root->plane.getNormal(), 2);
-	PH_ASSERT_GE(root->plane.getNormal(), 0);
+	
+	this->Tprim = T;
+	this->left = new_KDNode(metadata);
+	this->left->recBuild(metadata,left_tris, left_voxel, depth+1);
+
+	this->right = new_KDNode(metadata);
+	this->right->recBuild(metadata,right_tris, right_voxel, depth+1);
+	this->plane = p;
+	PH_ASSERT_LE(this->plane.getNormal(), 2);
+	PH_ASSERT_GE(this->plane.getNormal(), 0);
+	printf("child->left:%p\n",this->left);
+	printf("child->right:%p\n",this->right);
 	//printf("node:%p node plane normal:%d\n",root,root->plane.getNormal());
 	//printf("T.size():%lu\n",root->Tprim.tris.size());
 	//printf("node:%p node plane normal:%d\n",root.get(),root->plane.getNormal());
-	return root;
 }
 
-KDNode *KDtree_root;
+
 Voxel World_Voxel;
+KDNode *KDtree_root;
+void TraverseTree(KDNode *root,int type)
+{
+	if(root == NULL)
+		return;
+	TraverseTree(root->left,0);
+	printf("root pointer:%d %p\n",type,root);
+	TraverseTree(root->right,1);
+}
 //std::shared_ptr<KDNode> KDNode::build_KD_tree(Triangles& T){
-KDNode *KDNode::build_KD_tree(Triangles& T)
+void KDAccel::build_KD_tree(Triangles& T,const PrimitiveMetadata *metadata)
 {
 	//drawBounds can only call once
 	drawBounds(World_Voxel,T);
 	//std::shared_ptr<KDNode> temp = recBuild(T,World_Voxel,0);
-	KDNode *temp = recBuild(T,World_Voxel,0);
-	PH_ASSERT_LE(temp->plane.getNormal(), 2);
-	PH_ASSERT_GE(temp->plane.getNormal(), 0);
-	//printf("Tree root_normal:%d\n",temp->plane.getNormal());
-	//KDtree_root = temp.get();
-	KDtree_root = temp;
-	//printf("Tree root_normal:%d\n",KDtree_root->plane.getNormal());
-	//printf("KDtree_root:%p\n",KDtree_root);
-	return temp;
+	this->root.get()->recBuild(metadata,T,World_Voxel,0);
+	KDtree_root = this->root.get();
+	TraverseTree(KDtree_root,100);
+	printf("KDtree_root->left:%p\n",KDtree_root->left);
+	printf("KDtree_root->right:%p\n",KDtree_root->right);
+	PH_ASSERT_LE(root->plane.getNormal(), 2);
+	PH_ASSERT_GE(root->plane.getNormal(), 0);
+
 }
 //implement virtual functions of primitive.h
 //1. implement virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const = 0;
