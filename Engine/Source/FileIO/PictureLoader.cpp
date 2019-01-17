@@ -19,14 +19,15 @@ LdrRgbFrame PictureLoader::loadLdr(const Path& picturePath)
 
 	LdrRgbFrame picture;
 
+	// OPT: make this faster
 	const std::string& ext = picturePath.getExtension();
-	if(ext == ".png"  || 
-	   ext == ".jpg"  || 
-	   ext == ".jpeg" ||
-	   ext == ".bmp"  ||
-	   ext == ".tga"  ||
-	   ext == ".ppm"  ||
-	   ext == ".pgm")
+	if(ext == ".png"  || ext == ".PNG"  ||
+	   ext == ".jpg"  || ext == ".JPG"  ||
+	   ext == ".jpeg" || ext == ".JPEG" ||
+	   ext == ".bmp"  || ext == ".BMP"  ||
+	   ext == ".tga"  || ext == ".TGA"  ||
+	   ext == ".ppm"  || ext == ".PPM"  ||
+	   ext == ".pgm"  || ext == ".PGM")
 	{
 		picture = loadLdrViaStb(picturePath.toAbsoluteString());
 	}
@@ -55,7 +56,7 @@ HdrRgbFrame PictureLoader::loadHdr(const Path& picturePath)
 	HdrRgbFrame picture;
 
 	const std::string& ext = picturePath.getExtension();
-	if(ext == ".hdr")
+	if(ext == ".hdr" || ext == ".HDR")
 	{
 		picture = loadHdrViaStb(picturePath.toAbsoluteString());
 	}
