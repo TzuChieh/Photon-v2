@@ -44,6 +44,7 @@ from ..psdl.pysdl import (
 	PmRendererCreator,
 	ModelLightSourceCreator,
 	DomeActorCreator,
+	DomeActorRotate,
 	StratifiedSampleGeneratorCreator)
 
 import bpy
@@ -454,8 +455,10 @@ class Exporter:
 		if b_world.ph_envmap_file_path == "":
 			return
 
+		actor_name = "ph_" + b_world.name
+
 		creator = DomeActorCreator()
-		creator.set_data_name("ph_" + b_world.name)
+		creator.set_data_name(actor_name)
 
 		envmap_path  = bpy.path.abspath(b_world.ph_envmap_file_path)
 		envmap_sdlri = sdlresource.SdlResourceIdentifier()
@@ -470,6 +473,12 @@ class Exporter:
 		shutil.copyfile(envmap_path, dst_path)
 
 		self.get_sdlconsole().queue_command(creator)
+
+		rotation = DomeActorRotate()
+		rotation.set_target_name(actor_name)
+		rotation.set_axis(SDLVector3((0, 1, 0)))
+		rotation.set_degree(SDLReal(b_world.ph_envmap_degrees))
+		self.get_sdlconsole().queue_command(rotation)
 
 	def export_core_commands(self, context):
 
