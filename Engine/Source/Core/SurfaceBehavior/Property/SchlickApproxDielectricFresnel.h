@@ -5,13 +5,12 @@
 namespace ph
 {
 
-class SchlickApproxDielectricFresnel final : public DielectricFresnel
+class SchlickApproxDielectricFresnel : public DielectricFresnel
 {
 public:
 	SchlickApproxDielectricFresnel(real iorOuter, real iorInner);
-	~SchlickApproxDielectricFresnel() override;
 
-	virtual void calcReflectance(real cosThetaIncident, SpectralStrength* out_reflectance) const override;
+	void calcReflectance(real cosThetaIncident, SpectralStrength* out_reflectance) const override;
 
 private:
 	real m_f0;

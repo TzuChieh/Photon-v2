@@ -8,9 +8,7 @@ namespace ph
 
 DielectricFresnel::DielectricFresnel(const real iorOuter, const real iorInner) :
 	m_iorOuter(iorOuter), m_iorInner(iorInner)
-{
-
-}
+{}
 
 bool DielectricFresnel::calcRefractDir(const Vector3R& I, const Vector3R& N,
                                              Vector3R* const out_refractDir) const

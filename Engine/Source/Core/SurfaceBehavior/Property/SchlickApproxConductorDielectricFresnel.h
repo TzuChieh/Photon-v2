@@ -11,11 +11,10 @@ public:
 	SchlickApproxConductorDielectricFresnel(real iorOuter,
 	                                        const SpectralStrength& iorInner, 
 	                                        const SpectralStrength& iorInnerK);
-	SchlickApproxConductorDielectricFresnel(const SpectralStrength& f0);
-	virtual ~SchlickApproxConductorDielectricFresnel() override = default;
+	explicit SchlickApproxConductorDielectricFresnel(const SpectralStrength& f0);
 
-	virtual void calcReflectance(real cosThetaIncident, 
-	                             SpectralStrength* out_reflectance) const override;
+	void calcReflectance(real cosThetaIncident, 
+	                     SpectralStrength* out_reflectance) const override;
 
 private:
 	SpectralStrength m_f0;

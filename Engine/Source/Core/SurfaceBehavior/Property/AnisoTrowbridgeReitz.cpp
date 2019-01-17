@@ -18,8 +18,6 @@ AnisoTrowbridgeReitz::AnisoTrowbridgeReitz(const real alphaU, const real alphaV)
 	m_reciAlphaV2 = 1.0_r / (m_alphaV * m_alphaV);
 }
 
-AnisoTrowbridgeReitz::~AnisoTrowbridgeReitz() = default;
-
 real AnisoTrowbridgeReitz::distribution(
 	const SurfaceHit& X,
 	const Vector3R& N, const Vector3R& H) const

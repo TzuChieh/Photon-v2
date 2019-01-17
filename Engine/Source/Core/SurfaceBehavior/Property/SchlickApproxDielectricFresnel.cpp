@@ -17,8 +17,6 @@ SchlickApproxDielectricFresnel::SchlickApproxDielectricFresnel(
 	m_tirIorRatio2 = std::max(iorOuter, iorInner) / std::min(iorOuter, iorInner);
 }
 
-SchlickApproxDielectricFresnel::~SchlickApproxDielectricFresnel() = default;
-
 void SchlickApproxDielectricFresnel::calcReflectance(
 	const real cosThetaIncident,
 	SpectralStrength* const out_reflectance) const

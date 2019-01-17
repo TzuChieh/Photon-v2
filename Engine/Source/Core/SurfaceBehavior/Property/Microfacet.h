@@ -10,7 +10,7 @@ namespace ph
 class Microfacet
 {
 public:
-	virtual ~Microfacet() = 0;
+	virtual ~Microfacet() = default;
 
 	virtual real distribution(const SurfaceHit& X,
 	                          const Vector3R& N, const Vector3R& H) const = 0;

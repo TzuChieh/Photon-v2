@@ -5,7 +5,7 @@
 namespace ph
 {
 
-class ExactDielectricFresnel final : public DielectricFresnel
+class ExactDielectricFresnel : public DielectricFresnel
 {
 public:
 	ExactDielectricFresnel(real iorOuter, real iorInner);

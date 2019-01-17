@@ -14,8 +14,6 @@ IsoTrowbridgeReitz::IsoTrowbridgeReitz(const real alpha) :
 	m_alpha = alpha > 0.001_r ? alpha : 0.001_r;
 }
 
-IsoTrowbridgeReitz::~IsoTrowbridgeReitz() = default;
-
 // GGX (Trowbridge-Reitz) Normal Distribution Function
 real IsoTrowbridgeReitz::distribution(
 	const SurfaceHit& X,

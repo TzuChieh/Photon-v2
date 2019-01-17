@@ -34,6 +34,7 @@ ExactConductorDielectricFresnel::ExactConductorDielectricFresnel(
 		return;
 	}
 
+	// TODO: this conversion part should be performed in data containers
 	const auto& sampledInnerNs = SpectralData::calcPiecewiseAveraged(
 		iorWavelengthsNm.data(), iorInnerNs.data(), iorWavelengthsNm.size());
 	const auto& sampledInnerKs = SpectralData::calcPiecewiseAveraged(
