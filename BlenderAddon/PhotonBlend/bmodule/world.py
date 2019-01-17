@@ -4,7 +4,7 @@ import bpy
 
 
 class PhWorldPanel(bpy.types.Panel):
-	bl_label       = "Environment Map"
+	bl_label       = "PR - Environment Map"
 	bl_context     = "world"
 	bl_space_type  = "PROPERTIES"
 	bl_region_type = "WINDOW"

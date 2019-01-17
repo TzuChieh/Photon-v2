@@ -1,8 +1,8 @@
 # ========================================
-# NOTE: THIS FILE CONTAINS GENERATED CODE
-#       DO NOT MODIFY
+# NOTE: THIS FILE CONTAINS GENERATED CODE 
+#       DO NOT MODIFY                     
 # ========================================
-# last generated: 2018-11-30 06:38:30.630997
+# last generated: 2019-01-18 04:28:44.303477 
 
 from abc import ABC, abstractmethod
 
@@ -232,7 +232,6 @@ class SDLExecutorCommand(SDLCommand):
 	def __init__(self):
 		super().__init__()
 		self.__target_name = ""
-		self.__inputs = []
 
 	@abstractmethod
 	def get_full_type(self):
@@ -530,6 +529,120 @@ class ModelActorScale(SDLExecutorCommand):
         self.set_input("factor", factor)
 
 
+class PhantomModelActorCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(phantom-model)"
+
+    def set_name(self, name: SDLData):
+        self.set_input("name", name)
+
+    def set_geometry(self, geometry: SDLData):
+        self.set_input("geometry", geometry)
+
+    def set_material(self, material: SDLData):
+        self.set_input("material", material)
+
+
+class PhantomModelActorTranslate(SDLExecutorCommand):
+
+    def get_full_type(self):
+        return "actor(phantom-model)"
+
+    def get_name(self):
+        return "translate"
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class PhantomModelActorRotate(SDLExecutorCommand):
+
+    def get_full_type(self):
+        return "actor(phantom-model)"
+
+    def get_name(self):
+        return "rotate"
+
+    def set_axis(self, axis: SDLData):
+        self.set_input("axis", axis)
+
+    def set_degree(self, degree: SDLData):
+        self.set_input("degree", degree)
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class PhantomModelActorScale(SDLExecutorCommand):
+
+    def get_full_type(self):
+        return "actor(phantom-model)"
+
+    def get_name(self):
+        return "scale"
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class TransformedInstanceActorCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(transformed-instance)"
+
+    def set_name(self, name: SDLData):
+        self.set_input("name", name)
+
+
+class TransformedInstanceActorTranslate(SDLExecutorCommand):
+
+    def get_full_type(self):
+        return "actor(transformed-instance)"
+
+    def get_name(self):
+        return "translate"
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class TransformedInstanceActorRotate(SDLExecutorCommand):
+
+    def get_full_type(self):
+        return "actor(transformed-instance)"
+
+    def get_name(self):
+        return "rotate"
+
+    def set_axis(self, axis: SDLData):
+        self.set_input("axis", axis)
+
+    def set_degree(self, degree: SDLData):
+        self.set_input("degree", degree)
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class TransformedInstanceActorScale(SDLExecutorCommand):
+
+    def get_full_type(self):
+        return "actor(transformed-instance)"
+
+    def get_name(self):
+        return "scale"
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
 class PhysicalActorTranslate(SDLExecutorCommand):
 
     def get_full_type(self):
@@ -570,6 +683,93 @@ class PhysicalActorScale(SDLExecutorCommand):
 
     def set_factor(self, factor: SDLData):
         self.set_input("factor", factor)
+
+
+class CuboidGeometryCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "geometry(cuboid)"
+
+    def set_min_vertex(self, min_vertex: SDLData):
+        self.set_input("min-vertex", min_vertex)
+
+    def set_max_vertex(self, max_vertex: SDLData):
+        self.set_input("max-vertex", max_vertex)
+
+    def set_px_face_uv(self, px_face_uv: SDLData):
+        self.set_input("px-face-uv", px_face_uv)
+
+    def set_nx_face_uv(self, nx_face_uv: SDLData):
+        self.set_input("nx-face-uv", nx_face_uv)
+
+    def set_pz_face_uv(self, pz_face_uv: SDLData):
+        self.set_input("pz-face-uv", pz_face_uv)
+
+    def set_nz_face_uv(self, nz_face_uv: SDLData):
+        self.set_input("nz-face-uv", nz_face_uv)
+
+    def set_py_face_uv(self, py_face_uv: SDLData):
+        self.set_input("py-face-uv", py_face_uv)
+
+    def set_ny_face_uv(self, ny_face_uv: SDLData):
+        self.set_input("ny-face-uv", ny_face_uv)
+
+
+class EmptyGeometryCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "geometry(empty)"
+
+
+class GeometrySoupGeometryCreator(SDLCreatorCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "geometry(geometry-soup)"
+
+
+class GeometrySoupGeometryAdd(SDLExecutorCommand):
+
+    def get_full_type(self):
+        return "geometry(geometry-soup)"
+
+    def get_name(self):
+        return "add"
+
+    def set_geometry(self, geometry: SDLData):
+        self.set_input("geometry", geometry)
+
+
+class GeometrySoupGeometryAddTransformed(SDLExecutorCommand):
+
+    def get_full_type(self):
+        return "geometry(geometry-soup)"
+
+    def get_name(self):
+        return "add-transformed"
+
+    def set_geometry(self, geometry: SDLData):
+        self.set_input("geometry", geometry)
+
+    def set_translation(self, translation: SDLData):
+        self.set_input("translation", translation)
+
+    def set_rotation_axis(self, rotation_axis: SDLData):
+        self.set_input("rotation-axis", rotation_axis)
+
+    def set_rotation_degrees(self, rotation_degrees: SDLData):
+        self.set_input("rotation-degrees", rotation_degrees)
+
+    def set_scale(self, scale: SDLData):
+        self.set_input("scale", scale)
 
 
 class RectangleGeometryCreator(SDLCreatorCommand):
@@ -943,11 +1143,62 @@ class PinholeCameraCreator(SDLCoreCommand):
     def set_position(self, position: SDLData):
         self.set_input("position", position)
 
+    def set_rotation(self, rotation: SDLData):
+        self.set_input("rotation", rotation)
+
     def set_direction(self, direction: SDLData):
         self.set_input("direction", direction)
 
     def set_up_axis(self, up_axis: SDLData):
         self.set_input("up-axis", up_axis)
+
+    def set_yaw_degrees(self, yaw_degrees: SDLData):
+        self.set_input("yaw-degrees", yaw_degrees)
+
+    def set_pitch_degrees(self, pitch_degrees: SDLData):
+        self.set_input("pitch-degrees", pitch_degrees)
+
+
+class ThinLensCameraCreator(SDLCoreCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "camera(thin-lens)"
+
+    def set_lens_radius_mm(self, lens_radius_mm: SDLData):
+        self.set_input("lens-radius-mm", lens_radius_mm)
+
+    def set_focal_distance_mm(self, focal_distance_mm: SDLData):
+        self.set_input("focal-distance-mm", focal_distance_mm)
+
+    def set_fov_degree(self, fov_degree: SDLData):
+        self.set_input("fov-degree", fov_degree)
+
+    def set_film_width_mm(self, film_width_mm: SDLData):
+        self.set_input("film-width-mm", film_width_mm)
+
+    def set_film_offset_mm(self, film_offset_mm: SDLData):
+        self.set_input("film-offset-mm", film_offset_mm)
+
+    def set_position(self, position: SDLData):
+        self.set_input("position", position)
+
+    def set_rotation(self, rotation: SDLData):
+        self.set_input("rotation", rotation)
+
+    def set_direction(self, direction: SDLData):
+        self.set_input("direction", direction)
+
+    def set_up_axis(self, up_axis: SDLData):
+        self.set_input("up-axis", up_axis)
+
+    def set_yaw_degrees(self, yaw_degrees: SDLData):
+        self.set_input("yaw-degrees", yaw_degrees)
+
+    def set_pitch_degrees(self, pitch_degrees: SDLData):
+        self.set_input("pitch-degrees", pitch_degrees)
 
 
 class PmRendererCreator(SDLCoreCommand):

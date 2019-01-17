@@ -33,3 +33,32 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  camera             </category>
+	<type_name> thin-lens          </type_name>
+	<extend>    camera.perspective </extend>
+
+	<name> Thin Lens Camera </name>
+	<description>
+		As its name suggests, the lens system in this camera is assumed to be 
+		a single lens with negligible thickness. The biggest advantage of it 
+		is that depth of field effects are possible under this model.
+	</description>
+
+	<command type="creator">
+
+		<input name="lens-radius-mm" type="real">
+			<description>Radius of the lens in millimeters.</description>
+		</input>
+
+		<input name="focal-distance-mm" type="real">
+			<description>The distance in millimeters that the camera is focusing on.</description>
+		</input>
+
+	</command>
+
+	</SDL_interface>
+*/
