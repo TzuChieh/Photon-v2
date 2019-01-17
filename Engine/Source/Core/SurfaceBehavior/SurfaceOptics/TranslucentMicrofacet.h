@@ -18,6 +18,8 @@ public:
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
+	std::string toString() const override;
+
 private:
 	void calcBsdf(
 		const BsdfEvaluation::Input& in,
@@ -43,5 +45,12 @@ private:
 	constexpr static SurfaceElemental REFLECTION   = 0;
 	constexpr static SurfaceElemental TRANSMISSION = 1;
 };
+
+// In-header Implementations:
+
+inline std::string TranslucentMicrofacet::toString() const
+{
+	return "Translucent Microfacet, " + SurfaceOptics::toString();
+}
 
 }// end namespace ph

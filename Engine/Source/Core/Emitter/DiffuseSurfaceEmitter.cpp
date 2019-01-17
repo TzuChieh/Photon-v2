@@ -152,6 +152,8 @@ real DiffuseSurfaceEmitter::calcRadiantFluxApprox() const
 		return SurfaceEmitter::calcRadiantFluxApprox();
 	}
 
+	// FIXME: this assumption is too bad
+
 	// and assume the surface emits constant radiance sampled from that point
 
 	constexpr EQuantity QUANTITY = EQuantity::EMR;

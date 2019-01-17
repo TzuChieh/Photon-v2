@@ -9,6 +9,8 @@
 #include "Core/SurfaceBehavior/BsdfSample.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 
+#include <string>
+
 namespace ph
 {
 
@@ -32,6 +34,8 @@ public:
 
 	SurfacePhenomena getAllPhenomena() const;
 	SurfaceElemental numElementals() const;
+
+	virtual std::string toString() const;
 
 protected:
 	SurfacePhenomena m_phenomena;
@@ -64,6 +68,11 @@ inline SurfacePhenomena SurfaceOptics::getAllPhenomena() const
 inline SurfaceElemental SurfaceOptics::numElementals() const
 {
 	return m_numElementals;
+}
+
+inline std::string SurfaceOptics::toString() const
+{
+	return std::to_string(m_numElementals) + " elementals";
 }
 
 }// end namespace ph

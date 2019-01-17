@@ -30,6 +30,8 @@ public:
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
+	std::string toString() const override;
+
 private:
 	std::shared_ptr<SurfaceOptics>              m_optics0;
 	std::shared_ptr<SurfaceOptics>              m_optics1;
@@ -53,5 +55,16 @@ private:
 
 	static real probabilityOfPickingOptics0(const SpectralStrength& ratio);
 };
+
+// In-header Implementations:
+
+inline std::string LerpedSurfaceOptics::toString() const
+{
+	return 
+		"Lerped Surface Optics, "
+		"optics_0: " + m_optics0->toString() + 
+		"optics_1: " + m_optics1->toString() + 
+		", " + SurfaceOptics::toString();
+}
 
 }// end namespace ph

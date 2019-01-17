@@ -37,6 +37,8 @@ public:
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
+	std::string toString() const override;
+
 private:
 	void calcBsdf(
 		const BsdfEvaluation::Input& in,
@@ -73,6 +75,11 @@ private:
 inline std::size_t LbLayeredSurface::numLayers() const
 {
 	return m_alphas.size();
+}
+
+inline std::string LbLayeredSurface::toString() const
+{
+	return "L.B. Layered Surface, " + SurfaceOptics::toString();
 }
 
 }// end namespace ph

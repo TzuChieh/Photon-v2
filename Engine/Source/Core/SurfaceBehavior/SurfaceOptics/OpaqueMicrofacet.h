@@ -26,6 +26,8 @@ public:
 		m_albedo = albedo;
 	}*/
 
+	std::string toString() const override;
+
 private:
 	void calcBsdf(
 		const BsdfEvaluation::Input& in,
@@ -47,5 +49,12 @@ private:
 	std::shared_ptr<Microfacet>                 m_microfacet;
 	std::shared_ptr<FresnelEffect>              m_fresnel;
 };
+
+// In-header Implementations:
+
+inline std::string OpaqueMicrofacet::toString() const
+{
+	return "Opaque Microfacet, " + SurfaceOptics::toString();
+}
 
 }// end namespace ph

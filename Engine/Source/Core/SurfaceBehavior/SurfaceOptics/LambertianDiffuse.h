@@ -12,9 +12,11 @@ namespace ph
 class LambertianDiffuse : public SurfaceOptics
 {
 public:
-	LambertianDiffuse(const std::shared_ptr<TTexture<SpectralStrength>>& albedo);
+	explicit LambertianDiffuse(const std::shared_ptr<TTexture<SpectralStrength>>& albedo);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
+
+	std::string toString() const override;
 
 private:
 	void calcBsdf(
@@ -35,5 +37,12 @@ private:
 private:
 	std::shared_ptr<TTexture<SpectralStrength>> m_albedo;
 };
+
+// In-header Implementations:
+
+inline std::string LambertianDiffuse::toString() const
+{
+	return "Lambertian Diffuse, " + SurfaceOptics::toString();
+}
 
 }// end namespace ph

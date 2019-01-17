@@ -27,10 +27,9 @@ void SchlickApproxDielectricFresnel::calcReflectance(
 
 	// According to SIGGRAPH 2015 Course: 
 	// "Extending the Disney BRDF to a BSDF with Integrated Subsurface Scattering (Brent Burley)",
-	// since Schlick's approximation erroneously ignores the critical angle during calculation,
-	// to fix this, we can use the refraction angle instead when TIR is possible (i.e., the
+	// since Schlick's approximation erroneously ignores the critical angle during calculation.
+	// To fix this, we can use the refraction angle instead when TIR is possible (i.e., the
 	// situation where the IOR of the incident side is greater than the opposite side).
-	//
 	if((cosThetaIncident > 0 && m_iorOuter > m_iorInner) ||
 	   (cosThetaIncident < 0 && m_iorInner > m_iorOuter))
 	{

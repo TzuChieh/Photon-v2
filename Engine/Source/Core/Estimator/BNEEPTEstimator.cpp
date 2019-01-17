@@ -166,6 +166,13 @@ void BNEEPTEstimator::radianceAlongRay(
 				break;
 			}
 
+			// DEBUG
+			if(!L.isFinite())
+			{
+				std::cerr << surfaceBehavior->getOptics()->toString() << std::endl;
+				return;
+			}
+
 			PH_ASSERT(L.isFinite());
 
 			//BsdfPdfQuery bsdfPdfQuery;
@@ -287,7 +294,7 @@ void BNEEPTEstimator::radianceAlongRay(
 void BNEEPTEstimator::rationalClamp(SpectralStrength& value)
 {
 	// TODO: should negative value be allowed?
-	value.clampLocal(0.0_r, 1000000000.0_r);
+	value.clampLocal(0.0_r, 1000000.0_r);
 }
 
 // command interface

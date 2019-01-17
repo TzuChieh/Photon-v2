@@ -6,8 +6,9 @@
 #include "Core/Quantity/SpectralStrength.h"
 #include "Common/assertion.h"
 #include "Core/Texture/TConstantTexture.h"
-
 #include "Math/math.h"
+
+#include <utility>
 
 namespace ph
 {
@@ -110,52 +111,57 @@ void LerpedSurfaceOptics::calcBsdfSample(
 
 	if(in.elemental == ALL_ELEMENTALS)
 	{
-		const real prob = probabilityOfPickingOptics0(ratio);
 		const real dart = Random::genUniformReal_i0_e1();
-		if(dart < prob)
+
+		SpectralStrength sampledRatio  = ratio;
+		SurfaceOptics*   sampledOptics = m_optics0.get();
+		SurfaceOptics*   anotherOptics = m_optics1.get();
+		real             sampledProb   = probabilityOfPickingOptics0(ratio);
+		if(dart >= sampledProb)
 		{
-			BsdfSample::Output sample0;
-			m_optics0->calcBsdfSample(in, sample0, sidedness);
-
-			BsdfEvaluation eval1;
-			eval1.inputs.set(in, sample0);
-			m_optics1->calcBsdf(eval1.inputs, eval1.outputs, sidedness);
-
-			BsdfPdfQuery query0, query1;
-			query0.inputs.set(in, sample0);
-			query1.inputs.set(eval1);
-			m_optics0->calcBsdfSamplePdfW(query0.inputs, query0.outputs, sidedness);
-			m_optics1->calcBsdfSamplePdfW(query1.inputs, query1.outputs, sidedness);
-
-			const SpectralStrength bsdf0 = sample0.pdfAppliedBsdf * query0.outputs.sampleDirPdfW;
-			const SpectralStrength bsdf = bsdf0 * ratio + eval1.outputs.bsdf * (SpectralStrength(1) - ratio);
-			const real             pdfW = query0.outputs.sampleDirPdfW * prob + query1.outputs.sampleDirPdfW * (1.0_r - prob);
-			out.pdfAppliedBsdf = bsdf / pdfW;
-			out.L = sample0.L;
-		}
-		else
-		{
-			BsdfSample::Output sample1;
-			m_optics1->calcBsdfSample(in, sample1, sidedness);
-
-			BsdfEvaluation eval0;
-			eval0.inputs.set(in, sample1);
-			m_optics0->calcBsdf(eval0.inputs, eval0.outputs, sidedness);
-
-			BsdfPdfQuery query0, query1;
-			query1.inputs.set(in, sample1);
-			query0.inputs.set(eval0);
-			m_optics1->calcBsdfSamplePdfW(query1.inputs, query1.outputs, sidedness);
-			m_optics0->calcBsdfSamplePdfW(query0.inputs, query0.outputs, sidedness);
-
-			const SpectralStrength bsdf1 = sample1.pdfAppliedBsdf * query1.outputs.sampleDirPdfW;
-			const SpectralStrength bsdf = eval0.outputs.bsdf * ratio + bsdf1 * (SpectralStrength(1) - ratio);
-			const real             pdfW = query0.outputs.sampleDirPdfW * prob + query1.outputs.sampleDirPdfW * (1.0_r - prob);
-			out.pdfAppliedBsdf = bsdf / pdfW;
-			out.L = sample1.L;
+			sampledRatio = SpectralStrength(1) - sampledRatio;
+			std::swap(sampledOptics, anotherOptics);
+			sampledProb = 1.0_r - sampledProb;
 		}
 
-		// FIXME: should check individual optics has valid sample
+		BsdfSample::Output sample;
+		sampledOptics->calcBsdfSample(in, sample, sidedness);
+		if(!sample.isMeasurable())
+		{
+			out.setMeasurability(false);
+			return;
+		}
+
+		BsdfEvaluation eval;
+		eval.inputs.set(in, sample);
+		anotherOptics->calcBsdf(eval.inputs, eval.outputs, sidedness);
+
+		BsdfPdfQuery query[2];
+		query[0].inputs.set(in, sample);
+		query[1].inputs.set(eval);
+		sampledOptics->calcBsdfSamplePdfW(query[0].inputs, query[0].outputs, sidedness);
+		anotherOptics->calcBsdfSamplePdfW(query[1].inputs, query[1].outputs, sidedness);
+
+		// TODO: this is quite a harsh condition--it may be possible to just 
+		// sample another elemental if one of them has 0 pdfW
+		if(query[0].outputs.sampleDirPdfW == 0 || query[1].outputs.sampleDirPdfW == 0)
+		{
+			out.setMeasurability(false);
+			return;
+		}
+
+		const SpectralStrength bsdf = 
+			sampledRatio * (sample.pdfAppliedBsdf * query[0].outputs.sampleDirPdfW) +
+			(SpectralStrength(1) - sampledRatio) * eval.outputs.bsdf;
+
+		const real pdfW = 
+			sampledProb * query[0].outputs.sampleDirPdfW +
+			(1.0_r - sampledProb) * query[1].outputs.sampleDirPdfW;
+
+		PH_ASSERT_MSG(pdfW > 0 && std::isfinite(pdfW), std::to_string(pdfW));
+
+		out.pdfAppliedBsdf = bsdf / pdfW;
+		out.L = sample.L;
 		out.setMeasurability(true);
 	}
 	else
@@ -213,7 +219,7 @@ void LerpedSurfaceOptics::calcBsdfSamplePdfW(
 
 real LerpedSurfaceOptics::probabilityOfPickingOptics0(const SpectralStrength& ratio)
 {
-	return math::clamp(ratio.calcLuminance(EQuantity::ECF), 0.01_r, 1.0_r);
+	return math::clamp(ratio.calcLuminance(EQuantity::ECF), 0.0_r, 1.0_r);
 }
 
 }// end namespace ph
