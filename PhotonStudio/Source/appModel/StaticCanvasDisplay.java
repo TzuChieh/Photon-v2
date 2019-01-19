@@ -55,7 +55,10 @@ public class StaticCanvasDisplay extends Display
 			{
 				Vector2f canvasCoordPx = new Vector2f((float)event.getX(), (float)event.getY());
 				Vector2f frameCoordPx  = getFrameCoordPx(canvasCoordPx);
-				getDisplayView().showCursorCoord((int)frameCoordPx.x, (int)frameCoordPx.y);
+				
+				getDisplayView().showCursorCoord(
+					Math.min((int)frameCoordPx.x, getFrameWidthPx() - 1), 
+					Math.min((int)frameCoordPx.y, getFrameHeightPx() - 1));
 				
 				int x = (int)frameCoordPx.x;
 				int y = (int)(m_image.getHeight() - frameCoordPx.y);

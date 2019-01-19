@@ -207,6 +207,13 @@ public class RenderProjectCtrl
 	}
 	
 	@FXML
+	void autoDetermineNumThreadsBtnClicked(ActionEvent event)
+	{
+		int numCores = Runtime.getRuntime().availableProcessors();
+		threadsSpinner.getValueFactory().setValue(Math.max(numCores - 2, 1));
+	}
+	
+	@FXML
 	void transferImageToEditorBtnClicked(ActionEvent event)
 	{
 		// TODO

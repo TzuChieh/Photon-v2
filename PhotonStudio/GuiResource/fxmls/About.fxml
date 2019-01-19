@@ -7,16 +7,18 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Label layoutX="29.0" layoutY="152.0" text="Developer: Tzu-Chieh Chang" />
-      <Hyperlink layoutX="29.0" layoutY="196.0" text="https://github.com/TzuChieh/Photon-v2/" />
+      <Label layoutX="392.0" layoutY="358.0" text="Developer: Tzu-Chieh Chang" />
+      <Hyperlink layoutX="29.0" layoutY="149.0" text="https://github.com/TzuChieh/Photon-v2/" />
       <Label layoutX="29.0" layoutY="47.0" text="Photon Renderer Version 2.0.0">
          <font>
             <Font name="Square 721 BT" size="24.0" />
          </font>
       </Label>
-      <Label layoutX="29.0" layoutY="181.0" text="Source Code and License" />
-      <Label layoutX="29.0" layoutY="229.0" text="Project Website" />
-      <Hyperlink layoutX="29.0" layoutY="244.0" text="https://tzuchieh.github.io/index.html" />
+      <Label layoutX="29.0" layoutY="134.0" text="Source Code and License" />
+      <Label layoutX="29.0" layoutY="182.0" text="Project Website" />
+      <Hyperlink layoutX="29.0" layoutY="197.0" text="https://tzuchieh.github.io/index.html" />
       <Label layoutX="411.0" layoutY="59.0" text="Release Date: 2019.01.16" />
+      <Label layoutX="29.0" layoutY="230.0" text="Report a Bug" />
+      <Hyperlink layoutX="29.0" layoutY="245.0" text="https://github.com/TzuChieh/Photon-v2/issues" />
    </children>
 </AnchorPane>
