@@ -7,50 +7,26 @@
 
 Photon-v2 is a rendering engine made out of my personal interest in computer graphics. A rendering engine is what takes geometrical descriptions and material properties of a 3-D scene as input, and outputs a 2-D image of that scene from a specific point of view. In layman's terms, it is like taking a photograph, except the scene and the camera are both computer simulated. This project is actively being developed and more features are expected to come.
 
-* Useful Links
-  * [**Project Website**](https://tzuchieh.github.io/)
-  * [**Features**](https://tzuchieh.github.io/features_overview.html)
-
 **Supported Platforms**: Windows, Linux, macOS
 
 || Master branch | Develop branch |
 | ------------- | -----------------------|-----------------------|
 | **CI Status**     | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=master)](https://travis-ci.org/TzuChieh/Photon-v2) | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=develop)](https://travis-ci.org/TzuChieh/Photon-v2) |
 
-## Build
+## Useful Links
 
-**Run the setup script before building the project** (depending on your system, choose either "./setup.bat" or "./setup.sh"). Photon uses CMake as its main build system, and the toolkits you need are as follows:
+* [**Project Website**](https://tzuchieh.github.io/)
+* [**Features**](https://tzuchieh.github.io/features_overview.html)
+* [**Roadmap**](https://tzuchieh.github.io/roadmap.html)
 
-* CMake 3.5.2+ (recommended)
-* C++17 compliant compiler (necessary)
-* Python 3 (recommended)
+## Contributing
 
-If you want to build editor, you will also need:
-
-* JDK 1.8+ and Maven
-
-NOTE: Please use "./build/" as build folder for now, since build scripts are more or less hard-coded to use this path, currently.
-
-## Roadmap
-
-* **Near Future (in 1 ~ 3 months)**
-  * first release
-  * stabilize core engine structure
-  * advanced addon for Blender (with render preview)
-  * distributed (network) rendering
-  * binary/modularized version of Photon-SDL
-
-* **Mid-term (in 3 ~ 6 months)**
-  * better material node editor & parser
-  * a complete Blender addon
-
-* **Future Works (~1 year or later)**
-  * full documentation & website
-  * render a short CG film using Photon
+* [**Build from Source**](https://tzuchieh.github.io/core_engine_contributing_build_from_source.html)
+* [**Coding Standards**](https://tzuchieh.github.io/core_engine_contributing_coding_standard.html)
 
 ## Scene Description Language
 
-The scene descripting language (SDL) designed by T.C. Chang can be stored into a text file (.p2 filename extension) and loaded by Photon-v2 for rendering. To create a scene, you can either open up a text file and start writing right away (visit "./scenes/" for reference) or install the Blender addon (in "./BlenderAddon/"), which contains a .p2 file exporter and a material editor currently.
+The scene description language (SDL) designed by T.C. Chang can be stored into a text file (.p2 filename extension) and loaded by Photon-v2 for rendering. To create a scene, you can either open up a text file and start writing right away (visit "./scenes/" for reference) or install the Blender addon (in "./BlenderAddon/"), which contains a .p2 file exporter and a material editor currently.
 
 ## About the Author
 
