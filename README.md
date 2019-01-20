@@ -7,53 +7,15 @@
 
 Photon-v2 is a rendering engine made out of my personal interest in computer graphics. A rendering engine is what takes geometrical descriptions and material properties of a 3-D scene as input, and outputs a 2-D image of that scene from a specific point of view. In layman's terms, it is like taking a photograph, except the scene and the camera are both computer simulated. This project is actively being developed and more features are expected to come.
 
-**Project Website**: https://tzuchieh.github.io/
+* Useful Links
+  * [**Project Website**](https://tzuchieh.github.io/)
+  * [**Features**](https://tzuchieh.github.io/features_overview.html)
 
 **Supported Platforms**: Windows, Linux, macOS
 
 || Master branch | Develop branch |
 | ------------- | -----------------------|-----------------------|
 | **CI Status**     | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=master)](https://travis-ci.org/TzuChieh/Photon-v2) | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=develop)](https://travis-ci.org/TzuChieh/Photon-v2) |
-
-## Features
-
-* **Rendering Mode**
-  * Backward Path Tracing
-  * Backward Path Tracing with Next Event Estimation
-  * Photon Mapping
-  * Progressive Photon Mapping
-  * Stochastic Progressive Photon Mapping
-  * ~~light/particle tracing~~
-  * ~~backward light tracing (next event estimation)~~
-  * RGB and Spectral Rendering
-  * AOV Rendering (normal)
-
-* **Material**
-  * Lambertian Diffuse
-  * Microfacet-based Opaque & Translucent Model
-  * Ideal Reflector, Transmitter and Absorber
-  * Supports Spectral Complex IoR
-  * Layered Surface Material (Belcour's model)
-  * Lerped BSDF
-
-* **Geometry**
-  * Triangle, Rectangle, Sphere, Cuboid, Triangle Mesh
-  * Simple 2-D Wave, Fractal
-
-* **Light**
-  * Point Light, Area Light (sphere, rectangle)
-  * Geometric Light
-  * HDR Environment Map
-  * IES Light Profiles
-
-* **Texture**
-  * Texturing with Ordinary File Formats (.jpg, .png, etc)
-  * Mathematical Modifiers (add, multiply)
-
-* **Misc.**
-  * Blender Addon for Scene Creation
-  * Easy-to-write Custom Scene Description Language
-  * GUI for Rendering
 
 ## Build
 
