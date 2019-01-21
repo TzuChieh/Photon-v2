@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ph_core.h"
-#include "Core/Quantity/EAttribute.h"
+#include "Core/Renderer/EAttribute.h"
 #include "Common/assertion.h"
 
 #include <iostream>

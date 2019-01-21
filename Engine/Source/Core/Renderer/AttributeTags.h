@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Quantity/EAttribute.h"
+#include "Core/Renderer/EAttribute.h"
 #include "Common/assertion.h"
 
 #include <array>

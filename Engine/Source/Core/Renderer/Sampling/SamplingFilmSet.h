@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Filmic/TSamplingFilm.h"
-#include "Core/Quantity/EAttribute.h"
+#include "Core/Renderer/EAttribute.h"
 #include "Utility/TFixedEnumMap.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Math/TVector3.h"

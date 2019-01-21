@@ -9,7 +9,7 @@
 #include "Core/Renderer/ERegionStatus.h"
 #include "Frame/frame_fwd.h"
 #include "Frame/FrameProcessor.h"
-#include "Core/Quantity/EAttribute.h"
+#include "Core/Renderer/EAttribute.h"
 #include "Core/Renderer/Region/Region.h"
 
 #include <string>
