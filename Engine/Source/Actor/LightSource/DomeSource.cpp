@@ -32,8 +32,6 @@ DomeSource::DomeSource(const Path& sphericalEnvMap) :
 	m_sphericalEnvMap(sphericalEnvMap)
 {}
 
-DomeSource::~DomeSource() = default;
-
 // TODO: specify uvw mapper explicitly
 
 std::unique_ptr<Emitter> DomeSource::genEmitter(

@@ -15,7 +15,6 @@ class MatteOpaque : public SurfaceMaterial, public TCommandInterface<MatteOpaque
 public:
 	MatteOpaque();
 	MatteOpaque(const Vector3R& linearSrgbAlbedo);
-	~MatteOpaque() override;
 
 	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
 

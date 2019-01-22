@@ -33,8 +33,6 @@ public:
 		const TAABB2D<int64>& effectiveWindowPx,
 		const SampleFilter& filter);
 
-	~HdrRgbFilm() override;
-
 	void addSample(float64 xPx, float64 yPx, const SpectralStrength& spectrum) override;
 	void clear() override;
 	std::unique_ptr<SpectralSamplingFilm> genSamplingChild(const TAABB2D<int64>& effectiveWindowPx) override;

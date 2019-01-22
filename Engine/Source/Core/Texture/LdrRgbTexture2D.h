@@ -17,10 +17,9 @@ class LdrRgbTexture2D final : public TTexture<SpectralStrength>
 {
 public:
 	LdrRgbTexture2D();
-	LdrRgbTexture2D(std::unique_ptr<TAbstractPixelTex2D<LdrComponent, 3>> texture);
-	virtual ~LdrRgbTexture2D() override;
+	explicit LdrRgbTexture2D(std::unique_ptr<TAbstractPixelTex2D<LdrComponent, 3>> texture);
 
-	virtual void sample(const SampleLocation& sampleLocation, SpectralStrength* out_value) const override;
+	void sample(const SampleLocation& sampleLocation, SpectralStrength* out_value) const override;
 
 private:
 	std::unique_ptr<TAbstractPixelTex2D<LdrComponent, 3>> m_texture;

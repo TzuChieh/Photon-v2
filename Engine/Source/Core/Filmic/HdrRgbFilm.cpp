@@ -46,8 +46,6 @@ HdrRgbFilm::HdrRgbFilm(
 	clear();
 }
 
-HdrRgbFilm::~HdrRgbFilm() = default;
-
 void HdrRgbFilm::addSample(
 	const float64 xPx, const float64 yPx, 
 	const SpectralStrength& radiance)

@@ -10,8 +10,8 @@ namespace ph
 {
 
 /*
-	Schedules a complete region, without any division, to each worker. Only
-	work depth is distributed among workers.
+	Schedules a complete region, without any planar division, to each worker. 
+	Only work depth is distributed among workers.
 */
 class PlateScheduler : public WorkScheduler
 {

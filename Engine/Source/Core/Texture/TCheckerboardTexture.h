@@ -26,34 +26,30 @@ template<typename OutputType>
 class TCheckerboardTexture final : public TTexture<OutputType>
 {
 public:
-	inline TCheckerboardTexture(
+	TCheckerboardTexture(
 		real numUtiles, real numVtiles,
 		const OutputType& oddValue, 
 		const OutputType& evenValue);
 
-	inline TCheckerboardTexture(
+	TCheckerboardTexture(
 		real numUtiles, real numVtiles,
 		const std::shared_ptr<TTexture<OutputType>>& oddTexture, 
 		const std::shared_ptr<TTexture<OutputType>>& evenTexture);
 
-	inline virtual ~TCheckerboardTexture() override;
-
-	inline virtual void sample(const SampleLocation& sampleLocation, OutputType* out_value) const override;
+	void sample(const SampleLocation& sampleLocation, OutputType* out_value) const override;
 
 	// Sets the texture that is going to be used in odd cells.
-	//
-	inline void setOddTexture(const std::shared_ptr<TTexture<OutputType>>& oddTexture);
+	void setOddTexture(const std::shared_ptr<TTexture<OutputType>>& oddTexture);
 
 	// Sets the texture that is going to be used in even cells.
-	//
-	inline void setEvenTexture(const std::shared_ptr<TTexture<OutputType>>& evenTexture);
+	void setEvenTexture(const std::shared_ptr<TTexture<OutputType>>& evenTexture);
 
 	// Sets the scale factors of cell texture. Larger u-, v- and w-scale 
 	// makes texture appears to be larger in the corresponding direction, 
 	// and vice versa.
 	//
-	inline void setOddTextureScale(const Vector3R& sale);
-	inline void setEvenTextureScale(const Vector3R& scale);
+	void setOddTextureScale(const Vector3R& sale);
+	void setEvenTextureScale(const Vector3R& scale);
 
 private:
 	std::shared_ptr<TTexture<OutputType>> m_oddTexture;

@@ -23,8 +23,6 @@ LdrRgbTexture2D::LdrRgbTexture2D(std::unique_ptr<TAbstractPixelTex2D<LdrComponen
 	PH_ASSERT(m_texture != nullptr);
 }
 
-LdrRgbTexture2D::~LdrRgbTexture2D() = default;
-
 void LdrRgbTexture2D::sample(
 	const SampleLocation& sampleLocation, SpectralStrength* const out_value) const
 {

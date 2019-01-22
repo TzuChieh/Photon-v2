@@ -14,10 +14,9 @@ class HdrRgbTexture2D final : public TTexture<SpectralStrength>
 {
 public:
 	HdrRgbTexture2D();
-	HdrRgbTexture2D(std::unique_ptr<TAbstractPixelTex2D<HdrComponent, 3>> texture);
-	virtual ~HdrRgbTexture2D() override;
+	explicit HdrRgbTexture2D(std::unique_ptr<TAbstractPixelTex2D<HdrComponent, 3>> texture);
 
-	virtual void sample(const SampleLocation& sampleLocation, SpectralStrength* out_value) const override;
+	void sample(const SampleLocation& sampleLocation, SpectralStrength* out_value) const override;
 
 private:
 	std::unique_ptr<TAbstractPixelTex2D<HdrComponent, 3>> m_texture;

@@ -13,8 +13,8 @@ class PrimitiveMetadata;
 class Material : public TCommandInterface<Material>
 {
 public:
-	Material();
-	virtual ~Material();
+	Material() = default;
+	virtual ~Material() = default;
 
 	virtual void genBehaviors(CookingContext& context, PrimitiveMetadata& metadata) const = 0;
 

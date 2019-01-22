@@ -3,8 +3,6 @@
 namespace ph
 {
 
-AbradedSurface::~AbradedSurface() = default;
-
 // command interface
 
 SdlTypeInfo AbradedSurface::ciTypeInfo()

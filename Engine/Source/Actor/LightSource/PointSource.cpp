@@ -21,8 +21,6 @@ PointSource::PointSource(const SampledSpectralStrength& color, real numWatts) :
 	m_sphereSource(POINT_SOURCE_RADIUS, color, numWatts)
 {}
 
-PointSource::~PointSource() = default;
-
 std::shared_ptr<Geometry> PointSource::genAreas(CookingContext& context) const
 {
 	return m_sphereSource.genAreas(context);

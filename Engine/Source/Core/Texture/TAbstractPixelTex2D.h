@@ -34,9 +34,7 @@ public:
 		setHeightPx(heightPx);
 	}
 
-	virtual ~TAbstractPixelTex2D() override = default;
-
-	virtual void sample(
+	void sample(
 		const SampleLocation& sampleLocation, 
 		TTexPixel<T, N>*      out_value) const override = 0;
 

@@ -87,7 +87,7 @@ void Engine::asyncDevelopFilmRegion(
 	const EAttribute        attribute,
 	const bool              applyPostProcessing) const
 {
-	m_renderer->asyncDevelopRegion(out_frame, region, attribute);
+	m_renderer->asyncPeekRegion(out_frame, region, attribute);
 
 	if(applyPostProcessing)
 	{

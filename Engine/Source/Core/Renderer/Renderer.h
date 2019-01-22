@@ -36,6 +36,7 @@ public:
 	virtual ~Renderer();
 
 	// Perform necessary updates for rendering. 
+	// No asynchronous operation is allowed during update.
 	virtual void doUpdate(const SdlResourcePack& data) = 0;
 
 	// Start rendering.
@@ -44,19 +45,23 @@ public:
 	// Develop the rendered result.
 	virtual void develop(HdrRgbFrame& out_frame, EAttribute attribute) = 0;
 
-	// Notice that no asynchronous operation is allowed during renderer update.
-
 	// Get the rendering region that has been updated.
 	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) = 0;
-
+	
+	// Returns information regarding the rendering process.
 	virtual RenderState asyncQueryRenderState() = 0;
+
+	// TODO: remove this method
 	virtual RenderProgress asyncQueryRenderProgress() = 0;
 
-	virtual void asyncDevelopRegion(
+	// Similar to develop(2), except that correctness is not guaranteed for
+	// the returned frame.
+	virtual void asyncPeekRegion(
 		HdrRgbFrame&  out_frame, 
 		const Region& region, 
 		EAttribute    attribute) = 0;
 
+	// TODO: these two methods can be combined
 	virtual AttributeTags supportedAttributes() const = 0;
 	virtual std::string renderStateName(RenderState::EType type, std::size_t index) const = 0;
 
@@ -64,10 +69,10 @@ public:
 	void render();
 	void setNumWorkers(uint32 numWorkers);
 
-	uint32           getNumWorkers()     const;
-	uint32           getRenderWidthPx()  const;
-	uint32           getRenderHeightPx() const;
-	TAABB2D<int64>   getRenderWindowPx() const;
+	uint32         getNumWorkers()     const;
+	uint32         getRenderWidthPx()  const;
+	uint32         getRenderHeightPx() const;
+	TAABB2D<int64> getRenderWindowPx() const;
 
 	bool asyncIsUpdating() const;
 	bool asyncIsRendering() const;

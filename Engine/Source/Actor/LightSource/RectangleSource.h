@@ -11,9 +11,8 @@ public:
 	RectangleSource();
 	RectangleSource(real width, real height, const Vector3R& linearSrgbColor, real numWatts);
 	RectangleSource(real width, real height, const SampledSpectralStrength& color, real numWatts);
-	virtual ~RectangleSource() override;
 
-	virtual std::shared_ptr<Geometry> genAreas(CookingContext& context) const override;
+	std::shared_ptr<Geometry> genAreas(CookingContext& context) const override;
 
 	void setDimension(real width, real height);
 
@@ -23,7 +22,7 @@ private:
 
 // command interface
 public:
-	RectangleSource(const InputPacket& packet);
+	explicit RectangleSource(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };

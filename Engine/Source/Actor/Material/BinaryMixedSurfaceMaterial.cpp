@@ -17,8 +17,6 @@ BinaryMixedSurfaceMaterial::BinaryMixedSurfaceMaterial() :
 	m_factor(nullptr)
 {}
 
-BinaryMixedSurfaceMaterial::~BinaryMixedSurfaceMaterial() = default;
-
 void BinaryMixedSurfaceMaterial::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
 	if(!m_material0 || !m_material1)

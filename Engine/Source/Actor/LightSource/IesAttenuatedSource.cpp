@@ -29,8 +29,6 @@ IesAttenuatedSource::IesAttenuatedSource(
 	setIesFile(iesFile);
 }
 
-IesAttenuatedSource::~IesAttenuatedSource() = default;
-
 std::unique_ptr<Emitter> IesAttenuatedSource::genEmitter(
 	CookingContext& context, EmitterBuildingMaterial&& data) const
 {

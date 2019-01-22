@@ -25,8 +25,6 @@ IdealSubstance::IdealSubstance() :
 	asAbsorber();
 }
 
-IdealSubstance::~IdealSubstance() = default;
-
 void IdealSubstance::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
 	PH_ASSERT(m_opticsGenerator);

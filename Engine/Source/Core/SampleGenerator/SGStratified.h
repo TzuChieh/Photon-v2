@@ -9,7 +9,7 @@ namespace ph
 class SGStratified final : public SampleGenerator, public TCommandInterface<SGStratified>
 {
 public:
-	SGStratified(std::size_t numSamples);
+	explicit SGStratified(std::size_t numSamples);
 
 private:
 	std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;

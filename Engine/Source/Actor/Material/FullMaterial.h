@@ -19,7 +19,6 @@ class FullMaterial final : public Material, public TCommandInterface<FullMateria
 public:
 	FullMaterial();
 	FullMaterial(const std::shared_ptr<SurfaceMaterial>& surfaceMaterial);
-	virtual ~FullMaterial() override;
 
 	void genBehaviors(CookingContext& context, PrimitiveMetadata& metadata) const override;
 

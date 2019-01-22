@@ -15,7 +15,6 @@ class IdealSubstance : public SurfaceMaterial, public TCommandInterface<IdealSub
 {
 public:
 	IdealSubstance();
-	~IdealSubstance() override;
 
 	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
 

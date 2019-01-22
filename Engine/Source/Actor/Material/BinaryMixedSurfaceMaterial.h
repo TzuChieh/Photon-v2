@@ -21,7 +21,6 @@ public:
 	};
 
 	BinaryMixedSurfaceMaterial();
-	~BinaryMixedSurfaceMaterial() override;
 
 	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
 

@@ -11,8 +11,6 @@ VolumeMaterial::VolumeMaterial() :
 	m_sidedness(ESidedness::INTERIOR)
 {}
 
-VolumeMaterial::~VolumeMaterial() = default;
-
 void VolumeMaterial::genBehaviors(
 	CookingContext&    context, 
 	PrimitiveMetadata& metadata) const

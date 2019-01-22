@@ -18,7 +18,6 @@ public:
 	};
 
 	VolumeMaterial();
-	~VolumeMaterial() override;
 
 	virtual void genVolume(CookingContext& context, VolumeBehavior& behavior) const = 0;
 

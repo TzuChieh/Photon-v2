@@ -9,7 +9,7 @@ namespace ph
 class SGUniformRandom final : public SampleGenerator, public TCommandInterface<SGUniformRandom>
 {
 public:
-	SGUniformRandom(const std::size_t numSamples);
+	explicit SGUniformRandom(const std::size_t numSamples);
 
 private:
 	std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;

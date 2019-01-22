@@ -12,16 +12,15 @@ public:
 	PointSource();
 	PointSource(const Vector3R& linearSrgbColor, real numWatts);
 	PointSource(const SampledSpectralStrength& color, real numWatts);
-	virtual ~PointSource() override;
 
-	virtual std::shared_ptr<Geometry> genAreas(CookingContext& context) const override;
+	std::shared_ptr<Geometry> genAreas(CookingContext& context) const override;
 
 private:
 	SphereSource m_sphereSource;
 
 // command interface
 public:
-	PointSource(const InputPacket& packet);
+	explicit PointSource(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };

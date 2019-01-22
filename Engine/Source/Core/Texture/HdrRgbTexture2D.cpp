@@ -16,8 +16,6 @@ HdrRgbTexture2D::HdrRgbTexture2D(std::unique_ptr<TAbstractPixelTex2D<HdrComponen
 	PH_ASSERT(m_texture != nullptr);
 }
 
-HdrRgbTexture2D::~HdrRgbTexture2D() = default;
-
 void HdrRgbTexture2D::sample(const SampleLocation& sampleLocation, SpectralStrength* const out_value) const
 {
 	PH_ASSERT(m_texture != nullptr && out_value != nullptr);

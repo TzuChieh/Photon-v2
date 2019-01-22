@@ -5,10 +5,6 @@
 namespace ph
 {
 
-LightSource::LightSource() = default;
-
-LightSource::~LightSource() = default;
-
 std::shared_ptr<Geometry> LightSource::genGeometry(CookingContext& context) const
 {
 	return nullptr;

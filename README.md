@@ -30,10 +30,7 @@ The scene description language (SDL) designed by T.C. Chang can be stored into a
 
 ## About the Author
 
-Development Blog: https://tzuchieh.github.io/ <br />
-YouTube Channel:  https://www.youtube.com/channel/UCKdlogjqjuFsuv06wajp-2g <br />
-Facebook Page:    https://www.facebook.com/tccthedeveloper/ <br />
-E-mail:           r05922176@ntu.edu.tw <br />
+**[Development Blog](https://tzuchieh.github.io/) | [YouTube Channel](https://www.youtube.com/channel/UCKdlogjqjuFsuv06wajp-2g) | [Facebook Page](https://www.facebook.com/tccthedeveloper/)**
 
 If you use Photon in your research project, you are hightly encouraged to cite it using the following BibTeX template:
 
@@ -46,9 +43,10 @@ If you use Photon in your research project, you are hightly encouraged to cite i
 } 
 ```
 
-Feel free to send me an e-mail for any questions or ideas about my project (= <br />
+Feel free to send me an e-mail (r05922176@ntu.edu.tw) for any questions or ideas about my project (= <br />
 
 Support the Project:
+
 * BTC: 123ZDDMB38XcbPG3Q1fEH5WWHdMroYVuFm
 * ETH: 0x0ea47ec84f6abb0cee20a54dedfa8f286731c1f2
 

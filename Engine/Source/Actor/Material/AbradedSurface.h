@@ -11,8 +11,6 @@ namespace ph
 class AbradedSurface : public Material, public TCommandInterface<AbradedSurface>
 {
 public:
-	virtual ~AbradedSurface() override;
-
 	virtual void genSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const = 0;
 
 private:

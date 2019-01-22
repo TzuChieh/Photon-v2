@@ -24,8 +24,6 @@ MatteOpaque::MatteOpaque(const Vector3R& linearSrgbAlbedo) :
 	setAlbedo(linearSrgbAlbedo);
 }
 
-MatteOpaque::~MatteOpaque() = default;
-
 void MatteOpaque::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
 	PH_ASSERT(m_albedo);

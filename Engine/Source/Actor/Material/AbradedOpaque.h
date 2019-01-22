@@ -17,7 +17,6 @@ class AbradedOpaque : public SurfaceMaterial, public TCommandInterface<AbradedOp
 {
 public:
 	AbradedOpaque();
-	~AbradedOpaque() override;
 
 	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
 

@@ -19,7 +19,6 @@ class TSamplingFilm : public SamplingFilmBase, public TCommandInterface<TSamplin
 {
 public:
 	using SamplingFilmBase::SamplingFilmBase;
-	~TSamplingFilm() override;
 
 	virtual void addSample(float64 xPx, float64 yPx, const Sample& sample) = 0;
 	virtual std::unique_ptr<TSamplingFilm> genSamplingChild(const TAABB2D<int64>& effectiveWindowPx) = 0;

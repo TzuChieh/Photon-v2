@@ -15,7 +15,6 @@ class AbradedTranslucent : public SurfaceMaterial, public TCommandInterface<Abra
 {
 public:
 	AbradedTranslucent();
-	~AbradedTranslucent() override;
 
 	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
 

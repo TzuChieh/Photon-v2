@@ -18,8 +18,8 @@ class InputPacket;
 class LightSource : public TCommandInterface<LightSource>
 {
 public:
-	LightSource();
-	virtual ~LightSource() = 0;
+	LightSource() = default;
+	virtual ~LightSource() = default;
 
 	// Generates the core emission part of the light source.
 	//
@@ -40,7 +40,7 @@ public:
 
 // command interface
 public:
-	LightSource(const InputPacket& packet);
+	explicit LightSource(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };

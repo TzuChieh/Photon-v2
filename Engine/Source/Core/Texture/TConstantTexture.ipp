@@ -12,9 +12,6 @@ inline TConstantTexture<OutputType>::TConstantTexture(const OutputType& value) :
 {}
 
 template<typename OutputType>
-inline TConstantTexture<OutputType>::~TConstantTexture() = default;
-
-template<typename OutputType>
 inline void TConstantTexture<OutputType>::sample(
 	const SampleLocation& sampleLocation, OutputType* const out_value) const
 {

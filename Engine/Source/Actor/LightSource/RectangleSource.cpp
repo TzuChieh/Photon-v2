@@ -34,8 +34,6 @@ RectangleSource::RectangleSource(
 	setDimension(width, height);
 }
 
-RectangleSource::~RectangleSource() = default;
-
 std::shared_ptr<Geometry> RectangleSource::genAreas(CookingContext& context) const
 {
 	return std::make_shared<GRectangle>(m_width, m_height);

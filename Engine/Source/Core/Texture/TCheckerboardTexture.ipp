@@ -43,9 +43,6 @@ inline TCheckerboardTexture<OutputType>::TCheckerboardTexture(
 }
 
 template<typename OutputType>
-inline TCheckerboardTexture<OutputType>::~TCheckerboardTexture() = default;
-
-template<typename OutputType>
 inline void TCheckerboardTexture<OutputType>::sample(
 	const SampleLocation& sampleLocation, OutputType* const out_value) const
 {

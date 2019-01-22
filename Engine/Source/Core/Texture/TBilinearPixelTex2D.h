@@ -15,9 +15,8 @@ class TBilinearPixelTex2D final : public TPixelTex2D<T, N>
 {
 public:
 	using TPixelTex2D<T, N>::TPixelTex2D;
-	virtual ~TBilinearPixelTex2D() override = default;
 
-	virtual inline void sample(
+	inline void sample(
 		const SampleLocation&  sampleLocation, 
 		TTexPixel<T, N>* const out_value) const override
 	{

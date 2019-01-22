@@ -26,8 +26,6 @@ public:
 		const TAABB2D<int64>& effectiveWindowPx,
 		const SampleFilter& filter);
 
-	~SamplingFilmBase() override;
-
 	// Generates a child film with the same actual dimensions and filter as parent's, 
 	// but potentially with a different effective window.
 	// A child film can be merged into its parent by calling mergeToParent().

@@ -15,22 +15,21 @@ class DomeSource final : public LightSource, public TCommandInterface<DomeSource
 {
 public:
 	DomeSource();
-	DomeSource(const Path& sphericalEnvMap);
-	virtual ~DomeSource() override;
+	explicit DomeSource(const Path& sphericalEnvMap);
 
-	virtual std::unique_ptr<Emitter> genEmitter(
+	std::unique_ptr<Emitter> genEmitter(
 		CookingContext& context, EmitterBuildingMaterial&& data) const override;
 
-	virtual std::shared_ptr<Geometry> genGeometry(CookingContext& context) const override;
+	std::shared_ptr<Geometry> genGeometry(CookingContext& context) const override;
 
-	virtual std::shared_ptr<Material> genMaterial(CookingContext& context) const override;
+	std::shared_ptr<Material> genMaterial(CookingContext& context) const override;
 
 private:
 	Path m_sphericalEnvMap;
 
 // command interface
 public:
-	DomeSource(const InputPacket& packet);
+	explicit DomeSource(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 

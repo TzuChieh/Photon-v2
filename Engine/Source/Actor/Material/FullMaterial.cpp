@@ -22,8 +22,6 @@ FullMaterial::FullMaterial(const std::shared_ptr<SurfaceMaterial>& surfaceMateri
 	m_exteriorMaterial(nullptr)
 {}
 
-FullMaterial::~FullMaterial() = default;
-
 void FullMaterial::genBehaviors(
 	CookingContext&    context, 
 	PrimitiveMetadata& metadata) const

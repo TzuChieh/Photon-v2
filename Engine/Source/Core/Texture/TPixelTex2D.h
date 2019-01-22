@@ -32,9 +32,7 @@ public:
 		PH_ASSERT(!m_frame.isEmpty());
 	}
 
-	virtual ~TPixelTex2D() override = default;
-
-	virtual void sample(
+	void sample(
 		const SampleLocation& sampleLocation, 
 		TTexPixel<T, N>*      out_value) const override = 0;
 

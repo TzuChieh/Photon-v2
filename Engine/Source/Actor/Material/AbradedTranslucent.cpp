@@ -20,8 +20,6 @@ AbradedTranslucent::AbradedTranslucent() :
 	m_opticsGenerator()
 {}
 
-AbradedTranslucent::~AbradedTranslucent() = default;
-
 void AbradedTranslucent::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
 	PH_ASSERT(m_opticsGenerator);

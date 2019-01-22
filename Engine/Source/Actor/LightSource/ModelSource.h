@@ -17,17 +17,16 @@ class Image;
 class ModelSource final : public LightSource, public TCommandInterface<ModelSource>
 {
 public:
-	ModelSource(const Vector3R& emittedRgbRadiance);
-	ModelSource(const Path& imagePath);
-	ModelSource(const std::shared_ptr<Image>& emittedRadiance);
-	virtual ~ModelSource() override;
+	explicit ModelSource(const Vector3R& emittedRgbRadiance);
+	explicit ModelSource(const Path& imagePath);
+	explicit ModelSource(const std::shared_ptr<Image>& emittedRadiance);
 
-	virtual std::unique_ptr<Emitter> genEmitter(
+	std::unique_ptr<Emitter> genEmitter(
 		CookingContext& context, EmitterBuildingMaterial&& data) const override;
 
-	virtual std::shared_ptr<Geometry> genGeometry(CookingContext& context) const override;
+	std::shared_ptr<Geometry> genGeometry(CookingContext& context) const override;
 
-	virtual std::shared_ptr<Material> genMaterial(CookingContext& context) const override;
+	std::shared_ptr<Material> genMaterial(CookingContext& context) const override;
 
 	void setGeometry(const std::shared_ptr<Geometry>& geometry);
 	void setMaterial(const std::shared_ptr<Material>& material);
@@ -45,6 +44,8 @@ private:
 public:
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
+
+	// TODO: use packet ctor
 	static std::unique_ptr<ModelSource> ciLoad(const InputPacket& packet);
 };
 

@@ -42,8 +42,6 @@ SamplingFilmBase::SamplingFilmBase(
 	PH_ASSERT(m_merger && getSampleWindowPx().isValid());
 }
 
-SamplingFilmBase::~SamplingFilmBase() = default;
-
 void SamplingFilmBase::calcSampleDimensions()
 {
 	m_sampleWindowPx = TAABB2D<float64>(

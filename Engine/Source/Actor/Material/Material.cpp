@@ -3,10 +3,6 @@
 namespace ph
 {
 
-Material::Material() = default;
-
-Material::~Material() = default;
-
 // command interface
 
 Material::Material(const InputPacket& packet)

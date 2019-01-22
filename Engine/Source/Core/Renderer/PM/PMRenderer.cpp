@@ -409,7 +409,7 @@ RenderProgress PMRenderer::asyncQueryRenderProgress()
 		0);
 }
 
-void PMRenderer::asyncDevelopRegion(HdrRgbFrame& out_frame, const Region& region, const EAttribute attribute)
+void PMRenderer::asyncPeekRegion(HdrRgbFrame& out_frame, const Region& region, const EAttribute attribute)
 {
 	std::lock_guard<std::mutex> lock(m_filmMutex);
 

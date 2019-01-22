@@ -23,8 +23,6 @@ SphereSource::SphereSource(const real radius, const SampledSpectralStrength& col
 	setRadius(radius);
 }
 
-SphereSource::~SphereSource() = default;
-
 std::shared_ptr<Geometry> SphereSource::genAreas(CookingContext& context) const
 {
 	return std::make_shared<GSphere>(m_radius);

@@ -14,9 +14,6 @@
 namespace ph
 {
 
-template<typename Sample>
-inline TSamplingFilm<Sample>::~TSamplingFilm() = default;
-
 // command interface
 
 template<typename Sample>

@@ -16,10 +16,10 @@ namespace ph
 class FixedSizeThreadPool final : public INoncopyable
 {
 public:
-	typedef std::function<void()> Work;
+	using Work = std::function<void()>;
 
 public:
-	FixedSizeThreadPool(std::size_t numWorkers);
+	explicit FixedSizeThreadPool(std::size_t numWorkers);
 
 	// Terminates the pool, effectively the same as calling 
 	// requestTermination(). 

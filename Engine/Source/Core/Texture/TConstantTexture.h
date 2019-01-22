@@ -9,10 +9,9 @@ template<typename OutputType>
 class TConstantTexture final : public TTexture<OutputType>
 {
 public:
-	inline TConstantTexture(const OutputType& value);
-	inline virtual ~TConstantTexture() override;
+	explicit TConstantTexture(const OutputType& value);
 
-	inline virtual void sample(const SampleLocation& sampleLocation, OutputType* out_value) const override;
+	void sample(const SampleLocation& sampleLocation, OutputType* out_value) const override;
 
 private:
 	OutputType m_value;

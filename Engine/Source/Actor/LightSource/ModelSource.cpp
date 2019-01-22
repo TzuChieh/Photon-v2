@@ -52,8 +52,6 @@ ModelSource::ModelSource(const std::shared_ptr<Image>& emittedRadiance) :
 	PH_ASSERT(m_emittedRadiance != nullptr);
 }
 
-ModelSource::~ModelSource() = default;
-
 std::unique_ptr<Emitter> ModelSource::genEmitter(
 	CookingContext& context, EmitterBuildingMaterial&& data) const
 {

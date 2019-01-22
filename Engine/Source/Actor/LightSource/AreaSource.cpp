@@ -46,8 +46,6 @@ AreaSource::AreaSource(const SampledSpectralStrength& color, const real numWatts
 	PH_ASSERT(numWatts > 0.0_r);
 }
 
-AreaSource::~AreaSource() = default;
-
 std::unique_ptr<Emitter> AreaSource::genEmitter(
 	CookingContext& context, EmitterBuildingMaterial&& data) const
 {

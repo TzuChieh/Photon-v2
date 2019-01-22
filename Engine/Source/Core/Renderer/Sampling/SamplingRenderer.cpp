@@ -145,7 +145,7 @@ ERegionStatus SamplingRenderer::asyncPollUpdatedRegion(Region* const out_region)
 	}
 }
 
-void SamplingRenderer::asyncDevelopRegion(
+void SamplingRenderer::asyncPeekRegion(
 	HdrRgbFrame&     out_frame, 
 	const Region&    region, 
 	const EAttribute attribute)
@@ -165,7 +165,7 @@ void SamplingRenderer::asyncDevelopRegion(
 
 void SamplingRenderer::develop(HdrRgbFrame& out_frame, const EAttribute attribute)
 {
-	asyncDevelopRegion(out_frame, getRenderWindowPx(), attribute);
+	asyncPeekRegion(out_frame, getRenderWindowPx(), attribute);
 }
 
 void SamplingRenderer::mergeWorkFilms(SamplingRenderWork& work)
