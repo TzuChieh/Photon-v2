@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import javax.imageio.ImageIO;
 
 import photonApi.FrameRegion;
+import photonApi.FrameStatus;
 
 public abstract class Display
 {
@@ -21,6 +22,11 @@ public abstract class Display
 	public abstract void drawFrame();
 	public abstract void clearFrame();
 	public abstract BufferedImage getImage();
+	
+	public void loadFrame(FrameRegion frameRegion, FrameStatus status)
+	{
+		loadFrame(frameRegion);
+	}
 	
 	public void saveImage(Path filePath)
     {

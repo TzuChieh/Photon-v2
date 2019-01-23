@@ -30,8 +30,6 @@
 namespace ph
 {
 
-SamplingRenderer::~SamplingRenderer() = default;
-
 void SamplingRenderer::doUpdate(const SdlResourcePack& data)
 {
 	clearWorkData();
@@ -99,7 +97,7 @@ void SamplingRenderer::doRender()
 	workers.waitAllWorks();
 }
 
-void SamplingRenderer::asyncUpdateFilm(SamplingRenderWork& work)
+void SamplingRenderer::asyncUpdateFilm(SamplingRenderWork& work, bool isUpdating)
 {
 	{
 		std::lock_guard<std::mutex> lock(m_rendererMutex);
@@ -107,7 +105,7 @@ void SamplingRenderer::asyncUpdateFilm(SamplingRenderWork& work)
 		mergeWorkFilms(work);
 
 		// HACK
-		addUpdatedRegion(work.m_films.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), false);
+		addUpdatedRegion(work.m_films.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), isUpdating);
 	}
 
 	m_samplesPerPixel.fetch_add(1, std::memory_order_relaxed);

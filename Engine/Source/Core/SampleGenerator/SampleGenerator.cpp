@@ -23,29 +23,30 @@ SampleGenerator::SampleGenerator(const std::size_t numSampleBatches,
 	PH_ASSERT(numCachedBatches > 0);
 }
 
-SampleGenerator::~SampleGenerator() = default;
-
 bool SampleGenerator::prepareSampleBatch()
 {
 	PH_ASSERT(m_numUsedBatches <= m_numSampleBatches &&
 	          m_numUsedCaches  <= m_numCachedBatches);
 
-	const bool hasMoreBatches = m_numUsedBatches < m_numSampleBatches;
-	const bool needsNewCache  = m_numUsedCaches == m_numCachedBatches;
-
-	if(hasMoreBatches && needsNewCache)
+	if(hasMoreBatches())
 	{
-		allocSampleBuffer();
-		genSampleBatch();
-		m_numUsedCaches = 0;
-	}
+		const bool needsNewCache = m_numUsedCaches == m_numCachedBatches;
+		if(needsNewCache)
+		{
+			allocSampleBuffer();
+			genSampleBatch();
+			m_numUsedCaches = 0;
+		}
 
-	if(hasMoreBatches)
-	{
-		m_numUsedBatches++;
-		m_numUsedCaches++;
+		++m_numUsedBatches;
+		++m_numUsedCaches;
+
+		return true;
 	}
-	return hasMoreBatches;
+	else
+	{
+		return false;
+	}
 }
 
 void SampleGenerator::genSplitted(const std::size_t numSplits,

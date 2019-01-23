@@ -91,7 +91,8 @@ void SamplingRenderWork::doWork()
 			}
 		}// end for
 
-		m_renderer->asyncUpdateFilm(*this);
+		const bool isUpdating = m_sampleGenerator->hasMoreBatches();
+		m_renderer->asyncUpdateFilm(*this, isUpdating);
 		incrementWorkDone();	
 
 		sampleTimer.finish();

@@ -22,8 +22,6 @@ class Estimator;
 class SamplingRenderer : public Renderer, public TCommandInterface<SamplingRenderer>
 {
 public:
-	~SamplingRenderer() override;
-
 	void doUpdate(const SdlResourcePack& data) override;
 	void doRender() override;
 	void develop(HdrRgbFrame& out_frame, EAttribute attribute) override;
@@ -36,7 +34,7 @@ public:
 	AttributeTags supportedAttributes() const override;
 	std::string renderStateName(RenderState::EType type, std::size_t index) const override;
 
-	void asyncUpdateFilm(SamplingRenderWork& work);
+	void asyncUpdateFilm(SamplingRenderWork& work, bool isUpdating);
 
 private:
 	SamplingFilmSet m_films;
@@ -50,7 +48,7 @@ private:
 	std::unique_ptr<WorkScheduler> m_workScheduler;
 
 	// TODO: use ERegionStatus instead of bool
-	std::deque<std::pair<Region, bool>>                 m_updatedRegions;
+	std::deque<std::pair<Region, bool>> m_updatedRegions;
 	
 	std::mutex m_rendererMutex;
 	std::atomic_uint m_percentageProgress;

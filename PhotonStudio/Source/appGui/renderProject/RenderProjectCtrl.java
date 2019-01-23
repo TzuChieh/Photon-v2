@@ -42,6 +42,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import photonApi.Frame;
 import photonApi.FrameRegion;
+import photonApi.FrameStatus;
 
 public class RenderProjectCtrl
 {
@@ -109,9 +110,9 @@ public class RenderProjectCtrl
 		m_renderFrameView = new RenderFrameView()
 		{
 			@Override
-			public void showIntermediate(FrameRegion frame)
+			public void showIntermediate(FrameRegion frame, FrameStatus status)
 			{
-				m_display.loadFrame(frame);
+				m_display.loadFrame(frame, status);
 				m_display.drawFrame();
 			}
 			

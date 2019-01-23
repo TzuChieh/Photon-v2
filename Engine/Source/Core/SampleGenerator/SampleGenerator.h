@@ -22,7 +22,7 @@ class SampleGenerator : public TCommandInterface<SampleGenerator>
 {
 public:
 	SampleGenerator(std::size_t numSampleBatches, std::size_t numCachedBatches);
-	virtual ~SampleGenerator();
+	virtual ~SampleGenerator() = default;
 
 	void genSplitted(std::size_t numSplits,
 	                 std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) const;
@@ -45,6 +45,7 @@ public:
 
 	std::size_t numSampleBatches() const;
 	std::size_t numCachedBatches() const;
+	bool        hasMoreBatches()   const;
 
 private:
 	virtual std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const = 0;
@@ -86,6 +87,11 @@ inline std::size_t SampleGenerator::numSampleBatches() const
 inline std::size_t SampleGenerator::numCachedBatches() const
 {
 	return m_numCachedBatches;
+}
+
+inline bool SampleGenerator::hasMoreBatches() const
+{
+	return m_numUsedBatches < m_numSampleBatches;
 }
 
 }// end namespace ph

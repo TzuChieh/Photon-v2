@@ -43,7 +43,7 @@ public class RenderFrameQuery implements Runnable
 		{
 			Platform.runLater(() -> 
 			{
-				m_view.showIntermediate(updatedFrameRegion);
+				m_view.showIntermediate(updatedFrameRegion, frameStatus);
 			});
 		}
 	}

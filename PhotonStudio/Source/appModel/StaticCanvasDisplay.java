@@ -12,11 +12,13 @@ import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import photonApi.FrameRegion;
+import photonApi.FrameStatus;
 import photonApi.Rectangle;
 import util.Vector2f;
 import util.Vector3f;
@@ -95,14 +97,14 @@ public class StaticCanvasDisplay extends Display
 		}
 		
 		final PixelWriter pixelWriter = m_image.getPixelWriter();
-		Rectangle region = frameRegion.getRegion();
-		int maxX = region.x + region.w;
-		int maxY = region.y + region.h;
-		Vector3f color = new Vector3f();
+		final Rectangle region = frameRegion.getRegion();
+		final int endX = region.x + region.w;
+		final int endY = region.y + region.h;
+		final Vector3f color = new Vector3f();
 		
-		for(int y = region.y; y < maxY; y++)
+		for(int y = region.y; y < endY; ++y)
 		{
-			for(int x = region.x; x < maxX; x++)
+			for(int x = region.x; x < endX; ++x)
 			{
 				color.set(frameRegion.getRgb(x, y));
 				if(!Float.isFinite(color.x) ||
@@ -118,6 +120,34 @@ public class StaticCanvasDisplay extends Display
 				int inversedY = frameRegion.getFullHeightPx() - y - 1;
 				Color fxColor = new Color(color.x, color.y, color.z, 1.0);
 				pixelWriter.setColor(x, inversedY, fxColor);
+			}
+		}
+	}
+	
+	@Override
+	public void loadFrame(FrameRegion frameRegion, FrameStatus status)
+	{
+		loadFrame(frameRegion);
+		
+		if(status == FrameStatus.UPDATING)
+		{
+			final PixelWriter pixelWriter = m_image.getPixelWriter();
+			final Color rectColor = Color.LIGHTBLUE;
+			final Rectangle region = frameRegion.getRegion();
+			
+			final int maxX = region.x + region.w - 1;
+			final int maxY = region.y + region.h - 1;
+			
+			for(int x = region.x; x <= maxX; ++x)
+			{
+				pixelWriter.setColor(x, maxY,     rectColor);
+				pixelWriter.setColor(x, region.y, rectColor);
+			}
+			
+			for(int y = region.y + 1; y <= maxY - 1; ++y)
+			{
+				pixelWriter.setColor(region.x, y, rectColor);
+				pixelWriter.setColor(maxX,     y, rectColor);
 			}
 		}
 	}
