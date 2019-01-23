@@ -18,14 +18,14 @@ public abstract class Display
 		m_view = new DisplayView(){};
 	}
 	
-	public abstract void loadFrame(FrameRegion frameRegion);
+	public abstract void loadFrame(FrameRegion frame);
 	public abstract void drawFrame();
 	public abstract void clearFrame();
 	public abstract BufferedImage getImage();
 	
-	public void loadFrame(FrameRegion frameRegion, FrameStatus status)
+	public void loadFrame(FrameRegion frame, FrameStatus status)
 	{
-		loadFrame(frameRegion);
+		loadFrame(frame);
 	}
 	
 	public void saveImage(Path filePath)

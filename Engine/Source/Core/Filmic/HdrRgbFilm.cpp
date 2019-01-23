@@ -170,15 +170,28 @@ void HdrRgbFilm::clear()
 
 void HdrRgbFilm::mergeWith(const HdrRgbFilm& other)
 {
-	// FIXME: this is wrong, must respect effective window
+	TAABB2D<int64> validRegion(this->getEffectiveWindowPx());
+	validRegion.intersectWith(other.getEffectiveWindowPx());
 
-	const std::size_t numSensors = other.m_pixelRadianceSensors.size();
-	for(std::size_t i = 0; i < numSensors; i++)
+	for(int64 y = validRegion.minVertex.y; y < validRegion.maxVertex.y; ++y)
 	{
-		m_pixelRadianceSensors[i].accuR      += other.m_pixelRadianceSensors[i].accuR;
-		m_pixelRadianceSensors[i].accuG      += other.m_pixelRadianceSensors[i].accuG;
-		m_pixelRadianceSensors[i].accuB      += other.m_pixelRadianceSensors[i].accuB;
-		m_pixelRadianceSensors[i].accuWeight += other.m_pixelRadianceSensors[i].accuWeight;
+		const std::size_t thisY = y - this->getEffectiveWindowPx().minVertex.y;
+		const std::size_t otherY = y - other.getEffectiveWindowPx().minVertex.y;
+		const std::size_t thisBaseIndex = thisY * static_cast<std::size_t>(this->getEffectiveResPx().x);
+		const std::size_t otherBaseIndex = otherY * static_cast<std::size_t>(other.getEffectiveResPx().x);
+
+		for(int64 x = validRegion.minVertex.x; x < validRegion.maxVertex.x; ++x)
+		{
+			const std::size_t thisX = x - this->getEffectiveWindowPx().minVertex.x;
+			const std::size_t otherX = x - other.getEffectiveWindowPx().minVertex.x;
+			const std::size_t thisI = thisBaseIndex + thisX;
+			const std::size_t otherI = otherBaseIndex + otherX;
+
+			m_pixelRadianceSensors[thisI].accuR      += other.m_pixelRadianceSensors[otherI].accuR;
+			m_pixelRadianceSensors[thisI].accuG      += other.m_pixelRadianceSensors[otherI].accuG;
+			m_pixelRadianceSensors[thisI].accuB      += other.m_pixelRadianceSensors[otherI].accuB;
+			m_pixelRadianceSensors[thisI].accuWeight += other.m_pixelRadianceSensors[otherI].accuWeight;
+		}
 	}
 }
 

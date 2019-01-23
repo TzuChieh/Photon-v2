@@ -5,7 +5,7 @@
 #include "Core/Filmic/SampleFilter.h"
 #include "Core/Renderer/Sampling/SamplingRenderWork.h"
 #include "Core/Renderer/Sampling/SamplingFilmSet.h"
-#include "Core/Renderer/Region/PlateScheduler.h"
+#include "Core/Renderer/Region/WorkScheduler.h"
 
 #include <vector>
 #include <memory>

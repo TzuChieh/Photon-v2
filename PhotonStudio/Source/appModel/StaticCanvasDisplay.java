@@ -3,6 +3,8 @@ package appModel;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 
@@ -27,6 +29,7 @@ public class StaticCanvasDisplay extends Display
 {
 	private WritableImage m_image;
 	private Canvas        m_canvas;
+	private Set<Rectangle> m_updatingRegions;
 	
 	public StaticCanvasDisplay()
 	{
@@ -77,78 +80,51 @@ public class StaticCanvasDisplay extends Display
 		
 		getDisplayView().showFrameResolution(widthPx, heightPx);
 		getDisplayView().showDisplayResolution(widthPx, heightPx);
+		
+		m_updatingRegions = new HashSet<>();
 	}
 	
 	@Override
-	public void loadFrame(FrameRegion frameRegion)
+	public void loadFrame(FrameRegion frame)
 	{
-		if(!frameRegion.isValid() || frameRegion.getNumComp() != 3)
-		{
-			System.err.println("unexpected frame format; unable to load");
-			return;
-		}
-		
-		if(m_image.getWidth()  != frameRegion.getFullWidthPx() || 
-		   m_image.getHeight() != frameRegion.getFullHeightPx())
-		{
-			m_image = new WritableImage(frameRegion.getFullWidthPx(), frameRegion.getFullHeightPx());
-			
-			getDisplayView().showFrameResolution(frameRegion.getFullWidthPx(), frameRegion.getFullHeightPx());
-		}
-		
-		final PixelWriter pixelWriter = m_image.getPixelWriter();
-		final Rectangle region = frameRegion.getRegion();
-		final int endX = region.x + region.w;
-		final int endY = region.y + region.h;
-		final Vector3f color = new Vector3f();
-		
-		for(int y = region.y; y < endY; ++y)
-		{
-			for(int x = region.x; x < endX; ++x)
-			{
-				color.set(frameRegion.getRgb(x, y));
-				if(!Float.isFinite(color.x) ||
-				   !Float.isFinite(color.y) || 
-				   !Float.isFinite(color.z))
-				{
-					System.err.println("color is not finite: " + color);
-					color.set(0, 0, 0);
-				}
-				
-				color.clampLocal(0.0f, 1.0f);
-				
-				int inversedY = frameRegion.getFullHeightPx() - y - 1;
-				Color fxColor = new Color(color.x, color.y, color.z, 1.0);
-				pixelWriter.setColor(x, inversedY, fxColor);
-			}
-		}
+		copyFrameToImage(frame);
+		m_updatingRegions.clear();
 	}
 	
 	@Override
-	public void loadFrame(FrameRegion frameRegion, FrameStatus status)
+	public void loadFrame(FrameRegion frame, FrameStatus status)
 	{
-		loadFrame(frameRegion);
+		final Rectangle region = frame.getRegion();
 		
 		if(status == FrameStatus.UPDATING)
 		{
-			final PixelWriter pixelWriter = m_image.getPixelWriter();
-			final Color rectColor = Color.LIGHTBLUE;
-			final Rectangle region = frameRegion.getRegion();
+			copyFrameToImage(frame);
+			m_updatingRegions.add(region);
 			
-			final int maxX = region.x + region.w - 1;
-			final int maxY = region.y + region.h - 1;
-			
-			for(int x = region.x; x <= maxX; ++x)
-			{
-				pixelWriter.setColor(x, maxY,     rectColor);
-				pixelWriter.setColor(x, region.y, rectColor);
-			}
-			
-			for(int y = region.y + 1; y <= maxY - 1; ++y)
-			{
-				pixelWriter.setColor(region.x, y, rectColor);
-				pixelWriter.setColor(maxX,     y, rectColor);
-			}
+//			final int minX = region.x;
+//			final int maxX = region.x + region.w - 1;
+//			final int minY = getFrameHeightPx() - (region.y + region.h);
+//			final int maxY = getFrameHeightPx() - region.y - 1;
+//			
+//			final PixelWriter pixelWriter = m_image.getPixelWriter();
+//			final Color rectColor = new Color(0, 1, 0, 1);
+//			
+//			for(int x = minX; x <= maxX; ++x)
+//			{
+//				pixelWriter.setColor(x, minY, rectColor);
+//				pixelWriter.setColor(x, maxY, rectColor);
+//			}
+//			
+//			for(int y = minY + 1; y <= maxY - 1; ++y)
+//			{
+//				pixelWriter.setColor(minX, y, rectColor);
+//				pixelWriter.setColor(maxX, y, rectColor);
+//			}
+		}
+		else if(status == FrameStatus.FINISHED)
+		{
+			copyFrameToImage(frame);
+			m_updatingRegions.remove(region);
 		}
 	}
 	
@@ -163,6 +139,21 @@ public class StaticCanvasDisplay extends Display
 			m_image, 
 			originPx.x, (m_canvas.getHeight() - originPx.y) - drawResPx.y, 
 			drawResPx.x, drawResPx.y);
+		
+		g.setFill(new Color(0, 1, 0, 1));
+		for(Rectangle region : m_updatingRegions)
+		{
+			Rectangle r = new Rectangle(
+				(int)(originPx.x + ((double)region.x / getFrameWidthPx()) * drawResPx.x),
+				(int)(originPx.y + (1.0 - (double)(region.y + region.h) / getFrameHeightPx()) * drawResPx.y),
+				(int)Math.ceil((double)region.w / getFrameWidthPx() * drawResPx.x),
+				(int)Math.ceil((double)region.h / getFrameHeightPx() * drawResPx.y));
+			
+			g.fillRect(r.x, r.y, r.w, 1);
+			g.fillRect(r.x, r.y + r.h - 1, r.w, 1);
+			g.fillRect(r.x, r.y, 1, r.h);
+			g.fillRect(r.x + r.w - 1, r.y, 1, r.h);
+		}
 		
 		getDisplayView().showZoom(getDrawnScale(drawResPx) * 100.0f);
 	}
@@ -252,5 +243,49 @@ public class StaticCanvasDisplay extends Display
 	{
 		// FIXME: retained aspect ratio assumed
 		return (float)(drawSizePx.x / m_image.getWidth());
+	}
+	
+	private void copyFrameToImage(FrameRegion frame)
+	{
+		if(!frame.isValid() || frame.getNumComp() != 3)
+		{
+			System.err.println("unexpected frame format; unable to load");
+			return;
+		}
+		
+		if(m_image.getWidth()  != frame.getFullWidthPx() || 
+		   m_image.getHeight() != frame.getFullHeightPx())
+		{
+			m_image = new WritableImage(frame.getFullWidthPx(), frame.getFullHeightPx());
+			
+			getDisplayView().showFrameResolution(frame.getFullWidthPx(), frame.getFullHeightPx());
+		}
+		
+		final PixelWriter pixelWriter = m_image.getPixelWriter();
+		final Rectangle region = frame.getRegion();
+		final int endX = region.x + region.w;
+		final int endY = region.y + region.h;
+		final Vector3f color = new Vector3f();
+		
+		for(int y = region.y; y < endY; ++y)
+		{
+			for(int x = region.x; x < endX; ++x)
+			{
+				color.set(frame.getRgb(x, y));
+				if(!Float.isFinite(color.x) ||
+				   !Float.isFinite(color.y) || 
+				   !Float.isFinite(color.z))
+				{
+					System.err.println("color is not finite: " + color);
+					color.set(0, 0, 0);
+				}
+				
+				color.clampLocal(0.0f, 1.0f);
+				
+				int inversedY = frame.getFullHeightPx() - y - 1;
+				Color fxColor = new Color(color.x, color.y, color.z, 1.0);
+				pixelWriter.setColor(x, inversedY, fxColor);
+			}
+		}
 	}
 }

@@ -18,6 +18,8 @@
 #include "Core/Estimator/Integrand.h"
 #include "Core/Filmic/Vec3Film.h"
 #include "Utility/FixedSizeThreadPool.h"
+#include "Core/Renderer/Region/PlateScheduler.h"
+#include "Core/Renderer/Region/StripeScheduler.h"
 
 #include <cmath>
 #include <iostream>
@@ -53,7 +55,8 @@ void SamplingRenderer::doUpdate(const SdlResourcePack& data)
 	scheduler->setSppBudget(m_sg->numSampleBatches());
 	scheduler->init();*/
 
-	m_workScheduler = std::make_unique<PlateScheduler>(getNumWorkers(), WorkVolume(Region(getRenderWindowPx()), m_sg->numSampleBatches()));
+	//m_workScheduler = std::make_unique<PlateScheduler>(getNumWorkers(), WorkVolume(Region(getRenderWindowPx()), m_sg->numSampleBatches()));
+	m_workScheduler = std::make_unique<StripeScheduler>(getNumWorkers(), WorkVolume(Region(getRenderWindowPx()), m_sg->numSampleBatches()), math::Y_AXIS);
 
 	m_works.clear();
 	for(std::size_t i = 0; i < getNumWorkers(); ++i)
@@ -70,10 +73,10 @@ void SamplingRenderer::doUpdate(const SdlResourcePack& data)
 			this,
 			m_estimator.get(),
 			Integrand(m_scene, m_camera),
-			m_films.genChild(getRenderWindowPx()),
+			m_films.genChild(workVolume.getRegion()),
 			m_sg->genCopied(spp),
 			m_requestedAttributes);
-		work.setDomainPx(getRenderWindowPx());
+		work.setDomainPx(workVolume.getRegion());
 		m_works.push_back(std::move(work));
 	}
 }
