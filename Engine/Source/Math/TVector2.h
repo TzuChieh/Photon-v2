@@ -60,6 +60,15 @@ public:
 
 	inline T operator [] (int axisId) const;
 	inline T& operator [] (int axisId);
+
+	TVector2 operator + (const TVector2& rhs) const;
+	TVector2 operator + (T rhs) const;
+	TVector2 operator - (const TVector2& rhs) const;
+	TVector2 operator - (T rhs) const;
+	TVector2 operator * (const TVector2& rhs) const;
+	TVector2 operator * (T rhs) const;
+	TVector2 operator / (const TVector2& rhs) const;
+	TVector2 operator / (T rhs) const;
 };
 
 }// end namespace ph

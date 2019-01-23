@@ -114,7 +114,11 @@ public class RenderProjectCtrl
 			{
 				m_display.loadFrame(frame);
 				m_display.drawFrame(frame.getRegion());
-				m_display.drawIndicator(frame.getRegion());
+				
+				if(status == FrameStatus.UPDATING)
+				{
+					m_display.drawIndicator(frame.getRegion());
+				}
 			}
 			
 			@Override

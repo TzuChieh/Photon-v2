@@ -165,13 +165,13 @@ public class StaticCanvasDisplay extends Display
 		Vector2f resPx = new Vector2f();
 		if(frameAspectRatio > canvasAspectRatio)
 		{
-			resPx.x  = (int)canvasWidth;
-			resPx.y = (int)(canvasWidth / frameAspectRatio);
+			resPx.x = canvasWidth;
+			resPx.y = canvasWidth / frameAspectRatio;
 		}
 		else
 		{
-			resPx.x = (int)(canvasHeight * frameAspectRatio);
-			resPx.y = (int)canvasHeight;
+			resPx.x = canvasHeight * frameAspectRatio;
+			resPx.y = canvasHeight;
 		}
 		
 		return resPx;

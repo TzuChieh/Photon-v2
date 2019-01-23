@@ -248,4 +248,52 @@ inline T& TVector2<T>::operator [] (const int axisId)
 	return x;
 }
 
+template<typename T>
+inline TVector2<T> TVector2<T>::operator + (const TVector2& rhs) const
+{
+	return this->add(rhs);
+}
+
+template<typename T>
+inline TVector2<T> TVector2<T>::operator + (const T rhs) const
+{
+	return this->add(rhs);
+}
+
+template<typename T>
+inline TVector2<T> TVector2<T>::operator - (const TVector2& rhs) const
+{
+	return this->sub(rhs);
+}
+
+template<typename T>
+inline TVector2<T> TVector2<T>::operator - (const T rhs) const
+{
+	return this->sub(rhs);
+}
+
+template<typename T>
+inline TVector2<T> TVector2<T>::operator * (const TVector2& rhs) const
+{
+	return this->mul(rhs);
+}
+
+template<typename T>
+inline TVector2<T> TVector2<T>::operator * (const T rhs) const
+{
+	return this->mul(rhs);
+}
+
+template<typename T>
+inline TVector2<T> TVector2<T>::operator / (const TVector2& rhs) const
+{
+	return this->div(rhs);
+}
+
+template<typename T>
+inline TVector2<T> TVector2<T>::operator / (const T rhs) const
+{
+	return this->div(rhs);
+}
+
 }// end namespace ph

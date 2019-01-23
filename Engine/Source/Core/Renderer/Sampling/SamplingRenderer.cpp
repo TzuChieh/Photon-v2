@@ -20,6 +20,7 @@
 #include "Utility/FixedSizeThreadPool.h"
 #include "Core/Renderer/Region/PlateScheduler.h"
 #include "Core/Renderer/Region/StripeScheduler.h"
+#include "Core/Renderer/Region/GridScheduler.h"
 
 #include <cmath>
 #include <iostream>
@@ -56,7 +57,12 @@ void SamplingRenderer::doUpdate(const SdlResourcePack& data)
 	scheduler->init();*/
 
 	//m_workScheduler = std::make_unique<PlateScheduler>(getNumWorkers(), WorkVolume(Region(getRenderWindowPx()), m_sg->numSampleBatches()));
-	m_workScheduler = std::make_unique<StripeScheduler>(getNumWorkers(), WorkVolume(Region(getRenderWindowPx()), m_sg->numSampleBatches()), math::Y_AXIS);
+	//m_workScheduler = std::make_unique<StripeScheduler>(getNumWorkers(), WorkVolume(Region(getRenderWindowPx()), m_sg->numSampleBatches()), math::Y_AXIS);
+	
+	m_workScheduler = std::make_unique<GridScheduler>(
+		getNumWorkers(), 
+		WorkVolume(Region(getRenderWindowPx()), m_sg->numSampleBatches()), 
+		Vector2S(20, 20));
 
 	m_works.clear();
 	for(std::size_t i = 0; i < getNumWorkers(); ++i)
@@ -84,19 +90,42 @@ void SamplingRenderer::doUpdate(const SdlResourcePack& data)
 void SamplingRenderer::doRender()
 {
 	FixedSizeThreadPool workers(getNumWorkers());
-	for(auto& work : m_works)
+
+	for(uint32 i = 0; i < getNumWorkers(); ++i)
 	{
-		//std::lock_guard<std::mutex> lock(m_rendererMutex);
-		
-		workers.queueWork([&work]()
+		workers.queueWork([this, i]()
 		{
-			work.work();
+			SamplingRenderWork& renderWork = m_works[i];
+			while(true)
+			{
+				renderWork.work();
+
+				{
+					std::lock_guard<std::mutex> lock(m_rendererMutex);
+
+					WorkVolume workVolume;
+					if(!m_workScheduler->schedule(&workVolume))
+					{
+						break;
+					}
+
+					const std::size_t spp = workVolume.getDepth();
+
+					SamplingRenderWork work(
+						this,
+						m_estimator.get(),
+						Integrand(m_scene, m_camera),
+						m_films.genChild(workVolume.getRegion()),
+						m_sg->genCopied(spp),
+						m_requestedAttributes);
+					work.setDomainPx(workVolume.getRegion());
+
+					renderWork = std::move(work);
+				}
+			}
 		});
-		
-		//float bestProgress, worstProgress;
-		//scheduler->percentageProgress(&bestProgress, &worstProgress);
-		//m_percentageProgress = static_cast<unsigned int>(worstProgress);
 	}
+
 	workers.waitAllWorks();
 }
 
@@ -111,6 +140,7 @@ void SamplingRenderer::asyncUpdateFilm(SamplingRenderWork& work, bool isUpdating
 		addUpdatedRegion(work.m_films.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), isUpdating);
 	}
 
+	// FIXME: this is broken under non-bulk rendering
 	m_samplesPerPixel.fetch_add(1, std::memory_order_relaxed);
 }
 
