@@ -8,6 +8,7 @@ import javax.imageio.ImageIO;
 
 import photonApi.FrameRegion;
 import photonApi.FrameStatus;
+import photonApi.Rectangle;
 
 public abstract class Display
 {
@@ -19,14 +20,11 @@ public abstract class Display
 	}
 	
 	public abstract void loadFrame(FrameRegion frame);
-	public abstract void drawFrame();
-	public abstract void clearFrame();
-	public abstract BufferedImage getImage();
+	public abstract void drawFrame(Rectangle region);
+	public abstract void drawIndicator(Rectangle region);
+	public abstract void drawFlood();
 	
-	public void loadFrame(FrameRegion frame, FrameStatus status)
-	{
-		loadFrame(frame);
-	}
+	public abstract BufferedImage getImage();
 	
 	public void saveImage(Path filePath)
     {

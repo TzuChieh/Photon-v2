@@ -19,9 +19,11 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import photonApi.Frame;
 import photonApi.FrameRegion;
 import photonApi.FrameStatus;
 import photonApi.Rectangle;
+import util.AABB2D;
 import util.Vector2f;
 import util.Vector3f;
 
@@ -29,7 +31,6 @@ public class StaticCanvasDisplay extends Display
 {
 	private WritableImage m_image;
 	private Canvas        m_canvas;
-	private Set<Rectangle> m_updatingRegions;
 	
 	public StaticCanvasDisplay()
 	{
@@ -44,14 +45,21 @@ public class StaticCanvasDisplay extends Display
 		m_canvas = new Canvas(widthPx, heightPx);
 		
 		ChangeListener<Number> sizeChangeListener = (ovservable, oldValue, newValue) ->
-			getDisplayView().showDisplayResolution((int)(m_canvas.getWidth() + 0.5), (int)(m_canvas.getHeight() + 0.5));
+		{
+			drawFlood();
+			drawFrame(new Rectangle(0, 0, getFrameWidthPx(), getFrameHeightPx()));
+			
+			getDisplayView().showDisplayResolution(
+				(int)(m_canvas.getWidth() + 0.5), (int)(m_canvas.getHeight() + 0.5));
+		};
+			
 		m_canvas.widthProperty().addListener(sizeChangeListener);
 		m_canvas.heightProperty().addListener(sizeChangeListener);
 		
-		ChangeListener<Number> redrawListener = (ovservable, oldValue, newValue) ->
-			{clearFrame(); drawFrame();};
-		m_canvas.widthProperty().addListener(redrawListener);
-		m_canvas.heightProperty().addListener(redrawListener);
+//		ChangeListener<Number> redrawListener = (ovservable, oldValue, newValue) ->
+//			{clear(); drawFrame()};
+//		m_canvas.widthProperty().addListener(redrawListener);
+//		m_canvas.heightProperty().addListener(redrawListener);
 		
 		m_canvas.setOnMouseMoved(new EventHandler<MouseEvent>()
 		{
@@ -80,86 +88,46 @@ public class StaticCanvasDisplay extends Display
 		
 		getDisplayView().showFrameResolution(widthPx, heightPx);
 		getDisplayView().showDisplayResolution(widthPx, heightPx);
-		
-		m_updatingRegions = new HashSet<>();
 	}
 	
 	@Override
 	public void loadFrame(FrameRegion frame)
 	{
 		copyFrameToImage(frame);
-		m_updatingRegions.clear();
 	}
 	
 	@Override
-	public void loadFrame(FrameRegion frame, FrameStatus status)
+	public void drawFrame(Rectangle region)
 	{
-		final Rectangle region = frame.getRegion();
+		AABB2D rect = toCanvasRegion(region);
 		
-		if(status == FrameStatus.UPDATING)
-		{
-			copyFrameToImage(frame);
-			m_updatingRegions.add(region);
-			
-//			final int minX = region.x;
-//			final int maxX = region.x + region.w - 1;
-//			final int minY = getFrameHeightPx() - (region.y + region.h);
-//			final int maxY = getFrameHeightPx() - region.y - 1;
-//			
-//			final PixelWriter pixelWriter = m_image.getPixelWriter();
-//			final Color rectColor = new Color(0, 1, 0, 1);
-//			
-//			for(int x = minX; x <= maxX; ++x)
-//			{
-//				pixelWriter.setColor(x, minY, rectColor);
-//				pixelWriter.setColor(x, maxY, rectColor);
-//			}
-//			
-//			for(int y = minY + 1; y <= maxY - 1; ++y)
-//			{
-//				pixelWriter.setColor(minX, y, rectColor);
-//				pixelWriter.setColor(maxX, y, rectColor);
-//			}
-		}
-		else if(status == FrameStatus.FINISHED)
-		{
-			copyFrameToImage(frame);
-			m_updatingRegions.remove(region);
-		}
+		final GraphicsContext g = m_canvas.getGraphicsContext2D();
+		g.drawImage(m_image,
+			region.x, getFrameHeightPx() - (region.y + region.h), 
+			region.w, region.h,
+			rect.min.x, rect.min.y, 
+			rect.getWidth(), rect.getHeight());
 	}
 	
 	@Override
-	public void drawFrame()
+	public void drawIndicator(Rectangle region)
 	{
-		Vector2f drawResPx = getFittedDrawResPx();
-		Vector2f originPx  = getCenteredOriginPx(drawResPx);
-		
-		GraphicsContext g = m_canvas.getGraphicsContext2D();
-		g.drawImage(
-			m_image, 
-			originPx.x, (m_canvas.getHeight() - originPx.y) - drawResPx.y, 
-			drawResPx.x, drawResPx.y);
-		
+		final GraphicsContext g = m_canvas.getGraphicsContext2D();
 		g.setFill(new Color(0, 1, 0, 1));
-		for(Rectangle region : m_updatingRegions)
-		{
-			Rectangle r = new Rectangle(
-				(int)(originPx.x + ((double)region.x / getFrameWidthPx()) * drawResPx.x),
-				(int)(originPx.y + (1.0 - (double)(region.y + region.h) / getFrameHeightPx()) * drawResPx.y),
-				(int)Math.ceil((double)region.w / getFrameWidthPx() * drawResPx.x),
-				(int)Math.ceil((double)region.h / getFrameHeightPx() * drawResPx.y));
-			
-			g.fillRect(r.x, r.y, r.w, 1);
-			g.fillRect(r.x, r.y + r.h - 1, r.w, 1);
-			g.fillRect(r.x, r.y, 1, r.h);
-			g.fillRect(r.x + r.w - 1, r.y, 1, r.h);
-		}
 		
-		getDisplayView().showZoom(getDrawnScale(drawResPx) * 100.0f);
+		AABB2D rect = toCanvasRegion(region);
+		
+		float verticalWidth = Math.min(1, rect.getHeight());
+		float horizontalWidth = Math.min(1, rect.getWidth());
+		
+		g.fillRect(rect.min.x, rect.min.y, rect.getWidth(), verticalWidth);
+		g.fillRect(rect.min.x, rect.max.y - verticalWidth, rect.getWidth(), verticalWidth);
+		g.fillRect(rect.min.x, rect.min.y, horizontalWidth, rect.getHeight());
+		g.fillRect(rect.max.x - horizontalWidth, rect.min.y, horizontalWidth, rect.getHeight());
 	}
 	
 	@Override
-	public void clearFrame()
+	public void drawFlood()
 	{
 		GraphicsContext g = m_canvas.getGraphicsContext2D();
 		g.setFill(Color.DARKBLUE);
@@ -239,6 +207,30 @@ public class StaticCanvasDisplay extends Display
 		return coordPx;
 	}
 	
+	private AABB2D toCanvasRegion(Rectangle region)
+	{
+		// FIXME: centered and fitted frame assumed
+		Vector2f drawResPx = getFittedDrawResPx();
+		Vector2f originPx  = getCenteredOriginPx(drawResPx);
+		
+		final GraphicsContext g = m_canvas.getGraphicsContext2D();
+		g.setFill(new Color(0, 1, 0, 1));
+		
+		Rectangle r = new Rectangle(
+			(int)(originPx.x + ((double)region.x / getFrameWidthPx()) * drawResPx.x),
+			(int)(originPx.y + (1.0 - (double)(region.y + region.h) / getFrameHeightPx()) * drawResPx.y),
+			(int)Math.ceil((double)region.w / getFrameWidthPx() * drawResPx.x),
+			(int)Math.ceil((double)region.h / getFrameHeightPx() * drawResPx.y));
+		
+		return new AABB2D(
+			new Vector2f(
+				originPx.x + ((float)region.x / getFrameWidthPx()) * drawResPx.x, 
+				originPx.y + (1.0f - (float)(region.y + region.h) / getFrameHeightPx()) * drawResPx.y),
+			new Vector2f(
+				originPx.x + ((float)(region.x + region.w) / getFrameWidthPx()) * drawResPx.x, 
+				originPx.y + (1.0f - (float)(region.y) / getFrameHeightPx()) * drawResPx.y));
+	}
+	
 	private float getDrawnScale(Vector2f drawSizePx)
 	{
 		// FIXME: retained aspect ratio assumed
@@ -259,6 +251,7 @@ public class StaticCanvasDisplay extends Display
 			m_image = new WritableImage(frame.getFullWidthPx(), frame.getFullHeightPx());
 			
 			getDisplayView().showFrameResolution(frame.getFullWidthPx(), frame.getFullHeightPx());
+			getDisplayView().showZoom(getDrawnScale(getFittedDrawResPx()) * 100.0f);
 		}
 		
 		final PixelWriter pixelWriter = m_image.getPixelWriter();

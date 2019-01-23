@@ -112,8 +112,9 @@ public class RenderProjectCtrl
 			@Override
 			public void showIntermediate(FrameRegion frame, FrameStatus status)
 			{
-				m_display.loadFrame(frame, status);
-				m_display.drawFrame();
+				m_display.loadFrame(frame);
+				m_display.drawFrame(frame.getRegion());
+				m_display.drawIndicator(frame.getRegion());
 			}
 			
 			@Override
@@ -121,8 +122,9 @@ public class RenderProjectCtrl
 			{
 				if(frame.isValid())
 		    	{
-					m_display.loadFrame(new FrameRegion(0, 0, frame.getWidthPx(), frame.getHeightPx(), frame));
-					m_display.drawFrame();
+					FrameRegion fullRegion = new FrameRegion(0, 0, frame.getWidthPx(), frame.getHeightPx(), frame);
+					m_display.loadFrame(fullRegion);
+					m_display.drawFrame(fullRegion.getRegion());
 		    	}
 			}
 		};
@@ -275,12 +277,13 @@ public class RenderProjectCtrl
     	threadsSpinner.valueProperty().addListener((observable, oldValue, newValue) -> 
     		m_project.getRenderSetting().getNumThreads().setValue(Integer.toString(newValue)));
     	
-    	m_display.clearFrame();
+    	m_display.drawFlood();
 		if(project.getLocalFinalFrame().isValid())
 		{
 			Frame frame = project.getLocalFinalFrame();
-			m_display.loadFrame(new FrameRegion(0, 0, frame.getWidthPx(), frame.getHeightPx(), frame));
-			m_display.drawFrame();
+			FrameRegion fullRegion = new FrameRegion(0, 0, frame.getWidthPx(), frame.getHeightPx(), frame);
+			m_display.loadFrame(fullRegion);
+			m_display.drawFrame(fullRegion.getRegion());
 		}
 		
 		m_project.setRenderFrameView(m_renderFrameView);

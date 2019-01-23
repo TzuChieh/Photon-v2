@@ -7,7 +7,22 @@ public class AABB2D
 	
 	public AABB2D()
 	{
-		min = new Vector2f(0);
-		max = new Vector2f(0);
+		this(new Vector2f(0), new Vector2f(0));
+	}
+	
+	public AABB2D(Vector2f min, Vector2f max)
+	{
+		this.min = min;
+		this.max = max;
+	}
+	
+	public float getWidth()
+	{
+		return max.x - min.x;
+	}
+	
+	public float getHeight()
+	{
+		return max.y - min.y;
 	}
 }
