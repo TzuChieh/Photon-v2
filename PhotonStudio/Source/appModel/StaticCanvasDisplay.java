@@ -56,6 +56,9 @@ public class StaticCanvasDisplay extends Display
 		m_canvas.widthProperty().addListener(sizeChangeListener);
 		m_canvas.heightProperty().addListener(sizeChangeListener);
 		
+//		m_canvas.widthProperty().addListener((ovservable, oldValue, newValue) -> m_canvas.widthProperty().set(Math.floor(m_canvas.getWidth())));
+//		m_canvas.heightProperty().addListener((ovservable, oldValue, newValue) -> m_canvas.heightProperty().set(Math.floor(m_canvas.getHeight())));
+		
 //		ChangeListener<Number> redrawListener = (ovservable, oldValue, newValue) ->
 //			{clear(); drawFrame()};
 //		m_canvas.widthProperty().addListener(redrawListener);
@@ -99,6 +102,14 @@ public class StaticCanvasDisplay extends Display
 	@Override
 	public void drawFrame(Rectangle region)
 	{
+		// XXX: Slightly increase the region that is drawn onto canvas, so that
+		// seams caused by filtering of original image and background color can
+		// be overwrite. This hack causes indicators missing some edges.
+		region.x -= 1;
+		region.y -= 1;
+		region.w += 2;
+		region.h += 2;
+		
 		AABB2D rect = toCanvasRegion(region);
 		
 		final GraphicsContext g = m_canvas.getGraphicsContext2D();
@@ -131,6 +142,7 @@ public class StaticCanvasDisplay extends Display
 	{
 		GraphicsContext g = m_canvas.getGraphicsContext2D();
 		g.setFill(Color.DARKBLUE);
+//		g.setFill(Color.TRANSPARENT);
 		g.fillRect(0, 0, m_canvas.getWidth(), m_canvas.getHeight());
 	}
 	
@@ -216,19 +228,14 @@ public class StaticCanvasDisplay extends Display
 		final GraphicsContext g = m_canvas.getGraphicsContext2D();
 		g.setFill(new Color(0, 1, 0, 1));
 		
-		Rectangle r = new Rectangle(
-			(int)(originPx.x + ((double)region.x / getFrameWidthPx()) * drawResPx.x),
-			(int)(originPx.y + (1.0 - (double)(region.y + region.h) / getFrameHeightPx()) * drawResPx.y),
-			(int)Math.ceil((double)region.w / getFrameWidthPx() * drawResPx.x),
-			(int)Math.ceil((double)region.h / getFrameHeightPx() * drawResPx.y));
-		
-		return new AABB2D(
+		AABB2D canvasRegion = new AABB2D(
 			new Vector2f(
-				originPx.x + ((float)region.x / getFrameWidthPx()) * drawResPx.x, 
-				originPx.y + (1.0f - (float)(region.y + region.h) / getFrameHeightPx()) * drawResPx.y),
+					originPx.x + ((float)region.x / getFrameWidthPx()) * drawResPx.x, 
+					originPx.y + (1.0f - (float)(region.y + region.h) / getFrameHeightPx()) * drawResPx.y),
 			new Vector2f(
 				originPx.x + ((float)(region.x + region.w) / getFrameWidthPx()) * drawResPx.x, 
 				originPx.y + (1.0f - (float)(region.y) / getFrameHeightPx()) * drawResPx.y));
+		return canvasRegion;
 	}
 	
 	private float getDrawnScale(Vector2f drawSizePx)
@@ -250,11 +257,20 @@ public class StaticCanvasDisplay extends Display
 		{
 			m_image = new WritableImage(frame.getFullWidthPx(), frame.getFullHeightPx());
 			
+//			for(int y = 0; y < m_image.getHeight(); ++y)
+//			{
+//				for(int x = 0; x < m_image.getWidth(); ++x)
+//				{
+//					m_image.getPixelWriter().setColor(x, y, new Color(0, 0, 0, 1));
+//				}
+//			}
+			
 			getDisplayView().showFrameResolution(frame.getFullWidthPx(), frame.getFullHeightPx());
 			getDisplayView().showZoom(getDrawnScale(getFittedDrawResPx()) * 100.0f);
 		}
 		
 		final PixelWriter pixelWriter = m_image.getPixelWriter();
+//		final PixelWriter pixelWriter = m_canvas.getGraphicsContext2D().getPixelWriter();
 		final Rectangle region = frame.getRegion();
 		final int endX = region.x + region.w;
 		final int endY = region.y + region.h;

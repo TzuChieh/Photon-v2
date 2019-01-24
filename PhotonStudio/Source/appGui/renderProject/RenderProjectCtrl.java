@@ -89,8 +89,13 @@ public class RenderProjectCtrl
 		
 		m_display = new StaticCanvasDisplay();
 		Canvas canvas = m_display.getCanvas();
+		
 		canvas.widthProperty().bind(displayPane.widthProperty());
 		canvas.heightProperty().bind(displayPane.heightProperty());
+		
+//		displayPane.widthProperty().addListener((ovservable, oldValue, newValue) -> canvas.widthProperty().set(Math.floor(displayPane.getWidth())));
+//		displayPane.heightProperty().addListener((ovservable, oldValue, newValue) -> canvas.heightProperty().set(Math.floor(displayPane.getHeight())));
+		
 		Layouts.addAnchored(displayPane, canvas);
 		
 		Studio.getConsole().addListener(new MessageListener()

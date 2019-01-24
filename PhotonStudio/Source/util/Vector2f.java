@@ -61,6 +61,11 @@ public class Vector2f
 		return new Vector2f(x / rhs, y / rhs);
 	}
 	
+	public Vector2f floor()
+	{
+		return new Vector2f((float)Math.floor(x), (float)Math.floor(y));
+	}
+	
 	@Override
 	public boolean equals(Object obj)
 	{

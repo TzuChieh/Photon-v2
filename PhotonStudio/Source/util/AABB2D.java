@@ -25,4 +25,14 @@ public class AABB2D
 	{
 		return max.y - min.y;
 	}
+	
+	public AABB2D expand(float amount)
+	{
+		return new AABB2D(min.sub(amount), max.add(amount));
+	}
+	
+	public AABB2D floor()
+	{
+		return new AABB2D(min.floor(), max.floor());
+	}
 }
