@@ -41,6 +41,7 @@ public class RenderProject extends Project
 	private ExecutorService          m_projectTaskExecutor;
 	private ScheduledExecutorService m_monitorExecutor;
 	private List<Future<?>>          m_monitorHandles;
+	private RenderFrameQuery         m_renderFrameQuery;
 	
 	public RenderProject(String projectName, Studio studio)
 	{
@@ -59,6 +60,7 @@ public class RenderProject extends Project
 		m_projectTaskExecutor = null;
 		m_monitorExecutor     = null;
 		m_monitorHandles      = new ArrayList<>();
+		m_renderFrameQuery    = null;
 	}
 	
 	@Override
@@ -215,10 +217,13 @@ public class RenderProject extends Project
 				newRenderStatusQuery(), 
 				0, 1, TimeUnit.SECONDS));
 				
-		m_monitorHandles.add(
-			m_monitorExecutor.scheduleWithFixedDelay(
-				newRenderFrameQuery(), 
-				0, 1, TimeUnit.SECONDS));
+		m_renderFrameQuery = new RenderFrameQuery(this, m_renderFrameView);
+		m_renderFrameQuery.scheduleAdaptively(m_monitorExecutor);
+		
+//		m_monitorHandles.add(
+//			m_monitorExecutor.scheduleWithFixedDelay(
+//				newRenderFrameQuery(), 
+//				0, 1, TimeUnit.SECONDS));
 	}
 	
 	private void stopMonitoring()
@@ -228,6 +233,11 @@ public class RenderProject extends Project
 			monitorHandle.cancel(true);
 		}
 		m_monitorHandles.clear();
+		
+		if(m_renderFrameQuery != null)
+		{
+			m_renderFrameQuery.cancelAdaptivelyScheduled();
+		}
 	}
 	
 	private Task<Void> newRenderTask()
