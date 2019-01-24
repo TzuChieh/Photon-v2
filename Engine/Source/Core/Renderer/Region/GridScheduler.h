@@ -38,10 +38,10 @@ public:
 		int               prioriAxis);
 
 private:
-	const Vector2S m_numCells;
-	EOrigin        m_origin;
-	int            m_prioriAxis;
-	Vector2S       m_currentCell;
+	Vector2S m_numCells;
+	EOrigin  m_origin;
+	int      m_prioriAxis;
+	Vector2S m_currentCell;
 
 	bool scheduleOne(WorkVolume* out_workVolume) override;
 };
