@@ -6,13 +6,14 @@ namespace ph
 enum class EAttribute : unsigned int
 {
 	LIGHT_ENERGY = 0,
-	POSITION,
-	NORMAL,
-	TEXTURE_COORDINATE,
-	DEPTH,
+	LIGHT_ENERGY_HALF_EFFORT,
 	LIGHT_ENERGY_INDEXED,
+	NORMAL,
+	DEPTH,
+	TEXTURE_COORDINATE,
+	POSITION,
 
-	SIZE = LIGHT_ENERGY_INDEXED + 1
+	SIZE
 };
 
 }// end namespace ph

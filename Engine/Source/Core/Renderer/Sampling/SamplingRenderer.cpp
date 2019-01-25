@@ -63,47 +63,24 @@ void SamplingRenderer::doUpdate(const SdlResourcePack& data)
 		getNumWorkers(), 
 		WorkVolume(Region(getRenderWindowPx()), m_sg->numSampleBatches()), 
 		Vector2S(20, 20));
-
-	m_works.clear();
-	for(std::size_t i = 0; i < getNumWorkers(); ++i)
-	{
-		WorkVolume workVolume;
-		if(!m_workScheduler->schedule(&workVolume))
-		{
-			break;
-		}
-
-		const std::size_t spp = workVolume.getDepth();
-
-		SamplingRenderWork work(
-			this,
-			m_estimator.get(),
-			Integrand(m_scene, m_camera),
-			m_films.genChild(workVolume.getRegion()),
-			m_sg->genCopied(spp),
-			m_requestedAttributes);
-		work.setDomainPx(workVolume.getRegion());
-		m_works.push_back(std::move(work));
-	}
 }
 
 void SamplingRenderer::doRender()
 {
 	FixedSizeThreadPool workers(getNumWorkers());
+	m_works.resize(getNumWorkers());
 
 	for(uint32 i = 0; i < getNumWorkers(); ++i)
 	{
 		workers.queueWork([this, i]()
 		{
-			SamplingRenderWork& renderWork = m_works[i];
 			while(true)
 			{
-				renderWork.work();
+				WorkVolume workVolume;
 
 				{
 					std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-					WorkVolume workVolume;
 					if(!m_workScheduler->schedule(&workVolume))
 					{
 						break;
@@ -120,7 +97,15 @@ void SamplingRenderer::doRender()
 						m_requestedAttributes);
 					work.setDomainPx(workVolume.getRegion());
 
-					renderWork = std::move(work);
+					m_works[i] = std::move(work);
+				}
+
+				m_works[i].work();
+
+				{
+					std::lock_guard<std::mutex> lock(m_rendererMutex);
+
+					m_workScheduler->submit(workVolume);
 				}
 			}
 		});

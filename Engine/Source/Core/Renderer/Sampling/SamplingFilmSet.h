@@ -40,19 +40,15 @@ public:
 	SamplingFilmSet& operator = (SamplingFilmSet&& rhs);
 
 private:
-	using SpectralStrengthFilm = std::shared_ptr<TSamplingFilm<SpectralStrength>>;
-	using Vector3Film          = std::shared_ptr<TSamplingFilm<Vector3R>>;
+	using SpectralStrengthFilm = std::unique_ptr<TSamplingFilm<SpectralStrength>>;
+	using Vector3Film          = std::unique_ptr<TSamplingFilm<Vector3R>>;
 
 	using TagToFilmMap = TFixedEnumMap<
-		TFixedEnumMapEntry<EAttribute::LIGHT_ENERGY, SpectralStrengthFilm>,
-		TFixedEnumMapEntry<EAttribute::NORMAL,       Vector3Film>
+		TFixedEnumMapEntry<EAttribute::LIGHT_ENERGY,             SpectralStrengthFilm>,
+		TFixedEnumMapEntry<EAttribute::LIGHT_ENERGY_HALF_EFFORT, SpectralStrengthFilm>,
+		TFixedEnumMapEntry<EAttribute::NORMAL,                   Vector3Film>
 	>;
 	TagToFilmMap m_tagToFilm;
-
-	std::array<
-		SamplingFilmBase*, 
-		TagToFilmMap::ENTRY_ARRAY_SIZE
-	> m_films;
 };
 
 // In-header Implementations:
@@ -61,21 +57,11 @@ inline SamplingFilmBase* SamplingFilmSet::get(const EAttribute tag)
 {
 	switch(tag)
 	{
-	case EAttribute::LIGHT_ENERGY: 
-		return m_films[TagToFilmMap::entryIndex<EAttribute::LIGHT_ENERGY>()];
-		break;
-
-	case EAttribute::NORMAL:
-		return m_films[TagToFilmMap::entryIndex<EAttribute::NORMAL>()];
-		break;
-
-	default:
-		return nullptr;
-		break;
+	case EAttribute::LIGHT_ENERGY:             return m_tagToFilm.get<EAttribute::LIGHT_ENERGY>().get();
+	case EAttribute::LIGHT_ENERGY_HALF_EFFORT: return m_tagToFilm.get<EAttribute::LIGHT_ENERGY_HALF_EFFORT>().get();
+	case EAttribute::NORMAL:                   return m_tagToFilm.get<EAttribute::NORMAL>().get();
+	default:                                   return nullptr;
 	}
-
-	PH_ASSERT_UNREACHABLE_SECTION();
-	return nullptr;
 }
 
 template<EAttribute TAG>
@@ -92,8 +78,7 @@ inline void SamplingFilmSet::set(FilmResource film)
 		typename TagToFilmMap::Entry<TagToFilmMap::entryIndex<TAG>()>::Value>,
 		"The type of film resource is wrong.");
 
-	m_tagToFilm.get<TAG>()                   = std::move(film);
-	m_films[TagToFilmMap::entryIndex<TAG>()] = m_tagToFilm.get<TAG>().get();
+	m_tagToFilm.get<TAG>() = std::move(film);
 }
 
 template<std::size_t D_INDEX>

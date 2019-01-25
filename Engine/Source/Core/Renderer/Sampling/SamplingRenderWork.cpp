@@ -80,12 +80,12 @@ void SamplingRenderWork::doWork()
 
 			m_estimator->estimate(ray, m_integrand, m_requestedAttributes, estimation);
 
-			if(m_requestedAttributes.isTagged(EAttribute::LIGHT_ENERGY))
+			if(m_films.get<EAttribute::LIGHT_ENERGY>())
 			{
 				m_films.get<EAttribute::LIGHT_ENERGY>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
 			}
 			
-			if(m_requestedAttributes.isTagged(EAttribute::NORMAL))
+			if(m_films.get<EAttribute::LIGHT_ENERGY>())
 			{
 				m_films.get<EAttribute::NORMAL>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::NORMAL>());
 			}
