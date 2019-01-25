@@ -15,13 +15,12 @@ namespace ph
 	simple but still unbiased, it is good for ground truth rendering if 
 	the correctness of another estimator is in doubt.
 */
-class BVPTEstimator final : public PathEstimator, public TCommandInterface<BVPTEstimator>
+class BVPTEstimator : public PathEstimator, public TCommandInterface<BVPTEstimator>
 {
 public:
 	BVPTEstimator();
-	~BVPTEstimator() override;
 
-	virtual void radianceAlongRay(
+	void radianceAlongRay(
 		const Ray&        ray,
 		const Integrand&  integrand,
 		SpectralStrength& out_radiance,

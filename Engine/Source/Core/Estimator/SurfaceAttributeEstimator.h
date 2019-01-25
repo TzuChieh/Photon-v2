@@ -11,7 +11,6 @@ class SurfaceAttributeEstimator : public Estimator, public TCommandInterface<Sur
 {
 public:
 	SurfaceAttributeEstimator();
-	~SurfaceAttributeEstimator() override;
 
 	AttributeTags supportedAttributes() const override;
 

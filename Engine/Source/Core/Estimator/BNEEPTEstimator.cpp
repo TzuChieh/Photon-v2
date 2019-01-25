@@ -31,8 +31,6 @@ namespace ph
 
 BNEEPTEstimator::BNEEPTEstimator() = default;
 
-BNEEPTEstimator::~BNEEPTEstimator() = default;
-
 void BNEEPTEstimator::radianceAlongRay(
 	const Ray&        ray,
 	const Integrand&  integrand,

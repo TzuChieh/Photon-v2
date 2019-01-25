@@ -14,14 +14,14 @@ namespace ph
 /*
 	A film that records 3-D vectors.
 */
-class Vec3Film final : public TSamplingFilm<Vector3R>
+class Vector3Film : public TSamplingFilm<Vector3R>
 {
 public:
-	Vec3Film(
+	Vector3Film(
 		int64 actualWidthPx, int64 actualHeightPx,
 		const SampleFilter& filter);
 
-	Vec3Film(
+	Vector3Film(
 		int64 actualWidthPx, int64 actualHeightPx,
 		const TAABB2D<int64>& effectiveWindowPx,
 		const SampleFilter& filter);
@@ -39,7 +39,7 @@ private:
 
 // In-header Implementations:
 
-inline Vec3Film::Vec3Film(
+inline Vector3Film::Vector3Film(
 	int64 actualWidthPx, int64 actualHeightPx,
 	const SampleFilter& filter) : 
 
@@ -48,7 +48,7 @@ inline Vec3Film::Vec3Film(
 	m_film(actualWidthPx, actualHeightPx, filter)
 {}
 
-inline Vec3Film::Vec3Film(
+inline Vector3Film::Vector3Film(
 	int64 actualWidthPx, int64 actualHeightPx,
 	const TAABB2D<int64>& effectiveWindowPx,
 	const SampleFilter& filter) :
@@ -58,24 +58,25 @@ inline Vec3Film::Vec3Film(
 	m_film(actualWidthPx, actualHeightPx, effectiveWindowPx, filter)
 {}
 
-inline void Vec3Film::addSample(const float64 xPx, const float64 yPx, const Vector3R& vec3)
+inline void Vector3Film::addSample(const float64 xPx, const float64 yPx, const Vector3R& vec3)
 {
 	m_film.addSample(xPx, yPx, vec3);
 }
 
-inline void Vec3Film::clear()
+inline void Vector3Film::clear()
 {
 	m_film.clear();
 }
 
-inline std::unique_ptr<TSamplingFilm<Vector3R>> Vec3Film::genSamplingChild(const TAABB2D<int64>& effectiveWindowPx)
+inline std::unique_ptr<TSamplingFilm<Vector3R>> Vector3Film::genSamplingChild(const TAABB2D<int64>& effectiveWindowPx)
 {
-	auto childFilm = std::make_unique<Vec3Film>(getActualResPx().x, getActualResPx().y,
-	                                            effectiveWindowPx,
-	                                            getFilter());
+	auto childFilm = std::make_unique<Vector3Film>(
+		getActualResPx().x, getActualResPx().y,
+		effectiveWindowPx,
+		getFilter());
 
-	Vec3Film* child  = childFilm.get();
-	Vec3Film* parent = this;
+	Vector3Film* child  = childFilm.get();
+	Vector3Film* parent = this;
 	childFilm->setMerger([=]()
 	{
 		PH_ASSERT(child && parent);
@@ -86,14 +87,14 @@ inline std::unique_ptr<TSamplingFilm<Vector3R>> Vec3Film::genSamplingChild(const
 	return childFilm;
 }
 
-inline void Vec3Film::setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow)
+inline void Vector3Film::setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow)
 {
 	TSamplingFilm::setEffectiveWindowPx(effectiveWindow);
 
 	m_film.setEffectiveWindowPx(effectiveWindow);
 }
 
-inline void Vec3Film::developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const
+inline void Vector3Film::developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const
 {
 	m_film.develop(out_frame, regionPx);
 }

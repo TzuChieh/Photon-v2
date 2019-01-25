@@ -21,7 +21,7 @@ namespace ph
 
 	// TODO: make film copyable
 
-class HdrRgbFilm final : public SpectralSamplingFilm, public TCommandInterface<HdrRgbFilm>
+class HdrRgbFilm : public SpectralSamplingFilm, public TCommandInterface<HdrRgbFilm>
 {
 public:
 	HdrRgbFilm(

@@ -8,8 +8,6 @@ namespace ph
 
 PathEstimator::PathEstimator() = default;
 
-PathEstimator::~PathEstimator() = default;
-
 AttributeTags PathEstimator::supportedAttributes() const
 {
 	AttributeTags supports;

@@ -26,8 +26,6 @@ namespace ph
 
 BVPTEstimator::BVPTEstimator() = default;
 
-BVPTEstimator::~BVPTEstimator() = default;
-
 void BVPTEstimator::radianceAlongRay(
 	const Ray&        ray,
 	const Integrand&  integrand,

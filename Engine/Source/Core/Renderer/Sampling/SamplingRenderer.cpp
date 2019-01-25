@@ -16,7 +16,7 @@
 #include "Core/Estimator/BVPTEstimator.h"
 #include "Core/Estimator/BNEEPTEstimator.h"
 #include "Core/Estimator/Integrand.h"
-#include "Core/Filmic/Vec3Film.h"
+#include "Core/Filmic/Vector3Film.h"
 #include "Utility/FixedSizeThreadPool.h"
 #include "Core/Renderer/Region/PlateScheduler.h"
 #include "Core/Renderer/Region/StripeScheduler.h"
@@ -39,7 +39,7 @@ void SamplingRenderer::doUpdate(const SdlResourcePack& data)
 
 	m_scene  = &data.visualWorld.getScene();
 	m_camera = data.getCamera().get();
-	m_sg     = data.getSampleGenerator().get();
+	m_sampleGenerator = data.getSampleGenerator().get();
 
 	m_estimator->update(*m_scene);
 
@@ -47,65 +47,46 @@ void SamplingRenderer::doUpdate(const SdlResourcePack& data)
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
 
 	// HACK
-	m_films.set<EAttribute::NORMAL>(std::make_unique<Vec3Film>(
+	m_films.set<EAttribute::NORMAL>(std::make_unique<Vector3Film>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
 
-	//WorkScheduler* scheduler = getWorkScheduler();
-	/*scheduler->setNumWorkers(getNumWorkers());
-	scheduler->setFullRegion(getRenderWindowPx());
-	scheduler->setSppBudget(m_sg->numSampleBatches());
-	scheduler->init();*/
-
-	//m_workScheduler = std::make_unique<PlateScheduler>(getNumWorkers(), WorkVolume(Region(getRenderWindowPx()), m_sg->numSampleBatches()));
-	//m_workScheduler = std::make_unique<StripeScheduler>(getNumWorkers(), WorkVolume(Region(getRenderWindowPx()), m_sg->numSampleBatches()), math::Y_AXIS);
-	
-	m_workScheduler = std::make_unique<GridScheduler>(
-		getNumWorkers(), 
-		WorkVolume(Region(getRenderWindowPx()), m_sg->numSampleBatches()), 
-		Vector2S(20, 20));
+	m_renderWorks.resize(numWorkers());
+	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
+	{
+		m_renderWorks[workerId] = SamplingRenderWork(
+			m_estimator.get(),
+			Integrand(m_scene, m_camera),
+			this);
+	}
 }
 
 void SamplingRenderer::doRender()
 {
-	FixedSizeThreadPool workers(getNumWorkers());
-	m_works.resize(getNumWorkers());
+	FixedSizeThreadPool workers(numWorkers());
 
-	for(uint32 i = 0; i < getNumWorkers(); ++i)
+	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
 	{
-		workers.queueWork([this, i]()
+		workers.queueWork([this, workerId]()
 		{
+			SamplingRenderWork& renderWork = m_renderWorks[workerId];
+
 			while(true)
 			{
-				WorkVolume workVolume;
-
 				{
 					std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-					if(!m_workScheduler->schedule(&workVolume))
+					if(!supplyWork(workerId, renderWork))
 					{
 						break;
 					}
-
-					const std::size_t spp = workVolume.getDepth();
-
-					SamplingRenderWork work(
-						this,
-						m_estimator.get(),
-						Integrand(m_scene, m_camera),
-						m_films.genChild(workVolume.getRegion()),
-						m_sg->genCopied(spp),
-						m_requestedAttributes);
-					work.setDomainPx(workVolume.getRegion());
-
-					m_works[i] = std::move(work);
 				}
 
-				m_works[i].work();
+				renderWork.work();
 
 				{
 					std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-					m_workScheduler->submit(workVolume);
+					submitWork(workerId, renderWork);
 				}
 			}
 		});
@@ -114,19 +95,19 @@ void SamplingRenderer::doRender()
 	workers.waitAllWorks();
 }
 
-void SamplingRenderer::asyncUpdateFilm(SamplingRenderWork& work, bool isUpdating)
+void SamplingRenderer::asyncUpdateFilm(SamplingFilmSet& workerFilms, bool isUpdating)
 {
 	{
 		std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-		mergeWorkFilms(work);
+		mergeWorkFilms(workerFilms);
 
 		// HACK
-		addUpdatedRegion(work.m_films.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), isUpdating);
+		addUpdatedRegion(workerFilms.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), isUpdating);
 	}
 
 	// FIXME: this is broken under non-bulk rendering
-	m_samplesPerPixel.fetch_add(1, std::memory_order_relaxed);
+	m_averageSpp.fetch_add(1, std::memory_order_relaxed);
 }
 
 void SamplingRenderer::clearWorkData()
@@ -147,17 +128,17 @@ ERegionStatus SamplingRenderer::asyncPollUpdatedRegion(Region* const out_region)
 		return ERegionStatus::INVALID;
 	}
 
-	const auto regionInfo = m_updatedRegions.front();
+	const UpdatedRegion updatedRegion = m_updatedRegions.front();
 	m_updatedRegions.pop_front();
 
-	*out_region = regionInfo.first;
-	if(regionInfo.second)
+	*out_region = updatedRegion.region;
+	if(updatedRegion.isFinished)
 	{
-		return ERegionStatus::UPDATING;
+		return ERegionStatus::FINISHED;
 	}
 	else
 	{
-		return ERegionStatus::FINISHED;
+		return ERegionStatus::UPDATING;
 	}
 }
 
@@ -184,37 +165,38 @@ void SamplingRenderer::develop(HdrRgbFrame& out_frame, const EAttribute attribut
 	asyncPeekRegion(out_frame, getRenderWindowPx(), attribute);
 }
 
-void SamplingRenderer::mergeWorkFilms(SamplingRenderWork& work)
+void SamplingRenderer::mergeWorkFilms(SamplingFilmSet& workerFilms)
 {
-	const auto& lightFilm = work.m_films.get<EAttribute::LIGHT_ENERGY>();
+	const auto& lightFilm = workerFilms.get<EAttribute::LIGHT_ENERGY>();
 	lightFilm->mergeToParent();
 	lightFilm->clear();
 
 	// HACK
-	const auto& normalFilm = work.m_films.get<EAttribute::NORMAL>();
+	const auto& normalFilm = workerFilms.get<EAttribute::NORMAL>();
 	normalFilm->mergeToParent();
 	normalFilm->clear();
 }
 
 void SamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)
 {
-	for(auto& pendingRegion : m_updatedRegions)
+	for(UpdatedRegion& pendingRegion : m_updatedRegions)
 	{
-		if(pendingRegion.first.equals(region))
+		// later added region takes the precedence
+		if(pendingRegion.region.equals(region))
 		{
-			pendingRegion.second = isUpdating;
+			pendingRegion.isFinished = !isUpdating;
 			return;
 		}
 	}
 
-	m_updatedRegions.push_back(std::make_pair(region, isUpdating));
+	m_updatedRegions.push_back(UpdatedRegion{region, !isUpdating});
 }
 
 RenderState SamplingRenderer::asyncQueryRenderState()
 {
 	uint64 totalElapsedMs  = 0;
 	uint64 totalNumSamples = 0;
-	for(auto&& work : m_works)
+	for(auto&& work : m_renderWorks)
 	{
 		const auto statistics = work.asyncGetStatistics();
 		totalElapsedMs  += work.asyncGetProgress().getElapsedMs();
@@ -222,10 +204,10 @@ RenderState SamplingRenderer::asyncQueryRenderState()
 	}
 
 	const float32 samplesPerMs = totalElapsedMs != 0 ?
-		static_cast<float32>(m_works.size() * totalNumSamples) / static_cast<float32>(totalElapsedMs) : 0.0f;
+		static_cast<float32>(m_renderWorks.size() * totalNumSamples) / static_cast<float32>(totalElapsedMs) : 0.0f;
 
 	RenderState state;
-	state.setIntegerState(0, static_cast<int64>(m_samplesPerPixel.load(std::memory_order_relaxed)));
+	state.setIntegerState(0, static_cast<int64>(m_averageSpp.load(std::memory_order_relaxed)));
 	state.setRealState(0, samplesPerMs * 1000);
 	return state;
 }
@@ -234,7 +216,7 @@ RenderProgress SamplingRenderer::asyncQueryRenderProgress()
 {
 	RenderProgress totalProgress(0, 0, 0);
 	{
-		for(auto&& work : m_works)
+		for(auto&& work : m_renderWorks)
 		{
 			totalProgress += work.asyncGetProgress();
 		}
@@ -275,6 +257,11 @@ std::string SamplingRenderer::renderStateName(const RenderState::EType type, con
 	}
 }
 
+std::size_t SamplingRenderer::numAvailableSampleBatches() const
+{
+	return m_sampleGenerator ? m_sampleGenerator->numSampleBatches() : 0;
+}
+
 // command interface
 
 SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
@@ -283,15 +270,14 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 
 	m_films(),
 	m_scene(nullptr),
-	m_sg(nullptr),
+	m_sampleGenerator(nullptr),
 	m_estimator(nullptr),
 	m_camera(nullptr),
 	m_updatedRegions(),
 	m_rendererMutex(),
 	m_filter(SampleFilterFactory::createGaussianFilter()),
 	m_requestedAttributes(),
-	m_percentageProgress(0),
-	m_samplesPerPixel(0)
+	m_averageSpp(0)
 {
 	const std::string filterName = packet.getString("filter-name");
 	m_filter = SampleFilterFactory::create(filterName);
@@ -332,13 +318,6 @@ SdlTypeInfo SamplingRenderer::ciTypeInfo()
 }
 
 void SamplingRenderer::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<SamplingRenderer>([](const InputPacket& packet)
-	{
-		return std::make_unique<SamplingRenderer>(packet);
-	});
-	cmdRegister.setLoader(loader);
-}
+{}
 
 }// end namespace ph

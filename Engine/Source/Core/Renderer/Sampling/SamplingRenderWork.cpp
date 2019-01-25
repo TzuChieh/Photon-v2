@@ -16,14 +16,13 @@ SamplingRenderWork::SamplingRenderWork(SamplingRenderWork&& other) :
 
 	RenderWork(other),
 
-	m_renderer(other.m_renderer),
-	m_integrand(other.m_integrand),
-	m_estimator(other.m_estimator),
-	m_sampleGenerator(std::move(other.m_sampleGenerator)),
-	m_films(std::move(other.m_films)),
+	m_estimator          (other.m_estimator),
+	m_integrand          (other.m_integrand),
+	m_renderer           (other.m_renderer),
+	m_films              (std::move(other.m_films)),
+	m_sampleGenerator    (std::move(other.m_sampleGenerator)),
 	m_requestedAttributes(std::move(other.m_requestedAttributes)),
-
-	m_numSamplesTaken(other.m_numSamplesTaken.load())
+	m_numSamplesTaken    (other.m_numSamplesTaken.load())
 {}
 
 void SamplingRenderWork::doWork()
@@ -92,7 +91,7 @@ void SamplingRenderWork::doWork()
 		}// end for
 
 		const bool isUpdating = m_sampleGenerator->hasMoreBatches();
-		m_renderer->asyncUpdateFilm(*this, isUpdating);
+		m_renderer->asyncUpdateFilm(m_films, isUpdating);
 		incrementWorkDone();	
 
 		sampleTimer.finish();

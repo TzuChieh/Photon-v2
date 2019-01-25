@@ -23,13 +23,12 @@ namespace ph
 	His page:     http://pellacini.di.uniroma1.it/
 	Lecture Note: http://pellacini.di.uniroma1.it/teaching/graphics08/lectures/18_PathTracing_Web.pdf
 */
-class BNEEPTEstimator final : public PathEstimator, public TCommandInterface<BNEEPTEstimator>
+class BNEEPTEstimator : public PathEstimator, public TCommandInterface<BNEEPTEstimator>
 {
 public:
 	BNEEPTEstimator();
-	~BNEEPTEstimator() override;
 
-	virtual void radianceAlongRay(
+	void radianceAlongRay(
 		const Ray&        ray,
 		const Integrand&  integrand,
 		SpectralStrength& out_radiance,

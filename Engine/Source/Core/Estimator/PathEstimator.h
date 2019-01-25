@@ -13,7 +13,6 @@ class PathEstimator : public Estimator, public TCommandInterface<PathEstimator>
 {
 public:
 	PathEstimator();
-	~PathEstimator() override;
 
 	virtual void radianceAlongRay(
 		const Ray&        ray, 

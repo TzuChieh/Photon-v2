@@ -77,8 +77,8 @@ void PMRenderer::renderWithVanillaPM()
 	logger.log("start shooting photons...");
 
 	std::vector<Photon>  photonBuffer(m_numPhotons);
-	std::vector<std::size_t> numPhotonPaths(getNumWorkers(), 0);
-	parallel_work(m_numPhotons, getNumWorkers(),
+	std::vector<std::size_t> numPhotonPaths(numWorkers(), 0);
+	parallel_work(m_numPhotons, numWorkers(),
 		[this, &photonBuffer, &numPhotonPaths](
 			const std::size_t workerIdx, 
 			const std::size_t workStart, 
@@ -106,7 +106,7 @@ void PMRenderer::renderWithVanillaPM()
 
 	logger.log("estimating radiance...");
 
-	parallel_work(m_numSamplesPerPixel, getNumWorkers(),
+	parallel_work(m_numSamplesPerPixel, numWorkers(),
 		[this, &photonMap, totalPhotonPaths](
 			const std::size_t workerIdx, 
 			const std::size_t workStart, 
@@ -189,8 +189,8 @@ void PMRenderer::renderWithProgressivePM()
 		passTimer.start();
 		std::vector<Photon> photonBuffer(numPhotonsPerPass);
 
-		std::vector<std::size_t> numPhotonPaths(getNumWorkers(), 0);
-		parallel_work(numPhotonsPerPass, getNumWorkers(),
+		std::vector<std::size_t> numPhotonPaths(numWorkers(), 0);
+		parallel_work(numPhotonsPerPass, numWorkers(),
 			[this, &photonBuffer, &numPhotonPaths](
 				const std::size_t workerIdx, 
 				const std::size_t workStart, 
@@ -214,7 +214,7 @@ void PMRenderer::renderWithProgressivePM()
 		TPhotonMap<Photon> photonMap(2, TPhotonCenterCalculator<Photon>());
 		photonMap.build(std::move(photonBuffer));
 
-		parallel_work(viewpoints.size(), getNumWorkers(),
+		parallel_work(viewpoints.size(), numWorkers(),
 			[this, &photonMap, &viewpoints, &resultFilm, &resultFilmMutex, totalPhotonPaths](
 				const std::size_t workerIdx, 
 				const std::size_t workStart, 
@@ -309,8 +309,8 @@ void PMRenderer::renderWithStochasticProgressivePM()
 		passTimer.start();
 		std::vector<Photon> photonBuffer(numPhotonsPerPass);
 
-		std::vector<std::size_t> numPhotonPaths(getNumWorkers(), 0);
-		parallel_work(numPhotonsPerPass, getNumWorkers(),
+		std::vector<std::size_t> numPhotonPaths(numWorkers(), 0);
+		parallel_work(numPhotonsPerPass, numWorkers(),
 			[this, &photonBuffer, &numPhotonPaths](
 				const std::size_t workerIdx, 
 				const std::size_t workStart, 
@@ -334,7 +334,7 @@ void PMRenderer::renderWithStochasticProgressivePM()
 		TPhotonMap<Photon> photonMap(2, TPhotonCenterCalculator<Photon>());
 		photonMap.build(std::move(photonBuffer));
 
-		parallel_work(getRenderWidthPx(), getNumWorkers(),
+		parallel_work(getRenderWidthPx(), numWorkers(),
 			[this, &photonMap, &viewpoints, &resultFilm, &resultFilmMutex, totalPhotonPaths, numFinishedPasses](
 				const std::size_t workerIdx, 
 				const std::size_t workStart, 

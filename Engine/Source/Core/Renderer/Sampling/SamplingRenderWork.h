@@ -24,34 +24,34 @@ class SampleFilter;
 class SamplingRenderWork : public RenderWork, public INoncopyable
 {
 public:
-	SamplingRenderWork(
-		SamplingRenderer* renderer,
-		const Estimator* estimator,
-		const Integrand& integrand,
-		SamplingFilmSet films,
-		std::unique_ptr<SampleGenerator> sampleGenerator,
-		const AttributeTags& requestedAttributes);
-
 	SamplingRenderWork();
+
+	SamplingRenderWork(
+		const Estimator*  estimator,
+		const Integrand&  integrand,
+		SamplingRenderer* renderer);
+	
 	SamplingRenderWork(SamplingRenderWork&& other);
-	~SamplingRenderWork() override;
 
 	SamplingStatistics asyncGetStatistics();
+
+	void setFilms(SamplingFilmSet&& films);
+	void setSampleGenerator(std::unique_ptr<SampleGenerator> sampleGenerator);
+	void setRequestedAttributes(const AttributeTags& attributes);
 	void setDomainPx(const TAABB2D<int64>& domainPx);
 
 	SamplingRenderWork& operator = (SamplingRenderWork&& rhs);
 
-	// HACK
-	SamplingFilmSet m_films;
-
 private:
 	void doWork() override;
 
-	SamplingRenderer*     m_renderer;
-	Integrand             m_integrand;
-	const Estimator*      m_estimator;
+	Integrand         m_integrand;
+	const Estimator*  m_estimator;
+	SamplingRenderer* m_renderer;
+
+	SamplingFilmSet                  m_films;
 	std::unique_ptr<SampleGenerator> m_sampleGenerator;
-	AttributeTags m_requestedAttributes;
+	AttributeTags                    m_requestedAttributes;
 
 	std::atomic_uint32_t m_numSamplesTaken;
 };
@@ -59,30 +59,26 @@ private:
 // In-header Implementations:
 
 inline SamplingRenderWork::SamplingRenderWork(
-	SamplingRenderer* renderer,
-	const Estimator* estimator,
-	const Integrand& integrand,
-	SamplingFilmSet films,
-	std::unique_ptr<SampleGenerator> sampleGenerator,
-	const AttributeTags& requestedAttributes) :
+	const Estimator*  estimator,
+	const Integrand&  integrand,
+	SamplingRenderer* renderer) :
 
 	RenderWork(),
 
-	m_renderer(renderer),
-	m_integrand(integrand),
 	m_estimator(estimator),
-	m_sampleGenerator(std::move(sampleGenerator)),
-	m_films(std::move(films)),
-	m_requestedAttributes(requestedAttributes),
+	m_integrand(integrand),
+	m_renderer(renderer),
+
+	m_sampleGenerator(nullptr),
+	m_films(),
+	m_requestedAttributes(),
 
 	m_numSamplesTaken(0)
 {}
 
 inline SamplingRenderWork::SamplingRenderWork() :
-	SamplingRenderWork(nullptr, nullptr, Integrand(), SamplingFilmSet(), nullptr, AttributeTags())
+	SamplingRenderWork(nullptr, Integrand(), nullptr)
 {}
-
-inline SamplingRenderWork::~SamplingRenderWork() = default;
 
 inline SamplingStatistics SamplingRenderWork::asyncGetStatistics()
 {
@@ -92,18 +88,32 @@ inline SamplingStatistics SamplingRenderWork::asyncGetStatistics()
 	return statistics;
 }
 
+inline void SamplingRenderWork::setFilms(SamplingFilmSet&& films)
+{
+	m_films = std::move(films);
+}
+
+inline void SamplingRenderWork::setSampleGenerator(std::unique_ptr<SampleGenerator> sampleGenerator)
+{
+	m_sampleGenerator = std::move(sampleGenerator);
+}
+
+inline void SamplingRenderWork::setRequestedAttributes(const AttributeTags& attributes)
+{
+	m_requestedAttributes = attributes;
+}
+
 inline SamplingRenderWork& SamplingRenderWork::operator = (SamplingRenderWork&& rhs)
 {
 	RenderWork::operator = (std::move(rhs));
 
-	m_renderer            = std::move(rhs.m_renderer);
-	m_integrand           = std::move(rhs.m_integrand);
-	m_estimator           = std::move(rhs.m_estimator);
-	m_sampleGenerator     = std::move(rhs.m_sampleGenerator);
+	m_estimator           = rhs.m_estimator;
+	m_integrand           = rhs.m_integrand;
+	m_renderer            = rhs.m_renderer;
 	m_films               = std::move(rhs.m_films);
+	m_sampleGenerator     = std::move(rhs.m_sampleGenerator);
 	m_requestedAttributes = std::move(rhs.m_requestedAttributes);
-
-	m_numSamplesTaken = rhs.m_numSamplesTaken.load();
+	m_numSamplesTaken     = rhs.m_numSamplesTaken.load();
 
 	return *this;
 }

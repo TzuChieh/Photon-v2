@@ -14,8 +14,6 @@ namespace ph
 
 SurfaceAttributeEstimator::SurfaceAttributeEstimator() = default;
 
-SurfaceAttributeEstimator::~SurfaceAttributeEstimator() = default;
-
 AttributeTags SurfaceAttributeEstimator::supportedAttributes() const
 {
 	AttributeTags supports;

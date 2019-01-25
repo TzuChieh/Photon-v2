@@ -6,6 +6,7 @@
 #include "Core/Renderer/Sampling/SamplingRenderWork.h"
 #include "Core/Renderer/Sampling/SamplingFilmSet.h"
 #include "Core/Renderer/Region/WorkScheduler.h"
+#include "Core/Estimator/Estimator.h"
 
 #include <vector>
 #include <memory>
@@ -17,11 +18,16 @@ namespace ph
 class Scene;
 class Camera;
 class SampleGenerator;
-class Estimator;
 
 class SamplingRenderer : public Renderer, public TCommandInterface<SamplingRenderer>
 {
 public:
+	// These methods for supplying and submitting works are guaranteed to be
+	// thread-safe. In addition, memory written by previous supply/submit
+	// action is visible to the subsequent one.
+	virtual bool supplyWork(uint32 workerId, SamplingRenderWork& work) = 0;
+	virtual void submitWork(uint32 workerId, SamplingRenderWork& work) = 0;
+
 	void doUpdate(const SdlResourcePack& data) override;
 	void doRender() override;
 	void develop(HdrRgbFrame& out_frame, EAttribute attribute) override;
@@ -34,30 +40,35 @@ public:
 	AttributeTags supportedAttributes() const override;
 	std::string renderStateName(RenderState::EType type, std::size_t index) const override;
 
-	void asyncUpdateFilm(SamplingRenderWork& work, bool isUpdating);
+	void asyncUpdateFilm(SamplingFilmSet& workerFilms, bool isUpdating);
+	AttributeTags getRequestedAttributes() const;
+	std::size_t numAvailableSampleBatches() const;
+	SampleFilter getFilter() const;
+	SampleGenerator* getSampleGenerator() const;
+	SamplingFilmSet* getSamplingFilms();
 
 private:
-	SamplingFilmSet m_films;
-
-	const Scene*          m_scene;
-	Camera*               m_camera;
-	SampleGenerator*      m_sg;
+	const Scene*               m_scene;
+	const Camera*              m_camera;
+	SampleGenerator*           m_sampleGenerator;
 	std::unique_ptr<Estimator> m_estimator;
-	SampleFilter          m_filter;
-	std::vector<SamplingRenderWork> m_works;
-	std::unique_ptr<WorkScheduler> m_workScheduler;
+	SampleFilter               m_filter;
+	SamplingFilmSet            m_films;
+	AttributeTags              m_requestedAttributes;
+	std::vector<SamplingRenderWork> m_renderWorks;
 
-	// TODO: use ERegionStatus instead of bool
-	std::deque<std::pair<Region, bool>> m_updatedRegions;
+	struct UpdatedRegion
+	{
+		Region region;
+		bool   isFinished;
+	};
+	std::deque<UpdatedRegion> m_updatedRegions;
 	
-	std::mutex m_rendererMutex;
-	std::atomic_uint m_percentageProgress;
-	std::atomic_uint32_t m_samplesPerPixel;
-
-	AttributeTags m_requestedAttributes;
+	std::mutex           m_rendererMutex;
+	std::atomic_uint32_t m_averageSpp;
 
 	void clearWorkData();
-	void mergeWorkFilms(SamplingRenderWork& work);
+	void mergeWorkFilms(SamplingFilmSet& films);
 	void addUpdatedRegion(const Region& region, bool isUpdating);
 
 // command interface
@@ -66,6 +77,28 @@ public:
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
+
+// In-header Implementations:
+
+inline AttributeTags SamplingRenderer::getRequestedAttributes() const
+{
+	return m_requestedAttributes;
+}
+
+inline SampleFilter SamplingRenderer::getFilter() const
+{
+	return m_filter;
+}
+
+inline SampleGenerator* SamplingRenderer::getSampleGenerator() const
+{
+	return m_sampleGenerator;
+}
+
+inline SamplingFilmSet* SamplingRenderer::getSamplingFilms()
+{
+	return &m_films;
+}
 
 }// end namespace ph
 

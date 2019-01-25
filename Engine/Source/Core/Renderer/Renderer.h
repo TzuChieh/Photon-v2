@@ -69,7 +69,7 @@ public:
 	void render();
 	void setNumWorkers(uint32 numWorkers);
 
-	uint32         getNumWorkers()     const;
+	uint32         numWorkers()        const;
 	uint32         getRenderWidthPx()  const;
 	uint32         getRenderHeightPx() const;
 	TAABB2D<int64> getRenderWindowPx() const;
@@ -98,7 +98,7 @@ public:
 
 // In-header Implementations:
 
-inline uint32 Renderer::getNumWorkers() const
+inline uint32 Renderer::numWorkers() const
 {
 	return m_numWorkers;
 }

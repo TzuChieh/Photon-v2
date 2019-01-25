@@ -5,8 +5,6 @@ namespace ph
 
 Estimator::Estimator() = default;
 
-Estimator::~Estimator() = default;
-
 // command interface
 
 Estimator::Estimator(const InputPacket& packet) :

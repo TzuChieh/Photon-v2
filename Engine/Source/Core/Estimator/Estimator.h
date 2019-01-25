@@ -21,7 +21,7 @@ class Estimator : public TCommandInterface<Estimator>
 {
 public:
 	Estimator();
-	virtual ~Estimator() = 0;
+	virtual ~Estimator() = default;
 
 	virtual AttributeTags supportedAttributes() const = 0;
 
