@@ -2,6 +2,7 @@
 
 #include <utility>
 #include <type_traits>
+#include <cstring>
 
 namespace ph
 {
@@ -34,6 +35,19 @@ inline decltype(auto) regular_access(T& t)
 		// to lvalue reference (possibly cv-qualified).
 		return *t;
 	}
+}
+
+template<typename Source, typename Target>
+inline Target bitwise_cast(const Source source)
+{
+	static_assert(std::is_arithmetic_v<Source> && std::is_arithmetic_v<Target>);
+
+	static_assert(sizeof(Source) == sizeof(Target),
+		"Source and Target should have same size");
+
+	Target target;
+	std::memcpy(&target, &source, sizeof(Source));
+	return target;
 }
 
 }// end namespace ph

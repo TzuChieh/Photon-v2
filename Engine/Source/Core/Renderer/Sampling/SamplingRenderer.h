@@ -11,6 +11,7 @@
 #include <vector>
 #include <memory>
 #include <atomic>
+#include <functional>
 
 namespace ph
 {
@@ -22,7 +23,7 @@ class SampleGenerator;
 class SamplingRenderer : public Renderer, public TCommandInterface<SamplingRenderer>
 {
 public:
-	// These methods for supplying and submitting works are guaranteed to be
+	// Methods regarding supplying and submitting works are guaranteed to be
 	// thread-safe. In addition, memory written by previous supply/submit
 	// action is visible to the subsequent one.
 	virtual bool supplyWork(uint32 workerId, SamplingRenderWork& work) = 0;

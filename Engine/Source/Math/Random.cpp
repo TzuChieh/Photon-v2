@@ -34,6 +34,7 @@ std::size_t Random::genUniformIndex_iL_eU(const std::size_t lowerBound,
 	return index < lowerBound ? lowerBound : (index >= upperBound ? upperBound - 1 : index);
 }
 
+// FIXME: type-punning with unions is undefined behavior
 //union union_bit32
 //{
 //	float32 float_value;
