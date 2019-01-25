@@ -29,7 +29,7 @@
 
 // If defined, double precision real number will be used.
 //
-//#define PH_USE_DOUBLE_REAL
+#define PH_USE_DOUBLE_REAL
 
 #define PH_SPECTRUM_SAMPLED_MIN_WAVELENGTH_NM 350
 #define PH_SPECTRUM_SAMPLED_MAX_WAVELENGTH_NM 850
@@ -38,7 +38,7 @@
 
 // Number of available bytes for a probe's cache. Note that a byte is not 
 // necessarily 8-bit.
-#define PH_HIT_PROBE_CACHE_BYTES 12
+#define PH_HIT_PROBE_CACHE_BYTES 32
 
 #include <string>
 
