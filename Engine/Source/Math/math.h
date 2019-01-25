@@ -5,6 +5,7 @@
 #include "Math/math_fwd.h"
 #include "Common/compiler.h"
 #include "Common/assertion.h"
+#include "Utility/utility.h"
 
 #include <cmath>
 #include <algorithm>
@@ -13,6 +14,7 @@
 #include <limits>
 #include <array>
 #include <vector>
+#include <cstdint>
 
 #if defined(PH_COMPILER_IS_MSVC)
 	#include <intrin.h>
@@ -265,6 +267,32 @@ inline std::pair<std::size_t, std::size_t> ith_evenly_divided_range(
 
 	return {rangeIndex * totalSize / numDivisions,
 	        (rangeIndex + 1) * totalSize / numDivisions};
+}
+
+/*
+	Computes 1/sqrt(x) in a fast but approximative way. This method is best
+	known for its implementation in Quake III Arena (1999). Here the implementation
+	follows what described in the referenced paper, which provides a slightly 
+	better (in terms of maximal relative error) magic number.
+
+	Reference: http://www.lomont.org/Math/Papers/2003/InvSqrt.pdf
+*/
+inline float fast_rcp_sqrt(float x)
+{
+	const float halvedInput = 0.5f * x;
+
+	std::uint32_t bits = bitwise_cast<float, std::uint32_t>(x);
+
+	// gives initial guess for later refinements
+	bits = 0x5F375A86 - (bits >> 1);
+
+	x = bitwise_cast<std::uint32_t, float>(bits);
+
+	// Newton's method, each iteration increases accuracy.
+	x = x * (1.5f - halvedInput * x * x);// iteration 1, max. relative error = 0.175%
+	//x = x * (1.5f - halvedInput * x * x);// iteration 2, disabled since <x> is already good enough
+
+	return x;
 }
 
 }// end namespace math
