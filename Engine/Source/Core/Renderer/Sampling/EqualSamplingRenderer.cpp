@@ -13,19 +13,19 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 
 	m_workScheduler = std::make_unique<GridScheduler>(
 		numWorkers(),
-		WorkVolume(Region(getRenderWindowPx()), numAvailableSampleBatches()),
+		WorkUnit(Region(getRenderWindowPx()), numAvailableSampleBatches()),
 		Vector2S(20, 20));
 
-	m_workVolumes.resize(numWorkers());
+	m_workUnits.resize(numWorkers());
 }
 
 bool EqualSamplingRenderer::supplyWork(uint32 workerId, SamplingRenderWork& work)
 {
 	PH_ASSERT(m_workScheduler);
-	PH_ASSERT_LT(workerId, m_workVolumes.size());
+	PH_ASSERT_LT(workerId, m_workUnits.size());
 
-	WorkVolume& workVolume = m_workVolumes[workerId];
-	if(!m_workScheduler->schedule(&workVolume))
+	WorkUnit& workUnit = m_workUnits[workerId];
+	if(!m_workScheduler->schedule(&workUnit))
 	{
 		return false;
 	}
@@ -37,14 +37,14 @@ bool EqualSamplingRenderer::supplyWork(uint32 workerId, SamplingRenderWork& work
 	films.set<EAttribute::NORMAL>(std::make_unique<Vector3Film>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), getFilter()));*/
 
-	const std::size_t spp = workVolume.getDepth();
+	const std::size_t spp = workUnit.getDepth();
 
 	// HACK
-	work.setFilms(getSamplingFilms()->genChild(workVolume.getRegion()));
+	work.setFilms(getSamplingFilms()->genChild(workUnit.getRegion()));
 
 	work.setSampleGenerator(getSampleGenerator()->genCopied(spp));
 	work.setRequestedAttributes(getRequestedAttributes());
-	work.setDomainPx(workVolume.getRegion());
+	work.setDomainPx(workUnit.getRegion());
 
 	return true;
 }
@@ -52,9 +52,9 @@ bool EqualSamplingRenderer::supplyWork(uint32 workerId, SamplingRenderWork& work
 void EqualSamplingRenderer::submitWork(uint32 workerId, SamplingRenderWork& work)
 {
 	PH_ASSERT(m_workScheduler);
-	PH_ASSERT_LT(workerId, m_workVolumes.size());
+	PH_ASSERT_LT(workerId, m_workUnits.size());
 
-	m_workScheduler->submit(m_workVolumes[workerId]);
+	m_workScheduler->submit(m_workUnits[workerId]);
 }
 
 // command interface

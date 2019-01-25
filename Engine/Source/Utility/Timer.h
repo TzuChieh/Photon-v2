@@ -7,6 +7,7 @@
 namespace ph
 {
 
+// TODO: add a high resolution timer for profiling
 class Timer final
 {
 public:

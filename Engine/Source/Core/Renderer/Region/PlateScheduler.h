@@ -17,12 +17,12 @@ class PlateScheduler : public WorkScheduler
 {
 public:
 	PlateScheduler();
-	PlateScheduler(std::size_t numWorkers, const WorkVolume& totalWorkVolume);
+	PlateScheduler(std::size_t numWorkers, const WorkUnit& totalWorkUnit);
 
 private:
 	std::size_t m_numScheduled;
 
-	bool scheduleOne(WorkVolume* out_workVolume) override;
+	bool scheduleOne(WorkUnit* out_workUnit) override;
 };
 
 // In-header Implementations:
@@ -31,20 +31,20 @@ inline PlateScheduler::PlateScheduler() :
 	WorkScheduler()
 {}
 
-inline PlateScheduler::PlateScheduler(const std::size_t numWorkers, const WorkVolume& totalWorkVolume) : 
-	WorkScheduler(numWorkers, totalWorkVolume),
+inline PlateScheduler::PlateScheduler(const std::size_t numWorkers, const WorkUnit& totalWorkUnit) :
+	WorkScheduler(numWorkers, totalWorkUnit),
 	m_numScheduled(0)
 {}
 
-inline bool PlateScheduler::scheduleOne(WorkVolume* const out_workVolume)
+inline bool PlateScheduler::scheduleOne(WorkUnit* const out_workUnit)
 {
 	if(m_numScheduled < m_numWorkers)
 	{
-		PH_ASSERT(out_workVolume);
+		PH_ASSERT(out_workUnit);
 
 		const auto depthRange = math::ith_evenly_divided_range(
-			m_numScheduled, m_totalWorkVolume.getDepth(), m_numWorkers);
-		*out_workVolume = WorkVolume(m_totalWorkVolume.getRegion(), depthRange.second - depthRange.first);
+			m_numScheduled, m_totalWorkUnit.getDepth(), m_numWorkers);
+		*out_workUnit = WorkUnit(m_totalWorkUnit.getRegion(), depthRange.second - depthRange.first);
 
 		++m_numScheduled;
 		return true;

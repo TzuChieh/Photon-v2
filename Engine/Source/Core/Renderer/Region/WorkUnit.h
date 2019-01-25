@@ -8,12 +8,12 @@ namespace ph
 {
 
 // TODO: inherit from TAABB3D
-class WorkVolume
+class WorkUnit
 {
 public:
-	WorkVolume();
-	WorkVolume(const Region& region);
-	WorkVolume(const Region& region, std::size_t depth);
+	WorkUnit();
+	WorkUnit(const Region& region);
+	WorkUnit(const Region& region, std::size_t depth);
 
 	Region getRegion() const
 	{
@@ -39,15 +39,15 @@ private:
 
 // In-header Implementations:
 
-inline WorkVolume::WorkVolume() : 
-	WorkVolume({{0, 0}, {0, 0}}, 0)
+inline WorkUnit::WorkUnit() :
+	WorkUnit({{0, 0}, {0, 0}}, 0)
 {}
 
-inline WorkVolume::WorkVolume(const Region& region) :
-	WorkVolume(region, 1)
+inline WorkUnit::WorkUnit(const Region& region) :
+	WorkUnit(region, 1)
 {}
 
-inline WorkVolume::WorkVolume(const Region& region, const std::size_t depth) :
+inline WorkUnit::WorkUnit(const Region& region, const std::size_t depth) :
 	m_region(region),
 	m_depth(depth)
 {

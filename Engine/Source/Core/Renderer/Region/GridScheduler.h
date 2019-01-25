@@ -26,16 +26,16 @@ public:
 	GridScheduler();
 
 	GridScheduler(
-		std::size_t       numWorkers,
-		const WorkVolume& totalWorkVolume,
-		const Vector2S&   numCells);
+		std::size_t     numWorkers,
+		const WorkUnit& totalWorkUnit,
+		const Vector2S& numCells);
 
 	GridScheduler(
-		std::size_t       numWorkers, 
-		const WorkVolume& totalWorkVolume,
-		const Vector2S&   numCells,
-		EOrigin           origin,
-		int               prioriAxis);
+		std::size_t     numWorkers, 
+		const WorkUnit& totalWorkUnit,
+		const Vector2S& numCells,
+		EOrigin         origin,
+		int             prioriAxis);
 
 private:
 	Vector2S m_numCells;
@@ -43,7 +43,7 @@ private:
 	int      m_prioriAxis;
 	Vector2S m_currentCell;
 
-	bool scheduleOne(WorkVolume* out_workVolume) override;
+	bool scheduleOne(WorkUnit* out_workUnit) override;
 };
 
 // In-header Implementations:
@@ -54,25 +54,25 @@ inline GridScheduler::GridScheduler() :
 
 inline GridScheduler::GridScheduler(
 	const std::size_t numWorkers,
-	const WorkVolume& totalWorkVolume,
+	const WorkUnit& totalWorkUnit,
 	const Vector2S&   numCells) :
 
 	GridScheduler(
 		numWorkers, 
-		totalWorkVolume, 
+		totalWorkUnit, 
 		numCells,
 		EOrigin::LOWER_LEFT,
 		math::X_AXIS)
 {}
 
 inline GridScheduler::GridScheduler(
-	std::size_t       numWorkers,
-	const WorkVolume& totalWorkVolume,
-	const Vector2S&   numCells,
-	const EOrigin     origin,
-	const int         prioriAxis) : 
+	std::size_t     numWorkers,
+	const WorkUnit& totalWorkUnit,
+	const Vector2S& numCells,
+	const EOrigin   origin,
+	const int       prioriAxis) : 
 
-	WorkScheduler(numWorkers, totalWorkVolume),
+	WorkScheduler(numWorkers, totalWorkUnit),
 
 	m_numCells(numCells),
 	m_origin(origin),
@@ -80,17 +80,17 @@ inline GridScheduler::GridScheduler(
 	m_currentCell(0, 0)
 {}
 
-inline bool GridScheduler::scheduleOne(WorkVolume* const out_workVolume)
+inline bool GridScheduler::scheduleOne(WorkUnit* const out_workUnit)
 {
 	// Cell coordinates are always in the canonical Cartesian space. Mapping
 	// only performed on divided ranges.
 
 	if(m_currentCell.x < m_numCells.x && m_currentCell.y < m_numCells.y)
 	{
-		PH_ASSERT(out_workVolume);
+		PH_ASSERT(out_workUnit);
 
-		const std::size_t totalWidth  = m_totalWorkVolume.getRegion().getWidth();
-		const std::size_t totalHeight = m_totalWorkVolume.getRegion().getHeight();
+		const std::size_t totalWidth  = m_totalWorkUnit.getRegion().getWidth();
+		const std::size_t totalHeight = m_totalWorkUnit.getRegion().getHeight();
 
 		auto sideRangeX = math::ith_evenly_divided_range(
 			m_currentCell.x, totalWidth, m_numCells.x);
@@ -110,11 +110,11 @@ inline bool GridScheduler::scheduleOne(WorkVolume* const out_workVolume)
 			sideRangeY.second = sideRangeY.first + size;
 		}
 
-		*out_workVolume = WorkVolume(
+		*out_workUnit = WorkUnit(
 			Region(
-				TVector2<int64>(Vector2S(sideRangeX.first, sideRangeY.first)) + m_totalWorkVolume.getRegion().minVertex,
-				TVector2<int64>(Vector2S(sideRangeX.second, sideRangeY.second)) + m_totalWorkVolume.getRegion().minVertex),
-			m_totalWorkVolume.getDepth());
+				TVector2<int64>(Vector2S(sideRangeX.first, sideRangeY.first)) + m_totalWorkUnit.getRegion().minVertex,
+				TVector2<int64>(Vector2S(sideRangeX.second, sideRangeY.second)) + m_totalWorkUnit.getRegion().minVertex),
+			m_totalWorkUnit.getDepth());
 
 		if(m_prioriAxis == math::X_AXIS)
 		{

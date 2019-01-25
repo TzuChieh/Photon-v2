@@ -18,16 +18,16 @@ class StripeScheduler : public WorkScheduler
 public:
 	StripeScheduler();
 	StripeScheduler(
-		std::size_t       numWorkers, 
-		const WorkVolume& totalWorkVolume,
-		int               slicedAxis);
+		std::size_t     numWorkers, 
+		const WorkUnit& totalWorkUnit,
+		int             slicedAxis);
 
 private:
 	int         m_slicedAxis;
 	std::size_t m_numScheduled;
 	std::size_t m_sideLength;
 
-	bool scheduleOne(WorkVolume* out_workVolume) override;
+	bool scheduleOne(WorkUnit* out_workUnit) override;
 };
 
 // In-header Implementations:
@@ -38,29 +38,29 @@ inline StripeScheduler::StripeScheduler() :
 
 inline StripeScheduler::StripeScheduler(
 	const std::size_t numWorkers,
-	const WorkVolume& totalWorkVolume,
+	const WorkUnit&   totalWorkUnit,
 	const int         slicedAxis) :
 
-	WorkScheduler(numWorkers, totalWorkVolume),
+	WorkScheduler(numWorkers, totalWorkUnit),
 
 	m_slicedAxis(slicedAxis),
 	m_numScheduled(0),
-	m_sideLength(static_cast<std::size_t>(m_totalWorkVolume.getRegion().getExtents()[slicedAxis]))
+	m_sideLength(static_cast<std::size_t>(m_totalWorkUnit.getRegion().getExtents()[slicedAxis]))
 {}
 
-inline bool StripeScheduler::scheduleOne(WorkVolume* const out_workVolume)
+inline bool StripeScheduler::scheduleOne(WorkUnit* const out_workUnit)
 {
 	if(m_numScheduled < m_numWorkers)
 	{
-		PH_ASSERT(out_workVolume);
+		PH_ASSERT(out_workUnit);
 
 		const auto sideRange = math::ith_evenly_divided_range(m_numScheduled, m_sideLength, m_numWorkers);
 
-		Region stripRegion = m_totalWorkVolume.getRegion();
+		Region stripRegion = m_totalWorkUnit.getRegion();
 		stripRegion.minVertex[m_slicedAxis] += static_cast<int64>(sideRange.first);
 		stripRegion.maxVertex[m_slicedAxis] -= static_cast<int64>(m_sideLength - sideRange.second);
 
-		*out_workVolume = WorkVolume(stripRegion, m_totalWorkVolume.getDepth());
+		*out_workUnit = WorkUnit(stripRegion, m_totalWorkUnit.getDepth());
 
 		++m_numScheduled;
 		return true;

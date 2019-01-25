@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Renderer/Region/WorkVolume.h"
+#include "Core/Renderer/Region/WorkUnit.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 
@@ -13,48 +13,48 @@ class WorkScheduler
 {
 public:
 	WorkScheduler();
-	WorkScheduler(std::size_t numWorkers, const WorkVolume& totalWorkVolume);
+	WorkScheduler(std::size_t numWorkers, const WorkUnit& totalWorkUnit);
 	virtual ~WorkScheduler() = default;
 
-	bool schedule(WorkVolume* out_workVolume);
-	void scheduleAll(std::vector<WorkVolume>& out_workVolumes);
-	void submit(const WorkVolume& workVolume);
+	bool schedule(WorkUnit* out_workUnit);
+	void scheduleAll(std::vector<WorkUnit>& out_workUnits);
+	void submit(const WorkUnit& workUnit);
 
 	float getScheduledFraction() const;
 	float getSubmittedFraction() const;
 
 protected:
 	std::size_t m_numWorkers;
-	WorkVolume m_totalWorkVolume;
+	WorkUnit    m_totalWorkUnit;
 	std::size_t m_totalVolume;
 	std::size_t m_scheduledVolume;
 	std::size_t m_submittedVolume;
 
 private:
-	virtual bool scheduleOne(WorkVolume* out_workVolume) = 0;
+	virtual bool scheduleOne(WorkUnit* out_workUnit) = 0;
 };
 
 // In-header Implementations:
 
 inline WorkScheduler::WorkScheduler() : 
-	WorkScheduler(1, WorkVolume())
+	WorkScheduler(1, WorkUnit())
 {}
 
-inline WorkScheduler::WorkScheduler(const std::size_t numWorkers, const WorkVolume& totalWorkVolume) : 
+inline WorkScheduler::WorkScheduler(const std::size_t numWorkers, const WorkUnit& totalWorkUnit) :
 	m_numWorkers(numWorkers),
-	m_totalWorkVolume(totalWorkVolume),
-	m_totalVolume(totalWorkVolume.getVolume()),
+	m_totalWorkUnit(totalWorkUnit),
+	m_totalVolume(totalWorkUnit.getVolume()),
 	m_scheduledVolume(0),
 	m_submittedVolume(0)
 {}
 
-inline bool WorkScheduler::schedule(WorkVolume* const out_workVolume)
+inline bool WorkScheduler::schedule(WorkUnit* const out_workUnit)
 {
-	PH_ASSERT(out_workVolume);
+	PH_ASSERT(out_workUnit);
 
-	if(scheduleOne(out_workVolume))
+	if(scheduleOne(out_workUnit))
 	{
-		m_scheduledVolume += out_workVolume->getVolume();
+		m_scheduledVolume += out_workUnit->getVolume();
 		return true;
 	}
 	else
@@ -63,18 +63,18 @@ inline bool WorkScheduler::schedule(WorkVolume* const out_workVolume)
 	}
 }
 
-inline void WorkScheduler::scheduleAll(std::vector<WorkVolume>& out_workVolumes)
+inline void WorkScheduler::scheduleAll(std::vector<WorkUnit>& out_workUnits)
 {
-	WorkVolume workVolume;
-	while(schedule(&workVolume))
+	WorkUnit workUnit;
+	while(schedule(&workUnit))
 	{
-		out_workVolumes.push_back(workVolume);
+		out_workUnits.push_back(workUnit);
 	}
 }
 
-inline void WorkScheduler::submit(const WorkVolume& workVolume)
+inline void WorkScheduler::submit(const WorkUnit& workUnit)
 {
-	m_submittedVolume += workVolume.getVolume();
+	m_submittedVolume += workUnit.getVolume();
 }
 
 inline float WorkScheduler::getScheduledFraction() const

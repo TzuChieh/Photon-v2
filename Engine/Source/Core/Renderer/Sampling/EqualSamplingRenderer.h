@@ -2,7 +2,7 @@
 
 #include "Core/Renderer/Sampling/SamplingRenderer.h"
 #include "Core/Renderer/Region/WorkScheduler.h"
-#include "Core/Renderer/Region/WorkVolume.h"
+#include "Core/Renderer/Region/WorkUnit.h"
 
 #include <memory>
 #include <vector>
@@ -19,7 +19,7 @@ public:
 
 private:
 	std::unique_ptr<WorkScheduler> m_workScheduler;
-	std::vector<WorkVolume>        m_workVolumes;
+	std::vector<WorkUnit>          m_workUnits;
 
 // command interface
 public:
