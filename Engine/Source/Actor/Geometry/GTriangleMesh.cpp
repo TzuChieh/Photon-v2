@@ -143,7 +143,7 @@ void GTriangleMesh::genPrimitive(const PrimitiveBuildingMaterial& data,
 				gTriangle.getVc().y,
 				gTriangle.getVc().z);
 
-			triangles.tris.push_back(triangle);
+			triangles.m_tris.push_back(triangle);
 		}
 
 		// DEBUG
@@ -151,9 +151,9 @@ void GTriangleMesh::genPrimitive(const PrimitiveBuildingMaterial& data,
 		{
 			std::ofstream triangleObj("./triangles.obj");
 
-			for(std::size_t ti = 0; ti < triangles.tris.size(); ++ti)
+			for(std::size_t ti = 0; ti < triangles.m_tris.size(); ++ti)
 			{
-				Triangle* triangle = triangles.tris[ti];
+				Triangle* triangle = triangles.m_tris[ti];
 
 				for(std::size_t vi = 0; vi < 3; ++vi)
 				{

@@ -177,32 +177,32 @@ class AABB3D{
 
 class BoundEdge{
 	private:
-		float split_pos;
+		float m_split_pos;
 		//0 is begin edge, 1 is end edge;
-		int EdgeType;
+		int m_EdgeType;
 	public:
 		BoundEdge(){
-			split_pos = 0;
-			EdgeType = -1;
+			m_split_pos = 0;
+			m_EdgeType = -1;
 		}
 		BoundEdge(float in_split_pos ,int in_EdgeType ){
-			split_pos = in_split_pos;
-			EdgeType = in_EdgeType;
+			m_split_pos = in_split_pos;
+			m_EdgeType = in_EdgeType;
 		}
 		void setSplitPos(float in){
-			split_pos = in;
+			m_split_pos = in;
 		}
 		float getSplitPos(){
-			PH_ASSERT_NE(EdgeType, -1);
-			return split_pos;
+			PH_ASSERT_NE(m_EdgeType, -1);
+			return m_split_pos;
 		}
 
 		void setEdgeType(int in){
-			EdgeType = in;
+			m_EdgeType = in;
 		}
 		int getEdgeType(){
-			PH_ASSERT_NE(EdgeType, -1);
-			return EdgeType;
+			PH_ASSERT_NE(m_EdgeType, -1);
+			return m_EdgeType;
 		}
 };
 
@@ -211,12 +211,12 @@ class Plane{
 	private:
 		//0 point to x, 1 point to y, 2 point to z
 		//ax + by + cz  = d if normal is  (1,0,0),need to know the d
-		int Normal;
-		float d;
+		int m_Normal;
+		float m_d;
 	public:
 		//margin	
 		Plane(){
-			Normal = -1;
+			m_Normal = -1;
 		}
 		/*
 		void setNormal(int direction){
@@ -224,22 +224,22 @@ class Plane{
 		}
 		*/
 		void setNormal(int direction){
-			Normal = direction;
+			m_Normal = direction;
 		}
 		int getNormal(){
-			return ((Normal>>1) == 1)? 2 : Normal;
+			return ((m_Normal>>1) == 1)? 2 : m_Normal;
 		}
 
 		Plane(BoundEdge& Edge, int LongestAxis ){
-			Normal = LongestAxis;
-			d = Edge.getSplitPos();
+			m_Normal = LongestAxis;
+			m_d = Edge.getSplitPos();
 		}
 
 		void set_d(float in_d){
-			d = in_d;
+			m_d = in_d;
 		}
 		float get_d() {
-			return d;
+			return m_d;
 		}
 };
 
@@ -247,27 +247,27 @@ class Triangle {
 	private:
 	    //get from initilize
 
-		Vector3R vertex[3];
+		Vector3R m_vertex[3];
 		/*
 		Vector3R vertexA;
 		Vector3R vertexB;
 		Vector3R vertexC;
 		*/
-		int index = -2;
+		int m_index = -2;
     public:
 		void setIndex(int in){
-			index = in;
+			m_index = in;
 		}
 		int getIndex(){
-			if(index==-2){
+			if(m_index==-2){
 				fprintf(stderr, "Triangle getIndex err:Triangle verticies does not set, first run setTvertices\n");
 			}	
-			return index;
+			return m_index;
 		}
 		
-		AABB3D TBoundingBox;
+		AABB3D m_TBoundingBox;
 		std::tuple<float, float> getBoundingEdge(int LongestAxis){
-			switch(index){
+			switch(m_index){
 				case -2:
 					fprintf(stderr, "Triangle getBoundingEdge err:TBoundingBox does not set, first run drawBounds\n");
 					exit(1);
@@ -277,8 +277,8 @@ class Triangle {
 					exit(1);
 					break;
 			}
-			Vector3R temp1 = TBoundingBox.getMaxVertex();
-			Vector3R temp2 = TBoundingBox.getMinVertex();
+			Vector3R temp1 = m_TBoundingBox.getMaxVertex();
+			Vector3R temp2 = m_TBoundingBox.getMinVertex();
 			if(LongestAxis == math::X_AXIS){
 				return std::make_tuple(temp2.x,temp1.x);
 			}
@@ -294,11 +294,11 @@ class Triangle {
 		}
         void setVertices(float x1, float y1, float z1, float x2, float y2, float z2,
                             float x3, float y3, float z3){
-			index = -1;
+			m_index = -1;
 			
-            vertex[0].set(x1,y1,z1);
-            vertex[1].set(x2,y2,z2);
-            vertex[2].set(x3,y3,z3);
+            m_vertex[0].set(x1,y1,z1);
+            m_vertex[1].set(x2,y2,z2);
+            m_vertex[2].set(x3,y3,z3);
 			
 			/*
 			vertexA.set(x1,y1,z1);
@@ -308,11 +308,11 @@ class Triangle {
         }
 		
 		Vector3R* getVerticies(){
-			if(index == -2){
+			if(m_index == -2){
 				fprintf(stderr, "Triangle getTverticies err:Triangle verticies does not set, first run setTvertices\n");
 				exit(1);
 			}
-			return vertex;
+			return m_vertex;
 		}
 
 		bool Intersect(const Ray& ray, float *out_t){
@@ -329,9 +329,9 @@ class Triangle {
 			//find the matrix[OA OB OC] whether singular
 			// normalize x0,x1,x2 and plus O will find the intersect point 
 			
-			Vector3R edgeOA = vertex[0] - Origin;
-			Vector3R edgeOB = vertex[1] - Origin;
-			Vector3R edgeOC = vertex[2] - Origin;
+			Vector3R edgeOA = m_vertex[0] - Origin;
+			Vector3R edgeOB = m_vertex[1] - Origin;
+			Vector3R edgeOC = m_vertex[2] - Origin;
 			/*
 			Vector3R edgeOA = vertexA - Origin;
 			Vector3R edgeOB = vertexB - Origin;
@@ -369,31 +369,31 @@ class Triangle {
 
 class Triangles{
 	public:
-		std::vector<Triangle*> tris;
+		std::vector<Triangle*> m_tris;
 		Triangles(){
 			
 		}
 		//move	
 		Triangles(Triangles&& other) {
 			//tris.swap(other.tris);
-			tris = std::move(other.tris);
+			m_tris = std::move(other.m_tris);
 		}		
 		//implement initilize list
 		Triangles& operator=(Triangles&& other) {
 			//tris.swap(other.tris);
-			tris = std::move(other.tris);
+			m_tris = std::move(other.m_tris);
 			return *this;
 		}
 
 		//copy
 		Triangles(const Triangles& other) {
 			//tris.swap(other.tris);
-			tris = other.tris;
+			m_tris = other.m_tris;
 		}		
 
 		Triangles& operator=(const Triangles& other) {
 			//tris.swap(other.tris);
-			tris = other.tris;
+			m_tris = other.m_tris;
 			return *this;
 		}
 		
@@ -413,15 +413,9 @@ class KDAccel {
 
 class KDNode : public Primitive{
 	public:
-		
-		//std::shared_ptr<KDNode> left;
-		//std::shared_ptr<KDNode> right;
-		
-		KDNode *left;
-		KDNode *right;
-		
-		Triangles Tprim;
-		Plane plane;
+		KDNode *left, *right;
+		Triangles m_Tprim;
+		Plane m_plane;
    		KDNode(const PrimitiveMetadata* metadata): Primitive(metadata)
     	{ 
         	left = NULL; 
@@ -440,12 +434,12 @@ class KDNode : public Primitive{
 };
 class Voxel{
 	public:
-		AABB3D box;
+		AABB3D m_box;
 		Voxel(){
 
 		}
 		int LongestAxis(){	
-			Vector3R temp = box.getMaxVertex() - box.getMinVertex();
+			Vector3R temp = m_box.getMaxVertex() - m_box.getMinVertex();
 			PH_ASSERT_GE(temp.x, 0);
 			PH_ASSERT_GE(temp.y, 0);
 			PH_ASSERT_GE(temp.z, 0);
@@ -477,13 +471,13 @@ class Voxel{
 
 			float boxMax[3];
 			float boxMin[3];
-			boxMin[0] = World_Voxel.box.getMinVertex().x;
-			boxMin[1] = World_Voxel.box.getMinVertex().y;
-			boxMin[2] = World_Voxel.box.getMinVertex().z;
+			boxMin[0] = World_Voxel.m_box.getMinVertex().x;
+			boxMin[1] = World_Voxel.m_box.getMinVertex().y;
+			boxMin[2] = World_Voxel.m_box.getMinVertex().z;
 
-			boxMax[0] = World_Voxel.box.getMaxVertex().x;
-			boxMax[1] = World_Voxel.box.getMaxVertex().y;
-			boxMax[2] = World_Voxel.box.getMaxVertex().z;						
+			boxMax[0] = World_Voxel.m_box.getMaxVertex().x;
+			boxMax[1] = World_Voxel.m_box.getMaxVertex().y;
+			boxMax[2] = World_Voxel.m_box.getMaxVertex().z;						
 
 			for(int i = 0; i < 3; i ++){
 				float inv = 1/dir[i];
@@ -517,9 +511,9 @@ float SA(Voxel& V);
 
 void split_voxel(Voxel& V,Plane& P, Voxel& left_voxel, Voxel& right_voxel);
 float SAH(Plane& p, Voxel& V, int left_traingles_n, int right_traingles_n);
-void setTriBoundingEdge(Triangles& T, int LongestAxis, std::vector<BoundEdge>& Edge);
+void set_tri_bounding_edge(Triangles& T, int LongestAxis, std::vector<BoundEdge>& Edge);
 bool terminate(Triangles& T, Voxel& V, int depth);
-bool edgeCmp(BoundEdge a, BoundEdge b);
+bool edge_cmp(BoundEdge a, BoundEdge b);
 Plane find_plane(Triangles& T, Voxel& V);
 
 }// end namespace ph

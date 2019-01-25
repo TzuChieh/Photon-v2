@@ -71,69 +71,11 @@ std::tuple<float,float,float,float,float,float> TriangleBound(Triangle *t, int i
 		}
 	}
 	
-	/*
-	if(t->getVertexA().x < min_x){
-		min_x = t->getVertexA().x;
-	}
-	if(t->getVertexA().y < min_y){
-		min_y = t->getVertexA().y;
-	}
-	if(t->getVertexA().z < min_z){
-		min_z = t->getVertexA().z;
-	}
-	if(t->getVertexA().x > max_x){
-		max_x = t->getVertexA().x;
-	}
-	if(t->getVertexA().y > max_y){
-		max_y = t->getVertexA().y;
-	}
-	if(t->getVertexA().z > max_z){
-		max_z = t->getVertexA().z;
-	}
+	t->m_TBoundingBox.setMinVertex( Vector3R(min_x, min_y, min_z) );
 
-	if(t->getVertexB().x < min_x){
-		min_x = t->getVertexB().x;
-	}
-	if(t->getVertexB().y < min_y){
-		min_y = t->getVertexB().y;
-	}
-	if(t->getVertexB().z < min_z){
-		min_z = t->getVertexB().z;
-	}
-	if(t->getVertexB().x > max_x){
-		max_x = t->getVertexB().x;
-	}
-	if(t->getVertexB().y > max_y){
-		max_y = t->getVertexB().y;
-	}
-	if(t->getVertexB().z > max_z){
-		max_z = t->getVertexB().z;
-	}
+	t->m_TBoundingBox.setMaxVertex( Vector3R(max_x, max_y, max_z) );
 
-	if(t->getVertexC().x < min_x){
-		min_x = t->getVertexC().x;
-	}
-	if(t->getVertexC().y < min_y){
-		min_y = t->getVertexC().y;
-	}
-	if(t->getVertexC().z < min_z){
-		min_z = t->getVertexC().z;
-	}
-	if(t->getVertexC().x > max_x){
-		max_x = t->getVertexC().x;
-	}
-	if(t->getVertexC().y > max_y){
-		max_y = t->getVertexC().y;
-	}
-	if(t->getVertexC().z > max_z){
-		max_z = t->getVertexC().z;
-	}
-	*/
-	t->TBoundingBox.setMinVertex( Vector3R(min_x, min_y, min_z) );
-
-	t->TBoundingBox.setMaxVertex( Vector3R(max_x, max_y, max_z) );
-
-	t->TBoundingBox.expand( Vector3R(0.001, 0.001, 0.001) );
+	t->m_TBoundingBox.expand( Vector3R(0.001, 0.001, 0.001) );
 
 	t->setIndex(index);
 	
@@ -150,8 +92,8 @@ void drawBounds(Voxel& V, Triangles& T){
 	float min_z = std::numeric_limits<float>::max();
 	float max_z = std::numeric_limits<float>::lowest();
 
-	for(int i = 0; i < T.tris.size(); i++){
-		auto local = TriangleBound(T.tris[i] , i);
+	for(int i = 0; i < T.m_tris.size(); i++){
+		auto local = TriangleBound(T.m_tris[i] , i);
 		float local_min_x = std::get<0>(local);
 		float local_min_y = std::get<1>(local);
 		float local_min_z = std::get<2>(local);;
@@ -180,8 +122,8 @@ void drawBounds(Voxel& V, Triangles& T){
 
 	}
 	//printf("minx:%f,min_y:%f,min_z:%f\n",min_x,min_y,min_z);
-	V.box.setMinVertex(Vector3R(min_x, min_y, min_z));
-	V.box.setMaxVertex(Vector3R(max_x, max_y, max_z));
+	V.m_box.setMinVertex(Vector3R(min_x, min_y, min_z));
+	V.m_box.setMaxVertex(Vector3R(max_x, max_y, max_z));
 }
 
 bool PointInAABB3D(Vector3R Point, AABB3D& Box){
@@ -205,13 +147,13 @@ bool TriangleOverlapAABB3D(Triangle* tri, AABB3D& Box){
 	//Compute Box translate to center at origin
 	Vector3R Origin_box_Max = Box.getMaxVertex() - BoxCenter;
 	Vector3R Origin_box_Min = Box.getMinVertex() - BoxCenter;
-	triVertexMax[0] = tri->TBoundingBox.getMaxVertex().x - BoxCenter.x;
-	triVertexMax[1] = tri->TBoundingBox.getMaxVertex().y - BoxCenter.y;
-	triVertexMax[2] = tri->TBoundingBox.getMaxVertex().z - BoxCenter.z;
+	triVertexMax[0] = tri->m_TBoundingBox.getMaxVertex().x - BoxCenter.x;
+	triVertexMax[1] = tri->m_TBoundingBox.getMaxVertex().y - BoxCenter.y;
+	triVertexMax[2] = tri->m_TBoundingBox.getMaxVertex().z - BoxCenter.z;
 	
-	triVertexMin[0] = tri->TBoundingBox.getMinVertex().x - BoxCenter.x;
-	triVertexMin[1] = tri->TBoundingBox.getMinVertex().y - BoxCenter.y;
-	triVertexMin[2] = tri->TBoundingBox.getMinVertex().z - BoxCenter.z;
+	triVertexMin[0] = tri->m_TBoundingBox.getMinVertex().x - BoxCenter.x;
+	triVertexMin[1] = tri->m_TBoundingBox.getMinVertex().y - BoxCenter.y;
+	triVertexMin[2] = tri->m_TBoundingBox.getMinVertex().z - BoxCenter.z;
 
 	Vector3R edgeOA = tri->getVerticies()[1] - tri->getVerticies()[0];
 	Vector3R edgeOB = tri->getVerticies()[2] - tri->getVerticies()[0];
@@ -344,9 +286,9 @@ bool TriangleOverlapAABB3D(Triangle* tri, AABB3D& Box){
 //write R value of Triangles constructor, use std::move
 Triangles Union(Triangles& T, Voxel& V){
 	Triangles union_set = Triangles();
-	for(int i = 0; i < T.tris.size(); i++){
-		if( TriangleOverlapAABB3D(T.tris[i], V.box) ){
-			union_set.tris.push_back(T.tris[i]);
+	for(int i = 0; i < T.m_tris.size(); i++){
+		if( TriangleOverlapAABB3D(T.m_tris[i], V.m_box) ){
+			union_set.m_tris.push_back(T.m_tris[i]);
 		}
 	}
 	return union_set;
@@ -359,9 +301,9 @@ float Cost(float K_t, float K_i, float P_left, float P_right, int left_traingles
 }
 
 float SA(Voxel& V){
-	float dx = V.box.getMaxVertex().x - V.box.getMinVertex().x;
-	float dy = V.box.getMaxVertex().y - V.box.getMinVertex().y;
-	float dz = V.box.getMaxVertex().z - V.box.getMinVertex().z;
+	float dx = V.m_box.getMaxVertex().x - V.m_box.getMinVertex().x;
+	float dy = V.m_box.getMaxVertex().y - V.m_box.getMinVertex().y;
+	float dz = V.m_box.getMaxVertex().z - V.m_box.getMinVertex().z;
 	PH_ASSERT_GE(dx, 0);
 	PH_ASSERT_GE(dy, 0);
 	PH_ASSERT_GE(dz, 0);
@@ -370,21 +312,21 @@ float SA(Voxel& V){
 
 void split_voxel(Voxel& V,Plane& P, Voxel& left_voxel, Voxel& right_voxel){
 
-	left_voxel.box.setMinVertex(V.box.getMinVertex());
-	right_voxel.box.setMaxVertex(V.box.getMaxVertex());
+	left_voxel.m_box.setMinVertex(V.m_box.getMinVertex());
+	right_voxel.m_box.setMaxVertex(V.m_box.getMaxVertex());
 
 	switch(P.getNormal()){
 		case math::X_AXIS:
-			left_voxel.box.setMaxVertex(Vector3R(P.get_d(), V.box.getMaxVertex().y, V.box.getMaxVertex().z ));
-			right_voxel.box.setMinVertex(Vector3R(P.get_d(), V.box.getMinVertex().y, V.box.getMinVertex().z ));
+			left_voxel.m_box.setMaxVertex(Vector3R(P.get_d(), V.m_box.getMaxVertex().y, V.m_box.getMaxVertex().z ));
+			right_voxel.m_box.setMinVertex(Vector3R(P.get_d(), V.m_box.getMinVertex().y, V.m_box.getMinVertex().z ));
 			break;
 		case math::Y_AXIS:
-			left_voxel.box.setMaxVertex( Vector3R(V.box.getMaxVertex().x, P.get_d(), V.box.getMaxVertex().z) );
-			right_voxel.box.setMinVertex( Vector3R(V.box.getMinVertex().x, P.get_d(), V.box.getMinVertex().z) );
+			left_voxel.m_box.setMaxVertex( Vector3R(V.m_box.getMaxVertex().x, P.get_d(), V.m_box.getMaxVertex().z) );
+			right_voxel.m_box.setMinVertex( Vector3R(V.m_box.getMinVertex().x, P.get_d(), V.m_box.getMinVertex().z) );
 			break;
 		case math::Z_AXIS:
-			left_voxel.box.setMaxVertex( Vector3R(V.box.getMaxVertex().x, V.box.getMaxVertex().y , P.get_d()) );
-			right_voxel.box.setMinVertex( Vector3R(V.box.getMinVertex().x, V.box.getMinVertex().y, P.get_d()) );
+			left_voxel.m_box.setMaxVertex( Vector3R(V.m_box.getMaxVertex().x, V.m_box.getMaxVertex().y , P.get_d()) );
+			right_voxel.m_box.setMinVertex( Vector3R(V.m_box.getMinVertex().x, V.m_box.getMinVertex().y, P.get_d()) );
 			break;
 	}
 }
@@ -405,12 +347,12 @@ float SAH(Plane& p, Voxel& V, int left_traingles_n, int right_traingles_n)
 	return Cost(K_t, K_i, P_left, P_right, left_traingles_n, right_traingles_n);
 }
 
-void setTriBoundingEdge(Voxel& V, Triangles& T, int LongestAxis, std::vector<BoundEdge>& Edges)
+void set_tri_bounding_edge(Voxel& V, Triangles& T, int LongestAxis, std::vector<BoundEdge>& Edges)
 {
 
 
-	for(int i = 0; i < T.tris.size(); i++){
-		auto LeftAndRightBound = T.tris[i]->getBoundingEdge(LongestAxis);
+	for(int i = 0; i < T.m_tris.size(); i++){
+		auto LeftAndRightBound = T.m_tris[i]->getBoundingEdge(LongestAxis);
 		/*
 		BoundEdge left;
 		left.axis = get<0>(LeftAndRightBound);
@@ -430,7 +372,7 @@ void setTriBoundingEdge(Voxel& V, Triangles& T, int LongestAxis, std::vector<Bou
 bool terminate(Triangles& T, Voxel& V, int depth)
 {
 		//BUG,T.tris.size< 2 will have bug
-	if(depth >= MAX_DEPTH || T.tris.size() < 10){
+	if(depth >= MAX_DEPTH || T.m_tris.size() < 10){
 		return 1;
 	}
 	else
@@ -441,7 +383,7 @@ bool terminate(Triangles& T, Voxel& V, int depth)
 
 
 //becareful of overlapping
-bool edgeCmp(BoundEdge a, BoundEdge b)
+bool edge_cmp(BoundEdge a, BoundEdge b)
 {
 	if(a.getSplitPos() == b.getSplitPos()){
 		/*
@@ -464,28 +406,28 @@ Plane find_plane(Triangles& T, Voxel& V)
 	//printf("LongestAxis:%d\n",LongestAxis);
 	std::vector<BoundEdge> Edges;
 	//use parameters to update BoundEdge
-	setTriBoundingEdge(V, T, LongestAxis, Edges);
+	set_tri_bounding_edge(V, T, LongestAxis, Edges);
 	//sort edges
-	std::sort(Edges.begin(), Edges.end(), edgeCmp);
+	std::sort(Edges.begin(), Edges.end(), edge_cmp);
 	int num_left_tris = 0;
-	int num_right_tris = T.tris.size();
+	int num_right_tris = T.m_tris.size();
 	
 	float Voxel_min;
 	float Voxel_max;
 	if(LongestAxis == math::X_AXIS)
 	{
-		Voxel_min = V.box.getMinVertex().x;
-		Voxel_max = V.box.getMaxVertex().x;
+		Voxel_min = V.m_box.getMinVertex().x;
+		Voxel_max = V.m_box.getMaxVertex().x;
 	}
 	else if(LongestAxis == math::Y_AXIS)
 	{
-		Voxel_min = V.box.getMinVertex().y;
-		Voxel_max = V.box.getMaxVertex().y;
+		Voxel_min = V.m_box.getMinVertex().y;
+		Voxel_max = V.m_box.getMaxVertex().y;
 	}
 	else if(LongestAxis == math::Z_AXIS)
 	{
-		Voxel_min = V.box.getMinVertex().z;
-		Voxel_max = V.box.getMaxVertex().z;
+		Voxel_min = V.m_box.getMinVertex().z;
+		Voxel_max = V.m_box.getMaxVertex().z;
 	}
 	PH_ASSERT_GE(Voxel_max, Voxel_min);
 
@@ -528,7 +470,7 @@ void KDNode::recBuild(const PrimitiveMetadata *metadata, Triangles& T, Voxel& V,
 		//KDNode *root = new KDNode(m_metadata);
 		this->left = NULL;
 		this->right = NULL;
-		this->Tprim = T;
+		this->m_Tprim = T;
 		PH_ASSERT_EQ(this->isLeaf(),1);
 		//printf("leaf T.size():%lu\n",root->Tprim.tris.size());
 		return;
@@ -554,18 +496,18 @@ void KDNode::recBuild(const PrimitiveMetadata *metadata, Triangles& T, Voxel& V,
 	right_tris = Union(T , right_voxel);
 
 	//printf("BUG:tris_size:%lu left_tris_size:%lu, right_tris_size:%lu\n",T.tris.size(),left_tris.tris.size(),right_tris.tris.size());
-	PH_ASSERT_GE(left_tris.tris.size()+right_tris.tris.size(),T.tris.size());
+	PH_ASSERT_GE(left_tris.m_tris.size()+right_tris.m_tris.size(),T.m_tris.size());
 	//std::shared_ptr<KDNode> root = std::make_shared<KDNode>(m_metadata);
 	
-	this->Tprim = T;
+	//this->Tprim = T;
 	this->left = new_KDNode(metadata);
 	this->left->recBuild(metadata,left_tris, left_voxel, depth+1);
 
 	this->right = new_KDNode(metadata);
 	this->right->recBuild(metadata,right_tris, right_voxel, depth+1);
-	this->plane = p;
-	PH_ASSERT_LE(this->plane.getNormal(), 2);
-	PH_ASSERT_GE(this->plane.getNormal(), 0);
+	this->m_plane = p;
+	PH_ASSERT_LE(this->m_plane.getNormal(), 2);
+	PH_ASSERT_GE(this->m_plane.getNormal(), 0);
 	printf("child->left:%p\n",this->left);
 	printf("child->right:%p\n",this->right);
 	//printf("node:%p node plane normal:%d\n",root,root->plane.getNormal());
@@ -595,8 +537,8 @@ void KDAccel::build_KD_tree(Triangles& T,const PrimitiveMetadata *metadata)
 	TraverseTree(KDtree_root,100);
 	printf("KDtree_root->left:%p\n",KDtree_root->left);
 	printf("KDtree_root->right:%p\n",KDtree_root->right);
-	PH_ASSERT_LE(root->plane.getNormal(), 2);
-	PH_ASSERT_GE(root->plane.getNormal(), 0);
+	PH_ASSERT_LE(root->m_plane.getNormal(), 2);
+	PH_ASSERT_GE(root->m_plane.getNormal(), 0);
 
 }
 //implement virtual functions of primitive.h
@@ -636,8 +578,8 @@ bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
 		//sleep(1);
 		if(!cur_node->isLeaf()){
 			//puts("not leaf");
-			int split_axis = cur_node->plane.getNormal();
-			float split_pos = cur_node->plane.get_d();
+			int split_axis = cur_node->m_plane.getNormal();
+			float split_pos = cur_node->m_plane.get_d();
 			//printf("split_axis:%d\n",split_axis);
 			float tPlane = (split_pos - ray.getOrigin()[split_axis]) * invDir[split_axis];
 			bool left_first = (ray.getOrigin()[split_axis] < split_pos) 
@@ -682,8 +624,8 @@ bool KDNode::isIntersecting(const Ray& ray, HitProbe& probe) const {
 			//puts("leaf");
 			//sleep(1);
 			//printf("cur_node->Tprim.tris.size():%lu\n",cur_node->Tprim.tris.size());
-			for(int i = 0; i < cur_node->Tprim.tris.size(); i++){
-				Triangle* triangle = cur_node->Tprim.tris[i];
+			for(int i = 0; i < cur_node->m_Tprim.m_tris.size(); i++){
+				Triangle* triangle = cur_node->m_Tprim.m_tris[i];
 				float hitT;
 				//puts("b1");
 
@@ -773,8 +715,8 @@ bool KDNode::isIntersectingVolumeConservative(const AABB3D& volume) const {
 //4. pointer send bounding box. implement void calcAABB3D(AABB3D* out_aabb) const = 0;
 void KDNode::calcAABB(AABB3D* out_aabb) const {
 	//setMinVertex(const Vector3R& minVertex)
-	Vector3R myMinVec = World_Voxel.box.getMinVertex();	
-	Vector3R myMaxVec = World_Voxel.box.getMaxVertex();
+	Vector3R myMinVec = World_Voxel.m_box.getMinVertex();	
+	Vector3R myMaxVec = World_Voxel.m_box.getMaxVertex();
 	out_aabb->setMinVertex(Vector3R(myMinVec.x, myMinVec.y, myMinVec.z ));
 	out_aabb->setMaxVertex(Vector3R(myMaxVec.x, myMaxVec.y, myMaxVec.z ));
 }
@@ -837,7 +779,7 @@ void KDNode::exportObj()
 		};
 		std::vector<Node> nodes;
 
-		nodes.push_back({this, World_Voxel.box});
+		nodes.push_back({this, World_Voxel.m_box});
 		while(!nodes.empty())
 		{
 			auto current = nodes.back();
@@ -850,7 +792,7 @@ void KDNode::exportObj()
 				continue;
 			}
 
-			auto childAABBs = current.aabb.getSplitted(current.node->plane.getNormal(), current.node->plane.get_d());
+			auto childAABBs = current.aabb.getSplitted(current.node->m_plane.getNormal(), current.node->m_plane.get_d());
 			if(current.node->left)
 			{
 				nodes.push_back({current.node->left, childAABBs.first});
