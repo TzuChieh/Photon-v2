@@ -11,7 +11,7 @@
 
 #include <iostream>
 #include <fstream>
-
+#include <unistd.h>
 namespace ph
 {
 
@@ -172,13 +172,16 @@ void GTriangleMesh::genPrimitive(const PrimitiveBuildingMaterial& data,
 			}
 		}
 
-		auto kdNode = std::make_unique<KDNode>(data.metadata);
-		kdNode->build_KD_tree(triangles);
-
+		auto KdAccel = std::make_unique<KDAccel>(data.metadata);
+		//KDNode kdNode(data.metadata);
+		KdAccel.get()->root = std::make_unique<KDNode>(data.metadata);
+		KdAccel.get()->build_KD_tree(triangles,data.metadata);
+		printf("kdNode->left:%p\n",KdAccel.get()->root.get()->left);
+		printf("kdNode->right:%p\n",KdAccel.get()->root.get()->right);
 		// DEBUG
-		kdNode->exportObj();
+		KdAccel.get()->root->exportObj();
 
-		out_primitives.push_back(std::move(kdNode));
+		out_primitives.push_back(std::move(KdAccel.get()->root));
 
 		timer.finish();
 
