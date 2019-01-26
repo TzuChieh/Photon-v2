@@ -22,7 +22,7 @@ KDNode* new_KDNode(const PrimitiveMetadata *metadata)
 	/*
 	if(nextFreeNode==nAllocatedNodes)
 	{
-		int nNewAllocNodes = std::max(2 * nAllocatedNodes, 512);
+		int nNewAllocNodes = std::max(2 * nAllocateNodes, 512);
         KDNode *n = std::make_unique<KDNode[]>(new KDNode[nNewAllocNodes](metadata));
         if (nAllocatedNodes > 0) {
 			
@@ -534,11 +534,11 @@ void KDAccel::build_KD_tree(Triangles& T,const PrimitiveMetadata *metadata)
 	//std::shared_ptr<KDNode> temp = recBuild(T,World_Voxel,0);
 	this->root.get()->recBuild(metadata,T,World_Voxel,0);
 	KDtree_root = this->root.get();
-	TraverseTree(KDtree_root,100);
+	//TraverseTree(KDtree_root,100);
 	printf("KDtree_root->left:%p\n",KDtree_root->left);
 	printf("KDtree_root->right:%p\n",KDtree_root->right);
-	PH_ASSERT_LE(root->m_plane.getNormal(), 2);
-	PH_ASSERT_GE(root->m_plane.getNormal(), 0);
+	PH_ASSERT_LE(this->root->m_plane.getNormal(), 2);
+	PH_ASSERT_GE(this->root->m_plane.getNormal(), 0);
 
 }
 //implement virtual functions of primitive.h
