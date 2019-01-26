@@ -22,7 +22,7 @@ public:
 private:
 	std::size_t m_numScheduled;
 
-	bool scheduleOne(WorkUnit* out_workUnit) override;
+	void scheduleOne(WorkUnit* out_workUnit) override;
 };
 
 // In-header Implementations:
@@ -36,22 +36,21 @@ inline PlateScheduler::PlateScheduler(const std::size_t numWorkers, const WorkUn
 	m_numScheduled(0)
 {}
 
-inline bool PlateScheduler::scheduleOne(WorkUnit* const out_workUnit)
+inline void PlateScheduler::scheduleOne(WorkUnit* const out_workUnit)
 {
+	PH_ASSERT(out_workUnit);
+
 	if(m_numScheduled < m_numWorkers)
 	{
-		PH_ASSERT(out_workUnit);
-
 		const auto depthRange = math::ith_evenly_divided_range(
 			m_numScheduled, m_totalWorkUnit.getDepth(), m_numWorkers);
 		*out_workUnit = WorkUnit(m_totalWorkUnit.getRegion(), depthRange.second - depthRange.first);
 
 		++m_numScheduled;
-		return true;
 	}
 	else
 	{
-		return false;
+		*out_workUnit = WorkUnit();
 	}
 }
 

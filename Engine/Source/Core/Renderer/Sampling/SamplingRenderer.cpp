@@ -142,6 +142,9 @@ ERegionStatus SamplingRenderer::asyncPollUpdatedRegion(Region* const out_region)
 	}
 }
 
+// FIXME: Peeking does not need to ensure correctness of the frame.
+// If correctness is not guaranteed, develop methods should be reimplemented. 
+// (correctness is guaranteed currently)
 void SamplingRenderer::asyncPeekRegion(
 	HdrRgbFrame&     out_frame, 
 	const Region&    region, 
@@ -161,6 +164,11 @@ void SamplingRenderer::asyncPeekRegion(
 }
 
 void SamplingRenderer::develop(HdrRgbFrame& out_frame, const EAttribute attribute)
+{
+	asyncPeekRegion(out_frame, getRenderWindowPx(), attribute);
+}
+
+void SamplingRenderer::asyncDevelop(HdrRgbFrame& out_frame, EAttribute attribute)
 {
 	asyncPeekRegion(out_frame, getRenderWindowPx(), attribute);
 }

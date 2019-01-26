@@ -92,7 +92,7 @@ inline T to_radians(const T degrees)
 // returns ( 1) when (value  > 0), 
 // returns (-1) when (value  < 0), 
 // returns ( 0) when (value == 0).
-// (Note that the target value is pass by value.)
+// (Note that the target value is passed by value.)
 //
 template<typename T>
 inline int sign(const T value)
@@ -138,7 +138,7 @@ inline uint32 log2_floor(const uint32 value)
 #if defined(PH_COMPILER_IS_CLANG) || defined(PH_COMPILER_IS_GCC)
 
 	static_assert(sizeof(uint32) == sizeof(unsigned int), 
-		            "expecting same size for conversion purposes");
+		"expecting same size for conversion purposes");
 
 	const int numLeftZeros = __builtin_clz(value);
 	PH_ASSERT(numLeftZeros >= 0);
@@ -148,7 +148,7 @@ inline uint32 log2_floor(const uint32 value)
 #elif defined(PH_COMPILER_IS_MSVC)
 
 	static_assert(sizeof(uint32) == sizeof(unsigned long), 
-		            "expecting same size for conversion purposes");
+		"expecting same size for conversion purposes");
 
 	unsigned long first1BitFromLeftIndex;
 	_BitScanReverse(&first1BitFromLeftIndex, value);
@@ -272,13 +272,15 @@ inline std::pair<std::size_t, std::size_t> ith_evenly_divided_range(
 /*
 	Computes 1/sqrt(x) in a fast but approximative way. This method is best
 	known for its implementation in Quake III Arena (1999). Here the implementation
-	follows what described in the referenced paper, which provides a slightly 
-	better (in terms of maximal relative error) magic number.
+	follows what described in the referenced paper, which uses a slightly 
+	better (in terms of maximal relative error) magic number. 
 
 	Reference: http://www.lomont.org/Math/Papers/2003/InvSqrt.pdf
 */
 inline float fast_rcp_sqrt(float x)
 {
+	PH_ASSERT_GT(x, 0.0f);
+
 	const float halvedInput = 0.5f * x;
 
 	std::uint32_t bits = bitwise_cast<float, std::uint32_t>(x);

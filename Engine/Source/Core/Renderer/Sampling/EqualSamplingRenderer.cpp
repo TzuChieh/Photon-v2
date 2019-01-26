@@ -3,6 +3,7 @@
 #include "Core/Renderer/Sampling/SamplingFilmSet.h"
 #include "Core/Filmic/Vector3Film.h"
 #include "Common/assertion.h"
+#include "Core/Renderer/Region/SpiralScheduler.h"
 
 namespace ph
 {
@@ -11,7 +12,12 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 {
 	SamplingRenderer::doUpdate(data);
 
-	m_workScheduler = std::make_unique<GridScheduler>(
+	/*m_workScheduler = std::make_unique<GridScheduler>(
+		numWorkers(),
+		WorkUnit(Region(getRenderWindowPx()), numAvailableSampleBatches()),
+		Vector2S(20, 20));*/
+
+	m_workScheduler = std::make_unique<SpiralScheduler>(
 		numWorkers(),
 		WorkUnit(Region(getRenderWindowPx()), numAvailableSampleBatches()),
 		Vector2S(20, 20));

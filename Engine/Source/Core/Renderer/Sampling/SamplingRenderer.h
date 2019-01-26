@@ -41,7 +41,9 @@ public:
 	AttributeTags supportedAttributes() const override;
 	std::string renderStateName(RenderState::EType type, std::size_t index) const override;
 
+	// FIXME: these APIs are somewhat hacked and should be revisited
 	void asyncUpdateFilm(SamplingFilmSet& workerFilms, bool isUpdating);
+	void asyncDevelop(HdrRgbFrame& out_frame, EAttribute attribute);
 	AttributeTags getRequestedAttributes() const;
 	std::size_t numAvailableSampleBatches() const;
 	SampleFilter getFilter() const;

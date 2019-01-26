@@ -43,7 +43,7 @@ private:
 	int      m_prioriAxis;
 	Vector2S m_currentCell;
 
-	bool scheduleOne(WorkUnit* out_workUnit) override;
+	void scheduleOne(WorkUnit* out_workUnit) override;
 };
 
 // In-header Implementations:
@@ -80,15 +80,15 @@ inline GridScheduler::GridScheduler(
 	m_currentCell(0, 0)
 {}
 
-inline bool GridScheduler::scheduleOne(WorkUnit* const out_workUnit)
+inline void GridScheduler::scheduleOne(WorkUnit* const out_workUnit)
 {
+	PH_ASSERT(out_workUnit);
+
 	// Cell coordinates are always in the canonical Cartesian space. Mapping
 	// only performed on divided ranges.
 
 	if(m_currentCell.x < m_numCells.x && m_currentCell.y < m_numCells.y)
 	{
-		PH_ASSERT(out_workUnit);
-
 		const std::size_t totalWidth  = m_totalWorkUnit.getRegion().getWidth();
 		const std::size_t totalHeight = m_totalWorkUnit.getRegion().getHeight();
 
@@ -134,12 +134,10 @@ inline bool GridScheduler::scheduleOne(WorkUnit* const out_workUnit)
 				++m_currentCell.x;
 			}
 		}
-
-		return true;
 	}
 	else
 	{
-		return false;
+		*out_workUnit = WorkUnit();
 	}
 }
 

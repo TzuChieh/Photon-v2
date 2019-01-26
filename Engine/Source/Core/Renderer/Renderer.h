@@ -46,6 +46,7 @@ public:
 	virtual void develop(HdrRgbFrame& out_frame, EAttribute attribute) = 0;
 
 	// Get the rendering region that has been updated.
+	// TODO: allow polling unioned regions seems like a good idea
 	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) = 0;
 	
 	// Returns information regarding the rendering process.

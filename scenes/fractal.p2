@@ -1,6 +1,6 @@
 ## camera(pinhole) [real fov-degree 30] [vector3 position "0 7 60"] [vector3 direction "0 0 -1"] [vector3 up-axis "0 1 0"]
 ## sample-generator(stratified) [integer sample-amount 40]
-## renderer(sampling) [integer width 720][integer height 480][string filter-name gaussian][string estimator bneept]
+## renderer(equal-sampling) [integer width 720][integer height 480][string filter-name gaussian][string estimator bneept]
 
 -> geometry(rectangle) @plane [real width 15] [real height 15]
 -> geometry(rectangle) @smallPlane [real width 0.5] [real height 0.5]

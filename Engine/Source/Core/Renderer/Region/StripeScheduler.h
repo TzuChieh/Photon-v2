@@ -27,7 +27,7 @@ private:
 	std::size_t m_numScheduled;
 	std::size_t m_sideLength;
 
-	bool scheduleOne(WorkUnit* out_workUnit) override;
+	void scheduleOne(WorkUnit* out_workUnit) override;
 };
 
 // In-header Implementations:
@@ -48,12 +48,12 @@ inline StripeScheduler::StripeScheduler(
 	m_sideLength(static_cast<std::size_t>(m_totalWorkUnit.getRegion().getExtents()[slicedAxis]))
 {}
 
-inline bool StripeScheduler::scheduleOne(WorkUnit* const out_workUnit)
+inline void StripeScheduler::scheduleOne(WorkUnit* const out_workUnit)
 {
+	PH_ASSERT(out_workUnit);
+
 	if(m_numScheduled < m_numWorkers)
 	{
-		PH_ASSERT(out_workUnit);
-
 		const auto sideRange = math::ith_evenly_divided_range(m_numScheduled, m_sideLength, m_numWorkers);
 
 		Region stripRegion = m_totalWorkUnit.getRegion();
@@ -63,11 +63,10 @@ inline bool StripeScheduler::scheduleOne(WorkUnit* const out_workUnit)
 		*out_workUnit = WorkUnit(stripRegion, m_totalWorkUnit.getDepth());
 
 		++m_numScheduled;
-		return true;
 	}
 	else
 	{
-		return false;
+		*out_workUnit = WorkUnit();
 	}
 }
 

@@ -102,6 +102,12 @@ inline bool TAABB2D<T>::isPoint() const
 }
 
 template<typename T>
+inline bool TAABB2D<T>::isArea() const
+{
+	return maxVertex.x > minVertex.x && maxVertex.y > minVertex.y;
+}
+
+template<typename T>
 inline bool TAABB2D<T>::equals(const TAABB2D& other) const
 {
 	return minVertex.equals(other.minVertex) && 

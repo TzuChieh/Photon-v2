@@ -11,7 +11,9 @@ namespace ph
 class WorkUnit
 {
 public:
+	// Represents zero amount of work.
 	WorkUnit();
+
 	WorkUnit(const Region& region);
 	WorkUnit(const Region& region, std::size_t depth);
 
