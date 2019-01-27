@@ -128,8 +128,8 @@ public class StaticCanvasDisplay extends Display
 		
 		AABB2D rect = toCanvasRegion(region);
 		
-		float verticalWidth = Math.min(1, rect.getHeight());
-		float horizontalWidth = Math.min(1, rect.getWidth());
+		float verticalWidth = Math.min(2, rect.getHeight());
+		float horizontalWidth = Math.min(2, rect.getWidth());
 		
 		g.fillRect(rect.min.x, rect.min.y, rect.getWidth(), verticalWidth);
 		g.fillRect(rect.min.x, rect.max.y - verticalWidth, rect.getWidth(), verticalWidth);

@@ -12,7 +12,9 @@ namespace ph
 class WorkScheduler
 {
 public:
+	// A scheduler with no work load.
 	WorkScheduler();
+
 	WorkScheduler(std::size_t numWorkers, const WorkUnit& totalWorkUnit);
 	virtual ~WorkScheduler() = default;
 

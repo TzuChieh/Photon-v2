@@ -4,6 +4,7 @@
 #include "Core/Filmic/Vector3Film.h"
 #include "Common/assertion.h"
 #include "Core/Renderer/Region/SpiralScheduler.h"
+#include "Core/Renderer/Region/SpiralGridScheduler.h"
 
 namespace ph
 {
@@ -17,10 +18,15 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 		WorkUnit(Region(getRenderWindowPx()), numAvailableSampleBatches()),
 		Vector2S(20, 20));*/
 
-	m_workScheduler = std::make_unique<SpiralScheduler>(
+	/*m_workScheduler = std::make_unique<SpiralScheduler>(
 		numWorkers(),
 		WorkUnit(Region(getRenderWindowPx()), numAvailableSampleBatches()),
-		Vector2S(20, 20));
+		Vector2S(20, 20));*/
+
+	m_workScheduler = std::make_unique<SpiralGridScheduler>(
+		numWorkers(),
+		WorkUnit(Region(getRenderWindowPx()), numAvailableSampleBatches()),
+		50);
 
 	m_workUnits.resize(numWorkers());
 }

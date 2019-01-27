@@ -43,9 +43,9 @@ inline StripeScheduler::StripeScheduler(
 
 	WorkScheduler(numWorkers, totalWorkUnit),
 
-	m_slicedAxis(slicedAxis),
+	m_slicedAxis  (slicedAxis),
 	m_numScheduled(0),
-	m_sideLength(static_cast<std::size_t>(m_totalWorkUnit.getRegion().getExtents()[slicedAxis]))
+	m_sideLength  (static_cast<std::size_t>(m_totalWorkUnit.getRegion().getExtents()[slicedAxis]))
 {}
 
 inline void StripeScheduler::scheduleOne(WorkUnit* const out_workUnit)
