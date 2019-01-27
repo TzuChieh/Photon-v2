@@ -76,7 +76,7 @@ private:
 	std::deque<UpdatedRegion> m_updatedRegions;
 	
 	std::mutex           m_rendererMutex;
-	std::atomic_uint32_t m_averageSpp;
+	std::atomic_uint64_t m_totalPaths;
 	std::atomic_uint32_t m_suppliedFractionBits;
 	std::atomic_uint32_t m_submittedFractionBits;
 

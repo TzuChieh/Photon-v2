@@ -59,6 +59,8 @@ void SamplingRenderer::doUpdate(const SdlResourcePack& data)
 			Integrand(m_scene, m_camera),
 			this);
 	}
+
+	m_totalPaths = 0;
 }
 
 void SamplingRenderer::doRender()
@@ -99,6 +101,8 @@ void SamplingRenderer::doRender()
 				m_submittedFractionBits.store(
 					bitwise_cast<float, std::uint32_t>(submittedFraction),
 					std::memory_order_relaxed);
+
+				m_totalPaths.fetch_add(renderWork.asyncGetStatistics().numSamplesTaken, std::memory_order_relaxed);
 			}
 		});
 	}
@@ -108,17 +112,12 @@ void SamplingRenderer::doRender()
 
 void SamplingRenderer::asyncUpdateFilm(SamplingFilmSet& workerFilms, bool isUpdating)
 {
-	{
-		std::lock_guard<std::mutex> lock(m_rendererMutex);
+	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-		mergeWorkFilms(workerFilms);
+	mergeWorkFilms(workerFilms);
 
-		// HACK
-		addUpdatedRegion(workerFilms.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), isUpdating);
-	}
-
-	// FIXME: this is broken under non-bulk rendering
-	m_averageSpp.fetch_add(1, std::memory_order_relaxed);
+	// HACK
+	addUpdatedRegion(workerFilms.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), isUpdating);
 }
 
 void SamplingRenderer::clearWorkData()
@@ -226,7 +225,7 @@ RenderState SamplingRenderer::asyncQueryRenderState()
 		static_cast<float32>(m_renderWorks.size() * totalNumSamples) / static_cast<float32>(totalElapsedMs) : 0.0f;
 
 	RenderState state;
-	state.setIntegerState(0, static_cast<int64>(m_averageSpp.load(std::memory_order_relaxed)));
+	state.setIntegerState(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getRenderWindowPx().calcArea()));
 	state.setRealState(0, samplesPerMs * 1000);
 	return state;
 }
@@ -266,7 +265,7 @@ std::string SamplingRenderer::renderStateName(const RenderState::EType type, con
 	{
 		switch(index)
 		{
-		case 0:  return "samples/pixel";
+		case 0:  return "paths/pixel (avg.)";
 		default: return "";
 		}
 	}
@@ -274,7 +273,7 @@ std::string SamplingRenderer::renderStateName(const RenderState::EType type, con
 	{
 		switch(index)
 		{
-		case 0:  return "samples/second";
+		case 0:  return "paths/second";
 		default: return "";
 		}
 	}
@@ -303,8 +302,7 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 	m_updatedRegions(),
 	m_rendererMutex(),
 	m_filter(SampleFilterFactory::createGaussianFilter()),
-	m_requestedAttributes(),
-	m_averageSpp(0)
+	m_requestedAttributes()
 {
 	const std::string filterName = packet.getString("filter-name");
 	m_filter = SampleFilterFactory::create(filterName);
