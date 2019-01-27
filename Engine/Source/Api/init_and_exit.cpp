@@ -83,6 +83,7 @@
 #include "Core/Renderer/Renderer.h"
 #include "Core/Renderer/Sampling/SamplingRenderer.h"
 #include "Core/Renderer/Sampling/EqualSamplingRenderer.h"
+#include "Core/Renderer/Sampling/AdaptiveSamplingRenderer.h"
 #include "Core/Renderer/PM/PMRenderer.h"
 
 // options
@@ -193,6 +194,7 @@ bool init_command_parser()
 	register_command_interface<Renderer>();
 	register_command_interface<SamplingRenderer>();
 	register_command_interface<EqualSamplingRenderer>();
+	register_command_interface<AdaptiveSamplingRenderer>();
 	register_command_interface<PMRenderer>();
 
 	// options

@@ -26,8 +26,16 @@ public:
 	// Methods regarding supplying and submitting works are guaranteed to be
 	// thread-safe. In addition, memory written by previous supply/submit
 	// action is visible to the subsequent one.
-	virtual bool supplyWork(uint32 workerId, SamplingRenderWork& work) = 0;
-	virtual void submitWork(uint32 workerId, SamplingRenderWork& work) = 0;
+
+	virtual bool supplyWork(
+		uint32 workerId, 
+		SamplingRenderWork& work,
+		float* out_suppliedFraction) = 0;
+
+	virtual void submitWork(
+		uint32 workerId, 
+		SamplingRenderWork& work,
+		float* out_submittedFraction) = 0;
 
 	void doUpdate(const SdlResourcePack& data) override;
 	void doRender() override;
@@ -69,6 +77,8 @@ private:
 	
 	std::mutex           m_rendererMutex;
 	std::atomic_uint32_t m_averageSpp;
+	std::atomic_uint32_t m_suppliedFractionBits;
+	std::atomic_uint32_t m_submittedFractionBits;
 
 	void clearWorkData();
 	void mergeWorkFilms(SamplingFilmSet& films);

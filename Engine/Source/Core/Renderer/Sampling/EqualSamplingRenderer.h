@@ -14,8 +14,16 @@ class EqualSamplingRenderer : public SamplingRenderer, public TCommandInterface<
 {
 public:
 	void doUpdate(const SdlResourcePack& data) override;
-	bool supplyWork(uint32 workerId, SamplingRenderWork& work) override;
-	void submitWork(uint32 workerId, SamplingRenderWork& work) override;
+
+	bool supplyWork(
+		uint32 workerId, 
+		SamplingRenderWork& work,
+		float* out_suppliedFraction) override;
+
+	void submitWork(
+		uint32 workerId, 
+		SamplingRenderWork& work,
+		float* out_submittedFraction) override;
 
 private:
 	std::unique_ptr<WorkScheduler> m_workScheduler;

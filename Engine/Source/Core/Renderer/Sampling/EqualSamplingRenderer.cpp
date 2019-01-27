@@ -31,14 +31,22 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 	m_workUnits.resize(numWorkers());
 }
 
-bool EqualSamplingRenderer::supplyWork(uint32 workerId, SamplingRenderWork& work)
+bool EqualSamplingRenderer::supplyWork(
+	const uint32 workerId, 
+	SamplingRenderWork& work,
+	float* const out_suppliedFraction)
 {
 	PH_ASSERT(m_workScheduler);
 	PH_ASSERT_LT(workerId, m_workUnits.size());
 
 	WorkUnit& workUnit = m_workUnits[workerId];
-	if(!m_workScheduler->schedule(&workUnit))
+	if(m_workScheduler->schedule(&workUnit))
 	{
+		*out_suppliedFraction = m_workScheduler->getScheduledFraction();
+	}
+	else
+	{
+		*out_suppliedFraction = 1.0f;
 		return false;
 	}
 
@@ -61,12 +69,16 @@ bool EqualSamplingRenderer::supplyWork(uint32 workerId, SamplingRenderWork& work
 	return true;
 }
 
-void EqualSamplingRenderer::submitWork(uint32 workerId, SamplingRenderWork& work)
+void EqualSamplingRenderer::submitWork(
+	const uint32 workerId, 
+	SamplingRenderWork& work,
+	float* const out_submittedFraction)
 {
 	PH_ASSERT(m_workScheduler);
 	PH_ASSERT_LT(workerId, m_workUnits.size());
 
 	m_workScheduler->submit(m_workUnits[workerId]);
+	*out_submittedFraction = m_workScheduler->getSubmittedFraction();
 }
 
 // command interface

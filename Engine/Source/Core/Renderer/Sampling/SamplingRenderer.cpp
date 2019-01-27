@@ -17,10 +17,11 @@
 #include "Core/Estimator/BNEEPTEstimator.h"
 #include "Core/Estimator/Integrand.h"
 #include "Core/Filmic/Vector3Film.h"
-#include "Utility/FixedSizeThreadPool.h"
 #include "Core/Renderer/Region/PlateScheduler.h"
 #include "Core/Renderer/Region/StripeScheduler.h"
 #include "Core/Renderer/Region/GridScheduler.h"
+#include "Utility/FixedSizeThreadPool.h"
+#include "Utility/utility.h"
 
 #include <cmath>
 #include <iostream>
@@ -70,24 +71,34 @@ void SamplingRenderer::doRender()
 		{
 			SamplingRenderWork& renderWork = m_renderWorks[workerId];
 
+			float suppliedFraction = 0.0f;
+			float submittedFraction = 0.0f;
 			while(true)
 			{
 				{
 					std::lock_guard<std::mutex> lock(m_rendererMutex);
-
-					if(!supplyWork(workerId, renderWork))
+					
+					if(!supplyWork(workerId, renderWork, &suppliedFraction))
 					{
 						break;
 					}
 				}
+
+				m_suppliedFractionBits.store(
+					bitwise_cast<float, std::uint32_t>(suppliedFraction),
+					std::memory_order_relaxed);
 
 				renderWork.work();
 
 				{
 					std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-					submitWork(workerId, renderWork);
+					submitWork(workerId, renderWork, &submittedFraction);
 				}
+
+				m_submittedFractionBits.store(
+					bitwise_cast<float, std::uint32_t>(submittedFraction),
+					std::memory_order_relaxed);
 			}
 		});
 	}
@@ -222,13 +233,21 @@ RenderState SamplingRenderer::asyncQueryRenderState()
 
 RenderProgress SamplingRenderer::asyncQueryRenderProgress()
 {
-	RenderProgress totalProgress(0, 0, 0);
+	RenderProgress workerProgress(0, 0, 0);
 	{
 		for(auto&& work : m_renderWorks)
 		{
-			totalProgress += work.asyncGetProgress();
+			workerProgress += work.asyncGetProgress();
 		}
 	}
+
+	// HACK
+	const std::size_t totalWork = 100000000;
+	const float suppliedFraction = bitwise_cast<std::uint32_t, float>(m_suppliedFractionBits.load(std::memory_order_relaxed));
+	const float submittedFraction = std::max(bitwise_cast<std::uint32_t, float>(m_submittedFractionBits.load(std::memory_order_relaxed)), suppliedFraction);
+	const float workingFraction = submittedFraction - suppliedFraction;
+	const std::size_t workDone = static_cast<std::size_t>(totalWork * (suppliedFraction + workerProgress.getNormalizedProgress() * workingFraction));
+	RenderProgress totalProgress(totalWork, std::min(workDone, totalWork), workerProgress.getElapsedMs());
 
 	return totalProgress;
 }
