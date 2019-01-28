@@ -18,6 +18,7 @@
 #include <assert.h>
 #include <limits.h>
 #include <cmath>
+#include <unistd.h>
 
 constexpr int traversal_constant = 1;
 constexpr int intersection_constant = 80;
@@ -43,7 +44,7 @@ namespace ph
 class KDNode;
 class Voxel;
 inline std::vector<std::unique_ptr<KDNode>> nodes;
-//std::vector<std::unique_ptr<KDNode>> nodes;
+//inline std::vector<KDNode> nodes;
 //int nextFreeNode,nAllocatedNodes;
 /*
 class Vec3 {
@@ -200,7 +201,8 @@ class BoundEdge{
 		void setEdgeType(int in){
 			m_EdgeType = in;
 		}
-		int getEdgeType(){
+		int getEdgeType() const
+		{
 			PH_ASSERT_NE(m_EdgeType, -1);
 			return m_EdgeType;
 		}
@@ -226,7 +228,8 @@ class Plane{
 		void setNormal(int direction){
 			m_Normal = direction;
 		}
-		int getNormal(){
+		int getNormal() const
+		{
 			return ((m_Normal>>1) == 1)? 2 : m_Normal;
 		}
 
@@ -238,7 +241,8 @@ class Plane{
 		void set_d(float in_d){
 			m_d = in_d;
 		}
-		float get_d() {
+		float get_d() const
+		{
 			return m_d;
 		}
 };
@@ -289,6 +293,7 @@ class Triangle {
 				return std::make_tuple(temp2.z,temp1.z);
 			}
 			else{
+				puts("?");
 				exit(1);
 			}
 		}
@@ -399,6 +404,7 @@ class Triangles{
 		
 };
 
+
 class KDAccel {
 	public:
 		const PrimitiveMetadata *m_metadata;
@@ -407,15 +413,19 @@ class KDAccel {
     	{ 
 			m_metadata = metadata;
     	} 
-		void build_KD_tree(Triangles& T, const PrimitiveMetadata *metadata);
+		void build_KD_tree(Triangles const& T, const PrimitiveMetadata *metadata);
 };
 
 
 class KDNode : public Primitive{
 	public:
 		KDNode *left, *right;
-		Triangles m_Tprim;
-		Plane m_plane;
+		//Triangles m_Tprim;
+		union{
+			int m_triangle_indices_buf_index;
+			Plane m_plane;
+		};
+
    		KDNode(const PrimitiveMetadata* metadata): Primitive(metadata)
     	{ 
         	left = NULL; 
@@ -430,7 +440,7 @@ class KDNode : public Primitive{
 		bool isIntersectingVolumeConservative(const AABB3D& volume) const override;
 		void calcAABB(AABB3D* out_aabb) const override;
 		void exportObj();
-		void recBuild(const PrimitiveMetadata *metadata, Triangles& T, Voxel& V, int depth);
+		void recBuild(const PrimitiveMetadata *metadata, std::vector<int> const& Triangles_indices, Voxel const& V, int depth);
 };
 class Voxel{
 	public:
@@ -438,7 +448,8 @@ class Voxel{
 		Voxel(){
 
 		}
-		int LongestAxis(){	
+		int LongestAxis() const
+		{	
 			Vector3R temp = m_box.getMaxVertex() - m_box.getMinVertex();
 			PH_ASSERT_GE(temp.x, 0);
 			PH_ASSERT_GE(temp.y, 0);
