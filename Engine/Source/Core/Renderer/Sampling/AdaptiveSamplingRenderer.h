@@ -1,10 +1,13 @@
 #pragma once
 
 #include "Core/Renderer/Sampling/SamplingRenderer.h"
-#include "Core/Renderer/Region/WorkScheduler.h"
-#include "Core/Renderer/Region/WorkUnit.h"
+#include "Core/Renderer/Region/Region.h"
+#include "Common/primitive_type.h"
+#include "Core/Renderer/Region/GridScheduler.h"
 
 #include <memory>
+#include <queue>
+#include <cstddef>
 #include <vector>
 
 namespace ph
@@ -26,8 +29,20 @@ public:
 		float* out_submittedFraction) override;
 
 private:
-	std::unique_ptr<WorkScheduler> m_workScheduler;
-	std::vector<WorkUnit>          m_workUnits;
+	struct WorkingRegion
+	{
+		Region region;
+		uint32 numWorkers;
+	};
+
+	real m_splitThreshold;
+	real m_terminateThreshold;
+	std::size_t m_numPathsPerRegion;
+
+	std::vector<WorkingRegion> m_workingRegions;
+	std::vector<uint32> m_workerIdToWorkingRegion;
+	std::queue<Region> m_pendingRegions;
+	GridScheduler m_currentGrid;
 
 // command interface
 public:
