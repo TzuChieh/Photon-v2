@@ -3,6 +3,9 @@
 #include "Frame/TFrame.h"
 #include "Math/math.h"
 
+#include <cmath>
+#include <string>
+
 namespace ph
 {
 
@@ -18,7 +21,8 @@ DammertzAdaptiveDispatcher::DammertzAdaptiveDispatcher(
 	const std::size_t depthPerRegion) : 
 
 	m_pendingRegions(),
-	m_fullRegion(fullRegion)
+	m_fullRegion(fullRegion),
+	m_rcpNumRegionPixels(1.0_r / fullRegion.calcArea())
 {
 	m_terminateThreshold = precisionStandard * 0.0002_r;
 	m_splitThreshold = 256.0_r * m_terminateThreshold;
@@ -55,7 +59,47 @@ void DammertzAdaptiveDispatcher::analyzeFinishedRegion(
 	PH_ASSERT_LE(finishedRegion.getWidth(),  halfEffortFrame.widthPx());
 	PH_ASSERT_LE(finishedRegion.getHeight(), halfEffortFrame.heightPx());
 
-	// TODO
+	const TAABB2D<uint32> frameRegion(finishedRegion);
+
+	real regionError = 0.0_r;
+	for(uint32 y = frameRegion.minVertex.y; y < frameRegion.maxVertex.y; ++y)
+	{
+		for(uint32 x = frameRegion.minVertex.x; x < frameRegion.maxVertex.x; ++x)
+		{
+			HdrRgbFrame::Pixel I, A;
+			allEffortFrame.getPixel(x, y, &I);
+			halfEffortFrame.getPixel(x, y, &A);
+
+			const real numerator      = I.sub(A).abs().sum();
+			const real sumOfI         = I.sum();
+			const real rcpDenominator = sumOfI > 0 ? math::fast_rcp_sqrt(sumOfI) : 0;
+
+			regionError += numerator * rcpDenominator;
+		}
+	}
+	regionError *= std::sqrt(frameRegion.calcArea() * m_rcpNumRegionPixels);
+
+	PH_ASSERT_MSG(std::isfinite(regionError), std::to_string(regionError));
+
+	if(regionError >= m_splitThreshold)
+	{
+		// error is large, added for more effort
+		addPendingRegion(finishedRegion);
+	}
+	else if(regionError >= m_terminateThreshold)
+	{
+		// error is small, splitted and added for more effort
+		const int maxDimension = finishedRegion.getExtents().maxDimension();
+		const int64 midPoint = (finishedRegion.minVertex[maxDimension] + finishedRegion.maxVertex[maxDimension]) / 2;
+		const auto splittedRegion = finishedRegion.getSplitted(maxDimension, midPoint);
+		addPendingRegion(splittedRegion.first);
+		addPendingRegion(splittedRegion.second);
+	}
+	else
+	{
+		// error is very small, no further effort needed
+		// do nothing
+	}
 }
 
 }// end namespace ph

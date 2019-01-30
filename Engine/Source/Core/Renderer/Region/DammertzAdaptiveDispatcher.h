@@ -45,6 +45,19 @@ private:
 	std::size_t m_depthPerRegion;
 	std::queue<Region> m_pendingRegions;
 	Region m_fullRegion;
+	real m_rcpNumRegionPixels;
+
+	void addPendingRegion(const Region& region);
 };
+
+// In-header Implementations:
+
+inline void DammertzAdaptiveDispatcher::addPendingRegion(const Region& region)
+{
+	if(region.isArea())
+	{
+		m_pendingRegions.push(region);
+	}
+}
 
 }// end namespace ph

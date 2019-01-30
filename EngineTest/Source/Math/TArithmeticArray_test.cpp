@@ -39,3 +39,18 @@ TEST(TArithmeticArrayTest, FindsLargestElement)
 	array1[4] =  2.0f;
 	EXPECT_EQ(array1.max(), 9.9f);
 }
+
+TEST(TArithmeticArrayTest, PerElementAbsolute)
+{
+	ph::TArithmeticArray<float, 4> array1;
+	array1[0] = -1.0f;
+	array1[1] =  0.0f;
+	array1[2] =  2.0f;
+	array1[3] = -8.0f;
+
+	const ph::TArithmeticArray<float, 4> absArray1 = array1.abs();
+	EXPECT_EQ(absArray1[0], 1.0f);
+	EXPECT_EQ(absArray1[1], 0.0f);
+	EXPECT_EQ(absArray1[2], 2.0f);
+	EXPECT_EQ(absArray1[3], 8.0f);
+}

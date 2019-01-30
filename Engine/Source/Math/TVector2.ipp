@@ -186,6 +186,12 @@ inline TVector2<T> TVector2<T>::max(const TVector2& other) const
 }
 
 template<typename T>
+inline int TVector2<T>::maxDimension() const
+{
+	return x > y ? math::X_AXIS : math::Y_AXIS;
+}
+
+template<typename T>
 inline bool TVector2<T>::equals(const TVector2& other) const
 {
 	return x == other.x && y == other.y;
@@ -214,6 +220,14 @@ template<typename T>
 inline T TVector2<T>::product() const
 {
 	return x * y;
+}
+
+template<typename T>
+inline TVector2<T>& TVector2<T>::set(const int axis, const T value)
+{
+	operator [] (axis) = value;
+
+	return *this;
 }
 
 template<typename T>

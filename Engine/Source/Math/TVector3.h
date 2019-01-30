@@ -27,113 +27,113 @@ public:
 
 public:
 	inline TVector3() = default;
-	inline TVector3(T x, T y, T z);
-	inline explicit TVector3(T value);
+	TVector3(T x, T y, T z);
+	explicit TVector3(T value);
 	inline TVector3(const TVector3& other) = default;
 
 	template<typename U>
-	inline explicit TVector3(const TVector3<U>& other);
+	explicit TVector3(const TVector3<U>& other);
 
 	TVector3 rotate(const TQuaternion<T>& rotation) const;
 	void rotate(const TQuaternion<T>& rotation, TVector3* out_result) const;
 
-	inline T length() const;
-	inline T lengthSquared() const;
+	T length() const;
+	T lengthSquared() const;
 
-	inline T max() const;
-	inline T absMax() const;
-	inline TVector3 max(const TVector3& rhs) const;
-	inline TVector3& maxLocal(const TVector3& rhs);
-	inline TVector3 min(const TVector3& rhs) const;
-	inline TVector3& minLocal(const TVector3& rhs);
-	inline int maxDimension() const;
-	inline TVector3 abs() const;
-	inline TVector3& absLocal();
+	T max() const;
+	T absMax() const;
+	TVector3 max(const TVector3& rhs) const;
+	TVector3& maxLocal(const TVector3& rhs);
+	TVector3 min(const TVector3& rhs) const;
+	TVector3& minLocal(const TVector3& rhs);
+	int maxDimension() const;
+	TVector3 abs() const;
+	TVector3& absLocal();
 
-	inline T dot(const TVector3& rhs) const;
-	inline T dot(T rhs) const;
-	inline T dot(const T rhsX, const T rhsY, const T rhsZ) const;
-	inline T absDot(const TVector3& rhs) const;
+	T dot(const TVector3& rhs) const;
+	T dot(T rhs) const;
+	T dot(const T rhsX, const T rhsY, const T rhsZ) const;
+	T absDot(const TVector3& rhs) const;
 
-	inline TVector3 cross(const TVector3& rhs) const;
-	inline void cross(const TVector3& rhs, TVector3* out_result) const;
+	TVector3 cross(const TVector3& rhs) const;
+	void cross(const TVector3& rhs, TVector3* out_result) const;
 
 	// Notice that normalizing a integer typed vector is undefined behavior.
-	inline TVector3 normalize() const;
-	inline TVector3& normalizeLocal();
+	TVector3 normalize() const;
+	TVector3& normalizeLocal();
 
-	inline TVector3 add(const TVector3& rhs) const;
-	inline void add(const TVector3& rhs, TVector3* out_result) const;
-	inline TVector3 add(T rhs) const;
-	inline TVector3& addLocal(const TVector3& rhs);
-	inline TVector3& addLocal(T rhs);
-	inline TVector3& addLocal(const T rhsX, const T rhsY, const T rhsZ);
+	TVector3 add(const TVector3& rhs) const;
+	void add(const TVector3& rhs, TVector3* out_result) const;
+	TVector3 add(T rhs) const;
+	TVector3& addLocal(const TVector3& rhs);
+	TVector3& addLocal(T rhs);
+	TVector3& addLocal(const T rhsX, const T rhsY, const T rhsZ);
 
-	inline TVector3 sub(const TVector3& rhs) const;
-	inline TVector3 sub(T rhs) const;
-	inline void sub(const TVector3& var, TVector3* out_result) const;
-	inline TVector3& subLocal(const TVector3& rhs);
-	inline TVector3& subLocal(T rhs);
+	TVector3 sub(const TVector3& rhs) const;
+	TVector3 sub(T rhs) const;
+	void sub(const TVector3& var, TVector3* out_result) const;
+	TVector3& subLocal(const TVector3& rhs);
+	TVector3& subLocal(T rhs);
 
-	inline TVector3 mul(const TVector3& rhs) const;
-	inline void mul(const TVector3& rhs, TVector3* out_result) const;
-	inline TVector3 mul(T rhs) const;
-	inline void mul(T rhs, TVector3* out_result) const;
-	inline TVector3& mulLocal(T rhs);
-	inline TVector3& mulLocal(T rhsX, T rhsY, T rhsZ);
-	inline TVector3& mulLocal(const TVector3& rhs);
+	TVector3 mul(const TVector3& rhs) const;
+	void mul(const TVector3& rhs, TVector3* out_result) const;
+	TVector3 mul(T rhs) const;
+	void mul(T rhs, TVector3* out_result) const;
+	TVector3& mulLocal(T rhs);
+	TVector3& mulLocal(T rhsX, T rhsY, T rhsZ);
+	TVector3& mulLocal(const TVector3& rhs);
 	
-	inline TVector3 div(const TVector3& rhs) const;
-	inline TVector3& divLocal(const TVector3& rhs);
-	inline TVector3 div(T rhs) const;
-	inline TVector3& divLocal(T rhs);
+	TVector3 div(const TVector3& rhs) const;
+	TVector3& divLocal(const TVector3& rhs);
+	TVector3 div(T rhs) const;
+	TVector3& divLocal(T rhs);
 	
-	inline TVector3 complement() const;
-	inline TVector3& negateLocal();
-	inline TVector3 reciprocal() const;
-	inline TVector3& maddLocal(T multiplier, const TVector3& adder);
-	inline T avg() const;
-	inline TVector3 reflect(const TVector3& normal) const;
-	inline TVector3& reflectLocal(const TVector3& normal);
+	TVector3 complement() const;
+	TVector3& negateLocal();
+	TVector3 reciprocal() const;
+	TVector3& maddLocal(T multiplier, const TVector3& adder);
+	T avg() const;
+	TVector3 reflect(const TVector3& normal) const;
+	TVector3& reflectLocal(const TVector3& normal);
 
 	// TODO: supply clamp methods for NaN-safe and NaN-propagative versions
 
 	// Clamp current vector's components to specific range. If a component 
 	// is NaN, its value is clamped to lower bound. Either lower bound or 
 	// upper bound shall not be NaN, or the method's behavior is undefined.
-	inline TVector3 clamp(T lowerBound, T upperBound) const;
-	inline TVector3& clampLocal(T lowerBound, T upperBound);
+	TVector3 clamp(T lowerBound, T upperBound) const;
+	TVector3& clampLocal(T lowerBound, T upperBound);
 
 	// returned (x, y, z) = (min, mid, max)
-	inline void sort(TVector3* out_result) const;
+	void sort(TVector3* out_result) const;
 
-	inline TVector3& set(T rhsX, T rhsY, T rhsZ);
-	inline TVector3& set(T rhs);
-	inline TVector3& set(const TVector3& rhs);
-	inline void set(TVector3* const out_value) const;
-	inline TVector3& set(int axis, T value);
+	TVector3& set(T rhsX, T rhsY, T rhsZ);
+	TVector3& set(T rhs);
+	TVector3& set(const TVector3& rhs);
+	void set(TVector3* const out_value) const;
+	TVector3& set(int axis, T value);
 
-	inline bool equals(const TVector3& other) const;
-	inline bool equals(const TVector3& other, T margin) const;
-	inline bool isZero() const;
-	inline bool isNotZero() const;
-	inline bool hasNegativeComponent() const;
-	inline bool isFinite() const;
+	bool equals(const TVector3& other) const;
+	bool equals(const TVector3& other, T margin) const;
+	bool isZero() const;
+	bool isNotZero() const;
+	bool hasNegativeComponent() const;
+	bool isFinite() const;
 
-	inline std::string toString() const;
+	std::string toString() const;
 
-	inline T& operator [] (int axisIndex);
-	inline const T& operator [] (int axisIndex) const;
+	T& operator [] (int axisIndex);
+	const T& operator [] (int axisIndex) const;
 
-	inline TVector3 operator * (T rhs) const;
-	inline TVector3 operator / (T rhs) const;
-	inline TVector3 operator + (T rhs) const;
-	inline TVector3 operator + (const TVector3& rhs) const;
-	inline TVector3 operator - (T rhs) const;
-	inline TVector3 operator - (const TVector3& rhs) const;
+	TVector3 operator * (T rhs) const;
+	TVector3 operator / (T rhs) const;
+	TVector3 operator + (T rhs) const;
+	TVector3 operator + (const TVector3& rhs) const;
+	TVector3 operator - (T rhs) const;
+	TVector3 operator - (const TVector3& rhs) const;
 
-	inline bool operator == (const TVector3& rhs) const;
-	inline bool operator != (const TVector3& rhs) const;
+	bool operator == (const TVector3& rhs) const;
+	bool operator != (const TVector3& rhs) const;
 };
 
 template<typename T>

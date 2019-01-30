@@ -256,6 +256,17 @@ inline T TArithmeticArray<T, N>::max() const
 }
 
 template<typename T, std::size_t N>
+inline TArithmeticArray<T, N> TArithmeticArray<T, N>::abs() const
+{
+	TArithmeticArray result;
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		result[i] = std::abs(m[i]);
+	}
+	return result;
+}
+
+template<typename T, std::size_t N>
 inline TArithmeticArray<T, N> TArithmeticArray<T, N>::complement() const
 {
 	return TArithmeticArray(1).subLocal(*this);

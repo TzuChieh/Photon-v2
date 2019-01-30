@@ -55,6 +55,9 @@ public:
 
 	std::string toString() const;
 
+	// TODO: a variant with margins for floating types
+	bool equals(const TAABB3D& other) const;
+
 private:
 	TVector3<T> m_minVertex;
 	TVector3<T> m_maxVertex;

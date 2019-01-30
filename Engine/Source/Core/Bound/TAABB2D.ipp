@@ -1,6 +1,10 @@
 #pragma once
 
 #include "Core/Bound/TAABB2D.h"
+#include "Math/math.h"
+#include "Common/assertion.h"
+
+#include <string>
 
 namespace ph
 {
@@ -87,6 +91,16 @@ inline TVector2<T> TAABB2D<T>::calcCenter() const
 {
 	return TVector2<T>((minVertex.x + maxVertex.x) / 2, 
 	                   (minVertex.y + maxVertex.y) / 2);
+}
+
+template<typename T>
+inline std::pair<TAABB2D<T>, TAABB2D<T>> TAABB2D<T>::getSplitted(const int axis, const T splitPoint) const
+{
+	PH_ASSERT_MSG(axis == math::X_AXIS || axis == math::Y_AXIS, std::to_string(axis));
+	PH_ASSERT_IN_RANGE_INCLUSIVE(splitPoint, minVertex[axis], maxVertex[axis]);
+
+	return {TAABB2D(minVertex, TVector2<T>(maxVertex).set(axis, splitPoint)),
+	        TAABB2D(TVector2<T>(minVertex).set(axis, splitPoint), maxVertex)};
 }
 
 template<typename T>

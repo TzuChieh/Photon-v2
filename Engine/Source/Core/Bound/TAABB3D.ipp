@@ -357,4 +357,11 @@ std::string TAABB3D<T>::toString() const
 	return "min-vertex = " + m_minVertex.toString() + ", max-vertex = " + m_maxVertex.toString();
 }
 
+template<typename T>
+inline bool TAABB3D<T>::equals(const TAABB3D& other) const
+{
+	return this->m_minVertex.equals(other.m_minVertex) && 
+	       this->m_maxVertex.equals(other.m_maxVertex);
+}
+
 }// end namespace ph

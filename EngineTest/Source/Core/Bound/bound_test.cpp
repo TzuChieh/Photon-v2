@@ -58,22 +58,6 @@ TEST(BoundTest, IsAABB3DRepresentFiniteVolume)
 	EXPECT_FALSE(infiniteBounds2.isFiniteVolume());
 }
 
-TEST(BoundTest, SplittingAABB3D)
-{
-	const AABB3D bound1({-1, -1, -1}, {1, 1, 1});
-	const auto splittedBound1 = bound1.getSplitted(math::X_AXIS, 0);
-
-	EXPECT_TRUE(splittedBound1.first.getMinVertex() == bound1.getMinVertex());
-	EXPECT_EQ(splittedBound1.first.getMaxVertex().x, 0);
-	EXPECT_EQ(splittedBound1.first.getMaxVertex().y, bound1.getMaxVertex().y);
-	EXPECT_EQ(splittedBound1.first.getMaxVertex().z, bound1.getMaxVertex().z);
-
-	EXPECT_TRUE(splittedBound1.second.getMaxVertex() == bound1.getMaxVertex());
-	EXPECT_EQ(splittedBound1.second.getMinVertex().x, 0);
-	EXPECT_EQ(splittedBound1.second.getMinVertex().y, bound1.getMinVertex().y);
-	EXPECT_EQ(splittedBound1.second.getMinVertex().z, bound1.getMinVertex().z);
-}
-
 TEST(BoundTest, IntersectingTwoAABB2DsAsAreas)
 {
 	typedef TAABB2D<real> AABB2DR;
@@ -120,7 +104,7 @@ TEST(BoundTest, IntersectingAABB2DWithPoint)
 	EXPECT_FALSE(aabb3.isIntersectingArea(point3));
 }
 
-TEST(BoundTest, AABB2Dvalidity)
+TEST(BoundTest, AABB2DValidity)
 {
 	typedef TAABB2D<real> AABB2DR;
 
@@ -176,7 +160,7 @@ TEST(BoundTest, IntersectAABB2Ds)
 	EXPECT_NEAR(intersected.maxVertex.y, 1.0_r, TEST_REAL_EPSILON);
 }
 
-TEST(BoundTest, AABB2DcalculateAreas)
+TEST(BoundTest, AABB2DCalculateAreas)
 {
 	// trial 1
 
@@ -189,7 +173,7 @@ TEST(BoundTest, AABB2DcalculateAreas)
 	EXPECT_EQ(aabb2.calcArea(), 12);
 }
 
-TEST(BoundTest, AABB2Dequality)
+TEST(BoundTest, AABB2DEquality)
 {
 	const TAABB2D<int32> aabb1(TVector2<int32>(-1, -1), TVector2<int32>(1, 1));
 	const TAABB2D<int32> aabb2(TVector2<int32>(-1, -1), TVector2<int32>(1, 1));
@@ -199,7 +183,7 @@ TEST(BoundTest, AABB2Dequality)
 	EXPECT_FALSE(aabb1.equals(aabb3));
 }
 
-TEST(BoundTest, AABB2DcalculateCenter)
+TEST(BoundTest, AABB2DCalculateCenter)
 {
 	// trial 1
 
@@ -214,4 +198,35 @@ TEST(BoundTest, AABB2DcalculateCenter)
 	const auto& center2 = aabb2.calcCenter();
 	EXPECT_FLOAT_EQ(center2.x, (-2.0f + 1.0f) / 2.0f);
 	EXPECT_FLOAT_EQ(center2.y, (-1.0f + 1.0f) / 2.0f);
+}
+
+// TODO: more tests
+TEST(BoundTest, SplittingAABB2D)
+{
+	const TAABB2D<int> aabb1({0, 0}, {5, 5});
+	const auto splittedAabb1 = aabb1.getSplitted(math::Y_AXIS, 3);
+	EXPECT_TRUE(splittedAabb1.first.equals(TAABB2D<int>({0, 0}, {5, 3})));
+	EXPECT_TRUE(splittedAabb1.second.equals(TAABB2D<int>({0, 3}, {5, 5})));
+}
+
+// TODO: more tests
+TEST(BoundTest, SplittingAABB3D)
+{
+	const AABB3D aabb1({-1, -1, -1}, {1, 1, 1});
+	const auto splittedAabb1 = aabb1.getSplitted(math::X_AXIS, 0);
+
+	EXPECT_TRUE(splittedAabb1.first.getMinVertex() == aabb1.getMinVertex());
+	EXPECT_EQ(splittedAabb1.first.getMaxVertex().x, 0);
+	EXPECT_EQ(splittedAabb1.first.getMaxVertex().y, aabb1.getMaxVertex().y);
+	EXPECT_EQ(splittedAabb1.first.getMaxVertex().z, aabb1.getMaxVertex().z);
+
+	EXPECT_TRUE(splittedAabb1.second.getMaxVertex() == aabb1.getMaxVertex());
+	EXPECT_EQ(splittedAabb1.second.getMinVertex().x, 0);
+	EXPECT_EQ(splittedAabb1.second.getMinVertex().y, aabb1.getMinVertex().y);
+	EXPECT_EQ(splittedAabb1.second.getMinVertex().z, aabb1.getMinVertex().z);
+
+	const TAABB3D<int> aabb2({0, 0, 0}, {3, 3, 3});
+	const auto splittedAabb2 = aabb2.getSplitted(math::X_AXIS, 2);
+	EXPECT_TRUE(splittedAabb2.first.equals(TAABB3D<int>({0, 0, 0}, {2, 3, 3})));
+	EXPECT_TRUE(splittedAabb2.second.equals(TAABB3D<int>({2, 0, 0}, {3, 3, 3})));
 }

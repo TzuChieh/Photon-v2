@@ -55,6 +55,7 @@ public:
 	T sum() const;
 	T avg() const;
 	T max() const;
+	TArithmeticArray abs() const;
 	TArithmeticArray complement() const;
 	TArithmeticArray& complementLocal();
 

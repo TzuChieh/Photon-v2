@@ -4,6 +4,7 @@
 #include "Math/TVector2.h"
 
 #include <string>
+#include <utility>
 
 namespace ph
 {
@@ -36,11 +37,15 @@ public:
 	T getHeight() const;
 	TVector2<T> getExtents() const;
 	TVector2<T> calcCenter() const;
+	std::pair<TAABB2D, TAABB2D> getSplitted(int axis, T splitPoint) const;
 	bool isValid() const;
 	bool isPoint() const;
 	bool isArea() const;
-	bool equals(const TAABB2D& other) const;
+
 	std::string toString() const;
+
+	// TODO: a variant with margins for floating types
+	bool equals(const TAABB2D& other) const;
 };
 
 }// end namespace ph
