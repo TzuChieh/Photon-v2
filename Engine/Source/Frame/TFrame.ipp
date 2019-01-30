@@ -7,6 +7,8 @@
 #include "Math/math.h"
 
 #include <limits>
+#include <type_traits>
+#include <utility>
 
 namespace ph
 {
@@ -70,7 +72,8 @@ inline void TFrame<T, N>::sample(
 			filterMin = filterMin.max(Vector2D(0, 0));
 			filterMax = filterMax.min(Vector2D(widthPx(), heightPx()));
 
-			PH_ASSERT(filterMin.x <= filterMax.x && filterMin.y <= filterMax.y);
+			PH_ASSERT_LE(filterMin.x, filterMax.x);
+			PH_ASSERT_LE(filterMin.y, filterMax.y);
 
 			// compute pixel index bounds
 			TVector2<int64> x0y0(filterMin.sub(0.5).ceil());
@@ -161,15 +164,62 @@ inline void TFrame<T, N>::flipVertically()
 }
 
 template<typename T, std::size_t N>
-inline void TFrame<T, N>::forEachPixel(const std::function<Pixel(const Pixel& pixel)>& op)
+template<typename PerPixelOperation>
+inline void TFrame<T, N>::forEachPixel(const PerPixelOperation op)
 {
+	forEachPixel(TAABB2D<uint32>({0, 0}, {m_widthPx, m_heightPx}), op);
+}
+
+template<typename T, std::size_t N>
+template<typename PerPixelOperation>
+inline void TFrame<T, N>::forEachPixel(const PerPixelOperation op) const
+{
+	forEachPixel(TAABB2D<uint32>({0, 0}, {m_widthPx, m_heightPx}), op);
+}
+
+template<typename T, std::size_t N>
+template<typename PerPixelOperation>
+inline void TFrame<T, N>::forEachPixel(const TAABB2D<uint32>& region, const PerPixelOperation op)
+{
+	using Return = decltype(op(std::declval<Pixel>()));
+	static_assert(std::is_same_v<Return, void> || std::is_same_v<Return, Pixel>,
+		"PerPixelOperation must either returns nothing or a Pixel");
+
+	// OPT
+
 	Pixel pixel;
-	for(uint32 y = 0; y < m_heightPx; ++y)
+	for(uint32 y = region.minVertex.y; y < region.maxVertex.y; ++y)
 	{
-		for(uint32 x = 0; x < m_widthPx; ++x)
+		for(uint32 x = region.minVertex.x; x < region.maxVertex.x; ++x)
 		{
 			getPixel(x, y, &pixel);
-			setPixel(x, y, op(pixel));
+			
+			if constexpr(std::is_same_v<Return, void>)
+			{
+				// do nothing
+			}
+			else
+			{
+				setPixel(x, y, op(pixel));
+			}
+		}
+	}
+}
+
+template<typename T, std::size_t N>
+template<typename PerPixelOperation>
+inline void TFrame<T, N>::forEachPixel(const TAABB2D<uint32>& region, const PerPixelOperation op) const
+{
+	// OPT
+
+	Pixel pixel;
+	for(uint32 y = region.minVertex.y; y < region.maxVertex.y; ++y)
+	{
+		for(uint32 x = region.minVertex.x; x < region.maxVertex.x; ++x)
+		{
+			getPixel(x, y, &pixel);
+
+			op(pixel);
 		}
 	}
 }
@@ -180,13 +230,13 @@ inline auto TFrame<T, N>::getPixel(
 	Pixel* const out_pixel) const
 	-> void
 {
-	PH_ASSERT(out_pixel != nullptr);
+	PH_ASSERT(out_pixel);
 
 	const std::size_t baseIndex = calcPixelDataBaseIndex(x, y);
 
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		PH_ASSERT(baseIndex + i < m_pixelData.size());
+		PH_ASSERT_LT(baseIndex + i, m_pixelData.size());
 
 		(*out_pixel)[i] = m_pixelData[baseIndex + i];
 	}
@@ -201,7 +251,7 @@ inline auto TFrame<T, N>::setPixel(
 
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		PH_ASSERT(baseIndex + i < m_pixelData.size());
+		PH_ASSERT_LT(baseIndex + i, m_pixelData.size());
 
 		m_pixelData[baseIndex + i] = pixel[i];
 	}
@@ -219,7 +269,8 @@ inline auto TFrame<T, N>::calcPixelDataBaseIndex(
 	const uint32 x, const uint32 y) const
 	-> std::size_t
 {
-	PH_ASSERT(x < m_widthPx && y < m_heightPx);
+	PH_ASSERT_LT(x, m_widthPx);
+	PH_ASSERT_LT(y, m_heightPx);
 
 	return (y * static_cast<std::size_t>(m_widthPx) + x) * N;
 }

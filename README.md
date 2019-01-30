@@ -24,6 +24,8 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
 * [**Build from Source**](https://tzuchieh.github.io/core_engine_contributing_build_from_source.html)
 * [**Coding Standards**](https://tzuchieh.github.io/core_engine_contributing_coding_standard.html)
 
+If you want to get involved and is looking for a place to start, the [issues](https://github.com/TzuChieh/Photon-v2/issues) page might be of interest to you. I am glad to provide detailed guidance on any of them.
+
 ## Scene Description Language
 
 The scene description language (SDL) designed by T.C. Chang can be stored into a text file (.p2 filename extension) and loaded by Photon-v2 for rendering. To create a scene, you can either open up a text file and start writing right away (visit "./scenes/" for reference) or install the Blender addon (in "./BlenderAddon/"), which contains a .p2 file exporter and a material editor currently.

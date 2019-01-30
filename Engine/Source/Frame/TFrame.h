@@ -6,10 +6,10 @@
 #include "Math/Function/TMathFunction2D.h"
 #include "Math/TArithmeticArray.h"
 #include "Core/Texture/texture_fwd.h"
+#include "Core/Bound/TAABB2D.h"
 
 #include <vector>
 #include <cstddef>
-#include <functional>
 
 namespace ph
 {
@@ -30,33 +30,43 @@ public:
 	}
 
 public:
-	inline TFrame();
-	inline TFrame(uint32 wPx, uint32 hPx);
-	inline TFrame(const TFrame& other);
-	inline TFrame(TFrame&& other);
-	inline ~TFrame() = default;
+	TFrame();
+	TFrame(uint32 wPx, uint32 hPx);
+	TFrame(const TFrame& other);
+	TFrame(TFrame&& other);
+	~TFrame() = default;
 
-	inline void fill(T value);
+	void fill(T value);
 
 	// TODO: user specified clamping range?
 	// TODO: specify size instead of radius for finer control
-	inline void sample(
+	void sample(
 		TFrame& sampled, 
 		const TMathFunction2D<float64>& kernel, uint32 kernelRadiusPx) const;
 
-	inline void flipHorizontally();
-	inline void flipVertically();
+	void flipHorizontally();
+	void flipVertically();
 
-	inline void forEachPixel(const std::function<Pixel(const Pixel& pixel)>& op);
+	template<typename PerPixelOperation>
+	void forEachPixel(PerPixelOperation op);
+
+	template<typename PerPixelOperation>
+	void forEachPixel(PerPixelOperation op) const;
+
+	template<typename PerPixelOperation>
+	void forEachPixel(const TAABB2D<uint32>& region, PerPixelOperation op);
+
+	template<typename PerPixelOperation>
+	void forEachPixel(const TAABB2D<uint32>& region, PerPixelOperation op) const;
 
 	// TODO: sampling texture
 
-	inline void getPixel(uint32 x, uint32 y, Pixel* out_pixel) const;
-	inline void setPixel(uint32 x, uint32 y, const Pixel& pixel);
-	inline const T* getPixelData() const;
+	void getPixel(uint32 x, uint32 y, Pixel* out_pixel) const;
+	void setPixel(uint32 x, uint32 y, const Pixel& pixel);
+	const T* getPixelData() const;
 
-	inline TFrame& operator = (const TFrame& rhs);
-	inline TFrame& operator = (TFrame&& rhs);
+	TFrame& operator = (const TFrame& rhs);
+	TFrame& operator = (TFrame&& rhs);
 
 	inline uint32 widthPx() const
 	{
@@ -96,7 +106,7 @@ private:
 
 	std::vector<T> m_pixelData;
 
-	inline std::size_t calcPixelDataBaseIndex(uint32 x, uint32 y) const;
+	std::size_t calcPixelDataBaseIndex(uint32 x, uint32 y) const;
 };
 
 }// end namespace ph

@@ -20,10 +20,10 @@ class TMRSWResource : public INoncopyable
 {
 public:
 	template<typename = std::enable_if_t<std::is_copy_constructible_v<Resource>>>
-	explicit TMRSWResource(const Resource& resource);
+	TMRSWResource(const Resource& resource);
 
 	template<typename = std::enable_if_t<std::is_move_constructible_v<Resource>>>
-	explicit TMRSWResource(Resource&& resource);
+	TMRSWResource(Resource&& resource);
 
 	// Performs reading operations on the resource. It is guaranteed no 
 	// writing operations are ongoing in the meantime.

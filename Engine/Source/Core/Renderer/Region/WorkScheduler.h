@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Renderer/Region/IWorkDispatcher.h"
 #include "Core/Renderer/Region/WorkUnit.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
@@ -9,14 +10,15 @@
 namespace ph
 {
 
-class WorkScheduler
+class WorkScheduler : public IWorkDispatcher
 {
 public:
 	// A scheduler with no work load.
 	WorkScheduler();
 
 	WorkScheduler(std::size_t numWorkers, const WorkUnit& totalWorkUnit);
-	virtual ~WorkScheduler() = default;
+
+	bool dispatch(WorkUnit* out_workUnit) override;
 
 	// Schedules some amount of work. Returns true when non-zero amount of work
 	// has been scheduled; otherwise, no work has been scheduled and no more 
@@ -52,6 +54,11 @@ inline WorkScheduler::WorkScheduler(const std::size_t numWorkers, const WorkUnit
 	m_scheduledVolume(0),
 	m_submittedVolume(0)
 {}
+
+inline bool WorkScheduler::dispatch(WorkUnit* const out_workUnit)
+{
+	return schedule(out_workUnit);
+}
 
 inline bool WorkScheduler::schedule(WorkUnit* const out_workUnit)
 {

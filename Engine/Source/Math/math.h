@@ -283,16 +283,18 @@ inline float fast_rcp_sqrt(float x)
 
 	const float halvedInput = 0.5f * x;
 
-	std::uint32_t bits = bitwise_cast<float, std::uint32_t>(x);
-
 	// gives initial guess for later refinements
+	std::uint32_t bits = bitwise_cast<float, std::uint32_t>(x);
 	bits = 0x5F375A86 - (bits >> 1);
-
 	x = bitwise_cast<std::uint32_t, float>(bits);
 
 	// Newton's method, each iteration increases accuracy.
-	x = x * (1.5f - halvedInput * x * x);// iteration 1, max. relative error = 0.175%
-	//x = x * (1.5f - halvedInput * x * x);// iteration 2, disabled since <x> is already good enough
+
+	// iteration 1, max. relative error < 0.175125%
+	x = x * (1.5f - halvedInput * x * x);
+
+	// iteration 2, disabled since <x> is already good enough
+	//x = x * (1.5f - halvedInput * x * x);
 
 	return x;
 }
