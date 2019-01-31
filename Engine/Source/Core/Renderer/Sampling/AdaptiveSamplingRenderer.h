@@ -6,14 +6,18 @@
 #include "Core/Renderer/Region/DammertzAdaptiveDispatcher.h"
 #include "Core/Renderer/Region/GridScheduler.h"
 #include "Core/Renderer/Sampling/SamplingRenderWork.h"
+#include "Frame/TFrame.h"
 
 #include <memory>
 #include <queue>
 #include <cstddef>
 #include <vector>
+#include <functional>
 
 namespace ph
 {
+
+class FixedSizeThreadPool;
 
 class AdaptiveSamplingRenderer : public SamplingRenderer, public TCommandInterface<AdaptiveSamplingRenderer>
 {
@@ -48,6 +52,8 @@ private:
 	real m_precisionStandard;
 	std::size_t m_numPathsPerRegion;
 	GridScheduler m_currentGrid;
+	HdrRgbFrame m_allEffortFrame;
+	HdrRgbFrame m_halfEffortFrame;
 
 	struct UpdatedRegion
 	{
@@ -61,9 +67,13 @@ private:
 	std::atomic_uint32_t m_suppliedFractionBits;
 	std::atomic_uint32_t m_submittedFractionBits;
 
+	std::vector<uint32> m_stoppedWorkers;
+
 	void clearWorkData();
 	void mergeWorkFilms(SamplingFilmSet& films);
 	void addUpdatedRegion(const Region& region, bool isUpdating);
+
+	std::function<void()> createWork(FixedSizeThreadPool& workers, uint32 workerId);
 
 // command interface
 public:

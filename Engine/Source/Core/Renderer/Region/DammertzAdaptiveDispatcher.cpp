@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <string>
+#include <iostream>
 
 namespace ph
 {
@@ -77,14 +78,19 @@ void DammertzAdaptiveDispatcher::analyzeFinishedRegion(
 			regionError += numerator * rcpDenominator;
 		}
 	}
+	regionError /= frameRegion.calcArea();
 	regionError *= std::sqrt(frameRegion.calcArea() * m_rcpNumRegionPixels);
 
 	PH_ASSERT_MSG(std::isfinite(regionError), std::to_string(regionError));
+
+	std::cerr << "region = " << frameRegion.toString() << "error = " << regionError << std::endl;
 
 	if(regionError >= m_splitThreshold)
 	{
 		// error is large, added for more effort
 		addPendingRegion(finishedRegion);
+
+		std::cerr << "too large, split = " << m_splitThreshold << std::endl;
 	}
 	else if(regionError >= m_terminateThreshold)
 	{
@@ -94,11 +100,15 @@ void DammertzAdaptiveDispatcher::analyzeFinishedRegion(
 		const auto splittedRegion = finishedRegion.getSplitted(maxDimension, midPoint);
 		addPendingRegion(splittedRegion.first);
 		addPendingRegion(splittedRegion.second);
+
+		std::cerr << "small, terminate = " << m_terminateThreshold << std::endl;
 	}
 	else
 	{
 		// error is very small, no further effort needed
 		// do nothing
+
+		std::cerr << "very small, terminated" << std::endl;
 	}
 }
 

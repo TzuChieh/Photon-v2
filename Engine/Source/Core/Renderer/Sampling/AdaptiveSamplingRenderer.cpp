@@ -73,79 +73,97 @@ void AdaptiveSamplingRenderer::doUpdate(const SdlResourcePack& data)
 		m_precisionStandard,
 		m_numPathsPerRegion);
 
-	m_currentGrid = GridScheduler(
-		numWorkers(),
-		WorkUnit(getRenderWindowPx(), m_numPathsPerRegion),
-		Vector2S(4, 4));
+	m_currentGrid = GridScheduler();
+
+	m_allEffortFrame = HdrRgbFrame(getRenderWidthPx(), getRenderHeightPx());
+	m_halfEffortFrame = HdrRgbFrame(getRenderWidthPx(), getRenderHeightPx());
+
+	m_stoppedWorkers.clear();
 }
 
 void AdaptiveSamplingRenderer::doRender()
 {
 	FixedSizeThreadPool workers(numWorkers());
 
-	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
+	while(true)
 	{
-		workers.queueWork([this, workerId, &workers]()
+		WorkUnit workUnit;
 		{
-			SamplingRenderWork& renderWork = m_renderWorks[workerId];
+			std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-			float suppliedFraction = 0.0f;
-			float submittedFraction = 0.0f;
-			while(true)
+			if(!m_dispatcher.dispatch(&workUnit))
 			{
-				{
-					std::lock_guard<std::mutex> lock(m_rendererMutex);
-
-					WorkUnit workUnit;
-					if(!m_currentGrid.schedule(&workUnit))
-					{
-						if(!m_dispatcher.dispatch(&workUnit))
-						{
-							return false;
-						}
-
-						m_currentGrid = GridScheduler(
-							numWorkers(),
-							workUnit,
-							Vector2S(4, 4));
-
-						m_currentGrid.schedule(&workUnit);
-					}
-					PH_ASSERT_GT(workUnit.getVolume(), 0);
-
-					const std::size_t spp = workUnit.getDepth();
-
-					// HACK
-					renderWork.setFilms(m_films.genChild(workUnit.getRegion()));
-
-					renderWork.setSampleGenerator(m_sampleGenerator->genCopied(spp));
-					renderWork.setRequestedAttributes(supportedAttributes());
-					renderWork.setDomainPx(workUnit.getRegion());
-				}
-
-				m_suppliedFractionBits.store(
-					bitwise_cast<float, std::uint32_t>(suppliedFraction),
-					std::memory_order_relaxed);
-
-				renderWork.work();
-
-				{
-					std::lock_guard<std::mutex> lock(m_rendererMutex);
-
-					/*m_workScheduler->submit(m_workUnits[workerId]);
-					*out_submittedFraction = m_workScheduler->getSubmittedFraction();*/
-				}
-
-				m_submittedFractionBits.store(
-					bitwise_cast<float, std::uint32_t>(submittedFraction),
-					std::memory_order_relaxed);
-
-				m_totalPaths.fetch_add(renderWork.asyncGetStatistics().numSamplesTaken, std::memory_order_relaxed);
+				break;
 			}
-		});
-	}
 
-	workers.waitAllWorks();
+			m_currentGrid = GridScheduler(
+				numWorkers(),
+				workUnit,
+				Vector2S(4, 4));
+		}
+		
+		for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
+		{
+			workers.queueWork(createWork(workers, workerId));
+		}
+
+		workers.waitAllWorks();
+
+		// HACK: assumed region independency; peek is inaccurate
+		m_films.get(EAttribute::LIGHT_ENERGY)->develop(m_allEffortFrame, workUnit.getRegion());
+		m_films.get(EAttribute::LIGHT_ENERGY_HALF_EFFORT)->develop(m_halfEffortFrame, workUnit.getRegion());
+
+		{
+			std::lock_guard<std::mutex> lock(m_rendererMutex);
+
+			m_dispatcher.analyzeFinishedRegion(workUnit.getRegion(), m_allEffortFrame, m_halfEffortFrame);
+		}
+	}
+}
+
+std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& workers, uint32 workerId)
+{
+	return [this, workerId, &workers]()
+	{
+		SamplingRenderWork& renderWork = m_renderWorks[workerId];
+
+		float suppliedFraction = 0.0f;
+		float submittedFraction = 0.0f;
+		while(true)
+		{
+			WorkUnit workUnit;
+			{
+				std::lock_guard<std::mutex> lock(m_rendererMutex);
+
+				if(!m_currentGrid.schedule(&workUnit))
+				{
+					break;
+				}
+				PH_ASSERT_GT(workUnit.getVolume(), 0);
+
+				const std::size_t spp = workUnit.getDepth();
+
+				// HACK
+				renderWork.setFilms(m_films.genChild(workUnit.getRegion()));
+
+				renderWork.setSampleGenerator(m_sampleGenerator->genCopied(spp));
+				renderWork.setRequestedAttributes(supportedAttributes());
+				renderWork.setDomainPx(workUnit.getRegion());
+			}
+
+			m_suppliedFractionBits.store(
+				bitwise_cast<float, std::uint32_t>(suppliedFraction),
+				std::memory_order_relaxed);
+
+			renderWork.work();
+
+			m_submittedFractionBits.store(
+				bitwise_cast<float, std::uint32_t>(submittedFraction),
+				std::memory_order_relaxed);
+
+			m_totalPaths.fetch_add(renderWork.asyncGetStatistics().numSamplesTaken, std::memory_order_relaxed);
+		}
+	};
 }
 
 void AdaptiveSamplingRenderer::asyncUpdateFilm(SamplingFilmSet& workerFilms, bool isUpdating)
@@ -224,14 +242,19 @@ void AdaptiveSamplingRenderer::asyncDevelop(HdrRgbFrame& out_frame, EAttribute a
 
 void AdaptiveSamplingRenderer::mergeWorkFilms(SamplingFilmSet& workerFilms)
 {
+	// HACK
+
 	const auto& lightFilm = workerFilms.get<EAttribute::LIGHT_ENERGY>();
 	lightFilm->mergeToParent();
 	lightFilm->clear();
-
-	// HACK
+	
 	const auto& normalFilm = workerFilms.get<EAttribute::NORMAL>();
 	normalFilm->mergeToParent();
 	normalFilm->clear();
+
+	const auto& halfEffortFilm = workerFilms.get<EAttribute::LIGHT_ENERGY_HALF_EFFORT>();
+	halfEffortFilm->mergeToParent();
+	halfEffortFilm->clear();
 }
 
 void AdaptiveSamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)
@@ -370,7 +393,9 @@ AdaptiveSamplingRenderer::AdaptiveSamplingRenderer(const InputPacket& packet) :
 
 	PH_ASSERT(m_estimator);
 
+	// DEBUG
 	m_precisionStandard = packet.getReal("precision-standard", 1.0_r);
+	//m_precisionStandard = packet.getReal("precision-standard", 10.0_r);
 	m_numPathsPerRegion = packet.getInteger("paths-per-region", 4);
 }
 

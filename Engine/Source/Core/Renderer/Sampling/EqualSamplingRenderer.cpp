@@ -73,7 +73,7 @@ void EqualSamplingRenderer::doRender()
 
 	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
 	{
-		workers.queueWork([this, workerId, &workers]()
+		workers.queueWork([this, workerId]()
 		{
 			SamplingRenderWork& renderWork = m_renderWorks[workerId];
 
