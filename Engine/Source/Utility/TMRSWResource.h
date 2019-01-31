@@ -6,6 +6,7 @@
 #include <utility>
 #include <mutex>
 #include <shared_mutex>
+#include <iostream>
 
 namespace ph
 {
@@ -14,16 +15,18 @@ namespace ph
 	A resource wrapper that facilitates Multiple-Readers Single-Writer (MRSW)
 	usages. Concurrent access is allowed for read-only operations, while 
 	write operations are performed only when exclusive access is aquired.
+
+	// TODO: convenient getter and setter
 */
 template<typename Resource>
 class TMRSWResource : public INoncopyable
 {
 public:
-	template<typename = std::enable_if_t<std::is_copy_constructible_v<Resource>>>
-	TMRSWResource(const Resource& resource);
+	template<typename Res = Resource, typename = std::enable_if_t<std::is_copy_constructible_v<Res>>>
+	explicit TMRSWResource(const Res& resource);
 
-	template<typename = std::enable_if_t<std::is_move_constructible_v<Resource>>>
-	TMRSWResource(Resource&& resource);
+	template<typename Res = Resource, typename = std::enable_if_t<std::is_move_constructible_v<Res>>>
+	explicit TMRSWResource(Res&& resource);
 
 	// Performs reading operations on the resource. It is guaranteed no 
 	// writing operations are ongoing in the meantime.
@@ -58,16 +61,20 @@ private:
 // In-header Implementations:
 
 template<typename Resource>
-template<typename>
-inline TMRSWResource<Resource>::TMRSWResource(const Resource& resource) : 
+template<typename Res, typename>
+inline TMRSWResource<Resource>::TMRSWResource(const Res& resource) :
 	m_mutex(), m_resource(resource)
-{}
+{
+	std::cerr << "copied" << std::endl;
+}
 
 template<typename Resource>
-template<typename>
-inline TMRSWResource<Resource>::TMRSWResource(Resource&& resource) : 
+template<typename Res, typename>
+inline TMRSWResource<Resource>::TMRSWResource(Res&& resource) :
 	m_mutex(), m_resource(std::move(resource))
-{}
+{
+	std::cerr << "moved" << std::endl;
+}
 
 template<typename Resource>
 template<typename Reader>
