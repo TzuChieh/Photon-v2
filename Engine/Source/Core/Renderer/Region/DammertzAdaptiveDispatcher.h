@@ -26,6 +26,7 @@ namespace ph
 class DammertzAdaptiveDispatcher : public IWorkDispatcher
 {
 public:
+	DammertzAdaptiveDispatcher() = default;
 	explicit DammertzAdaptiveDispatcher(const Region& fullRegion);
 	DammertzAdaptiveDispatcher(
 		const Region& fullRegion, 

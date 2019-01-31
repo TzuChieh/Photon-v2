@@ -3,7 +3,9 @@
 #include "Core/Renderer/Sampling/SamplingRenderer.h"
 #include "Core/Renderer/Region/Region.h"
 #include "Common/primitive_type.h"
+#include "Core/Renderer/Region/DammertzAdaptiveDispatcher.h"
 #include "Core/Renderer/Region/GridScheduler.h"
+#include "Core/Renderer/Sampling/SamplingRenderWork.h"
 
 #include <memory>
 #include <queue>
@@ -17,32 +19,51 @@ class AdaptiveSamplingRenderer : public SamplingRenderer, public TCommandInterfa
 {
 public:
 	void doUpdate(const SdlResourcePack& data) override;
+	void doRender() override;
+	void develop(HdrRgbFrame& out_frame, EAttribute attribute) override;
 
-	bool supplyWork(
-		uint32 workerId,
-		SamplingRenderWork& work,
-		float* out_suppliedFraction) override;
+	ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;
+	RenderState asyncQueryRenderState() override;
+	RenderProgress asyncQueryRenderProgress() override;
+	void asyncPeekRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute) override;
 
-	void submitWork(
-		uint32 workerId,
-		SamplingRenderWork& work,
-		float* out_submittedFraction) override;
+	AttributeTags supportedAttributes() const override;
+	std::string renderStateName(RenderState::EType type, std::size_t index) const override;
+
+	// FIXME: these APIs are somewhat hacked and should be revisited
+	void asyncUpdateFilm(SamplingFilmSet& workerFilms, bool isUpdating);
+	void asyncDevelop(HdrRgbFrame& out_frame, EAttribute attribute);
 
 private:
-	struct WorkingRegion
+	const Scene*               m_scene;
+	const Camera*              m_camera;
+	SampleGenerator*           m_sampleGenerator;
+	std::unique_ptr<Estimator> m_estimator;
+	SampleFilter               m_filter;
+	SamplingFilmSet            m_films;
+	AttributeTags              m_requestedAttributes;
+	std::vector<SamplingRenderWork> m_renderWorks;
+
+	DammertzAdaptiveDispatcher m_dispatcher;
+	real m_precisionStandard;
+	std::size_t m_numPathsPerRegion;
+	GridScheduler m_currentGrid;
+
+	struct UpdatedRegion
 	{
 		Region region;
-		uint32 numWorkers;
+		bool   isFinished;
 	};
+	std::deque<UpdatedRegion> m_updatedRegions;
 
-	real m_splitThreshold;
-	real m_terminateThreshold;
-	std::size_t m_numPathsPerRegion;
+	std::mutex           m_rendererMutex;
+	std::atomic_uint64_t m_totalPaths;
+	std::atomic_uint32_t m_suppliedFractionBits;
+	std::atomic_uint32_t m_submittedFractionBits;
 
-	std::vector<WorkingRegion> m_workingRegions;
-	std::vector<uint32> m_workerIdToWorkingRegion;
-	std::queue<Region> m_pendingRegions;
-	GridScheduler m_currentGrid;
+	void clearWorkData();
+	void mergeWorkFilms(SamplingFilmSet& films);
+	void addUpdatedRegion(const Region& region, bool isUpdating);
 
 // command interface
 public:

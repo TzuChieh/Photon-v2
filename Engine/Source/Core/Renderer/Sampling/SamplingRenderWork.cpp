@@ -57,6 +57,7 @@ void SamplingRenderWork::doWork()
 	Timer sampleTimer;
 
 	std::uint32_t totalMs = 0;
+	std::size_t batchNumber = 0;
 	while(m_sampleGenerator->prepareSampleBatch())
 	{
 		sampleTimer.start();
@@ -90,6 +91,15 @@ void SamplingRenderWork::doWork()
 			{
 				m_films.get<EAttribute::NORMAL>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::NORMAL>());
 			}
+
+			if(m_films.get<EAttribute::LIGHT_ENERGY_HALF_EFFORT>())
+			{
+				if(batchNumber % 2 == 0)
+				{
+					m_films.get<EAttribute::LIGHT_ENERGY_HALF_EFFORT>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
+				}
+			}
+			
 		}// end for
 
 		const bool isUpdating = m_sampleGenerator->hasMoreBatches();
@@ -101,6 +111,8 @@ void SamplingRenderWork::doWork()
 		setElapsedMs(totalMs);
 
 		m_numSamplesTaken += static_cast<uint32>(camSamples.numSamples());
+
+		++batchNumber;
 	}
 }
 
