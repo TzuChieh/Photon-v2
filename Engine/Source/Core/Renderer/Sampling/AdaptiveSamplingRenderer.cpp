@@ -99,7 +99,7 @@ void AdaptiveSamplingRenderer::doRender()
 			m_currentGrid = GridScheduler(
 				numWorkers(),
 				workUnit,
-				Vector2S(4, 4));
+				Vector2S(2, 2));
 		}
 		
 		for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
@@ -269,7 +269,7 @@ void AdaptiveSamplingRenderer::addUpdatedRegion(const Region& region, const bool
 		}
 	}
 
-	m_updatedRegions.push_back(UpdatedRegion{ region, !isUpdating });
+	m_updatedRegions.push_back(UpdatedRegion{region, !isUpdating});
 }
 
 RenderState AdaptiveSamplingRenderer::asyncQueryRenderState()
@@ -394,9 +394,9 @@ AdaptiveSamplingRenderer::AdaptiveSamplingRenderer(const InputPacket& packet) :
 	PH_ASSERT(m_estimator);
 
 	// DEBUG
-	m_precisionStandard = packet.getReal("precision-standard", 1.0_r);
-	//m_precisionStandard = packet.getReal("precision-standard", 10.0_r);
-	m_numPathsPerRegion = packet.getInteger("paths-per-region", 4);
+	//m_precisionStandard = packet.getReal("precision-standard", 1.0_r);
+	m_precisionStandard = packet.getReal("precision-standard", 8.0_r);
+	m_numPathsPerRegion = packet.getInteger("paths-per-region", 16);
 }
 
 SdlTypeInfo AdaptiveSamplingRenderer::ciTypeInfo()

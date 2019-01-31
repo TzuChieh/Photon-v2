@@ -13,7 +13,7 @@ namespace ph
 DammertzAdaptiveDispatcher::DammertzAdaptiveDispatcher(
 	const Region& fullRegion) :
 
-	DammertzAdaptiveDispatcher(fullRegion, 1.0_r, 4)
+	DammertzAdaptiveDispatcher(fullRegion, 1.0_r, 16)
 {}
 
 DammertzAdaptiveDispatcher::DammertzAdaptiveDispatcher(
@@ -94,14 +94,25 @@ void DammertzAdaptiveDispatcher::analyzeFinishedRegion(
 	}
 	else if(regionError >= m_terminateThreshold)
 	{
-		// error is small, splitted and added for more effort
-		const int maxDimension = finishedRegion.getExtents().maxDimension();
-		const int64 midPoint = (finishedRegion.minVertex[maxDimension] + finishedRegion.maxVertex[maxDimension]) / 2;
-		const auto splittedRegion = finishedRegion.getSplitted(maxDimension, midPoint);
-		addPendingRegion(splittedRegion.first);
-		addPendingRegion(splittedRegion.second);
+		// TODO: split on the point that minimizes the difference of error across two splitted regions
 
-		std::cerr << "small, terminate = " << m_terminateThreshold << std::endl;
+		if(finishedRegion.calcArea() >= 1024)
+		{
+			// error is small, splitted and added for more effort
+			const int maxDimension = finishedRegion.getExtents().maxDimension();
+			const int64 midPoint = (finishedRegion.minVertex[maxDimension] + finishedRegion.maxVertex[maxDimension]) / 2;
+			const auto splittedRegion = finishedRegion.getSplitted(maxDimension, midPoint);
+			addPendingRegion(splittedRegion.first);
+			addPendingRegion(splittedRegion.second);
+
+			std::cerr << "small, splitted, terminate = " << m_terminateThreshold << std::endl;
+		}
+		else
+		{
+			addPendingRegion(finishedRegion);
+
+			std::cerr << "small, region too small, not splitted, terminate = " << m_terminateThreshold << std::endl;
+		}
 	}
 	else
 	{
@@ -110,6 +121,8 @@ void DammertzAdaptiveDispatcher::analyzeFinishedRegion(
 
 		std::cerr << "very small, terminated" << std::endl;
 	}
+
+	std::cerr << "# regions = " << m_pendingRegions.size() << std::endl;
 }
 
 }// end namespace ph

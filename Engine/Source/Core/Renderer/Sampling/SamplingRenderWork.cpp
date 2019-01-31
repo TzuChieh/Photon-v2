@@ -87,7 +87,7 @@ void SamplingRenderWork::doWork()
 				m_films.get<EAttribute::LIGHT_ENERGY>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
 			}
 			
-			if(m_films.get<EAttribute::LIGHT_ENERGY>())
+			if(m_films.get<EAttribute::NORMAL>())
 			{
 				m_films.get<EAttribute::NORMAL>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::NORMAL>());
 			}
