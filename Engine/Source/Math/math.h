@@ -299,6 +299,18 @@ inline float fast_rcp_sqrt(float x)
 	return x;
 }
 
+template<typename Integer, typename = std::enable_if_t<std::is_integral_v<Integer>>>
+inline Integer ceil_div_positive(const Integer numerator, const Integer denominator)
+{
+	PH_ASSERT_GE(numerator,   0);
+	PH_ASSERT_GT(denominator, 0);
+
+	// check for possible overflow when doing <numerator>+<denominator>
+	PH_ASSERT_GE(std::numeric_limits<Integer>::max() - numerator, denominator);
+
+	return (numerator + denominator - 1) / denominator;
+}
+
 }// end namespace math
 
 }// end namespace ph

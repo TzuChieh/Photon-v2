@@ -10,7 +10,8 @@ namespace ph
 {
 
 /*
-	Slice work region into rectangles, each region has complete depth.
+	Slice work region into rectangular cells with similar dimensions, each 
+	region has complete depth.
 */
 class GridScheduler : public WorkScheduler
 {
@@ -54,7 +55,7 @@ inline GridScheduler::GridScheduler() :
 
 inline GridScheduler::GridScheduler(
 	const std::size_t numWorkers,
-	const WorkUnit& totalWorkUnit,
+	const WorkUnit&   totalWorkUnit,
 	const Vector2S&   numCells) :
 
 	GridScheduler(
@@ -74,9 +75,9 @@ inline GridScheduler::GridScheduler(
 
 	WorkScheduler(numWorkers, totalWorkUnit),
 
-	m_numCells(numCells),
-	m_origin(origin),
-	m_prioriAxis(prioriAxis),
+	m_numCells   (numCells),
+	m_origin     (origin),
+	m_prioriAxis (prioriAxis),
 	m_currentCell(0, 0)
 {}
 

@@ -23,6 +23,7 @@
 #include "Utility/FixedSizeThreadPool.h"
 #include "Utility/utility.h"
 #include "Core/Renderer/Region/SpiralGridScheduler.h"
+#include "Core/Renderer/Region/TileScheduler.h"
 
 #include <cmath>
 #include <iostream>
@@ -65,6 +66,11 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 		numWorkers(),
 		WorkUnit(Region(getRenderWindowPx()), m_sampleGenerator->numSampleBatches()),
 		50);
+
+	/*m_scheduler = std::make_unique<TileScheduler>(
+		numWorkers(),
+		WorkUnit(Region(getRenderWindowPx()), m_sampleGenerator->numSampleBatches()),
+		Vector2S(10, 50));*/
 }
 
 void EqualSamplingRenderer::doRender()

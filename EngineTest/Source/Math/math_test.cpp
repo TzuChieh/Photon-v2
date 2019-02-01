@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 #include <limits>
+#include <cstdint>
 
 TEST(MathTest, AngleUnitConversion)
 {
@@ -254,4 +255,23 @@ TEST(MathTest, FastReciprocalSqrt)
 		// current implementation should have < 0.175125% max. relative error
 		EXPECT_LT(relativeError * 100.0, 0.175125);
 	}
+}
+
+TEST(MathTest, CeiledPositiveIntegerDivision)
+{
+	using namespace ph::math;
+
+	EXPECT_EQ(ceil_div_positive(3, 3),   1);
+	EXPECT_EQ(ceil_div_positive(5, 3),   2);
+	EXPECT_EQ(ceil_div_positive(5, 2),   3);
+	EXPECT_EQ(ceil_div_positive(0, 3),   0);
+	EXPECT_EQ(ceil_div_positive(12, 11), 2);
+	EXPECT_EQ(ceil_div_positive(10, 11), 1);
+
+	const std::uint32_t x1 = std::numeric_limits<std::uint32_t>::max() / 2;
+	const std::uint32_t x2 = x1;
+	EXPECT_EQ(ceil_div_positive(x1, x2), 1);
+	EXPECT_EQ(ceil_div_positive(x1 + 1, x2), 2);
+	EXPECT_EQ(ceil_div_positive(x1 - 1, x2), 1);
+	EXPECT_EQ(ceil_div_positive(x1, x2 - 1), 2);
 }
