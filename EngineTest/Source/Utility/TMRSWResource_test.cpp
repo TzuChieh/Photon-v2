@@ -9,19 +9,20 @@
 
 TEST(TMRSWResourceTest, ResourceCopyAndMoveInit)
 {
-	struct TestStruct
-	{
-		int a;
-		float b;
-		double c;
-	};
+	struct Test
+	{};
 
-	TestStruct testStruct;
-	ph::TMRSWResource<TestStruct> copiedResource1(testStruct);
-	ph::TMRSWResource<TestStruct> movedResource1(std::move(testStruct));
+	Test testObj;
+	ph::TMRSWResource<Test> copiedResource1(testObj);
+	ph::TMRSWResource<Test> movedResource1(std::move(testObj));
 
-	auto testUniquePtr = std::make_unique<TestStruct>();
-	ph::TMRSWResource<std::unique_ptr<TestStruct>> movedResource2(std::move(testUniquePtr));
+	auto testUniquePtr = std::make_unique<Test>();
+	ph::TMRSWResource<std::unique_ptr<Test>> movedResource2(std::move(testUniquePtr));
+	EXPECT_FALSE(testUniquePtr);
+
+	auto testSharedPtr = std::make_shared<Test>();
+	ph::TMRSWResource<std::shared_ptr<Test>> copiedResource2(testSharedPtr);
+	EXPECT_TRUE(testSharedPtr);
 }
 
 TEST(TMRSWResourceTest, ExclusivelyUseResource)
@@ -58,25 +59,20 @@ TEST(TMRSWResourceTest, ExclusivelyUseResource)
 
 TEST(TMRSWResourceTest, DirectlyUseResource)
 {
-	/*int number1 = 3;	
+	int number1 = 3;	
 	ph::TMRSWResource<int*> resource1(&number1);
 	resource1.directCall([](int* number)
 	{
 		*number = 7;
 	});
-	EXPECT_EQ(number1, 7);*/
+	EXPECT_EQ(number1, 7);
 
 	auto number2 = std::make_shared<float>(-9.0f);
-	//auto b = number2;
-	
 	ph::TMRSWResource<std::shared_ptr<float>> resource2(number2);
 	resource2.directCall([](std::shared_ptr<float>& number)
 	{
 		(*number) += 10.0f;
 	});
-	//std::cerr << *b << std::endl;
-	//std::cerr << *number2 << std::endl;
-	//bool a = *number2 == 1.0f;
-
+	ASSERT_TRUE(number2);
 	EXPECT_EQ(*number2, 1.0f);
 }

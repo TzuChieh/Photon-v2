@@ -22,10 +22,7 @@ template<typename Resource>
 class TMRSWResource : public INoncopyable
 {
 public:
-	template<typename Res = Resource, typename = std::enable_if_t<std::is_copy_constructible_v<Res>>>
-	explicit TMRSWResource(const Res& resource);
-
-	template<typename Res = Resource, typename = std::enable_if_t<std::is_move_constructible_v<Res>>>
+	template<typename Res>
 	explicit TMRSWResource(Res&& resource);
 
 	// Performs reading operations on the resource. It is guaranteed no 
@@ -56,25 +53,33 @@ public:
 private:
 	mutable std::shared_mutex m_mutex;
 	Resource                  m_resource;
+
+	template<typename Res>
+	explicit TMRSWResource(Res&& resource, std::true_type isReference);
+
+	template<typename Res>
+	explicit TMRSWResource(Res&& resource, std::false_type isReference);
 };
 
 // In-header Implementations:
 
 template<typename Resource>
-template<typename Res, typename>
-inline TMRSWResource<Resource>::TMRSWResource(const Res& resource) :
-	m_mutex(), m_resource(resource)
-{
-	std::cerr << "copied" << std::endl;
-}
+template<typename Res>
+inline TMRSWResource<Resource>::TMRSWResource(Res&& resource) :
+	TMRSWResource(resource, typename std::is_reference<Res>::type{})
+{}
 
 template<typename Resource>
-template<typename Res, typename>
-inline TMRSWResource<Resource>::TMRSWResource(Res&& resource) :
+template<typename Res>
+inline TMRSWResource<Resource>::TMRSWResource(Res&& resource, std::true_type isReference) :
+	m_mutex(), m_resource(resource)
+{}
+
+template<typename Resource>
+template<typename Res>
+inline TMRSWResource<Resource>::TMRSWResource(Res&& resource, std::false_type isReference) :
 	m_mutex(), m_resource(std::move(resource))
-{
-	std::cerr << "moved" << std::endl;
-}
+{}
 
 template<typename Resource>
 template<typename Reader>
