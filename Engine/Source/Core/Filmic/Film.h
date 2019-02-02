@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "FileIO/SDL/TCommandInterface.h"
 #include "Core/Bound/TAABB2D.h"
 #include "Math/TVector2.h"
 #include "Frame/frame_fwd.h"
@@ -9,10 +8,7 @@
 
 namespace ph
 {
-
-class InputPacket;
-
-class Film : public TCommandInterface<Film>
+class Film
 {
 public:
 	Film(int64 actualWidthPx, int64 actualHeightPx);
@@ -21,7 +17,7 @@ public:
 		int64 actualWidthPx, int64 actualHeightPx,
 		const TAABB2D<int64>& effectiveWindowPx);
 
-	virtual ~Film();
+	virtual ~Film() = default;
 
 	virtual void clear() = 0;
 
@@ -39,12 +35,6 @@ private:
 
 	TVector2<int64> m_actualResPx;
 	TAABB2D<int64>  m_effectiveWindowPx;
-
-// command interface
-public:
-	explicit Film(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 // In-header Implementations:

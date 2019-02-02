@@ -62,9 +62,6 @@
 #include "Core/Camera/PinholeCamera.h"
 #include "Core/Camera/ThinLensCamera.h"
 
-// films
-#include "Core/Filmic/HdrRgbFilm.h"
-
 // sample generators
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/SampleGenerator/SGUniformRandom.h"
@@ -172,9 +169,6 @@ bool init_command_parser()
 	register_command_interface<PerspectiveCamera>();
 	register_command_interface<PinholeCamera>();
 	register_command_interface<ThinLensCamera>();
-
-	// films
-	register_command_interface<HdrRgbFilm>();
 	
 	// sample generators
 	register_command_interface<SampleGenerator>();

@@ -8,6 +8,7 @@
 #include "Core/Filmic/SampleFilterFactory.h"
 #include "Core/Estimator/Estimation.h"
 #include "Utility/Timer.h"
+#include "Core/Ray.h"
 
 namespace ph
 {

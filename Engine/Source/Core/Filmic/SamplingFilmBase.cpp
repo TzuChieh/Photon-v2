@@ -1,7 +1,6 @@
 #include "Core/Filmic/SamplingFilmBase.h"
 #include "Math/TVector3.h"
 #include "Frame/TFrame.h"
-#include "FileIO/SDL/InputPacket.h"
 #include "Math/Function/TConstant2D.h"
 #include "Math/Function/TGaussian2D.h"
 #include "Core/Filmic/SampleFilter.h"
@@ -92,29 +91,5 @@ const TAABB2D<float64>& SamplingFilmBase::getSampleWindowPx() const
 {
 	return m_sampleWindowPx;
 }
-
-// command interface
-
-SamplingFilmBase::SamplingFilmBase(const InputPacket& packet) :
-
-	Film(packet),
-
-	m_sampleWindowPx(),
-	m_filter        (SampleFilterFactory::createGaussianFilter()),
-	m_merger        (makeNoOpMerger())
-{
-	const std::string filterName = packet.getString("filter-name");
-	m_filter = SampleFilterFactory::create(filterName);
-
-	PH_ASSERT(m_merger && m_sampleWindowPx.isValid());
-}
-
-SdlTypeInfo SamplingFilmBase::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_FILM, "sampling-film-base");
-}
-
-void SamplingFilmBase::ciRegister(CommandRegister& cmdRegister)
-{}
 
 }// end namespace ph

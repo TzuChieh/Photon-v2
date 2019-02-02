@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core/Filmic/Film.h"
-#include "FileIO/SDL/TCommandInterface.h"
 #include "Core/Bound/TAABB2D.h"
 #include "Math/TVector2.h"
 #include "Frame/frame_fwd.h"
@@ -14,7 +13,7 @@
 namespace ph
 {
 
-class SamplingFilmBase : public Film, public TCommandInterface<SamplingFilmBase>
+class SamplingFilmBase : public Film
 {
 public:
 	SamplingFilmBase(
@@ -55,12 +54,6 @@ private:
 
 	void calcSampleDimensions();
 	static Merger makeNoOpMerger();
-
-// command interface
-public:
-	explicit SamplingFilmBase(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 // In-header Implementations:

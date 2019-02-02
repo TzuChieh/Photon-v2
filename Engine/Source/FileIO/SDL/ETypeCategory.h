@@ -18,7 +18,6 @@ enum class ETypeCategory
 	// core command related types
 	//
 	REF_CAMERA,
-	REF_FILM,
 	REF_ESTIMATOR,
 	REF_SAMPLE_GENERATOR,
 	REF_RENDERER,

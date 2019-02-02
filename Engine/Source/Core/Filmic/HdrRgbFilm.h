@@ -4,8 +4,6 @@
 #include "Math/math_fwd.h"
 #include "Core/Filmic/filmic_fwd.h"
 #include "Core/Camera/RadianceSensor.h"
-#include "FileIO/SDL/ISdlResource.h"
-#include "FileIO/SDL/TCommandInterface.h"
 #include "Core/Filmic/TSamplingFilm.h"
 
 #include <vector>
@@ -21,7 +19,7 @@ namespace ph
 
 	// TODO: make film copyable
 
-class HdrRgbFilm : public SpectralSamplingFilm, public TCommandInterface<HdrRgbFilm>
+class HdrRgbFilm : public SpectralSamplingFilm
 {
 public:
 	HdrRgbFilm(
@@ -50,12 +48,6 @@ private:
 	std::vector<RadianceSensor> m_pixelRadianceSensors;
 
 	void resizeRadianceSensorBuffer();
-
-// command interface
-public:
-	explicit HdrRgbFilm(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph

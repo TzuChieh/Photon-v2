@@ -10,6 +10,8 @@
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
 #include "Common/Logger.h"
+#include "FileIO/SDL/InputPacket.h"
+#include "FileIO/SDL/DataTreatment.h"
 
 #include <iostream>
 #include <vector>

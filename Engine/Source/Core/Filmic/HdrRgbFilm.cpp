@@ -1,7 +1,6 @@
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Math/TVector3.h"
 #include "Frame/TFrame.h"
-#include "FileIO/SDL/InputPacket.h"
 #include "Core/Filmic/SampleFilter.h"
 #include "Math/Function/TConstant2D.h"
 #include "Math/Function/TGaussian2D.h"
@@ -223,30 +222,6 @@ void HdrRgbFilm::setPixel(const float64 xPx, const float64 yPx, const SpectralSt
 	m_pixelRadianceSensors[index].accuG      = rgb.y;
 	m_pixelRadianceSensors[index].accuB      = rgb.z;
 	m_pixelRadianceSensors[index].accuWeight = 1.0;
-}
-
-// command interface
-
-HdrRgbFilm::HdrRgbFilm(const InputPacket& packet) : 
-	SpectralSamplingFilm(packet),
-	m_pixelRadianceSensors(getEffectiveWindowPx().calcArea(), RadianceSensor())
-{
-	PH_ASSERT(!m_pixelRadianceSensors.empty());
-}
-
-SdlTypeInfo HdrRgbFilm::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_FILM, "hdr-rgb");
-}
-
-void HdrRgbFilm::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<HdrRgbFilm>([](const InputPacket& packet)
-	{
-		return std::make_unique<HdrRgbFilm>(packet);
-	});
-	cmdRegister.setLoader(loader);
 }
 
 }// end namespace

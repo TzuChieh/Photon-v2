@@ -5,11 +5,16 @@
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/PM/TPhoton.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
+#include "Core/Quantity/SpectralStrength.h"
+#include "Math/math_fwd.h"
+#include "Common/primitive_type.h"
 
 #include <type_traits>
 
 namespace ph
 {
+
+class SurfaceHit;
 
 template<typename Photon>
 class TRadianceEvaluationWork : public RenderWork

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core/Filmic/SamplingFilmBase.h"
-#include "FileIO/SDL/TCommandInterface.h"
 #include "Core/Bound/TAABB2D.h"
 #include "Math/TVector2.h"
 #include "Frame/frame_fwd.h"
@@ -15,7 +14,7 @@ namespace ph
 
 // TODO: not registered (how should we register class template)
 template<typename Sample>
-class TSamplingFilm : public SamplingFilmBase, public TCommandInterface<TSamplingFilm<Sample>>
+class TSamplingFilm : public SamplingFilmBase
 {
 public:
 	using SamplingFilmBase::SamplingFilmBase;
@@ -29,12 +28,6 @@ public:
 
 private:
 	void developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const override = 0;
-
-// command interface
-public:
-	explicit TSamplingFilm(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph
