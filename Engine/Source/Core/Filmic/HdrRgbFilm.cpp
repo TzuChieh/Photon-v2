@@ -19,34 +19,41 @@ namespace ph
 // OPT: precalculate resolutions (the ones end with ...ResPx)
 
 HdrRgbFilm::HdrRgbFilm(
-	const int64 actualWidthPx, const int64 actualHeightPx,
+	const int64         actualWidthPx, 
+	const int64         actualHeightPx,
 	const SampleFilter& filter) : 
 
 	HdrRgbFilm(
-		actualWidthPx, actualHeightPx,
-		TAABB2D<int64>(TVector2<int64>(0, 0),
-		               TVector2<int64>(actualWidthPx, actualHeightPx)),
+		actualWidthPx, 
+		actualHeightPx,
+		TAABB2D<int64>(
+			TVector2<int64>(0, 0),
+			TVector2<int64>(actualWidthPx, actualHeightPx)),
 		filter)
 {}
 
 HdrRgbFilm::HdrRgbFilm(
-	const int64 actualWidthPx, const int64 actualHeightPx,
+	const int64           actualWidthPx, 
+	const int64           actualHeightPx,
 	const TAABB2D<int64>& effectiveWindowPx,
-	const SampleFilter& filter) :
+	const SampleFilter&   filter) :
 
-	SpectralSamplingFilm(
-		actualWidthPx, actualHeightPx, 
+	TSamplingFilm<SpectralStrength>(
+		actualWidthPx, 
+		actualHeightPx, 
 		effectiveWindowPx, 
 		filter),
 
-	m_pixelRadianceSensors()
+	m_pixelRadianceSensors(),
+	m_children()
 {
 	resizeRadianceSensorBuffer();
 	clear();
 }
 
 void HdrRgbFilm::addSample(
-	const float64 xPx, const float64 yPx, 
+	const float64           xPx, 
+	const float64           yPx, 
 	const SpectralStrength& radiance)
 {
 	PH_ASSERT_MSG(radiance.isFinite(), radiance.toString());
@@ -55,7 +62,10 @@ void HdrRgbFilm::addSample(
 	addSample(xPx, yPx, rgb);
 }
 
-void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const Vector3R& rgb)
+void HdrRgbFilm::addSample(
+	const float64   xPx, 
+	const float64   yPx, 
+	const Vector3R& rgb)
 {
 	const TVector2<float64> samplePosPx(xPx, yPx);
 
@@ -95,21 +105,28 @@ void HdrRgbFilm::addSample(const float64 xPx, const float64 yPx, const Vector3R&
 	}
 }
 
-std::unique_ptr<SpectralSamplingFilm> HdrRgbFilm::genSamplingChild(const TAABB2D<int64>& effectiveWindowPx)
+TMergeableFilm<SpectralStrength> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindowPx)
 {
-	auto childFilm = std::make_unique<HdrRgbFilm>(getActualResPx().x, getActualResPx().y,
-	                                              effectiveWindowPx, 
-	                                              getFilter());
+	auto childFilm = std::make_unique<HdrRgbFilm>(
+		getActualResPx().x, 
+		getActualResPx().y,
+		effectiveWindowPx, 
+		getFilter());
+
 	HdrRgbFilm* parent = this;
 	HdrRgbFilm* child  = childFilm.get();
-	childFilm->setMerger([=]() -> void
-	{
-		PH_ASSERT(parent != nullptr && child != nullptr);
 
-		parent->mergeWith(*child);
-	});
+	TMergeableFilm<SpectralStrength> mergeableFilm(
+		child, 
+		[=]()
+		{
+			PH_ASSERT(parent);
+			PH_ASSERT(child);
 
-	return std::move(childFilm);
+			parent->mergeWith(*child);
+		});
+
+	return std::move(mergeableFilm);
 }
 
 void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const
@@ -196,7 +213,7 @@ void HdrRgbFilm::mergeWith(const HdrRgbFilm& other)
 
 void HdrRgbFilm::setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow)
 {
-	SpectralSamplingFilm::setEffectiveWindowPx(effectiveWindow);
+	TSamplingFilm<SpectralStrength>::setEffectiveWindowPx(effectiveWindow);
 
 	resizeRadianceSensorBuffer();
 	clear();
@@ -207,7 +224,10 @@ void HdrRgbFilm::resizeRadianceSensorBuffer()
 	m_pixelRadianceSensors.resize(getEffectiveWindowPx().calcArea());
 }
 
-void HdrRgbFilm::setPixel(const float64 xPx, const float64 yPx, const SpectralStrength& spectrum)
+void HdrRgbFilm::setPixel(
+	const float64           xPx, 
+	const float64           yPx, 
+	const SpectralStrength& spectrum)
 {
 	const std::size_t filmX = std::min(static_cast<std::size_t>(xPx), static_cast<std::size_t>(getActualResPx().x) - 1);
 	const std::size_t filmY = std::min(static_cast<std::size_t>(yPx), static_cast<std::size_t>(getActualResPx().y) - 1);

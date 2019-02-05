@@ -5,10 +5,11 @@
 #include "Math/TVector2.h"
 #include "Frame/frame_fwd.h"
 #include "Common/assertion.h"
+#include "Utility/INoncopyable.h"
 
 namespace ph
 {
-class Film
+class Film : public INoncopyable
 {
 public:
 	Film(int64 actualWidthPx, int64 actualHeightPx);

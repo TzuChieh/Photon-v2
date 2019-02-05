@@ -12,7 +12,7 @@
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
 #include "Common/assertion.h"
-#include "Core/Filmic/SampleFilterFactory.h"
+#include "Core/Filmic/SampleFilters.h"
 #include "Core/Estimator/BVPTEstimator.h"
 #include "Core/Estimator/BNEEPTEstimator.h"
 #include "Core/Estimator/Integrand.h"
@@ -46,10 +46,12 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 
 	m_estimator->update(*m_scene);
 
-	m_films.set<EAttribute::LIGHT_ENERGY>(std::make_unique<HdrRgbFilm>(
+	m_mainFilms.set<EAttribute::LIGHT_ENERGY>(std::make_unique<HdrRgbFilm>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
-	m_films.set<EAttribute::NORMAL>(std::make_unique<Vector3Film>(
+	m_mainFilms.set<EAttribute::NORMAL>(std::make_unique<Vector3Film>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
+
+	m_workerFilms.resize(numWorkers());
 
 	m_renderWorks.resize(numWorkers());
 	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
@@ -82,6 +84,8 @@ void EqualSamplingRenderer::doRender()
 		workers.queueWork([this, workerId]()
 		{
 			SamplingRenderWork& renderWork = m_renderWorks[workerId];
+			auto& wFilms = m_workerFilms[workerId];
+			renderWork.setFilms(&wFilms);
 
 			float suppliedFraction = 0.0f;
 			float submittedFraction = 0.0f;
@@ -103,8 +107,32 @@ void EqualSamplingRenderer::doRender()
 
 					const std::size_t spp = workUnit.getDepth();
 
-					// HACK
-					renderWork.setFilms(m_films.genChild(workUnit.getRegion()));
+					auto lightEnergyFilm = std::make_unique<HdrRgbFilm>(
+						workUnit.getRegion().getWidth(), workUnit.getRegion().getHeight(), getRenderWindowPx(), m_filter);
+					auto normalFilm = std::make_unique<Vector3Film>(
+						workUnit.getRegion().getWidth(), workUnit.getRegion().getHeight(), getRenderWindowPx(), m_filter);
+
+					renderWork.setReporter([&]()
+					{
+						std::lock_guard<std::mutex> lock(m_rendererMutex);
+
+						
+
+						const auto& lightFilm = wFilms.get<EAttribute::LIGHT_ENERGY>();
+						lightFilm->mergeToParent();
+						lightFilm->clear();
+
+						// HACK
+						const auto& normalFilm = wFilms.get<EAttribute::NORMAL>();
+						normalFilm->mergeToParent();
+						normalFilm->clear();
+
+						// HACK
+						addUpdatedRegion(wFilms.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), true);
+					});
+
+					wFilms.set<EAttribute::LIGHT_ENERGY>(std::move(lightEnergyFilm));
+					wFilms.set<EAttribute::NORMAL>(std::move(normalFilm));
 
 					renderWork.setSampleGenerator(m_sampleGenerator->genCopied(spp));
 					renderWork.setRequestedAttributes(supportedAttributes());
@@ -122,6 +150,9 @@ void EqualSamplingRenderer::doRender()
 
 					m_scheduler->submit(workUnit);
 					submittedFraction = m_scheduler->getSubmittedFraction();
+
+					// HACK
+					addUpdatedRegion(wFilms.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), false);
 				}
 
 				m_submittedFractionBits.store(
@@ -189,7 +220,7 @@ void EqualSamplingRenderer::asyncPeekRegion(
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	const SamplingFilmBase* film = m_films.get(attribute);
+	const SamplingFilmBase* film = m_mainFilms.get(attribute);
 	if(film)
 	{
 		film->develop(out_frame, region);
@@ -316,18 +347,18 @@ EqualSamplingRenderer::EqualSamplingRenderer(const InputPacket& packet) :
 
 	SamplingRenderer(packet),
 
-	m_films(),
+	m_mainFilms(),
 	m_scene(nullptr),
 	m_sampleGenerator(nullptr),
 	m_estimator(nullptr),
 	m_camera(nullptr),
 	m_updatedRegions(),
 	m_rendererMutex(),
-	m_filter(SampleFilterFactory::createGaussianFilter()),
+	m_filter(SampleFilters::createGaussianFilter()),
 	m_requestedAttributes()
 {
 	const std::string filterName = packet.getString("filter-name");
-	m_filter = SampleFilterFactory::create(filterName);
+	m_filter = SampleFilters::create(filterName);
 
 	const std::string estimatorName = packet.getString("estimator", "bneept");
 	if(estimatorName == "bvpt")

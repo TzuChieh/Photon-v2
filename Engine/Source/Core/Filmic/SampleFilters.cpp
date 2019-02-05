@@ -1,4 +1,4 @@
-#include "Core/Filmic/SampleFilterFactory.h"
+#include "Core/Filmic/SampleFilters.h"
 #include "Math/Function/TConstant2D.h"
 #include "Math/Function/TGaussian2D.h"
 #include "Math/Function/TMNCubic2D.h"
@@ -10,7 +10,7 @@
 namespace ph
 {
 
-SampleFilter SampleFilterFactory::create(const std::string& name)
+SampleFilter SampleFilters::create(const std::string& name)
 {
 	if(name == BOX_NAME || name == BOX_ABBREV)
 	{
@@ -36,7 +36,7 @@ SampleFilter SampleFilterFactory::create(const std::string& name)
 	}
 }
 
-SampleFilter SampleFilterFactory::createBoxFilter()
+SampleFilter SampleFilters::createBoxFilter()
 {
 	const float64 constantValue = 1.0;
 	auto constantFunc = std::make_unique<TConstant2D<float64>>(constantValue);
@@ -44,7 +44,7 @@ SampleFilter SampleFilterFactory::createBoxFilter()
 	return SampleFilter(std::move(constantFunc), 1.0, 1.0);
 }
 
-SampleFilter SampleFilterFactory::createGaussianFilter()
+SampleFilter SampleFilters::createGaussianFilter()
 {
 	const float64 sigmaX     = 0.5;
 	const float64 sigmaY     = 0.5;
@@ -64,7 +64,7 @@ SampleFilter SampleFilterFactory::createGaussianFilter()
 	return SampleFilter(std::move(gaussianFunc), filterSize, filterSize);
 }
 
-SampleFilter SampleFilterFactory::createMitchellNetravaliFilter()
+SampleFilter SampleFilters::createMitchellNetravaliFilter()
 {
 	// Reference: Mitchell & Netravali's paper,
 	// Reconstruction Filters in Computer Graphics (1998), they 
@@ -79,7 +79,7 @@ SampleFilter SampleFilterFactory::createMitchellNetravaliFilter()
 	return SampleFilter(std::move(mnCubicFunc), 4.0, 4.0);
 }
 
-SampleFilter SampleFilterFactory::createBlackmanHarrisFilter()
+SampleFilter SampleFilters::createBlackmanHarrisFilter()
 {
 	const float64 radius = 2.0;
 

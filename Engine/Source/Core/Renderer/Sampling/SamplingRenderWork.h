@@ -11,6 +11,7 @@
 #include "Core/Renderer/AttributeTags.h"
 
 #include <atomic>
+#include <functional>
 
 namespace ph
 {
@@ -35,10 +36,11 @@ public:
 
 	SamplingStatistics asyncGetStatistics();
 
-	void setFilms(SamplingFilmSet&& films);
+	void setFilms(SamplingFilmSet* films);
 	void setSampleGenerator(std::unique_ptr<SampleGenerator> sampleGenerator);
 	void setRequestedAttributes(const AttributeTags& attributes);
 	void setDomainPx(const TAABB2D<int64>& domainPx);
+	void setReporter(std::function<void()> reporter);
 
 	SamplingRenderWork& operator = (SamplingRenderWork&& rhs);
 
@@ -49,11 +51,12 @@ private:
 	const Estimator*  m_estimator;
 	SamplingRenderer* m_renderer;
 
-	SamplingFilmSet                  m_films;
+	SamplingFilmSet*                  m_films;
 	std::unique_ptr<SampleGenerator> m_sampleGenerator;
 	AttributeTags                    m_requestedAttributes;
 
 	std::atomic_uint32_t m_numSamplesTaken;
+	std::function<void()> m_reporter;
 };
 
 // In-header Implementations:
@@ -88,7 +91,7 @@ inline SamplingStatistics SamplingRenderWork::asyncGetStatistics()
 	return statistics;
 }
 
-inline void SamplingRenderWork::setFilms(SamplingFilmSet&& films)
+inline void SamplingRenderWork::setFilms(SamplingFilmSet* films)
 {
 	m_films = std::move(films);
 }
@@ -101,6 +104,11 @@ inline void SamplingRenderWork::setSampleGenerator(std::unique_ptr<SampleGenerat
 inline void SamplingRenderWork::setRequestedAttributes(const AttributeTags& attributes)
 {
 	m_requestedAttributes = attributes;
+}
+
+inline void SamplingRenderWork::setReporter(std::function<void()> reporter)
+{
+	m_reporter = std::move(reporter);
 }
 
 inline SamplingRenderWork& SamplingRenderWork::operator = (SamplingRenderWork&& rhs)

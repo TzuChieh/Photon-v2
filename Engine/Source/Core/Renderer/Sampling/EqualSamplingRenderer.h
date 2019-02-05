@@ -45,7 +45,8 @@ private:
 	SampleGenerator*           m_sampleGenerator;
 	std::unique_ptr<Estimator> m_estimator;
 	SampleFilter               m_filter;
-	SamplingFilmSet            m_films;
+	SamplingFilmSet            m_mainFilms;
+	std::vector<SamplingFilmSet> m_workerFilms;
 	AttributeTags              m_requestedAttributes;
 	std::vector<SamplingRenderWork> m_renderWorks;
 	std::unique_ptr<WorkScheduler> m_scheduler;

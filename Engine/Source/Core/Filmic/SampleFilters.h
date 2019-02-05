@@ -8,7 +8,7 @@
 namespace ph
 {
 
-class SampleFilterFactory final
+class SampleFilters final
 {
 public:
 	static constexpr std::string_view BOX_NAME                  = "box";

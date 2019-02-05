@@ -28,7 +28,7 @@ SamplingRenderWork::SamplingRenderWork(SamplingRenderWork&& other) :
 
 void SamplingRenderWork::doWork()
 {
-	const auto& lightFilm = m_films.get<EAttribute::LIGHT_ENERGY>();
+	const auto& lightFilm = m_films->get<EAttribute::LIGHT_ENERGY>();
 
 	const Vector2D rasterSize(lightFilm->getEffectiveResPx());
 	const Vector2D rasterSampleSize(lightFilm->getSampleResPx());
@@ -83,28 +83,35 @@ void SamplingRenderWork::doWork()
 
 			m_estimator->estimate(ray, m_integrand, m_requestedAttributes, estimation);
 
-			if(m_films.get<EAttribute::LIGHT_ENERGY>())
+			if(m_films->get<EAttribute::LIGHT_ENERGY>())
 			{
-				m_films.get<EAttribute::LIGHT_ENERGY>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
+				m_films->get<EAttribute::LIGHT_ENERGY>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
 			}
 			
-			if(m_films.get<EAttribute::NORMAL>())
+			if(m_films->get<EAttribute::NORMAL>())
 			{
-				m_films.get<EAttribute::NORMAL>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::NORMAL>());
+				m_films->get<EAttribute::NORMAL>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::NORMAL>());
 			}
 
-			if(m_films.get<EAttribute::LIGHT_ENERGY_HALF_EFFORT>())
+			if(m_films->get<EAttribute::LIGHT_ENERGY_HALF_EFFORT>())
 			{
 				if(batchNumber % 2 == 0)
 				{
-					m_films.get<EAttribute::LIGHT_ENERGY_HALF_EFFORT>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
+					m_films->get<EAttribute::LIGHT_ENERGY_HALF_EFFORT>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
 				}
 			}
 			
 		}// end for
 
 		const bool isUpdating = m_sampleGenerator->hasMoreBatches();
-		m_renderer->asyncUpdateFilm(m_films, isUpdating);
+
+		//m_renderer->asyncUpdateFilm(m_films, isUpdating);
+
+		if(m_reporter)
+		{
+			m_reporter();
+		}
+
 		incrementWorkDone();	
 
 		sampleTimer.finish();
@@ -121,7 +128,7 @@ void SamplingRenderWork::setDomainPx(const TAABB2D<int64>& domainPx)
 {
 	PH_ASSERT(domainPx.isValid());
 
-	m_films.setEffectiveWindowPx(domainPx);
+	m_films->setEffectiveWindowPx(domainPx);
 }
 
 }// end namespace ph

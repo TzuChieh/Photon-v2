@@ -18,7 +18,7 @@
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
 #include "Common/assertion.h"
-#include "Core/Filmic/SampleFilterFactory.h"
+#include "Core/Filmic/SampleFilters.h"
 #include "Core/Estimator/BVPTEstimator.h"
 #include "Core/Estimator/BNEEPTEstimator.h"
 #include "Core/Estimator/Integrand.h"
@@ -144,7 +144,7 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 				const std::size_t spp = workUnit.getDepth();
 
 				// HACK
-				renderWork.setFilms(m_films.genChild(workUnit.getRegion()));
+				//renderWork.setFilms(m_films.genChild(workUnit.getRegion()));
 
 				renderWork.setSampleGenerator(m_sampleGenerator->genCopied(spp));
 				renderWork.setRequestedAttributes(supportedAttributes());
@@ -358,11 +358,11 @@ AdaptiveSamplingRenderer::AdaptiveSamplingRenderer(const InputPacket& packet) :
 	m_camera(nullptr),
 	m_updatedRegions(),
 	m_rendererMutex(),
-	m_filter(SampleFilterFactory::createGaussianFilter()),
+	m_filter(SampleFilters::createGaussianFilter()),
 	m_requestedAttributes()
 {
 	const std::string filterName = packet.getString("filter-name");
-	m_filter = SampleFilterFactory::create(filterName);
+	m_filter = SampleFilters::create(filterName);
 
 	const std::string estimatorName = packet.getString("estimator", "bneept");
 	if(estimatorName == "bvpt")

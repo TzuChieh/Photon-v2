@@ -14,9 +14,62 @@ namespace ph
 {
 
 template<typename Sample>
-inline std::unique_ptr<SamplingFilmBase> TSamplingFilm<Sample>::genChild(const TAABB2D<int64>& effectiveWindowPx)
+inline TSamplingFilm<Sample>::TSamplingFilm(
+	const int64         actualWidthPx,
+	const int64         actualHeightPx,
+	const SampleFilter& filter) :
+	
+	TSamplingFilm(
+		actualWidthPx, 
+		actualHeightPx,
+		TAABB2D<int64>(
+			TVector2<int64>(0, 0),
+			TVector2<int64>(actualWidthPx, actualHeightPx)),
+		filter)
+{}
+
+template<typename Sample>
+inline TSamplingFilm<Sample>::TSamplingFilm(
+	const int64           actualWidthPx,
+	const int64           actualHeightPx,
+	const TAABB2D<int64>& effectiveWindowPx,
+	const SampleFilter&   filter) :
+
+	Film(
+		actualWidthPx,
+		actualHeightPx,
+		TAABB2D<int64>(
+			TVector2<int64>(0, 0),
+			TVector2<int64>(actualWidthPx, actualHeightPx)),
+		filter),
+
+	m_filter(filter)
 {
-	return genSamplingChild(effectiveWindowPx);
+	calcSampleDimensions();
+
+	PH_ASSERT(getSampleWindowPx().isValid());
+}
+
+template<typename Sample>
+inline void TSamplingFilm<Sample>::setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow)
+{
+	Film::setEffectiveWindowPx(effectiveWindow);
+
+	updateSampleDimensions();
+}
+
+template<typename Sample>
+inline void TSamplingFilm<Sample>::updateSampleDimensions()
+{
+	m_sampleWindowPx = TAABB2D<float64>(
+		TVector2<float64>(getEffectiveWindowPx().minVertex).add(0.5).sub(m_filter.getHalfSizePx()),
+		TVector2<float64>(getEffectiveWindowPx().maxVertex).sub(0.5).add(m_filter.getHalfSizePx()));
+
+	if(!m_sampleWindowPx.isValid())
+	{
+		std::cerr << "warning: at TSamplingFilm::updateSampleDimensions(), "
+		          << "invalid sampling window detected" << std::endl;
+	}
 }
 
 }// end namespace ph
