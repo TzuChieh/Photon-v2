@@ -1,8 +1,7 @@
 #pragma once
 
-#include "Common/primitive_type.h"
-#include "Core/Estimator/PathEstimator.h"
-#include "Math/math_fwd.h"
+#include "Core/Estimator/FullEnergyEstimator.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 namespace ph
 {
@@ -23,26 +22,23 @@ namespace ph
 	His page:     http://pellacini.di.uniroma1.it/
 	Lecture Note: http://pellacini.di.uniroma1.it/teaching/graphics08/lectures/18_PathTracing_Web.pdf
 */
-class BNEEPTEstimator : public PathEstimator, public TCommandInterface<BNEEPTEstimator>
+class BNEEPTEstimator : public FullEnergyEstimator
 {
 public:
-	BNEEPTEstimator();
+	void update(const Integrand& integrand) override;
 
-	void radianceAlongRay(
+	void estimate(
 		const Ray&        ray,
 		const Integrand&  integrand,
-		SpectralStrength& out_radiance,
-		SurfaceHit&       out_firstHit) const override;
+		EnergyEstimation& out_estimation) const override;
 
 private:
 	static void rationalClamp(SpectralStrength& value);
-
-// command interface
-public:
-	explicit BNEEPTEstimator(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
-	static std::unique_ptr<BNEEPTEstimator> ciLoad(const InputPacket& packet);
 };
+
+// In-header Implementations:
+
+inline void BNEEPTEstimator::update(const Integrand& integrand)
+{}
 
 }// end namespace ph

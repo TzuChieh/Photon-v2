@@ -67,15 +67,6 @@
 #include "Core/SampleGenerator/SGUniformRandom.h"
 #include "Core/SampleGenerator/SGStratified.h"
 
-// estimators
-#include "Core/Estimator/Estimator.h"
-//#include "Core/Integrator/BackwardLightIntegrator.h"
-#include "Core/Estimator/BNEEPTEstimator.h"
-#include "Core/Estimator/BVPTEstimator.h"
-//#include "Core/Integrator/LightTracingIntegrator.h"
-//#include "Core/Integrator/NormalBufferIntegrator.h"
-//#include "Core/Integrator/DebugIntegrator.h"
-
 // renderers
 #include "Core/Renderer/Renderer.h"
 #include "Core/Renderer/Sampling/SamplingRenderer.h"
@@ -175,20 +166,11 @@ bool init_command_parser()
 	register_command_interface<SGUniformRandom>();
 	register_command_interface<SGStratified>();
 
-	// estimators
-	register_command_interface<Estimator>();
-	//register_command_interface<BackwardLightIntegrator>();
-	register_command_interface<BNEEPTEstimator>();
-	register_command_interface<BVPTEstimator>();
-	/*register_command_interface<LightTracingIntegrator>();
-	register_command_interface<NormalBufferIntegrator>();
-	register_command_interface<DebugIntegrator>();*/
-
 	// renderers
 	register_command_interface<Renderer>();
 	register_command_interface<SamplingRenderer>();
 	register_command_interface<EqualSamplingRenderer>();
-	register_command_interface<AdaptiveSamplingRenderer>();
+	//register_command_interface<AdaptiveSamplingRenderer>();
 	register_command_interface<PMRenderer>();
 
 	// options

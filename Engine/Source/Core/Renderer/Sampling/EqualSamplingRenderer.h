@@ -6,7 +6,7 @@
 #include "Core/Renderer/Sampling/SamplingRenderWork.h"
 #include "Core/Renderer/Sampling/SamplingFilmSet.h"
 #include "Core/Renderer/Region/WorkScheduler.h"
-#include "Core/Estimator/Estimator.h"
+#include "Core/Estimator/estimator_fwd.h"
 
 #include <vector>
 #include <memory>
@@ -43,7 +43,7 @@ private:
 	const Scene*               m_scene;
 	const Camera*              m_camera;
 	SampleGenerator*           m_sampleGenerator;
-	std::unique_ptr<Estimator> m_estimator;
+	std::unique_ptr<FullEnergyEstimator> m_estimator;
 	SampleFilter               m_filter;
 	std::unique_ptr<HdrRgbFilm> m_mainFilm;
 	std::vector<std::unique_ptr<HdrRgbFilm>> m_workerFilms;

@@ -10,6 +10,7 @@
 #include "Core/Filmic/SampleFilter.h"
 #include "Core/Renderer/AttributeTags.h"
 #include "Core/Filmic/HdrRgbFilm.h"
+#include "Core/Estimator/estimator_fwd.h"
 
 #include <atomic>
 #include <functional>
@@ -20,7 +21,6 @@ namespace ph
 class SamplingRenderer;
 class Scene;
 class Camera;
-class Estimator;
 class SampleFilter;
 
 class SamplingRenderWork : public RenderWork, public INoncopyable
@@ -29,7 +29,7 @@ public:
 	SamplingRenderWork();
 
 	SamplingRenderWork(
-		const Estimator*  estimator,
+		const IEnergyEstimator* estimator,
 		const Integrand&  integrand,
 		SamplingRenderer* renderer);
 	
@@ -52,7 +52,7 @@ private:
 	void doWork() override;
 
 	Integrand         m_integrand;
-	const Estimator*  m_estimator;
+	const IEnergyEstimator* m_estimator;
 	SamplingRenderer* m_renderer;
 
 	HdrRgbFilm* m_film;
@@ -68,7 +68,7 @@ private:
 // In-header Implementations:
 
 inline SamplingRenderWork::SamplingRenderWork(
-	const Estimator*  estimator,
+	const IEnergyEstimator*  estimator,
 	const Integrand&  integrand,
 	SamplingRenderer* renderer) :
 

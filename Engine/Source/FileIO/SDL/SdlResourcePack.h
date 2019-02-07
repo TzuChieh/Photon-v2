@@ -4,7 +4,6 @@
 #include "Core/Camera/Camera.h"
 #include "World/VisualWorld.h"
 #include "Core/Filmic/filmic_fwd.h"
-#include "Core/Estimator/Estimator.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "FileIO/RenderOption.h"
 #include "FileIO/SDL/NamedResourceStorage.h"

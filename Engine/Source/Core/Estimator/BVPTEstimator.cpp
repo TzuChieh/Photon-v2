@@ -15,6 +15,8 @@
 #include "FileIO/SDL/InputPacket.h"
 #include "Math/TVector3.h"
 #include "Core/Quantity/SpectralStrength.h"
+#include "Core/Estimator/EnergyEstimation.h"
+#include "Core/Estimator/Integrand.h"
 
 #include <iostream>
 
@@ -24,13 +26,10 @@
 namespace ph
 {
 
-BVPTEstimator::BVPTEstimator() = default;
-
-void BVPTEstimator::radianceAlongRay(
+void BVPTEstimator::estimate(
 	const Ray&        ray,
 	const Integrand&  integrand,
-	SpectralStrength& out_radiance,
-	SurfaceHit&       out_firstHit) const
+	EnergyEstimation& out_estimation) const
 {
 	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESaPolicy::DO_NOT_CARE>(&(integrand.getScene()));
 
@@ -47,11 +46,6 @@ void BVPTEstimator::radianceAlongRay(
 	while(numBounces <= MAX_RAY_BOUNCES && 
 	      surfaceEventDispatcher.traceNextSurface(tracingRay, &surfaceHit))
 	{
-		if(numBounces == 0)
-		{
-			out_firstHit = surfaceHit;
-		}
-
 		const auto* const     metadata            = surfaceHit.getDetail().getPrimitive()->getMetadata();
 		const SurfaceBehavior& hitSurfaceBehavior = metadata->getSurface();
 
@@ -145,35 +139,7 @@ void BVPTEstimator::radianceAlongRay(
 		numBounces++;
 	}// end while
 
-	/*if(!accuRadiance.isZero())
-	{
-		int a = 3;
-	}*/
-
-	out_radiance = accuRadiance;
-}
-
-// command interface
-
-BVPTEstimator::BVPTEstimator(const InputPacket& packet) :
-	PathEstimator(packet)
-{}
-
-SdlTypeInfo BVPTEstimator::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_ESTIMATOR, "bvpt");
-}
-
-void BVPTEstimator::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<BVPTEstimator>(ciLoad);
-	cmdRegister.setLoader(loader);
-}
-
-std::unique_ptr<BVPTEstimator> BVPTEstimator::ciLoad(const InputPacket& packet)
-{
-	return std::make_unique<BVPTEstimator>(packet);
+	out_estimation[m_estimationIndex] = accuRadiance;
 }
 
 }// end namespace ph

@@ -44,7 +44,9 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 	m_camera = data.getCamera().get();
 	m_sampleGenerator = data.getSampleGenerator().get();
 
-	m_estimator->update(*m_scene);
+	
+	m_estimator->setEstimationIndex(0);
+	m_estimator->update(Integrand(m_scene, m_camera));
 
 	m_mainFilm = std::make_unique<HdrRgbFilm>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
@@ -288,7 +290,11 @@ RenderProgress EqualSamplingRenderer::asyncQueryRenderProgress()
 AttributeTags EqualSamplingRenderer::supportedAttributes() const
 {
 	PH_ASSERT(m_estimator);
-	return m_estimator->supportedAttributes();
+
+	// HACK
+	AttributeTags att;
+	att.tag(EAttribute::LIGHT_ENERGY);
+	return att;
 }
 
 std::string EqualSamplingRenderer::renderStateName(const RenderState::EType type, const std::size_t index) const

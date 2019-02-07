@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Estimator/PathEstimator.h"
+#include "Core/Estimator/FullEnergyEstimator.h"
 
 namespace ph
 {
@@ -15,23 +15,20 @@ namespace ph
 	simple but still unbiased, it is good for ground truth rendering if 
 	the correctness of another estimator is in doubt.
 */
-class BVPTEstimator : public PathEstimator, public TCommandInterface<BVPTEstimator>
+class BVPTEstimator : public FullEnergyEstimator
 {
 public:
-	BVPTEstimator();
+	void update(const Integrand& integrand) override;
 
-	void radianceAlongRay(
+	void estimate(
 		const Ray&        ray,
 		const Integrand&  integrand,
-		SpectralStrength& out_radiance,
-		SurfaceHit&       out_firstHit) const override;
-
-// command interface
-public:
-	explicit BVPTEstimator(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
-	static std::unique_ptr<BVPTEstimator> ciLoad(const InputPacket& packet);
+		EnergyEstimation& out_estimation) const override;
 };
+
+// In-header Implementations:
+
+inline void BVPTEstimator::update(const Integrand& integrand)
+{}
 
 }// end namespace ph

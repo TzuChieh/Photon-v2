@@ -1,4 +1,5 @@
 #include "Core/Estimator/BNEEPTEstimator.h"
+#include "Common/primitive_type.h"
 #include "Core/Ray.h"
 #include "World/Scene.h"
 #include "Math/TVector3.h"
@@ -19,6 +20,8 @@
 #include "Core/LTABuildingBlock/TDirectLightEstimator.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
 #include "Core/Quantity/SpectralStrength.h"
+#include "Core/Estimator/Integrand.h"
+#include "Core/Estimator/EnergyEstimation.h"
 
 #include <iostream>
 
@@ -29,13 +32,10 @@
 namespace ph
 {
 
-BNEEPTEstimator::BNEEPTEstimator() = default;
-
-void BNEEPTEstimator::radianceAlongRay(
+void BNEEPTEstimator::estimate(
 	const Ray&        ray,
 	const Integrand&  integrand,
-	SpectralStrength& out_radiance,
-	SurfaceHit&       out_firstHit) const
+	EnergyEstimation& out_estimation) const
 {
 	const Scene&  scene  = integrand.getScene();
 	const Camera& camera = integrand.getCamera();
@@ -57,7 +57,7 @@ void BNEEPTEstimator::radianceAlongRay(
 
 	if(!scene.isIntersecting(tracingRay, &hitProbe))
 	{
-		out_radiance = accuRadiance;
+		out_estimation[m_estimationIndex] = accuRadiance;
 		return;
 	}
 
@@ -71,7 +71,7 @@ void BNEEPTEstimator::radianceAlongRay(
 		V = tracingRay.getDirection().mul(-1.0_r);
 		if(surfaceHit.getGeometryNormal().dot(V) * surfaceHit.getShadingNormal().dot(V) <= 0.0_r)
 		{
-			out_radiance = accuRadiance;
+			out_estimation[m_estimationIndex] = accuRadiance;
 			return;
 		}
 
@@ -83,8 +83,6 @@ void BNEEPTEstimator::radianceAlongRay(
 			surfaceBehavior.getEmitter()->evalEmittedRadiance(surfaceHit, &radianceLi);
 			accuRadiance.addLocal(radianceLi);
 		}
-
-		out_firstHit = surfaceHit;
 	}
 
 	// ray bouncing around the scene (1 ~ N bounces)
@@ -286,36 +284,13 @@ void BNEEPTEstimator::radianceAlongRay(
 		}
 	}// end for each bounces
 
-	out_radiance = accuRadiance;
+	out_estimation[m_estimationIndex] = accuRadiance;
 }
 
 void BNEEPTEstimator::rationalClamp(SpectralStrength& value)
 {
 	// TODO: should negative value be allowed?
 	value.clampLocal(0.0_r, 1000000.0_r);
-}
-
-// command interface
-
-BNEEPTEstimator::BNEEPTEstimator(const InputPacket& packet) :
-	PathEstimator(packet)
-{}
-
-SdlTypeInfo BNEEPTEstimator::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_ESTIMATOR, "bneept");
-}
-
-void BNEEPTEstimator::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<BNEEPTEstimator>(ciLoad);
-	cmdRegister.setLoader(loader);
-}
-
-std::unique_ptr<BNEEPTEstimator> BNEEPTEstimator::ciLoad(const InputPacket& packet)
-{
-	return std::make_unique<BNEEPTEstimator>(packet);
 }
 
 }// end namespace ph

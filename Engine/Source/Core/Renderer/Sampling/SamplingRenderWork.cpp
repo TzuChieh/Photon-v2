@@ -3,9 +3,9 @@
 #include "Core/Filmic/TSamplingFilm.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Camera/Camera.h"
-#include "Core/Estimator/Estimator.h"
+#include "Core/Estimator/IEnergyEstimator.h"
 #include "Core/Estimator/Integrand.h"
-#include "Core/Estimator/Estimation.h"
+#include "Core/Estimator/EnergyEstimation.h"
 #include "Utility/Timer.h"
 #include "Core/Ray.h"
 
@@ -54,7 +54,8 @@ void SamplingRenderWork::doWork()
 	setWorkDone(0);
 	setElapsedMs(0);
 
-	Estimation estimation;
+	EnergyEstimation estimation(1);
+
 	Timer sampleTimer;
 
 	std::uint32_t totalMs = 0;
@@ -81,11 +82,11 @@ void SamplingRenderWork::doWork()
 			Ray ray;
 			m_integrand.getCamera().genSensedRay(filmNdcPos, &ray);
 
-			m_estimator->estimate(ray, m_integrand, m_requestedAttributes, estimation);
+			m_estimator->estimate(ray, m_integrand, estimation);
 
 			//if(m_films->get<EAttribute::LIGHT_ENERGY>())
 			{
-				m_film->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
+				m_film->addSample(rasterPosPx.x, rasterPosPx.y, estimation[0]);
 				//m_films->get<EAttribute::LIGHT_ENERGY>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
 			}
 			
