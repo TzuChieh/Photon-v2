@@ -2,7 +2,7 @@
 
 #include <Core/Filmic/HdrRgbFilm.h>
 #include <Frame/TFrame.h>
-#include <Core/Filmic/SampleFilterFactory.h>
+#include <Core/Filmic/SampleFilters.h>
 #include <Core/Quantity/SpectralStrength.h>
 #include <Common/config.h>
 
@@ -19,7 +19,7 @@ TEST(FilmSampleWeightingTest, HdrRgbFilmDevelopesToFrame)
 	const int64 filmHpx = 2;
 
 	HdrRgbFrame frame(static_cast<uint32>(filmWpx), static_cast<uint32>(filmHpx));
-	const auto& filter = SampleFilterFactory::createGaussianFilter();
+	const auto& filter = SampleFilters::createGaussianFilter();
 	HdrRgbFilm film(static_cast<uint64>(filmWpx), static_cast<uint64>(filmHpx), filter);
 
 	const float64 testSamplePos1Xpx = film.getSampleWindowPx().minVertex.x + 0.2;

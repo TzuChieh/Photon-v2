@@ -1,5 +1,5 @@
 #include "Core/Renderer/PM/PMRenderer.h"
-#include "Core/Filmic/SampleFilterFactory.h"
+#include "Core/Filmic/SampleFilters.h"
 #include "FileIO/SDL/SdlResourcePack.h"
 #include "Core/Renderer/PM/TViewPathTracingWork.h"
 #include "Core/Renderer/PM/TPhotonMappingWork.h"
@@ -492,7 +492,7 @@ PMRenderer::PMRenderer(const InputPacket& packet) :
 	m_scene(nullptr),
 	m_camera(nullptr),
 	m_sg(nullptr),
-	m_filter(SampleFilterFactory::createBlackmanHarrisFilter()),
+	m_filter(SampleFilters::createBlackmanHarrisFilter()),
 
 	m_mode(),
 	m_numPhotons(),

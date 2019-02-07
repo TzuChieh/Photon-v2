@@ -9,6 +9,7 @@
 #include "Core/Estimator/Integrand.h"
 #include "Core/Filmic/SampleFilter.h"
 #include "Core/Renderer/AttributeTags.h"
+#include "Core/Filmic/HdrRgbFilm.h"
 
 #include <atomic>
 #include <functional>
@@ -36,11 +37,14 @@ public:
 
 	SamplingStatistics asyncGetStatistics();
 
-	void setFilms(SamplingFilmSet* films);
+	void setFilm(HdrRgbFilm* film);
 	void setSampleGenerator(std::unique_ptr<SampleGenerator> sampleGenerator);
 	void setRequestedAttributes(const AttributeTags& attributes);
 	void setDomainPx(const TAABB2D<int64>& domainPx);
-	void setReporter(std::function<void()> reporter);
+
+	void onWorkStart(std::function<void()> func);
+	void onWorkReport(std::function<void()> func);
+	void onWorkFinish(std::function<void()> func);
 
 	SamplingRenderWork& operator = (SamplingRenderWork&& rhs);
 
@@ -51,12 +55,14 @@ private:
 	const Estimator*  m_estimator;
 	SamplingRenderer* m_renderer;
 
-	SamplingFilmSet*                  m_films;
+	HdrRgbFilm* m_film;
 	std::unique_ptr<SampleGenerator> m_sampleGenerator;
 	AttributeTags                    m_requestedAttributes;
 
 	std::atomic_uint32_t m_numSamplesTaken;
-	std::function<void()> m_reporter;
+	std::function<void()> m_onWorkStart;
+	std::function<void()> m_onWorkReport;
+	std::function<void()> m_onWorkFinish;
 };
 
 // In-header Implementations:
@@ -73,7 +79,7 @@ inline SamplingRenderWork::SamplingRenderWork(
 	m_renderer(renderer),
 
 	m_sampleGenerator(nullptr),
-	m_films(),
+	m_film(nullptr),
 	m_requestedAttributes(),
 
 	m_numSamplesTaken(0)
@@ -91,9 +97,24 @@ inline SamplingStatistics SamplingRenderWork::asyncGetStatistics()
 	return statistics;
 }
 
-inline void SamplingRenderWork::setFilms(SamplingFilmSet* films)
+inline void SamplingRenderWork::onWorkStart(std::function<void()> func)
 {
-	m_films = std::move(films);
+	m_onWorkStart = std::move(func);
+}
+
+inline void SamplingRenderWork::onWorkReport(std::function<void()> func)
+{
+	m_onWorkReport = std::move(func);
+}
+
+inline void SamplingRenderWork::onWorkFinish(std::function<void()> func)
+{
+	m_onWorkFinish = std::move(func);
+}
+
+inline void SamplingRenderWork::setFilm(HdrRgbFilm* film)
+{
+	m_film = std::move(film);
 }
 
 inline void SamplingRenderWork::setSampleGenerator(std::unique_ptr<SampleGenerator> sampleGenerator)
@@ -106,11 +127,6 @@ inline void SamplingRenderWork::setRequestedAttributes(const AttributeTags& attr
 	m_requestedAttributes = attributes;
 }
 
-inline void SamplingRenderWork::setReporter(std::function<void()> reporter)
-{
-	m_reporter = std::move(reporter);
-}
-
 inline SamplingRenderWork& SamplingRenderWork::operator = (SamplingRenderWork&& rhs)
 {
 	RenderWork::operator = (std::move(rhs));
@@ -118,10 +134,14 @@ inline SamplingRenderWork& SamplingRenderWork::operator = (SamplingRenderWork&& 
 	m_estimator           = rhs.m_estimator;
 	m_integrand           = rhs.m_integrand;
 	m_renderer            = rhs.m_renderer;
-	m_films               = std::move(rhs.m_films);
+	m_film               = rhs.m_film;
 	m_sampleGenerator     = std::move(rhs.m_sampleGenerator);
 	m_requestedAttributes = std::move(rhs.m_requestedAttributes);
 	m_numSamplesTaken     = rhs.m_numSamplesTaken.load();
+
+	m_onWorkStart = std::move(rhs.m_onWorkStart);
+	m_onWorkReport = std::move(rhs.m_onWorkReport);
+	m_onWorkFinish = std::move(rhs.m_onWorkFinish);
 
 	return *this;
 }

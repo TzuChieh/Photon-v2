@@ -36,7 +36,7 @@ public:
 	std::string renderStateName(RenderState::EType type, std::size_t index) const override;
 
 	// FIXME: these APIs are somewhat hacked and should be revisited
-	void asyncUpdateFilm(SamplingFilmSet& workerFilms, bool isUpdating) override;
+	void asyncUpdateFilm(HdrRgbFilm* workerFilm, bool isUpdating) override;
 	void asyncDevelop(HdrRgbFrame& out_frame, EAttribute attribute);
 
 private:
@@ -45,8 +45,8 @@ private:
 	SampleGenerator*           m_sampleGenerator;
 	std::unique_ptr<Estimator> m_estimator;
 	SampleFilter               m_filter;
-	SamplingFilmSet            m_mainFilms;
-	std::vector<SamplingFilmSet> m_workerFilms;
+	std::unique_ptr<HdrRgbFilm> m_mainFilm;
+	std::vector<std::unique_ptr<HdrRgbFilm>> m_workerFilms;
 	AttributeTags              m_requestedAttributes;
 	std::vector<SamplingRenderWork> m_renderWorks;
 	std::unique_ptr<WorkScheduler> m_scheduler;
@@ -64,7 +64,7 @@ private:
 	std::atomic_uint32_t m_submittedFractionBits;
 
 	void clearWorkData();
-	void mergeWorkFilms(SamplingFilmSet& films);
+	void mergeWorkFilms(HdrRgbFilm* workerFilm);
 	void addUpdatedRegion(const Region& region, bool isUpdating);
 
 // command interface

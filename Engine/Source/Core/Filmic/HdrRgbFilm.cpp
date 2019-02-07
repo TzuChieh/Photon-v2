@@ -4,7 +4,8 @@
 #include "Core/Filmic/SampleFilter.h"
 #include "Math/Function/TConstant2D.h"
 #include "Math/Function/TGaussian2D.h"
-#include "Core/Filmic/SampleFilterFactory.h"
+#include "Core/Filmic/SampleFilters.h"
+#include "Core/Filmic/TMergeableFilmProxy.h"
 #include "Common/assertion.h"
 
 #include <cstddef>
@@ -105,29 +106,29 @@ void HdrRgbFilm::addSample(
 	}
 }
 
-TMergeableFilm<SpectralStrength> HdrRgbFilm::genChild(const TAABB2D<int64>& effectiveWindowPx)
-{
-	auto childFilm = std::make_unique<HdrRgbFilm>(
-		getActualResPx().x, 
-		getActualResPx().y,
-		effectiveWindowPx, 
-		getFilter());
-
-	HdrRgbFilm* parent = this;
-	HdrRgbFilm* child  = childFilm.get();
-
-	TMergeableFilm<SpectralStrength> mergeableFilm(
-		child, 
-		[=]()
-		{
-			PH_ASSERT(parent);
-			PH_ASSERT(child);
-
-			parent->mergeWith(*child);
-		});
-
-	return std::move(mergeableFilm);
-}
+//void HdrRgbFilm::genChild(
+//	const TAABB2D<int64>&                        effectiveWindowPx,
+//	TMergeableFilmProxy<SpectralStrength>* const out_film)
+//{
+//	auto childFilm = std::make_unique<HdrRgbFilm>(
+//		getActualResPx().x, 
+//		getActualResPx().y,
+//		effectiveWindowPx, 
+//		getFilter());
+//
+//	HdrRgbFilm* parent = this;
+//	HdrRgbFilm* child  = childFilm.get();
+//
+//	*out_film = TMergeableFilmProxy<SpectralStrength>(
+//		child, 
+//		[=]()
+//		{
+//			PH_ASSERT(parent);
+//			PH_ASSERT(child);
+//
+//			parent->mergeWith(*child);
+//		});
+//}
 
 void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const
 {

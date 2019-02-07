@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Estimator/Estimator.h"
-#include "Core/Quantity/spectral_strength_fwd.h"
+#include "Core/Quantity/SpectralStrength.h"
 #include "Core/Estimator/SurfaceAttributeEstimator.h"
 
 namespace ph

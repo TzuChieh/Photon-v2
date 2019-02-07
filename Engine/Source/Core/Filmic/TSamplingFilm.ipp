@@ -40,12 +40,11 @@ inline TSamplingFilm<Sample>::TSamplingFilm(
 		actualHeightPx,
 		TAABB2D<int64>(
 			TVector2<int64>(0, 0),
-			TVector2<int64>(actualWidthPx, actualHeightPx)),
-		filter),
+			TVector2<int64>(actualWidthPx, actualHeightPx))),
 
 	m_filter(filter)
 {
-	calcSampleDimensions();
+	updateSampleDimensions();
 
 	PH_ASSERT(getSampleWindowPx().isValid());
 }

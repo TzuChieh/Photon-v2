@@ -5,7 +5,6 @@
 #include "Core/Camera/Camera.h"
 #include "Core/Estimator/Estimator.h"
 #include "Core/Estimator/Integrand.h"
-#include "Core/Filmic/SampleFilterFactory.h"
 #include "Core/Estimator/Estimation.h"
 #include "Utility/Timer.h"
 #include "Core/Ray.h"
@@ -20,7 +19,7 @@ SamplingRenderWork::SamplingRenderWork(SamplingRenderWork&& other) :
 	m_estimator          (other.m_estimator),
 	m_integrand          (other.m_integrand),
 	m_renderer           (other.m_renderer),
-	m_films              (std::move(other.m_films)),
+	m_film              (other.m_film),
 	m_sampleGenerator    (std::move(other.m_sampleGenerator)),
 	m_requestedAttributes(std::move(other.m_requestedAttributes)),
 	m_numSamplesTaken    (other.m_numSamplesTaken.load())
@@ -28,7 +27,12 @@ SamplingRenderWork::SamplingRenderWork(SamplingRenderWork&& other) :
 
 void SamplingRenderWork::doWork()
 {
-	const auto& lightFilm = m_films->get<EAttribute::LIGHT_ENERGY>();
+	if(m_onWorkStart)
+	{
+		m_onWorkStart();
+	}
+
+	const auto& lightFilm = m_film;
 
 	const Vector2D rasterSize(lightFilm->getEffectiveResPx());
 	const Vector2D rasterSampleSize(lightFilm->getSampleResPx());
@@ -44,10 +48,6 @@ void SamplingRenderWork::doWork()
 	Samples2DStage camSampleStage = m_sampleGenerator->declare2DStage(
 		numCamStageSamples,
 		Vector2S(lightFilm->getEffectiveResPx()));
-
-	/*Samples2DStage camSampleStage = m_sampleGenerator->declare2DStage(
-		numCamStageSamples,
-		{1, 1});*/
 
 	m_numSamplesTaken = 0;
 	setTotalWork(m_sampleGenerator->numSampleBatches());
@@ -83,12 +83,13 @@ void SamplingRenderWork::doWork()
 
 			m_estimator->estimate(ray, m_integrand, m_requestedAttributes, estimation);
 
-			if(m_films->get<EAttribute::LIGHT_ENERGY>())
+			//if(m_films->get<EAttribute::LIGHT_ENERGY>())
 			{
-				m_films->get<EAttribute::LIGHT_ENERGY>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
+				m_film->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
+				//m_films->get<EAttribute::LIGHT_ENERGY>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
 			}
 			
-			if(m_films->get<EAttribute::NORMAL>())
+			/*if(m_films->get<EAttribute::NORMAL>())
 			{
 				m_films->get<EAttribute::NORMAL>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::NORMAL>());
 			}
@@ -99,7 +100,7 @@ void SamplingRenderWork::doWork()
 				{
 					m_films->get<EAttribute::LIGHT_ENERGY_HALF_EFFORT>()->addSample(rasterPosPx.x, rasterPosPx.y, estimation.get<EAttribute::LIGHT_ENERGY>());
 				}
-			}
+			}*/
 			
 		}// end for
 
@@ -107,9 +108,9 @@ void SamplingRenderWork::doWork()
 
 		//m_renderer->asyncUpdateFilm(m_films, isUpdating);
 
-		if(m_reporter)
+		if(m_onWorkReport)
 		{
-			m_reporter();
+			m_onWorkReport();
 		}
 
 		incrementWorkDone();	
@@ -122,13 +123,18 @@ void SamplingRenderWork::doWork()
 
 		++batchNumber;
 	}
+
+	if(m_onWorkFinish)
+	{
+		m_onWorkFinish();
+	}
 }
 
 void SamplingRenderWork::setDomainPx(const TAABB2D<int64>& domainPx)
 {
 	PH_ASSERT(domainPx.isValid());
 
-	m_films->setEffectiveWindowPx(domainPx);
+	m_film->setEffectiveWindowPx(domainPx);
 }
 
 }// end namespace ph

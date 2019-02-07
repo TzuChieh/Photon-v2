@@ -46,12 +46,18 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 
 	m_estimator->update(*m_scene);
 
-	m_mainFilms.set<EAttribute::LIGHT_ENERGY>(std::make_unique<HdrRgbFilm>(
+	m_mainFilm = std::make_unique<HdrRgbFilm>(
+		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
+	/*m_mainFilms.set<EAttribute::LIGHT_ENERGY>(std::make_unique<HdrRgbFilm>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
 	m_mainFilms.set<EAttribute::NORMAL>(std::make_unique<Vector3Film>(
-		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
+		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));*/
 
 	m_workerFilms.resize(numWorkers());
+	/*for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
+	{
+
+	}*/
 
 	m_renderWorks.resize(numWorkers());
 	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
@@ -84,8 +90,6 @@ void EqualSamplingRenderer::doRender()
 		workers.queueWork([this, workerId]()
 		{
 			SamplingRenderWork& renderWork = m_renderWorks[workerId];
-			auto& wFilms = m_workerFilms[workerId];
-			renderWork.setFilms(&wFilms);
 
 			float suppliedFraction = 0.0f;
 			float submittedFraction = 0.0f;
@@ -105,35 +109,21 @@ void EqualSamplingRenderer::doRender()
 						break;
 					}
 
+					m_workerFilms[workerId] = std::make_unique<HdrRgbFilm>(
+						getRenderWidthPx(), getRenderHeightPx(), workUnit.getRegion(), m_filter);
+
 					const std::size_t spp = workUnit.getDepth();
 
-					auto lightEnergyFilm = std::make_unique<HdrRgbFilm>(
-						workUnit.getRegion().getWidth(), workUnit.getRegion().getHeight(), getRenderWindowPx(), m_filter);
-					auto normalFilm = std::make_unique<Vector3Film>(
-						workUnit.getRegion().getWidth(), workUnit.getRegion().getHeight(), getRenderWindowPx(), m_filter);
-
-					renderWork.setReporter([&]()
+					renderWork.onWorkReport([this, workerId]()
 					{
 						std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-						
+						mergeWorkFilms(m_workerFilms[workerId].get());
 
-						const auto& lightFilm = wFilms.get<EAttribute::LIGHT_ENERGY>();
-						lightFilm->mergeToParent();
-						lightFilm->clear();
-
-						// HACK
-						const auto& normalFilm = wFilms.get<EAttribute::NORMAL>();
-						normalFilm->mergeToParent();
-						normalFilm->clear();
-
-						// HACK
-						addUpdatedRegion(wFilms.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), true);
+						addUpdatedRegion(m_workerFilms[workerId]->getEffectiveWindowPx(), true);
 					});
 
-					wFilms.set<EAttribute::LIGHT_ENERGY>(std::move(lightEnergyFilm));
-					wFilms.set<EAttribute::NORMAL>(std::move(normalFilm));
-
+					renderWork.setFilm(m_workerFilms[workerId].get());
 					renderWork.setSampleGenerator(m_sampleGenerator->genCopied(spp));
 					renderWork.setRequestedAttributes(supportedAttributes());
 					renderWork.setDomainPx(workUnit.getRegion());
@@ -152,7 +142,7 @@ void EqualSamplingRenderer::doRender()
 					submittedFraction = m_scheduler->getSubmittedFraction();
 
 					// HACK
-					addUpdatedRegion(wFilms.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), false);
+					addUpdatedRegion(m_workerFilms[workerId]->getEffectiveWindowPx(), false);
 				}
 
 				m_submittedFractionBits.store(
@@ -167,14 +157,14 @@ void EqualSamplingRenderer::doRender()
 	workers.waitAllWorks();
 }
 
-void EqualSamplingRenderer::asyncUpdateFilm(SamplingFilmSet& workerFilms, bool isUpdating)
+void EqualSamplingRenderer::asyncUpdateFilm(HdrRgbFilm* workerFilm, bool isUpdating)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	mergeWorkFilms(workerFilms);
+	mergeWorkFilms(workerFilm);
 
 	// HACK
-	addUpdatedRegion(workerFilms.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), isUpdating);
+	addUpdatedRegion(workerFilm->getEffectiveWindowPx(), isUpdating);
 	//addUpdatedRegion(workerFilms.get<EAttribute::LIGHT_ENERGY_HALF_EFFORT>()->getEffectiveWindowPx(), isUpdating);
 }
 
@@ -220,15 +210,7 @@ void EqualSamplingRenderer::asyncPeekRegion(
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	const SamplingFilmBase* film = m_mainFilms.get(attribute);
-	if(film)
-	{
-		film->develop(out_frame, region);
-	}
-	else
-	{
-		out_frame.fill(0);
-	}
+	m_mainFilm->develop(out_frame, region);
 }
 
 void EqualSamplingRenderer::develop(HdrRgbFrame& out_frame, const EAttribute attribute)
@@ -241,16 +223,10 @@ void EqualSamplingRenderer::asyncDevelop(HdrRgbFrame& out_frame, EAttribute attr
 	asyncPeekRegion(out_frame, getRenderWindowPx(), attribute);
 }
 
-void EqualSamplingRenderer::mergeWorkFilms(SamplingFilmSet& workerFilms)
+void EqualSamplingRenderer::mergeWorkFilms(HdrRgbFilm* workerFilm)
 {
-	const auto& lightFilm = workerFilms.get<EAttribute::LIGHT_ENERGY>();
-	lightFilm->mergeToParent();
-	lightFilm->clear();
-
-	// HACK
-	const auto& normalFilm = workerFilms.get<EAttribute::NORMAL>();
-	normalFilm->mergeToParent();
-	normalFilm->clear();
+	m_mainFilm->mergeWith(*workerFilm);
+	workerFilm->clear();
 }
 
 void EqualSamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)
@@ -347,7 +323,7 @@ EqualSamplingRenderer::EqualSamplingRenderer(const InputPacket& packet) :
 
 	SamplingRenderer(packet),
 
-	m_mainFilms(),
+	m_mainFilm(),
 	m_scene(nullptr),
 	m_sampleGenerator(nullptr),
 	m_estimator(nullptr),

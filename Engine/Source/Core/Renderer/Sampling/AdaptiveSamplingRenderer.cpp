@@ -50,12 +50,12 @@ void AdaptiveSamplingRenderer::doUpdate(const SdlResourcePack& data)
 
 	m_estimator->update(*m_scene);
 
-	m_films.set<EAttribute::LIGHT_ENERGY>(std::make_unique<HdrRgbFilm>(
+	/*m_films.set<EAttribute::LIGHT_ENERGY>(std::make_unique<HdrRgbFilm>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
 	m_films.set<EAttribute::LIGHT_ENERGY_HALF_EFFORT>(std::make_unique<HdrRgbFilm>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
 	m_films.set<EAttribute::NORMAL>(std::make_unique<Vector3Film>(
-		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
+		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));*/
 
 	m_renderWorks.resize(numWorkers());
 	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
@@ -110,8 +110,8 @@ void AdaptiveSamplingRenderer::doRender()
 		workers.waitAllWorks();
 
 		// HACK: assumed region independency; peek is inaccurate
-		m_films.get(EAttribute::LIGHT_ENERGY)->develop(m_allEffortFrame, workUnit.getRegion());
-		m_films.get(EAttribute::LIGHT_ENERGY_HALF_EFFORT)->develop(m_halfEffortFrame, workUnit.getRegion());
+		/*m_films.get(EAttribute::LIGHT_ENERGY)->develop(m_allEffortFrame, workUnit.getRegion());
+		m_films.get(EAttribute::LIGHT_ENERGY_HALF_EFFORT)->develop(m_halfEffortFrame, workUnit.getRegion());*/
 
 		{
 			std::lock_guard<std::mutex> lock(m_rendererMutex);
@@ -166,15 +166,15 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 	};
 }
 
-void AdaptiveSamplingRenderer::asyncUpdateFilm(SamplingFilmSet& workerFilms, bool isUpdating)
+void AdaptiveSamplingRenderer::asyncUpdateFilm(HdrRgbFilm* workerFilms, bool isUpdating)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 	mergeWorkFilms(workerFilms);
 
 	// HACK
-	addUpdatedRegion(workerFilms.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), isUpdating);
-	addUpdatedRegion(workerFilms.get<EAttribute::LIGHT_ENERGY_HALF_EFFORT>()->getEffectiveWindowPx(), isUpdating);
+	/*addUpdatedRegion(workerFilms.get<EAttribute::LIGHT_ENERGY>()->getEffectiveWindowPx(), isUpdating);
+	addUpdatedRegion(workerFilms.get<EAttribute::LIGHT_ENERGY_HALF_EFFORT>()->getEffectiveWindowPx(), isUpdating);*/
 }
 
 void AdaptiveSamplingRenderer::clearWorkData()
@@ -219,7 +219,7 @@ void AdaptiveSamplingRenderer::asyncPeekRegion(
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	const SamplingFilmBase* film = m_films.get(attribute);
+	/*const SamplingFilmBase* film = m_films.get(attribute);
 	if(film)
 	{
 		film->develop(out_frame, region);
@@ -227,7 +227,7 @@ void AdaptiveSamplingRenderer::asyncPeekRegion(
 	else
 	{
 		out_frame.fill(0);
-	}
+	}*/
 }
 
 void AdaptiveSamplingRenderer::develop(HdrRgbFrame& out_frame, const EAttribute attribute)
@@ -240,11 +240,11 @@ void AdaptiveSamplingRenderer::asyncDevelop(HdrRgbFrame& out_frame, EAttribute a
 	asyncPeekRegion(out_frame, getRenderWindowPx(), attribute);
 }
 
-void AdaptiveSamplingRenderer::mergeWorkFilms(SamplingFilmSet& workerFilms)
+void AdaptiveSamplingRenderer::mergeWorkFilms(HdrRgbFilm* workerFilms)
 {
 	// HACK
 
-	const auto& lightFilm = workerFilms.get<EAttribute::LIGHT_ENERGY>();
+	/*const auto& lightFilm = workerFilms.get<EAttribute::LIGHT_ENERGY>();
 	lightFilm->mergeToParent();
 	lightFilm->clear();
 	
@@ -254,7 +254,7 @@ void AdaptiveSamplingRenderer::mergeWorkFilms(SamplingFilmSet& workerFilms)
 
 	const auto& halfEffortFilm = workerFilms.get<EAttribute::LIGHT_ENERGY_HALF_EFFORT>();
 	halfEffortFilm->mergeToParent();
-	halfEffortFilm->clear();
+	halfEffortFilm->clear();*/
 }
 
 void AdaptiveSamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)
@@ -351,7 +351,7 @@ AdaptiveSamplingRenderer::AdaptiveSamplingRenderer(const InputPacket& packet) :
 
 	SamplingRenderer(packet),
 
-	m_films(),
+	//m_films(),
 	m_scene(nullptr),
 	m_sampleGenerator(nullptr),
 	m_estimator(nullptr),

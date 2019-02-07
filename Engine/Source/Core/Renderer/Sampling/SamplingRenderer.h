@@ -10,7 +10,7 @@ class SamplingFilmSet;
 class SamplingRenderer : public Renderer, public TCommandInterface<SamplingRenderer>
 {
 public:
-	virtual void asyncUpdateFilm(SamplingFilmSet& workerFilms, bool isUpdating) = 0;
+	virtual void asyncUpdateFilm(HdrRgbFilm* workerFilm, bool isUpdating) = 0;
 
 // command interface
 public:

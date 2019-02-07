@@ -1,7 +1,7 @@
 #include "constants_for_test.h"
 
 #include <Core/Filmic/HdrRgbFilm.h>
-#include <Core/Filmic/SampleFilterFactory.h>
+#include <Core/Filmic/SampleFilters.h>
 
 #include <gtest/gtest.h>
 
@@ -16,7 +16,7 @@ TEST(HdrRgbFilmTest, CorrectRasterCoordinates)
 	const int64 filmWpx = 1;
 	const int64 filmHpx = 2;
 
-	const auto& filter = SampleFilterFactory::createBoxFilter();
+	const auto& filter = SampleFilters::createBoxFilter();
 	const auto& film = HdrRgbFilm(static_cast<uint64>(filmWpx), 
 	                              static_cast<uint64>(filmHpx), 
 	                              filter);

@@ -9,16 +9,16 @@ namespace ph
 {
 
 #if defined(PH_RENDER_MODE_RGB)
-	typedef LinearSrgbSpectralStrength SpectralStrength;
+	using SpectralStrength = LinearSrgbSpectralStrength;
 
 #elif defined(PH_RENDER_MODE_SPECTRAL)
-	typedef SampledSpectralStrength SpectralStrength;
+	using SpectralStrength = SampledSpectralStrength;
 
 #elif defined(PH_RENDER_MODE_FULL_SPECTRAL)
 	// TODO
 
 #else
-	typedef LinearSrgbSpectralStrength SpectralStrength;
+	using SpectralStrength = LinearSrgbSpectralStrength;
 
 #endif
 

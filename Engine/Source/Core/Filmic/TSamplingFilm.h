@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Core/Filmic/Film.h"
+#include "Core/Filmic/filmic_fwd.h"
 #include "Core/Bound/TAABB2D.h"
 #include "Math/TVector2.h"
 #include "Frame/frame_fwd.h"
-#include "Core/Filmic/TMergeableFilm.h"
 #include "Core/Filmic/SampleFilter.h"
 
 #include <vector>
@@ -35,7 +35,9 @@ public:
 	// parent's, but potentially with a different effective window. Note that
 	// the returned film depends on its parent, and it is caller's 
 	// responsibility to make sure a child does not outlive its parent.
-	virtual TMergeableFilm<Sample> genChild(const TAABB2D<int64>& effectiveWindowPx) = 0;
+	/*virtual void genChild(
+		const TAABB2D<int64>&        effectiveWindowPx,
+		TMergeableFilmProxy<Sample>* out_film) = 0;*/
 
 	void clear() override = 0;
 

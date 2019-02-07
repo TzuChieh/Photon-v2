@@ -28,7 +28,7 @@ public:
 
 	void addSample(float64 xPx, float64 yPx, const Vector3R& vec3) override;
 	void clear() override;
-	std::unique_ptr<TSamplingFilm> genSamplingChild(const TAABB2D<int64>& effectiveWindowPx) override;
+	//std::unique_ptr<TSamplingFilm> genSamplingChild(const TAABB2D<int64>& effectiveWindowPx) override;
 	void setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow) override;
 
 private:
@@ -68,24 +68,24 @@ inline void Vector3Film::clear()
 	m_film.clear();
 }
 
-inline std::unique_ptr<TSamplingFilm<Vector3R>> Vector3Film::genSamplingChild(const TAABB2D<int64>& effectiveWindowPx)
-{
-	auto childFilm = std::make_unique<Vector3Film>(
-		getActualResPx().x, getActualResPx().y,
-		effectiveWindowPx,
-		getFilter());
-
-	Vector3Film* child  = childFilm.get();
-	Vector3Film* parent = this;
-	childFilm->setMerger([=]()
-	{
-		PH_ASSERT(child && parent);
-
-		parent->m_film.mergeWith(child->m_film);
-	});
-
-	return childFilm;
-}
+//inline std::unique_ptr<TSamplingFilm<Vector3R>> Vector3Film::genSamplingChild(const TAABB2D<int64>& effectiveWindowPx)
+//{
+//	auto childFilm = std::make_unique<Vector3Film>(
+//		getActualResPx().x, getActualResPx().y,
+//		effectiveWindowPx,
+//		getFilter());
+//
+//	Vector3Film* child  = childFilm.get();
+//	Vector3Film* parent = this;
+//	childFilm->setMerger([=]()
+//	{
+//		PH_ASSERT(child && parent);
+//
+//		parent->m_film.mergeWith(child->m_film);
+//	});
+//
+//	return childFilm;
+//}
 
 inline void Vector3Film::setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow)
 {
