@@ -421,13 +421,6 @@ void PMRenderer::develop(HdrRgbFrame& out_frame, const EAttribute attribute)
 	m_film->develop(out_frame);
 }
 
-AttributeTags PMRenderer::supportedAttributes() const
-{
-	AttributeTags supported;
-	supported.tag(EAttribute::LIGHT_ENERGY);
-	return supported;
-}
-
 std::string PMRenderer::renderStateName(const RenderState::EType type, const std::size_t index) const
 {
 	PH_ASSERT_LT(index, RenderState::numStates(type));

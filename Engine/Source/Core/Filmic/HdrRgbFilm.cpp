@@ -5,7 +5,6 @@
 #include "Math/Function/TConstant2D.h"
 #include "Math/Function/TGaussian2D.h"
 #include "Core/Filmic/SampleFilters.h"
-#include "Core/Filmic/TMergeableFilmProxy.h"
 #include "Common/assertion.h"
 
 #include <cstddef>

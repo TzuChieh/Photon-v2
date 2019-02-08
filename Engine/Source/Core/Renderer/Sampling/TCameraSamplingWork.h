@@ -7,6 +7,7 @@
 #include "Core/Renderer/Sampling/TSensedRayProcessor.h"
 #include "Math/TVector2.h"
 #include "Core/Bound/TAABB2D.h"
+#include "Core/Filmic/SamplingFilmDimensions.h"
 
 #include <atomic>
 #include <functional>
@@ -34,11 +35,7 @@ public:
 	SamplingStatistics asyncGetStatistics();
 
 	void setSampleGenerator(std::unique_ptr<SampleGenerator> sampleGenerator);
-
-	void setFilmDimensions(
-		const Vector2S&         actualResPx, 
-		const TAABB2D<int64>&   effectiveWindowPx,
-		const TAABB2D<float64>& sampleWindowPx);
+	void setFilmDimensions(const SamplingFilmDimensions& dimensions);
 
 	void onWorkStart(std::function<void()> func);
 	void onWorkReport(std::function<void()> func);

@@ -32,23 +32,17 @@ public:
 	RenderProgress asyncQueryRenderProgress() override;
 	void asyncPeekRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute) override;
 
-	AttributeTags supportedAttributes() const override;
 	std::string renderStateName(RenderState::EType type, std::size_t index) const override;
 
-	// FIXME: these APIs are somewhat hacked and should be revisited
-	void asyncUpdateFilm(HdrRgbFilm* workerFilm, bool isUpdating) override;
-	void asyncDevelop(HdrRgbFrame& out_frame, EAttribute attribute);
-
 private:
-	const Scene*               m_scene;
-	const Camera*              m_camera;
-	SampleGenerator*           m_sampleGenerator;
-	std::unique_ptr<FullRayEnergyEstimator> m_estimator;
-	SampleFilter               m_filter;
-	std::unique_ptr<HdrRgbFilm> m_mainFilm;
-	AttributeTags              m_requestedAttributes;
+	const Scene*                   m_scene;
+	const Camera*                  m_camera;
+	SampleGenerator*               m_sampleGenerator;
+	SampleFilter                   m_filter;
+	HdrRgbFilm                     m_mainFilm;
 	std::unique_ptr<WorkScheduler> m_scheduler;
 
+	std::unique_ptr<FullRayEnergyEstimator>               m_estimator;
 	std::vector<TCameraSamplingWork<FilmEnergyEstimator>> m_renderWorks;
 	std::vector<FilmEnergyEstimator>                      m_filmEstimators;
 
@@ -64,8 +58,6 @@ private:
 	std::atomic_uint32_t m_suppliedFractionBits;
 	std::atomic_uint32_t m_submittedFractionBits;
 
-	void clearWorkData();
-	void mergeWorkFilms(HdrRgbFilm* workerFilm);
 	void addUpdatedRegion(const Region& region, bool isUpdating);
 
 // command interface

@@ -28,7 +28,6 @@ public:
 
 	void addSample(float64 xPx, float64 yPx, const Vector3R& vec3) override;
 	void clear() override;
-	//std::unique_ptr<TSamplingFilm> genSamplingChild(const TAABB2D<int64>& effectiveWindowPx) override;
 	void setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow) override;
 
 private:

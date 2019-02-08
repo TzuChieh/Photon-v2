@@ -39,11 +39,6 @@ public:
 
 	void addSample(float64 xPx, float64 yPx, const SpectralStrength& spectrum) override;
 	void clear() override;
-
-	/*void genChild(
-		const TAABB2D<int64>&                  effectiveWindowPx,
-		TMergeableFilmProxy<SpectralStrength>* out_film) override;*/
-
 	void setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow) override;
 
 	void addSample(float64 xPx, float64 yPx, const Vector3R& rgb);

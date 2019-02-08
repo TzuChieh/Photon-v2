@@ -149,18 +149,14 @@ inline void TCameraSamplingWork<Processor>::setSampleGenerator(std::unique_ptr<S
 
 template<typename Processor>
 inline void TCameraSamplingWork<Processor>::setFilmDimensions(
-	const Vector2S&         actualResPx,
-	const TAABB2D<int64>&   effectiveWindowPx,
-	const TAABB2D<float64>& sampleWindowPx)
+	const SamplingFilmDimensions& dimensions)
 {
-	PH_ASSERT_MSG(effectiveWindowPx.isValid(), effectiveWindowPx.toString());
-	PH_ASSERT_MSG(sampleWindowPx.isValid(),    sampleWindowPx.toString());
+	PH_ASSERT_MSG(dimensions.effectiveWindowPx.isValid(), dimensions.effectiveWindowPx.toString());
+	PH_ASSERT_MSG(dimensions.sampleWindowPx.isValid(),    dimensions.sampleWindowPx.toString());
 
-	m_filmActualResPx       = Vector2D(actualResPx);
-	m_filmEffectiveWindowPx = effectiveWindowPx;
-	m_filmSampleWindowPx    = sampleWindowPx;
-
-	std::cerr << "csw " << m_filmEffectiveWindowPx.toString() << std::endl;
+	m_filmActualResPx       = Vector2D(dimensions.actualResPx);
+	m_filmEffectiveWindowPx = dimensions.effectiveWindowPx;
+	m_filmSampleWindowPx    = dimensions.sampleWindowPx;
 }
 
 template<typename Processor>

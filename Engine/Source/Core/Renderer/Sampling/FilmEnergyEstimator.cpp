@@ -4,40 +4,29 @@
 #include "Core/Filmic/SampleFilters.h"
 #include "Core/Estimator/IRayEnergyEstimator.h"
 
-#include <iostream>
-
 namespace ph
 {
 
 FilmEnergyEstimator::FilmEnergyEstimator(
 	const std::size_t numEstimations,
-	Integrand integrand,
-	const Vector2S& filmActualResPx,
-	const TAABB2D<int64>& filmEffectiveWindowPx,
-	const SampleFilter& filter) :
+	Integrand         integrand,
+	SampleFilter      filter) :
 
-	m_films(numEstimations),
-	m_estimation(numEstimations),
-	m_estimators(),
-	m_integrand(std::move(integrand))
-{
-	for(HdrRgbFilm& film : m_films)
-	{
-		film = HdrRgbFilm(
-			static_cast<int64>(filmActualResPx.x),
-			static_cast<int64>(filmActualResPx.y),
-			filmEffectiveWindowPx,
-			filter);
-	}
-
-	std::cerr << "fee " << m_films[0].getEffectiveResPx().toString() << std::endl;
-}
+	m_films          (),
+	m_estimation     (numEstimations),
+	m_estimators     (),
+	m_integrand      (std::move(integrand)),
+	m_filmActualResPx(),
+	m_filter         (std::move(filter))
+{}
 
 FilmEnergyEstimator::FilmEnergyEstimator(FilmEnergyEstimator&& other) : 
-	m_films(std::move(other.m_films)),
-	m_estimation(std::move(other.m_estimation)),
-	m_estimators(std::move(other.m_estimators)),
-	m_integrand(std::move(other.m_integrand))
+	m_films          (std::move(other.m_films)),
+	m_estimation     (std::move(other.m_estimation)),
+	m_estimators     (std::move(other.m_estimators)),
+	m_integrand      (std::move(other.m_integrand)),
+	m_filmActualResPx(std::move(other.m_filmActualResPx)),
+	m_filter         (std::move(other.m_filter))
 {}
 
 void FilmEnergyEstimator::impl_process(const Vector2D& sensorNdc, const Ray& ray)
@@ -51,12 +40,10 @@ void FilmEnergyEstimator::impl_process(const Vector2D& sensorNdc, const Ray& ray
 
 	for(std::size_t i = 0; i < m_films.size(); ++i)
 	{
-		const Vector2D rasterPos = sensorNdc * Vector2D(m_films[i].getActualResPx());
+		const Vector2D rasterPos = sensorNdc * m_filmActualResPx;
 
 		m_films[i].addSample(rasterPos.x, rasterPos.y, m_estimation[i]);
 	}
-
-	//std::cerr << "fee " << m_films[0].getEffectiveResPx().toString() << std::endl;
 }
 
 void FilmEnergyEstimator::addEstimator(const IRayEnergyEstimator* const estimator)
@@ -66,14 +53,50 @@ void FilmEnergyEstimator::addEstimator(const IRayEnergyEstimator* const estimato
 	m_estimators.push_back(estimator);
 }
 
+void FilmEnergyEstimator::setFilmDimensions(
+	const TVector2<int64>& filmActualResPx,
+	const TAABB2D<int64>&  effectiveWindowPx)
+{
+	if(m_estimation.numEstimations() == 0)
+	{
+		return;
+	}
+
+	// lazily construct films
+	if(m_films.size() != m_estimation.numEstimations() || 
+	   !m_films.front().getActualResPx().equals(filmActualResPx))
+	{
+		m_films.resize(m_estimation.numEstimations());
+		for(HdrRgbFilm& film : m_films)
+		{
+			film = HdrRgbFilm(
+				filmActualResPx.x,
+				filmActualResPx.y,
+				effectiveWindowPx,
+				m_filter);
+		}
+	}
+	else
+	{
+		for(HdrRgbFilm& film : m_films)
+		{
+			film.setEffectiveWindowPx(effectiveWindowPx);
+		}
+	}
+
+	m_filmActualResPx = Vector2D(filmActualResPx);
+}
+
 FilmEnergyEstimator& FilmEnergyEstimator::operator = (FilmEnergyEstimator&& other)
 {
 	TSensedRayProcessor<FilmEnergyEstimator>::operator = (std::move(other));
 
-	m_films = std::move(other.m_films);
-	m_estimation = std::move(other.m_estimation);
-	m_estimators = std::move(other.m_estimators);
-	m_integrand = std::move(other.m_integrand);
+	m_films           = std::move(other.m_films);
+	m_estimation      = std::move(other.m_estimation);
+	m_estimators      = std::move(other.m_estimators);
+	m_integrand       = std::move(other.m_integrand);
+	m_filmActualResPx = std::move(other.m_filmActualResPx);
+	m_filter          = std::move(other.m_filter);
 
 	return *this;
 }

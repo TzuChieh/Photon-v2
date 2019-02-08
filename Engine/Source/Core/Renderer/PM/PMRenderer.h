@@ -27,7 +27,6 @@ public:
 	RenderProgress asyncQueryRenderProgress() override;
 	void asyncPeekRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute) override;
 
-	AttributeTags supportedAttributes() const override;
 	std::string renderStateName(RenderState::EType type, std::size_t index) const override;
 
 	void asyncMergeFilm(const HdrRgbFilm& srcFilm);

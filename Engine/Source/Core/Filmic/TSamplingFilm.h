@@ -6,6 +6,7 @@
 #include "Math/TVector2.h"
 #include "Frame/frame_fwd.h"
 #include "Core/Filmic/SampleFilter.h"
+#include "Core/Filmic/SamplingFilmDimensions.h"
 
 #include <vector>
 #include <functional>
@@ -35,21 +36,14 @@ public:
 
 	virtual void addSample(float64 xPx, float64 yPx, const Sample& sample) = 0;
 
-	// Generates a child film with the same actual dimensions and filter as 
-	// parent's, but potentially with a different effective window. Note that
-	// the returned film depends on its parent, and it is caller's 
-	// responsibility to make sure a child does not outlive its parent.
-	/*virtual void genChild(
-		const TAABB2D<int64>&        effectiveWindowPx,
-		TMergeableFilmProxy<Sample>* out_film) = 0;*/
-
 	void clear() override = 0;
 
 	void setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow) override;
 
-	TVector2<float64> getSampleResPx() const;
+	TVector2<float64>       getSampleResPx() const;
 	const TAABB2D<float64>& getSampleWindowPx() const;
-	const SampleFilter& getFilter() const;
+	const SampleFilter&     getFilter() const;
+	SamplingFilmDimensions  getDimensions() const;
 
 	TSamplingFilm& operator = (TSamplingFilm&& other);
 
@@ -80,6 +74,12 @@ template<typename Sample>
 inline const TAABB2D<float64>& TSamplingFilm<Sample>::getSampleWindowPx() const
 {
 	return m_sampleWindowPx;
+}
+
+template<typename Sample>
+inline SamplingFilmDimensions TSamplingFilm<Sample>::getDimensions() const
+{
+	return {getActualResPx(), getEffectiveWindowPx(), getSampleWindowPx()};
 }
 
 }// end namespace ph

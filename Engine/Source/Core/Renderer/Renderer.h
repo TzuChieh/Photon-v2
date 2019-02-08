@@ -63,7 +63,7 @@ public:
 		EAttribute    attribute) = 0;
 
 	// TODO: these two methods can be combined
-	virtual AttributeTags supportedAttributes() const = 0;
+	//virtual AttributeTags supportedAttributes() const = 0;
 	virtual std::string renderStateName(RenderState::EType type, std::size_t index) const = 0;
 
 	void update(const SdlResourcePack& data);
