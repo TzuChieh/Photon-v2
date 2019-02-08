@@ -45,12 +45,18 @@ HdrRgbFilm::HdrRgbFilm(
 		effectiveWindowPx, 
 		filter),
 
-	m_pixelRadianceSensors(),
-	m_children()
+	m_pixelRadianceSensors()
 {
 	resizeRadianceSensorBuffer();
 	clear();
 }
+
+HdrRgbFilm::HdrRgbFilm(HdrRgbFilm&& other) :
+
+	TSamplingFilm<SpectralStrength>(std::move(other)),
+
+	m_pixelRadianceSensors(std::move(other.m_pixelRadianceSensors))
+{}
 
 void HdrRgbFilm::addSample(
 	const float64           xPx, 
@@ -218,6 +224,15 @@ void HdrRgbFilm::setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow)
 
 	resizeRadianceSensorBuffer();
 	clear();
+}
+
+HdrRgbFilm& HdrRgbFilm::operator = (HdrRgbFilm&& other)
+{
+	TSamplingFilm<SpectralStrength>::operator = (std::move(other));
+
+	m_pixelRadianceSensors = std::move(other.m_pixelRadianceSensors);
+
+	return *this;
 }
 
 void HdrRgbFilm::resizeRadianceSensorBuffer()

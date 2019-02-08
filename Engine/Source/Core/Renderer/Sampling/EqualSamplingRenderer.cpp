@@ -50,12 +50,8 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 
 	m_mainFilm = std::make_unique<HdrRgbFilm>(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
-	/*m_mainFilms.set<EAttribute::LIGHT_ENERGY>(std::make_unique<HdrRgbFilm>(
-		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));
-	m_mainFilms.set<EAttribute::NORMAL>(std::make_unique<Vector3Film>(
-		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter));*/
 
-	m_workerFilms.resize(numWorkers());
+	m_filmEstimators.resize(numWorkers());
 	/*for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
 	{
 
@@ -64,10 +60,9 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 	m_renderWorks.resize(numWorkers());
 	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
 	{
-		m_renderWorks[workerId] = SamplingRenderWork(
-			m_estimator.get(),
-			Integrand(m_scene, m_camera),
-			this);
+		m_renderWorks[workerId] = TCameraSamplingWork<FilmEnergyEstimator>(
+			m_camera,
+			&m_filmEstimators[workerId]);
 	}
 
 	m_totalPaths = 0;
@@ -91,7 +86,8 @@ void EqualSamplingRenderer::doRender()
 	{
 		workers.queueWork([this, workerId]()
 		{
-			SamplingRenderWork& renderWork = m_renderWorks[workerId];
+			auto& renderWork = m_renderWorks[workerId];
+			auto& filmEstimator = m_filmEstimators[workerId];
 
 			float suppliedFraction = 0.0f;
 			float submittedFraction = 0.0f;
@@ -111,8 +107,13 @@ void EqualSamplingRenderer::doRender()
 						break;
 					}
 
-					m_workerFilms[workerId] = std::make_unique<HdrRgbFilm>(
-						getRenderWidthPx(), getRenderHeightPx(), workUnit.getRegion(), m_filter);
+					filmEstimator = FilmEnergyEstimator(
+						1, 
+						Integrand(m_scene, m_camera), 
+						Vector2S(getRenderWidthPx(), getRenderHeightPx()),
+						workUnit.getRegion(), 
+						m_filter);
+					filmEstimator.addEstimator(m_estimator.get());
 
 					const std::size_t spp = workUnit.getDepth();
 
@@ -120,15 +121,16 @@ void EqualSamplingRenderer::doRender()
 					{
 						std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-						mergeWorkFilms(m_workerFilms[workerId].get());
+						mergeWorkFilms(&m_filmEstimators[workerId].getFilm(0));
 
-						addUpdatedRegion(m_workerFilms[workerId]->getEffectiveWindowPx(), true);
+						addUpdatedRegion(m_filmEstimators[workerId].getFilm(0).getEffectiveWindowPx(), true);
 					});
 
-					renderWork.setFilm(m_workerFilms[workerId].get());
+					renderWork.setFilmDimensions(
+						Vector2S(filmEstimator.getFilm(0).getActualResPx()),
+						filmEstimator.getFilm(0).getEffectiveWindowPx(),
+						filmEstimator.getFilm(0).getSampleWindowPx());
 					renderWork.setSampleGenerator(m_sampleGenerator->genCopied(spp));
-					renderWork.setRequestedAttributes(supportedAttributes());
-					renderWork.setDomainPx(workUnit.getRegion());
 				}
 
 				m_suppliedFractionBits.store(
@@ -144,7 +146,7 @@ void EqualSamplingRenderer::doRender()
 					submittedFraction = m_scheduler->getSubmittedFraction();
 
 					// HACK
-					addUpdatedRegion(m_workerFilms[workerId]->getEffectiveWindowPx(), false);
+					addUpdatedRegion(filmEstimator.getFilm(0).getEffectiveWindowPx(), false);
 				}
 
 				m_submittedFractionBits.store(

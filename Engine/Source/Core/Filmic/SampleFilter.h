@@ -12,6 +12,7 @@ namespace ph
 class SampleFilter final
 {
 public:
+	SampleFilter() = default;
 	SampleFilter(const std::shared_ptr<TMathFunction2D<float64>>& filter,
 	             float64 widthPx, float64 heightPx);
 	SampleFilter(const SampleFilter& other);

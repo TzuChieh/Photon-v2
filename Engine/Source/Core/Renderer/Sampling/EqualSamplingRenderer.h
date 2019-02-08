@@ -3,10 +3,10 @@
 #include "Core/Renderer/Sampling/SamplingRenderer.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Filmic/SampleFilter.h"
-#include "Core/Renderer/Sampling/SamplingRenderWork.h"
-#include "Core/Renderer/Sampling/SamplingFilmSet.h"
+#include "Core/Renderer/Sampling/TCameraSamplingWork.h"
+#include "Core/Renderer/Sampling/FilmEnergyEstimator.h"
+#include "Core/Estimator/FullRayEnergyEstimator.h"
 #include "Core/Renderer/Region/WorkScheduler.h"
-#include "Core/Estimator/estimator_fwd.h"
 
 #include <vector>
 #include <memory>
@@ -43,13 +43,14 @@ private:
 	const Scene*               m_scene;
 	const Camera*              m_camera;
 	SampleGenerator*           m_sampleGenerator;
-	std::unique_ptr<FullEnergyEstimator> m_estimator;
+	std::unique_ptr<FullRayEnergyEstimator> m_estimator;
 	SampleFilter               m_filter;
 	std::unique_ptr<HdrRgbFilm> m_mainFilm;
-	std::vector<std::unique_ptr<HdrRgbFilm>> m_workerFilms;
 	AttributeTags              m_requestedAttributes;
-	std::vector<SamplingRenderWork> m_renderWorks;
 	std::unique_ptr<WorkScheduler> m_scheduler;
+
+	std::vector<TCameraSamplingWork<FilmEnergyEstimator>> m_renderWorks;
+	std::vector<FilmEnergyEstimator>                      m_filmEstimators;
 
 	struct UpdatedRegion
 	{

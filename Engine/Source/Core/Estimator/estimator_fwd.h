@@ -3,9 +3,9 @@
 namespace ph
 {
 
-class IEnergyEstimator;
+class IRayEnergyEstimator;
 
-class FullEnergyEstimator;
+class FullRayEnergyEstimator;
 
 class BVPTEstimator;
 class BNEEPTEstimator;

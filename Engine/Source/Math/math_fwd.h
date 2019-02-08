@@ -28,26 +28,26 @@ class TMatrix4;
 template<typename T, std::size_t N>
 class TArithmeticArray;
 
-typedef TVector2<real>        Vector2R;
-typedef TVector2<float32>     Vector2F;
-typedef TVector2<float64>     Vector2D;
-typedef TVector2<std::size_t> Vector2S;
+using Vector2R = TVector2<real>;
+using Vector2F = TVector2<float32>;
+using Vector2D = TVector2<float64>;
+using Vector2S = TVector2<std::size_t>;
 
-typedef TVector3<real>        Vector3R;
-typedef TVector3<float32>     Vector3F;
-typedef TVector3<float64>     Vector3D;
-typedef TVector3<std::size_t> Vector3S;
+using Vector3R = TVector3<real>;
+using Vector3F = TVector3<float32>;
+using Vector3D = TVector3<float64>;
+using Vector3S = TVector3<std::size_t>;
 
-typedef TQuaternion<real>    QuaternionR;
-typedef TQuaternion<float32> QuaternionF;
-typedef TQuaternion<float64> QuaternionD;
+using QuaternionR = TQuaternion<real>;
+using QuaternionF = TQuaternion<float32>;
+using QuaternionD = TQuaternion<float64>;
 
-typedef TMatrix2<real>    Matrix2R;
-typedef TMatrix2<float32> Matrix2F;
-typedef TMatrix2<float64> Matrix2D;
+using Matrix2R = TMatrix2<real>;
+using Matrix2F = TMatrix2<float32>;
+using Matrix2D = TMatrix2<float64>;
 
-typedef TMatrix4<real>    Matrix4R;
-typedef TMatrix4<float32> Matrix4F;
-typedef TMatrix4<float64> Matrix4D;
+using Matrix4R = TMatrix4<real>;
+using Matrix4F = TMatrix4<float32>;
+using Matrix4D = TMatrix4<float64>;
 
 }// end namespace ph

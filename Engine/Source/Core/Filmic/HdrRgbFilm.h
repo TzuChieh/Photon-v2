@@ -17,9 +17,13 @@ namespace ph
 	added as spectral values, they are automatically converted to linear sRGB
 	values for storage. 
 */
+
+// TODO: move and copy
 class HdrRgbFilm : public TSamplingFilm<SpectralStrength>
 {
 public:
+	HdrRgbFilm() = default;
+
 	HdrRgbFilm(
 		int64               actualWidthPx, 
 		int64               actualHeightPx,
@@ -30,6 +34,8 @@ public:
 		int64                 actualHeightPx,
 		const TAABB2D<int64>& effectiveWindowPx,
 		const SampleFilter&   filter);
+
+	HdrRgbFilm(HdrRgbFilm&& other);
 
 	void addSample(float64 xPx, float64 yPx, const SpectralStrength& spectrum) override;
 	void clear() override;
@@ -43,6 +49,8 @@ public:
 	void addSample(float64 xPx, float64 yPx, const Vector3R& rgb);
 	void mergeWith(const HdrRgbFilm& other);
 
+	HdrRgbFilm& operator = (HdrRgbFilm&& other);
+
 	// HACK
 	void setPixel(float64 xPx, float64 yPx, const SpectralStrength& spectrum);
 
@@ -50,7 +58,6 @@ private:
 	void developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const override;
 
 	std::vector<RadianceSensor> m_pixelRadianceSensors;
-	std::vector<std::unique_ptr<HdrRgbFilm>> m_children;
 
 	void resizeRadianceSensorBuffer();
 };

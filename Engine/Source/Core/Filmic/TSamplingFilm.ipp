@@ -38,9 +38,7 @@ inline TSamplingFilm<Sample>::TSamplingFilm(
 	Film(
 		actualWidthPx,
 		actualHeightPx,
-		TAABB2D<int64>(
-			TVector2<int64>(0, 0),
-			TVector2<int64>(actualWidthPx, actualHeightPx))),
+		effectiveWindowPx),
 
 	m_filter(filter)
 {
@@ -50,11 +48,33 @@ inline TSamplingFilm<Sample>::TSamplingFilm(
 }
 
 template<typename Sample>
+inline TSamplingFilm<Sample>::TSamplingFilm(TSamplingFilm&& other) :
+
+	Film(std::move(other)),
+
+	m_filter        (std::move(other.m_filter)),
+	m_sampleWindowPx(std::move(other.m_sampleWindowPx))
+{
+	PH_ASSERT(getSampleWindowPx().isValid());
+}
+
+template<typename Sample>
 inline void TSamplingFilm<Sample>::setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow)
 {
 	Film::setEffectiveWindowPx(effectiveWindow);
 
 	updateSampleDimensions();
+}
+
+template<typename Sample>
+inline TSamplingFilm<Sample>& TSamplingFilm<Sample>::operator = (TSamplingFilm&& other)
+{
+	Film::operator = (std::move(other));
+
+	m_filter         = std::move(other.m_filter);
+	m_sampleWindowPx = std::move(other.m_sampleWindowPx);
+
+	return *this;
 }
 
 template<typename Sample>

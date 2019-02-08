@@ -26,6 +26,11 @@ Film::Film(
 	Film::setEffectiveWindowPx(effectiveWindowPx);
 }
 
+Film::Film(Film&& other) : 
+	m_actualResPx      (std::move(other.m_actualResPx)),
+	m_effectiveWindowPx(std::move(other.m_effectiveWindowPx))
+{}
+
 void Film::develop(HdrRgbFrame& out_frame) const
 {
 	developRegion(out_frame, m_effectiveWindowPx);
@@ -34,6 +39,14 @@ void Film::develop(HdrRgbFrame& out_frame) const
 void Film::develop(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const
 {
 	developRegion(out_frame, regionPx);
+}
+
+Film& Film::operator = (Film&& other)
+{
+	m_actualResPx       = std::move(other.m_actualResPx);
+	m_effectiveWindowPx = std::move(other.m_effectiveWindowPx);
+
+	return *this;
 }
 
 }// end namespace ph

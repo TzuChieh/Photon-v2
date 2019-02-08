@@ -18,6 +18,8 @@ template<typename Sample>
 class TSamplingFilm : public Film
 {
 public:
+	TSamplingFilm() = default;
+
 	TSamplingFilm(
 		int64               actualWidthPx, 
 		int64               actualHeightPx,
@@ -28,6 +30,8 @@ public:
 		int64                 actualHeightPx,
 		const TAABB2D<int64>& effectiveWindowPx,
 		const SampleFilter&   filter);
+
+	TSamplingFilm(TSamplingFilm&& other);
 
 	virtual void addSample(float64 xPx, float64 yPx, const Sample& sample) = 0;
 
@@ -46,6 +50,8 @@ public:
 	TVector2<float64> getSampleResPx() const;
 	const TAABB2D<float64>& getSampleWindowPx() const;
 	const SampleFilter& getFilter() const;
+
+	TSamplingFilm& operator = (TSamplingFilm&& other);
 
 private:
 	void developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const override = 0;

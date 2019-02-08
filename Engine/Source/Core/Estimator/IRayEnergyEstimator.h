@@ -7,10 +7,10 @@ class Ray;
 class Integrand;
 class EnergyEstimation;
 
-class IEnergyEstimator
+class IRayEnergyEstimator
 {
 public:
-	virtual ~IEnergyEstimator() = default;
+	virtual ~IRayEnergyEstimator() = default;
 
 	virtual void update(const Integrand& integrand) = 0;
 

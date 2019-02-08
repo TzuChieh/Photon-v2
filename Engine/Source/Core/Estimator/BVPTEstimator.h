@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Estimator/FullEnergyEstimator.h"
+#include "Core/Estimator/FullRayEnergyEstimator.h"
 
 namespace ph
 {
@@ -15,7 +15,7 @@ namespace ph
 	simple but still unbiased, it is good for ground truth rendering if 
 	the correctness of another estimator is in doubt.
 */
-class BVPTEstimator : public FullEnergyEstimator
+class BVPTEstimator : public FullRayEnergyEstimator
 {
 public:
 	void update(const Integrand& integrand) override;

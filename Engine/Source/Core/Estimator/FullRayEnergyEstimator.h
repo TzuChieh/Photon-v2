@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Core/Estimator/IEnergyEstimator.h"
+#include "Core/Estimator/IRayEnergyEstimator.h"
 
 #include <cstddef>
 
 namespace ph
 {
 
-class FullEnergyEstimator : public IEnergyEstimator
+class FullRayEnergyEstimator : public IRayEnergyEstimator
 {
 public:
 	void update(const Integrand& integrand) override = 0;
@@ -25,7 +25,7 @@ protected:
 
 // In-header Implementations:
 
-inline void FullEnergyEstimator::setEstimationIndex(const std::size_t index)
+inline void FullRayEnergyEstimator::setEstimationIndex(const std::size_t index)
 {
 	m_estimationIndex = index;
 }

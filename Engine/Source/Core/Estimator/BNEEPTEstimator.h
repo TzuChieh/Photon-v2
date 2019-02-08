@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Estimator/FullEnergyEstimator.h"
+#include "Core/Estimator/FullRayEnergyEstimator.h"
 #include "Core/Quantity/SpectralStrength.h"
 
 namespace ph
@@ -22,7 +22,7 @@ namespace ph
 	His page:     http://pellacini.di.uniroma1.it/
 	Lecture Note: http://pellacini.di.uniroma1.it/teaching/graphics08/lectures/18_PathTracing_Web.pdf
 */
-class BNEEPTEstimator : public FullEnergyEstimator
+class BNEEPTEstimator : public FullRayEnergyEstimator
 {
 public:
 	void update(const Integrand& integrand) override;
