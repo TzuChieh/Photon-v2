@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <cstddef>
+#include <utility>
 
 namespace ph
 {
@@ -22,6 +23,7 @@ public:
 
 	FilmEnergyEstimator(
 		std::size_t  numEstimations, 
+		std::size_t  numFilms,
 		Integrand    integrand,
 		SampleFilter filter);
 
@@ -30,6 +32,7 @@ public:
 	void process(const Vector2D& filmNdc, const Ray& ray) override;
 
 	void addEstimator(const IRayEnergyEstimator* estimator);
+	void addFilmEstimation(std::size_t filmIndex, std::size_t estimationIndex);
 	void setFilmDimensions(
 		const TVector2<int64>& actualResPx, 
 		const TAABB2D<int64>&  effectiveWindowPx,
@@ -46,22 +49,28 @@ public:
 	FilmEnergyEstimator& operator = (FilmEnergyEstimator&& other);
 
 protected:
+	using EstimationToFilmMap = std::vector<std::pair<std::size_t, std::size_t>>;
+
 	SampleFilter                            m_filter;
 	EnergyEstimation                        m_estimation;
 	Vector2D                                m_filmActualResFPx;
-
-private:
 	std::vector<HdrRgbFilm>                 m_films;
 	std::vector<const IRayEnergyEstimator*> m_estimators;
 	Integrand                               m_integrand;
-
-	void lazilyConstructFilms(
-		const TVector2<int64>& actualResPx,
-		const TAABB2D<int64>&  effectiveWindowPx,
-		bool                   useSoftEdge);
+	EstimationToFilmMap                     m_estimationToFilm;
 };
 
 // In-header Implementations:
+
+inline void FilmEnergyEstimator::addFilmEstimation(
+	const std::size_t filmIndex, 
+	const std::size_t estimationIndex)
+{
+	PH_ASSERT_LT(filmIndex,       m_films.size());
+	PH_ASSERT_LT(estimationIndex, m_estimation.numEstimations());
+
+	m_estimationToFilm.push_back({estimationIndex, filmIndex});
+}
 
 inline void FilmEnergyEstimator::clearFilms()
 {
@@ -92,10 +101,12 @@ inline void FilmEnergyEstimator::setFilmDimensions(
 {
 	m_filmActualResFPx = Vector2D(actualResPx);
 
-	lazilyConstructFilms(
-		actualResPx, 
-		effectiveWindowPx, 
-		useSoftEdge);
+	for(HdrRgbFilm& film : m_films)
+	{
+		film.setActualResPx(actualResPx);
+		film.setEffectiveWindowPx(effectiveWindowPx);
+		film.setSoftEdge(useSoftEdge);
+	}
 }
 
 inline std::size_t FilmEnergyEstimator::numEstimations() const

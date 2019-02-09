@@ -97,7 +97,7 @@ inline SamplingFilmDimensions TSamplingFilm<Sample>::getDimensions() const
 template<typename Sample>
 inline bool TSamplingFilm<Sample>::isSoftEdge() const
 {
-	return m_isSoftEdge;
+	return m_useSoftEdge;
 }
 
 }// end namespace ph

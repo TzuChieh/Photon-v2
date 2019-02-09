@@ -52,7 +52,8 @@ private:
 
 inline void Film::setActualResPx(const TVector2<int64>& actualResPx)
 {
-	PH_ASSERT_GT(actualResPx.product(), 0);
+	PH_ASSERT_GE(actualResPx.x, 0);
+	PH_ASSERT_GE(actualResPx.y, 0);
 
 	m_actualResPx = actualResPx;
 }
