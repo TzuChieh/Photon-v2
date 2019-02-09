@@ -115,15 +115,9 @@ void EqualSamplingRenderer::doRender()
 					sampleGenerator = m_sampleGenerator->genCopied(spp);
 				}
 
-				renderWork.onWorkReport([this, workerId]()
-				{
-					std::lock_guard<std::mutex> lock(m_rendererMutex);
-
-					m_filmEstimators[workerId].mergeFilmTo(0, m_mainFilm);
-					m_filmEstimators[workerId].clearFilm(0);
-
-					addUpdatedRegion(m_filmEstimators[workerId].getFilmEffectiveWindowPx(), true);
-				});
+				m_suppliedFractionBits.store(
+					bitwise_cast<float, std::uint32_t>(suppliedFraction),
+					std::memory_order_relaxed);
 
 				filmEstimator.setFilmDimensions(
 					TVector2<int64>(getRenderWidthPx(), getRenderHeightPx()),
@@ -136,9 +130,15 @@ void EqualSamplingRenderer::doRender()
 					filmDimensions.effectiveWindowPx.getExtents());
 				renderWork.setSampleGenerator(std::move(sampleGenerator));
 
-				m_suppliedFractionBits.store(
-					bitwise_cast<float, std::uint32_t>(suppliedFraction),
-					std::memory_order_relaxed);
+				renderWork.onWorkReport([this, workerId]()
+				{
+					std::lock_guard<std::mutex> lock(m_rendererMutex);
+
+					m_filmEstimators[workerId].mergeFilmTo(0, m_mainFilm);
+					m_filmEstimators[workerId].clearFilm(0);
+
+					addUpdatedRegion(m_filmEstimators[workerId].getFilmEffectiveWindowPx(), true);
+				});
 
 				renderWork.work();
 
@@ -251,7 +251,6 @@ RenderProgress EqualSamplingRenderer::asyncQueryRenderProgress()
 		}
 	}
 
-	// HACK
 	const std::size_t totalWork = 100000000;
 	const float suppliedFraction = bitwise_cast<std::uint32_t, float>(m_suppliedFractionBits.load(std::memory_order_relaxed));
 	const float submittedFraction = std::max(bitwise_cast<std::uint32_t, float>(m_submittedFractionBits.load(std::memory_order_relaxed)), suppliedFraction);

@@ -14,10 +14,13 @@ class Film : public INoncopyable
 public:
 	Film() = default;
 
-	Film(int64 actualWidthPx, int64 actualHeightPx);
+	Film(
+		int64                 actualWidthPx, 
+		int64                 actualHeightPx);
 
 	Film(
-		int64 actualWidthPx, int64 actualHeightPx,
+		int64                 actualWidthPx, 
+		int64                 actualHeightPx,
 		const TAABB2D<int64>& effectiveWindowPx);
 
 	Film(Film&& other);
@@ -32,8 +35,8 @@ public:
 	void develop(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const;
 
 	const TVector2<int64>& getActualResPx() const;
-	TVector2<int64> getEffectiveResPx() const;
-	const TAABB2D<int64>& getEffectiveWindowPx() const;
+	TVector2<int64>        getEffectiveResPx() const;
+	const TAABB2D<int64>&  getEffectiveWindowPx() const;
 
 	Film& operator = (Film&& other);
 

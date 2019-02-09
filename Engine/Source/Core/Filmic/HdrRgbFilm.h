@@ -25,9 +25,9 @@ public:
 	HdrRgbFilm() = default;
 
 	HdrRgbFilm(
-		int64               actualWidthPx, 
-		int64               actualHeightPx,
-		const SampleFilter& filter);
+		int64                 actualWidthPx, 
+		int64                 actualHeightPx,
+		const SampleFilter&   filter);
 
 	HdrRgbFilm(
 		int64                 actualWidthPx, 

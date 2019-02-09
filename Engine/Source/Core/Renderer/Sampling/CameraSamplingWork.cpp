@@ -4,7 +4,6 @@
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Camera/Camera.h"
 #include "Core/Estimator/Integrand.h"
-#include "Core/Estimator/EnergyEstimation.h"
 #include "Utility/Timer.h"
 #include "Core/Ray.h"
 
@@ -19,12 +18,12 @@ CameraSamplingWork::CameraSamplingWork(const Camera* const camera) :
 
 	RenderWork(),
 
-	m_camera(camera),
-	m_processors(),
+	m_camera         (camera),
+	m_processors     (),
 	m_sampleGenerator(nullptr),
-	m_filmResPx(1, 1),
-	m_filmWindowPx({0, 0}, {1, 1}),
-	m_sampleResPx(1, 1),
+	m_filmResPx      (1, 1),
+	m_filmWindowPx   ({0, 0}, {1, 1}),
+	m_sampleResPx    (1, 1),
 
 	m_numSamplesTaken(0),
 	m_onWorkStart    (nullptr),
@@ -36,24 +35,23 @@ CameraSamplingWork::CameraSamplingWork(CameraSamplingWork&& other) :
 
 	RenderWork(other),
 
-	m_camera(other.m_camera),
-	m_processors(std::move(other.m_processors)),
+	m_camera         (other.m_camera),
+	m_processors     (std::move(other.m_processors)),
 	m_sampleGenerator(std::move(other.m_sampleGenerator)),
-	m_filmResPx(std::move(other.m_filmResPx)),
-	m_filmWindowPx(std::move(other.m_filmWindowPx)),
-	m_sampleResPx(std::move(other.m_sampleResPx)),
+	m_filmResPx      (std::move(other.m_filmResPx)),
+	m_filmWindowPx   (std::move(other.m_filmWindowPx)),
+	m_sampleResPx    (std::move(other.m_sampleResPx)),
 
 	m_numSamplesTaken(other.m_numSamplesTaken.load()),
-	m_onWorkStart(std::move(other.m_onWorkStart)),
-	m_onWorkReport(std::move(other.m_onWorkReport)),
-	m_onWorkFinish(std::move(other.m_onWorkFinish))
+	m_onWorkStart    (std::move(other.m_onWorkStart)),
+	m_onWorkReport   (std::move(other.m_onWorkReport)),
+	m_onWorkFinish   (std::move(other.m_onWorkFinish))
 {}
 
 SamplingStatistics CameraSamplingWork::asyncGetStatistics()
 {
 	SamplingStatistics statistics;
-	statistics.numSamplesTaken = m_numSamplesTaken;
-
+	statistics.numSamplesTaken = m_numSamplesTaken.load(std::memory_order_relaxed);
 	return statistics;
 }
 
@@ -66,24 +64,22 @@ void CameraSamplingWork::doWork()
 		m_onWorkStart();
 	}
 
-	const Vector2D ndcScale  = m_filmWindowPx.getExtents().div(m_filmResPx);
-	const Vector2D ndcOffset = m_filmWindowPx.minVertex.div(m_filmResPx);
+	m_numSamplesTaken.store(0, std::memory_order_relaxed);
+	setTotalWork(m_sampleGenerator->numSampleBatches());
+	setWorkDone(0);
+	setElapsedMs(0);
 
 	Samples2DStage camSampleStage = m_sampleGenerator->declare2DStage(
 		m_sampleResPx.product(),
 		m_sampleResPx);
 
-	m_numSamplesTaken = 0;
-	setTotalWork(m_sampleGenerator->numSampleBatches());
-	setWorkDone(0);
-	setElapsedMs(0);
-
-	EnergyEstimation estimation(1);
+	const Vector2D ndcScale  = m_filmWindowPx.getExtents().div(m_filmResPx);
+	const Vector2D ndcOffset = m_filmWindowPx.minVertex.div(m_filmResPx);
 
 	Timer sampleTimer;
 
-	std::uint32_t totalMs = 0;
-	std::size_t batchNumber = 1;
+	std::uint32_t totalMs     = 0;
+	std::size_t   batchNumber = 1;
 	while(m_sampleGenerator->prepareSampleBatch())
 	{
 		sampleTimer.start();
@@ -94,7 +90,6 @@ void CameraSamplingWork::doWork()
 		}
 
 		const Samples2D& camSamples = m_sampleGenerator->getSamples2D(camSampleStage);
-
 		for(std::size_t si = 0; si < camSamples.numSamples(); si++)
 		{
 			const Vector2D filmNdc = Vector2D(camSamples[si]).mul(ndcScale).add(ndcOffset);
@@ -106,27 +101,24 @@ void CameraSamplingWork::doWork()
 			{
 				processor->process(filmNdc, ray);
 			}
-		}// end for
+		}
+		m_numSamplesTaken.fetch_add(static_cast<uint32>(camSamples.numSamples()), std::memory_order_relaxed);
 
 		if(m_onWorkReport)
 		{
 			m_onWorkReport();
 		}
 
-		incrementWorkDone();	
-
-		sampleTimer.finish();
-		totalMs += static_cast<std::uint32_t>(sampleTimer.getDeltaMs());
-		setElapsedMs(totalMs);
-
-		m_numSamplesTaken += static_cast<uint32>(camSamples.numSamples());
-
 		for(ISensedRayProcessor* processor : m_processors)
 		{
 			processor->onBatchFinish(batchNumber);
 		}
-
 		++batchNumber;
+		incrementWorkDone();
+
+		sampleTimer.finish();
+		totalMs += static_cast<std::uint32_t>(sampleTimer.getDeltaMs());
+		setElapsedMs(totalMs);
 	}
 
 	if(m_onWorkFinish)
@@ -178,17 +170,17 @@ CameraSamplingWork& CameraSamplingWork::operator = (CameraSamplingWork&& other)
 {
 	RenderWork::operator = (std::move(other));
 
-	m_camera = other.m_camera;
-	m_processors = std::move(other.m_processors);
+	m_camera          = other.m_camera;
+	m_processors      = std::move(other.m_processors);
 	m_sampleGenerator = std::move(other.m_sampleGenerator);
-	m_filmResPx = std::move(other.m_filmResPx);
-	m_filmWindowPx = std::move(other.m_filmWindowPx);
-	m_sampleResPx = std::move(other.m_sampleResPx);
+	m_filmResPx       = std::move(other.m_filmResPx);
+	m_filmWindowPx    = std::move(other.m_filmWindowPx);
+	m_sampleResPx     = std::move(other.m_sampleResPx);
 
 	m_numSamplesTaken = other.m_numSamplesTaken.load();
-	m_onWorkStart = std::move(other.m_onWorkStart);
-	m_onWorkReport = std::move(other.m_onWorkReport);
-	m_onWorkFinish = std::move(other.m_onWorkFinish);
+	m_onWorkStart     = std::move(other.m_onWorkStart);
+	m_onWorkReport    = std::move(other.m_onWorkReport);
+	m_onWorkFinish    = std::move(other.m_onWorkFinish);
 
 	return *this;
 }

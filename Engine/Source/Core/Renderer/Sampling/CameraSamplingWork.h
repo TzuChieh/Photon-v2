@@ -49,7 +49,7 @@ private:
 	TAABB2D<float64>                  m_filmWindowPx;
 	Vector2S                          m_sampleResPx;
 
-	std::atomic_uint32_t m_numSamplesTaken;
+	std::atomic_uint32_t  m_numSamplesTaken;
 	std::function<void()> m_onWorkStart;
 	std::function<void()> m_onWorkReport;
 	std::function<void()> m_onWorkFinish;

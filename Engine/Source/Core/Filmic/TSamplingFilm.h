@@ -22,9 +22,9 @@ public:
 	TSamplingFilm() = default;
 
 	TSamplingFilm(
-		int64               actualWidthPx, 
-		int64               actualHeightPx,
-		const SampleFilter& filter);
+		int64                 actualWidthPx, 
+		int64                 actualHeightPx,
+		const SampleFilter&   filter);
 
 	TSamplingFilm(
 		int64                 actualWidthPx, 
@@ -35,15 +35,16 @@ public:
 	TSamplingFilm(TSamplingFilm&& other);
 
 	virtual void addSample(float64 xPx, float64 yPx, const Sample& sample) = 0;
-
 	void clear() override = 0;
 
 	void setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow) override;
+	void setSoftEdge(bool isSoftEdge);
 
 	TVector2<float64>       getSampleResPx() const;
 	const TAABB2D<float64>& getSampleWindowPx() const;
 	const SampleFilter&     getFilter() const;
 	SamplingFilmDimensions  getDimensions() const;
+	bool                    isSoftEdge() const;
 
 	TSamplingFilm& operator = (TSamplingFilm&& other);
 
@@ -52,11 +53,20 @@ private:
 
 	SampleFilter     m_filter;
 	TAABB2D<float64> m_sampleWindowPx;
+	bool             m_isSoftEdge;
 
 	void updateSampleDimensions();
 };
 
 // In-header Implementations:
+
+template<typename Sample>
+inline void TSamplingFilm<Sample>::setSoftEdge(const bool isSoftEdge)
+{
+	m_isSoftEdge = isSoftEdge;
+
+	updateSampleDimensions();
+}
 
 template<typename Sample>
 inline const SampleFilter& TSamplingFilm<Sample>::getFilter() const
@@ -80,6 +90,12 @@ template<typename Sample>
 inline SamplingFilmDimensions TSamplingFilm<Sample>::getDimensions() const
 {
 	return {getActualResPx(), getEffectiveWindowPx(), getSampleWindowPx()};
+}
+
+template<typename Sample>
+inline bool TSamplingFilm<Sample>::isSoftEdge() const
+{
+	return m_isSoftEdge;
 }
 
 }// end namespace ph
