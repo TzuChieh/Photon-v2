@@ -8,8 +8,8 @@ namespace ph
 {
 
 FilmEnergyEstimator::FilmEnergyEstimator(
-	const std::size_t  numEstimations,
 	const std::size_t  numFilms,
+	const std::size_t  numEstimations,
 	Integrand          integrand,
 	SampleFilter       filter) :
 
@@ -43,8 +43,6 @@ FilmEnergyEstimator::FilmEnergyEstimator(FilmEnergyEstimator&& other) :
 
 void FilmEnergyEstimator::process(const Vector2D& filmNdc, const Ray& ray)
 {
-	PH_ASSERT_EQ(m_estimation.numEstimations(), m_films.size());
-
 	for(const IRayEnergyEstimator* estimator : m_estimators)
 	{
 		estimator->estimate(ray, m_integrand, m_estimation);

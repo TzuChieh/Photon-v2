@@ -14,8 +14,8 @@ class StepperFilmEnergyEstimator : public FilmEnergyEstimator
 public:
 	StepperFilmEnergyEstimator() = default;
 	StepperFilmEnergyEstimator(
-		std::size_t  numEstimations,
 		std::size_t  numFilms,
+		std::size_t  numEstimations,
 		Integrand    integrand,
 		SampleFilter filter);
 	StepperFilmEnergyEstimator(StepperFilmEnergyEstimator&& other) = default;

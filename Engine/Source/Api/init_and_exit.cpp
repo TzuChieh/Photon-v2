@@ -170,7 +170,7 @@ bool init_command_parser()
 	register_command_interface<Renderer>();
 	register_command_interface<SamplingRenderer>();
 	register_command_interface<EqualSamplingRenderer>();
-	//register_command_interface<AdaptiveSamplingRenderer>();
+	register_command_interface<AdaptiveSamplingRenderer>();
 	register_command_interface<PMRenderer>();
 
 	// options

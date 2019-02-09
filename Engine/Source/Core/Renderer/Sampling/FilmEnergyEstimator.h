@@ -22,8 +22,8 @@ public:
 	FilmEnergyEstimator() = default;
 
 	FilmEnergyEstimator(
-		std::size_t  numEstimations, 
 		std::size_t  numFilms,
+		std::size_t  numEstimations, 
 		Integrand    integrand,
 		SampleFilter filter);
 

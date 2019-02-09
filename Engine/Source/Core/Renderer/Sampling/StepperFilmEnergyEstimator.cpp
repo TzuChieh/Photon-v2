@@ -5,14 +5,14 @@ namespace ph
 {
 
 StepperFilmEnergyEstimator::StepperFilmEnergyEstimator(
-	const std::size_t  numEstimations,
 	const std::size_t  numFilms,
+	const std::size_t  numEstimations,
 	Integrand          integrand,
 	SampleFilter       filter) : 
 
 	FilmEnergyEstimator(
-		numEstimations,
 		numFilms,
+		numEstimations,
 		std::move(integrand),
 		std::move(filter)),
 
@@ -27,8 +27,6 @@ void StepperFilmEnergyEstimator::onBatchStart(const uint64 batchNumber)
 
 void StepperFilmEnergyEstimator::process(const Vector2D& filmNdc, const Ray& ray)
 {
-	PH_ASSERT_EQ(m_estimation.numEstimations(), m_films.size());
-
 	for(const IRayEnergyEstimator* estimator : m_estimators)
 	{
 		estimator->estimate(ray, m_integrand, m_estimation);
