@@ -1,11 +1,11 @@
-#pragma once
-
+//#pragma once
+//
 //#include "Core/Renderer/Sampling/SamplingRenderer.h"
 //#include "Core/Renderer/Region/Region.h"
 //#include "Common/primitive_type.h"
 //#include "Core/Renderer/Region/DammertzAdaptiveDispatcher.h"
 //#include "Core/Renderer/Region/GridScheduler.h"
-//#include "Core/Renderer/Sampling/SamplingRenderWork.h"
+//#include "Core/Renderer/Sampling/CameraSamplingWork.h"
 //#include "Frame/TFrame.h"
 //
 //#include <memory>
@@ -31,12 +31,7 @@
 //	RenderProgress asyncQueryRenderProgress() override;
 //	void asyncPeekRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute) override;
 //
-//	AttributeTags supportedAttributes() const override;
 //	std::string renderStateName(RenderState::EType type, std::size_t index) const override;
-//
-//	// FIXME: these APIs are somewhat hacked and should be revisited
-//	void asyncUpdateFilm(HdrRgbFilm* workerFilm, bool isUpdating) override;
-//	void asyncDevelop(HdrRgbFrame& out_frame, EAttribute attribute);
 //
 //private:
 //	const Scene*               m_scene;

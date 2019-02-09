@@ -54,7 +54,7 @@ inline TSamplingFilm<Sample>::TSamplingFilm(TSamplingFilm&& other) :
 
 	m_filter        (std::move(other.m_filter)),
 	m_sampleWindowPx(std::move(other.m_sampleWindowPx)),
-	m_isSoftEdge    (other.m_isSoftEdge)
+	m_useSoftEdge   (other.m_useSoftEdge)
 {}
 
 template<typename Sample>
@@ -72,7 +72,7 @@ inline TSamplingFilm<Sample>& TSamplingFilm<Sample>::operator = (TSamplingFilm&&
 
 	m_filter         = std::move(other.m_filter);
 	m_sampleWindowPx = std::move(other.m_sampleWindowPx);
-	m_isSoftEdge     = other.m_isSoftEdge;
+	m_useSoftEdge    = other.m_useSoftEdge;
 
 	return *this;
 }
@@ -80,7 +80,7 @@ inline TSamplingFilm<Sample>& TSamplingFilm<Sample>::operator = (TSamplingFilm&&
 template<typename Sample>
 inline void TSamplingFilm<Sample>::updateSampleDimensions()
 {
-	if(m_isSoftEdge)
+	if(m_useSoftEdge)
 	{
 		m_sampleWindowPx = TAABB2D<float64>(
 		TVector2<float64>(getEffectiveWindowPx().minVertex).add(0.5).sub(m_filter.getHalfSizePx()),

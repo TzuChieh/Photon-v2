@@ -2,7 +2,6 @@
 #include "Common/primitive_type.h"
 #include "Core/Filmic/Film.h"
 #include "World/VisualWorld.h"
-#include "Core/Camera/Camera.h"
 #include "Core/Ray.h"
 #include "Math/constant.h"
 #include "Core/SampleGenerator/SampleGenerator.h"

@@ -1,16 +1,8 @@
 //#include "Core/Renderer/Sampling/AdaptiveSamplingRenderer.h"
-//#include "Core/Renderer/Region/GridScheduler.h"
-//#include "Core/Renderer/Sampling/SamplingFilmSet.h"
-//#include "Core/Filmic/Vector3Film.h"
 //#include "Common/assertion.h"
-//#include "Core/Renderer/Region/SpiralScheduler.h"
-//#include "Core/Renderer/Region/SpiralGridScheduler.h"
 //#include "FileIO/SDL/InputPacket.h"
 //#include "Core/Filmic/Film.h"
-//#include "World/VisualWorld.h"
-//#include "Core/Camera/Camera.h"
 //#include "Core/Ray.h"
-//#include "Math/constant.h"
 //#include "Core/SampleGenerator/SampleGenerator.h"
 //#include "FileIO/SDL/SdlResourcePack.h"
 //#include "Core/Filmic/HdrRgbFilm.h"
@@ -22,10 +14,11 @@
 //#include "Core/Estimator/BVPTEstimator.h"
 //#include "Core/Estimator/BNEEPTEstimator.h"
 //#include "Core/Estimator/Integrand.h"
-//#include "Core/Filmic/Vector3Film.h"
 //#include "Core/Renderer/Region/PlateScheduler.h"
 //#include "Core/Renderer/Region/StripeScheduler.h"
 //#include "Core/Renderer/Region/GridScheduler.h"
+//#include "Core/Renderer/Region/SpiralScheduler.h"
+//#include "Core/Renderer/Region/SpiralGridScheduler.h"
 //#include "Utility/FixedSizeThreadPool.h"
 //#include "Utility/utility.h"
 //
@@ -311,12 +304,6 @@
 //	RenderProgress totalProgress(totalWork, std::min(workDone, totalWork), workerProgress.getElapsedMs());
 //
 //	return totalProgress;
-//}
-//
-//AttributeTags AdaptiveSamplingRenderer::supportedAttributes() const
-//{
-//	PH_ASSERT(m_estimator);
-//	return m_estimator->supportedAttributes();
 //}
 //
 //std::string AdaptiveSamplingRenderer::renderStateName(const RenderState::EType type, const std::size_t index) const

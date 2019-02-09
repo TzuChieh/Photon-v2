@@ -29,6 +29,7 @@ public:
 
 	virtual void clear() = 0;
 
+	virtual void setActualResPx(const TVector2<int64>& actualResPx);
 	virtual void setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow);
 
 	void develop(HdrRgbFrame& out_frame) const;
@@ -49,6 +50,20 @@ private:
 
 // In-header Implementations:
 
+inline void Film::setActualResPx(const TVector2<int64>& actualResPx)
+{
+	PH_ASSERT_GT(actualResPx.product(), 0);
+
+	m_actualResPx = actualResPx;
+}
+
+inline void Film::setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow)
+{
+	PH_ASSERT(effectiveWindow.isValid());
+
+	m_effectiveWindowPx = effectiveWindow;
+}
+
 inline const TVector2<int64>& Film::getActualResPx() const
 {
 	return m_actualResPx;
@@ -62,13 +77,6 @@ inline TVector2<int64> Film::getEffectiveResPx() const
 inline const TAABB2D<int64>& Film::getEffectiveWindowPx() const
 {
 	return m_effectiveWindowPx;
-}
-
-inline void Film::setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow)
-{
-	PH_ASSERT(effectiveWindow.isValid());
-
-	m_effectiveWindowPx = effectiveWindow;
 }
 
 }// end namespace ph

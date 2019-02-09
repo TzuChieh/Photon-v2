@@ -8,21 +8,26 @@ namespace ph
 {
 
 Film::Film(
-	const int64 actualWidthPx, const int64 actualHeightPx) :
+	const int64 actualWidthPx, 
+	const int64 actualHeightPx) :
 
 	Film(
-		actualWidthPx, actualHeightPx,
-		TAABB2D<int64>(TVector2<int64>(0, 0),
-		               TVector2<int64>(actualWidthPx, actualHeightPx)))
+		actualWidthPx, 
+		actualHeightPx,
+		TAABB2D<int64>(
+			TVector2<int64>(0, 0),
+			TVector2<int64>(actualWidthPx, actualHeightPx)))
 {}
 
 Film::Film(
-	const int64 actualWidthPx, const int64 actualHeightPx,
+	const int64           actualWidthPx, 
+	const int64           actualHeightPx,
 	const TAABB2D<int64>& effectiveWindowPx) : 
 
-	m_actualResPx      (actualWidthPx, actualHeightPx), 
-	m_effectiveWindowPx()
+	m_actualResPx      (0), 
+	m_effectiveWindowPx({0, 0}, {0, 0})
 {
+	Film::setActualResPx({actualWidthPx, actualHeightPx});
 	Film::setEffectiveWindowPx(effectiveWindowPx);
 }
 

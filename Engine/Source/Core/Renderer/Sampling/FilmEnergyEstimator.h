@@ -31,25 +31,34 @@ public:
 
 	void addEstimator(const IRayEnergyEstimator* estimator);
 	void setFilmDimensions(
-		const TVector2<int64>& filmActualResPx, 
-		const TAABB2D<int64>&  effectiveWindowPx);
+		const TVector2<int64>& actualResPx, 
+		const TAABB2D<int64>&  effectiveWindowPx,
+		bool                   useSoftEdge = true);
 	void clearFilms();
 	void clearFilm(std::size_t index);
 	void mergeFilmTo(std::size_t fromIndex, HdrRgbFilm& toFilm);
 
-	std::size_t numEstimations() const;
-	TAABB2D<int64> getFilmEffectiveWindowPx() const;
+	std::size_t            numEstimations() const;
+	TAABB2D<int64>         getFilmEffectiveWindowPx() const;
 	SamplingFilmDimensions getFilmDimensions() const;
+	bool                   isSoftEdgedFilm() const;
 
 	FilmEnergyEstimator& operator = (FilmEnergyEstimator&& other);
 
+protected:
+	SampleFilter                            m_filter;
+	EnergyEstimation                        m_estimation;
+	Vector2D                                m_filmActualResFPx;
+
 private:
 	std::vector<HdrRgbFilm>                 m_films;
-	EnergyEstimation                        m_estimation;
 	std::vector<const IRayEnergyEstimator*> m_estimators;
 	Integrand                               m_integrand;
-	Vector2D                                m_filmActualResPx;
-	SampleFilter                            m_filter;
+
+	void lazilyConstructFilms(
+		const TVector2<int64>& actualResPx,
+		const TAABB2D<int64>&  effectiveWindowPx,
+		bool                   useSoftEdge);
 };
 
 // In-header Implementations:
@@ -76,6 +85,19 @@ inline void FilmEnergyEstimator::mergeFilmTo(const std::size_t fromIndex, HdrRgb
 	toFilm.mergeWith(m_films[fromIndex]);
 }
 
+inline void FilmEnergyEstimator::setFilmDimensions(
+	const TVector2<int64>& actualResPx,
+	const TAABB2D<int64>&  effectiveWindowPx,
+	const bool             useSoftEdge)
+{
+	m_filmActualResFPx = Vector2D(actualResPx);
+
+	lazilyConstructFilms(
+		actualResPx, 
+		effectiveWindowPx, 
+		useSoftEdge);
+}
+
 inline std::size_t FilmEnergyEstimator::numEstimations() const
 {
 	return m_estimation.numEstimations();
@@ -93,6 +115,13 @@ inline SamplingFilmDimensions FilmEnergyEstimator::getFilmDimensions() const
 	PH_ASSERT(!m_films.empty());
 
 	return m_films.front().getDimensions();
+}
+
+inline bool FilmEnergyEstimator::isSoftEdgedFilm() const
+{
+	PH_ASSERT(!m_films.empty());
+
+	return m_films.front().isSoftEdge();
 }
 
 }// end namespace ph

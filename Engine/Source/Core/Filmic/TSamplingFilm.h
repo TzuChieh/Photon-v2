@@ -38,7 +38,9 @@ public:
 	void clear() override = 0;
 
 	void setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow) override;
-	void setSoftEdge(bool isSoftEdge);
+
+	// TODO: a fractional sharpness control may be useful
+	void setSoftEdge(bool useSoftEdge);
 
 	TVector2<float64>       getSampleResPx() const;
 	const TAABB2D<float64>& getSampleWindowPx() const;
@@ -53,7 +55,7 @@ private:
 
 	SampleFilter     m_filter;
 	TAABB2D<float64> m_sampleWindowPx;
-	bool             m_isSoftEdge;
+	bool             m_useSoftEdge;
 
 	void updateSampleDimensions();
 };
@@ -61,9 +63,9 @@ private:
 // In-header Implementations:
 
 template<typename Sample>
-inline void TSamplingFilm<Sample>::setSoftEdge(const bool isSoftEdge)
+inline void TSamplingFilm<Sample>::setSoftEdge(const bool useSoftEdge)
 {
-	m_isSoftEdge = isSoftEdge;
+	m_useSoftEdge = useSoftEdge;
 
 	updateSampleDimensions();
 }
