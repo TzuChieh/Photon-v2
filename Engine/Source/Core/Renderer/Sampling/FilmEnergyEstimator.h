@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Renderer/Sampling/TSensedRayProcessor.h"
+#include "Core/Renderer/Sampling/ISensedRayProcessor.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Estimator/estimator_fwd.h"
 #include "Common/assertion.h"
@@ -15,7 +15,7 @@
 namespace ph
 {
 
-class FilmEnergyEstimator : public TSensedRayProcessor<FilmEnergyEstimator>
+class FilmEnergyEstimator : public ISensedRayProcessor
 {
 public:
 	FilmEnergyEstimator() = default;
@@ -27,7 +27,7 @@ public:
 
 	FilmEnergyEstimator(FilmEnergyEstimator&& other);
 
-	void impl_process(const Vector2D& sensorNdc, const Ray& ray);
+	void process(const Vector2D& filmNdc, const Ray& ray) override;
 
 	void addEstimator(const IRayEnergyEstimator* estimator);
 	void setFilmDimensions(

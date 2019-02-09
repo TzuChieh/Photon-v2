@@ -29,7 +29,7 @@ FilmEnergyEstimator::FilmEnergyEstimator(FilmEnergyEstimator&& other) :
 	m_filter         (std::move(other.m_filter))
 {}
 
-void FilmEnergyEstimator::impl_process(const Vector2D& sensorNdc, const Ray& ray)
+void FilmEnergyEstimator::process(const Vector2D& filmNdc, const Ray& ray)
 {
 	PH_ASSERT_EQ(m_estimation.numEstimations(), m_films.size());
 
@@ -40,7 +40,7 @@ void FilmEnergyEstimator::impl_process(const Vector2D& sensorNdc, const Ray& ray
 
 	for(std::size_t i = 0; i < m_films.size(); ++i)
 	{
-		const Vector2D rasterPos = sensorNdc * m_filmActualResPx;
+		const Vector2D rasterPos = filmNdc * m_filmActualResPx;
 
 		m_films[i].addSample(rasterPos.x, rasterPos.y, m_estimation[i]);
 	}
@@ -89,7 +89,7 @@ void FilmEnergyEstimator::setFilmDimensions(
 
 FilmEnergyEstimator& FilmEnergyEstimator::operator = (FilmEnergyEstimator&& other)
 {
-	TSensedRayProcessor<FilmEnergyEstimator>::operator = (std::move(other));
+	ISensedRayProcessor::operator = (std::move(other));
 
 	m_films           = std::move(other.m_films);
 	m_estimation      = std::move(other.m_estimation);

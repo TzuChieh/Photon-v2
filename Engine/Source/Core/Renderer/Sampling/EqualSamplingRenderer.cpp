@@ -65,9 +65,9 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 		m_filmEstimators[workerId] = FilmEnergyEstimator(1, integrand, m_filter);
 		m_filmEstimators[workerId].addEstimator(m_estimator.get());
 
-		m_renderWorks[workerId] = TCameraSamplingWork<FilmEnergyEstimator>(
-			m_camera,
-			&m_filmEstimators[workerId]);
+		m_renderWorks[workerId] = CameraSamplingWork(
+			m_camera);
+		m_renderWorks[workerId].addProcessor(&m_filmEstimators[workerId]);
 	}
 
 	m_scheduler = std::make_unique<SpiralGridScheduler>(
@@ -129,7 +129,11 @@ void EqualSamplingRenderer::doRender()
 					TVector2<int64>(getRenderWidthPx(), getRenderHeightPx()),
 					workUnit.getRegion());
 
-				renderWork.setFilmDimensions(filmEstimator.getFilmDimensions());
+				const auto filmDimensions = filmEstimator.getFilmDimensions();
+				renderWork.setSampleDimensions(
+					filmDimensions.actualResPx, 
+					filmDimensions.sampleWindowPx, 
+					filmDimensions.effectiveWindowPx.getExtents());
 				renderWork.setSampleGenerator(std::move(sampleGenerator));
 
 				m_suppliedFractionBits.store(

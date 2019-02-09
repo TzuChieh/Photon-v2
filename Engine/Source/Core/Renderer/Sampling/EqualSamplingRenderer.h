@@ -3,7 +3,7 @@
 #include "Core/Renderer/Sampling/SamplingRenderer.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Filmic/SampleFilter.h"
-#include "Core/Renderer/Sampling/TCameraSamplingWork.h"
+#include "Core/Renderer/Sampling/CameraSamplingWork.h"
 #include "Core/Renderer/Sampling/FilmEnergyEstimator.h"
 #include "Core/Estimator/FullRayEnergyEstimator.h"
 #include "Core/Renderer/Region/WorkScheduler.h"
@@ -42,9 +42,9 @@ private:
 	HdrRgbFilm                     m_mainFilm;
 	std::unique_ptr<WorkScheduler> m_scheduler;
 
-	std::unique_ptr<FullRayEnergyEstimator>               m_estimator;
-	std::vector<TCameraSamplingWork<FilmEnergyEstimator>> m_renderWorks;
-	std::vector<FilmEnergyEstimator>                      m_filmEstimators;
+	std::unique_ptr<FullRayEnergyEstimator> m_estimator;
+	std::vector<CameraSamplingWork>         m_renderWorks;
+	std::vector<FilmEnergyEstimator>        m_filmEstimators;
 
 	struct UpdatedRegion
 	{
