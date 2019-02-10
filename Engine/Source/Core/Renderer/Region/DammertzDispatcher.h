@@ -14,6 +14,7 @@
 #include <queue>
 #include <utility>
 #include <vector>
+#include <limits>
 
 namespace ph
 {
@@ -83,7 +84,7 @@ public:
 		real                      m_terminateThreshold;
 		std::pair<Region, Region> m_nextRegions;
 		real                      m_rcpNumRegionPixels;
-		std::vector<real>         m_accumulatedErrors;
+		std::vector<real>         m_accumulatedEps;
 	};
 
 private:
@@ -118,7 +119,34 @@ inline void DammertzDispatcher::addAnalyzedData(const TAnalyzer<MODE>& analyzer)
 }
 
 template<DammertzDispatcher::ERefineMode MODE>
-inline void DammertzDispatcher::TAnalyzer<MODE>::analyzeFinishedRegion(
+inline DammertzDispatcher::TAnalyzer<MODE>::TAnalyzer(
+	const real splitThreshold,
+	const real terminateThreshold,
+	const real numFullRegionPixels) : 
+
+	m_splitThreshold    (splitThreshold),
+	m_terminateThreshold(terminateThreshold),
+	m_nextRegions       (Region({0, 0}), Region({0, 0})),
+	m_rcpNumRegionPixels(1.0_r / numFullRegionPixels),
+	m_accumulatedEps    ()
+{}
+
+inline void DammertzDispatcher::addPendingRegion(const Region& region)
+{
+	if(region.isArea())
+	{
+		m_pendingRegions.push(region);
+	}
+}
+
+template<DammertzDispatcher::ERefineMode MODE>
+inline std::pair<Region, Region> DammertzDispatcher::TAnalyzer<MODE>::getNextRegions() const
+{
+	return m_nextRegions;
+}
+
+template<>
+inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIDPOINT>::analyzeFinishedRegion(
 	const Region&      finishedRegion,
 	const HdrRgbFrame& allEffortFrame,
 	const HdrRgbFrame& halfEffortFrame)
@@ -129,10 +157,9 @@ inline void DammertzDispatcher::TAnalyzer<MODE>::analyzeFinishedRegion(
 	PH_ASSERT_LE(finishedRegion.getHeight(), allEffortFrame.heightPx());
 	PH_ASSERT_LE(finishedRegion.getWidth(),  halfEffortFrame.widthPx());
 	PH_ASSERT_LE(finishedRegion.getHeight(), halfEffortFrame.heightPx());
-
 	const TAABB2D<uint32> frameRegion(finishedRegion);
 
-	real regionError = 0.0_r;
+	real regionError = 0;
 	for(uint32 y = frameRegion.minVertex.y; y < frameRegion.maxVertex.y; ++y)
 	{
 		for(uint32 x = frameRegion.minVertex.x; x < frameRegion.maxVertex.x; ++x)
@@ -150,7 +177,6 @@ inline void DammertzDispatcher::TAnalyzer<MODE>::analyzeFinishedRegion(
 	}
 	regionError /= frameRegion.calcArea();
 	regionError *= std::sqrt(frameRegion.calcArea() * m_rcpNumRegionPixels);
-
 	PH_ASSERT_MSG(std::isfinite(regionError), std::to_string(regionError));
 
 	std::cerr << "region = " << frameRegion.toString() << "error = " << regionError << std::endl;
@@ -165,13 +191,11 @@ inline void DammertzDispatcher::TAnalyzer<MODE>::analyzeFinishedRegion(
 	}
 	else if(regionError >= m_terminateThreshold)
 	{
-		// TODO: split on the point that minimizes the difference of error across two splitted regions
-
 		if(finishedRegion.calcArea() >= MIN_REGION_AREA)
 		{
 			// error is small, splitted and added for more effort
-			const int maxDimension = finishedRegion.getExtents().maxDimension();
-			const int64 midPoint = (finishedRegion.minVertex[maxDimension] + finishedRegion.maxVertex[maxDimension]) / 2;
+			const int   maxDimension = finishedRegion.getExtents().maxDimension();
+			const int64 midPoint     = (finishedRegion.minVertex[maxDimension] + finishedRegion.maxVertex[maxDimension]) / 2;
 
 			m_nextRegions = finishedRegion.getSplitted(maxDimension, midPoint);
 
@@ -195,31 +219,124 @@ inline void DammertzDispatcher::TAnalyzer<MODE>::analyzeFinishedRegion(
 	}
 }
 
-template<DammertzDispatcher::ERefineMode MODE>
-inline DammertzDispatcher::TAnalyzer<MODE>::TAnalyzer(
-	const real splitThreshold,
-	const real terminateThreshold,
-	const real numFullRegionPixels) : 
-
-	m_splitThreshold    (splitThreshold),
-	m_terminateThreshold(terminateThreshold),
-	m_nextRegions       (Region({0, 0}), Region({0, 0})),
-	m_rcpNumRegionPixels(1.0_r / numFullRegionPixels),
-	m_accumulatedErrors (MIN_REGION_AREA)
-{}
-
-inline void DammertzDispatcher::addPendingRegion(const Region& region)
+template<>
+inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_ERROR_DIFFERENCE>::analyzeFinishedRegion(
+	const Region&      finishedRegion,
+	const HdrRgbFrame& allEffortFrame,
+	const HdrRgbFrame& halfEffortFrame)
 {
-	if(region.isArea())
+	using namespace math;
+
+	PH_ASSERT_GE(finishedRegion.minVertex.x, 0);
+	PH_ASSERT_GE(finishedRegion.minVertex.y, 0);
+	PH_ASSERT_LE(finishedRegion.getWidth(),  allEffortFrame.widthPx());
+	PH_ASSERT_LE(finishedRegion.getHeight(), allEffortFrame.heightPx());
+	PH_ASSERT_LE(finishedRegion.getWidth(),  halfEffortFrame.widthPx());
+	PH_ASSERT_LE(finishedRegion.getHeight(), halfEffortFrame.heightPx());
+	const TAABB2D<uint32> frameRegion(finishedRegion);
+
+	const auto regionExtents = frameRegion.getExtents();
+	const int  maxDimension  = frameRegion.getExtents().maxDimension();
+
+	m_accumulatedEps.resize(regionExtents[maxDimension], 0);
+
+	real summedEp = 0;
+	for(uint32 y = frameRegion.minVertex.y; y < frameRegion.maxVertex.y; ++y)
 	{
-		m_pendingRegions.push(region);
-	}
-}
+		real summedRowEp = 0;
+		for(uint32 x = frameRegion.minVertex.x; x < frameRegion.maxVertex.x; ++x)
+		{
+			HdrRgbFrame::Pixel I, A;
+			allEffortFrame.getPixel(x, y, &I);
+			halfEffortFrame.getPixel(x, y, &A);
 
-template<DammertzDispatcher::ERefineMode MODE>
-inline std::pair<Region, Region> DammertzDispatcher::TAnalyzer<MODE>::getNextRegions() const
-{
-	return m_nextRegions;
+			const real numerator      = I.sub(A).abs().sum();
+			const real sumOfI         = I.sum();
+			const real rcpDenominator = sumOfI > 0 ? fast_rcp_sqrt(sumOfI) : 0;
+
+			summedRowEp += numerator * rcpDenominator;
+
+			if(maxDimension == math::X_AXIS)
+			{
+				m_accumulatedEps[x - frameRegion.minVertex.x] += summedRowEp;
+			}
+		}
+		summedEp += summedRowEp;
+
+		if(maxDimension == math::Y_AXIS)
+		{
+			m_accumulatedEps[y - frameRegion.minVertex.y] = summedEp;
+		}
+	}
+
+	real regionError = m_accumulatedEps.back();
+	regionError /= frameRegion.calcArea();
+	regionError *= std::sqrt(frameRegion.calcArea() * m_rcpNumRegionPixels);
+	PH_ASSERT_MSG(std::isfinite(regionError), std::to_string(regionError));
+
+	std::cerr << "min-split region = " << frameRegion.toString() << "error = " << regionError << std::endl;
+
+	if(regionError >= m_splitThreshold)
+	{
+		// error is large, added for more effort
+		m_nextRegions.first  = finishedRegion;
+		m_nextRegions.second = Region({0, 0});
+
+		std::cerr << "too large, split = " << m_splitThreshold << std::endl;
+	}
+	else if(regionError >= m_terminateThreshold)
+	{
+		if(finishedRegion.calcArea() >= MIN_REGION_AREA)
+		{
+			// Split on the point that minimizes the difference of error 
+			// across two splitted regions. To find the point, we squared the
+			// error metric (to avoid sqrt) and stripped away some constants
+			// which do not affect the result.
+
+			const real totalEps = m_accumulatedEps.back();
+
+			int64 bestPosPx    = 0;
+			real  minErrorDiff = squared(totalEps) / static_cast<real>(m_accumulatedEps.size());
+			for(std::size_t i = 0; i < m_accumulatedEps.size(); ++i)
+			{
+				const real summedEp0 = m_accumulatedEps[i];
+				const real summedEp1 = (totalEps - m_accumulatedEps[i]);
+				PH_ASSERT_GE(summedEp0, 0);
+				PH_ASSERT_GE(summedEp1, 0);
+
+				const real error0    = squared(summedEp0) / static_cast<real>(i + 1);
+				const real error1    = squared(summedEp1) / static_cast<real>(m_accumulatedEps.size() - i - 1);
+				const real errorDiff = std::abs(error0 - error1);
+
+				if(errorDiff < minErrorDiff)
+				{
+					minErrorDiff = errorDiff;
+					bestPosPx    = static_cast<int64>(i + 1);
+				}
+			}
+
+			m_nextRegions = finishedRegion.getSplitted(
+				maxDimension, 
+				finishedRegion.minVertex[maxDimension] + bestPosPx);
+
+			std::cerr << "small, splitted, terminate = " << m_terminateThreshold << std::endl;
+		}
+		else
+		{
+			m_nextRegions.first  = finishedRegion;
+			m_nextRegions.second = Region({0, 0});
+
+			std::cerr << "small, region too small, not splitted, terminate = " << m_terminateThreshold << std::endl;
+		}
+	}
+	else
+	{
+		// error is very small, no further effort needed
+		m_nextRegions.first  = Region({0, 0});
+		m_nextRegions.second = Region({0, 0});
+
+		std::cerr << "very small, terminated" << std::endl;
+	}
 }
 
 }// end namespace ph
