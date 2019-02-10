@@ -29,6 +29,7 @@ public:
 
 	float getScheduledFraction() const;
 	float getSubmittedFraction() const;
+	bool isExhausted() const;
 
 protected:
 	std::size_t m_numWorkers;
@@ -53,7 +54,9 @@ inline WorkScheduler::WorkScheduler(const std::size_t numWorkers, const WorkUnit
 	m_totalVolume    (totalWorkUnit.getVolume()),
 	m_scheduledVolume(0),
 	m_submittedVolume(0)
-{}
+{
+	PH_ASSERT_GE(numWorkers, 1);
+}
 
 inline bool WorkScheduler::dispatch(WorkUnit* const out_workUnit)
 {
@@ -64,7 +67,7 @@ inline bool WorkScheduler::schedule(WorkUnit* const out_workUnit)
 {
 	PH_ASSERT(out_workUnit);
 
-	while(m_scheduledVolume < m_totalVolume)
+	while(!isExhausted())
 	{
 		scheduleOne(out_workUnit);
 
@@ -92,6 +95,8 @@ inline void WorkScheduler::scheduleAll(std::vector<WorkUnit>& out_workUnits)
 inline void WorkScheduler::submit(const WorkUnit& workUnit)
 {
 	m_submittedVolume += workUnit.getVolume();
+
+	PH_ASSERT_LE(m_submittedVolume, m_totalVolume);
 }
 
 inline float WorkScheduler::getScheduledFraction() const
@@ -102,6 +107,11 @@ inline float WorkScheduler::getScheduledFraction() const
 inline float WorkScheduler::getSubmittedFraction() const
 {
 	return static_cast<float>(m_submittedVolume) / static_cast<float>(m_totalVolume);
+}
+
+inline bool WorkScheduler::isExhausted() const
+{
+	return m_scheduledVolume == m_totalVolume;
 }
 
 }// end namespace ph

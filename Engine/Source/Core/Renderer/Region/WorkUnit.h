@@ -23,6 +23,7 @@ public:
 	int64 getHeight() const;
 	std::size_t getDepth() const;
 	std::size_t getVolume() const;
+	float64 getAspectRatio() const;
 
 	std::string toString() const;
 
@@ -73,6 +74,14 @@ inline std::size_t WorkUnit::getVolume() const
 	PH_ASSERT(m_region.isValid());
 
 	return static_cast<std::size_t>(m_region.calcArea()) * m_depth;
+}
+
+inline float64 WorkUnit::getAspectRatio() const
+{
+	PH_ASSERT_GE(m_region.getWidth(),  0);
+	PH_ASSERT_GT(m_region.getHeight(), 0);
+
+	return static_cast<float64>(m_region.getWidth()) / static_cast<float64>(m_region.getHeight());
 }
 
 inline std::string WorkUnit::toString() const

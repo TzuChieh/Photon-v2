@@ -15,6 +15,7 @@
 #include <utility>
 #include <vector>
 #include <limits>
+#include <algorithm>
 
 namespace ph
 {
@@ -46,9 +47,11 @@ public:
 	DammertzDispatcher() = default;
 
 	explicit DammertzDispatcher(
+		uint32        numWorkers,
 		const Region& fullRegion);
 
 	DammertzDispatcher(
+		uint32        numWorkers,
 		const Region& fullRegion, 
 		real          precisionStandard, 
 		std::size_t   depthPerRegion);
@@ -60,6 +63,8 @@ public:
 
 	template<ERefineMode MODE>
 	void addAnalyzedData(const TAnalyzer<MODE>& analyzer);
+
+	std::size_t numPendingRegions() const;
 
 	template<ERefineMode MODE>
 	class TAnalyzer final
@@ -130,6 +135,11 @@ inline DammertzDispatcher::TAnalyzer<MODE>::TAnalyzer(
 	m_rcpNumRegionPixels(1.0_r / numFullRegionPixels),
 	m_accumulatedEps    ()
 {}
+
+inline std::size_t DammertzDispatcher::numPendingRegions() const
+{
+	return m_pendingRegions.size();
+}
 
 inline void DammertzDispatcher::addPendingRegion(const Region& region)
 {
@@ -236,9 +246,10 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 	const TAABB2D<uint32> frameRegion(finishedRegion);
 
 	const auto regionExtents = frameRegion.getExtents();
-	const int  maxDimension  = frameRegion.getExtents().maxDimension();
+	const int  maxDimension  = regionExtents.maxDimension();
 
-	m_accumulatedEps.resize(regionExtents[maxDimension], 0);
+	m_accumulatedEps.resize(regionExtents[maxDimension]);
+	std::fill(m_accumulatedEps.begin(), m_accumulatedEps.end(), 0.0_r);
 
 	real summedEp = 0;
 	for(uint32 y = frameRegion.minVertex.y; y < frameRegion.maxVertex.y; ++y)
@@ -254,6 +265,7 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 			const real sumOfI         = I.sum();
 			const real rcpDenominator = sumOfI > 0 ? fast_rcp_sqrt(sumOfI) : 0;
 
+			PH_ASSERT_GE(numerator * rcpDenominator, 0);
 			summedRowEp += numerator * rcpDenominator;
 
 			if(maxDimension == math::X_AXIS)
@@ -269,10 +281,10 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 		}
 	}
 
-	real regionError = m_accumulatedEps.back();
+	real regionError = summedEp;
 	regionError /= frameRegion.calcArea();
 	regionError *= std::sqrt(frameRegion.calcArea() * m_rcpNumRegionPixels);
-	PH_ASSERT_MSG(std::isfinite(regionError), std::to_string(regionError));
+	PH_ASSERT_MSG(regionError > 0 && std::isfinite(regionError), std::to_string(regionError));
 
 	std::cerr << "min-split region = " << frameRegion.toString() << "error = " << regionError << std::endl;
 
@@ -293,6 +305,12 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 			// error metric (to avoid sqrt) and stripped away some constants
 			// which do not affect the result.
 
+			for(auto e : m_accumulatedEps)
+			{
+				std::cerr << e << ",";
+			}
+			std::cerr << std::endl;
+
 			const real totalEps = m_accumulatedEps.back();
 
 			int64 bestPosPx    = 0;
@@ -300,7 +318,7 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 			for(std::size_t i = 0; i < m_accumulatedEps.size(); ++i)
 			{
 				const real summedEp0 = m_accumulatedEps[i];
-				const real summedEp1 = (totalEps - m_accumulatedEps[i]);
+				const real summedEp1 = totalEps - summedEp0;
 				PH_ASSERT_GE(summedEp0, 0);
 				PH_ASSERT_GE(summedEp1, 0);
 

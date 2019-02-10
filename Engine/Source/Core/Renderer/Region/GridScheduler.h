@@ -5,6 +5,7 @@
 #include "Common/assertion.h"
 
 #include <algorithm>
+#include <cmath>
 
 namespace ph
 {
@@ -25,6 +26,10 @@ public:
 	};
 
 	GridScheduler();
+
+	GridScheduler(
+		std::size_t     numWorkers,
+		const WorkUnit& totalWorkUnit);
 
 	GridScheduler(
 		std::size_t     numWorkers,
@@ -51,6 +56,18 @@ private:
 
 inline GridScheduler::GridScheduler() :
 	WorkScheduler()
+{}
+
+inline GridScheduler::GridScheduler(
+	const std::size_t numWorkers,
+	const WorkUnit&   totalWorkUnit) : 
+
+	GridScheduler(
+		numWorkers, 
+		totalWorkUnit,
+		Vector2S(
+			static_cast<std::size_t>(std::ceil(std::sqrt(numWorkers * totalWorkUnit.getAspectRatio()))),
+			static_cast<std::size_t>(std::ceil(std::sqrt(numWorkers / totalWorkUnit.getAspectRatio())))))
 {}
 
 inline GridScheduler::GridScheduler(

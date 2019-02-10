@@ -35,6 +35,8 @@ public:
 	std::string renderStateName(RenderState::EType type, std::size_t index) const override;
 
 private:
+	constexpr static auto REFINE_MODE = DammertzDispatcher::ERefineMode::MIN_ERROR_DIFFERENCE;
+
 	const Scene*               m_scene;
 	const Camera*              m_camera;
 	SampleGenerator*           m_sampleGenerator;
@@ -46,12 +48,12 @@ private:
 	std::vector<CameraSamplingWork>         m_renderWorks;
 	std::vector<StepperFilmEnergyEstimator> m_filmEstimators;
 
-	DammertzDispatcher m_dispatcher;
-	real m_precisionStandard;
-	std::size_t m_numPathsPerRegion;
-	GridScheduler m_currentGrid;
-	HdrRgbFrame m_allEffortFrame;
-	HdrRgbFrame m_halfEffortFrame;
+	DammertzDispatcher                    m_dispatcher;
+	std::vector<uint32>                   m_freeWorkerIds;
+	real                                  m_precisionStandard;
+	std::size_t                           m_numPathsPerRegion;
+	HdrRgbFrame                           m_allEffortFrame;
+	HdrRgbFrame                           m_halfEffortFrame;
 
 	struct UpdatedRegion
 	{
@@ -64,8 +66,6 @@ private:
 	std::atomic_uint64_t m_totalPaths;
 	std::atomic_uint32_t m_suppliedFractionBits;
 	std::atomic_uint32_t m_submittedFractionBits;
-
-	std::vector<uint32> m_stoppedWorkers;
 
 	void addUpdatedRegion(const Region& region, bool isUpdating);
 

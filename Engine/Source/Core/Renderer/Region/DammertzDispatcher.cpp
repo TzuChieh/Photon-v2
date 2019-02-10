@@ -1,16 +1,19 @@
 #include "Core/Renderer/Region/DammertzDispatcher.h"
 #include "Common/assertion.h"
+#include "Core/Renderer/Region/GridScheduler.h"
 
 namespace ph
 {
 
 DammertzDispatcher::DammertzDispatcher(
+	const uint32  numWorkers,
 	const Region& fullRegion) :
 
-	DammertzDispatcher(fullRegion, 1.0_r, 16)
+	DammertzDispatcher(numWorkers, fullRegion, 1.0_r, 16)
 {}
 
 DammertzDispatcher::DammertzDispatcher(
+	const uint32      numWorkers,
 	const Region&     fullRegion, 
 	const real        precisionStandard, 
 	const std::size_t depthPerRegion) : 
@@ -22,7 +25,15 @@ DammertzDispatcher::DammertzDispatcher(
 	m_splitThreshold     = 256.0_r * m_terminateThreshold;
 	m_depthPerRegion     = depthPerRegion;
 
-	m_pendingRegions.push(fullRegion);
+	// divide the full region initially to facilitate parallelism
+
+	GridScheduler initialScheduler(numWorkers, WorkUnit(fullRegion, depthPerRegion));
+
+	WorkUnit workUnit;
+	while(initialScheduler.schedule(&workUnit))
+	{
+		m_pendingRegions.push(workUnit.getRegion());
+	}
 }
 
 bool DammertzDispatcher::dispatch(WorkUnit* const out_workUnit)

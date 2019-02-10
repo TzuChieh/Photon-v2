@@ -76,62 +76,37 @@ void AdaptiveSamplingRenderer::doUpdate(const SdlResourcePack& data)
 	}
 
 	m_dispatcher = DammertzDispatcher(
+		numWorkers(),
 		getRenderWindowPx(),
 		m_precisionStandard,
 		m_numPathsPerRegion);
 
-	m_currentGrid = GridScheduler();
+	m_freeWorkerIds.clear();
+	m_freeWorkerIds.reserve(numWorkers());
 
 	m_allEffortFrame = HdrRgbFrame(getRenderWidthPx(), getRenderHeightPx());
 	m_halfEffortFrame = HdrRgbFrame(getRenderWidthPx(), getRenderHeightPx());
-
-	m_stoppedWorkers.clear();
 }
 
 void AdaptiveSamplingRenderer::doRender()
 {
 	FixedSizeThreadPool workers(numWorkers());
 
-	while(true)
+	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
 	{
-		WorkUnit workUnit;
-		{
-			std::lock_guard<std::mutex> lock(m_rendererMutex);
-
-			if(!m_dispatcher.dispatch(&workUnit))
-			{
-				break;
-			}
-
-			m_currentGrid = GridScheduler(
-				numWorkers(),
-				workUnit,
-				Vector2S(2, 2));
-		}
-		
-		for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
-		{
-			workers.queueWork(createWork(workers, workerId));
-		}
-
-		workers.waitAllWorks();
-
-		m_allEffortFilm.develop(m_allEffortFrame, workUnit.getRegion());
-		m_halfEffortFilm.develop(m_halfEffortFrame, workUnit.getRegion());
-
-		//m_dispatcher.analyzeFinishedRegion(workUnit.getRegion(), m_allEffortFrame, m_halfEffortFrame);
-		auto analyzer = m_dispatcher.createAnalyzer<DammertzDispatcher::ERefineMode::MIDPOINT>();
-		analyzer.analyzeFinishedRegion(workUnit.getRegion(), m_allEffortFrame, m_halfEffortFrame);
-		m_dispatcher.addAnalyzedData(analyzer);
+		workers.queueWork(createWork(workers, workerId));
 	}
+
+	workers.waitAllWorks();
 }
 
 std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& workers, uint32 workerId)
 {
 	return [this, workerId, &workers]()
 	{
-		auto& renderWork = m_renderWorks[workerId];
+		auto& renderWork    = m_renderWorks[workerId];
 		auto& filmEstimator = m_filmEstimators[workerId];
+		auto  analyzer      = m_dispatcher.createAnalyzer<REFINE_MODE>();
 
 		float suppliedFraction = 0.0f;
 		float submittedFraction = 0.0f;
@@ -142,14 +117,24 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 			{
 				std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-				if(!m_currentGrid.schedule(&workUnit))
+				if(!m_dispatcher.dispatch(&workUnit))
 				{
+					m_freeWorkerIds.push_back(workerId);
 					break;
 				}
-				PH_ASSERT_GT(workUnit.getVolume(), 0);
 
 				const std::size_t spp = workUnit.getDepth();
 				sampleGenerator = m_sampleGenerator->genCopied(spp);
+
+				std::size_t numPendingRegions = m_dispatcher.numPendingRegions();
+				while(!m_freeWorkerIds.empty() && numPendingRegions > 0)
+				{
+					const uint32 freeWorkerId = m_freeWorkerIds.back();
+					m_freeWorkerIds.pop_back();
+					--numPendingRegions;
+
+					workers.queueWork(createWork(workers, freeWorkerId));
+				}
 			}
 
 			m_suppliedFractionBits.store(
@@ -182,10 +167,16 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 
 			renderWork.work();
 
+			m_allEffortFilm.develop(m_allEffortFrame, workUnit.getRegion());
+			m_halfEffortFilm.develop(m_halfEffortFrame, workUnit.getRegion());
+			analyzer.analyzeFinishedRegion(workUnit.getRegion(), m_allEffortFrame, m_halfEffortFrame);
+
 			{
 				std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 				addUpdatedRegion(filmEstimator.getFilmEffectiveWindowPx(), false);
+
+				m_dispatcher.addAnalyzedData(analyzer);
 			}
 
 			m_submittedFractionBits.store(
