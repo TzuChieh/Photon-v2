@@ -120,7 +120,7 @@ void AdaptiveSamplingRenderer::doRender()
 		m_halfEffortFilm.develop(m_halfEffortFrame, workUnit.getRegion());
 
 		//m_dispatcher.analyzeFinishedRegion(workUnit.getRegion(), m_allEffortFrame, m_halfEffortFrame);
-		auto analyzer = m_dispatcher.createAnalyzer();
+		auto analyzer = m_dispatcher.createAnalyzer<DammertzDispatcher::ERefineMode::MIDPOINT>();
 		analyzer.analyzeFinishedRegion(workUnit.getRegion(), m_allEffortFrame, m_halfEffortFrame);
 		m_dispatcher.addAnalyzedData(analyzer);
 	}
