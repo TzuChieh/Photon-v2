@@ -1,4 +1,4 @@
-#include "Core/Renderer/Region/DammertzAdaptiveDispatcher.h"
+#include "Core/Renderer/Region/DammertzDispatcher.h"
 #include "Common/assertion.h"
 #include "Frame/TFrame.h"
 #include "Math/math.h"
@@ -10,29 +10,28 @@
 namespace ph
 {
 
-DammertzAdaptiveDispatcher::DammertzAdaptiveDispatcher(
+DammertzDispatcher::DammertzDispatcher(
 	const Region& fullRegion) :
 
-	DammertzAdaptiveDispatcher(fullRegion, 1.0_r, 16)
+	DammertzDispatcher(fullRegion, 1.0_r, 16)
 {}
 
-DammertzAdaptiveDispatcher::DammertzAdaptiveDispatcher(
+DammertzDispatcher::DammertzDispatcher(
 	const Region&     fullRegion, 
 	const real        precisionStandard, 
 	const std::size_t depthPerRegion) : 
 
-	m_pendingRegions(),
-	m_fullRegion(fullRegion),
-	m_rcpNumRegionPixels(1.0_r / fullRegion.calcArea())
+	m_pendingRegions    (),
+	m_fullRegion        (fullRegion)
 {
 	m_terminateThreshold = precisionStandard * 0.0002_r;
-	m_splitThreshold = 256.0_r * m_terminateThreshold;
-	m_depthPerRegion = depthPerRegion;
+	m_splitThreshold     = 256.0_r * m_terminateThreshold;
+	m_depthPerRegion     = depthPerRegion;
 
 	m_pendingRegions.push(fullRegion);
 }
 
-bool DammertzAdaptiveDispatcher::dispatch(WorkUnit* const out_workUnit)
+bool DammertzDispatcher::dispatch(WorkUnit* const out_workUnit)
 {
 	PH_ASSERT(out_workUnit);
 
@@ -41,6 +40,8 @@ bool DammertzAdaptiveDispatcher::dispatch(WorkUnit* const out_workUnit)
 		return false;
 	}
 
+	std::cerr << "# regions = " << m_pendingRegions.size() << std::endl;
+
 	const Region newRegion = m_pendingRegions.front();
 	m_pendingRegions.pop();
 
@@ -48,8 +49,8 @@ bool DammertzAdaptiveDispatcher::dispatch(WorkUnit* const out_workUnit)
 	return true;
 }
 
-void DammertzAdaptiveDispatcher::analyzeFinishedRegion(
-	const Region& finishedRegion,
+void DammertzDispatcher::Analyzer::analyzeFinishedRegion(
+	const Region&      finishedRegion,
 	const HdrRgbFrame& allEffortFrame,
 	const HdrRgbFrame& halfEffortFrame)
 {
@@ -88,7 +89,8 @@ void DammertzAdaptiveDispatcher::analyzeFinishedRegion(
 	if(regionError >= m_splitThreshold)
 	{
 		// error is large, added for more effort
-		addPendingRegion(finishedRegion);
+		m_nextRegions.first  = finishedRegion;
+		m_nextRegions.second = Region({0, 0});
 
 		std::cerr << "too large, split = " << m_splitThreshold << std::endl;
 	}
@@ -96,20 +98,20 @@ void DammertzAdaptiveDispatcher::analyzeFinishedRegion(
 	{
 		// TODO: split on the point that minimizes the difference of error across two splitted regions
 
-		if(finishedRegion.calcArea() >= 1024)
+		if(finishedRegion.calcArea() >= MIN_REGION_AREA)
 		{
 			// error is small, splitted and added for more effort
 			const int maxDimension = finishedRegion.getExtents().maxDimension();
 			const int64 midPoint = (finishedRegion.minVertex[maxDimension] + finishedRegion.maxVertex[maxDimension]) / 2;
-			const auto splittedRegion = finishedRegion.getSplitted(maxDimension, midPoint);
-			addPendingRegion(splittedRegion.first);
-			addPendingRegion(splittedRegion.second);
+
+			m_nextRegions = finishedRegion.getSplitted(maxDimension, midPoint);
 
 			std::cerr << "small, splitted, terminate = " << m_terminateThreshold << std::endl;
 		}
 		else
 		{
-			addPendingRegion(finishedRegion);
+			m_nextRegions.first  = finishedRegion;
+			m_nextRegions.second = Region({0, 0});
 
 			std::cerr << "small, region too small, not splitted, terminate = " << m_terminateThreshold << std::endl;
 		}
@@ -117,12 +119,11 @@ void DammertzAdaptiveDispatcher::analyzeFinishedRegion(
 	else
 	{
 		// error is very small, no further effort needed
-		// do nothing
+		m_nextRegions.first  = Region({0, 0});
+		m_nextRegions.second = Region({0, 0});
 
 		std::cerr << "very small, terminated" << std::endl;
 	}
-
-	std::cerr << "# regions = " << m_pendingRegions.size() << std::endl;
 }
 
 }// end namespace ph

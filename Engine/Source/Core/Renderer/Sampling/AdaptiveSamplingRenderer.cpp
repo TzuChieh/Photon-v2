@@ -75,7 +75,7 @@ void AdaptiveSamplingRenderer::doUpdate(const SdlResourcePack& data)
 		m_renderWorks[workerId].addProcessor(&m_filmEstimators[workerId]);
 	}
 
-	m_dispatcher = DammertzAdaptiveDispatcher(
+	m_dispatcher = DammertzDispatcher(
 		getRenderWindowPx(),
 		m_precisionStandard,
 		m_numPathsPerRegion);
@@ -119,7 +119,10 @@ void AdaptiveSamplingRenderer::doRender()
 		m_allEffortFilm.develop(m_allEffortFrame, workUnit.getRegion());
 		m_halfEffortFilm.develop(m_halfEffortFrame, workUnit.getRegion());
 
-		m_dispatcher.analyzeFinishedRegion(workUnit.getRegion(), m_allEffortFrame, m_halfEffortFrame);
+		//m_dispatcher.analyzeFinishedRegion(workUnit.getRegion(), m_allEffortFrame, m_halfEffortFrame);
+		auto analyzer = m_dispatcher.createAnalyzer();
+		analyzer.analyzeFinishedRegion(workUnit.getRegion(), m_allEffortFrame, m_halfEffortFrame);
+		m_dispatcher.addAnalyzedData(analyzer);
 	}
 }
 

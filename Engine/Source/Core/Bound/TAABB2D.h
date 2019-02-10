@@ -24,6 +24,7 @@ public:
 	TAABB2D();
 	TAABB2D(const TAABB2D& other);
 	TAABB2D(const TVector2<T>& minVertex, const TVector2<T>& maxVertex);
+	explicit TAABB2D(const TVector2<T>& point);
 
 	template<typename U>
 	explicit TAABB2D(const TAABB2D<U>& other);

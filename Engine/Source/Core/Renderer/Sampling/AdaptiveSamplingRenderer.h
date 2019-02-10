@@ -3,7 +3,7 @@
 #include "Core/Renderer/Sampling/SamplingRenderer.h"
 #include "Core/Renderer/Region/Region.h"
 #include "Common/primitive_type.h"
-#include "Core/Renderer/Region/DammertzAdaptiveDispatcher.h"
+#include "Core/Renderer/Region/DammertzDispatcher.h"
 #include "Core/Renderer/Region/GridScheduler.h"
 #include "Core/Renderer/Sampling/CameraSamplingWork.h"
 #include "Frame/TFrame.h"
@@ -46,7 +46,7 @@ private:
 	std::vector<CameraSamplingWork>         m_renderWorks;
 	std::vector<StepperFilmEnergyEstimator> m_filmEstimators;
 
-	DammertzAdaptiveDispatcher m_dispatcher;
+	DammertzDispatcher m_dispatcher;
 	real m_precisionStandard;
 	std::size_t m_numPathsPerRegion;
 	GridScheduler m_currentGrid;
