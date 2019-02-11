@@ -141,6 +141,7 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 				bitwise_cast<float, std::uint32_t>(suppliedFraction),
 				std::memory_order_relaxed);
 
+			// using sharp edge so work regions will not overlap
 			filmEstimator.setFilmDimensions(
 				TVector2<int64>(getRenderWidthPx(), getRenderHeightPx()),
 				workUnit.getRegion(), 
@@ -155,18 +156,22 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 
 			renderWork.onWorkReport([this, workerId]()
 			{
-				std::lock_guard<std::mutex> lock(m_rendererMutex);
-
+				// No synchronization needed, since no other worker can have an 
+				// overlapping region with the current one.
 				m_filmEstimators[workerId].mergeFilmTo(0, m_allEffortFilm);
-				m_filmEstimators[workerId].mergeFilmTo(1, m_halfEffortFilm);
 				m_filmEstimators[workerId].clearFilm(0);
-				m_filmEstimators[workerId].clearFilm(1);
+
+				std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 				addUpdatedRegion(m_filmEstimators[workerId].getFilmEffectiveWindowPx(), true);
 			});
 
 			renderWork.work();
 
+			// No synchronization needed, since no other worker can have an 
+			// overlapping region with the current one.
+			m_filmEstimators[workerId].mergeFilmTo(1, m_halfEffortFilm);
+			m_filmEstimators[workerId].clearFilm(1);
 			m_allEffortFilm.develop(m_allEffortFrame, workUnit.getRegion());
 			m_halfEffortFilm.develop(m_halfEffortFrame, workUnit.getRegion());
 			analyzer.analyzeFinishedRegion(workUnit.getRegion(), m_allEffortFrame, m_halfEffortFrame);
@@ -175,7 +180,6 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 				std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 				addUpdatedRegion(filmEstimator.getFilmEffectiveWindowPx(), false);
-
 				m_dispatcher.addAnalyzedData(analyzer);
 			}
 
