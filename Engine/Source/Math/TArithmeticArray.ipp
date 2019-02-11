@@ -342,7 +342,7 @@ inline bool TArithmeticArray<T, N>::isFinite() const
 }
 
 template<typename T, std::size_t N>
-inline std::size_t TArithmeticArray<T, N>::size() const
+inline constexpr std::size_t TArithmeticArray<T, N>::size() const noexcept
 {
 	return N;
 }
@@ -350,10 +350,7 @@ inline std::size_t TArithmeticArray<T, N>::size() const
 template<typename T, std::size_t N>
 inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::set(const T value)
 {
-	for(std::size_t i = 0; i < N; ++i)
-	{
-		m[i] = value;
-	}
+	m.fill(value);
 
 	return *this;
 }
@@ -361,10 +358,7 @@ inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::set(const T value)
 template<typename T, std::size_t N>
 inline TArithmeticArray<T, N>& TArithmeticArray<T, N>::set(const std::array<T, N>& values)
 {
-	for(std::size_t i = 0; i < N; ++i)
-	{
-		m[i] = values[i];
-	}
+	m = values;
 
 	return *this;
 }

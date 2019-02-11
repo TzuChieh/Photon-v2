@@ -88,7 +88,7 @@ public class RenderProjectCtrl
 		imageFileSaveFormat.setValue("png");
 		
 		m_display = new StaticCanvasDisplay();
-		Canvas canvas = m_display.getCanvas();
+		Canvas canvas = m_display.getView();
 		
 		canvas.widthProperty().bind(displayPane.widthProperty());
 		canvas.heightProperty().bind(displayPane.heightProperty());

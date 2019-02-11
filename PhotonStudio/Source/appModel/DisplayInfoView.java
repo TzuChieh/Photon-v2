@@ -1,6 +1,6 @@
 package appModel;
 
-public interface DisplayView
+public interface DisplayInfoView
 {
 	default void showFrameResolution(int widthPx, int heightPx)
 	{}

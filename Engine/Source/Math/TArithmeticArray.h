@@ -65,7 +65,7 @@ public:
 	bool isZero() const;
 	bool isNonNegative() const;
 	bool isFinite() const;
-	std::size_t size() const;
+	constexpr std::size_t size() const noexcept;
 
 	TArithmeticArray& set(T value);
 	TArithmeticArray& set(const std::array<T, N>& values);
@@ -77,10 +77,10 @@ public:
 	TArithmeticArray operator * (T rhs) const;
 	TArithmeticArray operator + (T rhs) const;
 
-	typename std::array<T, N>::iterator       begin() noexcept;
-	typename std::array<T, N>::const_iterator begin() const noexcept;
-	typename std::array<T, N>::iterator       end()   noexcept;
-	typename std::array<T, N>::const_iterator end()   const noexcept;
+	auto begin() noexcept       -> typename std::array<T, N>::iterator;
+	auto begin() const noexcept -> typename std::array<T, N>::const_iterator;
+	auto end() noexcept         -> typename std::array<T, N>::iterator;
+	auto end() const noexcept   -> typename std::array<T, N>::const_iterator;
 
 	std::string toString() const;
 

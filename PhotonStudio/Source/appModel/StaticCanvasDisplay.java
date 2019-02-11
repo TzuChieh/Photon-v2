@@ -49,7 +49,7 @@ public class StaticCanvasDisplay extends Display
 			drawFlood();
 			drawFrame(new Rectangle(0, 0, getFrameWidthPx(), getFrameHeightPx()));
 			
-			getDisplayView().showDisplayResolution(
+			getDisplayInfoView().showDisplayResolution(
 				(int)(m_canvas.getWidth() + 0.5), (int)(m_canvas.getHeight() + 0.5));
 		};
 			
@@ -72,7 +72,7 @@ public class StaticCanvasDisplay extends Display
 				Vector2f canvasCoordPx = new Vector2f((float)event.getX(), (float)event.getY());
 				Vector2f frameCoordPx  = getFrameCoordPx(canvasCoordPx);
 				
-				getDisplayView().showCursorCoord(
+				getDisplayInfoView().showCursorCoord(
 					Math.min((int)frameCoordPx.x, getFrameWidthPx() - 1), 
 					Math.min((int)frameCoordPx.y, getFrameHeightPx() - 1));
 				
@@ -82,15 +82,15 @@ public class StaticCanvasDisplay extends Display
 				y = Math.min(y, getFrameHeightPx() - 1);
 				
 				Color color = m_image.getPixelReader().getColor(x, y);
-				getDisplayView().showCursorColor(
+				getDisplayInfoView().showCursorColor(
 					(int)(color.getRed() * 255.0), 
 					(int)(color.getGreen() * 255.0), 
 					(int)(color.getBlue() * 255.0));
 			}
 		});
 		
-		getDisplayView().showFrameResolution(widthPx, heightPx);
-		getDisplayView().showDisplayResolution(widthPx, heightPx);
+		getDisplayInfoView().showFrameResolution(widthPx, heightPx);
+		getDisplayInfoView().showDisplayResolution(widthPx, heightPx);
 	}
 	
 	@Override
@@ -152,7 +152,7 @@ public class StaticCanvasDisplay extends Display
 		return SwingFXUtils.fromFXImage(m_image, null);
 	}
 	
-	public Canvas getCanvas()
+	public Canvas getView()
 	{
 		return m_canvas;
 	}
@@ -265,8 +265,8 @@ public class StaticCanvasDisplay extends Display
 //				}
 //			}
 			
-			getDisplayView().showFrameResolution(frame.getFullWidthPx(), frame.getFullHeightPx());
-			getDisplayView().showZoom(getDrawnScale(getFittedDrawResPx()) * 100.0f);
+			getDisplayInfoView().showFrameResolution(frame.getFullWidthPx(), frame.getFullHeightPx());
+			getDisplayInfoView().showZoom(getDrawnScale(getFittedDrawResPx()) * 100.0f);
 		}
 		
 		final PixelWriter pixelWriter = m_image.getPixelWriter();

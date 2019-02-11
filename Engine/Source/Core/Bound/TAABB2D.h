@@ -39,6 +39,8 @@ public:
 	TVector2<T> getExtents() const;
 	TVector2<T> calcCenter() const;
 	std::pair<TAABB2D, TAABB2D> getSplitted(int axis, T splitPoint) const;
+	TAABB2D getUnioned(const TAABB2D& other) const;
+	TAABB2D getIntersected(const TAABB2D& other) const;
 	bool isValid() const;
 	bool isPoint() const;
 	bool isArea() const;

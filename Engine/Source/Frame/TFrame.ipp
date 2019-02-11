@@ -9,6 +9,7 @@
 #include <limits>
 #include <type_traits>
 #include <utility>
+#include <algorithm>
 
 namespace ph
 {
@@ -20,29 +21,29 @@ inline TFrame<T, N>::TFrame() :
 
 template<typename T, std::size_t N>
 inline TFrame<T, N>::TFrame(const uint32 wPx, const uint32 hPx) :
-	m_widthPx(wPx), m_heightPx(hPx),
+	m_widthPx  (wPx), 
+	m_heightPx (hPx),
 	m_pixelData(wPx * hPx * N, 0)
 {}
 
 template<typename T, std::size_t N>
 inline TFrame<T, N>::TFrame(const TFrame& other) :
-	m_widthPx(other.m_widthPx), m_heightPx(other.m_heightPx),
+	m_widthPx  (other.m_widthPx), 
+	m_heightPx (other.m_heightPx),
 	m_pixelData(other.m_pixelData)
 {}
 
 template<typename T, std::size_t N>
 inline TFrame<T, N>::TFrame(TFrame&& other) :
-	m_widthPx(other.m_widthPx), m_heightPx(other.m_heightPx),
+	m_widthPx  (other.m_widthPx), 
+	m_heightPx (other.m_heightPx),
 	m_pixelData(std::move(other.m_pixelData))
 {}
 
 template<typename T, std::size_t N>
 inline void TFrame<T, N>::fill(const T value)
 {
-	for(auto& component : m_pixelData)
-	{
-		component = value;
-	}
+	std::fill(m_pixelData.begin(), m_pixelData.end(), value);
 }
 
 // TODO: wrap mode
@@ -164,27 +165,31 @@ inline void TFrame<T, N>::flipVertically()
 }
 
 template<typename T, std::size_t N>
-template<typename PerPixelOperation>
-inline void TFrame<T, N>::forEachPixel(const PerPixelOperation op)
+inline void TFrame<T, N>::setSize(const uint32 wPx, const uint32 hPx)
 {
-	forEachPixel(TAABB2D<uint32>({0, 0}, {m_widthPx, m_heightPx}), op);
+	m_widthPx  = wPx;
+	m_heightPx = hPx;
+	m_pixelData.resize(wPx * hPx * N);
 }
 
 template<typename T, std::size_t N>
 template<typename PerPixelOperation>
-inline void TFrame<T, N>::forEachPixel(const PerPixelOperation op) const
+inline void TFrame<T, N>::forEachPixel(PerPixelOperation op)
 {
-	forEachPixel(TAABB2D<uint32>({0, 0}, {m_widthPx, m_heightPx}), op);
+	forEachPixel(TAABB2D<uint32>({0, 0}, {m_widthPx, m_heightPx}), std::move(op));
 }
 
 template<typename T, std::size_t N>
 template<typename PerPixelOperation>
-inline void TFrame<T, N>::forEachPixel(const TAABB2D<uint32>& region, const PerPixelOperation op)
+inline void TFrame<T, N>::forEachPixel(PerPixelOperation op) const
 {
-	using Return = decltype(op(std::declval<Pixel>()));
-	static_assert(std::is_same_v<Return, void> || std::is_same_v<Return, Pixel>,
-		"PerPixelOperation must either returns nothing or a Pixel");
+	forEachPixel(TAABB2D<uint32>({0, 0}, {m_widthPx, m_heightPx}), std::move(op));
+}
 
+template<typename T, std::size_t N>
+template<typename PerPixelOperation>
+inline void TFrame<T, N>::forEachPixel(const TAABB2D<uint32>& region, PerPixelOperation op)
+{
 	// OPT
 
 	Pixel pixel;
@@ -194,13 +199,35 @@ inline void TFrame<T, N>::forEachPixel(const TAABB2D<uint32>& region, const PerP
 		{
 			getPixel(x, y, &pixel);
 			
-			if constexpr(std::is_same_v<Return, void>)
+			if constexpr(std::is_invocable_v<PerPixelOperation, uint32, uint32, Pixel>)
 			{
-				// do nothing
+				using Return = decltype(op(std::declval<uint32>(), std::declval<uint32>(), std::declval<Pixel>()));
+				static_assert(std::is_same_v<Return, void> || std::is_same_v<Return, Pixel>,
+					"PerPixelOperation must either returns nothing or a Pixel");
+
+				if constexpr(std::is_same_v<Return, void>)
+				{
+					op(x, y, pixel);
+				}
+				else
+				{
+					setPixel(x, y, op(x, y, pixel));
+				}
 			}
-			else
+			else if constexpr(std::is_invocable_v<PerPixelOperation, Pixel>)
 			{
-				setPixel(x, y, op(pixel));
+				using Return = decltype(op(std::declval<Pixel>()));
+				static_assert(std::is_same_v<Return, void> || std::is_same_v<Return, Pixel>,
+					"PerPixelOperation must either returns nothing or a Pixel");
+
+				if constexpr(std::is_same_v<Return, void>)
+				{
+					op(pixel);
+				}
+				else
+				{
+					setPixel(x, y, op(pixel));
+				}
 			}
 		}
 	}
@@ -208,7 +235,7 @@ inline void TFrame<T, N>::forEachPixel(const TAABB2D<uint32>& region, const PerP
 
 template<typename T, std::size_t N>
 template<typename PerPixelOperation>
-inline void TFrame<T, N>::forEachPixel(const TAABB2D<uint32>& region, const PerPixelOperation op) const
+inline void TFrame<T, N>::forEachPixel(const TAABB2D<uint32>& region, PerPixelOperation op) const
 {
 	// OPT
 
@@ -225,10 +252,19 @@ inline void TFrame<T, N>::forEachPixel(const TAABB2D<uint32>& region, const PerP
 }
 
 template<typename T, std::size_t N>
-inline auto TFrame<T, N>::getPixel(
-	const uint32 x, const uint32 y, 
+inline auto TFrame<T, N>::getPixel(const TVector2<uint32>& coordPx) const 
+	-> Pixel
+{
+	Pixel pixel;
+	getPixel(coordPx.x, coordPx.y, &pixel);
+	return pixel;
+}
+
+template<typename T, std::size_t N>
+inline void TFrame<T, N>::getPixel(
+	const uint32 x, 
+	const uint32 y, 
 	Pixel* const out_pixel) const
-	-> void
 {
 	PH_ASSERT(out_pixel);
 
@@ -243,9 +279,16 @@ inline auto TFrame<T, N>::getPixel(
 }
 
 template<typename T, std::size_t N>
-inline auto TFrame<T, N>::setPixel(
-	const uint32 x, const uint32 y, const Pixel& pixel)
-	-> void
+inline void TFrame<T, N>::setPixel(const TVector2<uint32>& coordPx, const Pixel& pixel)
+{
+	setPixel(coordPx.x, coordPx.y, pixel);
+}
+
+template<typename T, std::size_t N>
+inline void TFrame<T, N>::setPixel(
+	const uint32 x, 
+	const uint32 y, 
+	const Pixel& pixel)
 {
 	const std::size_t baseIndex = calcPixelDataBaseIndex(x, y);
 
@@ -258,16 +301,27 @@ inline auto TFrame<T, N>::setPixel(
 }
 
 template<typename T, std::size_t N>
-inline auto TFrame<T, N>::getPixelData() const
-	-> const T*
+inline constexpr std::size_t TFrame<T, N>::numPixelComponents() const noexcept
+{
+	return N;
+}
+
+template<typename T, std::size_t N>
+inline const T* TFrame<T, N>::getPixelData() const
 {
 	return m_pixelData.data();
 }
 
 template<typename T, std::size_t N>
-inline auto TFrame<T, N>::calcPixelDataBaseIndex(
-	const uint32 x, const uint32 y) const
-	-> std::size_t
+inline TVector2<uint32> TFrame<T, N>::getSizePx() const
+{
+	return {m_widthPx, m_heightPx};
+}
+
+template<typename T, std::size_t N>
+inline std::size_t TFrame<T, N>::calcPixelDataBaseIndex(
+	const uint32 x, 
+	const uint32 y) const
 {
 	PH_ASSERT_LT(x, m_widthPx);
 	PH_ASSERT_LT(y, m_heightPx);
@@ -276,8 +330,7 @@ inline auto TFrame<T, N>::calcPixelDataBaseIndex(
 }
 
 template<typename T, std::size_t N>
-inline auto TFrame<T, N>::operator = (const TFrame& rhs)
-	-> TFrame<T, N>&
+inline TFrame<T, N>& TFrame<T, N>::operator = (const TFrame& rhs)
 {
 	m_widthPx   = rhs.m_widthPx;
 	m_heightPx  = rhs.m_heightPx;
@@ -287,8 +340,7 @@ inline auto TFrame<T, N>::operator = (const TFrame& rhs)
 }
 
 template<typename T, std::size_t N>
-inline auto TFrame<T, N>::operator = (TFrame&& rhs)
-	-> TFrame<T, N>&
+inline TFrame<T, N>& TFrame<T, N>::operator = (TFrame&& rhs)
 {
 	m_widthPx   = rhs.m_widthPx;
 	m_heightPx  = rhs.m_heightPx;

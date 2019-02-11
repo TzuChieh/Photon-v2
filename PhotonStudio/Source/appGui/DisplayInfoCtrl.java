@@ -1,7 +1,7 @@
 package appGui;
 
 import appModel.Display;
-import appModel.DisplayView;
+import appModel.DisplayInfoView;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
@@ -32,7 +32,7 @@ public class DisplayInfoCtrl
 	{
 		m_display = display;
 		
-		m_display.setDisplayView(new DisplayView()
+		m_display.setDisplayInfoView(new DisplayInfoView()
 		{
 			@Override
 			public void showFrameResolution(int widthPx, int heightPx)

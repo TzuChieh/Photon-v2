@@ -12,11 +12,11 @@ import photonApi.Rectangle;
 
 public abstract class Display
 {
-	private DisplayView m_view;
+	private DisplayInfoView m_infoView;
 	
 	protected Display()
 	{
-		m_view = new DisplayView(){};
+		m_infoView = new DisplayInfoView(){};
 	}
 	
 	public abstract void loadFrame(FrameRegion frame);
@@ -55,13 +55,13 @@ public abstract class Display
 		}
     }
 	
-	protected DisplayView getDisplayView()
+	protected DisplayInfoView getDisplayInfoView()
 	{
-		return m_view;
+		return m_infoView;
 	}
 	
-	public void setDisplayView(DisplayView view)
+	public void setDisplayInfoView(DisplayInfoView view)
 	{
-		m_view = view;
+		m_infoView = view;
 	}
 }

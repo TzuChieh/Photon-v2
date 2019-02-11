@@ -37,15 +37,15 @@ public:
 	~TFrame() = default;
 
 	void fill(T value);
+	void flipHorizontally();
+	void flipVertically();
+	void setSize(uint32 wPx, uint32 hPx);
 
 	// TODO: user specified clamping range?
 	// TODO: specify size instead of radius for finer control
 	void sample(
 		TFrame& sampled, 
 		const TMathFunction2D<float64>& kernel, uint32 kernelRadiusPx) const;
-
-	void flipHorizontally();
-	void flipVertically();
 
 	template<typename PerPixelOperation>
 	void forEachPixel(PerPixelOperation op);
@@ -61,9 +61,13 @@ public:
 
 	// TODO: sampling texture
 
-	void getPixel(uint32 x, uint32 y, Pixel* out_pixel) const;
+	void setPixel(const TVector2<uint32>& coordPx, const Pixel& pixel);
 	void setPixel(uint32 x, uint32 y, const Pixel& pixel);
+
+	Pixel getPixel(const TVector2<uint32>& coordPx) const;
+	void getPixel(uint32 x, uint32 y, Pixel* out_pixel) const;
 	const T* getPixelData() const;
+	TVector2<uint32> getSizePx() const;
 
 	TFrame& operator = (const TFrame& rhs);
 	TFrame& operator = (TFrame&& rhs);
@@ -78,10 +82,7 @@ public:
 		return m_heightPx;
 	}
 
-	inline std::size_t numRgbDataElements() const
-	{
-		return m_pixelData.size();
-	}
+	constexpr std::size_t numPixelComponents() const noexcept;
 
 	inline bool isEmpty() const
 	{

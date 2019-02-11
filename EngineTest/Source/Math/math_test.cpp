@@ -245,7 +245,7 @@ TEST(MathTest, EvenlyDividedRanges)
 
 TEST(MathTest, FastReciprocalSqrt)
 {
-	for(double x = 0.001; x < 1000000.0; x = x < 1.0 ? x + 0.0017 : x + 17.0)
+	for(double x = 0.000001; x < 1000000.0; x = x < 1.0 ? x + 0.0000017 : x + 17.0)
 	{
 		const float  fastResult = ph::math::fast_rcp_sqrt(static_cast<float>(x));
 		const double goodResult = std::sqrt(1.0 / x);
@@ -260,7 +260,7 @@ TEST(MathTest, FastReciprocalSqrt)
 
 TEST(MathTest, FastSqrt)
 {
-	for(double x = 0.001; x < 1000000.0; x = x < 1.0 ? x + 0.0017 : x + 17.0)
+	for(double x = 0.000001; x < 1000000.0; x = x < 1.0 ? x + 0.0000017 : x + 17.0)
 	{
 		const float  fastResult = ph::math::fast_sqrt(static_cast<float>(x));
 		const double goodResult = std::sqrt(x);

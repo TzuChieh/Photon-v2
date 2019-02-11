@@ -109,6 +109,18 @@ inline std::pair<TAABB2D<T>, TAABB2D<T>> TAABB2D<T>::getSplitted(const int axis,
 }
 
 template<typename T>
+inline TAABB2D<T> TAABB2D<T>::getUnioned(const TAABB2D& other) const
+{
+	return TAABB2D(*this).unionWith(other);
+}
+
+template<typename T>
+inline TAABB2D<T> TAABB2D<T>::getIntersected(const TAABB2D& other) const
+{
+	return TAABB2D(*this).intersectWith(other);
+}
+
+template<typename T>
 inline bool TAABB2D<T>::isValid() const
 {
 	return minVertex.x <= maxVertex.x && minVertex.y <= maxVertex.y;

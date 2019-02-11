@@ -6,6 +6,7 @@
 
 #include <cmath>
 #include <algorithm>
+#include <type_traits>
 
 namespace ph
 {
@@ -207,13 +208,29 @@ inline bool TVector2<T>::equals(const TVector2& other, const T margin) const
 template<typename T>
 inline TVector2<T> TVector2<T>::ceil() const
 {
-	return TVector2(static_cast<T>(std::ceil(x)), static_cast<T>(std::ceil(y)));
+	if constexpr(std::is_floating_point_v<T>)
+	{
+		return TVector2(static_cast<T>(std::ceil(x)), 
+		                static_cast<T>(std::ceil(y)));
+	}
+	else
+	{
+		return *this;
+	}
 }
 
 template<typename T>
 inline TVector2<T> TVector2<T>::floor() const
 {
-	return TVector2(static_cast<T>(std::floor(x)), static_cast<T>(std::floor(y)));
+	if constexpr(std::is_floating_point_v<T>)
+	{
+		return TVector2(static_cast<T>(std::floor(x)), 
+		                static_cast<T>(std::floor(y)));
+	}
+	else
+	{
+		return *this;
+	}
 }
 
 template<typename T>
