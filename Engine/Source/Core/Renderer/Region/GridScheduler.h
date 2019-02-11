@@ -66,8 +66,8 @@ inline GridScheduler::GridScheduler(
 		numWorkers, 
 		totalWorkUnit,
 		Vector2S(
-			static_cast<std::size_t>(std::ceil(std::sqrt(numWorkers * totalWorkUnit.getAspectRatio()))),
-			static_cast<std::size_t>(std::ceil(std::sqrt(numWorkers / totalWorkUnit.getAspectRatio())))))
+			static_cast<std::size_t>(std::ceil(math::fast_sqrt(numWorkers * static_cast<float>(totalWorkUnit.getAspectRatio())))),
+			static_cast<std::size_t>(std::ceil(math::fast_sqrt(numWorkers / static_cast<float>(totalWorkUnit.getAspectRatio()))))))
 {}
 
 inline GridScheduler::GridScheduler(

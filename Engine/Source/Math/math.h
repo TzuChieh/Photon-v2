@@ -277,6 +277,10 @@ inline std::pair<std::size_t, std::size_t> ith_evenly_divided_range(
 
 	Reference: http://www.lomont.org/Math/Papers/2003/InvSqrt.pdf
 */
+// TODO: 
+// 1. implement double version in the reference paper and templatize iteration step
+// 2. is more iteration steps better than doing it in double
+// 3. establish a standard, e.g., fast_<X>() is guaranteed to have max. rel. error < 1%
 inline float fast_rcp_sqrt(float x)
 {
 	PH_ASSERT_GT(x, 0.0f);
@@ -297,6 +301,11 @@ inline float fast_rcp_sqrt(float x)
 	//x = x * (1.5f - halvedInput * x * x);
 
 	return x;
+}
+
+inline float fast_sqrt(float x)
+{
+	return fast_rcp_sqrt(x) * x;
 }
 
 template<typename Integer, typename = std::enable_if_t<std::is_integral_v<Integer>>>

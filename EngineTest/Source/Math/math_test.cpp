@@ -245,15 +245,30 @@ TEST(MathTest, EvenlyDividedRanges)
 
 TEST(MathTest, FastReciprocalSqrt)
 {
-	for(double x = 1.0; x < 1000000.0; x += 17.0)
+	for(double x = 0.001; x < 1000000.0; x = x < 1.0 ? x + 0.0017 : x + 17.0)
 	{
 		const float  fastResult = ph::math::fast_rcp_sqrt(static_cast<float>(x));
-		const double goodResult = 1.0 / std::sqrt(x);
+		const double goodResult = std::sqrt(1.0 / x);
 
 		const double relativeError = std::abs(fastResult - goodResult) / goodResult;
 
-		// current implementation should have < 0.175125% max. relative error
-		EXPECT_LT(relativeError * 100.0, 0.175125);
+		// Current implementation should have < 0.175125% max. relative error,
+		// slightly increase the threshold to account for numerical error.
+		EXPECT_LT(relativeError * 100.0, 0.175130);
+	}
+}
+
+TEST(MathTest, FastSqrt)
+{
+	for(double x = 0.001; x < 1000000.0; x = x < 1.0 ? x + 0.0017 : x + 17.0)
+	{
+		const float  fastResult = ph::math::fast_sqrt(static_cast<float>(x));
+		const double goodResult = std::sqrt(x);
+
+		const double relativeError = std::abs(fastResult - goodResult) / goodResult;
+
+		// accept at most 1% max. relative error
+		EXPECT_LT(relativeError * 100.0, 1.0);
 	}
 }
 

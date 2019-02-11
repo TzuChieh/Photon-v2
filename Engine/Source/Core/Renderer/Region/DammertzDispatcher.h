@@ -161,6 +161,8 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIDPO
 	const HdrRgbFrame& allEffortFrame,
 	const HdrRgbFrame& halfEffortFrame)
 {
+	using namespace math;
+
 	PH_ASSERT_GE(finishedRegion.minVertex.x, 0);
 	PH_ASSERT_GE(finishedRegion.minVertex.y, 0);
 	PH_ASSERT_LE(finishedRegion.getWidth(),  allEffortFrame.widthPx());
@@ -186,7 +188,7 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIDPO
 		}
 	}
 	regionError /= frameRegion.calcArea();
-	regionError *= std::sqrt(frameRegion.calcArea() * m_rcpNumRegionPixels);
+	regionError *= fast_sqrt(frameRegion.calcArea() * static_cast<float>(m_rcpNumRegionPixels));
 	PH_ASSERT_MSG(std::isfinite(regionError), std::to_string(regionError));
 
 	std::cerr << "region = " << frameRegion.toString() << "error = " << regionError << std::endl;
@@ -283,7 +285,7 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 
 	real regionError = summedEp;
 	regionError /= frameRegion.calcArea();
-	regionError *= std::sqrt(frameRegion.calcArea() * m_rcpNumRegionPixels);
+	regionError *= fast_sqrt(frameRegion.calcArea() * static_cast<float>(m_rcpNumRegionPixels));
 	PH_ASSERT_MSG(regionError > 0 && std::isfinite(regionError), std::to_string(regionError));
 
 	std::cerr << "min-split region = " << frameRegion.toString() << "error = " << regionError << std::endl;

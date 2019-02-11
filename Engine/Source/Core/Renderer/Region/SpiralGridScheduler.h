@@ -54,7 +54,7 @@ inline SpiralGridScheduler::SpiralGridScheduler(
 		numWorkers, 
 		totalWorkUnit,
 		Vector2S(spiralSquareSize),
-		Vector2S(static_cast<std::size_t>(std::max(std::sqrt(numWorkers), 1.0))))
+		Vector2S(static_cast<std::size_t>(std::max(math::fast_sqrt(static_cast<float>(numWorkers)), 1.0f))))
 {}
 
 inline SpiralGridScheduler::SpiralGridScheduler(
