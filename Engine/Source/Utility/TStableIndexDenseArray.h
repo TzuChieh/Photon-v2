@@ -1,14 +1,11 @@
 #pragma once
 
-//#include "Common/logging.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 
 #include <vector>
 #include <utility>
 #include <iostream>
-
-//DECLARE_LOG_SENDER_EXTERN(TStableIndexDenseArray);
 
 namespace ph
 {
@@ -32,22 +29,23 @@ template<typename T>
 class TStableIndexDenseArray
 {
 public:
-	// Set to maximum value a std::size_t can hold. Due to current stable index dispatching implementation
-	// and physical memory limit, this value should be nearly impossible to reach.
+	// Set to the maximum value a std::size_t can hold. Due to current stable 
+	// index dispatching implementation and physical memory limit, this value 
+	// should be nearly impossible to reach.
 	static const std::size_t INVALID_STABLE_INDEX = static_cast<std::size_t>(-1);
 
 public:
 	TStableIndexDenseArray();
 
 	// Construct with reserved memory spaces for initialCapacity T's.
-	TStableIndexDenseArray(const std::size_t initialCapacity);
+	explicit TStableIndexDenseArray(std::size_t initialCapacity);
 
 	// Add an object and returns a stable index.
 	std::size_t add(const T& object);
 	std::size_t add(T&& object);
 
 	// Remove an object by its stable index.
-	bool remove(const std::size_t stableIndex);
+	bool remove(std::size_t stableIndex);
 
 	// Remove all elements.
 	void removeAll();
@@ -56,12 +54,12 @@ public:
 	std::size_t length() const;
 
 	// Get the next stable index that will be returned by add().
-	// Note: This array should remain unchanged between current method call and add(); otherwise the
-	// result is unreliable.
+	// Note: This array should remain unchanged between current method call 
+	// and add(); otherwise the result is unreliable.
 	std::size_t nextStableIndex() const;
 
 	// Check whether the stable index represent a valid object or not.
-	bool isStableIndexValid(const std::size_t stableIndex) const;
+	bool isStableIndexValid(std::size_t stableIndex) const;
 
 	typename std::vector<T>::iterator       begin() noexcept;
 	typename std::vector<T>::const_iterator begin() const noexcept;
@@ -69,18 +67,18 @@ public:
 	typename std::vector<T>::const_iterator end()   const noexcept;
 
 	// Retrieve object (no index validity check).
-	T& operator [] (const std::size_t stableIndex);
-	const T& operator [] (const std::size_t stableIndex) const;
+	T& operator [] (std::size_t stableIndex);
+	const T& operator [] (std::size_t stableIndex) const;
 
 	// Retrieve object (with index validity check).
-	T* get(const std::size_t stableIndex);
-	const T* get(const std::size_t stableIndex) const;
+	T* get(std::size_t stableIndex);
+	const T* get(std::size_t stableIndex) const;
 
 private:
-	std::vector<T> m_objects;
-	std::vector<std::size_t> m_objectToIndexMap;
+	std::vector<T>                            m_objects;
+	std::vector<std::size_t>                  m_objectToIndexMap;
 	std::vector<std::pair<std::size_t, bool>> m_indexToObjectMapValidityPairs;
-	std::vector<std::size_t> m_freeIndices;
+	std::vector<std::size_t>                  m_freeIndices;
 
 	std::size_t dispatchStableIndex();
 };
@@ -107,7 +105,7 @@ std::size_t TStableIndexDenseArray<T>::add(const T& object)
 {
 	const std::size_t stableIndex = dispatchStableIndex();
 
-	m_objects.push_back(object);
+	m_objects.push_back(std::move(object));
 	return stableIndex;
 }
 
