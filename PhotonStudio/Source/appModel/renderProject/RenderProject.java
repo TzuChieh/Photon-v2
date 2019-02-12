@@ -19,6 +19,7 @@ import photonApi.FilmInfo;
 import photonApi.Frame;
 import photonApi.FrameRegion;
 import photonApi.FrameStatus;
+import photonApi.ObservableRenderData;
 import photonApi.Ph;
 import photonApi.PhEngine;
 import photonApi.PhFrame;
@@ -168,16 +169,6 @@ public class RenderProject extends Project
 		return m_engine.asyncGetRenderState();
 	}
 	
-	public String getIntegerRenderStateName(int index)
-	{
-		return m_engine.getIntegerRenderStateName(index);
-	}
-	
-	public String getRealRenderStateName(int index)
-	{
-		return m_engine.getRealRenderStateName(index);
-	}
-	
 	public RenderSetting getRenderSetting()
 	{
 		return m_renderSetting;
@@ -311,16 +302,20 @@ public class RenderProject extends Project
 	
 	private Runnable newRenderStatusQuery()
 	{
+		ObservableRenderData data = m_engine.getObservableRenderData();
+		
 		List<RenderStateEntry> states = new ArrayList<>();
-		for(int i = 0; i < 3; ++i)
+		for(int i = 0; i < data.integerNames.length; ++i)
 		{
-			RenderStateEntry integerState = RenderStateEntry.newInteger(getIntegerRenderStateName(i), i);
+			RenderStateEntry integerState = RenderStateEntry.newInteger(data.integerNames[i], i);
 			if(!integerState.getName().isEmpty())
 			{
 				states.add(integerState);
 			}
-			
-			RenderStateEntry realState = RenderStateEntry.newReal(getRealRenderStateName(i), i);
+		}
+		for(int i = 0; i < data.realNames.length; ++i)
+		{
+			RenderStateEntry realState = RenderStateEntry.newReal(data.realNames[i], i);
 			if(!realState.getName().isEmpty())
 			{
 				states.add(realState);
@@ -328,10 +323,5 @@ public class RenderProject extends Project
 		}
 		
 		return new RenderStatusQuery(this, states, m_renderStatusView);
-	}
-	
-	private Runnable newRenderFrameQuery()
-	{
-		return new RenderFrameQuery(this, m_renderFrameView);
 	}
 }

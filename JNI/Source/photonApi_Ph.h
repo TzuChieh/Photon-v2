@@ -19,10 +19,6 @@ extern "C" {
 #define photonApi_Ph_FILM_REGION_STATUS_UPDATING 1L
 #undef photonApi_Ph_FILM_REGION_STATUS_FINISHED
 #define photonApi_Ph_FILM_REGION_STATUS_FINISHED 2L
-#undef photonApi_Ph_RENDER_STATE_INTEGER
-#define photonApi_Ph_RENDER_STATE_INTEGER 0L
-#undef photonApi_Ph_RENDER_STATE_REAL
-#define photonApi_Ph_RENDER_STATE_REAL 1L
 /*
  * Class:     photonApi_Ph
  * Method:    phInit
@@ -97,11 +93,11 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phGetFilmDimension
 
 /*
  * Class:     photonApi_Ph
- * Method:    phGetRenderStateName
- * Signature: (JIILphotonApi/StringRef;)V
+ * Method:    phGetObservableRenderData
+ * Signature: (JLphotonApi/ObservableRenderData;)V
  */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phGetRenderStateName
-  (JNIEnv *, jclass, jlong, jint, jint, jobject);
+JNIEXPORT void JNICALL Java_photonApi_Ph_phGetObservableRenderData
+  (JNIEnv *, jclass, jlong, jobject);
 
 /*
  * Class:     photonApi_Ph

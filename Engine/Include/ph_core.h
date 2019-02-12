@@ -74,15 +74,28 @@ enum PH_EATTRIBUTE
 	DEPTH
 };
 
-#define PH_NUM_RENDER_STATE_INTEGERS 3
-#define PH_NUM_RENDER_STATE_REALS    3
+// HACK
+#define PH_NUM_RENDER_LAYERS         4
+#define PH_NUM_RENDER_STATE_INTEGERS 4
+#define PH_NUM_RENDER_STATE_REALS    4
+#define PH_MAX_NAME_LENGTH           128
 
-struct PH_RenderState
+// HACK
+struct PHRenderState
 {
 	PHint64   integers[PH_NUM_RENDER_STATE_INTEGERS];
 	PHfloat32 reals[PH_NUM_RENDER_STATE_REALS];
 };
 
+// HACK
+struct PHObservableRenderData
+{
+	PHchar layers[PH_NUM_RENDER_LAYERS][PH_MAX_NAME_LENGTH + 1];
+	PHchar integers[PH_NUM_RENDER_STATE_INTEGERS][PH_MAX_NAME_LENGTH + 1];
+	PHchar reals[PH_NUM_RENDER_STATE_REALS][PH_MAX_NAME_LENGTH + 1];
+};
+
+// HACK
 enum PH_ERenderStateType
 {
 	INTEGER,
@@ -122,12 +135,10 @@ extern PH_API void phUpdate(PHuint64 engineId);
 
 extern PH_API void phGetFilmDimension(PHuint64 engineId, PHuint32* out_widthPx, PHuint32* out_heightPx);
 
-extern PH_API void phGetRenderStateName(
-	PHuint64                 engineId, 
-	enum PH_ERenderStateType type,
-	PHuint32                 stateIndex, 
-	PHchar*                  out_nameBuffer, 
-	PHuint32                 bufferSize);
+// HACK
+extern PH_API void phGetObservableRenderData(
+	PHuint64                       engineId,
+	struct PHObservableRenderData* out_data);
 
 extern PH_API void phDeleteEngine(PHuint64 engineId);
 extern PH_API void phSetWorkingDirectory(PHuint64 engineId, const PHchar* workingDirectory);
@@ -154,9 +165,10 @@ extern PH_API void phAsyncGetRendererStatistics(
 	PHfloat32*               out_percentageProgress,
 	PHfloat32*               out_samplesPerSecond);
 
+// HACK
 extern PH_API void phAsyncGetRendererState(
-	PHuint64                 engineId,
-	struct PH_RenderState*   out_state);
+	PHuint64              engineId,
+	struct PHRenderState* out_state);
 
 extern PH_API int  phAsyncPollUpdatedFilmRegion(
 	PHuint64                 engineId,

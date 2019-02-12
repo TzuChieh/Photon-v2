@@ -14,8 +14,8 @@ public:
 	using IntegerState = int64;
 	using RealState    = float32;
 
-	constexpr static std::size_t NUM_INTEGER_STATES = 3;
-	constexpr static std::size_t NUM_REAL_STATES    = 3;
+	constexpr static std::size_t NUM_INTEGER_STATES = 4;
+	constexpr static std::size_t NUM_REAL_STATES    = 4;
 
 	enum class EType
 	{
@@ -34,8 +34,8 @@ public:
 	constexpr static std::size_t numStates(EType type);
 
 private:
-	IntegerState m_integerStates[3];
-	RealState    m_realStates[3];
+	IntegerState m_integerStates[NUM_INTEGER_STATES];
+	RealState    m_realStates[NUM_REAL_STATES];
 };
 
 // In-header Implementations:

@@ -7,7 +7,7 @@ public class RenderState
 	
 	public RenderState()
 	{
-		integerStates = new long[3];
-		realStates    = new float[3];
+		integerStates = null;
+		realStates    = null;
 	}
 }

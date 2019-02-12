@@ -143,21 +143,11 @@ public final class PhEngine
 		return state;
 	}
 	
-	public String getIntegerRenderStateName(int index)
+	public ObservableRenderData getObservableRenderData()
 	{
-		return getRenderStateName(Ph.RENDER_STATE_INTEGER, index);
-	}
-	
-	public String getRealRenderStateName(int index)
-	{
-		return getRenderStateName(Ph.RENDER_STATE_REAL, index);
-	}
-	
-	private String getRenderStateName(int type, int index)
-	{
-		StringRef name = new StringRef();
-		Ph.phGetRenderStateName(m_engineId, type, index, name);
-		return name.m_value;
+		ObservableRenderData data = new ObservableRenderData();
+		Ph.phGetObservableRenderData(m_engineId, data);
+		return data;
 	}
 	
 	@Override

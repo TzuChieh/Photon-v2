@@ -331,34 +331,60 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncDevelopFilmRegion
 
 /*
  * Class:     photonApi_Ph
- * Method:    phGetRenderStateName
- * Signature: (JIILphotonApi/StringRef;)V
+ * Method:    phGetObservableRenderData
+ * Signature: (JLphotonApi/ObservableRenderData;)V
  */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phGetRenderStateName
-(JNIEnv* env, jclass thiz, jlong engineId, jint type, jint index, jobject out_StringRef_name)
+JNIEXPORT void JNICALL Java_photonApi_Ph_phGetObservableRenderData
+(JNIEnv* env, jclass thiz, jlong engineId, jobject out_ObservableRenderData_data)
 {
-	enum PH_ERenderStateType stateType;
-	if(type == photonApi_Ph_RENDER_STATE_INTEGER)
+	PHObservableRenderData data;
+	phGetObservableRenderData(static_cast<PHuint64>(engineId), &data);
+
+	jobjectArray jLayerNamesStringArray = env->NewObjectArray(
+		PH_NUM_RENDER_LAYERS, 
+		env->FindClass(JAVA_STRING_SIGNATURE), 
+		env->NewStringUTF(""));
+	for(jsize i = 0; i < PH_NUM_RENDER_LAYERS; ++i)
 	{
-		stateType = INTEGER;
-	}
-	else if(type == photonApi_Ph_RENDER_STATE_REAL)
-	{
-		stateType = REAL;
+		env->SetObjectArrayElement(
+			jLayerNamesStringArray, 
+			i, 
+			env->NewStringUTF(data.layers[i]));
 	}
 
-	std::array<PHchar, 128> nameBuffer;
-	phGetRenderStateName(
-		static_cast<PHuint64>(engineId), 
-		stateType, 
-		static_cast<PHuint32>(index), 
-		nameBuffer.data(), 
-		static_cast<PHuint32>(nameBuffer.size()));
+	jobjectArray jIntegerNamesStringArray = env->NewObjectArray(
+		PH_NUM_RENDER_STATE_INTEGERS,
+		env->FindClass(JAVA_STRING_SIGNATURE),
+		env->NewStringUTF(""));
+	for(jsize i = 0; i < PH_NUM_RENDER_STATE_INTEGERS; ++i)
+	{
+		env->SetObjectArrayElement(
+			jIntegerNamesStringArray,
+			i,
+			env->NewStringUTF(data.integers[i]));
+	}
 
-	jclass   class_StringRef = env->GetObjectClass(out_StringRef_name);
-	jfieldID field_m_value   = env->GetFieldID(class_StringRef, "m_value", JAVA_STRING_SIGNATURE);
-	jstring  jNameString     = env->NewStringUTF(nameBuffer.data());
-	env->SetObjectField(out_StringRef_name, field_m_value, jNameString);
+	jobjectArray jRealNamesStringArray = env->NewObjectArray(
+		PH_NUM_RENDER_STATE_REALS,
+		env->FindClass(JAVA_STRING_SIGNATURE),
+		env->NewStringUTF(""));
+	for(jsize i = 0; i < PH_NUM_RENDER_STATE_REALS; ++i)
+	{
+		env->SetObjectArrayElement(
+			jRealNamesStringArray,
+			i,
+			env->NewStringUTF(data.reals[i]));
+	}
+
+	jclass class_ObservableRenderData = env->GetObjectClass(out_ObservableRenderData_data);
+
+	jfieldID field_layerNames   = env->GetFieldID(class_ObservableRenderData, "layerNames",   JAVA_STRING_ARRAY_SIGNATURE);
+	jfieldID field_integerNames = env->GetFieldID(class_ObservableRenderData, "integerNames", JAVA_STRING_ARRAY_SIGNATURE);
+	jfieldID field_realNames    = env->GetFieldID(class_ObservableRenderData, "realNames",    JAVA_STRING_ARRAY_SIGNATURE);
+
+	env->SetObjectField(out_ObservableRenderData_data, field_layerNames,   jLayerNamesStringArray);
+	env->SetObjectField(out_ObservableRenderData_data, field_integerNames, jIntegerNamesStringArray);
+	env->SetObjectField(out_ObservableRenderData_data, field_realNames,    jRealNamesStringArray);
 }
 
 /*
@@ -369,7 +395,7 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phGetRenderStateName
 JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncGetRendererState
 (JNIEnv* env, jclass thiz, jlong engineId, jobject out_RenderState_state)
 {
-	struct PH_RenderState state;
+	struct PHRenderState state;
 	phAsyncGetRendererState(static_cast<PHuint64>(engineId), &state);
 
 	jlongArray jLongArray = env->NewLongArray(PH_NUM_RENDER_STATE_INTEGERS);

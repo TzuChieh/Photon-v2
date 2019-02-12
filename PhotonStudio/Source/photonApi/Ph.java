@@ -12,9 +12,6 @@ public final class Ph
 	public static final int FILM_REGION_STATUS_UPDATING = 1;
 	public static final int FILM_REGION_STATUS_FINISHED = 2;
 	
-	public static final int RENDER_STATE_INTEGER = 0;
-	public static final int RENDER_STATE_REAL    = 1;
-	
 	public static void loadLibrary()
 	{
 		final String NATIVE_LIBRARY_PATH     = FSUtil.getBuildDirectory() + "bin/";
@@ -34,7 +31,7 @@ public final class Ph
 	public static native void phRender(long engineId);
 	public static native void phDevelopFilm(long engineId, long frameId, int attribute);
 	public static native void phGetFilmDimension(long engineId, IntRef out_widthPx, IntRef out_heightPx);
-	public static native void phGetRenderStateName(long engineId, int type, int index, StringRef out_name);
+	public static native void phGetObservableRenderData(long engineId, ObservableRenderData out_data);
 	
 	public static native void phDeleteEngine(long engineId);
 	public static native void phSetWorkingDirectory(long engineId, String workingDirectory);

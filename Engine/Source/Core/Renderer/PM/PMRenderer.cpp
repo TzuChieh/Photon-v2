@@ -421,28 +421,15 @@ void PMRenderer::develop(HdrRgbFrame& out_frame, const EAttribute attribute)
 	m_film->develop(out_frame);
 }
 
-std::string PMRenderer::renderStateName(const RenderState::EType type, const std::size_t index) const
+ObservableRenderData PMRenderer::getObservableData() const
 {
-	PH_ASSERT_LT(index, RenderState::numStates(type));
+	ObservableRenderData data;
 
-	if(type == RenderState::EType::INTEGER)
-	{
-		switch(index)
-		{
-		case 0: return m_mode != EPMMode::VANILLA ? "finished passes" : "finished samples";
-		case 1: return "traced photons";
-		case 2: return "photons/second";
-		default: return "";
-		}
-	}
-	else if(type == RenderState::EType::REAL)
-	{
-		return "";
-	}
-	else
-	{
-		return "";
-	}
+	data.setIntegerState(0, m_mode != EPMMode::VANILLA ? "finished passes" : "finished samples");
+	data.setIntegerState(1, "traced photons");
+	data.setIntegerState(2, "photons/second");
+
+	return data;
 }
 
 RenderState PMRenderer::asyncQueryRenderState()

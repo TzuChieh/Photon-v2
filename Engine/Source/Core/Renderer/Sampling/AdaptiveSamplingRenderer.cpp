@@ -291,30 +291,14 @@ RenderProgress AdaptiveSamplingRenderer::asyncQueryRenderProgress()
 	return totalProgress;
 }
 
-std::string AdaptiveSamplingRenderer::renderStateName(const RenderState::EType type, const std::size_t index) const
+ObservableRenderData AdaptiveSamplingRenderer::getObservableData() const
 {
-	PH_ASSERT_LT(index, RenderState::numStates(type));
+	ObservableRenderData data;
 
-	if(type == RenderState::EType::INTEGER)
-	{
-		switch(index)
-		{
-		case 0:  return "paths/pixel (avg.)";
-		default: return "";
-		}
-	}
-	else if(type == RenderState::EType::REAL)
-	{
-		switch(index)
-		{
-		case 0:  return "paths/second";
-		default: return "";
-		}
-	}
-	else
-	{
-		return "";
-	}
+	data.setIntegerState(0, "paths/pixel (avg.)");
+	data.setRealState   (0, "paths/second");
+
+	return data;
 }
 
 // command interface

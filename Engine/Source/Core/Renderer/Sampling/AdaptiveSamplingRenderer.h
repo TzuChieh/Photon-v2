@@ -32,7 +32,7 @@ public:
 	RenderProgress asyncQueryRenderProgress() override;
 	void asyncPeekRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute) override;
 
-	std::string renderStateName(RenderState::EType type, std::size_t index) const override;
+	ObservableRenderData getObservableData() const override;
 
 private:
 	constexpr static auto REFINE_MODE = DammertzDispatcher::ERefineMode::MIN_ERROR_DIFFERENCE;

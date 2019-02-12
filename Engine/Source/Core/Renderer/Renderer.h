@@ -15,6 +15,7 @@
 #include "Core/Renderer/Region/Region.h"
 #include "Common/assertion.h"
 #include "Utility/Timer.h"
+#include "Core/Renderer/ObservableRenderData.h"
 
 #include <vector>
 #include <mutex>
@@ -62,9 +63,10 @@ public:
 		const Region& region, 
 		EAttribute    attribute) = 0;
 
-	// TODO: these two methods can be combined
-	//virtual AttributeTags supportedAttributes() const = 0;
-	virtual std::string renderStateName(RenderState::EType type, std::size_t index) const = 0;
+	// Get information about available outputs of the renderer, which will be
+	// determined after each update. The actual data and can be retrieved via
+	// async<X>() methods.
+	virtual ObservableRenderData getObservableData() const = 0;
 
 	void update(const SdlResourcePack& data);
 	void render();

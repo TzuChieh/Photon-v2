@@ -17,6 +17,7 @@
 
 #include <memory>
 #include <iostream>
+#include <cstring>
 
 namespace
 {
@@ -171,40 +172,57 @@ void phGetFilmDimension(const PHuint64 engineId, PHuint32* const out_widthPx, PH
 	}
 }
 
-void phGetRenderStateName(
-	const PHuint64                 engineId,
-	const enum PH_ERenderStateType type,
-	const PHuint32                 stateIndex,
-	PHchar* const                  out_nameBuffer,
-	const PHuint32                 bufferSize)
+void phGetObservableRenderData(
+	const PHuint64                       engineId,
+	struct PHObservableRenderData* const out_data)
 {
-	PH_ASSERT(out_nameBuffer);
+	PH_ASSERT(out_data);
 
 	using namespace ph;
 
 	Engine* engine = ApiDatabase::getEngine(engineId);
 	if(engine)
 	{
-		RenderState::EType stateType;
-		if(type == INTEGER)
+		const auto data = engine->getRenderer()->getObservableData();
+
+		for(std::size_t i = 0; i < PH_NUM_RENDER_LAYERS; ++i)
 		{
-			stateType = RenderState::EType::INTEGER;
-		}
-		else
-		{
-			stateType = RenderState::EType::REAL;
+			out_data->layers[i][0] = '\0';
+			if(i < data.numLayers())
+			{
+				std::strncpy(
+					out_data->layers[i], 
+					data.getLayerName(i).c_str(), 
+					PH_MAX_NAME_LENGTH);
+				out_data->layers[i][PH_MAX_NAME_LENGTH] = '\0';
+			}
 		}
 
-		const std::string name = engine->getRenderer()->renderStateName(
-			stateType,
-			static_cast<std::size_t>(stateIndex));
-
-		std::size_t nameLength = std::min(name.length(), static_cast<std::size_t>(bufferSize - 1));
-		for(std::size_t i = 0; i < nameLength; ++i)
+		for(std::size_t i = 0; i < PH_NUM_RENDER_STATE_INTEGERS; ++i)
 		{
-			out_nameBuffer[i] = name[i];
+			out_data->integers[i][0] = '\0';
+			if(i < data.numIntegerStates())
+			{
+				std::strncpy(
+					out_data->integers[i],
+					data.getIntegerStateName(i).c_str(),
+					PH_MAX_NAME_LENGTH);
+				out_data->integers[i][PH_MAX_NAME_LENGTH] = '\0';
+			}
 		}
-		out_nameBuffer[nameLength] = '\0';
+
+		for(std::size_t i = 0; i < PH_NUM_RENDER_STATE_REALS; ++i)
+		{
+			out_data->reals[i][0] = '\0';
+			if(i < data.numRealStates())
+			{
+				std::strncpy(
+					out_data->reals[i],
+					data.getRealStateName(i).c_str(),
+					PH_MAX_NAME_LENGTH);
+				out_data->reals[i][PH_MAX_NAME_LENGTH] = '\0';
+			}
+		}
 	}
 }
 
@@ -290,7 +308,7 @@ void phAsyncGetRendererStatistics(const PHuint64 engineId,
 
 void phAsyncGetRendererState(
 	const PHuint64               engineId,
-	struct PH_RenderState* const out_state)
+	struct PHRenderState* const out_state)
 {
 	PH_ASSERT(out_state);
 
