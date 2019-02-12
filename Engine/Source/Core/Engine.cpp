@@ -46,12 +46,12 @@ void Engine::render()
 	m_renderer->render();
 }
 
-void Engine::developFilm(
-	HdrRgbFrame&     out_frame, 
-	const EAttribute attribute,
-	const bool       applyPostProcessing)
+void Engine::retrieveFrame(
+	const std::size_t layerIndex,
+	HdrRgbFrame&      out_frame,
+	const bool        applyPostProcessing)
 {
-	m_renderer->develop(out_frame, attribute);
+	m_renderer->retrieveFrame(layerIndex, out_frame);
 
 	if(applyPostProcessing)
 	{
@@ -81,13 +81,13 @@ ERegionStatus Engine::asyncPollUpdatedRegion(Region* const out_region) const
 	return m_renderer->asyncPollUpdatedRegion(out_region);
 }
 
-void Engine::asyncDevelopFilmRegion(
-	HdrRgbFrame&            out_frame,
-	const Region& region,
-	const EAttribute        attribute,
-	const bool              applyPostProcessing) const
+void Engine::asyncPeekFrame(
+	const std::size_t layerIndex,
+	const Region&     region,
+	HdrRgbFrame&      out_frame,
+	const bool        applyPostProcessing) const
 {
-	m_renderer->asyncPeekRegion(out_frame, region, attribute);
+	m_renderer->asyncPeekFrame(layerIndex, region, out_frame);
 
 	if(applyPostProcessing)
 	{

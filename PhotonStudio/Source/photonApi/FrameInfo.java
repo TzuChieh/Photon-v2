@@ -1,6 +1,6 @@
 package photonApi;
 
-public class FilmInfo
+public class FrameInfo
 {
 	public int widthPx;
 	public int heightPx;

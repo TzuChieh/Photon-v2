@@ -4,10 +4,6 @@ import util.FSUtil;
 
 public final class Ph
 {
-	public static final int ATTRIBUTE_LIGHT_ENERGY = 0;
-	public static final int ATTRIBUTE_NORMAL       = 1;
-	public static final int ATTRIBUTE_DEPTH        = 2;
-	
 	public static final int FILM_REGION_STATUS_INVALID  = 0;
 	public static final int FILM_REGION_STATUS_UPDATING = 1;
 	public static final int FILM_REGION_STATUS_FINISHED = 2;
@@ -29,8 +25,8 @@ public final class Ph
 	public static native void phEnterCommand(long engineId, String commandFragment);
 	public static native void phUpdate(long engindId);
 	public static native void phRender(long engineId);
-	public static native void phDevelopFilm(long engineId, long frameId, int attribute);
-	public static native void phGetFilmDimension(long engineId, IntRef out_widthPx, IntRef out_heightPx);
+	public static native void phAquireFrame(long engineId, int channelIndex, long frameId);
+	public static native void phGetRenderDimension(long engineId, IntRef out_widthPx, IntRef out_heightPx);
 	public static native void phGetObservableRenderData(long engineId, ObservableRenderData out_data);
 	
 	public static native void phDeleteEngine(long engineId);
@@ -51,7 +47,7 @@ public final class Ph
 		FloatRef out_samplesPerSecond);
 	
 	public static native 
-	int phAsyncPollUpdatedFilmRegion(
+	int phAsyncPollUpdatedFrameRegion(
 		long   engineId, 
 		IntRef out_xPx, 
 		IntRef out_yPx, 
@@ -59,14 +55,14 @@ public final class Ph
 		IntRef out_hPx);
 	
 	public static native
-	void phAsyncDevelopFilmRegion(
+	void phAsyncPeekFrame(
 		long engineId, 
-		long frameId, 
+		int  channelIndex,
 		int  xPx, 
 		int  yPx, 
 		int  wPx, 
 		int  hPx, 
-		int  attribute);
+		long frameId);
 	
 	public static native 
 	void phAsyncGetRendererState(

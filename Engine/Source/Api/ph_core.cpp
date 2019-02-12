@@ -129,10 +129,10 @@ void phUpdate(const PHuint64 engineId)
 	}
 }
 
-void phDevelopFilm(
-	const PHuint64           engineId, 
-	const PHuint64           frameId, 
-	const enum PH_EATTRIBUTE attribute)
+void phAquireFrame(
+	const PHuint64 engineId,
+	const PHuint64 channelIndex,
+	const PHuint64 frameId)
 {
 	using namespace ph;
 
@@ -140,14 +140,16 @@ void phDevelopFilm(
 	HdrRgbFrame* frame  = ApiDatabase::getFrame(frameId);
 	if(engine && frame)
 	{
-		engine->developFilm(*frame, ApiHelper::toCppAttribute(attribute));
+		engine->retrieveFrame(
+			static_cast<std::size_t>(channelIndex), 
+			*frame);
 	}
 }
 
-void phDevelopFilmRaw(
-	const PHuint64           engineId, 
-	const PHuint64           frameId, 
-	const enum PH_EATTRIBUTE attribute)
+void phAquireFrameRaw(
+	const PHuint64 engineId,
+	const PHuint64 channelIndex,
+	const PHuint64 frameId)
 {
 	using namespace ph;
 
@@ -155,11 +157,14 @@ void phDevelopFilmRaw(
 	HdrRgbFrame* frame  = ApiDatabase::getFrame(frameId);
 	if(engine && frame)
 	{
-		engine->developFilm(*frame, ApiHelper::toCppAttribute(attribute), false);
+		engine->retrieveFrame(
+			static_cast<std::size_t>(channelIndex),
+			*frame, 
+			false);
 	}
 }
 
-void phGetFilmDimension(const PHuint64 engineId, PHuint32* const out_widthPx, PHuint32* const out_heightPx)
+void phGetRenderDimension(const PHuint64 engineId, PHuint32* const out_widthPx, PHuint32* const out_heightPx)
 {
 	using namespace ph;
 
@@ -330,10 +335,15 @@ void phAsyncGetRendererState(
 	}
 }
 
-int phAsyncPollUpdatedFilmRegion(const PHuint64 engineId,
-                                 PHuint32* const out_xPx, PHuint32* const out_yPx,
-                                 PHuint32* const out_widthPx, PHuint32* const out_heightPx)
+int phAsyncPollUpdatedFrameRegion(
+	const PHuint64  engineId,
+	PHuint32* const out_xPx,
+	PHuint32* const out_yPx,
+	PHuint32* const out_widthPx,
+	PHuint32* const out_heightPx)
 {
+	PH_ASSERT(out_xPx && out_yPx && out_widthPx && out_heightPx);
+
 	using namespace ph;
 
 	Engine* engine = ApiDatabase::getEngine(engineId);
@@ -358,14 +368,14 @@ int phAsyncPollUpdatedFilmRegion(const PHuint64 engineId,
 	return PH_FILM_REGION_STATUS_INVALID;
 }
 
-void phAsyncDevelopFilmRegion(
-	const PHuint64           engineId,
-	const PHuint64           frameId,
-	const PHuint32           xPx, 
-	const PHuint32           yPx,
-	const PHuint32           widthPx, 
-	const PHuint32           heightPx, 
-	const enum PH_EATTRIBUTE attribute)
+void phAsyncPeekFrame(
+	const PHuint64 engineId,
+	const PHuint64 channelIndex,
+	const PHuint32 xPx,
+	const PHuint32 yPx,
+	const PHuint32 widthPx,
+	const PHuint32 heightPx,
+	const PHuint64 frameId)
 {
 	using namespace ph;
 
@@ -374,7 +384,7 @@ void phAsyncDevelopFilmRegion(
 	if(engine && frame)
 	{
 		Region region({xPx, yPx}, {xPx + widthPx, yPx + heightPx});
-		engine->asyncDevelopFilmRegion(*frame, region, ApiHelper::toCppAttribute(attribute));
+		engine->asyncPeekFrame(channelIndex, region, *frame);
 	}
 }
 

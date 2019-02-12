@@ -27,9 +27,9 @@ public:
 	void update();
 	void render();
 
-	void developFilm(
+	void retrieveFrame(
+		std::size_t  layerIndex,
 		HdrRgbFrame& out_frame,
-		EAttribute   attribute,
 		bool         applyPostProcessing = true);
 
 	TVector2<int64> getFilmDimensionPx() const;
@@ -37,11 +37,11 @@ public:
 
 	ERegionStatus asyncPollUpdatedRegion(Region* out_region) const;
 
-	void asyncDevelopFilmRegion(
-		HdrRgbFrame&            out_frame, 
+	void asyncPeekFrame(
+		std::size_t   layerIndex,
 		const Region& region,
-		EAttribute              attribute,
-		bool                    applyPostProcessing = true) const;
+		HdrRgbFrame&  out_frame, 
+		bool          applyPostProcessing = true) const;
 
 	void asyncQueryStatistics(float32* out_percentageProgress,
 	                          float32* out_samplesPerSecond) const;

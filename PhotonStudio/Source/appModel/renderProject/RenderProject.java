@@ -15,12 +15,11 @@ import appModel.Project;
 import appModel.ShowView;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import photonApi.FilmInfo;
+import photonApi.FrameInfo;
 import photonApi.Frame;
 import photonApi.FrameRegion;
 import photonApi.FrameStatus;
 import photonApi.ObservableRenderData;
-import photonApi.Ph;
 import photonApi.PhEngine;
 import photonApi.PhFrame;
 import photonApi.Rectangle;
@@ -147,15 +146,15 @@ public class RenderProject extends Project
 		m_engine.asyncGetRendererStatistics(out_statistics);
 	}
 	
-	public FrameStatus asyncGetUpdatedFrame(FrameRegion out_frameRegion)
+	public FrameStatus asyncPeekFrame(FrameRegion out_frameRegion)
 	{
-		return asyncGetUpdatedFrame(Ph.ATTRIBUTE_LIGHT_ENERGY, out_frameRegion);
+		return asyncPeekFrame(0, out_frameRegion);
 	}
 	
-	public FrameStatus asyncGetUpdatedFrame(int attribute, FrameRegion out_frameRegion)
+	public FrameStatus asyncPeekFrame(int channelIndex, FrameRegion out_frameRegion)
 	{
 		Rectangle region = new Rectangle();
-		FrameStatus status = m_engine.asyncGetUpdatedFrame(attribute, m_transientFrame, region);
+		FrameStatus status = m_engine.asyncPeekFrame(channelIndex, m_transientFrame, region);
 		if(status != FrameStatus.INVALID)
 		{
 			out_frameRegion.set(m_transientFrame.copyRegionRgb(region));
@@ -179,9 +178,9 @@ public class RenderProject extends Project
 		return m_localFinalFrame;
 	}
 	
-	public FilmInfo getFilmInfo()
+	public FrameInfo getFrameInfo()
 	{
-		return m_engine.getFilmInfo();
+		return m_engine.getFrameInfo();
 	}
 	
 	public GeneralOption getGeneralOption()
@@ -267,7 +266,7 @@ public class RenderProject extends Project
 				
 				m_engine.update();
 				
-				FilmInfo info = m_engine.getFilmInfo();
+				FrameInfo info = m_engine.getFrameInfo();
 				if(info.widthPx  != m_finalFrame.widthPx() || 
 				   info.heightPx != m_finalFrame.heightPx())
 				{
@@ -292,7 +291,7 @@ public class RenderProject extends Project
 				Platform.runLater(() -> 
 					getLogView().showLog("developing film..."));
 			
-				m_engine.developFilm(m_finalFrame);
+				m_engine.aquireFrame(m_finalFrame);
 				m_finalFrame.getFullRgb(m_localFinalFrame);
 				
 				return null;

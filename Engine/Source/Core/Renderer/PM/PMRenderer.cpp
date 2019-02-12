@@ -409,14 +409,24 @@ RenderProgress PMRenderer::asyncQueryRenderProgress()
 		0);
 }
 
-void PMRenderer::asyncPeekRegion(HdrRgbFrame& out_frame, const Region& region, const EAttribute attribute)
+void PMRenderer::asyncPeekFrame(
+	const std::size_t layerIndex,
+	const Region&     region,
+	HdrRgbFrame&      out_frame)
 {
 	std::lock_guard<std::mutex> lock(m_filmMutex);
 
-	m_film->develop(out_frame, region);
+	if(layerIndex == 0)
+	{
+		m_film->develop(out_frame, region);
+	}
+	else
+	{
+		out_frame.fill(0, TAABB2D<uint32>(region));
+	}
 }
 
-void PMRenderer::develop(HdrRgbFrame& out_frame, const EAttribute attribute)
+void PMRenderer::retrieveFrame(const std::size_t layerIndex, HdrRgbFrame& out_frame)
 {
 	m_film->develop(out_frame);
 }

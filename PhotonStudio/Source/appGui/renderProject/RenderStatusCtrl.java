@@ -35,7 +35,8 @@ public class RenderStatusCtrl
 	
 	public RenderStatusCtrl()
 	{
-		m_chosenAttribute = new AtomicInteger(Ph.ATTRIBUTE_LIGHT_ENERGY);
+		// TODO: select channel
+		m_chosenAttribute = new AtomicInteger(0);
 		
 		m_numVBoxBaseChildren = 0;
 	}

@@ -46,6 +46,23 @@ inline void TFrame<T, N>::fill(const T value)
 	std::fill(m_pixelData.begin(), m_pixelData.end(), value);
 }
 
+template<typename T, std::size_t N>
+inline void TFrame<T, N>::fill(const T value, const TAABB2D<uint32>& region)
+{
+	PH_ASSERT_MSG(region.isValid(), region.toString());
+
+	const uint32 regionDataWidth = static_cast<uint32>(N) * region.getWidth();
+	for(uint32 y = region.minVertex.y; y < region.maxVertex.y; ++y)
+	{
+		const std::size_t offset = calcPixelDataBaseIndex(region.minVertex.x, y);
+
+		std::fill(
+			m_pixelData.begin() + offset,
+			m_pixelData.begin() + offset + regionDataWidth,
+			value);
+	}
+}
+
 // TODO: wrap mode
 template<typename T, std::size_t N>
 inline void TFrame<T, N>::sample(

@@ -25,12 +25,15 @@ class AdaptiveSamplingRenderer : public SamplingRenderer, public TCommandInterfa
 public:
 	void doUpdate(const SdlResourcePack& data) override;
 	void doRender() override;
-	void develop(HdrRgbFrame& out_frame, EAttribute attribute) override;
+	void retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame) override;
 
 	ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;
 	RenderState asyncQueryRenderState() override;
 	RenderProgress asyncQueryRenderProgress() override;
-	void asyncPeekRegion(HdrRgbFrame& out_frame, const Region& region, EAttribute attribute) override;
+	void asyncPeekFrame(
+		std::size_t   layerIndex,
+		const Region& region,
+		HdrRgbFrame&  out_frame) override;
 
 	ObservableRenderData getObservableData() const override;
 

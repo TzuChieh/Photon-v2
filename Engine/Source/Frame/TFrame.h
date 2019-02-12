@@ -37,6 +37,7 @@ public:
 	~TFrame() = default;
 
 	void fill(T value);
+	void fill(T value, const TAABB2D<uint32>& region);
 	void flipHorizontally();
 	void flipVertically();
 	void setSize(uint32 wPx, uint32 hPx);

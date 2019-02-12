@@ -7,12 +7,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#undef photonApi_Ph_ATTRIBUTE_LIGHT_ENERGY
-#define photonApi_Ph_ATTRIBUTE_LIGHT_ENERGY 0L
-#undef photonApi_Ph_ATTRIBUTE_NORMAL
-#define photonApi_Ph_ATTRIBUTE_NORMAL 1L
-#undef photonApi_Ph_ATTRIBUTE_DEPTH
-#define photonApi_Ph_ATTRIBUTE_DEPTH 2L
 #undef photonApi_Ph_FILM_REGION_STATUS_INVALID
 #define photonApi_Ph_FILM_REGION_STATUS_INVALID 0L
 #undef photonApi_Ph_FILM_REGION_STATUS_UPDATING
@@ -77,18 +71,18 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phRender
 
 /*
  * Class:     photonApi_Ph
- * Method:    phDevelopFilm
- * Signature: (JJI)V
+ * Method:    phAquireFrame
+ * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phDevelopFilm
-  (JNIEnv *, jclass, jlong, jlong, jint);
+JNIEXPORT void JNICALL Java_photonApi_Ph_phAquireFrame
+  (JNIEnv *, jclass, jlong, jint, jlong);
 
 /*
  * Class:     photonApi_Ph
- * Method:    phGetFilmDimension
+ * Method:    phGetRenderDimension
  * Signature: (JLphotonApi/IntRef;LphotonApi/IntRef;)V
  */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phGetFilmDimension
+JNIEXPORT void JNICALL Java_photonApi_Ph_phGetRenderDimension
   (JNIEnv *, jclass, jlong, jobject, jobject);
 
 /*
@@ -157,19 +151,19 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncGetRendererStatistics
 
 /*
  * Class:     photonApi_Ph
- * Method:    phAsyncPollUpdatedFilmRegion
+ * Method:    phAsyncPollUpdatedFrameRegion
  * Signature: (JLphotonApi/IntRef;LphotonApi/IntRef;LphotonApi/IntRef;LphotonApi/IntRef;)I
  */
-JNIEXPORT jint JNICALL Java_photonApi_Ph_phAsyncPollUpdatedFilmRegion
+JNIEXPORT jint JNICALL Java_photonApi_Ph_phAsyncPollUpdatedFrameRegion
   (JNIEnv *, jclass, jlong, jobject, jobject, jobject, jobject);
 
 /*
  * Class:     photonApi_Ph
- * Method:    phAsyncDevelopFilmRegion
- * Signature: (JJIIIII)V
+ * Method:    phAsyncPeekFrame
+ * Signature: (JIIIIIJ)V
  */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncDevelopFilmRegion
-  (JNIEnv *, jclass, jlong, jlong, jint, jint, jint, jint, jint);
+JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncPeekFrame
+  (JNIEnv *, jclass, jlong, jint, jint, jint, jint, jint, jlong);
 
 /*
  * Class:     photonApi_Ph

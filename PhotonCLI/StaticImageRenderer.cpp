@@ -50,7 +50,7 @@ void StaticImageRenderer::render() const
 	});
 
 	PHuint32 filmWpx, filmHpx;
-	phGetFilmDimension(m_engineId, &filmWpx, &filmHpx);
+	phGetRenderDimension(m_engineId, &filmWpx, &filmHpx);
 
 	std::atomic<bool> isRenderingCompleted = false;
 	std::thread queryThread([&]()
@@ -79,10 +79,10 @@ void StaticImageRenderer::render() const
 			if(currentProgress - lastOutputProgress > m_outputPercentageProgress)
 			{
 				PHuint32 qx, qy, qw, qh;
-				int regionStatus = phAsyncPollUpdatedFilmRegion(m_engineId, &qx, &qy, &qw, &qh);
+				int regionStatus = phAsyncPollUpdatedFrameRegion(m_engineId, &qx, &qy, &qw, &qh);
 				if(regionStatus != PH_FILM_REGION_STATUS_INVALID)
 				{
-					phAsyncDevelopFilmRegion(m_engineId, queryFrameId, qx, qy, qw, qh, LIGHT_ENERGY);
+					phAsyncPeekFrame(m_engineId, 0, qx, qy, qw, qh, queryFrameId);
 					phSaveFrame(queryFrameId, (m_imageFilePath + "_" + std::to_string(currentProgress) + "%.png").c_str());
 				}
 
@@ -101,11 +101,11 @@ void StaticImageRenderer::render() const
 	phCreateFrame(&frameId, filmWpx, filmHpx);
 	if(m_isPostProcessRequested)
 	{
-		phDevelopFilm(m_engineId, frameId, PH_EATTRIBUTE::LIGHT_ENERGY);
+		phAquireFrame(m_engineId, 0, frameId);
 	}
 	else
 	{
-		phDevelopFilmRaw(m_engineId, frameId, PH_EATTRIBUTE::LIGHT_ENERGY);
+		phAquireFrameRaw(m_engineId, 0, frameId);
 	}
 
 	std::cout << "saving image to <" << m_imageFilePath << ">" << std::endl;

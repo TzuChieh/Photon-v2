@@ -43,8 +43,8 @@ public:
 	// Start rendering.
 	virtual void doRender() = 0;
 
-	// Develop the rendered result.
-	virtual void develop(HdrRgbFrame& out_frame, EAttribute attribute) = 0;
+	// Get the rendered result.
+	virtual void retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame) = 0;
 
 	// Get the rendering region that has been updated.
 	// TODO: allow polling unioned regions seems like a good idea
@@ -56,12 +56,12 @@ public:
 	// TODO: remove this method
 	virtual RenderProgress asyncQueryRenderProgress() = 0;
 
-	// Similar to develop(2), except that correctness is not guaranteed for
-	// the returned frame.
-	virtual void asyncPeekRegion(
-		HdrRgbFrame&  out_frame, 
-		const Region& region, 
-		EAttribute    attribute) = 0;
+	// Similar to retrieveFrame(2), except that correctness is not guaranteed 
+	// for the returned frame.
+	virtual void asyncPeekFrame(
+		std::size_t   layerIndex,
+		const Region& region,
+		HdrRgbFrame&  out_frame) = 0;
 
 	// Get information about available outputs of the renderer, which will be
 	// determined after each update. The actual data and can be retrieved via

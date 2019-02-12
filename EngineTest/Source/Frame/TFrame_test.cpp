@@ -16,20 +16,51 @@ TEST(TFrameTest, CorrectAttributes)
 	EXPECT_TRUE(frame2.isEmpty());
 }
 
-TEST(TFrameTest, FillWithSpecificValue)
+TEST(TFrameTest, FillAllWithSpecificValue)
 {
-	ph::TFrame<float, 2> frame(10, 10);
+	using namespace ph;
+
+	TFrame<float, 2> frame(10, 10);
 	frame.fill(-3.3f);
 
-	for(ph::uint32 y = 0; y < frame.heightPx(); ++y)
+	for(uint32 y = 0; y < frame.heightPx(); ++y)
 	{
-		for(ph::uint32 x = 0; x < frame.widthPx(); ++x)
+		for(uint32 x = 0; x < frame.widthPx(); ++x)
 		{
-			ph::TFrame<float, 2>::Pixel pixel;
+			TFrame<float, 2>::Pixel pixel;
 			frame.getPixel(x, y, &pixel);
 
 			EXPECT_EQ(pixel[0], -3.3f);
 			EXPECT_EQ(pixel[1], -3.3f);
+		}
+	}
+}
+
+TEST(TFrameTest, FillRegionWithSpecificValue)
+{
+	using namespace ph;
+
+	TAABB2D<uint32> region = {{2, 3}, {6, 8}};
+
+	TFrame<float, 2> frame(10, 10);
+	frame.fill(0);
+	frame.fill(1.2f, region);
+
+	for(uint32 y = 0; y < frame.heightPx(); ++y)
+	{
+		for(uint32 x = 0; x < frame.widthPx(); ++x)
+		{
+			const auto pixel = frame.getPixel({x, y});
+			if(region.isIntersectingRange({x, y}))
+			{
+				EXPECT_EQ(pixel[0], 1.2f);
+				EXPECT_EQ(pixel[1], 1.2f);
+			}
+			else
+			{
+				EXPECT_EQ(pixel[0], 0.0f);
+				EXPECT_EQ(pixel[1], 0.0f);
+			}
 		}
 	}
 }

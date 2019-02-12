@@ -31,6 +31,7 @@ public:
 
 	bool isIntersectingArea(const TAABB2D& other) const;
 	bool isIntersectingArea(const TVector2<T>& point) const;
+	bool isIntersectingRange(const TVector2<T>& point) const;
 	T calcArea() const;
 	TAABB2D& unionWith(const TAABB2D& other);
 	TAABB2D& intersectWith(const TAABB2D& other);

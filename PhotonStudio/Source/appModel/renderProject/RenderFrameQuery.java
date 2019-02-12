@@ -63,7 +63,9 @@ public class RenderFrameQuery implements Runnable
 	private void query()
 	{
 		FrameRegion updatedFrameRegion = new FrameRegion();
-		FrameStatus frameStatus = m_project.asyncGetUpdatedFrame(Ph.ATTRIBUTE_LIGHT_ENERGY, updatedFrameRegion);
+		
+		// TODO: select channel
+		FrameStatus frameStatus = m_project.asyncPeekFrame(0, updatedFrameRegion);
 		
 		if(frameStatus != FrameStatus.INVALID)
 		{

@@ -59,21 +59,21 @@ public final class PhEngine
 		Ph.phRender(m_engineId);
 	}
 	
-	public FilmInfo getFilmInfo()
+	public FrameInfo getFrameInfo()
 	{
 		IntRef widthPx  = new IntRef();
 		IntRef heightPx = new IntRef();
-		Ph.phGetFilmDimension(m_engineId, widthPx, heightPx);
+		Ph.phGetRenderDimension(m_engineId, widthPx, heightPx);
 		
-		FilmInfo info = new FilmInfo();
+		FrameInfo info = new FrameInfo();
 		info.widthPx  = widthPx.m_value;
 		info.heightPx = heightPx.m_value;
 		return info;
 	}
 	
-	public void developFilm(PhFrame frame)
+	public void aquireFrame(PhFrame frame)
 	{
-		Ph.phDevelopFilm(m_engineId, frame.m_frameId, Ph.ATTRIBUTE_LIGHT_ENERGY);
+		Ph.phAquireFrame(m_engineId, 0, frame.m_frameId);
 	}
 	
 	public void asyncGetRendererStatistics(Statistics out_statistics)
@@ -86,25 +86,28 @@ public final class PhEngine
 		out_statistics.samplesPerSecond   = frequency.m_value;
 	}
 	
-	public FrameStatus asyncGetUpdatedFrame(PhFrame out_frame, Rectangle out_updatedRegion)
+	public FrameStatus asyncPeekFrame(PhFrame out_frame, Rectangle out_updatedRegion)
 	{
-		return asyncGetUpdatedFrame(Ph.ATTRIBUTE_LIGHT_ENERGY, out_frame, out_updatedRegion);
+		return asyncPeekFrame(0, out_frame, out_updatedRegion);
 	}
 	
-	public FrameStatus asyncGetUpdatedFrame(int attribute, PhFrame out_frame, Rectangle out_updatedRegion)
+	public FrameStatus asyncPeekFrame(int channelIndex, PhFrame out_frame, Rectangle out_updatedRegion)
 	{
 		IntRef xPx = new IntRef();
 		IntRef yPx = new IntRef();
 		IntRef wPx = new IntRef();
 		IntRef hPx = new IntRef();
-		int pollState = Ph.phAsyncPollUpdatedFilmRegion(m_engineId, xPx, yPx, wPx, hPx);
+		int pollState = Ph.phAsyncPollUpdatedFrameRegion(m_engineId, xPx, yPx, wPx, hPx);
 		if(pollState == Ph.FILM_REGION_STATUS_INVALID)
 		{
 			return FrameStatus.INVALID;
 		}
 		
-		Ph.phAsyncDevelopFilmRegion(m_engineId, out_frame.m_frameId, 
-		                            xPx.m_value, yPx.m_value, wPx.m_value, hPx.m_value, attribute);
+		Ph.phAsyncPeekFrame(
+			m_engineId, 
+			channelIndex, 
+			xPx.m_value, yPx.m_value, wPx.m_value, hPx.m_value, 
+			out_frame.m_frameId);
 		
 		out_updatedRegion.x = xPx.m_value;
 		out_updatedRegion.y = yPx.m_value;

@@ -133,7 +133,7 @@ extern PH_API void phRender(PHuint64 engineId);
 // TODO: documentation
 extern PH_API void phUpdate(PHuint64 engineId);
 
-extern PH_API void phGetFilmDimension(PHuint64 engineId, PHuint32* out_widthPx, PHuint32* out_heightPx);
+extern PH_API void phGetRenderDimension(PHuint64 engineId, PHuint32* out_widthPx, PHuint32* out_heightPx);
 
 // HACK
 extern PH_API void phGetObservableRenderData(
@@ -143,8 +143,8 @@ extern PH_API void phGetObservableRenderData(
 extern PH_API void phDeleteEngine(PHuint64 engineId);
 extern PH_API void phSetWorkingDirectory(PHuint64 engineId, const PHchar* workingDirectory);
 
-extern PH_API void phDevelopFilm(PHuint64 engineId, PHuint64 frameId, enum PH_EATTRIBUTE attribute);
-extern PH_API void phDevelopFilmRaw(PHuint64 engineId, PHuint64 frameId, enum PH_EATTRIBUTE attribute);
+extern PH_API void phAquireFrame(PHuint64 engineId, PHuint64 channelIndex, PHuint64 frameId);
+extern PH_API void phAquireFrameRaw(PHuint64 engineId, PHuint64 channelIndex, PHuint64 frameId);
 
 ///////////////////////////////////////////////////////////////////////////////
 // frame operations
@@ -167,24 +167,24 @@ extern PH_API void phAsyncGetRendererStatistics(
 
 // HACK
 extern PH_API void phAsyncGetRendererState(
-	PHuint64              engineId,
-	struct PHRenderState* out_state);
+	PHuint64                 engineId,
+	struct PHRenderState*    out_state);
 
-extern PH_API int  phAsyncPollUpdatedFilmRegion(
+extern PH_API int  phAsyncPollUpdatedFrameRegion(
 	PHuint64                 engineId,
 	PHuint32*                out_xPx,
 	PHuint32*                out_yPx,
 	PHuint32*                out_widthPx,
 	PHuint32*                out_heightPx);
 
-extern PH_API void phAsyncDevelopFilmRegion(
+extern PH_API void phAsyncPeekFrame(
 	PHuint64                 engineId, 
-	PHuint64                 frameId,
+	PHuint64                 channelIndex,
 	PHuint32                 xPx, 
 	PHuint32                 yPx,
 	PHuint32                 widthPx, 
-	PHuint32                 heightPx, 
-	enum PH_EATTRIBUTE       attribute);
+	PHuint32                 heightPx,
+	PHuint64                 frameId);
 
 #ifdef __cplusplus
 }

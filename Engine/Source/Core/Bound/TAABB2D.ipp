@@ -50,6 +50,13 @@ inline bool TAABB2D<T>::isIntersectingArea(const TVector2<T>& point) const
 }
 
 template<typename T>
+inline bool TAABB2D<T>::isIntersectingRange(const TVector2<T>& point) const
+{
+	return point.x >= minVertex.x && point.x < maxVertex.x && 
+	       point.y >= minVertex.y && point.y < maxVertex.y;
+}
+
+template<typename T>
 inline T TAABB2D<T>::calcArea() const
 {
 	return getWidth() * getHeight();

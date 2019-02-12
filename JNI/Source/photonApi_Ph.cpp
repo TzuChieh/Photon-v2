@@ -3,7 +3,6 @@
 #include "JLongRef.h"
 #include "JFloatRef.h"
 #include "JniUtil.h"
-#include "JniHelper.h"
 #include "java_type_signature.h"
 
 #include <ph_core.h>
@@ -110,14 +109,17 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phRender
 }
 
 /*
-* Class:     photonApi_Ph
-* Method:    phDevelopFilm
-* Signature: (JJ)V
-*/
-JNIEXPORT void JNICALL Java_photonApi_Ph_phDevelopFilm
-(JNIEnv* env, jclass thiz, jlong engineId, jlong frameId, jint attribute)
+ * Class:     photonApi_Ph
+ * Method:    phAquireFrame
+ * Signature: (JIJ)V
+ */
+JNIEXPORT void JNICALL Java_photonApi_Ph_phAquireFrame
+(JNIEnv* env, jclass clazz, jlong engineId, jint channelIndex, jlong frameId)
 {
-	phDevelopFilm(static_cast<PHuint64>(engineId), static_cast<PHuint64>(frameId), ph::JniHelper::toCAttribute(attribute));
+	phAquireFrame(
+		static_cast<PHuint64>(engineId), 
+		static_cast<PHuint64>(channelIndex), 
+		static_cast<PHuint64>(frameId));
 }
 
 /*
@@ -125,11 +127,11 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDevelopFilm
 * Method:    phGetFilmDimension
 * Signature: (JLphotonApi/IntRef;LphotonApi/IntRef;)V
 */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phGetFilmDimension
-(JNIEnv* env, jclass thiz, jlong engineId, jobject out_IntRef_widthPx, jobject out_IntRef_heightPx)
+JNIEXPORT void JNICALL Java_photonApi_Ph_phGetRenderDimension
+(JNIEnv* env, jclass clazz, jlong engineId, jobject out_IntRef_widthPx, jobject out_IntRef_heightPx)
 {
 	PHuint32 widthPx, heightPx;
-	phGetFilmDimension(static_cast<PHuint64>(engineId), &widthPx, &heightPx);
+	phGetRenderDimension(static_cast<PHuint64>(engineId), &widthPx, &heightPx);
 
 	ph::JIntRef jWidthPx(out_IntRef_widthPx, env);
 	ph::JIntRef jHeightPx(out_IntRef_heightPx, env);
@@ -285,14 +287,18 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncGetRendererStatistics
 * Method:    phAsyncPollUpdatedFilmRegion
 * Signature: (JLphotonApi/IntRef;LphotonApi/IntRef;LphotonApi/IntRef;LphotonApi/IntRef;)I
 */
-JNIEXPORT jint JNICALL Java_photonApi_Ph_phAsyncPollUpdatedFilmRegion
-(JNIEnv* env, jclass thiz, jlong engineId, 
-                           jobject out_IntRef_xPx, jobject out_IntRef_yPx, 
-                           jobject out_IntRef_wPx, jobject out_IntRef_hPx)
+JNIEXPORT jint JNICALL Java_photonApi_Ph_phAsyncPollUpdatedFrameRegion(
+	JNIEnv* env, jclass clazz, 
+	jlong   engineId, 
+	jobject out_IntRef_xPx, 
+	jobject out_IntRef_yPx, 
+	jobject out_IntRef_wPx, 
+	jobject out_IntRef_hPx)
 {
 	PHuint32 xPx, yPx, wPx, hPx;
-	const int status = phAsyncPollUpdatedFilmRegion(static_cast<PHuint64>(engineId), 
-	                                                &xPx, &yPx, &wPx, &hPx);
+	const int status = phAsyncPollUpdatedFrameRegion(
+		static_cast<PHuint64>(engineId), 
+		&xPx, &yPx, &wPx, &hPx);
 
 	ph::JIntRef jXpx(out_IntRef_xPx, env);
 	ph::JIntRef jYpx(out_IntRef_yPx, env);
@@ -317,16 +323,24 @@ JNIEXPORT jint JNICALL Java_photonApi_Ph_phAsyncPollUpdatedFilmRegion
 * Method:    phAsyncDevelopFilmRegion
 * Signature: (JJIIII)V
 */
-JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncDevelopFilmRegion
-(JNIEnv* env, jclass thiz, jlong engineId, jlong frameId, 
-                           jint xPx, jint yPx, jint wPx, jint hPx, jint attribute)
+JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncPeekFrame(
+	JNIEnv* env, jclass clazz, 
+	jlong engineId, 
+	jint  channelIndex, 
+	jint  xPx, 
+	jint  yPx, 
+	jint  wPx, 
+	jint  hPx, 
+	jlong frameId)
 {
-	phAsyncDevelopFilmRegion(static_cast<PHuint64>(engineId), 
-	                         static_cast<PHuint64>(frameId),
-	                         static_cast<PHuint32>(xPx),
-	                         static_cast<PHuint32>(yPx),
-	                         static_cast<PHuint32>(wPx),
-	                         static_cast<PHuint32>(hPx), ph::JniHelper::toCAttribute(attribute));
+	phAsyncPeekFrame(
+		static_cast<PHuint64>(engineId), 
+		static_cast<PHuint64>(channelIndex),
+		static_cast<PHuint32>(xPx),
+		static_cast<PHuint32>(yPx),
+		static_cast<PHuint32>(wPx),
+		static_cast<PHuint32>(hPx), 
+		static_cast<PHuint64>(frameId));
 }
 
 /*

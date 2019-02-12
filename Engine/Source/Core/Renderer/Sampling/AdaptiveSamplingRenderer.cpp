@@ -220,19 +220,26 @@ ERegionStatus AdaptiveSamplingRenderer::asyncPollUpdatedRegion(Region* const out
 // FIXME: Peeking does not need to ensure correctness of the frame.
 // If correctness is not guaranteed, develop methods should be reimplemented. 
 // (correctness is guaranteed currently)
-void AdaptiveSamplingRenderer::asyncPeekRegion(
-	HdrRgbFrame&     out_frame,
-	const Region&    region,
-	const EAttribute attribute)
+void AdaptiveSamplingRenderer::asyncPeekFrame(
+	const std::size_t layerIndex,
+	const Region&     region,
+	HdrRgbFrame&      out_frame)
 {
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	m_allEffortFilm.develop(out_frame, region);
+	if(layerIndex == 0)
+	{
+		m_allEffortFilm.develop(out_frame, region);
+	}
+	else
+	{
+		out_frame.fill(0, TAABB2D<uint32>(region));
+	}
 }
 
-void AdaptiveSamplingRenderer::develop(HdrRgbFrame& out_frame, const EAttribute attribute)
+void AdaptiveSamplingRenderer::retrieveFrame(const std::size_t layerIndex, HdrRgbFrame& out_frame)
 {
-	asyncPeekRegion(out_frame, getRenderWindowPx(), attribute);
+	asyncPeekFrame(layerIndex, getRenderWindowPx(), out_frame);
 }
 
 void AdaptiveSamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)
