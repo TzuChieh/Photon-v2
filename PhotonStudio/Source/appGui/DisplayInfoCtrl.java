@@ -22,17 +22,12 @@ public class DisplayInfoCtrl
 	@FXML private Label     displayResolutionX;
 	@FXML private Label     displayResolutionY;
 	
-	private Display m_display;
+	private DisplayInfoView m_view;
 	
 	@FXML
     public void initialize()
-	{}
-	
-	public void setDisplay(Display display)
 	{
-		m_display = display;
-		
-		m_display.setDisplayInfoView(new DisplayInfoView()
+		m_view = new DisplayInfoView()
 		{
 			@Override
 			public void showFrameResolution(int widthPx, int heightPx)
@@ -71,6 +66,11 @@ public class DisplayInfoCtrl
 			{
 				percentageZoom.setText(Float.toString(percentage));
 			}
-		});
+		};
+	}
+	
+	public DisplayInfoView getView()
+	{
+		return m_view;
 	}
 }

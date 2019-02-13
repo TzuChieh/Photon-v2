@@ -61,7 +61,6 @@ public class RenderStatusCtrl
     	
     	m_numVBoxBaseChildren = variablesVBox.getChildren().size();
 		
-		
 		m_renderStatusView = new RenderStatusView()
 		{
 			private Label[] m_names;
@@ -132,7 +131,7 @@ public class RenderStatusCtrl
 		};
 	}
 	
-	public RenderStatusView getRenderStatusView()
+	public RenderStatusView getView()
 	{
 		return m_renderStatusView;
 	}

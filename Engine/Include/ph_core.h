@@ -160,6 +160,10 @@ extern PH_API void phSaveFrame(PHuint64 frameId, const PHchar* filePath);
 // asynchronous operations
 //
 
+// TODO: async queries should tolerate invalid operations such as being called
+// after underlying resource is already deleted, this can ease the burden of 
+// callers
+
 extern PH_API void phAsyncGetRendererStatistics(
 	PHuint64                 engineId,
 	PHfloat32*               out_percentageProgress,

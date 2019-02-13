@@ -6,7 +6,7 @@ import photonApi.FrameStatus;
 
 public interface RenderFrameView
 {
-	default void showIntermediate(FrameRegion frame, FrameStatus status)
+	default void showPeeked(FrameRegion frame, FrameStatus status)
 	{}
 	
 	default void showFinal(Frame frame)

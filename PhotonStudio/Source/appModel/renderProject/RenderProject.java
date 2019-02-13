@@ -17,24 +17,21 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import photonApi.FrameInfo;
 import photonApi.Frame;
-import photonApi.FrameRegion;
-import photonApi.FrameStatus;
 import photonApi.ObservableRenderData;
 import photonApi.PhEngine;
 import photonApi.PhFrame;
-import photonApi.Rectangle;
 import photonApi.RenderState;
 import photonApi.Statistics;
 
 public class RenderProject extends Project
 {
-	private PhEngine m_engine;
-	private PhFrame  m_finalFrame;
-	private PhFrame  m_transientFrame;
-	private Frame    m_localFinalFrame;
+	private PhEngine                 m_engine;
+	private PhFrame                  m_finalFrame;
+	private PhFrame                  m_queryFrame;
+	private Frame                    m_localFinalFrame;
 	
-	private Studio        m_studio;
-	private RenderSetting m_renderSetting;
+	private Studio                   m_studio;
+	private RenderSetting            m_renderSetting;
 	
 	private RenderStatusView         m_renderStatusView;
 	private RenderFrameView          m_renderFrameView;
@@ -47,13 +44,13 @@ public class RenderProject extends Project
 	{
 		super(projectName);
 		
-		m_engine          = null;
-		m_finalFrame      = null;
-		m_transientFrame  = null;
-		m_localFinalFrame = new Frame();
+		m_engine              = null;
+		m_finalFrame          = null;
+		m_queryFrame          = null;
+		m_localFinalFrame     = new Frame();
 		
-		m_studio        = studio;
-		m_renderSetting = new RenderSetting(studio.getGeneralOption());
+		m_studio              = studio;
+		m_renderSetting       = new RenderSetting(studio.getGeneralOption());
 		
 		m_renderStatusView    = new RenderStatusView(){};
 		m_renderFrameView     = new RenderFrameView(){};
@@ -66,9 +63,9 @@ public class RenderProject extends Project
 	@Override
 	protected void createResource()
 	{
-		m_engine         = new PhEngine(1);
-		m_finalFrame     = new PhFrame(0, 0);
-		m_transientFrame = new PhFrame(0, 0);
+		m_engine              = new PhEngine(1);
+		m_finalFrame          = new PhFrame(0, 0);
+		m_queryFrame          = new PhFrame(0, 0);
 		
 		m_projectTaskExecutor = Executors.newSingleThreadExecutor();
 		m_monitorExecutor     = Executors.newSingleThreadScheduledExecutor();
@@ -84,7 +81,7 @@ public class RenderProject extends Project
 		
 		m_engine.dispose();
 		m_finalFrame.dispose();
-		m_transientFrame.dispose();
+		m_queryFrame.dispose();
 	}
 	
 	public void runLoadSceneTask(ShowView before, ShowView after)
@@ -146,23 +143,6 @@ public class RenderProject extends Project
 		m_engine.asyncGetRendererStatistics(out_statistics);
 	}
 	
-	public FrameStatus asyncPeekFrame(FrameRegion out_frameRegion)
-	{
-		return asyncPeekFrame(0, out_frameRegion);
-	}
-	
-	public FrameStatus asyncPeekFrame(int channelIndex, FrameRegion out_frameRegion)
-	{
-		Rectangle region = new Rectangle();
-		FrameStatus status = m_engine.asyncPeekFrame(channelIndex, m_transientFrame, region);
-		if(status != FrameStatus.INVALID)
-		{
-			out_frameRegion.set(m_transientFrame.copyRegionRgb(region));
-		}
-		
-		return status;
-	}
-	
 	public RenderState asyncGetRenderState()
 	{
 		return m_engine.asyncGetRenderState();
@@ -207,13 +187,8 @@ public class RenderProject extends Project
 				newRenderStatusQuery(), 
 				0, 1, TimeUnit.SECONDS));
 				
-		m_renderFrameQuery = new RenderFrameQuery(this, m_renderFrameView);
+		m_renderFrameQuery = new RenderFrameQuery(m_engine, m_queryFrame, m_renderFrameView);
 		m_renderFrameQuery.scheduleAdaptively(m_monitorExecutor);
-		
-//		m_monitorHandles.add(
-//			m_monitorExecutor.scheduleWithFixedDelay(
-//				newRenderFrameQuery(), 
-//				0, 1, TimeUnit.SECONDS));
 	}
 	
 	private void stopMonitoring()
@@ -271,9 +246,9 @@ public class RenderProject extends Project
 				   info.heightPx != m_finalFrame.heightPx())
 				{
 					m_finalFrame.dispose();
-					m_transientFrame.dispose();
+					m_queryFrame.dispose();
 					m_finalFrame = new PhFrame(info.widthPx, info.heightPx);
-					m_transientFrame = new PhFrame(info.widthPx, info.heightPx);
+					m_queryFrame = new PhFrame(info.widthPx, info.heightPx);
 				}
 				
 				return null;

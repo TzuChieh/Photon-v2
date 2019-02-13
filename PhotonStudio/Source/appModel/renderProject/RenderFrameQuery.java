@@ -6,28 +6,43 @@ import java.util.concurrent.TimeUnit;
 import javafx.application.Platform;
 import photonApi.FrameRegion;
 import photonApi.FrameStatus;
-import photonApi.Ph;
+import photonApi.PhEngine;
+import photonApi.PhFrame;
+import photonApi.Rectangle;
 
+/**
+ * A query that can peek into frames while they are still rendering. The 
+ * result will be presented by the associating view.
+ */
 public class RenderFrameQuery implements Runnable
 {
 	private static final long MIN_DELAY_MS = 50;
 	private static final long MAX_DELAY_MS = 2000;
 	
-	private RenderProject            m_project;
+	private PhEngine                 m_engine;
+	private PhFrame                  m_peekingFrame;
 	private RenderFrameView          m_view;
 	
 	private ScheduledExecutorService m_executor;
 	private long                     m_currentQueryDelayMs;
+	private volatile int             m_channelIndex;
 	private volatile boolean         m_isCancelRequested;
 	
-	// Constructs a query that can be scheduled by external routines.
-	public RenderFrameQuery(RenderProject project, RenderFrameView view)
+	/**
+	 * Constructs a query that can be scheduled by external routines.
+	 */
+	public RenderFrameQuery(
+		PhEngine        engine, 
+		PhFrame         peekingFrame,
+		RenderFrameView view)
 	{
-		m_project             = project;
+		m_engine              = engine;
+		m_peekingFrame        = peekingFrame;
 		m_view                = view;
 		
 		m_executor            = null;
 		m_currentQueryDelayMs = MIN_DELAY_MS;
+		m_channelIndex        = 0;
 		m_isCancelRequested   = false;
 	}
 	
@@ -40,6 +55,17 @@ public class RenderFrameQuery implements Runnable
 		m_executor.submit(this);
 	}
 	
+	/**
+	 * Thread-safe
+	 */
+	public void setChannel(int channelIndex)
+	{
+		m_channelIndex = channelIndex;
+	}
+	
+	/**
+	 * Thread-safe
+	 */
 	public void cancelAdaptivelyScheduled()
 	{
 		m_isCancelRequested = true;
@@ -62,22 +88,20 @@ public class RenderFrameQuery implements Runnable
 	
 	private void query()
 	{
-		FrameRegion updatedFrameRegion = new FrameRegion();
-		
-		// TODO: select channel
-		FrameStatus frameStatus = m_project.asyncPeekFrame(0, updatedFrameRegion);
-		
-		if(frameStatus != FrameStatus.INVALID)
+		Rectangle updatedRegion = new Rectangle();
+		FrameStatus status = m_engine.asyncPeekFrame(m_channelIndex, m_peekingFrame, updatedRegion);
+		if(status != FrameStatus.INVALID)
 		{
+			FrameRegion updatedFrameRegion = m_peekingFrame.copyRegionRgb(updatedRegion);
 			Platform.runLater(() -> 
 			{
-				m_view.showIntermediate(updatedFrameRegion, frameStatus);
+				m_view.showPeeked(updatedFrameRegion, status);
 			});
 		}
 		
 		if(m_executor != null && !m_isCancelRequested)
 		{
-			if(frameStatus == FrameStatus.INVALID)
+			if(status == FrameStatus.INVALID)
 			{
 				// increase delay linearly if no updated frame is retrieved
 				m_currentQueryDelayMs = Math.min(m_currentQueryDelayMs + MIN_DELAY_MS, MAX_DELAY_MS);

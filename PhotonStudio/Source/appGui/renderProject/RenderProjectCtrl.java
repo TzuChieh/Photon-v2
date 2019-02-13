@@ -115,7 +115,7 @@ public class RenderProjectCtrl
 		m_renderFrameView = new RenderFrameView()
 		{
 			@Override
-			public void showIntermediate(FrameRegion frame, FrameStatus status)
+			public void showPeeked(FrameRegion frame, FrameStatus status)
 			{
 				m_display.loadFrame(frame);
 				m_display.drawFrame(frame.getRegion());
@@ -140,7 +140,7 @@ public class RenderProjectCtrl
 		
 		UI<DisplayInfoCtrl> displayInfoUI = new UILoader().load(getClass().getResource("/fxmls/DisplayInfo.fxml"));
 		Layouts.addAnchored(displayInfoPane, displayInfoUI.getView());
-		displayInfoUI.getCtrl().setDisplay(m_display);
+		m_display.setDisplayInfoView(displayInfoUI.getCtrl().getView());
 	}
     
 	@FXML
@@ -296,7 +296,7 @@ public class RenderProjectCtrl
 		}
 		
 		m_project.setRenderFrameView(m_renderFrameView);
-		m_project.setRenderStatusView(m_renderProgressMonitor.getRenderStatusView());
+		m_project.setRenderStatusView(m_renderProgressMonitor.getView());
 		
 		m_project.setLogView(new ProjectLogView()
 		{
