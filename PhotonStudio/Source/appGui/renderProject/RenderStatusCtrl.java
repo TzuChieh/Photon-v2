@@ -26,7 +26,7 @@ public class RenderStatusCtrl
 	@FXML private Label             percentageProgressLabel;
 	@FXML private Label             timeRemainingLabel;
 	@FXML private Label             timeSpentLabel;
-	@FXML private ChoiceBox<String> attributeChoiceBox;
+	@FXML private ChoiceBox<String> channelIndexChoiceBox;
 	
 	private AtomicInteger m_chosenAttribute;
 	private int m_numVBoxBaseChildren;
@@ -44,12 +44,12 @@ public class RenderStatusCtrl
 	@FXML
     public void initialize()
 	{
-    	attributeChoiceBox.setItems(FXCollections.observableArrayList(
+    	channelIndexChoiceBox.setItems(FXCollections.observableArrayList(
     		"Light Energy",
     		"Normal"
     	));
-    	attributeChoiceBox.getSelectionModel().select("Light Energy");
-    	attributeChoiceBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>()
+    	channelIndexChoiceBox.getSelectionModel().select("Light Energy");
+    	channelIndexChoiceBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>()
 		{
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)

@@ -60,6 +60,8 @@ public class RenderFrameQuery implements Runnable
 	 */
 	public void setChannel(int channelIndex)
 	{
+		assert(channelIndex >= 0);
+		
 		m_channelIndex = channelIndex;
 	}
 	

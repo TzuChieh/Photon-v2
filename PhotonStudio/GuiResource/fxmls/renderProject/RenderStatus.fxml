@@ -12,7 +12,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <VBox fx:id="variablesVBox" alignment="TOP_CENTER" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="appGui.renderProject.RenderStatusCtrl">
    <children>
       <Separator prefWidth="200.0">
@@ -97,8 +96,8 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
          </rowConstraints>
          <children>
-            <Label text="Displayed Attribute" />
-            <ChoiceBox fx:id="attributeChoiceBox" maxWidth="1.7976931348623157E308" prefHeight="23.0" prefWidth="134.0" GridPane.columnIndex="1" />
+            <Label text="Displayed Channel" />
+            <ChoiceBox fx:id="channelIndexChoiceBox" maxWidth="1.7976931348623157E308" prefHeight="23.0" prefWidth="134.0" GridPane.columnIndex="1" />
          </children>
       </GridPane>
       <Separator prefWidth="200.0">

@@ -17,11 +17,8 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import photonApi.FrameInfo;
 import photonApi.Frame;
-import photonApi.ObservableRenderData;
 import photonApi.PhEngine;
 import photonApi.PhFrame;
-import photonApi.RenderState;
-import photonApi.Statistics;
 
 public class RenderProject extends Project
 {
@@ -138,14 +135,24 @@ public class RenderProject extends Project
 		}
 	}
 	
-	public void asyncGetRendererStatistics(Statistics out_statistics)
+	public void setRenderStatusView(RenderStatusView view)
 	{
-		m_engine.asyncGetRendererStatistics(out_statistics);
+		m_renderStatusView = view;
 	}
 	
-	public RenderState asyncGetRenderState()
+	public void setRenderFrameView(RenderFrameView view)
 	{
-		return m_engine.asyncGetRenderState();
+		m_renderFrameView = view;
+	}
+	
+	public void setMonitoredChannel(int channelIndex)
+	{
+		assert(channelIndex >= 0);
+		
+		if(m_renderFrameQuery != null)
+		{
+			m_renderFrameQuery.setChannel(channelIndex);
+		}
 	}
 	
 	public RenderSetting getRenderSetting()
@@ -168,23 +175,13 @@ public class RenderProject extends Project
 		return m_studio.getGeneralOption();
 	}
 	
-	public void setRenderStatusView(RenderStatusView view)
-	{
-		m_renderStatusView = view;
-	}
-	
-	public void setRenderFrameView(RenderFrameView view)
-	{
-		m_renderFrameView = view;
-	}
-	
 	private void startMonitoring()
 	{
 		stopMonitoring();
 		
 		m_monitorHandles.add(
 			m_monitorExecutor.scheduleWithFixedDelay(
-				newRenderStatusQuery(), 
+				new RenderStatusQuery(m_engine, m_renderStatusView), 
 				0, 1, TimeUnit.SECONDS));
 				
 		m_renderFrameQuery = new RenderFrameQuery(m_engine, m_queryFrame, m_renderFrameView);
@@ -272,30 +269,5 @@ public class RenderProject extends Project
 				return null;
 			}
 		};
-	}
-	
-	private Runnable newRenderStatusQuery()
-	{
-		ObservableRenderData data = m_engine.getObservableRenderData();
-		
-		List<RenderStateEntry> states = new ArrayList<>();
-		for(int i = 0; i < data.integerNames.length; ++i)
-		{
-			RenderStateEntry integerState = RenderStateEntry.newInteger(data.integerNames[i], i);
-			if(!integerState.getName().isEmpty())
-			{
-				states.add(integerState);
-			}
-		}
-		for(int i = 0; i < data.realNames.length; ++i)
-		{
-			RenderStateEntry realState = RenderStateEntry.newReal(data.realNames[i], i);
-			if(!realState.getName().isEmpty())
-			{
-				states.add(realState);
-			}
-		}
-		
-		return new RenderStatusQuery(this, states, m_renderStatusView);
 	}
 }

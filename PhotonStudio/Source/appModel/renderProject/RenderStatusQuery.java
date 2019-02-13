@@ -1,41 +1,67 @@
 package appModel.renderProject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Platform;
+import photonApi.ObservableRenderData;
+import photonApi.PhEngine;
 import photonApi.RenderState;
 import photonApi.Statistics;
 import util.Time;
 
+/**
+ * A query that can keep track on states of the engine, and show the results
+ * using an associated view.
+ */
 public class RenderStatusQuery implements Runnable
 {
-	private RenderProject          m_project;
-	private List<RenderStateEntry> m_states;
+	private PhEngine               m_engine;
 	private RenderStatusView       m_view;
 	
-	private String[]   m_names;
-	private String[]   m_values;
-	private Statistics m_statistics;
-	private double     m_startTimeMs;
+	private List<RenderStateEntry> m_states;
+	private String[]               m_names;
+	private String[]               m_values;
+	private Statistics             m_statistics;
+	private double                 m_startTimeMs;
 	
-	public RenderStatusQuery(
-		RenderProject          project,
-		List<RenderStateEntry> states,
-		RenderStatusView       view)
+	public RenderStatusQuery(PhEngine engine, RenderStatusView view)
 	{
 		super();
 		
-		m_project = project;
-		m_states  = states;
-		m_view    = view;
+		m_engine = engine;
+		m_view   = view;
 		
-		m_names = new String[states.size()];
-		for(int i = 0; i < m_names.length; ++i)
+		// retrieve and determine which states to show
+		
+		ObservableRenderData data = m_engine.getObservableRenderData();
+		
+		m_states = new ArrayList<>();
+		for(int i = 0; i < data.integerNames.length; ++i)
 		{
-			m_names[i] = states.get(i).getName();
+			RenderStateEntry integerState = RenderStateEntry.newInteger(data.integerNames[i], i);
+			if(!integerState.getName().isEmpty())
+			{
+				m_states.add(integerState);
+			}
+		}
+		for(int i = 0; i < data.realNames.length; ++i)
+		{
+			RenderStateEntry realState = RenderStateEntry.newReal(data.realNames[i], i);
+			if(!realState.getName().isEmpty())
+			{
+				m_states.add(realState);
+			}
 		}
 		
-		m_values      = new String[states.size()];
+		m_names  = new String[m_states.size()];
+		m_values = new String[m_states.size()];
+		for(int i = 0; i < m_names.length; ++i)
+		{
+			m_names[i]  = m_states.get(i).getName();
+			m_values[i] = "";
+		}
+		
 		m_statistics  = new Statistics();
 		m_startTimeMs = Time.getTimeMs();
 	}
@@ -57,7 +83,7 @@ public class RenderStatusQuery implements Runnable
 	
 	private void query()
 	{
-		m_project.asyncGetRendererStatistics(m_statistics);
+		m_engine.asyncGetRendererStatistics(m_statistics);
 		
 		final double normalizedProgress    = m_statistics.percentageProgress / 100.0;
 		final double renderTimeMs          = Time.getTimeMs() - m_startTimeMs;
@@ -72,7 +98,7 @@ public class RenderStatusQuery implements Runnable
 		});
 		
 		// TODO: use Number, abstract away long & float
-		RenderState state = m_project.asyncGetRenderState();
+		RenderState state = m_engine.asyncGetRenderState();
 		for(int i = 0; i < m_states.size(); ++i)
 		{
 			RenderStateEntry entry = m_states.get(i);
