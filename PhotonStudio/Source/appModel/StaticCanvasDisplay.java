@@ -1,27 +1,17 @@
 package appModel;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.imageio.ImageIO;
 
 import javafx.beans.value.ChangeListener;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import photonApi.Frame;
 import photonApi.FrameRegion;
-import photonApi.FrameStatus;
 import photonApi.Rectangle;
 import util.AABB2D;
 import util.Vector2f;

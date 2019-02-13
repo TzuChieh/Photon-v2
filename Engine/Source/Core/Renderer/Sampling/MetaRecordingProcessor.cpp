@@ -1,4 +1,5 @@
 #include "Core/Renderer/Sampling/MetaRecordingProcessor.h"
+#include "Math/math.h"
 
 #include <cmath>
 
@@ -30,6 +31,20 @@ void MetaRecordingProcessor::process(const Vector2D& filmNdc, const Ray& ray)
 	m_msSpentFrame.setPixel(pixelCoord, msSpent.add(m_timer.getDeltaMs()));
 }
 
+void MetaRecordingProcessor::onBatchStart(const uint64 batchNumber)
+{
+	PH_ASSERT(m_processor);
+
+	m_processor->onBatchStart(batchNumber);
+}
+
+void MetaRecordingProcessor::onBatchFinish(const uint64 batchNumber)
+{
+	PH_ASSERT(m_processor);
+
+	m_processor->onBatchFinish(batchNumber);
+}
+
 void MetaRecordingProcessor::getRecord(
 	HdrRgbFrame* const     out_storage,
 	const TVector2<int64>& storageOrigin) const
@@ -58,9 +73,13 @@ void MetaRecordingProcessor::getRecord(
 			const CounterFrame::Pixel msSpent      = m_msSpentFrame.getPixel(recordCoord);
 
 			HdrRgbFrame::Pixel record;
-			record[0] = static_cast<HdrComponent>(processCount[0]);
-			record[1] = static_cast<HdrComponent>(msSpent[0]);
-			record[2] = 0;
+			//record[0] = static_cast<HdrComponent>(processCount[0]);
+			//record[0] = static_cast<HdrComponent>(math::log2_floor(processCount[0] + 1));
+			record[0] = static_cast<HdrComponent>(math::log2_floor(processCount[0] + 1)) / HdrComponent(128);
+			record[1] = static_cast<HdrComponent>(math::log2_floor(processCount[0] + 1)) / HdrComponent(128);
+			record[2] = static_cast<HdrComponent>(math::log2_floor(processCount[0] + 1)) / HdrComponent(128);
+			//record[1] = static_cast<HdrComponent>(msSpent[0]);
+			//record[2] = 0;
 
 			return record;
 		});

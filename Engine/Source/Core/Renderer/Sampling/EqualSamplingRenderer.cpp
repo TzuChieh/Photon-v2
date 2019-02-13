@@ -70,6 +70,7 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 		m_renderWorks[workerId].addProcessor(&m_filmEstimators[workerId]);
 	}
 
+	// DEBUG
 	m_scheduler = std::make_unique<SpiralGridScheduler>(
 		numWorkers(),
 		WorkUnit(Region(getRenderWindowPx()), m_sampleGenerator->numSampleBatches()),
@@ -79,6 +80,14 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 		numWorkers(),
 		WorkUnit(Region(getRenderWindowPx()), m_sampleGenerator->numSampleBatches()),
 		Vector2S(10, 50));*/
+
+	// DEBUG
+	/*m_metaRecorders.resize(numWorkers());
+	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
+	{
+		m_metaRecorders[workerId] = MetaRecordingProcessor(&m_filmEstimators[workerId]);
+		m_renderWorks[workerId].addProcessor(&m_metaRecorders[workerId]);
+	}*/
 }
 
 void EqualSamplingRenderer::doRender()

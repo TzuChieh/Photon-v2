@@ -7,14 +7,16 @@
 namespace ph
 {
 
-typedef int8_t         int8;
-typedef uint8_t        uint8;
-typedef int32_t        int32;
-typedef uint32_t       uint32;
-typedef int64_t        int64;
-typedef uint64_t       uint64;
-typedef float          float32;
-typedef double         float64;
+using int8    = int8_t;
+using uint8   = uint8_t;
+using int16   = int16_t;
+using uint16  = uint16_t;
+using int32   = int32_t;
+using uint32  = uint32_t;
+using int64   = int64_t;
+using uint64  = uint64_t;
+using float32 = float;
+using float64 = double;
 
 #ifdef PH_USE_DOUBLE_REAL
 	typedef double real;
@@ -22,9 +24,9 @@ typedef double         float64;
 	typedef float real;
 #endif
 
-typedef int     integer;
-typedef float64 hiReal;
-typedef int64   hiInteger;
+using integer   = int;
+using hiReal    = float64;
+using hiInteger = int64;
 
 constexpr inline real operator "" _r(const long double cookedValue)
 {

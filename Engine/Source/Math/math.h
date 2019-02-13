@@ -87,25 +87,27 @@ inline T to_radians(const T degrees)
 	return degrees * static_cast<T>(PH_PI / 180.0);
 }
 
-// Extract the sign of a value (branchless).
-// If the provided value is comparable to 0:
-// returns ( 1) when (value  > 0), 
-// returns (-1) when (value  < 0), 
-// returns ( 0) when (value == 0).
-// (Note that the target value is passed by value.)
-//
+/*
+	Extract the sign of a value (branchless).
+	If the provided value is comparable to 0:
+	returns ( 1) when (value  > 0),
+	returns (-1) when (value  < 0),
+	returns ( 0) when (value == 0).
+	(Note that the target value is passed by value.)
+*/
 template<typename T>
 inline int sign(const T value)
 {
 	return (static_cast<T>(0) < value) - (static_cast<T>(0) > value);
 }
 
-// Returns the a power of 2 value that is >= <value>. Note that if 
-// <value> is 0, then 0 will be returned.
-//
-// Reference:
-// Stanford CG Lab's webpage: "Bit Twiddling Hacks" by Sean Eron Anderson
-//
+/*
+	Returns the a power of 2 value that is >= <value>. Note that if
+	<value> is 0, then 0 will be returned.
+	
+	Reference:
+	Stanford CG Lab's webpage: "Bit Twiddling Hacks" by Sean Eron Anderson
+*/
 inline uint32 next_power_of_2(uint32 value)
 {
 	PH_ASSERT(value <= (1UL << 31));
@@ -121,51 +123,131 @@ inline uint32 next_power_of_2(uint32 value)
 	return value + 1;
 }
 
-// Determines whether <value> is a power of 2 number.
+/*
+	Determines whether <value> is a power of 2 number.
+*/
 template<typename T>
 inline bool is_power_of_2(const T value)
 {
 	return (value > 0) && !(value & (value - 1));
 }
 
-// Calculate a positive integer's base 2 logarithm (floored). 
-// <input> shall not be 0, or the behavior of this method is undefined.
-//
-inline uint32 log2_floor(const uint32 value)
+/*
+	Calculate a positive number's base 2 logarithm (floored).
+	<input> should be > 0, or the behavior of this method is undefined.
+*/
+template<typename T>
+inline T log2_floor(const T value)
 {
-	PH_ASSERT(value != 0);
+	PH_ASSERT_GT(value, T(0));
 
-#if defined(PH_COMPILER_IS_CLANG) || defined(PH_COMPILER_IS_GCC)
+	return static_cast<T>(std::floor(std::log2(value)));
+}
 
-	static_assert(sizeof(uint32) == sizeof(unsigned int), 
-		"expecting same size for conversion purposes");
+#if defined(PH_COMPILER_IS_MSVC)
 
-	const int numLeftZeros = __builtin_clz(value);
-	PH_ASSERT(numLeftZeros >= 0);
-
-	return 31 - static_cast<uint32>(numLeftZeros);
-
-#elif defined(PH_COMPILER_IS_MSVC)
-
+template<>
+inline uint32 log2_floor<uint32>(const uint32 value)
+{
 	static_assert(sizeof(uint32) == sizeof(unsigned long), 
 		"expecting same size for conversion purposes");
 
+	PH_ASSERT_GT(value, uint32(0));
+
 	unsigned long first1BitFromLeftIndex;
-	_BitScanReverse(&first1BitFromLeftIndex, value);
+	const auto isIndexSet = _BitScanReverse(&first1BitFromLeftIndex, value);
+	PH_ASSERT_GT(isIndexSet, 0);
+
 	return first1BitFromLeftIndex;
+}
 
-#else
+template<>
+inline uint64 log2_floor<uint64>(const uint64 value)
+{
+	static_assert(sizeof(uint64) == sizeof(__int64),
+		"expecting same size for conversion purposes");
 
-	return static_cast<uint32>(std::log2(static_cast<float>(value)));
+	PH_ASSERT_GT(value, uint64(0));
+
+	unsigned long first1BitFromLeftIndex;
+	const auto isIndexSet = _BitScanReverse64(&first1BitFromLeftIndex, value);
+	PH_ASSERT_GT(isIndexSet, 0);
+
+	return first1BitFromLeftIndex;
+}
+
+template<>
+inline int32 log2_floor<int32>(const int32 value)
+{
+	PH_ASSERT_GT(value, int32(0));
+
+	return static_cast<int32>(log2_floor<uint32>(value));
+}
+
+template<>
+inline int64 log2_floor<int64>(const int64 value)
+{
+	PH_ASSERT_GT(value, int64(0));
+
+	return static_cast<int64>(log2_floor<uint64>(value));
+}
 
 #endif
-}// end log2_floor(1)
 
-// Retrieve the fractional part of <value> (with the same sign 
-// as <value>). The result is not guaranteed to be the same as the bit 
-// representation of <value>'s fractional part.
-// The result is undefined if input value is NaN or +-Inf.
-//
+#if defined(PH_COMPILER_IS_CLANG) || defined(PH_COMPILER_IS_GCC)
+
+template<>
+inline uint32 log2_floor<uint32>(const uint32 value)
+{
+	static_assert(sizeof(uint32) == sizeof(unsigned int), 
+		"expecting same size for conversion purposes");
+
+	PH_ASSERT_GT(value, uint32(0));
+
+	const int numLeftZeros = __builtin_clzl(value);
+	PH_ASSERT_GE(numLeftZeros, 0);
+
+	return 31 - static_cast<uint32>(numLeftZeros);
+}
+
+template<>
+inline uint64 log2_floor<uint64>(const uint64 value)
+{
+	static_assert(sizeof(uint64) == sizeof(unsigned long long),
+		"expecting same size for conversion purposes");
+
+	PH_ASSERT_GT(value, uint64(0));
+
+	const int numLeftZeros = __builtin_clzll(value);
+	PH_ASSERT_GE(numLeftZeros, 0);
+
+	return 63 - static_cast<uint32>(numLeftZeros);
+}
+
+template<>
+inline int32 log2_floor<int32>(const int32 value)
+{
+	PH_ASSERT_GT(value, int32(0));
+
+	return static_cast<int32>(log2_floor<uint32>(value));
+}
+
+template<>
+inline int64 log2_floor<int64>(const int64 value)
+{
+	PH_ASSERT_GT(value, int64(0));
+
+	return static_cast<int64>(log2_floor<uint64>(value));
+}
+
+#endif
+
+/*
+	Retrieve the fractional part of <value> (with the same sign 
+	as <value>). The result is not guaranteed to be the same as the bit 
+	representation of <value>'s fractional part.
+	The result is undefined if input value is NaN or +-Inf.
+*/
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
 inline T fractional_part(const T value)
 {
@@ -198,9 +280,10 @@ inline bool solve_linear_system_2x2(
 	return true;
 }
 
-// Wraps an integer around [lower-bound, upper-bound]. 
-// For example, given a bound [-1, 2], 3 will be wrapped to -1.
-//
+/*
+	Wraps an integer around [lower-bound, upper-bound].
+	For example, given a bound [-1, 2], 3 will be wrapped to -1.
+*/
 template<typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0>
 inline T wrap(T value, const T lowerBound, const T upperBound)
 {

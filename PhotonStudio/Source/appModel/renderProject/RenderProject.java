@@ -22,13 +22,13 @@ import photonApi.PhFrame;
 
 public class RenderProject extends Project
 {
+	private Studio                   m_studio;
+	private RenderSetting            m_renderSetting;
+	
 	private PhEngine                 m_engine;
 	private PhFrame                  m_finalFrame;
 	private PhFrame                  m_queryFrame;
 	private Frame                    m_localFinalFrame;
-	
-	private Studio                   m_studio;
-	private RenderSetting            m_renderSetting;
 	
 	private RenderStatusView         m_renderStatusView;
 	private RenderFrameView          m_renderFrameView;
@@ -41,13 +41,13 @@ public class RenderProject extends Project
 	{
 		super(projectName);
 		
+		m_studio              = studio;
+		m_renderSetting       = new RenderSetting(studio.getGeneralOption());
+		
 		m_engine              = null;
 		m_finalFrame          = null;
 		m_queryFrame          = null;
 		m_localFinalFrame     = new Frame();
-		
-		m_studio              = studio;
-		m_renderSetting       = new RenderSetting(studio.getGeneralOption());
 		
 		m_renderStatusView    = new RenderStatusView(){};
 		m_renderFrameView     = new RenderFrameView(){};

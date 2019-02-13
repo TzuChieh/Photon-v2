@@ -8,6 +8,7 @@
 #include "Core/Renderer/Sampling/CameraSamplingWork.h"
 #include "Frame/TFrame.h"
 #include "Core/Renderer/Sampling/StepperFilmEnergyEstimator.h"
+#include "Core/Renderer/Sampling/MetaRecordingProcessor.h"
 
 #include <memory>
 #include <queue>
@@ -50,6 +51,9 @@ private:
 	std::unique_ptr<FullRayEnergyEstimator> m_estimator;
 	std::vector<CameraSamplingWork>         m_renderWorks;
 	std::vector<StepperFilmEnergyEstimator> m_filmEstimators;
+
+	std::vector<MetaRecordingProcessor> m_metaRecorders;
+	HdrRgbFrame m_metaFrame;
 
 	DammertzDispatcher                    m_dispatcher;
 	std::vector<uint32>                   m_freeWorkerIds;

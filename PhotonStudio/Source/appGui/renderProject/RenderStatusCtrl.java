@@ -2,6 +2,7 @@ package appGui.renderProject;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import appModel.renderProject.RenderProject;
 import appModel.renderProject.RenderStatusView;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -21,23 +22,20 @@ public class RenderStatusCtrl
 {
 	// TODO: able to select target attribute to display
 	
-	@FXML private VBox              variablesVBox;
-	@FXML private ProgressBar       renderProgressBar;
-	@FXML private Label             percentageProgressLabel;
-	@FXML private Label             timeRemainingLabel;
-	@FXML private Label             timeSpentLabel;
-	@FXML private ChoiceBox<String> channelIndexChoiceBox;
-	
-	private AtomicInteger m_chosenAttribute;
-	private int m_numVBoxBaseChildren;
+	@FXML private VBox               variablesVBox;
+	@FXML private ProgressBar        renderProgressBar;
+	@FXML private Label              percentageProgressLabel;
+	@FXML private Label              timeRemainingLabel;
+	@FXML private Label              timeSpentLabel;
+	@FXML private ChoiceBox<Integer> channelIndexChoiceBox;
 	
 	private RenderStatusView m_renderStatusView;
+	private RenderProject    m_renderProject;
+	
+	private int m_numVBoxBaseChildren;
 	
 	public RenderStatusCtrl()
 	{
-		// TODO: select channel
-		m_chosenAttribute = new AtomicInteger(0);
-		
 		m_numVBoxBaseChildren = 0;
 	}
 	
@@ -45,17 +43,19 @@ public class RenderStatusCtrl
     public void initialize()
 	{
     	channelIndexChoiceBox.setItems(FXCollections.observableArrayList(
-    		"Light Energy",
-    		"Normal"
+    		0,
+    		1
     	));
-    	channelIndexChoiceBox.getSelectionModel().select("Light Energy");
+    	channelIndexChoiceBox.getSelectionModel().select(0);
     	channelIndexChoiceBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>()
 		{
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
 			{
-				m_chosenAttribute.set(newValue.intValue());
-				System.err.println(m_chosenAttribute.get());
+				m_renderProject.setMonitoredChannel(newValue.intValue());
+				
+				// DEBUG
+				System.err.println(newValue.intValue());
 			}
 		});
     	
@@ -129,6 +129,11 @@ public class RenderStatusCtrl
 				});
 			}
 		};
+	}
+	
+	public void setRenderProject(RenderProject project)
+	{
+		m_renderProject = project;
 	}
 	
 	public RenderStatusView getView()

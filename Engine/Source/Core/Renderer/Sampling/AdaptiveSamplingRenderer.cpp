@@ -60,6 +60,7 @@ void AdaptiveSamplingRenderer::doUpdate(const SdlResourcePack& data)
 		getRenderWindowPx(),
 		m_filter);
 
+	m_metaRecorders.resize(numWorkers());
 	m_filmEstimators.resize(numWorkers());
 	m_renderWorks.resize(numWorkers());
 	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
@@ -70,9 +71,13 @@ void AdaptiveSamplingRenderer::doUpdate(const SdlResourcePack& data)
 		m_filmEstimators[workerId].addFilmEstimation(1, 0);
 		m_filmEstimators[workerId].setFilmStepSize(1, 2);
 
+		m_metaRecorders[workerId] = MetaRecordingProcessor(&m_filmEstimators[workerId]);
+
 		m_renderWorks[workerId] = CameraSamplingWork(
 			m_camera);
-		m_renderWorks[workerId].addProcessor(&m_filmEstimators[workerId]);
+		//m_renderWorks[workerId].addProcessor(&m_filmEstimators[workerId]);
+		// DEBUG
+		m_renderWorks[workerId].addProcessor(&m_metaRecorders[workerId]);
 	}
 
 	m_dispatcher = DammertzDispatcher(
@@ -86,6 +91,8 @@ void AdaptiveSamplingRenderer::doUpdate(const SdlResourcePack& data)
 
 	m_allEffortFrame = HdrRgbFrame(getRenderWidthPx(), getRenderHeightPx());
 	m_halfEffortFrame = HdrRgbFrame(getRenderWidthPx(), getRenderHeightPx());
+
+	m_metaFrame = HdrRgbFrame(getRenderWidthPx(), getRenderHeightPx());
 }
 
 void AdaptiveSamplingRenderer::doRender()
@@ -107,6 +114,9 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 		auto& renderWork    = m_renderWorks[workerId];
 		auto& filmEstimator = m_filmEstimators[workerId];
 		auto  analyzer      = m_dispatcher.createAnalyzer<REFINE_MODE>();
+
+		// DEBUG
+		auto& metaRecorder = m_metaRecorders[workerId];
 
 		float suppliedFraction = 0.0f;
 		float submittedFraction = 0.0f;
@@ -147,6 +157,11 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 				workUnit.getRegion(), 
 				false);
 
+			// DEBUG
+			metaRecorder.setDimensions(
+				TVector2<int64>(getRenderWidthPx(), getRenderHeightPx()), 
+				workUnit.getRegion());
+
 			const auto filmDimensions = filmEstimator.getFilmDimensions();
 			renderWork.setSampleDimensions(
 				filmDimensions.actualResPx,
@@ -181,6 +196,8 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 
 				addUpdatedRegion(filmEstimator.getFilmEffectiveWindowPx(), false);
 				m_dispatcher.addAnalyzedData(analyzer);
+
+				metaRecorder.getRecord(&m_metaFrame, {0, 0});
 			}
 
 			m_submittedFractionBits.store(
@@ -230,6 +247,10 @@ void AdaptiveSamplingRenderer::asyncPeekFrame(
 	if(layerIndex == 0)
 	{
 		m_allEffortFilm.develop(out_frame, region);
+	}
+	else if(layerIndex == 1)
+	{
+		out_frame = m_metaFrame;
 	}
 	else
 	{
@@ -346,7 +367,7 @@ AdaptiveSamplingRenderer::AdaptiveSamplingRenderer(const InputPacket& packet) :
 
 	// DEBUG
 	//m_precisionStandard = packet.getReal("precision-standard", 1.0_r);
-	m_precisionStandard = packet.getReal("precision-standard", 8.0_r);
+	m_precisionStandard = packet.getReal("precision-standard", 4.0_r);
 	m_numPathsPerRegion = packet.getInteger("paths-per-region", 16);
 }
 

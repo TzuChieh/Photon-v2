@@ -62,7 +62,7 @@ public class RenderProjectCtrl
 	@FXML private TextField         imageFileSaveName;
 	@FXML private AnchorPane        displayInfoPane;
     
-    private RenderStatusCtrl    m_renderProgressMonitor;
+    private RenderStatusCtrl    m_renderStatusCtrl;
     private RenderFrameView     m_renderFrameView;
     private RenderProject       m_project;
     private StaticCanvasDisplay m_display;
@@ -110,7 +110,7 @@ public class RenderProjectCtrl
 		
 		UI<RenderStatusCtrl> renderProgressMonitorUI = loadRenderProgressMonitorUI();
 		progressMonitorScrollPane.setContent(renderProgressMonitorUI.getView());
-		m_renderProgressMonitor = renderProgressMonitorUI.getCtrl();
+		m_renderStatusCtrl = renderProgressMonitorUI.getCtrl();
 		
 		m_renderFrameView = new RenderFrameView()
 		{
@@ -258,6 +258,8 @@ public class RenderProjectCtrl
 		
 		m_project = project;
 		
+		m_renderStatusCtrl.setRenderProject(project);
+		
 		String projectName = m_project.getProjectSetting().getProjectName().getValue();
 		
 		String imageName = "image - " + projectName;
@@ -296,7 +298,7 @@ public class RenderProjectCtrl
 		}
 		
 		m_project.setRenderFrameView(m_renderFrameView);
-		m_project.setRenderStatusView(m_renderProgressMonitor.getView());
+		m_project.setRenderStatusView(m_renderStatusCtrl.getView());
 		
 		m_project.setLogView(new ProjectLogView()
 		{

@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import javax.imageio.ImageIO;
 
 import photonApi.FrameRegion;
-import photonApi.FrameStatus;
 import photonApi.Rectangle;
 
 public abstract class Display

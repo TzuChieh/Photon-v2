@@ -98,10 +98,17 @@ TEST(MathTest, CalculateIntegerBase2Logarithm)
 	EXPECT_EQ(ph::math::log2_floor(6), 2);
 	EXPECT_EQ(ph::math::log2_floor(7), 2);
 	EXPECT_EQ(ph::math::log2_floor(8), 3);
-
 	EXPECT_EQ(ph::math::log2_floor(1024), 10);
 	EXPECT_EQ(ph::math::log2_floor(1 << 20), 20);
+
+	EXPECT_EQ(ph::math::log2_floor(std::numeric_limits<ph::int8>::max()),   6);
+	EXPECT_EQ(ph::math::log2_floor(std::numeric_limits<ph::uint8>::max()),  7);
+	EXPECT_EQ(ph::math::log2_floor(std::numeric_limits<ph::int16>::max()),  14);
+	EXPECT_EQ(ph::math::log2_floor(std::numeric_limits<ph::uint16>::max()), 15);
+	EXPECT_EQ(ph::math::log2_floor(std::numeric_limits<ph::int32>::max()),  30);
 	EXPECT_EQ(ph::math::log2_floor(std::numeric_limits<ph::uint32>::max()), 31);
+	EXPECT_EQ(ph::math::log2_floor(std::numeric_limits<ph::int64>::max()),  62);
+	EXPECT_EQ(ph::math::log2_floor(std::numeric_limits<ph::uint64>::max()), 63);
 }
 
 TEST(MathTest, RetrieveFractionalPartOfANumber)

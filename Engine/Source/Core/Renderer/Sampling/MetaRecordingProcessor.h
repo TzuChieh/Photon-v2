@@ -12,6 +12,11 @@
 namespace ph
 {
 
+/*
+	A wrapper that will do work on behave of the wrapped processor and 
+	provides additional information regarding the performed work; such as
+	sample count and time spent per pixel.
+*/
 class MetaRecordingProcessor : public ISensedRayProcessor
 {
 public:
@@ -19,6 +24,8 @@ public:
 	explicit MetaRecordingProcessor(ISensedRayProcessor* processor);
 
 	void process(const Vector2D& filmNdc, const Ray& ray) override;
+	void onBatchStart(uint64 batchNumber) override;
+	void onBatchFinish(uint64 batchNumber) override;
 
 	void clearRecords();
 	void setDimensions(

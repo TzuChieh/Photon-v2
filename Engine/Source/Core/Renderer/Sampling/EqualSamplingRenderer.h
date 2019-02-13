@@ -7,6 +7,7 @@
 #include "Core/Renderer/Sampling/FilmEnergyEstimator.h"
 #include "Core/Estimator/FullRayEnergyEstimator.h"
 #include "Core/Renderer/Region/WorkScheduler.h"
+#include "Core/Renderer/Sampling/MetaRecordingProcessor.h"
 
 #include <vector>
 #include <memory>
@@ -48,6 +49,7 @@ private:
 	std::unique_ptr<FullRayEnergyEstimator> m_estimator;
 	std::vector<CameraSamplingWork>         m_renderWorks;
 	std::vector<FilmEnergyEstimator>        m_filmEstimators;
+	std::vector<MetaRecordingProcessor>     m_metaRecorders;
 
 	struct UpdatedRegion
 	{

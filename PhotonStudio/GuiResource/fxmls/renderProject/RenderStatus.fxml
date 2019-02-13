@@ -96,7 +96,7 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
          </rowConstraints>
          <children>
-            <Label text="Displayed Channel" />
+            <Label text="Monitored Channel" />
             <ChoiceBox fx:id="channelIndexChoiceBox" maxWidth="1.7976931348623157E308" prefHeight="23.0" prefWidth="134.0" GridPane.columnIndex="1" />
          </children>
       </GridPane>
