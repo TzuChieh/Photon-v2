@@ -316,7 +316,7 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 			const real totalEps = m_accumulatedEps.back();
 
 			int64 bestPosPx    = 0;
-			real  minErrorDiff = squared(totalEps) / static_cast<real>(m_accumulatedEps.size());
+			real  minErrorDiff = totalEps * fast_rcp_sqrt(static_cast<real>(m_accumulatedEps.size()));
 			for(std::size_t i = 0; i < m_accumulatedEps.size(); ++i)
 			{
 				const real summedEp0 = m_accumulatedEps[i];
@@ -324,8 +324,9 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 				PH_ASSERT_GE(summedEp0, 0);
 				PH_ASSERT_GE(summedEp1, 0);
 
-				const real error0    = squared(summedEp0) / static_cast<real>(i + 1);
-				const real error1    = squared(summedEp1) / static_cast<real>(m_accumulatedEps.size() - i - 1);
+				const real error0    = summedEp0 * fast_rcp_sqrt(static_cast<real>(i + 1));
+				const real error1    = summedEp1 * (i != m_accumulatedEps.size() - 1 ? 
+					fast_rcp_sqrt(static_cast<real>(m_accumulatedEps.size() - i - 1)) : 0);
 				const real errorDiff = std::abs(error0 - error1);
 
 				if(errorDiff < minErrorDiff)

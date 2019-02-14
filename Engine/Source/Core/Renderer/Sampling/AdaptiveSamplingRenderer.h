@@ -39,8 +39,8 @@ public:
 	ObservableRenderData getObservableData() const override;
 
 private:
-	//constexpr static auto REFINE_MODE = DammertzDispatcher::ERefineMode::MIN_ERROR_DIFFERENCE;
-	constexpr static auto REFINE_MODE = DammertzDispatcher::ERefineMode::MIDPOINT;
+	constexpr static auto REFINE_MODE = DammertzDispatcher::ERefineMode::MIN_ERROR_DIFFERENCE;
+	//constexpr static auto REFINE_MODE = DammertzDispatcher::ERefineMode::MIDPOINT;
 
 	const Scene*               m_scene;
 	const Camera*              m_camera;
