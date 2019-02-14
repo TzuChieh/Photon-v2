@@ -45,8 +45,6 @@ bool DammertzDispatcher::dispatch(WorkUnit* const out_workUnit)
 		return false;
 	}
 
-	std::cerr << "# regions = " << m_pendingRegions.size() << std::endl;
-
 	const Region newRegion = m_pendingRegions.front();
 	m_pendingRegions.pop();
 

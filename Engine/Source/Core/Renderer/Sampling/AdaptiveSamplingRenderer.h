@@ -74,6 +74,7 @@ private:
 	std::atomic_uint64_t m_totalPaths;
 	std::atomic_uint32_t m_suppliedFractionBits;
 	std::atomic_uint32_t m_submittedFractionBits;
+	std::atomic_uint32_t m_numNoisyRegions;
 
 	void addUpdatedRegion(const Region& region, bool isUpdating);
 

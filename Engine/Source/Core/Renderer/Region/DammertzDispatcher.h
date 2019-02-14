@@ -8,8 +8,6 @@
 #include "Math/math.h"
 
 #include <cmath>
-#include <string>
-#include <iostream>
 #include <cstddef>
 #include <queue>
 #include <utility>
@@ -191,15 +189,11 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIDPO
 	regionError *= fast_sqrt(frameRegion.calcArea() * m_rcpNumRegionPixels);
 	PH_ASSERT_MSG(std::isfinite(regionError), std::to_string(regionError));
 
-	std::cerr << "region = " << frameRegion.toString() << "error = " << regionError << std::endl;
-
 	if(regionError >= m_splitThreshold)
 	{
 		// error is large, added for more effort
 		m_nextRegions.first  = finishedRegion;
 		m_nextRegions.second = Region({0, 0});
-
-		std::cerr << "too large, split = " << m_splitThreshold << std::endl;
 	}
 	else if(regionError >= m_terminateThreshold)
 	{
@@ -210,15 +204,11 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIDPO
 			const int64 midPoint     = (finishedRegion.minVertex[maxDimension] + finishedRegion.maxVertex[maxDimension]) / 2;
 
 			m_nextRegions = finishedRegion.getSplitted(maxDimension, midPoint);
-
-			std::cerr << "small, splitted, terminate = " << m_terminateThreshold << std::endl;
 		}
 		else
 		{
 			m_nextRegions.first  = finishedRegion;
 			m_nextRegions.second = Region({0, 0});
-
-			std::cerr << "small, region too small, not splitted, terminate = " << m_terminateThreshold << std::endl;
 		}
 	}
 	else
@@ -226,8 +216,6 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIDPO
 		// error is very small, no further effort needed
 		m_nextRegions.first  = Region({0, 0});
 		m_nextRegions.second = Region({0, 0});
-
-		std::cerr << "very small, terminated" << std::endl;
 	}
 }
 
@@ -288,15 +276,11 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 	regionError *= fast_sqrt(frameRegion.calcArea() * m_rcpNumRegionPixels);
 	PH_ASSERT_MSG(regionError > 0 && std::isfinite(regionError), std::to_string(regionError));
 
-	std::cerr << "min-split region = " << frameRegion.toString() << "error = " << regionError << std::endl;
-
 	if(regionError >= m_splitThreshold)
 	{
 		// error is large, added for more effort
 		m_nextRegions.first  = finishedRegion;
 		m_nextRegions.second = Region({0, 0});
-
-		std::cerr << "too large, split = " << m_splitThreshold << std::endl;
 	}
 	else if(regionError >= m_terminateThreshold)
 	{
@@ -306,12 +290,6 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 			// across two splitted regions. To find the point, we squared the
 			// error metric (to avoid sqrt) and stripped away some constants
 			// which do not affect the result.
-
-			for(auto e : m_accumulatedEps)
-			{
-				std::cerr << e << ",";
-			}
-			std::cerr << std::endl;
 
 			const real totalEps = m_accumulatedEps.back();
 
@@ -339,15 +317,11 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 			m_nextRegions = finishedRegion.getSplitted(
 				maxDimension, 
 				finishedRegion.minVertex[maxDimension] + bestPosPx);
-
-			std::cerr << "small, splitted, terminate = " << m_terminateThreshold << std::endl;
 		}
 		else
 		{
 			m_nextRegions.first  = finishedRegion;
 			m_nextRegions.second = Region({0, 0});
-
-			std::cerr << "small, region too small, not splitted, terminate = " << m_terminateThreshold << std::endl;
 		}
 	}
 	else
@@ -355,8 +329,6 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 		// error is very small, no further effort needed
 		m_nextRegions.first  = Region({0, 0});
 		m_nextRegions.second = Region({0, 0});
-
-		std::cerr << "very small, terminated" << std::endl;
 	}
 }
 

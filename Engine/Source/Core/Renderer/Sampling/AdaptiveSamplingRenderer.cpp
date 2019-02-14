@@ -39,6 +39,7 @@ void AdaptiveSamplingRenderer::doUpdate(const SdlResourcePack& data)
 	m_totalPaths            = 0;
 	m_suppliedFractionBits  = 0;
 	m_submittedFractionBits = 0;
+	m_numNoisyRegions       = 0;
 
 	m_scene           = &data.visualWorld.getScene();
 	m_camera          = data.getCamera().get();
@@ -199,6 +200,7 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 
 				addUpdatedRegion(filmEstimator.getFilmEffectiveWindowPx(), false);
 				m_dispatcher.addAnalyzedData(analyzer);
+				m_numNoisyRegions.store(static_cast<uint32>(m_dispatcher.numPendingRegions()), std::memory_order_relaxed);
 			}
 
 			m_submittedFractionBits.store(
@@ -304,6 +306,7 @@ RenderState AdaptiveSamplingRenderer::asyncQueryRenderState()
 
 	RenderState state;
 	state.setIntegerState(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getRenderWindowPx().calcArea()));
+	state.setIntegerState(1, m_numNoisyRegions.load(std::memory_order_relaxed));
 	state.setRealState(0, samplesPerMs * 1000);
 	return state;
 }
@@ -334,6 +337,7 @@ ObservableRenderData AdaptiveSamplingRenderer::getObservableData() const
 	ObservableRenderData data;
 
 	data.setIntegerState(0, "paths/pixel (avg.)");
+	data.setIntegerState(1, "noisy regions");
 	data.setRealState   (0, "paths/second");
 
 	return data;
