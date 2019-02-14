@@ -24,10 +24,10 @@ void MetaRecordingProcessor::process(const Vector2D& filmNdc, const Ray& ray)
 
 	const auto pixelCoord = TVector2<uint32>(rasterPos - m_recordWindowPx.minVertex);
 
-	CounterFrame::Pixel processCount = m_processCountFrame.getPixel(pixelCoord);
+	const auto processCount = m_processCountFrame.getPixel(pixelCoord);
 	m_processCountFrame.setPixel(pixelCoord, processCount.add(1));
 
-	CounterFrame::Pixel msSpent = m_msSpentFrame.getPixel(pixelCoord);
+	const auto msSpent = m_msSpentFrame.getPixel(pixelCoord);
 	m_msSpentFrame.setPixel(pixelCoord, msSpent.add(m_timer.getDeltaMs()));
 }
 
@@ -69,18 +69,15 @@ void MetaRecordingProcessor::getRecord(
 			const auto recordCoord = TVector2<uint32>(
 				TVector2<int64>(x, y) + storageOrigin - m_recordWindowPx.minVertex);
 
-			const CounterFrame::Pixel processCount = m_processCountFrame.getPixel(recordCoord);
-			const CounterFrame::Pixel msSpent      = m_msSpentFrame.getPixel(recordCoord);
+			const auto processCount = m_processCountFrame.getPixel(recordCoord);
+			const auto msSpent      = m_msSpentFrame.getPixel(recordCoord);
+
+			// TODO: ms spent
 
 			HdrRgbFrame::Pixel record;
-			//record[0] = static_cast<HdrComponent>(processCount[0]);
-			//record[0] = static_cast<HdrComponent>(math::log2_floor(processCount[0] + 1));
-			record[0] = static_cast<HdrComponent>(math::log2_floor(processCount[0] + 1)) / HdrComponent(128);
-			record[1] = static_cast<HdrComponent>(math::log2_floor(processCount[0] + 1)) / HdrComponent(128);
-			record[2] = static_cast<HdrComponent>(math::log2_floor(processCount[0] + 1)) / HdrComponent(128);
-			//record[1] = static_cast<HdrComponent>(msSpent[0]);
-			//record[2] = 0;
-
+			record[0] = pixel[0] + static_cast<HdrComponent>(processCount[0]);
+			record[1] = pixel[1] + static_cast<HdrComponent>(processCount[0]);
+			record[2] = pixel[2] + static_cast<HdrComponent>(processCount[0]);
 			return record;
 		});
 }

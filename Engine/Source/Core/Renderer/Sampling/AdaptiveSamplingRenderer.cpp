@@ -157,17 +157,18 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 				workUnit.getRegion(), 
 				false);
 
-			// DEBUG
-			metaRecorder.setDimensions(
-				TVector2<int64>(getRenderWidthPx(), getRenderHeightPx()), 
-				workUnit.getRegion());
-
 			const auto filmDimensions = filmEstimator.getFilmDimensions();
 			renderWork.setSampleDimensions(
 				filmDimensions.actualResPx,
 				filmDimensions.sampleWindowPx,
 				filmDimensions.effectiveWindowPx.getExtents());
 			renderWork.setSampleGenerator(std::move(sampleGenerator));
+
+			// DEBUG
+			metaRecorder.setDimensions(
+				TVector2<int64>(getRenderWidthPx(), getRenderHeightPx()),
+				workUnit.getRegion());
+			metaRecorder.clearRecords();
 
 			renderWork.onWorkReport([this, workerId]()
 			{
@@ -191,13 +192,13 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 			m_halfEffortFilm.develop(m_halfEffortFrame, workUnit.getRegion());
 			analyzer.analyzeFinishedRegion(workUnit.getRegion(), m_allEffortFrame, m_halfEffortFrame);
 
+			m_metaRecorders[workerId].getRecord(&m_metaFrame, {0, 0});
+
 			{
 				std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 				addUpdatedRegion(filmEstimator.getFilmEffectiveWindowPx(), false);
 				m_dispatcher.addAnalyzedData(analyzer);
-
-				metaRecorder.getRecord(&m_metaFrame, {0, 0});
 			}
 
 			m_submittedFractionBits.store(
@@ -250,7 +251,16 @@ void AdaptiveSamplingRenderer::asyncPeekFrame(
 	}
 	else if(layerIndex == 1)
 	{
-		out_frame = m_metaFrame;
+		m_metaFrame.forEachPixel(
+			TAABB2D<uint32>(region), 
+			[&out_frame](const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& pixel)
+			{
+				HdrRgbFrame::Pixel mappedPixel;
+				mappedPixel[0] = pixel[0] / 512.0_r;
+				mappedPixel[1] = pixel[1] / 512.0_r;
+				mappedPixel[2] = pixel[2] / 512.0_r;
+				out_frame.setPixel({x, y}, mappedPixel);
+			});
 	}
 	else
 	{

@@ -16,6 +16,21 @@ TEST(TFrameTest, CorrectAttributes)
 	EXPECT_TRUE(frame2.isEmpty());
 }
 
+TEST(TFrameTest, GetAndSetPixel)
+{
+	using namespace ph;
+
+	TFrame<int, 5> frame1(2, 4);
+	frame1.fill(7);
+	const auto pixel1 = frame1.getPixel({1, 1});
+	EXPECT_EQ(pixel1, decltype(pixel1)(7));
+
+	TFrame<int, 2> frame2(2, 5);
+	frame2.setPixel({0, 1}, TFrame<int, 2>::Pixel({1, 2}));
+	const auto pixel2 = frame2.getPixel({0, 1});
+	EXPECT_EQ(pixel2, decltype(pixel2)({1, 2}));
+}
+
 TEST(TFrameTest, FillAllWithSpecificValue)
 {
 	using namespace ph;

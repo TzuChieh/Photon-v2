@@ -32,6 +32,7 @@ public:
 		const TVector2<int64>& filmResPx, 
 		const TAABB2D<int64>&  recordWindowPx);
 
+	// TODO: mode for getting records, e.g., replace? add? which channel?
 	void getRecord(
 		HdrRgbFrame*           out_storage,
 		const TVector2<int64>& storageOrigin) const;
