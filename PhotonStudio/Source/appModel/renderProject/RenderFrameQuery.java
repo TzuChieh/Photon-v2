@@ -91,7 +91,7 @@ public class RenderFrameQuery implements Runnable
 	private void query()
 	{
 		Rectangle updatedRegion = new Rectangle();
-		FrameStatus status = m_engine.asyncPeekFrame(m_channelIndex, m_peekingFrame, updatedRegion);
+		FrameStatus status = m_engine.asyncPeekUpdatedFrame(m_channelIndex, m_peekingFrame, updatedRegion);
 		if(status != FrameStatus.INVALID)
 		{
 			FrameRegion updatedFrameRegion = m_peekingFrame.copyRegionRgb(updatedRegion);

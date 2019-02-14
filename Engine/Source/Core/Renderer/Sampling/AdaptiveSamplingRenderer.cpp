@@ -258,9 +258,9 @@ void AdaptiveSamplingRenderer::asyncPeekFrame(
 			[&out_frame](const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& pixel)
 			{
 				HdrRgbFrame::Pixel mappedPixel;
-				mappedPixel[0] = pixel[0] / 512.0_r;
-				mappedPixel[1] = pixel[1] / 512.0_r;
-				mappedPixel[2] = pixel[2] / 512.0_r;
+				mappedPixel[0] = std::log2(pixel[0] + 1) / 256.0_r;
+				mappedPixel[1] = std::log2(pixel[1] + 1) / 256.0_r;
+				mappedPixel[2] = std::log2(pixel[2] + 1) / 256.0_r;
 				out_frame.setPixel({x, y}, mappedPixel);
 			});
 	}
@@ -381,7 +381,7 @@ AdaptiveSamplingRenderer::AdaptiveSamplingRenderer(const InputPacket& packet) :
 
 	// DEBUG
 	//m_precisionStandard = packet.getReal("precision-standard", 1.0_r);
-	m_precisionStandard = packet.getReal("precision-standard", 4.0_r);
+	m_precisionStandard = packet.getReal("precision-standard", 2.0_r);
 	m_numPathsPerRegion = packet.getInteger("paths-per-region", 16);
 }
 

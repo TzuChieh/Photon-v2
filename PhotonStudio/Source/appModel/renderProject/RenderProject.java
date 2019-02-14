@@ -16,9 +16,12 @@ import appModel.ShowView;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import photonApi.FrameInfo;
+import photonApi.FrameRegion;
+import photonApi.FrameStatus;
 import photonApi.Frame;
 import photonApi.PhEngine;
 import photonApi.PhFrame;
+import photonApi.Rectangle;
 
 public class RenderProject extends Project
 {
@@ -153,6 +156,15 @@ public class RenderProject extends Project
 		{
 			m_renderFrameQuery.setChannel(channelIndex);
 		}
+		
+		// Show the whole frame after switching channel. 
+		// HACK: this may obfuscate the view with older results
+		FrameInfo frameInfo = m_engine.getFrameInfo();
+		PhFrame frame = new PhFrame(frameInfo.widthPx, frameInfo.heightPx);
+		m_engine.asyncPeekFrame(channelIndex, frame);
+		FrameRegion frameRegion = frame.copyRegionRgb(new Rectangle(0, 0, frameInfo.widthPx, frameInfo.heightPx));
+		frame.dispose();
+		m_renderFrameView.showPeeked(frameRegion, FrameStatus.FINISHED);
 	}
 	
 	public RenderSetting getRenderSetting()
@@ -239,8 +251,8 @@ public class RenderProject extends Project
 				m_engine.update();
 				
 				FrameInfo info = m_engine.getFrameInfo();
-				if(info.widthPx  != m_finalFrame.widthPx() || 
-				   info.heightPx != m_finalFrame.heightPx())
+				if(info.widthPx  != m_finalFrame.getWidthPx() || 
+				   info.heightPx != m_finalFrame.getHeightPx())
 				{
 					m_finalFrame.dispose();
 					m_queryFrame.dispose();

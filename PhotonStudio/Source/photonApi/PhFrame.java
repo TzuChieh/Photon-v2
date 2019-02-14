@@ -49,12 +49,12 @@ public final class PhFrame
 		Ph.phDeleteFrame(m_frameId);
 	}
 	
-	public int widthPx()
+	public int getWidthPx()
 	{
 		return m_widthPx;
 	}
 	
-	public int heightPx()
+	public int getHeightPx()
 	{
 		return m_heightPx;
 	}

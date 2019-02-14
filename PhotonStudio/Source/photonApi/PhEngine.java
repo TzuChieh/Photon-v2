@@ -86,28 +86,13 @@ public final class PhEngine
 		out_statistics.samplesPerSecond   = frequency.m_value;
 	}
 	
-	public FrameStatus asyncPeekFrame(PhFrame out_frame, Rectangle out_updatedRegion)
-	{
-		return asyncPeekFrame(0, out_frame, out_updatedRegion);
-	}
-	
-	public FrameStatus asyncPeekFrame(int channelIndex, PhFrame out_frame, Rectangle out_updatedRegion)
+	public FrameStatus asyncPollUpdatedFrameRegion(Rectangle out_updatedRegion)
 	{
 		IntRef xPx = new IntRef();
 		IntRef yPx = new IntRef();
 		IntRef wPx = new IntRef();
 		IntRef hPx = new IntRef();
-		int pollState = Ph.phAsyncPollUpdatedFrameRegion(m_engineId, xPx, yPx, wPx, hPx);
-		if(pollState == Ph.FILM_REGION_STATUS_INVALID)
-		{
-			return FrameStatus.INVALID;
-		}
-		
-		Ph.phAsyncPeekFrame(
-			m_engineId, 
-			channelIndex, 
-			xPx.m_value, yPx.m_value, wPx.m_value, hPx.m_value, 
-			out_frame.m_frameId);
+		final int pollState = Ph.phAsyncPollUpdatedFrameRegion(m_engineId, xPx, yPx, wPx, hPx);
 		
 		out_updatedRegion.x = xPx.m_value;
 		out_updatedRegion.y = yPx.m_value;
@@ -116,10 +101,39 @@ public final class PhEngine
 		
 		switch(pollState)
 		{
+		case Ph.FILM_REGION_STATUS_INVALID:  return FrameStatus.INVALID;
 		case Ph.FILM_REGION_STATUS_UPDATING: return FrameStatus.UPDATING;
 		case Ph.FILM_REGION_STATUS_FINISHED: return FrameStatus.FINISHED;
 		default:                             return FrameStatus.INVALID;
 		}
+	}
+	
+	public void asyncPeekFrame(int channelIndex, PhFrame frame)
+	{
+		Ph.phAsyncPeekFrame(
+			m_engineId, 
+			channelIndex, 
+			0, 0, frame.m_widthPx, frame.m_heightPx,
+			frame.m_frameId);
+	}
+	
+	public FrameStatus asyncPeekUpdatedFrame(int channelIndex, PhFrame frame, Rectangle out_updatedRegion)
+	{
+		final FrameStatus pollStatus = asyncPollUpdatedFrameRegion(out_updatedRegion);
+		
+		if(pollStatus != FrameStatus.INVALID)
+		{
+			Ph.phAsyncPeekFrame(
+				m_engineId, 
+				channelIndex, 
+				out_updatedRegion.x, 
+				out_updatedRegion.y, 
+				out_updatedRegion.w, 
+				out_updatedRegion.h, 
+				frame.m_frameId);
+		}
+		
+		return pollStatus;
 	}
 	
 	public void dispose()
