@@ -52,7 +52,8 @@ public:
 		uint32        numWorkers,
 		const Region& fullRegion, 
 		real          precisionStandard, 
-		std::size_t   depthPerRegion);
+		std::size_t   initialDepthPerRegion,
+		std::size_t   minSplittedVolume = 0);
 
 	bool dispatch(WorkUnit* out_workUnit) override;
 
@@ -93,11 +94,11 @@ public:
 private:
 	constexpr static std::size_t MIN_REGION_AREA = 16 * 16;
 
-	real               m_splitThreshold;
-	real               m_terminateThreshold;
-	std::size_t        m_depthPerRegion;
-	std::queue<Region> m_pendingRegions;
-	Region             m_fullRegion;
+	real                 m_splitThreshold;
+	real                 m_terminateThreshold;
+	std::size_t          m_minSplittedVolume;
+	std::queue<WorkUnit> m_pendingRegions;
+	Region               m_fullRegion;
 
 	void addPendingRegion(const Region& region);
 };
@@ -143,7 +144,11 @@ inline void DammertzDispatcher::addPendingRegion(const Region& region)
 {
 	if(region.isArea())
 	{
-		m_pendingRegions.push(region);
+		const std::size_t regionDepth = math::ceil_div_positive(
+			m_minSplittedVolume, static_cast<std::size_t>(region.calcArea()));
+		PH_ASSERT_GT(regionDepth, 0);
+
+		m_pendingRegions.push(WorkUnit(region, regionDepth));
 	}
 }
 

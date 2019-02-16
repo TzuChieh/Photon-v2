@@ -258,10 +258,10 @@ void AdaptiveSamplingRenderer::asyncPeekFrame(
 			[&out_frame](const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& pixel)
 			{
 				HdrRgbFrame::Pixel mappedPixel;
-				mappedPixel[0] = std::log2(pixel[0] + 1) / 256.0_r;
-				mappedPixel[1] = std::log2(pixel[1] + 1) / 256.0_r;
-				mappedPixel[2] = std::log2(pixel[2] + 1) / 256.0_r;
-				out_frame.setPixel({x, y}, mappedPixel);
+				mappedPixel[0] = std::log2(pixel[0] + 1) / 128.0_r;
+				mappedPixel[1] = std::log2(pixel[1] + 1) / 128.0_r;
+				mappedPixel[2] = std::log2(pixel[2] + 1) / 128.0_r;
+				out_frame.setPixel({x, y}, mappedPixel.pow(1.5_r));
 			});
 	}
 	else

@@ -181,25 +181,24 @@ inline T log2_floor(const T value)
 
 #elif defined(PH_COMPILER_IS_CLANG) || defined(PH_COMPILER_IS_GCC)
 
-		int numLeftZeros = std::numeric_limits<int>::max();
 		if constexpr(sizeof(T) <= sizeof(unsigned int))
 		{
-			numLeftZeros = __builtin_clz(static_cast<unsigned int>(value));
+			const int numLeftZeros = __builtin_clz(static_cast<unsigned int>(value));
+			return static_cast<T>(sizeof(unsigned int) * CHAR_BIT - 1 - numLeftZeros);
 		}
 		else if constexpr(sizeof(T) <= sizeof(unsigned long))
 		{
-			numLeftZeros = __builtin_clzl(static_cast<unsigned long>(value));
+			const int numLeftZeros = __builtin_clzl(static_cast<unsigned long>(value));
+			return static_cast<T>(sizeof(unsigned long) * CHAR_BIT - 1 - numLeftZeros);
 		}
 		else
 		{
 			static_assert(sizeof(T) <= sizeof(unsigned long long),
 				"size of T is too large");
 
-			numLeftZeros = __builtin_clzll(static_cast<unsigned long long>(value));
+			const int numLeftZeros = __builtin_clzll(static_cast<unsigned long long>(value));
+			return static_cast<T>(sizeof(unsigned long long) * CHAR_BIT - 1 - numLeftZeros);
 		}
-		PH_ASSERT_IN_RANGE_INCLUSIVE(numLeftZeros, T(0), NUM_BITS - 1);
-
-		return NUM_BITS - 1 - static_cast<T>(numLeftZeros);
 
 #endif
 	}

@@ -15,7 +15,7 @@ public:
 	// Represents zero amount of work.
 	WorkUnit();
 
-	WorkUnit(const Region& region);
+	explicit WorkUnit(const Region& region);
 	WorkUnit(const Region& region, std::size_t depth);
 
 	Region getRegion() const;

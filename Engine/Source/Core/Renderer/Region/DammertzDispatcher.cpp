@@ -2,6 +2,8 @@
 #include "Common/assertion.h"
 #include "Core/Renderer/Region/GridScheduler.h"
 
+
+
 namespace ph
 {
 
@@ -16,24 +18,33 @@ DammertzDispatcher::DammertzDispatcher(
 	const uint32      numWorkers,
 	const Region&     fullRegion, 
 	const real        precisionStandard, 
-	const std::size_t depthPerRegion) : 
+	const std::size_t initialDepthPerRegion,
+	const std::size_t minSplittedVolume) :
 
 	m_pendingRegions    (),
 	m_fullRegion        (fullRegion)
 {
 	m_terminateThreshold = precisionStandard * 0.0002_r;
 	m_splitThreshold     = 256.0_r * m_terminateThreshold;
-	m_depthPerRegion     = depthPerRegion;
 
 	// divide the full region initially to facilitate parallelism
 
-	GridScheduler initialScheduler(numWorkers, WorkUnit(fullRegion, depthPerRegion));
+	GridScheduler initialScheduler(
+		numWorkers, 
+		WorkUnit(fullRegion, std::max(initialDepthPerRegion, std::size_t(1))));
 
+	std::size_t maxWorkVolume = 0;
 	WorkUnit workUnit;
 	while(initialScheduler.schedule(&workUnit))
 	{
-		m_pendingRegions.push(workUnit.getRegion());
+		m_pendingRegions.push(workUnit);
+
+		maxWorkVolume = std::max(workUnit.getVolume(), maxWorkVolume);
 	}
+	PH_ASSERT_GT(maxWorkVolume, 0);
+
+	m_minSplittedVolume = minSplittedVolume != 0 ? minSplittedVolume 
+	                                             : maxWorkVolume;
 }
 
 bool DammertzDispatcher::dispatch(WorkUnit* const out_workUnit)
@@ -45,10 +56,10 @@ bool DammertzDispatcher::dispatch(WorkUnit* const out_workUnit)
 		return false;
 	}
 
-	const Region newRegion = m_pendingRegions.front();
+	const WorkUnit newRegion = m_pendingRegions.front();
 	m_pendingRegions.pop();
 
-	*out_workUnit = WorkUnit(newRegion, m_depthPerRegion);
+	*out_workUnit = newRegion;
 	return true;
 }
 
