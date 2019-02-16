@@ -1,0 +1,13 @@
+/*! @mainpage Photon-v2 Renderer
+
+* *A physically-based renderer for ultra realistic image synthesis.*
+
+This site is meant for people who want to dive into the implementation details of the renderer. For 
+news, feature overview or other information, head over to the 
+[project homepage](https://tzuchieh.github.io/photon_v2_what_is_photon.html).
+
+@section releases Releases
+
+* v2.0.0 - [Release Note]() | [Docs](https://tzuchieh.github.io/engine_docs/v2.0.0/index.html)
+
+*/

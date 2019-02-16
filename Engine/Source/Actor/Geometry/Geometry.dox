@@ -1,0 +1,12 @@
+/*! @dir Geometry
+@brief Defines basic shapes.
+
+A standalone data container.
+
+If there is a ball in the scene, we can create a spherical geometry to represent
+its shape; if there is a piece of paper on the table, we can use a rectanguler
+geometry to model it. Geometries are the barebone of a scene: materials, lights,
+physical motions… are all built on top of geometries. They are basically the
+heart of a virtual world.
+
+*/

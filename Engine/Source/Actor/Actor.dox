@@ -1,0 +1,13 @@
+/*! @dir Actor
+@brief Entities that contribute to the final image directly.
+
+A composite data container.
+
+Actors are *composite data containers* and are a higher level concept than
+standalone data containers. In Photon, composite containers are often called
+actors since they usually contribute to the final image directly, in a sense
+similar to film actors. Little can be achieved if we have only standalone data
+containers at hand. The purpose of composite containers is to achieve aggregate
+behaviors on data blocks. 
+
+*/

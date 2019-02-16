@@ -1,0 +1,10 @@
+/*! @dir MotionSource
+@brief Describes movement of geometries.
+
+A standalone data container.
+
+Motion sources are capable of applying dynamic effects on geometries. If the
+camera in use has a finite shutter opening time, blurry images are produced due
+to the presence of object motion.
+
+*/

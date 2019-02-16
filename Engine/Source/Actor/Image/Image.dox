@@ -1,0 +1,10 @@
+/*! @dir Image
+@brief Defines image generating functions.
+
+A standalone data container.
+
+Other than simple LDR, HDR pictures, images should be seen as a table that
+contains static data or operations in Photon (modifier images such as RealMath
+can apply basic arithmetic operations on other images).
+
+*/

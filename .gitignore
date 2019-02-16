@@ -90,10 +90,16 @@ Resource/
 # ignore script output folder
 /scripts/output/
 
+# ignore generated docs
+doc/
+docs/
+
+# macOS
+.DS_Store
+
+###############################################################################
 # HACKING REGION
+###############################################################################
 
 # avoiding Eclipse generated src folder in root directory (Maven project)
 /src/
-
-# osx
-.DS_Store

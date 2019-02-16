@@ -1,0 +1,28 @@
+/*! @page directories Directories
+
+@brief An overview of engine directory structure.
+
+Photon's source code is organized into directories based on the functionalities
+they provide. The information listed here might help you to find what you are
+looking for if a quick search gives no useful results.
+
+@section root Root Directories
+
+Home of header and source files that provides functionalities Photon has to
+offer.
+
+- @ref Include
+- @ref Source
+
+@section data_containers Standalone/Composite Data Containers
+
+Raw data that after being cooked, contribute to the final image directly.
+
+- @ref Geometry
+- @ref Image
+- @ref LightSource
+- @ref Material
+- @ref MotionSource
+- @ref Actor
+
+*/

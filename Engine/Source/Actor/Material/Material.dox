@@ -1,0 +1,10 @@
+/*! @dir Material
+@brief Describes surface properties of geometries.
+
+A standalone data container.
+
+Materials are like the skin and flesh of geometries. They record surface and
+volume properties of a geometry, defining how a geometry will look like when
+light shines on them.
+
+*/

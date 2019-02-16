@@ -1,22 +1,23 @@
 #pragma once
 
-///////////////////////////////////////////////////////////////////////////////
-// 
-// To correctly use Photon-v2 API, please read the following notes:
-//
-// 1. phInit() and phExit() must be called before and after the use of the API,
-//    and should be called on the same thread.
-//
-// 2. phCreate/Delete<X>() and phAsync<X>() functions can be used in a
-//    multithreaded environment, namely, they are thread-safe. An exception
-//    would be that create & delete should be on the same thread.
-// 
-// 3. Resources created by phCreate<X>() cannot be manipulated 
-//    concurrently. Any function requiring some resource ID inputs 
-//    (except phAsync<X>() functions) is considered a resource 
-//    manipulating operation on those resources.
-// 
-///////////////////////////////////////////////////////////////////////////////
+/*! @file
+
+@brief Contains main APIs of the render engine.
+
+To correctly use Photon-v2 API, please read the following notes:
+
+- phInit() and phExit() must be called before and after the use of the API, and
+  should be called on the same thread.
+
+- phCreate/Delete<X>() and phAsync<X>() functions can be used in a multithreaded
+  environment, namely, they are thread-safe. An exception would be that create &
+  delete should be on the same thread.
+
+- Resources created by phCreate<X>() cannot be manipulated concurrently. Any
+  function requiring some resource ID inputs (except phAsync<X>() functions) is
+  considered a resource manipulating operation on those resources.
+
+*/
 
 // HACK
 //#define PH_EXPORT_API
@@ -125,7 +126,10 @@ extern PH_API int phExit();
 
 // TODO: remove the word "film" from develop functions
 
+/*! @brief Creates an engine.
+ */
 extern PH_API void phCreateEngine(PHuint64* out_engineId, const PHuint32 numRenderThreads);
+
 extern PH_API void phSetNumRenderThreads(PHuint64 engineId, const PHuint32 numRenderThreads);
 extern PH_API void phEnterCommand(PHuint64 engineId, const PHchar* commandFragment);
 extern PH_API void phRender(PHuint64 engineId);
