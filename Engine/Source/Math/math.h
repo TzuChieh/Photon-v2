@@ -157,6 +157,7 @@ inline uint32 log2_floor<uint32>(const uint32 value)
 	unsigned long first1BitFromLeftIndex;
 	const auto isIndexSet = _BitScanReverse(&first1BitFromLeftIndex, value);
 	PH_ASSERT_GT(isIndexSet, 0);
+	PH_ASSERT_IN_RANGE_INCLUSIVE(first1BitFromLeftIndex, 0, 31);
 
 	return first1BitFromLeftIndex;
 }
@@ -172,6 +173,7 @@ inline uint64 log2_floor<uint64>(const uint64 value)
 	unsigned long first1BitFromLeftIndex;
 	const auto isIndexSet = _BitScanReverse64(&first1BitFromLeftIndex, value);
 	PH_ASSERT_GT(isIndexSet, 0);
+	PH_ASSERT_IN_RANGE_INCLUSIVE(first1BitFromLeftIndex, 0, 63);
 
 	return first1BitFromLeftIndex;
 }
@@ -199,13 +201,14 @@ inline int64 log2_floor<int64>(const int64 value)
 template<>
 inline uint32 log2_floor<uint32>(const uint32 value)
 {
-	static_assert(sizeof(uint32) == sizeof(unsigned int), 
+	static_assert(sizeof(uint32) == sizeof(unsigned long), 
 		"expecting same size for conversion purposes");
 
 	PH_ASSERT_GT(value, uint32(0));
 
 	const int numLeftZeros = __builtin_clzl(value);
 	PH_ASSERT_GE(numLeftZeros, 0);
+	PH_ASSERT_IN_RANGE_INCLUSIVE(numLeftZeros, 0, 31);
 
 	return 31 - static_cast<uint32>(numLeftZeros);
 }
@@ -220,6 +223,7 @@ inline uint64 log2_floor<uint64>(const uint64 value)
 
 	const int numLeftZeros = __builtin_clzll(value);
 	PH_ASSERT_GE(numLeftZeros, 0);
+	PH_ASSERT_IN_RANGE_INCLUSIVE(numLeftZeros, 0, 63);
 
 	return 63 - static_cast<uint32>(numLeftZeros);
 }
