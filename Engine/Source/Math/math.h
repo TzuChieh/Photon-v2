@@ -15,9 +15,11 @@
 #include <array>
 #include <vector>
 #include <cstdint>
+#include <climits>
 
 #if defined(PH_COMPILER_IS_MSVC)
 	#include <intrin.h>
+	#pragma intrinsic(_BitScanReverse)
 #endif
 
 namespace ph
@@ -139,112 +141,69 @@ inline bool is_power_of_2(const T value)
 template<typename T>
 inline T log2_floor(const T value)
 {
-	PH_ASSERT_GT(value, T(0));
+	if constexpr(std::is_floating_point_v<T>)
+	{
+		PH_ASSERT_GT(value, T(0));
 
-	return static_cast<T>(std::floor(std::log2(value)));
-}
+		return static_cast<T>(std::floor(std::log2(value)));
+	}
+	else
+	{
+		constexpr T NUM_BITS = sizeof(T) * CHAR_BIT;
+
+		static_assert(std::is_integral_v<T>);
+
+		PH_ASSERT_GT(value, T(0));
 
 #if defined(PH_COMPILER_IS_MSVC)
 
-template<>
-inline uint32 log2_floor<uint32>(const uint32 value)
-{
-	static_assert(sizeof(uint32) == sizeof(unsigned long), 
-		"expecting same size for conversion purposes");
+		unsigned long first1BitFromLeftIndex = std::numeric_limits<unsigned long>::max();
+		if constexpr(sizeof(T) <= sizeof(unsigned long))
+		{
+			const auto isIndexSet = _BitScanReverse(
+				&first1BitFromLeftIndex, 
+				static_cast<unsigned long>(value));
+			PH_ASSERT_GT(isIndexSet, 0);
+		}
+		else
+		{
+			static_assert(sizeof(T) <= sizeof(unsigned __int64),
+				"size of T is too large");
 
-	PH_ASSERT_GT(value, uint32(0));
+			const auto isIndexSet = _BitScanReverse64(
+				&first1BitFromLeftIndex, 
+				static_cast<unsigned __int64>(value));
+			PH_ASSERT_GT(isIndexSet, 0);
+		}
+		PH_ASSERT_IN_RANGE_INCLUSIVE(first1BitFromLeftIndex, T(0), NUM_BITS - 1);
 
-	unsigned long first1BitFromLeftIndex;
-	const auto isIndexSet = _BitScanReverse(&first1BitFromLeftIndex, value);
-	PH_ASSERT_GT(isIndexSet, 0);
-	PH_ASSERT_IN_RANGE_INCLUSIVE(first1BitFromLeftIndex, 0, 31);
+		return static_cast<T>(first1BitFromLeftIndex);
 
-	return first1BitFromLeftIndex;
-}
+#elif defined(PH_COMPILER_IS_CLANG) || defined(PH_COMPILER_IS_GCC)
 
-template<>
-inline uint64 log2_floor<uint64>(const uint64 value)
-{
-	static_assert(sizeof(uint64) == sizeof(__int64),
-		"expecting same size for conversion purposes");
+		int numLeftZeros = std::numeric_limits<int>::max();
+		if constexpr(sizeof(T) <= sizeof(unsigned int))
+		{
+			numLeftZeros = __builtin_clz(static_cast<unsigned int>(value));
+		}
+		else if constexpr(sizeof(T) <= sizeof(unsigned long))
+		{
+			numLeftZeros = __builtin_clzl(static_cast<unsigned long>(value));
+		}
+		else
+		{
+			static_assert(sizeof(T) <= sizeof(unsigned long long),
+				"size of T is too large");
 
-	PH_ASSERT_GT(value, uint64(0));
+			numLeftZeros = __builtin_clzll(static_cast<unsigned long long>(value));
+		}
+		PH_ASSERT_IN_RANGE_INCLUSIVE(numLeftZeros, T(0), NUM_BITS - 1);
 
-	unsigned long first1BitFromLeftIndex;
-	const auto isIndexSet = _BitScanReverse64(&first1BitFromLeftIndex, value);
-	PH_ASSERT_GT(isIndexSet, 0);
-	PH_ASSERT_IN_RANGE_INCLUSIVE(first1BitFromLeftIndex, 0, 63);
-
-	return first1BitFromLeftIndex;
-}
-
-template<>
-inline int32 log2_floor<int32>(const int32 value)
-{
-	PH_ASSERT_GT(value, int32(0));
-
-	return static_cast<int32>(log2_floor<uint32>(value));
-}
-
-template<>
-inline int64 log2_floor<int64>(const int64 value)
-{
-	PH_ASSERT_GT(value, int64(0));
-
-	return static_cast<int64>(log2_floor<uint64>(value));
-}
+		return NUM_BITS - 1 - static_cast<T>(numLeftZeros);
 
 #endif
-
-#if defined(PH_COMPILER_IS_CLANG) || defined(PH_COMPILER_IS_GCC)
-
-template<>
-inline uint32 log2_floor<uint32>(const uint32 value)
-{
-	static_assert(sizeof(uint32) == sizeof(unsigned long), 
-		"expecting same size for conversion purposes");
-
-	PH_ASSERT_GT(value, uint32(0));
-
-	const int numLeftZeros = __builtin_clzl(value);
-	PH_ASSERT_GE(numLeftZeros, 0);
-	PH_ASSERT_IN_RANGE_INCLUSIVE(numLeftZeros, 0, 31);
-
-	return 31 - static_cast<uint32>(numLeftZeros);
+	}
 }
-
-template<>
-inline uint64 log2_floor<uint64>(const uint64 value)
-{
-	static_assert(sizeof(uint64) == sizeof(unsigned long long),
-		"expecting same size for conversion purposes");
-
-	PH_ASSERT_GT(value, uint64(0));
-
-	const int numLeftZeros = __builtin_clzll(value);
-	PH_ASSERT_GE(numLeftZeros, 0);
-	PH_ASSERT_IN_RANGE_INCLUSIVE(numLeftZeros, 0, 63);
-
-	return 63 - static_cast<uint32>(numLeftZeros);
-}
-
-template<>
-inline int32 log2_floor<int32>(const int32 value)
-{
-	PH_ASSERT_GT(value, int32(0));
-
-	return static_cast<int32>(log2_floor<uint32>(value));
-}
-
-template<>
-inline int64 log2_floor<int64>(const int64 value)
-{
-	PH_ASSERT_GT(value, int64(0));
-
-	return static_cast<int64>(log2_floor<uint64>(value));
-}
-
-#endif
 
 /*
 	Retrieve the fractional part of <value> (with the same sign 
