@@ -152,11 +152,9 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 				bitwise_cast<float, std::uint32_t>(suppliedFraction),
 				std::memory_order_relaxed);
 
-			// using sharp edge so work regions will not overlap
 			filmEstimator.setFilmDimensions(
 				TVector2<int64>(getRenderWidthPx(), getRenderHeightPx()),
-				workUnit.getRegion(), 
-				false);
+				workUnit.getRegion());
 
 			const auto filmDimensions = filmEstimator.getFilmDimensions();
 			renderWork.setSampleDimensions(
@@ -258,10 +256,10 @@ void AdaptiveSamplingRenderer::asyncPeekFrame(
 			[&out_frame](const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& pixel)
 			{
 				HdrRgbFrame::Pixel mappedPixel;
-				mappedPixel[0] = std::log2(pixel[0] + 1) / 128.0_r;
-				mappedPixel[1] = std::log2(pixel[1] + 1) / 128.0_r;
-				mappedPixel[2] = std::log2(pixel[2] + 1) / 128.0_r;
-				out_frame.setPixel({x, y}, mappedPixel.pow(1.5_r));
+				mappedPixel[0] = std::pow(std::log2(pixel[0] + 1) / 14.0_r, 16.0_r);
+				mappedPixel[1] = std::pow(std::log2(pixel[1] + 1) / 14.0_r, 16.0_r);
+				mappedPixel[2] = std::pow(std::log2(pixel[2] + 1) / 14.0_r, 16.0_r);
+				out_frame.setPixel({x, y}, mappedPixel);
 			});
 	}
 	else
@@ -370,12 +368,6 @@ AdaptiveSamplingRenderer::AdaptiveSamplingRenderer(const InputPacket& packet) :
 	{
 		m_estimator = std::make_unique<BNEEPTEstimator>();
 	}
-
-	/*const std::string regionSchedulerName = packet.getString("region-scheduler", "bulk");
-	if(regionSchedulerName == "bulk")
-	{
-		m_workScheduler = std::make_unique<PlateScheduler>();
-	}*/
 
 	PH_ASSERT(m_estimator);
 

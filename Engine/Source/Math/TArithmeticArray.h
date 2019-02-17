@@ -44,6 +44,7 @@ public:
 	TArithmeticArray& divLocal(const TArithmeticArray& rhs);
 	TArithmeticArray& divLocal(T rhs);
 
+	// TODO: should support floating point pow
 	TArithmeticArray pow(integer exponent) const;
 	TArithmeticArray& sqrtLocal();
 

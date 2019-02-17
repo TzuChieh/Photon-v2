@@ -24,8 +24,7 @@ a given ray is intersecting a triangle for the rest of the system to work.
 Remember that we can also model the table and mug using other shapes such as
 quads, they should support the same operation set as triangles. Photon supports
 many kinds of *object* that can be intersected by rays, such as just-mentioned
-triangles and quads, and they are named after their capability:
-**intersectable**.
+triangles and quads, and they are named after their capability "intersectable".
 */
 class Intersectable
 {

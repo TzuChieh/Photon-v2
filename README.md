@@ -15,14 +15,15 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
 
 ## Useful Links
 
-* [**Project Website**](https://tzuchieh.github.io/)
-* [**Features**](https://tzuchieh.github.io/features_overview.html)
-* [**Roadmap**](https://tzuchieh.github.io/roadmap.html)
+* [**Project Website**](https://tzuchieh.github.io/photon_v2_what_is_photon.html)
+* [**Features**](https://tzuchieh.github.io/photon_v2_features.html)
+* [**Discord**](https://discord.gg/tqkdSDt)
 
 ## Contributing
 
-* [**Build from Source**](https://tzuchieh.github.io/core_engine_contributing_build_from_source.html)
-* [**Coding Standards**](https://tzuchieh.github.io/core_engine_contributing_coding_standard.html)
+* [**Build from Source**](https://tzuchieh.github.io/photon_v2_build_from_source.html)
+* [**Coding Standards**](https://tzuchieh.github.io/photon_v2_coding_standard.html)
+* [**Documentation**](https://tzuchieh.github.io/engine_docs/v2.0.0/index.html)
 
 If you want to get involved and is looking for a place to start, the [issues](https://github.com/TzuChieh/Photon-v2/issues) page might be of interest to you. I am glad to provide detailed guidance on any of them.
 
@@ -32,7 +33,7 @@ The scene description language (SDL) designed by T.C. Chang can be stored into a
 
 ## About the Author
 
-**[Development Blog](https://tzuchieh.github.io/) | [YouTube Channel](https://www.youtube.com/channel/UCKdlogjqjuFsuv06wajp-2g) | [Facebook Page](https://www.facebook.com/tccthedeveloper/)**
+**[Development Blog](https://tzuchieh.github.io/blog.html) | [YouTube Channel](https://www.youtube.com/channel/UCKdlogjqjuFsuv06wajp-2g) | [Facebook Page](https://www.facebook.com/tccthedeveloper/)**
 
 If you use Photon in your research project, you are hightly encouraged to cite it using the following BibTeX template:
 

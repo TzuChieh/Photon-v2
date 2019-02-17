@@ -23,7 +23,7 @@ public:
 
 	void genPrimitive(
 		const PrimitiveBuildingMaterial& data,
-		std::vector<std::unique_ptr<Primitive>>& out_primitives) const;
+		std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
 
 	std::shared_ptr<Geometry> genTriangulated() const override;
 

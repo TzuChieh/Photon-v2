@@ -339,7 +339,8 @@ inline bool TAABB3D<T>::isPoint() const
 template<typename T>
 inline bool TAABB3D<T>::isFiniteVolume() const
 {
-	return std::isnormal(getVolume());
+	const T volume = getVolume();
+	return volume > 0 && !std::isinf(volume);
 }
 
 template<typename T>
