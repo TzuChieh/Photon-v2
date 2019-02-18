@@ -59,7 +59,7 @@ private:
 	DammertzDispatcher                    m_dispatcher;
 	std::vector<uint32>                   m_freeWorkerIds;
 	real                                  m_precisionStandard;
-	std::size_t                           m_numPathsPerRegion;
+	std::size_t                           m_minSamplesPerRegion;
 	HdrRgbFrame                           m_allEffortFrame;
 	HdrRgbFrame                           m_halfEffortFrame;
 

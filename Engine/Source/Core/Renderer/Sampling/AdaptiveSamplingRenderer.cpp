@@ -85,7 +85,7 @@ void AdaptiveSamplingRenderer::doUpdate(const SdlResourcePack& data)
 		numWorkers(),
 		getRenderWindowPx(),
 		m_precisionStandard,
-		m_numPathsPerRegion);
+		m_minSamplesPerRegion);
 
 	m_freeWorkerIds.clear();
 	m_freeWorkerIds.reserve(numWorkers());
@@ -196,9 +196,10 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 			{
 				std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-				addUpdatedRegion(filmEstimator.getFilmEffectiveWindowPx(), false);
 				m_dispatcher.addAnalyzedData(analyzer);
 				m_numNoisyRegions.store(static_cast<uint32>(m_dispatcher.numPendingRegions()), std::memory_order_relaxed);
+
+				addUpdatedRegion(workUnit.getRegion(), false);
 			}
 
 			m_submittedFractionBits.store(
@@ -374,7 +375,7 @@ AdaptiveSamplingRenderer::AdaptiveSamplingRenderer(const InputPacket& packet) :
 	// DEBUG
 	//m_precisionStandard = packet.getReal("precision-standard", 1.0_r);
 	m_precisionStandard = packet.getReal("precision-standard", 2.0_r);
-	m_numPathsPerRegion = packet.getInteger("paths-per-region", 16);
+	m_minSamplesPerRegion = packet.getInteger("min-samples-per-region", 128);
 }
 
 SdlTypeInfo AdaptiveSamplingRenderer::ciTypeInfo()

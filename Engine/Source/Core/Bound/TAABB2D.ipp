@@ -59,6 +59,8 @@ inline bool TAABB2D<T>::isIntersectingRange(const TVector2<T>& point) const
 template<typename T>
 inline T TAABB2D<T>::calcArea() const
 {
+	PH_ASSERT_MSG(isValid(), toString());
+
 	return getWidth() * getHeight();
 }
 

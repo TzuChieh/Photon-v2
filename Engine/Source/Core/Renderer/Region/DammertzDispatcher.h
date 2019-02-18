@@ -52,8 +52,15 @@ public:
 		uint32        numWorkers,
 		const Region& fullRegion, 
 		real          precisionStandard, 
+		std::size_t   initialDepthPerRegion);
+
+	DammertzDispatcher(
+		uint32        numWorkers,
+		const Region& fullRegion,
+		real          precisionStandard,
 		std::size_t   initialDepthPerRegion,
-		std::size_t   minSplittedVolume = 0);
+		std::size_t   standardDepthPerRegion,
+		std::size_t   terminusDepthPerRegion);
 
 	bool dispatch(WorkUnit* out_workUnit) override;
 
@@ -76,6 +83,8 @@ public:
 			const HdrRgbFrame& allEffortFrame,
 			const HdrRgbFrame& halfEffortFrame);
 
+		bool isConverged() const;
+
 	private:
 		TAnalyzer(
 			real splitThreshold,
@@ -92,15 +101,16 @@ public:
 	};
 
 private:
-	constexpr static std::size_t MIN_REGION_AREA = 16 * 16;
+	constexpr static std::size_t MIN_REGION_AREA = 256;
 
 	real                 m_splitThreshold;
 	real                 m_terminateThreshold;
-	std::size_t          m_minSplittedVolume;
-	std::queue<WorkUnit> m_pendingRegions;
+	std::size_t          m_standardDepthPerRegion;
+	std::size_t          m_terminusDepthPerRegion;
 	Region               m_fullRegion;
+	std::queue<WorkUnit> m_pendingRegions;
 
-	void addPendingRegion(const Region& region);
+	void addAnalyzedRegion(const Region& region);
 };
 
 // In-header Implementations:
@@ -118,8 +128,8 @@ template<DammertzDispatcher::ERefineMode MODE>
 inline void DammertzDispatcher::addAnalyzedData(const TAnalyzer<MODE>& analyzer)
 {
 	const auto nextRegions = analyzer.getNextRegions();
-	addPendingRegion(nextRegions.first);
-	addPendingRegion(nextRegions.second);
+	addAnalyzedRegion(nextRegions.first);
+	addAnalyzedRegion(nextRegions.second);
 }
 
 template<DammertzDispatcher::ERefineMode MODE>
@@ -140,22 +150,16 @@ inline std::size_t DammertzDispatcher::numPendingRegions() const
 	return m_pendingRegions.size();
 }
 
-inline void DammertzDispatcher::addPendingRegion(const Region& region)
-{
-	if(region.isArea())
-	{
-		const std::size_t regionDepth = math::ceil_div_positive(
-			m_minSplittedVolume, static_cast<std::size_t>(region.calcArea()));
-		PH_ASSERT_GT(regionDepth, 0);
-
-		m_pendingRegions.push(WorkUnit(region, regionDepth));
-	}
-}
-
 template<DammertzDispatcher::ERefineMode MODE>
 inline std::pair<Region, Region> DammertzDispatcher::TAnalyzer<MODE>::getNextRegions() const
 {
 	return m_nextRegions;
+}
+
+template<DammertzDispatcher::ERefineMode MODE>
+inline bool DammertzDispatcher::TAnalyzer<MODE>::isConverged() const
+{
+	return !m_nextRegions.first.isArea() && !m_nextRegions.second.isArea();
 }
 
 template<>
@@ -334,6 +338,21 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 		// error is very small, no further effort needed
 		m_nextRegions.first  = Region({0, 0});
 		m_nextRegions.second = Region({0, 0});
+	}
+}
+
+inline void DammertzDispatcher::addAnalyzedRegion(const Region& region)
+{
+	if(region.isArea())
+	{
+		if(region.calcArea() <= MIN_REGION_AREA)
+		{
+			m_pendingRegions.push(WorkUnit(region, m_terminusDepthPerRegion));
+		}
+		else
+		{
+			m_pendingRegions.push(WorkUnit(region, m_standardDepthPerRegion));
+		}
 	}
 }
 
