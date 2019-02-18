@@ -27,6 +27,7 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -46,7 +47,6 @@ import photonApi.FrameStatus;
 
 public class RenderProjectCtrl
 {
-	@FXML private VBox              projectOverviewVbox;
 	@FXML private TitledPane        projectOverviewPane;
 	@FXML private TextField         sceneFileTextField;
 	@FXML private ProgressBar       renderProgressBar;
@@ -61,6 +61,7 @@ public class RenderProjectCtrl
 	@FXML private ChoiceBox<String> imageFileSaveFormat;
 	@FXML private TextField         imageFileSaveName;
 	@FXML private AnchorPane        displayInfoPane;
+	@FXML private CheckBox          showChangedRegionCheckbox;
     
     private RenderStatusCtrl    m_renderStatusCtrl;
     private RenderFrameView     m_renderFrameView;
@@ -122,7 +123,12 @@ public class RenderProjectCtrl
 				
 				if(status == FrameStatus.UPDATING)
 				{
-					m_display.drawIndicator(frame.getRegion());
+					m_display.drawIndicator(frame.getRegion(), 0, 255, 0);
+				}
+				
+				if(showChangedRegionCheckbox.isSelected())
+				{
+					m_display.drawIndicator(frame.getRegion(), 135, 206, 250);
 				}
 			}
 			

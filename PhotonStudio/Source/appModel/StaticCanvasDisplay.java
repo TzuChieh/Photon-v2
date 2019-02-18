@@ -111,10 +111,10 @@ public class StaticCanvasDisplay extends Display
 	}
 	
 	@Override
-	public void drawIndicator(Rectangle region)
+	public void drawIndicator(Rectangle region, int r255, int g255, int b255)
 	{
 		final GraphicsContext g = m_canvas.getGraphicsContext2D();
-		g.setFill(new Color(0, 1, 0, 1));
+		g.setFill(new Color(r255 / 255.0, g255 / 255.0, b255 / 255.0, 1));
 		
 		AABB2D rect = toCanvasRegion(region);
 		
@@ -214,9 +214,6 @@ public class StaticCanvasDisplay extends Display
 		// FIXME: centered and fitted frame assumed
 		Vector2f drawResPx = getFittedDrawResPx();
 		Vector2f originPx  = getCenteredOriginPx(drawResPx);
-		
-		final GraphicsContext g = m_canvas.getGraphicsContext2D();
-		g.setFill(new Color(0, 1, 0, 1));
 		
 		AABB2D canvasRegion = new AABB2D(
 			new Vector2f(

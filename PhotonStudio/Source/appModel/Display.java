@@ -20,7 +20,7 @@ public abstract class Display
 	
 	public abstract void loadFrame(FrameRegion frame);
 	public abstract void drawFrame(Rectangle region);
-	public abstract void drawIndicator(Rectangle region);
+	public abstract void drawIndicator(Rectangle region, int r255, int g255, int b255);
 	public abstract void drawFlood();
 	
 	public abstract BufferedImage getImage();
