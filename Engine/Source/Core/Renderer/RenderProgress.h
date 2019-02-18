@@ -46,9 +46,7 @@ inline RenderProgress::RenderProgress(
 	m_totalWork(totalWork),
 	m_workDone(workDone),
 	m_elapsedMs(elapsedMs)
-{
-	PH_ASSERT_GE(m_totalWork, m_workDone);
-}
+{}
 
 inline std::size_t RenderProgress::getTotalWork() const
 {
