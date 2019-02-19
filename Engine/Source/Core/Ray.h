@@ -16,8 +16,8 @@ Points $\vec{P}$ on a ray can be modeled using the equation
 $$\vec{P}=\vec{O}+t\vec{D}$$
 
 where $\vec{O}$ is ray origin and $\vec{D}$ is ray direction, and $t$ is a
-parameter in $[t_{min}, t_{max}]$. This class also records the time the ray was set
-on.
+parameter in $[t_{min}, t_{max}]$. This class also records the time the ray was
+set on. Note the direction vector of the ray does not need to be normalized.
 */
 class Ray final
 {
@@ -25,9 +25,27 @@ public:
 	class Differential;
 
 public:
+	/*! @brief A ray which state is unspecified.
+	*/
 	Ray();
+
+	/*! @brief A longest possible ray.
+
+	@param direction Does not need to be normalized.
+	*/
 	Ray(const Vector3R& origin, const Vector3R& direction);
+
+	/*! @brief A ray segment.
+
+	@param minT Parametric distance where the ray begins.
+	@param maxT Parametric distance where the ray ends.
+	*/
 	Ray(const Vector3R& origin, const Vector3R& direction, real minT, real maxT);
+
+	/*! @copydoc Ray::Ray(const Vector3R&, const Vector3R&, real, real)
+
+	@param time The associated time of this ray.
+	*/
 	Ray(const Vector3R& origin, const Vector3R& direction, real minT, real maxT, const Time& time);
 
 	/*! @brief Points this ray in opposite direction.
@@ -37,19 +55,42 @@ public:
 	*/
 	Ray& reverse();
 
-	void      setMinT(const real t);
-	void      setMaxT(const real t);
-	void      setTime(const Time& time);
-	void      setDirection(const Vector3R& dir);
-	void      setOrigin(const Vector3R& pos);
+	/*! @brief Sets the parametric distance where the ray starts.
+	*/
+	void setMinT(const real t);
+
+	/*! @brief Sets the parametric distance where the ray ends.
+	*/
+	void setMaxT(const real t);
+
+	/*! @brief Sets the associated time of this ray.
+	*/
+	void setTime(const Time& time);
+
+	/*! @brief Sets the direction vector of this ray.
+
+	Note that the ray does not need to be normalized.
+	*/
+	void setDirection(const Vector3R& dir);
+
+	/*! @brief Sets the origin of the ray.
+	*/
+	void setOrigin(const Vector3R& pos);
+
     Vector3R& getOrigin();
 	Vector3R& getDirection();
 
+	/*! @name Getters
+
+	Simple getters for ray attributes. See corresponding setters for more info.
+	*/
+	///@{
 	const Vector3R& getOrigin() const;
 	const Vector3R& getDirection() const;
 	const Time&     getTime() const;
 	real            getMinT() const;
 	real            getMaxT() const;
+	///@}
 
 private:
 	Vector3R m_origin;

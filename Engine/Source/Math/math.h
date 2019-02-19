@@ -1,5 +1,14 @@
 #pragma once
 
+/*! @file
+
+@brief Miscellaneous math utilities.
+
+If the standard library has the same/similar math utility defined, prefer the
+implementation here since most of them is developed with performance regarding
+to rendering in mind.
+*/
+
 #include "Common/primitive_type.h"
 #include "Math/constant.h"
 #include "Math/math_fwd.h"
@@ -65,37 +74,44 @@ void form_orthonormal_basis_frisvad(const Vector3R& unitYaxis, Vector3R* const o
 // value is clamped to lower bound. Neither lower bound or upper bound 
 // can be NaN, or the method's behavior is undefined.
 
+/*! @brief Clamps a integer value in [lowerBound, upperBound].
+*/
 template<typename T, std::enable_if_t<!std::is_floating_point_v<T>, int> = 0>
 inline T clamp(const T value, const T lowerBound, const T upperBound)
 {
 	return std::min(upperBound, std::max(value, lowerBound));
 }
 
+/*! @brief Clamps a float value in [lowerBound, upperBound].
+*/
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
 inline T clamp(const T value, const T lowerBound, const T upperBound)
 {
 	return std::fmin(upperBound, std::fmax(value, lowerBound));
 }
 
+/*! @brief Convert radians to degrees.
+*/
 template<typename T>
 inline T to_degrees(const T radians)
 {
 	return radians * static_cast<T>(PH_RECI_PI * 180.0);
 }
 
+/*! @brief Convert degrees to radians.
+*/
 template<typename T>
 inline T to_radians(const T degrees)
 {
 	return degrees * static_cast<T>(PH_PI / 180.0);
 }
 
-/*
-	Extract the sign of a value (branchless).
-	If the provided value is comparable to 0:
-	returns ( 1) when (value  > 0),
-	returns (-1) when (value  < 0),
-	returns ( 0) when (value == 0).
-	(Note that the target value is passed by value.)
+/*! @brief Extract the sign of @p value.
+
+@return 1 when @p value > 0; -1 when @p value < 0; 0 when @p value == 0
+
+Function is defined only if the provided value is comparable to 0. Note that the
+input is passed by value. (current implementation is branchless)
 */
 template<typename T>
 inline int sign(const T value)
@@ -103,12 +119,12 @@ inline int sign(const T value)
 	return (static_cast<T>(0) < value) - (static_cast<T>(0) > value);
 }
 
-/*
-	Returns the a power of 2 value that is >= <value>. Note that if
-	<value> is 0, then 0 will be returned.
-	
-	Reference:
-	Stanford CG Lab's webpage: "Bit Twiddling Hacks" by Sean Eron Anderson
+/*! @brief Gets the minimum power of 2 value that is >= @p value.
+
+Note that if @p is 0, then 0 will be returned.
+
+Reference:
+Stanford CG Lab's webpage: "Bit Twiddling Hacks" by Sean Eron Anderson
 */
 inline uint32 next_power_of_2(uint32 value)
 {
@@ -125,8 +141,7 @@ inline uint32 next_power_of_2(uint32 value)
 	return value + 1;
 }
 
-/*
-	Determines whether <value> is a power of 2 number.
+/*! @brief Determines whether @p value is a power of 2 number.
 */
 template<typename T>
 inline bool is_power_of_2(const T value)
@@ -134,9 +149,9 @@ inline bool is_power_of_2(const T value)
 	return (value > 0) && !(value & (value - 1));
 }
 
-/*
-	Calculate a positive number's base 2 logarithm (floored).
-	<input> should be > 0, or the behavior of this method is undefined.
+/*! @brief Calculate a positive number's base 2 logarithm (floored).
+
+@param value Should be > 0, or the behavior of this method is undefined.
 */
 template<typename T>
 inline T log2_floor(const T value)
@@ -204,11 +219,11 @@ inline T log2_floor(const T value)
 	}
 }
 
-/*
-	Retrieve the fractional part of <value> (with the same sign 
-	as <value>). The result is not guaranteed to be the same as the bit 
-	representation of <value>'s fractional part.
-	The result is undefined if input value is NaN or +-Inf.
+/*! @brief Retrieve the fractional part of @p value (with the sign unchanged).
+
+The result is not guaranteed to be the same as the bit representation of
+<value>'s fractional part. The result is undefined if input value is NaN or
++-Inf.
 */
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
 inline T fractional_part(const T value)
@@ -217,15 +232,20 @@ inline T fractional_part(const T value)
 	return static_cast<T>(std::modf(static_cast<long double>(value), &integralPart));
 }
 
-// Solves Ax = b where A is a 2x2 matrix and x & b are 2x1 vectors. If x
-// is successfully solved, method returns true and <out_x> stores the 
-// answer; otherwise, false is returned and what <out_x> stores is undefined.
-//
+/*! @brief Solves linear systems of the form Ax = b.
+
+@param A A 2x2 matrix.
+@param b A 2x1 vector.
+@param[out] out_x A 2x1 vector.
+@return If x is successfully solved, method returns `true` and @p out_x stores
+the answer; otherwise, `false` is returned and what @p out_x stores is
+undefined.
+*/
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
 inline bool solve_linear_system_2x2(
 	const std::array<std::array<T, 2>, 2>& A,
-	const std::array<T, 2>& b,
-	std::array<T, 2>* const out_x)
+	const std::array<T, 2>&                b,
+	std::array<T, 2>* const                out_x)
 {
 	PH_ASSERT(!std::numeric_limits<T>::is_integer);
 
@@ -242,9 +262,9 @@ inline bool solve_linear_system_2x2(
 	return true;
 }
 
-/*
-	Wraps an integer around [lower-bound, upper-bound].
-	For example, given a bound [-1, 2], 3 will be wrapped to -1.
+/*! @brief Wraps an integer around [lower-bound, upper-bound].
+	
+For example, given a bound [-1, 2], 3 will be wrapped to -1.
 */
 template<typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0>
 inline T wrap(T value, const T lowerBound, const T upperBound)
@@ -266,6 +286,8 @@ inline T wrap(T value, const T lowerBound, const T upperBound)
 //
 bool is_same_hemisphere(const Vector3R& vector, const Vector3R& N);
 
+/*! @brief Multiplies all values together within a container.
+*/
 template<typename T>
 inline T product(const std::vector<T>& values)
 {
@@ -295,13 +317,15 @@ inline GBType byte_to_GB(const ByteType numBytes)
 	return static_cast<GBType>(numBytes) / GBType(1024 * 1024 * 1024);
 }
 
+
+/*! @brief Gets the i-th evenly divided range.
+
+Gets the i-th range [beginIndex, endIndex) which is the result of dividing
+<totalSize> into <numDivisions> parts as evenly as possible.
+*/
 // TODO: it is possible to generalize to signed range
 //       maybe use ith_evenly_divided_size() as function name and 
 //       ith_evenly_divided_range() for signed/unsigned range
-/*
-	Gets the i-th range [beginIndex, endIndex) which is the result of dividing
-	<totalSize> into <numDivisions> parts as evenly as possible.
-*/
 inline std::pair<std::size_t, std::size_t> ith_evenly_divided_range(
 	const std::size_t rangeIndex, 
 	const std::size_t totalSize,
@@ -314,11 +338,12 @@ inline std::pair<std::size_t, std::size_t> ith_evenly_divided_range(
 	        (rangeIndex + 1) * totalSize / numDivisions};
 }
 
-/*
-	Computes 1/sqrt(x) in a fast but approximative way. This method is best
-	known for its implementation in Quake III Arena (1999). Here the implementation
-	follows what described in the referenced paper, which uses a slightly 
-	better (in terms of maximal relative error) magic number. 
+/*! @brief Computes 1/sqrt(x) in a fast but approximative way.
+
+	This method is best known for its implementation in Quake III Arena (1999).
+	Here the implementation follows what described in the referenced paper,
+	which uses a slightly better (in terms of maximal relative error) magic
+	number. 
 
 	Reference: http://www.lomont.org/Math/Papers/2003/InvSqrt.pdf
 */
@@ -348,11 +373,17 @@ inline float fast_rcp_sqrt(float x)
 	return x;
 }
 
+/*! @brief Computes sqrt(x) in a fast but approximative way.
+*/
 inline float fast_sqrt(float x)
 {
 	return fast_rcp_sqrt(x) * x;
 }
 
+/*! @brief Divide @p numerator by @p denominator and round up to integer.
+
+Both inputs must be an integer.
+*/
 template<typename Integer, typename = std::enable_if_t<std::is_integral_v<Integer>>>
 inline Integer ceil_div_positive(const Integer numerator, const Integer denominator)
 {
