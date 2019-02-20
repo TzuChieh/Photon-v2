@@ -69,7 +69,7 @@ public:
 
 	/*! @brief Sets the direction vector of this ray.
 
-	Note that the ray does not need to be normalized.
+	Note that the vector does not need to be normalized.
 	*/
 	void setDirection(const Vector3R& dir);
 

@@ -18,11 +18,11 @@ offer.
 
 Raw data that after being cooked, contribute to the final image directly.
 
-- @ref Geometry
-- @ref Image
-- @ref LightSource
-- @ref Material
-- @ref MotionSource
-- @ref Actor
+- @ref Source/Actor/Geometry
+- @ref Source/Actor/Image
+- @ref Source/Actor/LightSource
+- @ref Source/Actor/Material
+- @ref Source/Actor/MotionSource
+- @ref Source/Actor
 
 */

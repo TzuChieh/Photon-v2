@@ -382,7 +382,7 @@ inline float fast_sqrt(float x)
 
 /*! @brief Divide @p numerator by @p denominator and round up to integer.
 
-Both inputs must be an integer.
+Both inputs must be a positive integer.
 */
 template<typename Integer, typename = std::enable_if_t<std::is_integral_v<Integer>>>
 inline Integer ceil_div_positive(const Integer numerator, const Integer denominator)
