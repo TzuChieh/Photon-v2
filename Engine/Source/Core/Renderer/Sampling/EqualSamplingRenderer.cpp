@@ -61,7 +61,7 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 	m_renderWorks.resize(numWorkers());
 	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
 	{
-		m_filmEstimators[workerId] = FilmEnergyEstimator(1, 1, integrand, m_filter);
+		m_filmEstimators[workerId] = FilmEstimator(1, 1, integrand, m_filter);
 		m_filmEstimators[workerId].addEstimator(m_estimator.get());
 		m_filmEstimators[workerId].addFilmEstimation(0, 0);
 

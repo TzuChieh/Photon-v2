@@ -21,7 +21,6 @@
 #include "Core/LTABuildingBlock/RussianRoulette.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Core/Estimator/Integrand.h"
-#include "Core/Estimator/EnergyEstimation.h"
 
 #include <iostream>
 

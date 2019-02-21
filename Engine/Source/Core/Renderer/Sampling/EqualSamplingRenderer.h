@@ -4,10 +4,11 @@
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Filmic/SampleFilter.h"
 #include "Core/Renderer/Sampling/CameraSamplingWork.h"
-#include "Core/Renderer/Sampling/FilmEnergyEstimator.h"
+#include "Core/Renderer/Sampling/TCameraMeasurementEstimator.h"
 #include "Core/Estimator/FullRayEnergyEstimator.h"
 #include "Core/Renderer/Region/WorkScheduler.h"
 #include "Core/Renderer/Sampling/MetaRecordingProcessor.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <vector>
 #include <memory>
@@ -39,6 +40,8 @@ public:
 	ObservableRenderData getObservableData() const override;
 
 private:
+	using FilmEstimator = TCameraMeasurementEstimator<HdrRgbFilm, SpectralStrength>;
+
 	const Scene*                   m_scene;
 	const Camera*                  m_camera;
 	SampleGenerator*               m_sampleGenerator;
@@ -48,7 +51,7 @@ private:
 
 	std::unique_ptr<FullRayEnergyEstimator> m_estimator;
 	std::vector<CameraSamplingWork>         m_renderWorks;
-	std::vector<FilmEnergyEstimator>        m_filmEstimators;
+	std::vector<FilmEstimator>              m_filmEstimators;
 	std::vector<MetaRecordingProcessor>     m_metaRecorders;
 
 	struct UpdatedRegion

@@ -7,8 +7,9 @@
 #include "Core/Renderer/Region/GridScheduler.h"
 #include "Core/Renderer/Sampling/CameraSamplingWork.h"
 #include "Frame/TFrame.h"
-#include "Core/Renderer/Sampling/StepperFilmEnergyEstimator.h"
+#include "Core/Renderer/Sampling/TStepperCameraMeasurementEstimator.h"
 #include "Core/Renderer/Sampling/MetaRecordingProcessor.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 #include <memory>
 #include <queue>
@@ -39,6 +40,8 @@ public:
 	ObservableRenderData getObservableData() const override;
 
 private:
+	using FilmEstimator = TStepperCameraMeasurementEstimator<HdrRgbFilm, SpectralStrength>;
+
 	constexpr static auto REFINE_MODE = DammertzDispatcher::ERefineMode::MIN_ERROR_DIFFERENCE;
 	//constexpr static auto REFINE_MODE = DammertzDispatcher::ERefineMode::MIDPOINT;
 
@@ -51,7 +54,7 @@ private:
 
 	std::unique_ptr<FullRayEnergyEstimator> m_estimator;
 	std::vector<CameraSamplingWork>         m_renderWorks;
-	std::vector<StepperFilmEnergyEstimator> m_filmEstimators;
+	std::vector<FilmEstimator>              m_filmEstimators;
 
 	std::vector<MetaRecordingProcessor> m_metaRecorders;
 	HdrRgbFrame m_metaFrame;

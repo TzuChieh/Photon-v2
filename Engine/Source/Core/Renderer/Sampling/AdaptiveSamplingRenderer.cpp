@@ -66,7 +66,7 @@ void AdaptiveSamplingRenderer::doUpdate(const SdlResourcePack& data)
 	m_renderWorks.resize(numWorkers());
 	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
 	{
-		m_filmEstimators[workerId] = StepperFilmEnergyEstimator(2, 1, integrand, m_filter);
+		m_filmEstimators[workerId] = FilmEstimator(2, 1, integrand, m_filter);
 		m_filmEstimators[workerId].addEstimator(m_estimator.get());
 		m_filmEstimators[workerId].addFilmEstimation(0, 0);
 		m_filmEstimators[workerId].addFilmEstimation(1, 0);
@@ -374,7 +374,7 @@ AdaptiveSamplingRenderer::AdaptiveSamplingRenderer(const InputPacket& packet) :
 
 	// DEBUG
 	//m_precisionStandard = packet.getReal("precision-standard", 1.0_r);
-	m_precisionStandard = packet.getReal("precision-standard", 2.0_r);
+	m_precisionStandard = packet.getReal("precision-standard", 0.5_r);
 	m_minSamplesPerRegion = packet.getInteger("min-samples-per-region", 128);
 }
 

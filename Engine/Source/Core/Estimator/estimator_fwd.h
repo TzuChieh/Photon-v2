@@ -3,6 +3,10 @@
 namespace ph
 {
 
+
+template<typename EstimationType>
+class TIRayEstimator;
+
 class IRayEnergyEstimator;
 
 class FullRayEnergyEstimator;

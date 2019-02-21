@@ -1,23 +1,22 @@
 #pragma once
 
+#include "Core/Estimator/TIRayEstimator.h"
+#include "Core/Quantity/SpectralStrength.h"
+
 namespace ph
 {
 
-class Ray;
-class Integrand;
-class EnergyEstimation;
-
-class IRayEnergyEstimator
+class IRayEnergyEstimator : public TIRayEstimator<SpectralStrength>
 {
 public:
-	virtual ~IRayEnergyEstimator() = default;
+	using EnergyEstimation = TEstimationArray<SpectralStrength>;
 
-	virtual void update(const Integrand& integrand) = 0;
+	void update(const Integrand& integrand) override = 0;
 
-	virtual void estimate(
+	void estimate(
 		const Ray&        ray, 
 		const Integrand&  integrand, 
-		EnergyEstimation& out_estimation) const = 0;
+		EnergyEstimation& out_estimation) const override = 0;
 };
 
 }// end namespace ph

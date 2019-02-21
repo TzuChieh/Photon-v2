@@ -15,7 +15,6 @@
 #include "FileIO/SDL/InputPacket.h"
 #include "Math/TVector3.h"
 #include "Core/Quantity/SpectralStrength.h"
-#include "Core/Estimator/EnergyEstimation.h"
 #include "Core/Estimator/Integrand.h"
 
 #include <iostream>
