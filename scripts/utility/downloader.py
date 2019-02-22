@@ -4,7 +4,7 @@ import os
 import time
 
 
-def download_file(src_file_url, dst_file_path, max_retry=5):
+def download_file(src_file_url, dst_file_path, max_retry=10):
 
 	print("Downloading file %s..." % dst_file_path)
 
@@ -19,8 +19,8 @@ def download_file(src_file_url, dst_file_path, max_retry=5):
 		except:
 			if num_retry < max_retry:
 				print("Error downloading file, remaining trials: %d" % (max_retry - num_retry))
-				print("Download will restart after 15 secs")
-				time.sleep(15)
+				print("Download will restart after 30 secs")
+				time.sleep(30)
 				num_retry = num_retry + 1
 				continue
 			else:
