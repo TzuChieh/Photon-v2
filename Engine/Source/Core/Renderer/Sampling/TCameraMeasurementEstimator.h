@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Core/Renderer/Sampling/ISensedRayProcessor.h"
-#include "Core/Filmic/TSamplingFilm.h"
 #include "Core/Estimator/estimator_fwd.h"
 #include "Common/assertion.h"
 #include "Core/Estimator/TEstimationArray.h"
 #include "Core/Estimator/Integrand.h"
 #include "Math/math_fwd.h"
 #include "Core/Bound/TAABB2D.h"
+#include "Core/Filmic/SampleFilter.h"
 
 #include <vector>
 #include <cstddef>
@@ -43,7 +43,7 @@ public:
 		bool                   useSoftEdge = true);
 	void clearFilms();
 	void clearFilm(std::size_t index);
-	void mergeFilmTo(std::size_t fromIndex, HdrRgbFilm& toFilm);
+	void mergeFilmTo(std::size_t fromIndex, SamplingFilmType& toFilm);
 
 	std::size_t            numEstimations() const;
 	TAABB2D<int64>         getFilmEffectiveWindowPx() const;

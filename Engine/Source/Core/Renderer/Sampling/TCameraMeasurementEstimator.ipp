@@ -25,9 +25,9 @@ TCameraMeasurementEstimator(
 	m_integrand       (std::move(integrand)),
 	m_estimationToFilm()
 {
-	for(HdrRgbFilm& film : m_films)
+	for(SamplingFilmType& film : m_films)
 	{
-		film = HdrRgbFilm(
+		film = SamplingFilmType(
 			0,
 			0,
 			{{0, 0}, {0, 0}},
@@ -87,7 +87,7 @@ addFilmEstimation(
 	PH_ASSERT_LT(filmIndex, m_films.size());
 	PH_ASSERT_LT(estimationIndex, m_estimations.numEstimations());
 
-	m_estimationToFilm.push_back({ estimationIndex, filmIndex });
+	m_estimationToFilm.push_back({estimationIndex, filmIndex});
 }
 
 template<typename SamplingFilmType, typename EstimationType>
@@ -113,7 +113,7 @@ clearFilm(const std::size_t index)
 
 template<typename SamplingFilmType, typename EstimationType>
 inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
-mergeFilmTo(const std::size_t fromIndex, HdrRgbFilm& toFilm)
+mergeFilmTo(const std::size_t fromIndex, SamplingFilmType& toFilm)
 	-> void
 {
 	PH_ASSERT_LT(fromIndex, m_films.size());
@@ -131,7 +131,7 @@ setFilmDimensions(
 {
 	m_filmActualResFPx = Vector2D(actualResPx);
 
-	for(HdrRgbFilm& film : m_films)
+	for(SamplingFilmType& film : m_films)
 	{
 		film.setActualResPx(actualResPx);
 		film.setEffectiveWindowPx(effectiveWindowPx);
