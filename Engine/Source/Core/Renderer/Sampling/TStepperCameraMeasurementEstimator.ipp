@@ -9,10 +9,10 @@ namespace ph
 template<typename SamplingFilmType, typename EstimationType>
 inline TStepperCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
 TStepperCameraMeasurementEstimator(
-	const std::size_t  numFilms,
-	const std::size_t  numEstimations,
-	Integrand          integrand,
-	SampleFilter       filter) : 
+	const std::size_t numFilms,
+	const std::size_t numEstimations,
+	Integrand         integrand,
+	SampleFilter      filter) : 
 
 	TCameraMeasurementEstimator<SamplingFilmType, EstimationType>(
 		numFilms,
@@ -59,7 +59,7 @@ setFilmStepSize(
 	const std::size_t filmIndex,
 	const std::size_t stepSize)
 {
-	PH_ASSERT_LT(filmIndex, m_films.size());
+	PH_ASSERT_LT(filmIndex, Parent::m_films.size());
 	PH_ASSERT_GE(stepSize, 1);
 
 	m_filmStepSizes[filmIndex] = stepSize;
