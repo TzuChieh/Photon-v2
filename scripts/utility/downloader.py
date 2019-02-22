@@ -16,7 +16,8 @@ def download_file(src_file_url, dst_file_path, max_retry=10):
 	while True:
 		try:
 			urllib.request.urlretrieve(src_file_url, dst_file_path, progress_reporter)
-		except:
+		except Exception as e:
+			print(e)
 			if num_retry < max_retry:
 				print("Error downloading file, remaining trials: %d" % (max_retry - num_retry))
 				print("Download will restart after 30 secs")
