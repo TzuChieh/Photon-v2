@@ -39,7 +39,7 @@ real AnisoTrowbridgeReitz::distribution(
 
 	const real tanTerm = 1.0_r + tan2ThetaH * (cos2PhiH * m_reciAlphaU2 + 
 	                                           sin2PhiH * m_reciAlphaV2);
-	const real D = 1.0_r / (PH_PI_REAL * m_alphaU * m_alphaV * cos4ThetaH * tanTerm * tanTerm);
+	const real D = 1.0_r / (constant::pi<real> * m_alphaU * m_alphaV * cos4ThetaH * tanTerm * tanTerm);
 	return std::isfinite(D) ? D : 0;
 }
 
@@ -70,8 +70,8 @@ void AnisoTrowbridgeReitz::genDistributedH(
 	PH_ASSERT(seedB_i0e1 >= 0.0_r && seedB_i0e1 <= 1.0_r);
 	PH_ASSERT(out_H != nullptr);
 
-	const real uFactor = m_alphaU * std::cos(2.0_r * PH_PI_REAL * seedA_i0e1);
-	const real vFactor = m_alphaV * std::sin(2.0_r * PH_PI_REAL * seedA_i0e1);
+	const real uFactor = m_alphaU * std::cos(constant::two_pi<real> * seedA_i0e1);
+	const real vFactor = m_alphaV * std::sin(constant::two_pi<real> * seedA_i0e1);
 
 	const Vector3R zVec(X.getDetail().getShadingBasis().zAxis.mul(uFactor));
 	const Vector3R xVec(X.getDetail().getShadingBasis().xAxis.mul(vFactor));

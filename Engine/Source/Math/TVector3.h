@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
+#include "Math/constant.h"
 
 #include <cmath>
 #include <string>
@@ -46,7 +47,7 @@ public:
 	TVector3& maxLocal(const TVector3& rhs);
 	TVector3 min(const TVector3& rhs) const;
 	TVector3& minLocal(const TVector3& rhs);
-	int maxDimension() const;
+	constant::AxisIndexType maxDimension() const;
 	TVector3 abs() const;
 	TVector3& absLocal();
 
@@ -111,7 +112,7 @@ public:
 	TVector3& set(T rhs);
 	TVector3& set(const TVector3& rhs);
 	void set(TVector3* const out_value) const;
-	TVector3& set(int axis, T value);
+	TVector3& set(constant::AxisIndexType axisIndex, T value);
 
 	bool equals(const TVector3& other) const;
 	bool equals(const TVector3& other, T margin) const;
@@ -122,8 +123,8 @@ public:
 
 	std::string toString() const;
 
-	T& operator [] (int axisIndex);
-	const T& operator [] (int axisIndex) const;
+	T& operator [] (constant::AxisIndexType axisIndex);
+	const T& operator [] (constant::AxisIndexType axisIndex) const;
 
 	TVector3 operator * (T rhs) const;
 	TVector3 operator / (T rhs) const;

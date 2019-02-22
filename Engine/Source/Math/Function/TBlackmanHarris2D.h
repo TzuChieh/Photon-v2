@@ -51,9 +51,9 @@ Value TBlackmanHarris2D<Value>::blackmanHarris1D(const Value n) const
 {
 	return 
 		  Value(0.35875)
-		- Value(0.48829) * std::cos(Value(2.0) * Value(PH_PI) * n)
-		+ Value(0.14128) * std::cos(Value(4.0) * Value(PH_PI) * n)
-		- Value(0.01174) * std::cos(Value(6.0) * Value(PH_PI) * n);
+		- Value(0.48829) * std::cos(Value(2.0) * constant::pi<Value> * n)
+		+ Value(0.14128) * std::cos(Value(4.0) * constant::pi<Value> * n)
+		- Value(0.01174) * std::cos(Value(6.0) * constant::pi<Value> * n);
 	//          ^^^^^^^
 	// NOTE: Originally this coefficient is 0.01168, we modified it like how
 	//       appleseed renderer did to make it evaluate to 0 at boundaries.

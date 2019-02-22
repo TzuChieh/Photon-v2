@@ -62,7 +62,7 @@ inline TileScheduler::TileScheduler(
 		totalWorkUnit, 
 		tileSize,
 		EOrigin::LOWER_LEFT,
-		math::X_AXIS)
+		constant::X_AXIS)
 {}
 
 inline TileScheduler::TileScheduler(

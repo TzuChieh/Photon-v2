@@ -37,11 +37,6 @@ namespace ph
 namespace math
 {
 
-constexpr int UNKNOWN_AXIS = -1;
-constexpr int X_AXIS       = 0;
-constexpr int Y_AXIS       = 1;
-constexpr int Z_AXIS       = 2;
-
 template<typename T>
 inline auto matrix2x2(const T e00, const T e01, const T e10, const T e11)
 	-> std::array<std::array<T, 2>, 2>
@@ -95,7 +90,7 @@ inline T clamp(const T value, const T lowerBound, const T upperBound)
 template<typename T>
 inline T to_degrees(const T radians)
 {
-	return radians * static_cast<T>(PH_RECI_PI * 180.0);
+	return radians * (constant::rcp_pi<T> * T(180));
 }
 
 /*! @brief Convert degrees to radians.
@@ -103,7 +98,7 @@ inline T to_degrees(const T radians)
 template<typename T>
 inline T to_radians(const T degrees)
 {
-	return degrees * static_cast<T>(PH_PI / 180.0);
+	return degrees * (constant::pi<T> / T(180));
 }
 
 /*! @brief Extract the sign of @p value.

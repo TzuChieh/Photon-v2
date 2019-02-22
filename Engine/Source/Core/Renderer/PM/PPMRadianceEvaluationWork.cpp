@@ -93,7 +93,7 @@ void PPMRadianceEvaluationWork::doWork()
 		
 		// evaluate radiance using current iteration's data
 
-		const real kernelArea         = newR * newR * PH_PI_REAL;
+		const real kernelArea         = newR * newR * constant::pi<real>;
 		const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(numPhotonPaths()));
 
 		SpectralStrength radiance(viewpoint.get<EViewpointData::TAU>() * radianceMultiplier);

@@ -24,7 +24,7 @@ inline Vector3R UniformUnitHemisphere::map(const Vector2R& seed)
 	PH_ASSERT_LE(0.0_r, seed.x); PH_ASSERT_LE(seed.x, 1.0_r);
 	PH_ASSERT_LE(0.0_r, seed.y); PH_ASSERT_LE(seed.y, 1.0_r);
 
-	const real phi     = 2.0_r * PH_PI_REAL * seed.x;
+	const real phi     = constant::two_pi<real> * seed.x;
 	const real yValue  = seed.y;
 	const real yRadius = std::sqrt(1.0_r - yValue * yValue);
 
@@ -37,7 +37,7 @@ inline Vector3R UniformUnitHemisphere::map(const Vector2R& seed, real* const out
 {
 	// PDF is 1/(2*pi)
 	PH_ASSERT(out_pdf);
-	*out_pdf = 1.0_r / (2.0_r * PH_PI_REAL);
+	*out_pdf = constant::rcp_two_pi<real>;
 
 	return map(seed);
 }

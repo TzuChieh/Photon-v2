@@ -164,7 +164,7 @@ real DiffuseSurfaceEmitter::calcRadiantFluxApprox() const
 	spectralL.setLinearSrgb(sampledL.genLinearSrgb(QUANTITY), QUANTITY);
 
 	const real extendedArea = m_surface->calcExtendedArea();
-	const real radiantFlux  = spectralL.sum() * extendedArea * PH_PI_REAL;
+	const real radiantFlux  = spectralL.sum() * extendedArea * constant::pi<real>;
 	return radiantFlux > 0.0_r ? radiantFlux : SurfaceEmitter::calcRadiantFluxApprox();
 }
 

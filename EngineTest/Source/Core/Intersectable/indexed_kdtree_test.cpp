@@ -27,10 +27,10 @@ void indexed_node_test()
 
 	EXPECT_EQ(indexBuffer.size(), 3);
 
-	const auto innerNode = TIndexedKdtreeNode<Index>::makeInner(-1, math::Y_AXIS, 999);
+	const auto innerNode = TIndexedKdtreeNode<Index>::makeInner(-1, constant::Y_AXIS, 999);
 	EXPECT_FALSE(innerNode.isLeaf());
 	EXPECT_EQ(innerNode.positiveChildIndex(), 999);
-	EXPECT_EQ(innerNode.splitAxisIndex(), math::Y_AXIS);
+	EXPECT_EQ(innerNode.splitAxisIndex(), constant::Y_AXIS);
 	EXPECT_EQ(innerNode.splitPos(), -1);
 
 	EXPECT_EQ(indexBuffer.size(), 3);

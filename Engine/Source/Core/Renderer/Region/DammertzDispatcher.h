@@ -209,7 +209,7 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIDPO
 		if(finishedRegion.calcArea() >= MIN_REGION_AREA)
 		{
 			// error is small, splitted and added for more effort
-			const int   maxDimension = finishedRegion.getExtents().maxDimension();
+			const auto  maxDimension = finishedRegion.getExtents().maxDimension();
 			const int64 midPoint     = (finishedRegion.minVertex[maxDimension] + finishedRegion.maxVertex[maxDimension]) / 2;
 
 			m_nextRegions = finishedRegion.getSplitted(maxDimension, midPoint);
@@ -245,7 +245,7 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 	const TAABB2D<uint32> frameRegion(finishedRegion);
 
 	const auto regionExtents = frameRegion.getExtents();
-	const int  maxDimension  = regionExtents.maxDimension();
+	const auto maxDimension  = regionExtents.maxDimension();
 
 	m_accumulatedEps.resize(regionExtents[maxDimension]);
 	std::fill(m_accumulatedEps.begin(), m_accumulatedEps.end(), 0.0_r);
@@ -267,14 +267,14 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 			PH_ASSERT_GE(numerator * rcpDenominator, 0);
 			summedRowEp += numerator * rcpDenominator;
 
-			if(maxDimension == math::X_AXIS)
+			if(maxDimension == constant::X_AXIS)
 			{
 				m_accumulatedEps[x - frameRegion.minVertex.x] += summedRowEp;
 			}
 		}
 		summedEp += summedRowEp;
 
-		if(maxDimension == math::Y_AXIS)
+		if(maxDimension == constant::Y_AXIS)
 		{
 			m_accumulatedEps[y - frameRegion.minVertex.y] = summedEp;
 		}

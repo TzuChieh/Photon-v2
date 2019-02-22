@@ -245,7 +245,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onSampleBatchFinishe
 			const auto& viewpoint = m_viewpoints[y * m_film->getActualResPx().x + x];
 
 			const real radius             = viewpoint.template get<EViewpointData::RADIUS>();
-			const real kernelArea         = radius * radius * PH_PI_REAL;
+			const real kernelArea         = radius * radius * constant::pi<real>;
 			const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(m_numPhotonPaths));
 
 			SpectralStrength radiance(viewpoint.template get<EViewpointData::TAU>() * radianceMultiplier);

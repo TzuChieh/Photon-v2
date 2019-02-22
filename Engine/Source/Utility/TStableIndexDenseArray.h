@@ -10,69 +10,105 @@
 namespace ph
 {
 
-// Notes on this container:
-//
-// 1. Does not preserve order, i.e., the order for iteration may not be the same
-//    as how you added the objects.
-//
-// 2. Inserted objects are guaranteed being contiguous in virtual memory.
-//
-// 3. User accessible indices are guaranteed to be stable, i.e., they are invariant 
-//    to any modification to the container and can be used to retrieve the object
-//    previously added until removal.
-//
-// 4. Add, remove and retrieve object are all O(1) operations.
+/*! @brief A container offering stable index and efficient iteration. 
 
-// TODO: validity check on get methods
+Notes on this container:
 
+- Does not preserve order, i.e., the order for iteration may not be the same as
+  how you added the objects.
+
+- Inserted objects are guaranteed being contiguous in virtual memory.
+
+- User accessible indices are guaranteed to be stable, i.e., they are invariant
+  to any modification to the container and can be used to retrieve the object
+  previously added until removal.
+
+- Add, remove and retrieve object are all O(1) operations.
+*/
 template<typename T>
 class TStableIndexDenseArray
 {
 public:
-	// Set to the maximum value a std::size_t can hold. Due to current stable 
-	// index dispatching implementation and physical memory limit, this value 
-	// should be nearly impossible to reach.
+	/*! @brief An index that indicates an invalid state.
+
+	The value is the maximum value a std::size_t can hold. Due to current stable
+	index dispatching implementation and physical memory limit, this value
+	should be nearly impossible to reach.
+	*/
 	static const std::size_t INVALID_STABLE_INDEX = static_cast<std::size_t>(-1);
 
 public:
+	/*! @brief An array that holds nothing.
+	*/
 	TStableIndexDenseArray();
 
-	// Construct with reserved memory spaces for initialCapacity T's.
+	/*! @brief An array that reserves memory space for @p initialCapacity objects.
+	*/
 	explicit TStableIndexDenseArray(std::size_t initialCapacity);
 
-	// Add an object and returns a stable index.
+	/*! @brief Adds an object and returns a stable index for it.
+	*/
 	std::size_t add(const T& object);
+
+	/*! @brief Similar to add(const T&), expect the object is moved.
+	*/
 	std::size_t add(T&& object);
 
-	// Remove an object by its stable index.
+	/*! @brief Remove an object by its stable index.
+	@return `true` if and only if @p stableIndex is valid and object is
+	correctly removed.
+	*/
 	bool remove(std::size_t stableIndex);
 
-	// Remove all elements.
+	/*! @brief Remove all objects.
+	*/
 	void removeAll();
 
-	// Returns how many objects are there in this container.
+	/*! @brief Returns how many objects are there in this container.
+	*/
 	std::size_t length() const;
 
-	// Get the next stable index that will be returned by add().
-	// Note: This array should remain unchanged between current method call 
-	// and add(); otherwise the result is unreliable.
+	/*! @brief Get the next stable index that will be returned by add().
+
+	This array should remain unchanged between this call and add(); otherwise
+	the result is unreliable.
+	*/
 	std::size_t nextStableIndex() const;
 
-	// Check whether the stable index represent a valid object or not.
+	/*! @brief Checks whether the stable index represent a valid object or not.
+	@return `true` if @stableIndex maps to an object, otherwise `false`.
+	*/
 	bool isStableIndexValid(std::size_t stableIndex) const;
 
+	/*! @name Iterators
+
+	Iterators for stored objects.
+	*/
+	///@{
 	typename std::vector<T>::iterator       begin() noexcept;
 	typename std::vector<T>::const_iterator begin() const noexcept;
 	typename std::vector<T>::iterator       end()   noexcept;
 	typename std::vector<T>::const_iterator end()   const noexcept;
+	///@}
 
-	// Retrieve object (no index validity check).
+	/*! @name Direct Accessors
+
+	Retrieve object without index validity check.
+	*/
+	///@{
 	T& operator [] (std::size_t stableIndex);
 	const T& operator [] (std::size_t stableIndex) const;
+	///@}
 
-	// Retrieve object (with index validity check).
+	/*! @name Checked Accessors
+	
+	Retrieve object with index validity check.
+	@return `nullptr` if @p stableIndex is invalid.
+	*/
+	///@{
 	T* get(std::size_t stableIndex);
 	const T* get(std::size_t stableIndex) const;
+	///@}
 
 private:
 	std::vector<T>                            m_objects;

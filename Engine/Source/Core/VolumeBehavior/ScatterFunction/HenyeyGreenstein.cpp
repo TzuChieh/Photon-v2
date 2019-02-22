@@ -41,7 +41,7 @@ void HenyeyGreenstein::evalPhaseFunc(
 	const real cosTheta = I.dot(O);
 	const real base     = 1.0_r + g2 + 2.0_r * g * cosTheta;
 
-	*out_pf = PH_RECI_4_PI_REAL * (1.0_r - g2) / (base * std::sqrt(base));
+	*out_pf = constant::rcp_four_pi<real> * (1.0_r - g2) / (base * std::sqrt(base));
 }
 
 }// end namespace ph

@@ -82,7 +82,7 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	// 12 triangles (all CCW)
 
 	// +z face (+y as upward)
-	const int pz = math::Z_AXIS;
+	const int pz = constant::Z_AXIS;
 	{
 		GTriangle upperTriangle(vPPP, vNPP, vNNP);
 		upperTriangle.setUVWa({m_faceUVs[pz].maxVertex.x, m_faceUVs[pz].maxVertex.y, 0});
@@ -99,7 +99,7 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	}
 
 	// -z face (+y as upward)
-	const int nz = math::Z_AXIS + 3;
+	const int nz = constant::Z_AXIS + 3;
 	{
 		GTriangle upperTriangle(vNPN, vPPN, vPNN);
 		upperTriangle.setUVWa({m_faceUVs[nz].maxVertex.x, m_faceUVs[nz].maxVertex.y, 0});
@@ -116,7 +116,7 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	}
 
 	// +x face (+y as upward)
-	const int px = math::X_AXIS;
+	const int px = constant::X_AXIS;
 	{
 		GTriangle upperTriangle(vPPN, vPPP, vPNP);
 		upperTriangle.setUVWa({m_faceUVs[px].maxVertex.x, m_faceUVs[px].maxVertex.y, 0});
@@ -133,7 +133,7 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	}
 
 	// -x face (+y as upward)
-	const int nx = math::X_AXIS + 3;
+	const int nx = constant::X_AXIS + 3;
 	{
 		GTriangle upperTriangle(vNPP, vNPN, vNNN);
 		upperTriangle.setUVWa({m_faceUVs[nx].maxVertex.x, m_faceUVs[nx].maxVertex.y, 0});
@@ -150,7 +150,7 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	}
 
 	// +y face (-z as upward)
-	const int py = math::Y_AXIS;
+	const int py = constant::Y_AXIS;
 	{
 		GTriangle upperTriangle(vPPN, vNPN, vNPP);
 		upperTriangle.setUVWa({m_faceUVs[py].maxVertex.x, m_faceUVs[py].maxVertex.y, 0});
@@ -167,7 +167,7 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	}
 
 	// +y face (+z as upward)
-	const int ny = math::Y_AXIS + 3;
+	const int ny = constant::Y_AXIS + 3;
 	{
 		GTriangle upperTriangle(vPNP, vNNP, vNNN);
 		upperTriangle.setUVWa({m_faceUVs[ny].maxVertex.x, m_faceUVs[ny].maxVertex.y, 0});
@@ -237,37 +237,37 @@ void GCuboid::ciRegister(CommandRegister& cmdRegister)
 		if(packet.hasQuaternion("px-face-uv"))
 		{
 			const QuaternionR uv = packet.getQuaternion("px-face-uv");
-			cuboid->m_faceUVs[math::X_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
+			cuboid->m_faceUVs[constant::X_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
 		}
 		
 		if(packet.hasQuaternion("nx-face-uv"))
 		{
 			const QuaternionR uv = packet.getQuaternion("nx-face-uv");
-			cuboid->m_faceUVs[math::X_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
+			cuboid->m_faceUVs[constant::X_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
 		}
 
 		if(packet.hasQuaternion("py-face-uv"))
 		{
 			const QuaternionR uv = packet.getQuaternion("py-face-uv");
-			cuboid->m_faceUVs[math::Y_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
+			cuboid->m_faceUVs[constant::Y_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
 		}
 
 		if(packet.hasQuaternion("ny-face-uv"))
 		{
 			const QuaternionR uv = packet.getQuaternion("ny-face-uv");
-			cuboid->m_faceUVs[math::Y_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
+			cuboid->m_faceUVs[constant::Y_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
 		}
 
 		if(packet.hasQuaternion("pz-face-uv"))
 		{
 			const QuaternionR uv = packet.getQuaternion("pz-face-uv");
-			cuboid->m_faceUVs[math::Z_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
+			cuboid->m_faceUVs[constant::Z_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
 		}
 
 		if(packet.hasQuaternion("nz-face-uv"))
 		{
 			const QuaternionR uv = packet.getQuaternion("nz-face-uv");
-			cuboid->m_faceUVs[math::Z_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
+			cuboid->m_faceUVs[constant::Z_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
 		}
 
 		return cuboid;

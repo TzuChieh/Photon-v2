@@ -108,9 +108,9 @@ inline TVector2<T> TAABB2D<T>::calcCenter() const
 }
 
 template<typename T>
-inline std::pair<TAABB2D<T>, TAABB2D<T>> TAABB2D<T>::getSplitted(const int axis, const T splitPoint) const
+inline std::pair<TAABB2D<T>, TAABB2D<T>> TAABB2D<T>::getSplitted(const constant::AxisIndexType axis, const T splitPoint) const
 {
-	PH_ASSERT_MSG(axis == math::X_AXIS || axis == math::Y_AXIS, std::to_string(axis));
+	PH_ASSERT_MSG(axis == constant::X_AXIS || axis == constant::Y_AXIS, std::to_string(axis));
 	PH_ASSERT_IN_RANGE_INCLUSIVE(splitPoint, minVertex[axis], maxVertex[axis]);
 
 	return {TAABB2D(minVertex, TVector2<T>(maxVertex).set(axis, splitPoint)),

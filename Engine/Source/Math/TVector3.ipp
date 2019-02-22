@@ -135,10 +135,10 @@ inline TVector3<T>& TVector3<T>::minLocal(const TVector3& rhs)
 }
 
 template<typename T>
-inline int TVector3<T>::maxDimension() const
+inline constant::AxisIndexType TVector3<T>::maxDimension() const
 {
-	return x > y ? (x > z ? math::X_AXIS : math::Z_AXIS) :
-	               (y > z ? math::Y_AXIS : math::Z_AXIS);
+	return x > y ? (x > z ? constant::X_AXIS : constant::Z_AXIS) :
+	               (y > z ? constant::Y_AXIS : constant::Z_AXIS);
 }
 
 template<typename T>
@@ -594,7 +594,7 @@ inline void TVector3<T>::set(TVector3* const out_value) const
 }
 
 template<typename T>
-inline TVector3<T>& TVector3<T>::set(const int axis, const T value)
+inline TVector3<T>& TVector3<T>::set(const constant::AxisIndexType axis, const T value)
 {
 	operator [] (axis) = value;
 
@@ -678,30 +678,30 @@ inline TVector3<T> TVector3<T>::operator - (const TVector3& rhs) const
 }
 
 template<typename T>
-inline T& TVector3<T>::operator [] (const int axisIndex)
+inline T& TVector3<T>::operator [] (const constant::AxisIndexType axisIndex)
 {
 	PH_ASSERT(axisIndex >= 0 && axisIndex <= 2);
 
 	switch(axisIndex)
 	{
-	case math::X_AXIS: return x;
-	case math::Y_AXIS: return y;
-	case math::Z_AXIS: return z;
+	case constant::X_AXIS: return x;
+	case constant::Y_AXIS: return y;
+	case constant::Z_AXIS: return z;
 	}
 
 	return x;
 }
 
 template<typename T>
-inline const T& TVector3<T>::operator [] (const int axisIndex) const
+inline const T& TVector3<T>::operator [] (const constant::AxisIndexType axisIndex) const
 {
 	PH_ASSERT(0 <= axisIndex && axisIndex <= 2);
 
 	switch(axisIndex)
 	{
-	case math::X_AXIS: return x;
-	case math::Y_AXIS: return y;
-	case math::Z_AXIS: return z;
+	case constant::X_AXIS: return x;
+	case constant::Y_AXIS: return y;
+	case constant::Z_AXIS: return z;
 	}
 
 	return x;

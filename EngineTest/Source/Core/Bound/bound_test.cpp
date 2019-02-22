@@ -204,7 +204,7 @@ TEST(BoundTest, AABB2DCalculateCenter)
 TEST(BoundTest, SplittingAABB2D)
 {
 	const TAABB2D<int> aabb1({0, 0}, {5, 5});
-	const auto splittedAabb1 = aabb1.getSplitted(math::Y_AXIS, 3);
+	const auto splittedAabb1 = aabb1.getSplitted(constant::Y_AXIS, 3);
 	EXPECT_TRUE(splittedAabb1.first.equals(TAABB2D<int>({0, 0}, {5, 3})));
 	EXPECT_TRUE(splittedAabb1.second.equals(TAABB2D<int>({0, 3}, {5, 5})));
 }
@@ -213,7 +213,7 @@ TEST(BoundTest, SplittingAABB2D)
 TEST(BoundTest, SplittingAABB3D)
 {
 	const AABB3D aabb1({-1, -1, -1}, {1, 1, 1});
-	const auto splittedAabb1 = aabb1.getSplitted(math::X_AXIS, 0);
+	const auto splittedAabb1 = aabb1.getSplitted(constant::X_AXIS, 0);
 
 	EXPECT_TRUE(splittedAabb1.first.getMinVertex() == aabb1.getMinVertex());
 	EXPECT_EQ(splittedAabb1.first.getMaxVertex().x, 0);
@@ -226,7 +226,7 @@ TEST(BoundTest, SplittingAABB3D)
 	EXPECT_EQ(splittedAabb1.second.getMinVertex().z, aabb1.getMinVertex().z);
 
 	const TAABB3D<int> aabb2({0, 0, 0}, {3, 3, 3});
-	const auto splittedAabb2 = aabb2.getSplitted(math::X_AXIS, 2);
+	const auto splittedAabb2 = aabb2.getSplitted(constant::X_AXIS, 2);
 	EXPECT_TRUE(splittedAabb2.first.equals(TAABB3D<int>({0, 0, 0}, {2, 3, 3})));
 	EXPECT_TRUE(splittedAabb2.second.equals(TAABB3D<int>({2, 0, 0}, {3, 3, 3})));
 }

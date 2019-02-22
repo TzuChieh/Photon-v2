@@ -24,7 +24,7 @@ inline Vector3R CosThetaWeightedUnitHemisphere::map(const Vector2R& seed)
 	PH_ASSERT_LE(0.0_r, seed.x); PH_ASSERT_LE(seed.x, 1.0_r);
 	PH_ASSERT_LE(0.0_r, seed.y); PH_ASSERT_LE(seed.y, 1.0_r);
 
-	const real phi     = 2.0f * PH_PI_REAL * seed.x;
+	const real phi     = constant::two_pi<real> * seed.x;
 	const real yValue  = std::sqrt(seed.y);
 	const real yRadius = std::sqrt(1.0f - yValue * yValue);// TODO: y*y is in fact valueB?
 
@@ -40,7 +40,7 @@ inline Vector3R CosThetaWeightedUnitHemisphere::map(const Vector2R& seed, real* 
 
 	// PDF is cos(theta)/pi
 	PH_ASSERT(out_pdf);
-	*out_pdf = mapped.y / PH_PI_REAL;
+	*out_pdf = mapped.y * constant::rcp_pi<real>;
 
 	return mapped;
 }

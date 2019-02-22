@@ -249,7 +249,7 @@ void PSphere::genPositionSample(PositionSample* const out_sample) const
 
 real PSphere::calcExtendedArea() const
 {
-	return 4.0_r * PH_PI_REAL * m_radius * m_radius;
+	return constant::four_pi<real> * m_radius * m_radius;
 }
 
 }// end namespace ph

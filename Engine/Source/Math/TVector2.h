@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/math_fwd.h"
+#include "Math/constant.h"
 
 #include <string>
 
@@ -48,7 +49,7 @@ public:
 
 	TVector2 min(const TVector2& other) const;
 	TVector2 max(const TVector2& other) const;
-	int maxDimension() const;
+	constant::AxisIndexType maxDimension() const;
 
 	bool equals(const TVector2& other) const;
 	bool equals(const TVector2& other, T margin) const;
@@ -57,12 +58,12 @@ public:
 	TVector2 floor() const;
 	T product() const;
 
-	TVector2& set(int axis, T value);
+	TVector2& set(constant::AxisIndexType axis, T value);
 
 	std::string toString() const;
 
-	T operator [] (int axisId) const;
-	T& operator [] (int axisId);
+	T operator [] (constant::AxisIndexType axisId) const;
+	T& operator [] (constant::AxisIndexType axisId);
 
 	TVector2 operator + (const TVector2& rhs) const;
 	TVector2 operator + (T rhs) const;

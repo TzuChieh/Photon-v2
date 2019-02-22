@@ -187,9 +187,9 @@ inline TVector2<T> TVector2<T>::max(const TVector2& other) const
 }
 
 template<typename T>
-inline int TVector2<T>::maxDimension() const
+inline constant::AxisIndexType TVector2<T>::maxDimension() const
 {
-	return x > y ? math::X_AXIS : math::Y_AXIS;
+	return x > y ? constant::X_AXIS : constant::Y_AXIS;
 }
 
 template<typename T>
@@ -240,7 +240,7 @@ inline T TVector2<T>::product() const
 }
 
 template<typename T>
-inline TVector2<T>& TVector2<T>::set(const int axis, const T value)
+inline TVector2<T>& TVector2<T>::set(const constant::AxisIndexType axis, const T value)
 {
 	operator [] (axis) = value;
 
@@ -254,12 +254,12 @@ inline std::string TVector2<T>::toString() const
 }
 
 template<typename T>
-inline T TVector2<T>::operator [] (const int axisId) const
+inline T TVector2<T>::operator [] (const constant::AxisIndexType axisId) const
 {
 	switch(axisId)
 	{
-	case math::X_AXIS: return x;
-	case math::Y_AXIS: return y;
+	case constant::X_AXIS: return x;
+	case constant::Y_AXIS: return y;
 	}
 
 	PH_ASSERT_UNREACHABLE_SECTION();
@@ -267,12 +267,12 @@ inline T TVector2<T>::operator [] (const int axisId) const
 }
 
 template<typename T>
-inline T& TVector2<T>::operator [] (const int axisId)
+inline T& TVector2<T>::operator [] (const constant::AxisIndexType axisId)
 {
 	switch(axisId)
 	{
-	case math::X_AXIS: return x;
-	case math::Y_AXIS: return y;
+	case constant::X_AXIS: return x;
+	case constant::Y_AXIS: return y;
 	}
 
 	PH_ASSERT_UNREACHABLE_SECTION();

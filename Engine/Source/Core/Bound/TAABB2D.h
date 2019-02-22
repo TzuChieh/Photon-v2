@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/TVector2.h"
+#include "Math/constant.h"
 
 #include <string>
 #include <utility>
@@ -39,7 +40,7 @@ public:
 	T getHeight() const;
 	TVector2<T> getExtents() const;
 	TVector2<T> calcCenter() const;
-	std::pair<TAABB2D, TAABB2D> getSplitted(int axis, T splitPoint) const;
+	std::pair<TAABB2D, TAABB2D> getSplitted(constant::AxisIndexType axis, T splitPoint) const;
 	TAABB2D getUnioned(const TAABB2D& other) const;
 	TAABB2D getIntersected(const TAABB2D& other) const;
 	bool isValid() const;

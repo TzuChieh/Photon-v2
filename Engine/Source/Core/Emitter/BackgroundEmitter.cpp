@@ -49,7 +49,7 @@ BackgroundEmitter::BackgroundEmitter(
 	{
 		const std::size_t baseIndex = y * resolution.x;
 		const real v        = (static_cast<real>(y) + 0.5_r) / static_cast<real>(resolution.y);
-		const real sinTheta = std::sin((1.0_r - v) * PH_PI_REAL);
+		const real sinTheta = std::sin((1.0_r - v) * constant::pi<real>);
 		for(std::size_t x = 0; x < resolution.x; ++x)
 		{
 			const real u = (static_cast<real>(x) + 0.5_r) / static_cast<real>(resolution.x);
@@ -67,7 +67,7 @@ BackgroundEmitter::BackgroundEmitter(
 	m_sampleDistribution = TPwcDistribution2D<real>(sampleWeights.data(), resolution);
 
 	//m_radiantFluxApprox = m_radiantFluxApprox * m_surface->calcExtendedArea() * PH_PI_REAL;
-	m_radiantFluxApprox  = m_radiantFluxApprox * 4 * m_sceneBoundRadius * m_sceneBoundRadius * PH_PI_REAL;
+	m_radiantFluxApprox  = m_radiantFluxApprox * 4 * m_sceneBoundRadius * m_sceneBoundRadius * constant::pi<real>;
 }
 
 void BackgroundEmitter::evalEmittedRadiance(
@@ -100,12 +100,12 @@ void BackgroundEmitter::genDirectSample(DirectLightSample& sample) const
 	sample.radianceLe = sampler.sample(*m_radiance, uvSample);
 	
 	// FIXME: assuming spherical uv mapping us used
-	const real sinTheta = std::sin((1.0_r - uvSample.y) * PH_PI_REAL);
+	const real sinTheta = std::sin((1.0_r - uvSample.y) * constant::pi<real>);
 	if(sinTheta <= 0.0_r)
 	{
 		return;
 	}
-	sample.pdfW = uvSamplePdf / (2.0_r * PH_PI_REAL * PH_PI_REAL * sinTheta);
+	sample.pdfW = uvSamplePdf / (2.0_r * constant::pi<real> * constant::pi<real> * sinTheta);
 }
 
 // FIXME: ray time
@@ -121,12 +121,12 @@ void BackgroundEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Ve
 	*out_Le = sampler.sample(*m_radiance, uvSample);
 
 	// FIXME: assuming spherical uv mapping us used
-	const real sinTheta = std::sin((1.0_r - uvSample.y) * PH_PI_REAL);
+	const real sinTheta = std::sin((1.0_r - uvSample.y) * constant::pi<real>);
 	if(sinTheta <= 0.0_r)
 	{
 		return;
 	}
-	*out_pdfW = uvSamplePdf / (2.0_r * PH_PI_REAL * PH_PI_REAL * sinTheta);
+	*out_pdfW = uvSamplePdf / (2.0_r * constant::pi<real> * constant::pi<real> * sinTheta);
 
 	// HACK
 	Vector3R direction;
@@ -163,13 +163,13 @@ real BackgroundEmitter::calcDirectSamplePdfW(
 {
 	// FIXME: assuming spherical uv mapping us used
 	const Vector3R uvw = emitPos.getDetail().getUvw();
-	const real sinTheta = std::sin((1.0_r - uvw.y) * PH_PI_REAL);
+	const real sinTheta = std::sin((1.0_r - uvw.y) * constant::pi<real>);
 	if(sinTheta <= 0.0_r)
 	{
 		return 0.0_r;
 	}
 
-	return m_sampleDistribution.pdfContinuous({uvw.x, uvw.y}) / (2.0_r * PH_PI_REAL * PH_PI_REAL * sinTheta);
+	return m_sampleDistribution.pdfContinuous({uvw.x, uvw.y}) / (2.0_r * constant::pi<real> * constant::pi<real> * sinTheta);
 }
 
 real BackgroundEmitter::calcRadiantFluxApprox() const

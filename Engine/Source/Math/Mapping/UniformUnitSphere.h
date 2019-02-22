@@ -26,7 +26,7 @@ inline Vector3R UniformUnitSphere::map(const Vector2R& seed)
 	PH_ASSERT_LE(0.0_r, seed.y); PH_ASSERT_LE(seed.y, 1.0_r);
 
 	const real y   = 2.0_r * (seed.x - 0.5_r);
-	const real phi = 2.0_r * PH_PI_REAL * seed.y;
+	const real phi = constant::two_pi<real> * seed.y;
 	const real r   = std::sqrt(std::max(1.0_r - y * y, 0.0_r));
 
 	return Vector3R(r * std::sin(phi), 
@@ -38,7 +38,7 @@ inline Vector3R UniformUnitSphere::map(const Vector2R& seed, real* const out_pdf
 {
 	// PDF is 1/(4*pi)
 	PH_ASSERT(out_pdf);
-	*out_pdf = PH_RECI_4_PI_REAL;
+	*out_pdf = constant::rcp_four_pi<real>;
 
 	return map(seed);
 }

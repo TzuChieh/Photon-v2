@@ -80,7 +80,7 @@ inline GridScheduler::GridScheduler(
 		totalWorkUnit, 
 		numCells,
 		EOrigin::LOWER_LEFT,
-		math::X_AXIS)
+		constant::X_AXIS)
 {}
 
 inline GridScheduler::GridScheduler(
@@ -134,7 +134,7 @@ inline void GridScheduler::scheduleOne(WorkUnit* const out_workUnit)
 				TVector2<int64>(Vector2S(sideRangeX.second, sideRangeY.second)) + m_totalWorkUnit.getRegion().minVertex),
 			m_totalWorkUnit.getDepth());
 
-		if(m_prioriAxis == math::X_AXIS)
+		if(m_prioriAxis == constant::X_AXIS)
 		{
 			++m_currentCell.x;
 			if(m_currentCell.x == m_numCells.x)

@@ -67,7 +67,7 @@ std::unique_ptr<Emitter> AreaSource::genEmitter(
 
 	const auto unitWattColor  = m_color.div(m_color.sum());
 	const auto totalWattColor = unitWattColor.mul(m_numWatts);
-	const auto lightRadiance  = totalWattColor.div(lightArea * PH_PI_REAL);
+	const auto lightRadiance  = totalWattColor.div(lightArea * constant::pi<real>);
 
 	SpectralStrength radiance;
 	radiance.setSampled(lightRadiance, EQuantity::EMR);

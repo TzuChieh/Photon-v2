@@ -19,7 +19,7 @@ void form_orthonormal_basis(const Vector3R& unitYaxis, Vector3R* const out_unitX
 
 	// choose an axis deviate enough to specified y-axis to perform cross product in order to avoid some 
 	// numeric errors
-	if(std::abs(unitYaxis.y) < PH_RECI_SQRT_2_REAL)
+	if(std::abs(unitYaxis.y) < constant::rcp_sqrt_2<real>)
 	{
 		out_unitXaxis->set(-unitYaxis.z, 0.0_r, unitYaxis.x);// yAxis cross (0, 1, 0)
 		out_unitXaxis->mulLocal(1.0_r / std::sqrt(out_unitXaxis->x * out_unitXaxis->x + out_unitXaxis->z * out_unitXaxis->z));

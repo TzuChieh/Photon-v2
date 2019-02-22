@@ -29,7 +29,7 @@ real IsoTrowbridgeReitz::distribution(
 	const real NoH2   = NoH * NoH;
 
 	const real innerTerm   = NoH2 * (alpha2 - 1.0_r) + 1.0_r;
-	const real denominator = PH_PI_REAL * innerTerm * innerTerm;
+	const real denominator = constant::pi<real> * innerTerm * innerTerm;
 
 	return alpha2 / denominator;
 }
@@ -79,7 +79,7 @@ void IsoTrowbridgeReitz::genDistributedH(
 	PH_ASSERT(seedB_i0e1 >= 0.0_r && seedB_i0e1 <= 1.0_r);
 	PH_ASSERT(out_H != nullptr);
 
-	const real phi   = 2.0f * PH_PI_REAL * seedA_i0e1;
+	const real phi   = constant::two_pi<real> * seedA_i0e1;
 	const real theta = std::atan(m_alpha * std::sqrt(seedB_i0e1 / (1.0_r - seedB_i0e1)));
 
 	// HACK: currently seed can be 1, which should be avoided; it can

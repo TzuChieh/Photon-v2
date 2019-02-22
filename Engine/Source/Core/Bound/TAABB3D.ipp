@@ -344,7 +344,7 @@ inline bool TAABB3D<T>::isFiniteVolume() const
 }
 
 template<typename T>
-inline std::pair<TAABB3D<T>, TAABB3D<T>> TAABB3D<T>::getSplitted(const int axis, const T splitPoint) const
+inline std::pair<TAABB3D<T>, TAABB3D<T>> TAABB3D<T>::getSplitted(const constant::AxisIndexType axis, const T splitPoint) const
 {
 	PH_ASSERT_IN_RANGE_INCLUSIVE(splitPoint, m_minVertex[axis], m_maxVertex[axis]);
 

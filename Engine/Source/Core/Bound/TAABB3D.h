@@ -3,6 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Math/math.h"
+#include "Math/constant.h"
 
 #include <vector>
 #include <string>
@@ -149,8 +150,7 @@ public:
 	@param splitPoint The 1-D coordinate on the target axis.
 	@return Two bounds which is the result of splitting this bound.
 	*/
-	// TODO: document possible values of axis
-	std::pair<TAABB3D, TAABB3D> getSplitted(int axis, T splitPoint) const;
+	std::pair<TAABB3D, TAABB3D> getSplitted(constant::AxisIndexType axis, T splitPoint) const;
 
 	/*! @brief Get the string representation of this bound.
 	*/

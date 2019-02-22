@@ -150,7 +150,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 	}
 
 	// FIXME: cache
-	const real kernelArea = m_kernelRadius * m_kernelRadius * PH_PI_REAL;
+	const real kernelArea = m_kernelRadius * m_kernelRadius * constant::pi<real>;
 	const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(m_numPhotonPaths));
 
 	radiance.mulLocal(radianceMultiplier);

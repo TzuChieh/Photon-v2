@@ -44,7 +44,7 @@ void LambertianDiffuse::calcBsdf(
 	}
 
 	SpectralStrength albedo = TSampler<SpectralStrength>(EQuantity::ECF).sample(*m_albedo, in.X);
-	out.bsdf = albedo.divLocal(PH_PI_REAL);
+	out.bsdf = albedo.mulLocal(constant::rcp_pi<real>);
 }
 
 void LambertianDiffuse::calcBsdfSample(
@@ -97,7 +97,7 @@ void LambertianDiffuse::calcBsdfSamplePdfW(
 	const SidednessAgreement&  sidedness) const
 {
 	const Vector3R& N = in.X.getShadingNormal();
-	out.sampleDirPdfW = in.L.absDot(N) * PH_RECI_PI_REAL;
+	out.sampleDirPdfW = in.L.absDot(N) * constant::rcp_pi<real>;
 }
 
 }// end namespace ph
