@@ -49,9 +49,8 @@ before_script:
 script:
   - git clone https://github.com/TzuChieh/Photon-v2-ThirdParty.git
   - bash ./setup.sh
-  - mkdir -p ./build/
+  
   - cd ./build/
-
   - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_ENGINE_TEST=ON ../ 
   #- make -j4 VERBOSE=1
   - make -j4
