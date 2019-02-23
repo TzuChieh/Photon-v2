@@ -2,13 +2,12 @@
 
 #include "Core/Renderer/Sampling/SamplingRenderer.h"
 #include "Core/Filmic/HdrRgbFilm.h"
-#include "Core/Filmic/SampleFilter.h"
 #include "Core/Renderer/Sampling/CameraSamplingWork.h"
 #include "Core/Renderer/Sampling/TCameraMeasurementEstimator.h"
-#include "Core/Estimator/FullRayEnergyEstimator.h"
 #include "Core/Renderer/Region/WorkScheduler.h"
 #include "Core/Renderer/Sampling/MetaRecordingProcessor.h"
 #include "Core/Quantity/SpectralStrength.h"
+#include "Math/TVector2.h"
 
 #include <vector>
 #include <memory>
@@ -42,14 +41,25 @@ public:
 private:
 	using FilmEstimator = TCameraMeasurementEstimator<HdrRgbFilm, SpectralStrength>;
 
+	enum class EScheduler
+	{
+		BULK,
+		STRIPE,
+		GRID,
+		TILE,
+		SPIRAL,
+		SPIRAL_GRID
+	};
+
 	const Scene*                   m_scene;
 	const Camera*                  m_camera;
 	SampleGenerator*               m_sampleGenerator;
-	SampleFilter                   m_filter;
 	HdrRgbFilm                     m_mainFilm;
-	std::unique_ptr<WorkScheduler> m_scheduler;
 
-	std::unique_ptr<FullRayEnergyEstimator> m_estimator;
+	std::unique_ptr<WorkScheduler> m_scheduler;
+	EScheduler                     m_schedulerType;
+	Vector2S                       m_blockSize;
+	
 	std::vector<CameraSamplingWork>         m_renderWorks;
 	std::vector<FilmEstimator>              m_filmEstimators;
 	std::vector<MetaRecordingProcessor>     m_metaRecorders;
@@ -67,6 +77,7 @@ private:
 	std::atomic_uint32_t m_submittedFractionBits;
 
 	void addUpdatedRegion(const Region& region, bool isUpdating);
+	void initScheduler(std::size_t numSamplesPerPixel);
 
 // command interface
 public:
@@ -84,33 +95,26 @@ public:
 	<type_name> equal                      </type_name>
 	<extend>    renderer.sampling-renderer </extend>
 
-	<name> Equal Renderer </name>
+	<name> Equal Sampling Renderer </name>
 	<description>
-		This renderer renders images by path sampling techniques. Typically, this means the 
-		rendering technique used is unbiased.
+		This renderer renders images by path sampling techniques and 
+		distributes them equally. Typically, this means the rendering 
+		technique used is unbiased, and the the image converges as a
+		whole.
 	</description>
 
 	<command type="creator">
-		<input name="filter-name" type="string">
+		<input name="scheduler" type="string">
 			<description>
-				The type of filter used by the film. "box": box filter, fairly sharp but can have
-				obvious aliasing around edges; "gaussian": Gaussian filter, gives smooth results;
-				"mitchell-netravali" or "mn": Mitchell-Netravali filter, smooth but remains sharp
-				around edges; "blackman-harris" or "bh": Blackman-Harris filter, a good compromise
-				between smoothness and sharpness.
+				Scheduler for rendering, affect the order of rendered regions.
+				Possible values: bulk, stripe, grid, tile, spiral, spiral-grid.
 			</description>
 		</input>
-		<input name="estimator" type="string">
-			<description>
-				The energy estimating component used by the renderer. "bvpt": backward path 
-				tracing; "bneept": backward path tracing with next event estimation.
-			</description>
+		<input name="block-width" type="integer">
+			<description>Desired width for render scheduling.</description>
 		</input>
-		<input name="light-energy-tag" type="string">
-			<description>Renders light energy or not. Can be "true" or "false".</description>
-		</input>
-		<input name="normal-tag" type="string">
-			<description>Renders normal vector or not. Can be "true" or "false".</description>
+		<input name="block-height" type="integer">
+			<description>Desired height for render scheduling.</description>
 		</input>
 	</command>
 

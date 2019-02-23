@@ -2,6 +2,8 @@
 
 #include "Core/Estimator/TEstimationArray.h"
 
+#include <string>
+
 namespace ph
 {
 
@@ -20,6 +22,16 @@ public:
 		const Ray&                        ray, 
 		const Integrand&                  integrand, 
 		TEstimationArray<EstimationType>& out_estimation) const = 0;
+
+	virtual std::string toString() const;
 };
+
+// In-header Implementations:
+
+template<typename EstimationType>
+inline std::string TIRayEstimator<EstimationType>::toString() const
+{
+	return "Ray Estimator";
+}
 
 }// end namespace ph

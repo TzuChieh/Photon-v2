@@ -2,6 +2,7 @@
 
 #include "Core/Renderer/Region/WorkScheduler.h"
 #include "Math/math.h"
+#include "Math/constant.h"
 #include "Common/assertion.h"
 
 #include <algorithm>
@@ -28,26 +29,26 @@ public:
 	GridScheduler();
 
 	GridScheduler(
-		std::size_t     numWorkers,
-		const WorkUnit& totalWorkUnit);
+		std::size_t             numWorkers,
+		const WorkUnit&         totalWorkUnit);
 
 	GridScheduler(
-		std::size_t     numWorkers,
-		const WorkUnit& totalWorkUnit,
-		const Vector2S& numCells);
+		std::size_t             numWorkers,
+		const WorkUnit&         totalWorkUnit,
+		const Vector2S&         numCells);
 
 	GridScheduler(
-		std::size_t     numWorkers, 
-		const WorkUnit& totalWorkUnit,
-		const Vector2S& numCells,
-		EOrigin         origin,
-		int             prioriAxis);
+		std::size_t             numWorkers, 
+		const WorkUnit&         totalWorkUnit,
+		const Vector2S&         numCells,
+		EOrigin                 origin,
+		constant::AxisIndexType prioriAxis);
 
 private:
-	Vector2S m_numCells;
-	EOrigin  m_origin;
-	int      m_prioriAxis;
-	Vector2S m_currentCell;
+	Vector2S                m_numCells;
+	EOrigin                 m_origin;
+	constant::AxisIndexType m_prioriAxis;
+	Vector2S                m_currentCell;
 
 	void scheduleOne(WorkUnit* out_workUnit) override;
 };
@@ -84,11 +85,11 @@ inline GridScheduler::GridScheduler(
 {}
 
 inline GridScheduler::GridScheduler(
-	std::size_t     numWorkers,
-	const WorkUnit& totalWorkUnit,
-	const Vector2S& numCells,
-	const EOrigin   origin,
-	const int       prioriAxis) : 
+	const std::size_t             numWorkers,
+	const WorkUnit&               totalWorkUnit,
+	const Vector2S&               numCells,
+	const EOrigin                 origin,
+	const constant::AxisIndexType prioriAxis) :
 
 	WorkScheduler(numWorkers, totalWorkUnit),
 

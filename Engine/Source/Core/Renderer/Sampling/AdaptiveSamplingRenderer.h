@@ -48,11 +48,9 @@ private:
 	const Scene*               m_scene;
 	const Camera*              m_camera;
 	SampleGenerator*           m_sampleGenerator;
-	SampleFilter               m_filter;
 	HdrRgbFilm                 m_allEffortFilm;
 	HdrRgbFilm                 m_halfEffortFilm;
 
-	std::unique_ptr<FullRayEnergyEstimator> m_estimator;
 	std::vector<CameraSamplingWork>         m_renderWorks;
 	std::vector<FilmEstimator>              m_filmEstimators;
 
@@ -91,3 +89,38 @@ public:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  renderer                   </category>
+	<type_name> adaptive                   </type_name>
+	<extend>    renderer.sampling-renderer </extend>
+
+	<name> Adaptive Sampling Renderer </name>
+	<description>
+		This renderer renders images by path sampling techniques, but the 
+		samples will be concentrated on noisy regions. Normally, this renderer
+		has better utilization of computational power.
+	</description>
+
+	<command type="creator">
+		<input name="filter-name" type="string">
+			<description>
+				The type of filter used by the film. "box": box filter, fairly sharp but can have
+				obvious aliasing around edges; "gaussian": Gaussian filter, gives smooth results;
+				"mitchell-netravali" or "mn": Mitchell-Netravali filter, smooth but remains sharp
+				around edges; "blackman-harris" or "bh": Blackman-Harris filter, a good compromise
+				between smoothness and sharpness.
+			</description>
+		</input>
+		<input name="estimator" type="string">
+			<description>
+				The energy estimating component used by the renderer. "bvpt": backward path
+				tracing; "bneept": backward path tracing with next event estimation.
+			</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/

@@ -2,6 +2,7 @@
 
 #include "Core/Renderer/Region/WorkScheduler.h"
 #include "Math/math.h"
+#include "Math/constant.h"
 #include "Common/assertion.h"
 
 #include <algorithm>
@@ -18,14 +19,14 @@ class StripeScheduler : public WorkScheduler
 public:
 	StripeScheduler();
 	StripeScheduler(
-		std::size_t     numWorkers, 
-		const WorkUnit& totalWorkUnit,
-		int             slicedAxis);
+		std::size_t             numWorkers, 
+		const WorkUnit&         totalWorkUnit,
+		constant::AxisIndexType slicedAxis);
 
 private:
-	int         m_slicedAxis;
-	std::size_t m_numScheduled;
-	std::size_t m_sideLength;
+	constant::AxisIndexType m_slicedAxis;
+	std::size_t             m_numScheduled;
+	std::size_t             m_sideLength;
 
 	void scheduleOne(WorkUnit* out_workUnit) override;
 };
@@ -37,9 +38,9 @@ inline StripeScheduler::StripeScheduler() :
 {}
 
 inline StripeScheduler::StripeScheduler(
-	const std::size_t numWorkers,
-	const WorkUnit&   totalWorkUnit,
-	const int         slicedAxis) :
+	const std::size_t             numWorkers,
+	const WorkUnit&               totalWorkUnit,
+	const constant::AxisIndexType slicedAxis) :
 
 	WorkScheduler(numWorkers, totalWorkUnit),
 

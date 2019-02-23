@@ -32,6 +32,8 @@ public:
 		const Integrand&  integrand,
 		EnergyEstimation& out_estimation) const override;
 
+	std::string toString() const override;
+
 private:
 	static void rationalClamp(SpectralStrength& value);
 };
@@ -40,5 +42,10 @@ private:
 
 inline void BNEEPTEstimator::update(const Integrand& integrand)
 {}
+
+inline std::string BNEEPTEstimator::toString() const
+{
+	return "Backward NEE Path Tracing Estimator";
+}
 
 }// end namespace ph

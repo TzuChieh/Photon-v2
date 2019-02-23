@@ -31,6 +31,9 @@ Renderer::~Renderer() = default;
 
 void Renderer::update(const SdlResourcePack& data)
 {
+	logger.log("# render workers = " + std::to_string(numWorkers()));
+	logger.log("render region = " + getRenderWindowPx().toString());
+
 	logger.log("updating...");
 
 	Timer updateTimer;

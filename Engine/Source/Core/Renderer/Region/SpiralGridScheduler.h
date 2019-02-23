@@ -23,12 +23,12 @@ public:
 	SpiralGridScheduler(
 		std::size_t     numWorkers,
 		const WorkUnit& totalWorkUnit,
-		std::size_t     spiralSquareSize);
+		const Vector2S& spiralTileSize);
 
 	SpiralGridScheduler(
 		std::size_t     numWorkers,
 		const WorkUnit& totalWorkUnit,
-		const Vector2S& spiralRectangleSize,
+		const Vector2S& spiralTileSize,
 		const Vector2S& numGridCells);
 
 private:
@@ -48,24 +48,24 @@ inline SpiralGridScheduler::SpiralGridScheduler() :
 inline SpiralGridScheduler::SpiralGridScheduler(
 	const std::size_t numWorkers,
 	const WorkUnit&   totalWorkUnit,
-	const std::size_t spiralSquareSize) : 
+	const Vector2S&   spiralTileSize) :
 
 	SpiralGridScheduler(
 		numWorkers, 
 		totalWorkUnit,
-		Vector2S(spiralSquareSize),
+		spiralTileSize,
 		Vector2S(static_cast<std::size_t>(std::max(math::fast_sqrt(static_cast<float>(numWorkers)), 1.0f))))
 {}
 
 inline SpiralGridScheduler::SpiralGridScheduler(
 	const std::size_t numWorkers,
 	const WorkUnit&   totalWorkUnit,
-	const Vector2S&   spiralRectangleSize,
+	const Vector2S&   spiralTileSize,
 	const Vector2S&   numGridCells) : 
 
 	WorkScheduler(numWorkers, totalWorkUnit),
 
-	m_spiralScheduler(numWorkers, totalWorkUnit, spiralRectangleSize),
+	m_spiralScheduler(numWorkers, totalWorkUnit, spiralTileSize),
 	m_numGridCells   (numGridCells),
 	m_currentGrid    ()
 {}

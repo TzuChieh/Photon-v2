@@ -24,12 +24,12 @@ public:
 	SpiralScheduler(
 		std::size_t     numWorkers, 
 		const WorkUnit& totalWorkUnit,
-		std::size_t     squareSize);
+		std::size_t     tileSize);
 
 	SpiralScheduler(
 		std::size_t     numWorkers,
 		const WorkUnit& totalWorkUnit,
-		const Vector2S& rectangleSize);
+		const Vector2S& tileSize);
 
 private:
 	enum class EFacing
@@ -58,22 +58,22 @@ inline SpiralScheduler::SpiralScheduler() :
 inline SpiralScheduler::SpiralScheduler(
 	const std::size_t numWorkers,
 	const WorkUnit&   totalWorkUnit,
-	const std::size_t squareSize) :
+	const std::size_t tileSize) :
 
 	SpiralScheduler(
 		numWorkers, 
 		totalWorkUnit, 
-		Vector2S(squareSize, squareSize))
+		Vector2S(tileSize, tileSize))
 {}
 
 inline SpiralScheduler::SpiralScheduler(
 	const std::size_t numWorkers,
 	const WorkUnit&   totalWorkUnit,
-	const Vector2S&   rectangleSize) :
+	const Vector2S&   tileSize) :
 
 	WorkScheduler(numWorkers, totalWorkUnit),
 
-	m_headSize     (rectangleSize),
+	m_headSize     (tileSize),
 	m_headPos      (totalWorkUnit.getRegion().calcCenter().sub(m_headSize / 2)),
 	m_headFacing   (EFacing::POSITIVE_X),
 	m_currentCycles(0),

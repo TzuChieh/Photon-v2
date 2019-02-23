@@ -24,11 +24,18 @@ public:
 		const Ray&        ray,
 		const Integrand&  integrand,
 		EnergyEstimation& out_estimation) const override;
+
+	std::string toString() const override;
 };
 
 // In-header Implementations:
 
 inline void BVPTEstimator::update(const Integrand& integrand)
 {}
+
+inline std::string BVPTEstimator::toString() const
+{
+	return "Backward Vanilla Path Tracing Estimator";
+}
 
 }// end namespace ph

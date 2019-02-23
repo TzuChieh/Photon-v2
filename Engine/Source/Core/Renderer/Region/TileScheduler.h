@@ -2,6 +2,7 @@
 
 #include "Core/Renderer/Region/WorkScheduler.h"
 #include "Math/math.h"
+#include "Math/constant.h"
 #include "Common/assertion.h"
 #include "Core/Renderer/Region/GridScheduler.h"
 
@@ -27,16 +28,16 @@ public:
 	TileScheduler();
 
 	TileScheduler(
-		std::size_t     numWorkers,
-		const WorkUnit& totalWorkUnit,
-		const Vector2S& tileSize);
+		std::size_t              numWorkers,
+		const WorkUnit&          totalWorkUnit,
+		const Vector2S&          tileSize);
 
 	TileScheduler(
-		std::size_t     numWorkers, 
-		const WorkUnit& totalWorkUnit,
-		const Vector2S& tileSize,
-		EOrigin         origin,
-		int             prioriAxis);
+		std::size_t              numWorkers, 
+		const WorkUnit&          totalWorkUnit,
+		const Vector2S&          tileSize,
+		EOrigin                  origin,
+		constant::AxisIndexType  prioriAxis);
 
 private:
 	GridScheduler m_grid;
@@ -66,11 +67,11 @@ inline TileScheduler::TileScheduler(
 {}
 
 inline TileScheduler::TileScheduler(
-	std::size_t     numWorkers,
-	const WorkUnit& totalWorkUnit,
-	const Vector2S& tileSize,
-	const EOrigin   origin,
-	const int       prioriAxis) : 
+	const std::size_t             numWorkers,
+	const WorkUnit&               totalWorkUnit,
+	const Vector2S&               tileSize,
+	const EOrigin                 origin,
+	const constant::AxisIndexType prioriAxis) :
 
 	WorkScheduler(numWorkers, totalWorkUnit),
 

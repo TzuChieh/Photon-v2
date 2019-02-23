@@ -19,6 +19,8 @@ public:
 
 	void setEstimationIndex(std::size_t index);
 
+	std::string toString() const override;
+
 protected:
 	std::size_t m_estimationIndex;
 };
@@ -28,6 +30,11 @@ protected:
 inline void FullRayEnergyEstimator::setEstimationIndex(const std::size_t index)
 {
 	m_estimationIndex = index;
+}
+
+inline std::string FullRayEnergyEstimator::toString() const
+{
+	return "Full Ray Energy Estimator";
 }
 
 }// end namespace ph

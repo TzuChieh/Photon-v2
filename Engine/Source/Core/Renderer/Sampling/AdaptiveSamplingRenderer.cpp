@@ -1,7 +1,6 @@
 #include "Core/Renderer/Sampling/AdaptiveSamplingRenderer.h"
 #include "Common/assertion.h"
 #include "FileIO/SDL/InputPacket.h"
-#include "Core/Filmic/Film.h"
 #include "Core/Ray.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "FileIO/SDL/SdlResourcePack.h"
@@ -10,9 +9,6 @@
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
 #include "Common/assertion.h"
-#include "Core/Filmic/SampleFilters.h"
-#include "Core/Estimator/BVPTEstimator.h"
-#include "Core/Estimator/BNEEPTEstimator.h"
 #include "Core/Estimator/Integrand.h"
 #include "Core/Renderer/Region/PlateScheduler.h"
 #include "Core/Renderer/Region/StripeScheduler.h"
@@ -351,30 +347,12 @@ AdaptiveSamplingRenderer::AdaptiveSamplingRenderer(const InputPacket& packet) :
 	//m_films(),
 	m_scene(nullptr),
 	m_sampleGenerator(nullptr),
-	m_estimator(nullptr),
 	m_camera(nullptr),
 	m_updatedRegions(),
-	m_rendererMutex(),
-	m_filter(SampleFilters::createGaussianFilter())
+	m_rendererMutex()
 {
-	const std::string filterName = packet.getString("filter-name");
-	m_filter = SampleFilters::create(filterName);
-
-	const std::string estimatorName = packet.getString("estimator", "bneept");
-	if(estimatorName == "bvpt")
-	{
-		m_estimator = std::make_unique<BVPTEstimator>();
-	}
-	else if(estimatorName == "bneept")
-	{
-		m_estimator = std::make_unique<BNEEPTEstimator>();
-	}
-
-	PH_ASSERT(m_estimator);
-
 	// DEBUG
-	//m_precisionStandard = packet.getReal("precision-standard", 1.0_r);
-	m_precisionStandard = packet.getReal("precision-standard", 0.5_r);
+	m_precisionStandard = packet.getReal("precision-standard", 1.0_r);
 	m_minSamplesPerRegion = packet.getInteger("min-samples-per-region", 128);
 }
 

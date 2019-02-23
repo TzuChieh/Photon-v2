@@ -1,6 +1,5 @@
 #include "Core/Renderer/Sampling/EqualSamplingRenderer.h"
 #include "Common/primitive_type.h"
-#include "Core/Filmic/Film.h"
 #include "World/VisualWorld.h"
 #include "Core/Ray.h"
 #include "Math/constant.h"
@@ -11,9 +10,6 @@
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
 #include "Common/assertion.h"
-#include "Core/Filmic/SampleFilters.h"
-#include "Core/Estimator/BVPTEstimator.h"
-#include "Core/Estimator/BNEEPTEstimator.h"
 #include "Core/Estimator/Integrand.h"
 #include "Core/Filmic/Vector3Film.h"
 #include "Core/Renderer/Region/PlateScheduler.h"
@@ -23,6 +19,8 @@
 #include "Utility/utility.h"
 #include "Core/Renderer/Region/SpiralGridScheduler.h"
 #include "Core/Renderer/Region/TileScheduler.h"
+#include "Common/Logger.h"
+#include "Core/Renderer/Region/WorkUnit.h"
 
 #include <cmath>
 #include <iostream>
@@ -35,8 +33,15 @@
 namespace ph
 {
 
+namespace
+{
+	const Logger logger(LogSender("Equal Sampling Renderer"));
+}
+
 void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 {
+	logger.log("rendering core: " + m_estimator->toString());
+
 	m_updatedRegions.clear();
 	m_totalPaths            = 0;
 	m_suppliedFractionBits  = 0;
@@ -70,24 +75,8 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 		m_renderWorks[workerId].addProcessor(&m_filmEstimators[workerId]);
 	}
 
-	// DEBUG
-	m_scheduler = std::make_unique<SpiralGridScheduler>(
-		numWorkers(),
-		WorkUnit(Region(getRenderWindowPx()), m_sampleGenerator->numSampleBatches()),
-		50);
-
-	/*m_scheduler = std::make_unique<TileScheduler>(
-		numWorkers(),
-		WorkUnit(Region(getRenderWindowPx()), m_sampleGenerator->numSampleBatches()),
-		Vector2S(10, 50));*/
-
-	// DEBUG
-	/*m_metaRecorders.resize(numWorkers());
-	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
-	{
-		m_metaRecorders[workerId] = MetaRecordingProcessor(&m_filmEstimators[workerId]);
-		m_renderWorks[workerId].addProcessor(&m_metaRecorders[workerId]);
-	}*/
+	initScheduler(m_sampleGenerator->numSampleBatches());
+	PH_ASSERT(m_scheduler);
 }
 
 void EqualSamplingRenderer::doRender()
@@ -287,6 +276,54 @@ ObservableRenderData EqualSamplingRenderer::getObservableData() const
 	return data;
 }
 
+void EqualSamplingRenderer::initScheduler(const std::size_t numSamplesPerPixel)
+{
+	const WorkUnit totalWorks(Region(getRenderWindowPx()), numSamplesPerPixel);
+
+	switch(m_schedulerType)
+	{
+	case EScheduler::BULK:
+		m_scheduler = std::make_unique<PlateScheduler>(
+			numWorkers(), totalWorks);
+		break;
+
+	case EScheduler::STRIPE:
+		m_scheduler = std::make_unique<StripeScheduler>(
+			numWorkers(), totalWorks, constant::X_AXIS);
+		break;
+
+	case EScheduler::GRID:
+		m_scheduler = std::make_unique<GridScheduler>(
+			numWorkers(), totalWorks);
+		break;
+
+	case EScheduler::TILE:
+		m_scheduler = std::make_unique<TileScheduler>(
+			numWorkers(), totalWorks, m_blockSize);
+		break;
+
+	case EScheduler::SPIRAL:
+		m_scheduler = std::make_unique<SpiralScheduler>(
+			numWorkers(), totalWorks, m_blockSize);
+		break;
+
+	case EScheduler::SPIRAL_GRID:
+		m_scheduler = std::make_unique<SpiralGridScheduler>(
+			numWorkers(), totalWorks, m_blockSize);
+		break;
+
+	default:
+		logger.log(ELogLevel::WARNING_MED, 
+			"unsupported scheduler ID: " + std::to_string(static_cast<int>(m_schedulerType)));
+
+		// If this happends, we then assume other inputs might also be bad.
+		// Uses a good default with munimum dependency on user inputs.
+		m_scheduler = std::make_unique<GridScheduler>(
+			numWorkers(), totalWorks);
+		break;
+	}
+}
+
 // command interface
 
 EqualSamplingRenderer::EqualSamplingRenderer(const InputPacket& packet) :
@@ -296,11 +333,12 @@ EqualSamplingRenderer::EqualSamplingRenderer(const InputPacket& packet) :
 	m_scene          (nullptr),
 	m_camera         (nullptr),
 	m_sampleGenerator(nullptr),
-	m_filter         (SampleFilters::createGaussianFilter()),
 	m_mainFilm       (),
-	m_scheduler      (nullptr),
 
-	m_estimator     (nullptr),
+	m_scheduler      (nullptr),
+	m_schedulerType  (EScheduler::SPIRAL_GRID),
+	m_blockSize      (128, 128),
+
 	m_renderWorks   (),
 	m_filmEstimators(),
 
@@ -310,24 +348,37 @@ EqualSamplingRenderer::EqualSamplingRenderer(const InputPacket& packet) :
 	m_suppliedFractionBits (),
 	m_submittedFractionBits()
 {
-	const std::string filterName = packet.getString("filter-name");
-	m_filter = SampleFilters::create(filterName);
-
-	const std::string estimatorName = packet.getString("estimator", "bneept");
-	if(estimatorName == "bvpt")
+	if(packet.hasString("scheduler"))
 	{
-		m_estimator = std::make_unique<BVPTEstimator>();
+		const std::string schedulerName = packet.getString("scheduler");
+		if(schedulerName == "bulk")
+		{
+			m_schedulerType = EScheduler::BULK;
+		}
+		else if(schedulerName == "stripe")
+		{
+			m_schedulerType = EScheduler::STRIPE;
+		}
+		else if(schedulerName == "grid")
+		{
+			m_schedulerType = EScheduler::GRID;
+		}
+		else if(schedulerName == "tile")
+		{
+			m_schedulerType = EScheduler::TILE;
+		}
+		else if(schedulerName == "spiral")
+		{
+			m_schedulerType = EScheduler::SPIRAL;
+		}
+		else if(schedulerName == "spiral-grid")
+		{
+			m_schedulerType = EScheduler::SPIRAL_GRID;
+		}
 	}
-	else if(estimatorName == "bneept")
-	{
-		m_estimator = std::make_unique<BNEEPTEstimator>();
-	}
 
-	/*const std::string regionSchedulerName = packet.getString("region-scheduler", "bulk");
-	if(regionSchedulerName == "bulk")
-	{
-		m_workScheduler = std::make_unique<PlateScheduler>();
-	}*/
+	m_blockSize.x = packet.getInteger("block-width",  static_cast<integer>(m_blockSize.x));
+	m_blockSize.y = packet.getInteger("block-height", static_cast<integer>(m_blockSize.y));
 }
 
 SdlTypeInfo EqualSamplingRenderer::ciTypeInfo()

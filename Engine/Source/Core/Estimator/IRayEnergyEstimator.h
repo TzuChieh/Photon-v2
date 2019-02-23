@@ -17,6 +17,15 @@ public:
 		const Ray&        ray, 
 		const Integrand&  integrand, 
 		EnergyEstimation& out_estimation) const override = 0;
+
+	std::string toString() const override;
 };
+
+// In-header Implementations:
+
+inline std::string IRayEnergyEstimator::toString() const
+{
+	return "Ray Energy Estimator";
+}
 
 }// end namespace ph

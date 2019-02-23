@@ -41,6 +41,7 @@ public class StaticCanvasDisplay extends Display
 			
 			getDisplayInfoView().showDisplayResolution(
 				(int)(m_canvas.getWidth() + 0.5), (int)(m_canvas.getHeight() + 0.5));
+			getDisplayInfoView().showZoom(getDrawnScale(getFittedDrawResPx()) * 100.0f);
 		};
 			
 		m_canvas.widthProperty().addListener(sizeChangeListener);
