@@ -79,7 +79,7 @@ bool testRay::isIntersectPackedTriangle(const PackedTriangle& packedTris, Packed
         //float* ptr = (float*)&tResults;
         for (int i = 0; i < width; ++i)
         {
-            std::cout << "temp":" << temp[i] << std::endl;
+            std::cout << "temp:" << temp[i] << std::endl;
             if (temp[i] >= 0.0f && temp[i] < result.t)
             {
                 result.t = temp[i];
