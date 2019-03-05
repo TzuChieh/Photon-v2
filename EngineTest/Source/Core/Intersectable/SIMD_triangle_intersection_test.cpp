@@ -2,20 +2,23 @@
 #include <Math/TVector3.h>
 #include "Core/Ray.h"
 #include <gtest/gtest.h>
+#include <unistd.h>
 
 TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 {
-	Ray r(Vector3R(0,0,-1), Vector3R(1,1,1), 0 , 100);
+	using namespace ph;
+
+	Ray r(Vector3R(1,1,-1), Vector3R(0,0,1), 0 , 100);
 	PackedTriangle tri;
-	PackedIntersectionResult result;
+	PackedIntersectionResult results;
 	Vector3R v0[8];
 	Vector3R v1[8];
 	Vector3R v2[8];
 	for(int i = 0 ; i < 8 ; ++i)
 	{
-		Vector3R tp0(i, i, 0);
-		Vector3R tp1(i+2, i+2, 0);
-		Vector3R tp2(i+2,i,0);
+		Vector3R tp0(0, 0, i);
+		Vector3R tp1(0, 3, i);
+		Vector3R tp2(3,0, i);
 		v0[i] = tp0;
 		v1[i] = tp1;
 		v2[i] = tp2;
@@ -33,9 +36,11 @@ TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 	tri.v0[1] = simdpp::make_float(v0[0].y, v0[1].y, v0[2].y, v0[3].y, v0[4].y, v0[5].y, v0[6].y, v0[7].y);
 	tri.v0[2] = simdpp::make_float(v0[0].z, v0[1].z, v0[2].z, v0[3].z, v0[4].z, v0[5].z, v0[6].z, v0[7].z);
 
-	simdpp::float32 all_zero = simdpp::make_float(0,0,0,0,0,0,0,0);
+	simdpp::float32<width> all_zero = simdpp::make_float(0);
 	tri.inactiveMask = simdpp::to_mask(all_zero);
 	testRay ray(r);
-	ray.isIntersectPackedTriangle(tri, result);
+	ray.isIntersectPackedTriangle(tri, results);
+	std::cout << results << std::endl;
+	sleep(10);
 	EXPECT_EQ(results.idx, 0);
 }
