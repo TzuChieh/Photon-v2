@@ -1,6 +1,6 @@
 #include "SIMD_triangle_intersection.h"
-
-
+#include <immintrin.h>
+#include <stdio.h>
 namespace ph
 {
 
@@ -55,9 +55,11 @@ bool testRay::isIntersectPackedTriangle(const PackedTriangle& packedTris, Packed
     failed = simdpp::bit_or(failed, packedTris.inactiveMask);
 
     const simdpp::float32<width> tResults = simdpp::blend(t, minusOneM256, failed);
-    //simdpp::float32<width> temp_mask= simdpp::sign(tResults);
+    simdpp::float32<width> temp_mask= simdpp::sign(tResults);
     float temp[width];
+    std::cout << sizeof(temp) << std::endl;
     simdpp::store(temp, tResults);
+
     int mask = 0;
     for (int i=0; i < width; ++i)
     {   
@@ -66,18 +68,21 @@ bool testRay::isIntersectPackedTriangle(const PackedTriangle& packedTris, Packed
             mask |= (1<<i);
         }
     }
+    
+    std::cout << mask << std::endl;
 
     if (mask != 0xFF)
     {
         // There is at least one intersection
         result.idx = -1;
 
-        float* ptr = (float*)&tResults;
+        //float* ptr = (float*)&tResults;
         for (int i = 0; i < width; ++i)
         {
-            if (ptr[i] >= 0.0f && ptr[i] < result.t)
+            std::cout << "temp":" << temp[i] << std::endl;
+            if (temp[i] >= 0.0f && temp[i] < result.t)
             {
-                result.t = ptr[i];
+                result.t = temp[i];
                 result.idx = i;
             }
         }
@@ -86,6 +91,8 @@ bool testRay::isIntersectPackedTriangle(const PackedTriangle& packedTris, Packed
     }
 
     return false;
+
 }
+
 
 }

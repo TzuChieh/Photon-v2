@@ -23,11 +23,20 @@ struct PackedTriangle {
     simdpp::mask_float32<width> inactiveMask; // Required. We cant always have 8 triangles per packet.
 };
 
-struct PackedIntersectionResult
+class PackedIntersectionResult
 {
-    float t = std::numeric_limits<float>::infinity();;
-    int idx;
+    public:
+        float t = std::numeric_limits<float>::infinity();;
+        int idx;
+
 };
+
+
+inline std::ostream& operator<<(std::ostream& os,const PackedIntersectionResult results)
+{
+    os << "t:" << results.t << " " << "idx:" << results.idx << "\n";
+    return os;
+}
 
 class testRay 
 {
