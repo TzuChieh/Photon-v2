@@ -81,7 +81,7 @@ void AdaptiveSamplingRenderer::doUpdate(const SdlResourcePack& data)
 		numWorkers(),
 		getRenderWindowPx(),
 		m_precisionStandard,
-		m_minSamplesPerRegion);
+		m_numInitialSamples);
 
 	m_freeWorkerIds.clear();
 	m_freeWorkerIds.reserve(numWorkers());
@@ -351,9 +351,8 @@ AdaptiveSamplingRenderer::AdaptiveSamplingRenderer(const InputPacket& packet) :
 	m_updatedRegions(),
 	m_rendererMutex()
 {
-	// DEBUG
 	m_precisionStandard = packet.getReal("precision-standard", 1.0_r);
-	m_minSamplesPerRegion = packet.getInteger("min-samples-per-region", 128);
+	m_numInitialSamples = packet.getInteger("initial-samples", 128);
 }
 
 SdlTypeInfo AdaptiveSamplingRenderer::ciTypeInfo()

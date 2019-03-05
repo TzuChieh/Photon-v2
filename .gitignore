@@ -1,4 +1,6 @@
-# Executables & Binaries
+###############################################################################
+# Executables & Binaries                                                      #
+###############################################################################
 *.exe
 *.out
 *.app
@@ -7,16 +9,9 @@
 *.dll
 *.pyc
 
-# Visual Studio User Specific Files
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-
-# User-specific Files (MonoDevelop/Xamarin Studio)
-*.userprefs
-
-# Common Build Output Paths
+###############################################################################
+# Common Build Output Paths                                                   #
+###############################################################################
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
@@ -28,7 +23,10 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ib/
-/Photon-v2_library/
+
+###############################################################################
+# Visual Studio                                                               #
+###############################################################################
 
 # Visual Studio Cache/Options Directory
 .vs/
@@ -55,20 +53,61 @@ ipch/
 # (but keep track of directories ending in .cache)
 !*.[Cc]ache/
 
-# Eclipse Data
+# Visual Studio User Specific Files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# User-specific Files (MonoDevelop/Xamarin Studio)
+*.userprefs
+
+###############################################################################
+# Eclipse Data                                                                #
+###############################################################################
 .metadata/
 .recommenders/
 .settings/
 .classpath
 .project
 
-# PyCharm Project Files
+###############################################################################
+# PyCharm Project Files                                                       #
+###############################################################################
 .idea/
 
-# Visual Studio Code
+###############################################################################
+# Python                                                                      #
+###############################################################################
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+###############################################################################
+# Visual Studio Code                                                          #
+###############################################################################
 .vscode/
 
-# Photon-v2 Project Specific Files & Folders
+###############################################################################
+# CMake                                                                       #
+###############################################################################
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+###############################################################################
+# Photon-v2 Project Specific Files & Folders                                  #
+###############################################################################
 cloc-1.62.exe
 count.bat
 /scene/resource/
@@ -80,25 +119,35 @@ __pycache__/
 /build/
 /*.zip
 
-# ignore resources
-Resource/
-
-# ignore third-party libraries
-/ThirdParty/
-/target/
-
-# ignore script output folder
-/scripts/output/
-
-# ignore generated docs
-doc/
-docs/
-
-# macOS
+###############################################################################
+# macOS                                                                       #
+###############################################################################
 .DS_Store
 
 ###############################################################################
-# HACKING REGION
+# ignore resources                                                            #
+###############################################################################
+Resource/
+
+###############################################################################
+# ignore third-party libraries                                                #
+###############################################################################
+/ThirdParty/
+/target/
+
+###############################################################################
+# ignore script output folder                                                 #
+###############################################################################
+/scripts/output/
+
+###############################################################################
+# ignore generated docs                                                       #
+###############################################################################
+doc/
+docs/
+
+###############################################################################
+# HACKING REGION                                                              #
 ###############################################################################
 
 # avoiding Eclipse generated src folder in root directory (Maven project)

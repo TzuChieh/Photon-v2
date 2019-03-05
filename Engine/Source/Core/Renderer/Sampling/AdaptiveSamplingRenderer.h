@@ -60,7 +60,7 @@ private:
 	DammertzDispatcher                    m_dispatcher;
 	std::vector<uint32>                   m_freeWorkerIds;
 	real                                  m_precisionStandard;
-	std::size_t                           m_minSamplesPerRegion;
+	std::size_t                           m_numInitialSamples;
 	HdrRgbFrame                           m_allEffortFrame;
 	HdrRgbFrame                           m_halfEffortFrame;
 
@@ -105,21 +105,6 @@ public:
 	</description>
 
 	<command type="creator">
-		<input name="filter-name" type="string">
-			<description>
-				The type of filter used by the film. "box": box filter, fairly sharp but can have
-				obvious aliasing around edges; "gaussian": Gaussian filter, gives smooth results;
-				"mitchell-netravali" or "mn": Mitchell-Netravali filter, smooth but remains sharp
-				around edges; "blackman-harris" or "bh": Blackman-Harris filter, a good compromise
-				between smoothness and sharpness.
-			</description>
-		</input>
-		<input name="estimator" type="string">
-			<description>
-				The energy estimating component used by the renderer. "bvpt": backward path
-				tracing; "bneept": backward path tracing with next event estimation.
-			</description>
-		</input>
 	</command>
 
 	</SDL_interface>
