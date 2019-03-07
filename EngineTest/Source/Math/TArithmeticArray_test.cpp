@@ -2,6 +2,19 @@
 
 #include <gtest/gtest.h>
 
+#include <type_traits>
+
+TEST(TArithmeticArrayTest, Requirements)
+{
+	using namespace ph;
+
+	EXPECT_TRUE((std::is_trivially_copyable_v<TArithmeticArray<char, 1>>));
+	EXPECT_TRUE((std::is_trivially_copyable_v<TArithmeticArray<int, 3>>));
+	EXPECT_TRUE((std::is_trivially_copyable_v<TArithmeticArray<unsigned int, 5>>));
+	EXPECT_TRUE((std::is_trivially_copyable_v<TArithmeticArray<float, 7>>));
+	EXPECT_TRUE((std::is_trivially_copyable_v<TArithmeticArray<double, 9>>));
+}
+
 TEST(TArithmeticArrayTest, AddsRhsValue)
 {
 	const std::size_t size = 10;

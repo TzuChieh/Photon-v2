@@ -2,7 +2,9 @@
 
 #include <gtest/gtest.h>
 
-typedef ph::TMatrix3<float> Matrix;
+#include <type_traits>
+
+using Matrix = ph::TMatrix3<float>;
 
 namespace
 {
@@ -31,6 +33,15 @@ namespace
 		EXPECT_EQ(matrix.m[2][1], 0.0f);
 		EXPECT_EQ(matrix.m[2][2], 1.0f);
 	}
+}
+
+TEST(TMatrix3Test, Requirements)
+{
+	using namespace ph;
+
+	EXPECT_TRUE(std::is_trivially_copyable_v<Matrix3R>);
+	EXPECT_TRUE(std::is_trivially_copyable_v<Matrix3F>);
+	EXPECT_TRUE(std::is_trivially_copyable_v<Matrix3D>);
 }
 
 TEST(TMatrix3Test, Construction)

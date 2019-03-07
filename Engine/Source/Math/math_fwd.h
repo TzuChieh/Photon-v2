@@ -23,6 +23,9 @@ template<typename T>
 class TMatrix2;
 
 template<typename T>
+class TMatrix3;
+
+template<typename T>
 class TMatrix4;
 
 template<typename T, std::size_t N>
@@ -45,6 +48,10 @@ using QuaternionD = TQuaternion<float64>;
 using Matrix2R = TMatrix2<real>;
 using Matrix2F = TMatrix2<float32>;
 using Matrix2D = TMatrix2<float64>;
+
+using Matrix3R = TMatrix3<real>;
+using Matrix3F = TMatrix3<float32>;
+using Matrix3D = TMatrix3<float64>;
 
 using Matrix4R = TMatrix4<real>;
 using Matrix4F = TMatrix4<float32>;

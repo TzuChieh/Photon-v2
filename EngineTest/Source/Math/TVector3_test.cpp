@@ -4,9 +4,19 @@
 
 #include <gtest/gtest.h>
 
+#include <type_traits>
+
 using namespace ph;
 
-TEST(MathOperationsVector3R, Constructs)
+TEST(TVector3Test, Requirements)
+{
+	EXPECT_TRUE(std::is_trivially_copyable_v<Vector3R>);
+	EXPECT_TRUE(std::is_trivially_copyable_v<Vector3F>);
+	EXPECT_TRUE(std::is_trivially_copyable_v<Vector3D>);
+	EXPECT_TRUE(std::is_trivially_copyable_v<Vector3S>);
+}
+
+TEST(TVector3Test, Constructs)
 {
 	const Vector3R vec1(-1.1_r, 0.0_r, 2.3_r);
 	EXPECT_EQ(-1.1_r, vec1.x);
@@ -14,7 +24,7 @@ TEST(MathOperationsVector3R, Constructs)
 	EXPECT_EQ( 2.3_r, vec1.z);
 }
 
-TEST(MathOperationsVector3R, AddsTwoVectors)
+TEST(TVector3Test, AddsTwoVectors)
 {
 	const Vector3R vecA1(0.0_r, 1.0_r, -1.0_r), vecB1(0.0_r, -1.0_r, 1.0_r);
 	const Vector3R answer1 = vecA1.add(vecB1);
@@ -29,7 +39,7 @@ TEST(MathOperationsVector3R, AddsTwoVectors)
 	EXPECT_NEAR(-4.7_r, answer2.z, TEST_REAL_EPSILON);
 }
 
-TEST(MathOperationsVector3R, SubtractsTwoVectors)
+TEST(TVector3Test, SubtractsTwoVectors)
 {
 	const Vector3R vecA1(1.0_r, 1.0_r, -1.0_r), vecB1(0.0_r, -1.0_r, 1.0_r);
 	const Vector3R answer1 = vecA1.sub(vecB1);
@@ -44,7 +54,7 @@ TEST(MathOperationsVector3R, SubtractsTwoVectors)
 	EXPECT_NEAR(0.0_r, answer2.z, TEST_REAL_EPSILON);
 }
 
-TEST(MathOperationsVector3R, ComparesEquality)
+TEST(TVector3Test, ComparesEquality)
 {
 	const Vector3R vecA1(0.0_r, -1.0_r, 2.3_r), vecB1(0.0_r, -1.0_r, 2.3_r);
 	EXPECT_TRUE(vecA1.equals(vecB1));
@@ -56,7 +66,7 @@ TEST(MathOperationsVector3R, ComparesEquality)
 	EXPECT_FALSE(vecA3.equals(vecB3, 0.15_r));
 }
 
-TEST(MathOperationsVector3R, WeightedSum)
+TEST(TVector3Test, WeightedSum)
 {
 	const Vector3R vec1(1, 0, 0);
 	const Vector3R vec2(0, 1, 0);

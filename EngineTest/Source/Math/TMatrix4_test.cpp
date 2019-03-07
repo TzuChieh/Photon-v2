@@ -2,7 +2,9 @@
 
 #include <gtest/gtest.h>
 
-typedef ph::TMatrix4<float> Matrix;
+#include <type_traits>
+
+using Matrix = ph::TMatrix4<float>;
 
 namespace
 {
@@ -34,6 +36,15 @@ namespace
 			}
 		}
 	}
+}
+
+TEST(TMatrix4Test, Requirements)
+{
+	using namespace ph;
+
+	EXPECT_TRUE(std::is_trivially_copyable_v<Matrix4R>);
+	EXPECT_TRUE(std::is_trivially_copyable_v<Matrix4F>);
+	EXPECT_TRUE(std::is_trivially_copyable_v<Matrix4D>);
 }
 
 TEST(TMatrix4Test, Constructs)

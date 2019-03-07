@@ -4,6 +4,17 @@
 
 #include <gtest/gtest.h>
 
+#include <type_traits>
+
+TEST(TMatrix2Test, Requirements)
+{
+	using namespace ph;
+
+	EXPECT_TRUE(std::is_trivially_copyable_v<Matrix2R>);
+	EXPECT_TRUE(std::is_trivially_copyable_v<Matrix2F>);
+	EXPECT_TRUE(std::is_trivially_copyable_v<Matrix2D>);
+}
+
 TEST(TMatrix2Test, InitAndCopy)
 {
 	using namespace ph;

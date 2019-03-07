@@ -5,9 +5,19 @@
 
 #include <gtest/gtest.h>
 
+#include <type_traits>
+
 using namespace ph;
 
-TEST(MathOperationsVector2R, Constructs)
+TEST(TVector2Test, Requirements)
+{
+	EXPECT_TRUE(std::is_trivially_copyable_v<Vector2R>);
+	EXPECT_TRUE(std::is_trivially_copyable_v<Vector2F>);
+	EXPECT_TRUE(std::is_trivially_copyable_v<Vector2D>);
+	EXPECT_TRUE(std::is_trivially_copyable_v<Vector2S>);
+}
+
+TEST(TVector2Test, Constructs)
 {
 	// trial 1: element-by-element construct
 
@@ -45,7 +55,7 @@ TEST(MathOperationsVector2R, Constructs)
 	EXPECT_NEAR(vec6r.y,  3.0_r, TEST_REAL_EPSILON);
 }
 
-TEST(MathOperationsVector2R, AddTwoVectors)
+TEST(TVector2Test, AddTwoVectors)
 {
 	const Vector2R vecA(-1.5_r, 2.0_r);
 	const Vector2R vecB( 1.0_r, 3.5_r);
@@ -65,7 +75,7 @@ TEST(MathOperationsVector2R, AddTwoVectors)
 	EXPECT_NEAR(result2.y, answerY, TEST_REAL_EPSILON);
 }
 
-TEST(MathOperationsVector2R, SubTwoVectors)
+TEST(TVector2Test, SubTwoVectors)
 {
 	const Vector2R vecA(-1.5_r, 2.0_r);
 	const Vector2R vecB( 1.0_r, 3.5_r);
@@ -85,7 +95,7 @@ TEST(MathOperationsVector2R, SubTwoVectors)
 	EXPECT_NEAR(result2.y, answerY, TEST_REAL_EPSILON);
 }
 
-TEST(MathOperationsVector2R, MulTwoVectors)
+TEST(TVector2Test, MulTwoVectors)
 {
 	const Vector2R vecA(-1.5_r, 2.0_r);
 	const Vector2R vecB( 2.0_r, 1.5_r);
@@ -105,7 +115,7 @@ TEST(MathOperationsVector2R, MulTwoVectors)
 	EXPECT_NEAR(result2.y, answerY, TEST_REAL_EPSILON);
 }
 
-TEST(MathOperationsVector2R, MulVectorWithScalar)
+TEST(TVector2Test, MulVectorWithScalar)
 {
 	const Vector2R vec(-1.5_r, 2.0_r);
 	const real scalar = 2.0_r;
@@ -125,7 +135,7 @@ TEST(MathOperationsVector2R, MulVectorWithScalar)
 	EXPECT_NEAR(result2.y, answerY, TEST_REAL_EPSILON);
 }
 
-TEST(MathOperationsVector2R, DivTwoVectors)
+TEST(TVector2Test, DivTwoVectors)
 {
 	const Vector2R vecA(-1.0_r, 2.0_r);
 	const Vector2R vecB( 2.0_r, 4.0_r);
@@ -145,7 +155,7 @@ TEST(MathOperationsVector2R, DivTwoVectors)
 	EXPECT_NEAR(result2.y, answerY, TEST_REAL_EPSILON);
 }
 
-TEST(MathOperationsVector2R, DivVectorWithScalar)
+TEST(TVector2Test, DivVectorWithScalar)
 {
 	const Vector2R vec(-1.2_r, 2.0_r);
 	const real scalar = 4.0_r;
@@ -165,7 +175,7 @@ TEST(MathOperationsVector2R, DivVectorWithScalar)
 	EXPECT_NEAR(result2.y, answerY, TEST_REAL_EPSILON);
 }
 
-TEST(MathOperationsVector2R, ComparesEquality)
+TEST(TVector2Test, ComparesEquality)
 {
 	// trial 1: strict equality
 	
