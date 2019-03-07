@@ -1,6 +1,7 @@
 #include "Api/ApiDatabase.h"
 #include "Frame/TFrame.h"
 #include "Core/Engine.h"
+#include "Common/Logger.h"
 
 #include <utility>
 #include <iostream>
@@ -8,15 +9,20 @@
 namespace ph
 {
 
-TStableIndexDenseArray<std::unique_ptr<Engine>>& ApiDatabase::ENGINES()
+namespace
 {
-	static TStableIndexDenseArray<std::unique_ptr<Engine>> engines;
+	const Logger logger(LogSender("API Database"));
+}
+
+TStableIndexDenseArray<std::shared_ptr<Engine>>& ApiDatabase::ENGINES()
+{
+	static TStableIndexDenseArray<std::shared_ptr<Engine>> engines;
 	return engines;
 }
 
-TStableIndexDenseArray<std::unique_ptr<HdrRgbFrame>>& ApiDatabase::FRAMES()
+TStableIndexDenseArray<std::shared_ptr<HdrRgbFrame>>& ApiDatabase::FRAMES()
 {
-	static TStableIndexDenseArray<std::unique_ptr<HdrRgbFrame>> frames;
+	static TStableIndexDenseArray<std::shared_ptr<HdrRgbFrame>> frames;
 	return frames;
 }
 
@@ -45,13 +51,21 @@ Engine* ApiDatabase::getEngine(const std::size_t engineId)
 	std::lock_guard<std::mutex> lock(MUTEX());
 
 	auto* engine = ENGINES().get(engineId);
-	if(engine == nullptr)
+	if(!engine)
 	{
-		std::cerr << "Engine<" << engineId << "> does not exist" << std::endl;
+		logger.log(ELogLevel::WARNING_MED, 
+			"Engine<" + std::to_string(engineId) + "> does not exist");
 		return nullptr;
 	}
 
 	return engine->get();
+}
+
+std::weak_ptr<Engine> ApiDatabase::useEngine(const std::size_t engineId)
+{
+	std::lock_guard<std::mutex> lock(MUTEX());
+
+	return ENGINES().isStableIndexValid(engineId) ? ENGINES()[engineId] : nullptr;
 }
 
 std::size_t ApiDatabase::addFrame(std::unique_ptr<HdrRgbFrame> frame)
@@ -73,13 +87,21 @@ HdrRgbFrame* ApiDatabase::getFrame(const std::size_t frameId)
 	std::lock_guard<std::mutex> lock(MUTEX());
 
 	auto* frame = FRAMES().get(frameId);
-	if(frame == nullptr)
+	if(!frame)
 	{
-		std::cerr << "Frame<" << frameId << "> does not exist" << std::endl;
+		logger.log(ELogLevel::WARNING_MED,
+			"Frame<" + std::to_string(frameId) + "> does not exist");
 		return nullptr;
 	}
 
 	return frame->get();
+}
+
+std::weak_ptr<HdrRgbFrame> ApiDatabase::useFrame(const std::size_t frameId)
+{
+	std::lock_guard<std::mutex> lock(MUTEX());
+
+	return FRAMES().isStableIndexValid(frameId) ? FRAMES()[frameId] : nullptr;
 }
 
 void ApiDatabase::clear()

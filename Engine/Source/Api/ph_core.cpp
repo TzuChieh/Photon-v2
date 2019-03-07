@@ -300,26 +300,26 @@ void phAsyncGetRendererStatistics(const PHuint64 engineId,
 {
 	using namespace ph;
 
-	Engine* engine = ApiDatabase::getEngine(engineId);
+	auto engine = ApiDatabase::useEngine(engineId).lock();
 	if(engine)
 	{
 		float32 percentageProgress, samplesPerSecond;
 		engine->asyncQueryStatistics(&percentageProgress, &samplesPerSecond);
 
 		*out_percentageProgress = static_cast<PHfloat32>(percentageProgress);
-		*out_samplesPerSecond   = static_cast<PHfloat32>(samplesPerSecond);
+		*out_samplesPerSecond = static_cast<PHfloat32>(samplesPerSecond);
 	}
 }
 
 void phAsyncGetRendererState(
-	const PHuint64               engineId,
+	const PHuint64              engineId,
 	struct PHRenderState* const out_state)
 {
 	PH_ASSERT(out_state);
 
 	using namespace ph;
 
-	Engine* engine = ApiDatabase::getEngine(engineId);
+	auto engine = ApiDatabase::useEngine(engineId).lock();
 	if(engine)
 	{
 		const RenderState state = engine->getRenderer()->asyncQueryRenderState();
@@ -346,7 +346,7 @@ int phAsyncPollUpdatedFrameRegion(
 
 	using namespace ph;
 
-	Engine* engine = ApiDatabase::getEngine(engineId);
+	auto engine = ApiDatabase::useEngine(engineId).lock();
 	if(engine)
 	{
 		Region region;
@@ -379,8 +379,8 @@ void phAsyncPeekFrame(
 {
 	using namespace ph;
 
-	Engine*      engine = ApiDatabase::getEngine(engineId);
-	HdrRgbFrame* frame  = ApiDatabase::getFrame(frameId);
+	auto engine = ApiDatabase::useEngine(engineId).lock();
+	auto frame  = ApiDatabase::useFrame(frameId).lock();
 	if(engine && frame)
 	{
 		Region region({xPx, yPx}, {xPx + widthPx, yPx + heightPx});
