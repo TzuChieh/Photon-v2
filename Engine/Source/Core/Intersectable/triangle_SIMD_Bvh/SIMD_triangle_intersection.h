@@ -2,8 +2,11 @@
 #include <limits>
 #include <iostream>
 #include <cmath>
-//#include <cstdint>
- #include "Core/Ray.h"
+#include <vector>
+#include <cstdint>
+#include "Core/Ray.h"
+#include <bitset>
+#include "Common/config.h"
 // #include "Core/Intersectable/PTriangle.h"
 //#define SIMDPP_ARCH_X86_AVX
 
@@ -46,6 +49,7 @@ class testRay
         simdpp::float32<width> m_length;
         bool isIntersectPackedTriangle(const PackedTriangle& triangle, PackedIntersectionResult& result);
         testRay(const Ray& r);
+        // void showRay();
 };
 
 
@@ -73,15 +77,60 @@ void avx_multi_sub(T result[3], const T a[3], const T b[3])
     result[2] = simdpp::sub(a[2], b[2]);
 }
 
-const simdpp::float32<width> oneM256 = simdpp::splat(1.0);
+const simdpp::float32<width> oneM256 = simdpp::splat(1.0f);
 const simdpp::float32<width> minusOneM256 = simdpp::splat(-1.0f);
 const simdpp::float32<width> positiveEpsilonM256 =  simdpp::splat(1e-6f);;
 const simdpp::float32<width> negativeEpsilonM256 = simdpp::splat(-1e-6f);;
 const simdpp::float32<width> zeroM256 = simdpp::splat(0.0f);;
 
+// inline void float_bin(float f)
+// {
+//     int x = *(int *)&f;
+//     std::bitset<sizeof(int) * 8> binary(x);
+//     std::cout << binary << std::endl;    
+// }
+
+// inline void print_float32_bit(const simdpp::float32<width>& input)
+// {
+//     float a[width];
+//     simdpp::store(&a,input);
+//     for(int i = 0; i < width ; i++)
+//     {      
+//         float_bin(a[i]);
+//     }
+//     std::cout << std::endl;
+// }
 
 
+// inline void print_float32(const simdpp::float32<width> input)
+// {
+//     float a[width];
+//     simdpp::store(&a,input);
+//     for(int i = 0; i < width ; i++)
+//     {      
+//         std::cout << a[i] << ",";
+//     }
+//     std::cout << std::endl;
+// }
 
+// inline void show_constants()
+// {
+//     float a[width];
+//     store(a,oneM256);
+//     std::cout << "show oneM256" << std::endl;
+//     print_float32(oneM256);
+
+//     std::cout << "show minusOneM256" << std::endl;
+//     print_float32(minusOneM256);
+
+//     std::cout << "show positiveEpisolonM256" << std::endl;
+//     print_float32(positiveEpsilonM256);
+
+//     std::cout << "show negativeEpsilonM256" << std::endl;
+//     print_float32(negativeEpsilonM256);
+// }
 
 }
+
+
 
