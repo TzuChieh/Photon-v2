@@ -29,13 +29,13 @@ if(WIN32)
     set(BUILD_ENGINE_TEST_DEFAULT ON)
     set(BUILD_EDITOR_JNI_DEFAULT  ON)
 else()
-    set(BUILD_ENGINE_TEST_DEFAULT ON)
-    set(BUILD_EDITOR_JNI_DEFAULT  ON)
+    set(BUILD_ENGINE_TEST_DEFAULT OFF)
+    set(BUILD_EDITOR_JNI_DEFAULT  OFF)
 endif()
 
 
 option(BUILD_ENGINE_TEST "Build unit tests for core engine." ${BUILD_ENGINE_TEST_DEFAULT})
-option(BUILD_EDITOR_JNI "Build JNI for GUI."                 ${BUILD_EDITOR_JNI_DEFAULT})
+option(BUILD_EDITOR_JNI  "Build JNI for GUI."                ${BUILD_EDITOR_JNI_DEFAULT})
 
 ###############################################################################
 # Compiler Settings

@@ -2,7 +2,6 @@
 #include <Math/TVector3.h>
 #include "Core/Ray.h"
 #include <gtest/gtest.h>
-#include <unistd.h>
 
 TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 {
