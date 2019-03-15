@@ -1,6 +1,7 @@
-#include "Core/Intersectable/triangle_SIMD_Bvh/SIMD_triangle_intersection.h"
+#include <Core/Intersectable/triangle_SIMD_Bvh/SIMD_triangle_intersection.h>
+#include <Core/Ray.h>
 #include <Math/TVector3.h>
-#include "Core/Ray.h"
+
 #include <gtest/gtest.h>
 
 TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
