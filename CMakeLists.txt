@@ -1,8 +1,8 @@
 # Main build script for Photon-v2 renderer.
 
 ###############################################################################
-# General Settings
-#
+# General Settings                                                            #
+###############################################################################
 
 cmake_policy(SET CMP0054 NEW)
 
@@ -22,8 +22,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/bin/")
 #set(PROJECT_DIR "${PROJECT_DIR}/")
 
 ###############################################################################
-# Build Options
-#
+# Build Options                                                               #
+###############################################################################
 
 if(WIN32)
     set(BUILD_ENGINE_TEST_DEFAULT ON)
@@ -38,8 +38,8 @@ option(BUILD_ENGINE_TEST "Build unit tests for core engine." ${BUILD_ENGINE_TEST
 option(BUILD_EDITOR_JNI "Build JNI for GUI."                 ${BUILD_EDITOR_JNI_DEFAULT})
 
 ###############################################################################
-# Compiler Settings
-#
+# Compiler Settings                                                           #
+###############################################################################
 
 # using Visual Studio C++
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -82,11 +82,12 @@ endif()
 # TODO: add g++ MT MD equivalent flags?
 
 ###############################################################################
-# Gather Third-party Libraries Required by Photon-v2
-#
+# Gather Third-party Libraries Required by Photon-v2                          #
+###############################################################################
 
 set(THIRD_PARTY_DIR "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty-master/")
 
+# googletest
 if(BUILD_ENGINE_TEST)
     set(GOOGLETEST_INCLUDE_DIR "${THIRD_PARTY_DIR}googletest/include/")
     set(GOOGLETEST_BINARY_DIR  "${THIRD_PARTY_DIR}googletest/lib/${THIRD_PARTY_PLATFORM}/")
@@ -101,8 +102,10 @@ if(BUILD_ENGINE_TEST)
     set(GOOGLETEST_LIBS "${GOOGLETEST_LIB_GMOCK};${GOOGLETEST_LIB_GTEST}")
 endif()
 
+# stb
 set(STB_INCLUDE_DIR "${THIRD_PARTY_DIR}stb/include/")
 
+# StackWalker
 # TODO: debug build?
 if(WIN32)
     set(STACKWALKER_INCLUDE_DIR "${THIRD_PARTY_DIR}StackWalker/include/")
@@ -113,9 +116,12 @@ if(WIN32)
     )
 endif()
 
+# libsimdpp
+set(LIBSIMDPP_INCLUDE_DIR "${THIRD_PARTY_DIR}libsimdpp/include/")
+
 ###############################################################################
-# Add Subdirectories
-#
+# Add CMake Subdirectories                                                    #
+###############################################################################
 
 add_subdirectory("./Engine/")
 

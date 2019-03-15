@@ -5,7 +5,7 @@ from utility import downloader
 import sys
 
 
-src_file_url  = "https://drive.google.com/uc?export=download&id=15xh8dKaCpgNTunFZWeaeBhE6Dio3YPgR"
+src_file_url  = "http://www.cmlab.csie.ntu.edu.tw/~aa0189306/Resource.zip"
 dst_directory = sys.argv[1]
 
 print("Downloading resources...")
