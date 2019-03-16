@@ -1,12 +1,15 @@
-#include "simdpp/simd.h"
+#include "Common/config.h"
+#include "Core/Ray.h"
+
+#include <simdpp/simd.h>
+
 #include <limits>
 #include <iostream>
 #include <cmath>
 #include <vector>
 #include <cstdint>
-#include "Core/Ray.h"
 #include <bitset>
-#include "Common/config.h"
+
 // #include "Core/Intersectable/PTriangle.h"
 //#define SIMDPP_ARCH_X86_AVX
 
@@ -160,7 +163,7 @@ const simdpp::float32<width> positiveEpsilonM256 =  simdpp::splat(1e-6f);;
 const simdpp::float32<width> negativeEpsilonM256 = simdpp::splat(-1e-6f);;
 const simdpp::float32<width> zeroM256 = simdpp::splat(0.0f);;
 
-}
+}// end namespace ph
 
 
 
