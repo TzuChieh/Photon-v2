@@ -18,6 +18,9 @@
 #error "Unsupported platform"
 #endif
 
+
+ph::testTriangle normaltri[1000000];
+ph::PackedTriangle packedtri[1000000];
 TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 {
 	using namespace ph;
@@ -100,8 +103,7 @@ TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 	srand(seed);
 	const int X = 1000000;
 
-	testTriangle normaltri[X];
-	PackedTriangle packedtri[X];
+
 
 	for(int i = 0; i < 1000000; i ++)
 	{
@@ -158,5 +160,6 @@ TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 	elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 	std::cout << "packed triangle time" << elapsed_secs << std::endl;
 
+	std::cout << static_cast<unsigned>(simdpp::this_compile_arch()) << '\n';
 	
 }
