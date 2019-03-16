@@ -3,6 +3,11 @@
 #include "Core/Ray.h"
 #include <gtest/gtest.h>
 #include <unistd.h>
+#include <time.h>
+#include <ctime>
+
+ph::testTriangle normaltri[1000000];
+ph::PackedTriangle packedtri[1000000/8];
 
 TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 {
@@ -81,5 +86,64 @@ TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 	r.setOrigin(Vector3R(-1, 0, 2));
 	r.setDirection(Vector3R(1, 0, 0));
 	EXPECT_EQ(ray.isIntersectPackedTriangle(tri, results), false);
+
+	unsigned seed = (unsigned)time(NULL);
+	srand(seed);
+	int X = 1000000;
+
+	for(int i = 0; i < 1000000; i ++)
+	{
+		float r1 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+		float r2 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+		float r3 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+
+		float r4 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+		float r5 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+		float r6 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+
+		float r7 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+		float r8 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+		float r9 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+
+		normaltri[i].setVertex(Vector3R(r1, r2, r3), Vector3R(r4, r5, r6), Vector3R(r7 ,r8, r9));
+		if( (i+1)%8 == 0)
+		{
+			std::vector<testTriangle> temp;
+			for(int j = 0; j < 8; j ++)
+			{
+				temp.push_back(normaltri[i-j]);
+			}
+			packedtri[(i+1)/8].setVertex(temp);
+		}
+
+
+	}
+	clock_t begin = clock();
+
+
+	Vector3R outIntersectionPoint;
+	for(int i = 0; i < 1000000; i++)
+	{
+		
+		RayIntersectsTriangle(r.getOrigin(), 
+                           	r.getDirection(), 
+                           normaltri[i],
+                           outIntersectionPoint);
+	}
+	clock_t end = clock();
+	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+	std::cout << "normal triangle time" << elapsed_secs << std::endl;
+
+	begin = clock();
+
+	PackedIntersectionResult tp_results;
+	for(int i = 0; i < 1000000/8; i++)
+	{
+		ray.isIntersectPackedTriangle(packedtri[i], tp_results);
+	}
+
+	end = clock();
+	elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+	std::cout << "packed triangle time" << elapsed_secs << std::endl;
 
 }
