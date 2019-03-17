@@ -8,23 +8,27 @@
 #include <bitset>
 #include "Common/config.h"
 // #include "Core/Intersectable/PTriangle.h"
-//#define SIMDPP_ARCH_X86_AVX
+//#define DSIMDPP_ARCH_X86_SSE4_1 1
+#define SIMDPP_ARCH_X86_SSE2
+// #include <simdpp/dispatch/get_arch_gcc_builtin_cpu_supports.h>
+// #include <simdpp/dispatch/get_arch_raw_cpuid.h>
+// #include <simdpp/dispatch/get_arch_linux_cpuinfo.h>
 
-#include <simdpp/dispatch/get_arch_gcc_builtin_cpu_supports.h>
-#include <simdpp/dispatch/get_arch_raw_cpuid.h>
-#include <simdpp/dispatch/get_arch_linux_cpuinfo.h>
+// #if SIMDPP_HAS_GET_ARCH_RAW_CPUID
+// #define SIMDPP_USER_ARCH_INFO ::simdpp::get_arch_raw_cpuid()
+// #elif SIMDPP_HAS_GET_ARCH_GCC_BUILTIN_CPU_SUPPORTS
+// #define SIMDPP_USER_ARCH_INFO ::simdpp::get_arch_gcc_builtin_cpu_supports()
+// #elif SIMDPP_HAS_GET_ARCH_LINUX_CPUINFO
+// #define SIMDPP_USER_ARCH_INFO ::simdpp::get_arch_linux_cpuinfo()
+// #else
+// #error "Unsupported platform"
+// #endif
 
-#if SIMDPP_HAS_GET_ARCH_RAW_CPUID
-#define SIMDPP_USER_ARCH_INFO ::simdpp::get_arch_raw_cpuid()
-#elif SIMDPP_HAS_GET_ARCH_GCC_BUILTIN_CPU_SUPPORTS
-#define SIMDPP_USER_ARCH_INFO ::simdpp::get_arch_gcc_builtin_cpu_supports()
-#elif SIMDPP_HAS_GET_ARCH_LINUX_CPUINFO
-#define SIMDPP_USER_ARCH_INFO ::simdpp::get_arch_linux_cpuinfo()
-#else
-#error "Unsupported platform"
-#endif
+// void print_arch();
 
 //base on https://stackoverflow.com/questions/45599766/fast-sse-ray-4-triangle-intersection
+
+
 
 namespace ph
 {
@@ -101,7 +105,7 @@ class PackedTriangle {
         simdpp::mask_float32<width> inactiveMask; // Required. We cant always have 8 triangles per packet.
         PackedTriangle(){};
         //this only works when width = 8, and tris.size = 8;
-        void setVertex(const std::vector<testTriangle>& tris) 
+        void setVertex(const testTriangle* tris) 
         {
             this->e1[0] = simdpp::make_float(tris[0].m_vertex[1].x-tris[0].m_vertex[0].x, tris[1].m_vertex[1].x-tris[1].m_vertex[0].x, tris[2].m_vertex[1].x-tris[2].m_vertex[0].x, tris[3].m_vertex[1].x-tris[3].m_vertex[0].x, tris[4].m_vertex[1].x-tris[4].m_vertex[0].x, tris[5].m_vertex[1].x-tris[5].m_vertex[0].x, tris[6].m_vertex[1].x-tris[6].m_vertex[0].x, tris[7].m_vertex[1].x-tris[7].m_vertex[0].x);
             this->e1[1] = simdpp::make_float(tris[0].m_vertex[1].y-tris[0].m_vertex[0].y, tris[1].m_vertex[1].y-tris[1].m_vertex[0].y, tris[2].m_vertex[1].y-tris[2].m_vertex[0].y, tris[3].m_vertex[1].y-tris[3].m_vertex[0].y, tris[4].m_vertex[1].y-tris[4].m_vertex[0].y, tris[5].m_vertex[1].y-tris[5].m_vertex[0].y, tris[6].m_vertex[1].y-tris[6].m_vertex[0].y, tris[7].m_vertex[1].y-tris[7].m_vertex[0].y);
@@ -115,6 +119,7 @@ class PackedTriangle {
             this->v0[1] = simdpp::make_float(tris[0].m_vertex[0].y, tris[1].m_vertex[0].y, tris[2].m_vertex[0].y, tris[3].m_vertex[0].y, tris[4].m_vertex[0].y, tris[5].m_vertex[0].y, tris[6].m_vertex[0].y, tris[7].m_vertex[0].y);
             this->v0[2] = simdpp::make_float(tris[0].m_vertex[0].z, tris[1].m_vertex[0].z, tris[2].m_vertex[0].z, tris[3].m_vertex[0].z, tris[4].m_vertex[0].z, tris[5].m_vertex[0].z, tris[6].m_vertex[0].z, tris[7].m_vertex[0].z);
         }
+        
 };
 
 
@@ -141,6 +146,7 @@ class testRay
         simdpp::float32<width> m_length;
         bool isIntersectPackedTriangle(const PackedTriangle& triangle, PackedIntersectionResult& result);
         testRay(const Ray& r);  
+        
 };
 
 
@@ -168,13 +174,121 @@ void avx_multi_sub(T result[3], const T a[3], const T b[3])
     result[2] = simdpp::sub(a[2], b[2]);
 }
 
+
+
 const simdpp::float32<width> oneM256 = simdpp::splat(1.0f);
 const simdpp::float32<width> minusOneM256 = simdpp::splat(-1.0f);
 const simdpp::float32<width> positiveEpsilonM256 =  simdpp::splat(1e-6f);;
 const simdpp::float32<width> negativeEpsilonM256 = simdpp::splat(-1e-6f);;
 const simdpp::float32<width> zeroM256 = simdpp::splat(0.0f);;
 
+bool testRay::isIntersectPackedTriangle(const PackedTriangle& packedTris, PackedIntersectionResult& result)
+{
+    //must sort the triangles first
+    simdpp::float32<width> ray_cross_e2[3];
+    avx_multi_cross(ray_cross_e2, m_direction, packedTris.e2);
+
+    simdpp::float32<width> a = avx_multi_dot(packedTris.e1, ray_cross_e2);
+
+    
+    simdpp::float32<width> f = simdpp::div(oneM256 , a);
+
+    simdpp::float32<width> s[3];
+    avx_multi_sub(s, m_origin, packedTris.v0);
+
+    simdpp::float32<width> u = simdpp::mul(f, avx_multi_dot(s, ray_cross_e2));
+
+    simdpp::float32<width> q[3];
+    avx_multi_cross(q, s, packedTris.e1);
+
+    simdpp::float32<width> v = simdpp::mul(f, avx_multi_dot(m_direction, q));
+
+    simdpp::float32<width> t = simdpp::mul(f, avx_multi_dot(packedTris.e2, q));
+
+    // Failure conditions
+    simdpp::mask_float32<width> failed = simdpp::bit_and(
+        simdpp::cmp_gt(a, negativeEpsilonM256) ,
+        simdpp::cmp_lt(a, positiveEpsilonM256)
+    );
+    
+
+    failed = simdpp::bit_or(failed, simdpp::cmp_lt(u, zeroM256));
+    //this one is trivial
+    //failed = simdpp::bit_or(failed, simdpp::cmp_gt(u, oneM256));
+    failed = simdpp::bit_or(failed, simdpp::cmp_lt(v, zeroM256));
+    failed = simdpp::bit_or(failed, simdpp::cmp_gt(simdpp::add(u, v), oneM256));
+    failed = simdpp::bit_or(failed, simdpp::cmp_lt(t, zeroM256));
+    failed = simdpp::bit_or(failed, simdpp::cmp_gt(t, m_length));
+    failed = simdpp::bit_or(failed, packedTris.inactiveMask);
+
+    const simdpp::float32<width> tResults = simdpp::blend(minusOneM256, t, failed);
+
+    //float temp[width];
+    float* temp = (float*)&tResults;
+    //simdpp::store(temp, tResults);
+
+    int mask = 0;
+
+    // fill mask using temp's signed bit
+    // dst stands for mask, a stands for tResults
+    //  int _mm256_movemask_ps (__m256 a)
+    //  FOR j := 0 to 7
+    // 	i := j*32
+    // 	IF a[i+31]
+    // 		dst[j] := 1
+    // 	ELSE
+    // 		dst[j] := 0
+    // 	FI
+    // ENDFOR
+    // dst[MAX:8] := 0
+    
+    for (int i=0; i < width; ++i)
+    {   
+        if(std::signbit(temp[i]))
+        {
+            mask |= (1<<i);
+        }
+    }
+
+    if (mask != 0xFF)
+    {
+        result.idx = -1;
+
+        //float* ptr = (float*)&tResults;
+        for (int i = 0; i < width; ++i)
+        {
+            
+            //find the cloest hit point put the t of the ray in result.t
+            if (temp[i] >= 0.0f && temp[i] < result.t)
+            {
+                result.t = temp[i];
+                result.idx = i;
+            }
+        }
+
+        return result.idx != -1;
+    }
+
+    return false;
+
 }
+testRay::testRay(const Ray& r)
+{
+    Vector3R o = r.getOrigin();
+    Vector3R dir = r.getDirection();
+    float length = std::abs(r.getMaxT() - r.getMinT()) * dir.length();
+    m_origin[0] = simdpp::splat(o.x);
+    m_origin[1] = simdpp::splat(o.y);
+    m_origin[2] = simdpp::splat(o.z);
+    m_direction[0] = simdpp::splat(dir.x);
+    m_direction[1] = simdpp::splat(dir.y);
+    m_direction[2] = simdpp::splat(dir.z);
+    m_length = simdpp::splat(length);
+}
+
+
+}
+
 
 
 

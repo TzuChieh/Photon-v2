@@ -1,14 +1,14 @@
 #include "SIMD_triangle_intersection.h"
 
-namespace SIMDPP_ARCH_NAMESPACE {
+// namespace SIMDPP_ARCH_NAMESPACE {
  
-void print_arch()
-{
-    std::cout << static_cast<unsigned>(simdpp::this_compile_arch()) << '\n';
-}
+// void print_arch()
+// {
+//     std::cout << static_cast<unsigned>(simdpp::this_compile_arch()) << '\n';
+// }
  
-}// end of  namespace SIMDPP_ARCH_NAMESPACE
-SIMDPP_MAKE_DISPATCHER((void)(print_arch)());
+// }// end of  namespace SIMDPP_ARCH_NAMESPACE
+// SIMDPP_MAKE_DISPATCHER((void)(print_arch)());
 
 
 namespace ph
