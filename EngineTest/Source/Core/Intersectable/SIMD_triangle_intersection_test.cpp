@@ -19,8 +19,7 @@
 #endif
 
 
-ph::testTriangle normaltri[1000000];
-ph::PackedTriangle packedtri[1000000];
+
 TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 {
 	using namespace ph;
@@ -102,8 +101,11 @@ TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 	unsigned seed = (unsigned)time(NULL);
 	srand(seed);
 	const int X = 1000000;
+	ph::testTriangle normaltri;
+	ph::PackedTriangle packedtri;
+	Vector3R outIntersectionPoint;
 
-
+	clock_t begin = clock();
 
 	for(int i = 0; i < 1000000; i ++)
 	{
@@ -119,31 +121,17 @@ TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 		float r8 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
 		float r9 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
 
-		normaltri[i].setVertex(Vector3R(r1, r2, r3), Vector3R(r4, r5, r6), Vector3R(r7 ,r8, r9));
-		if( (i+1)%8 == 0)
-		{
-			std::vector<testTriangle> temp;
-			for(int j = 0; j < 8; j ++)
-			{
-				temp.push_back(normaltri[i-j]);
-			}
-			packedtri[(i+1)/8].setVertex(temp);
-		}
+		normaltri.setVertex(Vector3R(r1, r2, r3), Vector3R(r4, r5, r6), Vector3R(r7 ,r8, r9));
 
 
-	}
-	clock_t begin = clock();
-
-
-	Vector3R outIntersectionPoint;
-	for(int i = 0; i < 1000000; i++)
-	{
-		
 		RayIntersectsTriangle(r.getOrigin(), 
                            	r.getDirection(), 
-                           normaltri[i],
+                           normaltri,
                            outIntersectionPoint);
 	}
+
+
+
 	clock_t end = clock();
 	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 	std::cout << "normal triangle time" << elapsed_secs << std::endl;
@@ -153,7 +141,27 @@ TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 	PackedIntersectionResult tp_results;
 	for(int i = 0; i < 1000000/8; i++)
 	{
-		ray.isIntersectPackedTriangle(packedtri[i], tp_results);
+
+		std::vector<testTriangle> temp;
+		for(int j = 0; j < 8; j ++)
+		{
+			float r1 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+			float r2 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+			float r3 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+
+			float r4 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+			float r5 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+			float r6 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+
+			float r7 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+			float r8 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+			float r9 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+
+			normaltri.setVertex(Vector3R(r1, r2, r3), Vector3R(r4, r5, r6), Vector3R(r7 ,r8, r9));
+			temp.push_back(normaltri);
+		}
+		packedtri.setVertex(temp);
+		ray.isIntersectPackedTriangle(packedtri, tp_results);
 	}
 
 	end = clock();

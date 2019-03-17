@@ -1,17 +1,28 @@
-#include "Common/config.h"
-#include "Core/Ray.h"
-
-#include <simdpp/simd.h>
-
+#include "simdpp/simd.h"
 #include <limits>
 #include <iostream>
 #include <cmath>
 #include <vector>
 #include <cstdint>
+#include "Core/Ray.h"
 #include <bitset>
-
+#include "Common/config.h"
 // #include "Core/Intersectable/PTriangle.h"
 //#define SIMDPP_ARCH_X86_AVX
+
+#include <simdpp/dispatch/get_arch_gcc_builtin_cpu_supports.h>
+#include <simdpp/dispatch/get_arch_raw_cpuid.h>
+#include <simdpp/dispatch/get_arch_linux_cpuinfo.h>
+
+#if SIMDPP_HAS_GET_ARCH_RAW_CPUID
+#define SIMDPP_USER_ARCH_INFO ::simdpp::get_arch_raw_cpuid()
+#elif SIMDPP_HAS_GET_ARCH_GCC_BUILTIN_CPU_SUPPORTS
+#define SIMDPP_USER_ARCH_INFO ::simdpp::get_arch_gcc_builtin_cpu_supports()
+#elif SIMDPP_HAS_GET_ARCH_LINUX_CPUINFO
+#define SIMDPP_USER_ARCH_INFO ::simdpp::get_arch_linux_cpuinfo()
+#else
+#error "Unsupported platform"
+#endif
 
 //base on https://stackoverflow.com/questions/45599766/fast-sse-ray-4-triangle-intersection
 
@@ -129,7 +140,7 @@ class testRay
         simdpp::float32<width> m_direction[3];
         simdpp::float32<width> m_length;
         bool isIntersectPackedTriangle(const PackedTriangle& triangle, PackedIntersectionResult& result);
-        testRay(const Ray& r);
+        testRay(const Ray& r);  
 };
 
 
@@ -163,7 +174,7 @@ const simdpp::float32<width> positiveEpsilonM256 =  simdpp::splat(1e-6f);;
 const simdpp::float32<width> negativeEpsilonM256 = simdpp::splat(-1e-6f);;
 const simdpp::float32<width> zeroM256 = simdpp::splat(0.0f);;
 
-}// end namespace ph
+}
 
 
 
