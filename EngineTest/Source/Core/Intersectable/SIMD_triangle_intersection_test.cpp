@@ -4,21 +4,6 @@
 
 #include <gtest/gtest.h>
 
-#include <simdpp/dispatch/get_arch_gcc_builtin_cpu_supports.h>
-#include <simdpp/dispatch/get_arch_raw_cpuid.h>
-#include <simdpp/dispatch/get_arch_linux_cpuinfo.h>
-
-#if SIMDPP_HAS_GET_ARCH_RAW_CPUID
-#define SIMDPP_USER_ARCH_INFO ::simdpp::get_arch_raw_cpuid()
-#elif SIMDPP_HAS_GET_ARCH_GCC_BUILTIN_CPU_SUPPORTS
-#define SIMDPP_USER_ARCH_INFO ::simdpp::get_arch_gcc_builtin_cpu_supports()
-#elif SIMDPP_HAS_GET_ARCH_LINUX_CPUINFO
-#define SIMDPP_USER_ARCH_INFO ::simdpp::get_arch_linux_cpuinfo()
-#else
-#error "Unsupported platform"
-#endif
-
-
 
 TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 {
@@ -107,19 +92,20 @@ TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 
 	clock_t begin = clock();
 
-	for(int i = 0; i < 1000000; i ++)
+	float r1, r2, r3, r4 ,r5 ,r6 ,r7, r8, r9;
+	for(int i = 0; i < X; i ++)
 	{
-		float r1 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
-		float r2 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
-		float r3 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+		r1 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+		r2 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+		r3 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
 
-		float r4 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
-		float r5 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
-		float r6 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+		r4 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+		r5 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+		r6 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
 
-		float r7 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
-		float r8 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
-		float r9 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+		r7 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+		r8 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+		r9 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
 
 		normaltri.setVertex(Vector3R(r1, r2, r3), Vector3R(r4, r5, r6), Vector3R(r7 ,r8, r9));
 
@@ -138,27 +124,28 @@ TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 
 	begin = clock();
 
+	testTriangle temp[8];
+
 	PackedIntersectionResult tp_results;
-	for(int i = 0; i < 1000000/8; i++)
+	for(int i = 0; i < X/8; i++)
 	{
 
-		std::vector<testTriangle> temp;
 		for(int j = 0; j < 8; j ++)
 		{
-			float r1 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
-			float r2 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
-			float r3 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+			r1 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+			r2 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+			r3 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
 
-			float r4 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
-			float r5 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
-			float r6 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+			r4 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+			r5 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+			r6 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
 
-			float r7 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
-			float r8 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
-			float r9 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+			r7 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+			r8 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
+			r9 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
 
 			normaltri.setVertex(Vector3R(r1, r2, r3), Vector3R(r4, r5, r6), Vector3R(r7 ,r8, r9));
-			temp.push_back(normaltri);
+			temp[j] = normaltri;
 		}
 		packedtri.setVertex(temp);
 		ray.isIntersectPackedTriangle(packedtri, tp_results);
@@ -168,6 +155,9 @@ TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 	elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 	std::cout << "packed triangle time" << elapsed_secs << std::endl;
 
-	std::cout << static_cast<unsigned>(simdpp::this_compile_arch()) << '\n';
+	//print_arch();
 	
 }
+
+
+
