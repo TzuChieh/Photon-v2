@@ -3,6 +3,7 @@
 #include "Core/Estimator/TEstimationArray.h"
 
 #include <string>
+#include <cstddef>
 
 namespace ph
 {
@@ -23,10 +24,20 @@ public:
 		const Integrand&                  integrand, 
 		TEstimationArray<EstimationType>& out_estimation) const = 0;
 
+	virtual void mapAttributeToEstimation(
+		std::size_t attributeId, 
+		std::size_t estimationIndex);
+
 	virtual std::string toString() const;
 };
 
 // In-header Implementations:
+
+template<typename EstimationType>
+inline void TIRayEstimator<EstimationType>::mapAttributeToEstimation(
+	const std::size_t attributeId,
+	const std::size_t estimationIndex)
+{}
 
 template<typename EstimationType>
 inline std::string TIRayEstimator<EstimationType>::toString() const

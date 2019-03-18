@@ -1,10 +1,11 @@
 #include "Core/Renderer/Sampling/SamplingRenderer.h"
-#include "Core/Filmic/SampleFilters.h"
 #include "Common/assertion.h"
+#include "Common/Logger.h"
+#include "FileIO/SDL/InputPacket.h"
+#include "Core/Filmic/SampleFilters.h"
 #include "Core/Estimator/BVPTEstimator.h"
 #include "Core/Estimator/BNEEPTEstimator.h"
-#include "FileIO/SDL/InputPacket.h"
-#include "Common/Logger.h"
+#include "Core/Estimator/BVPTDLEstimator.h"
 
 namespace ph
 {
@@ -24,13 +25,17 @@ SamplingRenderer::SamplingRenderer(const InputPacket& packet) :
 	}
 
 	const std::string estimatorName = packet.getString("estimator", "bneept");
-	if(estimatorName == "bvpt")
+	if(estimatorName == "bneept")
+	{
+		m_estimator = std::make_unique<BNEEPTEstimator>();
+	}
+	else if(estimatorName == "bvpt")
 	{
 		m_estimator = std::make_unique<BVPTEstimator>();
 	}
-	else if(estimatorName == "bneept")
+	else if(estimatorName == "bvptdl")
 	{
-		m_estimator = std::make_unique<BNEEPTEstimator>();
+		m_estimator = std::make_unique<BVPTDLEstimator>();
 	}
 
 	PH_ASSERT(m_estimator);

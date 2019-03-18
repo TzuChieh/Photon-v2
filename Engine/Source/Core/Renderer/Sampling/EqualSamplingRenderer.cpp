@@ -53,7 +53,7 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 
 	const Integrand integrand(m_scene, m_camera);
 	
-	m_estimator->setEstimationIndex(0);
+	m_estimator->mapAttributeToEstimation(0, 0);
 	m_estimator->update(integrand);
 
 	m_mainFilm = HdrRgbFilm(

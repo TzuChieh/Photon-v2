@@ -10,8 +10,10 @@ class TIRayEstimator;
 class IRayEnergyEstimator;
 
 class FullRayEnergyEstimator;
+class PartialRayEnergyEstimator;
 
 class BVPTEstimator;
 class BNEEPTEstimator;
+class BVPTDLEstimator;
 
 }// end namespace ph

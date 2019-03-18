@@ -12,8 +12,8 @@ namespace ph
 class SamplingRenderer : public Renderer, public TCommandInterface<SamplingRenderer>
 {
 protected:
-	SampleFilter                            m_filter;
-	std::unique_ptr<FullRayEnergyEstimator> m_estimator;
+	SampleFilter                         m_filter;
+	std::unique_ptr<IRayEnergyEstimator> m_estimator;
 
 // command interface
 public:

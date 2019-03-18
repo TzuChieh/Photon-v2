@@ -8,7 +8,7 @@
 namespace ph
 {
 
-class FullRayEnergyEstimator : public IRayEnergyEstimator
+class PartialRayEnergyEstimator : public IRayEnergyEstimator
 {
 public:
 	void update(const Integrand& integrand) override = 0;
@@ -32,7 +32,7 @@ protected:
 
 // In-header Implementations:
 
-inline void FullRayEnergyEstimator::mapAttributeToEstimation(
+inline void PartialRayEnergyEstimator::mapAttributeToEstimation(
 	const std::size_t attributeId,
 	const std::size_t estimationIndex)
 {
@@ -42,20 +42,20 @@ inline void FullRayEnergyEstimator::mapAttributeToEstimation(
 	}
 	else
 	{
-		std::cerr << 
-			"warning: at FullRayEnergyEstimator::mapAttributeToEstimation(), " 
-		    "attempting to set estimation index for non-existent attribute ID " << attributeId << std::endl;
+		std::cerr <<
+			"warning: at PartialRayEnergyEstimator::mapAttributeToEstimation(), "
+			"attempting to set estimation index for non-existent attribute ID " << attributeId << std::endl;
 	}
 }
 
-inline void FullRayEnergyEstimator::setEstimationIndex(const std::size_t index)
+inline void PartialRayEnergyEstimator::setEstimationIndex(const std::size_t index)
 {
 	m_estimationIndex = index;
 }
 
-inline std::string FullRayEnergyEstimator::toString() const
+inline std::string PartialRayEnergyEstimator::toString() const
 {
-	return "Full Ray Energy Estimator";
+	return "Partial Ray Energy Estimator";
 }
 
 }// end namespace ph
