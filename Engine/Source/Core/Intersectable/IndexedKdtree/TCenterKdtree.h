@@ -24,7 +24,7 @@ public:
 
 	TCenterKdtree(std::size_t maxNodeItems, const CenterCalculator& centerCalculator);
 
-	void build(std::vector<Item>&& items);
+	void build(std::vector<Item> items);
 
 	void findWithinRange(
 		const Vector3R&    location,
@@ -68,12 +68,12 @@ template<typename Item, typename Index, typename CenterCalculator>
 inline TCenterKdtree<Item, Index, CenterCalculator>::
 TCenterKdtree(const std::size_t maxNodeItems, const CenterCalculator& centerCalculator) :
 
-	m_nodeBuffer(),
-	m_items(),
-	m_rootAABB(),
-	m_numNodes(0),
-	m_maxNodeItems(maxNodeItems),
-	m_indexBuffer(),
+	m_nodeBuffer      (),
+	m_items           (),
+	m_rootAABB        (),
+	m_numNodes        (0),
+	m_maxNodeItems    (maxNodeItems),
+	m_indexBuffer     (),
 	m_centerCalculator(centerCalculator)
 {
 	PH_ASSERT(maxNodeItems > 0);
@@ -81,7 +81,7 @@ TCenterKdtree(const std::size_t maxNodeItems, const CenterCalculator& centerCalc
 
 template<typename Item, typename Index, typename CenterCalculator>
 inline void TCenterKdtree<Item, Index, CenterCalculator>::
-	build(std::vector<Item>&& items)
+	build(std::vector<Item> items)
 {
 	m_nodeBuffer.clear();
 	m_items    = std::move(items);
@@ -93,11 +93,13 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 		return;
 	}
 
-	std::vector<Vector3R> itemCenters;
-	for(const auto& item : m_items)
+	std::vector<Vector3R> itemCenters(m_items.size());
+	for(std::size_t i = 0; i < m_items.size(); ++i)
 	{
+		const auto& item = m_items[i];
+
 		const Vector3R& center = m_centerCalculator(regular_access(item));
-		itemCenters.push_back(center);
+		itemCenters[i] = center;
 	}
 
 	std::unique_ptr<Index[]> itemIndices(new Index[m_items.size()]);
