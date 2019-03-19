@@ -86,14 +86,10 @@ TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 	unsigned seed = (unsigned)time(NULL);
 	srand(seed);
 	const int X = 1000000;
-	ph::testTriangle normaltri;
-	ph::PackedTriangle packedtri;
-	Vector3R outIntersectionPoint;
-
-	clock_t begin = clock();
-
+	ph::testTriangle normaltri[200];
+	ph::PackedTriangle packedtri[200];
 	float r1, r2, r3, r4 ,r5 ,r6 ,r7, r8, r9;
-	for(int i = 0; i < X; i ++)
+	for(int i = 0 ;i < 200 ;i ++)
 	{
 		r1 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
 		r2 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
@@ -107,29 +103,13 @@ TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 		r8 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
 		r9 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
 
-		normaltri.setVertex(Vector3R(r1, r2, r3), Vector3R(r4, r5, r6), Vector3R(r7 ,r8, r9));
-
-
-		RayIntersectsTriangle(r.getOrigin(), 
-                           	r.getDirection(), 
-                           normaltri,
-                           outIntersectionPoint);
+		normaltri[i].setVertex(Vector3R(r1, r2, r3), Vector3R(r4, r5, r6), Vector3R(r7 ,r8, r9));
 	}
 
-
-
-	clock_t end = clock();
-	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-	std::cout << "normal triangle time" << elapsed_secs << std::endl;
-
-	begin = clock();
-
+	//testTriangle temp[8];
 	testTriangle temp[8];
-
-	PackedIntersectionResult tp_results;
-	for(int i = 0; i < X/8; i++)
+	for(int i = 0 ;i < 200/8 ;i ++)
 	{
-
 		for(int j = 0; j < 8; j ++)
 		{
 			r1 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
@@ -144,16 +124,57 @@ TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 			r8 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
 			r9 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X));
 
-			normaltri.setVertex(Vector3R(r1, r2, r3), Vector3R(r4, r5, r6), Vector3R(r7 ,r8, r9));
-			temp[j] = normaltri;
+			normaltri[j].setVertex(Vector3R(r1, r2, r3), Vector3R(r4, r5, r6), Vector3R(r7 ,r8, r9));
+			temp[j] = normaltri[j];
 		}
-		packedtri.setVertex(temp);
-		ray.isIntersectPackedTriangle(packedtri, tp_results);
+		packedtri[i].setVertex(temp);
 	}
+
+
+	PackedIntersectionResult tp_results;
+	clock_t  begin = clock();
+
+	for(int i = 0; i < X/1600; i++)
+	{
+		for(int j = 0 ; j < 200 ; j++ )
+		{
+			ray.isIntersectPackedTriangle(packedtri[j], tp_results);
+			EXPECT_EQ(tp_results.t,tp_results.t);
+		}
+	}
+
+	clock_t end = clock();
+	double  elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+	std::cout << "packed triangle time" << elapsed_secs << std::endl;
+
+
+
+
+	Vector3R outIntersectionPoint;
+
+
+	begin = clock();
+
+	for(int i = 0; i < X/200; i ++)
+	{
+		for(int j =0 ;j < 200; j ++)
+		{
+			RayIntersectsTriangle(r.getOrigin(), 
+	                           	r.getDirection(), 
+	                           normaltri[j],
+	                           outIntersectionPoint);
+			EXPECT_EQ(outIntersectionPoint.x, outIntersectionPoint.x);
+		}		
+
+	}
+
+
 
 	end = clock();
 	elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-	std::cout << "packed triangle time" << elapsed_secs << std::endl;
+	std::cout << "normal triangle time" << elapsed_secs << std::endl;
+
+
 
 	//print_arch();
 	
