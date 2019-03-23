@@ -13,15 +13,8 @@ class VolumeOptics;
 class SurfaceHit final
 {
 public:
-	inline SurfaceHit() :
-		m_incidentRay(), m_recordedProbe(), m_detail()
-	{}
-
-	inline SurfaceHit(const Ray& incidentRay, const HitProbe& probe) : 
-		m_incidentRay(incidentRay), m_recordedProbe(probe), m_detail()
-	{
-		HitProbe(m_recordedProbe).calcIntersectionDetail(m_incidentRay, &m_detail);
-	}
+	SurfaceHit();
+	SurfaceHit(const Ray& incidentRay, const HitProbe& probe);
 
 	SurfaceHit switchChannel(uint32 newChannel) const;
 
@@ -29,35 +22,53 @@ public:
 	bool hasInteriorOptics() const;
 	bool hasExteriorOptics() const;
 
-	inline const HitDetail& getDetail() const
-	{
-		return m_detail;
-	}
-
-	inline const Ray& getIncidentRay() const
-	{
-		return m_incidentRay;
-	}
-
-	inline const Vector3R& getPosition() const
-	{
-		return m_detail.getPosition();
-	}
-
-	inline const Vector3R& getShadingNormal() const
-	{
-		return m_detail.getShadingNormal();
-	}
-
-	inline const Vector3R& getGeometryNormal() const
-	{
-		return m_detail.getGeometryNormal();
-	} 
+	const HitDetail& getDetail() const;
+	const Ray&       getIncidentRay() const;
+	Vector3R         getPosition() const;
+	Vector3R         getShadingNormal() const;
+	Vector3R         getGeometryNormal() const;
 
 private:
 	Ray       m_incidentRay;
 	HitProbe  m_recordedProbe;
 	HitDetail m_detail;
 };
+
+// In-header Implementations:
+
+inline SurfaceHit::SurfaceHit() :
+	m_incidentRay(), m_recordedProbe(), m_detail()
+{}
+
+inline SurfaceHit::SurfaceHit(const Ray& incidentRay, const HitProbe& probe) :
+	m_incidentRay(incidentRay), m_recordedProbe(probe), m_detail()
+{
+	HitProbe(m_recordedProbe).calcIntersectionDetail(m_incidentRay, &m_detail);
+}
+
+inline const HitDetail& SurfaceHit::getDetail() const
+{
+	return m_detail;
+}
+
+inline const Ray& SurfaceHit::getIncidentRay() const
+{
+	return m_incidentRay;
+}
+
+inline Vector3R SurfaceHit::getPosition() const
+{
+	return m_detail.getPosition();
+}
+
+inline Vector3R SurfaceHit::getShadingNormal() const
+{
+	return m_detail.getShadingNormal();
+}
+
+inline Vector3R SurfaceHit::getGeometryNormal() const
+{
+	return m_detail.getGeometryNormal();
+}
 
 }// end namespace ph

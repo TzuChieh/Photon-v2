@@ -9,40 +9,54 @@ template<typename T>
 class TOrthonormalBasis3 final
 {
 public:
-	TVector3<T> xAxis;
-	TVector3<T> yAxis;
-	TVector3<T> zAxis;
+	TOrthonormalBasis3();
+	TOrthonormalBasis3(const TOrthonormalBasis3& other);
+	TOrthonormalBasis3(
+		const TVector3<T>& xAxis, 
+		const TVector3<T>& yAxis, 
+		const TVector3<T>& zAxis);
 
-	inline TOrthonormalBasis3();
-	inline TOrthonormalBasis3(const TOrthonormalBasis3& other);
-	inline TOrthonormalBasis3(const TVector3<T>& xAxis, 
-	                          const TVector3<T>& yAxis, 
-	                          const TVector3<T>& zAxis);
+	TVector3<T> worldToLocal(const TVector3<T>& worldVec) const;
 
-	inline TVector3<T> worldToLocal(const TVector3<T>& worldVec) const;
+	T cosPhi(const TVector3<T>& unitVec) const;
+	T sinPhi(const TVector3<T>& unitVec) const;
+	T tanPhi(const TVector3<T>& unitVec) const;
+	T cos2Phi(const TVector3<T>& unitVec) const;
+	T sin2Phi(const TVector3<T>& unitVec) const;
+	T tan2Phi(const TVector3<T>& unitVec) const;
+	T cosTheta(const TVector3<T>& unitVec) const;
+	T sinTheta(const TVector3<T>& unitVec) const;
+	T tanTheta(const TVector3<T>& unitVec) const;
+	T cos2Theta(const TVector3<T>& unitVec) const;
+	T sin2Theta(const TVector3<T>& unitVec) const;
+	T tan2Theta(const TVector3<T>& unitVec) const;
+	T absCosTheta(const TVector3<T>& unitVec) const;
+	T absSinTheta(const TVector3<T>& unitVec) const;
 
-	inline T cosPhi(const TVector3<T>& unitVec) const;
-	inline T sinPhi(const TVector3<T>& unitVec) const;
-	inline T tanPhi(const TVector3<T>& unitVec) const;
-	inline T cos2Phi(const TVector3<T>& unitVec) const;
-	inline T sin2Phi(const TVector3<T>& unitVec) const;
-	inline T tan2Phi(const TVector3<T>& unitVec) const;
-	inline T cosTheta(const TVector3<T>& unitVec) const;
-	inline T sinTheta(const TVector3<T>& unitVec) const;
-	inline T tanTheta(const TVector3<T>& unitVec) const;
-	inline T cos2Theta(const TVector3<T>& unitVec) const;
-	inline T sin2Theta(const TVector3<T>& unitVec) const;
-	inline T tan2Theta(const TVector3<T>& unitVec) const;
-	inline T absCosTheta(const TVector3<T>& unitVec) const;
-	inline T absSinTheta(const TVector3<T>& unitVec) const;
+	TOrthonormalBasis3& renormalize();
+	TOrthonormalBasis3& renormalizeXAxis();
+	TOrthonormalBasis3& renormalizeYAxis();
+	TOrthonormalBasis3& renormalizeZAxis();
 
-	inline TOrthonormalBasis3& renormalize();
+	TOrthonormalBasis3& setXAxis(const TVector3<T>& axis);
+	TOrthonormalBasis3& setYAxis(const TVector3<T>& axis);
+	TOrthonormalBasis3& setZAxis(const TVector3<T>& axis);
 
-	inline void set(const TVector3<T>& xAxis, 
-	                const TVector3<T>& yAxis, 
-	                const TVector3<T>& zAxis);
+	TOrthonormalBasis3& set(
+		const TVector3<T>& xAxis, 
+		const TVector3<T>& yAxis, 
+		const TVector3<T>& zAxis);
+
+	TVector3<T> getXAxis() const;
+	TVector3<T> getYAxis() const;
+	TVector3<T> getZAxis() const;
 	
-	inline TOrthonormalBasis3& operator = (const TOrthonormalBasis3& rhs);
+	TOrthonormalBasis3& operator = (const TOrthonormalBasis3& rhs);
+
+private:
+	TVector3<T> m_xAxis;
+	TVector3<T> m_yAxis;
+	TVector3<T> m_zAxis;
 };
 
 }// end namespace ph

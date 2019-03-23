@@ -15,101 +15,37 @@ class Primitive;
 class HitDetail final
 {
 public:
-	typedef TOrthonormalBasis3<real> Basis;
+	using Basis = TOrthonormalBasis3<real>;
 
 	HitDetail();
 
-	inline const Vector3R& getPosition(const ECoordSys coordSys = ECoordSys::WORLD) const 
-	{
-		return getHitInfo(coordSys).getPosition();
-	}
+	// TODO: consider renaming to setHitIntrinsic()
+	HitDetail& setMisc(
+		const Primitive* primitive,
+		const Vector3R&  uvw,
+		real             rayT);
 
-	inline const Vector3R& getShadingNormal(const ECoordSys coordSys = ECoordSys::WORLD) const
-	{
-		return getHitInfo(coordSys).getShadingNormal();
-	}
+	void computeBases();
 
-	inline const Vector3R& getGeometryNormal(const ECoordSys coordSys = ECoordSys::WORLD) const
-	{
-		return getHitInfo(coordSys).getGeometryNormal();
-	}
-
-	inline const Vector3R& getdPdU(const ECoordSys coordSys = ECoordSys::WORLD) const
-	{
-		return getHitInfo(coordSys).getdPdU();
-	}
-
-	inline const Vector3R& getdPdV(const ECoordSys coordSys = ECoordSys::WORLD) const
-	{
-		return getHitInfo(coordSys).getdPdV();
-	}
-
-	inline const Vector3R& getdNdU(const ECoordSys coordSys = ECoordSys::WORLD) const
-	{
-		return getHitInfo(coordSys).getdNdU();
-	}
-
-	inline const Vector3R& getdNdV(const ECoordSys coordSys = ECoordSys::WORLD) const
-	{
-		return getHitInfo(coordSys).getdNdV();
-	}
-
-	inline const Basis& getGeometryBasis(const ECoordSys coordSys = ECoordSys::WORLD) const
-	{
-		return getHitInfo(coordSys).getGeometryBasis();
-	}
-
-	inline const Basis& getShadingBasis(const ECoordSys coordSys = ECoordSys::WORLD) const
-	{
-		return getHitInfo(coordSys).getShadingBasis();
-	}
+	Vector3R getPosition(ECoordSys coordSys = ECoordSys::WORLD) const;
+	Vector3R getShadingNormal(ECoordSys coordSys = ECoordSys::WORLD) const;
+	Vector3R getGeometryNormal(ECoordSys coordSys = ECoordSys::WORLD) const;
+	Vector3R getdPdU(ECoordSys coordSys = ECoordSys::WORLD) const;
+	Vector3R getdPdV(ECoordSys coordSys = ECoordSys::WORLD) const;
+	Vector3R getdNdU(ECoordSys coordSys = ECoordSys::WORLD) const;
+	Vector3R getdNdV(ECoordSys coordSys = ECoordSys::WORLD) const;
+	Vector3R getUvw() const;
+	const Basis& getGeometryBasis(ECoordSys coordSys = ECoordSys::WORLD) const;
+	const Basis& getShadingBasis(ECoordSys coordSys = ECoordSys::WORLD) const;
 
 	// Gets the parametric distance from the incident ray's origin. Notice that
 	// parametric distance is not ordinary distance but defined in terms of a 
 	// ray direction vector's length.
-	//
-	inline real getRayT() const
-	{
-		return m_rayT;
-	}
+	real getRayT() const;
 
-	inline const Primitive* getPrimitive() const { return m_primitive; }
-	inline const Vector3R&  getUvw() const       { return m_uvw;       }
-
-	inline const HitInfo& getHitInfo(const ECoordSys coordSys = ECoordSys::WORLD) const
-	{
-		PH_ASSERT_LT(static_cast<int>(coordSys), static_cast<int>(ECoordSys::NUM_ELEMENTS));
-
-		return m_hitInfos[static_cast<int>(coordSys)];
-	}
-
-	inline HitInfo& getHitInfo(const ECoordSys coordSys = ECoordSys::WORLD)
-	{
-		PH_ASSERT_LT(static_cast<int>(coordSys), static_cast<int>(ECoordSys::NUM_ELEMENTS));
-
-		return m_hitInfos[static_cast<int>(coordSys)];
-	}
-
-	// TODO: consider renaming to setHitIntrinsic()
-	inline HitDetail& setMisc(
-		const Primitive* const primitive,
-		const Vector3R&        uvw,
-		const real             rayT)
-	{
-		m_primitive = primitive;
-		m_uvw       = uvw;
-		m_rayT      = rayT;
-
-		return *this;
-	}
-
-	inline void computeBases()
-	{
-		for(int i = 0; i < static_cast<int>(ECoordSys::NUM_ELEMENTS); i++)
-		{
-			m_hitInfos[i].computeBases();
-		}
-	}
+	const Primitive* getPrimitive() const;
+	const HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::WORLD) const;
+	HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::WORLD);
 
 private:
 	const Primitive* m_primitive;
@@ -117,5 +53,102 @@ private:
 	real             m_rayT;
 	HitInfo          m_hitInfos[static_cast<int>(ECoordSys::NUM_ELEMENTS)];
 };
+
+// In-header Implementations:
+
+inline Vector3R HitDetail::getPosition(const ECoordSys coordSys) const
+{
+	return getHitInfo(coordSys).getPosition();
+}
+
+inline Vector3R HitDetail::getShadingNormal(const ECoordSys coordSys) const
+{
+	return getHitInfo(coordSys).getShadingNormal();
+}
+
+inline Vector3R HitDetail::getGeometryNormal(const ECoordSys coordSys) const
+{
+	return getHitInfo(coordSys).getGeometryNormal();
+}
+
+inline Vector3R HitDetail::getdPdU(const ECoordSys coordSys) const
+{
+	return getHitInfo(coordSys).getdPdU();
+}
+
+inline Vector3R HitDetail::getdPdV(const ECoordSys coordSys) const
+{
+	return getHitInfo(coordSys).getdPdV();
+}
+
+inline Vector3R HitDetail::getdNdU(const ECoordSys coordSys) const
+{
+	return getHitInfo(coordSys).getdNdU();
+}
+
+inline Vector3R HitDetail::getdNdV(const ECoordSys coordSys) const
+{
+	return getHitInfo(coordSys).getdNdV();
+}
+
+inline const HitDetail::Basis& HitDetail::getGeometryBasis(const ECoordSys coordSys) const
+{
+	return getHitInfo(coordSys).getGeometryBasis();
+}
+
+inline const HitDetail::Basis& HitDetail::getShadingBasis(const ECoordSys coordSys) const
+{
+	return getHitInfo(coordSys).getShadingBasis();
+}
+
+inline real HitDetail::getRayT() const
+{
+	return m_rayT;
+}
+
+inline const Primitive* HitDetail::getPrimitive() const
+{
+	return m_primitive;
+}
+
+inline Vector3R HitDetail::getUvw() const
+{
+	return m_uvw;
+}
+
+inline const HitInfo& HitDetail::getHitInfo(const ECoordSys coordSys) const
+{
+	PH_ASSERT_LT(static_cast<int>(coordSys), static_cast<int>(ECoordSys::NUM_ELEMENTS));
+
+	return m_hitInfos[static_cast<int>(coordSys)];
+}
+
+inline HitInfo& HitDetail::getHitInfo(const ECoordSys coordSys)
+{
+	PH_ASSERT_LT(static_cast<int>(coordSys), static_cast<int>(ECoordSys::NUM_ELEMENTS));
+
+	return m_hitInfos[static_cast<int>(coordSys)];
+}
+
+// TODO: consider renaming to setHitIntrinsic()
+inline HitDetail& HitDetail::setMisc(
+	const Primitive* const primitive,
+	const Vector3R&        uvw,
+	const real             rayT)
+{
+	m_primitive = primitive;
+	m_uvw = uvw;
+	m_rayT = rayT;
+
+	return *this;
+}
+
+inline void HitDetail::computeBases()
+{
+	for(int i = 0; i < static_cast<int>(ECoordSys::NUM_ELEMENTS); i++)
+	{
+		m_hitInfos[i].computeBases();
+	}
+}
 
 }// end namespace ph

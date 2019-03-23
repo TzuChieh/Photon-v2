@@ -11,14 +11,14 @@ namespace ph
 
 template<typename T>
 inline TOrthonormalBasis3<T>::TOrthonormalBasis3() :
-	xAxis(1, 0, 0),
-	yAxis(0, 1, 0),
-	zAxis(0, 0, 1)
+	m_xAxis(1, 0, 0),
+	m_yAxis(0, 1, 0),
+	m_zAxis(0, 0, 1)
 {}
 
 template<typename T>
 inline TOrthonormalBasis3<T>::TOrthonormalBasis3(const TOrthonormalBasis3& other) :
-	TOrthonormalBasis3(other.xAxis, other.yAxis, other.zAxis)
+	TOrthonormalBasis3(other.m_xAxis, other.m_yAxis, other.m_zAxis)
 {}
 
 template<typename T>
@@ -26,30 +26,30 @@ inline TOrthonormalBasis3<T>::TOrthonormalBasis3(
 	const TVector3<T>& xAxis,
 	const TVector3<T>& yAxis, 
 	const TVector3<T>& zAxis) : 
-	xAxis(xAxis),
-	yAxis(yAxis),
-	zAxis(zAxis)
+	m_xAxis(xAxis),
+	m_yAxis(yAxis),
+	m_zAxis(zAxis)
 {}
 
 template<typename T>
 inline TVector3<T> TOrthonormalBasis3<T>::worldToLocal(const TVector3<T>& worldVec) const
 {
-	return TVector3<T>(xAxis.dot(worldVec), 
-	                   yAxis.dot(worldVec), 
-	                   zAxis.dot(worldVec));
+	return TVector3<T>(m_xAxis.dot(worldVec),
+	                   m_yAxis.dot(worldVec), 
+	                   m_zAxis.dot(worldVec));
 }
 
 template<typename T>
 inline T TOrthonormalBasis3<T>::cosPhi(const TVector3<T>& unitVec) const
 {
 	const T cosT           = cosTheta(unitVec);
-	TVector3<T> xzPlaneVec = unitVec.sub(yAxis.mul(cosT));
+	TVector3<T> xzPlaneVec = unitVec.sub(m_yAxis.mul(cosT));
 	const T length2        = xzPlaneVec.lengthSquared();
 
 	if(length2 != 0)
 	{
 		xzPlaneVec.mulLocal(1 / std::sqrt(length2));
-		return math::clamp<T>(xzPlaneVec.dot(zAxis), -1, 1);
+		return math::clamp<T>(xzPlaneVec.dot(m_zAxis), -1, 1);
 	}
 	else
 	{
@@ -93,7 +93,7 @@ inline T TOrthonormalBasis3<T>::tan2Phi(const TVector3<T>& unitVec) const
 template<typename T>
 inline T TOrthonormalBasis3<T>::cosTheta(const TVector3<T>& unitVec) const
 {
-	return math::clamp<T>(yAxis.dot(unitVec), -1, 1);
+	return math::clamp<T>(m_yAxis.dot(unitVec), -1, 1);
 }
 
 template<typename T>
@@ -144,28 +144,96 @@ inline T TOrthonormalBasis3<T>::tan2Theta(const TVector3<T>& unitVec) const
 template<typename T>
 inline TOrthonormalBasis3<T>& TOrthonormalBasis3<T>::renormalize()
 {
-	xAxis.normalizeLocal();
-	yAxis.normalizeLocal();
-	zAxis.normalizeLocal();
+	m_xAxis.normalizeLocal();
+	m_yAxis.normalizeLocal();
+	m_zAxis.normalizeLocal();
 
 	return *this;
 }
 
 template<typename T>
-inline void TOrthonormalBasis3<T>::set(
+inline TOrthonormalBasis3<T>& TOrthonormalBasis3<T>::renormalizeXAxis()
+{
+	m_xAxis.normalizeLocal();
+
+	return *this;
+}
+
+template<typename T>
+inline TOrthonormalBasis3<T>& TOrthonormalBasis3<T>::renormalizeYAxis()
+{
+	m_yAxis.normalizeLocal();
+
+	return *this;
+}
+
+template<typename T>
+inline TOrthonormalBasis3<T>& TOrthonormalBasis3<T>::renormalizeZAxis()
+{
+	m_zAxis.normalizeLocal();
+
+	return *this;
+}
+
+template<typename T>
+inline TOrthonormalBasis3<T>& TOrthonormalBasis3<T>::setXAxis(const TVector3<T>& axis)
+{
+	m_xAxis = axis;
+
+	return *this;
+}
+
+template<typename T>
+inline TOrthonormalBasis3<T>& TOrthonormalBasis3<T>::setYAxis(const TVector3<T>& axis)
+{
+	m_yAxis = axis;
+
+	return *this;
+}
+
+template<typename T>
+inline TOrthonormalBasis3<T>& TOrthonormalBasis3<T>::setZAxis(const TVector3<T>& axis)
+{
+	m_zAxis = axis;
+
+	return *this;
+}
+
+template<typename T>
+inline TOrthonormalBasis3<T>& TOrthonormalBasis3<T>::set(
 	const TVector3<T>& xAxis,
 	const TVector3<T>& yAxis,
 	const TVector3<T>& zAxis)
 {
-	this->xAxis = xAxis;
-	this->yAxis = yAxis;
-	this->zAxis = zAxis;
+	m_xAxis = xAxis;
+	m_yAxis = yAxis;
+	m_zAxis = zAxis;
+
+	return *this;
+}
+
+template<typename T>
+inline TVector3<T> TOrthonormalBasis3<T>::getXAxis() const
+{
+	return m_xAxis;
+}
+
+template<typename T>
+inline TVector3<T> TOrthonormalBasis3<T>::getYAxis() const
+{
+	return m_yAxis;
+}
+
+template<typename T>
+inline TVector3<T> TOrthonormalBasis3<T>::getZAxis() const
+{
+	return m_zAxis;
 }
 
 template<typename T>
 inline TOrthonormalBasis3<T>& TOrthonormalBasis3<T>::operator = (const TOrthonormalBasis3& rhs)
 {
-	set(rhs.xAxis, rhs.yAxis, rhs.zAxis);
+	set(rhs.m_xAxis, rhs.m_yAxis, rhs.m_zAxis);
 
 	return *this;
 }

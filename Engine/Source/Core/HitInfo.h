@@ -14,76 +14,32 @@ class Primitive;
 class HitInfo final
 {
 public:
-	typedef TOrthonormalBasis3<real> Basis;
+	using Basis =  TOrthonormalBasis3<real>;
 
 	HitInfo();
 
-	inline const Vector3R& getPosition() const       { return m_position;            }
-	inline const Vector3R& getShadingNormal() const  { return m_shadingBasis.yAxis;  }
-	inline const Vector3R& getGeometryNormal() const { return m_geometryBasis.yAxis; }
-	inline const Vector3R& getdPdU() const           { return m_dPdU;                }
-	inline const Vector3R& getdPdV() const           { return m_dPdV;                }
-	inline const Vector3R& getdNdU() const           { return m_dNdU;                }
-	inline const Vector3R& getdNdV() const           { return m_dNdV;                }
-	inline const Basis&    getGeometryBasis() const  { return m_geometryBasis;       }
-	inline const Basis&    getShadingBasis() const   { return m_shadingBasis;        }
-
-	inline void setAttributes(
+	void setAttributes(
 		const Vector3R& position,
 		const Vector3R& geometryNormal,
-		const Vector3R& shadingNormal)
-	{
-		m_position            = position;
-		m_geometryBasis.yAxis = geometryNormal;
-		m_shadingBasis.yAxis  = shadingNormal;
-	}
+		const Vector3R& shadingNormal);
 
-	inline void setDerivatives(
+	void setDerivatives(
 		const Vector3R& dPdU,
 		const Vector3R& dPdV,
 		const Vector3R& dNdU,
-		const Vector3R& dNdV)
-	{
-		m_dPdU = dPdU;
-		m_dPdV = dPdV;
-		m_dNdU = dNdU;
-		m_dNdV = dNdV;
-	}
+		const Vector3R& dNdV);
 
-	inline void computeBases()
-	{
-		// FIXME: currently this is a hacky way to avoid crossing two parallel vectors
-		// (this condition can rarely happen)
-		// (which will result in 0-length vector and cause normalization to fail)
+	void computeBases();
 
-		m_geometryBasis.xAxis = m_geometryBasis.yAxis.cross(m_dPdU);
-		if(m_geometryBasis.xAxis.lengthSquared() > 0.0_r)
-		{
-			m_geometryBasis.xAxis.normalizeLocal();
-			m_geometryBasis.zAxis = m_geometryBasis.xAxis.cross(m_geometryBasis.yAxis);
-		}
-		else
-		{
-			math::form_orthonormal_basis(m_geometryBasis.yAxis,
-			                             &m_geometryBasis.xAxis, &m_geometryBasis.zAxis);
-		}
-
-		m_shadingBasis.xAxis = m_shadingBasis.yAxis.cross(m_dNdU);
-		if(m_shadingBasis.xAxis.lengthSquared() > 0.0_r)
-		{
-			m_shadingBasis.xAxis.normalizeLocal();
-			m_shadingBasis.zAxis = m_shadingBasis.xAxis.cross(m_shadingBasis.yAxis);
-		}
-		else
-		{
-			math::form_orthonormal_basis(m_shadingBasis.yAxis,
-			                             &m_shadingBasis.xAxis, &m_shadingBasis.zAxis);
-		}
-
-		PH_ASSERT_MSG(m_geometryBasis.yAxis.isFinite() && m_shadingBasis.yAxis.isFinite(), "\n"
-			"geometry-y-axis = " + m_geometryBasis.yAxis.toString() + "\n"
-			"shading-y-axis  = " + m_shadingBasis.yAxis.toString() + "\n");
-	}
+	Vector3R     getPosition() const;
+	Vector3R     getShadingNormal() const;
+	Vector3R     getGeometryNormal() const;
+	Vector3R     getdPdU() const;
+	Vector3R     getdPdV() const;
+	Vector3R     getdNdU() const;
+	Vector3R     getdNdV() const;
+	const Basis& getGeometryBasis() const;
+	const Basis& getShadingBasis() const;
 
 private:
 	Vector3R m_position;
@@ -97,5 +53,115 @@ private:
 	Basis m_geometryBasis;
 	Basis m_shadingBasis;
 };
+
+// In-header Implementations:
+
+inline Vector3R HitInfo::getPosition() const
+{
+	return m_position;
+}
+
+inline Vector3R HitInfo::getShadingNormal() const
+{
+	return m_shadingBasis.getYAxis();
+}
+
+inline Vector3R HitInfo::getGeometryNormal() const
+{
+	return m_geometryBasis.getYAxis();
+}
+
+inline Vector3R HitInfo::getdPdU() const
+{
+	return m_dPdU;
+}
+
+inline Vector3R HitInfo::getdPdV() const
+{
+	return m_dPdV;
+}
+
+inline Vector3R HitInfo::getdNdU() const
+{
+	return m_dNdU;
+}
+
+inline Vector3R HitInfo::getdNdV() const
+{
+	return m_dNdV;
+}
+
+inline const HitInfo::Basis& HitInfo::getGeometryBasis() const
+{
+	return m_geometryBasis;
+}
+
+inline const HitInfo::Basis& HitInfo::getShadingBasis() const
+{
+	return m_shadingBasis;
+}
+
+inline void HitInfo::setAttributes(
+	const Vector3R& position,
+	const Vector3R& geometryNormal,
+	const Vector3R& shadingNormal)
+{
+	m_position = position;
+	m_geometryBasis.setYAxis(geometryNormal);
+	m_shadingBasis.setYAxis(shadingNormal);
+}
+
+inline void HitInfo::setDerivatives(
+	const Vector3R& dPdU,
+	const Vector3R& dPdV,
+	const Vector3R& dNdU,
+	const Vector3R& dNdV)
+{
+	m_dPdU = dPdU;
+	m_dPdV = dPdV;
+	m_dNdU = dNdU;
+	m_dNdV = dNdV;
+}
+
+inline void HitInfo::computeBases()
+{
+	// FIXME: currently this is a hacky way to avoid crossing two parallel vectors
+	// (this condition can rarely happen)
+	// (which will result in 0-length vector and cause normalization to fail)
+
+	m_geometryBasis.setXAxis(m_geometryBasis.getYAxis().cross(m_dPdU));
+	if(m_geometryBasis.getXAxis().lengthSquared() > 0.0_r)
+	{
+		m_geometryBasis.renormalizeXAxis();
+		m_geometryBasis.setZAxis(m_geometryBasis.getXAxis().cross(m_geometryBasis.getYAxis()));
+	}
+	else
+	{
+		Vector3R xAxis, zAxis;
+		math::form_orthonormal_basis(
+			m_geometryBasis.getYAxis(), &xAxis, &zAxis);
+
+		m_geometryBasis.setXAxis(xAxis).setZAxis(zAxis);
+	}
+
+	m_shadingBasis.setXAxis(m_shadingBasis.getYAxis().cross(m_dNdU));
+	if(m_shadingBasis.getXAxis().lengthSquared() > 0.0_r)
+	{
+		m_shadingBasis.renormalizeXAxis();
+		m_shadingBasis.setZAxis(m_shadingBasis.getXAxis().cross(m_shadingBasis.getYAxis()));
+	}
+	else
+	{
+		Vector3R xAxis, zAxis;
+		math::form_orthonormal_basis(
+			m_shadingBasis.getYAxis(), &xAxis, &zAxis);
+
+		m_shadingBasis.setXAxis(xAxis).setZAxis(zAxis);
+	}
+
+	PH_ASSERT_MSG(m_geometryBasis.getYAxis().isFinite() && m_shadingBasis.getYAxis().isFinite(), "\n"
+		"geometry-y-axis = " + m_geometryBasis.getYAxis().toString() + "\n"
+		"shading-y-axis  = " + m_shadingBasis.getYAxis().toString() + "\n");
+}
 
 }// end namespace ph
