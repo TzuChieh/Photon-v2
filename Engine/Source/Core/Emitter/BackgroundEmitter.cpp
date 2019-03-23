@@ -10,6 +10,7 @@
 #include "Math/constant.h"
 #include "Math/math.h"
 #include "Math/Mapping/UniformUnitDisk.h"
+#include "Math/TOrthonormalBasis3.h"
 
 #include <vector>
 
@@ -145,11 +146,10 @@ void BackgroundEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Ve
 
 	*out_pdfA = diskPdf / (m_sceneBoundRadius * m_sceneBoundRadius);
 
-	Vector3R xAxis, zAxis;
-	math::form_orthonormal_basis(direction, &xAxis, &zAxis);
+	const auto basis = Basis3R::makeFromUnitY(direction);
 	Vector3R position = direction.mul(-1) * m_sceneBoundRadius + 
-		(zAxis * diskPos.x * m_sceneBoundRadius) +
-		(xAxis * diskPos.y * m_sceneBoundRadius);
+		(basis.getZAxis() * diskPos.x * m_sceneBoundRadius) +
+		(basis.getXAxis() * diskPos.y * m_sceneBoundRadius);
 
 	out_ray->setDirection(direction);
 	out_ray->setOrigin(position);

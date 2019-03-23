@@ -54,8 +54,6 @@ inline T squared(const T value)
 	return value * value;
 }
 
-void form_orthonormal_basis(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis);
-
 // A fast, without sqrt(), nearly branchless method. Notice that Photon uses y-axis as the up/normal vector. This
 // static method implements the y-is-normal version which is different from the original paper.
 // (Reference: Frisvad, Jeppe Revall, "Building an Orthonormal Basis from a 3D Unit Vector Without Normalization", 

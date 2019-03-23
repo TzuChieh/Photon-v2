@@ -10,6 +10,7 @@
 #include "Common/assertion.h"
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
 #include "Math/Mapping/CosThetaWeightedUnitHemisphere.h"
+#include "Math/TOrthonormalBasis3.h"
 
 #include <cmath>
 
@@ -69,11 +70,7 @@ void LambertianDiffuse::calcBsdfSample(
 	L = CosThetaWeightedUnitHemisphere::map(
 		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()});
 
-	Vector3R u;
-	Vector3R v(N);
-	Vector3R w;
-	math::form_orthonormal_basis(v, &u, &w);
-	L = u.mulLocal(L.x).addLocal(v.mulLocal(L.y)).addLocal(w.mulLocal(L.z));
+	L = in.X.getDetail().getShadingBasis().localToWorld(L);
 	L.normalizeLocal();
 	if(in.V.dot(N) < 0.0_r)
 	{

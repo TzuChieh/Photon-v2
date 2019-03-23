@@ -1,6 +1,7 @@
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
 #include "Common/assertion.h"
 #include "Math/math.h"
+#include "Math/TOrthonormalBasis3.h"
 
 #include <cmath>
 #include <string>
@@ -77,7 +78,7 @@ void IsoTrowbridgeReitz::genDistributedH(
 {
 	PH_ASSERT(seedA_i0e1 >= 0.0_r && seedA_i0e1 <= 1.0_r);
 	PH_ASSERT(seedB_i0e1 >= 0.0_r && seedB_i0e1 <= 1.0_r);
-	PH_ASSERT(out_H != nullptr);
+	PH_ASSERT(out_H);
 
 	const real phi   = constant::two_pi<real> * seedA_i0e1;
 	const real theta = std::atan(m_alpha * std::sqrt(seedB_i0e1 / (1.0_r - seedB_i0e1)));
@@ -100,11 +101,7 @@ void IsoTrowbridgeReitz::genDistributedH(
 	H.y = cosTheta;
 	H.z = sinTheta * std::cos(phi);
 
-	Vector3R xAxis;
-	Vector3R yAxis(N);
-	Vector3R zAxis;
-	math::form_orthonormal_basis(yAxis, &xAxis, &zAxis);
-	H = xAxis.mulLocal(H.x).addLocal(yAxis.mulLocal(H.y)).addLocal(zAxis.mulLocal(H.z));
+	H = X.getDetail().getShadingBasis().localToWorld(H);
 	H.normalizeLocal();
 
 	PH_ASSERT_MSG(!std::isnan(H.x) && !std::isnan(H.y) && !std::isnan(H.z) &&

@@ -14,8 +14,6 @@ class Primitive;
 class HitInfo final
 {
 public:
-	using Basis =  TOrthonormalBasis3<real>;
-
 	HitInfo();
 
 	void setAttributes(
@@ -31,15 +29,15 @@ public:
 
 	void computeBases();
 
-	Vector3R     getPosition() const;
-	Vector3R     getShadingNormal() const;
-	Vector3R     getGeometryNormal() const;
-	Vector3R     getdPdU() const;
-	Vector3R     getdPdV() const;
-	Vector3R     getdNdU() const;
-	Vector3R     getdNdV() const;
-	const Basis& getGeometryBasis() const;
-	const Basis& getShadingBasis() const;
+	Vector3R       getPosition() const;
+	Vector3R       getShadingNormal() const;
+	Vector3R       getGeometryNormal() const;
+	Vector3R       getdPdU() const;
+	Vector3R       getdPdV() const;
+	Vector3R       getdNdU() const;
+	Vector3R       getdNdV() const;
+	const Basis3R& getGeometryBasis() const;
+	const Basis3R& getShadingBasis() const;
 
 private:
 	Vector3R m_position;
@@ -50,8 +48,8 @@ private:
 	Vector3R m_dNdV;
 
 	// TODO: basis may be constructed on demand (will this be costly?)
-	Basis m_geometryBasis;
-	Basis m_shadingBasis;
+	Basis3R m_geometryBasis;
+	Basis3R m_shadingBasis;
 };
 
 // In-header Implementations:
@@ -91,12 +89,12 @@ inline Vector3R HitInfo::getdNdV() const
 	return m_dNdV;
 }
 
-inline const HitInfo::Basis& HitInfo::getGeometryBasis() const
+inline const Basis3R& HitInfo::getGeometryBasis() const
 {
 	return m_geometryBasis;
 }
 
-inline const HitInfo::Basis& HitInfo::getShadingBasis() const
+inline const Basis3R& HitInfo::getShadingBasis() const
 {
 	return m_shadingBasis;
 }
@@ -137,11 +135,7 @@ inline void HitInfo::computeBases()
 	}
 	else
 	{
-		Vector3R xAxis, zAxis;
-		math::form_orthonormal_basis(
-			m_geometryBasis.getYAxis(), &xAxis, &zAxis);
-
-		m_geometryBasis.setXAxis(xAxis).setZAxis(zAxis);
+		m_geometryBasis = Basis3R::makeFromUnitY(m_geometryBasis.getYAxis());
 	}
 
 	m_shadingBasis.setXAxis(m_shadingBasis.getYAxis().cross(m_dNdU));
@@ -152,11 +146,7 @@ inline void HitInfo::computeBases()
 	}
 	else
 	{
-		Vector3R xAxis, zAxis;
-		math::form_orthonormal_basis(
-			m_shadingBasis.getYAxis(), &xAxis, &zAxis);
-
-		m_shadingBasis.setXAxis(xAxis).setZAxis(zAxis);
+		m_shadingBasis = Basis3R::makeFromUnitY(m_shadingBasis.getYAxis());
 	}
 
 	PH_ASSERT_MSG(m_geometryBasis.getYAxis().isFinite() && m_shadingBasis.getYAxis().isFinite(), "\n"

@@ -15,8 +15,6 @@ class Primitive;
 class HitDetail final
 {
 public:
-	using Basis = TOrthonormalBasis3<real>;
-
 	HitDetail();
 
 	// TODO: consider renaming to setHitIntrinsic()
@@ -35,8 +33,8 @@ public:
 	Vector3R getdNdU(ECoordSys coordSys = ECoordSys::WORLD) const;
 	Vector3R getdNdV(ECoordSys coordSys = ECoordSys::WORLD) const;
 	Vector3R getUvw() const;
-	const Basis& getGeometryBasis(ECoordSys coordSys = ECoordSys::WORLD) const;
-	const Basis& getShadingBasis(ECoordSys coordSys = ECoordSys::WORLD) const;
+	const Basis3R& getGeometryBasis(ECoordSys coordSys = ECoordSys::WORLD) const;
+	const Basis3R& getShadingBasis(ECoordSys coordSys = ECoordSys::WORLD) const;
 
 	// Gets the parametric distance from the incident ray's origin. Notice that
 	// parametric distance is not ordinary distance but defined in terms of a 
@@ -91,12 +89,12 @@ inline Vector3R HitDetail::getdNdV(const ECoordSys coordSys) const
 	return getHitInfo(coordSys).getdNdV();
 }
 
-inline const HitDetail::Basis& HitDetail::getGeometryBasis(const ECoordSys coordSys) const
+inline const Basis3R& HitDetail::getGeometryBasis(const ECoordSys coordSys) const
 {
 	return getHitInfo(coordSys).getGeometryBasis();
 }
 
-inline const HitDetail::Basis& HitDetail::getShadingBasis(const ECoordSys coordSys) const
+inline const Basis3R& HitDetail::getShadingBasis(const ECoordSys coordSys) const
 {
 	return getHitInfo(coordSys).getShadingBasis();
 }

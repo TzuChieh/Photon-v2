@@ -2,12 +2,54 @@
 
 #include "Math/TOrthonormalBasis3.h"
 #include "Math/math.h"
+#include "Common/assertion.h"
 
 #include <algorithm>
 #include <cmath>
 
 namespace ph
 {
+
+template<typename T>
+inline TOrthonormalBasis3<T> TOrthonormalBasis3<T>::makeFromUnitY(const TVector3<T>& unitYAxis)
+{
+	PH_ASSERT_MSG(unitYAxis.length() > T(0.9) && unitYAxis.isFinite(), unitYAxis.toString());
+
+	// choose an axis deviate enough to specified y-axis to perform cross product in order to avoid some 
+	// numeric errors
+	TVector3<T> unitXAxis;
+	if(std::abs(unitYAxis.y) < constant::rcp_sqrt_2<real>)
+	{
+		unitXAxis.set(-unitYAxis.z, T(0), unitYAxis.x);// yAxis cross (0, 1, 0)
+		unitXAxis.mulLocal(T(1) / std::sqrt(unitXAxis.x * unitXAxis.x + unitXAxis.z * unitXAxis.z));
+	}
+	else
+	{
+		unitXAxis.set(unitYAxis.y, -unitYAxis.x, T(0));// yAxis cross (0, 0, 1)
+		unitXAxis.mulLocal(T(1) / std::sqrt(unitXAxis.x * unitXAxis.x + unitXAxis.y * unitXAxis.y));
+	}
+
+	const TVector3<T> unitZAxis = unitXAxis.cross(unitYAxis);
+
+	PH_ASSERT_MSG(unitXAxis.isFinite() && unitZAxis.isFinite(), "\n"
+		"unit-x-axis = " + unitXAxis.toString() + "\n"
+		"unit-z-axis = " + unitZAxis.toString() + "\n");
+
+	return TOrthonormalBasis3(unitXAxis, unitYAxis, unitZAxis);
+
+	// TEST
+	/*std::cerr << std::setprecision(20);
+	if(std::abs(out_unitXaxis->length() - 1.0_r) > 0.000001_r)
+		std::cerr << out_unitXaxis->length() << std::endl;
+	if(std::abs(out_unitZaxis->length() - 1.0_r) > 0.000001_r)
+		std::cerr << out_unitZaxis->length() << std::endl;
+	if(out_unitXaxis->dot(*out_unitZaxis) > 0.000001_r)
+		std::cerr << out_unitXaxis->dot(*out_unitZaxis) << std::endl;
+	if(out_unitZaxis->dot(unitYaxis) > 0.000001_r)
+		std::cerr << out_unitZaxis->dot(unitYaxis) << std::endl;
+	if(unitYaxis.dot(*out_unitXaxis) > 0.000001_r)
+		std::cerr << unitYaxis.dot(*out_unitXaxis) << std::endl;*/
+}
 
 template<typename T>
 inline TOrthonormalBasis3<T>::TOrthonormalBasis3() :
@@ -37,6 +79,14 @@ inline TVector3<T> TOrthonormalBasis3<T>::worldToLocal(const TVector3<T>& worldV
 	return TVector3<T>(m_xAxis.dot(worldVec),
 	                   m_yAxis.dot(worldVec), 
 	                   m_zAxis.dot(worldVec));
+}
+
+template<typename T>
+inline TVector3<T> TOrthonormalBasis3<T>::localToWorld(const TVector3<T>& localVec) const
+{
+	return m_xAxis.mul(localVec.x).add(
+	       m_yAxis.mul(localVec.y)).add(
+	       m_zAxis.mul(localVec.z));
 }
 
 template<typename T>

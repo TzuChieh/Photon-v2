@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Math/math_fwd.h"
 #include "Math/TVector3.h"
 
 namespace ph
@@ -9,6 +10,8 @@ template<typename T>
 class TOrthonormalBasis3 final
 {
 public:
+	static TOrthonormalBasis3 makeFromUnitY(const TVector3<T>& unitYAxis);
+
 	TOrthonormalBasis3();
 	TOrthonormalBasis3(const TOrthonormalBasis3& other);
 	TOrthonormalBasis3(
@@ -17,6 +20,7 @@ public:
 		const TVector3<T>& zAxis);
 
 	TVector3<T> worldToLocal(const TVector3<T>& worldVec) const;
+	TVector3<T> localToWorld(const TVector3<T>& localVec) const;
 
 	T cosPhi(const TVector3<T>& unitVec) const;
 	T sinPhi(const TVector3<T>& unitVec) const;

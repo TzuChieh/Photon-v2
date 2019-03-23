@@ -31,6 +31,9 @@ class TMatrix4;
 template<typename T, std::size_t N>
 class TArithmeticArray;
 
+template<typename T>
+class TOrthonormalBasis3;
+
 using Vector2R = TVector2<real>;
 using Vector2F = TVector2<float32>;
 using Vector2D = TVector2<float64>;
@@ -56,5 +59,9 @@ using Matrix3D = TMatrix3<float64>;
 using Matrix4R = TMatrix4<real>;
 using Matrix4F = TMatrix4<float32>;
 using Matrix4D = TMatrix4<float64>;
+
+using Basis3R = TOrthonormalBasis3<real>;
+using Basis3F = TOrthonormalBasis3<float32>;
+using Basis3D = TOrthonormalBasis3<float64>;
 
 }// end namespace ph

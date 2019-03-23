@@ -13,6 +13,7 @@
 #include "Math/Random.h"
 #include "Core/Sample/PositionSample.h"
 #include "Math/Mapping/UniformUnitSphere.h"
+#include "Math/TOrthonormalBasis3.h"
 
 #include <algorithm>
 #include <cmath>
@@ -132,10 +133,10 @@ void PSphere::calcIntersectionDetail(
 	// calculating displacement vectors on hit normal's tangent plane
 	//
 	const real delta = m_radius / 128.0_r;
-	Vector3R dx, dz;
-	math::form_orthonormal_basis(hitNormal, &dx, &dz);
-	dx.mulLocal(delta);
-	dz.mulLocal(delta);
+	
+	const auto hitBasis = Basis3R::makeFromUnitY(hitNormal);
+	const Vector3R dx = hitBasis.getXAxis().mul(delta);
+	const Vector3R dz = hitBasis.getZAxis().mul(delta);
 
 	// find delta positions on the sphere from displacement vectors
 	//
@@ -159,7 +160,9 @@ void PSphere::calcIntersectionDetail(
 	                       posZuvw.x - negZuvw.x, posZuvw.y - negZuvw.y);
 	if(!uvwDiff.solve(posX.sub(negX), posZ.sub(negZ), &dPdU, &dPdV))
 	{
-		math::form_orthonormal_basis(hitNormal, &dPdU, &dPdV);
+		const auto uvwBasis = Basis3R::makeFromUnitY(hitNormal);
+		dPdU = uvwBasis.getXAxis();
+		dPdV = uvwBasis.getXAxis();
 	}
 
 	// normal derivatives are actually scaled version of dPdU and dPdV

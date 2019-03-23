@@ -14,6 +14,7 @@
 #include "Core/Texture/SampleLocation.h"
 #include "Math/Mapping/UniformUnitHemisphere.h"
 #include "Math/Mapping/CosThetaWeightedUnitHemisphere.h"
+#include "Math/TOrthonormalBasis3.h"
 
 #include <iostream>
 #include <algorithm>
@@ -97,15 +98,12 @@ void DiffuseSurfaceEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* 
 		&pdfW);*/
 
 	real pdfW;
-	Vector3R rayDir = CosThetaWeightedUnitHemisphere::map(
+	const Vector3R localRayDir = CosThetaWeightedUnitHemisphere::map(
 		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()},
 		&pdfW);
 
-	Vector3R u;
-	Vector3R v(positionSample.normal);
-	Vector3R w;
-	math::form_orthonormal_basis(v, &u, &w);
-	rayDir = u.mulLocal(rayDir.x).addLocal(v.mulLocal(rayDir.y)).addLocal(w.mulLocal(rayDir.z));
+	const auto sampleBasis = Basis3R::makeFromUnitY(positionSample.normal);
+	Vector3R rayDir = sampleBasis.localToWorld(localRayDir);
 	rayDir.normalizeLocal();
 
 	// TODO: time
