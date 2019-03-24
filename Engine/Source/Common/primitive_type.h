@@ -7,16 +7,22 @@
 namespace ph
 {
 
-using int8    = int8_t;
-using uint8   = uint8_t;
-using int16   = int16_t;
-using uint16  = uint16_t;
-using int32   = int32_t;
-using uint32  = uint32_t;
-using int64   = int64_t;
-using uint64  = uint64_t;
+using int8    = std::int8_t;
+using uint8   = std::uint8_t;
+using int16   = std::int16_t;
+using uint16  = std::uint16_t;
+using int32   = std::int32_t;
+using uint32  = std::uint32_t;
+using int64   = std::int64_t;
+using uint64  = std::uint64_t;
+
 using float32 = float;
 using float64 = double;
+
+#ifdef PH_STRICT_FLOATING_POINT_SIZES
+	static_assert(sizeof(float32) * CHAR_BIT == 32);
+	static_assert(sizeof(float64) * CHAR_BIT == 64);
+#endif
 
 #ifdef PH_USE_DOUBLE_REAL
 	typedef double real;

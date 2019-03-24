@@ -10,8 +10,11 @@
 // Define this if such behavior is desired.
 #define PH_ABORT_ON_ASSERTION_FAILED
 
-// Performing a stack trae when assertion failed.
+// Perform and print a stack trace when assertion failed.
 #define PH_PRINT_STACK_TRACE_ON_ASSERTION_FAILED
+
+// Assuring floating point types has specified sizes.
+#define PH_STRICT_FLOATING_POINT_SIZES
 
 // Log as soon as possible (primarily for debugging).
 //#define PH_UNBUFFERED_LOG
