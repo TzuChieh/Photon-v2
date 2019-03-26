@@ -14,6 +14,7 @@
 #include "Core/Quantity/SpectralData.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Actor/Material/ThinFilm/InterferenceTable.h"
+#include "Actor/Material/ThinFilm/InterferenceTableMetal.h"
 
 namespace ph
 {
@@ -30,12 +31,25 @@ ThinFilm::ThinFilm() :
 
 void ThinFilm::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
-	InterferenceTable table({m_iorOuter, m_iorFilm, m_iorInner}, {0, m_thicknessNm, 0});
+	// m_iorFilm = 1.5_r;
+	// m_thicknessNm = 500_r;
+	InterferenceTableMetal table({m_iorOuter, m_iorFilm, m_iorInner}, {0, m_thicknessNm, 0});
+	// table.enable_debug();
+	// table.read_iorfile("../IorFile/Ag.csv", 1);
+	// table.read_iorfile("../IorFile/Au.csv", 2);
 	table.simulate_single_thin_film();
+	// table.output_log();
 
 	const auto wavelengthsNm = table.getWavelengthsNm();
-	const auto reflectances = table.getReflectances();
-	const auto transmittances = table.getTransmittance();
+	auto reflectances = table.getReflectances();
+	auto transmittances = table.getTransmittance();
+
+	// HACK
+	for (size_t i = 0; i < reflectances.size(); ++i)
+	{
+		reflectances[i] = reflectances[i];
+		transmittances[i] = 0;
+	}
 
 	std::vector<SampledSpectralStrength> reflectanceTable(91);
 	std::vector<SampledSpectralStrength> transmittanceTable(91);
@@ -61,7 +75,7 @@ void ThinFilm::genSurface(CookingContext& context, SurfaceBehavior& behavior) co
 	}
 
 	auto optics = std::make_shared<ThinDielectricFilm>(
-		reflectanceTable, 
+		reflectanceTable,
 		transmittanceTable);
 
 	behavior.setOptics(optics);
