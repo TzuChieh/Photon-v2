@@ -1,8 +1,8 @@
 #pragma once
 
 ///////////////////////////////////////////////////////////////////////////////
-// Core Settings:
-//
+// Core Settings                                                             //
+///////////////////////////////////////////////////////////////////////////////
 
 // Define this for debug mode build. Assertions will be on in this mode.
 #define PH_DEBUG
@@ -19,20 +19,20 @@
 // Log as soon as possible (primarily for debugging).
 //#define PH_UNBUFFERED_LOG
 
+// If defined, double precision real number will be used.
+//#define PH_USE_DOUBLE_REAL
+
 ///////////////////////////////////////////////////////////////////////////////
-// Render Mode Selections:
-//
+// Render Modes                                                              //
+///////////////////////////////////////////////////////////////////////////////
+
 #define PH_RENDER_MODE_RGB
 //#define PH_RENDER_MODE_SPECTRAL
 //#define PH_RENDER_MODE_FULL_SPECTRAL
 
 ///////////////////////////////////////////////////////////////////////////////
-// Core Engine Structures:
-//
-
-// If defined, double precision real number will be used.
-//
-//#define PH_USE_DOUBLE_REAL
+// Data Structures                                                           //
+///////////////////////////////////////////////////////////////////////////////
 
 #define PH_SPECTRUM_SAMPLED_MIN_WAVELENGTH_NM 350
 #define PH_SPECTRUM_SAMPLED_MAX_WAVELENGTH_NM 850

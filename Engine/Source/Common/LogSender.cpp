@@ -11,9 +11,7 @@ const LogSender& LogSender::DEFAULT()
 
 LogSender::LogSender(const std::string& senderName) :
 	m_senderName(senderName)
-{
-
-}
+{}
 
 const std::string& LogSender::getSenderName() const
 {

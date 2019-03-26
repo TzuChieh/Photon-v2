@@ -36,7 +36,12 @@ target_include_directories(Engine
 	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR}
 	PRIVATE ${STB_INCLUDE_DIR}
 	PRIVATE ${LIBSIMDPP_INCLUDE_DIR}
+	PRIVATE ${ZLIB_INCLUDE_DIR}
+	PRIVATE ${OPENEXR_INCLUDE_DIR}
 )
+
+target_link_libraries(Engine ${OPENEXR_LIBS})
+target_link_libraries(Engine ${ZLIB_LIBS})
 
 if(WIN32)
 
