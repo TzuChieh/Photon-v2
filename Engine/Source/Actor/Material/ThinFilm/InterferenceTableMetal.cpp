@@ -150,14 +150,15 @@ namespace ph
     	complex_f n3 = ior_vec[2];
         int thickness = thickness_vec[1];
 
-    	for (int wl = wl_min; wl <= wl_max; wl += delta_wl)
+		for (int theta = 0; theta <= 90; theta += delta_angle)
     	{
-            if (ior_file[0].size()) n1 = ior_file[0][wl];
-            if (ior_file[1].size()) n2 = ior_file[1][wl];
-            if (ior_file[2].size()) n3 = ior_file[2][wl];
 
-    		for (int theta = 0; theta <= 90; theta += delta_angle)
+            for (int wl = wl_min; wl <= wl_max; wl += delta_wl)
     		{
+                if (ior_file[0].size()) n1 = ior_file[0][wl];
+                if (ior_file[1].size()) n2 = ior_file[1][wl];
+                if (ior_file[2].size()) n3 = ior_file[2][wl];
+                
                 complex_f theta_1 = complex_f(theta, 0);
                 complex_f product_1 = n1*angle_sin(theta_1);
 				complex_f theta_2 = angle_asin(product_1/n2); // n1sin1=n2sin2=n3sin3

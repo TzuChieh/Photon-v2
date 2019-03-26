@@ -37,6 +37,22 @@ public:
 	void output_log();
 	void enable_debug() { _debug = true; }
 
+	// HACK
+	std::vector<float> getWavelengthsNm() const
+	{
+		return m_wavelengths;
+	}
+
+	std::vector<float> getReflectances() const
+	{
+		return m_reflectances;
+	}
+
+	std::vector<float> getTransmittance() const
+	{
+		return m_transmittance;
+	}
+
 	complex_f angle_sin(complex_f t) { return sin(a2r(t)); }
 	complex_f angle_cos(complex_f t) { return cos(a2r(t)); }
 	complex_f angle_tan(complex_f t) { return tan(a2r(t)); }
