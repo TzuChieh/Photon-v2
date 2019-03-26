@@ -20,6 +20,7 @@
 // #define SIMDPP_ARCH_POWER_VSX_206
 // #define SIMDPP_ARCH_POWER_VSX_207
 // #define SIMDPP_ARCH_MIPS_MSA
+
 #include "simdpp/simd.h"
 #include <limits>
 #include <iostream>
@@ -122,9 +123,9 @@ class PackedTriangle {
     public:
         //e2 = v2-v0
         //e1 = v1-v0
-        simdpp::float32<width> e1[3];
-        simdpp::float32<width> e2[3];
-        simdpp::float32<width> v0[3];
+        std::array< simdpp::float32<width> , 3>  e1;
+        std::array< simdpp::float32<width> , 3>  e2;
+        std::array< simdpp::float32<width> , 3>  v0;
         simdpp::mask_float32<width> inactiveMask; // Required. We cant always have 8 triangles per packet.
         PackedTriangle(){};
         //this only works when width = 8, and tris.size = 8;
@@ -164,8 +165,8 @@ inline std::ostream& operator<<(std::ostream& os,const PackedIntersectionResult 
 class testRay 
 {
     public:
-        simdpp::float32<width> m_origin[3];
-        simdpp::float32<width> m_direction[3];
+        std::array< simdpp::float32<width> , 3> m_origin;
+        std::array< simdpp::float32<width> , 3> m_direction;
         simdpp::float32<width> m_length;
         bool isIntersectPackedTriangle(const PackedTriangle& triangle, PackedIntersectionResult& result);
         testRay(const Ray& r);  
@@ -176,7 +177,7 @@ class testRay
 
 
 template <typename T>
-void avx_multi_cross(T result[3], const T a[3], const T b[3])
+void avx_multi_cross(std::array<T, 3>& result, const std::array<T, 3>& a, const std::array<T, 3>&  b)
 {
     result[0] = simdpp::fmsub(a[1], b[2], simdpp::mul(b[1], a[2]));
     result[1] = simdpp::fmsub(a[2], b[0], simdpp::mul(b[2], a[0]));
@@ -184,13 +185,13 @@ void avx_multi_cross(T result[3], const T a[3], const T b[3])
 }
 
 template <typename T>
-T avx_multi_dot(const T a[3], const T b[3])
+T avx_multi_dot(const std::array<T, 3>&  a, const std::array<T, 3>&  b)
 {
     return simdpp::fmadd(a[2], b[2], simdpp::fmadd(a[1], b[1], simdpp::mul(a[0], b[0])));
 }
 
 template <typename T>
-void avx_multi_sub(T result[3], const T a[3], const T b[3])
+void avx_multi_sub(std::array<T, 3>&  result, const std::array<T, 3>&  a, const std::array<T, 3>&  b)
 {
     result[0] = simdpp::sub(a[0], b[0]);
     result[1] = simdpp::sub(a[1], b[1]);
@@ -208,7 +209,7 @@ const simdpp::float32<width> zeroM256 = simdpp::splat(0.0f);;
 bool testRay::isIntersectPackedTriangle(const PackedTriangle& packedTris, PackedIntersectionResult& result)
 {
     //must sort the triangles first
-    simdpp::float32<width> ray_cross_e2[3];
+    std::array< simdpp::float32<width> , 3> ray_cross_e2;
     avx_multi_cross(ray_cross_e2, m_direction, packedTris.e2);
 
     simdpp::float32<width> a = avx_multi_dot(packedTris.e1, ray_cross_e2);
@@ -216,12 +217,12 @@ bool testRay::isIntersectPackedTriangle(const PackedTriangle& packedTris, Packed
     
     simdpp::float32<width> f = simdpp::div(oneM256 , a);
 
-    simdpp::float32<width> s[3];
+    std::array< simdpp::float32<width> , 3>  s;
     avx_multi_sub(s, m_origin, packedTris.v0);
 
     simdpp::float32<width> u = simdpp::mul(f, avx_multi_dot(s, ray_cross_e2));
 
-    simdpp::float32<width> q[3];
+    std::array< simdpp::float32<width> , 3>  q;
     avx_multi_cross(q, s, packedTris.e1);
 
     simdpp::float32<width> v = simdpp::mul(f, avx_multi_dot(m_direction, q));
@@ -272,7 +273,7 @@ bool testRay::isIntersectPackedTriangle(const PackedTriangle& packedTris, Packed
             mask |= (1<<i);
         }
     }
-    /*
+    
     if (mask != 0xFF)
     {
         result.idx = -1;
@@ -291,7 +292,7 @@ bool testRay::isIntersectPackedTriangle(const PackedTriangle& packedTris, Packed
 
         return result.idx != -1;
     }
-    */
+    
     return false;
 
 }
