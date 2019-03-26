@@ -3,6 +3,7 @@
 #include "Common/config.h"
 
 #include <cstdint>
+#include <climits>
 
 namespace ph
 {
