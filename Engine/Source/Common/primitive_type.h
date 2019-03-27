@@ -25,9 +25,9 @@ using float64 = double;
 #endif
 
 #ifdef PH_USE_DOUBLE_REAL
-	typedef double real;
+	using real = double;
 #else
-	typedef float real;
+	using real = float;
 #endif
 
 using integer   = int;
