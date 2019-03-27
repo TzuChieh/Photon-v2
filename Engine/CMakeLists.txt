@@ -14,7 +14,6 @@ file(GLOB_RECURSE ENGINE_HEADER_FILES
 file(GLOB_RECURSE ENGINE_SOURCE_FILES "./Source/*.cpp")
 
 # explicitly mark them as headers
-#
 set_source_files_properties(${ENGINE_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
 
 add_library(Engine STATIC ${ENGINE_HEADER_FILES} ${ENGINE_SOURCE_FILES})
@@ -25,21 +24,24 @@ add_library(Engine STATIC ${ENGINE_HEADER_FILES} ${ENGINE_SOURCE_FILES})
 #[[
 
 # compiling engine source only once to get an object library
-#
 add_library(EngineObjLib OBJECT ${SOURCE_FILES})
 
 # shared libraries need PIC (static libraries do not care about this)
-#
 set_property(TARGET EngineObjLib PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 ]]
 
 target_include_directories(Engine 
-	PRIVATE ${ENGINE_INCLUDE_DIR}
+	PUBLIC  ${ENGINE_INCLUDE_DIR}
 	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR}
 	PRIVATE ${STB_INCLUDE_DIR}
-	PUBLIC  ${LIBSIMDPP_INCLUDE_DIR}
+	PRIVATE ${LIBSIMDPP_INCLUDE_DIR}
+	PRIVATE ${ZLIB_INCLUDE_DIR}
+	PRIVATE ${OPENEXR_INCLUDE_DIR}
 )
+
+target_link_libraries(Engine ${OPENEXR_LIBS})
+target_link_libraries(Engine ${ZLIB_LIBS})
 
 if(WIN32)
 
@@ -70,13 +72,11 @@ target_compile_definitions(Engine
 #[[
 
 # shared and static libraries built from the same object files
-#
 add_library(Engine       SHARED $<TARGET_OBJECTS:EngineObjLib>)
 add_library(EngineStatic STATIC $<TARGET_OBJECTS:EngineObjLib>)
 
 ]]
 
 # make these directories accessible for other sub-projects
-#
 set(ENGINE_INCLUDE_DIR         "${ENGINE_INCLUDE_DIR}"         PARENT_SCOPE)
 set(ENGINE_PRIVATE_INCLUDE_DIR "${ENGINE_PRIVATE_INCLUDE_DIR}" PARENT_SCOPE)

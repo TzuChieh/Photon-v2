@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include <FileIO/Data/IesFile.h>
 #include <FileIO/Data/IesData.h>
 #include <FileIO/PictureSaver.h>
@@ -17,7 +19,7 @@ TEST(IesFileLoadingTest, Parse1995Files)
 	///////////////////////////////////////////////////////////////////////////
 	// file 1
 
-	IesFile file1(Path("./Resource/Test/IES/1.ies"));
+	IesFile file1(Path(PH_TEST_RESOURCE_PATH("IES/1.ies")));
 	ASSERT_TRUE(file1.load());
 	
 	EXPECT_TRUE(file1.getIesFileType() == IesFile::EIesFileType::LM_63_1995);
@@ -61,7 +63,7 @@ TEST(IesFileLoadingTest, Parse1995Files)
 	///////////////////////////////////////////////////////////////////////////
 	// file 2
 
-	IesFile file2(Path("./Resource/Test/IES/7.ies"));
+	IesFile file2(Path(PH_TEST_RESOURCE_PATH("IES/7.ies")));
 	ASSERT_TRUE(file2.load());
 	
 	EXPECT_TRUE(file2.getIesFileType() == IesFile::EIesFileType::LM_63_1995);
@@ -100,7 +102,7 @@ TEST(IesFileLoadingTest, Parse1995Files)
 	///////////////////////////////////////////////////////////////////////////
 	// file 3
 
-	IesFile file3(Path("./Resource/Test/IES/L1768-65BR30FL_FL55.ies"));
+	IesFile file3(Path(PH_TEST_RESOURCE_PATH("IES/L1768-65BR30FL_FL55.ies")));
 	ASSERT_TRUE(file3.load());
 	
 	EXPECT_TRUE(file3.getIesFileType() == IesFile::EIesFileType::LM_63_1995);
@@ -146,7 +148,7 @@ TEST(IesFileLoadingTest, DataProcessing)
 
 	// This file describes a light emitting 0.5 energy unit everywhere.
 	//
-	IesData iesData1(Path("./Resource/Test/IES/constant_point5_candela.IES"));
+	IesData iesData1(Path(PH_TEST_RESOURCE_PATH("IES/constant_point5_candela.IES")));
 
 	// sampled degrees: 0, 90, 180
 	//

@@ -1,21 +1,18 @@
-
 # Photon-v2 unit tests for engine.
 
 file(GLOB_RECURSE SOURCE_FILES "./Source/*.cpp")
 add_executable(EngineTest ${SOURCE_FILES})
-
 add_dependencies(EngineTest Engine)
 
-target_include_directories(EngineTest 
-	PRIVATE "./Source/"
-	PRIVATE ${ENGINE_INCLUDE_DIR}
-	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR}
+target_include_directories(EngineTest
 	PRIVATE ${GOOGLETEST_INCLUDE_DIR}
+	PRIVATE "./Source/"
+	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR}
+	PRIVATE ${LIBSIMDPP_INCLUDE_DIR}
 )
 
 target_link_libraries(EngineTest Engine)
 target_link_libraries(EngineTest ${GOOGLETEST_LIBS})
-
 
 if(MSVC)
     set_property(TARGET EngineTest 

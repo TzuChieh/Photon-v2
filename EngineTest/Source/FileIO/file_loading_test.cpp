@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include <FileIO/TextFileLoader.h>
 #include <FileIO/BinaryFileReader.h>
 
@@ -11,14 +13,14 @@ using namespace ph;
 TEST(FileLoadingTest, LoadSimpleTextFile)
 {
 	std::string text1;
-	bool isLoaded = ph::TextFileLoader::load(ph::Path("./Resource/Test/Text/simple_text.txt"), &text1);
+	bool isLoaded = ph::TextFileLoader::load(ph::Path(PH_TEST_RESOURCE_PATH("Text/simple_text.txt")), &text1);
 	ASSERT_TRUE(isLoaded);
 	EXPECT_STREQ(text1.c_str(), "123456");
 }
 
 TEST(FileLoadingTest, LoadSimpleBinaryFile)
 {
-	BinaryFileReader reader1(Path("./Resource/Test/Binary/test_binary_ascii.dat"));
+	BinaryFileReader reader1(Path(PH_TEST_RESOURCE_PATH("Binary/test_binary_ascii.dat")));
 	ASSERT_TRUE(reader1.open());
 
 	const std::string actualMessage("test binary message here");
@@ -28,7 +30,7 @@ TEST(FileLoadingTest, LoadSimpleBinaryFile)
 	reader1.read(buffer1.data(), buffer1.length());
 	EXPECT_STREQ(buffer1.c_str(), actualMessage.c_str());
 
-	BinaryFileReader reader2(Path("./Resource/Test/Binary/test_binary_hex.dat"));
+	BinaryFileReader reader2(Path(PH_TEST_RESOURCE_PATH("Binary/test_binary_hex.dat")));
 	ASSERT_TRUE(reader2.open());
 
 	const std::vector<unsigned char> actualData{0xAA, 0xBB, 0xCC};

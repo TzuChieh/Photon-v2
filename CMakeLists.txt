@@ -35,7 +35,7 @@ endif()
 
 
 option(BUILD_ENGINE_TEST "Build unit tests for core engine." ${BUILD_ENGINE_TEST_DEFAULT})
-option(BUILD_EDITOR_JNI "Build JNI for GUI."                 ${BUILD_EDITOR_JNI_DEFAULT})
+option(BUILD_EDITOR_JNI  "Build JNI for GUI."                ${BUILD_EDITOR_JNI_DEFAULT})
 
 ###############################################################################
 # Compiler Settings                                                           #
@@ -118,6 +118,31 @@ endif()
 
 # libsimdpp
 set(LIBSIMDPP_INCLUDE_DIR "${THIRD_PARTY_DIR}libsimdpp/include/")
+
+# zlib
+set(ZLIB_INCLUDE_DIR "${THIRD_PARTY_DIR}zlib/include/")
+set(ZLIB_BINARY_DIR  "${THIRD_PARTY_DIR}zlib/lib/${THIRD_PARTY_PLATFORM}/")
+find_library(ZLIB_LIB_ZLIB zlibstatic PATHS ${ZLIB_BINARY_DIR} NO_DEFAULT_PATH)
+set(ZLIB_LIBS "${ZLIB_LIB_ZLIB}")
+
+# openexr
+set(OPENEXR_INCLUDE_DIR "${THIRD_PARTY_DIR}openexr/include/")
+set(OPENEXR_BINARY_DIR  "${THIRD_PARTY_DIR}openexr/lib/${THIRD_PARTY_PLATFORM}/")
+find_library(OPENEXR_LIB_ILMIMF     IlmImf-2_3_s     PATHS ${OPENEXR_BINARY_DIR} NO_DEFAULT_PATH)
+find_library(OPENEXR_LIB_ILMIMFUTIL IlmImfUtil-2_3_s PATHS ${OPENEXR_BINARY_DIR} NO_DEFAULT_PATH)
+find_library(OPENEXR_LIB_HALF       Half-2_3_s       PATHS ${OPENEXR_BINARY_DIR} NO_DEFAULT_PATH)
+find_library(OPENEXR_LIB_IEX        Iex-2_3_s        PATHS ${OPENEXR_BINARY_DIR} NO_DEFAULT_PATH)
+find_library(OPENEXR_LIB_IEXMATH    IexMath-2_3_s    PATHS ${OPENEXR_BINARY_DIR} NO_DEFAULT_PATH)
+find_library(OPENEXR_LIB_ILMTHREAD  IlmThread-2_3_s  PATHS ${OPENEXR_BINARY_DIR} NO_DEFAULT_PATH)
+find_library(OPENEXR_LIB_IMATH      Imath-2_3_s      PATHS ${OPENEXR_BINARY_DIR} NO_DEFAULT_PATH)
+string(CONCAT OPENEXR_LIBS 
+    "${OPENEXR_LIB_ILMIMF}"
+    ";${OPENEXR_LIB_ILMIMFUTIL}"
+    ";${OPENEXR_LIB_HALF}"
+    ";${OPENEXR_LIB_IEX}"
+    ";${OPENEXR_LIB_IEXMATH}"
+    ";${OPENEXR_LIB_ILMTHREAD}"
+    ";${OPENEXR_LIB_IMATH}")
 
 ###############################################################################
 # Add CMake Subdirectories                                                    #
