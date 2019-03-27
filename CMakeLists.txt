@@ -122,7 +122,7 @@ set(LIBSIMDPP_INCLUDE_DIR "${THIRD_PARTY_DIR}libsimdpp/include/")
 # zlib
 set(ZLIB_INCLUDE_DIR "${THIRD_PARTY_DIR}zlib/include/")
 set(ZLIB_BINARY_DIR  "${THIRD_PARTY_DIR}zlib/lib/${THIRD_PARTY_PLATFORM}/")
-find_library(ZLIB_LIB_ZLIB zlibstatic PATHS ${ZLIB_BINARY_DIR} NO_DEFAULT_PATH)
+find_library(ZLIB_LIB_ZLIB zlibstatic libz PATHS ${ZLIB_BINARY_DIR} NO_DEFAULT_PATH)
 set(ZLIB_LIBS "${ZLIB_LIB_ZLIB}")
 
 # openexr
