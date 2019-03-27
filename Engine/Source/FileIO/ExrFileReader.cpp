@@ -33,7 +33,7 @@ bool ExrFileReader::load(HdrRgbFrame* const out_frame)
 	catch(const std::exception& e)
 	{
 		logger.log(ELogLevel::WARNING_MED,
-			"failed loading file <" + m_filePath.toString() + ">, reason: " + e.what());
+			"failed loading <" + m_filePath.toString() + ">, reason: " + e.what());
 		return false;
 	}
 }
@@ -43,7 +43,7 @@ bool ExrFileReader::loadStandaloneRgb(HdrRgbFrame* const out_frame)
 	const std::string filePath = m_filePath.toAbsoluteString();
 	
 	logger.log(ELogLevel::NOTE_MIN,
-		"loading standalone RGB file: " + filePath);
+		"loading standalone RGB: " + filePath);
 	
 	Imf::InputFile file(filePath.c_str());
 
@@ -199,14 +199,12 @@ bool loadStandaloneRgbData(Imf::InputFile& file, HdrRgbFrame* const out_frame)
 
 	out_frame->setSize(dataWidth, dataHeight);
 	out_frame->forEachPixel(
-		[&pixels, lineOrder, dataHeight](const uint32 x, const uint32 y, HdrRgbFrame::Pixel& pixel)
+		[&pixels, lineOrder, dataHeight](const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& /* pixel */)
 		{
 			const RgbPixel& readPixel = lineOrder == Imf::LineOrder::INCREASING_Y ? 
 				pixels[dataHeight - 1 - y][x] : pixels[y][x];
 
-			pixel[0] = readPixel.r;
-			pixel[1] = readPixel.g;
-			pixel[2] = readPixel.b;
+			return HdrRgbFrame::Pixel({readPixel.r, readPixel.g, readPixel.b});
 		});
 
 	return true;
