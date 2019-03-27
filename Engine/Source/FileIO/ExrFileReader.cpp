@@ -7,6 +7,7 @@
 #include <set>
 #include <iostream>
 #include <type_traits>
+#include <exception>
 
 namespace ph
 {
@@ -16,7 +17,7 @@ namespace
 	const Logger logger(LogSender("EXR File"));
 
 	template<typename DatumType>
-	bool loadStandaloneRgb(Imf::InputFile& file, HdrRgbFrame* const out_frame);
+	bool loadStandaloneRgbData(Imf::InputFile& file, HdrRgbFrame* const out_frame);
 }
 
 ExrFileReader::ExrFileReader(const Path& filePath) :
@@ -25,10 +26,24 @@ ExrFileReader::ExrFileReader(const Path& filePath) :
 
 bool ExrFileReader::load(HdrRgbFrame* const out_frame)
 {
+	try
+	{
+		return loadStandaloneRgb(out_frame);
+	}
+	catch(const std::exception& e)
+	{
+		logger.log(ELogLevel::WARNING_MED,
+			"failed loading file <" + m_filePath.toString() + ">, reason: " + e.what());
+		return false;
+	}
+}
+
+bool ExrFileReader::loadStandaloneRgb(HdrRgbFrame* const out_frame)
+{
 	const std::string filePath = m_filePath.toAbsoluteString();
 	
 	logger.log(ELogLevel::NOTE_MIN,
-		"reading file: " + filePath);
+		"loading standalone RGB file: " + filePath);
 	
 	Imf::InputFile file(filePath.c_str());
 
@@ -65,15 +80,15 @@ bool ExrFileReader::load(HdrRgbFrame* const out_frame)
 	PH_ASSERT(pixelType == Imf::PixelType::HALF || pixelType == Imf::PixelType::FLOAT);
 	if(pixelType == Imf::PixelType::HALF)
 	{
-		return loadStandaloneRgb<half>(file, out_frame);
+		return loadStandaloneRgbData<half>(file, out_frame);
 	}
 	else
 	{
-		return loadStandaloneRgb<float>(file, out_frame);
+		return loadStandaloneRgbData<float>(file, out_frame);
 	}
 }
 
-std::string ExrFileReader::listAllLayersAndChannels() const
+std::string ExrFileReader::listAllLayersAndChannels()
 {
 	Imf::InputFile file(m_filePath.toAbsoluteString().c_str());
 
@@ -116,7 +131,7 @@ namespace
 {
 
 template<typename DatumType>
-bool loadStandaloneRgb(Imf::InputFile& file, HdrRgbFrame* const out_frame)
+bool loadStandaloneRgbData(Imf::InputFile& file, HdrRgbFrame* const out_frame)
 {
 	static_assert(std::is_same_v<DatumType, half> || std::is_same_v<DatumType, float>);
 
@@ -125,8 +140,10 @@ bool loadStandaloneRgb(Imf::InputFile& file, HdrRgbFrame* const out_frame)
 
 	PH_ASSERT(out_frame);
 
+	const Imf::Header& header = file.header();
+
 	// coordinates are descrete, hence the +1 in the end
-	const Imath::Box2i dataWindow = file.header().dataWindow();
+	const Imath::Box2i dataWindow = header.dataWindow();
 	const int dataWidth  = dataWindow.max.x - dataWindow.min.x + 1;
 	const int dataHeight = dataWindow.max.y - dataWindow.min.y + 1;
 	const int minDataX   = dataWindow.min.x;
@@ -170,7 +187,27 @@ bool loadStandaloneRgb(Imf::InputFile& file, HdrRgbFrame* const out_frame)
 	file.setFrameBuffer(frameBuffer);
 	file.readPixels(dataWindow.min.y, dataWindow.max.y);
 
-	// TODO: copy to frame
+	// copy read data to frame
+
+	const Imf::LineOrder lineOrder = header.lineOrder();
+	if(!(lineOrder == Imf::LineOrder::INCREASING_Y || lineOrder == Imf::LineOrder::DECREASING_Y))
+	{
+		logger.log(ELogLevel::WARNING_MED,
+			"file < " + std::string(file.fileName()) + "> has unsupported line order: " + std::to_string(lineOrder));
+		return false;
+	}
+
+	out_frame->setSize(dataWidth, dataHeight);
+	out_frame->forEachPixel(
+		[&pixels, lineOrder, dataHeight](const uint32 x, const uint32 y, HdrRgbFrame::Pixel& pixel)
+		{
+			const RgbPixel& readPixel = lineOrder == Imf::LineOrder::INCREASING_Y ? 
+				pixels[dataHeight - 1 - y][x] : pixels[y][x];
+
+			pixel[0] = readPixel.r;
+			pixel[1] = readPixel.g;
+			pixel[2] = readPixel.b;
+		});
 
 	return true;
 }

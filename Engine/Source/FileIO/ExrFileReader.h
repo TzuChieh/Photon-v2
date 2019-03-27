@@ -19,7 +19,8 @@ public:
 private:
 	Path m_filePath;
 
-	std::string listAllLayersAndChannels() const;
+	bool loadStandaloneRgb(HdrRgbFrame* const out_frame);
+	std::string listAllLayersAndChannels();
 };
 
 }// end namespace ph

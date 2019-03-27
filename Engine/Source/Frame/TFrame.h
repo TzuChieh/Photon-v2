@@ -21,13 +21,10 @@ public:
 	template<typename U>
 	using TPixel = TArithmeticArray<U, N>;
 
-	typedef TPixel<T> Pixel;
+	using Pixel = TPixel<T>;
 
 	template<typename U = T>
-	static inline TPixel<U> getMonochromaticPixel(const U value)
-	{
-		return TPixel<U>(value);
-	}
+	static TPixel<U> getMonochromaticPixel(const U value);
 
 public:
 	TFrame();
@@ -73,22 +70,11 @@ public:
 	TFrame& operator = (const TFrame& rhs);
 	TFrame& operator = (TFrame&& rhs);
 
-	inline uint32 widthPx() const
-	{
-		return m_widthPx;
-	}
-
-	inline uint32 heightPx() const
-	{
-		return m_heightPx;
-	}
+	uint32 widthPx() const;
+	uint32 heightPx() const;
+	bool isEmpty() const;
 
 	constexpr std::size_t numPixelComponents() const noexcept;
-
-	inline bool isEmpty() const
-	{
-		return m_pixelData.empty();
-	}
 
 	// HACK
 	inline std::vector<real> getRealData() const

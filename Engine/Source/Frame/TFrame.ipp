@@ -15,6 +15,13 @@ namespace ph
 {
 
 template<typename T, std::size_t N>
+template<typename U>
+inline TFrame<T, N>::TPixel<U> TFrame<T, N>::getMonochromaticPixel(const U value)
+{
+	return TPixel<U>(value);
+}
+
+template<typename T, std::size_t N>
 inline TFrame<T, N>::TFrame() :
 	TFrame(0, 0)
 {}
@@ -333,6 +340,24 @@ template<typename T, std::size_t N>
 inline TVector2<uint32> TFrame<T, N>::getSizePx() const
 {
 	return {m_widthPx, m_heightPx};
+}
+
+template<typename T, std::size_t N>
+inline uint32 TFrame<T, N>::widthPx() const
+{
+	return m_widthPx;
+}
+
+template<typename T, std::size_t N>
+inline uint32 TFrame<T, N>::heightPx() const
+{
+	return m_heightPx;
+}
+
+template<typename T, std::size_t N>
+inline bool TFrame<T, N>::isEmpty() const
+{
+	return m_pixelData.empty();
 }
 
 template<typename T, std::size_t N>
