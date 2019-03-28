@@ -41,13 +41,23 @@ option(BUILD_EDITOR_JNI  "Build JNI for GUI."                ${BUILD_EDITOR_JNI_
 # Compiler Settings                                                           #
 ###############################################################################
 
+# compile with C++17 standard enabled
+set(CMAKE_CXX_STANDARD          17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # using Visual Studio C++
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
     set(THIRD_PARTY_PLATFORM "windows")
 
-    # TODO: more standard ways exist, but requires newer CMake version
-    set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /std:c++17 /Zi /MP")
+    # use C++17 (VS usually do not pick up previous requests)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
+
+    # use PDB files for debugging, which also provides potential optimizations
+    set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /Zi")
+
+    # use multithreaded compilation
+    set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /MP")
 
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
     set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
@@ -57,14 +67,6 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
     set(THIRD_PARTY_PLATFORM "linux")
 
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
-    endif()
-
-    # compile with c++17 standard enabled
-    set(CMAKE_CXX_STANDARD          17)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
     # as a fallback when CMake version < 3.8.0 or whatever reasons
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
@@ -73,9 +75,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     
     set(THIRD_PARTY_PLATFORM "osx")
 
-    # compile with c++17 standard enabled
-    set(CMAKE_CXX_STANDARD          17)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    # TODO: enforce C++17 if previous requests have no use
 
 endif()
 
