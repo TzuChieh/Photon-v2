@@ -170,36 +170,48 @@ float CommandLineArguments::getOutputPercentageProgress() const
 void CommandLineArguments::printHelpMessage()
 {
 	std::cout << R"(
+===============================================================================
+-s <path>
+ 
+Specify path to scene file. To render an image series, you can specify
+"myScene*.p2" as <path> where * is a wildcard for any string (--series is
+required in this case). (default path: "./scene.p2")
+===============================================================================
+-o <path>
 
-	-s <path>      Specify path to scene file. To render an image series, you
-	               can specify "myScene*.p2" as <path> where * is a wildcard 
-	               for any string (--series is required in this case). 
-	               (default path: "./scene.p2")
+Specify image output path. This should be a filename for single image and a
+path for image series. (default path: "./rendered_scene.png")
+===============================================================================
+-t <number>
 
-	-o <path>      Specify image output path. This should be a filename for
-	               single image and a path for image series.
-	               (default path: "./rendered_scene.png")
+Set number of threads used for rendering. (default: single thread)
+===============================================================================
+-p <number>
 
-	-t <number>    Set number of threads used for rendering.
-	               (default: single thread)
+Output an intermediate image whenever the render has progressed <number> %.
+(default: never output intermediate image)
+===============================================================================
+--raw
 
-	-p <number>    Output an intermediate image whenever the render has 
-	               progressed <number> %.
-	               (default: never output intermediate image)
+Do not perform any post-processing.
+===============================================================================
+--help
 
-	--raw          Do not perform any post-processing.
+Print this help message then exit.
+===============================================================================
+--series
 
-	--help         Print this help message then exit.
+Render an image series. The order for rendering will be lexicographical order
+of the wildcarded string.
+===============================================================================
+--start <*>
 
-	--series       Render an image series. The order for rendering will be 
-	               lexicographical order of the wildcarded string.
+Render image series starting from a specific wildcarded string.
+===============================================================================
+--finish <*>
 
-	--start <*>    Render image series starting from a specific wildcarded 
-	               string.
-
-	--finish <*>   Render image series until a specific wildcarded string is
-	               matched. (inclusive)
-
+Render image series until a specific wildcarded string is matched. (inclusive)
+===============================================================================
 	)" << std::endl;
 }
 
