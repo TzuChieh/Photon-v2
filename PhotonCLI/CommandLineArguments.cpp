@@ -208,7 +208,7 @@ Set number of threads used for rendering. (default: single thread)
 ===============================================================================
 -p <number>
 
-Output an intermediate image whenever the render has progressed <number> %.
+Output an intermediate image whenever the render has progressed <number>%.
 (default: never output intermediate image)
 ===============================================================================
 --raw
@@ -222,7 +222,7 @@ Print this help message then exit.
 --series
 
 Render an image series. The order for rendering will be lexicographical order
-of the wildcarded string.
+of the wildcarded string. Currently only .png is supported.
 ===============================================================================
 --start <*>
 
