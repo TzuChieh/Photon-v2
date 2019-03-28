@@ -83,7 +83,10 @@ void StaticImageRenderer::render() const
 				if(regionStatus != PH_FILM_REGION_STATUS_INVALID)
 				{
 					phAsyncPeekFrame(m_engineId, 0, qx, qy, qw, qh, queryFrameId);
-					phSaveFrame(queryFrameId, (m_imageFilePath + "_" + std::to_string(currentProgress) + "%.png").c_str());
+
+					phSaveFrame(
+						queryFrameId, 
+						(m_imageFilePath + "_" + std::to_string(currentProgress) + "%.png").c_str());
 				}
 
 				lastOutputProgress = currentProgress;
@@ -108,8 +111,7 @@ void StaticImageRenderer::render() const
 		phAquireFrameRaw(m_engineId, 0, frameId);
 	}
 
-	std::cout << "saving image to <" << m_imageFilePath << ">" << std::endl;
-	phSaveFrame(frameId, m_imageFilePath.c_str());
+	save_frame_with_fail_safe(frameId, m_imageFilePath);
 
 	phDeleteFrame(frameId);
 

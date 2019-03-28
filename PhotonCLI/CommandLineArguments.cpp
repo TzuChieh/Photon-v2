@@ -24,6 +24,7 @@ CommandLineArguments::CommandLineArguments(const std::vector<std::string>& argv)
 	m_wildcardFinish          (""),
 	m_outputPercentageProgress(std::numeric_limits<float>::max())
 {
+	std::string imageFileFormat;
 	for(std::size_t i = 1; i < argv.size(); i++)
 	{
 		if(argv[i] == "-s")
@@ -40,6 +41,14 @@ CommandLineArguments::CommandLineArguments(const std::vector<std::string>& argv)
 			if(i < argv.size())
 			{
 				m_imageFilePath = argv[i];
+			}
+		}
+		else if(argv[i] == "-of")
+		{
+			i++;
+			if(i < argv.size())
+			{
+				imageFileFormat = argv[i];
 			}
 		}
 		else if(argv[i] == "-t")
@@ -117,6 +126,12 @@ CommandLineArguments::CommandLineArguments(const std::vector<std::string>& argv)
 			std::cerr << "warning: unknown command <" << argv[i] << ">" << std::endl;
 			std::cerr << "ignored" << std::endl;
 		}
+	}// end for each argument
+
+	// possibly override image format if a more specific order is given
+	if(!imageFileFormat.empty())
+	{
+		m_imageFilePath += "." + imageFileFormat;
 	}
 
 	// TODO: check arguments
@@ -180,7 +195,12 @@ required in this case). (default path: "./scene.p2")
 -o <path>
 
 Specify image output path. This should be a filename for single image and a
-path for image series. (default path: "./rendered_scene.png")
+directory for image series. (default path: "./rendered_scene.png")
+===============================================================================
+-of <format>
+
+Specify the format of output image. Supported formats are: png, jpg, bmp, tga,
+hdr, exr. If this option is omitted, format is deduced from filename extension.
 ===============================================================================
 -t <number>
 
@@ -193,7 +213,7 @@ Output an intermediate image whenever the render has progressed <number> %.
 ===============================================================================
 --raw
 
-Do not perform any post-processing.
+Do not perform any post-processing. (default: perform post-processing)
 ===============================================================================
 --help
 

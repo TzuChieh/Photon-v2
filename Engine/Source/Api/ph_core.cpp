@@ -33,7 +33,12 @@ void phConfigCoreResourceDirectory(const PHchar* const directory)
 
 int phInit()
 {
-	ph::init_core_infrastructure();
+	if(!ph::init_core_infrastructure())
+	{
+		logger.log(ph::ELogLevel::FATAL_ERROR,
+			"core infrastructure initialization failed");
+		return PH_FALSE;
+	}
 
 	if(!ph::init_command_parser())
 	{
@@ -278,20 +283,27 @@ void phDeleteFrame(const PHuint64 frameId)
 	}
 }
 
-void phSaveFrame(const PHuint64 frameId, const PHchar* const filePath)
+int phSaveFrame(const PHuint64 frameId, const PHchar* const filePath)
 {
-	PH_ASSERT(filePath != nullptr);
+	PH_ASSERT(filePath);
 
 	using namespace ph;
 
 	const HdrRgbFrame* frame = ApiDatabase::getFrame(frameId);
 	if(frame)
 	{
-		if(!PictureSaver::save(*frame, Path(filePath)))
+		if(PictureSaver::save(*frame, Path(filePath)))
+		{
+			return PH_TRUE;
+		}
+		else
 		{
 			logger.log("frame<" + std::to_string(frameId) + "> saving failed");
+			return PH_FALSE;
 		}
 	}
+
+	return PH_FALSE;
 }
 
 void phAsyncGetRendererStatistics(const PHuint64 engineId,

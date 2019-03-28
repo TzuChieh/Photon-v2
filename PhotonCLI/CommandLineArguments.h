@@ -28,6 +28,7 @@ public:
 private:
 	std::string m_sceneFilePath;
 	std::string m_imageFilePath;
+	std::string m_intermediateImageFileFormat;
 	int         m_numRenderThreads;// FIXME: use unsigned integer
 	bool        m_isPostProcessRequested;
 	bool        m_isHelpMessageRequested;

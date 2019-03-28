@@ -2,6 +2,7 @@
 #include "Api/ApiDatabase.h"
 #include "Core/Quantity/ColorSpace.h"
 #include "Common/Logger.h"
+#include "FileIO/PictureSaver.h"
 
 // geometries
 #include "Actor/Geometry/Geometry.h"
@@ -87,11 +88,19 @@ namespace
 	const Logger logger(LogSender("Init & Exit"));
 }
 
-void init_core_infrastructure()
+bool init_core_infrastructure()
 {
 	logger.log("initializing color transform functions...");
-
 	ColorSpace::init();
+
+	if(!PictureSaver::init())
+	{
+		logger.log(ELogLevel::WARNING_MED,
+			"picture saver init failed");
+		return false;
+	}
+
+	return true;
 }
 
 template<typename T>

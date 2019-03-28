@@ -60,7 +60,7 @@ bool saveStandaloneRgbData(const Path& filePath, const HdrRgbFrame& frame)
 		Imf::PixelType::HALF : Imf::PixelType::FLOAT;
 
 	logger.log(ELogLevel::NOTE_MIN,
-		"saving standalone RGB: " + filePath.toAbsoluteString() + ", "
+		"saving standalone RGB: " + filePath.toAbsoluteString() + " "
 		"(" + (std::is_same_v<DatumType, half> ? "half" : "full") + " precision)");
 
 	const int dataWidth  = static_cast<int>(frame.widthPx());

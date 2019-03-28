@@ -38,6 +38,7 @@ public:
 	void flipHorizontally();
 	void flipVertically();
 	void setSize(uint32 wPx, uint32 hPx);
+	void setSize(const TVector2<uint32>& sizePx);
 
 	// TODO: user specified clamping range?
 	// TODO: specify size instead of radius for finer control

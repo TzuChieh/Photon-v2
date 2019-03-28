@@ -2,7 +2,7 @@
 
 /*! @file
 
-@brief Contains main APIs of the render engine.
+@brief Contains main C APIs of the render engine.
 
 To correctly use Photon-v2 API, please read the following notes:
 
@@ -18,6 +18,8 @@ To correctly use Photon-v2 API, please read the following notes:
   considered a resource manipulating operation on those resources.
 
 */
+
+// Note that this header should always be compatible to C.
 
 // HACK
 //#define PH_EXPORT_API
@@ -68,6 +70,7 @@ typedef char           PHchar;
 #define PH_TRUE  1
 #define PH_FALSE 0
 
+// HACK
 enum PH_EATTRIBUTE
 {
 	LIGHT_ENERGY,
@@ -158,7 +161,7 @@ extern PH_API void phCreateFrame(PHuint64* out_frameId, PHuint32 widthPx, PHuint
 extern PH_API void phGetFrameDimension(PHuint64 frameId, PHuint32* out_widthPx, PHuint32* out_heightPx);
 extern PH_API void phGetFrameRgbData(PHuint64 frameId, const PHfloat32** out_data);
 extern PH_API void phDeleteFrame(PHuint64 frameId);
-extern PH_API void phSaveFrame(PHuint64 frameId, const PHchar* filePath);
+extern PH_API int  phSaveFrame(PHuint64 frameId, const PHchar* filePath);
 
 ///////////////////////////////////////////////////////////////////////////////
 // asynchronous operations

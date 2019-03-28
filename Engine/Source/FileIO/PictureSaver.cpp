@@ -1,94 +1,189 @@
 #include "FileIO/PictureSaver.h"
 #include "Frame/TFrame.h"
 #include "Common/assertion.h"
+#include "Common/Logger.h"
+#include "Frame/FrameUtils.h"
+#include "FileIO/ExrFileWriter.h"
 
 #include "Common/ThirdParty/lib_stb.h"
 
 #include <string>
 #include <vector>
 #include <limits>
+#include <climits>
+#include <type_traits>
 
 namespace ph
 {
 
-const Logger PictureSaver::logger(LogSender("Picture Saver"));
+namespace
+{
+	const Logger logger(LogSender("Picture Saver"));
+}
+
+bool PictureSaver::init()
+{
+	stbi_flip_vertically_on_write(true);
+
+	return true;
+}
 
 bool PictureSaver::save(const LdrRgbFrame& frame, const Path& filePath)
 {
-	logger.log(ELogLevel::NOTE_MED, "saving image <" + filePath.toString() + ">");
-
-	return saveFrameViaStb(frame, filePath);
-}
-
-bool PictureSaver::save(const HdrRgbFrame& frame, const Path& filePath)
-{
 	const std::string& ext = filePath.getExtension();
-	if(ext == ".png" || ext == ".jpg" || ext == ".bmp" || ext == ".tga")
-	{
-		LdrRgbFrame        ldrFrame(frame.widthPx(), frame.heightPx());
-		HdrRgbFrame::Pixel hdrPixel;
-		for(uint32 y = 0; y < frame.heightPx(); y++)
-		{
-			for(uint32 x = 0; x < frame.widthPx(); x++)
-			{
-				frame.getPixel(x, y, &hdrPixel);
-				hdrPixel.mulLocal(255.0_r).addLocal(0.5_r).clampLocal(0.0_r, 255.0_r);
-				ldrFrame.setPixel(x, y, LdrRgbFrame::Pixel(hdrPixel));
-			}
-		}
 
-		return save(ldrFrame, filePath);
+	if(ext == ".png" || ext == ".PNG")
+	{
+		return savePng(frame, filePath);
+	}
+	else if(ext == ".jpg" || ext == ".JPG")
+	{
+		return saveJpg(frame, filePath);
+	}
+	else if(ext == ".bmp" || ext == ".BMP")
+	{
+		return saveBmp(frame, filePath);
+	}
+	else if(ext == ".tga" || ext == ".TGA")
+	{
+		return saveTga(frame, filePath);
+	}
+	else if(
+		ext == ".hdr" || ext == ".HDR" || 
+		ext == ".exr" || ext == ".EXR")
+	{
+		HdrRgbFrame HdrFrame;
+		FrameUtils::toHdr(frame, &HdrFrame);
+
+		return save(HdrFrame, filePath);
 	}
 	else
 	{
-		// TODO
 		logger.log(ELogLevel::WARNING_MED,
-			"file <" + filePath.toString() + "> is an unsupported saving format");
+			"file <" + filePath.toString() + "> is an unsupported format");
 
 		return false;
 	}
 }
 
-bool PictureSaver::saveFrameViaStb(const LdrRgbFrame& frame, const Path& path)
+bool PictureSaver::save(const HdrRgbFrame& frame, const Path& filePath)
 {
-	stbi_flip_vertically_on_write(true);
-
-	static_assert(sizeof(LdrComponent) == 1);
-
-	const int w    = static_cast<int>(frame.widthPx());
-	const int h    = static_cast<int>(frame.heightPx());
-	const int comp = 3;
-
-	PH_ASSERT_MSG(w >= 0 && h >= 0, "picture dimension overflow");
-
-	int returnValue = false;
-
-	const std::string& ext = path.getExtension();
-	if(ext == ".png")
+	const std::string& ext = filePath.getExtension();
+	if(ext == ".hdr" || ext == ".HDR")
 	{
-		const int stride_in_bytes = w * comp;
-		returnValue = stbi_write_png(path.toString().c_str(), w, h, comp, frame.getPixelData(), stride_in_bytes);
+		return saveHdr(frame, filePath);
 	}
-	else if(ext == ".jpg")
+	else if(ext == ".exr" || ext == ".EXR")
 	{
-		const int quality = 10;
-		returnValue = stbi_write_jpg(path.toString().c_str(), w, h, comp, frame.getPixelData(), quality);
+		return saveExr(frame, filePath);
 	}
-	else if(ext == ".bmp")
+	else if(
+		ext == ".png" || ext == ".PNG" ||
+		ext == ".jpg" || ext == ".JPG" ||
+		ext == ".bmp" || ext == ".BMP" ||
+		ext == ".tga" || ext == ".TGA")
 	{
-		returnValue = stbi_write_bmp(path.toString().c_str(), w, h, comp, frame.getPixelData());
-	}
-	else if(ext == ".tga")
-	{
-		returnValue = stbi_write_tga(path.toString().c_str(), w, h, comp, frame.getPixelData());
+		LdrRgbFrame ldrFrame;
+		FrameUtils::toLdr(frame, &ldrFrame);
+
+		return save(ldrFrame, filePath);
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"file <" + path.toString() + "> has an unsupported saving format");
-	}
+		logger.log(ELogLevel::WARNING_MED,
+			"file <" + filePath.toString() + "> is an unsupported format");
 
-	return returnValue != 0;
+		return false;
+	}
+}
+
+bool PictureSaver::savePng(const LdrRgbFrame& frame, const Path& filePath)
+{
+	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
+
+	logger.log(ELogLevel::NOTE_MIN, 
+		"saving image <" + filePath.toAbsoluteString() + ">");
+
+	return stbi_write_png(
+		filePath.toString().c_str(), 
+		static_cast<int>(frame.widthPx()),
+		static_cast<int>(frame.heightPx()),
+		3, 
+		frame.getPixelData(), 
+		static_cast<int>(frame.widthPx()) * 3) != 0;
+}
+
+bool PictureSaver::saveJpg(const LdrRgbFrame& frame, const Path& filePath)
+{
+	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
+
+	logger.log(ELogLevel::NOTE_MIN,
+		"saving image <" + filePath.toAbsoluteString() + ">");
+
+	return stbi_write_jpg(
+		filePath.toString().c_str(),
+		static_cast<int>(frame.widthPx()),
+		static_cast<int>(frame.heightPx()),
+		3,
+		frame.getPixelData(),
+		10) != 0;
+}
+
+bool PictureSaver::saveBmp(const LdrRgbFrame& frame, const Path& filePath)
+{
+	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
+
+	logger.log(ELogLevel::NOTE_MIN,
+		"saving image <" + filePath.toAbsoluteString() + ">");
+
+	return stbi_write_bmp(
+		filePath.toString().c_str(),
+		static_cast<int>(frame.widthPx()),
+		static_cast<int>(frame.heightPx()),
+		3,
+		frame.getPixelData()) != 0;
+}
+
+bool PictureSaver::saveTga(const LdrRgbFrame& frame, const Path& filePath)
+{
+	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
+
+	logger.log(ELogLevel::NOTE_MIN,
+		"saving image <" + filePath.toAbsoluteString() + ">");
+
+	return stbi_write_tga(
+		filePath.toString().c_str(),
+		static_cast<int>(frame.widthPx()),
+		static_cast<int>(frame.heightPx()),
+		3,
+		frame.getPixelData()) != 0;
+}
+
+bool PictureSaver::saveHdr(const HdrRgbFrame& frame, const Path& filePath)
+{
+	static_assert(std::is_same_v<HdrComponent, float>);
+
+	logger.log(ELogLevel::NOTE_MIN,
+		"saving image <" + filePath.toAbsoluteString() + ">");
+
+	return stbi_write_hdr(
+		filePath.toString().c_str(),
+		static_cast<int>(frame.widthPx()),
+		static_cast<int>(frame.heightPx()),
+		3,
+		frame.getPixelData()) != 0;
+}
+
+bool PictureSaver::saveExr(const HdrRgbFrame& frame, const Path& filePath)
+{
+	ExrFileWriter writer(filePath);
+	return writer.save(frame);
+}
+
+bool PictureSaver::saveExrHighPrecision(const HdrRgbFrame& frame, const Path& filePath)
+{
+	ExrFileWriter writer(filePath);
+	return writer.saveHighPrecision(frame);
 }
 
 }// end namespace ph

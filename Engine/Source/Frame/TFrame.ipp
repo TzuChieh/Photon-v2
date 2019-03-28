@@ -197,6 +197,12 @@ inline void TFrame<T, N>::setSize(const uint32 wPx, const uint32 hPx)
 }
 
 template<typename T, std::size_t N>
+inline void TFrame<T, N>::setSize(const TVector2<uint32>& sizePx)
+{
+	setSize(sizePx.x, sizePx.y);
+}
+
+template<typename T, std::size_t N>
 template<typename PerPixelOperation>
 inline void TFrame<T, N>::forEachPixel(PerPixelOperation op)
 {

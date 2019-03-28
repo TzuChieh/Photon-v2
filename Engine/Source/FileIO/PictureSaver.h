@@ -1,28 +1,33 @@
 #pragma once
 
-#include "Common/Logger.h"
 #include "Frame/frame_fwd.h"
 #include "FileIO/FileSystem/Path.h"
 
 namespace ph
 {
 
+// A utility class for saving pictures.
 class PictureSaver final
 {
 public:
-	// Saves a LDR frame in the spacified file.
-	//
+	static bool init();
+
+	// Saves a LDR frame in the spacified file. Format is deduced from 
+	// filename extension.
 	static bool save(const LdrRgbFrame& frame, const Path& filePath);
 
-	// Saves a HDR frame in the specified file. Notice that if the file is 
-	// a LDR format, values outside [0, 1] will be clamped.
-	//
+	// Saves a HDR frame in the specified file. Notice that if the specified 
+	// format is LDR, values outside [0, 1] will be clamped. Format is deduced
+	// from filename extension.
 	static bool save(const HdrRgbFrame& frame, const Path& filePath);
 
-private:
-	static bool saveFrameViaStb(const LdrRgbFrame& frame, const Path& path);
-
-	static const Logger logger;
+	static bool savePng(const LdrRgbFrame& frame, const Path& filePath);
+	static bool saveJpg(const LdrRgbFrame& frame, const Path& filePath);
+	static bool saveBmp(const LdrRgbFrame& frame, const Path& filePath);
+	static bool saveTga(const LdrRgbFrame& frame, const Path& filePath);
+	static bool saveHdr(const HdrRgbFrame& frame, const Path& filePath);
+	static bool saveExr(const HdrRgbFrame& frame, const Path& filePath);
+	static bool saveExrHighPrecision(const HdrRgbFrame& frame, const Path& filePath);
 };
 
 }// end namespace ph
