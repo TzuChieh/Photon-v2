@@ -14,7 +14,7 @@ namespace ph
 
 namespace
 {
-	const Logger logger(LogSender("EXR File"));
+	const Logger logger(LogSender("EXR File Reader"));
 
 	template<typename DatumType>
 	bool loadStandaloneRgbData(Imf::InputFile& file, HdrRgbFrame* const out_frame);
@@ -156,6 +156,8 @@ bool loadStandaloneRgbData(Imf::InputFile& file, HdrRgbFrame* const out_frame)
 
 	Imf::Array2D<RgbPixel> pixels(dataHeight, dataWidth);
 
+	// read data to buffer
+
 	Imf::FrameBuffer frameBuffer;
 	frameBuffer.insert(
 		"R",
@@ -199,10 +201,11 @@ bool loadStandaloneRgbData(Imf::InputFile& file, HdrRgbFrame* const out_frame)
 
 	out_frame->setSize(dataWidth, dataHeight);
 	out_frame->forEachPixel(
-		[&pixels, lineOrder, dataHeight](const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& /* pixel */)
+		[&pixels, lineOrder, height = (long)dataHeight](
+			const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& /* pixel */)
 		{
 			const RgbPixel& readPixel = lineOrder == Imf::LineOrder::INCREASING_Y ? 
-				pixels[dataHeight - 1 - y][x] : pixels[y][x];
+				pixels[height - 1 - (long)y][(long)x] : pixels[(long)y][(long)x];
 
 			return HdrRgbFrame::Pixel({readPixel.r, readPixel.g, readPixel.b});
 		});

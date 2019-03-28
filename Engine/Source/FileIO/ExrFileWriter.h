@@ -12,6 +12,7 @@ public:
 	explicit ExrFileWriter(const Path& filePath);
 
 	bool save(const HdrRgbFrame& frame);
+	bool saveHighPrecision(const HdrRgbFrame& frame);
 
 private:
 	Path m_filePath;

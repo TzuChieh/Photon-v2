@@ -1,18 +1,19 @@
 #include "config.h"
 
 #include <FileIO/ExrFileReader.h>
+#include <FileIO/ExrFileWriter.h>
 
 #include <gtest/gtest.h>
 
 #include <cmath>
 
-using namespace ph;
-
 TEST(ExrFileIOTest, ReadSimpleRgbFiles)
 {
+	using namespace ph;
+
 	// trial 1:
 	{
-		ph::ExrFileReader reader(ph::Path(PH_TEST_RESOURCE_PATH("EXR/2x1_black_white.exr")));
+		ExrFileReader reader(Path(PH_TEST_RESOURCE_PATH("EXR/2x1_black_white.exr")));
 
 		HdrRgbFrame frame;
 		EXPECT_TRUE(reader.load(&frame));
@@ -37,7 +38,7 @@ TEST(ExrFileIOTest, ReadSimpleRgbFiles)
 	
 	// trial 2:
 	{
-		ph::ExrFileReader reader(ph::Path(PH_TEST_RESOURCE_PATH("EXR/2x2_B,(50,100,150),R,G.exr")));
+		ExrFileReader reader(Path(PH_TEST_RESOURCE_PATH("EXR/2x2_B,(50,100,150),R,G.exr")));
 
 		HdrRgbFrame frame;
 		EXPECT_TRUE(reader.load(&frame));
@@ -74,3 +75,21 @@ TEST(ExrFileIOTest, ReadSimpleRgbFiles)
 		EXPECT_FLOAT_EQ(pixel[2], 0);
 	}
 }
+
+//TEST(ExrFileIOTest, WriteSimpleRgbFiles)
+//{
+//	using namespace ph;
+//	using Pixel = HdrRgbFrame::Pixel;
+//
+//	ExrFileWriter writer(Path("./test.exr"));
+//
+//	HdrRgbFrame frame(3, 2);
+//	frame.setPixel(0, 0, Pixel({0, 0, 0}));
+//	frame.setPixel(1, 0, Pixel({1, 0, 0}));
+//	frame.setPixel(2, 0, Pixel({0, 1, 0}));
+//	frame.setPixel(0, 1, Pixel({0, 0, 1}));
+//	frame.setPixel(1, 1, Pixel({1, 1, 0}));
+//	frame.setPixel(2, 1, Pixel({1, 1, 1}));
+//
+//	EXPECT_TRUE(writer.save(frame));
+//}

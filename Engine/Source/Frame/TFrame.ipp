@@ -253,6 +253,11 @@ inline void TFrame<T, N>::forEachPixel(const TAABB2D<uint32>& region, PerPixelOp
 					setPixel(x, y, op(pixel));
 				}
 			}
+			else
+			{
+				// just try to call straightforwardly
+				op(pixel);
+			}
 		}
 	}
 }
@@ -270,7 +275,19 @@ inline void TFrame<T, N>::forEachPixel(const TAABB2D<uint32>& region, PerPixelOp
 		{
 			getPixel(x, y, &pixel);
 
-			op(pixel);
+			if constexpr(std::is_invocable_v<PerPixelOperation, uint32, uint32, Pixel>)
+			{
+				op(x, y, pixel);
+			}
+			else if constexpr(std::is_invocable_v<PerPixelOperation, Pixel>)
+			{
+				op(pixel);
+			}
+			else
+			{
+				// just try to call straightforwardly
+				op(pixel);
+			}
 		}
 	}
 }

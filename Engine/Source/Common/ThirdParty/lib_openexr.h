@@ -4,3 +4,4 @@
 #include <ImfChannelList.h>
 #include <ImfInputFile.h>
 #include <ImfRgbaFile.h>
+#include <ImfOutputFile.h>
