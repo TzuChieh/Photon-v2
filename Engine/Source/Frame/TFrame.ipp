@@ -16,7 +16,7 @@ namespace ph
 
 template<typename T, std::size_t N>
 template<typename U>
-inline TFrame<T, N>::TPixel<U> TFrame<T, N>::getMonochromaticPixel(const U value)
+inline typename TFrame<T, N>::template TPixel<U> TFrame<T, N>::getMonochromaticPixel(const U value)
 {
 	return TPixel<U>(value);
 }
