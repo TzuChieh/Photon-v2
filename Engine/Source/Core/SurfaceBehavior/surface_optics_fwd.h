@@ -3,6 +3,8 @@
 #include "Utility/TBitFlags.h"
 #include "Common/primitive_type.h"
 
+#include <type_traits>
+
 namespace ph
 {
 
@@ -27,6 +29,10 @@ enum class ETransport
 using SurfacePhenomena = TBitFlags<uint32, ESurfacePhenomenon>;
 using SurfaceElemental = int;
 
-constexpr SurfaceElemental ALL_ELEMENTALS = -1;
+static_assert(std::is_signed_v<SurfaceElemental>, 
+	"Type of SurfaceElemental must be signed, as special meanings are "
+	"defined with negative values.");
+
+inline constexpr SurfaceElemental ALL_ELEMENTALS = -1;
 
 }// end namespace ph
