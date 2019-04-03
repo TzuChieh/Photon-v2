@@ -1,5 +1,12 @@
 sudo: require
 
+env:
+  global:
+  # For coverity scan: 
+  # The encrypted COVERITY_SCAN_TOKEN, created via the "travis encrypt" command
+  # using the project repo's public key
+  - secure: "wbQ8iIUC1cEEfILrniD7TNKv24EQ8CDAhn6V5NnD1VltotmA0dtPEkkaL58dRAz6+UZfX8Qmr9tKrD4IiPhQI99uMz9N75S57cWeiQQbbv7Zef5gQRdalfV2VpQu7D8xBba89ATN6aT3m+hiJcnAMB10axwLQuHANXsdHqu9E98O1IKSH1J1r8/WrYij3cIsUVPYtJGwgki1Lkfy0frYUsq40TNpssUeHEF5cTfbP0G2NsrcHoxfuhltsKSLUgEd7qI6VSXlegLTX/2C6LgVfWp1xhP4yF6kSWpfN+0QKujo8gSm8nnEvGRwNDP1MIXgsCEaQEQRQVQmgViRN/nHYGDmfXXd5VJt+qSq1KYfLgXs0YZyVZkndR5SyTijw/aAzdqNmKUlkqDcFzYeCXpAu8DVP65s0tmdMmwZoodiKHBdkubCcsexB2F7028r0KTK786QzQCOwSuMXdT9vQAxB4EmpxpOy+KAyp9rpGldDVvcl6ayV2r5VL5bhIMhpSyOTUgRDKROyiOy2EU90sXstqOOWWYQ2AsY63bdtDNtxFSdTZeTt2poFQ/W+tdhaqm+iMjEICJMQUss1/TvGhcvgREXobjtHMhrEEoot8y+ikcrUtEPaFc0On20m/wu5cvR7eL+gu6lmztJAiMxjTTFdL6fRp0b9GpCtfHwCY432Gw="
+
 matrix:
   include:
 
@@ -15,6 +22,16 @@ matrix:
             - gcc-7
             - g++-7
 
+        # For coverity scan: 
+        coverity_scan:
+          project:
+            name: "TzuChieh/Photon-v2"
+            description: "Photon-v2 build submitted via Travis CI"
+          notification_email: r05922176@ntu.edu.tw
+          build_command_prepend: "export CC=gcc-7 && export CXX=g++-7 && bash ./setup.sh && cd ./build/ && cmake -DCMAKE_BUILD_TYPE=release"
+          build_command: "make -j4"
+          branch_pattern: coverity-scan
+
     # Xcode 10.1 (10B61)
     # Apple LLVM version 10.0.0 (clang-1000.11.45.5)
     # Target: x86_64-apple-darwin18.2.0
@@ -25,8 +42,12 @@ matrix:
       compiler: clang
       language: cpp
 
+before_install:
+  # For coverity scan: 
+  - if [ "$COVERITY_SCAN_BRANCH" == "1" ]; then echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-; fi
+
 install:
-  # upgrade python and cmake
+  # upgrade python and cmake on macOS
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew update; fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew upgrade python; fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew upgrade cmake; fi
@@ -39,15 +60,20 @@ before_script:
   - python --version
   - python3 --version
 
-  - if [ $TRAVIS_OS_NAME == linux ]; then gcc --version; fi
-  - if [ $TRAVIS_OS_NAME == linux ]; then g++ --version; fi
-  - if [ $TRAVIS_OS_NAME == linux ]; then gcc-7 --version; fi
-  - if [ $TRAVIS_OS_NAME == linux ]; then g++-7 --version; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then gcc --version; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then g++ --version; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then gcc-7 --version; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then g++-7 --version; fi
 
-  - if [ $TRAVIS_OS_NAME == osx ]; then clang --version; fi
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then clang --version; fi
   
 script:
-  - git clone https://github.com/TzuChieh/Photon-v2-ThirdParty.git
+  - if [ "$COVERITY_SCAN_BRANCH" == "1" ];
+      then
+        echo "will not build and test on coverty-scan branch";
+        exit 0;
+    fi
+
   - bash ./setup.sh
   
   - cd ./build/
