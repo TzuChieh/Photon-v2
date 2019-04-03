@@ -28,7 +28,7 @@ matrix:
             name: "TzuChieh/Photon-v2"
             description: "Photon-v2 build submitted via Travis CI"
           notification_email: r05922176@ntu.edu.tw
-          build_command_prepend: "export CC=gcc-7 && export CXX=g++-7 && cov-configure --comptype gcc --compiler gcc-7 && bash ./setup.sh && cd ./build/ && cmake -DCMAKE_BUILD_TYPE=release ../"
+          build_command_prepend: "export CC=gcc-7 && export CXX=g++-7 && cov-configure --gcc && bash ./setup.sh && cd ./build/ && cmake -DCMAKE_BUILD_TYPE=release ../"
           build_command: "make -j4"
           branch_pattern: coverity_scan
 
