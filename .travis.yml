@@ -28,9 +28,9 @@ matrix:
             name: "TzuChieh/Photon-v2"
             description: "Photon-v2 build submitted via Travis CI"
           notification_email: r05922176@ntu.edu.tw
-          build_command_prepend: "export CC=gcc-7 && export CXX=g++-7 && bash ./setup.sh && cd ./build/ && cmake -DCMAKE_BUILD_TYPE=release"
+          build_command_prepend: "export CC=gcc-7 && export CXX=g++-7 && bash ./setup.sh && cd ./build/ && cmake -DCMAKE_BUILD_TYPE=release ../"
           build_command: "make -j4"
-          branch_pattern: coverity-scan
+          branch_pattern: coverity_scan
 
     # Xcode 10.1 (10B61)
     # Apple LLVM version 10.0.0 (clang-1000.11.45.5)
