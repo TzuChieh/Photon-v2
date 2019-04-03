@@ -6,9 +6,9 @@
 #include "Core/SurfaceBehavior/Property/AnisoTrowbridgeReitz.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
-#include "Core/SurfaceBehavior/Property/SchlickApproxConductorDielectricFresnel.h"
+#include "Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h"
 #include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
-#include "Core/SurfaceBehavior/Property/ExactConductorDielectricFresnel.h"
+#include "Core/SurfaceBehavior/Property/ExactConductorFresnel.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 
 #include <memory>
@@ -135,7 +135,7 @@ std::unique_ptr<FresnelEffect> AbradedOpaque::loadFresnelEffect(const InputPacke
 		const auto& iorInnerN            = packet.getRealArray("ior-inner-n");
 		const auto& iorInnerK            = packet.getRealArray("ior-inner-k");
 
-		fresnelEffect = std::make_unique<ExactConductorDielectricFresnel>(
+		fresnelEffect = std::make_unique<ExactConductorFresnel>(
 			iorOuter,
 			iorInnerWavelengthNm, 
 			iorInnerN, 
@@ -147,7 +147,7 @@ std::unique_ptr<FresnelEffect> AbradedOpaque::loadFresnelEffect(const InputPacke
 
 		SpectralStrength spectralF0;
 		spectralF0.setLinearSrgb(f0);// FIXME: check color space
-		fresnelEffect = std::make_unique<SchlickApproxConductorDielectricFresnel>(spectralF0);
+		fresnelEffect = std::make_unique<SchlickApproxConductorFresnel>(spectralF0);
 	}
 	else
 	{
@@ -158,7 +158,7 @@ std::unique_ptr<FresnelEffect> AbradedOpaque::loadFresnelEffect(const InputPacke
 
 		SpectralStrength spectralF0;// FIXME: check color space
 		spectralF0.setLinearSrgb(defaultF0);
-		fresnelEffect = std::make_unique<SchlickApproxConductorDielectricFresnel>(spectralF0);
+		fresnelEffect = std::make_unique<SchlickApproxConductorFresnel>(spectralF0);
 	}
 	
 	return fresnelEffect;

@@ -1,4 +1,4 @@
-#include "Core/SurfaceBehavior/Property/ExactConductorDielectricFresnel.h"
+#include "Core/SurfaceBehavior/Property/ExactConductorFresnel.h"
 #include "Common/assertion.h"
 #include "Core/Quantity/SpectralData.h"
 
@@ -8,23 +8,23 @@
 namespace ph
 {
 
-ExactConductorDielectricFresnel::ExactConductorDielectricFresnel(
+ExactConductorFresnel::ExactConductorFresnel(
 	const real              iorOuter,
 	const SpectralStrength& iorInner,
 	const SpectralStrength& iorInnerK) : 
 
-	ConductorDielectricFresnel()
+	ConductorFresnel()
 {
 	setIors(iorOuter, iorInner, iorInnerK);
 }
 
-ExactConductorDielectricFresnel::ExactConductorDielectricFresnel(
+ExactConductorFresnel::ExactConductorFresnel(
 	const real               iorOuter,
 	const std::vector<real>& iorWavelengthsNm,
 	const std::vector<real>& iorInnerNs,
 	const std::vector<real>& iorInnerKs) : 
 
-	ConductorDielectricFresnel()
+	ConductorFresnel()
 {
 	if(iorWavelengthsNm.size() != iorInnerNs.size() ||
 	   iorWavelengthsNm.size() != iorInnerKs.size())
@@ -49,11 +49,11 @@ ExactConductorDielectricFresnel::ExactConductorDielectricFresnel(
 // Implementation follows the excellent blog post written by Sebastien Lagarde.
 // Reference: https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
 //
-void ExactConductorDielectricFresnel::calcReflectance(
+void ExactConductorFresnel::calcReflectance(
 	const real              cosThetaIncident,
 	SpectralStrength* const out_reflectance) const
 {
-	PH_ASSERT(out_reflectance != nullptr);
+	PH_ASSERT(out_reflectance);
 
 	// We treat the incident light be always in the dielectric side (which is
 	// reasonable since light should not penetrate conductors easily), so the 
@@ -76,7 +76,7 @@ void ExactConductorDielectricFresnel::calcReflectance(
 	*out_reflectance = Rs.add(Rp).mulLocal(0.5_r);
 }
 
-void ExactConductorDielectricFresnel::setIors(
+void ExactConductorFresnel::setIors(
 	const real              iorOuter,
 	const SpectralStrength& iorInner,
 	const SpectralStrength& iorInnerK)

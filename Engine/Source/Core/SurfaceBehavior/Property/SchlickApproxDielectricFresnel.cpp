@@ -1,4 +1,5 @@
 #include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
+#include "Common/assertion.h"
 
 #include <cmath>
 
@@ -18,9 +19,11 @@ SchlickApproxDielectricFresnel::SchlickApproxDielectricFresnel(
 }
 
 void SchlickApproxDielectricFresnel::calcReflectance(
-	const real cosThetaIncident,
+	const real              cosThetaIncident,
 	SpectralStrength* const out_reflectance) const
 {
+	PH_ASSERT(out_reflectance);
+
 	real cosTheta = std::abs(cosThetaIncident);
 
 	// According to SIGGRAPH 2015 Course: 

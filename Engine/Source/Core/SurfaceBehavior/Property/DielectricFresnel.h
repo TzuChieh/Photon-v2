@@ -5,6 +5,10 @@
 namespace ph
 {
 
+/*! @brief Dielectric-dielectric interface Fresnel effect.
+
+Fresnel effect where both inner and outer sides are dielectric.
+*/
 class DielectricFresnel : public FresnelEffect
 {
 public:

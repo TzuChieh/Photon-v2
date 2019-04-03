@@ -2,7 +2,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealReflector.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealTransmitter.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
-#include "Core/SurfaceBehavior/Property/SchlickApproxConductorDielectricFresnel.h"
+#include "Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h"
 #include "FileIO/SDL/InputPrototype.h"
 #include "FileIO/SDL/InputPacket.h"
 #include "Math/TVector3.h"
@@ -49,7 +49,7 @@ void IdealSubstance::asMetallicReflector(const Vector3R& linearSrgbF0, const rea
 
 	m_opticsGenerator = [=](CookingContext& context)
 	{
-		auto fresnel = std::make_shared<SchlickApproxConductorDielectricFresnel>(f0Spectral);
+		auto fresnel = std::make_shared<SchlickApproxConductorFresnel>(f0Spectral);
 		auto optics  = std::make_unique<IdealReflector>(fresnel);
 		return optics;
 	};

@@ -1,7 +1,5 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/InterfaceStatistics.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/conversions.h"
-#include "Core/SurfaceBehavior/Property/ExactConductorDielectricFresnel.h"
-#include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 
 #include <cmath>
 

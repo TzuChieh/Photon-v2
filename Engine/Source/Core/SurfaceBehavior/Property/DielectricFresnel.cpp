@@ -1,4 +1,5 @@
 #include "Core/SurfaceBehavior/Property/DielectricFresnel.h"
+#include "Common/assertion.h"
 
 #include <cmath>
 #include <algorithm>
@@ -10,9 +11,13 @@ DielectricFresnel::DielectricFresnel(const real iorOuter, const real iorInner) :
 	m_iorOuter(iorOuter), m_iorInner(iorInner)
 {}
 
-bool DielectricFresnel::calcRefractDir(const Vector3R& I, const Vector3R& N,
-                                             Vector3R* const out_refractDir) const
+bool DielectricFresnel::calcRefractDir(
+	const Vector3R& I, 
+	const Vector3R& N,
+	Vector3R* const out_refractDir) const
 {
+	PH_ASSERT(out_refractDir);
+
 	const real IoN      = I.dot(N);
 	const real signIoN  = IoN < 0.0_r ? -1.0_r : 1.0_r;
 	const real iorRatio = signIoN < 0.0_r ? m_iorInner / m_iorOuter : m_iorOuter / m_iorInner;
