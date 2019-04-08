@@ -37,6 +37,8 @@ class MetaGetter:
 			return "bvpt"
 		elif integrator_type == "BNEEPT":
 			return "bneept"
+		elif integrator_type == "BVPTDL":
+			return "bvptdl"
 		else:
 			print("warning: unsupported integrator type %s, using BVPT instead" % integrator_type)
 			return "bvpt"

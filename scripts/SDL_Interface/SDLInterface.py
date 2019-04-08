@@ -40,15 +40,16 @@ class SDLInterface:
 			return
 
 		for element in root_element:
-			if element.tag == "category":
+
+			if element.tag == "category" and element.text is not None:
 				self.category_name = element.text.strip()
-			elif element.tag == "type_name":
+			elif element.tag == "type_name" and element.text is not None:
 				self.type_name = element.text.strip()
-			elif element.tag == "extend":
+			elif element.tag == "extend" and element.text is not None:
 				self.extended_target = element.text.strip()
-			elif element.tag == "name":
+			elif element.tag == "name" and element.text is not None:
 				self.name = element.text.strip()
-			elif element.tag == "description":
+			elif element.tag == "description" and element.text is not None:
 				processed_text = element.text.split()
 				processed_text = " ".join(processed_text)
 				self.description = processed_text
@@ -58,7 +59,7 @@ class SDLInterface:
 				elif element.attrib["type"] == "executor":
 					self.executors.append(SDLExecutor(element))
 			else:
-				print("note: tag %s ignored" % element.tag)
+				print("note: tag %s is not recognized, ignoring" % element.tag)
 
 	def has_creator(self):
 		return self.creator is not None

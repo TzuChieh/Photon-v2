@@ -41,7 +41,7 @@ from ..psdl.pysdl import (
 	LightActorScale,
 	PinholeCameraCreator,
 	ThinLensCameraCreator,
-	SamplingRendererCreator,
+	EqualSamplingRendererCreator,
 	PmRendererCreator,
 	ModelLightSourceCreator,
 	DomeActorCreator,
@@ -514,9 +514,9 @@ class Exporter:
 		render_method = meta_info.render_method()
 		b_scene = context.scene
 
-		if render_method == "BVPT" or render_method == "BNEEPT":
+		if render_method == "BVPT" or render_method == "BNEEPT" or render_method == "BVPTDL":
 
-			creator = SamplingRendererCreator()
+			creator = EqualSamplingRendererCreator()
 			creator.set_width(SDLInteger(meta_info.render_width_px()))
 			creator.set_height(SDLInteger(meta_info.render_height_px()))
 			creator.set_filter_name(SDLString(meta_info.sample_filter_name()))

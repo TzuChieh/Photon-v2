@@ -93,9 +93,9 @@ public:
 /*
 	<SDL_interface>
 
-	<category>  renderer                   </category>
-	<type_name> adaptive                   </type_name>
-	<extend>    renderer.sampling-renderer </extend>
+	<category>  renderer          </category>
+	<type_name> adaptive-sampling </type_name>
+	<extend>    renderer.sampling </extend>
 
 	<name> Adaptive Sampling Renderer </name>
 	<description>

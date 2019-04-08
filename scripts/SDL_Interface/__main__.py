@@ -37,14 +37,13 @@ for folder, sub_folders, files in os.walk(src_directory):
 		if file_path.endswith(".exe"):
 			continue
 
-		with open(file_path, "rt") as source_file:
+		print("processing %s" % file_path)
+		with open(file_path, "rt", encoding="utf-8") as source_file:
 			source_string = source_file.read()
 			parser = InterfaceParser(source_string)
 			if parser.has_interface():
 				print("interface found in %s" % file_path)
 				generator.add_interface(parser.interface)
-			# else:
-			# 	print("passing %s" % file_path)
 
 output_directory = "./output/"
 os.makedirs(os.path.dirname(output_directory), exist_ok=True)

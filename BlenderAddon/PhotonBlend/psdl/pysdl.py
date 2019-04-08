@@ -2,7 +2,7 @@
 # NOTE: THIS FILE CONTAINS GENERATED CODE 
 #       DO NOT MODIFY                     
 # ========================================
-# last generated: 2019-01-18 04:28:44.303477 
+# last generated: 2019-04-07 13:10:36.945220 
 
 from abc import ABC, abstractmethod
 
@@ -1243,13 +1243,13 @@ class PmRendererCreator(SDLCoreCommand):
         self.set_input("rect-h", rect_h)
 
 
-class SamplingRendererCreator(SDLCoreCommand):
+class AdaptiveSamplingRendererCreator(SDLCoreCommand):
 
     def __init__(self):
         super().__init__()
 
     def get_full_type(self):
-        return "renderer(sampling)"
+        return "renderer(adaptive-sampling)"
 
     def set_filter_name(self, filter_name: SDLData):
         self.set_input("filter-name", filter_name)
@@ -1257,11 +1257,47 @@ class SamplingRendererCreator(SDLCoreCommand):
     def set_estimator(self, estimator: SDLData):
         self.set_input("estimator", estimator)
 
-    def set_light_energy_tag(self, light_energy_tag: SDLData):
-        self.set_input("light-energy-tag", light_energy_tag)
+    def set_width(self, width: SDLData):
+        self.set_input("width", width)
 
-    def set_normal_tag(self, normal_tag: SDLData):
-        self.set_input("normal-tag", normal_tag)
+    def set_height(self, height: SDLData):
+        self.set_input("height", height)
+
+    def set_rect_x(self, rect_x: SDLData):
+        self.set_input("rect-x", rect_x)
+
+    def set_rect_y(self, rect_y: SDLData):
+        self.set_input("rect-y", rect_y)
+
+    def set_rect_w(self, rect_w: SDLData):
+        self.set_input("rect-w", rect_w)
+
+    def set_rect_h(self, rect_h: SDLData):
+        self.set_input("rect-h", rect_h)
+
+
+class EqualSamplingRendererCreator(SDLCoreCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "renderer(equal-sampling)"
+
+    def set_scheduler(self, scheduler: SDLData):
+        self.set_input("scheduler", scheduler)
+
+    def set_block_width(self, block_width: SDLData):
+        self.set_input("block-width", block_width)
+
+    def set_block_height(self, block_height: SDLData):
+        self.set_input("block-height", block_height)
+
+    def set_filter_name(self, filter_name: SDLData):
+        self.set_input("filter-name", filter_name)
+
+    def set_estimator(self, estimator: SDLData):
+        self.set_input("estimator", estimator)
 
     def set_width(self, width: SDLData):
         self.set_input("width", width)

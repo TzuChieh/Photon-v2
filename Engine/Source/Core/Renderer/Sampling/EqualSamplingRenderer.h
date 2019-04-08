@@ -91,9 +91,9 @@ public:
 /*
 	<SDL_interface>
 
-	<category>  renderer                   </category>
-	<type_name> equal                      </type_name>
-	<extend>    renderer.sampling-renderer </extend>
+	<category>  renderer          </category>
+	<type_name> equal-sampling    </type_name>
+	<extend>    renderer.sampling </extend>
 
 	<name> Equal Sampling Renderer </name>
 	<description>
