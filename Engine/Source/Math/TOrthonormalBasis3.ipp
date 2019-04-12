@@ -92,12 +92,14 @@ inline TVector3<T> TOrthonormalBasis3<T>::localToWorld(const TVector3<T>& localV
 template<typename T>
 inline T TOrthonormalBasis3<T>::cosPhi(const TVector3<T>& unitVec) const
 {
-	const T cosT           = cosTheta(unitVec);
+	const T     cosT       = cosTheta(unitVec);
 	TVector3<T> xzPlaneVec = unitVec.sub(m_yAxis.mul(cosT));
-	const T length2        = xzPlaneVec.lengthSquared();
+	const T     length2    = xzPlaneVec.lengthSquared();
 
 	if(length2 != 0)
 	{
+		PH_ASSERT_GT(length2, T(0));
+
 		xzPlaneVec.mulLocal(1 / std::sqrt(length2));
 		return math::clamp<T>(xzPlaneVec.dot(m_zAxis), -1, 1);
 	}

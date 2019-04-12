@@ -4,7 +4,6 @@
 #include "Math/Random.h"
 #include "Math/constant.h"
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
-#include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
 #include "Math/math.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Core/SurfaceBehavior/BsdfHelper.h"

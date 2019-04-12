@@ -6,7 +6,7 @@ namespace ph
 {
 
 template<typename OutputType>
-class TConstantTexture final : public TTexture<OutputType>
+class TConstantTexture : public TTexture<OutputType>
 {
 public:
 	explicit TConstantTexture(const OutputType& value);
