@@ -40,7 +40,7 @@ OrenNayar::OrenNayar(
 
 ESurfacePhenomenon OrenNayar::getPhenomenonOf(const SurfaceElemental elemental) const
 {
-	PH_ASSERT_EQ(elemental, 0);
+	PH_ASSERT_MSG(elemental == ALL_ELEMENTALS || elemental == 0, std::to_string(elemental));
 
 	return ESurfacePhenomenon::DIFFUSE_REFLECTION;
 }
@@ -50,7 +50,7 @@ void OrenNayar::calcBsdf(
 	BsdfEvaluation::Output&      out,
 	const SidednessAgreement&    sidedness) const
 {
-	PH_ASSERT_EQ(in.elemental, 0);
+	PH_ASSERT_MSG(in.elemental == ALL_ELEMENTALS || in.elemental == 0, std::to_string(in.elemental));
 
 	if(!sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
@@ -66,19 +66,23 @@ void OrenNayar::calcBsdf(
 	const real sigma2    = sigmaRadians * sigmaRadians;
 	const real A         = 1.0_r - (sigma2 / (2.0_r * (sigma2 + 0.33_r)));
 	const real B         = 0.45_r * sigma2 / (sigma2 + 0.09_r);
+	const real sinThetaL = shadingBasis.sinTheta(in.L);
+	const real sinThetaV = shadingBasis.sinTheta(in.V);
 
-	const real sinPhiL = shadingBasis.sinPhi(in.L);
-	const real sinPhiV = shadingBasis.sinPhi(in.V);
-	const real cosPhiL = shadingBasis.cosPhi(in.L);
-	const real cosPhiV = shadingBasis.cosPhi(in.V);
+	real cosTerm = 0.0_r;
+	if(sinThetaL > 0.0001_r && sinThetaV > 0.0001_r)
+	{
+		const real sinPhiL = shadingBasis.sinPhi(in.L);
+		const real sinPhiV = shadingBasis.sinPhi(in.V);
+		const real cosPhiL = shadingBasis.cosPhi(in.L);
+		const real cosPhiV = shadingBasis.cosPhi(in.V);
 
-	// compute max(0, cos(phi_L - phi_V)) and clamp to <= 1
-	const real cosTerm = math::clamp(cosPhiL * cosPhiV + sinPhiL * sinPhiV, 0.0_r, 1.0_r);
+		// compute max(0, cos(phi_L - phi_V)) and clamp to <= 1
+		cosTerm = math::clamp(cosPhiL * cosPhiV + sinPhiL * sinPhiV, 0.0_r, 1.0_r);
+	}
 
 	const real absCosThetaL = shadingBasis.absCosTheta(in.L);
 	const real absCosThetaV = shadingBasis.absCosTheta(in.V);
-	const real sinThetaL    = shadingBasis.sinTheta(in.L);
-	const real sinThetaV    = shadingBasis.sinTheta(in.V);
 
 	// we can determin the size of theta_L and theta_V by comparing their cosines
 	real sinAlpha, tanBeta;
@@ -101,7 +105,7 @@ void OrenNayar::calcBsdfSample(
 	BsdfSample::Output&       out,
 	const SidednessAgreement& sidedness) const
 {
-	PH_ASSERT_EQ(in.elemental, 0);
+	PH_ASSERT_MSG(in.elemental == ALL_ELEMENTALS || in.elemental == 0, std::to_string(in.elemental));
 
 	const Vector3R N = in.X.getShadingNormal();
 	PH_ASSERT(N.isFinite());
@@ -150,6 +154,14 @@ void OrenNayar::calcBsdfSamplePdfW(
 	BsdfPdfQuery::Output&      out,
 	const SidednessAgreement&  sidedness) const
 {
+	PH_ASSERT_MSG(in.elemental == ALL_ELEMENTALS || in.elemental == 0, std::to_string(in.elemental));
+
+	if(!sidedness.isSameHemisphere(in.X, in.L, in.V))
+	{
+		out.sampleDirPdfW = 0;
+		return;
+	}
+
 	const Vector3R N = in.X.getShadingNormal();
 	out.sampleDirPdfW = in.L.absDot(N) * constant::rcp_pi<real>;
 }

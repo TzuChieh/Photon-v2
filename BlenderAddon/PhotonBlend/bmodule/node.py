@@ -272,11 +272,19 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 
 	diffusion_type = bpy.props.EnumProperty(
 		items = [
-			("LAMBERTIAN", "Lambertian", "")
+			("LAMBERTIAN", "Lambertian", ""),
+			("OREN_NAYAR", "Oren Nayar", "")
 		],
 		name        = "Type",
 		description = "surface diffusion types",
 		default     = "LAMBERTIAN"
+	)
+
+	roughness = bpy.props.FloatProperty(
+		name    = "Roughness",
+		default = 0.5,
+		min     = sys.float_info.min,
+		max     = sys.float_info.max
 	)
 
 	def init(self, b_context):
@@ -286,6 +294,9 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 	def draw_buttons(self, b_context, b_layout):
 		row = b_layout.row()
 		row.prop(self, "diffusion_type", "")
+
+		if self.diffusion_type == "OREN_NAYAR":
+			row.prop(self, "roughness")
 
 	def to_sdl(self, res_name, sdlconsole):
 		albedo_socket           = self.inputs[0]
@@ -304,6 +315,8 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 		creator = MatteOpaqueMaterialCreator()
 		creator.set_data_name(res_name + "_" + self.name + "_" + surface_material_socket.identifier)
 		creator.set_albedo(SDLImage(albedo_res_name))
+		if self.diffusion_type == "OREN_NAYAR":
+			creator.set_sigma_degrees(SDLReal(self.roughness * 180.0))
 		sdlconsole.queue_command(creator)
 
 

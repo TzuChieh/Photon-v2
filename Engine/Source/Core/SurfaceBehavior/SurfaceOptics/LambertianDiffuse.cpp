@@ -91,6 +91,12 @@ void LambertianDiffuse::calcBsdfSamplePdfW(
 	BsdfPdfQuery::Output&      out,
 	const SidednessAgreement&  sidedness) const
 {
+	if(!sidedness.isSameHemisphere(in.X, in.L, in.V))
+	{
+		out.sampleDirPdfW = 0;
+		return;
+	}
+
 	const Vector3R& N = in.X.getShadingNormal();
 	out.sampleDirPdfW = in.L.absDot(N) * constant::rcp_pi<real>;
 }

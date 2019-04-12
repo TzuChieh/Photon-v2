@@ -2,7 +2,7 @@
 # NOTE: THIS FILE CONTAINS GENERATED CODE 
 #       DO NOT MODIFY                     
 # ========================================
-# last generated: 2019-04-07 13:10:36.945220 
+# last generated: 2019-04-12 06:47:15.031808 
 
 from abc import ABC, abstractmethod
 
@@ -1121,6 +1121,9 @@ class MatteOpaqueMaterialCreator(SDLCreatorCommand):
 
     def set_albedo(self, albedo: SDLData):
         self.set_input("albedo", albedo)
+
+    def set_sigma_degrees(self, sigma_degrees: SDLData):
+        self.set_input("sigma-degrees", sigma_degrees)
 
 
 class PinholeCameraCreator(SDLCoreCommand):

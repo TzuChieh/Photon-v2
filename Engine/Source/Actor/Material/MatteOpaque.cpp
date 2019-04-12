@@ -6,9 +6,10 @@
 #include "FileIO/PictureLoader.h"
 #include "Actor/Image/LdrPictureImage.h"
 #include "Math/TVector3.h"
-#include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
 #include "Common/assertion.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/OrenNayar.h"
 
 namespace ph
 {
@@ -18,8 +19,11 @@ MatteOpaque::MatteOpaque() :
 {}
 
 MatteOpaque::MatteOpaque(const Vector3R& linearSrgbAlbedo) : 
+
 	SurfaceMaterial(),
-	m_albedo()
+
+	m_albedo      (),
+	m_sigmaDegrees()
 {
 	setAlbedo(linearSrgbAlbedo);
 }
@@ -28,8 +32,18 @@ void MatteOpaque::genSurface(CookingContext& context, SurfaceBehavior& behavior)
 {
 	PH_ASSERT(m_albedo);
 
-	auto optics = std::make_shared<LambertianDiffuse>(
-		m_albedo->genTextureSpectral(context));
+	std::shared_ptr<SurfaceOptics> optics;
+	if(m_sigmaDegrees)
+	{
+		optics = std::make_shared<OrenNayar>(
+			m_albedo->genTextureSpectral(context),
+			m_sigmaDegrees->genTextureReal(context));
+	}
+	else
+	{
+		optics = std::make_shared<LambertianDiffuse>(
+			m_albedo->genTextureSpectral(context));
+	}
 
 	behavior.setOptics(optics);
 }
@@ -52,8 +66,11 @@ void MatteOpaque::setAlbedo(const std::shared_ptr<Image>& albedo)
 // command interface
 
 MatteOpaque::MatteOpaque(const InputPacket& packet) :
+
 	SurfaceMaterial(packet),
-	m_albedo()
+
+	m_albedo      (),
+	m_sigmaDegrees()
 {
 	if(packet.hasReference<Image>("albedo"))
 	{
@@ -80,8 +97,12 @@ MatteOpaque::MatteOpaque(const InputPacket& packet) :
 		          << "ill-formed input detected, all albedo components are set to 0.5" << std::endl;
 		setAlbedo(Vector3R(0.5_r));
 	}
-
 	PH_ASSERT(m_albedo);
+
+	if(packet.hasReal("sigma-degrees"))
+	{
+		m_sigmaDegrees = std::make_shared<ConstantImage>(packet.getReal("sigma-degrees"));
+	}
 }
 
 SdlTypeInfo MatteOpaque::ciTypeInfo()

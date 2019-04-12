@@ -14,7 +14,7 @@ class MatteOpaque : public SurfaceMaterial, public TCommandInterface<MatteOpaque
 {
 public:
 	MatteOpaque();
-	MatteOpaque(const Vector3R& linearSrgbAlbedo);
+	explicit MatteOpaque(const Vector3R& linearSrgbAlbedo);
 
 	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
 
@@ -24,6 +24,7 @@ public:
 
 private:
 	std::shared_ptr<Image> m_albedo;
+	std::shared_ptr<Image> m_sigmaDegrees;
 
 // command interface
 public:
@@ -55,6 +56,10 @@ public:
 		</input>
 		<input name="albedo" type="image">
 			<description>An image that will be used for describing albedo.</description>
+		</input>
+
+		<input name="sigma-degrees" type="real">
+			<description>Roughness in standard deviation of surface orientation.</description>
 		</input>
 	</command>
 
