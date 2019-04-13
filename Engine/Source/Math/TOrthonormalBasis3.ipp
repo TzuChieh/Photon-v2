@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 namespace ph
 {
@@ -92,46 +93,74 @@ inline TVector3<T> TOrthonormalBasis3<T>::localToWorld(const TVector3<T>& localV
 template<typename T>
 inline T TOrthonormalBasis3<T>::cosPhi(const TVector3<T>& unitVec) const
 {
-	const T     cosT       = cosTheta(unitVec);
-	TVector3<T> xzPlaneVec = unitVec.sub(m_yAxis.mul(cosT));
-	const T     length2    = xzPlaneVec.lengthSquared();
+	const T zProjection = unitVec.dot(m_zAxis);
+	const T rProjection = sinTheta(unitVec);
 
-	if(length2 != 0)
+	if(rProjection != T(0))
 	{
-		PH_ASSERT_GT(length2, T(0));
-
-		xzPlaneVec.mulLocal(1 / std::sqrt(length2));
-		return math::clamp<T>(xzPlaneVec.dot(m_zAxis), -1, 1);
+		return math::clamp(zProjection / rProjection, T(-1), T(1));
 	}
 	else
 	{
-		return 1;
+		// corresponds to phi = 0
+		return T(1);
 	}
 }
 
 template<typename T>
 inline T TOrthonormalBasis3<T>::sinPhi(const TVector3<T>& unitVec) const
 {
-	return std::sqrt(sin2Phi(unitVec));
+	const T xProjection = unitVec.dot(m_xAxis);
+	const T rProjection = sinTheta(unitVec);
+
+	if(rProjection != T(0))
+	{
+		return math::clamp(xProjection / rProjection, T(-1), T(1));
+	}
+	else
+	{
+		// corresponds to phi = 0
+		return T(0);
+	}
 }
 
 template<typename T>
 inline T TOrthonormalBasis3<T>::tanPhi(const TVector3<T>& unitVec) const
 {
-	return std::sqrt(tan2Phi(unitVec));
+	const T zProjection = unitVec.dot(m_zAxis);
+	const T xProjection = unitVec.dot(m_xAxis);
+
+	if(zProjection != T(0))
+	{
+		return math::clamp(
+			xProjection / zProjection,
+			std::numeric_limits<T>::lowest(),
+			std::numeric_limits<T>::max());
+	}
+	else
+	{
+		switch(math::sign(xProjection))
+		{
+		case -1: return std::numeric_limits<T>::lowest();
+		case  0: return T(0);
+		case  1: return std::numeric_limits<T>::max();
+		}
+
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return T(0);
+	}
 }
 
 template<typename T>
 inline T TOrthonormalBasis3<T>::cos2Phi(const TVector3<T>& unitVec) const
 {
-	const T cosP = cosPhi(unitVec);
-	return cosP * cosP;
+	return math::squared(cosPhi(unitVec));
 }
 
 template<typename T>
 inline T TOrthonormalBasis3<T>::sin2Phi(const TVector3<T>& unitVec) const
 {
-	return 1 - cos2Phi(unitVec);
+	return math::squared(sinPhi(unitVec));
 }
 
 template<typename T>
@@ -139,13 +168,24 @@ inline T TOrthonormalBasis3<T>::tan2Phi(const TVector3<T>& unitVec) const
 {
 	const T cos2P = cos2Phi(unitVec);
 	const T sin2P = 1 - cos2P;
-	return sin2P / cos2P;
+
+	if(cos2P != T(0))
+	{
+		return math::clamp(
+			sin2P / cos2P,
+			std::numeric_limits<T>::lowest(),
+			std::numeric_limits<T>::max());
+	}
+	else
+	{
+		return std::numeric_limits<T>::max();
+	}
 }
 
 template<typename T>
 inline T TOrthonormalBasis3<T>::cosTheta(const TVector3<T>& unitVec) const
 {
-	return math::clamp<T>(m_yAxis.dot(unitVec), -1, 1);
+	return math::clamp(m_yAxis.dot(unitVec), T(-1), T(1));
 }
 
 template<typename T>
@@ -157,7 +197,27 @@ inline T TOrthonormalBasis3<T>::sinTheta(const TVector3<T>& unitVec) const
 template<typename T>
 inline T TOrthonormalBasis3<T>::tanTheta(const TVector3<T>& unitVec) const
 {
-	return std::sqrt(tan2Theta(unitVec));
+	const T cosT = cosTheta(unitVec);
+
+	if(cosT != T(0))
+	{
+		return math::clamp(
+			sinTheta(unitVec) / cosT,
+			std::numeric_limits<T>::lowest(),
+			std::numeric_limits<T>::max());
+	}
+	else
+	{
+		switch(math::sign(sinTheta(unitVec)))
+		{
+		case -1: return std::numeric_limits<T>::lowest();
+		case  0: return T(0);
+		case  1: return std::numeric_limits<T>::max();
+		}
+
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return T(0);
+	}
 }
 
 template<typename T>
@@ -175,8 +235,7 @@ inline T TOrthonormalBasis3<T>::absSinTheta(const TVector3<T>& unitVec) const
 template<typename T>
 inline T TOrthonormalBasis3<T>::cos2Theta(const TVector3<T>& unitVec) const
 {
-	const T cosT = cosTheta(unitVec);
-	return cosT * cosT;
+	return math::squared(cosTheta(unitVec));
 }
 
 template<typename T>
@@ -190,7 +249,18 @@ inline T TOrthonormalBasis3<T>::tan2Theta(const TVector3<T>& unitVec) const
 {
 	const T cos2T = cos2Theta(unitVec);
 	const T sin2T = 1 - cos2T;
-	return sin2T / cos2T;
+
+	if(cos2T != T(0))
+	{
+		return math::clamp(
+			sin2T / cos2T,
+			std::numeric_limits<T>::lowest(),
+			std::numeric_limits<T>::max());
+	}
+	else
+	{
+		return std::numeric_limits<T>::max();
+	}
 }
 
 template<typename T>

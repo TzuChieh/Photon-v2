@@ -137,7 +137,7 @@ void OrenNayar::calcBsdfSample(
 	}
 
 	BsdfEvaluation bsdfEval;
-	bsdfEval.inputs.set(in, out);
+	bsdfEval.inputs.set(in.X, L, in.V, in.elemental, in.transported);
 	OrenNayar::calcBsdf(bsdfEval.inputs, bsdfEval.outputs, sidedness);
 	if(!bsdfEval.outputs.isGood())
 	{
@@ -145,7 +145,7 @@ void OrenNayar::calcBsdfSample(
 		return;
 	}
 
-	out.pdfAppliedBsdf.setValues(bsdfEval.outputs.bsdf.divLocal(pdfW));
+	out.pdfAppliedBsdf.setValues(bsdfEval.outputs.bsdf.div(pdfW));
 	out.setMeasurability(true);
 }
 
