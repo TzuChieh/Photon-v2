@@ -21,6 +21,7 @@
 #include "Core/Renderer/Region/TileScheduler.h"
 #include "Common/Logger.h"
 #include "Core/Renderer/Region/WorkUnit.h"
+#include "Core/Estimator/SurfaceAttributeEstimator.h"
 
 #include <cmath>
 #include <iostream>
@@ -59,17 +60,41 @@ void AttributeRenderer::doUpdate(const SdlResourcePack& data)
 
 void AttributeRenderer::doRender()
 {
-	FixedSizeThreadPool workers(numWorkers());
+	const Integrand integrand(m_scene, m_camera);
 
-	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
+	SurfaceAttributeEstimator estimator;
+	estimator.update(integrand);
+
+	TEstimationArray<Vector3R> estimation(1);
+
+	Samples2DStage camSampleStage = m_sampleGenerator->declare2DStage(
+		Vector2S(m_attributeFilm.getSampleResPx()).product(),
+		Vector2S(m_attributeFilm.getSampleResPx()));
+
+	const Vector2D ndcScale  = m_attributeFilm.getSampleResPx().div(Vector2D(m_attributeFilm.getActualResPx()));
+	const Vector2D ndcOffset = m_attributeFilm.getSampleWindowPx().minVertex.div(Vector2D(m_attributeFilm.getActualResPx()));
+
+	while(m_sampleGenerator->prepareSampleBatch())
 	{
-		workers.queueWork([this, workerId]()
+		const Samples2D& camSamples = m_sampleGenerator->getSamples2D(camSampleStage);
+		for(std::size_t si = 0; si < camSamples.numSamples(); si++)
 		{
-			// TODO
-		});
-	}
+			const Vector2D filmNdc = Vector2D(camSamples[si]).mul(ndcScale).add(ndcOffset);
 
-	workers.waitAllWorks();
+			Ray ray;
+			m_camera->genSensedRay(Vector2R(filmNdc), &ray);
+
+			estimator.estimate(ray, integrand, estimation);
+
+			const Vector2D rasterPos = filmNdc * Vector2D(m_attributeFilm.getActualResPx());
+
+			{
+				std::lock_guard<std::mutex> lock(m_rendererMutex);
+
+				m_attributeFilm.addSample(rasterPos.x, rasterPos.y, estimation[0].clamp(0, std::numeric_limits<real>::max()));
+			}
+		}
+	}
 }
 
 ERegionStatus AttributeRenderer::asyncPollUpdatedRegion(Region* const out_region)

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Common/assertion.h"
-#include "Core/Quantity/SpectralStrength.h"
 
 #include <vector>
 #include <cstddef>
@@ -34,7 +33,7 @@ inline TEstimationArray<EstimationType>::TEstimationArray() :
 
 template<typename EstimationType>
 inline TEstimationArray<EstimationType>::TEstimationArray(const std::size_t numEstimations) :
-	m_estimations(numEstimations, SpectralStrength(0))
+	m_estimations(numEstimations, EstimationType(0))
 {}
 
 template<typename EstimationType>

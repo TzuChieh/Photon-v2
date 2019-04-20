@@ -1,37 +1,31 @@
 #pragma once
 
-//#include "Core/Estimator/Estimator.h"
-//
-//namespace ph
-//{
-//
-//class SurfaceHit;
-//
-//class SurfaceAttributeEstimator : public Estimator, public TCommandInterface<SurfaceAttributeEstimator>
-//{
-//public:
-//	SurfaceAttributeEstimator();
-//
-//	AttributeTags supportedAttributes() const override;
-//
-//	void update(const Scene& scene) override;
-//
-//	void estimate(
-//		const Ray&           ray,
-//		const Integrand&     integrand,
-//		const AttributeTags& requestedAttributes,
-//		Estimation&          out_estimation) const override;
-//
-//	void estimate(
-//		const SurfaceHit&    surface, 
-//		const AttributeTags& requestedAttributes, 
-//		Estimation&          out_estimation) const;
-//
-//// command interface
-//public:
-//	explicit SurfaceAttributeEstimator(const InputPacket& packet);
-//	static SdlTypeInfo ciTypeInfo();
-//	static void ciRegister(CommandRegister& cmdRegister);
-//};
-//
-//}// end namespace ph
+#include "Core/Estimator/TIRayEstimator.h"
+#include "Math/TVector3.h"
+
+namespace ph
+{
+
+class SurfaceHit;
+
+class SurfaceAttributeEstimator : public TIRayEstimator<Vector3R>
+{
+public:
+	void update(const Integrand& integrand) override;
+
+	void estimate(
+		const Ray&                  ray,
+		const Integrand&            integrand,
+		TEstimationArray<Vector3R>& out_estimation) const override;
+
+	virtual std::string toString() const;
+};
+
+// In-header Implementations:
+
+inline std::string SurfaceAttributeEstimator::toString() const
+{
+	return "Surface Attribute Estimator";
+}
+
+}// end namespace ph
