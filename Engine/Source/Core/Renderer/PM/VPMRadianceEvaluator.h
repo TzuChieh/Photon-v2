@@ -72,9 +72,9 @@ private:
 
 inline VPMRadianceEvaluator::VPMRadianceEvaluator(
 	const TPhotonMap<FullPhoton>* photonMap,
-	std::size_t                   numPhotonPaths,
-	HdrRgbFilm*                   film,
-	const Scene*                  scene) :
+	const std::size_t             numPhotonPaths,
+	HdrRgbFilm* const             film,
+	const Scene* const            scene) :
 
 	m_photonMap(photonMap),
 	m_numPhotonPaths(numPhotonPaths),
@@ -107,26 +107,42 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 	const SurfaceHit&       surfaceHit,
 	const SpectralStrength& pathThroughput) -> ViewPathTracingPolicy
 {
-	PH_ASSERT_EQ(pathLength, 1);
+	// TODO: remove hardcoded max path length
+	constexpr std::size_t MAX_PATH_LENGTH = 5;
 
-	const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
-	const SurfaceOptics* surfaceOptics = metadata->getSurface().getOptics();
+	PH_ASSERT_GE(pathLength, 1);
 
-	// TODO: handle specular path
+	const PrimitiveMetadata* const metadata      = surfaceHit.getDetail().getPrimitive()->getMetadata();
+	const SurfaceOptics* const     surfaceOptics = metadata->getSurface().getOptics();
 
 	if(metadata->getSurface().getEmitter())
 	{
-		SpectralStrength zeroBounceRadiance;
-		metadata->getSurface().getEmitter()->evalEmittedRadiance(surfaceHit, &zeroBounceRadiance);
-		m_sampledRadiance.addLocal(pathThroughput * zeroBounceRadiance);
+		SpectralStrength viewPathRadiance;
+		metadata->getSurface().getEmitter()->evalEmittedRadiance(surfaceHit, &viewPathRadiance);
+		m_sampledRadiance.addLocal(pathThroughput * viewPathRadiance);
 	}
+
+	// FIXME: properly handle delta optics (mixed case)
+
+	if(pathLength < MAX_PATH_LENGTH && surfaceOptics->getAllPhenomena().hasAtLeastOne({
+		ESurfacePhenomenon::DELTA_REFLECTION,
+		ESurfacePhenomenon::DELTA_TRANSMISSION}))
+	{
+		return ViewPathTracingPolicy().
+			traceBranchedPathFor(SurfacePhenomena({
+				ESurfacePhenomenon::DELTA_REFLECTION,
+				ESurfacePhenomenon::DELTA_TRANSMISSION})).
+			useRussianRoulette(false);
+	}
+
+	PH_ASSERT_LE(pathLength, MAX_PATH_LENGTH);
 
 	m_photonCache.clear();
 	m_photonMap->findWithinRange(surfaceHit.getPosition(), m_kernelRadius, m_photonCache);
 
 	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
 
-	const Vector3R L = surfaceHit.getIncidentRay().getDirection().mul(-1);
+	const Vector3R L  = surfaceHit.getIncidentRay().getDirection().mul(-1);
 	const Vector3R Ns = surfaceHit.getShadingNormal();
 	const Vector3R Ng = surfaceHit.getGeometryNormal();
 
@@ -149,7 +165,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 		radiance.addLocal(throughput * photon.get<EPhotonData::THROUGHPUT_RADIANCE>());
 	}
 
-	// FIXME: cache
+	// OPT: cache
 	const real kernelArea = m_kernelRadius * m_kernelRadius * constant::pi<real>;
 	const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(m_numPhotonPaths));
 
