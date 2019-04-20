@@ -74,6 +74,7 @@
 #include "Core/Renderer/Sampling/EqualSamplingRenderer.h"
 #include "Core/Renderer/Sampling/AdaptiveSamplingRenderer.h"
 #include "Core/Renderer/PM/PMRenderer.h"
+#include "Core/Renderer/Attribute/AttributeRenderer.h"
 
 // options
 #include "World/CookSettings.h"
@@ -181,6 +182,7 @@ bool init_command_parser()
 	register_command_interface<EqualSamplingRenderer>();
 	register_command_interface<AdaptiveSamplingRenderer>();
 	register_command_interface<PMRenderer>();
+	register_command_interface<AttributeRenderer>();
 
 	// options
 	register_command_interface<CookSettings>();
