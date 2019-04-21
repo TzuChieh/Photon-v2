@@ -75,7 +75,7 @@ public:
 	uint32         numWorkers()        const;
 	uint32         getRenderWidthPx()  const;
 	uint32         getRenderHeightPx() const;
-	TAABB2D<int64> getRenderWindowPx() const;
+	TAABB2D<int64> getCropWindowPx()   const;
 
 	bool asyncIsUpdating() const;
 	bool asyncIsRendering() const;
@@ -84,7 +84,7 @@ private:
 	uint32         m_numWorkers;
 	uint32         m_widthPx;
 	uint32         m_heightPx;
-	TAABB2D<int64> m_windowPx;
+	TAABB2D<int64> m_cropWindowPx;
 
 	std::vector<RenderWorker> m_workers;
 
@@ -116,9 +116,9 @@ inline uint32 Renderer::getRenderHeightPx() const
 	return m_heightPx;
 }
 
-inline TAABB2D<int64> Renderer::getRenderWindowPx() const
+inline TAABB2D<int64> Renderer::getCropWindowPx() const
 {
-	return m_windowPx;
+	return m_cropWindowPx;
 }
 
 inline bool Renderer::asyncIsUpdating() const

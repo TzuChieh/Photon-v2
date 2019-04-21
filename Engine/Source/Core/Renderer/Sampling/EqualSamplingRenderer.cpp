@@ -59,7 +59,7 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 	m_mainFilm = HdrRgbFilm(
 		getRenderWidthPx(), 
 		getRenderHeightPx(), 
-		getRenderWindowPx(), 
+		getCropWindowPx(),
 		m_filter);
 
 	m_filmEstimators.resize(numWorkers());
@@ -208,7 +208,7 @@ void EqualSamplingRenderer::asyncPeekFrame(
 
 void EqualSamplingRenderer::retrieveFrame(const std::size_t layerIndex, HdrRgbFrame& out_frame)
 {
-	asyncPeekFrame(layerIndex, getRenderWindowPx(), out_frame);
+	asyncPeekFrame(layerIndex, getCropWindowPx(), out_frame);
 }
 
 void EqualSamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)
@@ -241,7 +241,7 @@ RenderState EqualSamplingRenderer::asyncQueryRenderState()
 		static_cast<float32>(m_renderWorks.size() * totalNumSamples) / static_cast<float32>(totalElapsedMs) : 0.0f;
 
 	RenderState state;
-	state.setIntegerState(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getRenderWindowPx().calcArea()));
+	state.setIntegerState(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getCropWindowPx().calcArea()));
 	state.setRealState(0, samplesPerMs * 1000);
 	return state;
 }
@@ -278,7 +278,7 @@ ObservableRenderData EqualSamplingRenderer::getObservableData() const
 
 void EqualSamplingRenderer::initScheduler(const std::size_t numSamplesPerPixel)
 {
-	const WorkUnit totalWorks(Region(getRenderWindowPx()), numSamplesPerPixel);
+	const WorkUnit totalWorks(Region(getCropWindowPx()), numSamplesPerPixel);
 
 	switch(m_schedulerType)
 	{

@@ -49,12 +49,12 @@ void AdaptiveSamplingRenderer::doUpdate(const SdlResourcePack& data)
 	m_allEffortFilm = HdrRgbFilm(
 		getRenderWidthPx(),
 		getRenderHeightPx(),
-		getRenderWindowPx(),
+		getCropWindowPx(),
 		m_filter);
 	m_halfEffortFilm = HdrRgbFilm(
 		getRenderWidthPx(),
 		getRenderHeightPx(),
-		getRenderWindowPx(),
+		getCropWindowPx(),
 		m_filter);
 
 	m_metaRecorders.resize(numWorkers());
@@ -79,7 +79,7 @@ void AdaptiveSamplingRenderer::doUpdate(const SdlResourcePack& data)
 
 	m_dispatcher = DammertzDispatcher(
 		numWorkers(),
-		getRenderWindowPx(),
+		getCropWindowPx(),
 		m_precisionStandard,
 		m_numInitialSamples);
 
@@ -267,7 +267,7 @@ void AdaptiveSamplingRenderer::asyncPeekFrame(
 
 void AdaptiveSamplingRenderer::retrieveFrame(const std::size_t layerIndex, HdrRgbFrame& out_frame)
 {
-	asyncPeekFrame(layerIndex, getRenderWindowPx(), out_frame);
+	asyncPeekFrame(layerIndex, getCropWindowPx(), out_frame);
 }
 
 void AdaptiveSamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)
@@ -300,7 +300,7 @@ RenderState AdaptiveSamplingRenderer::asyncQueryRenderState()
 		static_cast<float32>(m_renderWorks.size() * totalNumSamples) / static_cast<float32>(totalElapsedMs) : 0.0f;
 
 	RenderState state;
-	state.setIntegerState(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getRenderWindowPx().calcArea()));
+	state.setIntegerState(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getCropWindowPx().calcArea()));
 	state.setIntegerState(1, m_numNoisyRegions.load(std::memory_order_relaxed));
 	state.setRealState(0, samplesPerMs * 1000);
 	return state;

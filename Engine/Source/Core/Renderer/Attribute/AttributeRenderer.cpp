@@ -54,7 +54,7 @@ void AttributeRenderer::doUpdate(const SdlResourcePack& data)
 	m_attributeFilm = HdrRgbFilm(
 		getRenderWidthPx(),
 		getRenderHeightPx(),
-		getRenderWindowPx(),
+		getCropWindowPx(),
 		SampleFilters::createBoxFilter());
 }
 
@@ -103,7 +103,7 @@ ERegionStatus AttributeRenderer::asyncPollUpdatedRegion(Region* const out_region
 
 	//std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	*out_region = getRenderWindowPx();
+	*out_region = getCropWindowPx();
 	return ERegionStatus::UPDATING;
 }
 
@@ -129,7 +129,7 @@ void AttributeRenderer::asyncPeekFrame(
 
 void AttributeRenderer::retrieveFrame(const std::size_t layerIndex, HdrRgbFrame& out_frame)
 {
-	asyncPeekFrame(layerIndex, getRenderWindowPx(), out_frame);
+	asyncPeekFrame(layerIndex, getCropWindowPx(), out_frame);
 }
 
 RenderState AttributeRenderer::asyncQueryRenderState()

@@ -69,7 +69,6 @@ private:
 
 	Viewpoint* m_viewpoint;
 	std::vector<Photon> m_photonCache;
-	Vector2S m_filmPosPx;
 	bool m_isViewpointFound;
 
 	void addViewRadiance(const SpectralStrength& radiance);
@@ -117,14 +116,20 @@ inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleStart(
 	const real fFilmXPx = filmNdc.x * static_cast<real>(m_film->getActualResPx().x);
 	const real fFilmYPx = filmNdc.y * static_cast<real>(m_film->getActualResPx().y);
 
-	m_filmPosPx.x = math::clamp(static_cast<std::size_t>(fFilmXPx), 
-		static_cast<std::size_t>(m_filmRegion.minVertex.x),
-		static_cast<std::size_t>(m_filmRegion.maxVertex.x - 1));
-	m_filmPosPx.y = math::clamp(static_cast<std::size_t>(fFilmYPx),
-		static_cast<std::size_t>(m_filmRegion.minVertex.y),
-		static_cast<std::size_t>(m_filmRegion.maxVertex.y - 1));
+	const Vector2S regionPosPx(Vector2R(
+		math::clamp(
+			fFilmXPx - static_cast<real>(m_film->getEffectiveWindowPx().minVertex.x), 
+			0.0_r,
+			static_cast<real>(m_film->getEffectiveResPx().x - 1)),
+		math::clamp(
+			fFilmYPx - static_cast<real>(m_film->getEffectiveWindowPx().minVertex.y),
+			0.0_r, 
+			static_cast<real>(m_film->getEffectiveResPx().y - 1))));
 
-	const std::size_t viewpointIdx = m_filmPosPx.y * static_cast<std::size_t>(m_film->getActualResPx().x) + m_filmPosPx.x;
+	const std::size_t viewpointIdx = 
+		regionPosPx.y * static_cast<std::size_t>(m_film->getEffectiveResPx().x) +
+		regionPosPx.x;
+
 	PH_ASSERT_LT(viewpointIdx, m_numViewpoints);
 	m_viewpoint = &(m_viewpoints[viewpointIdx]);
 	
@@ -242,7 +247,12 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onSampleBatchFinishe
 	{
 		for(int64 x = m_filmRegion.minVertex.x; x < m_filmRegion.maxVertex.x; ++x)
 		{
-			const auto& viewpoint = m_viewpoints[y * m_film->getActualResPx().x + x];
+			const std::size_t viewpointIdx =
+				(y - m_film->getEffectiveWindowPx().minVertex.y) * static_cast<std::size_t>(m_film->getEffectiveResPx().x) +
+				(x - m_film->getEffectiveWindowPx().minVertex.x);
+
+			PH_ASSERT_LT(viewpointIdx, m_numViewpoints);
+			const auto& viewpoint = m_viewpoints[viewpointIdx];
 
 			const real radius             = viewpoint.template get<EViewpointData::RADIUS>();
 			const real kernelArea         = radius * radius * constant::pi<real>;

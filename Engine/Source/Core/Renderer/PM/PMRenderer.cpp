@@ -29,7 +29,7 @@ namespace
 
 void PMRenderer::doUpdate(const SdlResourcePack& data)
 {
-	m_film = std::make_unique<HdrRgbFilm>(getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
+	m_film = std::make_unique<HdrRgbFilm>(getRenderWidthPx(), getRenderHeightPx(), getCropWindowPx(), m_filter);
 
 	m_scene = &(data.visualWorld.getScene());
 	m_camera = data.getCamera().get();
@@ -114,7 +114,7 @@ void PMRenderer::renderWithVanillaPM()
 		{
 			auto sampleGenerator = m_sg->genCopied(workEnd - workStart);
 			auto film            = std::make_unique<HdrRgbFilm>(
-				getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
+				getRenderWidthPx(), getRenderHeightPx(), getCropWindowPx(), m_filter);
 
 			VPMRadianceEvaluator evaluator(
 				&photonMap, 
@@ -130,7 +130,7 @@ void PMRenderer::renderWithVanillaPM()
 				m_scene,
 				m_camera,
 				sampleGenerator.get(),
-				getRenderWindowPx(),
+				getCropWindowPx(),
 				{getRenderWidthPx(), getRenderHeightPx()});
 
 			radianceEvaluator.work();
@@ -159,7 +159,7 @@ void PMRenderer::renderWithProgressivePM()
 			m_scene, 
 			m_camera, 
 			viewpointSampleGenerator.get(),
-			getRenderWindowPx(),
+			getCropWindowPx(),
 			{getRenderWidthPx(), getRenderHeightPx()});
 
 		viewpointWork.work();
@@ -179,7 +179,7 @@ void PMRenderer::renderWithProgressivePM()
 
 	std::mutex resultFilmMutex;
 	auto resultFilm = std::make_unique<HdrRgbFilm>(
-		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
+		getRenderWidthPx(), getRenderHeightPx(), getCropWindowPx(), m_filter);
 
 	Timer passTimer;
 	std::size_t numFinishedPasses = 0;
@@ -221,7 +221,7 @@ void PMRenderer::renderWithProgressivePM()
 				const std::size_t workEnd)
 			{
 				auto film = std::make_unique<HdrRgbFilm>(
-					getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
+					getRenderWidthPx(), getRenderHeightPx(), getCropWindowPx(), m_filter);
 
 				PPMRadianceEvaluationWork radianceEstimator(
 					&photonMap, 
@@ -265,12 +265,12 @@ void PMRenderer::renderWithStochasticProgressivePM()
 
 	logger.log("start generating viewpoints...");
 
-	std::vector<Viewpoint> viewpoints(getRenderWindowPx().calcArea());
-	for(std::size_t y = 0; y < getRenderHeightPx(); ++y)
+	std::vector<Viewpoint> viewpoints(getCropWindowPx().calcArea());
+	for(std::size_t y = 0; y < static_cast<std::size_t>(getCropWindowPx().getHeight()); ++y)
 	{
-		for(std::size_t x = 0; x < getRenderWidthPx(); ++x)
+		for(std::size_t x = 0; x < static_cast<std::size_t>(getCropWindowPx().getWidth()); ++x)
 		{
-			auto& viewpoint = viewpoints[y * getRenderWidthPx() + x];
+			auto& viewpoint = viewpoints[y * getCropWindowPx().getWidth() + x];
 
 			if constexpr(Viewpoint::template has<EViewpointData::RADIUS>()) {
 				viewpoint.template set<EViewpointData::RADIUS>(m_kernelRadius);
@@ -299,7 +299,7 @@ void PMRenderer::renderWithStochasticProgressivePM()
 
 	std::mutex resultFilmMutex;
 	auto resultFilm = std::make_unique<HdrRgbFilm>(
-		getRenderWidthPx(), getRenderHeightPx(), getRenderWindowPx(), m_filter);
+		getRenderWidthPx(), getRenderHeightPx(), getCropWindowPx(), m_filter);
 
 	Timer passTimer;
 	std::size_t numFinishedPasses = 0;
@@ -334,15 +334,15 @@ void PMRenderer::renderWithStochasticProgressivePM()
 		TPhotonMap<Photon> photonMap(2, TPhotonCenterCalculator<Photon>());
 		photonMap.build(std::move(photonBuffer));
 
-		parallel_work(getRenderWidthPx(), numWorkers(),
+		parallel_work(getCropWindowPx().getWidth(), numWorkers(),
 			[this, &photonMap, &viewpoints, &resultFilm, &resultFilmMutex, totalPhotonPaths, numFinishedPasses](
 				const std::size_t workerIdx, 
 				const std::size_t workStart, 
 				const std::size_t workEnd)
 			{
-				Region region = getRenderWindowPx();
-				region.minVertex.x = workStart;
-				region.maxVertex.x = workEnd;
+				Region region = getCropWindowPx();
+				region.minVertex.x = getCropWindowPx().minVertex.x + workStart;
+				region.maxVertex.x = getCropWindowPx().minVertex.x + workEnd;
 
 				auto sampleGenerator = m_sg->genCopied(1);
 
@@ -390,7 +390,7 @@ ERegionStatus PMRenderer::asyncPollUpdatedRegion(Region* const out_region)
 
 	if(m_isFilmUpdated.load(std::memory_order_relaxed))
 	{
-		*out_region = getRenderWindowPx();
+		*out_region = getCropWindowPx();
 		m_isFilmUpdated.store(false, std::memory_order_relaxed);
 
 		return ERegionStatus::UPDATING;

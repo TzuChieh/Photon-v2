@@ -82,6 +82,40 @@ class PhRenderingPanel(PhRenderPanel):
 		min         = 0
 	)
 
+	bpy.types.Scene.ph_use_crop_window = bpy.props.BoolProperty(
+		name        = "Use Crop Window",
+		description = "",
+		default     = False
+	)
+
+	bpy.types.Scene.ph_crop_min_x = bpy.props.IntProperty(
+		name        = "Min X",
+		description = "",
+		default     = 0,
+		min         = 0
+	)
+
+	bpy.types.Scene.ph_crop_min_y = bpy.props.IntProperty(
+		name        = "Min Y",
+		description = "",
+		default     = 0,
+		min         = 0
+	)
+
+	bpy.types.Scene.ph_crop_width = bpy.props.IntProperty(
+		name        = "Width",
+		description = "",
+		default     = 1,
+		min         = 1
+	)
+
+	bpy.types.Scene.ph_crop_height = bpy.props.IntProperty(
+		name        = "Height",
+		description = "",
+		default     = 1,
+		min         = 1
+	)
+
 	def draw(self, context):
 
 		scene  = context.scene
@@ -100,6 +134,15 @@ class PhRenderingPanel(PhRenderPanel):
 			layout.prop(scene, "ph_render_kernel_radius")
 		else:
 			pass
+
+		layout.prop(scene, "ph_use_crop_window")
+
+		use_crop_window = scene.ph_use_crop_window
+		if use_crop_window:
+			layout.prop(scene, "ph_crop_min_x")
+			layout.prop(scene, "ph_crop_min_y")
+			layout.prop(scene, "ph_crop_width")
+			layout.prop(scene, "ph_crop_height")
 
 
 class PhSamplingPanel(PhRenderPanel):

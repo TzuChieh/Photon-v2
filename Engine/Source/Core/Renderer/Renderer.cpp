@@ -32,7 +32,7 @@ Renderer::~Renderer() = default;
 void Renderer::update(const SdlResourcePack& data)
 {
 	logger.log("# render workers = " + std::to_string(numWorkers()));
-	logger.log("render region = " + getRenderWindowPx().toString());
+	logger.log("render region = " + getCropWindowPx().toString());
 
 	logger.log("updating...");
 
@@ -113,9 +113,9 @@ Renderer::Renderer(const InputPacket& packet) :
 	const integer rectW      = packet.getInteger("rect-w", filmWidth);
 	const integer rectH      = packet.getInteger("rect-h", filmHeight);
 
-	m_widthPx  = filmWidth;
-	m_heightPx = filmHeight;
-	m_windowPx = TAABB2D<int64>({rectX, rectY}, {rectX + rectW, rectY + rectH});
+	m_widthPx      = filmWidth;
+	m_heightPx     = filmHeight;
+	m_cropWindowPx = TAABB2D<int64>({rectX, rectY}, {rectX + rectW, rectY + rectH});
 }
 
 SdlTypeInfo Renderer::ciTypeInfo()

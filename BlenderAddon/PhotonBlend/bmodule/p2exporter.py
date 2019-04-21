@@ -498,57 +498,65 @@ class Exporter:
 
 	def export_core_commands(self, context):
 
+		b_scene  = context.scene
+		b_camera = b_scene.camera
+
 		# a scene may contain multiple cameras, export the active one only
-		camera = context.scene.camera
-		if camera is not None:
-			self.export_camera(camera, context.scene)
+		if b_camera is not None:
+			self.export_camera(b_camera, b_scene)
 		else:
 			print("warning: no active camera")
 
 		meta_info = meta.MetaGetter(context)
 
-		creator = StratifiedSampleGeneratorCreator()
-		creator.set_sample_amount(SDLInteger(meta_info.spp()))
-		self.get_sdlconsole().queue_command(creator)
+		sample_generator = StratifiedSampleGeneratorCreator()
+		sample_generator.set_sample_amount(SDLInteger(meta_info.spp()))
+		self.get_sdlconsole().queue_command(sample_generator)
 
 		render_method = meta_info.render_method()
-		b_scene = context.scene
+
+		renderer = None
 
 		if render_method == "BVPT" or render_method == "BNEEPT" or render_method == "BVPTDL":
 
-			creator = EqualSamplingRendererCreator()
-			creator.set_width(SDLInteger(meta_info.render_width_px()))
-			creator.set_height(SDLInteger(meta_info.render_height_px()))
-			creator.set_filter_name(SDLString(meta_info.sample_filter_name()))
-			creator.set_estimator(SDLString(meta_info.integrator_type_name()))
-			self.get_sdlconsole().queue_command(creator)
+			renderer = EqualSamplingRendererCreator()
+			renderer.set_width(SDLInteger(meta_info.render_width_px()))
+			renderer.set_height(SDLInteger(meta_info.render_height_px()))
+			renderer.set_filter_name(SDLString(meta_info.sample_filter_name()))
+			renderer.set_estimator(SDLString(meta_info.integrator_type_name()))
 
 		elif render_method == "VPM":
 
-			creator = PmRendererCreator()
-			creator.set_width(SDLInteger(meta_info.render_width_px()))
-			creator.set_height(SDLInteger(meta_info.render_height_px()))
-			creator.set_mode(SDLString("vanilla"))
-			creator.set_num_photons(SDLInteger(b_scene.ph_render_num_photons))
-			creator.set_num_samples_per_pixel(SDLInteger(b_scene.ph_render_num_spp_pm))
-			creator.set_radius(SDLReal(b_scene.ph_render_kernel_radius))
-			self.get_sdlconsole().queue_command(creator)
+			renderer = PmRendererCreator()
+			renderer.set_width(SDLInteger(meta_info.render_width_px()))
+			renderer.set_height(SDLInteger(meta_info.render_height_px()))
+			renderer.set_mode(SDLString("vanilla"))
+			renderer.set_num_photons(SDLInteger(b_scene.ph_render_num_photons))
+			renderer.set_num_samples_per_pixel(SDLInteger(b_scene.ph_render_num_spp_pm))
+			renderer.set_radius(SDLReal(b_scene.ph_render_kernel_radius))
 
 		elif render_method == "PPM" or render_method == "SPPM":
 
 			mode_name = "progressive" if render_method == "PPM" else "stochastic-progressive"
-			creator = PmRendererCreator()
-			creator.set_width(SDLInteger(meta_info.render_width_px()))
-			creator.set_height(SDLInteger(meta_info.render_height_px()))
-			creator.set_mode(SDLString(mode_name))
-			creator.set_num_photons(SDLInteger(b_scene.ph_render_num_photons))
-			creator.set_num_samples_per_pixel(SDLInteger(b_scene.ph_render_num_spp_pm))
-			creator.set_radius(SDLReal(b_scene.ph_render_kernel_radius))
-			creator.set_num_passes(SDLInteger(b_scene.ph_render_num_passes))
-			self.get_sdlconsole().queue_command(creator)
+			renderer = PmRendererCreator()
+			renderer.set_width(SDLInteger(meta_info.render_width_px()))
+			renderer.set_height(SDLInteger(meta_info.render_height_px()))
+			renderer.set_mode(SDLString(mode_name))
+			renderer.set_num_photons(SDLInteger(b_scene.ph_render_num_photons))
+			renderer.set_num_samples_per_pixel(SDLInteger(b_scene.ph_render_num_spp_pm))
+			renderer.set_radius(SDLReal(b_scene.ph_render_kernel_radius))
+			renderer.set_num_passes(SDLInteger(b_scene.ph_render_num_passes))
 
 		else:
 			print("warning: render method %s is not supported" % render_method)
+
+		if b_scene.ph_use_crop_window and renderer is not None:
+			renderer.set_rect_x(SDLInteger(b_scene.ph_crop_min_x))
+			renderer.set_rect_y(SDLInteger(b_scene.ph_crop_min_y))
+			renderer.set_rect_w(SDLInteger(b_scene.ph_crop_width))
+			renderer.set_rect_h(SDLInteger(b_scene.ph_crop_height))
+
+		self.get_sdlconsole().queue_command(renderer)
 
 	# TODO: write/flush commands to disk once a while (reducing memory usage)
 	def export_world_commands(self, b_context):
