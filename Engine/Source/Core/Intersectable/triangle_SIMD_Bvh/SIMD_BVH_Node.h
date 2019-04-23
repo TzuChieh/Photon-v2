@@ -31,7 +31,20 @@ bool SIMD_BVH_Node::isIntersecting(
 {   
     //TODO
     //read ifconstexpr
-    return true;
+
+    //x coordinate
+    tmin = simdpp::max( tmin, simdpp::mul(simdpp::sub( bboxes[sign[0][0] ][ ray_origin[0] ] ) , idir[0]);
+    tmax = simdpp::min( tmax, simdpp::mul(simdpp::sub( bboxes[ 1 - sign[0][0] ][ ray_origin[0] ] ) , idir[0]);
+
+    //y cooridinate
+    tmin = simdpp::max( tmin, simdpp::mul(simdpp::sub( bboxes[sign[1][1] ][ ray_origin[1] ] ) , idir[1]);
+    tmax = simdpp::min( tmax, simdpp::mul(simdpp::sub( bboxes[ 1 - sign[1][1] ][ ray_origin[1] ] ) , idir[1]);
+
+    //z coordinate
+    tmin = simdpp::max( tmin, simdpp::mul(simdpp::sub( bboxes[sign[2][2] ][ ray_origin[2] ] ) , idir[2]);
+    tmax = simdpp::min( tmax, simdpp::mul(simdpp::sub( bboxes[ 1 - sign[2][2] ][ ray_origin[2] ] ) , idir[2]);
+
+    return simdpp::sign( simdpp::cmp_gt(tmax, tmin) );
 }
 
 }
