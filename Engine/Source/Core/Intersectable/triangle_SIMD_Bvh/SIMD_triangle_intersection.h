@@ -5,17 +5,6 @@
 
 //base on https://stackoverflow.com/questions/45599766/fast-sse-ray-4-triangle-intersection
 
-namespace SIMDPP_ARCH_NAMESPACE {
-
-void print_arch()
-{
-	std::cout << static_cast<unsigned>(simdpp::this_compile_arch()) << '\n';
-}
-
-} // namespace SIMDPP_ARCH_NAMESPACE
-
-SIMDPP_MAKE_DISPATCHER_VOID0(print_arch);
-
 namespace ph
 {
 

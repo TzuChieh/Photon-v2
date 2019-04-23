@@ -56,8 +56,6 @@
 #include "Common/config.h"
 
 
-void print_arch();
-
 
 
 
