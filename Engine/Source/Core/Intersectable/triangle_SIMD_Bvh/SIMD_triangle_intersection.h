@@ -1,18 +1,20 @@
 #include "SIMD_width.h"
-#include <limits>
-#include <iostream>
-#include <cmath>
-#include <vector>
-#include <cstdint>
-#include "Core/Ray.h"
-#include <bitset>
-#include "Common/config.h"
+
 // #include "Core/Intersectable/PTriangle.h"
 
 
 //base on https://stackoverflow.com/questions/45599766/fast-sse-ray-4-triangle-intersection
 
+namespace SIMDPP_ARCH_NAMESPACE {
 
+void print_arch()
+{
+	std::cout << static_cast<unsigned>(simdpp::this_compile_arch()) << '\n';
+}
+
+} // namespace SIMDPP_ARCH_NAMESPACE
+
+SIMDPP_MAKE_DISPATCHER_VOID0(print_arch);
 
 namespace ph
 {
@@ -234,6 +236,8 @@ bool testRay::isIntersectPackedTriangle(const PackedTriangle& packedTris, Packed
         }
     }
     
+    //simdpp::sign(temp)
+
     if (mask != 0xFF)
     {
         result.idx = -1;
@@ -274,5 +278,5 @@ testRay::testRay(const Ray& r)
 }
 
 
-
+//SIMDPP_MAKE_DISPATCHER(template <typename T> void avx_multi_cross());
 

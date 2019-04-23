@@ -4,7 +4,6 @@
 
 #include <gtest/gtest.h>
 
-
 TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 {
 	using namespace ph;
@@ -176,7 +175,7 @@ TEST(RayWithPackedTriangleTest, HitReturnIsCorrect)
 
 
 
-	//print_arch();
+	print_arch();
 	
 }
 
