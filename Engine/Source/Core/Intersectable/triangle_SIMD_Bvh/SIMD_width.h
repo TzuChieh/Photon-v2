@@ -43,6 +43,11 @@
 #include "Common/config.h"
 
 
+#include "simdpp/simd.h"
+#include <simdpp/dispatch/get_arch_gcc_builtin_cpu_supports.h>
+#include <simdpp/dispatch/get_arch_raw_cpuid.h>
+#include <simdpp/dispatch/get_arch_linux_cpuinfo.h>
+
 
 
 

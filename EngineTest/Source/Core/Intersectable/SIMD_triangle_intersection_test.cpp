@@ -5,11 +5,6 @@
 #include <gtest/gtest.h>
 
 
-#include "simdpp/simd.h"
-#include <simdpp/dispatch/get_arch_gcc_builtin_cpu_supports.h>
-#include <simdpp/dispatch/get_arch_raw_cpuid.h>
-#include <simdpp/dispatch/get_arch_linux_cpuinfo.h>
-
 #if SIMDPP_HAS_GET_ARCH_RAW_CPUID
 #define SIMDPP_USER_ARCH_INFO ::simdpp::get_arch_raw_cpuid()
 #elif SIMDPP_HAS_GET_ARCH_GCC_BUILTIN_CPU_SUPPORTS
