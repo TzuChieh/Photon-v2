@@ -31,12 +31,10 @@ ThinFilm::ThinFilm() :
 
 void ThinFilm::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
-	// m_iorFilm = 1.5_r;
-	// m_thicknessNm = 500_r;
 	InterferenceTableMetal table({m_iorOuter, m_iorFilm, m_iorInner}, {0, m_thicknessNm, 0});
 	// table.enable_debug();
-	// table.read_iorfile("../IorFile/Ag.csv", 1);
-	// table.read_iorfile("../IorFile/Au.csv", 2);
+	// table.read_iorfile("../IorFile/Au.csv", 1);
+	// table.read_iorfile("../IorFile/Ag.csv", 2);
 	table.simulate_single_thin_film();
 	// table.output_log();
 
@@ -44,26 +42,10 @@ void ThinFilm::genSurface(CookingContext& context, SurfaceBehavior& behavior) co
 	auto reflectances = table.getReflectances();
 	auto transmittances = table.getTransmittance();
 
-	// HACK
-	for (size_t i = 0; i < reflectances.size(); ++i)
-	{
-		reflectances[i] = reflectances[i];
-		transmittances[i] = 0;
-	}
-
 	std::vector<SampledSpectralStrength> reflectanceTable(91);
 	std::vector<SampledSpectralStrength> transmittanceTable(91);
 	for(std::size_t i = 0; i <= 90; ++i)
 	{
-		/*reflectanceTable[i] = SpectralData::calcPiecewiseAveraged(
-			m_wavelengthTable.data() + i * 31,
-			m_reflectanceTable.data() + i * 31,
-			31);
-		transmittanceTable[i] = SpectralData::calcPiecewiseAveraged(
-			m_wavelengthTable.data() + i * 31,
-			m_transmittanceTable.data() + i * 31,
-			31);*/
-
 		reflectanceTable[i] = SpectralData::calcPiecewiseAveraged(
 			wavelengthsNm.data() + i * 31,
 			reflectances.data() + i * 31,

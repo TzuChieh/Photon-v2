@@ -158,7 +158,7 @@ namespace ph
                 if (ior_file[0].size()) n1 = ior_file[0][wl];
                 if (ior_file[1].size()) n2 = ior_file[1][wl];
                 if (ior_file[2].size()) n3 = ior_file[2][wl];
-                
+
                 complex_f theta_1 = complex_f(theta, 0);
                 complex_f product_1 = n1*angle_sin(theta_1);
 				complex_f theta_2 = angle_asin(product_1/n2); // n1sin1=n2sin2=n3sin3
@@ -189,34 +189,39 @@ namespace ph
 
         complex_f one(1,0);
         complex_f i(0,1);
-    	complex_f ts1 = rs1+one;
-    	complex_f tp1 = (rp1+one)*n1/n2;
-    	complex_f ts2 = rs2+one;
-    	complex_f tp2 = (rp2+one)*n2/n1;
+    	// complex_f ts1 = rs1+one;
+    	// complex_f tp1 = (rp1+one)*n1/n2;
+    	// complex_f ts2 = rs2+one;
+    	// complex_f tp2 = (rp2+one)*n2/n1;
 
-    	if(_debug) ss_log << "ts1:" << ts1 << ", tp1:" << tp1 << ", ts2:" << ts2 << ", tp2:" << tp2 << "\n";
+    	// if(_debug) ss_log << "ts1:" << ts1 << ", tp1:" << tp1 << ", ts2:" << ts2 << ", tp2:" << tp2 << "\n";
 
     	complex_f phi = float(4*(PI/wl)*d)*n2*angle_cos(theta_2);
     	complex_f phase_diff = std::exp(float(-1)*phi*i);
     	complex_f phase_diff_half = std::exp(float(-0.5)*phi*i);
     	complex_f rs_recur = (rs1*one + rs2*phase_diff) / (one+rs1*rs2*phase_diff);
     	complex_f rp_recur = (rp1*one + rp2*phase_diff) / (one+rp1*rp2*phase_diff);
-    	complex_f ts_recur = (ts1*ts2*phase_diff_half) / (one+rs1*rs2*phase_diff);
-    	complex_f tp_recur = (tp1*tp2*phase_diff_half) / (one+rp1*rp2*phase_diff);
+    	// complex_f ts_recur = (ts1*ts2*phase_diff_half) / (one+rs1*rs2*phase_diff);
+    	// complex_f tp_recur = (tp1*tp2*phase_diff_half) / (one+rp1*rp2*phase_diff);
 
-    	if(_debug) ss_log << "rs:" << rs_recur << ", rp:" << rp_recur << ", ts:" << ts_recur << ", tp:" << tp_recur << "\n";
+    	if(_debug) ss_log << "rs:" << rs_recur << ", rp:" << rp_recur
+            // << ", ts:" << ts_recur << ", tp:" << tp_recur
+            << "\n";
 
     	float abs_s = abs(rs_recur);
     	float abs_p = abs(rp_recur);
     	float Reff = (abs_s*abs_s+abs_p*abs_p)/2;
 
-    	float abs_ts = abs(ts_recur);
-    	float abs_tp = abs(tp_recur);
-    	float Teff = (abs_ts*abs_ts+abs_tp*abs_tp)/2;
-
+    	// float abs_ts = abs(ts_recur);
+    	// float abs_tp = abs(tp_recur);
+    	// float Teff = abs((n3/n1)*(angle_cos(theta_3)/angle_cos(theta_1))*(abs_ts*abs_ts+abs_tp*abs_tp))/2;
+        float Teff = 0;
+        if (n1.imag() == 0 && n2.imag() == 0 && n3.imag() == 0) Teff = 1 - Reff;
 
     	if(_debug) ss_log << "|rs|:" << abs_s << ", |rp|:" << abs_p << ", Reff:" << Reff << "\n";
-    	if(_debug) ss_log << "|ts|:" << abs_ts << ", |tp|:" << abs_tp << ", Teff:" << Teff << "\n\n";
+    	if(_debug) ss_log
+            // << "|ts|:" << abs_ts << ", |tp|:" << abs_tp << ", "
+            << "Teff:" << Teff << "\n\n";
 
         std::vector<float> RT;
         RT.push_back(Reff);
