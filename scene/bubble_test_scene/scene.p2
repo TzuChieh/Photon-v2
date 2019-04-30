@@ -1,0 +1,18 @@
+## camera(pinhole) [real fov-degree 49.13434264120263][vector3 position "-6.952656 5.233433 7.117944"][vector3 direction "0.636594 -0.445264 -0.629673"][vector3 up-axis "0.316564 0.895399 -0.313125"]
+## sample-generator(stratified) [integer sample-amount 32]
+## renderer(sampling) [integer width 960][integer height 540][string filter-name bh][string estimator bneept]
+-> geometry(sphere) "@geometry_Icosphere_Icosphere.001_0" [real radius 1]
+-> material(thin-film) "@material_Icosphere_Icosphere.001_Material_0" 
+
+[real ior-outer 1.0]
+[real ior-film 1.5]
+[real ior-inner 1.0]
+[real thickness-nm 500]
+
+-> actor(model) "@actor_model_Icosphere__0" [geometry geometry "@geometry_Icosphere_Icosphere.001_0"][material material "@material_Icosphere_Icosphere.001_Material_0"]
+-> actor(model) translate("@actor_model_Icosphere__0") [vector3 factor "-1.020872 1.253120 1.278244"]
+-> actor(model) rotate("@actor_model_Icosphere__0") [quaternion factor "0.000000 0.000000 0.000000 1.000000"]
+-> actor(model) scale("@actor_model_Icosphere__0") [vector3 factor "1.393134 1.393134 1.393134"]
+-> geometry(triangle-mesh) "@geometry_Plane_Plane.001_0" [vector3-array positions {"-1.000000 0.000000 -1.000000" "-1.000000 0.000000 1.000000" "1.000000 0.000000 1.000000" "-1.000000 0.000000 -1.000000" "1.000000 0.000000 1.000000" "1.000000 0.000000 -1.000000" }][vector3-array texture-coordinates {"-0.758952 1.758953 0.000000" "-0.758953 -0.758952 0.000000" "1.758952 -0.758953 0.000000" "-0.758952 1.758953 0.000000" "1.758952 -0.758953 0.000000" "1.758953 1.758952 0.000000" }][vector3-array normals {"0.000000 1.000000 0.000000" "0.000000 1.000000 0.000000" "0.000000 1.000000 0.000000" "0.000000 1.000000 0.000000" "0.000000 1.000000 0.000000" "0.000000 1.000000 0.000000" }]
+
+-> actor(dome) "@ph_World" [string env-map World_data/gray_pier_2k.hdr]
