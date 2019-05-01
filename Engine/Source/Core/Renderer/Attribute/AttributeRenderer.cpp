@@ -77,7 +77,7 @@ void AttributeRenderer::doRender()
 	while(m_sampleGenerator->prepareSampleBatch())
 	{
 		const Samples2D& camSamples = m_sampleGenerator->getSamples2D(camSampleStage);
-		for(std::size_t si = 0; si < camSamples.numSamples(); si++)
+		for(std::size_t si = 0; si < camSamples.numSamples(); ++si)
 		{
 			const Vector2D filmNdc = Vector2D(camSamples[si]).mul(ndcScale).add(ndcOffset);
 
@@ -89,7 +89,7 @@ void AttributeRenderer::doRender()
 			const Vector2D rasterPos = filmNdc * Vector2D(m_attributeFilm.getActualResPx());
 
 			{
-				std::lock_guard<std::mutex> lock(m_rendererMutex);
+				//std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 				m_attributeFilm.addSample(rasterPos.x, rasterPos.y, estimation[0].clamp(0, std::numeric_limits<real>::max()));
 			}
@@ -115,7 +115,7 @@ void AttributeRenderer::asyncPeekFrame(
 	const Region&     region,
 	HdrRgbFrame&      out_frame)
 {
-	std::lock_guard<std::mutex> lock(m_rendererMutex);
+	//std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 	if(layerIndex == 0)
 	{

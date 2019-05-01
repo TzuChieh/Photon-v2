@@ -46,7 +46,8 @@ from ..psdl.pysdl import (
 	ModelLightSourceCreator,
 	DomeActorCreator,
 	DomeActorRotate,
-	StratifiedSampleGeneratorCreator)
+	StratifiedSampleGeneratorCreator,
+	AttributeRendererCreator)
 
 import bpy
 import mathutils
@@ -520,16 +521,12 @@ class Exporter:
 		if render_method == "BVPT" or render_method == "BNEEPT" or render_method == "BVPTDL":
 
 			renderer = EqualSamplingRendererCreator()
-			renderer.set_width(SDLInteger(meta_info.render_width_px()))
-			renderer.set_height(SDLInteger(meta_info.render_height_px()))
 			renderer.set_filter_name(SDLString(meta_info.sample_filter_name()))
 			renderer.set_estimator(SDLString(meta_info.integrator_type_name()))
 
 		elif render_method == "VPM":
 
 			renderer = PmRendererCreator()
-			renderer.set_width(SDLInteger(meta_info.render_width_px()))
-			renderer.set_height(SDLInteger(meta_info.render_height_px()))
 			renderer.set_mode(SDLString("vanilla"))
 			renderer.set_num_photons(SDLInteger(b_scene.ph_render_num_photons))
 			renderer.set_num_samples_per_pixel(SDLInteger(b_scene.ph_render_num_spp_pm))
@@ -539,22 +536,29 @@ class Exporter:
 
 			mode_name = "progressive" if render_method == "PPM" else "stochastic-progressive"
 			renderer = PmRendererCreator()
-			renderer.set_width(SDLInteger(meta_info.render_width_px()))
-			renderer.set_height(SDLInteger(meta_info.render_height_px()))
 			renderer.set_mode(SDLString(mode_name))
 			renderer.set_num_photons(SDLInteger(b_scene.ph_render_num_photons))
 			renderer.set_num_samples_per_pixel(SDLInteger(b_scene.ph_render_num_spp_pm))
 			renderer.set_radius(SDLReal(b_scene.ph_render_kernel_radius))
 			renderer.set_num_passes(SDLInteger(b_scene.ph_render_num_passes))
 
+		elif render_method == "ATTRIBUTE":
+
+			renderer = AttributeRendererCreator()
+
 		else:
 			print("warning: render method %s is not supported" % render_method)
 
-		if b_scene.ph_use_crop_window and renderer is not None:
-			renderer.set_rect_x(SDLInteger(b_scene.ph_crop_min_x))
-			renderer.set_rect_y(SDLInteger(b_scene.ph_crop_min_y))
-			renderer.set_rect_w(SDLInteger(b_scene.ph_crop_width))
-			renderer.set_rect_h(SDLInteger(b_scene.ph_crop_height))
+		if renderer is not None:
+
+			renderer.set_width(SDLInteger(meta_info.render_width_px()))
+			renderer.set_height(SDLInteger(meta_info.render_height_px()))
+
+			if b_scene.ph_use_crop_window:
+				renderer.set_rect_x(SDLInteger(b_scene.ph_crop_min_x))
+				renderer.set_rect_y(SDLInteger(b_scene.ph_crop_min_y))
+				renderer.set_rect_w(SDLInteger(b_scene.ph_crop_width))
+				renderer.set_rect_h(SDLInteger(b_scene.ph_crop_height))
 
 		self.get_sdlconsole().queue_command(renderer)
 

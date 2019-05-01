@@ -2,7 +2,7 @@
 # NOTE: THIS FILE CONTAINS GENERATED CODE 
 #       DO NOT MODIFY                     
 # ========================================
-# last generated: 2019-04-12 06:47:15.031808 
+# last generated: 2019-04-23 00:36:31.297550 
 
 from abc import ABC, abstractmethod
 
@@ -1202,6 +1202,36 @@ class ThinLensCameraCreator(SDLCoreCommand):
 
     def set_pitch_degrees(self, pitch_degrees: SDLData):
         self.set_input("pitch-degrees", pitch_degrees)
+
+
+class AttributeRendererCreator(SDLCoreCommand):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "renderer(attribute)"
+
+    def set_attribute(self, attribute: SDLData):
+        self.set_input("attribute", attribute)
+
+    def set_width(self, width: SDLData):
+        self.set_input("width", width)
+
+    def set_height(self, height: SDLData):
+        self.set_input("height", height)
+
+    def set_rect_x(self, rect_x: SDLData):
+        self.set_input("rect-x", rect_x)
+
+    def set_rect_y(self, rect_y: SDLData):
+        self.set_input("rect-y", rect_y)
+
+    def set_rect_w(self, rect_w: SDLData):
+        self.set_input("rect-w", rect_w)
+
+    def set_rect_h(self, rect_h: SDLData):
+        self.set_input("rect-h", rect_h)
 
 
 class PmRendererCreator(SDLCoreCommand):
