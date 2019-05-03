@@ -128,7 +128,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 				break;
 			}
 
-			Vector3R V = tracingRay.getDirection().mulLocal(-1);
+			Vector3R V = tracingRay.getDirection().mul(-1);
 			Vector3R L = bsdfSample.outputs.L;
 			Vector3R Ng = surfaceHit.getGeometryNormal();
 			Vector3R Ns = surfaceHit.getShadingNormal();
