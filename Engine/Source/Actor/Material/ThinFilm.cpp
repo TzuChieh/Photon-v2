@@ -14,7 +14,6 @@
 #include "Core/Quantity/SpectralData.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Actor/Material/ThinFilm/InterferenceTable.h"
-#include "Actor/Material/ThinFilm/InterferenceTableMetal.h"
 
 namespace ph
 {
@@ -31,7 +30,7 @@ ThinFilm::ThinFilm() :
 
 void ThinFilm::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
-	InterferenceTableMetal table({m_iorOuter, m_iorFilm, m_iorInner}, {0, m_thicknessNm, 0});
+	InterferenceTable table({m_iorOuter, m_iorFilm, m_iorInner}, {0, m_thicknessNm, 0});
 	// table.enable_debug();
 	// table.read_iorfile("../IorFile/Au.csv", 1);
 	// table.read_iorfile("../IorFile/Ag.csv", 2);

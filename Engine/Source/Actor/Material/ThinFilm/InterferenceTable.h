@@ -2,7 +2,8 @@
 
 #include <vector>
 #include <sstream>
-#include <math.h>
+#include <complex>
+#include <map>
 
 namespace ph
 {
@@ -21,19 +22,20 @@ namespace ph
 class InterferenceTable
 {
 public:
+	typedef std::complex<float> complex_f;
 	InterferenceTable();
-	InterferenceTable(const std::vector<float>, const std::vector<float>);
+	InterferenceTable(const std::vector<complex_f>, const std::vector<float>);
 
-	// TODO
 	void simulate_single_thin_film();
-	float calc_recur_R(const float, const float, const float, const float, const float, const float, const int, const int);
-	float calc_rs(const float, const float, const float, const float);
-	float calc_rp(const float, const float, const float, const float);
+	std::vector<float> calc_recur_R(const complex_f, const complex_f, const complex_f, const complex_f, const complex_f, const complex_f, const int, const int);
+    complex_f calc_rs(const complex_f, const complex_f, const complex_f, const complex_f);
+	complex_f calc_rp(const complex_f, const complex_f, const complex_f, const complex_f);
 	void write_to_vec(const float, const float, const float, const float);
+	void read_iorfile(const std::string, const int);
 	void output_result();
 	void output_log();
+	void enable_debug() { _debug = true; }
 
-	// HACK
 	std::vector<float> getWavelengthsNm() const
 	{
 		return m_wavelengths;
@@ -49,27 +51,29 @@ public:
 		return m_transmittance;
 	}
 
+	complex_f angle_sin(complex_f t) { return sin(a2r(t)); }
+	complex_f angle_cos(complex_f t) { return cos(a2r(t)); }
+	complex_f angle_tan(complex_f t) { return tan(a2r(t)); }
+	complex_f angle_asin(complex_f n) { return r2a(asin(n)); }
+	complex_f angle_acos(complex_f n) { return r2a(acos(n)); }
+	complex_f a2r(complex_f a) { return a*(PI/180); } // angle to rad
+	complex_f r2a(complex_f r) { return r*(180/PI); } // rad to angle
+	float PI = 3.14159265f;
+	const int wl_min = 400;
+	const int wl_max = 700;
+	const int delta_wl = 10;
+	const int delta_angle = 1;
+
 private:
 	std::vector<float> m_incidentAngles;
 	std::vector<float> m_wavelengths;
 	std::vector<float> m_reflectances;
 	std::vector<float> m_transmittance;
 
-	std::vector<float> ior_vec;
+	std::vector<complex_f> ior_vec;
 	std::vector<float> thickness_vec;
-	const int wl_min = 400;
-	const int wl_max = 700;
-	const int delta_wl = 10;
-	const int delta_angle = 1;
 
-	float angle_sin(float t) { return sin(a2r(t)); }
-	float angle_cos(float t) { return cos(a2r(t)); }
-	float angle_tan(float t) { return tan(a2r(t)); }
-	float angle_asin(float n) { return r2a(asin(n)); }
-	float angle_acos(float n) { return r2a(acos(n)); }
-	float a2r(float a) { return a*PI/180; } // angle to rad
-	float r2a(float r) { return r*180/PI; } // rad to angle
-	float PI=acos(-1); //3.14159265;
+	std::map<int, std::map<int,complex_f>> ior_file;
 
 	bool _debug = false;
 	std::stringstream ss_log;
