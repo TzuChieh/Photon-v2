@@ -3,6 +3,7 @@
 #include "FileIO/SDL/InputPacket.h"
 #include "FileIO/SDL/InputPrototype.h"
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
+#include "Core/SurfaceBehavior/Property/IsoBeckmann.h"
 #include "Core/SurfaceBehavior/Property/AnisoTrowbridgeReitz.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
@@ -64,11 +65,13 @@ void AbradedOpaque::ciRegister(CommandRegister& cmdRegister)
 
 std::function<std::unique_ptr<SurfaceOptics>()> AbradedOpaque::loadITR(const InputPacket& packet)
 {
-	Vector3R albedo    = Vector3R(0.5f, 0.5f, 0.5f);
-	real     roughness = 0.5f;
+	Vector3R albedo      = Vector3R(0.5f, 0.5f, 0.5f);
+	real     roughness   = 0.5f;
+	bool     useBeckmann = false;
 
-	albedo    = packet.getVector3("albedo", albedo);
-	roughness = packet.getReal("roughness", roughness);
+	albedo      = packet.getVector3("albedo", albedo);
+	roughness   = packet.getReal("roughness", roughness);
+	useBeckmann = packet.getString("use-beckmann", "false") == "true" ? true : false;
 
 	//const real alpha = RoughnessToAlphaMapping::pbrtV3(roughness);
 	const real alpha = RoughnessToAlphaMapping::squared(roughness);
@@ -79,9 +82,19 @@ std::function<std::unique_ptr<SurfaceOptics>()> AbradedOpaque::loadITR(const Inp
 
 	return [=]()
 	{
+		std::unique_ptr<Microfacet> microfacet;
+		if(!useBeckmann)
+		{
+			microfacet = std::make_unique<IsoTrowbridgeReitz>(alpha);
+		}
+		else
+		{
+			microfacet = std::make_unique<IsoBeckmann>(alpha);
+		}
+
 		auto optics = std::make_unique<OpaqueMicrofacet>(
 			fresnelEffect, 
-			std::make_shared<IsoTrowbridgeReitz>(alpha));
+			std::move(microfacet));
 		//optics->setAlbedo(std::make_shared<TConstantTexture<SpectralStrength>>(albedoSpectrum));
 		return optics;
 	};
