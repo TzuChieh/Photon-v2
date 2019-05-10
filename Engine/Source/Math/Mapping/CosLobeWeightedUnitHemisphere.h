@@ -15,8 +15,8 @@ class CosLobeWeightedUnitHemisphere
 public:
 	explicit CosLobeWeightedUnitHemisphere(real exponent);
 
-	Vector3R map(const Vector2R& seed);
-	Vector3R map(const Vector2R& seed, real* out_pdf);
+	Vector3R map(const Vector2R& seed) const;
+	Vector3R map(const Vector2R& seed, real* out_pdf) const;
 
 private:
 	real m_exponent;
@@ -28,7 +28,7 @@ inline CosLobeWeightedUnitHemisphere::CosLobeWeightedUnitHemisphere(const real e
 	m_exponent(exponent)
 {}
 
-inline Vector3R CosLobeWeightedUnitHemisphere::map(const Vector2R& seed)
+inline Vector3R CosLobeWeightedUnitHemisphere::map(const Vector2R& seed) const
 {
 	PH_ASSERT_LE(0.0_r, seed.x); PH_ASSERT_LE(seed.x, 1.0_r);
 	PH_ASSERT_LE(0.0_r, seed.y); PH_ASSERT_LE(seed.y, 1.0_r);
@@ -42,7 +42,7 @@ inline Vector3R CosLobeWeightedUnitHemisphere::map(const Vector2R& seed)
 	                std::cos(phi) * sinTheta);
 }
 
-inline Vector3R CosLobeWeightedUnitHemisphere::map(const Vector2R& seed, real* const out_pdf)
+inline Vector3R CosLobeWeightedUnitHemisphere::map(const Vector2R& seed, real* const out_pdf) const
 {
 	const Vector3R& mapped = map(seed);
 	PH_ASSERT_GE(mapped.y, 0.0_r);
