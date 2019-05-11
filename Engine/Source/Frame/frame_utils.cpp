@@ -1,10 +1,13 @@
-#include "Frame/FrameUtils.h"
+#include "Frame/frame_utils.h"
 #include "Common/assertion.h"
 
 namespace ph
 {
 
-void FrameUtils::toLdr(const HdrRgbFrame& srcFrame, LdrRgbFrame* const out_dstFrame)
+namespace frame_utils
+{
+
+void to_LDR(const HdrRgbFrame& srcFrame, LdrRgbFrame* const out_dstFrame)
 {
 	PH_ASSERT(out_dstFrame);
 
@@ -18,7 +21,7 @@ void FrameUtils::toLdr(const HdrRgbFrame& srcFrame, LdrRgbFrame* const out_dstFr
 		});
 }
 
-void FrameUtils::toHdr(const LdrRgbFrame& srcFrame, HdrRgbFrame* const out_dstFrame)
+void to_HDR(const LdrRgbFrame& srcFrame, HdrRgbFrame* const out_dstFrame)
 {
 	PH_ASSERT(out_dstFrame);
 
@@ -33,5 +36,7 @@ void FrameUtils::toHdr(const LdrRgbFrame& srcFrame, HdrRgbFrame* const out_dstFr
 				HdrRgbFrame::Pixel(ldrPixel).div(255.0_r));
 		});
 }
+
+}// end namespace frame_utils
 
 }// end namespace ph

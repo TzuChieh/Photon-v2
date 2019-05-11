@@ -2,7 +2,7 @@
 #include "Frame/TFrame.h"
 #include "Common/assertion.h"
 #include "Common/Logger.h"
-#include "Frame/FrameUtils.h"
+#include "Frame/frame_utils.h"
 #include "FileIO/ExrFileWriter.h"
 
 #include "Common/ThirdParty/lib_stb.h"
@@ -53,7 +53,7 @@ bool PictureSaver::save(const LdrRgbFrame& frame, const Path& filePath)
 		ext == ".exr" || ext == ".EXR")
 	{
 		HdrRgbFrame HdrFrame;
-		FrameUtils::toHdr(frame, &HdrFrame);
+		frame_utils::to_HDR(frame, &HdrFrame);
 
 		return save(HdrFrame, filePath);
 	}
@@ -84,7 +84,7 @@ bool PictureSaver::save(const HdrRgbFrame& frame, const Path& filePath)
 		ext == ".tga" || ext == ".TGA")
 	{
 		LdrRgbFrame ldrFrame;
-		FrameUtils::toLdr(frame, &ldrFrame);
+		frame_utils::to_LDR(frame, &ldrFrame);
 
 		return save(ldrFrame, filePath);
 	}
