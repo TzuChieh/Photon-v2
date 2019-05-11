@@ -43,6 +43,31 @@ void to_HDR(const LdrRgbFrame& srcFrame, HdrRgbFrame* const out_dstFrame)
 		});
 }
 
+void abs_diff(const HdrRgbFrame& frameA, const HdrRgbFrame& frameB, HdrRgbFrame* const out_result)
+{
+	PH_ASSERT(out_result);
+
+	if(!frameA.getSizePx().equals(frameB.getSizePx()))
+	{
+		logger.log(ELogLevel::WARNING_MED, 
+			"Dimension mismatch in abs_diff(3); "
+			"sizes are: " + frameA.getSizePx().toString() + ", " +
+			                frameB.getSizePx().toString());
+		return;
+	}
+
+	out_result->setSize(frameA.getSizePx());
+
+	frameA.forEachPixel(
+		[&frameB, out_result]
+		(const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& pixelA)
+		{
+			const auto pixelB = frameB.getPixel({x, y});
+
+			out_result->setPixel({x, y}, pixelA.sub(pixelB).abs());
+		});
+}
+
 real calc_MSE(const HdrRgbFrame& expected, const HdrRgbFrame& estimated)
 {
 	PH_ASSERT_GT(expected.getSizePx().product(),  0);
@@ -72,8 +97,8 @@ real calc_MSE(const HdrRgbFrame& expected, const HdrRgbFrame& estimated)
 		});
 	MSE /= static_cast<double>(expected.getSizePx().product() * 3);
 
-	PH_ASSERT_GE(MSE, 0.0_r);
-	return MSE;
+	PH_ASSERT_GE(MSE, 0.0);
+	return static_cast<real>(MSE);
 }
 
 }// end namespace frame_utils

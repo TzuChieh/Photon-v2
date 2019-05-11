@@ -16,6 +16,9 @@ void to_LDR(const HdrRgbFrame& srcFrame, LdrRgbFrame* out_dstFrame);
 // Converts LDR frame to HDR frame. Values will be in [0, 1].
 void to_HDR(const LdrRgbFrame& srcFrame, HdrRgbFrame* out_dstFrame);
 
+// Computes per-pixel absolute difference between frameA and frameB.
+void abs_diff(const HdrRgbFrame& frameA, const HdrRgbFrame& frameB, HdrRgbFrame* out_result);
+
 // Calculates Mean Squared Error (MSE) of an estimated frame.
 real calc_MSE(const HdrRgbFrame& expected, const HdrRgbFrame& estimated);
 
