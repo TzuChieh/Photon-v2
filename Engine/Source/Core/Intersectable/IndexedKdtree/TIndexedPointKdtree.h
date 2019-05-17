@@ -12,9 +12,12 @@
 #include <algorithm>
 #include <array>
 #include <memory>
+#include <type_traits>
 
 namespace ph
 {
+
+// TODO: static_assert for signature of PointCalculator
 
 template<typename Item, typename Index, typename PointCalculator>
 class TIndexedPointKdtree
@@ -30,6 +33,12 @@ public:
 		const Vector3R&    location,
 		real               searchRadius,
 		std::vector<Item>& results) const;
+
+	template<typename ItemHandler>
+	void nearestNeighborTraversal(
+		const Vector3R& location,
+		real            searchRadius,
+		ItemHandler     itemHandler) const;
 
 	std::size_t numItems() const;
 
@@ -126,6 +135,35 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 
 	const real searchRadius2 = searchRadius * searchRadius;
 
+	nearestNeighborTraversal(
+		location, 
+		searchRadius, 
+		[this, location, searchRadius2, &results](const Item& item)
+		{
+			const Vector3R itemPoint = m_pointCalculator(item);
+			const real     dist2     = (itemPoint - location).lengthSquared();
+			if(dist2 <= searchRadius2)
+			{
+				results.push_back(item);
+			}
+		});
+}
+
+template<typename Item, typename Index, typename PointCalculator>
+template<typename ItemHandler>
+inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
+	nearestNeighborTraversal(
+		const Vector3R& location,
+		const real      searchRadius,
+		ItemHandler     itemHandler) const
+{
+	static_assert(std::is_invocable_v<ItemHandler, Item>,
+		"ItemHandler must accept an item as input.");
+
+	PH_ASSERT(m_numNodes > 0);
+
+	const real searchRadius2 = searchRadius * searchRadius;
+
 	constexpr std::size_t MAX_STACK_HEIGHT = 64;
 	std::array<const Node*, MAX_STACK_HEIGHT> nodeStack;
 
@@ -167,14 +205,10 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 			const std::size_t indexBufferOffset = currentNode->indexBufferOffset();
 			for(std::size_t i = 0; i < numItems; ++i)
 			{
-				const Index     itemIndex = m_indexBuffer[indexBufferOffset + i];
-				const Item&     item      = m_items[itemIndex];
-				const Vector3R& itemPoint = m_pointCalculator(item);
-				const real      dist2     = (itemPoint - location).lengthSquared();
-				if(dist2 <= searchRadius2)
-				{
-					results.push_back(item);
-				}
+				const Index itemIndex = m_indexBuffer[indexBufferOffset + i];
+				const Item& item      = m_items[itemIndex];
+
+				itemHandler(item);
 			}
 
 			if(stackHeight > 0)
