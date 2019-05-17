@@ -205,6 +205,12 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 						results.end() - maxItems, 
 						results.end(), 
 						isACloserThanB);
+
+					// the furthest one is at the max heap's root
+					const Item& furthestItem = results[results.size() - maxItems];
+
+					// search radius can be shrunk in this case
+					searchRadius2 = (m_pointCalculator(furthestItem) - location).lengthSquared();
 				}
 			}
 			// last <maxItems> items in output buffer forms a max heap now
@@ -230,7 +236,7 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 						isACloserThanB);
 
 					// search radius can be shrunk in this case
-					searchRadius2 = (m_pointCalculator(item) - location).lengthSquared();
+					searchRadius2 = (m_pointCalculator(furthestItem) - location).lengthSquared();
 				}
 			}
 
