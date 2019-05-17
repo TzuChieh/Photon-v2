@@ -41,9 +41,15 @@ public:
 		std::vector<Item>& results) const;
 
 	template<typename ItemHandler>
-	void nearestNeighborTraversal(
+	void rangeTraversal(
 		const Vector3R& location,
 		real            squaredSearchRadius,
+		ItemHandler     itemHandler) const;
+
+	template<typename ItemHandler>
+	void nearestTraversal(
+		const Vector3R& location,
+		real            initialSquaredSearchRadius,
 		ItemHandler     itemHandler) const;
 
 	std::size_t numItems() const;
@@ -141,7 +147,7 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 
 	const real searchRadius2 = searchRadius * searchRadius;
 
-	nearestNeighborTraversal(
+	rangeTraversal(
 		location, 
 		searchRadius2,
 		[this, location, searchRadius2, &results](const Item& item)
@@ -165,23 +171,19 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 	PH_ASSERT_GT(m_numNodes, 0);
 	PH_ASSERT_GT(maxItems, 0);
 
-	const real searchRadius2 = std::numeric_limits<real>::max();
+	// OPT: distance calculation can be cached
 
-	const auto isACloserThanB = 
-		[this, location, searchRadius2](const Item& itemA, const Item& itemB) -> bool
+	auto isACloserThanB = 
+		[this, location](const Item& itemA, const Item& itemB) -> bool
 		{
-			const Vector3R pointA = m_pointCalculator(itemA);
-			const Vector3R pointB = m_pointCalculator(itemB);
-			const real     distA2 = (pointA - location).lengthSquared();
-			const real     distB2 = (pointB - location).lengthSquared();
-			return distA2 < distB2;
+			return (m_pointCalculator(itemA) - location).lengthSquared() < 
+			       (m_pointCalculator(itemB) - location).lengthSquared();
 		};
 
+	real        searchRadius2 = std::numeric_limits<real>::max();
 	std::size_t numFoundItems = 0;
-	nearestNeighborTraversal(
-		location, 
-		searchRadius2,
-		[maxItems, &numFoundItems, &isACloserThanB, &results](const Item& item)
+	auto handler = 
+		[this, location, maxItems, &searchRadius2, &numFoundItems, &isACloserThanB, &results](const Item& item)
 		{
 			/*
 				If k nearest neighbors are required and n items are processed
@@ -226,15 +228,25 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 						results.end() - maxItems,
 						results.end(),
 						isACloserThanB);
+
+					// search radius can be shrunk in this case
+					searchRadius2 = (m_pointCalculator(item) - location).lengthSquared();
 				}
 			}
-		});
+
+			return searchRadius2;
+		};
+
+	nearestTraversal(
+		location, 
+		searchRadius2,
+		handler);
 }
 
 template<typename Item, typename Index, typename PointCalculator>
 template<typename ItemHandler>
 inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
-	nearestNeighborTraversal(
+	rangeTraversal(
 		const Vector3R& location,
 		const real      squaredSearchRadius,
 		ItemHandler     itemHandler) const
@@ -290,6 +302,102 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 				const Item& item      = m_items[itemIndex];
 
 				itemHandler(item);
+			}
+
+			if(stackHeight > 0)
+			{
+				currentNode = nodeStack[--stackHeight];
+			}
+			else
+			{
+				break;
+			}
+		}
+	}// end while stackHeight > 0
+}
+
+template<typename Item, typename Index, typename PointCalculator>
+template<typename ItemHandler>
+inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
+	nearestTraversal(
+		const Vector3R& location,
+		const real      initialSquaredSearchRadius,
+		ItemHandler     itemHandler) const
+{
+	static_assert(std::is_invocable_v<ItemHandler, Item>,
+		"ItemHandler must accept an item as input.");
+
+	using Return = decltype(itemHandler(std::declval<Item>()));
+	static_assert(std::is_same_v<Return, real>,
+		"ItemHandler must return an potentially shrunk squared search radius.");
+
+	PH_ASSERT_GT(m_numNodes, 0);
+	PH_ASSERT_LE(initialSquaredSearchRadius, std::numeric_limits<real>::max());
+
+	struct NodeRecord
+	{
+		const Node* node;
+
+		// The value is zero for near nodes as they should not be skipped by distance test.
+		real        parentSplitPlaneDiff2;
+	};
+
+	constexpr std::size_t MAX_STACK_HEIGHT = 64;
+	std::array<NodeRecord, MAX_STACK_HEIGHT> nodeStack;
+
+	NodeRecord  currentNode    = {&(m_nodeBuffer[0]), 0};
+	std::size_t stackHeight    = 0;
+	real        currentRadius2 = initialSquaredSearchRadius;
+	while(true)
+	{
+		PH_ASSERT(currentNode.node);
+		if(!currentNode.node->isLeaf())
+		{
+			const int  splitAxis      = currentNode.node->splitAxisIndex();
+			const real splitPos       = currentNode.node->splitPos();
+			const real splitPlaneDiff = location[splitAxis] - splitPos;
+
+			const Node* nearNode;
+			const Node* farNode;
+			if(splitPlaneDiff < 0)
+			{
+				nearNode = currentNode.node + 1;
+				farNode  = &(m_nodeBuffer[currentNode.node->positiveChildIndex()]);
+			}
+			else
+			{
+				nearNode = &(m_nodeBuffer[currentNode.node->positiveChildIndex()]);
+				farNode  = currentNode.node + 1;
+			}
+
+			const real splitPlaneDiff2 = splitPlaneDiff * splitPlaneDiff;
+
+			currentNode = {nearNode, 0};
+			if(currentRadius2 >= splitPlaneDiff2)
+			{
+				PH_ASSERT(stackHeight < MAX_STACK_HEIGHT);
+				nodeStack[stackHeight++] = {farNode, splitPlaneDiff2};
+			}
+		}
+		// current node is leaf
+		else
+		{
+			// For far nodes, they can be culled if radius has shrunk.
+			// For near nodes, they have <parentSplitPlaneDiff2> == 0 hence cannot be skipped.
+			if(currentRadius2 >= currentNode.parentSplitPlaneDiff2)
+			{
+				const std::size_t numItems          = currentNode.node->numItems();
+				const std::size_t indexBufferOffset = currentNode.node->indexBufferOffset();
+				for(std::size_t i = 0; i < numItems; ++i)
+				{
+					const Index itemIndex = m_indexBuffer[indexBufferOffset + i];
+					const Item& item      = m_items[itemIndex];
+
+					// potentially reduce search radius
+					const real shrunkRadius2 = itemHandler(item);
+					PH_ASSERT_LE(shrunkRadius2, currentRadius2);
+					currentRadius2 = shrunkRadius2;
+				}
 			}
 
 			if(stackHeight > 0)
