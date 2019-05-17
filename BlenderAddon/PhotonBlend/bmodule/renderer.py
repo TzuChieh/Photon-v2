@@ -48,7 +48,8 @@ class PhRenderingPanel(PhRenderPanel):
 			("PPM",       "Progressive Photon Mapping",            "good at complex lighting condition"),
 			("SPPM",      "Stochastic Progressive Photon Mapping", "good at complex lighting condition"),
 			("BVPTDL",    "Pure Path Tracing (Direct Lighting)",   ""),
-			("ATTRIBUTE", "Attribute",                             "")
+			("ATTRIBUTE", "Attribute",                             ""),
+			("CUSTOM",    "Custom",                                "directly input SDL commands for renderer.")
 		],
 		name        = "Rendering Method",
 		description = "Photon-v2's rendering methods",
@@ -117,6 +118,12 @@ class PhRenderingPanel(PhRenderPanel):
 		min         = 1
 	)
 
+	bpy.types.Scene.ph_render_custom_sdl = bpy.props.StringProperty(
+		name        = "SDL Command",
+		description = "",
+		default     = ""
+	)
+
 	def draw(self, context):
 
 		scene  = context.scene
@@ -133,13 +140,16 @@ class PhRenderingPanel(PhRenderPanel):
 			layout.prop(scene, "ph_render_num_spp_pm")
 			layout.prop(scene, "ph_render_num_passes")
 			layout.prop(scene, "ph_render_kernel_radius")
+		elif render_method == "CUSTOM":
+			layout.prop(scene, "ph_render_custom_sdl")
 		else:
 			pass
 
-		layout.prop(scene, "ph_use_crop_window")
+		if render_method != "CUSTOM":
+			layout.prop(scene, "ph_use_crop_window")
 
 		use_crop_window = scene.ph_use_crop_window
-		if use_crop_window:
+		if use_crop_window and render_method != "CUSTOM":
 			layout.prop(scene, "ph_crop_min_x")
 			layout.prop(scene, "ph_crop_min_y")
 			layout.prop(scene, "ph_crop_width")

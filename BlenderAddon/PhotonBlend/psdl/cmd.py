@@ -106,5 +106,8 @@ class RawCommand(cmd_base.SdlCommand):
 	def to_sdl(self, sdlconsole):
 		return self.__command_string
 
+	def generate(self):
+		return self.__command_string
+
 
 # TODO: core commands

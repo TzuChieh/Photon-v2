@@ -546,6 +546,13 @@ class Exporter:
 
 			renderer = AttributeRendererCreator()
 
+		elif render_method == "CUSTOM":
+
+			custom_renderer_sdl_command = RawCommand()
+			custom_renderer_sdl_command.append_string(b_scene.ph_render_custom_sdl)
+			custom_renderer_sdl_command.append_string("\n")
+			self.get_sdlconsole().queue_command(custom_renderer_sdl_command)
+
 		else:
 			print("warning: render method %s is not supported" % render_method)
 
@@ -560,7 +567,7 @@ class Exporter:
 				renderer.set_rect_w(SDLInteger(b_scene.ph_crop_width))
 				renderer.set_rect_h(SDLInteger(b_scene.ph_crop_height))
 
-		self.get_sdlconsole().queue_command(renderer)
+			self.get_sdlconsole().queue_command(renderer)
 
 	# TODO: write/flush commands to disk once a while (reducing memory usage)
 	def export_world_commands(self, b_context):
