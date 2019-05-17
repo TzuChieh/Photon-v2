@@ -16,13 +16,13 @@
 namespace ph
 {
 
-template<typename Item, typename Index, typename CenterCalculator>
-class TCenterKdtree
+template<typename Item, typename Index, typename PointCalculator>
+class TIndexedPointKdtree
 {
 public:
 	using Node = TIndexedKdtreeNode<Index, false>;
 
-	TCenterKdtree(std::size_t maxNodeItems, const CenterCalculator& centerCalculator);
+	TIndexedPointKdtree(std::size_t maxNodeItems, const PointCalculator& pointCalculator);
 
 	void build(std::vector<Item> items);
 
@@ -30,12 +30,6 @@ public:
 		const Vector3R&    location,
 		real               searchRadius,
 		std::vector<Item>& results) const;
-
-	template<typename NNResult>
-	void findNearestNeighbors(
-		const Vector3R&    location, 
-		real               maxSearchRadius, 
-		NNResult&          results) const;
 
 	std::size_t numItems() const;
 
@@ -46,41 +40,41 @@ private:
 	std::size_t        m_numNodes;
 	std::size_t        m_maxNodeItems;
 	std::vector<Index> m_indexBuffer;
-	CenterCalculator   m_centerCalculator;
+	PointCalculator    m_pointCalculator;
 
 	void buildNodeRecursive(
 		std::size_t                  nodeIndex,
 		const AABB3D&                nodeAABB,
 		Index*                       nodeItemIndices,
 		std::size_t                  numNodeItems,
-		const std::vector<Vector3R>& itemCenters,
+		const std::vector<Vector3R>& itemPoints,
 		std::size_t                  currentNodeDepth);
 
-	AABB3D calcCentersAABB(
-		const Index*                 itemIndices, 
-		std::size_t                  numItems, 
-		const std::vector<Vector3R>& itemCenters) const;
+	static AABB3D calcPointsAABB(
+		const Index*                 pointIndices, 
+		std::size_t                  numPoints, 
+		const std::vector<Vector3R>& pointBuffer);
 };
 
 // In-header Implementations:
 
-template<typename Item, typename Index, typename CenterCalculator>
-inline TCenterKdtree<Item, Index, CenterCalculator>::
-TCenterKdtree(const std::size_t maxNodeItems, const CenterCalculator& centerCalculator) :
+template<typename Item, typename Index, typename PointCalculator>
+inline TIndexedPointKdtree<Item, Index, PointCalculator>::
+	TIndexedPointKdtree(const std::size_t maxNodeItems, const PointCalculator& pointCalculator) :
 
-	m_nodeBuffer      (),
-	m_items           (),
-	m_rootAABB        (),
-	m_numNodes        (0),
-	m_maxNodeItems    (maxNodeItems),
-	m_indexBuffer     (),
-	m_centerCalculator(centerCalculator)
+	m_nodeBuffer     (),
+	m_items          (),
+	m_rootAABB       (),
+	m_numNodes       (0),
+	m_maxNodeItems   (maxNodeItems),
+	m_indexBuffer    (),
+	m_pointCalculator(pointCalculator)
 {
 	PH_ASSERT(maxNodeItems > 0);
 }
 
-template<typename Item, typename Index, typename CenterCalculator>
-inline void TCenterKdtree<Item, Index, CenterCalculator>::
+template<typename Item, typename Index, typename PointCalculator>
+inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 	build(std::vector<Item> items)
 {
 	m_nodeBuffer.clear();
@@ -93,13 +87,13 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 		return;
 	}
 
-	std::vector<Vector3R> itemCenters(m_items.size());
+	std::vector<Vector3R> itemPoints(m_items.size());
 	for(std::size_t i = 0; i < m_items.size(); ++i)
 	{
 		const auto& item = m_items[i];
 
-		const Vector3R& center = m_centerCalculator(regular_access(item));
-		itemCenters[i] = center;
+		const Vector3R& center = m_pointCalculator(regular_access(item));
+		itemPoints[i] = center;
 	}
 
 	std::unique_ptr<Index[]> itemIndices(new Index[m_items.size()]);
@@ -110,19 +104,19 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 		itemIndices[i] = static_cast<Index>(i);
 	}
 
-	m_rootAABB = calcCentersAABB(itemIndices.get(), m_items.size(), itemCenters);
+	m_rootAABB = calcPointsAABB(itemIndices.get(), m_items.size(), itemPoints);
 
 	buildNodeRecursive(
 		0,
 		m_rootAABB,
 		itemIndices.get(),
 		m_items.size(),
-		itemCenters,
+		itemPoints,
 		0);
 }
 
-template<typename Item, typename Index, typename CenterCalculator>
-inline void TCenterKdtree<Item, Index, CenterCalculator>::
+template<typename Item, typename Index, typename PointCalculator>
+inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 	findWithinRange(
 		const Vector3R&    location,
 		const real         searchRadius,
@@ -173,10 +167,10 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 			const std::size_t indexBufferOffset = currentNode->indexBufferOffset();
 			for(std::size_t i = 0; i < numItems; ++i)
 			{
-				const Index     itemIndex  = m_indexBuffer[indexBufferOffset + i];
-				const Item&     item       = m_items[itemIndex];
-				const Vector3R& itemCenter = m_centerCalculator(item);
-				const real      dist2      = (itemCenter - location).lengthSquared();
+				const Index     itemIndex = m_indexBuffer[indexBufferOffset + i];
+				const Item&     item      = m_items[itemIndex];
+				const Vector3R& itemPoint = m_pointCalculator(item);
+				const real      dist2     = (itemPoint - location).lengthSquared();
 				if(dist2 <= searchRadius2)
 				{
 					results.push_back(item);
@@ -195,28 +189,14 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 	}// end while stackHeight > 0
 }
 
-template<typename Item, typename Index, typename CenterCalculator>
-template<typename NNResult>
-inline void TCenterKdtree<Item, Index, CenterCalculator>::
-	findNearestNeighbors(
-		const Vector3R& location,
-		const real      maxSearchRadius,
-		NNResult&       results) const
-{
-	//PH_ASSERT(k > 0);
-
-	// TODO
-	PH_ASSERT_UNREACHABLE_SECTION();
-}
-
-template<typename Item, typename Index, typename CenterCalculator>
-inline void TCenterKdtree<Item, Index, CenterCalculator>::
+template<typename Item, typename Index, typename PointCalculator>
+inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 	buildNodeRecursive(
 		const std::size_t            nodeIndex,
 		const AABB3D&                nodeAABB,
 		Index* const                 nodeItemIndices,
 		const std::size_t            numNodeItems,
-		const std::vector<Vector3R>& itemCenters,
+		const std::vector<Vector3R>& itemPoints,
 		const std::size_t            currentNodeDepth)
 {
 	++m_numNodes;
@@ -242,14 +222,14 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 		nodeItemIndices + numNodeItems, 
 		[&](const Index& a, const Index& b) -> bool
 		{
-			return itemCenters[a][splitAxis] < itemCenters[b][splitAxis];
+			return itemPoints[a][splitAxis] < itemPoints[b][splitAxis];
 		});
 
 	const std::size_t numNegativeItems = midIndicesIndex;
 	const std::size_t numPositiveItems = numNodeItems - midIndicesIndex;
 	PH_ASSERT(numNegativeItems + numPositiveItems >= 2);
 
-	const real splitPos = itemCenters[nodeItemIndices[midIndicesIndex]][splitAxis];
+	const real splitPos = itemPoints[nodeItemIndices[midIndicesIndex]][splitAxis];
 
 	Vector3R splitPosMinVertex = nodeAABB.getMinVertex();
 	Vector3R splitPosMaxVertex = nodeAABB.getMaxVertex();
@@ -263,7 +243,7 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 		negativeNodeAABB, 
 		nodeItemIndices,
 		numNegativeItems,
-		itemCenters,
+		itemPoints,
 		currentNodeDepth + 1);
 
 	const std::size_t positiveChildIndex = m_numNodes;
@@ -274,32 +254,32 @@ inline void TCenterKdtree<Item, Index, CenterCalculator>::
 		positiveNodeAABB,
 		nodeItemIndices + midIndicesIndex,
 		numPositiveItems,
-		itemCenters,
+		itemPoints,
 		currentNodeDepth + 1);
 }
 
-template<typename Item, typename Index, typename CenterCalculator>
-inline AABB3D TCenterKdtree<Item, Index, CenterCalculator>::
-	calcCentersAABB(
-		const Index* const           itemIndices,
-		const std::size_t            numItems,
-		const std::vector<Vector3R>& itemCenters) const
-{
-	PH_ASSERT(itemIndices && numItems > 0);
-
-	AABB3D centersAABB(itemCenters[itemIndices[0]]);
-	for(std::size_t i = 1; i < numItems; ++i)
-	{
-		centersAABB.unionWith(itemCenters[itemIndices[i]]);
-	}
-	return centersAABB;
-}
-
-template<typename Item, typename Index, typename CenterCalculator>
-inline std::size_t TCenterKdtree<Item, Index, CenterCalculator>::
+template<typename Item, typename Index, typename PointCalculator>
+inline std::size_t TIndexedPointKdtree<Item, Index, PointCalculator>::
 	numItems() const
 {
 	return m_items.size();
+}
+
+template<typename Item, typename Index, typename PointCalculator>
+inline AABB3D TIndexedPointKdtree<Item, Index, PointCalculator>::
+	calcPointsAABB(
+		const Index*                 pointIndices,
+		const std::size_t            numPoints,
+		const std::vector<Vector3R>& pointBuffer)
+{
+	PH_ASSERT(pointIndices && numPoints > 0);
+
+	AABB3D pointsAABB(pointBuffer[pointIndices[0]]);
+	for(std::size_t i = 1; i < numPoints; ++i)
+	{
+		pointsAABB.unionWith(pointBuffer[pointIndices[i]]);
+	}
+	return pointsAABB;
 }
 
 }// end namespace ph

@@ -1,4 +1,4 @@
-#include <Core/Intersectable/IndexedKdtree/TCenterKdtree.h>
+#include <Core/Intersectable/IndexedKdtree/TIndexedPointKdtree.h>
 #include <Math/TVector3.h>
 
 #include <gtest/gtest.h>
@@ -6,12 +6,12 @@
 #include <vector>
 #include <algorithm>
 
-TEST(CenterKdtreeTest, RangeSearchPointsOnAxis)
+TEST(TIndexedPointKdtree, RangeSearchPointsOnAxis)
 {
 	using namespace ph;
 
 	// treat input points as on y-axis
-	auto pointToCenter = [](const float& point)
+	auto pointTo3D = [](const float& point)
 	{
 		return Vector3R(0, static_cast<real>(point), 0);
 	};
@@ -21,7 +21,7 @@ TEST(CenterKdtreeTest, RangeSearchPointsOnAxis)
 		6, 1, 3, 9, 5, 2, 7, 6, 6, 6
 	};
 	
-	auto tree = TCenterKdtree<float, int, decltype(pointToCenter)>(1, pointToCenter);
+	auto tree = TIndexedPointKdtree<float, int, decltype(pointTo3D)>(1, pointTo3D);
 	tree.build(std::move(points));
 
 	std::vector<float> results;
@@ -54,7 +54,7 @@ TEST(CenterKdtreeTest, RangeSearchCubeVertices)
 	using namespace ph;
 
 	// Item is already a point, just return itself as center
-	auto trivialCenterCalculator = [](const Vector3R& point)
+	auto trivialPointCalculator = [](const Vector3R& point)
 	{
 		return point;
 	};
@@ -71,7 +71,7 @@ TEST(CenterKdtreeTest, RangeSearchCubeVertices)
 		{1, 1, 1},
 	};
 	
-	auto tree = TCenterKdtree<Vector3R, int, decltype(trivialCenterCalculator)>(2, trivialCenterCalculator);
+	auto tree = TIndexedPointKdtree<Vector3R, int, decltype(trivialPointCalculator)>(2, trivialPointCalculator);
 	tree.build(std::move(points));
 
 	std::vector<Vector3R> results;
