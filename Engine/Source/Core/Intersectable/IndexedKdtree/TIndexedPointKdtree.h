@@ -13,6 +13,7 @@
 #include <array>
 #include <memory>
 #include <type_traits>
+#include <limits>
 
 namespace ph
 {
@@ -34,10 +35,15 @@ public:
 		real               searchRadius,
 		std::vector<Item>& results) const;
 
+	void findNearest(
+		const Vector3R&    location,
+		std::size_t        maxItems,
+		std::vector<Item>& results) const;
+
 	template<typename ItemHandler>
 	void nearestNeighborTraversal(
 		const Vector3R& location,
-		real            searchRadius,
+		real            squaredSearchRadius,
 		ItemHandler     itemHandler) const;
 
 	std::size_t numItems() const;
@@ -79,7 +85,7 @@ inline TIndexedPointKdtree<Item, Index, PointCalculator>::
 	m_indexBuffer    (),
 	m_pointCalculator(pointCalculator)
 {
-	PH_ASSERT(maxNodeItems > 0);
+	PH_ASSERT_GT(maxNodeItems, 0);
 }
 
 template<typename Item, typename Index, typename PointCalculator>
@@ -131,20 +137,96 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 		const real         searchRadius,
 		std::vector<Item>& results) const
 {
-	PH_ASSERT(m_numNodes > 0);
+	PH_ASSERT_GT(m_numNodes, 0);
 
 	const real searchRadius2 = searchRadius * searchRadius;
 
 	nearestNeighborTraversal(
 		location, 
-		searchRadius, 
+		searchRadius2,
 		[this, location, searchRadius2, &results](const Item& item)
 		{
 			const Vector3R itemPoint = m_pointCalculator(item);
 			const real     dist2     = (itemPoint - location).lengthSquared();
-			if(dist2 <= searchRadius2)
+			if(dist2 < searchRadius2)
 			{
 				results.push_back(item);
+			}
+		});
+}
+
+template<typename Item, typename Index, typename PointCalculator>
+inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
+	findNearest(
+		const Vector3R&    location,
+		const std::size_t  maxItems,
+		std::vector<Item>& results) const
+{
+	PH_ASSERT_GT(m_numNodes, 0);
+	PH_ASSERT_GT(maxItems, 0);
+
+	const real searchRadius2 = std::numeric_limits<real>::max();
+
+	const auto isACloserThanB = 
+		[this, location, searchRadius2](const Item& itemA, const Item& itemB) -> bool
+		{
+			const Vector3R pointA = m_pointCalculator(itemA);
+			const Vector3R pointB = m_pointCalculator(itemB);
+			const real     distA2 = (pointA - location).lengthSquared();
+			const real     distB2 = (pointB - location).lengthSquared();
+			return distA2 < distB2;
+		};
+
+	std::size_t numFoundItems = 0;
+	nearestNeighborTraversal(
+		location, 
+		searchRadius2,
+		[maxItems, &numFoundItems, &isACloserThanB, &results](const Item& item)
+		{
+			/*
+				If k nearest neighbors are required and n items are processed
+				by this handler, this handler (not including traversal) will
+				take O(k + (n-k)*log(k)) time in total.
+			*/
+
+			// output buffer is not full, just insert the item
+			if(numFoundItems < maxItems)
+			{
+				results.push_back(item);
+				numFoundItems++;
+
+				// once output buffer is full, make it a max heap
+				if(numFoundItems == maxItems)
+				{
+					// this takes O(k) time
+					std::make_heap(
+						results.end() - maxItems, 
+						results.end(), 
+						isACloserThanB);
+				}
+			}
+			// last <maxItems> items in output buffer forms a max heap now
+			else
+			{
+				// the furthest one is at the max heap's root
+				const Item& furthestItem = results[results.size() - maxItems];
+
+				if(isACloserThanB(item, furthestItem))
+				{
+					// remove furthest item, this takes O(log(k)) time
+					std::pop_heap(
+						results.end() - maxItems,
+						results.end(),
+						isACloserThanB);
+
+					results.back() = item;
+
+					// add new item, this takes O(log(k)) time
+					std::push_heap(
+						results.end() - maxItems,
+						results.end(),
+						isACloserThanB);
+				}
 			}
 		});
 }
@@ -154,15 +236,14 @@ template<typename ItemHandler>
 inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 	nearestNeighborTraversal(
 		const Vector3R& location,
-		const real      searchRadius,
+		const real      squaredSearchRadius,
 		ItemHandler     itemHandler) const
 {
 	static_assert(std::is_invocable_v<ItemHandler, Item>,
 		"ItemHandler must accept an item as input.");
 
-	PH_ASSERT(m_numNodes > 0);
-
-	const real searchRadius2 = searchRadius * searchRadius;
+	PH_ASSERT_GT(m_numNodes, 0);
+	PH_ASSERT_LE(squaredSearchRadius, std::numeric_limits<real>::max());
 
 	constexpr std::size_t MAX_STACK_HEIGHT = 64;
 	std::array<const Node*, MAX_STACK_HEIGHT> nodeStack;
@@ -192,7 +273,7 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 			}
 
 			currentNode = nearNode;
-			if(searchRadius2 >= splitPlaneDiff * splitPlaneDiff)
+			if(squaredSearchRadius >= splitPlaneDiff * splitPlaneDiff)
 			{
 				PH_ASSERT(stackHeight < MAX_STACK_HEIGHT);
 				nodeStack[stackHeight++] = farNode;
