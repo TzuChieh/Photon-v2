@@ -65,7 +65,7 @@ bool saveStandaloneRgbData(const Path& filePath, const HdrRgbFrame& frame)
 
 	const int dataWidth  = static_cast<int>(frame.widthPx());
 	const int dataHeight = static_cast<int>(frame.heightPx());
-
+	
 	Imf::Header header(dataWidth, dataHeight);
 	header.channels().insert("R", Imf::Channel(PIXEL_TYPE));
 	header.channels().insert("G", Imf::Channel(PIXEL_TYPE));

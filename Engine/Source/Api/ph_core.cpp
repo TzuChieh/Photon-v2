@@ -9,11 +9,13 @@
 #include "Core/Renderer/Renderer.h"
 #include "FileIO/FileSystem/Path.h"
 #include "Common/assertion.h"
+#include "FileIO/PictureLoader.h"
 #include "FileIO/PictureSaver.h"
 #include "Api/ApiHelper.h"
 #include "Core/Renderer/Region/Region.h"
 #include "Common/config.h"
 #include "Common/Logger.h"
+#include "Frame/frame_utils.h"
 
 #include <memory>
 #include <iostream>
@@ -88,13 +90,16 @@ void phSetNumRenderThreads(const PHuint64 engineId, const PHuint32 numRenderThre
 
 void phDeleteEngine(const PHuint64 engineId)
 {
-	if(ph::ApiDatabase::removeEngine(engineId))
+	using namespace ph;
+
+	if(ApiDatabase::removeEngine(engineId))
 	{
 		logger.log("engine<" + std::to_string(engineId) + "> deleted");
 	}
 	else
 	{
-		logger.log("error while deleting engine<" + std::to_string(engineId) + ">");
+		logger.log(ELogLevel::WARNING_MED, 
+			"error while deleting engine<" + std::to_string(engineId) + ">");
 	}
 }
 
@@ -273,13 +278,34 @@ void phGetFrameRgbData(const PHuint64 frameId, const PHfloat32** const out_data)
 
 void phDeleteFrame(const PHuint64 frameId)
 {
-	if(ph::ApiDatabase::removeFrame(frameId))
+	using namespace ph;
+
+	if(ApiDatabase::removeFrame(frameId))
 	{
 		logger.log("frame<" + std::to_string(frameId) + "> deleted");
 	}
 	else
 	{
-		logger.log("error while deleting frame<" + std::to_string(frameId) + ">");
+		logger.log(ELogLevel::WARNING_MED, 
+			"error while deleting frame<" + std::to_string(frameId) + ">");
+	}
+}
+
+int phLoadFrame(PHuint64 frameId, const PHchar* const filePath)
+{
+	PH_ASSERT(filePath);
+
+	using namespace ph;
+
+	HdrRgbFrame* frame = ApiDatabase::getFrame(frameId);
+	if(frame)
+	{
+		*frame = PictureLoader::load(Path(filePath));
+		return PH_TRUE;
+	}
+	else
+	{
+		return PH_FALSE;
 	}
 }
 
@@ -298,12 +324,48 @@ int phSaveFrame(const PHuint64 frameId, const PHchar* const filePath)
 		}
 		else
 		{
-			logger.log("frame<" + std::to_string(frameId) + "> saving failed");
+			logger.log(ELogLevel::WARNING_MED,
+				"frame<" + std::to_string(frameId) + "> saving failed");
+
 			return PH_FALSE;
 		}
 	}
 
 	return PH_FALSE;
+}
+
+void phFrameOpAbsDifference(const PHuint64 frameAId, const PHuint64 frameBId, const PHuint64 resultFrameId)
+{
+	using namespace ph;
+
+	HdrRgbFrame* frameA      = ApiDatabase::getFrame(frameAId);
+	HdrRgbFrame* frameB      = ApiDatabase::getFrame(frameBId);
+	HdrRgbFrame* resultFrame = ApiDatabase::getFrame(resultFrameId);
+	if(frameA && frameB && resultFrame)
+	{
+		frame_utils::abs_diff(*frameA, *frameB, resultFrame);
+	}
+}
+
+float phFrameOpMSE(const PHuint64 expectedFrameId, const PHuint64 estimatedFrameId)
+{
+	using namespace ph;
+
+	float MSE = 0.0f;
+
+	HdrRgbFrame* expectedFrame  = ApiDatabase::getFrame(expectedFrameId);
+	HdrRgbFrame* estimatedFrame = ApiDatabase::getFrame(estimatedFrameId);
+	if(expectedFrame && estimatedFrame)
+	{
+		MSE = static_cast<float>(frame_utils::calc_MSE(*expectedFrame, *estimatedFrame));
+	}
+	else
+	{
+		logger.log(ELogLevel::WARNING_MED, 
+			"phFrameOpMSE(2) returned 0 due to invalid frame");
+	}
+
+	return MSE;
 }
 
 void phAsyncGetRendererStatistics(const PHuint64 engineId,

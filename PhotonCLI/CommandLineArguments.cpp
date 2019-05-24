@@ -22,7 +22,9 @@ CommandLineArguments::CommandLineArguments(const std::vector<std::string>& argv)
 	m_isImageSeriesRequested  (false),
 	m_wildcardStart           (""),
 	m_wildcardFinish          (""),
-	m_outputPercentageProgress(std::numeric_limits<float>::max())
+	m_outputPercentageProgress(std::numeric_limits<float>::max()),
+
+	m_isFrameDiagRequested(false)
 {
 	std::string imageFileFormat;
 	for(std::size_t i = 1; i < argv.size(); i++)
@@ -119,6 +121,20 @@ CommandLineArguments::CommandLineArguments(const std::vector<std::string>& argv)
 			else
 			{
 				std::cerr << "warning: no wildcard string specified for --finish" << std::endl;
+			}
+		}
+		else if(argv[i] == "-fd")
+		{
+			i++;
+			if(i + 1 < argv.size())
+			{
+				m_framePathA = argv[i++];
+				m_framePathB = argv[i];
+				m_isFrameDiagRequested = true;
+			}
+			else
+			{
+				std::cerr << "warning: bad frame diag format" << std::endl;
 			}
 		}
 		else

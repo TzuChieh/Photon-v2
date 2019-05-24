@@ -157,11 +157,14 @@ extern PH_API void phAquireFrameRaw(PHuint64 engineId, PHuint64 channelIndex, PH
 // frame operations
 //
 
-extern PH_API void phCreateFrame(PHuint64* out_frameId, PHuint32 widthPx, PHuint32 heightPx);
-extern PH_API void phGetFrameDimension(PHuint64 frameId, PHuint32* out_widthPx, PHuint32* out_heightPx);
-extern PH_API void phGetFrameRgbData(PHuint64 frameId, const PHfloat32** out_data);
-extern PH_API void phDeleteFrame(PHuint64 frameId);
-extern PH_API int  phSaveFrame(PHuint64 frameId, const PHchar* filePath);
+extern PH_API void  phCreateFrame(PHuint64* out_frameId, PHuint32 widthPx, PHuint32 heightPx);
+extern PH_API void  phGetFrameDimension(PHuint64 frameId, PHuint32* out_widthPx, PHuint32* out_heightPx);
+extern PH_API void  phGetFrameRgbData(PHuint64 frameId, const PHfloat32** out_data);
+extern PH_API void  phDeleteFrame(PHuint64 frameId);
+extern PH_API int   phLoadFrame(PHuint64 frameId, const PHchar* filePath);
+extern PH_API int   phSaveFrame(PHuint64 frameId, const PHchar* filePath);
+extern PH_API void  phFrameOpAbsDifference(PHuint64 frameAId, PHuint64 frameBId, PHuint64 resultFrameId);
+extern PH_API float phFrameOpMSE(PHuint64 expectedFrameId, PHuint64 estimatedFramIde);
 
 ///////////////////////////////////////////////////////////////////////////////
 // asynchronous operations

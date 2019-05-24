@@ -49,8 +49,8 @@ bool PictureSaver::save(const LdrRgbFrame& frame, const Path& filePath)
 		return saveTga(frame, filePath);
 	}
 	else if(
-		ext == ".hdr" || ext == ".HDR" || 
-		ext == ".exr" || ext == ".EXR")
+		ext == ".exr" || ext == ".EXR" ||
+		ext == ".hdr" || ext == ".HDR")
 	{
 		HdrRgbFrame HdrFrame;
 		frame_utils::to_HDR(frame, &HdrFrame);
@@ -69,13 +69,13 @@ bool PictureSaver::save(const LdrRgbFrame& frame, const Path& filePath)
 bool PictureSaver::save(const HdrRgbFrame& frame, const Path& filePath)
 {
 	const std::string& ext = filePath.getExtension();
-	if(ext == ".hdr" || ext == ".HDR")
-	{
-		return saveHdr(frame, filePath);
-	}
-	else if(ext == ".exr" || ext == ".EXR")
+	if(ext == ".exr" || ext == ".EXR")
 	{
 		return saveExr(frame, filePath);
+	}
+	else if(ext == ".hdr" || ext == ".HDR")
+	{
+		return saveHdr(frame, filePath);
 	}
 	else if(
 		ext == ".png" || ext == ".PNG" ||

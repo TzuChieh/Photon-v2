@@ -9,6 +9,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <iomanip>
 
 // FIXME: add osx fs headers once it is supported
 #if defined(_WIN32)
@@ -49,6 +50,32 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
+	// begin engine operations
+
+	if(args.isFrameDiagRequested())
+	{
+		std::cout << "begin frame diag" << std::endl;
+
+		PHuint64 frameA, frameB, resultFrame;
+		phCreateFrame(&frameA, 0, 0);
+		phCreateFrame(&frameB, 0, 0);
+		phCreateFrame(&resultFrame, 0, 0);
+
+		phLoadFrame(frameA, args.getFramePathA().c_str());
+		phLoadFrame(frameB, args.getFramePathB().c_str());
+
+		phFrameOpAbsDifference(frameA, frameB, resultFrame);
+		phSaveFrame(resultFrame, "./frame_diag_abs_diff.exr");
+
+		const float MSE = phFrameOpMSE(frameA, frameB);
+		{
+			std::ostream transientCout(std::cout.rdbuf());
+			transientCout << std::setprecision(20) << "MSE = " << MSE << std::endl;
+		}
+
+		std::cout << "end frame diag" << std::endl;
+	}
+
 	if(!args.isImageSeriesRequested())
 	{
 		StaticImageRenderer renderer(args);
@@ -58,6 +85,8 @@ int main(int argc, char* argv[])
 	{
 		renderImageSeries(args);
 	}
+
+	// end engine operations
 
 	if(!phExit())
 	{

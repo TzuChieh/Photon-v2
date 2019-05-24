@@ -2,6 +2,8 @@
 #include "Core/Quantity/ColorSpace.h"
 #include "Common/assertion.h"
 #include "Math/math.h"
+#include "FileIO/ExrFileReader.h"
+#include "Frame/frame_utils.h"
 
 #include "Common/ThirdParty/lib_stb.h"
 
@@ -11,6 +13,30 @@ namespace ph
 {
 
 const Logger PictureLoader::logger(LogSender("Picture Loader"));
+
+HdrRgbFrame PictureLoader::load(const Path& picturePath)
+{
+	HdrRgbFrame frame;
+
+	const std::string& ext = picturePath.getExtension();
+	if(ext == ".png"  || ext == ".PNG"  ||
+	   ext == ".jpg"  || ext == ".JPG"  ||
+	   ext == ".jpeg" || ext == ".JPEG" ||
+	   ext == ".bmp"  || ext == ".BMP"  ||
+	   ext == ".tga"  || ext == ".TGA"  ||
+	   ext == ".ppm"  || ext == ".PPM"  ||
+	   ext == ".pgm"  || ext == ".PGM")
+	{
+		frame_utils::to_HDR(loadLdr(picturePath), &frame);
+	}
+	else if(ext == ".exr" || ext == ".EXR" ||
+	        ext == ".hdr" || ext == ".HDR")
+	{
+		frame = loadHdr(picturePath);
+	}
+
+	return frame;
+}
 
 LdrRgbFrame PictureLoader::loadLdr(const Path& picturePath)
 {
@@ -51,28 +77,37 @@ LdrRgbFrame PictureLoader::loadLdr(const Path& picturePath)
 HdrRgbFrame PictureLoader::loadHdr(const Path& picturePath)
 {
 	logger.log(ELogLevel::NOTE_MED, 
-	           "loading picture <" + picturePath.toString() + ">");
+		"loading picture <" + picturePath.toString() + ">");
 
 	HdrRgbFrame picture;
 
 	const std::string& ext = picturePath.getExtension();
-	if(ext == ".hdr" || ext == ".HDR")
+	if(ext == ".exr" || ext == ".EXR")
+	{
+		ExrFileReader exrFileReader(picturePath);
+		if(!exrFileReader.load(&picture))
+		{
+			logger.log(ELogLevel::WARNING_MED,
+				".exr file loading failed");
+		}
+	}
+	else if(ext == ".hdr" || ext == ".HDR")
 	{
 		picture = loadHdrViaStb(picturePath.toAbsoluteString());
 	}
 	else
 	{
 		logger.log(ELogLevel::WARNING_MED, 
-		           "cannot load <" + 
-		           picturePath.toString() + 
-		           "> since the format is unsupported");
+			"cannot load <" + 
+			picturePath.toString() + 
+			"> since the format is unsupported");
 		picture = HdrRgbFrame();
 	}
 
 	if(picture.isEmpty())
 	{
 		logger.log(ELogLevel::WARNING_MED,
-		           "picture <" + picturePath.toString() + "> is empty");
+			"picture <" + picturePath.toString() + "> is empty");
 	}
 	return picture;
 }

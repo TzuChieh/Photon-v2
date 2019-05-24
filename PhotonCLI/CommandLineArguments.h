@@ -25,6 +25,20 @@ public:
 	std::string wildcardFinish()              const;
 	float       getOutputPercentageProgress() const;
 
+	bool isFrameDiagRequested() const
+	{
+		return m_isFrameDiagRequested;
+	}
+
+	std::string getFramePathA() const
+	{
+		return m_framePathA;
+	}
+	std::string getFramePathB() const
+	{
+		return m_framePathB;
+	}
+
 private:
 	std::string m_sceneFilePath;
 	std::string m_imageFilePath;
@@ -36,6 +50,10 @@ private:
 	std::string m_wildcardStart;
 	std::string m_wildcardFinish;
 	float       m_outputPercentageProgress;
+
+	bool m_isFrameDiagRequested;
+	std::string m_framePathA;
+	std::string m_framePathB;
 };
 
 PH_CLI_NAMESPACE_END

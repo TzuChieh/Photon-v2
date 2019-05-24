@@ -75,7 +75,7 @@ bool ExrFileReader::loadStandaloneRgb(HdrRgbFrame* const out_frame)
 	}
 
 	// DEBUG
-	std::cerr << pixelType << std::endl;
+	//std::cerr << pixelType << std::endl;
 
 	PH_ASSERT(pixelType == Imf::PixelType::HALF || pixelType == Imf::PixelType::FLOAT);
 	if(pixelType == Imf::PixelType::HALF)
