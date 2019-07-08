@@ -45,6 +45,16 @@ ESurfacePhenomenon OrenNayar::getPhenomenonOf(const SurfaceElemental elemental) 
 	return ESurfacePhenomenon::DIFFUSE_REFLECTION;
 }
 
+/*
+	Note that a dark ring can appear (especially on sphere) using qualitative 
+	formula (usually the one used on rendering applications). Full version of
+	the formula can be considered in order to solve the issue.
+
+	On the other hand, [1] has good explanation of the issue and provides an
+	improved version of the model.
+
+	[1] http://mimosa-pudica.net/improved-oren-nayar.html
+*/
 void OrenNayar::calcBsdf(
 	const BsdfEvaluation::Input& in,
 	BsdfEvaluation::Output&      out,

@@ -296,6 +296,7 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 		row.prop(self, "diffusion_type", "")
 
 		if self.diffusion_type == "OREN_NAYAR":
+			row = b_layout.row()
 			row.prop(self, "roughness")
 
 	def to_sdl(self, res_name, sdlconsole):
