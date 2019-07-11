@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="300.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="appGui.ToolboxCtrl">
+   <center>
+      <TableView fx:id="toolsTableView" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <columns>
+          <TableColumn fx:id="toolNameTableColumn" prefWidth="150.0" text="Name (click to open)" />
+          <TableColumn minWidth="0.0" prefWidth="0.0" text="C2" />
+            <TableColumn fx:id="toolDescriptionTableColumn" prefWidth="349.0" text="Description" />
+        </columns>
+      </TableView>
+   </center>
+   <bottom>
+      <VBox alignment="CENTER_RIGHT">
+         <children>
+            <Separator prefWidth="200.0" />
+            <Button alignment="CENTER" mnemonicParsing="false" onAction="#openSelectedBtnClicked" text="Open Selected" VBox.vgrow="NEVER">
+               <VBox.margin>
+                  <Insets right="5.0" />
+               </VBox.margin>
+            </Button>
+            <Separator prefWidth="200.0" />
+         </children>
+      </VBox>
+   </bottom>
+</BorderPane>

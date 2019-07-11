@@ -32,17 +32,20 @@ public class AppMainCtrl
 	private static final String RENDER_PROJECT_FXML_PATH  = "/fxmls/renderProject/RenderProject.fxml";
 	private static final String MINECRAFT_FXML_PATH       = "/fxmls/Minecraft.fxml";
 	private static final String GENERAL_OPTIONS_FXML_PATH = "/fxmls/GeneralOptions.fxml";
+	private static final String TOOLBOX_FXML_PATH         = "/fxmls/Toolbox.fxml";
 	private static final String ABOUT_FXML_PATH           = "/fxmls/About.fxml";
 	private static final String SCENES_FXML_PATH          = "/fxmls/Scenes.fxml";
 	
 	private HashMap<String, UI<RenderProjectCtrl>> m_projectUIs;
 	private GeneralOptionsCtrl m_generalOptionsCtrl;
+	private ToolboxCtrl m_toolboxCtrl;
 	private UI<ProjectManagerCtrl> m_projectManagerUI;
 	private UI<MinecraftCtrl> m_minecraftUI;
 	private UI<MinecraftCtrl> m_scenesUI;
 	
 	private ChildWindow m_generalOptionsWindow;
 	private ChildWindow m_aboutWindow;
+	private ChildWindow m_toolboxWindow;
 	
 	private UILoader m_uiLoader;
 	
@@ -70,6 +73,7 @@ public class AppMainCtrl
 		
 		m_generalOptionsWindow = new ChildWindow();
 		m_aboutWindow          = new ChildWindow();
+		m_toolboxWindow        = new ChildWindow();
 		
 		footerPane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 	//    	renderBtn.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -79,6 +83,7 @@ public class AppMainCtrl
 		
 		loadGeneralOptionsUI();
 		loadAboutUI();
+		loadToolboxUI();
 		
 		m_projectManagerUI = m_uiLoader.load(getClass().getResource(PROJECT_MANAGER_FXML_PATH));
 //		m_managerUI.getCtrl().setAppMainGraphicalState(m_graphicalState);
@@ -125,6 +130,12 @@ public class AppMainCtrl
 	void saveProjectBtnClicked(ActionEvent event)
 	{
 		// TODO
+	}
+	
+	@FXML
+	void toolboxBtnClicked(ActionEvent event)
+	{
+		m_toolboxWindow.show();
 	}
 	
 	@FXML
@@ -275,6 +286,17 @@ public class AppMainCtrl
     	{
     		m_aboutWindow.setContent(new Scene(view));
     		m_aboutWindow.setTitle("About");
+    	}
+    }
+    
+    private void loadToolboxUI()
+    {
+    	UI<ToolboxCtrl> ui = m_uiLoader.load(AppMainCtrl.class.getResource(TOOLBOX_FXML_PATH));
+    	if(ui.isValid())
+    	{
+    		m_toolboxCtrl = ui.getCtrl();
+			m_toolboxWindow.setContent(new Scene(ui.getView()));
+			m_toolboxWindow.setTitle("Toolbox");
     	}
     }
     

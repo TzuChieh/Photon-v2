@@ -123,6 +123,15 @@
                         </ImageView>
                      </graphic>
                   </Button>
+                  <Button contentDisplay="TOP" mnemonicParsing="false" onAction="#toolboxBtnClicked" prefWidth="100.0" style="-fx-base: #000000;" text="Toolbox">
+                     <graphic>
+                        <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../images/toolbox.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
                   <Separator orientation="VERTICAL" />
                   <Group>
                      <children>
