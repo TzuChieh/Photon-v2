@@ -1,4 +1,4 @@
-package appGui.widget;
+package uiWidget;
 
 import javafx.scene.Parent;
 

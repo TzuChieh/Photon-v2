@@ -15,10 +15,6 @@ import java.nio.file.Paths;
 import javax.imageio.ImageIO;
 
 import appGui.DisplayInfoCtrl;
-import appGui.widget.FSBrowser;
-import appGui.widget.Layouts;
-import appGui.widget.UILoader;
-import appGui.widget.UI;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -44,6 +40,10 @@ import javafx.scene.paint.Color;
 import photonApi.Frame;
 import photonApi.FrameRegion;
 import photonApi.FrameStatus;
+import uiWidget.FSBrowser;
+import uiWidget.Layouts;
+import uiWidget.UI;
+import uiWidget.UILoader;
 
 public class RenderProjectCtrl
 {

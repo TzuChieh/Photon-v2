@@ -8,10 +8,6 @@ import appModel.renderProject.RenderProject;
 import java.util.HashMap;
 
 import appGui.renderProject.RenderProjectCtrl;
-import appGui.widget.ChildWindow;
-import appGui.widget.Layouts;
-import appGui.widget.UILoader;
-import appGui.widget.UI;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -25,6 +21,12 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.util.Callback;
+import plugin.pbrt.PbrtToPhotonCtrl;
+import uiWidget.ChildWindow;
+import uiWidget.Layouts;
+import uiWidget.UI;
+import uiWidget.UILoader;
 
 public class AppMainCtrl
 {
@@ -35,13 +37,15 @@ public class AppMainCtrl
 	private static final String TOOLBOX_FXML_PATH         = "/fxmls/Toolbox.fxml";
 	private static final String ABOUT_FXML_PATH           = "/fxmls/About.fxml";
 	private static final String SCENES_FXML_PATH          = "/fxmls/Scenes.fxml";
+	private static final String PBRT_TO_PHOTON_FXML_PATH  = "/fxmls/PbrtToPhoton.fxml";
 	
 	private HashMap<String, UI<RenderProjectCtrl>> m_projectUIs;
 	private GeneralOptionsCtrl m_generalOptionsCtrl;
 	private ToolboxCtrl m_toolboxCtrl;
 	private UI<ProjectManagerCtrl> m_projectManagerUI;
 	private UI<MinecraftCtrl> m_minecraftUI;
-	private UI<MinecraftCtrl> m_scenesUI;
+	private UI<ScenesCtrl> m_scenesUI;
+	private UI<PbrtToPhotonCtrl> m_pbrtToPhotonUI;
 	
 	private ChildWindow m_generalOptionsWindow;
 	private ChildWindow m_aboutWindow;
@@ -90,6 +94,7 @@ public class AppMainCtrl
 		
 		m_minecraftUI = m_uiLoader.load(getClass().getResource(MINECRAFT_FXML_PATH));
 		m_scenesUI = m_uiLoader.load(getClass().getResource(SCENES_FXML_PATH));
+		m_pbrtToPhotonUI = m_uiLoader.load(getClass().getResource(PBRT_TO_PHOTON_FXML_PATH));
 	}
 	
 	@FXML
@@ -143,62 +148,6 @@ public class AppMainCtrl
 	{
 		setWorkbenchView(m_scenesUI.getView(), "Scenes");
 	}
-
-//	@FXML
-//	void newProjectBtnClicked(MouseEvent event)
-//	{
-//		// TODO: customizable project name
-//		final String newProjectName = "project " + m_projectId++;
-//		createNewProject(newProjectName);
-////		m_graphicalState.setActiveProject(newProjectName);
-//		setWorkbenchAsProjectView();
-//	}
-	
-//	@FXML
-//	void saveImageBtnClicked(MouseEvent event)
-//	{
-//		ViewCtrlPair<RenderProjectCtrl> projectUI = getCurrentProjectUI();
-//		if(projectUI == null)
-//		{
-//			// TODO: log
-//			return;
-//		}
-//		
-//		// TODO: customizable image name
-//		String imageName = "result - " + m_studio.getCurrentProject().getProjectSetting().getProjectName().getValue();
-//		projectUI.getCtrl().saveDisplayImage(imageName);
-//	}
-	
-//	@FXML
-//	void renderBtnClicked(MouseEvent event)
-//	{
-//		ViewCtrlPair<RenderProjectCtrl> projectUI = getCurrentProjectUI();
-//		if(projectUI == null)
-//		{
-//			// TODO: log
-//			return;
-//		}
-//		
-//		projectUI.getCtrl().startRenderingStaticScene();
-//	}
-	
-//	@FXML
-//	void managerBtnClicked(MouseEvent event)
-//	{
-//		
-//	}
-	
-//	@FXML
-//	void editorBtnClicked(MouseEvent event)
-//	{
-//		setWorkbenchAsProjectView();
-//	}
-	
-//	@FXML
-//	void minecraftBtnClicked(MouseEvent event)
-//	{
-//		
-//	}
 	
 	@FXML
 	void generalOptionsClicked(ActionEvent event)
@@ -295,6 +244,29 @@ public class AppMainCtrl
     	if(ui.isValid())
     	{
     		m_toolboxCtrl = ui.getCtrl();
+    		m_toolboxCtrl.addTool("pbrt to Photon", "Convert .pbrt files to Photon scenes.");
+    		m_toolboxCtrl.setToolNameCallback(
+    			new Callback<String, Void>()
+	    		{
+					@Override
+					public Void call(String toolName)
+					{
+						m_toolboxWindow.hide();
+						
+						switch(toolName)
+						{
+						case "pbrt to Photon":
+							setWorkbenchView(m_pbrtToPhotonUI.getView(), "pbrt to Photon");
+							break;
+						default:
+							System.err.println("warning: unknown tool name <" + toolName + ">");
+							break;
+						}
+
+						return null;
+					}
+				});
+    		
 			m_toolboxWindow.setContent(new Scene(ui.getView()));
 			m_toolboxWindow.setTitle("Toolbox");
     	}

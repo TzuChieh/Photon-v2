@@ -4,9 +4,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.util.Callback;
 
 public class ToolboxCtrl
@@ -38,6 +43,42 @@ public class ToolboxCtrl
 		toolsTableView.setItems(m_tools);
 		toolNameTableColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
 		toolDescriptionTableColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+		
+		// center tool names, and make them blue and bold
+		toolNameTableColumn.setCellFactory(
+			new Callback<TableColumn<Tool, String>, TableCell<Tool, String>>()
+			{
+				@Override
+				public TableCell<Tool, String> call(TableColumn<Tool, String> column) 
+				{
+					TableCell<Tool, String> cell = new TableCell<Tool, String>() 
+					{
+						@Override
+						public void updateItem(String item, boolean empty)
+						{
+							super.updateItem(item, empty);
+							
+							if(isEmpty())
+							{
+								setText("");
+							}
+							else
+							{
+								setTextFill(Color.BLUE);
+								setFont(Font.font(
+									"Verdana", 
+									FontWeight.BOLD,
+									getFont().getSize()));
+								setText(item);
+							}
+						}
+					};
+					
+					cell.setStyle("-fx-alignment: CENTER;");
+					
+					return cell;
+				}
+			});
     }
 	
 	@FXML

@@ -1,10 +1,10 @@
 package appGui;
 
-import appGui.widget.FSBrowser;
 import appModel.GeneralOption;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import uiWidget.FSBrowser;
 
 public class GeneralOptionsCtrl
 {

@@ -1,4 +1,4 @@
-package appGui.widget;
+package uiWidget;
 
 import java.io.IOException;
 import java.net.URL;

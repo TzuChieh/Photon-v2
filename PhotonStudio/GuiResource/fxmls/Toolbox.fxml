@@ -12,7 +12,7 @@
    <center>
       <TableView fx:id="toolsTableView" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <columns>
-          <TableColumn fx:id="toolNameTableColumn" prefWidth="150.0" text="Name (click to open)" />
+          <TableColumn fx:id="toolNameTableColumn" prefWidth="150.0" text="Name" />
           <TableColumn minWidth="0.0" prefWidth="0.0" text="C2" />
             <TableColumn fx:id="toolDescriptionTableColumn" prefWidth="349.0" text="Description" />
         </columns>
