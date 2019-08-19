@@ -2,7 +2,7 @@ from ..utility import settings
 
 import bpy
 from bl_ui import (
-		properties_render,
+		properties_output,
 		properties_data_camera,
 		#properties_data_light,
 		#properties_material,
@@ -222,7 +222,7 @@ def register():
 	# otherwise most of the UI will be empty when the engine is selected.
 
 
-	properties_render.RENDER_PT_dimensions.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
+	properties_output.RENDER_PT_dimensions.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
 
 	properties_data_camera.DATA_PT_lens.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
 	properties_data_camera.DATA_PT_camera.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
@@ -239,7 +239,7 @@ def register():
 def unregister():
 	bpy.utils.unregister_class(PhotonRenderer)
 
-	properties_render.RENDER_PT_render.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
+	properties_output.RENDER_PT_render.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
 
 	properties_data_camera.DATA_PT_lens.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
 	properties_data_camera.DATA_PT_camera.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)

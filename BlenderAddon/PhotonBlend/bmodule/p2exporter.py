@@ -668,11 +668,11 @@ def menu_func_export(self, context):
 
 def register():
 	bpy.utils.register_class(P2Exporter)
-	bpy.types.INFO_MT_file_export.append(menu_func_export)
+	bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
 
 def unregister():
-	bpy.types.INFO_MT_file_export.remove(menu_func_export)
+	bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
 	bpy.utils.unregister_class(P2Exporter)
 
 
