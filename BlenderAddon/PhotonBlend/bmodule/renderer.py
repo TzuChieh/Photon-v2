@@ -4,7 +4,7 @@ import bpy
 from bl_ui import (
 		properties_render,
 		properties_data_camera,
-		#properties_data_lamp,
+		#properties_data_light,
 		#properties_material,
 )
 
@@ -227,8 +227,8 @@ def register():
 	properties_data_camera.DATA_PT_lens.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
 	properties_data_camera.DATA_PT_camera.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
 
-	#properties_data_lamp.DATA_PT_lamp.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
-	#properties_data_lamp.DATA_PT_area.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
+	#properties_data_light.DATA_PT_light.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
+	#properties_data_light.DATA_PT_area.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
 
 	#properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
 
@@ -244,8 +244,8 @@ def unregister():
 	properties_data_camera.DATA_PT_lens.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
 	properties_data_camera.DATA_PT_camera.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
 
-	#properties_data_lamp.DATA_PT_lamp.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
-	#properties_data_lamp.DATA_PT_area.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
+	#properties_data_light.DATA_PT_light.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
+	#properties_data_light.DATA_PT_area.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
 
 	#properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
 

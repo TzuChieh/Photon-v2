@@ -42,7 +42,7 @@ class PhLightPanel(bpy.types.Panel):
 	def poll(cls, context):
 		render_settings = context.scene.render
 		return (render_settings.engine in cls.COMPATIBLE_ENGINES and
-		        context.lamp)
+		        context.light)
 
 
 class PhLightPropertyPanel(PhLightPanel):
@@ -53,7 +53,7 @@ class PhLightPropertyPanel(PhLightPanel):
 
 	bl_label = "PR - Light"
 
-	bpy.types.Lamp.ph_light_color_linear_srgb = bpy.props.FloatVectorProperty(
+	bpy.types.Light.ph_light_color_linear_srgb = bpy.props.FloatVectorProperty(
 		name        = "Color",
 		description = "light color in linear sRGB",
 		default     = [1.0, 1.0, 1.0],
@@ -63,7 +63,7 @@ class PhLightPropertyPanel(PhLightPanel):
 		size        = 3
 	)
 
-	bpy.types.Lamp.ph_light_watts = bpy.props.FloatProperty(
+	bpy.types.Light.ph_light_watts = bpy.props.FloatProperty(
 		name        = "Watts",
 		description = "light energy in watts",
 		default     = 100,
@@ -73,75 +73,75 @@ class PhLightPropertyPanel(PhLightPanel):
 
 	def draw(self, context):
 
-		lamp   = context.lamp
+		light  = context.light
 		layout = self.layout
 
-		# HACK: relying on blender lamp type to change lamp data
-		layout.prop(lamp, "type", expand = True)
+		# HACK: relying on blender light type to change light data
+		layout.prop(light, "type", expand = True)
 
-		layout.prop(lamp, "ph_light_color_linear_srgb")
-		layout.prop(lamp, "ph_light_watts")
+		layout.prop(light, "ph_light_color_linear_srgb")
+		layout.prop(light, "ph_light_watts")
 
-		if lamp.type == "AREA":
+		if light.type == "AREA":
 
 			split = layout.split()
 
 			col = split.column()
-			col.prop(lamp, "shape", text = "Shape")
+			col.prop(light, "shape", text = "Shape")
 
-			if lamp.shape == "SQUARE":
+			if light.shape == "SQUARE":
 
-				col.prop(lamp, "size", text = "Size")
+				col.prop(light, "size", text = "Size")
 
-			elif lamp.shape == "RECTANGLE":
+			elif light.shape == "RECTANGLE":
 
-				col.prop(lamp, "size",   text = "Width")
-				col.prop(lamp, "size_y", text = "Height")
+				col.prop(light, "size",   text = "Width")
+				col.prop(light, "size_y", text = "Height")
 
 			else:
-				print("warning: unsupported area light shape %s" % lamp.shape)
+				print("warning: unsupported area light shape %s" % light.shape)
 
-		elif lamp.type == "POINT":
+		elif light.type == "POINT":
 
 			# nothing to display
 			pass
 
 		else:
-			print("warning: unsupported light type %s" % lamp.type)
+			print("warning: unsupported light type %s" % light.type)
 
 
 def to_sdl_commands(b_obj, sdlconsole):
 
-	b_lamp = b_obj.data
+	b_light = b_obj.data
 
-	source_name = naming.mangled_light_source_name(b_obj, b_lamp.name, "lamp_source")
-	actor_name  = naming.mangled_actor_light_name(b_obj, b_lamp.name, "lamp_actor")
+	source_name = naming.mangled_light_source_name(b_obj, b_light.name, "bLight_source")
+	actor_name  = naming.mangled_actor_light_name(b_obj, b_light.name, "bLight_actor")
 
-	if b_lamp.type == "AREA":
+	if b_light.type == "AREA":
 
-		# In Blender's Lamp, under Area category, only Square and Rectangle shape are available.
+		# In Blender's Light, under Area category, only Square and Rectangle shape are available.
 		# (which are both a rectangle in Photon)
-		rec_width  = b_lamp.size
-		rec_height = b_lamp.size_y if b_lamp.shape == "RECTANGLE" else b_lamp.size
+		rec_width  = b_light.size
+		rec_height = b_light.size_y if b_light.shape == "RECTANGLE" else b_light.size
 
 		creator = RectangleLightSourceCreator()
 		creator.set_data_name(source_name)
 		creator.set_width(SDLReal(rec_width))
 		creator.set_height(SDLReal(rec_height))
-		creator.set_linear_srgb(SDLVector3(b_lamp.ph_light_color_linear_srgb))
-		creator.set_watts(SDLReal(b_lamp.ph_light_watts))
+		creator.set_linear_srgb(SDLVector3(b_light.ph_light_color_linear_srgb))
+		creator.set_watts(SDLReal(b_light.ph_light_watts))
 		sdlconsole.queue_command(creator)
 
-	elif b_lamp.type == "POINT":
+	elif b_light.type == "POINT":
 
 		creator = PointLightSourceCreator()
 		creator.set_data_name(source_name)
-		creator.set_linear_srgb(SDLVector3(b_lamp.ph_light_color_linear_srgb))
-		creator.set_watts(SDLReal(b_lamp.ph_light_watts))
+		creator.set_linear_srgb(SDLVector3(b_light.ph_light_color_linear_srgb))
+		creator.set_watts(SDLReal(b_light.ph_light_watts))
 		sdlconsole.queue_command(creator)
 
 	else:
-		print("warning: unsupported lamp type %s, ignoring" % b_lamp.type)
+		print("warning: unsupported light type %s, ignoring" % b_light.type)
 		return
 
 	pos, rot, scale = b_obj.matrix_world.decompose()

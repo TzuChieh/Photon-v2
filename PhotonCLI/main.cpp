@@ -10,6 +10,7 @@
 #include <utility>
 #include <algorithm>
 #include <iomanip>
+#include <cmath>
 
 // FIXME: add osx fs headers once it is supported
 #if defined(_WIN32)
@@ -70,7 +71,8 @@ int main(int argc, char* argv[])
 		const float MSE = phFrameOpMSE(frameA, frameB);
 		{
 			std::ostream transientCout(std::cout.rdbuf());
-			transientCout << std::setprecision(20) << "MSE = " << MSE << std::endl;
+			transientCout << std::setprecision(20) << "MSE  = " << MSE << std::endl;
+			transientCout << std::setprecision(20) << "RMSE = " << std::sqrt(MSE) << std::endl;
 		}
 
 		std::cout << "end frame diag" << std::endl;

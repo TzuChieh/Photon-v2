@@ -577,7 +577,7 @@ class Exporter:
 			if obj.type == "MESH":
 				print("exporting mesh " + obj.name)
 				self.export_object_mesh(b_context, obj)
-			elif obj.type == "LAMP":
+			elif obj.type == "LIGHT":
 				light.to_sdl_commands(obj, self.get_sdlconsole())
 			elif obj.type == "CAMERA":
 				# do nothing since it belongs to core command

@@ -5,11 +5,11 @@ import datetime
 bl_info = {
 	"name":        "Photon-v2",
 	"description": "A hobby renderer featuring PBR.",
-	"author":      "Tzu-Chieh Chang (D01phiN)",
-	"version":     (0, 0, 0),
-	"blender":     (2, 79, 0),
+	"author":      "Tzu-Chieh Chang",
+	"version":     (2, 0, 0),
+	"blender":     (2, 80, 0),
 	"location":    "Info Header >> Render Engine Menu",
-	"warning":     "WIP...",  # showing warning icon and text in addons panel
+	"warning":     "experimental...",  # showing warning icon and text in addons panel
 	"category":    "Render"
 }
 

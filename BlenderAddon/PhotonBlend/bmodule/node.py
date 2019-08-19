@@ -64,7 +64,7 @@ class PhMaterialNodeTree(bpy.types.NodeTree):
 	@classmethod
 	def get_from_context(cls, b_context):
 		obj = b_context.active_object
-		if obj and obj.type not in {"LAMP", "CAMERA"}:
+		if obj and obj.type not in {"LIGHT", "CAMERA"}:
 			mat = obj.active_material
 			if mat is not None:
 				node_tree_name = mat.ph_node_tree_name
@@ -82,7 +82,7 @@ class PhMaterialNodeHeader(bpy.types.Header):
 
 		# TODO: remove node tree selection menu and prepend material.new like cycles
 
-		if obj and obj.type not in {"LAMP", "CAMERA"}:
+		if obj and obj.type not in {"LIGHT", "CAMERA"}:
 			row = b_layout.row()
 
 			# Show material.new when no active material exists
