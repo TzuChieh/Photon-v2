@@ -432,8 +432,8 @@ class Exporter:
 
 			# Blender's camera intially pointing (0, 0, -1) with up (0, 1, 0) in its math.py system
 			# (also note that Blender's quaternion works this way, does not require q*v*q').
-			cam_dir     = rot * mathutils.Vector((0, 0, -1))
-			cam_up_dir  = rot * mathutils.Vector((0, 1, 0))
+			cam_dir     = rot @ mathutils.Vector((0, 0, -1))
+			cam_up_dir  = rot @ mathutils.Vector((0, 1, 0))
 			fov_degrees = 70.0
 
 			lens_unit = b_camera.lens_unit
