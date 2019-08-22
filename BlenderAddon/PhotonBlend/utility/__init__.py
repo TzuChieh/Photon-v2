@@ -4,12 +4,12 @@ import os
 from pathlib import Path
 
 
-def to_photon_vec3(bvec3):
-	return Vector((bvec3.y, bvec3.z, bvec3.x))
+def to_photon_vec3(b_vec3):
+	return Vector((b_vec3.y, b_vec3.z, b_vec3.x))
 
 
-def to_photon_quat(bquat):
-	return Quaternion((bquat.w, bquat.y, bquat.z, bquat.x))
+def to_photon_quat(b_quat):
+	return Quaternion((b_quat.w, b_quat.y, b_quat.z, b_quat.x))
 
 
 def create_folder(folder_path):

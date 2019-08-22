@@ -19,6 +19,7 @@ public:
 	bool open();
 	void close();
 
+	// TODO: able to specify byte order
 	template<typename T>
 	void read(T* out_buffer, std::size_t numElements = 1);
 
