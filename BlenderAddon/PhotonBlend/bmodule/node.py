@@ -40,7 +40,8 @@ from abc import abstractmethod
 
 
 class MaterialNodeTranslateResult:
-	def __init__(self, surface_emi_res_name = None):
+
+	def __init__(self, surface_emi_res_name=None):
 		self.surface_emi_res_name = surface_emi_res_name
 
 	def is_surface_emissive(self):
@@ -50,8 +51,8 @@ class MaterialNodeTranslateResult:
 class PhMaterialNodeTree(bpy.types.NodeTree):
 
 	bl_idname = "PH_MATERIAL_NODE_TREE"
-	bl_label  = "Photon Node Tree"
-	bl_icon   = "MATERIAL"
+	bl_label = "Photon Node Tree"
+	bl_icon = "MATERIAL"
 
 	COMPATIBLE_ENGINES = {settings.renderer_id_name}
 
@@ -74,11 +75,12 @@ class PhMaterialNodeTree(bpy.types.NodeTree):
 
 
 class PhMaterialNodeHeader(bpy.types.Header):
+
 	bl_space_type = "NODE_EDITOR"
 
 	def draw(self, b_context):
 		b_layout = self.layout
-		obj      = b_context.object
+		obj = b_context.object
 
 		# TODO: remove node tree selection menu and prepend material.new like cycles
 
@@ -86,18 +88,18 @@ class PhMaterialNodeHeader(bpy.types.Header):
 			row = b_layout.row()
 
 			# Show material.new when no active material exists
-			row.template_ID(obj, "active_material", new = "material.new")
+			row.template_ID(obj, "active_material", new="material.new")
 
 
 class PhMaterialNodeSocket(bpy.types.NodeSocketShader):
 
 	bl_idname = "PH_MATERIAL_NODE_SOCKET"
-	bl_label  = "Photon Socket"
+	bl_label = "Photon Socket"
 
-	link_only = bpy.props.BoolProperty(
-		name        = "Link Only",
-		description = "Makes this node for linking only, its contained value(s) is ignored.",
-		default     = False
+	link_only: bpy.props.BoolProperty(
+		name="Link Only",
+		description="Makes this node for linking only, its contained value(s) is ignored.",
+		default=False
 	)
 
 	# Blender: draw socket's color
@@ -108,27 +110,28 @@ class PhMaterialNodeSocket(bpy.types.NodeSocketShader):
 	def draw(self, b_context, b_layout, node, text):
 		if node.bl_idname != PhOutputNode.bl_idname:
 			if self.is_linked or self.is_output:
-				b_layout.label(text)
+				b_layout.label(text=text)
 			else:
 				if hasattr(self, "default_value"):
-					b_layout.prop(self, "default_value", text)
+					b_layout.prop(self, "default_value", text=text)
 				else:
-					b_layout.label(text)
+					b_layout.label(text=text)
 		else:
-			b_layout.label(text)
+			b_layout.label(text=text)
 
-	def get_from_res_name(self, res_name, link_index = 0):
+	def get_from_res_name(self, res_name, link_index=0):
 		if not self.links:
 			return None
-		from_node   = self.links[link_index].from_node
+		from_node = self.links[link_index].from_node
 		from_socket = self.links[link_index].from_socket
 		return res_name + "_" + from_node.name + "_" + from_socket.identifier
 
 
 class PhMaterialNode(bpy.types.Node):
+
 	bl_idname = "PH_MATERIAL_NODE"
-	bl_label  = "Photon Node"
-	bl_icon   = "MATERIAL"
+	bl_label = "Photon Node"
+	bl_icon = "MATERIAL"
 
 	@classmethod
 	def poll(cls, b_node_tree):
@@ -148,22 +151,24 @@ class PhMaterialNode(bpy.types.Node):
 
 
 class PhSurfaceMaterialSocket(PhMaterialNodeSocket):
+
 	bl_idname = "PH_SURFACE_MATERIAL_SOCKET"
-	bl_label  = "Surface Material"
+	bl_label = "Surface Material"
 
 	def draw_color(self, b_context, node):
 		return [0.8, 0.1, 0.1, 1.0]  # red
 
 
 class PhFloatSocket(PhMaterialNodeSocket):
-	bl_idname = "PH_FLOAT_SOCKET"
-	bl_label  = "Real"
 
-	default_value = bpy.props.FloatProperty(
-		name    = "Float",
-		default = 0.5,
-		min     = 0.0,
-		max     = 1.0
+	bl_idname = "PH_FLOAT_SOCKET"
+	bl_label = "Real"
+
+	default_value: bpy.props.FloatProperty(
+		name="Float",
+		default=0.5,
+		min=0.0,
+		max=1.0
 	)
 
 	def draw_color(self, b_context, node):
@@ -171,17 +176,18 @@ class PhFloatSocket(PhMaterialNodeSocket):
 
 
 class PhColorSocket(PhMaterialNodeSocket):
-	bl_idname = "PH_COLOR_SOCKET"
-	bl_label  = "Color"
 
-	default_value = bpy.props.FloatVectorProperty(
-		name        = "Color",
-		description = "color value",
-		default     = [0.5, 0.5, 0.5],
-		min         = 0.0,
-		max         = 1.0,
-		subtype     = "COLOR",
-		size        = 3
+	bl_idname = "PH_COLOR_SOCKET"
+	bl_label = "Color"
+
+	default_value: bpy.props.FloatVectorProperty(
+		name="Color",
+		description="color value",
+		default=[0.5, 0.5, 0.5],
+		min=0.0,
+		max=1.0,
+		subtype="COLOR",
+		size=3
 	)
 
 	def draw_color(self, b_context, node):
@@ -189,16 +195,18 @@ class PhColorSocket(PhMaterialNodeSocket):
 
 
 class PhSurfaceLayerSocket(PhMaterialNodeSocket):
+
 	bl_idname = "PH_SURFACE_LAYER_SOCKET"
-	bl_label  = "Surface Layer"
+	bl_label = "Surface Layer"
 
 	def draw_color(self, b_context, node):
 		return [0.0, 0.0, 0.0, 1.0]  # black
 
 
 class PhOutputNode(PhMaterialNode):
+
 	bl_idname = "PH_OUTPUT"
-	bl_label  = "Output"
+	bl_label = "Output"
 
 	def init(self, b_context):
 		self.inputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
@@ -206,7 +214,7 @@ class PhOutputNode(PhMaterialNode):
 		self.inputs[1].link_only = True
 
 	def to_sdl(self, res_name, sdlconsole):
-		surface_mat_socket   = self.inputs[0]
+		surface_mat_socket = self.inputs[0]
 		surface_mat_res_name = surface_mat_socket.get_from_res_name(res_name)
 		if surface_mat_res_name is None:
 			print("material <%s>'s output node is not linked, ignored" % res_name)
@@ -223,27 +231,28 @@ class PhOutputNode(PhMaterialNode):
 
 
 class PhConstantColorInputNode(PhMaterialNode):
-	bl_idname = "PH_CONSTANT_COLOR"
-	bl_label  = "Constant Color"
 
-	color = bpy.props.FloatVectorProperty(
-		name        = "Color",
-		description = "color value",
-		default     = [0.5, 0.5, 0.5],
-		min         = 0.0,
-		max         = 1.0,
-		subtype     = "COLOR",
-		size        = 3
+	bl_idname = "PH_CONSTANT_COLOR"
+	bl_label = "Constant Color"
+
+	color: bpy.props.FloatVectorProperty(
+		name="Color",
+		description="color value",
+		default=[0.5, 0.5, 0.5],
+		min=0.0,
+		max=1.0,
+		subtype="COLOR",
+		size=3
 	)
 
-	usage = bpy.props.EnumProperty(
-		items = [
-			("EMISSION",    "Emission",    ""),
+	usage: bpy.props.EnumProperty(
+		items=[
+			("EMISSION", "Emission", ""),
 			("REFLECTANCE", "Reflectance", "")
 		],
-		name        = "Usage",
-		description = "What is this color for?",
-		default     = "REFLECTANCE"
+		name="Usage",
+		description="What is this color for?",
+		default="REFLECTANCE"
 	)
 
 	def init(self, b_context):
@@ -251,8 +260,8 @@ class PhConstantColorInputNode(PhMaterialNode):
 
 	def draw_buttons(self, b_context, b_layout):
 		b_layout.template_color_picker(self, "color", True)
-		b_layout.prop(self, "color", "")
-		b_layout.prop(self, "usage", "")
+		b_layout.prop(self, "color", text="")
+		b_layout.prop(self, "usage", text="")
 
 	def to_sdl(self, res_name, sdlconsole):
 		output_socket = self.outputs[0]
@@ -267,24 +276,25 @@ class PhConstantColorInputNode(PhMaterialNode):
 
 
 class PhDiffuseSurfaceNode(PhMaterialNode):
-	bl_idname = "PH_DIFFUSE_SURFACE"
-	bl_label  = "Diffuse Surface"
 
-	diffusion_type = bpy.props.EnumProperty(
-		items = [
+	bl_idname = "PH_DIFFUSE_SURFACE"
+	bl_label = "Diffuse Surface"
+
+	diffusion_type: bpy.props.EnumProperty(
+		items=[
 			("LAMBERTIAN", "Lambertian", ""),
 			("OREN_NAYAR", "Oren Nayar", "")
 		],
-		name        = "Type",
-		description = "surface diffusion types",
-		default     = "LAMBERTIAN"
+		name="Type",
+		description="surface diffusion types",
+		default="LAMBERTIAN"
 	)
 
-	roughness = bpy.props.FloatProperty(
-		name    = "Roughness",
-		default = 0.5,
-		min     = sys.float_info.min,
-		max     = sys.float_info.max
+	roughness: bpy.props.FloatProperty(
+		name="Roughness",
+		default=0.5,
+		min=sys.float_info.min,
+		max=sys.float_info.max
 	)
 
 	def init(self, b_context):
@@ -293,14 +303,14 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 
 	def draw_buttons(self, b_context, b_layout):
 		row = b_layout.row()
-		row.prop(self, "diffusion_type", "")
+		row.prop(self, "diffusion_type", text="")
 
 		if self.diffusion_type == "OREN_NAYAR":
 			row = b_layout.row()
 			row.prop(self, "roughness")
 
 	def to_sdl(self, res_name, sdlconsole):
-		albedo_socket           = self.inputs[0]
+		albedo_socket = self.inputs[0]
 		surface_material_socket = self.outputs[0]
 
 		albedo_res_name = albedo_socket.get_from_res_name(res_name)
@@ -322,14 +332,15 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 
 
 class PhBinaryMixedSurfaceNode(PhMaterialNode):
-	bl_idname = "PH_BINARY_MIXED_SURFACE"
-	bl_label  = "Binary Mixed Surface"
 
-	factor = bpy.props.FloatProperty(
-		name    = "Factor",
-		default = 0.5,
-		min     = 0.0,
-		max     = 1.0
+	bl_idname = "PH_BINARY_MIXED_SURFACE"
+	bl_label = "Binary Mixed Surface"
+
+	factor: bpy.props.FloatProperty(
+		name="Factor",
+		default=0.5,
+		min=0.0,
+		max=1.0
 	)
 
 	def init(self, b_context):
@@ -342,8 +353,8 @@ class PhBinaryMixedSurfaceNode(PhMaterialNode):
 		row.prop(self, "factor")
 
 	def to_sdl(self, res_name, sdlconsole):
-		mat0_socket        = self.inputs[0]
-		mat1_socket        = self.inputs[1]
+		mat0_socket = self.inputs[0]
+		mat1_socket = self.inputs[1]
 		surface_mat_socket = self.outputs[0]
 
 		mat0_res_name = mat0_socket.get_from_res_name(res_name)
@@ -361,17 +372,18 @@ class PhBinaryMixedSurfaceNode(PhMaterialNode):
 
 
 class PhAbradedOpaqueNode(PhMaterialNode):
-	bl_idname = "PH_ABRADED_OPAQUE"
-	bl_label  = "Abraded Opaque"
 
-	f0 = bpy.props.FloatVectorProperty(
-		name        = "Color",
-		description = "color value",
-		default     = [0.5, 0.5, 0.5],
-		min         = 0.0,
-		max         = 1.0,
-		subtype     = "COLOR",
-		size        = 3
+	bl_idname = "PH_ABRADED_OPAQUE"
+	bl_label = "Abraded Opaque"
+
+	f0: bpy.props.FloatVectorProperty(
+		name="Color",
+		description="color value",
+		default=[0.5, 0.5, 0.5],
+		min=0.0,
+		max=1.0,
+		subtype="COLOR",
+		size=3
 	)
 
 	def init(self, b_context):
@@ -382,8 +394,7 @@ class PhAbradedOpaqueNode(PhMaterialNode):
 		b_layout.prop(self, "f0")
 
 	def to_sdl(self, res_name, sdlconsole):
-
-		surface_mat_socket   = self.outputs[0]
+		surface_mat_socket = self.outputs[0]
 		surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
 
 		creator = AbradedOpaqueMaterialCreator()
@@ -395,13 +406,14 @@ class PhAbradedOpaqueNode(PhMaterialNode):
 
 
 class PhPictureNode(bpy.types.Node):
-	bl_idname = "PH_PICTURE"
-	bl_label  = "Picture"
 
-	file_path = bpy.props.StringProperty(
-		name    = "File",
-		default = "",
-		subtype = "FILE_PATH"
+	bl_idname = "PH_PICTURE"
+	bl_label = "Picture"
+
+	file_path: bpy.props.StringProperty(
+		name="File",
+		default="",
+		subtype="FILE_PATH"
 	)
 
 	def init(self, b_context):
@@ -412,13 +424,13 @@ class PhPictureNode(bpy.types.Node):
 
 	def to_sdl(self, res_name, sdlconsole):
 
-		image_socket   = self.outputs[0]
+		image_socket = self.outputs[0]
 		image_res_name = res_name + "_" + self.name + "_" + image_socket.identifier
 
 		if self.file_path != "":
 
 			creator = LdrPictureImageCreator()
-			image_path  = bpy.path.abspath(self.file_path)
+			image_path = bpy.path.abspath(self.file_path)
 			image_sdlri = sdlresource.SdlResourceIdentifier()
 			image_sdlri.append_folder(PhPictureNode.bl_idname + "_pictures")
 			image_sdlri.set_file(utility.get_filename(image_path))
@@ -427,7 +439,7 @@ class PhPictureNode(bpy.types.Node):
 			# copy the file to scene folder
 			sdlconsole.create_resource_folder(image_sdlri)
 			dst_path = utility.get_appended_path(sdlconsole.get_working_directory(),
-			                                     image_sdlri.get_path())
+												 image_sdlri.get_path())
 			shutil.copyfile(image_path, dst_path)
 
 		else:
@@ -441,14 +453,15 @@ class PhPictureNode(bpy.types.Node):
 
 
 class PhMultiplyNode(PhMaterialNode):
-	bl_idname = "PH_MULTIPLY"
-	bl_label  = "Multiply"
 
-	factor = bpy.props.FloatProperty(
-		name    = "Factor",
-		default = 1.0,
-		min     = sys.float_info.min,
-		max     = sys.float_info.max
+	bl_idname = "PH_MULTIPLY"
+	bl_label = "Multiply"
+
+	factor: bpy.props.FloatProperty(
+		name="Factor",
+		default=1.0,
+		min=sys.float_info.min,
+		max=sys.float_info.max
 	)
 
 	def init(self, b_context):
@@ -459,9 +472,9 @@ class PhMultiplyNode(PhMaterialNode):
 		b_layout.prop(self, "factor")
 
 	def to_sdl(self, res_name, sdlconsole):
-		input_color_socket    = self.inputs[0]
-		output_color_socket   = self.outputs[0]
-		input_color_res_name  = input_color_socket.get_from_res_name(res_name)
+		input_color_socket = self.inputs[0]
+		output_color_socket = self.outputs[0]
+		input_color_res_name = input_color_socket.get_from_res_name(res_name)
 		output_color_res_name = res_name + "_" + self.name + "_" + output_color_socket.identifier
 		if input_color_res_name is None:
 			print("warning: node <%s> has no input linked, ignoring" % self.name)
@@ -476,51 +489,52 @@ class PhMultiplyNode(PhMaterialNode):
 
 
 class PhAbradedTranslucentNode(PhMaterialNode):
-	bl_idname = "PH_ABRADED_TRANSLUCENT"
-	bl_label  = "Abraded Translucent"
 
-	fresnel_type = bpy.props.EnumProperty(
+	bl_idname = "PH_ABRADED_TRANSLUCENT"
+	bl_label = "Abraded Translucent"
+
+	fresnel_type: bpy.props.EnumProperty(
 		items=[
 			("SCHLICK_APPROX", "Schlick Approx.", ""),
-			("EXACT",          "Exact",           "")
+			("EXACT", "Exact", "")
 		],
-		name        = "Fresnel Type",
-		description = "Type of Fresnel effect used.",
-		default     = "EXACT"
+		name="Fresnel Type",
+		description="Type of Fresnel effect used.",
+		default="EXACT"
 	)
 
-	roughness = bpy.props.FloatProperty(
-		name    = "Roughness",
-		default = 0.5,
-		min     = 0.0,
-		max     = 1.0
+	roughness: bpy.props.FloatProperty(
+		name="Roughness",
+		default=0.5,
+		min=0.0,
+		max=1.0
 	)
 
-	ior_outer = bpy.props.FloatProperty(
-		name    = "IOR Outer",
-		default = 1.0,
-		min     = 0.0,
-		max     = sys.float_info.max
+	ior_outer: bpy.props.FloatProperty(
+		name="IOR Outer",
+		default=1.0,
+		min=0.0,
+		max=sys.float_info.max
 	)
 
-	ior_inner = bpy.props.FloatProperty(
-		name    = "IOR Inner",
-		default = 1.5,
-		min     = 0.0,
-		max     = sys.float_info.max
+	ior_inner: bpy.props.FloatProperty(
+		name="IOR Inner",
+		default=1.5,
+		min=0.0,
+		max=sys.float_info.max
 	)
 
 	def init(self, b_context):
 		self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
 
 	def draw_buttons(self, b_context, b_layout):
-		b_layout.prop(self, "fresnel_type", "")
+		b_layout.prop(self, "fresnel_type", text="")
 		b_layout.prop(self, "roughness")
 		b_layout.prop(self, "ior_outer")
 		b_layout.prop(self, "ior_inner")
 
 	def to_sdl(self, res_name, sdlconsole):
-		surface_mat_socket   = self.outputs[0]
+		surface_mat_socket = self.outputs[0]
 		surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
 
 		creator = AbradedTranslucentMaterialCreator()
@@ -536,86 +550,87 @@ class PhAbradedTranslucentNode(PhMaterialNode):
 
 
 class PhSurfaceLayerNode(PhMaterialNode):
+
 	bl_idname = "PH_SURFACE_LAYER"
-	bl_label  = "Surface Layer"
+	bl_label = "Surface Layer"
 
-	roughness = bpy.props.FloatProperty(
-		name    = "Roughness",
-		default = 0.5,
-		min     = 0.0,
-		max     = 1.0
+	roughness: bpy.props.FloatProperty(
+		name="Roughness",
+		default=0.5,
+		min=0.0,
+		max=1.0
 	)
 
-	ior_type = bpy.props.EnumProperty(
-		items = [
+	ior_type: bpy.props.EnumProperty(
+		items=[
 			("SCALAR", "Scalar", ""),
-			("RGB",    "RGB",    "")
+			("RGB", "RGB", "")
 		],
-		name        = "IoR Type",
-		description = "Type of IoR data used.",
-		default     = "SCALAR"
+		name="IoR Type",
+		description="Type of IoR data used.",
+		default="SCALAR"
 	)
 
-	ior_n = bpy.props.FloatProperty(
-		name    = "IoR N",
-		default = 1.5,
-		min     = 0.0,
-		max     = sys.float_info.max
+	ior_n: bpy.props.FloatProperty(
+		name="IoR N",
+		default=1.5,
+		min=0.0,
+		max=sys.float_info.max
 	)
 
-	ior_k = bpy.props.FloatProperty(
-		name    = "IoR K",
-		default = 0.0,
-		min     = 0.0,
-		max     = sys.float_info.max
+	ior_k: bpy.props.FloatProperty(
+		name="IoR K",
+		default=0.0,
+		min=0.0,
+		max=sys.float_info.max
 	)
 
-	ior_n_rgb = bpy.props.FloatVectorProperty(
-		name        = "IoR N",
-		description = "RGB value of IoR N.",
-		default     = [1.5, 1.5, 1.5],
-		min         = 0.0,
-		max         = sys.float_info.max,
-		subtype     = "COLOR",
-		size        = 3
+	ior_n_rgb: bpy.props.FloatVectorProperty(
+		name="IoR N",
+		description="RGB value of IoR N.",
+		default=[1.5, 1.5, 1.5],
+		min=0.0,
+		max=sys.float_info.max,
+		subtype="COLOR",
+		size=3
 	)
 
-	ior_k_rgb = bpy.props.FloatVectorProperty(
-		name        = "IoR K",
-		description = "RGB value of IoR K.",
-		default     = [0.0, 0.0, 0.0],
-		min         = 0.0,
-		max         = sys.float_info.max,
-		subtype     = "COLOR",
-		size        = 3
+	ior_k_rgb: bpy.props.FloatVectorProperty(
+		name="IoR K",
+		description="RGB value of IoR K.",
+		default=[0.0, 0.0, 0.0],
+		min=0.0,
+		max=sys.float_info.max,
+		subtype="COLOR",
+		size=3
 	)
 
-	depth = bpy.props.FloatProperty(
-		name    = "depth",
-		default = 0.0,
-		min     = 0.0,
-		max     = sys.float_info.max
+	depth: bpy.props.FloatProperty(
+		name="depth",
+		default=0.0,
+		min=0.0,
+		max=sys.float_info.max
 	)
 
-	g = bpy.props.FloatProperty(
-		name    = "g",
-		default = 0.9,
-		min     = 0.5,
-		max     = 1.0
+	g: bpy.props.FloatProperty(
+		name="g",
+		default=0.9,
+		min=0.5,
+		max=1.0
 	)
 
-	sigma_a = bpy.props.FloatProperty(
-		name    ="Sigma A",
-		default = 0.1,
-		min     = 0.0,
-		max     = sys.float_info.max
+	sigma_a: bpy.props.FloatProperty(
+		name="Sigma A",
+		default=0.1,
+		min=0.0,
+		max=sys.float_info.max
 	)
 
-	sigma_s = bpy.props.FloatProperty(
-		name    = "Sigma S",
-		default = 0.1,
-		min     = 0.0,
-		max     = sys.float_info.max
+	sigma_s: bpy.props.FloatProperty(
+		name="Sigma S",
+		default=0.1,
+		min=0.0,
+		max=sys.float_info.max
 	)
 
 	def init(self, b_context):
@@ -642,8 +657,9 @@ class PhSurfaceLayerNode(PhMaterialNode):
 
 
 class PhLayeredSurfaceNode(PhMaterialNode):
+
 	bl_idname = "PH_LAYERED_SURFACE"
-	bl_label  = "Layered Surface"
+	bl_label = "Layered Surface"
 
 	def update_inputs(self, b_context):
 
@@ -655,12 +671,12 @@ class PhLayeredSurfaceNode(PhMaterialNode):
 			else:
 				self.inputs.remove(self.inputs[len(self.inputs) - 1])
 
-	num_layers = bpy.props.IntProperty(
-		name    = "# Layers",
-		default = 1,
-		min     = 1,
-		max     = 1024,
-		update  = update_inputs
+	num_layers: bpy.props.IntProperty(
+		name="# Layers",
+		default=1,
+		min=1,
+		max=1024,
+		update=update_inputs
 	)
 
 	def init(self, b_context):
@@ -671,7 +687,7 @@ class PhLayeredSurfaceNode(PhMaterialNode):
 		b_layout.prop(self, "num_layers")
 
 	def to_sdl(self, res_name, sdlconsole):
-		surface_mat_socket   = self.outputs[0]
+		surface_mat_socket = self.outputs[0]
 		surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
 
 		creator = LayeredSurfaceMaterialCreator()
@@ -709,45 +725,45 @@ class PhLayeredSurfaceNode(PhMaterialNode):
 
 class PhIdealSubstanceNode(PhMaterialNode):
 	bl_idname = "PH_IDEAL_SUBSTANCE"
-	bl_label  = "Ideal Substance"
+	bl_label = "Ideal Substance"
 
-	substance_type = bpy.props.EnumProperty(
-		items = [
-			("DIELECTRIC_REFLECTOR",   "Dielectric Reflector",   ""),
-			("METALLIC_REFLECTOR",     "Metallic Reflector",     ""),
+	substance_type: bpy.props.EnumProperty(
+		items=[
+			("DIELECTRIC_REFLECTOR", "Dielectric Reflector", ""),
+			("METALLIC_REFLECTOR", "Metallic Reflector", ""),
 			("DIELECTRIC_TRANSMITTER", "Dielectric Transmitter", ""),
-			("DIELECTRIC",             "Dielectric",             "")
+			("DIELECTRIC", "Dielectric", "")
 		],
-		name        = "Substance Type",
-		description = "Type of ideal substancee.",
-		default     = "METALLIC_REFLECTOR"
+		name="Substance Type",
+		description="Type of ideal substance.",
+		default="METALLIC_REFLECTOR"
 	)
 
-	f0 = bpy.props.FloatVectorProperty(
-		name        = "F0",
-		description = "F0 value",
-		default     = [0.9, 0.9, 0.9],
-		min         = 0.0,
-		max         = 1.0,
-		subtype     = "COLOR",
-		size        = 3
+	f0: bpy.props.FloatVectorProperty(
+		name="F0",
+		description="F0 value",
+		default=[0.9, 0.9, 0.9],
+		min=0.0,
+		max=1.0,
+		subtype="COLOR",
+		size=3
 	)
 
-	ior_outer = bpy.props.FloatProperty(
-		name    = "IOR Outer",
-		default = 1.0,
-		min     = 0.0,
-		max     = sys.float_info.max
+	ior_outer: bpy.props.FloatProperty(
+		name="IOR Outer",
+		default=1.0,
+		min=0.0,
+		max=sys.float_info.max
 	)
 
-	ior_inner = bpy.props.FloatProperty(
-		name    = "IOR Inner",
-		default = 1.5,
-		min     = 0.0,
-		max     = sys.float_info.max
+	ior_inner: bpy.props.FloatProperty(
+		name="IOR Inner",
+		default=1.5,
+		min=0.0,
+		max=sys.float_info.max
 	)
 
-	reflection_scale = bpy.props.FloatVectorProperty(
+	reflection_scale: bpy.props.FloatVectorProperty(
 		name="Reflection Scale",
 		description="for artistic control",
 		default=[1.0, 1.0, 1.0],
@@ -771,12 +787,12 @@ class PhIdealSubstanceNode(PhMaterialNode):
 		self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
 
 	def draw_buttons(self, b_context, b_layout):
-		b_layout.prop(self, "substance_type", "")
+		b_layout.prop(self, "substance_type", text="")
 		b_layout.prop(self, "ior_outer")
 
 		if (self.substance_type == "DIELECTRIC_REFLECTOR" or
-		    self.substance_type == "DIELECTRIC_TRANSMITTER" or
-		    self.substance_type == "DIELECTRIC"):
+			self.substance_type == "DIELECTRIC_TRANSMITTER" or
+			self.substance_type == "DIELECTRIC"):
 			b_layout.prop(self, "ior_inner")
 
 		if self.substance_type == "METALLIC_REFLECTOR":
@@ -787,7 +803,7 @@ class PhIdealSubstanceNode(PhMaterialNode):
 
 	def to_sdl(self, res_name, sdlconsole):
 
-		surface_mat_socket   = self.outputs[0]
+		surface_mat_socket = self.outputs[0]
 		surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
 
 		creator = IdealSubstanceMaterialCreator()
@@ -818,7 +834,6 @@ class PhMaterialNodeCategory(nodeitems_utils.NodeCategory):
 
 
 def to_sdl_recursive(res_name, current_node, processed_nodes, sdlconsole):
-
 	for socket in current_node.inputs:
 		for link in socket.links:
 			from_node = link.from_node
@@ -830,7 +845,6 @@ def to_sdl_recursive(res_name, current_node, processed_nodes, sdlconsole):
 
 
 def find_node_tree(b_material):
-
 	if b_material is None or b_material.ph_node_tree_name == "":
 		return None
 
@@ -838,7 +852,6 @@ def find_node_tree(b_material):
 
 
 def find_output_node(node_tree):
-
 	if node_tree is None:
 		return None
 
@@ -850,7 +863,6 @@ def find_output_node(node_tree):
 
 
 def to_sdl(res_name, b_material, sdlconsole):
-
 	node_tree = find_node_tree(b_material)
 	output_node = find_output_node(node_tree)
 	if output_node is None:
@@ -870,7 +882,6 @@ PH_MATERIAL_NODE_SOCKETS = [
 	PhSurfaceLayerSocket
 ]
 
-
 PH_MATERIAL_NODES = [
 	PhOutputNode,
 	PhConstantColorInputNode,
@@ -885,16 +896,15 @@ PH_MATERIAL_NODES = [
 	PhIdealSubstanceNode
 ]
 
-
 PH_MATERIAL_NODE_CATEGORIES = [
-	PhMaterialNodeCategory("OUTPUT", "Output", items = [
+	PhMaterialNodeCategory("OUTPUT", "Output", items=[
 		nodeitems_utils.NodeItem(PhOutputNode.bl_idname)
 	]),
-	PhMaterialNodeCategory("INPUT", "Input", items = [
+	PhMaterialNodeCategory("INPUT", "Input", items=[
 		nodeitems_utils.NodeItem(PhConstantColorInputNode.bl_idname),
 		nodeitems_utils.NodeItem(PhPictureNode.bl_idname)
 	]),
-	PhMaterialNodeCategory("SURFACE_MATERIAL", "Surface Material", items = [
+	PhMaterialNodeCategory("SURFACE_MATERIAL", "Surface Material", items=[
 		nodeitems_utils.NodeItem(PhDiffuseSurfaceNode.bl_idname),
 		nodeitems_utils.NodeItem(PhBinaryMixedSurfaceNode.bl_idname),
 		nodeitems_utils.NodeItem(PhAbradedOpaqueNode.bl_idname),
@@ -903,14 +913,13 @@ PH_MATERIAL_NODE_CATEGORIES = [
 		nodeitems_utils.NodeItem(PhSurfaceLayerNode.bl_idname),
 		nodeitems_utils.NodeItem(PhIdealSubstanceNode.bl_idname)
 	]),
-	PhMaterialNodeCategory("MATH", "Math", items = [
+	PhMaterialNodeCategory("MATH", "Math", items=[
 		nodeitems_utils.NodeItem(PhMultiplyNode.bl_idname)
 	])
 ]
 
 
 def register():
-
 	bpy.utils.register_class(PhMaterialNodeTree)
 
 	for socket_type in PH_MATERIAL_NODE_SOCKETS:
@@ -924,7 +933,6 @@ def register():
 
 
 def unregister():
-
 	bpy.utils.unregister_class(PhMaterialNodeTree)
 
 	for socket_type in PH_MATERIAL_NODE_SOCKETS:
@@ -935,5 +943,3 @@ def unregister():
 
 	bpy.utils.unregister_node_categories(PhMaterialNodeHeader)
 	nodeitems_utils.unregister_node_categories("PH_MATERIAL_NODE_CATEGORIES")
-
-
