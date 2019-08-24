@@ -13,13 +13,13 @@ class PhotonRenderer(bpy.types.RenderEngine):
 
 	# These three members are used by blender to set up the
 	# RenderEngine; define its internal name, visible name and capabilities.
-	bl_idname      = settings.renderer_id_name
-	bl_label       = "Photon"
+	bl_idname = settings.renderer_id_name
+	bl_label = "Photon"
 	bl_use_preview = False
 
-	# This is the only method called by blender.
-	def render(self, scene):
-		pass
+	def render(self, b_depsgraph):
+		# DEBUG
+		print(b_depsgraph.mode)
 
 
 class PhRenderPanel(bpy.types.Panel):

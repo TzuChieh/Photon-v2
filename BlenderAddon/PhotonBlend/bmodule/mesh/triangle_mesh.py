@@ -43,12 +43,10 @@ def loop_triangles_to_sdl_triangle_mesh(
     tex_coords = []
     normals = []
     for b_loop_triangle in loop_triangles:
-
         """
         Vertices and loops can be different since loops are primarily for shading--UVs/colors across an edge might be 
         different (or hard edges), while vertices generally do not.
         """
-
         for vertex_index in b_loop_triangle.vertices:
             b_mesh_vertex = b_mesh_vertices[vertex_index]
             positions.append(b_mesh_vertex.co)

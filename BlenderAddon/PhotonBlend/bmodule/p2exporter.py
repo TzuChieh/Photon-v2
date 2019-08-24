@@ -117,11 +117,16 @@ class Exporter:
 
 	def exportMaterial(self, b_context, material_name, b_material):
 
+		print("name = %s" % b_material.name)
+		print("evaluated = %s" % b_material.ph_node_tree_name)
+		print("original = %s" % b_material.original.ph_node_tree_name)
+
 		if not b_context.scene.ph_use_cycles_material:
 			use_node_tree = b_material.ph_node_tree_name != ""
 			if use_node_tree:
 				return node.to_sdl(material_name, b_material, self.get_sdlconsole())
 			else:
+				print("not using node tree")
 				# BROKEN CODE
 				# command = RawCommand()
 				# command.append_string(ui.material.to_sdl(b_material, self.__sdlconsole, material_name))
@@ -129,6 +134,7 @@ class Exporter:
 				# return node.MaterialNodeTranslateResult()
 				return None
 		else:
+			print("using cycles material")
 			# BROKEN CODE
 			# translate_result = export.cycles_material.translate(b_material, self.__sdlconsole, material_name)
 			# if not translate_result.is_valid():
@@ -225,26 +231,27 @@ class Exporter:
 												 blenderQuaternion.x))
 		return photonQuaternion
 
-	def export_object_mesh(self, b_context, b_obj):
+	def export_object_mesh(self, b_context, b_depsgraph, b_obj):
 
 		if len(b_obj.data.materials) == 0:
 			print("warning: mesh object (%s) has no material, not exporting" % b_obj.name)
 			return
 
-		b_scene = b_context.scene
-
 		# FIXME: this call is only necessary in edit mode, maybe properly check this?
 		# see (https://blenderartists.org/t/get-mesh-data-with-modifiers-applied-in-2-8/1163217/2)
 		#
 		# This creates a temporary mesh data with all modifiers applied (do not forget to delete it later).
-		b_mesh = b_obj.to_mesh()
+		# b_mesh = b_obj.to_mesh()
+		b_mesh = b_obj.to_mesh(preserve_all_data_layers=True, depsgraph=b_depsgraph)
+		# b_mesh = b_obj.data
 		if b_mesh is None:
-			print("warning: mesh object %s cannot convert to mesh, not exporting" % b_obj.name)
+			print("warning: cannot convert　mesh object %s　to mesh, not exporting" % b_obj.name)
 			return
 
 		# Group faces with the same material, then export each face-material pair as a Photon-v2's actor.
 
 		b_mesh.calc_loop_triangles()
+		b_mesh.calc_normals()
 
 		# TODO: might be faster if using len(obj.material_slots()) for array size and simply store each loop tris array
 		material_idx_loop_triangles_map = {}
@@ -256,11 +263,11 @@ class Exporter:
 			if material_idx not in material_idx_loop_triangles_map.keys():
 				material_idx_loop_triangles_map[material_idx] = []
 
-				material_idx_loop_triangles_map[material_idx].append(b_loop_triangle)
+			material_idx_loop_triangles_map[material_idx].append(b_loop_triangle)
 
 		for material_idx in material_idx_loop_triangles_map.keys():
 
-			b_material = b_obj.material_slots[material_idx].material
+			b_material = b_obj.material_slots[material_idx].material.evaluated_get(b_depsgraph)
 			loop_triangles = material_idx_loop_triangles_map[material_idx]
 
 			# A material slot can be empty, this check is necessary.
@@ -308,10 +315,7 @@ class Exporter:
 			pos, rot, scale = b_obj.matrix_world.decompose()
 
 			if mat_translate_result.is_surface_emissive():
-
 				light_source_name = naming.mangled_light_source_name(b_obj, b_mesh.name, str(material_idx))
-				actor_light_name = naming.mangled_actor_light_name(b_obj, "", str(material_idx))
-
 				creator = ModelLightSourceCreator()
 				creator.set_data_name(light_source_name)
 				creator.set_emitted_radiance(SDLImage(mat_translate_result.surface_emi_res_name))
@@ -319,27 +323,15 @@ class Exporter:
 				creator.set_material(SDLMaterial(material_name))
 				self.get_sdlconsole().queue_command(creator)
 
+				actor_light_name = naming.mangled_actor_light_name(b_obj, "", str(material_idx))
 				self.exportActorLight(actor_light_name, light_source_name, geometry_name, material_name, pos, rot, scale)
-
-			# elif material.ph_is_emissive:
-			#
-			# 	# FIXME: broken code here
-			#
-			# 	lightSourceName = naming.mangled_light_source_name(obj, mesh.name, str(matId))
-			# 	actorLightName  = naming.mangled_actor_light_name(obj, "", str(matId))
-			#
-			# 	self.exportLightSource("model", lightSourceName, emittedRadiance = material.ph_emitted_radiance)
-			# 	self.exportActorLight(actorLightName, lightSourceName, geometryName, materialName, pos, rot, scale)
-
 			else:
-
 				actor_model_name = naming.mangled_actor_model_name(b_obj, "", str(material_idx))
-
 				self.exportActorModel(actor_model_name, geometry_name, material_name, pos, rot, scale)
 
 		# delete the temporary mesh for exporting
 		# FIXME: this call may be missed if any exception has thrown earlier
-		bpy.data.meshes.remove(b_mesh)
+		b_obj.to_mesh_clear()
 
 	def export_camera(self, obj, scene):
 
@@ -353,8 +345,8 @@ class Exporter:
 
 			# Blender's camera intially pointing (0, 0, -1) with up (0, 1, 0) in its math.py system
 			# (also note that Blender's quaternion works this way, does not require q*v*q').
-			cam_dir     = rot @ mathutils.Vector((0, 0, -1))
-			cam_up_dir  = rot @ mathutils.Vector((0, 1, 0))
+			cam_dir = rot @ mathutils.Vector((0, 0, -1))
+			cam_up_dir = rot @ mathutils.Vector((0, 1, 0))
 			fov_degrees = 70.0
 
 			lens_unit = b_camera.lens_unit
@@ -363,10 +355,10 @@ class Exporter:
 			elif lens_unit == "MILLIMETERS":
 				sensor_width = b_camera.sensor_width
 				focal_length = b_camera.lens
-				fov_degrees  = math.degrees(math.atan((sensor_width / 2.0) / focal_length)) * 2.0
+				fov_degrees = math.degrees(math.atan((sensor_width / 2.0) / focal_length)) * 2.0
 			else:
-				print("warning: camera (%s) with lens unit %s is unsupported, not exporting"
-				      % (b_camera.name, b_camera.lens_unit))
+				print("warning: camera (%s) with lens unit %s is unsupported, not exporting" % (
+					b_camera.name, b_camera.lens_unit))
 
 			# HACK
 			if not b_camera.ph_has_dof:
@@ -492,23 +484,33 @@ class Exporter:
 
 	# TODO: write/flush commands to disk once a while (reducing memory usage)
 	def export_world_commands(self, b_context):
-
+		b_context.view_layer.update()
 		b_depsgraph = b_context.evaluated_depsgraph_get()
 
+		# DEBUG
+		print(b_depsgraph.mode)
+		for b_obj in b_depsgraph.scene.objects:
+			if b_obj.type == 'MESH':
+				b_mesh = b_obj.data
+				for b_material in b_mesh.materials:
+					print("original: %s" % b_material.ph_node_tree_name)
+					print("evaluated: %s" % b_material.evaluated_get(b_depsgraph).ph_node_tree_name)
+
 		# <objects> contain only objects for display or render.
-		for b_obj in b_depsgraph.objects:
+		for b_obj_instance in b_depsgraph.object_instances:
 
 			# Objects have animations, drivers, modifiers, and constraints applied after being evaluated.
-			b_evaluated_obj = b_obj.evaluated_get(b_depsgraph)
+			b_evaluated_obj = b_obj_instance.object
 
 			if b_evaluated_obj.type == "MESH":
 				print("exporting mesh " + b_evaluated_obj.name)
-				self.export_object_mesh(b_context, b_evaluated_obj)
+				self.export_object_mesh(b_context, b_depsgraph, b_evaluated_obj)
 			elif b_evaluated_obj.type == "LIGHT":
+				print("exporting light " + b_evaluated_obj.name)
 				light.to_sdl_commands(b_evaluated_obj, self.get_sdlconsole())
-			elif b_evaluated_obj.type == "CAMERA":
-				# do nothing since it belongs to core command
-				pass
+			# elif b_evaluated_obj.type == "CAMERA":
+			# 	# do nothing since it belongs to core command
+			# 	pass
 			else:
 				print("warning: object (%s) type (%s) is not supported, not exporting" % (
 					b_evaluated_obj.name, b_evaluated_obj.type))
@@ -531,26 +533,27 @@ class P2Exporter(Operator, ExportHelper):
 	# 	options={"HIDDEN"},
 	# )
 
-	is_export_animation_requested = BoolProperty(
-		name        = "Export Animation",
-		description = "Export each frame as a separate scene file.",
-		default     = False,
+	is_export_animation_requested: BoolProperty(
+		name="Export Animation",
+		description="Export each frame as a separate scene file.",
+		default=False,
 	)
 
 	# List of operator properties, the attributes will be assigned
 	# to the class instance from the operator settings before calling.
-	use_setting = BoolProperty(
+	use_setting: BoolProperty(
 		name="Example Boolean",
 		description="Example Tooltip",
 		default=True,
 	)
 
-	type = EnumProperty(
+	type: EnumProperty(
 		name="Example Enum",
 		description="Choose between two items",
-		items=(('OPT_A', "First Option", "Description one"),
+		items=(
+			('OPT_A', "First Option", "Description one"),
 			('OPT_B', "Second Option", "Description two")),
-			default='OPT_A',
+		default='OPT_A',
 		)
 
 	def execute(self, b_context):
@@ -588,7 +591,7 @@ class P2Exporter(Operator, ExportHelper):
 
 # Only needed if you want to add into a dynamic menu
 def menu_func_export(self, context):
-	self.layout.operator(P2Exporter.bl_idname, text = "Photon Scene (.p2)")
+	self.layout.operator(P2Exporter.bl_idname, text="Photon Scene (.p2)")
 
 
 def register():

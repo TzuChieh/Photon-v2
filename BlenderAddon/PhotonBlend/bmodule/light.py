@@ -73,11 +73,11 @@ class PhLightPropertyPanel(PhLightPanel):
 
 	def draw(self, context):
 
-		light  = context.light
+		light = context.light
 		layout = self.layout
 
 		# HACK: relying on blender light type to change light data
-		layout.prop(light, "type", expand = True)
+		layout.prop(light, "type", expand=True)
 
 		layout.prop(light, "ph_light_color_linear_srgb")
 		layout.prop(light, "ph_light_watts")
@@ -87,16 +87,16 @@ class PhLightPropertyPanel(PhLightPanel):
 			split = layout.split()
 
 			col = split.column()
-			col.prop(light, "shape", text = "Shape")
+			col.prop(light, "shape", text="Shape")
 
 			if light.shape == "SQUARE":
 
-				col.prop(light, "size", text = "Size")
+				col.prop(light, "size", text="Size")
 
 			elif light.shape == "RECTANGLE":
 
-				col.prop(light, "size",   text = "Width")
-				col.prop(light, "size_y", text = "Height")
+				col.prop(light, "size",   text="Width")
+				col.prop(light, "size_y", text="Height")
 
 			else:
 				print("warning: unsupported area light shape %s" % light.shape)
@@ -149,11 +149,11 @@ def to_sdl_commands(b_obj, sdlconsole):
 	# Blender's rectangle area light is in its xy-plane (facing -z axis) by default,
 	# while Photon's rectangle is in Blender's yz-plane (facing +x axis); these
 	# rotations accounts for such difference
-	rot = rot * mathutils.Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
-	rot = rot * mathutils.Quaternion((0.0, 0.0, 1.0), math.radians(-90.0))
+	rot = rot @ mathutils.Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
+	rot = rot @ mathutils.Quaternion((0.0, 0.0, 1.0), math.radians(-90.0))
 
-	pos   = utility.to_photon_vec3(pos)
-	rot   = utility.to_photon_quat(rot)
+	pos = utility.to_photon_vec3(pos)
+	rot = utility.to_photon_quat(rot)
 	scale = utility.to_photon_vec3(scale)
 
 	creator = LightActorCreator()
