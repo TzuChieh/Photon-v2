@@ -5,7 +5,7 @@
 
 ## What is Photon-v2
 
-Photon-v2 is a rendering engine made out of my personal interest in computer graphics. A rendering engine is what takes geometrical descriptions and material properties of a 3-D scene as input, and outputs a 2-D image of that scene from a specific point of view. In layman's terms, it is like taking a photograph, except the scene and the camera are both computer simulated. This project is actively being developed and more features are expected to come.
+Photon-v2 is a rendering engine made out of my personal interest in computer graphics. A rendering engine is what takes geometrical descriptions and material properties of a 3-D scene as input, and outputs a 2-D image of that scene from a specific point of view. In layman's terms, it is like taking a photograph, except the scene and the camera are both simulated by a computer. This project is actively being developed and more features are expected to come.
 
 **Supported Platforms**: Windows, Linux, macOS
 
@@ -17,7 +17,7 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
 
 * [**Project Website**](https://tzuchieh.github.io/photon_v2_what_is_photon.html)
 * [**Features**](https://tzuchieh.github.io/photon_v2_features.html)
-* [**Discord**](https://discord.gg/tqkdSDt)
+* [**Discord**](https://discord.gg/tqkdSDt) (you can discuss Photon and rendering related topics with me here ^_^)
 
 ## Contributing
 
@@ -29,7 +29,7 @@ If you want to get involved and is looking for a place to start, the [issues](ht
 
 ## Scene Description Language
 
-The scene description language (SDL) designed by T.C. Chang can be stored into a text file (.p2 filename extension) and loaded by Photon-v2 for rendering. To create a scene, you can either open up a text file and start writing right away (visit "./scenes/" for reference) or install the Blender addon (in "./BlenderAddon/"), which contains a .p2 file exporter and a material editor currently.
+The scene description language designed by T.C. Chang can be stored into a text file (.p2 filename extension) and loaded by Photon renderer. To create a scene, you can either open up a text file and start writing right away (visit "[./scenes/](./scenes/)" for reference), or install the Blender add-on in "[./BlenderAddon/](./BlenderAddon)" which contains a separate readme with further details.
 
 ## About the Author
 
