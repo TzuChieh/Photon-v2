@@ -51,7 +51,7 @@ class MicrofacetProperty(MaterialProperty):
 
 		is_anisotropic = bpy.props.BoolProperty(
 			name        = "Anisotropic",
-			description = "does this material has anisotropic roughness",
+			description = "does this matl has anisotropic roughness",
 			default     = False
 		)
 		setattr(b_prop_group, "is_anisotropic", is_anisotropic)
@@ -94,7 +94,7 @@ class MaterialType(bpy.types.PropertyGroup):
 
 	@classmethod
 	def get_description(cls):
-		return "Photon-v2's material"
+		return "Photon-v2's matl"
 
 	@classmethod
 	def to_sdl(cls, b_prop_group, sdlconsole, res_name):
@@ -229,7 +229,7 @@ class AbradedTranslucent(MaterialType):
 
 		cls.ior = bpy.props.FloatProperty(
 			name        = "Index of Refraction",
-			description = "index of refraction of the material in [0, infinity]",
+			description = "index of refraction of the matl in [0, infinity]",
 			default     = 1.5,
 			min         = 0.0,
 			max         = sys.float_info.max
@@ -281,7 +281,7 @@ def define_blender_props():
 	bpy.types.Material.ph_material_type = bpy.props.EnumProperty(
 		items       = b_enum_items,
 		name        = "Type",
-		description = "Photon-v2's supported material types",
+		description = "Photon-v2's supported matl types",
 		default     = b_enum_items[0][0]
 	)
 
@@ -319,5 +319,5 @@ def to_sdl(b_material, sdlconsole, res_name):
 			return material_type.to_sdl(b_prop_group, sdlconsole, res_name)
 
 	print("warning: at to_sdl(), "
-	      "SDL generating failed for material %s" % b_material.name)
+	      "SDL generating failed for matl %s" % b_material.name)
 	return ""

@@ -18,10 +18,10 @@ class MaterialCreator(CreationCommand):
 
 	@abstractmethod
 	def get_type_name(self):
-		return "material"
+		return "matl"
 
 	def get_type_category(self):
-		return "material"
+		return "matl"
 
 
 class MatteOpaqueCreator(MaterialCreator):
@@ -133,7 +133,7 @@ class FullCreator(MaterialCreator):
 		clause = SdlReferenceClause()
 		clause.set_name("surface")
 		clause.set_data(material_name)
-		clause.set_reference_category("material")
+		clause.set_reference_category("matl")
 		self.update_clause(clause)
 
 
@@ -147,16 +147,16 @@ class BinaryMixedSurfaceCreator(MaterialCreator):
 
 	def set_surface_material0_ref(self, name):
 		clause = SdlReferenceClause()
-		clause.set_name("material-0")
+		clause.set_name("matl-0")
 		clause.set_data(name)
-		clause.set_reference_category("material")
+		clause.set_reference_category("matl")
 		self.update_clause(clause)
 
 	def set_surface_material1_ref(self, name):
 		clause = SdlReferenceClause()
-		clause.set_name("material-1")
+		clause.set_name("matl-1")
 		clause.set_data(name)
-		clause.set_reference_category("material")
+		clause.set_reference_category("matl")
 		self.update_clause(clause)
 
 	def set_float_factor(self, factor):

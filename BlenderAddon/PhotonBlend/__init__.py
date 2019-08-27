@@ -19,7 +19,7 @@ print(datetime.datetime.now())
 bmodulePackageName = "bmodule"
 bmoduleNames       = [
 	"p2exporter",
-	"material",
+	"matl",
 	"renderer",
 	"light",
 	"node",

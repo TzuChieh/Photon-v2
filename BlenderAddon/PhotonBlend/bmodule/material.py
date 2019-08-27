@@ -10,7 +10,7 @@ import bpy
 class PhMaterialHeaderPanel(bpy.types.Panel):
 
 	bl_label = ""
-	bl_context = "material"
+	bl_context = "matl"
 	bl_space_type = "PROPERTIES"
 	bl_region_type = "WINDOW"
 	bl_options = {"HIDE_HEADER"}
@@ -60,7 +60,7 @@ class PhMaterialHeaderPanel(bpy.types.Panel):
 		split = layout.split(factor=0.65)
 
 		if obj:
-			split.template_ID(obj, "active_material", new="material.new")
+			split.template_ID(obj, "active_material", new="matl.new")
 			row = split.row()
 			if mat_slot:
 				row.prop(mat_slot, "link", text="")
@@ -74,7 +74,7 @@ class PhMaterialHeaderPanel(bpy.types.Panel):
 class PhAddMaterialNodesOperator(bpy.types.Operator):
 
 	"""
-	Adds a node tree for a material.
+	Adds a node tree for a matl.
 	"""
 
 	bl_idname = "photon.add_material_nodes"
@@ -82,7 +82,7 @@ class PhAddMaterialNodesOperator(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, b_context):
-		b_material = getattr(b_context, "material", None)
+		b_material = getattr(b_context, "matl", None)
 		node_tree = cls.__get_node_tree(b_material)
 		return b_material is not None and node_tree is None
 
@@ -92,7 +92,7 @@ class PhAddMaterialNodesOperator(bpy.types.Operator):
 
 		node_tree = bpy.data.node_groups.new(node_tree_name, type="PH_MATERIAL_NODE_TREE")
 
-		# Since we use node tree name to remember which node tree is used by a material,
+		# Since we use node tree name to remember which node tree is used by a matl,
 		# the node tree's use count will not be increased, resulting in data not being
 		# stored in .blend file sometimes. Use fake user is sort of hacked.
 		node_tree.use_fake_user = True
@@ -113,7 +113,7 @@ class PhMaterialPanel(bpy.types.Panel):
 
 	bl_space_type = "PROPERTIES"
 	bl_region_type = "WINDOW"
-	bl_context = "material"
+	bl_context = "matl"
 
 	COMPATIBLE_ENGINES = {
 		settings.renderer_id_name,
@@ -129,7 +129,7 @@ class PhMaterialPanel(bpy.types.Panel):
 class PhMainPropertyPanel(PhMaterialPanel):
 
 	"""
-	Setting up primary material properties.
+	Setting up primary matl properties.
 	"""
 
 	bl_label = "PR - Material"
@@ -154,14 +154,14 @@ class PhMainPropertyPanel(PhMaterialPanel):
 class PhOptionPanel(PhMaterialPanel):
 
 	"""
-	Additional options for tweaking the material.
+	Additional options for tweaking the matl.
 	"""
 
 	bl_label = "PR - Options"
 
 	bpy.types.Material.ph_is_emissive = bpy.props.BoolProperty(
 		name="Emissive",
-		description="whether consider current material's emissivity or not",
+		description="whether consider current matl's emissivity or not",
 		default=False
 	)
 

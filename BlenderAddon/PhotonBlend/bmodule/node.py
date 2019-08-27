@@ -61,7 +61,7 @@ class PhMaterialNodeTree(bpy.types.NodeTree):
 		render_settings = b_context.scene.render
 		return render_settings.engine in cls.COMPATIBLE_ENGINES
 
-	# Blender: set the current node tree to the one the active material owns (update editor views)
+	# Blender: set the current node tree to the one the active matl owns (update editor views)
 	@classmethod
 	def get_from_context(cls, b_context):
 		obj = b_context.active_object
@@ -82,13 +82,13 @@ class PhMaterialNodeHeader(bpy.types.Header):
 		b_layout = self.layout
 		obj = b_context.object
 
-		# TODO: remove node tree selection menu and prepend material.new like cycles
+		# TODO: remove node tree selection menu and prepend matl.new like cycles
 
 		if obj and obj.type not in {"LIGHT", "CAMERA"}:
 			row = b_layout.row()
 
-			# Show material.new when no active material exists
-			row.template_ID(obj, "active_material", new="material.new")
+			# Show matl.new when no active matl exists
+			row.template_ID(obj, "active_material", new="matl.new")
 
 
 class PhMaterialNodeSocket(bpy.types.NodeSocketShader):
@@ -217,7 +217,7 @@ class PhOutputNode(PhMaterialNode):
 		surface_mat_socket = self.inputs[0]
 		surface_mat_res_name = surface_mat_socket.get_from_res_name(res_name)
 		if surface_mat_res_name is None:
-			print("material <%s>'s output node is not linked, ignored" % res_name)
+			print("matl <%s>'s output node is not linked, ignored" % res_name)
 			return
 
 		creator = FullMaterialCreator()
@@ -360,7 +360,7 @@ class PhBinaryMixedSurfaceNode(PhMaterialNode):
 		mat0_res_name = mat0_socket.get_from_res_name(res_name)
 		mat1_res_name = mat1_socket.get_from_res_name(res_name)
 		if mat0_res_name is None or mat1_res_name is None:
-			print("warning: material <%s>'s binary mixed surface node is incomplete" % res_name)
+			print("warning: matl <%s>'s binary mixed surface node is incomplete" % res_name)
 			return
 
 		creator = BinaryMixedSurfaceMaterialCreator()
@@ -866,7 +866,7 @@ def to_sdl(res_name, b_material, sdlconsole):
 	node_tree = find_node_tree(b_material)
 	output_node = find_output_node(node_tree)
 	if output_node is None:
-		print("material <%s> has no output node, ignoring" % res_name)
+		print("matl <%s> has no output node, ignoring" % res_name)
 		return MaterialNodeTranslateResult()
 
 	processed_nodes = set()

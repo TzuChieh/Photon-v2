@@ -1,17 +1,14 @@
-from ..psdl import clause
 from ..psdl.sdlconsole import SdlConsole
 from ..psdl.cmd import RawCommand
-from ..psdl.lightcmd import ModelLightCreator
 from .. import utility
 from ..utility import meta
-from . import ui
-from . import export
 from .export import naming
 from . import light
 from . import node
-from ..psdl import actorcmd
 from ..psdl import sdlresource
 from .mesh import triangle_mesh
+from . import scene
+from . import matl
 
 from ..psdl.pysdl import (
 	SDLReal,
@@ -19,19 +16,12 @@ from ..psdl.pysdl import (
 	SDLVector3,
 	SDLQuaternion,
 	SDLString,
-	SDLVector3Array,
-	SDLReference,
 	SDLImage,
 	SDLGeometry,
 	SDLMaterial,
-	SDLLightSource,
-	SDLSampleGenerator,
-	SDLCamera,
-	SDLRenderer)
+	SDLLightSource)
 
 from ..psdl.pysdl import (
-	TriangleMeshGeometryCreator,
-	RectangleGeometryCreator,
 	ModelActorCreator,
 	LightActorCreator,
 	ModelActorTranslate,
@@ -129,16 +119,16 @@ class Exporter:
 				print("not using node tree")
 				# BROKEN CODE
 				# command = RawCommand()
-				# command.append_string(ui.material.to_sdl(b_material, self.__sdlconsole, material_name))
+				# command.append_string(ui.matl.to_sdl(b_material, self.__sdlconsole, material_name))
 				# self.__sdlconsole.queue_command(command)
 				# return node.MaterialNodeTranslateResult()
 				return None
 		else:
-			print("using cycles material")
+			print("using cycles matl")
 			# BROKEN CODE
 			# translate_result = export.cycles_material.translate(b_material, self.__sdlconsole, material_name)
 			# if not translate_result.is_valid():
-			# 	print("warning: cycles material %s translation failed" % material_name)
+			# 	print("warning: cycles matl %s translation failed" % material_name)
 			# return node.MaterialNodeTranslateResult()
 			return None
 
@@ -163,7 +153,7 @@ class Exporter:
 		# 	command.append_string("[geometry geometry %s] " %("\"@" + geometryName + "\""))
 		#
 		# if materialName != None:
-		# 	command.append_string("[material material %s] " %("\"@" + materialName + "\""))
+		# 	command.append_string("[matl matl %s] " %("\"@" + materialName + "\""))
 
 		translator = LightActorTranslate()
 		translator.set_target_name(actorLightName)
@@ -234,7 +224,7 @@ class Exporter:
 	def export_object_mesh(self, b_context, b_depsgraph, b_obj):
 
 		if len(b_obj.data.materials) == 0:
-			print("warning: mesh object (%s) has no material, not exporting" % b_obj.name)
+			print("warning: mesh object (%s) has no matl, not exporting" % b_obj.name)
 			return
 
 		# FIXME: this call is only necessary in edit mode, maybe properly check this?
@@ -248,7 +238,7 @@ class Exporter:
 			print("warning: cannot convert　mesh object %s　to mesh, not exporting" % b_obj.name)
 			return
 
-		# Group faces with the same material, then export each face-material pair as a Photon-v2's actor.
+		# Group faces with the same matl, then export each face-matl pair as a Photon-v2's actor.
 
 		b_mesh.calc_loop_triangles()
 		b_mesh.calc_normals()
@@ -257,7 +247,7 @@ class Exporter:
 		material_idx_loop_triangles_map = {}
 		for b_loop_triangle in b_mesh.loop_triangles:
 
-			# This index refers to material slots (their stack order in the UI).
+			# This index refers to matl slots (their stack order in the UI).
 			material_idx = b_loop_triangle.material_index
 
 			if material_idx not in material_idx_loop_triangles_map.keys():
@@ -270,13 +260,13 @@ class Exporter:
 			b_material = b_obj.material_slots[material_idx].material.evaluated_get(b_depsgraph)
 			loop_triangles = material_idx_loop_triangles_map[material_idx]
 
-			# A material slot can be empty, this check is necessary.
+			# A matl slot can be empty, this check is necessary.
 			if b_material is None:
-				print("warning: no material is in mesh object %s's material slot %d, not exporting" % (
+				print("warning: no matl is in mesh object %s's matl slot %d, not exporting" % (
 					b_obj.name, material_idx))
 				continue
 
-			# Same material can be in different slots, with slot index as suffix we can ensure unique material
+			# Same matl can be in different slots, with slot index as suffix we can ensure unique matl
 			# names (required by Photon-v2 for creating unique materials).
 			geometry_name = naming.mangled_geometry_name(b_obj, b_mesh.name, str(material_idx))
 			material_name = naming.mangled_material_name(b_obj, b_mesh.name + "_" + b_material.name, str(material_idx))
@@ -332,6 +322,98 @@ class Exporter:
 		# delete the temporary mesh for exporting
 		# FIXME: this call may be missed if any exception has thrown earlier
 		b_obj.to_mesh_clear()
+
+	def export_mesh_object(self, b_depsgraph: bpy.types.Depsgraph, b_mesh_object: bpy.types.Object):
+		b_mesh = b_mesh_object.data
+
+		if b_mesh is None:
+			print("warning: mesh object (%s)　has no mesh data, not exporting" % b_mesh_object.name)
+			return
+
+		if len(b_mesh.materials) == 0:
+			print("warning: mesh object (%s) has no matl, not exporting" % b_mesh_object.name)
+			return
+
+		# Group faces with the same matl, then export each face-matl pair as a Photon-v2's actor.
+
+		b_mesh.calc_loop_triangles()
+		b_mesh.calc_normals()
+
+		# TODO: might be faster if using len(obj.material_slots()) for array size and simply store each loop tris array
+		material_idx_loop_triangles_map = {}
+		for b_loop_triangle in b_mesh.loop_triangles:
+
+			# This index refers to matl slots (their stack order in the UI).
+			material_idx = b_loop_triangle.material_index
+
+			if material_idx not in material_idx_loop_triangles_map.keys():
+				material_idx_loop_triangles_map[material_idx] = []
+
+			material_idx_loop_triangles_map[material_idx].append(b_loop_triangle)
+
+		for material_idx in material_idx_loop_triangles_map.keys():
+
+			b_material = b_obj.material_slots[material_idx].material.evaluated_get(b_depsgraph)
+			loop_triangles = material_idx_loop_triangles_map[material_idx]
+
+			# A matl slot can be empty, this check is necessary.
+			if b_material is None:
+				print("warning: no matl is in mesh object %s's matl slot %d, not exporting" % (
+					b_mesh_object.name, material_idx))
+				continue
+
+			# Same matl can be in different slots, with slot index as suffix we can ensure unique matl
+			# names (required by Photon-v2 for creating unique materials).
+			geometry_name = naming.mangled_geometry_name(b_mesh_object, b_mesh.name, str(material_idx))
+			material_name = naming.mangled_material_name(b_mesh_object, b_mesh.name + "_" + b_material.name, str(material_idx))
+
+			# Use the active one as the UV map for export.
+			# TODO: support exporting multiple or zero UV maps/layers
+			b_uv_layers = b_mesh.uv_layers
+			b_active_uv_layer = b_uv_layers.active
+
+			# TODO: support mesh without uv map
+			if len(b_mesh.uv_layers) == 0:
+				print("warning: mesh (%s) has no uv maps, ignoring" % geometry_name)
+				continue
+
+			# TODO: support mesh without uv map
+			if b_active_uv_layer is None:
+				print("warning: mesh (%s) has %d uv maps, but no one is active (no uv map will be exported)" % (
+					geometry_name, len(b_uv_layers)))
+				continue
+
+			# TODO: support mesh with multiple uv maps
+			if len(b_mesh.uv_layers) > 1:
+				print("warning: mesh (%s) has %d uv maps, only the active one is exported" % (
+					geometry_name, len(b_uv_layers)))
+
+			triangle_mesh.loop_triangles_to_sdl_triangle_mesh(
+				geometry_name,
+				self.__sdlconsole,
+				loop_triangles,
+				b_mesh.vertices,
+				b_active_uv_layer.data)
+
+			mat_translate_result = self.exportMaterial(b_context, material_name, b_material)
+
+			# creating actor (can be either model or light depending on emissivity)
+			pos, rot, scale = b_mesh_object.matrix_world.decompose()
+
+			if matl.is_emissive(b_material):
+				light_source_name = naming.mangled_light_source_name(b_mesh_object, b_mesh.name, str(material_idx))
+				creator = ModelLightSourceCreator()
+				creator.set_data_name(light_source_name)
+				creator.set_emitted_radiance(SDLImage(mat_translate_result.surface_emi_res_name))
+				creator.set_geometry(SDLGeometry(geometry_name))
+				creator.set_material(SDLMaterial(material_name))
+				self.get_sdlconsole().queue_command(creator)
+
+				actor_light_name = naming.mangled_actor_light_name(b_mesh_object, "", str(material_idx))
+				self.exportActorLight(actor_light_name, light_source_name, geometry_name, material_name, pos, rot, scale)
+			else:
+				actor_model_name = naming.mangled_actor_model_name(b_mesh_object, "", str(material_idx))
+				self.exportActorModel(actor_model_name, geometry_name, material_name, pos, rot, scale)
 
 	def export_camera(self, obj, scene):
 
@@ -519,6 +601,13 @@ class Exporter:
 		if b_world is not None:
 			self.export_world(b_world)
 
+	def export(self, b_depsgraph: bpy.types.Depsgraph):
+		b_mesh_objects = scene.find_mesh_objects(b_depsgraph)
+		b_light_objects = scene.find_light_objects(b_depsgraph)
+		b_camera_object = scene.find_active_camera_object(b_depsgraph)
+
+		self.export_object_mesh(b_context, b_depsgraph, b_evaluated_obj)
+
 
 class P2Exporter(Operator, ExportHelper):
 	"""export the scene to some Photon-v2 readable format"""
@@ -536,27 +625,23 @@ class P2Exporter(Operator, ExportHelper):
 	is_export_animation_requested: BoolProperty(
 		name="Export Animation",
 		description="Export each frame as a separate scene file.",
-		default=False,
+		default=False
 	)
-
-	# List of operator properties, the attributes will be assigned
-	# to the class instance from the operator settings before calling.
-	use_setting: BoolProperty(
-		name="Example Boolean",
-		description="Example Tooltip",
-		default=True,
-	)
-
-	type: EnumProperty(
-		name="Example Enum",
-		description="Choose between two items",
-		items=(
-			('OPT_A', "First Option", "Description one"),
-			('OPT_B', "Second Option", "Description two")),
-		default='OPT_A',
-		)
 
 	def execute(self, b_context):
+		edit_modes = {
+			'EDIT_MESH',
+			'EDIT_CURVE',
+			'EDIT_SURFACE',
+			'EDIT_TEXT',
+			'EDIT_ARMATURE',
+			'EDIT_METABALL',
+			'EDIT_LATTICE',
+			'EDIT_GPENCIL'
+		}
+		if b_context.mode in edit_modes:
+			print("Export failed. Please exit edit mode for exporting.")
+			return {'CANCELLED'}
 
 		scene = b_context.scene
 
@@ -570,7 +655,7 @@ class P2Exporter(Operator, ExportHelper):
 
 			exporter.end()
 
-			return {"FINISHED"}
+			return {'FINISHED'}
 
 		else:
 
@@ -586,7 +671,7 @@ class P2Exporter(Operator, ExportHelper):
 
 				exporter.end()
 
-			return {"FINISHED"}
+			return {'FINISHED'}
 
 
 # Only needed if you want to add into a dynamic menu

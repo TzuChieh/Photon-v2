@@ -329,7 +329,7 @@ class SDLGeometry(SDLReference):
 class SDLMaterial(SDLReference):
 
     def __init__(self, ref_name = ""):
-        super().__init__("material", ref_name)
+        super().__init__("matl", ref_name)
 
 
 class SDLMotion(SDLReference):
@@ -484,7 +484,7 @@ class ModelActorCreator(SDLCreatorCommand):
         self.set_input("geometry", geometry)
 
     def set_material(self, material: SDLData):
-        self.set_input("material", material)
+        self.set_input("matl", material)
 
 
 class ModelActorTranslate(SDLExecutorCommand):
@@ -544,7 +544,7 @@ class PhantomModelActorCreator(SDLCreatorCommand):
         self.set_input("geometry", geometry)
 
     def set_material(self, material: SDLData):
-        self.set_input("material", material)
+        self.set_input("matl", material)
 
 
 class PhantomModelActorTranslate(SDLExecutorCommand):
@@ -886,7 +886,7 @@ class ModelLightSourceCreator(SDLCreatorCommand):
         self.set_input("geometry", geometry)
 
     def set_material(self, material: SDLData):
-        self.set_input("material", material)
+        self.set_input("matl", material)
 
     def set_emitted_radiance(self, emitted_radiance: SDLData):
         self.set_input("emitted-radiance", emitted_radiance)
@@ -955,7 +955,7 @@ class AbradedOpaqueMaterialCreator(SDLCreatorCommand):
         super().__init__()
 
     def get_full_type(self):
-        return "material(abraded-opaque)"
+        return "matl(abraded-opaque)"
 
     def set_type(self, type: SDLData):
         self.set_input("type", type)
@@ -979,7 +979,7 @@ class AbradedTranslucentMaterialCreator(SDLCreatorCommand):
         super().__init__()
 
     def get_full_type(self):
-        return "material(abraded-translucent)"
+        return "matl(abraded-translucent)"
 
     def set_fresnel_type(self, fresnel_type: SDLData):
         self.set_input("fresnel-type", fresnel_type)
@@ -1000,7 +1000,7 @@ class BinaryMixedSurfaceMaterialCreator(SDLCreatorCommand):
         super().__init__()
 
     def get_full_type(self):
-        return "material(binary-mixed-surface)"
+        return "matl(binary-mixed-surface)"
 
     def set_mode(self, mode: SDLData):
         self.set_input("mode", mode)
@@ -1009,10 +1009,10 @@ class BinaryMixedSurfaceMaterialCreator(SDLCreatorCommand):
         self.set_input("factor", factor)
 
     def set_material_0(self, material_0: SDLData):
-        self.set_input("material-0", material_0)
+        self.set_input("matl-0", material_0)
 
     def set_material_1(self, material_1: SDLData):
-        self.set_input("material-1", material_1)
+        self.set_input("matl-1", material_1)
 
 
 class FullMaterialCreator(SDLCreatorCommand):
@@ -1021,7 +1021,7 @@ class FullMaterialCreator(SDLCreatorCommand):
         super().__init__()
 
     def get_full_type(self):
-        return "material(full)"
+        return "matl(full)"
 
     def set_surface(self, surface: SDLData):
         self.set_input("surface", surface)
@@ -1039,7 +1039,7 @@ class IdealSubstanceMaterialCreator(SDLCreatorCommand):
         super().__init__()
 
     def get_full_type(self):
-        return "material(ideal-substance)"
+        return "matl(ideal-substance)"
 
     def set_type(self, type: SDLData):
         self.set_input("type", type)
@@ -1066,13 +1066,13 @@ class LayeredSurfaceMaterialCreator(SDLCreatorCommand):
         super().__init__()
 
     def get_full_type(self):
-        return "material(layered-surface)"
+        return "matl(layered-surface)"
 
 
 class LayeredSurfaceMaterialAdd(SDLExecutorCommand):
 
     def get_full_type(self):
-        return "material(layered-surface)"
+        return "matl(layered-surface)"
 
     def get_name(self):
         return "add"
@@ -1081,7 +1081,7 @@ class LayeredSurfaceMaterialAdd(SDLExecutorCommand):
 class LayeredSurfaceMaterialSet(SDLExecutorCommand):
 
     def get_full_type(self):
-        return "material(layered-surface)"
+        return "matl(layered-surface)"
 
     def get_name(self):
         return "set"
@@ -1117,7 +1117,7 @@ class MatteOpaqueMaterialCreator(SDLCreatorCommand):
         super().__init__()
 
     def get_full_type(self):
-        return "material(matte-opaque)"
+        return "matl(matte-opaque)"
 
     def set_albedo(self, albedo: SDLData):
         self.set_input("albedo", albedo)
