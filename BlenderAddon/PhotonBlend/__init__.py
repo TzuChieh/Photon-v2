@@ -3,59 +3,58 @@ import importlib
 import datetime
 
 bl_info = {
-	"name":        "Photon-v2",
-	"description": "A hobby renderer featuring PBR.",
-	"author":      "Tzu-Chieh Chang",
-	"version":     (2, 0, 0),
-	"blender":     (2, 80, 0),
-	"location":    "Info Header >> Render Engine Menu",
-	"warning":     "experimental...",  # showing warning icon and text in addons panel
-	"category":    "Render"
+	"name": "Photon-v2",
+	"description": "A renderer featuring physically based rendering.",
+	"author": "Tzu-Chieh Chang",
+	"version": (2, 0, 0),
+	"blender": (2, 80, 0),
+	"location": "Info Header >> Render Engine Menu",  # FIXME
+	"warning": "experimental...",
+	"category": "Render"
 }
 
 print("PhotonBlend initializing...")
 print(datetime.datetime.now())
 
-bmodulePackageName = "bmodule"
-bmoduleNames       = [
+root_package_name = "bmodule"
+
+main_package_names = [
+	"materials",
+	"lights",
+	"cameras",
 	"p2exporter",
-	"matl",
 	"renderer",
-	"light",
-	"node",
-	"world",
-	"camera"
+	"world"
 ]
 
-bmoduleFullNames = []
-for bmoduleName in bmoduleNames:
-	bmoduleFullNames.append("{}.{}.{}".format(__name__, bmodulePackageName, bmoduleName))
+main_package_full_names = []
+for main_package_name in main_package_names:
+	main_package_full_names.append("{}.{}.{}".format(__name__, root_package_name, main_package_name))
 
-for bmoduleFullName in bmoduleFullNames:
-	if bmoduleFullName in sys.modules:
-		importlib.reload(sys.modules[bmoduleFullName])
+for main_package_full_name in main_package_full_names:
+	if main_package_full_name in sys.modules:
+		importlib.reload(sys.modules[main_package_full_name])
 	else:
-		importlib.import_module(bmoduleFullName)
+		importlib.import_module(main_package_full_name)
 
 
 def register():
-	for moduleName in bmoduleFullNames:
-		if moduleName in sys.modules:
-			if hasattr(sys.modules[moduleName], "register"):
-				sys.modules[moduleName].register()
+	for module_name in main_package_full_names:
+		if module_name in sys.modules:
+			if hasattr(sys.modules[module_name], "register"):
+				sys.modules[module_name].register()
 			else:
-				print("bmodule %s should contain a register() function" % moduleName)
+				print("Blender module %s should contain a register() function" % module_name)
 		else:
-			print("bmodule %s is not correctly imported" % moduleName)
+			print("Blender module %s is not correctly imported" % module_name)
 
 
 def unregister():
-	for moduleName in bmoduleFullNames:
-		if moduleName in sys.modules:
-			if hasattr(sys.modules[moduleName], "unregister"):
-				sys.modules[moduleName].unregister()
+	for module_name in main_package_full_names:
+		if module_name in sys.modules:
+			if hasattr(sys.modules[module_name], "unregister"):
+				sys.modules[module_name].unregister()
 			else:
-				print("bmodule %s should contain an unregister() function" % moduleName)
+				print("Blender module %s should contain an unregister() function" % module_name)
 		else:
-			print("bmodule %s is not correctly imported" % moduleName)
-
+			print("Blender module %s is not correctly imported" % module_name)

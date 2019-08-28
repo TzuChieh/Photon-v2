@@ -3,12 +3,12 @@ from ..psdl.cmd import RawCommand
 from .. import utility
 from ..utility import meta
 from .export import naming
-from . import light
-from . import node
+from . import lights
+from .material import node
 from ..psdl import sdlresource
 from .mesh import triangle_mesh
 from . import scene
-from . import matl
+from . import material
 
 from ..psdl.pysdl import (
 	SDLReal,
@@ -46,7 +46,7 @@ import mathutils
 # ExportHelper is a helper class, defines filename and
 # invoke() function which calls the file selector.
 from bpy_extras.io_utils import ExportHelper
-from bpy.props import StringProperty, BoolProperty, EnumProperty
+from bpy.props import BoolProperty
 from bpy.types import Operator
 
 import math
@@ -400,7 +400,7 @@ class Exporter:
 			# creating actor (can be either model or light depending on emissivity)
 			pos, rot, scale = b_mesh_object.matrix_world.decompose()
 
-			if matl.is_emissive(b_material):
+			if material.is_emissive(b_material):
 				light_source_name = naming.mangled_light_source_name(b_mesh_object, b_mesh.name, str(material_idx))
 				creator = ModelLightSourceCreator()
 				creator.set_data_name(light_source_name)
@@ -589,7 +589,7 @@ class Exporter:
 				self.export_object_mesh(b_context, b_depsgraph, b_evaluated_obj)
 			elif b_evaluated_obj.type == "LIGHT":
 				print("exporting light " + b_evaluated_obj.name)
-				light.to_sdl_commands(b_evaluated_obj, self.get_sdlconsole())
+				lights.to_sdl_commands(b_evaluated_obj, self.get_sdlconsole())
 			# elif b_evaluated_obj.type == "CAMERA":
 			# 	# do nothing since it belongs to core command
 			# 	pass

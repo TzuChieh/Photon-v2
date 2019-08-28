@@ -1,13 +1,8 @@
-from ..utility import settings
-from . import common
-from ..psdl import imagecmd
-from ..psdl import materialcmd
-from ..psdl import sdlresource
-from .. import utility
-from ..psdl import clause
-from ..psdl.cmd import RawCommand
+from ...utility import settings
+from ...psdl import sdlresource
+from ... import utility
 
-from ..psdl.pysdl import (
+from ...psdl.pysdl import (
 	SDLInteger,
 	SDLReal,
 	SDLString,
@@ -16,7 +11,7 @@ from ..psdl.pysdl import (
 	SDLImage,
 	SDLMaterial)
 
-from ..psdl.pysdl import (
+from ...psdl.pysdl import (
 	MatteOpaqueMaterialCreator,
 	AbradedOpaqueMaterialCreator,
 	AbradedTranslucentMaterialCreator,
