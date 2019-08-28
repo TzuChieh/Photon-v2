@@ -46,7 +46,6 @@ class PhLightPanel(bpy.types.Panel):
 
 
 class PhLightPropertyPanel(PhLightPanel):
-
 	"""
 	Specify and control light properties.
 	"""

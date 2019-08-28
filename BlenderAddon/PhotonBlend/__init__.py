@@ -1,3 +1,5 @@
+from .utility.blender import BlenderModuleManager
+
 import sys
 import importlib
 import datetime
@@ -13,32 +15,40 @@ bl_info = {
 	"category": "Render"
 }
 
-print("PhotonBlend initializing...")
-print(datetime.datetime.now())
-
-root_package_name = "bmodule"
+print("PhotonBlend activated. %s" % datetime.datetime.now())
 
 main_package_names = [
-	"materials",
-	"lights",
-	"cameras",
-	"p2exporter",
-	"renderer",
-	"world"
+	"bmodule.materials",
+	"bmodule.lights",
+	"bmodule.cameras",
+	"bmodule.p2exporter",
+	"bmodule.renderer",
+	"bmodule.world"
 ]
 
 main_package_full_names = []
 for main_package_name in main_package_names:
-	main_package_full_names.append("{}.{}.{}".format(__name__, root_package_name, main_package_name))
+	main_package_full_names.append("{}.{}".format(__name__, main_package_name))
 
-for main_package_full_name in main_package_full_names:
-	if main_package_full_name in sys.modules:
-		importlib.reload(sys.modules[main_package_full_name])
-	else:
-		importlib.import_module(main_package_full_name)
+module_manager = None
 
 
+# Register all modules. (A required Blender callback.)
 def register():
+	module_manager = BlenderModuleManager()
+
+	for main_package_full_name in main_package_full_names:
+		# Import or update existing modules.
+		if main_package_full_name in sys.modules:
+			importlib.reload(sys.modules[main_package_full_name])
+		else:
+			importlib.import_module(main_package_full_name)
+
+		main_module = sys.modules[main_package_full_name]
+
+
+
+
 	for module_name in main_package_full_names:
 		if module_name in sys.modules:
 			if hasattr(sys.modules[module_name], "register"):
@@ -49,6 +59,7 @@ def register():
 			print("Blender module %s is not correctly imported" % module_name)
 
 
+# Unregister all modules. (A required Blender callback.)
 def unregister():
 	for module_name in main_package_full_names:
 		if module_name in sys.modules:

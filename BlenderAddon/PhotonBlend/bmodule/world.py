@@ -56,3 +56,6 @@ def unregister():
 	class_types = WORLD_PANEL_TYPES
 	for class_type in class_types:
 		bpy.utils.unregister_class(class_type)
+
+
+def 
