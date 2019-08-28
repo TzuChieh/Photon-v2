@@ -10,6 +10,7 @@ import bpy
 
 # TODO: materials from other blend files (library blends) can have the same name, need to somehow distinguish them
 
+
 # Decorates a name given predefined decoration elements.
 def _get_decorated_name(name, **decorations):
 	decorated_name = name

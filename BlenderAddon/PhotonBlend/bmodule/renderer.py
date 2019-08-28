@@ -1,4 +1,4 @@
-from ..utility import settings
+from ..utility import settings, blender
 
 import bpy
 from bl_ui import (
@@ -37,8 +37,7 @@ class PhRenderPanel(bpy.types.Panel):
 
 
 class PhRenderingPanel(PhRenderPanel):
-
-	bl_label = "PR - Rendering"
+	bl_label = "PR: Rendering"
 
 	bpy.types.Scene.ph_render_integrator_type = bpy.props.EnumProperty(
 		items = [
@@ -157,8 +156,7 @@ class PhRenderingPanel(PhRenderPanel):
 
 
 class PhSamplingPanel(PhRenderPanel):
-
-	bl_label = "PR - Sampling"
+	bl_label = "PR: Sampling"
 
 	bpy.types.Scene.ph_render_num_spp = bpy.props.IntProperty(
 		name        = "Samples per Pixel",
@@ -190,8 +188,7 @@ class PhSamplingPanel(PhRenderPanel):
 
 
 class PhOptionsPanel(PhRenderPanel):
-
-	bl_label = "PR - Options"
+	bl_label = "PR: Options"
 
 	bpy.types.Scene.ph_use_cycles_material = bpy.props.BoolProperty(
 		name        = "Use Cycles Material",
@@ -207,47 +204,50 @@ class PhOptionsPanel(PhRenderPanel):
 		layout.prop(scene, "ph_use_cycles_material")
 
 
-render_panel_types = [
+RENDER_PANEL_CLASSES = [
 	PhSamplingPanel,
 	PhOptionsPanel,
 	PhRenderingPanel
 ]
 
 
-def register():
-	# Register the RenderEngine.
-	bpy.utils.register_class(PhotonRenderer)
+class RendererModule(blender.BlenderModule):
+	def register(self):
+		# Register the render engine.
+		bpy.utils.register_class(PhotonRenderer)
 
-	# RenderEngines also need to tell UI Panels that they are compatible;
-	# otherwise most of the UI will be empty when the engine is selected.
+		# RenderEngines also need to tell UI Panels that they are compatible;
+		# otherwise most of the UI will be empty when the engine is selected.
+
+		properties_output.RENDER_PT_dimensions.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
+
+		properties_data_camera.DATA_PT_lens.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
+		properties_data_camera.DATA_PT_camera.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
+
+		# properties_data_light.DATA_PT_light.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
+		# properties_data_light.DATA_PT_area.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
+
+		# properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
+
+		for clazz in RENDER_PANEL_CLASSES:
+			bpy.utils.register_class(clazz)
+
+	def unregister(self):
+		bpy.utils.unregister_class(PhotonRenderer)
+
+		properties_output.RENDER_PT_render.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
+
+		properties_data_camera.DATA_PT_lens.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
+		properties_data_camera.DATA_PT_camera.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
+
+		# properties_data_light.DATA_PT_light.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
+		# properties_data_light.DATA_PT_area.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
+
+		# properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
+
+		for clazz in RENDER_PANEL_CLASSES:
+			bpy.utils.unregister_class(clazz)
 
 
-	properties_output.RENDER_PT_dimensions.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
-
-	properties_data_camera.DATA_PT_lens.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
-	properties_data_camera.DATA_PT_camera.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
-
-	#properties_data_light.DATA_PT_light.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
-	#properties_data_light.DATA_PT_area.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
-
-	#properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
-
-	for panel_type in render_panel_types:
-		bpy.utils.register_class(panel_type)
-
-
-def unregister():
-	bpy.utils.unregister_class(PhotonRenderer)
-
-	properties_output.RENDER_PT_render.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
-
-	properties_data_camera.DATA_PT_lens.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
-	properties_data_camera.DATA_PT_camera.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
-
-	#properties_data_light.DATA_PT_light.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
-	#properties_data_light.DATA_PT_area.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
-
-	#properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
-
-	for panel_type in render_panel_types:
-		bpy.utils.unregister_class(panel_type)
+def include_module(module_manager):
+	module_manager.add_module(RendererModule())

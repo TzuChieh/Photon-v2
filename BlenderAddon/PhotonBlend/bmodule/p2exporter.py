@@ -1,7 +1,7 @@
 from ..psdl.sdlconsole import SdlConsole
 from ..psdl.cmd import RawCommand
 from .. import utility
-from ..utility import meta
+from ..utility import meta, blender
 from .export import naming
 from . import lights
 from .material import node
@@ -679,18 +679,15 @@ def menu_func_export(self, context):
 	self.layout.operator(P2Exporter.bl_idname, text="Photon Scene (.p2)")
 
 
-def register():
-	bpy.utils.register_class(P2Exporter)
-	bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
+class ExporterModule(blender.BlenderModule):
+	def register(self):
+		bpy.utils.register_class(P2Exporter)
+		bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
+
+	def unregister(self):
+		bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
+		bpy.utils.unregister_class(P2Exporter)
 
 
-def unregister():
-	bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
-	bpy.utils.unregister_class(P2Exporter)
-
-
-if __name__ == "__main__":
-	register()
-
-	# test call
-	bpy.ops.object.p2_exporter("INVOKE_DEFAULT")
+def include_module(module_manager):
+	module_manager.add_module(ExporterModule())

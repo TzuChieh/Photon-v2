@@ -182,30 +182,18 @@ class PhMainPropertiesPanel(PhMaterialPanel):
 #         row.prop(material, "ph_emitted_radiance")
 
 
-MATERIAL_PANEL_TYPES = [
+MATERIAL_PANELS = [
     PhMaterialHeaderPanel,
     PhMainPropertiesPanel,
     # PhOptionPanel
 ]
 
-MATERIAL_OPERATOR_TYPES = []
+MATERIAL_OPERATORS = []
 
 
-def register():
-    class_types = MATERIAL_PANEL_TYPES + MATERIAL_OPERATOR_TYPES
-    for class_type in class_types:
-        bpy.utils.register_class(class_type)
+def include_module(module_manager):
+    classes = MATERIAL_PANELS + MATERIAL_OPERATORS
+    for clazz in classes:
+        module_manager.add_class(clazz)
 
-    material.register()
-
-
-def unregister():
-    class_types = MATERIAL_PANEL_TYPES + MATERIAL_OPERATOR_TYPES
-    for class_type in class_types:
-        bpy.utils.unregister_class(class_type)
-
-    material.unregister()
-
-
-if __name__ == "__main__":
-    register()
+    material.include_module(module_manager)

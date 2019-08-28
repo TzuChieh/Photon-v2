@@ -1,3 +1,5 @@
+from ...utility import blender
+
 import bpy
 
 
@@ -14,13 +16,17 @@ class PhotonMaterialData(bpy.types.PropertyGroup):
     )
 
 
-def register():
-    bpy.utils.register_class(PhotonMaterialData)
+class MaterialProperties(blender.BlenderModule):
+    def register(self):
+        bpy.utils.register_class(PhotonMaterialData)
 
-    bpy.types.Material.photon = bpy.props.PointerProperty(
-        type=PhotonMaterialData,
-        name="Photon Material Data")
+        bpy.types.Material.photon = bpy.props.PointerProperty(
+            type=PhotonMaterialData,
+            name="Photon Material Data")
+
+    def unregister(self):
+        bpy.utils.unregister_class(PhotonMaterialData)
 
 
-def unregister():
-    bpy.utils.unregister_class(PhotonMaterialData)
+def include_module(module_manager):
+    module_manager.add_module(MaterialProperties())

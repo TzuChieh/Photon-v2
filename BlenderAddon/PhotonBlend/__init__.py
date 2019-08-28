@@ -35,37 +35,31 @@ module_manager = None
 
 # Register all modules. (A required Blender callback.)
 def register():
+	global module_manager
 	module_manager = BlenderModuleManager()
 
+	# Import or update existing modules.
 	for main_package_full_name in main_package_full_names:
-		# Import or update existing modules.
 		if main_package_full_name in sys.modules:
 			importlib.reload(sys.modules[main_package_full_name])
 		else:
 			importlib.import_module(main_package_full_name)
 
-		main_module = sys.modules[main_package_full_name]
-
-
-
-
-	for module_name in main_package_full_names:
-		if module_name in sys.modules:
-			if hasattr(sys.modules[module_name], "register"):
-				sys.modules[module_name].register()
+	# Include modules for further operations.
+	for main_package_full_name in main_package_full_names:
+		if main_package_full_name in sys.modules:
+			package = sys.modules[main_package_full_name]
+			if hasattr(package, "include_module"):
+				package.include_module(module_manager)
 			else:
-				print("Blender module %s should contain a register() function" % module_name)
+				print("Blender package %s should contain a include_module(1) function" % main_package_full_name)
 		else:
-			print("Blender module %s is not correctly imported" % module_name)
+			print("Blender package %s is not correctly imported" % main_package_full_name)
+
+	module_manager.register_all()
 
 
 # Unregister all modules. (A required Blender callback.)
 def unregister():
-	for module_name in main_package_full_names:
-		if module_name in sys.modules:
-			if hasattr(sys.modules[module_name], "unregister"):
-				sys.modules[module_name].unregister()
-			else:
-				print("Blender module %s should contain an unregister() function" % module_name)
-		else:
-			print("Blender module %s is not correctly imported" % module_name)
+	global module_manager
+	module_manager.unregister_all()

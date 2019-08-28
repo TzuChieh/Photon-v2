@@ -4,7 +4,7 @@ import bpy
 
 
 class PhWorldPanel(bpy.types.Panel):
-	bl_label       = "PR - Environment Map"
+	bl_label       = "PR: Environment Map"
 	bl_context     = "world"
 	bl_space_type  = "PROPERTIES"
 	bl_region_type = "WINDOW"
@@ -39,23 +39,11 @@ class PhWorldPanel(bpy.types.Panel):
 		b_layout.prop(b_world, "ph_envmap_degrees")
 
 
-WORLD_PANEL_TYPES = [
+WORLD_PANEL_CLASSES = [
 	PhWorldPanel
 ]
 
 
-def register():
-
-	class_types = WORLD_PANEL_TYPES
-	for class_type in class_types:
-		bpy.utils.register_class(class_type)
-
-
-def unregister():
-
-	class_types = WORLD_PANEL_TYPES
-	for class_type in class_types:
-		bpy.utils.unregister_class(class_type)
-
-
-def 
+def include_module(module_manager):
+	for clazz in WORLD_PANEL_CLASSES:
+		module_manager.add_class(clazz)

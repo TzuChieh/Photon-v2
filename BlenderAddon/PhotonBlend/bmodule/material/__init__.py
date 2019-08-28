@@ -31,11 +31,6 @@ def is_emissive(b_material: bpy.types.Material):
     return output_node.inputs["Surface Emission"].is_linked
 
 
-def register():
-    properties.register()
-    node.register()
-
-
-def unregister():
-    properties.unregister()
-    node.unregister()
+def include_module(module_manager):
+    properties.include_module(module_manager)
+    node.include_module(module_manager)
