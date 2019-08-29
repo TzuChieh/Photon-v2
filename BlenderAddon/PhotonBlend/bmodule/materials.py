@@ -1,11 +1,11 @@
 from ..utility import settings
-from .material import node
+from .material import node, helper
 from . import material
 
 import bpy
 
 
-class PhMaterialHeaderPanel(bpy.types.Panel):
+class PH_MATERIAL_PT_header(bpy.types.Panel):
     bl_label = ""
     bl_context = "material"
     bl_space_type = "PROPERTIES"
@@ -23,7 +23,6 @@ class PhMaterialHeaderPanel(bpy.types.Panel):
         )
 
     def draw(self, b_context):
-
         layout = self.layout
 
         mat = b_context.material
@@ -70,35 +69,33 @@ class PhMaterialHeaderPanel(bpy.types.Panel):
             split.separator()
 
 
-# class PhUseMaterialNodesOperator(bpy.types.Operator):
-#
-#     """
-#     Adds a node tree for a material.
-#     """
-#
-#     bl_idname = "photon.use_material_nodes"
-#     bl_label = "Use Material Nodes"
-#
-#     @classmethod
-#     def poll(cls, b_context):
-#         b_material = getattr(b_context, "material", None)
-#         use_node_tree = b_material.photon.use_node_tree
-#         return b_material is not None and not use_node_tree
-#
-#     def execute(self, b_context):
-#         b_material = b_context.material
-#         node_tree_name = common.mangled_node_tree_name(b_material)
-#
-#         node_tree = bpy.data.node_groups.new(node_tree_name, type="PH_MATERIAL_NODE_TREE")
-#
-#         # Since we use node tree name to remember which node tree is used by a matl,
-#         # the node tree's use count will not be increased, resulting in data not being
-#         # stored in .blend file sometimes. Use fake user is sort of hacked.
-#         # node_tree.use_fake_user = True
-#
-#         b_material.ph_node_tree_name = node_tree_name
-#
-#         return {"FINISHED"}
+class PH_MATERIAL_OT_add_material_nodes(bpy.types.Operator):
+    """
+    Adds a node tree for a material.
+    """
+
+    bl_idname = "photon.add_material_nodes"
+    bl_label = "Add Material Nodes"
+
+    @classmethod
+    def poll(cls, b_context):
+        b_material = getattr(b_context, "material", None)
+        node_tree = b_material.photon.node_tree
+        return b_material is not None and node_tree is None
+
+    def execute(self, b_context):
+        b_material = b_context.material
+
+        node_tree = bpy.data.node_groups.new(b_material.name, type="PH_MATERIAL_NODE_TREE")
+        b_material.photon.node_tree = node_tree
+        b_material.photon.use_nodes = True
+
+        # Since we use node tree name to remember which node tree is used by a material,
+        # the node tree's use count will not be increased, resulting in data not being
+        # stored in .blend file sometimes. Use fake user is sort of hacked.
+        # node_tree.use_fake_user = True
+
+        return {"FINISHED"}
 
 
 class PhMaterialPanel(bpy.types.Panel):
@@ -120,9 +117,9 @@ class PhMaterialPanel(bpy.types.Panel):
         )
 
 
-class PhMainPropertiesPanel(PhMaterialPanel):
+class PH_MATERIAL_PT_properties(PhMaterialPanel):
     """
-    Setting up primary matl properties.
+    Setting up primary material properties.
     """
 
     bl_label = "Main Properties"
@@ -132,13 +129,13 @@ class PhMainPropertiesPanel(PhMaterialPanel):
         b_material = b_context.material
 
         layout = self.layout
-        # layout.operator(PhAddMaterialNodesOperator.bl_idname)
+        layout.operator(PH_MATERIAL_OT_add_material_nodes.bl_idname)
 
         layout.prop(b_material, "use_nodes", text="Use Shader Nodes")
 
         # Show traditional UI for shader nodes.
-        node_tree = node.find_node_tree(b_context.material)
-        output_node = node.find_output_node(node_tree)
+        node_tree = helper.find_node_tree(b_context.material)
+        output_node = helper.find_output_node(node_tree)
         if output_node is not None:
             for input_socket in output_node.inputs:
                 if input_socket.is_linked:
@@ -152,14 +149,14 @@ class PhMainPropertiesPanel(PhMaterialPanel):
 # class PhOptionPanel(PhMaterialPanel):
 #
 #     """
-#     Additional options for tweaking the matl.
+#     Additional options for tweaking the material.
 #     """
 #
 #     bl_label = "Options"
 #
 #     bpy.types.Material.ph_is_emissive = bpy.props.BoolProperty(
 #         name="Emissive",
-#         description="whether consider current matl's emissivity or not",
+#         description="whether consider current material's emissivity or not",
 #         default=False
 #     )
 #
@@ -183,12 +180,14 @@ class PhMainPropertiesPanel(PhMaterialPanel):
 
 
 MATERIAL_PANELS = [
-    PhMaterialHeaderPanel,
-    PhMainPropertiesPanel,
+    PH_MATERIAL_PT_header,
+    PH_MATERIAL_PT_properties,
     # PhOptionPanel
 ]
 
-MATERIAL_OPERATORS = []
+MATERIAL_OPERATORS = [
+    PH_MATERIAL_OT_add_material_nodes
+]
 
 
 def include_module(module_manager):

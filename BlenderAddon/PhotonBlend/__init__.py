@@ -63,3 +63,4 @@ def register():
 def unregister():
 	global module_manager
 	module_manager.unregister_all()
+	module_manager = None

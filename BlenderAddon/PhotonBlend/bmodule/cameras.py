@@ -5,34 +5,34 @@ import bpy
 import sys
 
 
-class PhCameraPanel(bpy.types.Panel):
-    bl_label       = "PR: Camera"
-    bl_context     = "data"
-    bl_space_type  = "PROPERTIES"
+class PH_CAMERA_PT_camera(bpy.types.Panel):
+    bl_label = "PR: Camera"
+    bl_context = "data"
+    bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
 
     COMPATIBLE_ENGINES = {settings.renderer_id_name}
 
     bpy.types.Camera.ph_has_dof = bpy.props.BoolProperty(
-        name        = "Depth of Field",
-        description = "",
-        default     = False
+        name="Depth of Field",
+        description="",
+        default=False
     )
 
     bpy.types.Camera.ph_lens_radius_mm = bpy.props.FloatProperty(
-        name        = "Lens Radius (millimeter)",
-        description = "",
-        default     = 52,
-        min         = 0,
-        max         = sys.float_info.max
+        name="Lens Radius (millimeter)",
+        description="",
+        default=52,
+        min=0,
+        max=sys.float_info.max
     )
 
     bpy.types.Camera.ph_focal_meters = bpy.props.FloatProperty(
-        name        = "Focal Distance (meter)",
-        description = "",
-        default     = 3,
-        min         = 0,
-        max         = sys.float_info.max
+        name="Focal Distance (meter)",
+        description="",
+        default=3,
+        min=0,
+        max=sys.float_info.max
     )
 
     @classmethod
@@ -54,7 +54,7 @@ class PhCameraPanel(bpy.types.Panel):
 
 
 CAMERA_PANELS = [
-    PhCameraPanel
+    PH_CAMERA_PT_camera
 ]
 
 

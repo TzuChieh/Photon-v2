@@ -45,6 +45,7 @@ def get_mangled_node_name(b_node: bpy.types.Node, b_material: bpy.types.Material
 	return "NO" + _get_decorated_name(joint_name, **decorations)
 
 
+# Note that the identifier attribute of a socket is unique in input or output sockets, but not both.
 def _get_mangled_node_socket_name(b_node_socket: bpy.types.Node, b_material: bpy.types.Material, **decorations):
 	b_owning_node = b_node_socket.node
 	joint_name = _get_decorated_name(b_node_socket.identifier, prefix=b_owning_node.name)

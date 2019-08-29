@@ -3,26 +3,26 @@ from ..utility import settings
 import bpy
 
 
-class PhWorldPanel(bpy.types.Panel):
-	bl_label       = "PR: Environment Map"
-	bl_context     = "world"
-	bl_space_type  = "PROPERTIES"
+class PH_WORLD_PT_general(bpy.types.Panel):
+	bl_label = "PR: General"
+	bl_context = "world"
+	bl_space_type = "PROPERTIES"
 	bl_region_type = "WINDOW"
 
 	COMPATIBLE_ENGINES = {settings.renderer_id_name}
 
 	bpy.types.World.ph_envmap_file_path = bpy.props.StringProperty(
-		name    = "File",
-		default = "",
-		subtype = "FILE_PATH"
+		name="File",
+		default="",
+		subtype="FILE_PATH"
 	)
 
 	bpy.types.World.ph_envmap_degrees = bpy.props.FloatProperty(
-		name        = "Y Rotation Degrees",
-		description = "",
-		default     = 0,
-		min         = 0,
-		max         = 360
+		name="Y Rotation Degrees",
+		description="",
+		default=0,
+		min=0,
+		max=360
 	)
 
 	@classmethod
@@ -40,7 +40,7 @@ class PhWorldPanel(bpy.types.Panel):
 
 
 WORLD_PANEL_CLASSES = [
-	PhWorldPanel
+	PH_WORLD_PT_general
 ]
 
 

@@ -1,6 +1,7 @@
 from ...utility import settings, blender
 from ...psdl import sdlresource
 from ... import utility
+from . import helper
 
 from ...psdl.pysdl import (
     SDLInteger,
@@ -35,7 +36,6 @@ from abc import abstractmethod
 
 
 class MaterialNodeTranslateResult:
-
     def __init__(self, surface_emi_res_name=None):
         self.surface_emi_res_name = surface_emi_res_name
 
@@ -44,7 +44,6 @@ class MaterialNodeTranslateResult:
 
 
 class PhMaterialNodeTree(bpy.types.NodeTree):
-
     bl_idname = "PH_MATERIAL_NODE_TREE"
     bl_label = "Photon Node Tree"
     bl_icon = "MATERIAL"
@@ -56,38 +55,36 @@ class PhMaterialNodeTree(bpy.types.NodeTree):
         render_settings = b_context.scene.render
         return render_settings.engine in cls.COMPATIBLE_ENGINES
 
-    # Blender: set the current node tree to the one the active matl owns (update editor views)
+    # Blender: set the current node tree to the one the active material owns (update editor views)
     @classmethod
     def get_from_context(cls, b_context):
-        obj = b_context.active_object
-        if obj and obj.type not in {"LIGHT", "CAMERA"}:
-            mat = obj.active_material
-            if mat is not None:
-                node_tree_name = mat.ph_node_tree_name
-                if node_tree_name != "":
-                    return bpy.data.node_groups[node_tree_name], mat, mat
+        b_object = b_context.active_object
+        if b_object and b_object.type not in {'LIGHT', 'CAMERA'}:
+            b_material = b_object.active_material
+            if b_material is not None:
+                print(b_material.photon.node_tree)
+                if b_material.photon.use_nodes:
+                    return b_material.photon.node_tree, b_material, b_material
         return None, None, None
 
 
-class PhMaterialNodeHeader(bpy.types.Header):
-
+class PH_MATERIAL_HT_header(bpy.types.Header):
     bl_space_type = "NODE_EDITOR"
 
     def draw(self, b_context):
         b_layout = self.layout
         obj = b_context.object
 
-        # TODO: remove node tree selection menu and prepend matl.new like cycles
+        # TODO: remove node tree selection menu and prepend material.new like cycles
 
         if obj and obj.type not in {"LIGHT", "CAMERA"}:
             row = b_layout.row()
 
-            # Show matl.new when no active matl exists
-            row.template_ID(obj, "active_material", new="matl.new")
+            # Show material.new when no active material exists
+            row.template_ID(obj, "active_material", new="material.new")
 
 
 class PhMaterialNodeSocket(bpy.types.NodeSocketShader):
-
     bl_idname = "PH_MATERIAL_NODE_SOCKET"
     bl_label = "Photon Socket"
 
@@ -123,7 +120,6 @@ class PhMaterialNodeSocket(bpy.types.NodeSocketShader):
 
 
 class PhMaterialNode(bpy.types.Node):
-
     bl_idname = "PH_MATERIAL_NODE"
     bl_label = "Photon Node"
     bl_icon = "MATERIAL"
@@ -155,7 +151,6 @@ class PhSurfaceMaterialSocket(PhMaterialNodeSocket):
 
 
 class PhFloatSocket(PhMaterialNodeSocket):
-
     bl_idname = "PH_FLOAT_SOCKET"
     bl_label = "Real"
 
@@ -171,7 +166,6 @@ class PhFloatSocket(PhMaterialNodeSocket):
 
 
 class PhColorSocket(PhMaterialNodeSocket):
-
     bl_idname = "PH_COLOR_SOCKET"
     bl_label = "Color"
 
@@ -190,7 +184,6 @@ class PhColorSocket(PhMaterialNodeSocket):
 
 
 class PhSurfaceLayerSocket(PhMaterialNodeSocket):
-
     bl_idname = "PH_SURFACE_LAYER_SOCKET"
     bl_label = "Surface Layer"
 
@@ -199,7 +192,6 @@ class PhSurfaceLayerSocket(PhMaterialNodeSocket):
 
 
 class PhOutputNode(PhMaterialNode):
-
     bl_idname = "PH_OUTPUT"
     bl_label = "Output"
 
@@ -212,7 +204,7 @@ class PhOutputNode(PhMaterialNode):
         surface_mat_socket = self.inputs[0]
         surface_mat_res_name = surface_mat_socket.get_from_res_name(res_name)
         if surface_mat_res_name is None:
-            print("matl <%s>'s output node is not linked, ignored" % res_name)
+            print("material <%s>'s output node is not linked, ignored" % res_name)
             return
 
         creator = FullMaterialCreator()
@@ -226,7 +218,6 @@ class PhOutputNode(PhMaterialNode):
 
 
 class PhConstantColorInputNode(PhMaterialNode):
-
     bl_idname = "PH_CONSTANT_COLOR"
     bl_label = "Constant Color"
 
@@ -271,7 +262,6 @@ class PhConstantColorInputNode(PhMaterialNode):
 
 
 class PhDiffuseSurfaceNode(PhMaterialNode):
-
     bl_idname = "PH_DIFFUSE_SURFACE"
     bl_label = "Diffuse Surface"
 
@@ -327,7 +317,6 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 
 
 class PhBinaryMixedSurfaceNode(PhMaterialNode):
-
     bl_idname = "PH_BINARY_MIXED_SURFACE"
     bl_label = "Binary Mixed Surface"
 
@@ -355,7 +344,7 @@ class PhBinaryMixedSurfaceNode(PhMaterialNode):
         mat0_res_name = mat0_socket.get_from_res_name(res_name)
         mat1_res_name = mat1_socket.get_from_res_name(res_name)
         if mat0_res_name is None or mat1_res_name is None:
-            print("warning: matl <%s>'s binary mixed surface node is incomplete" % res_name)
+            print("warning: material <%s>'s binary mixed surface node is incomplete" % res_name)
             return
 
         creator = BinaryMixedSurfaceMaterialCreator()
@@ -367,7 +356,6 @@ class PhBinaryMixedSurfaceNode(PhMaterialNode):
 
 
 class PhAbradedOpaqueNode(PhMaterialNode):
-
     bl_idname = "PH_ABRADED_OPAQUE"
     bl_label = "Abraded Opaque"
 
@@ -401,7 +389,6 @@ class PhAbradedOpaqueNode(PhMaterialNode):
 
 
 class PhPictureNode(bpy.types.Node):
-
     bl_idname = "PH_PICTURE"
     bl_label = "Picture"
 
@@ -413,12 +400,16 @@ class PhPictureNode(bpy.types.Node):
 
     def init(self, b_context):
         self.outputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
+        self.outputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
+        self.outputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
+        self.inputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
+        self.inputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
+        self.inputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
 
     def draw_buttons(self, b_context, b_layout):
         b_layout.prop(self, "file_path")
 
     def to_sdl(self, res_name, sdlconsole):
-
         image_socket = self.outputs[0]
         image_res_name = res_name + "_" + self.name + "_" + image_socket.identifier
 
@@ -448,7 +439,6 @@ class PhPictureNode(bpy.types.Node):
 
 
 class PhMultiplyNode(PhMaterialNode):
-
     bl_idname = "PH_MULTIPLY"
     bl_label = "Multiply"
 
@@ -484,7 +474,6 @@ class PhMultiplyNode(PhMaterialNode):
 
 
 class PhAbradedTranslucentNode(PhMaterialNode):
-
     bl_idname = "PH_ABRADED_TRANSLUCENT"
     bl_label = "Abraded Translucent"
 
@@ -545,7 +534,6 @@ class PhAbradedTranslucentNode(PhMaterialNode):
 
 
 class PhSurfaceLayerNode(PhMaterialNode):
-
     bl_idname = "PH_SURFACE_LAYER"
     bl_label = "Surface Layer"
 
@@ -652,12 +640,10 @@ class PhSurfaceLayerNode(PhMaterialNode):
 
 
 class PhLayeredSurfaceNode(PhMaterialNode):
-
     bl_idname = "PH_LAYERED_SURFACE"
     bl_label = "Layered Surface"
 
     def update_inputs(self, b_context):
-
         specified_num_layers = self["num_layers"]
 
         while len(self.inputs) != specified_num_layers:
@@ -822,7 +808,6 @@ class PhIdealSubstanceNode(PhMaterialNode):
 
 
 class PhMaterialNodeCategory(nodeitems_utils.NodeCategory):
-
     @classmethod
     def poll(cls, b_context):
         return b_context.space_data.tree_type == PhMaterialNodeTree.bl_idname
@@ -839,29 +824,11 @@ def to_sdl_recursive(res_name, current_node, processed_nodes, sdlconsole):
     current_node.to_sdl(res_name, sdlconsole)
 
 
-def find_node_tree(b_material):
-    if b_material is None or b_material.ph_node_tree_name == "":
-        return None
-
-    return bpy.data.node_groups[b_material.ph_node_tree_name]
-
-
-def find_output_node(node_tree):
-    if node_tree is None:
-        return None
-
-    for node in node_tree.nodes:
-        if getattr(node, "bl_idname", None) == PhOutputNode.bl_idname:
-            return node
-
-    return None
-
-
 def to_sdl(res_name, b_material, sdlconsole):
-    node_tree = find_node_tree(b_material)
-    output_node = find_output_node(node_tree)
+    node_tree = helper.find_node_tree(b_material)
+    output_node = helper.find_output_node(node_tree)
     if output_node is None:
-        print("matl <%s> has no output node, ignoring" % res_name)
+        print("material <%s> has no output node, ignoring" % res_name)
         return MaterialNodeTranslateResult()
 
     processed_nodes = set()
@@ -924,7 +891,7 @@ class MaterialNodes(blender.BlenderModule):
         for node_type in PH_MATERIAL_NODES:
             bpy.utils.register_class(node_type)
 
-        bpy.utils.register_class(PhMaterialNodeHeader)
+        bpy.utils.register_class(PH_MATERIAL_HT_header)
         nodeitems_utils.register_node_categories("PH_MATERIAL_NODE_CATEGORIES", PH_MATERIAL_NODE_CATEGORIES)
 
     def unregister(self):
@@ -936,7 +903,7 @@ class MaterialNodes(blender.BlenderModule):
         for node_type in PH_MATERIAL_NODES:
             bpy.utils.unregister_class(node_type)
 
-        bpy.utils.unregister_node_categories(PhMaterialNodeHeader)
+        bpy.utils.unregister_node_categories(PH_MATERIAL_HT_header)
         nodeitems_utils.unregister_node_categories("PH_MATERIAL_NODE_CATEGORIES")
 
 

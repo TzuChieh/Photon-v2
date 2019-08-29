@@ -2,15 +2,12 @@ from ..utility import settings, blender
 
 import bpy
 from bl_ui import (
-		properties_output,
-		properties_data_camera,
-		#properties_data_light,
-		#properties_material,
+	properties_output,
+	properties_data_camera
 )
 
 
 class PhotonRenderer(bpy.types.RenderEngine):
-
 	# These three members are used by blender to set up the
 	# RenderEngine; define its internal name, visible name and capabilities.
 	bl_idname = settings.renderer_id_name
@@ -23,10 +20,9 @@ class PhotonRenderer(bpy.types.RenderEngine):
 
 
 class PhRenderPanel(bpy.types.Panel):
-
-	bl_space_type  = "PROPERTIES"
+	bl_space_type = "PROPERTIES"
 	bl_region_type = "WINDOW"
-	bl_context     = "render"
+	bl_context = "render"
 
 	COMPATIBLE_ENGINES = {settings.renderer_id_name}
 
@@ -36,178 +32,175 @@ class PhRenderPanel(bpy.types.Panel):
 		return render_settings.engine in cls.COMPATIBLE_ENGINES
 
 
-class PhRenderingPanel(PhRenderPanel):
+class PH_RENDERING_PT_rendering(PhRenderPanel):
 	bl_label = "PR: Rendering"
 
 	bpy.types.Scene.ph_render_integrator_type = bpy.props.EnumProperty(
-		items = [
-			("BVPT",      "Pure Path Tracing",                     "slow but versatile"),
-			("BNEEPT",    "NEE Path Tracing",                      "similar to pure PT but good on rendering small lights"),
-			("VPM",       "Photon Mapping",                        "rough preview, fairly good at caustics"),
-			("PPM",       "Progressive Photon Mapping",            "good at complex lighting condition"),
-			("SPPM",      "Stochastic Progressive Photon Mapping", "good at complex lighting condition"),
-			("BVPTDL",    "Pure Path Tracing (Direct Lighting)",   ""),
-			("ATTRIBUTE", "Attribute",                             ""),
-			("CUSTOM",    "Custom",                                "directly input SDL commands for renderer.")
+		items=[
+			("BVPT", "Pure Path Tracing", "slow but versatile"),
+			("BNEEPT", "NEE Path Tracing", "similar to pure PT but good on rendering small lights"),
+			("VPM", "Photon Mapping", "rough preview, fairly good at caustics"),
+			("PPM", "Progressive Photon Mapping", "good at complex lighting condition"),
+			("SPPM", "Stochastic Progressive Photon Mapping", "good at complex lighting condition"),
+			("BVPTDL", "Pure Path Tracing (Direct Lighting)", ""),
+			("ATTRIBUTE", "Attribute", ""),
+			("CUSTOM", "Custom", "directly input SDL commands for renderer.")
 		],
-		name        = "Rendering Method",
-		description = "Photon-v2's rendering methods",
-		default     = "BNEEPT"
+		name="Rendering Method",
+		description="Photon-v2's rendering methods",
+		default="BNEEPT"
 	)
 
 	bpy.types.Scene.ph_render_num_photons = bpy.props.IntProperty(
-		name        = "Number of Photons",
-		description = "Number of photons used.",
-		default     = 200000,
-		min         = 1
+		name="Number of Photons",
+		description="Number of photons used.",
+		default=200000,
+		min=1
 	)
 
 	bpy.types.Scene.ph_render_num_spp_pm = bpy.props.IntProperty(
-		name        = "Samples per Pixel",
-		description = "Number of samples per pixel.",
-		default     = 4,
-		min         = 1
+		name="Samples per Pixel",
+		description="Number of samples per pixel.",
+		default=4,
+		min=1
 	)
 
 	bpy.types.Scene.ph_render_num_passes = bpy.props.IntProperty(
-		name        = "Number of Passes",
-		description = "Number of rendering passes.",
-		default     = 40,
-		min         = 1
+		name="Number of Passes",
+		description="Number of rendering passes.",
+		default=40,
+		min=1
 	)
 
 	bpy.types.Scene.ph_render_kernel_radius = bpy.props.FloatProperty(
-		name        = "Photon Radius",
-		description = "larger radius results in blurrier images",
-		default     = 0.1,
-		min         = 0
+		name="Photon Radius",
+		description="larger radius results in blurrier images",
+		default=0.1,
+		min=0
 	)
 
 	bpy.types.Scene.ph_use_crop_window = bpy.props.BoolProperty(
-		name        = "Use Crop Window",
-		description = "",
-		default     = False
+		name="Use Crop Window",
+		description="",
+		default=False
 	)
 
 	bpy.types.Scene.ph_crop_min_x = bpy.props.IntProperty(
-		name        = "Min X",
-		description = "",
-		default     = 0,
-		min         = 0
+		name="Min X",
+		description="",
+		default=0,
+		min=0
 	)
 
 	bpy.types.Scene.ph_crop_min_y = bpy.props.IntProperty(
-		name        = "Min Y",
-		description = "",
-		default     = 0,
-		min         = 0
+		name="Min Y",
+		description="",
+		default=0,
+		min=0
 	)
 
 	bpy.types.Scene.ph_crop_width = bpy.props.IntProperty(
-		name        = "Width",
-		description = "",
-		default     = 1,
-		min         = 1
+		name="Width",
+		description="",
+		default=1,
+		min=1
 	)
 
 	bpy.types.Scene.ph_crop_height = bpy.props.IntProperty(
-		name        = "Height",
-		description = "",
-		default     = 1,
-		min         = 1
+		name="Height",
+		description="",
+		default=1,
+		min=1
 	)
 
 	bpy.types.Scene.ph_render_custom_sdl = bpy.props.StringProperty(
-		name        = "SDL Command",
-		description = "",
-		default     = ""
+		name="SDL Command",
+		description="",
+		default=""
 	)
 
-	def draw(self, context):
-
-		scene  = context.scene
+	def draw(self, b_context):
+		b_scene = b_context.scene
 		layout = self.layout
 
-		layout.prop(scene, "ph_render_integrator_type")
+		layout.prop(b_scene, "ph_render_integrator_type")
 
-		render_method = scene.ph_render_integrator_type
+		render_method = b_scene.ph_render_integrator_type
 		if render_method == "BVPT" or render_method == "BNEEPT" or render_method == "BVPTDL" or render_method == "ATTRIBUTE":
-			layout.prop(scene, "ph_render_num_spp")
-			layout.prop(scene, "ph_render_sample_filter_type")
+			layout.prop(b_scene, "ph_render_num_spp")
+			layout.prop(b_scene, "ph_render_sample_filter_type")
 		elif render_method == "VPM" or render_method == "PPM" or render_method == "SPPM":
-			layout.prop(scene, "ph_render_num_photons")
-			layout.prop(scene, "ph_render_num_spp_pm")
-			layout.prop(scene, "ph_render_num_passes")
-			layout.prop(scene, "ph_render_kernel_radius")
+			layout.prop(b_scene, "ph_render_num_photons")
+			layout.prop(b_scene, "ph_render_num_spp_pm")
+			layout.prop(b_scene, "ph_render_num_passes")
+			layout.prop(b_scene, "ph_render_kernel_radius")
 		elif render_method == "CUSTOM":
-			layout.prop(scene, "ph_render_custom_sdl")
+			layout.prop(b_scene, "ph_render_custom_sdl")
 		else:
 			pass
 
 		if render_method != "CUSTOM":
-			layout.prop(scene, "ph_use_crop_window")
+			layout.prop(b_scene, "ph_use_crop_window")
 
-		use_crop_window = scene.ph_use_crop_window
+		use_crop_window = b_scene.ph_use_crop_window
 		if use_crop_window and render_method != "CUSTOM":
-			layout.prop(scene, "ph_crop_min_x")
-			layout.prop(scene, "ph_crop_min_y")
-			layout.prop(scene, "ph_crop_width")
-			layout.prop(scene, "ph_crop_height")
+			layout.prop(b_scene, "ph_crop_min_x")
+			layout.prop(b_scene, "ph_crop_min_y")
+			layout.prop(b_scene, "ph_crop_width")
+			layout.prop(b_scene, "ph_crop_height")
 
 
-class PhSamplingPanel(PhRenderPanel):
+class PH_RENDERING_PT_sampling(PhRenderPanel):
 	bl_label = "PR: Sampling"
 
 	bpy.types.Scene.ph_render_num_spp = bpy.props.IntProperty(
-		name        = "Samples per Pixel",
-		description = "Number of samples used for each pixel.",
-		default     = 40,
-		min         = 1,
-		max         = 2**31 - 1,
+		name="Samples per Pixel",
+		description="Number of samples used for each pixel.",
+		default=40,
+		min=1,
+		max=2**31 - 1,
 	)
 
 	bpy.types.Scene.ph_render_sample_filter_type = bpy.props.EnumProperty(
-		items = [
-			("BOX",      "Box",                "box filter"),
-			("GAUSSIAN", "Gaussian",           "Gaussian filter"),
-			("MN",       "Mitchell-Netravali", "Mitchell-Netravali filter"),
-			("BH",       "Blackman-Harris",    "Blackman-Harris filter")
+		items=[
+			("BOX", "Box", "box filter"),
+			("GAUSSIAN", "Gaussian", "Gaussian filter"),
+			("MN", "Mitchell-Netravali", "Mitchell-Netravali filter"),
+			("BH", "Blackman-Harris", "Blackman-Harris filter")
 		],
-		name        = "Sample Filter Type",
-		description = "Photon-v2's sample filter types",
-		default     = "BH"
+		name="Sample Filter Type",
+		description="Photon-v2's sample filter types",
+		default="BH"
 	)
 
-	def draw(self, context):
-
-		scene  = context.scene
+	def draw(self, b_context):
+		b_scene = b_context.scene
 		layout = self.layout
 
-		layout.prop(scene, "ph_render_num_spp")
-		layout.prop(scene, "ph_render_sample_filter_type")
+		layout.prop(b_scene, "ph_render_num_spp")
+		layout.prop(b_scene, "ph_render_sample_filter_type")
 
 
-class PhOptionsPanel(PhRenderPanel):
+class PH_RENDERING_PT_options(PhRenderPanel):
 	bl_label = "PR: Options"
 
 	bpy.types.Scene.ph_use_cycles_material = bpy.props.BoolProperty(
-		name        = "Use Cycles Material",
-		description = "render/export the scene with materials converted from Cycles to Photon",
-		default     = False
+		name="Use Cycles Material",
+		description="render/export the scene with materials converted from Cycles to Photon",
+		default=False
 	)
 
 	def draw(self, context):
-
-		scene  = context.scene
+		scene = context.scene
 		layout = self.layout
 
 		layout.prop(scene, "ph_use_cycles_material")
 
 
 RENDER_PANEL_CLASSES = [
-	PhSamplingPanel,
-	PhOptionsPanel,
-	PhRenderingPanel
+	PH_RENDERING_PT_sampling,
+	PH_RENDERING_PT_options,
+	PH_RENDERING_PT_rendering
 ]
 
 

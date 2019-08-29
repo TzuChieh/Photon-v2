@@ -101,5 +101,5 @@ class ModelLightCreator(LightCreator):
 
 	def set_material(self, material_name):
 		ref_clause = SdlReferenceClause()
-		ref_clause.set_reference_category("matl")
-		self.update_clause(ref_clause.set_name("matl").set_data(material_name))
+		ref_clause.set_reference_category("material")
+		self.update_clause(ref_clause.set_name("material").set_data(material_name))

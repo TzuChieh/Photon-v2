@@ -44,7 +44,7 @@ class PhLightPanel(bpy.types.Panel):
                 context.light)
 
 
-class PhLightPropertyPanel(PhLightPanel):
+class PH_LIGHT_PT_properties(PhLightPanel):
     """
     Specify and control light properties.
     """
@@ -175,7 +175,7 @@ def to_sdl_commands(b_obj, sdlconsole):
 
 
 LIGHT_PANELS = [
-    PhLightPropertyPanel
+    PH_LIGHT_PT_properties
 ]
 
 

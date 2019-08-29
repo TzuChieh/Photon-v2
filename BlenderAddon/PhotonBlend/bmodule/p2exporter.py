@@ -1,3 +1,4 @@
+from .material import helper
 from ..psdl.sdlconsole import SdlConsole
 from ..psdl.cmd import RawCommand
 from .. import utility
@@ -52,14 +53,8 @@ from bpy.types import Operator
 import math
 import shutil
 
-#class MaterialExportStatus:
-#
-#	def __init__(self, emission_image_command = None):
-#		self.emission_image_command = emission_image_command
-
 
 class Exporter:
-
 	def __init__(self, file_path):
 		self.__file_path  = file_path
 		self.__sdlconsole = None
@@ -69,11 +64,10 @@ class Exporter:
 		return self.__sdlconsole
 
 	def begin(self, scene_name):
-
-		file_path            = self.__file_path
-		folder_path          = utility.get_folder_path(file_path)
+		file_path = self.__file_path
+		folder_path = utility.get_folder_path(file_path)
 		filename_without_ext = utility.get_filename_without_ext(file_path)
-		scene_folder_path    = folder_path + filename_without_ext + utility.path_separator()
+		scene_folder_path = folder_path + filename_without_ext + utility.path_separator()
 
 		print("-------------------------------------------------------------")
 		print("exporting Photon scene to <%s>" % scene_folder_path)
@@ -84,7 +78,6 @@ class Exporter:
 		self.__sdlconsole.start()
 
 	def end(self):
-
 		self.__sdlconsole.finish()
 
 		print("exporting complete")
@@ -107,28 +100,29 @@ class Exporter:
 
 	def exportMaterial(self, b_context, material_name, b_material):
 
-		print("name = %s" % b_material.name)
-		print("evaluated = %s" % b_material.ph_node_tree_name)
-		print("original = %s" % b_material.original.ph_node_tree_name)
+		# print("name = %s" % b_material.name)
+		# print("evaluated = %s" % b_material.ph_node_tree_name)
+		# print("original = %s" % b_material.original.ph_node_tree_name)
 
+		# FIXME: hack
 		if not b_context.scene.ph_use_cycles_material:
-			use_node_tree = b_material.ph_node_tree_name != ""
+			use_node_tree = b_material.photon.use_nodes
 			if use_node_tree:
 				return node.to_sdl(material_name, b_material, self.get_sdlconsole())
 			else:
 				print("not using node tree")
 				# BROKEN CODE
 				# command = RawCommand()
-				# command.append_string(ui.matl.to_sdl(b_material, self.__sdlconsole, material_name))
+				# command.append_string(ui.material.to_sdl(b_material, self.__sdlconsole, material_name))
 				# self.__sdlconsole.queue_command(command)
 				# return node.MaterialNodeTranslateResult()
 				return None
 		else:
-			print("using cycles matl")
+			print("using cycles material")
 			# BROKEN CODE
 			# translate_result = export.cycles_material.translate(b_material, self.__sdlconsole, material_name)
 			# if not translate_result.is_valid():
-			# 	print("warning: cycles matl %s translation failed" % material_name)
+			# 	print("warning: cycles material %s translation failed" % material_name)
 			# return node.MaterialNodeTranslateResult()
 			return None
 
@@ -153,7 +147,7 @@ class Exporter:
 		# 	command.append_string("[geometry geometry %s] " %("\"@" + geometryName + "\""))
 		#
 		# if materialName != None:
-		# 	command.append_string("[matl matl %s] " %("\"@" + materialName + "\""))
+		# 	command.append_string("[material material %s] " %("\"@" + materialName + "\""))
 
 		translator = LightActorTranslate()
 		translator.set_target_name(actorLightName)
@@ -222,9 +216,8 @@ class Exporter:
 		return photonQuaternion
 
 	def export_object_mesh(self, b_context, b_depsgraph, b_obj):
-
 		if len(b_obj.data.materials) == 0:
-			print("warning: mesh object (%s) has no matl, not exporting" % b_obj.name)
+			print("warning: mesh object (%s) has no material, not exporting" % b_obj.name)
 			return
 
 		# FIXME: this call is only necessary in edit mode, maybe properly check this?
@@ -238,7 +231,7 @@ class Exporter:
 			print("warning: cannot convert　mesh object %s　to mesh, not exporting" % b_obj.name)
 			return
 
-		# Group faces with the same matl, then export each face-matl pair as a Photon-v2's actor.
+		# Group faces with the same material, then export each face-material pair as a Photon-v2's actor.
 
 		b_mesh.calc_loop_triangles()
 		b_mesh.calc_normals()
@@ -247,7 +240,7 @@ class Exporter:
 		material_idx_loop_triangles_map = {}
 		for b_loop_triangle in b_mesh.loop_triangles:
 
-			# This index refers to matl slots (their stack order in the UI).
+			# This index refers to material slots (their stack order in the UI).
 			material_idx = b_loop_triangle.material_index
 
 			if material_idx not in material_idx_loop_triangles_map.keys():
@@ -260,13 +253,13 @@ class Exporter:
 			b_material = b_obj.material_slots[material_idx].material.evaluated_get(b_depsgraph)
 			loop_triangles = material_idx_loop_triangles_map[material_idx]
 
-			# A matl slot can be empty, this check is necessary.
+			# A material slot can be empty, this check is necessary.
 			if b_material is None:
-				print("warning: no matl is in mesh object %s's matl slot %d, not exporting" % (
+				print("warning: no material is in mesh object %s's material slot %d, not exporting" % (
 					b_obj.name, material_idx))
 				continue
 
-			# Same matl can be in different slots, with slot index as suffix we can ensure unique matl
+			# Same material can be in different slots, with slot index as suffix we can ensure unique material
 			# names (required by Photon-v2 for creating unique materials).
 			geometry_name = naming.mangled_geometry_name(b_obj, b_mesh.name, str(material_idx))
 			material_name = naming.mangled_material_name(b_obj, b_mesh.name + "_" + b_material.name, str(material_idx))
@@ -331,10 +324,10 @@ class Exporter:
 			return
 
 		if len(b_mesh.materials) == 0:
-			print("warning: mesh object (%s) has no matl, not exporting" % b_mesh_object.name)
+			print("warning: mesh object (%s) has no material, not exporting" % b_mesh_object.name)
 			return
 
-		# Group faces with the same matl, then export each face-matl pair as a Photon-v2's actor.
+		# Group faces with the same material, then export each face-material pair as a Photon-v2's actor.
 
 		b_mesh.calc_loop_triangles()
 		b_mesh.calc_normals()
@@ -343,7 +336,7 @@ class Exporter:
 		material_idx_loop_triangles_map = {}
 		for b_loop_triangle in b_mesh.loop_triangles:
 
-			# This index refers to matl slots (their stack order in the UI).
+			# This index refers to material slots (their stack order in the UI).
 			material_idx = b_loop_triangle.material_index
 
 			if material_idx not in material_idx_loop_triangles_map.keys():
@@ -356,13 +349,13 @@ class Exporter:
 			b_material = b_obj.material_slots[material_idx].material.evaluated_get(b_depsgraph)
 			loop_triangles = material_idx_loop_triangles_map[material_idx]
 
-			# A matl slot can be empty, this check is necessary.
+			# A material slot can be empty, this check is necessary.
 			if b_material is None:
-				print("warning: no matl is in mesh object %s's matl slot %d, not exporting" % (
+				print("warning: no material is in mesh object %s's material slot %d, not exporting" % (
 					b_mesh_object.name, material_idx))
 				continue
 
-			# Same matl can be in different slots, with slot index as suffix we can ensure unique matl
+			# Same material can be in different slots, with slot index as suffix we can ensure unique material
 			# names (required by Photon-v2 for creating unique materials).
 			geometry_name = naming.mangled_geometry_name(b_mesh_object, b_mesh.name, str(material_idx))
 			material_name = naming.mangled_material_name(b_mesh_object, b_mesh.name + "_" + b_material.name, str(material_idx))
@@ -400,7 +393,7 @@ class Exporter:
 			# creating actor (can be either model or light depending on emissivity)
 			pos, rot, scale = b_mesh_object.matrix_world.decompose()
 
-			if material.is_emissive(b_material):
+			if bmodule.material.helper.is_emissive(b_material):
 				light_source_name = naming.mangled_light_source_name(b_mesh_object, b_mesh.name, str(material_idx))
 				creator = ModelLightSourceCreator()
 				creator.set_data_name(light_source_name)
@@ -571,12 +564,12 @@ class Exporter:
 
 		# DEBUG
 		print(b_depsgraph.mode)
-		for b_obj in b_depsgraph.scene.objects:
-			if b_obj.type == 'MESH':
-				b_mesh = b_obj.data
-				for b_material in b_mesh.materials:
-					print("original: %s" % b_material.ph_node_tree_name)
-					print("evaluated: %s" % b_material.evaluated_get(b_depsgraph).ph_node_tree_name)
+		# for b_obj in b_depsgraph.scene.objects:
+		# 	if b_obj.type == 'MESH':
+		# 		b_mesh = b_obj.data
+		# 		for b_material in b_mesh.materials:
+		# 			print("original: %s" % b_material.ph_node_tree_name)
+		# 			print("evaluated: %s" % b_material.evaluated_get(b_depsgraph).ph_node_tree_name)
 
 		# <objects> contain only objects for display or render.
 		for b_obj_instance in b_depsgraph.object_instances:

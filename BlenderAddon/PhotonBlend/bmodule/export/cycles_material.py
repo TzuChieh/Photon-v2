@@ -28,9 +28,9 @@ class TranslateResult:
 
 def translate_non_node_material(b_material, sdlconsole, res_name):
 
-	print("warning: matl %s uses no nodes, exporting diffuse color only" % res_name)
+	print("warning: material %s uses no nodes, exporting diffuse color only" % res_name)
 
-	diffuse       = b_material.diffuse_color
+	diffuse = b_material.diffuse_color
 	diffuse_color = mathutils.Color((diffuse[0], diffuse[1], diffuse[2]))
 
 	command = psdl.materialcmd.MatteOpaqueCreator()
@@ -70,7 +70,7 @@ def translate_diffuse_bsdf_node(this_node, sdlconsole, res_name):
 		if result.sdl_resource_identifier is not None:
 			command.set_albedo_image_sdlri(result.sdl_resource_identifier)
 		else:
-			print("warning: matl %s's albedo image is invalid" % res_name)
+			print("warning: material %s's albedo image is invalid" % res_name)
 		sdlconsole.queue_command(command)
 		return TranslateResult(command)
 
@@ -96,14 +96,14 @@ def translate_glossy_bsdf_node(this_node, sdlconsole, res_name):
 		if not roughness_socket.is_linked:
 			roughness = roughness_socket.default_value
 		else:
-			print("warning: cannot handle non-leaf Glossy BSDF node (matl %s)" % res_name)
+			print("warning: cannot handle non-leaf Glossy BSDF node (material %s)" % res_name)
 
 		color_socket = this_node.inputs[0]
 		color        = (0.5, 0.5, 0.5, 0.5)
 		if not color_socket.is_linked:
 			color = color_socket.default_value
 		else:
-			print("warning: cannot handle non-leaf Glossy BSDF node (matl %s)" % res_name)
+			print("warning: cannot handle non-leaf Glossy BSDF node (material %s)" % res_name)
 
 		command = psdl.materialcmd.AbradedOpaqueCreator()
 		command.set_data_name(res_name)
@@ -116,7 +116,7 @@ def translate_glossy_bsdf_node(this_node, sdlconsole, res_name):
 		return TranslateResult(command)
 
 	else:
-		print("warning: cannot convert Glossy BSDF distribution type %s (matl %s)" %
+		print("warning: cannot convert Glossy BSDF distribution type %s (material %s)" %
 		      (distribution, res_name))
 		return TranslateResult()
 
@@ -130,7 +130,7 @@ def translate_vector_math_node(node, sdlconsole, res_name):
 		if result_0.sdl_command is not None:
 			operand_image_command = result_0.sdl_command
 		else:
-			print("matl %s's vector math node operand image conversion failed, using default value" % res_name)
+			print("material %s's vector math node operand image conversion failed, using default value" % res_name)
 
 	if operand_image_command is None:
 		operand_image_command = psdl.imagecmd.ConstantImageCreator()
@@ -142,10 +142,10 @@ def translate_vector_math_node(node, sdlconsole, res_name):
 
 	vector_socket_1 = node.inputs[1]
 	if vector_socket_1.is_linked:
-		print("cannot handle linked socket 1 in vector math node (matl %s)" % res_name)
+		print("cannot handle linked socket 1 in vector math node (material %s)" % res_name)
 
 	socket1_vec3 = vector_socket_1.inputs[0].default_value
-	print("averaging socket 1 vector components (matl %s)" % res_name)
+	print("averaging socket 1 vector components (material %s)" % res_name)
 	socket1_value = (socket1_vec3.x + socket1_vec3.y + socket1_vec3.z) / 3.0
 
 	math_image_command = psdl.imagecmd.RealMathImageCreator()
@@ -159,7 +159,7 @@ def translate_vector_math_node(node, sdlconsole, res_name):
 		math_image_command.set_add()
 		math_image_command.set_real_value(-socket1_value)
 	else:
-		print("unsupported operation %s in vector math node of matl %s" % (node.operation, res_name))
+		print("unsupported operation %s in vector math node of material %s" % (node.operation, res_name))
 
 	sdlconsole.queue_command(math_image_command)
 	return TranslateResult(math_image_command)
@@ -181,7 +181,7 @@ def translate_emission_node(this_node, sdlconsole, res_name):
 				image_command.set_data_name("emission_image_" + res_name)  # FIXME: be aware of name collision
 				image_command.set_image_sdlri(result.sdl_resource_identifier)
 			else:
-				print("warning: matl %s's emission image is invalid" % res_name)
+				print("warning: material %s's emission image is invalid" % res_name)
 
 	if image_command is None:
 		image_command = psdl.imagecmd.ConstantImageCreator()
@@ -220,7 +220,7 @@ def translate_node(node, sdlconsole, res_name):
 	if translator is not None:
 		return translator(node, sdlconsole, res_name)
 	else:
-		print("warning: no valid psdl translator for node %s (matl %s)" % (node.name, res_name))
+		print("warning: no valid psdl translator for node %s (material %s)" % (node.name, res_name))
 		return TranslateResult()
 
 
@@ -230,7 +230,7 @@ def translate_surface_node(this_node, sdlconsole, res_name):
 	if translator is not None:
 		return translator(this_node, sdlconsole, res_name)
 	else:
-		print("warning: matl %s has no valid psdl translator, ignoring" % res_name)
+		print("warning: material %s has no valid psdl translator, ignoring" % res_name)
 		return TranslateResult()
 
 
@@ -247,7 +247,7 @@ def translate_node_material(b_material, sdlconsole, res_name):
 			print("warning: materia %s has no linked surface node, ignoring" % res_name)
 			return TranslateResult()
 	else:
-		print("warning: matl %s has no output node, ignoring" % res_name)
+		print("warning: material %s has no output node, ignoring" % res_name)
 		return TranslateResult()
 
 
