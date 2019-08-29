@@ -236,7 +236,7 @@ class PhConstantColorInputNode(PhMaterialNode):
         self.outputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
 
     def draw_buttons(self, b_context, b_layout):
-        b_layout.template_color_picker(self, "color", True)
+        b_layout.template_color_picker(self, "color", value_slider=True)
         b_layout.prop(self, "color", text="")
         b_layout.prop(self, "usage", text="")
 
@@ -739,7 +739,7 @@ class PhIdealSubstanceNode(PhMaterialNode):
         size=3
     )
 
-    transmission_scale = bpy.props.FloatVectorProperty(
+    transmission_scale: bpy.props.FloatVectorProperty(
         name="Transmission Scale",
         description="for artistic control",
         default=[1.0, 1.0, 1.0],
