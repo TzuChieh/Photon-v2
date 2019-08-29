@@ -2,7 +2,7 @@ from ..utility import settings, blender
 from ..psdl import lightcmd
 from ..psdl import materialcmd
 from ..psdl.cmd import RawCommand
-from .export import naming
+from . import naming
 from .. import utility
 from ..psdl import clause
 
@@ -111,8 +111,8 @@ class PH_LIGHT_PT_properties(PhLightPanel):
 def to_sdl_commands(b_obj, sdlconsole):
     b_light = b_obj.data
 
-    source_name = naming.mangled_light_source_name(b_obj, b_light.name, "bLight_source")
-    actor_name = naming.mangled_actor_light_name(b_obj, b_light.name, "bLight_actor")
+    source_name = naming.get_mangled_light_name(b_obj.data)
+    actor_name = naming.get_mangled_object_name(b_obj)
 
     if b_light.type == "AREA":
 

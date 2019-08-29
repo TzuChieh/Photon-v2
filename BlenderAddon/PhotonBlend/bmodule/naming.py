@@ -32,6 +32,11 @@ def get_mangled_material_name(b_material: bpy.types.Material, **decorations):
 	return "MA" + _get_decorated_name(b_material.name, **decorations)
 
 
+# Get a unique resource name for the light resource.
+def get_mangled_light_name(b_light: bpy.types.Light, **decorations):
+	return "LI" + _get_decorated_name(b_light.name, **decorations)
+
+
 # Get a unique resource name for the object resource.
 def get_mangled_object_name(b_object: bpy.types.Object, **decorations):
 	return "OB" + _get_decorated_name(b_object.name, **decorations)
@@ -46,7 +51,11 @@ def get_mangled_node_name(b_node: bpy.types.Node, b_material: bpy.types.Material
 
 
 # Note that the identifier attribute of a socket is unique in input or output sockets, but not both.
-def _get_mangled_node_socket_name(b_node_socket: bpy.types.Node, b_material: bpy.types.Material, **decorations):
+def _get_mangled_node_socket_name(
+	b_node_socket: bpy.types.NodeSocket,
+	b_material: bpy.types.Material,
+	**decorations):
+
 	b_owning_node = b_node_socket.node
 	joint_name = _get_decorated_name(b_node_socket.identifier, prefix=b_owning_node.name)
 	joint_name = _get_decorated_name(joint_name, prefix=b_material.name)
@@ -54,11 +63,17 @@ def _get_mangled_node_socket_name(b_node_socket: bpy.types.Node, b_material: bpy
 	return _get_decorated_name(joint_name, **decorations)
 
 
-# TODO: these can be simplified if socket identifier is unique across input & output sockets (we are sure that a socket identifier is not unique across nodes)
+def get_mangled_input_node_socket_name(
+	b_node_socket: bpy.types.NodeSocket,
+	b_material: bpy.types.Material,
+	**decorations):
 
-def get_mangled_input_node_socket_name(b_node_socket: bpy.types.Node, b_material: bpy.types.Material, **decorations):
 	return "IN" + _get_mangled_node_socket_name(b_node_socket, b_material, **decorations)
 
 
-def get_mangled_output_node_socket_name(b_node_socket: bpy.types.Node, b_material: bpy.types.Material, **decorations):
+def get_mangled_output_node_socket_name(
+	b_node_socket: bpy.types.NodeSocket,
+	b_material: bpy.types.Material,
+	**decorations):
+
 	return "OU" + _get_mangled_node_socket_name(b_node_socket, b_material, **decorations)

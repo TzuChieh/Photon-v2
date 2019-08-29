@@ -12,6 +12,7 @@ def find_output_node(node_tree):
     if node_tree is None:
         return None
 
+    # TODO: use maps?
     for node in node_tree.nodes:
         # FIXME: PH_OUTPUT is hard-coded; should be resolved after creating its own file
         # if getattr(node, "bl_idname", None) == PhOutputNode.bl_idname:
@@ -28,3 +29,8 @@ def is_emissive(b_material: bpy.types.Material):
 
     # Check whether the surface emission socket is connected
     return output_node.inputs["Surface Emission"].is_linked
+
+
+def get_emission_image_res_name(b_material: bpy.types.Material):
+    output_node = find_output_node(find_node_tree(b_material))
+    return output_node.get_surface_emi_res_name(b_material)

@@ -2,6 +2,7 @@ from ...utility import settings, blender
 from ...psdl import sdlresource
 from ... import utility
 from . import helper
+from .. import naming
 
 from ...psdl.pysdl import (
     SDLInteger,
@@ -35,14 +36,6 @@ import sys
 from abc import abstractmethod
 
 
-class MaterialNodeTranslateResult:
-    def __init__(self, surface_emi_res_name=None):
-        self.surface_emi_res_name = surface_emi_res_name
-
-    def is_surface_emissive(self):
-        return self.surface_emi_res_name is not None
-
-
 class PhMaterialNodeTree(bpy.types.NodeTree):
     bl_idname = "PH_MATERIAL_NODE_TREE"
     bl_label = "Photon Node Tree"
@@ -62,7 +55,6 @@ class PhMaterialNodeTree(bpy.types.NodeTree):
         if b_object and b_object.type not in {'LIGHT', 'CAMERA'}:
             b_material = b_object.active_material
             if b_material is not None:
-                print(b_material.photon.node_tree)
                 if b_material.photon.use_nodes:
                     return b_material.photon.node_tree, b_material, b_material
         return None, None, None
@@ -111,12 +103,12 @@ class PhMaterialNodeSocket(bpy.types.NodeSocketShader):
         else:
             b_layout.label(text=text)
 
-    def get_from_res_name(self, res_name, link_index=0):
+    def get_from_res_name(self, b_material, link_index=0):
         if not self.links:
             return None
-        from_node = self.links[link_index].from_node
+
         from_socket = self.links[link_index].from_socket
-        return res_name + "_" + from_node.name + "_" + from_socket.identifier
+        return naming.get_mangled_output_node_socket_name(from_socket, b_material)
 
 
 class PhMaterialNode(bpy.types.Node):
@@ -137,12 +129,11 @@ class PhMaterialNode(bpy.types.Node):
         pass
 
     @abstractmethod
-    def to_sdl(self, res_name, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole):
         pass
 
 
 class PhSurfaceMaterialSocket(PhMaterialNodeSocket):
-
     bl_idname = "PH_SURFACE_MATERIAL_SOCKET"
     bl_label = "Surface Material"
 
@@ -200,21 +191,21 @@ class PhOutputNode(PhMaterialNode):
         self.inputs.new(PhColorSocket.bl_idname, "Surface Emission")
         self.inputs[1].link_only = True
 
-    def to_sdl(self, res_name, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole):
         surface_mat_socket = self.inputs[0]
-        surface_mat_res_name = surface_mat_socket.get_from_res_name(res_name)
+        surface_mat_res_name = surface_mat_socket.get_from_res_name(b_material)
         if surface_mat_res_name is None:
-            print("material <%s>'s output node is not linked, ignored" % res_name)
+            print("material <%s>'s output node is not linked, ignored" % b_material.name)
             return
 
         creator = FullMaterialCreator()
-        creator.set_data_name(res_name)
+        creator.set_data_name(naming.get_mangled_material_name(b_material))
         creator.set_surface(SDLMaterial(surface_mat_res_name))
         sdlconsole.queue_command(creator)
 
-    def get_surface_emi_res_name(self, res_name):
+    def get_surface_emi_res_name(self, b_material):
         surface_emi_socket = self.inputs[1]
-        return surface_emi_socket.get_from_res_name(res_name)
+        return surface_emi_socket.get_from_res_name(b_material)
 
 
 class PhConstantColorInputNode(PhMaterialNode):
@@ -249,10 +240,10 @@ class PhConstantColorInputNode(PhMaterialNode):
         b_layout.prop(self, "color", text="")
         b_layout.prop(self, "usage", text="")
 
-    def to_sdl(self, res_name, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole):
         output_socket = self.outputs[0]
         creator = ConstantImageCreator()
-        creator.set_data_name(res_name + "_" + self.name + "_" + output_socket.identifier)
+        creator.set_data_name(naming.get_mangled_output_node_socket_name(output_socket, b_material))
         creator.set_value(SDLVector3(mathutils.Color((self.color[0], self.color[1], self.color[2]))))
         if self.usage == "EMISSION":
             creator.set_value_type(SDLString("emr-linear-srgb"))
@@ -294,14 +285,14 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
             row = b_layout.row()
             row.prop(self, "roughness")
 
-    def to_sdl(self, res_name, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole):
         albedo_socket = self.inputs[0]
         surface_material_socket = self.outputs[0]
 
-        albedo_res_name = albedo_socket.get_from_res_name(res_name)
+        albedo_res_name = albedo_socket.get_from_res_name(b_material)
         if albedo_res_name is None:
             creator = ConstantImageCreator()
-            albedo_res_name = res_name + "_" + self.name + "_" + albedo_socket.identifier
+            albedo_res_name = naming.get_mangled_input_node_socket_name(albedo_socket, b_material)
             creator.set_data_name(albedo_res_name)
             albedo = albedo_socket.default_value
             creator.set_value(SDLVector3(mathutils.Color((albedo[0], albedo[1], albedo[2]))))
@@ -309,7 +300,7 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
             sdlconsole.queue_command(creator)
 
         creator = MatteOpaqueMaterialCreator()
-        creator.set_data_name(res_name + "_" + self.name + "_" + surface_material_socket.identifier)
+        creator.set_data_name(naming.get_mangled_output_node_socket_name(surface_material_socket, b_material))
         creator.set_albedo(SDLImage(albedo_res_name))
         if self.diffusion_type == "OREN_NAYAR":
             creator.set_sigma_degrees(SDLReal(self.roughness * 180.0))
@@ -336,19 +327,19 @@ class PhBinaryMixedSurfaceNode(PhMaterialNode):
         row = b_layout.row()
         row.prop(self, "factor")
 
-    def to_sdl(self, res_name, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole):
         mat0_socket = self.inputs[0]
         mat1_socket = self.inputs[1]
         surface_mat_socket = self.outputs[0]
 
-        mat0_res_name = mat0_socket.get_from_res_name(res_name)
-        mat1_res_name = mat1_socket.get_from_res_name(res_name)
+        mat0_res_name = mat0_socket.get_from_res_name(b_material)
+        mat1_res_name = mat1_socket.get_from_res_name(b_material)
         if mat0_res_name is None or mat1_res_name is None:
-            print("warning: material <%s>'s binary mixed surface node is incomplete" % res_name)
+            print("warning: material <%s>'s binary mixed surface node is incomplete" % b_material.name)
             return
 
         creator = BinaryMixedSurfaceMaterialCreator()
-        creator.set_data_name(res_name + "_" + self.name + "_" + surface_mat_socket.identifier)
+        creator.set_data_name(naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material))
         creator.set_factor(SDLReal(self.factor))
         creator.set_material_0(SDLMaterial(mat0_res_name))
         creator.set_material_1(SDLMaterial(mat1_res_name))
@@ -376,9 +367,9 @@ class PhAbradedOpaqueNode(PhMaterialNode):
     def draw_buttons(self, b_context, b_layout):
         b_layout.prop(self, "f0")
 
-    def to_sdl(self, res_name, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole):
         surface_mat_socket = self.outputs[0]
-        surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
+        surface_mat_res_name = naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material)
 
         creator = AbradedOpaqueMaterialCreator()
         creator.set_data_name(surface_mat_res_name)
@@ -400,21 +391,15 @@ class PhPictureNode(bpy.types.Node):
 
     def init(self, b_context):
         self.outputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
-        self.outputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
-        self.outputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
-        self.inputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
-        self.inputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
-        self.inputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
 
     def draw_buttons(self, b_context, b_layout):
         b_layout.prop(self, "file_path")
 
-    def to_sdl(self, res_name, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole):
         image_socket = self.outputs[0]
-        image_res_name = res_name + "_" + self.name + "_" + image_socket.identifier
+        image_res_name = naming.get_mangled_output_node_socket_name(image_socket, b_material)
 
         if self.file_path != "":
-
             creator = LdrPictureImageCreator()
             image_path = bpy.path.abspath(self.file_path)
             image_sdlri = sdlresource.SdlResourceIdentifier()
@@ -427,8 +412,8 @@ class PhPictureNode(bpy.types.Node):
             dst_path = utility.get_appended_path(sdlconsole.get_working_directory(),
                                                  image_sdlri.get_path())
             shutil.copyfile(image_path, dst_path)
-
         else:
+            print("warning: picture node in material %s has no image file, result will be black" % b_material.name)
 
             creator = ConstantImageCreator()
             creator.set_value_type(SDLString("raw"))
@@ -456,11 +441,11 @@ class PhMultiplyNode(PhMaterialNode):
     def draw_buttons(self, b_context, b_layout):
         b_layout.prop(self, "factor")
 
-    def to_sdl(self, res_name, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole):
         input_color_socket = self.inputs[0]
         output_color_socket = self.outputs[0]
-        input_color_res_name = input_color_socket.get_from_res_name(res_name)
-        output_color_res_name = res_name + "_" + self.name + "_" + output_color_socket.identifier
+        input_color_res_name = input_color_socket.get_from_res_name(b_material)
+        output_color_res_name = naming.get_mangled_output_node_socket_name(output_color_socket, b_material)
         if input_color_res_name is None:
             print("warning: node <%s> has no input linked, ignoring" % self.name)
             return
@@ -517,9 +502,9 @@ class PhAbradedTranslucentNode(PhMaterialNode):
         b_layout.prop(self, "ior_outer")
         b_layout.prop(self, "ior_inner")
 
-    def to_sdl(self, res_name, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole):
         surface_mat_socket = self.outputs[0]
-        surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
+        surface_mat_res_name = naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material)
 
         creator = AbradedTranslucentMaterialCreator()
         creator.set_data_name(surface_mat_res_name)
@@ -635,7 +620,7 @@ class PhSurfaceLayerNode(PhMaterialNode):
         b_layout.prop(self, "sigma_a")
         b_layout.prop(self, "sigma_s")
 
-    def to_sdl(self, res_name, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole):
         pass
 
 
@@ -667,9 +652,9 @@ class PhLayeredSurfaceNode(PhMaterialNode):
     def draw_buttons(self, b_context, b_layout):
         b_layout.prop(self, "num_layers")
 
-    def to_sdl(self, res_name, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole):
         surface_mat_socket = self.outputs[0]
-        surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
+        surface_mat_res_name = naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material)
 
         creator = LayeredSurfaceMaterialCreator()
         creator.set_data_name(surface_mat_res_name)
@@ -771,9 +756,11 @@ class PhIdealSubstanceNode(PhMaterialNode):
         b_layout.prop(self, "substance_type", text="")
         b_layout.prop(self, "ior_outer")
 
-        if (self.substance_type == "DIELECTRIC_REFLECTOR" or
+        if (
+            self.substance_type == "DIELECTRIC_REFLECTOR" or
             self.substance_type == "DIELECTRIC_TRANSMITTER" or
-            self.substance_type == "DIELECTRIC"):
+            self.substance_type == "DIELECTRIC"
+        ):
             b_layout.prop(self, "ior_inner")
 
         if self.substance_type == "METALLIC_REFLECTOR":
@@ -782,10 +769,10 @@ class PhIdealSubstanceNode(PhMaterialNode):
         b_layout.prop(self, "reflection_scale")
         b_layout.prop(self, "transmission_scale")
 
-    def to_sdl(self, res_name, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole):
 
         surface_mat_socket = self.outputs[0]
-        surface_mat_res_name = res_name + "_" + self.name + "_" + surface_mat_socket.identifier
+        surface_mat_res_name = naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material)
 
         creator = IdealSubstanceMaterialCreator()
         creator.set_data_name(surface_mat_res_name)
@@ -813,28 +800,26 @@ class PhMaterialNodeCategory(nodeitems_utils.NodeCategory):
         return b_context.space_data.tree_type == PhMaterialNodeTree.bl_idname
 
 
-def to_sdl_recursive(res_name, current_node, processed_nodes, sdlconsole):
+def to_sdl_recursive(b_material, current_node, processed_nodes, sdlconsole):
     for socket in current_node.inputs:
         for link in socket.links:
             from_node = link.from_node
             if from_node not in processed_nodes:
-                to_sdl_recursive(res_name, from_node, processed_nodes, sdlconsole)
+                to_sdl_recursive(b_material, from_node, processed_nodes, sdlconsole)
                 processed_nodes.add(from_node)
 
-    current_node.to_sdl(res_name, sdlconsole)
+    current_node.to_sdl(b_material, sdlconsole)
 
 
-def to_sdl(res_name, b_material, sdlconsole):
+def to_sdl(b_material, sdlconsole):
     node_tree = helper.find_node_tree(b_material)
     output_node = helper.find_output_node(node_tree)
     if output_node is None:
-        print("material <%s> has no output node, ignoring" % res_name)
-        return MaterialNodeTranslateResult()
+        print("material <%s> has no output node, ignoring" % b_material.name)
+        return
 
     processed_nodes = set()
-    to_sdl_recursive(res_name, output_node, processed_nodes, sdlconsole)
-
-    return MaterialNodeTranslateResult(output_node.get_surface_emi_res_name(res_name))
+    to_sdl_recursive(b_material, output_node, processed_nodes, sdlconsole)
 
 
 PH_MATERIAL_NODE_SOCKETS = [
