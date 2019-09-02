@@ -3,7 +3,7 @@ from ..psdl.sdlconsole import SdlConsole
 from ..psdl.cmd import RawCommand
 from .. import utility
 from ..utility import meta, blender
-from . import lights
+from . import light
 from .material import node
 from ..psdl import sdlresource
 from .mesh import triangle_mesh, helper
@@ -207,107 +207,6 @@ class Exporter:
                                                  blenderQuaternion.x))
         return photonQuaternion
 
-    # def export_object_mesh(self, b_context, b_depsgraph, b_obj):
-    # 	if len(b_obj.data.materials) == 0:
-    # 		print("warning: mesh object (%s) has no material, not exporting" % b_obj.name)
-    # 		return
-    #
-    # 	# FIXME: this call is only necessary in edit mode, maybe properly check this?
-    # 	# see (https://blenderartists.org/t/get-mesh-data-with-modifiers-applied-in-2-8/1163217/2)
-    # 	#
-    # 	# This creates a temporary mesh data with all modifiers applied (do not forget to delete it later).
-    # 	# b_mesh = b_obj.to_mesh()
-    # 	b_mesh = b_obj.to_mesh(preserve_all_data_layers=True, depsgraph=b_depsgraph)
-    # 	# b_mesh = b_obj.data
-    # 	if b_mesh is None:
-    # 		print("warning: cannot convert　mesh object %s　to mesh, not exporting" % b_obj.name)
-    # 		return
-    #
-    # 	# Group faces with the same material, then export each face-material pair as a Photon-v2's actor.
-    #
-    # 	b_mesh.calc_loop_triangles()
-    # 	b_mesh.calc_normals()
-    #
-    # 	# TODO: might be faster if using len(obj.material_slots()) for array size and simply store each loop tris array
-    # 	material_idx_loop_triangles_map = {}
-    # 	for b_loop_triangle in b_mesh.loop_triangles:
-    #
-    # 		# This index refers to material slots (their stack order in the UI).
-    # 		material_idx = b_loop_triangle.material_index
-    #
-    # 		if material_idx not in material_idx_loop_triangles_map.keys():
-    # 			material_idx_loop_triangles_map[material_idx] = []
-    #
-    # 		material_idx_loop_triangles_map[material_idx].append(b_loop_triangle)
-    #
-    # 	for material_idx in material_idx_loop_triangles_map.keys():
-    #
-    # 		b_material = b_obj.material_slots[material_idx].material.evaluated_get(b_depsgraph)
-    # 		loop_triangles = material_idx_loop_triangles_map[material_idx]
-    #
-    # 		# A material slot can be empty, this check is necessary.
-    # 		if b_material is None:
-    # 			print("warning: no material is in mesh object %s's material slot %d, not exporting" % (
-    # 				b_obj.name, material_idx))
-    # 			continue
-    #
-    # 		# Same material can be in different slots, with slot index as suffix we can ensure unique material
-    # 		# names (required by Photon-v2 for creating unique materials).
-    # 		geometry_name = naming.mangled_geometry_name(b_obj, b_mesh.name, str(material_idx))
-    # 		material_name = naming.mangled_material_name(b_obj, b_mesh.name + "_" + b_material.name, str(material_idx))
-    #
-    # 		# Use the active one as the UV map for export.
-    # 		# TODO: support exporting multiple or zero UV maps/layers
-    # 		b_uv_layers = b_mesh.uv_layers
-    # 		b_active_uv_layer = b_uv_layers.active
-    #
-    # 		# TODO: support mesh without uv map
-    # 		if len(b_mesh.uv_layers) == 0:
-    # 			print("warning: mesh (%s) has no uv maps, ignoring" % geometry_name)
-    # 			continue
-    #
-    # 		# TODO: support mesh without uv map
-    # 		if b_active_uv_layer is None:
-    # 			print("warning: mesh (%s) has %d uv maps, but no one is active (no uv map will be exported)" % (
-    # 				geometry_name, len(b_uv_layers)))
-    # 			continue
-    #
-    # 		# TODO: support mesh with multiple uv maps
-    # 		if len(b_mesh.uv_layers) > 1:
-    # 			print("warning: mesh (%s) has %d uv maps, only the active one is exported" % (
-    # 				geometry_name, len(b_uv_layers)))
-    #
-    # 		triangle_mesh.loop_triangles_to_sdl_triangle_mesh(
-    # 			geometry_name,
-    # 			self.__sdlconsole,
-    # 			loop_triangles,
-    # 			b_mesh.vertices,
-    # 			b_active_uv_layer.data)
-    #
-    # 		mat_translate_result = self.exportMaterial(b_context, material_name, b_material)
-    #
-    # 		# creating actor (can be either model or light depending on emissivity)
-    # 		pos, rot, scale = b_obj.matrix_world.decompose()
-    #
-    # 		if mat_translate_result.is_surface_emissive():
-    # 			light_source_name = naming.mangled_light_source_name(b_obj, b_mesh.name, str(material_idx))
-    # 			creator = ModelLightSourceCreator()
-    # 			creator.set_data_name(light_source_name)
-    # 			creator.set_emitted_radiance(SDLImage(mat_translate_result.surface_emi_res_name))
-    # 			creator.set_geometry(SDLGeometry(geometry_name))
-    # 			creator.set_material(SDLMaterial(material_name))
-    # 			self.get_sdlconsole().queue_command(creator)
-    #
-    # 			actor_light_name = naming.mangled_actor_light_name(b_obj, "", str(material_idx))
-    # 			self.exportActorLight(actor_light_name, light_source_name, geometry_name, material_name, pos, rot, scale)
-    # 		else:
-    # 			actor_model_name = naming.mangled_actor_model_name(b_obj, "", str(material_idx))
-    # 			self.exportActorModel(actor_model_name, geometry_name, material_name, pos, rot, scale)
-    #
-    # 	# delete the temporary mesh for exporting
-    # 	# FIXME: this call may be missed if any exception has thrown earlier
-    # 	b_obj.to_mesh_clear()
-
     def export_mesh_object(self, b_mesh_object: bpy.types.Object):
         b_mesh = b_mesh_object.data
 
@@ -473,14 +372,6 @@ class Exporter:
 
     def export_core_commands(self, b_context):
         b_scene = b_context.scene
-        b_camera = b_scene.camera
-
-        # a scene may contain multiple cameras, export the active one only
-        # if b_camera is not None:
-        #     self.export_camera(b_camera, b_scene)
-        # else:
-        #     print("warning: no active camera")
-
         meta_info = meta.MetaGetter(b_context)
 
         sample_generator = StratifiedSampleGeneratorCreator()
@@ -532,42 +423,6 @@ class Exporter:
             self.get_sdlconsole().queue_command(renderer)
 
     # TODO: write/flush commands to disk once a while (reducing memory usage)
-    # def export_world_commands(self, b_context):
-    #     b_context.view_layer.update()
-    #     b_depsgraph = b_context.evaluated_depsgraph_get()
-    #
-    #     # DEBUG
-    #     print(b_depsgraph.mode)
-    #     # for b_obj in b_depsgraph.scene.objects:
-    #     # 	if b_obj.type == 'MESH':
-    #     # 		b_mesh = b_obj.data
-    #     # 		for b_material in b_mesh.materials:
-    #     # 			print("original: %s" % b_material.ph_node_tree_name)
-    #     # 			print("evaluated: %s" % b_material.evaluated_get(b_depsgraph).ph_node_tree_name)
-    #
-    #     # <objects> contain only objects for display or render.
-    #     for b_obj_instance in b_depsgraph.object_instances:
-    #
-    #         # Objects have animations, drivers, modifiers, and constraints applied after being evaluated.
-    #         b_evaluated_obj = b_obj_instance.object
-    #
-    #         if b_evaluated_obj.type == "MESH":
-    #             print("exporting mesh " + b_evaluated_obj.name)
-    #             self.export_object_mesh(b_context, b_depsgraph, b_evaluated_obj)
-    #         elif b_evaluated_obj.type == "LIGHT":
-    #             print("exporting light " + b_evaluated_obj.name)
-    #             lights.to_sdl_commands(b_evaluated_obj, self.get_sdlconsole())
-    #         # elif b_evaluated_obj.type == "CAMERA":
-    #         # 	# do nothing since it belongs to core command
-    #         # 	pass
-    #         else:
-    #             print("warning: object (%s) type (%s) is not supported, not exporting" % (
-    #                 b_evaluated_obj.name, b_evaluated_obj.type))
-    #
-    #     b_world = b_context.scene.world
-    #     if b_world is not None:
-    #         self.export_world(b_world)
-
     def export(self, b_depsgraph: bpy.types.Depsgraph):
         b_camera_object = scene.find_active_camera_object(b_depsgraph)
         b_mesh_objects = scene.find_mesh_objects(b_depsgraph)
@@ -597,7 +452,7 @@ class Exporter:
 
         for b_light_object in b_light_objects:
             print("exporting light object: " + b_light_object.name)
-            lights.to_sdl_commands(b_light_object, self.get_sdlconsole())
+            light.light_object_to_sdl_actor(b_light_object, self.get_sdlconsole())
 
         b_world = b_depsgraph.scene_eval.world
         self.export_world(b_world)
