@@ -4,7 +4,7 @@ from ..psdl.cmd import RawCommand
 from .. import utility
 from ..utility import meta, blender
 from . import light
-from .material import node
+from .material import nodes
 from ..psdl import sdlresource
 from .mesh import triangle_mesh, helper
 from . import scene
@@ -106,7 +106,7 @@ class Exporter:
 
         # FIXME: hack
         if b_material.photon.use_nodes:
-            return node.to_sdl(b_material, self.get_sdlconsole())
+            return nodes.to_sdl(b_material, self.get_sdlconsole())
         else:
             print("not using node tree")
             # BROKEN CODE

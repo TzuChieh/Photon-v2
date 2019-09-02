@@ -1,5 +1,5 @@
 from ..utility import settings
-from .material import node, helper
+from .material import nodes, helper
 from . import material
 
 import bpy

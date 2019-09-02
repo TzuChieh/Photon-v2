@@ -1,0 +1,90 @@
+from ...utility import blender
+from . import helper
+from . import node_base
+from . import (
+        output_nodes,
+        input_nodes,
+        surface_nodes,
+        math_nodes)
+
+import bpy
+import nodeitems_utils
+
+from collections import defaultdict
+
+
+def to_sdl_recursive(b_material, current_node, processed_nodes, sdlconsole):
+    for socket in current_node.inputs:
+        for link in socket.links:
+            from_node = link.from_node
+            if from_node not in processed_nodes:
+                to_sdl_recursive(b_material, from_node, processed_nodes, sdlconsole)
+                processed_nodes.add(from_node)
+
+    current_node.to_sdl(b_material, sdlconsole)
+
+
+def to_sdl(b_material, sdlconsole):
+    node_tree = helper.find_node_tree(b_material)
+    output_node = helper.find_output_node(node_tree)
+    if output_node is None:
+        print("material <%s> has no output node, ignoring" % b_material.name)
+        return
+
+    processed_nodes = set()
+    to_sdl_recursive(b_material, output_node, processed_nodes, sdlconsole)
+
+
+PH_MATERIAL_NODES = [
+        output_nodes.PhOutputNode,
+        input_nodes.PhConstantColorInputNode,
+        input_nodes.PhPictureNode,
+        surface_nodes.PhDiffuseSurfaceNode,
+        surface_nodes.PhBinaryMixedSurfaceNode,
+        surface_nodes.PhAbradedOpaqueNode,
+        surface_nodes.PhAbradedTranslucentNode,
+        surface_nodes.PhLayeredSurfaceNode,
+        surface_nodes.PhSurfaceLayerNode,
+        surface_nodes.PhIdealSubstanceNode,
+        math_nodes.PhMultiplyNode]
+
+
+class MaterialNodes(blender.BlenderModule):
+    node_category_idname = "PH_MATERIAL_NODE_CATEGORIES"
+
+    def __init__(self):
+        super().__init__()
+
+        self.b_node_categories = []
+
+        node_category_to_items = defaultdict(list)
+        for node_class in PH_MATERIAL_NODES:
+            node_category = node_class.node_category
+            if node_category is not None:
+                node_category_to_items[node_category].append(nodeitems_utils.NodeItem(node_class.bl_idname))
+            else:
+                print("error: node class <%s> has no \"node_category\" class attribute which is required" % (
+                        node_class.__name__))
+
+        for node_category, items in node_category_to_items.items():
+            b_node_category = node_base.PhMaterialNodeCategory(
+                    node_category.id_name,
+                    node_category.label,
+                    items=items)
+            self.b_node_categories.append(b_node_category)
+
+    def register(self):
+        for node_type in PH_MATERIAL_NODES:
+            bpy.utils.register_class(node_type)
+
+        nodeitems_utils.register_node_categories(self.node_category_idname, self.b_node_categories)
+
+    def unregister(self):
+        for node_type in PH_MATERIAL_NODES:
+            bpy.utils.unregister_class(node_type)
+
+        nodeitems_utils.unregister_node_categories(self.node_category_idname)
+
+
+def include_module(module_manager):
+    module_manager.add_module(MaterialNodes())
