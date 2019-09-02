@@ -1,6 +1,8 @@
 from ..utility import settings
-from .material import nodes, helper
+from .material import helper
 from . import material
+from .material.output_nodes import PhOutputNode
+from .material.surface_nodes import PhDiffuseSurfaceNode
 
 import bpy
 
@@ -90,12 +92,31 @@ class PH_MATERIAL_OT_add_material_nodes(bpy.types.Operator):
         b_material.photon.node_tree = node_tree
         b_material.photon.use_nodes = True
 
+        self.add_default_nodes(node_tree)
+
         # Since we use node tree name to remember which node tree is used by a material,
         # the node tree's use count will not be increased, resulting in data not being
         # stored in .blend file sometimes. Use fake user is sort of hacked.
         # node_tree.use_fake_user = True
 
         return {"FINISHED"}
+
+    def add_default_nodes(self, node_tree: bpy.types.NodeTree):
+        if node_tree is None:
+            return
+
+        output_node = node_tree.nodes.new(PhOutputNode.bl_idname)
+        diffuse_node = node_tree.nodes.new(PhDiffuseSurfaceNode.bl_idname)
+
+        # Place the nodes nicely
+        x_shift = diffuse_node.width * 1
+        y_shift = diffuse_node.height * 3.5
+        output_node.location[0] += x_shift + diffuse_node.width * 1.5
+        output_node.location[1] += y_shift
+        diffuse_node.location[0] += x_shift
+        diffuse_node.location[1] += y_shift
+
+        node_tree.links.new(diffuse_node.outputs[0], output_node.inputs[0])
 
 
 class PhMaterialPanel(bpy.types.Panel):
