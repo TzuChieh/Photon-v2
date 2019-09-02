@@ -56,7 +56,7 @@ import shutil
 
 class Exporter:
     def __init__(self, file_path):
-        self.__file_path  = file_path
+        self.__file_path = file_path
         self.__sdlconsole = None
 
     # TODO: should not expose console
@@ -603,8 +603,6 @@ class Exporter:
         self.export_world(b_world)
 
 
-# FIXME: export animation
-
 class OBJECT_OT_p2_exporter(Operator, ExportHelper):
     """
     Export the scene to a format that is readable by Photon-v2.
@@ -621,7 +619,7 @@ class OBJECT_OT_p2_exporter(Operator, ExportHelper):
     # 	options={"HIDDEN"},
     # )
 
-    is_export_animation_requested: BoolProperty(
+    is_animation: BoolProperty(
         name="Export Animation",
         description="Export each frame as a separate scene file.",
         default=False
@@ -655,6 +653,25 @@ class OBJECT_OT_p2_exporter(Operator, ExportHelper):
             print("Export failed. Please exit edit mode for exporting.")
             return {'CANCELLED'}
 
+        if not self.is_animation:
+            self.save_scene("scene", b_context, self.get_evaluated_depsgraph(b_context))
+        else:
+            b_scene = b_context.scene
+            for frame_number in range(b_scene.frame_start, b_scene.frame_end + 1):
+                print("Exporting frame", frame_number)
+                b_scene.frame_set(frame_number)
+                self.save_scene("scene_" + str(frame_number).zfill(6), b_context, self.get_evaluated_depsgraph(b_context))
+
+        return {'FINISHED'}
+
+    def save_scene(self, scene_name, b_context, b_depsgraph: bpy.types.Depsgraph):
+        exporter = Exporter(self.filepath)
+        exporter.begin(scene_name)
+        exporter.export_core_commands(b_context)
+        exporter.export(b_depsgraph)
+        exporter.end()
+
+    def get_evaluated_depsgraph(self, b_context):
         # Make sure we are getting up-to-date data before obtaining depsgraph
         b_context.view_layer.update()
         b_depsgraph = b_context.evaluated_depsgraph_get()
@@ -668,7 +685,7 @@ class OBJECT_OT_p2_exporter(Operator, ExportHelper):
                 b_mesh_object = b_evaluated_mesh_object.original
                 helper.force_mesh_object_subdiv_level(b_mesh_object, original_settings, level=self.subdivision_quality)
 
-            # Make sure we are getting up-to-date data before obtaining depsgraph
+            # Make sure we are getting up-to-date data before updating depsgraph
             b_context.view_layer.update()
             b_depsgraph.update()
 
@@ -677,35 +694,7 @@ class OBJECT_OT_p2_exporter(Operator, ExportHelper):
                 b_mesh_object = b_evaluated_mesh_object.original
                 helper.restore_mesh_object_subdiv_level(b_mesh_object, original_settings)
 
-        b_scene = b_context.scene
-
-        if not self.is_export_animation_requested:
-            exporter = Exporter(self.filepath)
-            exporter.begin("scene")
-
-            exporter.export_core_commands(b_context)
-            exporter.export(b_depsgraph)
-            # exporter.export_world_commands(b_context)
-
-            exporter.end()
-
-            return {'FINISHED'}
-
-        # else:
-        #
-        #     for frame_number in range(b_scene.frame_start, b_scene.frame_end + 1):
-        #
-        #         b_scene.frame_set(frame_number)
-        #
-        #         exporter = Exporter(self.filepath)
-        #         exporter.begin("scene_" + str(frame_number).zfill(6))
-        #
-        #         exporter.export_core_commands(b_context)
-        #         exporter.export_world_commands(b_context)
-        #
-        #         exporter.end()
-        #
-        #     return {'FINISHED'}
+        return b_depsgraph
 
 
 # Add exporter into a dynamic menu

@@ -23,7 +23,6 @@ def force_mesh_object_subdiv_level(b_mesh_object: bpy.types.Object, original_set
 
 def restore_mesh_object_subdiv_level(b_mesh_object: bpy.types.Object, original_settings):
     if b_mesh_object.name not in original_settings:
-        print("warning: cannot find mesh object <%s>'s original settings" % b_mesh_object.name)
         return
 
     settings = original_settings[b_mesh_object.name]

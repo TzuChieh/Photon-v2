@@ -21,7 +21,7 @@ main_package_names = [
 	"bmodule.materials",
 	"bmodule.lights",
 	"bmodule.cameras",
-	"bmodule.p2exporter",
+	"bmodule.exporter",
 	"bmodule.renderer",
 	"bmodule.world"
 ]
