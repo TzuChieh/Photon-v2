@@ -6,7 +6,7 @@ from ..utility import meta, blender
 from . import lights
 from .material import node
 from ..psdl import sdlresource
-from .mesh import triangle_mesh
+from .mesh import triangle_mesh, helper
 from . import scene
 from . import material
 from . import naming
@@ -308,7 +308,7 @@ class Exporter:
     # 	# FIXME: this call may be missed if any exception has thrown earlier
     # 	b_obj.to_mesh_clear()
 
-    def export_mesh_object(self, b_depsgraph: bpy.types.Depsgraph, b_mesh_object: bpy.types.Object):
+    def export_mesh_object(self, b_mesh_object: bpy.types.Object):
         b_mesh = b_mesh_object.data
 
         if b_mesh is None:
@@ -336,7 +336,7 @@ class Exporter:
             material_idx_loop_triangles_map[material_idx].append(b_loop_triangle)
 
         for material_idx in material_idx_loop_triangles_map.keys():
-            b_material = b_mesh_object.material_slots[material_idx].material.evaluated_get(b_depsgraph)
+            b_material = b_mesh_object.material_slots[material_idx].material
             loop_triangles = material_idx_loop_triangles_map[material_idx]
 
             # A material slot can be empty, this check is necessary.
@@ -586,14 +586,14 @@ class Exporter:
         for b_material in b_materials:
             print("exporting material: " + b_material.name)
 
-            # HACK: currently to have up-to-date values, we need to access the original one (Blender bug?)
+            # HACK: In Blender 2.8, materials from evaluated depsgraph will have all their properties left as default
+            # values (Blender bug?), the original data block is good though
             # self.export_material(b_material)
-            # self.export_material(b_material.evaluated_get(b_depsgraph))
             self.export_material(b_material.original)
 
         for b_mesh_object in b_mesh_objects:
             print("exporting mesh object: " + b_mesh_object.name)
-            self.export_mesh_object(b_depsgraph, b_mesh_object)
+            self.export_mesh_object(b_mesh_object)
 
         for b_light_object in b_light_objects:
             print("exporting light object: " + b_light_object.name)
@@ -603,16 +603,15 @@ class Exporter:
         self.export_world(b_world)
 
 
-# FIXME: export subdivision surface in render settings, not preview
 # FIXME: export animation
 
-class P2Exporter(Operator, ExportHelper):
+class OBJECT_OT_p2_exporter(Operator, ExportHelper):
     """
     Export the scene to a format that is readable by Photon-v2.
     """
 
     bl_idname = "object.p2_exporter"
-    bl_label = "export p2"
+    bl_label = "Photon SDL"
 
     # ExportHelper mixin class uses this
     filename_ext = ""
@@ -628,7 +627,20 @@ class P2Exporter(Operator, ExportHelper):
         default=False
     )
 
+    # TODO: able to force specific level
+
+    subdivision_quality: bpy.props.EnumProperty(
+        items=[
+            ("VIEWPORT", "Viewport", "The level as seen in the viewport."),
+            ("RENDER", "Render", "Final render quality."),
+        ],
+        name="Subdivision Quality",
+        description="The subdivision quality of exported mesh.",
+        default="RENDER"
+    )
+
     def execute(self, b_context):
+        # Blender may not write data while editing--we want to avoid exporting in edit mode so data will be complete
         edit_modes = {
             'EDIT_MESH',
             'EDIT_CURVE',
@@ -643,13 +655,31 @@ class P2Exporter(Operator, ExportHelper):
             print("Export failed. Please exit edit mode for exporting.")
             return {'CANCELLED'}
 
+        # Make sure we are getting up-to-date data before obtaining depsgraph
         b_context.view_layer.update()
         b_depsgraph = b_context.evaluated_depsgraph_get()
+
+        # Force subdivision level if required
+        if b_depsgraph.mode != self.subdivision_quality:
+            original_settings = {}
+            b_mesh_objects = scene.find_mesh_objects(b_depsgraph)
+
+            for b_evaluated_mesh_object in b_mesh_objects:
+                b_mesh_object = b_evaluated_mesh_object.original
+                helper.force_mesh_object_subdiv_level(b_mesh_object, original_settings, level=self.subdivision_quality)
+
+            # Make sure we are getting up-to-date data before obtaining depsgraph
+            b_context.view_layer.update()
+            b_depsgraph.update()
+
+            # After getting the forced-level depsgraph, restore mesh objects to original settings
+            for b_evaluated_mesh_object in b_mesh_objects:
+                b_mesh_object = b_evaluated_mesh_object.original
+                helper.restore_mesh_object_subdiv_level(b_mesh_object, original_settings)
 
         b_scene = b_context.scene
 
         if not self.is_export_animation_requested:
-
             exporter = Exporter(self.filepath)
             exporter.begin("scene")
 
@@ -678,19 +708,19 @@ class P2Exporter(Operator, ExportHelper):
         #     return {'FINISHED'}
 
 
-# Only needed if you want to add into a dynamic menu
-def menu_func_export(self, context):
-    self.layout.operator(P2Exporter.bl_idname, text="Photon Scene (.p2)")
+# Add exporter into a dynamic menu
+def menu_func_export(self, b_context):
+    self.layout.operator(OBJECT_OT_p2_exporter.bl_idname, text="Photon Scene (.p2)")
 
 
 class ExporterModule(blender.BlenderModule):
     def register(self):
-        bpy.utils.register_class(P2Exporter)
+        bpy.utils.register_class(OBJECT_OT_p2_exporter)
         bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
     def unregister(self):
         bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
-        bpy.utils.unregister_class(P2Exporter)
+        bpy.utils.unregister_class(OBJECT_OT_p2_exporter)
 
 
 def include_module(module_manager):
