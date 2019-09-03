@@ -8,7 +8,7 @@
 namespace ph
 {
 
-	template
+template
 <
 	typename InputType, 
 	typename AdderType, 
@@ -19,15 +19,11 @@ class TAddTexture : public TTextureFunction<InputType, OutputType>
 public:
 	inline TAddTexture() :
 		TAddTexture(AdderType(1))
-	{
-
-	}
+	{}
 
 	inline explicit TAddTexture(const AdderType& adder) :
 		m_adder(adder)
-	{
-
-	}
+	{}
 
 	inline virtual void sample(const SampleLocation& sampleLocation, OutputType* const out_value) const override
 	{

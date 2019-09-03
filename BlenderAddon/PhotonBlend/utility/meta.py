@@ -1,15 +1,7 @@
 
 class MetaGetter:
-	def __init__(self, context):
-		self.__context = context
-
-	def render_width_px(self):
-		original_width = self.__context.scene.render.resolution_x
-		return int(original_width * self.__render_size_fraction())
-
-	def render_height_px(self):
-		original_height = self.__context.scene.render.resolution_y
-		return int(original_height * self.__render_size_fraction())
+	def __init__(self, b_context):
+		self.__context = b_context
 
 	def spp(self):
 		return self.__context.scene.ph_render_num_spp
@@ -42,6 +34,3 @@ class MetaGetter:
 		else:
 			print("warning: unsupported integrator type %s, using BVPT instead" % integrator_type)
 			return "bvpt"
-
-	def __render_size_fraction(self):
-		return self.__context.scene.render.resolution_percentage / 100.0

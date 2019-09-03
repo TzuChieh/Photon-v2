@@ -43,12 +43,7 @@ from ..psdl.pysdl import (
 
 import bpy
 import mathutils
-
-# ExportHelper is a helper class, defines filename and
-# invoke() function which calls the file selector.
-from bpy_extras.io_utils import ExportHelper
-from bpy.props import BoolProperty
-from bpy.types import Operator
+import bpy_extras
 
 import math
 import shutil
@@ -336,9 +331,8 @@ class Exporter:
                 creator.set_lens_radius_mm(SDLReal(b_camera.ph_lens_radius_mm))
                 creator.set_focal_distance_mm(SDLReal(b_camera.ph_focal_meters * 1000))
                 self.__sdlconsole.queue_command(creator)
-
         else:
-            print("warning: camera (%s) type (%s) is unsupported, not exporting" % (camera.name, camera.type))
+            print("warning: camera (%s) type (%s) is unsupported, not exporting" % (b_camera.name, b_camera.type))
 
     def export_world(self, b_world):
         if b_world.ph_envmap_file_path == "":
@@ -411,8 +405,8 @@ class Exporter:
             print("warning: render method %s is not supported" % render_method)
 
         if renderer is not None:
-            renderer.set_width(SDLInteger(meta_info.render_width_px()))
-            renderer.set_height(SDLInteger(meta_info.render_height_px()))
+            renderer.set_width(SDLInteger(blender.get_render_width_px(b_scene)))
+            renderer.set_height(SDLInteger(blender.get_render_height_px(b_scene)))
 
             if b_scene.ph_use_crop_window:
                 renderer.set_rect_x(SDLInteger(b_scene.ph_crop_min_x))
@@ -458,7 +452,8 @@ class Exporter:
         self.export_world(b_world)
 
 
-class OBJECT_OT_p2_exporter(Operator, ExportHelper):
+# ExportHelper is a helper class, defines filename and invoke() function which calls the file selector.
+class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     """
     Export the scene to a format that is readable by Photon-v2.
     """
@@ -474,7 +469,7 @@ class OBJECT_OT_p2_exporter(Operator, ExportHelper):
     # 	options={"HIDDEN"},
     # )
 
-    is_animation: BoolProperty(
+    is_animation: bpy.props.BoolProperty(
         name="Export Animation",
         description="Export each frame as a separate scene file.",
         default=False
