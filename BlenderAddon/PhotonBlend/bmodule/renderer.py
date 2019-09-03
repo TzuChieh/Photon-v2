@@ -1,6 +1,7 @@
 from ..utility import (
         settings,
         blender)
+from . import render
 
 import bpy
 from bl_ui import (
@@ -263,7 +264,7 @@ class RendererModule(blender.BlenderModule):
     def unregister(self):
         bpy.utils.unregister_class(PhPhotonRenderEngine)
 
-        properties_output.RENDER_PT_render.COMPAT_ENGINES.remove(PhPhotonRenderEngine.bl_idname)
+        properties_output.RENDER_PT_dimensions.COMPAT_ENGINES.remove(PhPhotonRenderEngine.bl_idname)
 
         properties_data_camera.DATA_PT_lens.COMPAT_ENGINES.remove(PhPhotonRenderEngine.bl_idname)
         properties_data_camera.DATA_PT_camera.COMPAT_ENGINES.remove(PhPhotonRenderEngine.bl_idname)

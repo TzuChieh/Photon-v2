@@ -33,7 +33,7 @@ class PH_WORLD_PT_general(bpy.types.Panel):
 	def draw(self, b_context):
 
 		b_layout = self.layout
-		b_world  = b_context.world
+		b_world = b_context.world
 
 		b_layout.prop(b_world, "ph_envmap_file_path")
 		b_layout.prop(b_world, "ph_envmap_degrees")

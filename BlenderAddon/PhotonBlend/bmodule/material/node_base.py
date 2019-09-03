@@ -201,7 +201,7 @@ class MaterialNodeBase(blender.BlenderModule):
         for socket_class in PH_MATERIAL_NODE_SOCKETS:
             bpy.utils.unregister_class(socket_class)
 
-        bpy.utils.unregister_node_categories(PH_MATERIAL_HT_header)
+        bpy.utils.unregister_class(PH_MATERIAL_HT_header)
 
 
 def include_module(module_manager):
