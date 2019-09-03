@@ -462,6 +462,26 @@ void phAsyncPeekFrame(
 	}
 }
 
+void phAsyncPeekFrameRaw(
+	const PHuint64 engineId,
+	const PHuint64 channelIndex,
+	const PHuint32 xPx,
+	const PHuint32 yPx,
+	const PHuint32 widthPx,
+	const PHuint32 heightPx,
+	const PHuint64 frameId)
+{
+	using namespace ph;
+
+	auto engine = ApiDatabase::useEngine(engineId).lock();
+	auto frame  = ApiDatabase::useFrame(frameId).lock();
+	if(engine && frame)
+	{
+		Region region({xPx, yPx}, {xPx + widthPx, yPx + heightPx});
+		engine->asyncPeekFrame(channelIndex, region, *frame, false);
+	}
+}
+
 void phSetWorkingDirectory(const PHuint64 engineId, const PHchar* const workingDirectory)
 {
 	// TODO: static assertion

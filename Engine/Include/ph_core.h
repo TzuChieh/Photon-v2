@@ -201,6 +201,15 @@ extern PH_API void phAsyncPeekFrame(
 	PHuint32                 heightPx,
 	PHuint64                 frameId);
 
+extern PH_API void phAsyncPeekFrameRaw(
+	PHuint64                 engineId,
+	PHuint64                 channelIndex,
+	PHuint32                 xPx,
+	PHuint32                 yPx,
+	PHuint32                 widthPx,
+	PHuint32                 heightPx,
+	PHuint64                 frameId);
+
 #ifdef __cplusplus
 }
 #endif

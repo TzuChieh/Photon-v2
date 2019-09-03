@@ -74,7 +74,14 @@ void StaticImageRenderer::render()
 
 			if(currentProgress - lastOutputProgress > m_args.getOutputPercentageProgress())
 			{
-				phAsyncPeekFrame(m_engineId, 0, 0, 0, filmWpx, filmHpx, queryFrameId);
+				if(m_args.isPostProcessRequested())
+				{
+					phAsyncPeekFrame(m_engineId, 0, 0, 0, filmWpx, filmHpx, queryFrameId);
+				}
+				else
+				{
+					phAsyncPeekFrameRaw(m_engineId, 0, 0, 0, filmWpx, filmHpx, queryFrameId);
+				}
 
 				const auto intermediateImageFilePath =
 					m_args.getImageOutputPath() +
