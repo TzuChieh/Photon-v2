@@ -9,6 +9,13 @@
 
 PH_CLI_NAMESPACE_BEGIN
 
+enum class EIntervalUnit
+{
+	PERCENTAGE,
+	SECOND
+};
+
+// TODO: a parameter telling whether intermediate outout is requested
 class ProcessedArguments
 {
 public:
@@ -18,17 +25,19 @@ public:
 	ProcessedArguments(int argc, char* argv[]);
 	explicit ProcessedArguments(CommandLineArguments arguments);
 
-	std::string getSceneFilePath() const;
-	std::string getImageOutputPath() const;
-	std::string getImageFilePath() const;
-	std::string getImageFileFormat() const;
-	int         getNumRenderThreads() const;
-	bool        isPostProcessRequested() const;
-	bool        isHelpMessageRequested() const;
-	bool        isImageSeriesRequested() const;
-	std::string wildcardStart() const;
-	std::string wildcardFinish() const;
-	float       getOutputPercentageProgress() const;
+	std::string   getSceneFilePath() const;
+	std::string   getImageOutputPath() const;
+	std::string   getImageFilePath() const;
+	std::string   getImageFileFormat() const;
+	int           getNumRenderThreads() const;
+	bool          isPostProcessRequested() const;
+	bool          isHelpMessageRequested() const;
+	bool          isImageSeriesRequested() const;
+	std::string   wildcardStart() const;
+	std::string   wildcardFinish() const;
+	float         getIntermediateOutputInterval() const;
+	EIntervalUnit getIntervalUnit() const;
+	bool          isOverwriteRequested() const;
 
 	void setSceneFilePath(const std::string& sceneFilePath);
 	void setImageOutputPath(const std::string& imageOutputPath);
@@ -50,16 +59,18 @@ public:
 	}
 
 private:
-	std::string m_sceneFilePath;
-	std::string m_imageOutputPath;
-	std::string m_imageFileFormat;
-	int         m_numRenderThreads;// FIXME: use unsigned integer
-	bool        m_isPostProcessRequested;
-	bool        m_isHelpMessageRequested;
-	bool        m_isImageSeriesRequested;
-	std::string m_wildcardStart;
-	std::string m_wildcardFinish;
-	float       m_outputPercentageProgress;
+	std::string   m_sceneFilePath;
+	std::string   m_imageOutputPath;
+	std::string   m_imageFileFormat;
+	int           m_numRenderThreads;// FIXME: use unsigned integer
+	bool          m_isPostProcessRequested;
+	bool          m_isHelpMessageRequested;
+	bool          m_isImageSeriesRequested;
+	std::string   m_wildcardStart;
+	std::string   m_wildcardFinish;
+	float         m_intermediateOutputInverval;
+	EIntervalUnit m_intervalUnit;
+	bool          m_isOverwriteRequested;
 
 	// HACK
 	bool m_isFrameDiagRequested;
@@ -119,9 +130,19 @@ inline std::string ProcessedArguments::wildcardFinish() const
 	return m_wildcardFinish;
 }
 
-inline float ProcessedArguments::getOutputPercentageProgress() const
+inline float ProcessedArguments::getIntermediateOutputInterval() const
 {
-	return m_outputPercentageProgress;
+	return m_intermediateOutputInverval;
+}
+
+inline EIntervalUnit ProcessedArguments::getIntervalUnit() const
+{
+	return m_intervalUnit;
+}
+
+inline bool ProcessedArguments::isOverwriteRequested() const
+{
+	return m_isOverwriteRequested;
 }
 
 inline void ProcessedArguments::setSceneFilePath(const std::string& sceneFilePath)

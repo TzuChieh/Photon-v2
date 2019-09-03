@@ -12,16 +12,18 @@ ProcessedArguments::ProcessedArguments(int argc, char* argv[]) :
 {}
 
 ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
-	m_sceneFilePath           ("./scene.p2"),
-	m_imageOutputPath         ("./rendered_scene"),
-	m_imageFileFormat         ("png"),
-	m_numRenderThreads        (1),
-	m_isPostProcessRequested  (true),
-	m_isHelpMessageRequested  (false),
-	m_isImageSeriesRequested  (false),
-	m_wildcardStart           (""),
-	m_wildcardFinish          (""),
-	m_outputPercentageProgress(std::numeric_limits<float>::max()),
+	m_sceneFilePath             ("./scene.p2"),
+	m_imageOutputPath           ("./rendered_scene"),
+	m_imageFileFormat           ("png"),
+	m_numRenderThreads          (1),
+	m_isPostProcessRequested    (true),
+	m_isHelpMessageRequested    (false),
+	m_isImageSeriesRequested    (false),
+	m_wildcardStart             (""),
+	m_wildcardFinish            (""),
+	m_intermediateOutputInverval(std::numeric_limits<float>::max()),
+	m_intervalUnit              (EIntervalUnit::PERCENTAGE),
+	m_isOverwriteRequested      (false),
 
 	// HACK
 	m_isFrameDiagRequested(false)
@@ -57,15 +59,34 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
 		}
 		else if(argument == "-p")
 		{
-			const float outputPercentageProgress = arguments.retrieveOneFloat(m_outputPercentageProgress);
-			if(0 < outputPercentageProgress && outputPercentageProgress < 100)
+			const auto values = arguments.retrieveMultiple(2);
+
+			m_isOverwriteRequested = (values[1] == "true" || values[1] == "TRUE");
+
+			if(values[0].length() >= 2)
 			{
-				m_outputPercentageProgress = outputPercentageProgress;
+				const std::string inverval = values[0].substr(0, values[0].length() - 1);
+				m_intermediateOutputInverval = std::stof(inverval);
+
+				const char unit = values[0].back();
+				if(unit == '%')
+				{
+					m_intervalUnit = EIntervalUnit::PERCENTAGE;
+				}
+				else if(unit == 's')
+				{
+					m_intervalUnit = EIntervalUnit::SECOND;
+				}
+				else
+				{
+					std::cerr << "warning: unknown intermediate output interval unit <"
+					          << values[0] << "> specified" << std::endl;
+				}
 			}
 			else
 			{
-				std::cerr << "warning: intermediate output percentage specified <"
-				          << outputPercentageProgress << "> is not sensible" << std::endl;
+				std::cerr << "warning: unrecognizable intermediate output interval <"
+				          << values[0] << "> specified" << std::endl;
 			}
 		}
 		else if(argument == "--raw")
@@ -108,6 +129,8 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
 			std::cerr << "warning: unknown command <" << argument << "> specified, ignoring" << std::endl;
 		}
 	}// end while more arguments exist
+
+	// TODO: argument sanity check
 }
 
 PH_CLI_NAMESPACE_END

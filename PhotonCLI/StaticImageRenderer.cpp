@@ -7,6 +7,7 @@
 #include <thread>
 #include <chrono>
 #include <atomic>
+#include <limits>
 
 // FIXME: add osx fs headers once it is supported
 #if defined(_WIN32)
@@ -52,6 +53,9 @@ void StaticImageRenderer::render()
 	std::thread queryThread([&]()
 	{
 		using namespace std::chrono_literals;
+		using Clock = std::chrono::steady_clock;
+
+		const auto startTime = Clock::now();
 
 		// OPT: does not need to create this frame if intermediate frame is not requested
 		PHuint64 queryFrameId;
@@ -72,8 +76,45 @@ void StaticImageRenderer::render()
 				          << "samples/sec: " << samplesPerSecond << std::endl;
 			}
 
-			if(currentProgress - lastOutputProgress > m_args.getOutputPercentageProgress())
+			bool shouldSaveImage = false;
+			std::string imageFilePath = m_args.getImageOutputPath() + "_intermediate_";
+			if(m_args.getIntervalUnit() == EIntervalUnit::PERCENTAGE)
 			{
+				if(currentProgress - lastOutputProgress > m_args.getIntermediateOutputInterval())
+				{
+					shouldSaveImage = true;
+					lastOutputProgress = currentProgress;
+
+					if(!m_args.isOverwriteRequested())
+					{
+						imageFilePath += std::to_string(currentProgress) + "%";
+					}
+
+					std::this_thread::sleep_for(2s);
+				}
+			}
+			else if(m_args.getIntervalUnit() == EIntervalUnit::SECOND)
+			{
+				const auto currentTime = Clock::now();
+				const auto duration = currentTime - startTime;
+				const auto deltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+
+				shouldSaveImage = true;
+
+				if(!m_args.isOverwriteRequested())
+				{
+					imageFilePath += std::to_string(deltaMs / 1000.0f) + "s";
+				}
+
+				const float fms = m_args.getIntermediateOutputInterval() * 1000;
+				const int ims = fms < std::numeric_limits<int>::max() ? static_cast<int>(fms) : std::numeric_limits<int>::max();
+				std::this_thread::sleep_for(std::chrono::milliseconds(ims));
+			}
+
+			if(shouldSaveImage)
+			{
+				imageFilePath += "." + m_args.getImageFileFormat();
+
 				if(m_args.isPostProcessRequested())
 				{
 					phAsyncPeekFrame(m_engineId, 0, 0, 0, filmWpx, filmHpx, queryFrameId);
@@ -83,19 +124,11 @@ void StaticImageRenderer::render()
 					phAsyncPeekFrameRaw(m_engineId, 0, 0, 0, filmWpx, filmHpx, queryFrameId);
 				}
 
-				const auto intermediateImageFilePath =
-					m_args.getImageOutputPath() +
-					"_intermediate_" + std::to_string(currentProgress) + "%" +
-					"." + m_args.getImageFileFormat();
 				phSaveFrame(
 					queryFrameId,
-					intermediateImageFilePath.c_str());
-
-				lastOutputProgress = currentProgress;
+					imageFilePath.c_str());
 			}
-
-			std::this_thread::sleep_for(2s);
-		}
+		}// end while
 	});
 
 	renderThread.join();
