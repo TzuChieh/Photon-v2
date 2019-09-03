@@ -3,57 +3,39 @@
 #include "util.h"
 
 #include <string>
+#include <queue>
 #include <vector>
+#include <cstddef>
 
 PH_CLI_NAMESPACE_BEGIN
 
-class CommandLineArguments final
+class CommandLineArguments
 {
 public:
-	static void printHelpMessage();
+	CommandLineArguments(int argc, char* argv[]);
 
-public:
-	explicit CommandLineArguments(const std::vector<std::string>& argv);
-
-	std::string getSceneFilePath()            const;
-	std::string getImageFilePath()            const;
-	int         getNumRenderThreads()         const;
-	bool        isPostProcessRequested()      const;
-	bool        isHelpMessageRequested()      const;
-	bool        isImageSeriesRequested()      const;
-	std::string wildcardStart()               const;
-	std::string wildcardFinish()              const;
-	float       getOutputPercentageProgress() const;
-
-	bool isFrameDiagRequested() const
-	{
-		return m_isFrameDiagRequested;
-	}
-
-	std::string getFramePathA() const
-	{
-		return m_framePathA;
-	}
-	std::string getFramePathB() const
-	{
-		return m_framePathB;
-	}
+	std::string getProgramName() const;
+	bool isEmpty() const;
+	std::string retrieveOne(const std::string& defaultValue = "");
+	std::vector<std::string> retrieveMultiple(std::size_t numValues);
+	int retrieveOneInt(int defaultValue = 0);
+	float retrieveOneFloat(float defaultValue = 0.0f);
 
 private:
-	std::string m_sceneFilePath;
-	std::string m_imageFilePath;
-	std::string m_intermediateImageFileFormat;
-	int         m_numRenderThreads;// FIXME: use unsigned integer
-	bool        m_isPostProcessRequested;
-	bool        m_isHelpMessageRequested;
-	bool        m_isImageSeriesRequested;
-	std::string m_wildcardStart;
-	std::string m_wildcardFinish;
-	float       m_outputPercentageProgress;
-
-	bool m_isFrameDiagRequested;
-	std::string m_framePathA;
-	std::string m_framePathB;
+	std::string             m_programName;
+	std::queue<std::string> m_arguments;
 };
+
+// In-header Implementations:
+
+inline std::string CommandLineArguments::getProgramName() const
+{
+	return m_programName;
+}
+
+inline bool CommandLineArguments::isEmpty() const
+{
+	return m_arguments.empty();
+}
 
 PH_CLI_NAMESPACE_END

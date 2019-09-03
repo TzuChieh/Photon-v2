@@ -1,4 +1,5 @@
 #include "CommandLineArguments.h"
+#include "ProcessedArguments.h"
 #include "util.h"
 #include "StaticImageRenderer.h"
 
@@ -21,7 +22,7 @@
 
 using namespace PH_CLI_NAMESPACE;
 
-void renderImageSeries(const CommandLineArguments& args);
+void renderImageSeries(const ProcessedArguments& args);
 
 int main(int argc, char* argv[])
 {
@@ -32,16 +33,10 @@ int main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 	}
 
-	std::vector<std::string> arguments;
-	for(int i = 0; i < argc; i++)
-	{
-		arguments.push_back(argv[i]);
-	}
-
-	CommandLineArguments args(arguments);
+	ProcessedArguments args(argc, argv);
 	if(args.isHelpMessageRequested())
 	{
-		CommandLineArguments::printHelpMessage();
+		ProcessedArguments::printHelpMessage();
 		return EXIT_SUCCESS;
 	}
 
@@ -101,7 +96,7 @@ int main(int argc, char* argv[])
 
 #ifndef __APPLE__
 
-void renderImageSeries(const CommandLineArguments& args)
+void renderImageSeries(const ProcessedArguments& args)
 {
 	namespace fs = std::experimental::filesystem;
 
@@ -172,7 +167,7 @@ void renderImageSeries(const CommandLineArguments& args)
 
 #else
 
-void renderImageSeries(const CommandLineArguments& args)
+void renderImageSeries(const ProcessedArguments& args)
 {
 	std::cerr << "ERROR: currently image series rendering is not supported on OSX" << std::endl;
 }

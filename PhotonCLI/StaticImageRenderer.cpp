@@ -17,7 +17,7 @@
 
 PH_CLI_NAMESPACE_BEGIN
 
-StaticImageRenderer::StaticImageRenderer(const CommandLineArguments& args) :
+StaticImageRenderer::StaticImageRenderer(const ProcessedArguments& args) :
 	m_engineId(0),
 	m_sceneFilePath(),
 	m_imageFilePath(args.getImageFilePath()),

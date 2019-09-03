@@ -1,6 +1,7 @@
 #pragma once
 
 #include "util.h"
+#include "ProcessedArguments.h"
 
 #include <ph_core.h>
 
@@ -8,12 +9,10 @@
 
 PH_CLI_NAMESPACE_BEGIN
 
-class CommandLineArguments;
-
 class StaticImageRenderer final
 {
 public:
-	explicit StaticImageRenderer(const CommandLineArguments& args);
+	explicit StaticImageRenderer(const ProcessedArguments& args);
 	~StaticImageRenderer();
 
 	void render() const;
