@@ -7,19 +7,14 @@
 
 PH_CLI_NAMESPACE_BEGIN
 
-namespace
-{
-	constexpr std::string_view DEFAULT_SCENE_FILE_PATH         = "./scene.p2";
-	constexpr std::string_view DEFAULT_DEFAULT_IMAGE_FILE_PATH = "./rendered_scene.png";
-}
-
 ProcessedArguments::ProcessedArguments(int argc, char* argv[]) : 
 	ProcessedArguments(CommandLineArguments(argc, argv))
 {}
 
 ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
-	m_sceneFilePath           (DEFAULT_SCENE_FILE_PATH),
-	m_imageFilePath           (DEFAULT_DEFAULT_IMAGE_FILE_PATH),
+	m_sceneFilePath           ("./scene.p2"),
+	m_imageOutputPath         ("./rendered_scene"),
+	m_imageFileFormat         ("png"),
 	m_numRenderThreads        (1),
 	m_isPostProcessRequested  (true),
 	m_isHelpMessageRequested  (false),
@@ -28,9 +23,9 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
 	m_wildcardFinish          (""),
 	m_outputPercentageProgress(std::numeric_limits<float>::max()),
 
+	// HACK
 	m_isFrameDiagRequested(false)
 {
-	std::string imageFileFormat;
 	while(!arguments.isEmpty())
 	{
 		const std::string argument = arguments.retrieveOne();
@@ -41,11 +36,11 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
 		}
 		else if(argument == "-o")
 		{
-			m_imageFilePath = arguments.retrieveOne();
+			m_imageOutputPath = arguments.retrieveOne();
 		}
 		else if(argument == "-of")
 		{
-			imageFileFormat = arguments.retrieveOne();
+			m_imageFileFormat = arguments.retrieveOne();
 		}
 		else if(argument == "-t")
 		{
@@ -113,115 +108,6 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
 			std::cerr << "warning: unknown command <" << argument << "> specified, ignoring" << std::endl;
 		}
 	}// end while more arguments exist
-
-	// possibly override image format if a more specific order is given
-	if(!imageFileFormat.empty())
-	{
-		m_imageFilePath += "." + imageFileFormat;
-	}
-
-	// TODO: check arguments
-}
-
-std::string ProcessedArguments::getSceneFilePath() const
-{
-	return m_sceneFilePath;
-}
-
-std::string ProcessedArguments::getImageFilePath() const
-{
-	return m_imageFilePath;
-}
-
-int ProcessedArguments::getNumRenderThreads() const
-{
-	return m_numRenderThreads;
-}
-
-bool ProcessedArguments::isPostProcessRequested() const
-{
-	return m_isPostProcessRequested;
-}
-
-bool ProcessedArguments::isHelpMessageRequested() const
-{
-	return m_isHelpMessageRequested;
-}
-
-bool ProcessedArguments::isImageSeriesRequested() const
-{
-	return m_isImageSeriesRequested;
-}
-
-std::string ProcessedArguments::wildcardStart() const
-{
-	return m_wildcardStart;
-}
-
-std::string ProcessedArguments::wildcardFinish() const
-{
-	return m_wildcardFinish;
-}
-
-float ProcessedArguments::getOutputPercentageProgress() const
-{
-	return m_outputPercentageProgress;
-}
-
-void ProcessedArguments::printHelpMessage()
-{
-	std::cout << R"(
-===============================================================================
--s <path>
- 
-Specify path to scene file. To render an image series, you can specify
-"myScene*.p2" as <path> where * is a wildcard for any string (--series is
-required in this case). (default path: "./scene.p2")
-===============================================================================
--o <path>
-
-Specify image output path. This should be a filename for single image and a
-directory for image series. (default path: "./rendered_scene.png")
-===============================================================================
--of <format>
-
-Specify the format of output image. Supported formats are: png, jpg, bmp, tga,
-hdr, exr. If this option is omitted, format is deduced from filename extension.
-===============================================================================
--t <number>
-
-Set number of threads used for rendering. (default: single thread)
-===============================================================================
--p <interval> <is_overwriting>
-
-Output an intermediate image whenever the specified <interval> has passed, 
-e.g., write 2.3% to output whenever the rendering has progressed 2.3 percent; 
-or write 7s to output every 7 seconds. Specify <is_overwriting> as true will 
-make the program overwrite previous intermediate image; false for the 
-opposite effect.
-===============================================================================
---raw
-
-Do not perform any post-processing. (default: perform post-processing)
-===============================================================================
---help
-
-Print this help message then exit.
-===============================================================================
---series
-
-Render an image series. The order for rendering will be lexicographical order
-of the wildcarded string. Currently only .png is supported.
-===============================================================================
---start <*>
-
-Render image series starting from a specific wildcarded string.
-===============================================================================
---finish <*>
-
-Render image series until a specific wildcarded string is matched. (inclusive)
-===============================================================================
-	)" << std::endl;
 }
 
 PH_CLI_NAMESPACE_END

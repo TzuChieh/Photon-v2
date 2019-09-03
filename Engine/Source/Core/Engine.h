@@ -56,9 +56,9 @@ private:
 	std::shared_ptr<Renderer> m_renderer;
 	uint32 m_numRenderThreads;
 
-	FrameProcessor m_frameProcessor;
+	//FrameProcessor m_frameProcessor;
 	// TODO: associate each attribute with a pipeline
-	FrameProcessor::PipelineId m_id;
+	//FrameProcessor::PipelineId m_id;
 };
 
 // In-header Implementations:

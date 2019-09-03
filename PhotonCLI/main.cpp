@@ -48,6 +48,7 @@ int main(int argc, char* argv[])
 
 	// begin engine operations
 
+	// HACK
 	if(args.isFrameDiagRequested())
 	{
 		std::cout << "begin frame diag" << std::endl;
@@ -104,6 +105,7 @@ void renderImageSeries(const ProcessedArguments& args)
 	const std::string sceneFilenameStar = fs::path(args.getSceneFilePath()).filename().string();
 	const std::string sceneFilenameBase = sceneFilenameStar.substr(0, sceneFilenameStar.find('*'));
 
+	// REFACTOR: get rid of pair, name the parameters
 	typedef std::pair<std::string, std::string> StringPair;
 	std::vector<StringPair> sceneFiles;
 	for(const auto& directory : fs::directory_iterator(sceneDirectory))
@@ -121,14 +123,14 @@ void renderImageSeries(const ProcessedArguments& args)
 			continue;
 		}
 
-		const std::size_t stringSize = filename.size() - filenameBase.size() - 3;
-		const std::string string     = filename.substr(filenameBase.size(), stringSize);
+		const std::size_t wildcardedStringSize = filename.size() - filenameBase.size() - 3;
+		const std::string wildcardedString     = filename.substr(filenameBase.size(), wildcardedStringSize);
 
-		sceneFiles.push_back({string, path.string()});
+		sceneFiles.push_back({wildcardedString, path.string()});
 	}
 	std::sort(sceneFiles.begin(), sceneFiles.end());
 
-	fs::create_directories(args.getImageFilePath());
+	fs::create_directories(args.getImageOutputPath());
 
 	auto sceneBegin = std::find_if(sceneFiles.begin(), sceneFiles.end(), 
 		[&args](const std::pair<std::string, std::string>& sceneFile)
@@ -157,9 +159,9 @@ void renderImageSeries(const ProcessedArguments& args)
 		StaticImageRenderer renderer(args);
 		renderer.setSceneFilePath(sceneFile.second);
 
-		const std::string imageFilename = sceneFile.first + ".png";
-		const fs::path    imageFilePath = fs::path(args.getImageFilePath()) / imageFilename;
-		renderer.setImageFilePath(imageFilePath.string());
+		const std::string imageFilename = sceneFile.first;
+		const fs::path    imageFilePath = fs::path(args.getImageOutputPath()) / imageFilename;
+		renderer.setImageOutputPath(imageFilePath.string());
 		
 		renderer.render();
 	}

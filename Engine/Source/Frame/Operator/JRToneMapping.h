@@ -2,6 +2,7 @@
 
 #include "Frame/Operator/FrameOperator.h"
 #include "Common/primitive_type.h"
+#include "Core/Bound/TAABB2D.h"
 
 namespace ph
 {
@@ -21,6 +22,7 @@ public:
 
 	void operate(HdrRgbFrame& frame) const override;
 
+	void operateLocal(HdrRgbFrame& frame, const TAABB2D<uint32>& region) const;
 	void setExposure(real exposure);
 
 private:

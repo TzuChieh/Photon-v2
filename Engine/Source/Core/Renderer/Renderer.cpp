@@ -123,6 +123,7 @@ SdlTypeInfo Renderer::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_RENDERER, "renderer");
 }
 
-void Renderer::ciRegister(CommandRegister& cmdRegister) {}
+void Renderer::ciRegister(CommandRegister& cmdRegister)
+{}
 
 }// end namespace ph

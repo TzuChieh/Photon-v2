@@ -10,8 +10,8 @@ To correctly use Photon-v2 API, please read the following notes:
   should be called on the same thread.
 
 - phCreate/Delete<X>() and phAsync<X>() functions can be used in a multithreaded
-  environment, namely, they are thread-safe. An exception would be that create &
-  delete should be on the same thread.
+  environment, namely, they are thread-safe. An exception would be that create 
+  and delete should be called from the same thread.
 
 - Resources created by phCreate<X>() cannot be manipulated concurrently. Any
   function requiring some resource ID inputs (except phAsync<X>() functions) is
@@ -150,6 +150,7 @@ extern PH_API void phGetObservableRenderData(
 extern PH_API void phDeleteEngine(PHuint64 engineId);
 extern PH_API void phSetWorkingDirectory(PHuint64 engineId, const PHchar* workingDirectory);
 
+// REFACTOR: rename aquire to retrieve
 extern PH_API void phAquireFrame(PHuint64 engineId, PHuint64 channelIndex, PHuint64 frameId);
 extern PH_API void phAquireFrameRaw(PHuint64 engineId, PHuint64 channelIndex, PHuint64 frameId);
 

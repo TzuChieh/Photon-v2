@@ -15,18 +15,14 @@ public:
 	explicit StaticImageRenderer(const ProcessedArguments& args);
 	~StaticImageRenderer();
 
-	void render() const;
+	void render();
 
 	void setSceneFilePath(const std::string& path);
-	void setImageFilePath(const std::string& path);
+	void setImageOutputPath(const std::string& path);
 
 private:
-	PHuint64    m_engineId;
-	std::string m_sceneFilePath;
-	std::string m_imageFilePath;
-	int         m_numRenderThreads;
-	bool        m_isPostProcessRequested;
-	float       m_outputPercentageProgress;
+	PHuint64           m_engineId;
+	ProcessedArguments m_args;
 
 	bool loadCommandsFromSceneFile() const;
 };

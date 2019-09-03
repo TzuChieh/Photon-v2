@@ -30,8 +30,8 @@ void Engine::update()
 	m_data.update(0.0_r);
 
 	// HACK
-	m_id = m_frameProcessor.addPipeline();
-	m_frameProcessor.getPipeline(m_id)->appendOperator(std::make_unique<JRToneMapping>());
+	//m_id = m_frameProcessor.addPipeline();
+	//m_frameProcessor.getPipeline(m_id)->appendOperator(std::make_unique<JRToneMapping>());
 	/*m_filmSet.setProcessor(EAttribute::LIGHT_ENERGY, processor);
 	m_filmSet.setProcessor(EAttribute::NORMAL, processor);*/
 
@@ -55,7 +55,9 @@ void Engine::retrieveFrame(
 
 	if(applyPostProcessing)
 	{
-		m_frameProcessor.process(out_frame, m_id);
+		//m_frameProcessor.process(out_frame, m_id);
+		// HACK
+		JRToneMapping().operate(out_frame);
 	}
 }
 
@@ -91,7 +93,9 @@ void Engine::asyncPeekFrame(
 
 	if(applyPostProcessing)
 	{
-		m_frameProcessor.process(out_frame, m_id);
+		//m_frameProcessor.process(out_frame, m_id);
+		// HACK
+		JRToneMapping().operateLocal(out_frame, TAABB2D<uint32>(region));
 	}
 }
 

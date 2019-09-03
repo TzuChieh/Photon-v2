@@ -19,15 +19,9 @@ PH_CLI_NAMESPACE_BEGIN
 
 StaticImageRenderer::StaticImageRenderer(const ProcessedArguments& args) :
 	m_engineId(0),
-	m_sceneFilePath(),
-	m_imageFilePath(args.getImageFilePath()),
-	m_numRenderThreads(args.getNumRenderThreads()),
-	m_isPostProcessRequested(args.isPostProcessRequested()),
-	m_outputPercentageProgress(args.getOutputPercentageProgress())
+	m_args(args)
 {
-	phCreateEngine(&m_engineId, static_cast<PHuint32>(m_numRenderThreads));
-
-	setSceneFilePath(args.getSceneFilePath());
+	phCreateEngine(&m_engineId, static_cast<PHuint32>(args.getNumRenderThreads()));
 }
 
 StaticImageRenderer::~StaticImageRenderer()
@@ -35,8 +29,10 @@ StaticImageRenderer::~StaticImageRenderer()
 	phDeleteEngine(m_engineId);
 }
 
-void StaticImageRenderer::render() const
+void StaticImageRenderer::render()
 {
+	setSceneFilePath(m_args.getSceneFilePath());
+
 	if(!loadCommandsFromSceneFile())
 	{
 		return;
@@ -76,18 +72,33 @@ void StaticImageRenderer::render() const
 				          << "samples/sec: " << samplesPerSecond << std::endl;
 			}
 
-			if(currentProgress - lastOutputProgress > m_outputPercentageProgress)
+			if(currentProgress - lastOutputProgress > m_args.getOutputPercentageProgress())
 			{
 				PHuint32 qx, qy, qw, qh;
 				int regionStatus = phAsyncPollUpdatedFrameRegion(m_engineId, &qx, &qy, &qw, &qh);
 				if(regionStatus != PH_FILM_REGION_STATUS_INVALID)
 				{
+					std::cerr << "x=" << qx << ", y=" << qy << ", qw=" << qw << ", qh=" << qh << std::endl;
 					phAsyncPeekFrame(m_engineId, 0, qx, qy, qw, qh, queryFrameId);
 
+					const auto intermediateImageFilePath = 
+						m_args.getImageOutputPath() + 
+						"_intermediate_" + std::to_string(currentProgress) + "%" + 
+						"." + m_args.getImageFileFormat();
 					phSaveFrame(
 						queryFrameId, 
-						(m_imageFilePath + "_" + std::to_string(currentProgress) + "%.png").c_str());
+						intermediateImageFilePath.c_str());
 				}
+
+				/*phAsyncPeekFrame(m_engineId, 0, 0, 0, filmWpx, filmHpx, queryFrameId);
+
+				const auto intermediateImageFilePath =
+					m_args.getImageOutputPath() +
+					"_intermediate_" + std::to_string(currentProgress) + "%" +
+					"." + m_args.getImageFileFormat();
+				phSaveFrame(
+					queryFrameId,
+					intermediateImageFilePath.c_str());*/
 
 				lastOutputProgress = currentProgress;
 			}
@@ -102,7 +113,7 @@ void StaticImageRenderer::render() const
 
 	PHuint64 frameId;
 	phCreateFrame(&frameId, filmWpx, filmHpx);
-	if(m_isPostProcessRequested)
+	if(m_args.isPostProcessRequested())
 	{
 		phAquireFrame(m_engineId, 0, frameId);
 	}
@@ -111,7 +122,7 @@ void StaticImageRenderer::render() const
 		phAquireFrameRaw(m_engineId, 0, frameId);
 	}
 
-	save_frame_with_fail_safe(frameId, m_imageFilePath);
+	save_frame_with_fail_safe(frameId, m_args.getImageFilePath());
 
 	phDeleteFrame(frameId);
 
@@ -120,8 +131,9 @@ void StaticImageRenderer::render() const
 
 void StaticImageRenderer::setSceneFilePath(const std::string& path)
 {
-	m_sceneFilePath = path;
+	m_args.setSceneFilePath(path);
 
+// REFACTOR: use a get directory-from-file-path function
 #ifndef __APPLE__
 	namespace fs = std::experimental::filesystem;
 	const std::string sceneDirectory = fs::path(path).parent_path().string();
@@ -140,23 +152,25 @@ void StaticImageRenderer::setSceneFilePath(const std::string& path)
 #endif
 }
 
-void StaticImageRenderer::setImageFilePath(const std::string& path)
+void StaticImageRenderer::setImageOutputPath(const std::string& path)
 {
-	m_imageFilePath = path;
+	m_args.setImageOutputPath(path);
 }
 
 bool StaticImageRenderer::loadCommandsFromSceneFile() const
 {
+	const auto sceneFilePath = m_args.getSceneFilePath();
+
 	std::ifstream sceneFile;
-	sceneFile.open(m_sceneFilePath, std::ios::in);
+	sceneFile.open(sceneFilePath, std::ios::in);
 	if(!sceneFile.is_open())
 	{
-		std::cerr << "warning: scene file <" << m_sceneFilePath << "> opening failed" << std::endl;
+		std::cerr << "warning: scene file <" << sceneFilePath << "> opening failed" << std::endl;
 		return false;
 	}
 	else
 	{
-		std::cerr << "loading scene file <" << m_sceneFilePath << ">" << std::endl;
+		std::cerr << "loading scene file <" << sceneFilePath << ">" << std::endl;
 
 		std::string lineCommand;
 		while(sceneFile.good())

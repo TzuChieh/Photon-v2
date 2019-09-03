@@ -153,6 +153,7 @@ void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& reg
 	float64     reciWeight;
 	std::size_t fx, fy, filmIndex;
 
+	// FIXME: we should iterate in frameIndexBound only
 	for(int64 y = 0; y < getActualResPx().y; y++)
 	{
 		for(int64 x = 0; x < getActualResPx().x; x++)

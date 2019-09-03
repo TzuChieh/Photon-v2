@@ -14,7 +14,12 @@ JRToneMapping::JRToneMapping() :
 
 void JRToneMapping::operate(HdrRgbFrame& frame) const
 {
-	frame.forEachPixel([this](const HdrRgbFrame::Pixel& pixel)
+	operateLocal(frame, {{0, 0}, frame.getSizePx()});
+}
+
+void JRToneMapping::operateLocal(HdrRgbFrame& frame, const TAABB2D<uint32>& region) const
+{
+	frame.forEachPixel(region, [this](const HdrRgbFrame::Pixel& pixel)
 	{
 		HdrRgbFrame::Pixel color = pixel;
 		color.mulLocal(m_exposure);
