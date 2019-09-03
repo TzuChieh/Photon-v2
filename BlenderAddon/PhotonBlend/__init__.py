@@ -10,7 +10,7 @@ bl_info = {
 	"author": "Tzu-Chieh Chang",
 	"version": (2, 0, 0),
 	"blender": (2, 80, 0),
-	"location": "Info Header >> Render Engine Menu",  # FIXME
+	"location": "Render Properties >> Render Engine Menu",
 	"warning": "experimental...",
 	"category": "Render"
 }
