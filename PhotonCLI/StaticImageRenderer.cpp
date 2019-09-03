@@ -74,23 +74,7 @@ void StaticImageRenderer::render()
 
 			if(currentProgress - lastOutputProgress > m_args.getOutputPercentageProgress())
 			{
-				PHuint32 qx, qy, qw, qh;
-				int regionStatus = phAsyncPollUpdatedFrameRegion(m_engineId, &qx, &qy, &qw, &qh);
-				if(regionStatus != PH_FILM_REGION_STATUS_INVALID)
-				{
-					std::cerr << "x=" << qx << ", y=" << qy << ", qw=" << qw << ", qh=" << qh << std::endl;
-					phAsyncPeekFrame(m_engineId, 0, qx, qy, qw, qh, queryFrameId);
-
-					const auto intermediateImageFilePath = 
-						m_args.getImageOutputPath() + 
-						"_intermediate_" + std::to_string(currentProgress) + "%" + 
-						"." + m_args.getImageFileFormat();
-					phSaveFrame(
-						queryFrameId, 
-						intermediateImageFilePath.c_str());
-				}
-
-				/*phAsyncPeekFrame(m_engineId, 0, 0, 0, filmWpx, filmHpx, queryFrameId);
+				phAsyncPeekFrame(m_engineId, 0, 0, 0, filmWpx, filmHpx, queryFrameId);
 
 				const auto intermediateImageFilePath =
 					m_args.getImageOutputPath() +
@@ -98,7 +82,7 @@ void StaticImageRenderer::render()
 					"." + m_args.getImageFileFormat();
 				phSaveFrame(
 					queryFrameId,
-					intermediateImageFilePath.c_str());*/
+					intermediateImageFilePath.c_str());
 
 				lastOutputProgress = currentProgress;
 			}
