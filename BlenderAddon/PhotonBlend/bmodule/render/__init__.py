@@ -26,6 +26,7 @@ class RenderProcess:
 
         argument_string = self._generate_argument_string()
 
+        # DEBUG
         print(argument_string)
         print(self.installation_path)
 

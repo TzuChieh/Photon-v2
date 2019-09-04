@@ -20,23 +20,23 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
     # for example for a viewport and final render.
     def __init__(self):
         super().__init__()
-        print("init")
+
+        self.renderer = render.RenderProcess()
 
     # When the render engine instance is destroy, this is called. Clean up any render engine data here, for example
     # stopping running render threads.
     def __del__(self):
-        print("del")
+        self.renderer.exit()
 
     # This is the method called by Blender for both final renders (F12) and small preview for materials, world
     # and lights.
     def render(self, b_depsgraph):
-        print("render")
-
         b_scene = b_depsgraph.scene
         width_px = blender.get_render_width_px(b_scene)
         height_px = blender.get_render_height_px(b_scene)
 
-        renderer = render.RenderProcess()
+        self.renderer.set_num_render_threads(b_scene.render.threads)
+
         renderer.run()
 
         b_render_result = self.begin_result(0, 0, width_px, height_px)
