@@ -36,9 +36,14 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
         width_px = blender.get_render_width_px(b_scene)
         height_px = blender.get_render_height_px(b_scene)
 
+        renderer = render.RenderProcess()
+        renderer.run()
+
         b_render_result = self.begin_result(0, 0, width_px, height_px)
         b_render_layer = b_render_result.layers[0]
-        b_render_layer.load_from_file("C:\\test.exr")
+        # b_render_layer.load_from_file("C:\\test.exr")
+
+
 
         self.end_result(b_render_result)
 

@@ -49,6 +49,7 @@ void StaticImageRenderer::render()
 	PHuint32 filmWpx, filmHpx;
 	phGetRenderDimension(m_engineId, &filmWpx, &filmHpx);
 
+	// REFACTOR: make a dedicated query class
 	std::atomic<bool> isRenderingCompleted = false;
 	std::thread queryThread([&]()
 	{
