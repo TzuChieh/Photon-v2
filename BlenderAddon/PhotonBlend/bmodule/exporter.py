@@ -59,21 +59,21 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
             print("Export failed. Please exit edit mode for exporting.")
             return {'CANCELLED'}
 
+        b_scene = b_context.scene
         if not self.is_animation:
-            self.save_scene("scene", b_context, self.get_evaluated_depsgraph(b_context))
+            self.save_scene("scene", b_scene, self.get_evaluated_depsgraph(b_context))
         else:
-            b_scene = b_context.scene
             for frame_number in range(b_scene.frame_start, b_scene.frame_end + 1):
                 print("Exporting frame", frame_number)
                 b_scene.frame_set(frame_number)
-                self.save_scene("scene_" + str(frame_number).zfill(6), b_context, self.get_evaluated_depsgraph(b_context))
+                self.save_scene("scene_" + str(frame_number).zfill(6), b_scene, self.get_evaluated_depsgraph(b_context))
 
         return {'FINISHED'}
 
-    def save_scene(self, scene_name, b_context, b_depsgraph: bpy.types.Depsgraph):
+    def save_scene(self, scene_name, b_scene, b_depsgraph: bpy.types.Depsgraph):
         exporter = Exporter(self.filepath)
         exporter.begin(scene_name)
-        exporter.export_core_commands(b_context)
+        exporter.export_core_commands(b_scene)
         exporter.export(b_depsgraph)
         exporter.end()
 

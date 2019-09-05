@@ -59,15 +59,24 @@ class RenderProcess:
 
     def request_intermediate_output(self, **options):
         values = ""
-        values += options.get('interval', str(2))
+
+        values += str(options.get('interval', 2))
         values += options.get('unit', 's')
         values += " "
-        values += options.get('is_overwriting', True)
+
+        is_overwriting = options.get('is_overwriting', True)
+        values += "true" if is_overwriting else "false"
 
         self._set_argument("-p", values)
 
     def request_raw_output(self):
         self._set_argument("--raw", "")
+
+    def is_running(self):
+        if self.process is None:
+            return False
+
+        return self.process.poll() is None
 
     def _generate_argument_string(self):
         argument_string = ""

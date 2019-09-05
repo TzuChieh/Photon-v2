@@ -2,11 +2,19 @@ from ..utility import (
         settings,
         blender)
 from . import render
+from . import export
 
 import bpy
 from bl_ui import (
         properties_output,
         properties_data_camera)
+
+import uuid
+import tempfile
+from pathlib import Path
+import shutil
+import time
+import inspect
 
 
 class PhPhotonRenderEngine(bpy.types.RenderEngine):
@@ -22,11 +30,24 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
         super().__init__()
 
         self.renderer = render.RenderProcess()
+        self.identifier = str(uuid.uuid4())
+        self.renderer_data_path = None
+
+        print("Photon Renderer started (id: %s)" % self.identifier)
 
     # When the render engine instance is destroy, this is called. Clean up any render engine data here, for example
     # stopping running render threads.
     def __del__(self):
-        self.renderer.exit()
+        # HACK: blender seems to be calling __del__ even if __init__ is not called first, filtering this situation out
+        if not hasattr(self, "identifier") or not hasattr(self, "renderer_data_path"):
+            return
+
+        # Remove all generated data on disk
+        if self.renderer_data_path is not None:
+            if self.renderer_data_path.exists():
+                shutil.rmtree(self.renderer_data_path)
+
+        print("Photon Renderer exited (id: %s)" % self.identifier)
 
     # This is the method called by Blender for both final renders (F12) and small preview for materials, world
     # and lights.
@@ -34,18 +55,52 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
         b_scene = b_depsgraph.scene
         width_px = blender.get_render_width_px(b_scene)
         height_px = blender.get_render_height_px(b_scene)
+        renderer_data_path = self._get_temp_folder_path()
+        scene_file_name = "__temp_scene"
+        image_file_name = "__temp_rendered"
+        image_file_format = "exr"
+        refresh_seconds = 2
+
+        self.renderer_data_path = renderer_data_path
+
+        exporter = export.Exporter(str(renderer_data_path.resolve()))
+        exporter.begin(scene_file_name)
+        exporter.export_core_commands(b_scene)
+        exporter.export(b_depsgraph)
+        exporter.end()
+
+        scene_file_path = renderer_data_path / (scene_file_name + ".p2")
+        self.renderer.set_scene_file_path("\"" + str(scene_file_path.resolve()) + "\"")
+
+        image_file_path = renderer_data_path / image_file_name
+        self.renderer.set_image_output_path("\"" + str(image_file_path.resolve()) + "\"")
+        self.renderer.set_image_format(image_file_format)
+        self.renderer.request_raw_output()
+
+        self.renderer.request_intermediate_output(interval=refresh_seconds, unit='s', is_overwriting=True)
+        intermediate_image_file_path = Path(str(image_file_path) + "_intermediate_")
+        intermediate_image_file_path = intermediate_image_file_path.with_suffix("." + image_file_format)
 
         self.renderer.set_num_render_threads(b_scene.render.threads)
 
-        renderer.run()
+        self.renderer.run()
 
         b_render_result = self.begin_result(0, 0, width_px, height_px)
         b_render_layer = b_render_result.layers[0]
-        # b_render_layer.load_from_file("C:\\test.exr")
 
+        while self.renderer.is_running():
+            if intermediate_image_file_path.is_file():
+                try:
+                    b_render_layer.load_from_file(str(intermediate_image_file_path.resolve()))
+                except:
+                    pass
+                # b_render_layer.load_from_file("C:\\Users\\BlackCat\\AppData\\Local\\Temp\\test.exr")
 
+                time.sleep(refresh_seconds)
 
         self.end_result(b_render_result)
+
+        self.renderer.exit()
 
     # For viewport renders, this method gets called once at the start and whenever the scene or 3D viewport changes.
     # This method is where data should be read from Blender in the same thread. Typically a render thread will be
@@ -58,6 +113,17 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
     # selection and editing on top of the rendered image automatically.
     def view_draw(self, b_context, b_depsgraph):
         print("view_draw")
+
+    def _get_temp_folder_path(self):
+        folder_name = "__photon_temp_" + self.identifier
+
+        blend_file_folder_path = bpy.path.abspath("//")
+        if bpy.data.is_saved and blend_file_folder_path:
+            folder_path = Path(blend_file_folder_path)
+        else:
+            folder_path = Path(tempfile.gettempdir())
+
+        return folder_path / folder_name
 
 
 class PhRenderPanel(bpy.types.Panel):

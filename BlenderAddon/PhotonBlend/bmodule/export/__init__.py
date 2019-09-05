@@ -79,8 +79,8 @@ class Exporter:
 
         # TODO: check camera type
 
-        position    = utility.to_photon_vec3(position)
-        direction   = utility.to_photon_vec3(direction)
+        position = utility.to_photon_vec3(position)
+        direction = utility.to_photon_vec3(direction)
         upDirection = utility.to_photon_vec3(upDirection)
 
         creator = PinholeCameraCreator()
@@ -361,9 +361,8 @@ class Exporter:
         rotation.set_degree(SDLReal(b_world.ph_envmap_degrees))
         self.get_sdlconsole().queue_command(rotation)
 
-    def export_core_commands(self, b_context):
-        b_scene = b_context.scene
-        meta_info = meta.MetaGetter(b_context)
+    def export_core_commands(self, b_scene):
+        meta_info = meta.MetaGetter(b_scene)
 
         sample_generator = StratifiedSampleGeneratorCreator()
         sample_generator.set_sample_amount(SDLInteger(meta_info.spp()))

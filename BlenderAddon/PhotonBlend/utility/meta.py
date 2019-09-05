@@ -1,13 +1,13 @@
 
 class MetaGetter:
-	def __init__(self, b_context):
-		self.__context = b_context
+	def __init__(self, b_scene):
+		self.__scene = b_scene
 
 	def spp(self):
-		return self.__context.scene.ph_render_num_spp
+		return self.__scene.ph_render_num_spp
 
 	def sample_filter_name(self):
-		filter_type = self.__context.scene.ph_render_sample_filter_type
+		filter_type = self.__scene.ph_render_sample_filter_type
 		if filter_type == "BOX":
 			return "box"
 		elif filter_type == "GAUSSIAN":
@@ -21,10 +21,10 @@ class MetaGetter:
 			return "bh"
 
 	def render_method(self):
-		return self.__context.scene.ph_render_integrator_type
+		return self.__scene.ph_render_integrator_type
 
 	def integrator_type_name(self):
-		integrator_type = self.__context.scene.ph_render_integrator_type
+		integrator_type = self.__scene.ph_render_integrator_type
 		if integrator_type == "BVPT":
 			return "bvpt"
 		elif integrator_type == "BNEEPT":
