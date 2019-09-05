@@ -13,4 +13,8 @@ set_source_files_properties(${PHOTON_CLI_HEADER_FILES} PROPERTIES HEADER_FILE_ON
 add_executable(PhotonCLI ${PHOTON_CLI_HEADER_FILES} ${PHOTON_CLI_SOURCE_FILES})
 add_dependencies(PhotonCLI Engine)
 
+target_include_directories(PhotonCLI
+	PRIVATE ${ASIO_INCLUDE_DIR}
+)
+
 target_link_libraries(PhotonCLI Engine)

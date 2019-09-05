@@ -25,6 +25,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/bin/")
 # Build Options                                                               #
 ###############################################################################
 
+set(BUILD_PHOTON_CLI_DEFAULT ON)
+
 if(WIN32)
     set(BUILD_ENGINE_TEST_DEFAULT ON)
     set(BUILD_EDITOR_JNI_DEFAULT  ON)
@@ -33,7 +35,7 @@ else()
     set(BUILD_EDITOR_JNI_DEFAULT  OFF)
 endif()
 
-
+option(BUILD_PHOTON_CLI  "Build command-line application."   ${BUILD_PHOTON_CLI_DEFAULT})
 option(BUILD_ENGINE_TEST "Build unit tests for core engine." ${BUILD_ENGINE_TEST_DEFAULT})
 option(BUILD_EDITOR_JNI  "Build JNI for GUI."                ${BUILD_EDITOR_JNI_DEFAULT})
 
@@ -105,6 +107,16 @@ endif()
 # stb
 set(STB_INCLUDE_DIR "${THIRD_PARTY_DIR}stb/include/")
 
+# Asio
+set(ASIO_INCLUDE_DIR "${THIRD_PARTY_DIR}Asio/include/")
+# TODO: use add_compile_definitions() in newer versions of CMake
+# so that Boost is not required
+add_definitions(-DASIO_STANDALONE)
+# FIXME: currently VS produces deprecation warning, which is wrong, see
+# https://github.com/chriskohlhoff/asio/issues/290#issuecomment-371867040
+# remove this when it is fixed
+add_definitions(-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING)
+
 # StackWalker
 # TODO: debug build?
 if(WIN32)
@@ -158,6 +170,6 @@ if(BUILD_EDITOR_JNI)
     add_subdirectory("./JNI/")
 endif()
 
-add_subdirectory("./PhotonCLI/")
-
-
+if(BUILD_PHOTON_CLI)
+    add_subdirectory("./PhotonCLI/")
+endif()

@@ -1,6 +1,8 @@
 #include "StaticImageRenderer.h"
 #include "CommandLineArguments.h"
 
+#include <asio.hpp>
+
 #include <iostream>
 #include <fstream>
 #include <string>
