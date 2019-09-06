@@ -72,7 +72,7 @@ void phCreateEngine(PHuint64* const out_engineId, const PHuint32 numRenderThread
 
 	auto engine = std::make_unique<Engine>();
 	engine->setNumRenderThreads(static_cast<std::size_t>(numRenderThreads));
-	*out_engineId = static_cast<std::size_t>(ApiDatabase::addEngine(std::move(engine)));
+	*out_engineId = static_cast<std::size_t>(ApiDatabase::addResource(std::move(engine)));
 
 	logger.log("engine<" + std::to_string(*out_engineId) + "> created");
 }
@@ -81,7 +81,7 @@ void phSetNumRenderThreads(const PHuint64 engineId, const PHuint32 numRenderThre
 {
 	using namespace ph;
 
-	Engine* engine = ApiDatabase::getEngine(engineId);
+	Engine* engine = ApiDatabase::getResource<Engine>(engineId);
 	if(engine)
 	{
 		engine->setNumRenderThreads(static_cast<uint32>(numRenderThreads));
@@ -92,7 +92,7 @@ void phDeleteEngine(const PHuint64 engineId)
 {
 	using namespace ph;
 
-	if(ApiDatabase::removeEngine(engineId))
+	if(ApiDatabase::removeResource<Engine>(engineId))
 	{
 		logger.log("engine<" + std::to_string(engineId) + "> deleted");
 	}
@@ -110,7 +110,7 @@ void phEnterCommand(const PHuint64 engineId, const PHchar* const commandFragment
 
 	using namespace ph;
 
-	Engine* engine = ApiDatabase::getEngine(engineId);
+	Engine* engine = ApiDatabase::getResource<Engine>(engineId);
 	if(engine)
 	{
 		engine->enterCommand(std::string(commandFragment));
@@ -121,7 +121,7 @@ void phRender(const PHuint64 engineId)
 {
 	using namespace ph;
 
-	Engine* engine = ApiDatabase::getEngine(engineId);
+	Engine* engine = ApiDatabase::getResource<Engine>(engineId);
 	if(engine)
 	{
 		engine->render();
@@ -132,7 +132,7 @@ void phUpdate(const PHuint64 engineId)
 {
 	using namespace ph;
 
-	Engine* engine = ApiDatabase::getEngine(engineId);
+	Engine* engine = ApiDatabase::getResource<Engine>(engineId);
 	if(engine)
 	{
 		engine->update();
@@ -146,8 +146,8 @@ void phAquireFrame(
 {
 	using namespace ph;
 
-	Engine*      engine = ApiDatabase::getEngine(engineId);
-	HdrRgbFrame* frame  = ApiDatabase::getFrame(frameId);
+	Engine*      engine = ApiDatabase::getResource<Engine>(engineId);
+	HdrRgbFrame* frame  = ApiDatabase::getResource<HdrRgbFrame>(frameId);
 	if(engine && frame)
 	{
 		engine->retrieveFrame(
@@ -163,8 +163,8 @@ void phAquireFrameRaw(
 {
 	using namespace ph;
 
-	Engine*      engine = ApiDatabase::getEngine(engineId);
-	HdrRgbFrame* frame  = ApiDatabase::getFrame(frameId);
+	Engine*      engine = ApiDatabase::getResource<Engine>(engineId);
+	HdrRgbFrame* frame  = ApiDatabase::getResource<HdrRgbFrame>(frameId);
 	if(engine && frame)
 	{
 		engine->retrieveFrame(
@@ -178,7 +178,7 @@ void phGetRenderDimension(const PHuint64 engineId, PHuint32* const out_widthPx, 
 {
 	using namespace ph;
 
-	Engine* engine = ApiDatabase::getEngine(engineId);
+	Engine* engine = ApiDatabase::getResource<Engine>(engineId);
 	if(engine)
 	{
 		const TVector2<int64> dim = engine->getFilmDimensionPx();
@@ -195,7 +195,7 @@ void phGetObservableRenderData(
 
 	using namespace ph;
 
-	Engine* engine = ApiDatabase::getEngine(engineId);
+	Engine* engine = ApiDatabase::getResource<Engine>(engineId);
 	if(engine)
 	{
 		const auto data = engine->getRenderer()->getObservableData();
@@ -245,7 +245,7 @@ void phCreateFrame(PHuint64* const out_frameId,
                    const PHuint32 widthPx, const PHuint32 heightPx)
 {
 	auto frame = std::make_unique<ph::HdrRgbFrame>(widthPx, heightPx);
-	*out_frameId = ph::ApiDatabase::addFrame(std::move(frame));
+	*out_frameId = ph::ApiDatabase::addResource(std::move(frame));
 
 	logger.log("frame<" + std::to_string(*out_frameId) + "> created");
 }
@@ -255,7 +255,7 @@ void phGetFrameDimension(const PHuint64 frameId,
 {
 	using namespace ph;
 
-	HdrRgbFrame* frame = ApiDatabase::getFrame(frameId);
+	HdrRgbFrame* frame = ApiDatabase::getResource<HdrRgbFrame>(frameId);
 	if(frame)
 	{
 		*out_widthPx  = static_cast<PHuint32>(frame->widthPx());
@@ -267,7 +267,7 @@ void phGetFrameRgbData(const PHuint64 frameId, const PHfloat32** const out_data)
 {
 	using namespace ph;
 
-	HdrRgbFrame* frame = ApiDatabase::getFrame(frameId);
+	HdrRgbFrame* frame = ApiDatabase::getResource<HdrRgbFrame>(frameId);
 	if(frame)
 	{
 		static_assert(sizeof(PHfloat32) == sizeof(HdrComponent));
@@ -280,7 +280,7 @@ void phDeleteFrame(const PHuint64 frameId)
 {
 	using namespace ph;
 
-	if(ApiDatabase::removeFrame(frameId))
+	if(ApiDatabase::removeResource<HdrRgbFrame>(frameId))
 	{
 		logger.log("frame<" + std::to_string(frameId) + "> deleted");
 	}
@@ -297,7 +297,7 @@ int phLoadFrame(PHuint64 frameId, const PHchar* const filePath)
 
 	using namespace ph;
 
-	HdrRgbFrame* frame = ApiDatabase::getFrame(frameId);
+	HdrRgbFrame* frame = ApiDatabase::getResource<HdrRgbFrame>(frameId);
 	if(frame)
 	{
 		*frame = PictureLoader::load(Path(filePath));
@@ -315,7 +315,7 @@ int phSaveFrame(const PHuint64 frameId, const PHchar* const filePath)
 
 	using namespace ph;
 
-	const HdrRgbFrame* frame = ApiDatabase::getFrame(frameId);
+	const HdrRgbFrame* frame = ApiDatabase::getResource<HdrRgbFrame>(frameId);
 	if(frame)
 	{
 		if(PictureSaver::save(*frame, Path(filePath)))
@@ -338,9 +338,9 @@ void phFrameOpAbsDifference(const PHuint64 frameAId, const PHuint64 frameBId, co
 {
 	using namespace ph;
 
-	HdrRgbFrame* frameA      = ApiDatabase::getFrame(frameAId);
-	HdrRgbFrame* frameB      = ApiDatabase::getFrame(frameBId);
-	HdrRgbFrame* resultFrame = ApiDatabase::getFrame(resultFrameId);
+	HdrRgbFrame* frameA      = ApiDatabase::getResource<HdrRgbFrame>(frameAId);
+	HdrRgbFrame* frameB      = ApiDatabase::getResource<HdrRgbFrame>(frameBId);
+	HdrRgbFrame* resultFrame = ApiDatabase::getResource<HdrRgbFrame>(resultFrameId);
 	if(frameA && frameB && resultFrame)
 	{
 		frame_utils::abs_diff(*frameA, *frameB, resultFrame);
@@ -353,8 +353,8 @@ float phFrameOpMSE(const PHuint64 expectedFrameId, const PHuint64 estimatedFrame
 
 	float MSE = 0.0f;
 
-	HdrRgbFrame* expectedFrame  = ApiDatabase::getFrame(expectedFrameId);
-	HdrRgbFrame* estimatedFrame = ApiDatabase::getFrame(estimatedFrameId);
+	HdrRgbFrame* expectedFrame  = ApiDatabase::getResource<HdrRgbFrame>(expectedFrameId);
+	HdrRgbFrame* estimatedFrame = ApiDatabase::getResource<HdrRgbFrame>(estimatedFrameId);
 	if(expectedFrame && estimatedFrame)
 	{
 		MSE = static_cast<float>(frame_utils::calc_MSE(*expectedFrame, *estimatedFrame));
@@ -374,7 +374,7 @@ void phAsyncGetRendererStatistics(const PHuint64 engineId,
 {
 	using namespace ph;
 
-	auto engine = ApiDatabase::useEngine(engineId).lock();
+	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
 	if(engine)
 	{
 		float32 percentageProgress, samplesPerSecond;
@@ -393,7 +393,7 @@ void phAsyncGetRendererState(
 
 	using namespace ph;
 
-	auto engine = ApiDatabase::useEngine(engineId).lock();
+	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
 	if(engine)
 	{
 		const RenderState state = engine->getRenderer()->asyncQueryRenderState();
@@ -420,7 +420,7 @@ int phAsyncPollUpdatedFrameRegion(
 
 	using namespace ph;
 
-	auto engine = ApiDatabase::useEngine(engineId).lock();
+	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
 	if(engine)
 	{
 		Region region;
@@ -453,8 +453,8 @@ void phAsyncPeekFrame(
 {
 	using namespace ph;
 
-	auto engine = ApiDatabase::useEngine(engineId).lock();
-	auto frame  = ApiDatabase::useFrame(frameId).lock();
+	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
+	auto frame  = ApiDatabase::useResource<HdrRgbFrame>(frameId).lock();
 	if(engine && frame)
 	{
 		Region region({xPx, yPx}, {xPx + widthPx, yPx + heightPx});
@@ -473,8 +473,8 @@ void phAsyncPeekFrameRaw(
 {
 	using namespace ph;
 
-	auto engine = ApiDatabase::useEngine(engineId).lock();
-	auto frame  = ApiDatabase::useFrame(frameId).lock();
+	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
+	auto frame  = ApiDatabase::useResource<HdrRgbFrame>(frameId).lock();
 	if(engine && frame)
 	{
 		Region region({xPx, yPx}, {xPx + widthPx, yPx + heightPx});
@@ -489,7 +489,7 @@ void phSetWorkingDirectory(const PHuint64 engineId, const PHchar* const workingD
 
 	using namespace ph;
 
-	Engine* engine = ApiDatabase::getEngine(engineId);
+	Engine* engine = ApiDatabase::getResource<Engine>(engineId);
 	if(engine)
 	{
 		const Path path(workingDirectory);
