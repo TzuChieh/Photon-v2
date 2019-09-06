@@ -89,7 +89,9 @@ endif()
 
 set(THIRD_PARTY_DIR "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty-master/")
 
+#------------------------------------------------------------------------------
 # googletest
+#------------------------------------------------------------------------------
 if(BUILD_ENGINE_TEST)
     set(GOOGLETEST_INCLUDE_DIR "${THIRD_PARTY_DIR}googletest/include/")
     set(GOOGLETEST_BINARY_DIR  "${THIRD_PARTY_DIR}googletest/lib/${THIRD_PARTY_PLATFORM}/")
@@ -104,20 +106,61 @@ if(BUILD_ENGINE_TEST)
     set(GOOGLETEST_LIBS "${GOOGLETEST_LIB_GMOCK};${GOOGLETEST_LIB_GTEST}")
 endif()
 
+#------------------------------------------------------------------------------
 # stb
+#------------------------------------------------------------------------------
 set(STB_INCLUDE_DIR "${THIRD_PARTY_DIR}stb/include/")
 
+#------------------------------------------------------------------------------
 # Asio
+#------------------------------------------------------------------------------
 set(ASIO_INCLUDE_DIR "${THIRD_PARTY_DIR}Asio/include/")
+
 # TODO: use add_compile_definitions() in newer versions of CMake
 # so that Boost is not required
 add_definitions(-DASIO_STANDALONE)
+
 # FIXME: currently VS produces deprecation warning, which is wrong, see
 # https://github.com/chriskohlhoff/asio/issues/290#issuecomment-371867040
 # remove this when it is fixed
-add_definitions(-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING)
+if(WIN32)
+    add_definitions(-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING)
+endif()
 
+# Automatically define the value of _WIN32_WINNT for Windows; this is required
+# by Asio. 
+# Reference: https://stackoverflow.com/questions/9742003/platform-detection-in-cmake
+if(WIN32)
+    macro(get_WIN32_WINNT result)
+        if(CMAKE_SYSTEM_VERSION)
+            set(version ${CMAKE_SYSTEM_VERSION})
+            string(REGEX MATCH "^([0-9]+).([0-9])" version ${version})
+            string(REGEX MATCH "^([0-9]+)" majorVersion ${version})
+
+            # Check for Windows 10 specifically as we will need to convert to hex 'A'
+            if ("${majorVersion}" MATCHES "10")
+                set(majorVersion "A")
+                string(REGEX REPLACE "^([0-9]+)" ${majorVersion} version ${version})
+            endif()
+
+            # Remove all remaining '.' characters
+            string(REPLACE "." "" version ${version})
+
+            # Prepend each digit with a zero
+            string(REGEX REPLACE "([0-9A-Z])" "0\\1" version ${version})
+
+            # Prepend "0x" to signify hexadecimal
+            set(${result} "0x${version}")
+        endif()
+    endmacro()
+
+    get_WIN32_WINNT(win32winntVersion)
+    add_definitions(-D_WIN32_WINNT=${win32winntVersion})
+endif()
+
+#------------------------------------------------------------------------------
 # StackWalker
+#------------------------------------------------------------------------------
 # TODO: debug build?
 if(WIN32)
     set(STACKWALKER_INCLUDE_DIR "${THIRD_PARTY_DIR}StackWalker/include/")
@@ -128,16 +171,22 @@ if(WIN32)
     )
 endif()
 
+#------------------------------------------------------------------------------
 # libsimdpp
+#------------------------------------------------------------------------------
 set(LIBSIMDPP_INCLUDE_DIR "${THIRD_PARTY_DIR}libsimdpp/include/")
 
+#------------------------------------------------------------------------------
 # zlib
+#------------------------------------------------------------------------------
 set(ZLIB_INCLUDE_DIR "${THIRD_PARTY_DIR}zlib/include/")
 set(ZLIB_BINARY_DIR  "${THIRD_PARTY_DIR}zlib/lib/${THIRD_PARTY_PLATFORM}/")
 find_library(ZLIB_LIB_ZLIB zlibstatic z PATHS ${ZLIB_BINARY_DIR} NO_DEFAULT_PATH)
 set(ZLIB_LIBS "${ZLIB_LIB_ZLIB}")
 
+#------------------------------------------------------------------------------
 # openexr
+#------------------------------------------------------------------------------
 set(OPENEXR_INCLUDE_DIR "${THIRD_PARTY_DIR}openexr/include/")
 set(OPENEXR_BINARY_DIR  "${THIRD_PARTY_DIR}openexr/lib/${THIRD_PARTY_PLATFORM}/")
 find_library(OPENEXR_LIB_ILMIMF     IlmImf-2_3_s     PATHS ${OPENEXR_BINARY_DIR} NO_DEFAULT_PATH)

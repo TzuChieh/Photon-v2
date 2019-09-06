@@ -186,4 +186,10 @@ bool PictureSaver::saveExrHighPrecision(const HdrRgbFrame& frame, const Path& fi
 	return writer.saveHighPrecision(frame);
 }
 
+bool PictureSaver::saveExr(const HdrRgbFrame& frame, std::string& byteBuffer)
+{
+	ExrFileWriter writer(Path(""));
+	return writer.save(frame, byteBuffer);
+}
+
 }// end namespace ph

@@ -51,8 +51,9 @@ void StaticImageRenderer::render()
 	PHuint32 filmWpx, filmHpx;
 	phGetRenderDimension(m_engineId, &filmWpx, &filmHpx);
 
-	// REFACTOR: make a dedicated query class
 	std::atomic<bool> isRenderingCompleted = false;
+
+	// REFACTOR: make a dedicated query class
 	std::thread queryThread([&]()
 	{
 		using namespace std::chrono_literals;
@@ -134,6 +135,44 @@ void StaticImageRenderer::render()
 		}// end while
 	});
 
+	const bool useServer = m_args.getPort() != 0;
+
+	std::thread serverThread;
+	
+	if(useServer)
+	{
+		serverThread = std::thread([&]()
+		{
+			using asio::ip::tcp;
+
+			const std::string IP = "127.0.0.1";
+			const unsigned short PORT = 7000;
+
+			try
+			{
+				asio::io_context io_context;
+
+				tcp::endpoint endpoint = tcp::endpoint(asio::ip::address::from_string(IP), PORT);
+				tcp::acceptor acceptor(io_context, endpoint);
+
+				while(!isRenderingCompleted)
+				{
+					tcp::socket socket(io_context);
+					acceptor.accept(socket);
+
+					std::string message = "hello";
+
+					asio::error_code ignored_error;
+					asio::write(socket, asio::buffer(message), ignored_error);
+				}
+			}
+			catch(std::exception& e)
+			{
+				std::cerr << e.what() << std::endl;
+			}
+		});
+	}
+
 	renderThread.join();
 	isRenderingCompleted = true;
 	std::cout << "render completed" << std::endl;
@@ -152,6 +191,11 @@ void StaticImageRenderer::render()
 	save_frame_with_fail_safe(frameId, m_args.getImageFilePath());
 
 	phDeleteFrame(frameId);
+
+	if(useServer)
+	{
+		serverThread.join();
+	}
 
 	queryThread.join();
 }

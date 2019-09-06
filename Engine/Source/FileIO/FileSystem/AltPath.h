@@ -66,6 +66,11 @@ public:
 		return !m_path.empty() && (m_path[0] == '/' || m_path[0] == '~');
 	}
 
+	inline bool isEmpty() const
+	{
+		return m_path.empty();
+	}
+
 	inline std::string toAbsoluteString() const
 	{
 		if(isAbsolute())

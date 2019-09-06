@@ -14,7 +14,7 @@ import tempfile
 from pathlib import Path
 import shutil
 import time
-import inspect
+import socket
 
 
 class PhPhotonRenderEngine(bpy.types.RenderEngine):
@@ -85,20 +85,36 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
 
         self.renderer.run()
 
-        b_render_result = self.begin_result(0, 0, width_px, height_px)
-        b_render_layer = b_render_result.layers[0]
+        HOST = '127.0.0.1'  # The server's hostname or IP address
+        PORT = 7000  # The port used by the server
 
-        while self.renderer.is_running():
-            if intermediate_image_file_path.is_file():
-                try:
-                    b_render_layer.load_from_file(str(intermediate_image_file_path.resolve()))
-                except:
-                    pass
-                # b_render_layer.load_from_file("C:\\Users\\BlackCat\\AppData\\Local\\Temp\\test.exr")
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((HOST, PORT))
+            data = s.recv(1024)
 
-                time.sleep(refresh_seconds)
+        print("Received: ", repr(data))
 
-        self.end_result(b_render_result)
+
+
+
+
+        # b_render_result = self.begin_result(0, 0, width_px, height_px)
+        # b_render_layer = b_render_result.layers[0]
+        #
+        #
+        #
+        # while self.renderer.is_running():
+        #     if intermediate_image_file_path.is_file():
+        #         try:
+        #             b_render_layer.load_from_file(str(intermediate_image_file_path.resolve()))
+        #         except:
+        #             pass
+        #         # b_render_layer.load_from_file("C:\\Users\\BlackCat\\AppData\\Local\\Temp\\test.exr")
+        #
+        #         time.sleep(refresh_seconds)
+        #
+        # self.end_result(b_render_result)
+        #
 
         self.renderer.exit()
 

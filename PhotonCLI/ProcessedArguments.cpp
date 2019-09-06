@@ -26,7 +26,8 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
 	m_isOverwriteRequested      (false),
 
 	// HACK
-	m_isFrameDiagRequested(false)
+	m_isFrameDiagRequested(false),
+	m_port(0)
 {
 	while(!arguments.isEmpty())
 	{
@@ -123,6 +124,10 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
 			m_framePathA = values[0];
 			m_framePathB = values[1];
 			m_isFrameDiagRequested = true;
+		}
+		else if(argument == "--port")
+		{
+			m_port = static_cast<unsigned short>(arguments.retrieveOneInt());
 		}
 		else
 		{

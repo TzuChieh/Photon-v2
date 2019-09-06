@@ -57,6 +57,10 @@ public:
 	{
 		return m_framePathB;
 	}
+	unsigned short getPort() const
+	{
+		return m_port;
+	}
 
 private:
 	std::string   m_sceneFilePath;
@@ -76,6 +80,7 @@ private:
 	bool m_isFrameDiagRequested;
 	std::string m_framePathA;
 	std::string m_framePathB;
+	unsigned short m_port;
 };
 
 // In-header Implementations:

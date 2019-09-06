@@ -41,10 +41,10 @@ public:
 		Path(std_filesystem::current_path().string())
 	{}
 
-	// Constructing a path from some string representing of the path. The string 
-	// can be either a relative or absolute path, or even a path fragment. The
-	// constructed path substitutes all separators to a system specific (preferred)
-	// one.
+	// Constructing a path from some string representation of the path. The 
+	// string can be either a relative or absolute path, or even a path 
+	// fragment. The constructed path substitutes all separators to a system 
+	// specific (preferred) one.
 	//
 	inline explicit Path(const std::string& path) : 
 		m_path(std_filesystem::path(path).make_preferred())
@@ -58,6 +58,11 @@ public:
 	inline bool isAbsolute() const
 	{
 		return m_path.is_absolute();
+	}
+
+	inline bool isEmpty() const
+	{
+		return m_path.empty();
 	}
 
 	inline std::string toAbsoluteString() const

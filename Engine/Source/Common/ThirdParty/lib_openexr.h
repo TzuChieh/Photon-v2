@@ -5,3 +5,4 @@
 #include <ImfInputFile.h>
 #include <ImfRgbaFile.h>
 #include <ImfOutputFile.h>
+#include <ImfStdIO.h>
