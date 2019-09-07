@@ -59,8 +59,10 @@ inline void BinaryFileReader::close()
 }
 
 template<typename T>
-void BinaryFileReader::read(T* const out_buffer, const std::size_t numElements)
+inline void BinaryFileReader::read(T* const out_buffer, const std::size_t numElements)
 {
+	// FIXME: this is only save for trivially copyable types
+
 	PH_ASSERT(out_buffer && numElements > 0 && m_inputStream.good());
 	
 	m_inputStream.read(reinterpret_cast<char*>(out_buffer), sizeof(T) * numElements);
