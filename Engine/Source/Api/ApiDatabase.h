@@ -4,6 +4,7 @@
 #include "Common/Logger.h"
 #include "Core/Engine.h"
 #include "Frame/TFrame.h"
+#include "Utility/ByteBuffer.h"
 
 #include <memory>
 #include <mutex>
@@ -108,8 +109,9 @@ template<typename Resource>
 inline TStableIndexDenseArray<std::shared_ptr<Resource>>& ApiDatabase::RESOURCES()
 {
 	static_assert(
-		std::is_same_v<Resource, Engine> ||
-		std::is_same_v<Resource, HdrRgbFrame>,
+		std::is_same_v<Resource, Engine>      ||
+		std::is_same_v<Resource, HdrRgbFrame> ||
+		std::is_same_v<Resource, ByteBuffer>,
 		"error: in ApiDatabase::getResource(), "
 		"type of the specified resource is unsupported");
 

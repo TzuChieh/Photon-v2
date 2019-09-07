@@ -9,6 +9,7 @@ void ApiDatabase::clear()
 
 	RESOURCES<Engine>().removeAll();
 	RESOURCES<HdrRgbFrame>().removeAll();
+	RESOURCES<ByteBuffer>().removeAll();
 }
 
 }// end namespace ph

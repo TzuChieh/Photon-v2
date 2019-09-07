@@ -56,6 +56,7 @@ To correctly use Photon-v2 API, please read the following notes:
 // primitive data types
 
 #include <stdint.h>
+#include <stddef.h>
 
 typedef char           PHint8;
 typedef unsigned char  PHuint8;
@@ -124,7 +125,7 @@ extern PH_API int phInit();
 extern PH_API int phExit();
 
 ///////////////////////////////////////////////////////////////////////////////
-// core engine operations
+// Core Operations
 //
 
 // TODO: remove the word "film" from develop functions
@@ -155,7 +156,7 @@ extern PH_API void phAquireFrame(PHuint64 engineId, PHuint64 channelIndex, PHuin
 extern PH_API void phAquireFrameRaw(PHuint64 engineId, PHuint64 channelIndex, PHuint64 frameId);
 
 ///////////////////////////////////////////////////////////////////////////////
-// frame operations
+// Frame Operations
 //
 
 extern PH_API void  phCreateFrame(PHuint64* out_frameId, PHuint32 widthPx, PHuint32 heightPx);
@@ -168,7 +169,15 @@ extern PH_API void  phFrameOpAbsDifference(PHuint64 frameAId, PHuint64 frameBId,
 extern PH_API float phFrameOpMSE(PHuint64 expectedFrameId, PHuint64 estimatedFramIde);
 
 ///////////////////////////////////////////////////////////////////////////////
-// asynchronous operations
+// Miscellaneous Operations
+//
+
+extern PH_API void phCreateBuffer(PHuint64* out_bufferId);
+extern PH_API void phGetBufferBytes(PHuint64 bufferId, const unsigned char** out_bytesPtr, size_t* out_numBytes);
+extern PH_API void phDeleteBuffer(PHuint64 bufferId);
+
+///////////////////////////////////////////////////////////////////////////////
+// Asynchronous Operations
 //
 
 // TODO: async queries should tolerate invalid operations such as being called

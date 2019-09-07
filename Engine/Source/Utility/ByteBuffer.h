@@ -40,6 +40,7 @@ public:
 
 	std::size_t getReadPosition() const;
 	std::size_t getWritePosition() const;
+	const std::byte* getDataPtr() const;
 	std::size_t numBytes() const;
 	bool isEmpty() const;
 	bool hasMoreToRead() const;
@@ -201,6 +202,11 @@ inline std::size_t ByteBuffer::getReadPosition() const
 inline std::size_t ByteBuffer::getWritePosition() const
 {
 	return m_writeHead;
+}
+
+inline const std::byte* ByteBuffer::getDataPtr() const
+{
+	return m_buffer.data();
 }
 
 inline std::size_t ByteBuffer::numBytes() const

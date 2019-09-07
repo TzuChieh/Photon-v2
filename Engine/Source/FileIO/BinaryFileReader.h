@@ -61,7 +61,7 @@ inline void BinaryFileReader::close()
 template<typename T>
 inline void BinaryFileReader::read(T* const out_buffer, const std::size_t numElements)
 {
-	// FIXME: this is only save for trivially copyable types
+	// FIXME: this is only safe for trivially copyable types
 
 	PH_ASSERT(out_buffer && numElements > 0 && m_inputStream.good());
 	
