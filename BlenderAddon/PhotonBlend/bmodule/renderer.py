@@ -13,8 +13,9 @@ import uuid
 import tempfile
 from pathlib import Path
 import shutil
-import time
+import select
 import socket
+import sys
 
 
 class PhPhotonRenderEngine(bpy.types.RenderEngine):
@@ -83,20 +84,60 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
 
         self.renderer.set_num_render_threads(b_scene.render.threads)
 
-        self.renderer.run()
-
         HOST = '127.0.0.1'  # The server's hostname or IP address
         PORT = 7000  # The port used by the server
+        self.renderer.set_port(PORT)
+
+
+        self.renderer.run()
+
+
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((HOST, PORT))
-            data = s.recv(1024)
+            # Connect to the rendering server
+            max_retries = 100
+            num_retries = 0
+            while num_retries < max_retries:
+                try:
+                    s.connect((HOST, PORT))
+                except socket.error as error:
+                    print("note: connection failed, retrying... (attempt %d/%d)" % (num_retries, max_retries))
+                    num_retries += 1
 
-        print("Received: ", repr(data))
+            s.setblocking(False)
 
+            # Connection established
 
+            # Keep receiving data until program terminated or connection ended
+            num_chunk_bytes = 4096
+            data = bytes()
+            num_image_bytes = -1
+            while self.renderer.is_running():
+                try:
+                    ready_for_read, ready_for_write, in_error = select.select([s], [], [], 0)
+                except select.error:
+                    # 0 = done receiving, 1 = done sending, 2 = both
+                    s.shutdown(2)
+                    # TODO: maybe reconnect is needed on some error type
+                    print("note: connection to the rendering server ended")
+                    break
 
+                if ready_for_read:
+                    data += s.recv(num_chunk_bytes)
 
+                    # Data for the image size received
+                    if num_image_bytes < 0 and len(data) >= 8:
+                        num_image_bytes = int.from_bytes(data, sys.byteorder)
+
+                    # Data for the image received
+                    if num_image_bytes > 0 and len(data) >= 8 + num_image_bytes:
+                        # TODO: save and present
+                        print("Received")
+
+                        # Chop current image data off
+                        data = data[8 + num_image_bytes:]
+
+                # time.sleep(refresh_seconds)
 
         # b_render_result = self.begin_result(0, 0, width_px, height_px)
         # b_render_layer = b_render_result.layers[0]

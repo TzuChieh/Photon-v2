@@ -10,6 +10,7 @@
 #include <chrono>
 #include <atomic>
 #include <limits>
+#include <cstdint>
 
 // FIXME: add osx fs headers once it is supported
 #if defined(_WIN32)
@@ -148,6 +149,12 @@ void StaticImageRenderer::render()
 			const std::string IP = "127.0.0.1";
 			const unsigned short PORT = 7000;
 
+			PHuint64 bufferId;
+			phCreateBuffer(&bufferId);
+
+			PHuint64 serverFrameId;
+			phCreateFrame(&serverFrameId, filmWpx, filmHpx);
+
 			try
 			{
 				asio::io_context io_context;
@@ -155,21 +162,35 @@ void StaticImageRenderer::render()
 				tcp::endpoint endpoint = tcp::endpoint(asio::ip::address::from_string(IP), PORT);
 				tcp::acceptor acceptor(io_context, endpoint);
 
+				tcp::socket socket(io_context);
+				acceptor.accept(socket);
+
 				while(!isRenderingCompleted)
 				{
-					tcp::socket socket(io_context);
-					acceptor.accept(socket);
+					phAsyncPeekFrameRaw(m_engineId, 0, 0, 0, filmWpx, filmHpx, serverFrameId);
+					phSaveFrameToBuffer(serverFrameId, bufferId);
 
-					std::string message = "hello";
+					const unsigned char* bytesPtr;
+					size_t numBytes;
+					phGetBufferBytes(bufferId, &bytesPtr, &numBytes);
+
+					std::cerr << "SERVER: sending..." << std::endl;
 
 					asio::error_code ignored_error;
-					asio::write(socket, asio::buffer(message), ignored_error);
+					const auto numBytes64 = static_cast<std::uint64_t>(numBytes);
+					asio::write(socket, asio::buffer(reinterpret_cast<const unsigned char*>(&numBytes64), 8), ignored_error);
+					asio::write(socket, asio::buffer(bytesPtr, numBytes), ignored_error);
+
+					std::cerr << "SERVER: sent" << std::endl;
 				}
 			}
 			catch(std::exception& e)
 			{
 				std::cerr << e.what() << std::endl;
 			}
+
+			phDeleteBuffer(bufferId);
+			phDeleteFrame(serverFrameId);
 		});
 	}
 

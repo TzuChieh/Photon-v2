@@ -308,6 +308,30 @@ int phSaveFrame(const PHuint64 frameId, const PHchar* const filePath)
 	return PH_FALSE;
 }
 
+int phSaveFrameToBuffer(const PHuint64 frameId, const PHuint64 bufferId)
+{
+	const HdrRgbFrame* const frame  = ApiDatabase::getResource<HdrRgbFrame>(frameId);
+	ByteBuffer* const        buffer = ApiDatabase::getResource<ByteBuffer>(bufferId);
+
+	if(!frame || !buffer)
+	{
+		return PH_FALSE;
+	}
+
+	std::string buf;
+	if(!PictureSaver::saveExr(*frame, buf))
+	{
+		logger.log(ELogLevel::WARNING_MED,
+			"frame<" + std::to_string(frameId) + "> saving failed");
+		return PH_FALSE;
+	}
+
+	buffer->clear();
+	buffer->write(buf.data(), buf.size());
+
+	return PH_TRUE;
+}
+
 void phFrameOpAbsDifference(const PHuint64 frameAId, const PHuint64 frameBId, const PHuint64 resultFrameId)
 {
 	HdrRgbFrame* frameA      = ApiDatabase::getResource<HdrRgbFrame>(frameAId);

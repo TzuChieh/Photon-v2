@@ -165,6 +165,7 @@ extern PH_API void  phGetFrameRgbData(PHuint64 frameId, const PHfloat32** out_da
 extern PH_API void  phDeleteFrame(PHuint64 frameId);
 extern PH_API int   phLoadFrame(PHuint64 frameId, const PHchar* filePath);
 extern PH_API int   phSaveFrame(PHuint64 frameId, const PHchar* filePath);
+extern PH_API int   phSaveFrameToBuffer(PHuint64 frameId, PHuint64 bufferId);
 extern PH_API void  phFrameOpAbsDifference(PHuint64 frameAId, PHuint64 frameBId, PHuint64 resultFrameId);
 extern PH_API float phFrameOpMSE(PHuint64 expectedFrameId, PHuint64 estimatedFramIde);
 

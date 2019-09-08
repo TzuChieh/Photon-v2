@@ -69,6 +69,9 @@ class RenderProcess:
 
         self._set_argument("-p", values)
 
+    def set_port(self, port):
+        self._set_argument("--port", str(port))
+
     def request_raw_output(self):
         self._set_argument("--raw", "")
 
