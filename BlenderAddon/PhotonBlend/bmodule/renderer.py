@@ -16,6 +16,7 @@ import shutil
 import select
 import socket
 import sys
+import time
 
 
 class PhPhotonRenderEngine(bpy.types.RenderEngine):
@@ -78,7 +79,7 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
         self.renderer.set_image_format(image_file_format)
         self.renderer.request_raw_output()
 
-        self.renderer.request_intermediate_output(interval=refresh_seconds, unit='s', is_overwriting=True)
+        # self.renderer.request_intermediate_output(interval=refresh_seconds, unit='s', is_overwriting=True)
         intermediate_image_file_path = Path(str(image_file_path) + "_intermediate_")
         intermediate_image_file_path = intermediate_image_file_path.with_suffix("." + image_file_format)
 
@@ -88,74 +89,70 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
         PORT = 7000  # The port used by the server
         self.renderer.set_port(PORT)
 
-
         self.renderer.run()
-
-
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             # Connect to the rendering server
             max_retries = 100
             num_retries = 0
+            is_connected = False
             while num_retries < max_retries:
                 try:
+                    s.settimeout(2)
                     s.connect((HOST, PORT))
+
+                    is_connected = True
+                    print("note: connected to the rendering server")
+                    break
                 except socket.error as error:
-                    print("note: connection failed, retrying... (attempt %d/%d)" % (num_retries, max_retries))
+                    print("note: connection failed, retrying... (attempt %d/%d)" % (num_retries + 1, max_retries))
                     num_retries += 1
 
-            s.setblocking(False)
+            if is_connected:
+                s.setblocking(False)
 
-            # Connection established
+                # Connection established
 
-            # Keep receiving data until program terminated or connection ended
-            num_chunk_bytes = 4096
-            data = bytes()
-            num_image_bytes = -1
-            while self.renderer.is_running():
-                try:
-                    ready_for_read, ready_for_write, in_error = select.select([s], [], [], 0)
-                except select.error:
-                    # 0 = done receiving, 1 = done sending, 2 = both
-                    s.shutdown(2)
-                    # TODO: maybe reconnect is needed on some error type
-                    print("note: connection to the rendering server ended")
-                    break
+                # Keep receiving data until program terminated or connection ended
+                num_chunk_bytes = 4096
+                data = bytes()
+                num_image_bytes = -1
+                while self.renderer.is_running():
+                    try:
+                        ready_for_read, ready_for_write, in_error = select.select([s], [], [], 0)
+                    except select.error:
+                        # 0 = done receiving, 1 = done sending, 2 = both
+                        s.shutdown(2)
+                        # TODO: maybe reconnect is needed on some error type
+                        print("note: connection to the rendering server ended")
+                        break
 
-                if ready_for_read:
-                    data += s.recv(num_chunk_bytes)
+                    if ready_for_read:
+                        data += s.recv(num_chunk_bytes)
 
-                    # Data for the image size received
-                    if num_image_bytes < 0 and len(data) >= 8:
-                        num_image_bytes = int.from_bytes(data, sys.byteorder)
+                        # Data for the image size received
+                        if num_image_bytes < 0 and len(data) >= 8:
+                            num_image_bytes = int.from_bytes(data[:8], sys.byteorder)
 
-                    # Data for the image received
-                    if num_image_bytes > 0 and len(data) >= 8 + num_image_bytes:
-                        # TODO: save and present
-                        print("Received")
+                        # Data for the image received
+                        if num_image_bytes > 0 and len(data) >= 8 + num_image_bytes:
+                            with open(intermediate_image_file_path, 'wb') as image_file:
+                                image_file.write(data[8:8 + num_image_bytes])
 
-                        # Chop current image data off
-                        data = data[8 + num_image_bytes:]
+                            b_render_result = self.begin_result(0, 0, width_px, height_px)
+                            b_render_layer = b_render_result.layers[0]
+                            b_render_layer.load_from_file(str(intermediate_image_file_path.resolve()))
+                            self.end_result(b_render_result)
 
-                # time.sleep(refresh_seconds)
+                            # Chop current image data off
+                            data = data[8 + num_image_bytes:]
 
-        # b_render_result = self.begin_result(0, 0, width_px, height_px)
-        # b_render_layer = b_render_result.layers[0]
-        #
-        #
-        #
-        # while self.renderer.is_running():
-        #     if intermediate_image_file_path.is_file():
-        #         try:
-        #             b_render_layer.load_from_file(str(intermediate_image_file_path.resolve()))
-        #         except:
-        #             pass
-        #         # b_render_layer.load_from_file("C:\\Users\\BlackCat\\AppData\\Local\\Temp\\test.exr")
-        #
-        #         time.sleep(refresh_seconds)
-        #
-        # self.end_result(b_render_result)
-        #
+                            # Reset image size to an unset state
+                            num_image_bytes = -1
+
+                    time.sleep(refresh_seconds)
+            else:
+                print("warning: connection failed")
 
         self.renderer.exit()
 

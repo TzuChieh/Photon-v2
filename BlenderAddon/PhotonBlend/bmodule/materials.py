@@ -82,8 +82,7 @@ class PH_MATERIAL_OT_add_material_nodes(bpy.types.Operator):
     @classmethod
     def poll(cls, b_context):
         b_material = getattr(b_context, "material", None)
-        node_tree = b_material.photon.node_tree
-        return b_material is not None and node_tree is None
+        return b_material is not None and b_material.photon.node_tree is None
 
     def execute(self, b_context):
         b_material = b_context.material
