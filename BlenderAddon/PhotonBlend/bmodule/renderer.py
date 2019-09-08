@@ -41,8 +41,11 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
     # stopping running render threads.
     def __del__(self):
         # HACK: blender seems to be calling __del__ even if __init__ is not called first, filtering this situation out
-        if not hasattr(self, "identifier") or not hasattr(self, "renderer_data_path"):
+        if not hasattr(self, "renderer") or not hasattr(self, "identifier") or not hasattr(self, "renderer_data_path"):
             return
+
+        if self.renderer.is_running():
+            self.renderer.exit()
 
         # Remove all generated data on disk
         if self.renderer_data_path is not None:
@@ -203,18 +206,32 @@ class PH_RENDERING_PT_rendering(PhRenderPanel):
 
     bpy.types.Scene.ph_render_integrator_type = bpy.props.EnumProperty(
         items=[
-            ("BVPT", "Pure Path Tracing", "slow but versatile"),
-            ("BNEEPT", "NEE Path Tracing", "similar to pure PT but good on rendering small lights"),
-            ("VPM", "Photon Mapping", "rough preview, fairly good at caustics"),
-            ("PPM", "Progressive Photon Mapping", "good at complex lighting condition"),
-            ("SPPM", "Stochastic Progressive Photon Mapping", "good at complex lighting condition"),
+            ("BVPT", "Pure Path Tracing", "Slow but versatile"),
+            ("BNEEPT", "NEE Path Tracing", "Similar to pure PT but good on rendering small lights"),
+            ("VPM", "Photon Mapping", "Rough preview, fairly good at caustics"),
+            ("PPM", "Progressive Photon Mapping", "Good at complex lighting condition"),
+            ("SPPM", "Stochastic Progressive Photon Mapping", "Good at complex lighting condition"),
             ("BVPTDL", "Pure Path Tracing (Direct Lighting)", ""),
             ("ATTRIBUTE", "Attribute", ""),
-            ("CUSTOM", "Custom", "directly input SDL commands for renderer.")
+            ("CUSTOM", "Custom", "Directly input SDL commands for renderer.")
         ],
         name="Rendering Method",
         description="Photon-v2's rendering methods",
         default="BNEEPT"
+    )
+
+    bpy.types.Scene.ph_scheduler_type = bpy.props.EnumProperty(
+        items=[
+            ('bulk', "Bulk", ""),
+            ('stripe', "Stripe", ""),
+            ('grid', "Grid", ""),
+            ('tile', "Tile", ""),
+            ('spiral', "Spiral", ""),
+            ('spiral-grid', "Spiral-grid", "")
+        ],
+        name="Scheduler",
+        description="Order of rendering for pixels",
+        default='spiral-grid'
     )
 
     bpy.types.Scene.ph_render_num_photons = bpy.props.IntProperty(
@@ -287,33 +304,35 @@ class PH_RENDERING_PT_rendering(PhRenderPanel):
 
     def draw(self, b_context):
         b_scene = b_context.scene
-        layout = self.layout
+        b_layout = self.layout
 
-        layout.prop(b_scene, "ph_render_integrator_type")
+        b_layout.prop(b_scene, "ph_render_integrator_type")
 
         render_method = b_scene.ph_render_integrator_type
         if render_method == "BVPT" or render_method == "BNEEPT" or render_method == "BVPTDL" or render_method == "ATTRIBUTE":
-            layout.prop(b_scene, "ph_render_num_spp")
-            layout.prop(b_scene, "ph_render_sample_filter_type")
+            b_layout.prop(b_scene, "ph_render_num_spp")
+            b_layout.prop(b_scene, "ph_render_sample_filter_type")
+            if render_method != "ATTRIBUTE":
+                b_layout.prop(b_scene, "ph_scheduler_type")
         elif render_method == "VPM" or render_method == "PPM" or render_method == "SPPM":
-            layout.prop(b_scene, "ph_render_num_photons")
-            layout.prop(b_scene, "ph_render_num_spp_pm")
-            layout.prop(b_scene, "ph_render_num_passes")
-            layout.prop(b_scene, "ph_render_kernel_radius")
+            b_layout.prop(b_scene, "ph_render_num_photons")
+            b_layout.prop(b_scene, "ph_render_num_spp_pm")
+            b_layout.prop(b_scene, "ph_render_num_passes")
+            b_layout.prop(b_scene, "ph_render_kernel_radius")
         elif render_method == "CUSTOM":
-            layout.prop(b_scene, "ph_render_custom_sdl")
+            b_layout.prop(b_scene, "ph_render_custom_sdl")
         else:
             pass
 
         if render_method != "CUSTOM":
-            layout.prop(b_scene, "ph_use_crop_window")
+            b_layout.prop(b_scene, "ph_use_crop_window")
 
         use_crop_window = b_scene.ph_use_crop_window
         if use_crop_window and render_method != "CUSTOM":
-            layout.prop(b_scene, "ph_crop_min_x")
-            layout.prop(b_scene, "ph_crop_min_y")
-            layout.prop(b_scene, "ph_crop_width")
-            layout.prop(b_scene, "ph_crop_height")
+            b_layout.prop(b_scene, "ph_crop_min_x")
+            b_layout.prop(b_scene, "ph_crop_min_y")
+            b_layout.prop(b_scene, "ph_crop_width")
+            b_layout.prop(b_scene, "ph_crop_height")
 
 
 class PH_RENDERING_PT_sampling(PhRenderPanel):

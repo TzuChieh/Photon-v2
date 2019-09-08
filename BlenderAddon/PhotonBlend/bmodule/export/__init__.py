@@ -376,6 +376,7 @@ class Exporter:
             renderer = EqualSamplingRendererCreator()
             renderer.set_filter_name(SDLString(meta_info.sample_filter_name()))
             renderer.set_estimator(SDLString(meta_info.integrator_type_name()))
+            renderer.set_scheduler(SDLString(b_scene.ph_scheduler_type))
         elif render_method == "VPM":
             renderer = PmRendererCreator()
             renderer.set_mode(SDLString("vanilla"))
