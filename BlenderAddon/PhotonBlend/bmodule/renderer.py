@@ -91,6 +91,9 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
 
         self.renderer.run()
 
+        b_render_result = self.begin_result(0, 0, width_px, height_px)
+        b_render_layer = b_render_result.layers[0]
+
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             # Connect to the rendering server
             max_retries = 100
@@ -114,12 +117,12 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
                 # Connection established
 
                 # Keep receiving data until program terminated or connection ended
-                num_chunk_bytes = 4096
+                num_chunk_bytes = 1 * 1024 * 1024
                 data = bytes()
                 num_image_bytes = -1
                 while self.renderer.is_running():
                     try:
-                        ready_for_read, ready_for_write, in_error = select.select([s], [], [], 0)
+                        ready_for_read, ready_for_write, in_error = select.select([s], [], [], 5)
                     except select.error:
                         # 0 = done receiving, 1 = done sending, 2 = both
                         s.shutdown(2)
@@ -139,10 +142,8 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
                             with open(intermediate_image_file_path, 'wb') as image_file:
                                 image_file.write(data[8:8 + num_image_bytes])
 
-                            b_render_result = self.begin_result(0, 0, width_px, height_px)
-                            b_render_layer = b_render_result.layers[0]
                             b_render_layer.load_from_file(str(intermediate_image_file_path.resolve()))
-                            self.end_result(b_render_result)
+                            self.update_result(b_render_result)
 
                             # Chop current image data off
                             data = data[8 + num_image_bytes:]
@@ -150,9 +151,13 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
                             # Reset image size to an unset state
                             num_image_bytes = -1
 
-                    time.sleep(refresh_seconds)
+                            time.sleep(refresh_seconds)
             else:
                 print("warning: connection failed")
+
+        image_file_path = image_file_path.with_suffix("." + image_file_format)
+        b_render_layer.load_from_file(str(image_file_path.resolve()))
+        self.end_result(b_render_result)
 
         self.renderer.exit()
 
