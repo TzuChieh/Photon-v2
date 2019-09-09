@@ -5,3 +5,4 @@ from .diffuse import PhDiffuseSurfaceNode
 from .ideal_substance import PhIdealSubstanceNode
 from .surface_layer import PhSurfaceLayerNode
 from .layered_surface import PhLayeredSurfaceNode
+from .pure_absorber import PhPureAbsorberNode

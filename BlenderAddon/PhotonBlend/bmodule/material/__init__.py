@@ -1,6 +1,7 @@
 from . import properties
 from . import nodes
 from . import node_base
+from . import helper
 
 
 def include_module(module_manager):

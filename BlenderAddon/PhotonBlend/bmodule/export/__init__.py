@@ -245,18 +245,18 @@ class Exporter:
             b_uv_layers = b_mesh.uv_layers
             b_active_uv_layer = b_uv_layers.active
 
-            # TODO: support mesh without uv map
-            if len(b_mesh.uv_layers) == 0:
-                print("warning: mesh (%s) has no uv maps, ignoring" % geometry_name)
-                continue
+            # TODO: support & check mesh without uv map
+            # if len(b_mesh.uv_layers) == 0:
+            #     print("warning: mesh (%s) has no uv maps, ignoring" % geometry_name)
+            #     continue
 
-            # TODO: support mesh without uv map
-            if b_active_uv_layer is None:
-                print("warning: mesh (%s) has %d uv maps, but no one is active (no uv map will be exported)" % (
-                    geometry_name, len(b_uv_layers)))
-                continue
+            # TODO: support & check mesh without uv map
+            # if b_active_uv_layer is None:
+            #     print("warning: mesh (%s) has %d uv maps, but no one is active (no uv map will be exported)" % (
+            #         geometry_name, len(b_uv_layers)))
+            #     continue
 
-            # TODO: support mesh with multiple uv maps
+            # TODO: support & check mesh with multiple uv maps
             if len(b_mesh.uv_layers) > 1:
                 print("warning: mesh (%s) has %d uv maps, only the active one is exported" % (
                     geometry_name, len(b_uv_layers)))
@@ -266,7 +266,8 @@ class Exporter:
                 self.__sdlconsole,
                 loop_triangles,
                 b_mesh.vertices,
-                b_active_uv_layer.data)
+                # b_active_uv_layer.data)
+                b_active_uv_layer.data if b_active_uv_layer is not None else None)# HACK
 
             # creating actor (can be either model or light depending on emissivity)
             pos, rot, scale = b_mesh_object.matrix_world.decompose()

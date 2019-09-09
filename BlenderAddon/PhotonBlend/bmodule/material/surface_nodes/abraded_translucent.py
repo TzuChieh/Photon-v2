@@ -36,14 +36,14 @@ class PhAbradedTranslucentNode(PhMaterialNode):
     )
 
     ior_outer: bpy.props.FloatProperty(
-        name="IOR Outer",
+        name="IoR Outer",
         default=1.0,
         min=0.0,
         max=sys.float_info.max
     )
 
     ior_inner: bpy.props.FloatProperty(
-        name="IOR Inner",
+        name="IoR Inner",
         default=1.5,
         min=0.0,
         max=sys.float_info.max

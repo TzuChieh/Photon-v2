@@ -1,5 +1,10 @@
+"""
+Basic definitions and data for node-based materials.
+"""
+
 from ...utility import settings, blender
 from .. import naming
+from . import helper
 
 import bpy
 import nodeitems_utils
@@ -22,16 +27,15 @@ class PhMaterialNodeTree(bpy.types.NodeTree):
     # Blender: set the current node tree to the one the active material owns (update editor views)
     @classmethod
     def get_from_context(cls, b_context):
-        b_object = b_context.active_object
-        if b_object and b_object.type not in {'LIGHT', 'CAMERA'}:
-            b_material = b_object.active_material
-            if b_material is not None:
-                if b_material.photon.use_nodes:
-                    return b_material.photon.node_tree, b_material, b_material
+        b_material = helper.find_active_material_from_context(b_context)
+        b_node_tree = helper.find_node_tree_from_material(b_material)
+        if b_material is not None and b_node_tree is not None:
+            return b_node_tree, b_material, b_material
+
         return None, None, None
 
 
-class PhMaterialNodeSocket(bpy.types.NodeSocketShader):
+class PhMaterialNodeSocket(bpy.types.NodeSocket):
     bl_idname = "PH_MATERIAL_NODE_SOCKET"
     bl_label = "Photon Socket"
 
@@ -104,6 +108,16 @@ class PhMaterialNode(bpy.types.Node):
 class PhSurfaceMaterialSocket(PhMaterialNodeSocket):
     bl_idname = "PH_SURFACE_MATERIAL_SOCKET"
     bl_label = "Surface Material"
+
+    default_value: bpy.props.FloatVectorProperty(
+        name="Albedo",
+        description="Default constant albedo",
+        default=[0.0, 0.0, 0.0],
+        min=0.0,
+        max=1.0,
+        subtype='COLOR',
+        size=3
+    )
 
     def draw_color(self, b_context, node):
         return [0.8, 0.1, 0.1, 1.0]  # red

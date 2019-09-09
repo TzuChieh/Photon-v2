@@ -25,8 +25,8 @@ def to_sdl_recursive(b_material, current_node, processed_nodes, sdlconsole):
 
 
 def to_sdl(b_material, sdlconsole):
-    node_tree = helper.find_node_tree(b_material)
-    output_node = helper.find_output_node(node_tree)
+    node_tree = helper.find_node_tree_from_material(b_material)
+    output_node = helper.find_output_node_from_node_tree(node_tree)
     if output_node is None:
         print("material <%s> has no output node, ignoring" % b_material.name)
         return
@@ -46,6 +46,7 @@ PH_MATERIAL_NODES = [
         surface_nodes.PhLayeredSurfaceNode,
         surface_nodes.PhSurfaceLayerNode,
         surface_nodes.PhIdealSubstanceNode,
+        surface_nodes.PhPureAbsorberNode,
         math_nodes.PhMultiplyNode]
 
 

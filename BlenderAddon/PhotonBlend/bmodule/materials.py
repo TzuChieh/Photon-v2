@@ -105,7 +105,9 @@ class PH_MATERIAL_OT_add_material_nodes(bpy.types.Operator):
             return
 
         output_node = node_tree.nodes.new(PhOutputNode.bl_idname)
+        output_node.select = False
         diffuse_node = node_tree.nodes.new(PhDiffuseSurfaceNode.bl_idname)
+        diffuse_node.select = True
 
         # Place the nodes nicely
         x_shift = diffuse_node.width * 1
@@ -154,8 +156,8 @@ class PH_MATERIAL_PT_properties(PhMaterialPanel):
         layout.prop(b_material, "use_nodes", text="Use Shader Nodes")
 
         # Show traditional UI for shader nodes.
-        node_tree = helper.find_node_tree(b_context.material)
-        output_node = helper.find_output_node(node_tree)
+        node_tree = helper.find_node_tree_from_material(b_context.material)
+        output_node = helper.find_output_node_from_node_tree(node_tree)
         if output_node is not None:
             for input_socket in output_node.inputs:
                 if input_socket.is_linked:
