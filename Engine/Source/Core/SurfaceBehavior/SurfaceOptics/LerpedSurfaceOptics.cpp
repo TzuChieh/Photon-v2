@@ -10,6 +10,8 @@
 
 #include <utility>
 
+// TODO: maybe we should ensure factor being [0, 1] here (should we trust ECF?)
+
 namespace ph
 {
 
@@ -41,7 +43,7 @@ LerpedSurfaceOptics::LerpedSurfaceOptics(
 
 	m_optics0(optics0),
 	m_optics1(optics1),
-	m_ratio(ratio),
+	m_ratio  (ratio),
 	m_sampler(EQuantity::ECF)
 {
 	PH_ASSERT(optics0 && optics1 && ratio);
@@ -192,7 +194,7 @@ void LerpedSurfaceOptics::calcBsdfSamplePdfW(
 
 	if(in.elemental == ALL_ELEMENTALS)
 	{
-		const real prob  = probabilityOfPickingOptics0(ratio);
+		const real prob = probabilityOfPickingOptics0(ratio);
 
 		BsdfPdfQuery::Output query0, query1;
 		m_optics0->calcBsdfSamplePdfW(in, query0, sidedness);

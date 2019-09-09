@@ -5,7 +5,6 @@ import xml.etree.ElementTree as ElementTree
 
 
 class SDLInterface:
-
 	CORE_CATEGORIES = [
 		"camera",
 		"film",
@@ -26,7 +25,6 @@ class SDLInterface:
 	]
 
 	def __init__(self, root_element: ElementTree):
-
 		self.category_name = ""
 		self.type_name = ""
 		self.extended_target = ""
@@ -40,7 +38,6 @@ class SDLInterface:
 			return
 
 		for element in root_element:
-
 			if element.tag == "category" and element.text is not None:
 				self.category_name = element.text.strip()
 			elif element.tag == "type_name" and element.text is not None:
@@ -94,7 +91,6 @@ class SDLInterface:
 		return category_name + "(" + type_name + ")"
 
 	def extend(self, other_interface: "SDLInterface"):
-
 		if other_interface.creator is not None:
 			for creator_input in other_interface.creator.inputs:
 				self.creator.add_input(creator_input)
@@ -109,7 +105,6 @@ class SDLInterface:
 		return cls.CORE_CATEGORIES + cls.WORLD_CATEGORIES
 
 	def __str__(self):
-
 		result = "SDL Interface \n"
 
 		result += "Category Name: " + self.category_name + "\n"

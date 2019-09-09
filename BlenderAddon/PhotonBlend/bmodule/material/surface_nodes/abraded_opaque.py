@@ -1,8 +1,8 @@
 from ..node_base import (
-        PhMaterialNode,
-        PhSurfaceMaterialSocket,
-        PhFloatSocket,
-        SURFACE_MATERIAL_CATEGORY)
+    PhMaterialNode,
+    PhSurfaceMaterialSocket,
+    PhFloatFactorSocket,
+    SURFACE_MATERIAL_CATEGORY)
 from ....psdl.pysdl import (
         AbradedOpaqueMaterialCreator,
         SDLString,
@@ -41,7 +41,7 @@ class PhAbradedOpaqueNode(PhMaterialNode):
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):
-        self.inputs.new(PhFloatSocket.bl_idname, "Roughness")
+        self.inputs.new(PhFloatFactorSocket.bl_idname, "Roughness")
         self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
 
     def draw_buttons(self, b_context, b_layout):

@@ -2,7 +2,6 @@ import xml.etree.ElementTree as ElementTree
 
 
 class SDLInput:
-
 	VALUE_TYPE_NAMES = [
 		"string",
 		"integer",
@@ -43,7 +42,6 @@ class SDLInput:
 		return not self.is_value()
 
 	def __str__(self):
-
 		result = "SDL Input \n"
 
 		result += "Name: " + self.name + "\n"

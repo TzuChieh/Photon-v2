@@ -1,16 +1,23 @@
 from ..node_base import (
         PhMaterialNode,
+        PhFloatFactorSocket,
+        PhColorSocket,
         PhSurfaceMaterialSocket,
         SURFACE_MATERIAL_CATEGORY)
 from ....psdl.pysdl import (
         BinaryMixedSurfaceMaterialCreator,
+        ConstantImageCreator,
         SDLMaterial,
-        SDLReal)
+        SDLReal,
+        SDLVector3,
+        SDLString,
+        SDLImage)
 from ... import naming
 from .. import helper
 from .pure_absorber import PhPureAbsorberNode
 
 import bpy
+import mathutils
 
 
 class PhBinaryMixedSurfaceNode(PhMaterialNode):
@@ -18,18 +25,22 @@ class PhBinaryMixedSurfaceNode(PhMaterialNode):
     bl_label = "Binary Mixed Surface"
     node_category = SURFACE_MATERIAL_CATEGORY
 
-    factor: bpy.props.FloatProperty(
-        name="Factor",
-        default=0.5,
-        min=0.0,
-        max=1.0
-    )
+    # DEFAULT_NODE_NAME = "__" + bl_idname + "_default_node"
 
-    DEFAULT_NODE_NAME = "__" + bl_idname + "_default_node"
+    factor_type: bpy.props.EnumProperty(
+        items=[
+            ('FLOAT', "Float Factor", "Determine mix factor of all color channels together"),
+            ('COLOR', "Color Factor", "Determine mix factor of each color channel")
+        ],
+        name="Factor Type",
+        description="Type of mixing factor",
+        default='FLOAT'
+    )
 
     def to_sdl(self, b_material, sdlconsole):
         mat0_socket = self.inputs[0]
         mat1_socket = self.inputs[1]
+        factor_socket = self.inputs[2] if self.factor_type == 'FLOAT' else self.inputs[3]
         surface_mat_socket = self.outputs[0]
 
         mat0_res_name = mat0_socket.get_from_res_name(b_material)
@@ -39,16 +50,31 @@ class PhBinaryMixedSurfaceNode(PhMaterialNode):
             print("warning: material <%s>'s binary mixed surface node is incomplete" % b_material.name)
             return
 
+        factor_res_name = factor_socket.get_from_res_name(b_material)
+        if factor_res_name is None:
+            image_creator = ConstantImageCreator()
+            factor_res_name = naming.get_mangled_input_node_socket_name(factor_socket, b_material)
+            image_creator.set_data_name(factor_res_name)
+            factor = factor_socket.default_value
+            if self.factor_type == 'FLOAT':
+                image_creator.set_value(SDLReal(factor))
+            else:
+                image_creator.set_value(SDLVector3(mathutils.Color((factor[0], factor[1], factor[2]))))
+            image_creator.set_value_type(SDLString("ecf-linear-srgb"))
+            sdlconsole.queue_command(image_creator)
+
         creator = BinaryMixedSurfaceMaterialCreator()
         creator.set_data_name(naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material))
-        creator.set_factor(SDLReal(self.factor))
         creator.set_material_0(SDLMaterial(mat0_res_name))
         creator.set_material_1(SDLMaterial(mat1_res_name))
+        creator.set_factor(SDLImage(factor_res_name))
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):
         self.inputs.new(PhSurfaceMaterialSocket.bl_idname, "Material A")
         self.inputs.new(PhSurfaceMaterialSocket.bl_idname, "Material B")
+        self.inputs.new(PhFloatFactorSocket.bl_idname, "Factor")
+        self.inputs.new(PhColorSocket.bl_idname, "Factor")
         self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
 
         self.width *= 1.2
@@ -70,5 +96,4 @@ class PhBinaryMixedSurfaceNode(PhMaterialNode):
         # owning_node_tree.links.new(default_node.outputs[0], self.inputs[1])
 
     def draw_buttons(self, b_context, b_layout):
-        row = b_layout.row()
-        row.prop(self, "factor")
+        b_layout.prop(self, "factor_type", text="")

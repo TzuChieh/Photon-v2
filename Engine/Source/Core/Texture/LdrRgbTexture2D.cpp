@@ -20,13 +20,14 @@ LdrRgbTexture2D::LdrRgbTexture2D(std::unique_ptr<TAbstractPixelTex2D<LdrComponen
 	TTexture(),
 	m_texture(std::move(texture))
 {
-	PH_ASSERT(m_texture != nullptr);
+	PH_ASSERT(m_texture);
 }
 
 void LdrRgbTexture2D::sample(
 	const SampleLocation& sampleLocation, SpectralStrength* const out_value) const
 {
-	PH_ASSERT(m_texture != nullptr && out_value != nullptr);
+	PH_ASSERT(m_texture);
+	PH_ASSERT(out_value);
 
 	TTexPixel<LdrComponent, 3> rgb255;
 	m_texture->sample(sampleLocation, &rgb255);

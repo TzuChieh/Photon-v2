@@ -71,7 +71,8 @@ void BinaryMixedSurfaceMaterial::setMaterials(
 	const std::shared_ptr<SurfaceMaterial>& material0,
 	const std::shared_ptr<SurfaceMaterial>& material1)
 {
-	PH_ASSERT(material0 != nullptr && material1 != nullptr);
+	PH_ASSERT(material0);
+	PH_ASSERT(material1);
 
 	m_material0 = material0;
 	m_material1 = material1;
@@ -84,29 +85,41 @@ void BinaryMixedSurfaceMaterial::setFactor(const real factor)
 
 void BinaryMixedSurfaceMaterial::setFactor(const std::shared_ptr<Image>& factor)
 {
+	PH_ASSERT(factor);
+
 	m_factor = factor;
 }
 
 // command interface
 
 BinaryMixedSurfaceMaterial::BinaryMixedSurfaceMaterial(const InputPacket& packet) : 
+
 	SurfaceMaterial(packet),
-	m_mode(EMode::LERP),
-	m_material0(nullptr), m_material1(nullptr),
-	m_factor(nullptr)
+
+	m_mode     (EMode::LERP),
+	m_material0(nullptr), 
+	m_material1(nullptr),
+	m_factor   (nullptr)
 {
-	// TODO: support factor other than real
-
-	std::string mode      = packet.getString("mode");
-	auto        material0 = packet.get<SurfaceMaterial>("material-0", DataTreatment::REQUIRED());
-	auto        material1 = packet.get<SurfaceMaterial>("material-1", DataTreatment::REQUIRED());
-	real        factor    = packet.getReal("factor", 0.5_r);
-
-	setMaterials(material0, material1);
-	setFactor(factor);
+	const auto mode = packet.getString("mode");
 	if(mode == "lerp")
 	{
 		setMode(EMode::LERP);
+	}
+
+	const auto material0 = packet.get<SurfaceMaterial>("material-0", DataTreatment::REQUIRED());
+	const auto material1 = packet.get<SurfaceMaterial>("material-1", DataTreatment::REQUIRED());
+	setMaterials(material0, material1);
+
+	if(packet.hasReference<Image>("factor"))
+	{
+		const auto factor = packet.get<Image>("factor");
+		setFactor(factor);
+	}
+	else
+	{
+		const auto factor = packet.getReal("factor", 0.5_r);
+		setFactor(factor);
 	}
 }
 

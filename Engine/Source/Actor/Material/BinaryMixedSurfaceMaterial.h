@@ -70,6 +70,11 @@ public:
 				A number in [0, 1] controlling the contribution from each material.
 			</description>
 		</input>
+		<input name="factor" type="image">
+			<description>
+				An image controlling the contribution from each material.
+			</description>
+		</input>
 		<input name="material-0" type="material">
 			<description>
 				The material that participates the mixing process.

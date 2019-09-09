@@ -123,7 +123,7 @@ class PhSurfaceMaterialSocket(PhMaterialNodeSocket):
         return [0.8, 0.1, 0.1, 1.0]  # red
 
 
-class PhFloatSocket(PhMaterialNodeSocket):
+class PhFloatFactorSocket(PhMaterialNodeSocket):
     bl_idname = "PH_FLOAT_SOCKET"
     bl_label = "Real"
 
@@ -131,7 +131,8 @@ class PhFloatSocket(PhMaterialNodeSocket):
         name="Float",
         default=0.5,
         min=0.0,
-        max=1.0
+        max=1.0,
+        subtype='FACTOR'
     )
 
     def draw_color(self, b_context, node):
@@ -194,7 +195,7 @@ MATH_CATEGORY = NodeCategory("MATH", "Math")
 
 PH_MATERIAL_NODE_SOCKETS = [
     PhSurfaceMaterialSocket,
-    PhFloatSocket,
+    PhFloatFactorSocket,
     PhColorSocket,
     PhSurfaceLayerSocket
 ]

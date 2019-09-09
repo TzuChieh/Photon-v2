@@ -46,8 +46,8 @@ template<typename OutputType>
 inline void TCheckerboardTexture<OutputType>::sample(
 	const SampleLocation& sampleLocation, OutputType* const out_value) const
 {
-	PH_ASSERT(m_oddTexture  != nullptr && m_oddTexture.get()  != this);
-	PH_ASSERT(m_evenTexture != nullptr && m_evenTexture.get() != this);
+	PH_ASSERT(m_oddTexture  && m_oddTexture.get()  != this);
+	PH_ASSERT(m_evenTexture && m_evenTexture.get() != this);
 
 	const Vector3R& uvw = sampleLocation.uvw();
 	const int32 uNumber = static_cast<int32>(std::floor(uvw.x / m_uTileSize));
@@ -69,7 +69,7 @@ template<typename OutputType>
 inline void TCheckerboardTexture<OutputType>::setOddTexture(
 	const std::shared_ptr<TTexture<OutputType>>& oddTexture)
 {
-	if(oddTexture == nullptr || oddTexture.get() == this)
+	if(!oddTexture || oddTexture.get() == this)
 	{
 		std::cerr << "warning: at TCheckerboardTexture::setOddTexture(), " 
 		          << "does not allow empty or self-referencing tile" << std::endl;
@@ -83,7 +83,7 @@ template<typename OutputType>
 inline void TCheckerboardTexture<OutputType>::setEvenTexture(
 	const std::shared_ptr<TTexture<OutputType>>& evenTexture)
 {
-	if(evenTexture == nullptr || evenTexture.get() == this)
+	if(!evenTexture || evenTexture.get() == this)
 	{
 		std::cerr << "warning: at TCheckerboardTexture::setEvenTexture(), " 
 		          << "does not allow empty or self-referencing tile" << std::endl;

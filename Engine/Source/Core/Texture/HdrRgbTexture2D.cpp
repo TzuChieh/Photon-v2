@@ -13,12 +13,13 @@ HdrRgbTexture2D::HdrRgbTexture2D(std::unique_ptr<TAbstractPixelTex2D<HdrComponen
 	TTexture(),
 	m_texture(std::move(texture))
 {
-	PH_ASSERT(m_texture != nullptr);
+	PH_ASSERT(m_texture);
 }
 
 void HdrRgbTexture2D::sample(const SampleLocation& sampleLocation, SpectralStrength* const out_value) const
 {
-	PH_ASSERT(m_texture != nullptr && out_value != nullptr);
+	PH_ASSERT(m_texture);
+	PH_ASSERT(out_value);
 
 	TTexPixel<HdrComponent, 3> rgb;
 	m_texture->sample(sampleLocation, &rgb);

@@ -114,16 +114,16 @@ HdrRgbFrame PictureLoader::loadHdr(const Path& picturePath)
 
 LdrRgbFrame PictureLoader::loadLdrViaStb(const std::string& fullFilename)
 {
-	// variables to retrieve image info from stbi_load()
+	// Variables to retrieve image info from stbi_load()
 	int widthPx;
 	int heightPx;
 	int numComponents;
 
-	// default loading's origin is on the upper-left corner, this call made stb made the 
+	// Default loading's origin is on the upper-left corner, this call made stb made the 
 	// origin on the lower-left corner to meet with Photon's expectation
 	stbi_set_flip_vertically_on_load(true);
 
-	// the last parameter is "0" since we want the actual components the image has;
+	// The last parameter is "0" since we want the actual components the image has;
 	// replace "0" with "1" ~ "4" to force that many components per pixel
 	stbi_uc* stbImageData = stbi_load(fullFilename.c_str(), &widthPx, &heightPx, &numComponents, 0);
 
@@ -168,7 +168,7 @@ LdrRgbFrame PictureLoader::loadLdrViaStb(const std::string& fullFilename)
 		}
 	}
 
-	// free the image data loaded by stb
+	// Free the image data loaded by stb
 	stbi_image_free(stbImageData);
 
 	return picture;
@@ -176,20 +176,17 @@ LdrRgbFrame PictureLoader::loadLdrViaStb(const std::string& fullFilename)
 
 HdrRgbFrame PictureLoader::loadHdrViaStb(const std::string& fullFilename)
 {
-	// variables to retrieve image info from stbi_loadf()
-	//
+	// Variables to retrieve image info from stbi_loadf()
 	int widthPx;
 	int heightPx;
 	int numComponents;
 
-	// stb's default origin is on the upper-left corner, this call made the 
+	// Stb's default origin is on the upper-left corner, this call made the 
 	// origin on the lower-left corner to meet with Photon's expectation
-	//
 	stbi_set_flip_vertically_on_load(true);
 
-	// the last parameter is "0" since we want the actual components the image has
+	// The last parameter is "0" since we want the actual components the image has
 	// (replace "0" with "1" ~ "4" to force that many components per pixel)
-	//
 	float* stbImageData = stbi_loadf(fullFilename.c_str(), &widthPx, &heightPx, &numComponents, 0);
 
 	if(stbImageData == NULL)
@@ -222,8 +219,7 @@ HdrRgbFrame PictureLoader::loadHdrViaStb(const std::string& fullFilename)
 		}
 	}
 
-	// free the image data loaded by stb
-	//
+	// Free the image data loaded by stb
 	stbi_image_free(stbImageData);
 
 	return picture;
