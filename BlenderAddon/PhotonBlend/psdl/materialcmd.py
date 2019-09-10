@@ -115,7 +115,7 @@ class AbradedTranslucentCreator(AbstractAbradedCreator):
 		self.update_clause(FloatClause().set_name("roughness").set_data(roughness))
 
 	def use_schlick_approx(self):
-		self.update_clause(StringClause().set_name("fresnel-type").set_data("schlick-approx"))
+		self.update_clause(StringClause().set_name("fresnel-type").set_data("schlick"))
 
 	def use_exact(self):
 		self.update_clause(StringClause().set_name("fresnel-type").set_data("exact"))

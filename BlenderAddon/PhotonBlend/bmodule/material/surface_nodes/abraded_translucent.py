@@ -14,18 +14,18 @@ import sys
 
 
 class PhAbradedTranslucentNode(PhMaterialNode):
-    bl_idname = "PH_ABRADED_TRANSLUCENT"
+    bl_idname = 'PH_ABRADED_TRANSLUCENT'
     bl_label = "Abraded Translucent"
     node_category = SURFACE_MATERIAL_CATEGORY
 
     fresnel_type: bpy.props.EnumProperty(
         items=[
-            ("SCHLICK_APPROX", "Schlick Approx.", ""),
-            ("EXACT", "Exact", "")
+            ('SCHLICK_APPROX', "Schlick Approx.", ""),
+            ('EXACT', "Exact", "")
         ],
         name="Fresnel Type",
         description="Type of Fresnel effect used.",
-        default="EXACT"
+        default='EXACT''
     )
 
     roughness: bpy.props.FloatProperty(
@@ -58,9 +58,9 @@ class PhAbradedTranslucentNode(PhMaterialNode):
         creator.set_roughness(SDLReal(self.roughness))
         creator.set_ior_inner(SDLReal(self.ior_inner))
         creator.set_ior_outer(SDLReal(self.ior_outer))
-        if self.fresnel_type == "SCHLICK_APPROX":
-            creator.set_fresnel_type(SDLString("schlick-approx"))
-        elif self.fresnel_type == "EXACT":
+        if self.fresnel_type == 'SCHLICK_APPROX':
+            creator.set_fresnel_type(SDLString("schlick"))
+        elif self.fresnel_type == 'EXACT':
             creator.set_fresnel_type(SDLString("exact"))
         sdlconsole.queue_command(creator)
 
@@ -68,7 +68,7 @@ class PhAbradedTranslucentNode(PhMaterialNode):
         self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
 
     def draw_buttons(self, b_context, b_layout):
-        b_layout.prop(self, "fresnel_type", text="")
-        b_layout.prop(self, "roughness")
-        b_layout.prop(self, "ior_outer")
-        b_layout.prop(self, "ior_inner")
+        b_layout.prop(self, 'fresnel_type', text="")
+        b_layout.prop(self, 'roughness')
+        b_layout.prop(self, 'ior_outer')
+        b_layout.prop(self, 'ior_inner')

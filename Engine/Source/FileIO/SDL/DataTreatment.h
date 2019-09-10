@@ -30,9 +30,7 @@ public:
 	inline DataTreatment(const EDataImportance importance = EDataImportance::OPTIONAL,
 	                     const std::string& notFoundInfo = "") : 
 		importance(importance), notFoundInfo(notFoundInfo)
-	{
-
-	}
+	{}
 };
 
 }// end namespace ph

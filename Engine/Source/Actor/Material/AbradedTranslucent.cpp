@@ -17,7 +17,9 @@ namespace ph
 
 AbradedTranslucent::AbradedTranslucent() :
 	SurfaceMaterial(),
-	m_opticsGenerator()
+
+	m_opticsGenerator(),
+	m_interfaceInfo  ()
 {}
 
 void AbradedTranslucent::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
@@ -46,24 +48,15 @@ void AbradedTranslucent::genSurface(CookingContext& context, SurfaceBehavior& be
 
 AbradedTranslucent::AbradedTranslucent(const InputPacket& packet) : 
 	SurfaceMaterial(packet),
-	m_opticsGenerator()
-{
-	const Vector3R    albedo      = packet.getVector3("albedo", Vector3R(0.5_r, 0.5_r, 0.5_r));
-	const real        roughness   = packet.getReal("roughness", 0.5_r);
-	const std::string fresnelType = packet.getString("fresnel-type", "schlick-approx");
-	const real        iorOuter    = packet.getReal("ior-outer", 1.0_r);
-	const real        iorInner    = packet.getReal("ior-inner", 1.5_r);
 
-	std::shared_ptr<DielectricFresnel> fresnelEffect;
-	if(fresnelType == "schlick-approx")
-	{
-		fresnelEffect = std::make_shared<SchlickApproxDielectricFresnel>(iorOuter, iorInner);
-	}
-	else if(fresnelType == "exact")
-	{
-		fresnelEffect = std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner);
-	}
-	PH_ASSERT(fresnelEffect != nullptr);
+	m_opticsGenerator(),
+	m_interfaceInfo  (packet)
+{
+	const Vector3R albedo    = packet.getVector3("albedo", Vector3R(0.5_r, 0.5_r, 0.5_r));
+	const real     roughness = packet.getReal("roughness", 0.5_r);
+
+	std::shared_ptr<DielectricFresnel> fresnelEffect = DielectricInterfaceInfo(packet).genFresnelEffect();
+	PH_ASSERT(fresnelEffect);
 
 	//material->setAlbedo(albedo);
 	//material->setF0(f0);
@@ -73,7 +66,7 @@ AbradedTranslucent::AbradedTranslucent(const InputPacket& packet) :
 		const real alpha = RoughnessToAlphaMapping::squared(roughness);
 
 		auto optics = std::make_unique<TranslucentMicrofacet>(
-			std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner),
+			fresnelEffect,
 			std::make_shared<IsoTrowbridgeReitz>(alpha));
 
 		return optics;

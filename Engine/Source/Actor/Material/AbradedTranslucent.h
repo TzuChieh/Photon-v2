@@ -5,6 +5,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "FileIO/SDL/TCommandInterface.h"
+#include "Actor/Material/Utility/DielectricInterfaceInfo.h"
 
 #include <functional>
 
@@ -22,6 +23,7 @@ public:
 
 private:
 	std::function<std::unique_ptr<SurfaceOptics>()> m_opticsGenerator;
+	DielectricInterfaceInfo m_interfaceInfo;
 
 // command interface
 public:
@@ -48,8 +50,8 @@ public:
 	<command type="creator">
 		<input name="fresnel-type" type="string">
 			<description>
-				Controls the Fresnel model used. Possible values are "schlick-approx"
-				and "exact".
+				Controls the Fresnel model used. 
+				Possible values are "schlick" and "exact".
 			</description>
 		</input>
 		<input name="roughness" type="real">
