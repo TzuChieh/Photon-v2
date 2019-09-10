@@ -11,13 +11,16 @@ namespace ph
 
 /*! @brief Representing a ray in space.
 
-Points $\vec{P}$ on a ray can be modeled using the equation
+Points @f$ \overrightarrow{P} @f$ on a ray can be modeled using the equation
 
-$$\vec{P}=\vec{O}+t\vec{D}$$
+@f[
+	\overrightarrow{P}=\overrightarrow{O}+t\overrightarrow{D}
+@f]
 
-where $\vec{O}$ is ray origin and $\vec{D}$ is ray direction, and $t$ is a
-parameter in $[t_{min}, t_{max}]$. This class also records the time the ray was
-set on. Note the direction vector of the ray does not need to be normalized.
+where @f$ \overrightarrow{O} @f$ is ray origin and @f$ \overrightarrow{D} @f$ 
+is ray direction, and @f$ t @f$ is a parameter in @f$ [t_{min}, t_{max}] @f$. 
+This class also records the time the ray was set on. Note the direction vector
+of the ray does not need to be normalized.
 */
 class Ray final
 {

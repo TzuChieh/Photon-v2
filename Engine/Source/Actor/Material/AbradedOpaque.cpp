@@ -20,7 +20,9 @@ namespace ph
 
 AbradedOpaque::AbradedOpaque() : 
 	SurfaceMaterial(),
-	m_opticsGenerator()
+
+	m_opticsGenerator(),
+	m_interfaceInfo  ()
 {}
 
 void AbradedOpaque::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
@@ -34,7 +36,9 @@ void AbradedOpaque::genSurface(CookingContext& context, SurfaceBehavior& behavio
 
 AbradedOpaque::AbradedOpaque(const InputPacket& packet) : 
 	SurfaceMaterial(packet),
-	m_opticsGenerator()
+
+	m_opticsGenerator(),
+	m_interfaceInfo  (packet)
 {
 	const std::string surfaceType = packet.getString("type", 
 		"iso-metallic-ggx", DataTreatment::REQUIRED());
@@ -78,7 +82,8 @@ std::function<std::unique_ptr<SurfaceOptics>()> AbradedOpaque::loadITR(const Inp
 	SpectralStrength albedoSpectrum;
 	albedoSpectrum.setLinearSrgb(albedo, EQuantity::ECF);// FIXME: check color space
 
-	std::shared_ptr<FresnelEffect> fresnelEffect = loadFresnelEffect(packet);
+	//std::shared_ptr<FresnelEffect> fresnelEffect = loadFresnelEffect(packet);
+	std::shared_ptr<FresnelEffect> fresnelEffect = ConductiveInterfaceInfo(packet).genFresnelEffect();
 
 	return [=]()
 	{
@@ -115,7 +120,8 @@ std::function<std::unique_ptr<SurfaceOptics>()> AbradedOpaque::loadATR(const Inp
 	SpectralStrength albedoSpectrum;
 	albedoSpectrum.setLinearSrgb(albedo, EQuantity::ECF);// FIXME: check color space
 
-	std::shared_ptr<FresnelEffect> fresnelEffect = loadFresnelEffect(packet);
+	//std::shared_ptr<FresnelEffect> fresnelEffect = loadFresnelEffect(packet);
+	std::shared_ptr<FresnelEffect> fresnelEffect = ConductiveInterfaceInfo(packet).genFresnelEffect();
 
 	return [=]()
 	{
@@ -127,54 +133,54 @@ std::function<std::unique_ptr<SurfaceOptics>()> AbradedOpaque::loadATR(const Inp
 	};
 }
 
-std::unique_ptr<FresnelEffect> AbradedOpaque::loadFresnelEffect(const InputPacket& packet)
-{
-	std::unique_ptr<FresnelEffect> fresnelEffect;
-
-	// FIXME: f0's color space
-	InputPrototype approxInput;
-	approxInput.addVector3("f0");
-
-	InputPrototype exactInput;
-	exactInput.addReal("ior-outer");
-	exactInput.addRealArray("ior-inner-wavelength-nm");
-	exactInput.addRealArray("ior-inner-n");
-	exactInput.addRealArray("ior-inner-k");
-
-	if(packet.isPrototypeMatched(exactInput))
-	{
-		const auto& iorOuter             = packet.getReal("ior-outer");
-		const auto& iorInnerWavelengthNm = packet.getRealArray("ior-inner-wavelength-nm");
-		const auto& iorInnerN            = packet.getRealArray("ior-inner-n");
-		const auto& iorInnerK            = packet.getRealArray("ior-inner-k");
-
-		fresnelEffect = std::make_unique<ExactConductorFresnel>(
-			iorOuter,
-			iorInnerWavelengthNm, 
-			iorInnerN, 
-			iorInnerK);
-	}
-	else if(packet.isPrototypeMatched(approxInput))
-	{
-		const auto& f0 = packet.getVector3("f0");
-
-		SpectralStrength spectralF0;
-		spectralF0.setLinearSrgb(f0);// FIXME: check color space
-		fresnelEffect = std::make_unique<SchlickApproxConductorFresnel>(spectralF0);
-	}
-	else
-	{
-		std::cout << "NOTE: AbradedOpaque requires Fresnel effect parameter set "
-		          << "which are not found, using default" << std::endl;
-
-		const Vector3R defaultF0(0.04_r, 0.04_r, 0.04_r);
-
-		SpectralStrength spectralF0;// FIXME: check color space
-		spectralF0.setLinearSrgb(defaultF0);
-		fresnelEffect = std::make_unique<SchlickApproxConductorFresnel>(spectralF0);
-	}
-	
-	return fresnelEffect;
-}
+//std::unique_ptr<FresnelEffect> AbradedOpaque::loadFresnelEffect(const InputPacket& packet)
+//{
+//	std::unique_ptr<FresnelEffect> fresnelEffect;
+//
+//	// FIXME: f0's color space
+//	InputPrototype approxInput;
+//	approxInput.addVector3("f0");
+//
+//	InputPrototype exactInput;
+//	exactInput.addReal("ior-outer");
+//	exactInput.addRealArray("ior-inner-wavelength-nm");
+//	exactInput.addRealArray("ior-inner-n");
+//	exactInput.addRealArray("ior-inner-k");
+//
+//	if(packet.isPrototypeMatched(exactInput))
+//	{
+//		const auto& iorOuter             = packet.getReal("ior-outer");
+//		const auto& iorInnerWavelengthNm = packet.getRealArray("ior-inner-wavelength-nm");
+//		const auto& iorInnerN            = packet.getRealArray("ior-inner-n");
+//		const auto& iorInnerK            = packet.getRealArray("ior-inner-k");
+//
+//		fresnelEffect = std::make_unique<ExactConductorFresnel>(
+//			iorOuter,
+//			iorInnerWavelengthNm, 
+//			iorInnerN, 
+//			iorInnerK);
+//	}
+//	else if(packet.isPrototypeMatched(approxInput))
+//	{
+//		const auto& f0 = packet.getVector3("f0");
+//
+//		SpectralStrength spectralF0;
+//		spectralF0.setLinearSrgb(f0);// FIXME: check color space
+//		fresnelEffect = std::make_unique<SchlickApproxConductorFresnel>(spectralF0);
+//	}
+//	else
+//	{
+//		std::cout << "NOTE: AbradedOpaque requires Fresnel effect parameter set "
+//		          << "which are not found, using default" << std::endl;
+//
+//		const Vector3R defaultF0(0.04_r, 0.04_r, 0.04_r);
+//
+//		SpectralStrength spectralF0;// FIXME: check color space
+//		spectralF0.setLinearSrgb(defaultF0);
+//		fresnelEffect = std::make_unique<SchlickApproxConductorFresnel>(spectralF0);
+//	}
+//	
+//	return fresnelEffect;
+//}
 
 }// end namespace ph

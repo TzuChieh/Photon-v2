@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Actor/Material/SurfaceMaterial.h"
-#include "Actor/Material/Utility/SurfaceLayerProperty.h"
+#include "Actor/Material/Utility/SurfaceLayerInfo.h"
 
 #include <vector>
 
@@ -16,10 +16,10 @@ public:
 	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
 	
 	void addLayer();
-	void setLayer(std::size_t layerIndex, const SurfaceLayerProperty& layer);
+	void setLayer(std::size_t layerIndex, const SurfaceLayerInfo& layer);
 
 private:
-	std::vector<SurfaceLayerProperty> m_layers;
+	std::vector<SurfaceLayerInfo> m_layers;
 
 // command interface
 public:

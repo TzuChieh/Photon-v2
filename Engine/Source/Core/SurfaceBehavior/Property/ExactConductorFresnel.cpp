@@ -10,12 +10,12 @@ namespace ph
 
 ExactConductorFresnel::ExactConductorFresnel(
 	const real              iorOuter,
-	const SpectralStrength& iorInner,
+	const SpectralStrength& iorInnerN,
 	const SpectralStrength& iorInnerK) : 
 
 	ConductorFresnel()
 {
-	setIors(iorOuter, iorInner, iorInnerK);
+	setIors(iorOuter, iorInnerN, iorInnerK);
 }
 
 ExactConductorFresnel::ExactConductorFresnel(
@@ -48,7 +48,6 @@ ExactConductorFresnel::ExactConductorFresnel(
 
 // Implementation follows the excellent blog post written by Sebastien Lagarde.
 // Reference: https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
-//
 void ExactConductorFresnel::calcReflectance(
 	const real              cosThetaIncident,
 	SpectralStrength* const out_reflectance) const
@@ -58,7 +57,6 @@ void ExactConductorFresnel::calcReflectance(
 	// We treat the incident light be always in the dielectric side (which is
 	// reasonable since light should not penetrate conductors easily), so the 
 	// sign of cosI does not matter here.
-	//
 	const real cosI  = std::abs(cosThetaIncident);
 	const real cosI2 = cosI * cosI;
 	const real sinI2 = 1.0_r - cosI * cosI;
@@ -78,14 +76,14 @@ void ExactConductorFresnel::calcReflectance(
 
 void ExactConductorFresnel::setIors(
 	const real              iorOuter,
-	const SpectralStrength& iorInner,
+	const SpectralStrength& iorInnerN,
 	const SpectralStrength& iorInnerK)
 {
 	m_iorOuter  = iorOuter;
-	m_iorInner  = iorInner;
+	m_iorInnerN = iorInnerN;
 	m_iorInnerK = iorInnerK;
 
-	const SpectralStrength en2 = iorInner.div(iorOuter).pow(2);
+	const SpectralStrength en2 = iorInnerN.div(iorOuter).pow(2);
 	const SpectralStrength ek2 = iorInnerK.div(iorOuter).pow(2);
 	m_en2_sub_ek2       = en2.sub(ek2);
 	m_4_mul_en2_mul_ek2 = en2.mul(ek2).mul(4);

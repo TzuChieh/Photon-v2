@@ -17,7 +17,7 @@ class ExactConductorFresnel final : public ConductorFresnel
 public:
 	ExactConductorFresnel(
 		real                    iorOuter,
-		const SpectralStrength& iorInner, 
+		const SpectralStrength& iorInnerN, 
 		const SpectralStrength& iorInnerK);
 
 	ExactConductorFresnel(
@@ -36,7 +36,7 @@ private:
 
 	void setIors(
 		real                    iorOuter,
-		const SpectralStrength& iorInner,
+		const SpectralStrength& iorInnerN,
 		const SpectralStrength& iorInnerK);
 };
 

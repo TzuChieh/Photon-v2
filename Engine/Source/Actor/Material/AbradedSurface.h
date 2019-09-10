@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Actor/Material/Material.h"
+#include "Actor/Material/SurfaceMaterial.h"
 #include "FileIO/SDL/TCommandInterface.h"
 
 #include <memory>
@@ -8,16 +8,17 @@
 namespace ph
 {
 
-class AbradedSurface : public Material, public TCommandInterface<AbradedSurface>
+class AbradedSurface : public SurfaceMaterial, public TCommandInterface<AbradedSurface>
 {
 public:
-	virtual void genSurfaceBehavior(CookingContext& context, SurfaceBehavior* out_surfaceBehavior) const = 0;
+	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override = 0;
 
 private:
 
 
 // command interface
 public:
+	explicit AbradedSurface(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };

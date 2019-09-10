@@ -6,6 +6,7 @@
 #include "Math/TVector3.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Core/SurfaceBehavior/Property/FresnelEffect.h"
+#include "Actor/Material/Utility/ConductiveInterfaceInfo.h"
 
 #include <functional>
 #include <memory>
@@ -22,6 +23,7 @@ public:
 
 private:
 	std::function<std::unique_ptr<SurfaceOptics>()> m_opticsGenerator;
+	ConductiveInterfaceInfo m_interfaceInfo;
 
 // command interface
 public:
@@ -30,7 +32,7 @@ public:
 	static void ciRegister(CommandRegister& cmdRegister);
 	static std::function<std::unique_ptr<SurfaceOptics>()> loadITR(const InputPacket& packet);
 	static std::function<std::unique_ptr<SurfaceOptics>()> loadATR(const InputPacket& packet);
-	static std::unique_ptr<FresnelEffect> loadFresnelEffect(const InputPacket& packet);
+	//static std::unique_ptr<FresnelEffect> loadFresnelEffect(const InputPacket& packet);
 };
 
 }// end namespace ph

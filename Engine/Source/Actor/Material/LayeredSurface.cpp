@@ -38,10 +38,10 @@ void LayeredSurface::genSurface(CookingContext& context, SurfaceBehavior& behavi
 
 void LayeredSurface::addLayer()
 {
-	m_layers.push_back(SurfaceLayerProperty());
+	m_layers.push_back(SurfaceLayerInfo());
 }
 
-void LayeredSurface::setLayer(const std::size_t layerIndex, const SurfaceLayerProperty& layer)
+void LayeredSurface::setLayer(const std::size_t layerIndex, const SurfaceLayerInfo& layer)
 {
 	if(layerIndex >= m_layers.size())
 	{
@@ -57,22 +57,22 @@ void LayeredSurface::setLayer(const std::size_t layerIndex, const SurfaceLayerPr
 namespace
 {
 
-	ExitStatus ciAddLayer(const std::shared_ptr<LayeredSurface>& target, const InputPacket& packet)
-	{
-		target->addLayer();
+ExitStatus ciAddLayer(const std::shared_ptr<LayeredSurface>& target, const InputPacket& packet)
+{
+	target->addLayer();
 
-		return ExitStatus::SUCCESS();
-	}
+	return ExitStatus::SUCCESS();
+}
 
-	ExitStatus ciSetLayer(const std::shared_ptr<LayeredSurface>& target, const InputPacket& packet)
-	{
-		const integer layerIndex = packet.getInteger("index", -1, DataTreatment::REQUIRED());
-		target->setLayer(static_cast<std::size_t>(layerIndex), SurfaceLayerProperty(packet));
+ExitStatus ciSetLayer(const std::shared_ptr<LayeredSurface>& target, const InputPacket& packet)
+{
+	const integer layerIndex = packet.getInteger("index", -1, DataTreatment::REQUIRED());
+	target->setLayer(static_cast<std::size_t>(layerIndex), SurfaceLayerInfo(packet));
 
-		// TODO: return failed if index is invalid
+	// TODO: return failed if index is invalid
 
-		return ExitStatus::SUCCESS();
-	}
+	return ExitStatus::SUCCESS();
+}
 
 }
 
@@ -105,4 +105,5 @@ void LayeredSurface::ciRegister(CommandRegister& cmdRegister)
 }
 
 }// end namespace ph
+
 	

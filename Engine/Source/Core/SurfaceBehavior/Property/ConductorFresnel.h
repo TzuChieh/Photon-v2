@@ -20,7 +20,7 @@ public:
 	ConductorFresnel();
 	ConductorFresnel(
 		real                    iorOuter, 
-		const SpectralStrength& iorInner, 
+		const SpectralStrength& iorInnerN, 
 		const SpectralStrength& iorInnerK);
 
 	void calcReflectance(
@@ -29,7 +29,7 @@ public:
 
 protected:
 	real             m_iorOuter;
-	SpectralStrength m_iorInner;
+	SpectralStrength m_iorInnerN;
 	SpectralStrength m_iorInnerK;
 };
 

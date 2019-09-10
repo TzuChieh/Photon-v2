@@ -1,4 +1,4 @@
-#include "Actor/Material/Utility/SurfaceLayerProperty.h"
+#include "Actor/Material/Utility/SurfaceLayerInfo.h"
 #include "FileIO/SDL/InputPacket.h"
 #include "Core/Quantity/SpectralData.h"
 #include "FileIO/SDL/InputPrototype.h"
@@ -6,7 +6,7 @@
 namespace ph
 {
 
-SurfaceLayerProperty::SurfaceLayerProperty() : 
+SurfaceLayerInfo::SurfaceLayerInfo() :
 	m_roughness(0.0_r), 
 	m_iorN(1.0_r), 
 	m_iorK(0.0_r),
@@ -16,8 +16,8 @@ SurfaceLayerProperty::SurfaceLayerProperty() :
 	m_sigmaS(0.0_r)
 {}
 
-SurfaceLayerProperty::SurfaceLayerProperty(const InputPacket& packet) : 
-	SurfaceLayerProperty()
+SurfaceLayerInfo::SurfaceLayerInfo(const InputPacket& packet) :
+	SurfaceLayerInfo()
 {
 	m_roughness = packet.getReal("roughness", m_roughness);
 
@@ -30,7 +30,7 @@ SurfaceLayerProperty::SurfaceLayerProperty(const InputPacket& packet) :
 	m_sigmaS.setValues(packet.getReal("sigma-s", m_sigmaS.avg()));
 }
 
-SpectralStrength SurfaceLayerProperty::loadIorN(const InputPacket& packet, const SpectralStrength& defaultIorN)
+SpectralStrength SurfaceLayerInfo::loadIorN(const InputPacket& packet, const SpectralStrength& defaultIorN)
 {
 	SpectralStrength iorN(defaultIorN);
 
@@ -59,7 +59,7 @@ SpectralStrength SurfaceLayerProperty::loadIorN(const InputPacket& packet, const
 	return iorN;
 }
 
-SpectralStrength SurfaceLayerProperty::loadIorK(const InputPacket& packet, const SpectralStrength& defaultIorK)
+SpectralStrength SurfaceLayerInfo::loadIorK(const InputPacket& packet, const SpectralStrength& defaultIorK)
 {
 	SpectralStrength iorK(defaultIorK);
 

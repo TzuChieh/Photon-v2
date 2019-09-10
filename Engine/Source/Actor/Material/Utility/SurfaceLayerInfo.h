@@ -12,11 +12,11 @@ namespace ph
 
 class InputPacket;
 
-class SurfaceLayerProperty
+class SurfaceLayerInfo
 {
 public:
-	SurfaceLayerProperty();
-	explicit SurfaceLayerProperty(const InputPacket& packet);
+	SurfaceLayerInfo();
+	explicit SurfaceLayerInfo(const InputPacket& packet);
 
 	real getRoughness() const;
 	real getAlpha() const;
@@ -42,42 +42,42 @@ private:
 
 // In-header Implementations:
 
-inline real SurfaceLayerProperty::getRoughness() const
+inline real SurfaceLayerInfo::getRoughness() const
 {
 	return m_roughness;
 }
 
-inline real SurfaceLayerProperty::getAlpha() const
+inline real SurfaceLayerInfo::getAlpha() const
 {
 	return RoughnessToAlphaMapping::squared(getRoughness());
 }
 
-inline SpectralStrength SurfaceLayerProperty::getIorN() const
+inline SpectralStrength SurfaceLayerInfo::getIorN() const
 {
 	return m_iorN;
 }
 
-inline SpectralStrength SurfaceLayerProperty::getIorK() const
+inline SpectralStrength SurfaceLayerInfo::getIorK() const
 {
 	return m_iorK;
 }
 
-inline real SurfaceLayerProperty::getDepth() const
+inline real SurfaceLayerInfo::getDepth() const
 {
 	return m_depth;
 }
 
-inline real SurfaceLayerProperty::getG() const
+inline real SurfaceLayerInfo::getG() const
 {
 	return m_g;
 }
 
-inline SpectralStrength SurfaceLayerProperty::getSigmaA() const
+inline SpectralStrength SurfaceLayerInfo::getSigmaA() const
 {
 	return m_sigmaA;
 }
 
-inline SpectralStrength SurfaceLayerProperty::getSigmaS() const
+inline SpectralStrength SurfaceLayerInfo::getSigmaS() const
 {
 	return m_sigmaS;
 }

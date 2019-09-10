@@ -14,7 +14,7 @@ class SchlickApproxConductorFresnel : public ConductorFresnel
 public:
 	SchlickApproxConductorFresnel(
 		real                    iorOuter,
-		const SpectralStrength& iorInner, 
+		const SpectralStrength& iorInnerN, 
 		const SpectralStrength& iorInnerK);
 
 	explicit SchlickApproxConductorFresnel(const SpectralStrength& f0);
