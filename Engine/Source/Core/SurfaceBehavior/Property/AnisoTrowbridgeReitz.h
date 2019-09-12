@@ -5,7 +5,7 @@
 namespace ph
 {
 
-class AnisoTrowbridgeReitz final : public Microfacet
+class AnisoTrowbridgeReitz : public Microfacet
 {
 public:
 	AnisoTrowbridgeReitz(real alphaU, real alphaV);

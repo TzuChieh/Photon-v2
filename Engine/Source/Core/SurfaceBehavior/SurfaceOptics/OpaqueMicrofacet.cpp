@@ -16,12 +16,11 @@ namespace ph
 {
 
 OpaqueMicrofacet::OpaqueMicrofacet(
-	const std::shared_ptr<FresnelEffect>& fresnel,
-	const std::shared_ptr<Microfacet>&    microfacet) :
+	const std::shared_ptr<ConductorFresnel>& fresnel,
+	const std::shared_ptr<Microfacet>&       microfacet) :
 
 	SurfaceOptics(),
 
-	//m_albedo    (std::make_shared<TConstantTexture<SpectralStrength>>(SpectralStrength(0.5_r))),
 	m_fresnel   (fresnel),
 	m_microfacet(microfacet)
 {

@@ -4,7 +4,7 @@
 #include "Math/TVector3.h"
 #include "Core/Texture/TTexture.h"
 #include "Core/SurfaceBehavior/Property/Microfacet.h"
-#include "Core/SurfaceBehavior/Property/FresnelEffect.h"
+#include "Core/SurfaceBehavior/Property/ConductorFresnel.h"
 #include "Core/Quantity/SpectralStrength.h"
 
 #include <memory>
@@ -16,15 +16,10 @@ class OpaqueMicrofacet : public SurfaceOptics
 {
 public:
 	OpaqueMicrofacet(
-		const std::shared_ptr<FresnelEffect>& fresnel,
-		const std::shared_ptr<Microfacet>&    microfacet);
+		const std::shared_ptr<ConductorFresnel>& fresnel,
+		const std::shared_ptr<Microfacet>&       microfacet);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
-
-	/*inline void setAlbedo(const std::shared_ptr<TTexture<SpectralStrength>>& albedo)
-	{
-		m_albedo = albedo;
-	}*/
 
 	std::string toString() const override;
 
@@ -45,9 +40,8 @@ private:
 		const SidednessAgreement&    sidedness) const override;
 
 private:
-	//std::shared_ptr<TTexture<SpectralStrength>> m_albedo;
-	std::shared_ptr<Microfacet>                 m_microfacet;
-	std::shared_ptr<FresnelEffect>              m_fresnel;
+	std::shared_ptr<Microfacet>    m_microfacet;
+	std::shared_ptr<FresnelEffect> m_fresnel;
 };
 
 // In-header Implementations:

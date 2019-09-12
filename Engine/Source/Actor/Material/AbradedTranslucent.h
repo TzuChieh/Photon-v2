@@ -1,13 +1,9 @@
 #pragma once
 
 #include "Actor/Material/SurfaceMaterial.h"
-#include "Core/SurfaceBehavior/SurfaceOptics/TranslucentMicrofacet.h"
-#include "Common/primitive_type.h"
-#include "Math/TVector3.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Actor/Material/Utility/DielectricInterfaceInfo.h"
-
-#include <functional>
+#include "Actor/Material/Utility/MicrosurfaceInfo.h"
 
 namespace ph
 {
@@ -19,11 +15,9 @@ public:
 
 	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
 
-	//void setAlbedo(const Vector3R& albedo);
-
 private:
-	std::function<std::unique_ptr<SurfaceOptics>()> m_opticsGenerator;
 	DielectricInterfaceInfo m_interfaceInfo;
+	MicrosurfaceInfo        m_microsurfaceInfo;
 
 // command interface
 public:

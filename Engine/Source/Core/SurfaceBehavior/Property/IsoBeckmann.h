@@ -8,8 +8,7 @@ namespace ph
 // Reference:
 // Microfacet Models for Refraction through Rough Surfaces
 // Walter et al., EGSR 2007
-
-class IsoBeckmann final : public Microfacet
+class IsoBeckmann : public Microfacet
 {
 public:
 	explicit IsoBeckmann(real alpha);

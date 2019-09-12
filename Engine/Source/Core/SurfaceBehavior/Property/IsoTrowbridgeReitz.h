@@ -8,8 +8,7 @@ namespace ph
 // Reference:
 // Microfacet Models for Refraction through Rough Surfaces
 // Walter et al., EGSR 2007
-
-class IsoTrowbridgeReitz final : public Microfacet
+class IsoTrowbridgeReitz : public Microfacet
 {
 public:
 	explicit IsoTrowbridgeReitz(real alpha);
