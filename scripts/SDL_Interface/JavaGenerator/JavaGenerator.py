@@ -4,7 +4,6 @@ from SDLInput import SDLInput
 from .JavaClass import JavaClass
 from .JavaMethod import JavaMethod
 
-import copy
 from string import capwords
 import datetime
 import pathlib
@@ -13,16 +12,7 @@ import shutil
 
 
 class JavaGenerator(InterfaceGenerator):
-
-	def __init__(self):
-		super().__init__()
-		self.interfaces = []
-
-	def add_interface(self, sdl_interface: SDLInterface):
-		self.interfaces.append(copy.deepcopy(sdl_interface))
-
 	def generate(self, output_directory):
-
 		if not self.resolve_interface_extension():
 			print("warning: cannot resolve interface extension, suggestions: ")
 			print("1. check for typo")
@@ -59,7 +49,6 @@ class JavaGenerator(InterfaceGenerator):
 		# export classes as java source files
 
 		for clazz in clazzes:
-
 			clazz.package = package_name
 			clazz.access_level = "public"
 
@@ -76,40 +65,8 @@ class JavaGenerator(InterfaceGenerator):
 	def name(self):
 		return "java"
 
-	# TODO: duplicated code, same as python generator
-	def resolve_interface_extension(self):
-
-		resolved_interfaces = {}
-		unresolved_interfaces = []
-		for interface in self.interfaces:
-			if interface.is_extending():
-				unresolved_interfaces.append(interface)
-			else:
-				resolved_interfaces[interface.get_full_type_name()] = interface
-
-		while unresolved_interfaces:
-
-			has_progress = False
-
-			for interface in unresolved_interfaces:
-				target_name = interface.get_extended_full_type_name()
-				extended_interface = resolved_interfaces.get(target_name, None)
-				if extended_interface is None:
-					continue
-				else:
-					interface.extend(extended_interface)
-					resolved_interfaces[interface.get_full_type_name()] = interface
-					unresolved_interfaces.remove(interface)
-					has_progress = True
-
-			if not has_progress:
-				return False
-
-		return True
-
 	@classmethod
 	def gen_reference_data_class(cls, reference_type_name):
-
 		class_name = "SDL"
 		class_name += capwords(reference_type_name, "-").replace("-", "")
 
@@ -126,14 +83,12 @@ class JavaGenerator(InterfaceGenerator):
 
 	@classmethod
 	def gen_interface_classes(cls, sdl_interface: SDLInterface):
-
 		clazzes = []
 		class_base_name = cls.gen_class_name(sdl_interface)
 
 		# generating creator code
 
 		if sdl_interface.has_creator() and not sdl_interface.creator.is_blueprint:
-
 			class_name = class_base_name + "Creator"
 			clazz = JavaClass(class_name)
 			if sdl_interface.is_world():
@@ -150,7 +105,6 @@ class JavaGenerator(InterfaceGenerator):
 			clazz.add_method(full_type_method)
 
 			for sdl_input in sdl_interface.creator.inputs:
-
 				method_name = "set"
 				method_name += capwords(sdl_input.name, "-").replace("-", "")
 
@@ -169,7 +123,6 @@ class JavaGenerator(InterfaceGenerator):
 		# generating executor code
 
 		for sdl_executor in sdl_interface.executors:
-
 			name_norm = capwords(sdl_executor.name, "-").replace("-", "")
 			class_name = class_base_name + name_norm
 			clazz = JavaClass(class_name)
@@ -192,7 +145,6 @@ class JavaGenerator(InterfaceGenerator):
 			clazz.add_method(get_name_method)
 
 			for sdl_input in sdl_executor.inputs:
-
 				method_name = "set"
 				method_name += capwords(sdl_input.name, "-").replace("-", "")
 
@@ -221,4 +173,3 @@ class JavaGenerator(InterfaceGenerator):
 		class_name = "SDL"
 		class_name += capwords(sdl_input.type_name, "-").replace("-", "")
 		return class_name
-

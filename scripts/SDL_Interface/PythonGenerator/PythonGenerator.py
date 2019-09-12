@@ -4,23 +4,13 @@ from .PythonClass import PythonClass
 from .PythonMethod import PythonMethod
 from . import pysdl_base
 
-import copy
 import inspect
 from string import capwords
 import datetime
 
 
 class PythonGenerator(InterfaceGenerator):
-
-	def __init__(self):
-		super().__init__()
-		self.interfaces = []
-
-	def add_interface(self, sdl_interface: SDLInterface):
-		self.interfaces.append(copy.deepcopy(sdl_interface))
-
 	def generate(self, output_directory):
-
 		if not self.resolve_interface_extension():
 			print("warning: cannot resolve interface extension, suggestions: ")
 			print("1. check for typo")
@@ -50,39 +40,8 @@ class PythonGenerator(InterfaceGenerator):
 	def name(self):
 		return "python"
 
-	def resolve_interface_extension(self):
-
-		resolved_interfaces = {}
-		unresolved_interfaces = []
-		for interface in self.interfaces:
-			if interface.is_extending():
-				unresolved_interfaces.append(interface)
-			else:
-				resolved_interfaces[interface.get_full_type_name()] = interface
-
-		while unresolved_interfaces:
-
-			has_progress = False
-
-			for interface in unresolved_interfaces:
-				target_name = interface.get_extended_full_type_name()
-				extended_interface = resolved_interfaces.get(target_name, None)
-				if extended_interface is None:
-					continue
-				else:
-					interface.extend(extended_interface)
-					resolved_interfaces[interface.get_full_type_name()] = interface
-					unresolved_interfaces.remove(interface)
-					has_progress = True
-
-			if not has_progress:
-				return False
-
-		return True
-
 	@classmethod
 	def gen_reference_data_classes(cls):
-
 		reference_types = SDLInterface.get_reference_types()
 
 		code = ""
@@ -104,7 +63,6 @@ class PythonGenerator(InterfaceGenerator):
 
 	@classmethod
 	def gen_interface_classes(cls, sdl_interface: SDLInterface):
-
 		class_base_name = cls.gen_class_name(sdl_interface)
 
 		code = ""
@@ -112,7 +70,6 @@ class PythonGenerator(InterfaceGenerator):
 		# generating creator code
 
 		if sdl_interface.has_creator() and not sdl_interface.creator.is_blueprint:
-
 			clazz = PythonClass(class_base_name + "Creator")
 			if sdl_interface.is_world():
 				clazz.set_inherited_class_name("SDLCreatorCommand")
@@ -127,7 +84,6 @@ class PythonGenerator(InterfaceGenerator):
 			clazz.add_method(full_type_method)
 
 			for sdl_input in sdl_interface.creator.inputs:
-
 				method_name = "set_"
 				method_name += sdl_input.name.replace("-", "_")
 				input_name = sdl_input.name.replace("-", "_")
@@ -146,7 +102,6 @@ class PythonGenerator(InterfaceGenerator):
 		# generating executor code
 
 		for sdl_executor in sdl_interface.executors:
-
 			name_norm = capwords(sdl_executor.name, "-").replace("-", "")
 			clazz = PythonClass(class_base_name + name_norm)
 			clazz.set_inherited_class_name("SDLExecutorCommand")
@@ -162,7 +117,6 @@ class PythonGenerator(InterfaceGenerator):
 			clazz.add_method(get_name_method)
 
 			for sdl_input in sdl_executor.inputs:
-
 				method_name = "set_"
 				method_name += sdl_input.name.replace("-", "_")
 				input_name = sdl_input.name.replace("-", "_")
@@ -185,4 +139,3 @@ class PythonGenerator(InterfaceGenerator):
 		category_norm = capwords(sdl_interface.category_name, "-").replace("-", "")
 		type_norm = capwords(sdl_interface.type_name, "-").replace("-", "")
 		return type_norm + category_norm
-

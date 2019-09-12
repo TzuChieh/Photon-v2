@@ -32,7 +32,6 @@ src_directory = input("source directory: ")
 
 for folder, sub_folders, files in os.walk(src_directory):
 	for filename in files:
-
 		file_path = os.path.join(folder, filename)
 		if file_path.endswith(".exe"):
 			continue
@@ -48,6 +47,7 @@ for folder, sub_folders, files in os.walk(src_directory):
 output_directory = "./output/"
 os.makedirs(os.path.dirname(output_directory), exist_ok=True)
 
+generator.resolve_interface_extension()
 generator.generate(output_directory)
 
 print("interface generated in %s" % output_directory)
