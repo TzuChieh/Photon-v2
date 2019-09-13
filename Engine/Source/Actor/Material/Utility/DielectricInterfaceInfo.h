@@ -38,7 +38,7 @@ private:
 
 	<type_name> dielectric-interface-info </type_name>
 
-	<input name="fresnel-type" type="string">
+	<input name="fresnel-model" type="string">
 		<description>
 			Controls the Fresnel model used. 
 			Possible values are "exact" and "schlick".

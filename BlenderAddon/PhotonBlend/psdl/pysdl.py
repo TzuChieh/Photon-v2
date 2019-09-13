@@ -2,370 +2,341 @@
 # NOTE: THIS FILE CONTAINS GENERATED CODE 
 #       DO NOT MODIFY                     
 # ========================================
-# last generated: 2019-08-29 04:02:20.279689 
+# last generated: 2019-09-14 00:54:29.431786 
 
 from abc import ABC, abstractmethod
 
 
 class SDLData(ABC):
+    def __init__(self):
+        super().__init__()
 
-	def __init__(self):
-		super().__init__()
+    @abstractmethod
+    def get_type(self):
+        pass
 
-	@abstractmethod
-	def get_type(self):
-		pass
-
-	@abstractmethod
-	def generate_data(self):
-		pass
+    @abstractmethod
+    def generate_data(self):
+        pass
 
 
 class SDLString(SDLData):
+    def __init__(self, string=""):
+        super().__init__()
+        self.string = string
 
-	def __init__(self, string=""):
-		super().__init__()
-		self.string = string
+    def get_type(self):
+        return "string"
 
-	def get_type(self):
-		return "string"
-
-	def generate_data(self):
-		return self.string
+    def generate_data(self):
+        return self.string
 
 
 class SDLInteger(SDLData):
+    def __init__(self, integer=0):
+        super().__init__()
+        self.integer = integer
 
-	def __init__(self, integer=0):
-		super().__init__()
-		self.integer = integer
+    def get_type(self):
+        return "integer"
 
-	def get_type(self):
-		return "integer"
-
-	def generate_data(self):
-		return str(self.integer)
+    def generate_data(self):
+        return str(self.integer)
 
 
 class SDLReal(SDLData):
+    def __init__(self, real=0):
+        super().__init__()
+        self.real = real
 
-	def __init__(self, real=0):
-		super().__init__()
-		self.real = real
+    def get_type(self):
+        return "real"
 
-	def get_type(self):
-		return "real"
-
-	def generate_data(self):
-		return str(self.real)
+    def generate_data(self):
+        return str(self.real)
 
 
 class SDLVector3(SDLData):
+    def __init__(self, vector=(0, 0, 0)):
+        super().__init__()
+        self.vector = vector
 
-	def __init__(self, vector=(0, 0, 0)):
-		super().__init__()
-		self.vector = vector
+    def get_type(self):
+        return "vector3"
 
-	def get_type(self):
-		return "vector3"
-
-	def generate_data(self):
-		return "\"%f %f %f\"" % (self.vector[0], self.vector[1], self.vector[2])
+    def generate_data(self):
+        return "\"%f %f %f\"" % (self.vector[0], self.vector[1], self.vector[2])
 
 
 class SDLQuaternion(SDLData):
-	def __init__(self, quaternion=(0, 0, 0, 0)):
-		super().__init__()
-		self.quaternion = quaternion
+    def __init__(self, quaternion=(0, 0, 0, 0)):
+        super().__init__()
+        self.quaternion = quaternion
 
-	def get_type(self):
-		return "quaternion"
+    def get_type(self):
+        return "quaternion"
 
-	def generate_data(self):
-		return "\"%f %f %f %f\"" % (self.quaternion[0], self.quaternion[1], self.quaternion[2], self.quaternion[3])
+    def generate_data(self):
+        return "\"%f %f %f %f\"" % (self.quaternion[0], self.quaternion[1], self.quaternion[2], self.quaternion[3])
 
 
 class SDLRealArray(SDLData):
+    def __init__(self, array=None):
+        super().__init__()
+        if array is None:
+            self.array = []
+        else:
+            self.array = array
 
-	def __init__(self, array=None):
-		super().__init__()
-		if array is None:
-			self.array = []
-		else:
-			self.array = array
+    def get_type(self):
+        return "real-array"
 
-	def get_type(self):
-		return "real-array"
+    def generate_data(self):
+        fragments = ["{"]
+        for real in self.array:
+            fragments.append("%f " % real)
+        fragments.append("}")
+        return "".join(fragments)
 
-	def generate_data(self):
-		fragments = ["{"]
-		for real in self.array:
-			fragments.append("%f " % real)
-		fragments.append("}")
-		return "".join(fragments)
+    def set_array(self, array):
+        self.array = array
+        return self
 
-	def set_array(self, array):
-		self.array = array
-		return self
-
-	def add(self, real):
-		self.array.append(real)
-		return self
+    def add(self, real):
+        self.array.append(real)
+        return self
 
 
 class SDLVector3Array(SDLData):
+    def __init__(self, array=None):
+        super().__init__()
+        if array is None:
+            self.array = []
+        else:
+            self.array = array
 
-	def __init__(self, array=None):
-		super().__init__()
-		if array is None:
-			self.array = []
-		else:
-			self.array = array
+    def get_type(self):
+        return "vector3-array"
 
-	def get_type(self):
-		return "vector3-array"
+    def generate_data(self):
+        fragments = ["{"]
+        for vector3 in self.array:
+            fragments.append("\"%f %f %f\" " % (vector3[0], vector3[1], vector3[2]))
+        fragments.append("}")
+        return "".join(fragments)
 
-	def generate_data(self):
-		fragments = ["{"]
-		for vector3 in self.array:
-			fragments.append("\"%f %f %f\" " % (vector3[0], vector3[1], vector3[2]))
-		fragments.append("}")
-		return "".join(fragments)
+    def set_array(self, array):
+        self.array = array
+        return self
 
-	def set_array(self, array):
-		self.array = array
-		return self
-
-	def add(self, vector3):
-		self.array.append(vector3)
-		return self
+    def add(self, vector3):
+        self.array.append(vector3)
+        return self
 
 
 class SDLReference(SDLData):
-	def __init__(self, ref_type="", ref_name=""):
-		super().__init__()
-		self.ref_type = ref_type
-		self.ref_name = ref_name
+    def __init__(self, ref_type="", ref_name=""):
+        super().__init__()
+        self.ref_type = ref_type
+        self.ref_name = ref_name
 
-	def get_type(self):
-		return self.ref_type
+    def get_type(self):
+        return self.ref_type
 
-	def generate_data(self):
-		return "\"@%s\"" % self.ref_name
+    def generate_data(self):
+        return "\"@%s\"" % self.ref_name
 
 
 class SDLRaw(SDLData):
+    def __init__(self, type_string="", data_string=""):
+        super().__init__()
+        self.type_string = type_string
+        self.data_string = data_string
 
-	def __init__(self, type_string="", data_string=""):
-		super().__init__()
-		self.type_string = type_string
-		self.data_string = data_string
+    def get_type(self):
+        return self.type_string
 
-	def get_type(self):
-		return self.type_string
-
-	def generate_data(self):
-		return self.data_string
+    def generate_data(self):
+        return self.data_string
 
 
 class SDLCommand(ABC):
+    def __init__(self):
+        super().__init__()
+        self._inputs = []
 
-	def __init__(self):
-		super().__init__()
-		self._inputs = []
+    @abstractmethod
+    def get_prefix(self):
+        pass
 
-	@abstractmethod
-	def get_prefix(self):
-		pass
+    @abstractmethod
+    def get_full_type(self):
+        pass
 
-	@abstractmethod
-	def get_full_type(self):
-		pass
+    @abstractmethod
+    def generate(self):
+        pass
 
-	@abstractmethod
-	def generate(self):
-		pass
+    def set_input(self, name, data: SDLData):
+        self._inputs.append((name, data))
 
-	def set_input(self, name, data: SDLData):
-		self._inputs.append((name, data))
-
-	def _generate_input_fragments(self, out_fragments):
-		for name, data in self._inputs:
-			out_fragments.append("[")
-			out_fragments.append(data.get_type() + " ")
-			out_fragments.append(name + " ")
-			out_fragments.append(data.generate_data())
-			out_fragments.append("]")
+    def _generate_input_fragments(self, out_fragments):
+        for name, data in self._inputs:
+            out_fragments.append("[")
+            out_fragments.append(data.get_type() + " ")
+            out_fragments.append(name + " ")
+            out_fragments.append(data.generate_data())
+            out_fragments.append("]")
 
 
 class SDLCreatorCommand(SDLCommand):
+    def __init__(self):
+        super().__init__()
+        self.__data_name = ""
 
-	def __init__(self):
-		super().__init__()
-		self.__data_name = ""
+    @abstractmethod
+    def get_full_type(self):
+        pass
 
-	@abstractmethod
-	def get_full_type(self):
-		pass
+    def get_prefix(self):
+        return "->"
 
-	def get_prefix(self):
-		return "->"
+    def generate(self):
+        # TODO: some part can be pre-generated
+        fragments = [
+            self.get_prefix(), " ",
+            self.get_full_type(), " ",
+            "\"@" + self.__data_name + "\"", " "]
+        self._generate_input_fragments(fragments)
+        fragments.append("\n")
 
-	def generate(self):
+        return "".join(fragments)
 
-		# TODO: some part can be pre-generated
-		fragments = [
-			self.get_prefix(), " ",
-			self.get_full_type(), " ",
-			"\"@" + self.__data_name + "\"", " "]
-		self._generate_input_fragments(fragments)
-		fragments.append("\n")
-
-		return "".join(fragments)
-
-	def set_data_name(self, data_name):
-		self.__data_name = data_name
+    def set_data_name(self, data_name):
+        self.__data_name = data_name
 
 
 class SDLExecutorCommand(SDLCommand):
+    def __init__(self):
+        super().__init__()
+        self.__target_name = ""
 
-	def __init__(self):
-		super().__init__()
-		self.__target_name = ""
+    @abstractmethod
+    def get_full_type(self):
+        pass
 
-	@abstractmethod
-	def get_full_type(self):
-		pass
+    @abstractmethod
+    def get_name(self):
+        pass
 
-	@abstractmethod
-	def get_name(self):
-		pass
+    def get_prefix(self):
+        return "->"
 
-	def get_prefix(self):
-		return "->"
+    def generate(self):
+        # TODO: some part can be pre-generated
+        fragments = [
+            self.get_prefix(), " ",
+            self.get_full_type(), " ",
+            self.get_name(), "(",
+            "\"@" + self.__target_name + "\")", " "]
+        self._generate_input_fragments(fragments)
+        fragments.append("\n")
 
-	def generate(self):
+        return "".join(fragments)
 
-		# TODO: some part can be pre-generated
-		fragments = [
-			self.get_prefix(), " ",
-			self.get_full_type(), " ",
-			self.get_name(), "(",
-			"\"@" + self.__target_name + "\")", " "]
-		self._generate_input_fragments(fragments)
-		fragments.append("\n")
-
-		return "".join(fragments)
-
-	def set_target_name(self, data_name):
-		self.__target_name = data_name
+    def set_target_name(self, data_name):
+        self.__target_name = data_name
 
 
 class SDLCoreCommand(SDLCommand):
+    def __init__(self):
+        super().__init__()
 
-	def __init__(self):
-		super().__init__()
+    @abstractmethod
+    def get_full_type(self):
+        pass
 
-	@abstractmethod
-	def get_full_type(self):
-		pass
+    def get_prefix(self):
+        return "##"
 
-	def get_prefix(self):
-		return "##"
+    def generate(self):
+        fragments = [
+            self.get_prefix(), " ",
+            self.get_full_type(), " "]
+        self._generate_input_fragments(fragments)
+        fragments.append("\n")
 
-	def generate(self):
-
-		fragments = [
-			self.get_prefix(), " ",
-			self.get_full_type(), " "]
-		self._generate_input_fragments(fragments)
-		fragments.append("\n")
-
-		return "".join(fragments)
-
-
-class SDLCamera(SDLReference):
-
-    def __init__(self, ref_name = ""):
-        super().__init__("camera", ref_name)
-
-
-class SDLFilm(SDLReference):
-
-    def __init__(self, ref_name = ""):
-        super().__init__("film", ref_name)
-
-
-class SDLEstimator(SDLReference):
-
-    def __init__(self, ref_name = ""):
-        super().__init__("estimator", ref_name)
+        return "".join(fragments)
 
 
 class SDLSampleGenerator(SDLReference):
-
     def __init__(self, ref_name = ""):
         super().__init__("sample-generator", ref_name)
 
 
-class SDLRenderer(SDLReference):
-
-    def __init__(self, ref_name = ""):
-        super().__init__("renderer", ref_name)
-
-
-class SDLOption(SDLReference):
-
-    def __init__(self, ref_name = ""):
-        super().__init__("option", ref_name)
-
-
-class SDLGeometry(SDLReference):
-
-    def __init__(self, ref_name = ""):
-        super().__init__("geometry", ref_name)
-
-
-class SDLMaterial(SDLReference):
-
-    def __init__(self, ref_name = ""):
-        super().__init__("material", ref_name)
-
-
-class SDLMotion(SDLReference):
-
-    def __init__(self, ref_name = ""):
-        super().__init__("motion", ref_name)
-
-
-class SDLLightSource(SDLReference):
-
-    def __init__(self, ref_name = ""):
-        super().__init__("light-source", ref_name)
-
-
 class SDLActor(SDLReference):
-
     def __init__(self, ref_name = ""):
         super().__init__("actor", ref_name)
 
 
 class SDLImage(SDLReference):
-
     def __init__(self, ref_name = ""):
         super().__init__("image", ref_name)
 
 
-class SDLFrameProcessor(SDLReference):
+class SDLGeometry(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("geometry", ref_name)
 
+
+class SDLRenderer(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("renderer", ref_name)
+
+
+class SDLFilm(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("film", ref_name)
+
+
+class SDLEstimator(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("estimator", ref_name)
+
+
+class SDLMaterial(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("material", ref_name)
+
+
+class SDLOption(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("option", ref_name)
+
+
+class SDLMotion(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("motion", ref_name)
+
+
+class SDLCamera(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("camera", ref_name)
+
+
+class SDLFrameProcessor(SDLReference):
     def __init__(self, ref_name = ""):
         super().__init__("frame-processor", ref_name)
+
+
+class SDLLightSource(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("light-source", ref_name)
 
 
 
 
 class DomeActorCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -377,7 +348,6 @@ class DomeActorCreator(SDLCreatorCommand):
 
 
 class DomeActorTranslate(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(dome)"
 
@@ -389,7 +359,6 @@ class DomeActorTranslate(SDLExecutorCommand):
 
 
 class DomeActorRotate(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(dome)"
 
@@ -407,7 +376,6 @@ class DomeActorRotate(SDLExecutorCommand):
 
 
 class DomeActorScale(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(dome)"
 
@@ -419,7 +387,6 @@ class DomeActorScale(SDLExecutorCommand):
 
 
 class LightActorCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -431,7 +398,6 @@ class LightActorCreator(SDLCreatorCommand):
 
 
 class LightActorTranslate(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(light)"
 
@@ -443,7 +409,6 @@ class LightActorTranslate(SDLExecutorCommand):
 
 
 class LightActorRotate(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(light)"
 
@@ -461,7 +426,6 @@ class LightActorRotate(SDLExecutorCommand):
 
 
 class LightActorScale(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(light)"
 
@@ -473,7 +437,6 @@ class LightActorScale(SDLExecutorCommand):
 
 
 class ModelActorCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -488,7 +451,6 @@ class ModelActorCreator(SDLCreatorCommand):
 
 
 class ModelActorTranslate(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(model)"
 
@@ -500,7 +462,6 @@ class ModelActorTranslate(SDLExecutorCommand):
 
 
 class ModelActorRotate(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(model)"
 
@@ -518,7 +479,6 @@ class ModelActorRotate(SDLExecutorCommand):
 
 
 class ModelActorScale(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(model)"
 
@@ -530,7 +490,6 @@ class ModelActorScale(SDLExecutorCommand):
 
 
 class PhantomModelActorCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -548,7 +507,6 @@ class PhantomModelActorCreator(SDLCreatorCommand):
 
 
 class PhantomModelActorTranslate(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(phantom-model)"
 
@@ -560,7 +518,6 @@ class PhantomModelActorTranslate(SDLExecutorCommand):
 
 
 class PhantomModelActorRotate(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(phantom-model)"
 
@@ -578,7 +535,6 @@ class PhantomModelActorRotate(SDLExecutorCommand):
 
 
 class PhantomModelActorScale(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(phantom-model)"
 
@@ -590,7 +546,6 @@ class PhantomModelActorScale(SDLExecutorCommand):
 
 
 class TransformedInstanceActorCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -602,7 +557,6 @@ class TransformedInstanceActorCreator(SDLCreatorCommand):
 
 
 class TransformedInstanceActorTranslate(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(transformed-instance)"
 
@@ -614,7 +568,6 @@ class TransformedInstanceActorTranslate(SDLExecutorCommand):
 
 
 class TransformedInstanceActorRotate(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(transformed-instance)"
 
@@ -632,7 +585,6 @@ class TransformedInstanceActorRotate(SDLExecutorCommand):
 
 
 class TransformedInstanceActorScale(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(transformed-instance)"
 
@@ -644,7 +596,6 @@ class TransformedInstanceActorScale(SDLExecutorCommand):
 
 
 class PhysicalActorTranslate(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(physical)"
 
@@ -656,7 +607,6 @@ class PhysicalActorTranslate(SDLExecutorCommand):
 
 
 class PhysicalActorRotate(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(physical)"
 
@@ -674,7 +624,6 @@ class PhysicalActorRotate(SDLExecutorCommand):
 
 
 class PhysicalActorScale(SDLExecutorCommand):
-
     def get_full_type(self):
         return "actor(physical)"
 
@@ -686,7 +635,6 @@ class PhysicalActorScale(SDLExecutorCommand):
 
 
 class CuboidGeometryCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -719,7 +667,6 @@ class CuboidGeometryCreator(SDLCreatorCommand):
 
 
 class EmptyGeometryCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -728,7 +675,6 @@ class EmptyGeometryCreator(SDLCreatorCommand):
 
 
 class GeometrySoupGeometryCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -737,7 +683,6 @@ class GeometrySoupGeometryCreator(SDLCreatorCommand):
 
 
 class GeometrySoupGeometryAdd(SDLExecutorCommand):
-
     def get_full_type(self):
         return "geometry(geometry-soup)"
 
@@ -749,7 +694,6 @@ class GeometrySoupGeometryAdd(SDLExecutorCommand):
 
 
 class GeometrySoupGeometryAddTransformed(SDLExecutorCommand):
-
     def get_full_type(self):
         return "geometry(geometry-soup)"
 
@@ -773,7 +717,6 @@ class GeometrySoupGeometryAddTransformed(SDLExecutorCommand):
 
 
 class RectangleGeometryCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -791,7 +734,6 @@ class RectangleGeometryCreator(SDLCreatorCommand):
 
 
 class SphereGeometryCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -803,7 +745,6 @@ class SphereGeometryCreator(SDLCreatorCommand):
 
 
 class TriangleMeshGeometryCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -821,7 +762,6 @@ class TriangleMeshGeometryCreator(SDLCreatorCommand):
 
 
 class ConstantImageCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -836,7 +776,6 @@ class ConstantImageCreator(SDLCreatorCommand):
 
 
 class LdrPictureImageCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -848,7 +787,6 @@ class LdrPictureImageCreator(SDLCreatorCommand):
 
 
 class RealMathImageCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -866,7 +804,6 @@ class RealMathImageCreator(SDLCreatorCommand):
 
 
 class DomeLightSourceCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -875,7 +812,6 @@ class DomeLightSourceCreator(SDLCreatorCommand):
 
 
 class ModelLightSourceCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -896,7 +832,6 @@ class ModelLightSourceCreator(SDLCreatorCommand):
 
 
 class PointLightSourceCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -911,7 +846,6 @@ class PointLightSourceCreator(SDLCreatorCommand):
 
 
 class RectangleLightSourceCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -932,7 +866,6 @@ class RectangleLightSourceCreator(SDLCreatorCommand):
 
 
 class SphereLightSourceCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -950,21 +883,23 @@ class SphereLightSourceCreator(SDLCreatorCommand):
 
 
 class AbradedOpaqueMaterialCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
     def get_full_type(self):
         return "material(abraded-opaque)"
 
-    def set_type(self, type: SDLData):
-        self.set_input("type", type)
+    def set_microsurface(self, microsurface: SDLData):
+        self.set_input("microsurface", microsurface)
+
+    def set_fresnel(self, fresnel: SDLData):
+        self.set_input("fresnel", fresnel)
+
+    def set_distribution_model(self, distribution_model: SDLData):
+        self.set_input("distribution-model", distribution_model)
 
     def set_roughness(self, roughness: SDLData):
         self.set_input("roughness", roughness)
-
-    def set_f0(self, f0: SDLData):
-        self.set_input("f0", f0)
 
     def set_roughness_u(self, roughness_u: SDLData):
         self.set_input("roughness-u", roughness_u)
@@ -972,20 +907,46 @@ class AbradedOpaqueMaterialCreator(SDLCreatorCommand):
     def set_roughness_v(self, roughness_v: SDLData):
         self.set_input("roughness-v", roughness_v)
 
+    def set_mapping(self, mapping: SDLData):
+        self.set_input("mapping", mapping)
+
+    def set_fresnel_model(self, fresnel_model: SDLData):
+        self.set_input("fresnel-model", fresnel_model)
+
+    def set_f0(self, f0: SDLData):
+        self.set_input("f0", f0)
+
 
 class AbradedTranslucentMaterialCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
     def get_full_type(self):
         return "material(abraded-translucent)"
 
-    def set_fresnel_type(self, fresnel_type: SDLData):
-        self.set_input("fresnel-type", fresnel_type)
+    def set_microsurface(self, microsurface: SDLData):
+        self.set_input("microsurface", microsurface)
+
+    def set_fresnel(self, fresnel: SDLData):
+        self.set_input("fresnel", fresnel)
+
+    def set_distribution_model(self, distribution_model: SDLData):
+        self.set_input("distribution-model", distribution_model)
 
     def set_roughness(self, roughness: SDLData):
         self.set_input("roughness", roughness)
+
+    def set_roughness_u(self, roughness_u: SDLData):
+        self.set_input("roughness-u", roughness_u)
+
+    def set_roughness_v(self, roughness_v: SDLData):
+        self.set_input("roughness-v", roughness_v)
+
+    def set_mapping(self, mapping: SDLData):
+        self.set_input("mapping", mapping)
+
+    def set_fresnel_model(self, fresnel_model: SDLData):
+        self.set_input("fresnel-model", fresnel_model)
 
     def set_ior_outer(self, ior_outer: SDLData):
         self.set_input("ior-outer", ior_outer)
@@ -995,7 +956,6 @@ class AbradedTranslucentMaterialCreator(SDLCreatorCommand):
 
 
 class BinaryMixedSurfaceMaterialCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -1016,7 +976,6 @@ class BinaryMixedSurfaceMaterialCreator(SDLCreatorCommand):
 
 
 class FullMaterialCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -1034,7 +993,6 @@ class FullMaterialCreator(SDLCreatorCommand):
 
 
 class IdealSubstanceMaterialCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -1061,7 +1019,6 @@ class IdealSubstanceMaterialCreator(SDLCreatorCommand):
 
 
 class LayeredSurfaceMaterialCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -1070,7 +1027,6 @@ class LayeredSurfaceMaterialCreator(SDLCreatorCommand):
 
 
 class LayeredSurfaceMaterialAdd(SDLExecutorCommand):
-
     def get_full_type(self):
         return "material(layered-surface)"
 
@@ -1079,7 +1035,6 @@ class LayeredSurfaceMaterialAdd(SDLExecutorCommand):
 
 
 class LayeredSurfaceMaterialSet(SDLExecutorCommand):
-
     def get_full_type(self):
         return "material(layered-surface)"
 
@@ -1112,7 +1067,6 @@ class LayeredSurfaceMaterialSet(SDLExecutorCommand):
 
 
 class MatteOpaqueMaterialCreator(SDLCreatorCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -1127,7 +1081,6 @@ class MatteOpaqueMaterialCreator(SDLCreatorCommand):
 
 
 class PinholeCameraCreator(SDLCoreCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -1163,7 +1116,6 @@ class PinholeCameraCreator(SDLCoreCommand):
 
 
 class ThinLensCameraCreator(SDLCoreCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -1205,7 +1157,6 @@ class ThinLensCameraCreator(SDLCoreCommand):
 
 
 class AttributeRendererCreator(SDLCoreCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -1235,7 +1186,6 @@ class AttributeRendererCreator(SDLCoreCommand):
 
 
 class PmRendererCreator(SDLCoreCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -1277,7 +1227,6 @@ class PmRendererCreator(SDLCoreCommand):
 
 
 class AdaptiveSamplingRendererCreator(SDLCoreCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -1310,7 +1259,6 @@ class AdaptiveSamplingRendererCreator(SDLCoreCommand):
 
 
 class EqualSamplingRendererCreator(SDLCoreCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -1352,7 +1300,6 @@ class EqualSamplingRendererCreator(SDLCoreCommand):
 
 
 class StratifiedSampleGeneratorCreator(SDLCoreCommand):
-
     def __init__(self):
         super().__init__()
 
@@ -1364,7 +1311,6 @@ class StratifiedSampleGeneratorCreator(SDLCoreCommand):
 
 
 class UniformRandomSampleGeneratorCreator(SDLCoreCommand):
-
     def __init__(self):
         super().__init__()
 

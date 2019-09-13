@@ -55,9 +55,9 @@ os.makedirs(os.path.dirname(output_directory), exist_ok=True)
 
 if not generator.resolve_interface_extension():
 	print("warning: cannot resolve interface extension, suggestions: ")
-	print("1. check for typo")
-	print("2. is the extended target actually exist")
-	print("3. may be possible cyclic extensions")
+	print("1. Is the extended target actually exist")
+	print("2. Check for possible cyclic extensions")
+	print("3. Check for any typo")
 generator.generate(output_directory)
 
 print("interface generated in %s" % output_directory)

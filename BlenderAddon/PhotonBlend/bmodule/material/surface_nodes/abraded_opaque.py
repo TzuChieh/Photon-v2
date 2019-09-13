@@ -35,7 +35,7 @@ class PhAbradedOpaqueNode(PhMaterialNode):
 
         creator = AbradedOpaqueMaterialCreator()
         creator.set_data_name(surface_mat_res_name)
-        creator.set_type(SDLString("iso-metallic-ggx"))
+        creator.set_distribution_model(SDLString("ggx"))
         creator.set_roughness(SDLReal(self.inputs[0].default_value))
         creator.set_f0(SDLVector3(mathutils.Color((self.f0[0], self.f0[1], self.f0[2]))))
         sdlconsole.queue_command(creator)

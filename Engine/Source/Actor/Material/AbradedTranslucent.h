@@ -42,15 +42,14 @@ public:
 	</description>
 
 	<command type="creator">
-		<input name="fresnel" type="dielectric-interface-info">
+		<input name="microsurface" type="microsurface-info">
 			<description>
-				Fresnel model for the microsurface.
+				Describes the appearance model of surface microstructure.
 			</description>
 		</input>
-		<input name="roughness" type="real">
+		<input name="fresnel" type="dielectric-interface-info">
 			<description>
-				Isotropic surface roughness in [0, 1], the material will appear
-				to be smoother with smaller roughness value.
+				Fresnel model for the surface microstructure.
 			</description>
 		</input>
 	</command>

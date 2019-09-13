@@ -21,7 +21,7 @@ DielectricInterfaceInfo::DielectricInterfaceInfo() :
 DielectricInterfaceInfo::DielectricInterfaceInfo(const InputPacket& packet) :
 	DielectricInterfaceInfo()
 {
-	const auto fresnelType = packet.getString("fresnel-type", "schlick");
+	const auto fresnelType = packet.getString("fresnel-model", "schlick");
 	if(fresnelType == "exact")
 	{
 		m_useExact = true;
@@ -33,7 +33,8 @@ DielectricInterfaceInfo::DielectricInterfaceInfo(const InputPacket& packet) :
 	else
 	{
 		logger.log(ELogLevel::WARNING_MED,
-			"unknwon fresnel type: " + fresnelType + "; resort to schlick approximation");
+			"unknwon fresnel model: " + fresnelType + "; "
+			"resort to schlick approximation");
 		m_useExact = false;
 	}
 

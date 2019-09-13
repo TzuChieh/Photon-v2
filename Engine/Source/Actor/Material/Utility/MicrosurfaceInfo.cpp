@@ -60,25 +60,27 @@ MicrosurfaceInfo::MicrosurfaceInfo(const InputPacket& packet) :
 	else
 	{
 		logger.log(ELogLevel::WARNING_MED,
-			"unknown mapping type <" + mappingType + "> specified; resort to squared");
+			"unknown mapping type <" + mappingType + "> specified; "
+			"resort to squared");
 
 		m_alphaU = RoughnessToAlphaMapping::squared(roughnessU);
 		m_alphaV = RoughnessToAlphaMapping::squared(roughnessV);
 	}
 
-	const auto microsurfaceType = packet.getString("microsurface");
-	if(microsurfaceType == "trowbridge-reitz" || microsurfaceType == "ggx")
+	const auto distributionModel = packet.getString("distribution-model", "trowbridge-reitz");
+	if(distributionModel == "trowbridge-reitz" || distributionModel == "ggx")
 	{
 		m_type = EType::TROWBRIDGE_REITZ;
 	}
-	else if(microsurfaceType == "beckmann")
+	else if(distributionModel == "beckmann")
 	{
 		m_type = EType::BECKMANN;
 	}
 	else
 	{
 		logger.log(ELogLevel::WARNING_MED,
-			"unknown mapping type <" + mappingType + "> specified; resort to Trowbridge-Reitz (GGX)");
+			"unknown distribution model <" + distributionModel + "> specified; "
+			"resort to Trowbridge-Reitz (GGX)");
 
 		m_type = EType::TROWBRIDGE_REITZ;
 	}
@@ -108,7 +110,8 @@ std::unique_ptr<Microfacet> MicrosurfaceInfo::genMicrofacet() const
 		if(m_type == EType::BECKMANN)
 		{
 			logger.log(ELogLevel::WARNING_MED,
-				"anisotropic Beckmann is not supported; resort to Trowbridge-Reitz (GGX)");
+				"anisotropic Beckmann is not supported; "
+				"resort to Trowbridge-Reitz (GGX)");
 		}
 
 		return std::make_unique<AnisoTrowbridgeReitz>(m_alphaU, m_alphaV);

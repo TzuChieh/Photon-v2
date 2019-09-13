@@ -42,38 +42,14 @@ public:
 	</description>
 
 	<command type="creator">
-		<input name="type" type="string">
+		<input name="microsurface" type="microsurface-info">
 			<description>
-				Possible value are "iso-metallic-ggx" and "aniso-metallic-ggx",
-				for isotropic and anisotropic surface appearances, respectively.
+				Describes the appearance model of surface microstructure.
 			</description>
 		</input>
-		<input name="roughness" type="real">
+		<input name="fresnel" type="conductive-interface-info">
 			<description>
-				Isotropic surface roughness in [0, 1], the material will appear
-				to be smoother with smaller roughness value.
-			</description>
-		</input>
-		<input name="f0" type="vector3">
-			<description>
-				Surface reflectance on normal incidence. This value is expected
-				to be given in linear-SRGB space. When this parameter is used,
-				the underlying Fresnel model will be an approximated one which
-				is pretty popular in real-time graphics.
-			</description>
-		</input>
-		<input name="roughness-u" type="real">
-			<description>
-				Similar to the roughness parameter, but is used for anisotropic 
-				surface appearances. This value controls the U component of 
-				surface roughness.
-			</description>
-		</input>
-		<input name="roughness-v" type="real">
-			<description>
-				Similar to the roughness parameter, but is used for anisotropic
-				surface appearances. This value controls the V component of
-				surface roughness.
+				Fresnel model for the surface microstructure.
 			</description>
 		</input>
 	</command>
