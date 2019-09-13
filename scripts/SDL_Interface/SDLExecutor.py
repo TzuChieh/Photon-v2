@@ -4,7 +4,6 @@ import xml.etree.ElementTree as ElementTree
 
 
 class SDLExecutor:
-
 	def __init__(self, root_element: ElementTree):
 		self.inputs = []
 		self.name = root_element.attrib["name"]
@@ -28,7 +27,6 @@ class SDLExecutor:
 		self.inputs.append(sdl_input)
 
 	def __str__(self):
-
 		result = "SDL Executor \n"
 
 		result += "Name: " + self.name + "\n"

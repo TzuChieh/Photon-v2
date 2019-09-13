@@ -3,6 +3,7 @@ from SDLInterface import SDLInterface
 from SDLInput import SDLInput
 from .JavaClass import JavaClass
 from .JavaMethod import JavaMethod
+import sdl_types
 
 from string import capwords
 import datetime
@@ -13,13 +14,6 @@ import shutil
 
 class JavaGenerator(InterfaceGenerator):
 	def generate(self, output_directory):
-		if not self.resolve_interface_extension():
-			print("warning: cannot resolve interface extension, suggestions: ")
-			print("1. check for typo")
-			print("2. is the extended target actually exist")
-			print("3. may be possible cyclic extensions")
-			return
-
 		# create package folder
 
 		package_name = "jsdl"
@@ -38,8 +32,7 @@ class JavaGenerator(InterfaceGenerator):
 
 		clazzes = []
 
-		reference_types = SDLInterface.get_reference_types()
-		for type_name in reference_types:
+		for type_name in sdl_types.REFERENCE_TYPES:
 			clazz = JavaGenerator.gen_reference_data_class(type_name)
 			clazzes.append(clazz)
 

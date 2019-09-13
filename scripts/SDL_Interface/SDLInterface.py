@@ -1,33 +1,19 @@
 from SDLCreator import SDLCreator
 from SDLExecutor import SDLExecutor
+import sdl_types
 
 import xml.etree.ElementTree as ElementTree
 
 
 class SDLInterface:
-	CORE_CATEGORIES = [
-		"camera",
-		"film",
-		"estimator",
-		"sample-generator",
-		"renderer",
-		"option"
-	]
-
-	WORLD_CATEGORIES = [
-		"geometry",
-		"material",
-		"motion",
-		"light-source",
-		"actor",
-		"image",
-		"frame-processor"
-	]
+	"""
+	Describes an interface in Photon that is controllable via scene description language.
+	"""
 
 	def __init__(self, root_element: ElementTree):
 		self.category_name = ""
 		self.type_name = ""
-		self.extended_target = ""
+		self.soft_extended_target = ""
 		self.name = ""
 		self.description = ""
 		self.creator = None
@@ -43,7 +29,7 @@ class SDLInterface:
 			elif element.tag == "type_name" and element.text is not None:
 				self.type_name = element.text.strip()
 			elif element.tag == "extend" and element.text is not None:
-				self.extended_target = element.text.strip()
+				self.soft_extended_target = element.text.strip()
 			elif element.tag == "name" and element.text is not None:
 				self.name = element.text.strip()
 			elif element.tag == "description" and element.text is not None:
@@ -52,6 +38,8 @@ class SDLInterface:
 				self.description = processed_text
 			elif element.tag == "command":
 				if element.attrib["type"] == "creator":
+					if self.creator is not None:
+						print("warning: overwriting previously defined creator (> 1 creator detected)")
 					self.creator = SDLCreator(element)
 				elif element.attrib["type"] == "executor":
 					self.executors.append(SDLExecutor(element))
@@ -65,32 +53,29 @@ class SDLInterface:
 		return self.executors
 
 	def is_core(self):
-		for category in SDLInterface.CORE_CATEGORIES:
-			if self.category_name == category:
-				return True
-		return False
+		return sdl_types.is_core_category(self.category_name)
 
 	def is_world(self):
-		for category in SDLInterface.WORLD_CATEGORIES:
-			if self.category_name == category:
-				return True
-		return False
+		return sdl_types.is_world_category(self.category_name)
 
-	def is_extending(self):
-		return self.extended_target
+	def is_soft_extending(self):
+		return self.soft_extended_target
 
-	def get_extended_category_name(self):
-		return self.extended_target.split(".")[0]
+	def get_soft_extended_category_name(self):
+		return self.soft_extended_target.split(".")[0]
 
-	def get_extended_type_name(self):
-		return self.extended_target.split(".")[1]
+	def get_soft_extended_type_name(self):
+		return self.soft_extended_target.split(".")[1]
 
-	def get_extended_full_type_name(self):
-		category_name = self.get_extended_category_name()
-		type_name = self.get_extended_type_name()
+	def get_soft_extended_full_type_name(self):
+		category_name = self.get_soft_extended_category_name()
+		type_name = self.get_soft_extended_type_name()
 		return category_name + "(" + type_name + ")"
 
-	def extend(self, other_interface: "SDLInterface"):
+	def clear_soft_extended_target(self):
+		self.soft_extended_target = ""
+
+	def hard_extend(self, other_interface: 'SDLInterface'):
 		if other_interface.creator is not None:
 			for creator_input in other_interface.creator.inputs:
 				self.creator.add_input(creator_input)
@@ -100,16 +85,12 @@ class SDLInterface:
 	def get_full_type_name(self):
 		return self.category_name + "(" + self.type_name + ")"
 
-	@classmethod
-	def get_reference_types(cls):
-		return cls.CORE_CATEGORIES + cls.WORLD_CATEGORIES
-
 	def __str__(self):
 		result = "SDL Interface \n"
 
 		result += "Category Name: " + self.category_name + "\n"
 		result += "Type Name: " + self.type_name + "\n"
-		result += "Extended Target: " + self.extended_target + "\n"
+		result += "Extended Target: " + self.soft_extended_target + "\n"
 		result += "Name: " + self.name + "\n"
 		result += "Description: " + self.description + "\n"
 

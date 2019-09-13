@@ -35,6 +35,7 @@ SdlTypeInfo Geometry::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "geometry");
 }
 
-void Geometry::ciRegister(CommandRegister& cmdRegister) {}
+void Geometry::ciRegister(CommandRegister& cmdRegister)
+{}
 
 }// end namespace ph

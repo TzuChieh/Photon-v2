@@ -3,6 +3,7 @@ from SDLInterface import SDLInterface
 from .PythonClass import PythonClass
 from .PythonMethod import PythonMethod
 from . import pysdl_base
+import sdl_types
 
 import inspect
 from string import capwords
@@ -11,13 +12,6 @@ import datetime
 
 class PythonGenerator(InterfaceGenerator):
 	def generate(self, output_directory):
-		if not self.resolve_interface_extension():
-			print("warning: cannot resolve interface extension, suggestions: ")
-			print("1. check for typo")
-			print("2. is the extended target actually exist")
-			print("3. may be possible cyclic extensions")
-			return
-
 		file = open(output_directory + "pysdl.py", "w+")
 
 		file.write(
@@ -42,11 +36,8 @@ class PythonGenerator(InterfaceGenerator):
 
 	@classmethod
 	def gen_reference_data_classes(cls):
-		reference_types = SDLInterface.get_reference_types()
-
 		code = ""
-		for type_name in reference_types:
-
+		for type_name in sdl_types.REFERENCE_TYPES:
 			class_name = capwords(type_name, "-").replace("-", "")
 
 			clazz = PythonClass("SDL" + class_name)

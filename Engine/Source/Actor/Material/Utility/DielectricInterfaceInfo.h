@@ -32,3 +32,28 @@ private:
 };
 
 }// end namespace ph
+
+/*
+	<SDL_struct>
+
+	<type_name> dielectric-interface-info </type_name>
+
+	<input name="fresnel-type" type="string">
+		<description>
+			Controls the Fresnel model used. 
+			Possible values are "exact" and "schlick".
+		</description>
+	</input>
+	<input name="ior-outer" type="real">
+		<description>
+			The index of refraction outside of this material.
+		</description>
+	</input>
+	<input name="ior-inner" type="real">
+		<description>
+			The index of refraction inside of this material.
+		</description>
+	</input>
+
+	</SDL_struct>
+*/

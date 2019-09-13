@@ -26,7 +26,6 @@ class PythonClass:
 		return False
 
 	def gen_code(self):
-
 		code = ""
 
 		if not self.name:
@@ -34,9 +33,9 @@ class PythonClass:
 			return code
 
 		if self.inherited_class_name:
-			code += "class %s(%s):\n\n" % (self.name, self.inherited_class_name)
+			code += "class %s(%s):\n" % (self.name, self.inherited_class_name)
 		else:
-			code += "class %s:\n\n" % self.name
+			code += "class %s:\n" % self.name
 
 		if self.methods:
 			for method in self.methods:

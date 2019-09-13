@@ -4,7 +4,6 @@ import xml.etree.ElementTree as ElementTree
 
 
 class SDLCreator:
-
 	def __init__(self, root_element: ElementTree):
 		self.inputs = []
 

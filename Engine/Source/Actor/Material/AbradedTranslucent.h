@@ -42,26 +42,15 @@ public:
 	</description>
 
 	<command type="creator">
-		<input name="fresnel-type" type="string">
+		<input name="fresnel" type="dielectric-interface-info">
 			<description>
-				Controls the Fresnel model used. 
-				Possible values are "schlick" and "exact".
+				Fresnel model for the microsurface.
 			</description>
 		</input>
 		<input name="roughness" type="real">
 			<description>
 				Isotropic surface roughness in [0, 1], the material will appear
 				to be smoother with smaller roughness value.
-			</description>
-		</input>
-		<input name="ior-outer" type="real">
-			<description>
-				The index of refraction outside of this material.
-			</description>
-		</input>
-		<input name="ior-inner" type="real">
-			<description>
-				The index of refraction inside of this material.
 			</description>
 		</input>
 	</command>
