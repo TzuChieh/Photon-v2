@@ -281,10 +281,10 @@ class Exporter:
                 creator.set_material(SDLMaterial(material_name))
                 self.get_sdlconsole().queue_command(creator)
 
-                actor_light_name = naming.get_mangled_object_name(b_mesh_object)
+                actor_light_name = naming.get_mangled_object_name(b_mesh_object, suffix=str(material_idx))
                 self.export_actor_light(actor_light_name, light_source_name, geometry_name, material_name, pos, rot, scale)
             else:
-                actor_model_name = naming.get_mangled_object_name(b_mesh_object)
+                actor_model_name = naming.get_mangled_object_name(b_mesh_object, suffix=str(material_idx))
                 self.export_actor_model(actor_model_name, geometry_name, material_name, pos, rot, scale)
 
     def export_camera(self, b_camera_object):
@@ -341,7 +341,7 @@ class Exporter:
         creator = DomeActorCreator()
         creator.set_data_name(actor_name)
 
-        envmap_path  = bpy.path.abspath(b_world.ph_envmap_file_path)
+        envmap_path = bpy.path.abspath(b_world.ph_envmap_file_path)
         envmap_sdlri = sdlresource.SdlResourceIdentifier()
         envmap_sdlri.append_folder(b_world.name + "_data")
         envmap_sdlri.set_file(utility.get_filename(envmap_path))
