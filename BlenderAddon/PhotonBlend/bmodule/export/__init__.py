@@ -213,7 +213,10 @@ class Exporter:
         # Group faces with the same material, then export each face-material pair as a Photon-v2's actor.
 
         b_mesh.calc_loop_triangles()
-        b_mesh.calc_normals()
+        if not b_mesh.has_custom_normals:
+            b_mesh.calc_normals()
+        else:
+            b_mesh.calc_normals_split()
 
         # TODO: might be faster if using len(obj.material_slots()) for array size and simply store each loop tris array
         material_idx_loop_triangles_map = {}
@@ -267,7 +270,8 @@ class Exporter:
                 loop_triangles,
                 b_mesh.vertices,
                 # b_active_uv_layer.data)
-                b_active_uv_layer.data if b_active_uv_layer is not None else None)# HACK
+                b_active_uv_layer.data if b_active_uv_layer is not None else None,# HACK
+                b_mesh.has_custom_normals)
 
             # creating actor (can be either model or light depending on emissivity)
             pos, rot, scale = b_mesh_object.matrix_world.decompose()

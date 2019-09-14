@@ -37,7 +37,8 @@ def loop_triangles_to_sdl_triangle_mesh(
         console: SdlConsole,
         loop_triangles,
         b_mesh_vertices,
-        b_mesh_uv_loops):
+        b_mesh_uv_loops,
+        has_custom_normals=False):
 
     positions = []
     tex_coords = []
@@ -50,7 +51,12 @@ def loop_triangles_to_sdl_triangle_mesh(
         for vertex_index in b_loop_triangle.vertices:
             b_mesh_vertex = b_mesh_vertices[vertex_index]
             positions.append(b_mesh_vertex.co)
-            normals.append(b_mesh_vertex.normal if b_loop_triangle.use_smooth else b_loop_triangle.normal)
+            if not has_custom_normals:
+                normals.append(b_mesh_vertex.normal if b_loop_triangle.use_smooth else b_loop_triangle.normal)
+
+        if has_custom_normals:
+            for i in range(3):
+                normals.append(b_loop_triangle.split_normals[i])
 
         for loop_index in b_loop_triangle.loops:
             # b_uv = b_mesh_uv_loops[loop_index].uv

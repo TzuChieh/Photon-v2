@@ -82,23 +82,41 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
         b_context.view_layer.update()
         b_depsgraph = b_context.evaluated_depsgraph_get()
 
+        b_mesh_objects = scene.find_mesh_objects(b_depsgraph)
+
         # Force subdivision level if required
-        if b_depsgraph.mode != self.subdivision_quality:
-            original_settings = {}
-            b_mesh_objects = scene.find_mesh_objects(b_depsgraph)
-
+        should_force_subdiv = b_depsgraph.mode != self.subdivision_quality
+        subdiv_original_settings = {}
+        if should_force_subdiv:
             for b_evaluated_mesh_object in b_mesh_objects:
                 b_mesh_object = b_evaluated_mesh_object.original
-                helper.force_mesh_object_subdiv_level(b_mesh_object, original_settings, level=self.subdivision_quality)
+                helper.mesh_object_force_subdiv_level(
+                        b_mesh_object,
+                        subdiv_original_settings,
+                        level=self.subdivision_quality)
 
-            # Make sure we are getting up-to-date data before updating depsgraph
-            b_context.view_layer.update()
-            b_depsgraph.update()
+        # Emulate autosmooth settings with edge split modifier
+        autosmooth_original_settings = {}
+        for b_evaluated_mesh_object in b_mesh_objects:
+            b_mesh_object = b_evaluated_mesh_object.original
+            helper.mesh_object_autosmooth_to_edgesplit(
+                b_mesh_object,
+                autosmooth_original_settings)
 
-            # After getting the forced-level depsgraph, restore mesh objects to original settings
+        # Make sure we are getting up-to-date data before updating depsgraph
+        b_context.view_layer.update()
+        b_depsgraph.update()
+
+        # After updating the depsgraph, restore mesh objects to original settings
+
+        if should_force_subdiv:
             for b_evaluated_mesh_object in b_mesh_objects:
                 b_mesh_object = b_evaluated_mesh_object.original
-                helper.restore_mesh_object_subdiv_level(b_mesh_object, original_settings)
+                helper.restore_mesh_object_subdiv_level(b_mesh_object, subdiv_original_settings)
+
+        for b_evaluated_mesh_object in b_mesh_objects:
+            b_mesh_object = b_evaluated_mesh_object.original
+            helper.restore_mesh_object_autosmooth(b_mesh_object, autosmooth_original_settings)
 
         return b_depsgraph
 
