@@ -15,8 +15,6 @@ from ... import naming
 import bpy
 import mathutils
 
-import sys
-
 
 class PhDiffuseSurfaceNode(PhMaterialNode):
     bl_idname = "PH_DIFFUSE_SURFACE"
@@ -36,8 +34,8 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
     roughness: bpy.props.FloatProperty(
         name="Roughness",
         default=0.5,
-        min=sys.float_info.min,
-        max=sys.float_info.max
+        min=0.0,
+        max=1.0
     )
 
     def to_sdl(self, b_material, sdlconsole):

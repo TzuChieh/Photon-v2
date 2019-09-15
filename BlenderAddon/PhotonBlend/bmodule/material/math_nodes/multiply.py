@@ -11,8 +11,6 @@ from ... import naming
 
 import bpy
 
-import sys
-
 
 class PhMultiplyNode(PhMaterialNode):
     bl_idname = 'PH_MULTIPLY'
@@ -22,8 +20,8 @@ class PhMultiplyNode(PhMaterialNode):
     factor: bpy.props.FloatProperty(
         name="Factor",
         default=1.0,
-        min=sys.float_info.min,
-        max=sys.float_info.max
+        min=-1e32,
+        max=1e32
     )
 
     def to_sdl(self, b_material, sdlconsole):
