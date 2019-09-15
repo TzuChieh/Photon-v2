@@ -1,57 +1,55 @@
 from ..node_base import (
         PhMaterialNode,
-        PhColorSocket,
+        PhFloatValueSocket,
         INPUT_CATEGORY)
 from ....psdl.pysdl import (
         ConstantImageCreator,
-        SDLVector3,
+        SDLReal,
         SDLString)
 from ... import naming
 
 import bpy
-import mathutils
 
 
-class PhConstantColorInputNode(PhMaterialNode):
-    bl_idname = "PH_CONSTANT_COLOR"
-    bl_label = "Constant Color"
+class PhFloatValueInputNode(PhMaterialNode):
+    bl_idname = 'PH_FLOAT_VALUE'
+    bl_label = "Float Value"
     node_category = INPUT_CATEGORY
 
-    color: bpy.props.FloatVectorProperty(
-        name="Color",
-        description="color value",
-        default=[0.5, 0.5, 0.5],
-        min=0.0,
-        max=1.0,
-        subtype="COLOR",
-        size=3
+    value: bpy.props.FloatProperty(
+        name="Value",
+        default=1.0,
+        min=-1e32,
+        max=1e32
     )
 
     usage: bpy.props.EnumProperty(
         items=[
+            ('RAW', "Raw", ""),
             ('EMISSION', "Emission", ""),
             ('REFLECTANCE', "Reflectance", "")
         ],
         name="Usage",
-        description="What is the color for",
-        default='REFLECTANCE'
+        description="What is the value for",
+        default='RAW'
     )
 
     def to_sdl(self, b_material, sdlconsole):
         output_socket = self.outputs[0]
         creator = ConstantImageCreator()
         creator.set_data_name(naming.get_mangled_output_node_socket_name(output_socket, b_material))
-        creator.set_value(SDLVector3(mathutils.Color((self.color[0], self.color[1], self.color[2]))))
-        if self.usage == "EMISSION":
+        creator.set_value(SDLReal(self.value))
+        if self.usage == 'RAW':
+            creator.set_value_type(SDLString("raw"))
+        elif self.usage == 'EMISSION':
             creator.set_value_type(SDLString("emr-linear-srgb"))
-        elif self.usage == "REFLECTANCE":
+        elif self.usage == 'REFLECTANCE':
             creator.set_value_type(SDLString("ecf-linear-srgb"))
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):
-        self.outputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
+        self.outputs.new(PhFloatValueSocket.bl_idname, PhFloatValueSocket.bl_label)
 
     def draw_buttons(self, b_context, b_layout):
-        b_layout.template_color_picker(self, "color", value_slider=True)
-        b_layout.prop(self, "color", text="")
-        b_layout.prop(self, "usage", text="")
+        b_layout.prop(self, 'value')
+        b_layout.prop(self, 'usage', text="")

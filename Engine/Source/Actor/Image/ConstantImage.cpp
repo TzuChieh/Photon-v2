@@ -195,7 +195,7 @@ void ConstantImage::ciRegister(CommandRegister& cmdRegister)
 		vec3Input.addVector3("value");
 
 		// TODO: array input
-
+		// FIXME: in most vexing order
 		if(packet.isPrototypeMatched(realInput))
 		{
 			const real value = packet.getReal("value");

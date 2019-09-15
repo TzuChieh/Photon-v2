@@ -13,9 +13,9 @@ from abc import abstractmethod
 
 
 class PhMaterialNodeTree(bpy.types.NodeTree):
-    bl_idname = "PH_MATERIAL_NODE_TREE"
+    bl_idname = 'PH_MATERIAL_NODE_TREE'
     bl_label = "Photon Node Tree"
-    bl_icon = "MATERIAL"
+    bl_icon = 'MATERIAL'
 
     COMPATIBLE_ENGINES = {settings.renderer_id_name}
 
@@ -36,7 +36,7 @@ class PhMaterialNodeTree(bpy.types.NodeTree):
 
 
 class PhMaterialNodeSocket(bpy.types.NodeSocket):
-    bl_idname = "PH_MATERIAL_NODE_SOCKET"
+    bl_idname = 'PH_MATERIAL_NODE_SOCKET'
     bl_label = "Photon Socket"
 
     link_only: bpy.props.BoolProperty(
@@ -51,12 +51,12 @@ class PhMaterialNodeSocket(bpy.types.NodeSocket):
 
     # Blender: draw socket
     def draw(self, b_context, b_layout, node, text):
-        if node.bl_idname != "PH_OUTPUT":
+        if node.bl_idname != 'PH_OUTPUT':
             if self.is_linked or self.is_output:
                 b_layout.label(text=text)
             else:
-                if hasattr(self, "default_value"):
-                    b_layout.prop(self, "default_value", text=text)
+                if hasattr(self, 'default_value'):
+                    b_layout.prop(self, 'default_value', text=text)
                 else:
                     b_layout.label(text=text)
         else:
@@ -83,9 +83,9 @@ class NodeCategory:
 
 
 class PhMaterialNode(bpy.types.Node):
-    bl_idname = "PH_MATERIAL_NODE"
+    bl_idname = 'PH_MATERIAL_NODE'
     bl_label = "Photon Node"
-    bl_icon = "MATERIAL"
+    bl_icon = 'MATERIAL'
     node_category = None
 
     @abstractmethod
@@ -106,7 +106,7 @@ class PhMaterialNode(bpy.types.Node):
 
 
 class PhSurfaceMaterialSocket(PhMaterialNodeSocket):
-    bl_idname = "PH_SURFACE_MATERIAL_SOCKET"
+    bl_idname = 'PH_SURFACE_MATERIAL_SOCKET'
     bl_label = "Surface Material"
 
     default_value: bpy.props.FloatVectorProperty(
@@ -123,9 +123,25 @@ class PhSurfaceMaterialSocket(PhMaterialNodeSocket):
         return [0.8, 0.1, 0.1, 1.0]  # red
 
 
+class PhFloatValueSocket(PhMaterialNodeSocket):
+    bl_idname = 'PH_FLOAT_VALUE_SOCKET'
+    bl_label = "Value"
+
+    default_value: bpy.props.FloatProperty(
+        name="Float",
+        default=0.5,
+        min=-1e32,
+        max=1e32,
+        subtype='NONE'
+    )
+
+    def draw_color(self, b_context, node):
+        return [0.5, 0.5, 0.5, 1.0]  # gray
+
+
 class PhFloatFactorSocket(PhMaterialNodeSocket):
-    bl_idname = "PH_FLOAT_SOCKET"
-    bl_label = "Real"
+    bl_idname = 'PH_FLOAT_SOCKET'
+    bl_label = "Factor"
 
     default_value: bpy.props.FloatProperty(
         name="Float",
@@ -140,7 +156,7 @@ class PhFloatFactorSocket(PhMaterialNodeSocket):
 
 
 class PhColorSocket(PhMaterialNodeSocket):
-    bl_idname = "PH_COLOR_SOCKET"
+    bl_idname = 'PH_COLOR_SOCKET'
     bl_label = "Color"
 
     default_value: bpy.props.FloatVectorProperty(
@@ -149,7 +165,7 @@ class PhColorSocket(PhMaterialNodeSocket):
         default=[0.5, 0.5, 0.5],
         min=0.0,
         max=1.0,
-        subtype="COLOR",
+        subtype='COLOR',
         size=3
     )
 
@@ -158,7 +174,7 @@ class PhColorSocket(PhMaterialNodeSocket):
 
 
 class PhSurfaceLayerSocket(PhMaterialNodeSocket):
-    bl_idname = "PH_SURFACE_LAYER_SOCKET"
+    bl_idname = 'PH_SURFACE_LAYER_SOCKET'
     bl_label = "Surface Layer"
 
     def draw_color(self, b_context, node):
@@ -195,6 +211,7 @@ MATH_CATEGORY = NodeCategory("MATH", "Math")
 
 PH_MATERIAL_NODE_SOCKETS = [
     PhSurfaceMaterialSocket,
+    PhFloatValueSocket,
     PhFloatFactorSocket,
     PhColorSocket,
     PhSurfaceLayerSocket

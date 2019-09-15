@@ -37,6 +37,7 @@ def to_sdl(b_material, sdlconsole):
 
 PH_MATERIAL_NODES = [
         output_nodes.PhOutputNode,
+        input_nodes.PhFloatValueInputNode,
         input_nodes.PhConstantColorInputNode,
         input_nodes.PhPictureNode,
         surface_nodes.PhDiffuseSurfaceNode,
@@ -51,7 +52,7 @@ PH_MATERIAL_NODES = [
 
 
 class MaterialNodes(blender.BlenderModule):
-    node_category_idname = "PH_MATERIAL_NODE_CATEGORIES"
+    node_category_idname = 'PH_MATERIAL_NODE_CATEGORIES'
 
     def __init__(self):
         super().__init__()

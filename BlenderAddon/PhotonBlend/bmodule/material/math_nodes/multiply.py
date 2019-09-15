@@ -15,7 +15,7 @@ import sys
 
 
 class PhMultiplyNode(PhMaterialNode):
-    bl_idname = "PH_MULTIPLY"
+    bl_idname = 'PH_MULTIPLY'
     bl_label = "Multiply"
     node_category = MATH_CATEGORY
 

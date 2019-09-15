@@ -111,6 +111,7 @@ BinaryMixedSurfaceMaterial::BinaryMixedSurfaceMaterial(const InputPacket& packet
 	const auto material1 = packet.get<SurfaceMaterial>("material-1", DataTreatment::REQUIRED());
 	setMaterials(material0, material1);
 
+	// TODO: vector3 factor
 	if(packet.hasReference<Image>("factor"))
 	{
 		const auto factor = packet.get<Image>("factor");
