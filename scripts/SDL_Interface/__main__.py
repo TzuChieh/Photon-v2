@@ -2,6 +2,7 @@ from InterfaceParser import InterfaceParser
 from RawGenerator.RawGenerator import RawGenerator
 from PythonGenerator.PythonGenerator import PythonGenerator
 from JavaGenerator.JavaGenerator import JavaGenerator
+from MarkdownDocGenerator.MarkdownDocGenerator import MarkdownDocGenerator
 
 import os
 import sys
@@ -10,7 +11,8 @@ import sys
 AVAILABLE_GENERATORS = [
 	RawGenerator,
 	PythonGenerator,
-	JavaGenerator
+	JavaGenerator,
+	MarkdownDocGenerator
 ]
 
 print("available generators: ")

@@ -19,9 +19,8 @@ class SDLInput:
 		# TODO: remove spaces and some newline chars
 		for element in root_element:
 			if element.tag == "description":
-				processed_text = element.text.strip()
-				processed_text.replace("\n", "")
-				processed_text.replace("\r", "")
+				processed_text = element.text.split()
+				processed_text = " ".join(processed_text)
 				self.description = processed_text
 
 	def is_value(self):

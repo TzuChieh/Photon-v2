@@ -22,7 +22,6 @@ class SDLCreator:
 		self.inputs.append(sdl_input)
 
 	def __str__(self):
-
 		result = "SDL Creator \n"
 
 		for sdl_input in self.inputs:

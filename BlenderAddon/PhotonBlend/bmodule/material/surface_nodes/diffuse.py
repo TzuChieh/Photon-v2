@@ -17,18 +17,18 @@ import mathutils
 
 
 class PhDiffuseSurfaceNode(PhMaterialNode):
-    bl_idname = "PH_DIFFUSE_SURFACE"
+    bl_idname = 'PH_DIFFUSE_SURFACE'
     bl_label = "Diffuse Surface"
     node_category = SURFACE_MATERIAL_CATEGORY
 
     diffusion_type: bpy.props.EnumProperty(
         items=[
-            ("LAMBERTIAN", "Lambertian", ""),
-            ("OREN_NAYAR", "Oren Nayar", "")
+            ('LAMBERTIAN', "Lambertian", ""),
+            ('OREN_NAYAR', "Oren Nayar", "")
         ],
         name="Type",
         description="surface diffusion types",
-        default="LAMBERTIAN"
+        default='LAMBERTIAN'
     )
 
     roughness: bpy.props.FloatProperty(
@@ -55,7 +55,7 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
         creator = MatteOpaqueMaterialCreator()
         creator.set_data_name(naming.get_mangled_output_node_socket_name(surface_material_socket, b_material))
         creator.set_albedo(SDLImage(albedo_res_name))
-        if self.diffusion_type == "OREN_NAYAR":
+        if self.diffusion_type == 'OREN_NAYAR':
             creator.set_sigma_degrees(SDLReal(self.roughness * 180.0))
         sdlconsole.queue_command(creator)
 
@@ -65,8 +65,8 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 
     def draw_buttons(self, b_context, b_layout):
         row = b_layout.row()
-        row.prop(self, "diffusion_type", text="")
+        row.prop(self, 'diffusion_type', text="")
 
-        if self.diffusion_type == "OREN_NAYAR":
+        if self.diffusion_type == 'OREN_NAYAR':
             row = b_layout.row()
-            row.prop(self, "roughness")
+            row.prop(self, 'roughness')

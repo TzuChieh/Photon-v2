@@ -65,7 +65,7 @@ public:
 		<input name="value-type" type="string">
 			<description>
 				Specifying what the stored constant represents. "raw": the value will be used 
-				directly without any conversion; "emr-linear-srgb": the value represents energy
+				directly without any conversion; "emr-linear-srgb": the value represents energy 
 				magnitudes in linear-SRGB; "ecf-linear-srgb": the value represents energy 
 				conserving coefficients in linear-SRGB.
 			</description>

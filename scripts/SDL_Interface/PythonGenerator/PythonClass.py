@@ -2,7 +2,6 @@ from .PythonMethod import PythonMethod
 
 
 class PythonClass:
-
 	def __init__(self, name=""):
 		self.name = name
 		self.inherited_class_name = ""
