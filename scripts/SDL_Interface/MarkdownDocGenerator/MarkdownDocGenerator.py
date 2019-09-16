@@ -10,6 +10,9 @@ import inspect
 from string import capwords
 import datetime
 
+# TODO: cross referencing
+# TODO: value types
+
 
 class MarkdownDocGenerator(InterfaceGenerator):
 	def __init__(self):
@@ -55,12 +58,12 @@ class MarkdownDocGenerator(InterfaceGenerator):
 		if sdl_creator.is_blueprint:
 			return
 
-		self.write_line("### Creation:")
+		self.write_line("> Creation:")
 		self.write_empty_line()
 		self.write_inputs(sdl_creator.inputs)
 
 	def write_executor(self, sdl_executor: SDLExecutor):
-		self.write_line("### Operation **%s**:" % sdl_executor.name)
+		self.write_line("> Operation **%s**:" % sdl_executor.name)
 		self.write_empty_line()
 		self.write_line(sdl_executor.description)
 		self.write_empty_line()
@@ -68,7 +71,7 @@ class MarkdownDocGenerator(InterfaceGenerator):
 
 	def write_inputs(self, sdl_inputs):
 		if not sdl_inputs:
-			self.write_line("No input.")
+			self.write_line("(no input)")
 			self.write_empty_line()
 			return
 
@@ -79,7 +82,7 @@ class MarkdownDocGenerator(InterfaceGenerator):
 		self.write_empty_line()
 
 	def write_struct(self, sdl_struct: SDLStruct):
-		self.write_line("## Data Structure `%s`:" % sdl_struct.type_name)
+		self.write_line("## Data Structure: `%s`" % sdl_struct.type_name)
 		self.write_empty_line()
 		self.write_inputs(sdl_struct.inputs)
 

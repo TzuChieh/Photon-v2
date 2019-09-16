@@ -39,7 +39,10 @@ public:
 
 	<name> Layered Surface </name>
 	<description>
-		A material model for surfaces with matte look, such as chalk and moon.
+		Models materials with multiple layers. The underlying assumption is
+		that the layers are parallel to each other without apparent curvature.
+		Multiple bounces between layers may be possible depending on the 
+		underlying optics model.
 	</description>
 
 	<command type="creator"/>

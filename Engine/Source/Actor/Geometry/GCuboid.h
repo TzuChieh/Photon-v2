@@ -60,10 +60,10 @@ public:
 
 	<command type="creator">
 		<input name="min-vertex" type="vector3">
-			<description>Vertex in the (---) octant.</description>
+			<description>Vertex in the (-, -, -) octant.</description>
 		</input>
 		<input name="max-vertex" type="vector3">
-			<description>Vertex in the (+++) octant.</description>
+			<description>Vertex in the (+, +, +) octant.</description>
 		</input>
 		<input name="px-face-uv" type="quaternion">
 			<description>UV coordinates of the +x face (+y as upward), in (min-u, min-v, max-u, max-v).</description>

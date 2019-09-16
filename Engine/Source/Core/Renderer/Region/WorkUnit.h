@@ -9,13 +9,24 @@
 namespace ph
 {
 
+/*! @brief Represents some amount of work.
+
+Represents some amount of work as a volume with specific dimensions. The 
+actual units of the dimensions are depend on the use case.
+*/
 class WorkUnit
 {
 public:
-	// Represents zero amount of work.
+	/*! @brief Represents zero amount of work.
+	*/
 	WorkUnit();
 
+	/*! @brief Represents a rectangular region of work with unit depth.
+	*/
 	explicit WorkUnit(const Region& region);
+
+	/*! @brief Represents a volume of work with specified dimensions.
+	*/
 	WorkUnit(const Region& region, std::size_t depth);
 
 	Region getRegion() const;

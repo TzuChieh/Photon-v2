@@ -10,25 +10,43 @@
 namespace ph
 {
 
+/*! @brief A manager that distributes a fixed amount of work to workers.
+
+The scheduler will deliver some amount of work on demand, where the total 
+amount of work is fixed. The sizes of each delivered work is implementation 
+defined.
+*/
 class WorkScheduler : public IWorkDispatcher
 {
 public:
-	// A scheduler with no work load.
+	/*! @brief A scheduler with no work load.
+	*/
 	WorkScheduler();
 
+	/*! @brief A scheduler specific number of workers and work load.
+	*/
 	WorkScheduler(std::size_t numWorkers, const WorkUnit& totalWorkUnit);
 
 	bool dispatch(WorkUnit* out_workUnit) override;
 
-	// Schedules some amount of work. Returns true when non-zero amount of work
-	// has been scheduled; otherwise, no work has been scheduled and no more 
-	// is yet to be scheduled (the scheduler is exhausted).
+	/*! @brief Get some amount of work.
+
+	@return True when non-zero amount of work has been scheduled; otherwise, no
+	work has been scheduled and no more is yet to be scheduled (the scheduler 
+	is exhausted).
+	*/
 	bool schedule(WorkUnit* out_workUnit);
+
 	void scheduleAll(std::vector<WorkUnit>& out_workUnits);
 	void submit(const WorkUnit& workUnit);
 
 	float getScheduledFraction() const;
 	float getSubmittedFraction() const;
+
+	/*! @brief Checks if all works had been scheduled.
+
+	@return True if there is no more work.
+	*/
 	bool isExhausted() const;
 
 protected:
