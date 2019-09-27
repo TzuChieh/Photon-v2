@@ -23,7 +23,7 @@ public:
 	*/
 	WorkScheduler();
 
-	/*! @brief A scheduler specific number of workers and work load.
+	/*! @brief A scheduler with specific number of workers and work load.
 	*/
 	WorkScheduler(std::size_t numWorkers, const WorkUnit& totalWorkUnit);
 
