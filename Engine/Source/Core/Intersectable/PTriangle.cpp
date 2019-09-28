@@ -50,7 +50,7 @@ bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	real hitT;
 	Vector3R hitBaryABCs;
-	if(!math::is_intersecting_watertight_triangle(
+	if(!math::triangle::is_intersecting_watertight(
 		ray,
 		m_vA, m_vB, m_vC,
 		&hitT, &hitBaryABCs))
@@ -66,6 +66,7 @@ bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
 void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
                                        HitDetail* const out_detail) const
 {
+	// TODO: bary coords may provide better precision?
 	const Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
 	Vector3R hitBaryABC;
 	probe.getCached(&hitBaryABC);
@@ -277,9 +278,9 @@ bool PTriangle::isIntersectingVolumeConservative(const AABB3D& volume) const
 
 void PTriangle::genPositionSample(PositionSample* const out_sample) const
 {
-	const real A = std::sqrt(Random::genUniformReal_i0_e1());
-	const real B = Random::genUniformReal_i0_e1();
-	const Vector3R abc(1.0_r - A, A * (1.0_r - B), B * A);
+	const Vector3R abc = math::triangle::uniform_unit_uv_to_barycentric_osada(
+		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()}, 
+		m_vA, m_vB, m_vC);
 
 	const Vector3R localPos = Vector3R::weightedSum(m_vA, abc.x, m_vB, abc.y, m_vC, abc.z);
 	//Vector3R worldPos;
@@ -305,38 +306,12 @@ void PTriangle::genPositionSample(PositionSample* const out_sample) const
 
 real PTriangle::calcExtendedArea() const
 {
-	return math::triangle_area(m_vA, m_vB, m_vC);
+	return math::triangle::area(m_vA, m_vB, m_vC);
 }
 
 Vector3R PTriangle::calcBarycentricCoord(const Vector3R& position) const
 {
-	// Reference: Real-Time Collision Detection, Volume 1, P.47 ~ P.48
-	// Computes barycentric coordinates (a, b, c) for a position with 
-	// respect to triangle ABC.
-
-	const Vector3R eAP = position.sub(m_vA);
-
-	const real d00 = m_eAB.dot(m_eAB);
-	const real d01 = m_eAB.dot(m_eAC);
-	const real d11 = m_eAC.dot(m_eAC);
-	const real d20 = eAP.dot(m_eAB);
-	const real d21 = eAP.dot(m_eAC);
-	
-	// TODO: check numeric stability
-
-	const real denominator = d00 * d11 - d01 * d01;
-	if(denominator == 0.0_r)
-	{
-		return Vector3R(0, 0, 0);
-	}
-
-	const real reciDenom = 1.0_r / denominator;
-	
-	const real b = (d11 * d20 - d01 * d21) * reciDenom;
-	const real c = (d00 * d21 - d01 * d20) * reciDenom;
-	const real a = 1.0_r - b - c;
-
-	return Vector3R(a, b, c);
+	return math::triangle::position_to_barycentric(position, m_vA, m_vB, m_vC);
 }
 
 real PTriangle::calcPositionSamplePdfA(const Vector3R& position) const

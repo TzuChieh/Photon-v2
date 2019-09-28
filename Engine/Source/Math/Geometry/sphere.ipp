@@ -6,13 +6,10 @@
 #include "Math/TVector3.h"
 #include "Math/constant.h"
 
-namespace ph
+namespace ph::math::sphere
 {
 
-namespace math
-{
-
-inline bool is_intersecting_sphere(
+inline bool is_intersecting(
 	const Ray&      ray,
 	const Vector3R& center,
 	const real      radius,
@@ -93,13 +90,32 @@ inline bool is_intersecting_sphere(
 }
 
 template<typename T>
-inline T sphere_area(const T radius)
+inline T area(const T radius)
 {
 	PH_ASSERT_GE(radius, T(0));
 
 	return constant::four_pi<T> * radius * radius;
 }
 
-}// end namespace math
+template<typename T>
+inline TVector3<T> uniform_unit_uv_to_position_archimedes(
+	const TVector2<T>& uniformUnitUV,
+	const T            radius)
+{
+	PH_ASSERT_IN_RANGE_INCLUSIVE(uniformUnitUV.x, T(0), T(1));
+	PH_ASSERT_IN_RANGE_INCLUSIVE(uniformUnitUV.y, T(0), T(1));
+	PH_ASSERT_GE(radius, T(0));
 
-}// end namespace ph
+	const T y   = T(2) * (uniformUnitUV.x - T(0.5));
+	const T phi = constant::two_pi<real> * uniformUnitUV.y;
+	const T r   = std::sqrt(std::max(T(1) - y * y, T(0)));
+
+	const auto uniformUnitSpherePosition = TVector3<T>(
+		r * std::sin(phi),
+		y,
+		r * std::cos(phi));
+
+	return uniformUnitSpherePosition * radius;
+}
+
+}// end namespace ph::math::sphere

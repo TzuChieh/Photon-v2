@@ -27,13 +27,13 @@ PSphere::PSphere(const PrimitiveMetadata* const metadata, const real radius) :
 	Primitive(metadata),
 	m_radius(radius), m_reciRadius(radius > 0.0_r ? 1.0_r / radius : 0.0_r)
 {
-	PH_ASSERT(radius > 0.0_r);
+	PH_ASSERT_GE(radius, 0.0_r);
 }
 
 bool PSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	real hitT;
-	if(!math::is_intersecting_sphere(
+	if(!math::sphere::is_intersecting(
 		ray, 
 		Vector3R(0, 0, 0), m_radius, 
 		&hitT))
@@ -50,7 +50,9 @@ void PSphere::calcIntersectionDetail(
 	HitProbe&        probe,
 	HitDetail* const out_detail) const
 {
-	PH_ASSERT(out_detail && m_metadata);
+	PH_ASSERT(out_detail);
+	PH_ASSERT(m_metadata);
+
 	const UvwMapper* mapper = m_metadata->getChannel(probe.getChannel()).getMapper();
 
 	const Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
@@ -161,7 +163,7 @@ bool PSphere::isIntersectingVolumeConservative(const AABB3D& volume) const
 
 void PSphere::calcAABB(AABB3D* const out_aabb) const
 {
-	PH_ASSERT(out_aabb != nullptr);
+	PH_ASSERT(out_aabb);
 
 	out_aabb->setMinVertex(Vector3R(-m_radius, -m_radius, -m_radius));
 	out_aabb->setMaxVertex(Vector3R( m_radius,  m_radius,  m_radius));
@@ -175,10 +177,12 @@ real PSphere::calcPositionSamplePdfA(const Vector3R& position) const
 
 void PSphere::genPositionSample(PositionSample* const out_sample) const
 {
-	PH_ASSERT(out_sample != nullptr && m_metadata != nullptr);
+	PH_ASSERT(out_sample);
+	PH_ASSERT(m_metadata);
 
-	out_sample->normal = UniformUnitSphere::map(
-		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()});
+	out_sample->normal = math::sphere::uniform_unit_uv_to_position_archimedes(
+		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()},
+		1.0_r);
 
 	out_sample->position = out_sample->normal.mul(m_radius);
 
@@ -193,7 +197,7 @@ void PSphere::genPositionSample(PositionSample* const out_sample) const
 
 real PSphere::calcExtendedArea() const
 {
-	return math::sphere_area(m_radius);
+	return math::sphere::area(m_radius);
 }
 
 }// end namespace ph

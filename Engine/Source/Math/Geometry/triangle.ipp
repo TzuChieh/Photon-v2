@@ -4,13 +4,10 @@
 #include "Math/Geometry/triangle.h"
 #include "Math/TVector3.h"
 
-namespace ph
+namespace ph::math::triangle
 {
 
-namespace math
-{
-
-inline bool is_intersecting_watertight_triangle(
+inline bool is_intersecting_watertight(
 	const Ray&      ray,
 	const Vector3R& vA,
 	const Vector3R& vB,
@@ -146,7 +143,7 @@ inline bool is_intersecting_watertight_triangle(
 }
 
 template<typename T>
-inline T triangle_area(
+inline T area(
 	const TVector3<T>& vA,
 	const TVector3<T>& vB,
 	const TVector3<T>& vC)
@@ -157,6 +154,71 @@ inline T triangle_area(
 	return eAB.cross(eAC).length() * T(0.5);
 }
 
-}// end namespace math
+template<typename T>
+inline TVector3<T> position_to_barycentric(
+	const TVector3<T>& position,
+	const TVector3<T>& vA,
+	const TVector3<T>& vB,
+	const TVector3<T>& vC)
+{
+	// Reference: Real-Time Collision Detection, Volume 1, P.47 ~ P.48
+	// Computes barycentric coordinates (a, b, c) for a position with 
+	// respect to triangle ABC.
 
-}// end namespace ph
+	const auto eAP = position.sub(vA);
+	const auto eAB = vB.sub(vA);
+	const auto eAC = vC.sub(vA);
+
+	const T d00 = eAB.dot(eAB);
+	const T d01 = eAB.dot(eAC);
+	const T d11 = eAC.dot(eAC);
+	const T d20 = eAP.dot(eAB);
+	const T d21 = eAP.dot(eAC);
+	
+	// TODO: check numeric stability
+
+	const T denominator = d00 * d11 - d01 * d01;
+	if(denominator == T(0))
+	{
+		return TVector3<T>(0, 0, 0);
+	}
+
+	const T rcpDenominator = T(1) / denominator;
+	
+	const T b = (d11 * d20 - d01 * d21) * rcpDenominator;
+	const T c = (d00 * d21 - d01 * d20) * rcpDenominator;
+	const T a = T(1) - b - c;
+
+	return TVector3<T>(a, b, c);
+}
+
+template<typename T>
+inline TVector3<T> barycentric_to_position(
+	const TVector3<T>& barycentricCoords,
+	const TVector3<T>& vA,
+	const TVector3<T>& vB,
+	const TVector3<T>& vC)
+{
+	return TVector3<T>::weightedSum(
+		vA, barycentricCoords.x,
+		vB, barycentricCoords.y,
+		vC, barycentricCoords.z);
+}
+
+template<typename T>
+inline TVector3<T> uniform_unit_uv_to_barycentric_osada(
+	const TVector2<T>& uniformUnitUV,
+	const TVector3<T>& vA,
+	const TVector3<T>& vB,
+	const TVector3<T>& vC)
+{
+	PH_ASSERT_IN_RANGE_INCLUSIVE(uniformUnitUV.x, T(0), T(1));
+	PH_ASSERT_IN_RANGE_INCLUSIVE(uniformUnitUV.y, T(0), T(1));
+
+	const T A = std::sqrt(uniformUnitUV.x);
+	const T B = uniformUnitUV.y;
+
+	return TVector3<T>(T(1) - A, A * (T(1) - B), B * A);
+}
+
+}// end namespace ph::math::triangle
