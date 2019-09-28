@@ -145,6 +145,18 @@ inline bool is_intersecting_watertight_triangle(
 	return true;
 }
 
+template<typename T>
+inline T triangle_area(
+	const TVector3<T>& vA,
+	const TVector3<T>& vB,
+	const TVector3<T>& vC)
+{
+	const auto eAB = vB.sub(vA);
+	const auto eAC = vC.sub(vA);
+
+	return eAB.cross(eAC).length() * T(0.5);
+}
+
 }// end namespace math
 
 }// end namespace ph

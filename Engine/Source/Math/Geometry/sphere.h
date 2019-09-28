@@ -16,6 +16,9 @@ bool is_intersecting_sphere(
 	real            radius,
 	real*           out_hitT);
 
+template<typename T>
+T sphere_area(T radius);
+
 }// end namespace math
 
 }// end namespace ph

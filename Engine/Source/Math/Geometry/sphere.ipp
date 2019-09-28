@@ -4,6 +4,7 @@
 #include "Common/assertion.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
+#include "Math/constant.h"
 
 namespace ph
 {
@@ -89,6 +90,14 @@ inline bool is_intersecting_sphere(
 		*out_hitT = static_cast<real>(t);
 		return true;
 	}
+}
+
+template<typename T>
+inline T sphere_area(const T radius)
+{
+	PH_ASSERT_GE(radius, T(0));
+
+	return constant::four_pi<T> * radius * radius;
 }
 
 }// end namespace math

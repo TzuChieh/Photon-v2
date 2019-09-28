@@ -18,6 +18,12 @@ bool is_intersecting_watertight_triangle(
 	real*           out_hitT,
 	Vector3R*       out_hitBaryABCs);
 
+template<typename T>
+T triangle_area(
+	const TVector3<T>& vA,
+	const TVector3<T>& vB,
+	const TVector3<T>& vC);
+
 }// end namespace math
 
 }// end namespace ph

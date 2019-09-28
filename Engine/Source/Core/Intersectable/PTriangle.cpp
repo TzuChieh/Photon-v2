@@ -305,15 +305,7 @@ void PTriangle::genPositionSample(PositionSample* const out_sample) const
 
 real PTriangle::calcExtendedArea() const
 {
-	//Vector3R eAB;
-	//Vector3R eAC;
-	//m_metadata->localToWorld.transformV(m_eAB, &eAB);
-	//m_metadata->localToWorld.transformV(m_eAC, &eAC);
-
-	Vector3R eAB = m_eAB;
-	Vector3R eAC = m_eAC;
-
-	return eAB.cross(eAC).length() * 0.5_r;
+	return math::triangle_area(m_vA, m_vB, m_vC);
 }
 
 Vector3R PTriangle::calcBarycentricCoord(const Vector3R& position) const
