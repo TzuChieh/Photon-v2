@@ -60,7 +60,6 @@ bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
 
 	probe.pushBaseHit(this, hitT);
 	probe.cache(hitBaryABCs);
-
 	return true;
 }
 

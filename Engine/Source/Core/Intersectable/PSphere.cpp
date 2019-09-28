@@ -14,6 +14,7 @@
 #include "Core/Sample/PositionSample.h"
 #include "Math/Mapping/UniformUnitSphere.h"
 #include "Math/TOrthonormalBasis3.h"
+#include "Math/Geometry/sphere.h"
 
 #include <algorithm>
 #include <cmath>
@@ -31,76 +32,17 @@ PSphere::PSphere(const PrimitiveMetadata* const metadata, const real radius) :
 
 bool PSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
-	// ray origin:         o
-	// ray direction:      d
-	// sphere center:      c
-	// sphere radius:      r
-	// intersection point: p
-	// vector dot:         *
-	// ray equation:       o + td (t is a scalar variable)
-	//
-	// To find the intersection point, the length of vector (td - oc) must equals r.
-	// This is equivalent to (td - oc)*(td - oc) = r^2. After reformatting, we have
-	//
-	//              t^2(d*d) - 2t(d*oc) + (oc*oc) - r^2 = 0     --- (1)
-	//
-	// Solving equation (1) for t will yield the intersection point (o + td).
-	
-	const Vector3D& rayO = Vector3D(ray.getOrigin());
-	const Vector3D& rayD = Vector3D(ray.getDirection());
-
-	// vector from ray origin (o) to sphere center (c)
-	//
-	const Vector3D& oc = Vector3D(0, 0, 0).sub(rayO);
-	
-	const float64 a = rayD.dot(rayD);// a in equation (1)
-	const float64 b = rayD.dot(oc);// b in equation (1) (-2 is cancelled while solving t)
-	const float64 c = oc.dot(oc) - static_cast<float64>(m_radius) * m_radius;// c in equation (1)
-
-	float64 D = b * b - a * c;
-	if(D < 0.0)
+	real hitT;
+	if(!math::is_intersecting_sphere(
+		ray, 
+		Vector3R(0, 0, 0), m_radius, 
+		&hitT))
 	{
 		return false;
 	}
-	else
-	{
-		D = std::sqrt(D);
 
-		const float64 reciA = 1.0 / a;
-
-		// pick the closest point in front of ray tail
-		// t = (b +- D) / a
-		//
-		const float64 t1 = (b - D) * reciA;
-		const float64 t2 = (b + D) * reciA;
-
-		PH_ASSERT_MSG(t1 <= t2, "\n"
-			"t1            = " + std::to_string(t1) + "\n"
-			"t2            = " + std::to_string(t2) + "\n"
-			"(a, b, c)     = (" + std::to_string(a) + ", " + std::to_string(b) + ", " + std::to_string(c) + ")\n"
-			"ray-origin    = " + rayO.toString() + "\n"
-			"ray-direction = " + rayD.toString());
-
-		// t1 is smaller than t2, we test t1 first
-		//
-		float64 t;
-		if(ray.getMinT() < t1 && t1 < ray.getMaxT())
-		{
-			t = t1;
-		}
-		else if(ray.getMinT() < t2 && t2 < ray.getMaxT())
-		{
-			t = t2;
-		}
-		else
-		{
-			return false;
-		}
-
-		probe.pushBaseHit(this, static_cast<real>(t));
-		//probe.cacheReal3(0, Vector3R(rayO.add(rayD.mul(t))));
-		return true;
-	}
+	probe.pushBaseHit(this, hitT);
+	return true;
 }
 
 void PSphere::calcIntersectionDetail(
@@ -111,7 +53,6 @@ void PSphere::calcIntersectionDetail(
 	PH_ASSERT(out_detail && m_metadata);
 	const UvwMapper* mapper = m_metadata->getChannel(probe.getChannel()).getMapper();
 
-	//const Vector3R& hitPosition = probe.getCachedReal3(0);
 	const Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
 	const Vector3R& hitNormal   = hitPosition.normalize();
 

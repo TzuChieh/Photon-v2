@@ -142,7 +142,6 @@ inline bool is_intersecting_watertight_triangle(
 
 	*out_hitT = hitT;
 	*out_hitBaryABCs = Vector3R(baryA, baryB, baryC);
-
 	return true;
 }
 
