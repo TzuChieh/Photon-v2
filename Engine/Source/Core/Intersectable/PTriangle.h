@@ -90,9 +90,6 @@ private:
 	Vector3R m_uvwB;
 	Vector3R m_uvwC;
 
-	Vector3R m_eAB;
-	Vector3R m_eAC;
-
 	Vector3R m_faceNormal;
 
 	Vector3R calcBarycentricCoord(const Vector3R& position) const;

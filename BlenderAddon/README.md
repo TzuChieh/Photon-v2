@@ -2,7 +2,7 @@
 
 [//TODO]: # (add a tutorial on how to install)
 
-The folder named `PhotonBlend` is a Blender add-on for Photon. **We support only Blender 2.80 or higher**. Please follow standard Blender add-on installation procedure to install it.
+The folder named `PhotonBlend` is a Blender add-on for Photon. **We support only Blender 2.80 and higher**. Please follow standard Blender add-on installation procedure to install it.
 
 [//TODO]: # (simple tutorials on how to use the addon)
 

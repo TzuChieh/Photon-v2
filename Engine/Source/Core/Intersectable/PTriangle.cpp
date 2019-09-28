@@ -24,21 +24,7 @@ PTriangle::PTriangle(const PrimitiveMetadata* const metadata, const Vector3R& vA
 	m_vA(vA), m_vB(vB), m_vC(vC), 
 	m_uvwA(0, 0, 0), m_uvwB(1, 0, 0), m_uvwC(0, 1, 0)
 {
-	m_eAB = m_vB.sub(m_vA);
-	m_eAC = m_vC.sub(m_vA);
-
-	// Calculates face normal. Note that the vertices may form a degenerate
-	// triangle, causing zero cross product and thus producing NaNs after
-	// being normalized. In such case an arbitrary vector will be chosen.
-	//
-	if(m_eAB.cross(m_eAC).lengthSquared() > 0.0_r)
-	{
-		m_faceNormal = m_eAB.cross(m_eAC).normalizeLocal();
-	}
-	else
-	{
-		m_faceNormal = Vector3R(0, 1, 0);
-	}
+	m_faceNormal = math::triangle::safe_face_normal(m_vA, m_vB, m_vC, Vector3R(0, 1, 0));
 	PH_ASSERT(m_faceNormal.isFinite() && m_faceNormal.length() > 0.0_r);
 
 	m_nA = m_faceNormal;
@@ -102,15 +88,16 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 	const real uvDet = dUVab.x * dUVac.y - dUVab.y * dUVac.x;
 	if(uvDet != 0.0_r)
 	{
-		const real reciUvDet = 1.0_r / uvDet;
+		const auto[eAB, eAC] = math::triangle::edge_vectors(m_vA, m_vB, m_vC);
+		const real rcpUvDet = 1.0_r / uvDet;
 
-		dPdU = m_eAB.mul(dUVac.y).add(m_eAC.mul(-dUVab.y)).mulLocal(reciUvDet);
-		dPdV = m_eAB.mul(-dUVac.x).add(m_eAC.mul(dUVab.x)).mulLocal(reciUvDet);
+		dPdU = eAB.mul(dUVac.y).add(eAC.mul(-dUVab.y)).mulLocal(rcpUvDet);
+		dPdV = eAB.mul(-dUVac.x).add(eAC.mul(dUVab.x)).mulLocal(rcpUvDet);
 
 		const Vector3R& dNab = m_nB.sub(m_nA);
 		const Vector3R& dNac = m_nC.sub(m_nA);
-		dNdU = dNab.mul(dUVac.y).add(dNac.mul(-dUVab.y)).mulLocal(reciUvDet);
-		dNdV = dNab.mul(-dUVac.x).add(dNac.mul(dUVab.x)).mulLocal(reciUvDet);
+		dNdU = dNab.mul(dUVac.y).add(dNac.mul(-dUVab.y)).mulLocal(rcpUvDet);
+		dNdV = dNab.mul(-dUVac.x).add(dNac.mul(dUVab.x)).mulLocal(rcpUvDet);
 	}
 	
 	out_detail->getHitInfo(ECoordSys::LOCAL).setDerivatives(

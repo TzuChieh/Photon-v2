@@ -4,6 +4,8 @@
 #include "Math/Geometry/triangle.h"
 #include "Math/TVector3.h"
 
+#include <cmath>
+
 namespace ph::math::triangle
 {
 
@@ -143,15 +145,47 @@ inline bool is_intersecting_watertight(
 }
 
 template<typename T>
+inline std::pair<TVector3<T>, TVector3<T>> edge_vectors(
+	const TVector3<T>& vA,
+	const TVector3<T>& vB,
+	const TVector3<T>& vC)
+{
+	return {
+		vB.sub(vA),// edge vector AB
+		vC.sub(vA) // edge vector AC
+	};
+}
+
+template<typename T>
 inline T area(
 	const TVector3<T>& vA,
 	const TVector3<T>& vB,
 	const TVector3<T>& vC)
 {
-	const auto eAB = vB.sub(vA);
-	const auto eAC = vC.sub(vA);
+	const auto[eAB, eAC] = edge_vectors(vA, vB, vC);
 
 	return eAB.cross(eAC).length() * T(0.5);
+}
+
+template<typename T>
+inline TVector3<T> face_normal(
+	const TVector3<T>& vA,
+	const TVector3<T>& vB,
+	const TVector3<T>& vC)
+{
+	const auto[eAB, eAC] = edge_vectors(vA, vB, vC);
+
+	return eAB.cross(eAC).normalizeLocal();
+}
+
+template<typename T>
+inline TVector3<T> safe_face_normal(
+	const TVector3<T>& vA,
+	const TVector3<T>& vB,
+	const TVector3<T>& vC,
+	const TVector3<T>& failSafe)
+{
+	return !is_degenerate(vA, vB, vC) ? face_normal(vA, vB, vC) : failSafe;
 }
 
 template<typename T>
@@ -166,8 +200,7 @@ inline TVector3<T> position_to_barycentric(
 	// respect to triangle ABC.
 
 	const auto eAP = position.sub(vA);
-	const auto eAB = vB.sub(vA);
-	const auto eAC = vC.sub(vA);
+	const auto[eAB, eAC] = edge_vectors(vA, vB, vC);
 
 	const T d00 = eAB.dot(eAB);
 	const T d01 = eAB.dot(eAC);
@@ -219,6 +252,19 @@ inline TVector3<T> uniform_unit_uv_to_barycentric_osada(
 	const T B = uniformUnitUV.y;
 
 	return TVector3<T>(T(1) - A, A * (T(1) - B), B * A);
+}
+
+template<typename T>
+inline bool is_degenerate(
+	const TVector3<T>& vA,
+	const TVector3<T>& vB,
+	const TVector3<T>& vC)
+{
+	const auto[eAB, eAC] = edge_vectors(vA, vB, vC);
+	const T crossFactor = eAB.cross(eAC).lengthSquared();
+
+	// NaN and Inf aware
+	return !(crossFactor > T(0)) || std::isinf(crossFactor);
 }
 
 }// end namespace ph::math::triangle
