@@ -9,7 +9,7 @@
 namespace ph
 {
 
-/*! @brief Representing a ray in space.
+/*! @brief Represents a ray in space.
 
 Points @f$ \overrightarrow{P} @f$ on a ray can be modeled using the equation
 
