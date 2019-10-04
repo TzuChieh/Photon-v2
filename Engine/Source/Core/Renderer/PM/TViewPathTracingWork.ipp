@@ -101,7 +101,9 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 			break;
 		}
 
-		const Vector3R V = tracingRay.getDirection().mulLocal(-1);
+		// FIXME: reversed then assigned again later seems to be dangerous, state is unclear
+		tracingRay.reverse();
+		const Vector3R V = tracingRay.getDirection();
 		const Vector3R N = surfaceHit.getShadingNormal();
 
 		if(policy.getSampleMode() == EViewPathSampleMode::SINGLE_PATH)

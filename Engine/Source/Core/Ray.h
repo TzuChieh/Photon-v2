@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
+#include "Math/Geometry/TLineSegment.h"
 #include "Core/Quantity/Time.h"
 
 #include <limits>
@@ -11,18 +12,11 @@ namespace ph
 
 /*! @brief Represents a ray in space.
 
-Points @f$ \overrightarrow{P} @f$ on a ray can be modeled using the equation
-
-@f[
-	\overrightarrow{P}=\overrightarrow{O}+t\overrightarrow{D}
-@f]
-
-where @f$ \overrightarrow{O} @f$ is ray origin and @f$ \overrightarrow{D} @f$ 
-is ray direction, and @f$ t @f$ is a parameter in @f$ [t_{min}, t_{max}] @f$. 
-This class also records the time the ray was set on. Note the direction vector
-of the ray does not need to be normalized.
+A ray is essentially a line segment in space with additional attributes 
+(for example, time). Note the direction vector of the ray does not need to 
+be normalized.
 */
-class Ray final
+class Ray : public math::TLineSegment<real>
 {
 public:
 	class Differential;
@@ -58,68 +52,25 @@ public:
 	*/
 	Ray& reverse();
 
-	/*! @brief Sets the parametric distance where the ray starts.
-	*/
-	void setMinT(const real t);
-
-	/*! @brief Sets the parametric distance where the ray ends.
-	*/
-	void setMaxT(const real t);
-
-	/*! @brief Sets the associated time of this ray.
+	/*! @brief Set the associated time of this ray.
 	*/
 	void setTime(const Time& time);
 
-	/*! @brief Sets the direction vector of this ray.
-
-	Note that the vector does not need to be normalized.
+	/*! @brief Get the associated time of this ray.
 	*/
-	void setDirection(const Vector3R& dir);
-
-	/*! @brief Sets the origin of the ray.
-	*/
-	void setOrigin(const Vector3R& pos);
-
-    Vector3R& getOrigin();
-	Vector3R& getDirection();
-
-	/*! @name Getters
-
-	Simple getters for ray attributes. See corresponding setters for more info.
-	*/
-	///@{
-	const Vector3R& getOrigin() const;
-	const Vector3R& getDirection() const;
-	const Time&     getTime() const;
-	real            getMinT() const;
-	real            getMaxT() const;
-	///@}
+	const Time& getTime() const;
 
 private:
-	Vector3R m_origin;
-	Vector3R m_direction;
-	real     m_minT;
-	real     m_maxT;
-	Time     m_time;
+	Time m_time;
 };
 
 // In-header Implementations:
 
 inline Ray& Ray::reverse()
 {
-	m_direction.mulLocal(-1);
+	flip();
 
 	return *this;
-}
-
-inline void Ray::setMinT(const real t)
-{
-	m_minT = t;
-}
-
-inline void Ray::setMaxT(const real t)
-{
-	m_maxT = t;
 }
 
 inline void Ray::setTime(const Time& time)
@@ -127,49 +78,9 @@ inline void Ray::setTime(const Time& time)
 	m_time = time;
 }
 
-inline void Ray::setDirection(const Vector3R& dir)
-{
-	m_direction = dir;
-}
-
-inline void Ray::setOrigin(const Vector3R& pos)
-{
-	m_origin = pos;
-}
-
-inline Vector3R& Ray::getOrigin()
-{
-	return m_origin;
-}
-
-inline Vector3R& Ray::getDirection()
-{
-	return m_direction;
-}
-
-inline const Vector3R& Ray::getOrigin() const
-{
-	return m_origin;
-}
-
-inline const Vector3R& Ray::getDirection() const
-{
-	return m_direction;
-}
-
 inline const Time& Ray::getTime() const
 {
 	return m_time;
-}
-
-inline real Ray::getMinT() const
-{
-	return m_minT;
-}
-
-inline real Ray::getMaxT() const
-{
-	return m_maxT;
 }
 
 }// end namespace ph

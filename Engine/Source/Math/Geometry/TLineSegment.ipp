@@ -15,11 +15,11 @@ inline TLineSegment<T>::TLineSegment(
 {
 	setOrigin(origin);
 	setDirection(direction);
-	setRange(minT, maxT);
+	setSegment(minT, maxT);
 }
 
 template<typename T>
-inline TLineSegment<T>& TLineSegment<T>::reverse()
+inline TLineSegment<T>& TLineSegment<T>::flip()
 {
 	m_direction.mulLocal(T(-1));
 
@@ -81,6 +81,18 @@ template<typename T>
 inline T TLineSegment<T>::getMaxT() const
 {
 	return m_maxT;
+}
+
+template<typename T>
+inline TVector3<T> TLineSegment<T>::getTail() const
+{
+	return m_direction * m_minT + m_origin;
+}
+
+template<typename T>
+inline TVector3<T> TLineSegment<T>::getHead() const
+{
+	return m_direction * m_maxT + m_origin;
 }
 
 }// end namespace ph::math

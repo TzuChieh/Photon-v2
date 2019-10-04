@@ -50,12 +50,16 @@ void Transform::transformP(const Vector3R& point, Vector3R* const out_point) con
 
 void Transform::transform(const Ray& ray, Ray* const out_ray) const
 {
+	Vector3R rayOrigin, rayDirection;
 	real rayMinT, rayMaxT;
 	transformLineSegment(ray.getOrigin(), ray.getDirection(), 
 	                     ray.getMinT(), ray.getMaxT(), 
 	                     ray.getTime(),
-	                     &(out_ray->getOrigin()), &(out_ray->getDirection()),
+	                     &rayOrigin, &rayDirection,
 	                     &rayMinT, &rayMaxT);
+
+	out_ray->setOrigin(rayOrigin);
+	out_ray->setDirection(rayDirection);
 	out_ray->setMinT(rayMinT);
 	out_ray->setMaxT(rayMaxT);
 }

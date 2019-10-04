@@ -36,33 +36,33 @@ public:
 		T                  minT, 
 		T                  maxT);
 
-	/*! @brief Points this line in opposite direction.
+	/*! @brief Point the line in opposite direction.
 
 	This method essentially mirrored the line with respect to its origin, with
 	other attributes remain the same.
 	*/
-	TLineSegment& reverse();
+	TLineSegment& flip();
 
-	/*! @brief Sets the parametric distance where the segment starts.
+	/*! @brief Set the parametric distance where the segment starts.
 	*/
 	void setMinT(T t);
 
-	/*! @brief Sets the parametric distance where the segment ends.
+	/*! @brief Set the parametric distance where the segment ends.
 	*/
 	void setMaxT(T t);
 
-	/*! @brief Sets the parametric range where the segment extends.
+	/*! @brief Set the parametric range where the segment extends.
 
 	The range is [minT, maxT). This is equivalent to calling \ref setMinT(T) 
 	and \ref setMaxT(T) together.
 	*/
 	void setSegment(T minT, T maxT);
 
-	/*! @brief Sets the origin of this line.
+	/*! @brief Set the origin of the line.
 	*/
 	void setOrigin(const TVector3<T>& pos);
 
-	/*! @brief Sets the direction vector of this line.
+	/*! @brief Set the direction vector of the line.
 
 	Note that the vector does not need to be normalized.
 	*/
@@ -70,13 +70,22 @@ public:
 
 	/*! @name Getters
 
-	Basic getters for line attributes. See corresponding setters for more info.
+	Basic getters for line attributes. See corresponding setters (if present)
+	for more info.
 	*/
 	///@{
 	const TVector3<T>& getOrigin() const;
 	const TVector3<T>& getDirection() const;
 	T getMinT() const;
 	T getMaxT() const;
+
+	/*! @brief Get the coordinates on minimum parametric distance.
+	*/
+	TVector3<T> getTail() const;
+
+	/*! @brief Get the coordinates on maximum parametric distance.
+	*/
+	TVector3<T> getHead() const;
 	///@}
 
 private:
