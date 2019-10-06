@@ -6,7 +6,7 @@
 #include "Math/Function/TMathFunction2D.h"
 #include "Math/TArithmeticArray.h"
 #include "Core/Texture/texture_fwd.h"
-#include "Core/Bound/TAABB2D.h"
+#include "Math/Geometry/TAABB2D.h"
 
 #include <vector>
 #include <cstddef>
@@ -23,8 +23,11 @@ public:
 
 	using Pixel = TPixel<T>;
 
+	template<typename U>
+	using TAABB2D = math::TAABB2D<U>;
+
 	template<typename U = T>
-	static TPixel<U> getMonochromaticPixel(const U value);
+	static TPixel<U> getMonochromaticPixel(U value);
 
 public:
 	TFrame();

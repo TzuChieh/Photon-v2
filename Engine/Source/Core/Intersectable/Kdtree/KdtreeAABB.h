@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Core/Bound/TAABB3D.h"
+#include "Math/Geometry/TAABB3D.h"
+#include "Core/Ray.h"
 #include "Core/Intersectable/Kdtree/kdtree_core.h"
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
@@ -13,6 +14,8 @@ namespace ph
 class KdtreeAABB final
 {
 public:
+	using AABB3D = math::AABB3D;
+
 	KdtreeAABB();
 	explicit KdtreeAABB(const AABB3D& aabb);
 	KdtreeAABB(const Vector3R& minVertex, const Vector3R& maxVertex);

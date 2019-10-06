@@ -12,6 +12,7 @@
 #include "Actor/Geometry/GInfiniteSphere.h"
 #include "Core/Emitter/BackgroundEmitter.h"
 #include "Actor/Geometry/GEmpty.h"
+#include "Math/Geometry/TAABB3D.h"
 
 namespace ph
 {
@@ -98,7 +99,7 @@ std::shared_ptr<Geometry> DomeSource::genGeometry(CookingContext& context) const
 	real rootActorBoundRadius = 1000.0_r;
 	if(context.getVisualWorldInfo())
 	{
-		const AABB3D bound = context.getVisualWorldInfo()->getRootActorsBound();
+		const auto bound = context.getVisualWorldInfo()->getRootActorsBound();
 		for(auto vertex : bound.getVertices())
 		{
 			const real ri = vertex.length();

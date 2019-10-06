@@ -6,6 +6,7 @@
 #include "Math/TVector2.h"
 #include "Common/primitive_type.h"
 #include "Utility/Timer.h"
+#include "Math/Geometry/TAABB2D.h"
 
 #include <vector>
 
@@ -20,6 +21,9 @@ namespace ph
 class MetaRecordingProcessor : public ISensedRayProcessor
 {
 public:
+	template<typename T>
+	using TAABB2D = math::TAABB2D<T>;
+
 	MetaRecordingProcessor();
 	explicit MetaRecordingProcessor(ISensedRayProcessor* processor);
 

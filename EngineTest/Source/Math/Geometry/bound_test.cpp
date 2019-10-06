@@ -1,7 +1,7 @@
 #include "constants_for_test.h"
 
-#include <Core/Bound/TAABB3D.h>
-#include <Core/Bound/TAABB2D.h>
+#include <Math/Geometry/TAABB3D.h>
+#include <Math/Geometry/TAABB2D.h>
 #include <Math/TVector3.h>
 
 #include <gtest/gtest.h>
@@ -9,6 +9,7 @@
 #include <limits>
 
 using namespace ph;
+using namespace ph::math;
 
 TEST(BoundTest, IntersectingTwoAABB3DsAsVolumes)
 {
@@ -165,12 +166,12 @@ TEST(BoundTest, AABB2DCalculateAreas)
 	// trial 1
 
 	const TAABB2D<real> aabb1(Vector2R(-1, -1), Vector2R(1, 1));
-	EXPECT_NEAR(aabb1.calcArea(), 4.0_r, TEST_REAL_EPSILON);
+	EXPECT_NEAR(aabb1.getArea(), 4.0_r, TEST_REAL_EPSILON);
 
 	// trial 2
 
 	const TAABB2D<int32> aabb2(TVector2<int32>(-3, -1), TVector2<int32>(3, 1));
-	EXPECT_EQ(aabb2.calcArea(), 12);
+	EXPECT_EQ(aabb2.getArea(), 12);
 }
 
 TEST(BoundTest, AABB2DEquality)
@@ -188,14 +189,14 @@ TEST(BoundTest, AABB2DCalculateCenter)
 	// trial 1
 
 	const TAABB2D<int32> aabb1(TVector2<int32>(-2, -1), TVector2<int32>(1, 1));
-	const auto& center1 = aabb1.calcCenter();
+	const auto& center1 = aabb1.getCenter();
 	EXPECT_EQ(center1.x, (-2 + 1) / 2);
 	EXPECT_EQ(center1.y, (-1 + 1) / 2);
 
 	// trial 2
 
 	const TAABB2D<float32> aabb2(TVector2<float32>(-2, -1), TVector2<float32>(1, 1));
-	const auto& center2 = aabb2.calcCenter();
+	const auto& center2 = aabb2.getCenter();
 	EXPECT_FLOAT_EQ(center2.x, (-2.0f + 1.0f) / 2.0f);
 	EXPECT_FLOAT_EQ(center2.y, (-1.0f + 1.0f) / 2.0f);
 }

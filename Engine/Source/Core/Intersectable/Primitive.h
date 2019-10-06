@@ -3,7 +3,7 @@
 #include "Core/Intersectable/Intersectable.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
-#include "Core/Bound/TAABB3D.h"
+#include "Math/Geometry/TAABB3D.h"
 
 namespace ph
 {

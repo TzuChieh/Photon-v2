@@ -3,7 +3,6 @@
 #include "Core/Ray.h"
 #include "Math/TVector3.h"
 #include "Core/HitInfo.h"
-#include "Core/Bound/TAABB3D.h"
 #include "Common/assertion.h"
 
 namespace ph

@@ -1,7 +1,7 @@
 #include "Core/Intersectable/PSphere.h"
 #include "Common/assertion.h"
 #include "Math/constant.h"
-#include "Core/Bound/TAABB3D.h"
+#include "Math/Geometry/TAABB3D.h"
 #include "Math/math.h"
 #include "Math/TVector3.h"
 #include "Core/Ray.h"

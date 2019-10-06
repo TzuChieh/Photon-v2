@@ -74,7 +74,7 @@ inline SpiralScheduler::SpiralScheduler(
 	WorkScheduler(numWorkers, totalWorkUnit),
 
 	m_headSize     (tileSize),
-	m_headPos      (totalWorkUnit.getRegion().calcCenter().sub(m_headSize / 2)),
+	m_headPos      (totalWorkUnit.getRegion().getCenter().sub(m_headSize / 2)),
 	m_headFacing   (EFacing::POSITIVE_X),
 	m_currentCycles(0),
 	m_currentSteps (0)

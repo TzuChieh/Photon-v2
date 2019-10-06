@@ -237,7 +237,7 @@ HdrRgbFilm& HdrRgbFilm::operator = (HdrRgbFilm&& other)
 
 void HdrRgbFilm::resizeRadianceSensorBuffer()
 {
-	m_pixelRadianceSensors.resize(getEffectiveWindowPx().calcArea());
+	m_pixelRadianceSensors.resize(getEffectiveWindowPx().getArea());
 }
 
 void HdrRgbFilm::setPixel(

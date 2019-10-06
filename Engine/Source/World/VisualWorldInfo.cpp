@@ -3,7 +3,8 @@
 namespace ph
 {
 
-AABB3D VisualWorldInfo::getRootActorsBound() const
+auto VisualWorldInfo::getRootActorsBound() const
+	-> AABB3D
 {
 	return m_rootActorsBound;
 }

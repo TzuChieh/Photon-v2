@@ -4,15 +4,14 @@
 #include "Math/TVector3.h"
 #include "Math/math.h"
 #include "Math/constant.h"
+#include "Math/Geometry/TLineSegment.h"
 
 #include <vector>
 #include <string>
 #include <utility>
 
-namespace ph
+namespace ph::math
 {
-
-class Ray;
 
 template<typename T>
 class TAABB3D;
@@ -76,25 +75,25 @@ public:
 	*/
 	void expand(const TVector3<T>& amount);
 
-	/*! @brief Checks whether a ray intersects this volume.
+	/*! @brief Checks whether a line segment intersects this volume.
 
 	@return True if intersection is found, otherwise false.
 	*/
-	bool isIntersectingVolume(const Ray& ray) const;
+	bool isIntersectingVolume(const TLineSegment<T>& segment) const;
 
-	/*! @brief Checks whether a ray intersects this volume.
+	/*! @brief Checks whether a line segment intersects this volume.
 
-	@param[out] out_rayNearHitT Parametric distance where the ray starts to
-	intersect this volume. 
-	@param[out] out_rayFarHitT Parametric distance where the ray no longer
-	intersects this volume. 
+	@param[out] out_nearHitT Parametric distance where the line segment starts
+	to intersect this volume. 
+	@param[out] out_farHitT Parametric distance where the line segment no 
+	longer intersects this volume. 
 	@return True if intersection is found, otherwise false. When false is
-	returned, the value of out_rayNearHitT and out_rayFarHitT is unspecified.
+	returned, the value of out_nearHitT and out_farHitT is unspecified.
 	*/
 	bool isIntersectingVolume(
-		const Ray& ray, 
-		real*      out_rayNearHitT, 
-		real*      out_rayFarHitT) const;
+		const TLineSegment<T>& segment,
+		T*                     out_nearHitT, 
+		T*                     out_farHitT) const;
 
 	/*! @brief Checks whether another bound intersects this volume.
 
@@ -130,7 +129,7 @@ public:
 
 	/*! @brief Get the center coordinates of the bound.
 	*/
-	Vector3R getCentroid() const;
+	TVector3<T> getCentroid() const;
 
 	/*! @brief Get the side lengths of the bound.
 	*/
@@ -167,6 +166,6 @@ private:
 	TVector3<T> m_maxVertex;
 };
 
-}// end namespace ph
+}// end namespace ph::math
 
-#include "Core/Bound/TAABB3D.ipp"
+#include "Math/Geometry/TAABB3D.ipp"

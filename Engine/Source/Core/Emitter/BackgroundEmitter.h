@@ -5,7 +5,6 @@
 #include "Core/Texture/TTexture.h"
 #include "Math/Random/TPwcDistribution2D.h"
 #include "Math/TVector2.h"
-#include "Core/Bound/TAABB3D.h"
 
 #include <memory>
 #include <cstddef>

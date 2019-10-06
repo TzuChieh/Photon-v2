@@ -6,7 +6,7 @@
 #include "Core/Estimator/TEstimationArray.h"
 #include "Core/Estimator/Integrand.h"
 #include "Math/math_fwd.h"
-#include "Core/Bound/TAABB2D.h"
+#include "Math/Geometry/TAABB2D.h"
 #include "Core/Filmic/SampleFilter.h"
 
 #include <vector>
@@ -22,6 +22,9 @@ class TCameraMeasurementEstimator : public ISensedRayProcessor
 {
 public:
 	using Estimator = TIRayEstimator<EstimationType>;
+
+	template<typename T>
+	using TAABB2D = math::TAABB2D<T>;
 
 	TCameraMeasurementEstimator() = default;
 

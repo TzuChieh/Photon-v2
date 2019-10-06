@@ -265,7 +265,7 @@ void PMRenderer::renderWithStochasticProgressivePM()
 
 	logger.log("start generating viewpoints...");
 
-	std::vector<Viewpoint> viewpoints(getCropWindowPx().calcArea());
+	std::vector<Viewpoint> viewpoints(getCropWindowPx().getArea());
 	for(std::size_t y = 0; y < static_cast<std::size_t>(getCropWindowPx().getHeight()); ++y)
 	{
 		for(std::size_t x = 0; x < static_cast<std::size_t>(getCropWindowPx().getWidth()); ++x)

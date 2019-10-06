@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Core/Bound/TAABB2D.h"
+#include "Math/Geometry/TAABB2D.h"
 #include "Math/TVector2.h"
 #include "Frame/frame_fwd.h"
 #include "Common/assertion.h"
@@ -9,9 +9,13 @@
 
 namespace ph
 {
+
 class Film : public INoncopyable
 {
 public:
+	template<typename T>
+	using TAABB2D = math::TAABB2D<T>;
+
 	Film() = default;
 
 	Film(
@@ -75,7 +79,8 @@ inline TVector2<int64> Film::getEffectiveResPx() const
 	return {m_effectiveWindowPx.getWidth(), m_effectiveWindowPx.getHeight()};
 }
 
-inline const TAABB2D<int64>& Film::getEffectiveWindowPx() const
+inline auto Film::getEffectiveWindowPx() const
+	-> const TAABB2D<int64>&
 {
 	return m_effectiveWindowPx;
 }

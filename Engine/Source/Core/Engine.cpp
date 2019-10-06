@@ -4,6 +4,7 @@
 #include "Frame/Operator/JRToneMapping.h"
 #include "Core/Filmic/TSamplingFilm.h"
 #include "Common/Logger.h"
+#include "Math/Geometry/TAABB2D.h"
 
 namespace ph
 {
@@ -95,7 +96,7 @@ void Engine::asyncPeekFrame(
 	{
 		//m_frameProcessor.process(out_frame, m_id);
 		// HACK
-		JRToneMapping().operateLocal(out_frame, TAABB2D<uint32>(region));
+		JRToneMapping().operateLocal(out_frame, math::TAABB2D<uint32>(region));
 	}
 }
 

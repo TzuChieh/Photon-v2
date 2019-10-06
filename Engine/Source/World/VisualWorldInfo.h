@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Bound/TAABB3D.h"
+#include "Math/Geometry/TAABB3D.h"
 
 namespace ph
 {
@@ -14,6 +14,8 @@ class VisualWorldInfo final
 	// each child actor cooking iteration
 
 public:
+	using AABB3D = math::AABB3D;
+
 	AABB3D getRootActorsBound() const;
 
 	void setRootActorsBound(const AABB3D& bound);

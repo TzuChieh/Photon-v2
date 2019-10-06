@@ -9,9 +9,10 @@
 
 namespace ph
 {
+
 class Ray;
 
-class StaticAffineTransform final : public Transform
+class StaticAffineTransform : public Transform
 {
 	friend class StaticRigidTransform;
 

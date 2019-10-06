@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Bound/TAABB3D.h"
+#include "Math/Geometry/TAABB3D.h"
 
 namespace ph
 {
@@ -29,6 +29,8 @@ triangles and quads, and they are named after their capability "intersectable".
 class Intersectable
 {
 public:
+	using AABB3D = math::TAABB3D<real>;
+
 	virtual ~Intersectable();
 
 	/*! @brief Determine whether a given ray hits the object.

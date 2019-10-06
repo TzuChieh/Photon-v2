@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Bound/TAABB2D.h"
+#include "Math/Geometry/TAABB2D.h"
 #include "Math/TVector2.h"
 #include "Math/Random/TPwcDistribution1D.h"
 
@@ -13,6 +13,9 @@ template<typename T>
 class TPwcDistribution2D
 {
 public:
+	template<typename T>
+	using TAABB2D = math::TAABB2D<T>;
+
 	TPwcDistribution2D(
 		const TAABB2D<T>&            range, 
 		const T*                     weights, 

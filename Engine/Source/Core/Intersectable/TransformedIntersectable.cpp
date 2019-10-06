@@ -2,22 +2,24 @@
 #include "Core/Ray.h"
 #include "Core/HitDetail.h"
 #include "Core/HitProbe.h"
-#include "Core/Bound/TAABB3D.h"
+#include "Math/Geometry/TAABB3D.h"
 #include "Common/assertion.h"
 
 namespace ph
 {
 
-TransformedIntersectable::TransformedIntersectable(const Intersectable* intersectable,
-                                                   const Transform*     localToWorld, 
-                                                   const Transform*     worldToLocal) :
+TransformedIntersectable::TransformedIntersectable(
+	const Intersectable* const intersectable,
+	const Transform* const     localToWorld,
+	const Transform* const     worldToLocal) :
+
 	m_intersectable(intersectable),
 	m_localToWorld(localToWorld),
 	m_worldToLocal(worldToLocal)
 {
-	PH_ASSERT(intersectable != nullptr);
-	PH_ASSERT(localToWorld  != nullptr);
-	PH_ASSERT(worldToLocal  != nullptr);
+	PH_ASSERT(intersectable);
+	PH_ASSERT(localToWorld);
+	PH_ASSERT(worldToLocal);
 }
 
 TransformedIntersectable::TransformedIntersectable(const TransformedIntersectable& other) : 

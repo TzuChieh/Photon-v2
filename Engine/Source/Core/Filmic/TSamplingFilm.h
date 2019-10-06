@@ -2,7 +2,7 @@
 
 #include "Core/Filmic/Film.h"
 #include "Core/Filmic/filmic_fwd.h"
-#include "Core/Bound/TAABB2D.h"
+#include "Math/Geometry/TAABB2D.h"
 #include "Math/TVector2.h"
 #include "Frame/frame_fwd.h"
 #include "Core/Filmic/SampleFilter.h"
@@ -83,7 +83,8 @@ inline TVector2<float64> TSamplingFilm<Sample>::getSampleResPx() const
 }
 
 template<typename Sample>
-inline const TAABB2D<float64>& TSamplingFilm<Sample>::getSampleWindowPx() const
+inline auto TSamplingFilm<Sample>::getSampleWindowPx() const
+	-> const TAABB2D<float64>&
 {
 	return m_sampleWindowPx;
 }

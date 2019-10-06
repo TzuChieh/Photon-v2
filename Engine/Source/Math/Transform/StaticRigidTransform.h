@@ -13,7 +13,7 @@ namespace ph
 	A static transform that enforces object rigidity during the 
 	transformation process.
 */
-class StaticRigidTransform final : public RigidTransform
+class StaticRigidTransform : public RigidTransform
 {
 public:
 	static StaticRigidTransform makeIdentity();

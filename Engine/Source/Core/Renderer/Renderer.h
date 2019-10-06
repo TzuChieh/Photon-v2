@@ -5,7 +5,7 @@
 #include "Core/Renderer/RenderWork.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Camera/Camera.h"
-#include "Core/Bound/TAABB2D.h"
+#include "Math/Geometry/TAABB2D.h"
 #include "Core/Renderer/ERegionStatus.h"
 #include "Core/Renderer/Statistics.h"
 #include "Frame/frame_fwd.h"
@@ -34,6 +34,9 @@ class RenderWorker;
 class Renderer: public TCommandInterface<Renderer>
 {
 public:
+	template<typename T>
+	using TAABB2D = math::TAABB2D<T>;
+
 	virtual ~Renderer();
 
 	// Perform necessary updates for rendering. 
@@ -116,7 +119,8 @@ inline uint32 Renderer::getRenderHeightPx() const
 	return m_heightPx;
 }
 
-inline TAABB2D<int64> Renderer::getCropWindowPx() const
+inline auto Renderer::getCropWindowPx() const
+	-> TAABB2D<int64>
 {
 	return m_cropWindowPx;
 }

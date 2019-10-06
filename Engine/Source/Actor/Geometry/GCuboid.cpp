@@ -211,7 +211,8 @@ bool GCuboid::checkData(const PrimitiveBuildingMaterial& data, const real xLen, 
 	return true;
 }
 
-std::array<AABB2D, 6> GCuboid::genNormalizedFaceUVs()
+auto GCuboid::genNormalizedFaceUVs()
+	->std::array<AABB2D, 6>
 {
 	std::array<AABB2D, 6> faceUVs;
 	faceUVs.fill({{0, 0}, {1, 1}});

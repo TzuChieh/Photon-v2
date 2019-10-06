@@ -7,7 +7,7 @@
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
 #include "Utility/INoncopyable.h"
-#include "Core/Bound/TAABB2D.h"
+#include "Math/Geometry/TAABB2D.h"
 
 #include <memory>
 #include <array>

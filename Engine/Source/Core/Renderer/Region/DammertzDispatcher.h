@@ -121,7 +121,7 @@ inline DammertzDispatcher::TAnalyzer<MODE> DammertzDispatcher::createAnalyzer() 
 	return TAnalyzer<MODE>(
 		m_splitThreshold, 
 		m_terminateThreshold, 
-		static_cast<real>(m_fullRegion.calcArea()));
+		static_cast<real>(m_fullRegion.getArea()));
 }
 
 template<DammertzDispatcher::ERefineMode MODE>
@@ -194,8 +194,8 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIDPO
 			regionError += numerator * rcpDenominator;
 		}
 	}
-	regionError /= frameRegion.calcArea();
-	regionError *= fast_sqrt(frameRegion.calcArea() * m_rcpNumRegionPixels);
+	regionError /= frameRegion.getArea();
+	regionError *= fast_sqrt(frameRegion.getArea() * m_rcpNumRegionPixels);
 	PH_ASSERT_MSG(std::isfinite(regionError), std::to_string(regionError));
 
 	if(regionError >= m_splitThreshold)
@@ -206,7 +206,7 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIDPO
 	}
 	else if(regionError >= m_terminateThreshold)
 	{
-		if(finishedRegion.calcArea() >= MIN_REGION_AREA)
+		if(finishedRegion.getArea() >= MIN_REGION_AREA)
 		{
 			// error is small, splitted and added for more effort
 			const auto  maxDimension = finishedRegion.getExtents().maxDimension();
@@ -281,8 +281,8 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 	}
 
 	real regionError = summedEp;
-	regionError /= frameRegion.calcArea();
-	regionError *= fast_sqrt(frameRegion.calcArea() * m_rcpNumRegionPixels);
+	regionError /= frameRegion.getArea();
+	regionError *= fast_sqrt(frameRegion.getArea() * m_rcpNumRegionPixels);
 	PH_ASSERT_MSG(regionError > 0 && std::isfinite(regionError), std::to_string(regionError));
 
 	if(regionError >= m_splitThreshold)
@@ -293,7 +293,7 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 	}
 	else if(regionError >= m_terminateThreshold)
 	{
-		if(finishedRegion.calcArea() >= MIN_REGION_AREA)
+		if(finishedRegion.getArea() >= MIN_REGION_AREA)
 		{
 			// Split on the point that minimizes the difference of error 
 			// across two splitted regions. To find the point, we squared the
@@ -345,7 +345,7 @@ inline void DammertzDispatcher::addAnalyzedRegion(const Region& region)
 {
 	if(region.isArea())
 	{
-		if(region.calcArea() <= MIN_REGION_AREA)
+		if(region.getArea() <= MIN_REGION_AREA)
 		{
 			m_pendingRegions.push(WorkUnit(region, m_terminusDepthPerRegion));
 		}

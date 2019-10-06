@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Bound/TAABB2D.h"
+#include "Math/Geometry/TAABB2D.h"
 #include "Common/assertion.h"
 #include "Core/Renderer/Region/Region.h"
 
@@ -84,7 +84,7 @@ inline std::size_t WorkUnit::getVolume() const
 {
 	PH_ASSERT(m_region.isValid());
 
-	return static_cast<std::size_t>(m_region.calcArea()) * m_depth;
+	return static_cast<std::size_t>(m_region.getArea()) * m_depth;
 }
 
 inline float64 WorkUnit::getAspectRatio() const

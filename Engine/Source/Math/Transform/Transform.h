@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Math/math_fwd.h"
-#include "Core/Bound/TAABB3D.h"
+#include "Math/Geometry/TAABB3D.h"
 
 #include <memory>
 
@@ -15,6 +15,8 @@ class HitInfo;
 class Transform
 {
 public:
+	using AABB3D = math::TAABB3D<real>;
+
 	virtual ~Transform() = 0;
 
 	virtual std::unique_ptr<Transform> genInversed() const;

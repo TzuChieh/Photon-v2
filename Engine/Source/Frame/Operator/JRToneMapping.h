@@ -2,7 +2,7 @@
 
 #include "Frame/Operator/FrameOperator.h"
 #include "Common/primitive_type.h"
-#include "Core/Bound/TAABB2D.h"
+#include "Math/Geometry/TAABB2D.h"
 
 namespace ph
 {
@@ -18,6 +18,9 @@ namespace ph
 class JRToneMapping : public FrameOperator
 {
 public:
+	template<typename T>
+	using TAABB2D = math::TAABB2D<T>;
+
 	JRToneMapping();
 
 	void operate(HdrRgbFrame& frame) const override;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Core/Bound/TAABB3D.h"
+#include "Math/Geometry/TAABB3D.h"
 
 namespace ph
 {
@@ -9,6 +9,8 @@ namespace ph
 class BvhLinearNode final
 {
 public:
+	using AABB3D = math::AABB3D;
+
 	static BvhLinearNode makeInternal(const AABB3D& nodeAABB, std::size_t secondChildOffset, int32 splittedAxis);
 	static BvhLinearNode makeLeaf(const AABB3D& nodeAABB, std::size_t primitivesOffset, int32 numPrimitives);
 

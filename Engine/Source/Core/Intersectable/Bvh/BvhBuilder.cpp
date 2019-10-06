@@ -3,6 +3,7 @@
 #include "Core/Intersectable/Intersectable.h"
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
+#include "Math/Geometry/TAABB3D.h"
 
 #include <iostream>
 #include <algorithm>
@@ -10,11 +11,13 @@
 namespace ph
 {
 
+using namespace math;
+
 class BvhSahBucket final
 {
 public:
-	AABB3D      aabb;
-	std::size_t numIntersectables;
+	AABB3D aabb;
+	std::size_t  numIntersectables;
 
 	BvhSahBucket() : aabb(), numIntersectables(0) {}
 	bool isEmpty() { return numIntersectables == 0; }

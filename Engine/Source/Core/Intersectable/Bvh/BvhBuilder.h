@@ -3,6 +3,7 @@
 #include "Core/Intersectable/Bvh/EBvhType.h"
 #include "Core/Intersectable/Bvh/BvhIntersectableInfo.h"
 #include "Core/Intersectable/Bvh/BvhLinearNode.h"
+#include "Math/Geometry/TAABB3D.h"
 
 #include <memory>
 #include <vector>
@@ -29,6 +30,8 @@ public:
 	                                    std::vector<const Intersectable*>* out_intersectables);
 
 private:
+	using AABB3D = math::AABB3D;
+
 	EBvhType m_type;
 	std::vector<std::unique_ptr<BvhInfoNode>> m_infoNodes;
 	std::vector<BvhLinearNode> m_linearNodes;

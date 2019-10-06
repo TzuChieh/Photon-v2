@@ -241,7 +241,7 @@ RenderState EqualSamplingRenderer::asyncQueryRenderState()
 		static_cast<float32>(m_renderWorks.size() * totalNumSamples) / static_cast<float32>(totalElapsedMs) : 0.0f;
 
 	RenderState state;
-	state.setIntegerState(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getCropWindowPx().calcArea()));
+	state.setIntegerState(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getCropWindowPx().getArea()));
 	state.setRealState(0, samplesPerMs * 1000);
 	return state;
 }

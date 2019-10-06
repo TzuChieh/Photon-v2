@@ -3,7 +3,7 @@
 #include "Common/assertion.h"
 #include "Math/TVector3.h"
 #include "Core/Intersectable/IndexedKdtree/TIndexedKdtreeNode.h"
-#include "Core/Bound/TAABB3D.h"
+#include "Math/Geometry/TAABB3D.h"
 #include "Utility/utility.h"
 
 #include <vector>
@@ -24,7 +24,8 @@ template<typename Item, typename Index, typename PointCalculator>
 class TIndexedPointKdtree
 {
 public:
-	using Node = TIndexedKdtreeNode<Index, false>;
+	using Node   = TIndexedKdtreeNode<Index, false>;
+	using AABB3D = math::AABB3D;
 
 	TIndexedPointKdtree(std::size_t maxNodeItems, const PointCalculator& pointCalculator);
 
@@ -495,11 +496,12 @@ inline std::size_t TIndexedPointKdtree<Item, Index, PointCalculator>::
 }
 
 template<typename Item, typename Index, typename PointCalculator>
-inline AABB3D TIndexedPointKdtree<Item, Index, PointCalculator>::
+inline auto TIndexedPointKdtree<Item, Index, PointCalculator>::
 	calcPointsAABB(
 		const Index*                 pointIndices,
 		const std::size_t            numPoints,
 		const std::vector<Vector3R>& pointBuffer)
+	-> AABB3D
 {
 	PH_ASSERT(pointIndices && numPoints > 0);
 

@@ -6,7 +6,7 @@
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Renderer/Sampling/ISensedRayProcessor.h"
 #include "Math/TVector2.h"
-#include "Core/Bound/TAABB2D.h"
+#include "Math/Geometry/TAABB2D.h"
 #include "Core/Filmic/SamplingFilmDimensions.h"
 
 #include <atomic>
@@ -20,6 +20,9 @@ class Camera;
 class CameraSamplingWork : public RenderWork, public INoncopyable
 {
 public:
+	template<typename T>
+	using TAABB2D = math::TAABB2D<T>;
+
 	CameraSamplingWork();
 	explicit CameraSamplingWork(const Camera* camera);
 	CameraSamplingWork(CameraSamplingWork&& other);

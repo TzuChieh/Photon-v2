@@ -4,7 +4,7 @@
 #include "Core/Ray.h"
 #include "Core/HitProbe.h"
 #include "Core/HitDetail.h"
-#include "Core/Bound/TAABB3D.h"
+#include "Math/Geometry/TAABB3D.h"
 #include "Math/Random.h"
 #include "Core/Sample/PositionSample.h"
 #include "Math/TVector2.h"

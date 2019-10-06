@@ -16,6 +16,7 @@
 #include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
 #include "Math/Mapping/UniformRectangle.h"
+#include "Math/Geometry/TAABB2D.h"
 
 namespace ph
 {
@@ -42,10 +43,10 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 	PH_ASSERT(m_handler);
 
 	const Samples2DStage filmStage = m_sampleGenerator->declare2DStage(
-		m_filmRegion.calcArea(),
+		m_filmRegion.getArea(),
 		{static_cast<std::size_t>(m_filmRegion.getWidth()), static_cast<std::size_t>(m_filmRegion.getHeight())});
 
-	const TAABB2D<real> rRegion(m_filmRegion);
+	const math::TAABB2D<real> rRegion(m_filmRegion);
 	const Vector2R rFilmSize(m_filmSize);
 
 	while(m_sampleGenerator->prepareSampleBatch())

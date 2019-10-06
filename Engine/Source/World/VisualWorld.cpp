@@ -74,7 +74,7 @@ void VisualWorld::cook()
 	cookActors(cookingContext);
 
 	VisualWorldInfo visualWorldInfo;
-	AABB3D bound = calcIntersectableBound(m_cookedActorStorage);
+	math::AABB3D bound = calcIntersectableBound(m_cookedActorStorage);
 
 	// TODO: should union with camera's bound instead
 	bound.unionWith(m_cameraPos);
@@ -205,18 +205,18 @@ const Scene& VisualWorld::getScene() const
 	return m_scene;
 }
 
-AABB3D VisualWorld::calcIntersectableBound(const CookedDataStorage& storage)
+math::AABB3D VisualWorld::calcIntersectableBound(const CookedDataStorage& storage)
 {
 	if(storage.numIntersectables() == 0)
 	{
-		return AABB3D();
+		return math::AABB3D();
 	}
 
-	AABB3D fullBound;
+	math::AABB3D fullBound;
 	storage.intersectables().begin()->get()->calcAABB(&fullBound);
 	for(const auto& intersectable : storage.intersectables())
 	{
-		AABB3D bound;
+		math::AABB3D bound;
 		intersectable->calcAABB(&bound);
 		fullBound.unionWith(bound);
 	}

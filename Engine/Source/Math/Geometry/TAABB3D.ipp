@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Core/Bound/TAABB3D.h"
-#include "Core/Ray.h"
+#include "Math/Geometry/TAABB3D.h"
 #include "Common/assertion.h"
 
 #include <algorithm>
 #include <cmath>
+#include <type_traits>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
@@ -39,7 +39,7 @@ inline TAABB3D<T>::TAABB3D(const TVector3<T>& minVertex, const TVector3<T>& maxV
 
 // REFACTOR: this method is duplicated with isIntersectingVolume(3)
 template<typename T>
-inline bool TAABB3D<T>::isIntersectingVolume(const Ray& ray) const
+inline bool TAABB3D<T>::isIntersectingVolume(const TLineSegment<T>& segment) const
 {
 	// The starting ray interval (tMin, tMax) will be incrementally intersect
 	// against each ray-slab hitting interval (t1, t2) and be updated with the
@@ -135,11 +135,12 @@ inline bool TAABB3D<T>::isIntersectingVolume(const Ray& ray) const
 */
 template<typename T>
 inline bool TAABB3D<T>::isIntersectingVolume(
-	const Ray&  ray,
-	real* const out_rayNearHitT, 
-	real* const out_rayFarHitT) const
+	const TLineSegment<T>& segment,
+	T* const               out_nearHitT,
+	T* const               out_farHitT) const
 {
-	PH_ASSERT(out_rayNearHitT && out_rayFarHitT);
+	PH_ASSERT(out_nearHitT);
+	PH_ASSERT(out_farHitT);
 
 	// The starting ray interval (tMin, tMax) will be incrementally intersect
 	// against each ray-slab hitting interval (t1, t2) and be updated with the
@@ -148,16 +149,16 @@ inline bool TAABB3D<T>::isIntersectingVolume(
 	// Note that the following implementation is NaN-aware 
 	// (tMin & tMax will never have NaNs)
 
-	PH_ASSERT(!std::isnan(ray.getMinT()) && !std::isnan(ray.getMaxT()));
+	PH_ASSERT(!std::isnan(segment.getMinT()) && !std::isnan(segment.getMaxT()));
 
-	real tMin = ray.getMinT();
-	real tMax = ray.getMaxT();
+	T tMin = segment.getMinT();
+	T tMax = segment.getMaxT();
 
 	// find ray-slab hitting interval in x-axis then intersect with (tMin, tMax)
 
-	real reciDir = 1.0_r / static_cast<real>(ray.getDirection().x);
-	real t1 = (m_minVertex.x - static_cast<real>(ray.getOrigin().x)) * reciDir;
-	real t2 = (m_maxVertex.x - static_cast<real>(ray.getOrigin().x)) * reciDir;
+	T rcpDir = T(1) / segment.getDirection().x;
+	T t1     = (m_minVertex.x - segment.getOrigin().x) * rcpDir;
+	T t2     = (m_maxVertex.x - segment.getOrigin().x) * rcpDir;
 
 	if(t1 < t2)
 	{
@@ -177,9 +178,9 @@ inline bool TAABB3D<T>::isIntersectingVolume(
 
 	// find ray-slab hitting interval in y-axis then intersect with (tMin, tMax)
 
-	reciDir = 1.0_r / static_cast<real>(ray.getDirection().y);
-	t1 = (m_minVertex.y - static_cast<real>(ray.getOrigin().y)) * reciDir;
-	t2 = (m_maxVertex.y - static_cast<real>(ray.getOrigin().y)) * reciDir;
+	rcpDir = T(1) / segment.getDirection().y;
+	t1     = (m_minVertex.y - segment.getOrigin().y) * rcpDir;
+	t2     = (m_maxVertex.y - segment.getOrigin().y) * rcpDir;
 
 	if(t1 < t2)
 	{
@@ -199,9 +200,9 @@ inline bool TAABB3D<T>::isIntersectingVolume(
 
 	// find ray-slab hitting interval in z-axis then intersect with (tMin, tMax)
 
-	reciDir = 1.0_r / static_cast<real>(ray.getDirection().z);
-	t1 = (m_minVertex.z - static_cast<real>(ray.getOrigin().z)) * reciDir;
-	t2 = (m_maxVertex.z - static_cast<real>(ray.getOrigin().z)) * reciDir;
+	rcpDir = T(1) / segment.getDirection().z;
+	t1     = (m_minVertex.z - segment.getOrigin().z) * rcpDir;
+	t2     = (m_maxVertex.z - segment.getOrigin().z) * rcpDir;
 
 	if(t1 < t2)
 	{
@@ -219,8 +220,8 @@ inline bool TAABB3D<T>::isIntersectingVolume(
 		return false;
 	}
 
-	*out_rayNearHitT = tMin;
-	*out_rayFarHitT  = tMax;
+	*out_nearHitT = tMin;
+	*out_farHitT  = tMax;
 
 	return true;
 }
@@ -286,9 +287,16 @@ inline const TVector3<T>& TAABB3D<T>::getMaxVertex() const
 }
 
 template<typename T>
-inline Vector3R TAABB3D<T>::getCentroid() const
+inline TVector3<T> TAABB3D<T>::getCentroid() const
 {
-	return Vector3R(m_minVertex.add(m_maxVertex)).mulLocal(0.5_r);
+	if constexpr(std::is_integral_v<T>)
+	{
+		return m_minVertex.add(m_maxVertex).div(T(2));
+	}
+	else
+	{
+		return m_minVertex.add(m_maxVertex).mul(T(0.5));
+	}
 }
 
 template<typename T>
@@ -340,7 +348,7 @@ template<typename T>
 inline bool TAABB3D<T>::isFiniteVolume() const
 {
 	const T volume = getVolume();
-	return volume > 0 && !std::isinf(volume);
+	return volume > T(0) && !std::isinf(volume);
 }
 
 template<typename T>
@@ -365,4 +373,4 @@ inline bool TAABB3D<T>::equals(const TAABB3D& other) const
 	       this->m_maxVertex.equals(other.m_maxVertex);
 }
 
-}// end namespace ph
+}// end namespace ph::math

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Bound/TAABB3D.h"
+#include "Math/Geometry/TAABB3D.h"
 #include "Core/Intersectable/IndexedKdtree/TIndexedKdtreeNode.h"
 #include "Utility/utility.h"
 #include "Core/Intersectable/IndexedKdtree/IndexedItemEndpoint.h"
@@ -24,6 +24,8 @@ class TIndexedKdtree
 {
 public:
 	using Node = TIndexedKdtreeNode<Index>;
+
+	using AABB3D = math::AABB3D;
 
 	TIndexedKdtree(
 		int traversalCost, 

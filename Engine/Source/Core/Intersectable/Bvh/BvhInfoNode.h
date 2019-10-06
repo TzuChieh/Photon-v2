@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Core/Bound/TAABB3D.h"
+#include "Math/Geometry/TAABB3D.h"
 #include "Core/Intersectable/Bvh/BvhIntersectableInfo.h"
 
 #include <vector>
@@ -15,6 +15,8 @@ class Intersectable;
 class BvhInfoNode final
 {
 public:
+	using AABB3D = math::AABB3D;
+
 	static BvhInfoNode makeBinaryInternal(const BvhInfoNode* child1, const BvhInfoNode* child2, int32 splitAxis);
 	static BvhInfoNode makeBinaryLeaf(const std::vector<BvhIntersectableInfo>& leafIntersectables, 
 	                                  const AABB3D& leafAabb);

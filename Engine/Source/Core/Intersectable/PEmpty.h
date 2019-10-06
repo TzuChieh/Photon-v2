@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Intersectable/Primitive.h"
-#include "Core/Bound/TAABB3D.h"
+#include "Math/Geometry/TAABB3D.h"
 #include "Common/assertion.h"
 
 namespace ph

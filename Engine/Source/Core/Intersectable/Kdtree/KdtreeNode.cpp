@@ -11,6 +11,8 @@
 namespace ph
 {
 
+using namespace math;
+
 constexpr float64 KdtreeNode::COST_TRAVERSAL;
 constexpr float64 KdtreeNode::COST_INTERSECTION;
 

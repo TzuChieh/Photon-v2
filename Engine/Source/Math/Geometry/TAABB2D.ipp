@@ -1,12 +1,13 @@
 #pragma once
 
-#include "Core/Bound/TAABB2D.h"
+#include "Math/Geometry/TAABB2D.h"
 #include "Common/assertion.h"
 #include "Math/math.h"
 
 #include <string>
+#include <type_traits>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
@@ -57,7 +58,7 @@ inline bool TAABB2D<T>::isIntersectingRange(const TVector2<T>& point) const
 }
 
 template<typename T>
-inline T TAABB2D<T>::calcArea() const
+inline T TAABB2D<T>::getArea() const
 {
 	PH_ASSERT_MSG(isValid(), toString());
 
@@ -101,10 +102,16 @@ inline TVector2<T> TAABB2D<T>::getExtents() const
 }
 
 template<typename T>
-inline TVector2<T> TAABB2D<T>::calcCenter() const
+inline TVector2<T> TAABB2D<T>::getCenter() const
 {
-	return TVector2<T>((minVertex.x + maxVertex.x) / 2, 
-	                   (minVertex.y + maxVertex.y) / 2);
+	if constexpr(std::is_integral_v<T>)
+	{
+		return minVertex.add(maxVertex).div(T(2));
+	}
+	else
+	{
+		return minVertex.add(maxVertex).mul(T(0.5));
+	}
 }
 
 template<typename T>
@@ -113,8 +120,10 @@ inline std::pair<TAABB2D<T>, TAABB2D<T>> TAABB2D<T>::getSplitted(const constant:
 	PH_ASSERT_MSG(axis == constant::X_AXIS || axis == constant::Y_AXIS, std::to_string(axis));
 	PH_ASSERT_IN_RANGE_INCLUSIVE(splitPoint, minVertex[axis], maxVertex[axis]);
 
-	return {TAABB2D(minVertex, TVector2<T>(maxVertex).set(axis, splitPoint)),
-	        TAABB2D(TVector2<T>(minVertex).set(axis, splitPoint), maxVertex)};
+	return {
+		TAABB2D(minVertex, TVector2<T>(maxVertex).set(axis, splitPoint)),
+		TAABB2D(TVector2<T>(minVertex).set(axis, splitPoint), maxVertex)
+	};
 }
 
 template<typename T>
@@ -160,4 +169,4 @@ inline std::string TAABB2D<T>::toString() const
 	return "AABB: min" + minVertex.toString() + ", max" + maxVertex.toString();
 }
 
-}// end namespace ph
+}// end namespace ph::math

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Bound/TAABB3D.h"
+#include "Math/Geometry/TAABB3D.h"
 #include "Math/TVector3.h"
 
 #include <cstddef>
@@ -14,7 +14,7 @@ class BvhIntersectableInfo final
 {
 public:
 	std::size_t          index;
-	AABB3D               aabb;
+	math::AABB3D         aabb;
 	Vector3R             aabbCentroid;
 	const Intersectable* intersectable;
 

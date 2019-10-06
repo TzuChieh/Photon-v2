@@ -21,9 +21,9 @@ TransformedPrimitive::TransformedPrimitive(
 	m_localToWorld(localToWorld),
 	m_worldToLocal(worldToLocal)
 {
-	PH_ASSERT(primitive    != nullptr);
-	PH_ASSERT(localToWorld != nullptr);
-	PH_ASSERT(worldToLocal != nullptr);
+	PH_ASSERT(primitive);
+	PH_ASSERT(localToWorld);
+	PH_ASSERT(worldToLocal);
 }
 
 real TransformedPrimitive::calcPositionSamplePdfA(const Vector3R& position) const

@@ -55,7 +55,7 @@ TEST(TFrameTest, FillRegionWithSpecificValue)
 {
 	using namespace ph;
 
-	TAABB2D<uint32> region = {{2, 3}, {6, 8}};
+	math::TAABB2D<uint32> region = {{2, 3}, {6, 8}};
 
 	TFrame<float, 2> frame(10, 10);
 	frame.fill(0);

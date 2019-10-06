@@ -3,7 +3,7 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
-#include "Core/Bound/TAABB2D.h"
+#include "Math/Geometry/TAABB2D.h"
 
 #include <array>
 
@@ -13,6 +13,8 @@ namespace ph
 class GCuboid : public Geometry, public TCommandInterface<GCuboid>
 {
 public:
+	using AABB2D = math::AABB2D;
+
 	GCuboid();
 	explicit GCuboid(real sideLength);
 	GCuboid(real sideLength, const Vector3R& offset);

@@ -7,7 +7,7 @@
 #include <string>
 #include <utility>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
@@ -33,13 +33,13 @@ public:
 	bool isIntersectingArea(const TAABB2D& other) const;
 	bool isIntersectingArea(const TVector2<T>& point) const;
 	bool isIntersectingRange(const TVector2<T>& point) const;
-	T calcArea() const;
+	T getArea() const;
 	TAABB2D& unionWith(const TAABB2D& other);
 	TAABB2D& intersectWith(const TAABB2D& other);
 	T getWidth() const;
 	T getHeight() const;
 	TVector2<T> getExtents() const;
-	TVector2<T> calcCenter() const;
+	TVector2<T> getCenter() const;
 	std::pair<TAABB2D, TAABB2D> getSplitted(constant::AxisIndexType axis, T splitPoint) const;
 	TAABB2D getUnioned(const TAABB2D& other) const;
 	TAABB2D getIntersected(const TAABB2D& other) const;
@@ -53,6 +53,6 @@ public:
 	bool equals(const TAABB2D& other) const;
 };
 
-}// end namespace ph
+}// end namespace ph::math
 
-#include "Core/Bound/TAABB2D.ipp"
+#include "Math/Geometry/TAABB2D.ipp"

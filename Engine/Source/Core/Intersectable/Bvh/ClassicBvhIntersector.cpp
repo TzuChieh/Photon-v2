@@ -4,7 +4,7 @@
 #include "Actor/CookedDataStorage.h"
 #include "Core/Intersectable/Bvh/BvhInfoNode.h"
 #include "Core/Intersectable/Bvh/BvhBuilder.h"
-#include "Core/Bound/TAABB3D.h"
+#include "Math/Geometry/TAABB3D.h"
 
 #include <iostream>
 #include <limits>

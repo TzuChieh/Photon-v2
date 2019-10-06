@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Core/Bound/TAABB2D.h"
+#include "Math/Geometry/TAABB2D.h"
 #include "Core/Renderer/RenderWork.h"
 
 namespace ph
@@ -13,7 +13,7 @@ class RenderWorker;
 class RendererProxy final
 {
 public:
-	typedef TAABB2D<int64> Region;
+	using Region = math::TAABB2D<int64>;
 
 public:
 	RendererProxy();
