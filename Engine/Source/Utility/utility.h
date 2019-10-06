@@ -37,6 +37,7 @@ inline decltype(auto) regular_access(T& t)
 	}
 }
 
+// TODO: replace this with C++20 std::bit_cast
 template<typename Source, typename Target>
 inline Target bitwise_cast(const Source source)
 {

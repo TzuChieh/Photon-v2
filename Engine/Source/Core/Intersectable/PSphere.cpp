@@ -14,7 +14,7 @@
 #include "Core/Sample/PositionSample.h"
 #include "Math/Mapping/UniformUnitSphere.h"
 #include "Math/TOrthonormalBasis3.h"
-#include "Math/Geometry/sphere.h"
+#include "Math/Geometry/TSphere.h"
 
 #include <algorithm>
 #include <cmath>
@@ -33,10 +33,7 @@ PSphere::PSphere(const PrimitiveMetadata* const metadata, const real radius) :
 bool PSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	real hitT;
-	if(!math::sphere::is_intersecting(
-		ray, 
-		Vector3R(0, 0, 0), m_radius, 
-		&hitT))
+	if(!math::TSphere(m_radius).isIntersecting(ray, &hitT))
 	{
 		return false;
 	}
@@ -180,9 +177,8 @@ void PSphere::genPositionSample(PositionSample* const out_sample) const
 	PH_ASSERT(out_sample);
 	PH_ASSERT(m_metadata);
 
-	out_sample->normal = math::sphere::uniform_unit_uv_to_position_archimedes(
-		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()},
-		1.0_r);
+	out_sample->normal = math::TSphere(m_radius).sampleToSurfaceArchimedes(
+		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()});
 
 	out_sample->position = out_sample->normal.mul(m_radius);
 
@@ -197,7 +193,7 @@ void PSphere::genPositionSample(PositionSample* const out_sample) const
 
 real PSphere::calcExtendedArea() const
 {
-	return math::sphere::area(m_radius);
+	return math::TSphere(m_radius).getArea();
 }
 
 }// end namespace ph

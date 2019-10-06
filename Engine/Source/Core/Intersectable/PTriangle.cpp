@@ -9,7 +9,6 @@
 #include "Core/Sample/PositionSample.h"
 #include "Math/TVector2.h"
 #include "Math/math.h"
-#include "Math/Geometry/triangle.h"
 
 #include <limits>
 #include <iostream>
@@ -20,11 +19,13 @@ namespace ph
 {
 
 PTriangle::PTriangle(const PrimitiveMetadata* const metadata, const Vector3R& vA, const Vector3R& vB, const Vector3R& vC) :
+
 	Primitive(metadata),
-	m_vA(vA), m_vB(vB), m_vC(vC), 
+
+	m_triangle(vA, vB, vC),
 	m_uvwA(0, 0, 0), m_uvwB(1, 0, 0), m_uvwC(0, 1, 0)
 {
-	m_faceNormal = math::triangle::safe_face_normal(m_vA, m_vB, m_vC, Vector3R(0, 1, 0));
+	m_faceNormal = m_triangle.getFaceNormalSafe(Vector3R(0, 1, 0));
 	PH_ASSERT(m_faceNormal.isFinite() && m_faceNormal.length() > 0.0_r);
 
 	m_nA = m_faceNormal;
@@ -36,10 +37,7 @@ bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	real hitT;
 	Vector3R hitBaryABCs;
-	if(!math::triangle::is_intersecting_watertight(
-		ray,
-		m_vA, m_vB, m_vC,
-		&hitT, &hitBaryABCs))
+	if(!m_triangle.isIntersecting(ray, &hitT, &hitBaryABCs))
 	{
 		return false;
 	}
@@ -88,8 +86,8 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 	const real uvDet = dUVab.x * dUVac.y - dUVab.y * dUVac.x;
 	if(uvDet != 0.0_r)
 	{
-		const auto[eAB, eAC] = math::triangle::edge_vectors(m_vA, m_vB, m_vC);
-		const real rcpUvDet = 1.0_r / uvDet;
+		const auto [eAB, eAC] = m_triangle.getEdgeVectors();
+		const real rcpUvDet   = 1.0_r / uvDet;
 
 		dPdU = eAB.mul(dUVac.y).add(eAC.mul(-dUVab.y)).mulLocal(rcpUvDet);
 		dPdV = eAB.mul(-dUVac.x).add(eAC.mul(dUVab.x)).mulLocal(rcpUvDet);
@@ -114,23 +112,23 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 
 void PTriangle::calcAABB(AABB3D* const out_aabb) const
 {
-	real minX = m_vA.x, maxX = m_vA.x,
-	     minY = m_vA.y, maxY = m_vA.y,
-	     minZ = m_vA.z, maxZ = m_vA.z;
+	real minX = m_triangle.getVa().x, maxX = m_triangle.getVa().x,
+	     minY = m_triangle.getVa().y, maxY = m_triangle.getVa().y,
+	     minZ = m_triangle.getVa().z, maxZ = m_triangle.getVa().z;
 
-	if     (m_vB.x > maxX) maxX = m_vB.x;
-	else if(m_vB.x < minX) minX = m_vB.x;
-	if     (m_vB.y > maxY) maxY = m_vB.y;
-	else if(m_vB.y < minY) minY = m_vB.y;
-	if     (m_vB.z > maxZ) maxZ = m_vB.z;
-	else if(m_vB.z < minZ) minZ = m_vB.z;
+	if     (m_triangle.getVb().x > maxX) maxX = m_triangle.getVb().x;
+	else if(m_triangle.getVb().x < minX) minX = m_triangle.getVb().x;
+	if     (m_triangle.getVb().y > maxY) maxY = m_triangle.getVb().y;
+	else if(m_triangle.getVb().y < minY) minY = m_triangle.getVb().y;
+	if     (m_triangle.getVb().z > maxZ) maxZ = m_triangle.getVb().z;
+	else if(m_triangle.getVb().z < minZ) minZ = m_triangle.getVb().z;
 
-	if     (m_vC.x > maxX) maxX = m_vC.x;
-	else if(m_vC.x < minX) minX = m_vC.x;
-	if     (m_vC.y > maxY) maxY = m_vC.y;
-	else if(m_vC.y < minY) minY = m_vC.y;
-	if     (m_vC.z > maxZ) maxZ = m_vC.z;
-	else if(m_vC.z < minZ) minZ = m_vC.z;
+	if     (m_triangle.getVc().x > maxX) maxX = m_triangle.getVc().x;
+	else if(m_triangle.getVc().x < minX) minX = m_triangle.getVc().x;
+	if     (m_triangle.getVc().y > maxY) maxY = m_triangle.getVc().y;
+	else if(m_triangle.getVc().y < minY) minY = m_triangle.getVc().y;
+	if     (m_triangle.getVc().z > maxZ) maxZ = m_triangle.getVc().z;
+	else if(m_triangle.getVc().z < minZ) minZ = m_triangle.getVc().z;
 
 	out_aabb->setMinVertex(Vector3R(minX - TRIANGLE_EPSILON, minY - TRIANGLE_EPSILON, minZ - TRIANGLE_EPSILON));
 	out_aabb->setMaxVertex(Vector3R(maxX + TRIANGLE_EPSILON, maxY + TRIANGLE_EPSILON, maxZ + TRIANGLE_EPSILON));
@@ -141,9 +139,9 @@ void PTriangle::calcAABB(AABB3D* const out_aabb) const
 //
 bool PTriangle::isIntersectingVolumeConservative(const AABB3D& volume) const
 {
-	Vector3R tvA = m_vA;
-	Vector3R tvB = m_vB;
-	Vector3R tvC = m_vC;
+	Vector3R tvA = m_triangle.getVa();
+	Vector3R tvB = m_triangle.getVb();
+	Vector3R tvC = m_triangle.getVc();
 
 	// move the origin to the volume/AABB's center
 	const Vector3R aabbCenter(volume.getMinVertex().add(volume.getMaxVertex()).mulLocal(0.5_r));
@@ -265,11 +263,10 @@ bool PTriangle::isIntersectingVolumeConservative(const AABB3D& volume) const
 
 void PTriangle::genPositionSample(PositionSample* const out_sample) const
 {
-	const Vector3R abc = math::triangle::uniform_unit_uv_to_barycentric_osada(
-		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()}, 
-		m_vA, m_vB, m_vC);
+	const Vector3R abc = m_triangle.sampleToBarycentricOsada(
+		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()});
 
-	const Vector3R localPos = Vector3R::weightedSum(m_vA, abc.x, m_vB, abc.y, m_vC, abc.z);
+	const Vector3R localPos = m_triangle.barycentricToSurface(abc);
 	//Vector3R worldPos;
 	//m_metadata->localToWorld.transformP(localPos, &worldPos);
 	//out_sample->position = worldPos;
@@ -293,12 +290,12 @@ void PTriangle::genPositionSample(PositionSample* const out_sample) const
 
 real PTriangle::calcExtendedArea() const
 {
-	return math::triangle::area(m_vA, m_vB, m_vC);
+	return m_triangle.getArea();
 }
 
 Vector3R PTriangle::calcBarycentricCoord(const Vector3R& position) const
 {
-	return math::triangle::position_to_barycentric(position, m_vA, m_vB, m_vC);
+	return m_triangle.surfaceToBarycentric(position);
 }
 
 real PTriangle::calcPositionSamplePdfA(const Vector3R& position) const

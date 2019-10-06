@@ -3,6 +3,7 @@
 #include "Math/TVector3.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Common/assertion.h"
+#include "Math/Geometry/TWatertightTriangle.h"
 
 namespace ph
 {
@@ -78,9 +79,7 @@ public:
 	}
 
 private:
-	Vector3R m_vA;
-	Vector3R m_vB;
-	Vector3R m_vC;
+	math::TWatertightTriangle<real> m_triangle;
 
 	Vector3R m_nA;
 	Vector3R m_nB;
