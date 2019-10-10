@@ -6,7 +6,7 @@
 namespace ph
 {
 
-class PSphere final : public Primitive
+class PSphere : public Primitive
 {
 public:
 	explicit PSphere(const PrimitiveMetadata* metadata, real radius);
@@ -18,9 +18,9 @@ public:
 		HitProbe&  probe,           
 		HitDetail* out_detail) const override;
 
-	bool isIntersectingVolumeConservative(const AABB3D& volume) const override;
-	void calcAABB(AABB3D* out_aabb) const override;
-	real calcPositionSamplePdfA(const Vector3R& position) const override;
+	bool isIntersectingVolumeConservative(const math::AABB3D& volume) const override;
+	void calcAABB(math::AABB3D* out_aabb) const override;
+	real calcPositionSamplePdfA(const math::Vector3R& position) const override;
 	void genPositionSample(PositionSample* out_sample) const override;
 	real calcExtendedArea() const override;
 

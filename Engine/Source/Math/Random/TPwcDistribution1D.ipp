@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
@@ -197,4 +197,4 @@ inline T TPwcDistribution1D<T>::calcContinuousSample(const T seed_i0_e1, const s
 	return math::clamp(sample, m_min, m_max);
 }
 
-}// end namespace ph
+}// end namespace ph::math

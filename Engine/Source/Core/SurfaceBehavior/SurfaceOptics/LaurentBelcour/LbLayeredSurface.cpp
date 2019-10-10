@@ -63,7 +63,7 @@ void LbLayeredSurface::calcBsdf(
 		return;
 	}
 
-	const Vector3R& N = in.X.getShadingNormal();
+	const math::Vector3R N = in.X.getShadingNormal();
 	const real NoL = N.dot(in.L);
 	const real NoV = N.dot(in.V);
 	const real brdfDeno = 4.0_r * std::abs(NoV * NoL);
@@ -72,7 +72,7 @@ void LbLayeredSurface::calcBsdf(
 		return;
 	}
 
-	Vector3R H;
+	math::Vector3R H;
 	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
 	{
 		return;
@@ -104,7 +104,7 @@ void LbLayeredSurface::calcBsdfSample(
 {
 	out.pdfAppliedBsdf.setValues(0);
 
-	const Vector3R& N = in.X.getShadingNormal();
+	const math::Vector3R N = in.X.getShadingNormal();
 	const real absNoV = std::min(N.absDot(in.V), 1.0_r);
 
 	// Perform adding-doubling algorithm and gather information for later
@@ -134,7 +134,7 @@ void LbLayeredSurface::calcBsdfSample(
 	// NOTE: watch out for the case where selectWeight cannot be reduced to <= 0 due to 
 	// numerical error (handled in current implmentation)
 	//
-	real selectWeight = Random::genUniformReal_i0_e1() * summedSampleWeights - sampleWeights[0];
+	real selectWeight = math::Random::genUniformReal_i0_e1() * summedSampleWeights - sampleWeights[0];
 	std::size_t selectIndex = 0;
 	for(selectIndex = 0; selectWeight > 0.0_r && selectIndex + 1 < numLayers(); ++selectIndex)
 	{
@@ -145,9 +145,9 @@ void LbLayeredSurface::calcBsdfSample(
 		"selectWeight = " + std::to_string(selectWeight) + "\n");
 
 	IsoTrowbridgeReitz ggx(alphas[selectIndex]);
-	Vector3R H;
-	ggx.genDistributedH(in.X, Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1(), N, &H);
-	const Vector3R L = in.V.mul(-1.0_r).reflect(H).normalizeLocal();
+	math::Vector3R H;
+	ggx.genDistributedH(in.X, math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1(), N, &H);
+	const math::Vector3R L = in.V.mul(-1.0_r).reflect(H).normalizeLocal();
 
 	if(!sidedness.isSameHemisphere(in.X, L, in.V))
 	{
@@ -201,9 +201,9 @@ void LbLayeredSurface::calcBsdfSamplePdfW(
 		return;
 	}
 
-	const Vector3R& N = in.X.getShadingNormal();
+	const math::Vector3R N = in.X.getShadingNormal();
 
-	Vector3R H;
+	math::Vector3R H;
 	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
 	{
 		return;

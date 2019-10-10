@@ -1,6 +1,6 @@
 #pragma once
 
-namespace ph
+namespace ph::math
 {
 
 namespace constant
@@ -71,4 +71,4 @@ inline constexpr AxisIndexType Z_AXIS       = 2;
 
 }// end namespace constant
 
-}// end namespace ph
+}// end namespace ph::math

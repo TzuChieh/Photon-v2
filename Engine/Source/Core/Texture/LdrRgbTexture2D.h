@@ -13,7 +13,7 @@
 namespace ph
 {
 
-class LdrRgbTexture2D final : public TTexture<SpectralStrength>
+class LdrRgbTexture2D : public TTexture<SpectralStrength>
 {
 public:
 	LdrRgbTexture2D();

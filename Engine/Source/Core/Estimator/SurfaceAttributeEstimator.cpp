@@ -18,9 +18,9 @@ void SurfaceAttributeEstimator::update(const Integrand& integrand)
 {}
 
 void SurfaceAttributeEstimator::estimate(
-	const Ray&                  ray,
-	const Integrand&            integrand,
-	TEstimationArray<Vector3R>& out_estimation) const
+	const Ray&                        ray,
+	const Integrand&                  integrand,
+	TEstimationArray<math::Vector3R>& out_estimation) const
 {
 	Ray probingRay = Ray(ray).reverse();
 	probingRay.setMaxT(std::numeric_limits<real>::max());
@@ -96,7 +96,7 @@ void SurfaceAttributeEstimator::estimate(
 	{
 		for(std::size_t i = 0; i < out_estimation.numEstimations(); ++i)
 		{
-			out_estimation[i] = Vector3R(0);
+			out_estimation[i] = math::Vector3R(0);
 		}
 	}
 }

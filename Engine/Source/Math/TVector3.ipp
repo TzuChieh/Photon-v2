@@ -11,7 +11,7 @@
 #include <iostream>
 #include <algorithm>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
@@ -725,4 +725,4 @@ inline TVector3<T> operator * (const T rhs, const TVector3<T>& lhs)
 	return lhs.mul(rhs);
 }
 
-}// end namespace ph
+}// end namespace ph::math

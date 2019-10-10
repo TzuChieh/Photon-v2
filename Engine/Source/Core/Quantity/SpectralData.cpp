@@ -9,11 +9,12 @@ namespace ph
 SampledSpectralStrength SpectralData::calcPiecewiseAveraged(
 	const real* const wavelengthsNm, const real* const values, const std::size_t numPoints)
 {
-	PH_ASSERT(wavelengthsNm != nullptr && values != nullptr);
+	PH_ASSERT(wavelengthsNm);
+	PH_ASSERT(values);
 
 	// construct a curve from specified points
 	//
-	TPiecewiseLinear1D<real> curve;
+	math::TPiecewiseLinear1D<real> curve;
 	for(std::size_t i = 0; i < numPoints; i++)
 	{
 		const real wavelengthNm = wavelengthsNm[i];
@@ -25,8 +26,8 @@ SampledSpectralStrength SpectralData::calcPiecewiseAveraged(
 
 	// sample curve values by averaging each wavelength interval
 	//
-	SampledSpectralStrength       sampled;
-	TAnalyticalIntegrator1D<real> areaCalculator;
+	SampledSpectralStrength             sampled;
+	math::TAnalyticalIntegrator1D<real> areaCalculator;
 	for(std::size_t i = 0; i < SampledSpectralStrength::NUM_INTERVALS; i++)
 	{
 		const auto& range = SampledSpectralStrength::lambdaRangeNmOf(i);

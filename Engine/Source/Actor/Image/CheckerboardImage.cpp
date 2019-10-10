@@ -12,8 +12,7 @@ CheckerboardImage::CheckerboardImage() :
 	m_numTilesX(2), m_numTilesY(2)
 {}
 
-std::shared_ptr<TTexture<real>> CheckerboardImage::genTextureReal(
-	CookingContext& context) const
+std::shared_ptr<TTexture<real>> CheckerboardImage::genTextureReal(CookingContext& context) const
 {
 	const auto& images = checkOutImages();
 	if(images.first == nullptr || images.second == nullptr)
@@ -27,7 +26,7 @@ std::shared_ptr<TTexture<real>> CheckerboardImage::genTextureReal(
 		images.second->genTextureReal(context));
 }
 
-std::shared_ptr<TTexture<Vector3R>> CheckerboardImage::genTextureVector3R(
+std::shared_ptr<TTexture<math::Vector3R>> CheckerboardImage::genTextureVector3R(
 	CookingContext& context) const
 {
 	const auto& images = checkOutImages();
@@ -36,7 +35,7 @@ std::shared_ptr<TTexture<Vector3R>> CheckerboardImage::genTextureVector3R(
 		return nullptr;
 	}
 
-	return std::make_shared<TCheckerboardTexture<Vector3R>>(
+	return std::make_shared<TCheckerboardTexture<math::Vector3R>>(
 		m_numTilesX, m_numTilesY,
 		images.first->genTextureVector3R(context), 
 		images.second->genTextureVector3R(context));

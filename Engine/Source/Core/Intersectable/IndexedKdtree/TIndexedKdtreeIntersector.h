@@ -14,7 +14,7 @@ public:
 
 	void update(const CookedDataStorage& cookedActors) override;
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
-	void calcAABB(AABB3D* out_aabb) const override;
+	void calcAABB(math::AABB3D* out_aabb) const override;
 
 private:
 	IndexedKdtree m_tree;
@@ -29,7 +29,7 @@ inline TIndexedKdtreeIntersector<IndexedKdtree>::TIndexedKdtreeIntersector() :
 {}
 
 template<typename IndexedKdtree>
-inline void TIndexedKdtreeIntersector<IndexedKdtree>::calcAABB(AABB3D* const out_aabb) const
+inline void TIndexedKdtreeIntersector<IndexedKdtree>::calcAABB(math::AABB3D* const out_aabb) const
 {
 	m_tree.getAABB(out_aabb);
 }

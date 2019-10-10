@@ -3,7 +3,7 @@
 #include "Math/Transform/RigidTransform.h"
 #include "Math/TVector3.h"
 
-namespace ph
+namespace ph::math
 {
 
 class DynamicLinearTranslation : public RigidTransform
@@ -46,4 +46,4 @@ private:
 	Vector3R m_translationT1;
 };
 
-}// end namespace ph
+}// end namespace ph::math

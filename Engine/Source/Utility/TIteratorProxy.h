@@ -9,9 +9,7 @@ class TIteratorProxy
 public:
 	explicit TIteratorProxy(ContainerType& container) :
 		m_container(container)
-	{
-
-	}
+	{}
 
 	inline typename ContainerType::iterator begin()
 	{

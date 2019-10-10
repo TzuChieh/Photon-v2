@@ -118,7 +118,7 @@ void EqualSamplingRenderer::doRender()
 					std::memory_order_relaxed);
 
 				filmEstimator.setFilmDimensions(
-					TVector2<int64>(getRenderWidthPx(), getRenderHeightPx()),
+					math::TVector2<int64>(getRenderWidthPx(), getRenderHeightPx()),
 					workUnit.getRegion());
 
 				const auto filmDimensions = filmEstimator.getFilmDimensions();
@@ -289,7 +289,7 @@ void EqualSamplingRenderer::initScheduler(const std::size_t numSamplesPerPixel)
 
 	case EScheduler::STRIPE:
 		m_scheduler = std::make_unique<StripeScheduler>(
-			numWorkers(), totalWorks, constant::X_AXIS);
+			numWorkers(), totalWorks, math::constant::X_AXIS);
 		break;
 
 	case EScheduler::GRID:

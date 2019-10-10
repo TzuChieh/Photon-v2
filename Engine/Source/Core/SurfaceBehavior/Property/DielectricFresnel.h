@@ -17,7 +17,7 @@ public:
 	// TODO: add a dielectric specific form (not spectral)
 	void calcReflectance(real cosThetaIncident, SpectralStrength* out_reflectance) const override = 0;
 
-	bool calcRefractDir(const Vector3R& I, const Vector3R& N, Vector3R* out_refractDir) const;
+	bool calcRefractDir(const math::Vector3R& I, const math::Vector3R& N, math::Vector3R* out_refractDir) const;
 
 	inline real getIorOuter() const
 	{

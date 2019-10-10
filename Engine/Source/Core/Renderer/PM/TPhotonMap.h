@@ -14,7 +14,7 @@ struct TPhotonCenterCalculator
 {
 	static_assert(std::is_base_of_v<TPhoton<Photon>, Photon>);
 
-	Vector3R operator () (const Photon& photon) const
+	math::Vector3R operator () (const Photon& photon) const
 	{
 		static_assert(Photon::template has<EPhotonData::POSITION>());
 

@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-namespace ph
+namespace ph::math
 {
 
 const StaticAffineTransform& StaticAffineTransform::IDENTITY()
@@ -77,4 +77,4 @@ void StaticAffineTransform::transformLineSegment(
 	*out_lineMaxT = lineMaxT;
 }
 
-}// end namespace ph
+}// end namespace ph::math

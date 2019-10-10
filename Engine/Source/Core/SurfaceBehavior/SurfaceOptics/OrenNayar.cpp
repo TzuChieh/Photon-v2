@@ -107,7 +107,7 @@ void OrenNayar::calcBsdf(
 		tanBeta  = sinThetaV / absCosThetaV;
 	}
 
-	out.bsdf = albedo * (constant::rcp_pi<real> * (A + B * cosTerm * sinAlpha * tanBeta));
+	out.bsdf = albedo * (math::constant::rcp_pi<real> * (A + B * cosTerm * sinAlpha * tanBeta));
 }
 
 void OrenNayar::calcBsdfSample(
@@ -117,13 +117,13 @@ void OrenNayar::calcBsdfSample(
 {
 	PH_ASSERT_MSG(in.elemental == ALL_ELEMENTALS || in.elemental == 0, std::to_string(in.elemental));
 
-	const Vector3R N = in.X.getShadingNormal();
+	const math::Vector3R N = in.X.getShadingNormal();
 	PH_ASSERT(N.isFinite());
 
-	Vector3R& L = out.L;
+	math::Vector3R& L = out.L;
 	real pdfW;
-	L = CosThetaWeightedUnitHemisphere::map(
-		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()}, 
+	L = math::CosThetaWeightedUnitHemisphere::map(
+		{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()},
 		&pdfW);
 	if(pdfW == 0.0_r)
 	{
@@ -172,8 +172,8 @@ void OrenNayar::calcBsdfSamplePdfW(
 		return;
 	}
 
-	const Vector3R N = in.X.getShadingNormal();
-	out.sampleDirPdfW = in.L.absDot(N) * constant::rcp_pi<real>;
+	const math::Vector3R N = in.X.getShadingNormal();
+	out.sampleDirPdfW = in.L.absDot(N) * math::constant::rcp_pi<real>;
 }
 
 }// end namespace ph

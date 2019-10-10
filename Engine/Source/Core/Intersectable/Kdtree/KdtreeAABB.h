@@ -14,21 +14,19 @@ namespace ph
 class KdtreeAABB final
 {
 public:
-	using AABB3D = math::AABB3D;
-
 	KdtreeAABB();
-	explicit KdtreeAABB(const AABB3D& aabb);
-	KdtreeAABB(const Vector3R& minVertex, const Vector3R& maxVertex);
+	explicit KdtreeAABB(const math::AABB3D& aabb);
+	KdtreeAABB(const math::Vector3R& minVertex, const math::Vector3R& maxVertex);
 
 	bool isIntersectingVolume(const Ray& ray, real* const out_rayNearHitDist, real* const out_rayFarHitDist) const;
-	bool isIntersectingVolume(const AABB3D& aabb) const;
+	bool isIntersectingVolume(const math::AABB3D& aabb) const;
 	bool trySplitAt(const int32 axis, const real splitPos, KdtreeAABB* const out_negativeAABB, KdtreeAABB* const out_positiveAABB) const;
 
 	void getMinVertex(real* const out_vector3f) const;
 	void getMaxVertex(real* const out_vector3f) const;
 	real getMinVertex(const int32 axis) const;
 	real getMaxVertex(const int32 axis) const;
-	void getAABB(AABB3D* const out_aabb) const;
+	void getAABB(math::AABB3D* const out_aabb) const;
 
 	inline real getExtent(const int32 axis) const
 	{
@@ -48,7 +46,7 @@ public:
 	}
 
 private:
-	AABB3D m_aabb;
+	math::AABB3D m_aabb;
 };
 
 }// end namespace ph

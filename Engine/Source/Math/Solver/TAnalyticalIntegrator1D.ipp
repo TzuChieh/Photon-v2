@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
@@ -69,4 +69,4 @@ void TAnalyticalIntegrator1D<T>::setIntegrationDomain(const T x0, const T x1)
 	m_x1 = x1;
 }
 
-}// end namespace ph
+}// end namespace ph::math

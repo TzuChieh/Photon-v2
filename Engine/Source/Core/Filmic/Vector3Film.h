@@ -14,7 +14,7 @@ namespace ph
 /*
 	A film that records 3-D vectors.
 */
-class Vector3Film : public TSamplingFilm<Vector3R>
+class Vector3Film : public TSamplingFilm<math::Vector3R>
 {
 public:
 	Vector3Film(
@@ -23,15 +23,15 @@ public:
 
 	Vector3Film(
 		int64 actualWidthPx, int64 actualHeightPx,
-		const TAABB2D<int64>& effectiveWindowPx,
+		const math::TAABB2D<int64>& effectiveWindowPx,
 		const SampleFilter& filter);
 
-	void addSample(float64 xPx, float64 yPx, const Vector3R& vec3) override;
+	void addSample(float64 xPx, float64 yPx, const math::Vector3R& vec3) override;
 	void clear() override;
-	void setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow) override;
+	void setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindow) override;
 
 private:
-	void developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const override;
+	void developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64>& regionPx) const override;
 
 	HdrRgbFilm m_film;
 };
@@ -49,7 +49,7 @@ inline Vector3Film::Vector3Film(
 
 inline Vector3Film::Vector3Film(
 	int64 actualWidthPx, int64 actualHeightPx,
-	const TAABB2D<int64>& effectiveWindowPx,
+	const math::TAABB2D<int64>& effectiveWindowPx,
 	const SampleFilter& filter) :
 
 	TSamplingFilm(actualWidthPx, actualHeightPx, effectiveWindowPx, filter),
@@ -57,7 +57,7 @@ inline Vector3Film::Vector3Film(
 	m_film(actualWidthPx, actualHeightPx, effectiveWindowPx, filter)
 {}
 
-inline void Vector3Film::addSample(const float64 xPx, const float64 yPx, const Vector3R& vec3)
+inline void Vector3Film::addSample(const float64 xPx, const float64 yPx, const math::Vector3R& vec3)
 {
 	m_film.addSample(xPx, yPx, vec3);
 }
@@ -86,14 +86,14 @@ inline void Vector3Film::clear()
 //	return childFilm;
 //}
 
-inline void Vector3Film::setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow)
+inline void Vector3Film::setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindow)
 {
 	TSamplingFilm::setEffectiveWindowPx(effectiveWindow);
 
 	m_film.setEffectiveWindowPx(effectiveWindow);
 }
 
-inline void Vector3Film::developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const
+inline void Vector3Film::developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64>& regionPx) const
 {
 	m_film.develop(out_frame, regionPx);
 }

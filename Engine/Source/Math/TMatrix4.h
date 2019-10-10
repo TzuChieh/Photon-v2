@@ -6,11 +6,11 @@
 #include <string>
 #include <array>
 
-namespace ph
+namespace ph::math
 {
 	
 template<typename T>
-class TMatrix4 final
+class TMatrix4
 {
 public:
 	static TMatrix4 IDENTITY();
@@ -55,6 +55,6 @@ public:
 	std::string toString() const;
 };
 
-}// end namespace ph
+}// end namespace ph::math
 
 #include "Math/TMatrix4.ipp"

@@ -12,9 +12,9 @@ DielectricFresnel::DielectricFresnel(const real iorOuter, const real iorInner) :
 {}
 
 bool DielectricFresnel::calcRefractDir(
-	const Vector3R& I, 
-	const Vector3R& N,
-	Vector3R* const out_refractDir) const
+	const math::Vector3R& I,
+	const math::Vector3R& N,
+	math::Vector3R* const out_refractDir) const
 {
 	PH_ASSERT(out_refractDir);
 

@@ -20,9 +20,9 @@ IsoBeckmann::IsoBeckmann(const real alpha) :
 
 // Beckmann Normal Distribution Function
 real IsoBeckmann::distribution(
-	const SurfaceHit& X,
-	const Vector3R&   N, 
-	const Vector3R&   H) const
+	const SurfaceHit&     X,
+	const math::Vector3R& N,
+	const math::Vector3R& H) const
 {
 	real NoH = N.dot(H);
 	if(NoH <= 0.0_r)
@@ -36,16 +36,16 @@ real IsoBeckmann::distribution(
 	const real NoH4     = NoH2 * NoH2;
 	const real exponent = (NoH2 - 1.0_r) / (NoH2 * alpha2);
 
-	return std::exp(exponent) / (constant::pi<real> * alpha2 * NoH4);
+	return std::exp(exponent) / (math::constant::pi<real> * alpha2 * NoH4);
 }
 
 // TODO: add reference paper
 real IsoBeckmann::shadowing(
-	const SurfaceHit& X,
-	const Vector3R&   N, 
-	const Vector3R&   H,
-	const Vector3R&   L, 
-	const Vector3R&   V) const
+	const SurfaceHit&     X,
+	const math::Vector3R& N,
+	const math::Vector3R& H,
+	const math::Vector3R& L,
+	const math::Vector3R& V) const
 {
 	const real NoL = N.dot(L);
 	const real NoV = N.dot(V);
@@ -77,11 +77,11 @@ real IsoBeckmann::shadowing(
 }
 
 void IsoBeckmann::genDistributedH(
-	const SurfaceHit& X,
-	const real        seedA_i0e1, 
-	const real        seedB_i0e1,
-	const Vector3R&   N, 
-	Vector3R* const   out_H) const
+	const SurfaceHit&     X,
+	const real            seedA_i0e1, 
+	const real            seedB_i0e1,
+	const math::Vector3R& N,
+	math::Vector3R* const out_H) const
 {
 	PH_ASSERT(seedA_i0e1 >= 0.0_r && seedA_i0e1 <= 1.0_r);
 	PH_ASSERT(seedB_i0e1 >= 0.0_r && seedB_i0e1 <= 1.0_r);
@@ -95,7 +95,7 @@ void IsoBeckmann::genDistributedH(
 	}
 
 	const real alpha2 = m_alpha * m_alpha;
-	const real phi    = constant::two_pi<real> * seedA_i0e1;
+	const real phi    = math::constant::two_pi<real> * seedA_i0e1;
 	const real theta  = std::atan(std::sqrt(-alpha2 * std::log(1.0_r - seedB_i0e1)));
 
 	// HACK: currently seed can be 1, which should be avoided; it can
@@ -110,7 +110,7 @@ void IsoBeckmann::genDistributedH(
 	const real sinTheta = std::sin(theta);
 	const real cosTheta = std::cos(theta);
 
-	Vector3R& H = *out_H;
+	math::Vector3R& H = *out_H;
 
 	H.x = sinTheta * std::sin(phi);
 	H.y = cosTheta;

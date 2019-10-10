@@ -36,62 +36,71 @@ public:
 
 	InputPacket(InputPacket&& other);
 	
-	std::string getString(
-		const std::string&           name, 
-		const std::string&           defaultString        = "", 
-		const DataTreatment&         treatment            = DataTreatment()) const;
+	auto getString(
+		const std::string&   name, 
+		const std::string&   defaultValue = "",
+		const DataTreatment& treatment    = DataTreatment()) const
+	-> std::string;
 
-	integer getInteger(
-		const std::string&           name, 
-		const integer                defaultInteger       = 0, 
-		const DataTreatment&         treatment            = DataTreatment()) const;
+	auto getInteger(
+		const std::string&   name,
+		const integer        defaultValue = 0,
+		const DataTreatment& treatment    = DataTreatment()) const
+	-> integer;
 
-	real getReal(
-		const std::string&           name, 
-		const real                   defaultReal          = 0.0f, 
-		const DataTreatment&         treatment            = DataTreatment()) const;
+	auto getReal(
+		const std::string&   name,
+		const real           defaultValue = 0.0_r,
+		const DataTreatment& treatment    = DataTreatment()) const
+	-> real;
 
-	Vector3R getVector3(
-		const std::string&           name, 
-		const Vector3R&              defaultVector3       = Vector3R(0), 
-		const DataTreatment&         treatment            = DataTreatment()) const;
+	auto getVector3(
+		const std::string&     name,
+		const math::Vector3R&  defaultValue = math::Vector3R(0),
+		const DataTreatment&   treatment    = DataTreatment()) const
+	-> math::Vector3R;
 
-	QuaternionR getQuaternion(
-		const std::string&           name,
-		const QuaternionR&           defaultQuaternion    = QuaternionR::makeNoRotation(),
-		const DataTreatment&         treatment            = DataTreatment()) const;
+	auto getQuaternion(
+		const std::string&       name,
+		const math::QuaternionR& defaultValue = math::QuaternionR::makeNoRotation(),
+		const DataTreatment&     treatment    = DataTreatment()) const
+	-> math::QuaternionR;
 
-	std::vector<real> getRealArray(
-		const std::string&           name, 
-		const std::vector<real>&     defaultRealArray     = std::vector<real>(), 
-		const DataTreatment&         treatment            = DataTreatment()) const;
+	auto getRealArray(
+		const std::string&       name, 
+		const std::vector<real>& defaultValue = std::vector<real>(),
+		const DataTreatment&     treatment    = DataTreatment()) const
+	-> std::vector<real>;
 
-	std::vector<Vector3R> getVector3Array(
-		const std::string&           name, 
-		const std::vector<Vector3R>& defaultVector3Array  = std::vector<Vector3R>(), 
-		const DataTreatment&         treatment            = DataTreatment()) const;
+	auto getVector3Array(
+		const std::string&                 name, 
+		const std::vector<math::Vector3R>& defaultValue = std::vector<math::Vector3R>(),
+		const DataTreatment&               treatment    = DataTreatment()) const 
+	-> std::vector<math::Vector3R>;
 
 	// Get the string as if the string is a SDL resource identifier and convert
 	// it to a path.
 	//
-	Path getStringAsPath(
-		const std::string&           name, 
-		const Path&                  defaultPath          = Path("/"), 
-		const DataTreatment&         treatment            = DataTreatment()) const;
+	auto getStringAsPath(
+		const std::string&   name, 
+		const Path&          defaultPath = Path("/"), 
+		const DataTreatment& treatment   = DataTreatment()) const 
+	-> Path;
 
 	template<typename T>
-	std::shared_ptr<T> get(
-		const std::string&           dataName,
-		const DataTreatment&         treatment            = DataTreatment()) const;
+	auto get(
+		const std::string&   dataName,
+		const DataTreatment& treatment = DataTreatment()) const 
+	-> std::shared_ptr<T>;
 
-	bool hasString     (const std::string& name) const;
-	bool hasInteger    (const std::string& name) const;
-	bool hasReal       (const std::string& name) const;
-	bool hasVector3    (const std::string& name) const;
-	bool hasQuaternion (const std::string& name) const;
+	bool hasString(const std::string& name) const;
+	bool hasInteger(const std::string& name) const;
+	bool hasReal(const std::string& name) const;
+	bool hasVector3(const std::string& name) const;
+	bool hasQuaternion(const std::string& name) const;
 
 	template<typename T>
-	bool hasReference  (const std::string& name) const;
+	bool hasReference(const std::string& name) const;
 
 	template<typename T>
 	std::shared_ptr<T> getCore(const DataTreatment& treatment = DataTreatment()) const;

@@ -10,7 +10,7 @@
 namespace ph
 {
 
-class HdrRgbTexture2D final : public TTexture<SpectralStrength>
+class HdrRgbTexture2D : public TTexture<SpectralStrength>
 {
 public:
 	HdrRgbTexture2D();

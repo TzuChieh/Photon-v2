@@ -15,13 +15,13 @@ class ValueParser final
 public:
 	ValueParser(const Path& workingDirectory);
 
-	integer               parseInteger(const std::string& integerString) const;
-	real                  parseReal(const std::string& realString) const;
-	std::string           parseString(const std::string& stringString) const;
-	Vector3R              parseVector3(const std::string& vector3String) const;
-	QuaternionR           parseQuaternion(const std::string& quaternionstring) const;
-	std::vector<real>     parseRealArray(const std::string& realArrayString) const;
-	std::vector<Vector3R> parseVector3Array(const std::string& vector3ArrayString) const;
+	integer parseInteger(const std::string& integerString) const;
+	real parseReal(const std::string& realString) const;
+	std::string parseString(const std::string& stringString) const;
+	math::Vector3R parseVector3(const std::string& vector3String) const;
+	math::QuaternionR parseQuaternion(const std::string& quaternionstring) const;
+	std::vector<real> parseRealArray(const std::string& realArrayString) const;
+	std::vector<math::Vector3R> parseVector3Array(const std::string& vector3ArrayString) const;
 
 private:
 	Path m_workingDirectory;

@@ -23,9 +23,6 @@ class TCameraMeasurementEstimator : public ISensedRayProcessor
 public:
 	using Estimator = TIRayEstimator<EstimationType>;
 
-	template<typename T>
-	using TAABB2D = math::TAABB2D<T>;
-
 	TCameraMeasurementEstimator() = default;
 
 	TCameraMeasurementEstimator(
@@ -36,22 +33,22 @@ public:
 
 	TCameraMeasurementEstimator(TCameraMeasurementEstimator&& other);
 
-	void process(const Vector2D& filmNdc, const Ray& sensedRay) override;
+	void process(const math::Vector2D& filmNdc, const Ray& sensedRay) override;
 
 	void addEstimator(const Estimator* estimator);
 	void addFilmEstimation(std::size_t filmIndex, std::size_t estimationIndex);
 	void setFilmDimensions(
-		const TVector2<int64>& actualResPx, 
-		const TAABB2D<int64>&  effectiveWindowPx,
-		bool                   useSoftEdge = true);
+		const math::TVector2<int64>& actualResPx,
+		const math::TAABB2D<int64>&  effectiveWindowPx,
+		bool                         useSoftEdge = true);
 	void clearFilms();
 	void clearFilm(std::size_t index);
 	void mergeFilmTo(std::size_t fromIndex, SamplingFilmType& toFilm);
 
-	std::size_t            numEstimations() const;
-	TAABB2D<int64>         getFilmEffectiveWindowPx() const;
+	std::size_t numEstimations() const;
+	math::TAABB2D<int64> getFilmEffectiveWindowPx() const;
 	SamplingFilmDimensions getFilmDimensions() const;
-	bool                   isSoftEdgedFilm() const;
+	bool isSoftEdgedFilm() const;
 
 	TCameraMeasurementEstimator& operator = (TCameraMeasurementEstimator&& other);
 
@@ -60,7 +57,7 @@ protected:
 
 	SampleFilter                     m_filter;
 	TEstimationArray<EstimationType> m_estimations;
-	Vector2D                         m_filmActualResFPx;
+	math::Vector2D                   m_filmActualResFPx;
 	std::vector<SamplingFilmType>    m_films;
 	std::vector<const Estimator*>    m_estimators;
 	Integrand                        m_integrand;

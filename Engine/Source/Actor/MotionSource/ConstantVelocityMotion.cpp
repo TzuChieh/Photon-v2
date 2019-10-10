@@ -6,20 +6,19 @@
 namespace ph
 {
 
-ConstantVelocityMotion::ConstantVelocityMotion(const Vector3R& velocity) :
+ConstantVelocityMotion::ConstantVelocityMotion(const math::Vector3R& velocity) :
 	MotionSource(),
 	m_velocity(velocity)
 {}
 
-ConstantVelocityMotion::~ConstantVelocityMotion() = default;
-
-std::unique_ptr<Transform> ConstantVelocityMotion::genLocalToWorld(const Time& start,
-                                                                   const Time& end) const
+std::unique_ptr<math::Transform> ConstantVelocityMotion::genLocalToWorld(
+	const Time& start,
+	const Time& end) const
 {
-	const Vector3R translationT0 = m_velocity.mul(start.absoluteS);
-	const Vector3R translationT1 = m_velocity.mul(end.absoluteS);
+	const math::Vector3R translationT0 = m_velocity.mul(start.absoluteS);
+	const math::Vector3R translationT1 = m_velocity.mul(end.absoluteS);
 
-	return std::make_unique<DynamicLinearTranslation>(translationT0, translationT1);
+	return std::make_unique<math::DynamicLinearTranslation>(translationT0, translationT1);
 }
 
 SdlTypeInfo ConstantVelocityMotion::ciTypeInfo()
@@ -36,8 +35,8 @@ void ConstantVelocityMotion::ciRegister(CommandRegister& cmdRegister)
 
 std::unique_ptr<ConstantVelocityMotion> ConstantVelocityMotion::ciLoad(const InputPacket& packet)
 {
-	const Vector3R velocity = packet.getVector3("velocity", Vector3R(0), 
-	                                            DataTreatment::REQUIRED());
+	const auto velocity = packet.getVector3("velocity", 
+		math::Vector3R(0), DataTreatment::REQUIRED());
 
 	return std::make_unique<ConstantVelocityMotion>(velocity);
 }

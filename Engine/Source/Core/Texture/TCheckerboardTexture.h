@@ -23,7 +23,7 @@ namespace ph
 
 */
 template<typename OutputType>
-class TCheckerboardTexture final : public TTexture<OutputType>
+class TCheckerboardTexture : public TTexture<OutputType>
 {
 public:
 	TCheckerboardTexture(
@@ -48,8 +48,8 @@ public:
 	// makes texture appears to be larger in the corresponding direction, 
 	// and vice versa.
 	//
-	void setOddTextureScale(const Vector3R& sale);
-	void setEvenTextureScale(const Vector3R& scale);
+	void setOddTextureScale(const math::Vector3R& sale);
+	void setEvenTextureScale(const math::Vector3R& scale);
 
 private:
 	std::shared_ptr<TTexture<OutputType>> m_oddTexture;
@@ -57,8 +57,8 @@ private:
 
 	real m_uTileSize;
 	real m_vTileSize;
-	Vector3R m_oddUvwScale;
-	Vector3R m_evenUvwScale;
+	math::Vector3R m_oddUvwScale;
+	math::Vector3R m_evenUvwScale;
 };
 
 }// end namespace ph

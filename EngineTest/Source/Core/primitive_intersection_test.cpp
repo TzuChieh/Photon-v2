@@ -7,10 +7,11 @@
 #include <limits>
 #include <memory>
 
+using namespace ph;
+using namespace ph::math;
+
 TEST(PrimitiveIntersectionTest, RaySphereIntersection)
 {
-	using namespace ph;
-
 	PrimitiveMetadata metadata;
 	std::unique_ptr<Intersectable> unitSphere = std::make_unique<PSphere>(&metadata, 1.0_r);
 

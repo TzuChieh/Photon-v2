@@ -5,7 +5,7 @@
 
 #include <cmath>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T, std::size_t N>
@@ -449,4 +449,4 @@ inline auto TArithmeticArray<T, N>::toString() const
 	return result;
 }
 
-}// end namespace ph
+}// end namespace ph::math

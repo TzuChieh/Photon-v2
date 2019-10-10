@@ -16,8 +16,8 @@ class BsdfEvaluationInput final
 {
 public:
 	SurfaceHit       X;
-	Vector3R         L;
-	Vector3R         V;
+	math::Vector3R   L;
+	math::Vector3R   V;
 	SurfaceElemental elemental;
 	ETransport       transported;
 
@@ -26,25 +26,25 @@ public:
 
 	void set(
 		const SurfaceHit&      X, 
-		const Vector3R&        L, 
-		const Vector3R&        V);
+		const math::Vector3R&  L,
+		const math::Vector3R&  V);
 
 	void set(
 		const SurfaceHit&      X,
-		const Vector3R&        L,
-		const Vector3R&        V,
+		const math::Vector3R&  L,
+		const math::Vector3R&  V,
 		const SurfaceElemental elemental);
 
 	void set(
 		const SurfaceHit&      X,
-		const Vector3R&        L,
-		const Vector3R&        V,
+		const math::Vector3R&  L,
+		const math::Vector3R&  V,
 		const ETransport       transported);
 
 	void set(
 		const SurfaceHit&      X, 
-		const Vector3R&        L, 
-		const Vector3R&        V, 
+		const math::Vector3R&  L,
+		const math::Vector3R&  V,
 		const SurfaceElemental elemental,
 		const ETransport       transported);
 };
@@ -71,16 +71,16 @@ public:
 
 inline void BsdfEvaluationInput::set(
 	const SurfaceHit&      X, 
-	const Vector3R&        L, 
-	const Vector3R&        V)
+	const math::Vector3R&  L,
+	const math::Vector3R&  V)
 {
 	set(X, L, V, ALL_ELEMENTALS, ETransport::RADIANCE);
 }
 
 inline void BsdfEvaluationInput::set(
 	const SurfaceHit&      X,
-	const Vector3R&        L,
-	const Vector3R&        V,
+	const math::Vector3R&  L,
+	const math::Vector3R&  V,
 	const SurfaceElemental elemental)
 {
 	set(X, L, V, elemental, ETransport::RADIANCE);
@@ -88,8 +88,8 @@ inline void BsdfEvaluationInput::set(
 
 inline void BsdfEvaluationInput::set(
 	const SurfaceHit&      X,
-	const Vector3R&        L,
-	const Vector3R&        V,
+	const math::Vector3R&  L,
+	const math::Vector3R&  V,
 	const ETransport       transported)
 {
 	set(X, L, V, ALL_ELEMENTALS, transported);
@@ -97,8 +97,8 @@ inline void BsdfEvaluationInput::set(
 
 inline void BsdfEvaluationInput::set(
 	const SurfaceHit&      X, 
-	const Vector3R&        L, 
-	const Vector3R&        V, 
+	const math::Vector3R&  L,
+	const math::Vector3R&  V,
 	const SurfaceElemental elemental,
 	const ETransport       transported)
 {

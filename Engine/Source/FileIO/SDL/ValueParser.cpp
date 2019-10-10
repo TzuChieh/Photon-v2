@@ -31,7 +31,7 @@ std::string ValueParser::parseString(const std::string& stringString) const
 	return stringString;
 }
 
-Vector3R ValueParser::parseVector3(const std::string& vector3String) const
+math::Vector3R ValueParser::parseVector3(const std::string& vector3String) const
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
@@ -41,16 +41,17 @@ Vector3R ValueParser::parseVector3(const std::string& vector3String) const
 	if(tokens.size() != 3)
 	{
 		std::cerr << "warning: at ValueParser::parseVector3(), bad string representation <" + vector3String + ">, " <<
-		             Vector3R(0).toString() << " is returned "<< std::endl;
-		return Vector3R(0);
+		             math::Vector3R(0).toString() << " is returned "<< std::endl;
+		return math::Vector3R(0);
 	}
 
-	return Vector3R(static_cast<real>(std::stold(tokens[0])), 
-	                static_cast<real>(std::stold(tokens[1])), 
-	                static_cast<real>(std::stold(tokens[2])));
+	return math::Vector3R(
+		static_cast<real>(std::stold(tokens[0])),
+		static_cast<real>(std::stold(tokens[1])), 
+		static_cast<real>(std::stold(tokens[2])));
 }
 
-QuaternionR ValueParser::parseQuaternion(const std::string& quaternionString) const
+math::QuaternionR ValueParser::parseQuaternion(const std::string& quaternionString) const
 {
 	static const Tokenizer tokenizer({ ' ', '\t', '\n', '\r' }, {});
 
@@ -60,14 +61,15 @@ QuaternionR ValueParser::parseQuaternion(const std::string& quaternionString) co
 	if(tokens.size() != 4)
 	{
 		std::cerr << "warning: at ValueParser::parseQuaternion(), bad string representation <" + quaternionString + ">, " <<
-		             QuaternionR::makeNoRotation().toString() << " is returned " << std::endl;
-		return QuaternionR::makeNoRotation();
+		             math::QuaternionR::makeNoRotation().toString() << " is returned " << std::endl;
+		return math::QuaternionR::makeNoRotation();
 	}
 
-	return QuaternionR(static_cast<real>(std::stold(tokens[0])),
-	                   static_cast<real>(std::stold(tokens[1])),
-	                   static_cast<real>(std::stold(tokens[2])), 
-	                   static_cast<real>(std::stold(tokens[3])));
+	return math::QuaternionR(
+		static_cast<real>(std::stold(tokens[0])),
+		static_cast<real>(std::stold(tokens[1])),
+		static_cast<real>(std::stold(tokens[2])), 
+		static_cast<real>(std::stold(tokens[3])));
 }
 
 std::vector<real> ValueParser::parseRealArray(const std::string& realArrayString) const
@@ -99,14 +101,14 @@ std::vector<real> ValueParser::parseRealArray(const std::string& realArrayString
 	return std::move(realArray);
 }
 
-std::vector<Vector3R> ValueParser::parseVector3Array(const std::string& vector3ArrayString) const
+std::vector<math::Vector3R> ValueParser::parseVector3Array(const std::string& vector3ArrayString) const
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}});
 
 	std::vector<std::string> tokens;
 	tokenizer.tokenize(vector3ArrayString, tokens);
 
-	std::vector<Vector3R> results;
+	std::vector<math::Vector3R> results;
 	for(const auto& token : tokens)
 	{
 		results.push_back(parseVector3(token));

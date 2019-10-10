@@ -24,13 +24,13 @@ public:
 		HitProbe&  probe,
 		HitDetail* out_detail) const override;
 
-	bool isIntersectingVolumeConservative(const AABB3D& volume) const override;
-	void calcAABB(AABB3D* out_aabb) const override;
+	bool isIntersectingVolumeConservative(const math::AABB3D& volume) const override;
+	void calcAABB(math::AABB3D* out_aabb) const override;
 
 	bool uvwToPosition(
-		const Vector3R& uvw,
-		const Vector3R& observationPoint,
-		Vector3R*       out_position) const override;
+		const math::Vector3R& uvw,
+		const math::Vector3R& observationPoint,
+		math::Vector3R*       out_position) const override;
 
 private:
 	real m_effectivelyInfiniteRadius;

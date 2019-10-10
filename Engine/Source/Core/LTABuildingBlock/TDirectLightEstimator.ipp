@@ -32,7 +32,7 @@ template<ESaPolicy POLICY>
 inline bool TDirectLightEstimator<POLICY>::sample(
 	const SurfaceHit&       targetPos,
 	const Time&             time,
-	Vector3R* const         out_L,
+	math::Vector3R* const   out_L,
 	real* const             out_pdfW,
 	SpectralStrength* const out_emittedRadiance)
 {
@@ -48,7 +48,7 @@ inline bool TDirectLightEstimator<POLICY>::sample(
 	m_scene->genDirectSample(directLightSample);
 	if(directLightSample.isDirectSampleGood())
 	{
-		const Vector3R& toLightVec = directLightSample.emitPos.sub(directLightSample.targetPos);
+		const math::Vector3R toLightVec = directLightSample.emitPos.sub(directLightSample.targetPos);
 
 		// sidedness agreement between real geometry and shading normal
 		//

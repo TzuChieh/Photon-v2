@@ -14,7 +14,7 @@ namespace ph
 	This class processes the data from a given IES file and present it with
 	a generalized interface.
 */
-class IesData final
+class IesData
 {
 public:
 	IesData(const Path& iesFilePath);

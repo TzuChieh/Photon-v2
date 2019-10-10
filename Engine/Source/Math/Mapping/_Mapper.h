@@ -5,7 +5,7 @@
 #include "Math/TVector2.h"
 #include "Common/assertion.h"
 
-namespace ph
+namespace ph::math
 {
 
 //class Mapper final
@@ -27,4 +27,4 @@ namespace ph
 //		coord.getCoordinates().y * region.getHeight() + region.minVertex.y);
 //}
 
-}// end namespace ph
+}// end namespace ph::math

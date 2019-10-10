@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <type_traits>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
@@ -327,4 +327,4 @@ inline TVector2<T> TVector2<T>::operator / (const T rhs) const
 	return this->div(rhs);
 }
 
-}// end namespace ph
+}// end namespace ph::math

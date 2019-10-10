@@ -3,7 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 
-namespace ph
+namespace ph::math
 {
 
 class Color final
@@ -15,4 +15,4 @@ public:
 	}
 };
 
-}// end namespace ph
+}// end namespace ph::math

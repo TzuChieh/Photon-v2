@@ -7,16 +7,17 @@
 
 namespace ph
 {
+	class Time;
+	class Ray;
+	class HitInfo;
+}
 
-class Ray;
-class Time;
-class HitInfo;
+namespace ph::math
+{
 
 class Transform
 {
 public:
-	using AABB3D = math::TAABB3D<real>;
-
 	virtual ~Transform() = 0;
 
 	virtual std::unique_ptr<Transform> genInversed() const;
@@ -95,4 +96,4 @@ private:
 	                                  real* out_lineMinT, real* out_lineMaxT) const = 0;
 };
 
-}// end namespace ph
+}// end namespace ph::math

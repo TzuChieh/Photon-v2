@@ -17,10 +17,10 @@ public:
 
 	// FIXME: use volume hit
 	virtual void evalPhaseFunc(
-		const SurfaceHit& X,
-		const Vector3R&   I,
-		const Vector3R&   O,
-		real*             out_pf) const = 0;
+		const SurfaceHit&     X,
+		const math::Vector3R& I,
+		const math::Vector3R& O,
+		real*                 out_pf) const = 0;
 };
 
 }// end namespace ph

@@ -52,11 +52,11 @@ void PPMRadianceEvaluationWork::doWork()
 	{
 		FullViewpoint& viewpoint = m_viewpoints[i];
 
-		const SurfaceHit& surfaceHit = viewpoint.get<EViewpointData::SURFACE_HIT>();
-		const Vector3R    L          = viewpoint.get<EViewpointData::VIEW_DIR>();
-		const Vector3R    Ng         = surfaceHit.getGeometryNormal();
-		const Vector3R    Ns         = surfaceHit.getShadingNormal();
-		const real        R          = viewpoint.get<EViewpointData::RADIUS>();
+		const SurfaceHit&    surfaceHit = viewpoint.get<EViewpointData::SURFACE_HIT>();
+		const math::Vector3R L          = viewpoint.get<EViewpointData::VIEW_DIR>();
+		const math::Vector3R Ng         = surfaceHit.getGeometryNormal();
+		const math::Vector3R Ns         = surfaceHit.getShadingNormal();
+		const real           R          = viewpoint.get<EViewpointData::RADIUS>();
 
 		photonCache.clear();
 		getPhotonMap()->findWithinRange(surfaceHit.getPosition(), R, photonCache);
@@ -70,7 +70,7 @@ void PPMRadianceEvaluationWork::doWork()
 		BsdfEvaluation   bsdfEval;
 		for(const auto& photon : photonCache)
 		{
-			const Vector3R V = photon.get<EPhotonData::FROM_DIR>();
+			const math::Vector3R V = photon.get<EPhotonData::FROM_DIR>();
 
 			bsdfEval.inputs.set(surfaceHit, L, V, ALL_ELEMENTALS, ETransport::IMPORTANCE);
 			if(!surfaceEvent.doBsdfEvaluation(surfaceHit, bsdfEval))
@@ -93,14 +93,14 @@ void PPMRadianceEvaluationWork::doWork()
 		
 		// evaluate radiance using current iteration's data
 
-		const real kernelArea         = newR * newR * constant::pi<real>;
+		const real kernelArea         = newR * newR * math::constant::pi<real>;
 		const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(numPhotonPaths()));
 
 		SpectralStrength radiance(viewpoint.get<EViewpointData::TAU>() * radianceMultiplier);
 		radiance.addLocal(viewpoint.get<EViewpointData::VIEW_RADIANCE>());
 		radiance.mulLocal(viewpoint.get<EViewpointData::VIEW_THROUGHPUT>());
 
-		const Vector2R filmNdc = viewpoint.get<EViewpointData::FILM_NDC>();
+		const math::Vector2R filmNdc = viewpoint.get<EViewpointData::FILM_NDC>();
 		const real filmXPx = filmNdc.x * static_cast<real>(m_film->getActualResPx().x);
 		const real filmYPx = filmNdc.y * static_cast<real>(m_film->getActualResPx().y);
 		m_film->addSample(filmXPx, filmYPx, radiance);

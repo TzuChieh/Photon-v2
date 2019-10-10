@@ -18,7 +18,7 @@ public:
 	virtual void update(const CookedDataStorage& cookedActors) override;
 	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 	virtual bool isIntersecting(const Ray& ray) const override;
-	virtual void calcAABB(AABB3D* out_aabb) const override;
+	virtual void calcAABB(math::AABB3D* out_aabb) const override;
 
 private:
 	std::vector<const Intersectable*> m_intersectables;

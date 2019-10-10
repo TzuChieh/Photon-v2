@@ -9,15 +9,15 @@ namespace ph
 class SphericalMapper : public UvwMapper
 {
 public:
-	void positionToUvw(const Vector3R& position, Vector3R* out_uvw) const override;
-	void directionToUvw(const Vector3R& direction, Vector3R* out_uvw) const override;
-	bool uvwToPosition(const Vector3R& uvw, Vector3R* out_position) const override;
-	bool uvwToDirection(const Vector3R& uvw, Vector3R* out_direction) const override;
+	void positionToUvw(const math::Vector3R& position, math::Vector3R* out_uvw) const override;
+	void directionToUvw(const math::Vector3R& direction, math::Vector3R* out_uvw) const override;
+	bool uvwToPosition(const math::Vector3R& uvw, math::Vector3R* out_position) const override;
+	bool uvwToDirection(const math::Vector3R& uvw, math::Vector3R* out_direction) const override;
 };
 
 // In-header Implementations:
 
-inline void SphericalMapper::positionToUvw(const Vector3R& position, Vector3R* const out_uvw) const
+inline void SphericalMapper::positionToUvw(const math::Vector3R& position, math::Vector3R* const out_uvw) const
 {
 	PH_ASSERT(out_uvw);
 
@@ -31,7 +31,7 @@ inline void SphericalMapper::positionToUvw(const Vector3R& position, Vector3R* c
 	directionToUvw(position, out_uvw);
 }
 
-inline bool SphericalMapper::uvwToPosition(const Vector3R& uvw, Vector3R* const out_position) const
+inline bool SphericalMapper::uvwToPosition(const math::Vector3R& uvw, math::Vector3R* const out_position) const
 {
 	return false;
 }

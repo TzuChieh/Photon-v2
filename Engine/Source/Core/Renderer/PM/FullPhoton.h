@@ -29,8 +29,8 @@ public:
 
 private:
 	SpectralStrength m_throughputRadiance;
-	Vector3R         m_position;
-	Vector3R         m_fromDir;
+	math::Vector3R   m_position;
+	math::Vector3R   m_fromDir;
 };
 
 // In-header Implementations:

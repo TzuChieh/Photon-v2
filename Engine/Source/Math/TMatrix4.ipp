@@ -7,7 +7,7 @@
 
 #include <cmath>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
@@ -344,4 +344,4 @@ inline std::string TMatrix4<T>::toString() const
 	return result;
 }
 
-}// end namespace ph
+}// end namespace ph::math

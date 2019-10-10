@@ -3,6 +3,9 @@
 
 #include <gtest/gtest.h>
 
+using namespace ph;
+using namespace ph::math;
+
 TEST(TFrameTest, CorrectAttributes)
 {
 	ph::TFrame<int, 5> frame1(12, 34);
@@ -91,12 +94,12 @@ TEST(TFrameTest, GenerateMonochromaticPixel)
 
 TEST(TFrameTest, Sampling)
 {
-	typedef ph::TFrame<float, 5> Frame;
+	using Frame = ph::TFrame<float, 5>;
 
 	Frame src(100, 200);
 	Frame dst(20, 20);
 	
-	ph::TConstant2D<ph::float64> kernel(1.0);
+	TConstant2D<float64> kernel(1.0);
 
 	// averaging nearby pixels
 	src.fill(7.0f);
@@ -149,9 +152,7 @@ TEST(TFrameTest, Sampling)
 
 TEST(TFrameTest, Flipping)
 {
-	using namespace ph;
-
-	typedef TFrame<int, 2> Frame;
+	using Frame = TFrame<int, 2>;
 
 	Frame::Pixel pixel;
 
@@ -200,9 +201,7 @@ TEST(TFrameTest, Flipping)
 
 TEST(TFrameTest, ForEachOperation)
 {
-	using namespace ph;
-
-	typedef TFrame<float, 2> Float2Frame;
+	using Float2Frame = TFrame<float, 2>;
 
 	Float2Frame frame1(1, 2);
 	frame1.setPixel(0, 0, Float2Frame::Pixel({1, 2}));

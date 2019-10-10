@@ -52,7 +52,7 @@ void IdealReflector::calcBsdfSample(
 	BsdfSample::Output&       out,
 	const SidednessAgreement& sidedness) const
 {
-	const Vector3R& N = in.X.getShadingNormal();
+	const math::Vector3R N = in.X.getShadingNormal();
 	out.L = in.V.mul(-1.0_r).reflect(N);
 
 	const real NoL = N.dot(out.L);

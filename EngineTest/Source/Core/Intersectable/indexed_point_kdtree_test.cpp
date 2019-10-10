@@ -6,10 +6,11 @@
 #include <vector>
 #include <algorithm>
 
+using namespace ph;
+using namespace ph::math;
+
 TEST(TIndexedPointKdtreeTest, RangeSearchPointsOnAxis)
 {
-	using namespace ph;
-
 	// treat input points as on y-axis
 	auto pointTo3D = [](const float& point)
 	{
@@ -51,8 +52,6 @@ TEST(TIndexedPointKdtreeTest, RangeSearchPointsOnAxis)
 
 TEST(TIndexedPointKdtreeTest, RangeSearchCubeVertices)
 {
-	using namespace ph;
-
 	// Item is already a point, just return itself as center
 	auto trivialPointCalculator = [](const Vector3R& point)
 	{
@@ -122,8 +121,6 @@ TEST(TIndexedPointKdtreeTest, RangeSearchCubeVertices)
 
 TEST(TIndexedPointKdtreeTest, FindNearestCubeVertices)
 {
-	using namespace ph;
-
 	// Item is already a point, just return itself as center
 	auto trivialPointCalculator = [](const Vector3R& point)
 	{
@@ -180,8 +177,6 @@ TEST(TIndexedPointKdtreeTest, FindNearestCubeVertices)
 
 TEST(TIndexedPointKdtreeTest, FindInAllOverlappingPoints)
 {
-	using namespace ph;
-
 	// treat input points as on y-axis
 	auto trivialPointCalculator = [](const Vector3R& point)
 	{

@@ -30,20 +30,20 @@ public:
 
 	@param direction Does not need to be normalized.
 	*/
-	Ray(const Vector3R& origin, const Vector3R& direction);
+	Ray(const math::Vector3R& origin, const math::Vector3R& direction);
 
 	/*! @brief A ray segment.
 
 	@param minT Parametric distance where the ray begins.
 	@param maxT Parametric distance where the ray ends.
 	*/
-	Ray(const Vector3R& origin, const Vector3R& direction, real minT, real maxT);
+	Ray(const math::Vector3R& origin, const math::Vector3R& direction, real minT, real maxT);
 
 	/*! @copydoc Ray::Ray(const Vector3R&, const Vector3R&, real, real)
 
 	@param time The associated time of this ray.
 	*/
-	Ray(const Vector3R& origin, const Vector3R& direction, real minT, real maxT, const Time& time);
+	Ray(const math::Vector3R& origin, const math::Vector3R& direction, real minT, real maxT, const Time& time);
 
 	/*! @brief Points this ray in opposite direction.
 

@@ -6,7 +6,7 @@
 
 #include <vector>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
@@ -37,6 +37,6 @@ private:
 	std::vector<TPwcDistribution1D<T>> m_conditionalXs;
 };
 
-}// end namespace ph
+}// end namespace ph::math
 
 #include "Math/Random/TPwcDistribution2D.ipp"

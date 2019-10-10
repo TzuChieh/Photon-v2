@@ -49,7 +49,7 @@ std::unique_ptr<Emitter> DomeSource::genEmitter(
 	frame.flipHorizontally();// since we are viewing it from inside a sphere
 
 	// HACK
-	TVector2<std::size_t> resolution(frame.widthPx(), frame.heightPx());
+	math::TVector2<std::size_t> resolution(frame.widthPx(), frame.heightPx());
 	//resolution.divLocal(512);
 
 	auto image = std::make_shared<HdrPictureImage>(std::move(frame));
@@ -79,7 +79,7 @@ std::unique_ptr<Emitter> DomeSource::genEmitter(
 		emitter = std::move(multiEmitter);
 	}
 
-	PH_ASSERT(emitter != nullptr);
+	PH_ASSERT(emitter);
 
 	// HACK
 	PH_ASSERT(context.getVisualWorldInfo());

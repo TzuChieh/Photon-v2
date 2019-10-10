@@ -31,10 +31,7 @@ to rendering in mind.
 	#pragma intrinsic(_BitScanReverse)
 #endif
 
-namespace ph
-{
-
-namespace math
+namespace ph::math
 {
 
 template<typename T>
@@ -389,6 +386,4 @@ inline Integer ceil_div_positive(const Integer numerator, const Integer denomina
 	return (numerator + denominator - 1) / denominator;
 }
 
-}// end namespace math
-
-}// end namespace ph
+}// end namespace ph::math

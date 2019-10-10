@@ -8,6 +8,7 @@
 #include <memory>
 
 using namespace ph;
+using namespace ph::math;
 
 TEST(HdrRgbFilmTest, CorrectRasterCoordinates)
 {

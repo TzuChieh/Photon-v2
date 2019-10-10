@@ -31,12 +31,12 @@ public:
 		              "must have add operator for OutputType = InputType + MultiplierType");
 
 		const TTexture<InputType>* inputTexture = this->getInputTexture();
-		PH_ASSERT(inputTexture != nullptr);
+		PH_ASSERT(inputTexture);
 
 		InputType inputValue;
 		inputTexture->sample(sampleLocation, &inputValue);
 
-		PH_ASSERT(out_value != nullptr);
+		PH_ASSERT(out_value);
 		*out_value = inputValue + m_adder;
 	}
 

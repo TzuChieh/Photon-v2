@@ -64,8 +64,8 @@ CookedUnit ATransformedInstance::cook(CookingContext& context) const
 		return cooked;
 	}
 
-	auto baseLW = std::make_unique<StaticAffineTransform>(StaticAffineTransform::makeForward(m_localToWorld));
-	auto baseWL = std::make_unique<StaticAffineTransform>(StaticAffineTransform::makeInverse(m_localToWorld));
+	auto baseLW = std::make_unique<math::StaticAffineTransform>(math::StaticAffineTransform::makeForward(m_localToWorld));
+	auto baseWL = std::make_unique<math::StaticAffineTransform>(math::StaticAffineTransform::makeInverse(m_localToWorld));
 
 	auto transformedTarget = std::make_unique<TransformedIntersectable>(
 		phantom->intersectables().front().get(),

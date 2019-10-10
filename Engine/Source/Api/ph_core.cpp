@@ -167,7 +167,7 @@ void phGetRenderDimension(const PHuint64 engineId, PHuint32* const out_widthPx, 
 	Engine* engine = ApiDatabase::getResource<Engine>(engineId);
 	if(engine)
 	{
-		const TVector2<int64> dim = engine->getFilmDimensionPx();
+		const math::TVector2<int64> dim = engine->getFilmDimensionPx();
 		*out_widthPx  = static_cast<PHuint32>(dim.x);
 		*out_heightPx = static_cast<PHuint32>(dim.y);
 	}

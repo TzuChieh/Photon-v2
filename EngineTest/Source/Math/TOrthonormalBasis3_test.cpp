@@ -7,6 +7,7 @@
 #include <cmath>
 
 using namespace ph;
+using namespace ph::math;
 
 TEST(TOrthonormalBasis3Test, Renormalize)
 {
@@ -129,15 +130,12 @@ TEST(TOrthonormalBasis3Test, Trigonometry)
 
 TEST(TOrthonormalBasis3Test, TrigonometryCornerCase)
 {
-	typedef TVector3<float> Vec;
-
 	TOrthonormalBasis3<float> basis;
-	basis.setXAxis(Vec(1, 0, 0));
-	basis.setYAxis(Vec(0, 1, 0));
-	basis.setZAxis(Vec(0, 0, 1));
+	basis.setXAxis(TVector3<float>(1, 0, 0));
+	basis.setYAxis(TVector3<float>(0, 1, 0));
+	basis.setZAxis(TVector3<float>(0, 0, 1));
 
-	Vec unitVec1(0, 1, 0);
+	TVector3<float> unitVec1(0, 1, 0);
 	EXPECT_TRUE(basis.cosTheta(unitVec1) == 1);
 	EXPECT_TRUE(basis.cosPhi(unitVec1) == 1);
 }
-

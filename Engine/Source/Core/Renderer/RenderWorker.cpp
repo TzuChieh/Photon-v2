@@ -27,8 +27,6 @@ RenderWorker::RenderWorker(const RenderWorker& other) :
 
 void RenderWorker::run()
 {
-
-
 	doWork();
 }
 

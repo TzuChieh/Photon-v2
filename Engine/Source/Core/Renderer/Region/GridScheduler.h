@@ -35,20 +35,20 @@ public:
 	GridScheduler(
 		std::size_t             numWorkers,
 		const WorkUnit&         totalWorkUnit,
-		const Vector2S&         numCells);
+		const math::Vector2S&   numCells);
 
 	GridScheduler(
-		std::size_t             numWorkers, 
-		const WorkUnit&         totalWorkUnit,
-		const Vector2S&         numCells,
-		EOrigin                 origin,
-		constant::AxisIndexType prioriAxis);
+		std::size_t                   numWorkers, 
+		const WorkUnit&               totalWorkUnit,
+		const math::Vector2S&         numCells,
+		EOrigin                       origin,
+		math::constant::AxisIndexType prioriAxis);
 
 private:
-	Vector2S                m_numCells;
-	EOrigin                 m_origin;
-	constant::AxisIndexType m_prioriAxis;
-	Vector2S                m_currentCell;
+	math::Vector2S                m_numCells;
+	EOrigin                       m_origin;
+	math::constant::AxisIndexType m_prioriAxis;
+	math::Vector2S                m_currentCell;
 
 	void scheduleOne(WorkUnit* out_workUnit) override;
 };
@@ -66,30 +66,32 @@ inline GridScheduler::GridScheduler(
 	GridScheduler(
 		numWorkers, 
 		totalWorkUnit,
-		Vector2S(
-			static_cast<std::size_t>(std::ceil(math::fast_sqrt(numWorkers * static_cast<float>(totalWorkUnit.getAspectRatio())))),
-			static_cast<std::size_t>(std::ceil(math::fast_sqrt(numWorkers / static_cast<float>(totalWorkUnit.getAspectRatio()))))))
+		math::Vector2S(
+			static_cast<std::size_t>(
+				std::ceil(math::fast_sqrt(numWorkers * static_cast<float>(totalWorkUnit.getAspectRatio())))),
+			static_cast<std::size_t>(
+				std::ceil(math::fast_sqrt(numWorkers / static_cast<float>(totalWorkUnit.getAspectRatio()))))))
 {}
 
 inline GridScheduler::GridScheduler(
-	const std::size_t numWorkers,
-	const WorkUnit&   totalWorkUnit,
-	const Vector2S&   numCells) :
+	const std::size_t     numWorkers,
+	const WorkUnit&       totalWorkUnit,
+	const math::Vector2S& numCells) :
 
 	GridScheduler(
 		numWorkers, 
 		totalWorkUnit, 
 		numCells,
 		EOrigin::LOWER_LEFT,
-		constant::X_AXIS)
+		math::constant::X_AXIS)
 {}
 
 inline GridScheduler::GridScheduler(
-	const std::size_t             numWorkers,
-	const WorkUnit&               totalWorkUnit,
-	const Vector2S&               numCells,
-	const EOrigin                 origin,
-	const constant::AxisIndexType prioriAxis) :
+	const std::size_t                   numWorkers,
+	const WorkUnit&                     totalWorkUnit,
+	const math::Vector2S&               numCells,
+	const EOrigin                       origin,
+	const math::constant::AxisIndexType prioriAxis) :
 
 	WorkScheduler(numWorkers, totalWorkUnit),
 
@@ -131,11 +133,11 @@ inline void GridScheduler::scheduleOne(WorkUnit* const out_workUnit)
 
 		*out_workUnit = WorkUnit(
 			Region(
-				TVector2<int64>(Vector2S(sideRangeX.first, sideRangeY.first)) + m_totalWorkUnit.getRegion().minVertex,
-				TVector2<int64>(Vector2S(sideRangeX.second, sideRangeY.second)) + m_totalWorkUnit.getRegion().minVertex),
+				math::TVector2<int64>(math::Vector2S(sideRangeX.first, sideRangeY.first)) + m_totalWorkUnit.getRegion().minVertex,
+				math::TVector2<int64>(math::Vector2S(sideRangeX.second, sideRangeY.second)) + m_totalWorkUnit.getRegion().minVertex),
 			m_totalWorkUnit.getDepth());
 
-		if(m_prioriAxis == constant::X_AXIS)
+		if(m_prioriAxis == math::constant::X_AXIS)
 		{
 			++m_currentCell.x;
 			if(m_currentCell.x == m_numCells.x)

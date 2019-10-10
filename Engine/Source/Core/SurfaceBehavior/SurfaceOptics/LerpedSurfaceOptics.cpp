@@ -113,7 +113,7 @@ void LerpedSurfaceOptics::calcBsdfSample(
 
 	if(in.elemental == ALL_ELEMENTALS)
 	{
-		const real dart = Random::genUniformReal_i0_e1();
+		const real dart = math::Random::genUniformReal_i0_e1();
 
 		SpectralStrength sampledRatio  = ratio;
 		SurfaceOptics*   sampledOptics = m_optics0.get();

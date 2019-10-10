@@ -4,7 +4,7 @@
 
 #include <atomic>
 
-namespace ph
+namespace ph::math
 {
 
 class Random final
@@ -31,4 +31,4 @@ private:
 	static const int32 incrementation;
 };
 
-}// end namespace ph
+}// end namespace ph::math

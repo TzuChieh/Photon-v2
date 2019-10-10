@@ -26,7 +26,7 @@ namespace ph
 
 const Logger ModelSource::logger(LogSender("Model Source"));
 
-ModelSource::ModelSource(const Vector3R& emittedRgbRadiance) :
+ModelSource::ModelSource(const math::Vector3R& emittedRgbRadiance) :
 	LightSource(), 
 	m_emittedRadiance(nullptr),
 	m_isBackFaceEmit(false)
@@ -153,12 +153,12 @@ std::unique_ptr<ModelSource> ModelSource::ciLoad(const InputPacket& packet)
 	}
 	else
 	{
-		const auto& emittedRadiance = packet.getVector3("emitted-radiance", 
-			Vector3R(0), DataTreatment::REQUIRED());
+		const auto emittedRadiance = packet.getVector3("emitted-radiance", 
+			math::Vector3R(0), DataTreatment::REQUIRED());
 
 		source = std::make_unique<ModelSource>(emittedRadiance);
 	}
-	PH_ASSERT(source != nullptr);
+	PH_ASSERT(source);
 
 	auto geometry = packet.get<Geometry>("geometry", DataTreatment::REQUIRED());
 	auto material = packet.get<Material>("material", DataTreatment::OPTIONAL());
@@ -166,7 +166,7 @@ std::unique_ptr<ModelSource> ModelSource::ciLoad(const InputPacket& packet)
 	{
 		logger.log(ELogLevel::NOTE_MED, 
 		           "material not specified, using diffusive material as default");
-		material = std::make_shared<MatteOpaque>(Vector3R(0.5_r));
+		material = std::make_shared<MatteOpaque>(math::Vector3R(0.5_r));
 	}
 
 	source->setGeometry(geometry);

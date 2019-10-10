@@ -28,15 +28,11 @@ public:
 
 	TestPoint() : 
 		m_testPoint(0.0_r), m_pointType(INTERSECTABLE_MIN)
-	{
-
-	}
+	{}
 
 	TestPoint(const real testPoint, const int32 pointType) :
 		m_testPoint(testPoint), m_pointType(pointType)
-	{
-
-	}
+	{}
 
 	inline bool operator < (const TestPoint& other) const
 	{

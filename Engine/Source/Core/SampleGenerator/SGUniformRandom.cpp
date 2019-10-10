@@ -18,7 +18,7 @@ void SGUniformRandom::genSamples1D(const Samples1DStage& stage, Samples1D* const
 {
 	for(std::size_t i = 0; i < out_array->numSamples(); ++i)
 	{
-		out_array->set(i, Random::genUniformReal_i0_e1());
+		out_array->set(i, math::Random::genUniformReal_i0_e1());
 	}
 }
 
@@ -26,9 +26,10 @@ void SGUniformRandom::genSamples2D(const Samples2DStage& stage, Samples2D* const
 {
 	for(std::size_t i = 0; i < out_array->numSamples(); ++i)
 	{
-		out_array->set(i, 
-		               Random::genUniformReal_i0_e1(), 
-		               Random::genUniformReal_i0_e1());
+		out_array->set(
+			i, 
+			math::Random::genUniformReal_i0_e1(),
+			math::Random::genUniformReal_i0_e1());
 	}
 }
 

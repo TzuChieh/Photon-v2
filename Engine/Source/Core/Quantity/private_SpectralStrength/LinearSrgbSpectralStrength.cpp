@@ -5,12 +5,12 @@
 namespace ph
 {
 
-Vector3R LinearSrgbSpectralStrength::impl_genLinearSrgb(const EQuantity valueType) const
+math::Vector3R LinearSrgbSpectralStrength::impl_genLinearSrgb(const EQuantity valueType) const
 {
-	return Vector3R(m_values[0], m_values[1], m_values[2]);
+	return math::Vector3R(m_values[0], m_values[1], m_values[2]);
 }
 
-void LinearSrgbSpectralStrength::impl_setLinearSrgb(const Vector3R& linearSrgb, const EQuantity valueType)
+void LinearSrgbSpectralStrength::impl_setLinearSrgb(const math::Vector3R& linearSrgb, const EQuantity valueType)
 {
 	m_values[0] = linearSrgb.x;
 	m_values[1] = linearSrgb.y;

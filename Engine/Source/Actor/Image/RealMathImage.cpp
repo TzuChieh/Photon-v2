@@ -29,7 +29,7 @@ std::shared_ptr<TTexture<real>> RealMathImage::genTextureReal(
 	return genTexture<real, real>(operandTexture);
 }
 
-std::shared_ptr<TTexture<Vector3R>> RealMathImage::genTextureVector3R(
+std::shared_ptr<TTexture<math::Vector3R>> RealMathImage::genTextureVector3R(
 	CookingContext& context) const
 {
 	auto operandImage = checkOperandImage();
@@ -39,7 +39,7 @@ std::shared_ptr<TTexture<Vector3R>> RealMathImage::genTextureVector3R(
 	}
 
 	auto operandTexture = operandImage->genTextureVector3R(context);
-	return genTexture<Vector3R, Vector3R>(operandTexture);
+	return genTexture<math::Vector3R, math::Vector3R>(operandTexture);
 }
 
 std::shared_ptr<TTexture<SpectralStrength>> RealMathImage::genTextureSpectral(
@@ -57,7 +57,7 @@ std::shared_ptr<TTexture<SpectralStrength>> RealMathImage::genTextureSpectral(
 
 RealMathImage& RealMathImage::setOperandImage(const std::shared_ptr<Image>& operand)
 {
-	PH_ASSERT(operand != nullptr);
+	PH_ASSERT(operand);
 	m_operandImage = operand;
 
 	return *this;
@@ -99,9 +99,9 @@ void RealMathImage::ciRegister(CommandRegister& cmdRegister)
 {
 	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
 	{
-		const auto& mathOpType   = packet.getString ("math-op", "multiply", DataTreatment::REQUIRED());
-		const real  realValue    = packet.getReal   ("value",   1.0_r,      DataTreatment::REQUIRED());
-		const auto& operandImage = packet.get<Image>("operand", DataTreatment::REQUIRED());
+		const auto mathOpType   = packet.getString ("math-op", "multiply", DataTreatment::REQUIRED());
+		const auto realValue    = packet.getReal   ("value",   1.0_r,      DataTreatment::REQUIRED());
+		const auto operandImage = packet.get<Image>("operand", DataTreatment::REQUIRED());
 		
 		auto image = std::make_unique<RealMathImage>();
 		image->setReal(realValue);

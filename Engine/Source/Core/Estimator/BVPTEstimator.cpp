@@ -59,8 +59,8 @@ void BVPTEstimator::estimate(
 			accuRadiance.addLocal(radianceLi.mul(accuLiWeight));
 		}
 
-		const Vector3R V = tracingRay.getDirection().mul(-1.0f);
-		const Vector3R N = surfaceHit.getShadingNormal();
+		const math::Vector3R V = tracingRay.getDirection().mul(-1.0f);
+		const math::Vector3R N = surfaceHit.getShadingNormal();
 
 		BsdfSample bsdfSample;
 		bsdfSample.inputs.set(surfaceHit, V);
@@ -70,7 +70,7 @@ void BVPTEstimator::estimate(
 			break;
 		}
 
-		const Vector3R L = bsdfSample.outputs.L;
+		const math::Vector3R L = bsdfSample.outputs.L;
 
 		const SpectralStrength liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 		accuLiWeight.mulLocal(liWeight);
@@ -100,7 +100,7 @@ void BVPTEstimator::estimate(
 			if(surfaceHit.hasInteriorOptics() && surfaceHit.getShadingNormal().dot(V) * surfaceHit.getShadingNormal().dot(L) < 0.0_r)
 			{
 				SurfaceHit Xe;
-				Vector3R endV;
+				math::Vector3R endV;
 				SpectralStrength weight;
 				SpectralStrength radiance;
 				PtVolumetricEstimator::sample(integrand.getScene(), surfaceHit, L, &Xe, &endV, &weight, &radiance);
@@ -125,8 +125,8 @@ void BVPTEstimator::estimate(
 					break;
 				}
 
-				const Vector3R nextRayOrigin(Xe.getPosition());
-				const Vector3R nextRayDirection(bsdfSample.outputs.L);
+				const math::Vector3R nextRayOrigin(Xe.getPosition());
+				const math::Vector3R nextRayDirection(bsdfSample.outputs.L);
 				tracingRay.setOrigin(nextRayOrigin);
 				tracingRay.setDirection(nextRayDirection);
 			}

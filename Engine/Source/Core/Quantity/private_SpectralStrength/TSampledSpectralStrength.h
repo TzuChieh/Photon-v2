@@ -11,7 +11,7 @@ namespace ph
 {
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
-class TSampledSpectralStrength final : 
+class TSampledSpectralStrength : 
 	public TAbstractSpectralStrength<TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>, N>
 {
 public:
@@ -30,8 +30,8 @@ public:
 
 	//void asAveraged(const real* lambdasNm, const real* strengths, std::size_t numElements);
 
-	inline Vector3R impl_genLinearSrgb(EQuantity valueType) const;
-	inline void impl_setLinearSrgb(const Vector3R& rgb, EQuantity valueType);
+	inline math::Vector3R impl_genLinearSrgb(EQuantity valueType) const;
+	inline void impl_setLinearSrgb(const math::Vector3R& rgb, EQuantity valueType);
 	inline void impl_setSampled(const SampledSpectralStrength& sampled, EQuantity valueType);
 };
 

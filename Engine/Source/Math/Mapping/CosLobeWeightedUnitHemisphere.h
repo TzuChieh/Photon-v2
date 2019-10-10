@@ -7,7 +7,7 @@
 
 #include <cmath>
 
-namespace ph
+namespace ph::math
 {
 
 class CosLobeWeightedUnitHemisphere
@@ -55,4 +55,4 @@ inline Vector3R CosLobeWeightedUnitHemisphere::map(const Vector2R& seed, real* c
 	return mapped;
 }
 
-}// end namespace ph
+}// end namespace ph::math

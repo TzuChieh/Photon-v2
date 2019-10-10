@@ -38,14 +38,14 @@ public:
 		return value;
 	}
 
-	inline OutputType sample(const TTexture<OutputType>& texture, const Vector3R& uvw) const
+	inline OutputType sample(const TTexture<OutputType>& texture, const math::Vector3R& uvw) const
 	{
 		OutputType value;
 		texture.sample(SampleLocation(uvw, m_sampledQuantity), &value);
 		return value;
 	}
 
-	inline OutputType sample(const TTexture<OutputType>& texture, const Vector2R& uv) const
+	inline OutputType sample(const TTexture<OutputType>& texture, const math::Vector2R& uv) const
 	{
 		OutputType value;
 		texture.sample(SampleLocation(uv, m_sampledQuantity), &value);

@@ -6,10 +6,11 @@
 
 #include <type_traits>
 
+using namespace ph;
+using namespace ph::math;
+
 TEST(TMatrix2Test, Requirements)
 {
-	using namespace ph;
-
 	EXPECT_TRUE(std::is_trivially_copyable_v<Matrix2R>);
 	EXPECT_TRUE(std::is_trivially_copyable_v<Matrix2F>);
 	EXPECT_TRUE(std::is_trivially_copyable_v<Matrix2D>);
@@ -17,8 +18,6 @@ TEST(TMatrix2Test, Requirements)
 
 TEST(TMatrix2Test, InitAndCopy)
 {
-	using namespace ph;
-
 	Matrix2R mat1(3);
 	EXPECT_EQ(mat1.m[0][0], 3); EXPECT_EQ(mat1.m[0][1], 3);
 	EXPECT_EQ(mat1.m[1][0], 3); EXPECT_EQ(mat1.m[1][1], 3);
@@ -35,8 +34,6 @@ TEST(TMatrix2Test, InitAndCopy)
 
 TEST(TMatrix2Test, Multiplying)
 {
-	using namespace ph;
-
 	TMatrix2<float> mat1(1, 2, 
 	                     3, 4);
 	TMatrix2<float> mat2(1, 1, 
@@ -49,8 +46,6 @@ TEST(TMatrix2Test, Multiplying)
 
 TEST(TMatrix2Test, DeterminantAndInverse)
 {
-	using namespace ph;
-
 	TMatrix2<float> mat1(-1, -2,
 	                      3,  4);
 	EXPECT_FLOAT_EQ(mat1.determinant(), 2);
@@ -68,8 +63,6 @@ TEST(TMatrix2Test, DeterminantAndInverse)
 
 TEST(TMatrix2Test, SolveLinearSystem)
 {
-	using namespace ph;
-
 	// a solvable system
 
 	TMatrix2<float> A1(0.1f, 0.2f,

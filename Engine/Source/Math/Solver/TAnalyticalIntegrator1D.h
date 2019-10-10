@@ -2,11 +2,11 @@
 
 #include "Math/Function/TPiecewiseLinear1D.h"
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
-class TAnalyticalIntegrator1D final
+class TAnalyticalIntegrator1D
 {
 public:
 	TAnalyticalIntegrator1D();
@@ -21,6 +21,6 @@ private:
 	T m_x1;
 };
 
-}// end namespace ph
+}// end namespace ph::math
 
 #include "Math/Solver/TAnalyticalIntegrator1D.ipp"

@@ -11,7 +11,7 @@ SphereSource::SphereSource() :
 	setRadius(1.0_r);
 }
 
-SphereSource::SphereSource(const real radius, const Vector3R& linearSrgbColor, real numWatts) : 
+SphereSource::SphereSource(const real radius, const math::Vector3R& linearSrgbColor, real numWatts) :
 	AreaSource(linearSrgbColor, numWatts)
 {
 	setRadius(radius);
@@ -30,7 +30,7 @@ std::shared_ptr<Geometry> SphereSource::genAreas(CookingContext& context) const
 
 void SphereSource::setRadius(const real radius)
 {
-	PH_ASSERT(radius > 0.0_r);
+	PH_ASSERT_GT(radius, 0.0_r);
 
 	m_radius = radius;
 }

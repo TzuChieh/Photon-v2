@@ -43,7 +43,7 @@ void LambertianDiffuse::calcBsdf(
 	}
 
 	SpectralStrength albedo = TSampler<SpectralStrength>(EQuantity::ECF).sample(*m_albedo, in.X);
-	out.bsdf = albedo.mulLocal(constant::rcp_pi<real>);
+	out.bsdf = albedo.mulLocal(math::constant::rcp_pi<real>);
 }
 
 void LambertianDiffuse::calcBsdfSample(
@@ -60,13 +60,13 @@ void LambertianDiffuse::calcBsdfSample(
 
 	// generate and transform L to N's space
 
-	const Vector3R& N = in.X.getShadingNormal();
+	const math::Vector3R N = in.X.getShadingNormal();
 	PH_ASSERT(N.isFinite());
 
-	Vector3R& L = out.L;
+	math::Vector3R& L = out.L;
 
-	L = CosThetaWeightedUnitHemisphere::map(
-		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()});
+	L = math::CosThetaWeightedUnitHemisphere::map(
+		{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()});
 
 	L = in.X.getDetail().getShadingBasis().localToWorld(L);
 	L.normalizeLocal();
@@ -97,8 +97,8 @@ void LambertianDiffuse::calcBsdfSamplePdfW(
 		return;
 	}
 
-	const Vector3R& N = in.X.getShadingNormal();
-	out.sampleDirPdfW = in.L.absDot(N) * constant::rcp_pi<real>;
+	const math::Vector3R N = in.X.getShadingNormal();
+	out.sampleDirPdfW = in.L.absDot(N) * math::constant::rcp_pi<real>;
 }
 
 }// end namespace ph

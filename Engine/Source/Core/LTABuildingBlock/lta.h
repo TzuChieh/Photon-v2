@@ -32,10 +32,10 @@ namespace lta
 	Eurographics Rendering Workshop 1996 Proceedings.
 */
 inline real importance_BSDF_Ns_corrector(
-	const Vector3R& Ns, 
-	const Vector3R& Ng,
-	const Vector3R& L,
-	const Vector3R& V)
+	const math::Vector3R& Ns,
+	const math::Vector3R& Ng,
+	const math::Vector3R& L,
+	const math::Vector3R& V)
 {
 	PH_ASSERT_GT(std::abs(Ns.dot(V) * Ng.dot(L)), 0.0_r);
 

@@ -105,5 +105,3 @@ void LayeredSurface::ciRegister(CommandRegister& cmdRegister)
 }
 
 }// end namespace ph
-
-	

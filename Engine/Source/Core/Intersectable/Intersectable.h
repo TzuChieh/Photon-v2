@@ -29,8 +29,6 @@ triangles and quads, and they are named after their capability "intersectable".
 class Intersectable
 {
 public:
-	using AABB3D = math::TAABB3D<real>;
-
 	virtual ~Intersectable();
 
 	/*! @brief Determine whether a given ray hits the object.
@@ -54,7 +52,7 @@ public:
 
 	/*! @brief Calculates Axis-Aligned Bounding Box (AABB) of itself.
 	*/
-	virtual void calcAABB(AABB3D* out_aabb) const = 0;
+	virtual void calcAABB(math::AABB3D* out_aabb) const = 0;
 
 	/*! @brief Determines whether this object blocks the ray.
 
@@ -73,7 +71,7 @@ public:
 	allowed for this method, providing an implementation with higher accuracy is
 	benefitial for many algorithms used by the renderer.
 	*/
-	virtual bool isIntersectingVolumeConservative(const AABB3D& volume) const;
+	virtual bool isIntersectingVolumeConservative(const math::AABB3D& volume) const;
 };
 
 }// end namespace ph

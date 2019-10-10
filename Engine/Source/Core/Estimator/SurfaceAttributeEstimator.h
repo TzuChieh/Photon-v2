@@ -8,15 +8,15 @@ namespace ph
 
 class SurfaceHit;
 
-class SurfaceAttributeEstimator : public TIRayEstimator<Vector3R>
+class SurfaceAttributeEstimator : public TIRayEstimator<math::Vector3R>
 {
 public:
 	void update(const Integrand& integrand) override;
 
 	void estimate(
-		const Ray&                  ray,
-		const Integrand&            integrand,
-		TEstimationArray<Vector3R>& out_estimation) const override;
+		const Ray&                        ray,
+		const Integrand&                  integrand,
+		TEstimationArray<math::Vector3R>& out_estimation) const override;
 
 	virtual std::string toString() const;
 };

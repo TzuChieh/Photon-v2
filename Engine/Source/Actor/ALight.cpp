@@ -50,11 +50,11 @@ CookedUnit ALight::cook(CookingContext& context) const
 	if(!m_lightSource)
 	{
 		logger.log(ELogLevel::WARNING_MED, 
-		           "incomplete data detected, this light is ignored");
+			"incomplete data detected, this light is ignored");
 		return CookedUnit();
 	}
 
-	PH_ASSERT(m_lightSource != nullptr);
+	PH_ASSERT(m_lightSource);
 	std::shared_ptr<Geometry> geometry = m_lightSource->genGeometry(context);
 
 	CookedUnit cookedActor;
@@ -87,23 +87,23 @@ CookedUnit ALight::buildGeometricLight(
 	std::shared_ptr<Geometry> geometry,
 	std::shared_ptr<Material> material) const
 {
-	PH_ASSERT(geometry != nullptr);
+	PH_ASSERT(geometry);
 
 	if(!material)
 	{
 		logger.log(ELogLevel::NOTE_MED, 
-		           "material is not specified, using default diffusive material");
+			"material is not specified, using default diffusive material");
 
 		material = std::make_shared<MatteOpaque>();
 	}
 
-	std::unique_ptr<RigidTransform> baseLW, baseWL;
+	std::unique_ptr<math::RigidTransform> baseLW, baseWL;
 	auto sanifiedGeometry = getSanifiedGeometry(context, geometry, &baseLW, &baseWL);
 	if(!sanifiedGeometry)
 	{
 		logger.log(ELogLevel::WARNING_MED,
-		           "sanified geometry cannot be made during the process of "
-		           "geometric light building; proceed at your own risk");
+			"sanified geometry cannot be made during the process of "
+			"geometric light building; proceed at your own risk");
 
 		sanifiedGeometry = geometry;
 	}
@@ -128,9 +128,10 @@ CookedUnit ALight::buildGeometricLight(
 		// TODO: baseLW & baseWL may be identity transform if base transform
 		// is applied to the geometry, in such case, wrapping primitives with
 		// TransformedIntersectable is a total waste
-		auto transformedPrimitive = std::make_unique<TransformedPrimitive>(primitiveDatum.get(), 
-		                                                                   baseLW.get(), 
-		                                                                   baseWL.get());
+		auto transformedPrimitive = std::make_unique<TransformedPrimitive>(
+			primitiveDatum.get(), 
+			baseLW.get(), 
+			baseWL.get());
 
 		primitives.push_back(transformedPrimitive.get());
 
@@ -164,8 +165,8 @@ CookedUnit ALight::buildGeometricLight(
 std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 	CookingContext&                        context,
 	const std::shared_ptr<Geometry>&       geometry,
-	std::unique_ptr<RigidTransform>* const out_baseLW,
-	std::unique_ptr<RigidTransform>* const out_baseWL) const
+	std::unique_ptr<math::RigidTransform>* const out_baseLW,
+	std::unique_ptr<math::RigidTransform>* const out_baseWL) const
 {
 	std::shared_ptr<Geometry> sanifiedGeometry = nullptr;
 	*out_baseLW = nullptr;
@@ -174,7 +175,7 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 	// TODO: test "isRigid()" may be more appropriate
 	if(m_localToWorld.hasScaleEffect())
 	{
-		const StaticAffineTransform& baseLW = StaticAffineTransform::makeForward(m_localToWorld);
+		const auto baseLW = math::StaticAffineTransform::makeForward(m_localToWorld);
 
 		sanifiedGeometry = geometry->genTransformed(baseLW);
 		if(!sanifiedGeometry)
@@ -186,21 +187,21 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 				"can cause severe rendering artifacts");
 
 			sanifiedGeometry = geometry;
-			*out_baseLW = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeForward(m_localToWorld));
-			*out_baseWL = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeInverse(m_localToWorld));
+			*out_baseLW = std::make_unique<math::StaticRigidTransform>(math::StaticRigidTransform::makeForward(m_localToWorld));
+			*out_baseWL = std::make_unique<math::StaticRigidTransform>(math::StaticRigidTransform::makeInverse(m_localToWorld));
 		}
 		else
 		{
 			// TODO: combine identity transforms...
-			*out_baseLW = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeIdentity());
-			*out_baseWL = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeIdentity());
+			*out_baseLW = std::make_unique<math::StaticRigidTransform>(math::StaticRigidTransform::makeIdentity());
+			*out_baseWL = std::make_unique<math::StaticRigidTransform>(math::StaticRigidTransform::makeIdentity());
 		}
 	}
 	else
 	{
 		sanifiedGeometry = geometry;
-		*out_baseLW = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeForward(m_localToWorld));
-		*out_baseWL = std::make_unique<StaticRigidTransform>(StaticRigidTransform::makeInverse(m_localToWorld));
+		*out_baseLW = std::make_unique<math::StaticRigidTransform>(math::StaticRigidTransform::makeForward(m_localToWorld));
+		*out_baseWL = std::make_unique<math::StaticRigidTransform>(math::StaticRigidTransform::makeInverse(m_localToWorld));
 	}
 
 	return sanifiedGeometry;

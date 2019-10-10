@@ -23,10 +23,10 @@ public:
 	bool hasExteriorOptics() const;
 
 	const HitDetail& getDetail() const;
-	const Ray&       getIncidentRay() const;
-	Vector3R         getPosition() const;
-	Vector3R         getShadingNormal() const;
-	Vector3R         getGeometryNormal() const;
+	const Ray& getIncidentRay() const;
+	math::Vector3R getPosition() const;
+	math::Vector3R getShadingNormal() const;
+	math::Vector3R getGeometryNormal() const;
 
 private:
 	Ray       m_incidentRay;
@@ -56,17 +56,17 @@ inline const Ray& SurfaceHit::getIncidentRay() const
 	return m_incidentRay;
 }
 
-inline Vector3R SurfaceHit::getPosition() const
+inline math::Vector3R SurfaceHit::getPosition() const
 {
 	return m_detail.getPosition();
 }
 
-inline Vector3R SurfaceHit::getShadingNormal() const
+inline math::Vector3R SurfaceHit::getShadingNormal() const
 {
 	return m_detail.getShadingNormal();
 }
 
-inline Vector3R SurfaceHit::getGeometryNormal() const
+inline math::Vector3R SurfaceHit::getGeometryNormal() const
 {
 	return m_detail.getGeometryNormal();
 }

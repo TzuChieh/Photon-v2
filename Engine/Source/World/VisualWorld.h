@@ -31,7 +31,7 @@ public:
 	void addActor(std::shared_ptr<Actor> actor);
 
 	// HACK
-	void setCameraPosition(const Vector3R& cameraPos);
+	void setCameraPosition(const math::Vector3R& cameraPos);
 
 	void setCookSettings(const std::shared_ptr<CookSettings>& settings);
 
@@ -46,7 +46,7 @@ private:
 	CookedDataStorage m_cookedActorStorage;
 	CookedDataStorage m_cookedBackendStorage;
 	CookedDataStorage m_phantomStorage;
-	Vector3R m_cameraPos;
+	math::Vector3R m_cameraPos;
 
 	std::unique_ptr<Intersector>    m_intersector;
 	std::unique_ptr<EmitterSampler> m_emitterSampler;
@@ -66,7 +66,7 @@ private:
 
 // In-header Implementations:
 
-inline void VisualWorld::setCameraPosition(const Vector3R& cameraPos)
+inline void VisualWorld::setCameraPosition(const math::Vector3R& cameraPos)
 {
 	m_cameraPos = cameraPos;
 }

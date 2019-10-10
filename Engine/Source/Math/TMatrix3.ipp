@@ -3,7 +3,7 @@
 #include "Math/TMatrix3.h"
 #include "Common/assertion.h"
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
@@ -151,4 +151,4 @@ inline std::string TMatrix3<T>::toString() const
 	return result;
 }
 
-}// end namespace ph
+}// end namespace ph::math

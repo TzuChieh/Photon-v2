@@ -9,13 +9,13 @@
 namespace ph
 {
 
-void SphericalMapper::directionToUvw(const Vector3R& direction, Vector3R* const out_uvw) const
+void SphericalMapper::directionToUvw(const math::Vector3R& direction, math::Vector3R* const out_uvw) const
 {
-	using namespace constant;
+	using namespace math::constant;
 
 	PH_ASSERT(out_uvw);
 
-	const Vector3R& unitVector = direction.normalize();
+	const math::Vector3R& unitVector = direction.normalize();
 
 	const real cosTheta = math::clamp(unitVector.y, -1.0_r, 1.0_r);
 
@@ -28,15 +28,15 @@ void SphericalMapper::directionToUvw(const Vector3R& direction, Vector3R* const 
 	out_uvw->z = 0.0_r;
 }
 
-bool SphericalMapper::uvwToDirection(const Vector3R& uvw, Vector3R* const out_direction) const
+bool SphericalMapper::uvwToDirection(const math::Vector3R& uvw, math::Vector3R* const out_direction) const
 {
 	PH_ASSERT(out_direction);
 
 	PH_ASSERT(0.0_r <= uvw.x && uvw.x <= 1.0_r &&
 	          0.0_r <= uvw.y && uvw.y <= 1.0_r);
 
-	const real theta = (1.0_r - uvw.y) * constant::pi<real>;
-	const real phi   = uvw.x * constant::two_pi<real>;
+	const real theta = (1.0_r - uvw.y) * math::constant::pi<real>;
+	const real phi   = uvw.x * math::constant::two_pi<real>;
 
 	const real zxPlaneRadius = std::sin(theta);
 	out_direction->x = zxPlaneRadius * std::sin(phi);

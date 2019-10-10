@@ -16,10 +16,11 @@ class MotionSource : public TCommandInterface<MotionSource>
 {
 public:
 	MotionSource() = default;
-	virtual ~MotionSource() = 0;
+	virtual ~MotionSource() = default;
 	
-	virtual std::unique_ptr<Transform> genLocalToWorld(const Time& start, 
-	                                                   const Time& end) const = 0;
+	virtual std::unique_ptr<math::Transform> genLocalToWorld(
+		const Time& start, 
+		const Time& end) const = 0;
 
 // command interface
 public:

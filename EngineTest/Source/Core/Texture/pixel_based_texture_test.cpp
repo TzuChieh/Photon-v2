@@ -3,11 +3,12 @@
 
 #include <gtest/gtest.h>
 
+using namespace ph;
+using namespace ph::math;
+
 TEST(PixelBasedTextureTest, NearestFilteredTexture)
 {
-	using namespace ph;
-
-	typedef TFrame<int, 1> Frame;
+	using Frame = TFrame<int, 1>;
 
 	auto uv = [](const real u, const real v)
 	{
@@ -84,14 +85,12 @@ TEST(PixelBasedTextureTest, NearestFilteredTexture)
 
 TEST(PixelBasedTextureTest, BilinearFilteredTexture)
 {
-	using namespace ph;
-
 	auto uv = [](const real u, const real v)
 	{
 		return SampleLocation(Vector3R(u, v, 0), EQuantity::RAW);
 	};
 
-	typedef TFrame<float, 1> Frame;
+	using Frame = TFrame<float, 1>;
 
 	Frame frame1(2, 2);
 	frame1.setPixel(0, 0, Frame::Pixel(1.0f));

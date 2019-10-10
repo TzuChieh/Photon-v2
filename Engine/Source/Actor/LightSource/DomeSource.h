@@ -11,7 +11,7 @@
 namespace ph
 {
 
-class DomeSource final : public LightSource, public TCommandInterface<DomeSource>
+class DomeSource : public LightSource, public TCommandInterface<DomeSource>
 {
 public:
 	DomeSource();

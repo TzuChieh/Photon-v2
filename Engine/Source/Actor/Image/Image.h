@@ -25,7 +25,7 @@ public:
 	virtual std::shared_ptr<TTexture<real>> genTextureReal(
 		CookingContext& context) const;
 
-	virtual std::shared_ptr<TTexture<Vector3R>> genTextureVector3R(
+	virtual std::shared_ptr<TTexture<math::Vector3R>> genTextureVector3R(
 		CookingContext& context) const;
 
 	virtual std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(

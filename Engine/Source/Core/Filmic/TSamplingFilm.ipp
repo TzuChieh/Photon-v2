@@ -22,18 +22,18 @@ inline TSamplingFilm<Sample>::TSamplingFilm(
 	TSamplingFilm(
 		actualWidthPx, 
 		actualHeightPx,
-		TAABB2D<int64>(
-			TVector2<int64>(0, 0),
-			TVector2<int64>(actualWidthPx, actualHeightPx)),
+		math::TAABB2D<int64>(
+			math::TVector2<int64>(0, 0),
+			math::TVector2<int64>(actualWidthPx, actualHeightPx)),
 		filter)
 {}
 
 template<typename Sample>
 inline TSamplingFilm<Sample>::TSamplingFilm(
-	const int64           actualWidthPx,
-	const int64           actualHeightPx,
-	const TAABB2D<int64>& effectiveWindowPx,
-	const SampleFilter&   filter) :
+	const int64                 actualWidthPx,
+	const int64                 actualHeightPx,
+	const math::TAABB2D<int64>& effectiveWindowPx,
+	const SampleFilter&         filter) :
 
 	Film(
 		actualWidthPx,
@@ -58,7 +58,7 @@ inline TSamplingFilm<Sample>::TSamplingFilm(TSamplingFilm&& other) :
 {}
 
 template<typename Sample>
-inline void TSamplingFilm<Sample>::setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow)
+inline void TSamplingFilm<Sample>::setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindow)
 {
 	Film::setEffectiveWindowPx(effectiveWindow);
 
@@ -82,9 +82,9 @@ inline void TSamplingFilm<Sample>::updateSampleDimensions()
 {
 	if(m_useSoftEdge)
 	{
-		m_sampleWindowPx = TAABB2D<float64>(
-		TVector2<float64>(getEffectiveWindowPx().minVertex).add(0.5).sub(m_filter.getHalfSizePx()),
-		TVector2<float64>(getEffectiveWindowPx().maxVertex).sub(0.5).add(m_filter.getHalfSizePx()));
+		m_sampleWindowPx = math::TAABB2D<float64>(
+			math::TVector2<float64>(getEffectiveWindowPx().minVertex).add(0.5).sub(m_filter.getHalfSizePx()),
+			math::TVector2<float64>(getEffectiveWindowPx().maxVertex).sub(0.5).add(m_filter.getHalfSizePx()));
 
 		if(!m_sampleWindowPx.isValid())
 		{
@@ -94,7 +94,7 @@ inline void TSamplingFilm<Sample>::updateSampleDimensions()
 	}
 	else
 	{
-		m_sampleWindowPx = TAABB2D<float64>(getEffectiveWindowPx());
+		m_sampleWindowPx = math::TAABB2D<float64>(getEffectiveWindowPx());
 	}
 }
 

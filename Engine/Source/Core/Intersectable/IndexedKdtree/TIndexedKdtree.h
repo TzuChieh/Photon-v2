@@ -25,8 +25,6 @@ class TIndexedKdtree
 public:
 	using Node = TIndexedKdtreeNode<Index>;
 
-	using AABB3D = math::AABB3D;
-
 	TIndexedKdtree(
 		int traversalCost, 
 		int intersectionCost,
@@ -35,7 +33,7 @@ public:
 
 	void build(std::vector<Item>&& items);
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const;
-	void getAABB(AABB3D* out_aabb) const;
+	void getAABB(math::AABB3D* out_aabb) const;
 
 private:
 	std::vector<Item> m_items;
@@ -44,19 +42,19 @@ private:
 	float m_emptyBonus;
 	std::size_t m_maxNodeItems;
 	std::size_t m_maxNodeDepth;
-	AABB3D m_rootAABB;
+	math::AABB3D m_rootAABB;
 	std::vector<Node> m_nodeBuffer;
 	std::size_t m_numNodes;
 	std::vector<Index> m_itemIndices;
 
 	void buildNodeRecursive(
 		std::size_t nodeIndex,
-		const AABB3D& nodeAABB,
+		const math::AABB3D& nodeAABB,
 		const Index* nodeItemIndices,
 		std::size_t numNodeItems,
 		std::size_t currentNodeDepth,
 		std::size_t currentBadRefines,
-		const std::vector<AABB3D>& itemAABBs,
+		const std::vector<math::AABB3D>& itemAABBs,
 		Index* negativeItemIndicesCache,
 		Index* positiveItemIndicesCache,
 		std::array<std::unique_ptr<IndexedItemEndpoint[]>, 3>& endpointsCache);
@@ -95,11 +93,11 @@ inline void TIndexedKdtree<Item, Index>::build(std::vector<Item>&& items)
 
 	m_maxNodeDepth = static_cast<std::size_t>(8 + 1.3 * std::log2(m_items.size()) + 0.5);
 
-	std::vector<AABB3D> itemAABBs;
+	std::vector<math::AABB3D> itemAABBs;
 	regular_access(m_items.front()).calcAABB(&m_rootAABB);
 	for(const auto& item : m_items)
 	{
-		AABB3D aabb;
+		math::AABB3D aabb;
 		regular_access(item).calcAABB(&aabb);
 
 		itemAABBs.push_back(aabb);
@@ -154,7 +152,7 @@ inline bool TIndexedKdtree<Item, Index>::isIntersecting(const Ray& ray, HitProbe
 		return false;
 	}
 
-	const Vector3R reciRayDir(ray.getDirection().reciprocal());
+	const math::Vector3R reciRayDir(ray.getDirection().reciprocal());
 
 	std::array<NodeState, MAX_STACK_HEIGHT> nodeStack;
 	int stackHeight = 0;
@@ -270,12 +268,12 @@ inline bool TIndexedKdtree<Item, Index>::isIntersecting(const Ray& ray, HitProbe
 template<typename Item, typename Index>
 inline void TIndexedKdtree<Item, Index>::buildNodeRecursive(
 	const std::size_t nodeIndex,
-	const AABB3D& nodeAABB,
+	const math::AABB3D& nodeAABB,
 	const Index* const nodeItemIndices,
 	const std::size_t numNodeItems,
 	const std::size_t currentNodeDepth,
 	const std::size_t currentBadRefines,
-	const std::vector<AABB3D>& itemAABBs,
+	const std::vector<math::AABB3D>& itemAABBs,
 	Index* const negativeItemIndicesCache,
 	Index* const positiveItemIndicesCache,
 	std::array<std::unique_ptr<IndexedItemEndpoint[]>, 3>& endpointsCache)
@@ -293,9 +291,9 @@ inline void TIndexedKdtree<Item, Index>::buildNodeRecursive(
 		return;
 	}
 
-	const real     noSplitCost         = m_intersectionCost * static_cast<real>(numNodeItems);
-	const real     reciNodeSurfaceArea = 1.0_r / nodeAABB.getSurfaceArea();
-	const Vector3R nodeExtents         = nodeAABB.getExtents();
+	const real           noSplitCost         = m_intersectionCost * static_cast<real>(numNodeItems);
+	const real           reciNodeSurfaceArea = 1.0_r / nodeAABB.getSurfaceArea();
+	const math::Vector3R nodeExtents         = nodeAABB.getExtents();
 
 	real        bestSplitCost     = std::numeric_limits<real>::max();
 	int         bestAxis          = -1;
@@ -306,8 +304,8 @@ inline void TIndexedKdtree<Item, Index>::buildNodeRecursive(
 	{
 		for(std::size_t i = 0; i < numNodeItems; ++i)
 		{
-			const Index   itemIndex = nodeItemIndices[i];
-			const AABB3D& itemAABB  = itemAABBs[itemIndex];
+			const Index         itemIndex = nodeItemIndices[i];
+			const math::AABB3D& itemAABB  = itemAABBs[itemIndex];
 			endpointsCache[axis][2 * i]     = IndexedItemEndpoint{itemAABB.getMinVertex()[axis], itemIndex, EEndpoint::MIN};
 			endpointsCache[axis][2 * i + 1] = IndexedItemEndpoint{itemAABB.getMaxVertex()[axis], itemIndex, EEndpoint::MAX};
 		}
@@ -333,13 +331,13 @@ inline void TIndexedKdtree<Item, Index>::buildNodeRecursive(
 			if(endpoint > nodeAABB.getMinVertex()[axis] &&
 			   endpoint < nodeAABB.getMaxVertex()[axis])
 			{
-				Vector3R endpointMinVertex = nodeAABB.getMinVertex();
-				Vector3R endpointMaxVertex = nodeAABB.getMaxVertex();
+				math::Vector3R endpointMinVertex = nodeAABB.getMinVertex();
+				math::Vector3R endpointMaxVertex = nodeAABB.getMaxVertex();
 				endpointMinVertex[axis] = endpoint;
 				endpointMaxVertex[axis] = endpoint;
 
-				const real probNegative     = AABB3D(nodeAABB.getMinVertex(), endpointMaxVertex).getSurfaceArea() * reciNodeSurfaceArea;
-				const real probPositive     = AABB3D(endpointMinVertex, nodeAABB.getMaxVertex()).getSurfaceArea() * reciNodeSurfaceArea;
+				const real probNegative     = math::AABB3D(nodeAABB.getMinVertex(), endpointMaxVertex).getSurfaceArea() * reciNodeSurfaceArea;
+				const real probPositive     = math::AABB3D(endpointMinVertex, nodeAABB.getMaxVertex()).getSurfaceArea() * reciNodeSurfaceArea;
 				const real emptyBonus       = (numNegativeItems == 0 || numPositiveItems == 0) ? m_emptyBonus : 0.0_r;
 				const real currentSplitCost = m_traversalCost + (1.0_r - emptyBonus) * m_intersectionCost * 
 					(probNegative * static_cast<real>(numNegativeItems) + probPositive * static_cast<real>(numPositiveItems));
@@ -396,12 +394,12 @@ inline void TIndexedKdtree<Item, Index>::buildNodeRecursive(
 
 	const real bestSplitPos = endpointsCache[bestAxis][bestEndpointIndex].position;
 
-	Vector3R splitPosMinVertex = nodeAABB.getMinVertex();
-	Vector3R splitPosMaxVertex = nodeAABB.getMaxVertex();
+	math::Vector3R splitPosMinVertex = nodeAABB.getMinVertex();
+	math::Vector3R splitPosMaxVertex = nodeAABB.getMaxVertex();
 	splitPosMinVertex[bestAxis] = bestSplitPos;
 	splitPosMaxVertex[bestAxis] = bestSplitPos;
-	const AABB3D negativeNodeAABB(nodeAABB.getMinVertex(), splitPosMaxVertex);
-	const AABB3D positiveNodeAABB(splitPosMinVertex, nodeAABB.getMaxVertex());
+	const math::AABB3D negativeNodeAABB(nodeAABB.getMinVertex(), splitPosMaxVertex);
+	const math::AABB3D positiveNodeAABB(splitPosMinVertex, nodeAABB.getMaxVertex());
 	
 	buildNodeRecursive(
 		nodeIndex + 1, 
@@ -432,7 +430,7 @@ inline void TIndexedKdtree<Item, Index>::buildNodeRecursive(
 }
 
 template<typename Item, typename Index>
-void TIndexedKdtree<Item, Index>::getAABB(AABB3D* const out_aabb) const
+void TIndexedKdtree<Item, Index>::getAABB(math::AABB3D* const out_aabb) const
 {
 	PH_ASSERT(out_aabb);
 

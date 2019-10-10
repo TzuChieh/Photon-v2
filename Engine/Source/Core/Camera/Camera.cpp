@@ -16,17 +16,17 @@ namespace
 }
 
 Camera::Camera() :
-	Camera(Vector3R(0, 0, 0), QuaternionR::makeNoRotation())
+	Camera(math::Vector3R(0, 0, 0), math::QuaternionR::makeNoRotation())
 {}
 
-Camera::Camera(const Vector3R& position, const QuaternionR& rotation) :
+Camera::Camera(const math::Vector3R& position, const math::QuaternionR& rotation) :
 	m_aspectRatio(16.0_r / 9.0_r)
 {
-	updateCameraPose(TVector3<hiReal>(position), TQuaternion<hiReal>(rotation));
+	updateCameraPose(math::TVector3<hiReal>(position), math::TQuaternion<hiReal>(rotation));
 }
 
 void Camera::calcSensedRayDifferentials(
-	const Vector2R& rasterPosPx, const Ray& sensedRay,
+	const math::Vector2R& rasterPosPx, const Ray& sensedRay,
 	RayDifferential* const out_result) const
 {
 	// 2nd-order accurate with respect to the size of <deltaPx>
@@ -34,10 +34,10 @@ void Camera::calcSensedRayDifferentials(
 	const real reciIntervalPx = 1.0_r / deltaPx;
 
 	Ray dnxRay, dpxRay, dnyRay, dpyRay;
-	genSensedRay(Vector2R(rasterPosPx.x - deltaPx, rasterPosPx.y), &dnxRay);
-	genSensedRay(Vector2R(rasterPosPx.x + deltaPx, rasterPosPx.y), &dpxRay);
-	genSensedRay(Vector2R(rasterPosPx.x, rasterPosPx.y - deltaPx), &dnyRay);
-	genSensedRay(Vector2R(rasterPosPx.x, rasterPosPx.y + deltaPx), &dpyRay);
+	genSensedRay(math::Vector2R(rasterPosPx.x - deltaPx, rasterPosPx.y), &dnxRay);
+	genSensedRay(math::Vector2R(rasterPosPx.x + deltaPx, rasterPosPx.y), &dpxRay);
+	genSensedRay(math::Vector2R(rasterPosPx.x, rasterPosPx.y - deltaPx), &dnyRay);
+	genSensedRay(math::Vector2R(rasterPosPx.x, rasterPosPx.y + deltaPx), &dpyRay);
 
 	out_result->setPartialPs((dpxRay.getOrigin() - dnxRay.getOrigin()).divLocal(reciIntervalPx),
 	                         (dpyRay.getOrigin() - dnyRay.getOrigin()).divLocal(reciIntervalPx));
@@ -46,24 +46,24 @@ void Camera::calcSensedRayDifferentials(
 	                         (dpyRay.getDirection() - dnyRay.getDirection()).divLocal(reciIntervalPx));
 }
 
-void Camera::updateCameraPose(const TVector3<hiReal>& position, const TQuaternion<hiReal>& rotation)
+void Camera::updateCameraPose(const math::TVector3<hiReal>& position, const math::TQuaternion<hiReal>& rotation)
 {
 	m_cameraToWorldTransform.setPosition(position);
 
 	// changes unit from mm to m
-	m_cameraToWorldTransform.setScale(TVector3<hiReal>(0.001));
+	m_cameraToWorldTransform.setScale(math::TVector3<hiReal>(0.001));
 
 	m_cameraToWorldTransform.setRotation(rotation);
 
-	m_position  = Vector3R(position);
-	m_direction = Vector3R(TVector3<hiReal>(0, 0, -1).rotate(rotation).normalize());
+	m_position  = math::Vector3R(position);
+	m_direction = math::Vector3R(math::TVector3<hiReal>(0, 0, -1).rotate(rotation).normalize());
 }
 
-TQuaternion<hiReal> Camera::getWorldToCameraRotation(const Vector3R& direction, const Vector3R& upAxis)
+math::TQuaternion<hiReal> Camera::getWorldToCameraRotation(const math::Vector3R& direction, const math::Vector3R& upAxis)
 {
 	constexpr hiReal MIN_LENGTH = 0.001;
 
-	auto zAxis = TVector3<hiReal>(direction).mul(-1.0f);
+	auto zAxis = math::TVector3<hiReal>(direction).mul(-1.0f);
 	if(zAxis.lengthSquared() > MIN_LENGTH * MIN_LENGTH)
 	{
 		zAxis.normalizeLocal();
@@ -77,7 +77,7 @@ TQuaternion<hiReal> Camera::getWorldToCameraRotation(const Vector3R& direction, 
 		zAxis.set(0, 0, -1);
 	}
 
-	auto xAxis = TVector3<hiReal>(upAxis).cross(zAxis);
+	auto xAxis = math::TVector3<hiReal>(upAxis).cross(zAxis);
 	auto yAxis = zAxis.cross(xAxis);
 	if(xAxis.lengthSquared() > MIN_LENGTH * MIN_LENGTH)
 	{
@@ -98,16 +98,16 @@ TQuaternion<hiReal> Camera::getWorldToCameraRotation(const Vector3R& direction, 
 		}
 		else
 		{
-			xAxis = TVector3<hiReal>(0, 1, 0).cross(zAxis).normalizeLocal();
+			xAxis = math::TVector3<hiReal>(0, 1, 0).cross(zAxis).normalizeLocal();
 			yAxis = zAxis.cross(xAxis).normalizeLocal();
 		}
 	}
 
-	const auto worldToViewRotMat = TMatrix4<hiReal>().initRotation(xAxis, yAxis, zAxis);
-	return TQuaternion<hiReal>(worldToViewRotMat);
+	const auto worldToViewRotMat = math::TMatrix4<hiReal>().initRotation(xAxis, yAxis, zAxis);
+	return math::TQuaternion<hiReal>(worldToViewRotMat);
 }
 
-TQuaternion<hiReal> Camera::getWorldToCameraRotation(real yawDegrees, real pitchDegrees)
+math::TQuaternion<hiReal> Camera::getWorldToCameraRotation(real yawDegrees, real pitchDegrees)
 {
 	if(yawDegrees < 0.0_r || yawDegrees > 360.0_r)
 	{
@@ -125,8 +125,8 @@ TQuaternion<hiReal> Camera::getWorldToCameraRotation(real yawDegrees, real pitch
 		pitchDegrees = math::clamp(pitchDegrees, -90.0_r, 90.0_r);
 	}
 
-	const TQuaternion<hiReal> yawRot({0, 1, 0}, math::to_radians(yawDegrees));
-	const TQuaternion<hiReal> pitchRot({1, 0, 0}, math::to_radians(pitchDegrees));
+	const math::TQuaternion<hiReal> yawRot({0, 1, 0}, math::to_radians(yawDegrees));
+	const math::TQuaternion<hiReal> pitchRot({1, 0, 0}, math::to_radians(pitchDegrees));
 	return yawRot.mul(pitchRot).normalize();
 }
 
@@ -135,17 +135,18 @@ TQuaternion<hiReal> Camera::getWorldToCameraRotation(real yawDegrees, real pitch
 Camera::Camera(const InputPacket& packet) :
 	Camera()
 {
-	const Vector3R position = packet.getVector3("position", Vector3R(0), DataTreatment::REQUIRED());
+	const auto position = packet.getVector3("position", 
+		math::Vector3R(0), DataTreatment::REQUIRED());
 
-	auto rotation = TQuaternion<hiReal>::makeNoRotation();
+	auto rotation = math::TQuaternion<hiReal>::makeNoRotation();
 	if(packet.hasQuaternion("rotation"))
 	{
-		rotation = TQuaternion<hiReal>(packet.getQuaternion("rotation"));
+		rotation = math::TQuaternion<hiReal>(packet.getQuaternion("rotation"));
 	}
 	else if(packet.hasVector3("direction") && packet.hasVector3("up-axis"))
 	{
-		const Vector3R direction = packet.getVector3("direction");
-		const Vector3R upAxis    = packet.getVector3("up-axis");
+		const auto direction = packet.getVector3("direction");
+		const auto upAxis    = packet.getVector3("up-axis");
 		rotation = getWorldToCameraRotation(direction, upAxis);
 	}
 	else if(packet.hasReal("yaw-degrees") && packet.hasReal("pitch-degrees"))
@@ -157,7 +158,7 @@ Camera::Camera(const InputPacket& packet) :
 		logger.log(ELogLevel::WARNING_MED, "no camera rotation info provided");
 	}
 
-	updateCameraPose(TVector3<hiReal>(position), rotation);
+	updateCameraPose(math::TVector3<hiReal>(position), rotation);
 }
 
 SdlTypeInfo Camera::ciTypeInfo()

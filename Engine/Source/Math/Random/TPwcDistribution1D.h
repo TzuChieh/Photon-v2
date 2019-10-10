@@ -3,7 +3,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace ph
+namespace ph::math
 {
 
 /*
@@ -71,6 +71,6 @@ private:
 	T calcContinuousSample(T seed_i0_e1, std::size_t straddledColumn) const;
 };
 
-}// end namespace ph
+}// end namespace ph::math
 
 #include "Math/Random/TPwcDistribution1D.ipp"

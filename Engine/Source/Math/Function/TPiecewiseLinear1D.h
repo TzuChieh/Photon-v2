@@ -9,7 +9,7 @@
 #include <iostream>
 #include <iterator>
 
-namespace ph
+namespace ph::math
 {
 	
 // A class defining a piecewise linear function, where points (x, y) are
@@ -148,4 +148,4 @@ inline bool TPiecewiseLinear1D<T>::pointDomainComparator(const TVector2<T>& pA,
 	return pA.x < pB.x;
 }
 
-}// end namespace ph
+}// end namespace ph::math

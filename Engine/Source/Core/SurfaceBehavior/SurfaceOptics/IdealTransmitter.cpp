@@ -49,8 +49,8 @@ void IdealTransmitter::calcBsdfSample(
 	BsdfSample::Output&       out,
 	const SidednessAgreement& sidedness) const
 {
-	const Vector3R& N = in.X.getShadingNormal();
-	Vector3R& L = out.L;
+	const math::Vector3R N = in.X.getShadingNormal();
+	math::Vector3R& L = out.L;
 	if(!m_fresnel->calcRefractDir(in.V, N, &L))
 	{
 		out.setMeasurability(false);

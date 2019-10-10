@@ -14,11 +14,11 @@ class MatteOpaque : public SurfaceMaterial, public TCommandInterface<MatteOpaque
 {
 public:
 	MatteOpaque();
-	explicit MatteOpaque(const Vector3R& linearSrgbAlbedo);
+	explicit MatteOpaque(const math::Vector3R& linearSrgbAlbedo);
 
 	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
 
-	void setAlbedo(const Vector3R& albedo);
+	void setAlbedo(const math::Vector3R& albedo);
 	void setAlbedo(const real r, const real g, const real b);
 	void setAlbedo(const std::shared_ptr<Image>& albedo);
 

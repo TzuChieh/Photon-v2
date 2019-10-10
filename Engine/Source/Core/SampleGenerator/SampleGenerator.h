@@ -33,7 +33,7 @@ public:
 	Samples1DStage declare1DStage(std::size_t numElements);
 	Samples2DStage declare2DStage(
 		std::size_t numElements, 
-		const Vector2S& dimSizeHints = {1, 1});
+		const math::Vector2S& dimSizeHints = {1, 1});
 	SamplesNDStage declareNDStage(
 		std::size_t numElements, 
 		const std::vector<std::size_t>& dimSizeHints = {});

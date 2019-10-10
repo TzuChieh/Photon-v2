@@ -20,9 +20,6 @@ class Camera;
 class CameraSamplingWork : public RenderWork, public INoncopyable
 {
 public:
-	template<typename T>
-	using TAABB2D = math::TAABB2D<T>;
-
 	CameraSamplingWork();
 	explicit CameraSamplingWork(const Camera* camera);
 	CameraSamplingWork(CameraSamplingWork&& other);
@@ -31,9 +28,9 @@ public:
 
 	void setSampleGenerator(std::unique_ptr<SampleGenerator> sampleGenerator);
 	void setSampleDimensions(
-		const TVector2<int64>&  filmResPx, 
-		const TAABB2D<float64>& filmWindowPx,
-		const TVector2<int64>&  sampleResPx);
+		const math::TVector2<int64>&  filmResPx,
+		const math::TAABB2D<float64>& filmWindowPx,
+		const math::TVector2<int64>&  sampleResPx);
 	void addProcessor(ISensedRayProcessor* processor);
 
 	void onWorkStart(std::function<void()> func);
@@ -48,9 +45,9 @@ private:
 	const Camera*                     m_camera;
 	std::vector<ISensedRayProcessor*> m_processors;
 	std::unique_ptr<SampleGenerator>  m_sampleGenerator;
-	Vector2D                          m_filmResPx;
-	TAABB2D<float64>                  m_filmWindowPx;
-	Vector2S                          m_sampleResPx;
+	math::Vector2D                    m_filmResPx;
+	math::TAABB2D<float64>            m_filmWindowPx;
+	math::Vector2S                    m_sampleResPx;
 
 	std::atomic_uint32_t  m_numSamplesTaken;
 	std::function<void()> m_onWorkStart;

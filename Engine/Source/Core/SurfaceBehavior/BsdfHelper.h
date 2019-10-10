@@ -11,8 +11,8 @@ class BsdfHelper final
 {
 public:
 	static inline bool makeHalfVector(
-		const Vector3R& L, const Vector3R& V, 
-		Vector3R* const out_H)
+		const math::Vector3R& L, const math::Vector3R& V,
+		math::Vector3R* const out_H)
 	{
 		PH_ASSERT(out_H);
 
@@ -29,8 +29,8 @@ public:
 	}
 
 	static inline bool makeHalfVectorSameHemisphere(
-		const Vector3R& L, const Vector3R& V, const Vector3R& N,
-		Vector3R* const out_H)
+		const math::Vector3R& L, const math::Vector3R& V, const math::Vector3R& N,
+		math::Vector3R* const out_H)
 	{
 		PH_ASSERT(out_H);
 

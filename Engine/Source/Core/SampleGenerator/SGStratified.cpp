@@ -22,7 +22,7 @@ void SGStratified::genSamples1D(const Samples1DStage& stage, Samples1D* const ou
 	const real dx = 1.0_r / static_cast<real>(out_array->numSamples());
 	for(std::size_t x = 0; x < out_array->numSamples(); ++x)
 	{
-		const real jitter = Random::genUniformReal_i0_e1();
+		const real jitter = math::Random::genUniformReal_i0_e1();
 		out_array->set(x, (static_cast<real>(x) + jitter) * dx);
 	}
 
@@ -34,8 +34,8 @@ void SGStratified::genSamples2D(const Samples2DStage& stage, Samples2D* const ou
 	PH_ASSERT(out_array);
 
 	// TODO: automatically pick some nice hint if (1, 1) was given
-	const Vector2S    strataSizes = stage.getDimSizeHints();
-	const std::size_t numStrata   = strataSizes.product();
+	const math::Vector2S strataSizes = stage.getDimSizeHints();
+	const std::size_t    numStrata   = strataSizes.product();
 	PH_ASSERT(numStrata > 0);
 
 	// OPT: It is possible to precompute how many samples will be in a
@@ -54,8 +54,8 @@ void SGStratified::genSamples2D(const Samples2DStage& stage, Samples2D* const ou
 		{
 			for(std::size_t x = 0; x < strataSizes.x; ++x)
 			{
-				const real jitterX = Random::genUniformReal_i0_e1();
-				const real jitterY = Random::genUniformReal_i0_e1();
+				const real jitterX = math::Random::genUniformReal_i0_e1();
+				const real jitterY = math::Random::genUniformReal_i0_e1();
 				out_array->set(currentIndex,
 				               (static_cast<real>(x) + jitterX) * dx,
 				               (static_cast<real>(y) + jitterY) * dy);
@@ -71,9 +71,10 @@ void SGStratified::genSamples2D(const Samples2DStage& stage, Samples2D* const ou
 	PH_ASSERT(out_array->numSamples() - currentIndex < numStrata);
 	for(std::size_t i = currentIndex; i < out_array->numSamples(); ++i)
 	{
-		out_array->set(i, 
-		               Random::genUniformReal_i0_e1(), 
-		               Random::genUniformReal_i0_e1());
+		out_array->set(
+			i, 
+			math::Random::genUniformReal_i0_e1(), 
+			math::Random::genUniformReal_i0_e1());
 	}
 
 	out_array->perSampleShuffle();

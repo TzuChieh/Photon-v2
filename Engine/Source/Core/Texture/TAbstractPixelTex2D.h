@@ -16,7 +16,7 @@ enum class ETexWrapMode
 };
 
 template<typename T, std::size_t N>
-using TTexPixel = TArithmeticArray<T, N>;
+using TTexPixel = math::TArithmeticArray<T, N>;
 
 template<typename T, std::size_t N>
 class TAbstractPixelTex2D : public TTexture<TTexPixel<T, N>>

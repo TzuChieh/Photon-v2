@@ -74,8 +74,8 @@ CookedUnit AModel::cook(CookingContext& context) const
 
 	builder.addPrimitiveMetadata(std::move(metadata));
 
-	auto baseLW = std::make_unique<StaticAffineTransform>(StaticAffineTransform::makeForward(m_localToWorld));
-	auto baseWL = std::make_unique<StaticAffineTransform>(StaticAffineTransform::makeInverse(m_localToWorld));
+	auto baseLW = std::make_unique<math::StaticAffineTransform>(math::StaticAffineTransform::makeForward(m_localToWorld));
+	auto baseWL = std::make_unique<math::StaticAffineTransform>(math::StaticAffineTransform::makeInverse(m_localToWorld));
 	builder.transform(std::move(baseLW), std::move(baseWL));
 	
 	if(m_motionSource)

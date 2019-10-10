@@ -4,7 +4,7 @@
 
 #include <random>
 
-namespace ph
+namespace ph::math
 {
 
 std::atomic<int32> Random::seed(37);
@@ -56,5 +56,5 @@ std::size_t Random::genUniformIndex_iL_eU(const std::size_t lowerBound,
 //	return (result.float_value - 2.0f) / 2.0f;
 //}
 
-}// end namespace ph
+}// end namespace ph::math
 

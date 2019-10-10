@@ -15,16 +15,13 @@ namespace ph
 {
 
 template<typename T, std::size_t N>
-class TFrame final
+class TFrame
 {
 public:
 	template<typename U>
-	using TPixel = TArithmeticArray<U, N>;
+	using TPixel = math::TArithmeticArray<U, N>;
 
 	using Pixel = TPixel<T>;
-
-	template<typename U>
-	using TAABB2D = math::TAABB2D<U>;
 
 	template<typename U = T>
 	static TPixel<U> getMonochromaticPixel(U value);
@@ -37,17 +34,17 @@ public:
 	~TFrame() = default;
 
 	void fill(T value);
-	void fill(T value, const TAABB2D<uint32>& region);
+	void fill(T value, const math::TAABB2D<uint32>& region);
 	void flipHorizontally();
 	void flipVertically();
 	void setSize(uint32 wPx, uint32 hPx);
-	void setSize(const TVector2<uint32>& sizePx);
+	void setSize(const math::TVector2<uint32>& sizePx);
 
 	// TODO: user specified clamping range?
 	// TODO: specify size instead of radius for finer control
 	void sample(
 		TFrame& sampled, 
-		const TMathFunction2D<float64>& kernel, uint32 kernelRadiusPx) const;
+		const math::TMathFunction2D<float64>& kernel, uint32 kernelRadiusPx) const;
 
 	template<typename PerPixelOperation>
 	void forEachPixel(PerPixelOperation op);
@@ -56,20 +53,20 @@ public:
 	void forEachPixel(PerPixelOperation op) const;
 
 	template<typename PerPixelOperation>
-	void forEachPixel(const TAABB2D<uint32>& region, PerPixelOperation op);
+	void forEachPixel(const math::TAABB2D<uint32>& region, PerPixelOperation op);
 
 	template<typename PerPixelOperation>
-	void forEachPixel(const TAABB2D<uint32>& region, PerPixelOperation op) const;
+	void forEachPixel(const math::TAABB2D<uint32>& region, PerPixelOperation op) const;
 
 	// TODO: sampling texture
 
-	void setPixel(const TVector2<uint32>& coordPx, const Pixel& pixel);
+	void setPixel(const math::TVector2<uint32>& coordPx, const Pixel& pixel);
 	void setPixel(uint32 x, uint32 y, const Pixel& pixel);
 
-	Pixel getPixel(const TVector2<uint32>& coordPx) const;
+	Pixel getPixel(const math::TVector2<uint32>& coordPx) const;
 	void getPixel(uint32 x, uint32 y, Pixel* out_pixel) const;
 	const T* getPixelData() const;
-	TVector2<uint32> getSizePx() const;
+	math::TVector2<uint32> getSizePx() const;
 
 	TFrame& operator = (const TFrame& rhs);
 	TFrame& operator = (TFrame&& rhs);

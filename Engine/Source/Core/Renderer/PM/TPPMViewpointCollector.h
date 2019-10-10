@@ -30,7 +30,7 @@ public:
 		real        initialKernelRadius);
 
 	bool impl_onCameraSampleStart(
-		const Vector2R&         filmNdc,
+		const math::Vector2R&   filmNdc,
 		const SpectralStrength& pathThroughput);
 
 	auto impl_onPathHitSurface(
@@ -54,7 +54,7 @@ private:
 
 	void addViewpoint(
 		const SurfaceHit&       surfaceHit, 
-		const Vector3R&         viewDir, 
+		const math::Vector3R&   viewDir,
 		const SpectralStrength& pathThroughput);
 };
 
@@ -73,7 +73,7 @@ inline TPPMViewpointCollector<Viewpoint>::TPPMViewpointCollector(
 
 template<typename Viewpoint>
 inline bool TPPMViewpointCollector<Viewpoint>::impl_onCameraSampleStart(
-	const Vector2R&         filmNdc,
+	const math::Vector2R&   filmNdc,
 	const SpectralStrength& pathThroughput)
 {
 	if(pathThroughput.isZero())
@@ -190,7 +190,7 @@ std::vector<Viewpoint> TPPMViewpointCollector<Viewpoint>::claimViewpoints()
 template<typename Viewpoint>
 void TPPMViewpointCollector<Viewpoint>::addViewpoint(
 	const SurfaceHit&       surfaceHit,
-	const Vector3R&         viewDir,
+	const math::Vector3R&   viewDir,
 	const SpectralStrength& pathThroughput)
 {
 	if constexpr(Viewpoint::template has<EViewpointData::VIEW_RADIANCE>())

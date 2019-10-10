@@ -24,58 +24,57 @@ template<typename Item, typename Index, typename PointCalculator>
 class TIndexedPointKdtree
 {
 public:
-	using Node   = TIndexedKdtreeNode<Index, false>;
-	using AABB3D = math::AABB3D;
+	using Node = TIndexedKdtreeNode<Index, false>;
 
 	TIndexedPointKdtree(std::size_t maxNodeItems, const PointCalculator& pointCalculator);
 
 	void build(std::vector<Item> items);
 
 	void findWithinRange(
-		const Vector3R&    location,
-		real               searchRadius,
-		std::vector<Item>& results) const;
+		const math::Vector3R& location,
+		real                  searchRadius,
+		std::vector<Item>&    results) const;
 
 	void findNearest(
-		const Vector3R&    location,
-		std::size_t        maxItems,
-		std::vector<Item>& results) const;
+		const math::Vector3R& location,
+		std::size_t           maxItems,
+		std::vector<Item>&    results) const;
 
 	template<typename ItemHandler>
 	void rangeTraversal(
-		const Vector3R& location,
-		real            squaredSearchRadius,
-		ItemHandler     itemHandler) const;
+		const math::Vector3R& location,
+		real                  squaredSearchRadius,
+		ItemHandler           itemHandler) const;
 
 	template<typename ItemHandler>
 	void nearestTraversal(
-		const Vector3R& location,
-		real            initialSquaredSearchRadius,
-		ItemHandler     itemHandler) const;
+		const math::Vector3R& location,
+		real                  initialSquaredSearchRadius,
+		ItemHandler           itemHandler) const;
 
 	std::size_t numItems() const;
 
 private:
 	std::vector<Node>  m_nodeBuffer;
 	std::vector<Item>  m_items;
-	AABB3D             m_rootAABB;
+	math::AABB3D       m_rootAABB;
 	std::size_t        m_numNodes;
 	std::size_t        m_maxNodeItems;
 	std::vector<Index> m_indexBuffer;
 	PointCalculator    m_pointCalculator;
 
 	void buildNodeRecursive(
-		std::size_t                  nodeIndex,
-		const AABB3D&                nodeAABB,
-		Index*                       nodeItemIndices,
-		std::size_t                  numNodeItems,
-		const std::vector<Vector3R>& itemPoints,
-		std::size_t                  currentNodeDepth);
+		std::size_t                        nodeIndex,
+		const math::AABB3D&                nodeAABB,
+		Index*                             nodeItemIndices,
+		std::size_t                        numNodeItems,
+		const std::vector<math::Vector3R>& itemPoints,
+		std::size_t                        currentNodeDepth);
 
-	static AABB3D calcPointsAABB(
-		const Index*                 pointIndices, 
-		std::size_t                  numPoints, 
-		const std::vector<Vector3R>& pointBuffer);
+	static math::AABB3D calcPointsAABB(
+		const Index*                       pointIndices, 
+		std::size_t                        numPoints, 
+		const std::vector<math::Vector3R>& pointBuffer);
 };
 
 // In-header Implementations:
@@ -101,7 +100,7 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 {
 	m_nodeBuffer.clear();
 	m_items    = std::move(items);
-	m_rootAABB = AABB3D();
+	m_rootAABB = math::AABB3D();
 	m_numNodes = 0;
 	m_indexBuffer.clear();
 	if(m_items.empty())
@@ -109,12 +108,12 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 		return;
 	}
 
-	std::vector<Vector3R> itemPoints(m_items.size());
+	std::vector<math::Vector3R> itemPoints(m_items.size());
 	for(std::size_t i = 0; i < m_items.size(); ++i)
 	{
 		const auto& item = m_items[i];
 
-		const Vector3R& center = m_pointCalculator(regular_access(item));
+		const math::Vector3R& center = m_pointCalculator(regular_access(item));
 		itemPoints[i] = center;
 	}
 
@@ -140,9 +139,9 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 template<typename Item, typename Index, typename PointCalculator>
 inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 	findWithinRange(
-		const Vector3R&    location,
-		const real         searchRadius,
-		std::vector<Item>& results) const
+		const math::Vector3R& location,
+		const real            searchRadius,
+		std::vector<Item>&    results) const
 {
 	PH_ASSERT_GT(m_numNodes, 0);
 
@@ -153,8 +152,8 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 		searchRadius2,
 		[this, location, searchRadius2, &results](const Item& item)
 		{
-			const Vector3R itemPoint = m_pointCalculator(item);
-			const real     dist2     = (itemPoint - location).lengthSquared();
+			const math::Vector3R itemPoint = m_pointCalculator(item);
+			const real           dist2     = (itemPoint - location).lengthSquared();
 			if(dist2 < searchRadius2)
 			{
 				results.push_back(item);
@@ -165,9 +164,9 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 template<typename Item, typename Index, typename PointCalculator>
 inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 	findNearest(
-		const Vector3R&    location,
-		const std::size_t  maxItems,
-		std::vector<Item>& results) const
+		const math::Vector3R& location,
+		const std::size_t     maxItems,
+		std::vector<Item>&    results) const
 {
 	PH_ASSERT_GT(m_numNodes, 0);
 	PH_ASSERT_GT(maxItems, 0);
@@ -254,9 +253,9 @@ template<typename Item, typename Index, typename PointCalculator>
 template<typename ItemHandler>
 inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 	rangeTraversal(
-		const Vector3R& location,
-		const real      squaredSearchRadius,
-		ItemHandler     itemHandler) const
+		const math::Vector3R& location,
+		const real            squaredSearchRadius,
+		ItemHandler           itemHandler) const
 {
 	static_assert(std::is_invocable_v<ItemHandler, Item>,
 		"ItemHandler must accept an item as input.");
@@ -327,9 +326,9 @@ template<typename Item, typename Index, typename PointCalculator>
 template<typename ItemHandler>
 inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 	nearestTraversal(
-		const Vector3R& location,
-		const real      initialSquaredSearchRadius,
-		ItemHandler     itemHandler) const
+		const math::Vector3R& location,
+		const real            initialSquaredSearchRadius,
+		ItemHandler           itemHandler) const
 {
 	static_assert(std::is_invocable_v<ItemHandler, Item>,
 		"ItemHandler must accept an item as input.");
@@ -422,12 +421,12 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 template<typename Item, typename Index, typename PointCalculator>
 inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 	buildNodeRecursive(
-		const std::size_t            nodeIndex,
-		const AABB3D&                nodeAABB,
-		Index* const                 nodeItemIndices,
-		const std::size_t            numNodeItems,
-		const std::vector<Vector3R>& itemPoints,
-		const std::size_t            currentNodeDepth)
+		const std::size_t                  nodeIndex,
+		const math::AABB3D&                nodeAABB,
+		Index* const                       nodeItemIndices,
+		const std::size_t                  numNodeItems,
+		const std::vector<math::Vector3R>& itemPoints,
+		const std::size_t                  currentNodeDepth)
 {
 	++m_numNodes;
 	if(m_numNodes > m_nodeBuffer.size())
@@ -442,8 +441,8 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 		return;
 	}
 
-	const Vector3R& nodeExtents = nodeAABB.getExtents();
-	const int       splitAxis   = nodeExtents.maxDimension();
+	const math::Vector3R& nodeExtents = nodeAABB.getExtents();
+	const int             splitAxis   = nodeExtents.maxDimension();
 
 	const std::size_t midIndicesIndex = numNodeItems / 2;
 	std::nth_element(
@@ -461,12 +460,12 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 
 	const real splitPos = itemPoints[nodeItemIndices[midIndicesIndex]][splitAxis];
 
-	Vector3R splitPosMinVertex = nodeAABB.getMinVertex();
-	Vector3R splitPosMaxVertex = nodeAABB.getMaxVertex();
+	math::Vector3R splitPosMinVertex = nodeAABB.getMinVertex();
+	math::Vector3R splitPosMaxVertex = nodeAABB.getMaxVertex();
 	splitPosMinVertex[splitAxis] = splitPos;
 	splitPosMaxVertex[splitAxis] = splitPos;
-	const AABB3D negativeNodeAABB(nodeAABB.getMinVertex(), splitPosMaxVertex);
-	const AABB3D positiveNodeAABB(splitPosMinVertex, nodeAABB.getMaxVertex());
+	const math::AABB3D negativeNodeAABB(nodeAABB.getMinVertex(), splitPosMaxVertex);
+	const math::AABB3D positiveNodeAABB(splitPosMinVertex, nodeAABB.getMaxVertex());
 	
 	buildNodeRecursive(
 		nodeIndex + 1, 
@@ -498,14 +497,14 @@ inline std::size_t TIndexedPointKdtree<Item, Index, PointCalculator>::
 template<typename Item, typename Index, typename PointCalculator>
 inline auto TIndexedPointKdtree<Item, Index, PointCalculator>::
 	calcPointsAABB(
-		const Index*                 pointIndices,
-		const std::size_t            numPoints,
-		const std::vector<Vector3R>& pointBuffer)
-	-> AABB3D
+		const Index*                       pointIndices,
+		const std::size_t                  numPoints,
+		const std::vector<math::Vector3R>& pointBuffer)
+	-> math::AABB3D
 {
 	PH_ASSERT(pointIndices && numPoints > 0);
 
-	AABB3D pointsAABB(pointBuffer[pointIndices[0]]);
+	math::AABB3D pointsAABB(pointBuffer[pointIndices[0]]);
 	for(std::size_t i = 1; i < numPoints; ++i)
 	{
 		pointsAABB.unionWith(pointBuffer[pointIndices[i]]);

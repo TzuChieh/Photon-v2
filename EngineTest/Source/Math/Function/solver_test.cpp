@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 
 using namespace ph;
+using namespace ph::math;
 
 TEST(MathSolverTest, AnalyticallyIntegratePiecewiseLinearFunction)
 {

@@ -36,8 +36,8 @@ real IesData::sampleAttenuationFactor(const real theta, const real phi) const
 		return 0.0_r;
 	}
 
-	const real dTheta = constant::pi<real> / static_cast<real>(numThetaSamples - 1);
-	const real dPhi   = constant::two_pi<real> / static_cast<real>(numPhiSamples - 1);
+	const real dTheta = math::constant::pi<real> / static_cast<real>(numThetaSamples - 1);
+	const real dPhi   = math::constant::two_pi<real> / static_cast<real>(numPhiSamples - 1);
 
 	const int minTi = static_cast<int>(std::ceil(theta / dTheta - 2.0_r));
 	const int minPi = static_cast<int>(std::ceil(phi   / dPhi   - 2.0_r));

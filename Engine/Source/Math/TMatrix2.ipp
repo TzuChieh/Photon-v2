@@ -9,7 +9,7 @@
 #include <string>
 #include <cmath>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
@@ -145,4 +145,4 @@ inline std::string TMatrix2<T>::toString() const
 	       "[" + std::to_string(m[1][0]) + ", " + std::to_string(m[1][1]) + "]";
 }
 
-}// end namespace ph
+}// end namespace ph::math

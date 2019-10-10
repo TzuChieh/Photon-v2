@@ -5,11 +5,11 @@
 
 #include <string>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
-class TVector2 final
+class TVector2
 {
 public:
 	T x;
@@ -75,6 +75,6 @@ public:
 	TVector2 operator / (T rhs) const;
 };
 
-}// end namespace ph
+}// end namespace ph::math
 
 #include "Math/TVector2.ipp"

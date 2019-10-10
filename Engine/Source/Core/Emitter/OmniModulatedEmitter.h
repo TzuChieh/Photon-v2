@@ -21,9 +21,9 @@ public:
 	void genDirectSample(DirectLightSample& sample) const override;
 
 	// FIXME: ray time
-	void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;
+	void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;
 
-	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const override;
+	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const override;
 	real calcRadiantFluxApprox() const override;
 
 	void setFilter(const std::shared_ptr<TTexture<SpectralStrength>>& filter);

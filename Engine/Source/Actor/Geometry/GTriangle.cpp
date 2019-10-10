@@ -13,7 +13,7 @@
 namespace ph
 {
 
-GTriangle::GTriangle(const Vector3R& vA, const Vector3R& vB, const Vector3R& vC) : 
+GTriangle::GTriangle(const math::Vector3R& vA, const math::Vector3R& vB, const math::Vector3R& vC) :
 	Geometry(), 
 	m_vA(vA), m_vB(vB), m_vC(vC)
 {
@@ -25,15 +25,14 @@ GTriangle::GTriangle(const Vector3R& vA, const Vector3R& vB, const Vector3R& vC)
 	// Calculates face normal. Note that the vertices may form a degenerate
 	// triangle, causing zero cross product and thus producing NaNs after
 	// being normalized. In such case an arbitrary vector will be chosen.
-	//
-	Vector3R faceNormal;
+	math::Vector3R faceNormal;
 	if(!isDegenerate())
 	{
 		faceNormal = vB.sub(vA).cross(vC.sub(vA)).normalizeLocal();
 	}
 	else
 	{
-		faceNormal = Vector3R(0, 1, 0);
+		faceNormal = math::Vector3R(0, 1, 0);
 	}
 
 	m_nA = faceNormal;
@@ -86,7 +85,7 @@ void GTriangle::genPrimitive(
 }
 
 std::shared_ptr<Geometry> GTriangle::genTransformed(
-	const StaticAffineTransform& transform) const
+	const math::StaticAffineTransform& transform) const
 {
 	auto tTriangle = std::make_shared<GTriangle>(*this);
 	transform.transformP(m_vA, &tTriangle->m_vA);

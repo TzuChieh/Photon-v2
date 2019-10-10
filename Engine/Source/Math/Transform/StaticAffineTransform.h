@@ -7,10 +7,8 @@
 
 #include <vector>
 
-namespace ph
+namespace ph::math
 {
-
-class Ray;
 
 class StaticAffineTransform : public Transform
 {
@@ -155,4 +153,4 @@ StaticAffineTransform StaticAffineTransform::makeParentedInverse(const std::vect
 //	m_inverseTransformMatrix = localTransform.m_inverseTransformMatrix(parent.m_inverseTransformMatrix);
 //}
 
-}// end namespace ph
+}// end namespace ph::math

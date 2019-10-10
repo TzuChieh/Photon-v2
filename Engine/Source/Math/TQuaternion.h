@@ -6,11 +6,11 @@
 #include <cmath>
 #include <string>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
-class TQuaternion final
+class TQuaternion
 {
 public:
 	static TQuaternion makeNoRotation();
@@ -58,6 +58,6 @@ public:
 	inline std::string toString() const;
 };
 
-}// end namespace ph
+}// end namespace ph::math
 
 #include "Math/TQuaternion.ipp"

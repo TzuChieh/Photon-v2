@@ -19,14 +19,14 @@ class StripeScheduler : public WorkScheduler
 public:
 	StripeScheduler();
 	StripeScheduler(
-		std::size_t             numWorkers, 
-		const WorkUnit&         totalWorkUnit,
-		constant::AxisIndexType slicedAxis);
+		std::size_t                   numWorkers, 
+		const WorkUnit&               totalWorkUnit,
+		math::constant::AxisIndexType slicedAxis);
 
 private:
-	constant::AxisIndexType m_slicedAxis;
-	std::size_t             m_numScheduled;
-	std::size_t             m_sideLength;
+	math::constant::AxisIndexType m_slicedAxis;
+	std::size_t                   m_numScheduled;
+	std::size_t                   m_sideLength;
 
 	void scheduleOne(WorkUnit* out_workUnit) override;
 };
@@ -38,9 +38,9 @@ inline StripeScheduler::StripeScheduler() :
 {}
 
 inline StripeScheduler::StripeScheduler(
-	const std::size_t             numWorkers,
-	const WorkUnit&               totalWorkUnit,
-	const constant::AxisIndexType slicedAxis) :
+	const std::size_t                   numWorkers,
+	const WorkUnit&                     totalWorkUnit,
+	const math::constant::AxisIndexType slicedAxis) :
 
 	WorkScheduler(numWorkers, totalWorkUnit),
 

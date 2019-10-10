@@ -10,13 +10,13 @@ namespace ph
 {
 
 template<ESourceHint HINT>
-inline Vector3R ColorSpace::SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd)
+inline math::Vector3R ColorSpace::SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd)
 {
 	PH_ASSERT(isInitialized());
 
 	if constexpr(HINT == ESourceHint::ILLUMINANT)
 	{
-		Vector3R xyz(
+		math::Vector3R xyz(
 			kernel_X.dot(spd),
 			kernel_Y.dot(spd),
 			kernel_Z.dot(spd));
@@ -27,7 +27,7 @@ inline Vector3R ColorSpace::SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& sp
 	}
 	else if constexpr(HINT == ESourceHint::REFLECTANCE)
 	{
-		Vector3R xyz(
+		math::Vector3R xyz(
 			kernel_X.dot(spd),
 			kernel_Y.dot(spd),
 			kernel_Z.dot(spd));
@@ -38,7 +38,7 @@ inline Vector3R ColorSpace::SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& sp
 	}
 	else
 	{
-		Vector3R xyz(
+		math::Vector3R xyz(
 			kernel_X.dot(spd),
 			kernel_Y.dot(spd),
 			kernel_Z.dot(spd));
@@ -48,13 +48,13 @@ inline Vector3R ColorSpace::SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& sp
 }
 
 template<ESourceHint HINT>
-inline Vector3R ColorSpace::SPD_to_CIE_XYZ_E(const SampledSpectralStrength& spd)
+inline math::Vector3R ColorSpace::SPD_to_CIE_XYZ_E(const SampledSpectralStrength& spd)
 {
 	PH_ASSERT(isInitialized());
 
 	if constexpr(HINT == ESourceHint::ILLUMINANT)
 	{
-		Vector3R xyz(
+		math::Vector3R xyz(
 			kernel_X.dot(spd),
 			kernel_Y.dot(spd),
 			kernel_Z.dot(spd));
@@ -65,7 +65,7 @@ inline Vector3R ColorSpace::SPD_to_CIE_XYZ_E(const SampledSpectralStrength& spd)
 	}
 	else if constexpr(HINT == ESourceHint::REFLECTANCE)
 	{
-		Vector3R xyz(
+		math::Vector3R xyz(
 			kernel_X.dot(spd),
 			kernel_Y.dot(spd),
 			kernel_Z.dot(spd));
@@ -76,7 +76,7 @@ inline Vector3R ColorSpace::SPD_to_CIE_XYZ_E(const SampledSpectralStrength& spd)
 	}
 	else
 	{
-		Vector3R xyz(
+		math::Vector3R xyz(
 			kernel_X.dot(spd),
 			kernel_Y.dot(spd),
 			kernel_Z.dot(spd));
@@ -86,7 +86,7 @@ inline Vector3R ColorSpace::SPD_to_CIE_XYZ_E(const SampledSpectralStrength& spd)
 }
 
 template<ESourceHint HINT>
-inline Vector3R ColorSpace::SPD_to_CIE_XYZ(const SampledSpectralStrength& spd)
+inline math::Vector3R ColorSpace::SPD_to_CIE_XYZ(const SampledSpectralStrength& spd)
 {
 	PH_ASSERT(isInitialized());
 
@@ -105,7 +105,7 @@ inline Vector3R ColorSpace::SPD_to_CIE_XYZ(const SampledSpectralStrength& spd)
 }
 
 template<ESourceHint HINT>
-inline Vector3R ColorSpace::SPD_to_linear_sRGB(const SampledSpectralStrength& spd)
+inline math::Vector3R ColorSpace::SPD_to_linear_sRGB(const SampledSpectralStrength& spd)
 {
 	if constexpr(HINT == ESourceHint::ILLUMINANT)
 	{
@@ -122,14 +122,14 @@ inline Vector3R ColorSpace::SPD_to_linear_sRGB(const SampledSpectralStrength& sp
 }
 
 template<ESourceHint HINT>
-inline Vector3R ColorSpace::SPD_to_sRGB(const SampledSpectralStrength& spd)
+inline math::Vector3R ColorSpace::SPD_to_sRGB(const SampledSpectralStrength& spd)
 {
 	return linear_sRGB_to_sRGB(SPD_to_linear_sRGB<HINT>(spd));
 }
 
 template<ESourceHint HINT>
 inline void ColorSpace::linear_sRGB_to_SPD(
-	const Vector3R&                color, 
+	const math::Vector3R&          color,
 	SampledSpectralStrength* const out_spd)
 {
 	PH_ASSERT(isInitialized());
@@ -207,7 +207,7 @@ inline void ColorSpace::linear_sRGB_to_SPD(
 }
 
 template<ESourceHint HINT>
-inline void ColorSpace::sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* const out_spd)
+inline void ColorSpace::sRGB_to_SPD(const math::Vector3R& color, SampledSpectralStrength* const out_spd)
 {
 	linear_sRGB_to_SPD<HINT>(sRGB_to_linear_sRGB(color), out_spd);
 }

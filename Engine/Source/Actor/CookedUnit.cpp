@@ -27,28 +27,28 @@ CookedUnit::CookedUnit(CookedUnit&& other) :
 
 void CookedUnit::addIntersectable(std::unique_ptr<Intersectable> intersectable)
 {
-	PH_ASSERT(intersectable != nullptr);
+	PH_ASSERT(intersectable);
 
 	m_intersectables.push_back(std::move(intersectable));
 }
 
 void CookedUnit::setPrimitiveMetadata(std::unique_ptr<PrimitiveMetadata> metadata)
 {
-	PH_ASSERT(metadata != nullptr);
+	PH_ASSERT(metadata);
 
 	m_primitiveMetadata = std::move(metadata);
 }
 
-void CookedUnit::addTransform(std::unique_ptr<Transform> transform)
+void CookedUnit::addTransform(std::unique_ptr<math::Transform> transform)
 {
-	PH_ASSERT(transform != nullptr);
+	PH_ASSERT(transform);
 
 	m_transforms.push_back(std::move(transform));
 }
 
 void CookedUnit::setEmitter(std::unique_ptr<Emitter> emitter)
 {
-	PH_ASSERT(emitter != nullptr);
+	PH_ASSERT(emitter);
 
 	m_emitter = std::move(emitter);
 }
@@ -68,7 +68,7 @@ void CookedUnit::claimCookedData(CookedDataStorage& storage)
 
 void CookedUnit::addBackend(std::unique_ptr<Intersectable> intersectable)
 {
-	PH_ASSERT(intersectable != nullptr);
+	PH_ASSERT(intersectable);
 
 	m_backendIntersectables.push_back(std::move(intersectable));
 }

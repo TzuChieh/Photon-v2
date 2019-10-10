@@ -15,7 +15,7 @@ class BvhIntersectableInfo final
 public:
 	std::size_t          index;
 	math::AABB3D         aabb;
-	Vector3R             aabbCentroid;
+	math::Vector3R       aabbCentroid;
 	const Intersectable* intersectable;
 
 	BvhIntersectableInfo() = default;

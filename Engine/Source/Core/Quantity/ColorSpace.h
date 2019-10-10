@@ -30,18 +30,20 @@ public:
 	//
 	static void init();
 
-	static inline Vector3R sRGB_to_linear_sRGB(const Vector3R& color)
+	static inline math::Vector3R sRGB_to_linear_sRGB(const math::Vector3R& color)
 	{
-		return Vector3R(sRGB_inverseGammaCorrect(color.x),
-		                sRGB_inverseGammaCorrect(color.y),
-		                sRGB_inverseGammaCorrect(color.z));
+		return math::Vector3R(
+			sRGB_inverseGammaCorrect(color.x),
+			sRGB_inverseGammaCorrect(color.y),
+			sRGB_inverseGammaCorrect(color.z));
 	}
 
-	static inline Vector3R linear_sRGB_to_sRGB(const Vector3R& color)
+	static inline math::Vector3R linear_sRGB_to_sRGB(const math::Vector3R& color)
 	{
-		return Vector3R(sRGB_forwardGammaCorrect(color.x),
-		                sRGB_forwardGammaCorrect(color.y),
-		                sRGB_forwardGammaCorrect(color.z));
+		return math::Vector3R(
+			sRGB_forwardGammaCorrect(color.x),
+			sRGB_forwardGammaCorrect(color.y),
+			sRGB_forwardGammaCorrect(color.z));
 	}
 
 	// Transforming a CIE-XYZ color to linear sRGB color space.
@@ -52,42 +54,46 @@ public:
 
 	// Using D65 as reference white point (standard sRGB is based on D65).
 
-	static inline Vector3R CIE_XYZ_D65_to_linear_sRGB(const Vector3R& color)
+	static inline math::Vector3R CIE_XYZ_D65_to_linear_sRGB(const math::Vector3R& color)
 	{
-		return Vector3R( 3.241030_r * color.x - 1.537410_r * color.y - 0.498620_r * color.z,
-		                -0.969242_r * color.x + 1.875960_r * color.y + 0.041555_r * color.z,
-		                 0.055632_r * color.x - 0.203979_r * color.y + 1.056980_r * color.z);
+		return math::Vector3R( 
+			 3.241030_r * color.x - 1.537410_r * color.y - 0.498620_r * color.z,
+			-0.969242_r * color.x + 1.875960_r * color.y + 0.041555_r * color.z,
+			 0.055632_r * color.x - 0.203979_r * color.y + 1.056980_r * color.z);
 	}
 
-	static inline Vector3R linear_sRGB_to_CIE_XYZ_D65(const Vector3R& color)
+	static inline math::Vector3R linear_sRGB_to_CIE_XYZ_D65(const math::Vector3R& color)
 	{
-		return Vector3R(0.412383_r * color.x + 0.357585_r * color.y + 0.180480_r * color.z,
-		                0.212635_r * color.x + 0.715170_r * color.y + 0.072192_r * color.z,
-		                0.019330_r * color.x + 0.119195_r * color.y + 0.950528_r * color.z);
+		return math::Vector3R(
+			0.412383_r * color.x + 0.357585_r * color.y + 0.180480_r * color.z,
+			0.212635_r * color.x + 0.715170_r * color.y + 0.072192_r * color.z,
+			0.019330_r * color.x + 0.119195_r * color.y + 0.950528_r * color.z);
 	}
 
-	static inline Vector3R CIE_XYZ_D65_to_sRGB(const Vector3R& color)
+	static inline math::Vector3R CIE_XYZ_D65_to_sRGB(const math::Vector3R& color)
 	{
 		return linear_sRGB_to_sRGB(CIE_XYZ_D65_to_linear_sRGB(color));
 	}
 
 	// Using E as reference white point (non-standard).
 
-	static inline Vector3R CIE_XYZ_E_to_linear_sRGB(const Vector3R& color)
+	static inline math::Vector3R CIE_XYZ_E_to_linear_sRGB(const math::Vector3R& color)
 	{
-		return Vector3R( 2.689666_r * color.x - 1.275867_r * color.y - 0.413795_r * color.z,
-		                -1.022106_r * color.x + 1.978283_r * color.y + 0.043821_r * color.z,
-		                 0.061225_r * color.x - 0.224491_r * color.y + 1.163269_r * color.z);
+		return math::Vector3R(
+			 2.689666_r * color.x - 1.275867_r * color.y - 0.413795_r * color.z,
+			-1.022106_r * color.x + 1.978283_r * color.y + 0.043821_r * color.z,
+			 0.061225_r * color.x - 0.224491_r * color.y + 1.163269_r * color.z);
 	}
 
-	static inline Vector3R linear_sRGB_to_CIE_XYZ_E(const Vector3R& color)
+	static inline math::Vector3R linear_sRGB_to_CIE_XYZ_E(const math::Vector3R& color)
 	{
-		return Vector3R(0.496919_r * color.x + 0.339090_r * color.y + 0.163989_r * color.z,
-		                0.256224_r * color.x + 0.678181_r * color.y + 0.065595_r * color.z,
-		                0.023293_r * color.x + 0.113030_r * color.y + 0.863674_r * color.z);
+		return math::Vector3R(
+			0.496919_r * color.x + 0.339090_r * color.y + 0.163989_r * color.z,
+			0.256224_r * color.x + 0.678181_r * color.y + 0.065595_r * color.z,
+			0.023293_r * color.x + 0.113030_r * color.y + 0.863674_r * color.z);
 	}
 
-	static inline Vector3R CIE_XYZ_E_to_sRGB(const Vector3R& color)
+	static inline math::Vector3R CIE_XYZ_E_to_sRGB(const math::Vector3R& color)
 	{
 		return linear_sRGB_to_sRGB(CIE_XYZ_E_to_linear_sRGB(color));
 	}
@@ -97,46 +103,46 @@ public:
 	//
 	// Reference: https://en.wikipedia.org/wiki/Relative_luminance
 
-	static inline real linear_sRGB_D65_to_luminance(const Vector3R& linearSrgb)
+	static inline real linear_sRGB_D65_to_luminance(const math::Vector3R& linearSrgb)
 	{
 		return 0.212635_r * linearSrgb.x + 0.715170_r * linearSrgb.y + 0.072192_r * linearSrgb.z;
 	}
 
-	static inline real linear_sRGB_E_to_luminance(const Vector3R& linearSrgb)
+	static inline real linear_sRGB_E_to_luminance(const math::Vector3R& linearSrgb)
 	{
 		return 0.256224_r * linearSrgb.x + 0.678181_r * linearSrgb.y + 0.065595_r * linearSrgb.z;
 	}
 
-	static inline real CIE_XYZ_D65_to_luminance(const Vector3R& cieXyzD65)
+	static inline real CIE_XYZ_D65_to_luminance(const math::Vector3R& cieXyzD65)
 	{
 		return cieXyzD65.y;
 	}
 
-	static inline real CIE_XYZ_E_to_luminance(const Vector3R& cieXyzE)
+	static inline real CIE_XYZ_E_to_luminance(const math::Vector3R& cieXyzE)
 	{
 		return cieXyzE.y;
 	}
 
 	template<ESourceHint HINT = ESourceHint::RAW_DATA>
-	static Vector3R SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd);
+	static math::Vector3R SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd);
 
 	template<ESourceHint HINT = ESourceHint::RAW_DATA>
-	static Vector3R SPD_to_CIE_XYZ_E(const SampledSpectralStrength& spd);
+	static math::Vector3R SPD_to_CIE_XYZ_E(const SampledSpectralStrength& spd);
 
 	template<ESourceHint HINT = ESourceHint::RAW_DATA>
-	static inline Vector3R SPD_to_CIE_XYZ(const SampledSpectralStrength& spd);
+	static inline math::Vector3R SPD_to_CIE_XYZ(const SampledSpectralStrength& spd);
 
 	template<ESourceHint HINT = ESourceHint::RAW_DATA>
-	static inline Vector3R SPD_to_linear_sRGB(const SampledSpectralStrength& spd);
+	static inline math::Vector3R SPD_to_linear_sRGB(const SampledSpectralStrength& spd);
 
 	template<ESourceHint HINT = ESourceHint::RAW_DATA>
-	static inline Vector3R SPD_to_sRGB(const SampledSpectralStrength& spd);
+	static inline math::Vector3R SPD_to_sRGB(const SampledSpectralStrength& spd);
 
 	template<ESourceHint HINT = ESourceHint::RAW_DATA>
-	static inline void linear_sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* out_spd);
+	static inline void linear_sRGB_to_SPD(const math::Vector3R& color, SampledSpectralStrength* out_spd);
 
 	template<ESourceHint HINT = ESourceHint::RAW_DATA>
-	static inline void sRGB_to_SPD(const Vector3R& color, SampledSpectralStrength* out_spd);
+	static inline void sRGB_to_SPD(const math::Vector3R& color, SampledSpectralStrength* out_spd);
 
 	static inline const SampledSpectralStrength& get_D65_SPD()
 	{
@@ -169,8 +175,8 @@ private:
 	static SampledSpectralStrength kernel_X;
 	static SampledSpectralStrength kernel_Y;
 	static SampledSpectralStrength kernel_Z;
-	static Vector3R kernel_XYZ_E_norm;
-	static Vector3R kernel_XYZ_D65_norm;
+	static math::Vector3R kernel_XYZ_E_norm;
+	static math::Vector3R kernel_XYZ_D65_norm;
 
 	static SampledSpectralStrength SPD_Smits_E_white;
 	static SampledSpectralStrength SPD_Smits_E_cyan;

@@ -7,7 +7,7 @@
 
 #include <cmath>
 
-namespace ph
+namespace ph::math
 {
 
 class UniformUnitHemisphere
@@ -42,4 +42,4 @@ inline Vector3R UniformUnitHemisphere::map(const Vector2R& seed, real* const out
 	return map(seed);
 }
 
-}// end namespace ph
+}// end namespace ph::math

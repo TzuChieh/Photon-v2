@@ -7,7 +7,7 @@
 namespace ph
 {
 
-class GInfiniteSphere final : public Geometry, public TCommandInterface<GInfiniteSphere>
+class GInfiniteSphere : public Geometry, public TCommandInterface<GInfiniteSphere>
 {
 public:
 	explicit GInfiniteSphere(real boundRadius);

@@ -8,7 +8,7 @@
 namespace ph
 {
 
-class HenyeyGreenstein final : public ScatterFunction
+class HenyeyGreenstein : public ScatterFunction
 {
 public:
 	HenyeyGreenstein(real g);
@@ -16,10 +16,10 @@ public:
 	~HenyeyGreenstein() override;
 
 	void evalPhaseFunc(
-		const SurfaceHit& X,
-		const Vector3R&   I,
-		const Vector3R&   O,
-		real*             out_pf) const override;
+		const SurfaceHit&     X,
+		const math::Vector3R& I,
+		const math::Vector3R& O,
+		real*                 out_pf) const override;
 
 private:
 	std::shared_ptr<TTexture<real>> m_g;

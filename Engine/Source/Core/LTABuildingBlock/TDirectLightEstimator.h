@@ -21,7 +21,7 @@ public:
 	bool sample(
 		const SurfaceHit& X,
 		const Time&       time,
-		Vector3R*         out_L,
+		math::Vector3R*   out_L,
 		real*             out_pdfW,
 		SpectralStrength* out_emittedRadiance);
 

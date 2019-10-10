@@ -57,7 +57,7 @@ public:
 				const uint32 newHeightPx = math::next_power_of_2(src.heightPx());
 				level0 = TFrame<T, N>(newWidthPx, newHeightPx);
 
-				src.sample(level0, TConstant2D<float64>(1.0), 2);
+				src.sample(level0, math::TConstant2D<float64>(1.0), 2);
 			}
 
 			const std::size_t numMipmapLevels = 1 + math::log2_floor(std::max(level0.widthPx(), level0.heightPx()));
@@ -70,7 +70,7 @@ public:
 
 				current = TFrame<T, N>(std::max(static_cast<uint32>(1), previous.widthPx() / 2), 
 				                       std::max(static_cast<uint32>(1), previous.heightPx() / 2));
-				previous.sample(current, TConstant2D<float64>(1.0), 2);
+				previous.sample(current, math::TConstant2D<float64>(1.0), 2);
 			}
 
 			workingResult->set_value(std::move(mipmaps));

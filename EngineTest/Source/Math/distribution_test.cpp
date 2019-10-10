@@ -7,6 +7,7 @@
 #include <cmath>
 
 using namespace ph;
+using namespace ph::math;
 
 TEST(PiecewiseConstantDistribution1DTest, Construction)
 {

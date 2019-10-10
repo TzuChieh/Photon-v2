@@ -9,13 +9,11 @@ namespace ph
 class BvhLinearNode final
 {
 public:
-	using AABB3D = math::AABB3D;
-
-	static BvhLinearNode makeInternal(const AABB3D& nodeAABB, std::size_t secondChildOffset, int32 splittedAxis);
-	static BvhLinearNode makeLeaf(const AABB3D& nodeAABB, std::size_t primitivesOffset, int32 numPrimitives);
+	static BvhLinearNode makeInternal(const math::AABB3D& nodeAABB, std::size_t secondChildOffset, int32 splittedAxis);
+	static BvhLinearNode makeLeaf(const math::AABB3D& nodeAABB, std::size_t primitivesOffset, int32 numPrimitives);
 
 public:
-	AABB3D aabb;
+	math::AABB3D aabb;
 
 	union
 	{

@@ -7,10 +7,7 @@
 #include <iomanip>
 #include <cmath>
 
-namespace ph
-{
-
-namespace math
+namespace ph::math
 {
 
 void form_orthonormal_basis_frisvad(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis)
@@ -49,6 +46,4 @@ bool is_same_hemisphere(const Vector3R& vector, const Vector3R& N)
 	return N.dot(vector) >= 0.0_r;
 }
 
-}// end namespace math
-
-}// end namespace ph
+}// end namespace ph::math

@@ -23,9 +23,9 @@ public:
 public:
 	explicit inline TAbstractSpectralStrength(real value);
 	explicit inline TAbstractSpectralStrength(const std::array<real, 1>& value);
-	explicit inline TAbstractSpectralStrength(const TArithmeticArray<real, 1>& value);
+	explicit inline TAbstractSpectralStrength(const math::TArithmeticArray<real, 1>& value);
 	explicit inline TAbstractSpectralStrength(const std::array<real, N>& values);
-	explicit inline TAbstractSpectralStrength(const TArithmeticArray<real, N>& values);
+	explicit inline TAbstractSpectralStrength(const math::TArithmeticArray<real, N>& values);
 
 protected:
 	inline TAbstractSpectralStrength() = default;
@@ -39,11 +39,11 @@ public:
 	//
 	inline real calcLuminance(EQuantity valueType = EQuantity::RAW) const;
 
-	inline Vector3R genSrgb(EQuantity valueType = EQuantity::RAW) const;
-	inline Vector3R genLinearSrgb(EQuantity valueType = EQuantity::RAW) const;
+	inline math::Vector3R genSrgb(EQuantity valueType = EQuantity::RAW) const;
+	inline math::Vector3R genLinearSrgb(EQuantity valueType = EQuantity::RAW) const;
 
-	inline DerivedType& setSrgb(const Vector3R& srgb, EQuantity valueType = EQuantity::RAW);
-	inline DerivedType& setLinearSrgb(const Vector3R& linearSrgb, EQuantity valueType = EQuantity::RAW);
+	inline DerivedType& setSrgb(const math::Vector3R& srgb, EQuantity valueType = EQuantity::RAW);
+	inline DerivedType& setLinearSrgb(const math::Vector3R& linearSrgb, EQuantity valueType = EQuantity::RAW);
 	inline DerivedType& setSampled(const SampledSpectralStrength& sampled, EQuantity valueType = EQuantity::RAW);
 
 	inline DerivedType add(const DerivedType& rhs) const;
@@ -77,7 +77,7 @@ public:
 
 	inline DerivedType& setValues(real value);
 	inline DerivedType& setValues(const std::array<real, N>& values);
-	inline DerivedType& setValues(const TArithmeticArray<real, N>& values);
+	inline DerivedType& setValues(const math::TArithmeticArray<real, N>& values);
 	inline DerivedType& setValues(const DerivedType& values);
 
 	inline bool isZero() const;
@@ -102,7 +102,7 @@ public:
 	inline std::string toString() const;
 
 protected:
-	TArithmeticArray<real, N> m_values;
+	math::TArithmeticArray<real, N> m_values;
 };
 
 }// end namespace ph

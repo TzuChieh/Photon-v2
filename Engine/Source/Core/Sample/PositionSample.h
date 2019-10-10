@@ -8,10 +8,10 @@ namespace ph
 class PositionSample final
 {
 public:
-	Vector3R position;
-	Vector3R normal;
-	Vector3R uvw;
-	real     pdf;
+	math::Vector3R position;
+	math::Vector3R normal;
+	math::Vector3R uvw;
+	real           pdf;
 };
 
 }// end namespace ph

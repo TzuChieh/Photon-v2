@@ -4,7 +4,10 @@
 
 #include <type_traits>
 
-using Matrix = ph::TMatrix3<float>;
+using namespace ph;
+using namespace ph::math;
+
+using Matrix = TMatrix3<float>;
 
 namespace
 {

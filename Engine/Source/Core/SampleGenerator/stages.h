@@ -70,7 +70,7 @@ class Samples2DStage : public SamplesStageBase
 	friend class SampleGenerator;
 
 public:
-	Vector2S getDimSizeHints() const;
+	math::Vector2S getDimSizeHints() const;
 
 protected:
 	inline Samples2DStage(
@@ -82,12 +82,12 @@ protected:
 	{}
 
 	Samples2DStage(
-		std::size_t     stageIndex,
-		std::size_t     numSamples,
-		const Vector2S& dimSizeHints);
+		std::size_t           stageIndex,
+		std::size_t           numSamples,
+		const math::Vector2S& dimSizeHints);
 
 private:
-	Vector2S m_dimSizeHints;
+	math::Vector2S m_dimSizeHints;
 };
 
 class SamplesNDStage : public SamplesStageBase
@@ -119,7 +119,7 @@ private:
 
 // In-header Implementations:
 
-inline Vector2S Samples2DStage::getDimSizeHints() const
+inline math::Vector2S Samples2DStage::getDimSizeHints() const
 {
 	return m_dimSizeHints;
 }

@@ -34,7 +34,7 @@ void GRectangle::genPrimitive(
 }
 
 std::shared_ptr<Geometry> GRectangle::genTransformed(
-	const StaticAffineTransform& transform) const
+	const math::StaticAffineTransform& transform) const
 {
 	return genTriangleMesh()->genTransformed(transform);
 }
@@ -51,15 +51,15 @@ std::shared_ptr<GTriangleMesh> GRectangle::genTriangleMesh() const
 	const real halfWidth  = m_width * 0.5_r;
 	const real halfHeight = m_height * 0.5_r;
 
-	const Vector3R vA(-halfWidth,  halfHeight, 0.0_r);// quadrant II
-	const Vector3R vB(-halfWidth, -halfHeight, 0.0_r);// quadrant III
-	const Vector3R vC( halfWidth, -halfHeight, 0.0_r);// quadrant IV
-	const Vector3R vD( halfWidth,  halfHeight, 0.0_r);// quadrant I
+	const math::Vector3R vA(-halfWidth,  halfHeight, 0.0_r);// quadrant II
+	const math::Vector3R vB(-halfWidth, -halfHeight, 0.0_r);// quadrant III
+	const math::Vector3R vC( halfWidth, -halfHeight, 0.0_r);// quadrant IV
+	const math::Vector3R vD( halfWidth,  halfHeight, 0.0_r);// quadrant I
 
-	const Vector3R tA(0.0_r, 1.0_r, 0.0_r);// quadrant II
-	const Vector3R tB(0.0_r, 0.0_r, 0.0_r);// quadrant III
-	const Vector3R tC(1.0_r, 0.0_r, 0.0_r);// quadrant IV
-	const Vector3R tD(1.0_r, 1.0_r, 0.0_r);// quadrant I
+	const math::Vector3R tA(0.0_r, 1.0_r, 0.0_r);// quadrant II
+	const math::Vector3R tB(0.0_r, 0.0_r, 0.0_r);// quadrant III
+	const math::Vector3R tC(1.0_r, 0.0_r, 0.0_r);// quadrant IV
+	const math::Vector3R tD(1.0_r, 1.0_r, 0.0_r);// quadrant I
 
 	// 2 triangles for a rectangle (both CCW)
 
@@ -116,8 +116,8 @@ std::unique_ptr<GRectangle> GRectangle::ciLoad(const InputPacket& packet)
 	const DataTreatment requiredData(EDataImportance::REQUIRED, 
 	                                 "GRectangle needs width and height specified");
 
-	const real width  = packet.getReal("width",  1.0_r, requiredData);
-	const real height = packet.getReal("height", 1.0_r, requiredData);
+	const auto width  = packet.getReal("width",  1.0_r, requiredData);
+	const auto height = packet.getReal("height", 1.0_r, requiredData);
 
 	auto rectangle = std::make_unique<GRectangle>(width, height);
 	rectangle->setTexCoordScale(packet.getReal("texcoord-scale", 1.0_r));

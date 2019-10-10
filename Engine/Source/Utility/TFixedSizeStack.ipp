@@ -94,4 +94,3 @@ inline const T& TFixedSizeStack<T, N>::operator [] (const std::size_t index) con
 }
 
 }// end namespace ph
-

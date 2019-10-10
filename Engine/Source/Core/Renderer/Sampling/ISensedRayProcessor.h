@@ -13,7 +13,7 @@ class ISensedRayProcessor
 public:
 	virtual ~ISensedRayProcessor() = default;
 
-	virtual void process(const Vector2D& filmNdc, const Ray& sensedRay) = 0;
+	virtual void process(const math::Vector2D& filmNdc, const Ray& sensedRay) = 0;
 	virtual void onBatchStart(uint64 batchNumber);
 	virtual void onBatchFinish(uint64 batchNumber);
 };

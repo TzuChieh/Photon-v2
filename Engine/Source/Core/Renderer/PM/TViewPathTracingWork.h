@@ -31,7 +31,7 @@ public:
 		const Camera* camera,
 		SampleGenerator* sampleGenerator,
 		const Region& filmRegion,
-		const TVector2<int64>& filmSize);
+		const math::TVector2<int64>& filmSize);
 
 private:
 	void doWork() override;
@@ -42,7 +42,7 @@ private:
 	const Camera*    m_camera;
 	SampleGenerator* m_sampleGenerator;
 	Region m_filmRegion;
-	TVector2<int64> m_filmSize;
+	math::TVector2<int64> m_filmSize;
 
 	void traceViewPath(
 		Ray tracingRay, 
@@ -51,8 +51,8 @@ private:
 
 	void traceElementallyBranchedPath(
 		const ViewPathTracingPolicy& policy,
-		const Vector3R& V,
-		const Vector3R& N,
+		const math::Vector3R& V,
+		const math::Vector3R& N,
 		const SurfaceHit& surfaceHit,
 		const SpectralStrength& pathThroughput,
 		std::size_t pathLength);

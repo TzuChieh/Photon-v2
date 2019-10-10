@@ -14,9 +14,7 @@ class CommandRegister final
 public:
 	inline CommandRegister(CommandEntry& entry) : 
 		m_entry(entry)
-	{
-
-	}
+	{}
 
 	inline void setLoader(const SdlLoader& loader)
 	{

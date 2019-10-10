@@ -4,7 +4,10 @@
 
 #include <type_traits>
 
-using Matrix = ph::TMatrix4<float>;
+using namespace ph;
+using namespace ph::math;
+
+using Matrix = TMatrix4<float>;
 
 namespace
 {
@@ -40,8 +43,6 @@ namespace
 
 TEST(TMatrix4Test, Requirements)
 {
-	using namespace ph;
-
 	EXPECT_TRUE(std::is_trivially_copyable_v<Matrix4R>);
 	EXPECT_TRUE(std::is_trivially_copyable_v<Matrix4F>);
 	EXPECT_TRUE(std::is_trivially_copyable_v<Matrix4D>);
@@ -233,7 +234,7 @@ TEST(TMatrix4Test, RotationMatrixFromBasis)
 	Matrix mat2;
 	mat2.initRotation({0, 0, 1}, {-1, 0, 0}, {0, -1, 0});
 
-	ph::Vector3R result;
+	Vector3R result;
 	mat2.mul({1, 1, 1}, 0, &result);
 	EXPECT_FLOAT_EQ(result.x, -1);
 	EXPECT_FLOAT_EQ(result.y, -1);

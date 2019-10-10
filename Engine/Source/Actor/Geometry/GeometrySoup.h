@@ -18,13 +18,13 @@ public:
 		std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
 
 	std::shared_ptr<Geometry> genTransformed(
-		const StaticAffineTransform& transform) const override;
+		const math::StaticAffineTransform& transform) const override;
 
 	void add(const std::shared_ptr<Geometry>& geometry);
 
 	bool addTransformed(
 		const std::shared_ptr<Geometry>& geometry, 
-		const StaticAffineTransform& transform);
+		const math::StaticAffineTransform& transform);
 
 private:
 	std::vector<std::shared_ptr<Geometry>> m_geometries;

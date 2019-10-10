@@ -15,9 +15,9 @@ namespace
 
 Samples2DStage::Samples2DStage(
 
-	const std::size_t stageIndex,
-	const std::size_t numSamples,
-	const Vector2S&   dimSizeHints) :
+	const std::size_t     stageIndex,
+	const std::size_t     numSamples,
+	const math::Vector2S& dimSizeHints) :
 
 	SamplesStageBase(stageIndex, 2, numSamples),
 	m_dimSizeHints(dimSizeHints.max({1, 1}))

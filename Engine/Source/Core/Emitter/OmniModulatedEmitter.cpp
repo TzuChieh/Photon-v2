@@ -23,9 +23,9 @@ void OmniModulatedEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStre
 
 	// TODO: early out when radiance = 0
 
-	const Vector3R& emitDirection = X.getIncidentRay().getDirection().mul(-1);
+	const math::Vector3R emitDirection = X.getIncidentRay().getDirection().mul(-1);
 
-	Vector3R uv;
+	math::Vector3R uv;
 	m_dirToUv.directionToUvw(emitDirection, &uv);
 
 	// HACK
@@ -43,9 +43,9 @@ void OmniModulatedEmitter::genDirectSample(DirectLightSample& sample) const
 		return;
 	}
 
-	const Vector3R& emitDirection = sample.targetPos.sub(sample.emitPos);
+	const math::Vector3R emitDirection = sample.targetPos.sub(sample.emitPos);
 
-	Vector3R uv;
+	math::Vector3R uv;
 	m_dirToUv.directionToUvw(emitDirection, &uv);
 
 	// HACK
@@ -55,11 +55,11 @@ void OmniModulatedEmitter::genDirectSample(DirectLightSample& sample) const
 	sample.radianceLe.mulLocal(filterValue);
 }
 
-void OmniModulatedEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void OmniModulatedEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
 	m_source->genSensingRay(out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
 
-	Vector3R uv;
+	math::Vector3R uv;
 	m_dirToUv.directionToUvw(out_ray->getDirection(), &uv);
 
 	// HACK
@@ -69,7 +69,7 @@ void OmniModulatedEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le,
 	out_Le->mulLocal(filterValue);
 }
 
-real OmniModulatedEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
+real OmniModulatedEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const
 {
 	const real pdfW = m_source->calcDirectSamplePdfW(emitPos, targetPos);
 

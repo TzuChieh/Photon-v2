@@ -28,16 +28,16 @@ public:
 	TileScheduler();
 
 	TileScheduler(
-		std::size_t              numWorkers,
-		const WorkUnit&          totalWorkUnit,
-		const Vector2S&          tileSize);
+		std::size_t           numWorkers,
+		const WorkUnit&       totalWorkUnit,
+		const math::Vector2S& tileSize);
 
 	TileScheduler(
-		std::size_t              numWorkers, 
-		const WorkUnit&          totalWorkUnit,
-		const Vector2S&          tileSize,
-		EOrigin                  origin,
-		constant::AxisIndexType  prioriAxis);
+		std::size_t                   numWorkers, 
+		const WorkUnit&               totalWorkUnit,
+		const math::Vector2S&         tileSize,
+		EOrigin                       origin,
+		math::constant::AxisIndexType prioriAxis);
 
 private:
 	GridScheduler m_grid;
@@ -54,24 +54,24 @@ inline TileScheduler::TileScheduler() :
 {}
 
 inline TileScheduler::TileScheduler(
-	const std::size_t numWorkers,
-	const WorkUnit&   totalWorkUnit,
-	const Vector2S&   tileSize) :
+	const std::size_t     numWorkers,
+	const WorkUnit&       totalWorkUnit,
+	const math::Vector2S& tileSize) :
 
 	TileScheduler(
 		numWorkers, 
 		totalWorkUnit, 
 		tileSize,
 		EOrigin::LOWER_LEFT,
-		constant::X_AXIS)
+		math::constant::X_AXIS)
 {}
 
 inline TileScheduler::TileScheduler(
-	const std::size_t             numWorkers,
-	const WorkUnit&               totalWorkUnit,
-	const Vector2S&               tileSize,
-	const EOrigin                 origin,
-	const constant::AxisIndexType prioriAxis) :
+	const std::size_t                   numWorkers,
+	const WorkUnit&                     totalWorkUnit,
+	const math::Vector2S&               tileSize,
+	const EOrigin                       origin,
+	const math::constant::AxisIndexType prioriAxis) :
 
 	WorkScheduler(numWorkers, totalWorkUnit),
 
@@ -81,10 +81,10 @@ inline TileScheduler::TileScheduler(
 
 	// since grid scheduler slices work region, we need to round up the 
 	// grid size to make each slice with size <tileSize>
-	TVector2<int64> gridSize(
+	math::TVector2<int64> gridSize(
 		math::ceil_div_positive(totalWorkUnit.getWidth(),  static_cast<int64>(tileSize.x)),
 		math::ceil_div_positive(totalWorkUnit.getHeight(), static_cast<int64>(tileSize.y)));
-	gridSize.mulLocal(TVector2<int64>(tileSize));
+	gridSize.mulLocal(math::TVector2<int64>(tileSize));
 
 	const Region gridWorkRegion(
 		totalWorkUnit.getRegion().minVertex, 
@@ -93,7 +93,7 @@ inline TileScheduler::TileScheduler(
 	m_grid = GridScheduler(
 		numWorkers,
 		WorkUnit(gridWorkRegion, totalWorkUnit.getDepth()),
-		Vector2S(gridWorkRegion.getExtents()) / tileSize,
+		math::Vector2S(gridWorkRegion.getExtents()) / tileSize,
 		toGridOrigin(origin),
 		prioriAxis);
 }

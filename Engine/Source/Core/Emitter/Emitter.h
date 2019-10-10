@@ -26,9 +26,9 @@ public:
 	virtual void genDirectSample(DirectLightSample& sample) const = 0;
 
 	// FIXME: ray time
-	virtual void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const = 0;
+	virtual void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const = 0;
 
-	virtual real calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const = 0;
+	virtual real calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const = 0;
 
 	// HACK
 	virtual bool isBackground() const

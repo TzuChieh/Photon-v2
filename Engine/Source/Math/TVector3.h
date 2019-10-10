@@ -8,11 +8,11 @@
 #include <string>
 #include <cstdlib>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
-class TVector3 final
+class TVector3
 {
 public:
 	static inline TVector3 weightedSum(const TVector3& vA, T wA, 
@@ -140,6 +140,6 @@ public:
 template<typename T>
 inline TVector3<T> operator * (T rhs, const TVector3<T>& lhs);
 
-}// end namespace ph
+}// end namespace ph::math
 
 #include "Math/TVector3.ipp"

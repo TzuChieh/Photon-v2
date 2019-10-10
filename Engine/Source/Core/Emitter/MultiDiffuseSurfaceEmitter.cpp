@@ -44,18 +44,18 @@ void MultiDiffuseSurfaceEmitter::genDirectSample(DirectLightSample& sample) cons
 {
 	PH_ASSERT(!m_emitters.empty());
 
-	const DiffuseSurfaceEmitter& emitter = m_emitters[Random::genUniformIndex_iL_eU(0, m_emitters.size())];
+	const DiffuseSurfaceEmitter& emitter = m_emitters[math::Random::genUniformIndex_iL_eU(0, m_emitters.size())];
 
 	emitter.genDirectSample(sample);
 	const real pickPdf = (1.0_r / static_cast<real>(m_emitters.size()));
 	sample.pdfW *= pickPdf;
 }
 
-void MultiDiffuseSurfaceEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void MultiDiffuseSurfaceEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
 	// randomly and uniformly pick a primitive
 
-	const auto& emitter = m_emitters[Random::genUniformIndex_iL_eU(0, m_emitters.size())];
+	const auto& emitter = m_emitters[math::Random::genUniformIndex_iL_eU(0, m_emitters.size())];
 	const real pickPdf = 1.0_r / static_cast<real>(m_emitters.size());
 
 	emitter.genSensingRay(out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
@@ -98,7 +98,7 @@ void MultiDiffuseSurfaceEmitter::genSensingRay(Ray* out_ray, SpectralStrength* o
 	//std::cerr << "PrimitiveAreaEmitter::genSensingRay() not implemented" << std::endl;
 }
 
-real MultiDiffuseSurfaceEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
+real MultiDiffuseSurfaceEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const
 {
 	PH_ASSERT(!m_emitters.empty());
 

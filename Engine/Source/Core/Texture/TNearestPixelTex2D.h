@@ -8,7 +8,7 @@ namespace ph
 {
 
 template<typename T, std::size_t N>
-class TNearestPixelTex2D final : public TPixelTex2D<T, N>
+class TNearestPixelTex2D : public TPixelTex2D<T, N>
 {
 public:
 	using TPixelTex2D<T, N>::TPixelTex2D;

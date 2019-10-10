@@ -5,7 +5,7 @@
 #include <cmath>
 #include <algorithm>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename ValueType>
@@ -70,4 +70,4 @@ ValueType TMNCubic2D<ValueType>::mnCubic1D(const ValueType x) const
 	}
 }
 
-}// end namespace ph
+}// end namespace ph::math

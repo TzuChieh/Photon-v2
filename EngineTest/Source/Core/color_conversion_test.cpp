@@ -4,52 +4,53 @@
 
 #include <gtest/gtest.h>
 
+using namespace ph;
+using namespace ph::math;
+
 TEST(ColorConversionTest, SrgbCieXyzInterConversion)
 {
-	using namespace ph;
-
 	const real ACCEPTABLE_ERROR = 0.0003_r;
 
 	Vector3R color;
 
-	color = ph::ColorSpace::sRGB_to_linear_sRGB({0, 0, 0});
+	color = ColorSpace::sRGB_to_linear_sRGB({0, 0, 0});
 	EXPECT_NEAR(color.x, 0, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.y, 0, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.z, 0, ACCEPTABLE_ERROR);
 
-	color = ph::ColorSpace::linear_sRGB_to_sRGB({0, 0, 0});
+	color = ColorSpace::linear_sRGB_to_sRGB({0, 0, 0});
 	EXPECT_NEAR(color.x, 0, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.y, 0, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.z, 0, ACCEPTABLE_ERROR);
 
-	color = ph::ColorSpace::sRGB_to_linear_sRGB({1, 1, 1});
+	color = ColorSpace::sRGB_to_linear_sRGB({1, 1, 1});
 	EXPECT_NEAR(color.x, 1, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.y, 1, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.z, 1, ACCEPTABLE_ERROR);
 
-	color = ph::ColorSpace::linear_sRGB_to_sRGB({1, 1, 1});
+	color = ColorSpace::linear_sRGB_to_sRGB({1, 1, 1});
 	EXPECT_NEAR(color.x, 1, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.y, 1, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.z, 1, ACCEPTABLE_ERROR);
 
-	color = ph::ColorSpace::CIE_XYZ_D65_to_linear_sRGB({0, 0, 0});
+	color = ColorSpace::CIE_XYZ_D65_to_linear_sRGB({0, 0, 0});
 	EXPECT_NEAR(color.x, 0, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.y, 0, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.z, 0, ACCEPTABLE_ERROR);
 
-	color = ph::ColorSpace::linear_sRGB_to_CIE_XYZ_D65({0, 0, 0});
+	color = ColorSpace::linear_sRGB_to_CIE_XYZ_D65({0, 0, 0});
 	EXPECT_NEAR(color.x, 0, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.y, 0, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.z, 0, ACCEPTABLE_ERROR);
 
-	ph::Vector3R normalizedD65_XYZ(0.95047_r, 1.0_r, 1.08883_r);
+	Vector3R normalizedD65_XYZ(0.95047_r, 1.0_r, 1.08883_r);
 
-	color = ph::ColorSpace::CIE_XYZ_D65_to_linear_sRGB(normalizedD65_XYZ);
+	color = ColorSpace::CIE_XYZ_D65_to_linear_sRGB(normalizedD65_XYZ);
 	EXPECT_NEAR(color.x, 1, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.y, 1, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.z, 1, ACCEPTABLE_ERROR);
 
-	color = ph::ColorSpace::linear_sRGB_to_CIE_XYZ_D65({1, 1, 1});
+	color = ColorSpace::linear_sRGB_to_CIE_XYZ_D65({1, 1, 1});
 	EXPECT_NEAR(color.x, normalizedD65_XYZ.x, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.y, normalizedD65_XYZ.y, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color.z, normalizedD65_XYZ.z, ACCEPTABLE_ERROR);
@@ -57,8 +58,6 @@ TEST(ColorConversionTest, SrgbCieXyzInterConversion)
 
 TEST(ColorConversionTest, SpectrumToCieXyzConversion)
 {
-	using namespace ph;
-
 	const real ACCEPTABLE_ERROR = 0.0003_r;
 
 	Vector3R color;

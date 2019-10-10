@@ -7,11 +7,7 @@
 #include <type_traits>
 #include <cmath>
 
-namespace ph
-{
-
-// TODO: test
-namespace hash
+namespace ph::math
 {
 
 /*
@@ -83,6 +79,4 @@ inline std::size_t discrete_spatial_hash(
 		hashTableSize);
 }
 
-}// end namespace hash
-
-}// end namespace ph
+}// end namespace ph::math

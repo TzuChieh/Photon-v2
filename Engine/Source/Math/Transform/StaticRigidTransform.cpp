@@ -1,6 +1,6 @@
 #include "Math/Transform/StaticRigidTransform.h"
 
-namespace ph
+namespace ph::math
 {
 
 const Logger StaticRigidTransform::logger(LogSender("StaticRigidTransform"));
@@ -67,4 +67,4 @@ void StaticRigidTransform::transformLineSegment(
 		out_lineMaxT);
 }
 
-}// end namespace ph
+}// end namespace ph::math

@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 using namespace ph;
+using namespace ph::math;
 
 // TODO: seed with time or other data
 

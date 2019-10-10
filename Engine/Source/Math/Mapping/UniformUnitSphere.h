@@ -8,7 +8,7 @@
 #include <cmath>
 #include <algorithm>
 
-namespace ph
+namespace ph::math
 {
 
 class UniformUnitSphere
@@ -43,4 +43,4 @@ inline Vector3R UniformUnitSphere::map(const Vector2R& seed, real* const out_pdf
 	return map(seed);
 }
 
-}// end namespace ph
+}// end namespace ph::math

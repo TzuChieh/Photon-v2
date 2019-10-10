@@ -40,7 +40,7 @@ DiffuseSurfaceEmitter::DiffuseSurfaceEmitter(const Primitive* const surface) :
 
 void DiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* const out_radiance) const
 {
-	const Vector3R emitDir = X.getIncidentRay().getDirection().mul(-1.0_r);
+	const math::Vector3R emitDir = X.getIncidentRay().getDirection().mul(-1.0_r);
 	if(!canEmit(emitDir, X.getShadingNormal()))
 	{
 		out_radiance->setValues(0.0_r);
@@ -64,8 +64,8 @@ void DiffuseSurfaceEmitter::genDirectSample(DirectLightSample& sample) const
 		return;
 	}
 
-	const Vector3R emitterToTargetPos(sample.targetPos.sub(positionSample.position));
-	const Vector3R emitDir(emitterToTargetPos.normalize());
+	const math::Vector3R emitterToTargetPos(sample.targetPos.sub(positionSample.position));
+	const math::Vector3R emitDir(emitterToTargetPos.normalize());
 	const real distSquared = emitterToTargetPos.lengthSquared();
 	
 	sample.emitPos = positionSample.position;
@@ -82,12 +82,12 @@ void DiffuseSurfaceEmitter::genDirectSample(DirectLightSample& sample) const
 	getEmittedRadiance().sample(SampleLocation(positionSample.uvw, EQuantity::EMR), &sample.radianceLe);
 }
 
-real DiffuseSurfaceEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
+real DiffuseSurfaceEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const
 {
 	return calcPdfW(emitPos, targetPos);
 }
 
-void DiffuseSurfaceEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* const out_Le, Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const
+void DiffuseSurfaceEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* const out_Le, math::Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const
 {
 	PositionSample positionSample;
 	m_surface->genPositionSample(&positionSample);
@@ -98,12 +98,12 @@ void DiffuseSurfaceEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* 
 		&pdfW);*/
 
 	real pdfW;
-	const Vector3R localRayDir = CosThetaWeightedUnitHemisphere::map(
-		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()},
+	const math::Vector3R localRayDir = math::CosThetaWeightedUnitHemisphere::map(
+		{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()},
 		&pdfW);
 
-	const auto sampleBasis = Basis3R::makeFromUnitY(positionSample.normal);
-	Vector3R rayDir = sampleBasis.localToWorld(localRayDir);
+	const auto sampleBasis = math::Basis3R::makeFromUnitY(positionSample.normal);
+	math::Vector3R rayDir = sampleBasis.localToWorld(localRayDir);
 	rayDir.normalizeLocal();
 
 	// TODO: time
@@ -162,7 +162,7 @@ real DiffuseSurfaceEmitter::calcRadiantFluxApprox() const
 	spectralL.setLinearSrgb(sampledL.genLinearSrgb(QUANTITY), QUANTITY);
 
 	const real extendedArea = m_surface->calcExtendedArea();
-	const real radiantFlux  = spectralL.sum() * extendedArea * constant::pi<real>;
+	const real radiantFlux  = spectralL.sum() * extendedArea * math::constant::pi<real>;
 	return radiantFlux > 0.0_r ? radiantFlux : SurfaceEmitter::calcRadiantFluxApprox();
 }
 

@@ -25,9 +25,9 @@ class TIndexedKdtreeNode
 
 public:
 	static TIndexedKdtreeNode makeInner(
-		real                    splitPos,
-		constant::AxisIndexType splitAxisIndex,
-		std::size_t             positiveChildIndex);
+		real                          splitPos,
+		math::constant::AxisIndexType splitAxisIndex,
+		std::size_t                   positiveChildIndex);
 
 	static TIndexedKdtreeNode makeLeaf(
 		Index               index,
@@ -94,9 +94,9 @@ inline TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
 inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 	makeInner(
-		const real                    splitPos,
-		const constant::AxisIndexType splitAxisIndex,
-		const std::size_t             rightChildIndex) -> TIndexedKdtreeNode
+		const real                          splitPos,
+		const math::constant::AxisIndexType splitAxisIndex,
+		const std::size_t                   rightChildIndex) -> TIndexedKdtreeNode
 {
 	PH_ASSERT(
 		(!std::isnan(splitPos) && !std::isinf(splitPos)) &&

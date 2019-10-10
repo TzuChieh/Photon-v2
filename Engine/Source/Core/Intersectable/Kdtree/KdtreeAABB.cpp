@@ -6,28 +6,22 @@ namespace ph
 
 KdtreeAABB::KdtreeAABB() : 
 	m_aabb()
-{
+{}
 
-}
-
-KdtreeAABB::KdtreeAABB(const AABB3D& aabb) :
+KdtreeAABB::KdtreeAABB(const math::AABB3D& aabb) :
 	m_aabb(aabb)
-{
+{}
 
-}
-
-KdtreeAABB::KdtreeAABB(const Vector3R& minVertex, const Vector3R& maxVertex) :
+KdtreeAABB::KdtreeAABB(const math::Vector3R& minVertex, const math::Vector3R& maxVertex) :
 	m_aabb(minVertex, maxVertex)
-{
-
-}
+{}
 
 bool KdtreeAABB::isIntersectingVolume(const Ray& ray, real* const out_rayNearHitDist, real* const out_rayFarHitDist) const
 {
 	return m_aabb.isIntersectingVolume(ray, out_rayNearHitDist, out_rayFarHitDist);
 }
 
-bool KdtreeAABB::isIntersectingVolume(const AABB3D& aabb) const
+bool KdtreeAABB::isIntersectingVolume(const math::AABB3D& aabb) const
 {
 	return m_aabb.isIntersectingVolume(aabb);
 }
@@ -50,8 +44,8 @@ bool KdtreeAABB::trySplitAt(const int32 axis, const real splitPos, KdtreeAABB* c
 
 	out_negativeAABB->m_aabb = m_aabb;
 	out_positiveAABB->m_aabb = m_aabb;
-	out_negativeAABB->m_aabb.setMaxVertex(Vector3R(maxVertex[KDTREE_X_AXIS], maxVertex[KDTREE_Y_AXIS], maxVertex[KDTREE_Z_AXIS]));
-	out_positiveAABB->m_aabb.setMinVertex(Vector3R(minVertex[KDTREE_X_AXIS], minVertex[KDTREE_Y_AXIS], minVertex[KDTREE_Z_AXIS]));
+	out_negativeAABB->m_aabb.setMaxVertex(math::Vector3R(maxVertex[KDTREE_X_AXIS], maxVertex[KDTREE_Y_AXIS], maxVertex[KDTREE_Z_AXIS]));
+	out_positiveAABB->m_aabb.setMinVertex(math::Vector3R(minVertex[KDTREE_X_AXIS], minVertex[KDTREE_Y_AXIS], minVertex[KDTREE_Z_AXIS]));
 
 	return true;
 }
@@ -84,7 +78,7 @@ real KdtreeAABB::getMaxVertex(const int32 axis) const
 	return maxVertex[axis];
 }
 
-void KdtreeAABB::getAABB(AABB3D* const out_aabb) const
+void KdtreeAABB::getAABB(math::AABB3D* const out_aabb) const
 {
 	*out_aabb = m_aabb;
 }

@@ -21,19 +21,19 @@ public:
 	SpiralGridScheduler();
 
 	SpiralGridScheduler(
-		std::size_t     numWorkers,
-		const WorkUnit& totalWorkUnit,
-		const Vector2S& spiralTileSize);
+		std::size_t           numWorkers,
+		const WorkUnit&       totalWorkUnit,
+		const math::Vector2S& spiralTileSize);
 
 	SpiralGridScheduler(
-		std::size_t     numWorkers,
-		const WorkUnit& totalWorkUnit,
-		const Vector2S& spiralTileSize,
-		const Vector2S& numGridCells);
+		std::size_t           numWorkers,
+		const WorkUnit&       totalWorkUnit,
+		const math::Vector2S& spiralTileSize,
+		const math::Vector2S& numGridCells);
 
 private:
 	SpiralScheduler m_spiralScheduler;
-	Vector2S        m_numGridCells;
+	math::Vector2S  m_numGridCells;
 	GridScheduler   m_currentGrid;
 
 	void scheduleOne(WorkUnit* out_workUnit) override;
@@ -46,22 +46,23 @@ inline SpiralGridScheduler::SpiralGridScheduler() :
 {}
 
 inline SpiralGridScheduler::SpiralGridScheduler(
-	const std::size_t numWorkers,
-	const WorkUnit&   totalWorkUnit,
-	const Vector2S&   spiralTileSize) :
+	const std::size_t     numWorkers,
+	const WorkUnit&       totalWorkUnit,
+	const math::Vector2S& spiralTileSize) :
 
 	SpiralGridScheduler(
 		numWorkers, 
 		totalWorkUnit,
 		spiralTileSize,
-		Vector2S(static_cast<std::size_t>(std::max(math::fast_sqrt(static_cast<float>(numWorkers)), 1.0f))))
+		math::Vector2S(static_cast<std::size_t>(
+			std::max(math::fast_sqrt(static_cast<float>(numWorkers)), 1.0f))))
 {}
 
 inline SpiralGridScheduler::SpiralGridScheduler(
-	const std::size_t numWorkers,
-	const WorkUnit&   totalWorkUnit,
-	const Vector2S&   spiralTileSize,
-	const Vector2S&   numGridCells) : 
+	const std::size_t     numWorkers,
+	const WorkUnit&       totalWorkUnit,
+	const math::Vector2S& spiralTileSize,
+	const math::Vector2S& numGridCells) :
 
 	WorkScheduler(numWorkers, totalWorkUnit),
 

@@ -18,15 +18,15 @@ public:
 	CookedUnit cook(CookingContext& context) const override = 0;
 
 	// FIXME: precision loss using real
-	void translate(const Vector3R& translation);
+	void translate(const math::Vector3R& translation);
 	void translate(const real x, const real y, const real z);
-	void rotate(const Vector3R& axis, const real degrees);
-	void rotate(const QuaternionR& rotation);
-	void scale(const Vector3R& scaleFactor);
+	void rotate(const math::Vector3R& axis, const real degrees);
+	void rotate(const math::QuaternionR& rotation);
+	void scale(const math::Vector3R& scaleFactor);
 	void scale(const real x, const real y, const real z);
 	void scale(const real scaleFactor);
 
-	void setBaseTransform(const TDecomposedTransform<hiReal>& baseLocalToWorld);
+	void setBaseTransform(const math::TDecomposedTransform<hiReal>& baseLocalToWorld);
 
 	/*const StaticTransform* getLocalToWorldTransform() const;
 	const StaticTransform* getWorldToLocalTransform() const;*/
@@ -36,7 +36,7 @@ public:
 	friend void swap(PhysicalActor& first, PhysicalActor& second);
 
 protected:
-	TDecomposedTransform<hiReal> m_localToWorld;
+	math::TDecomposedTransform<hiReal> m_localToWorld;
 
 	/*virtual void updateTransforms(const StaticTransform& parentTransform = StaticTransform(),
 	                              const StaticTransform& parentInverseTransform = StaticTransform());*/

@@ -29,9 +29,9 @@ public:
 
 	const Emitter* pickEmitter(real* const out_PDF) const;
 	void genDirectSample(DirectLightSample& sample) const;
-	real calcDirectPdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const;
+	real calcDirectPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const;
 
-	void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const;
+	void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const;
 
 	// HACK
 	void setBackgroundEmitterPrimitive(const Primitive* primitive)

@@ -2,7 +2,7 @@
 
 #include "Math/Function/TMathFunction2D.h"
 
-namespace ph
+namespace ph::math
 {
 
 template<typename ValueType>
@@ -35,4 +35,4 @@ ValueType TConstant2D<ValueType>::evaluate(const ValueType x, const ValueType y)
 	return m_constantValue;
 }
 
-}// end namespace ph
+}// end namespace ph::math

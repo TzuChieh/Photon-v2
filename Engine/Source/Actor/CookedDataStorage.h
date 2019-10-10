@@ -26,9 +26,9 @@ public:
 	void add(std::unique_ptr<Intersectable> intersectable);
 	void add(std::unique_ptr<PrimitiveMetadata> metadata);
 	void add(std::unique_ptr<Emitter> emitter);
-	void add(std::unique_ptr<Transform> transform);
+	void add(std::unique_ptr<math::Transform> transform);
 	void add(std::vector<std::unique_ptr<Intersectable>>&& intersectables);
-	void add(std::vector<std::unique_ptr<Transform>>&& transforms);
+	void add(std::vector<std::unique_ptr<math::Transform>>&& transforms);
 	void add(CookedDataStorage&& other);
 
 	std::size_t numIntersectables() const;
@@ -73,7 +73,7 @@ private:
 	std::vector<std::unique_ptr<Intersectable>>     m_intersectables;
 	std::vector<std::unique_ptr<PrimitiveMetadata>> m_primitiveMetadatas;
 	std::vector<std::unique_ptr<Emitter>>           m_emitters;
-	std::vector<std::unique_ptr<Transform>>         m_transforms;
+	std::vector<std::unique_ptr<math::Transform>>   m_transforms;
 };
 
 }// end namespace ph

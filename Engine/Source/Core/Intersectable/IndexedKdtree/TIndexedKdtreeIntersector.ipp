@@ -17,7 +17,7 @@ void TIndexedKdtreeIntersector<IndexedKdtree>::update(const CookedDataStorage& c
 	for(const auto& intersectable : cookedActors.intersectables())
 	{
 		// HACK
-		AABB3D aabb;
+		math::AABB3D aabb;
 		intersectable->calcAABB(&aabb);
 		if(!aabb.isFiniteVolume())
 		{

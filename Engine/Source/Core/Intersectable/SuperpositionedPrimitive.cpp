@@ -30,14 +30,14 @@ SuperpositionedPrimitive::SuperpositionedPrimitive(
 
 bool SuperpositionedPrimitive::isIntersecting(const Ray& ray) const
 {
-	PH_ASSERT(m_mainPrimitive != nullptr);
+	PH_ASSERT(m_mainPrimitive);
 
 	return m_mainPrimitive->isIntersecting(ray);
 }
 
 bool SuperpositionedPrimitive::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
-	PH_ASSERT(m_mainPrimitive != nullptr);
+	PH_ASSERT(m_mainPrimitive);
 
 	if(m_mainPrimitive->isIntersecting(ray, probe))
 	{
@@ -76,37 +76,37 @@ void SuperpositionedPrimitive::calcIntersectionDetail(
 	probe.getCurrentHit()->calcIntersectionDetail(ray, probe, out_detail);
 }
 
-bool SuperpositionedPrimitive::isIntersectingVolumeConservative(const AABB3D& aabb) const
+bool SuperpositionedPrimitive::isIntersectingVolumeConservative(const math::AABB3D& aabb) const
 {
-	PH_ASSERT(m_mainPrimitive != nullptr);
+	PH_ASSERT(m_mainPrimitive);
 
 	return m_mainPrimitive->isIntersectingVolumeConservative(aabb);
 }
 
-void SuperpositionedPrimitive::calcAABB(AABB3D* const out_aabb) const
+void SuperpositionedPrimitive::calcAABB(math::AABB3D* const out_aabb) const
 {
-	PH_ASSERT(m_mainPrimitive != nullptr);
+	PH_ASSERT(m_mainPrimitive);
 
 	m_mainPrimitive->calcAABB(out_aabb);
 }
 
-real SuperpositionedPrimitive::calcPositionSamplePdfA(const Vector3R& position) const
+real SuperpositionedPrimitive::calcPositionSamplePdfA(const math::Vector3R& position) const
 {
-	PH_ASSERT(m_mainPrimitive != nullptr);
+	PH_ASSERT(m_mainPrimitive);
 
 	return m_mainPrimitive->calcPositionSamplePdfA(position);
 }
 
 real SuperpositionedPrimitive::calcExtendedArea() const
 {
-	PH_ASSERT(m_mainPrimitive != nullptr);
+	PH_ASSERT(m_mainPrimitive);
 
 	return m_mainPrimitive->calcExtendedArea();
 }
 
 void SuperpositionedPrimitive::genPositionSample(PositionSample* const out_sample) const
 {
-	PH_ASSERT(m_mainPrimitive != nullptr);
+	PH_ASSERT(m_mainPrimitive);
 
 	m_mainPrimitive->genPositionSample(out_sample);
 }

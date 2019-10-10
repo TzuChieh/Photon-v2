@@ -35,8 +35,8 @@ inline TCheckerboardTexture<OutputType>::TCheckerboardTexture(
 	setOddTexture(oddTexture);
 	setEvenTexture(evenTexture);
 
-	setOddTextureScale(Vector3R(1.0_r / numUtiles));
-	setEvenTextureScale(Vector3R(1.0_r / numVtiles));
+	setOddTextureScale(math::Vector3R(1.0_r / numUtiles));
+	setEvenTextureScale(math::Vector3R(1.0_r / numVtiles));
 
 	m_uTileSize = 1.0f / numUtiles;
 	m_vTileSize = 1.0f / numVtiles;
@@ -49,7 +49,7 @@ inline void TCheckerboardTexture<OutputType>::sample(
 	PH_ASSERT(m_oddTexture  && m_oddTexture.get()  != this);
 	PH_ASSERT(m_evenTexture && m_evenTexture.get() != this);
 
-	const Vector3R& uvw = sampleLocation.uvw();
+	const math::Vector3R uvw = sampleLocation.uvw();
 	const int32 uNumber = static_cast<int32>(std::floor(uvw.x / m_uTileSize));
 	const int32 vNumber = static_cast<int32>(std::floor(uvw.y / m_vTileSize));
 
@@ -99,13 +99,13 @@ inline void TCheckerboardTexture<OutputType>::setEvenTexture(
 */
 
 template<typename OutputType>
-inline void TCheckerboardTexture<OutputType>::setOddTextureScale(const Vector3R& scale)
+inline void TCheckerboardTexture<OutputType>::setOddTextureScale(const math::Vector3R& scale)
 {
 	m_oddUvwScale = scale.reciprocal();
 }
 
 template<typename OutputType>
-inline void TCheckerboardTexture<OutputType>::setEvenTextureScale(const Vector3R& scale)
+inline void TCheckerboardTexture<OutputType>::setEvenTextureScale(const math::Vector3R& scale)
 {
 	m_evenUvwScale = scale.reciprocal();
 }

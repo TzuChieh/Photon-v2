@@ -48,7 +48,7 @@ void CookedDataStorage::add(std::unique_ptr<Emitter> emitter)
 	}
 }
 
-void CookedDataStorage::add(std::unique_ptr<Transform> transform)
+void CookedDataStorage::add(std::unique_ptr<math::Transform> transform)
 {
 	if(transform != nullptr)
 	{
@@ -64,7 +64,7 @@ void CookedDataStorage::add(std::vector<std::unique_ptr<Intersectable>>&& inters
 	}
 }
 
-void CookedDataStorage::add(std::vector<std::unique_ptr<Transform>>&& transforms)
+void CookedDataStorage::add(std::vector<std::unique_ptr<math::Transform>>&& transforms)
 {
 	for(auto& transform : transforms)
 	{

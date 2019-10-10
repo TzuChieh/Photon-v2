@@ -30,8 +30,6 @@ ExitStatus ExitStatus::UNSUPPORTED(const std::string& message)
 
 ExitStatus::ExitStatus(const State state, const std::string& message) :
 	state(state), message(message)
-{
-
-}
+{}
 
 }// end namespace ph

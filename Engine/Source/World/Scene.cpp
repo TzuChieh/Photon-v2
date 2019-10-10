@@ -71,12 +71,12 @@ void Scene::genDirectSample(DirectLightSample& sample) const
 	m_emitterSampler->genDirectSample(sample);
 }
 
-real Scene::calcDirectPdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
+real Scene::calcDirectPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const
 {
 	return m_emitterSampler->calcDirectPdfW(emitPos, targetPos);
 }
 
-void Scene::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void Scene::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
 	real pickPdf;
 	const Emitter* emitter = m_emitterSampler->pickEmitter(&pickPdf);

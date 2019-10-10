@@ -10,7 +10,7 @@
 namespace ph
 {
 
-class CheckerboardImage final : public Image, public TCommandInterface<CheckerboardImage>
+class CheckerboardImage : public Image, public TCommandInterface<CheckerboardImage>
 {
 public:
 	CheckerboardImage();
@@ -18,7 +18,7 @@ public:
 	std::shared_ptr<TTexture<real>> genTextureReal(
 		CookingContext& context) const override;
 
-	std::shared_ptr<TTexture<Vector3R>> genTextureVector3R(
+	std::shared_ptr<TTexture<math::Vector3R>> genTextureVector3R(
 		CookingContext& context) const override;
 
 	std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(

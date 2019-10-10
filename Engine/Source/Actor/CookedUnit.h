@@ -33,7 +33,7 @@ public:
 
 	void addIntersectable(std::unique_ptr<Intersectable> intersectable);
 	void setPrimitiveMetadata(std::unique_ptr<PrimitiveMetadata> metadata);
-	void addTransform(std::unique_ptr<Transform> transform);
+	void addTransform(std::unique_ptr<math::Transform> transform);
 	void setEmitter(std::unique_ptr<Emitter> emitter);
 
 	void addBackend(std::unique_ptr<Intersectable> intersectable);
@@ -63,11 +63,11 @@ public:
 	}
 
 private:
-	std::vector<std::unique_ptr<Intersectable>> m_intersectables;
-	std::unique_ptr<PrimitiveMetadata>          m_primitiveMetadata;
-	std::vector<std::unique_ptr<Transform>>     m_transforms;
-	std::unique_ptr<Emitter>                    m_emitter;
-	std::vector<std::unique_ptr<Intersectable>> m_backendIntersectables;
+	std::vector<std::unique_ptr<Intersectable>>   m_intersectables;
+	std::unique_ptr<PrimitiveMetadata>            m_primitiveMetadata;
+	std::vector<std::unique_ptr<math::Transform>> m_transforms;
+	std::unique_ptr<Emitter>                      m_emitter;
+	std::vector<std::unique_ptr<Intersectable>>   m_backendIntersectables;
 
 	// HACK (use ECS tagging or other methods)
 	const Primitive* m_backgroundEmitterPrimitive;

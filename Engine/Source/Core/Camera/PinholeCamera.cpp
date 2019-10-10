@@ -12,7 +12,7 @@
 namespace ph
 {
 
-void PinholeCamera::genSensedRay(const Vector2R& filmNdcPos, Ray* const out_ray) const
+void PinholeCamera::genSensedRay(const math::Vector2R& filmNdcPos, Ray* const out_ray) const
 {
 	PH_ASSERT(out_ray);
 	out_ray->setDirection(genSensedRayDir(filmNdcPos));
@@ -22,7 +22,7 @@ void PinholeCamera::genSensedRay(const Vector2R& filmNdcPos, Ray* const out_ray)
 
 	// HACK
 	Time time;
-	time.relativeT = Random::genUniformReal_i0_e1();
+	time.relativeT = math::Random::genUniformReal_i0_e1();
 	out_ray->setTime(time);
 
 	PH_ASSERT_MSG(out_ray->getOrigin().isFinite() && out_ray->getDirection().isFinite(), "\n"
@@ -30,24 +30,24 @@ void PinholeCamera::genSensedRay(const Vector2R& filmNdcPos, Ray* const out_ray)
 		"direction = " + out_ray->getDirection().toString() + "\n");
 }
 
-Vector3R PinholeCamera::genSensedRayDir(const Vector2R& filmNdcPos) const
+math::Vector3R PinholeCamera::genSensedRayDir(const math::Vector2R& filmNdcPos) const
 {
 	// Direction vector is computed in camera space then transformed to world
 	// space for better numerical precision. Subtracting two world space 
 	// points can lead to high numerical error when camera is far from origin
 	// (edge aliasing-like artifacts can be observed ~100 meters away from origin).
 
-	Vector3R filmPosMM;
-	m_filmToCamera->transformP(Vector3R(filmNdcPos.x, filmNdcPos.y, 0), &filmPosMM);
+	math::Vector3R filmPosMM;
+	m_filmToCamera->transformP(math::Vector3R(filmNdcPos.x, filmNdcPos.y, 0), &filmPosMM);
 
 	// subtracting pinhole position is omitted since it is at (0, 0, 0) mm
-	Vector3R sensedRayDir;
+	math::Vector3R sensedRayDir;
 	m_cameraToWorld->transformV(filmPosMM, &sensedRayDir);
 
 	return sensedRayDir.normalize();
 }
 
-void PinholeCamera::evalEmittedImportanceAndPdfW(const Vector3R& targetPos, Vector2R* const out_filmCoord, Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const
+void PinholeCamera::evalEmittedImportanceAndPdfW(const math::Vector3R& targetPos, math::Vector2R* const out_filmCoord, math::Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const
 {
 	std::cerr << "PinholeCamera::evalEmittedImportanceAndPdfW() not implemented" << std::endl;
 

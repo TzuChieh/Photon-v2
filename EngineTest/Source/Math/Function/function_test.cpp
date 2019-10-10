@@ -11,6 +11,7 @@
 #include <memory>
 
 using namespace ph;
+using namespace ph::math;
 
 TEST(MathFunctionTest, TConstant2dHasCorrectProperty)
 {

@@ -15,7 +15,7 @@ SurfaceEmitter::SurfaceEmitter() :
 	m_isBackFaceEmission(false)
 {}
 
-bool SurfaceEmitter::canEmit(const Vector3R& emitDirection, const Vector3R& N) const
+bool SurfaceEmitter::canEmit(const math::Vector3R& emitDirection, const math::Vector3R& N) const
 {
 	return math::is_same_hemisphere(emitDirection, N) != m_isBackFaceEmission;
 }
@@ -32,13 +32,13 @@ void SurfaceEmitter::setBackFaceEmit()
 
 real SurfaceEmitter::calcPdfW(
 	const Primitive* const emitSurface,
-	const Vector3R&        emitPos,
-	const Vector3R&        emitNormal,
-	const Vector3R&        targetPos) const
+	const math::Vector3R&  emitPos,
+	const math::Vector3R&  emitNormal,
+	const math::Vector3R&  targetPos) const
 {
 	PH_ASSERT(emitSurface);
 
-	Vector3R emitDir = targetPos.sub(emitPos);
+	math::Vector3R emitDir = targetPos.sub(emitPos);
 	if(!canEmit(emitDir, emitNormal))
 	{
 		return 0.0_r;
@@ -56,7 +56,7 @@ real SurfaceEmitter::calcPdfW(
 	return samplePdfA / std::abs(emitDirDotNormal) * distSquared;
 }
 
-real SurfaceEmitter::calcPdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
+real SurfaceEmitter::calcPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const
 {
 	return calcPdfW(
 		emitPos.getDetail().getPrimitive(), 

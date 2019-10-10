@@ -2,7 +2,7 @@
 
 #include "Math/TVector2.h"
 
-namespace ph
+namespace ph::math
 {
 
 //template<typename Mapping>
@@ -14,4 +14,4 @@ namespace ph
 
 // In-header Implementations:
 
-}// end namespace ph
+}// end namespace ph::math

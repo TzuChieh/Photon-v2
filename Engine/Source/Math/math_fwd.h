@@ -4,7 +4,7 @@
 
 #include <cstddef>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
@@ -64,4 +64,4 @@ using Basis3R = TOrthonormalBasis3<real>;
 using Basis3F = TOrthonormalBasis3<float32>;
 using Basis3D = TOrthonormalBasis3<float64>;
 
-}// end namespace ph
+}// end namespace ph::math

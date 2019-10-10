@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <type_traits>
 
-namespace ph
+namespace ph::math
 {
 
 // WARNING: this class is unimplemented
@@ -71,6 +71,6 @@ protected:
 	inline std::string toString() const;
 };
 
-}// end namespace ph
+}// end namespace ph::math
 
 #include "Math/General/TGeneralMatrix.ipp"

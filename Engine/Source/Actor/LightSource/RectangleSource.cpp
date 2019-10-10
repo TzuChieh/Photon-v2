@@ -9,14 +9,14 @@ namespace ph
 {
 	
 RectangleSource::RectangleSource() : 
-	RectangleSource(1, 1, Vector3R(1, 1, 1), 100)
+	RectangleSource(1, 1, math::Vector3R(1, 1, 1), 100)
 {}
 
 RectangleSource::RectangleSource(
-	const real      width, 
-	const real      height, 
-	const Vector3R& linearSrgbColor, 
-	const real      numWatts) : 
+	const real            width, 
+	const real            height, 
+	const math::Vector3R& linearSrgbColor,
+	const real            numWatts) : 
 
 	AreaSource(linearSrgbColor, numWatts)
 {
@@ -52,8 +52,8 @@ void RectangleSource::setDimension(const real width, const real height)
 RectangleSource::RectangleSource(const InputPacket& packet) : 
 	AreaSource(packet)
 {
-	const real width  = packet.getReal("width");
-	const real height = packet.getReal("height");
+	const auto width  = packet.getReal("width");
+	const auto height = packet.getReal("height");
 	setDimension(width, height);
 }
 

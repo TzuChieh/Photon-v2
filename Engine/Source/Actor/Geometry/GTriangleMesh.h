@@ -9,21 +9,21 @@
 namespace ph
 {
 
-class GTriangleMesh final : public Geometry, public TCommandInterface<GTriangleMesh>
+class GTriangleMesh : public Geometry, public TCommandInterface<GTriangleMesh>
 {
 public:
 	GTriangleMesh();
 	GTriangleMesh(
-		const std::vector<Vector3R>& positions, 
-		const std::vector<Vector3R>& texCoords, 
-		const std::vector<Vector3R>& normals);
+		const std::vector<math::Vector3R>& positions,
+		const std::vector<math::Vector3R>& texCoords,
+		const std::vector<math::Vector3R>& normals);
 
 	void genPrimitive(
 		const PrimitiveBuildingMaterial& data,
 		std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
 
 	std::shared_ptr<Geometry> genTransformed(
-		const StaticAffineTransform& transform) const override;
+		const math::StaticAffineTransform& transform) const override;
 
 	void addTriangle(const GTriangle& gTriangle);
 

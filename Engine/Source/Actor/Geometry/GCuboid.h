@@ -6,6 +6,8 @@
 #include "Math/Geometry/TAABB2D.h"
 
 #include <array>
+#include <vector>
+#include <memory>
 
 namespace ph
 {
@@ -13,14 +15,12 @@ namespace ph
 class GCuboid : public Geometry, public TCommandInterface<GCuboid>
 {
 public:
-	using AABB2D = math::AABB2D;
-
 	GCuboid();
 	explicit GCuboid(real sideLength);
-	GCuboid(real sideLength, const Vector3R& offset);
+	GCuboid(real sideLength, const math::Vector3R& offset);
 	GCuboid(real xLen, real yLen, real zLen);
-	GCuboid(const Vector3R& minVertex, const Vector3R& maxVertex);
-	GCuboid(real xLen, real yLen, real zLen, const Vector3R& offset);
+	GCuboid(const math::Vector3R& minVertex, const math::Vector3R& maxVertex);
+	GCuboid(real xLen, real yLen, real zLen, const math::Vector3R& offset);
 	GCuboid(const GCuboid& other);
 
 	void genPrimitive(
@@ -32,12 +32,14 @@ public:
 	GCuboid& operator = (const GCuboid& rhs);
 
 private:
-	Vector3R              m_size;
-	Vector3R              m_offset;
-	std::array<AABB2D, 6> m_faceUVs;
+	math::Vector3R              m_size;
+	math::Vector3R              m_offset;
+	std::array<math::AABB2D, 6> m_faceUVs;
 
-	static bool checkData(const PrimitiveBuildingMaterial& data, const real xLen, const real yLen, const real zLen);
-	static std::array<AABB2D, 6> genNormalizedFaceUVs();
+	static bool checkData(
+		const PrimitiveBuildingMaterial& data, 
+		const real xLen, const real yLen, const real zLen);
+	static std::array<math::AABB2D, 6> genNormalizedFaceUVs();
 
 // command interface
 public:

@@ -25,10 +25,10 @@ HenyeyGreenstein::HenyeyGreenstein(const std::shared_ptr<TTexture<real>>& g) :
 HenyeyGreenstein::~HenyeyGreenstein() = default;
 
 void HenyeyGreenstein::evalPhaseFunc(
-	const SurfaceHit& X,
-	const Vector3R&   I,
-	const Vector3R&   O,
-	real* const       out_pf) const
+	const SurfaceHit&    X,
+	const math::Vector3R& I,
+	const math::Vector3R& O,
+	real* const           out_pf) const
 {
 	PH_ASSERT(out_pf);
 
@@ -41,7 +41,7 @@ void HenyeyGreenstein::evalPhaseFunc(
 	const real cosTheta = I.dot(O);
 	const real base     = 1.0_r + g2 + 2.0_r * g * cosTheta;
 
-	*out_pf = constant::rcp_four_pi<real> * (1.0_r - g2) / (base * std::sqrt(base));
+	*out_pf = math::constant::rcp_four_pi<real> * (1.0_r - g2) / (base * std::sqrt(base));
 }
 
 }// end namespace ph

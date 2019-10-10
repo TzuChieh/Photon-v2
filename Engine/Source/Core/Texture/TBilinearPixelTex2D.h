@@ -11,7 +11,7 @@ namespace ph
 {
 
 template<typename T, std::size_t N>
-class TBilinearPixelTex2D final : public TPixelTex2D<T, N>
+class TBilinearPixelTex2D : public TPixelTex2D<T, N>
 {
 public:
 	using TPixelTex2D<T, N>::TPixelTex2D;
@@ -44,7 +44,7 @@ public:
 			(x - x0) * (y1 - y),// weight 10
 			(x - x0) * (y - y0) // weight 11
 		};
-		const Vector2D xys[4]
+		const math::Vector2D xys[4]
 		{
 			{x0, y0}, {x0, y1}, {x1, y0}, {x1, y1}
 		};

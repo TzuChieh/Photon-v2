@@ -22,8 +22,8 @@ class SampleLocation final
 {
 public:
 	// Constructs a sample location at (u, v, (w)).
-	SampleLocation(const Vector3R& uvw, EQuantity quantity);
-	SampleLocation(const Vector2R& uv, EQuantity quantity);
+	SampleLocation(const math::Vector3R& uvw, EQuantity quantity);
+	SampleLocation(const math::Vector2R& uv, EQuantity quantity);
 
 	// Constructs a sample location from hit information.
 	explicit SampleLocation(const HitDetail& hit);
@@ -32,13 +32,13 @@ public:
 	SampleLocation(const SampleLocation& other);
 
 	// Gets and sets the uvw coordinates of this sample location.
-	Vector3R uvw() const;
-	void setUvw(const Vector3R& uvw);
-	void setUv(const Vector2R& uv);
+	math::Vector3R uvw() const;
+	void setUvw(const math::Vector3R& uvw);
+	void setUv(const math::Vector2R& uv);
 
 	// TODO: should use uvw remapper instead
 	// or update derivatives?
-	SampleLocation getUvwScaled(const Vector3R& scale) const;
+	SampleLocation getUvwScaled(const math::Vector3R& scale) const;
 
 	// Gets the expected type of the quantity being sampled.
 	EQuantity expectedQuantity() const;
@@ -52,12 +52,12 @@ private:
 
 // In-header Implementations:
 
-inline SampleLocation::SampleLocation(const Vector3R& uvw, const EQuantity quantity) :
+inline SampleLocation::SampleLocation(const math::Vector3R& uvw, const EQuantity quantity) :
 	SampleLocation(HitDetail().setMisc(nullptr, uvw, std::numeric_limits<real>::max()), quantity)
 {}
 
-inline SampleLocation::SampleLocation(const Vector2R& uv, const EQuantity quantity) :
-	SampleLocation(Vector3R(uv.x, uv.y, 0), quantity)
+inline SampleLocation::SampleLocation(const math::Vector2R& uv, const EQuantity quantity) :
+	SampleLocation(math::Vector3R(uv.x, uv.y, 0), quantity)
 {}
 
 inline SampleLocation::SampleLocation(const HitDetail& hit) :
@@ -72,22 +72,22 @@ inline SampleLocation::SampleLocation(const SampleLocation& other) :
 	SampleLocation(other.m_hit, other.m_quantity)
 {}
 
-inline Vector3R SampleLocation::uvw() const
+inline math::Vector3R SampleLocation::uvw() const
 {
 	return m_hit.getUvw();
 }
 
-inline void SampleLocation::setUvw(const Vector3R& uvw)
+inline void SampleLocation::setUvw(const math::Vector3R& uvw)
 {
 	m_hit.setMisc(m_hit.getPrimitive(), uvw, m_hit.getRayT());
 }
 
-inline void SampleLocation::setUv(const Vector2R& uv)
+inline void SampleLocation::setUv(const math::Vector2R& uv)
 {
-	m_hit.setMisc(m_hit.getPrimitive(), Vector3R(uv.x, uv.y, 0.0_r), m_hit.getRayT());
+	m_hit.setMisc(m_hit.getPrimitive(), math::Vector3R(uv.x, uv.y, 0.0_r), m_hit.getRayT());
 }
 
-inline SampleLocation SampleLocation::getUvwScaled(const Vector3R& scale) const
+inline SampleLocation SampleLocation::getUvwScaled(const math::Vector3R& scale) const
 {
 	HitDetail newDetail = m_hit;
 	newDetail.setMisc(m_hit.getPrimitive(), m_hit.getUvw().mul(scale), m_hit.getRayT());

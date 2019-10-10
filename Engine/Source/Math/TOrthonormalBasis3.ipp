@@ -8,7 +8,7 @@
 #include <cmath>
 #include <limits>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
@@ -360,4 +360,4 @@ inline TOrthonormalBasis3<T>& TOrthonormalBasis3<T>::operator = (const TOrthonor
 	return *this;
 }
 
-}// end namespace ph
+}// end namespace ph::math

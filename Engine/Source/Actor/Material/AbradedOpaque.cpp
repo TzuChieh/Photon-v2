@@ -8,9 +8,10 @@ namespace ph
 {
 
 AbradedOpaque::AbradedOpaque() : 
+
 	SurfaceMaterial(),
 
-	m_interfaceInfo   (),
+	m_interfaceInfo(),
 	m_microsurfaceInfo()
 {}
 

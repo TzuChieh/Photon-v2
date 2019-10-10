@@ -17,7 +17,7 @@ ConstantImage::ConstantImage(const real value) :
 	ConstantImage(value, EType::RAW)
 {}
 
-ConstantImage::ConstantImage(const Vector3R& values) : 
+ConstantImage::ConstantImage(const math::Vector3R& values) :
 	ConstantImage(values, EType::RAW)
 {}
 
@@ -29,7 +29,7 @@ ConstantImage::ConstantImage(const real value, const EType type) :
 	ConstantImage(std::vector<real>{value}, type)
 {}
 
-ConstantImage::ConstantImage(const Vector3R& values, const EType type) : 
+ConstantImage::ConstantImage(const math::Vector3R& values, const EType type) :
 	ConstantImage(std::vector<real>{values.x, values.y, values.z}, type)
 {}
 
@@ -57,10 +57,10 @@ std::shared_ptr<TTexture<real>> ConstantImage::genTextureReal(
 	return std::make_shared<TConstantTexture<real>>(value);
 }
 
-std::shared_ptr<TTexture<Vector3R>> ConstantImage::genTextureVector3R(
+std::shared_ptr<TTexture<math::Vector3R>> ConstantImage::genTextureVector3R(
 	CookingContext& context) const
 {
-	Vector3R values;
+	math::Vector3R values;
 	if(m_values.size() == 1)
 	{
 		values.set(m_values[0], m_values[0], m_values[0]);
@@ -85,7 +85,7 @@ std::shared_ptr<TTexture<Vector3R>> ConstantImage::genTextureVector3R(
 		          << "non-raw type for vec3 texture is unsupported, using raw" << std::endl;
 	}
 
-	return std::make_shared<TConstantTexture<Vector3R>>(values);
+	return std::make_shared<TConstantTexture<math::Vector3R>>(values);
 }
 
 std::shared_ptr<TTexture<SpectralStrength>> ConstantImage::genTextureSpectral(
@@ -101,11 +101,11 @@ std::shared_ptr<TTexture<SpectralStrength>> ConstantImage::genTextureSpectral(
 			break;
 			
 		case EType::EMR_LINEAR_SRGB:
-			values.setLinearSrgb(Vector3R(m_values[0]), EQuantity::EMR);
+			values.setLinearSrgb(math::Vector3R(m_values[0]), EQuantity::EMR);
 			break;
 
 		case EType::ECF_LINEAR_SRGB:
-			values.setLinearSrgb(Vector3R(m_values[0]), EQuantity::ECF);
+			values.setLinearSrgb(math::Vector3R(m_values[0]), EQuantity::ECF);
 			break;
 
 		default:
@@ -120,21 +120,21 @@ std::shared_ptr<TTexture<SpectralStrength>> ConstantImage::genTextureSpectral(
 		switch(m_type)
 		{
 		case EType::EMR_LINEAR_SRGB:
-			values.setLinearSrgb(Vector3R(m_values[0], m_values[1], m_values[2]), EQuantity::EMR);
+			values.setLinearSrgb(math::Vector3R(m_values[0], m_values[1], m_values[2]), EQuantity::EMR);
 			break;
 
 		case EType::ECF_LINEAR_SRGB:
-			values.setLinearSrgb(Vector3R(m_values[0], m_values[1], m_values[2]), EQuantity::ECF);
+			values.setLinearSrgb(math::Vector3R(m_values[0], m_values[1], m_values[2]), EQuantity::ECF);
 			break;
 
 		case EType::RAW_LINEAR_SRGB:
-			values.setLinearSrgb(Vector3R(m_values[0], m_values[1], m_values[2]), EQuantity::RAW);
+			values.setLinearSrgb(math::Vector3R(m_values[0], m_values[1], m_values[2]), EQuantity::RAW);
 			break;
 
 		default:
 			std::cerr << "warning: at ConstantImage::genTextureSpectral(), "
 			          << "unsupported value type, assuming ECF linear sRGB" << std::endl;
-			values.setLinearSrgb(Vector3R(m_values[0], m_values[1], m_values[2]), EQuantity::ECF);
+			values.setLinearSrgb(math::Vector3R(m_values[0], m_values[1], m_values[2]), EQuantity::ECF);
 			break;
 		}
 	}
@@ -173,7 +173,7 @@ void ConstantImage::ciRegister(CommandRegister& cmdRegister)
 {
 	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
 	{
-		const auto& typeString = packet.getString("value-type", "raw");
+		const auto typeString = packet.getString("value-type", "raw");
 		EType type;
 		if(typeString == "raw")
 		{
@@ -198,12 +198,12 @@ void ConstantImage::ciRegister(CommandRegister& cmdRegister)
 		// FIXME: in most vexing order
 		if(packet.isPrototypeMatched(realInput))
 		{
-			const real value = packet.getReal("value");
+			const auto value = packet.getReal("value");
 			return std::make_unique<ConstantImage>(value, type);
 		}
 		else if(packet.isPrototypeMatched(vec3Input))
 		{
-			const Vector3R value = packet.getVector3("value");
+			const auto value = packet.getVector3("value");
 			return std::make_unique<ConstantImage>(value, type);
 		}
 		else

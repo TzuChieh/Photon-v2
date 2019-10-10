@@ -4,7 +4,7 @@
 namespace ph
 {
 
-SampleFilter::SampleFilter(const std::shared_ptr<TMathFunction2D<float64>>& filter,
+SampleFilter::SampleFilter(const std::shared_ptr<math::TMathFunction2D<float64>>& filter,
                            const float64 widthPx, const float64 heightPx) :
 	m_filter    (filter),
 	m_sizePx    (widthPx, heightPx),

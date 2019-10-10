@@ -24,8 +24,8 @@ public:
 	void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 	                            HitDetail* out_detail) const override = 0;
 
-	bool isIntersectingVolumeConservative(const AABB3D& volume) const override = 0;
-	void calcAABB(AABB3D* out_aabb) const override = 0;
+	bool isIntersectingVolumeConservative(const math::AABB3D& volume) const override = 0;
+	void calcAABB(math::AABB3D* out_aabb) const override = 0;
 
 	// Generates a sample point on the surface of this primitive. 
 	//
@@ -34,7 +34,7 @@ public:
 	// Given a point on the surface of this primitive, calculates the PDF of
 	// sampling this point.
 	//
-	virtual real calcPositionSamplePdfA(const Vector3R& position) const;
+	virtual real calcPositionSamplePdfA(const math::Vector3R& position) const;
 
 	// Calculates the area extended by this primitive. The term "extended"
 	// implies single-sided, e.g., a triangle's extended area is the absolute
@@ -50,9 +50,9 @@ public:
 	// if the mapping failed, false is returned. 
 	//
 	virtual bool uvwToPosition(
-		const Vector3R& uvw, 
-		const Vector3R& observationPoint,
-		Vector3R*       out_position) const;
+		const math::Vector3R& uvw,
+		const math::Vector3R& observationPoint,
+		math::Vector3R*       out_position) const;
 
 	const PrimitiveMetadata* getMetadata() const;
 
@@ -62,7 +62,7 @@ protected:
 
 // In-header Implementation:
 
-inline real Primitive::calcPositionSamplePdfA(const Vector3R& position) const
+inline real Primitive::calcPositionSamplePdfA(const math::Vector3R& position) const
 {
 	return 0.0_r;
 }
@@ -78,9 +78,9 @@ inline const PrimitiveMetadata* Primitive::getMetadata() const
 }
 
 inline bool Primitive::uvwToPosition(
-	const Vector3R& /* uvw */,
-	const Vector3R& /* observationPoint */,
-	Vector3R*       /* out_position */) const
+	const math::Vector3R& /* uvw */,
+	const math::Vector3R& /* observationPoint */,
+	math::Vector3R*       /* out_position */) const
 {
 	return false;
 }

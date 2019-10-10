@@ -32,7 +32,7 @@ public:
 		HdrRgbFrame& out_frame,
 		bool         applyPostProcessing = true);
 
-	TVector2<int64> getFilmDimensionPx() const;
+	math::TVector2<int64> getFilmDimensionPx() const;
 	void setNumRenderThreads(uint32 numThreads);
 
 	ERegionStatus asyncPollUpdatedRegion(Region* out_region) const;

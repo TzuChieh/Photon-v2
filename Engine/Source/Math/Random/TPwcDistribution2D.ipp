@@ -3,7 +3,7 @@
 #include "Math/Random/TPwcDistribution2D.h"
 #include "Common/assertion.h"
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
@@ -84,4 +84,4 @@ inline real TPwcDistribution2D<T>::pdfContinuous(const TVector2<T>& sample) cons
 	return pdfXgivenY * pdfY;
 }
 
-}// end namespace ph
+}// end namespace ph::math

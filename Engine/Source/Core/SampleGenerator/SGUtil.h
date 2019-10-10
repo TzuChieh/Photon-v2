@@ -11,8 +11,8 @@ namespace ph
 class SGUtil final
 {
 public:
-	static void genArray2dStrata(Vector2R* out_coordArray2Ds, std::size_t numXs, std::size_t numYs);
-	static void genArray2dLatinHypercube(Vector2R* out_coordArray2Ds, std::size_t num2Ds);
+	static void genArray2dStrata(math::Vector2R* out_coordArray2Ds, std::size_t numXs, std::size_t numYs);
+	static void genArray2dLatinHypercube(math::Vector2R* out_coordArray2Ds, std::size_t num2Ds);
 
 	template<typename T>
 	static void shuffleDurstenfeld(T* out_array, std::size_t arraySize);

@@ -28,7 +28,7 @@ inline TViewPathTracingWork<ViewPathHandler>::TViewPathTracingWork(
 	const Camera* const camera,
 	SampleGenerator* sampleGenerator,
 	const Region& filmRegion,
-	const TVector2<int64>& filmSize) :
+	const math::TVector2<int64>& filmSize) :
 	m_handler(handler),
 	m_scene(scene),
 	m_camera(camera),
@@ -47,14 +47,14 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 		{static_cast<std::size_t>(m_filmRegion.getWidth()), static_cast<std::size_t>(m_filmRegion.getHeight())});
 
 	const math::TAABB2D<real> rRegion(m_filmRegion);
-	const Vector2R rFilmSize(m_filmSize);
+	const math::Vector2R rFilmSize(m_filmSize);
 
 	while(m_sampleGenerator->prepareSampleBatch())
 	{
 		const Samples2D samples = m_sampleGenerator->getSamples2D(filmStage);
 		for(std::size_t i = 0; i < samples.numSamples(); ++i)
 		{
-			const Vector2R& filmNdc = UniformRectangle::map(samples[i], rRegion).div(rFilmSize);
+			const math::Vector2R& filmNdc = math::UniformRectangle::map(samples[i], rRegion).div(rFilmSize);
 
 			Ray tracingRay;
 			m_camera->genSensedRay(filmNdc, &tracingRay);
@@ -104,8 +104,8 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 
 		// FIXME: reversed then assigned again later seems to be dangerous, state is unclear
 		tracingRay.reverse();
-		const Vector3R V = tracingRay.getDirection();
-		const Vector3R N = surfaceHit.getShadingNormal();
+		const math::Vector3R V = tracingRay.getDirection();
+		const math::Vector3R N = surfaceHit.getShadingNormal();
 
 		if(policy.getSampleMode() == EViewPathSampleMode::SINGLE_PATH)
 		{
@@ -146,8 +146,8 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 template<typename ViewPathHandler>
 inline void TViewPathTracingWork<ViewPathHandler>::traceElementallyBranchedPath(
 	const ViewPathTracingPolicy& policy,
-	const Vector3R& V,
-	const Vector3R& N,
+	const math::Vector3R& V,
+	const math::Vector3R& N,
 	const SurfaceHit& surfaceHit,
 	const SpectralStrength& pathThroughput,
 	const std::size_t pathLength)

@@ -28,7 +28,7 @@ public:
 		std::vector<std::unique_ptr<Primitive>>& out_primitives) const = 0;
 
 	virtual std::shared_ptr<Geometry> genTransformed(
-		const StaticAffineTransform& transform) const;
+		const math::StaticAffineTransform& transform) const;
 
 	virtual std::shared_ptr<Geometry> genTriangulated() const;
 
@@ -47,7 +47,7 @@ public:
 // In-header Implementations:
 
 inline std::shared_ptr<Geometry> Geometry::genTransformed(
-	const StaticAffineTransform& transform) const
+	const math::StaticAffineTransform& transform) const
 {
 	const auto& triangulated = genTriangulated();
 	if(!triangulated)

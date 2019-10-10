@@ -4,7 +4,7 @@
 #include "Math/TVector3.h"
 #include "Math/TMatrix4.h"
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
@@ -274,4 +274,4 @@ inline std::string TQuaternion<T>::toString() const
 	           + std::to_string(w) + ')';
 }
 
-}// end namespace ph
+}// end namespace ph::math

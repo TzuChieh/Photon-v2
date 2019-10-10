@@ -46,9 +46,9 @@ void TranslucentMicrofacet::calcBsdf(
 	BsdfEvaluation::Output&      out,
 	const SidednessAgreement&    sidedness) const
 {
-	const Vector3R& N   = in.X.getShadingNormal();
-	const real      NoL = N.dot(in.L);
-	const real      NoV = N.dot(in.V);
+	const math::Vector3R N   = in.X.getShadingNormal();
+	const real           NoL = N.dot(in.L);
+	const real           NoV = N.dot(in.V);
 
 	const real NoLmulNoV = NoL * NoV;
 	if(NoLmulNoV == 0.0_r)
@@ -61,7 +61,7 @@ void TranslucentMicrofacet::calcBsdf(
 	if(sidedness.isSameHemisphere(in.X, in.L, in.V) && 
 	   (in.elemental == ALL_ELEMENTALS || in.elemental == REFLECTION))
 	{
-		Vector3R H;
+		math::Vector3R H;
 		if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
 		{
 			out.bsdf.setValues(0);
@@ -92,7 +92,7 @@ void TranslucentMicrofacet::calcBsdf(
 		}
 
 		// H should be on the same hemisphere as N
-		Vector3R H = in.L.mul(-etaI).add(in.V.mul(-etaT));
+		math::Vector3R H = in.L.mul(-etaI).add(in.V.mul(-etaT));
 		if(H.isZero())
 		{
 			out.bsdf.setValues(0);
@@ -156,13 +156,13 @@ void TranslucentMicrofacet::calcBsdfSample(
 		return;
 	}
 
-	const Vector3R& N = in.X.getShadingNormal();
+	const math::Vector3R N = in.X.getShadingNormal();
 
-	Vector3R H;
+	math::Vector3R H;
 	m_microfacet->genDistributedH(
 		in.X,
-		Random::genUniformReal_i0_e1(),
-		Random::genUniformReal_i0_e1(), 
+		math::Random::genUniformReal_i0_e1(),
+		math::Random::genUniformReal_i0_e1(),
 		N, &H);
 
 	SpectralStrength F;
@@ -175,7 +175,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 	// we cannot sample both path, choose one randomly
 	if(sampleReflect && sampleTransmit)
 	{
-		const real dart = Random::genUniformReal_i0_e1();
+		const real dart = math::Random::genUniformReal_i0_e1();
 		if(dart < reflectProb)
 		{
 			sampleTransmit = false;
@@ -238,7 +238,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 		return;
 	}
 
-	const Vector3R& L = out.L;
+	const math::Vector3R L = out.L;
 
 	const real NoL = N.dot(L);
 	const real HoV = H.dot(in.V);
@@ -265,12 +265,12 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 	const bool canReflect  = in.elemental == ALL_ELEMENTALS || in.elemental == REFLECTION;
 	const bool canTransmit = in.elemental == ALL_ELEMENTALS || in.elemental == TRANSMISSION;
 
-	const Vector3R& N = in.X.getShadingNormal();
+	const math::Vector3R N = in.X.getShadingNormal();
 
 	// reflection
 	if(canReflect && sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
-		Vector3R H;
+		math::Vector3R H;
 		if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
 		{
 			out.sampleDirPdfW = 0;
@@ -303,7 +303,7 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 
 		// here H will point into the medium with lower IoR
 		// (see: B. Walter et al., Microfacet Models for Refraction, near the end of P.5)
-		Vector3R H = in.L.mul(-etaI).add(in.V.mul(-etaT));
+		math::Vector3R H = in.L.mul(-etaI).add(in.V.mul(-etaT));
 		if(H.isZero())
 		{
 			out.sampleDirPdfW = 0;

@@ -37,7 +37,7 @@ public:
 		const Scene*                  scene);
 
 	bool impl_onCameraSampleStart(
-		const Vector2R&         filmNdc,
+		const math::Vector2R&   filmNdc,
 		const SpectralStrength& pathThroughput);
 
 	auto impl_onPathHitSurface(
@@ -63,7 +63,7 @@ private:
 	PMStatistics*                 m_statistics;
 	PMRenderer*                   m_renderer;
 
-	Vector2R                      m_filmNdc;
+	math::Vector2R                m_filmNdc;
 	SpectralStrength              m_sampledRadiance;
 	std::vector<FullPhoton>       m_photonCache;
 };
@@ -93,7 +93,7 @@ inline VPMRadianceEvaluator::VPMRadianceEvaluator(
 }
 
 inline bool VPMRadianceEvaluator::impl_onCameraSampleStart(
-	const Vector2R&         filmNdc,
+	const math::Vector2R&   filmNdc,
 	const SpectralStrength& pathThroughput)
 {
 	m_filmNdc = filmNdc;
@@ -142,15 +142,15 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 
 	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
 
-	const Vector3R L  = surfaceHit.getIncidentRay().getDirection().mul(-1);
-	const Vector3R Ns = surfaceHit.getShadingNormal();
-	const Vector3R Ng = surfaceHit.getGeometryNormal();
+	const math::Vector3R L  = surfaceHit.getIncidentRay().getDirection().mul(-1);
+	const math::Vector3R Ns = surfaceHit.getShadingNormal();
+	const math::Vector3R Ng = surfaceHit.getGeometryNormal();
 
 	BsdfEvaluation   bsdfEval;
 	SpectralStrength radiance(0);
 	for(const auto& photon : m_photonCache)
 	{
-		const Vector3R V = photon.get<EPhotonData::FROM_DIR>();
+		const math::Vector3R V = photon.get<EPhotonData::FROM_DIR>();
 
 		bsdfEval.inputs.set(surfaceHit, L, V, ALL_ELEMENTALS, ETransport::IMPORTANCE);
 		if(!surfaceEvent.doBsdfEvaluation(surfaceHit, bsdfEval))
@@ -166,7 +166,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 	}
 
 	// OPT: cache
-	const real kernelArea = m_kernelRadius * m_kernelRadius * constant::pi<real>;
+	const real kernelArea = m_kernelRadius * m_kernelRadius * math::constant::pi<real>;
 	const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(m_numPhotonPaths));
 
 	radiance.mulLocal(radianceMultiplier);

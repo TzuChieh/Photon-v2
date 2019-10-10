@@ -44,9 +44,9 @@ inline void TRadianceEvaluationWork<Photon>::doWork()
 
 template<typename Photon>
 inline SpectralStrength TRadianceEvaluationWork<Photon>::evaluateRadiance(
-	const SurfaceHit& location,
-	const Vector3R&   excitant,
-	const real        kernelRadius)
+	const SurfaceHit&     location,
+	const math::Vector3R& excitant,
+	const real            kernelRadius)
 {
 	/*static_assert(
 		Photon::has<EPhotonData::INCIDENT_DIR>() &&

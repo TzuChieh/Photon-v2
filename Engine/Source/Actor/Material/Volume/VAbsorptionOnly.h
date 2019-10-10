@@ -12,7 +12,7 @@ class VAbsorptionOnly final : public VolumeMaterial
 {
 public:
 	VAbsorptionOnly();
-	VAbsorptionOnly(const Vector3R& absorptionCoeffSrgb);
+	VAbsorptionOnly(const math::Vector3R& absorptionCoeffSrgb);
 	VAbsorptionOnly(const SpectralStrength& absorptionCoeff);
 
 	void genVolume(CookingContext& context, VolumeBehavior& behavior) const override;

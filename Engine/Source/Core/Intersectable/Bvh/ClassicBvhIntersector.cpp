@@ -22,7 +22,7 @@ void ClassicBvhIntersector::update(const CookedDataStorage& cookedActors)
 	for(const auto& intersectable : cookedActors.intersectables())
 	{
 		// HACK
-		AABB3D aabb;
+		math::AABB3D aabb;
 		intersectable->calcAABB(&aabb);
 		if(!aabb.isFiniteVolume())
 		{
@@ -124,18 +124,18 @@ bool ClassicBvhIntersector::isIntersecting(const Ray& ray, HitProbe& probe) cons
 	}
 }
 
-void ClassicBvhIntersector::calcAABB(AABB3D* const out_aabb) const
+void ClassicBvhIntersector::calcAABB(math::AABB3D* const out_aabb) const
 {
 	if(m_intersectables.empty())
 	{
-		*out_aabb = AABB3D();
+		*out_aabb = math::AABB3D();
 		return;
 	}
 
 	m_intersectables.front()->calcAABB(out_aabb);
 	for(auto intersectable : m_intersectables)
 	{
-		AABB3D aabb;
+		math::AABB3D aabb;
 		intersectable->calcAABB(&aabb);
 		out_aabb->unionWith(aabb);
 	}

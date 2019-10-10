@@ -6,7 +6,7 @@
 namespace ph
 {
 
-class LinearSrgbSpectralStrength final : 
+class LinearSrgbSpectralStrength : 
 	public TAbstractSpectralStrength<LinearSrgbSpectralStrength, 3>
 {
 public:
@@ -16,8 +16,8 @@ public:
 	inline LinearSrgbSpectralStrength(const LinearSrgbSpectralStrength& other) = default;
 	using Parent::Parent;
 
-	Vector3R impl_genLinearSrgb(EQuantity valueType) const;
-	void impl_setLinearSrgb(const Vector3R& rgb, EQuantity valueType);
+	math::Vector3R impl_genLinearSrgb(EQuantity valueType) const;
+	void impl_setLinearSrgb(const math::Vector3R& rgb, EQuantity valueType);
 	void impl_setSampled(const SampledSpectralStrength& sampled, EQuantity valueType);
 };
 

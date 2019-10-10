@@ -16,9 +16,10 @@ GTriangleMesh::GTriangleMesh() :
 	m_gTriangles()
 {}
 
-GTriangleMesh::GTriangleMesh(const std::vector<Vector3R>& positions,
-                             const std::vector<Vector3R>& texCoords,
-                             const std::vector<Vector3R>& normals) : 
+GTriangleMesh::GTriangleMesh(
+	const std::vector<math::Vector3R>& positions,
+	const std::vector<math::Vector3R>& texCoords,
+	const std::vector<math::Vector3R>& normals) :
 	GTriangleMesh()
 {
 	if(!(positions.size() == texCoords.size() && texCoords.size() == normals.size()) ||
@@ -41,9 +42,9 @@ GTriangleMesh::GTriangleMesh(const std::vector<Vector3R>& positions,
 		triangle.setUVWa(texCoords[i + 0]);
 		triangle.setUVWb(texCoords[i + 1]);
 		triangle.setUVWc(texCoords[i + 2]);
-		triangle.setNa(normals[i + 0].lengthSquared() > 0 ? normals[i + 0].normalize() : Vector3R(0, 1, 0));
-		triangle.setNb(normals[i + 1].lengthSquared() > 0 ? normals[i + 1].normalize() : Vector3R(0, 1, 0));
-		triangle.setNc(normals[i + 2].lengthSquared() > 0 ? normals[i + 2].normalize() : Vector3R(0, 1, 0));
+		triangle.setNa(normals[i + 0].lengthSquared() > 0 ? normals[i + 0].normalize() : math::Vector3R(0, 1, 0));
+		triangle.setNb(normals[i + 1].lengthSquared() > 0 ? normals[i + 1].normalize() : math::Vector3R(0, 1, 0));
+		triangle.setNc(normals[i + 2].lengthSquared() > 0 ? normals[i + 2].normalize() : math::Vector3R(0, 1, 0));
 		addTriangle(triangle);
 	}
 }
@@ -64,7 +65,7 @@ void GTriangleMesh::addTriangle(const GTriangle& gTriangle)
 }
 
 std::shared_ptr<Geometry> GTriangleMesh::genTransformed(
-	const StaticAffineTransform& transform) const
+	const math::StaticAffineTransform& transform) const
 {
 	auto geometrySoup = std::make_shared<GeometrySoup>();
 	for(const auto& gTriangle : m_gTriangles)
@@ -91,9 +92,9 @@ void GTriangleMesh::ciRegister(CommandRegister& cmdRegister)
 
 std::unique_ptr<GTriangleMesh> GTriangleMesh::ciLoad(const InputPacket& packet)
 {
-	const std::vector<Vector3R> positions = packet.getVector3Array("positions");
-	const std::vector<Vector3R> texCoords = packet.getVector3Array("texture-coordinates");
-	const std::vector<Vector3R> normals   = packet.getVector3Array("normals");
+	const auto positions = packet.getVector3Array("positions");
+	const auto texCoords = packet.getVector3Array("texture-coordinates");
+	const auto normals   = packet.getVector3Array("normals");
 
 	return std::make_unique<GTriangleMesh>(positions, texCoords, normals);
 }

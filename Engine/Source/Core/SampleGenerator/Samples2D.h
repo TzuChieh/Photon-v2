@@ -19,14 +19,14 @@ public:
 		m_data[index * 2 + 1] = valueY;
 	}
 
-	inline void set(const std::size_t index, const Vector2R& value)
+	inline void set(const std::size_t index, const math::Vector2R& value)
 	{
 		set(index, value.x, value.y);
 	}
 
-	inline Vector2R operator [] (const std::size_t index) const
+	inline math::Vector2R operator [] (const std::size_t index) const
 	{
-		return Vector2R(m_data[index * 2], m_data[index * 2 + 1]);
+		return math::Vector2R(m_data[index * 2], m_data[index * 2 + 1]);
 	}
 };
 

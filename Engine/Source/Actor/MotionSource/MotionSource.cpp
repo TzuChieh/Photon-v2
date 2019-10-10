@@ -3,8 +3,6 @@
 namespace ph
 {
 
-MotionSource::~MotionSource() = default;
-
 // command interface
 
 SdlTypeInfo MotionSource::ciTypeInfo()

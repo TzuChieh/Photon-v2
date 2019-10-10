@@ -15,7 +15,7 @@ constexpr std::size_t TAbstractSpectralStrength<DerivedType, N>::NUM_VALUES;
 
 template<typename DerivedType, std::size_t N>
 inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(const real value) :
-	TAbstractSpectralStrength(TArithmeticArray<real, N>(value))
+	TAbstractSpectralStrength(math::TArithmeticArray<real, N>(value))
 {}
 
 template<typename DerivedType, std::size_t N>
@@ -24,7 +24,7 @@ inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(cons
 {}
 
 template<typename DerivedType, std::size_t N>
-inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(const TArithmeticArray<real, 1>& value) :
+inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(const math::TArithmeticArray<real, 1>& value) :
 	TAbstractSpectralStrength(value[0])
 {}
 
@@ -34,18 +34,18 @@ inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(cons
 {}
 
 template<typename DerivedType, std::size_t N>
-inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(const TArithmeticArray<real, N>& values) :
+inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(const math::TArithmeticArray<real, N>& values) :
 	m_values(values)
 {}
 
 template<typename DerivedType, std::size_t N>
-inline Vector3R TAbstractSpectralStrength<DerivedType, N>::genSrgb(const EQuantity valueType) const
+inline math::Vector3R TAbstractSpectralStrength<DerivedType, N>::genSrgb(const EQuantity valueType) const
 {
 	return ColorSpace::linear_sRGB_to_sRGB(genLinearSrgb(valueType));
 }
 
 template<typename DerivedType, std::size_t N>
-inline Vector3R TAbstractSpectralStrength<DerivedType, N>::genLinearSrgb(const EQuantity valueType) const
+inline math::Vector3R TAbstractSpectralStrength<DerivedType, N>::genLinearSrgb(const EQuantity valueType) const
 {
 	return static_cast<const DerivedType&>(*this).impl_genLinearSrgb(valueType);
 }
@@ -64,7 +64,7 @@ inline DerivedType TAbstractSpectralStrength<DerivedType, N>::exp(const DerivedT
 template<typename DerivedType, std::size_t N>
 inline real TAbstractSpectralStrength<DerivedType, N>::calcLuminance(const EQuantity valueType) const
 {
-	const Vector3R& linearSrgb = genLinearSrgb(valueType);
+	const math::Vector3R& linearSrgb = genLinearSrgb(valueType);
 
 	switch(valueType)
 	{
@@ -80,7 +80,7 @@ inline real TAbstractSpectralStrength<DerivedType, N>::calcLuminance(const EQuan
 }
 
 template<typename DerivedType, std::size_t N>
-inline DerivedType& TAbstractSpectralStrength<DerivedType, N>::setSrgb(const Vector3R& srgb, const EQuantity valueType)
+inline DerivedType& TAbstractSpectralStrength<DerivedType, N>::setSrgb(const math::Vector3R& srgb, const EQuantity valueType)
 {
 	setLinearSrgb(ColorSpace::sRGB_to_linear_sRGB(srgb), valueType);
 
@@ -88,7 +88,7 @@ inline DerivedType& TAbstractSpectralStrength<DerivedType, N>::setSrgb(const Vec
 }
 
 template<typename DerivedType, std::size_t N>
-inline DerivedType& TAbstractSpectralStrength<DerivedType, N>::setLinearSrgb(const Vector3R& linearSrgb, const EQuantity valueType)
+inline DerivedType& TAbstractSpectralStrength<DerivedType, N>::setLinearSrgb(const math::Vector3R& linearSrgb, const EQuantity valueType)
 {
 	static_cast<DerivedType&>(*this).impl_setLinearSrgb(linearSrgb, valueType);
 
@@ -298,7 +298,7 @@ inline auto TAbstractSpectralStrength<DerivedType, N>::setValues(const std::arra
 }
 
 template<typename DerivedType, std::size_t N>
-inline auto TAbstractSpectralStrength<DerivedType, N>::setValues(const TArithmeticArray<real, N>& values)
+inline auto TAbstractSpectralStrength<DerivedType, N>::setValues(const math::TArithmeticArray<real, N>& values)
 	-> DerivedType&
 {
 	m_values = values;

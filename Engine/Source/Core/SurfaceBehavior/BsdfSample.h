@@ -14,7 +14,7 @@ class BsdfSampleInput final
 {
 public:
 	SurfaceHit       X;
-	Vector3R         V;
+	math::Vector3R   V;
 	SurfaceElemental elemental;
 	ETransport       transported;
 
@@ -22,11 +22,11 @@ public:
 
 	void set(
 		const SurfaceHit&      X, 
-		const Vector3R&        V);
+		const math::Vector3R&  V);
 
 	void set(
 		const SurfaceHit&      X, 
-		const Vector3R&        V,
+		const math::Vector3R&  V,
 		const SurfaceElemental elemental,
 		const ETransport       transported);
 };
@@ -34,7 +34,7 @@ public:
 class BsdfSampleOutput final
 {
 public:
-	Vector3R         L;
+	math::Vector3R   L;
 	SpectralStrength pdfAppliedBsdf;
 
 	// Tells whether this sample has non-zero and sane contribution. All 
@@ -62,14 +62,14 @@ public:
 
 inline void BsdfSampleInput::set(
 	const SurfaceHit&      X, 
-	const Vector3R&        V)
+	const math::Vector3R&  V)
 {
 	set(X, V, ALL_ELEMENTALS, ETransport::RADIANCE);
 }
 
 inline void BsdfSampleInput::set(
 	const SurfaceHit&      X, 
-	const Vector3R&        V,
+	const math::Vector3R&  V,
 	const SurfaceElemental elemental,
 	const ETransport       transported)
 {

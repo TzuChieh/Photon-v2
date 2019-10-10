@@ -7,7 +7,7 @@
 
 #include <cstdlib>
 
-namespace ph
+namespace ph::math
 {
 
 /*
@@ -17,7 +17,7 @@ namespace ph
 	directly.
 */
 template<typename T>
-class TDecomposedTransform final
+class TDecomposedTransform
 {
 public:
 	// Creates a transformation that will not have any effect.
@@ -182,4 +182,4 @@ inline bool TDecomposedTransform<T>::isScaleUniform(const T margin) const
 	return dSxSy < margin && dSySz < margin && dSzSx < margin;
 }
 
-}// end namespace ph
+}// end namespace ph::math

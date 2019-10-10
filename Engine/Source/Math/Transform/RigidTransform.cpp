@@ -1,8 +1,8 @@
 #include "Math/Transform/RigidTransform.h"
 
-namespace ph
+namespace ph::math
 {
 
 RigidTransform::~RigidTransform() = default;
 
-}// end namespace ph
+}// end namespace ph::math

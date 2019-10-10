@@ -1,7 +1,7 @@
 #include "Math/Transform/DynamicLinearTranslation.h"
 #include "Core/Quantity/Time.h"
 
-namespace ph
+namespace ph::math
 {
 
 DynamicLinearTranslation::DynamicLinearTranslation(const Vector3R& translationT0,
@@ -59,4 +59,4 @@ void DynamicLinearTranslation::transformLineSegment(
 	*out_lineMaxT = lineMaxT;
 }
 
-}// end namespace ph
+}// end namespace ph::math

@@ -50,10 +50,10 @@ void PInfiniteSphere::calcIntersectionDetail(
 
 	PH_ASSERT(out_detail);
 
-	const Vector3R hitPos    = ray.getOrigin() + ray.getDirection() * m_effectivelyInfiniteRadius;
-	const Vector3R hitNormal = ray.getDirection().mul(-1);
+	const math::Vector3R hitPos    = ray.getOrigin() + ray.getDirection() * m_effectivelyInfiniteRadius;
+	const math::Vector3R hitNormal = ray.getDirection().mul(-1);
 
-	Vector3R uvw;
+	math::Vector3R uvw;
 	SphericalMapper().directionToUvw(ray.getDirection(), &uvw);
 
 	out_detail->setMisc(this, uvw, probe.getHitRayT());
@@ -61,29 +61,30 @@ void PInfiniteSphere::calcIntersectionDetail(
 	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
 }
 
-bool PInfiniteSphere::isIntersectingVolumeConservative(const AABB3D& volume) const
+bool PInfiniteSphere::isIntersectingVolumeConservative(const math::AABB3D& volume) const
 {
 	return false;
 }
 
-void PInfiniteSphere::calcAABB(AABB3D* const out_aabb) const
+void PInfiniteSphere::calcAABB(math::AABB3D* const out_aabb) const
 {
 	PH_ASSERT(out_aabb);
 
-	*out_aabb = AABB3D(Vector3R(-std::numeric_limits<real>::infinity()), 
-	                   Vector3R( std::numeric_limits<real>::infinity()));
+	*out_aabb = math::AABB3D(
+		math::Vector3R(-std::numeric_limits<real>::infinity()),
+		math::Vector3R( std::numeric_limits<real>::infinity()));
 }
 
 bool PInfiniteSphere::uvwToPosition(
-	const Vector3R& uvw,
-	const Vector3R& observationPoint,
-	Vector3R* const out_position) const
+	const math::Vector3R& uvw,
+	const math::Vector3R& observationPoint,
+	math::Vector3R* const out_position) const
 {
 	PH_ASSERT(0.0_r <= uvw.x && uvw.x <= 1.0_r &&
 	          0.0_r <= uvw.y && uvw.y <= 1.0_r && 
 	          out_position);
 
-	Vector3R direction;
+	math::Vector3R direction;
 	const bool mappingSucceeded = SphericalMapper().uvwToDirection(uvw, &direction);
 	PH_ASSERT(mappingSucceeded);
 

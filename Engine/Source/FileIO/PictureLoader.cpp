@@ -155,15 +155,16 @@ LdrRgbFrame PictureLoader::loadLdrViaStb(const std::string& fullFilename)
 			PH_ASSERT(i < static_cast<std::size_t>(widthPx) * heightPx * numComponents);
 
 			// HACK: assuming input image is in sRGB color space
-			const Vector3R srgbPixel(stbImageData[i + 0] / 255.0_r, 
-		                             stbImageData[i + 1] / 255.0_r, 
-		                             stbImageData[i + 2] / 255.0_r);
-			Vector3R linearSrgb = ColorSpace::sRGB_to_linear_sRGB(srgbPixel);
+			const math::Vector3R srgbPixel(
+				stbImageData[i + 0] / 255.0_r,
+				stbImageData[i + 1] / 255.0_r, 
+				stbImageData[i + 2] / 255.0_r);
+			math::Vector3R linearSrgb = ColorSpace::sRGB_to_linear_sRGB(srgbPixel);
 
 			linearSrgb.mulLocal(255.0_r).addLocal(0.5_r).clampLocal(0.0_r, 255.0_r);
 			// TODO: truncating to 0 ~ 255 hurts precision especially when storing linear sRGB values
 			// (regarding human perception), maybe bind color space information with each frame
-			const TVector3<uint8> srgb255(linearSrgb);
+			const math::TVector3<uint8> srgb255(linearSrgb);
 			picture.setPixel(x, y, LdrRgbFrame::Pixel({srgb255.x, srgb255.y, srgb255.z}));
 		}
 	}

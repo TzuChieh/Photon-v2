@@ -42,7 +42,7 @@ void IdealSubstance::asDielectricReflector(const real iorInner, const real iorOu
 	};
 }
 
-void IdealSubstance::asMetallicReflector(const Vector3R& linearSrgbF0, const real iorOuter)
+void IdealSubstance::asMetallicReflector(const math::Vector3R& linearSrgbF0, const real iorOuter)
 {
 	SpectralStrength f0Spectral;
 	f0Spectral.setLinearSrgb(linearSrgbF0);// FIXME: check color space
@@ -76,14 +76,14 @@ void IdealSubstance::asAbsorber()
 void IdealSubstance::asDielectric(
 	const real iorInner,
 	const real iorOuter,
-	const Vector3R& linearSrgbReflectionScale,
-	const Vector3R& linearSrgbTransmissionScale)
+	const math::Vector3R& linearSrgbReflectionScale,
+	const math::Vector3R& linearSrgbTransmissionScale)
 {
 	m_opticsGenerator = [=](CookingContext& context)
 	{
 		auto fresnel = std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner);
 
-		if(linearSrgbReflectionScale == Vector3R(1.0_r) && linearSrgbTransmissionScale == Vector3R(1.0_r))
+		if(linearSrgbReflectionScale == math::Vector3R(1.0_r) && linearSrgbTransmissionScale == math::Vector3R(1.0_r))
 		{
 			return std::make_unique<IdealDielectric>(fresnel);
 		}
@@ -106,28 +106,28 @@ IdealSubstance::IdealSubstance(const InputPacket& packet) :
 	SurfaceMaterial(packet),
 	m_opticsGenerator()
 {
-	const std::string type = packet.getString("type", 
+	const auto type = packet.getString("type", 
 		"absorber", DataTreatment::REQUIRED());
 	if(type == "dielectric-reflector")
 	{
-		const real iorInner = packet.getReal("ior-inner", 1.0_r, DataTreatment::REQUIRED());
-		const real iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
+		const auto iorInner = packet.getReal("ior-inner", 1.0_r, DataTreatment::REQUIRED());
+		const auto iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
 
 		asDielectricReflector(iorInner, iorOuter);
 	}
 	else if(type == "metallic-reflector")
 	{
-		const real iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
+		const auto iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
 
 		// FIXME: check color space
-		const Vector3R f0Rgb = packet.getVector3("f0-rgb", Vector3R(1), DataTreatment::REQUIRED());
+		const auto f0Rgb = packet.getVector3("f0-rgb", math::Vector3R(1), DataTreatment::REQUIRED());
 
 		asMetallicReflector(f0Rgb, iorOuter);
 	}
 	else if(type == "transmitter")
 	{
-		const real iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
-		const real iorInner = packet.getReal("ior-inner", 1.0_r, DataTreatment::REQUIRED());
+		const auto iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
+		const auto iorInner = packet.getReal("ior-inner", 1.0_r, DataTreatment::REQUIRED());
 
 		asTransmitter(iorInner, iorOuter);
 	}
@@ -137,10 +137,10 @@ IdealSubstance::IdealSubstance(const InputPacket& packet) :
 	}
 	else if(type == "dielectric")
 	{
-		const real iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
-		const real iorInner = packet.getReal("ior-inner", 1.5_r, DataTreatment::REQUIRED());
-		const Vector3R reflectionScale = packet.getVector3("reflection-scale", Vector3R(1.0_r), DataTreatment::OPTIONAL());
-		const Vector3R transmissionScale = packet.getVector3("transmission-scale", Vector3R(1.0_r), DataTreatment::OPTIONAL());
+		const auto iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
+		const auto iorInner = packet.getReal("ior-inner", 1.5_r, DataTreatment::REQUIRED());
+		const auto reflectionScale = packet.getVector3("reflection-scale", math::Vector3R(1.0_r), DataTreatment::OPTIONAL());
+		const auto transmissionScale = packet.getVector3("transmission-scale", math::Vector3R(1.0_r), DataTreatment::OPTIONAL());
 
 		asDielectric(iorInner, iorOuter, reflectionScale, transmissionScale);
 	}

@@ -121,8 +121,8 @@ Samples1DStage SampleGenerator::declare1DStage(const std::size_t numSamples)
 }
 
 Samples2DStage SampleGenerator::declare2DStage(
-	const std::size_t numSamples, 
-	const Vector2S&   dimSizeHints)
+	const std::size_t     numSamples, 
+	const math::Vector2S& dimSizeHints)
 {
 	const std::size_t stageIndex = m_totalElements;
 	Samples2DStage stage(stageIndex, numSamples, dimSizeHints);

@@ -9,9 +9,9 @@ namespace ph
 {
 
 TransformedIntersectable::TransformedIntersectable(
-	const Intersectable* const intersectable,
-	const Transform* const     localToWorld,
-	const Transform* const     worldToLocal) :
+	const Intersectable* const   intersectable,
+	const math::Transform* const localToWorld,
+	const math::Transform* const worldToLocal) :
 
 	m_intersectable(intersectable),
 	m_localToWorld(localToWorld),
@@ -69,19 +69,19 @@ void TransformedIntersectable::calcIntersectionDetail(const Ray& ray, HitProbe& 
 }
 
 // FIXME: this is broken under timed environment
-bool TransformedIntersectable::isIntersectingVolumeConservative(const AABB3D& aabb) const
+bool TransformedIntersectable::isIntersectingVolumeConservative(const math::AABB3D& aabb) const
 {
-	AABB3D localAABB;
+	math::AABB3D localAABB;
 	m_worldToLocal->transform(aabb, &localAABB);
 	return m_intersectable->isIntersectingVolumeConservative(localAABB);
 }
 
 // FIXME: static intersectable do not need to consider time
-void TransformedIntersectable::calcAABB(AABB3D* const out_aabb) const
+void TransformedIntersectable::calcAABB(math::AABB3D* const out_aabb) const
 {
 	PH_ASSERT(out_aabb);
 
-	AABB3D localAABB, worldAABB;
+	math::AABB3D localAABB, worldAABB;
 	m_intersectable->calcAABB(&localAABB);
 	m_localToWorld->transform(localAABB, &worldAABB);
 

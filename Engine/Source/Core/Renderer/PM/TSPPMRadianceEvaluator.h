@@ -44,7 +44,7 @@ public:
 		std::size_t maxViewpointDepth);
 
 	bool impl_onCameraSampleStart(
-		const Vector2R&         filmNdc,
+		const math::Vector2R&   filmNdc,
 		const SpectralStrength& pathThroughput);
 
 	auto impl_onPathHitSurface(
@@ -108,7 +108,7 @@ inline TSPPMRadianceEvaluator<Viewpoint, Photon>::TSPPMRadianceEvaluator(
 
 template<typename Viewpoint, typename Photon>
 inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleStart(
-	const Vector2R&         filmNdc,
+	const math::Vector2R&   filmNdc,
 	const SpectralStrength& pathThroughput)
 {
 	// FIXME: sample res
@@ -116,7 +116,7 @@ inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleStart(
 	const real fFilmXPx = filmNdc.x * static_cast<real>(m_film->getActualResPx().x);
 	const real fFilmYPx = filmNdc.y * static_cast<real>(m_film->getActualResPx().y);
 
-	const Vector2S regionPosPx(Vector2R(
+	const math::Vector2S regionPosPx(math::Vector2R(
 		math::clamp(
 			fFilmXPx - static_cast<real>(m_film->getEffectiveWindowPx().minVertex.x), 
 			0.0_r,
@@ -194,11 +194,11 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleEnd()
 
 	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
 
-	const SurfaceHit& surfaceHit = m_viewpoint->template get<EViewpointData::SURFACE_HIT>();
-	const Vector3R    L          = m_viewpoint->template get<EViewpointData::VIEW_DIR>();
-	const Vector3R    Ng         = surfaceHit.getGeometryNormal();
-	const Vector3R    Ns         = surfaceHit.getShadingNormal();
-	const real        R          = m_viewpoint->template get<EViewpointData::RADIUS>();
+	const SurfaceHit&    surfaceHit = m_viewpoint->template get<EViewpointData::SURFACE_HIT>();
+	const math::Vector3R L          = m_viewpoint->template get<EViewpointData::VIEW_DIR>();
+	const math::Vector3R Ng         = surfaceHit.getGeometryNormal();
+	const math::Vector3R Ns         = surfaceHit.getShadingNormal();
+	const real           R          = m_viewpoint->template get<EViewpointData::RADIUS>();
 
 	m_photonCache.clear();
 	m_photonMap->findWithinRange(surfaceHit.getPosition(), R, m_photonCache);
@@ -215,7 +215,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleEnd()
 	BsdfEvaluation   bsdfEval;
 	for(const auto& photon : m_photonCache)
 	{
-		const Vector3R V = photon.template get<EPhotonData::FROM_DIR>();
+		const math::Vector3R V = photon.template get<EPhotonData::FROM_DIR>();
 
 		bsdfEval.inputs.set(surfaceHit, L, V, ALL_ELEMENTALS, ETransport::IMPORTANCE);
 		if(!surfaceEvent.doBsdfEvaluation(surfaceHit, bsdfEval))
@@ -255,7 +255,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onSampleBatchFinishe
 			const auto& viewpoint = m_viewpoints[viewpointIdx];
 
 			const real radius             = viewpoint.template get<EViewpointData::RADIUS>();
-			const real kernelArea         = radius * radius * constant::pi<real>;
+			const real kernelArea         = radius * radius * math::constant::pi<real>;
 			const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(m_numPhotonPaths));
 
 			SpectralStrength radiance(viewpoint.template get<EViewpointData::TAU>() * radianceMultiplier);

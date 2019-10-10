@@ -33,14 +33,14 @@ public:
 
 	bool isIntersecting(const Ray& ray) const override;
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
-	bool isIntersectingVolumeConservative(const AABB3D& aabb) const override;
+	bool isIntersectingVolumeConservative(const math::AABB3D& aabb) const override;
 
 	void calcIntersectionDetail(
 		const Ray& ray, 
 		HitProbe&  probe,
 		HitDetail* out_detail) const override;
-	void calcAABB(AABB3D* out_aabb) const override;
-	real calcPositionSamplePdfA(const Vector3R& position) const override;
+	void calcAABB(math::AABB3D* out_aabb) const override;
+	real calcPositionSamplePdfA(const math::Vector3R& position) const override;
 	real calcExtendedArea() const override;
 
 	void genPositionSample(PositionSample* out_sample) const override;

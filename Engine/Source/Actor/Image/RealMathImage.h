@@ -10,7 +10,7 @@
 namespace ph
 {
 
-class RealMathImage final : public Image, public TCommandInterface<RealMathImage>
+class RealMathImage : public Image, public TCommandInterface<RealMathImage>
 {
 public:
 	enum class EMathOp
@@ -25,7 +25,7 @@ public:
 	std::shared_ptr<TTexture<real>> genTextureReal(
 		CookingContext& context) const override;
 
-	std::shared_ptr<TTexture<Vector3R>> genTextureVector3R(
+	std::shared_ptr<TTexture<math::Vector3R>> genTextureVector3R(
 		CookingContext& context) const override;
 
 	std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(

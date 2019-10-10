@@ -30,7 +30,7 @@ lambdaRangeNmOf(const std::size_t index)
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
 inline auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
 impl_genLinearSrgb(const EQuantity valueType) const
-	-> Vector3R
+	-> math::Vector3R
 {
 	if constexpr(std::is_same_v<TSampledSpectralStrength, SampledSpectralStrength>)
 	{
@@ -58,7 +58,7 @@ impl_genLinearSrgb(const EQuantity valueType) const
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
 inline auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
-impl_setLinearSrgb(const Vector3R& linearSrgb, const EQuantity valueType)
+impl_setLinearSrgb(const math::Vector3R& linearSrgb, const EQuantity valueType)
 	-> void
 {
 	if constexpr(std::is_same_v<TSampledSpectralStrength, SampledSpectralStrength>)

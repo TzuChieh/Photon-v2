@@ -59,15 +59,15 @@ void GSphere::genPrimitive(
 }
 
 std::shared_ptr<Geometry> GSphere::genTransformed(
-	const StaticAffineTransform& transform) const
+	const math::StaticAffineTransform& transform) const
 {
 	return genTriangleMesh()->genTransformed(transform);
 }
 
-std::size_t GSphere::addVertex(const Vector3R& vertex, std::vector<Vector3R>* const out_vertices) const
+std::size_t GSphere::addVertex(const math::Vector3R& vertex, std::vector<math::Vector3R>* const out_vertices) const
 {
 	// make vertex on the sphere
-	Vector3R vertexOnSphere(vertex);
+	math::Vector3R vertexOnSphere(vertex);
 	vertexOnSphere.normalizeLocal().mulLocal(m_radius);
 
 	out_vertices->push_back(vertexOnSphere);
@@ -76,7 +76,7 @@ std::size_t GSphere::addVertex(const Vector3R& vertex, std::vector<Vector3R>* co
 }
 
 std::size_t GSphere::addMidpointVertex(const std::size_t iA, const std::size_t iB, 
-                                       std::vector<Vector3R>* const out_vertices) const
+                                       std::vector<math::Vector3R>* const out_vertices) const
 {
 	return addVertex((*out_vertices)[iA].add((*out_vertices)[iB]).mulLocal(0.5f), out_vertices);
 }
@@ -87,7 +87,7 @@ std::shared_ptr<GTriangleMesh> GSphere::genTriangleMesh() const
 
 	const uint32 nRefinements = 5;
 
-	std::vector<Vector3R>        vertices;
+	std::vector<math::Vector3R>  vertices;
 	std::vector<IndexedTriangle> indexedTriangles;
 
 	// 12 vertices of a icosahedron (located on the sphere)
@@ -95,22 +95,22 @@ std::shared_ptr<GTriangleMesh> GSphere::genTriangleMesh() const
 	const real t = (1.0_r + sqrt(5.0_r)) / 2.0_r;
 
 	// xy-plane
-	addVertex(Vector3R(-1,  t,  0), &vertices);// 0
-	addVertex(Vector3R( 1,  t,  0), &vertices);// 1
-	addVertex(Vector3R(-1, -t,  0), &vertices);// 2
-	addVertex(Vector3R( 1, -t,  0), &vertices);// 3
+	addVertex(math::Vector3R(-1,  t,  0), &vertices);// 0
+	addVertex(math::Vector3R( 1,  t,  0), &vertices);// 1
+	addVertex(math::Vector3R(-1, -t,  0), &vertices);// 2
+	addVertex(math::Vector3R( 1, -t,  0), &vertices);// 3
 
 	// yz-plane
-	addVertex(Vector3R( 0, -1,  t), &vertices);// 4
-	addVertex(Vector3R( 0,  1,  t), &vertices);// 5
-	addVertex(Vector3R( 0, -1, -t), &vertices);// 6
-	addVertex(Vector3R( 0,  1, -t), &vertices);// 7
+	addVertex(math::Vector3R( 0, -1,  t), &vertices);// 4
+	addVertex(math::Vector3R( 0,  1,  t), &vertices);// 5
+	addVertex(math::Vector3R( 0, -1, -t), &vertices);// 6
+	addVertex(math::Vector3R( 0,  1, -t), &vertices);// 7
 
 	// zx-plane
-	addVertex(Vector3R( t,  0, -1), &vertices);// 8
-	addVertex(Vector3R( t,  0,  1), &vertices);// 9
-	addVertex(Vector3R(-t,  0, -1), &vertices);// 10
-	addVertex(Vector3R(-t,  0,  1), &vertices);// 11
+	addVertex(math::Vector3R( t,  0, -1), &vertices);// 8
+	addVertex(math::Vector3R( t,  0,  1), &vertices);// 9
+	addVertex(math::Vector3R(-t,  0, -1), &vertices);// 10
+	addVertex(math::Vector3R(-t,  0,  1), &vertices);// 11
 
 	// generate 20 triangles from the icosahedron (all CCW)
 
@@ -167,16 +167,16 @@ std::shared_ptr<GTriangleMesh> GSphere::genTriangleMesh() const
 	// construct actual triangles
 	for(const IndexedTriangle& iTriangle : indexedTriangles)
 	{
-		Vector3R vA(vertices[iTriangle.iA]);
-		Vector3R vB(vertices[iTriangle.iB]);
-		Vector3R vC(vertices[iTriangle.iC]);
+		math::Vector3R vA(vertices[iTriangle.iA]);
+		math::Vector3R vB(vertices[iTriangle.iB]);
+		math::Vector3R vC(vertices[iTriangle.iC]);
 
 		GTriangle triangle(vA, vB, vC);
 		triangle.setNa(vA.normalize());
 		triangle.setNb(vB.normalize());
 		triangle.setNc(vC.normalize());
 
-		Vector3R mappedUVW;
+		math::Vector3R mappedUVW;
 
 		m_uvwMapper->positionToUvw(vA, &mappedUVW);
 		triangle.setUVWa(mappedUVW);

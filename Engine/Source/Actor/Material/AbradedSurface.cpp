@@ -7,9 +7,7 @@ namespace ph
 
 AbradedSurface::AbradedSurface(const InputPacket& packet) : 
 	SurfaceMaterial(packet)
-{
-
-}
+{}
 
 SdlTypeInfo AbradedSurface::ciTypeInfo()
 {

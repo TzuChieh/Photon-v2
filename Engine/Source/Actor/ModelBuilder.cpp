@@ -24,8 +24,9 @@ ModelBuilder& ModelBuilder::addPrimitiveMetadata(std::unique_ptr<PrimitiveMetada
 	return *this;
 }
 
-ModelBuilder& ModelBuilder::transform(std::unique_ptr<Transform> LtoW,
-                                      std::unique_ptr<Transform> WtoL)
+ModelBuilder& ModelBuilder::transform(
+	std::unique_ptr<math::Transform> LtoW,
+	std::unique_ptr<math::Transform> WtoL)
 {
 	for(auto& intersectable : m_cookedResults.intersectables())
 	{

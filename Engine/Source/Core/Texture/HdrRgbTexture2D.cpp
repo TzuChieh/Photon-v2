@@ -24,7 +24,7 @@ void HdrRgbTexture2D::sample(const SampleLocation& sampleLocation, SpectralStren
 	TTexPixel<HdrComponent, 3> rgb;
 	m_texture->sample(sampleLocation, &rgb);
 
-	out_value->setLinearSrgb(Vector3R(rgb[0], rgb[1], rgb[2]), sampleLocation.expectedQuantity());
+	out_value->setLinearSrgb(math::Vector3R(rgb[0], rgb[1], rgb[2]), sampleLocation.expectedQuantity());
 }
 
 }// end namespace ph

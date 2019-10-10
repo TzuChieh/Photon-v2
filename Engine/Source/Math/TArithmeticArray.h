@@ -8,11 +8,11 @@
 #include <string>
 #include <initializer_list>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T, std::size_t N>
-class TArithmeticArray final
+class TArithmeticArray
 {
 public:
 	static std::size_t numElements();
@@ -89,6 +89,6 @@ protected:
 	std::array<T, N> m;
 };
 
-}// end namespace ph
+}// end namespace ph::math
 
 #include "Math/TArithmeticArray.ipp"

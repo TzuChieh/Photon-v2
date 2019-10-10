@@ -11,27 +11,27 @@
 namespace ph
 {
 
-void ThinLensCamera::genSensedRay(const Vector2R& filmNdcPos, Ray* const out_ray) const
+void ThinLensCamera::genSensedRay(const math::Vector2R& filmNdcPos, Ray* const out_ray) const
 {
-	Vector3R filmPosMM;
-	m_filmToCamera->transformP(Vector3R(filmNdcPos.x, filmNdcPos.y, 0), &filmPosMM);
+	math::Vector3R filmPosMM;
+	m_filmToCamera->transformP(math::Vector3R(filmNdcPos.x, filmNdcPos.y, 0), &filmPosMM);
 
 	// subtracting lens' center position is omitted since it is at (0, 0, 0) mm
-	const Vector3R lensCenterToFilmDir = filmPosMM.normalize();
+	const math::Vector3R lensCenterToFilmDir = filmPosMM.normalize();
 
 	PH_ASSERT_GT(lensCenterToFilmDir.z, 0);
-	const real     focalPlaneDistMM = m_focalDistanceMM / lensCenterToFilmDir.z;
-	const Vector3R focalPlanePosMM  = lensCenterToFilmDir.mul(-focalPlaneDistMM);
+	const real           focalPlaneDistMM = m_focalDistanceMM / lensCenterToFilmDir.z;
+	const math::Vector3R focalPlanePosMM  = lensCenterToFilmDir.mul(-focalPlaneDistMM);
 
-	Vector3R lensPosMM;
+	math::Vector3R lensPosMM;
 	lensPosMM.z = 0;
 	genRandomSampleOnDisk(m_lensRadiusMM, &lensPosMM.x, &lensPosMM.y);
 
-	Vector3R worldLensPos;
+	math::Vector3R worldLensPos;
 	m_cameraToWorld->transformP(lensPosMM, &worldLensPos);
 
 	// XXX: numerical error can be large when focalPlanePosMM is far away
-	Vector3R worldSensedRayDir;
+	math::Vector3R worldSensedRayDir;
 	m_cameraToWorld->transformV(lensPosMM - focalPlanePosMM, &worldSensedRayDir);
 	worldSensedRayDir.normalizeLocal();
 
@@ -43,9 +43,9 @@ void ThinLensCamera::genSensedRay(const Vector2R& filmNdcPos, Ray* const out_ray
 }
 
 void ThinLensCamera::evalEmittedImportanceAndPdfW(
-	const Vector3R& targetPos,
-	Vector2R* const out_filmCoord,
-	Vector3R* const out_importance,
+	const math::Vector3R& targetPos,
+	math::Vector2R* const out_filmCoord,
+	math::Vector3R* const out_importance,
 	real* out_filmArea,
 	real* const out_pdfW) const
 {
@@ -54,8 +54,8 @@ void ThinLensCamera::evalEmittedImportanceAndPdfW(
 
 void ThinLensCamera::genRandomSampleOnDisk(const real radius, real* const out_x, real* const out_y)
 {
-	const real r   = radius * std::sqrt(Random::genUniformReal_i0_e1());
-	const real phi = constant::two_pi<real> * Random::genUniformReal_i0_e1();
+	const real r   = radius * std::sqrt(math::Random::genUniformReal_i0_e1());
+	const real phi = math::constant::two_pi<real> * math::Random::genUniformReal_i0_e1();
 	*out_x = r * std::cos(phi);
 	*out_y = r * std::sin(phi);
 }

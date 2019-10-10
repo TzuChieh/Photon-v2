@@ -23,7 +23,7 @@ void GeometrySoup::genPrimitive(
 }
 
 std::shared_ptr<Geometry> GeometrySoup::genTransformed(
-	const StaticAffineTransform& transform) const
+	const math::StaticAffineTransform& transform) const
 {
 	auto tGeometrySoup = std::make_shared<GeometrySoup>();
 	for(const auto& geometry : m_geometries)
@@ -49,7 +49,7 @@ void GeometrySoup::add(const std::shared_ptr<Geometry>& geometry)
 
 bool GeometrySoup::addTransformed(
 	const std::shared_ptr<Geometry>& geometry,
-	const StaticAffineTransform& transform)
+	const math::StaticAffineTransform& transform)
 {
 	const auto& transformed = geometry->genTransformed(transform);
 	if(!transformed)
@@ -90,17 +90,17 @@ namespace
 			return ExitStatus::BAD_INPUT();
 		}
 
-		const Vector3R translation     = packet.getVector3("translation",      Vector3R(0));
-		const Vector3R rotationAxis    = packet.getVector3("rotation-axis",    Vector3R(0, 1, 0));
-		const real     rotationDegrees = packet.getReal   ("rotation-degrees", 0.0_r);
-		const Vector3R scale           = packet.getVector3("scale",            Vector3R(1));
+		const auto translation     = packet.getVector3("translation",      math::Vector3R(0));
+		const auto rotationAxis    = packet.getVector3("rotation-axis",    math::Vector3R(0, 1, 0));
+		const auto rotationDegrees = packet.getReal   ("rotation-degrees", 0.0_r);
+		const auto scale           = packet.getVector3("scale",            math::Vector3R(1));
 
-		TDecomposedTransform<real> transform;
+		math::TDecomposedTransform<real> transform;
 		transform.translate(translation);
 		transform.rotate(rotationAxis, rotationDegrees);
 		transform.scale(scale);
 
-		if(soup->addTransformed(geometry, StaticAffineTransform::makeForward(transform)))
+		if(soup->addTransformed(geometry, math::StaticAffineTransform::makeForward(transform)))
 		{
 			return ExitStatus::SUCCESS();
 		}

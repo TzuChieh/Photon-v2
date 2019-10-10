@@ -149,7 +149,7 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 				std::memory_order_relaxed);
 
 			filmEstimator.setFilmDimensions(
-				TVector2<int64>(getRenderWidthPx(), getRenderHeightPx()),
+				math::TVector2<int64>(getRenderWidthPx(), getRenderHeightPx()),
 				workUnit.getRegion());
 
 			const auto filmDimensions = filmEstimator.getFilmDimensions();
@@ -161,7 +161,7 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 
 			// DEBUG
 			metaRecorder.setDimensions(
-				TVector2<int64>(getRenderWidthPx(), getRenderHeightPx()),
+				math::TVector2<int64>(getRenderWidthPx(), getRenderHeightPx()),
 				workUnit.getRegion());
 			metaRecorder.clearRecords();
 
@@ -249,7 +249,7 @@ void AdaptiveSamplingRenderer::asyncPeekFrame(
 	else if(layerIndex == 1)
 	{
 		m_metaFrame.forEachPixel(
-			TAABB2D<uint32>(region), 
+			math::TAABB2D<uint32>(region),
 			[&out_frame](const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& pixel)
 			{
 				HdrRgbFrame::Pixel mappedPixel;

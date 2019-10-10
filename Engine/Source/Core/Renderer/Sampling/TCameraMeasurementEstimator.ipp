@@ -49,7 +49,7 @@ TCameraMeasurementEstimator(TCameraMeasurementEstimator&& other) :
 
 template<typename SamplingFilmType, typename EstimationType>
 inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
-process(const Vector2D& filmNdc, const Ray& sensedRay)
+process(const math::Vector2D& filmNdc, const Ray& sensedRay)
 	-> void
 {
 	for(const auto* estimator : m_estimators)
@@ -57,7 +57,7 @@ process(const Vector2D& filmNdc, const Ray& sensedRay)
 		estimator->estimate(sensedRay, m_integrand, m_estimations);
 	}
 
-	const Vector2D rasterPos = filmNdc * m_filmActualResFPx;
+	const math::Vector2D rasterPos = filmNdc * m_filmActualResFPx;
 	for(const auto& estimationToFilm : m_estimationToFilm)
 	{
 		const std::size_t estimationIndex = estimationToFilm.first;
@@ -124,12 +124,12 @@ mergeFilmTo(const std::size_t fromIndex, SamplingFilmType& toFilm)
 template<typename SamplingFilmType, typename EstimationType>
 inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
 setFilmDimensions(
-	const TVector2<int64>& actualResPx,
-	const TAABB2D<int64>&  effectiveWindowPx,
-	const bool             useSoftEdge)
+	const math::TVector2<int64>& actualResPx,
+	const math::TAABB2D<int64>&  effectiveWindowPx,
+	const bool                   useSoftEdge)
 	-> void
 {
-	m_filmActualResFPx = Vector2D(actualResPx);
+	m_filmActualResFPx = math::Vector2D(actualResPx);
 
 	for(SamplingFilmType& film : m_films)
 	{
@@ -150,7 +150,7 @@ numEstimations() const
 template<typename SamplingFilmType, typename EstimationType>
 inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
 getFilmEffectiveWindowPx() const
-	-> TAABB2D<int64>
+	-> math::TAABB2D<int64>
 {
 	PH_ASSERT(!m_films.empty());
 

@@ -34,12 +34,12 @@ public:
 
 private:
 	SurfaceHit       m_surfaceHit;
-	Vector2R         m_filmNdc;
+	math::Vector2R   m_filmNdc;
 	real             m_radius;
 	real             m_numPhotons;
 	SpectralStrength m_tau;
 	SpectralStrength m_viewThroughput;
-	Vector3R         m_viewDir;
+	math::Vector3R   m_viewDir;
 	SpectralStrength m_viewRadiance;
 };
 

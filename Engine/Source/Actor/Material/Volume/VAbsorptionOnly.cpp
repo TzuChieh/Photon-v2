@@ -8,10 +8,10 @@ namespace ph
 {
 
 VAbsorptionOnly::VAbsorptionOnly() : 
-	VAbsorptionOnly(Vector3R(0.5_r))
+	VAbsorptionOnly(math::Vector3R(0.5_r))
 {}
 
-VAbsorptionOnly::VAbsorptionOnly(const Vector3R& absorptionCoeffSrgb) : 
+VAbsorptionOnly::VAbsorptionOnly(const math::Vector3R& absorptionCoeffSrgb) :
 	VAbsorptionOnly(SpectralStrength().setLinearSrgb(absorptionCoeffSrgb, EQuantity::RAW))
 {}
 

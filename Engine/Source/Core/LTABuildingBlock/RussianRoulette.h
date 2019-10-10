@@ -19,7 +19,7 @@ public:
 
 		// survive rate is not allowed to be 100% to avoid immortal rays (e.g., TIR)
 		const real rrSurviveRate = math::clamp(s.calcLuminance(), 0.0_r, 0.95_r);
-		const real rrSpin        = Random::genUniformReal_i0_e1();
+		const real rrSpin        = math::Random::genUniformReal_i0_e1();
 
 		// survived
 		if(rrSpin < rrSurviveRate)

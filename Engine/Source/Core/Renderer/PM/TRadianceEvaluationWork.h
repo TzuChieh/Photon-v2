@@ -27,9 +27,9 @@ public:
 		std::size_t               numPhotonPaths);
 
 	SpectralStrength evaluateRadiance(
-		const SurfaceHit& location,
-		const Vector3R&   excitant,
-		real              kernelRadius);
+		const SurfaceHit&     location,
+		const math::Vector3R& excitant,
+		real                  kernelRadius);
 
 protected:
 	const TPhotonMap<Photon>* getPhotonMap() const;

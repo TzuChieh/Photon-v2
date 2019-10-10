@@ -25,7 +25,7 @@ public:
 private:
 	virtual void sampleDistance(
 		const SurfaceHit& X, 
-		const Vector3R& L, 
+		const math::Vector3R& L,
 		real maxDist, 
 		real* out_dist, 
 		SpectralStrength* out_pdfAppliedWeight) const = 0;

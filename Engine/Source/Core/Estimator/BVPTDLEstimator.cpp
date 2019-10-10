@@ -62,8 +62,8 @@ void BVPTDLEstimator::estimate(
 	Ray        secondRay;
 	SurfaceHit secondHit;
 	{
-		const Vector3R V = firstRay.getDirection().mul(-1.0f);
-		const Vector3R N = firstHit.getShadingNormal();
+		const math::Vector3R V = firstRay.getDirection().mul(-1.0f);
+		const math::Vector3R N = firstHit.getShadingNormal();
 
 		BsdfSample bsdfSample;
 		bsdfSample.inputs.set(firstHit, V);
@@ -77,7 +77,7 @@ void BVPTDLEstimator::estimate(
 			return;
 		}
 
-		const Vector3R         L          = bsdfSample.outputs.L;
+		const math::Vector3R   L          = bsdfSample.outputs.L;
 		const SpectralStrength pathWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 
 		accuPathWeight.mulLocal(pathWeight);

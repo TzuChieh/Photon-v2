@@ -32,9 +32,10 @@ void LdrRgbTexture2D::sample(
 	TTexPixel<LdrComponent, 3> rgb255;
 	m_texture->sample(sampleLocation, &rgb255);
 
-	const Vector3R rgb(rgb255[0] / 255.0_r, 
-	                   rgb255[1] / 255.0_r, 
-	                   rgb255[2] / 255.0_r);
+	const math::Vector3R rgb(
+		rgb255[0] / 255.0_r,
+		rgb255[1] / 255.0_r, 
+		rgb255[2] / 255.0_r);
 	out_value->setLinearSrgb(rgb, sampleLocation.expectedQuantity());// FIXME: check color space
 }
 

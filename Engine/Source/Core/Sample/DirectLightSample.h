@@ -11,8 +11,8 @@ class Primitive;
 class DirectLightSample final
 {
 public:
-	Vector3R         targetPos;
-	Vector3R         emitPos;
+	math::Vector3R   targetPos;
+	math::Vector3R   emitPos;
 	SpectralStrength radianceLe;
 	real pdfW;
 	const Primitive* sourcePrim;
@@ -26,7 +26,7 @@ public:
 		return pdfW > 0.0_r;
 	}
 
-	inline void setDirectSample(const Vector3R& targetPos)
+	inline void setDirectSample(const math::Vector3R& targetPos)
 	{
 		this->targetPos = targetPos;
 	}

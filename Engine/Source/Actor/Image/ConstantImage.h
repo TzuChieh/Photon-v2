@@ -22,16 +22,16 @@ public:
 public:
 	ConstantImage();
 	explicit ConstantImage(real value);
-	explicit ConstantImage(const Vector3R& values);
+	explicit ConstantImage(const math::Vector3R& values);
 	explicit ConstantImage(const std::vector<real>& values);
 	ConstantImage(real value, EType type);
-	ConstantImage(const Vector3R& values, EType type);
+	ConstantImage(const math::Vector3R& values, EType type);
 	ConstantImage(const std::vector<real>& values, EType type);
 
 	std::shared_ptr<TTexture<real>> genTextureReal(
 		CookingContext& context) const override;
 
-	std::shared_ptr<TTexture<Vector3R>> genTextureVector3R(
+	std::shared_ptr<TTexture<math::Vector3R>> genTextureVector3R(
 		CookingContext& context) const override;
 
 	std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(

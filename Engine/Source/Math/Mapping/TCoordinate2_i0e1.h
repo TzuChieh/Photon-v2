@@ -3,7 +3,7 @@
 #include "Math/TVector2.h"
 #include "Common/assertion.h"
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
@@ -41,4 +41,4 @@ const TVector2<T>& TCoordinate2_i0e1<T>::getCoordinates() const
 	return m_coordinates;
 }
 
-}// end namespace ph
+}// end namespace ph::math

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace ph
+namespace ph::math
 {
 
 template<typename ValueType>
@@ -17,4 +17,4 @@ public:
 template<typename ValueType>
 TMathFunction2D<ValueType>::~TMathFunction2D() = default;
 
-}// end namespace ph
+}// end namespace ph::math

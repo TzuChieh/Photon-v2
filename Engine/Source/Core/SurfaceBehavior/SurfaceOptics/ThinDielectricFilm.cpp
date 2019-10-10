@@ -59,7 +59,7 @@ void ThinDielectricFilm::calcBsdfSample(
 		return;
 	}
 
-	const Vector3R& N = in.X.getShadingNormal();
+	const math::Vector3R N = in.X.getShadingNormal();
 
 	SpectralStrength F;
 	m_fresnel->calcReflectance(N.dot(in.V), &F);
@@ -71,7 +71,7 @@ void ThinDielectricFilm::calcBsdfSample(
 	// we cannot sample both path, choose one randomly
 	if(sampleReflect && sampleTransmit)
 	{
-		const real dart = Random::genUniformReal_i0_e1();
+		const real dart = math::Random::genUniformReal_i0_e1();
 		if(dart < reflectProb)
 		{
 			sampleTransmit = false;

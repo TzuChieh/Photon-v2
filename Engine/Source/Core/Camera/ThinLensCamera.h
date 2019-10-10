@@ -11,11 +11,11 @@ namespace ph
 class ThinLensCamera : public PerspectiveCamera, public TCommandInterface<ThinLensCamera>
 {
 public:
-	void genSensedRay(const Vector2R& filmNdcPos, Ray* out_ray) const override;
+	void genSensedRay(const math::Vector2R& filmNdcPos, Ray* out_ray) const override;
 	void evalEmittedImportanceAndPdfW(
-		const Vector3R& targetPos, 
-		Vector2R* const out_filmCoord,
-		Vector3R* const out_importance, 
+		const math::Vector3R& targetPos,
+		math::Vector2R* const out_filmCoord,
+		math::Vector3R* const out_importance,
 		real* out_filmArea, 
 		real* const out_pdfW) const override;
 

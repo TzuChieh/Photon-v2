@@ -46,7 +46,7 @@ void BNEEPTEstimator::estimate(
 	SpectralStrength accuLiWeight(1);
 	HitProbe         hitProbe;
 	SurfaceHit       surfaceHit;
-	Vector3R         V;
+	math::Vector3R   V;
 
 	// reversing the ray for backward tracing
 	//
@@ -101,7 +101,7 @@ void BNEEPTEstimator::estimate(
 
 		// direct light sample
 		{
-			Vector3R         L;
+			math::Vector3R   L;
 			real             directPdfW;
 			SpectralStrength emittedRadiance;
 
@@ -122,9 +122,9 @@ void BNEEPTEstimator::estimate(
 					bsdfPdfQuery.inputs.set(bsdfEval);
 					surfaceBehavior.getOptics()->calcBsdfSamplePdfW(bsdfPdfQuery);
 
-					const real     bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
-					const real     misWeighting = mis.weight(directPdfW, bsdfSamplePdfW);
-					const Vector3R N = surfaceHit.getShadingNormal();
+					const real bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
+					const real misWeighting = mis.weight(directPdfW, bsdfSamplePdfW);
+					const math::Vector3R N = surfaceHit.getShadingNormal();
 
 					SpectralStrength weight;
 					weight = bsdfEval.outputs.bsdf.mul(N.absDot(L));
@@ -150,8 +150,8 @@ void BNEEPTEstimator::estimate(
 
 			surfaceBehavior->getOptics()->calcBsdfSample(bsdfSample);
 
-			const Vector3R N = surfaceHit.getShadingNormal();
-			const Vector3R L = bsdfSample.outputs.L;
+			const math::Vector3R N = surfaceHit.getShadingNormal();
+			const math::Vector3R L = bsdfSample.outputs.L;
 
 			// blackness check & sidedness agreement between real geometry and shading normal
 			//
@@ -184,7 +184,7 @@ void BNEEPTEstimator::estimate(
 			//	break;
 			//}
 
-			const Vector3R directLitPos = surfaceHit.getPosition();
+			const math::Vector3R directLitPos = surfaceHit.getPosition();
 
 			// trace a ray using BSDF's suggestion
 			//

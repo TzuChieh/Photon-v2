@@ -15,9 +15,9 @@ public:
 	static void sample(
 		const Scene& scene,
 		const SurfaceHit& Xs,
-		const Vector3R& L,
+		const math::Vector3R& L,
 		SurfaceHit* out_Xe,
-		Vector3R* out_V,
+		math::Vector3R* out_V,
 		SpectralStrength* out_weight,
 		SpectralStrength* out_radiance);
 };

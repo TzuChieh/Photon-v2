@@ -5,7 +5,7 @@
 #include <cmath>
 #include <algorithm>
 
-namespace ph
+namespace ph::math
 {
 
 template<typename ValueType>
@@ -54,4 +54,4 @@ ValueType TGaussian2D<ValueType>::evaluate(const ValueType x, const ValueType y)
 	return std::max(func - m_submergeAmount, static_cast<ValueType>(0));
 }
 
-}// end namespace ph
+}// end namespace ph::math

@@ -5,11 +5,12 @@
 
 #include <vector>
 
+using namespace ph;
+using namespace ph::math;
+
 template<typename Index>
 void indexed_node_test()
 {
-	using namespace ph;
-
 	std::vector<Index> itemIndices = {0, 1, 777};
 	std::vector<Index> indexBuffer;
 

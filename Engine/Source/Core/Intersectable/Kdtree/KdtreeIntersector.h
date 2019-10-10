@@ -9,7 +9,7 @@
 namespace ph
 {
 
-class KdtreeIntersector final : public Intersector
+class KdtreeIntersector : public Intersector
 {
 public:
 	KdtreeIntersector();
@@ -17,7 +17,7 @@ public:
 
 	void update(const CookedDataStorage& cookedActors) override;
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
-	void calcAABB(AABB3D* out_aabb) const override;
+	void calcAABB(math::AABB3D* out_aabb) const override;
 
 private:
 	std::vector<const Intersectable*> m_nodeIntersectableBuffer;

@@ -35,21 +35,20 @@ public:
 	explicit SidednessAgreement(ESaPolicy policy);
 
 	bool isSidednessAgreed(
-		const SurfaceHit& X, 
-		const Vector3R&   vec) const;
+		const SurfaceHit&     X, 
+		const math::Vector3R& vec) const;
 
 	bool isSameHemisphere(
-		const SurfaceHit& X, 
-		const Vector3R&   vecA, 
-		const Vector3R&   vecB) const;
+		const SurfaceHit&     X, 
+		const math::Vector3R& vecA,
+		const math::Vector3R& vecB) const;
 
 	bool isOppositeHemisphere(
-		const SurfaceHit& X,
-		const Vector3R&   vecA,
-		const Vector3R&   vecB) const;
+		const SurfaceHit&     X,
+		const math::Vector3R& vecA,
+		const math::Vector3R& vecB) const;
 
-	void adjustForSidednessAgreement(
-		SurfaceHit& X) const;
+	void adjustForSidednessAgreement(SurfaceHit& X) const;
 
 private:
 	ESaPolicy m_policy;
@@ -66,8 +65,8 @@ inline SidednessAgreement::SidednessAgreement(const ESaPolicy policy) :
 {}
 
 inline bool SidednessAgreement::isSidednessAgreed(
-	const SurfaceHit& X,
-	const Vector3R&   vec) const
+	const SurfaceHit&     X,
+	const math::Vector3R& vec) const
 {
 	switch(m_policy)
 	{
@@ -82,8 +81,8 @@ inline bool SidednessAgreement::isSidednessAgreed(
 
 	case ESaPolicy::STRICT:
 	{
-		const Vector3R& Ng = X.getGeometryNormal();
-		const Vector3R& Ns = X.getShadingNormal();
+		const math::Vector3R& Ng = X.getGeometryNormal();
+		const math::Vector3R& Ns = X.getShadingNormal();
 
 		return Ng.dot(vec) * Ns.dot(vec) > 0.0_r;
 		break;
@@ -97,16 +96,16 @@ inline bool SidednessAgreement::isSidednessAgreed(
 }
 
 inline bool SidednessAgreement::isSameHemisphere(
-	const SurfaceHit& X,
-	const Vector3R&   vecA,
-	const Vector3R&   vecB) const
+	const SurfaceHit&     X,
+	const math::Vector3R& vecA,
+	const math::Vector3R& vecB) const
 {
 	switch(m_policy)
 	{
 	case ESaPolicy::TRUST_GEOMETRY:
 	case ESaPolicy::DO_NOT_CARE: 
 	{
-		const Vector3R& Ng = X.getGeometryNormal();
+		const math::Vector3R& Ng = X.getGeometryNormal();
 
 		return Ng.dot(vecA) * Ng.dot(vecB) > 0.0_r;
 		break;
@@ -114,7 +113,7 @@ inline bool SidednessAgreement::isSameHemisphere(
 
 	case ESaPolicy::TRUST_SHADING:
 	{
-		const Vector3R& Ns = X.getShadingNormal();
+		const math::Vector3R& Ns = X.getShadingNormal();
 
 		return Ns.dot(vecA) * Ns.dot(vecB) > 0.0_r;
 		break;
@@ -122,7 +121,7 @@ inline bool SidednessAgreement::isSameHemisphere(
 
 	case ESaPolicy::STRICT:
 	{
-		const Vector3R& N = X.getGeometryNormal();
+		const math::Vector3R& N = X.getGeometryNormal();
 
 		return isSidednessAgreed(X, vecA) &&     // Both vectors need to be strictly
 		       isSidednessAgreed(X, vecB) &&     // agreed on sidedness.
@@ -139,16 +138,16 @@ inline bool SidednessAgreement::isSameHemisphere(
 }
 
 inline bool SidednessAgreement::isOppositeHemisphere(
-	const SurfaceHit& X,
-	const Vector3R&   vecA,
-	const Vector3R&   vecB) const
+	const SurfaceHit&     X,
+	const math::Vector3R& vecA,
+	const math::Vector3R& vecB) const
 {
 	switch(m_policy)
 	{
 	case ESaPolicy::TRUST_GEOMETRY:
 	case ESaPolicy::DO_NOT_CARE: 
 	{
-		const Vector3R& Ng = X.getGeometryNormal();
+		const math::Vector3R& Ng = X.getGeometryNormal();
 
 		return Ng.dot(vecA) * Ng.dot(vecB) < 0.0_r;
 		break;
@@ -156,7 +155,7 @@ inline bool SidednessAgreement::isOppositeHemisphere(
 
 	case ESaPolicy::TRUST_SHADING:
 	{
-		const Vector3R& Ns = X.getShadingNormal();
+		const math::Vector3R& Ns = X.getShadingNormal();
 
 		return Ns.dot(vecA) * Ns.dot(vecB) < 0.0_r;
 		break;
@@ -164,7 +163,7 @@ inline bool SidednessAgreement::isOppositeHemisphere(
 
 	case ESaPolicy::STRICT:
 	{
-		const Vector3R& N = X.getGeometryNormal();
+		const math::Vector3R& N = X.getGeometryNormal();
 
 		return isSidednessAgreed(X, vecA) &&     // Both vectors need to be strictly
 		       isSidednessAgreed(X, vecB) &&     // agreed on sidedness.

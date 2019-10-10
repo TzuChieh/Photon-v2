@@ -27,14 +27,14 @@ namespace ph
 {
 
 AreaSource::AreaSource() :
-	AreaSource(Vector3R(1, 1, 1), 100.0_r)
+	AreaSource(math::Vector3R(1, 1, 1), 100.0_r)
 {}
 
-AreaSource::AreaSource(const Vector3R& linearSrgbColor, const real numWatts) :
+AreaSource::AreaSource(const math::Vector3R& linearSrgbColor, const real numWatts) :
 	LightSource(),
 	m_color(), m_numWatts(numWatts)
 {
-	PH_ASSERT(numWatts > 0.0_r);
+	PH_ASSERT_GT(numWatts, 0.0_r);
 
 	m_color.setLinearSrgb(linearSrgbColor, EQuantity::EMR);
 }
@@ -43,7 +43,7 @@ AreaSource::AreaSource(const SampledSpectralStrength& color, const real numWatts
 	LightSource(),
 	m_color(color), m_numWatts(numWatts)
 {
-	PH_ASSERT(numWatts > 0.0_r);
+	PH_ASSERT_GT(numWatts, 0.0_r);
 }
 
 std::unique_ptr<Emitter> AreaSource::genEmitter(
@@ -63,11 +63,11 @@ std::unique_ptr<Emitter> AreaSource::genEmitter(
 	{
 		lightArea += area->calcExtendedArea();
 	}
-	PH_ASSERT(lightArea > 0.0_r);
+	PH_ASSERT_GT(lightArea, 0.0_r);
 
 	const auto unitWattColor  = m_color.div(m_color.sum());
 	const auto totalWattColor = unitWattColor.mul(m_numWatts);
-	const auto lightRadiance  = totalWattColor.div(lightArea * constant::pi<real>);
+	const auto lightRadiance  = totalWattColor.div(lightArea * math::constant::pi<real>);
 
 	SpectralStrength radiance;
 	radiance.setSampled(lightRadiance, EQuantity::EMR);
@@ -124,7 +124,7 @@ AreaSource::AreaSource(const InputPacket& packet) :
 	{
 		std::cerr << "warning: at AreaSource ctor, "
 		          << "invalid input format" << std::endl;
-		m_color.setLinearSrgb(Vector3R(1, 1, 1), EQuantity::EMR);
+		m_color.setLinearSrgb(math::Vector3R(1, 1, 1), EQuantity::EMR);
 		m_numWatts = 100.0_r;
 	}
 }

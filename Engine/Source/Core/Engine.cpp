@@ -62,7 +62,7 @@ void Engine::retrieveFrame(
 	}
 }
 
-TVector2<int64> Engine::getFilmDimensionPx() const
+math::TVector2<int64> Engine::getFilmDimensionPx() const
 {
 	return {m_renderer->getRenderWidthPx(), m_renderer->getRenderHeightPx()};
 }

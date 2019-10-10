@@ -16,8 +16,8 @@ class BsdfPdfQueryInput final
 {
 public:
 	SurfaceHit       X;
-	Vector3R         L;
-	Vector3R         V;
+	math::Vector3R   L;
+	math::Vector3R   V;
 	SurfaceElemental elemental;
 
 	void set(const BsdfEvaluation& bsdfEval);
@@ -26,8 +26,8 @@ public:
 
 	void set(
 		const SurfaceHit&      X, 
-		const Vector3R&        L,
-		const Vector3R&        V,
+		const math::Vector3R&  L,
+		const math::Vector3R&  V,
 		const SurfaceElemental elemental);
 };
 
@@ -52,8 +52,8 @@ public:
 
 inline void BsdfPdfQueryInput::set(
 	const SurfaceHit&      X,
-	const Vector3R&        L,
-	const Vector3R&        V,
+	const math::Vector3R&  L,
+	const math::Vector3R&  V,
 	const SurfaceElemental elemental)
 {
 	this->X = X;

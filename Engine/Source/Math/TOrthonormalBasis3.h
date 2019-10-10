@@ -3,11 +3,11 @@
 #include "Math/math_fwd.h"
 #include "Math/TVector3.h"
 
-namespace ph
+namespace ph::math
 {
 
 template<typename T>
-class TOrthonormalBasis3 final
+class TOrthonormalBasis3
 {
 public:
 	static TOrthonormalBasis3 makeFromUnitY(const TVector3<T>& unitYAxis);
@@ -63,6 +63,6 @@ private:
 	TVector3<T> m_zAxis;
 };
 
-}// end namespace ph
+}// end namespace ph::math
 
 #include "Math/TOrthonormalBasis3.ipp"

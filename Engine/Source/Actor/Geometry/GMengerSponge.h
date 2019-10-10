@@ -22,8 +22,8 @@ private:
 	uint32 m_numIteration;
 
 	void genMengerSpongeRecursive(
-		const Vector3R&       minVertex,
-		const Vector3R&       maxVertex,
+		const math::Vector3R& minVertex,
+		const math::Vector3R& maxVertex,
 		uint32                currentIteration,
 		std::vector<GCuboid>& cubes) const;
 

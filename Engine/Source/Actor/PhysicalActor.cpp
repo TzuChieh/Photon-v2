@@ -17,42 +17,42 @@ PhysicalActor::PhysicalActor(const PhysicalActor& other) :
 	m_localToWorld()
 {}
 
-void PhysicalActor::translate(const Vector3R& translation)
+void PhysicalActor::translate(const math::Vector3R& translation)
 {
-	m_localToWorld.translate(TVector3<hiReal>(translation));
+	m_localToWorld.translate(math::TVector3<hiReal>(translation));
 }
 
-void PhysicalActor::rotate(const QuaternionR& rotation)
+void PhysicalActor::rotate(const math::QuaternionR& rotation)
 {
-	m_localToWorld.rotate(TQuaternion<hiReal>(rotation));
+	m_localToWorld.rotate(math::TQuaternion<hiReal>(rotation));
 }
 
-void PhysicalActor::scale(const Vector3R& scaleFactor)
+void PhysicalActor::scale(const math::Vector3R& scaleFactor)
 {
-	m_localToWorld.scale(TVector3<hiReal>(scaleFactor));
+	m_localToWorld.scale(math::TVector3<hiReal>(scaleFactor));
 }
 
-void PhysicalActor::rotate(const Vector3R& axis, const real degrees)
+void PhysicalActor::rotate(const math::Vector3R& axis, const real degrees)
 {
-	m_localToWorld.rotate(TVector3<hiReal>(axis), static_cast<hiReal>(degrees));
+	m_localToWorld.rotate(math::TVector3<hiReal>(axis), static_cast<hiReal>(degrees));
 }
 
 void PhysicalActor::translate(const real x, const real y, const real z)
 {
-	translate(Vector3R(x, y, z));
+	translate(math::Vector3R(x, y, z));
 }
 
 void PhysicalActor::scale(const real x, const real y, const real z)
 {
-	scale(Vector3R(x, y, z));
+	scale(math::Vector3R(x, y, z));
 }
 
 void PhysicalActor::scale(const real scaleFactor)
 {
-	scale(Vector3R(scaleFactor));
+	scale(math::Vector3R(scaleFactor));
 }
 
-void PhysicalActor::setBaseTransform(const TDecomposedTransform<hiReal>& baseLocalToWorld)
+void PhysicalActor::setBaseTransform(const math::TDecomposedTransform<hiReal>& baseLocalToWorld)
 {
 	m_localToWorld = baseLocalToWorld;
 }
@@ -131,7 +131,7 @@ ExitStatus PhysicalActor::ciTranslate(
 
 	if(packet.isPrototypeMatched(translationInput))
 	{
-		const Vector3R translation = packet.getVector3("factor");
+		const auto translation = packet.getVector3("factor");
 		targetResource->translate(translation);
 		return ExitStatus::SUCCESS();
 	}
@@ -154,14 +154,14 @@ ExitStatus PhysicalActor::ciRotate(
 
 	if(packet.isPrototypeMatched(quaternionInput))
 	{
-		const QuaternionR rotation = packet.getQuaternion("factor");
+		const auto rotation = packet.getQuaternion("factor");
 		targetResource->rotate(rotation.normalize());
 		return ExitStatus::SUCCESS();
 	}
 	else if(packet.isPrototypeMatched(axisDegreeInput))
 	{
-		const Vector3R axis = packet.getVector3("axis");
-		const real     degrees = packet.getReal("degree");
+		const auto axis    = packet.getVector3("axis");
+		const auto degrees = packet.getReal("degree");
 		targetResource->rotate(axis.normalize(), degrees);
 		return ExitStatus::SUCCESS();
 	}
@@ -183,7 +183,7 @@ ExitStatus PhysicalActor::ciScale(
 
 	if(packet.isPrototypeMatched(scalationInput))
 	{
-		const Vector3R scalation = packet.getVector3("factor");
+		const auto scalation = packet.getVector3("factor");
 		targetResource->scale(scalation);
 		return ExitStatus::SUCCESS();
 	}

@@ -26,17 +26,17 @@ HdrRgbFilm::HdrRgbFilm(
 	HdrRgbFilm(
 		actualWidthPx, 
 		actualHeightPx,
-		TAABB2D<int64>(
-			TVector2<int64>(0, 0),
-			TVector2<int64>(actualWidthPx, actualHeightPx)),
+		math::TAABB2D<int64>(
+			math::TVector2<int64>(0, 0),
+			math::TVector2<int64>(actualWidthPx, actualHeightPx)),
 		filter)
 {}
 
 HdrRgbFilm::HdrRgbFilm(
-	const int64           actualWidthPx, 
-	const int64           actualHeightPx,
-	const TAABB2D<int64>& effectiveWindowPx,
-	const SampleFilter&   filter) :
+	const int64                 actualWidthPx, 
+	const int64                 actualHeightPx,
+	const math::TAABB2D<int64>& effectiveWindowPx,
+	const SampleFilter&         filter) :
 
 	TSamplingFilm<SpectralStrength>(
 		actualWidthPx, 
@@ -64,28 +64,28 @@ void HdrRgbFilm::addSample(
 {
 	PH_ASSERT_MSG(radiance.isFinite(), radiance.toString());
 
-	const Vector3R rgb = radiance.genLinearSrgb(EQuantity::EMR);
+	const math::Vector3R rgb = radiance.genLinearSrgb(EQuantity::EMR);
 	addSample(xPx, yPx, rgb);
 }
 
 void HdrRgbFilm::addSample(
-	const float64   xPx, 
-	const float64   yPx, 
-	const Vector3R& rgb)
+	const float64         xPx, 
+	const float64         yPx, 
+	const math::Vector3R& rgb)
 {
-	const TVector2<float64> samplePosPx(xPx, yPx);
+	const math::TVector2<float64> samplePosPx(xPx, yPx);
 
 	// compute filter bounds
-	TVector2<float64> filterMin(samplePosPx.sub(getFilter().getHalfSizePx()));
-	TVector2<float64> filterMax(samplePosPx.add(getFilter().getHalfSizePx()));
+	math::TVector2<float64> filterMin(samplePosPx.sub(getFilter().getHalfSizePx()));
+	math::TVector2<float64> filterMax(samplePosPx.add(getFilter().getHalfSizePx()));
 
 	// reduce to effective bounds
-	filterMin = filterMin.max(TVector2<float64>(getEffectiveWindowPx().minVertex));
-	filterMax = filterMax.min(TVector2<float64>(getEffectiveWindowPx().maxVertex));
+	filterMin = filterMin.max(math::TVector2<float64>(getEffectiveWindowPx().minVertex));
+	filterMax = filterMax.min(math::TVector2<float64>(getEffectiveWindowPx().maxVertex));
 
 	// compute pixel index bounds (exclusive on x1y1)
-	TVector2<int64> x0y0(filterMin.sub(0.5).ceil());
-	TVector2<int64> x1y1(filterMax.sub(0.5).floor());
+	math::TVector2<int64> x0y0(filterMin.sub(0.5).ceil());
+	math::TVector2<int64> x1y1(filterMax.sub(0.5).floor());
 	x1y1.x += 1;
 	x1y1.y += 1;
 
@@ -135,7 +135,7 @@ void HdrRgbFilm::addSample(
 //		});
 //}
 
-void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const
+void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64>& regionPx) const
 {
 	if(out_frame.widthPx()  != getActualResPx().x ||
 	   out_frame.heightPx() != getActualResPx().y)
@@ -145,7 +145,7 @@ void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const TAABB2D<int64>& reg
 		return;
 	}
 
-	TAABB2D<int64> frameIndexBound(getEffectiveWindowPx());
+	math::TAABB2D<int64> frameIndexBound(getEffectiveWindowPx());
 	frameIndexBound.intersectWith(regionPx);
 	frameIndexBound.maxVertex.subLocal(1);
 
@@ -193,7 +193,7 @@ void HdrRgbFilm::clear()
 
 void HdrRgbFilm::mergeWith(const HdrRgbFilm& other)
 {
-	TAABB2D<int64> validRegion(this->getEffectiveWindowPx());
+	math::TAABB2D<int64> validRegion(this->getEffectiveWindowPx());
 	validRegion.intersectWith(other.getEffectiveWindowPx());
 
 	for(int64 y = validRegion.minVertex.y; y < validRegion.maxVertex.y; ++y)
@@ -218,7 +218,7 @@ void HdrRgbFilm::mergeWith(const HdrRgbFilm& other)
 	}
 }
 
-void HdrRgbFilm::setEffectiveWindowPx(const TAABB2D<int64>& effectiveWindow)
+void HdrRgbFilm::setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindow)
 {
 	TSamplingFilm<SpectralStrength>::setEffectiveWindowPx(effectiveWindow);
 
@@ -252,7 +252,7 @@ void HdrRgbFilm::setPixel(
 	const std::size_t iy = filmY - getEffectiveWindowPx().minVertex.y;
 	const std::size_t index = iy * static_cast<std::size_t>(getEffectiveResPx().x) + ix;
 
-	const Vector3R rgb = spectrum.genLinearSrgb(EQuantity::EMR);
+	const math::Vector3R rgb = spectrum.genLinearSrgb(EQuantity::EMR);
 
 	m_pixelRadianceSensors[index].accuR      = rgb.x;
 	m_pixelRadianceSensors[index].accuG      = rgb.y;

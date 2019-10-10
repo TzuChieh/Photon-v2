@@ -10,7 +10,7 @@ namespace ph
 {
 
 template<typename InputType, typename OutputType>
-class TConversionTexture final : public TTextureFunction<InputType, OutputType>
+class TConversionTexture : public TTextureFunction<InputType, OutputType>
 {
 	static_assert(is_buildable<OutputType, InputType>(),
 		"OutputType must be buildable from InputType");
@@ -33,12 +33,12 @@ public:
 		OutputType* const     out_value) const override
 	{
 		const TTexture<InputType>* inputTexture = this->getInputTexture();
-		PH_ASSERT(inputTexture != nullptr);
+		PH_ASSERT(inputTexture);
 
 		InputType inputValue;
 		inputTexture->sample(sampleLocation, &inputValue);
 
-		PH_ASSERT(out_value != nullptr);
+		PH_ASSERT(out_value);
 		*out_value = OutputType(inputValue);
 	}
 };

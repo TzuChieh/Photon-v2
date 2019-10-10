@@ -33,7 +33,7 @@ void ESUniformRandom::update(const CookedDataStorage& cookedActors)
 
 const Emitter* ESUniformRandom::pickEmitter(real* const out_PDF) const
 {
-	const std::size_t picker = static_cast<std::size_t>(Random::genUniformReal_i0_e1() * static_cast<real>(m_emitters.size()));
+	const std::size_t picker = static_cast<std::size_t>(math::Random::genUniformReal_i0_e1() * static_cast<real>(m_emitters.size()));
 	const std::size_t pickedIndex = picker == m_emitters.size() ? picker - 1 : picker;
 
 	*out_PDF = 1.0_r / static_cast<real>(m_emitters.size());
@@ -43,7 +43,7 @@ const Emitter* ESUniformRandom::pickEmitter(real* const out_PDF) const
 void ESUniformRandom::genDirectSample(DirectLightSample& sample) const
 {
 	// randomly and uniformly select an emitter
-	const std::size_t picker = static_cast<std::size_t>(Random::genUniformReal_i0_e1() * static_cast<real>(m_emitters.size()));
+	const std::size_t picker = static_cast<std::size_t>(math::Random::genUniformReal_i0_e1() * static_cast<real>(m_emitters.size()));
 	const std::size_t pickedIndex = picker == m_emitters.size() ? picker - 1 : picker;
 	const real pickPdfW = 1.0_r / static_cast<real>(m_emitters.size());
 
@@ -51,7 +51,7 @@ void ESUniformRandom::genDirectSample(DirectLightSample& sample) const
 	sample.pdfW *= pickPdfW;
 }
 
-real ESUniformRandom::calcDirectPdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
+real ESUniformRandom::calcDirectPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const
 {
 	const real pickPdfW = 1.0_r / static_cast<real>(m_emitters.size());
 

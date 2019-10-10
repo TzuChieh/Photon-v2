@@ -15,7 +15,7 @@ class AreaSource : public LightSource, public TCommandInterface<AreaSource>
 {
 public:
 	AreaSource();
-	AreaSource(const Vector3R& linearSrgbColor, real numWatts);
+	AreaSource(const math::Vector3R& linearSrgbColor, real numWatts);
 	AreaSource(const SampledSpectralStrength& color, real numWatts);
 
 	virtual std::shared_ptr<Geometry> genAreas(CookingContext& context) const = 0;

@@ -9,7 +9,7 @@ class SphereSource final : public AreaSource, public TCommandInterface<SphereSou
 {
 public:
 	SphereSource();
-	SphereSource(real radius, const Vector3R& linearSrgbColor, real numWatts);
+	SphereSource(real radius, const math::Vector3R& linearSrgbColor, real numWatts);
 	SphereSource(real radius, const SampledSpectralStrength& color, real numWatts);
 
 	std::shared_ptr<Geometry> genAreas(CookingContext& context) const override;

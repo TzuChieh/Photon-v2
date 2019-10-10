@@ -39,7 +39,7 @@ SampleFilter SampleFilters::create(const std::string& name)
 SampleFilter SampleFilters::createBoxFilter()
 {
 	const float64 constantValue = 1.0;
-	auto constantFunc = std::make_unique<TConstant2D<float64>>(constantValue);
+	auto constantFunc = std::make_unique<math::TConstant2D<float64>>(constantValue);
 
 	return SampleFilter(std::move(constantFunc), 1.0, 1.0);
 }
@@ -51,7 +51,7 @@ SampleFilter SampleFilters::createGaussianFilter()
 	const float64 amplitude  = 1.0;
 	const float64 filterSize = 4.0;
 
-	auto gaussianFunc = std::make_unique<TGaussian2D<float64>>(sigmaX, sigmaY, amplitude);
+	auto gaussianFunc = std::make_unique<math::TGaussian2D<float64>>(sigmaX, sigmaY, amplitude);
 
 	// make the function evaluates to 0 on the filter edge
 	const float64 edgeValue = gaussianFunc->evaluate(filterSize / 2.0, filterSize / 2.0);
@@ -74,7 +74,7 @@ SampleFilter SampleFilters::createMitchellNetravaliFilter()
 	const float64 b = 1.0 / 3.0;
 	const float64 c = 1.0 / 3.0;
 
-	auto mnCubicFunc = std::make_unique<TMNCubic2D<float64>>(b, c);
+	auto mnCubicFunc = std::make_unique<math::TMNCubic2D<float64>>(b, c);
 
 	return SampleFilter(std::move(mnCubicFunc), 4.0, 4.0);
 }
@@ -83,7 +83,7 @@ SampleFilter SampleFilters::createBlackmanHarrisFilter()
 {
 	const float64 radius = 2.0;
 
-	auto bhFunc = std::make_unique<TBlackmanHarris2D<float64>>(radius);
+	auto bhFunc = std::make_unique<math::TBlackmanHarris2D<float64>>(radius);
 
 	return SampleFilter(std::move(bhFunc), radius * 2.0, radius * 2.0);
 }

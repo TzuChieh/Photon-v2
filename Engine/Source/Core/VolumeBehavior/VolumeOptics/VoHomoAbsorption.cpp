@@ -23,7 +23,7 @@ VoHomoAbsorption::~VoHomoAbsorption() = default;
 
 void VoHomoAbsorption::sampleDistance(
 	const SurfaceHit& X,
-	const Vector3R& L,
+	const math::Vector3R& L,
 	const real maxDist,
 	real* const out_dist,
 	SpectralStrength* const out_pdfAppliedWeight) const

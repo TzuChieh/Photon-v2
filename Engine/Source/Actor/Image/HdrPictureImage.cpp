@@ -69,7 +69,7 @@ void HdrPictureImage::setPicture(HdrRgbFrame&& picture)
 HdrPictureImage::HdrPictureImage(const InputPacket& packet) :
 	PictureImage(packet)
 {
-	const Path& picturePath = packet.getStringAsPath(
+	const auto picturePath = packet.getStringAsPath(
 		"image", Path(), DataTreatment::REQUIRED());
 
 	m_picture = PictureLoader::loadHdr(picturePath);

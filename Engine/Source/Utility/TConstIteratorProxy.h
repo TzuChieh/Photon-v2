@@ -9,9 +9,7 @@ class TConstIteratorProxy
 public:
 	explicit TConstIteratorProxy(const ContainerType& container) :
 		m_container(container)
-	{
-
-	}
+	{}
 
 	inline typename ContainerType::const_iterator begin() const
 	{

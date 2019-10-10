@@ -4,7 +4,7 @@
 #include "Math/Geometry/TAABB2D.h"
 #include "Common/assertion.h"
 
-namespace ph
+namespace ph::math
 {
 
 class UniformRectangle
@@ -25,4 +25,4 @@ inline TVector2<T> UniformRectangle::map(const Vector2R& seed, const math::TAABB
 	return rectangle.minVertex.add(seed.mul(rectangle.getExtents()));
 }
 
-}// end namespace ph
+}// end namespace ph::math

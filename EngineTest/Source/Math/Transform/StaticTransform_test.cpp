@@ -9,11 +9,12 @@
 #include <gtest/gtest.h>
 
 using namespace ph;
+using namespace ph::math;
 
 TEST(StaticAffineTransformTest, TransformsVector3rAsPoint)
 {
 	// trial 1
-
+	
 	const Transform& t1 = StaticAffineTransform::IDENTITY();
 	const Vector3R p1(-0.3_r, 0.0_r, 0.3_r);
 	Vector3R answer1;

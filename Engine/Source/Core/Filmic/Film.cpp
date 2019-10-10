@@ -14,17 +14,17 @@ Film::Film(
 	Film(
 		actualWidthPx, 
 		actualHeightPx,
-		TAABB2D<int64>(
-			TVector2<int64>(0, 0),
-			TVector2<int64>(actualWidthPx, actualHeightPx)))
+		math::TAABB2D<int64>(
+			math::TVector2<int64>(0, 0),
+			math::TVector2<int64>(actualWidthPx, actualHeightPx)))
 {}
 
 Film::Film(
-	const int64           actualWidthPx, 
-	const int64           actualHeightPx,
-	const TAABB2D<int64>& effectiveWindowPx) : 
+	const int64                 actualWidthPx, 
+	const int64                 actualHeightPx,
+	const math::TAABB2D<int64>& effectiveWindowPx) :
 
-	m_actualResPx      (0), 
+	m_actualResPx(0), 
 	m_effectiveWindowPx({0, 0}, {0, 0})
 {
 	Film::setActualResPx({actualWidthPx, actualHeightPx});
@@ -41,7 +41,7 @@ void Film::develop(HdrRgbFrame& out_frame) const
 	developRegion(out_frame, m_effectiveWindowPx);
 }
 
-void Film::develop(HdrRgbFrame& out_frame, const TAABB2D<int64>& regionPx) const
+void Film::develop(HdrRgbFrame& out_frame, const math::TAABB2D<int64>& regionPx) const
 {
 	developRegion(out_frame, regionPx);
 }

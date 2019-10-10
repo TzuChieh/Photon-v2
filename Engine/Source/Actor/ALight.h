@@ -17,7 +17,11 @@ class Geometry;
 class Material;
 class TextureMapper;
 class LightSource;
-class Transform;
+
+namespace math
+{
+	class Transform;
+}
 
 class ALight : public PhysicalActor, public TCommandInterface<ALight>
 {
@@ -39,7 +43,7 @@ private:
 	std::shared_ptr<LightSource> m_lightSource;
 
 	CookedUnit buildGeometricLight(
-		CookingContext&                  context, 
+		CookingContext&           context, 
 		std::shared_ptr<Geometry> geometry,
 		std::shared_ptr<Material> material) const;
 
@@ -47,10 +51,10 @@ private:
 	// original one if it is already suitable). If the current actor has undesired 
 	// configurations, nullptr is returned.
 	std::shared_ptr<Geometry> getSanifiedGeometry(
-		CookingContext&                  context,
-		const std::shared_ptr<Geometry>& geometry,
-		std::unique_ptr<RigidTransform>* out_baseLW,
-		std::unique_ptr<RigidTransform>* out_baseWL) const;
+		CookingContext&                        context,
+		const std::shared_ptr<Geometry>&       geometry,
+		std::unique_ptr<math::RigidTransform>* out_baseLW,
+		std::unique_ptr<math::RigidTransform>* out_baseWL) const;
 
 	static const Logger logger;
 

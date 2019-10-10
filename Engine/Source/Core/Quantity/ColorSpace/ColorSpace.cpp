@@ -16,8 +16,8 @@ SampledSpectralStrength ColorSpace::SPD_D65;
 SampledSpectralStrength ColorSpace::kernel_X;
 SampledSpectralStrength ColorSpace::kernel_Y;
 SampledSpectralStrength ColorSpace::kernel_Z;
-Vector3R ColorSpace::kernel_XYZ_E_norm;
-Vector3R ColorSpace::kernel_XYZ_D65_norm;
+math::Vector3R ColorSpace::kernel_XYZ_E_norm;
+math::Vector3R ColorSpace::kernel_XYZ_D65_norm;
 
 SampledSpectralStrength ColorSpace::SPD_Smits_E_white;
 SampledSpectralStrength ColorSpace::SPD_Smits_E_cyan;

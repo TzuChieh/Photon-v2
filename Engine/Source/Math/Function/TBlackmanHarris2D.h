@@ -6,7 +6,7 @@
 
 #include <cmath>
 
-namespace ph
+namespace ph::math
 {
 
 /*
@@ -59,4 +59,4 @@ Value TBlackmanHarris2D<Value>::blackmanHarris1D(const Value n) const
 	//       appleseed renderer did to make it evaluate to 0 at boundaries.
 }
 
-}// end namespace ph
+}// end namespace ph::math

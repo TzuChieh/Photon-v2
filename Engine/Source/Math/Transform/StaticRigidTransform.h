@@ -6,7 +6,7 @@
 #include "Common/Logger.h"
 #include "Common/assertion.h"
 
-namespace ph
+namespace ph::math
 {
 
 /*
@@ -128,4 +128,4 @@ inline auto StaticRigidTransform::getScaleFreeTransforms(const std::vector<TDeco
 	return scaleFreeTransforms;
 }
 
-}// end namespace ph
+}// end namespace ph::math

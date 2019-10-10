@@ -12,9 +12,7 @@ namespace ph
 
 KdtreeIntersector::KdtreeIntersector() : 
 	m_nodeIntersectableBuffer(), m_rootKdtreeNode(&m_nodeIntersectableBuffer)// FIXME: rely on init ordering is dangerous
-{
-
-}
+{}
 
 KdtreeIntersector::~KdtreeIntersector() = default;
 
@@ -24,7 +22,7 @@ void KdtreeIntersector::update(const CookedDataStorage& cookedActors)
 	for(const auto& intersectable : cookedActors.intersectables())
 	{
 		// HACK
-		AABB3D aabb;
+		math::AABB3D aabb;
 		intersectable->calcAABB(&aabb);
 		if(!aabb.isFiniteVolume())
 		{
@@ -42,7 +40,7 @@ bool KdtreeIntersector::isIntersecting(const Ray& ray, HitProbe& probe) const
 	return m_rootKdtreeNode.findClosestIntersection(ray, probe);
 }
 
-void KdtreeIntersector::calcAABB(AABB3D* const out_aabb) const
+void KdtreeIntersector::calcAABB(math::AABB3D* const out_aabb) const
 {
 	PH_ASSERT(out_aabb);
 

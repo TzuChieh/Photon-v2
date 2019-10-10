@@ -58,7 +58,7 @@ private:
 
 	std::unique_ptr<WorkScheduler> m_scheduler;
 	EScheduler                     m_schedulerType;
-	Vector2S                       m_blockSize;
+	math::Vector2S                 m_blockSize;
 	
 	std::vector<CameraSamplingWork>         m_renderWorks;
 	std::vector<FilmEstimator>              m_filmEstimators;

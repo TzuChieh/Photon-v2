@@ -60,7 +60,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 
 		Ray tracingRay;
 		SpectralStrength emittedRadiance;
-		Vector3R emitN;
+		math::Vector3R emitN;
 		real pdfA;
 		real pdfW;
 		m_scene->genSensingRay(&tracingRay, &emittedRadiance, &emitN, &pdfA, &pdfW);
@@ -128,10 +128,10 @@ inline void TPhotonMappingWork<Photon>::doWork()
 				break;
 			}
 
-			Vector3R V = tracingRay.getDirection().mul(-1);
-			Vector3R L = bsdfSample.outputs.L;
-			Vector3R Ng = surfaceHit.getGeometryNormal();
-			Vector3R Ns = surfaceHit.getShadingNormal();
+			math::Vector3R V = tracingRay.getDirection().mul(-1);
+			math::Vector3R L = bsdfSample.outputs.L;
+			math::Vector3R Ng = surfaceHit.getGeometryNormal();
+			math::Vector3R Ns = surfaceHit.getShadingNormal();
 			throughputRadiance.mulLocal(bsdfSample.outputs.pdfAppliedBsdf);
 			throughputRadiance.mulLocal(lta::importance_BSDF_Ns_corrector(Ns, Ng, L, V));
 			throughputRadiance.mulLocal(Ns.absDot(L));

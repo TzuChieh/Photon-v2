@@ -12,7 +12,7 @@ namespace ph
 
 The formulae used are exact ones, i.e., no approximation is made.
 */
-class ExactConductorFresnel final : public ConductorFresnel
+class ExactConductorFresnel : public ConductorFresnel
 {
 public:
 	ExactConductorFresnel(

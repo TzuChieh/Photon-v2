@@ -21,7 +21,7 @@ OpaqueMicrofacet::OpaqueMicrofacet(
 
 	SurfaceOptics(),
 
-	m_fresnel   (fresnel),
+	m_fresnel(fresnel),
 	m_microfacet(microfacet)
 {
 	PH_ASSERT(fresnel && microfacet);
@@ -41,7 +41,7 @@ void OpaqueMicrofacet::calcBsdf(
 	BsdfEvaluation::Output&      out,
 	const SidednessAgreement&    sidedness) const
 {
-	const Vector3R& N = in.X.getShadingNormal();
+	const math::Vector3R N = in.X.getShadingNormal();
 
 	const real NoL = N.dot(in.L);
 	const real NoV = N.dot(in.V);
@@ -53,7 +53,7 @@ void OpaqueMicrofacet::calcBsdf(
 		return;
 	}
 
-	Vector3R H;
+	math::Vector3R H;
 	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
 	{
 		out.bsdf.setValues(0);
@@ -84,16 +84,16 @@ void OpaqueMicrofacet::calcBsdfSample(
 	// The PDF for this sampling scheme is D(H)*|NoH|/(4*|HoL|). The reason that 4*|HoL| exists is because there's a 
 	// jacobian involved (from H's probability space to L's).
 
-	const Vector3R& N = in.X.getShadingNormal();
+	const math::Vector3R N = in.X.getShadingNormal();
 
-	Vector3R H;
+	math::Vector3R H;
 	m_microfacet->genDistributedH(
 		in.X,
-		Random::genUniformReal_i0_e1(),
-		Random::genUniformReal_i0_e1(), 
+		math::Random::genUniformReal_i0_e1(),
+		math::Random::genUniformReal_i0_e1(),
 		N, &H);
 
-	const Vector3R L = in.V.mul(-1.0_r).reflect(H).normalizeLocal();
+	const math::Vector3R L = in.V.mul(-1.0_r).reflect(H).normalizeLocal();
 	out.L = L;
 
 	const real NoV = N.dot(in.V);
@@ -122,7 +122,7 @@ void OpaqueMicrofacet::calcBsdfSamplePdfW(
 	BsdfPdfQuery::Output&      out,
 	const SidednessAgreement&  sidedness) const
 {
-	const Vector3R& N = in.X.getShadingNormal();
+	const math::Vector3R N = in.X.getShadingNormal();
 
 	const real NoL = N.dot(in.L);
 	const real NoV = N.dot(in.V);
@@ -134,7 +134,7 @@ void OpaqueMicrofacet::calcBsdfSamplePdfW(
 		return;
 	}
 
-	Vector3R H;
+	math::Vector3R H;
 	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
 	{
 		out.sampleDirPdfW = 0;

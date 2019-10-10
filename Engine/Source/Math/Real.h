@@ -4,10 +4,10 @@
 
 #include <vector>
 
-namespace ph
+namespace ph::math
 {
 
-class Real final
+class Real
 {
 public:
 	inline Real() :
@@ -30,4 +30,4 @@ private:
 	real m_value;
 };
 
-}// end namespace ph
+}// end namespace ph::math

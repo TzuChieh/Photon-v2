@@ -10,10 +10,10 @@ namespace
 }
 
 PointSource::PointSource() : 
-	PointSource(Vector3R(1, 1, 1), 100.0_r)
+	PointSource(math::Vector3R(1, 1, 1), 100.0_r)
 {}
 
-PointSource::PointSource(const Vector3R& linearSrgbColor, const real numWatts) : 
+PointSource::PointSource(const math::Vector3R& linearSrgbColor, const real numWatts) :
 	m_sphereSource(POINT_SOURCE_RADIUS, linearSrgbColor, numWatts)
 {}
 

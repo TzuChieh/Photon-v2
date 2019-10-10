@@ -15,14 +15,14 @@ namespace ph
 {
 
 MatteOpaque::MatteOpaque() : 
-	MatteOpaque(Vector3R(0.5_r))
+	MatteOpaque(math::Vector3R(0.5_r))
 {}
 
-MatteOpaque::MatteOpaque(const Vector3R& linearSrgbAlbedo) : 
+MatteOpaque::MatteOpaque(const math::Vector3R& linearSrgbAlbedo) :
 
 	SurfaceMaterial(),
 
-	m_albedo      (),
+	m_albedo(),
 	m_sigmaDegrees()
 {
 	setAlbedo(linearSrgbAlbedo);
@@ -48,7 +48,7 @@ void MatteOpaque::genSurface(CookingContext& context, SurfaceBehavior& behavior)
 	behavior.setOptics(optics);
 }
 
-void MatteOpaque::setAlbedo(const Vector3R& albedo)
+void MatteOpaque::setAlbedo(const math::Vector3R& albedo)
 {
 	setAlbedo(albedo.x, albedo.y, albedo.z);
 }
@@ -69,7 +69,7 @@ MatteOpaque::MatteOpaque(const InputPacket& packet) :
 
 	SurfaceMaterial(packet),
 
-	m_albedo      (),
+	m_albedo(),
 	m_sigmaDegrees()
 {
 	if(packet.hasReference<Image>("albedo"))
@@ -78,7 +78,7 @@ MatteOpaque::MatteOpaque(const InputPacket& packet) :
 	}
 	else if(packet.hasString("albedo"))
 	{
-		const Path& imagePath = packet.getStringAsPath("albedo", 
+		const Path imagePath = packet.getStringAsPath("albedo", 
 			Path(), DataTreatment::REQUIRED());
 
 		setAlbedo(std::make_shared<LdrPictureImage>(PictureLoader::loadLdr(imagePath)));
@@ -89,13 +89,13 @@ MatteOpaque::MatteOpaque(const InputPacket& packet) :
 	}
 	else if(packet.hasReal("albedo"))
 	{
-		setAlbedo(Vector3R(packet.getReal("albedo")));
+		setAlbedo(math::Vector3R(packet.getReal("albedo")));
 	}
 	else
 	{
 		std::cerr << "warning: at MatteOpaque ctor, "
 		          << "ill-formed input detected, all albedo components are set to 0.5" << std::endl;
-		setAlbedo(Vector3R(0.5_r));
+		setAlbedo(math::Vector3R(0.5_r));
 	}
 	PH_ASSERT(m_albedo);
 

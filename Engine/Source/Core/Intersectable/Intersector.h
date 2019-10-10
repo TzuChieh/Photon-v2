@@ -22,7 +22,7 @@ public:
 	
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override = 0;
 
-	void calcAABB(AABB3D* out_aabb) const override = 0;
+	void calcAABB(math::AABB3D* out_aabb) const override = 0;
 	
 	using Intersectable::isIntersecting;
 	void calcIntersectionDetail(const Ray& ray, HitProbe& probe,

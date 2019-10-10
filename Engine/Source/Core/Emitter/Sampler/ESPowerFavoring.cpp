@@ -23,7 +23,7 @@ void ESPowerFavoring::update(const CookedDataStorage& cookedActors)
 {
 	m_emitters.clear();
 	m_emitters.shrink_to_fit();
-	m_distribution      = TPwcDistribution1D<real>();
+	m_distribution      = math::TPwcDistribution1D<real>();
 	m_emitterToIndexMap = std::unordered_map<const Emitter*, std::size_t>();
 
 	for(const auto& emitter : cookedActors.emitters())
@@ -46,28 +46,28 @@ void ESPowerFavoring::update(const CookedDataStorage& cookedActors)
 		sampleWeights[i] = emitter->calcRadiantFluxApprox();
 		m_emitterToIndexMap[emitter] = i;
 	}
-	m_distribution = TPwcDistribution1D<real>(sampleWeights);
+	m_distribution = math::TPwcDistribution1D<real>(sampleWeights);
 }
 
 const Emitter* ESPowerFavoring::pickEmitter(real* const out_pdf) const
 {
 	PH_ASSERT(out_pdf);
 
-	const std::size_t pickedIndex = m_distribution.sampleDiscrete(Random::genUniformReal_i0_e1());
+	const std::size_t pickedIndex = m_distribution.sampleDiscrete(math::Random::genUniformReal_i0_e1());
 	*out_pdf = m_distribution.pdfDiscrete(pickedIndex);
 	return m_emitters[pickedIndex];
 }
 
 void ESPowerFavoring::genDirectSample(DirectLightSample& sample) const
 {
-	const std::size_t pickedIndex = m_distribution.sampleDiscrete(Random::genUniformReal_i0_e1());
+	const std::size_t pickedIndex = m_distribution.sampleDiscrete(math::Random::genUniformReal_i0_e1());
 	const real        pickPdf     = m_distribution.pdfDiscrete(pickedIndex);
 
 	m_emitters[pickedIndex]->genDirectSample(sample);
 	sample.pdfW *= pickPdf;
 }
 
-real ESPowerFavoring::calcDirectPdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const
+real ESPowerFavoring::calcDirectPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const
 {
 	const Primitive* hitPrim = emitPos.getDetail().getPrimitive();
 	PH_ASSERT(hitPrim);

@@ -52,15 +52,15 @@ void PSphere::calcIntersectionDetail(
 
 	const UvwMapper* mapper = m_metadata->getChannel(probe.getChannel()).getMapper();
 
-	const Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
-	const Vector3R& hitNormal   = hitPosition.normalize();
+	const math::Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
+	const math::Vector3R& hitNormal   = hitPosition.normalize();
 
 	PH_ASSERT_MSG(hitPosition.isFinite() && hitNormal.isFinite(), "\n"
 		"hit-position = " + hitPosition.toString() + "\n"
 		"hit-normal   = " + hitNormal.toString() + "\n");
 
 	PH_ASSERT(mapper);
-	Vector3R hitUvw;
+	math::Vector3R hitUvw;
 	mapper->positionToUvw(hitPosition, &hitUvw);
 
 	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(
@@ -74,41 +74,38 @@ void PSphere::calcIntersectionDetail(
 	//
 	const real delta = m_radius / 128.0_r;
 	
-	const auto hitBasis = Basis3R::makeFromUnitY(hitNormal);
-	const Vector3R dx = hitBasis.getXAxis().mul(delta);
-	const Vector3R dz = hitBasis.getZAxis().mul(delta);
+	const auto hitBasis = math::Basis3R::makeFromUnitY(hitNormal);
+	const math::Vector3R dx = hitBasis.getXAxis().mul(delta);
+	const math::Vector3R dz = hitBasis.getZAxis().mul(delta);
 
 	// find delta positions on the sphere from displacement vectors
-	//
-	const Vector3R negX = hitPosition.sub(dx).normalizeLocal().mulLocal(m_radius);
-	const Vector3R posX = hitPosition.add(dx).normalizeLocal().mulLocal(m_radius);
-	const Vector3R negZ = hitPosition.sub(dz).normalizeLocal().mulLocal(m_radius);
-	const Vector3R posZ = hitPosition.add(dz).normalizeLocal().mulLocal(m_radius);
+	const math::Vector3R negX = hitPosition.sub(dx).normalizeLocal().mulLocal(m_radius);
+	const math::Vector3R posX = hitPosition.add(dx).normalizeLocal().mulLocal(m_radius);
+	const math::Vector3R negZ = hitPosition.sub(dz).normalizeLocal().mulLocal(m_radius);
+	const math::Vector3R posZ = hitPosition.add(dz).normalizeLocal().mulLocal(m_radius);
 
 	// find delta uvw vectors
-	//
-	Vector3R negXuvw, posXuvw, negZuvw, posZuvw;
+	math::Vector3R negXuvw, posXuvw, negZuvw, posZuvw;
 	mapper->positionToUvw(negX, &negXuvw);
 	mapper->positionToUvw(posX, &posXuvw);
 	mapper->positionToUvw(negZ, &negZuvw);
 	mapper->positionToUvw(posZ, &posZuvw);
 
-	// calculating positional partial derivatives
-	//
-	Vector3R dPdU, dPdV;
-	const Matrix2R uvwDiff(posXuvw.x - negXuvw.x, posXuvw.y - negXuvw.y,
-	                       posZuvw.x - negZuvw.x, posZuvw.y - negZuvw.y);
+	// calculate positional partial derivatives
+	math::Vector3R dPdU, dPdV;
+	const math::Matrix2R uvwDiff(
+		posXuvw.x - negXuvw.x, posXuvw.y - negXuvw.y,
+		posZuvw.x - negZuvw.x, posZuvw.y - negZuvw.y);
 	if(!uvwDiff.solve(posX.sub(negX), posZ.sub(negZ), &dPdU, &dPdV))
 	{
-		const auto uvwBasis = Basis3R::makeFromUnitY(hitNormal);
+		const auto uvwBasis = math::Basis3R::makeFromUnitY(hitNormal);
 		dPdU = uvwBasis.getXAxis();
 		dPdV = uvwBasis.getXAxis();
 	}
 
 	// normal derivatives are actually scaled version of dPdU and dPdV
-	//
-	const Vector3R& dNdU = dPdU.mul(m_reciRadius);
-	const Vector3R& dNdV = dPdV.mul(m_reciRadius);
+	const math::Vector3R& dNdU = dPdU.mul(m_reciRadius);
+	const math::Vector3R& dNdV = dPdV.mul(m_reciRadius);
 
 	out_detail->getHitInfo(ECoordSys::LOCAL).setDerivatives(
 		dPdU, dPdV, dNdU, dNdV);
@@ -124,14 +121,12 @@ void PSphere::calcIntersectionDetail(
 
 // Intersection test for solid box and hollow sphere.
 // Reference: Jim Arvo's algorithm in Graphics Gems 2
-//
-bool PSphere::isIntersectingVolumeConservative(const AABB3D& volume) const
+bool PSphere::isIntersectingVolumeConservative(const math::AABB3D& volume) const
 {
 	const real radius2 = math::squared(m_radius);
 
 	// These variables are gonna store minimum and maximum squared distances 
 	// from the sphere's center to the AABB volume.
-	//
 	real minDist2 = 0.0_r;
 	real maxDist2 = 0.0_r;
 
@@ -158,16 +153,16 @@ bool PSphere::isIntersectingVolumeConservative(const AABB3D& volume) const
 	return minDist2 <= radius2 && radius2 <= maxDist2;
 }
 
-void PSphere::calcAABB(AABB3D* const out_aabb) const
+void PSphere::calcAABB(math::AABB3D* const out_aabb) const
 {
 	PH_ASSERT(out_aabb);
 
-	out_aabb->setMinVertex(Vector3R(-m_radius, -m_radius, -m_radius));
-	out_aabb->setMaxVertex(Vector3R( m_radius,  m_radius,  m_radius));
-	out_aabb->expand(Vector3R(0.0001_r * m_radius));
+	out_aabb->setMinVertex(math::Vector3R(-m_radius, -m_radius, -m_radius));
+	out_aabb->setMaxVertex(math::Vector3R( m_radius,  m_radius,  m_radius));
+	out_aabb->expand(math::Vector3R(0.0001_r * m_radius));
 }
 
-real PSphere::calcPositionSamplePdfA(const Vector3R& position) const
+real PSphere::calcPositionSamplePdfA(const math::Vector3R& position) const
 {
 	return 1.0_r / this->PSphere::calcExtendedArea();
 }
@@ -177,14 +172,14 @@ void PSphere::genPositionSample(PositionSample* const out_sample) const
 	PH_ASSERT(out_sample);
 	PH_ASSERT(m_metadata);
 
-	out_sample->normal = math::TSphere(m_radius).sampleToSurfaceArchimedes(
-		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()});
+	out_sample->normal = math::TSphere(1.0_r).sampleToSurfaceArchimedes(
+		{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()});
 
 	out_sample->position = out_sample->normal.mul(m_radius);
 
 	// FIXME: able to specify mapper channel
 	const UvwMapper* mapper = m_metadata->getDefaultChannel().getMapper();
-	PH_ASSERT(mapper != nullptr);
+	PH_ASSERT(mapper);
 	mapper->positionToUvw(out_sample->position, &out_sample->uvw);
 
 	// FIXME: assumed uniform PDF

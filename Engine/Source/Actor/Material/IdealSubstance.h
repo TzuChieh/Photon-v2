@@ -4,6 +4,7 @@
 #include "Actor/Material/SurfaceMaterial.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/Quantity/SpectralStrength.h"
+#include "Math/TVector3.h"
 
 #include <memory>
 #include <functional>
@@ -21,7 +22,7 @@ public:
 	void asDielectricReflector(real iorInner, real iorOuter);
 
 	// FIXME: specifying ior-outer is redundent, f0 already includes this
-	void asMetallicReflector(const Vector3R& linearSrgbF0, real iorOuter);
+	void asMetallicReflector(const math::Vector3R& linearSrgbF0, real iorOuter);
 
 	void asTransmitter(real iorInner, real iorOuter);
 	void asAbsorber();
@@ -29,8 +30,8 @@ public:
 	void asDielectric(
 		real iorInner, 
 		real iorOuter, 
-		const Vector3R& linearSrgbReflectionScale, 
-		const Vector3R& linearSrgbTransmissionScale);
+		const math::Vector3R& linearSrgbReflectionScale,
+		const math::Vector3R& linearSrgbTransmissionScale);
 
 private:
 	std::function<std::unique_ptr<SurfaceOptics>(CookingContext& context)> m_opticsGenerator;

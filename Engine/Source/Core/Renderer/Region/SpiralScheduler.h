@@ -27,9 +27,9 @@ public:
 		std::size_t     tileSize);
 
 	SpiralScheduler(
-		std::size_t     numWorkers,
-		const WorkUnit& totalWorkUnit,
-		const Vector2S& tileSize);
+		std::size_t           numWorkers,
+		const WorkUnit&       totalWorkUnit,
+		const math::Vector2S& tileSize);
 
 private:
 	enum class EFacing
@@ -40,11 +40,11 @@ private:
 		NEGATIVE_Y
 	};
 
-	TVector2<int64> m_headSize;
-	TVector2<int64> m_headPos;
-	EFacing         m_headFacing;
-	std::size_t     m_currentCycles;
-	std::size_t     m_currentSteps;
+	math::TVector2<int64> m_headSize;
+	math::TVector2<int64> m_headPos;
+	EFacing               m_headFacing;
+	std::size_t           m_currentCycles;
+	std::size_t           m_currentSteps;
 
 	void scheduleOne(WorkUnit* out_workUnit) override;
 };
@@ -63,13 +63,13 @@ inline SpiralScheduler::SpiralScheduler(
 	SpiralScheduler(
 		numWorkers, 
 		totalWorkUnit, 
-		Vector2S(tileSize, tileSize))
+		math::Vector2S(tileSize, tileSize))
 {}
 
 inline SpiralScheduler::SpiralScheduler(
-	const std::size_t numWorkers,
-	const WorkUnit&   totalWorkUnit,
-	const Vector2S&   tileSize) :
+	const std::size_t     numWorkers,
+	const WorkUnit&       totalWorkUnit,
+	const math::Vector2S& tileSize) :
 
 	WorkScheduler(numWorkers, totalWorkUnit),
 

@@ -5,7 +5,7 @@
 #include "Core/HitInfo.h"
 #include "Common/assertion.h"
 
-namespace ph
+namespace ph::math
 {
 
 Transform::~Transform() = default;
@@ -125,4 +125,4 @@ void Transform::transform(const AABB3D& aabb, AABB3D* const out_aabb) const
 	transform(aabb, Time(), out_aabb);
 }
 
-}// end namespace ph
+}// end namespace ph::math

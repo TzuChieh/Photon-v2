@@ -11,9 +11,12 @@
 namespace ph
 {
 
-class RigidTransform;
+namespace math
+{
+	class RigidTransform;
+}
 
-class TransformedPrimitive final : public Primitive
+class TransformedPrimitive : public Primitive
 {
 public:
 	// A transformed primitive accepts only rigid transformations. This way, 
@@ -21,9 +24,9 @@ public:
 	// during transformations.
 	//
 	TransformedPrimitive(
-		const Primitive*      primitive,
-		const RigidTransform* localToWorld,
-		const RigidTransform* worldToLocal);
+		const Primitive*            primitive,
+		const math::RigidTransform* localToWorld,
+		const math::RigidTransform* worldToLocal);
 
 	inline bool isIntersecting(const Ray& ray) const override
 	{
@@ -55,23 +58,23 @@ public:
 		out_detail->setMisc(this, out_detail->getUvw(), out_detail->getRayT());
 	}
 
-	inline bool isIntersectingVolumeConservative(const AABB3D& aabb) const override
+	inline bool isIntersectingVolumeConservative(const math::AABB3D& aabb) const override
 	{
 		return m_intersectable.isIntersectingVolumeConservative(aabb);
 	}
 
-	inline void calcAABB(AABB3D* const out_aabb) const override
+	inline void calcAABB(math::AABB3D* const out_aabb) const override
 	{
 		m_intersectable.calcAABB(out_aabb);
 	}
 
-	real calcPositionSamplePdfA(const Vector3R& position) const override;
+	real calcPositionSamplePdfA(const math::Vector3R& position) const override;
 	void genPositionSample(PositionSample* out_sample) const override;
 
 	bool uvwToPosition(
-		const Vector3R& uvw,
-		const Vector3R& observationPoint,
-		Vector3R*       out_position) const override;
+		const math::Vector3R& uvw,
+		const math::Vector3R& observationPoint,
+		math::Vector3R*       out_position) const override;
 
 	inline real calcExtendedArea() const override
 	{
@@ -80,10 +83,10 @@ public:
 	}
 
 private:
-	const Primitive*         m_primitive;
-	TransformedIntersectable m_intersectable;
-	const RigidTransform*    m_localToWorld;
-	const RigidTransform*    m_worldToLocal;
+	const Primitive*            m_primitive;
+	TransformedIntersectable    m_intersectable;
+	const math::RigidTransform* m_localToWorld;
+	const math::RigidTransform* m_worldToLocal;
 };
 
 }// end namespace ph

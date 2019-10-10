@@ -16,9 +16,7 @@ public:
 
 	SenseEvent(/*const real filmX, const real filmY, */const SpectralStrength& radiance) :
 		/*filmX(filmX), filmY(filmY), */radiance(radiance)
-	{
-
-	}
+	{}
 };
 
 }// end namespace ph

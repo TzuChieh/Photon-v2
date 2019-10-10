@@ -6,7 +6,7 @@
 
 #include <cmath>
 
-namespace ph
+namespace ph::math
 {
 
 class UniformUnitDisk
@@ -39,4 +39,4 @@ inline Vector2R UniformUnitDisk::map(const Vector2R& seed, real* const out_pdf)
 	return map(seed);
 }
 
-}// end namespace ph
+}// end namespace ph::math

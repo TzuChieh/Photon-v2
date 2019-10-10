@@ -14,10 +14,10 @@ namespace ph
 
 class Image;
 
-class ModelSource final : public LightSource, public TCommandInterface<ModelSource>
+class ModelSource : public LightSource, public TCommandInterface<ModelSource>
 {
 public:
-	explicit ModelSource(const Vector3R& emittedRgbRadiance);
+	explicit ModelSource(const math::Vector3R& emittedRgbRadiance);
 	explicit ModelSource(const Path& imagePath);
 	explicit ModelSource(const std::shared_ptr<Image>& emittedRadiance);
 

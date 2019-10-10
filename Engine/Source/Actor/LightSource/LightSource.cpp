@@ -12,7 +12,7 @@ std::shared_ptr<Geometry> LightSource::genGeometry(CookingContext& context) cons
 
 std::shared_ptr<Material> LightSource::genMaterial(CookingContext& context) const
 {
-	const Vector3R linearSrgbAlbedo(0.5_r);
+	const math::Vector3R linearSrgbAlbedo(0.5_r);
 	return std::make_shared<MatteOpaque>(linearSrgbAlbedo);
 }
 

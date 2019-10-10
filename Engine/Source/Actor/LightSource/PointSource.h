@@ -6,11 +6,11 @@
 namespace ph
 {
 
-class PointSource final : public AreaSource, public TCommandInterface<PointSource>
+class PointSource : public AreaSource, public TCommandInterface<PointSource>
 {
 public:
 	PointSource();
-	PointSource(const Vector3R& linearSrgbColor, real numWatts);
+	PointSource(const math::Vector3R& linearSrgbColor, real numWatts);
 	PointSource(const SampledSpectralStrength& color, real numWatts);
 
 	std::shared_ptr<Geometry> genAreas(CookingContext& context) const override;

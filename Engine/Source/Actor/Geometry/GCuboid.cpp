@@ -21,25 +21,25 @@ GCuboid::GCuboid() :
 {}
 
 GCuboid::GCuboid(const real sideLength) : 
-	GCuboid(sideLength, Vector3R(0, 0, 0))
+	GCuboid(sideLength, math::Vector3R(0, 0, 0))
 {}
 
-GCuboid::GCuboid(const real sideLength, const Vector3R& offset) : 
+GCuboid::GCuboid(const real sideLength, const math::Vector3R& offset) :
 	GCuboid(sideLength, sideLength, sideLength, offset)
 {}
 
 GCuboid::GCuboid(const real xLen, const real yLen, const real zLen) :
-	GCuboid(xLen, yLen, zLen, Vector3R(0, 0, 0))
+	GCuboid(xLen, yLen, zLen, math::Vector3R(0, 0, 0))
 {}
 
-GCuboid::GCuboid(const Vector3R& minVertex, const Vector3R& maxVertex) : 
+GCuboid::GCuboid(const math::Vector3R& minVertex, const math::Vector3R& maxVertex) :
 	GCuboid(maxVertex.x - minVertex.x,
 	        maxVertex.y - minVertex.y,
 	        maxVertex.z - minVertex.z,
 	        (maxVertex + minVertex) * 0.5_r)
 {}
 
-GCuboid::GCuboid(const real xLen, const real yLen, const real zLen, const Vector3R& offset) :
+GCuboid::GCuboid(const real xLen, const real yLen, const real zLen, const math::Vector3R& offset) :
 	Geometry(),
 	m_size(xLen, yLen, zLen), m_offset(offset), m_faceUVs(genNormalizedFaceUVs())
 {
@@ -52,8 +52,9 @@ GCuboid::GCuboid(const GCuboid& other) :
 	m_faceUVs(other.m_faceUVs)
 {}
 
-void GCuboid::genPrimitive(const PrimitiveBuildingMaterial& data,
-                           std::vector<std::unique_ptr<Primitive>>& out_primitives) const
+void GCuboid::genPrimitive(
+	const PrimitiveBuildingMaterial& data,
+	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
 	if(!checkData(data, m_size.x, m_size.y, m_size.z))
 	{
@@ -67,22 +68,22 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 {
 	auto triangleMesh = std::make_shared<GTriangleMesh>();
 
-	const Vector3R halfSize = m_size * 0.5_r;
+	const math::Vector3R halfSize = m_size * 0.5_r;
 
 	// 8 vertices of a cuboid
-	const Vector3R vPPP = Vector3R( halfSize.x,  halfSize.y,  halfSize.z).add(m_offset);
-	const Vector3R vNPP = Vector3R(-halfSize.x,  halfSize.y,  halfSize.z).add(m_offset);
-	const Vector3R vNNP = Vector3R(-halfSize.x, -halfSize.y,  halfSize.z).add(m_offset);
-	const Vector3R vPNP = Vector3R( halfSize.x, -halfSize.y,  halfSize.z).add(m_offset);
-	const Vector3R vPPN = Vector3R( halfSize.x,  halfSize.y, -halfSize.z).add(m_offset);
-	const Vector3R vNPN = Vector3R(-halfSize.x,  halfSize.y, -halfSize.z).add(m_offset);
-	const Vector3R vNNN = Vector3R(-halfSize.x, -halfSize.y, -halfSize.z).add(m_offset);
-	const Vector3R vPNN = Vector3R( halfSize.x, -halfSize.y, -halfSize.z).add(m_offset);
+	const auto vPPP = math::Vector3R( halfSize.x,  halfSize.y,  halfSize.z).add(m_offset);
+	const auto vNPP = math::Vector3R(-halfSize.x,  halfSize.y,  halfSize.z).add(m_offset);
+	const auto vNNP = math::Vector3R(-halfSize.x, -halfSize.y,  halfSize.z).add(m_offset);
+	const auto vPNP = math::Vector3R( halfSize.x, -halfSize.y,  halfSize.z).add(m_offset);
+	const auto vPPN = math::Vector3R( halfSize.x,  halfSize.y, -halfSize.z).add(m_offset);
+	const auto vNPN = math::Vector3R(-halfSize.x,  halfSize.y, -halfSize.z).add(m_offset);
+	const auto vNNN = math::Vector3R(-halfSize.x, -halfSize.y, -halfSize.z).add(m_offset);
+	const auto vPNN = math::Vector3R( halfSize.x, -halfSize.y, -halfSize.z).add(m_offset);
 
 	// 12 triangles (all CCW)
 
 	// +z face (+y as upward)
-	const int pz = constant::Z_AXIS;
+	const int pz = math::constant::Z_AXIS;
 	{
 		GTriangle upperTriangle(vPPP, vNPP, vNNP);
 		upperTriangle.setUVWa({m_faceUVs[pz].maxVertex.x, m_faceUVs[pz].maxVertex.y, 0});
@@ -99,7 +100,7 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	}
 
 	// -z face (+y as upward)
-	const int nz = constant::Z_AXIS + 3;
+	const int nz = math::constant::Z_AXIS + 3;
 	{
 		GTriangle upperTriangle(vNPN, vPPN, vPNN);
 		upperTriangle.setUVWa({m_faceUVs[nz].maxVertex.x, m_faceUVs[nz].maxVertex.y, 0});
@@ -116,7 +117,7 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	}
 
 	// +x face (+y as upward)
-	const int px = constant::X_AXIS;
+	const int px = math::constant::X_AXIS;
 	{
 		GTriangle upperTriangle(vPPN, vPPP, vPNP);
 		upperTriangle.setUVWa({m_faceUVs[px].maxVertex.x, m_faceUVs[px].maxVertex.y, 0});
@@ -133,7 +134,7 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	}
 
 	// -x face (+y as upward)
-	const int nx = constant::X_AXIS + 3;
+	const int nx = math::constant::X_AXIS + 3;
 	{
 		GTriangle upperTriangle(vNPP, vNPN, vNNN);
 		upperTriangle.setUVWa({m_faceUVs[nx].maxVertex.x, m_faceUVs[nx].maxVertex.y, 0});
@@ -150,7 +151,7 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	}
 
 	// +y face (-z as upward)
-	const int py = constant::Y_AXIS;
+	const int py = math::constant::Y_AXIS;
 	{
 		GTriangle upperTriangle(vPPN, vNPN, vNPP);
 		upperTriangle.setUVWa({m_faceUVs[py].maxVertex.x, m_faceUVs[py].maxVertex.y, 0});
@@ -167,7 +168,7 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	}
 
 	// +y face (+z as upward)
-	const int ny = constant::Y_AXIS + 3;
+	const int ny = math::constant::Y_AXIS + 3;
 	{
 		GTriangle upperTriangle(vPNP, vNNP, vNNN);
 		upperTriangle.setUVWa({m_faceUVs[ny].maxVertex.x, m_faceUVs[ny].maxVertex.y, 0});
@@ -194,7 +195,9 @@ GCuboid& GCuboid::operator = (const GCuboid& rhs)
 	return *this;
 }
 
-bool GCuboid::checkData(const PrimitiveBuildingMaterial& data, const real xLen, const real yLen, const real zLen)
+bool GCuboid::checkData(
+	const PrimitiveBuildingMaterial& data, 
+	const real xLen, const real yLen, const real zLen)
 {
 	if(!data.metadata)
 	{
@@ -202,7 +205,7 @@ bool GCuboid::checkData(const PrimitiveBuildingMaterial& data, const real xLen, 
 		return false;
 	}
 
-	if(xLen <= 0.0f || yLen <= 0.0f || zLen <= 0.0f)
+	if(xLen <= 0.0_r || yLen <= 0.0_r || zLen <= 0.0_r)
 	{
 		std::cerr << "warning: at GCuboid::checkData(), GCuboid's dimension is zero or negative" << std::endl;
 		return false;
@@ -212,9 +215,9 @@ bool GCuboid::checkData(const PrimitiveBuildingMaterial& data, const real xLen, 
 }
 
 auto GCuboid::genNormalizedFaceUVs()
-	->std::array<AABB2D, 6>
+	->std::array<math::AABB2D, 6>
 {
-	std::array<AABB2D, 6> faceUVs;
+	std::array<math::AABB2D, 6> faceUVs;
 	faceUVs.fill({{0, 0}, {1, 1}});
 	return faceUVs;
 }
@@ -230,45 +233,45 @@ void GCuboid::ciRegister(CommandRegister& cmdRegister)
 {
 	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
 	{
-		const Vector3R minVertex = packet.getVector3("min-vertex", Vector3R(0), DataTreatment::REQUIRED());
-		const Vector3R maxVertex = packet.getVector3("max-vertex", Vector3R(0), DataTreatment::REQUIRED());
+		const auto minVertex = packet.getVector3("min-vertex", math::Vector3R(0), DataTreatment::REQUIRED());
+		const auto maxVertex = packet.getVector3("max-vertex", math::Vector3R(0), DataTreatment::REQUIRED());
 
 		auto cuboid = std::make_unique<GCuboid>(minVertex, maxVertex);
 
 		if(packet.hasQuaternion("px-face-uv"))
 		{
-			const QuaternionR uv = packet.getQuaternion("px-face-uv");
-			cuboid->m_faceUVs[constant::X_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
+			const auto uv = packet.getQuaternion("px-face-uv");
+			cuboid->m_faceUVs[math::constant::X_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
 		}
 		
 		if(packet.hasQuaternion("nx-face-uv"))
 		{
-			const QuaternionR uv = packet.getQuaternion("nx-face-uv");
-			cuboid->m_faceUVs[constant::X_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
+			const auto uv = packet.getQuaternion("nx-face-uv");
+			cuboid->m_faceUVs[math::constant::X_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
 		}
 
 		if(packet.hasQuaternion("py-face-uv"))
 		{
-			const QuaternionR uv = packet.getQuaternion("py-face-uv");
-			cuboid->m_faceUVs[constant::Y_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
+			const auto uv = packet.getQuaternion("py-face-uv");
+			cuboid->m_faceUVs[math::constant::Y_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
 		}
 
 		if(packet.hasQuaternion("ny-face-uv"))
 		{
-			const QuaternionR uv = packet.getQuaternion("ny-face-uv");
-			cuboid->m_faceUVs[constant::Y_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
+			const auto uv = packet.getQuaternion("ny-face-uv");
+			cuboid->m_faceUVs[math::constant::Y_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
 		}
 
 		if(packet.hasQuaternion("pz-face-uv"))
 		{
-			const QuaternionR uv = packet.getQuaternion("pz-face-uv");
-			cuboid->m_faceUVs[constant::Z_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
+			const auto uv = packet.getQuaternion("pz-face-uv");
+			cuboid->m_faceUVs[math::constant::Z_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
 		}
 
 		if(packet.hasQuaternion("nz-face-uv"))
 		{
-			const QuaternionR uv = packet.getQuaternion("nz-face-uv");
-			cuboid->m_faceUVs[constant::Z_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
+			const auto uv = packet.getQuaternion("nz-face-uv");
+			cuboid->m_faceUVs[math::constant::Z_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
 		}
 
 		return cuboid;

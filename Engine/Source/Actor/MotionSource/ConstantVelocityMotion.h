@@ -6,17 +6,17 @@
 namespace ph
 {
 
-class ConstantVelocityMotion final : public MotionSource, public TCommandInterface<ConstantVelocityMotion>
+class ConstantVelocityMotion : public MotionSource, public TCommandInterface<ConstantVelocityMotion>
 {
 public:
-	explicit ConstantVelocityMotion(const Vector3R& velocity);
-	virtual ~ConstantVelocityMotion() override;
+	explicit ConstantVelocityMotion(const math::Vector3R& velocity);
 
-	virtual std::unique_ptr<Transform> genLocalToWorld(const Time& start,
-	                                                   const Time& end) const override;
+	std::unique_ptr<math::Transform> genLocalToWorld(
+		const Time& start,
+		const Time& end) const override;
 
 private:
-	Vector3R m_velocity;
+	math::Vector3R m_velocity;
 
 // command interface
 public:

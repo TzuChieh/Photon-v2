@@ -11,12 +11,10 @@
 namespace ph
 {
 
-using namespace math;
-
 class BvhSahBucket final
 {
 public:
-	AABB3D aabb;
+	math::AABB3D aabb;
 	std::size_t  numIntersectables;
 
 	BvhSahBucket() : aabb(), numIntersectables(0) {}
@@ -113,7 +111,7 @@ const BvhInfoNode* BvhBuilder::buildBinaryBvhInfoNodeRecursive(const std::vector
 			centroidsAABB = AABB3D::makeUnioned(centroidsAABB, intersectable.aabbCentroid);
 		}
 
-		Vector3R extents = centroidsAABB.getExtents();
+		math::Vector3R extents = centroidsAABB.getExtents();
 		if(extents.hasNegativeComponent())
 		{
 			std::cerr << "warning: at BvhBuilder::buildBinaryBvhNodeRecursive(), " 
@@ -298,9 +296,9 @@ bool BvhBuilder::splitWithSahBuckets(const std::vector<BvhIntersectableInfo>& in
 
 	const int32 numBuckets = 64;
 
-	const int32    dim         = splitDimension;
-	const Vector3R extents     = centroidsAABB.getExtents();
-	const real     splitExtent = extents[dim];
+	const int32          dim         = splitDimension;
+	const math::Vector3R extents     = centroidsAABB.getExtents();
+	const real           splitExtent = extents[dim];
 
 	BvhSahBucket buckets[numBuckets];
 	for(const auto& intersectable : intersectables)

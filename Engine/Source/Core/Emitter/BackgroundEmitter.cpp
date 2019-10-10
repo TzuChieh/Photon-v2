@@ -23,9 +23,9 @@ namespace
 }
 
 BackgroundEmitter::BackgroundEmitter(
-	const Primitive* const       surface,
-	const RadianceTexture&       radiance,
-	const TVector2<std::size_t>& resolution,
+	const Primitive* const             surface,
+	const RadianceTexture&             radiance,
+	const math::TVector2<std::size_t>& resolution,
 	real sceneBoundRadius) :
 
 	m_surface(surface),
@@ -50,7 +50,7 @@ BackgroundEmitter::BackgroundEmitter(
 	{
 		const std::size_t baseIndex = y * resolution.x;
 		const real v        = (static_cast<real>(y) + 0.5_r) / static_cast<real>(resolution.y);
-		const real sinTheta = std::sin((1.0_r - v) * constant::pi<real>);
+		const real sinTheta = std::sin((1.0_r - v) * math::constant::pi<real>);
 		for(std::size_t x = 0; x < resolution.x; ++x)
 		{
 			const real u = (static_cast<real>(x) + 0.5_r) / static_cast<real>(resolution.x);
@@ -65,10 +65,10 @@ BackgroundEmitter::BackgroundEmitter(
 		}
 	}
 
-	m_sampleDistribution = TPwcDistribution2D<real>(sampleWeights.data(), resolution);
+	m_sampleDistribution = math::TPwcDistribution2D<real>(sampleWeights.data(), resolution);
 
 	//m_radiantFluxApprox = m_radiantFluxApprox * m_surface->calcExtendedArea() * PH_PI_REAL;
-	m_radiantFluxApprox  = m_radiantFluxApprox * 4 * m_sceneBoundRadius * m_sceneBoundRadius * constant::pi<real>;
+	m_radiantFluxApprox  = m_radiantFluxApprox * 4 * m_sceneBoundRadius * m_sceneBoundRadius * math::constant::pi<real>;
 }
 
 void BackgroundEmitter::evalEmittedRadiance(
@@ -87,13 +87,13 @@ void BackgroundEmitter::genDirectSample(DirectLightSample& sample) const
 	sample.sourcePrim = m_surface;
 
 	real uvSamplePdf;
-	const Vector2R uvSample = m_sampleDistribution.sampleContinuous(
-		Random::genUniformReal_i0_e1(),
-		Random::genUniformReal_i0_e1(),
+	const math::Vector2R uvSample = m_sampleDistribution.sampleContinuous(
+		math::Random::genUniformReal_i0_e1(),
+		math::Random::genUniformReal_i0_e1(),
 		&uvSamplePdf);
 
 	m_surface->uvwToPosition(
-		Vector3R(uvSample.x, uvSample.y, 0),
+		math::Vector3R(uvSample.x, uvSample.y, 0),
 		sample.targetPos, 
 		&(sample.emitPos));
 
@@ -101,53 +101,53 @@ void BackgroundEmitter::genDirectSample(DirectLightSample& sample) const
 	sample.radianceLe = sampler.sample(*m_radiance, uvSample);
 	
 	// FIXME: assuming spherical uv mapping us used
-	const real sinTheta = std::sin((1.0_r - uvSample.y) * constant::pi<real>);
+	const real sinTheta = std::sin((1.0_r - uvSample.y) * math::constant::pi<real>);
 	if(sinTheta <= 0.0_r)
 	{
 		return;
 	}
-	sample.pdfW = uvSamplePdf / (2.0_r * constant::pi<real> * constant::pi<real> * sinTheta);
+	sample.pdfW = uvSamplePdf / (2.0_r * math::constant::pi<real> * math::constant::pi<real> * sinTheta);
 }
 
 // FIXME: ray time
-void BackgroundEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void BackgroundEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
 	real uvSamplePdf;
-	const Vector2R uvSample = m_sampleDistribution.sampleContinuous(
-		Random::genUniformReal_i0_e1(),
-		Random::genUniformReal_i0_e1(),
+	const math::Vector2R uvSample = m_sampleDistribution.sampleContinuous(
+		math::Random::genUniformReal_i0_e1(),
+		math::Random::genUniformReal_i0_e1(),
 		&uvSamplePdf);
 
 	TSampler<SpectralStrength> sampler(EQuantity::EMR);
 	*out_Le = sampler.sample(*m_radiance, uvSample);
 
 	// FIXME: assuming spherical uv mapping us used
-	const real sinTheta = std::sin((1.0_r - uvSample.y) * constant::pi<real>);
+	const real sinTheta = std::sin((1.0_r - uvSample.y) * math::constant::pi<real>);
 	if(sinTheta <= 0.0_r)
 	{
 		return;
 	}
-	*out_pdfW = uvSamplePdf / (2.0_r * constant::pi<real> * constant::pi<real> * sinTheta);
+	*out_pdfW = uvSamplePdf / (2.0_r * math::constant::pi<real> * math::constant::pi<real> * sinTheta);
 
 	// HACK
-	Vector3R direction;
+	math::Vector3R direction;
 	m_surface->uvwToPosition(
-		Vector3R(uvSample.x, uvSample.y, 0),
-		Vector3R(0, 0, 0),
+		math::Vector3R(uvSample.x, uvSample.y, 0),
+		math::Vector3R(0, 0, 0),
 		&direction);
 	direction.normalizeLocal();
 	direction.mulLocal(-1);
 	*out_eN = direction;
 	
 	real diskPdf;
-	Vector2R diskPos = UniformUnitDisk::map(
-		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()}, 
+	math::Vector2R diskPos = math::UniformUnitDisk::map(
+		{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()},
 		&diskPdf);
 
 	*out_pdfA = diskPdf / (m_sceneBoundRadius * m_sceneBoundRadius);
 
-	const auto basis = Basis3R::makeFromUnitY(direction);
-	Vector3R position = direction.mul(-1) * m_sceneBoundRadius + 
+	const auto basis = math::Basis3R::makeFromUnitY(direction);
+	math::Vector3R position = direction.mul(-1) * m_sceneBoundRadius +
 		(basis.getZAxis() * diskPos.x * m_sceneBoundRadius) +
 		(basis.getXAxis() * diskPos.y * m_sceneBoundRadius);
 
@@ -158,18 +158,18 @@ void BackgroundEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Ve
 }
 
 real BackgroundEmitter::calcDirectSamplePdfW(
-	const SurfaceHit& emitPos, 
-	const Vector3R&   targetPos) const
+	const SurfaceHit&     emitPos, 
+	const math::Vector3R& targetPos) const
 {
 	// FIXME: assuming spherical uv mapping us used
-	const Vector3R uvw = emitPos.getDetail().getUvw();
-	const real sinTheta = std::sin((1.0_r - uvw.y) * constant::pi<real>);
+	const math::Vector3R uvw = emitPos.getDetail().getUvw();
+	const real sinTheta = std::sin((1.0_r - uvw.y) * math::constant::pi<real>);
 	if(sinTheta <= 0.0_r)
 	{
 		return 0.0_r;
 	}
 
-	return m_sampleDistribution.pdfContinuous({uvw.x, uvw.y}) / (2.0_r * constant::pi<real> * constant::pi<real> * sinTheta);
+	return m_sampleDistribution.pdfContinuous({uvw.x, uvw.y}) / (2.0_r * math::constant::pi<real> * math::constant::pi<real> * sinTheta);
 }
 
 real BackgroundEmitter::calcRadiantFluxApprox() const

@@ -2,7 +2,7 @@
 
 #include "Math/Transform/Transform.h"
 
-namespace ph
+namespace ph::math
 {
 
 /*
@@ -43,4 +43,4 @@ private:
 		real*           out_lineMaxT) const override = 0;
 };
 
-}// end namespace ph
+}// end namespace ph::math

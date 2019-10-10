@@ -23,7 +23,7 @@ public:
 	// TODO: rename to set...
 	ModelBuilder& addPrimitiveMetadata(std::unique_ptr<PrimitiveMetadata> metadata);
 
-	ModelBuilder& transform(std::unique_ptr<Transform> LtoW, std::unique_ptr<Transform> WtoL);
+	ModelBuilder& transform(std::unique_ptr<math::Transform> LtoW, std::unique_ptr<math::Transform> WtoL);
 	CookedUnit claimBuildResult();
 
 private:

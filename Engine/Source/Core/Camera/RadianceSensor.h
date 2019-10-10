@@ -16,9 +16,7 @@ public:
 
 	RadianceSensor() : 
 		accuR(0), accuG(0), accuB(0), accuWeight(0)
-	{
-
-	}
+	{}
 };
 
 }// end namespace ph

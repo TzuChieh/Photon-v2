@@ -54,7 +54,7 @@ inline void TFrame<T, N>::fill(const T value)
 }
 
 template<typename T, std::size_t N>
-inline void TFrame<T, N>::fill(const T value, const TAABB2D<uint32>& region)
+inline void TFrame<T, N>::fill(const T value, const math::TAABB2D<uint32>& region)
 {
 	PH_ASSERT_MSG(region.isValid(), region.toString());
 
@@ -73,7 +73,7 @@ inline void TFrame<T, N>::fill(const T value, const TAABB2D<uint32>& region)
 // TODO: wrap mode
 template<typename T, std::size_t N>
 inline void TFrame<T, N>::sample(
-	TFrame& sampled, const TMathFunction2D<float64>& kernel, const uint32 kernelRadiusPx) const
+	TFrame& sampled, const math::TMathFunction2D<float64>& kernel, const uint32 kernelRadiusPx) const
 {
 	if(isEmpty() || sampled.isEmpty() ||
 	   kernelRadiusPx == 0)
@@ -86,23 +86,24 @@ inline void TFrame<T, N>::sample(
 	{
 		for(uint32 x = 0; x < sampled.widthPx(); ++x)
 		{
-			const Vector2D samplePosPx((x + 0.5) / sampled.widthPx() * widthPx(), 
-			                           (y + 0.5) / sampled.heightPx() * heightPx());
+			const math::Vector2D samplePosPx(
+				(x + 0.5) / sampled.widthPx() * widthPx(),
+				(y + 0.5) / sampled.heightPx() * heightPx());
 
 			// compute filter bounds
-			Vector2D filterMin(samplePosPx.sub(kernelRadiusPx));
-			Vector2D filterMax(samplePosPx.add(kernelRadiusPx));
+			math::Vector2D filterMin(samplePosPx.sub(kernelRadiusPx));
+			math::Vector2D filterMax(samplePosPx.add(kernelRadiusPx));
 
 			// make filter bounds not to exceed frame bounds
-			filterMin = filterMin.max(Vector2D(0, 0));
-			filterMax = filterMax.min(Vector2D(widthPx(), heightPx()));
+			filterMin = filterMin.max(math::Vector2D(0, 0));
+			filterMax = filterMax.min(math::Vector2D(widthPx(), heightPx()));
 
 			PH_ASSERT_LE(filterMin.x, filterMax.x);
 			PH_ASSERT_LE(filterMin.y, filterMax.y);
 
 			// compute pixel index bounds
-			TVector2<int64> x0y0(filterMin.sub(0.5).ceil());
-			TVector2<int64> x1y1(filterMax.sub(0.5).floor());
+			math::TVector2<int64> x0y0(filterMin.sub(0.5).ceil());
+			math::TVector2<int64> x1y1(filterMax.sub(0.5).floor());
 
 			PH_ASSERT(x0y0.x >= 0 && x0y0.y >= 0 &&
 			          x1y1.x < widthPx() && x1y1.y < heightPx());
@@ -197,7 +198,7 @@ inline void TFrame<T, N>::setSize(const uint32 wPx, const uint32 hPx)
 }
 
 template<typename T, std::size_t N>
-inline void TFrame<T, N>::setSize(const TVector2<uint32>& sizePx)
+inline void TFrame<T, N>::setSize(const math::TVector2<uint32>& sizePx)
 {
 	setSize(sizePx.x, sizePx.y);
 }
@@ -206,19 +207,19 @@ template<typename T, std::size_t N>
 template<typename PerPixelOperation>
 inline void TFrame<T, N>::forEachPixel(PerPixelOperation op)
 {
-	forEachPixel(TAABB2D<uint32>({0, 0}, {m_widthPx, m_heightPx}), std::move(op));
+	forEachPixel(math::TAABB2D<uint32>({0, 0}, {m_widthPx, m_heightPx}), std::move(op));
 }
 
 template<typename T, std::size_t N>
 template<typename PerPixelOperation>
 inline void TFrame<T, N>::forEachPixel(PerPixelOperation op) const
 {
-	forEachPixel(TAABB2D<uint32>({0, 0}, {m_widthPx, m_heightPx}), std::move(op));
+	forEachPixel(math::TAABB2D<uint32>({0, 0}, {m_widthPx, m_heightPx}), std::move(op));
 }
 
 template<typename T, std::size_t N>
 template<typename PerPixelOperation>
-inline void TFrame<T, N>::forEachPixel(const TAABB2D<uint32>& region, PerPixelOperation op)
+inline void TFrame<T, N>::forEachPixel(const math::TAABB2D<uint32>& region, PerPixelOperation op)
 {
 	// OPT
 
@@ -270,7 +271,7 @@ inline void TFrame<T, N>::forEachPixel(const TAABB2D<uint32>& region, PerPixelOp
 
 template<typename T, std::size_t N>
 template<typename PerPixelOperation>
-inline void TFrame<T, N>::forEachPixel(const TAABB2D<uint32>& region, PerPixelOperation op) const
+inline void TFrame<T, N>::forEachPixel(const math::TAABB2D<uint32>& region, PerPixelOperation op) const
 {
 	// OPT
 
@@ -299,7 +300,7 @@ inline void TFrame<T, N>::forEachPixel(const TAABB2D<uint32>& region, PerPixelOp
 }
 
 template<typename T, std::size_t N>
-inline auto TFrame<T, N>::getPixel(const TVector2<uint32>& coordPx) const 
+inline auto TFrame<T, N>::getPixel(const math::TVector2<uint32>& coordPx) const
 	-> Pixel
 {
 	Pixel pixel;
@@ -326,7 +327,7 @@ inline void TFrame<T, N>::getPixel(
 }
 
 template<typename T, std::size_t N>
-inline void TFrame<T, N>::setPixel(const TVector2<uint32>& coordPx, const Pixel& pixel)
+inline void TFrame<T, N>::setPixel(const math::TVector2<uint32>& coordPx, const Pixel& pixel)
 {
 	setPixel(coordPx.x, coordPx.y, pixel);
 }
@@ -360,7 +361,7 @@ inline const T* TFrame<T, N>::getPixelData() const
 }
 
 template<typename T, std::size_t N>
-inline TVector2<uint32> TFrame<T, N>::getSizePx() const
+inline math::TVector2<uint32> TFrame<T, N>::getSizePx() const
 {
 	return {m_widthPx, m_heightPx};
 }

@@ -28,9 +28,9 @@ public:
 	void genDirectSample(DirectLightSample& sample) const override = 0;
 
 	// FIXME: ray time
-	void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override = 0;
+	void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override = 0;
 
-	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const override = 0;
+	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const override = 0;
 	
 	virtual void setFrontFaceEmit();
 	virtual void setBackFaceEmit();
@@ -38,13 +38,13 @@ public:
 protected:
 	bool m_isBackFaceEmission;
 
-	bool canEmit(const Vector3R& emitDirection, const Vector3R& N) const;
-	real calcPdfW(const SurfaceHit& emitPos, const Vector3R& targetPos) const;
+	bool canEmit(const math::Vector3R& emitDirection, const math::Vector3R& N) const;
+	real calcPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const;
 	real calcPdfW(
 		const Primitive* emitSurface, 
-		const Vector3R& emitPos, 
-		const Vector3R& emitNormal,
-		const Vector3R& targetPos) const;
+		const math::Vector3R& emitPos,
+		const math::Vector3R& emitNormal,
+		const math::Vector3R& targetPos) const;
 };
 
 }// end namespace ph

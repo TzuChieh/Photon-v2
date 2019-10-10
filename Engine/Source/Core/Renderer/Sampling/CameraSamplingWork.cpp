@@ -73,8 +73,8 @@ void CameraSamplingWork::doWork()
 		m_sampleResPx.product(),
 		m_sampleResPx);
 
-	const Vector2D ndcScale  = m_filmWindowPx.getExtents().div(m_filmResPx);
-	const Vector2D ndcOffset = m_filmWindowPx.minVertex.div(m_filmResPx);
+	const math::Vector2D ndcScale  = m_filmWindowPx.getExtents().div(m_filmResPx);
+	const math::Vector2D ndcOffset = m_filmWindowPx.minVertex.div(m_filmResPx);
 
 	Timer sampleTimer;
 
@@ -92,10 +92,10 @@ void CameraSamplingWork::doWork()
 		const Samples2D& camSamples = m_sampleGenerator->getSamples2D(camSampleStage);
 		for(std::size_t si = 0; si < camSamples.numSamples(); si++)
 		{
-			const Vector2D filmNdc = Vector2D(camSamples[si]).mul(ndcScale).add(ndcOffset);
+			const auto filmNdc = math::Vector2D(camSamples[si]).mul(ndcScale).add(ndcOffset);
 
 			Ray ray;
-			m_camera->genSensedRay(Vector2R(filmNdc), &ray);
+			m_camera->genSensedRay(math::Vector2R(filmNdc), &ray);
 
 			for(ISensedRayProcessor* processor : m_processors)
 			{
@@ -133,15 +133,15 @@ void CameraSamplingWork::setSampleGenerator(std::unique_ptr<SampleGenerator> sam
 }
 
 void CameraSamplingWork::setSampleDimensions(
-	const TVector2<int64>&  filmResPx,
-	const TAABB2D<float64>& filmWindowPx,
-	const TVector2<int64>&  sampleResPx)
+	const math::TVector2<int64>&  filmResPx,
+	const math::TAABB2D<float64>& filmWindowPx,
+	const math::TVector2<int64>&  sampleResPx)
 {
 	PH_ASSERT_MSG(filmWindowPx.isValid(), filmWindowPx.toString());
 
-	m_filmResPx    = Vector2D(filmResPx);
+	m_filmResPx    = math::Vector2D(filmResPx);
 	m_filmWindowPx = filmWindowPx;
-	m_sampleResPx  = Vector2S(sampleResPx);
+	m_sampleResPx  = math::Vector2S(sampleResPx);
 }
 
 void CameraSamplingWork::addProcessor(ISensedRayProcessor* const processor)

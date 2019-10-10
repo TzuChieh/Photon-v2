@@ -7,6 +7,7 @@
 #include <type_traits>
 
 using namespace ph;
+using namespace ph::math;
 
 TEST(TVector3Test, Requirements)
 {
