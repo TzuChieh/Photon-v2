@@ -41,85 +41,8 @@ inline TAABB3D<T>::TAABB3D(const TVector3<T>& minVertex, const TVector3<T>& maxV
 template<typename T>
 inline bool TAABB3D<T>::isIntersectingVolume(const TLineSegment<T>& segment) const
 {
-	// The starting ray interval (tMin, tMax) will be incrementally intersect
-	// against each ray-slab hitting interval (t1, t2) and be updated with the
-	// resulting interval.
-	//
-	// Note that the following implementation is NaN-aware 
-	// (tMin & tMax will never have NaNs)
-
-	PH_ASSERT(!std::isnan(ray.getMinT()) && !std::isnan(ray.getMaxT()));
-
-	real tMin = ray.getMinT();
-	real tMax = ray.getMaxT();
-
-	// find ray-slab hitting interval in x-axis then intersect with (tMin, tMax)
-
-	real reciDir = 1.0_r / static_cast<real>(ray.getDirection().x);
-	real t1 = (m_minVertex.x - static_cast<real>(ray.getOrigin().x)) * reciDir;
-	real t2 = (m_maxVertex.x - static_cast<real>(ray.getOrigin().x)) * reciDir;
-
-	if(t1 < t2)
-	{
-		tMin = t1 > tMin ? t1 : tMin;
-		tMax = t2 < tMax ? t2 : tMax;
-	}
-	else
-	{
-		tMin = t2 > tMin ? t2 : tMin;
-		tMax = t1 < tMax ? t1 : tMax;
-	}
-
-	if(tMin > tMax)
-	{
-		return false;
-	}
-
-	// find ray-slab hitting interval in y-axis then intersect with (tMin, tMax)
-
-	reciDir = 1.0_r / static_cast<real>(ray.getDirection().y);
-	t1 = (m_minVertex.y - static_cast<real>(ray.getOrigin().y)) * reciDir;
-	t2 = (m_maxVertex.y - static_cast<real>(ray.getOrigin().y)) * reciDir;
-
-	if(t1 < t2)
-	{
-		tMin = t1 > tMin ? t1 : tMin;
-		tMax = t2 < tMax ? t2 : tMax;
-	}
-	else
-	{
-		tMin = t2 > tMin ? t2 : tMin;
-		tMax = t1 < tMax ? t1 : tMax;
-	}
-
-	if(tMin > tMax)
-	{
-		return false;
-	}
-
-	// find ray-slab hitting interval in z-axis then intersect with (tMin, tMax)
-
-	reciDir = 1.0_r / static_cast<real>(ray.getDirection().z);
-	t1 = (m_minVertex.z - static_cast<real>(ray.getOrigin().z)) * reciDir;
-	t2 = (m_maxVertex.z - static_cast<real>(ray.getOrigin().z)) * reciDir;
-
-	if(t1 < t2)
-	{
-		tMin = t1 > tMin ? t1 : tMin;
-		tMax = t2 < tMax ? t2 : tMax;
-	}
-	else
-	{
-		tMin = t2 > tMin ? t2 : tMin;
-		tMax = t1 < tMax ? t1 : tMax;
-	}
-
-	if(tMin > tMax)
-	{
-		return false;
-	}
-
-	return true;
+	T nearHitT, farHitT;
+	return isIntersectingVolume(segment, &nearHitT, &farHitT);
 }
 
 /*
@@ -222,7 +145,6 @@ inline bool TAABB3D<T>::isIntersectingVolume(
 
 	*out_nearHitT = tMin;
 	*out_farHitT  = tMax;
-
 	return true;
 }
 

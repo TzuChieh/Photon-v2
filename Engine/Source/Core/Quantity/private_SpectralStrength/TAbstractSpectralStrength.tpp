@@ -30,7 +30,7 @@ inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(cons
 
 template<typename DerivedType, std::size_t N>
 inline TAbstractSpectralStrength<DerivedType, N>::TAbstractSpectralStrength(const std::array<real, N>& values) :
-	TAbstractSpectralStrength(TArithmeticArray<real, N>(values))
+	TAbstractSpectralStrength(math::TArithmeticArray<real, N>(values))
 {}
 
 template<typename DerivedType, std::size_t N>
