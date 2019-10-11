@@ -6,7 +6,7 @@ namespace ph::math
 {
 
 template<typename T>
-class TAnalyticalIntegrator1D
+class TAnalyticalIntegrator1D final
 {
 public:
 	TAnalyticalIntegrator1D();

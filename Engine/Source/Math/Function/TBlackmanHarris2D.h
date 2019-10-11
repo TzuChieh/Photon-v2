@@ -31,14 +31,14 @@ private:
 };
 
 template<typename Value>
-TBlackmanHarris2D<Value>::TBlackmanHarris2D(const Value radius) :
+inline TBlackmanHarris2D<Value>::TBlackmanHarris2D(const Value radius) :
 	m_reciRadius(radius > Value(0) ? Value(1) / radius : Value(0))
 {
 	PH_ASSERT(radius > Value(0));
 }
 
 template<typename Value>
-Value TBlackmanHarris2D<Value>::evaluate(const Value x, const Value y) const
+inline Value TBlackmanHarris2D<Value>::evaluate(const Value x, const Value y) const
 {
 	const Value nx = (x * m_reciRadius + Value(1.0)) * Value(0.5);
 	const Value ny = (y * m_reciRadius + Value(1.0)) * Value(0.5);
@@ -47,7 +47,7 @@ Value TBlackmanHarris2D<Value>::evaluate(const Value x, const Value y) const
 }
 
 template<typename Value>
-Value TBlackmanHarris2D<Value>::blackmanHarris1D(const Value n) const
+inline Value TBlackmanHarris2D<Value>::blackmanHarris1D(const Value n) const
 {
 	return 
 		  Value(0.35875)

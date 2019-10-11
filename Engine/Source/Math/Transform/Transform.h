@@ -15,10 +15,12 @@ namespace ph
 namespace ph::math
 {
 
+// TODO: templatize
+// TODO: use line segment, not ray
 class Transform
 {
 public:
-	virtual ~Transform() = 0;
+	virtual ~Transform() = default;
 
 	virtual std::unique_ptr<Transform> genInversed() const;
 

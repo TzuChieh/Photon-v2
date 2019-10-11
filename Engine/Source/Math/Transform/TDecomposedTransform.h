@@ -17,7 +17,7 @@ namespace ph::math
 	directly.
 */
 template<typename T>
-class TDecomposedTransform
+class TDecomposedTransform final
 {
 public:
 	// Creates a transformation that will not have any effect.

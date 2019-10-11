@@ -34,22 +34,22 @@ public:
 	StaticRigidTransform();
 
 private:
-	virtual void transformVector(
+	void transformVector(
 		const Vector3R& vector,
 		const Time&     time,
 		Vector3R*       out_vector) const override;
 
-	virtual void transformOrientation(
+	void transformOrientation(
 		const Vector3R& orientation,
 		const Time&     time,
 		Vector3R*       out_orientation) const override;
 
-	virtual void transformPoint(
+	void transformPoint(
 		const Vector3R& point,
 		const Time&     time,
 		Vector3R*       out_point) const override;
 
-	virtual void transformLineSegment(
+	void transformLineSegment(
 		const Vector3R& lineStartPos,
 		const Vector3R& lineDir,
 		real            lineMinT,

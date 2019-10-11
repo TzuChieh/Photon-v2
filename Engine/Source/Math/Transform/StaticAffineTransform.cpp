@@ -23,8 +23,6 @@ StaticAffineTransform::StaticAffineTransform(const Matrix4R& transform, const Ma
 	// TODO: assert on actually affine
 }
 
-StaticAffineTransform::~StaticAffineTransform() = default;
-
 std::unique_ptr<Transform> StaticAffineTransform::genInversed() const
 {
 	auto inversed = std::make_unique<StaticAffineTransform>();

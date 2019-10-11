@@ -10,12 +10,9 @@ namespace ph::math
 {
 
 template<typename T>
-class TPwcDistribution2D
+class TPwcDistribution2D final
 {
 public:
-	template<typename T>
-	using TAABB2D = math::TAABB2D<T>;
-
 	TPwcDistribution2D(
 		const TAABB2D<T>&            range, 
 		const T*                     weights, 

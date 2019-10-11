@@ -8,8 +8,6 @@
 namespace ph::math
 {
 
-Transform::~Transform() = default;
-
 std::unique_ptr<Transform> Transform::genInversed() const
 {
 	return nullptr;

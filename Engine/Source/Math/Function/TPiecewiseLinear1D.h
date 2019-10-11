@@ -21,7 +21,6 @@ namespace ph::math
 // 
 // Notice that update() must be called before feeding this function into 
 // any other methods.
-
 template<typename T>
 class TPiecewiseLinear1D final
 {

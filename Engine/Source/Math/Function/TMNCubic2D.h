@@ -14,9 +14,7 @@ class TMNCubic2D : public TMathFunction2D<ValueType>
 public:
 	TMNCubic2D(ValueType b, ValueType c);
 
-	virtual ~TMNCubic2D() override;
-
-	virtual ValueType evaluate(ValueType x, ValueType y) const override;
+	ValueType evaluate(ValueType x, ValueType y) const override;
 
 private:
 	ValueType m_b;
@@ -26,23 +24,19 @@ private:
 };
 
 template<typename ValueType>
-TMNCubic2D<ValueType>::TMNCubic2D(const ValueType b,
-                                  const ValueType c) :
+inline TMNCubic2D<ValueType>::TMNCubic2D(const ValueType b, const ValueType c) :
 	TMathFunction2D<ValueType>(),
 	m_b(b), m_c(c)
 {}
 
 template<typename ValueType>
-TMNCubic2D<ValueType>::~TMNCubic2D() = default;
-
-template<typename ValueType>
-ValueType TMNCubic2D<ValueType>::evaluate(const ValueType x, const ValueType y) const
+inline ValueType TMNCubic2D<ValueType>::evaluate(const ValueType x, const ValueType y) const
 {
 	return mnCubic1D(x) * mnCubic1D(y);
 }
 
 template<typename ValueType>
-ValueType TMNCubic2D<ValueType>::mnCubic1D(const ValueType x) const
+inline ValueType TMNCubic2D<ValueType>::mnCubic1D(const ValueType x) const
 {
 	const ValueType absX = std::abs(x);
 	if(absX < 1)

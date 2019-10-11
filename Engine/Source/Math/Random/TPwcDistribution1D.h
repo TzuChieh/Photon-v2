@@ -13,7 +13,7 @@ namespace ph::math
 	have a non-zero PDF.
 */
 template<typename T>
-class TPwcDistribution1D
+class TPwcDistribution1D final
 {
 	static_assert(std::is_floating_point_v<T>);
 
