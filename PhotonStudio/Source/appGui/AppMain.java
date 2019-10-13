@@ -52,7 +52,6 @@ import plugin.minecraft.parser.LevelParser;
 import plugin.minecraft.parser.MCAParser;
 import plugin.minecraft.parser.ModelParser;
 import plugin.minecraft.parser.NBTParser;
-import sun.misc.IOUtils;
 import util.SDLConsole;
 import util.Vector2f;
 import util.Vector3f;
