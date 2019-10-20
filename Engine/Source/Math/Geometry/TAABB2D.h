@@ -19,11 +19,11 @@ template<typename T>
 class TAABB2D
 {
 public:
+	// TODO: make these private or?
 	TVector2<T> minVertex;
 	TVector2<T> maxVertex;
 
 	TAABB2D();
-	TAABB2D(const TAABB2D& other);
 	TAABB2D(const TVector2<T>& minVertex, const TVector2<T>& maxVertex);
 	explicit TAABB2D(const TVector2<T>& point);
 

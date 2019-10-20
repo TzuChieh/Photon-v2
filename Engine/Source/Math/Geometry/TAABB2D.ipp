@@ -16,11 +16,6 @@ inline TAABB2D<T>::TAABB2D() :
 {}
 
 template<typename T>
-inline TAABB2D<T>::TAABB2D(const TAABB2D& other) : 
-	minVertex(other.minVertex), maxVertex(other.maxVertex)
-{}
-
-template<typename T>
 inline TAABB2D<T>::TAABB2D(const TVector2<T>& minVertex, const TVector2<T>& maxVertex) : 
 	minVertex(minVertex), maxVertex(maxVertex)
 {}

@@ -61,19 +61,23 @@ public:
 	*/
 	TAABB3D& unionWith(const TVector3<T>& point);
 
-	/*! @brief Sets the coordinates of the corner with minumum values.
+	/*! @brief Set the corner vertex of the maximum (+++) octant.
 	*/
-	void setMinVertex(const TVector3<T>& minVertex);
+	TAABB3D& setMinVertex(const TVector3<T>& minVertex);
 
-	/*! @brief Sets the coordinates of the corner with maxumum values.
+	/*! @brief Set the corner vertex of the minimum (---) octant.
 	*/
-	void setMaxVertex(const TVector3<T>& maxVertex);
+	TAABB3D& setMaxVertex(const TVector3<T>& maxVertex);
+
+	/*! @brief Set the corner vertices of the minimum (---) and maximum (+++) octants.
+	*/
+	TAABB3D& setMinMaxVertices(const TVector3<T>& minVertex, const TVector3<T>& maxVertex);
 
 	/*! @brief Makes the bounds grow by some amount.
 
 	@param amount The amount to grow in 3 dimensions.
 	*/
-	void expand(const TVector3<T>& amount);
+	TAABB3D& expand(const TVector3<T>& amount);
 
 	/*! @brief Checks whether a line segment intersects this volume.
 
@@ -115,15 +119,15 @@ public:
 	// FIXME: too slow
 	std::vector<TVector3<T>> getVertices() const;
 
-	/*! @brief Get corner vertices with the minimum and maximum values.
+	/*! @brief Get corner vertices on the minimum (---) and maximum (+++) octants.
 	*/
 	void getMinMaxVertices(TVector3<T>* out_minVertex, TVector3<T>* out_maxVertex) const;
 
-	/*! @brief Get the corner vertex with the minimum values.
+	/*! @brief Get the corner vertex of the minimum (---) octant.
 	*/
 	const TVector3<T>& getMinVertex() const;
 
-	/*! @brief Get the corner vertex with the maximum values.
+	/*! @brief Get the corner vertex of the maximum (+++) octant.
 	*/
 	const TVector3<T>& getMaxVertex() const;
 

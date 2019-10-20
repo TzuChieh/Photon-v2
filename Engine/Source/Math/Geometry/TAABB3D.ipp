@@ -242,22 +242,37 @@ inline T TAABB3D<T>::getVolume() const
 }
 
 template<typename T>
-inline void TAABB3D<T>::setMinVertex(const TVector3<T>& minVertex)
+inline TAABB3D<T>& TAABB3D<T>::setMinVertex(const TVector3<T>& minVertex)
 {
 	m_minVertex = minVertex;
+
+	return *this;
 }
 
 template<typename T>
-inline void TAABB3D<T>::setMaxVertex(const TVector3<T>& maxVertex)
+inline TAABB3D<T>& TAABB3D<T>::setMaxVertex(const TVector3<T>& maxVertex)
 {
 	m_maxVertex = maxVertex;
+
+	return *this;
 }
 
 template<typename T>
-inline void TAABB3D<T>::expand(const TVector3<T>& amount)
+inline TAABB3D<T>& TAABB3D<T>::setMinMaxVertices(const TVector3<T>& minVertex, const TVector3<T>& maxVertex)
+{
+	setMinVertex(minVertex);
+	setMaxVertex(maxVertex);
+
+	return *this;
+}
+
+template<typename T>
+inline TAABB3D<T>& TAABB3D<T>::expand(const TVector3<T>& amount)
 {
 	m_minVertex.subLocal(amount);
 	m_maxVertex.addLocal(amount);
+
+	return *this;
 }
 
 template<typename T>

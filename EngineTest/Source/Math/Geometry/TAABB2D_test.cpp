@@ -1,67 +1,27 @@
 #include "constants_for_test.h"
 
-#include <Math/Geometry/TAABB3D.h>
 #include <Math/Geometry/TAABB2D.h>
 #include <Math/TVector3.h>
 
 #include <gtest/gtest.h>
 
 #include <limits>
+#include <type_traits>
 
 using namespace ph;
 using namespace ph::math;
 
-TEST(BoundTest, IntersectingTwoAABB3DsAsVolumes)
+TEST(TAABB2DTest, Requirements)
 {
-	// trial 1
-
-	const AABB3D aabb1a(Vector3R(0, 0, 0),             Vector3R(1, 1, 1));
-	const AABB3D aabb1b(Vector3R(0.8_r, 0.8_r, 0.8_r), Vector3R(1.8_r, 1.8_r, 1.8_r));
-	EXPECT_TRUE(aabb1a.isIntersectingVolume(aabb1b));
-
-	// trial 2
-
-	const AABB3D aabb2a(Vector3R(1, 1, 1),             Vector3R(3, 3, 3));
-	const AABB3D aabb2b(Vector3R(3.1_r, 3.1_r, 3.1_r), Vector3R(4, 4, 4));
-	EXPECT_FALSE(aabb2a.isIntersectingVolume(aabb2b));
-
-	// trial 3
-
-	const AABB3D aabb3a(Vector3R(-1, -1, -1),    Vector3R(1, 1, 1));
-	const AABB3D aabb3b(Vector3R(-1, -1, 1.1_r), Vector3R(1, 1, 1.2_r));
-	EXPECT_FALSE(aabb3a.isIntersectingVolume(aabb3b));
+	EXPECT_TRUE(std::is_trivially_copyable_v<TAABB2D<short>>);
+	EXPECT_TRUE(std::is_trivially_copyable_v<TAABB2D<int>>);
+	EXPECT_TRUE(std::is_trivially_copyable_v<TAABB2D<float>>);
+	EXPECT_TRUE(std::is_trivially_copyable_v<TAABB2D<double>>);
 }
 
-TEST(BoundTest, IsAABB3DActuallyPoint)
+TEST(TAABB2DTest, IntersectingTwoAABB2DsAsAreas)
 {
-	AABB3D point({99, 99, 99}, {99, 99, 99});
-	EXPECT_TRUE(point.isPoint());
-
-	AABB3D volume({0, 0, 0}, {1, 1, 1});
-	EXPECT_FALSE(volume.isPoint());
-}
-
-TEST(BoundTest, IsAABB3DRepresentFiniteVolume)
-{
-	AABB3D volume({-1, -1, -1}, {1, 1, 1});
-	EXPECT_TRUE(volume.isFiniteVolume());
-
-	AABB3D point({33, 33, 33}, {33, 33, 33});
-	EXPECT_FALSE(point.isFiniteVolume());
-
-	const real positiveInfinity = std::numeric_limits<real>::infinity();
-	const real negativeInfinity = -positiveInfinity;
-
-	AABB3D infiniteBounds1{Vector3R(negativeInfinity), Vector3R(positiveInfinity)};
-	EXPECT_FALSE(infiniteBounds1.isFiniteVolume());
-
-	AABB3D infiniteBounds2(Vector3R(negativeInfinity, 0, 0), Vector3R(positiveInfinity, 1, 1));
-	EXPECT_FALSE(infiniteBounds2.isFiniteVolume());
-}
-
-TEST(BoundTest, IntersectingTwoAABB2DsAsAreas)
-{
-	typedef TAABB2D<real> AABB2DR;
+	using AABB2DR = TAABB2D<real>;
 
 	// trial 1
 
@@ -82,9 +42,9 @@ TEST(BoundTest, IntersectingTwoAABB2DsAsAreas)
 	EXPECT_FALSE(aabb3a.isIntersectingArea(aabb3b));
 }
 
-TEST(BoundTest, IntersectingAABB2DWithPoint)
+TEST(TAABB2DTest, IntersectingAABB2DWithPoint)
 {
-	typedef TAABB2D<real> AABB2DR;
+	using AABB2DR = TAABB2D<real>;
 
 	// trial 1
 
@@ -105,9 +65,9 @@ TEST(BoundTest, IntersectingAABB2DWithPoint)
 	EXPECT_FALSE(aabb3.isIntersectingArea(point3));
 }
 
-TEST(BoundTest, AABB2DValidity)
+TEST(TAABB2DTest, AABB2DValidity)
 {
-	typedef TAABB2D<real> AABB2DR;
+	using AABB2DR = TAABB2D<real>;
 
 	// trial 1
 
@@ -120,9 +80,9 @@ TEST(BoundTest, AABB2DValidity)
 	EXPECT_FALSE(aabb2.isValid());
 }
 
-TEST(BoundTest, IsAABB2DActuallyPoint)
+TEST(TAABB2DTest, IsAABB2DActuallyPoint)
 {
-	typedef TAABB2D<real> AABB2DR;
+	using AABB2DR = TAABB2D<real>;
 
 	// trial 1
 
@@ -135,9 +95,9 @@ TEST(BoundTest, IsAABB2DActuallyPoint)
 	EXPECT_TRUE(aabb2.isPoint());
 }
 
-TEST(BoundTest, UnionAABB2Ds)
+TEST(TAABB2DTest, UnionAABB2Ds)
 {
-	typedef TAABB2D<real> AABB2DR;
+	using AABB2DR = TAABB2D<real>;
 
 	const AABB2DR aabb1(Vector2R( 0,  0), Vector2R(1, 1));
 	const AABB2DR aabb2(Vector2R(-1, -1), Vector2R(2, 4));
@@ -148,9 +108,9 @@ TEST(BoundTest, UnionAABB2Ds)
 	EXPECT_NEAR(unioned.maxVertex.y,  4, TEST_REAL_EPSILON);
 }
 
-TEST(BoundTest, IntersectAABB2Ds)
+TEST(TAABB2DTest, IntersectAABB2Ds)
 {
-	typedef TAABB2D<real> AABB2DR;
+	using AABB2DR = TAABB2D<real>;
 
 	const AABB2DR aabb1(Vector2R(-1, -1),       Vector2R(1, 1));
 	const AABB2DR aabb2(Vector2R(0.5_r, 0.3_r), Vector2R(0.8_r, 1.3_r));
@@ -161,7 +121,7 @@ TEST(BoundTest, IntersectAABB2Ds)
 	EXPECT_NEAR(intersected.maxVertex.y, 1.0_r, TEST_REAL_EPSILON);
 }
 
-TEST(BoundTest, AABB2DCalculateAreas)
+TEST(TAABB2DTest, AABB2DCalculateAreas)
 {
 	// trial 1
 
@@ -174,7 +134,7 @@ TEST(BoundTest, AABB2DCalculateAreas)
 	EXPECT_EQ(aabb2.getArea(), 12);
 }
 
-TEST(BoundTest, AABB2DEquality)
+TEST(TAABB2DTest, AABB2DEquality)
 {
 	const TAABB2D<int32> aabb1(TVector2<int32>(-1, -1), TVector2<int32>(1, 1));
 	const TAABB2D<int32> aabb2(TVector2<int32>(-1, -1), TVector2<int32>(1, 1));
@@ -184,7 +144,7 @@ TEST(BoundTest, AABB2DEquality)
 	EXPECT_FALSE(aabb1.equals(aabb3));
 }
 
-TEST(BoundTest, AABB2DCalculateCenter)
+TEST(TAABB2DTest, AABB2DCalculateCenter)
 {
 	// trial 1
 
@@ -202,32 +162,10 @@ TEST(BoundTest, AABB2DCalculateCenter)
 }
 
 // TODO: more tests
-TEST(BoundTest, SplittingAABB2D)
+TEST(TAABB2DTest, SplittingAABB2D)
 {
 	const TAABB2D<int> aabb1({0, 0}, {5, 5});
 	const auto splittedAabb1 = aabb1.getSplitted(constant::Y_AXIS, 3);
 	EXPECT_TRUE(splittedAabb1.first.equals(TAABB2D<int>({0, 0}, {5, 3})));
 	EXPECT_TRUE(splittedAabb1.second.equals(TAABB2D<int>({0, 3}, {5, 5})));
-}
-
-// TODO: more tests
-TEST(BoundTest, SplittingAABB3D)
-{
-	const AABB3D aabb1({-1, -1, -1}, {1, 1, 1});
-	const auto splittedAabb1 = aabb1.getSplitted(constant::X_AXIS, 0);
-
-	EXPECT_TRUE(splittedAabb1.first.getMinVertex() == aabb1.getMinVertex());
-	EXPECT_EQ(splittedAabb1.first.getMaxVertex().x, 0);
-	EXPECT_EQ(splittedAabb1.first.getMaxVertex().y, aabb1.getMaxVertex().y);
-	EXPECT_EQ(splittedAabb1.first.getMaxVertex().z, aabb1.getMaxVertex().z);
-
-	EXPECT_TRUE(splittedAabb1.second.getMaxVertex() == aabb1.getMaxVertex());
-	EXPECT_EQ(splittedAabb1.second.getMinVertex().x, 0);
-	EXPECT_EQ(splittedAabb1.second.getMinVertex().y, aabb1.getMinVertex().y);
-	EXPECT_EQ(splittedAabb1.second.getMinVertex().z, aabb1.getMinVertex().z);
-
-	const TAABB3D<int> aabb2({0, 0, 0}, {3, 3, 3});
-	const auto splittedAabb2 = aabb2.getSplitted(constant::X_AXIS, 2);
-	EXPECT_TRUE(splittedAabb2.first.equals(TAABB3D<int>({0, 0, 0}, {2, 3, 3})));
-	EXPECT_TRUE(splittedAabb2.second.equals(TAABB3D<int>({2, 0, 0}, {3, 3, 3})));
 }
