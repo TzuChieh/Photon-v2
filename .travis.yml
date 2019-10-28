@@ -32,13 +32,12 @@ matrix:
           build_command: "make -j4"
           branch_pattern: coverity_scan
 
-    # Xcode 10.1 (10B61)
-    # Apple LLVM version 10.0.0 (clang-1000.11.45.5)
-    # Target: x86_64-apple-darwin18.2.0
-    # Thread model: posix
-    # InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+    # Visit https://gist.github.com/yamaya/2924292 for Xcode <=> clang versions.
+    # Visit https://en.wikipedia.org/wiki/Darwin_(operating_system) for macOS <=> darwin versions.
+    # Visit https://docs.travis-ci.com/user/reference/osx/#macos-version for macOS version on Travis-CI.
+    # Currently using: macOS 10.14, Xcode 10.2.1 (10E1001), Apple LLVM version 10.0.1 (clang-1001.0.46.4)
     - os: osx
-      osx_image: xcode10.1
+      osx_image: xcode10.2
       compiler: clang
       language: cpp
 

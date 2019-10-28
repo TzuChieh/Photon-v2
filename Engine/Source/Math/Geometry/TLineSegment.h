@@ -10,7 +10,7 @@ namespace ph::math
 Points @f$ \overrightarrow{P} @f$ on a line are modeled using the equation
 
 @f[
-	\overrightarrow{P}=\overrightarrow{O}+t\overrightarrow{D}
+	\overrightarrow{P} = \overrightarrow{O} + t\overrightarrow{D}
 @f]
 
 where @f$ \overrightarrow{O} @f$ is the line origin and 
