@@ -8,7 +8,7 @@ namespace ph::math
 {
 
 template<typename T>
-class TSphere
+class TSphere final
 {
 public:
 	TSphere() = default;

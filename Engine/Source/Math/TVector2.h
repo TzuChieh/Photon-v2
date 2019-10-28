@@ -9,7 +9,7 @@ namespace ph::math
 {
 
 template<typename T>
-class TVector2
+class TVector2 final
 {
 public:
 	T x;

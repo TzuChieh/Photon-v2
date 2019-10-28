@@ -10,7 +10,7 @@ namespace ph::math
 {
 
 template<typename T>
-class TQuaternion
+class TQuaternion final
 {
 public:
 	static TQuaternion makeNoRotation();

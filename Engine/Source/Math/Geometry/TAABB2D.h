@@ -16,7 +16,7 @@ class TAABB2D;
 using AABB2D = TAABB2D<real>;
 
 template<typename T>
-class TAABB2D
+class TAABB2D final
 {
 public:
 	// TODO: make these private or?

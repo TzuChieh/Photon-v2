@@ -9,7 +9,7 @@ namespace ph::math
 {
 
 template<typename T>
-class TWatertightTriangle : public TBasicTriangle<T>
+class TWatertightTriangle final : public TBasicTriangle<T>
 {
 public:
 	using TBasicTriangle<T>::TBasicTriangle;

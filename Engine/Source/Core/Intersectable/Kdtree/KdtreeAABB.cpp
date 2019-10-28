@@ -18,7 +18,7 @@ KdtreeAABB::KdtreeAABB(const math::Vector3R& minVertex, const math::Vector3R& ma
 
 bool KdtreeAABB::isIntersectingVolume(const Ray& ray, real* const out_rayNearHitDist, real* const out_rayFarHitDist) const
 {
-	return m_aabb.isIntersectingVolume(ray, out_rayNearHitDist, out_rayFarHitDist);
+	return m_aabb.isIntersectingVolume(ray.getSegment(), out_rayNearHitDist, out_rayFarHitDist);
 }
 
 bool KdtreeAABB::isIntersectingVolume(const math::AABB3D& aabb) const

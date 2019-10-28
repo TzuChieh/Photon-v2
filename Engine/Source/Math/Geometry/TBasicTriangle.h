@@ -50,6 +50,8 @@ public:
 	TVector3<T> getVc() const;
 
 protected:
+	~TBasicTriangle() = default;
+
 	TVector3<T> m_vA;
 	TVector3<T> m_vB;
 	TVector3<T> m_vC;

@@ -33,7 +33,7 @@ PSphere::PSphere(const PrimitiveMetadata* const metadata, const real radius) :
 bool PSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	real hitT;
-	if(!math::TSphere(m_radius).isIntersecting(ray, &hitT))
+	if(!math::TSphere(m_radius).isIntersecting(ray.getSegment(), &hitT))
 	{
 		return false;
 	}

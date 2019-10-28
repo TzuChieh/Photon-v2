@@ -26,7 +26,7 @@ may represent a point, a layer of skin, or a volume.
 @tparam T Arithmetic type used for the calculation.
 */
 template<typename T>
-class TAABB3D
+class TAABB3D final
 {
 public:
 	/*! @brief Creates a new TAABB3D by unioning inputs.

@@ -15,7 +15,7 @@ inline TLineSegment<T>::TLineSegment(
 {
 	setOrigin(origin);
 	setDirection(direction);
-	setSegment(minT, maxT);
+	setRange(minT, maxT);
 }
 
 template<typename T>
@@ -39,12 +39,18 @@ inline void TLineSegment<T>::setMaxT(const T t)
 }
 
 template<typename T>
-inline void TLineSegment<T>::setSegment(const T minT, const T maxT)
+inline void TLineSegment<T>::setRange(const T minT, const T maxT)
 {
 	PH_ASSERT_LE(minT, maxT);
 
 	setMinT(minT);
 	setMaxT(maxT);
+}
+
+template<typename T>
+inline void TLineSegment<T>::setRange(const std::pair<T, T>& minMaxT)
+{
+	setRange(minMaxT.first, minMaxT.second);
 }
 
 template<typename T>
@@ -81,6 +87,12 @@ template<typename T>
 inline T TLineSegment<T>::getMaxT() const
 {
 	return m_maxT;
+}
+
+template<typename T>
+inline std::pair<T, T> TLineSegment<T>::getRange() const
+{
+	return {m_minT, m_maxT};
 }
 
 template<typename T>

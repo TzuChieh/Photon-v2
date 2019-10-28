@@ -9,7 +9,7 @@ namespace ph::math
 {
 
 template<typename T>
-class TMatrix3
+class TMatrix3 final
 {
 public:
 	static TMatrix3 makeIdentity();

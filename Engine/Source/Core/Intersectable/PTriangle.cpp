@@ -37,7 +37,7 @@ bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	real hitT;
 	math::Vector3R hitBaryABCs;
-	if(!m_triangle.isIntersecting(ray, &hitT, &hitBaryABCs))
+	if(!m_triangle.isIntersecting(ray.getSegment(), &hitT, &hitBaryABCs))
 	{
 		return false;
 	}

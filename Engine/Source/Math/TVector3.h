@@ -12,7 +12,7 @@ namespace ph::math
 {
 
 template<typename T>
-class TVector3
+class TVector3 final
 {
 public:
 	static inline TVector3 weightedSum(const TVector3& vA, T wA, 

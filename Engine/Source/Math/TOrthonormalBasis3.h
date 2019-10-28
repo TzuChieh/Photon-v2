@@ -7,7 +7,7 @@ namespace ph::math
 {
 
 template<typename T>
-class TOrthonormalBasis3
+class TOrthonormalBasis3 final
 {
 public:
 	static TOrthonormalBasis3 makeFromUnitY(const TVector3<T>& unitYAxis);

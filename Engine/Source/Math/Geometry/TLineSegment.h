@@ -2,6 +2,8 @@
 
 #include "Math/TVector3.h"
 
+#include <utility>
+
 namespace ph::math
 {
 
@@ -19,7 +21,7 @@ in @f$ [t_{min}, t_{max}) @f$. Note the direction vector of the line does not
 need to be normalized.
 */
 template<typename T>
-class TLineSegment
+class TLineSegment final
 {
 public:
 	/*! @brief A line which state is unspecified.
@@ -56,7 +58,11 @@ public:
 	The range is [minT, maxT). This is equivalent to calling \ref setMinT(T) 
 	and \ref setMaxT(T) together.
 	*/
-	void setSegment(T minT, T maxT);
+	void setRange(T minT, T maxT);
+
+	/*! @brief Same as \ref setRange(T, T).
+	*/
+	void setRange(const std::pair<T, T>& minMaxT);
 
 	/*! @brief Set the origin of the line.
 	*/
@@ -78,6 +84,7 @@ public:
 	const TVector3<T>& getDirection() const;
 	T getMinT() const;
 	T getMaxT() const;
+	std::pair<T, T> getRange() const;
 
 	/*! @brief Get the coordinates on minimum parametric distance.
 	*/

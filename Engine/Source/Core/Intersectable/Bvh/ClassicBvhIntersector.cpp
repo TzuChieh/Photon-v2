@@ -65,7 +65,7 @@ bool ClassicBvhIntersector::isIntersecting(const Ray& ray, HitProbe& probe) cons
 	{
 		const BvhLinearNode& node = m_nodes[currentNodeIndex];
 
-		if(node.aabb.isIntersectingVolume(bvhRay, &minT, &maxT))
+		if(node.aabb.isIntersectingVolume(bvhRay.getSegment(), &minT, &maxT))
 		{
 			if(node.isLeaf())
 			{

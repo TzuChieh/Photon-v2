@@ -12,7 +12,7 @@ namespace ph::math
 {
 
 template<typename T, std::size_t N>
-class TArithmeticArray
+class TArithmeticArray final
 {
 public:
 	static std::size_t numElements();

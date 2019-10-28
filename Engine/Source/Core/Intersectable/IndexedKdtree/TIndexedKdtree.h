@@ -147,7 +147,7 @@ inline bool TIndexedKdtree<Item, Index>::isIntersecting(const Ray& ray, HitProbe
 	constexpr int MAX_STACK_HEIGHT = 64;
 
 	real minT, maxT;
-	if(!m_rootAABB.isIntersectingVolume(ray, &minT, &maxT))
+	if(!m_rootAABB.isIntersectingVolume(ray.getSegment(), &minT, &maxT))
 	{
 		return false;
 	}

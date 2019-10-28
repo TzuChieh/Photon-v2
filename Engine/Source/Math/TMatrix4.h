@@ -10,7 +10,7 @@ namespace ph::math
 {
 	
 template<typename T>
-class TMatrix4
+class TMatrix4 final
 {
 public:
 	static TMatrix4 IDENTITY();
