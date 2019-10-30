@@ -5,7 +5,7 @@
 namespace ph
 {
 
-class Samples2D : public SamplesBase
+class Samples2D final : public SamplesBase
 {
 public:
 	using SamplesBase::SamplesBase;
@@ -13,21 +13,10 @@ public:
 	void perSampleShuffle();
 	void perDimensionShuffle();
 
-	inline void set(const std::size_t index, const real valueX, const real valueY)
-	{
-		m_data[index * 2] = valueX;
-		m_data[index * 2 + 1] = valueY;
-	}
+	void set(const std::size_t index, const real valueX, const real valueY);
+	void set(const std::size_t index, const math::Vector2R& value);
 
-	inline void set(const std::size_t index, const math::Vector2R& value)
-	{
-		set(index, value.x, value.y);
-	}
-
-	inline math::Vector2R operator [] (const std::size_t index) const
-	{
-		return math::Vector2R(m_data[index * 2], m_data[index * 2 + 1]);
-	}
+	math::Vector2R operator [] (const std::size_t index) const;
 };
 
 // In-header Implementations:
@@ -40,6 +29,22 @@ inline void Samples2D::perSampleShuffle()
 inline void Samples2D::perDimensionShuffle()
 {
 	perDimensionShuffleDurstenfeld(2);
+}
+
+inline void Samples2D::set(const std::size_t index, const real valueX, const real valueY)
+{
+	m_data[index * 2] = valueX;
+	m_data[index * 2 + 1] = valueY;
+}
+
+inline void Samples2D::set(const std::size_t index, const math::Vector2R& value)
+{
+	set(index, value.x, value.y);
+}
+
+inline math::Vector2R Samples2D::operator [] (const std::size_t index) const
+{
+	return math::Vector2R(m_data[index * 2], m_data[index * 2 + 1]);
 }
 
 }// end namespace ph

@@ -6,7 +6,7 @@
 namespace ph
 {
 
-class SGStratified final : public SampleGenerator, public TCommandInterface<SGStratified>
+class SGStratified : public SampleGenerator, public TCommandInterface<SGStratified>
 {
 public:
 	explicit SGStratified(std::size_t numSamples);

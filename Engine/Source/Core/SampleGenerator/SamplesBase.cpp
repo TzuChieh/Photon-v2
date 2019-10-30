@@ -1,33 +1,35 @@
 #include "Core/SampleGenerator/SamplesBase.h"
 #include "Math/Random.h"
+#include "Math/Random/shuffle.h"
 
 namespace ph
 {
 
 void SamplesBase::perSampleShuffleDurstenfeld(const std::size_t dim)
 {
-	for(std::size_t s = 0; s < m_numSamples; ++s)
-	{
-		const std::size_t j = math::Random::genUniformIndex_iL_eU(s, m_numSamples);
-		for(std::size_t d = 0; d < dim; ++d)
+	math::shuffle_durstenfeld_index_pairs(
+		0, m_numSamples, 
+		[this, dim](const std::size_t indexA, const std::size_t indexB)
 		{
-			std::swap(m_data[s * dim + d], 
-			          m_data[j * dim + d]);
-		}
-	}
+			for(std::size_t d = 0; d < dim; ++d)
+			{
+				std::swap(m_data[indexA * dim + d],
+				          m_data[indexB * dim + d]);
+			}
+		});
 }
 
 void SamplesBase::perDimensionShuffleDurstenfeld(const std::size_t dim)
 {
 	for(std::size_t d = 0; d < dim; ++d)
 	{
-		for(std::size_t s = 0; s < m_numSamples; ++s)
-		{
-			const std::size_t j = math::Random::genUniformIndex_iL_eU(s, m_numSamples);
-			std::swap(m_data[s * dim + d], 
-			          m_data[j * dim + d]);
-			
-		}
+		math::shuffle_durstenfeld_index_pairs(
+			0, m_numSamples, 
+			[this, dim, d](const std::size_t indexA, const std::size_t indexB)
+			{
+				std::swap(m_data[indexA * dim + d],
+				          m_data[indexB * dim + d]);
+			});
 	}
 }
 

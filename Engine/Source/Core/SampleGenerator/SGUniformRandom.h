@@ -6,7 +6,7 @@
 namespace ph
 {
 
-class SGUniformRandom final : public SampleGenerator, public TCommandInterface<SGUniformRandom>
+class SGUniformRandom : public SampleGenerator, public TCommandInterface<SGUniformRandom>
 {
 public:
 	explicit SGUniformRandom(const std::size_t numSamples);

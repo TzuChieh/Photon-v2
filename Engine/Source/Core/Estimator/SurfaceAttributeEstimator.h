@@ -18,7 +18,7 @@ public:
 		const Integrand&                  integrand,
 		TEstimationArray<math::Vector3R>& out_estimation) const override;
 
-	virtual std::string toString() const;
+	std::string toString() const override;
 };
 
 // In-header Implementations:

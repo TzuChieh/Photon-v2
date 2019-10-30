@@ -4,10 +4,13 @@
 #include "Core/Sample.h"
 #include "Math/TVector2.h"
 #include "Core/SampleGenerator/stages.h"
+#include "Core/SampleGenerator/TSamplesNDStage.h"
+#include "Math/TArithmeticArray.h"
 #include "FileIO/SDL/ISdlResource.h"
 #include "FileIO/SDL/TCommandInterface.h"
 #include "Core/SampleGenerator/samples.h"
 
+#include <cstddef>
 #include <vector>
 #include <memory>
 #include <utility>
@@ -21,6 +24,9 @@ class InputPacket;
 class SampleGenerator : public TCommandInterface<SampleGenerator>
 {
 public:
+	template<std::size_t N>
+	using SizeHints = typename TSamplesNDStage<N>::SizeHints;
+
 	SampleGenerator(std::size_t numSampleBatches, std::size_t numCachedBatches);
 	virtual ~SampleGenerator() = default;
 
@@ -29,6 +35,13 @@ public:
 	std::unique_ptr<SampleGenerator> genCopied(std::size_t numSampleBatches) const;
 
 	bool prepareSampleBatch();
+
+	/*template<std::size_t N>
+	TSamplesNDStage<N> declareNDStage(
+		std::size_t  numElements, 
+		SizeHints<N> dimSizeHints = SizeHints<N>(1));*/
+
+
 
 	Samples1DStage declare1DStage(std::size_t numElements);
 	Samples2DStage declare2DStage(
@@ -72,7 +85,7 @@ private:
 
 // command interface
 public:
-	//SampleGenerator(const InputPacket& packet);
+	//explicit SampleGenerator(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };

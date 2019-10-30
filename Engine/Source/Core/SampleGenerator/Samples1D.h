@@ -5,7 +5,7 @@
 namespace ph
 {
 
-class Samples1D : public SamplesBase
+class Samples1D final : public SamplesBase
 {
 public:
 	using SamplesBase::SamplesBase;
@@ -13,15 +13,9 @@ public:
 	void perSampleShuffle();
 	void perDimensionShuffle();
 
-	inline void set(const std::size_t index, const real value)
-	{
-		m_data[index] = value;
-	}
+	void set(const std::size_t index, const real value);
 
-	inline real operator [] (const std::size_t index) const
-	{
-		return m_data[index];
-	}
+	real operator [] (const std::size_t index) const;
 };
 
 // In-header Implementations:
@@ -34,6 +28,16 @@ inline void Samples1D::perSampleShuffle()
 inline void Samples1D::perDimensionShuffle()
 {
 	perDimensionShuffleDurstenfeld(1);
+}
+
+inline void Samples1D::set(const std::size_t index, const real value)
+{
+	m_data[index] = value;
+}
+
+inline real Samples1D::operator [] (const std::size_t index) const
+{
+	return m_data[index];
 }
 
 }// end namespace ph

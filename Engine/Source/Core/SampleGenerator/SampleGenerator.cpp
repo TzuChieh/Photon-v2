@@ -200,11 +200,15 @@ void SampleGenerator::genSamplesNDBatch()
 
 // command interface
 
+//SampleGenerator::SampleGenerator(const InputPacket& packet)
+//{}
+
 SdlTypeInfo SampleGenerator::ciTypeInfo()
 {
 	return SdlTypeInfo(ETypeCategory::REF_SAMPLE_GENERATOR, "sample-generator");
 }
 
-void SampleGenerator::ciRegister(CommandRegister& cmdRegister) {}
+void SampleGenerator::ciRegister(CommandRegister& cmdRegister)
+{}
 
 }// end namespace ph
