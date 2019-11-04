@@ -20,6 +20,11 @@ public:
 		std::size_t numSamples, 
 		SizeHints   dimSizeHints);
 
+	std::size_t getStageIndex() const;
+	std::size_t numSamples() const;
+	std::size_t numElements() const;
+	const SizeHints& getDimSizeHints() const;
+
 private:
 	std::size_t  m_stageIndex;
 	std::size_t  m_numSamples;
@@ -43,5 +48,30 @@ inline TSamplesNDStage<N>::TSamplesNDStage(
 	m_numSamples  (numSamples),
 	m_dimSizeHints(std::move(dimSizeHints))
 {}
+
+template<std::size_t N>
+inline std::size_t TSamplesNDStage<N>::getStageIndex() const
+{
+	return m_stageIndex;
+}
+
+template<std::size_t N>
+inline std::size_t TSamplesNDStage<N>::numSamples() const
+{
+	return m_numSamples;
+}
+
+template<std::size_t N>
+inline std::size_t TSamplesNDStage<N>::numElements() const
+{
+	return m_numSamples * N;
+}
+
+template<std::size_t N>
+inline auto TSamplesNDStage<N>::getDimSizeHints() const
+	-> const SizeHints&
+{
+	return m_dimSizeHints;
+}
 
 }// end namespace ph

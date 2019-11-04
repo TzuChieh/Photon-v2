@@ -18,15 +18,17 @@ SampleGenerator::SampleGenerator(const std::size_t numSampleBatches,
 	m_numCachedBatches(numCachedBatches),
 	m_numUsedBatches  (0),
 	m_numUsedCaches   (numCachedBatches),
-	m_totalElements   (0)
+	m_totalElements   (0),
+	m_sampleBuffer    (),
+	m_stages          ()
 {
-	PH_ASSERT(numCachedBatches > 0);
+	PH_ASSERT_GT(numCachedBatches, 0);
 }
 
 bool SampleGenerator::prepareSampleBatch()
 {
-	PH_ASSERT(m_numUsedBatches <= m_numSampleBatches &&
-	          m_numUsedCaches  <= m_numCachedBatches);
+	PH_ASSERT_LE(m_numUsedBatches, m_numSampleBatches);
+	PH_ASSERT_LE(m_numUsedCaches,  m_numCachedBatches);
 
 	if(hasMoreBatches())
 	{
@@ -52,7 +54,7 @@ bool SampleGenerator::prepareSampleBatch()
 void SampleGenerator::genSplitted(const std::size_t numSplits,
                                   std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) const
 {
-	PH_ASSERT(numSplits > 0);
+	PH_ASSERT_GT(numSplits, 0);
 
 	const std::size_t batchesPerSplit  = std::max(numSampleBatches() / numSplits, std::size_t(1));
 	std::size_t       remainingBatches = numSampleBatches();
