@@ -19,7 +19,7 @@ namespace ph
 	// TODO: convenient getter and setter
 */
 template<typename Resource>
-class TMRSWResource : public INoncopyable
+class TMRSWResource final : public INoncopyable
 {
 public:
 	template<typename Res>

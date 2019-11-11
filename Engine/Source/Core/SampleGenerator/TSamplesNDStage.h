@@ -26,9 +26,9 @@ public:
 	const SizeHints& getDimSizeHints() const;
 
 private:
-	std::size_t  m_stageIndex;
-	std::size_t  m_numSamples;
-	SizeHints    m_dimSizeHints;
+	std::size_t m_stageIndex;
+	std::size_t m_numSamples;
+	SizeHints   m_dimSizeHints;
 };
 
 // In-header Implementations:

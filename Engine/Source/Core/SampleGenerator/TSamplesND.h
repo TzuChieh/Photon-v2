@@ -3,6 +3,7 @@
 #include "Common/assertion.h"
 #include "Math/TArithmeticArray.h"
 #include "Math/Random/shuffle.h"
+#include "Math/Random.h"
 
 #include <cstddef>
 
@@ -16,7 +17,7 @@ public:
 	using Sample = math::TArithmeticArray<real, N>;
 
 	TSamplesND();
-	TSamplesND(real* const buffer, const std::size_t numSamples);
+	TSamplesND(real* buffer, std::size_t numSamples);
 
 	void shuffle();
 
@@ -26,27 +27,35 @@ public:
 	template<std::size_t DIM_INDEX_BEGIN, std::size_t DIM_INDEX_END>
 	void shuffleDimensions();
 
+	void setSample(std::size_t index, const Sample& sample);
+	Sample readSample();
+
 	std::size_t numSamples() const;
+	std::size_t numElements() const;
 	bool isValid() const;
+	bool isExhausted() const;
 	Sample getSample(std::size_t index) const;
 
-	Sample operator [] (const std::size_t index) const;
+	Sample operator [] (std::size_t index) const;
 
-protected:
+private:
 	real*       m_buffer;
 	std::size_t m_numSamples;
+	std::size_t m_sampleReadHead;
+
+	static Sample genRandomSample();
 };
 
 // In-header Implementations:
 
 template<std::size_t N>
 inline TSamplesND<N>::TSamplesND() :
-	m_buffer(nullptr), m_numSamples(0)
+	m_buffer(nullptr), m_numSamples(0), m_sampleReadHead(0)
 {}
 
 template<std::size_t N>
 inline TSamplesND<N>::TSamplesND(real* const buffer, const std::size_t numSamples) :
-	m_buffer(buffer), m_numSamples(numSamples)
+	m_buffer(buffer), m_numSamples(numSamples), m_sampleReadHead(0)
 {
 	PH_ASSERT(buffer);
 }
@@ -101,9 +110,33 @@ inline void TSamplesND<N>::shuffleDimensions()
 }
 
 template<std::size_t N>
+inline void TSamplesND<N>::setSample(const std::size_t index, const Sample& sample)
+{
+	PH_ASSERT_LT(index, numSamples());
+
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		m_buffer[index * N + i] = sample[i];
+	}
+}
+
+template<std::size_t N>
+inline auto TSamplesND<N>::readSample()
+	-> Sample
+{
+	return m_sampleReadHead < numSamples() ? (*this)[m_sampleReadHead++] : genRandomSample();
+}
+
+template<std::size_t N>
 inline std::size_t TSamplesND<N>::numSamples() const
 {
 	return m_numSamples;
+}
+
+template<std::size_t N>
+inline std::size_t TSamplesND<N>::numElements() const
+{
+	return m_numSamples * N;
 }
 
 template<std::size_t N>
@@ -113,9 +146,24 @@ inline bool TSamplesND<N>::isValid() const
 }
 
 template<std::size_t N>
+inline bool TSamplesND<N>::isExhausted() const
+{
+	return m_sampleReadHead >= m_numSamples;
+}
+
+template<std::size_t N>
 inline auto TSamplesND<N>::getSample(const std::size_t index) const
 	-> Sample
 {
+	return index < numSamples() ? (*this)[index] : genRandomSample();
+}
+
+template<std::size_t N>
+inline auto TSamplesND<N>::operator [] (const std::size_t index) const
+	-> Sample
+{
+	PH_ASSERT_LT(index, numSamples());
+
 	Sample sample;
 	for(std::size_t i = 0; i < N; ++i)
 	{
@@ -125,10 +173,15 @@ inline auto TSamplesND<N>::getSample(const std::size_t index) const
 }
 
 template<std::size_t N>
-inline auto TSamplesND<N>::operator [] (const std::size_t index) const
+inline auto TSamplesND<N>::genRandomSample()
 	-> Sample
 {
-	return getSample(index);
+	Sample sample;
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		sample[i] = math::Random::genUniformIndex_iL_eU();
+	}
+	return sample;
 }
 
 }// end namespace ph

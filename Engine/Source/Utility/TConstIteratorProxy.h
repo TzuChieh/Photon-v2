@@ -4,7 +4,7 @@ namespace ph
 {
 
 template<typename ContainerType>
-class TConstIteratorProxy
+class TConstIteratorProxy final
 {
 public:
 	explicit TConstIteratorProxy(const ContainerType& container) :

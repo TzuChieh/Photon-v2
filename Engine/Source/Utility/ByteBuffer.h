@@ -11,11 +11,11 @@
 namespace ph
 {
 
-class ByteBuffer
+class ByteBuffer final
 {
 public:
 	ByteBuffer();
-	ByteBuffer(std::size_t numExpectedWrittenBytes);
+	explicit ByteBuffer(std::size_t numExpectedWrittenBytes);
 
 	template<typename T>
 	T read();

@@ -62,9 +62,7 @@ protected:
 
 private:
 	virtual std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const = 0;
-	virtual void genSamples1D(const Samples1DStage& stage, Samples1D* out_array) = 0;
-	virtual void genSamples2D(const Samples2DStage& stage, Samples2D* out_array) = 0;
-	virtual void genSamplesND(const SampleStage& stage, SamplesND* out_array) = 0;
+	virtual void genSamples(const SampleStage& stage, real* out_buffer) = 0;
 
 	std::size_t              m_numSampleBatches;
 	std::size_t              m_numCachedBatches;

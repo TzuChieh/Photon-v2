@@ -4,7 +4,7 @@ namespace ph
 {
 
 template<typename ContainerType>
-class TIteratorProxy
+class TIteratorProxy final
 {
 public:
 	explicit TIteratorProxy(ContainerType& container) :

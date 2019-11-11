@@ -26,7 +26,7 @@ Notes on this container:
 - Add, remove and retrieve object are all O(1) operations.
 */
 template<typename T>
-class TStableIndexDenseArray
+class TStableIndexDenseArray final
 {
 public:
 	/*! @brief An index that indicates an invalid state.
