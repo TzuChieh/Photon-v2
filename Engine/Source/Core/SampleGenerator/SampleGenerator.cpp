@@ -25,6 +25,10 @@ SampleGenerator::SampleGenerator(const std::size_t numSampleBatches,
 	PH_ASSERT_GT(numCachedBatches, 0);
 }
 
+SampleGenerator::SampleGenerator(const std::size_t numSampleBatches) : 
+	SampleGenerator(numSampleBatches, 4)
+{}
+
 bool SampleGenerator::prepareSampleBatch()
 {
 	PH_ASSERT_LE(m_numUsedBatches, m_numSampleBatches);
@@ -91,11 +95,9 @@ void SampleGenerator::genSampleBatch()
 	{
 		for(std::size_t bi = 0; bi < m_numCachedBatches; ++bi)
 		{
-			const auto elementsPerBatch = stage.numDimensions * stage.numSamples;
-
 			genSamples(
 				stage, 
-				&(m_sampleBuffer[stage.stageIndex + bi * elementsPerBatch]));
+				&(m_sampleBuffer[stage.getSampleIndex() + bi * stage.numElements()]));
 		}
 	}
 }

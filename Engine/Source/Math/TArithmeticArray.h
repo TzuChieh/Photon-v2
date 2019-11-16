@@ -6,7 +6,7 @@
 #include <cstddef>
 #include <array>
 #include <string>
-#include <initializer_list>
+#include <vector>
 
 namespace ph::math
 {
@@ -84,6 +84,7 @@ public:
 	auto end() const noexcept   -> typename std::array<T, N>::const_iterator;
 
 	std::string toString() const;
+	std::vector<T> toVector() const;
 
 protected:
 	std::array<T, N> m;

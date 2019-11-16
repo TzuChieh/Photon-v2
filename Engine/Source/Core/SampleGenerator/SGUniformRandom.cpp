@@ -3,39 +3,21 @@
 #include "Core/Sample.h"
 #include "Math/Random.h"
 #include "FileIO/SDL/InputPacket.h"
+#include "Common/assertion.h"
 
 #include <iostream>
 
 namespace ph
 {
 
-SGUniformRandom::SGUniformRandom(const std::size_t numSamples) :
-	//SampleGenerator(numSamples, numSamples)
-	SampleGenerator(numSamples, 4)// HACK
-{}
-
-void SGUniformRandom::genSamples1D(const Samples1DStage& stage, Samples1D* const out_array)
+void SGUniformRandom::genSamples(const SampleStage& stage, real* const out_buffer)
 {
-	for(std::size_t i = 0; i < out_array->numSamples(); ++i)
+	PH_ASSERT(out_buffer);
+
+	for(std::size_t i = 0; i < stage.numElements(); ++i)
 	{
-		out_array->set(i, math::Random::genUniformReal_i0_e1());
+		out_buffer[i] = math::Random::genUniformReal_i0_e1();
 	}
-}
-
-void SGUniformRandom::genSamples2D(const Samples2DStage& stage, Samples2D* const out_array)
-{
-	for(std::size_t i = 0; i < out_array->numSamples(); ++i)
-	{
-		out_array->set(
-			i, 
-			math::Random::genUniformReal_i0_e1(),
-			math::Random::genUniformReal_i0_e1());
-	}
-}
-
-void SGUniformRandom::genSamplesND(const SamplesNDStage& stage, SamplesND* const out_array)
-{
-	// TODO
 }
 
 std::unique_ptr<SampleGenerator> SGUniformRandom::genNewborn(const std::size_t numSamples) const
@@ -59,7 +41,7 @@ void SGUniformRandom::ciRegister(CommandRegister& cmdRegister)
 
 std::unique_ptr<SGUniformRandom> SGUniformRandom::ciLoad(const InputPacket& packet)
 {
-	const integer numSamples = packet.getInteger("sample-amount", 0, DataTreatment::REQUIRED());
+	const auto numSamples = packet.getInteger("sample-amount", 0, DataTreatment::REQUIRED());
 
 	// HACK: casting
 	return std::make_unique<SGUniformRandom>(static_cast<std::size_t>(numSamples));

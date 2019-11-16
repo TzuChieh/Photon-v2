@@ -42,7 +42,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 {
 	PH_ASSERT(m_handler);
 
-	const Samples2DStage filmStage = m_sampleGenerator->declare2DStage(
+	const auto filmSampleHandle = m_sampleGenerator->declareStageND<2>(
 		m_filmRegion.getArea(),
 		{static_cast<std::size_t>(m_filmRegion.getWidth()), static_cast<std::size_t>(m_filmRegion.getHeight())});
 
@@ -51,17 +51,18 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 
 	while(m_sampleGenerator->prepareSampleBatch())
 	{
-		const Samples2D samples = m_sampleGenerator->getSamples2D(filmStage);
+		const auto samples = m_sampleGenerator->getSamplesND(filmSampleHandle);
 		for(std::size_t i = 0; i < samples.numSamples(); ++i)
 		{
-			const math::Vector2R& filmNdc = math::UniformRectangle::map(samples[i], rRegion).div(rFilmSize);
+			// TODO: use TArithmeticArray directly
+			const math::Vector2R& filmNdc = math::UniformRectangle::map(math::Vector2R(samples[i]), rRegion).div(rFilmSize);
 
 			Ray tracingRay;
 			m_camera->genSensedRay(filmNdc, &tracingRay);
 			tracingRay.reverse();
 
 			const std::size_t pathLength = 0;
-			SpectralStrength  pathThroughput(1);// FIXME: camera might affect initial throughput
+			SpectralStrength pathThroughput(1);// FIXME: camera might affect initial throughput
 			if(!m_handler->onCameraSampleStart(filmNdc, pathThroughput))
 			{
 				m_handler->onCameraSampleEnd();

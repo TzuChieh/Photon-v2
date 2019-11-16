@@ -7,6 +7,7 @@
 #include <cmath>
 #include <string>
 #include <cstdlib>
+#include <array>
 
 namespace ph::math
 {
@@ -34,6 +35,12 @@ public:
 
 	template<typename U>
 	explicit TVector3(const TVector3<U>& other);
+
+	template<typename U>
+	explicit TVector3(const std::array<U, 3>& xyzValues);
+
+	template<typename U>
+	explicit TVector3(const TArithmeticArray<U, 3>& xyzValues);
 
 	TVector3 rotate(const TQuaternion<T>& rotation) const;
 	void rotate(const TQuaternion<T>& rotation, TVector3* out_result) const;

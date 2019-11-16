@@ -215,7 +215,7 @@ public class AppMain extends Application
 		
 		Path jarPath = mcInstallation.getJar(13, 2);
         
-		try(FileSystem zipfs = FileSystems.newFileSystem(jarPath, null))
+		try(FileSystem zipfs = FileSystems.newFileSystem(jarPath))
 		{
 			Path modelFolder = zipfs.getPath("assets", "minecraft", "models");
 			Path textureFolder = zipfs.getPath("assets", "minecraft", "textures");

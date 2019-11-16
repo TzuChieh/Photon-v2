@@ -18,14 +18,35 @@ inline TVector2<T>::TVector2(const T x, const T y) :
 
 template<typename T>
 inline TVector2<T>::TVector2(const T value) : 
-	x(value), y(value)
+	TVector2(value, value)
 {}
 
 template<typename T>
 template<typename U>
 inline TVector2<T>::TVector2(const TVector2<U>& other) : 
-	x(static_cast<T>(other.x)), y(static_cast<T>(other.y))
+	TVector2(static_cast<T>(other.x), static_cast<T>(other.y))
 {}
+
+template<typename T>
+template<typename U>
+inline TVector2<T>::TVector2(const std::array<U, 2>& xyValues) :
+	TVector2(TVector2<U>(xyValues[0], xyValues[1]))
+{}
+
+template<typename T>
+template<typename U>
+inline TVector2<T>::TVector2(const TArithmeticArray<U, 2>& xyValues) :
+	TVector2(TVector2<U>(xyValues[0], xyValues[1]))
+{}
+
+template<typename T>
+template<typename U>
+inline TVector2<T>::TVector2(const std::vector<U>& values)
+{
+	PH_ASSERT_EQ(values.size(), 2);
+
+	*this = TVector2(TVector2<U>(values[0], values[1]));
+}
 
 template<typename T>
 inline void TVector2<T>::add(const TVector2& rhs, TVector2* const out_result) const
@@ -251,6 +272,12 @@ template<typename T>
 inline std::string TVector2<T>::toString() const
 {
 	return '(' + std::to_string(x) + ", " + std::to_string(y) + ')';
+}
+
+template<typename T>
+inline std::vector<T> TVector2<T>::toVector() const
+{
+	return {x, y};
 }
 
 template<typename T>

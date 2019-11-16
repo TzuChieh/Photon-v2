@@ -4,6 +4,8 @@
 #include "Math/constant.h"
 
 #include <string>
+#include <vector>
+#include <array>
 
 namespace ph::math
 {
@@ -22,6 +24,15 @@ public:
 
 	template<typename U>
 	explicit TVector2(const TVector2<U>& other);
+
+	template<typename U>
+	explicit TVector2(const std::array<U, 2>& xyValues);
+
+	template<typename U>
+	explicit TVector2(const TArithmeticArray<U, 2>& xyValues);
+
+	template<typename U>
+	explicit TVector2(const std::vector<U>& values);
 
 	void add(const TVector2& rhs, TVector2* out_result) const;
 	TVector2 add(const TVector2& rhs) const;
@@ -61,6 +72,7 @@ public:
 	TVector2& set(constant::AxisIndexType axis, T value);
 
 	std::string toString() const;
+	std::vector<T> toVector() const;
 
 	T operator [] (constant::AxisIndexType axisId) const;
 	T& operator [] (constant::AxisIndexType axisId);

@@ -6,6 +6,7 @@
 #include "Math/Random.h"
 
 #include <cstddef>
+#include <array>
 
 namespace ph
 {
@@ -14,10 +15,11 @@ template<std::size_t N>
 class TSamplesND final
 {
 public:
-	using Sample = math::TArithmeticArray<real, N>;
+	using Sample = std::array<real, N>;
 
 	TSamplesND();
 	TSamplesND(real* buffer, std::size_t numSamples);
+	//TSamplesND(real* buffer, std::size_t numSamples, std::size_t strideSize, std::size_t offsetInStride);
 
 	void shuffle();
 
@@ -43,7 +45,7 @@ private:
 	std::size_t m_numSamples;
 	std::size_t m_sampleReadHead;
 
-	static Sample genRandomSample();
+	static Sample makeRandomSample();
 };
 
 // In-header Implementations:
@@ -124,7 +126,7 @@ template<std::size_t N>
 inline auto TSamplesND<N>::readSample()
 	-> Sample
 {
-	return m_sampleReadHead < numSamples() ? (*this)[m_sampleReadHead++] : genRandomSample();
+	return m_sampleReadHead < numSamples() ? (*this)[m_sampleReadHead++] : makeRandomSample();
 }
 
 template<std::size_t N>
@@ -155,7 +157,7 @@ template<std::size_t N>
 inline auto TSamplesND<N>::getSample(const std::size_t index) const
 	-> Sample
 {
-	return index < numSamples() ? (*this)[index] : genRandomSample();
+	return index < numSamples() ? (*this)[index] : makeRandomSample();
 }
 
 template<std::size_t N>
@@ -173,7 +175,7 @@ inline auto TSamplesND<N>::operator [] (const std::size_t index) const
 }
 
 template<std::size_t N>
-inline auto TSamplesND<N>::genRandomSample()
+inline auto TSamplesND<N>::makeRandomSample()
 	-> Sample
 {
 	Sample sample;

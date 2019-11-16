@@ -40,15 +40,28 @@ inline TVector3<T>::TVector3(const T x, const T y, const T z) :
 
 template<typename T>
 inline TVector3<T>::TVector3(const T value) :
-	x(value), y(value), z(value)
+	TVector3(value, value, value)
 {}
 
 template<typename T>
 template<typename U>
 inline TVector3<T>::TVector3(const TVector3<U>& other) : 
-	x(static_cast<T>(other.x)), 
-	y(static_cast<T>(other.y)), 
-	z(static_cast<T>(other.z))
+	TVector3(
+		static_cast<T>(other.x), 
+		static_cast<T>(other.y), 
+		static_cast<T>(other.z))
+{}
+
+template<typename T>
+template<typename U>
+inline TVector3<T>::TVector3(const std::array<U, 3>& xyzValues) :
+	TVector3(TVector3<U>(xyzValues[0], xyzValues[1], xyzValues[2]))
+{}
+
+template<typename T>
+template<typename U>
+inline TVector3<T>::TVector3(const TArithmeticArray<U, 3>& xyzValues) :
+	TVector3(TVector3<U>(xyzValues[0], xyzValues[1], xyzValues[2]))
 {}
 
 template<typename T>

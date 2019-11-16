@@ -21,7 +21,17 @@ inline TQuaternion<T>::TQuaternion(const T x, const T y, const T z, const T w) :
 template<typename T>
 template<typename U>
 inline TQuaternion<T>::TQuaternion(const TQuaternion<U>& other) : 
-	x(static_cast<T>(other.x)), y(static_cast<T>(other.y)), z(static_cast<T>(other.z)), w(static_cast<T>(other.w))
+	TQuaternion(
+		static_cast<T>(other.x), 
+		static_cast<T>(other.y),
+		static_cast<T>(other.z),
+		static_cast<T>(other.w))
+{}
+
+template<typename T>
+template<typename U>
+inline TQuaternion<T>::TQuaternion(const std::array<U, 4>& xyzwValues) :
+	TQuaternion(TQuaternion<U>(xyzwValues[0], xyzwValues[1], xyzwValues[2], xyzwValues[3]))
 {}
 
 template<typename T>

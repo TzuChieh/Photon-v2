@@ -10,6 +10,7 @@ namespace ph::math
 class UniformRectangle
 {
 public:
+	// TODO: an TArithmeticArray version
 	template<typename T>
 	static TVector2<T> map(const Vector2R& seed, const math::TAABB2D<T>& rectangle);
 };

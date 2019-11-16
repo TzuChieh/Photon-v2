@@ -449,4 +449,17 @@ inline auto TArithmeticArray<T, N>::toString() const
 	return result;
 }
 
+template<typename T, std::size_t N>
+inline auto TArithmeticArray<T, N>::toVector() const
+	-> std::vector<T>
+{
+	std::vector<T> vector(N);
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		vector[i] = m[i];
+	}
+
+	return vector;
+}
+
 }// end namespace ph::math

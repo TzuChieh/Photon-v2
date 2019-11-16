@@ -67,16 +67,16 @@ void AttributeRenderer::doRender()
 
 	TEstimationArray<math::Vector3R> estimation(1);
 
-	Samples2DStage camSampleStage = m_sampleGenerator->declare2DStage(
+	const auto camSampleHandle = m_sampleGenerator->declareStageND<2>(
 		math::Vector2S(m_attributeFilm.getSampleResPx()).product(),
-		math::Vector2S(m_attributeFilm.getSampleResPx()));
+		math::Vector2S(m_attributeFilm.getSampleResPx()).toVector());
 
 	const math::Vector2D ndcScale  = m_attributeFilm.getSampleResPx().div(math::Vector2D(m_attributeFilm.getActualResPx()));
 	const math::Vector2D ndcOffset = m_attributeFilm.getSampleWindowPx().minVertex.div(math::Vector2D(m_attributeFilm.getActualResPx()));
 
 	while(m_sampleGenerator->prepareSampleBatch())
 	{
-		const Samples2D& camSamples = m_sampleGenerator->getSamples2D(camSampleStage);
+		const auto camSamples = m_sampleGenerator->getSamplesND(camSampleHandle);
 		for(std::size_t si = 0; si < camSamples.numSamples(); ++si)
 		{
 			const auto filmNdc = math::Vector2D(camSamples[si]).mul(ndcScale).add(ndcOffset);
