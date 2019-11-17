@@ -21,6 +21,18 @@
 	
 		<dependency>
 			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-base</artifactId>
+			<version>13.0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-graphics</artifactId>
+			<version>13.0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-controls</artifactId>
 			<version>13.0.1</version>
 		</dependency>
@@ -65,77 +77,24 @@
 
 		<plugins>
 
-			<!-- plugin source code: https://github.com/openjfx/javafx-maven-plugin -->
 			<plugin>
-				<groupId>org.openjfx</groupId>
-				<artifactId>javafx-maven-plugin</artifactId>
-				<version>0.0.3</version>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.6.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>java</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<mainClass>appGui.AppMain</mainClass>
+					<arguments>
+					</arguments>
+					<systemProperties>
+					</systemProperties>
 				</configuration>
-			</plugin>
-
-			<plugin>
-				<!-- build an executable JAR -->
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.1.0</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>appGui.AppMain</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>3.1.0</version>
-				<executions>
-
-					<!--
-					<execution>
-						<id>copy-resources-0</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.basedir}/build/target/Resource/</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${project.basedir}/build/Resource/</directory>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-					-->
-
-					<!--
-					<execution>
-						<id>copy-resources-1</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<resources>
-								<resource>
-									<directory>${project.basedir}/build/bin/</directory>
-									<includes>
-										<include>Editor_JNI.dll</include>
-									</includes>
-								</resource>
-							</resources>
-							<outputDirectory>${project.basedir}/build/target/</outputDirectory>
-						</configuration>
-					</execution>
-					-->
-
-				</executions>
 			</plugin>
 
 		</plugins>

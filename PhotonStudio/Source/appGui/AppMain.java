@@ -85,7 +85,7 @@ public class AppMain extends Application
 	
 	public static void main(String[] args)
 	{
-		//Application.launch(args);
+//		Application.launch(args);
 		
 		// FIXME: use the standard way
 		LauncherImpl.launchApplication(AppMain.class, AppPreloader.class, args);

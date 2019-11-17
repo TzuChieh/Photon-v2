@@ -60,7 +60,6 @@ public class AppMainCtrl
 	
 	private Studio m_studio;
     private int    m_projectId;
-    private String m_workbenchName;
     
 	public AppMainCtrl()
     {
@@ -83,7 +82,6 @@ public class AppMainCtrl
 	//    	renderBtn.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
 		
 //		m_graphicalState = new AppMainGraphicalState(this);
-		m_workbenchName = "";
 		
 		loadGeneralOptionsUI();
 		loadAboutUI();
@@ -93,8 +91,14 @@ public class AppMainCtrl
 //		m_managerUI.getCtrl().setAppMainGraphicalState(m_graphicalState);
 		
 		m_minecraftUI = m_uiLoader.load(getClass().getResource(MINECRAFT_FXML_PATH));
-		m_scenesUI = m_uiLoader.load(getClass().getResource(SCENES_FXML_PATH));
 		m_pbrtToPhotonUI = m_uiLoader.load(getClass().getResource(PBRT_TO_PHOTON_FXML_PATH));
+		
+		// FIXME: Loading webview related class will cause exceptions and crash the program. Seems to be bug in openjfx 13.0.1 or eclipse 4.13.0
+		// see 
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=545203 
+		// https://bugs.openjdk.java.net/browse/JDK-8231869
+		// for discussions
+//		m_scenesUI = m_uiLoader.load(getClass().getResource(SCENES_FXML_PATH));
 	}
 	
 	@FXML
@@ -199,10 +203,6 @@ public class AppMainCtrl
     			assert(project != null);
     			
     			setWorkbenchAsProjectView();
-    			
-    			footerMessagLabel.setText(
-					"Project: "   + project.getProjectSetting().getProjectName().getValue() + " | " + 
-                    "Workbench: " + m_workbenchName);
     		}
 		});
     }
@@ -277,7 +277,15 @@ public class AppMainCtrl
     	workbenchPane.getChildren().clear();
     	Layouts.addAnchored(workbenchPane, view);
     	
-    	m_workbenchName = workbenchName;
+    	assert(m_studio != null);
+    	
+    	Project project = m_studio.getCurrentProject();
+    	if(project != null)
+    	{
+    		footerMessagLabel.setText(
+				"Project: "   + project.getProjectSetting().getProjectName().getValue() + " | " + 
+		        "Workbench: " + workbenchName);
+    	}
     }
     
     private UI<RenderProjectCtrl> getCurrentProjectUI()
