@@ -78,7 +78,7 @@ TEST(TArithmeticArrayTest, ToVector)
 	array[3] = -4;
 
 	const auto vector = array.toVector();
-	ASSERT_EQ(vector.size(), 7);
+	ASSERT_EQ(vector.size(), 4);
 	EXPECT_EQ(vector[0], -1);
 	EXPECT_EQ(vector[1], -2);
 	EXPECT_EQ(vector[2], -3);
