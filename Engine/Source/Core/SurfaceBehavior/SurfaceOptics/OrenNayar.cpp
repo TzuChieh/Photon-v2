@@ -7,7 +7,7 @@
 #include "Core/Texture/TConstantTexture.h"
 #include "Common/assertion.h"
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
-#include "Math/Mapping/CosThetaWeightedUnitHemisphere.h"
+#include "Math/Geometry/THemisphere.h"
 #include "Math/TOrthonormalBasis3.h"
 
 namespace ph
@@ -122,7 +122,7 @@ void OrenNayar::calcBsdfSample(
 
 	math::Vector3R& L = out.L;
 	real pdfW;
-	L = math::CosThetaWeightedUnitHemisphere::map(
+	L = math::THemisphere<real>::makeUnit().sampleToSurfaceCosThetaWeighted(
 		{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()},
 		&pdfW);
 	if(pdfW == 0.0_r)

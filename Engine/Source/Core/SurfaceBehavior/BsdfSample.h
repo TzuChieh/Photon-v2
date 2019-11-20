@@ -5,6 +5,9 @@
 #include "Core/Quantity/SpectralStrength.h"
 #include "Core/SurfaceBehavior/surface_optics_fwd.h"
 
+#include <array>
+#include <utility>
+
 namespace ph
 {
 
@@ -13,22 +16,27 @@ class BsdfEvaluation;
 class BsdfSampleInput final
 {
 public:
+	using Sample = std::array<real, 2>;
+
+	//Sample           samples;
 	SurfaceHit       X;
 	math::Vector3R   V;
 	SurfaceElemental elemental;
 	ETransport       transported;
 
-	void set(const BsdfEvaluation& eval);
+	void set(/*Sample samples, */const BsdfEvaluation& eval);
 
 	void set(
+		//Sample                 samples,
 		const SurfaceHit&      X, 
 		const math::Vector3R&  V);
 
 	void set(
+		//Sample                 samples,
 		const SurfaceHit&      X, 
 		const math::Vector3R&  V,
 		const SurfaceElemental elemental,
-		const ETransport       transported);
+		const ETransport       transported); 
 };
 
 class BsdfSampleOutput final
@@ -61,18 +69,26 @@ public:
 // In-header Implementations:
 
 inline void BsdfSampleInput::set(
+	//Sample                 samples,
 	const SurfaceHit&      X, 
 	const math::Vector3R&  V)
 {
-	set(X, V, ALL_ELEMENTALS, ETransport::RADIANCE);
+	set(
+		//std::move(samples), 
+		X, 
+		V, 
+		ALL_ELEMENTALS, 
+		ETransport::RADIANCE);
 }
 
 inline void BsdfSampleInput::set(
+	//Sample                 samples,
 	const SurfaceHit&      X, 
 	const math::Vector3R&  V,
 	const SurfaceElemental elemental,
 	const ETransport       transported)
 {
+	//this->samples     = std::move(samples);
 	this->X           = X;
 	this->V           = V;
 	this->elemental   = elemental;

@@ -12,8 +12,7 @@
 #include "Core/Quantity/SpectralStrength.h"
 #include "Common/assertion.h"
 #include "Core/Texture/SampleLocation.h"
-#include "Math/Mapping/UniformUnitHemisphere.h"
-#include "Math/Mapping/CosThetaWeightedUnitHemisphere.h"
+#include "Math/Geometry/THemisphere.h"
 #include "Math/TOrthonormalBasis3.h"
 
 #include <iostream>
@@ -98,7 +97,7 @@ void DiffuseSurfaceEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* 
 		&pdfW);*/
 
 	real pdfW;
-	const math::Vector3R localRayDir = math::CosThetaWeightedUnitHemisphere::map(
+	const auto localRayDir = math::THemisphere<real>::makeUnit().sampleToSurfaceCosThetaWeighted(
 		{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()},
 		&pdfW);
 

@@ -9,7 +9,7 @@ namespace ph
 class PSphere : public Primitive
 {
 public:
-	explicit PSphere(const PrimitiveMetadata* metadata, real radius);
+	PSphere(const PrimitiveMetadata* metadata, real radius);
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 

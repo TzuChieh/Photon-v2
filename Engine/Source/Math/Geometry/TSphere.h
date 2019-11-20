@@ -11,11 +11,11 @@ template<typename T>
 class TSphere final
 {
 public:
+	static TSphere makeUnit();
+
 	TSphere() = default;
 
-	TSphere(T radius);
-
-	TSphere(const TVector3<T>& center, T radius);
+	explicit TSphere(T radius);
 
 	bool isIntersecting(
 		const TLineSegment<T>& segment,
@@ -26,13 +26,14 @@ public:
 	/*! @brief Map the 2D sample to a position on the surface of the sphere.
 	
 	A common mapping method that is based on Archimedes' derivation that 
-	the horizontal slices of a sphere have equal area.
+	the horizontal slices of a sphere have equal area. The mapped positions
+	are distributed uniformly if the sample is uniform. For a unit sphere,
+	this method effectively generates normalized directions.
 	*/
 	TVector3<T> sampleToSurfaceArchimedes(const TVector2<T>& sample) const;
 
 private:
-	TVector3<T> m_center;
-	T           m_radius;
+	T m_radius;
 };
 
 }// end namespace ph::math

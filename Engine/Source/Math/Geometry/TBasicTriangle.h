@@ -37,7 +37,8 @@ public:
 	/*! @brief Map the 2D sample to a position on the surface of the triangle.
 
 	A common mapping on triangles which is based on slicing the triangular area
-	into stripes.
+	into stripes. The mapped positions (after being converted from barycentric 
+	coordinates) are distributed uniformly if the sample is uniform.
 
 	Reference: Osada et al., Section 4.2, "Shape Distributions", TOG02
 	*/

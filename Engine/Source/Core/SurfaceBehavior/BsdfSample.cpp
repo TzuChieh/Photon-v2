@@ -4,9 +4,10 @@
 namespace ph
 {
 
-void BsdfSampleInput::set(const BsdfEvaluation& bsdfEval)
+void BsdfSampleInput::set(/*Sample samples, */const BsdfEvaluation& bsdfEval)
 {
 	set(
+		//std::move(samples),
 		bsdfEval.inputs.X, 
 		bsdfEval.inputs.V, 
 		bsdfEval.inputs.elemental,

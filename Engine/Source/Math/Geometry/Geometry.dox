@@ -1,0 +1,11 @@
+/*! @dir Geometry
+@brief Basic geometry utilities.
+
+Many of the geometric primitives in this directory are designed to be 
+easy-to-use and with low overhead with respect to initialization and memory 
+footprint. The geometries are represented in their most "convenient" space, 
+i.e., the coordinate system that helps to meet the aforementioned requirements.
+
+The interfaces provided by the geometry classes, however, should be always 
+considered to be within Cartesian space (unless specifically stated otherwise).
+*/

@@ -5,7 +5,7 @@
 #include "Core/HitProbe.h"
 #include "World/Scene.h"
 #include "Common/assertion.h"
-#include "Math/Mapping/CosThetaWeightedUnitHemisphere.h"
+#include "Math/Geometry/THemisphere.h"
 #include "Math/Random.h"
 #include "Math/constant.h"
 

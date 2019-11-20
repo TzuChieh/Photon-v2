@@ -71,7 +71,7 @@ void PSphere::calcIntersectionDetail(
 	// compute partial derivatives using 2nd-order approximation
 
 	// calculating displacement vectors on hit normal's tangent plane
-	//
+	// FIXME: hard-coded number
 	const real delta = m_radius / 128.0_r;
 	
 	const auto hitBasis = math::Basis3R::makeFromUnitY(hitNormal);
@@ -172,7 +172,7 @@ void PSphere::genPositionSample(PositionSample* const out_sample) const
 	PH_ASSERT(out_sample);
 	PH_ASSERT(m_metadata);
 
-	out_sample->normal = math::TSphere(1.0_r).sampleToSurfaceArchimedes(
+	out_sample->normal = math::TSphere<real>::makeUnit().sampleToSurfaceArchimedes(
 		{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()});
 
 	out_sample->position = out_sample->normal.mul(m_radius);

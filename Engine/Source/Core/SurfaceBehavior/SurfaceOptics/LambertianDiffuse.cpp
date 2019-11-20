@@ -7,7 +7,7 @@
 #include "Core/Texture/TConstantTexture.h"
 #include "Common/assertion.h"
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
-#include "Math/Mapping/CosThetaWeightedUnitHemisphere.h"
+#include "Math/Geometry/THemisphere.h"
 #include "Math/TOrthonormalBasis3.h"
 
 #include <cmath>
@@ -65,7 +65,7 @@ void LambertianDiffuse::calcBsdfSample(
 
 	math::Vector3R& L = out.L;
 
-	L = math::CosThetaWeightedUnitHemisphere::map(
+	L = math::THemisphere<real>::makeUnit().sampleToSurfaceCosThetaWeighted(
 		{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()});
 
 	L = in.X.getDetail().getShadingBasis().localToWorld(L);

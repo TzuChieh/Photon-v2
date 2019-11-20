@@ -8,13 +8,14 @@ namespace ph::math
 {
 
 template<typename T>
-inline TSphere<T>::TSphere(const T radius) :
-	TSphere({0, 0, 0}, radius)
-{}
+inline TSphere<T> TSphere<T>::makeUnit()
+{
+	return TSphere(1);
+}
 
 template<typename T>
-inline TSphere<T>::TSphere(const TVector3<T>& center, const T radius) : 
-	m_center(center), m_radius(radius)
+inline TSphere<T>::TSphere(const T radius) : 
+	m_radius(radius)
 {
 	PH_ASSERT_GE(radius, T(0));
 }
@@ -48,7 +49,7 @@ inline bool TSphere<T>::isIntersecting(
 	const Vector3D segmentD(segment.getDirection());
 
 	// Vector from ray origin (o) to sphere center (c)
-	const Vector3D oc = Vector3D(m_center).sub(segmentO);
+	const Vector3D oc = Vector3D(0).sub(segmentO);
 	
 	// a in equation (1)
 	const float64 a = segmentD.dot(segmentD);
@@ -122,12 +123,12 @@ inline TVector3<T> TSphere<T>::sampleToSurfaceArchimedes(const TVector2<T>& samp
 	const T phi = constant::two_pi<T> * sample.y;
 	const T r   = std::sqrt(std::max(T(1) - y * y, T(0)));
 
-	const auto unitSpherePosition = TVector3<T>(
+	const auto localUnitPos = TVector3<T>(
 		r * std::sin(phi),
 		y,
 		r * std::cos(phi));
 
-	return unitSpherePosition * m_radius;
+	return localUnitPos * m_radius;
 }
 
 }// end namespace ph::math
