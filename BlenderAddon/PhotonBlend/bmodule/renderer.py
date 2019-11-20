@@ -98,21 +98,24 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
         b_render_layer = b_render_result.layers[0]
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(refresh_seconds)
+
             # Connect to the rendering server
-            max_retries = 100
+            # max_retries = 100
+            max_retries = 1000
             num_retries = 0
             is_connected = False
             while num_retries < max_retries:
                 try:
-                    s.settimeout(2)
                     s.connect((HOST, PORT))
 
                     is_connected = True
                     print("note: connected to the rendering server")
                     break
-                except socket.error as error:
+                except OSError:
                     print("note: connection failed, retrying... (attempt %d/%d)" % (num_retries + 1, max_retries))
                     num_retries += 1
+                    time.sleep(refresh_seconds)
 
             if is_connected:
                 s.setblocking(False)
