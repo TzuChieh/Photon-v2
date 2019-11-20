@@ -1,12 +1,16 @@
 #pragma once
 
-#include "Math/TVector3.h"
-#include "Math/TVector2.h"
 #include "Math/Geometry/TLineSegment.h"
+
+#include <array>
 
 namespace ph::math
 {
 
+/*! @brief A sphere in 3-D space.
+
+The origin of the sphere is at the center.
+*/
 template<typename T>
 class TSphere final
 {
@@ -30,7 +34,8 @@ public:
 	are distributed uniformly if the sample is uniform. For a unit sphere,
 	this method effectively generates normalized directions.
 	*/
-	TVector3<T> sampleToSurfaceArchimedes(const TVector2<T>& sample) const;
+	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& samples) const;
+	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& samples, T* out_pdfA) const;
 
 private:
 	T m_radius;

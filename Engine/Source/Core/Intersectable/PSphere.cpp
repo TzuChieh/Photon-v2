@@ -12,7 +12,6 @@
 #include "Math/TMatrix2.h"
 #include "Math/Random.h"
 #include "Core/Sample/PositionSample.h"
-#include "Math/Mapping/UniformUnitSphere.h"
 #include "Math/TOrthonormalBasis3.h"
 #include "Math/Geometry/TSphere.h"
 
