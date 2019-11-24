@@ -9,7 +9,7 @@
 #include "Core/Emitter/Emitter.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/Quantity/SpectralStrength.h"
-#include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
+#include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Math/TVector3.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Core/Estimator/Integrand.h"
@@ -24,7 +24,7 @@ void BVPTDLEstimator::estimate(
 	const Integrand&  integrand,
 	EnergyEstimation& out_estimation) const
 {
-	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESidednessPolicy::DO_NOT_CARE>(&(integrand.getScene()));
+	const SurfaceTracer surfaceTracer(&(integrand.getScene()));
 
 	SpectralStrength& accuRadiance = out_estimation[m_estimationIndex].setValues(0);
 	SpectralStrength  accuPathWeight(1);
@@ -38,7 +38,7 @@ void BVPTDLEstimator::estimate(
 		firstRay.setMinT(0.0001_r);// HACK: hard-coded number
 		firstRay.setMaxT(std::numeric_limits<real>::max());
 
-		if(!surfaceEventDispatcher.traceNextSurface(firstRay, &firstHit))
+		if(!surfaceTracer.traceNextSurface(firstRay, BsdfQueryContext().sidedness, &firstHit))
 		{
 			return;
 		}
@@ -67,12 +67,12 @@ void BVPTDLEstimator::estimate(
 
 		BsdfSampleQuery bsdfSample;
 		bsdfSample.inputs.set(firstHit, V);
-		if(!surfaceEventDispatcher.doBsdfSample(firstHit, bsdfSample, &secondRay))
+		if(!surfaceTracer.doBsdfSample(bsdfSample, &secondRay))
 		{
 			return;
 		}
 
-		if(!surfaceEventDispatcher.traceNextSurface(secondRay, &secondHit))
+		if(!surfaceTracer.traceNextSurface(secondRay, BsdfQueryContext().sidedness, &secondHit))
 		{
 			return;
 		}

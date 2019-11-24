@@ -7,10 +7,11 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Emitter/Emitter.h"
+#include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Core/LTABuildingBlock/PtVolumetricEstimator.h"
-#include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
+#include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
 #include "FileIO/SDL/InputPacket.h"
 #include "Math/TVector3.h"
@@ -30,7 +31,7 @@ void BVPTEstimator::estimate(
 	const Integrand&  integrand,
 	EnergyEstimation& out_estimation) const
 {
-	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESidednessPolicy::DO_NOT_CARE>(&(integrand.getScene()));
+	const SurfaceTracer    surfaceTracer(&(integrand.getScene()));
 
 	uint32 numBounces = 0;
 	SpectralStrength accuRadiance(0);
@@ -43,9 +44,9 @@ void BVPTEstimator::estimate(
 
 	SurfaceHit surfaceHit;
 	while(numBounces <= MAX_RAY_BOUNCES && 
-	      surfaceEventDispatcher.traceNextSurface(tracingRay, &surfaceHit))
+	      surfaceTracer.traceNextSurface(tracingRay, BsdfQueryContext().sidedness, &surfaceHit))
 	{
-		const auto* const     metadata            = surfaceHit.getDetail().getPrimitive()->getMetadata();
+		const auto* const      metadata           = surfaceHit.getDetail().getPrimitive()->getMetadata();
 		const SurfaceBehavior& hitSurfaceBehavior = metadata->getSurface();
 
 		if(hitSurfaceBehavior.getEmitter())
@@ -65,7 +66,7 @@ void BVPTEstimator::estimate(
 		BsdfSampleQuery bsdfSample;
 		bsdfSample.inputs.set(surfaceHit, V);
 		Ray nextRay;
-		if(!surfaceEventDispatcher.doBsdfSample(surfaceHit, bsdfSample, &nextRay))
+		if(!surfaceTracer.doBsdfSample(bsdfSample, &nextRay))
 		{
 			break;
 		}

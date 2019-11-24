@@ -17,7 +17,7 @@
 #include "Common/assertion.h"
 #include "Utility/Timer.h"
 #include "Core/Renderer/PM/PMStatistics.h"
-#include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
+#include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Core/LTABuildingBlock/lta.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 
@@ -79,13 +79,13 @@ inline void TPhotonMappingWork<Photon>::doWork()
 		throughputRadiance.divLocal(pdfW);
 		throughputRadiance.mulLocal(emitN.absDot(tracingRay.getDirection()));
 
-		TSurfaceEventDispatcher<ESidednessPolicy::STRICT> surfaceEvent(m_scene);
+		const SurfaceTracer surfaceTracer(m_scene);
 
 		// start tracing single photon path
 		while(!throughputRadiance.isZero())
 		{
 			SurfaceHit surfaceHit;
-			if(!surfaceEvent.traceNextSurface(tracingRay, &surfaceHit))
+			if(!surfaceTracer.traceNextSurface(tracingRay, bsdfContext.sidedness, &surfaceHit))
 			{
 				break;
 			}
@@ -126,7 +126,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 			BsdfSampleQuery bsdfSample(bsdfContext);
 			Ray sampledRay;
 			bsdfSample.inputs.set(surfaceHit, tracingRay.getDirection().mul(-1));
-			if(!surfaceEvent.doBsdfSample(surfaceHit, bsdfSample, &sampledRay))
+			if(!surfaceTracer.doBsdfSample(bsdfSample, &sampledRay))
 			{
 				break;
 			}

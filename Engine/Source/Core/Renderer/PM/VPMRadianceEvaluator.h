@@ -13,7 +13,7 @@
 #include "Core/SurfaceHit.h"
 #include "Core/Emitter/Emitter.h"
 #include "Core/Renderer/PM/PMRenderer.h"
-#include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
+#include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Core/LTABuildingBlock/lta.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
@@ -143,7 +143,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 	m_photonCache.clear();
 	m_photonMap->findWithinRange(surfaceHit.getPosition(), m_kernelRadius, m_photonCache);
 
-	TSurfaceEventDispatcher<ESidednessPolicy::STRICT> surfaceEvent(m_scene);
+	const SurfaceTracer surfaceTracer(m_scene);
 
 	const math::Vector3R L  = surfaceHit.getIncidentRay().getDirection().mul(-1);
 	const math::Vector3R Ns = surfaceHit.getShadingNormal();
@@ -156,7 +156,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 		const math::Vector3R V = photon.get<EPhotonData::FROM_DIR>();
 
 		bsdfEval.inputs.set(surfaceHit, L, V);
-		if(!surfaceEvent.doBsdfEvaluation(surfaceHit, bsdfEval))
+		if(!surfaceTracer.doBsdfEvaluation(bsdfEval))
 		{
 			continue;
 		}

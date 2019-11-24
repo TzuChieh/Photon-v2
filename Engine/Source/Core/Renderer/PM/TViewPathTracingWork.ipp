@@ -13,7 +13,7 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
+#include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
 #include "Math/Mapping/UniformRectangle.h"
 #include "Math/Geometry/TAABB2D.h"
@@ -89,11 +89,11 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 	SpectralStrength pathThroughput,
 	std::size_t      pathLength)
 {	
-	TSurfaceEventDispatcher<ESidednessPolicy::STRICT> surfaceEvent(m_scene);
+	const SurfaceTracer surfaceTracer(m_scene);
 	while(true)
 	{
 		SurfaceHit surfaceHit;
-		if(!surfaceEvent.traceNextSurface(tracingRay, &surfaceHit))
+		if(!surfaceTracer.traceNextSurface(tracingRay, BsdfQueryContext().sidedness, &surfaceHit))
 		{
 			break;
 		}
@@ -113,9 +113,9 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 		if(policy.getSampleMode() == EViewPathSampleMode::SINGLE_PATH)
 		{
 			BsdfSampleQuery bsdfSample(BsdfQueryContext(policy.getTargetElemental(), ETransport::RADIANCE, ESidednessPolicy::STRICT));
-			Ray sampledRay;
 			bsdfSample.inputs.set(surfaceHit, V);
-			if(!surfaceEvent.doBsdfSample(surfaceHit, bsdfSample, &sampledRay))
+			Ray sampledRay;
+			if(!surfaceTracer.doBsdfSample(bsdfSample, &sampledRay))
 			{
 				break;
 			}
@@ -157,7 +157,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceElementallyBranchedPath(
 {
 	PH_ASSERT(policy.getSampleMode() == EViewPathSampleMode::ELEMENTAL_BRANCH);
 
-	TSurfaceEventDispatcher<ESidednessPolicy::STRICT> surfaceEvent(m_scene);
+	const SurfaceTracer surfaceTracer(m_scene);
 
 	const PrimitiveMetadata* metadata      = surfaceHit.getDetail().getPrimitive()->getMetadata();
 	const SurfaceOptics*     surfaceOptics = metadata->getSurface().getOptics();
@@ -174,7 +174,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceElementallyBranchedPath(
 		sample.inputs.set(surfaceHit, V);
 
 		Ray sampledRay;
-		if(!surfaceEvent.doBsdfSample(surfaceHit, sample, &sampledRay))
+		if(!surfaceTracer.doBsdfSample(sample, &sampledRay))
 		{
 			continue;
 		}

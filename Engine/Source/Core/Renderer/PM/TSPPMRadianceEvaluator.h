@@ -193,7 +193,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleEnd()
 		return;
 	}
 
-	TSurfaceEventDispatcher<ESidednessPolicy::STRICT> surfaceEvent(m_scene);
+	const SurfaceTracer surfaceTracer(m_scene);
 
 	const SurfaceHit&    surfaceHit = m_viewpoint->template get<EViewpointData::SURFACE_HIT>();
 	const math::Vector3R L          = m_viewpoint->template get<EViewpointData::VIEW_DIR>();
@@ -221,7 +221,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleEnd()
 		const math::Vector3R V = photon.template get<EPhotonData::FROM_DIR>();
 
 		bsdfEval.inputs.set(surfaceHit, L, V);
-		if(!surfaceEvent.doBsdfEvaluation(surfaceHit, bsdfEval))
+		if(!surfaceTracer.doBsdfEvaluation(bsdfEval))
 		{
 			continue;
 		}

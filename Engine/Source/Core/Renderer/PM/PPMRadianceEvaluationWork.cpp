@@ -7,7 +7,7 @@
 #include "Core/SurfaceHit.h"
 #include "Core/Renderer/PM/PMRenderer.h"
 #include "Core/Emitter/Emitter.h"
-#include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
+#include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Core/LTABuildingBlock/lta.h"
 #include "Common/Logger.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
@@ -49,7 +49,7 @@ void PPMRadianceEvaluationWork::doWork()
 	sanitizeVariables();
 
 	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::IMPORTANCE, ESidednessPolicy::STRICT);
-	const TSurfaceEventDispatcher<ESidednessPolicy::STRICT> surfaceEvent(m_scene);
+	const SurfaceTracer    surfaceTracer(m_scene);
 
 	std::vector<FullPhoton> photonCache;
 	for(std::size_t i = 0; i < m_numViewpoints; ++i)
@@ -77,7 +77,7 @@ void PPMRadianceEvaluationWork::doWork()
 			const math::Vector3R V = photon.get<EPhotonData::FROM_DIR>();
 
 			bsdfEval.inputs.set(surfaceHit, L, V);
-			if(!surfaceEvent.doBsdfEvaluation(surfaceHit, bsdfEval))
+			if(!surfaceTracer.doBsdfEvaluation(bsdfEval))
 			{
 				continue;
 			}
