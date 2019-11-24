@@ -1,6 +1,9 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealDielectric.h"
-#include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Common/assertion.h"
+#include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
+#include "Core/SurfaceBehavior/BsdfPdfQuery.h"
+#include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Math/Random.h"
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
 #include "Core/Texture/TConstantTexture.h"
@@ -45,20 +48,20 @@ ESurfacePhenomenon IdealDielectric::getPhenomenonOf(const SurfaceElemental eleme
 }
 
 void IdealDielectric::calcBsdf(
-	const BsdfEvaluation::Input& in,
-	BsdfEvaluation::Output&      out,
-	const SidednessAgreement&    sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfEvalInput&    in,
+	BsdfEvalOutput&         out) const
 {
 	out.bsdf.setValues(0.0_r);
 }
 
 void IdealDielectric::calcBsdfSample(
-	const BsdfSample::Input&  in,
-	BsdfSample::Output&       out,
-	const SidednessAgreement& sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfSampleInput&  in,
+	BsdfSampleOutput&       out) const
 {
-	const bool canReflect  = in.elemental == ALL_ELEMENTALS || in.elemental == REFLECTION;
-	const bool canTransmit = in.elemental == ALL_ELEMENTALS || in.elemental == TRANSMISSION;
+	const bool canReflect  = ctx.elemental == ALL_ELEMENTALS || ctx.elemental == REFLECTION;
+	const bool canTransmit = ctx.elemental == ALL_ELEMENTALS || ctx.elemental == TRANSMISSION;
 
 	if(!canReflect && !canTransmit)
 	{
@@ -95,7 +98,7 @@ void IdealDielectric::calcBsdfSample(
 	{
 		// calculate reflected L
 		out.L = in.V.mul(-1.0_r).reflect(N).normalizeLocal();
-		if(!sidedness.isSameHemisphere(in.X, in.V, out.L))
+		if(!ctx.sidedness.isSameHemisphere(in.X, in.V, out.L))
 		{
 			out.setMeasurability(false);
 			return;
@@ -107,14 +110,14 @@ void IdealDielectric::calcBsdfSample(
 		F.mulLocal(reflectionScale);
 
 		// account for probability
-		if(in.elemental == ALL_ELEMENTALS)
+		if(ctx.elemental == ALL_ELEMENTALS)
 		{
 			F.divLocal(reflectProb);
 		}
 	}
 	else if(sampleTransmit && m_fresnel->calcRefractDir(in.V, N, &(out.L)))
 	{
-		if(!sidedness.isOppositeHemisphere(in.X, in.V, out.L))
+		if(!ctx.sidedness.isOppositeHemisphere(in.X, in.V, out.L))
 		{
 			out.setMeasurability(false);
 			return;
@@ -123,7 +126,7 @@ void IdealDielectric::calcBsdfSample(
 		// FIXME: just use 1 - F
 		m_fresnel->calcTransmittance(N.dot(out.L), &F);
 
-		if(in.transported == ETransport::RADIANCE)
+		if(ctx.transport == ETransport::RADIANCE)
 		{
 			real etaI = m_fresnel->getIorOuter();
 			real etaT = m_fresnel->getIorInner();
@@ -140,7 +143,7 @@ void IdealDielectric::calcBsdfSample(
 		F.mulLocal(transmissionScale);
 
 		// account for probability
-		if(in.elemental == ALL_ELEMENTALS)
+		if(ctx.elemental == ALL_ELEMENTALS)
 		{
 			F.divLocal(1.0_r - reflectProb);
 		}
@@ -157,9 +160,9 @@ void IdealDielectric::calcBsdfSample(
 }
 
 void IdealDielectric::calcBsdfSamplePdfW(
-	const BsdfPdfQuery::Input& in,
-	BsdfPdfQuery::Output&      out,
-	const SidednessAgreement&  sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfPdfInput&     in,
+	BsdfPdfOutput&          out) const
 {
 	out.sampleDirPdfW = 0.0_r;
 }

@@ -12,7 +12,7 @@ class Scene;
 class SurfaceHit;
 class Time;
 
-template<ESaPolicy POLICY>
+template<ESidednessPolicy POLICY>
 class TDirectLightEstimator
 {
 public:

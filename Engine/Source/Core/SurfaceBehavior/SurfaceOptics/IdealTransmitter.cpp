@@ -1,4 +1,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealTransmitter.h"
+#include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
+#include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Common/assertion.h"
 #include "Core/Texture/TConstantTexture.h"
@@ -37,17 +40,17 @@ ESurfacePhenomenon IdealTransmitter::getPhenomenonOf(const SurfaceElemental elem
 }
 
 void IdealTransmitter::calcBsdf(
-	const BsdfEvaluation::Input& in,
-	BsdfEvaluation::Output&      out,
-	const SidednessAgreement&    sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfEvalInput&    in,
+	BsdfEvalOutput&         out) const
 {
 	out.bsdf.setValues(0.0_r);
 }
 
 void IdealTransmitter::calcBsdfSample(
-	const BsdfSample::Input&  in,
-	BsdfSample::Output&       out,
-	const SidednessAgreement& sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfSampleInput&  in,
+	BsdfSampleOutput&       out) const
 {
 	const math::Vector3R N = in.X.getShadingNormal();
 	math::Vector3R& L = out.L;
@@ -62,7 +65,7 @@ void IdealTransmitter::calcBsdfSample(
 	m_fresnel->calcTransmittance(cosI, &F);
 
 	real transportFactor = 1.0_r;
-	if(in.transported == ETransport::RADIANCE)
+	if(ctx.transport == ETransport::RADIANCE)
 	{
 		real etaI = m_fresnel->getIorOuter();
 		real etaT = m_fresnel->getIorInner();
@@ -85,9 +88,9 @@ void IdealTransmitter::calcBsdfSample(
 }
 
 void IdealTransmitter::calcBsdfSamplePdfW(
-	const BsdfPdfQuery::Input& in,
-	BsdfPdfQuery::Output&      out,
-	const SidednessAgreement&  sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfPdfInput&     in,
+	BsdfPdfOutput&          out) const
 {
 	out.sampleDirPdfW = 0.0_r;
 }

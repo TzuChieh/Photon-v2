@@ -6,6 +6,9 @@
 #include "Math/Random.h"
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
+#include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
+#include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 
 #include <cmath>
 
@@ -52,13 +55,13 @@ ESurfacePhenomenon LbLayeredSurface::getPhenomenonOf(const SurfaceElemental elem
 }
 
 void LbLayeredSurface::calcBsdf(
-	const BsdfEvaluation::Input& in,
-	BsdfEvaluation::Output&      out,
-	const SidednessAgreement&    sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfEvalInput&    in,
+	BsdfEvalOutput&         out) const
 {
 	out.bsdf.setValues(0);
 
-	if(!sidedness.isSameHemisphere(in.X, in.L, in.V))
+	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
 		return;
 	}
@@ -98,9 +101,9 @@ void LbLayeredSurface::calcBsdf(
 }
 
 void LbLayeredSurface::calcBsdfSample(
-	const BsdfSample::Input&  in,
-	BsdfSample::Output&       out,
-	const SidednessAgreement& sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfSampleInput&  in,
+	BsdfSampleOutput&       out) const
 {
 	out.pdfAppliedBsdf.setValues(0);
 
@@ -149,7 +152,7 @@ void LbLayeredSurface::calcBsdfSample(
 	ggx.genDistributedH(in.X, math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1(), N, &H);
 	const math::Vector3R L = in.V.mul(-1.0_r).reflect(H).normalizeLocal();
 
-	if(!sidedness.isSameHemisphere(in.X, L, in.V))
+	if(!ctx.sidedness.isSameHemisphere(in.X, L, in.V))
 	{
 		out.setMeasurability(false);
 		return;
@@ -181,22 +184,23 @@ void LbLayeredSurface::calcBsdfSample(
 		return;
 	}
 
-	BsdfEvaluation eval;
-	eval.inputs.set(in.X, L, in.V, in.elemental, in.transported);
+	BsdfEvalInput evalInput;
+	evalInput.set(in.X, L, in.V);
 	// FIXME: we already complete adding-doubling, reuse the computed results
-	LbLayeredSurface::calcBsdf(eval.inputs, eval.outputs, sidedness);
-	out.pdfAppliedBsdf = eval.outputs.bsdf / pdf;
+	BsdfEvalOutput evalOutput;
+	LbLayeredSurface::calcBsdf(ctx, evalInput, evalOutput);
+	out.pdfAppliedBsdf = evalOutput.bsdf / pdf;
 	out.setMeasurability(true);
 }
 
 void LbLayeredSurface::calcBsdfSamplePdfW(
-	const BsdfPdfQuery::Input& in,
-	BsdfPdfQuery::Output&      out,
-	const SidednessAgreement&  sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfPdfInput&     in,
+	BsdfPdfOutput&          out) const
 {
 	out.sampleDirPdfW = 0.0_r;
 
-	if(!sidedness.isSameHemisphere(in.X, in.L, in.V))
+	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
 		return;
 	}

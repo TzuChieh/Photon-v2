@@ -1,4 +1,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LerpedSurfaceOptics.h"
+#include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
+#include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
 #include "Math/Random.h"
@@ -71,47 +74,47 @@ ESurfacePhenomenon LerpedSurfaceOptics::getPhenomenonOf(const SurfaceElemental e
 }
 
 void LerpedSurfaceOptics::calcBsdf(
-	const BsdfEvaluation::Input& in,
-	BsdfEvaluation::Output&      out,
-	const SidednessAgreement&    sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfEvalInput&    in,
+	BsdfEvalOutput&         out) const
 {
 	const SpectralStrength ratio = m_sampler.sample(*m_ratio, in.X);
 
-	if(in.elemental == ALL_ELEMENTALS)
+	if(ctx.elemental == ALL_ELEMENTALS)
 	{
-		BsdfEvaluation::Output eval0, eval1;
-		m_optics0->calcBsdf(in, eval0, sidedness);
-		m_optics1->calcBsdf(in, eval1, sidedness);
+		BsdfEvalOutput eval0, eval1;
+		m_optics0->calcBsdf(ctx, in, eval0);
+		m_optics1->calcBsdf(ctx, in, eval1);
 
 		out.bsdf = eval0.bsdf * ratio + eval1.bsdf * (SpectralStrength(1) - ratio);
 	}
 	else
 	{
-		PH_ASSERT(in.elemental < m_numElementals);
+		PH_ASSERT(ctx.elemental < m_numElementals);
 
-		if(in.elemental < m_optics0->m_numElementals)
+		if(ctx.elemental < m_optics0->m_numElementals)
 		{
-			m_optics0->calcBsdf(in, out, sidedness);
+			m_optics0->calcBsdf(ctx, in, out);
 			out.bsdf.mulLocal(ratio);
 		}
 		else
 		{
-			BsdfEvaluation::Input localInput = in;
-			localInput.elemental = in.elemental - m_optics0->m_numElementals;
-			m_optics1->calcBsdf(localInput, out, sidedness);
+			BsdfQueryContext localCtx = ctx;
+			localCtx.elemental = ctx.elemental - m_optics0->m_numElementals;
+			m_optics1->calcBsdf(localCtx, in, out);
 			out.bsdf.mulLocal(SpectralStrength(1) - ratio);
 		}
 	}
 }
 
 void LerpedSurfaceOptics::calcBsdfSample(
-	const BsdfSample::Input&  in,
-	BsdfSample::Output&       out,
-	const SidednessAgreement& sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfSampleInput&  in,
+	BsdfSampleOutput&       out) const
 {
 	const SpectralStrength ratio = m_sampler.sample(*m_ratio, in.X);
 
-	if(in.elemental == ALL_ELEMENTALS)
+	if(ctx.elemental == ALL_ELEMENTALS)
 	{
 		const real dart = math::Random::genUniformReal_i0_e1();
 
@@ -126,23 +129,23 @@ void LerpedSurfaceOptics::calcBsdfSample(
 			sampledProb = 1.0_r - sampledProb;
 		}
 
-		BsdfSample::Output sample;
-		sampledOptics->calcBsdfSample(in, sample, sidedness);
-		if(!sample.isMeasurable())
+		BsdfSampleOutput sampleOutput;
+		sampledOptics->calcBsdfSample(ctx, in, sampleOutput);
+		if(!sampleOutput.isMeasurable())
 		{
 			out.setMeasurability(false);
 			return;
 		}
 
-		BsdfEvaluation eval;
-		eval.inputs.set(in, sample);
-		anotherOptics->calcBsdf(eval.inputs, eval.outputs, sidedness);
+		BsdfEvalQuery eval;
+		eval.inputs.set(in, sampleOutput);
+		anotherOptics->calcBsdf(ctx, eval.inputs, eval.outputs);
 
 		BsdfPdfQuery query[2];
-		query[0].inputs.set(in, sample);
+		query[0].inputs.set(in, sampleOutput);
 		query[1].inputs.set(eval);
-		sampledOptics->calcBsdfSamplePdfW(query[0].inputs, query[0].outputs, sidedness);
-		anotherOptics->calcBsdfSamplePdfW(query[1].inputs, query[1].outputs, sidedness);
+		sampledOptics->calcBsdfSamplePdfW(ctx, query[0].inputs, query[0].outputs);
+		anotherOptics->calcBsdfSamplePdfW(ctx, query[1].inputs, query[1].outputs);
 
 		// TODO: this is quite a harsh condition--it may be possible to just 
 		// sample another elemental if one of them has 0 pdfW
@@ -153,7 +156,7 @@ void LerpedSurfaceOptics::calcBsdfSample(
 		}
 
 		const SpectralStrength bsdf = 
-			sampledRatio * (sample.pdfAppliedBsdf * query[0].outputs.sampleDirPdfW) +
+			sampledRatio * (sampleOutput.pdfAppliedBsdf * query[0].outputs.sampleDirPdfW) +
 			(SpectralStrength(1) - sampledRatio) * eval.outputs.bsdf;
 
 		const real pdfW = 
@@ -163,58 +166,58 @@ void LerpedSurfaceOptics::calcBsdfSample(
 		PH_ASSERT_MSG(pdfW > 0 && std::isfinite(pdfW), std::to_string(pdfW));
 
 		out.pdfAppliedBsdf = bsdf / pdfW;
-		out.L = sample.L;
+		out.L = sampleOutput.L;
 		out.setMeasurability(true);
 	}
 	else
 	{
-		PH_ASSERT(in.elemental < m_numElementals);
+		PH_ASSERT(ctx.elemental < m_numElementals);
 
-		if(in.elemental < m_optics0->m_numElementals)
+		if(ctx.elemental < m_optics0->m_numElementals)
 		{
-			m_optics0->calcBsdfSample(in, out, sidedness);
+			m_optics0->calcBsdfSample(ctx, in, out);
 			out.pdfAppliedBsdf.mulLocal(ratio);
 		}
 		else
 		{
-			BsdfSample::Input localInput = in;
-			localInput.elemental = in.elemental - m_optics0->m_numElementals;
-			m_optics1->calcBsdfSample(localInput, out, sidedness);
+			BsdfQueryContext localCtx = ctx;
+			localCtx.elemental = ctx.elemental - m_optics0->m_numElementals;
+			m_optics1->calcBsdfSample(localCtx, in, out);
 			out.pdfAppliedBsdf.mulLocal(SpectralStrength(1) - ratio);
 		}
 	}
 }
 
 void LerpedSurfaceOptics::calcBsdfSamplePdfW(
-	const BsdfPdfQuery::Input& in,
-	BsdfPdfQuery::Output&      out,
-	const SidednessAgreement&  sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfPdfInput&     in,
+	BsdfPdfOutput&          out) const
 {
 	const SpectralStrength ratio = m_sampler.sample(*m_ratio, in.X);
 
-	if(in.elemental == ALL_ELEMENTALS)
+	if(ctx.elemental == ALL_ELEMENTALS)
 	{
 		const real prob = probabilityOfPickingOptics0(ratio);
 
 		BsdfPdfQuery::Output query0, query1;
-		m_optics0->calcBsdfSamplePdfW(in, query0, sidedness);
-		m_optics1->calcBsdfSamplePdfW(in, query1, sidedness);
+		m_optics0->calcBsdfSamplePdfW(ctx, in, query0);
+		m_optics1->calcBsdfSamplePdfW(ctx, in, query1);
 
 		out.sampleDirPdfW = query0.sampleDirPdfW * prob + query1.sampleDirPdfW * (1.0_r - prob);
 	}
 	else
 	{
-		PH_ASSERT(in.elemental < m_numElementals);
+		PH_ASSERT(ctx.elemental < m_numElementals);
 
-		if(in.elemental < m_optics0->m_numElementals)
+		if(ctx.elemental < m_optics0->m_numElementals)
 		{
-			m_optics0->calcBsdfSamplePdfW(in, out, sidedness);
+			m_optics0->calcBsdfSamplePdfW(ctx, in, out);
 		}
 		else
 		{
-			BsdfPdfQuery::Input localInput = in;
-			localInput.elemental = in.elemental - m_optics0->m_numElementals;
-			m_optics1->calcBsdfSamplePdfW(localInput, out, sidedness);
+			BsdfQueryContext localCtx = ctx;
+			localCtx.elemental = ctx.elemental - m_optics0->m_numElementals;
+			m_optics1->calcBsdfSamplePdfW(localCtx, in, out);
 		}
 	}
 }

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Math/TVector2.h"
-#include "Math/TVector3.h"
 #include "Math/constant.h"
 #include "Common/assertion.h"
 
@@ -43,6 +41,9 @@ public:
 
 	TVector3<T> sampleToSurfaceCosThetaWeighted(const std::array<T, 2>& samples) const;
 	TVector3<T> sampleToSurfaceCosThetaWeighted(const std::array<T, 2>& samples, T* out_pdfA) const;
+
+	TVector3<T> sampleToSurfaceCosLobeWeighted(const std::array<T, 2>& samples, T exponent) const;
+	TVector3<T> sampleToSurfaceCosLobeWeighted(const std::array<T, 2>& samples, T exponent, T* out_pdfA) const;
 
 private:
 	T m_radius;
@@ -122,12 +123,48 @@ inline TVector3<T> THemisphere<T>::sampleToSurfaceCosThetaWeighted(
 {
 	const auto localPos = sampleToSurfaceCosThetaWeighted(samples);
 
-	PH_ASSERT_GT(localPos.y, T(0));
+	PH_ASSERT_GE(localPos.y, T(0));
 	const T cosTheta = localPos.y / m_radius;
 
 	// PDF_A is cos(theta)/(pi*r^2)
 	PH_ASSERT(out_pdfA);
 	*out_pdfA = cosTheta / (constant::pi<real> * m_radius * m_radius);
+
+	return localPos;
+}
+
+template<typename T>
+inline TVector3<T> THemisphere<T>::sampleToSurfaceCosLobeWeighted(
+	const std::array<T, 2>& samples, const T exponent) const
+{
+	PH_ASSERT_LE(T(0), samples[0]); PH_ASSERT_LE(samples[0], T(1));
+	PH_ASSERT_LE(T(0), samples[1]); PH_ASSERT_LE(samples[1], T(1));
+
+	const T phi      = constant::two_pi<T> * samples[0];
+	const T cosTheta = std::pow(samples[1], T(1) / (exponent + T(1)));
+	const T sinTheta = std::sqrt(T(1) - cosTheta * cosTheta);
+
+	const auto localUnitPos = TVector3<T>(
+		std::sin(phi) * sinTheta,
+		cosTheta,
+		std::cos(phi) * sinTheta);
+
+	return localUnitPos.mul(m_radius);
+}
+
+template<typename T>
+inline TVector3<T> THemisphere<T>::sampleToSurfaceCosLobeWeighted(
+	const std::array<T, 2>& samples, const T exponent, T* const out_pdfA) const
+{
+	const auto localPos = sampleToSurfaceCosLobeWeighted(exponent, samples);
+
+	PH_ASSERT_GE(localPos.y, T(0));
+	const T cosTheta = localPos.y / m_radius;
+
+	// PDF_A is (exponent+1)/(2*pi)*cos(theta)^n
+	PH_ASSERT(out_pdfA);
+	*out_pdfA = (exponent + T(1)) * constant::rcp_two_pi<T> * std::pow(cosTheta, exponent);
+	*out_pdfA /= m_radius * m_radius;
 
 	return localPos;
 }

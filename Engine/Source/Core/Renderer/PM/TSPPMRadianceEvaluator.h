@@ -17,6 +17,7 @@
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Math/math.h"
 #include "Core/Renderer/Region/Region.h"
+#include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 
 #include <vector>
 #include <type_traits>
@@ -192,7 +193,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleEnd()
 		return;
 	}
 
-	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
+	TSurfaceEventDispatcher<ESidednessPolicy::STRICT> surfaceEvent(m_scene);
 
 	const SurfaceHit&    surfaceHit = m_viewpoint->template get<EViewpointData::SURFACE_HIT>();
 	const math::Vector3R L          = m_viewpoint->template get<EViewpointData::VIEW_DIR>();
@@ -211,13 +212,15 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleEnd()
 	const real newN = N + alpha * M;
 	const real newR = (N + M) != 0.0_r ? R * std::sqrt(newN / (N + M)) : R;
 
+	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::IMPORTANCE, ESidednessPolicy::STRICT);
+
 	SpectralStrength tauM(0);
-	BsdfEvaluation   bsdfEval;
+	BsdfEvalQuery    bsdfEval(bsdfContext);
 	for(const auto& photon : m_photonCache)
 	{
 		const math::Vector3R V = photon.template get<EPhotonData::FROM_DIR>();
 
-		bsdfEval.inputs.set(surfaceHit, L, V, ALL_ELEMENTALS, ETransport::IMPORTANCE);
+		bsdfEval.inputs.set(surfaceHit, L, V);
 		if(!surfaceEvent.doBsdfEvaluation(surfaceHit, bsdfEval))
 		{
 			continue;

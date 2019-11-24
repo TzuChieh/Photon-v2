@@ -7,7 +7,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Emitter/Emitter.h"
-#include "Core/SurfaceBehavior/BsdfSample.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Core/LTABuildingBlock/PtVolumetricEstimator.h"
 #include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
@@ -30,7 +30,7 @@ void BVPTEstimator::estimate(
 	const Integrand&  integrand,
 	EnergyEstimation& out_estimation) const
 {
-	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESaPolicy::DO_NOT_CARE>(&(integrand.getScene()));
+	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESidednessPolicy::DO_NOT_CARE>(&(integrand.getScene()));
 
 	uint32 numBounces = 0;
 	SpectralStrength accuRadiance(0);
@@ -62,7 +62,7 @@ void BVPTEstimator::estimate(
 		const math::Vector3R V = tracingRay.getDirection().mul(-1.0f);
 		const math::Vector3R N = surfaceHit.getShadingNormal();
 
-		BsdfSample bsdfSample;
+		BsdfSampleQuery bsdfSample;
 		bsdfSample.inputs.set(surfaceHit, V);
 		Ray nextRay;
 		if(!surfaceEventDispatcher.doBsdfSample(surfaceHit, bsdfSample, &nextRay))
@@ -111,7 +111,7 @@ void BVPTEstimator::estimate(
 					break;
 				}
 
-				BsdfSample bsdfSample;
+				BsdfSampleQuery bsdfSample;
 				bsdfSample.inputs.set(Xe, endV);
 				metadata->getSurface().getOptics()->calcBsdfSample(bsdfSample);
 				if(!bsdfSample.outputs.isMeasurable())

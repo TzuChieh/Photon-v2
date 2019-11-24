@@ -10,6 +10,8 @@
 #include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
 #include "Core/LTABuildingBlock/lta.h"
 #include "Common/Logger.h"
+#include "Core/SurfaceBehavior/BsdfQueryContext.h"
+#include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 
 namespace ph
 {
@@ -45,7 +47,9 @@ PPMRadianceEvaluationWork::PPMRadianceEvaluationWork(
 void PPMRadianceEvaluationWork::doWork()
 {
 	sanitizeVariables();
-	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
+
+	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::IMPORTANCE, ESidednessPolicy::STRICT);
+	const TSurfaceEventDispatcher<ESidednessPolicy::STRICT> surfaceEvent(m_scene);
 
 	std::vector<FullPhoton> photonCache;
 	for(std::size_t i = 0; i < m_numViewpoints; ++i)
@@ -67,12 +71,12 @@ void PPMRadianceEvaluationWork::doWork()
 		const real newR = (N + M) != 0.0_r ? R * std::sqrt(newN / (N + M)) : R;
 
 		SpectralStrength tauM(0);
-		BsdfEvaluation   bsdfEval;
+		BsdfEvalQuery    bsdfEval(bsdfContext);
 		for(const auto& photon : photonCache)
 		{
 			const math::Vector3R V = photon.get<EPhotonData::FROM_DIR>();
 
-			bsdfEval.inputs.set(surfaceHit, L, V, ALL_ELEMENTALS, ETransport::IMPORTANCE);
+			bsdfEval.inputs.set(surfaceHit, L, V);
 			if(!surfaceEvent.doBsdfEvaluation(surfaceHit, bsdfEval))
 			{
 				continue;

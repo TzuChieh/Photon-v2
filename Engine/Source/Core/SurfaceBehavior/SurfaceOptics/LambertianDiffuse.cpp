@@ -1,4 +1,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
+#include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
+#include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Math/TVector3.h"
 #include "Math/Random.h"
 #include "Math/constant.h"
@@ -32,11 +35,11 @@ ESurfacePhenomenon LambertianDiffuse::getPhenomenonOf(const SurfaceElemental ele
 }
 
 void LambertianDiffuse::calcBsdf(
-	const BsdfEvaluation::Input& in,
-	BsdfEvaluation::Output&      out,
-	const SidednessAgreement&    sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfEvalInput&    in,
+	BsdfEvalOutput&         out) const
 {
-	if(!sidedness.isSameHemisphere(in.X, in.L, in.V))
+	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
 		out.bsdf.setValues(0);
 		return;
@@ -47,9 +50,9 @@ void LambertianDiffuse::calcBsdf(
 }
 
 void LambertianDiffuse::calcBsdfSample(
-	const BsdfSample::Input&  in,
-	BsdfSample::Output&       out,
-	const SidednessAgreement& sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfSampleInput&  in,
+	BsdfSampleOutput&       out) const
 {
 	// Lambertian diffuse model's BRDF is simply albedo/pi.
 	// The importance sampling strategy is to use the cosine term in the rendering equation, 
@@ -87,11 +90,11 @@ void LambertianDiffuse::calcBsdfSample(
 }
 
 void LambertianDiffuse::calcBsdfSamplePdfW(
-	const BsdfPdfQuery::Input& in,
-	BsdfPdfQuery::Output&      out,
-	const SidednessAgreement&  sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfPdfInput&     in,
+	BsdfPdfOutput&          out) const
 {
-	if(!sidedness.isSameHemisphere(in.X, in.L, in.V))
+	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
 		out.sampleDirPdfW = 0;
 		return;

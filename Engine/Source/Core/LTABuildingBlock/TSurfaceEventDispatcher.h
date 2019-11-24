@@ -2,6 +2,7 @@
 
 #include "Utility/INoncopyable.h"
 #include "Math/math_fwd.h"
+#include "Core/SurfaceBehavior/bsdf_query_fwd.h"
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
 
 namespace ph
@@ -10,11 +11,8 @@ namespace ph
 class Scene;
 class Ray;
 class SurfaceHit;
-class BsdfSample;
-class BsdfEvaluation;
-class BsdfPdfQuery;
 
-template<ESaPolicy POLICY>
+template<ESidednessPolicy POLICY>
 class TSurfaceEventDispatcher final : public INoncopyable
 {
 public:
@@ -26,12 +24,12 @@ public:
 
 	bool doBsdfSample(
 		const SurfaceHit& X, 
-		BsdfSample&       bsdfSample, 
+		BsdfSampleQuery&  bsdfSample, 
 		Ray*              out_ray) const;
 
 	bool doBsdfEvaluation(
 		const SurfaceHit& X,
-		BsdfEvaluation&   bsdfEvaluation) const;
+		BsdfEvalQuery&    bsdfEval) const;
 
 	bool doBsdfPdfQuery(
 		const SurfaceHit& X,

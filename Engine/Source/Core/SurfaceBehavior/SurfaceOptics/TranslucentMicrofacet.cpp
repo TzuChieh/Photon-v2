@@ -1,4 +1,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/TranslucentMicrofacet.h"
+#include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
+#include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Core/Ray.h"
 #include "Math/TVector3.h"
@@ -42,9 +45,9 @@ ESurfacePhenomenon TranslucentMicrofacet::getPhenomenonOf(const SurfaceElemental
 }
 
 void TranslucentMicrofacet::calcBsdf(
-	const BsdfEvaluation::Input& in,
-	BsdfEvaluation::Output&      out,
-	const SidednessAgreement&    sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfEvalInput&    in,
+	BsdfEvalOutput&         out) const
 {
 	const math::Vector3R N   = in.X.getShadingNormal();
 	const real           NoL = N.dot(in.L);
@@ -58,8 +61,8 @@ void TranslucentMicrofacet::calcBsdf(
 	}
 
 	// reflection
-	if(sidedness.isSameHemisphere(in.X, in.L, in.V) && 
-	   (in.elemental == ALL_ELEMENTALS || in.elemental == REFLECTION))
+	if(ctx.sidedness.isSameHemisphere(in.X, in.L, in.V) && 
+	   (ctx.elemental == ALL_ELEMENTALS || ctx.elemental == REFLECTION))
 	{
 		math::Vector3R H;
 		if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
@@ -81,8 +84,8 @@ void TranslucentMicrofacet::calcBsdf(
 		out.bsdf = F.mul(D * G / (4.0_r * std::abs(NoLmulNoV)));
 	}
 	// refraction
-	else if(sidedness.isOppositeHemisphere(in.X, in.L, in.V) &&
-	        (in.elemental == ALL_ELEMENTALS || in.elemental == TRANSMISSION))
+	else if(ctx.sidedness.isOppositeHemisphere(in.X, in.L, in.V) &&
+	        (ctx.elemental == ALL_ELEMENTALS || ctx.elemental == TRANSMISSION))
 	{
 		real etaI = m_fresnel->getIorOuter();
 		real etaT = m_fresnel->getIorInner();
@@ -114,7 +117,7 @@ void TranslucentMicrofacet::calcBsdf(
 		const real D = m_microfacet->distribution(in.X, N, H);
 		const real G = m_microfacet->shadowing(in.X, N, H, in.L, in.V);
 
-		const real transportFactor = in.transported == ETransport::RADIANCE ?
+		const real transportFactor = ctx.transport == ETransport::RADIANCE ?
 			etaT / etaI : 1.0_r;
 
 		const real iorTerm = transportFactor * etaI / (etaI * HoL + etaT * HoV);
@@ -143,12 +146,12 @@ void TranslucentMicrofacet::calcBsdf(
 // jacobian involved (from H's probability space to L's).
 //
 void TranslucentMicrofacet::calcBsdfSample(
-	const BsdfSample::Input&  in,
-	BsdfSample::Output&       out,
-	const SidednessAgreement& sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfSampleInput&  in,
+	BsdfSampleOutput&       out) const
 {
-	const bool canReflect  = in.elemental == ALL_ELEMENTALS || in.elemental == REFLECTION;
-	const bool canTransmit = in.elemental == ALL_ELEMENTALS || in.elemental == TRANSMISSION;
+	const bool canReflect  = ctx.elemental == ALL_ELEMENTALS || ctx.elemental == REFLECTION;
+	const bool canTransmit = ctx.elemental == ALL_ELEMENTALS || ctx.elemental == TRANSMISSION;
 
 	if(!canReflect && !canTransmit)
 	{
@@ -192,21 +195,21 @@ void TranslucentMicrofacet::calcBsdfSample(
 	{
 		// calculate reflected L
 		out.L = in.V.mul(-1.0_r).reflect(H).normalizeLocal();
-		if(!sidedness.isSameHemisphere(in.X, in.V, out.L))
+		if(!ctx.sidedness.isSameHemisphere(in.X, in.V, out.L))
 		{
 			out.setMeasurability(false);
 			return;
 		}
 
 		// account for probability
-		if(in.elemental == ALL_ELEMENTALS)
+		if(ctx.elemental == ALL_ELEMENTALS)
 		{
 			F.divLocal(reflectProb);
 		}
 	}
 	else if(sampleTransmit && m_fresnel->calcRefractDir(in.V, H, &(out.L)))
 	{
-		if(!sidedness.isOppositeHemisphere(in.X, in.V, out.L))
+		if(!ctx.sidedness.isOppositeHemisphere(in.X, in.V, out.L))
 		{
 			out.setMeasurability(false);
 			return;
@@ -214,7 +217,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 
 		m_fresnel->calcTransmittance(H.dot(out.L), &F);
 
-		if(in.transported == ETransport::RADIANCE)
+		if(ctx.transport == ETransport::RADIANCE)
 		{
 			real etaI = m_fresnel->getIorOuter();
 			real etaT = m_fresnel->getIorInner();
@@ -226,7 +229,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 		}
 
 		// account for probability
-		if(in.elemental == ALL_ELEMENTALS)
+		if(ctx.elemental == ALL_ELEMENTALS)
 		{
 			F.divLocal(1.0_r - reflectProb);
 		}
@@ -258,17 +261,17 @@ void TranslucentMicrofacet::calcBsdfSample(
 }
 
 void TranslucentMicrofacet::calcBsdfSamplePdfW(
-	const BsdfPdfQuery::Input& in,
-	BsdfPdfQuery::Output&      out,
-	const SidednessAgreement&  sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfPdfInput&     in,
+	BsdfPdfOutput&          out) const
 {
-	const bool canReflect  = in.elemental == ALL_ELEMENTALS || in.elemental == REFLECTION;
-	const bool canTransmit = in.elemental == ALL_ELEMENTALS || in.elemental == TRANSMISSION;
+	const bool canReflect  = ctx.elemental == ALL_ELEMENTALS || ctx.elemental == REFLECTION;
+	const bool canTransmit = ctx.elemental == ALL_ELEMENTALS || ctx.elemental == TRANSMISSION;
 
 	const math::Vector3R N = in.X.getShadingNormal();
 
 	// reflection
-	if(canReflect && sidedness.isSameHemisphere(in.X, in.L, in.V))
+	if(canReflect && ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
 		math::Vector3R H;
 		if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
@@ -284,12 +287,12 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 
 		SpectralStrength F;
 		m_fresnel->calcReflectance(HoL, &F);
-		const real reflectProb = in.elemental == ALL_ELEMENTALS ? getReflectionProbability(F) : 1.0_r;
+		const real reflectProb = ctx.elemental == ALL_ELEMENTALS ? getReflectionProbability(F) : 1.0_r;
 
 		out.sampleDirPdfW = std::abs(D * NoH / (4.0_r * HoL)) * reflectProb;
 	}
 	// transmission
-	else if(canTransmit && sidedness.isOppositeHemisphere(in.X, in.L, in.V))
+	else if(canTransmit && ctx.sidedness.isOppositeHemisphere(in.X, in.L, in.V))
 	{
 		const real NoV = N.dot(in.V);
 		const real NoL = N.dot(in.L);
@@ -324,7 +327,7 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 
 		SpectralStrength F;
 		m_fresnel->calcReflectance(HoL, &F);
-		const real refractProb = in.elemental == ALL_ELEMENTALS ? 1.0_r - getReflectionProbability(F) : 1.0_r;
+		const real refractProb = ctx.elemental == ALL_ELEMENTALS ? 1.0_r - getReflectionProbability(F) : 1.0_r;
 
 		const real iorTerm    = etaI * HoL + etaT * HoV;
 		const real multiplier = (etaI * etaI * HoL) / (iorTerm * iorTerm);

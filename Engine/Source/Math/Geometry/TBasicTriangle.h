@@ -8,6 +8,10 @@
 namespace ph::math
 {
 
+/*! @brief Basic 3-D triangle functionalities.
+
+The class is not intended to be used polymorphically.
+*/
 template<typename T>
 class TBasicTriangle
 {

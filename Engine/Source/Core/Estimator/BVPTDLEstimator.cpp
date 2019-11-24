@@ -7,7 +7,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Emitter/Emitter.h"
-#include "Core/SurfaceBehavior/BsdfSample.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
 #include "Math/TVector3.h"
@@ -24,7 +24,7 @@ void BVPTDLEstimator::estimate(
 	const Integrand&  integrand,
 	EnergyEstimation& out_estimation) const
 {
-	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESaPolicy::DO_NOT_CARE>(&(integrand.getScene()));
+	const auto& surfaceEventDispatcher = TSurfaceEventDispatcher<ESidednessPolicy::DO_NOT_CARE>(&(integrand.getScene()));
 
 	SpectralStrength& accuRadiance = out_estimation[m_estimationIndex].setValues(0);
 	SpectralStrength  accuPathWeight(1);
@@ -65,7 +65,7 @@ void BVPTDLEstimator::estimate(
 		const math::Vector3R V = firstRay.getDirection().mul(-1.0f);
 		const math::Vector3R N = firstHit.getShadingNormal();
 
-		BsdfSample bsdfSample;
+		BsdfSampleQuery bsdfSample;
 		bsdfSample.inputs.set(firstHit, V);
 		if(!surfaceEventDispatcher.doBsdfSample(firstHit, bsdfSample, &secondRay))
 		{

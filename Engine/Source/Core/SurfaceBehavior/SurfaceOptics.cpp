@@ -1,5 +1,8 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Core/LTABuildingBlock/SidednessAgreement.h"
+#include "Core/SurfaceBehavior/BsdfQueryContext.h"
+#include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
+#include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 
 namespace ph
 {
@@ -11,34 +14,28 @@ SurfaceOptics::SurfaceOptics() :
 
 SurfaceOptics::~SurfaceOptics() = default;
 
-void SurfaceOptics::calcBsdf(BsdfEvaluation& eval) const
+void SurfaceOptics::calcBsdf(BsdfEvalQuery& eval) const
 {
-	const SidednessAgreement sidedness(ESaPolicy::STRICT);
-
 	calcBsdf(
+		eval.context,
 		eval.inputs,
-		eval.outputs,
-		sidedness);
+		eval.outputs);
 }
 
-void SurfaceOptics::calcBsdfSample(BsdfSample& sample) const
+void SurfaceOptics::calcBsdfSample(BsdfSampleQuery& sample) const
 {
-	const SidednessAgreement sidedness(ESaPolicy::STRICT);
-
 	calcBsdfSample(
+		sample.context,
 		sample.inputs, 
-		sample.outputs,
-		sidedness);
+		sample.outputs);
 }
 
-void SurfaceOptics::calcBsdfSamplePdfW(BsdfPdfQuery& query) const
+void SurfaceOptics::calcBsdfSamplePdfW(BsdfPdfQuery& pdfQuery) const
 {
-	const SidednessAgreement sidedness(ESaPolicy::STRICT);
-
 	calcBsdfSamplePdfW(
-		query.inputs,
-		query.outputs,
-		sidedness);
+		pdfQuery.context,
+		pdfQuery.inputs,
+		pdfQuery.outputs);
 }
 
 }// end namespace ph

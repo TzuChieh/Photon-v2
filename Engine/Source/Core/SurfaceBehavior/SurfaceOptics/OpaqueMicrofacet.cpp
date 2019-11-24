@@ -1,4 +1,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/OpaqueMicrofacet.h"
+#include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
+#include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Core/Ray.h"
 #include "Math/TVector3.h"
 #include "Math/Random.h"
@@ -37,9 +40,9 @@ ESurfacePhenomenon OpaqueMicrofacet::getPhenomenonOf(const SurfaceElemental elem
 }
 
 void OpaqueMicrofacet::calcBsdf(
-	const BsdfEvaluation::Input& in,
-	BsdfEvaluation::Output&      out,
-	const SidednessAgreement&    sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfEvalInput&    in,
+	BsdfEvalOutput&         out) const
 {
 	const math::Vector3R N = in.X.getShadingNormal();
 
@@ -74,9 +77,9 @@ void OpaqueMicrofacet::calcBsdf(
 }
 
 void OpaqueMicrofacet::calcBsdfSample(
-	const BsdfSample::Input&  in,
-	BsdfSample::Output&       out,
-	const SidednessAgreement& sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfSampleInput&  in,
+	BsdfSampleOutput&       out) const
 {
 	// Cook-Torrance microfacet specular BRDF is D(H)*F(V, H)*G(L, V, H)/(4*|NoL|*|NoV|).
 	// The importance sampling strategy is to generate a microfacet normal (H) which follows D(H)'s distribution, and
@@ -118,9 +121,9 @@ void OpaqueMicrofacet::calcBsdfSample(
 }
 
 void OpaqueMicrofacet::calcBsdfSamplePdfW(
-	const BsdfPdfQuery::Input& in,
-	BsdfPdfQuery::Output&      out,
-	const SidednessAgreement&  sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfPdfInput&     in,
+	BsdfPdfOutput&          out) const
 {
 	const math::Vector3R N = in.X.getShadingNormal();
 

@@ -1,4 +1,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealReflector.h"
+#include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
+#include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Common/assertion.h"
 #include "Core/Texture/TConstantTexture.h"
@@ -40,17 +43,17 @@ ESurfacePhenomenon IdealReflector::getPhenomenonOf(const SurfaceElemental elemen
 }
 
 void IdealReflector::calcBsdf(
-	const BsdfEvaluation::Input& in,
-	BsdfEvaluation::Output&      out,
-	const SidednessAgreement&    sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfEvalInput&    in,
+	BsdfEvalOutput&         out) const
 {
 	out.bsdf.setValues(0.0_r);
 }
 
 void IdealReflector::calcBsdfSample(
-	const BsdfSample::Input&  in,
-	BsdfSample::Output&       out,
-	const SidednessAgreement& sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfSampleInput&  in,
+	BsdfSampleOutput&       out) const
 {
 	const math::Vector3R N = in.X.getShadingNormal();
 	out.L = in.V.mul(-1.0_r).reflect(N);
@@ -68,9 +71,9 @@ void IdealReflector::calcBsdfSample(
 }
 
 void IdealReflector::calcBsdfSamplePdfW(
-	const BsdfPdfQuery::Input& in,
-	BsdfPdfQuery::Output&      out,
-	const SidednessAgreement&  sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfPdfInput&     in,
+	BsdfPdfOutput&          out) const
 {
 	out.sampleDirPdfW = 0.0_r;
 }

@@ -181,7 +181,7 @@ inline auto TSamplesND<N>::makeRandomSample()
 	Sample sample;
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		sample[i] = math::Random::genUniformIndex_iL_eU();
+		sample[i] = math::Random::genUniformReal_i0_e1();
 	}
 	return sample;
 }

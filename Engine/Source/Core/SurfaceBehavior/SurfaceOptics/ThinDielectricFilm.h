@@ -23,25 +23,25 @@ public:
 
 private:
 	void calcBsdf(
-		const BsdfEvaluation::Input& in,
-		BsdfEvaluation::Output&      out,
-		const SidednessAgreement&    sidedness) const override;
+		const BsdfQueryContext& ctx,
+		const BsdfEvalInput&    in,
+		BsdfEvalOutput&         out) const override;
 
 	void calcBsdfSample(
-		const BsdfSample::Input&     in,
-		BsdfSample::Output&          out,
-		const SidednessAgreement&    sidedness) const override;
+		const BsdfQueryContext& ctx,
+		const BsdfSampleInput&  in,
+		BsdfSampleOutput&       out) const override;
 
 	void calcBsdfSamplePdfW(
-		const BsdfPdfQuery::Input&   in,
-		BsdfPdfQuery::Output&        out,
-		const SidednessAgreement&    sidedness) const override;
+		const BsdfQueryContext& ctx,
+		const BsdfPdfInput&     in,
+		BsdfPdfOutput&          out) const override;
 
 private:
 	constexpr static SurfaceElemental REFLECTION   = 0;
 	constexpr static SurfaceElemental TRANSMISSION = 1;
 
-	std::shared_ptr<DielectricFresnel> m_fresnel;
+	std::shared_ptr<DielectricFresnel>   m_fresnel;
 	std::vector<SampledSpectralStrength> m_reflectanceTable;
 	std::vector<SampledSpectralStrength> m_transmittanceTable;
 };

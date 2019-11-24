@@ -6,6 +6,9 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
+#include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
+#include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Common/assertion.h"
 
 #include <vector>
@@ -60,7 +63,7 @@ inline SpectralStrength TRadianceEvaluationWork<Photon>::evaluateRadiance(
 	m_photonCache.clear();
 	m_photonMap->findWithinRange(location.getPosition(), kernelRadius, m_photonCache);*/
 
-	BsdfEvaluation   bsdfEval;
+	BsdfEvalQuery   bsdfEval;
 	SpectralStrength radiance(0);
 	//for(const auto& photon : m_photonCache)
 	//{

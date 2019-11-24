@@ -15,6 +15,8 @@
 #include "Core/Renderer/PM/PMRenderer.h"
 #include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
 #include "Core/LTABuildingBlock/lta.h"
+#include "Core/SurfaceBehavior/BsdfQueryContext.h"
+#include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 
 #include <vector>
 
@@ -112,6 +114,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 
 	PH_ASSERT_GE(pathLength, 1);
 
+	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::IMPORTANCE, ESidednessPolicy::STRICT);
 	const PrimitiveMetadata* const metadata      = surfaceHit.getDetail().getPrimitive()->getMetadata();
 	const SurfaceOptics* const     surfaceOptics = metadata->getSurface().getOptics();
 
@@ -140,19 +143,19 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 	m_photonCache.clear();
 	m_photonMap->findWithinRange(surfaceHit.getPosition(), m_kernelRadius, m_photonCache);
 
-	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
+	TSurfaceEventDispatcher<ESidednessPolicy::STRICT> surfaceEvent(m_scene);
 
 	const math::Vector3R L  = surfaceHit.getIncidentRay().getDirection().mul(-1);
 	const math::Vector3R Ns = surfaceHit.getShadingNormal();
 	const math::Vector3R Ng = surfaceHit.getGeometryNormal();
 
-	BsdfEvaluation   bsdfEval;
+	BsdfEvalQuery    bsdfEval(bsdfContext);
 	SpectralStrength radiance(0);
 	for(const auto& photon : m_photonCache)
 	{
 		const math::Vector3R V = photon.get<EPhotonData::FROM_DIR>();
 
-		bsdfEval.inputs.set(surfaceHit, L, V, ALL_ELEMENTALS, ETransport::IMPORTANCE);
+		bsdfEval.inputs.set(surfaceHit, L, V);
 		if(!surfaceEvent.doBsdfEvaluation(surfaceHit, bsdfEval))
 		{
 			continue;

@@ -1,5 +1,8 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealAbsorber.h"
 #include "Common/assertion.h"
+#include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
+#include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 
 namespace ph
 {
@@ -18,25 +21,25 @@ ESurfacePhenomenon IdealAbsorber::getPhenomenonOf(const SurfaceElemental element
 }
 
 void IdealAbsorber::calcBsdf(
-	const BsdfEvaluation::Input& in,
-	BsdfEvaluation::Output&      out,
-	const SidednessAgreement&    sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfEvalInput&    in,
+	BsdfEvalOutput&         out) const
 {
 	out.bsdf.setValues(0.0_r);
 }
 
 void IdealAbsorber::calcBsdfSample(
-	const BsdfSample::Input&  in,
-	BsdfSample::Output&       out,
-	const SidednessAgreement& sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfSampleInput&  in,
+	BsdfSampleOutput&       out) const
 {
 	out.setMeasurability(false);
 }
 
 void IdealAbsorber::calcBsdfSamplePdfW(
-	const BsdfPdfQuery::Input& in,
-	BsdfPdfQuery::Output&      out,
-	const SidednessAgreement&  sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfPdfInput&     in,
+	BsdfPdfOutput&          out) const
 {
 	out.sampleDirPdfW = 0.0_r;
 }

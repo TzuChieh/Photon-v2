@@ -35,4 +35,6 @@ static_assert(std::is_signed_v<SurfaceElemental>,
 
 inline constexpr SurfaceElemental ALL_ELEMENTALS = -1;
 
+class SurfaceOptics;
+
 }// end namespace ph

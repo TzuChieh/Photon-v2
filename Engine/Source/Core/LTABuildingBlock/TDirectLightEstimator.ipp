@@ -7,9 +7,6 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/HitDetail.h"
 #include "Core/Intersectable/Primitive.h"
-#include "Core/SurfaceBehavior/BsdfEvaluation.h"
-#include "Core/SurfaceBehavior/BsdfPdfQuery.h"
-#include "Core/SurfaceBehavior/BsdfSample.h"
 #include "Common/assertion.h"
 
 namespace ph
@@ -21,14 +18,14 @@ namespace
 	constexpr real DL_RAY_DELTA_DIST = 0.0001_r;
 }
 
-template<ESaPolicy POLICY>
+template<ESidednessPolicy POLICY>
 inline TDirectLightEstimator<POLICY>::TDirectLightEstimator(const Scene* const scene) : 
 	m_scene(scene)
 {
 	PH_ASSERT(scene);
 }
 
-template<ESaPolicy POLICY>
+template<ESidednessPolicy POLICY>
 inline bool TDirectLightEstimator<POLICY>::sample(
 	const SurfaceHit&       targetPos,
 	const Time&             time,
@@ -72,7 +69,7 @@ inline bool TDirectLightEstimator<POLICY>::sample(
 	return false;
 }
 
-template<ESaPolicy POLICY>
+template<ESidednessPolicy POLICY>
 inline real TDirectLightEstimator<POLICY>::samplePdfWUnoccluded(
 	const SurfaceHit& X,
 	const SurfaceHit& Xe,

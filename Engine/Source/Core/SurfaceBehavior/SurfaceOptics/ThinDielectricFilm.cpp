@@ -1,4 +1,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/ThinDielectricFilm.h"
+#include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
+#include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Common/assertion.h"
 #include "Math/Random.h"
@@ -38,20 +41,20 @@ ESurfacePhenomenon ThinDielectricFilm::getPhenomenonOf(const SurfaceElemental el
 }
 
 void ThinDielectricFilm::calcBsdf(
-	const BsdfEvaluation::Input& in,
-	BsdfEvaluation::Output&      out,
-	const SidednessAgreement&    sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfEvalInput&    in,
+	BsdfEvalOutput&         out) const
 {
 	out.bsdf.setValues(0.0_r);
 }
 
 void ThinDielectricFilm::calcBsdfSample(
-	const BsdfSample::Input&  in,
-	BsdfSample::Output&       out,
-	const SidednessAgreement& sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfSampleInput&  in,
+	BsdfSampleOutput&       out) const
 {
-	const bool canReflect  = in.elemental == ALL_ELEMENTALS || in.elemental == REFLECTION;
-	const bool canTransmit = in.elemental == ALL_ELEMENTALS || in.elemental == TRANSMISSION;
+	const bool canReflect  = ctx.elemental == ALL_ELEMENTALS || ctx.elemental == REFLECTION;
+	const bool canTransmit = ctx.elemental == ALL_ELEMENTALS || ctx.elemental == TRANSMISSION;
 
 	if(!canReflect && !canTransmit)
 	{
@@ -94,7 +97,7 @@ void ThinDielectricFilm::calcBsdfSample(
 
 	if(sampleReflect)
 	{
-		if(!sidedness.isSameHemisphere(in.X, in.V, out.L))
+		if(!ctx.sidedness.isSameHemisphere(in.X, in.V, out.L))
 		{
 			out.setMeasurability(false);
 			return;
@@ -103,14 +106,14 @@ void ThinDielectricFilm::calcBsdfSample(
 		scale = m_reflectanceTable[index];
 
 		// account for probability
-		if(in.elemental == ALL_ELEMENTALS)
+		if(ctx.elemental == ALL_ELEMENTALS)
 		{
 			scale.divLocal(reflectProb);
 		}
 	}
 	else if(sampleTransmit && m_fresnel->calcRefractDir(in.V, N, &(out.L)))
 	{
-		if(!sidedness.isOppositeHemisphere(in.X, in.V, out.L))
+		if(!ctx.sidedness.isOppositeHemisphere(in.X, in.V, out.L))
 		{
 			out.setMeasurability(false);
 			return;
@@ -130,7 +133,7 @@ void ThinDielectricFilm::calcBsdfSample(
 		}*/
 
 		// account for probability
-		if(in.elemental == ALL_ELEMENTALS)
+		if(ctx.elemental == ALL_ELEMENTALS)
 		{
 			scale.divLocal(1.0_r - reflectProb);
 		}
@@ -149,9 +152,9 @@ void ThinDielectricFilm::calcBsdfSample(
 }
 
 void ThinDielectricFilm::calcBsdfSamplePdfW(
-	const BsdfPdfQuery::Input& in,
-	BsdfPdfQuery::Output&      out,
-	const SidednessAgreement&  sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfPdfInput&     in,
+	BsdfPdfOutput&          out) const
 {
 	out.sampleDirPdfW = 0.0_r;
 }

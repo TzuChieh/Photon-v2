@@ -19,6 +19,7 @@
 #include "Core/Renderer/PM/PMStatistics.h"
 #include "Core/LTABuildingBlock/TSurfaceEventDispatcher.h"
 #include "Core/LTABuildingBlock/lta.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 
 namespace ph
 {
@@ -48,6 +49,8 @@ inline void TPhotonMappingWork<Photon>::doWork()
 {
 	// FIXME: currently we exit immediately when photon buffer is full; we should trace a full path instead
 
+	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::IMPORTANCE, ESidednessPolicy::STRICT);
+
 	Timer timer;
 	timer.start();
 
@@ -76,7 +79,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 		throughputRadiance.divLocal(pdfW);
 		throughputRadiance.mulLocal(emitN.absDot(tracingRay.getDirection()));
 
-		TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
+		TSurfaceEventDispatcher<ESidednessPolicy::STRICT> surfaceEvent(m_scene);
 
 		// start tracing single photon path
 		while(!throughputRadiance.isZero())
@@ -120,9 +123,9 @@ inline void TPhotonMappingWork<Photon>::doWork()
 				break;
 			}
 
-			BsdfSample bsdfSample;
+			BsdfSampleQuery bsdfSample(bsdfContext);
 			Ray sampledRay;
-			bsdfSample.inputs.set(surfaceHit, tracingRay.getDirection().mul(-1), ALL_ELEMENTALS, ETransport::IMPORTANCE);
+			bsdfSample.inputs.set(surfaceHit, tracingRay.getDirection().mul(-1));
 			if(!surfaceEvent.doBsdfSample(surfaceHit, bsdfSample, &sampledRay))
 			{
 				break;

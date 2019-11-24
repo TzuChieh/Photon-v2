@@ -27,19 +27,19 @@ public:
 
 private:
 	void calcBsdf(
-		const BsdfEvaluation::Input& in,
-		BsdfEvaluation::Output&      out,
-		const SidednessAgreement&    sidedness) const override;
+		const BsdfQueryContext& ctx,
+		const BsdfEvalInput&    in,
+		BsdfEvalOutput&         out) const override;
 
 	void calcBsdfSample(
-		const BsdfSample::Input&     in,
-		BsdfSample::Output&          out,
-		const SidednessAgreement&    sidedness) const override;
+		const BsdfQueryContext& ctx,
+		const BsdfSampleInput&  in,
+		BsdfSampleOutput&       out) const override;
 
 	void calcBsdfSamplePdfW(
-		const BsdfPdfQuery::Input&   in,
-		BsdfPdfQuery::Output&        out,
-		const SidednessAgreement&    sidedness) const override;
+		const BsdfQueryContext& ctx,
+		const BsdfPdfInput&     in,
+		BsdfPdfOutput&          out) const override;
 
 private:
 	std::shared_ptr<TTexture<SpectralStrength>> m_albedo;

@@ -11,8 +11,8 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/math.h"
 #include "Core/Sample/DirectLightSample.h"
-#include "Core/SurfaceBehavior/BsdfEvaluation.h"
-#include "Core/SurfaceBehavior/BsdfSample.h"
+#include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Common/assertion.h"
@@ -105,14 +105,14 @@ void BNEEPTEstimator::estimate(
 			real             directPdfW;
 			SpectralStrength emittedRadiance;
 
-			if(canDoNEE && TDirectLightEstimator<ESaPolicy::STRICT>(&scene).sample(
+			if(canDoNEE && TDirectLightEstimator<ESidednessPolicy::STRICT>(&scene).sample(
 				surfaceHit, ray.getTime(),
 				&L, &directPdfW, &emittedRadiance))
 			{
 				const PrimitiveMetadata* metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
 				const SurfaceBehavior&   surfaceBehavior = metadata->getSurface();
 
-				BsdfEvaluation bsdfEval;
+				BsdfEvalQuery bsdfEval;
 				bsdfEval.inputs.set(surfaceHit, L, V);
 
 				surfaceBehavior.getOptics()->calcBsdf(bsdfEval);
@@ -145,7 +145,7 @@ void BNEEPTEstimator::estimate(
 			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 			const SurfaceBehavior*   surfaceBehavior = &(metadata->getSurface());
 
-			BsdfSample bsdfSample;
+			BsdfSampleQuery bsdfSample;
 			bsdfSample.inputs.set(surfaceHit, V);
 
 			surfaceBehavior->getOptics()->calcBsdfSample(bsdfSample);
@@ -218,7 +218,7 @@ void BNEEPTEstimator::estimate(
 					// TODO: <directLightPdfW> might be 0, should we stop using MIS if one of two 
 					// sampling techniques has failed?
 					// <bsdfSamplePdfW> can also be 0 for delta distributions
-					const real directLightPdfW = TDirectLightEstimator<ESaPolicy::STRICT>(&scene).samplePdfWUnoccluded(
+					const real directLightPdfW = TDirectLightEstimator<ESidednessPolicy::STRICT>(&scene).samplePdfWUnoccluded(
 						surfaceHit, Xe, ray.getTime());
 
 					BsdfPdfQuery bsdfPdfQuery;

@@ -17,6 +17,8 @@
 #include "Core/LTABuildingBlock/RussianRoulette.h"
 #include "Math/Mapping/UniformRectangle.h"
 #include "Math/Geometry/TAABB2D.h"
+#include "Core/SurfaceBehavior/BsdfQueryContext.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 
 namespace ph
 {
@@ -87,7 +89,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 	SpectralStrength pathThroughput,
 	std::size_t      pathLength)
 {	
-	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
+	TSurfaceEventDispatcher<ESidednessPolicy::STRICT> surfaceEvent(m_scene);
 	while(true)
 	{
 		SurfaceHit surfaceHit;
@@ -110,9 +112,9 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 
 		if(policy.getSampleMode() == EViewPathSampleMode::SINGLE_PATH)
 		{
-			BsdfSample bsdfSample;
+			BsdfSampleQuery bsdfSample(BsdfQueryContext(policy.getTargetElemental(), ETransport::RADIANCE, ESidednessPolicy::STRICT));
 			Ray sampledRay;
-			bsdfSample.inputs.set(surfaceHit, V, policy.getTargetElemental(), ETransport::RADIANCE);
+			bsdfSample.inputs.set(surfaceHit, V);
 			if(!surfaceEvent.doBsdfSample(surfaceHit, bsdfSample, &sampledRay))
 			{
 				break;
@@ -155,7 +157,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceElementallyBranchedPath(
 {
 	PH_ASSERT(policy.getSampleMode() == EViewPathSampleMode::ELEMENTAL_BRANCH);
 
-	TSurfaceEventDispatcher<ESaPolicy::STRICT> surfaceEvent(m_scene);
+	TSurfaceEventDispatcher<ESidednessPolicy::STRICT> surfaceEvent(m_scene);
 
 	const PrimitiveMetadata* metadata      = surfaceHit.getDetail().getPrimitive()->getMetadata();
 	const SurfaceOptics*     surfaceOptics = metadata->getSurface().getOptics();
@@ -168,8 +170,8 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceElementallyBranchedPath(
 			continue;
 		}
 
-		BsdfSample sample;
-		sample.inputs.set(surfaceHit, V, i, ETransport::RADIANCE);
+		BsdfSampleQuery sample(BsdfQueryContext(i, ETransport::RADIANCE, ESidednessPolicy::STRICT));
+		sample.inputs.set(surfaceHit, V);
 
 		Ray sampledRay;
 		if(!surfaceEvent.doBsdfSample(surfaceHit, sample, &sampledRay))

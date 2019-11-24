@@ -1,4 +1,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/OrenNayar.h"
+#include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
+#include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Math/TVector3.h"
 #include "Math/Random.h"
 #include "Math/constant.h"
@@ -56,13 +59,13 @@ ESurfacePhenomenon OrenNayar::getPhenomenonOf(const SurfaceElemental elemental) 
 	[1] http://mimosa-pudica.net/improved-oren-nayar.html
 */
 void OrenNayar::calcBsdf(
-	const BsdfEvaluation::Input& in,
-	BsdfEvaluation::Output&      out,
-	const SidednessAgreement&    sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfEvalInput&    in,
+	BsdfEvalOutput&         out) const
 {
-	PH_ASSERT_MSG(in.elemental == ALL_ELEMENTALS || in.elemental == 0, std::to_string(in.elemental));
+	PH_ASSERT_MSG(ctx.elemental == ALL_ELEMENTALS || ctx.elemental == 0, std::to_string(ctx.elemental));
 
-	if(!sidedness.isSameHemisphere(in.X, in.L, in.V))
+	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
 		out.bsdf.setValues(0);
 		return;
@@ -111,11 +114,11 @@ void OrenNayar::calcBsdf(
 }
 
 void OrenNayar::calcBsdfSample(
-	const BsdfSample::Input&  in,
-	BsdfSample::Output&       out,
-	const SidednessAgreement& sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfSampleInput&  in,
+	BsdfSampleOutput&       out) const
 {
-	PH_ASSERT_MSG(in.elemental == ALL_ELEMENTALS || in.elemental == 0, std::to_string(in.elemental));
+	PH_ASSERT_MSG(ctx.elemental == ALL_ELEMENTALS || ctx.elemental == 0, std::to_string(ctx.elemental));
 
 	const math::Vector3R N = in.X.getShadingNormal();
 	PH_ASSERT(N.isFinite());
@@ -146,27 +149,27 @@ void OrenNayar::calcBsdfSample(
 		return;
 	}
 
-	BsdfEvaluation bsdfEval;
-	bsdfEval.inputs.set(in.X, L, in.V, in.elemental, in.transported);
-	OrenNayar::calcBsdf(bsdfEval.inputs, bsdfEval.outputs, sidedness);
-	if(!bsdfEval.outputs.isGood())
+	BsdfEvalQuery eval;
+	eval.inputs.set(in.X, L, in.V);
+	OrenNayar::calcBsdf(ctx, eval.inputs, eval.outputs);
+	if(!eval.outputs.isGood())
 	{
 		out.setMeasurability(false);
 		return;
 	}
 
-	out.pdfAppliedBsdf.setValues(bsdfEval.outputs.bsdf.div(pdfW));
+	out.pdfAppliedBsdf.setValues(eval.outputs.bsdf.div(pdfW));
 	out.setMeasurability(true);
 }
 
 void OrenNayar::calcBsdfSamplePdfW(
-	const BsdfPdfQuery::Input& in,
-	BsdfPdfQuery::Output&      out,
-	const SidednessAgreement&  sidedness) const
+	const BsdfQueryContext& ctx,
+	const BsdfPdfInput&     in,
+	BsdfPdfOutput&          out) const
 {
-	PH_ASSERT_MSG(in.elemental == ALL_ELEMENTALS || in.elemental == 0, std::to_string(in.elemental));
+	PH_ASSERT_MSG(ctx.elemental == ALL_ELEMENTALS || ctx.elemental == 0, std::to_string(ctx.elemental));
 
-	if(!sidedness.isSameHemisphere(in.X, in.L, in.V))
+	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
 		out.sampleDirPdfW = 0;
 		return;
