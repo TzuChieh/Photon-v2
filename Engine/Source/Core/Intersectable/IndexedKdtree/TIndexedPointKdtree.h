@@ -21,7 +21,7 @@ namespace ph
 // TODO: static_assert for signature of PointCalculator
 
 template<typename Item, typename Index, typename PointCalculator>
-class TIndexedPointKdtree
+class TIndexedPointKdtree final
 {
 public:
 	using Node = TIndexedKdtreeNode<Index, false>;

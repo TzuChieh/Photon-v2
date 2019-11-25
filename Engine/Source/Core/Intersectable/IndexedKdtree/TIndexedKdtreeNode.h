@@ -19,7 +19,7 @@ namespace ph
 	alignment issues.
 */
 template<typename Index, bool USE_SINGLE_ITEM_OPT = true>
-class TIndexedKdtreeNode
+class TIndexedKdtreeNode final
 {
 	// TODO: add constants for max allowed items and index
 

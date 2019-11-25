@@ -20,7 +20,7 @@ namespace ph
 {
 
 template<typename Item, typename Index>
-class TIndexedKdtree
+class TIndexedKdtree final
 {
 public:
 	using Node = TIndexedKdtreeNode<Index>;
