@@ -116,6 +116,7 @@ void OrenNayar::calcBsdf(
 void OrenNayar::calcBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
+	BsdfSample              sample,
 	BsdfSampleOutput&       out) const
 {
 	PH_ASSERT_MSG(ctx.elemental == ALL_ELEMENTALS || ctx.elemental == 0, std::to_string(ctx.elemental));

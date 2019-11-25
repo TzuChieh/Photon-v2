@@ -148,6 +148,7 @@ void TranslucentMicrofacet::calcBsdf(
 void TranslucentMicrofacet::calcBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
+	BsdfSample              sample,
 	BsdfSampleOutput&       out) const
 {
 	const bool canReflect  = ctx.elemental == ALL_ELEMENTALS || ctx.elemental == REFLECTION;

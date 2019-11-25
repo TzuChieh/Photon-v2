@@ -79,6 +79,7 @@ void OpaqueMicrofacet::calcBsdf(
 void OpaqueMicrofacet::calcBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
+	BsdfSample              sample,
 	BsdfSampleOutput&       out) const
 {
 	// Cook-Torrance microfacet specular BRDF is D(H)*F(V, H)*G(L, V, H)/(4*|NoL|*|NoV|).

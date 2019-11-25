@@ -110,6 +110,7 @@ void LerpedSurfaceOptics::calcBsdf(
 void LerpedSurfaceOptics::calcBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
+	BsdfSample              sample,
 	BsdfSampleOutput&       out) const
 {
 	const SpectralStrength ratio = m_sampler.sample(*m_ratio, in.X);
@@ -130,7 +131,7 @@ void LerpedSurfaceOptics::calcBsdfSample(
 		}
 
 		BsdfSampleOutput sampleOutput;
-		sampledOptics->calcBsdfSample(ctx, in, sampleOutput);
+		sampledOptics->calcBsdfSample(ctx, in, sample, sampleOutput);
 		if(!sampleOutput.isMeasurable())
 		{
 			out.setMeasurability(false);
@@ -175,14 +176,14 @@ void LerpedSurfaceOptics::calcBsdfSample(
 
 		if(ctx.elemental < m_optics0->m_numElementals)
 		{
-			m_optics0->calcBsdfSample(ctx, in, out);
+			m_optics0->calcBsdfSample(ctx, in, sample, out);
 			out.pdfAppliedBsdf.mulLocal(ratio);
 		}
 		else
 		{
 			BsdfQueryContext localCtx = ctx;
 			localCtx.elemental = ctx.elemental - m_optics0->m_numElementals;
-			m_optics1->calcBsdfSample(localCtx, in, out);
+			m_optics1->calcBsdfSample(localCtx, in, sample, out);
 			out.pdfAppliedBsdf.mulLocal(SpectralStrength(1) - ratio);
 		}
 	}

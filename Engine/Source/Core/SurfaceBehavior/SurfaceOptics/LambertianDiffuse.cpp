@@ -52,6 +52,7 @@ void LambertianDiffuse::calcBsdf(
 void LambertianDiffuse::calcBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
+	BsdfSample              sample,
 	BsdfSampleOutput&       out) const
 {
 	// Lambertian diffuse model's BRDF is simply albedo/pi.

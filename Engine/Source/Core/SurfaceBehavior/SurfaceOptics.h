@@ -2,8 +2,10 @@
 
 #include "Core/SurfaceBehavior/surface_optics_fwd.h"
 #include "Core/SurfaceBehavior/bsdf_query_fwd.h"
+#include "Core/SurfaceBehavior/BsdfSample.h"
 
 #include <string>
+#include <array>
 
 namespace ph
 {
@@ -20,7 +22,7 @@ public:
 	virtual ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const = 0;
 
 	void calcBsdf(BsdfEvalQuery& eval) const;
-	void calcBsdfSample(BsdfSampleQuery& sample) const;
+	void calcBsdfSample(BsdfSampleQuery& sample/*, std::array<real, 2> samples*/) const;
 	void calcBsdfSamplePdfW(BsdfPdfQuery& pdfQuery) const;
 
 	SurfacePhenomena getAllPhenomena() const;
@@ -41,6 +43,7 @@ private:
 	virtual void calcBsdfSample(
 		const BsdfQueryContext& ctx,
 		const BsdfSampleInput&  in,
+		BsdfSample              sample,
 		BsdfSampleOutput&       out) const = 0;
 
 	virtual void calcBsdfSamplePdfW(

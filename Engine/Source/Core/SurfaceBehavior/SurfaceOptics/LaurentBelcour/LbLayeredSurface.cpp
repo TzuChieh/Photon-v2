@@ -103,6 +103,7 @@ void LbLayeredSurface::calcBsdf(
 void LbLayeredSurface::calcBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
+	BsdfSample              sample,
 	BsdfSampleOutput&       out) const
 {
 	out.pdfAppliedBsdf.setValues(0);

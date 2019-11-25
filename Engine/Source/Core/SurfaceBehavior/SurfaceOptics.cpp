@@ -3,6 +3,9 @@
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
+#include "Core/SurfaceBehavior/BsdfSample.h"
+
+#include <utility>
 
 namespace ph
 {
@@ -22,11 +25,13 @@ void SurfaceOptics::calcBsdf(BsdfEvalQuery& eval) const
 		eval.outputs);
 }
 
-void SurfaceOptics::calcBsdfSample(BsdfSampleQuery& sample) const
+void SurfaceOptics::calcBsdfSample(BsdfSampleQuery& sample/*, std::array<real, 2> samples*/) const
 {
 	calcBsdfSample(
 		sample.context,
 		sample.inputs, 
+		//BsdfSample(std::move(samples)),
+		BsdfSample(std::array<real, 2>()),
 		sample.outputs);
 }
 

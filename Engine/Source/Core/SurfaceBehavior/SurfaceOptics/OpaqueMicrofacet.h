@@ -32,6 +32,7 @@ private:
 	void calcBsdfSample(
 		const BsdfQueryContext& ctx,
 		const BsdfSampleInput&  in,
+		BsdfSample              sample,
 		BsdfSampleOutput&       out) const override;
 
 	void calcBsdfSamplePdfW(

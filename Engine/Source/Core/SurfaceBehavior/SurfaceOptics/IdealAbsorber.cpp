@@ -31,6 +31,7 @@ void IdealAbsorber::calcBsdf(
 void IdealAbsorber::calcBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
+	BsdfSample              sample,
 	BsdfSampleOutput&       out) const
 {
 	out.setMeasurability(false);
