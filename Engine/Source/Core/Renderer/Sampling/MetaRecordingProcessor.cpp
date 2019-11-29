@@ -6,12 +6,15 @@
 namespace ph
 {
 
-void MetaRecordingProcessor::process(const math::Vector2D& filmNdc, const Ray& ray)
+void MetaRecordingProcessor::process(
+	const math::Vector2D& filmNdc, 
+	const Ray&            ray, 
+	SampleFlow&           sampleFlow)
 {
 	PH_ASSERT(m_processor);
 
 	m_timer.start();
-	m_processor->process(filmNdc, ray);
+	m_processor->process(filmNdc, ray, sampleFlow);
 	m_timer.finish();
 
 	// only record if processed position is in bound

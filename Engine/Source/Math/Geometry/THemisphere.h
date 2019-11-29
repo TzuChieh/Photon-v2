@@ -36,14 +36,14 @@ public:
 	are distributed uniformly if the sample is uniform. For a unit hemisphere,
 	this method effectively generates normalized directions.
 	*/
-	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& samples) const;
-	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& samples, T* out_pdfA) const;
+	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& sample) const;
+	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& sample, T* out_pdfA) const;
 
-	TVector3<T> sampleToSurfaceCosThetaWeighted(const std::array<T, 2>& samples) const;
-	TVector3<T> sampleToSurfaceCosThetaWeighted(const std::array<T, 2>& samples, T* out_pdfA) const;
+	TVector3<T> sampleToSurfaceCosThetaWeighted(const std::array<T, 2>& sample) const;
+	TVector3<T> sampleToSurfaceCosThetaWeighted(const std::array<T, 2>& sample, T* out_pdfA) const;
 
-	TVector3<T> sampleToSurfaceCosLobeWeighted(const std::array<T, 2>& samples, T exponent) const;
-	TVector3<T> sampleToSurfaceCosLobeWeighted(const std::array<T, 2>& samples, T exponent, T* out_pdfA) const;
+	TVector3<T> sampleToSurfaceCosLobeWeighted(const std::array<T, 2>& sample, T exponent) const;
+	TVector3<T> sampleToSurfaceCosLobeWeighted(const std::array<T, 2>& sample, T exponent, T* out_pdfA) const;
 
 private:
 	T m_radius;
@@ -71,13 +71,13 @@ inline T THemisphere<T>::getArea() const
 }
 
 template<typename T>
-inline TVector3<T> THemisphere<T>::sampleToSurfaceArchimedes(const std::array<T, 2>& samples) const
+inline TVector3<T> THemisphere<T>::sampleToSurfaceArchimedes(const std::array<T, 2>& sample) const
 {
-	PH_ASSERT_LE(T(0), samples[0]); PH_ASSERT_LE(samples[0], T(1));
-	PH_ASSERT_LE(T(0), samples[1]); PH_ASSERT_LE(samples[1], T(1));
+	PH_ASSERT_LE(T(0), sample[0]); PH_ASSERT_LE(sample[0], T(1));
+	PH_ASSERT_LE(T(0), sample[1]); PH_ASSERT_LE(sample[1], T(1));
 
-	const T phi     = constant::two_pi<T> * samples[0];
-	const T yValue  = samples[1];
+	const T phi     = constant::two_pi<T> * sample[0];
+	const T yValue  = sample[1];
 	const T yRadius = std::sqrt(T(1) - yValue * yValue);
 
 	const auto localUnitPos = TVector3<T>(
@@ -90,23 +90,23 @@ inline TVector3<T> THemisphere<T>::sampleToSurfaceArchimedes(const std::array<T,
 
 template<typename T>
 inline TVector3<T> THemisphere<T>::sampleToSurfaceArchimedes(
-	const std::array<T, 2>& samples, T* const out_pdfA) const
+	const std::array<T, 2>& sample, T* const out_pdfA) const
 {
 	// PDF_A is 1/(2*pi*r^2)
 	PH_ASSERT(out_pdfA);
 	*out_pdfA = T(1) / getArea();
 
-	return sampleToSurfaceArchimedes(samples);
+	return sampleToSurfaceArchimedes(sample);
 }
 
 template<typename T>
-inline TVector3<T> THemisphere<T>::sampleToSurfaceCosThetaWeighted(const std::array<T, 2>& samples) const
+inline TVector3<T> THemisphere<T>::sampleToSurfaceCosThetaWeighted(const std::array<T, 2>& sample) const
 {
-	PH_ASSERT_LE(T(0), samples[0]); PH_ASSERT_LE(samples[0], T(1));
-	PH_ASSERT_LE(T(0), samples[1]); PH_ASSERT_LE(samples[1], T(1));
+	PH_ASSERT_LE(T(0), sample[0]); PH_ASSERT_LE(sample[0], T(1));
+	PH_ASSERT_LE(T(0), sample[1]); PH_ASSERT_LE(sample[1], T(1));
 
-	const T phi     = constant::two_pi<T> * samples[0];
-	const T yValue  = std::sqrt(samples[1]);
+	const T phi     = constant::two_pi<T> * sample[0];
+	const T yValue  = std::sqrt(sample[1]);
 	const T yRadius = std::sqrt(T(1) - yValue * yValue);// TODO: y*y is in fact valueB?
 
 	const auto localUnitPos = TVector3<T>(
@@ -119,9 +119,9 @@ inline TVector3<T> THemisphere<T>::sampleToSurfaceCosThetaWeighted(const std::ar
 
 template<typename T>
 inline TVector3<T> THemisphere<T>::sampleToSurfaceCosThetaWeighted(
-	const std::array<T, 2>& samples, T* const out_pdfA) const
+	const std::array<T, 2>& sample, T* const out_pdfA) const
 {
-	const auto localPos = sampleToSurfaceCosThetaWeighted(samples);
+	const auto localPos = sampleToSurfaceCosThetaWeighted(sample);
 
 	PH_ASSERT_GE(localPos.y, T(0));
 	const T cosTheta = localPos.y / m_radius;
@@ -135,13 +135,13 @@ inline TVector3<T> THemisphere<T>::sampleToSurfaceCosThetaWeighted(
 
 template<typename T>
 inline TVector3<T> THemisphere<T>::sampleToSurfaceCosLobeWeighted(
-	const std::array<T, 2>& samples, const T exponent) const
+	const std::array<T, 2>& sample, const T exponent) const
 {
-	PH_ASSERT_LE(T(0), samples[0]); PH_ASSERT_LE(samples[0], T(1));
-	PH_ASSERT_LE(T(0), samples[1]); PH_ASSERT_LE(samples[1], T(1));
+	PH_ASSERT_LE(T(0), sample[0]); PH_ASSERT_LE(sample[0], T(1));
+	PH_ASSERT_LE(T(0), sample[1]); PH_ASSERT_LE(sample[1], T(1));
 
-	const T phi      = constant::two_pi<T> * samples[0];
-	const T cosTheta = std::pow(samples[1], T(1) / (exponent + T(1)));
+	const T phi      = constant::two_pi<T> * sample[0];
+	const T cosTheta = std::pow(sample[1], T(1) / (exponent + T(1)));
 	const T sinTheta = std::sqrt(T(1) - cosTheta * cosTheta);
 
 	const auto localUnitPos = TVector3<T>(
@@ -154,9 +154,9 @@ inline TVector3<T> THemisphere<T>::sampleToSurfaceCosLobeWeighted(
 
 template<typename T>
 inline TVector3<T> THemisphere<T>::sampleToSurfaceCosLobeWeighted(
-	const std::array<T, 2>& samples, const T exponent, T* const out_pdfA) const
+	const std::array<T, 2>& sample, const T exponent, T* const out_pdfA) const
 {
-	const auto localPos = sampleToSurfaceCosLobeWeighted(exponent, samples);
+	const auto localPos = sampleToSurfaceCosLobeWeighted(exponent, sample);
 
 	PH_ASSERT_GE(localPos.y, T(0));
 	const T cosTheta = localPos.y / m_radius;

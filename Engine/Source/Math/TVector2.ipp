@@ -41,11 +41,21 @@ inline TVector2<T>::TVector2(const TArithmeticArray<U, 2>& xyValues) :
 
 template<typename T>
 template<typename U>
-inline TVector2<T>::TVector2(const std::vector<U>& values)
+inline TVector2<T>::TVector2(const U* const xyValues) : 
+	TVector2(TVector2<U>(xyValues[0], xyValues[1]))
 {
-	PH_ASSERT_EQ(values.size(), 2);
+	PH_ASSERT(xyValues);
 
-	*this = TVector2(TVector2<U>(values[0], values[1]));
+	*this = TVector2(TVector2<U>(xyValues[0], xyValues[1]));
+}
+
+template<typename T>
+template<typename U>
+inline TVector2<T>::TVector2(const std::vector<U>& xyValues)
+{
+	PH_ASSERT_EQ(xyValues.size(), 2);
+
+	*this = TVector2(TVector2<U>(xyValues[0], xyValues[1]));
 }
 
 template<typename T>

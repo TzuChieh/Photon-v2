@@ -30,6 +30,7 @@ public:
 	void estimate(
 		const Ray&        ray,
 		const Integrand&  integrand,
+		SampleFlow&       sampleFlow,
 		EnergyEstimation& out_estimation) const override;
 
 	std::string toString() const override;

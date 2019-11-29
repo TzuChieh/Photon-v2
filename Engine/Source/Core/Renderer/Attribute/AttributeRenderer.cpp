@@ -67,7 +67,13 @@ void AttributeRenderer::doRender()
 
 	TEstimationArray<math::Vector3R> estimation(1);
 
-	const auto camSampleHandle = m_sampleGenerator->declareStageND<2>(
+	const auto camSampleHandle = m_sampleGenerator->declareStageND(
+		2,
+		math::Vector2S(m_attributeFilm.getSampleResPx()).product(),
+		math::Vector2S(m_attributeFilm.getSampleResPx()).toVector());
+
+	const auto raySampleHandle = m_sampleGenerator->declareStageND(
+		2,
 		math::Vector2S(m_attributeFilm.getSampleResPx()).product(),
 		math::Vector2S(m_attributeFilm.getSampleResPx()).toVector());
 
@@ -77,6 +83,7 @@ void AttributeRenderer::doRender()
 	while(m_sampleGenerator->prepareSampleBatch())
 	{
 		const auto camSamples = m_sampleGenerator->getSamplesND(camSampleHandle);
+		auto raySamples = m_sampleGenerator->getSamplesND(raySampleHandle);
 		for(std::size_t si = 0; si < camSamples.numSamples(); ++si)
 		{
 			const auto filmNdc = math::Vector2D(camSamples[si]).mul(ndcScale).add(ndcOffset);
@@ -84,7 +91,7 @@ void AttributeRenderer::doRender()
 			Ray ray;
 			m_camera->genSensedRay(math::Vector2R(filmNdc), &ray);
 
-			estimator.estimate(ray, integrand, estimation);
+			estimator.estimate(ray, integrand, raySamples.readSampleAsFlow(), estimation);
 
 			const auto rasterPos = filmNdc * math::Vector2D(m_attributeFilm.getActualResPx());
 

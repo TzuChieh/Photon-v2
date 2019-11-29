@@ -49,12 +49,15 @@ TCameraMeasurementEstimator(TCameraMeasurementEstimator&& other) :
 
 template<typename SamplingFilmType, typename EstimationType>
 inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
-process(const math::Vector2D& filmNdc, const Ray& sensedRay)
+process(
+	const math::Vector2D& filmNdc, 
+	const Ray&            sensedRay, 
+	SampleFlow&           sampleFlow)
 	-> void
 {
 	for(const auto* estimator : m_estimators)
 	{
-		estimator->estimate(sensedRay, m_integrand, m_estimations);
+		estimator->estimate(sensedRay, m_integrand, sampleFlow, m_estimations);
 	}
 
 	const math::Vector2D rasterPos = filmNdc * m_filmActualResFPx;

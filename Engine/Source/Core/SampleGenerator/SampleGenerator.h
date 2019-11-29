@@ -5,8 +5,9 @@
 #include "Math/TVector2.h"
 #include "Math/TArithmeticArray.h"
 #include "Core/SampleGenerator/SampleStage.h"
-#include "Core/SampleGenerator/TSamplesNDHandle.h"
-#include "Core/SampleGenerator/TSamplesND.h"
+#include "Core/SampleGenerator/SamplesNDHandle.h"
+#include "Core/SampleGenerator/SamplesND.h"
+#include "Core/SampleGenerator/SamplesNDStream.h"
 #include "Math/TArithmeticArray.h"
 #include "FileIO/SDL/ISdlResource.h"
 #include "FileIO/SDL/TCommandInterface.h"
@@ -26,8 +27,6 @@ class InputPacket;
 class SampleGenerator : public TCommandInterface<SampleGenerator>
 {
 public:
-	using SizeHints = SampleStage::SizeHints;
-
 	SampleGenerator(std::size_t numSampleBatches, std::size_t numCachedBatches);
 	explicit SampleGenerator(std::size_t numSampleBatches);
 	virtual ~SampleGenerator() = default;
@@ -38,13 +37,14 @@ public:
 
 	bool prepareSampleBatch();
 
-	template<std::size_t N>
-	TSamplesNDHandle<N> declareStageND(
-		std::size_t numSamples,
-		SizeHints   dimSizeHints = SampleStage::makeIdentityDimSizeHints());
+	SamplesNDHandle declareStageND(std::size_t numDims, std::size_t numSamples);
 
-	template<std::size_t N>
-	TSamplesND<N> getSamplesND(const TSamplesNDHandle<N>& handle);
+	SamplesNDHandle declareStageND(
+		std::size_t              numDims, 
+		std::size_t              numSamples, 
+		std::vector<std::size_t> dimSizeHints);
+
+	SamplesNDStream getSamplesND(const SamplesNDHandle& handle);
 
 	std::size_t numSampleBatches() const;
 	std::size_t numCachedBatches() const;
@@ -73,41 +73,6 @@ public:
 };
 
 // In-header Implementations:
-
-template<std::size_t N>
-inline TSamplesNDHandle<N> SampleGenerator::declareStageND(
-	const std::size_t numSamples,
-	SizeHints         dimSizeHints)
-{
-	const std::size_t sampleIndex = m_totalElements;
-	const std::size_t stageIndex  = m_stages.size();
-
-	const SampleStage stage(
-		sampleIndex,
-		N, 
-		numSamples, 
-		dimSizeHints);
-
-	m_stages.push_back(stage);
-	m_totalElements += m_numCachedBatches * stage.numElements();
-
-	return TSamplesNDHandle<N>(stageIndex);
-}
-
-template<std::size_t N>
-inline TSamplesND<N> SampleGenerator::getSamplesND(const TSamplesNDHandle<N>& handle)
-{
-	PH_ASSERT_NE(m_numUsedCaches, 0);
-	PH_ASSERT_LT(handle.getStageIndex(), m_numUsedCaches);
-
-	const SampleStage& stage = m_stages[handle.getStageIndex()];
-	PH_ASSERT_LE(stage.getSampleIndex() + m_numUsedCaches * stage.numElements(), m_sampleBuffer.size());
-
-	// TODO: probably should make batch buffers closer to each other
-	return TSamplesND<N>(
-		&(m_sampleBuffer[stage.getSampleIndex() + (m_numUsedCaches - 1) * stage.numElements()]),
-		stage.numSamples());
-}
 
 inline std::size_t SampleGenerator::numSampleBatches() const
 {

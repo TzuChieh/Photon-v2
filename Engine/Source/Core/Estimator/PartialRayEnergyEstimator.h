@@ -16,6 +16,7 @@ public:
 	void estimate(
 		const Ray&        ray,
 		const Integrand&  integrand,
+		SampleFlow&       sampleFlow,
 		EnergyEstimation& out_estimation) const override = 0;
 
 	void mapAttributeToEstimation(

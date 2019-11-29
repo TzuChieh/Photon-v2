@@ -21,6 +21,8 @@
 namespace ph
 {
 
+class SampleFlow;
+
 class SurfaceTracer final : public INoncopyable
 {
 public:
@@ -31,7 +33,11 @@ public:
 		const SidednessAgreement& sidedness, 
 		SurfaceHit*               out_X) const;
 
-	bool doBsdfSample(BsdfSampleQuery& bsdfSample, Ray* out_ray) const;
+	bool doBsdfSample(
+		BsdfSampleQuery& bsdfSample,
+		SampleFlow&      sampleFlow,
+		Ray*             out_ray) const;
+
 	bool doBsdfEvaluation(BsdfEvalQuery& bsdfEval) const;
 	bool doBsdfPdfQuery(BsdfPdfQuery& bsdfPdfQuery) const;
 	
@@ -80,7 +86,10 @@ inline bool SurfaceTracer::traceNextSurface(
 	return sidedness.isSidednessAgreed(*out_X, ray.getDirection());
 }
 
-inline bool SurfaceTracer::doBsdfSample(BsdfSampleQuery& bsdfSample, Ray* const out_ray) const
+inline bool SurfaceTracer::doBsdfSample(
+	BsdfSampleQuery& bsdfSample, 
+	SampleFlow&      sampleFlow, 
+	Ray* const       out_ray) const
 {
 	PH_ASSERT(m_scene);
 	PH_ASSERT(out_ray);
@@ -94,7 +103,7 @@ inline bool SurfaceTracer::doBsdfSample(BsdfSampleQuery& bsdfSample, Ray* const 
 		return false;
 	}
 
-	getSurfaceOptics(X)->calcBsdfSample(bsdfSample);
+	getSurfaceOptics(X)->calcBsdfSample(bsdfSample, sampleFlow);
 
 	// HACK: hard-coded number
 	*out_ray = Ray(X.getPosition(), bsdfSample.outputs.L, 0.0001_r, std::numeric_limits<real>::max());

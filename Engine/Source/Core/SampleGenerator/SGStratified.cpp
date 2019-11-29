@@ -4,7 +4,7 @@
 #include "Math/Random.h"
 #include "FileIO/SDL/InputPacket.h"
 #include "Common/assertion.h"
-#include "Core/SampleGenerator/TSamplesND.h"
+#include "Core/SampleGenerator/SamplesND.h"
 #include "Math/TVector2.h"
 
 #include <iostream>
@@ -21,11 +21,11 @@ void SGStratified::genSamples(const SampleStage& stage, real* const out_buffer)
 {
 	PH_ASSERT(out_buffer);
 
-	if(stage.numDimensions() == 1)
+	if(stage.numDims() == 1)
 	{
 		genSamples1D(stage, out_buffer);
 	}
-	else if(stage.numDimensions() == 2)
+	else if(stage.numDims() == 2)
 	{
 		genSamples2D(stage, out_buffer);
 	}
@@ -39,16 +39,16 @@ void SGStratified::genSamples(const SampleStage& stage, real* const out_buffer)
 void SGStratified::genSamples1D(const SampleStage& stage, real* const out_buffer)
 {
 	PH_ASSERT(out_buffer);
-	PH_ASSERT_EQ(stage.numDimensions(), 1);
+	PH_ASSERT_EQ(stage.numDims(), 1);
 	PH_ASSERT_NE(stage.numSamples(), 0);
 
 	const real dx = 1.0_r / static_cast<real>(stage.numSamples());
 
-	TSamplesND<1> samples(out_buffer, stage.numSamples());
+	SamplesND samples(out_buffer, 1, stage.numSamples());
 	for(std::size_t x = 0; x < stage.numSamples(); ++x)
 	{
 		const real jitter = math::Random::genUniformReal_i0_e1();
-		samples.setSample(x, {(static_cast<real>(x) + jitter) * dx});
+		samples.setSample<1>(x, {(static_cast<real>(x) + jitter) * dx});
 	}
 	samples.shuffle();
 }
@@ -56,7 +56,7 @@ void SGStratified::genSamples1D(const SampleStage& stage, real* const out_buffer
 void SGStratified::genSamples2D(const SampleStage& stage, real* const out_buffer)
 {
 	PH_ASSERT(out_buffer);
-	PH_ASSERT_EQ(stage.numDimensions(), 2);
+	PH_ASSERT_EQ(stage.numDims(), 2);
 	PH_ASSERT_NE(stage.numSamples(), 0);
 	PH_ASSERT_EQ(stage.getDimSizeHints().size(), 2);
 
@@ -74,7 +74,7 @@ void SGStratified::genSamples2D(const SampleStage& stage, real* const out_buffer
 	const real dx = 1.0_r / static_cast<real>(strataSizes.x);
 	const real dy = 1.0_r / static_cast<real>(strataSizes.y);
 
-	TSamplesND<2> samples(out_buffer, stage.numSamples());
+	SamplesND samples(out_buffer, 2, stage.numSamples());
 
 	std::size_t currentIndex = 0;
 	while(currentIndex + numStrata <= stage.numSamples())
@@ -85,7 +85,7 @@ void SGStratified::genSamples2D(const SampleStage& stage, real* const out_buffer
 			{
 				const real jitterX = math::Random::genUniformReal_i0_e1();
 				const real jitterY = math::Random::genUniformReal_i0_e1();
-				samples.setSample(
+				samples.setSample<2>(
 					currentIndex, 
 					{(static_cast<real>(x) + jitterX) * dx, (static_cast<real>(y) + jitterY) * dy});
 
@@ -101,7 +101,7 @@ void SGStratified::genSamples2D(const SampleStage& stage, real* const out_buffer
 	// TODO: use hypercube sampling?
 	for(std::size_t i = currentIndex; i < samples.numSamples(); ++i)
 	{
-		samples.setSample(
+		samples.setSample<2>(
 			i,
 			{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()});
 	}

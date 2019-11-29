@@ -20,6 +20,7 @@ void SurfaceAttributeEstimator::update(const Integrand& integrand)
 void SurfaceAttributeEstimator::estimate(
 	const Ray&                        ray,
 	const Integrand&                  integrand,
+	SampleFlow&                       /* sampleFlow */,
 	TEstimationArray<math::Vector3R>& out_estimation) const
 {
 	Ray probingRay = Ray(ray).reverse();

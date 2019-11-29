@@ -10,6 +10,7 @@ namespace ph
 
 class Ray;
 class Integrand;
+class SampleFlow;
 
 template<typename EstimationType>
 class TIRayEstimator
@@ -22,6 +23,7 @@ public:
 	virtual void estimate(
 		const Ray&                        ray, 
 		const Integrand&                  integrand, 
+		SampleFlow&                       sampleFlow,
 		TEstimationArray<EstimationType>& out_estimation) const = 0;
 
 	virtual void mapAttributeToEstimation(

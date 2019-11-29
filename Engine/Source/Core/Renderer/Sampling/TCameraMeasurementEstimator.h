@@ -33,7 +33,10 @@ public:
 
 	TCameraMeasurementEstimator(TCameraMeasurementEstimator&& other);
 
-	void process(const math::Vector2D& filmNdc, const Ray& sensedRay) override;
+	void process(
+		const math::Vector2D& filmNdc, 
+		const Ray&            sensedRay, 
+		SampleFlow&           sampleFlow) override;
 
 	void addEstimator(const Estimator* estimator);
 	void addFilmEstimation(std::size_t filmIndex, std::size_t estimationIndex);

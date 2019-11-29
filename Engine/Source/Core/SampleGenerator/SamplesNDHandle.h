@@ -8,13 +8,12 @@
 namespace ph
 {
 
-template<std::size_t N>
-class TSamplesNDHandle final
+class SamplesNDHandle final
 {
 	friend class SampleGenerator;
 
 protected:
-	explicit TSamplesNDHandle(std::size_t stageIndex);
+	explicit SamplesNDHandle(std::size_t stageIndex);
 
 	std::size_t getStageIndex() const;
 
@@ -24,13 +23,11 @@ private:
 
 // In-header Implementations:
 
-template<std::size_t N>
-inline TSamplesNDHandle<N>::TSamplesNDHandle(const std::size_t stageIndex) :
+inline SamplesNDHandle::SamplesNDHandle(const std::size_t stageIndex) :
 	m_stageIndex(stageIndex)
 {}
 
-template<std::size_t N>
-inline std::size_t TSamplesNDHandle<N>::getStageIndex() const
+inline std::size_t SamplesNDHandle::getStageIndex() const
 {
 	return m_stageIndex;
 }

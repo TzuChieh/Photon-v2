@@ -22,6 +22,7 @@ namespace ph
 void BVPTDLEstimator::estimate(
 	const Ray&        ray,
 	const Integrand&  integrand,
+	SampleFlow&       sampleFlow,
 	EnergyEstimation& out_estimation) const
 {
 	const SurfaceTracer surfaceTracer(&(integrand.getScene()));
@@ -67,7 +68,7 @@ void BVPTDLEstimator::estimate(
 
 		BsdfSampleQuery bsdfSample;
 		bsdfSample.inputs.set(firstHit, V);
-		if(!surfaceTracer.doBsdfSample(bsdfSample, &secondRay))
+		if(!surfaceTracer.doBsdfSample(bsdfSample, sampleFlow, &secondRay))
 		{
 			return;
 		}

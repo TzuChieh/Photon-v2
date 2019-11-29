@@ -35,6 +35,7 @@ namespace ph
 void BNEEPTEstimator::estimate(
 	const Ray&        ray,
 	const Integrand&  integrand,
+	SampleFlow&       sampleFlow,
 	EnergyEstimation& out_estimation) const
 {
 	const Scene&  scene  = integrand.getScene();
@@ -42,7 +43,6 @@ void BNEEPTEstimator::estimate(
 	const auto&   mis    = TMis<EMisStyle::POWER>();
 
 	// common variables
-	//
 	SpectralStrength accuRadiance(0);
 	SpectralStrength accuLiWeight(1);
 	HitProbe         hitProbe;
@@ -50,7 +50,6 @@ void BNEEPTEstimator::estimate(
 	math::Vector3R   V;
 
 	// reversing the ray for backward tracing
-	//
 	Ray tracingRay = Ray(ray).reverse();
 	tracingRay.setMinT(0.0001_r);// HACK: hard-coded number
 	tracingRay.setMaxT(std::numeric_limits<real>::max());
@@ -62,12 +61,10 @@ void BNEEPTEstimator::estimate(
 	}
 
 	// 0-bounce direct lighting
-	//
 	{
 		surfaceHit = SurfaceHit(tracingRay, hitProbe);
 
 		// sidedness agreement between real geometry and shading normal
-		//
 		V = tracingRay.getDirection().mul(-1.0_r);
 		if(surfaceHit.getGeometryNormal().dot(V) * surfaceHit.getShadingNormal().dot(V) <= 0.0_r)
 		{
@@ -86,7 +83,6 @@ void BNEEPTEstimator::estimate(
 	}
 
 	// ray bouncing around the scene (1 ~ N bounces)
-	//
 	for(uint32 numBounces = 0; numBounces < MAX_RAY_BOUNCES; numBounces++)
 	{
 		// FIXME: too hacky
@@ -132,7 +128,6 @@ void BNEEPTEstimator::estimate(
 					weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directPdfW);
 
 					// avoid excessive, negative weight and possible NaNs
-					//
 					rationalClamp(weight);
 
 					accuRadiance.addLocal(emittedRadiance.mul(weight));
@@ -141,7 +136,6 @@ void BNEEPTEstimator::estimate(
 		}// end direct light sample
 
 		// BSDF sample + indirect light sample
-		//
 		{
 			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 			const SurfaceBehavior*   surfaceBehavior = &(metadata->getSurface());
@@ -149,7 +143,7 @@ void BNEEPTEstimator::estimate(
 			BsdfSampleQuery bsdfSample;
 			bsdfSample.inputs.set(surfaceHit, V);
 
-			surfaceBehavior->getOptics()->calcBsdfSample(bsdfSample);
+			surfaceBehavior->getOptics()->calcBsdfSample(bsdfSample, sampleFlow);
 
 			const math::Vector3R N = surfaceHit.getShadingNormal();
 			const math::Vector3R L = bsdfSample.outputs.L;

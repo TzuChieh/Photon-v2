@@ -29,6 +29,7 @@ namespace ph
 void BVPTEstimator::estimate(
 	const Ray&        ray,
 	const Integrand&  integrand,
+	SampleFlow&       sampleFlow,
 	EnergyEstimation& out_estimation) const
 {
 	const SurfaceTracer    surfaceTracer(&(integrand.getScene()));
@@ -66,7 +67,7 @@ void BVPTEstimator::estimate(
 		BsdfSampleQuery bsdfSample;
 		bsdfSample.inputs.set(surfaceHit, V);
 		Ray nextRay;
-		if(!surfaceTracer.doBsdfSample(bsdfSample, &nextRay))
+		if(!surfaceTracer.doBsdfSample(bsdfSample, sampleFlow, &nextRay))
 		{
 			break;
 		}
@@ -114,7 +115,7 @@ void BVPTEstimator::estimate(
 
 				BsdfSampleQuery bsdfSample;
 				bsdfSample.inputs.set(Xe, endV);
-				metadata->getSurface().getOptics()->calcBsdfSample(bsdfSample);
+				metadata->getSurface().getOptics()->calcBsdfSample(bsdfSample, sampleFlow);
 				if(!bsdfSample.outputs.isMeasurable())
 				{
 					break;

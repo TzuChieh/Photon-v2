@@ -69,7 +69,13 @@ void CameraSamplingWork::doWork()
 	setWorkDone(0);
 	setElapsedMs(0);
 
-	const auto camSampleHandle = m_sampleGenerator->declareStageND<2>(
+	const auto camSampleHandle = m_sampleGenerator->declareStageND(
+		2,
+		m_sampleResPx.product(),
+		m_sampleResPx.toVector());
+
+	const auto raySampleHandle = m_sampleGenerator->declareStageND(
+		2,
 		m_sampleResPx.product(),
 		m_sampleResPx.toVector());
 
@@ -90,6 +96,7 @@ void CameraSamplingWork::doWork()
 		}
 
 		const auto camSamples = m_sampleGenerator->getSamplesND(camSampleHandle);
+		auto raySamples = m_sampleGenerator->getSamplesND(raySampleHandle);
 		for(std::size_t si = 0; si < camSamples.numSamples(); si++)
 		{
 			const auto filmNdc = math::Vector2D(camSamples[si]).mul(ndcScale).add(ndcOffset);
@@ -99,7 +106,7 @@ void CameraSamplingWork::doWork()
 
 			for(ISensedRayProcessor* processor : m_processors)
 			{
-				processor->process(filmNdc, ray);
+				processor->process(filmNdc, ray, raySamples.readSampleAsFlow());
 			}
 		}
 		m_numSamplesTaken.fetch_add(static_cast<uint32>(camSamples.numSamples()), std::memory_order_relaxed);

@@ -32,7 +32,10 @@ public:
 	explicit TVector2(const TArithmeticArray<U, 2>& xyValues);
 
 	template<typename U>
-	explicit TVector2(const std::vector<U>& values);
+	explicit TVector2(const U* xyValues);
+
+	template<typename U>
+	explicit TVector2(const std::vector<U>& xyValues);
 
 	void add(const TVector2& rhs, TVector2* out_result) const;
 	TVector2 add(const TVector2& rhs) const;

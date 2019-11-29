@@ -18,6 +18,7 @@ class Scene;
 class Camera;
 class SampleGenerator;
 class Ray;
+class SampleFlow;
 
 template<typename ViewPathHandler>
 class TViewPathTracingWork : public RenderWork
@@ -47,7 +48,8 @@ private:
 	void traceViewPath(
 		Ray tracingRay, 
 		SpectralStrength pathThroughput,
-		std::size_t pathLength);
+		std::size_t pathLength,
+		SampleFlow& sampleFlow);
 
 	void traceElementallyBranchedPath(
 		const ViewPathTracingPolicy& policy,
@@ -55,7 +57,8 @@ private:
 		const math::Vector3R& N,
 		const SurfaceHit& surfaceHit,
 		const SpectralStrength& pathThroughput,
-		std::size_t pathLength);
+		std::size_t pathLength,
+		SampleFlow& sampleFlow);
 };
 
 }// end namespace ph

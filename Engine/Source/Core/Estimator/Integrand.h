@@ -25,13 +25,17 @@ private:
 // In-header Implementations:
 
 inline Integrand::Integrand() : 
-	Integrand(nullptr, nullptr)
+	m_scene(nullptr),
+	m_camera(nullptr)
 {}
 
 inline Integrand::Integrand(const Scene* const scene, const Camera* const camera) : 
 	m_scene(scene),
 	m_camera(camera)
-{}
+{
+	PH_ASSERT(scene);
+	PH_ASSERT(camera);
+}
 
 inline const Scene& Integrand::getScene() const
 {

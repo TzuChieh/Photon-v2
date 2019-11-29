@@ -34,8 +34,8 @@ public:
 	are distributed uniformly if the sample is uniform. For a unit sphere,
 	this method effectively generates normalized directions.
 	*/
-	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& samples) const;
-	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& samples, T* out_pdfA) const;
+	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& sample) const;
+	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& sample, T* out_pdfA) const;
 
 private:
 	T m_radius;

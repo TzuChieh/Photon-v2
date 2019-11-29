@@ -10,6 +10,8 @@
 namespace ph
 {
 
+class SampleFlow;
+
 class SurfaceOptics
 {
 	// FIXME: sort-of hacked, should clarify the need of this in the future
@@ -22,7 +24,7 @@ public:
 	virtual ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const = 0;
 
 	void calcBsdf(BsdfEvalQuery& eval) const;
-	void calcBsdfSample(BsdfSampleQuery& sample/*, std::array<real, 2> samples*/) const;
+	void calcBsdfSample(BsdfSampleQuery& sample, SampleFlow& sampleFlow) const;
 	void calcBsdfSamplePdfW(BsdfPdfQuery& pdfQuery) const;
 
 	SurfacePhenomena getAllPhenomena() const;

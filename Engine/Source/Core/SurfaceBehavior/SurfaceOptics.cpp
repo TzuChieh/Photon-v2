@@ -25,13 +25,12 @@ void SurfaceOptics::calcBsdf(BsdfEvalQuery& eval) const
 		eval.outputs);
 }
 
-void SurfaceOptics::calcBsdfSample(BsdfSampleQuery& sample/*, std::array<real, 2> samples*/) const
+void SurfaceOptics::calcBsdfSample(BsdfSampleQuery& sample, SampleFlow& sampleFlow) const
 {
 	calcBsdfSample(
 		sample.context,
 		sample.inputs, 
-		//BsdfSample(std::move(samples)),
-		BsdfSample(std::array<real, 2>()),
+		BsdfSample(sampleFlow),
 		sample.outputs);
 }
 

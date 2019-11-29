@@ -55,6 +55,46 @@ bool SampleGenerator::prepareSampleBatch()
 	}
 }
 
+SamplesNDHandle SampleGenerator::declareStageND(const std::size_t numDims, const std::size_t numSamples)
+{
+	return declareStageND(numDims, numSamples, SampleStage::makeIdentityDimSizeHints(numDims));
+}
+
+SamplesNDHandle SampleGenerator::declareStageND(
+	const std::size_t              numDims,
+	const std::size_t              numSamples,
+	const std::vector<std::size_t> dimSizeHints)
+{
+	const std::size_t sampleIndex = m_totalElements;
+	const std::size_t stageIndex  = m_stages.size();
+
+	const SampleStage stage(
+		sampleIndex,
+		numDims, 
+		numSamples, 
+		std::move(dimSizeHints));
+
+	m_stages.push_back(stage);
+	m_totalElements += m_numCachedBatches * stage.numElements();
+
+	return SamplesNDHandle(stageIndex);
+}
+
+SamplesNDStream SampleGenerator::getSamplesND(const SamplesNDHandle& handle)
+{
+	PH_ASSERT_NE(m_numUsedCaches, 0);
+	PH_ASSERT_LT(handle.getStageIndex(), m_stages.size());
+
+	const SampleStage& stage = m_stages[handle.getStageIndex()];
+	PH_ASSERT_LE(stage.getSampleIndex() + m_numUsedCaches * stage.numElements(), m_sampleBuffer.size());
+
+	// TODO: probably should make batch buffers closer to each other
+	return SamplesNDStream(
+		&(m_sampleBuffer[stage.getSampleIndex() + (m_numUsedCaches - 1) * stage.numElements()]),
+		stage.numDims(),
+		stage.numSamples());
+}
+
 void SampleGenerator::genSplitted(const std::size_t numSplits,
                                   std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) const
 {

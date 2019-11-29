@@ -44,20 +44,24 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 {
 	PH_ASSERT(m_handler);
 
-	const auto filmSampleHandle = m_sampleGenerator->declareStageND<2>(
+	const auto filmSampleHandle = m_sampleGenerator->declareStageND(
+		2,
 		m_filmRegion.getArea(),
 		{static_cast<std::size_t>(m_filmRegion.getWidth()), static_cast<std::size_t>(m_filmRegion.getHeight())});
+
+	const auto raySampleHandle = m_sampleGenerator->declareStageND(2, m_filmRegion.getArea());
 
 	const math::TAABB2D<real> rRegion(m_filmRegion);
 	const math::Vector2R rFilmSize(m_filmSize);
 
 	while(m_sampleGenerator->prepareSampleBatch())
 	{
-		const auto samples = m_sampleGenerator->getSamplesND(filmSampleHandle);
-		for(std::size_t i = 0; i < samples.numSamples(); ++i)
+		auto filmSamples = m_sampleGenerator->getSamplesND(filmSampleHandle);
+		auto raySamples = m_sampleGenerator->getSamplesND(raySampleHandle);
+		for(std::size_t i = 0; i < filmSamples.numSamples(); ++i)
 		{
 			// TODO: use TArithmeticArray directly
-			const math::Vector2R& filmNdc = math::UniformRectangle::map(math::Vector2R(samples[i]), rRegion).div(rFilmSize);
+			const math::Vector2R& filmNdc = math::UniformRectangle::map(math::Vector2R(filmSamples[i]), rRegion).div(rFilmSize);
 
 			Ray tracingRay;
 			m_camera->genSensedRay(filmNdc, &tracingRay);
@@ -74,7 +78,8 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 			traceViewPath(
 				tracingRay, 
 				pathThroughput, 
-				pathLength);
+				pathLength,
+				raySamples.readSampleAsFlow());
 			
 			m_handler->onCameraSampleEnd();
 		}// end for single sample
@@ -87,7 +92,8 @@ template<typename ViewPathHandler>
 inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 	Ray              tracingRay,
 	SpectralStrength pathThroughput,
-	std::size_t      pathLength)
+	std::size_t      pathLength,
+	SampleFlow&      sampleFlow)
 {	
 	const SurfaceTracer surfaceTracer(m_scene);
 	while(true)
@@ -115,7 +121,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 			BsdfSampleQuery bsdfSample(BsdfQueryContext(policy.getTargetElemental(), ETransport::RADIANCE, ESidednessPolicy::STRICT));
 			bsdfSample.inputs.set(surfaceHit, V);
 			Ray sampledRay;
-			if(!surfaceTracer.doBsdfSample(bsdfSample, &sampledRay))
+			if(!surfaceTracer.doBsdfSample(bsdfSample, sampleFlow, &sampledRay))
 			{
 				break;
 			}
@@ -140,7 +146,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 		}
 		else
 		{
-			traceElementallyBranchedPath(policy, V, N, surfaceHit, pathThroughput, pathLength);
+			traceElementallyBranchedPath(policy, V, N, surfaceHit, pathThroughput, pathLength, sampleFlow);
 			break;
 		}
 	}// end while true
@@ -153,7 +159,8 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceElementallyBranchedPath(
 	const math::Vector3R& N,
 	const SurfaceHit& surfaceHit,
 	const SpectralStrength& pathThroughput,
-	const std::size_t pathLength)
+	const std::size_t pathLength,
+	SampleFlow& sampleFlow)
 {
 	PH_ASSERT(policy.getSampleMode() == EViewPathSampleMode::ELEMENTAL_BRANCH);
 
@@ -174,7 +181,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceElementallyBranchedPath(
 		sample.inputs.set(surfaceHit, V);
 
 		Ray sampledRay;
-		if(!surfaceTracer.doBsdfSample(sample, &sampledRay))
+		if(!surfaceTracer.doBsdfSample(sample, sampleFlow, &sampledRay))
 		{
 			continue;
 		}
@@ -199,7 +206,8 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceElementallyBranchedPath(
 		traceViewPath(
 			sampledRay,
 			elementalPathThroughput,
-			pathLength);
+			pathLength,
+			sampleFlow);
 	}// end for each phenomenon
 }
 

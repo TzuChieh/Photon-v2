@@ -24,7 +24,11 @@ public:
 	TStepperCameraMeasurementEstimator(TStepperCameraMeasurementEstimator&& other) = default;
 
 	void onBatchStart(uint64 batchNumber) override;
-	void process(const math::Vector2D& filmNdc, const Ray& ray) override;
+
+	void process(
+		const math::Vector2D& filmNdc, 
+		const Ray&            ray, 
+		SampleFlow&           sampleFlow) override;
 
 	void setFilmStepSize(std::size_t filmIndex, std::size_t stepSize);
 

@@ -49,10 +49,15 @@ inline void TPhotonMappingWork<Photon>::doWork()
 {
 	// FIXME: currently we exit immediately when photon buffer is full; we should trace a full path instead
 
-	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::IMPORTANCE, ESidednessPolicy::STRICT);
-
 	Timer timer;
 	timer.start();
+
+	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::IMPORTANCE, ESidednessPolicy::STRICT);
+	const SurfaceTracer surfaceTracer(m_scene);
+
+	const auto raySampleHandle = m_sampleGenerator->declareStageND(2, m_numPhotons);
+	m_sampleGenerator->prepareSampleBatch();// HACK: check if succeeded
+	auto raySamples = m_sampleGenerator->getSamplesND(raySampleHandle);
 
 	std::size_t numStoredPhotons = 0;
 	*m_numPhotonPaths            = 0;
@@ -79,7 +84,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 		throughputRadiance.divLocal(pdfW);
 		throughputRadiance.mulLocal(emitN.absDot(tracingRay.getDirection()));
 
-		const SurfaceTracer surfaceTracer(m_scene);
+		SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 		// start tracing single photon path
 		while(!throughputRadiance.isZero())
@@ -126,7 +131,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 			BsdfSampleQuery bsdfSample(bsdfContext);
 			Ray sampledRay;
 			bsdfSample.inputs.set(surfaceHit, tracingRay.getDirection().mul(-1));
-			if(!surfaceTracer.doBsdfSample(bsdfSample, &sampledRay))
+			if(!surfaceTracer.doBsdfSample(bsdfSample, sampleFlow, &sampledRay))
 			{
 				break;
 			}

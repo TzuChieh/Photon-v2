@@ -24,7 +24,11 @@ public:
 	MetaRecordingProcessor();
 	explicit MetaRecordingProcessor(ISensedRayProcessor* processor);
 
-	void process(const math::Vector2D& filmNdc, const Ray& ray) override;
+	void process(
+		const math::Vector2D& filmNdc, 
+		const Ray&            ray, 
+		SampleFlow&           sampleFlow) override;
+
 	void onBatchStart(uint64 batchNumber) override;
 	void onBatchFinish(uint64 batchNumber) override;
 

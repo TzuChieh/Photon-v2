@@ -14,11 +14,11 @@ class SampleStage final
 public:
 	using SizeHints = std::vector<std::size_t>;
 
-	static SizeHints makeIdentityDimSizeHints(std::size_t numDimensions);
+	static SizeHints makeIdentityDimSizeHints(std::size_t numDims);
 
 	SampleStage(
 		std::size_t sampleIndex, 
-		std::size_t numDimensions,
+		std::size_t numDims,
 		std::size_t numSamples);
 
 	SampleStage(
@@ -28,7 +28,7 @@ public:
 		SizeHints   dimSizeHints);
 
 	std::size_t getSampleIndex() const;
-	std::size_t numDimensions() const;
+	std::size_t numDims() const;
 	std::size_t numSamples() const;
 	std::size_t numElements() const;
 	const SizeHints& getDimSizeHints() const;
@@ -36,7 +36,7 @@ public:
 private:
 	std::size_t m_sampleIndex;
 	std::size_t m_numSamples;
-	std::size_t m_numDimensions;
+	std::size_t m_numDims;
 	SizeHints   m_dimSizeHints;
 };
 
@@ -44,28 +44,28 @@ private:
 
 inline SampleStage::SampleStage(
 	const std::size_t stageIndex,
-	const std::size_t numDimensions,
+	const std::size_t numDims,
 	const std::size_t numSamples) :
 
 	SampleStage(
 		stageIndex, 
-		numDimensions, 
+		numDims,
 		numSamples, 
-		makeIdentityDimSizeHints(numDimensions))
+		makeIdentityDimSizeHints(numDims))
 {}
 
 inline SampleStage::SampleStage(
 	const std::size_t sampleIndex,
-	const std::size_t numDimensions,
+	const std::size_t numDims,
 	const std::size_t numSamples,
 	SizeHints         dimSizeHints) :
 
-	m_sampleIndex  (sampleIndex),
-	m_numDimensions(numDimensions),
-	m_numSamples   (numSamples),
-	m_dimSizeHints (std::move(dimSizeHints))
+	m_sampleIndex (sampleIndex),
+	m_numDims     (numDims),
+	m_numSamples  (numSamples),
+	m_dimSizeHints(std::move(dimSizeHints))
 {
-	PH_ASSERT_GT(numDimensions, 0);
+	PH_ASSERT_GT(numDims, 0);
 }
 
 inline std::size_t SampleStage::getSampleIndex() const
@@ -73,9 +73,9 @@ inline std::size_t SampleStage::getSampleIndex() const
 	return m_sampleIndex;
 }
 
-inline std::size_t SampleStage::numDimensions() const
+inline std::size_t SampleStage::numDims() const
 {
-	return m_numDimensions;
+	return m_numDims;
 }
 
 inline std::size_t SampleStage::numSamples() const
@@ -85,7 +85,7 @@ inline std::size_t SampleStage::numSamples() const
 
 inline std::size_t SampleStage::numElements() const
 {
-	return m_numDimensions * m_numSamples;
+	return m_numDims * m_numSamples;
 }
 
 inline auto SampleStage::getDimSizeHints() const
@@ -94,13 +94,13 @@ inline auto SampleStage::getDimSizeHints() const
 	return m_dimSizeHints;
 }
 
-inline auto SampleStage::makeIdentityDimSizeHints(const std::size_t numDimensions)
+inline auto SampleStage::makeIdentityDimSizeHints(const std::size_t numDims)
 	-> SizeHints
 {
-	PH_ASSERT_GT(numDimensions, 0);
+	PH_ASSERT_GT(numDims, 0);
 
 	// let each dimension equally sized
-	return SizeHints(numDimensions, 1);
+	return SizeHints(numDims, 1);
 }
 
 }// end namespace ph
