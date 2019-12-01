@@ -116,6 +116,7 @@ Note that if @p is 0, then 0 will be returned.
 Reference:
 Stanford CG Lab's webpage: "Bit Twiddling Hacks" by Sean Eron Anderson
 */
+// TODO: templatize
 inline uint32 next_power_of_2(uint32 value)
 {
 	PH_ASSERT(value <= (1UL << 31));

@@ -3,6 +3,9 @@
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Common/primitive_type.h"
 
+#include <cstddef>
+#include <vector>
+
 namespace ph
 {
 
@@ -13,10 +16,16 @@ public:
 
 private:
 	void genSamples(const SampleStage& stage, real* out_buffer) override;
+	void reviseSampleStage(SampleStageReviser& reviser) override;
 	std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;
+
 
 	void genSamples1D(const SampleStage& stage, real* out_buffer);
 	void genSamples2D(const SampleStage& stage, real* out_buffer);
+
+	static std::vector<std::size_t> reviseDimSizeHints(
+		std::size_t                     numSamples, 
+		const std::vector<std::size_t>& originalDimSizeHints);
 
 // command interface
 public:

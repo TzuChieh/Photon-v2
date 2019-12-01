@@ -2,6 +2,7 @@
 #include "FileIO/SDL/InputPacket.h"
 #include "Math/Random.h"
 #include "Common/assertion.h"
+#include "Core/SampleGenerator/SampleStageReviser.h"
 
 #include <iostream>
 #include <algorithm>
@@ -33,6 +34,15 @@ bool SampleGenerator::prepareSampleBatch()
 {
 	PH_ASSERT_LE(m_numUsedBatches, m_numSampleBatches);
 	PH_ASSERT_LE(m_numUsedCaches,  m_numCachedBatches);
+
+	// Perform potential stage optimization before generating any samples
+	if(m_numUsedBatches == 0)
+	{
+		for(auto& sampleStage : m_stages)
+		{
+			reviseSampleStage(SampleStageReviser(sampleStage));
+		}
+	}
 
 	if(hasMoreBatches())
 	{
@@ -141,6 +151,9 @@ void SampleGenerator::genSampleBatch()
 		}
 	}
 }
+
+void SampleGenerator::reviseSampleStage(SampleStageReviser& reviser)
+{}
 
 // command interface
 

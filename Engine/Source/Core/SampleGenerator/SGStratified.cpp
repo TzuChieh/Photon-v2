@@ -6,8 +6,11 @@
 #include "Common/assertion.h"
 #include "Core/SampleGenerator/SamplesND.h"
 #include "Math/TVector2.h"
+#include "Core/SampleGenerator/SampleStageReviser.h"
 
 #include <iostream>
+#include <algorithm>
+#include <iterator>
 
 namespace ph
 {
@@ -60,7 +63,6 @@ void SGStratified::genSamples2D(const SampleStage& stage, real* const out_buffer
 	PH_ASSERT_NE(stage.numSamples(), 0);
 	PH_ASSERT_EQ(stage.getDimSizeHints().size(), 2);
 
-	// TODO: automatically pick some nice hint if (1, 1) was given
 	const auto        strataSizes = math::Vector2S(stage.getDimSizeHints());
 	const std::size_t numStrata   = strataSizes.product();
 	PH_ASSERT_GT(numStrata, 0);
@@ -112,6 +114,59 @@ void SGStratified::genSamples2D(const SampleStage& stage, real* const out_buffer
 std::unique_ptr<SampleGenerator> SGStratified::genNewborn(const std::size_t numSamples) const
 {
 	return std::make_unique<SGStratified>(numSamples);
+}
+
+void SGStratified::reviseSampleStage(SampleStageReviser& reviser)
+{
+	// No revision needed for 1-D samples
+	if(reviser.numDims() == 1)
+	{
+		return;
+	}
+
+	reviser.resetDimSizeHints(reviseDimSizeHints(reviser.numSamples(), reviser.getDimSizeHints()));
+}
+
+std::vector<std::size_t> SGStratified::reviseDimSizeHints(
+	const std::size_t               numSamples,
+	const std::vector<std::size_t>& originalDimSizeHints)
+{
+	PH_ASSERT_GE(numSamples, 1);
+	PH_ASSERT_GE(originalDimSizeHints.size(), 1);
+
+	const std::size_t NUM_DIMS = originalDimSizeHints.size();
+
+	std::vector<std::size_t> revisedDimSizeHints(originalDimSizeHints.size());
+
+	// Ensure sensible size hints and calculates total hinted size
+	std::size_t hintSize = 1;
+	for(std::size_t di = 0; di < originalDimSizeHints.size(); ++di)
+	{
+		revisedDimSizeHints[di] = std::max(originalDimSizeHints[di], std::size_t(1));
+		hintSize *= revisedDimSizeHints[di];
+	}
+
+	// Scale size hints towards number of samples 
+	// (proportionally, and not being greater)
+	const auto sizeRatio = static_cast<double>(numSamples) / hintSize;
+	const auto shrinkRatio = std::pow(sizeRatio, 1.0 / static_cast<double>(NUM_DIMS));
+	for(auto& dimSizeHint : revisedDimSizeHints)
+	{
+		dimSizeHint = static_cast<std::size_t>(shrinkRatio * dimSizeHint);
+		dimSizeHint = std::max(dimSizeHint, std::size_t(1));
+	}
+
+	// Numerical error on floating point operations may cause the revised hint
+	// size being greater than the number of samples. In such case, decrease 
+	// the size of largest dimension iteratively until the condition being satisfied.
+	while(math::product(revisedDimSizeHints) > numSamples)
+	{
+		auto& max = std::max_element(revisedDimSizeHints.begin(), revisedDimSizeHints.end());
+		*max = *max > 1 ? *max - 1 : 1;
+	}
+
+	PH_ASSERT_IN_RANGE_INCLUSIVE(math::product(revisedDimSizeHints), 1, numSamples);
+	return revisedDimSizeHints;
 }
 
 // command interface

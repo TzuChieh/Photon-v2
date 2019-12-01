@@ -23,6 +23,7 @@ namespace ph
 
 class Scene;
 class InputPacket;
+class SampleStageReviser;
 
 class SampleGenerator : public TCommandInterface<SampleGenerator>
 {
@@ -53,6 +54,8 @@ public:
 private:
 	virtual std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const = 0;
 	virtual void genSamples(const SampleStage& stage, real* out_buffer) = 0;
+
+	virtual void reviseSampleStage(SampleStageReviser& reviser);
 
 	std::size_t              m_numSampleBatches;
 	std::size_t              m_numCachedBatches;
