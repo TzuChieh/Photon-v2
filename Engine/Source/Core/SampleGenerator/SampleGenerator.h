@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
+#include "Common/assertion.h"
 #include "Core/Sample.h"
 #include "Math/TVector2.h"
 #include "Math/TArithmeticArray.h"
@@ -28,7 +29,7 @@ class SampleStageReviser;
 class SampleGenerator : public TCommandInterface<SampleGenerator>
 {
 public:
-	SampleGenerator(std::size_t numSampleBatches, std::size_t numCachedBatches);
+	SampleGenerator(std::size_t numSampleBatches, std::size_t maxCachedBatches);
 	explicit SampleGenerator(std::size_t numSampleBatches);
 	virtual ~SampleGenerator() = default;
 
@@ -48,7 +49,8 @@ public:
 	SamplesNDStream getSamplesND(const SamplesNDHandle& handle);
 
 	std::size_t numSampleBatches() const;
-	std::size_t numCachedBatches() const;
+	std::size_t maxCachedBatches() const;
+	std::size_t numRemainingBatches() const;
 	bool hasMoreBatches() const;
 
 private:
@@ -58,7 +60,7 @@ private:
 	virtual void reviseSampleStage(SampleStageReviser& reviser);
 
 	std::size_t              m_numSampleBatches;
-	std::size_t              m_numCachedBatches;
+	std::size_t              m_maxCachedBatches;
 	std::size_t              m_numUsedBatches;
 	std::size_t              m_numUsedCaches;
 	std::size_t              m_totalElements;
@@ -66,7 +68,7 @@ private:
 	std::vector<SampleStage> m_stages;
 
 	void allocSampleBuffer();
-	void genSampleBatch();
+	void genSampleBatch(std::size_t cachedBatchIndex);
 
 // command interface
 public:
@@ -82,9 +84,16 @@ inline std::size_t SampleGenerator::numSampleBatches() const
 	return m_numSampleBatches;
 }
 
-inline std::size_t SampleGenerator::numCachedBatches() const
+inline std::size_t SampleGenerator::maxCachedBatches() const
 {
-	return m_numCachedBatches;
+	return m_maxCachedBatches;
+}
+
+inline std::size_t SampleGenerator::numRemainingBatches() const
+{
+	PH_ASSERT_LE(m_numUsedBatches, m_numSampleBatches);
+
+	return m_numSampleBatches - m_numUsedBatches;
 }
 
 inline bool SampleGenerator::hasMoreBatches() const
