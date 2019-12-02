@@ -86,12 +86,13 @@ void AttributeRenderer::doRender()
 		auto raySamples = m_sampleGenerator->getSamplesND(raySampleHandle);
 		for(std::size_t si = 0; si < camSamples.numSamples(); ++si)
 		{
-			const auto filmNdc = math::Vector2D(camSamples[si]).mul(ndcScale).add(ndcOffset);
+			const auto filmNdc    = math::Vector2D(camSamples[si]).mul(ndcScale).add(ndcOffset);
+			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray ray;
 			m_camera->genSensedRay(math::Vector2R(filmNdc), &ray);
 
-			estimator.estimate(ray, integrand, raySamples.readSampleAsFlow(), estimation);
+			estimator.estimate(ray, integrand, sampleFlow, estimation);
 
 			const auto rasterPos = filmNdc * math::Vector2D(m_attributeFilm.getActualResPx());
 

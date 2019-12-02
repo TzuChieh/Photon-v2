@@ -61,7 +61,8 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 		for(std::size_t i = 0; i < filmSamples.numSamples(); ++i)
 		{
 			// TODO: use TArithmeticArray directly
-			const math::Vector2R& filmNdc = math::UniformRectangle::map(math::Vector2R(filmSamples[i]), rRegion).div(rFilmSize);
+			const math::Vector2R filmNdc    = math::UniformRectangle::map(math::Vector2R(filmSamples[i]), rRegion).div(rFilmSize);
+			SampleFlow           sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray tracingRay;
 			m_camera->genSensedRay(filmNdc, &tracingRay);
@@ -74,12 +75,12 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 				m_handler->onCameraSampleEnd();
 				continue;
 			}
-			
+
 			traceViewPath(
 				tracingRay, 
 				pathThroughput, 
 				pathLength,
-				raySamples.readSampleAsFlow());
+				sampleFlow);
 			
 			m_handler->onCameraSampleEnd();
 		}// end for single sample
