@@ -10,20 +10,18 @@
 namespace ph
 {
 
-// TODO: if numSampleBatches cannot be evenly divided by numCachedBatches,
-// some sample batches will be wasted
-
 SampleGenerator::SampleGenerator(const std::size_t numSampleBatches,
-                                 const std::size_t numCachedBatches) :
+                                 const std::size_t maxCachedBatches) :
 	m_numSampleBatches(numSampleBatches),
-	m_numCachedBatches(numCachedBatches),
+	m_maxCachedBatches(maxCachedBatches),
 	m_numUsedBatches  (0),
-	m_numUsedCaches   (numCachedBatches),
+	m_numUsedCaches   (maxCachedBatches),
 	m_totalElements   (0),
 	m_sampleBuffer    (),
 	m_stages          ()
 {
-	PH_ASSERT_GT(numCachedBatches, 0);
+	PH_ASSERT_GE(numSampleBatches, 1);
+	PH_ASSERT_GE(maxCachedBatches, 1);
 }
 
 SampleGenerator::SampleGenerator(const std::size_t numSampleBatches) : 
@@ -33,7 +31,7 @@ SampleGenerator::SampleGenerator(const std::size_t numSampleBatches) :
 bool SampleGenerator::prepareSampleBatch()
 {
 	PH_ASSERT_LE(m_numUsedBatches, m_numSampleBatches);
-	PH_ASSERT_LE(m_numUsedCaches,  m_numCachedBatches);
+	PH_ASSERT_LE(m_numUsedCaches,  m_maxCachedBatches);
 
 	// Perform potential stage optimization before generating any samples
 	if(m_numUsedBatches == 0)
@@ -46,17 +44,23 @@ bool SampleGenerator::prepareSampleBatch()
 
 	if(hasMoreBatches())
 	{
-		const bool needsNewCache = m_numUsedCaches == m_numCachedBatches;
+		const bool needsNewCache = m_numUsedCaches == m_maxCachedBatches;
 		if(needsNewCache)
 		{
 			allocSampleBuffer();
-			genSampleBatch();
+
+			// Not caching more than required number of samples
+			const auto numCachedBatches = std::min(m_maxCachedBatches, numRemainingBatches());
+			for(std::size_t bi = 0; bi < numCachedBatches; ++bi)
+			{
+				genSampleBatch(bi);
+			}
+
 			m_numUsedCaches = 0;
 		}
 
 		++m_numUsedBatches;
 		++m_numUsedCaches;
-
 		return true;
 	}
 	else
@@ -85,7 +89,7 @@ SamplesNDHandle SampleGenerator::declareStageND(
 		std::move(dimSizeHints));
 
 	m_stages.push_back(stage);
-	m_totalElements += m_numCachedBatches * stage.numElements();
+	m_totalElements += m_maxCachedBatches * stage.numElements();
 
 	return SamplesNDHandle(stageIndex);
 }
@@ -137,18 +141,17 @@ void SampleGenerator::allocSampleBuffer()
 	m_sampleBuffer.resize(m_totalElements);
 }
 
-void SampleGenerator::genSampleBatch()
+void SampleGenerator::genSampleBatch(const std::size_t cachedBatchIndex)
 {
+	PH_ASSERT_LT(cachedBatchIndex, m_maxCachedBatches);
+
 	// TODO: probably should make batch buffers closer to each other
 
 	for(const auto& stage : m_stages)
 	{
-		for(std::size_t bi = 0; bi < m_numCachedBatches; ++bi)
-		{
-			genSamples(
-				stage, 
-				&(m_sampleBuffer[stage.getSampleIndex() + bi * stage.numElements()]));
-		}
+		genSamples(
+			stage, 
+			&(m_sampleBuffer[stage.getSampleIndex() + cachedBatchIndex * stage.numElements()]));
 	}
 }
 
