@@ -80,7 +80,7 @@ SamplesNDHandle SampleGenerator::declareStageND(
 		std::move(dimSizeHints));
 
 	std::size_t bufferSizeWithCache = 0;
-	if(isSamplesGE3DSupported())
+	if(numDims <= 2 || isSamplesGE3DSupported())
 	{
 		reviseSampleStage(SampleStageReviser(stage));
 		bufferSizeWithCache += m_maxCachedBatches * stage.getBufferSize();

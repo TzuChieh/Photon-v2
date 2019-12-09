@@ -77,7 +77,7 @@ inline SampleStage::SampleStage(
 
 	m_bufferIndex   (bufferIndex),
 	m_numDims       (numDims),
-	m_strideSize    (numSamples),
+	m_strideSize    (numDims),
 	m_offsetInStride(0)
 {
 	setNumSamples(numSamples);
@@ -112,7 +112,7 @@ inline SampleStage SampleStage::popFirstND(const std::size_t N)
 	const auto numSamples  = m_numSamples;
 	const auto remainingN  = m_numDims - N;
 	const auto strideSize  = m_strideSize;
-	const auto sampleIndex = m_bufferIndex;
+	const auto bufferIndex = m_bufferIndex;
 
 	const auto firstOffsetInStride  = m_offsetInStride;
 	const auto secondOffsetInStride = firstOffsetInStride + N;
@@ -125,14 +125,14 @@ inline SampleStage SampleStage::popFirstND(const std::size_t N)
 		m_dimSizeHints.end());
 
 	*this = SampleStage(
-		sampleIndex,
+		bufferIndex,
 		remainingN, 
 		numSamples,
 		secondDimSizeHints);
 	this->setStrideLayout(strideSize, secondOffsetInStride);
 
 	auto poppedStage = SampleStage(
-		sampleIndex,
+		bufferIndex,
 		N,
 		numSamples,
 		firstDimSizeHints);
