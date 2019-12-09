@@ -16,7 +16,7 @@ SampleGenerator::SampleGenerator(const std::size_t numSampleBatches,
 	m_maxCachedBatches(maxCachedBatches),
 	m_numUsedBatches  (0),
 	m_numUsedCaches   (maxCachedBatches),
-	m_totalElements   (0),
+	m_totalBufferSize (0),
 	m_sampleBuffer    (),
 	m_stages          ()
 {
@@ -32,15 +32,6 @@ bool SampleGenerator::prepareSampleBatch()
 {
 	PH_ASSERT_LE(m_numUsedBatches, m_numSampleBatches);
 	PH_ASSERT_LE(m_numUsedCaches,  m_maxCachedBatches);
-
-	// Perform potential stage optimization before generating any samples
-	if(m_numUsedBatches == 0)
-	{
-		for(auto& sampleStage : m_stages)
-		{
-			reviseSampleStage(SampleStageReviser(sampleStage));
-		}
-	}
 
 	if(hasMoreBatches())
 	{
@@ -79,19 +70,65 @@ SamplesNDHandle SampleGenerator::declareStageND(
 	const std::size_t              numSamples,
 	const std::vector<std::size_t> dimSizeHints)
 {
-	const std::size_t sampleIndex = m_totalElements;
+	const std::size_t bufferIndex = m_totalBufferSize;
 	const std::size_t stageIndex  = m_stages.size();
 
-	const SampleStage stage(
-		sampleIndex,
+	SampleStage stage(
+		bufferIndex,
 		numDims, 
 		numSamples, 
 		std::move(dimSizeHints));
 
-	m_stages.push_back(stage);
-	m_totalElements += m_maxCachedBatches * stage.numElements();
+	std::size_t bufferSizeWithCache = 0;
+	if(isSamplesGE3DSupported())
+	{
+		reviseSampleStage(SampleStageReviser(stage));
+		bufferSizeWithCache += m_maxCachedBatches * stage.getBufferSize();
+		m_stages.push_back(stage);
+	}
+	// Break the stage into 1-D and 2-D stages if >= 3-D is not supported
+	else
+	{
+		// Split, revise and gather popped stages
+		std::vector<SampleStage> poppedStages;
+		while(stage.numDims() > 0)
+		{
+			SampleStage poppedStage;
+			if(stage.numDims() >= 2)
+			{
+				poppedStage = stage.popFirstND(2);
+			}
+			else
+			{
+				poppedStage = stage.popFirstND(1);
+			}
 
-	return SamplesNDHandle(stageIndex);
+			reviseSampleStage(SampleStageReviser(poppedStage));
+			poppedStages.push_back(poppedStage);
+		}
+
+		// Later, make every stage sample count equal to the maximum one so 
+		// that samples in stages can be combined to form higher dimensional samples
+
+		std::size_t maxNumSamples = 0;
+		for(auto& poppedStage : poppedStages)
+		{
+			maxNumSamples = std::max(poppedStage.numSamples(), maxNumSamples);
+		}
+		PH_ASSERT_GT(maxNumSamples, 0);
+
+		for(auto& poppedStage : poppedStages)
+		{
+			poppedStage.setNumSamples(maxNumSamples);
+
+			bufferSizeWithCache += m_maxCachedBatches * poppedStage.getBufferSize();
+			m_stages.push_back(poppedStage);
+		}
+	}
+	PH_ASSERT_GT(bufferSizeWithCache, 0);
+	m_totalBufferSize += bufferSizeWithCache;
+
+	return SamplesNDHandle(stageIndex, numDims);
 }
 
 SamplesNDStream SampleGenerator::getSamplesND(const SamplesNDHandle& handle)
@@ -100,12 +137,17 @@ SamplesNDStream SampleGenerator::getSamplesND(const SamplesNDHandle& handle)
 	PH_ASSERT_LT(handle.getStageIndex(), m_stages.size());
 
 	const SampleStage& stage = m_stages[handle.getStageIndex()];
-	PH_ASSERT_LE(stage.getSampleIndex() + m_numUsedCaches * stage.numElements(), m_sampleBuffer.size());
+
+	// These stage attribute should be used instead due to current stage splitting implementation
+	const auto numDims     = stage.getStrideSize();
+	const auto numElements = stage.getBufferSize();
+
+	PH_ASSERT_LE(stage.getBufferIndex() + m_numUsedCaches * numElements, m_sampleBuffer.size());
 
 	// TODO: probably should make batch buffers closer to each other
 	return SamplesNDStream(
-		&(m_sampleBuffer[stage.getSampleIndex() + (m_numUsedCaches - 1) * stage.numElements()]),
-		stage.numDims(),
+		&(m_sampleBuffer[stage.getBufferIndex() + (m_numUsedCaches - 1) * numElements]),
+		numDims,
 		stage.numSamples());
 }
 
@@ -136,9 +178,20 @@ std::unique_ptr<SampleGenerator> SampleGenerator::genCopied(const std::size_t nu
 	return genNewborn(numSampleBatches);
 }
 
+bool SampleGenerator::isSamplesGE3DSupported() const
+{
+	return false;
+}
+
+void SampleGenerator::genSamplesGE3D(const SampleStage& stage, SamplesND& out_samples)
+{}
+
+void SampleGenerator::reviseSampleStage(SampleStageReviser& reviser)
+{}
+
 void SampleGenerator::allocSampleBuffer()
 {
-	m_sampleBuffer.resize(m_totalElements);
+	m_sampleBuffer.resize(m_totalBufferSize);
 }
 
 void SampleGenerator::genSampleBatch(const std::size_t cachedBatchIndex)
@@ -149,14 +202,52 @@ void SampleGenerator::genSampleBatch(const std::size_t cachedBatchIndex)
 
 	for(const auto& stage : m_stages)
 	{
-		genSamples(
-			stage, 
-			&(m_sampleBuffer[stage.getSampleIndex() + cachedBatchIndex * stage.numElements()]));
+		// Actual buffer index depends on batch number
+		const auto bufferIndex = stage.getBufferIndex() + cachedBatchIndex * stage.getBufferSize();
+
+		PH_ASSERT_LE(bufferIndex + stage.getBufferSize(), m_sampleBuffer.size());
+		real* const bufferPtr = &(m_sampleBuffer[bufferIndex]);
+
+		switch(stage.numDims())
+		{
+		case 1:
+			genSamples1D(
+				stage, 
+				SamplesND(
+					bufferPtr,
+					stage.numDims(),
+					stage.numSamples(),
+					stage.getStrideSize(),
+					stage.getOffsetInStride()));
+			break;
+
+		case 2:
+			genSamples2D(
+				stage,
+				SamplesND(
+					bufferPtr,
+					stage.numDims(),
+					stage.numSamples(),
+					stage.getStrideSize(),
+					stage.getOffsetInStride()));
+			break;
+
+		default:
+			PH_ASSERT_GE(stage.numDims(), 3);
+			PH_ASSERT(isSamplesGE3DSupported());
+
+			genSamplesGE3D(
+				stage,
+				SamplesND(
+					bufferPtr,
+					stage.numDims(),
+					stage.numSamples(),
+					stage.getStrideSize(),
+					stage.getOffsetInStride()));
+			break;
+		}
 	}
 }
-
-void SampleGenerator::reviseSampleStage(SampleStageReviser& reviser)
-{}
 
 // command interface
 

@@ -15,8 +15,18 @@ class SamplesND final
 {
 public:
 	SamplesND();
-	SamplesND(real* buffer, std::size_t numDims, std::size_t numSamples);
-	//TSamplesND(real* buffer, std::size_t numSamples, std::size_t strideSize, std::size_t offsetInStride);
+
+	SamplesND(
+		real*       buffer, 
+		std::size_t numDims, 
+		std::size_t numSamples);
+
+	SamplesND(
+		real*       buffer, 
+		std::size_t numDims, 
+		std::size_t numSamples, 
+		std::size_t strideSize, 
+		std::size_t offsetInStride);
 
 	void shuffle();
 	void shuffleDimension(std::size_t dimIndex);
@@ -27,6 +37,8 @@ public:
 
 	template<std::size_t N>
 	void setSample(std::size_t index, const std::array<real, N>& sample);
+
+	real* buffer();
 
 	std::size_t numDims() const;
 	std::size_t numSamples() const;
@@ -39,14 +51,18 @@ private:
 	real*       m_buffer;
 	std::size_t m_numDims;
 	std::size_t m_numSamples;
+	std::size_t m_strideSize;
+	std::size_t m_offsetInStride;
 };
 
 // In-header Implementations:
 
 inline SamplesND::SamplesND() :
-	m_buffer    (nullptr), 
-	m_numDims   (0), 
-	m_numSamples(0)
+	m_buffer        (nullptr), 
+	m_numDims       (0), 
+	m_numSamples    (0),
+	m_strideSize    (0),
+	m_offsetInStride(0)
 {}
 
 inline SamplesND::SamplesND(
@@ -54,12 +70,30 @@ inline SamplesND::SamplesND(
 	const std::size_t numDims, 
 	const std::size_t numSamples) :
 
-	m_buffer    (buffer), 
-	m_numDims   (numDims),
-	m_numSamples(numSamples)
+	SamplesND(
+		buffer,
+		numDims,
+		numSamples,
+		numDims,
+		0)
+{}
+
+inline SamplesND::SamplesND(
+	real* const       buffer,
+	const std::size_t numDims,
+	const std::size_t numSamples,
+	const std::size_t strideSize,
+	const std::size_t offsetInStride) :
+
+	m_buffer        (buffer),
+	m_numDims       (numDims),
+	m_numSamples    (numSamples),
+	m_strideSize    (strideSize),
+	m_offsetInStride(offsetInStride)
 {
 	PH_ASSERT(buffer);
-	PH_ASSERT_GT(numDims, 0);
+	PH_ASSERT_LT(offsetInStride, strideSize);
+	PH_ASSERT_IN_RANGE_INCLUSIVE(numDims, 1, strideSize - offsetInStride);
 	PH_ASSERT_GT(numSamples, 0);
 }
 
@@ -125,6 +159,11 @@ inline void SamplesND::setSample(const std::size_t index, const std::array<real,
 	setSample(index, sample.data());
 }
 
+inline real* SamplesND::buffer()
+{
+	return m_buffer;
+}
+
 inline std::size_t SamplesND::numDims() const
 {
 	return m_numDims;
@@ -149,7 +188,7 @@ inline real* SamplesND::operator [] (const std::size_t index)
 {
 	PH_ASSERT_LT(index, numSamples());
 
-	return &(m_buffer[index * m_numDims]);
+	return &(m_buffer[index * m_strideSize + m_offsetInStride]);
 }
 
 }// end namespace ph

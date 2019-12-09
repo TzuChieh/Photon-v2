@@ -55,15 +55,18 @@ public:
 
 private:
 	virtual std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const = 0;
-	virtual void genSamples(const SampleStage& stage, real* out_buffer) = 0;
+	virtual void genSamples1D(const SampleStage& stage, SamplesND& out_samples) = 0;
+	virtual void genSamples2D(const SampleStage& stage, SamplesND& out_samples) = 0;
 
+	virtual bool isSamplesGE3DSupported() const;
+	virtual void genSamplesGE3D(const SampleStage& stage, SamplesND& out_samples);
 	virtual void reviseSampleStage(SampleStageReviser& reviser);
 
 	std::size_t              m_numSampleBatches;
 	std::size_t              m_maxCachedBatches;
 	std::size_t              m_numUsedBatches;
 	std::size_t              m_numUsedCaches;
-	std::size_t              m_totalElements;
+	std::size_t              m_totalBufferSize;
 	std::vector<real>        m_sampleBuffer;
 	std::vector<SampleStage> m_stages;
 

@@ -12,7 +12,8 @@ public:
 	using SampleGenerator::SampleGenerator;
 
 private:
-	void genSamples(const SampleStage& stage, real* out_buffer) override;
+	void genSamples1D(const SampleStage& stage, SamplesND& out_samples) override;
+	void genSamples2D(const SampleStage& stage, SamplesND& out_samples) override;
 	std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;
 
 // command interface

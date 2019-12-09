@@ -10,13 +10,23 @@
 namespace ph
 {
 
-void SGUniformRandom::genSamples(const SampleStage& stage, real* const out_buffer)
+void SGUniformRandom::genSamples1D(const SampleStage& stage, SamplesND& out_samples)
 {
-	PH_ASSERT(out_buffer);
-
-	for(std::size_t i = 0; i < stage.numElements(); ++i)
+	for(std::size_t si = 0; si < out_samples.numSamples(); ++si)
 	{
-		out_buffer[i] = math::Random::genUniformReal_i0_e1();
+		out_samples.setSample<1>(
+			si, 
+			{math::Random::genUniformReal_i0_e1()});
+	}
+}
+
+void SGUniformRandom::genSamples2D(const SampleStage& stage, SamplesND& out_samples)
+{
+	for(std::size_t si = 0; si < out_samples.numSamples(); ++si)
+	{
+		out_samples.setSample<2>(
+			si, 
+			{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()});
 	}
 }
 
@@ -41,7 +51,7 @@ void SGUniformRandom::ciRegister(CommandRegister& cmdRegister)
 
 std::unique_ptr<SGUniformRandom> SGUniformRandom::ciLoad(const InputPacket& packet)
 {
-	const auto numSamples = packet.getInteger("sample-amount", 0, DataTreatment::REQUIRED());
+	const auto numSamples = packet.getInteger("sample-amount", 1, DataTreatment::REQUIRED());
 
 	// HACK: casting
 	return std::make_unique<SGUniformRandom>(static_cast<std::size_t>(numSamples));
