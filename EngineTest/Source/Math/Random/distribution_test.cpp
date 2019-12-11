@@ -114,20 +114,20 @@ TEST(PiecewiseConstantDistribution2DTest, ContinuousSampleInRange)
 	std::uniform_real_distribution<float> seedDistribution(0.0f, 1.0f);
 	for(std::size_t i = 0; i < 10000; ++i)
 	{
-		const float seedX = seedDistribution(generator);
-		const float seedY = seedDistribution(generator);
+		const float sampleX = seedDistribution(generator);
+		const float sampleY = seedDistribution(generator);
 
 		float pdf;
-		TVector2<float> sample;
-		sample = distribution.sampleContinuous(seedX, seedY, &pdf);
+		TVector2<float> value;
+		value = distribution.sampleContinuous({sampleX, sampleY}, &pdf);
 		
-		EXPECT_GE(sample.x, 0.0f);
-		EXPECT_LE(sample.x, 1.0f);
-		EXPECT_GE(sample.y, 0.0f);
-		EXPECT_LE(sample.y, 1.0f);
+		EXPECT_GE(value.x, 0.0f);
+		EXPECT_LE(value.x, 1.0f);
+		EXPECT_GE(value.y, 0.0f);
+		EXPECT_LE(value.y, 1.0f);
 		EXPECT_GT(pdf, 0.0f);
 
-		/*const TVector2<float> floatIndex = sample.mul(3.0f);
+		/*const TVector2<float> floatIndex = value.mul(3.0f);
 		const std::size_t x = std::min(static_cast<std::size_t>(floatIndex.x), 
 		                               static_cast<std::size_t>(2));
 		const std::size_t y = std::min(static_cast<std::size_t>(floatIndex.y), 

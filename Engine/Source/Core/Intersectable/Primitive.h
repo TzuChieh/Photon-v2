@@ -13,6 +13,7 @@ class HitProbe;
 class HitDetail;
 class PrimitiveMetadata;
 class PositionSample;
+class SampleFlow;
 
 class Primitive : public Intersectable
 {
@@ -27,13 +28,11 @@ public:
 	bool isIntersectingVolumeConservative(const math::AABB3D& volume) const override = 0;
 	void calcAABB(math::AABB3D* out_aabb) const override = 0;
 
-	// Generates a sample point on the surface of this primitive. 
-	//
-	virtual void genPositionSample(PositionSample* out_sample) const;
+	// Generates a sample point on the surface of this primitive.
+	virtual void genPositionSample(SampleFlow& sampleFlow, PositionSample* out_sample) const;
 
 	// Given a point on the surface of this primitive, calculates the PDF of
 	// sampling this point.
-	//
 	virtual real calcPositionSamplePdfA(const math::Vector3R& position) const;
 
 	// Calculates the area extended by this primitive. The term "extended"
@@ -41,14 +40,12 @@ public:
 	// value of the cross product of its two edge vectors, no need to multiply
 	// by 2 for two sides. A zero return value means the concept of extended
 	// area does not apply to this primitive.
-	//
 	virtual real calcExtendedArea() const;
 
 	// TODO: make this method for EmitablePrimitive
 	// This method calculates the position mapped to the specified uvw 
 	// coordinates. This kind of inverse mapping may not be always possible; 
-	// if the mapping failed, false is returned. 
-	//
+	// if the mapping failed, false is returned.
 	virtual bool uvwToPosition(
 		const math::Vector3R& uvw,
 		const math::Vector3R& observationPoint,

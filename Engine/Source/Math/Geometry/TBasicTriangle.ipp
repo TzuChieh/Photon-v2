@@ -93,13 +93,13 @@ inline TVector3<T> TBasicTriangle<T>::barycentricToSurface(const TVector3<T>& ba
 }
 
 template<typename T>
-inline TVector3<T> TBasicTriangle<T>::sampleToBarycentricOsada(const TVector2<T>& sample) const
+inline TVector3<T> TBasicTriangle<T>::sampleToBarycentricOsada(const std::array<T, 2>& sample) const
 {
-	PH_ASSERT_IN_RANGE_INCLUSIVE(sample.x, T(0), T(1));
-	PH_ASSERT_IN_RANGE_INCLUSIVE(sample.y, T(0), T(1));
+	PH_ASSERT_IN_RANGE_INCLUSIVE(sample[0], T(0), T(1));
+	PH_ASSERT_IN_RANGE_INCLUSIVE(sample[1], T(0), T(1));
 
-	const T A = std::sqrt(sample.x);
-	const T B = sample.y;
+	const T A = std::sqrt(sample[0]);
+	const T B = sample[1];
 
 	return {
 		T(1) - A, 

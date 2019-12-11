@@ -2,8 +2,8 @@
 
 #include "Common/assertion.h"
 #include "Core/Quantity/SpectralStrength.h"
-#include "Math/Random.h"
 #include "Math/math.h"
+#include "Core/SampleGenerator/SampleFlow.h"
 
 namespace ph
 {
@@ -13,13 +13,14 @@ class RussianRoulette final
 public:
 	static bool surviveOnLuminance(
 		const SpectralStrength& s, 
+		SampleFlow&             sampleFlow,
 		SpectralStrength* const out_weightedS)
 	{
 		PH_ASSERT(out_weightedS);
 
 		// survive rate is not allowed to be 100% to avoid immortal rays (e.g., TIR)
 		const real rrSurviveRate = math::clamp(s.calcLuminance(), 0.0_r, 0.95_r);
-		const real rrSpin        = math::Random::genUniformReal_i0_e1();
+		const real rrSpin        = sampleFlow.flow1D();// FIXME: use something like sampleFlow.binaryPick()
 
 		// survived
 		if(rrSpin < rrSurviveRate)

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Math/TVector3.h"
-#include "Math/TVector2.h"
 
 #include <utility>
+#include <array>
 
 namespace ph::math
 {
@@ -46,7 +46,7 @@ public:
 
 	Reference: Osada et al., Section 4.2, "Shape Distributions", TOG02
 	*/
-	TVector3<T> sampleToBarycentricOsada(const TVector2<T>& sample) const;
+	TVector3<T> sampleToBarycentricOsada(const std::array<T, 2>& sample) const;
 
 	bool isDegenerate() const;
 

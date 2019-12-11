@@ -103,7 +103,7 @@ void BNEEPTEstimator::estimate(
 			SpectralStrength emittedRadiance;
 
 			if(canDoNEE && TDirectLightEstimator<ESidednessPolicy::STRICT>(&scene).sample(
-				surfaceHit, ray.getTime(),
+				surfaceHit, ray.getTime(), sampleFlow,
 				&L, &directPdfW, &emittedRadiance))
 			{
 				const PrimitiveMetadata* metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
@@ -252,7 +252,7 @@ void BNEEPTEstimator::estimate(
 			{
 				SpectralStrength weightedAccuLiWeight;
 				if(RussianRoulette::surviveOnLuminance(
-					accuLiWeight, &weightedAccuLiWeight))
+					accuLiWeight, sampleFlow, &weightedAccuLiWeight))
 				{
 					accuLiWeight = weightedAccuLiWeight;
 				}

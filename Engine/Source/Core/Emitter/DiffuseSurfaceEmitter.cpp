@@ -3,7 +3,6 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Core/Intersectable/Primitive.h"
-#include "Math/Random.h"
 #include "Core/Sample/PositionSample.h"
 #include "Core/Sample/DirectLightSample.h"
 #include "Core/Ray.h"
@@ -14,6 +13,7 @@
 #include "Core/Texture/SampleLocation.h"
 #include "Math/Geometry/THemisphere.h"
 #include "Math/TOrthonormalBasis3.h"
+#include "Core/SampleGenerator/SampleFlow.h"
 
 #include <iostream>
 #include <algorithm>
@@ -51,13 +51,13 @@ void DiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStr
 	*out_radiance = sampler.sample(getEmittedRadiance(), X);
 }
 
-void DiffuseSurfaceEmitter::genDirectSample(DirectLightSample& sample) const
+void DiffuseSurfaceEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const
 {
 	sample.pdfW = 0.0_r;
 	sample.sourcePrim = m_surface;
 
 	PositionSample positionSample;
-	sample.sourcePrim->genPositionSample(&positionSample);
+	sample.sourcePrim->genPositionSample(sampleFlow, &positionSample);
 	if(positionSample.pdf == 0.0_r)
 	{
 		return;
@@ -86,10 +86,10 @@ real DiffuseSurfaceEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, cons
 	return calcPdfW(emitPos, targetPos);
 }
 
-void DiffuseSurfaceEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* const out_Le, math::Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const
+void DiffuseSurfaceEmitter::genSensingRay(SampleFlow& sampleFlow, Ray* const out_ray, SpectralStrength* const out_Le, math::Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const
 {
 	PositionSample positionSample;
-	m_surface->genPositionSample(&positionSample);
+	m_surface->genPositionSample(sampleFlow, &positionSample);
 
 	/*real pdfW;
 	Vector3R rayDir = UniformUnitHemisphere::map(
@@ -98,7 +98,7 @@ void DiffuseSurfaceEmitter::genSensingRay(Ray* const out_ray, SpectralStrength* 
 
 	real pdfW;
 	const auto localRayDir = math::THemisphere<real>::makeUnit().sampleToSurfaceCosThetaWeighted(
-		{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()},
+		sampleFlow.flow2D(),
 		&pdfW);
 
 	const auto sampleBasis = math::Basis3R::makeFromUnitY(positionSample.normal);
@@ -142,8 +142,9 @@ real DiffuseSurfaceEmitter::calcRadiantFluxApprox() const
 
 	// randomly pick a point on the surface
 
+	// TODO: more samples can be better
 	PositionSample sample;
-	m_surface->genPositionSample(&sample);
+	m_surface->genPositionSample(SampleFlow(), &sample);
 	if(sample.pdf == 0.0_r)
 	{
 		return SurfaceEmitter::calcRadiantFluxApprox();

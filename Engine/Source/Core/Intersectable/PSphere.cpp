@@ -10,10 +10,10 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/UvwMapper/UvwMapper.h"
 #include "Math/TMatrix2.h"
-#include "Math/Random.h"
 #include "Core/Sample/PositionSample.h"
 #include "Math/TOrthonormalBasis3.h"
 #include "Math/Geometry/TSphere.h"
+#include "Core/SampleGenerator/SampleFlow.h"
 
 #include <algorithm>
 #include <cmath>
@@ -166,13 +166,13 @@ real PSphere::calcPositionSamplePdfA(const math::Vector3R& position) const
 	return 1.0_r / this->PSphere::calcExtendedArea();
 }
 
-void PSphere::genPositionSample(PositionSample* const out_sample) const
+void PSphere::genPositionSample(SampleFlow& sampleFlow, PositionSample* const out_sample) const
 {
 	PH_ASSERT(out_sample);
 	PH_ASSERT(m_metadata);
 
 	out_sample->normal = math::TSphere<real>::makeUnit().sampleToSurfaceArchimedes(
-		{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()});
+		sampleFlow.flow2D());
 
 	out_sample->position = out_sample->normal.mul(m_radius);
 

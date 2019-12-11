@@ -9,6 +9,8 @@
 namespace ph
 {
 
+// TODO: >= 3-D sample is straightforward
+
 class SGStratified : public SampleGenerator, public TCommandInterface<SGStratified>
 {
 public:
@@ -19,10 +21,6 @@ private:
 	void genSamples2D(const SampleStage& stage, SamplesND& out_samples) override;
 	void reviseSampleStage(SampleStageReviser& reviser) override;
 	std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;
-
-
-	void genSamples1D(const SampleStage& stage, real* out_buffer);
-	void genSamples2D(const SampleStage& stage, real* out_buffer);
 
 	static std::vector<std::size_t> reviseDimSizeHints(
 		std::size_t                     numSamples, 

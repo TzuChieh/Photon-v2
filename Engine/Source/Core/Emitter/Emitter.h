@@ -15,6 +15,7 @@ class SurfaceHit;
 class DirectLightSample;
 class Ray;
 class Time;
+class SampleFlow;
 
 class Emitter
 {
@@ -23,10 +24,10 @@ public:
 	virtual ~Emitter();
 
 	virtual void evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const = 0;
-	virtual void genDirectSample(DirectLightSample& sample) const = 0;
+	virtual void genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const = 0;
 
 	// FIXME: ray time
-	virtual void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const = 0;
+	virtual void genSensingRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const = 0;
 
 	virtual real calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const = 0;
 

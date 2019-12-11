@@ -35,9 +35,9 @@ void OmniModulatedEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStre
 	out_radiance->mulLocal(filterValue);
 }
 
-void OmniModulatedEmitter::genDirectSample(DirectLightSample& sample) const
+void OmniModulatedEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const
 {
-	m_source->genDirectSample(sample);
+	m_source->genDirectSample(sampleFlow, sample);
 	if(sample.pdfW == 0.0_r)
 	{
 		return;
@@ -55,9 +55,9 @@ void OmniModulatedEmitter::genDirectSample(DirectLightSample& sample) const
 	sample.radianceLe.mulLocal(filterValue);
 }
 
-void OmniModulatedEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void OmniModulatedEmitter::genSensingRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
-	m_source->genSensingRay(out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
+	m_source->genSensingRay(sampleFlow, out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
 
 	math::Vector3R uv;
 	m_dirToUv.directionToUvw(out_ray->getDirection(), &uv);

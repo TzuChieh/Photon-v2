@@ -43,7 +43,7 @@ public:
 	real calcPositionSamplePdfA(const math::Vector3R& position) const override;
 	real calcExtendedArea() const override;
 
-	void genPositionSample(PositionSample* out_sample) const override;
+	void genPositionSample(SampleFlow& sampleFlow, PositionSample* out_sample) const override;
 
 private:
 	std::vector<const Primitive*> m_primitives;

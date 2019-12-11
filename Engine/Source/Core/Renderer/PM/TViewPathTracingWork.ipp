@@ -133,7 +133,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 			if(policy.useRussianRoulette())
 			{
 				SpectralStrength weightedThroughput;
-				if(RussianRoulette::surviveOnLuminance(pathThroughput, &weightedThroughput))
+				if(RussianRoulette::surviveOnLuminance(pathThroughput, sampleFlow, &weightedThroughput))
 				{
 					pathThroughput = weightedThroughput;
 				}
@@ -194,7 +194,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceElementallyBranchedPath(
 		if(policy.useRussianRoulette())
 		{
 			SpectralStrength weightedThroughput;
-			if(RussianRoulette::surviveOnLuminance(elementalPathThroughput, &weightedThroughput))
+			if(RussianRoulette::surviveOnLuminance(elementalPathThroughput, sampleFlow, &weightedThroughput))
 			{
 				elementalPathThroughput = weightedThroughput;
 			}

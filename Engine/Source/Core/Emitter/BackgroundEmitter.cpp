@@ -11,6 +11,7 @@
 #include "Math/math.h"
 #include "Math/Mapping/UniformUnitDisk.h"
 #include "Math/TOrthonormalBasis3.h"
+#include "Core/SampleGenerator/SampleFlow.h"
 
 #include <vector>
 
@@ -81,15 +82,14 @@ void BackgroundEmitter::evalEmittedRadiance(
 	*out_radiance = sampler.sample(*m_radiance, X);
 }
 
-void BackgroundEmitter::genDirectSample(DirectLightSample& sample) const
+void BackgroundEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const
 {
 	sample.pdfW = 0;
 	sample.sourcePrim = m_surface;
 
 	real uvSamplePdf;
 	const math::Vector2R uvSample = m_sampleDistribution.sampleContinuous(
-		math::Random::genUniformReal_i0_e1(),
-		math::Random::genUniformReal_i0_e1(),
+		sampleFlow.flow2D(),
 		&uvSamplePdf);
 
 	m_surface->uvwToPosition(
@@ -110,12 +110,11 @@ void BackgroundEmitter::genDirectSample(DirectLightSample& sample) const
 }
 
 // FIXME: ray time
-void BackgroundEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void BackgroundEmitter::genSensingRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
 	real uvSamplePdf;
 	const math::Vector2R uvSample = m_sampleDistribution.sampleContinuous(
-		math::Random::genUniformReal_i0_e1(),
-		math::Random::genUniformReal_i0_e1(),
+		sampleFlow.flow2D(),
 		&uvSamplePdf);
 
 	TSampler<SpectralStrength> sampler(EQuantity::EMR);

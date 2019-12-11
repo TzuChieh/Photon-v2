@@ -59,16 +59,16 @@ bool Scene::isIntersecting(const Ray& ray) const
 	return false;
 }
 
-const Emitter* Scene::pickEmitter(real* const out_PDF) const
+const Emitter* Scene::pickEmitter(SampleFlow& sampleFlow, real* const out_PDF) const
 {
 	PH_ASSERT(out_PDF);
 
-	return m_emitterSampler->pickEmitter(out_PDF);
+	return m_emitterSampler->pickEmitter(sampleFlow, out_PDF);
 }
 
-void Scene::genDirectSample(DirectLightSample& sample) const
+void Scene::genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const
 {
-	m_emitterSampler->genDirectSample(sample);
+	m_emitterSampler->genDirectSample(sampleFlow, sample);
 }
 
 real Scene::calcDirectPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const
@@ -76,12 +76,12 @@ real Scene::calcDirectPdfW(const SurfaceHit& emitPos, const math::Vector3R& targ
 	return m_emitterSampler->calcDirectPdfW(emitPos, targetPos);
 }
 
-void Scene::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void Scene::genSensingRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
 	real pickPdf;
-	const Emitter* emitter = m_emitterSampler->pickEmitter(&pickPdf);
+	const Emitter* emitter = m_emitterSampler->pickEmitter(sampleFlow, &pickPdf);
 
-	emitter->genSensingRay(out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
+	emitter->genSensingRay(sampleFlow, out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
 	*out_pdfA *= pickPdf;
 }
 

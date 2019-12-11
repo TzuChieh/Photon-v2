@@ -18,10 +18,10 @@ public:
 	OmniModulatedEmitter(std::unique_ptr<Emitter> source);
 
 	void evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const override;
-	void genDirectSample(DirectLightSample& sample) const override;
+	void genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const override;
 
 	// FIXME: ray time
-	void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;
+	void genSensingRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;
 
 	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const override;
 	real calcRadiantFluxApprox() const override;

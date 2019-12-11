@@ -11,8 +11,8 @@ class ESUniformRandom : public EmitterSampler
 {
 public:
 	void update(const CookedDataStorage& cookedActors) override;
-	const Emitter* pickEmitter(real* const out_PDF) const override;
-	void genDirectSample(DirectLightSample& sample) const override;
+	const Emitter* pickEmitter(SampleFlow& sampleFlow, real* const out_PDF) const override;
+	void genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const override;
 	real calcDirectPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const override;
 
 private:

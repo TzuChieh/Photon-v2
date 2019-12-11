@@ -11,6 +11,7 @@ namespace ph
 class Scene;
 class SurfaceHit;
 class Time;
+class SampleFlow;
 
 template<ESidednessPolicy POLICY>
 class TDirectLightEstimator
@@ -21,6 +22,7 @@ public:
 	bool sample(
 		const SurfaceHit& X,
 		const Time&       time,
+		SampleFlow&       sampleFlow,
 		math::Vector3R*   out_L,
 		real*             out_pdfW,
 		SpectralStrength* out_emittedRadiance);

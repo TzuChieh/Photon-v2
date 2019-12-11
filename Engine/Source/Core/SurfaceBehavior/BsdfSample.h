@@ -19,7 +19,7 @@ class BsdfSample final
 public:
 	explicit BsdfSample(SampleFlow& sampleFlow);
 
-	template<typename T = void>
+	template<typename T = std::array<real, 2>>
 	decltype(auto) get() const;
 
 	real operator [] (std::size_t index) const;

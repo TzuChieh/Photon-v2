@@ -104,11 +104,11 @@ real SuperpositionedPrimitive::calcExtendedArea() const
 	return m_mainPrimitive->calcExtendedArea();
 }
 
-void SuperpositionedPrimitive::genPositionSample(PositionSample* const out_sample) const
+void SuperpositionedPrimitive::genPositionSample(SampleFlow& sampleFlow, PositionSample* const out_sample) const
 {
 	PH_ASSERT(m_mainPrimitive);
 
-	m_mainPrimitive->genPositionSample(out_sample);
+	m_mainPrimitive->genPositionSample(sampleFlow, out_sample);
 }
 
 }// end namespace ph

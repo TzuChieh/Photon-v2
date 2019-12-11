@@ -3,7 +3,6 @@
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Math/TVector3.h"
-#include "Math/Random.h"
 #include "Math/constant.h"
 #include "Math/math.h"
 #include "Core/Texture/TSampler.h"
@@ -69,8 +68,7 @@ void LambertianDiffuse::calcBsdfSample(
 
 	math::Vector3R& L = out.L;
 
-	L = math::THemisphere<real>::makeUnit().sampleToSurfaceCosThetaWeighted(
-		{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()});
+	L = math::THemisphere<real>::makeUnit().sampleToSurfaceCosThetaWeighted(sample.get());
 
 	L = in.X.getDetail().getShadingBasis().localToWorld(L);
 	L.normalizeLocal();

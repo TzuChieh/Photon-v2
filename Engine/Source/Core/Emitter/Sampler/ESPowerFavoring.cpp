@@ -1,5 +1,4 @@
 #include "Core/Emitter/Sampler/ESPowerFavoring.h"
-#include "Math/Random.h"
 #include "Actor/CookedDataStorage.h"
 #include "Core/Sample/DirectLightSample.h"
 #include "Math/TVector3.h"
@@ -8,6 +7,7 @@
 #include "Core/Emitter/Emitter.h"
 #include "Common/assertion.h"
 #include "Common/Logger.h"
+#include "Core/SampleGenerator/SampleFlow.h"
 
 #include <iostream>
 
@@ -49,21 +49,21 @@ void ESPowerFavoring::update(const CookedDataStorage& cookedActors)
 	m_distribution = math::TPwcDistribution1D<real>(sampleWeights);
 }
 
-const Emitter* ESPowerFavoring::pickEmitter(real* const out_pdf) const
+const Emitter* ESPowerFavoring::pickEmitter(SampleFlow& sampleFlow, real* const out_pdf) const
 {
 	PH_ASSERT(out_pdf);
 
-	const std::size_t pickedIndex = m_distribution.sampleDiscrete(math::Random::genUniformReal_i0_e1());
+	const std::size_t pickedIndex = m_distribution.sampleDiscrete(sampleFlow.flow1D());
 	*out_pdf = m_distribution.pdfDiscrete(pickedIndex);
 	return m_emitters[pickedIndex];
 }
 
-void ESPowerFavoring::genDirectSample(DirectLightSample& sample) const
+void ESPowerFavoring::genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const
 {
-	const std::size_t pickedIndex = m_distribution.sampleDiscrete(math::Random::genUniformReal_i0_e1());
+	const std::size_t pickedIndex = m_distribution.sampleDiscrete(sampleFlow.flow1D());// FIXME: use pick
 	const real        pickPdf     = m_distribution.pdfDiscrete(pickedIndex);
 
-	m_emitters[pickedIndex]->genDirectSample(sample);
+	m_emitters[pickedIndex]->genDirectSample(sampleFlow, sample);
 	sample.pdfW *= pickPdf;
 }
 

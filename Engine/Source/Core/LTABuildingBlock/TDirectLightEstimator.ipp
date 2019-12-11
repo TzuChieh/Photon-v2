@@ -29,6 +29,7 @@ template<ESidednessPolicy POLICY>
 inline bool TDirectLightEstimator<POLICY>::sample(
 	const SurfaceHit&       targetPos,
 	const Time&             time,
+	SampleFlow&             sampleFlow,
 	math::Vector3R* const   out_L,
 	real* const             out_pdfW,
 	SpectralStrength* const out_emittedRadiance)
@@ -42,7 +43,7 @@ inline bool TDirectLightEstimator<POLICY>::sample(
 
 	DirectLightSample directLightSample;
 	directLightSample.setDirectSample(targetPos.getPosition());
-	m_scene->genDirectSample(directLightSample);
+	m_scene->genDirectSample(sampleFlow, directLightSample);
 	if(directLightSample.isDirectSampleGood())
 	{
 		const math::Vector3R toLightVec = directLightSample.emitPos.sub(directLightSample.targetPos);

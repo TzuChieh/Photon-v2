@@ -13,7 +13,10 @@ template<typename T>
 inline TPwcDistribution1D<T>::TPwcDistribution1D(
 	const T min, const T max,
 	const std::vector<T>& weights) :
-	TPwcDistribution1D(min, max, weights.data(), weights.size())
+
+	TPwcDistribution1D(
+		min, max, 
+		weights.data(), weights.size())
 {}
 
 template<typename T>
@@ -89,45 +92,45 @@ template<typename T>
 inline TPwcDistribution1D<T>::TPwcDistribution1D() = default;
 
 template<typename T>
-inline std::size_t TPwcDistribution1D<T>::sampleDiscrete(const T seed_i0_e1) const
+inline std::size_t TPwcDistribution1D<T>::sampleDiscrete(const T sample) const
 {
-	const auto& result = std::lower_bound(m_cdf.begin(), m_cdf.end(), seed_i0_e1);
+	const auto& result = std::lower_bound(m_cdf.begin(), m_cdf.end(), sample);
 	PH_ASSERT_MSG(result != m_cdf.end(), 
-		"seed_i0_e1 = "     + std::to_string(seed_i0_e1) + ", "
+		"sample = "         + std::to_string(sample) + ", "
 		"last CDF value = " + std::to_string(m_cdf.back()));
 
 	return result != m_cdf.begin() ? result - m_cdf.begin() - 1 : m_firstNonZeroPdfColumn;
 }
 
 template<typename T>
-inline T TPwcDistribution1D<T>::sampleContinuous(const T seed_i0_e1) const
+inline T TPwcDistribution1D<T>::sampleContinuous(const T sample) const
 {
-	const std::size_t sampledColumn = sampleDiscrete(seed_i0_e1);
-	return calcContinuousSample(seed_i0_e1, sampledColumn);
+	const std::size_t sampledColumn = sampleDiscrete(sample);
+	return continuouslySampleValue(sample, sampledColumn);
 }
 
 template<typename T>
-inline T TPwcDistribution1D<T>::sampleContinuous(const T seed_i0_e1, T* const out_pdf) const
+inline T TPwcDistribution1D<T>::sampleContinuous(const T sample, T* const out_pdf) const
 {
 	PH_ASSERT(out_pdf);
 
-	const std::size_t sampledColumn = sampleDiscrete(seed_i0_e1);
+	const std::size_t sampledColumn = sampleDiscrete(sample);
 
 	*out_pdf = pdfContinuous(sampledColumn);
-	return calcContinuousSample(seed_i0_e1, sampledColumn);
+	return continuouslySampleValue(sample, sampledColumn);
 }
 
 template<typename T>
 inline T TPwcDistribution1D<T>::sampleContinuous(
-	const T            seed_i0_e1, 
+	const T            sample,
 	T* const           out_pdf, 
 	std::size_t* const out_straddledColumn) const
 {
 	PH_ASSERT(out_pdf && out_straddledColumn);
 
-	*out_straddledColumn = sampleDiscrete(seed_i0_e1);
+	*out_straddledColumn = sampleDiscrete(sample);
 	*out_pdf             = pdfContinuous(*out_straddledColumn);
-	return calcContinuousSample(seed_i0_e1, *out_straddledColumn);
+	return continuouslySampleValue(sample, *out_straddledColumn);
 }
 
 template<typename T>
@@ -176,25 +179,25 @@ std::size_t TPwcDistribution1D<T>::continuousToDiscrete(const T sample) const
 }
 
 template<typename T>
-inline T TPwcDistribution1D<T>::calcContinuousSample(const T seed_i0_e1, const std::size_t straddledColumn) const
+inline T TPwcDistribution1D<T>::continuouslySampleValue(const T sample, const std::size_t straddledColumn) const
 {
 	PH_ASSERT(straddledColumn < numColumns());
 
 	const T cdfDelta = m_cdf[straddledColumn + 1] - m_cdf[straddledColumn];
-	T overshoot      = seed_i0_e1 - m_cdf[straddledColumn];
+	T overshoot      = sample - m_cdf[straddledColumn];
 	if(cdfDelta > 0)
 	{
 		overshoot /= cdfDelta;
 	}
 	PH_ASSERT(0 <= overshoot && overshoot <= 1);
 
-	// NOTE: <sample> may have value straddling neighbor column's range due to
-	// numerical error. Currently this is considered acceptable since continuous
-	// sample does not require precise result.
-	const T sample = m_delta * (overshoot + static_cast<T>(straddledColumn));
+	// NOTE: <sampledValue> may have value straddling neighbor column's range 
+	// due to numerical error. Currently this is considered acceptable since 
+	// continuous sample does not require precise result.
+	const T sampledValue = m_delta * (overshoot + static_cast<T>(straddledColumn));
 
-	// TODO: check rare, sample should rarely exceed [min, max]
-	return math::clamp(sample, m_min, m_max);
+	// TODO: check rare, sampled value should rarely exceed [min, max]
+	return math::clamp(sampledValue, m_min, m_max);
 }
 
 }// end namespace ph::math

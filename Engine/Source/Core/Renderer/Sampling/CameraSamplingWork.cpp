@@ -75,9 +75,8 @@ void CameraSamplingWork::doWork()
 		m_sampleResPx.toVector());
 
 	const auto raySampleHandle = m_sampleGenerator->declareStageND(
-		2,
-		m_sampleResPx.product(),
-		m_sampleResPx.toVector());
+		5,
+		m_sampleResPx.product());
 
 	const math::Vector2D ndcScale  = m_filmWindowPx.getExtents().div(m_filmResPx);
 	const math::Vector2D ndcOffset = m_filmWindowPx.minVertex.div(m_filmResPx);

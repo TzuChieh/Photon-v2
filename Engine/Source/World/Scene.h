@@ -11,12 +11,12 @@ namespace ph
 class Intersector;
 class EmitterSampler;
 class HitProbe;
-class HitDetail;
 class DirectLightSample;
 class Ray;
 class Emitter;
 class Primitive;
 class SurfaceHit;
+class SampleFlow;
 
 class Scene final
 {
@@ -27,11 +27,11 @@ public:
 	bool isIntersecting(const Ray& ray) const;
 	bool isIntersecting(const Ray& ray, HitProbe* out_probe) const;
 
-	const Emitter* pickEmitter(real* const out_PDF) const;
-	void genDirectSample(DirectLightSample& sample) const;
+	const Emitter* pickEmitter(SampleFlow& sampleFlow, real* const out_PDF) const;
+	void genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const;
 	real calcDirectPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const;
 
-	void genSensingRay(Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const;
+	void genSensingRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const;
 
 	// HACK
 	void setBackgroundEmitterPrimitive(const Primitive* primitive)

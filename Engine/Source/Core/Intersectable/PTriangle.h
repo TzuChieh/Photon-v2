@@ -21,7 +21,7 @@ public:
 	bool isIntersectingVolumeConservative(const math::AABB3D& volume) const override;
 	void calcAABB(math::AABB3D* out_aabb) const override;
 	real calcPositionSamplePdfA(const math::Vector3R& position) const override;
-	void genPositionSample(PositionSample* out_sample) const override;
+	void genPositionSample(SampleFlow& sampleFlow, PositionSample* out_sample) const override;
 
 	real calcExtendedArea() const override;
 

@@ -81,7 +81,7 @@ void BVPTEstimator::estimate(
 		{
 			SpectralStrength weightedAccuLiWeight;
 			if(RussianRoulette::surviveOnLuminance(
-				accuLiWeight, &weightedAccuLiWeight))
+				accuLiWeight, sampleFlow, &weightedAccuLiWeight))
 			{
 				accuLiWeight = weightedAccuLiWeight;
 			}

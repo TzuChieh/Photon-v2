@@ -40,25 +40,27 @@ void MultiDiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, Spectr
 	m_emitters.front().evalEmittedRadiance(X, out_radiance);
 }
 
-void MultiDiffuseSurfaceEmitter::genDirectSample(DirectLightSample& sample) const
+void MultiDiffuseSurfaceEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const
 {
 	PH_ASSERT(!m_emitters.empty());
 
+	// FIXME: use sampleFlow
 	const DiffuseSurfaceEmitter& emitter = m_emitters[math::Random::genUniformIndex_iL_eU(0, m_emitters.size())];
 
-	emitter.genDirectSample(sample);
+	emitter.genDirectSample(sampleFlow, sample);
 	const real pickPdf = (1.0_r / static_cast<real>(m_emitters.size()));
 	sample.pdfW *= pickPdf;
 }
 
-void MultiDiffuseSurfaceEmitter::genSensingRay(Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void MultiDiffuseSurfaceEmitter::genSensingRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
 	// randomly and uniformly pick a primitive
 
+	// FIXME: use sampleFlow
 	const auto& emitter = m_emitters[math::Random::genUniformIndex_iL_eU(0, m_emitters.size())];
 	const real pickPdf = 1.0_r / static_cast<real>(m_emitters.size());
 
-	emitter.genSensingRay(out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
+	emitter.genSensingRay(sampleFlow, out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
 	*out_pdfA *= pickPdf;
 
 

@@ -4,7 +4,9 @@
 #include "Math/TVector2.h"
 #include "Math/Random/TPwcDistribution1D.h"
 
+#include <cstddef>
 #include <vector>
+#include <array>
 
 namespace ph::math
 {
@@ -25,9 +27,9 @@ public:
 	TPwcDistribution2D();
 
 	// PDFs returned by these methods are never zero.
-	TVector2<T> sampleContinuous(T seedX_i0_e1, T seedY_i0_e1, T* out_pdf) const;
+	TVector2<T> sampleContinuous(const std::array<T, 2>& sample, T* out_pdf) const;
 
-	real pdfContinuous(const TVector2<T>& sample) const;
+	T pdfContinuous(const std::array<T, 2>& sample) const;
 
 private:
 	TPwcDistribution1D<T>              m_marginalYs;

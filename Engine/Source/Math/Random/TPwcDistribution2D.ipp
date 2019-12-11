@@ -57,16 +57,15 @@ inline TPwcDistribution2D<T>::TPwcDistribution2D() = default;
 
 template<typename T>
 inline TVector2<T> TPwcDistribution2D<T>::sampleContinuous(
-	const T  seedX_i0_e1, 
-	const T  seedY_i0_e1, 
+	const std::array<T, 2>& sample,
 	T* const out_pdf) const
 {
 	PH_ASSERT(out_pdf);
 
 	std::size_t y;
 	T pdfY, pdfXgivenY;
-	const T sampleY = m_marginalYs.sampleContinuous(seedY_i0_e1, &pdfY, &y);
-	const T sampleX = m_conditionalXs[y].sampleContinuous(seedX_i0_e1, &pdfXgivenY);
+	const T sampleY = m_marginalYs.sampleContinuous(sample[1], &pdfY, &y);
+	const T sampleX = m_conditionalXs[y].sampleContinuous(sample[0], &pdfXgivenY);
 
 	*out_pdf = pdfXgivenY * pdfY;
 	PH_ASSERT(*out_pdf > 0);
@@ -74,12 +73,12 @@ inline TVector2<T> TPwcDistribution2D<T>::sampleContinuous(
 }
 
 template<typename T>
-inline real TPwcDistribution2D<T>::pdfContinuous(const TVector2<T>& sample) const
+inline T TPwcDistribution2D<T>::pdfContinuous(const std::array<T, 2>& sample) const
 {
-	const std::size_t y = m_marginalYs.continuousToDiscrete(sample.y);
+	const std::size_t y = m_marginalYs.continuousToDiscrete(sample[1]);
 
 	const T pdfY       = m_marginalYs.pdfContinuous(y);
-	const T pdfXgivenY = m_conditionalXs[y].pdfContinuous(sample.x);
+	const T pdfXgivenY = m_conditionalXs[y].pdfContinuous(sample[0]);
 
 	return pdfXgivenY * pdfY;
 }

@@ -33,12 +33,12 @@ real TransformedPrimitive::calcPositionSamplePdfA(const math::Vector3R& position
 	return m_primitive->calcPositionSamplePdfA(localPosition);
 }
 
-void TransformedPrimitive::genPositionSample(PositionSample* const out_sample) const
+void TransformedPrimitive::genPositionSample(SampleFlow& sampleFlow, PositionSample* const out_sample) const
 {
 	PH_ASSERT(out_sample);
 
 	PositionSample localSample;
-	m_primitive->genPositionSample(&localSample);
+	m_primitive->genPositionSample(sampleFlow, &localSample);
 
 	if(localSample.pdf > 0)
 	{

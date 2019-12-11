@@ -18,7 +18,7 @@ class TPwcDistribution1D final
 	static_assert(std::is_floating_point_v<T>);
 
 public:
-	// The range of the distribution is[<min>, <max>]; and corresponding sample
+	// The range of the distribution is [<min>, <max>]; and corresponding sample
 	// weight of each column is specified via <weights>.
 	TPwcDistribution1D(T min, T max, const T* weights, std::size_t numWeights);
 	TPwcDistribution1D(T min, T max, const std::vector<T>& weights);
@@ -28,18 +28,19 @@ public:
 
 	TPwcDistribution1D();
 
-	// Given a uniform random seed in [0, 1), generates a continuous sample 
+	// Given a uniform unit random sample, generate a continuous sample 
 	// according to the sample weights.
-	T sampleContinuous(T seed_i0_e1) const;
-	T sampleContinuous(T seed_i0_e1, T* out_pdf) const;
-	T sampleContinuous(T seed_i0_e1, T* out_pdf, std::size_t* out_straddledColumn) const;
+	T sampleContinuous(T sample) const;
+	T sampleContinuous(T sample, T* out_pdf) const;
+	T sampleContinuous(T sample, T* out_pdf, std::size_t* out_straddledColumn) const;
 
-	// Given a uniform random seed in [0, 1), generates a column index 
+	// Given a uniform unit random sample, generate a column index 
 	// according to the sample weights.
-	std::size_t sampleDiscrete(T seed_i0_e1) const;
+	// TODO: a sample resued version
+	std::size_t sampleDiscrete(T sample) const;
 
-	// PDF of a continuous sample.
-	T pdfContinuous(T sample) const;
+	// PDF of a continuously sampled value.
+	T pdfContinuous(T value) const;
 
 	// PDF of a continuous sample given its corresponding column index.
 	T pdfContinuous(std::size_t columnIndex) const;
@@ -47,8 +48,8 @@ public:
 	// PDF of a discrete sample.
 	T pdfDiscrete(std::size_t columnIndex) const;
 
-	// Calculates the sampled column index given a continuous sample.
-	std::size_t continuousToDiscrete(T sample) const;
+	// Calculates the sampled column index given a continuously sampled value.
+	std::size_t continuousToDiscrete(T value) const;
 
 	// Gets the number of sample weights originally provided.
 	std::size_t numColumns() const;
@@ -68,7 +69,7 @@ private:
 	// CDF values are stored on all turning points of the function. 
 	std::vector<T> m_cdf;
 
-	T calcContinuousSample(T seed_i0_e1, std::size_t straddledColumn) const;
+	T continuouslySampleValue(T sample, std::size_t straddledColumn) const;
 };
 
 }// end namespace ph::math

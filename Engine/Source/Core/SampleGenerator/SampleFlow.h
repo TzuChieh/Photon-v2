@@ -16,6 +16,10 @@ public:
 	SampleFlow();
 	SampleFlow(const real* savedDims, std::size_t numSavedDims);
 
+	real flow1D();
+	std::array<real, 2> flow2D();
+	std::array<real, 3> flow3D();
+
 	template<std::size_t N>
 	std::array<real, N> flowND();
 
@@ -39,6 +43,21 @@ inline SampleFlow::SampleFlow(const real* const savedDims, const std::size_t num
 	m_numReadDims (0)
 {
 	PH_ASSERT(savedDims);
+}
+
+inline real SampleFlow::flow1D()
+{
+	return flowND<1>()[0];
+}
+
+inline std::array<real, 2> SampleFlow::flow2D()
+{
+	return flowND<2>();
+}
+
+inline std::array<real, 3> SampleFlow::flow3D()
+{
+	return flowND<3>();
 }
 
 template<std::size_t N>

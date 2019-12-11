@@ -98,7 +98,7 @@ inline void SampleStage::setDimSizeHints(SizeHints sizeHints)
 
 inline void SampleStage::setStrideLayout(const std::size_t strideSize, const std::size_t offsetInStride)
 {
-	PH_ASSERT_LT(offsetInStride, strideSize);
+	PH_ASSERT_LE(offsetInStride, strideSize);
 	PH_ASSERT_IN_RANGE_INCLUSIVE(m_numDims, 0, strideSize - offsetInStride);
 
 	m_strideSize     = strideSize;

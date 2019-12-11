@@ -31,7 +31,7 @@ void ESUniformRandom::update(const CookedDataStorage& cookedActors)
 	}
 }
 
-const Emitter* ESUniformRandom::pickEmitter(real* const out_PDF) const
+const Emitter* ESUniformRandom::pickEmitter(SampleFlow& sampleFlow, real* const out_PDF) const
 {
 	const std::size_t picker = static_cast<std::size_t>(math::Random::genUniformReal_i0_e1() * static_cast<real>(m_emitters.size()));
 	const std::size_t pickedIndex = picker == m_emitters.size() ? picker - 1 : picker;
@@ -40,14 +40,15 @@ const Emitter* ESUniformRandom::pickEmitter(real* const out_PDF) const
 	return m_emitters[pickedIndex];
 }
 
-void ESUniformRandom::genDirectSample(DirectLightSample& sample) const
+void ESUniformRandom::genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const
 {
 	// randomly and uniformly select an emitter
-	const std::size_t picker = static_cast<std::size_t>(math::Random::genUniformReal_i0_e1() * static_cast<real>(m_emitters.size()));
+	// FIXME: use sampleFlow
+	const std::size_t picker = static_cast<std::size_t>(sampleFlow.flow1D() * static_cast<real>(m_emitters.size()));
 	const std::size_t pickedIndex = picker == m_emitters.size() ? picker - 1 : picker;
 	const real pickPdfW = 1.0_r / static_cast<real>(m_emitters.size());
 
-	m_emitters[pickedIndex]->genDirectSample(sample);
+	m_emitters[pickedIndex]->genDirectSample(sampleFlow, sample);
 	sample.pdfW *= pickPdfW;
 }
 

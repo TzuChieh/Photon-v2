@@ -5,10 +5,10 @@
 #include "Core/HitProbe.h"
 #include "Core/HitDetail.h"
 #include "Math/Geometry/TAABB3D.h"
-#include "Math/Random.h"
 #include "Core/Sample/PositionSample.h"
 #include "Math/TVector2.h"
 #include "Math/math.h"
+#include "Core/SampleGenerator/SampleFlow.h"
 
 #include <limits>
 #include <iostream>
@@ -261,10 +261,10 @@ bool PTriangle::isIntersectingVolumeConservative(const math::AABB3D& volume) con
 	return true;
 }
 
-void PTriangle::genPositionSample(PositionSample* const out_sample) const
+void PTriangle::genPositionSample(SampleFlow& sampleFlow, PositionSample* const out_sample) const
 {
 	const math::Vector3R abc = m_triangle.sampleToBarycentricOsada(
-		{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()});
+		sampleFlow.flow2D());
 
 	const math::Vector3R localPos = m_triangle.barycentricToSurface(abc);
 	//Vector3R worldPos;

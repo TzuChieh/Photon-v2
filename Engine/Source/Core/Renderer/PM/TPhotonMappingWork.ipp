@@ -66,12 +66,14 @@ inline void TPhotonMappingWork<Photon>::doWork()
 	{
 		++(*m_numPhotonPaths);
 
+		SampleFlow sampleFlow = raySamples.readSampleAsFlow();
+
 		Ray tracingRay;
 		SpectralStrength emittedRadiance;
 		math::Vector3R emitN;
 		real pdfA;
 		real pdfW;
-		m_scene->genSensingRay(&tracingRay, &emittedRadiance, &emitN, &pdfA, &pdfW);
+		m_scene->genSensingRay(sampleFlow, &tracingRay, &emittedRadiance, &emitN, &pdfA, &pdfW);
 		if(pdfA * pdfW == 0.0_r)
 		{
 			continue;
@@ -83,8 +85,6 @@ inline void TPhotonMappingWork<Photon>::doWork()
 		throughputRadiance.divLocal(pdfA);
 		throughputRadiance.divLocal(pdfW);
 		throughputRadiance.mulLocal(emitN.absDot(tracingRay.getDirection()));
-
-		SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 		// start tracing single photon path
 		while(!throughputRadiance.isZero())
@@ -99,7 +99,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 			const SurfaceOptics* optics = metadata->getSurface().getOptics();
 
 			SpectralStrength weightedThroughputRadiance;
-			if(RussianRoulette::surviveOnLuminance(throughputRadiance, &weightedThroughputRadiance))
+			if(RussianRoulette::surviveOnLuminance(throughputRadiance, sampleFlow, &weightedThroughputRadiance))
 			{
 				throughputRadiance = weightedThroughputRadiance;
 
