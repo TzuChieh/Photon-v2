@@ -5,7 +5,6 @@
 #include "Core/Texture/TConstantTexture.h"
 #include "Core/Ray.h"
 #include "Math/TVector3.h"
-#include "Math/Random.h"
 #include "Math/constant.h"
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
 #include "Math/math.h"
@@ -13,6 +12,7 @@
 #include "Core/SurfaceBehavior/BsdfHelper.h"
 #include "Common/assertion.h"
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
+#include "Core/SampleGenerator/SampleFlow.h"
 
 #include <memory>
 #include <iostream>
@@ -30,7 +30,8 @@ TranslucentMicrofacet::TranslucentMicrofacet(
 	m_fresnel   (fresnel),
 	m_microfacet(microfacet)
 {
-	PH_ASSERT(fresnel && microfacet);
+	PH_ASSERT(fresnel);
+	PH_ASSERT(microfacet);
 
 	m_phenomena.set({ESurfacePhenomenon::GLOSSY_REFLECTION, ESurfacePhenomenon::GLOSSY_TRANSMISSION});
 	m_numElementals = 2;
@@ -148,7 +149,7 @@ void TranslucentMicrofacet::calcBsdf(
 void TranslucentMicrofacet::calcBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
-	BsdfSample              sample,
+	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
 	const bool canReflect  = ctx.elemental == ALL_ELEMENTALS || ctx.elemental == REFLECTION;
@@ -165,9 +166,9 @@ void TranslucentMicrofacet::calcBsdfSample(
 	math::Vector3R H;
 	m_microfacet->genDistributedH(
 		in.X,
-		math::Random::genUniformReal_i0_e1(),
-		math::Random::genUniformReal_i0_e1(),
-		N, &H);
+		N,
+		sampleFlow.flow2D(),
+		&H);
 
 	SpectralStrength F;
 	m_fresnel->calcReflectance(H.dot(in.V), &F);
@@ -179,8 +180,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 	// we cannot sample both path, choose one randomly
 	if(sampleReflect && sampleTransmit)
 	{
-		const real dart = math::Random::genUniformReal_i0_e1();
-		if(dart < reflectProb)
+		if(sampleFlow.unflowedPick(reflectProb))
 		{
 			sampleTransmit = false;
 		}

@@ -2,7 +2,6 @@
 
 #include "Core/SurfaceBehavior/surface_optics_fwd.h"
 #include "Core/SurfaceBehavior/bsdf_query_fwd.h"
-#include "Core/SurfaceBehavior/BsdfSample.h"
 
 #include <string>
 #include <array>
@@ -45,7 +44,7 @@ private:
 	virtual void calcBsdfSample(
 		const BsdfQueryContext& ctx,
 		const BsdfSampleInput&  in,
-		BsdfSample              sample,
+		SampleFlow&             sampleFlow,
 		BsdfSampleOutput&       out) const = 0;
 
 	virtual void calcBsdfSamplePdfW(

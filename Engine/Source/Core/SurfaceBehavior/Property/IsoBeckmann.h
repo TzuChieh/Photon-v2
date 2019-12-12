@@ -26,11 +26,10 @@ public:
 		const math::Vector3R& V) const override;
 
 	void genDistributedH(
-		const SurfaceHit&     X,
-		real                  seedA_i0e1, 
-		real                  seedB_i0e1,
-		const math::Vector3R& N,
-		math::Vector3R*       out_H) const override;
+		const SurfaceHit&          X,
+		const math::Vector3R&      N,
+		const std::array<real, 2>& sample,
+		math::Vector3R*            out_H) const override;
 
 private:
 	real m_alpha;

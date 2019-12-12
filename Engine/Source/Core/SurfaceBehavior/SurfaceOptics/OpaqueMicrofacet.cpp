@@ -4,13 +4,13 @@
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Core/Ray.h"
 #include "Math/TVector3.h"
-#include "Math/Random.h"
 #include "Math/constant.h"
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
 #include "Math/math.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Core/SurfaceBehavior/BsdfHelper.h"
 #include "Common/assertion.h"
+#include "Core/SampleGenerator/SampleFlow.h"
 
 #include <cmath>
 #include <iostream>
@@ -79,7 +79,7 @@ void OpaqueMicrofacet::calcBsdf(
 void OpaqueMicrofacet::calcBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
-	BsdfSample              sample,
+	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
 	// Cook-Torrance microfacet specular BRDF is D(H)*F(V, H)*G(L, V, H)/(4*|NoL|*|NoV|).
@@ -93,9 +93,9 @@ void OpaqueMicrofacet::calcBsdfSample(
 	math::Vector3R H;
 	m_microfacet->genDistributedH(
 		in.X,
-		math::Random::genUniformReal_i0_e1(),
-		math::Random::genUniformReal_i0_e1(),
-		N, &H);
+		N,
+		sampleFlow.flow2D(),
+		&H);
 
 	const math::Vector3R L = in.V.mul(-1.0_r).reflect(H).normalizeLocal();
 	out.L = L;

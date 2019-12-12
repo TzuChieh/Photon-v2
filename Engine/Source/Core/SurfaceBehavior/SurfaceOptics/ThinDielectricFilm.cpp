@@ -4,24 +4,24 @@
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Common/assertion.h"
-#include "Math/Random.h"
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Core/Texture/TSampler.h"
 #include "Math/math.h"
+#include "Core/SampleGenerator/SampleFlow.h"
 
 namespace ph
 {
 
 ThinDielectricFilm::ThinDielectricFilm(
-	const std::shared_ptr<DielectricFresnel>& fresnel,
+	const std::shared_ptr<DielectricFresnel>&   fresnel,
 	const std::vector<SampledSpectralStrength>& reflectanceTable,
 	const std::vector<SampledSpectralStrength>& transmittanceTable) :
 
 	SurfaceOptics(),
 
-	m_fresnel(fresnel),
-	m_reflectanceTable(reflectanceTable),
+	m_fresnel           (fresnel),
+	m_reflectanceTable  (reflectanceTable),
 	m_transmittanceTable(transmittanceTable)
 {
 	PH_ASSERT(fresnel);
@@ -51,7 +51,7 @@ void ThinDielectricFilm::calcBsdf(
 void ThinDielectricFilm::calcBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
-	BsdfSample              sample,
+	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
 	const bool canReflect  = ctx.elemental == ALL_ELEMENTALS || ctx.elemental == REFLECTION;
@@ -75,8 +75,7 @@ void ThinDielectricFilm::calcBsdfSample(
 	// we cannot sample both path, choose one randomly
 	if(sampleReflect && sampleTransmit)
 	{
-		const real dart = math::Random::genUniformReal_i0_e1();
-		if(dart < reflectProb)
+		if(sampleFlow.unflowedPick(reflectProb))
 		{
 			sampleTransmit = false;
 		}

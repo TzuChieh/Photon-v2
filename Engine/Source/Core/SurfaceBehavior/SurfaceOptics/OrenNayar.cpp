@@ -3,7 +3,6 @@
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Math/TVector3.h"
-#include "Math/Random.h"
 #include "Math/constant.h"
 #include "Math/math.h"
 #include "Core/Texture/TSampler.h"
@@ -12,6 +11,7 @@
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
 #include "Math/Geometry/THemisphere.h"
 #include "Math/TOrthonormalBasis3.h"
+#include "Core/SampleGenerator/SampleFlow.h"
 
 namespace ph
 {
@@ -116,7 +116,7 @@ void OrenNayar::calcBsdf(
 void OrenNayar::calcBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
-	BsdfSample              sample,
+	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
 	PH_ASSERT_MSG(ctx.elemental == ALL_ELEMENTALS || ctx.elemental == 0, std::to_string(ctx.elemental));
@@ -126,9 +126,7 @@ void OrenNayar::calcBsdfSample(
 
 	math::Vector3R& L = out.L;
 	real pdfW;
-	L = math::THemisphere<real>::makeUnit().sampleToSurfaceCosThetaWeighted(
-		{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()},
-		&pdfW);
+	L = math::THemisphere<real>::makeUnit().sampleToSurfaceCosThetaWeighted(sampleFlow.flow2D(), &pdfW);
 	if(pdfW == 0.0_r)
 	{
 		out.setMeasurability(false);

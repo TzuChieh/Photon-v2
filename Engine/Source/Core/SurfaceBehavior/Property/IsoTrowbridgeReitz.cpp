@@ -17,8 +17,9 @@ IsoTrowbridgeReitz::IsoTrowbridgeReitz(const real alpha) :
 
 // GGX (Trowbridge-Reitz) Normal Distribution Function
 real IsoTrowbridgeReitz::distribution(
-	const SurfaceHit& X,
-	const math::Vector3R& N, const math::Vector3R& H) const
+	const SurfaceHit&     X,
+	const math::Vector3R& N, 
+	const math::Vector3R& H) const
 {
 	const real NoH = N.dot(H);
 	if(NoH <= 0.0_r)
@@ -38,9 +39,11 @@ real IsoTrowbridgeReitz::distribution(
 // Smith's GGX Geometry Shadowing Function (H is expected to be on the 
 // hemisphere of N)
 real IsoTrowbridgeReitz::shadowing(
-	const SurfaceHit& X,
-	const math::Vector3R& N, const math::Vector3R& H,
-	const math::Vector3R& L, const math::Vector3R& V) const
+	const SurfaceHit&     X,
+	const math::Vector3R& N,
+	const math::Vector3R& H,
+	const math::Vector3R& L,
+	const math::Vector3R& V) const
 {
 	const real NoL = N.dot(L);
 	const real NoV = N.dot(V);
@@ -71,17 +74,17 @@ real IsoTrowbridgeReitz::shadowing(
 // for GGX (Trowbridge-Reitz) Normal Distribution Function
 //
 void IsoTrowbridgeReitz::genDistributedH(
-	const SurfaceHit& X,
-	const real seedA_i0e1, const real seedB_i0e1,
-	const math::Vector3R& N,
-	math::Vector3R* const out_H) const
+	const SurfaceHit&          X,
+	const math::Vector3R&      N,
+	const std::array<real, 2>& sample,
+	math::Vector3R* const      out_H) const
 {
-	PH_ASSERT(seedA_i0e1 >= 0.0_r && seedA_i0e1 <= 1.0_r);
-	PH_ASSERT(seedB_i0e1 >= 0.0_r && seedB_i0e1 <= 1.0_r);
+	PH_ASSERT_IN_RANGE_INCLUSIVE(sample[0], 0.0_r, 1.0_r);
+	PH_ASSERT_IN_RANGE_INCLUSIVE(sample[1], 0.0_r, 1.0_r);
 	PH_ASSERT(out_H);
 
-	const real phi   = math::constant::two_pi<real> * seedA_i0e1;
-	const real theta = std::atan(m_alpha * std::sqrt(seedB_i0e1 / (1.0_r - seedB_i0e1)));
+	const real phi   = math::constant::two_pi<real> * sample[0];
+	const real theta = std::atan(m_alpha * std::sqrt(sample[1] / (1.0_r - sample[1])));
 
 	// HACK: currently seed can be 1, which should be avoided; it can
 	// cause theta to be NaN if alpha = 0 or all kinds of crazy things
@@ -105,10 +108,10 @@ void IsoTrowbridgeReitz::genDistributedH(
 	H.normalizeLocal();
 
 	PH_ASSERT_MSG(!std::isnan(H.x) && !std::isnan(H.y) && !std::isnan(H.z) &&
-	              !std::isinf(H.x) && !std::isinf(H.y) && !std::isinf(H.z), "\n"
-		"seed-a = " + std::to_string(seedA_i0e1) + "\n"
-		"seed-b = " + std::to_string(seedB_i0e1) + "\n"
-		"alpha  = " + std::to_string(m_alpha) + "\n");
+	              !std::isinf(H.x) && !std::isinf(H.y) && !std::isinf(H.z),
+		"sample[0] = " + std::to_string(sample[0]) + ", "
+		"sample[1] = " + std::to_string(sample[1]) + ", "
+		"alpha = "     + std::to_string(m_alpha));
 }
 
 }// end namespace ph

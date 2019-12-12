@@ -9,6 +9,7 @@
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Emitter/Emitter.h"
 #include "Common/assertion.h"
+#include "Core/SampleGenerator/SampleFlow.h"
 
 #include <iostream>
 
@@ -33,7 +34,8 @@ void ESUniformRandom::update(const CookedDataStorage& cookedActors)
 
 const Emitter* ESUniformRandom::pickEmitter(SampleFlow& sampleFlow, real* const out_PDF) const
 {
-	const std::size_t picker = static_cast<std::size_t>(math::Random::genUniformReal_i0_e1() * static_cast<real>(m_emitters.size()));
+	// FIXME: use sampleFlow for index
+	const std::size_t picker = static_cast<std::size_t>(sampleFlow.flow1D() * static_cast<real>(m_emitters.size()));
 	const std::size_t pickedIndex = picker == m_emitters.size() ? picker - 1 : picker;
 
 	*out_PDF = 1.0_r / static_cast<real>(m_emitters.size());
@@ -43,7 +45,7 @@ const Emitter* ESUniformRandom::pickEmitter(SampleFlow& sampleFlow, real* const 
 void ESUniformRandom::genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const
 {
 	// randomly and uniformly select an emitter
-	// FIXME: use sampleFlow
+	// FIXME: use sampleFlow for index
 	const std::size_t picker = static_cast<std::size_t>(sampleFlow.flow1D() * static_cast<real>(m_emitters.size()));
 	const std::size_t pickedIndex = picker == m_emitters.size() ? picker - 1 : picker;
 	const real pickPdfW = 1.0_r / static_cast<real>(m_emitters.size());

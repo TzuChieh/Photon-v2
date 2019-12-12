@@ -4,10 +4,10 @@
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
-#include "Math/Random.h"
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Core/Texture/TSampler.h"
+#include "Core/SampleGenerator/SampleFlow.h"
 
 namespace ph
 {
@@ -58,7 +58,7 @@ void IdealDielectric::calcBsdf(
 void IdealDielectric::calcBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
-	BsdfSample              sample,
+	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
 	const bool canReflect  = ctx.elemental == ALL_ELEMENTALS || ctx.elemental == REFLECTION;
@@ -79,11 +79,10 @@ void IdealDielectric::calcBsdfSample(
 	bool sampleReflect  = canReflect;
 	bool sampleTransmit = canTransmit;
 
-	// we cannot sample both path, choose one randomly
+	// We cannot sample both path, choose one stochastically
 	if(sampleReflect && sampleTransmit)
 	{
-		const real dart = math::Random::genUniformReal_i0_e1();
-		if(dart < reflectProb)
+		if(sampleFlow.unflowedPick(reflectProb))
 		{
 			sampleTransmit = false;
 		}

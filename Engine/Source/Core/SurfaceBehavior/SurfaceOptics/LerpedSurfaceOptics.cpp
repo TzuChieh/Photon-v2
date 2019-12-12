@@ -4,12 +4,12 @@
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
-#include "Math/Random.h"
 #include "Core/Texture/TTexture.h"
 #include "Core/Quantity/SpectralStrength.h"
 #include "Common/assertion.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Math/math.h"
+#include "Core/SampleGenerator/SampleFlow.h"
 
 #include <utility>
 
@@ -110,20 +110,18 @@ void LerpedSurfaceOptics::calcBsdf(
 void LerpedSurfaceOptics::calcBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
-	BsdfSample              sample,
+	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
 	const SpectralStrength ratio = m_sampler.sample(*m_ratio, in.X);
 
 	if(ctx.elemental == ALL_ELEMENTALS)
 	{
-		const real dart = math::Random::genUniformReal_i0_e1();
-
 		SpectralStrength sampledRatio  = ratio;
 		SurfaceOptics*   sampledOptics = m_optics0.get();
 		SurfaceOptics*   anotherOptics = m_optics1.get();
 		real             sampledProb   = probabilityOfPickingOptics0(ratio);
-		if(dart >= sampledProb)
+		if(!sampleFlow.unflowedPick(sampledProb))
 		{
 			sampledRatio = SpectralStrength(1) - sampledRatio;
 			std::swap(sampledOptics, anotherOptics);
@@ -131,7 +129,7 @@ void LerpedSurfaceOptics::calcBsdfSample(
 		}
 
 		BsdfSampleOutput sampleOutput;
-		sampledOptics->calcBsdfSample(ctx, in, sample, sampleOutput);
+		sampledOptics->calcBsdfSample(ctx, in, sampleFlow, sampleOutput);
 		if(!sampleOutput.isMeasurable())
 		{
 			out.setMeasurability(false);
@@ -176,14 +174,14 @@ void LerpedSurfaceOptics::calcBsdfSample(
 
 		if(ctx.elemental < m_optics0->m_numElementals)
 		{
-			m_optics0->calcBsdfSample(ctx, in, sample, out);
+			m_optics0->calcBsdfSample(ctx, in, sampleFlow, out);
 			out.pdfAppliedBsdf.mulLocal(ratio);
 		}
 		else
 		{
 			BsdfQueryContext localCtx = ctx;
 			localCtx.elemental = ctx.elemental - m_optics0->m_numElementals;
-			m_optics1->calcBsdfSample(localCtx, in, sample, out);
+			m_optics1->calcBsdfSample(localCtx, in, sampleFlow, out);
 			out.pdfAppliedBsdf.mulLocal(SpectralStrength(1) - ratio);
 		}
 	}

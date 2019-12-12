@@ -3,7 +3,6 @@
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
-#include "Core/SurfaceBehavior/BsdfSample.h"
 
 #include <utility>
 
@@ -30,7 +29,7 @@ void SurfaceOptics::calcBsdfSample(BsdfSampleQuery& sample, SampleFlow& sampleFl
 	calcBsdfSample(
 		sample.context,
 		sample.inputs, 
-		BsdfSample(sampleFlow),
+		sampleFlow,
 		sample.outputs);
 }
 

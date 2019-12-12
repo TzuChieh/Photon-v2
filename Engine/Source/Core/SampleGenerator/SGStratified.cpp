@@ -44,7 +44,7 @@ void SGStratified::genSamples2D(const SampleStage& stage, SamplesND& out_samples
 	const auto        strataSizes = math::Vector2S(stage.getDimSizeHints());
 	const std::size_t numStrata   = strataSizes.product();
 	PH_ASSERT_GT(numStrata, 0);
-
+	
 	// OPT: It is possible to precompute how many samples will be in a
 	// stratum and generate them together. 
 

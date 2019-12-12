@@ -11,6 +11,7 @@
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
 #include "Math/Geometry/THemisphere.h"
 #include "Math/TOrthonormalBasis3.h"
+#include "Core/SampleGenerator/SampleFlow.h"
 
 #include <cmath>
 
@@ -51,7 +52,7 @@ void LambertianDiffuse::calcBsdf(
 void LambertianDiffuse::calcBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
-	BsdfSample              sample,
+	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
 	// Lambertian diffuse model's BRDF is simply albedo/pi.
@@ -68,7 +69,7 @@ void LambertianDiffuse::calcBsdfSample(
 
 	math::Vector3R& L = out.L;
 
-	L = math::THemisphere<real>::makeUnit().sampleToSurfaceCosThetaWeighted(sample.get());
+	L = math::THemisphere<real>::makeUnit().sampleToSurfaceCosThetaWeighted(sampleFlow.flow2D());
 
 	L = in.X.getDetail().getShadingBasis().localToWorld(L);
 	L.normalizeLocal();

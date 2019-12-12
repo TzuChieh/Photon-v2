@@ -3,12 +3,13 @@
 #include "Core/SurfaceBehavior/BsdfHelper.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/InterfaceStatistics.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayer.h"
-#include "Math/Random.h"
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
+#include "Math/Random.h"
+#include "Core/SampleGenerator/SampleFlow.h"
 
 #include <cmath>
 
@@ -103,7 +104,7 @@ void LbLayeredSurface::calcBsdf(
 void LbLayeredSurface::calcBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
-	BsdfSample              sample,
+	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
 	out.pdfAppliedBsdf.setValues(0);
@@ -134,10 +135,10 @@ void LbLayeredSurface::calcBsdfSample(
 		alphas[i] = statistics.getEquivalentAlpha();
 	}
 
-	// Selecting BSDF lobe to sample based on energy term.
+	// Select BSDF lobe to sample based on energy term.
 	// NOTE: watch out for the case where selectWeight cannot be reduced to <= 0 due to 
 	// numerical error (handled in current implmentation)
-	//
+	// TODO: try to use sampleFlow for this
 	real selectWeight = math::Random::genUniformReal_i0_e1() * summedSampleWeights - sampleWeights[0];
 	std::size_t selectIndex = 0;
 	for(selectIndex = 0; selectWeight > 0.0_r && selectIndex + 1 < numLayers(); ++selectIndex)
@@ -150,7 +151,7 @@ void LbLayeredSurface::calcBsdfSample(
 
 	IsoTrowbridgeReitz ggx(alphas[selectIndex]);
 	math::Vector3R H;
-	ggx.genDistributedH(in.X, math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1(), N, &H);
+	ggx.genDistributedH(in.X, N, sampleFlow.flow2D(), &H);
 	const math::Vector3R L = in.V.mul(-1.0_r).reflect(H).normalizeLocal();
 
 	if(!ctx.sidedness.isSameHemisphere(in.X, L, in.V))

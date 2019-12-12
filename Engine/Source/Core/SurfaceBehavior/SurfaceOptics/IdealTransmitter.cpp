@@ -50,7 +50,7 @@ void IdealTransmitter::calcBsdf(
 void IdealTransmitter::calcBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
-	BsdfSample              sample,
+	SampleFlow&             /* sampleFlow */,
 	BsdfSampleOutput&       out) const
 {
 	const math::Vector3R N = in.X.getShadingNormal();
