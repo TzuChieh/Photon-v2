@@ -18,3 +18,10 @@ target_include_directories(PhotonCLI
 )
 
 target_link_libraries(PhotonCLI Engine)
+
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    set_property(TARGET PhotonCLI 
+    	APPEND PROPERTY 
+    	LINK_FLAGS /DEBUG:FULL
+    )
+endif()

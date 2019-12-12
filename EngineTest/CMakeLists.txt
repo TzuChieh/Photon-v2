@@ -14,10 +14,10 @@ target_include_directories(EngineTest
 target_link_libraries(EngineTest Engine)
 target_link_libraries(EngineTest ${GOOGLETEST_LIBS})
 
-if(MSVC)
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set_property(TARGET EngineTest 
     	APPEND PROPERTY 
-    	LINK_FLAGS /DEBUG
+    	LINK_FLAGS /DEBUG:FULL
     )
 endif()
 

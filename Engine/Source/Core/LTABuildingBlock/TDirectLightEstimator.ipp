@@ -9,6 +9,8 @@
 #include "Core/Intersectable/Primitive.h"
 #include "Common/assertion.h"
 
+#include <algorithm>
+
 namespace ph
 {
 
@@ -50,7 +52,7 @@ inline bool TDirectLightEstimator<POLICY>::sample(
 
 		// sidedness agreement between real geometry and shading normal
 		//
-		if(toLightVec.lengthSquared() > DL_RAY_DELTA_DIST * DL_RAY_DELTA_DIST * 3 &&
+		if(toLightVec.lengthSquared() > math::squared(DL_RAY_DELTA_DIST * 3) &&
 		   SidednessAgreement(POLICY).isSidednessAgreed(targetPos, toLightVec))
 		{
 			const Ray visRay(targetPos.getPosition(), toLightVec.normalize(), DL_RAY_DELTA_DIST, toLightVec.length() - DL_RAY_DELTA_DIST * 2, time);
