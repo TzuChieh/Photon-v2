@@ -67,7 +67,7 @@ inline const real* SamplesNDStream::readSample()
 
 	if(m_readIndex < m_numSamples)
 	{
-		return &(m_buffer[m_readIndex++]);
+		return (*this)[m_readIndex++];
 	}
 	else
 	{
