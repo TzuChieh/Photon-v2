@@ -4,12 +4,11 @@
 #include "Core/Texture/TSampler.h"
 #include "Common/Logger.h"
 #include "Core/Intersectable/UvwMapper/SphericalMapper.h"
-#include "Math/Random.h"
 #include "Core/Sample/DirectLightSample.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Math/constant.h"
 #include "Math/math.h"
-#include "Math/Mapping/UniformUnitDisk.h"
+#include "Math/Geometry/TDisk.h"
 #include "Math/TOrthonormalBasis3.h"
 #include "Core/SampleGenerator/SampleFlow.h"
 
@@ -139,16 +138,15 @@ void BackgroundEmitter::genSensingRay(SampleFlow& sampleFlow, Ray* out_ray, Spec
 	*out_eN = direction;
 	
 	real diskPdf;
-	math::Vector2R diskPos = math::UniformUnitDisk::map(
-		{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()},
-		&diskPdf);
+	math::Vector2R diskPos = math::TDisk<real>(1.0_r).sampleToSurface2D(
+		sampleFlow.flow2D(), &diskPdf);
 
 	*out_pdfA = diskPdf / (m_sceneBoundRadius * m_sceneBoundRadius);
 
 	const auto basis = math::Basis3R::makeFromUnitY(direction);
 	math::Vector3R position = direction.mul(-1) * m_sceneBoundRadius +
 		(basis.getZAxis() * diskPos.x * m_sceneBoundRadius) +
-		(basis.getXAxis() * diskPos.y * m_sceneBoundRadius);
+		(basis.getXAxis() * diskPos.y * m_sceneBoundRadius);// TODO: use TDisk to do this
 
 	out_ray->setDirection(direction);
 	out_ray->setOrigin(position);

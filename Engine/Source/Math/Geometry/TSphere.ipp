@@ -135,7 +135,7 @@ template<typename T>
 inline TVector3<T> TSphere<T>::sampleToSurfaceArchimedes(
 	const std::array<T, 2>& sample, T* const out_pdfA) const
 {
-	// PDF_A is 1/(4*pi)
+	// PDF_A is 1/(4*pi*r^2)
 	PH_ASSERT(out_pdfA);
 	*out_pdfA = T(1) / getArea();
 

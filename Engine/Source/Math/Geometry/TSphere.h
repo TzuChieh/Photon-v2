@@ -18,7 +18,6 @@ public:
 	static TSphere makeUnit();
 
 	TSphere() = default;
-
 	explicit TSphere(T radius);
 
 	bool isIntersecting(
