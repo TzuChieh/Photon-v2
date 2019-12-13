@@ -6,6 +6,7 @@
 
 #include <string>
 #include <utility>
+#include <array>
 
 namespace ph::math
 {
@@ -46,6 +47,8 @@ public:
 	bool isValid() const;
 	bool isPoint() const;
 	bool isArea() const;
+
+	TVector2<T> sampleToSurface(const std::array<T, 2>& sample) const;
 
 	std::string toString() const;
 

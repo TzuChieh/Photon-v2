@@ -152,6 +152,16 @@ inline bool TAABB2D<T>::isArea() const
 }
 
 template<typename T>
+inline TVector2<T> TAABB2D<T>::sampleToSurface(const std::array<T, 2>& sample) const
+{
+	PH_ASSERT_IN_RANGE_INCLUSIVE(sample[0], T(0), T(1));
+	PH_ASSERT_IN_RANGE_INCLUSIVE(sample[1], T(0), T(1));
+	PH_ASSERT(isValid());
+
+	return TVector2<T>(sample).mul(getExtents()).add(minVertex);
+}
+
+template<typename T>
 inline bool TAABB2D<T>::equals(const TAABB2D& other) const
 {
 	return minVertex.equals(other.minVertex) && 

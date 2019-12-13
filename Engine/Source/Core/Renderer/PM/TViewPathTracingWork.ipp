@@ -15,7 +15,6 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
-#include "Math/Mapping/UniformRectangle.h"
 #include "Math/Geometry/TAABB2D.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
@@ -61,7 +60,8 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 		for(std::size_t i = 0; i < filmSamples.numSamples(); ++i)
 		{
 			// TODO: use TArithmeticArray directly
-			const math::Vector2R filmNdc    = math::UniformRectangle::map(math::Vector2R(filmSamples[i]), rRegion).div(rFilmSize);
+			
+			const math::Vector2R filmNdc    = rRegion.sampleToSurface(filmSamples.get<2>(i)).div(rFilmSize);
 			SampleFlow           sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray tracingRay;

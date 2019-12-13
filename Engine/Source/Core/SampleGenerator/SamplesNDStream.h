@@ -21,10 +21,17 @@ public:
 		std::size_t numSamples);
 
 	const real* readSample();
+
+	template<std::size_t N>
+	std::array<real, N> readSample();
+
 	SampleFlow readSampleAsFlow();
 
 	std::size_t numDims() const;
 	std::size_t numSamples() const;
+
+	template<std::size_t N>
+	std::array<real, N> get(std::size_t index) const;
 
 	const real* operator [] (std::size_t index) const;
 
@@ -72,6 +79,21 @@ inline const real* SamplesNDStream::readSample()
 	}
 }
 
+template<std::size_t N>
+inline std::array<real, N> SamplesNDStream::readSample()
+{
+	PH_ASSERT_EQ(N, m_numDims);
+
+	const real* const samplePtr = readSample();
+
+	std::array<real, N> sample;
+	for(std::size_t di = 0; di < N; ++di)
+	{
+		sample[di] = samplePtr[di];
+	}
+	return sample;
+}
+
 inline SampleFlow SamplesNDStream::readSampleAsFlow()
 {
 	return SampleFlow(readSample(), m_numDims);
@@ -85,6 +107,19 @@ inline std::size_t SamplesNDStream::numDims() const
 inline std::size_t SamplesNDStream::numSamples() const
 {
 	return m_numSamples;
+}
+
+template<std::size_t N>
+inline std::array<real, N> SamplesNDStream::get(const std::size_t index) const
+{
+	PH_ASSERT_EQ(N, m_numDims);
+
+	std::array<real, N> sample;
+	for(std::size_t di = 0; di < N; ++di)
+	{
+		sample[di] = (*this)[index][di];
+	}
+	return sample;
 }
 
 inline const real* SamplesNDStream::operator [] (const std::size_t index) const
