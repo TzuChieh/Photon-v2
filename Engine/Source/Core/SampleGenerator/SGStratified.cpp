@@ -138,7 +138,7 @@ std::vector<std::size_t> SGStratified::reviseDimSizeHints(
 	// the size of largest dimension iteratively until the condition being satisfied.
 	while(math::product(revisedDimSizeHints) > numSamples)
 	{
-		auto& max = std::max_element(revisedDimSizeHints.begin(), revisedDimSizeHints.end());
+		auto max = std::max_element(revisedDimSizeHints.begin(), revisedDimSizeHints.end());
 		*max = *max > 1 ? *max - 1 : 1;
 	}
 
