@@ -10,7 +10,7 @@
 namespace ph
 {
 
-void SGUniformRandom::genSamples1D(const SampleStage& stage, SamplesND& out_samples)
+void SGUniformRandom::genSamples1D(const SampleStage& stage, SamplesND out_samples)
 {
 	for(std::size_t si = 0; si < out_samples.numSamples(); ++si)
 	{
@@ -20,7 +20,7 @@ void SGUniformRandom::genSamples1D(const SampleStage& stage, SamplesND& out_samp
 	}
 }
 
-void SGUniformRandom::genSamples2D(const SampleStage& stage, SamplesND& out_samples)
+void SGUniformRandom::genSamples2D(const SampleStage& stage, SamplesND out_samples)
 {
 	for(std::size_t si = 0; si < out_samples.numSamples(); ++si)
 	{

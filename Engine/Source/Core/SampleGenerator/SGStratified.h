@@ -17,9 +17,9 @@ public:
 	explicit SGStratified(std::size_t numSamples);
 
 private:
-	void genSamples1D(const SampleStage& stage, SamplesND& out_samples) override;
-	void genSamples2D(const SampleStage& stage, SamplesND& out_samples) override;
-	void reviseSampleStage(SampleStageReviser& reviser) override;
+	void genSamples1D(const SampleStage& stage, SamplesND out_samples) override;
+	void genSamples2D(const SampleStage& stage, SamplesND out_samples) override;
+	void reviseSampleStage(SampleStageReviser reviser) override;
 	std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;
 
 	static std::vector<std::size_t> reviseDimSizeHints(

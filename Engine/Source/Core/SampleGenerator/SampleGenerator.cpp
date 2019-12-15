@@ -183,10 +183,10 @@ bool SampleGenerator::isSamplesGE3DSupported() const
 	return false;
 }
 
-void SampleGenerator::genSamplesGE3D(const SampleStage& stage, SamplesND& out_samples)
+void SampleGenerator::genSamplesGE3D(const SampleStage& stage, SamplesND out_samples)
 {}
 
-void SampleGenerator::reviseSampleStage(SampleStageReviser& reviser)
+void SampleGenerator::reviseSampleStage(SampleStageReviser reviser)
 {}
 
 void SampleGenerator::allocSampleBuffer()
