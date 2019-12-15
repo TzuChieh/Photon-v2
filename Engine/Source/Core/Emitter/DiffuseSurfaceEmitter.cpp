@@ -144,7 +144,8 @@ real DiffuseSurfaceEmitter::calcRadiantFluxApprox() const
 
 	// TODO: more samples can be better
 	PositionSample sample;
-	m_surface->genPositionSample(SampleFlow(), &sample);
+	SampleFlow randomFlow;
+	m_surface->genPositionSample(randomFlow, &sample);
 	if(sample.pdf == 0.0_r)
 	{
 		return SurfaceEmitter::calcRadiantFluxApprox();
