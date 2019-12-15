@@ -19,10 +19,12 @@ public:
 	LerpedSurfaceOptics(
 		const std::shared_ptr<SurfaceOptics>& optics0, 
 		const std::shared_ptr<SurfaceOptics>& optics1);
+
 	LerpedSurfaceOptics(
 		const std::shared_ptr<SurfaceOptics>& optics0,
 		const std::shared_ptr<SurfaceOptics>& optics1,
 		real ratio);
+
 	LerpedSurfaceOptics(
 		const std::shared_ptr<SurfaceOptics>& optics0, 
 		const std::shared_ptr<SurfaceOptics>& optics1,

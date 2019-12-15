@@ -13,7 +13,7 @@ namespace ph
 class IdealDielectric : public SurfaceOptics
 {
 public:
-	IdealDielectric(const std::shared_ptr<DielectricFresnel>& fresnel);
+	explicit IdealDielectric(const std::shared_ptr<DielectricFresnel>& fresnel);
 	IdealDielectric(
 		const std::shared_ptr<DielectricFresnel>&          fresnel,
 		const std::shared_ptr<TTexture<SpectralStrength>>& reflectionScale,

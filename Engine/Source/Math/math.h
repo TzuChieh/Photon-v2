@@ -12,6 +12,7 @@ to rendering in mind.
 #include "Common/primitive_type.h"
 #include "Math/constant.h"
 #include "Math/math_fwd.h"
+#include "Math/math_table.h"
 #include "Common/compiler.h"
 #include "Common/assertion.h"
 #include "Utility/utility.h"
@@ -385,6 +386,55 @@ inline Integer ceil_div_positive(const Integer numerator, const Integer denomina
 	PH_ASSERT_GE(std::numeric_limits<Integer>::max() - numerator, denominator);
 
 	return (numerator + denominator - 1) / denominator;
+}
+
+/*! @brief Get an integral value with reversed bits.
+
+Reference:
+The lookup table method from Stanford CG Lab's webpage: "Bit Twiddling Hacks"
+by Sean Eron Anderson.
+*/
+template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
+inline T reverse_bits(const T value)
+{
+	static_assert(std::is_integral_v<T> && std::is_unsigned_v<T>,
+		"Unsupported type detected");
+
+	constexpr std::size_t NUM_BITS = sizeof(T) * CHAR_BIT;
+
+	// Note that arbitrary can be supported by careful handling of bitwise operations
+	static_assert(NUM_BITS % 8 == 0,
+		"Non-multiple-of-8 integers are not supported");
+
+	if constexpr(NUM_BITS == 8)
+	{
+		return T(detail::BITS8_REVERSE_TABLE[value]);
+	}
+	else if constexpr(NUM_BITS == 16)
+	{
+		return (T(detail::BITS8_REVERSE_TABLE[value        & 0xFF]) << 8) |
+		       (T(detail::BITS8_REVERSE_TABLE[(value >> 8) & 0xFF]));
+	}
+	else if constexpr(NUM_BITS == 32)
+	{
+		return (T(detail::BITS8_REVERSE_TABLE[value         & 0xFF]) << 24) |
+		       (T(detail::BITS8_REVERSE_TABLE[(value >> 8)  & 0xFF]) << 16) |
+		       (T(detail::BITS8_REVERSE_TABLE[(value >> 16) & 0xFF]) << 8)  |
+		       (T(detail::BITS8_REVERSE_TABLE[(value >> 24) & 0xFF]));
+	}
+	else
+	{
+		static_assert(NUM_BITS == 64);
+
+		return (T(detail::BITS8_REVERSE_TABLE[value         & 0xFF]) << 56) |
+		       (T(detail::BITS8_REVERSE_TABLE[(value >> 8)  & 0xFF]) << 48) |
+		       (T(detail::BITS8_REVERSE_TABLE[(value >> 16) & 0xFF]) << 40) |
+		       (T(detail::BITS8_REVERSE_TABLE[(value >> 24) & 0xFF]) << 32) |
+		       (T(detail::BITS8_REVERSE_TABLE[(value >> 32) & 0xFF]) << 24) |
+		       (T(detail::BITS8_REVERSE_TABLE[(value >> 40) & 0xFF]) << 16) |
+		       (T(detail::BITS8_REVERSE_TABLE[(value >> 48) & 0xFF]) << 8)  |
+		       (T(detail::BITS8_REVERSE_TABLE[(value >> 56) & 0xFF]));
+	}
 }
 
 }// end namespace ph::math

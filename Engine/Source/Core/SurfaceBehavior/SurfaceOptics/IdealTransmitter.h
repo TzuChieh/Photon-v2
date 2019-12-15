@@ -13,7 +13,7 @@ namespace ph
 class IdealTransmitter : public SurfaceOptics
 {
 public:
-	IdealTransmitter(const std::shared_ptr<DielectricFresnel>& fresnel);
+	explicit IdealTransmitter(const std::shared_ptr<DielectricFresnel>& fresnel);
 	IdealTransmitter(
 		const std::shared_ptr<DielectricFresnel>&          fresnel,
 		const std::shared_ptr<TTexture<SpectralStrength>>& transmissionScale);
