@@ -6,23 +6,22 @@
 namespace ph
 {
 
-//class SGHalton : public SampleGenerator, public TCommandInterface<SGHalton>
-//{
-//public:
-//	explicit SGHalton(std::size_t numSamples);
-//
-//private:
-//	std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;
-//	void genSamples1D(const Samples1DStage& stage, Samples1D* out_array) override;
-//	void genSamples2D(const Samples2DStage& stage, Samples2D* out_array) override;
-//	void genSamplesND(const SamplesNDStage& stage, SamplesND* out_array) override;
-//
-//// command interface
-//public:
-//	static SdlTypeInfo ciTypeInfo();
-//	static void ciRegister(CommandRegister& cmdRegister);
-//	static std::unique_ptr<SGStratified> ciLoad(const InputPacket& packet);
-//};
+class SGHalton : public SampleGenerator, public TCommandInterface<SGHalton>
+{
+public:
+	explicit SGHalton(std::size_t numSamples);
+
+private:
+	void genSamples1D(const SampleStage& stage, SamplesND out_samples) override;
+	void genSamples2D(const SampleStage& stage, SamplesND out_samples) override;
+	std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;
+
+// command interface
+public:
+	static SdlTypeInfo ciTypeInfo();
+	static void ciRegister(CommandRegister& cmdRegister);
+	static std::unique_ptr<SGHalton> ciLoad(const InputPacket& packet);
+};
 
 }// end namespace ph
 

@@ -61,7 +61,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 		{
 			// TODO: use TArithmeticArray directly
 			
-			const math::Vector2R filmNdc    = rRegion.sampleToSurface(filmSamples.get<2>(i)).div(rFilmSize);
+			const math::Vector2R filmNdc    = rRegion.sampleToSurface(filmSamples.template get<2>(i)).div(rFilmSize);
 			SampleFlow           sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray tracingRay;
