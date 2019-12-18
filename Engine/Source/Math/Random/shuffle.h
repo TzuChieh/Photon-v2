@@ -6,17 +6,18 @@
 #include <cstddef>
 #include <algorithm>
 #include <iterator>
+#include <utility>
 
 namespace ph::math
 {
 
-namespace shuffle_detail
+namespace detail::shuffle
 {
 
 template<typename T>
 struct StandardSwapper
 {
-	void operator () (T& a, T& b)
+	void operator () (T& a, T& b) const
 	{
 		// enable ADL
 		using std::swap;
@@ -25,13 +26,13 @@ struct StandardSwapper
 	}
 };
 
-}// end namespace shuffle_detail
+}// end namespace detail::shuffle
 
 template<typename IndexPairConsumer>
 void shuffle_durstenfeld_index_pairs(
 	const std::size_t       beginIndex,
 	const std::size_t       endIndex,
-	const IndexPairConsumer consumer)
+	IndexPairConsumer       consumer)
 {
 	PH_ASSERT_LE(beginIndex, endIndex);
 
@@ -44,7 +45,7 @@ void shuffle_durstenfeld_index_pairs(
 
 template<
 	typename RandomIterator, 
-	typename Swapper = shuffle_detail::StandardSwapper<typename std::iterator_traits<RandomIterator>::value_type>>
+	typename Swapper = detail::shuffle::StandardSwapper<typename std::iterator_traits<RandomIterator>::value_type>>
 void shuffle_durstenfeld(
 	RandomIterator begin, RandomIterator end,
 	Swapper swapper = Swapper())
@@ -54,7 +55,8 @@ void shuffle_durstenfeld(
 
 	shuffle_durstenfeld_index_pairs(
 		0, NUM_ELEMENTS, 
-		[=](const std::size_t indexA, const std::size_t indexB)
+		[=, &swapper](
+			const std::size_t indexA, const std::size_t indexB)
 		{
 			swapper(begin[indexA], begin[indexB]);
 		});

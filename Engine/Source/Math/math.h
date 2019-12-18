@@ -397,6 +397,8 @@ by Sean Eron Anderson.
 template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
 inline T reverse_bits(const T value)
 {
+	using namespace detail;
+
 	static_assert(std::is_integral_v<T> && std::is_unsigned_v<T>,
 		"Unsupported type detected");
 

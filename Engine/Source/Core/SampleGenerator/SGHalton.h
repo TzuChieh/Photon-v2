@@ -2,6 +2,9 @@
 
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Common/primitive_type.h"
+#include "Core/SampleGenerator/Detail/RadicalInversePermutations.h"
+
+#include <memory>
 
 namespace ph
 {
@@ -15,6 +18,8 @@ private:
 	void genSamples1D(const SampleStage& stage, SamplesND out_samples) override;
 	void genSamples2D(const SampleStage& stage, SamplesND out_samples) override;
 	std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;
+
+	std::shared_ptr<detail::halton::RadicalInversePermutations> m_permutations;
 
 // command interface
 public:

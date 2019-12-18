@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 
 using namespace ph;
-using namespace ph::halton_detail;
+using namespace ph::detail::halton;
 
 TEST(HaltonImplDetailTest, RadicalInverse)
 {

@@ -11,9 +11,9 @@ namespace ph
 namespace spectral_data
 {
 
-typedef std::array<real, 40>  ArraySmits;
-typedef std::array<real, 471> ArrayXYZCMF;
-typedef std::array<real, 531> ArrayD65;
+using ArraySmits  = std::array<real, 40>;
+using ArrayXYZCMF = std::array<real, 471>;
+using ArrayD65    = std::array<real, 531>;
 
 // XYZ color matching functions for CIE 1931 2-degree standard.
 const ArrayXYZCMF& XYZ_CMF_CIE_1931_2_degree_wavelengths_nm();

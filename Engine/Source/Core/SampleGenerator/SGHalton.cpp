@@ -15,7 +15,8 @@ namespace ph
 
 SGHalton::SGHalton(const std::size_t numSamples) :
 	//SampleGenerator(numSamples, numSamples)
-	SampleGenerator(numSamples, 4)// HACK
+	SampleGenerator(numSamples, 4),// HARDCODE
+	m_permutations(std::make_shared<detail::halton::RadicalInversePermutations>(1024))// HARDCODE
 {}
 
 void SGHalton::genSamples1D(const SampleStage& stage, SamplesND out_samples)
@@ -37,6 +38,7 @@ void SGHalton::genSamples2D(const SampleStage& stage, SamplesND out_samples)
 
 std::unique_ptr<SampleGenerator> SGHalton::genNewborn(const std::size_t numSamples) const
 {
+	// TODO: reuse permutations or not?
 	return std::make_unique<SGHalton>(numSamples);
 }
 
