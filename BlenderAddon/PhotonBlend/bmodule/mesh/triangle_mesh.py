@@ -52,11 +52,13 @@ def loop_triangles_to_sdl_triangle_mesh(
             b_mesh_vertex = b_mesh_vertices[vertex_index]
             positions.append(b_mesh_vertex.co)
             if not has_custom_normals:
-                normals.append(b_mesh_vertex.normal if b_loop_triangle.use_smooth else b_loop_triangle.normal)
+                b_normal = b_mesh_vertex.normal if b_loop_triangle.use_smooth else b_loop_triangle.normal
+                normals.append(Vector((b_normal[0], b_normal[1], b_normal[2])))
 
         if has_custom_normals:
             for i in range(3):
-                normals.append(b_loop_triangle.split_normals[i])
+                b_normal = b_loop_triangle.split_normals[i]
+                normals.append(Vector((b_normal[0], b_normal[1], b_normal[2])))
 
         for loop_index in b_loop_triangle.loops:
             # b_uv = b_mesh_uv_loops[loop_index].uv
