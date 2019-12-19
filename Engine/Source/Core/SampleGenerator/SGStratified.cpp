@@ -19,7 +19,10 @@ SGStratified::SGStratified(const std::size_t numSamples) :
 	SampleGenerator(numSamples, 4)// HACK
 {}
 
-void SGStratified::genSamples1D(const SampleStage& stage, SamplesND out_samples)
+void SGStratified::genSamples1D(
+	const SampleContext& context,
+	const SampleStage&   stage,
+	SamplesND            out_samples)
 {
 	PH_ASSERT_EQ(stage.numDims(), 1);
 	PH_ASSERT_GE(stage.numSamples(), 1);
@@ -34,7 +37,10 @@ void SGStratified::genSamples1D(const SampleStage& stage, SamplesND out_samples)
 	out_samples.shuffle();
 }
 
-void SGStratified::genSamples2D(const SampleStage& stage, SamplesND out_samples)
+void SGStratified::genSamples2D(
+	const SampleContext& context,
+	const SampleStage&   stage,
+	SamplesND            out_samples)
 {
 	PH_ASSERT_EQ(stage.numDims(), 2);
 	PH_ASSERT_GE(stage.numSamples(), 1);

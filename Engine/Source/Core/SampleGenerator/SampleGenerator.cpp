@@ -2,7 +2,7 @@
 #include "FileIO/SDL/InputPacket.h"
 #include "Math/Random.h"
 #include "Common/assertion.h"
-#include "Core/SampleGenerator/SampleStageReviser.h"
+#include "Core/SampleGenerator/SampleContext.h"
 
 #include <iostream>
 #include <algorithm>
@@ -186,7 +186,10 @@ bool SampleGenerator::isSamplesGE3DSupported() const
 	return false;
 }
 
-void SampleGenerator::genSamplesGE3D(const SampleStage& stage, SamplesND out_samples)
+void SampleGenerator::genSamplesGE3D(
+	const SampleContext& /* context */,
+	const SampleStage&   /* stage */, 
+	SamplesND            /* out_samples */)
 {}
 
 void SampleGenerator::reviseSampleStage(SampleStageReviser reviser)
@@ -203,6 +206,8 @@ void SampleGenerator::genSampleBatch(const std::size_t cachedBatchIndex)
 
 	// TODO: probably should make batch buffers closer to each other
 
+	const SampleContext context(m_numUsedBatches);
+
 	for(const auto& stage : m_stages)
 	{
 		// Actual buffer index depends on batch number
@@ -215,6 +220,7 @@ void SampleGenerator::genSampleBatch(const std::size_t cachedBatchIndex)
 		{
 		case 1:
 			genSamples1D(
+				context,
 				stage, 
 				SamplesND(
 					bufferPtr,
@@ -226,6 +232,7 @@ void SampleGenerator::genSampleBatch(const std::size_t cachedBatchIndex)
 
 		case 2:
 			genSamples2D(
+				context,
 				stage,
 				SamplesND(
 					bufferPtr,
@@ -240,6 +247,7 @@ void SampleGenerator::genSampleBatch(const std::size_t cachedBatchIndex)
 			PH_ASSERT(isSamplesGE3DSupported());
 
 			genSamplesGE3D(
+				context,
 				stage,
 				SamplesND(
 					bufferPtr,

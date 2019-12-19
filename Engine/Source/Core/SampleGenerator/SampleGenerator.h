@@ -6,6 +6,7 @@
 #include "Math/TVector2.h"
 #include "Math/TArithmeticArray.h"
 #include "Core/SampleGenerator/SampleStage.h"
+#include "Core/SampleGenerator/SampleStageReviser.h"
 #include "Core/SampleGenerator/SamplesNDHandle.h"
 #include "Core/SampleGenerator/SamplesND.h"
 #include "Core/SampleGenerator/SamplesNDStream.h"
@@ -24,7 +25,7 @@ namespace ph
 
 class Scene;
 class InputPacket;
-class SampleStageReviser;
+class SampleContext;
 
 class SampleGenerator : public TCommandInterface<SampleGenerator>
 {
@@ -55,11 +56,24 @@ public:
 
 private:
 	virtual std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const = 0;
-	virtual void genSamples1D(const SampleStage& stage, SamplesND out_samples) = 0;
-	virtual void genSamples2D(const SampleStage& stage, SamplesND out_samples) = 0;
+
+	virtual void genSamples1D(
+		const SampleContext& context,
+		const SampleStage&   stage, 
+		SamplesND            out_samples) = 0;
+
+	virtual void genSamples2D(
+		const SampleContext& context,
+		const SampleStage&   stage, 
+		SamplesND            out_samples) = 0;
 
 	virtual bool isSamplesGE3DSupported() const;
-	virtual void genSamplesGE3D(const SampleStage& stage, SamplesND out_samples);
+
+	virtual void genSamplesGE3D(
+		const SampleContext& context,
+		const SampleStage&   stage, 
+		SamplesND            out_samples);
+
 	virtual void reviseSampleStage(SampleStageReviser reviser);
 
 	std::size_t              m_numSampleBatches;

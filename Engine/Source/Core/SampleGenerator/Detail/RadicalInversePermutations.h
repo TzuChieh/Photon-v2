@@ -43,8 +43,8 @@ inline RadicalInversePermutations::RadicalInversePermutations(const std::size_t 
 {
 	PH_ASSERT_LE(numDims, MAX_DIMENSIONS);
 
-	// The offset after <numDims> is the total size of the buffer
-	m_permutations.resize(PERMUTATION_OFFSETS(numDims + 1));
+	// The offset after index <numDims - 1> is the total size of the buffer
+	m_permutations.resize(PERMUTATION_OFFSETS(numDims));
 
 	// Generate random digit permutation/mapping for each dimension
 	for(std::size_t di = 0; di < numDims; ++di)

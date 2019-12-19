@@ -67,6 +67,7 @@
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/SampleGenerator/SGUniformRandom.h"
 #include "Core/SampleGenerator/SGStratified.h"
+#include "Core/SampleGenerator/SGHalton.h"
 
 // renderers
 #include "Core/Renderer/Renderer.h"
@@ -175,6 +176,7 @@ bool init_command_parser()
 	register_command_interface<SampleGenerator>();
 	register_command_interface<SGUniformRandom>();
 	register_command_interface<SGStratified>();
+	register_command_interface<SGHalton>();
 
 	// renderers
 	register_command_interface<Renderer>();
