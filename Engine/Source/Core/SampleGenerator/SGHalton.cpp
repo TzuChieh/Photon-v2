@@ -19,12 +19,11 @@ SGHalton::SGHalton(const std::size_t numSamples) :
 	//SampleGenerator(numSamples, numSamples)
 	SampleGenerator(numSamples, 4),// HARDCODE
 
-	m_permutations         (std::make_shared<Permutations>(detail::halton::MAX_DIMENSIONS)),
-	m_dimSampleValueRecords(detail::halton::MAX_DIMENSIONS, 0)
+	m_permutations  (std::make_shared<Permutations>(detail::halton::MAX_DIMENSIONS)),
+	m_dimSeedRecords(detail::halton::MAX_DIMENSIONS, 0)
 {}
 
-// TODO: hammersley?
-// TODO: just provide an impl. for any dimension?
+// TODO: hammersley for fixed number of samples
 
 void SGHalton::genSamples1D(
 	const SampleContext& context,
@@ -32,34 +31,8 @@ void SGHalton::genSamples1D(
 	SamplesND            out_samples)
 {
 	PH_ASSERT_EQ(stage.numDims(), 1);
-	PH_ASSERT_GE(stage.numSamples(), 1);
 
-	const auto stageDimIndex = stage.getDimIndexRange().first;
-	const auto valueRecord   = m_dimSampleValueRecords[stageDimIndex];
-
-	if(stageDimIndex < 2)
-	{
-		for(std::size_t si = 0; si < out_samples.numSamples(); ++si)
-		{
-			out_samples.setSample<1>(
-				si, 
-				{detail::halton::radical_inverse(stageDimIndex, valueRecord + si)});
-		}
-	}
-	else
-	{
-		const auto* const permutation = m_permutations->getPermutationForDim(stageDimIndex);
-
-		for(std::size_t si = 0; si < out_samples.numSamples(); ++si)
-		{
-			out_samples.setSample<1>(
-				si, 
-				{detail::halton::radical_inverse_permuted(
-					stageDimIndex, valueRecord + si, permutation)});
-		}
-	}
-
-	m_dimSampleValueRecords[stageDimIndex] += out_samples.numSamples();
+	genSamplesOfAnyDimensions(context, stage, out_samples);
 }
 
 void SGHalton::genSamples2D(
@@ -68,45 +41,71 @@ void SGHalton::genSamples2D(
 	SamplesND            out_samples)
 {
 	PH_ASSERT_EQ(stage.numDims(), 2);
-	PH_ASSERT_GE(stage.numSamples(), 1);
-	PH_ASSERT_EQ(stage.getDimSizeHints().size(), 2);
 
-	const std::array<std::size_t, 2> stageDimIndices{
-		stage.getDimIndexRange().first,
-		stage.getDimIndexRange().first + 1};
+	genSamplesOfAnyDimensions(context, stage, out_samples);
+}
 
-	const std::array<std::size_t, 2> valueRecords{
-		m_dimSampleValueRecords[stageDimIndices[0]],
-		m_dimSampleValueRecords[stageDimIndices[1]]};
+void SGHalton::genSamplesGE3D(
+	const SampleContext& context,
+	const SampleStage&   stage,
+	SamplesND            out_samples)
+{
+	PH_ASSERT_GE(stage.numDims(), 3);
 
+	genSamplesOfAnyDimensions(context, stage, out_samples);
+}
+
+bool SGHalton::isSamplesGE3DSupported() const
+{
+	return true;
+}
+
+void SGHalton::genSamplesOfAnyDimensions(
+	const SampleContext& context,
+	const SampleStage&   stage,
+	SamplesND            out_samples)
+{
 	for(std::size_t si = 0; si < out_samples.numSamples(); ++si)
 	{
-		std::array<real, 2> sample;
-		for(std::size_t i = 0; i < 2; ++i)
+		for(std::size_t di = 0, stageDimIndex = stage.getDimIndexRange().first;
+			di < out_samples.numDims(); 
+			++di, ++stageDimIndex)
 		{
-			if(stageDimIndices[i] < 2)
+			// While generating samples, lower dimensions already have nice 
+			// distributions such that permuting them is unnecessary
+
+			real dimSample;
+			if(stageDimIndex < 2)
 			{
-				sample[i] = detail::halton::radical_inverse(stageDimIndices[i], valueRecords[i] + si);
+				dimSample = detail::halton::radical_inverse(
+					stageDimIndex, 
+					m_dimSeedRecords[stageDimIndex] + si);
 			}
 			else
 			{
-				sample[i] = detail::halton::radical_inverse_permuted(
-					stageDimIndices[i], 
-					valueRecords[i] + si, 
-					m_permutations->getPermutationForDim(stageDimIndices[i]));
+				dimSample = detail::halton::radical_inverse_permuted(
+					stageDimIndex,
+					m_dimSeedRecords[stageDimIndex] + si,
+					m_permutations->getPermutationForDim(stageDimIndex));
 			}
+			out_samples[si][di] = dimSample;
 		}
-
-		out_samples.setSample(si, sample);
 	}
-
-	m_dimSampleValueRecords[stageDimIndices[0]] += out_samples.numSamples();
-	m_dimSampleValueRecords[stageDimIndices[1]] += out_samples.numSamples();
+	
+	// Update sample seed for each dimension
+	for(std::size_t stageDimIndex = stage.getDimIndexRange().first;
+		stageDimIndex < stage.getDimIndexRange().second;
+		++stageDimIndex)
+	{
+		m_dimSeedRecords[stageDimIndex] += out_samples.numSamples();
+	}
 }
 
 std::unique_ptr<SampleGenerator> SGHalton::genNewborn(const std::size_t numSamples) const
 {
-	// TODO: reuse permutations or not?
+	// TODO: reuse permutations or not? 
+	// be careful that using the same permutation in different generator instances can lead
+	// to exactly the same generated samples
 	return std::make_unique<SGHalton>(numSamples);
 }
 

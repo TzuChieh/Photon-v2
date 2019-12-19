@@ -26,12 +26,24 @@ private:
 		const SampleStage&   stage,
 		SamplesND            out_samples) override;
 
+	void genSamplesGE3D(
+		const SampleContext& context,
+		const SampleStage&   stage,
+		SamplesND            out_samples) override;
+
+	bool isSamplesGE3DSupported() const override;
+
 	std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;
+
+	void genSamplesOfAnyDimensions(
+		const SampleContext& context,
+		const SampleStage&   stage,
+		SamplesND            out_samples);
 
 	using Permutations = detail::halton::RadicalInversePermutations;
 
 	std::shared_ptr<Permutations> m_permutations;
-	std::vector<std::size_t>      m_dimSampleValueRecords;
+	std::vector<std::size_t>      m_dimSeedRecords;
 
 // command interface
 public:
