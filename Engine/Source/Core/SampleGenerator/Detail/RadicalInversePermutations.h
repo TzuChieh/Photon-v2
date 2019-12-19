@@ -4,6 +4,7 @@
 #include "Common/primitive_type.h"
 #include "Math/math_table.h"
 #include "Math/Random/shuffle.h"
+#include "Core/SampleGenerator/Detail/halton.h"
 
 #include <vector>
 #include <cstddef>
@@ -17,7 +18,7 @@ class RadicalInversePermutations final
 {
 public:
 	using Digit = uint16;
-	static_assert(math::table::PRIME_TABLE.back() <= std::numeric_limits<Digit>::max(),
+	static_assert(math::table::PRIME_TABLE[MAX_DIMENSIONS] <= std::numeric_limits<Digit>::max(),
 		"Digit may overflow");
 
 	explicit RadicalInversePermutations(std::size_t numDims);
@@ -27,7 +28,6 @@ public:
 
 private:
 	std::vector<Digit> m_permutations;
-	std::size_t        m_numDims;
 
 	using Offset = decltype(math::table::PRIME_TABLE)::value_type;
 	static auto PERMUTATION_OFFSETS(std::size_t dimIndex) 
@@ -39,10 +39,9 @@ private:
 
 // In-header Implementations:
 
-inline RadicalInversePermutations::RadicalInversePermutations(const std::size_t numDims) : 
-	m_numDims(numDims)
+inline RadicalInversePermutations::RadicalInversePermutations(const std::size_t numDims)
 {
-	PH_ASSERT_LE(numDims, math::table::PRIME_TABLE.size());
+	PH_ASSERT_LE(numDims, MAX_DIMENSIONS);
 
 	// The offset after <numDims> is the total size of the buffer
 	m_permutations.resize(PERMUTATION_OFFSETS(numDims + 1));
@@ -64,7 +63,7 @@ inline RadicalInversePermutations::RadicalInversePermutations(const std::size_t 
 inline auto RadicalInversePermutations::getPermutationForDim(const std::size_t dimIndex) const
 	-> const Digit*
 {
-	PH_ASSERT_LT(dimIndex, m_numDims);
+	PH_ASSERT_LT(dimIndex, MAX_DIMENSIONS);
 
 	const auto offset = PERMUTATION_OFFSETS(dimIndex);
 	PH_ASSERT_LT(offset + math::table::PRIME_TABLE[dimIndex], m_permutations.size());
@@ -87,7 +86,7 @@ inline auto RadicalInversePermutations::makePermutationOffsets()
 	// The offsets are actually a prefix sum of the prime table, but start
 	// with 0.
 
-	std::vector<Offset> offsets(math::table::PRIME_TABLE.size() + 1);
+	std::vector<Offset> offsets(MAX_DIMENSIONS + 1);
 	offsets[0] = math::table::PRIME_TABLE[0];
 	for(std::size_t i = 1; i < offsets.size(); ++i)
 	{

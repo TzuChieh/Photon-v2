@@ -16,6 +16,7 @@ SampleGenerator::SampleGenerator(const std::size_t numSampleBatches,
 	m_maxCachedBatches(maxCachedBatches),
 	m_numUsedBatches  (0),
 	m_numUsedCaches   (maxCachedBatches),
+	m_numDeclaredDims (0),
 	m_totalBufferSize (0),
 	m_sampleBuffer    (),
 	m_stages          ()
@@ -75,8 +76,8 @@ SamplesNDHandle SampleGenerator::declareStageND(
 
 	SampleStage stage(
 		bufferIndex,
-		numDims, 
 		numSamples, 
+		{m_numDeclaredDims, m_numDeclaredDims + numDims},
 		std::move(dimSizeHints));
 
 	std::size_t bufferSizeWithCache = 0;
@@ -127,6 +128,8 @@ SamplesNDHandle SampleGenerator::declareStageND(
 	}
 	PH_ASSERT_GT(bufferSizeWithCache, 0);
 	m_totalBufferSize += bufferSizeWithCache;
+
+	m_numDeclaredDims += numDims;
 
 	return SamplesNDHandle(stageIndex, numDims);
 }

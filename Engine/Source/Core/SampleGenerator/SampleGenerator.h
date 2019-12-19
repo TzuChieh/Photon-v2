@@ -66,6 +66,7 @@ private:
 	std::size_t              m_maxCachedBatches;
 	std::size_t              m_numUsedBatches;
 	std::size_t              m_numUsedCaches;
+	std::size_t              m_numDeclaredDims;
 	std::size_t              m_totalBufferSize;
 	std::vector<real>        m_sampleBuffer;
 	std::vector<SampleStage> m_stages;

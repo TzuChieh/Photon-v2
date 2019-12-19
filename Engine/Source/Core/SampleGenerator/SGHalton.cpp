@@ -19,12 +19,17 @@ SGHalton::SGHalton(const std::size_t numSamples) :
 	m_permutations(std::make_shared<detail::halton::RadicalInversePermutations>(1024))// HARDCODE
 {}
 
+// TODO: hammersley?
+
 void SGHalton::genSamples1D(const SampleStage& stage, SamplesND out_samples)
 {
 	PH_ASSERT_EQ(stage.numDims(), 1);
 	PH_ASSERT_GE(stage.numSamples(), 1);
 
-	// TODO
+	for(std::size_t si = 0; si < out_samples.numSamples(); ++si)
+	{
+		// TODO
+	}
 }
 
 void SGHalton::genSamples2D(const SampleStage& stage, SamplesND out_samples)
