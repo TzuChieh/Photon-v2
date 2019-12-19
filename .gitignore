@@ -108,16 +108,16 @@ _deps
 ###############################################################################
 # Photon-v2 Project Specific Files & Folders                                  #
 ###############################################################################
+/build/
+/*.png
+/*.jpg
+/*.exr
+__pycache__/
+/*.p2cfg
+/*.log
+/*.zip
 cloc-1.62.exe
 count.bat
-/scene/resource/
-/scene/complex/
-/EditorApplication/*.png
-__pycache__/
-/EditorApplication/*.p2cfg
-/EditorApplication/*.log
-/build/
-/*.zip
 
 ###############################################################################
 # macOS                                                                       #
