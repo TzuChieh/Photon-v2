@@ -6,6 +6,7 @@
 #include "Math/math.h"
 #include "Core/SampleGenerator/Detail/halton.h"
 #include "Core/SampleGenerator/SampleContext.h"
+#include "Math/Random.h"
 
 #include <iostream>
 #include <algorithm>
@@ -81,23 +82,28 @@ void SGHalton::genSamplesOfAnyDimensions(
 					stageDimIndex, 
 					m_dimSeedRecords[stageDimIndex] + si);
 			}
-			else
+			else if(stageDimIndex < detail::halton::MAX_DIMENSIONS)
 			{
 				dimSample = detail::halton::radical_inverse_permuted(
 					stageDimIndex,
 					m_dimSeedRecords[stageDimIndex] + si,
 					m_permutations->getPermutationForDim(stageDimIndex));
 			}
+			// Run out of available dimensions, use random samples hereafter
+			else
+			{
+				dimSample = math::Random::genUniformReal_i0_e1();
+			}
 			out_samples[si][di] = dimSample;
 		}
 	}
 	
 	// Update sample seed for each dimension
-	for(std::size_t stageDimIndex = stage.getDimIndexRange().first;
-		stageDimIndex < stage.getDimIndexRange().second;
-		++stageDimIndex)
+	const auto dimIndexBegin = stage.getDimIndexRange().first;
+	const auto dimIndexEnd   = std::min(stage.getDimIndexRange().second, detail::halton::MAX_DIMENSIONS);
+	for(std::size_t i = dimIndexBegin; i < dimIndexEnd; ++i)
 	{
-		m_dimSeedRecords[stageDimIndex] += out_samples.numSamples();
+		m_dimSeedRecords[i] += out_samples.numSamples();
 	}
 }
 
