@@ -356,9 +356,20 @@ class PH_RENDERING_PT_sampling(PhRenderPanel):
             ("MN", "Mitchell-Netravali", "Mitchell-Netravali filter"),
             ("BH", "Blackman-Harris", "Blackman-Harris filter")
         ],
-        name="Sample Filter Type",
+        name="Sample Filter",
         description="Photon-v2's sample filter types",
         default="BH"
+    )
+
+    bpy.types.Scene.ph_render_sample_generator_type = bpy.props.EnumProperty(
+        items=[
+            ("RANDOM", "Random", "Pseudorandom numbers"),
+            ("STRATIFIED", "Stratified", "Quasirandom numbers based on domain subdivision"),
+            ("HALTON", "Halton", "Quasirandom numbers that are well distributed over all dimensions")
+        ],
+        name="Sample Generator",
+        description="Photon-v2's sample generator types",
+        default="STRATIFIED"
     )
 
     def draw(self, b_context):
@@ -367,7 +378,7 @@ class PH_RENDERING_PT_sampling(PhRenderPanel):
 
         layout.prop(b_scene, "ph_render_num_spp")
         layout.prop(b_scene, "ph_render_sample_filter_type")
-
+        layout.prop(b_scene, "ph_render_sample_generator_type")
 
 class PH_RENDERING_PT_options(PhRenderPanel):
     bl_label = "PR: Options"

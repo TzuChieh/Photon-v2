@@ -30,7 +30,9 @@ from ...psdl.pysdl import (
         DomeActorCreator,
         SDLString,
         DomeActorRotate,
+        UniformRandomSampleGeneratorCreator,
         StratifiedSampleGeneratorCreator,
+        HaltonSampleGeneratorCreator,
         SDLInteger,
         EqualSamplingRendererCreator,
         PmRendererCreator,
@@ -369,9 +371,21 @@ class Exporter:
     def export_core_commands(self, b_scene):
         meta_info = meta.MetaGetter(b_scene)
 
-        sample_generator = StratifiedSampleGeneratorCreator()
-        sample_generator.set_sample_amount(SDLInteger(meta_info.spp()))
-        self.get_sdlconsole().queue_command(sample_generator)
+        sample_generator = None
+        if b_scene.ph_render_sample_generator_type == "RANDOM":
+            sample_generator = UniformRandomSampleGeneratorCreator()
+            sample_generator.set_sample_amount(SDLInteger(meta_info.spp()))
+        elif b_scene.ph_render_sample_generator_type == "STRATIFIED":
+            sample_generator = StratifiedSampleGeneratorCreator()
+            sample_generator.set_sample_amount(SDLInteger(meta_info.spp()))
+        elif b_scene.ph_render_sample_generator_type == "HALTON":
+            sample_generator = HaltonSampleGeneratorCreator()
+            sample_generator.set_sample_amount(SDLInteger(meta_info.spp()))
+
+        if sample_generator is not None:
+            self.get_sdlconsole().queue_command(sample_generator)
+        else:
+            print("warning: no sample generator present")
 
         render_method = meta_info.render_method()
 

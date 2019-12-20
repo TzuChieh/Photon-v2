@@ -95,7 +95,6 @@ void EqualSamplingRenderer::doRender()
 			WorkUnit workUnit;
 			while(true)
 			{
-				std::unique_ptr<SampleGenerator> sampleGenerator;
 				{
 					std::lock_guard<std::mutex> lock(m_rendererMutex);
 					
@@ -108,10 +107,10 @@ void EqualSamplingRenderer::doRender()
 						suppliedFraction = 1.0f;
 						break;
 					}
-
-					const std::size_t spp = workUnit.getDepth();
-					sampleGenerator = m_sampleGenerator->genCopied(spp);
 				}
+
+				const std::size_t spp = workUnit.getDepth();
+				auto sampleGenerator = m_sampleGenerator->genCopied(spp);
 
 				m_suppliedFractionBits.store(
 					bitwise_cast<float, std::uint32_t>(suppliedFraction),
