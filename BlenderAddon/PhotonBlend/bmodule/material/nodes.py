@@ -48,7 +48,8 @@ PH_MATERIAL_NODES = [
         surface_nodes.PhSurfaceLayerNode,
         surface_nodes.PhIdealSubstanceNode,
         surface_nodes.PhPureAbsorberNode,
-        math_nodes.PhMultiplyNode]
+        math_nodes.PhMultiplyNode,
+        math_nodes.PhAddNode]
 
 
 class MaterialNodes(blender.BlenderModule):
