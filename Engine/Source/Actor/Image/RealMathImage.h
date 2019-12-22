@@ -1,11 +1,12 @@
 #pragma once
 
 #include "Actor/Image/Image.h"
-#include "Core/Texture/Function/TMultiplyTexture.h"
-#include "Core/Texture/Function/TAddTexture.h"
+#include "Core/Texture/Function/TConstantMultiplyTexture.h"
+#include "Core/Texture/Function/TConstantAddTexture.h"
 
 #include <vector>
 #include <iostream>
+#include <utility>
 
 namespace ph
 {
@@ -44,7 +45,7 @@ private:
 
 	template<typename InputType, typename OutputType>
 	std::shared_ptr<TTexture<OutputType>> genTexture(
-		const std::shared_ptr<TTexture<InputType>>& operandTexture) const
+		std::shared_ptr<TTexture<InputType>> operandTexture) const
 	{
 		if(!operandTexture)
 		{
@@ -58,19 +59,15 @@ private:
 		{
 		case EMathOp::MULTIPLY:
 		{
-			auto texture = std::make_shared<TMultiplyTexture<InputType, real, OutputType>>();
-			texture->setMultiplier(m_real);
-			texture->setInputTexture(operandTexture);
-			result = texture;
+			result = std::make_shared<
+				TConstantMultiplyTexture<InputType, real, OutputType>>(std::move(operandTexture), m_real);
 			break;
 		}
 
 		case EMathOp::ADD:
 		{
-			auto texture = std::make_shared<TAddTexture<InputType, real, OutputType>>();
-			texture->setAdder(m_real);
-			texture->setInputTexture(operandTexture);
-			result = texture;
+			result = std::make_shared<
+				TConstantAddTexture<InputType, real, OutputType>>(std::move(operandTexture), m_real);
 			break;
 		}
 

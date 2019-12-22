@@ -3,6 +3,7 @@
 #include "FileIO/SDL/InputPacket.h"
 
 #include <memory>
+#include <utility>
 
 namespace ph
 {
@@ -26,7 +27,7 @@ std::shared_ptr<TTexture<real>> RealMathImage::genTextureReal(
 	}
 
 	auto operandTexture = operandImage->genTextureReal(context);
-	return genTexture<real, real>(operandTexture);
+	return genTexture<real, real>(std::move(operandTexture));
 }
 
 std::shared_ptr<TTexture<math::Vector3R>> RealMathImage::genTextureVector3R(
@@ -39,7 +40,7 @@ std::shared_ptr<TTexture<math::Vector3R>> RealMathImage::genTextureVector3R(
 	}
 
 	auto operandTexture = operandImage->genTextureVector3R(context);
-	return genTexture<math::Vector3R, math::Vector3R>(operandTexture);
+	return genTexture<math::Vector3R, math::Vector3R>(std::move(operandTexture));
 }
 
 std::shared_ptr<TTexture<SpectralStrength>> RealMathImage::genTextureSpectral(
@@ -52,7 +53,7 @@ std::shared_ptr<TTexture<SpectralStrength>> RealMathImage::genTextureSpectral(
 	}
 
 	auto operandTexture = operandImage->genTextureSpectral(context);
-	return genTexture<SpectralStrength, SpectralStrength>(operandTexture);
+	return genTexture<SpectralStrength, SpectralStrength>(std::move(operandTexture));
 }
 
 RealMathImage& RealMathImage::setOperandImage(const std::shared_ptr<Image>& operand)

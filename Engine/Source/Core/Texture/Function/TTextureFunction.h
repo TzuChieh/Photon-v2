@@ -2,30 +2,34 @@
 
 #include "Core/Texture/TTexture.h"
 
+#include <type_traits>
 #include <memory>
 
 namespace ph
 {
 
-template<typename InputType, typename OutputType>
+template<typename InputType, typename OutputType, typename Function>
 class TTextureFunction : public TTexture<OutputType>
 {
+	static_assert(
+		std::is_same_v<
+			decltype(std::declval<Function>()(std::declval<InputType>())),
+			OutputType>,
+		"<Function> must be callable as <OutputType(InputType)>");
+
 public:
-	inline TTextureFunction();
+	using InputTextureResource = std::shared_ptr<TTexture<InputType>>;
 
-	void sample(const SampleLocation& sampleLocation, OutputType* out_value) const override = 0;
+	template<typename = std::enable_if_t<std::is_default_constructible_v<Function>>>
+	explicit TTextureFunction(InputTextureResource inputTexture);
 
-	inline TTextureFunction& setInputTexture(const std::shared_ptr<TTexture<InputType>>& parentTexture);
+	TTextureFunction(InputTextureResource inputTexture, Function function);
 
-protected:
-	inline const TTexture<InputType>* getInputTexture() const
-	{
-		return m_inputTexture.get();
-	}
+	void sample(const SampleLocation& sampleLocation, OutputType* out_value) const override;
 
 private:
-	// FIXME: break the possibility of cyclic reference
-	std::shared_ptr<TTexture<InputType>> m_inputTexture;
+	InputTextureResource m_inputTexture;
+	Function             m_function;
 };
 
 }// end namespace ph

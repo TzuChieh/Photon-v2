@@ -367,7 +367,7 @@ inline float fast_rcp_sqrt(float x)
 
 /*! @brief Computes sqrt(x) in a fast but approximative way.
 */
-inline float fast_sqrt(float x)
+inline float fast_sqrt(const float x)
 {
 	return fast_rcp_sqrt(x) * x;
 }
