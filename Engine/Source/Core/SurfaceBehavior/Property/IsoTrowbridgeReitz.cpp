@@ -9,12 +9,6 @@
 namespace ph
 {
 
-IsoTrowbridgeReitz::IsoTrowbridgeReitz(const real alpha) :
-	Microfacet()
-{
-	m_alpha = alpha > 0.001_r ? alpha : 0.001_r;
-}
-
 // GGX (Trowbridge-Reitz) Normal Distribution Function
 real IsoTrowbridgeReitz::distribution(
 	const SurfaceHit&     X,
@@ -27,7 +21,8 @@ real IsoTrowbridgeReitz::distribution(
 		return 0.0_r;
 	}
 
-	const real alpha2 = m_alpha * m_alpha;
+	const real alpha  = getAlpha(X);
+	const real alpha2 = alpha * alpha;
 	const real NoH2   = NoH * NoH;
 
 	const real innerTerm   = NoH2 * (alpha2 - 1.0_r) + 1.0_r;
@@ -54,7 +49,8 @@ real IsoTrowbridgeReitz::shadowing(
 		return 0.0_r;
 	}
 
-	const real alpha2 = m_alpha * m_alpha;
+	const real alpha  = getAlpha(X);
+	const real alpha2 = alpha * alpha;
 	const real NoL2   = NoL * NoL;
 	const real NoV2   = NoV * NoV;
 
@@ -83,8 +79,9 @@ void IsoTrowbridgeReitz::genDistributedH(
 	PH_ASSERT_IN_RANGE_INCLUSIVE(sample[1], 0.0_r, 1.0_r);
 	PH_ASSERT(out_H);
 
+	const real alpha = getAlpha(X);
 	const real phi   = math::constant::two_pi<real> * sample[0];
-	const real theta = std::atan(m_alpha * std::sqrt(sample[1] / (1.0_r - sample[1])));
+	const real theta = std::atan(alpha * std::sqrt(sample[1] / (1.0_r - sample[1])));
 
 	// HACK: currently seed can be 1, which should be avoided; it can
 	// cause theta to be NaN if alpha = 0 or all kinds of crazy things
@@ -111,7 +108,7 @@ void IsoTrowbridgeReitz::genDistributedH(
 	              !std::isinf(H.x) && !std::isinf(H.y) && !std::isinf(H.z),
 		"sample[0] = " + std::to_string(sample[0]) + ", "
 		"sample[1] = " + std::to_string(sample[1]) + ", "
-		"alpha = "     + std::to_string(m_alpha));
+		"alpha = "     + std::to_string(alpha));
 }
 
 }// end namespace ph

@@ -3,7 +3,7 @@
 #include "Core/SurfaceBehavior/BsdfHelper.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/InterfaceStatistics.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayer.h"
-#include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
+#include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitzConstant.h"
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
@@ -93,7 +93,7 @@ void LbLayeredSurface::calcBsdf(
 			PH_ASSERT(i == numLayers() - 1);
 		}
 
-		IsoTrowbridgeReitz ggx(statistics.getEquivalentAlpha());
+		IsoTrowbridgeReitzConstant ggx(statistics.getEquivalentAlpha());
 		const real D = ggx.distribution(in.X, N, H);
 		const real G = ggx.shadowing(in.X, N, H, in.L, in.V);
 
@@ -149,7 +149,7 @@ void LbLayeredSurface::calcBsdfSample(
 		"selectIndex  = " + std::to_string(selectIndex)  + "\n"
 		"selectWeight = " + std::to_string(selectWeight) + "\n");
 
-	IsoTrowbridgeReitz ggx(alphas[selectIndex]);
+	IsoTrowbridgeReitzConstant ggx(alphas[selectIndex]);
 	math::Vector3R H;
 	ggx.genDistributedH(in.X, N, sampleFlow.flow2D(), &H);
 	const math::Vector3R L = in.V.mul(-1.0_r).reflect(H).normalizeLocal();
@@ -174,7 +174,7 @@ void LbLayeredSurface::calcBsdfSample(
 	real pdf = 0.0_r;
 	for(std::size_t i = 0; i < numLayers(); ++i)
 	{
-		IsoTrowbridgeReitz ggx(alphas[i]);
+		IsoTrowbridgeReitzConstant ggx(alphas[i]);
 		const real D = ggx.distribution(in.X, N, H);
 		const real weight = sampleWeights[i] / summedSampleWeights;
 		pdf += weight * std::abs(D * NoH / (4.0_r * HoL));
@@ -236,7 +236,7 @@ void LbLayeredSurface::calcBsdfSamplePdfW(
 		const real sampleWeight = statistics.getEnergyScale().avg();
 		summedSampleWeights += sampleWeight;
 
-		IsoTrowbridgeReitz ggx(statistics.getEquivalentAlpha());
+		IsoTrowbridgeReitzConstant ggx(statistics.getEquivalentAlpha());
 		const real D = ggx.distribution(in.X, N, H);
 		pdf += sampleWeight * std::abs(D * NoH / (4.0_r * HoL));
 	}

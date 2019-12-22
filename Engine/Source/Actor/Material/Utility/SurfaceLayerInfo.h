@@ -12,7 +12,7 @@ namespace ph
 
 class InputPacket;
 
-class SurfaceLayerInfo
+class SurfaceLayerInfo final
 {
 public:
 	SurfaceLayerInfo();

@@ -17,7 +17,7 @@ class ConductorFresnel;
 Contains data and procedures for generating fresnel effects of 
 conductor-dielectric interface.
 */
-class ConductiveInterfaceInfo
+class ConductiveInterfaceInfo final
 {
 public:
 	ConductiveInterfaceInfo();

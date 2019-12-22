@@ -17,7 +17,7 @@ class DielectricFresnel;
 Contains data and procedures for generating fresnel effects of 
 dielectric-dielectric interface.
 */
-class DielectricInterfaceInfo
+class DielectricInterfaceInfo final
 {
 public:
 	DielectricInterfaceInfo();

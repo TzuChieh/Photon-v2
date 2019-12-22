@@ -3,7 +3,7 @@
 #include "Common/Logger.h"
 #include "Common/assertion.h"
 #include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
-#include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
+#include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitzConstant.h"
 #include "Core/SurfaceBehavior/Property/IsoBeckmann.h"
 #include "Core/SurfaceBehavior/Property/AnisoTrowbridgeReitz.h"
 
@@ -95,7 +95,7 @@ std::unique_ptr<Microfacet> MicrosurfaceInfo::genMicrofacet() const
 		switch(m_type)
 		{
 		case EType::TROWBRIDGE_REITZ:
-			return std::make_unique<IsoTrowbridgeReitz>(m_alphaU);
+			return std::make_unique<IsoTrowbridgeReitzConstant>(m_alphaU);
 
 		case EType::BECKMANN:
 			return std::make_unique<IsoBeckmann>(m_alphaU);

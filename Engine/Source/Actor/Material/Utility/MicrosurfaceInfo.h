@@ -10,7 +10,7 @@ namespace ph
 class InputPacket;
 class Microfacet;
 
-class MicrosurfaceInfo
+class MicrosurfaceInfo final
 {
 public:
 	MicrosurfaceInfo();

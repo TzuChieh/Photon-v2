@@ -11,7 +11,7 @@ namespace ph
 class IsoTrowbridgeReitz : public Microfacet
 {
 public:
-	explicit IsoTrowbridgeReitz(real alpha);
+	virtual real getAlpha(const SurfaceHit& X) const = 0;
 
 	real distribution(
 		const SurfaceHit&     X,
@@ -30,9 +30,6 @@ public:
 		const math::Vector3R&      N,
 		const std::array<real, 2>& sample,
 		math::Vector3R*            out_H) const override;
-
-private:
-	real m_alpha;
 };
 
 }// end namespace ph

@@ -20,7 +20,7 @@ SGHalton::SGHalton(const std::size_t numSamples) :
 	//SampleGenerator(numSamples, numSamples)
 	SampleGenerator(numSamples, 4),// HARDCODE
 
-	m_permutations  (std::make_shared<Permutations>(detail::halton::MAX_DIMENSIONS)),
+	m_permutations  (std::make_shared<Permutations>(detail::halton::MAX_DIMENSIONS)),// TODO: able to control when to use a new permutation
 	m_dimSeedRecords(detail::halton::MAX_DIMENSIONS, 0)
 {}
 
