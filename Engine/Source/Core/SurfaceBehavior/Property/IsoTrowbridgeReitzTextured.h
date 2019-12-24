@@ -6,6 +6,7 @@
 #include "Common/assertion.h"
 
 #include <memory>
+#include <utility>
 
 namespace ph
 {
@@ -13,7 +14,7 @@ namespace ph
 class IsoTrowbridgeReitzTextured : public IsoTrowbridgeReitz
 {
 public:
-	explicit IsoTrowbridgeReitzTextured(const std::shared_ptr<TTexture<real>>& alpha);
+	explicit IsoTrowbridgeReitzTextured(std::shared_ptr<TTexture<real>> alpha);
 
 	real getAlpha(const SurfaceHit& X) const override;
 
@@ -23,14 +24,14 @@ private:
 
 // In-header Implementations:
 
-inline IsoTrowbridgeReitzTextured::IsoTrowbridgeReitzTextured(const std::shared_ptr<TTexture<real>>& alpha) :
-	m_alpha(alpha)
-{
-	PH_ASSERT(alpha);
-}
+inline IsoTrowbridgeReitzTextured::IsoTrowbridgeReitzTextured(std::shared_ptr<TTexture<real>> alpha) :
+	m_alpha(std::move(alpha))
+{}
 
 inline real IsoTrowbridgeReitzTextured::getAlpha(const SurfaceHit& X) const
 {
+	PH_ASSERT(m_alpha);
+
 	return TSampler<real>().sample(*m_alpha, X);
 }
 

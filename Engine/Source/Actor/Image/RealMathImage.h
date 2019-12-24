@@ -74,6 +74,7 @@ private:
 		default:
 			std::cerr << "warning: at ConstantMathImage::genTexture(), "
 			          << "unsupported math operation detected" << std::endl;
+			break;
 		}
 		return result;
 	}
