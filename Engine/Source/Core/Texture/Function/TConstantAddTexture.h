@@ -44,7 +44,7 @@ class TConstantAddTexture : public TTextureFunction<
 	Function>
 {
 public:
-	TConstantAddTexture::TConstantAddTexture(
+	TConstantAddTexture(
 		std::shared_ptr<TTexture<InputType>> inputTexture,
 		ConstantType                         constantValue) :
 

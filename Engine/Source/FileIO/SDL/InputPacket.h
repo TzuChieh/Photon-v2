@@ -99,7 +99,7 @@ public:
 	template<typename RefType>
 	auto getReference(
 		const std::string&   dataName,
-		const DataTreatment& treatment = DataTreatment()) const 
+		const DataTreatment& treatment = DataTreatment()) const
 	-> std::shared_ptr<RefType>;
 
 	bool hasString(const std::string& name) const;

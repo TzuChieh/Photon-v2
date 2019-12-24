@@ -45,7 +45,7 @@ class TConstantMultiplyTexture : public TTextureFunction<
 	Function>
 {
 public:
-	TConstantMultiplyTexture::TConstantMultiplyTexture(
+	TConstantMultiplyTexture(
 		std::shared_ptr<TTexture<InputType>> inputTexture,
 		ConstantType                         constantValue) : 
 
