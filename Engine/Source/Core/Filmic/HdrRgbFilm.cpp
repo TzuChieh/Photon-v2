@@ -122,7 +122,7 @@ void HdrRgbFilm::addSample(
 //		getFilter());
 //
 //	HdrRgbFilm* parent = this;
-//	HdrRgbFilm* child  = childFilm.get();
+//	HdrRgbFilm* child  = childFilm.getReference();
 //
 //	*out_film = TMergeableFilmProxy<SpectralStrength>(
 //		child, 

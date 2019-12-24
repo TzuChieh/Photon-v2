@@ -74,7 +74,7 @@ MatteOpaque::MatteOpaque(const InputPacket& packet) :
 {
 	if(packet.hasReference<Image>("albedo"))
 	{
-		setAlbedo(packet.get<Image>("albedo"));
+		setAlbedo(packet.getReference<Image>("albedo"));
 	}
 	else if(packet.hasString("albedo"))
 	{

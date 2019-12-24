@@ -74,7 +74,7 @@ inline void Vector3Film::clear()
 //		effectiveWindowPx,
 //		getFilter());
 //
-//	Vector3Film* child  = childFilm.get();
+//	Vector3Film* child  = childFilm.getReference();
 //	Vector3Film* parent = this;
 //	childFilm->setMerger([=]()
 //	{

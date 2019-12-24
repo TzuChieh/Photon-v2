@@ -30,7 +30,7 @@
 //			std::string fullTextureFilename = modelDirectory + textureFilename.data;
 //
 //			std::shared_ptr<RgbPixelTexture> loadedTexture = std::make_shared<RgbPixelTexture>();
-//			if(!textureLoader.load(fullTextureFilename, loadedTexture.get()))
+//			if(!textureLoader.load(fullTextureFilename, loadedTexture.getReference()))
 //			{
 //				std::cerr << "warning: at AiMaterialParser::parseMaterial(), texture <" << fullTextureFilename << " loading failed" << std::endl;
 //			}

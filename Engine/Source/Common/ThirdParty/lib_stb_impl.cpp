@@ -7,7 +7,7 @@
 //
 #define STB_IMAGE_IMPLEMENTATION
 
-// to get slightly more user-friendly failure message
+// to getReference slightly more user-friendly failure message
 //
 #define STBI_FAILURE_USERMSG
 

@@ -102,8 +102,8 @@ CheckerboardImage::CheckerboardImage(const InputPacket& packet) :
 	const real numTilesY = packet.getReal("y-tiles", 2.0_r);
 	setNumTiles(numTilesX, numTilesY);
 
-	m_oddImage  = packet.get<Image>("odd",  DataTreatment::REQUIRED());
-	m_evenImage = packet.get<Image>("even", DataTreatment::REQUIRED());
+	m_oddImage  = packet.getReference<Image>("odd",  DataTreatment::REQUIRED());
+	m_evenImage = packet.getReference<Image>("even", DataTreatment::REQUIRED());
 }
 
 SdlTypeInfo CheckerboardImage::ciTypeInfo()

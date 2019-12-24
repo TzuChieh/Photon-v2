@@ -223,7 +223,7 @@ ALight::ALight(const InputPacket& packet) :
 	PhysicalActor(packet),
 	m_lightSource(nullptr)
 {
-	m_lightSource = packet.get<LightSource>(
+	m_lightSource = packet.getReference<LightSource>(
 		"light-source",
 		DataTreatment(EDataImportance::REQUIRED, "ALight requires at least a LightSource"));
 }

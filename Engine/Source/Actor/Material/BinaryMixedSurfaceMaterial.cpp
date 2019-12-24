@@ -107,14 +107,14 @@ BinaryMixedSurfaceMaterial::BinaryMixedSurfaceMaterial(const InputPacket& packet
 		setMode(EMode::LERP);
 	}
 
-	const auto material0 = packet.get<SurfaceMaterial>("material-0", DataTreatment::REQUIRED());
-	const auto material1 = packet.get<SurfaceMaterial>("material-1", DataTreatment::REQUIRED());
+	const auto material0 = packet.getReference<SurfaceMaterial>("material-0", DataTreatment::REQUIRED());
+	const auto material1 = packet.getReference<SurfaceMaterial>("material-1", DataTreatment::REQUIRED());
 	setMaterials(material0, material1);
 
 	// TODO: vector3 factor
 	if(packet.hasReference<Image>("factor"))
 	{
-		const auto factor = packet.get<Image>("factor");
+		const auto factor = packet.getReference<Image>("factor");
 		setFactor(factor);
 	}
 	else

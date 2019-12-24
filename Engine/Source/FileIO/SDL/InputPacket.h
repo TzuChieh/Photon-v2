@@ -10,6 +10,7 @@
 #include "FileIO/SDL/NamedResourceStorage.h"
 #include "FileIO/FileSystem/Path.h"
 #include "FileIO/SDL/ValueParser.h"
+#include "Utility/INoncopyable.h"
 
 #include <vector>
 #include <string>
@@ -24,7 +25,7 @@ namespace ph
 class NamedResourceStorage;
 class InputPrototype;
 
-class InputPacket final
+class InputPacket final : public INoncopyable
 {
 private:
 	template<typename ValueType>
@@ -96,7 +97,7 @@ public:
 	-> ValType;
 
 	template<typename RefType>
-	auto get(
+	auto getReference(
 		const std::string&   dataName,
 		const DataTreatment& treatment = DataTreatment()) const 
 	-> std::shared_ptr<RefType>;
@@ -114,10 +115,6 @@ public:
 	std::shared_ptr<RefType> getCore(const DataTreatment& treatment = DataTreatment()) const;
 
 	bool isPrototypeMatched(const InputPrototype& prototype) const;
-
-	// forbid copying
-	InputPacket(const InputPacket& other) = delete;
-	InputPacket& operator = (const InputPacket& rhs) = delete;
 
 private:
 	const std::vector<ValueClause>    m_vClauses;
@@ -139,7 +136,7 @@ private:
 // template implementations:
 
 template<typename RefType>
-inline std::shared_ptr<RefType> InputPacket::get(const std::string& dataName, const DataTreatment& treatment) const
+inline std::shared_ptr<RefType> InputPacket::getReference(const std::string& dataName, const DataTreatment& treatment) const
 {
 	PH_ASSERT(isReference<RefType>());
 
@@ -154,7 +151,7 @@ inline std::shared_ptr<RefType> InputPacket::getCore(const DataTreatment& treatm
 {
 	PH_ASSERT(isReference<RefType>());
 
-	return get<RefType>(getCoreDataName(), treatment);
+	return getReference<RefType>(getCoreDataName(), treatment);
 }
 
 template<typename RefType>

@@ -97,7 +97,7 @@ IesAttenuatedSource::IesAttenuatedSource(const InputPacket& packet) :
 	m_iesFile(), m_source(nullptr)
 {
 	m_iesFile = packet.getStringAsPath("ies-file", Path(), DataTreatment::REQUIRED());
-	m_source  = packet.get<LightSource>("source", DataTreatment::REQUIRED());
+	m_source  = packet.getReference<LightSource>("source", DataTreatment::REQUIRED());
 }
 
 SdlTypeInfo IesAttenuatedSource::ciTypeInfo()

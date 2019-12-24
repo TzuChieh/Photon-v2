@@ -68,7 +68,7 @@ inline SpectralStrength TRadianceEvaluationWork<Photon>::evaluateRadiance(
 	//for(const auto& photon : m_photonCache)
 	//{
 	//	const Vector3R V  = excitant;
-	//	const Vector3R L  = photon.get<EPhotonData::INCIDENT_DIR>();
+	//	const Vector3R L  = photon.getReference<EPhotonData::INCIDENT_DIR>();
 	//	const Vector3R Ng = location.getGeometryNormal();
 	//	const Vector3R Ns = location.getShadingNormal();
 
@@ -86,9 +86,9 @@ inline SpectralStrength TRadianceEvaluationWork<Photon>::evaluateRadiance(
 	//	SpectralStrength throughput(1.0_r);
 	//	throughput.mulLocal(bsdfEval.outputs.bsdf);
 	//	//throughput.mulLocal(Ns.absDot(V) * Ng.absDot(L) / Ng.absDot(V) / Ns.absDot(L));
-	//	throughput.mulLocal(photon.get<EPhotonData::THROUGHPUT>());
+	//	throughput.mulLocal(photon.getReference<EPhotonData::THROUGHPUT>());
 
-	//	radiance.addLocal(throughput * photon.get<EPhotonData::RADIANCE>() * reciKernelArea * reciNumEmittedPhotons);
+	//	radiance.addLocal(throughput * photon.getReference<EPhotonData::RADIANCE>() * reciKernelArea * reciNumEmittedPhotons);
 	//}
 
 	/*for(std::size_t i = 0; i < radiance.NUM_VALUES; ++i)

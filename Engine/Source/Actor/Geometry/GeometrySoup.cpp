@@ -69,7 +69,7 @@ namespace
 		const std::shared_ptr<GeometrySoup>& soup,
 		const InputPacket& packet)
 	{
-		const auto& geometry = packet.get<Geometry>("geometry", DataTreatment::REQUIRED());
+		const auto& geometry = packet.getReference<Geometry>("geometry", DataTreatment::REQUIRED());
 		if(!geometry)
 		{
 			return ExitStatus::BAD_INPUT();
@@ -84,7 +84,7 @@ namespace
 		const std::shared_ptr<GeometrySoup>& soup,
 		const InputPacket& packet)
 	{
-		const auto& geometry = packet.get<Geometry>("geometry", DataTreatment::REQUIRED());
+		const auto& geometry = packet.getReference<Geometry>("geometry", DataTreatment::REQUIRED());
 		if(!geometry)
 		{
 			return ExitStatus::BAD_INPUT();

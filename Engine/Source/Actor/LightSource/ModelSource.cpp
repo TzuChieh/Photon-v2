@@ -145,7 +145,7 @@ std::unique_ptr<ModelSource> ModelSource::ciLoad(const InputPacket& packet)
 	std::unique_ptr<ModelSource> source;
 	if(packet.hasReference<Image>("emitted-radiance"))
 	{
-		source = std::make_unique<ModelSource>(packet.get<Image>("emitted-radiance"));
+		source = std::make_unique<ModelSource>(packet.getReference<Image>("emitted-radiance"));
 	}
 	else if(packet.hasString("emitted-radiance"))
 	{
@@ -160,8 +160,8 @@ std::unique_ptr<ModelSource> ModelSource::ciLoad(const InputPacket& packet)
 	}
 	PH_ASSERT(source);
 
-	auto geometry = packet.get<Geometry>("geometry", DataTreatment::REQUIRED());
-	auto material = packet.get<Material>("material", DataTreatment::OPTIONAL());
+	auto geometry = packet.getReference<Geometry>("geometry", DataTreatment::REQUIRED());
+	auto material = packet.getReference<Material>("material", DataTreatment::OPTIONAL());
 	if(material == nullptr)
 	{
 		logger.log(ELogLevel::NOTE_MED, 

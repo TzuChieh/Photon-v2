@@ -23,10 +23,10 @@ namespace ph
 //	SamplingFilmSet();
 //	SamplingFilmSet(SamplingFilmSet&& other);
 //
-//	SamplingFilmBase* get(EAttribute tag);
+//	SamplingFilmBase* getReference(EAttribute tag);
 //	
 //	template<EAttribute TAG>
-//	decltype(auto) get() const;
+//	decltype(auto) getReference() const;
 //
 //	template<EAttribute TAG, typename FilmResource>
 //	void set(FilmResource film);
@@ -53,21 +53,21 @@ namespace ph
 //
 //// In-header Implementations:
 //
-//inline SamplingFilmBase* SamplingFilmSet::get(const EAttribute tag)
+//inline SamplingFilmBase* SamplingFilmSet::getReference(const EAttribute tag)
 //{
 //	switch(tag)
 //	{
-//	case EAttribute::LIGHT_ENERGY:             return m_tagToFilm.get<EAttribute::LIGHT_ENERGY>().get();
-//	case EAttribute::LIGHT_ENERGY_HALF_EFFORT: return m_tagToFilm.get<EAttribute::LIGHT_ENERGY_HALF_EFFORT>().get();
-//	case EAttribute::NORMAL:                   return m_tagToFilm.get<EAttribute::NORMAL>().get();
+//	case EAttribute::LIGHT_ENERGY:             return m_tagToFilm.getReference<EAttribute::LIGHT_ENERGY>().getReference();
+//	case EAttribute::LIGHT_ENERGY_HALF_EFFORT: return m_tagToFilm.getReference<EAttribute::LIGHT_ENERGY_HALF_EFFORT>().getReference();
+//	case EAttribute::NORMAL:                   return m_tagToFilm.getReference<EAttribute::NORMAL>().getReference();
 //	default:                                   return nullptr;
 //	}
 //}
 //
 //template<EAttribute TAG>
-//inline decltype(auto) SamplingFilmSet::get() const
+//inline decltype(auto) SamplingFilmSet::getReference() const
 //{
-//	return m_tagToFilm.get<TAG>();
+//	return m_tagToFilm.getReference<TAG>();
 //}
 //
 //template<EAttribute TAG, typename FilmResource>
@@ -78,7 +78,7 @@ namespace ph
 //		typename TagToFilmMap::Entry<TagToFilmMap::entryIndex<TAG>()>::Value>,
 //		"The type of film resource is wrong.");
 //
-//	m_tagToFilm.get<TAG>() = std::move(film);
+//	m_tagToFilm.getReference<TAG>() = std::move(film);
 //}
 //
 //template<std::size_t D_INDEX>

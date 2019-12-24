@@ -54,9 +54,9 @@ void FullMaterial::genBehaviors(
 
 FullMaterial::FullMaterial(const InputPacket& packet) : 
 	Material(packet),
-	m_surfaceMaterial(packet.get<SurfaceMaterial>("surface")),
-	m_interiorMaterial(packet.get<VolumeMaterial>("interior")),
-	m_exteriorMaterial(packet.get<VolumeMaterial>("exterior"))
+	m_surfaceMaterial(packet.getReference<SurfaceMaterial>("surface")),
+	m_interiorMaterial(packet.getReference<VolumeMaterial>("interior")),
+	m_exteriorMaterial(packet.getReference<VolumeMaterial>("exterior"))
 {}
 
 SdlTypeInfo FullMaterial::ciTypeInfo()

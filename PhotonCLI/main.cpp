@@ -105,7 +105,7 @@ void renderImageSeries(const ProcessedArguments& args)
 	const std::string sceneFilenameStar = fs::path(args.getSceneFilePath()).filename().string();
 	const std::string sceneFilenameBase = sceneFilenameStar.substr(0, sceneFilenameStar.find('*'));
 
-	// REFACTOR: get rid of pair, name the parameters
+	// REFACTOR: getReference rid of pair, name the parameters
 	typedef std::pair<std::string, std::string> StringPair;
 	std::vector<StringPair> sceneFiles;
 	for(const auto& directory : fs::directory_iterator(sceneDirectory))

@@ -143,9 +143,9 @@ AModel::AModel(const InputPacket& packet) :
 	const DataTreatment requiredDT(EDataImportance::REQUIRED,
 		"AModel needs both a Geometry and a Material");
 
-	m_geometry     = packet.get<Geometry>("geometry", requiredDT);
-	m_material     = packet.get<Material>("material", requiredDT);
-	m_motionSource = packet.get<MotionSource>("motion", DataTreatment::OPTIONAL());
+	m_geometry     = packet.getReference<Geometry>("geometry", requiredDT);
+	m_material     = packet.getReference<Material>("material", requiredDT);
+	m_motionSource = packet.getReference<MotionSource>("motion", DataTreatment::OPTIONAL());
 }
 
 SdlTypeInfo AModel::ciTypeInfo()

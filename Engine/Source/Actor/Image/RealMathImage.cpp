@@ -100,9 +100,9 @@ void RealMathImage::ciRegister(CommandRegister& cmdRegister)
 {
 	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
 	{
-		const auto mathOpType   = packet.getString ("math-op", "multiply", DataTreatment::REQUIRED());
-		const auto realValue    = packet.getReal   ("value",   1.0_r,      DataTreatment::REQUIRED());
-		const auto operandImage = packet.get<Image>("operand", DataTreatment::REQUIRED());
+		const auto mathOpType   = packet.getString("math-op", "multiply", DataTreatment::REQUIRED());
+		const auto realValue    = packet.getReal("value", 1.0_r, DataTreatment::REQUIRED());
+		const auto operandImage = packet.getReference<Image>("operand", DataTreatment::REQUIRED());
 		
 		auto image = std::make_unique<RealMathImage>();
 		image->setReal(realValue);
