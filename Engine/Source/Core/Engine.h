@@ -11,6 +11,7 @@
 #include "Frame/FrameProcessor.h"
 #include "Core/Renderer/EAttribute.h"
 #include "Core/Renderer/Region/Region.h"
+#include "FileIO/FileSystem/Path.h"
 
 #include <string>
 #include <memory>
@@ -24,6 +25,7 @@ public:
 	Engine();
 
 	void enterCommand(const std::string& commandFragment);
+	bool loadCommands(const Path& filePath);
 	void update();
 	void render();
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
+#include "Common/Logger.h"
 #include "Math/math_fwd.h"
 #include "FileIO/FileSystem/Path.h"
 
@@ -13,7 +14,7 @@ namespace ph
 class ValueParser final
 {
 public:
-	ValueParser(const Path& workingDirectory);
+	explicit ValueParser(const Path& workingDirectory);
 
 	integer parseInteger(const std::string& integerString) const;
 	real parseReal(const std::string& realString) const;
@@ -24,11 +25,13 @@ public:
 	std::vector<math::Vector3R> parseVector3Array(const std::string& vector3ArrayString) const;
 
 private:
-	Path m_workingDirectory;
-
 	std::string loadResource(const std::string& identifier) const;
 
 	static bool startsWithNumber(const std::string& string);
+
+	Path m_workingDirectory;
+
+	static Logger logger;
 };
 
 }// end namespace ph

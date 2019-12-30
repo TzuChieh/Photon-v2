@@ -12,6 +12,8 @@
 namespace ph
 {
 
+Logger ValueParser::logger = Logger(LogSender("Value Parser"));
+
 ValueParser::ValueParser(const Path& workingDirectory) : 
 	m_workingDirectory(workingDirectory)
 {}

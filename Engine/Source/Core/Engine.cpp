@@ -5,13 +5,17 @@
 #include "Core/Filmic/TSamplingFilm.h"
 #include "Common/Logger.h"
 #include "Math/Geometry/TAABB2D.h"
+#include "Utility/Timer.h"
+
+#include <fstream>
+#include <string>
 
 namespace ph
 {
 
 namespace
 {
-	const Logger logger(LogSender("Engine"));
+	Logger logger(LogSender("Engine"));
 }
 
 Engine::Engine() : 
@@ -23,6 +27,42 @@ Engine::Engine() :
 void Engine::enterCommand(const std::string& commandFragment)
 {
 	m_parser.enter(commandFragment, m_data);
+}
+
+bool Engine::loadCommands(const Path& filePath)
+{
+	Timer timer;
+	timer.start();
+
+	std::ifstream commandFile;
+	commandFile.open(filePath.toAbsoluteString(), std::ios::in);
+	if(!commandFile.is_open())
+	{
+		logger.log(ELogLevel::WARNING_MAX,
+			"command file <" + filePath.toAbsoluteString() + "> opening failed");
+		return false;
+	}
+	else
+	{
+		logger.log(ELogLevel::NOTE_MAX,
+			"loading command file <" + filePath.toAbsoluteString() + ">");
+
+		std::string lineCommand;
+		while(commandFile.good())
+		{
+			std::getline(commandFile, lineCommand);
+			lineCommand += '\n';
+
+			enterCommand(lineCommand);
+		}
+		enterCommand("->");
+
+		timer.finish();
+		logger.log(ELogLevel::NOTE_MAX,
+			"command file loaded, time elapsed = " + std::to_string(timer.getDeltaMs()) + " ms");
+
+		return true;
+	}
 }
 
 void Engine::update()

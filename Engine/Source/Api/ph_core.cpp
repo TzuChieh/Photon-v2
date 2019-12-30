@@ -106,11 +106,25 @@ void phEnterCommand(const PHuint64 engineId, const PHchar* const commandFragment
 	static_assert(sizeof(PHchar) == sizeof(char));
 	PH_ASSERT(commandFragment);
 
-	Engine* engine = ApiDatabase::getResource<Engine>(engineId);
+	Engine* const engine = ApiDatabase::getResource<Engine>(engineId);
 	if(engine)
 	{
-		engine->enterCommand(std::string(commandFragment));
+		engine->enterCommand(commandFragment);
 	}
+}
+
+int phLoadCommands(const PHuint64 engineId, const PHchar* const filePath)
+{
+	static_assert(sizeof(PHchar) == sizeof(char));
+	PH_ASSERT(filePath);
+
+	Engine* const engine = ApiDatabase::getResource<Engine>(engineId);
+	if(engine)
+	{
+		return engine->loadCommands(Path(filePath)) ? PH_TRUE : PH_FALSE;
+	}
+
+	return PH_FALSE;
 }
 
 void phRender(const PHuint64 engineId)

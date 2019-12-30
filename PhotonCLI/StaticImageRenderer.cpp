@@ -4,7 +4,6 @@
 #include <asio.hpp>
 
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <thread>
 #include <chrono>
@@ -253,28 +252,7 @@ bool StaticImageRenderer::loadCommandsFromSceneFile() const
 {
 	const auto sceneFilePath = m_args.getSceneFilePath();
 
-	std::ifstream sceneFile;
-	sceneFile.open(sceneFilePath, std::ios::in);
-	if(!sceneFile.is_open())
-	{
-		std::cerr << "warning: scene file <" << sceneFilePath << "> opening failed" << std::endl;
-		return false;
-	}
-	else
-	{
-		std::cerr << "loading scene file <" << sceneFilePath << ">" << std::endl;
-
-		std::string lineCommand;
-		while(sceneFile.good())
-		{
-			std::getline(sceneFile, lineCommand);
-			lineCommand += '\n';
-			phEnterCommand(m_engineId, lineCommand.c_str());
-		}
-		phEnterCommand(m_engineId, "->");
-
-		return true;
-	}
+	return phLoadCommands(m_engineId, sceneFilePath.c_str()) == PH_TRUE ? true : false;
 }
 
 PH_CLI_NAMESPACE_END

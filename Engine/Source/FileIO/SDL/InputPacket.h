@@ -31,6 +31,9 @@ private:
 	template<typename ValueType>
 	static auto makeDefaultValue() -> ValueType;
 
+	template<typename DataType>
+	static constexpr bool isReference() noexcept;
+
 public:
 	InputPacket(
 		const std::vector<ValueClause>& vClauses, 
@@ -89,19 +92,6 @@ public:
 		const DataTreatment& treatment   = DataTreatment()) const 
 	-> Path;
 
-	template<typename ValType>
-	auto getValue(
-		std::string_view     valueName,
-		ValType              defaultValue = makeDefaultValue<ValType>(),
-		const DataTreatment& treatment    = DataTreatment()) const
-	-> ValType;
-
-	template<typename RefType>
-	auto getReference(
-		const std::string&   dataName,
-		const DataTreatment& treatment = DataTreatment()) const
-	-> std::shared_ptr<RefType>;
-
 	bool hasString(const std::string& name) const;
 	bool hasInteger(const std::string& name) const;
 	bool hasReal(const std::string& name) const;
@@ -116,6 +106,43 @@ public:
 
 	bool isPrototypeMatched(const InputPrototype& prototype) const;
 
+	template<typename ValType>
+	auto getValue(
+		std::string_view     valueName,
+		ValType              defaultValue = makeDefaultValue<ValType>(),
+		const DataTreatment& treatment    = DataTreatment()) const
+	-> ValType;
+
+	template<typename RefType>
+	auto getReference(
+		const std::string&   referenceName,
+		const DataTreatment& treatment = DataTreatment()) const
+	-> std::shared_ptr<RefType>;
+
+	template<typename ValType, typename = std::enable_if_t<!isReference<ValType>, std::false_type>>
+	auto get(
+		const std::string_view valueName,
+		ValType                defaultValue = makeDefaultValue<ValType>(),
+		const DataTreatment&   treatment = DataTreatment()) const
+	-> ValType
+	{
+		return getValue<ValType>(
+			valueName,
+			std::move(defaultValue),
+			treatment);
+	}
+
+	template<typename RefType, typename = std::enable_if_t<isReference<RefType>, std::true_type>>
+	auto get(
+		const std::string_view referenceName,
+		const DataTreatment&   treatment = DataTreatment()) const
+	-> std::shared_ptr<RefType>
+	{
+		return getReference<RefType>(
+			referenceName,
+			treatment);
+	}
+
 private:
 	const std::vector<ValueClause>    m_vClauses;
 	const NamedResourceStorage* const m_storage;
@@ -128,26 +155,27 @@ private:
 
 	static void reportDataNotFound(std::string_view typeName, const std::string& name, const DataTreatment& treatment);
 	static std::string getCoreDataName();
-
-	template<typename DataType>
-	static bool isReference();
 };
 
 // template implementations:
 
 template<typename RefType>
-inline std::shared_ptr<RefType> InputPacket::getReference(const std::string& dataName, const DataTreatment& treatment) const
+inline auto InputPacket::getReference(
+	const std::string&   referenceName, 
+	const DataTreatment& treatment) const
+-> std::shared_ptr<RefType>
 {
 	PH_ASSERT(isReference<RefType>());
 
 	const SdlTypeInfo& typeInfo = RefType::ciTypeInfo();
 	std::string resourceName;
-	return findStringValue(typeInfo.getCategoryName(), dataName, treatment, &resourceName) ?
+	return findStringValue(typeInfo.getCategoryName(), referenceName, treatment, &resourceName) ?
 	                       m_storage->getResource<RefType>(resourceName, treatment) : nullptr;
 }
 
 template<typename RefType>
-inline std::shared_ptr<RefType> InputPacket::getCore(const DataTreatment& treatment) const
+inline auto InputPacket::getCore(const DataTreatment& treatment) const
+-> std::shared_ptr<RefType>
 {
 	PH_ASSERT(isReference<RefType>());
 
@@ -255,7 +283,7 @@ inline auto InputPacket::makeDefaultValue()
 }
 
 template<typename DataType>
-inline bool InputPacket::isReference()
+inline constexpr bool InputPacket::isReference() noexcept
 {
 	return std::is_base_of_v<ISdlResource, DataType>;
 }
