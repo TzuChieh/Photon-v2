@@ -2,8 +2,8 @@
 
 #include "Actor/LightSource/LightSource.h"
 #include "Math/math_fwd.h"
-#include "FileIO/SDL/TCommandInterface.h"
-#include "FileIO/FileSystem/Path.h"
+#include "DataIO/SDL/TCommandInterface.h"
+#include "DataIO/FileSystem/Path.h"
 #include "Common/Logger.h"
 
 #include <memory>

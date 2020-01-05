@@ -1,8 +1,8 @@
 #include "config.h"
 
-#include <FileIO/Data/IesFile.h>
-#include <FileIO/Data/IesData.h>
-#include <FileIO/PictureSaver.h>
+#include <DataIO/Data/IesFile.h>
+#include <DataIO/Data/IesData.h>
+#include <DataIO/PictureSaver.h>
 #include <Frame/TFrame.h>
 #include <Math/math.h>
 

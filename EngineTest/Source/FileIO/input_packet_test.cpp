@@ -1,6 +1,6 @@
-#include <FileIO/SDL/InputPacket.h>
-#include <FileIO/SDL/ValueClause.h>
-#include <FileIO/SDL/NamedResourceStorage.h>
+#include <DataIO/SDL/InputPacket.h>
+#include <DataIO/SDL/ValueClause.h>
+#include <DataIO/SDL/NamedResourceStorage.h>
 
 #include <gtest/gtest.h>
 

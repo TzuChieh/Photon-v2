@@ -1,6 +1,6 @@
 #include "Core/Texture/LdrRgbTexture2D.h"
 #include "Math/math.h"
-#include "FileIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPacket.h"
 #include "Core/Texture/TextureLoader.h"
 #include "Common/assertion.h"
 #include "Core/Texture/SampleLocation.h"

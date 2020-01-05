@@ -5,7 +5,7 @@
 #include "Actor/AModel.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Common/assertion.h"
-#include "FileIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPacket.h"
 #include "Math/math.h"
 #include "Actor/Geometry/GTriangleMesh.h"
 

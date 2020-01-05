@@ -1,6 +1,6 @@
 #include "Actor/Material/Volume/VAbsorptionOnly.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "FileIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPacket.h"
 #include "Common/assertion.h"
 
 namespace ph

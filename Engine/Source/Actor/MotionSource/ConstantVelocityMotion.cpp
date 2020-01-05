@@ -1,7 +1,7 @@
 #include "Actor/MotionSource/ConstantVelocityMotion.h"
 #include "Math/Transform/DynamicLinearTranslation.h"
 #include "Core/Quantity/Time.h"
-#include "FileIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPacket.h"
 
 namespace ph
 {

@@ -3,8 +3,8 @@
 #include "Core/Camera/Camera.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
-#include "FileIO/SDL/ISdlResource.h"
-#include "FileIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/ISdlResource.h"
+#include "DataIO/SDL/TCommandInterface.h"
 
 #include <iostream>
 

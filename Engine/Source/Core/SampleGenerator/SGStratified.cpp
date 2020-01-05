@@ -1,6 +1,6 @@
 #include "Core/SampleGenerator/SGStratified.h"
 #include "Common/assertion.h"
-#include "FileIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPacket.h"
 #include "Core/Sample.h"
 #include "Math/Random.h"
 #include "Core/SampleGenerator/SamplesND.h"

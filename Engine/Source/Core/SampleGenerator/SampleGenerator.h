@@ -11,8 +11,8 @@
 #include "Core/SampleGenerator/SamplesND.h"
 #include "Core/SampleGenerator/SamplesNDStream.h"
 #include "Math/TArithmeticArray.h"
-#include "FileIO/SDL/ISdlResource.h"
-#include "FileIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/ISdlResource.h"
+#include "DataIO/SDL/TCommandInterface.h"
 
 #include <cstddef>
 #include <utility>

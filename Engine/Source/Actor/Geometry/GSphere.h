@@ -3,7 +3,7 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
-#include "FileIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/TCommandInterface.h"
 
 #include <vector>
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Actor/LightSource/LightSource.h"
-#include "FileIO/FileSystem/Path.h"
+#include "DataIO/FileSystem/Path.h"
 #include "Common/Logger.h"
 
 #include <memory>

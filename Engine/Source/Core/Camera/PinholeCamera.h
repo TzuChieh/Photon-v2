@@ -2,7 +2,7 @@
 
 #include "Core/Camera/Camera.h"
 #include "Common/primitive_type.h"
-#include "FileIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/TCommandInterface.h"
 #include "Core/Camera/PerspectiveCamera.h"
 
 namespace ph

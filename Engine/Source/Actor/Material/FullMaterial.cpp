@@ -1,5 +1,5 @@
 #include "Actor/Material/FullMaterial.h"
-#include "FileIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPacket.h"
 #include "Common/assertion.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Actor/Material/SurfaceMaterial.h"

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core/Camera/Camera.h"
-#include "FileIO/SDL/ISdlResource.h"
-#include "FileIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/ISdlResource.h"
+#include "DataIO/SDL/TCommandInterface.h"
 #include "Core/Camera/PerspectiveCamera.h"
 
 namespace ph

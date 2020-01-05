@@ -6,7 +6,7 @@
 #include "Actor/Material/MatteOpaque.h"
 #include "Actor/LightSource/LightSource.h"
 #include "Actor/CookedUnit.h"
-#include "FileIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "Core/Intersectable/TransformedIntersectable.h"

@@ -1,6 +1,6 @@
 #include "Actor/Image/RealMathImage.h"
 #include "Common/assertion.h"
-#include "FileIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPacket.h"
 
 #include <memory>
 #include <utility>

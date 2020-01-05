@@ -3,7 +3,7 @@
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Actor/PhysicalActor.h"
-#include "FileIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/TCommandInterface.h"
 #include "Common/Logger.h"
 #include "Math/Transform/StaticRigidTransform.h"
 

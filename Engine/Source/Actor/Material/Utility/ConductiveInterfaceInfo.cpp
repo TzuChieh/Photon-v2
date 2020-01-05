@@ -1,6 +1,6 @@
 #include "Actor/Material/Utility/ConductiveInterfaceInfo.h"
-#include "FileIO/SDL/InputPacket.h"
-#include "FileIO/SDL/InputPrototype.h"
+#include "DataIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPrototype.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h"
 #include "Core/SurfaceBehavior/Property/ExactConductorFresnel.h"
 #include "Common/Logger.h"

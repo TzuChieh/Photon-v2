@@ -3,7 +3,7 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/AModel.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
-#include "FileIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPacket.h"
 #include "Actor/Geometry/GeometrySoup.h"
 
 #include <iostream>

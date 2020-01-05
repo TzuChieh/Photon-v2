@@ -1,5 +1,5 @@
 #include "Core/Camera/Camera.h"
-#include "FileIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPacket.h"
 #include "Core/RayDifferential.h"
 #include "Core/Ray.h"
 #include "Common/Logger.h"

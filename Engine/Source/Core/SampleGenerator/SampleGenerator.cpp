@@ -1,5 +1,5 @@
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "FileIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPacket.h"
 #include "Math/Random.h"
 #include "Common/assertion.h"
 #include "Core/SampleGenerator/SampleContext.h"

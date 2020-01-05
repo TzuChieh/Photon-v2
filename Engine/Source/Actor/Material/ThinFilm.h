@@ -2,9 +2,9 @@
 
 #include "Actor/Material/SurfaceMaterial.h"
 #include "Math/math_fwd.h"
-#include "FileIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/TCommandInterface.h"
 #include "Actor/Image/Image.h"
-#include "FileIO/FileSystem/Path.h"
+#include "DataIO/FileSystem/Path.h"
 
 #include <memory>
 #include <vector>

@@ -1,7 +1,7 @@
 #include "Actor/Material/Utility/SurfaceLayerInfo.h"
-#include "FileIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPacket.h"
 #include "Core/Quantity/SpectralData.h"
-#include "FileIO/SDL/InputPrototype.h"
+#include "DataIO/SDL/InputPrototype.h"
 
 namespace ph
 {

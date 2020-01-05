@@ -3,7 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
-#include "FileIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/TCommandInterface.h"
 #include "Math/Transform/TDecomposedTransform.h"
 #include "Core/Filmic/filmic_fwd.h"
 

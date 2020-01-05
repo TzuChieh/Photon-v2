@@ -2,8 +2,8 @@
 
 #include "World/VisualWorld.h"
 #include "Core/Renderer/Renderer.h"
-#include "FileIO/SDL/SdlParser.h"
-#include "FileIO/SDL/SdlResourcePack.h"
+#include "DataIO/SDL/SdlParser.h"
+#include "DataIO/SDL/SdlResourcePack.h"
 #include "Math/TVector2.h"
 #include "Core/Renderer/Renderer.h"
 #include "Core/Renderer/ERegionStatus.h"
@@ -11,7 +11,7 @@
 #include "Frame/FrameProcessor.h"
 #include "Core/Renderer/EAttribute.h"
 #include "Core/Renderer/Region/Region.h"
-#include "FileIO/FileSystem/Path.h"
+#include "DataIO/FileSystem/Path.h"
 
 #include <string>
 #include <memory>

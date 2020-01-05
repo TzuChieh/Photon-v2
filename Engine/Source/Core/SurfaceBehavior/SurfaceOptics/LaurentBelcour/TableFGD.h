@@ -1,7 +1,7 @@
 #pragma once
 
-#include "FileIO/BinaryFileReader.h"
-#include "FileIO/FileSystem/Path.h"
+#include "DataIO/BinaryFileReader.h"
+#include "DataIO/FileSystem/Path.h"
 #include "Common/Logger.h"
 #include "Common/assertion.h"
 #include "Common/primitive_type.h"

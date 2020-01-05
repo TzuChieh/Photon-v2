@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Actor/PhysicalActor.h"
-#include "FileIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/TCommandInterface.h"
 
 #include <string>
 

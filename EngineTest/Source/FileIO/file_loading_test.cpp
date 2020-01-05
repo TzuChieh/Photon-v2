@@ -1,7 +1,7 @@
 #include "config.h"
 
-#include <FileIO/TextFileLoader.h>
-#include <FileIO/BinaryFileReader.h>
+#include <DataIO/TextFileLoader.h>
+#include <DataIO/BinaryFileReader.h>
 
 #include <gtest/gtest.h>
 

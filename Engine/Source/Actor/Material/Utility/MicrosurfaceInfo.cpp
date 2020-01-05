@@ -1,5 +1,5 @@
 #include "Actor/Material/Utility/MicrosurfaceInfo.h"
-#include "FileIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPacket.h"
 #include "Common/Logger.h"
 #include "Common/assertion.h"
 #include "Actor/Material/Utility/RoughnessToAlphaMapping.h"

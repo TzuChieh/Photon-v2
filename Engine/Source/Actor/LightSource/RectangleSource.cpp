@@ -1,7 +1,7 @@
 #include "Actor/LightSource/RectangleSource.h"
 #include "Common/assertion.h"
 #include "Actor/Geometry/GRectangle.h"
-#include "FileIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPacket.h"
 
 #include <memory>
 

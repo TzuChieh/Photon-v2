@@ -1,6 +1,6 @@
 #include "Core/SampleGenerator/SGHalton.h"
 #include "Common/assertion.h"
-#include "FileIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPacket.h"
 #include "Core/Sample.h"
 #include "Core/SampleGenerator/SamplesND.h"
 #include "Math/math.h"

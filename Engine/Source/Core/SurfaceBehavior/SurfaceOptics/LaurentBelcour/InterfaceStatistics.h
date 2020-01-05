@@ -5,7 +5,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayer.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableFGD.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableTIR.h"
-#include "FileIO/FileSystem/CoreResource.h"
+#include "DataIO/FileSystem/CoreResource.h"
 #include "Common/assertion.h"
 
 namespace ph

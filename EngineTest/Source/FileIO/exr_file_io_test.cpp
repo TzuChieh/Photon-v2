@@ -1,7 +1,7 @@
 #include "config.h"
 
-#include <FileIO/ExrFileReader.h>
-#include <FileIO/ExrFileWriter.h>
+#include <DataIO/ExrFileReader.h>
+#include <DataIO/ExrFileWriter.h>
 
 #include <gtest/gtest.h>
 

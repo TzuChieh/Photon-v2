@@ -10,7 +10,7 @@
 #include "Core/Renderer/Statistics.h"
 #include "Frame/frame_fwd.h"
 #include "Core/Renderer/AttributeTags.h"
-#include "FileIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/TCommandInterface.h"
 #include "Core/Renderer/RenderState.h"
 #include "Core/Renderer/Region/Region.h"
 #include "Common/assertion.h"

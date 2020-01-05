@@ -1,5 +1,5 @@
 #include "Actor/LightSource/IesAttenuatedSource.h"
-#include "FileIO/Data/IesData.h"
+#include "DataIO/Data/IesData.h"
 #include "Core/Intersectable/UvwMapper/SphericalMapper.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/PrimitiveChannel.h"
@@ -8,7 +8,7 @@
 #include "Core/Texture/Function/TConversionTexture.h"
 #include "Math/constant.h"
 #include "Core/Emitter/OmniModulatedEmitter.h"
-#include "FileIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPacket.h"
 
 namespace ph
 {

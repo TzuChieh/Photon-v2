@@ -2,7 +2,7 @@
 #include "Core/VolumeBehavior/VolumeBehavior.h"
 #include "Core/VolumeBehavior/VolumeOptics/VoHomoAbsorption.h"
 #include "Core/VolumeBehavior/BlockFunction/BfConstant.h"
-#include "FileIO/SDL/InputPacket.h"
+#include "DataIO/SDL/InputPacket.h"
 
 namespace ph
 {
