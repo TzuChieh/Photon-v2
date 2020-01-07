@@ -1,6 +1,7 @@
 #include "DataIO/Stream/FormattedTextInputStream.h"
 #include "Common/assertion.h"
 #include "Common/Logger.h"
+#include "Common/os.h"
 
 #include <utility>
 #include <fstream>
@@ -29,7 +30,9 @@ FormattedTextInputStream::FormattedTextInputStream(const Path& textFilePath) :
 }
 
 FormattedTextInputStream::FormattedTextInputStream(const std::string& textString) : 
-	m_istream(std::make_unique<std::istringstream>(textString))
+	m_istream(std::make_unique<std::istringstream>(
+		textString,
+		std::ios_base::in))
 {
 	if(!m_istream->good())
 	{
@@ -72,7 +75,11 @@ bool FormattedTextInputStream::readLine(std::string* const out_lineText)
 	PH_ASSERT(out_lineText);
 
 	const bool hasLine = m_istream->good();
-	std::getline(*m_istream, *out_lineText);
+	if(hasLine)
+	{
+		std::getline(*m_istream, *out_lineText);
+	}
+
 	return hasLine;
 }
 

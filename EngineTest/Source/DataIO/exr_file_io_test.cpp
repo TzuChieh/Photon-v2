@@ -7,10 +7,10 @@
 
 #include <cmath>
 
+using namespace ph;
+
 TEST(ExrFileIOTest, ReadSimpleRgbFiles)
 {
-	using namespace ph;
-
 	// trial 1:
 	{
 		ExrFileReader reader(Path(PH_TEST_RESOURCE_PATH("EXR/2x1_black_white.exr")));
