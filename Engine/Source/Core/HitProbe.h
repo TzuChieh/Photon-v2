@@ -131,6 +131,7 @@ template<typename T>
 inline void HitProbe::getCached(T* const out_data)
 {
 	static_assert(std::is_trivially_copyable_v<T> && sizeof(T) <= sizeof(m_cache));
+	PH_ASSERT(out_data);
 
 	PH_ASSERT_IN_RANGE_INCLUSIVE(m_cacheHead, sizeof(T), sizeof(m_cache));
 	m_cacheHead -= sizeof(T);

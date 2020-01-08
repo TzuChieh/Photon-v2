@@ -113,8 +113,8 @@ TEST(FormattedTextInputStreamTest, StringAsStreamReadLine)
 TEST(FormattedTextInputStreamTest, FileAsStreamReadAll)
 {
 	{
-		auto stream = FormattedTextInputStream(
-			Path(PH_TEST_RESOURCE_PATH("Text/simple_text.txt")));
+		auto stream = FormattedTextInputStream(Path(
+			PH_TEST_RESOURCE_PATH("Text/simple_text.txt")));
 
 		std::string content;
 		stream.readAll(&content);
@@ -122,8 +122,8 @@ TEST(FormattedTextInputStreamTest, FileAsStreamReadAll)
 	}
 
 	{
-		auto stream = FormattedTextInputStream(
-			Path(PH_TEST_RESOURCE_PATH("Text/simple_multi_line.txt")));
+		auto stream = FormattedTextInputStream(Path(
+			PH_TEST_RESOURCE_PATH("Text/simple_multi_line.txt")));
 
 		std::string content;
 		stream.readAll(&content);
@@ -134,8 +134,8 @@ TEST(FormattedTextInputStreamTest, FileAsStreamReadAll)
 TEST(FormattedTextInputStreamTest, FileAsStreamReadLine)
 {
 	{
-		auto stream = FormattedTextInputStream(
-			Path(PH_TEST_RESOURCE_PATH("Text/simple_text.txt")));
+		auto stream = FormattedTextInputStream(Path(
+			PH_TEST_RESOURCE_PATH("Text/simple_text.txt")));
 
 		std::string line;
 		ASSERT_TRUE(stream.readLine(&line));
@@ -143,8 +143,8 @@ TEST(FormattedTextInputStreamTest, FileAsStreamReadLine)
 	}
 
 	{
-		auto stream = FormattedTextInputStream(
-			Path(PH_TEST_RESOURCE_PATH("Text/simple_multi_line.txt")));
+		auto stream = FormattedTextInputStream(Path(
+			PH_TEST_RESOURCE_PATH("Text/simple_multi_line.txt")));
 
 		std::string line;
 		ASSERT_TRUE(stream.readLine(&line));
@@ -157,5 +157,28 @@ TEST(FormattedTextInputStreamTest, FileAsStreamReadLine)
 		EXPECT_STREQ(line.c_str(), "vvv");
 
 		ASSERT_FALSE(stream.readLine(&line));
+	}
+}
+
+TEST(FormattedTextInputStreamTest, SeekTellConsistency)
+{
+	{
+		auto stream = FormattedTextInputStream(Path(
+			PH_TEST_RESOURCE_PATH("Text/simple_multi_line.txt")));
+
+		EXPECT_EQ(stream.tellGet(), 0);
+
+		stream.seekGet(5);
+		EXPECT_EQ(stream.tellGet(), 5);
+
+		// try multiple tells
+		for(std::size_t i = 0; i < 10; ++i)
+		{
+			EXPECT_EQ(stream.tellGet(), 5);
+		}
+
+		// seek to EOF
+		stream.seekGet(9);
+		EXPECT_EQ(stream.tellGet(), 9);
 	}
 }

@@ -24,8 +24,9 @@ FormattedTextInputStream::FormattedTextInputStream(const Path& textFilePath) :
 	if(!m_istream->good())
 	{
 		logger.log(ELogLevel::WARNING_MED,
-			"error encountered while opening file, "
-			"input operations may be unavailable");
+			"error encountered while opening file <" +
+			textFilePath.toAbsoluteString() +
+			">, input operations may be unavailable");
 	}
 }
 
