@@ -70,3 +70,17 @@ TEST(BinaryFileInputStreamTest, SeekTellConsistency)
 		EXPECT_EQ(stream.tellGet(), 24);
 	}
 }
+
+TEST(BinaryFileInputStreamTest, ValidityCheck)
+{
+	{
+		auto stream = BinaryFileInputStream();
+		EXPECT_FALSE(stream);
+	}
+
+	{
+		auto stream = BinaryFileInputStream(Path(
+			PH_TEST_RESOURCE_PATH("Text/empty.txt")));
+		EXPECT_TRUE(stream);
+	}
+}

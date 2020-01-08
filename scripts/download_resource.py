@@ -5,7 +5,7 @@ from utility import downloader
 import sys
 
 
-src_file_url  = "http://www.cmlab.csie.ntu.edu.tw/~aa0189306/Resource.zip"
+src_file_url  = "http://www.cmlab.csie.ntu.edu.tw/~aa0189306/Resource_20200108.zip"
 dst_directory = sys.argv[1]
 
 print("Downloading resources...")

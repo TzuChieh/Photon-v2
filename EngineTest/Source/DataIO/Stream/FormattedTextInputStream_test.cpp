@@ -182,3 +182,17 @@ TEST(FormattedTextInputStreamTest, SeekTellConsistency)
 		EXPECT_EQ(stream.tellGet(), 9);
 	}
 }
+
+TEST(FormattedTextInputStreamTest, ValidityCheck)
+{
+	{
+		auto stream = FormattedTextInputStream();
+		EXPECT_FALSE(stream);
+	}
+
+	{
+		auto stream = FormattedTextInputStream(Path(
+			PH_TEST_RESOURCE_PATH("Text/empty.txt")));
+		EXPECT_TRUE(stream);
+	}
+}

@@ -13,13 +13,14 @@ namespace ph
 class BinaryFileInputStream : public IBinaryDataInputStream
 {
 public:
+	BinaryFileInputStream() = default;
 	explicit BinaryFileInputStream(const Path& filePath);
 	BinaryFileInputStream(BinaryFileInputStream&& other);
 
 	bool read(std::size_t numBytes, std::byte* out_bytes) override;
-
 	void seekGet(std::size_t pos) override;
 	std::size_t tellGet() const override;
+	operator bool () const override;
 
 	BinaryFileInputStream& operator = (BinaryFileInputStream&& rhs);
 
@@ -37,6 +38,11 @@ inline BinaryFileInputStream::BinaryFileInputStream(BinaryFileInputStream&& othe
 inline BinaryFileInputStream& BinaryFileInputStream::operator = (BinaryFileInputStream&& rhs)
 {
 	m_istream = std::move(rhs.m_istream);
+}
+
+inline BinaryFileInputStream::operator bool () const
+{
+	return m_istream != nullptr && m_istream->good();
 }
 
 }// end namespace ph

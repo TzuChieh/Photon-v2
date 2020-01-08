@@ -15,6 +15,8 @@ public:
 	virtual void seekPut(std::size_t pos) = 0;
 	virtual std::size_t tellPut() const = 0;
 
+	operator bool () const override = 0;
+
 	virtual std::size_t writeSome(std::size_t numBytes, std::byte* out_bytes);
 };
 
