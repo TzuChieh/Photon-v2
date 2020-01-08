@@ -8,7 +8,7 @@
 namespace ph
 {
 
-class BinaryDataInputStream : public IInputStream
+class IBinaryDataInputStream : public IInputStream
 {
 public:
 	bool read(std::size_t numBytes, std::byte* out_bytes) override = 0;
@@ -23,7 +23,7 @@ public:
 // In-header Implementations:
 
 template<typename T>
-inline bool BinaryDataInputStream::readData(T* const out_data)
+inline bool IBinaryDataInputStream::readData(T* const out_data)
 {
 	static_assert(std::is_trivially_copyable_v<T>);
 	PH_ASSERT(out_data);
