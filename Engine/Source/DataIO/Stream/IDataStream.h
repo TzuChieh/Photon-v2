@@ -1,17 +1,16 @@
 #pragma once
 
-#include <cstddef>
+#include "Utility/INoncopyable.h"
+
+
 
 namespace ph
 {
 
-class IDataStream
+class IDataStream : public INoncopyable
 {
 public:
 	virtual ~IDataStream() = default;
-
-	/*virtual void seekPut(std::size_t pos) = 0;
-	virtual std::size_t tellPut() const = 0;*/
 };
 
 }// end namespace ph

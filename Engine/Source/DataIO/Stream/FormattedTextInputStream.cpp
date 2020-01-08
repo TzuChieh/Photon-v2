@@ -43,12 +43,14 @@ FormattedTextInputStream::FormattedTextInputStream(const std::string& textString
 	}
 }
 
-std::size_t FormattedTextInputStream::read(const std::size_t numBytes, std::byte* const out_bytes)
+bool FormattedTextInputStream::read(const std::size_t numBytes, std::byte* const out_bytes)
 {
 	static_assert(sizeof(char) == sizeof(std::byte));
 
 	m_istream->read(reinterpret_cast<char*>(out_bytes), numBytes);
-	return m_istream->gcount();
+
+	const auto numReadBytes = m_istream->gcount();
+	return numBytes == numReadBytes;
 }
 
 void FormattedTextInputStream::seekGet(const std::size_t pos)

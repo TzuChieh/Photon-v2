@@ -14,7 +14,7 @@ class BinaryFileInputStream : public BinaryDataInputStream
 public:
 	explicit BinaryFileInputStream(const Path& filePath);
 
-	std::size_t read(std::size_t numBytes, std::byte* out_bytes) override;
+	bool read(std::size_t numBytes, std::byte* out_bytes) override;
 
 	void seekGet(std::size_t pos) override;
 	std::size_t tellGet() const override;

@@ -35,16 +35,16 @@ TEST(BinaryFileInputStreamTest, FileAsStreamReadData)
 			PH_TEST_RESOURCE_PATH("Binary/test_binary_hex.dat")));
 
 		std::byte byte;
-		ASSERT_EQ(stream.read(1, &byte), 1);
+		ASSERT_TRUE(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{0xAA});
 
-		ASSERT_EQ(stream.read(1, &byte), 1);
+		ASSERT_TRUE(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{0xBB});
 
-		ASSERT_EQ(stream.read(1, &byte), 1);
+		ASSERT_TRUE(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{0xCC});
 
-		ASSERT_EQ(stream.read(1, &byte), 0);
+		ASSERT_FALSE(stream.read(1, &byte));
 	}
 }
 
