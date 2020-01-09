@@ -6,13 +6,13 @@
 
 using namespace ph;
 
-TEST(FormattedTextInputStreamTest, StringAsStreamReadAll)
+TEST(FormattedTextInputStreamTest, StringStreamReadAll)
 {
 	{
 		auto stream = FormattedTextInputStream("123456");
 		
 		std::string content;
-		stream.readAll(&content);
+		stream.readAllTightly(&content);
 		EXPECT_STREQ(content.c_str(), "123456");
 	}
 
@@ -20,7 +20,7 @@ TEST(FormattedTextInputStreamTest, StringAsStreamReadAll)
 		auto stream = FormattedTextInputStream("abc de fg hijk");
 
 		std::string content;
-		stream.readAll(&content);
+		stream.readAllTightly(&content);
 		EXPECT_STREQ(content.c_str(), "abcdefghijk");
 	}
 
@@ -33,12 +33,12 @@ TEST(FormattedTextInputStreamTest, StringAsStreamReadAll)
 			"");
 
 		std::string content;
-		stream.readAll(&content);
+		stream.readAllTightly(&content);
 		EXPECT_STREQ(content.c_str(), "0,2,4,6,8,10");
 	}
 }
 
-TEST(FormattedTextInputStreamTest, StringAsStreamReadLine)
+TEST(FormattedTextInputStreamTest, StringStreamReadLine)
 {
 	{
 		auto stream = FormattedTextInputStream(
@@ -47,16 +47,16 @@ TEST(FormattedTextInputStreamTest, StringAsStreamReadLine)
 			"...");
 
 		std::string line;
-		ASSERT_TRUE(stream.readLine(&line));
+		ASSERT_TRUE(stream.readLineTightly(&line));
 		EXPECT_STREQ(line.c_str(), ".");
 
-		ASSERT_TRUE(stream.readLine(&line));
+		ASSERT_TRUE(stream.readLineTightly(&line));
 		EXPECT_STREQ(line.c_str(), "..");
 
-		ASSERT_TRUE(stream.readLine(&line));
+		ASSERT_TRUE(stream.readLineTightly(&line));
 		EXPECT_STREQ(line.c_str(), "...");
 
-		ASSERT_FALSE(stream.readLine(&line));
+		ASSERT_FALSE(stream.readLineTightly(&line));
 	}
 
 	{
@@ -69,25 +69,16 @@ TEST(FormattedTextInputStreamTest, StringAsStreamReadLine)
 			"");
 
 		std::string line;
-		ASSERT_TRUE(stream.readLine(&line));
-		EXPECT_STREQ(line.c_str(), "");
+		ASSERT_TRUE(stream.readLineTightly(&line));
+		EXPECT_STREQ(line.c_str(), "x");
 
-		ASSERT_TRUE(stream.readLine(&line));
-		EXPECT_STREQ(line.c_str(), "");
+		ASSERT_TRUE(stream.readLineTightly(&line));
+		EXPECT_STREQ(line.c_str(), "y");
 
-		ASSERT_TRUE(stream.readLine(&line));
-		EXPECT_STREQ(line.c_str(), " x ");
+		ASSERT_TRUE(stream.readLineTightly(&line));
+		EXPECT_STREQ(line.c_str(), "z");
 
-		ASSERT_TRUE(stream.readLine(&line));
-		EXPECT_STREQ(line.c_str(), "y\r");
-
-		ASSERT_TRUE(stream.readLine(&line));
-		EXPECT_STREQ(line.c_str(), "\tz\t");
-
-		ASSERT_TRUE(stream.readLine(&line));
-		EXPECT_STREQ(line.c_str(), "");
-
-		ASSERT_FALSE(stream.readLine(&line));
+		ASSERT_FALSE(stream.readLineTightly(&line));
 	}
 
 	{
@@ -97,27 +88,24 @@ TEST(FormattedTextInputStreamTest, StringAsStreamReadLine)
 			"\r\r");
 
 		std::string line;
-		ASSERT_TRUE(stream.readLine(&line));
+		ASSERT_TRUE(stream.readLineTightly(&line));
 		EXPECT_STREQ(line.c_str(), ".");
 
-		ASSERT_TRUE(stream.readLine(&line));
-		EXPECT_STREQ(line.c_str(), "..\r");
+		ASSERT_TRUE(stream.readLineTightly(&line));
+		EXPECT_STREQ(line.c_str(), "..");
 
-		ASSERT_TRUE(stream.readLine(&line));
-		EXPECT_STREQ(line.c_str(), "\r\r");
-
-		ASSERT_FALSE(stream.readLine(&line));
+		ASSERT_FALSE(stream.readLineTightly(&line));
 	}
 }
 
-TEST(FormattedTextInputStreamTest, FileAsStreamReadAll)
+TEST(FormattedTextInputStreamTest, FileStreamReadAll)
 {
 	{
 		auto stream = FormattedTextInputStream(Path(
 			PH_TEST_RESOURCE_PATH("Text/simple_text.txt")));
 
 		std::string content;
-		stream.readAll(&content);
+		stream.readAllTightly(&content);
 		EXPECT_STREQ(content.c_str(), "123456");
 	}
 
@@ -126,19 +114,19 @@ TEST(FormattedTextInputStreamTest, FileAsStreamReadAll)
 			PH_TEST_RESOURCE_PATH("Text/simple_multi_line.txt")));
 
 		std::string content;
-		stream.readAll(&content);
+		stream.readAllTightly(&content);
 		EXPECT_STREQ(content.c_str(), "vvvvvv");
 	}
 }
 
-TEST(FormattedTextInputStreamTest, FileAsStreamReadLine)
+TEST(FormattedTextInputStreamTest, FileStreamReadLine)
 {
 	{
 		auto stream = FormattedTextInputStream(Path(
 			PH_TEST_RESOURCE_PATH("Text/simple_text.txt")));
 
 		std::string line;
-		ASSERT_TRUE(stream.readLine(&line));
+		ASSERT_TRUE(stream.readLineTightly(&line));
 		EXPECT_STREQ(line.c_str(), "123456");
 	}
 
@@ -147,16 +135,35 @@ TEST(FormattedTextInputStreamTest, FileAsStreamReadLine)
 			PH_TEST_RESOURCE_PATH("Text/simple_multi_line.txt")));
 
 		std::string line;
-		ASSERT_TRUE(stream.readLine(&line));
+		ASSERT_TRUE(stream.readLineTightly(&line));
 		EXPECT_STREQ(line.c_str(), "v");
 
-		ASSERT_TRUE(stream.readLine(&line));
+		ASSERT_TRUE(stream.readLineTightly(&line));
 		EXPECT_STREQ(line.c_str(), "vv");
 
-		ASSERT_TRUE(stream.readLine(&line));
+		ASSERT_TRUE(stream.readLineTightly(&line));
 		EXPECT_STREQ(line.c_str(), "vvv");
 
-		ASSERT_FALSE(stream.readLine(&line));
+		ASSERT_FALSE(stream.readLineTightly(&line));
+	}
+}
+
+TEST(FormattedTextInputStreamTest, FileStreamReadByte)
+{
+	{
+		auto stream = FormattedTextInputStream(Path(
+			PH_TEST_RESOURCE_PATH("Text/simple_multi_line.txt")));
+
+		std::byte byte;
+		ASSERT_TRUE(stream.read(1, &byte));
+		EXPECT_EQ(byte, std::byte{'v'});
+
+		// CRLF should be formatted to LF only
+		ASSERT_TRUE(stream.read(1, &byte));
+		EXPECT_EQ(byte, std::byte{'\n'});
+
+		ASSERT_TRUE(stream.read(1, &byte));
+		EXPECT_EQ(byte, std::byte{'v'});
 	}
 }
 

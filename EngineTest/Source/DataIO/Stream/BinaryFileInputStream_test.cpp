@@ -6,7 +6,7 @@
 
 using namespace ph;
 
-TEST(BinaryFileInputStreamTest, FileAsStreamReadData)
+TEST(BinaryFileInputStreamTest, FileStreamReadData)
 {
 	{
 		auto stream = BinaryFileInputStream(Path(

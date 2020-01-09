@@ -23,8 +23,8 @@ public:
 	std::size_t tellGet() const override;
 	operator bool () const override;
 
-	void readAll(std::string* out_allText);
-	bool readLine(std::string* out_lineText);
+	void readAllTightly(std::string* out_allText);
+	bool readLineTightly(std::string* out_lineText);
 
 	FormattedTextInputStream& operator = (FormattedTextInputStream&& rhs);
 

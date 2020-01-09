@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <iterator>
+#include <cctype>
 
 namespace ph
 {
@@ -63,7 +64,7 @@ std::size_t FormattedTextInputStream::tellGet() const
 	return m_istream->tellg();
 }
 
-void FormattedTextInputStream::readAll(std::string* const out_allText)
+void FormattedTextInputStream::readAllTightly(std::string* const out_allText)
 {
 	PH_ASSERT(out_allText);
 
@@ -73,17 +74,28 @@ void FormattedTextInputStream::readAll(std::string* const out_allText)
 		std::istream_iterator<char>());
 }
 
-bool FormattedTextInputStream::readLine(std::string* const out_lineText)
+bool FormattedTextInputStream::readLineTightly(std::string* const out_lineText)
 {
 	PH_ASSERT(out_lineText);
 
-	const bool hasLine = m_istream->good();
-	if(hasLine)
-	{
-		std::getline(*m_istream, *out_lineText);
-	}
+	out_lineText->clear();
 
-	return hasLine;
+	// skip any leading whitespaces
+	*m_istream >> std::ws;
+
+	std::getline(*m_istream, *out_lineText);
+
+	// remove trailing whitespaces
+	const auto trailingWhiteSpaceBegin = std::find_if(
+		out_lineText->rbegin(),
+		out_lineText->rend(),
+		[](const char ch)
+		{
+			return !std::isspace(ch);
+		}).base();
+	out_lineText->erase(trailingWhiteSpaceBegin, out_lineText->end());
+	
+	return !out_lineText->empty();
 }
 
 }// end namespace ph
