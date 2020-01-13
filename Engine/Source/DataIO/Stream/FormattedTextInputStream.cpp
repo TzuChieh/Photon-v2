@@ -8,6 +8,7 @@
 #include <sstream>
 #include <iterator>
 #include <cctype>
+#include <algorithm>
 
 namespace ph
 {
