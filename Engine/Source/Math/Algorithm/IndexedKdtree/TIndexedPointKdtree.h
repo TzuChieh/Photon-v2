@@ -2,7 +2,7 @@
 
 #include "Common/assertion.h"
 #include "Math/TVector3.h"
-#include "Core/Intersectable/IndexedKdtree/TIndexedKdtreeNode.h"
+#include "Math/Algorithm/IndexedKdtree/TIndexedKdtreeNode.h"
 #include "Math/Geometry/TAABB3D.h"
 #include "Utility/utility.h"
 
@@ -15,7 +15,7 @@
 #include <type_traits>
 #include <limits>
 
-namespace ph
+namespace ph::math
 {
 
 // TODO: static_assert for signature of PointCalculator
@@ -512,4 +512,4 @@ inline auto TIndexedPointKdtree<Item, Index, PointCalculator>::
 	return pointsAABB;
 }
 
-}// end namespace ph
+}// end namespace ph::math

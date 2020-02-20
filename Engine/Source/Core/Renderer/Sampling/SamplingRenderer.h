@@ -32,7 +32,6 @@ public:
 	<extend>    renderer.renderer </extend>
 
 	<name> Sampling Renderer </name>
-	<description/>
 
 	<command type="creator" intent="blueprint">
 		<input name="filter-name" type="string">

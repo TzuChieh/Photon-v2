@@ -9,10 +9,10 @@ namespace ph
 template<typename T, std::size_t N>
 class TFrame;
 
-typedef uint8   LdrComponent;
-typedef float32 HdrComponent;
+using LdrComponent = uint8;
+using HdrComponent = float32;
 
-typedef TFrame<LdrComponent, 3> LdrRgbFrame;
-typedef TFrame<HdrComponent, 3> HdrRgbFrame;
+using LdrRgbFrame = TFrame<LdrComponent, 3>;
+using HdrRgbFrame = TFrame<HdrComponent, 3>;
 
 }// end namespace ph

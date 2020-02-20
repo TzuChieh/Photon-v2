@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 
-namespace ph
+namespace ph::math
 {
 
 enum class EEndpoint
@@ -14,8 +14,8 @@ enum class EEndpoint
 struct IndexedItemEndpoint
 {
 	real      position;
-	int       index;
+	int       index;// FIXME: templatize
 	EEndpoint type;
 };
 
-}// end namespace ph
+}// end namespace ph::math

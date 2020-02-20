@@ -380,26 +380,49 @@ class PH_RENDERING_PT_sampling(PhRenderPanel):
         layout.prop(b_scene, "ph_render_sample_filter_type")
         layout.prop(b_scene, "ph_render_sample_generator_type")
 
-class PH_RENDERING_PT_options(PhRenderPanel):
-    bl_label = "PR: Options"
 
-    bpy.types.Scene.ph_use_cycles_material = bpy.props.BoolProperty(
-        name="Use Cycles Material",
-        description="render/export the scene with materials converted from Cycles to Photon",
-        default=False
+class PH_RENDERING_PT_data_structures(PhRenderPanel):
+    bl_label = "PR: Data Structures"
+
+    bpy.types.Scene.ph_top_level_accelerator = bpy.props.EnumProperty(
+        items=[
+            ('BF', "Brute Force", "Iteratively test every object. Super-duper SLOW."),
+            ('BVH', "BVH", "Bounding volume hierarchy."),
+            ('IKD', "Indexed Kd-tree", "Indexed Kd-tree.")
+        ],
+        name="Top Level Accelerator",
+        description="Type of the first level of acceleration structures.",
+        default='BVH'
     )
 
-    def draw(self, context):
-        scene = context.scene
-        layout = self.layout
+    def draw(self, b_context):
+        b_scene = b_context.scene
+        b_layout = self.layout
 
-        layout.prop(scene, "ph_use_cycles_material")
+        b_layout.prop(b_scene, "ph_top_level_accelerator")
+
+
+# class PH_RENDERING_PT_options(PhRenderPanel):
+#     bl_label = "PR: Options"
+#
+#     bpy.types.Scene.ph_use_cycles_material = bpy.props.BoolProperty(
+#         name="Use Cycles Material",
+#         description="render/export the scene with materials converted from Cycles to Photon",
+#         default=False
+#     )
+#
+#     def draw(self, context):
+#         scene = context.scene
+#         layout = self.layout
+#
+#         layout.prop(scene, "ph_use_cycles_material")
 
 
 RENDER_PANEL_CLASSES = [
     PH_RENDERING_PT_sampling,
-    PH_RENDERING_PT_options,
-    PH_RENDERING_PT_rendering
+    # PH_RENDERING_PT_options,
+    PH_RENDERING_PT_rendering,
+    PH_RENDERING_PT_data_structures
 ]
 
 

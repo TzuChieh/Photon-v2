@@ -17,7 +17,7 @@ class CookSettings : public TCommandInterface<CookSettings>
 {
 public:
 	CookSettings();
-	CookSettings(EAccelerator topLevelAccelerator);
+	explicit CookSettings(EAccelerator topLevelAccelerator);
 
 	void setTopLevelAccelerator(EAccelerator accelerator);
 	EAccelerator getTopLevelAccelerator() const;
@@ -44,3 +44,26 @@ inline EAccelerator CookSettings::getTopLevelAccelerator() const
 }
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  option        </category>
+	<type_name> cook-settings </type_name>
+
+	<name> Cook Settings </name>
+	<description>
+		Settings related to the actor-cooking process.
+	</description>
+
+	<command type="creator">
+		<input name="top-level-accelerator" type="string">
+			<description>
+				Type of the top-level accelerator. Possible values: 
+				brute-force, bvh, kd-tree, indexed-kd-tree.
+			</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/

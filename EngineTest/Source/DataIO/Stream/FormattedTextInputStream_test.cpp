@@ -1,6 +1,7 @@
 #include "config.h"
 
 #include <DataIO/Stream/FormattedTextInputStream.h>
+#include <Common/os.h>
 
 #include <gtest/gtest.h>
 
@@ -158,12 +159,23 @@ TEST(FormattedTextInputStreamTest, FileStreamReadByte)
 		ASSERT_TRUE(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{'v'});
 
+#ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
 		// CRLF should be formatted to LF only
 		ASSERT_TRUE(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{'\n'});
 
 		ASSERT_TRUE(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{'v'});
+#else
+		ASSERT_TRUE(stream.read(1, &byte));
+		EXPECT_EQ(byte, std::byte{'\r'});
+
+		ASSERT_TRUE(stream.read(1, &byte));
+		EXPECT_EQ(byte, std::byte{'\n'});
+
+		ASSERT_TRUE(stream.read(1, &byte));
+		EXPECT_EQ(byte, std::byte{'v'});
+#endif
 	}
 }
 

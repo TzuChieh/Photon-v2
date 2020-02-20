@@ -11,7 +11,7 @@
 #include <climits>
 #include <type_traits>
 
-namespace ph
+namespace ph::math
 {
 
 /*
@@ -242,4 +242,4 @@ inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 	return index();
 }
 
-}// end namespace ph
+}// end namespace ph::math

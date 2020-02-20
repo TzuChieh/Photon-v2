@@ -1,4 +1,4 @@
-#include <Core/Intersectable/IndexedKdtree/TIndexedKdtreeNode.h>
+#include <Math/Algorithm/IndexedKdtree/TIndexedKdtreeNode.h>
 #include <Math/math.h>
 
 #include <gtest/gtest.h>

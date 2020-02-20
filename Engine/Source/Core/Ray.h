@@ -45,6 +45,9 @@ public:
 	*/
 	Ray(const math::Vector3R& origin, const math::Vector3R& direction, real minT, real maxT, const Time& time);
 
+	// TODO: doc
+	Ray(const math::TLineSegment<real>& segment, const Time& time);
+
 	/*! @brief Points this ray in opposite direction.
 
 	This method essentially mirrored the ray with respect to its origin, with
@@ -115,15 +118,20 @@ private:
 
 // In-header Implementations:
 
+inline Ray::Ray(const math::TLineSegment<real>& segment, const Time& time) :
+	m_segment(segment), m_time(time)
+{}
+
 inline Ray::Ray(
 	const math::Vector3R& origin, const math::Vector3R& direction,
 	const real minT, const real maxT,
 	const Time& time) :
 
-	m_segment(
-		origin, direction,
-		minT, maxT),
-	m_time(time)
+	Ray(
+		math::TLineSegment<real>(
+			origin, direction,
+			minT, maxT),
+		time)
 {}
 
 inline Ray::Ray(

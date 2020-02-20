@@ -87,6 +87,13 @@ public:
 
 	/*! @brief Checks whether a line segment intersects this volume.
 
+	Returned boolean value indicates whether the ray is intersecting with the
+	AABB's volume or not. If there's an intersection, the near and far hit
+	distances will be returned via (out_rayNearHitDist, out_rayFarHitDist); if
+	the starting point of the ray is inside the AABB, near hit distance will be
+	the ray's t_min since volume intersection starts immediately on the ray's
+	starting point (the ending point of the ray follows the same logic).
+
 	@param[out] out_nearHitT Parametric distance where the line segment starts
 	to intersect this volume. 
 	@param[out] out_farHitT Parametric distance where the line segment no 

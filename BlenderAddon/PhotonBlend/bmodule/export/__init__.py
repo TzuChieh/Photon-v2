@@ -9,34 +9,35 @@ from ..mesh import triangle_mesh
 from ...psdl import sdlresource
 from ...psdl.cmd import RawCommand
 from ...psdl.pysdl import (
-        PinholeCameraCreator,
-        SDLReal,
-        SDLVector3,
-        LightActorCreator,
-        SDLLightSource,
-        LightActorTranslate,
-        LightActorRotate,
-        SDLQuaternion,
-        LightActorScale,
-        ModelActorCreator,
-        SDLGeometry,
-        SDLMaterial,
-        ModelActorTranslate,
-        ModelActorRotate,
-        ModelActorScale,
-        ModelLightSourceCreator,
-        SDLImage,
-        ThinLensCameraCreator,
-        DomeActorCreator,
-        SDLString,
-        DomeActorRotate,
-        UniformRandomSampleGeneratorCreator,
-        StratifiedSampleGeneratorCreator,
-        HaltonSampleGeneratorCreator,
-        SDLInteger,
-        EqualSamplingRendererCreator,
-        PmRendererCreator,
-        AttributeRendererCreator)
+    PinholeCameraCreator,
+    SDLReal,
+    SDLVector3,
+    LightActorCreator,
+    SDLLightSource,
+    LightActorTranslate,
+    LightActorRotate,
+    SDLQuaternion,
+    LightActorScale,
+    ModelActorCreator,
+    SDLGeometry,
+    SDLMaterial,
+    ModelActorTranslate,
+    ModelActorRotate,
+    ModelActorScale,
+    ModelLightSourceCreator,
+    SDLImage,
+    ThinLensCameraCreator,
+    DomeActorCreator,
+    SDLString,
+    DomeActorRotate,
+    UniformRandomSampleGeneratorCreator,
+    StratifiedSampleGeneratorCreator,
+    HaltonSampleGeneratorCreator,
+    SDLInteger,
+    EqualSamplingRendererCreator,
+    PmRendererCreator,
+    AttributeRendererCreator,
+    CookSettingsOptionCreator)
 from ...psdl.sdlconsole import SdlConsole
 from ...utility import meta, blender
 from . import cycles_material
@@ -372,13 +373,13 @@ class Exporter:
         meta_info = meta.MetaGetter(b_scene)
 
         sample_generator = None
-        if b_scene.ph_render_sample_generator_type == "RANDOM":
+        if b_scene.ph_render_sample_generator_type == 'RANDOM':
             sample_generator = UniformRandomSampleGeneratorCreator()
             sample_generator.set_sample_amount(SDLInteger(meta_info.spp()))
-        elif b_scene.ph_render_sample_generator_type == "STRATIFIED":
+        elif b_scene.ph_render_sample_generator_type == 'STRATIFIED':
             sample_generator = StratifiedSampleGeneratorCreator()
             sample_generator.set_sample_amount(SDLInteger(meta_info.spp()))
-        elif b_scene.ph_render_sample_generator_type == "HALTON":
+        elif b_scene.ph_render_sample_generator_type == 'HALTON':
             sample_generator = HaltonSampleGeneratorCreator()
             sample_generator.set_sample_amount(SDLInteger(meta_info.spp()))
 
@@ -386,6 +387,16 @@ class Exporter:
             self.get_sdlconsole().queue_command(sample_generator)
         else:
             print("warning: no sample generator present")
+
+        cook_settings = CookSettingsOptionCreator()
+        if b_scene.ph_top_level_accelerator == 'BF':
+            cook_settings.set_top_level_accelerator(SDLString("brute-force"))
+        elif b_scene.ph_top_level_accelerator == 'BVH':
+            cook_settings.set_top_level_accelerator(SDLString("bvh"))
+        elif b_scene.ph_top_level_accelerator == 'IKD':
+            cook_settings.set_top_level_accelerator(SDLString("indexed-kd-tree"))
+        self.get_sdlconsole().queue_command(cook_settings)
+
 
         render_method = meta_info.render_method()
 

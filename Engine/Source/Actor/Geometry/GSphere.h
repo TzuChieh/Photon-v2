@@ -16,7 +16,7 @@ class GSphere : public Geometry, public TCommandInterface<GSphere>
 {
 public:
 	GSphere();
-	GSphere(real radius);
+	explicit GSphere(real radius);
 	GSphere(const GSphere& other);
 
 	void genPrimitive(

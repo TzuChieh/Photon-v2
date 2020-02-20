@@ -9,7 +9,7 @@
 #include "Core/Emitter/Sampler/ESUniformRandom.h"
 #include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
 #include "World/VisualWorldInfo.h"
-#include "Core/Intersectable/IndexedKdtree/TIndexedKdtreeIntersector.h"
+#include "Core/Intersectable/Intersector/TIndexedKdtreeIntersector.h"
 #include "Core/Emitter/Sampler/ESPowerFavoring.h"
 #include "Actor/APhantomModel.h"
 
@@ -186,8 +186,9 @@ void VisualWorld::createTopLevelAccelerator()
 		name = "kD-Tree";
 		break;
 
+	// FIXME: need to ensure sufficient max value
 	case EAccelerator::INDEXED_KDTREE:
-		m_intersector = std::make_unique<TIndexedKdtreeIntersector<TIndexedKdtree<const Intersectable*, int>>>();
+		m_intersector = std::make_unique<TIndexedKdtreeIntersector<int>>();
 		name = "Indexed kD-Tree";
 		break;
 

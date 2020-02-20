@@ -44,7 +44,7 @@ class SDLInterface:
 				elif element.attrib["type"] == "executor":
 					self.executors.append(SDLExecutor(element))
 			else:
-				print("note: tag %s is not recognized, ignoring" % element.tag)
+				print("note: tag %s is not recognized or being empty, ignoring" % element.tag)
 
 	def has_creator(self):
 		return self.creator is not None

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Intersectable/IndexedKdtree/TIndexedPointKdtree.h"
+#include "Math/Algorithm/IndexedKdtree/TIndexedPointKdtree.h"
 #include "Core/Renderer/PM/TPhoton.h"
 #include "Math/TVector3.h"
 
@@ -23,6 +23,6 @@ struct TPhotonCenterCalculator
 };
 
 template<typename Photon>
-using TPhotonMap = TIndexedPointKdtree<Photon, int, TPhotonCenterCalculator<Photon>>;
+using TPhotonMap = math::TIndexedPointKdtree<Photon, int, TPhotonCenterCalculator<Photon>>;
 
 }// end namespace ph

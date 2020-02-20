@@ -34,6 +34,9 @@ class TArithmeticArray;
 template<typename T>
 class TOrthonormalBasis3;
 
+template<typename T>
+class TFraction;
+
 using Vector2R = TVector2<real>;
 using Vector2F = TVector2<float32>;
 using Vector2D = TVector2<float64>;

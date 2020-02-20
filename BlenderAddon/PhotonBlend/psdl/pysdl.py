@@ -2,7 +2,7 @@
 # NOTE: THIS FILE CONTAINS GENERATED CODE 
 #       DO NOT MODIFY                     
 # ========================================
-# last generated: 2019-12-19 16:14:24.053253 
+# last generated: 2020-02-18 10:18:58.488594 
 
 from abc import ABC, abstractmethod
 
@@ -269,49 +269,9 @@ class SDLCoreCommand(SDLCommand):
         return "".join(fragments)
 
 
-class SDLFilm(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("film", ref_name)
-
-
-class SDLGeometry(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("geometry", ref_name)
-
-
 class SDLRenderer(SDLReference):
     def __init__(self, ref_name = ""):
         super().__init__("renderer", ref_name)
-
-
-class SDLCamera(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("camera", ref_name)
-
-
-class SDLLightSource(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("light-source", ref_name)
-
-
-class SDLOption(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("option", ref_name)
-
-
-class SDLMaterial(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("material", ref_name)
-
-
-class SDLSampleGenerator(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("sample-generator", ref_name)
-
-
-class SDLActor(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("actor", ref_name)
 
 
 class SDLImage(SDLReference):
@@ -324,14 +284,54 @@ class SDLFrameProcessor(SDLReference):
         super().__init__("frame-processor", ref_name)
 
 
-class SDLMotion(SDLReference):
+class SDLSampleGenerator(SDLReference):
     def __init__(self, ref_name = ""):
-        super().__init__("motion", ref_name)
+        super().__init__("sample-generator", ref_name)
+
+
+class SDLFilm(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("film", ref_name)
+
+
+class SDLOption(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("option", ref_name)
+
+
+class SDLGeometry(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("geometry", ref_name)
 
 
 class SDLEstimator(SDLReference):
     def __init__(self, ref_name = ""):
         super().__init__("estimator", ref_name)
+
+
+class SDLActor(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("actor", ref_name)
+
+
+class SDLLightSource(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("light-source", ref_name)
+
+
+class SDLCamera(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("camera", ref_name)
+
+
+class SDLMotion(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("motion", ref_name)
+
+
+class SDLMaterial(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("material", ref_name)
 
 
 
@@ -1330,5 +1330,16 @@ class UniformRandomSampleGeneratorCreator(SDLCoreCommand):
 
     def set_sample_amount(self, sample_amount: SDLData):
         self.set_input("sample-amount", sample_amount)
+
+
+class CookSettingsOptionCreator(SDLCoreCommand):
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "option(cook-settings)"
+
+    def set_top_level_accelerator(self, top_level_accelerator: SDLData):
+        self.set_input("top-level-accelerator", top_level_accelerator)
 
 
