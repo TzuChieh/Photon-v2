@@ -11,6 +11,7 @@
 namespace ph
 {
 
+// TODO: replace this with TAABB3D
 class KdtreeAABB final
 {
 public:

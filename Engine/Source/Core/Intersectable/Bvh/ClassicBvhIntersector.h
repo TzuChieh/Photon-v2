@@ -15,11 +15,9 @@ class Intersectable;
 class ClassicBvhIntersector : public Intersector
 {
 public:
-	virtual ~ClassicBvhIntersector() override;
-
-	virtual void update(const CookedDataStorage& cookedActors) override;
-	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
-	virtual void calcAABB(math::AABB3D* out_aabb) const override;
+	void update(const CookedDataStorage& cookedActors) override;
+	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+	math::AABB3D calcAABB() const override;
 
 	void rebuildWithIntersectables(std::vector<const Intersectable*> intersectables);
 

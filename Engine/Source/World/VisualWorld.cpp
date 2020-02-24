@@ -213,13 +213,10 @@ math::AABB3D VisualWorld::calcIntersectableBound(const CookedDataStorage& storag
 		return math::AABB3D();
 	}
 
-	math::AABB3D fullBound;
-	storage.intersectables().begin()->get()->calcAABB(&fullBound);
+	math::AABB3D fullBound = storage.intersectables().begin()->get()->calcAABB();
 	for(const auto& intersectable : storage.intersectables())
 	{
-		math::AABB3D bound;
-		intersectable->calcAABB(&bound);
-		fullBound.unionWith(bound);
+		fullBound.unionWith(intersectable->calcAABB());
 	}
 	return fullBound;
 }

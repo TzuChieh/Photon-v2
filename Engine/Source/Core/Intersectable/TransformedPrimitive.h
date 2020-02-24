@@ -63,9 +63,9 @@ public:
 		return m_intersectable.isIntersectingVolumeConservative(aabb);
 	}
 
-	inline void calcAABB(math::AABB3D* const out_aabb) const override
+	inline math::AABB3D calcAABB() const override
 	{
-		m_intersectable.calcAABB(out_aabb);
+		return m_intersectable.calcAABB();
 	}
 
 	real calcPositionSamplePdfA(const math::Vector3R& position) const override;

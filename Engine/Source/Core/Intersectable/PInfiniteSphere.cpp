@@ -66,11 +66,9 @@ bool PInfiniteSphere::isIntersectingVolumeConservative(const math::AABB3D& volum
 	return false;
 }
 
-void PInfiniteSphere::calcAABB(math::AABB3D* const out_aabb) const
+math::AABB3D PInfiniteSphere::calcAABB() const
 {
-	PH_ASSERT(out_aabb);
-
-	*out_aabb = math::AABB3D(
+	return math::AABB3D(
 		math::Vector3R(-std::numeric_limits<real>::infinity()),
 		math::Vector3R( std::numeric_limits<real>::infinity()));
 }

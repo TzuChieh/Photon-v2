@@ -110,7 +110,7 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 		"dNdU = " + dNdU.toString() + ", dNdV = " + dNdV.toString() + "\n");
 }
 
-void PTriangle::calcAABB(math::AABB3D* const out_aabb) const
+math::AABB3D PTriangle::calcAABB() const
 {
 	real minX = m_triangle.getVa().x, maxX = m_triangle.getVa().x,
 	     minY = m_triangle.getVa().y, maxY = m_triangle.getVa().y,
@@ -130,8 +130,9 @@ void PTriangle::calcAABB(math::AABB3D* const out_aabb) const
 	if     (m_triangle.getVc().z > maxZ) maxZ = m_triangle.getVc().z;
 	else if(m_triangle.getVc().z < minZ) minZ = m_triangle.getVc().z;
 
-	out_aabb->setMinVertex(math::Vector3R(minX - TRIANGLE_EPSILON, minY - TRIANGLE_EPSILON, minZ - TRIANGLE_EPSILON));
-	out_aabb->setMaxVertex(math::Vector3R(maxX + TRIANGLE_EPSILON, maxY + TRIANGLE_EPSILON, maxZ + TRIANGLE_EPSILON));
+	return math::AABB3D(
+		math::Vector3R(minX - TRIANGLE_EPSILON, minY - TRIANGLE_EPSILON, minZ - TRIANGLE_EPSILON),
+		math::Vector3R(maxX + TRIANGLE_EPSILON, maxY + TRIANGLE_EPSILON, maxZ + TRIANGLE_EPSILON));
 }
 
 // Reference: Tomas Akenine-Moeller's "Fast 3D Triangle-Box Overlap Testing", 

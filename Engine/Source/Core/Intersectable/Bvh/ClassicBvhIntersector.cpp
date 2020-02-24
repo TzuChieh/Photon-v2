@@ -14,17 +14,13 @@ namespace ph
 
 const int32 ClassicBvhIntersector::NODE_STACK_SIZE;
 
-ClassicBvhIntersector::~ClassicBvhIntersector() = default;
-
 void ClassicBvhIntersector::update(const CookedDataStorage& cookedActors)
 {
 	std::vector<const Intersectable*> intersectables;
 	for(const auto& intersectable : cookedActors.intersectables())
 	{
 		// HACK
-		math::AABB3D aabb;
-		intersectable->calcAABB(&aabb);
-		if(!aabb.isFiniteVolume())
+		if(!intersectable->calcAABB().isFiniteVolume())
 		{
 			continue;
 		}
@@ -124,21 +120,21 @@ bool ClassicBvhIntersector::isIntersecting(const Ray& ray, HitProbe& probe) cons
 	}
 }
 
-void ClassicBvhIntersector::calcAABB(math::AABB3D* const out_aabb) const
+math::AABB3D ClassicBvhIntersector::calcAABB() const
 {
 	if(m_intersectables.empty())
 	{
-		*out_aabb = math::AABB3D();
-		return;
+		// FIXME: return an invalid one or?
+		return math::AABB3D();
 	}
 
-	m_intersectables.front()->calcAABB(out_aabb);
+	math::AABB3D unionedAabb = m_intersectables.front()->calcAABB();
 	for(auto intersectable : m_intersectables)
 	{
-		math::AABB3D aabb;
-		intersectable->calcAABB(&aabb);
-		out_aabb->unionWith(aabb);
+		unionedAabb.unionWith(intersectable->calcAABB());
 	}
+
+	return unionedAabb;
 }
 
 void ClassicBvhIntersector::rebuildWithIntersectables(std::vector<const Intersectable*> intersectables)

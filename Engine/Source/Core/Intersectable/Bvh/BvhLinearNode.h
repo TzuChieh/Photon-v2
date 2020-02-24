@@ -17,6 +17,7 @@ public:
 
 	union
 	{
+		// TODO: templatize int type
 		std::size_t secondChildOffset;// for internal
 		std::size_t primitivesOffset; // for leaf
 	};

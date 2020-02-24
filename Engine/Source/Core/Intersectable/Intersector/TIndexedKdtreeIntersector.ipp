@@ -34,9 +34,7 @@ update(const CookedDataStorage& cookedActors)
 	for(const auto& intersectable : cookedActors.intersectables())
 	{
 		// HACK
-		math::AABB3D aabb;
-		intersectable->calcAABB(&aabb);
-		if(!aabb.isFiniteVolume())
+		if(!intersectable->calcAABB().isFiniteVolume())
 		{
 			continue;
 		}
@@ -87,13 +85,12 @@ isIntersecting(const Ray& ray, HitProbe& probe) const
 }
 
 template<typename Index>
-inline void TIndexedKdtreeIntersector<Index>::
+inline auto TIndexedKdtreeIntersector<Index>::
 
-calcAABB(math::AABB3D* const out_aabb) const
+calcAABB() const
+-> math::AABB3D
 {
-	PH_ASSERT(out_aabb);
-
-	*out_aabb = m_tree.getAABB();
+	return m_tree.getAABB();
 }
 
 }// end namespace ph

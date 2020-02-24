@@ -29,7 +29,7 @@ triangles and quads, and they are named after their capability "intersectable".
 class Intersectable
 {
 public:
-	virtual ~Intersectable();
+	virtual ~Intersectable() = default;
 
 	/*! @brief Determine whether a given ray hits the object.
 
@@ -52,7 +52,7 @@ public:
 
 	/*! @brief Calculates Axis-Aligned Bounding Box (AABB) of itself.
 	*/
-	virtual void calcAABB(math::AABB3D* out_aabb) const = 0;
+	virtual math::AABB3D calcAABB() const = 0;
 
 	/*! @brief Determines whether this object blocks the ray.
 

@@ -11,8 +11,7 @@ BvhIntersectableInfo::BvhIntersectableInfo(
 	const std::size_t          index) :
 	index(index), aabb(), aabbCentroid(), intersectable(intersectable)
 {
-	intersectable->calcAABB(&aabb);
-	aabbCentroid = aabb.getCentroid();
+	aabbCentroid = intersectable->calcAABB().getCentroid();
 }
 
 }// end namespace ph

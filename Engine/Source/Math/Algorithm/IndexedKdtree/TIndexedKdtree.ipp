@@ -63,18 +63,20 @@ nearestTraversal(const TLineSegment<real>& segment, ItemSegmentIntersector&& int
 	{
 		return false;
 	}
+	TLineSegment<real> intersectSegment(segment.getOrigin(), segment.getDirection(), minT, maxT);
 
-	const Vector3R reciRayDir(segment.getDirection().reciprocal());
+	const Vector3R rcpRayDir(segment.getDirection().reciprocal());
 
 	std::array<NodeState, MAX_STACK_HEIGHT> nodeStack;
 	int stackHeight = 0;
+	bool hasHit = false;
 	const Node* currentNode = &(m_nodeBuffer[0]);
 	while(true)
 	{
 		if(!currentNode->isLeaf())
 		{
 			const int  splitAxis   = currentNode->splitAxisIndex();
-			const real splitPlaneT = (currentNode->splitPos() - segment.getOrigin()[splitAxis]) * reciRayDir[splitAxis];
+			const real splitPlaneT = (currentNode->splitPos() - segment.getOrigin()[splitAxis]) * rcpRayDir[splitAxis];
 
 			const Node* nearHitNode;
 			const Node* farHitNode;
@@ -108,7 +110,7 @@ nearestTraversal(const TLineSegment<real>& segment, ItemSegmentIntersector&& int
 			//           (split plane is within [t-min, t-max])
 			else
 			{
-				PH_ASSERT(stackHeight < MAX_STACK_HEIGHT);
+				PH_ASSERT_LT(stackHeight, MAX_STACK_HEIGHT);
 
 				nodeStack[stackHeight].node = farHitNode;
 				nodeStack[stackHeight].minT = splitPlaneT;
@@ -123,42 +125,31 @@ nearestTraversal(const TLineSegment<real>& segment, ItemSegmentIntersector&& int
 		else
 		{
 			const std::size_t numItems = currentNode->numItems();
-			TLineSegment<real> nodeSegment(segment.getOrigin(), segment.getDirection(), minT, maxT);
 
 			if(numItems == 1)
 			{
 				const Item& item = m_indexToItem(currentNode->singleItemDirectIndex());
 
-				const std::optional<real> hitT = intersector(item, nodeSegment);
+				const std::optional<real> hitT = intersector(item, intersectSegment);
 				if(hitT)
 				{
-					return true;
+					intersectSegment.setMaxT(*hitT);
+					hasHit = true;
 				}
 			}
 			else
 			{
-				constexpr real FURTHEST_HIT_T = std::numeric_limits<real>::max();
-				
-				real closestHitT = FURTHEST_HIT_T;
 				for(std::size_t i = 0; i < numItems; ++i)
 				{
 					const Index itemIndex = m_itemIndices[currentNode->indexBufferOffset() + i];
 					const Item& item      = m_indexToItem(itemIndex);
 
-					const std::optional<real> hitT = intersector(item, nodeSegment);
+					const std::optional<real> hitT = intersector(item, intersectSegment);
 					if(hitT)
 					{
-						if(*hitT < closestHitT)
-						{
-							closestHitT = *hitT;
-							nodeSegment.setMaxT(*hitT);
-						}
+						intersectSegment.setMaxT(*hitT);
+						hasHit = true;
 					}
-				}
-
-				if(closestHitT < FURTHEST_HIT_T)
-				{
-					return true;
 				}
 			}
 
@@ -168,6 +159,12 @@ nearestTraversal(const TLineSegment<real>& segment, ItemSegmentIntersector&& int
 				currentNode = nodeStack[stackHeight].node;
 				minT        = nodeStack[stackHeight].minT;
 				maxT        = nodeStack[stackHeight].maxT;
+
+				// Early-out if the test segment cannot reach the next node
+				if(intersectSegment.getMaxT() < minT)
+				{
+					break;
+				}
 			}
 			else
 			{
@@ -176,7 +173,7 @@ nearestTraversal(const TLineSegment<real>& segment, ItemSegmentIntersector&& int
 		}// end is leaf node
 	}// end infinite loop
 
-	return false;
+	return hasHit;
 }
 
 template<
@@ -289,9 +286,9 @@ buildNodeRecursive(
 		return;
 	}
 
-	const real     noSplitCost         = params.getInteractCost() * static_cast<real>(numNodeItems);
-	const real     reciNodeSurfaceArea = 1.0_r / nodeAABB.getSurfaceArea();
-	const Vector3R nodeExtents         = nodeAABB.getExtents();
+	const real     noSplitCost        = params.getInteractCost() * static_cast<real>(numNodeItems);
+	const real     rcpNodeSurfaceArea = 1.0_r / nodeAABB.getSurfaceArea();
+	const Vector3R nodeExtents        = nodeAABB.getExtents();
 
 	real        bestSplitCost     = std::numeric_limits<real>::max();
 	int         bestAxis          = -1;
@@ -334,8 +331,8 @@ buildNodeRecursive(
 				endpointMinVertex[axis] = endpoint;
 				endpointMaxVertex[axis] = endpoint;
 
-				const real probNegative     = AABB3D(nodeAABB.getMinVertex(), endpointMaxVertex).getSurfaceArea() * reciNodeSurfaceArea;
-				const real probPositive     = AABB3D(endpointMinVertex, nodeAABB.getMaxVertex()).getSurfaceArea() * reciNodeSurfaceArea;
+				const real probNegative     = AABB3D(nodeAABB.getMinVertex(), endpointMaxVertex).getSurfaceArea() * rcpNodeSurfaceArea;
+				const real probPositive     = AABB3D(endpointMinVertex, nodeAABB.getMaxVertex()).getSurfaceArea() * rcpNodeSurfaceArea;
 				const real emptyBonus       = (numNegativeItems == 0 || numPositiveItems == 0) ? params.getEmptyBonus() : 0.0_r;
 				const real currentSplitCost = params.getTraversalCost() + (1.0_r - emptyBonus) * params.getInteractCost() *
 					(probNegative * static_cast<real>(numNegativeItems) + probPositive * static_cast<real>(numPositiveItems));
@@ -365,8 +362,8 @@ buildNodeRecursive(
 	}
 
 	if((bestSplitCost > 4 * noSplitCost && numNodeItems < 16) || 
-		bestAxis == -1 ||
-		newNumBadRefines == 3)
+	   bestAxis == -1 ||
+	   newNumBadRefines == 3)
 	{
 		m_nodeBuffer[nodeIndex] = Node::makeLeaf(nodeItemIndices, numNodeItems, m_itemIndices);
 		return;

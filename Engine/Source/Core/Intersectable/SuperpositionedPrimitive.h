@@ -39,7 +39,7 @@ public:
 		const Ray& ray, 
 		HitProbe&  probe,
 		HitDetail* out_detail) const override;
-	void calcAABB(math::AABB3D* out_aabb) const override;
+	math::AABB3D calcAABB() const override;
 	real calcPositionSamplePdfA(const math::Vector3R& position) const override;
 	real calcExtendedArea() const override;
 

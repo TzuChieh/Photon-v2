@@ -5,8 +5,6 @@
 namespace ph
 {
 
-Intersectable::~Intersectable() = default;
-
 bool Intersectable::isIntersecting(const Ray& ray) const
 {
 	HitProbe dummyProbe;
@@ -15,10 +13,7 @@ bool Intersectable::isIntersecting(const Ray& ray) const
 
 bool Intersectable::isIntersectingVolumeConservative(const math::AABB3D& volume) const
 {
-	math::AABB3D aabb;
-	calcAABB(&aabb);
-	
-	return aabb.isIntersectingVolume(volume);
+	return calcAABB().isIntersectingVolume(volume);
 }
 
 }// end namespace ph

@@ -25,7 +25,7 @@ public:
 		HitDetail* out_detail) const override;
 
 	bool isIntersectingVolumeConservative(const math::AABB3D& volume) const override;
-	void calcAABB(math::AABB3D* out_aabb) const override;
+	math::AABB3D calcAABB() const override;
 
 	bool uvwToPosition(
 		const math::Vector3R& uvw,

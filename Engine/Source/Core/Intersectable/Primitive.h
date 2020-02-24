@@ -26,7 +26,7 @@ public:
 	                            HitDetail* out_detail) const override = 0;
 
 	bool isIntersectingVolumeConservative(const math::AABB3D& volume) const override = 0;
-	void calcAABB(math::AABB3D* out_aabb) const override = 0;
+	math::AABB3D calcAABB() const override = 0;
 
 	// Generates a sample point on the surface of this primitive.
 	virtual void genPositionSample(SampleFlow& sampleFlow, PositionSample* out_sample) const;

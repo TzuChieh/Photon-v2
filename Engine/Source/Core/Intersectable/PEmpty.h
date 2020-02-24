@@ -21,7 +21,7 @@ public:
 		HitDetail* out_detail) const override;
 
 	bool isIntersectingVolumeConservative(const math::AABB3D& volume) const override;
-	void calcAABB(math::AABB3D* out_aabb) const override;
+	math::AABB3D calcAABB() const override;
 };
 
 // In-header Implementation:
@@ -55,13 +55,11 @@ inline bool PEmpty::isIntersectingVolumeConservative(const math::AABB3D& volume)
 	return false;
 }
 
-inline void PEmpty::calcAABB(math::AABB3D* const out_aabb) const
+inline math::AABB3D PEmpty::calcAABB() const
 {
 	// TODO: return a point or an invalid AABB?
 
-	PH_ASSERT(out_aabb);
-
-	*out_aabb = math::AABB3D({0, 0, 0});
+	return math::AABB3D({0, 0, 0});
 }
 
 }// end namespace ph

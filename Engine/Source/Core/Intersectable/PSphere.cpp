@@ -152,13 +152,12 @@ bool PSphere::isIntersectingVolumeConservative(const math::AABB3D& volume) const
 	return minDist2 <= radius2 && radius2 <= maxDist2;
 }
 
-void PSphere::calcAABB(math::AABB3D* const out_aabb) const
+math::AABB3D PSphere::calcAABB() const
 {
-	PH_ASSERT(out_aabb);
-
-	out_aabb->setMinVertex(math::Vector3R(-m_radius, -m_radius, -m_radius));
-	out_aabb->setMaxVertex(math::Vector3R( m_radius,  m_radius,  m_radius));
-	out_aabb->expand(math::Vector3R(0.0001_r * m_radius));
+	return math::AABB3D(
+		math::Vector3R(-m_radius, -m_radius, -m_radius),
+		math::Vector3R( m_radius,  m_radius,  m_radius)).
+		expand(math::Vector3R(0.0001_r * m_radius));
 }
 
 real PSphere::calcPositionSamplePdfA(const math::Vector3R& position) const

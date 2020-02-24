@@ -19,7 +19,7 @@ public:
 
 	void update(const CookedDataStorage& cookedActors) override;
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
-	void calcAABB(math::AABB3D* out_aabb) const override;
+	math::AABB3D calcAABB() const override;
 
 private:
 	struct IndexedIntersectables
@@ -40,9 +40,7 @@ private:
 		{
 			PH_ASSERT(intersectable);
 
-			math::AABB3D aabb;
-			intersectable->calcAABB(&aabb);
-			return aabb;
+			return intersectable->calcAABB();
 		}
 	};
 

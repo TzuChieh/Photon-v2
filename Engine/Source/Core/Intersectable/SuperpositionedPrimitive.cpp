@@ -83,11 +83,11 @@ bool SuperpositionedPrimitive::isIntersectingVolumeConservative(const math::AABB
 	return m_mainPrimitive->isIntersectingVolumeConservative(aabb);
 }
 
-void SuperpositionedPrimitive::calcAABB(math::AABB3D* const out_aabb) const
+math::AABB3D SuperpositionedPrimitive::calcAABB() const
 {
 	PH_ASSERT(m_mainPrimitive);
 
-	m_mainPrimitive->calcAABB(out_aabb);
+	return m_mainPrimitive->calcAABB();
 }
 
 real SuperpositionedPrimitive::calcPositionSamplePdfA(const math::Vector3R& position) const
