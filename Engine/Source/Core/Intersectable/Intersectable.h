@@ -47,8 +47,10 @@ public:
 	found). The process of calculating intersection detail will destroy the
 	input probe.
 	*/
-	virtual void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
-	                                    HitDetail* out_detail) const = 0;
+	virtual void calcIntersectionDetail(
+		const Ray& ray, 
+		HitProbe&  probe,
+		HitDetail* out_detail) const = 0;
 
 	/*! @brief Calculates Axis-Aligned Bounding Box (AABB) of itself.
 	*/

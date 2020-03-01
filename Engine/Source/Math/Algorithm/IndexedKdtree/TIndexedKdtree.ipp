@@ -185,6 +185,8 @@ inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>::
 getAABB() const
 -> AABB3D
 {
+	PH_ASSERT(!isEmpty());
+
 	return m_rootAABB;
 }
 

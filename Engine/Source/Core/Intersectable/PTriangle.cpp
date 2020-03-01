@@ -13,8 +13,6 @@
 #include <limits>
 #include <iostream>
 
-#define TRIANGLE_EPSILON 0.0001f
-
 namespace ph
 {
 
@@ -50,12 +48,15 @@ bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
 void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
                                        HitDetail* const out_detail) const
 {
-	// TODO: bary coords may provide better precision?
-	const math::Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
+	PH_ASSERT(out_detail);
+
 	math::Vector3R hitBaryABC;
 	probe.getCached(&hitBaryABC);
 
-	PH_ASSERT_MSG(hitBaryABC.isNotZero() && hitBaryABC.isFinite(), hitBaryABC.toString());
+	PH_ASSERT_MSG(hitBaryABC.isNotZero() && hitBaryABC.isFinite(), 
+		hitBaryABC.toString());
+
+	const math::Vector3R hitPosition = m_triangle.barycentricToSurface(hitBaryABC);
 
 	const auto hitShadingNormal = math::Vector3R::weightedSum(
 		m_nA, hitBaryABC.x,
@@ -112,27 +113,7 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 
 math::AABB3D PTriangle::calcAABB() const
 {
-	real minX = m_triangle.getVa().x, maxX = m_triangle.getVa().x,
-	     minY = m_triangle.getVa().y, maxY = m_triangle.getVa().y,
-	     minZ = m_triangle.getVa().z, maxZ = m_triangle.getVa().z;
-
-	if     (m_triangle.getVb().x > maxX) maxX = m_triangle.getVb().x;
-	else if(m_triangle.getVb().x < minX) minX = m_triangle.getVb().x;
-	if     (m_triangle.getVb().y > maxY) maxY = m_triangle.getVb().y;
-	else if(m_triangle.getVb().y < minY) minY = m_triangle.getVb().y;
-	if     (m_triangle.getVb().z > maxZ) maxZ = m_triangle.getVb().z;
-	else if(m_triangle.getVb().z < minZ) minZ = m_triangle.getVb().z;
-
-	if     (m_triangle.getVc().x > maxX) maxX = m_triangle.getVc().x;
-	else if(m_triangle.getVc().x < minX) minX = m_triangle.getVc().x;
-	if     (m_triangle.getVc().y > maxY) maxY = m_triangle.getVc().y;
-	else if(m_triangle.getVc().y < minY) minY = m_triangle.getVc().y;
-	if     (m_triangle.getVc().z > maxZ) maxZ = m_triangle.getVc().z;
-	else if(m_triangle.getVc().z < minZ) minZ = m_triangle.getVc().z;
-
-	return math::AABB3D(
-		math::Vector3R(minX - TRIANGLE_EPSILON, minY - TRIANGLE_EPSILON, minZ - TRIANGLE_EPSILON),
-		math::Vector3R(maxX + TRIANGLE_EPSILON, maxY + TRIANGLE_EPSILON, maxZ + TRIANGLE_EPSILON));
+	return m_triangle.getAABB();
 }
 
 // Reference: Tomas Akenine-Moeller's "Fast 3D Triangle-Box Overlap Testing", 

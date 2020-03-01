@@ -16,11 +16,15 @@ template<typename T>
 class TVector3 final
 {
 public:
-	static inline TVector3 weightedSum(const TVector3& vA, T wA, 
-	                                   const TVector3& vB, T wB, 
-	                                   const TVector3& vC, T wC);
+	static TVector3 weightedSum(
+		const TVector3& vA, T wA, 
+		const TVector3& vB, T wB, 
+		const TVector3& vC, T wC);
 
-	static TVector3 lerp(const TVector3& vA, const TVector3& vB, T parametricT);
+	static TVector3 lerp(
+		const TVector3& vA, 
+		const TVector3& vB, 
+		T               parametricT);
 
 public:
 	T x;

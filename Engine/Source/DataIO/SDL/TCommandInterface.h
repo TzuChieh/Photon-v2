@@ -28,11 +28,11 @@ class TCommandInterface : public virtual ISdlResource
 	friend void register_command_interface<DerivedType>();
 
 public:
-	virtual ~TCommandInterface();
+	virtual ~TCommandInterface() = default;
 
 private:
-	typedef std::function<SdlTypeInfo()>          TypeInfoFuncType;
-	typedef std::function<void(CommandRegister&)> RegisterFuncType;
+	using TypeInfoFuncType = std::function<SdlTypeInfo()>;
+	using RegisterFuncType = std::function<void(CommandRegister&)>;
 
 	static void registerInterface();
 };
@@ -40,7 +40,7 @@ private:
 // template implementations:
 
 template<typename DerivedType>
-void TCommandInterface<DerivedType>::registerInterface()
+inline void TCommandInterface<DerivedType>::registerInterface()
 {
 	TypeInfoFuncType typeInfoFunc = DerivedType::ciTypeInfo;
 	RegisterFuncType registerFunc = DerivedType::ciRegister;
@@ -60,8 +60,5 @@ void TCommandInterface<DerivedType>::registerInterface()
 		return;
 	}
 }
-
-template<typename DerivedType>
-TCommandInterface<DerivedType>::~TCommandInterface() = default;
 
 }// end namespace ph

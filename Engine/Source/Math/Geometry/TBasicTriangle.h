@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/TVector3.h"
+#include "Math/Geometry/TAABB3D.h"
 
 #include <utility>
 #include <array>
@@ -19,12 +20,15 @@ public:
 	TBasicTriangle() = default;
 
 	TBasicTriangle(
-		const TVector3<T>& vA,
-		const TVector3<T>& vB,
-		const TVector3<T>& vC);
+		TVector3<T> vA,
+		TVector3<T> vB,
+		TVector3<T> vC);
+
+	explicit TBasicTriangle(std::array<TVector3<T>, 3> vertices);
 
 	T getArea() const;
 	TVector3<T> getFaceNormal() const;
+	TAABB3D<T> getAABB() const;
 
 	/*! @brief Calculate face normal with a fail-safe value.
 

@@ -21,11 +21,14 @@ public:
 	explicit Primitive(const PrimitiveMetadata* metadata);
 
 	using Intersectable::isIntersecting;
-	bool isIntersecting(const Ray& ray, HitProbe& probe) const override = 0;
-	void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
-	                            HitDetail* out_detail) const override = 0;
 
-	bool isIntersectingVolumeConservative(const math::AABB3D& volume) const override = 0;
+	bool isIntersecting(const Ray& ray, HitProbe& probe) const override = 0;
+
+	void calcIntersectionDetail(
+		const Ray& ray, 
+		HitProbe&  probe,
+		HitDetail* out_detail) const override = 0;
+
 	math::AABB3D calcAABB() const override = 0;
 
 	// Generates a sample point on the surface of this primitive.

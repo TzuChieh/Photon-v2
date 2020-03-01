@@ -10,13 +10,21 @@ namespace ph::math
 
 template<typename T>
 inline TBasicTriangle<T>::TBasicTriangle(
-	const TVector3<T>& vA,
-	const TVector3<T>& vB,
-	const TVector3<T>& vC) : 
+	TVector3<T> vA,
+	TVector3<T> vB,
+	TVector3<T> vC) : 
 
-	m_vA(vA),
-	m_vB(vB),
-	m_vC(vC)
+	m_vA(std::move(vA)),
+	m_vB(std::move(vB)),
+	m_vC(std::move(vC))
+{}
+
+template<typename T>
+inline TBasicTriangle<T>::TBasicTriangle(std::array<TVector3<T>, 3> vertices) :
+	TBasicTriangle(
+		std::move(vertices[0]),
+		std::move(vertices[1]),
+		std::move(vertices[2]))
 {}
 
 template<typename T>
@@ -33,6 +41,34 @@ inline TVector3<T> TBasicTriangle<T>::getFaceNormal() const
 	const auto [eAB, eAC] = getEdgeVectors();
 
 	return eAB.cross(eAC).normalizeLocal();
+}
+
+template<typename T>
+inline TAABB3D<T> TBasicTriangle<T>::getAABB() const
+{
+	T minX = m_vA.x, maxX = m_vA.x,
+	  minY = m_vA.y, maxY = m_vA.y,
+	  minZ = m_vA.z, maxZ = m_vA.z;
+
+	if     (m_vB.x > maxX) maxX = m_vB.x;
+	else if(m_vB.x < minX) minX = m_vB.x;
+	if     (m_vB.y > maxY) maxY = m_vB.y;
+	else if(m_vB.y < minY) minY = m_vB.y;
+	if     (m_vB.z > maxZ) maxZ = m_vB.z;
+	else if(m_vB.z < minZ) minZ = m_vB.z;
+
+	if     (m_vC.x > maxX) maxX = m_vC.x;
+	else if(m_vC.x < minX) minX = m_vC.x;
+	if     (m_vC.y > maxY) maxY = m_vC.y;
+	else if(m_vC.y < minY) minY = m_vC.y;
+	if     (m_vC.z > maxZ) maxZ = m_vC.z;
+	else if(m_vC.z < minZ) minZ = m_vC.z;
+
+	constexpr auto TRIANGLE_EPSILON = T(0.0001);
+
+	return math::TAABB3D<T>(
+		math::Vector3R(minX - TRIANGLE_EPSILON, minY - TRIANGLE_EPSILON, minZ - TRIANGLE_EPSILON),
+		math::Vector3R(maxX + TRIANGLE_EPSILON, maxY + TRIANGLE_EPSILON, maxZ + TRIANGLE_EPSILON));
 }
 
 template<typename T>

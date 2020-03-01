@@ -14,6 +14,7 @@
 #include <vector>
 #include <utility>
 #include <memory>
+#include <type_traits>
 
 namespace ph::math
 {
@@ -26,7 +27,11 @@ class TIndexedKdtree final
 {
 private:
 	using Node = TIndexedKdtreeNode<Index>;
+
+	static_assert(std::is_invocable_v<IndexToItem, Index>);
 	using Item = decltype(std::declval<IndexToItem>()(std::declval<Index>()));
+
+	static_assert(std::is_invocable_r_v<AABB3D, ItemToAABB, Item>);
 
 public:
 	TIndexedKdtree(
@@ -62,9 +67,9 @@ private:
 	std::size_t        m_numItems;
 	IndexToItem        m_indexToItem;
 	AABB3D             m_rootAABB;
-	std::vector<Node>  m_nodeBuffer;// TODO: compact this after build
+	std::vector<Node>  m_nodeBuffer;// TODO: compact this after build or use array
 	std::size_t        m_numNodes;// TODO: remove this
-	std::vector<Index> m_itemIndices;
+	std::vector<Index> m_itemIndices;// TODO: compact this after build or use array
 };
 
 }// end namespace ph::math
