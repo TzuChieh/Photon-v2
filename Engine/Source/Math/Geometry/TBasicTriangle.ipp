@@ -2,11 +2,63 @@
 
 #include "Math/Geometry/TBasicTriangle.h"
 #include "Common/assertion.h"
+#include "Math/TMatrix2.h"
 
 #include <cmath>
 
 namespace ph::math
 {
+
+template<typename T>
+inline TVector3<T> TBasicTriangle<T>::interpolate(
+	const std::array<TVector3<T>, 3>& attributes,
+	const TVector3<T>&                barycentricCoords)
+{
+	return TVector3<T>::weightedSum(
+		attributes[0], barycentricCoords.x,
+		attributes[1], barycentricCoords.y,
+		attributes[2], barycentricCoords.z);
+}
+
+template<typename T>
+inline bool TBasicTriangle<T>::calcSurfaceParamDerivatives(
+	const std::array<TVector3<T>, 3>& attributes,
+	const std::array<TVector2<T>, 3>& parameterizations,
+	TVector3<T>* const                out_dXdU,
+	TVector3<T>* const                out_dXdV)
+{
+	PH_ASSERT(out_dXdU);
+	PH_ASSERT(out_dXdV);
+
+	const auto deltaUv01 = parameterizations[1] - parameterizations[0];
+	const auto deltaUv02 = parameterizations[2] - parameterizations[0];
+
+	const TMatrix2<T> A(
+		deltaUv01,
+		deltaUv02);
+
+	const auto deltaAttr01 = attributes[1] - attributes[0];
+	const auto deltaAttr02 = attributes[2] - attributes[0];
+
+	const std::array<std::array<T, 2>, 3> bs = {
+		deltaAttr01.x, deltaAttr02.x,
+		deltaAttr01.y, deltaAttr02.y,
+		deltaAttr01.z, deltaAttr02.z};
+	
+	std::array<std::array<T, 2>, 3> xs;
+	if(A.solve(bs, &xs))
+	{
+		out_dXdU->x = xs[0][0]; out_dXdV->x = xs[0][1];
+		out_dXdU->y = xs[1][0]; out_dXdV->y = xs[1][1];
+		out_dXdU->z = xs[2][0]; out_dXdV->z = xs[2][1];
+
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 template<typename T>
 inline TBasicTriangle<T>::TBasicTriangle(
@@ -65,7 +117,7 @@ inline TAABB3D<T> TBasicTriangle<T>::getAABB() const
 	else if(m_vC.z < minZ) minZ = m_vC.z;
 
 	constexpr auto TRIANGLE_EPSILON = T(0.0001);
-
+	
 	return math::TAABB3D<T>(
 		math::Vector3R(minX - TRIANGLE_EPSILON, minY - TRIANGLE_EPSILON, minZ - TRIANGLE_EPSILON),
 		math::Vector3R(maxX + TRIANGLE_EPSILON, maxY + TRIANGLE_EPSILON, maxZ + TRIANGLE_EPSILON));

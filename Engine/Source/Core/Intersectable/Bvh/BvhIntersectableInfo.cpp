@@ -9,9 +9,10 @@ namespace ph
 BvhIntersectableInfo::BvhIntersectableInfo(
 	const Intersectable* const intersectable, 
 	const std::size_t          index) :
-	index(index), aabb(), aabbCentroid(), intersectable(intersectable)
+	index(index), intersectable(intersectable)
 {
-	aabbCentroid = intersectable->calcAABB().getCentroid();
+	aabb         = intersectable->calcAABB();
+	aabbCentroid = aabb.getCentroid();
 }
 
 }// end namespace ph

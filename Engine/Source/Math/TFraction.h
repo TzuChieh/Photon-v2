@@ -14,7 +14,7 @@ template<typename T>
 class TFraction final
 {
 public:
-	constexpr TFraction() = default;
+	constexpr inline TFraction() = default;
 	constexpr TFraction(T nume, T deno);
 
 	// TODO: arithemtics

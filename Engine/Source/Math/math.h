@@ -224,36 +224,6 @@ inline T fractional_part(const T value)
 	return static_cast<T>(std::modf(static_cast<long double>(value), &integralPart));
 }
 
-/*! @brief Solves linear systems of the form Ax = b.
-
-@param A A 2x2 matrix.
-@param b A 2x1 vector.
-@param[out] out_x A 2x1 vector.
-@return If x is successfully solved, method returns `true` and @p out_x stores
-the answer; otherwise, `false` is returned and what @p out_x stores is
-undefined.
-*/
-template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
-inline bool solve_linear_system_2x2(
-	const std::array<std::array<T, 2>, 2>& A,
-	const std::array<T, 2>&                b,
-	std::array<T, 2>* const                out_x)
-{
-	PH_ASSERT(!std::numeric_limits<T>::is_integer);
-
-	const T determinant = A[0][0] * A[1][1] - A[1][0] * A[0][1];
-	if(std::abs(determinant) <= std::numeric_limits<T>::epsilon())
-	{
-		return false;
-	}
-
-	const T reciDeterminant = 1 / determinant;
-
-	(*out_x)[0] = (A[1][1] * b[0] - A[0][1] * b[1]) * reciDeterminant;
-	(*out_x)[1] = (A[0][0] * b[1] - A[1][0] * b[0]) * reciDeterminant;
-	return true;
-}
-
 /*! @brief Wraps an integer around [lower-bound, upper-bound].
 	
 For example, given a bound [-1, 2], 3 will be wrapped to -1.

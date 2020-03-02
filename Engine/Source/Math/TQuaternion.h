@@ -23,8 +23,8 @@ public:
 	T w;
 
 public:
-	TQuaternion() = default;
-	TQuaternion(const TQuaternion& other) = default;
+	inline TQuaternion() = default;
+	inline TQuaternion(const TQuaternion& other) = default;
 
 	TQuaternion(T x, T y, T z, T w);
 	TQuaternion(const TVector3<T>& normalizedAxis, T radians);

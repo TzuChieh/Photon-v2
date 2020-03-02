@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/TVector3.h"
+#include "Math/TVector2.h"
 
 #include <cstddef>
 #include <array>
@@ -13,10 +14,6 @@ namespace ph
 class TriFace final
 {
 public:
-	static math::Vector3R interpolate(
-		const std::array<math::Vector3R, 3>& attributes, 
-		const math::Vector3R&                weights);
-
 	TriFace(std::size_t index, std::array<math::Vector3R, 3> vertices);
 
 	void setTexCoords(std::array<math::Vector3R, 3> texCoords);
@@ -29,6 +26,8 @@ public:
 	bool hasTexCoords() const;
 	bool hasShadingNormals() const;
 
+	// TODO: getXxxOrDefault() methods
+
 private:
 	std::size_t                                  m_index;
 	std::array<math::Vector3R, 3>                m_vertices;
@@ -37,16 +36,6 @@ private:
 };
 
 // In-header Implementations:
-
-inline math::Vector3R TriFace::interpolate(
-	const std::array<math::Vector3R, 3>& attributes,
-	const math::Vector3R&                weights)
-{
-	return math::Vector3R::weightedSum(
-		attributes[0], weights.x,
-		attributes[1], weights.y,
-		attributes[2], weights.z);
-}
 
 inline TriFace::TriFace(const std::size_t index, std::array<math::Vector3R, 3> vertices) :
 	m_index   (index),

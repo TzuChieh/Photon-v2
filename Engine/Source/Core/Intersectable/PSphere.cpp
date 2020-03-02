@@ -90,12 +90,26 @@ void PSphere::calcIntersectionDetail(
 	mapper->positionToUvw(negZ, &negZuvw);
 	mapper->positionToUvw(posZ, &posZuvw);
 
-	// calculate positional partial derivatives
-	math::Vector3R dPdU, dPdV;
 	const math::Matrix2R uvwDiff(
 		posXuvw.x - negXuvw.x, posXuvw.y - negXuvw.y,
 		posZuvw.x - negZuvw.x, posZuvw.y - negZuvw.y);
-	if(!uvwDiff.solve(posX.sub(negX), posZ.sub(negZ), &dPdU, &dPdV))
+	const auto xDiff = posX - negX;
+	const auto zDiff = posZ - negZ;
+	const std::array<std::array<real, 2>, 3> bs = {
+		xDiff.x, zDiff.x,
+		xDiff.y, zDiff.y,
+		xDiff.z, zDiff.z};
+	
+	// calculate positional partial derivatives
+	math::Vector3R dPdU, dPdV;
+	std::array<std::array<real, 2>, 3> xs;
+	if(uvwDiff.solve(bs, &xs))
+	{
+		dPdU.x = xs[0][0]; dPdV.x = xs[0][1];
+		dPdU.y = xs[1][0]; dPdV.y = xs[1][1];
+		dPdU.z = xs[2][0]; dPdV.z = xs[2][1];
+	}
+	else
 	{
 		const auto uvwBasis = math::Basis3R::makeFromUnitY(hitNormal);
 		dPdU = uvwBasis.getXAxis();

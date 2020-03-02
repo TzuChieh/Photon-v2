@@ -22,7 +22,7 @@ public:
 	static std::size_t calcMaxDepth(const BvhInfoNode* rootNode);
 
 public:
-	BvhBuilder(EBvhType type);
+	explicit BvhBuilder(EBvhType type);
 
 	const BvhInfoNode* buildInformativeBinaryBvh(const std::vector<const Intersectable*>& intersectables);
 	void buildLinearDepthFirstBinaryBvh(const BvhInfoNode* rootNode, 

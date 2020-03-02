@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Math/TVector3.h"
+#include "Math/TVector2.h"
 #include "Math/Geometry/TAABB3D.h"
 
+#include <cstddef>
 #include <utility>
 #include <array>
 
@@ -16,6 +18,19 @@ The class is not intended to be used polymorphically.
 template<typename T>
 class TBasicTriangle
 {
+public:
+	// TODO: doc & test
+	static TVector3<T> interpolate(
+		const std::array<TVector3<T>, 3>& attributes,
+		const TVector3<T>&                barycentricCoords);
+
+	// TODO: doc & test
+	static bool calcSurfaceParamDerivatives(
+		const std::array<TVector3<T>, 3>& attributes,
+		const std::array<TVector2<T>, 3>& parameterizations,
+		TVector3<T>*                      out_dXdU,
+		TVector3<T>*                      out_dXdV);
+
 public:
 	TBasicTriangle() = default;
 

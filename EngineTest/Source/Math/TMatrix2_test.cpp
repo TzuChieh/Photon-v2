@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 
 #include <type_traits>
+#include <array>
 
 using namespace ph;
 using namespace ph::math;
@@ -63,45 +64,86 @@ TEST(TMatrix2Test, DeterminantAndInverse)
 
 TEST(TMatrix2Test, SolveLinearSystem)
 {
+	// a solvable system (identity)
+	{
+		TMatrix2<float> A(
+			1.0f, 0.0f,
+			0.0f, 1.0f);
+		TVector2<float> b(
+			1.0f,
+			1.0f);
+		TVector2<float> x;
+		ASSERT_TRUE(A.solve(b, &x));
+		EXPECT_FLOAT_EQ(x.x, 1.0f);
+		EXPECT_FLOAT_EQ(x.y, 1.0f);
+	}
+
 	// a solvable system
+	{
+		TMatrix2<float> A(
+			0.1f, 0.2f,
+			0.3f, 0.4f);
+		TVector2<float> b(
+			0.1f, 
+			0.1f);
+		TVector2<float> x;
+		ASSERT_TRUE(A.solve(b, &x));
+		EXPECT_FLOAT_EQ(x.x, -1);
+		EXPECT_FLOAT_EQ(x.y,  1);
+	}
 
-	TMatrix2<float> A1(0.1f, 0.2f,
-	                   0.3f, 0.4f);
-	TVector2<float> b1(0.1f, 
-	                   0.1f);
-	TVector2<float> x1;
-	ASSERT_TRUE(A1.solve(b1, &x1));
-	EXPECT_FLOAT_EQ(x1.x, -1);
-	EXPECT_FLOAT_EQ(x1.y,  1);
+	// a solvable system
+	{
+		TMatrix2<float> A(
+			2.0f, 1.0f,
+			1.0f, 2.0f);
+		TVector2<float> b(
+			3.0f, 
+			3.0f);
+		TVector2<float> x;
+		ASSERT_TRUE(A.solve(b, &x));
+		EXPECT_FLOAT_EQ(x.x, 1.0f);
+		EXPECT_FLOAT_EQ(x.y, 1.0f);
+	}
 
-	// an unsolvable system (A2 is singular)
-
-	TMatrix2<float> A2(1, 1,
-	                   1, 1);
-	TVector2<float> b2(1, 
-	                   1);
-	TVector2<float> x2;
-	ASSERT_FALSE(A2.solve(b2, &x2));
+	// an unsolvable system (A is singular)
+	{
+		TMatrix2<float> A(
+			7, 7,
+			7, 7);
+		TVector2<float> b(
+			10,
+			10);
+		TVector2<float> x;
+		ASSERT_FALSE(A.solve(b, &x));
+	}
 
 	// a solvable triple system
+	{
+		TMatrix2<float> A(
+			1, 2,
+			3, 4);
+		std::array<std::array<float, 2>, 3> b = {
+			1, 1,
+			2, 2,
+			3, 3};
+		std::array<std::array<float, 2>, 3> x;
+		ASSERT_TRUE(A.solve(b, &x));
+		EXPECT_FLOAT_EQ(x[0][0], -1); EXPECT_FLOAT_EQ(x[0][1], 1);
+		EXPECT_FLOAT_EQ(x[1][0], -2); EXPECT_FLOAT_EQ(x[1][1], 2);
+		EXPECT_FLOAT_EQ(x[2][0], -3); EXPECT_FLOAT_EQ(x[2][1], 3);
+	}
 
-	TMatrix2<float> A3(1, 2,
-	                   3, 4);
-	TVector3<float> b3x(1, 2, 3);
-	TVector3<float> b3y(1, 2, 3);
-	TVector3<float> x3x;
-	TVector3<float> x3y;
-	ASSERT_TRUE(A3.solve(b3x, b3y, &x3x, &x3y));
-	EXPECT_FLOAT_EQ(x3x.x, -1); EXPECT_FLOAT_EQ(x3x.y, -2); EXPECT_FLOAT_EQ(x3x.z, -3);
-	EXPECT_FLOAT_EQ(x3y.x,  1); EXPECT_FLOAT_EQ(x3y.y,  2); EXPECT_FLOAT_EQ(x3y.z,  3);
-
-	// an unsolvable triple system (A4 is singular)
-
-	TMatrix2<float> A4(2, 2,
-	                   2, 2);
-	TVector3<float> b4x(1, 2, 3);
-	TVector3<float> b4y(1, 2, 3);
-	TVector3<float> x4x;
-	TVector3<float> x4y;
-	ASSERT_FALSE(A4.solve(b4x, b4y, &x4x, &x4y));
+	// an unsolvable triple system (A is singular)
+	{
+		TMatrix2<float> A(
+			2, 2,
+			2, 2);
+		std::array<std::array<float, 2>, 3> b = {
+			1, 1,
+			2, 2,
+			3, 3};
+		std::array<std::array<float, 2>, 3> x;
+		ASSERT_FALSE(A.solve(b, &x));
+	}
 }

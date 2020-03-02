@@ -24,17 +24,22 @@ inline TMatrix2<T>::TMatrix2(const T value) :
 {}
 
 template<typename T>
-inline TMatrix2<T>::TMatrix2(const T m00, const T m01, const T m10, const T m11)
-{
-	m[0][0] = m00; m[0][1] = m01;
-	m[1][0] = m10; m[1][1] = m11;
-}
+inline TMatrix2<T>::TMatrix2(const T m00, const T m01, const T m10, const T m11) : 
+	m{m00, m01,
+	  m10, m11}
+{}
+
+template<typename T>
+inline TMatrix2<T>::TMatrix2(const TVector2<T>& m00m01, const TVector2<T>& m10m11) : 
+	m{m00m01.x, m00m01.y,
+	  m10m11.x, m10m11.y}
+{}
 
 template<typename T>
 template<typename U>
 inline TMatrix2<T>::TMatrix2(const TMatrix2<U>& other) :
-	TMatrix2(static_cast<T>(other.m[0][0]), static_cast<T>(other.m[0][1]), 
-	         static_cast<T>(other.m[1][0]), static_cast<T>(other.m[1][1]))
+	m{static_cast<T>(other.m[0][0]), static_cast<T>(other.m[0][1]),
+	  static_cast<T>(other.m[1][0]), static_cast<T>(other.m[1][1])}
 {}
 
 template<typename T>
@@ -94,47 +99,76 @@ inline T TMatrix2<T>::determinant() const
 }
 
 template<typename T>
-inline bool TMatrix2<T>::solve(const TVector2<T>& b, TVector2<T>* const out_x) const
+inline bool TMatrix2<T>::solve(
+	const std::array<T, 2>& b,
+	std::array<T, 2>* const out_x) const
 {
-	PH_ASSERT(!std::numeric_limits<T>::is_integer);
+	PH_ASSERT(out_x);
 
-	const T det     = determinant();
-	const T reciDet = det != static_cast<T>(0) ? static_cast<T>(1) / det
-	                                           : std::numeric_limits<T>::infinity();
-	if(std::fabs(reciDet) >= std::numeric_limits<T>::max())
+	std::array<std::array<T, 2>, 1> x;
+	if(solve<1>({b}, &x))
+	{
+		(*out_x)[0] = x[0][0];
+		(*out_x)[1] = x[0][1];
+
+		return true;
+	}
+	else
 	{
 		return false;
 	}
-	PH_ASSERT(reciDet != std::numeric_limits<T>::infinity());
-	PH_ASSERT(reciDet == reciDet);
-
-	out_x->x = (m[1][1] * b.x - m[0][1] * b.y) * reciDet;
-	out_x->y = (m[0][0] * b.y - m[1][0] * b.x) * reciDet;
-	return true;
 }
 
 template<typename T>
 inline bool TMatrix2<T>::solve(
-	const TVector3<T>& bx, const TVector3<T>& by,
-	TVector3<T>* const out_xx, TVector3<T>* const out_xy) const
+	const TVector2<T>& b,
+	TVector2<T>* const out_x) const
 {
-	PH_ASSERT(!std::numeric_limits<T>::is_integer);
+	PH_ASSERT(out_x);
 
-	const T det     = determinant();
-	const T reciDet = det != static_cast<T>(0) ? static_cast<T>(1) / det
-	                                           : std::numeric_limits<T>::infinity();
-	if(std::fabs(reciDet) >= std::numeric_limits<T>::max())
+	std::array<T, 2> x;
+	if(solve({b.x, b.y}, &x))
+	{
+		out_x->x = x[0];
+		out_x->y = x[1];
+
+		return true;
+	}
+	else
 	{
 		return false;
 	}
-	PH_ASSERT_MSG(std::isfinite(reciDet), std::to_string(reciDet));
+}
 
-	out_xx->x = (m[1][1] * bx.x - m[0][1] * by.x) * reciDet;
-	out_xy->x = (m[0][0] * by.x - m[1][0] * bx.x) * reciDet;
-	out_xx->y = (m[1][1] * bx.y - m[0][1] * by.y) * reciDet;
-	out_xy->y = (m[0][0] * by.y - m[1][0] * bx.y) * reciDet;
-	out_xx->z = (m[1][1] * bx.z - m[0][1] * by.z) * reciDet;
-	out_xy->z = (m[0][0] * by.z - m[1][0] * bx.z) * reciDet;
+template<typename T>
+template<std::size_t N>
+inline bool TMatrix2<T>::solve(
+	const std::array<std::array<T, 2>, N>& bs,
+	std::array<std::array<T, 2>, N>* const out_xs) const
+{
+	static_assert(!std::numeric_limits<T>::is_integer);
+
+	PH_ASSERT(out_xs);
+
+	const T det = determinant();
+	if(std::abs(det) <= std::numeric_limits<T>::epsilon())
+	{
+		return false;
+	}
+
+	const T rcpDeterminant = static_cast<T>(1) / det;
+
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		(*out_xs)[i][0] = (m[1][1] * bs[i][0] - m[0][1] * bs[i][1]) * rcpDeterminant;
+		(*out_xs)[i][1] = (m[0][0] * bs[i][1] - m[1][0] * bs[i][0]) * rcpDeterminant;
+
+		if(!std::isfinite((*out_xs)[i][0]) || !std::isfinite((*out_xs)[i][1]))
+		{
+			return false;
+		}
+	}
+
 	return true;
 }
 

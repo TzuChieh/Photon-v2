@@ -15,9 +15,10 @@ namespace ph::math
 {
 
 template<typename T>
-inline TVector3<T> TVector3<T>::weightedSum(const TVector3& vA, const T wA,
-                                            const TVector3& vB, const T wB,
-                                            const TVector3& vC, const T wC)
+inline TVector3<T> TVector3<T>::weightedSum(
+	const TVector3& vA, const T wA,
+	const TVector3& vB, const T wB,
+	const TVector3& vC, const T wC)
 {
 	return TVector3(vA.x * wA + vB.x * wB + vC.x * wC,
 	                vA.y * wA + vB.y * wB + vC.y * wC, 
