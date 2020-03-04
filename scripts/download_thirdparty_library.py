@@ -5,7 +5,7 @@ from utility import downloader
 import sys
 
 
-src_file_url  = "https://github.com/TzuChieh/Photon-v2-ThirdParty/archive/master.zip"
+src_file_url  = "https://github.com/TzuChieh/Photon-v2-ThirdParty-Prebuilt/archive/master.zip"
 dst_directory = sys.argv[1]
 
 print("Downloading third-party libraries...")

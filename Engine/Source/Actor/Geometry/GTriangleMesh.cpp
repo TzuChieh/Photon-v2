@@ -64,6 +64,7 @@ void GTriangleMesh::addTriangle(const GTriangle& gTriangle)
 	m_gTriangles.push_back(gTriangle);
 }
 
+// TODO: can actually gen a transformed GTriangleMesh
 std::shared_ptr<Geometry> GTriangleMesh::genTransformed(
 	const math::StaticAffineTransform& transform) const
 {

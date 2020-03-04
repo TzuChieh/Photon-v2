@@ -14,7 +14,7 @@ public:
 	GeometrySoup();
 
 	void genPrimitive(
-		const PrimitiveBuildingMaterial& data,
+		const PrimitiveBuildingMaterial&         data,
 		std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
 
 	std::shared_ptr<Geometry> genTransformed(

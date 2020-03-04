@@ -9,6 +9,11 @@
 namespace ph
 {
 
+/*! @brief Basic triangle mesh.
+
+This is a naive representation of triangle mesh (simply an aggregate of 
+individual triangles).
+*/
 class GTriangleMesh : public Geometry, public TCommandInterface<GTriangleMesh>
 {
 public:
@@ -19,7 +24,7 @@ public:
 		const std::vector<math::Vector3R>& normals);
 
 	void genPrimitive(
-		const PrimitiveBuildingMaterial& data,
+		const PrimitiveBuildingMaterial&         data,
 		std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
 
 	std::shared_ptr<Geometry> genTransformed(
