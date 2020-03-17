@@ -34,40 +34,39 @@ set_property(TARGET EngineObjLib PROPERTY POSITION_INDEPENDENT_CODE 1)
 target_include_directories(Engine 
 	PUBLIC  ${ENGINE_INCLUDE_DIR}
 	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR}
-	PRIVATE ${STB_INCLUDE_DIR}
 	PRIVATE ${LIBSIMDPP_INCLUDE_DIR}
 	PRIVATE ${ZLIB_INCLUDE_DIR}
-	PRIVATE ${OPENEXR_INCLUDE_DIR}
-)
+	PRIVATE ${OPENEXR_INCLUDE_DIR})
 
-target_link_libraries(Engine ${OPENEXR_LIBS})
-target_link_libraries(Engine ${ZLIB_LIBS})
+if(stb_FOUND)
+	target_link_libraries(Engine PRIVATE stb::stb)
+else()
+	target_include_directories(Engine PRIVATE "${MANUAL_STB_INCLUDE_DIR}")
+endif()
+
+target_link_libraries(Engine PRIVATE ${OPENEXR_LIBS})
+target_link_libraries(Engine PRIVATE ${ZLIB_LIBS})
 
 if(WIN32)
 
-	target_include_directories(Engine 
-		PRIVATE ${STACKWALKER_INCLUDE_DIR}
-	)
-	target_link_libraries(Engine ${STACKWALKER_LIB})
+	target_include_directories(Engine PRIVATE ${STACKWALKER_INCLUDE_DIR})
+	target_link_libraries(Engine PRIVATE ${STACKWALKER_LIB})
 
 # other platforms do not link to threading and filesystem libraries by default
 else()
 
 	find_package(Threads)
-	target_link_libraries(Engine 
-		${CMAKE_THREAD_LIBS_INIT}
-	)
+	target_link_libraries(Engine PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 
 	# FIXME: remove this when osx supports STL filesystem
 	if(NOT APPLE)
-		target_link_libraries(Engine stdc++fs)
+		target_link_libraries(Engine PUBLIC stdc++fs)
 	endif()
 
 endif()
 
 target_compile_definitions(Engine
-	PRIVATE _CRT_SECURE_NO_WARNINGS
-)
+	PRIVATE _CRT_SECURE_NO_WARNINGS)
 
 #[[
 

@@ -13,7 +13,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin/")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin/")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin/")
 
-# HACK: to eliminate extra "Release" folder on MSVC
+# To eliminate extra "Release" folder on MSVC
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/bin/")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/bin/")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/bin/")
@@ -38,6 +38,11 @@ endif()
 option(BUILD_PHOTON_CLI  "Build command-line application."   ${BUILD_PHOTON_CLI_DEFAULT})
 option(BUILD_ENGINE_TEST "Build unit tests for core engine." ${BUILD_ENGINE_TEST_DEFAULT})
 option(BUILD_EDITOR_JNI  "Build JNI for GUI."                ${BUILD_EDITOR_JNI_DEFAULT})
+
+set(THIRD_PARTY_LIBS_INSTALL_DIR 
+    "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty/build/ThirdParty" 
+    CACHE STRING 
+    "Path to third-party library install directory.")
 
 ###############################################################################
 # Compiler Settings                                                           #
@@ -109,53 +114,26 @@ endif()
 #------------------------------------------------------------------------------
 # stb
 #------------------------------------------------------------------------------
-set(STB_INCLUDE_DIR "${THIRD_PARTY_DIR}stb/include/")
+find_package(stb CONFIG QUIET
+    PATHS "${THIRD_PARTY_LIBS_INSTALL_DIR}/stb/share/"
+    NO_DEFAULT_PATH)
+if(stb_FOUND)
+    message(STATUS "Found stb.")
+else()
+    message(STATUS 
+        "stb library not found; please specify its include path via MANUAL_STB_INCLUDE_DIR.")
+    set(MANUAL_STB_INCLUDE_DIR "" CACHE STRING 
+        "Path to stb library include directory.")
+endif()
 
 #------------------------------------------------------------------------------
 # Asio
 #------------------------------------------------------------------------------
-set(ASIO_INCLUDE_DIR "${THIRD_PARTY_DIR}Asio/include/")
-
-# TODO: use add_compile_definitions() in newer versions of CMake
-# so that Boost is not required
-add_definitions(-DASIO_STANDALONE)
-
-# FIXME: currently VS produces deprecation warning, which is wrong, see
-# https://github.com/chriskohlhoff/asio/issues/290#issuecomment-371867040
-# remove this when it is fixed
-if(WIN32)
-    add_definitions(-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING)
-endif()
-
-# Automatically define the value of _WIN32_WINNT for Windows; this is required
-# by Asio. 
-# Reference: https://stackoverflow.com/questions/9742003/platform-detection-in-cmake
-if(WIN32)
-    macro(get_WIN32_WINNT result)
-        if(CMAKE_SYSTEM_VERSION)
-            set(version ${CMAKE_SYSTEM_VERSION})
-            string(REGEX MATCH "^([0-9]+).([0-9])" version ${version})
-            string(REGEX MATCH "^([0-9]+)" majorVersion ${version})
-
-            # Check for Windows 10 specifically as we will need to convert to hex 'A'
-            if ("${majorVersion}" MATCHES "10")
-                set(majorVersion "A")
-                string(REGEX REPLACE "^([0-9]+)" ${majorVersion} version ${version})
-            endif()
-
-            # Remove all remaining '.' characters
-            string(REPLACE "." "" version ${version})
-
-            # Prepend each digit with a zero
-            string(REGEX REPLACE "([0-9A-Z])" "0\\1" version ${version})
-
-            # Prepend "0x" to signify hexadecimal
-            set(${result} "0x${version}")
-        endif()
-    endmacro()
-
-    get_WIN32_WINNT(win32winntVersion)
-    add_definitions(-D_WIN32_WINNT=${win32winntVersion})
+find_package(Asio CONFIG REQUIRED
+    PATHS "${THIRD_PARTY_LIBS_INSTALL_DIR}/Asio/share/"
+    NO_DEFAULT_PATH)
+if(Asio_FOUND)
+    message(STATUS "Found Asio.")
 endif()
 
 #------------------------------------------------------------------------------
