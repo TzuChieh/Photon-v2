@@ -40,7 +40,7 @@ option(BUILD_ENGINE_TEST "Build unit tests for core engine." ${BUILD_ENGINE_TEST
 option(BUILD_EDITOR_JNI  "Build JNI for GUI."                ${BUILD_EDITOR_JNI_DEFAULT})
 
 set(THIRD_PARTY_LIBS_INSTALL_DIR 
-    "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty/build/ThirdParty" 
+    "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty/build/ThirdParty/" 
     CACHE STRING 
     "Path to third-party library install directory.")
 
@@ -98,16 +98,14 @@ set(THIRD_PARTY_DIR "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty-master/")
 # googletest
 #------------------------------------------------------------------------------
 if(BUILD_ENGINE_TEST)
-    set(GOOGLETEST_INCLUDE_DIR "${THIRD_PARTY_DIR}googletest/include/")
-    set(GOOGLETEST_BINARY_DIR  "${THIRD_PARTY_DIR}googletest/lib/${THIRD_PARTY_PLATFORM}/")
+    set(GOOGLETEST_INCLUDE_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/include/")
+    set(GOOGLETEST_BINARY_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/lib/")
     find_library(GOOGLETEST_LIB_GTEST gtest
         PATHS ${GOOGLETEST_BINARY_DIR}
-        NO_DEFAULT_PATH
-    )
+        NO_DEFAULT_PATH)
     find_library(GOOGLETEST_LIB_GMOCK gmock
         PATHS ${GOOGLETEST_BINARY_DIR}
-        NO_DEFAULT_PATH
-    )
+        NO_DEFAULT_PATH)
     set(GOOGLETEST_LIBS "${GOOGLETEST_LIB_GMOCK};${GOOGLETEST_LIB_GTEST}")
 endif()
 
