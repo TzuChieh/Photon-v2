@@ -147,17 +147,25 @@ if(WIN32)
 endif()
 
 #------------------------------------------------------------------------------
-# libsimdpp
-#------------------------------------------------------------------------------
-set(LIBSIMDPP_INCLUDE_DIR "${THIRD_PARTY_DIR}libsimdpp/include/")
-
-#------------------------------------------------------------------------------
 # zlib
 #------------------------------------------------------------------------------
-set(ZLIB_INCLUDE_DIR "${THIRD_PARTY_DIR}zlib/include/")
-set(ZLIB_BINARY_DIR  "${THIRD_PARTY_DIR}zlib/lib/${THIRD_PARTY_PLATFORM}/")
-find_library(ZLIB_LIB_ZLIB zlibstatic z PATHS ${ZLIB_BINARY_DIR} NO_DEFAULT_PATH)
-set(ZLIB_LIBS "${ZLIB_LIB_ZLIB}")
+set(ZLIB_LIB_NAME "zlib")
+find_package(${ZLIB_LIB_NAME} CONFIG QUIET
+    PATHS "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/"
+    NO_DEFAULT_PATH)
+if(${ZLIB_LIB_NAME}_FOUND)
+    message(STATUS "Found ${ZLIB_LIB_NAME}.")
+else()
+    message(STATUS 
+        "${ZLIB_LIB_NAME} library not found; please specify its include path via MANUAL_zlib_INCLUDE_DIR.")
+    set(MANUAL_zlib_INCLUDE_DIR "" CACHE STRING 
+        "Path to ${ZLIB_LIB_NAME} library include directory.")
+endif()
+
+# set(ZLIB_INCLUDE_DIR "${THIRD_PARTY_DIR}zlib/include/")
+# set(ZLIB_BINARY_DIR  "${THIRD_PARTY_DIR}zlib/lib/${THIRD_PARTY_PLATFORM}/")
+# find_library(ZLIB_LIB_ZLIB zlibstatic z PATHS ${ZLIB_BINARY_DIR} NO_DEFAULT_PATH)
+# set(ZLIB_LIBS "${ZLIB_LIB_ZLIB}")
 
 #------------------------------------------------------------------------------
 # openexr
