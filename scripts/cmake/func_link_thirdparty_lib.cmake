@@ -1,0 +1,20 @@
+function(link_thirdparty_lib targetName libName)
+    set(options OPTIONAL)
+    set(oneValueArgs)
+    set(multiValueArgs)
+    cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+    
+    if(${${libName}_LOAD_MODE} STREQUAL "VARS")
+        target_include_directories(${targetName} PRIVATE ${VARS_${libName}_INCLUDE_DIRS})
+        target_link_libraries(${targetName} PRIVATE ${VARS_${libName}_LIBRARIES})
+    elseif(${${libName}_LOAD_MODE} STREQUAL "CONFIG")
+        target_link_libraries(${targetName} PRIVATE ${CONFIG_${libName}_TARGETS})
+    elseif(${${libName}_LOAD_MODE} STREQUAL "MANUAL")
+        target_include_directories(${targetName} PRIVATE ${MANUAL_${libName}_INCLUDES})
+        target_link_libraries(${targetName} PRIVATE ${MANUAL_${libName}_LIBRARIES})
+    elseif(NOT ARG_OPTIONAL)
+        message(WARNING 
+            "Cannot link ${targetName} against ${libName}, please make sure load_thirdparty_lib() is correctly invoked.")
+    endif()
+
+endfunction()

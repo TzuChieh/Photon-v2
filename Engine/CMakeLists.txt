@@ -31,26 +31,18 @@ set_property(TARGET EngineObjLib PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 ]]
 
+include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_link_thirdparty_lib.cmake")
+
+link_thirdparty_lib(Engine ${STB_LIB_NAME})
+link_thirdparty_lib(Engine ${ZLIB_LIB_NAME})
+
+
 target_include_directories(Engine 
 	PUBLIC  ${ENGINE_INCLUDE_DIR}
 	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR}
-	PRIVATE ${ZLIB_INCLUDE_DIR}
 	PRIVATE ${OPENEXR_INCLUDE_DIR})
 
-if(stb_FOUND)
-	target_link_libraries(Engine PRIVATE stb::stb)
-else()
-	target_include_directories(Engine PRIVATE "${MANUAL_STB_INCLUDE_DIR}")
-endif()
-
-if(${ZLIB_LIB_NAME}_FOUND)
-	target_link_libraries(Engine PRIVATE ${ZLIB_LIB_NAME}::zlibstatic)
-else()
-	target_include_directories(Engine PRIVATE "${MANUAL_${ZLIB_LIB_NAME}_INCLUDE_DIR}")
-endif()
-
 target_link_libraries(Engine PRIVATE ${OPENEXR_LIBS})
-target_link_libraries(Engine PRIVATE ${ZLIB_LIBS})
 
 if(WIN32)
 

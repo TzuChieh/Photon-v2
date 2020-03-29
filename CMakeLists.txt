@@ -92,6 +92,8 @@ endif()
 # Gather Third-party Libraries Required by Photon-v2                          #
 ###############################################################################
 
+include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_load_thirdparty_lib.cmake")
+
 set(THIRD_PARTY_DIR "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty-master/")
 
 #------------------------------------------------------------------------------
@@ -112,17 +114,11 @@ endif()
 #------------------------------------------------------------------------------
 # stb
 #------------------------------------------------------------------------------
-find_package(stb CONFIG QUIET
-    PATHS "${THIRD_PARTY_LIBS_INSTALL_DIR}/stb/share/"
-    NO_DEFAULT_PATH)
-if(stb_FOUND)
-    message(STATUS "Found stb.")
-else()
-    message(STATUS 
-        "stb library not found; please specify its include path via MANUAL_STB_INCLUDE_DIR.")
-    set(MANUAL_STB_INCLUDE_DIR "" CACHE STRING 
-        "Path to stb library include directory.")
-endif()
+set(STB_LIB_NAME "stb")
+load_thirdparty_lib(${STB_LIB_NAME}
+    CONFIG_PATH     "${THIRD_PARTY_LIBS_INSTALL_DIR}/${STB_LIB_NAME}/share/"
+    CONFIG_TARGETS  "stb"
+    MANUAL_INC_DIRS "${THIRD_PARTY_DIR}/${STB_LIB_NAME}/include/")
 
 #------------------------------------------------------------------------------
 # Asio
@@ -150,17 +146,25 @@ endif()
 # zlib
 #------------------------------------------------------------------------------
 set(ZLIB_LIB_NAME "zlib")
-find_package(${ZLIB_LIB_NAME} CONFIG QUIET
-    PATHS "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/"
-    NO_DEFAULT_PATH)
-if(${ZLIB_LIB_NAME}_FOUND)
-    message(STATUS "Found ${ZLIB_LIB_NAME}.")
-else()
-    message(STATUS 
-        "${ZLIB_LIB_NAME} library not found; please specify its include path via MANUAL_zlib_INCLUDE_DIR.")
-    set(MANUAL_zlib_INCLUDE_DIR "" CACHE STRING 
-        "Path to ${ZLIB_LIB_NAME} library include directory.")
-endif()
+load_thirdparty_lib(${ZLIB_LIB_NAME}
+    CONFIG_PATH      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/"
+    CONFIG_TARGETS   "zlibstatic"
+    MANUAL_INC_DIRS  "${THIRD_PARTY_DIR}/${ZLIB_LIB_NAME}/include/"
+    MANUAL_LIB_DIRS  "${THIRD_PARTY_DIR}/${ZLIB_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
+    MANUAL_LIB_NAMES "zlibstatic z")
+
+# set(ZLIB_LIB_NAME "zlib")
+# find_package(${ZLIB_LIB_NAME} CONFIG QUIET
+#     PATHS "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/"
+#     NO_DEFAULT_PATH)
+# if(${ZLIB_LIB_NAME}_FOUND)
+#     message(STATUS "Found ${ZLIB_LIB_NAME}.")
+# else()
+#     message(STATUS 
+#         "${ZLIB_LIB_NAME} library not found; please specify its include path via MANUAL_zlib_INCLUDE_DIR.")
+#     set(MANUAL_zlib_INCLUDE_DIR "" CACHE STRING 
+#         "Path to ${ZLIB_LIB_NAME} library include directory.")
+# endif()
 
 # set(ZLIB_INCLUDE_DIR "${THIRD_PARTY_DIR}zlib/include/")
 # set(ZLIB_BINARY_DIR  "${THIRD_PARTY_DIR}zlib/lib/${THIRD_PARTY_PLATFORM}/")
