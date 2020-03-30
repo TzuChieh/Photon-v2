@@ -13,7 +13,10 @@ add_executable(PhotonCLI ${PHOTON_CLI_HEADER_FILES} ${PHOTON_CLI_SOURCE_FILES})
 add_dependencies(PhotonCLI Engine)
 
 target_link_libraries(PhotonCLI PRIVATE Engine)
-target_link_libraries(PhotonCLI PRIVATE Asio::Asio)
+
+include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_link_thirdparty_lib.cmake")
+
+link_thirdparty_lib(PhotonCLI ${ASIO_LIB_NAME})
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set_property(TARGET PhotonCLI 

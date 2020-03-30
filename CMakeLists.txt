@@ -100,15 +100,17 @@ set(THIRD_PARTY_DIR "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty-master/")
 # googletest
 #------------------------------------------------------------------------------
 if(BUILD_ENGINE_TEST)
-    set(GOOGLETEST_INCLUDE_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/include/")
-    set(GOOGLETEST_BINARY_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/lib/")
-    find_library(GOOGLETEST_LIB_GTEST gtest
-        PATHS ${GOOGLETEST_BINARY_DIR}
-        NO_DEFAULT_PATH)
-    find_library(GOOGLETEST_LIB_GMOCK gmock
-        PATHS ${GOOGLETEST_BINARY_DIR}
-        NO_DEFAULT_PATH)
-    set(GOOGLETEST_LIBS "${GOOGLETEST_LIB_GMOCK};${GOOGLETEST_LIB_GTEST}")
+    set(GOOGLETEST_LIB_NAME "googletest")
+
+    load_thirdparty_lib(${GOOGLETEST_LIB_NAME} 
+        MANUAL_INC_DIRS  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/include/"
+        MANUAL_LIB_DIRS  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/lib/"
+        MANUAL_LIB_NAMES "gtest" "gmock")
+
+    # load_thirdparty_lib(${GOOGLETEST_LIB_NAME}
+    #     MANUAL_INC_DIRS  "${THIRD_PARTY_DIR}/${GOOGLETEST_LIB_NAME}/include/"
+    #     MANUAL_LIB_DIRS  "${THIRD_PARTY_DIR}/${GOOGLETEST_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
+    #     MANUAL_LIB_NAMES "gtest" "gmock")
 endif()
 
 #------------------------------------------------------------------------------
@@ -123,23 +125,28 @@ load_thirdparty_lib(${STB_LIB_NAME}
 #------------------------------------------------------------------------------
 # Asio
 #------------------------------------------------------------------------------
-find_package(Asio CONFIG REQUIRED
-    PATHS "${THIRD_PARTY_LIBS_INSTALL_DIR}/Asio/share/"
-    NO_DEFAULT_PATH)
-if(Asio_FOUND)
-    message(STATUS "Found Asio.")
-endif()
+set(ASIO_LIB_NAME "Asio")
+load_thirdparty_lib(${ASIO_LIB_NAME}
+    CONFIG_PATH     "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ASIO_LIB_NAME}/share/"
+    CONFIG_TARGETS  "Asio"
+    MANUAL_INC_DIRS "${THIRD_PARTY_DIR}/${ASIO_LIB_NAME}/include/")
 
 #------------------------------------------------------------------------------
 # StackWalker
 #------------------------------------------------------------------------------
 # TODO: debug build?
 if(WIN32)
-    set(STACKWALKER_INCLUDE_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/StackWalker/include/")
-    set(STACKWALKER_BINARY_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/StackWalker/lib/")
-    find_library(STACKWALKER_LIB StackWalker
-        PATHS ${STACKWALKER_BINARY_DIR}
-        NO_DEFAULT_PATH)
+    set(STACKWALKER_LIB_NAME "StackWalker")
+
+    load_thirdparty_lib(${STACKWALKER_LIB_NAME} OPTIONAL
+        MANUAL_INC_DIRS  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${STACKWALKER_LIB_NAME}/include/"
+        MANUAL_LIB_DIRS  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${STACKWALKER_LIB_NAME}/lib/"
+        MANUAL_LIB_NAMES "StackWalker")
+
+    load_thirdparty_lib(${STACKWALKER_LIB_NAME}
+        MANUAL_INC_DIRS  "${THIRD_PARTY_DIR}/${STACKWALKER_LIB_NAME}/include/"
+        MANUAL_LIB_DIRS  "${THIRD_PARTY_DIR}/${STACKWALKER_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
+        MANUAL_LIB_NAMES "StackWalker")
 endif()
 
 #------------------------------------------------------------------------------
@@ -153,44 +160,36 @@ load_thirdparty_lib(${ZLIB_LIB_NAME}
     MANUAL_LIB_DIRS  "${THIRD_PARTY_DIR}/${ZLIB_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
     MANUAL_LIB_NAMES "zlibstatic z")
 
-# set(ZLIB_LIB_NAME "zlib")
-# find_package(${ZLIB_LIB_NAME} CONFIG QUIET
-#     PATHS "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/"
-#     NO_DEFAULT_PATH)
-# if(${ZLIB_LIB_NAME}_FOUND)
-#     message(STATUS "Found ${ZLIB_LIB_NAME}.")
-# else()
-#     message(STATUS 
-#         "${ZLIB_LIB_NAME} library not found; please specify its include path via MANUAL_zlib_INCLUDE_DIR.")
-#     set(MANUAL_zlib_INCLUDE_DIR "" CACHE STRING 
-#         "Path to ${ZLIB_LIB_NAME} library include directory.")
-# endif()
-
-# set(ZLIB_INCLUDE_DIR "${THIRD_PARTY_DIR}zlib/include/")
-# set(ZLIB_BINARY_DIR  "${THIRD_PARTY_DIR}zlib/lib/${THIRD_PARTY_PLATFORM}/")
-# find_library(ZLIB_LIB_ZLIB zlibstatic z PATHS ${ZLIB_BINARY_DIR} NO_DEFAULT_PATH)
-# set(ZLIB_LIBS "${ZLIB_LIB_ZLIB}")
-
 #------------------------------------------------------------------------------
-# openexr
+# OpenEXR
 #------------------------------------------------------------------------------
-set(OPENEXR_INCLUDE_DIR "${THIRD_PARTY_DIR}openexr/include/")
-set(OPENEXR_BINARY_DIR  "${THIRD_PARTY_DIR}openexr/lib/${THIRD_PARTY_PLATFORM}/")
-find_library(OPENEXR_LIB_ILMIMF     IlmImf-2_3_s     PATHS ${OPENEXR_BINARY_DIR} NO_DEFAULT_PATH)
-find_library(OPENEXR_LIB_ILMIMFUTIL IlmImfUtil-2_3_s PATHS ${OPENEXR_BINARY_DIR} NO_DEFAULT_PATH)
-find_library(OPENEXR_LIB_HALF       Half-2_3_s       PATHS ${OPENEXR_BINARY_DIR} NO_DEFAULT_PATH)
-find_library(OPENEXR_LIB_IEX        Iex-2_3_s        PATHS ${OPENEXR_BINARY_DIR} NO_DEFAULT_PATH)
-find_library(OPENEXR_LIB_IEXMATH    IexMath-2_3_s    PATHS ${OPENEXR_BINARY_DIR} NO_DEFAULT_PATH)
-find_library(OPENEXR_LIB_ILMTHREAD  IlmThread-2_3_s  PATHS ${OPENEXR_BINARY_DIR} NO_DEFAULT_PATH)
-find_library(OPENEXR_LIB_IMATH      Imath-2_3_s      PATHS ${OPENEXR_BINARY_DIR} NO_DEFAULT_PATH)
-string(CONCAT OPENEXR_LIBS 
-    "${OPENEXR_LIB_ILMIMF}"
-    ";${OPENEXR_LIB_ILMIMFUTIL}"
-    ";${OPENEXR_LIB_HALF}"
-    ";${OPENEXR_LIB_IEX}"
-    ";${OPENEXR_LIB_IEXMATH}"
-    ";${OPENEXR_LIB_ILMTHREAD}"
-    ";${OPENEXR_LIB_IMATH}")
+if(NOT TARGET Threads::Threads)
+    set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+    set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+    find_package(Threads)
+    if(NOT Threads_FOUND)
+        message(FATAL_ERROR 
+            "Unable to find a threading library which is required for IlmThread")
+    endif()
+endif()
+
+set(ILMBASE_LIB_NAME "IlmBase")
+set(OPENEXR_LIB_NAME "OpenEXR")
+
+load_thirdparty_lib(${ILMBASE_LIB_NAME}
+    CONFIG_PATH      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${ILMBASE_LIB_NAME}/"
+    CONFIG_TARGETS   "Half" "Iex" "IexMath" "IlmThread" "Imath"
+    MANUAL_INC_DIRS  "${THIRD_PARTY_DIR}/openexr/include/"
+    MANUAL_LIB_DIRS  "${THIRD_PARTY_DIR}/openexr/lib/${THIRD_PARTY_PLATFORM}/"
+    MANUAL_LIB_NAMES "Half-2_3_s" "Iex-2_3_s" "IexMath-2_3_s" "IlmThread-2_3_s" "Imath-2_3_s")
+
+set(OPENEXR_LIB_NAME "OpenEXR")
+load_thirdparty_lib(${OPENEXR_LIB_NAME}
+    CONFIG_PATH      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${OPENEXR_LIB_NAME}/"
+    CONFIG_TARGETS   "IlmImf" "IlmImfUtil"
+    MANUAL_INC_DIRS  "${THIRD_PARTY_DIR}/openexr/include/"
+    MANUAL_LIB_DIRS  "${THIRD_PARTY_DIR}/openexr/lib/${THIRD_PARTY_PLATFORM}/"
+    MANUAL_LIB_NAMES "IlmImf-2_3_s" "IlmImfUtil-2_3_s")
 
 ###############################################################################
 # Add CMake Subdirectories                                                    #

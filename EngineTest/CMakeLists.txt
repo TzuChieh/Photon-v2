@@ -8,17 +8,18 @@ target_include_directories(EngineTest
 	PRIVATE ${GOOGLETEST_INCLUDE_DIR}
 	PRIVATE "./Source/"
 	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR}
-	PRIVATE ${LIBSIMDPP_INCLUDE_DIR}
-)
+	PRIVATE ${LIBSIMDPP_INCLUDE_DIR})
 
-target_link_libraries(EngineTest Engine)
-target_link_libraries(EngineTest ${GOOGLETEST_LIBS})
+target_link_libraries(EngineTest PRIVATE Engine)
+
+include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_link_thirdparty_lib.cmake")
+
+link_thirdparty_lib(EngineTest ${GOOGLETEST_LIB_NAME})
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set_property(TARGET EngineTest 
     	APPEND PROPERTY 
-    	LINK_FLAGS /DEBUG:FULL
-    )
+    	LINK_FLAGS /DEBUG:FULL)
 endif()
 
 #add_custom_command(TARGET EngineTest

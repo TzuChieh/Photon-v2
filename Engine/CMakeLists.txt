@@ -31,23 +31,20 @@ set_property(TARGET EngineObjLib PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 ]]
 
+target_include_directories(Engine 
+	PUBLIC  ${ENGINE_INCLUDE_DIR}
+	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR})
+
 include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_link_thirdparty_lib.cmake")
 
 link_thirdparty_lib(Engine ${STB_LIB_NAME})
 link_thirdparty_lib(Engine ${ZLIB_LIB_NAME})
-
-
-target_include_directories(Engine 
-	PUBLIC  ${ENGINE_INCLUDE_DIR}
-	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR}
-	PRIVATE ${OPENEXR_INCLUDE_DIR})
-
-target_link_libraries(Engine PRIVATE ${OPENEXR_LIBS})
+link_thirdparty_lib(Engine ${ILMBASE_LIB_NAME})
+link_thirdparty_lib(Engine ${OPENEXR_LIB_NAME})
 
 if(WIN32)
 
-	target_include_directories(Engine PRIVATE ${STACKWALKER_INCLUDE_DIR})
-	target_link_libraries(Engine PRIVATE ${STACKWALKER_LIB})
+	link_thirdparty_lib(Engine ${STACKWALKER_LIB_NAME})
 
 # other platforms do not link to threading and filesystem libraries by default
 else()
