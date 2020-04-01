@@ -16,7 +16,7 @@ file(GLOB_RECURSE ENGINE_SOURCE_FILES "./Source/*.cpp")
 # explicitly mark them as engine headers
 set_source_files_properties(${ENGINE_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
 
-add_library(Engine STATIC ${ENGINE_HEADER_FILES} ${ENGINE_SOURCE_FILES})
+add_library(Engine ${ENGINE_HEADER_FILES} ${ENGINE_SOURCE_FILES})
 
 # obj-lib seems to have pdb files, but libraries generated from it
 # do not. this can cause numerous warnings in googletest

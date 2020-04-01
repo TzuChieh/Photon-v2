@@ -11,6 +11,7 @@ function(load_thirdparty_lib libName)
     set(options 
         OPTIONAL)
     set(oneValueArgs 
+        PACKAGE_PATH
         CONFIG_PATH)
     set(multiValueArgs 
         CONFIG_TARGETS
@@ -18,24 +19,6 @@ function(load_thirdparty_lib libName)
         MANUAL_LIB_DIRS 
         MANUAL_LIB_NAMES)
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-
-    set(MANUAL_${libName}_INC_DIRS  "" CACHE PATH 
-        "${libName} library's include directories.")
-    set(MANUAL_${libName}_LIB_DIRS  "" CACHE PATH 
-        "${libName} library's library directories.")
-    set(MANUAL_${libName}_LIB_NAMES "" CACHE PATH 
-        "${libName} library's library names.")
-
-    # Possibly override input arguments
-    if(MANUAL_${libName}_INC_DIRS)
-        set(ARG_MANUAL_INC_DIRS ${MANUAL_${libName}_INC_DIRS})
-    endif()
-    if(MANUAL_${libName}_INC_DIRS)
-        set(ARG_MANUAL_LIB_DIRS ${MANUAL_${libName}_LIB_DIRS})
-    endif()
-    if(MANUAL_${libName}_LIB_NAMES)
-        set(ARG_MANUAL_LIB_NAMES ${MANUAL_${libName}_LIB_NAMES})
-    endif()
 
     # TODO: possible vars ignore case?
     # TODO: add module mode
@@ -69,7 +52,7 @@ function(load_thirdparty_lib libName)
     endforeach()
 
     # First check if existing library variables are properly defined
-    if(${libName}_INCLUDE_DIRS AND ${libName}_LIBRARIES)
+    if(NOT ${libName}_LOADED AND ${libName}_INCLUDE_DIRS AND ${libName}_LIBRARIES)
         message(VERBOSE 
             "Found existing ${libName} library variables.")
 
@@ -78,14 +61,41 @@ function(load_thirdparty_lib libName)
 
         set(${libName}_LOAD_MODE "VARS")
         set(${libName}_LOADED     TRUE)
-    else()
-        if(ARG_CONFIG_PATH)
-            find_package(${libName} CONFIG QUIET
-                PATHS "${ARG_CONFIG_PATH}/"
-                NO_DEFAULT_PATH)
-        endif()
+    endif()
 
-        # Try to find library targets imported by find_package()
+    # Try to find library targets by package config files
+    if(NOT ${libName}_LOADED AND ARG_PACKAGE_PATH)
+        # TODO: possible to pass a list of directories
+        set(CMAKE_PREFIX_PATH "${ARG_PACKAGE_PATH}")
+
+        find_package(PkgConfig REQUIRED)
+        if(PkgConfig_FOUND)
+            # Look for .pc file and creates an imported target named PkgConfig::${libName}_PKG
+            # (IMPORTED_TARGET requires CMake >= 3.6.3)
+            pkg_search_module(${libName}_PKG REQUIRED IMPORTED_TARGET ${libName})
+
+            if(${libName}_PKG_FOUND)
+                set(PKG_${libName}_TARGETS ${${libName}_PKG} PARENT_SCOPE)
+
+                set(${libName}_LOAD_MODE "PKG")
+                set(${libName}_LOADED     TRUE)
+            else()
+                message(VERBOSE 
+                    "Package config file for ${libName} not found.")
+            endif()
+        else()
+            message(VERBOSE 
+                "PkgConfig not found, cannot load ${libName} via package mode.")
+        endif()
+    endif()
+
+    # Try to find library targets by project config files
+    if(NOT ${libName}_LOADED AND ARG_CONFIG_PATH)
+        # Try to find library targets with find_package() config mode
+        find_package(${libName} CONFIG QUIET
+            PATHS "${ARG_CONFIG_PATH}/"
+            NO_DEFAULT_PATH)
+
         if(${libName}_FOUND)
             message(VERBOSE 
                 "Found ${libName} in config mode.")
@@ -98,44 +108,68 @@ function(load_thirdparty_lib libName)
 
             set(${libName}_LOAD_MODE "CONFIG")
             set(${libName}_LOADED    TRUE)
-        # Resort to manual specification if all means failed
         else()
             message(VERBOSE 
-                "Entering manual ${libName} library specification mode.")
-            
-            set(LIBS_LIST)
-            set(ALL_LIBS_FOUND TRUE)
-            foreach(LIB_NAME ${ARG_MANUAL_LIB_NAMES})
-                string(REPLACE " " "_OR_" LIB_NAME_WITHOUT_SPACES "${LIB_NAME}")
-                string(REPLACE " " ";"    LIB_NAME_SEMICOLON_LIST "${LIB_NAME}")
-
-                find_library(${libName}_LIB_${LIB_NAME_WITHOUT_SPACES}
-                    NAMES ${LIB_NAME_SEMICOLON_LIST}
-                    PATHS ${ARG_MANUAL_LIB_DIRS}
-                    NO_DEFAULT_PATH)
-
-                if(${libName}_LIB_${LIB_NAME_WITHOUT_SPACES})
-                    list(APPEND LIBS_LIST ${${libName}_LIB_${LIB_NAME_WITHOUT_SPACES}})
-                else()
-                    set(ALL_LIBS_FOUND FALSE)
-                    if(NOT ARG_OPTIONAL)
-                        message(WARNING 
-                            "Library ${LIB_NAME_SEMICOLON_LIST} not found, please specify its location via ${libName}_LIB_${LIB_NAME_WITHOUT_SPACES}.")
-                    endif()
-                endif()
-            endforeach()
-
-            set(MANUAL_${libName}_INCLUDES  ${ARG_MANUAL_INC_DIRS} PARENT_SCOPE)
-            set(MANUAL_${libName}_LIBRARIES ${LIBS_LIST}           PARENT_SCOPE)
-
-            set(${libName}_LOAD_MODE "MANUAL")
-            # TODO: check include dir exists
-            if(ALL_LIBS_FOUND AND ARG_MANUAL_INC_DIRS)
-                set(${libName}_LOADED TRUE)
-            endif()
+                "Config file of ${libName} not found.")
         endif()
     endif()
 
+    # Resort to manual specification if all means failed
+    if(NOT ${libName}_LOADED)
+        message(VERBOSE 
+            "Entering manual ${libName} library specification mode.")
+            
+        set(MANUAL_${libName}_INC_DIRS  "" CACHE PATH 
+            "${libName} library's include directories.")
+        set(MANUAL_${libName}_LIB_DIRS  "" CACHE PATH 
+            "${libName} library's library directories.")
+        set(MANUAL_${libName}_LIB_NAMES "" CACHE PATH 
+            "${libName} library's library names.")
+
+        # Possibly override input arguments
+        if(MANUAL_${libName}_INC_DIRS)
+            set(ARG_MANUAL_INC_DIRS ${MANUAL_${libName}_INC_DIRS})
+        endif()
+        if(MANUAL_${libName}_INC_DIRS)
+            set(ARG_MANUAL_LIB_DIRS ${MANUAL_${libName}_LIB_DIRS})
+        endif()
+        if(MANUAL_${libName}_LIB_NAMES)
+            set(ARG_MANUAL_LIB_NAMES ${MANUAL_${libName}_LIB_NAMES})
+        endif()
+
+        set(LIBS_LIST)
+        set(ALL_LIBS_FOUND TRUE)
+        foreach(LIB_NAME ${ARG_MANUAL_LIB_NAMES})
+            string(REPLACE " " "_OR_" LIB_NAME_WITHOUT_SPACES "${LIB_NAME}")
+            string(REPLACE " " ";"    LIB_NAME_SEMICOLON_LIST "${LIB_NAME}")
+
+            find_library(${libName}_LIB_${LIB_NAME_WITHOUT_SPACES}
+                NAMES ${LIB_NAME_SEMICOLON_LIST}
+                PATHS ${ARG_MANUAL_LIB_DIRS}
+                NO_DEFAULT_PATH)
+
+            if(${libName}_LIB_${LIB_NAME_WITHOUT_SPACES})
+                list(APPEND LIBS_LIST ${${libName}_LIB_${LIB_NAME_WITHOUT_SPACES}})
+            else()
+                set(ALL_LIBS_FOUND FALSE)
+                if(NOT ARG_OPTIONAL)
+                    message(WARNING 
+                        "Library ${LIB_NAME_SEMICOLON_LIST} not found, please specify its location via ${libName}_LIB_${LIB_NAME_WITHOUT_SPACES}.")
+                endif()
+            endif()
+        endforeach()
+
+        set(MANUAL_${libName}_INCLUDES  ${ARG_MANUAL_INC_DIRS} PARENT_SCOPE)
+        set(MANUAL_${libName}_LIBRARIES ${LIBS_LIST}           PARENT_SCOPE)
+
+        set(${libName}_LOAD_MODE "MANUAL")
+        # TODO: check include dir exists
+        if(ALL_LIBS_FOUND AND ARG_MANUAL_INC_DIRS)
+            set(${libName}_LOADED TRUE)
+        endif()
+    endif()
+
+    # Finally, expose information about how the library is loaded
     if(${libName}_LOADED)
         message(STATUS
             "Library ${libName} loaded.")

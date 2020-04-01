@@ -25,6 +25,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/bin/")
 # Build Options                                                               #
 ###############################################################################
 
+option(BUILD_SHARED_LIBS  "Build as shared libraries if applicable." OFF)
+
 set(BUILD_PHOTON_CLI_DEFAULT ON)
 
 if(WIN32)
@@ -66,8 +68,8 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # use multithreaded compilation
     set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /MP")
 
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-    set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+    # set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+    # set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
 # using GCC
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
