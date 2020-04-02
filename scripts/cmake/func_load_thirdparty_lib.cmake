@@ -51,9 +51,11 @@ function(load_thirdparty_lib libName)
         endif()
     endforeach()
 
+    #--------------------------------------------------------------------------
     # First check if existing library variables are properly defined
+    #--------------------------------------------------------------------------
     if(NOT ${libName}_LOADED AND ${libName}_INCLUDE_DIRS AND ${libName}_LIBRARIES)
-        message(VERBOSE 
+        message(STATUS 
             "Found existing ${libName} library variables.")
 
         set(VARS_${libName}_INCLUDE_DIRS "${${libName}_INCLUDE_DIRS}" PARENT_SCOPE)
@@ -63,19 +65,26 @@ function(load_thirdparty_lib libName)
         set(${libName}_LOADED     TRUE)
     endif()
 
+    #--------------------------------------------------------------------------
     # Try to find library targets by package config files
+    #--------------------------------------------------------------------------
     if(NOT ${libName}_LOADED AND ARG_PACKAGE_PATH)
         # TODO: possible to pass a list of directories
         set(CMAKE_PREFIX_PATH "${ARG_PACKAGE_PATH}")
-
-        find_package(PkgConfig REQUIRED)
+        set(ENV{PKG_CONFIG_PATH}  "${ARG_PACKAGE_PATH}")
+        message(STATUS 
+        "${CMAKE_PREFIX_PATH}")
+        find_package(PkgConfig QUIET)
         if(PkgConfig_FOUND)
             # Look for .pc file and creates an imported target named PkgConfig::${libName}_PKG
             # (IMPORTED_TARGET requires CMake >= 3.6.3)
-            pkg_search_module(${libName}_PKG REQUIRED IMPORTED_TARGET ${libName})
+            pkg_search_module(${libName}_PKG REQUIRED IMPORTED_TARGET gmock)
 
             if(${libName}_PKG_FOUND)
-                set(PKG_${libName}_TARGETS ${${libName}_PKG} PARENT_SCOPE)
+                message(STATUS 
+                    "Found ${libName} in package mode.")
+
+                set(PKG_${libName}_TARGETS "PkgConfig::${libName}_PKG" PARENT_SCOPE)
 
                 set(${libName}_LOAD_MODE "PKG")
                 set(${libName}_LOADED     TRUE)
@@ -89,7 +98,9 @@ function(load_thirdparty_lib libName)
         endif()
     endif()
 
+    #--------------------------------------------------------------------------
     # Try to find library targets by project config files
+    #--------------------------------------------------------------------------
     if(NOT ${libName}_LOADED AND ARG_CONFIG_PATH)
         # Try to find library targets with find_package() config mode
         find_package(${libName} CONFIG QUIET
@@ -97,7 +108,7 @@ function(load_thirdparty_lib libName)
             NO_DEFAULT_PATH)
 
         if(${libName}_FOUND)
-            message(VERBOSE 
+            message(STATUS 
                 "Found ${libName} in config mode.")
 
             set(TARGETS_LIST)
@@ -114,9 +125,11 @@ function(load_thirdparty_lib libName)
         endif()
     endif()
 
+    #--------------------------------------------------------------------------
     # Resort to manual specification if all means failed
+    #--------------------------------------------------------------------------
     if(NOT ${libName}_LOADED)
-        message(VERBOSE 
+        message(STATUS 
             "Entering manual ${libName} library specification mode.")
             
         set(MANUAL_${libName}_INC_DIRS  "" CACHE PATH 
@@ -169,7 +182,9 @@ function(load_thirdparty_lib libName)
         endif()
     endif()
 
+    #--------------------------------------------------------------------------
     # Finally, expose information about how the library is loaded
+    #--------------------------------------------------------------------------
     if(${libName}_LOADED)
         message(STATUS
             "Library ${libName} loaded.")
