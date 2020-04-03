@@ -23,8 +23,14 @@ function(link_thirdparty_lib targetName libName)
     elseif(${${libName}_LOAD_MODE} STREQUAL "MANUAL")
         target_include_directories(${targetName} PRIVATE ${MANUAL_${libName}_INCLUDES})
         target_link_libraries(${targetName} PRIVATE ${MANUAL_${libName}_LIBRARIES})
-    else()
-        message(FATAL_ERROR 
+    elseif(NOT ARG_OPTIONAL)
+        message(FATAL_ERROR
             "Cannot link ${targetName} against ${libName}, unknown load mode <${${libName}_LOAD_MODE}> detected.")
+    endif()
+
+    if(SHARED_THIRDPARTY_LIBS AND ${libName}_RUNTIME_DIR)
+        file(COPY
+            "${${libName}_RUNTIME_DIR}/"
+            DESTINATION ${BUILD_OUTPUT_DIR})
     endif()
 endfunction()

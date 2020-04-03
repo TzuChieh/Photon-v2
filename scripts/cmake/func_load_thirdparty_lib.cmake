@@ -8,17 +8,42 @@ function(load_thirdparty_lib libName)
 
     set(${libName}_LOADED FALSE)
 
-    set(options 
+    set(options
         OPTIONAL)
-    set(oneValueArgs 
-        PACKAGE_PATH
-        CONFIG_PATH)
-    set(multiValueArgs 
+    set(oneValueArgs
+        RUNTIME_DIR
+        PACKAGE_DIR
+        PACKAGE_RUNTIME_DIR
+        CONFIG_DIR
+        CONFIG_RUNTIME_DIR
+        MANUAL_RUNTIME_DIR)
+    set(multiValueArgs
+        TARGETS
+        PACKAGE_TARGETS
         CONFIG_TARGETS
-        MANUAL_INC_DIRS 
-        MANUAL_LIB_DIRS 
+        MANUAL_INC_DIRS
+        MANUAL_LIB_DIRS
         MANUAL_LIB_NAMES)
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    # TODO: option to avoid using wrong runtime dir (e.g., NO_DEFAULT_PACKAGE_RUNTIME_DIR)
+
+    # Possibly default to a more general argument
+    if(NOT ARG_PACKAGE_TARGETS)
+        set(ARG_PACKAGE_TARGETS ${ARG_TARGETS})
+    endif()
+    if(NOT ARG_CONFIG_TARGETS)
+        set(ARG_CONFIG_TARGETS ${ARG_TARGETS})
+    endif()
+    if(NOT ARG_PACKAGE_RUNTIME_DIR)
+        set(ARG_PACKAGE_RUNTIME_DIR ${ARG_RUNTIME_DIR})
+    endif()
+    if(NOT ARG_CONFIG_RUNTIME_DIR)
+        set(ARG_CONFIG_RUNTIME_DIR ${ARG_RUNTIME_DIR})
+    endif()
+    if(NOT ARG_MANUAL_RUNTIME_DIR)
+        set(ARG_MANUAL_RUNTIME_DIR ${ARG_RUNTIME_DIR})
+    endif()
 
     # TODO: possible vars ignore case?
     # TODO: add module mode
@@ -68,29 +93,52 @@ function(load_thirdparty_lib libName)
     #--------------------------------------------------------------------------
     # Try to find library targets by package config files
     #--------------------------------------------------------------------------
-    if(NOT ${libName}_LOADED AND ARG_PACKAGE_PATH)
+    if(NOT ${libName}_LOADED AND ARG_PACKAGE_DIR)
         # TODO: possible to pass a list of directories
-        set(CMAKE_PREFIX_PATH "${ARG_PACKAGE_PATH}")
-        set(ENV{PKG_CONFIG_PATH}  "${ARG_PACKAGE_PATH}")
-        message(STATUS 
-        "${CMAKE_PREFIX_PATH}")
+
+        # Tell pkg-config to find package config files from specific directories
+        set(CMAKE_PREFIX_PATH    "${ARG_PACKAGE_DIR}")
+        set(ENV{PKG_CONFIG_PATH} "${ARG_PACKAGE_DIR}")
+
         find_package(PkgConfig QUIET)
         if(PkgConfig_FOUND)
-            # Look for .pc file and creates an imported target named PkgConfig::${libName}_PKG
-            # (IMPORTED_TARGET requires CMake >= 3.6.3)
-            pkg_search_module(${libName}_PKG REQUIRED IMPORTED_TARGET gmock)
+            set(PKG_${libName}_TARGETS)
+            set(ALL_TARGETS_FOUND TRUE)
+            foreach(TARGET_NAME ${ARG_PACKAGE_TARGETS})
+                # Look for .pc file and creates an imported target 
+                # named PkgConfig::${TARGET_NAME}_PKG (IMPORTED_TARGET requires CMake >= 3.6.3)
+                pkg_search_module(${TARGET_NAME}_PKG QUIET IMPORTED_TARGET ${TARGET_NAME})
 
-            if(${libName}_PKG_FOUND)
-                message(STATUS 
-                    "Found ${libName} in package mode.")
+                if(${TARGET_NAME}_PKG_FOUND)
+                    message(STATUS 
+                        "Found package ${TARGET_NAME} for ${libName} in package mode.")
 
-                set(PKG_${libName}_TARGETS "PkgConfig::${libName}_PKG" PARENT_SCOPE)
+                    list(APPEND PKG_${libName}_TARGETS "PkgConfig::${TARGET_NAME}_PKG")
 
-                set(${libName}_LOAD_MODE "PKG")
-                set(${libName}_LOADED     TRUE)
+                    # Promote the pkg config target to global space in order to name an alias for it
+                    set_target_properties("PkgConfig::${TARGET_NAME}_PKG" 
+                        PROPERTIES IMPORTED_GLOBAL TRUE)
+
+                    # Some other libraries may depend on conventionally-named target
+                    add_library("${libName}::${TARGET_NAME}" ALIAS "PkgConfig::${TARGET_NAME}_PKG")
+                else()
+                    message(VERBOSE 
+                        "Package config file for ${libName} not found.")
+                    set(ALL_TARGETS_FOUND FALSE)
+                endif()
+            endforeach()
+
+            # TODO: consider using "sharedlibdir" entry for runtime dir
+
+            if(ALL_TARGETS_FOUND)
+                set(PKG_${libName}_TARGETS ${PKG_${libName}_TARGETS} PARENT_SCOPE)
+                
+                set(${libName}_LOAD_MODE  "PKG")
+                set(${libName}_LOADED      TRUE)
+                set(${libName}_RUNTIME_DIR ${ARG_PACKAGE_RUNTIME_DIR})
             else()
                 message(VERBOSE 
-                    "Package config file for ${libName} not found.")
+                    "Not all targets for library ${libName} are found in package mode.")
             endif()
         else()
             message(VERBOSE 
@@ -101,10 +149,10 @@ function(load_thirdparty_lib libName)
     #--------------------------------------------------------------------------
     # Try to find library targets by project config files
     #--------------------------------------------------------------------------
-    if(NOT ${libName}_LOADED AND ARG_CONFIG_PATH)
+    if(NOT ${libName}_LOADED AND ARG_CONFIG_DIR)
         # Try to find library targets with find_package() config mode
         find_package(${libName} CONFIG QUIET
-            PATHS "${ARG_CONFIG_PATH}/"
+            PATHS "${ARG_CONFIG_DIR}/"
             NO_DEFAULT_PATH)
 
         if(${libName}_FOUND)
@@ -116,9 +164,12 @@ function(load_thirdparty_lib libName)
                 list(APPEND TARGETS_LIST "${libName}::${TARGET_NAME}")
             endforeach()
             set(CONFIG_${libName}_TARGETS ${TARGETS_LIST} PARENT_SCOPE)
+            
+            # TODO: check target exists
 
-            set(${libName}_LOAD_MODE "CONFIG")
-            set(${libName}_LOADED    TRUE)
+            set(${libName}_LOAD_MODE   "CONFIG")
+            set(${libName}_LOADED      TRUE)
+            set(${libName}_RUNTIME_DIR ${ARG_CONFIG_RUNTIME_DIR})
         else()
             message(VERBOSE 
                 "Config file of ${libName} not found.")
@@ -132,22 +183,27 @@ function(load_thirdparty_lib libName)
         message(STATUS 
             "Entering manual ${libName} library specification mode.")
             
-        set(MANUAL_${libName}_INC_DIRS  "" CACHE PATH 
+        set(MANUAL_${libName}_INC_DIRS    "" CACHE PATH 
             "${libName} library's include directories.")
-        set(MANUAL_${libName}_LIB_DIRS  "" CACHE PATH 
+        set(MANUAL_${libName}_LIB_DIRS    "" CACHE PATH 
             "${libName} library's library directories.")
-        set(MANUAL_${libName}_LIB_NAMES "" CACHE PATH 
+        set(MANUAL_${libName}_LIB_NAMES   "" CACHE PATH 
             "${libName} library's library names.")
+        set(MANUAL_${libName}_RUNTIME_DIR "" CACHE PATH 
+            "${libName} library's runtime directory.")
 
         # Possibly override input arguments
         if(MANUAL_${libName}_INC_DIRS)
-            set(ARG_MANUAL_INC_DIRS ${MANUAL_${libName}_INC_DIRS})
+            set(ARG_MANUAL_INC_DIRS    ${MANUAL_${libName}_INC_DIRS})
         endif()
         if(MANUAL_${libName}_INC_DIRS)
-            set(ARG_MANUAL_LIB_DIRS ${MANUAL_${libName}_LIB_DIRS})
+            set(ARG_MANUAL_LIB_DIRS    ${MANUAL_${libName}_LIB_DIRS})
         endif()
         if(MANUAL_${libName}_LIB_NAMES)
-            set(ARG_MANUAL_LIB_NAMES ${MANUAL_${libName}_LIB_NAMES})
+            set(ARG_MANUAL_LIB_NAMES   ${MANUAL_${libName}_LIB_NAMES})
+        endif()
+        if(MANUAL_${libName}_RUNTIME_DIR)
+            set(ARG_MANUAL_RUNTIME_DIR ${MANUAL_${libName}_RUNTIME_DIR})
         endif()
 
         set(LIBS_LIST)
@@ -171,14 +227,15 @@ function(load_thirdparty_lib libName)
                 endif()
             endif()
         endforeach()
-
-        set(MANUAL_${libName}_INCLUDES  ${ARG_MANUAL_INC_DIRS} PARENT_SCOPE)
-        set(MANUAL_${libName}_LIBRARIES ${LIBS_LIST}           PARENT_SCOPE)
-
-        set(${libName}_LOAD_MODE "MANUAL")
+        
         # TODO: check include dir exists
         if(ALL_LIBS_FOUND AND ARG_MANUAL_INC_DIRS)
-            set(${libName}_LOADED TRUE)
+            set(MANUAL_${libName}_INCLUDES  ${ARG_MANUAL_INC_DIRS} PARENT_SCOPE)
+            set(MANUAL_${libName}_LIBRARIES ${LIBS_LIST}           PARENT_SCOPE)
+
+            set(${libName}_LOAD_MODE  "MANUAL")
+            set(${libName}_LOADED      TRUE)
+            set(${libName}_RUNTIME_DIR ${ARG_MANUAL_RUNTIME_DIR})
         endif()
     endif()
 
@@ -188,8 +245,10 @@ function(load_thirdparty_lib libName)
     if(${libName}_LOADED)
         message(STATUS
             "Library ${libName} loaded.")
-        set(${libName}_LOAD_MODE ${${libName}_LOAD_MODE} PARENT_SCOPE)
-        set(${libName}_LOADED    ${${libName}_LOADED}    PARENT_SCOPE)
+
+        set(${libName}_LOAD_MODE   ${${libName}_LOAD_MODE}   PARENT_SCOPE)
+        set(${libName}_LOADED      ${${libName}_LOADED}      PARENT_SCOPE)
+        set(${libName}_RUNTIME_DIR ${${libName}_RUNTIME_DIR} PARENT_SCOPE)
     elseif(NOT ARG_OPTIONAL)
         message(FATAL_ERROR
             "Unable to load library ${libName}.")

@@ -27,7 +27,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${BUILD_OUTPUT_DIR}")
 # FIXME: cmake doesn't respect CMAKE_PREFIX_PATH for now, seems like a cmake bug
 # see https://gitlab.kitware.com/cmake/cmake/issues/18150
 # Allow pkg-config take hints from CMAKE_PREFIX_PATH
-# set(PKG_CONFIG_USE_CMAKE_PREFIX_PATH ON)
+set(PKG_CONFIG_USE_CMAKE_PREFIX_PATH ON)
 
 # Windows does not come with pkg-config pre-installed, manually locate a prebuilt one
 if(WIN32)
@@ -49,7 +49,12 @@ endif()
 # Build Options                                                               #
 ###############################################################################
 
-option(BUILD_SHARED_LIBS  "Build as shared libraries if applicable." OFF)
+option(BUILD_SHARED_LIBS
+    "Build as shared libraries (if applicable)."
+    OFF)
+option(SHARED_THIRDPARTY_LIBS
+    "Are third-party libraries built as shared libraries (if applicable)."
+    ON)
 
 set(BUILD_PHOTON_CLI_DEFAULT ON)
 
@@ -126,16 +131,18 @@ include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_load_thirdparty_lib.cmake")
 if(BUILD_ENGINE_TEST)
     set(GOOGLETEST_LIB_NAME "googletest")
 
-    load_thirdparty_lib(${GOOGLETEST_LIB_NAME}
-        PACKAGE_PATH     "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/lib/pkgconfig/"
+    load_thirdparty_lib(${GOOGLETEST_LIB_NAME} OPTIONAL
+        TARGETS          "gmock"
+        RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/bin/"
+        PACKAGE_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/lib/pkgconfig/"
         MANUAL_INC_DIRS  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/include/"
         MANUAL_LIB_DIRS  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/lib/"
-        MANUAL_LIB_NAMES "gtest" "gmock")
+        MANUAL_LIB_NAMES "gmock")
 
-    # load_thirdparty_lib(${GOOGLETEST_LIB_NAME}
-    #     MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${GOOGLETEST_LIB_NAME}/include/"
-    #     MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${GOOGLETEST_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
-    #     MANUAL_LIB_NAMES "gtest" "gmock")
+    load_thirdparty_lib(${GOOGLETEST_LIB_NAME}
+        MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${GOOGLETEST_LIB_NAME}/include/"
+        MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${GOOGLETEST_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
+        MANUAL_LIB_NAMES "gtest" "gmock")
 endif()
 
 #------------------------------------------------------------------------------
@@ -143,8 +150,8 @@ endif()
 #------------------------------------------------------------------------------
 set(STB_LIB_NAME "stb")
 load_thirdparty_lib(${STB_LIB_NAME}
-    CONFIG_PATH     "${THIRD_PARTY_LIBS_INSTALL_DIR}/${STB_LIB_NAME}/share/"
-    CONFIG_TARGETS  "stb"
+    TARGETS         "stb"
+    CONFIG_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${STB_LIB_NAME}/share/"
     MANUAL_INC_DIRS "${THIRDPARTY_PREBUILT_DIR}/${STB_LIB_NAME}/include/")
 
 #------------------------------------------------------------------------------
@@ -152,8 +159,8 @@ load_thirdparty_lib(${STB_LIB_NAME}
 #------------------------------------------------------------------------------
 set(ASIO_LIB_NAME "Asio")
 load_thirdparty_lib(${ASIO_LIB_NAME}
-    CONFIG_PATH     "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ASIO_LIB_NAME}/share/"
-    CONFIG_TARGETS  "Asio"
+    TARGETS         "Asio"
+    CONFIG_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ASIO_LIB_NAME}/share/"
     MANUAL_INC_DIRS "${THIRDPARTY_PREBUILT_DIR}/${ASIO_LIB_NAME}/include/")
 
 #------------------------------------------------------------------------------
@@ -178,12 +185,49 @@ endif()
 # zlib
 #------------------------------------------------------------------------------
 set(ZLIB_LIB_NAME "zlib")
-load_thirdparty_lib(${ZLIB_LIB_NAME}
-    CONFIG_PATH      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/"
-    CONFIG_TARGETS   "zlibstatic"
-    MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/include/"
-    MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
-    MANUAL_LIB_NAMES "zlibstatic z")
+if(SHARED_THIRDPARTY_LIBS)
+    # zlib's .pc file is not suitable for use on Windows. See comments in 
+    # zlib.pc.cmakein for more detail.
+    if(WIN32)
+        load_thirdparty_lib(${ZLIB_LIB_NAME}
+            TARGETS          "zlib"
+            RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/"
+            CONFIG_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/"
+            MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/include/"
+            MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
+            MANUAL_LIB_NAMES "zlib z")
+    else()
+        load_thirdparty_lib(${ZLIB_LIB_NAME}
+            TARGETS          "zlib"
+            RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/"
+            PACKAGE_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/pkgconfig/"
+            CONFIG_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/"
+            MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/include/"
+            MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
+            MANUAL_LIB_NAMES "zlib z")
+    endif()
+else()
+    # zlib's .pc file is not suitable for use on Windows. See comments in 
+    # zlib.pc.cmakein for more detail.
+    if(WIN32)
+        load_thirdparty_lib(${ZLIB_LIB_NAME}
+            TARGETS          "zlibstatic"
+            RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/"
+            CONFIG_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/"
+            MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/include/"
+            MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
+            MANUAL_LIB_NAMES "zlibstatic z")
+    else()
+        load_thirdparty_lib(${ZLIB_LIB_NAME}
+            TARGETS          "zlibstatic"
+            RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/"
+            PACKAGE_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/pkgconfig/"
+            CONFIG_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/"
+            MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/include/"
+            MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
+            MANUAL_LIB_NAMES "zlibstatic z")
+    endif()
+endif()
 
 #------------------------------------------------------------------------------
 # OpenEXR
@@ -202,16 +246,17 @@ set(ILMBASE_LIB_NAME "IlmBase")
 set(OPENEXR_LIB_NAME "OpenEXR")
 
 load_thirdparty_lib(${ILMBASE_LIB_NAME}
-    CONFIG_PATH      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${ILMBASE_LIB_NAME}/"
-    CONFIG_TARGETS   "Half" "Iex" "IexMath" "IlmThread" "Imath"
+    TARGETS          "Half" "Iex" "IexMath" "IlmThread" "Imath"
+    RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/"
+    CONFIG_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${ILMBASE_LIB_NAME}/"
     MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/OpenEXR/include/"
     MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/OpenEXR/lib/${THIRD_PARTY_PLATFORM}/"
     MANUAL_LIB_NAMES "Half-2_3_s" "Iex-2_3_s" "IexMath-2_3_s" "IlmThread-2_3_s" "Imath-2_3_s")
 
-set(OPENEXR_LIB_NAME "OpenEXR")
 load_thirdparty_lib(${OPENEXR_LIB_NAME}
-    CONFIG_PATH      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${OPENEXR_LIB_NAME}/"
-    CONFIG_TARGETS   "IlmImf" "IlmImfUtil"
+    TARGETS          "IlmImf" "IlmImfUtil"
+    RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/"
+    CONFIG_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${OPENEXR_LIB_NAME}/"
     MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/OpenEXR/include/"
     MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/OpenEXR/lib/${THIRD_PARTY_PLATFORM}/"
     MANUAL_LIB_NAMES "IlmImf-2_3_s" "IlmImfUtil-2_3_s")
