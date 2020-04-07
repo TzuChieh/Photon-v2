@@ -1,5 +1,9 @@
 # TODO: make config path a multivalueArg
+# TODO: no default path flags
 function(load_thirdparty_lib libName)
+
+    cmake_policy(SET CMP0074 NEW)
+
     if(${libName}_LOADED)
         message(VERBOSE 
             "Library ${libName} already loaded, skipping...")
@@ -9,31 +13,45 @@ function(load_thirdparty_lib libName)
     set(${libName}_LOADED FALSE)
 
     set(options
-        OPTIONAL)
+        OPTIONAL
+        NO_PACKAGE_MODE_ON_WINDOWS)
+
     set(oneValueArgs
         RUNTIME_DIR
+        MODULE_NAME
+        MODULE_DIR
+        MODULE_RUNTIME_DIR
         PACKAGE_DIR
         PACKAGE_RUNTIME_DIR
         CONFIG_DIR
         CONFIG_RUNTIME_DIR
         MANUAL_RUNTIME_DIR)
+
     set(multiValueArgs
         TARGETS
+        MODULE_TARGETS
         PACKAGE_TARGETS
         CONFIG_TARGETS
         MANUAL_INC_DIRS
         MANUAL_LIB_DIRS
         MANUAL_LIB_NAMES)
+    
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     # TODO: option to avoid using wrong runtime dir (e.g., NO_DEFAULT_PACKAGE_RUNTIME_DIR)
 
     # Possibly default to a more general argument
+    if(NOT ARG_MODULE_TARGETS)
+        set(ARG_MODULE_TARGETS ${ARG_TARGETS})
+    endif()
     if(NOT ARG_PACKAGE_TARGETS)
         set(ARG_PACKAGE_TARGETS ${ARG_TARGETS})
     endif()
     if(NOT ARG_CONFIG_TARGETS)
         set(ARG_CONFIG_TARGETS ${ARG_TARGETS})
+    endif()
+    if(NOT ARG_MODULE_RUNTIME_DIR)
+        set(ARG_MODULE_RUNTIME_DIR ${ARG_RUNTIME_DIR})
     endif()
     if(NOT ARG_PACKAGE_RUNTIME_DIR)
         set(ARG_PACKAGE_RUNTIME_DIR ${ARG_RUNTIME_DIR})
@@ -91,17 +109,45 @@ function(load_thirdparty_lib libName)
     endif()
 
     #--------------------------------------------------------------------------
+    # Try to find library targets with find modules
+    #--------------------------------------------------------------------------
+    if(NOT ${libName}_LOADED AND ARG_MODULE_NAME)
+        if(ARG_MODULE_DIR)
+            set(${ARG_MODULE_NAME}_ROOT "${ARG_MODULE_DIR}")
+        endif()
+
+        # Try to find library targets with find_package() module mode 
+        find_package(${ARG_MODULE_NAME} MODULE QUIET)
+
+        unset(${ARG_MODULE_NAME}_ROOT)
+
+        if(${ARG_MODULE_NAME}_FOUND)
+            message(STATUS 
+                "Found ${libName} in module mode with find module ${ARG_MODULE_NAME}.")
+            
+            set(MODULE_${libName}_TARGETS ${ARG_MODULE_TARGETS} PARENT_SCOPE)
+
+            set(${libName}_LOAD_MODE  "MODULE")
+            set(${libName}_LOADED      TRUE)
+            set(${libName}_RUNTIME_DIR ${ARG_MODULE_RUNTIME_DIR})
+        else()
+            message(VERBOSE 
+                "Find module ${ARG_MODULE_NAME} not found, cannot load ${libName} via module mode.")
+        endif()
+    endif()
+
+    #--------------------------------------------------------------------------
     # Try to find library targets by package config files
     #--------------------------------------------------------------------------
-    if(NOT ${libName}_LOADED AND ARG_PACKAGE_DIR)
+    if(NOT ${libName}_LOADED AND ARG_PACKAGE_DIR AND NOT (WIN32 AND ARG_NO_PACKAGE_MODE_ON_WINDOWS))
         # TODO: possible to pass a list of directories
-
-        # Tell pkg-config to find package config files from specific directories
-        set(CMAKE_PREFIX_PATH    "${ARG_PACKAGE_DIR}")
-        set(ENV{PKG_CONFIG_PATH} "${ARG_PACKAGE_DIR}")
 
         find_package(PkgConfig QUIET)
         if(PkgConfig_FOUND)
+            # Hint pkg-config to find package config files from additional directories
+            set(CMAKE_PREFIX_PATH    "${ARG_PACKAGE_DIR}")
+            set(ENV{PKG_CONFIG_PATH} "${ARG_PACKAGE_DIR}")
+
             set(PKG_${libName}_TARGETS)
             set(ALL_TARGETS_FOUND TRUE)
             foreach(TARGET_NAME ${ARG_PACKAGE_TARGETS})
@@ -128,6 +174,9 @@ function(load_thirdparty_lib libName)
                 endif()
             endforeach()
 
+            unset(CMAKE_PREFIX_PATH)
+            unset(ENV{PKG_CONFIG_PATH})
+
             # TODO: consider using "sharedlibdir" entry for runtime dir
 
             if(ALL_TARGETS_FOUND)
@@ -150,10 +199,15 @@ function(load_thirdparty_lib libName)
     # Try to find library targets by project config files
     #--------------------------------------------------------------------------
     if(NOT ${libName}_LOADED AND ARG_CONFIG_DIR)
-        # Try to find library targets with find_package() config mode
+        # Try to find library targets with find_package() config mode 
+        # (without default paths)
         find_package(${libName} CONFIG QUIET
             PATHS "${ARG_CONFIG_DIR}/"
             NO_DEFAULT_PATH)
+
+        # Find again with default paths (if previous attempt succeeded, the 
+        # call will be automatically skipped due to ${libName}_FOUND being set)
+        find_package(${libName} CONFIG QUIET)
 
         if(${libName}_FOUND)
             message(STATUS 

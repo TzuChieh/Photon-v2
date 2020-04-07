@@ -4,10 +4,11 @@
 # General Settings                                                            #
 ###############################################################################
 
-cmake_policy(SET CMP0054 NEW)
-
 cmake_minimum_required(VERSION 3.10)
+
 project(Photon-v2)
+
+cmake_policy(SET CMP0054 NEW)
 
 set(BUILD_OUTPUT_DIR        "${PROJECT_BINARY_DIR}/bin/")
 set(THIRDPARTY_PREBUILT_DIR "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty-Prebuilt-master/")
@@ -184,49 +185,38 @@ endif()
 #------------------------------------------------------------------------------
 # zlib
 #------------------------------------------------------------------------------
+
+# Note that zlib's .pc file is not suitable for use on Windows (commenting
+# out the "prefix" entry and replace the "-lz" link flag with "-lzlib" will
+# work, but we disable package mode on Windows nevertheless).
+
 set(ZLIB_LIB_NAME "zlib")
 if(SHARED_THIRDPARTY_LIBS)
-    # zlib's .pc file is not suitable for use on Windows. See comments in 
-    # zlib.pc.cmakein for more detail.
-    if(WIN32)
-        load_thirdparty_lib(${ZLIB_LIB_NAME}
-            TARGETS          "zlib"
-            RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/"
-            CONFIG_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/"
-            MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/include/"
-            MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
-            MANUAL_LIB_NAMES "zlib z")
-    else()
-        load_thirdparty_lib(${ZLIB_LIB_NAME}
-            TARGETS          "zlib"
-            RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/"
-            PACKAGE_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/pkgconfig/"
-            CONFIG_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/"
-            MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/include/"
-            MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
-            MANUAL_LIB_NAMES "zlib z")
-    endif()
+
+    # FIXME: openexr links to ZLIB::ZLIB not zlib::zlib
+
+    load_thirdparty_lib(${ZLIB_LIB_NAME} NO_PACKAGE_MODE_ON_WINDOWS
+        TARGETS          "zlib"
+        RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/"
+        MODULE_NAME      "ZLIB"
+        MODULE_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/"
+        MODULE_TARGETS   "ZLIB::ZLIB"
+        PACKAGE_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/pkgconfig/"
+        MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/include/"
+        MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
+        MANUAL_LIB_NAMES "zlib z")
 else()
-    # zlib's .pc file is not suitable for use on Windows. See comments in 
-    # zlib.pc.cmakein for more detail.
-    if(WIN32)
-        load_thirdparty_lib(${ZLIB_LIB_NAME}
-            TARGETS          "zlibstatic"
-            RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/"
-            CONFIG_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/"
-            MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/include/"
-            MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
-            MANUAL_LIB_NAMES "zlibstatic z")
-    else()
-        load_thirdparty_lib(${ZLIB_LIB_NAME}
-            TARGETS          "zlibstatic"
-            RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/"
-            PACKAGE_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/pkgconfig/"
-            CONFIG_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/"
-            MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/include/"
-            MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
-            MANUAL_LIB_NAMES "zlibstatic z")
-    endif()
+
+    # TODO: can we use find module with static zlib (zlibstatic)?
+    # TODO: how to link this to openexr
+
+    load_thirdparty_lib(${ZLIB_LIB_NAME} NO_PACKAGE_MODE_ON_WINDOWS
+        TARGETS          "zlibstatic"
+        PACKAGE_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/pkgconfig/"
+        CONFIG_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/"
+        MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/include/"
+        MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
+        MANUAL_LIB_NAMES "zlibstatic z")
 endif()
 
 #------------------------------------------------------------------------------
@@ -245,17 +235,21 @@ endif()
 set(ILMBASE_LIB_NAME "IlmBase")
 set(OPENEXR_LIB_NAME "OpenEXR")
 
-load_thirdparty_lib(${ILMBASE_LIB_NAME}
+load_thirdparty_lib(${ILMBASE_LIB_NAME} NO_PACKAGE_MODE_ON_WINDOWS
     TARGETS          "Half" "Iex" "IexMath" "IlmThread" "Imath"
     RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/"
+    PACKAGE_TARGETS  "IlmBase"
+    PACKAGE_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/pkgconfig/"
     CONFIG_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${ILMBASE_LIB_NAME}/"
     MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/OpenEXR/include/"
     MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/OpenEXR/lib/${THIRD_PARTY_PLATFORM}/"
     MANUAL_LIB_NAMES "Half-2_3_s" "Iex-2_3_s" "IexMath-2_3_s" "IlmThread-2_3_s" "Imath-2_3_s")
 
-load_thirdparty_lib(${OPENEXR_LIB_NAME}
+load_thirdparty_lib(${OPENEXR_LIB_NAME} NO_PACKAGE_MODE_ON_WINDOWS
     TARGETS          "IlmImf" "IlmImfUtil"
     RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/"
+    PACKAGE_TARGETS  "OpenEXR"
+    PACKAGE_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/pkgconfig/"
     CONFIG_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${OPENEXR_LIB_NAME}/"
     MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/OpenEXR/include/"
     MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/OpenEXR/lib/${THIRD_PARTY_PLATFORM}/"
