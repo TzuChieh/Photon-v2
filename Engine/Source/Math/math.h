@@ -231,13 +231,16 @@ For example, given a bound [-1, 2], 3 will be wrapped to -1.
 template<typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0>
 inline T wrap(T value, const T lowerBound, const T upperBound)
 {
-	PH_ASSERT(upperBound >= lowerBound);
+	PH_ASSERT_GE(upperBound, lowerBound);
 
 	const T rangeSize = upperBound - lowerBound + static_cast<T>(1);
 
 	if(value < lowerBound)
 	{
 		value += rangeSize * ((lowerBound - value) / rangeSize + static_cast<T>(1));
+
+		// Possibly fail if <value> overflow
+		PH_ASSERT_GE(value, lowerBound);
 	}
 
 	return lowerBound + (value - lowerBound) % rangeSize;

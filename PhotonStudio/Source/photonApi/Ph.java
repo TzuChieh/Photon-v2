@@ -1,5 +1,7 @@
 package photonApi;
 
+import java.util.ArrayList;
+
 import util.FSUtil;
 
 public final class Ph
@@ -10,9 +12,23 @@ public final class Ph
 	
 	public static void loadLibrary()
 	{
-		final String NATIVE_LIBRARY_PATH     = FSUtil.getBuildDirectory() + "bin/";
-		final String ENGINE_LIBRARY_FILENAME = System.mapLibraryName("Editor_JNI");
-		System.load(NATIVE_LIBRARY_PATH + ENGINE_LIBRARY_FILENAME);
+		final String NATIVE_LIBRARY_PATH = FSUtil.getBuildDirectory() + "bin/";
+		
+		String[] engineLibraryNames = {
+			System.mapLibraryName("zlib1"),
+			System.mapLibraryName("Iex"),
+			System.mapLibraryName("Half"),
+			System.mapLibraryName("IexMath"),
+			System.mapLibraryName("Imath"),
+			System.mapLibraryName("IlmThread"),
+			System.mapLibraryName("IlmImf"),
+			System.mapLibraryName("IlmImfUtil"),
+			System.mapLibraryName("Editor_JNI")};
+		
+		for(String engineLibraryName : engineLibraryNames)
+		{
+			System.load(NATIVE_LIBRARY_PATH + engineLibraryName);
+		}
 	}
 	
 	// core

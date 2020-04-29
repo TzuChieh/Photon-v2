@@ -94,7 +94,6 @@ private:
 	std::atomic_bool m_isUpdating;
 	std::atomic_bool m_isRendering;
 
-
 // command interface
 public:
 	explicit Renderer(const InputPacket& packet);

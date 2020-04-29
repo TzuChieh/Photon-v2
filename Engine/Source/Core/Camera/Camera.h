@@ -1,14 +1,13 @@
 #pragma once
 
 #include "Common/primitive_type.h"
+#include "Math/TVector2.h"
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
 #include "DataIO/SDL/TCommandInterface.h"
 #include "Math/Transform/TDecomposedTransform.h"
 #include "Core/Filmic/filmic_fwd.h"
-
-#include <iostream>
-#include <memory>
+#include "Common/assertion.h"
 
 namespace ph
 {
@@ -28,7 +27,12 @@ class Camera : public TCommandInterface<Camera>
 {
 public:
 	Camera();
-	Camera(const math::Vector3R& position, const math::QuaternionR& rotation);
+
+	Camera(
+		const math::Vector3R&    position, 
+		const math::QuaternionR& rotation,
+		const math::Vector2S&    resolution);
+
 	virtual ~Camera() = default;
 
 	// TODO: consider changing <filmNdcPos> to 64-bit float
@@ -42,30 +46,33 @@ public:
 	// calculates differential information on the origin of the ray.
 	// The default implementation uses numerical differentiation for 
 	// the differentials.
-	virtual void calcSensedRayDifferentials(const math::Vector2R& filmNdcPos, const Ray& sensedRay,
-	                                        RayDifferential* out_result) const;
+	/*virtual void calcSensedRayDifferentials(const math::Vector2R& filmNdcPos, const Ray& sensedRay,
+	                                        RayDifferential* out_result) const;*/
 
 	virtual void evalEmittedImportanceAndPdfW(const math::Vector3R& targetPos, math::Vector2R* const out_filmCoord, math::Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const = 0;
 
-	virtual void setAspectRatio(real ratio);
-
 	const math::Vector3R& getPosition() const;
 	const math::Vector3R& getDirection() const;
-	void getPosition(math::Vector3R* out_position) const;
-	void getDirection(math::Vector3R* out_direction) const;
+	const math::Vector2S& getResolution() const;
 	real getAspectRatio() const;
 
 protected:
-	math::TDecomposedTransform<hiReal> m_cameraToWorldTransform;
-	math::Vector3R m_position;
-	math::Vector3R m_direction;
+	math::Vector3R                   m_position;
+	math::Vector3R                   m_direction;
+	math::Vector2S                   m_resolution;
+	math::TDecomposedTransform<real> m_decomposedCameraPose;
 
 private:
-	real m_aspectRatio;
+	static math::Vector3R makeDirectionFromRotation(const math::QuaternionR& rotation);
+	static math::QuaternionR makeRotationFromYawPitch(real yawDegrees, real pitchDegrees);
 
-	void updateCameraPose(const math::TVector3<hiReal>& position, const math::TQuaternion<hiReal>& rotation);
-	static math::TQuaternion<hiReal> getWorldToCameraRotation(const math::Vector3R& direction, const math::Vector3R& upAxis);
-	static math::TQuaternion<hiReal> getWorldToCameraRotation(real yawDegrees, real pitchDegrees);
+	static math::QuaternionR makeRotationFromVectors(
+		const math::Vector3R& direction, 
+		const math::Vector3R& upAxis);
+
+	static math::TDecomposedTransform<real> makeDecomposedCameraPose(
+		const math::Vector3R&    position, 
+		const math::QuaternionR& rotation);
 
 // command interface
 public:
@@ -75,11 +82,6 @@ public:
 };
 
 // In-header Implementations:
-
-inline void Camera::setAspectRatio(const real ratio)
-{
-	m_aspectRatio = ratio;
-}
 
 inline const math::Vector3R& Camera::getPosition() const
 {
@@ -91,19 +93,16 @@ inline const math::Vector3R& Camera::getDirection() const
 	return m_direction;
 }
 
-inline void Camera::getPosition(math::Vector3R* const out_position) const
+inline const math::Vector2S& Camera::getResolution() const
 {
-	m_position.set(out_position);
-}
-
-inline void Camera::getDirection(math::Vector3R* const out_direction) const
-{
-	m_direction.set(out_direction);
+	return m_resolution;
 }
 
 inline real Camera::getAspectRatio() const
 {
-	return m_aspectRatio;
+	PH_ASSERT_GT(m_resolution.y, 0);
+
+	return static_cast<real>(m_resolution.x) / static_cast<real>(m_resolution.y);
 }
 
 }// end namespace ph

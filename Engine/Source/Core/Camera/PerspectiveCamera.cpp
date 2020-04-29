@@ -14,25 +14,27 @@ namespace ph
 
 void PerspectiveCamera::updateTransforms()
 {
-	const hiReal filmWidthMM  = m_filmWidthMM;
-	const hiReal filmHeightMM = filmWidthMM / getAspectRatio();
+	const real filmWidthMM  = m_filmWidthMM;
+	const real filmHeightMM = filmWidthMM / getAspectRatio();
 	PH_ASSERT(filmWidthMM > 0.0_r && filmHeightMM >= 0.0_r);
 
-	math::TDecomposedTransform<hiReal> filmToCameraTransform;
+	math::TDecomposedTransform<real> filmToCameraTransform;
 	filmToCameraTransform.scale(-filmWidthMM, -filmHeightMM, 1);
 	filmToCameraTransform.translate(filmWidthMM / 2, filmHeightMM / 2, m_filmOffsetMM);
 
-	std::vector<math::TDecomposedTransform<hiReal>> rootToLocal{m_cameraToWorldTransform, filmToCameraTransform};
+	std::vector<math::TDecomposedTransform<real>> rootToLocal{m_decomposedCameraPose, filmToCameraTransform};
 	m_filmToWorld   = std::make_shared<math::StaticAffineTransform>(math::StaticAffineTransform::makeParentedForward(rootToLocal));
 	m_filmToCamera  = std::make_shared<math::StaticAffineTransform>(math::StaticAffineTransform::makeForward(filmToCameraTransform));
-	m_cameraToWorld = std::make_shared<math::StaticAffineTransform>(math::StaticAffineTransform::makeForward(m_cameraToWorldTransform));
+	m_cameraToWorld = std::make_shared<math::StaticAffineTransform>(math::StaticAffineTransform::makeForward(m_decomposedCameraPose));
 }
 
 // command interface
 
 PerspectiveCamera::PerspectiveCamera(const InputPacket& packet) :
+
 	Camera(packet), 
-	m_filmWidthMM(36.0), m_filmOffsetMM(36.0)
+
+	m_filmWidthMM(36.0_r), m_filmOffsetMM(36.0_r)
 {
 	const std::string NAME_FOV_DEGREE     = "fov-degree";
 	const std::string NAME_FILM_WIDTH_MM  = "film-width-mm";
@@ -71,6 +73,7 @@ SdlTypeInfo PerspectiveCamera::ciTypeInfo()
 	return SdlTypeInfo(ETypeCategory::REF_CAMERA, "perspective");
 }
 
-void PerspectiveCamera::ciRegister(CommandRegister& cmdRegister) {}
+void PerspectiveCamera::ciRegister(CommandRegister& cmdRegister)
+{}
 
 }// end namespace ph

@@ -28,8 +28,6 @@ public:
 		real* out_filmArea, 
 		real* const out_pdfW) const override = 0;
 
-	void setAspectRatio(real ratio) override;
-
 protected:
 	std::shared_ptr<math::Transform> m_cameraToWorld;
 	std::shared_ptr<math::Transform> m_filmToCamera;
@@ -47,15 +45,6 @@ public:
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
-
-// In-header Implementations:
-
-inline void PerspectiveCamera::setAspectRatio(const real ratio)
-{
-	Camera::setAspectRatio(ratio);
-
-	updateTransforms();
-}
 
 }// end namespace ph
 

@@ -135,11 +135,10 @@ public:
 
 	// Inverts the transformation components. The effect of inverted and 
 	// un-inverted transforms will cancel each other out.
-	//
-	inline TDecomposedTransform invert() const;
+	TDecomposedTransform invert() const;
 
-	inline bool hasScaleEffect(T margin = 0) const;
-	inline bool isScaleUniform(T margin = 0) const;
+	bool hasScaleEffect(T margin = 0) const;
+	bool isScaleUniform(T margin = 0) const;
 
 private:
 	TVector3<T>    m_position;
@@ -147,7 +146,7 @@ private:
 	TVector3<T>    m_scale;
 };
 
-// Implementations:
+// In-header Implementations:
 
 template<typename T>
 TDecomposedTransform<T>::TDecomposedTransform() : 

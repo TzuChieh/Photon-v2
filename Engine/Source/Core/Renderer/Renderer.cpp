@@ -12,6 +12,7 @@
 #include "Common/Logger.h"
 #include "DataIO/SDL/InputPacket.h"
 #include "DataIO/SDL/DataTreatment.h"
+#include "DataIO/SDL/SdlResourcePack.h"
 
 #include <iostream>
 #include <vector>
@@ -32,13 +33,26 @@ Renderer::~Renderer() = default;
 void Renderer::update(const SdlResourcePack& data)
 {
 	logger.log("# render workers = " + std::to_string(numWorkers()));
+
+	const auto resolution = data.getCamera()->getResolution();
+	m_widthPx = resolution.x;
+	m_heightPx = resolution.y;
+
+	// TODO: render region is the intersection of crop window and resolution
+	// Nothing is cropped if no suitable window is present
+	if(m_cropWindowPx.isValid() && m_cropWindowPx.getArea() == 0)
+	{
+		m_cropWindowPx = TAABB2D<int64>(
+			{0, 0}, 
+			{static_cast<int64>(resolution.x), static_cast<int64>(resolution.y)});
+	}
 	logger.log("render region = " + getCropWindowPx().toString());
 
 	logger.log("updating...");
 
 	Timer updateTimer;
 	updateTimer.start();
-	m_isUpdating.store(true, std::memory_order_relaxed);
+	m_isUpdating.store(true, std::memory_order_relaxed);// FIXME: seq_cst
 
 	doUpdate(data);
 
@@ -101,20 +115,23 @@ void Renderer::setNumWorkers(const uint32 numWorkers)
 // command interface
 
 Renderer::Renderer(const InputPacket& packet) : 
+	m_widthPx(0),
+	m_heightPx(0),
+	m_cropWindowPx({0, 0}, {0, 0}),
 	m_isUpdating(false),
 	m_isRendering(false)
 {
 	setNumWorkers(1);
 
-	const integer filmWidth  = packet.getInteger("width",  1280, DataTreatment::REQUIRED());
-	const integer filmHeight = packet.getInteger("height", 720,  DataTreatment::REQUIRED());
-	const integer rectX      = packet.getInteger("rect-x", 0);
-	const integer rectY      = packet.getInteger("rect-y", 0);
-	const integer rectW      = packet.getInteger("rect-w", filmWidth);
-	const integer rectH      = packet.getInteger("rect-h", filmHeight);
+	/*const integer filmWidth  = packet.getInteger("width",  1280, DataTreatment::REQUIRED());
+	const integer filmHeight = packet.getInteger("height", 720,  DataTreatment::REQUIRED());*/
+	const integer rectX      = packet.getInteger("rect-x", m_cropWindowPx.minVertex.x);
+	const integer rectY      = packet.getInteger("rect-y", m_cropWindowPx.minVertex.y);
+	const integer rectW      = packet.getInteger("rect-w", m_cropWindowPx.getWidth());
+	const integer rectH      = packet.getInteger("rect-h", m_cropWindowPx.getHeight());
 
-	m_widthPx      = filmWidth;
-	m_heightPx     = filmHeight;
+	/*m_widthPx      = filmWidth;
+	m_heightPx     = filmHeight;*/
 	m_cropWindowPx = TAABB2D<int64>({rectX, rectY}, {rectX + rectW, rectY + rectH});
 }
 

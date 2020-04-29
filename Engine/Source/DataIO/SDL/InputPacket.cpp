@@ -182,7 +182,7 @@ void InputPacket::reportDataNotFound(const std::string_view typeName, const std:
 	case EDataImportance::OPTIONAL:
 		if(!message.empty())
 		{
-			std::cerr << "warning: optional data type<" << typeName << "> name<" << dataName << "> not found (" << message << ")" << std::endl;
+			std::cout << "note: optional data type<" << typeName << "> name<" << dataName << "> not found (" << message << ")" << std::endl;
 		}
 		break;
 
