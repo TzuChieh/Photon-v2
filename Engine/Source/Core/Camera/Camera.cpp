@@ -24,9 +24,9 @@ Camera::Camera() :
 {}
 
 Camera::Camera(
-	const math::Vector3R&    position, 
-	const math::QuaternionR& rotation,
-	const math::Vector2S&    resolution) :
+	const math::Vector3R&         position, 
+	const math::QuaternionR&      rotation,
+	const math::TVector2<uint32>& resolution) :
 
 	m_position            (position),
 	m_direction           (makeDirectionFromRotation(rotation)),

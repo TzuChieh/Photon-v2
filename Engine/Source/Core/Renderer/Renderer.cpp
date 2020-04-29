@@ -44,7 +44,7 @@ void Renderer::update(const SdlResourcePack& data)
 	{
 		m_cropWindowPx = TAABB2D<int64>(
 			{0, 0}, 
-			{static_cast<int64>(resolution.x), static_cast<int64>(resolution.y)});
+			{resolution.x, resolution.y});
 	}
 	logger.log("render region = " + getCropWindowPx().toString());
 
@@ -52,11 +52,11 @@ void Renderer::update(const SdlResourcePack& data)
 
 	Timer updateTimer;
 	updateTimer.start();
-	m_isUpdating.store(true, std::memory_order_relaxed);// FIXME: seq_cst
+	m_isUpdating = true;
 
 	doUpdate(data);
 
-	m_isUpdating.store(false, std::memory_order_relaxed);
+	m_isUpdating = false;
 	updateTimer.finish();
 
 	logger.log("update time: " + std::to_string(updateTimer.getDeltaMs()) + " ms");
@@ -68,11 +68,11 @@ void Renderer::render()
 
 	Timer renderTimer;
 	renderTimer.start();
-	m_isRendering.store(true, std::memory_order_relaxed);
+	m_isRendering = true;
 
 	doRender();
 
-	m_isRendering.store(false, std::memory_order_relaxed);
+	m_isRendering = false;
 	renderTimer.finish();
 
 	logger.log("render time: " + std::to_string(renderTimer.getDeltaMs()) + " ms");
@@ -125,10 +125,10 @@ Renderer::Renderer(const InputPacket& packet) :
 
 	/*const integer filmWidth  = packet.getInteger("width",  1280, DataTreatment::REQUIRED());
 	const integer filmHeight = packet.getInteger("height", 720,  DataTreatment::REQUIRED());*/
-	const integer rectX      = packet.getInteger("rect-x", m_cropWindowPx.minVertex.x);
-	const integer rectY      = packet.getInteger("rect-y", m_cropWindowPx.minVertex.y);
-	const integer rectW      = packet.getInteger("rect-w", m_cropWindowPx.getWidth());
-	const integer rectH      = packet.getInteger("rect-h", m_cropWindowPx.getHeight());
+	const integer rectX      = packet.getInteger("rect-x", static_cast<integer>(m_cropWindowPx.minVertex.x));
+	const integer rectY      = packet.getInteger("rect-y", static_cast<integer>(m_cropWindowPx.minVertex.y));
+	const integer rectW      = packet.getInteger("rect-w", static_cast<integer>(m_cropWindowPx.getWidth()));
+	const integer rectH      = packet.getInteger("rect-h", static_cast<integer>(m_cropWindowPx.getHeight()));
 
 	/*m_widthPx      = filmWidth;
 	m_heightPx     = filmHeight;*/

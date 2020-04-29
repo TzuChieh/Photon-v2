@@ -29,9 +29,9 @@ public:
 	Camera();
 
 	Camera(
-		const math::Vector3R&    position, 
-		const math::QuaternionR& rotation,
-		const math::Vector2S&    resolution);
+		const math::Vector3R&         position, 
+		const math::QuaternionR&      rotation,
+		const math::TVector2<uint32>& resolution);
 
 	virtual ~Camera() = default;
 
@@ -53,13 +53,13 @@ public:
 
 	const math::Vector3R& getPosition() const;
 	const math::Vector3R& getDirection() const;
-	const math::Vector2S& getResolution() const;
+	const math::TVector2<uint32>& getResolution() const;
 	real getAspectRatio() const;
 
 protected:
 	math::Vector3R                   m_position;
 	math::Vector3R                   m_direction;
-	math::Vector2S                   m_resolution;
+	math::TVector2<uint32>           m_resolution;
 	math::TDecomposedTransform<real> m_decomposedCameraPose;
 
 private:
@@ -93,7 +93,7 @@ inline const math::Vector3R& Camera::getDirection() const
 	return m_direction;
 }
 
-inline const math::Vector2S& Camera::getResolution() const
+inline const math::TVector2<uint32>& Camera::getResolution() const
 {
 	return m_resolution;
 }
