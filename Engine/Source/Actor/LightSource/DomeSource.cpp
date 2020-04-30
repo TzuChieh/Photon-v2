@@ -100,7 +100,7 @@ std::shared_ptr<Geometry> DomeSource::genGeometry(CookingContext& context) const
 	if(context.getVisualWorldInfo())
 	{
 		const auto bound = context.getVisualWorldInfo()->getRootActorsBound();
-		for(auto vertex : bound.getVertices())
+		for(auto vertex : bound.getBoundVertices())
 		{
 			const real ri = vertex.length();
 			if(rootActorBoundRadius < ri)

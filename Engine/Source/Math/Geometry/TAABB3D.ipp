@@ -168,7 +168,13 @@ inline TAABB3D<T>& TAABB3D<T>::unionWith(const TVector3<T>& point)
 }
 
 template<typename T>
-inline std::vector<TVector3<T>> TAABB3D<T>::getVertices() const
+inline std::pair<TVector3<T>, TVector3<T>> TAABB3D<T>::getVertices() const
+{
+	return {getMinVertex(), getMaxVertex()};
+}
+
+template<typename T>
+inline std::array<TVector3<T>, 8> TAABB3D<T>::getBoundVertices() const
 {
 	return {TVector3<T>(m_minVertex.x, m_minVertex.y, m_minVertex.z),
 	        TVector3<T>(m_maxVertex.x, m_minVertex.y, m_minVertex.z),
@@ -178,15 +184,6 @@ inline std::vector<TVector3<T>> TAABB3D<T>::getVertices() const
 	        TVector3<T>(m_minVertex.x, m_maxVertex.y, m_maxVertex.z),
 	        TVector3<T>(m_maxVertex.x, m_minVertex.y, m_maxVertex.z),
 	        TVector3<T>(m_maxVertex.x, m_maxVertex.y, m_maxVertex.z)};
-}
-
-template<typename T>
-inline void TAABB3D<T>::getMinMaxVertices(TVector3<T>* const out_minVertex, TVector3<T>* const out_maxVertex) const
-{
-	PH_ASSERT(out_minVertex && out_maxVertex);
-
-	out_minVertex->set(m_minVertex);
-	out_maxVertex->set(m_maxVertex);
 }
 
 template<typename T>
@@ -251,10 +248,10 @@ inline TAABB3D<T>& TAABB3D<T>::setMaxVertex(const TVector3<T>& maxVertex)
 }
 
 template<typename T>
-inline TAABB3D<T>& TAABB3D<T>::setMinMaxVertices(const TVector3<T>& minVertex, const TVector3<T>& maxVertex)
+inline TAABB3D<T>& TAABB3D<T>::setVertices(std::pair<TVector3<T>, TVector3<T>> minMaxVertices)
 {
-	setMinVertex(minVertex);
-	setMaxVertex(maxVertex);
+	setMinVertex(minMaxVertices.first);
+	setMaxVertex(minMaxVertices.second);
 
 	return *this;
 }

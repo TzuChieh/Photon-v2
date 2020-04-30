@@ -93,7 +93,7 @@ void Transform::transform(const AABB3D& aabb, const Time& time,
 	PH_ASSERT(out_aabb);
 
 	// FIXME: slow!
-	auto vertices = aabb.getVertices();
+	auto vertices = aabb.getBoundVertices();
 	for(auto& vertex : vertices)
 	{
 		// TODO: consider moving this check to transformPoint()

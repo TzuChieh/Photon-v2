@@ -6,7 +6,7 @@
 #include "Math/constant.h"
 #include "Math/Geometry/TLineSegment.h"
 
-#include <vector>
+#include <array>
 #include <string>
 #include <utility>
 
@@ -71,7 +71,7 @@ public:
 
 	/*! @brief Set the corner vertices of the minimum (---) and maximum (+++) octants.
 	*/
-	TAABB3D& setMinMaxVertices(const TVector3<T>& minVertex, const TVector3<T>& maxVertex);
+	TAABB3D& setVertices(std::pair<TVector3<T>, TVector3<T>> minMaxVertices);
 
 	/*! @brief Makes the bounds grow by some amount.
 
@@ -121,14 +121,15 @@ public:
 	*/
 	bool isFiniteVolume() const;
 
+	/*! @brief Get corner vertices on the minimum (---) and maximum (+++) octants.
+
+	@return A pair of vertices in the form <min-vertex, max-vertex>.
+	*/
+	std::pair<TVector3<T>, TVector3<T>> getVertices() const;
+
 	/*! @brief Get the 8 vertices of the bound.
 	*/
-	// FIXME: too slow
-	std::vector<TVector3<T>> getVertices() const;
-
-	/*! @brief Get corner vertices on the minimum (---) and maximum (+++) octants.
-	*/
-	void getMinMaxVertices(TVector3<T>* out_minVertex, TVector3<T>* out_maxVertex) const;
+	std::array<TVector3<T>, 8> getBoundVertices() const;
 
 	/*! @brief Get the corner vertex of the minimum (---) octant.
 	*/
