@@ -170,8 +170,8 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIDPO
 {
 	using namespace math;
 
-	PH_ASSERT_GE(finishedRegion.minVertex.x, 0);
-	PH_ASSERT_GE(finishedRegion.minVertex.y, 0);
+	PH_ASSERT_GE(finishedRegion.getMinVertex().x, 0);
+	PH_ASSERT_GE(finishedRegion.getMinVertex().y, 0);
 	PH_ASSERT_LE(finishedRegion.getWidth(),  allEffortFrame.widthPx());
 	PH_ASSERT_LE(finishedRegion.getHeight(), allEffortFrame.heightPx());
 	PH_ASSERT_LE(finishedRegion.getWidth(),  halfEffortFrame.widthPx());
@@ -179,9 +179,9 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIDPO
 	const TAABB2D<uint32> frameRegion(finishedRegion);
 
 	real regionError = 0;
-	for(uint32 y = frameRegion.minVertex.y; y < frameRegion.maxVertex.y; ++y)
+	for(uint32 y = frameRegion.getMinVertex().y; y < frameRegion.getMaxVertex().y; ++y)
 	{
-		for(uint32 x = frameRegion.minVertex.x; x < frameRegion.maxVertex.x; ++x)
+		for(uint32 x = frameRegion.getMinVertex().x; x < frameRegion.getMaxVertex().x; ++x)
 		{
 			HdrRgbFrame::Pixel I, A;
 			allEffortFrame.getPixel(x, y, &I);
@@ -210,7 +210,7 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIDPO
 		{
 			// error is small, splitted and added for more effort
 			const auto  maxDimension = finishedRegion.getExtents().maxDimension();
-			const int64 midPoint     = (finishedRegion.minVertex[maxDimension] + finishedRegion.maxVertex[maxDimension]) / 2;
+			const int64 midPoint     = (finishedRegion.getMinVertex()[maxDimension] + finishedRegion.getMaxVertex()[maxDimension]) / 2;
 
 			m_nextRegions = finishedRegion.getSplitted(maxDimension, midPoint);
 		}
@@ -236,8 +236,8 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 {
 	using namespace math;
 
-	PH_ASSERT_GE(finishedRegion.minVertex.x, 0);
-	PH_ASSERT_GE(finishedRegion.minVertex.y, 0);
+	PH_ASSERT_GE(finishedRegion.getMinVertex().x, 0);
+	PH_ASSERT_GE(finishedRegion.getMinVertex().y, 0);
 	PH_ASSERT_LE(finishedRegion.getWidth(),  allEffortFrame.widthPx());
 	PH_ASSERT_LE(finishedRegion.getHeight(), allEffortFrame.heightPx());
 	PH_ASSERT_LE(finishedRegion.getWidth(),  halfEffortFrame.widthPx());
@@ -251,10 +251,10 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 	std::fill(m_accumulatedEps.begin(), m_accumulatedEps.end(), 0.0_r);
 
 	real summedEp = 0;
-	for(uint32 y = frameRegion.minVertex.y; y < frameRegion.maxVertex.y; ++y)
+	for(uint32 y = frameRegion.getMinVertex().y; y < frameRegion.getMaxVertex().y; ++y)
 	{
 		real summedRowEp = 0;
-		for(uint32 x = frameRegion.minVertex.x; x < frameRegion.maxVertex.x; ++x)
+		for(uint32 x = frameRegion.getMinVertex().x; x < frameRegion.getMaxVertex().x; ++x)
 		{
 			HdrRgbFrame::Pixel I, A;
 			allEffortFrame.getPixel(x, y, &I);
@@ -269,14 +269,14 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 
 			if(maxDimension == constant::X_AXIS)
 			{
-				m_accumulatedEps[x - frameRegion.minVertex.x] += summedRowEp;
+				m_accumulatedEps[x - frameRegion.getMinVertex().x] += summedRowEp;
 			}
 		}
 		summedEp += summedRowEp;
 
 		if(maxDimension == constant::Y_AXIS)
 		{
-			m_accumulatedEps[y - frameRegion.minVertex.y] = summedEp;
+			m_accumulatedEps[y - frameRegion.getMinVertex().y] = summedEp;
 		}
 	}
 
@@ -325,7 +325,7 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 
 			m_nextRegions = finishedRegion.getSplitted(
 				maxDimension, 
-				finishedRegion.minVertex[maxDimension] + bestPosPx);
+				finishedRegion.getMinVertex()[maxDimension] + bestPosPx);
 		}
 		else
 		{

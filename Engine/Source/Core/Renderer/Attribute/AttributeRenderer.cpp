@@ -78,7 +78,7 @@ void AttributeRenderer::doRender()
 		math::Vector2S(m_attributeFilm.getSampleResPx()).toVector());
 
 	const math::Vector2D ndcScale  = m_attributeFilm.getSampleResPx().div(math::Vector2D(m_attributeFilm.getActualResPx()));
-	const math::Vector2D ndcOffset = m_attributeFilm.getSampleWindowPx().minVertex.div(math::Vector2D(m_attributeFilm.getActualResPx()));
+	const math::Vector2D ndcOffset = m_attributeFilm.getSampleWindowPx().getMinVertex().div(math::Vector2D(m_attributeFilm.getActualResPx()));
 
 	while(m_sampleGenerator->prepareSampleBatch())
 	{

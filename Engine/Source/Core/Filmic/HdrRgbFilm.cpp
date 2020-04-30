@@ -80,8 +80,8 @@ void HdrRgbFilm::addSample(
 	math::TVector2<float64> filterMax(samplePosPx.add(getFilter().getHalfSizePx()));
 
 	// reduce to effective bounds
-	filterMin = filterMin.max(math::TVector2<float64>(getEffectiveWindowPx().minVertex));
-	filterMax = filterMax.min(math::TVector2<float64>(getEffectiveWindowPx().maxVertex));
+	filterMin = filterMin.max(math::TVector2<float64>(getEffectiveWindowPx().getMinVertex()));
+	filterMax = filterMax.min(math::TVector2<float64>(getEffectiveWindowPx().getMaxVertex()));
 
 	// compute pixel index bounds (exclusive on x1y1)
 	math::TVector2<int64> x0y0(filterMin.sub(0.5).ceil());
@@ -97,8 +97,8 @@ void HdrRgbFilm::addSample(
 			const float64 filterX = x - (xPx - 0.5);
 			const float64 filterY = y - (yPx - 0.5);
 
-			const std::size_t fx = x - getEffectiveWindowPx().minVertex.x;
-			const std::size_t fy = y - getEffectiveWindowPx().minVertex.y;
+			const std::size_t fx = x - getEffectiveWindowPx().getMinVertex().x;
+			const std::size_t fy = y - getEffectiveWindowPx().getMinVertex().y;
 			const std::size_t index = fy * static_cast<std::size_t>(getEffectiveResPx().x) + fx;
 			
 			const float64 weight = getFilter().evaluate(filterX, filterY);
@@ -147,7 +147,7 @@ void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64
 
 	math::TAABB2D<int64> frameIndexBound(getEffectiveWindowPx());
 	frameIndexBound.intersectWith(regionPx);
-	frameIndexBound.maxVertex.subLocal(1);
+	frameIndexBound.setMaxVertex(frameIndexBound.getMaxVertex().sub(1));
 
 	float64     sensorR, sensorG, sensorB;
 	float64     reciWeight;
@@ -163,8 +163,8 @@ void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64
 				continue;
 			}
 
-			fx = x - getEffectiveWindowPx().minVertex.x;
-			fy = y - getEffectiveWindowPx().minVertex.y;
+			fx = x - getEffectiveWindowPx().getMinVertex().x;
+			fy = y - getEffectiveWindowPx().getMinVertex().y;
 			filmIndex = fy * static_cast<std::size_t>(getEffectiveResPx().x) + fx;
 
 			const float64 sensorWeight = m_pixelRadianceSensors[filmIndex].accuWeight;
@@ -196,17 +196,17 @@ void HdrRgbFilm::mergeWith(const HdrRgbFilm& other)
 	math::TAABB2D<int64> validRegion(this->getEffectiveWindowPx());
 	validRegion.intersectWith(other.getEffectiveWindowPx());
 
-	for(int64 y = validRegion.minVertex.y; y < validRegion.maxVertex.y; ++y)
+	for(int64 y = validRegion.getMinVertex().y; y < validRegion.getMaxVertex().y; ++y)
 	{
-		const std::size_t thisY = y - this->getEffectiveWindowPx().minVertex.y;
-		const std::size_t otherY = y - other.getEffectiveWindowPx().minVertex.y;
+		const std::size_t thisY = y - this->getEffectiveWindowPx().getMinVertex().y;
+		const std::size_t otherY = y - other.getEffectiveWindowPx().getMinVertex().y;
 		const std::size_t thisBaseIndex = thisY * static_cast<std::size_t>(this->getEffectiveResPx().x);
 		const std::size_t otherBaseIndex = otherY * static_cast<std::size_t>(other.getEffectiveResPx().x);
 
-		for(int64 x = validRegion.minVertex.x; x < validRegion.maxVertex.x; ++x)
+		for(int64 x = validRegion.getMinVertex().x; x < validRegion.getMaxVertex().x; ++x)
 		{
-			const std::size_t thisX = x - this->getEffectiveWindowPx().minVertex.x;
-			const std::size_t otherX = x - other.getEffectiveWindowPx().minVertex.x;
+			const std::size_t thisX = x - this->getEffectiveWindowPx().getMinVertex().x;
+			const std::size_t otherX = x - other.getEffectiveWindowPx().getMinVertex().x;
 			const std::size_t thisI = thisBaseIndex + thisX;
 			const std::size_t otherI = otherBaseIndex + otherX;
 
@@ -248,8 +248,8 @@ void HdrRgbFilm::setPixel(
 	const std::size_t filmX = std::min(static_cast<std::size_t>(xPx), static_cast<std::size_t>(getActualResPx().x) - 1);
 	const std::size_t filmY = std::min(static_cast<std::size_t>(yPx), static_cast<std::size_t>(getActualResPx().y) - 1);
 
-	const std::size_t ix = filmX - getEffectiveWindowPx().minVertex.x;
-	const std::size_t iy = filmY - getEffectiveWindowPx().minVertex.y;
+	const std::size_t ix = filmX - getEffectiveWindowPx().getMinVertex().x;
+	const std::size_t iy = filmY - getEffectiveWindowPx().getMinVertex().y;
 	const std::size_t index = iy * static_cast<std::size_t>(getEffectiveResPx().x) + ix;
 
 	const math::Vector3R rgb = spectrum.genLinearSrgb(EQuantity::EMR);

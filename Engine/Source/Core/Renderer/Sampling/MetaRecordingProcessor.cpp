@@ -19,13 +19,13 @@ void MetaRecordingProcessor::process(
 
 	// only record if processed position is in bound
 	const auto rasterPos = math::TVector2<int64>((filmNdc * m_filmResPx).floor());
-	if(rasterPos.x < m_recordWindowPx.minVertex.x || rasterPos.x >= m_recordWindowPx.maxVertex.x ||
-	   rasterPos.y < m_recordWindowPx.minVertex.y || rasterPos.y >= m_recordWindowPx.maxVertex.y)
+	if(rasterPos.x < m_recordWindowPx.getMinVertex().x || rasterPos.x >= m_recordWindowPx.getMaxVertex().x ||
+	   rasterPos.y < m_recordWindowPx.getMinVertex().y || rasterPos.y >= m_recordWindowPx.getMaxVertex().y)
 	{
 		return;
 	}
 
-	const auto pixelCoord = math::TVector2<uint32>(rasterPos - m_recordWindowPx.minVertex);
+	const auto pixelCoord = math::TVector2<uint32>(rasterPos - m_recordWindowPx.getMinVertex());
 
 	const auto processCount = m_processCountFrame.getPixel(pixelCoord);
 	m_processCountFrame.setPixel(pixelCoord, processCount.add(1));
@@ -61,8 +61,8 @@ void MetaRecordingProcessor::getRecord(
 	const auto overlappedWindowPx = m_recordWindowPx.getIntersected(storageWindowPx);
 	const auto overlappedRegionPx = math::TAABB2D<uint32>(
 		math::TAABB2D<int64>(
-			overlappedWindowPx.minVertex - storageOrigin,
-			overlappedWindowPx.maxVertex - storageOrigin));
+			overlappedWindowPx.getMinVertex() - storageOrigin,
+			overlappedWindowPx.getMaxVertex() - storageOrigin));
 	PH_ASSERT_MSG(overlappedRegionPx.isValid(), overlappedRegionPx.toString());
 
 	out_storage->forEachPixel(
@@ -70,7 +70,7 @@ void MetaRecordingProcessor::getRecord(
 		[this, &storageOrigin](const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& pixel)
 		{
 			const auto recordCoord = math::TVector2<uint32>(
-				math::TVector2<int64>(x, y) + storageOrigin - m_recordWindowPx.minVertex);
+				math::TVector2<int64>(x, y) + storageOrigin - m_recordWindowPx.getMinVertex());
 
 			const auto processCount = m_processCountFrame.getPixel(recordCoord);
 			const auto msSpent      = m_msSpentFrame.getPixel(recordCoord);

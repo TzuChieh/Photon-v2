@@ -23,6 +23,7 @@ namespace math
 	class Transform;
 }
 
+// TODO: rename to Receiver
 class Camera : public TCommandInterface<Camera>
 {
 public:
@@ -53,7 +54,7 @@ public:
 
 	const math::Vector3R& getPosition() const;
 	const math::Vector3R& getDirection() const;
-	const math::TVector2<uint32>& getResolution() const;
+	const math::TVector2<uint32>& getSensorResolution() const;
 	real getAspectRatio() const;
 
 protected:
@@ -93,7 +94,7 @@ inline const math::Vector3R& Camera::getDirection() const
 	return m_direction;
 }
 
-inline const math::TVector2<uint32>& Camera::getResolution() const
+inline const math::TVector2<uint32>& Camera::getSensorResolution() const
 {
 	return m_resolution;
 }

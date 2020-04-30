@@ -59,9 +59,9 @@ inline void TFrame<T, N>::fill(const T value, const math::TAABB2D<uint32>& regio
 	PH_ASSERT_MSG(region.isValid(), region.toString());
 
 	const uint32 regionDataWidth = static_cast<uint32>(N) * region.getWidth();
-	for(uint32 y = region.minVertex.y; y < region.maxVertex.y; ++y)
+	for(uint32 y = region.getMinVertex().y; y < region.getMaxVertex().y; ++y)
 	{
-		const std::size_t offset = calcPixelDataBaseIndex(region.minVertex.x, y);
+		const std::size_t offset = calcPixelDataBaseIndex(region.getMinVertex().x, y);
 
 		std::fill(
 			m_pixelData.begin() + offset,
@@ -224,9 +224,9 @@ inline void TFrame<T, N>::forEachPixel(const math::TAABB2D<uint32>& region, PerP
 	// OPT
 
 	Pixel pixel;
-	for(uint32 y = region.minVertex.y; y < region.maxVertex.y; ++y)
+	for(uint32 y = region.getMinVertex().y; y < region.getMaxVertex().y; ++y)
 	{
-		for(uint32 x = region.minVertex.x; x < region.maxVertex.x; ++x)
+		for(uint32 x = region.getMinVertex().x; x < region.getMaxVertex().x; ++x)
 		{
 			getPixel(x, y, &pixel);
 			
@@ -276,9 +276,9 @@ inline void TFrame<T, N>::forEachPixel(const math::TAABB2D<uint32>& region, PerP
 	// OPT
 
 	Pixel pixel;
-	for(uint32 y = region.minVertex.y; y < region.maxVertex.y; ++y)
+	for(uint32 y = region.getMinVertex().y; y < region.getMaxVertex().y; ++y)
 	{
-		for(uint32 x = region.minVertex.x; x < region.maxVertex.x; ++x)
+		for(uint32 x = region.getMinVertex().x; x < region.getMaxVertex().x; ++x)
 		{
 			getPixel(x, y, &pixel);
 

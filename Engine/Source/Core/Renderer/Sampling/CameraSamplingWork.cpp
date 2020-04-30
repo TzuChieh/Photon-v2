@@ -79,7 +79,7 @@ void CameraSamplingWork::doWork()
 		m_sampleResPx.product());
 
 	const math::Vector2D ndcScale  = m_filmWindowPx.getExtents().div(m_filmResPx);
-	const math::Vector2D ndcOffset = m_filmWindowPx.minVertex.div(m_filmResPx);
+	const math::Vector2D ndcOffset = m_filmWindowPx.getMinVertex().div(m_filmResPx);
 
 	Timer sampleTimer;
 

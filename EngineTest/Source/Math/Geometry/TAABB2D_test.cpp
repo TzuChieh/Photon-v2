@@ -102,10 +102,10 @@ TEST(TAABB2DTest, UnionAABB2Ds)
 	const AABB2DR aabb1(Vector2R( 0,  0), Vector2R(1, 1));
 	const AABB2DR aabb2(Vector2R(-1, -1), Vector2R(2, 4));
 	const AABB2DR unioned = AABB2DR(aabb1).unionWith(aabb2);
-	EXPECT_NEAR(unioned.minVertex.x, -1, TEST_REAL_EPSILON);
-	EXPECT_NEAR(unioned.minVertex.y, -1, TEST_REAL_EPSILON);
-	EXPECT_NEAR(unioned.maxVertex.x,  2, TEST_REAL_EPSILON);
-	EXPECT_NEAR(unioned.maxVertex.y,  4, TEST_REAL_EPSILON);
+	EXPECT_NEAR(unioned.getMinVertex().x, -1, TEST_REAL_EPSILON);
+	EXPECT_NEAR(unioned.getMinVertex().y, -1, TEST_REAL_EPSILON);
+	EXPECT_NEAR(unioned.getMaxVertex().x,  2, TEST_REAL_EPSILON);
+	EXPECT_NEAR(unioned.getMaxVertex().y,  4, TEST_REAL_EPSILON);
 }
 
 TEST(TAABB2DTest, IntersectAABB2Ds)
@@ -115,10 +115,10 @@ TEST(TAABB2DTest, IntersectAABB2Ds)
 	const AABB2DR aabb1(Vector2R(-1, -1),       Vector2R(1, 1));
 	const AABB2DR aabb2(Vector2R(0.5_r, 0.3_r), Vector2R(0.8_r, 1.3_r));
 	const AABB2DR intersected = AABB2DR(aabb1).intersectWith(aabb2);
-	EXPECT_NEAR(intersected.minVertex.x, 0.5_r, TEST_REAL_EPSILON);
-	EXPECT_NEAR(intersected.minVertex.y, 0.3_r, TEST_REAL_EPSILON);
-	EXPECT_NEAR(intersected.maxVertex.x, 0.8_r, TEST_REAL_EPSILON);
-	EXPECT_NEAR(intersected.maxVertex.y, 1.0_r, TEST_REAL_EPSILON);
+	EXPECT_NEAR(intersected.getMinVertex().x, 0.5_r, TEST_REAL_EPSILON);
+	EXPECT_NEAR(intersected.getMinVertex().y, 0.3_r, TEST_REAL_EPSILON);
+	EXPECT_NEAR(intersected.getMaxVertex().x, 0.8_r, TEST_REAL_EPSILON);
+	EXPECT_NEAR(intersected.getMaxVertex().y, 1.0_r, TEST_REAL_EPSILON);
 }
 
 TEST(TAABB2DTest, AABB2DCalculateAreas)

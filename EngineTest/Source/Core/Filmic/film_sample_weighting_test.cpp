@@ -22,10 +22,10 @@ TEST(FilmSampleWeightingTest, HdrRgbFilmDevelopesToFrame)
 	const auto& filter = SampleFilters::createGaussianFilter();
 	HdrRgbFilm film(static_cast<uint64>(filmWpx), static_cast<uint64>(filmHpx), filter);
 
-	const float64 testSamplePos1Xpx = film.getSampleWindowPx().minVertex.x + 0.2;
-	const float64 testSamplePos1Ypx = film.getSampleWindowPx().minVertex.y + 0.2;
-	const float64 testSamplePos2Xpx = film.getSampleWindowPx().minVertex.x + 0.4;
-	const float64 testSamplePos2Ypx = film.getSampleWindowPx().minVertex.y + 0.4;
+	const float64 testSamplePos1Xpx = film.getSampleWindowPx().getMinVertex().x + 0.2;
+	const float64 testSamplePos1Ypx = film.getSampleWindowPx().getMinVertex().y + 0.2;
+	const float64 testSamplePos2Xpx = film.getSampleWindowPx().getMinVertex().x + 0.4;
+	const float64 testSamplePos2Ypx = film.getSampleWindowPx().getMinVertex().y + 0.4;
 	film.addSample(testSamplePos1Xpx,
 	               testSamplePos1Ypx,
 	               SpectralStrength(0.7_r));

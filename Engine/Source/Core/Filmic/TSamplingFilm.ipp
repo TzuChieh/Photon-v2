@@ -83,8 +83,8 @@ inline void TSamplingFilm<Sample>::updateSampleDimensions()
 	if(m_useSoftEdge)
 	{
 		m_sampleWindowPx = math::TAABB2D<float64>(
-			math::TVector2<float64>(getEffectiveWindowPx().minVertex).add(0.5).sub(m_filter.getHalfSizePx()),
-			math::TVector2<float64>(getEffectiveWindowPx().maxVertex).sub(0.5).add(m_filter.getHalfSizePx()));
+			math::TVector2<float64>(getEffectiveWindowPx().getMinVertex()).add(0.5).sub(m_filter.getHalfSizePx()),
+			math::TVector2<float64>(getEffectiveWindowPx().getMaxVertex()).sub(0.5).add(m_filter.getHalfSizePx()));
 
 		if(!m_sampleWindowPx.isValid())
 		{

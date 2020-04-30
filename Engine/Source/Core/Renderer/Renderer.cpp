@@ -34,7 +34,7 @@ void Renderer::update(const SdlResourcePack& data)
 {
 	logger.log("# render workers = " + std::to_string(numWorkers()));
 
-	const auto resolution = data.getCamera()->getResolution();
+	const auto resolution = data.getCamera()->getSensorResolution();
 	m_widthPx = resolution.x;
 	m_heightPx = resolution.y;
 
@@ -125,8 +125,8 @@ Renderer::Renderer(const InputPacket& packet) :
 
 	/*const integer filmWidth  = packet.getInteger("width",  1280, DataTreatment::REQUIRED());
 	const integer filmHeight = packet.getInteger("height", 720,  DataTreatment::REQUIRED());*/
-	const integer rectX      = packet.getInteger("rect-x", static_cast<integer>(m_cropWindowPx.minVertex.x));
-	const integer rectY      = packet.getInteger("rect-y", static_cast<integer>(m_cropWindowPx.minVertex.y));
+	const integer rectX      = packet.getInteger("rect-x", static_cast<integer>(m_cropWindowPx.getMinVertex().x));
+	const integer rectY      = packet.getInteger("rect-y", static_cast<integer>(m_cropWindowPx.getMinVertex().y));
 	const integer rectW      = packet.getInteger("rect-w", static_cast<integer>(m_cropWindowPx.getWidth()));
 	const integer rectH      = packet.getInteger("rect-h", static_cast<integer>(m_cropWindowPx.getHeight()));
 

@@ -341,8 +341,10 @@ void PMRenderer::renderWithStochasticProgressivePM()
 				const std::size_t workEnd)
 			{
 				Region region = getCropWindowPx();
-				region.minVertex.x = getCropWindowPx().minVertex.x + workStart;
-				region.maxVertex.x = getCropWindowPx().minVertex.x + workEnd;
+				auto [minVertex, maxVertex] = region.getVertices();
+				minVertex.x = getCropWindowPx().getMinVertex().x + workStart;
+				maxVertex.x = getCropWindowPx().getMinVertex().x + workEnd;
+				region.setVertices({minVertex, maxVertex});
 
 				auto sampleGenerator = m_sg->genCopied(1);
 

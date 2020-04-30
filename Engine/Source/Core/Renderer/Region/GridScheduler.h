@@ -133,8 +133,8 @@ inline void GridScheduler::scheduleOne(WorkUnit* const out_workUnit)
 
 		*out_workUnit = WorkUnit(
 			Region(
-				math::TVector2<int64>(math::Vector2S(sideRangeX.first, sideRangeY.first)) + m_totalWorkUnit.getRegion().minVertex,
-				math::TVector2<int64>(math::Vector2S(sideRangeX.second, sideRangeY.second)) + m_totalWorkUnit.getRegion().minVertex),
+				math::TVector2<int64>(math::Vector2S(sideRangeX.first, sideRangeY.first)) + m_totalWorkUnit.getRegion().getMinVertex(),
+				math::TVector2<int64>(math::Vector2S(sideRangeX.second, sideRangeY.second)) + m_totalWorkUnit.getRegion().getMinVertex()),
 			m_totalWorkUnit.getDepth());
 
 		if(m_prioriAxis == math::constant::X_AXIS)

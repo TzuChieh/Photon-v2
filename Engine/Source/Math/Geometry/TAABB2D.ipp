@@ -12,12 +12,12 @@ namespace ph::math
 
 template<typename T>
 inline TAABB2D<T>::TAABB2D() :
-	minVertex(0), maxVertex(0)
+	TAABB2D(TVector2<T>(0, 0))
 {}
 
 template<typename T>
 inline TAABB2D<T>::TAABB2D(const TVector2<T>& minVertex, const TVector2<T>& maxVertex) : 
-	minVertex(minVertex), maxVertex(maxVertex)
+	m_minVertex(minVertex), m_maxVertex(maxVertex)
 {}
 
 template<typename T>
@@ -28,28 +28,28 @@ inline TAABB2D<T>::TAABB2D(const TVector2<T>& point) :
 template<typename T>
 template<typename U>
 inline TAABB2D<T>::TAABB2D(const TAABB2D<U>& other) : 
-	minVertex(other.minVertex), maxVertex(other.maxVertex)
+	m_minVertex(other.getMinVertex()), m_maxVertex(other.getMaxVertex())
 {}
 
 template<typename T>
 inline bool TAABB2D<T>::isIntersectingArea(const TAABB2D& other) const
 {
-	return maxVertex.x >= other.minVertex.x && minVertex.x <= other.maxVertex.x &&
-	       maxVertex.y >= other.minVertex.y && minVertex.y <= other.maxVertex.y;
+	return m_maxVertex.x >= other.m_minVertex.x && m_minVertex.x <= other.m_maxVertex.x &&
+	       m_maxVertex.y >= other.m_minVertex.y && m_minVertex.y <= other.m_maxVertex.y;
 }
 
 template<typename T>
 inline bool TAABB2D<T>::isIntersectingArea(const TVector2<T>& point) const
 {
-	return point.x >= minVertex.x && point.x <= maxVertex.x && 
-	       point.y >= minVertex.y && point.y <= maxVertex.y;
+	return point.x >= m_minVertex.x && point.x <= m_maxVertex.x &&
+	       point.y >= m_minVertex.y && point.y <= m_maxVertex.y;
 }
 
 template<typename T>
 inline bool TAABB2D<T>::isIntersectingRange(const TVector2<T>& point) const
 {
-	return point.x >= minVertex.x && point.x < maxVertex.x && 
-	       point.y >= minVertex.y && point.y < maxVertex.y;
+	return point.x >= m_minVertex.x && point.x < m_maxVertex.x &&
+	       point.y >= m_minVertex.y && point.y < m_maxVertex.y;
 }
 
 template<typename T>
@@ -63,8 +63,8 @@ inline T TAABB2D<T>::getArea() const
 template<typename T>
 inline TAABB2D<T>& TAABB2D<T>::unionWith(const TAABB2D& other)
 {
-	minVertex = minVertex.min(other.minVertex);
-	maxVertex = maxVertex.max(other.maxVertex);
+	m_minVertex = m_minVertex.min(other.m_minVertex);
+	m_maxVertex = m_maxVertex.max(other.m_maxVertex);
 
 	return *this;
 }
@@ -72,22 +72,65 @@ inline TAABB2D<T>& TAABB2D<T>::unionWith(const TAABB2D& other)
 template<typename T>
 inline TAABB2D<T>& TAABB2D<T>::intersectWith(const TAABB2D& other)
 {
-	minVertex = minVertex.max(other.minVertex);
-	maxVertex = maxVertex.min(other.maxVertex);
+	m_minVertex = m_minVertex.max(other.m_minVertex);
+	m_maxVertex = m_maxVertex.min(other.m_maxVertex);
 
 	return *this;
 }
 
 template<typename T>
+inline TAABB2D<T>& TAABB2D<T>::setMinVertex(const TVector2<T>& minVertex)
+{
+	m_minVertex = minVertex;
+
+	return *this;
+}
+
+template<typename T>
+inline TAABB2D<T>& TAABB2D<T>::setMaxVertex(const TVector2<T>& maxVertex)
+{
+	m_maxVertex = maxVertex;
+
+	return *this;
+}
+
+template<typename T>
+inline TAABB2D<T>& TAABB2D<T>::setVertices(std::pair<TVector2<T>, TVector2<T>> minMaxVertices)
+{
+	setMinVertex(minMaxVertices.first);
+	setMaxVertex(minMaxVertices.second);
+
+	return *this;
+}
+
+template<typename T>
+inline const TVector2<T>& TAABB2D<T>::getMinVertex() const
+{
+	return m_minVertex;
+}
+
+template<typename T>
+inline const TVector2<T>& TAABB2D<T>::getMaxVertex() const
+{
+	return m_maxVertex;
+}
+
+template<typename T>
+inline std::pair<TVector2<T>, TVector2<T>> TAABB2D<T>::getVertices() const
+{
+	return {getMinVertex(), getMaxVertex()};
+}
+
+template<typename T>
 inline T TAABB2D<T>::getWidth() const
 {
-	return maxVertex.x - minVertex.x;
+	return m_maxVertex.x - m_minVertex.x;
 }
 
 template<typename T>
 inline T TAABB2D<T>::getHeight() const
 {
-	return maxVertex.y - minVertex.y;
+	return m_maxVertex.y - m_minVertex.y;
 }
 
 template<typename T>
@@ -101,11 +144,11 @@ inline TVector2<T> TAABB2D<T>::getCenter() const
 {
 	if constexpr(std::is_integral_v<T>)
 	{
-		return minVertex.add(maxVertex).div(T(2));
+		return m_minVertex.add(m_maxVertex).div(T(2));
 	}
 	else
 	{
-		return minVertex.add(maxVertex).mul(T(0.5));
+		return m_minVertex.add(m_maxVertex).mul(T(0.5));
 	}
 }
 
@@ -113,11 +156,11 @@ template<typename T>
 inline std::pair<TAABB2D<T>, TAABB2D<T>> TAABB2D<T>::getSplitted(const constant::AxisIndexType axis, const T splitPoint) const
 {
 	PH_ASSERT_MSG(axis == constant::X_AXIS || axis == constant::Y_AXIS, std::to_string(axis));
-	PH_ASSERT_IN_RANGE_INCLUSIVE(splitPoint, minVertex[axis], maxVertex[axis]);
+	PH_ASSERT_IN_RANGE_INCLUSIVE(splitPoint, m_minVertex[axis], m_maxVertex[axis]);
 
 	return {
-		TAABB2D(minVertex, TVector2<T>(maxVertex).set(axis, splitPoint)),
-		TAABB2D(TVector2<T>(minVertex).set(axis, splitPoint), maxVertex)
+		TAABB2D(m_minVertex, TVector2<T>(m_maxVertex).set(axis, splitPoint)),
+		TAABB2D(TVector2<T>(m_minVertex).set(axis, splitPoint), m_maxVertex)
 	};
 }
 
@@ -136,19 +179,19 @@ inline TAABB2D<T> TAABB2D<T>::getIntersected(const TAABB2D& other) const
 template<typename T>
 inline bool TAABB2D<T>::isValid() const
 {
-	return minVertex.x <= maxVertex.x && minVertex.y <= maxVertex.y;
+	return m_minVertex.x <= m_maxVertex.x && m_minVertex.y <= m_maxVertex.y;
 }
 
 template<typename T>
 inline bool TAABB2D<T>::isPoint() const
 {
-	return minVertex.equals(maxVertex);
+	return m_minVertex.equals(m_maxVertex);
 }
 
 template<typename T>
 inline bool TAABB2D<T>::isArea() const
 {
-	return maxVertex.x > minVertex.x && maxVertex.y > minVertex.y;
+	return m_maxVertex.x > m_minVertex.x && m_maxVertex.y > m_minVertex.y;
 }
 
 template<typename T>
@@ -158,20 +201,20 @@ inline TVector2<T> TAABB2D<T>::sampleToSurface(const std::array<T, 2>& sample) c
 	PH_ASSERT_IN_RANGE_INCLUSIVE(sample[1], T(0), T(1));
 	PH_ASSERT(isValid());
 
-	return TVector2<T>(sample).mul(getExtents()).add(minVertex);
+	return TVector2<T>(sample).mul(getExtents()).add(m_minVertex);
 }
 
 template<typename T>
 inline bool TAABB2D<T>::equals(const TAABB2D& other) const
 {
-	return minVertex.equals(other.minVertex) && 
-	       maxVertex.equals(other.maxVertex);
+	return m_minVertex.equals(other.m_minVertex) &&
+	       m_maxVertex.equals(other.m_maxVertex);
 }
 
 template<typename T>
 inline std::string TAABB2D<T>::toString() const
 {
-	return "AABB: min" + minVertex.toString() + ", max" + maxVertex.toString();
+	return "AABB: min" + m_minVertex.toString() + ", max" + m_maxVertex.toString();
 }
 
 }// end namespace ph::math

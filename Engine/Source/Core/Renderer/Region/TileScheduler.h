@@ -87,8 +87,8 @@ inline TileScheduler::TileScheduler(
 	gridSize.mulLocal(math::TVector2<int64>(tileSize));
 
 	const Region gridWorkRegion(
-		totalWorkUnit.getRegion().minVertex, 
-		totalWorkUnit.getRegion().minVertex + gridSize);
+		totalWorkUnit.getRegion().getMinVertex(),
+		totalWorkUnit.getRegion().getMinVertex() + gridSize);
 
 	m_grid = GridScheduler(
 		numWorkers,

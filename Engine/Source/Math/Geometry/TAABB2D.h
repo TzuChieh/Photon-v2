@@ -20,10 +20,6 @@ template<typename T>
 class TAABB2D final
 {
 public:
-	// TODO: make these private or?
-	TVector2<T> minVertex;
-	TVector2<T> maxVertex;
-
 	TAABB2D();
 	TAABB2D(const TVector2<T>& minVertex, const TVector2<T>& maxVertex);
 	explicit TAABB2D(const TVector2<T>& point);
@@ -37,6 +33,12 @@ public:
 	T getArea() const;
 	TAABB2D& unionWith(const TAABB2D& other);
 	TAABB2D& intersectWith(const TAABB2D& other);
+	TAABB2D& setMinVertex(const TVector2<T>& minVertex);
+	TAABB2D& setMaxVertex(const TVector2<T>& maxVertex);
+	TAABB2D& setVertices(std::pair<TVector2<T>, TVector2<T>> minMaxVertices);
+	const TVector2<T>& getMinVertex() const;
+	const TVector2<T>& getMaxVertex() const;
+	std::pair<TVector2<T>, TVector2<T>> getVertices() const;
 	T getWidth() const;
 	T getHeight() const;
 	TVector2<T> getExtents() const;
@@ -54,6 +56,10 @@ public:
 
 	// TODO: a variant with margins for floating types
 	bool equals(const TAABB2D& other) const;
+
+private:
+	TVector2<T> m_minVertex;
+	TVector2<T> m_maxVertex;
 };
 
 }// end namespace ph::math

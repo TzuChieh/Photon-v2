@@ -28,16 +28,16 @@ inline TPwcDistribution2D<T>::TPwcDistribution2D(
 		}
 
 		m_conditionalXs[y] = TPwcDistribution1D<T>(
-			range.minVertex.x, 
-			range.maxVertex.x, 
+			range.getMinVertex().x, 
+			range.getMaxVertex().x, 
 			&(weights[baseIndex]),
 			numWeights.x);
 	}
 
 	// initialize marginal distribution for each row
 	m_marginalYs = TPwcDistribution1D<T>(
-		range.minVertex.y,
-		range.maxVertex.y, 
+		range.getMinVertex().y,
+		range.getMaxVertex().y, 
 		rowSums);
 }
 

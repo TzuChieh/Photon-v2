@@ -58,8 +58,10 @@ inline void StripeScheduler::scheduleOne(WorkUnit* const out_workUnit)
 		const auto sideRange = math::ith_evenly_divided_range(m_numScheduled, m_sideLength, m_numWorkers);
 
 		Region stripRegion = m_totalWorkUnit.getRegion();
-		stripRegion.minVertex[m_slicedAxis] += static_cast<int64>(sideRange.first);
-		stripRegion.maxVertex[m_slicedAxis] -= static_cast<int64>(m_sideLength - sideRange.second);
+		auto [minVertex, maxVertex] = stripRegion.getVertices();
+		minVertex[m_slicedAxis] += static_cast<int64>(sideRange.first);
+		maxVertex[m_slicedAxis] -= static_cast<int64>(m_sideLength - sideRange.second);
+		stripRegion.setVertices({minVertex, maxVertex});
 
 		*out_workUnit = WorkUnit(stripRegion, m_totalWorkUnit.getDepth());
 
