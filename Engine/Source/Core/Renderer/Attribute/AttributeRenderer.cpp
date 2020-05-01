@@ -22,6 +22,7 @@
 #include "Common/Logger.h"
 #include "Core/Renderer/Region/WorkUnit.h"
 #include "Core/Estimator/SurfaceAttributeEstimator.h"
+#include "Math/Random/sample.h"
 
 #include <cmath>
 #include <iostream>
@@ -77,8 +78,7 @@ void AttributeRenderer::doRender()
 		math::Vector2S(m_attributeFilm.getSampleResPx()).product(),
 		math::Vector2S(m_attributeFilm.getSampleResPx()).toVector());
 
-	const math::Vector2D ndcScale  = m_attributeFilm.getSampleResPx().div(math::Vector2D(m_attributeFilm.getActualResPx()));
-	const math::Vector2D ndcOffset = m_attributeFilm.getSampleWindowPx().getMinVertex().div(math::Vector2D(m_attributeFilm.getActualResPx()));
+	const auto sampleWindow = m_attributeFilm.getSampleWindowPx();
 
 	while(m_sampleGenerator->prepareSampleBatch())
 	{
@@ -86,20 +86,18 @@ void AttributeRenderer::doRender()
 		auto raySamples = m_sampleGenerator->getSamplesND(raySampleHandle);
 		for(std::size_t si = 0; si < camSamples.numSamples(); ++si)
 		{
-			const auto filmNdc    = math::Vector2D(camSamples[si]).mul(ndcScale).add(ndcOffset);
+			const auto rasterCoord = sampleWindow.sampleToSurface(math::sample_cast<float64>(camSamples.get<2>(si)));
 			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray ray;
-			m_camera->genSensedRay(math::Vector2R(filmNdc), &ray);
+			m_camera->genSensedRay(rasterCoord, &ray);
 
 			estimator.estimate(ray, integrand, sampleFlow, estimation);
-
-			const auto rasterPos = filmNdc * math::Vector2D(m_attributeFilm.getActualResPx());
 
 			{
 				//std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-				m_attributeFilm.addSample(rasterPos.x, rasterPos.y, estimation[0].clamp(0, std::numeric_limits<real>::max()));
+				m_attributeFilm.addSample(rasterCoord.x, rasterCoord.y, estimation[0].clamp(0, std::numeric_limits<real>::max()));
 			}
 		}
 	}

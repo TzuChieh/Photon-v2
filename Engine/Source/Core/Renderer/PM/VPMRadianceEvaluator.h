@@ -39,7 +39,7 @@ public:
 		const Scene*                  scene);
 
 	bool impl_onCameraSampleStart(
-		const math::Vector2R&   filmNdc,
+		const math::Vector2D&   rasterCoord,
 		const SpectralStrength& pathThroughput);
 
 	auto impl_onPathHitSurface(
@@ -65,7 +65,7 @@ private:
 	PMStatistics*                 m_statistics;
 	PMRenderer*                   m_renderer;
 
-	math::Vector2R                m_filmNdc;
+	math::Vector2D                m_rasterCoord;
 	SpectralStrength              m_sampledRadiance;
 	std::vector<FullPhoton>       m_photonCache;
 };
@@ -95,10 +95,10 @@ inline VPMRadianceEvaluator::VPMRadianceEvaluator(
 }
 
 inline bool VPMRadianceEvaluator::impl_onCameraSampleStart(
-	const math::Vector2R&   filmNdc,
+	const math::Vector2D&   rasterCoord,
 	const SpectralStrength& pathThroughput)
 {
-	m_filmNdc = filmNdc;
+	m_rasterCoord = rasterCoord;
 	m_sampledRadiance.setValues(0);
 
 	return true;
@@ -181,10 +181,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 
 inline void VPMRadianceEvaluator::impl_onCameraSampleEnd()
 {
-	const real filmXPx = m_filmNdc.x * static_cast<real>(m_film->getActualResPx().x);
-	const real filmYPx = m_filmNdc.y * static_cast<real>(m_film->getActualResPx().y);
-
-	m_film->addSample(filmXPx, filmYPx, m_sampledRadiance);
+	m_film->addSample(m_rasterCoord.x, m_rasterCoord.y, m_sampledRadiance);
 }
 
 inline void VPMRadianceEvaluator::impl_onSampleBatchFinished()

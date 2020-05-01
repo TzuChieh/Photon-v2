@@ -34,9 +34,10 @@ void Renderer::update(const SdlResourcePack& data)
 {
 	logger.log("# render workers = " + std::to_string(numWorkers()));
 
-	const auto resolution = data.getCamera()->getSensorResolution();
-	m_widthPx = resolution.x;
-	m_heightPx = resolution.y;
+	const auto resolution = data.getCamera()->getRasterResolution();
+	// HACK
+	m_widthPx = static_cast<uint32>(resolution.x);
+	m_heightPx = static_cast<uint32>(resolution.y);
 
 	// TODO: render region is the intersection of crop window and resolution
 	// Nothing is cropped if no suitable window is present
@@ -44,7 +45,7 @@ void Renderer::update(const SdlResourcePack& data)
 	{
 		m_cropWindowPx = TAABB2D<int64>(
 			{0, 0}, 
-			{resolution.x, resolution.y});
+			{m_widthPx, m_heightPx});
 	}
 	logger.log("render region = " + getCropWindowPx().toString());
 

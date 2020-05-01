@@ -3,8 +3,23 @@
 #include "Common/assertion.h"
 #include "Math/math.h"
 
+#include <cstddef>
+#include <array>
+#include <utility>
+
 namespace ph::math
 {
+
+template<typename To, typename From, std::size_t N>
+inline std::array<To, N> sample_cast(const std::array<From, N>& sample)
+{
+	std::array<To, N> casted;
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		casted[i] = static_cast<To>(sample[i]);
+	}
+	return std::move(casted);
+}
 
 template<typename T>
 inline bool pick(const T pickProbability, const T sample)

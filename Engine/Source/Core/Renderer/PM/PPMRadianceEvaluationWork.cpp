@@ -104,10 +104,8 @@ void PPMRadianceEvaluationWork::doWork()
 		radiance.addLocal(viewpoint.get<EViewpointData::VIEW_RADIANCE>());
 		radiance.mulLocal(viewpoint.get<EViewpointData::VIEW_THROUGHPUT>());
 
-		const math::Vector2R filmNdc = viewpoint.get<EViewpointData::FILM_NDC>();
-		const real filmXPx = filmNdc.x * static_cast<real>(m_film->getActualResPx().x);
-		const real filmYPx = filmNdc.y * static_cast<real>(m_film->getActualResPx().y);
-		m_film->addSample(filmXPx, filmYPx, radiance);
+		const math::Vector2D rasterCoord = viewpoint.get<EViewpointData::RASTER_COORD>();
+		m_film->addSample(rasterCoord.x, rasterCoord.y, radiance);
 	}
 }
 

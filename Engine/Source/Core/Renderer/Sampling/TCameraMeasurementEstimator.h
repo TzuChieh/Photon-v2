@@ -34,7 +34,7 @@ public:
 	TCameraMeasurementEstimator(TCameraMeasurementEstimator&& other);
 
 	void process(
-		const math::Vector2D& filmNdc, 
+		const math::Vector2D& rasterCoord,
 		const Ray&            sensedRay, 
 		SampleFlow&           sampleFlow) override;
 

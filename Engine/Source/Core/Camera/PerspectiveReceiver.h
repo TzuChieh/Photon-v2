@@ -5,6 +5,7 @@
 #include "Math/TVector3.h"
 #include "DataIO/SDL/ISdlResource.h"
 #include "DataIO/SDL/TCommandInterface.h"
+#include "Math/Transform/TDecomposedTransform.h"
 
 #include <iostream>
 
@@ -12,15 +13,19 @@ namespace ph
 {
 
 class Ray;
-class Sample;
-class SampleGenerator;
-class Film;
 class InputPacket;
 
-class PerspectiveCamera : public Camera, public TCommandInterface<PerspectiveCamera>
+namespace math
+{
+	class Transform;
+}
+
+class PerspectiveReceiver : public Camera, public TCommandInterface<PerspectiveReceiver>
 {
 public:
-	void genSensedRay(const math::Vector2R& filmNdcPos, Ray* out_ray) const override = 0;
+	// TODO: ordinary ctors
+
+	void genSensedRay(const math::Vector2D& rasterCoord, Ray* out_ray) const override = 0;
 	void evalEmittedImportanceAndPdfW(
 		const math::Vector3R& targetPos,
 		math::Vector2R* const out_filmCoord,
@@ -29,19 +34,20 @@ public:
 		real* const out_pdfW) const override = 0;
 
 protected:
-	std::shared_ptr<math::Transform> m_cameraToWorld;
-	std::shared_ptr<math::Transform> m_filmToCamera;
-	std::shared_ptr<math::Transform> m_filmToWorld;
+	std::shared_ptr<math::Transform>    m_receiverToWorld;
+	std::shared_ptr<math::Transform>    m_rasterToReceiver;
+	math::TDecomposedTransform<float64> m_rasterToReceiverDecomposed;
+	//std::shared_ptr<math::Transform> m_filmToWorld;
 	
 private:
-	real m_filmWidthMM;
-	real m_filmOffsetMM;
+	real m_sensorWidthMM;
+	real m_sensorOffsetMM;
 
 	void updateTransforms();
 
 // command interface
 public:
-	explicit PerspectiveCamera(const InputPacket& packet);
+	explicit PerspectiveReceiver(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
@@ -62,13 +68,13 @@ public:
 
 	<command type="creator" intent="blueprint">
 		<input name="fov-degree" type="real">
-			<description>Field of view of this camera in degrees.</description>
+			<description>Field of view of this receiver in degrees.</description>
 		</input>
-		<input name="film-width-mm" type="real">
-			<description>Width of the film used by this camera in millimeters.</description>
+		<input name="sensor-width-mm" type="real">
+			<description>Width of the sensor used by this receiver in millimeters.</description>
 		</input>
-		<input name="film-offset-mm" type="real">
-			<description>Distance from the film to the camera's lens.</description>
+		<input name="sensor-offset-mm" type="real">
+			<description>Distance between sensor and light entry.</description>
 		</input>
 	</command>
 

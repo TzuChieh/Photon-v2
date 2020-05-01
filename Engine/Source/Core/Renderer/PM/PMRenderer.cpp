@@ -130,8 +130,7 @@ void PMRenderer::renderWithVanillaPM()
 				m_scene,
 				m_camera,
 				sampleGenerator.get(),
-				getCropWindowPx(),
-				{getRenderWidthPx(), getRenderHeightPx()});
+				getCropWindowPx());
 
 			radianceEvaluator.work();
 		});
@@ -159,8 +158,7 @@ void PMRenderer::renderWithProgressivePM()
 			m_scene, 
 			m_camera, 
 			viewpointSampleGenerator.get(),
-			getCropWindowPx(),
-			{getRenderWidthPx(), getRenderHeightPx()});
+			getCropWindowPx());
 
 		viewpointWork.work();
 
@@ -366,8 +364,7 @@ void PMRenderer::renderWithStochasticProgressivePM()
 					m_scene,
 					m_camera,
 					sampleGenerator.get(),
-					region,
-					{getRenderWidthPx(), getRenderHeightPx()});
+					region);
 
 				viewpointWork.work();
 			});

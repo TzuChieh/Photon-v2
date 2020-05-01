@@ -15,7 +15,7 @@ public:
 	virtual ~ISensedRayProcessor() = default;
 
 	virtual void process(
-		const math::Vector2D& filmNdc, 
+		const math::Vector2D& rasterCoord,
 		const Ray&            sensedRay, 
 		SampleFlow&           sampleFlow) = 0;
 

@@ -18,24 +18,25 @@
 #include "Math/Geometry/TAABB2D.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
+#include "Math/Random/sample.h"
 
 namespace ph
 {
 
 template<typename ViewPathHandler>
 inline TViewPathTracingWork<ViewPathHandler>::TViewPathTracingWork(
+
 	ViewPathHandler* const handler,
 	const Scene* const scene,
 	const Camera* const camera,
 	SampleGenerator* sampleGenerator,
-	const Region& filmRegion,
-	const math::TVector2<int64>& filmSize) :
+	const Region& filmRegion) :
+
 	m_handler(handler),
 	m_scene(scene),
 	m_camera(camera),
 	m_sampleGenerator(sampleGenerator),
-	m_filmRegion(filmRegion),
-	m_filmSize(filmSize)
+	m_filmRegion(filmRegion)
 {}
 
 template<typename ViewPathHandler>
@@ -50,8 +51,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 
 	const auto raySampleHandle = m_sampleGenerator->declareStageND(2, m_filmRegion.getArea());
 
-	const math::TAABB2D<real> rRegion(m_filmRegion);
-	const math::Vector2R rFilmSize(m_filmSize);
+	const math::TAABB2D<float64> rRegion(m_filmRegion);
 
 	while(m_sampleGenerator->prepareSampleBatch())
 	{
@@ -61,16 +61,16 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 		{
 			// TODO: use TArithmeticArray directly
 			
-			const math::Vector2R filmNdc    = rRegion.sampleToSurface(filmSamples.template get<2>(i)).div(rFilmSize);
-			SampleFlow           sampleFlow = raySamples.readSampleAsFlow();
+			const auto rasterCoord = rRegion.sampleToSurface(math::sample_cast<float64>(filmSamples.template get<2>(i)));
+			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray tracingRay;
-			m_camera->genSensedRay(filmNdc, &tracingRay);
+			m_camera->genSensedRay(rasterCoord, &tracingRay);
 			tracingRay.reverse();
 
 			const std::size_t pathLength = 0;
 			SpectralStrength pathThroughput(1);// FIXME: camera might affect initial throughput
-			if(!m_handler->onCameraSampleStart(filmNdc, pathThroughput))
+			if(!m_handler->onCameraSampleStart(rasterCoord, pathThroughput))
 			{
 				m_handler->onCameraSampleEnd();
 				continue;

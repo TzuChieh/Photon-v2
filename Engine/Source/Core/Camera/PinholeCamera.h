@@ -1,29 +1,26 @@
 #pragma once
 
-#include "Core/Camera/Camera.h"
-#include "Common/primitive_type.h"
 #include "DataIO/SDL/TCommandInterface.h"
-#include "Core/Camera/PerspectiveCamera.h"
+#include "Core/Camera/PerspectiveReceiver.h"
 
 namespace ph
 {
 
-class PinholeCamera : public PerspectiveCamera, public TCommandInterface<PinholeCamera>
+class PinholeCamera : public PerspectiveReceiver, public TCommandInterface<PinholeCamera>
 {
 public:
-	void genSensedRay(const math::Vector2R& filmNdcPos, Ray* out_ray) const override;
+	void genSensedRay(const math::Vector2D& rasterCoord, Ray* out_ray) const override;
 	void evalEmittedImportanceAndPdfW(const math::Vector3R& targetPos, math::Vector2R* const out_filmCoord, math::Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const override;
 
 private:
 	const math::Vector3R& getPinholePos() const;
-	math::Vector3R genSensedRayDir(const math::Vector2R& filmNdcPos) const;
+	math::Vector3R genSensedRayDir(const math::Vector2D& rasterCoord) const;
 
 // command interface
 public:
 	explicit PinholeCamera(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
-	static std::unique_ptr<PinholeCamera> ciLoad(const InputPacket& packet);
 };
 
 // In-header Implementations:

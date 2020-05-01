@@ -10,6 +10,7 @@
 namespace ph::math
 {
 
+// TODO: templatize
 class StaticAffineTransform : public Transform
 {
 	friend class StaticRigidTransform;

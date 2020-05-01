@@ -7,31 +7,31 @@ namespace ph
 {
 
 void MetaRecordingProcessor::process(
-	const math::Vector2D& filmNdc, 
+	const math::Vector2D& rasterCoord,
 	const Ray&            ray, 
 	SampleFlow&           sampleFlow)
 {
 	PH_ASSERT(m_processor);
 
 	m_timer.start();
-	m_processor->process(filmNdc, ray, sampleFlow);
+	m_processor->process(rasterCoord, ray, sampleFlow);
 	m_timer.finish();
 
-	// only record if processed position is in bound
-	const auto rasterPos = math::TVector2<int64>((filmNdc * m_filmResPx).floor());
-	if(rasterPos.x < m_recordWindowPx.getMinVertex().x || rasterPos.x >= m_recordWindowPx.getMaxVertex().x ||
-	   rasterPos.y < m_recordWindowPx.getMinVertex().y || rasterPos.y >= m_recordWindowPx.getMaxVertex().y)
+	// Only record if processed position is in bound
+	const auto globalRasterPos = math::TVector2<int64>(rasterCoord.floor());
+	if(globalRasterPos.x < m_recordWindowPx.getMinVertex().x || globalRasterPos.x >= m_recordWindowPx.getMaxVertex().x ||
+	   globalRasterPos.y < m_recordWindowPx.getMinVertex().y || globalRasterPos.y >= m_recordWindowPx.getMaxVertex().y)
 	{
 		return;
 	}
 
-	const auto pixelCoord = math::TVector2<uint32>(rasterPos - m_recordWindowPx.getMinVertex());
+	const auto localRasterPos = math::TVector2<uint32>(globalRasterPos - m_recordWindowPx.getMinVertex());
 
-	const auto processCount = m_processCountFrame.getPixel(pixelCoord);
-	m_processCountFrame.setPixel(pixelCoord, processCount.add(1));
+	const auto processCount = m_processCountFrame.getPixel(localRasterPos);
+	m_processCountFrame.setPixel(localRasterPos, processCount.add(1));
 
-	const auto msSpent = m_msSpentFrame.getPixel(pixelCoord);
-	m_msSpentFrame.setPixel(pixelCoord, msSpent.add(m_timer.getDeltaMs()));
+	const auto msSpent = m_msSpentFrame.getPixel(localRasterPos);
+	m_msSpentFrame.setPixel(localRasterPos, msSpent.add(m_timer.getDeltaMs()));
 }
 
 void MetaRecordingProcessor::onBatchStart(const uint64 batchNumber)

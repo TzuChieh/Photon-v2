@@ -24,14 +24,14 @@ Camera::Camera() :
 {}
 
 Camera::Camera(
-	const math::Vector3R&         position, 
-	const math::QuaternionR&      rotation,
-	const math::TVector2<uint32>& resolution) :
+	const math::Vector3R&    position, 
+	const math::QuaternionR& rotation,
+	const math::Vector2S&    resolution) :
 
-	m_position            (position),
-	m_direction           (makeDirectionFromRotation(rotation)),
-	m_resolution          (resolution),
-	m_decomposedCameraPose(makeDecomposedCameraPose(position, rotation))
+	m_position                 (position),
+	m_direction                (makeDirectionFromRotation(rotation)),
+	m_resolution               (resolution),
+	m_receiverToWorldDecomposed(makeDecomposedCameraPose(position, rotation))
 {
 	PH_ASSERT_GT(m_resolution.x, 0);
 	PH_ASSERT_GT(m_resolution.y, 0);
@@ -63,18 +63,18 @@ math::Vector3R Camera::makeDirectionFromRotation(const math::QuaternionR& rotati
 	return math::Vector3R(0, 0, -1).rotate(rotation).normalize();
 }
 
-math::TDecomposedTransform<real> Camera::makeDecomposedCameraPose(
+math::TDecomposedTransform<float64> Camera::makeDecomposedCameraPose(
 	const math::Vector3R&    position,
 	const math::QuaternionR& rotation)
 {
-	math::TDecomposedTransform<real> pose;
+	math::TDecomposedTransform<float64> pose;
 
-	pose.setPosition(position);
+	pose.setPosition(math::Vector3D(position));
 
 	// changes unit from mm to m
-	pose.setScale(0.001_r);
+	pose.setScale(0.001);
 
-	pose.setRotation(rotation);
+	pose.setRotation(math::QuaternionD(rotation));
 
 	return pose;
 }
@@ -187,7 +187,7 @@ Camera::Camera(const InputPacket& packet) :
 	m_resolution.y = packet.getInteger("resolution-y",
 		static_cast<integer>(m_resolution.y), DataTreatment::REQUIRED("using default: " + std::to_string(m_resolution.y)));
 
-	m_decomposedCameraPose = makeDecomposedCameraPose(m_position, rotation);
+	m_receiverToWorldDecomposed = makeDecomposedCameraPose(m_position, rotation);
 }
 
 SdlTypeInfo Camera::ciTypeInfo()

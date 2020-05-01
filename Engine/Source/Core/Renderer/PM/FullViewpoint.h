@@ -34,7 +34,7 @@ public:
 
 private:
 	SurfaceHit       m_surfaceHit;
-	math::Vector2R   m_filmNdc;
+	math::Vector2R   m_rasterCoord;
 	real             m_radius;
 	real             m_numPhotons;
 	SpectralStrength m_tau;
@@ -50,7 +50,7 @@ inline constexpr bool FullViewpoint::impl_has()
 {
 	if constexpr(
 		TYPE == EViewpointData::SURFACE_HIT       ||
-		TYPE == EViewpointData::FILM_NDC          ||
+		TYPE == EViewpointData::RASTER_COORD      ||
 		TYPE == EViewpointData::RADIUS            ||
 		TYPE == EViewpointData::NUM_PHOTONS       ||
 		TYPE == EViewpointData::TAU               ||
@@ -72,8 +72,8 @@ inline decltype(auto) FullViewpoint::impl_get() const
 	if constexpr(TYPE == EViewpointData::SURFACE_HIT) {
 		return m_surfaceHit;
 	}
-	else if constexpr(TYPE == EViewpointData::FILM_NDC) {
-		return m_filmNdc;
+	else if constexpr(TYPE == EViewpointData::RASTER_COORD) {
+		return math::Vector2D(m_rasterCoord);
 	}
 	else if constexpr(TYPE == EViewpointData::RADIUS) {
 		return m_radius;
@@ -105,8 +105,8 @@ inline void FullViewpoint::impl_set(const T& value)
 	if constexpr(TYPE == EViewpointData::SURFACE_HIT) {
 		m_surfaceHit = value;
 	}
-	else if constexpr(TYPE == EViewpointData::FILM_NDC) {
-		m_filmNdc = value;
+	else if constexpr(TYPE == EViewpointData::RASTER_COORD) {
+		m_rasterCoord = math::Vector2R(value);
 	}
 	else if constexpr(TYPE == EViewpointData::RADIUS) {
 		m_radius = value;

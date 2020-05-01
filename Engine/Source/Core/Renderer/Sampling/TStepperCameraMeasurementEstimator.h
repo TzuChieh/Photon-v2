@@ -26,7 +26,7 @@ public:
 	void onBatchStart(uint64 batchNumber) override;
 
 	void process(
-		const math::Vector2D& filmNdc, 
+		const math::Vector2D& rasterCoord,
 		const Ray&            ray, 
 		SampleFlow&           sampleFlow) override;
 

@@ -45,7 +45,7 @@ public:
 		std::size_t maxViewpointDepth);
 
 	bool impl_onCameraSampleStart(
-		const math::Vector2R&   filmNdc,
+		const math::Vector2D&   rasterCoord,
 		const SpectralStrength& pathThroughput);
 
 	auto impl_onPathHitSurface(
@@ -109,21 +109,20 @@ inline TSPPMRadianceEvaluator<Viewpoint, Photon>::TSPPMRadianceEvaluator(
 
 template<typename Viewpoint, typename Photon>
 inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleStart(
-	const math::Vector2R&   filmNdc,
+	const math::Vector2D&   rasterCoord,
 	const SpectralStrength& pathThroughput)
 {
 	// FIXME: sample res
 
-	const real fFilmXPx = filmNdc.x * static_cast<real>(m_film->getActualResPx().x);
-	const real fFilmYPx = filmNdc.y * static_cast<real>(m_film->getActualResPx().y);
+	const auto fRasterCoord = math::Vector2R(rasterCoord);
 
 	const math::Vector2S regionPosPx(math::Vector2R(
 		math::clamp(
-			fFilmXPx - static_cast<real>(m_film->getEffectiveWindowPx().getMinVertex().x),
+			fRasterCoord.x - static_cast<real>(m_film->getEffectiveWindowPx().getMinVertex().x),
 			0.0_r,
 			static_cast<real>(m_film->getEffectiveResPx().x - 1)),
 		math::clamp(
-			fFilmYPx - static_cast<real>(m_film->getEffectiveWindowPx().getMinVertex().y),
+			fRasterCoord.y - static_cast<real>(m_film->getEffectiveWindowPx().getMinVertex().y),
 			0.0_r, 
 			static_cast<real>(m_film->getEffectiveResPx().y - 1))));
 

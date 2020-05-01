@@ -6,6 +6,7 @@
 #include "Core/Estimator/Integrand.h"
 #include "Utility/Timer.h"
 #include "Core/Ray.h"
+#include "Math/Random/sample.h"
 
 namespace ph
 {
@@ -78,9 +79,6 @@ void CameraSamplingWork::doWork()
 		5,
 		m_sampleResPx.product());
 
-	const math::Vector2D ndcScale  = m_filmWindowPx.getExtents().div(m_filmResPx);
-	const math::Vector2D ndcOffset = m_filmWindowPx.getMinVertex().div(m_filmResPx);
-
 	Timer sampleTimer;
 
 	std::uint32_t totalMs     = 0;
@@ -96,18 +94,18 @@ void CameraSamplingWork::doWork()
 
 		const auto camSamples = m_sampleGenerator->getSamplesND(camSampleHandle);
 		auto raySamples = m_sampleGenerator->getSamplesND(raySampleHandle);
-		for(std::size_t si = 0; si < camSamples.numSamples(); si++)
+		for(std::size_t si = 0; si < camSamples.numSamples(); ++si)
 		{
-			const auto filmNdc    = math::Vector2D(camSamples[si]).mul(ndcScale).add(ndcOffset);
+			const auto rasterCoord = m_filmWindowPx.sampleToSurface(math::sample_cast<float64>(camSamples.get<2>(si)));
 			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray ray;
-			m_camera->genSensedRay(math::Vector2R(filmNdc), &ray);
+			m_camera->genSensedRay(rasterCoord, &ray);
 
 			// FIXME: this loop uses correlated samples, also some processors
 			for(ISensedRayProcessor* processor : m_processors)
 			{
-				processor->process(filmNdc, ray, sampleFlow);
+				processor->process(rasterCoord, ray, sampleFlow);
 			}
 		}
 		m_numSamplesTaken.fetch_add(static_cast<uint32>(camSamples.numSamples()), std::memory_order_relaxed);

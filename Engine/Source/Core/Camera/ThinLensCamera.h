@@ -1,17 +1,15 @@
 #pragma once
 
-#include "Core/Camera/Camera.h"
-#include "DataIO/SDL/ISdlResource.h"
 #include "DataIO/SDL/TCommandInterface.h"
-#include "Core/Camera/PerspectiveCamera.h"
+#include "Core/Camera/PerspectiveReceiver.h"
 
 namespace ph
 {
 
-class ThinLensCamera : public PerspectiveCamera, public TCommandInterface<ThinLensCamera>
+class ThinLensCamera : public PerspectiveReceiver, public TCommandInterface<ThinLensCamera>
 {
 public:
-	void genSensedRay(const math::Vector2R& filmNdcPos, Ray* out_ray) const override;
+	void genSensedRay(const math::Vector2D& rasterCoord, Ray* out_ray) const override;
 	void evalEmittedImportanceAndPdfW(
 		const math::Vector3R& targetPos,
 		math::Vector2R* const out_filmCoord,

@@ -25,7 +25,7 @@ public:
 	explicit MetaRecordingProcessor(ISensedRayProcessor* processor);
 
 	void process(
-		const math::Vector2D& filmNdc, 
+		const math::Vector2D& rasterCoord,
 		const Ray&            ray, 
 		SampleFlow&           sampleFlow) override;
 

@@ -30,7 +30,7 @@ public:
 		real        initialKernelRadius);
 
 	bool impl_onCameraSampleStart(
-		const math::Vector2R&   filmNdc,
+		const math::Vector2D&   rasterCoord,
 		const SpectralStrength& pathThroughput);
 
 	auto impl_onPathHitSurface(
@@ -73,7 +73,7 @@ inline TPPMViewpointCollector<Viewpoint>::TPPMViewpointCollector(
 
 template<typename Viewpoint>
 inline bool TPPMViewpointCollector<Viewpoint>::impl_onCameraSampleStart(
-	const math::Vector2R&   filmNdc,
+	const math::Vector2D&   rasterCoord,
 	const SpectralStrength& pathThroughput)
 {
 	if(pathThroughput.isZero())
@@ -82,8 +82,8 @@ inline bool TPPMViewpointCollector<Viewpoint>::impl_onCameraSampleStart(
 		return false;
 	}
 
-	if constexpr(Viewpoint::template has<EViewpointData::FILM_NDC>()) {
-		m_viewpoint.template set<EViewpointData::FILM_NDC>(filmNdc);
+	if constexpr(Viewpoint::template has<EViewpointData::RASTER_COORD>()) {
+		m_viewpoint.template set<EViewpointData::RASTER_COORD>(rasterCoord);
 	}
 	if constexpr(Viewpoint::template has<EViewpointData::RADIUS>()) {
 		m_viewpoint.template set<EViewpointData::RADIUS>(m_initialKernelRadius);

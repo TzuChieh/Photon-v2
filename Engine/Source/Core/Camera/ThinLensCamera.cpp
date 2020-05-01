@@ -1,5 +1,4 @@
 #include "Core/Camera/ThinLensCamera.h"
-#include "Core/Sample.h"
 #include "Core/Ray.h"
 #include "Math/Transform/Transform.h"
 #include "DataIO/SDL/InputPacket.h"
@@ -11,10 +10,10 @@
 namespace ph
 {
 
-void ThinLensCamera::genSensedRay(const math::Vector2R& filmNdcPos, Ray* const out_ray) const
+void ThinLensCamera::genSensedRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
 {
 	math::Vector3R filmPosMM;
-	m_filmToCamera->transformP(math::Vector3R(filmNdcPos.x, filmNdcPos.y, 0), &filmPosMM);
+	m_rasterToReceiver->transformP(math::Vector3R(rasterCoord.x, rasterCoord.y, 0), &filmPosMM);
 
 	// subtracting lens' center position is omitted since it is at (0, 0, 0) mm
 	const math::Vector3R lensCenterToFilmDir = filmPosMM.normalize();
@@ -28,11 +27,11 @@ void ThinLensCamera::genSensedRay(const math::Vector2R& filmNdcPos, Ray* const o
 	genRandomSampleOnDisk(m_lensRadiusMM, &lensPosMM.x, &lensPosMM.y);
 
 	math::Vector3R worldLensPos;
-	m_cameraToWorld->transformP(lensPosMM, &worldLensPos);
+	m_receiverToWorld->transformP(lensPosMM, &worldLensPos);
 
 	// XXX: numerical error can be large when focalPlanePosMM is far away
 	math::Vector3R worldSensedRayDir;
-	m_cameraToWorld->transformV(lensPosMM - focalPlanePosMM, &worldSensedRayDir);
+	m_receiverToWorld->transformV(lensPosMM - focalPlanePosMM, &worldSensedRayDir);
 	worldSensedRayDir.normalizeLocal();
 
 	PH_ASSERT(out_ray);
@@ -63,8 +62,11 @@ void ThinLensCamera::genRandomSampleOnDisk(const real radius, real* const out_x,
 // command interface
 
 ThinLensCamera::ThinLensCamera(const InputPacket& packet) : 
-	PerspectiveCamera(packet), 
-	m_lensRadiusMM(0.0_r), m_focalDistanceMM()
+
+	PerspectiveReceiver(packet), 
+
+	// TODO: better default values
+	m_lensRadiusMM(30.0_r), m_focalDistanceMM(150.0_r)
 {
 	m_lensRadiusMM    = packet.getReal("lens-radius-mm",    m_lensRadiusMM,    DataTreatment::REQUIRED());
 	m_focalDistanceMM = packet.getReal("focal-distance-mm", m_focalDistanceMM, DataTreatment::REQUIRED());

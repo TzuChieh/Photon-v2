@@ -34,7 +34,7 @@ onBatchStart(const uint64 batchNumber)
 template<typename SamplingFilmType, typename EstimationType>
 inline void TStepperCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
 process(
-	const math::Vector2D& filmNdc, 
+	const math::Vector2D& rasterCoord,
 	const Ray&            ray, 
 	SampleFlow&           sampleFlow)
 {
@@ -43,7 +43,6 @@ process(
 		estimator->estimate(ray, Parent::m_integrand, sampleFlow, Parent::m_estimations);
 	}
 
-	const math::Vector2D rasterPos = filmNdc * Parent::m_filmActualResFPx;
 	for(const auto& estimationToFilm : Parent::m_estimationToFilm)
 	{
 		const std::size_t filmIndex       = estimationToFilm.second;
@@ -51,7 +50,7 @@ process(
 
 		if(m_currentBatchNumber % m_filmStepSizes[filmIndex] == 0)
 		{
-			Parent::m_films[filmIndex].addSample(rasterPos.x, rasterPos.y, Parent::m_estimations[estimationIndex]);
+			Parent::m_films[filmIndex].addSample(rasterCoord.x, rasterCoord.y, Parent::m_estimations[estimationIndex]);
 		}
 	}
 }

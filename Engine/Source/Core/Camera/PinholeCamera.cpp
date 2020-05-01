@@ -1,7 +1,5 @@
 #include "Core/Camera/PinholeCamera.h"
 #include "Core/Ray.h"
-#include "Core/Sample.h"
-#include "Core/Filmic/TSamplingFilm.h"
 #include "DataIO/SDL/InputPacket.h"
 #include "Math/math.h"
 #include "Math/Random.h"
@@ -12,10 +10,10 @@
 namespace ph
 {
 
-void PinholeCamera::genSensedRay(const math::Vector2R& filmNdcPos, Ray* const out_ray) const
+void PinholeCamera::genSensedRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
 {
 	PH_ASSERT(out_ray);
-	out_ray->setDirection(genSensedRayDir(filmNdcPos));
+	out_ray->setDirection(genSensedRayDir(rasterCoord));
 	out_ray->setOrigin(getPinholePos());
 	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
 	out_ray->setMaxT(std::numeric_limits<real>::max());
@@ -30,19 +28,21 @@ void PinholeCamera::genSensedRay(const math::Vector2R& filmNdcPos, Ray* const ou
 		"direction = " + out_ray->getDirection().toString() + "\n");
 }
 
-math::Vector3R PinholeCamera::genSensedRayDir(const math::Vector2R& filmNdcPos) const
+math::Vector3R PinholeCamera::genSensedRayDir(const math::Vector2D& rasterCoord) const
 {
 	// Direction vector is computed in camera space then transformed to world
 	// space for better numerical precision. Subtracting two world space 
 	// points can lead to high numerical error when camera is far from origin
 	// (edge aliasing-like artifacts can be observed ~100 meters away from origin).
 
-	math::Vector3R filmPosMM;
-	m_filmToCamera->transformP(math::Vector3R(filmNdcPos.x, filmNdcPos.y, 0), &filmPosMM);
+	math::Vector3R sensorPosMM;
+	m_rasterToReceiver->transformP(
+		math::Vector3R(math::Vector3D(rasterCoord.x, rasterCoord.y, 0)), 
+		&sensorPosMM);
 
-	// subtracting pinhole position is omitted since it is at (0, 0, 0) mm
+	// Subtracting pinhole position is omitted since it is at (0, 0, 0) mm
 	math::Vector3R sensedRayDir;
-	m_cameraToWorld->transformV(filmPosMM, &sensedRayDir);
+	m_receiverToWorld->transformV(sensorPosMM, &sensedRayDir);
 
 	return sensedRayDir.normalize();
 }
@@ -90,7 +90,7 @@ void PinholeCamera::evalEmittedImportanceAndPdfW(const math::Vector3R& targetPos
 // command interface
 
 PinholeCamera::PinholeCamera(const InputPacket& packet) :
-	PerspectiveCamera(packet)
+	PerspectiveReceiver(packet)
 {}
 
 SdlTypeInfo PinholeCamera::ciTypeInfo()
@@ -100,14 +100,11 @@ SdlTypeInfo PinholeCamera::ciTypeInfo()
 
 void PinholeCamera::ciRegister(CommandRegister& cmdRegister)
 {
-	SdlLoader loader;
-	loader.setFunc<PinholeCamera>(ciLoad);
-	cmdRegister.setLoader(loader);
-}
-
-std::unique_ptr<PinholeCamera> PinholeCamera::ciLoad(const InputPacket& packet)
-{
-	return std::make_unique<PinholeCamera>(packet);
+	cmdRegister.setLoader(
+		SdlLoader([](const InputPacket& packet)
+		{
+			return std::make_unique<PinholeCamera>(packet);
+		}));
 }
 
 }// end namespace ph

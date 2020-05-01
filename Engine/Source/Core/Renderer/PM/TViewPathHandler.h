@@ -23,7 +23,7 @@ public:
 	// Called after a camera sample is generated.
 	// Returns whether this camera sample should be used.
 	bool onCameraSampleStart(
-		const math::Vector2R&   filmNdc,
+		const math::Vector2D&   rasterCoord,
 		const SpectralStrength& pathThroughput);
 
 	// Called after the view path hits a surface, corresponding hit information
@@ -49,11 +49,11 @@ private:
 
 template<typename Derived>
 bool TViewPathHandler<Derived>::onCameraSampleStart(
-	const math::Vector2R&   filmNdc,
+	const math::Vector2D&   rasterCoord,
 	const SpectralStrength& pathThroughput)
 {
 	return static_cast<Derived&>(*this).impl_onCameraSampleStart(
-		filmNdc, 
+		rasterCoord,
 		pathThroughput);
 }
 

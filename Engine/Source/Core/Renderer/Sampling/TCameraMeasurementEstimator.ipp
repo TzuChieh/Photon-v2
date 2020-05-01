@@ -50,7 +50,7 @@ TCameraMeasurementEstimator(TCameraMeasurementEstimator&& other) :
 template<typename SamplingFilmType, typename EstimationType>
 inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
 process(
-	const math::Vector2D& filmNdc, 
+	const math::Vector2D& rasterCoord,
 	const Ray&            sensedRay, 
 	SampleFlow&           sampleFlow)
 	-> void
@@ -60,13 +60,12 @@ process(
 		estimator->estimate(sensedRay, m_integrand, sampleFlow, m_estimations);
 	}
 
-	const math::Vector2D rasterPos = filmNdc * m_filmActualResFPx;
 	for(const auto& estimationToFilm : m_estimationToFilm)
 	{
 		const std::size_t estimationIndex = estimationToFilm.first;
 		const std::size_t filmIndex       = estimationToFilm.second;
 
-		m_films[filmIndex].addSample(rasterPos.x, rasterPos.y, m_estimations[estimationIndex]);
+		m_films[filmIndex].addSample(rasterCoord.x, rasterCoord.y, m_estimations[estimationIndex]);
 	}
 }
 
