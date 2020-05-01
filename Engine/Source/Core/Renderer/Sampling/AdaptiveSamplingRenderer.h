@@ -5,9 +5,9 @@
 #include "Common/primitive_type.h"
 #include "Core/Renderer/Region/DammertzDispatcher.h"
 #include "Core/Renderer/Region/GridScheduler.h"
-#include "Core/Renderer/Sampling/CameraSamplingWork.h"
+#include "Core/Renderer/Sampling/ReceiverSamplingWork.h"
 #include "Frame/TFrame.h"
-#include "Core/Renderer/Sampling/TStepperCameraMeasurementEstimator.h"
+#include "Core/Renderer/Sampling/TStepperReceiverMeasurementEstimator.h"
 #include "Core/Renderer/Sampling/MetaRecordingProcessor.h"
 #include "Core/Quantity/SpectralStrength.h"
 
@@ -20,6 +20,8 @@
 namespace ph
 {
 
+class Scene;
+class Receiver;
 class FixedSizeThreadPool;
 
 class AdaptiveSamplingRenderer : public SamplingRenderer, public TCommandInterface<AdaptiveSamplingRenderer>
@@ -40,18 +42,18 @@ public:
 	ObservableRenderData getObservableData() const override;
 
 private:
-	using FilmEstimator = TStepperCameraMeasurementEstimator<HdrRgbFilm, SpectralStrength>;
+	using FilmEstimator = TStepperReceiverMeasurementEstimator<HdrRgbFilm, SpectralStrength>;
 
 	constexpr static auto REFINE_MODE = DammertzDispatcher::ERefineMode::MIN_ERROR_DIFFERENCE;
 	//constexpr static auto REFINE_MODE = DammertzDispatcher::ERefineMode::MIDPOINT;
 
 	const Scene*               m_scene;
-	const Camera*              m_camera;
+	const Receiver*            m_receiver;
 	SampleGenerator*           m_sampleGenerator;
 	HdrRgbFilm                 m_allEffortFilm;
 	HdrRgbFilm                 m_halfEffortFilm;
 
-	std::vector<CameraSamplingWork>         m_renderWorks;
+	std::vector<ReceiverSamplingWork>       m_renderWorks;
 	std::vector<FilmEstimator>              m_filmEstimators;
 
 	std::vector<MetaRecordingProcessor> m_metaRecorders;

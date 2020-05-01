@@ -4,7 +4,6 @@
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RenderWork.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "Core/Camera/Camera.h"
 #include "Math/Geometry/TAABB2D.h"
 #include "Core/Renderer/ERegionStatus.h"
 #include "Core/Renderer/Statistics.h"

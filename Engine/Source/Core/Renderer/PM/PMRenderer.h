@@ -15,6 +15,8 @@
 namespace ph
 {
 
+class Receiver;
+
 class PMRenderer : public Renderer, public TCommandInterface<PMRenderer>
 {
 public:
@@ -39,7 +41,7 @@ private:
 	std::unique_ptr<HdrRgbFilm> m_film;
 
 	const Scene*          m_scene;
-	const Camera*         m_camera;
+	const Receiver*       m_receiver;
 	SampleGenerator*      m_sg;
 	SampleFilter          m_filter;
 

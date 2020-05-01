@@ -2,7 +2,7 @@
 
 #include "Core/Renderer/PM/TViewPathTracingWork.h"
 #include "World/Scene.h"
-#include "Core/Camera/Camera.h"
+#include "Core/Receiver/Receiver.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Common/assertion.h"
 #include "Core/Ray.h"
@@ -28,15 +28,15 @@ inline TViewPathTracingWork<ViewPathHandler>::TViewPathTracingWork(
 
 	ViewPathHandler* const handler,
 	const Scene* const scene,
-	const Camera* const camera,
+	const Receiver* const receiver,
 	SampleGenerator* sampleGenerator,
-	const Region& filmRegion) :
+	const Region& rasterRegion) :
 
 	m_handler(handler),
 	m_scene(scene),
-	m_camera(camera),
+	m_receiver(receiver),
 	m_sampleGenerator(sampleGenerator),
-	m_filmRegion(filmRegion)
+	m_rasterRegion(rasterRegion)
 {}
 
 template<typename ViewPathHandler>
@@ -44,35 +44,35 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 {
 	PH_ASSERT(m_handler);
 
-	const auto filmSampleHandle = m_sampleGenerator->declareStageND(
+	const auto rasterSampleHandle = m_sampleGenerator->declareStageND(
 		2,
-		m_filmRegion.getArea(),
-		{static_cast<std::size_t>(m_filmRegion.getWidth()), static_cast<std::size_t>(m_filmRegion.getHeight())});
+		m_rasterRegion.getArea(),
+		{static_cast<std::size_t>(m_rasterRegion.getWidth()), static_cast<std::size_t>(m_rasterRegion.getHeight())});
 
-	const auto raySampleHandle = m_sampleGenerator->declareStageND(2, m_filmRegion.getArea());
+	const auto raySampleHandle = m_sampleGenerator->declareStageND(2, m_rasterRegion.getArea());
 
-	const math::TAABB2D<float64> rRegion(m_filmRegion);
+	const math::TAABB2D<float64> rRegion(m_rasterRegion);
 
 	while(m_sampleGenerator->prepareSampleBatch())
 	{
-		auto filmSamples = m_sampleGenerator->getSamplesND(filmSampleHandle);
+		auto rasterSamples = m_sampleGenerator->getSamplesND(rasterSampleHandle);
 		auto raySamples = m_sampleGenerator->getSamplesND(raySampleHandle);
-		for(std::size_t i = 0; i < filmSamples.numSamples(); ++i)
+		for(std::size_t i = 0; i < rasterSamples.numSamples(); ++i)
 		{
 			// TODO: use TArithmeticArray directly
 			
-			const auto rasterCoord = rRegion.sampleToSurface(math::sample_cast<float64>(filmSamples.template get<2>(i)));
+			const auto rasterCoord = rRegion.sampleToSurface(math::sample_cast<float64>(rasterSamples.template get<2>(i)));
 			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray tracingRay;
-			m_camera->genSensedRay(rasterCoord, &tracingRay);
+			m_receiver->genSensedRay(rasterCoord, &tracingRay);
 			tracingRay.reverse();
 
 			const std::size_t pathLength = 0;
-			SpectralStrength pathThroughput(1);// FIXME: camera might affect initial throughput
-			if(!m_handler->onCameraSampleStart(rasterCoord, pathThroughput))
+			SpectralStrength pathThroughput(1);// FIXME: receiver might affect initial throughput
+			if(!m_handler->onReceiverSampleStart(rasterCoord, pathThroughput))
 			{
-				m_handler->onCameraSampleEnd();
+				m_handler->onReceiverSampleEnd();
 				continue;
 			}
 
@@ -82,7 +82,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 				pathLength,
 				sampleFlow);
 			
-			m_handler->onCameraSampleEnd();
+			m_handler->onReceiverSampleEnd();
 		}// end for single sample
 
 		m_handler->onSampleBatchFinished();

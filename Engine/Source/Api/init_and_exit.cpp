@@ -57,11 +57,11 @@
 #include "Actor/Image/RealMathImage.h"
 #include "Actor/Image/CheckerboardImage.h"
 
-// cameras
-#include "Core/Camera/Camera.h"
-#include "Core/Camera/PerspectiveReceiver.h"
-#include "Core/Camera/PinholeCamera.h"
-#include "Core/Camera/ThinLensCamera.h"
+// receivers
+#include "Core/Receiver/Receiver.h"
+#include "Core/Receiver/PerspectiveReceiver.h"
+#include "Core/Receiver/PinholeCamera.h"
+#include "Core/Receiver/ThinLensCamera.h"
 
 // sample generators
 #include "Core/SampleGenerator/SampleGenerator.h"
@@ -166,8 +166,8 @@ bool init_command_parser()
 	register_command_interface<RealMathImage>();
 	register_command_interface<CheckerboardImage>();
 
-	// cameras
-	register_command_interface<Camera>();
+	// receivers
+	register_command_interface<Receiver>();
 	register_command_interface<PerspectiveReceiver>();
 	register_command_interface<PinholeCamera>();
 	register_command_interface<ThinLensCamera>();

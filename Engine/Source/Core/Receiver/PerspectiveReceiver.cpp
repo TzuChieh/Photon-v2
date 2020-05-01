@@ -1,4 +1,4 @@
-#include "Core/Camera/PerspectiveReceiver.h"
+#include "Core/Receiver/PerspectiveReceiver.h"
 #include "Core/Ray.h"
 #include "Core/Sample.h"
 #include "Core/Filmic/TSamplingFilm.h"
@@ -42,7 +42,7 @@ void PerspectiveReceiver::updateTransforms()
 
 PerspectiveReceiver::PerspectiveReceiver(const InputPacket& packet) :
 
-	Camera(packet), 
+	Receiver(packet),
 
 	m_sensorWidthMM(36.0_r), m_sensorOffsetMM(36.0_r)
 {
@@ -72,7 +72,7 @@ PerspectiveReceiver::PerspectiveReceiver(const InputPacket& packet) :
 	}
 	else
 	{
-		std::cerr << "warning: in PerspectiveReceiver::PerspectiveCamera(), bad input format" << std::endl;
+		std::cerr << "warning: in PerspectiveReceiver::PerspectiveReceiver(), bad input format" << std::endl;
 	}
 
 	updateTransforms();
@@ -80,7 +80,7 @@ PerspectiveReceiver::PerspectiveReceiver(const InputPacket& packet) :
 
 SdlTypeInfo PerspectiveReceiver::ciTypeInfo()
 {
-	return SdlTypeInfo(ETypeCategory::REF_CAMERA, "perspective");
+	return SdlTypeInfo(ETypeCategory::REF_RECEIVER, "perspective");
 }
 
 void PerspectiveReceiver::ciRegister(CommandRegister& cmdRegister)

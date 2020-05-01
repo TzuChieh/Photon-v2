@@ -24,7 +24,7 @@ std::string SdlTypeInfo::categoryToName(const ETypeCategory typeCategory)
 	case ETypeCategory::REF_FRAME_PROCESSOR:  categoryName = "frame-processor";  break;
 	case ETypeCategory::REF_IMAGE:            categoryName = "image";            break;
 
-	case ETypeCategory::REF_CAMERA:           categoryName = "camera";           break;
+	case ETypeCategory::REF_RECEIVER:         categoryName = "receiver";         break;
 	case ETypeCategory::REF_SAMPLE_GENERATOR: categoryName = "sample-generator"; break;
 	case ETypeCategory::REF_RENDERER:         categoryName = "renderer";         break;
 	case ETypeCategory::REF_OPTION:           categoryName = "option";           break;
@@ -48,7 +48,7 @@ ETypeCategory SdlTypeInfo::nameToCategory(const std::string& name)
 		{categoryToName(ETypeCategory::REF_MOTION),           ETypeCategory::REF_MOTION},
 		{categoryToName(ETypeCategory::REF_LIGHT_SOURCE),     ETypeCategory::REF_LIGHT_SOURCE},
 		{categoryToName(ETypeCategory::REF_ACTOR),            ETypeCategory::REF_ACTOR},
-		{categoryToName(ETypeCategory::REF_CAMERA),           ETypeCategory::REF_CAMERA},
+		{categoryToName(ETypeCategory::REF_RECEIVER),         ETypeCategory::REF_RECEIVER},
 		{categoryToName(ETypeCategory::REF_IMAGE),            ETypeCategory::REF_IMAGE},
 
 		{categoryToName(ETypeCategory::REF_SAMPLE_GENERATOR), ETypeCategory::REF_SAMPLE_GENERATOR},

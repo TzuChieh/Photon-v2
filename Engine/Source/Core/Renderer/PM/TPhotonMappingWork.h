@@ -12,7 +12,7 @@ namespace ph
 {
 
 class Scene;
-class Camera;
+class Receiver;
 class SampleGenerator;
 class PMStatistics;
 
@@ -24,7 +24,7 @@ class TPhotonMappingWork : public RenderWork
 public:
 	TPhotonMappingWork(
 		const Scene*     scene,
-		const Camera*    camera,
+		const Receiver*  receiver,
 		SampleGenerator* sampleGenerator,
 		Photon*          photonBuffer, 
 		std::size_t      numPhotons,
@@ -36,7 +36,7 @@ private:
 	void doWork() override;
 
 	const Scene*     m_scene;
-	const Camera*    m_camera;
+	const Receiver*  m_receiver;
 	SampleGenerator* m_sampleGenerator;
 	Photon*          m_photonBuffer;
 	std::size_t      m_numPhotons;

@@ -18,20 +18,20 @@ namespace ph
 {
 
 template<typename SamplingFilmType, typename EstimationType>
-class TCameraMeasurementEstimator : public ISensedRayProcessor
+class TReceiverMeasurementEstimator : public ISensedRayProcessor
 {
 public:
 	using Estimator = TIRayEstimator<EstimationType>;
 
-	TCameraMeasurementEstimator() = default;
+	TReceiverMeasurementEstimator() = default;
 
-	TCameraMeasurementEstimator(
+	TReceiverMeasurementEstimator(
 		std::size_t  numFilms,
 		std::size_t  numEstimations, 
 		Integrand    integrand,
 		SampleFilter filter);
 
-	TCameraMeasurementEstimator(TCameraMeasurementEstimator&& other);
+	TReceiverMeasurementEstimator(TReceiverMeasurementEstimator&& other);
 
 	void process(
 		const math::Vector2D& rasterCoord,
@@ -53,7 +53,7 @@ public:
 	SamplingFilmDimensions getFilmDimensions() const;
 	bool isSoftEdgedFilm() const;
 
-	TCameraMeasurementEstimator& operator = (TCameraMeasurementEstimator&& other);
+	TReceiverMeasurementEstimator& operator = (TReceiverMeasurementEstimator&& other);
 
 protected:
 	using EstimationToFilmMap = std::vector<std::pair<std::size_t, std::size_t>>;
@@ -69,4 +69,4 @@ protected:
 
 }// end namespace ph
 
-#include "Core/Renderer/Sampling/TCameraMeasurementEstimator.ipp"
+#include "Core/Renderer/Sampling/TReceiverMeasurementEstimator.ipp"

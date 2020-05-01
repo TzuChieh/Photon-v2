@@ -23,6 +23,7 @@
 #include "Core/Renderer/Region/WorkUnit.h"
 #include "Core/Estimator/SurfaceAttributeEstimator.h"
 #include "Math/Random/sample.h"
+#include "Core/Receiver/Receiver.h"
 
 #include <cmath>
 #include <iostream>
@@ -45,11 +46,11 @@ void AttributeRenderer::doUpdate(const SdlResourcePack& data)
 	logger.log("target attribute: " + m_attributeName);
 
 	m_scene           = &data.visualWorld.getScene();
-	m_camera          = data.getCamera().get();
+	m_receiver        = data.getReceiver().get();
 	m_sampleGenerator = data.getSampleGenerator().get();
 
 	PH_ASSERT(m_scene);
-	PH_ASSERT(m_camera);
+	PH_ASSERT(m_receiver);
 	PH_ASSERT(m_sampleGenerator);
 
 	m_attributeFilm = HdrRgbFilm(
@@ -61,14 +62,14 @@ void AttributeRenderer::doUpdate(const SdlResourcePack& data)
 
 void AttributeRenderer::doRender()
 {
-	const Integrand integrand(m_scene, m_camera);
+	const Integrand integrand(m_scene, m_receiver);
 
 	SurfaceAttributeEstimator estimator;
 	estimator.update(integrand);
 
 	TEstimationArray<math::Vector3R> estimation(1);
 
-	const auto camSampleHandle = m_sampleGenerator->declareStageND(
+	const auto rasterSampleHandle = m_sampleGenerator->declareStageND(
 		2,
 		math::Vector2S(m_attributeFilm.getSampleResPx()).product(),
 		math::Vector2S(m_attributeFilm.getSampleResPx()).toVector());
@@ -82,15 +83,15 @@ void AttributeRenderer::doRender()
 
 	while(m_sampleGenerator->prepareSampleBatch())
 	{
-		const auto camSamples = m_sampleGenerator->getSamplesND(camSampleHandle);
+		const auto rasterSamples = m_sampleGenerator->getSamplesND(rasterSampleHandle);
 		auto raySamples = m_sampleGenerator->getSamplesND(raySampleHandle);
-		for(std::size_t si = 0; si < camSamples.numSamples(); ++si)
+		for(std::size_t si = 0; si < rasterSamples.numSamples(); ++si)
 		{
-			const auto rasterCoord = sampleWindow.sampleToSurface(math::sample_cast<float64>(camSamples.get<2>(si)));
+			const auto rasterCoord = sampleWindow.sampleToSurface(math::sample_cast<float64>(rasterSamples.get<2>(si)));
 			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray ray;
-			m_camera->genSensedRay(rasterCoord, &ray);
+			m_receiver->genSensedRay(rasterCoord, &ray);
 
 			estimator.estimate(ray, integrand, sampleFlow, estimation);
 
@@ -160,7 +161,7 @@ AttributeRenderer::AttributeRenderer(const InputPacket& packet) :
 	Renderer(packet),
 
 	m_scene          (nullptr),
-	m_camera         (nullptr),
+	m_receiver       (nullptr),
 	m_sampleGenerator(nullptr),
 	m_attributeFilm  (),
 

@@ -1,8 +1,8 @@
-#include "Core/Renderer/Sampling/CameraSamplingWork.h"
+#include "Core/Renderer/Sampling/ReceiverSamplingWork.h"
 #include "Core/Renderer/Sampling/SamplingRenderer.h"
 #include "Core/Filmic/TSamplingFilm.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "Core/Camera/Camera.h"
+#include "Core/Receiver/Receiver.h"
 #include "Core/Estimator/Integrand.h"
 #include "Utility/Timer.h"
 #include "Core/Ray.h"
@@ -11,15 +11,15 @@
 namespace ph
 {
 
-CameraSamplingWork::CameraSamplingWork() :
-	CameraSamplingWork(nullptr)
+ReceiverSamplingWork::ReceiverSamplingWork() :
+	ReceiverSamplingWork(nullptr)
 {}
 
-CameraSamplingWork::CameraSamplingWork(const Camera* const camera) :
+ReceiverSamplingWork::ReceiverSamplingWork(const Receiver* const receiver) :
 
 	RenderWork(),
 
-	m_camera         (camera),
+	m_receiver       (receiver),
 	m_processors     (),
 	m_sampleGenerator(nullptr),
 	m_filmResPx      (1, 1),
@@ -32,11 +32,11 @@ CameraSamplingWork::CameraSamplingWork(const Camera* const camera) :
 	m_onWorkFinish   (nullptr)
 {}
 
-CameraSamplingWork::CameraSamplingWork(CameraSamplingWork&& other) :
+ReceiverSamplingWork::ReceiverSamplingWork(ReceiverSamplingWork&& other) :
 
 	RenderWork(other),
 
-	m_camera         (other.m_camera),
+	m_receiver       (other.m_receiver),
 	m_processors     (std::move(other.m_processors)),
 	m_sampleGenerator(std::move(other.m_sampleGenerator)),
 	m_filmResPx      (std::move(other.m_filmResPx)),
@@ -49,16 +49,16 @@ CameraSamplingWork::CameraSamplingWork(CameraSamplingWork&& other) :
 	m_onWorkFinish   (std::move(other.m_onWorkFinish))
 {}
 
-SamplingStatistics CameraSamplingWork::asyncGetStatistics()
+SamplingStatistics ReceiverSamplingWork::asyncGetStatistics()
 {
 	SamplingStatistics statistics;
 	statistics.numSamplesTaken = m_numSamplesTaken.load(std::memory_order_relaxed);
 	return statistics;
 }
 
-void CameraSamplingWork::doWork()
+void ReceiverSamplingWork::doWork()
 {
-	PH_ASSERT(m_camera);
+	PH_ASSERT(m_receiver);
 
 	if(m_onWorkStart)
 	{
@@ -70,7 +70,7 @@ void CameraSamplingWork::doWork()
 	setWorkDone(0);
 	setElapsedMs(0);
 
-	const auto camSampleHandle = m_sampleGenerator->declareStageND(
+	const auto rasterSampleHandle = m_sampleGenerator->declareStageND(
 		2,
 		m_sampleResPx.product(),
 		m_sampleResPx.toVector());
@@ -92,15 +92,15 @@ void CameraSamplingWork::doWork()
 			processor->onBatchStart(batchNumber);
 		}
 
-		const auto camSamples = m_sampleGenerator->getSamplesND(camSampleHandle);
+		const auto rasterSamples = m_sampleGenerator->getSamplesND(rasterSampleHandle);
 		auto raySamples = m_sampleGenerator->getSamplesND(raySampleHandle);
-		for(std::size_t si = 0; si < camSamples.numSamples(); ++si)
+		for(std::size_t si = 0; si < rasterSamples.numSamples(); ++si)
 		{
-			const auto rasterCoord = m_filmWindowPx.sampleToSurface(math::sample_cast<float64>(camSamples.get<2>(si)));
+			const auto rasterCoord = m_filmWindowPx.sampleToSurface(math::sample_cast<float64>(rasterSamples.get<2>(si)));
 			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray ray;
-			m_camera->genSensedRay(rasterCoord, &ray);
+			m_receiver->genSensedRay(rasterCoord, &ray);
 
 			// FIXME: this loop uses correlated samples, also some processors
 			for(ISensedRayProcessor* processor : m_processors)
@@ -108,7 +108,7 @@ void CameraSamplingWork::doWork()
 				processor->process(rasterCoord, ray, sampleFlow);
 			}
 		}
-		m_numSamplesTaken.fetch_add(static_cast<uint32>(camSamples.numSamples()), std::memory_order_relaxed);
+		m_numSamplesTaken.fetch_add(static_cast<uint32>(rasterSamples.numSamples()), std::memory_order_relaxed);
 
 		if(m_onWorkReport)
 		{
@@ -133,12 +133,12 @@ void CameraSamplingWork::doWork()
 	}
 }
 
-void CameraSamplingWork::setSampleGenerator(std::unique_ptr<SampleGenerator> sampleGenerator)
+void ReceiverSamplingWork::setSampleGenerator(std::unique_ptr<SampleGenerator> sampleGenerator)
 {
 	m_sampleGenerator = std::move(sampleGenerator);
 }
 
-void CameraSamplingWork::setSampleDimensions(
+void ReceiverSamplingWork::setSampleDimensions(
 	const math::TVector2<int64>&  filmResPx,
 	const math::TAABB2D<float64>& filmWindowPx,
 	const math::TVector2<int64>&  sampleResPx)
@@ -150,33 +150,33 @@ void CameraSamplingWork::setSampleDimensions(
 	m_sampleResPx  = math::Vector2S(sampleResPx);
 }
 
-void CameraSamplingWork::addProcessor(ISensedRayProcessor* const processor)
+void ReceiverSamplingWork::addProcessor(ISensedRayProcessor* const processor)
 {
 	PH_ASSERT(processor);
 
 	m_processors.push_back(processor);
 }
 
-void CameraSamplingWork::onWorkStart(std::function<void()> func)
+void ReceiverSamplingWork::onWorkStart(std::function<void()> func)
 {
 	m_onWorkStart = std::move(func);
 }
 
-void CameraSamplingWork::onWorkReport(std::function<void()> func)
+void ReceiverSamplingWork::onWorkReport(std::function<void()> func)
 {
 	m_onWorkReport = std::move(func);
 }
 
-void CameraSamplingWork::onWorkFinish(std::function<void()> func)
+void ReceiverSamplingWork::onWorkFinish(std::function<void()> func)
 {
 	m_onWorkFinish = std::move(func);
 }
 
-CameraSamplingWork& CameraSamplingWork::operator = (CameraSamplingWork&& other)
+ReceiverSamplingWork& ReceiverSamplingWork::operator = (ReceiverSamplingWork&& other)
 {
 	RenderWork::operator = (std::move(other));
 
-	m_camera          = other.m_camera;
+	m_receiver        = other.m_receiver;
 	m_processors      = std::move(other.m_processors);
 	m_sampleGenerator = std::move(other.m_sampleGenerator);
 	m_filmResPx       = std::move(other.m_filmResPx);

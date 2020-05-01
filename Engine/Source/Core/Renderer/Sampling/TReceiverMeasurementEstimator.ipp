@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Renderer/Sampling/TCameraMeasurementEstimator.h"
+#include "Core/Renderer/Sampling/TReceiverMeasurementEstimator.h"
 #include "Math/TVector2.h"
 #include "Core/Ray.h"
 #include "Core/Filmic/SampleFilters.h"
@@ -10,8 +10,8 @@ namespace ph
 {
 
 template<typename SamplingFilmType, typename EstimationType>
-inline TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
-TCameraMeasurementEstimator(
+inline TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
+TReceiverMeasurementEstimator(
 	const std::size_t  numFilms,
 	const std::size_t  numEstimations,
 	Integrand          integrand,
@@ -36,8 +36,8 @@ TCameraMeasurementEstimator(
 }
 
 template<typename SamplingFilmType, typename EstimationType>
-inline TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
-TCameraMeasurementEstimator(TCameraMeasurementEstimator&& other) :
+inline TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
+TReceiverMeasurementEstimator(TReceiverMeasurementEstimator&& other) :
 	m_filter          (std::move(other.m_filter)),
 	m_estimations     (std::move(other.m_estimations)),
 	m_filmActualResFPx(std::move(other.m_filmActualResFPx)),
@@ -48,7 +48,7 @@ TCameraMeasurementEstimator(TCameraMeasurementEstimator&& other) :
 {}
 
 template<typename SamplingFilmType, typename EstimationType>
-inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
+inline auto TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 process(
 	const math::Vector2D& rasterCoord,
 	const Ray&            sensedRay, 
@@ -70,7 +70,7 @@ process(
 }
 
 template<typename SamplingFilmType, typename EstimationType>
-inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
+inline auto TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 addEstimator(const Estimator* const estimator)
 	-> void
 {
@@ -80,7 +80,7 @@ addEstimator(const Estimator* const estimator)
 }
 
 template<typename SamplingFilmType, typename EstimationType>
-inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
+inline auto TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 addFilmEstimation(
 	const std::size_t filmIndex,
 	const std::size_t estimationIndex)
@@ -93,7 +93,7 @@ addFilmEstimation(
 }
 
 template<typename SamplingFilmType, typename EstimationType>
-inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
+inline auto TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 clearFilms()
 	-> void
 {
@@ -104,7 +104,7 @@ clearFilms()
 }
 
 template<typename SamplingFilmType, typename EstimationType>
-inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
+inline auto TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 clearFilm(const std::size_t index)
 	-> void
 {
@@ -114,7 +114,7 @@ clearFilm(const std::size_t index)
 }
 
 template<typename SamplingFilmType, typename EstimationType>
-inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
+inline auto TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 mergeFilmTo(const std::size_t fromIndex, SamplingFilmType& toFilm)
 	-> void
 {
@@ -124,7 +124,7 @@ mergeFilmTo(const std::size_t fromIndex, SamplingFilmType& toFilm)
 }
 
 template<typename SamplingFilmType, typename EstimationType>
-inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
+inline auto TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 setFilmDimensions(
 	const math::TVector2<int64>& actualResPx,
 	const math::TAABB2D<int64>&  effectiveWindowPx,
@@ -142,7 +142,7 @@ setFilmDimensions(
 }
 
 template<typename SamplingFilmType, typename EstimationType>
-inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
+inline auto TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 numEstimations() const
 	-> std::size_t
 {
@@ -150,7 +150,7 @@ numEstimations() const
 }
 
 template<typename SamplingFilmType, typename EstimationType>
-inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
+inline auto TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 getFilmEffectiveWindowPx() const
 	-> math::TAABB2D<int64>
 {
@@ -160,7 +160,7 @@ getFilmEffectiveWindowPx() const
 }
 
 template<typename SamplingFilmType, typename EstimationType>
-inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
+inline auto TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 getFilmDimensions() const
 	-> SamplingFilmDimensions
 {
@@ -170,7 +170,7 @@ getFilmDimensions() const
 }
 
 template<typename SamplingFilmType, typename EstimationType>
-inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
+inline auto TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 isSoftEdgedFilm() const
 	-> bool
 {
@@ -180,9 +180,9 @@ isSoftEdgedFilm() const
 }
 
 template<typename SamplingFilmType, typename EstimationType>
-inline auto TCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
-operator = (TCameraMeasurementEstimator&& other)
-	-> TCameraMeasurementEstimator&
+inline auto TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
+operator = (TReceiverMeasurementEstimator&& other)
+	-> TReceiverMeasurementEstimator&
 {
 	ISensedRayProcessor::operator = (std::move(other));
 

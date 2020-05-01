@@ -32,7 +32,7 @@ void PMRenderer::doUpdate(const SdlResourcePack& data)
 	m_film = std::make_unique<HdrRgbFilm>(getRenderWidthPx(), getRenderHeightPx(), getCropWindowPx(), m_filter);
 
 	m_scene = &(data.visualWorld.getScene());
-	m_camera = data.getCamera().get();
+	m_receiver = data.getReceiver().get();
 	m_sg = data.getSampleGenerator().get();
 
 	m_statistics.zero();
@@ -88,7 +88,7 @@ void PMRenderer::renderWithVanillaPM()
 
 			TPhotonMappingWork<Photon> photonMappingWork(
 				m_scene,
-				m_camera,
+				m_receiver,
 				sampleGenerator.get(),
 				&(photonBuffer[workStart]),
 				workEnd - workStart,
@@ -128,7 +128,7 @@ void PMRenderer::renderWithVanillaPM()
 			TViewPathTracingWork<VPMRadianceEvaluator> radianceEvaluator(
 				&evaluator,
 				m_scene,
-				m_camera,
+				m_receiver,
 				sampleGenerator.get(),
 				getCropWindowPx());
 
@@ -156,7 +156,7 @@ void PMRenderer::renderWithProgressivePM()
 		TViewPathTracingWork<ViewpointCollector> viewpointWork(
 			&viewpointCollector,
 			m_scene, 
-			m_camera, 
+			m_receiver,
 			viewpointSampleGenerator.get(),
 			getCropWindowPx());
 
@@ -198,7 +198,7 @@ void PMRenderer::renderWithProgressivePM()
 
 				TPhotonMappingWork<Photon> photonMappingWork(
 					m_scene,
-					m_camera,
+					m_receiver,
 					sampleGenerator.get(),
 					&(photonBuffer[workStart]),
 					workEnd - workStart,
@@ -318,7 +318,7 @@ void PMRenderer::renderWithStochasticProgressivePM()
 
 				TPhotonMappingWork<Photon> photonMappingWork(
 					m_scene,
-					m_camera,
+					m_receiver,
 					sampleGenerator.get(),
 					&(photonBuffer[workStart]),
 					workEnd - workStart,
@@ -362,7 +362,7 @@ void PMRenderer::renderWithStochasticProgressivePM()
 				TViewPathTracingWork<RadianceEvaluator> viewpointWork(
 					&radianceEvaluator,
 					m_scene,
-					m_camera,
+					m_receiver,
 					sampleGenerator.get(),
 					region);
 
@@ -479,7 +479,7 @@ PMRenderer::PMRenderer(const InputPacket& packet) :
 	Renderer(packet),
 	m_film(),
 	m_scene(nullptr),
-	m_camera(nullptr),
+	m_receiver(nullptr),
 	m_sg(nullptr),
 	m_filter(SampleFilters::createBlackmanHarrisFilter()),
 

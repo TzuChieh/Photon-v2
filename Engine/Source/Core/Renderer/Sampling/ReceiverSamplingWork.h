@@ -15,14 +15,14 @@
 namespace ph
 {
 
-class Camera;
+class Receiver;
 
-class CameraSamplingWork : public RenderWork, public INoncopyable
+class ReceiverSamplingWork : public RenderWork, public INoncopyable
 {
 public:
-	CameraSamplingWork();
-	explicit CameraSamplingWork(const Camera* camera);
-	CameraSamplingWork(CameraSamplingWork&& other);
+	ReceiverSamplingWork();
+	explicit ReceiverSamplingWork(const Receiver* receiver);
+	ReceiverSamplingWork(ReceiverSamplingWork&& other);
 
 	SamplingStatistics asyncGetStatistics();
 
@@ -37,12 +37,12 @@ public:
 	void onWorkReport(std::function<void()> func);
 	void onWorkFinish(std::function<void()> func);
 
-	CameraSamplingWork& operator = (CameraSamplingWork&& other);
+	ReceiverSamplingWork& operator = (ReceiverSamplingWork&& other);
 
 private:
 	void doWork() override;
 
-	const Camera*                     m_camera;
+	const Receiver*                   m_receiver;
 	std::vector<ISensedRayProcessor*> m_processors;
 	std::unique_ptr<SampleGenerator>  m_sampleGenerator;
 	math::Vector2D                    m_filmResPx;

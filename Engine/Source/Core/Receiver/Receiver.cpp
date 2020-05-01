@@ -1,4 +1,4 @@
-#include "Core/Camera/Camera.h"
+#include "Core/Receiver/Receiver.h"
 #include "DataIO/SDL/InputPacket.h"
 #include "Core/RayDifferential.h"
 #include "Core/Ray.h"
@@ -13,17 +13,17 @@ namespace ph
 
 namespace
 {
-	const Logger logger(LogSender("Camera"));
+	const Logger logger(LogSender("Receiver"));
 }
 
-Camera::Camera() :
-	Camera(
+Receiver::Receiver() :
+	Receiver(
 		math::Vector3R(0, 0, 0), 
 		math::QuaternionR::makeNoRotation(),
 		{960, 540})
 {}
 
-Camera::Camera(
+Receiver::Receiver(
 	const math::Vector3R&    position, 
 	const math::QuaternionR& rotation,
 	const math::Vector2S&    resolution) :
@@ -31,7 +31,7 @@ Camera::Camera(
 	m_position                 (position),
 	m_direction                (makeDirectionFromRotation(rotation)),
 	m_resolution               (resolution),
-	m_receiverToWorldDecomposed(makeDecomposedCameraPose(position, rotation))
+	m_receiverToWorldDecomposed(makeDecomposedReceiverPose(position, rotation))
 {
 	PH_ASSERT_GT(m_resolution.x, 0);
 	PH_ASSERT_GT(m_resolution.y, 0);
@@ -58,12 +58,12 @@ Camera::Camera(
 //	                         (dpyRay.getDirection() - dnyRay.getDirection()).divLocal(reciIntervalPx));
 //}
 
-math::Vector3R Camera::makeDirectionFromRotation(const math::QuaternionR& rotation)
+math::Vector3R Receiver::makeDirectionFromRotation(const math::QuaternionR& rotation)
 {
 	return math::Vector3R(0, 0, -1).rotate(rotation).normalize();
 }
 
-math::TDecomposedTransform<float64> Camera::makeDecomposedCameraPose(
+math::TDecomposedTransform<float64> Receiver::makeDecomposedReceiverPose(
 	const math::Vector3R&    position,
 	const math::QuaternionR& rotation)
 {
@@ -71,7 +71,7 @@ math::TDecomposedTransform<float64> Camera::makeDecomposedCameraPose(
 
 	pose.setPosition(math::Vector3D(position));
 
-	// changes unit from mm to m
+	// Changes unit from mm to m
 	pose.setScale(0.001);
 
 	pose.setRotation(math::QuaternionD(rotation));
@@ -79,7 +79,7 @@ math::TDecomposedTransform<float64> Camera::makeDecomposedCameraPose(
 	return pose;
 }
 
-math::QuaternionR Camera::makeRotationFromVectors(
+math::QuaternionR Receiver::makeRotationFromVectors(
 	const math::Vector3R& direction,
 	const math::Vector3R& upAxis)
 {
@@ -129,7 +129,7 @@ math::QuaternionR Camera::makeRotationFromVectors(
 	return math::QuaternionR(worldToViewRotMat);
 }
 
-math::QuaternionR Camera::makeRotationFromYawPitch(real yawDegrees, real pitchDegrees)
+math::QuaternionR Receiver::makeRotationFromYawPitch(real yawDegrees, real pitchDegrees)
 {
 	if(yawDegrees < 0.0_r || yawDegrees > 360.0_r)
 	{
@@ -154,8 +154,8 @@ math::QuaternionR Camera::makeRotationFromYawPitch(real yawDegrees, real pitchDe
 
 // command interface
 
-Camera::Camera(const InputPacket& packet) :
-	Camera()
+Receiver::Receiver(const InputPacket& packet) :
+	Receiver()
 {
 	m_position = packet.getVector3("position", 
 		m_position, DataTreatment::REQUIRED());
@@ -178,7 +178,7 @@ Camera::Camera(const InputPacket& packet) :
 	else
 	{
 		logger.log(ELogLevel::WARNING_MED, 
-			"no camera rotation info provided");
+			"no rotation info provided");
 	}
 	m_direction = makeDirectionFromRotation(rotation);
 
@@ -187,15 +187,15 @@ Camera::Camera(const InputPacket& packet) :
 	m_resolution.y = packet.getInteger("resolution-y",
 		static_cast<integer>(m_resolution.y), DataTreatment::REQUIRED("using default: " + std::to_string(m_resolution.y)));
 
-	m_receiverToWorldDecomposed = makeDecomposedCameraPose(m_position, rotation);
+	m_receiverToWorldDecomposed = makeDecomposedReceiverPose(m_position, rotation);
 }
 
-SdlTypeInfo Camera::ciTypeInfo()
+SdlTypeInfo Receiver::ciTypeInfo()
 {
-	return SdlTypeInfo(ETypeCategory::REF_CAMERA, "camera");
+	return SdlTypeInfo(ETypeCategory::REF_RECEIVER, "receiver");
 }
 
-void Camera::ciRegister(CommandRegister& cmdRegister)
+void Receiver::ciRegister(CommandRegister& cmdRegister)
 {}
 
 }// end namespace ph

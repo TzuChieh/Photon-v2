@@ -28,7 +28,7 @@ VisualWorld::VisualWorld() :
 	//m_emitterSampler(std::make_unique<ESUniformRandom>()),
 	m_emitterSampler(std::make_unique<ESPowerFavoring>()),
 	m_scene(),
-	m_cameraPos(0),
+	m_receiverPos(0),
 	m_cookSettings(),
 
 	m_backgroundEmitterPrimitive(nullptr)
@@ -42,7 +42,7 @@ VisualWorld::VisualWorld(VisualWorld&& other) :
 	m_intersector       (std::move(other.m_intersector)), 
 	m_emitterSampler    (std::move(other.m_emitterSampler)),
 	m_scene             (std::move(other.m_scene)),
-	m_cameraPos         (std::move(other.m_cameraPos)),
+	m_receiverPos         (std::move(other.m_receiverPos)),
 	m_cookSettings      (std::move(other.m_cookSettings)),
 
 	m_backgroundEmitterPrimitive(std::move(other.m_backgroundEmitterPrimitive))
@@ -76,8 +76,8 @@ void VisualWorld::cook()
 	VisualWorldInfo visualWorldInfo;
 	math::AABB3D bound = calcIntersectableBound(m_cookedActorStorage);
 
-	// TODO: should union with camera's bound instead
-	bound.unionWith(m_cameraPos);
+	// TODO: should union with receiver's bound instead
+	bound.unionWith(m_receiverPos);
 
 	visualWorldInfo.setRootActorsBound(bound);
 	cookingContext.setVisualWorldInfo(&visualWorldInfo);

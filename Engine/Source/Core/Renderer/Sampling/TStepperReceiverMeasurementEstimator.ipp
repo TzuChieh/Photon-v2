@@ -1,20 +1,20 @@
 #pragma once
 
-#include "Core/Renderer/Sampling/TStepperCameraMeasurementEstimator.h"
+#include "Core/Renderer/Sampling/TStepperReceiverMeasurementEstimator.h"
 #include "Core/Estimator/IRayEnergyEstimator.h"
 
 namespace ph
 {
 
 template<typename SamplingFilmType, typename EstimationType>
-inline TStepperCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
-TStepperCameraMeasurementEstimator(
+inline TStepperReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
+TStepperReceiverMeasurementEstimator(
 	const std::size_t numFilms,
 	const std::size_t numEstimations,
 	Integrand         integrand,
 	SampleFilter      filter) : 
 
-	TCameraMeasurementEstimator<SamplingFilmType, EstimationType>(
+	TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>(
 		numFilms,
 		numEstimations,
 		std::move(integrand),
@@ -25,14 +25,14 @@ TStepperCameraMeasurementEstimator(
 {}
 
 template<typename SamplingFilmType, typename EstimationType>
-inline void TStepperCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
+inline void TStepperReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 onBatchStart(const uint64 batchNumber)
 {
 	m_currentBatchNumber = batchNumber;
 }
 
 template<typename SamplingFilmType, typename EstimationType>
-inline void TStepperCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
+inline void TStepperReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 process(
 	const math::Vector2D& rasterCoord,
 	const Ray&            ray, 
@@ -56,7 +56,7 @@ process(
 }
 
 template<typename SamplingFilmType, typename EstimationType>
-inline void TStepperCameraMeasurementEstimator<SamplingFilmType, EstimationType>::
+inline void TStepperReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 setFilmStepSize(
 	const std::size_t filmIndex,
 	const std::size_t stepSize)

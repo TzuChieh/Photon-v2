@@ -10,7 +10,7 @@ namespace ph
 
 SdlResourcePack::SdlResourcePack() :
 	visualWorld(), renderOption(), 
-	m_camera(nullptr), 
+	m_receiver(nullptr),
 	m_sampleGenerator(nullptr),
 	m_renderer(nullptr)
 {}
@@ -19,10 +19,10 @@ void SdlResourcePack::update(const real deltaS)
 {
 	const std::string& coreResourceName = SdlParser::CORE_DATA_NAME();
 
-	m_camera          = resources.getResource<Camera>         (coreResourceName, DataTreatment::REQUIRED());
+	m_receiver        = resources.getResource<Receiver>       (coreResourceName, DataTreatment::REQUIRED());
 	m_sampleGenerator = resources.getResource<SampleGenerator>(coreResourceName, DataTreatment::REQUIRED());
 	m_renderer        = resources.getResource<Renderer>       (coreResourceName, DataTreatment::REQUIRED());
-	if(!m_camera || !m_sampleGenerator || !m_renderer)
+	if(!m_receiver || !m_sampleGenerator || !m_renderer)
 	{
 		std::cerr << "warning: at Description::update(), data incomplete" << std::endl;
 		return;
@@ -34,7 +34,7 @@ void SdlResourcePack::update(const real deltaS)
 		m_cookSettings = std::make_shared<CookSettings>();
 	}
 
-	visualWorld.setCameraPosition(m_camera->getPosition());
+	visualWorld.setReceiverPosition(m_receiver->getPosition());
 	visualWorld.setCookSettings(m_cookSettings);
 
 	const auto& actors = resources.getActors();

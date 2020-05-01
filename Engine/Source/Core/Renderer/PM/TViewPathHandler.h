@@ -20,9 +20,9 @@ class TViewPathHandler
 	friend Derived;
 
 public:
-	// Called after a camera sample is generated.
-	// Returns whether this camera sample should be used.
-	bool onCameraSampleStart(
+	// Called after a receiver sample is generated.
+	// Returns whether this receiver sample should be used.
+	bool onReceiverSampleStart(
 		const math::Vector2D&   rasterCoord,
 		const SpectralStrength& pathThroughput);
 
@@ -34,10 +34,10 @@ public:
 		const SurfaceHit&       surfaceHit,
 		const SpectralStrength& pathThroughput) -> ViewPathTracingPolicy;
 
-	// Called after a camera sample is ended.
-	void onCameraSampleEnd();
+	// Called after a receiver sample is ended.
+	void onReceiverSampleEnd();
 
-	// Called after a batch of camera samples has been consumed.
+	// Called after a batch of receiver samples has been consumed.
 	void onSampleBatchFinished();
 
 private:
@@ -48,11 +48,11 @@ private:
 // In-header Implementations:
 
 template<typename Derived>
-bool TViewPathHandler<Derived>::onCameraSampleStart(
+bool TViewPathHandler<Derived>::onReceiverSampleStart(
 	const math::Vector2D&   rasterCoord,
 	const SpectralStrength& pathThroughput)
 {
-	return static_cast<Derived&>(*this).impl_onCameraSampleStart(
+	return static_cast<Derived&>(*this).impl_onReceiverSampleStart(
 		rasterCoord,
 		pathThroughput);
 }
@@ -70,9 +70,9 @@ auto TViewPathHandler<Derived>::onPathHitSurface(
 }
 
 template<typename Derived>
-void TViewPathHandler<Derived>::onCameraSampleEnd()
+void TViewPathHandler<Derived>::onReceiverSampleEnd()
 {
-	static_cast<Derived&>(*this).impl_onCameraSampleEnd();
+	static_cast<Derived&>(*this).impl_onReceiverSampleEnd();
 }
 
 template<typename Derived>

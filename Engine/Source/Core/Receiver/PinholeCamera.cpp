@@ -1,4 +1,4 @@
-#include "Core/Camera/PinholeCamera.h"
+#include "Core/Receiver/PinholeCamera.h"
 #include "Core/Ray.h"
 #include "DataIO/SDL/InputPacket.h"
 #include "Math/math.h"
@@ -95,7 +95,7 @@ PinholeCamera::PinholeCamera(const InputPacket& packet) :
 
 SdlTypeInfo PinholeCamera::ciTypeInfo()
 {
-	return SdlTypeInfo(ETypeCategory::REF_CAMERA, "pinhole");
+	return SdlTypeInfo(ETypeCategory::REF_RECEIVER, "pinhole");
 }
 
 void PinholeCamera::ciRegister(CommandRegister& cmdRegister)

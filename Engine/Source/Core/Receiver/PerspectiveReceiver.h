@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Camera/Camera.h"
+#include "Core/Receiver/Receiver.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "DataIO/SDL/ISdlResource.h"
@@ -20,7 +20,7 @@ namespace math
 	class Transform;
 }
 
-class PerspectiveReceiver : public Camera, public TCommandInterface<PerspectiveReceiver>
+class PerspectiveReceiver : public Receiver, public TCommandInterface<PerspectiveReceiver>
 {
 public:
 	// TODO: ordinary ctors
@@ -37,7 +37,6 @@ protected:
 	std::shared_ptr<math::Transform>    m_receiverToWorld;
 	std::shared_ptr<math::Transform>    m_rasterToReceiver;
 	math::TDecomposedTransform<float64> m_rasterToReceiverDecomposed;
-	//std::shared_ptr<math::Transform> m_filmToWorld;
 	
 private:
 	real m_sensorWidthMM;
@@ -57,13 +56,13 @@ public:
 /*
 	<SDL_interface>
 
-	<category>  camera        </category>
-	<type_name> perspective   </type_name>
-	<extend>    camera.camera </extend>
+	<category>  receiver          </category>
+	<type_name> perspective       </type_name>
+	<extend>    receiver.receiver </extend>
 
-	<name> Perspective Camera </name>
+	<name> Perspective Receiver </name>
 	<description>
-		For cameras that have perspective effect.
+		For receivers that creates perspective effect in their resulting image.
 	</description>
 
 	<command type="creator" intent="blueprint">

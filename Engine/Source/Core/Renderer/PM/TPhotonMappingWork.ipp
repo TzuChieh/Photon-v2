@@ -2,7 +2,7 @@
 
 #include "Core/Renderer/PM/TPhotonMappingWork.h"
 #include "World/Scene.h"
-#include "Core/Camera/Camera.h"
+#include "Core/Receiver/Receiver.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Ray.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
@@ -28,14 +28,14 @@ template<typename Photon>
 inline TPhotonMappingWork<Photon>::TPhotonMappingWork(
 
 	const Scene* const     scene,
-	const Camera* const    camera,
+	const Receiver* const  receiver,
 	SampleGenerator* const sampleGenerator,
 	Photon* const          photonBuffer,
 	const std::size_t      numPhotons,
 	std::size_t* const     out_numPhotonPaths) :
 
 	m_scene(scene),
-	m_camera(camera),
+	m_receiver(receiver),
 	m_sampleGenerator(sampleGenerator),
 	m_photonBuffer(photonBuffer),
 	m_numPhotons(numPhotons),

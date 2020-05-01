@@ -29,7 +29,7 @@ public:
 		std::size_t maxViewpointDepth,
 		real        initialKernelRadius);
 
-	bool impl_onCameraSampleStart(
+	bool impl_onReceiverSampleStart(
 		const math::Vector2D&   rasterCoord,
 		const SpectralStrength& pathThroughput);
 
@@ -38,7 +38,7 @@ public:
 		const SurfaceHit&       surfaceHit,
 		const SpectralStrength& pathThroughput) -> ViewPathTracingPolicy;
 
-	void impl_onCameraSampleEnd();
+	void impl_onReceiverSampleEnd();
 
 	void impl_onSampleBatchFinished();
 
@@ -50,7 +50,7 @@ private:
 	real                   m_initialKernelRadius;
 
 	Viewpoint              m_viewpoint;
-	std::size_t            m_cameraSampleViewpoints;
+	std::size_t            m_receiverSampleViewpoints;
 
 	void addViewpoint(
 		const SurfaceHit&       surfaceHit, 
@@ -72,7 +72,7 @@ inline TPPMViewpointCollector<Viewpoint>::TPPMViewpointCollector(
 }
 
 template<typename Viewpoint>
-inline bool TPPMViewpointCollector<Viewpoint>::impl_onCameraSampleStart(
+inline bool TPPMViewpointCollector<Viewpoint>::impl_onReceiverSampleStart(
 	const math::Vector2D&   rasterCoord,
 	const SpectralStrength& pathThroughput)
 {
@@ -95,7 +95,7 @@ inline bool TPPMViewpointCollector<Viewpoint>::impl_onCameraSampleStart(
 		m_viewpoint.template set<EViewpointData::TAU>(SpectralStrength(0));
 	}
 
-	m_cameraSampleViewpoints = 0;
+	m_receiverSampleViewpoints = 0;
 
 	return true;
 }
@@ -146,26 +146,26 @@ inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
 }
 
 template<typename Viewpoint>
-inline void TPPMViewpointCollector<Viewpoint>::impl_onCameraSampleEnd()
+inline void TPPMViewpointCollector<Viewpoint>::impl_onReceiverSampleEnd()
 {
-	if(m_cameraSampleViewpoints > 0)
+	if(m_receiverSampleViewpoints > 0)
 	{
-		// Normalize current camera sample's path throughput.
+		// Normalize current receiver sample's path throughput.
 		if constexpr(Viewpoint::template has<EViewpointData::VIEW_THROUGHPUT>())
 		{
-			for(std::size_t i = m_viewpoints.size() - m_cameraSampleViewpoints; i < m_viewpoints.size(); ++i)
+			for(std::size_t i = m_viewpoints.size() - m_receiverSampleViewpoints; i < m_viewpoints.size(); ++i)
 			{
 				auto& viewpoint = m_viewpoints[i];
 
 				SpectralStrength pathThroughput = viewpoint.template get<EViewpointData::VIEW_THROUGHPUT>();
-				pathThroughput.mulLocal(static_cast<real>(m_cameraSampleViewpoints));
+				pathThroughput.mulLocal(static_cast<real>(m_receiverSampleViewpoints));
 				viewpoint.template set<EViewpointData::VIEW_THROUGHPUT>(pathThroughput);
 			}
 		}
 	}
 	else
 	{
-		//// If no viewpoint is found for current camera sample, we should add an
+		//// If no viewpoint is found for current receiver sample, we should add an
 		//// zero-contribution viewpoint.
 
 		//// HACK
@@ -217,7 +217,7 @@ void TPPMViewpointCollector<Viewpoint>::addViewpoint(
 	}
 
 	m_viewpoints.push_back(m_viewpoint);
-	++m_cameraSampleViewpoints;
+	++m_receiverSampleViewpoints;
 }
 
 }// end namespace ph

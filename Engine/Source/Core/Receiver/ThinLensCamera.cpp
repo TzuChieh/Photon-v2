@@ -1,4 +1,4 @@
-#include "Core/Camera/ThinLensCamera.h"
+#include "Core/Receiver/ThinLensCamera.h"
 #include "Core/Ray.h"
 #include "Math/Transform/Transform.h"
 #include "DataIO/SDL/InputPacket.h"
@@ -12,11 +12,11 @@ namespace ph
 
 void ThinLensCamera::genSensedRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
 {
-	math::Vector3R filmPosMM;
-	m_rasterToReceiver->transformP(math::Vector3R(rasterCoord.x, rasterCoord.y, 0), &filmPosMM);
+	math::Vector3R sensorPosMM;
+	m_rasterToReceiver->transformP(math::Vector3R(math::Vector3D(rasterCoord.x, rasterCoord.y, 0)), &sensorPosMM);
 
 	// subtracting lens' center position is omitted since it is at (0, 0, 0) mm
-	const math::Vector3R lensCenterToFilmDir = filmPosMM.normalize();
+	const math::Vector3R lensCenterToFilmDir = sensorPosMM.normalize();
 
 	PH_ASSERT_GT(lensCenterToFilmDir.z, 0);
 	const real           focalPlaneDistMM = m_focalDistanceMM / lensCenterToFilmDir.z;
@@ -74,7 +74,7 @@ ThinLensCamera::ThinLensCamera(const InputPacket& packet) :
 
 SdlTypeInfo ThinLensCamera::ciTypeInfo()
 {
-	return SdlTypeInfo(ETypeCategory::REF_CAMERA, "thin-lens");
+	return SdlTypeInfo(ETypeCategory::REF_RECEIVER, "thin-lens");
 }
 
 void ThinLensCamera::ciRegister(CommandRegister& cmdRegister)

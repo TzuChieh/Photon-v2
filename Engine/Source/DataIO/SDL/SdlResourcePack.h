@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Core/Camera/Camera.h"
+#include "Core/Receiver/Receiver.h"
 #include "World/VisualWorld.h"
 #include "Core/Filmic/filmic_fwd.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
@@ -29,13 +29,13 @@ public:
 
 	void update(real deltaS);
 
-	inline std::shared_ptr<Camera>          getCamera()          const { return m_camera;          };
+	inline std::shared_ptr<Receiver>        getReceiver()        const { return m_receiver;        };
 	inline std::shared_ptr<SampleGenerator> getSampleGenerator() const { return m_sampleGenerator; };
 	inline std::shared_ptr<Renderer>        getRenderer()        const { return m_renderer;        };
 	inline std::shared_ptr<CookSettings>    getCookSettings()    const { return m_cookSettings;    };
 
 private:
-	std::shared_ptr<Camera>          m_camera;
+	std::shared_ptr<Receiver>        m_receiver;
 	std::shared_ptr<SampleGenerator> m_sampleGenerator;
 	std::shared_ptr<Renderer>        m_renderer;
 	std::shared_ptr<CookSettings>    m_cookSettings;

@@ -1,7 +1,7 @@
 #include "ph_core.h"
 #include "Api/ApiDatabase.h"
 #include "Core/Engine.h"
-#include "Core/Camera/Camera.h"
+#include "Core/Receiver/Receiver.h"
 #include "Api/test_scene.h"
 #include "Frame/TFrame.h"
 #include "Math/TArithmeticArray.h"

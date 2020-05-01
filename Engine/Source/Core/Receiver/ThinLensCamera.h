@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DataIO/SDL/TCommandInterface.h"
-#include "Core/Camera/PerspectiveReceiver.h"
+#include "Core/Receiver/PerspectiveReceiver.h"
 
 namespace ph
 {
@@ -35,9 +35,9 @@ public:
 /*
 	<SDL_interface>
 
-	<category>  camera             </category>
-	<type_name> thin-lens          </type_name>
-	<extend>    camera.perspective </extend>
+	<category>  receiver             </category>
+	<type_name> thin-lens            </type_name>
+	<extend>    receiver.perspective </extend>
 
 	<name> Thin Lens Camera </name>
 	<description>

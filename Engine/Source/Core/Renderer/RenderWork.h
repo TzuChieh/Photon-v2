@@ -4,7 +4,6 @@
 #include "Common/assertion.h"
 #include "Core/Renderer/RenderProgress.h"
 
-
 #include <atomic>
 #include <cstddef>
 #include <limits>

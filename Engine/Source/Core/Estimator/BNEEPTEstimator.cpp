@@ -38,9 +38,9 @@ void BNEEPTEstimator::estimate(
 	SampleFlow&       sampleFlow,
 	EnergyEstimation& out_estimation) const
 {
-	const Scene&  scene  = integrand.getScene();
-	const Camera& camera = integrand.getCamera();
-	const auto&   mis    = TMis<EMisStyle::POWER>();
+	const Scene&    scene    = integrand.getScene();
+	const Receiver& receiver = integrand.getReceiver();
+	const auto&     mis      = TMis<EMisStyle::POWER>();
 
 	// common variables
 	SpectralStrength accuRadiance(0);

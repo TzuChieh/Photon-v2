@@ -15,7 +15,7 @@ namespace ph
 {
 
 class Scene;
-class Camera;
+class Receiver;
 class SampleGenerator;
 class Ray;
 class SampleFlow;
@@ -29,9 +29,9 @@ public:
 	TViewPathTracingWork(
 		ViewPathHandler* handler,
 		const Scene* scene,
-		const Camera* camera,
+		const Receiver* receiver,
 		SampleGenerator* sampleGenerator,
-		const Region& filmRegion);
+		const Region& rasterRegion);
 
 private:
 	void doWork() override;
@@ -39,9 +39,9 @@ private:
 	ViewPathHandler* m_handler;
 
 	const Scene*     m_scene;
-	const Camera*    m_camera;
+	const Receiver*  m_receiver;
 	SampleGenerator* m_sampleGenerator;
-	Region m_filmRegion;
+	Region m_rasterRegion;
 
 	void traceViewPath(
 		Ray tracingRay, 

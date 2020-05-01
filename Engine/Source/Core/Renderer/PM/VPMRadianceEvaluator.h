@@ -24,7 +24,6 @@ namespace ph
 {
 
 class Scene;
-class Camera;
 class SampleGenerator;
 class PMStatistics;
 class PMRenderer;
@@ -38,7 +37,7 @@ public:
 		HdrRgbFilm*                   film,
 		const Scene*                  scene);
 
-	bool impl_onCameraSampleStart(
+	bool impl_onReceiverSampleStart(
 		const math::Vector2D&   rasterCoord,
 		const SpectralStrength& pathThroughput);
 
@@ -47,7 +46,7 @@ public:
 		const SurfaceHit&       surfaceHit,
 		const SpectralStrength& pathThroughput) -> ViewPathTracingPolicy;
 
-	void impl_onCameraSampleEnd();
+	void impl_onReceiverSampleEnd();
 
 	void impl_onSampleBatchFinished();
 
@@ -94,7 +93,7 @@ inline VPMRadianceEvaluator::VPMRadianceEvaluator(
 	m_film->clear();
 }
 
-inline bool VPMRadianceEvaluator::impl_onCameraSampleStart(
+inline bool VPMRadianceEvaluator::impl_onReceiverSampleStart(
 	const math::Vector2D&   rasterCoord,
 	const SpectralStrength& pathThroughput)
 {
@@ -179,7 +178,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 	return ViewPathTracingPolicy().kill();
 }
 
-inline void VPMRadianceEvaluator::impl_onCameraSampleEnd()
+inline void VPMRadianceEvaluator::impl_onReceiverSampleEnd()
 {
 	m_film->addSample(m_rasterCoord.x, m_rasterCoord.y, m_sampledRadiance);
 }

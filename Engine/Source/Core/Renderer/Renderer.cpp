@@ -2,7 +2,7 @@
 #include "Common/primitive_type.h"
 #include "Core/Filmic/Film.h"
 #include "World/VisualWorld.h"
-#include "Core/Camera/Camera.h"
+#include "Core/Receiver/Receiver.h"
 #include "Core/Ray.h"
 #include "Math/constant.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
@@ -34,7 +34,7 @@ void Renderer::update(const SdlResourcePack& data)
 {
 	logger.log("# render workers = " + std::to_string(numWorkers()));
 
-	const auto resolution = data.getCamera()->getRasterResolution();
+	const auto resolution = data.getReceiver()->getRasterResolution();
 	// HACK
 	m_widthPx = static_cast<uint32>(resolution.x);
 	m_heightPx = static_cast<uint32>(resolution.y);

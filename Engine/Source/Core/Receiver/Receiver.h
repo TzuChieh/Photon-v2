@@ -16,18 +16,17 @@ class Ray;
 class InputPacket;
 class RayDifferential;
 
-// TODO: rename to Receiver
-class Camera : public TCommandInterface<Camera>
+class Receiver : public TCommandInterface<Receiver>
 {
 public:
-	Camera();
+	Receiver();
 
-	Camera(
+	Receiver(
 		const math::Vector3R&    position, 
 		const math::QuaternionR& rotation,
 		const math::Vector2S&    resolution);
 
-	virtual ~Camera() = default;
+	virtual ~Receiver() = default;
 
 	// Given raster coordinates, generate a corresponding ray that would have
 	// hit that location from the light entry of the receiver. The light entry
@@ -62,35 +61,35 @@ private:
 		const math::Vector3R& direction, 
 		const math::Vector3R& upAxis);
 
-	static math::TDecomposedTransform<float64> makeDecomposedCameraPose(
+	static math::TDecomposedTransform<float64> makeDecomposedReceiverPose(
 		const math::Vector3R&    position, 
 		const math::QuaternionR& rotation);
 
 // command interface
 public:
-	explicit Camera(const InputPacket& packet);
+	explicit Receiver(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 // In-header Implementations:
 
-inline const math::Vector3R& Camera::getPosition() const
+inline const math::Vector3R& Receiver::getPosition() const
 {
 	return m_position;
 }
 
-inline const math::Vector3R& Camera::getDirection() const
+inline const math::Vector3R& Receiver::getDirection() const
 {
 	return m_direction;
 }
 
-inline const math::Vector2S& Camera::getRasterResolution() const
+inline const math::Vector2S& Receiver::getRasterResolution() const
 {
 	return m_resolution;
 }
 
-inline float64 Camera::getAspectRatio() const
+inline float64 Receiver::getAspectRatio() const
 {
 	PH_ASSERT_GT(m_resolution.y, 0);
 
@@ -102,36 +101,36 @@ inline float64 Camera::getAspectRatio() const
 /*
 	<SDL_interface>
 
-	<category>  camera </category>
-	<type_name> camera </type_name>
+	<category>  receiver </category>
+	<type_name> receiver </type_name>
 
-	<name> Camera </name>
+	<name> Receiver </name>
 	<description>
-		A camera for observing the scene.
+		An energy receiver for observing the scene.
 	</description>
 
 	<command type="creator" intent="blueprint">
 
 		<input name="position" type="vector3">
-			<description>Position of the camera.</description>
+			<description>Position of the receiver.</description>
 		</input>
 
 		<input name="rotation" type="quaternion">
-			<description>The orientation of the camera.</description>
+			<description>The orientation of the receiver.</description>
 		</input>
 
 		<input name="direction" type="vector3">
-			<description>Direction that this camera is looking at.</description>
+			<description>Direction that this receiver is looking at.</description>
 		</input>
 		<input name="up-axis" type="vector3">
-			<description>The direction that this camera consider as upward.</description>
+			<description>The direction that this receiver consider as upward.</description>
 		</input>
 
 		<input name="yaw-degrees" type="real">
-			<description>Rotation of the camera around +y axis in [0, 360].</description>
+			<description>Rotation of the receiver around +y axis in [0, 360].</description>
 		</input>
 		<input name="pitch-degrees" type="real">
-			<description>The camera's declination from the horizon in [-90, 90].</description>
+			<description>The receiver's declination from the horizon in [-90, 90].</description>
 		</input>
 
 	</command>

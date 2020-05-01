@@ -38,10 +38,10 @@ void AdaptiveSamplingRenderer::doUpdate(const SdlResourcePack& data)
 	m_numNoisyRegions       = 0;
 
 	m_scene           = &data.visualWorld.getScene();
-	m_camera          = data.getCamera().get();
+	m_receiver        = data.getReceiver().get();
 	m_sampleGenerator = data.getSampleGenerator().get();
 
-	const Integrand integrand(m_scene, m_camera);
+	const Integrand integrand(m_scene, m_receiver);
 
 	m_estimator->mapAttributeToEstimation(0, 0);
 	m_estimator->update(integrand);
@@ -70,8 +70,8 @@ void AdaptiveSamplingRenderer::doUpdate(const SdlResourcePack& data)
 
 		m_metaRecorders[workerId] = MetaRecordingProcessor(&m_filmEstimators[workerId]);
 
-		m_renderWorks[workerId] = CameraSamplingWork(
-			m_camera);
+		m_renderWorks[workerId] = ReceiverSamplingWork(
+			m_receiver);
 		//m_renderWorks[workerId].addProcessor(&m_filmEstimators[workerId]);
 		// DEBUG
 		m_renderWorks[workerId].addProcessor(&m_metaRecorders[workerId]);
@@ -347,7 +347,7 @@ AdaptiveSamplingRenderer::AdaptiveSamplingRenderer(const InputPacket& packet) :
 	//m_films(),
 	m_scene(nullptr),
 	m_sampleGenerator(nullptr),
-	m_camera(nullptr),
+	m_receiver(nullptr),
 	m_updatedRegions(),
 	m_rendererMutex()
 {

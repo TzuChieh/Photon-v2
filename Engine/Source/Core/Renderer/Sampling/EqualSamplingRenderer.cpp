@@ -48,10 +48,10 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 	m_submittedFractionBits = 0;
 	
 	m_scene           = &data.visualWorld.getScene();
-	m_camera          = data.getCamera().get();
+	m_receiver        = data.getReceiver().get();
 	m_sampleGenerator = data.getSampleGenerator().get();
 
-	const Integrand integrand(m_scene, m_camera);
+	const Integrand integrand(m_scene, m_receiver);
 	
 	m_estimator->mapAttributeToEstimation(0, 0);
 	m_estimator->update(integrand);
@@ -70,8 +70,8 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 		m_filmEstimators[workerId].addEstimator(m_estimator.get());
 		m_filmEstimators[workerId].addFilmEstimation(0, 0);
 
-		m_renderWorks[workerId] = CameraSamplingWork(
-			m_camera);
+		m_renderWorks[workerId] = ReceiverSamplingWork(
+			m_receiver);
 		m_renderWorks[workerId].addProcessor(&m_filmEstimators[workerId]);
 	}
 
@@ -330,7 +330,7 @@ EqualSamplingRenderer::EqualSamplingRenderer(const InputPacket& packet) :
 	SamplingRenderer(packet),
 
 	m_scene          (nullptr),
-	m_camera         (nullptr),
+	m_receiver       (nullptr),
 	m_sampleGenerator(nullptr),
 	m_mainFilm       (),
 

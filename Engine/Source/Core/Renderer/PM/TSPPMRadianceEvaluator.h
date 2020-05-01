@@ -44,7 +44,7 @@ public:
 		std::size_t numSamplesPerPixel,
 		std::size_t maxViewpointDepth);
 
-	bool impl_onCameraSampleStart(
+	bool impl_onReceiverSampleStart(
 		const math::Vector2D&   rasterCoord,
 		const SpectralStrength& pathThroughput);
 
@@ -53,7 +53,7 @@ public:
 		const SurfaceHit&       surfaceHit,
 		const SpectralStrength& pathThroughput) -> ViewPathTracingPolicy;
 
-	void impl_onCameraSampleEnd();
+	void impl_onReceiverSampleEnd();
 
 	void impl_onSampleBatchFinished();
 
@@ -108,7 +108,7 @@ inline TSPPMRadianceEvaluator<Viewpoint, Photon>::TSPPMRadianceEvaluator(
 }
 
 template<typename Viewpoint, typename Photon>
-inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleStart(
+inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleStart(
 	const math::Vector2D&   rasterCoord,
 	const SpectralStrength& pathThroughput)
 {
@@ -185,7 +185,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 }
 
 template<typename Viewpoint, typename Photon>
-inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onCameraSampleEnd()
+inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd()
 {
 	if(!m_isViewpointFound)
 	{

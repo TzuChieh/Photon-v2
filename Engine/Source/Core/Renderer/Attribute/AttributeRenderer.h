@@ -2,8 +2,8 @@
 
 #include "Core/Renderer/Renderer.h"
 #include "Core/Filmic/HdrRgbFilm.h"
-#include "Core/Renderer/Sampling/CameraSamplingWork.h"
-#include "Core/Renderer/Sampling/TCameraMeasurementEstimator.h"
+#include "Core/Renderer/Sampling/ReceiverSamplingWork.h"
+#include "Core/Renderer/Sampling/TReceiverMeasurementEstimator.h"
 #include "Core/Renderer/Region/WorkScheduler.h"
 #include "Core/Renderer/Sampling/MetaRecordingProcessor.h"
 #include "Core/Quantity/SpectralStrength.h"
@@ -19,7 +19,7 @@ namespace ph
 {
 
 class Scene;
-class Camera;
+class Receiver;
 class SampleGenerator;
 
 class AttributeRenderer : public Renderer, public TCommandInterface<AttributeRenderer>
@@ -41,7 +41,7 @@ public:
 
 private:
 	const Scene*     m_scene;
-	const Camera*    m_camera;
+	const Receiver*  m_receiver;
 	SampleGenerator* m_sampleGenerator;
 
 	std::string      m_attributeName;
