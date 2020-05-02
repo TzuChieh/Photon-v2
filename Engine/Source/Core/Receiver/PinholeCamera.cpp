@@ -10,10 +10,10 @@
 namespace ph
 {
 
-void PinholeCamera::genSensedRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
+void PinholeCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
 {
 	PH_ASSERT(out_ray);
-	out_ray->setDirection(genSensedRayDir(rasterCoord));
+	out_ray->setDirection(genReceiveRayDir(rasterCoord));
 	out_ray->setOrigin(getPinholePos());
 	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
 	out_ray->setMaxT(std::numeric_limits<real>::max());
@@ -28,7 +28,7 @@ void PinholeCamera::genSensedRay(const math::Vector2D& rasterCoord, Ray* const o
 		"direction = " + out_ray->getDirection().toString() + "\n");
 }
 
-math::Vector3R PinholeCamera::genSensedRayDir(const math::Vector2D& rasterCoord) const
+math::Vector3R PinholeCamera::genReceiveRayDir(const math::Vector2D& rasterCoord) const
 {
 	// Direction vector is computed in camera space then transformed to world
 	// space for better numerical precision. Subtracting two world space 

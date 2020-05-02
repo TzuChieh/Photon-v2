@@ -91,7 +91,7 @@ void AttributeRenderer::doRender()
 			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray ray;
-			m_receiver->genSensedRay(rasterCoord, &ray);
+			m_receiver->receiveRay(rasterCoord, &ray);
 
 			estimator.estimate(ray, integrand, sampleFlow, estimation);
 

@@ -10,7 +10,7 @@
 namespace ph
 {
 
-void ThinLensCamera::genSensedRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
+void ThinLensCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
 {
 	math::Vector3R sensorPosMM;
 	m_rasterToReceiver->transformP(math::Vector3R(math::Vector3D(rasterCoord.x, rasterCoord.y, 0)), &sensorPosMM);

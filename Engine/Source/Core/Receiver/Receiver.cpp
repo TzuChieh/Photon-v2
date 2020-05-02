@@ -46,10 +46,10 @@ Receiver::Receiver(
 //	const real reciIntervalPx = 1.0_r / deltaPx;
 //
 //	Ray dnxRay, dpxRay, dnyRay, dpyRay;
-//	genSensedRay(math::Vector2R(rasterPosPx.x - deltaPx, rasterPosPx.y), &dnxRay);
-//	genSensedRay(math::Vector2R(rasterPosPx.x + deltaPx, rasterPosPx.y), &dpxRay);
-//	genSensedRay(math::Vector2R(rasterPosPx.x, rasterPosPx.y - deltaPx), &dnyRay);
-//	genSensedRay(math::Vector2R(rasterPosPx.x, rasterPosPx.y + deltaPx), &dpyRay);
+//	receiveRay(math::Vector2R(rasterPosPx.x - deltaPx, rasterPosPx.y), &dnxRay);
+//	receiveRay(math::Vector2R(rasterPosPx.x + deltaPx, rasterPosPx.y), &dpxRay);
+//	receiveRay(math::Vector2R(rasterPosPx.x, rasterPosPx.y - deltaPx), &dnyRay);
+//	receiveRay(math::Vector2R(rasterPosPx.x, rasterPosPx.y + deltaPx), &dpyRay);
 //
 //	out_result->setPartialPs((dpxRay.getOrigin() - dnxRay.getOrigin()).divLocal(reciIntervalPx),
 //	                         (dpyRay.getOrigin() - dnyRay.getOrigin()).divLocal(reciIntervalPx));

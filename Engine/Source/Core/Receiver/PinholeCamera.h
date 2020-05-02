@@ -9,12 +9,12 @@ namespace ph
 class PinholeCamera : public PerspectiveReceiver, public TCommandInterface<PinholeCamera>
 {
 public:
-	void genSensedRay(const math::Vector2D& rasterCoord, Ray* out_ray) const override;
+	void receiveRay(const math::Vector2D& rasterCoord, Ray* out_ray) const override;
 	void evalEmittedImportanceAndPdfW(const math::Vector3R& targetPos, math::Vector2R* const out_filmCoord, math::Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const override;
 
 private:
 	const math::Vector3R& getPinholePos() const;
-	math::Vector3R genSensedRayDir(const math::Vector2D& rasterCoord) const;
+	math::Vector3R genReceiveRayDir(const math::Vector2D& rasterCoord) const;
 
 // command interface
 public:

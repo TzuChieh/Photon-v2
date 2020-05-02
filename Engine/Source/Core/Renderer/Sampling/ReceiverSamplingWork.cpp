@@ -100,7 +100,7 @@ void ReceiverSamplingWork::doWork()
 			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray ray;
-			m_receiver->genSensedRay(rasterCoord, &ray);
+			m_receiver->receiveRay(rasterCoord, &ray);
 
 			// FIXME: this loop uses correlated samples, also some processors
 			for(ISensedRayProcessor* processor : m_processors)

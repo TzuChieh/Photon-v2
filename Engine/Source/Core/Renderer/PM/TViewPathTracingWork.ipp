@@ -65,7 +65,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray tracingRay;
-			m_receiver->genSensedRay(rasterCoord, &tracingRay);
+			m_receiver->receiveRay(rasterCoord, &tracingRay);
 			tracingRay.reverse();
 
 			const std::size_t pathLength = 0;
