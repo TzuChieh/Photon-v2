@@ -52,7 +52,7 @@
 //	//Vector3R eN;
 //	//real emitterPdfA;
 //	//real emitterPdfW;
-//	//emitter->genSensingRay(&emitterRay, &emitterRadianceLe, &eN, &emitterPdfA, &emitterPdfW);
+//	//emitter->emitRay(&emitterRay, &emitterRadianceLe, &eN, &emitterPdfA, &emitterPdfW);
 //
 //	//emitterPdfA *= emitterPickPdf;
 //	//if(emitterRadianceLe.isZero() || emitterPdfA <= 0 || emitterPdfW <= 0)

@@ -73,7 +73,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 		math::Vector3R emitN;
 		real pdfA;
 		real pdfW;
-		m_scene->genSensingRay(sampleFlow, &tracingRay, &emittedRadiance, &emitN, &pdfA, &pdfW);
+		m_scene->emitRay(sampleFlow, &tracingRay, &emittedRadiance, &emitN, &pdfA, &pdfW);
 		if(pdfA * pdfW == 0.0_r)
 		{
 			continue;

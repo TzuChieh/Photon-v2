@@ -38,7 +38,7 @@
 //	//const Camera& camera = *data.camera;
 //
 //	///*Ray ray;
-//	//camera.genSensingRay(sample, &ray);*/
+//	//camera.emitRay(sample, &ray);*/
 //
 //	//// common variables
 //	//Vector3R rayOriginDelta;

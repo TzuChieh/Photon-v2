@@ -52,7 +52,7 @@ void MultiDiffuseSurfaceEmitter::genDirectSample(SampleFlow& sampleFlow, DirectL
 	sample.pdfW *= pickPdf;
 }
 
-void MultiDiffuseSurfaceEmitter::genSensingRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void MultiDiffuseSurfaceEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
 	// randomly and uniformly pick a primitive
 
@@ -60,7 +60,7 @@ void MultiDiffuseSurfaceEmitter::genSensingRay(SampleFlow& sampleFlow, Ray* out_
 	const auto& emitter = m_emitters[math::Random::genUniformIndex_iL_eU(0, m_emitters.size())];
 	const real pickPdf = 1.0_r / static_cast<real>(m_emitters.size());
 
-	emitter.genSensingRay(sampleFlow, out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
+	emitter.emitRay(sampleFlow, out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
 	*out_pdfA *= pickPdf;
 
 
@@ -97,7 +97,7 @@ void MultiDiffuseSurfaceEmitter::genSensingRay(SampleFlow& sampleFlow, Ray* out_
 	//*out_pdfW = 1.0_r / (4.0_r * PH_PI_REAL) / out_ray->getDirection().absDot(tPositionSample.normal);
 	//m_emittedRadiance->sample(tPositionSample.uvw, out_Le);
 
-	//std::cerr << "PrimitiveAreaEmitter::genSensingRay() not implemented" << std::endl;
+	//std::cerr << "PrimitiveAreaEmitter::emitRay() not implemented" << std::endl;
 }
 
 real MultiDiffuseSurfaceEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const

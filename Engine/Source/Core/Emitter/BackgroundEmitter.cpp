@@ -109,7 +109,7 @@ void BackgroundEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSampl
 }
 
 // FIXME: ray time
-void BackgroundEmitter::genSensingRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void BackgroundEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
 	real uvSamplePdf;
 	const math::Vector2R uvSample = m_sampleDistribution.sampleContinuous(

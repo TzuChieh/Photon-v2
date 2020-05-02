@@ -55,9 +55,9 @@ void OmniModulatedEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSa
 	sample.radianceLe.mulLocal(filterValue);
 }
 
-void OmniModulatedEmitter::genSensingRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void OmniModulatedEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
-	m_source->genSensingRay(sampleFlow, out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
+	m_source->emitRay(sampleFlow, out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
 
 	math::Vector3R uv;
 	m_dirToUv.directionToUvw(out_ray->getDirection(), &uv);

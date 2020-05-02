@@ -27,7 +27,7 @@ public:
 	virtual void genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const = 0;
 
 	// FIXME: ray time
-	virtual void genSensingRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const = 0;
+	virtual void emitRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const = 0;
 
 	virtual real calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const = 0;
 

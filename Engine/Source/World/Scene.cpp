@@ -76,12 +76,12 @@ real Scene::calcDirectPdfW(const SurfaceHit& emitPos, const math::Vector3R& targ
 	return m_emitterSampler->calcDirectPdfW(emitPos, targetPos);
 }
 
-void Scene::genSensingRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void Scene::emitRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
 	real pickPdf;
 	const Emitter* emitter = m_emitterSampler->pickEmitter(sampleFlow, &pickPdf);
 
-	emitter->genSensingRay(sampleFlow, out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
+	emitter->emitRay(sampleFlow, out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
 	*out_pdfA *= pickPdf;
 }
 

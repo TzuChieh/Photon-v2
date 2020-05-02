@@ -86,7 +86,7 @@ real DiffuseSurfaceEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, cons
 	return calcPdfW(emitPos, targetPos);
 }
 
-void DiffuseSurfaceEmitter::genSensingRay(SampleFlow& sampleFlow, Ray* const out_ray, SpectralStrength* const out_Le, math::Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const
+void DiffuseSurfaceEmitter::emitRay(SampleFlow& sampleFlow, Ray* const out_ray, SpectralStrength* const out_Le, math::Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const
 {
 	PositionSample positionSample;
 	m_surface->genPositionSample(sampleFlow, &positionSample);
