@@ -18,6 +18,7 @@ public:
 	virtual void process(
 		const math::Vector2D& rasterCoord,
 		const Ray&            sensedRay, 
+		const Spectrum&       quantityWeight,
 		SampleFlow&           sampleFlow) = 0;
 
 	virtual void onBatchStart(uint64 batchNumber);

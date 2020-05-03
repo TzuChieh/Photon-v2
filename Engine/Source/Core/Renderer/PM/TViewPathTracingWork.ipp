@@ -65,11 +65,10 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray tracingRay;
-			m_receiver->receiveRay(rasterCoord, &tracingRay);
+			const auto quantityWeight = m_receiver->receiveRay(rasterCoord, &tracingRay);
 			tracingRay.reverse();
 
-			const std::size_t pathLength = 0;
-			Spectrum pathThroughput(1);// FIXME: receiver might affect initial throughput
+			Spectrum pathThroughput(quantityWeight);
 			if(!m_handler->onReceiverSampleStart(rasterCoord, pathThroughput))
 			{
 				m_handler->onReceiverSampleEnd();
@@ -79,7 +78,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 			traceViewPath(
 				tracingRay, 
 				pathThroughput, 
-				pathLength,
+				0,
 				sampleFlow);
 			
 			m_handler->onReceiverSampleEnd();

@@ -27,6 +27,7 @@ public:
 	void process(
 		const math::Vector2D& rasterCoord,
 		const Ray&            ray, 
+		const Spectrum&       quantityWeight,
 		SampleFlow&           sampleFlow) override;
 
 	void onBatchStart(uint64 batchNumber) override;

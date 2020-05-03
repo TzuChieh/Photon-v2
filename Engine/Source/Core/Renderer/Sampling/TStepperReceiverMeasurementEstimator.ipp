@@ -36,6 +36,7 @@ inline void TStepperReceiverMeasurementEstimator<SamplingFilmType, EstimationTyp
 process(
 	const math::Vector2D& rasterCoord,
 	const Ray&            ray, 
+	const Spectrum&       quantityWeight,
 	SampleFlow&           sampleFlow)
 {
 	for(const auto* estimator : Parent::m_estimators)
@@ -50,7 +51,7 @@ process(
 
 		if(m_currentBatchNumber % m_filmStepSizes[filmIndex] == 0)
 		{
-			Parent::m_films[filmIndex].addSample(rasterCoord.x, rasterCoord.y, Parent::m_estimations[estimationIndex]);
+			Parent::m_films[filmIndex].addSample(rasterCoord.x, rasterCoord.y, Parent::m_estimations[estimationIndex] * quantityWeight);
 		}
 	}
 }

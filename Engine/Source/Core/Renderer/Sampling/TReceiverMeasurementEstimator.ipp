@@ -52,6 +52,7 @@ inline auto TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 process(
 	const math::Vector2D& rasterCoord,
 	const Ray&            sensedRay, 
+	const Spectrum&       quantityWeight,
 	SampleFlow&           sampleFlow)
 	-> void
 {
@@ -65,7 +66,7 @@ process(
 		const std::size_t estimationIndex = estimationToFilm.first;
 		const std::size_t filmIndex       = estimationToFilm.second;
 
-		m_films[filmIndex].addSample(rasterCoord.x, rasterCoord.y, m_estimations[estimationIndex]);
+		m_films[filmIndex].addSample(rasterCoord.x, rasterCoord.y, m_estimations[estimationIndex] * quantityWeight);
 	}
 }
 

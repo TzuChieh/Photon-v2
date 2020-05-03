@@ -100,12 +100,12 @@ void ReceiverSamplingWork::doWork()
 			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray ray;
-			m_receiver->receiveRay(rasterCoord, &ray);
+			const auto quantityWeight = m_receiver->receiveRay(rasterCoord, &ray);
 
 			// FIXME: this loop uses correlated samples, also some processors
 			for(IReceivedRayProcessor* processor : m_processors)
 			{
-				processor->process(rasterCoord, ray, sampleFlow);
+				processor->process(rasterCoord, ray, quantityWeight, sampleFlow);
 			}
 		}
 		m_numSamplesTaken.fetch_add(static_cast<uint32>(rasterSamples.numSamples()), std::memory_order_relaxed);

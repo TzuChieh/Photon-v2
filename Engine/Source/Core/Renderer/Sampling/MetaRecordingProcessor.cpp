@@ -9,12 +9,13 @@ namespace ph
 void MetaRecordingProcessor::process(
 	const math::Vector2D& rasterCoord,
 	const Ray&            ray, 
+	const Spectrum&       quantityWeight,
 	SampleFlow&           sampleFlow)
 {
 	PH_ASSERT(m_processor);
 
 	m_timer.start();
-	m_processor->process(rasterCoord, ray, sampleFlow);
+	m_processor->process(rasterCoord, ray, quantityWeight, sampleFlow);
 	m_timer.finish();
 
 	// Only record if processed position is in bound
