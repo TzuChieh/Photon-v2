@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Renderer/Sampling/ISensedRayProcessor.h"
+#include "Core/Renderer/Sampling/IReceivedRayProcessor.h"
 #include "Core/Estimator/estimator_fwd.h"
 #include "Common/assertion.h"
 #include "Core/Estimator/TEstimationArray.h"
@@ -18,7 +18,7 @@ namespace ph
 {
 
 template<typename SamplingFilmType, typename EstimationType>
-class TReceiverMeasurementEstimator : public ISensedRayProcessor
+class TReceiverMeasurementEstimator : public IReceivedRayProcessor
 {
 public:
 	using Estimator = TIRayEstimator<EstimationType>;

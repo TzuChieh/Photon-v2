@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Renderer/Sampling/ISensedRayProcessor.h"
+#include "Core/Renderer/Sampling/IReceivedRayProcessor.h"
 #include "Common/assertion.h"
 #include "Frame/TFrame.h"
 #include "Math/TVector2.h"
@@ -18,11 +18,11 @@ namespace ph
 	provides additional information regarding the performed work; such as
 	sample count and time spent per pixel.
 */
-class MetaRecordingProcessor : public ISensedRayProcessor
+class MetaRecordingProcessor : public IReceivedRayProcessor
 {
 public:
 	MetaRecordingProcessor();
-	explicit MetaRecordingProcessor(ISensedRayProcessor* processor);
+	explicit MetaRecordingProcessor(IReceivedRayProcessor* processor);
 
 	void process(
 		const math::Vector2D& rasterCoord,
@@ -45,12 +45,12 @@ public:
 private:
 	using CounterFrame = TFrame<uint64, 1>;
 
-	ISensedRayProcessor* m_processor;
-	CounterFrame         m_processCountFrame;
-	CounterFrame         m_msSpentFrame;
-	Timer                m_timer;
-	math::Vector2D       m_filmResPx;
-	math::TAABB2D<int64> m_recordWindowPx;
+	IReceivedRayProcessor* m_processor;
+	CounterFrame           m_processCountFrame;
+	CounterFrame           m_msSpentFrame;
+	Timer                  m_timer;
+	math::Vector2D         m_filmResPx;
+	math::TAABB2D<int64>   m_recordWindowPx;
 };
 
 // In-header Implementations:
@@ -60,7 +60,7 @@ inline MetaRecordingProcessor::MetaRecordingProcessor() :
 {}
 
 inline MetaRecordingProcessor::MetaRecordingProcessor(
-	ISensedRayProcessor* const processor) :
+	IReceivedRayProcessor* const processor) :
 
 	m_processor        (processor),
 	m_processCountFrame(),

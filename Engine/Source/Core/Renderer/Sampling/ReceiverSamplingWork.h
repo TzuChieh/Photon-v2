@@ -4,7 +4,7 @@
 #include "Utility/INoncopyable.h"
 #include "Core/Renderer/Sampling/SamplingStatistics.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "Core/Renderer/Sampling/ISensedRayProcessor.h"
+#include "Core/Renderer/Sampling/IReceivedRayProcessor.h"
 #include "Math/TVector2.h"
 #include "Math/Geometry/TAABB2D.h"
 #include "Core/Filmic/SamplingFilmDimensions.h"
@@ -31,7 +31,7 @@ public:
 		const math::TVector2<int64>&  filmResPx,
 		const math::TAABB2D<float64>& filmWindowPx,
 		const math::TVector2<int64>&  sampleResPx);
-	void addProcessor(ISensedRayProcessor* processor);
+	void addProcessor(IReceivedRayProcessor* processor);
 
 	void onWorkStart(std::function<void()> func);
 	void onWorkReport(std::function<void()> func);
@@ -42,12 +42,12 @@ public:
 private:
 	void doWork() override;
 
-	const Receiver*                   m_receiver;
-	std::vector<ISensedRayProcessor*> m_processors;
-	std::unique_ptr<SampleGenerator>  m_sampleGenerator;
-	math::Vector2D                    m_filmResPx;
-	math::TAABB2D<float64>            m_filmWindowPx;
-	math::Vector2S                    m_sampleResPx;
+	const Receiver*                     m_receiver;
+	std::vector<IReceivedRayProcessor*> m_processors;
+	std::unique_ptr<SampleGenerator>    m_sampleGenerator;
+	math::Vector2D                      m_filmResPx;
+	math::TAABB2D<float64>              m_filmWindowPx;
+	math::Vector2S                      m_sampleResPx;
 
 	std::atomic_uint32_t  m_numSamplesTaken;
 	std::function<void()> m_onWorkStart;

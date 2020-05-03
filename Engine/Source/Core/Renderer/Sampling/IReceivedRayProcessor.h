@@ -2,6 +2,7 @@
 
 #include "Math/math_fwd.h"
 #include "Common/primitive_type.h"
+#include "Core/Quantity/SpectralStrength.h"
 
 namespace ph
 {
@@ -9,10 +10,10 @@ namespace ph
 class Ray;
 class SampleFlow;
 
-class ISensedRayProcessor
+class IReceivedRayProcessor
 {
 public:
-	virtual ~ISensedRayProcessor() = default;
+	virtual ~IReceivedRayProcessor() = default;
 
 	virtual void process(
 		const math::Vector2D& rasterCoord,
@@ -25,10 +26,10 @@ public:
 
 // In-header Implementations:
 
-inline void ISensedRayProcessor::onBatchStart(const uint64 batchNumber)
+inline void IReceivedRayProcessor::onBatchStart(const uint64 batchNumber)
 {}
 
-inline void ISensedRayProcessor::onBatchFinish(const uint64 batchNumber)
+inline void IReceivedRayProcessor::onBatchFinish(const uint64 batchNumber)
 {}
 
 }// end namespace ph

@@ -25,7 +25,7 @@ class PerspectiveReceiver : public Receiver, public TCommandInterface<Perspectiv
 public:
 	// TODO: ordinary ctors
 
-	void receiveRay(const math::Vector2D& rasterCoord, Ray* out_ray) const override = 0;
+	SpectralStrength receiveRay(const math::Vector2D& rasterCoord, Ray* out_ray) const override = 0;
 	void evalEmittedImportanceAndPdfW(
 		const math::Vector3R& targetPos,
 		math::Vector2R* const out_filmCoord,

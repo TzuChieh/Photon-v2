@@ -184,7 +184,7 @@ inline auto TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 operator = (TReceiverMeasurementEstimator&& other)
 	-> TReceiverMeasurementEstimator&
 {
-	ISensedRayProcessor::operator = (std::move(other));
+	IReceivedRayProcessor::operator = (std::move(other));
 
 	m_filter           = std::move(other.m_filter);
 	m_estimations      = std::move(other.m_estimations);
