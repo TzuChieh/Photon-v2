@@ -4,7 +4,7 @@
 #include "Math/TVector3.h"
 #include "DataIO/SDL/TCommandInterface.h"
 #include "Core/Texture/TTexture.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Core/Texture/TConstantTexture.h"
 
 #include <iostream>
@@ -28,7 +28,7 @@ public:
 	virtual std::shared_ptr<TTexture<math::Vector3R>> genTextureVector3R(
 		CookingContext& context) const;
 
-	virtual std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(
+	virtual std::shared_ptr<TTexture<Spectrum>> genTextureSpectral(
 		CookingContext& context) const;
 
 private:

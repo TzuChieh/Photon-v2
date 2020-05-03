@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
 
 namespace ph
@@ -25,7 +25,7 @@ public:
 		SampleFlow&       sampleFlow,
 		math::Vector3R*   out_L,
 		real*             out_pdfW,
-		SpectralStrength* out_emittedRadiance);
+		Spectrum*         out_emittedRadiance);
 
 	real samplePdfWUnoccluded(
 		const SurfaceHit& X,

@@ -1,7 +1,7 @@
 #include "Core/Quantity/ColorSpace.h"
 #include "Common/assertion.h"
 #include "Core/Quantity/ColorSpace/spectral_data.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Core/Quantity/SpectralData.h"
 
 #include <array>
@@ -10,28 +10,28 @@
 namespace ph
 {
 
-SampledSpectralStrength ColorSpace::SPD_E;
-SampledSpectralStrength ColorSpace::SPD_D65;
+SampledSpectrum ColorSpace::SPD_E;
+SampledSpectrum ColorSpace::SPD_D65;
 
-SampledSpectralStrength ColorSpace::kernel_X;
-SampledSpectralStrength ColorSpace::kernel_Y;
-SampledSpectralStrength ColorSpace::kernel_Z;
+SampledSpectrum ColorSpace::kernel_X;
+SampledSpectrum ColorSpace::kernel_Y;
+SampledSpectrum ColorSpace::kernel_Z;
 math::Vector3R ColorSpace::kernel_XYZ_E_norm;
 math::Vector3R ColorSpace::kernel_XYZ_D65_norm;
 
-SampledSpectralStrength ColorSpace::SPD_Smits_E_white;
-SampledSpectralStrength ColorSpace::SPD_Smits_E_cyan;
-SampledSpectralStrength ColorSpace::SPD_Smits_E_magenta;
-SampledSpectralStrength ColorSpace::SPD_Smits_E_yellow;
-SampledSpectralStrength ColorSpace::SPD_Smits_E_red;
-SampledSpectralStrength ColorSpace::SPD_Smits_E_green;
-SampledSpectralStrength ColorSpace::SPD_Smits_E_blue;
+SampledSpectrum ColorSpace::SPD_Smits_E_white;
+SampledSpectrum ColorSpace::SPD_Smits_E_cyan;
+SampledSpectrum ColorSpace::SPD_Smits_E_magenta;
+SampledSpectrum ColorSpace::SPD_Smits_E_yellow;
+SampledSpectrum ColorSpace::SPD_Smits_E_red;
+SampledSpectrum ColorSpace::SPD_Smits_E_green;
+SampledSpectrum ColorSpace::SPD_Smits_E_blue;
 
 void ColorSpace::init()
 {
 	PH_ASSERT_MSG(!isInitialized(), "ColorSpace is already initialized");
 
-	SPD_E = SampledSpectralStrength(1.0_r);
+	SPD_E = SampledSpectrum(1.0_r);
 
 	// Construct sampled D65 spectrum and normalize it by making its largest
 	// value equals to 1.
@@ -56,17 +56,17 @@ void ColorSpace::init()
 
 	const std::size_t numXyzCmfPoints = std::tuple_size<spectral_data::ArrayXYZCMF>::value;
 
-	const SampledSpectralStrength& sampledCmfX = SpectralData::calcPiecewiseAveraged(
+	const SampledSpectrum& sampledCmfX = SpectralData::calcPiecewiseAveraged(
 		spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
 		spectral_data::XYZ_CMF_CIE_1931_2_degree_X().data(), 
 		numXyzCmfPoints);
 
-	const SampledSpectralStrength& sampledCmfY = SpectralData::calcPiecewiseAveraged(
+	const SampledSpectrum& sampledCmfY = SpectralData::calcPiecewiseAveraged(
 		spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
 		spectral_data::XYZ_CMF_CIE_1931_2_degree_Y().data(), 
 		numXyzCmfPoints);
 
-	const SampledSpectralStrength& sampledCmfZ = SpectralData::calcPiecewiseAveraged(
+	const SampledSpectrum& sampledCmfZ = SpectralData::calcPiecewiseAveraged(
 		spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
 		spectral_data::XYZ_CMF_CIE_1931_2_degree_Z().data(), 
 		numXyzCmfPoints);
@@ -74,12 +74,12 @@ void ColorSpace::init()
 	// normalizing
 
 	// Riemann Sum
-	const real integratedCmfY = (sampledCmfY * SampledSpectralStrength::LAMBDA_INTERVAL_NM).sum();
+	const real integratedCmfY = (sampledCmfY * SampledSpectrum::LAMBDA_INTERVAL_NM).sum();
 
 	// multiplier of Riemann Sum and denominator
-	kernel_X = (sampledCmfX * SampledSpectralStrength::LAMBDA_INTERVAL_NM) / integratedCmfY;
-	kernel_Y = (sampledCmfY * SampledSpectralStrength::LAMBDA_INTERVAL_NM) / integratedCmfY;
-	kernel_Z = (sampledCmfZ * SampledSpectralStrength::LAMBDA_INTERVAL_NM) / integratedCmfY;
+	kernel_X = (sampledCmfX * SampledSpectrum::LAMBDA_INTERVAL_NM) / integratedCmfY;
+	kernel_Y = (sampledCmfY * SampledSpectrum::LAMBDA_INTERVAL_NM) / integratedCmfY;
+	kernel_Z = (sampledCmfZ * SampledSpectrum::LAMBDA_INTERVAL_NM) / integratedCmfY;
 	
 	// energy normalizing factor for E/D65
 	kernel_XYZ_E_norm.x   = 1.0_r / kernel_X.dot(SPD_E);

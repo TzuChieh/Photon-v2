@@ -70,8 +70,8 @@ void PPMRadianceEvaluationWork::doWork()
 		const real newN = N + m_alpha * M;
 		const real newR = (N + M) != 0.0_r ? R * std::sqrt(newN / (N + M)) : R;
 
-		SpectralStrength tauM(0);
-		BsdfEvalQuery    bsdfEval(bsdfContext);
+		Spectrum      tauM(0);
+		BsdfEvalQuery bsdfEval(bsdfContext);
 		for(const auto& photon : photonCache)
 		{
 			const math::Vector3R V = photon.get<EPhotonData::FROM_DIR>();
@@ -82,14 +82,14 @@ void PPMRadianceEvaluationWork::doWork()
 				continue;
 			}
 
-			SpectralStrength tau = photon.get<EPhotonData::THROUGHPUT_RADIANCE>();
+			Spectrum tau = photon.get<EPhotonData::THROUGHPUT_RADIANCE>();
 			tau.mulLocal(bsdfEval.outputs.bsdf);
 			tau.mulLocal(lta::importance_BSDF_Ns_corrector(Ns, Ng, L, V));
 
 			tauM.addLocal(tau);
 		}
-		const SpectralStrength tauN   = viewpoint.get<EViewpointData::TAU>();
-		const SpectralStrength newTau = (N + M) != 0.0_r ? (tauN + tauM) * (newN / (N + M)) : SpectralStrength(0);
+		const Spectrum tauN   = viewpoint.get<EViewpointData::TAU>();
+		const Spectrum newTau = (N + M) != 0.0_r ? (tauN + tauM) * (newN / (N + M)) : Spectrum(0);
 
 		viewpoint.set<EViewpointData::RADIUS>(newR);
 		viewpoint.set<EViewpointData::NUM_PHOTONS>(newN);
@@ -100,7 +100,7 @@ void PPMRadianceEvaluationWork::doWork()
 		const real kernelArea         = newR * newR * math::constant::pi<real>;
 		const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(numPhotonPaths()));
 
-		SpectralStrength radiance(viewpoint.get<EViewpointData::TAU>() * radianceMultiplier);
+		Spectrum radiance(viewpoint.get<EViewpointData::TAU>() * radianceMultiplier);
 		radiance.addLocal(viewpoint.get<EViewpointData::VIEW_RADIANCE>());
 		radiance.mulLocal(viewpoint.get<EViewpointData::VIEW_THROUGHPUT>());
 

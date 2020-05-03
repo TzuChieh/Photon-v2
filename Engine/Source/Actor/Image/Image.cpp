@@ -18,10 +18,10 @@ std::shared_ptr<TTexture<math::Vector3R>> Image::genTextureVector3R(
 	return genDefaultTexture<math::Vector3R>();
 }
 
-std::shared_ptr<TTexture<SpectralStrength>> Image::genTextureSpectral(
+std::shared_ptr<TTexture<Spectrum>> Image::genTextureSpectral(
 	CookingContext& context) const
 {
-	return genDefaultTexture<SpectralStrength>();
+	return genDefaultTexture<Spectrum>();
 }
 
 // command interface

@@ -10,7 +10,7 @@
 namespace ph
 {
 
-SpectralStrength PinholeCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
+Spectrum PinholeCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
 {
 	PH_ASSERT(out_ray);
 	out_ray->setDirection(genReceiveRayDir(rasterCoord));
@@ -27,7 +27,7 @@ SpectralStrength PinholeCamera::receiveRay(const math::Vector2D& rasterCoord, Ra
 		"origin    = " + out_ray->getOrigin().toString() + "\n"
 		"direction = " + out_ray->getDirection().toString() + "\n");
 
-	return SpectralStrength(1);
+	return Spectrum(1);
 }
 
 math::Vector3R PinholeCamera::genReceiveRayDir(const math::Vector2D& rasterCoord) const

@@ -29,7 +29,7 @@ public:
 	std::shared_ptr<TTexture<math::Vector3R>> genTextureVector3R(
 		CookingContext& context) const override;
 
-	std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(
+	std::shared_ptr<TTexture<Spectrum>> genTextureSpectral(
 		CookingContext& context) const override;
 
 	RealMathImage& setOperandImage(const std::shared_ptr<Image>& operand);

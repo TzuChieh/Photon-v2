@@ -2,7 +2,7 @@
 
 #include "Core/SurfaceHit.h"
 #include "Math/TVector2.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Core/Renderer/PM/ViewPathTracingPolicy.h"
 
 #include <cstddef>
@@ -23,16 +23,16 @@ public:
 	// Called after a receiver sample is generated.
 	// Returns whether this receiver sample should be used.
 	bool onReceiverSampleStart(
-		const math::Vector2D&   rasterCoord,
-		const SpectralStrength& pathThroughput);
+		const math::Vector2D& rasterCoord,
+		const Spectrum&       pathThroughput);
 
 	// Called after the view path hits a surface, corresponding hit information
 	// is given.
 	// Returns a policy for controlling how to trace the next path.
 	auto onPathHitSurface(
-		std::size_t             pathLength,
-		const SurfaceHit&       surfaceHit,
-		const SpectralStrength& pathThroughput) -> ViewPathTracingPolicy;
+		std::size_t       pathLength,
+		const SurfaceHit& surfaceHit,
+		const Spectrum&   pathThroughput) -> ViewPathTracingPolicy;
 
 	// Called after a receiver sample is ended.
 	void onReceiverSampleEnd();
@@ -49,8 +49,8 @@ private:
 
 template<typename Derived>
 bool TViewPathHandler<Derived>::onReceiverSampleStart(
-	const math::Vector2D&   rasterCoord,
-	const SpectralStrength& pathThroughput)
+	const math::Vector2D& rasterCoord,
+	const Spectrum&       pathThroughput)
 {
 	return static_cast<Derived&>(*this).impl_onReceiverSampleStart(
 		rasterCoord,
@@ -59,9 +59,9 @@ bool TViewPathHandler<Derived>::onReceiverSampleStart(
 
 template<typename Derived>
 auto TViewPathHandler<Derived>::onPathHitSurface(
-	const std::size_t       pathLength,
-	const SurfaceHit&       surfaceHit,
-	const SpectralStrength& pathThroughput) -> ViewPathTracingPolicy
+	const std::size_t pathLength,
+	const SurfaceHit& surfaceHit,
+	const Spectrum&   pathThroughput) -> ViewPathTracingPolicy
 {
 	return static_cast<Derived&>(*this).impl_onPathHitSurface(
 		pathLength,

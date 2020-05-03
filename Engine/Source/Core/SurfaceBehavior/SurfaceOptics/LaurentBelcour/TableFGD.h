@@ -5,7 +5,7 @@
 #include "Common/Logger.h"
 #include "Common/assertion.h"
 #include "Common/primitive_type.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 
 #include <vector>
 
@@ -23,11 +23,11 @@ public:
 		real iorN, 
 		real iorK) const;
 
-	SpectralStrength sample(
+	Spectrum sample(
 		real cosWi,
 		real alpha, 
-		const SpectralStrength& iorN, 
-		const SpectralStrength& iorK) const;
+		const Spectrum& iorN, 
+		const Spectrum& iorK) const;
 
 private:
 	std::vector<float> m_table;
@@ -107,14 +107,14 @@ inline TableFGD::TableFGD(const Path& tableFilePath) :
 	downSampleHalf();*/
 }
 
-inline SpectralStrength TableFGD::sample(
+inline Spectrum TableFGD::sample(
 	const real cosWi,
 	const real alpha,
-	const SpectralStrength& iorN,
-	const SpectralStrength& iorK) const
+	const Spectrum& iorN,
+	const Spectrum& iorK) const
 {
-	SpectralStrength result;
-	for(std::size_t i = 0; i < SpectralStrength::NUM_VALUES; ++i)
+	Spectrum result;
+	for(std::size_t i = 0; i < Spectrum::NUM_VALUES; ++i)
 	{
 		result[i] = sample(cosWi, alpha, iorN[i], iorK[i]);
 	}

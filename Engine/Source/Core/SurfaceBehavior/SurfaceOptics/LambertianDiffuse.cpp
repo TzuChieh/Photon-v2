@@ -18,7 +18,7 @@
 namespace ph
 {
 
-LambertianDiffuse::LambertianDiffuse(const std::shared_ptr<TTexture<SpectralStrength>>& albedo) :
+LambertianDiffuse::LambertianDiffuse(const std::shared_ptr<TTexture<Spectrum>>& albedo) :
 	SurfaceOptics(),
 	m_albedo(albedo)
 {
@@ -45,7 +45,7 @@ void LambertianDiffuse::calcBsdf(
 		return;
 	}
 
-	SpectralStrength albedo = TSampler<SpectralStrength>(EQuantity::ECF).sample(*m_albedo, in.X);
+	Spectrum albedo = TSampler<Spectrum>(EQuantity::ECF).sample(*m_albedo, in.X);
 	out.bsdf = albedo.mulLocal(math::constant::rcp_pi<real>);
 }
 
@@ -60,7 +60,7 @@ void LambertianDiffuse::calcBsdfSample(
 	// generating a cos(theta) weighted L corresponding to N, which PDF is cos(theta)/pi.
 	// Thus, BRDF_lambertian/PDF = albedo/cos(theta).
 
-	SpectralStrength albedo = TSampler<SpectralStrength>(EQuantity::ECF).sample(*m_albedo, in.X);
+	Spectrum albedo = TSampler<Spectrum>(EQuantity::ECF).sample(*m_albedo, in.X);
 
 	// generate and transform L to N's space
 

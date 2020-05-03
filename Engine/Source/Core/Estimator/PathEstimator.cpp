@@ -1,6 +1,6 @@
 //#include "Core/Estimator/PathEstimator.h"
 //#include "Core/Estimator/Estimation.h"
-//#include "Core/Quantity/SpectralStrength.h"
+//#include "Core/Quantity/Spectrum.h"
 //#include "Core/SurfaceHit.h"
 //
 //namespace ph
@@ -27,7 +27,7 @@
 //{
 //	if(requestedAttributes.isTagged(EAttribute::LIGHT_ENERGY))
 //	{
-//		SpectralStrength radiance;
+//		Spectrum radiance;
 //		SurfaceHit       firstHit;
 //		radianceAlongRay(ray, integrand, radiance, firstHit);
 //

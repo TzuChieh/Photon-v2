@@ -4,7 +4,7 @@
 #include "Common/primitive_type.h"
 #include "Core/SurfaceHit.h"
 #include "Math/TVector2.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Common/assertion.h"
 #include "Core/SurfaceBehavior/surface_optics_fwd.h"
 
@@ -33,14 +33,14 @@ public:
 	void impl_set(const T& value);
 
 private:
-	SurfaceHit       m_surfaceHit;
-	math::Vector2R   m_rasterCoord;
-	real             m_radius;
-	real             m_numPhotons;
-	SpectralStrength m_tau;
-	SpectralStrength m_viewThroughput;
-	math::Vector3R   m_viewDir;
-	SpectralStrength m_viewRadiance;
+	SurfaceHit     m_surfaceHit;
+	math::Vector2R m_rasterCoord;
+	real           m_radius;
+	real           m_numPhotons;
+	Spectrum       m_tau;
+	Spectrum       m_viewThroughput;
+	math::Vector3R m_viewDir;
+	Spectrum       m_viewRadiance;
 };
 
 // In-header Implementations:

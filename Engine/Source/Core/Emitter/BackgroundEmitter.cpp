@@ -43,7 +43,7 @@ BackgroundEmitter::BackgroundEmitter(
 	// FIXME: assuming spherical uv mapping us used
 
 	constexpr EQuantity QUANTITY = EQuantity::EMR;
-	const TSampler<SpectralStrength> sampler(QUANTITY);
+	const TSampler<Spectrum> sampler(QUANTITY);
 
 	std::vector<real> sampleWeights(resolution.x * resolution.y);
 	for(std::size_t y = 0; y < resolution.y; ++y)
@@ -54,7 +54,7 @@ BackgroundEmitter::BackgroundEmitter(
 		for(std::size_t x = 0; x < resolution.x; ++x)
 		{
 			const real u = (static_cast<real>(x) + 0.5_r) / static_cast<real>(resolution.x);
-			const SpectralStrength sampledL = sampler.sample(*radiance, {u, v});
+			const Spectrum sampledL = sampler.sample(*radiance, {u, v});
 
 			// FIXME: for non-nearest filtered textures, sample weights can be 0 while
 			// there is still energay around that point (because its neighbor may have
@@ -72,12 +72,12 @@ BackgroundEmitter::BackgroundEmitter(
 }
 
 void BackgroundEmitter::evalEmittedRadiance(
-	const SurfaceHit&       X, 
-	SpectralStrength* const out_radiance) const
+	const SurfaceHit& X, 
+	Spectrum* const   out_radiance) const
 {
 	PH_ASSERT(out_radiance && m_radiance);
 
-	TSampler<SpectralStrength> sampler(EQuantity::EMR);
+	TSampler<Spectrum> sampler(EQuantity::EMR);
 	*out_radiance = sampler.sample(*m_radiance, X);
 }
 
@@ -96,7 +96,7 @@ void BackgroundEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSampl
 		sample.targetPos, 
 		&(sample.emitPos));
 
-	TSampler<SpectralStrength> sampler(EQuantity::EMR);
+	TSampler<Spectrum> sampler(EQuantity::EMR);
 	sample.radianceLe = sampler.sample(*m_radiance, uvSample);
 	
 	// FIXME: assuming spherical uv mapping us used
@@ -109,14 +109,14 @@ void BackgroundEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSampl
 }
 
 // FIXME: ray time
-void BackgroundEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void BackgroundEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
 	real uvSamplePdf;
 	const math::Vector2R uvSample = m_sampleDistribution.sampleContinuous(
 		sampleFlow.flow2D(),
 		&uvSamplePdf);
 
-	TSampler<SpectralStrength> sampler(EQuantity::EMR);
+	TSampler<Spectrum> sampler(EQuantity::EMR);
 	*out_Le = sampler.sample(*m_radiance, uvSample);
 
 	// FIXME: assuming spherical uv mapping us used

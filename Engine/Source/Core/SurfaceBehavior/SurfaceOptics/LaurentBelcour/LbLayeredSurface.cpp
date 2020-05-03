@@ -20,13 +20,13 @@ thread_local std::vector<real> LbLayeredSurface::sampleWeights;
 thread_local std::vector<real> LbLayeredSurface::alphas;
 
 LbLayeredSurface::LbLayeredSurface(
-	const std::vector<SpectralStrength>& iorNs,
-	const std::vector<SpectralStrength>& iorKs,
-	const std::vector<real>&             alphas,
-	const std::vector<real>&             depths,
-	const std::vector<real>&             gs,
-	const std::vector<SpectralStrength>& sigmaAs,
-	const std::vector<SpectralStrength>& sigmaSs) :
+	const std::vector<Spectrum>& iorNs,
+	const std::vector<Spectrum>& iorKs,
+	const std::vector<real>&     alphas,
+	const std::vector<real>&     depths,
+	const std::vector<real>&     gs,
+	const std::vector<Spectrum>& sigmaAs,
+	const std::vector<Spectrum>& sigmaSs) :
 
 	SurfaceOptics(),
 

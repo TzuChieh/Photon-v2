@@ -9,13 +9,13 @@
 #include "Core/Emitter/Emitter.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Core/LTABuildingBlock/PtVolumetricEstimator.h"
 #include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
 #include "DataIO/SDL/InputPacket.h"
 #include "Math/TVector3.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Core/Estimator/Integrand.h"
 
 #include <iostream>
@@ -35,8 +35,8 @@ void BVPTEstimator::estimate(
 	const SurfaceTracer    surfaceTracer(&(integrand.getScene()));
 
 	uint32 numBounces = 0;
-	SpectralStrength accuRadiance(0);
-	SpectralStrength accuLiWeight(1);
+	Spectrum accuRadiance(0);
+	Spectrum accuLiWeight(1);
 
 	// backward tracing to light
 	Ray tracingRay = Ray(ray).reverse();
@@ -52,7 +52,7 @@ void BVPTEstimator::estimate(
 
 		if(hitSurfaceBehavior.getEmitter())
 		{
-			SpectralStrength radianceLi;
+			Spectrum radianceLi;
 			hitSurfaceBehavior.getEmitter()->evalEmittedRadiance(surfaceHit, &radianceLi);
 
 			// avoid excessive, negative weight and possible NaNs
@@ -74,12 +74,12 @@ void BVPTEstimator::estimate(
 
 		const math::Vector3R L = bsdfSample.outputs.L;
 
-		const SpectralStrength liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+		const Spectrum liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 		accuLiWeight.mulLocal(liWeight);
 
 		if(numBounces >= 3)
 		{
-			SpectralStrength weightedAccuLiWeight;
+			Spectrum weightedAccuLiWeight;
 			if(RussianRoulette::surviveOnLuminance(
 				accuLiWeight, sampleFlow, &weightedAccuLiWeight))
 			{
@@ -103,8 +103,8 @@ void BVPTEstimator::estimate(
 			{
 				SurfaceHit Xe;
 				math::Vector3R endV;
-				SpectralStrength weight;
-				SpectralStrength radiance;
+				Spectrum weight;
+				Spectrum radiance;
 				PtVolumetricEstimator::sample(integrand.getScene(), surfaceHit, L, &Xe, &endV, &weight, &radiance);
 
 				accuLiWeight.mulLocal(weight);

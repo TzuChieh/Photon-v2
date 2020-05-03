@@ -5,7 +5,7 @@
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Texture/TTexture.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Common/assertion.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Math/math.h"
@@ -36,13 +36,13 @@ LerpedSurfaceOptics::LerpedSurfaceOptics(
 	LerpedSurfaceOptics(
 		optics0, 
 		optics1, 
-		std::make_shared<TConstantTexture<SpectralStrength>>(SpectralStrength(ratio)))
+		std::make_shared<TConstantTexture<Spectrum>>(Spectrum(ratio)))
 {}
 
 LerpedSurfaceOptics::LerpedSurfaceOptics(
 	const std::shared_ptr<SurfaceOptics>& optics0,
 	const std::shared_ptr<SurfaceOptics>& optics1,
-	const std::shared_ptr<TTexture<SpectralStrength>>& ratio) : 
+	const std::shared_ptr<TTexture<Spectrum>>& ratio) : 
 
 	m_optics0(optics0),
 	m_optics1(optics1),
@@ -78,7 +78,7 @@ void LerpedSurfaceOptics::calcBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	const SpectralStrength ratio = m_sampler.sample(*m_ratio, in.X);
+	const Spectrum ratio = m_sampler.sample(*m_ratio, in.X);
 
 	if(ctx.elemental == ALL_ELEMENTALS)
 	{
@@ -86,7 +86,7 @@ void LerpedSurfaceOptics::calcBsdf(
 		m_optics0->calcBsdf(ctx, in, eval0);
 		m_optics1->calcBsdf(ctx, in, eval1);
 
-		out.bsdf = eval0.bsdf * ratio + eval1.bsdf * (SpectralStrength(1) - ratio);
+		out.bsdf = eval0.bsdf * ratio + eval1.bsdf * (Spectrum(1) - ratio);
 	}
 	else
 	{
@@ -102,7 +102,7 @@ void LerpedSurfaceOptics::calcBsdf(
 			BsdfQueryContext localCtx = ctx;
 			localCtx.elemental = ctx.elemental - m_optics0->m_numElementals;
 			m_optics1->calcBsdf(localCtx, in, out);
-			out.bsdf.mulLocal(SpectralStrength(1) - ratio);
+			out.bsdf.mulLocal(Spectrum(1) - ratio);
 		}
 	}
 }
@@ -113,17 +113,17 @@ void LerpedSurfaceOptics::calcBsdfSample(
 	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
-	const SpectralStrength ratio = m_sampler.sample(*m_ratio, in.X);
+	const Spectrum ratio = m_sampler.sample(*m_ratio, in.X);
 
 	if(ctx.elemental == ALL_ELEMENTALS)
 	{
-		SpectralStrength sampledRatio  = ratio;
-		SurfaceOptics*   sampledOptics = m_optics0.get();
-		SurfaceOptics*   anotherOptics = m_optics1.get();
-		real             sampledProb   = probabilityOfPickingOptics0(ratio);
+		Spectrum       sampledRatio  = ratio;
+		SurfaceOptics* sampledOptics = m_optics0.get();
+		SurfaceOptics* anotherOptics = m_optics1.get();
+		real           sampledProb   = probabilityOfPickingOptics0(ratio);
 		if(!sampleFlow.unflowedPick(sampledProb))
 		{
-			sampledRatio = SpectralStrength(1) - sampledRatio;
+			sampledRatio = Spectrum(1) - sampledRatio;
 			std::swap(sampledOptics, anotherOptics);
 			sampledProb = 1.0_r - sampledProb;
 		}
@@ -154,9 +154,9 @@ void LerpedSurfaceOptics::calcBsdfSample(
 			return;
 		}
 
-		const SpectralStrength bsdf = 
+		const Spectrum bsdf = 
 			sampledRatio * (sampleOutput.pdfAppliedBsdf * query[0].outputs.sampleDirPdfW) +
-			(SpectralStrength(1) - sampledRatio) * eval.outputs.bsdf;
+			(Spectrum(1) - sampledRatio) * eval.outputs.bsdf;
 
 		const real pdfW = 
 			sampledProb * query[0].outputs.sampleDirPdfW +
@@ -182,7 +182,7 @@ void LerpedSurfaceOptics::calcBsdfSample(
 			BsdfQueryContext localCtx = ctx;
 			localCtx.elemental = ctx.elemental - m_optics0->m_numElementals;
 			m_optics1->calcBsdfSample(localCtx, in, sampleFlow, out);
-			out.pdfAppliedBsdf.mulLocal(SpectralStrength(1) - ratio);
+			out.pdfAppliedBsdf.mulLocal(Spectrum(1) - ratio);
 		}
 	}
 }
@@ -192,7 +192,7 @@ void LerpedSurfaceOptics::calcBsdfSamplePdfW(
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
-	const SpectralStrength ratio = m_sampler.sample(*m_ratio, in.X);
+	const Spectrum ratio = m_sampler.sample(*m_ratio, in.X);
 
 	if(ctx.elemental == ALL_ELEMENTALS)
 	{
@@ -221,7 +221,7 @@ void LerpedSurfaceOptics::calcBsdfSamplePdfW(
 	}
 }
 
-real LerpedSurfaceOptics::probabilityOfPickingOptics0(const SpectralStrength& ratio)
+real LerpedSurfaceOptics::probabilityOfPickingOptics0(const Spectrum& ratio)
 {
 	return math::clamp(ratio.calcLuminance(EQuantity::ECF), 0.0_r, 1.0_r);
 }

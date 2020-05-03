@@ -2,7 +2,7 @@
 
 #include "Math/math_fwd.h"
 #include "Common/primitive_type.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 
 namespace ph
 {

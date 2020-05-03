@@ -6,7 +6,7 @@
 namespace ph
 {
 
-SampledSpectralStrength SpectralData::calcPiecewiseAveraged(
+SampledSpectrum SpectralData::calcPiecewiseAveraged(
 	const real* const wavelengthsNm, const real* const values, const std::size_t numPoints)
 {
 	PH_ASSERT(wavelengthsNm);
@@ -26,11 +26,11 @@ SampledSpectralStrength SpectralData::calcPiecewiseAveraged(
 
 	// sample curve values by averaging each wavelength interval
 	//
-	SampledSpectralStrength             sampled;
+	SampledSpectrum                     sampled;
 	math::TAnalyticalIntegrator1D<real> areaCalculator;
-	for(std::size_t i = 0; i < SampledSpectralStrength::NUM_INTERVALS; i++)
+	for(std::size_t i = 0; i < SampledSpectrum::NUM_INTERVALS; i++)
 	{
-		const auto& range = SampledSpectralStrength::lambdaRangeNmOf(i);
+		const auto& range = SampledSpectrum::lambdaRangeNmOf(i);
 
 		areaCalculator.setIntegrationDomain(range.first, range.second);
 

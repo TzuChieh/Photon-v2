@@ -14,12 +14,12 @@ IdealTransmitter::IdealTransmitter(const std::shared_ptr<DielectricFresnel>& fre
 	
 	IdealTransmitter(
 		fresnel, 
-		std::make_shared<TConstantTexture<SpectralStrength>>(SpectralStrength(1.0_r)))
+		std::make_shared<TConstantTexture<Spectrum>>(Spectrum(1.0_r)))
 {}
 
 IdealTransmitter::IdealTransmitter(
-	const std::shared_ptr<DielectricFresnel>&          fresnel,
-	const std::shared_ptr<TTexture<SpectralStrength>>& transmissionScale) : 
+	const std::shared_ptr<DielectricFresnel>&  fresnel,
+	const std::shared_ptr<TTexture<Spectrum>>& transmissionScale) : 
 
 	SurfaceOptics(),
 
@@ -62,7 +62,7 @@ void IdealTransmitter::calcBsdfSample(
 	}
 
 	real cosI = N.dot(L);
-	SpectralStrength F;
+	Spectrum F;
 	m_fresnel->calcTransmittance(cosI, &F);
 
 	real transportFactor = 1.0_r;
@@ -81,8 +81,8 @@ void IdealTransmitter::calcBsdfSample(
 	out.pdfAppliedBsdf.setValues(F.mul(transportFactor / std::abs(cosI)));
 
 	// a scale factor for artistic control
-	const SpectralStrength& transmissionScale =
-		TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_transmissionScale, in.X);
+	const Spectrum& transmissionScale =
+		TSampler<Spectrum>(EQuantity::RAW).sample(*m_transmissionScale, in.X);
 	out.pdfAppliedBsdf.mulLocal(transmissionScale);
 
 	out.setMeasurability(true);

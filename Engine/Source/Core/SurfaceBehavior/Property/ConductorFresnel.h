@@ -19,18 +19,18 @@ class ConductorFresnel : public FresnelEffect
 public:
 	ConductorFresnel();
 	ConductorFresnel(
-		real                    iorOuter, 
-		const SpectralStrength& iorInnerN, 
-		const SpectralStrength& iorInnerK);
+		real            iorOuter, 
+		const Spectrum& iorInnerN,
+		const Spectrum& iorInnerK);
 
 	void calcReflectance(
-		real              cosThetaIncident, 
-		SpectralStrength* out_reflectance) const override = 0;
+		real      cosThetaIncident, 
+		Spectrum* out_reflectance) const override = 0;
 
 protected:
-	real             m_iorOuter;
-	SpectralStrength m_iorInnerN;
-	SpectralStrength m_iorInnerK;
+	real     m_iorOuter;
+	Spectrum m_iorInnerN;
+	Spectrum m_iorInnerK;
 };
 
 }// end namespace ph

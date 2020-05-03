@@ -12,10 +12,10 @@ VAbsorptionOnly::VAbsorptionOnly() :
 {}
 
 VAbsorptionOnly::VAbsorptionOnly(const math::Vector3R& absorptionCoeffSrgb) :
-	VAbsorptionOnly(SpectralStrength().setLinearSrgb(absorptionCoeffSrgb, EQuantity::RAW))
+	VAbsorptionOnly(Spectrum().setLinearSrgb(absorptionCoeffSrgb, EQuantity::RAW))
 {}
 
-VAbsorptionOnly::VAbsorptionOnly(const SpectralStrength& absorptionCoeff) : 
+VAbsorptionOnly::VAbsorptionOnly(const Spectrum& absorptionCoeff) : 
 	VolumeMaterial(),
 	m_absorptionCoeff(absorptionCoeff)
 {}

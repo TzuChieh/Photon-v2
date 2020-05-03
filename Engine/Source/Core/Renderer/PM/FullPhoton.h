@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Renderer/PM/TPhoton.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
 
@@ -28,9 +28,9 @@ public:
 	void impl_set(const T& value);
 
 private:
-	SpectralStrength m_throughputRadiance;
-	math::Vector3R   m_position;
-	math::Vector3R   m_fromDir;
+	Spectrum       m_throughputRadiance;
+	math::Vector3R m_position;
+	math::Vector3R m_fromDir;
 };
 
 // In-header Implementations:

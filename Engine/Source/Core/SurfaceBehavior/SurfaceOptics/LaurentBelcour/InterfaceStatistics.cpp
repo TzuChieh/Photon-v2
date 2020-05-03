@@ -8,12 +8,12 @@ namespace ph
 
 bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 {
-	const SpectralStrength iorN12 = layer2.getIorN() / m_layer1.getIorN();
-	const SpectralStrength iorK12 = layer2.getIorK() / m_layer1.getIorN();
+	const Spectrum iorN12 = layer2.getIorN() / m_layer1.getIorN();
+	const Spectrum iorK12 = layer2.getIorK() / m_layer1.getIorN();
 
 	const real n12 = iorN12.avg();
 
-	SpectralStrength R12, T12, R21, T21;
+	Spectrum R12, T12, R21, T21;
 	real sR12 = 0.0_r, sT12 = 0.0_r, sR21 = 0.0_r, sT21 = 0.0_r;
 	real j12  = 1.0_r, j21  = 1.0_r;
 
@@ -66,7 +66,7 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 		const real alpha_ = conversions::varianceToAlpha(m_sT0i + sR12);
 
 		R12 = FGD().sample(m_cosWi, alpha_, iorN12, iorK12);
-		T12 = iorK12.isZero() ? SpectralStrength(1.0_r) - R12 : SpectralStrength(0.0_r);
+		T12 = iorK12.isZero() ? Spectrum(1.0_r) - R12 : Spectrum(0.0_r);
 		if(hasTransmission)
 		{
 			R21 = R12;
@@ -74,8 +74,8 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 		}
 		else
 		{
-			R21 = SpectralStrength(0.0_r);
-			T21 = SpectralStrength(0.0_r);
+			R21 = Spectrum(0.0_r);
+			T21 = Spectrum(0.0_r);
 		}
 
 		// evaluate TIR using the decoupling approximation
@@ -92,11 +92,11 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 		// mean does not change with volumes
 		cosWt = m_cosWi;
 
-		const SpectralStrength sigmaT = layer2.getSigmaA() + layer2.getSigmaS();
+		const Spectrum sigmaT = layer2.getSigmaA() + layer2.getSigmaS();
 		if(cosWt != 0.0_r)
 		{
 			const real rayPenetrateDepth = layer2.getDepth() / cosWt;
-			T12 = (SpectralStrength(1.0_r) + layer2.getSigmaS() * rayPenetrateDepth) * SpectralStrength::exp(sigmaT * -rayPenetrateDepth);
+			T12 = (Spectrum(1.0_r) + layer2.getSigmaS() * rayPenetrateDepth) * Spectrum::exp(sigmaT * -rayPenetrateDepth);
 		}
 		else
 		{
@@ -110,20 +110,20 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 	}
 
 	// terms for multiple scattering
-	const SpectralStrength denoTerm    = SpectralStrength(1.0_r) - m_Ri0 * R12;
-	const real             denoTermAvg = denoTerm.avg();
-	const SpectralStrength R0iTerm     = denoTermAvg > 0.0_r ? (m_T0i * R12 * m_Ti0) / denoTerm : SpectralStrength(0.0_r);
-	const SpectralStrength Ri0Term     = denoTermAvg > 0.0_r ? (T21 * m_Ri0 * T12) / denoTerm   : SpectralStrength(0.0_r);
-	const SpectralStrength RrTerm      = denoTermAvg > 0.0_r ? (m_Ri0 * R12) / denoTerm         : SpectralStrength(0.0_r);
-	const real             R0iTermAvg  = R0iTerm.avg();
-	const real             Ri0TermAvg  = Ri0Term.avg();
-	const real             RrTermAvg   = RrTerm.avg();
+	const Spectrum denoTerm    = Spectrum(1.0_r) - m_Ri0 * R12;
+	const real     denoTermAvg = denoTerm.avg();
+	const Spectrum R0iTerm     = denoTermAvg > 0.0_r ? (m_T0i * R12 * m_Ti0) / denoTerm : Spectrum(0.0_r);
+	const Spectrum Ri0Term     = denoTermAvg > 0.0_r ? (T21 * m_Ri0 * T12) / denoTerm   : Spectrum(0.0_r);
+	const Spectrum RrTerm      = denoTermAvg > 0.0_r ? (m_Ri0 * R12) / denoTerm         : Spectrum(0.0_r);
+	const real     R0iTermAvg  = R0iTerm.avg();
+	const real     Ri0TermAvg  = Ri0Term.avg();
+	const real     RrTermAvg   = RrTerm.avg();
 	
 	// adding operator on the energy
-	const SpectralStrength R0i = m_R0i + R0iTerm;
-	const SpectralStrength T0i = (m_T0i * T12) / denoTerm;
-	const SpectralStrength Ri0 = R21 + Ri0Term;
-	const SpectralStrength Ti0 = (T21 * m_Ti0) / denoTerm;
+	const Spectrum R0i = m_R0i + R0iTerm;
+	const Spectrum T0i = (m_T0i * T12) / denoTerm;
+	const Spectrum Ri0 = R21 + Ri0Term;
+	const Spectrum Ti0 = (T21 * m_Ti0) / denoTerm;
 
 	// scalar energy terms for adding on variance
 	const real R21Avg  = R21.avg();
@@ -147,7 +147,7 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 	}
 	else
 	{
-		m_energyScale     = SpectralStrength(0.0_r);
+		m_energyScale     = Spectrum(0.0_r);
 		m_equivalentAlpha = 0.0_r;
 	}
 

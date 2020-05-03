@@ -17,7 +17,7 @@
 //void DebugIntegrator::radianceAlongRay(const Ray& ray, const RenderWork& data, std::vector<SenseEvent>& out_senseEvents) const
 //{
 //	// just output camera sample location as green dots
-//	SpectralStrength radiance;
+//	Spectrum radiance;
 //	radiance.setLinearSrgb(Vector3R(0, 1, 0));// FIXME: check color space
 //	out_senseEvents.push_back(SenseEvent(radiance));
 //}

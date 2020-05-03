@@ -9,8 +9,8 @@ ExactDielectricFresnel::ExactDielectricFresnel(const real iorOuter, const real i
 {}
 
 void ExactDielectricFresnel::calcReflectance(
-	const real              cosThetaIncident,
-	SpectralStrength* const out_reflectance) const
+	const real      cosThetaIncident,
+	Spectrum* const out_reflectance) const
 {
 	PH_ASSERT(out_reflectance);
 

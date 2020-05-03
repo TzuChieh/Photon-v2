@@ -30,13 +30,13 @@ public:
 		real        initialKernelRadius);
 
 	bool impl_onReceiverSampleStart(
-		const math::Vector2D&   rasterCoord,
-		const SpectralStrength& pathThroughput);
+		const math::Vector2D& rasterCoord,
+		const Spectrum&       pathThroughput);
 
 	auto impl_onPathHitSurface(
-		std::size_t             pathLength,
-		const SurfaceHit&       surfaceHit,
-		const SpectralStrength& pathThroughput) -> ViewPathTracingPolicy;
+		std::size_t       pathLength,
+		const SurfaceHit& surfaceHit,
+		const Spectrum&   pathThroughput) -> ViewPathTracingPolicy;
 
 	void impl_onReceiverSampleEnd();
 
@@ -53,9 +53,9 @@ private:
 	std::size_t            m_receiverSampleViewpoints;
 
 	void addViewpoint(
-		const SurfaceHit&       surfaceHit, 
-		const math::Vector3R&   viewDir,
-		const SpectralStrength& pathThroughput);
+		const SurfaceHit&     surfaceHit, 
+		const math::Vector3R& viewDir,
+		const Spectrum&       pathThroughput);
 };
 
 // In-header Implementations:
@@ -73,8 +73,8 @@ inline TPPMViewpointCollector<Viewpoint>::TPPMViewpointCollector(
 
 template<typename Viewpoint>
 inline bool TPPMViewpointCollector<Viewpoint>::impl_onReceiverSampleStart(
-	const math::Vector2D&   rasterCoord,
-	const SpectralStrength& pathThroughput)
+	const math::Vector2D& rasterCoord,
+	const Spectrum&       pathThroughput)
 {
 	if(pathThroughput.isZero())
 	{
@@ -92,7 +92,7 @@ inline bool TPPMViewpointCollector<Viewpoint>::impl_onReceiverSampleStart(
 		m_viewpoint.template set<EViewpointData::NUM_PHOTONS>(0.0_r);
 	}
 	if constexpr(Viewpoint::template has<EViewpointData::TAU>()) {
-		m_viewpoint.template set<EViewpointData::TAU>(SpectralStrength(0));
+		m_viewpoint.template set<EViewpointData::TAU>(Spectrum(0));
 	}
 
 	m_receiverSampleViewpoints = 0;
@@ -102,9 +102,9 @@ inline bool TPPMViewpointCollector<Viewpoint>::impl_onReceiverSampleStart(
 
 template<typename Viewpoint>
 inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
-	const std::size_t       pathLength,
-	const SurfaceHit&       surfaceHit,
-	const SpectralStrength& pathThroughput) -> ViewPathTracingPolicy
+	const std::size_t pathLength,
+	const SurfaceHit& surfaceHit,
+	const Spectrum&   pathThroughput) -> ViewPathTracingPolicy
 {
 	const PrimitiveMetadata* const metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 	const SurfaceOptics* const     optics   = metadata->getSurface().getOptics();
@@ -157,7 +157,7 @@ inline void TPPMViewpointCollector<Viewpoint>::impl_onReceiverSampleEnd()
 			{
 				auto& viewpoint = m_viewpoints[i];
 
-				SpectralStrength pathThroughput = viewpoint.template get<EViewpointData::VIEW_THROUGHPUT>();
+				Spectrum pathThroughput = viewpoint.template get<EViewpointData::VIEW_THROUGHPUT>();
 				pathThroughput.mulLocal(static_cast<real>(m_receiverSampleViewpoints));
 				viewpoint.template set<EViewpointData::VIEW_THROUGHPUT>(pathThroughput);
 			}
@@ -173,7 +173,7 @@ inline void TPPMViewpointCollector<Viewpoint>::impl_onReceiverSampleEnd()
 		//addViewpoint(
 		//	SurfaceHit(),
 		//	Vector3R(),
-		//	SpectralStrength());
+		//	Spectrum());
 	}
 }
 
@@ -189,16 +189,16 @@ std::vector<Viewpoint> TPPMViewpointCollector<Viewpoint>::claimViewpoints()
 
 template<typename Viewpoint>
 void TPPMViewpointCollector<Viewpoint>::addViewpoint(
-	const SurfaceHit&       surfaceHit,
-	const math::Vector3R&   viewDir,
-	const SpectralStrength& pathThroughput)
+	const SurfaceHit&     surfaceHit,
+	const math::Vector3R& viewDir,
+	const Spectrum&       pathThroughput)
 {
 	if constexpr(Viewpoint::template has<EViewpointData::VIEW_RADIANCE>())
 	{
 		const PrimitiveMetadata* const metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 		PH_ASSERT(metadata);
 
-		SpectralStrength viewRadiance(0);
+		Spectrum viewRadiance(0);
 		if(metadata->getSurface().getEmitter())
 		{
 			metadata->getSurface().getEmitter()->evalEmittedRadiance(surfaceHit, &viewRadiance);

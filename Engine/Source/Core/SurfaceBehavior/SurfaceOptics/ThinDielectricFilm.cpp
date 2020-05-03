@@ -14,9 +14,9 @@ namespace ph
 {
 
 ThinDielectricFilm::ThinDielectricFilm(
-	const std::shared_ptr<DielectricFresnel>&   fresnel,
-	const std::vector<SampledSpectralStrength>& reflectanceTable,
-	const std::vector<SampledSpectralStrength>& transmittanceTable) :
+	const std::shared_ptr<DielectricFresnel>& fresnel,
+	const std::vector<SampledSpectrum>&       reflectanceTable,
+	const std::vector<SampledSpectrum>&       transmittanceTable) :
 
 	SurfaceOptics(),
 
@@ -65,7 +65,7 @@ void ThinDielectricFilm::calcBsdfSample(
 
 	const math::Vector3R N = in.X.getShadingNormal();
 
-	SpectralStrength F;
+	Spectrum F;
 	m_fresnel->calcReflectance(N.dot(in.V), &F);
 	const real reflectProb = F.avg();
 
@@ -93,7 +93,7 @@ void ThinDielectricFilm::calcBsdfSample(
 	real degree = math::to_degrees(N.absDot(out.L));
 	std::size_t index = math::clamp(static_cast<std::size_t>(degree + 0.5_r), std::size_t(0), std::size_t(90));
 
-	SampledSpectralStrength scale(0);
+	SampledSpectrum scale(0);
 
 	if(sampleReflect)
 	{
@@ -145,7 +145,7 @@ void ThinDielectricFilm::calcBsdfSample(
 		return;
 	}
 
-	SpectralStrength value;
+	Spectrum value;
 	value.setSampled(scale / N.absDot(out.L));
 	out.pdfAppliedBsdf.setValues(value);
 	out.setMeasurability(true);

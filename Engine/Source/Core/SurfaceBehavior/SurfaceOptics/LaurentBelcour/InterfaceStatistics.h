@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Common/primitive_type.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayer.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableFGD.h"
@@ -19,19 +19,19 @@ public:
 	bool addLayer(const LbLayer& layer2);
 
 	real getEquivalentAlpha() const;
-	const SpectralStrength& getEnergyScale() const;
+	const Spectrum& getEnergyScale() const;
 	LbLayer getLastLayer() const;
 
 private:
-	real             m_equivalentAlpha;
-	SpectralStrength m_energyScale;
+	real     m_equivalentAlpha;
+	Spectrum m_energyScale;
 
-	LbLayer m_layer0, m_layer1;
+	LbLayer  m_layer0, m_layer1;
 
-	real             m_cosWi;
-	SpectralStrength m_R0i,  m_Ri0,  m_T0i,  m_Ti0;
-	real             m_sR0i, m_sRi0, m_sT0i, m_sTi0;
-	real             m_J0i,  m_Ji0;
+	real     m_cosWi;
+	Spectrum m_R0i,  m_Ri0,  m_T0i,  m_Ti0;
+	real     m_sR0i, m_sRi0, m_sT0i, m_sTi0;
+	real     m_J0i,  m_Ji0;
 
 	static const TableFGD& FGD();
 	static const TableTIR& TIR();
@@ -63,7 +63,7 @@ inline real InterfaceStatistics::getEquivalentAlpha() const
 	return m_equivalentAlpha;
 }
 
-inline const SpectralStrength& InterfaceStatistics::getEnergyScale() const
+inline const Spectrum& InterfaceStatistics::getEnergyScale() const
 {
 	return m_energyScale;
 }

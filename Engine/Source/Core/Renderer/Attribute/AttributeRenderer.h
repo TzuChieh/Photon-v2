@@ -6,7 +6,7 @@
 #include "Core/Renderer/Sampling/TReceiverMeasurementEstimator.h"
 #include "Core/Renderer/Region/WorkScheduler.h"
 #include "Core/Renderer/Sampling/MetaRecordingProcessor.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Math/TVector2.h"
 
 #include <vector>

@@ -88,10 +88,10 @@ std::shared_ptr<TTexture<math::Vector3R>> ConstantImage::genTextureVector3R(
 	return std::make_shared<TConstantTexture<math::Vector3R>>(values);
 }
 
-std::shared_ptr<TTexture<SpectralStrength>> ConstantImage::genTextureSpectral(
+std::shared_ptr<TTexture<Spectrum>> ConstantImage::genTextureSpectral(
 	CookingContext& context) const
 {
-	SpectralStrength values;
+	Spectrum values;
 	if(m_values.size() == 1)
 	{
 		switch(m_type)
@@ -140,7 +140,7 @@ std::shared_ptr<TTexture<SpectralStrength>> ConstantImage::genTextureSpectral(
 	}
 	else
 	{
-		if(m_values.size() != SpectralStrength::NUM_VALUES)
+		if(m_values.size() != Spectrum::NUM_VALUES)
 		{
 			std::cerr << "warning: at ConstantImage::genTextureSpectral(), "
 			          << "bad number of input values."
@@ -153,13 +153,13 @@ std::shared_ptr<TTexture<SpectralStrength>> ConstantImage::genTextureSpectral(
 			          << "only raw type is supported." << std::endl;
 		}
 
-		for(std::size_t i = 0; i < SpectralStrength::NUM_VALUES; i++)
+		for(std::size_t i = 0; i < Spectrum::NUM_VALUES; i++)
 		{
 			values[i] = i < m_values.size() ? m_values[i] : 1;
 		}
 	}
 
-	return std::make_shared<TConstantTexture<SpectralStrength>>(values);
+	return std::make_shared<TConstantTexture<Spectrum>>(values);
 }
 
 // command interface

@@ -29,12 +29,12 @@ inline TDirectLightEstimator<POLICY>::TDirectLightEstimator(const Scene* const s
 
 template<ESidednessPolicy POLICY>
 inline bool TDirectLightEstimator<POLICY>::sample(
-	const SurfaceHit&       targetPos,
-	const Time&             time,
-	SampleFlow&             sampleFlow,
-	math::Vector3R* const   out_L,
-	real* const             out_pdfW,
-	SpectralStrength* const out_emittedRadiance)
+	const SurfaceHit&     targetPos,
+	const Time&           time,
+	SampleFlow&           sampleFlow,
+	math::Vector3R* const out_L,
+	real* const           out_pdfW,
+	Spectrum* const       out_emittedRadiance)
 {
 	/*const PrimitiveMetadata* metadata = targetPos.getDetail().getPrimitive()->getMetadata();
 	const SurfaceOptics* optics = metadata->getSurface().getOptics();

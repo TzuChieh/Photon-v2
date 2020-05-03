@@ -15,7 +15,7 @@ OmniModulatedEmitter::OmniModulatedEmitter(std::unique_ptr<Emitter> source) :
 	PH_ASSERT(m_source);
 }
 
-void OmniModulatedEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const
+void OmniModulatedEmitter::evalEmittedRadiance(const SurfaceHit& X, Spectrum* out_radiance) const
 {
 	PH_ASSERT(m_filter);
 
@@ -31,7 +31,7 @@ void OmniModulatedEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStre
 	// HACK
 	uv.y = 1.0_r - uv.y;
 
-	const auto& filterValue = TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_filter, uv);
+	const auto& filterValue = TSampler<Spectrum>(EQuantity::RAW).sample(*m_filter, uv);
 	out_radiance->mulLocal(filterValue);
 }
 
@@ -51,11 +51,11 @@ void OmniModulatedEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSa
 	// HACK
 	uv.y = 1.0_r - uv.y;
 
-	const auto& filterValue = TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_filter, uv);
+	const auto& filterValue = TSampler<Spectrum>(EQuantity::RAW).sample(*m_filter, uv);
 	sample.radianceLe.mulLocal(filterValue);
 }
 
-void OmniModulatedEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void OmniModulatedEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
 	m_source->emitRay(sampleFlow, out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
 
@@ -65,7 +65,7 @@ void OmniModulatedEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, Spectra
 	// HACK
 	uv.y = 1.0_r - uv.y;
 
-	const auto& filterValue = TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_filter, uv);
+	const auto& filterValue = TSampler<Spectrum>(EQuantity::RAW).sample(*m_filter, uv);
 	out_Le->mulLocal(filterValue);
 }
 
@@ -78,7 +78,7 @@ real OmniModulatedEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const
 	return pdfW;
 }
 
-void OmniModulatedEmitter::setFilter(const std::shared_ptr<TTexture<SpectralStrength>>& filter)
+void OmniModulatedEmitter::setFilter(const std::shared_ptr<TTexture<Spectrum>>& filter)
 {
 	PH_ASSERT(filter);
 

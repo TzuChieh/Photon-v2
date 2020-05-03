@@ -5,33 +5,33 @@ namespace ph
 {
 
 SchlickApproxConductorFresnel::SchlickApproxConductorFresnel(
-	const real              iorOuter,
-	const SpectralStrength& iorInnerN,
-	const SpectralStrength& iorInnerK) : 
+	const real      iorOuter,
+	const Spectrum& iorInnerN,
+	const Spectrum& iorInnerK) :
 
 	ConductorFresnel(iorOuter, iorInnerN, iorInnerK)
 {
-	const SpectralStrength neg2 = iorInnerN.sub(SpectralStrength(iorOuter)).pow(2);
-	const SpectralStrength pos2 = iorInnerN.add(SpectralStrength(iorOuter)).pow(2);
-	const SpectralStrength nume = neg2.add(iorInnerK.pow(2));
-	const SpectralStrength deno = pos2.add(iorInnerK.pow(2));
+	const Spectrum neg2 = iorInnerN.sub(Spectrum(iorOuter)).pow(2);
+	const Spectrum pos2 = iorInnerN.add(Spectrum(iorOuter)).pow(2);
+	const Spectrum nume = neg2.add(iorInnerK.pow(2));
+	const Spectrum deno = pos2.add(iorInnerK.pow(2));
 	m_f0           = nume.div(deno);
 	m_f0Complement = m_f0.complement();
 }
 
 SchlickApproxConductorFresnel::SchlickApproxConductorFresnel(
-	const SpectralStrength& f0) : 
+	const Spectrum& f0) : 
 
 	// FIXME: this might cause problems if the class is used polymorphically
 	// actual IoR values are not needed by Schlick's approximation during runtime
-	ConductorFresnel(1, SpectralStrength(1), SpectralStrength(1)),
+	ConductorFresnel(1, Spectrum(1), Spectrum(1)),
 
 	m_f0(f0), m_f0Complement(f0.complement())
 {}
 
 void SchlickApproxConductorFresnel::calcReflectance(
-	const real              cosThetaIncident,
-	SpectralStrength* const out_reflectance) const
+	const real      cosThetaIncident,
+	Spectrum* const out_reflectance) const
 {
 	PH_ASSERT(out_reflectance);
 

@@ -15,7 +15,7 @@
 //#include "Core/SurfaceBehavior/BsdfEvaluation.h"
 //#include "Core/SurfaceBehavior/BsdfSample.h"
 //#include "Math/TVector2.h"
-//#include "Core/Quantity/SpectralStrength.h"
+//#include "Core/Quantity/Spectrum.h"
 //
 //#include <iostream>
 //
@@ -48,7 +48,7 @@
 //	//}
 //
 //	//Ray emitterRay;
-//	//SpectralStrength emitterRadianceLe;
+//	//Spectrum emitterRadianceLe;
 //	//Vector3R eN;
 //	//real emitterPdfA;
 //	//real emitterPdfW;
@@ -76,7 +76,7 @@
 //	//			&cameraImportanceWe, &filmArea, &cameraPdfW);
 //	//		if(cameraPdfW > 0)
 //	//		{
-//	//			SpectralStrength weight(1);
+//	//			Spectrum weight(1);
 //	//			weight.mulLocal(cameraImportanceWe.div(cameraPdfA));
 //	//			weight.divLocal(emitterPdfA);
 //	//			const real G = eN.absDot(toCameraRay.getDirection()) *

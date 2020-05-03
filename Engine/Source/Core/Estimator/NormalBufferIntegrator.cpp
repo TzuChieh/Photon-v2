@@ -4,7 +4,7 @@
 //#include "Core/HitDetail.h"
 //#include "World/Scene.h"
 //#include "Math/TVector3.h"
-//#include "Core/Quantity/SpectralStrength.h"
+//#include "Core/Quantity/Spectrum.h"
 //#include "Core/SurfaceHit.h"
 //
 //namespace ph
@@ -24,7 +24,7 @@
 //	tracingRay.setMinT(0.0002_r);// HACK: hard-coded number
 //	tracingRay.setMaxT(std::numeric_limits<real>::max());
 //
-//	SpectralStrength radiance;
+//	Spectrum radiance;
 //	HitProbe probe;
 //	if(data.scene->isIntersecting(tracingRay, &probe))
 //	{

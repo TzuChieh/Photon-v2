@@ -34,7 +34,7 @@ inline void TRadianceEvaluationWork<Photon>::doWork()
 	{
 		const Viewpoint& viewpoint = m_viewpoints[i];
 		
-		const SpectralStrength& radiance = evaluateRadiance(
+		const Spectrum& radiance = evaluateRadiance(
 			viewpoint.hit,
 			viewpoint.L,
 			viewpoint.radius);
@@ -46,7 +46,7 @@ inline void TRadianceEvaluationWork<Photon>::doWork()
 }
 
 template<typename Photon>
-inline SpectralStrength TRadianceEvaluationWork<Photon>::evaluateRadiance(
+inline Spectrum TRadianceEvaluationWork<Photon>::evaluateRadiance(
 	const SurfaceHit&     location,
 	const math::Vector3R& excitant,
 	const real            kernelRadius)
@@ -63,8 +63,8 @@ inline SpectralStrength TRadianceEvaluationWork<Photon>::evaluateRadiance(
 	m_photonCache.clear();
 	m_photonMap->findWithinRange(location.getPosition(), kernelRadius, m_photonCache);*/
 
-	BsdfEvalQuery   bsdfEval;
-	SpectralStrength radiance(0);
+	BsdfEvalQuery bsdfEval;
+	Spectrum      radiance(0);
 	//for(const auto& photon : m_photonCache)
 	//{
 	//	const Vector3R V  = excitant;
@@ -83,7 +83,7 @@ inline SpectralStrength TRadianceEvaluationWork<Photon>::evaluateRadiance(
 	//		continue;
 	//	}
 
-	//	SpectralStrength throughput(1.0_r);
+	//	Spectrum throughput(1.0_r);
 	//	throughput.mulLocal(bsdfEval.outputs.bsdf);
 	//	//throughput.mulLocal(Ns.absDot(V) * Ng.absDot(L) / Ng.absDot(V) / Ns.absDot(L));
 	//	throughput.mulLocal(photon.getReference<EPhotonData::THROUGHPUT>());

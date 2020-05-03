@@ -10,7 +10,7 @@
 #include "Common/assertion.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/ThinDielectricFilm.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Core/Quantity/SpectralData.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 
@@ -23,8 +23,8 @@ ThinFilm::ThinFilm() :
 
 void ThinFilm::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
 {
-	std::vector<SampledSpectralStrength> reflectanceTable(91);
-	std::vector<SampledSpectralStrength> transmittanceTable(91);
+	std::vector<SampledSpectrum> reflectanceTable(91);
+	std::vector<SampledSpectrum> transmittanceTable(91);
 
 	for(std::size_t i = 0; i <= 90; ++i)
 	{

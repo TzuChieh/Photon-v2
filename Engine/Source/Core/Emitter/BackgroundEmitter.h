@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Emitter/SurfaceEmitter.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Core/Texture/TTexture.h"
 #include "Math/Random/TPwcDistribution2D.h"
 #include "Math/TVector2.h"
@@ -29,7 +29,7 @@ class Primitive;
 class BackgroundEmitter : public SurfaceEmitter
 {
 public:
-	using RadianceTexture = std::shared_ptr<TTexture<SpectralStrength>>;
+	using RadianceTexture = std::shared_ptr<TTexture<Spectrum>>;
 
 	BackgroundEmitter(
 		const Primitive*                   surface,
@@ -37,11 +37,11 @@ public:
 		const math::TVector2<std::size_t>& resolution,
 		real sceneBoundRadius);
 
-	void evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* out_radiance) const override;
+	void evalEmittedRadiance(const SurfaceHit& X, Spectrum* out_radiance) const override;
 	void genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const override;
 
 	// FIXME: ray time
-	void emitRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;
+	void emitRay(SampleFlow& sampleFlow, Ray* out_ray, Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;
 
 	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const override;
 	real calcRadiantFluxApprox() const override;

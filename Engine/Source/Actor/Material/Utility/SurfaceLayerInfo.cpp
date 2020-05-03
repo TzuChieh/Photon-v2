@@ -30,9 +30,9 @@ SurfaceLayerInfo::SurfaceLayerInfo(const InputPacket& packet) :
 	m_sigmaS.setValues(packet.getReal("sigma-s", m_sigmaS.avg()));
 }
 
-SpectralStrength SurfaceLayerInfo::loadIorN(const InputPacket& packet, const SpectralStrength& defaultIorN)
+Spectrum SurfaceLayerInfo::loadIorN(const InputPacket& packet, const Spectrum& defaultIorN)
 {
-	SpectralStrength iorN(defaultIorN);
+	Spectrum iorN(defaultIorN);
 
 	InputPrototype exactIorN;
 	exactIorN.addRealArray("ior-n-wavelength-nm");
@@ -59,9 +59,9 @@ SpectralStrength SurfaceLayerInfo::loadIorN(const InputPacket& packet, const Spe
 	return iorN;
 }
 
-SpectralStrength SurfaceLayerInfo::loadIorK(const InputPacket& packet, const SpectralStrength& defaultIorK)
+Spectrum SurfaceLayerInfo::loadIorK(const InputPacket& packet, const Spectrum& defaultIorK)
 {
-	SpectralStrength iorK(defaultIorK);
+	Spectrum iorK(defaultIorK);
 
 	InputPrototype exactIorK;
 	exactIorK.addRealArray("ior-k-wavelength-nm");

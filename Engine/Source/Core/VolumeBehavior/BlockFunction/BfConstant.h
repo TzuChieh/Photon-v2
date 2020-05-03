@@ -2,7 +2,7 @@
 
 #include "Core/VolumeBehavior/BlockFunction.h"
 #include "Core/SurfaceHit.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Common/assertion.h"
 
 #include <cmath>
@@ -15,10 +15,10 @@ class BfConstant final : public BlockFunction
 {
 public:
 	inline BfConstant() :
-		BfConstant(SpectralStrength(0.0_r))
+		BfConstant(Spectrum(0.0_r))
 	{}
 
-	inline BfConstant(const SpectralStrength& coeff) :
+	inline BfConstant(const Spectrum& coeff) :
 		BlockFunction(),
 		m_absorptionCoeff(coeff)
 	{}
@@ -26,21 +26,21 @@ public:
 	virtual inline ~BfConstant() override = default;
 
 	virtual inline void evalAbsorptionCoeff(
-		const SurfaceHit&       /* X */, 
-		SpectralStrength* const out_coeff) const override
+		const SurfaceHit& /* X */, 
+		Spectrum* const   out_coeff) const override
 	{
 		PH_ASSERT(out_coeff);
 
 		*out_coeff = m_absorptionCoeff;
 	}
 
-	inline SpectralStrength calcTransmittance(const real dist) const
+	inline Spectrum calcTransmittance(const real dist) const
 	{
 		PH_ASSERT_MSG(dist >= 0.0_r, 
 			"dist = " + std::to_string(dist));
 
-		SpectralStrength transmittance;
-		for(std::size_t i = 0; i < SpectralStrength::NUM_VALUES; ++i)
+		Spectrum transmittance;
+		for(std::size_t i = 0; i < Spectrum::NUM_VALUES; ++i)
 		{
 			transmittance[i] = std::exp(-m_absorptionCoeff[i] * dist);
 		}
@@ -48,7 +48,7 @@ public:
 	}
 
 private:
-	SpectralStrength m_absorptionCoeff;
+	Spectrum m_absorptionCoeff;
 };
 
 }// end namespace ph

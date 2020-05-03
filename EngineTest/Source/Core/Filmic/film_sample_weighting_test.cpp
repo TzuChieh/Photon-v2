@@ -3,7 +3,7 @@
 #include <Core/Filmic/HdrRgbFilm.h>
 #include <Frame/TFrame.h>
 #include <Core/Filmic/SampleFilters.h>
-#include <Core/Quantity/SpectralStrength.h>
+#include <Core/Quantity/Spectrum.h>
 #include <Common/config.h>
 
 #include <gtest/gtest.h>
@@ -28,10 +28,10 @@ TEST(FilmSampleWeightingTest, HdrRgbFilmDevelopesToFrame)
 	const float64 testSamplePos2Ypx = film.getSampleWindowPx().getMinVertex().y + 0.4;
 	film.addSample(testSamplePos1Xpx,
 	               testSamplePos1Ypx,
-	               SpectralStrength(0.7_r));
+	               Spectrum(0.7_r));
 	film.addSample(testSamplePos2Xpx,
 	               testSamplePos2Ypx,
-	               SpectralStrength(0.3_r));
+	               Spectrum(0.3_r));
 	film.develop(frame);
 
 	HdrRgbFrame::Pixel pixel;

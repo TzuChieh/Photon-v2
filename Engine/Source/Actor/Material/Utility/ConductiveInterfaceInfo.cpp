@@ -16,7 +16,7 @@ namespace
 
 ConductiveInterfaceInfo::ConductiveInterfaceInfo() :
 	m_useExact(false),
-	m_ior     (SchlickIor{SpectralStrength(0.04_r)})
+	m_ior     (SchlickIor{Spectrum(0.04_r)})
 {}
 
 ConductiveInterfaceInfo::ConductiveInterfaceInfo(const InputPacket& packet) :
@@ -72,7 +72,7 @@ ConductiveInterfaceInfo::ConductiveInterfaceInfo(const InputPacket& packet) :
 		const auto& sampledInnerKs = SpectralData::calcPiecewiseAveraged(
 			iorWavelengthsNm.data(), iorInnerKs.data(), iorWavelengthsNm.size());
 
-		SpectralStrength iorInnerN, iorInnerK;
+		Spectrum iorInnerN, iorInnerK;
 		iorInnerN.setSampled(sampledInnerNs);
 		iorInnerK.setSampled(sampledInnerKs);
 
@@ -82,7 +82,7 @@ ConductiveInterfaceInfo::ConductiveInterfaceInfo(const InputPacket& packet) :
 	{
 		const auto f0 = packet.getVector3("f0");
 
-		SpectralStrength spectralF0;
+		Spectrum spectralF0;
 		spectralF0.setLinearSrgb(f0);// FIXME: check color space
 
 		m_ior = SchlickIor{spectralF0};

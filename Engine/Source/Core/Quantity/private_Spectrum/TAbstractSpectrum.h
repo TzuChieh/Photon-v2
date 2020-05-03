@@ -3,7 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TArithmeticArray.h"
 #include "Math/TVector3.h"
-#include "Core/Quantity/spectral_strength_fwd.h"
+#include "Core/Quantity/spectrum_fwd.h"
 #include "Core/Quantity/EQuantity.h"
 
 #include <cstddef>
@@ -15,22 +15,22 @@ namespace ph
 {
 
 template<typename DerivedType, std::size_t N>
-class TAbstractSpectralStrength
+class TAbstractSpectrum
 {
 public:
 	static constexpr std::size_t NUM_VALUES = N;
 
 public:
-	explicit inline TAbstractSpectralStrength(real value);
-	explicit inline TAbstractSpectralStrength(const std::array<real, 1>& value);
-	explicit inline TAbstractSpectralStrength(const math::TArithmeticArray<real, 1>& value);
-	explicit inline TAbstractSpectralStrength(const std::array<real, N>& values);
-	explicit inline TAbstractSpectralStrength(const math::TArithmeticArray<real, N>& values);
+	explicit inline TAbstractSpectrum(real value);
+	explicit inline TAbstractSpectrum(const std::array<real, 1>& value);
+	explicit inline TAbstractSpectrum(const math::TArithmeticArray<real, 1>& value);
+	explicit inline TAbstractSpectrum(const std::array<real, N>& values);
+	explicit inline TAbstractSpectrum(const math::TArithmeticArray<real, N>& values);
 
 protected:
-	inline TAbstractSpectralStrength() = default;
-	inline TAbstractSpectralStrength(const TAbstractSpectralStrength& other) = default;
-	inline ~TAbstractSpectralStrength() = default;
+	inline TAbstractSpectrum() = default;
+	inline TAbstractSpectrum(const TAbstractSpectrum& other) = default;
+	inline ~TAbstractSpectrum() = default;
 
 public:
 	static DerivedType exp(const DerivedType& exponent);
@@ -44,7 +44,7 @@ public:
 
 	inline DerivedType& setSrgb(const math::Vector3R& srgb, EQuantity valueType = EQuantity::RAW);
 	inline DerivedType& setLinearSrgb(const math::Vector3R& linearSrgb, EQuantity valueType = EQuantity::RAW);
-	inline DerivedType& setSampled(const SampledSpectralStrength& sampled, EQuantity valueType = EQuantity::RAW);
+	inline DerivedType& setSampled(const SampledSpectrum& sampled, EQuantity valueType = EQuantity::RAW);
 
 	inline DerivedType add(const DerivedType& rhs) const;
 	inline DerivedType add(real rhs) const;

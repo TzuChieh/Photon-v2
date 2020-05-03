@@ -13,19 +13,19 @@ class SchlickApproxConductorFresnel : public ConductorFresnel
 {
 public:
 	SchlickApproxConductorFresnel(
-		real                    iorOuter,
-		const SpectralStrength& iorInnerN, 
-		const SpectralStrength& iorInnerK);
+		real            iorOuter,
+		const Spectrum& iorInnerN,
+		const Spectrum& iorInnerK);
 
-	explicit SchlickApproxConductorFresnel(const SpectralStrength& f0);
+	explicit SchlickApproxConductorFresnel(const Spectrum& f0);
 
 	void calcReflectance(
-		real              cosThetaIncident, 
-		SpectralStrength* out_reflectance) const override;
+		real      cosThetaIncident, 
+		Spectrum* out_reflectance) const override;
 
 private:
-	SpectralStrength m_f0;
-	SpectralStrength m_f0Complement;
+	Spectrum m_f0;
+	Spectrum m_f0Complement;
 };
 
 }// end namespace ph

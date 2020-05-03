@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Quantity/private_SpectralStrength/TSampledSpectralStrength.h"
+#include "Core/Quantity/private_Spectrum/TSampledSpectrum.h"
 #include "Core/Quantity/ColorSpace.h"
 #include "Common/assertion.h"
 
@@ -10,16 +10,16 @@ namespace ph
 {
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
-constexpr std::size_t TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::NUM_INTERVALS;
+constexpr std::size_t TSampledSpectrum<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::NUM_INTERVALS;
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
-constexpr real TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::LAMBDA_RANGE_NM;
+constexpr real TSampledSpectrum<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::LAMBDA_RANGE_NM;
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
-constexpr real TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::LAMBDA_INTERVAL_NM;
+constexpr real TSampledSpectrum<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::LAMBDA_INTERVAL_NM;
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
-inline auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
+inline auto TSampledSpectrum<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
 lambdaRangeNmOf(const std::size_t index)
 	-> std::pair<real, real>
 {
@@ -28,25 +28,25 @@ lambdaRangeNmOf(const std::size_t index)
 }
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
-inline auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
+inline auto TSampledSpectrum<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
 impl_genLinearSrgb(const EQuantity valueType) const
 	-> math::Vector3R
 {
-	if constexpr(std::is_same_v<TSampledSpectralStrength, SampledSpectralStrength>)
+	if constexpr(std::is_same_v<TSampledSpectrum, SampledSpectrum>)
 	{
 		switch(valueType)
 		{
 		case EQuantity::EMR:
 			return ColorSpace::SPD_to_linear_sRGB<ESourceHint::ILLUMINANT>(
-				static_cast<const SampledSpectralStrength&>(*this));
+				static_cast<const SampledSpectrum&>(*this));
 
 		case EQuantity::ECF:
 			return ColorSpace::SPD_to_linear_sRGB<ESourceHint::REFLECTANCE>(
-				static_cast<const SampledSpectralStrength&>(*this));
+				static_cast<const SampledSpectrum&>(*this));
 
 		default:
 			return ColorSpace::SPD_to_linear_sRGB<ESourceHint::RAW_DATA>(
-				static_cast<const SampledSpectralStrength&>(*this));
+				static_cast<const SampledSpectrum&>(*this));
 		}
 	}
 	else
@@ -57,27 +57,27 @@ impl_genLinearSrgb(const EQuantity valueType) const
 }
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
-inline auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
+inline auto TSampledSpectrum<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
 impl_setLinearSrgb(const math::Vector3R& linearSrgb, const EQuantity valueType)
 	-> void
 {
-	if constexpr(std::is_same_v<TSampledSpectralStrength, SampledSpectralStrength>)
+	if constexpr(std::is_same_v<TSampledSpectrum, SampledSpectrum>)
 	{
 		switch(valueType)
 		{
 		case EQuantity::EMR:
 			ColorSpace::linear_sRGB_to_SPD<ESourceHint::ILLUMINANT>(
-				linearSrgb, static_cast<SampledSpectralStrength*>(this));
+				linearSrgb, static_cast<SampledSpectrum*>(this));
 			break;
 
 		case EQuantity::ECF:
 			ColorSpace::linear_sRGB_to_SPD<ESourceHint::REFLECTANCE>(
-				linearSrgb, static_cast<SampledSpectralStrength*>(this));
+				linearSrgb, static_cast<SampledSpectrum*>(this));
 			break;
 
 		default:
 			ColorSpace::linear_sRGB_to_SPD<ESourceHint::RAW_DATA>(
-				linearSrgb, static_cast<SampledSpectralStrength*>(this));
+				linearSrgb, static_cast<SampledSpectrum*>(this));
 			break;
 		}
 	}
@@ -89,13 +89,13 @@ impl_setLinearSrgb(const math::Vector3R& linearSrgb, const EQuantity valueType)
 }
 
 template<std::size_t N, std::size_t MIN_LAMBDA_NM, std::size_t MAX_LAMBDA_NM>
-inline auto TSampledSpectralStrength<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
-impl_setSampled(const SampledSpectralStrength& sampled, const EQuantity valueType)
+inline auto TSampledSpectrum<N, MIN_LAMBDA_NM, MAX_LAMBDA_NM>::
+impl_setSampled(const SampledSpectrum& sampled, const EQuantity valueType)
 	-> void
 {
-	if constexpr(std::is_same_v<TSampledSpectralStrength, SampledSpectralStrength>)
+	if constexpr(std::is_same_v<TSampledSpectrum, SampledSpectrum>)
 	{
-		static_cast<SampledSpectralStrength&>(*this) = sampled;
+		static_cast<SampledSpectrum&>(*this) = sampled;
 	}
 	else
 	{

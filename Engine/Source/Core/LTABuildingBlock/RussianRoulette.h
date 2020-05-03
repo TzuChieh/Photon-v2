@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/assertion.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Math/math.h"
 #include "Core/SampleGenerator/SampleFlow.h"
 
@@ -12,9 +12,9 @@ class RussianRoulette final
 {
 public:
 	static bool surviveOnLuminance(
-		const SpectralStrength& s, 
-		SampleFlow&             sampleFlow,
-		SpectralStrength* const out_weightedS)
+		const Spectrum& s,
+		SampleFlow&     sampleFlow,
+		Spectrum* const out_weightedS)
 	{
 		PH_ASSERT(out_weightedS);
 

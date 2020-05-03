@@ -8,7 +8,7 @@
 #include "Core/Ray.h"
 #include "Math/constant.h"
 #include "Core/Texture/TSampler.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Common/assertion.h"
 #include "Core/Texture/SampleLocation.h"
 #include "Math/Geometry/THemisphere.h"
@@ -32,12 +32,12 @@ DiffuseSurfaceEmitter::DiffuseSurfaceEmitter(const Primitive* const surface) :
 	const real extendedArea = surface->calcExtendedArea();
 	m_reciExtendedArea = extendedArea > 0.0_r ? 1.0_r / extendedArea : 0.0_r;
 
-	SpectralStrength defaultRadiance;
+	Spectrum defaultRadiance;
 	defaultRadiance.setSampled(ColorSpace::get_D65_SPD());
-	setEmittedRadiance(std::make_shared<TConstantTexture<SpectralStrength>>(defaultRadiance));
+	setEmittedRadiance(std::make_shared<TConstantTexture<Spectrum>>(defaultRadiance));
 }
 
-void DiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* const out_radiance) const
+void DiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, Spectrum* const out_radiance) const
 {
 	const math::Vector3R emitDir = X.getIncidentRay().getDirection().mul(-1.0_r);
 	if(!canEmit(emitDir, X.getShadingNormal()))
@@ -47,7 +47,7 @@ void DiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStr
 	}
 
 	// TODO: able to specify channel or restrict it
-	TSampler<SpectralStrength> sampler(EQuantity::EMR);
+	TSampler<Spectrum> sampler(EQuantity::EMR);
 	*out_radiance = sampler.sample(getEmittedRadiance(), X);
 }
 
@@ -86,7 +86,7 @@ real DiffuseSurfaceEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, cons
 	return calcPdfW(emitPos, targetPos);
 }
 
-void DiffuseSurfaceEmitter::emitRay(SampleFlow& sampleFlow, Ray* const out_ray, SpectralStrength* const out_Le, math::Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const
+void DiffuseSurfaceEmitter::emitRay(SampleFlow& sampleFlow, Ray* const out_ray, Spectrum* const out_Le, math::Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const
 {
 	PositionSample positionSample;
 	m_surface->genPositionSample(sampleFlow, &positionSample);
@@ -114,7 +114,7 @@ void DiffuseSurfaceEmitter::emitRay(SampleFlow& sampleFlow, Ray* const out_ray, 
 	out_eN->set(positionSample.normal);
 	*out_pdfA = positionSample.pdf;
 	*out_pdfW = pdfW;
-	*out_Le = TSampler<SpectralStrength>(EQuantity::EMR).sample(*m_emittedRadiance, positionSample.uvw);
+	*out_Le = TSampler<Spectrum>(EQuantity::EMR).sample(*m_emittedRadiance, positionSample.uvw);
 }
 
 const Primitive* DiffuseSurfaceEmitter::getSurface() const
@@ -122,14 +122,14 @@ const Primitive* DiffuseSurfaceEmitter::getSurface() const
 	return m_surface;
 }
 
-void DiffuseSurfaceEmitter::setEmittedRadiance(const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance)
+void DiffuseSurfaceEmitter::setEmittedRadiance(const std::shared_ptr<TTexture<Spectrum>>& emittedRadiance)
 {
 	PH_ASSERT(emittedRadiance);
 
 	m_emittedRadiance = emittedRadiance;
 }
 
-const TTexture<SpectralStrength>& DiffuseSurfaceEmitter::getEmittedRadiance() const
+const TTexture<Spectrum>& DiffuseSurfaceEmitter::getEmittedRadiance() const
 {
 	PH_ASSERT(m_emittedRadiance);
 
@@ -157,9 +157,9 @@ real DiffuseSurfaceEmitter::calcRadiantFluxApprox() const
 
 	constexpr EQuantity QUANTITY = EQuantity::EMR;
 
-	const SpectralStrength sampledL = 
-		TSampler<SpectralStrength>(QUANTITY).sample(*m_emittedRadiance, sample.uvw);
-	SampledSpectralStrength spectralL;
+	const Spectrum sampledL = 
+		TSampler<Spectrum>(QUANTITY).sample(*m_emittedRadiance, sample.uvw);
+	SampledSpectrum spectralL;
 	spectralL.setLinearSrgb(sampledL.genLinearSrgb(QUANTITY), QUANTITY);
 
 	const real extendedArea = m_surface->calcExtendedArea();

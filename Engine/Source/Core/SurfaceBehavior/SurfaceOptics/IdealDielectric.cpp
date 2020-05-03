@@ -16,14 +16,14 @@ IdealDielectric::IdealDielectric(const std::shared_ptr<DielectricFresnel>& fresn
 
 	IdealDielectric(
 		fresnel, 
-		std::make_shared<TConstantTexture<SpectralStrength>>(SpectralStrength(1.0_r)),
-		std::make_shared<TConstantTexture<SpectralStrength>>(SpectralStrength(1.0_r)))
+		std::make_shared<TConstantTexture<Spectrum>>(Spectrum(1.0_r)),
+		std::make_shared<TConstantTexture<Spectrum>>(Spectrum(1.0_r)))
 {}
 
 IdealDielectric::IdealDielectric(
-	const std::shared_ptr<DielectricFresnel>&          fresnel,
-	const std::shared_ptr<TTexture<SpectralStrength>>& reflectionScale,
-	const std::shared_ptr<TTexture<SpectralStrength>>& transmissionScale) : 
+	const std::shared_ptr<DielectricFresnel>&  fresnel,
+	const std::shared_ptr<TTexture<Spectrum>>& reflectionScale,
+	const std::shared_ptr<TTexture<Spectrum>>& transmissionScale) :
 
 	SurfaceOptics(),
 
@@ -72,7 +72,7 @@ void IdealDielectric::calcBsdfSample(
 
 	const math::Vector3R N = in.X.getShadingNormal();
 
-	SpectralStrength F;
+	Spectrum F;
 	m_fresnel->calcReflectance(N.dot(in.V), &F);
 	const real reflectProb = F.avg();
 
@@ -105,8 +105,8 @@ void IdealDielectric::calcBsdfSample(
 		}
 
 		// a scale factor for artistic control
-		const SpectralStrength& reflectionScale =
-			TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_reflectionScale, in.X);
+		const Spectrum& reflectionScale =
+			TSampler<Spectrum>(EQuantity::RAW).sample(*m_reflectionScale, in.X);
 		F.mulLocal(reflectionScale);
 
 		// account for probability
@@ -138,8 +138,8 @@ void IdealDielectric::calcBsdfSample(
 		}
 
 		// a scale factor for artistic control
-		const SpectralStrength& transmissionScale =
-			TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_transmissionScale, in.X);
+		const Spectrum& transmissionScale =
+			TSampler<Spectrum>(EQuantity::RAW).sample(*m_transmissionScale, in.X);
 		F.mulLocal(transmissionScale);
 
 		// account for probability

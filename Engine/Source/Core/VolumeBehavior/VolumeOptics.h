@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 
 #include <memory>
 
@@ -28,7 +28,7 @@ private:
 		const math::Vector3R& L,
 		real maxDist, 
 		real* out_dist, 
-		SpectralStrength* out_pdfAppliedWeight) const = 0;
+		Spectrum* out_pdfAppliedWeight) const = 0;
 
 	//std::shared_ptr<ScatterFunction> m_scatterFunc;
 	//std::shared_ptr<BlockFunction> m_blockFunc;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 
 namespace ph
 {
@@ -13,7 +13,7 @@ class BlockFunction
 public:
 	virtual ~BlockFunction() = 0;
 
-	virtual void evalAbsorptionCoeff(const SurfaceHit& X, SpectralStrength* out_coeff) const = 0;
+	virtual void evalAbsorptionCoeff(const SurfaceHit& X, Spectrum* out_coeff) const = 0;
 };
 
 }// end namespace ph

@@ -38,7 +38,7 @@ HdrRgbFilm::HdrRgbFilm(
 	const math::TAABB2D<int64>& effectiveWindowPx,
 	const SampleFilter&         filter) :
 
-	TSamplingFilm<SpectralStrength>(
+	TSamplingFilm<Spectrum>(
 		actualWidthPx, 
 		actualHeightPx, 
 		effectiveWindowPx, 
@@ -52,15 +52,15 @@ HdrRgbFilm::HdrRgbFilm(
 
 HdrRgbFilm::HdrRgbFilm(HdrRgbFilm&& other) :
 
-	TSamplingFilm<SpectralStrength>(std::move(other)),
+	TSamplingFilm<Spectrum>(std::move(other)),
 
 	m_pixelRadianceSensors(std::move(other.m_pixelRadianceSensors))
 {}
 
 void HdrRgbFilm::addSample(
-	const float64           xPx, 
-	const float64           yPx, 
-	const SpectralStrength& radiance)
+	const float64   xPx, 
+	const float64   yPx, 
+	const Spectrum& radiance)
 {
 	PH_ASSERT_MSG(radiance.isFinite(), radiance.toString());
 
@@ -113,7 +113,7 @@ void HdrRgbFilm::addSample(
 
 //void HdrRgbFilm::genChild(
 //	const TAABB2D<int64>&                        effectiveWindowPx,
-//	TMergeableFilmProxy<SpectralStrength>* const out_film)
+//	TMergeableFilmProxy<Spectrum>* const out_film)
 //{
 //	auto childFilm = std::make_unique<HdrRgbFilm>(
 //		getActualResPx().x, 
@@ -124,7 +124,7 @@ void HdrRgbFilm::addSample(
 //	HdrRgbFilm* parent = this;
 //	HdrRgbFilm* child  = childFilm.getReference();
 //
-//	*out_film = TMergeableFilmProxy<SpectralStrength>(
+//	*out_film = TMergeableFilmProxy<Spectrum>(
 //		child, 
 //		[=]()
 //		{
@@ -220,7 +220,7 @@ void HdrRgbFilm::mergeWith(const HdrRgbFilm& other)
 
 void HdrRgbFilm::setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindow)
 {
-	TSamplingFilm<SpectralStrength>::setEffectiveWindowPx(effectiveWindow);
+	TSamplingFilm<Spectrum>::setEffectiveWindowPx(effectiveWindow);
 
 	resizeRadianceSensorBuffer();
 	clear();
@@ -228,7 +228,7 @@ void HdrRgbFilm::setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindo
 
 HdrRgbFilm& HdrRgbFilm::operator = (HdrRgbFilm&& other)
 {
-	TSamplingFilm<SpectralStrength>::operator = (std::move(other));
+	TSamplingFilm<Spectrum>::operator = (std::move(other));
 
 	m_pixelRadianceSensors = std::move(other.m_pixelRadianceSensors);
 
@@ -241,9 +241,9 @@ void HdrRgbFilm::resizeRadianceSensorBuffer()
 }
 
 void HdrRgbFilm::setPixel(
-	const float64           xPx, 
-	const float64           yPx, 
-	const SpectralStrength& spectrum)
+	const float64   xPx, 
+	const float64   yPx, 
+	const Spectrum& spectrum)
 {
 	const std::size_t filmX = std::min(static_cast<std::size_t>(xPx), static_cast<std::size_t>(getActualResPx().x) - 1);
 	const std::size_t filmY = std::min(static_cast<std::size_t>(yPx), static_cast<std::size_t>(getActualResPx().y) - 1);

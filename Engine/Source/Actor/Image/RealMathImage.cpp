@@ -43,7 +43,7 @@ std::shared_ptr<TTexture<math::Vector3R>> RealMathImage::genTextureVector3R(
 	return genTexture<math::Vector3R, math::Vector3R>(std::move(operandTexture));
 }
 
-std::shared_ptr<TTexture<SpectralStrength>> RealMathImage::genTextureSpectral(
+std::shared_ptr<TTexture<Spectrum>> RealMathImage::genTextureSpectral(
 	CookingContext& context) const
 {
 	auto operandImage = checkOperandImage();
@@ -53,7 +53,7 @@ std::shared_ptr<TTexture<SpectralStrength>> RealMathImage::genTextureSpectral(
 	}
 
 	auto operandTexture = operandImage->genTextureSpectral(context);
-	return genTexture<SpectralStrength, SpectralStrength>(std::move(operandTexture));
+	return genTexture<Spectrum, Spectrum>(std::move(operandTexture));
 }
 
 RealMathImage& RealMathImage::setOperandImage(const std::shared_ptr<Image>& operand)

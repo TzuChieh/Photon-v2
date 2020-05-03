@@ -4,7 +4,7 @@
 #include "Core/Renderer/PM/TViewPathHandler.h"
 #include "Core/Renderer/Region/Region.h"
 #include "Math/TVector2.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 
 #include <cstddef>
 #include <type_traits>
@@ -45,7 +45,7 @@ private:
 
 	void traceViewPath(
 		Ray tracingRay, 
-		SpectralStrength pathThroughput,
+		Spectrum pathThroughput,
 		std::size_t pathLength,
 		SampleFlow& sampleFlow);
 
@@ -54,7 +54,7 @@ private:
 		const math::Vector3R& V,
 		const math::Vector3R& N,
 		const SurfaceHit& surfaceHit,
-		const SpectralStrength& pathThroughput,
+		const Spectrum& pathThroughput,
 		std::size_t pathLength,
 		SampleFlow& sampleFlow);
 };

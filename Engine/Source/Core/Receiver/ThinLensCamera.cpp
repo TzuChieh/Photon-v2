@@ -10,7 +10,7 @@
 namespace ph
 {
 
-SpectralStrength ThinLensCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
+Spectrum ThinLensCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
 {
 	math::Vector3R sensorPosMM;
 	m_rasterToReceiver->transformP(math::Vector3R(math::Vector3D(rasterCoord.x, rasterCoord.y, 0)), &sensorPosMM);
@@ -40,7 +40,7 @@ SpectralStrength ThinLensCamera::receiveRay(const math::Vector2D& rasterCoord, R
 	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
 	out_ray->setMaxT(std::numeric_limits<real>::max());
 
-	return SpectralStrength(1);
+	return Spectrum(1);
 }
 
 void ThinLensCamera::evalEmittedImportanceAndPdfW(

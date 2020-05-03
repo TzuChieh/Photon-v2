@@ -26,7 +26,7 @@ class PictureImage : public Image, public TCommandInterface<PictureImage>
 public:
 	PictureImage();
 
-	std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(
+	std::shared_ptr<TTexture<Spectrum>> genTextureSpectral(
 		CookingContext& context) const override = 0;
 
 	EImgSampleMode getSampleMode() const;

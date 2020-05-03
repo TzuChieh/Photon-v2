@@ -17,12 +17,12 @@ IdealReflector::IdealReflector(const std::shared_ptr<FresnelEffect>& fresnel) :
 
 	IdealReflector(
 		fresnel, 
-		std::make_shared<TConstantTexture<SpectralStrength>>(SpectralStrength(1.0_r)))
+		std::make_shared<TConstantTexture<Spectrum>>(Spectrum(1.0_r)))
 {}
 
 IdealReflector::IdealReflector(
-	const std::shared_ptr<FresnelEffect>&              fresnel,
-	const std::shared_ptr<TTexture<SpectralStrength>>& reflectionScale) : 
+	const std::shared_ptr<FresnelEffect>&      fresnel,
+	const std::shared_ptr<TTexture<Spectrum>>& reflectionScale) :
 
 	SurfaceOptics(),
 
@@ -64,8 +64,8 @@ void IdealReflector::calcBsdfSample(
 	out.pdfAppliedBsdf.mulLocal(1.0_r / std::abs(NoL));
 
 	// a scale factor for artistic control
-	const SpectralStrength& reflectionScale = 
-		TSampler<SpectralStrength>(EQuantity::RAW).sample(*m_reflectionScale, in.X);
+	const Spectrum& reflectionScale = 
+		TSampler<Spectrum>(EQuantity::RAW).sample(*m_reflectionScale, in.X);
 	out.pdfAppliedBsdf.mulLocal(reflectionScale);
 
 	out.setMeasurability(true);

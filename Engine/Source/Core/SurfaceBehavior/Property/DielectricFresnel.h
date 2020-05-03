@@ -15,7 +15,7 @@ public:
 	DielectricFresnel(real iorOuter, real iorInner);
 
 	// TODO: add a dielectric specific form (not spectral)
-	void calcReflectance(real cosThetaIncident, SpectralStrength* out_reflectance) const override = 0;
+	void calcReflectance(real cosThetaIncident, Spectrum* out_reflectance) const override = 0;
 
 	bool calcRefractDir(const math::Vector3R& I, const math::Vector3R& N, math::Vector3R* out_refractDir) const;
 

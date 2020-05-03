@@ -69,7 +69,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 			tracingRay.reverse();
 
 			const std::size_t pathLength = 0;
-			SpectralStrength pathThroughput(1);// FIXME: receiver might affect initial throughput
+			Spectrum pathThroughput(1);// FIXME: receiver might affect initial throughput
 			if(!m_handler->onReceiverSampleStart(rasterCoord, pathThroughput))
 			{
 				m_handler->onReceiverSampleEnd();
@@ -91,10 +91,10 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 
 template<typename ViewPathHandler>
 inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
-	Ray              tracingRay,
-	SpectralStrength pathThroughput,
-	std::size_t      pathLength,
-	SampleFlow&      sampleFlow)
+	Ray         tracingRay,
+	Spectrum    pathThroughput,
+	std::size_t pathLength,
+	SampleFlow& sampleFlow)
 {	
 	const SurfaceTracer surfaceTracer(m_scene);
 	while(true)
@@ -132,7 +132,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 
 			if(policy.useRussianRoulette())
 			{
-				SpectralStrength weightedThroughput;
+				Spectrum weightedThroughput;
 				if(RussianRoulette::surviveOnLuminance(pathThroughput, sampleFlow, &weightedThroughput))
 				{
 					pathThroughput = weightedThroughput;
@@ -159,7 +159,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceElementallyBranchedPath(
 	const math::Vector3R& V,
 	const math::Vector3R& N,
 	const SurfaceHit& surfaceHit,
-	const SpectralStrength& pathThroughput,
+	const Spectrum& pathThroughput,
 	const std::size_t pathLength,
 	SampleFlow& sampleFlow)
 {
@@ -187,13 +187,13 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceElementallyBranchedPath(
 			continue;
 		}
 
-		SpectralStrength elementalPathThroughput(pathThroughput);
+		Spectrum elementalPathThroughput(pathThroughput);
 		elementalPathThroughput.mulLocal(sample.outputs.pdfAppliedBsdf);
 		elementalPathThroughput.mulLocal(N.absDot(sampledRay.getDirection()));
 
 		if(policy.useRussianRoulette())
 		{
-			SpectralStrength weightedThroughput;
+			Spectrum weightedThroughput;
 			if(RussianRoulette::surviveOnLuminance(elementalPathThroughput, sampleFlow, &weightedThroughput))
 			{
 				elementalPathThroughput = weightedThroughput;

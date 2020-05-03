@@ -16,7 +16,7 @@ public:
 	LdrPictureImage();
 	explicit LdrPictureImage(const LdrRgbFrame& picture);
 
-	std::shared_ptr<TTexture<SpectralStrength>> genTextureSpectral(
+	std::shared_ptr<TTexture<Spectrum>> genTextureSpectral(
 		CookingContext& context) const override;
 
 	void setPicture(const LdrRgbFrame& picture);

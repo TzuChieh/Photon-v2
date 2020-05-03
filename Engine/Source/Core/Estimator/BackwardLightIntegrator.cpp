@@ -14,7 +14,7 @@
 //#include "DataIO/SDL/InputPacket.h"
 //#include "Core/SurfaceBehavior/BsdfSample.h"
 //#include "Core/SurfaceBehavior/BsdfEvaluation.h"
-//#include "Core/Quantity/SpectralStrength.h"
+//#include "Core/Quantity/Spectrum.h"
 //
 //#include <iostream>
 //
@@ -42,8 +42,8 @@
 //
 //	//// common variables
 //	//Vector3R rayOriginDelta;
-//	//SpectralStrength accuRadiance(0);
-//	//SpectralStrength accuLiWeight(1);
+//	//Spectrum accuRadiance(0);
+//	//Spectrum accuLiWeight(1);
 //	//Vector3R V;
 //	//Intersection intersection;
 //	//BsdfSample     bsdfSample;
@@ -77,7 +77,7 @@
 //
 //	//if(metadata->surfaceBehavior.getEmitter())
 //	//{
-//	//	SpectralStrength radianceLe;
+//	//	Spectrum radianceLe;
 //	//	metadata->surfaceBehavior.getEmitter()->evalEmittedRadiance(intersection, &radianceLe);
 //	//	accuRadiance.addLocal(radianceLe);
 //	//}
@@ -99,7 +99,7 @@
 //	//			const Ray visRay(intersection.getHitPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2, ray.getTime());
 //	//			if(!scene.isIntersecting(visRay))
 //	//			{
-//	//				SpectralStrength weight;
+//	//				Spectrum weight;
 //	//				bsdfEval.inputs.set(intersection, visRay.getDirection(), V);
 //	//				bsdf->evaluate(bsdfEval);
 //	//				if(bsdfEval.outputs.isGood())
@@ -144,7 +144,7 @@
 //	//	{
 //	//		rayOriginDelta.set(L).mulLocal(RAY_DELTA_DIST);
 //
-//	//		SpectralStrength liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+//	//		Spectrum liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 //
 //	//		if(numBounces >= 3)
 //	//		{
@@ -210,7 +210,7 @@
 //	//out_senseEvents.push_back(SenseEvent(/*sample.m_cameraX, sample.m_cameraY, */accuRadiance));
 //}
 //
-//void BackwardLightIntegrator::rationalClamp(SpectralStrength& value)
+//void BackwardLightIntegrator::rationalClamp(Spectrum& value)
 //{
 //	// TODO: should negative value be allowed?
 //	value.clampLocal(0.0f, 10000.0f);

@@ -17,8 +17,8 @@ namespace ph
 {
 
 OrenNayar::OrenNayar(
-	const std::shared_ptr<TTexture<SpectralStrength>>& albedo,
-	const real                                         sigmaDegrees) :
+	const std::shared_ptr<TTexture<Spectrum>>& albedo,
+	const real                                 sigmaDegrees) :
 
 	OrenNayar(
 		albedo, 
@@ -26,8 +26,8 @@ OrenNayar::OrenNayar(
 {}
 
 OrenNayar::OrenNayar(
-	const std::shared_ptr<TTexture<SpectralStrength>>& albedo,
-	const std::shared_ptr<TTexture<real>>&             sigmaDegrees) :
+	const std::shared_ptr<TTexture<Spectrum>>& albedo,
+	const std::shared_ptr<TTexture<real>>&     sigmaDegrees) :
 
 	SurfaceOptics(),
 
@@ -71,8 +71,8 @@ void OrenNayar::calcBsdf(
 		return;
 	}
 
-	const SpectralStrength albedo       = TSampler<SpectralStrength>(EQuantity::ECF).sample(*m_albedo, in.X);
-	const real             sigmaRadians = math::to_radians(TSampler<real>().sample(*m_sigmaDegrees, in.X));
+	const Spectrum albedo       = TSampler<Spectrum>(EQuantity::ECF).sample(*m_albedo, in.X);
+	const real     sigmaRadians = math::to_radians(TSampler<real>().sample(*m_sigmaDegrees, in.X));
 
 	const auto& shadingBasis = in.X.getDetail().getShadingBasis();
 

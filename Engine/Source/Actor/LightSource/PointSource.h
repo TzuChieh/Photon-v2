@@ -11,7 +11,7 @@ class PointSource : public AreaSource, public TCommandInterface<PointSource>
 public:
 	PointSource();
 	PointSource(const math::Vector3R& linearSrgbColor, real numWatts);
-	PointSource(const SampledSpectralStrength& color, real numWatts);
+	PointSource(const SampledSpectrum& color, real numWatts);
 
 	std::shared_ptr<Geometry> genAreas(CookingContext& context) const override;
 

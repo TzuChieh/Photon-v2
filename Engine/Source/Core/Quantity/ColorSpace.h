@@ -3,7 +3,7 @@
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
 #include "Common/config.h"
-#include "Core/Quantity/spectral_strength_fwd.h"
+#include "Core/Quantity/spectrum_fwd.h"
 
 #include <cmath>
 #include <cstddef>
@@ -124,34 +124,34 @@ public:
 	}
 
 	template<ESourceHint HINT = ESourceHint::RAW_DATA>
-	static math::Vector3R SPD_to_CIE_XYZ_D65(const SampledSpectralStrength& spd);
+	static math::Vector3R SPD_to_CIE_XYZ_D65(const SampledSpectrum& spd);
 
 	template<ESourceHint HINT = ESourceHint::RAW_DATA>
-	static math::Vector3R SPD_to_CIE_XYZ_E(const SampledSpectralStrength& spd);
+	static math::Vector3R SPD_to_CIE_XYZ_E(const SampledSpectrum& spd);
 
 	template<ESourceHint HINT = ESourceHint::RAW_DATA>
-	static inline math::Vector3R SPD_to_CIE_XYZ(const SampledSpectralStrength& spd);
+	static inline math::Vector3R SPD_to_CIE_XYZ(const SampledSpectrum& spd);
 
 	template<ESourceHint HINT = ESourceHint::RAW_DATA>
-	static inline math::Vector3R SPD_to_linear_sRGB(const SampledSpectralStrength& spd);
+	static inline math::Vector3R SPD_to_linear_sRGB(const SampledSpectrum& spd);
 
 	template<ESourceHint HINT = ESourceHint::RAW_DATA>
-	static inline math::Vector3R SPD_to_sRGB(const SampledSpectralStrength& spd);
+	static inline math::Vector3R SPD_to_sRGB(const SampledSpectrum& spd);
 
 	template<ESourceHint HINT = ESourceHint::RAW_DATA>
-	static inline void linear_sRGB_to_SPD(const math::Vector3R& color, SampledSpectralStrength* out_spd);
+	static inline void linear_sRGB_to_SPD(const math::Vector3R& color, SampledSpectrum* out_spd);
 
 	template<ESourceHint HINT = ESourceHint::RAW_DATA>
-	static inline void sRGB_to_SPD(const math::Vector3R& color, SampledSpectralStrength* out_spd);
+	static inline void sRGB_to_SPD(const math::Vector3R& color, SampledSpectrum* out_spd);
 
-	static inline const SampledSpectralStrength& get_D65_SPD()
+	static inline const SampledSpectrum& get_D65_SPD()
 	{
 		PH_ASSERT(isInitialized());
 
 		return SPD_D65;
 	}
 
-	static inline const SampledSpectralStrength& get_E_SPD()
+	static inline const SampledSpectrum& get_E_SPD()
 	{
 		PH_ASSERT(isInitialized());
 
@@ -169,22 +169,22 @@ private:
 	}
 #endif
 
-	static SampledSpectralStrength SPD_E;
-	static SampledSpectralStrength SPD_D65;
+	static SampledSpectrum SPD_E;
+	static SampledSpectrum SPD_D65;
 
-	static SampledSpectralStrength kernel_X;
-	static SampledSpectralStrength kernel_Y;
-	static SampledSpectralStrength kernel_Z;
+	static SampledSpectrum kernel_X;
+	static SampledSpectrum kernel_Y;
+	static SampledSpectrum kernel_Z;
 	static math::Vector3R kernel_XYZ_E_norm;
 	static math::Vector3R kernel_XYZ_D65_norm;
 
-	static SampledSpectralStrength SPD_Smits_E_white;
-	static SampledSpectralStrength SPD_Smits_E_cyan;
-	static SampledSpectralStrength SPD_Smits_E_magenta;
-	static SampledSpectralStrength SPD_Smits_E_yellow;
-	static SampledSpectralStrength SPD_Smits_E_red;
-	static SampledSpectralStrength SPD_Smits_E_green;
-	static SampledSpectralStrength SPD_Smits_E_blue;
+	static SampledSpectrum SPD_Smits_E_white;
+	static SampledSpectrum SPD_Smits_E_cyan;
+	static SampledSpectrum SPD_Smits_E_magenta;
+	static SampledSpectrum SPD_Smits_E_yellow;
+	static SampledSpectrum SPD_Smits_E_red;
+	static SampledSpectrum SPD_Smits_E_green;
+	static SampledSpectrum SPD_Smits_E_blue;
 
 	static inline real sRGB_forwardGammaCorrect(const real colorComponent)
 	{

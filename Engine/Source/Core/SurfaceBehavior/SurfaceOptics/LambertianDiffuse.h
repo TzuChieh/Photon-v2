@@ -2,7 +2,7 @@
 
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/Texture/TTexture.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 
 #include <memory>
 
@@ -12,7 +12,7 @@ namespace ph
 class LambertianDiffuse : public SurfaceOptics
 {
 public:
-	explicit LambertianDiffuse(const std::shared_ptr<TTexture<SpectralStrength>>& albedo);
+	explicit LambertianDiffuse(const std::shared_ptr<TTexture<Spectrum>>& albedo);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
@@ -36,7 +36,7 @@ private:
 		BsdfPdfOutput&          out) const override;
 
 private:
-	std::shared_ptr<TTexture<SpectralStrength>> m_albedo;
+	std::shared_ptr<TTexture<Spectrum>> m_albedo;
 };
 
 // In-header Implementations:

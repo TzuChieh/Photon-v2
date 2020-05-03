@@ -41,7 +41,7 @@ std::shared_ptr<TTexture<math::Vector3R>> CheckerboardImage::genTextureVector3R(
 		images.second->genTextureVector3R(context));
 }
 
-std::shared_ptr<TTexture<SpectralStrength>> CheckerboardImage::genTextureSpectral(
+std::shared_ptr<TTexture<Spectrum>> CheckerboardImage::genTextureSpectral(
 	CookingContext& context) const
 {
 	const auto& images = checkOutImages();
@@ -50,7 +50,7 @@ std::shared_ptr<TTexture<SpectralStrength>> CheckerboardImage::genTextureSpectra
 		return nullptr;
 	}
 
-	return std::make_shared<TCheckerboardTexture<SpectralStrength>>(
+	return std::make_shared<TCheckerboardTexture<Spectrum>>(
 		m_numTilesX, m_numTilesY,
 		images.first->genTextureSpectral(context), 
 		images.second->genTextureSpectral(context));

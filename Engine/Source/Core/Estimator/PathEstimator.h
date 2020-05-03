@@ -1,7 +1,7 @@
 #pragma once
 
 //#include "Core/Estimator/Estimator.h"
-//#include "Core/Quantity/SpectralStrength.h"
+//#include "Core/Quantity/Spectrum.h"
 //#include "Core/Estimator/SurfaceAttributeEstimator.h"
 //
 //namespace ph
@@ -17,7 +17,7 @@
 //	virtual void radianceAlongRay(
 //		const Ray&        ray, 
 //		const Integrand&  integrand, 
-//		SpectralStrength& out_radiance,
+//		Spectrum& out_radiance,
 //		SurfaceHit&       out_firstHit) const = 0;
 //
 //	AttributeTags supportedAttributes() const override;

@@ -24,10 +24,10 @@ RectangleSource::RectangleSource(
 }
 
 RectangleSource::RectangleSource(
-	const real                     width, 
-	const real                     height, 
-	const SampledSpectralStrength& color, 
-	const real                     numWatts) : 
+	const real             width, 
+	const real             height, 
+	const SampledSpectrum& color,
+	const real             numWatts) : 
 
 	AreaSource(color, numWatts)
 {

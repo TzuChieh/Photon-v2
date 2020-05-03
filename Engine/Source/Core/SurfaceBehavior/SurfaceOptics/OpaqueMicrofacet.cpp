@@ -67,7 +67,7 @@ void OpaqueMicrofacet::calcBsdf(
 	const real NoH = N.dot(H);
 	const real HoL = H.dot(in.L);
 
-	SpectralStrength F;
+	Spectrum F;
 	m_fresnel->calcReflectance(HoL, &F);
 
 	const real D = m_microfacet->distribution(in.X, N, H);
@@ -113,7 +113,7 @@ void OpaqueMicrofacet::calcBsdfSample(
 		return;
 	}
 
-	SpectralStrength F;
+	Spectrum F;
 	m_fresnel->calcReflectance(HoL, &F);
 
 	const real G = m_microfacet->shadowing(in.X, N, H, L, in.V);

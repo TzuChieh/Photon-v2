@@ -3,7 +3,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/SurfaceBehavior/Property/DielectricFresnel.h"
 #include "Core/Texture/TTexture.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 
 #include <memory>
 #include <vector>
@@ -16,8 +16,8 @@ class ThinDielectricFilm : public SurfaceOptics
 public:
 	ThinDielectricFilm(
 		const std::shared_ptr<DielectricFresnel>& fresnel,
-		const std::vector<SampledSpectralStrength>& reflectanceTable,
-		const std::vector<SampledSpectralStrength>& transmittanceTable);
+		const std::vector<SampledSpectrum>& reflectanceTable,
+		const std::vector<SampledSpectrum>& transmittanceTable);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
@@ -42,9 +42,9 @@ private:
 	constexpr static SurfaceElemental REFLECTION   = 0;
 	constexpr static SurfaceElemental TRANSMISSION = 1;
 
-	std::shared_ptr<DielectricFresnel>   m_fresnel;
-	std::vector<SampledSpectralStrength> m_reflectanceTable;
-	std::vector<SampledSpectralStrength> m_transmittanceTable;
+	std::shared_ptr<DielectricFresnel> m_fresnel;
+	std::vector<SampledSpectrum>       m_reflectanceTable;
+	std::vector<SampledSpectrum>       m_transmittanceTable;
 };
 
 }// end namespace ph

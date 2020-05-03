@@ -15,12 +15,12 @@
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Common/assertion.h"
 #include "Core/LTABuildingBlock/TMis.h"
 #include "Core/LTABuildingBlock/TDirectLightEstimator.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Core/Estimator/Integrand.h"
 
 #include <iostream>
@@ -43,11 +43,11 @@ void BNEEPTEstimator::estimate(
 	const auto&     mis      = TMis<EMisStyle::POWER>();
 
 	// common variables
-	SpectralStrength accuRadiance(0);
-	SpectralStrength accuLiWeight(1);
-	HitProbe         hitProbe;
-	SurfaceHit       surfaceHit;
-	math::Vector3R   V;
+	Spectrum       accuRadiance(0);
+	Spectrum       accuLiWeight(1);
+	HitProbe       hitProbe;
+	SurfaceHit     surfaceHit;
+	math::Vector3R V;
 
 	// reversing the ray for backward tracing
 	Ray tracingRay = Ray(ray).reverse();
@@ -76,7 +76,7 @@ void BNEEPTEstimator::estimate(
 		const SurfaceBehavior&   surfaceBehavior = metadata->getSurface();
 		if(surfaceBehavior.getEmitter())
 		{
-			SpectralStrength radianceLi;
+			Spectrum radianceLi;
 			surfaceBehavior.getEmitter()->evalEmittedRadiance(surfaceHit, &radianceLi);
 			accuRadiance.addLocal(radianceLi);
 		}
@@ -98,9 +98,9 @@ void BNEEPTEstimator::estimate(
 
 		// direct light sample
 		{
-			math::Vector3R   L;
-			real             directPdfW;
-			SpectralStrength emittedRadiance;
+			math::Vector3R L;
+			real           directPdfW;
+			Spectrum       emittedRadiance;
 
 			if(canDoNEE && TDirectLightEstimator<ESidednessPolicy::STRICT>(&scene).sample(
 				surfaceHit, ray.getTime(), sampleFlow,
@@ -123,7 +123,7 @@ void BNEEPTEstimator::estimate(
 					const real misWeighting = mis.weight(directPdfW, bsdfSamplePdfW);
 					const math::Vector3R N = surfaceHit.getShadingNormal();
 
-					SpectralStrength weight;
+					Spectrum weight;
 					weight = bsdfEval.outputs.bsdf.mul(N.absDot(L));
 					weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directPdfW);
 
@@ -201,7 +201,7 @@ void BNEEPTEstimator::estimate(
 			const Emitter* emitter = metadata->getSurface().getEmitter();
 			if(emitter)
 			{
-				SpectralStrength radianceLe;
+				Spectrum radianceLe;
 				emitter->evalEmittedRadiance(Xe, &radianceLe);
 
 				// TODO: not doing MIS if delta elemental exists is too harsh--we can do regular sample for
@@ -225,7 +225,7 @@ void BNEEPTEstimator::estimate(
 					{
 						const real misWeighting = mis.weight(bsdfSamplePdfW, directLightPdfW);
 
-						SpectralStrength weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+						Spectrum weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 						weight.mulLocal(accuLiWeight).mulLocal(misWeighting);
 
 						// avoid excessive, negative weight and possible NaNs
@@ -238,19 +238,19 @@ void BNEEPTEstimator::estimate(
 				// not do MIS
 				else
 				{
-					SpectralStrength weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+					Spectrum weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 					weight.mulLocal(accuLiWeight);
 
 					accuRadiance.addLocal(radianceLe.mulLocal(weight));
 				}
 			}
 
-			const SpectralStrength currentLiWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+			const Spectrum currentLiWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 			accuLiWeight.mulLocal(currentLiWeight);
 
 			if(numBounces >= 3)
 			{
-				SpectralStrength weightedAccuLiWeight;
+				Spectrum weightedAccuLiWeight;
 				if(RussianRoulette::surviveOnLuminance(
 					accuLiWeight, sampleFlow, &weightedAccuLiWeight))
 				{
@@ -281,7 +281,7 @@ void BNEEPTEstimator::estimate(
 	out_estimation[m_estimationIndex] = accuRadiance;
 }
 
-void BNEEPTEstimator::rationalClamp(SpectralStrength& value)
+void BNEEPTEstimator::rationalClamp(Spectrum& value)
 {
 	// TODO: should negative value be allowed?
 	value.clampLocal(0.0_r, 1000000.0_r);

@@ -39,7 +39,7 @@ AreaSource::AreaSource(const math::Vector3R& linearSrgbColor, const real numWatt
 	m_color.setLinearSrgb(linearSrgbColor, EQuantity::EMR);
 }
 
-AreaSource::AreaSource(const SampledSpectralStrength& color, const real numWatts) :
+AreaSource::AreaSource(const SampledSpectrum& color, const real numWatts) :
 	LightSource(),
 	m_color(color), m_numWatts(numWatts)
 {
@@ -69,9 +69,9 @@ std::unique_ptr<Emitter> AreaSource::genEmitter(
 	const auto totalWattColor = unitWattColor.mul(m_numWatts);
 	const auto lightRadiance  = totalWattColor.div(lightArea * math::constant::pi<real>);
 
-	SpectralStrength radiance;
+	Spectrum radiance;
 	radiance.setSampled(lightRadiance, EQuantity::EMR);
-	const auto& emittedRadiance = std::make_shared<TConstantTexture<SpectralStrength>>(radiance);
+	const auto& emittedRadiance = std::make_shared<TConstantTexture<Spectrum>>(radiance);
 
 	std::unique_ptr<Emitter> emitter;
 	{

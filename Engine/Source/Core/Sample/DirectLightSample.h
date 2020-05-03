@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Math/TVector3.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 
 namespace ph
 {
@@ -13,7 +13,7 @@ class DirectLightSample final
 public:
 	math::Vector3R   targetPos;
 	math::Vector3R   emitPos;
-	SpectralStrength radianceLe;
+	Spectrum radianceLe;
 	real pdfW;
 	const Primitive* sourcePrim;
 

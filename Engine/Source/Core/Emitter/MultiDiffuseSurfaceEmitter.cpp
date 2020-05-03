@@ -2,7 +2,7 @@
 #include "Common/assertion.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Texture/TSampler.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Core/Texture/TTexture.h"
 #include "Common/utility.h"
 #include "Math/Random.h"
@@ -33,7 +33,7 @@ MultiDiffuseSurfaceEmitter::MultiDiffuseSurfaceEmitter(const std::vector<Diffuse
 	m_reciExtendedArea = 1.0_r / m_extendedArea;
 }
 
-void MultiDiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, SpectralStrength* const out_radiance) const
+void MultiDiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, Spectrum* const out_radiance) const
 {
 	PH_ASSERT(!m_emitters.empty());
 
@@ -52,7 +52,7 @@ void MultiDiffuseSurfaceEmitter::genDirectSample(SampleFlow& sampleFlow, DirectL
 	sample.pdfW *= pickPdf;
 }
 
-void MultiDiffuseSurfaceEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, SpectralStrength* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void MultiDiffuseSurfaceEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
 	// randomly and uniformly pick a primitive
 
@@ -110,7 +110,7 @@ real MultiDiffuseSurfaceEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos,
 }
 
 void MultiDiffuseSurfaceEmitter::setEmittedRadiance(
-	const std::shared_ptr<TTexture<SpectralStrength>>& emittedRadiance)
+	const std::shared_ptr<TTexture<Spectrum>>& emittedRadiance)
 {
 	for(auto& emitter : m_emitters)
 	{
@@ -152,7 +152,7 @@ void MultiDiffuseSurfaceEmitter::setBackFaceEmit()
 	}
 }
 
-const TTexture<SpectralStrength>& MultiDiffuseSurfaceEmitter::getEmittedRadiance() const
+const TTexture<Spectrum>& MultiDiffuseSurfaceEmitter::getEmittedRadiance() const
 {
 	PH_ASSERT(!m_emitters.empty());
 

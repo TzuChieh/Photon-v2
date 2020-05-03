@@ -3,7 +3,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Common/primitive_type.h"
 #include "Core/Texture/TTexture.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 
 #include <memory>
 
@@ -14,12 +14,12 @@ class OrenNayar : public SurfaceOptics
 {
 public:
 	OrenNayar(
-		const std::shared_ptr<TTexture<SpectralStrength>>& albedo,
-		real                                               sigmaDegrees);
+		const std::shared_ptr<TTexture<Spectrum>>& albedo,
+		real                                       sigmaDegrees);
 
 	OrenNayar(
-		const std::shared_ptr<TTexture<SpectralStrength>>& albedo,
-		const std::shared_ptr<TTexture<real>>&             sigmaDegrees);
+		const std::shared_ptr<TTexture<Spectrum>>& albedo,
+		const std::shared_ptr<TTexture<real>>&     sigmaDegrees);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
@@ -43,8 +43,8 @@ private:
 		BsdfPdfOutput&          out) const override;
 
 private:
-	std::shared_ptr<TTexture<SpectralStrength>> m_albedo;
-	std::shared_ptr<TTexture<real>>             m_sigmaDegrees;
+	std::shared_ptr<TTexture<Spectrum>> m_albedo;
+	std::shared_ptr<TTexture<real>>     m_sigmaDegrees;
 };
 
 // In-header Implementations:

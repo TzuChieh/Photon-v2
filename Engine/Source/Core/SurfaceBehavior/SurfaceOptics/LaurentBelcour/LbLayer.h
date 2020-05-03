@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Common/primitive_type.h"
 
 namespace ph
@@ -10,56 +10,56 @@ class LbLayer
 {
 public:
 	LbLayer();
-	explicit LbLayer(const SpectralStrength& iorN);
-	LbLayer(real alpha, const SpectralStrength& iorN);
-	LbLayer(real alpha, const SpectralStrength& iorN, const SpectralStrength& iorK);
+	explicit LbLayer(const Spectrum& iorN);
+	LbLayer(real alpha, const Spectrum& iorN);
+	LbLayer(real alpha, const Spectrum& iorN, const Spectrum& iorK);
 	LbLayer(real g, real depth, const LbLayer& previousLayer);
-	LbLayer(real g, real depth, const SpectralStrength& sigmaA, const LbLayer& previousLayer);
-	LbLayer(real g, real depth, const SpectralStrength& sigmaA, const SpectralStrength& sigmaS, const LbLayer& previousLayer);
+	LbLayer(real g, real depth, const Spectrum& sigmaA, const LbLayer& previousLayer);
+	LbLayer(real g, real depth, const Spectrum& sigmaA, const Spectrum& sigmaS, const LbLayer& previousLayer);
 
 	real getAlpha() const;
-	const SpectralStrength& getIorN() const;
-	const SpectralStrength& getIorK() const;
+	const Spectrum& getIorN() const;
+	const Spectrum& getIorK() const;
 	real getDepth() const;
 	real getG() const;
-	const SpectralStrength& getSigmaA() const;
-	const SpectralStrength& getSigmaS() const;
+	const Spectrum& getSigmaA() const;
+	const Spectrum& getSigmaS() const;
 	bool isConductor() const;
 	bool isSurface() const;
 	bool isVolume() const;
 
 private:
 	// The alpha variable for GGX distribution.
-	real             m_alpha;
+	real     m_alpha;
 
 	// Complex index of refraction n + ik.
-	SpectralStrength m_iorN, m_iorK;
+	Spectrum m_iorN, m_iorK;
 
 	// Thickness of the layer.
-	real             m_depth;
+	real     m_depth;
 
 	// The g variable in Henyey-Greenstein phase function.
-	real             m_g;
+	real     m_g;
 
 	// Absorption and scattering coefficient in volume rendering.
-	SpectralStrength m_sigmaA, m_sigmaS;
+	Spectrum m_sigmaA, m_sigmaS;
 };
 
 // In-header Implementations:
 
 inline LbLayer::LbLayer() :
-	LbLayer(SpectralStrength(1.0_r))
+	LbLayer(Spectrum(1.0_r))
 {}
 
-inline LbLayer::LbLayer(const SpectralStrength& iorN) : 
+inline LbLayer::LbLayer(const Spectrum& iorN) :
 	LbLayer(0.0_r, iorN)
 {}
 
-inline LbLayer::LbLayer(const real alpha, const SpectralStrength& iorN) :
-	LbLayer(alpha, iorN, SpectralStrength(0.0_r))
+inline LbLayer::LbLayer(const real alpha, const Spectrum& iorN) :
+	LbLayer(alpha, iorN, Spectrum(0.0_r))
 {}
 
-inline LbLayer::LbLayer(const real alpha, const SpectralStrength& iorN, const SpectralStrength& iorK) :
+inline LbLayer::LbLayer(const real alpha, const Spectrum& iorN, const Spectrum& iorK) :
 	m_alpha(alpha), 
 	m_iorN(iorN), m_iorK(iorK),
 	m_depth(0.0_r),
@@ -69,18 +69,18 @@ inline LbLayer::LbLayer(const real alpha, const SpectralStrength& iorN, const Sp
 {}
 
 inline LbLayer::LbLayer(const real g, const real depth, const LbLayer& previousLayer) : 
-	LbLayer(g, depth, SpectralStrength(0.0_r), previousLayer)
+	LbLayer(g, depth, Spectrum(0.0_r), previousLayer)
 {}
 
-inline LbLayer::LbLayer(const real g, const real depth, const SpectralStrength& sigmaA, const LbLayer& previousLayer) :
-	LbLayer(g, depth, sigmaA, SpectralStrength(0.0_r), previousLayer)
+inline LbLayer::LbLayer(const real g, const real depth, const Spectrum& sigmaA, const LbLayer& previousLayer) :
+	LbLayer(g, depth, sigmaA, Spectrum(0.0_r), previousLayer)
 {}
 
 inline LbLayer::LbLayer(
 	const real g, 
 	const real depth, 
-	const SpectralStrength& sigmaA, 
-	const SpectralStrength& sigmaS, 
+	const Spectrum& sigmaA, 
+	const Spectrum& sigmaS, 
 	const LbLayer& previousLayer) :
 
 	m_alpha(previousLayer.getAlpha()),
@@ -96,12 +96,12 @@ inline real LbLayer::getAlpha() const
 	return m_alpha;
 }
 
-inline const SpectralStrength& LbLayer::getIorN() const
+inline const Spectrum& LbLayer::getIorN() const
 {
 	return m_iorN;
 }
 
-inline const SpectralStrength& LbLayer::getIorK() const
+inline const Spectrum& LbLayer::getIorK() const
 {
 	return m_iorK;
 }
@@ -116,12 +116,12 @@ inline real LbLayer::getG() const
 	return m_g;
 }
 
-inline const SpectralStrength& LbLayer::getSigmaA() const
+inline const Spectrum& LbLayer::getSigmaA() const
 {
 	return m_sigmaA;
 }
 
-inline const SpectralStrength& LbLayer::getSigmaS() const
+inline const Spectrum& LbLayer::getSigmaS() const
 {
 	return m_sigmaS;
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 
 #include <memory>
 #include <variant>
@@ -28,14 +28,14 @@ public:
 private:
 	struct FullIor
 	{
-		real             outer;
-		SpectralStrength innerN;
-		SpectralStrength innerK;
+		real     outer;
+		Spectrum innerN;
+		Spectrum innerK;
 	};
 
 	struct SchlickIor
 	{
-		SpectralStrength f0;
+		Spectrum f0;
 	};
 
 	bool                              m_useExact;

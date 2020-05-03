@@ -15,8 +15,8 @@ public:
 	ExactDielectricFresnel(real iorOuter, real iorInner);
 
 	void calcReflectance(
-		real              cosThetaIncident, 
-		SpectralStrength* out_reflectance) const override;
+		real      cosThetaIncident, 
+		Spectrum* out_reflectance) const override;
 };
 
 }// end namespace ph

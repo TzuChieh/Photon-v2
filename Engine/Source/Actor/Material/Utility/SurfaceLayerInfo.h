@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Quantity/SpectralStrength.h"
+#include "Core/Quantity/Spectrum.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
@@ -20,24 +20,24 @@ public:
 
 	real getRoughness() const;
 	real getAlpha() const;
-	SpectralStrength getIorN() const;
-	SpectralStrength getIorK() const;
+	Spectrum getIorN() const;
+	Spectrum getIorK() const;
 	real getDepth() const;
 	real getG() const;
-	SpectralStrength getSigmaA() const;
-	SpectralStrength getSigmaS() const;
+	Spectrum getSigmaA() const;
+	Spectrum getSigmaS() const;
 
 private:
-	real             m_roughness;
-	SpectralStrength m_iorN;
-	SpectralStrength m_iorK;
-	real             m_depth;
-	real             m_g;
-	SpectralStrength m_sigmaA;
-	SpectralStrength m_sigmaS;
+	real     m_roughness;
+	Spectrum m_iorN;
+	Spectrum m_iorK;
+	real     m_depth;
+	real     m_g;
+	Spectrum m_sigmaA;
+	Spectrum m_sigmaS;
 
-	static SpectralStrength loadIorN(const InputPacket& packet, const SpectralStrength& defaultIorN);
-	static SpectralStrength loadIorK(const InputPacket& packet, const SpectralStrength& defaultIorK);
+	static Spectrum loadIorN(const InputPacket& packet, const Spectrum& defaultIorN);
+	static Spectrum loadIorK(const InputPacket& packet, const Spectrum& defaultIorK);
 };
 
 // In-header Implementations:
@@ -52,12 +52,12 @@ inline real SurfaceLayerInfo::getAlpha() const
 	return RoughnessToAlphaMapping::squared(getRoughness());
 }
 
-inline SpectralStrength SurfaceLayerInfo::getIorN() const
+inline Spectrum SurfaceLayerInfo::getIorN() const
 {
 	return m_iorN;
 }
 
-inline SpectralStrength SurfaceLayerInfo::getIorK() const
+inline Spectrum SurfaceLayerInfo::getIorK() const
 {
 	return m_iorK;
 }
@@ -72,12 +72,12 @@ inline real SurfaceLayerInfo::getG() const
 	return m_g;
 }
 
-inline SpectralStrength SurfaceLayerInfo::getSigmaA() const
+inline Spectrum SurfaceLayerInfo::getSigmaA() const
 {
 	return m_sigmaA;
 }
 
-inline SpectralStrength SurfaceLayerInfo::getSigmaS() const
+inline Spectrum SurfaceLayerInfo::getSigmaS() const
 {
 	return m_sigmaS;
 }

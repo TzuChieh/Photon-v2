@@ -9,9 +9,9 @@ namespace ph
 {
 
 ExactConductorFresnel::ExactConductorFresnel(
-	const real              iorOuter,
-	const SpectralStrength& iorInnerN,
-	const SpectralStrength& iorInnerK) : 
+	const real      iorOuter,
+	const Spectrum& iorInnerN,
+	const Spectrum& iorInnerK) :
 
 	ConductorFresnel()
 {
@@ -40,7 +40,7 @@ ExactConductorFresnel::ExactConductorFresnel(
 	const auto& sampledInnerKs = SpectralData::calcPiecewiseAveraged(
 		iorWavelengthsNm.data(), iorInnerKs.data(), iorWavelengthsNm.size());
 
-	SpectralStrength iorInnerN, iorInnerK;
+	Spectrum iorInnerN, iorInnerK;
 	iorInnerN.setSampled(sampledInnerNs);
 	iorInnerK.setSampled(sampledInnerKs);
 	setIors(iorOuter, iorInnerN, iorInnerK);
@@ -49,8 +49,8 @@ ExactConductorFresnel::ExactConductorFresnel(
 // Implementation follows the excellent blog post written by Sebastien Lagarde.
 // Reference: https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
 void ExactConductorFresnel::calcReflectance(
-	const real              cosThetaIncident,
-	SpectralStrength* const out_reflectance) const
+	const real      cosThetaIncident,
+	Spectrum* const out_reflectance) const
 {
 	PH_ASSERT(out_reflectance);
 
@@ -61,30 +61,30 @@ void ExactConductorFresnel::calcReflectance(
 	const real cosI2 = cosI * cosI;
 	const real sinI2 = 1.0_r - cosI * cosI;
 
-	const SpectralStrength t0       = m_en2_sub_ek2.sub(sinI2);
-	const SpectralStrength a2plusb2 = t0.mul(t0).addLocal(m_4_mul_en2_mul_ek2).sqrtLocal();
-	const SpectralStrength a        = a2plusb2.add(t0).mulLocal(0.5_r).sqrtLocal();
-	const SpectralStrength t1       = a2plusb2.add(cosI2);
-	const SpectralStrength t2       = a.mul(2.0_r * cosI);
-	const SpectralStrength t3       = a2plusb2.mul(cosI2).addLocal(sinI2 * sinI2);
-	const SpectralStrength t4       = t2.mul(sinI2);
+	const Spectrum t0       = m_en2_sub_ek2.sub(sinI2);
+	const Spectrum a2plusb2 = t0.mul(t0).addLocal(m_4_mul_en2_mul_ek2).sqrtLocal();
+	const Spectrum a        = a2plusb2.add(t0).mulLocal(0.5_r).sqrtLocal();
+	const Spectrum t1       = a2plusb2.add(cosI2);
+	const Spectrum t2       = a.mul(2.0_r * cosI);
+	const Spectrum t3       = a2plusb2.mul(cosI2).addLocal(sinI2 * sinI2);
+	const Spectrum t4       = t2.mul(sinI2);
 
-	const SpectralStrength Rs = t1.sub(t2).divLocal(t1.add(t2));
-	const SpectralStrength Rp = Rs.mul(t3.sub(t4).divLocal(t3.add(t4)));
+	const Spectrum Rs = t1.sub(t2).divLocal(t1.add(t2));
+	const Spectrum Rp = Rs.mul(t3.sub(t4).divLocal(t3.add(t4)));
 	*out_reflectance = Rs.add(Rp).mulLocal(0.5_r);
 }
 
 void ExactConductorFresnel::setIors(
-	const real              iorOuter,
-	const SpectralStrength& iorInnerN,
-	const SpectralStrength& iorInnerK)
+	const real      iorOuter,
+	const Spectrum& iorInnerN,
+	const Spectrum& iorInnerK)
 {
 	m_iorOuter  = iorOuter;
 	m_iorInnerN = iorInnerN;
 	m_iorInnerK = iorInnerK;
 
-	const SpectralStrength en2 = iorInnerN.div(iorOuter).pow(2);
-	const SpectralStrength ek2 = iorInnerK.div(iorOuter).pow(2);
+	const Spectrum en2 = iorInnerN.div(iorOuter).pow(2);
+	const Spectrum ek2 = iorInnerK.div(iorOuter).pow(2);
 	m_en2_sub_ek2       = en2.sub(ek2);
 	m_4_mul_en2_mul_ek2 = en2.mul(ek2).mul(4);
 }

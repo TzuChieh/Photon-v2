@@ -21,7 +21,7 @@ LdrPictureImage::LdrPictureImage(const LdrRgbFrame& picture) :
 	m_picture(picture)
 {}
 
-std::shared_ptr<TTexture<SpectralStrength>> LdrPictureImage::genTextureSpectral(
+std::shared_ptr<TTexture<Spectrum>> LdrPictureImage::genTextureSpectral(
 	CookingContext& context) const
 {
 	std::unique_ptr<TAbstractPixelTex2D<LdrComponent, 3>> texture;
