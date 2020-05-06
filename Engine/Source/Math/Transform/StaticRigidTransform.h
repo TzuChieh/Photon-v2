@@ -65,7 +65,7 @@ private:
 
 	static const Logger logger;
 
-	StaticRigidTransform(const StaticAffineTransform& transform);
+	explicit StaticRigidTransform(const StaticAffineTransform& transform);
 
 	template<typename U>
 	static inline std::vector<TDecomposedTransform<U>> getScaleFreeTransforms(

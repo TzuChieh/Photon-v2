@@ -33,9 +33,11 @@ public:
 
 	Given raster coordinates, generate a corresponding ray that would have
 	hit that location from the light entry of the receiver. The light entry
-	would be the outmost surface of a camera's lens system for example.
+	would be the outmost surface of a camera's lens system for example. This
+	method is for Monte-Carlo sampling.
 
-	@return A weighting factor for the received quantity.
+	@return A weighting factor for the received quantity. Proper sensor response
+	and sampling PDF are included in the returned weight.
 	*/
 	virtual Spectrum receiveRay(const math::Vector2D& rasterCoord, Ray* out_ray) const = 0;
 

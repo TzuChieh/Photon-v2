@@ -5,11 +5,32 @@
 #include "Math/Random.h"
 #include "Core/Quantity/Time.h"
 #include "Core/Ray.h"
+#include "Math/TQuaternion.h"
 
 namespace ph
 {
 
-// FIXME: respect transformations
+// Default resolution set to 2:1 (range of phi is 2x of theta)
+EnvironmentCamera::EnvironmentCamera() : 
+	EnvironmentCamera(
+		{0, 0, 0},
+		math::QuaternionR::makeNoRotation(),
+		{512, 256})
+{}
+
+EnvironmentCamera::EnvironmentCamera(
+	const math::Vector3R&    position,
+	const math::QuaternionR& rotation,
+	const math::Vector2S&    resolution) : 
+
+	Receiver(
+		position,
+		rotation,
+		resolution),
+
+	m_receiverToWorld(math::StaticRigidTransform::makeForward(m_receiverToWorldDecomposed))
+{}
+
 Spectrum EnvironmentCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
 {
 	PH_ASSERT(out_ray);
@@ -19,11 +40,14 @@ Spectrum EnvironmentCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* c
 	PH_ASSERT_GT(rasterRes.y, 0);
 
 	// Warp raster xy to surface of a unit sphere
-	const auto phi    = math::constant::two_pi<float64> * rasterCoord.x / static_cast<float64>(rasterRes.x);
-	const auto theta  = math::constant::pi<float64> * (1.0 - rasterCoord.y / static_cast<float64>(rasterRes.y));
-	const auto outDir = math::TSphere<float64>::makeUnit().phiThetaToSurface(phi, theta);
+	const auto phi         = math::constant::two_pi<float64> * rasterCoord.x / static_cast<float64>(rasterRes.x);
+	const auto theta       = math::constant::pi<float64> * (1.0 - rasterCoord.y / static_cast<float64>(rasterRes.y));
+	const auto localOutDir = math::TSphere<float64>::makeUnit().phiThetaToSurface(phi, theta);
 
-	out_ray->setDirection(math::Vector3R(outDir).negate());
+	math::Vector3R worldOutDir;
+	m_receiverToWorld.transformV(math::Vector3R(localOutDir), &worldOutDir);
+
+	out_ray->setDirection(worldOutDir.normalize().negate());
 	out_ray->setOrigin(getPosition());
 	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
 	out_ray->setMaxT(std::numeric_limits<real>::max());
@@ -48,7 +72,8 @@ void EnvironmentCamera::evalEmittedImportanceAndPdfW(const math::Vector3R& targe
 // command interface
 
 EnvironmentCamera::EnvironmentCamera(const InputPacket& packet) :
-	Receiver(packet)
+	Receiver(packet),
+	m_receiverToWorld(math::StaticRigidTransform::makeForward(m_receiverToWorldDecomposed))
 {}
 
 SdlTypeInfo EnvironmentCamera::ciTypeInfo()
