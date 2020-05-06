@@ -101,6 +101,7 @@ public:
 	TVector3& divLocal(T rhs);
 	
 	TVector3 complement() const;
+	TVector3 negate() const;
 	TVector3& negateLocal();
 	TVector3 reciprocal() const;
 	TVector3& maddLocal(T multiplier, const TVector3& adder);

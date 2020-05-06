@@ -397,6 +397,12 @@ inline TVector3<T>& TVector3<T>::maddLocal(const T multiplier,
 }
 
 template<typename T>
+inline TVector3<T> TVector3<T>::negate() const
+{
+	return TVector3(*this).negateLocal();
+}
+
+template<typename T>
 inline TVector3<T>& TVector3<T>::negateLocal()
 {
 	x *= -1;

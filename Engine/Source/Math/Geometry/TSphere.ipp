@@ -4,6 +4,8 @@
 #include "Common/assertion.h"
 #include "Math/constant.h"
 
+#include <cmath>
+
 namespace ph::math
 {
 
@@ -115,13 +117,13 @@ inline T TSphere<T>::getArea() const
 template<typename T>
 inline TVector3<T> TSphere<T>::sampleToSurfaceArchimedes(const std::array<T, 2>& sample) const
 {
-	PH_ASSERT_IN_RANGE_INCLUSIVE(sample[0], T(0), T(1));
-	PH_ASSERT_IN_RANGE_INCLUSIVE(sample[1], T(0), T(1));
-	PH_ASSERT_GE(m_radius, T(0));
+	PH_ASSERT_IN_RANGE_INCLUSIVE(sample[0], static_cast<T>(0), static_cast<T>(1));
+	PH_ASSERT_IN_RANGE_INCLUSIVE(sample[1], static_cast<T>(0), static_cast<T>(1));
+	PH_ASSERT_GE(m_radius, static_cast<T>(0));
 
-	const T y   = T(2) * (sample[0] - T(0.5));
+	const T y   = static_cast<T>(2) * (sample[0] - static_cast<T>(0.5));
 	const T phi = constant::two_pi<T> * sample[1];
-	const T r   = std::sqrt(std::max(T(1) - y * y, T(0)));
+	const T r   = std::sqrt(std::max(static_cast<T>(1) - y * y, static_cast<T>(0)));
 
 	const auto localUnitPos = TVector3<T>(
 		r * std::sin(phi),
@@ -135,11 +137,25 @@ template<typename T>
 inline TVector3<T> TSphere<T>::sampleToSurfaceArchimedes(
 	const std::array<T, 2>& sample, T* const out_pdfA) const
 {
-	// PDF_A is 1/(4*pi*r^2)
 	PH_ASSERT(out_pdfA);
-	*out_pdfA = T(1) / getArea();
+
+	// PDF_A is 1/(4*pi*r^2)
+	*out_pdfA = static_cast<T>(1) / getArea();
 
 	return sampleToSurfaceArchimedes(sample);
+}
+
+template<typename T>
+inline TVector3<T> TSphere<T>::phiThetaToSurface(const T phi, const T theta) const
+{
+	const T zxPlaneRadius = std::sin(theta);
+
+	const auto localUnitPos = TVector3<T>(
+		zxPlaneRadius * std::sin(phi),
+		std::cos(theta),
+		zxPlaneRadius * std::cos(phi));
+
+	return localUnitPos * m_radius;
 }
 
 }// end namespace ph::math

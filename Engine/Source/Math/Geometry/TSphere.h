@@ -36,6 +36,12 @@ public:
 	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& sample) const;
 	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& sample, T* out_pdfA) const;
 
+	// TODO: surfaceToPhiTheta() mapper (see the impl. of SphericalMapper)
+
+	/*! @brief Map phi-theta to Cartesian coordinates on the surface of the sphere.
+	*/
+	TVector3<T> phiThetaToSurface(T phi, T theta) const;
+
 private:
 	T m_radius;
 };
