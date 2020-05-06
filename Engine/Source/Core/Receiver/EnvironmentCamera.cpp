@@ -9,6 +9,7 @@
 namespace ph
 {
 
+// FIXME: respect transformations
 Spectrum EnvironmentCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
 {
 	PH_ASSERT(out_ray);

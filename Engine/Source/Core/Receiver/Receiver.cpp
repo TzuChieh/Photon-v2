@@ -85,6 +85,7 @@ math::QuaternionR Receiver::makeRotationFromVectors(
 {
 	constexpr real MIN_LENGTH = 0.001_r;
 
+	// Receivers face the negated z-axis of basis by default
 	auto zAxis = math::Vector3R(direction).mul(-1);
 	if(zAxis.lengthSquared() > MIN_LENGTH * MIN_LENGTH)
 	{
@@ -96,7 +97,8 @@ math::QuaternionR Receiver::makeRotationFromVectors(
 			"Direction vector " + direction.toString() + " is too short. "
 			"Defaults to -z axis.");
 
-		zAxis.set(0, 0, -1);
+		// For -z facing receivers, z-axis needs to be its opposite, namely +z
+		zAxis.set(0, 0, 1);
 	}
 
 	auto xAxis = math::Vector3R(upAxis).cross(zAxis);
@@ -108,6 +110,8 @@ math::QuaternionR Receiver::makeRotationFromVectors(
 	}
 	else
 	{
+		// TODO: make this a note not warning as this can be properly recovered
+		//       (warn on short up-axis though)
 		logger.log(ELogLevel::WARNING_MED,
 			"Up axis " + upAxis.toString() + "is not properly configured. "
 			"It is too close to the direction vector, or its length is too short. "
@@ -124,7 +128,7 @@ math::QuaternionR Receiver::makeRotationFromVectors(
 			yAxis = zAxis.cross(xAxis).normalizeLocal();
 		}
 	}
-
+	
 	const auto worldToViewRotMat = math::Matrix4R().initRotation(xAxis, yAxis, zAxis);
 	return math::QuaternionR(worldToViewRotMat);
 }
