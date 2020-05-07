@@ -15,22 +15,20 @@ namespace ph
 void PerspectiveReceiver::updateTransforms()
 {
 	const math::Vector2D fResolution(getRasterResolution());
+	const float64 sensorHeight = m_sensorWidth / getAspectRatio();
 
-	// The real width and height of the sensor (in millimeters)
-	const float64 sensorWidthMM  = m_sensorWidthMM;
-	const float64 sensorHeightMM = sensorWidthMM / getAspectRatio();
-	PH_ASSERT_GT(sensorWidthMM,  0);
-	PH_ASSERT_GT(sensorHeightMM, 0);
+	PH_ASSERT_GT(m_sensorWidth, 0);
+	PH_ASSERT_GT(sensorHeight, 0);
 
 	m_rasterToReceiverDecomposed = math::TDecomposedTransform<float64>();
 	m_rasterToReceiverDecomposed.scale(
-		-sensorWidthMM / fResolution.x,
-		-sensorHeightMM / fResolution.y,
+		-m_sensorWidth / fResolution.x,
+		-sensorHeight / fResolution.y,
 		1);
 	m_rasterToReceiverDecomposed.translate(
-		sensorWidthMM / 2, 
-		sensorHeightMM / 2, 
-		m_sensorOffsetMM);
+		m_sensorWidth / 2,
+		sensorHeight / 2,
+		m_sensorOffset);
 
 	m_rasterToReceiver = std::make_shared<math::StaticAffineTransform>(
 		math::StaticAffineTransform::makeForward(m_rasterToReceiverDecomposed));
@@ -41,10 +39,7 @@ void PerspectiveReceiver::updateTransforms()
 // command interface
 
 PerspectiveReceiver::PerspectiveReceiver(const InputPacket& packet) :
-
-	Receiver(packet),
-
-	m_sensorWidthMM(36.0_r), m_sensorOffsetMM(36.0_r)
+	Receiver(packet)
 {
 	const std::string FOV_DEGREE_VAR       = "fov-degree";
 	const std::string SENSOR_WIDTH_MM_VAR  = "sensor-width-mm";
@@ -57,23 +52,28 @@ PerspectiveReceiver::PerspectiveReceiver(const InputPacket& packet) :
 	dimensionalInput.addReal(SENSOR_WIDTH_MM_VAR);
 	dimensionalInput.addReal(SENSOR_OFFSET_MM_VAR);
 
+	real sensorWidthMM  = 36.0_r;
+	real sensorOffsetMM = 36.0_r;
 	if(packet.isPrototypeMatched(fovBasedInput))
 	{
 		// Respect sensor dimensions; modify sensor offset to satisfy FoV requirement
 		const auto fovDegree = packet.getReal(FOV_DEGREE_VAR);
 		const auto halfFov   = math::to_radians(fovDegree) * 0.5_r;
-		m_sensorWidthMM  = packet.getReal(SENSOR_WIDTH_MM_VAR, m_sensorWidthMM);
-		m_sensorOffsetMM = (m_sensorWidthMM * 0.5_r) / std::tan(halfFov);
+		sensorWidthMM  = packet.getReal(SENSOR_WIDTH_MM_VAR, sensorWidthMM);
+		sensorOffsetMM = (sensorOffsetMM * 0.5_r) / std::tan(halfFov);
 	}
 	else if(packet.isPrototypeMatched(dimensionalInput))
 	{
-		m_sensorWidthMM  = packet.getReal(SENSOR_WIDTH_MM_VAR);
-		m_sensorOffsetMM = packet.getReal(SENSOR_OFFSET_MM_VAR);
+		sensorWidthMM  = packet.getReal(SENSOR_WIDTH_MM_VAR);
+		sensorOffsetMM = packet.getReal(SENSOR_OFFSET_MM_VAR);
 	}
 	else
 	{
 		std::cerr << "warning: in PerspectiveReceiver::PerspectiveReceiver(), bad input format" << std::endl;
 	}
+
+	m_sensorWidth  = sensorWidthMM / 1000.0;
+	m_sensorOffset = sensorOffsetMM / 1000.0;
 
 	updateTransforms();
 }

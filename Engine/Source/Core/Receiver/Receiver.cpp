@@ -68,14 +68,8 @@ math::TDecomposedTransform<float64> Receiver::makeDecomposedReceiverPose(
 	const math::QuaternionR& rotation)
 {
 	math::TDecomposedTransform<float64> pose;
-
 	pose.setPosition(math::Vector3D(position));
-
-	// Changes unit from mm to m
-	pose.setScale(0.001);
-
 	pose.setRotation(math::QuaternionD(rotation));
-
 	return pose;
 }
 

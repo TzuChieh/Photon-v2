@@ -39,8 +39,8 @@ protected:
 	math::TDecomposedTransform<float64> m_rasterToReceiverDecomposed;
 	
 private:
-	real m_sensorWidthMM;
-	real m_sensorOffsetMM;
+	float64 m_sensorWidth;
+	float64 m_sensorOffset;
 
 	void updateTransforms();
 
