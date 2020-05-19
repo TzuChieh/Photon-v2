@@ -12,30 +12,25 @@
 namespace ph
 {
 
-/*
-	A background emitter represents energy coming from effectively infinite 
-	distances from the world geometries. As a surface emitter, it expects
-	the associated surface primitive to satisfy the following properties:
-	
-	1. large enough to contain the entire scene
-	2. normalized and one-to-one position <-> uvw mapping
+class PLatLongEnvSphere;
 
-	Associating surface primitives that do not meet these requirements may 
-	results in rendering artifacts.
+/*! @brief Models energy coming from background.
+
+A latitude-longitude environment emitter represents energy coming from 
+effectively infinite distances from the world geometries. This emitter
+takes only radiance functions in latitude-longitude format, i.e., with
+textures parameterized by normalized spherical coordinates (with north
+pole being 1).
 */
-
-class Primitive;
-
-class BackgroundEmitter : public SurfaceEmitter
+class LatLongEnvEmitter : public SurfaceEmitter
 {
 public:
 	using RadianceTexture = std::shared_ptr<TTexture<Spectrum>>;
 
-	BackgroundEmitter(
-		const Primitive*                   surface,
-		const RadianceTexture&             radiance,
-		const math::TVector2<std::size_t>& resolution,
-		real sceneBoundRadius);
+	LatLongEnvEmitter(
+		const PLatLongEnvSphere* surface,
+		const RadianceTexture&   radiance,
+		const math::Vector2S&    resolution);
 
 	void evalEmittedRadiance(const SurfaceHit& X, Spectrum* out_radiance) const override;
 	void genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const override;
@@ -46,18 +41,11 @@ public:
 	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const override;
 	real calcRadiantFluxApprox() const override;
 
-	// HACK
-	bool isBackground() const override
-	{
-		return true;
-	}
-
 private:
-	const Primitive*               m_surface;
+	const PLatLongEnvSphere*       m_surface;
 	RadianceTexture                m_radiance;
 	math::TPwcDistribution2D<real> m_sampleDistribution;
 	real                           m_radiantFluxApprox;
-	real m_sceneBoundRadius;
 };
 
 }// end namespace ph

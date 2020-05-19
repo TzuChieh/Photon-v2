@@ -12,6 +12,7 @@
 #include "Math/TVector3.h"
 #include "World/CookSettings.h"
 #include "Common/assertion.h"
+#include "Utility/INoncopyable.h"
 
 #include <vector>
 #include <memory>
@@ -21,7 +22,7 @@ namespace ph
 
 class CookingContext;
 
-class VisualWorld final
+class VisualWorld final : public INoncopyable
 {
 public:
 	VisualWorld();
@@ -37,10 +38,6 @@ public:
 
 	const Scene& getScene() const;
 
-	// forbid copying
-	VisualWorld(const VisualWorld& other) = delete;
-	VisualWorld& operator = (const VisualWorld& rhs) = delete;
-
 private:
 	std::vector<std::shared_ptr<Actor>> m_actors;
 	CookedDataStorage m_cookedActorStorage;
@@ -52,11 +49,13 @@ private:
 	std::unique_ptr<EmitterSampler> m_emitterSampler;
 	Scene                           m_scene;
 	std::shared_ptr<CookSettings>   m_cookSettings;
-	
-	// HACK
-	const Primitive* m_backgroundEmitterPrimitive;
+	std::unique_ptr<Primitive> m_backgroundPrimitive;
 
-	void cookActors(CookingContext& cookingContext);
+	void cookActors(
+		std::shared_ptr<Actor>* actors, 
+		std::size_t             numActors, 
+		CookingContext&         cookingContext);
+
 	void createTopLevelAccelerator();
 
 	static math::AABB3D calcIntersectableBound(const CookedDataStorage& storage);

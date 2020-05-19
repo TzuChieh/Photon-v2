@@ -42,7 +42,7 @@ Spectrum EnvironmentCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* c
 	// Warp raster xy to surface of a unit sphere
 	const auto phi         = math::constant::two_pi<float64> * rasterCoord.x / static_cast<float64>(rasterRes.x);
 	const auto theta       = math::constant::pi<float64> * (1.0 - rasterCoord.y / static_cast<float64>(rasterRes.y));
-	const auto localOutDir = math::TSphere<float64>::makeUnit().phiThetaToSurface(phi, theta);
+	const auto localOutDir = math::TSphere<float64>::makeUnit().phiThetaToSurface({phi, theta});
 
 	math::Vector3R worldOutDir;
 	m_receiverToWorld.transformV(math::Vector3R(localOutDir), &worldOutDir);

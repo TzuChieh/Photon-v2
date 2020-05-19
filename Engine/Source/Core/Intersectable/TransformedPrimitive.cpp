@@ -55,16 +55,12 @@ void TransformedPrimitive::genPositionSample(SampleFlow& sampleFlow, PositionSam
 
 bool TransformedPrimitive::uvwToPosition(
 	const math::Vector3R& uvw,
-	const math::Vector3R& observationPoint,
 	math::Vector3R* const out_position) const
 {
 	PH_ASSERT(out_position);
 
-	math::Vector3R localObservationPoint;
-	m_localToWorld->transformP(observationPoint, &localObservationPoint);
-
 	math::Vector3R localPosition;
-	if(!m_primitive->uvwToPosition(uvw, localObservationPoint, &localPosition))
+	if(!m_primitive->uvwToPosition(uvw, &localPosition))
 	{
 		return false;
 	}

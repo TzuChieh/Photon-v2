@@ -147,12 +147,6 @@ CookedUnit ALight::buildGeometricLight(
 	emitterBuildingMaterial.metadata   = metadata;
 	auto emitter = m_lightSource->genEmitter(context, std::move(emitterBuildingMaterial));
 
-	// HACK
-	if(emitter->isBackground())
-	{
-		cookedActor.setBackgroundEmitterPrimitive(firstPrimitive);
-	}
-
 	metadata->getSurface().setEmitter(emitter.get());
 	cookedActor.setEmitter(std::move(emitter));
 
@@ -193,8 +187,8 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 		else
 		{
 			// TODO: combine identity transforms...
-			*out_baseLW = std::make_unique<math::StaticRigidTransform>(math::StaticRigidTransform::makeIdentity());
-			*out_baseWL = std::make_unique<math::StaticRigidTransform>(math::StaticRigidTransform::makeIdentity());
+			*out_baseLW = std::make_unique<math::StaticRigidTransform>(math::StaticRigidTransform::IDENTITY());
+			*out_baseWL = std::make_unique<math::StaticRigidTransform>(math::StaticRigidTransform::IDENTITY());
 		}
 	}
 	else

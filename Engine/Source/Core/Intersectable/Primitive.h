@@ -51,7 +51,6 @@ public:
 	// if the mapping failed, false is returned.
 	virtual bool uvwToPosition(
 		const math::Vector3R& uvw,
-		const math::Vector3R& observationPoint,
 		math::Vector3R*       out_position) const;
 
 	const PrimitiveMetadata* getMetadata() const;
@@ -79,7 +78,6 @@ inline const PrimitiveMetadata* Primitive::getMetadata() const
 
 inline bool Primitive::uvwToPosition(
 	const math::Vector3R& /* uvw */,
-	const math::Vector3R& /* observationPoint */,
 	math::Vector3R*       /* out_position */) const
 {
 	return false;

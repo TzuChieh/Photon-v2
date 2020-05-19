@@ -102,10 +102,9 @@ public:
 		*out_scale    = m_scale;
 	}
 
-	inline TVector3<T> getScale() const
-	{
-		return m_scale;
-	}
+	TVector3<T> getPosition() const;
+	TQuaternion<T> getRotation() const;
+	TVector3<T> getScale() const;
 
 	inline void genTransformMatrix(TMatrix4<T>* const out_result) const
 	{
@@ -179,6 +178,24 @@ inline bool TDecomposedTransform<T>::isScaleUniform(const T margin) const
 	const T dSzSx = std::abs(m_scale.z - m_scale.x);
 
 	return dSxSy < margin && dSySz < margin && dSzSx < margin;
+}
+
+template<typename T>
+inline TVector3<T> TDecomposedTransform<T>::getPosition() const
+{
+	return m_position;
+}
+
+template<typename T>
+inline TQuaternion<T> TDecomposedTransform<T>::getRotation() const
+{
+	return m_rotation;
+}
+
+template<typename T>
+inline TVector3<T> TDecomposedTransform<T>::getScale() const
+{
+	return m_scale;
 }
 
 }// end namespace ph::math

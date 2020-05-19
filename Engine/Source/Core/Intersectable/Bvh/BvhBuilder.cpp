@@ -108,7 +108,7 @@ const BvhInfoNode* BvhBuilder::buildBinaryBvhInfoNodeRecursive(const std::vector
 		AABB3D centroidsAABB(intersectables.front().aabbCentroid);
 		for(const auto& intersectable : intersectables)
 		{
-			centroidsAABB = AABB3D::makeUnioned(centroidsAABB, intersectable.aabbCentroid);
+			centroidsAABB = AABB3D::makeUnioned(centroidsAABB, AABB3D(intersectable.aabbCentroid));
 		}
 
 		math::Vector3R extents = centroidsAABB.getExtents();

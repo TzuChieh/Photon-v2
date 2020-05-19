@@ -18,7 +18,7 @@ public:
 	APhantomModel(const APhantomModel& other);
 
 	CookedUnit cook(CookingContext& context) const override;
-	CookPriority getCookPriority() const override;
+	CookOrder getCookOrder() const override;
 
 	APhantomModel& operator = (APhantomModel rhs);
 
@@ -36,9 +36,9 @@ public:
 
 // In-header Implementations:
 
-inline CookPriority APhantomModel::getCookPriority() const
+inline CookOrder APhantomModel::getCookOrder() const
 {
-	return static_cast<CookPriority>(ECookPriority::HIGH);
+	return CookOrder(ECookPriority::HIGH);
 }
 
 }// end namespace ph

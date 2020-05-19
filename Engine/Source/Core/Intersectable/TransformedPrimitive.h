@@ -73,7 +73,6 @@ public:
 
 	bool uvwToPosition(
 		const math::Vector3R& uvw,
-		const math::Vector3R& observationPoint,
 		math::Vector3R*       out_position) const override;
 
 	inline real calcExtendedArea() const override

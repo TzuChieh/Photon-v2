@@ -3,8 +3,19 @@
 #include "Math/Geometry/TLineSegment.h"
 #include "Common/assertion.h"
 
+#include <limits>
+
 namespace ph::math
 {
+
+template<typename T>
+inline TLineSegment<T>::TLineSegment(const TVector3<T>& origin, const TVector3<T>& direction) : 
+	TLineSegment(
+		origin,
+		direction,
+		static_cast<T>(0),
+		std::numeric_limits<T>::max())
+{}
 
 template<typename T>
 inline TLineSegment<T>::TLineSegment(
@@ -105,6 +116,12 @@ template<typename T>
 inline TVector3<T> TLineSegment<T>::getHead() const
 {
 	return m_direction * m_maxT + m_origin;
+}
+
+template<typename T>
+inline TVector3<T> TLineSegment<T>::getPoint(const T t) const
+{
+	return m_origin.add(m_direction.mul(t));
 }
 
 }// end namespace ph::math

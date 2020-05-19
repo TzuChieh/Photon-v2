@@ -33,20 +33,19 @@ public:
 
 	void emitRay(SampleFlow& sampleFlow, Ray* out_ray, Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const;
 
-	// HACK
-	void setBackgroundEmitterPrimitive(const Primitive* primitive)
-	{
-		PH_ASSERT(primitive);
-
-		m_backgroundEmitterPrimitive = primitive;
-	}
+	void setBackgroundPrimitive(const Primitive* const primitive);
 
 private:
 	const Intersector*    m_intersector;
 	const EmitterSampler* m_emitterSampler;
-
-	// HACK
-	const Primitive* m_backgroundEmitterPrimitive;
+	const Primitive*      m_backgroundPrimitive;
 };
+
+// In-header Implementations:
+
+inline void Scene::setBackgroundPrimitive(const Primitive* const primitive)
+{
+	m_backgroundPrimitive = primitive;
+}
 
 }// end namespace ph

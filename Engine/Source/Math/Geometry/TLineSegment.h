@@ -28,6 +28,10 @@ public:
 	*/
 	TLineSegment() = default;
 
+	/*! @brief A line extending form @p origin to the furthest point possible along @p direction.
+	*/
+	TLineSegment(const TVector3<T>& origin, const TVector3<T>& direction);
+
 	/*! @brief A line that covers the parametric range [minT, maxT).
 
 	@param direction Line direction. Does not need to be normalized.
@@ -93,6 +97,10 @@ public:
 	/*! @brief Get the coordinates on maximum parametric distance.
 	*/
 	TVector3<T> getHead() const;
+
+	/*! @brief Get the coordinates referred to by the parametric distance @p t.
+	*/
+	TVector3<T> getPoint(T t) const;
 	///@}
 
 private:

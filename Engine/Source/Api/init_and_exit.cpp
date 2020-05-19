@@ -10,7 +10,6 @@
 #include "Actor/Geometry/GRectangle.h"
 #include "Actor/Geometry/GTriangleMesh.h"
 #include "Actor/Geometry/GMengerSponge.h"
-#include "Actor/Geometry/GInfiniteSphere.h"
 #include "Actor/Geometry/GCuboid.h"
 #include "Actor/Geometry/GEmpty.h"
 #include "Actor/Geometry/GeometrySoup.h"
@@ -120,7 +119,6 @@ bool init_command_parser()
 	register_command_interface<GRectangle>();
 	register_command_interface<GTriangleMesh>();
 	register_command_interface<GMengerSponge>();
-	register_command_interface<GInfiniteSphere>();
 	register_command_interface<GCuboid>();
 	register_command_interface<GEmpty>();
 	register_command_interface<GeometrySoup>();

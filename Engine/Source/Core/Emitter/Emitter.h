@@ -31,12 +31,6 @@ public:
 
 	virtual real calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const = 0;
 
-	// HACK
-	virtual bool isBackground() const
-	{
-		return false;
-	}
-
 	virtual real calcRadiantFluxApprox() const;
 };
 

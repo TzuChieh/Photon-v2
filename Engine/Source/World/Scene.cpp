@@ -14,16 +14,22 @@ namespace ph
 {
 
 Scene::Scene() : 
-	m_intersector(nullptr), m_emitterSampler(nullptr),
-
-	m_backgroundEmitterPrimitive(nullptr)
+	m_intersector        (nullptr), 
+	m_emitterSampler     (nullptr),
+	m_backgroundPrimitive(nullptr)
 {}
 
-Scene::Scene(const Intersector* intersector, const EmitterSampler* emitterSampler) :
-	m_intersector(intersector), m_emitterSampler(emitterSampler),
+Scene::Scene(
+	const Intersector* const    intersector,
+	const EmitterSampler* const emitterSampler) :
 
-	m_backgroundEmitterPrimitive(nullptr)
-{}
+	m_intersector        (intersector), 
+	m_emitterSampler     (emitterSampler),
+	m_backgroundPrimitive(nullptr)
+{
+	PH_ASSERT(intersector);
+	PH_ASSERT(emitterSampler);
+}
 
 bool Scene::isIntersecting(const Ray& ray, HitProbe* const out_probe) const
 {
@@ -34,10 +40,10 @@ bool Scene::isIntersecting(const Ray& ray, HitProbe* const out_probe) const
 	{
 		return true;
 	}
-	else if(m_backgroundEmitterPrimitive)
+	else if(m_backgroundPrimitive)
 	{
 		out_probe->clear();
-		return m_backgroundEmitterPrimitive->isIntersecting(ray, *out_probe);
+		return m_backgroundPrimitive->isIntersecting(ray, *out_probe);
 	}
 
 	return false;
@@ -51,9 +57,9 @@ bool Scene::isIntersecting(const Ray& ray) const
 	{
 		return true;
 	}
-	else if(m_backgroundEmitterPrimitive)
+	else if(m_backgroundPrimitive)
 	{
-		return m_backgroundEmitterPrimitive->isIntersecting(ray);
+		return m_backgroundPrimitive->isIntersecting(ray);
 	}
 
 	return false;

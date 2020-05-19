@@ -3,7 +3,6 @@
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "Math/Transform/RigidTransform.h"
 #include "Math/Transform/StaticRigidTransform.h"
-#include "Core/Intersectable/PSphere.h"
 #include "Core/Intersectable/TransformedPrimitive.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Common/assertion.h"

@@ -5,9 +5,10 @@ namespace ph::math
 
 const Logger StaticRigidTransform::logger(LogSender("StaticRigidTransform"));
 
-StaticRigidTransform StaticRigidTransform::makeIdentity()
+const StaticRigidTransform& StaticRigidTransform::IDENTITY()
 {
-	return StaticRigidTransform(StaticAffineTransform::IDENTITY());
+	static const StaticRigidTransform identityTransform(StaticAffineTransform::IDENTITY());
+	return identityTransform;
 }
 
 StaticRigidTransform::StaticRigidTransform() : 

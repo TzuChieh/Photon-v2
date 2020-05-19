@@ -102,12 +102,12 @@ inline TVector3<T> THemisphere<T>::sampleToSurfaceArchimedes(
 template<typename T>
 inline TVector3<T> THemisphere<T>::sampleToSurfaceCosThetaWeighted(const std::array<T, 2>& sample) const
 {
-	PH_ASSERT_LE(T(0), sample[0]); PH_ASSERT_LE(sample[0], T(1));
-	PH_ASSERT_LE(T(0), sample[1]); PH_ASSERT_LE(sample[1], T(1));
+	PH_ASSERT_LE(static_cast<T>(0), sample[0]); PH_ASSERT_LE(sample[0], static_cast<T>(1));
+	PH_ASSERT_LE(static_cast<T>(0), sample[1]); PH_ASSERT_LE(sample[1], static_cast<T>(1));
 
 	const T phi     = constant::two_pi<T> * sample[0];
 	const T yValue  = std::sqrt(sample[1]);
-	const T yRadius = std::sqrt(T(1) - yValue * yValue);// TODO: y*y is in fact valueB?
+	const T yRadius = std::sqrt(static_cast<T>(1) - yValue * yValue);// TODO: y*y is in fact valueB?
 
 	const auto localUnitPos = TVector3<T>(
 		std::sin(phi) * yRadius,
@@ -123,7 +123,7 @@ inline TVector3<T> THemisphere<T>::sampleToSurfaceCosThetaWeighted(
 {
 	const auto localPos = sampleToSurfaceCosThetaWeighted(sample);
 
-	PH_ASSERT_GE(localPos.y, T(0));
+	PH_ASSERT_GE(localPos.y, static_cast<T>(0));
 	const T cosTheta = localPos.y / m_radius;
 
 	// PDF_A is cos(theta)/(pi*r^2)
@@ -137,12 +137,12 @@ template<typename T>
 inline TVector3<T> THemisphere<T>::sampleToSurfaceCosLobeWeighted(
 	const std::array<T, 2>& sample, const T exponent) const
 {
-	PH_ASSERT_LE(T(0), sample[0]); PH_ASSERT_LE(sample[0], T(1));
-	PH_ASSERT_LE(T(0), sample[1]); PH_ASSERT_LE(sample[1], T(1));
+	PH_ASSERT_LE(static_cast<T>(0), sample[0]); PH_ASSERT_LE(sample[0], static_cast<T>(1));
+	PH_ASSERT_LE(static_cast<T>(0), sample[1]); PH_ASSERT_LE(sample[1], static_cast<T>(1));
 
 	const T phi      = constant::two_pi<T> * sample[0];
-	const T cosTheta = std::pow(sample[1], T(1) / (exponent + T(1)));
-	const T sinTheta = std::sqrt(T(1) - cosTheta * cosTheta);
+	const T cosTheta = std::pow(sample[1], static_cast<T>(1) / (exponent + static_cast<T>(1)));
+	const T sinTheta = std::sqrt(static_cast<T>(1) - cosTheta * cosTheta);
 
 	const auto localUnitPos = TVector3<T>(
 		std::sin(phi) * sinTheta,
@@ -158,12 +158,12 @@ inline TVector3<T> THemisphere<T>::sampleToSurfaceCosLobeWeighted(
 {
 	const auto localPos = sampleToSurfaceCosLobeWeighted(exponent, sample);
 
-	PH_ASSERT_GE(localPos.y, T(0));
+	PH_ASSERT_GE(localPos.y, static_cast<T>(0));
 	const T cosTheta = localPos.y / m_radius;
 
 	// PDF_A is (exponent+1)/(2*pi)*cos(theta)^n
 	PH_ASSERT(out_pdfA);
-	*out_pdfA = (exponent + T(1)) * constant::rcp_two_pi<T> * std::pow(cosTheta, exponent);
+	*out_pdfA = (exponent + static_cast<T>(1)) * constant::rcp_two_pi<T> * std::pow(cosTheta, exponent);
 	*out_pdfA /= m_radius * m_radius;
 
 	return localPos;

@@ -17,7 +17,7 @@ class PrimitiveChannel final
 {
 public:
 	PrimitiveChannel();
-	PrimitiveChannel(const std::shared_ptr<UvwMapper>& mapper);
+	explicit PrimitiveChannel(const std::shared_ptr<UvwMapper>& mapper);
 
 	inline const UvwMapper* getMapper() const
 	{

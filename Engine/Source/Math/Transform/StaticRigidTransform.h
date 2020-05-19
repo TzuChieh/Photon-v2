@@ -16,21 +16,23 @@ namespace ph::math
 class StaticRigidTransform : public RigidTransform
 {
 public:
-	static StaticRigidTransform makeIdentity();
+	static const StaticRigidTransform& IDENTITY();
 
 	template<typename U>
-	static inline StaticRigidTransform makeForward(const TDecomposedTransform<U>& transform);
+	static StaticRigidTransform makeForward(const TDecomposedTransform<U>& transform);
 
 	template<typename U>
-	static inline StaticRigidTransform makeInverse(const TDecomposedTransform<U>& transform);
+	static StaticRigidTransform makeInverse(const TDecomposedTransform<U>& transform);
 
 	template<typename U>
-	static inline StaticRigidTransform makeParentedForward(const std::vector<TDecomposedTransform<U>>& fromRootToLocal);
+	static StaticRigidTransform makeParentedForward(const std::vector<TDecomposedTransform<U>>& fromRootToLocal);
 
 	template<typename U>
-	static inline StaticRigidTransform makeParentedInverse(const std::vector<TDecomposedTransform<U>>& fromRootToLocal);
+	static StaticRigidTransform makeParentedInverse(const std::vector<TDecomposedTransform<U>>& fromRootToLocal);
 
 public:
+	/*! @brief Creates an identity transform.
+	*/
 	StaticRigidTransform();
 
 private:

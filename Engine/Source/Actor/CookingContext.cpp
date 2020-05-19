@@ -10,7 +10,10 @@ namespace
 }
 
 CookingContext::CookingContext() : 
-	m_childActors(), m_phantoms(), m_visualWorldInfo(nullptr)
+	m_childActors        (), 
+	m_phantoms           (), 
+	m_visualWorldInfo    (nullptr),
+	m_backgroundPrimitive(nullptr)
 {}
 
 void CookingContext::addChildActor(std::unique_ptr<Actor> actor)

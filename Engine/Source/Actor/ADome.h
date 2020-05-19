@@ -3,12 +3,18 @@
 #include "Actor/PhysicalActor.h"
 #include "Common/Logger.h"
 #include "DataIO/FileSystem/Path.h"
+#include "Core/Texture/TTexture.h"
+#include "Core/Quantity/Spectrum.h"
+
+#include <memory>
 
 namespace ph
 {
 
-/*
-	An actor that represents the sky of the scene.
+/*! @brief An actor that models the sky of the scene.
+
+Model the sky in latitude-longitude format. Effectively a large energy
+emitting source encompassing the whole scene.
 */
 class ADome : public PhysicalActor, public TCommandInterface<ADome>
 {
@@ -18,6 +24,7 @@ public:
 	ADome(const ADome& other);
 
 	CookedUnit cook(CookingContext& context) const override;
+	CookOrder getCookOrder() const override;
 
 	ADome& operator = (ADome rhs);
 
@@ -26,7 +33,10 @@ public:
 private:
 	Path m_sphericalEnvMap;
 
-	static const Logger logger;
+	static std::shared_ptr<TTexture<Spectrum>> loadRadianceTexture(
+		const Path&     filePath, 
+		CookingContext& context, 
+		math::Vector2S* out_resolution = nullptr);
 
 // command interface
 public:
@@ -34,6 +44,13 @@ public:
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
+
+// In-header Implementations:
+
+inline CookOrder ADome::getCookOrder() const
+{
+	return CookOrder(ECookPriority::LOW, ECookLevel::LAST);
+}
 
 }// end namespace ph
 

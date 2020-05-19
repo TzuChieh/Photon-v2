@@ -10,7 +10,6 @@
 namespace ph::math
 {
 
-// TODO: templatize
 class StaticAffineTransform : public Transform
 {
 	friend class StaticRigidTransform;
@@ -43,7 +42,10 @@ public:
 	static StaticAffineTransform makeParentedInverse(const std::vector<TDecomposedTransform<U>>& fromRootToLocal);
 
 public:
+	/*! @brief Creates an identity transform.
+	*/
 	StaticAffineTransform();
+
 	StaticAffineTransform(const Matrix4R& transform, const Matrix4R& inverseTransform);
 
 	virtual std::unique_ptr<Transform> genInversed() const override;

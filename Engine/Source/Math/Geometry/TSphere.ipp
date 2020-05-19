@@ -3,8 +3,13 @@
 #include "Math/Geometry/TSphere.h"
 #include "Common/assertion.h"
 #include "Math/constant.h"
+#include "Math/TOrthonormalBasis3.h"
+#include "Math/TVector2.h"
+#include "Math/TMatrix2.h"
 
 #include <cmath>
+#include <algorithm>
+#include <type_traits>
 
 namespace ph::math
 {
@@ -146,8 +151,52 @@ inline TVector3<T> TSphere<T>::sampleToSurfaceArchimedes(
 }
 
 template<typename T>
-inline TVector3<T> TSphere<T>::phiThetaToSurface(const T phi, const T theta) const
+inline TVector2<T> TSphere<T>::surfaceToLatLong01(const TVector3<T>& surface) const
 {
+	using namespace math::constant;
+
+	const TVector2<T>& phiTheta = surfaceToPhiTheta(surface);
+
+	return {
+		phiTheta.x / two_pi<T>,       // [0, 1]
+		(pi<T> - phiTheta.y) / pi<T>};// [0, 1]
+}
+
+template<typename T>
+inline TVector3<T> TSphere<T>::latLong01ToSurface(const TVector2<T>& latLong01) const
+{
+	using namespace math::constant;
+
+	const T phi   = latLong01.x * two_pi<T>;
+	const T theta = (static_cast<T>(1) - latLong01.y) * pi<T>;
+
+	return phiThetaToSurface({phi, theta});
+}
+
+template<typename T>
+inline TVector2<T> TSphere<T>::surfaceToPhiTheta(const TVector3<T>& surface) const
+{
+	using namespace math::constant;
+
+	PH_ASSERT_GT(m_radius, 0);
+
+	const math::TVector3<T>& unitDir = surface.div(m_radius);
+
+	const T cosTheta = math::clamp(unitDir.y, static_cast<T>(-1), static_cast<T>(1));
+
+	const T theta  = std::acos(cosTheta);                                      // [  0,   pi]
+	const T phiRaw = std::atan2(unitDir.x, unitDir.z);                         // [-pi,   pi]
+	const T phi    = phiRaw >= static_cast<T>(0) ? phiRaw : two_pi<T> + phiRaw;// [  0, 2*pi]
+
+	return {phi, theta};
+}
+
+template<typename T>
+inline TVector3<T> TSphere<T>::phiThetaToSurface(const TVector2<T>& phiTheta) const
+{
+	const T phi   = phiTheta.x;
+	const T theta = phiTheta.y;
+
 	const T zxPlaneRadius = std::sin(theta);
 
 	const auto localUnitPos = TVector3<T>(
@@ -156,6 +205,73 @@ inline TVector3<T> TSphere<T>::phiThetaToSurface(const T phi, const T theta) con
 		zxPlaneRadius * std::cos(phi));
 
 	return localUnitPos * m_radius;
+}
+
+template<typename T>
+template<typename SurfaceToUv>
+inline std::pair<TVector3<T>, TVector3<T>> TSphere<T>::surfaceDerivativesWrtUv(
+	const TVector3<T>& surface,
+	SurfaceToUv        surfaceToUv,
+	T                  hInRadians) const
+{
+	static_assert(std::is_invocable_r_v<TVector2<T>, SurfaceToUv, TVector3<T>>,
+		"A surface to UV mapper must accept Vector3 position and return Vector2 "
+		"UV or any type that is convertible to the mentioned ones");
+
+	PH_ASSERT_GT(hInRadians, 0);
+	
+	const math::TVector3<T>& normal = surface.div(m_radius);
+	hInRadians = std::min(hInRadians, math::to_radians<T>(45));
+
+	// Calculate displacement vectors on hit normal's tangent plane
+	// (with small angle approximation)
+
+	const T delta = m_radius * std::tan(hInRadians);
+
+	const auto& hitBasis = math::TOrthonormalBasis3<T>::makeFromUnitY(normal);
+	const math::TVector3<T>& dx = hitBasis.getXAxis().mul(delta);
+	const math::TVector3<T>& dz = hitBasis.getZAxis().mul(delta);
+
+	// Compute partial derivatives with 2nd-order approximation
+
+	// Find delta positions on the sphere from displacement vectors
+	const math::TVector3<T>& negX = surface.sub(dx).normalize().mul(m_radius);
+	const math::TVector3<T>& posX = surface.add(dx).normalize().mul(m_radius);
+	const math::TVector3<T>& negZ = surface.sub(dz).normalize().mul(m_radius);
+	const math::TVector3<T>& posZ = surface.add(dz).normalize().mul(m_radius);
+
+	// Find delta uvw vectors
+	const math::TVector2<T>& negXuv = surfaceToUv(negX);
+	const math::TVector2<T>& posXuv = surfaceToUv(posX);
+	const math::TVector2<T>& negZuv = surfaceToUv(negZ);
+	const math::TVector2<T>& posZuv = surfaceToUv(posZ);
+
+	const math::TMatrix2<T> uvwDiff(
+		posXuv.x - negXuv.x, posXuv.y - negXuv.y,
+		posZuv.x - negZuv.x, posZuv.y - negZuv.y);
+	const auto xDiff = posX - negX;
+	const auto zDiff = posZ - negZ;
+	const std::array<std::array<T, 2>, 3> bs = {
+		xDiff.x, zDiff.x,
+		xDiff.y, zDiff.y,
+		xDiff.z, zDiff.z};
+
+	// Calculate positional partial derivatives
+	math::TVector3<T> dPdU, dPdV;
+	std::array<std::array<T, 2>, 3> xs;
+	if(uvwDiff.solve(bs, &xs))
+	{
+		dPdU.x = xs[0][0]; dPdV.x = xs[0][1];
+		dPdU.y = xs[1][0]; dPdV.y = xs[1][1];
+		dPdU.z = xs[2][0]; dPdV.z = xs[2][1];
+	}
+	else
+	{
+		dPdU = hitBasis.getZAxis();
+		dPdV = hitBasis.getXAxis();
+	}
+
+	return {dPdU, dPdV};
 }
 
 }// end namespace ph::math

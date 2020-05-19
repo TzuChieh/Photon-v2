@@ -7,7 +7,7 @@
 #include "DataIO/SDL/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Actor/Geometry/GTriangleMesh.h"
-#include "Core/Intersectable/PSphere.h"
+#include "Core/Intersectable/PLatLong01Sphere.h"
 
 #include <cmath>
 #include <iostream>
@@ -55,7 +55,7 @@ void GSphere::genPrimitive(
 
 	//genTriangleMesh()->genPrimitive(data, out_primitives);
 
-	out_primitives.push_back(std::make_unique<PSphere>(data.metadata, m_radius));
+	out_primitives.push_back(std::make_unique<PLatLong01Sphere>(data.metadata, m_radius));
 }
 
 std::shared_ptr<Geometry> GSphere::genTransformed(

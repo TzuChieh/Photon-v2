@@ -16,6 +16,7 @@
 #include <limits>
 #include <iostream>
 #include <algorithm>
+#include <iterator>
 
 namespace ph
 {
@@ -30,22 +31,20 @@ VisualWorld::VisualWorld() :
 	m_scene(),
 	m_receiverPos(0),
 	m_cookSettings(),
-
-	m_backgroundEmitterPrimitive(nullptr)
+	m_backgroundPrimitive(nullptr)
 {
 	setCookSettings(std::make_shared<CookSettings>());
 }
 
 VisualWorld::VisualWorld(VisualWorld&& other) :
-	m_actors            (std::move(other.m_actors)), 
-	m_cookedActorStorage(std::move(other.m_cookedActorStorage)), 
-	m_intersector       (std::move(other.m_intersector)), 
-	m_emitterSampler    (std::move(other.m_emitterSampler)),
-	m_scene             (std::move(other.m_scene)),
-	m_receiverPos         (std::move(other.m_receiverPos)),
-	m_cookSettings      (std::move(other.m_cookSettings)),
-
-	m_backgroundEmitterPrimitive(std::move(other.m_backgroundEmitterPrimitive))
+	m_actors             (std::move(other.m_actors)), 
+	m_cookedActorStorage (std::move(other.m_cookedActorStorage)), 
+	m_intersector        (std::move(other.m_intersector)), 
+	m_emitterSampler     (std::move(other.m_emitterSampler)),
+	m_scene              (std::move(other.m_scene)),
+	m_receiverPos        (std::move(other.m_receiverPos)),
+	m_cookSettings       (std::move(other.m_cookSettings)),
+	m_backgroundPrimitive(std::move(other.m_backgroundPrimitive))
 {}
 
 void VisualWorld::addActor(std::shared_ptr<Actor> actor)
@@ -70,49 +69,73 @@ void VisualWorld::cook()
 
 	CookingContext cookingContext;
 
-	// cook root actors
-	cookActors(cookingContext);
-
 	VisualWorldInfo visualWorldInfo;
-	math::AABB3D bound = calcIntersectableBound(m_cookedActorStorage);
-
-	// TODO: should union with receiver's bound instead
-	bound.unionWith(m_receiverPos);
-
-	visualWorldInfo.setRootActorsBound(bound);
 	cookingContext.setVisualWorldInfo(&visualWorldInfo);
 
-	logger.log(ELogLevel::NOTE_MED, "root actors bound calculated to be: " + bound.toString());
+	// TODO: should union with receiver's bound instead
+	visualWorldInfo.setRootActorsBound(math::AABB3D(m_receiverPos));
+	visualWorldInfo.setLeafActorsBound(math::AABB3D(m_receiverPos));
 
-	// cook child actors (breadth first)
-	while(true)
+	// Cook actors level by level (from lowest to highest)
+
+	std::size_t numCookedActors = 0;
+	while(numCookedActors < m_actors.size())
 	{
-		auto childActors = cookingContext.claimChildActors();
-		if(childActors.empty())
-		{
-			break;
-		}
+		auto actorCookBegin = m_actors.begin() + numCookedActors;
 
-		for(const auto& actor : childActors)
-		{
-			CookedUnit cookedUnit = actor->cook(cookingContext);
-
-			// HACK
-			if(cookedUnit.isBackgroundEmitter())
+		// Sort raw actors based on cook order
+		std::sort(actorCookBegin, m_actors.end(),
+			[](const std::shared_ptr<Actor>& a, const std::shared_ptr<Actor>& b)
 			{
-				m_backgroundEmitterPrimitive = cookedUnit.getBackgroundEmitterPrimitive();
-			}
+				return a->getCookOrder() < b->getCookOrder();
+			});
 
-			cookedUnit.claimCookedData(m_cookedActorStorage);
-			cookedUnit.claimCookedBackend(m_cookedBackendStorage);
+		const CookLevel currentActorLevel = (*actorCookBegin)->getCookOrder().level;
+		logger.log("cooking actor level: " + std::to_string(currentActorLevel));
+
+		// Find the transition point from current level to next level
+		auto actorCookEnd = std::upper_bound(actorCookBegin, m_actors.end(), currentActorLevel,
+			[](const CookLevel a, const std::shared_ptr<Actor>& b)
+			{
+				return a < b->getCookOrder().level;
+			});
+
+		cookActors(&m_actors[numCookedActors], actorCookEnd - actorCookBegin, cookingContext);
+
+		// Prepare for next cooking iteration
+
+		// FIXME: calc bounds from newly cooked actors and union
+		math::AABB3D bound = calcIntersectableBound(m_cookedActorStorage);
+		// TODO: should union with receiver's bound instead
+		bound.unionWith(m_receiverPos);
+
+		logger.log("current iteration actor bound: " + bound.toString());
+
+		if(currentActorLevel == static_cast<CookLevel>(ECookLevel::FIRST))
+		{
+			logger.log("root actors bound calculated to be: " + bound.toString());
+
+			visualWorldInfo.setRootActorsBound(bound);
 		}
-	}
+
+		visualWorldInfo.setLeafActorsBound(bound);
+
+		// Add newly created actors
+		auto childActors = cookingContext.claimChildActors();
+		m_actors.insert(m_actors.end(), std::make_move_iterator(childActors.begin()), std::make_move_iterator(childActors.end()));
+
+		numCookedActors += actorCookEnd - actorCookBegin;
+
+		logger.log("# cooked actors: " + std::to_string(numCookedActors));
+	}// end while more raw actors
 
 	for(auto& phantom : cookingContext.m_phantoms)
 	{
 		phantom.second.claimCookedData(m_phantomStorage);
 		phantom.second.claimCookedBackend(m_phantomStorage);
 	}
+
+	m_backgroundPrimitive = cookingContext.claimBackgroundPrimitive();
 
 	logger.log(ELogLevel::NOTE_MED, 
 	           "visual world discretized into " + 
@@ -131,34 +154,21 @@ void VisualWorld::cook()
 	m_emitterSampler->update(m_cookedActorStorage);
 
 	m_scene = Scene(m_intersector.get(), m_emitterSampler.get());
-
-	// HACK
-	if(m_backgroundEmitterPrimitive)
-	{
-		m_scene.setBackgroundEmitterPrimitive(m_backgroundEmitterPrimitive);
-	}
+	m_scene.setBackgroundPrimitive(m_backgroundPrimitive.get());
 }
 
-void VisualWorld::cookActors(CookingContext& cookingContext)
+void VisualWorld::cookActors(
+	std::shared_ptr<Actor>* const actors,
+	const std::size_t             numActors,
+	CookingContext&               cookingContext)
 {
-	std::sort(m_actors.begin(), m_actors.end(), 
-		[](const std::shared_ptr<Actor>& a, const std::shared_ptr<Actor>& b)
-		{
-			return a->getCookPriority() < b->getCookPriority();
-		});
+	PH_ASSERT(actors);
 
-	for(const auto& actor : m_actors)
+	for(std::size_t i = 0; i < numActors; ++i)
 	{
-		CookedUnit cookedUnit = actor->cook(cookingContext);
-
-		// HACK
-		if(cookedUnit.isBackgroundEmitter())
-		{
-			m_backgroundEmitterPrimitive = cookedUnit.getBackgroundEmitterPrimitive();
-		}
-
+		CookedUnit cookedUnit = actors[i]->cook(cookingContext);
 		cookedUnit.claimCookedData(m_cookedActorStorage);
-		cookedUnit.claimCookedBackend(m_cookedBackendStorage);
+		cookedUnit.claimCookedBackend(m_cookedBackendStorage);// TODO: make backend phantoms
 	}
 }
 

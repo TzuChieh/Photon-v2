@@ -10,9 +10,7 @@ CookedUnit::CookedUnit() :
 	m_primitiveMetadata(), 
 	m_transforms(),
 	m_emitter(),
-	m_backendIntersectables(),
-
-	m_backgroundEmitterPrimitive(nullptr)
+	m_backendIntersectables()
 {}
 
 CookedUnit::CookedUnit(CookedUnit&& other) :
@@ -20,9 +18,7 @@ CookedUnit::CookedUnit(CookedUnit&& other) :
 	m_primitiveMetadata    (std::move(other.m_primitiveMetadata)),
 	m_transforms           (std::move(other.m_transforms)),
 	m_emitter              (std::move(other.m_emitter)),
-	m_backendIntersectables(std::move(other.m_backendIntersectables)),
-
-	m_backgroundEmitterPrimitive(std::move(other.m_backgroundEmitterPrimitive))
+	m_backendIntersectables(std::move(other.m_backendIntersectables))
 {}
 
 void CookedUnit::addIntersectable(std::unique_ptr<Intersectable> intersectable)
@@ -87,8 +83,6 @@ CookedUnit& CookedUnit::operator = (CookedUnit&& rhs)
 	m_transforms            = std::move(rhs.m_transforms);
 	m_emitter               = std::move(rhs.m_emitter);
 	m_backendIntersectables = std::move(rhs.m_backendIntersectables);
-
-	m_backgroundEmitterPrimitive = std::move(rhs.m_backgroundEmitterPrimitive);
 
 	return *this;
 }

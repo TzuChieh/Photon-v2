@@ -40,7 +40,7 @@ public:
 
 	/*! @brief Bounds a point.
 	*/
-	TAABB3D(const TVector3<T>& point);
+	explicit TAABB3D(const TVector3<T>& point);
 
 	/*! @brief Bounds a volume.
 
