@@ -281,10 +281,19 @@ class Exporter:
 
     def export_camera(self, b_camera_object):
         b_camera = b_camera_object.data
+        b_scene = bpy.context.scene
 
-        resolution_scale = b_camera.ph_resolution_percentage / 100.0
-        resolution_x = int(b_camera.ph_resolution_x * resolution_scale)
-        resolution_y = int(b_camera.ph_resolution_y * resolution_scale)
+        # Check if this camera is the active one and override resolution if so;
+        # otherwise use the resolution settings carried by camera itself
+        # (this behavior can be disabled via <ph_force_resolution>)
+        if b_camera.name == b_scene.camera.data.name and not b_camera.ph_force_resolution:
+            resolution_scale = b_scene.render.resolution_percentage / 100.0
+            resolution_x = int(b_scene.render.resolution_x * resolution_scale)
+            resolution_y = int(b_scene.render.resolution_y * resolution_scale)
+        else:
+            resolution_scale = b_camera.ph_resolution_percentage / 100.0
+            resolution_x = int(b_camera.ph_resolution_x * resolution_scale)
+            resolution_y = int(b_camera.ph_resolution_y * resolution_scale)
 
         camera = None
         if b_camera.type == "PERSP":
@@ -456,6 +465,7 @@ class Exporter:
 
         # Exporting Blender data as SDL
 
+        # TODO: export all cameras, not just the active one
         self.export_camera(b_camera_object)
 
         for b_material in b_materials:

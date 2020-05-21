@@ -15,25 +15,31 @@ class PH_CAMERA_PT_camera(bpy.types.Panel):
 
     bpy.types.Camera.ph_resolution_x = bpy.props.IntProperty(
         name="Resolution X",
-        description="",
+        description="Resolution in x-axis. Will be overridden by settings in the output panel if the camera is active.",
         default=1920,
         min=1
     )
 
     bpy.types.Camera.ph_resolution_y = bpy.props.IntProperty(
         name="Resolution Y",
-        description="",
+        description="Resolution in y-axis. Will be overridden by settings in the output panel if the camera is active.",
         default=1080,
         min=1
     )
 
     bpy.types.Camera.ph_resolution_percentage = bpy.props.FloatProperty(
         name="Resolution Scale",
-        description="",
+        description="Resolution scale. Will be overridden by settings in the output panel if the camera is active.",
         subtype='PERCENTAGE',
         default=50,
         min=0,
         max=100
+    )
+
+    bpy.types.Camera.ph_force_resolution = bpy.props.BoolProperty(
+        name="Force Resolution",
+        description="Never override settings from output panel even the camera is active.",
+        default=False
     )
 
     bpy.types.Camera.ph_has_dof = bpy.props.BoolProperty(
@@ -67,10 +73,18 @@ class PH_CAMERA_PT_camera(bpy.types.Panel):
 
         b_layout = self.layout
         b_camera = b_context.camera
+        b_scene = b_context.scene
 
-        b_layout.prop(b_camera, "ph_resolution_x")
-        b_layout.prop(b_camera, "ph_resolution_y")
-        b_layout.prop(b_camera, "ph_resolution_percentage")
+        b_layout.prop(b_camera, "ph_force_resolution")
+
+        res_col = b_layout.column()
+
+        # Check if this camera is the active one. If so, resolution should be set from output panel
+        # (this behavior can be disabled via <ph_force_resolution>)
+        res_col.enabled = b_camera.name != b_scene.camera.data.name or b_camera.ph_force_resolution
+        res_col.prop(b_camera, "ph_resolution_x")
+        res_col.prop(b_camera, "ph_resolution_y")
+        res_col.prop(b_camera, "ph_resolution_percentage")
 
         b_layout.prop(b_camera, "ph_has_dof")
 
