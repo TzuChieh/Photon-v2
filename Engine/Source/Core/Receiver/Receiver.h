@@ -130,8 +130,17 @@ inline float64 Receiver::getAspectRatio() const
 		<input name="direction" type="vector3">
 			<description>Direction that this receiver is looking at.</description>
 		</input>
+
 		<input name="up-axis" type="vector3">
 			<description>The direction that this receiver consider as upward.</description>
+		</input>
+
+		<input name="resolution-x" type="integer">
+			<description>Sensor resolution in x-axis.</description>
+		</input>
+
+		<input name="resolution-y" type="integer">
+			<description>Sensor resolution in y-axis.</description>
 		</input>
 
 		<input name="yaw-degrees" type="real">

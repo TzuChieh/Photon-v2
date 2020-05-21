@@ -9,7 +9,7 @@ from ..mesh import triangle_mesh
 from ...psdl import sdlresource
 from ...psdl.cmd import RawCommand
 from ...psdl.pysdl import (
-    PinholeCameraCreator,
+    PinholeReceiverCreator,
     SDLReal,
     SDLVector3,
     LightActorCreator,
@@ -26,7 +26,7 @@ from ...psdl.pysdl import (
     ModelActorScale,
     ModelLightSourceCreator,
     SDLImage,
-    ThinLensCameraCreator,
+    ThinLensReceiverCreator,
     DomeActorCreator,
     SDLString,
     DomeActorRotate,
@@ -77,21 +77,6 @@ class Exporter:
 
         print("exporting complete")
         print("-------------------------------------------------------------")
-
-    def exportCamera(self, cameraType, fovDegrees, position, direction, upDirection):
-
-        # TODO: check camera type
-
-        position = utility.to_photon_vec3(position)
-        direction = utility.to_photon_vec3(direction)
-        upDirection = utility.to_photon_vec3(upDirection)
-
-        creator = PinholeCameraCreator()
-        creator.set_fov_degree(SDLReal(fovDegrees))
-        creator.set_position(SDLVector3(position))
-        creator.set_direction(SDLVector3(direction))
-        creator.set_up_axis(SDLVector3(upDirection))
-        self.__sdlconsole.queue_command(creator)
 
     def export_material(self, b_material):
         # DEBUG
@@ -297,13 +282,18 @@ class Exporter:
     def export_camera(self, b_camera_object):
         b_camera = b_camera_object.data
 
+        resolution_scale = b_camera.ph_resolution_percentage / 100.0
+        resolution_x = int(b_camera.ph_resolution_x * resolution_scale)
+        resolution_y = int(b_camera.ph_resolution_y * resolution_scale)
+
+        camera = None
         if b_camera.type == "PERSP":
 
             pos, rot, scale = b_camera_object.matrix_world.decompose()
             if abs(scale.x - 1.0) > 0.0001 or abs(scale.y - 1.0) > 0.0001 or abs(scale.z - 1.0) > 0.0001:
                 print("warning: camera (%s) contains scale factor, ignoring" % b_camera.name)
 
-            # Blender's camera intially pointing (0, 0, -1) with up (0, 1, 0) in its math.py system
+            # Blender's camera initially pointing (0, 0, -1) with up (0, 1, 0) in its math.py system
             # (also note that Blender's quaternion works this way, does not require q*v*q').
             cam_dir = rot @ mathutils.Vector((0, 0, -1))
             cam_up_dir = rot @ mathutils.Vector((0, 1, 0))
@@ -320,22 +310,34 @@ class Exporter:
                 print("warning: camera (%s) with lens unit %s is unsupported, not exporting" % (
                     b_camera.name, b_camera.lens_unit))
 
-            # HACK
             if not b_camera.ph_has_dof:
-                self.exportCamera("pinhole", fov_degrees, pos, cam_dir, cam_up_dir)
+                position = utility.to_photon_vec3(pos)
+                direction = utility.to_photon_vec3(cam_dir)
+                up_direction = utility.to_photon_vec3(cam_up_dir)
+
+                camera = PinholeReceiverCreator()
+                camera.set_fov_degree(SDLReal(fov_degrees))
+                camera.set_position(SDLVector3(position))
+                camera.set_direction(SDLVector3(direction))
+                camera.set_up_axis(SDLVector3(up_direction))
+
             else:
                 position = utility.to_photon_vec3(pos)
                 direction = utility.to_photon_vec3(cam_dir)
                 up_direction = utility.to_photon_vec3(cam_up_dir)
 
-                creator = ThinLensCameraCreator()
-                creator.set_fov_degree(SDLReal(fov_degrees))
-                creator.set_position(SDLVector3(position))
-                creator.set_direction(SDLVector3(direction))
-                creator.set_up_axis(SDLVector3(up_direction))
-                creator.set_lens_radius_mm(SDLReal(b_camera.ph_lens_radius_mm))
-                creator.set_focal_distance_mm(SDLReal(b_camera.ph_focal_meters * 1000))
-                self.__sdlconsole.queue_command(creator)
+                camera = ThinLensReceiverCreator()
+                camera.set_fov_degree(SDLReal(fov_degrees))
+                camera.set_position(SDLVector3(position))
+                camera.set_direction(SDLVector3(direction))
+                camera.set_up_axis(SDLVector3(up_direction))
+                camera.set_lens_radius_mm(SDLReal(b_camera.ph_lens_radius_mm))
+                camera.set_focal_distance_mm(SDLReal(b_camera.ph_focal_meters * 1000))
+
+        if camera is not None:
+            camera.set_resolution_x(SDLInteger(resolution_x))
+            camera.set_resolution_y(SDLInteger(resolution_y))
+            self.__sdlconsole.queue_command(camera)
         else:
             print("warning: camera (%s) type (%s) is unsupported, not exporting" % (b_camera.name, b_camera.type))
 
@@ -432,9 +434,6 @@ class Exporter:
             print("warning: render method %s is not supported" % render_method)
 
         if renderer is not None:
-            renderer.set_width(SDLInteger(blender.get_render_width_px(b_scene)))
-            renderer.set_height(SDLInteger(blender.get_render_height_px(b_scene)))
-
             if b_scene.ph_use_crop_window:
                 renderer.set_rect_x(SDLInteger(b_scene.ph_crop_min_x))
                 renderer.set_rect_y(SDLInteger(b_scene.ph_crop_min_y))

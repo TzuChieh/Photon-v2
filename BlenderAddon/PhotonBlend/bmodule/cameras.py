@@ -13,6 +13,29 @@ class PH_CAMERA_PT_camera(bpy.types.Panel):
 
     COMPATIBLE_ENGINES = {settings.renderer_id_name}
 
+    bpy.types.Camera.ph_resolution_x = bpy.props.IntProperty(
+        name="Resolution X",
+        description="",
+        default=1920,
+        min=1
+    )
+
+    bpy.types.Camera.ph_resolution_y = bpy.props.IntProperty(
+        name="Resolution Y",
+        description="",
+        default=1080,
+        min=1
+    )
+
+    bpy.types.Camera.ph_resolution_percentage = bpy.props.FloatProperty(
+        name="Resolution Scale",
+        description="",
+        subtype='PERCENTAGE',
+        default=50,
+        min=0,
+        max=100
+    )
+
     bpy.types.Camera.ph_has_dof = bpy.props.BoolProperty(
         name="Depth of Field",
         description="",
@@ -43,7 +66,11 @@ class PH_CAMERA_PT_camera(bpy.types.Panel):
     def draw(self, b_context):
 
         b_layout = self.layout
-        b_camera  = b_context.camera
+        b_camera = b_context.camera
+
+        b_layout.prop(b_camera, "ph_resolution_x")
+        b_layout.prop(b_camera, "ph_resolution_y")
+        b_layout.prop(b_camera, "ph_resolution_percentage")
 
         b_layout.prop(b_camera, "ph_has_dof")
 

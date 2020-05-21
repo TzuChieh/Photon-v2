@@ -2,7 +2,7 @@
 # NOTE: THIS FILE CONTAINS GENERATED CODE 
 #       DO NOT MODIFY                     
 # ========================================
-# last generated: 2020-02-18 10:18:58.488594 
+# last generated: 2020-05-20 19:13:03.784315 
 
 from abc import ABC, abstractmethod
 
@@ -269,49 +269,9 @@ class SDLCoreCommand(SDLCommand):
         return "".join(fragments)
 
 
-class SDLRenderer(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("renderer", ref_name)
-
-
-class SDLImage(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("image", ref_name)
-
-
-class SDLFrameProcessor(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("frame-processor", ref_name)
-
-
-class SDLSampleGenerator(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("sample-generator", ref_name)
-
-
-class SDLFilm(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("film", ref_name)
-
-
-class SDLOption(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("option", ref_name)
-
-
 class SDLGeometry(SDLReference):
     def __init__(self, ref_name = ""):
         super().__init__("geometry", ref_name)
-
-
-class SDLEstimator(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("estimator", ref_name)
-
-
-class SDLActor(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("actor", ref_name)
 
 
 class SDLLightSource(SDLReference):
@@ -319,9 +279,9 @@ class SDLLightSource(SDLReference):
         super().__init__("light-source", ref_name)
 
 
-class SDLCamera(SDLReference):
+class SDLRenderer(SDLReference):
     def __init__(self, ref_name = ""):
-        super().__init__("camera", ref_name)
+        super().__init__("renderer", ref_name)
 
 
 class SDLMotion(SDLReference):
@@ -329,9 +289,49 @@ class SDLMotion(SDLReference):
         super().__init__("motion", ref_name)
 
 
+class SDLOption(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("option", ref_name)
+
+
+class SDLFrameProcessor(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("frame-processor", ref_name)
+
+
+class SDLImage(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("image", ref_name)
+
+
+class SDLSampleGenerator(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("sample-generator", ref_name)
+
+
 class SDLMaterial(SDLReference):
     def __init__(self, ref_name = ""):
         super().__init__("material", ref_name)
+
+
+class SDLEstimator(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("estimator", ref_name)
+
+
+class SDLFilm(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("film", ref_name)
+
+
+class SDLActor(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("actor", ref_name)
+
+
+class SDLCamera(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("camera", ref_name)
 
 
 
@@ -803,14 +803,6 @@ class RealMathImageCreator(SDLCreatorCommand):
         self.set_input("operand", operand)
 
 
-class DomeLightSourceCreator(SDLCreatorCommand):
-    def __init__(self):
-        super().__init__()
-
-    def get_full_type(self):
-        return "light-source(dome)"
-
-
 class ModelLightSourceCreator(SDLCreatorCommand):
     def __init__(self):
         super().__init__()
@@ -1080,21 +1072,12 @@ class MatteOpaqueMaterialCreator(SDLCreatorCommand):
         self.set_input("sigma-degrees", sigma_degrees)
 
 
-class PinholeCameraCreator(SDLCoreCommand):
+class EnvironmentReceiverCreator(SDLCoreCommand):
     def __init__(self):
         super().__init__()
 
     def get_full_type(self):
-        return "camera(pinhole)"
-
-    def set_fov_degree(self, fov_degree: SDLData):
-        self.set_input("fov-degree", fov_degree)
-
-    def set_film_width_mm(self, film_width_mm: SDLData):
-        self.set_input("film-width-mm", film_width_mm)
-
-    def set_film_offset_mm(self, film_offset_mm: SDLData):
-        self.set_input("film-offset-mm", film_offset_mm)
+        return "receiver(environment)"
 
     def set_position(self, position: SDLData):
         self.set_input("position", position)
@@ -1108,6 +1091,12 @@ class PinholeCameraCreator(SDLCoreCommand):
     def set_up_axis(self, up_axis: SDLData):
         self.set_input("up-axis", up_axis)
 
+    def set_resolution_x(self, resolution_x: SDLData):
+        self.set_input("resolution-x", resolution_x)
+
+    def set_resolution_y(self, resolution_y: SDLData):
+        self.set_input("resolution-y", resolution_y)
+
     def set_yaw_degrees(self, yaw_degrees: SDLData):
         self.set_input("yaw-degrees", yaw_degrees)
 
@@ -1115,12 +1104,53 @@ class PinholeCameraCreator(SDLCoreCommand):
         self.set_input("pitch-degrees", pitch_degrees)
 
 
-class ThinLensCameraCreator(SDLCoreCommand):
+class PinholeReceiverCreator(SDLCoreCommand):
     def __init__(self):
         super().__init__()
 
     def get_full_type(self):
-        return "camera(thin-lens)"
+        return "receiver(pinhole)"
+
+    def set_fov_degree(self, fov_degree: SDLData):
+        self.set_input("fov-degree", fov_degree)
+
+    def set_sensor_width_mm(self, sensor_width_mm: SDLData):
+        self.set_input("sensor-width-mm", sensor_width_mm)
+
+    def set_sensor_offset_mm(self, sensor_offset_mm: SDLData):
+        self.set_input("sensor-offset-mm", sensor_offset_mm)
+
+    def set_position(self, position: SDLData):
+        self.set_input("position", position)
+
+    def set_rotation(self, rotation: SDLData):
+        self.set_input("rotation", rotation)
+
+    def set_direction(self, direction: SDLData):
+        self.set_input("direction", direction)
+
+    def set_up_axis(self, up_axis: SDLData):
+        self.set_input("up-axis", up_axis)
+
+    def set_resolution_x(self, resolution_x: SDLData):
+        self.set_input("resolution-x", resolution_x)
+
+    def set_resolution_y(self, resolution_y: SDLData):
+        self.set_input("resolution-y", resolution_y)
+
+    def set_yaw_degrees(self, yaw_degrees: SDLData):
+        self.set_input("yaw-degrees", yaw_degrees)
+
+    def set_pitch_degrees(self, pitch_degrees: SDLData):
+        self.set_input("pitch-degrees", pitch_degrees)
+
+
+class ThinLensReceiverCreator(SDLCoreCommand):
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "receiver(thin-lens)"
 
     def set_lens_radius_mm(self, lens_radius_mm: SDLData):
         self.set_input("lens-radius-mm", lens_radius_mm)
@@ -1131,11 +1161,11 @@ class ThinLensCameraCreator(SDLCoreCommand):
     def set_fov_degree(self, fov_degree: SDLData):
         self.set_input("fov-degree", fov_degree)
 
-    def set_film_width_mm(self, film_width_mm: SDLData):
-        self.set_input("film-width-mm", film_width_mm)
+    def set_sensor_width_mm(self, sensor_width_mm: SDLData):
+        self.set_input("sensor-width-mm", sensor_width_mm)
 
-    def set_film_offset_mm(self, film_offset_mm: SDLData):
-        self.set_input("film-offset-mm", film_offset_mm)
+    def set_sensor_offset_mm(self, sensor_offset_mm: SDLData):
+        self.set_input("sensor-offset-mm", sensor_offset_mm)
 
     def set_position(self, position: SDLData):
         self.set_input("position", position)
@@ -1148,6 +1178,12 @@ class ThinLensCameraCreator(SDLCoreCommand):
 
     def set_up_axis(self, up_axis: SDLData):
         self.set_input("up-axis", up_axis)
+
+    def set_resolution_x(self, resolution_x: SDLData):
+        self.set_input("resolution-x", resolution_x)
+
+    def set_resolution_y(self, resolution_y: SDLData):
+        self.set_input("resolution-y", resolution_y)
 
     def set_yaw_degrees(self, yaw_degrees: SDLData):
         self.set_input("yaw-degrees", yaw_degrees)
@@ -1165,12 +1201,6 @@ class AttributeRendererCreator(SDLCoreCommand):
 
     def set_attribute(self, attribute: SDLData):
         self.set_input("attribute", attribute)
-
-    def set_width(self, width: SDLData):
-        self.set_input("width", width)
-
-    def set_height(self, height: SDLData):
-        self.set_input("height", height)
 
     def set_rect_x(self, rect_x: SDLData):
         self.set_input("rect-x", rect_x)
@@ -1207,12 +1237,6 @@ class PmRendererCreator(SDLCoreCommand):
     def set_num_samples_per_pixel(self, num_samples_per_pixel: SDLData):
         self.set_input("num-samples-per-pixel", num_samples_per_pixel)
 
-    def set_width(self, width: SDLData):
-        self.set_input("width", width)
-
-    def set_height(self, height: SDLData):
-        self.set_input("height", height)
-
     def set_rect_x(self, rect_x: SDLData):
         self.set_input("rect-x", rect_x)
 
@@ -1238,12 +1262,6 @@ class AdaptiveSamplingRendererCreator(SDLCoreCommand):
 
     def set_estimator(self, estimator: SDLData):
         self.set_input("estimator", estimator)
-
-    def set_width(self, width: SDLData):
-        self.set_input("width", width)
-
-    def set_height(self, height: SDLData):
-        self.set_input("height", height)
 
     def set_rect_x(self, rect_x: SDLData):
         self.set_input("rect-x", rect_x)
@@ -1279,12 +1297,6 @@ class EqualSamplingRendererCreator(SDLCoreCommand):
 
     def set_estimator(self, estimator: SDLData):
         self.set_input("estimator", estimator)
-
-    def set_width(self, width: SDLData):
-        self.set_input("width", width)
-
-    def set_height(self, height: SDLData):
-        self.set_input("height", height)
 
     def set_rect_x(self, rect_x: SDLData):
         self.set_input("rect-x", rect_x)
