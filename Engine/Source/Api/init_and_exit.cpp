@@ -55,6 +55,7 @@
 #include "Actor/Image/HdrPictureImage.h"
 #include "Actor/Image/RealMathImage.h"
 #include "Actor/Image/CheckerboardImage.h"
+#include "Actor/Image/GradientImage.h"
 
 // receivers
 #include "Core/Receiver/Receiver.h"
@@ -164,6 +165,7 @@ bool init_command_parser()
 	register_command_interface<HdrPictureImage>();
 	register_command_interface<RealMathImage>();
 	register_command_interface<CheckerboardImage>();
+	register_command_interface<GradientImage>();
 
 	// receivers
 	register_command_interface<Receiver>();

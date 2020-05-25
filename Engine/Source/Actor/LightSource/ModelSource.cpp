@@ -162,10 +162,10 @@ std::unique_ptr<ModelSource> ModelSource::ciLoad(const InputPacket& packet)
 
 	auto geometry = packet.getReference<Geometry>("geometry", DataTreatment::REQUIRED());
 	auto material = packet.getReference<Material>("material", DataTreatment::OPTIONAL());
-	if(material == nullptr)
+	if(!material)
 	{
-		logger.log(ELogLevel::NOTE_MED, 
-		           "material not specified, using diffusive material as default");
+		logger.log("material not specified, using diffusive material as default");
+
 		material = std::make_shared<MatteOpaque>(math::Vector3R(0.5_r));
 	}
 

@@ -59,7 +59,7 @@ LatLongEnvEmitter::LatLongEnvEmitter(
 			// For non-nearest filtered textures, sample weights can be 0 while
 			// there is still energy around that point (because its neighbor 
 			// may have non-zero energy), ensure a lower bound to avoid this
-			constexpr real MIN_LUMINANCE = 1e-6;
+			constexpr real MIN_LUMINANCE = 1e-6_r;
 			const real luminance = std::max(sampledL.calcLuminance(QUANTITY), MIN_LUMINANCE);
 
 			// FIXME: using different PDF resolution can under sample the texture

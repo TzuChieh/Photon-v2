@@ -33,6 +33,7 @@ public:
 
 	// Gets and sets the uvw coordinates of this sample location.
 	math::Vector3R uvw() const;
+	math::Vector2R uv() const;
 	void setUvw(const math::Vector3R& uvw);
 	void setUv(const math::Vector2R& uv);
 
@@ -75,6 +76,12 @@ inline SampleLocation::SampleLocation(const SampleLocation& other) :
 inline math::Vector3R SampleLocation::uvw() const
 {
 	return m_hit.getUvw();
+}
+
+inline math::Vector2R SampleLocation::uv() const
+{
+	const auto uvwCoords = uvw();
+	return {uvwCoords.x, uvwCoords.y};
 }
 
 inline void SampleLocation::setUvw(const math::Vector3R& uvw)

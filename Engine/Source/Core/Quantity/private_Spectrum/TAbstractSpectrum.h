@@ -21,85 +21,85 @@ public:
 	static constexpr std::size_t NUM_VALUES = N;
 
 public:
-	explicit inline TAbstractSpectrum(real value);
-	explicit inline TAbstractSpectrum(const std::array<real, 1>& value);
-	explicit inline TAbstractSpectrum(const math::TArithmeticArray<real, 1>& value);
-	explicit inline TAbstractSpectrum(const std::array<real, N>& values);
-	explicit inline TAbstractSpectrum(const math::TArithmeticArray<real, N>& values);
+	explicit TAbstractSpectrum(real value);
+	explicit TAbstractSpectrum(const std::array<real, 1>& value);
+	explicit TAbstractSpectrum(const math::TArithmeticArray<real, 1>& value);
+	explicit TAbstractSpectrum(const std::array<real, N>& values);
+	explicit TAbstractSpectrum(const math::TArithmeticArray<real, N>& values);
 
 protected:
-	inline TAbstractSpectrum() = default;
-	inline TAbstractSpectrum(const TAbstractSpectrum& other) = default;
-	inline ~TAbstractSpectrum() = default;
+	TAbstractSpectrum() = default;
+	TAbstractSpectrum(const TAbstractSpectrum& other) = default;
+	~TAbstractSpectrum() = default;
 
 public:
 	static DerivedType exp(const DerivedType& exponent);
 
 	// Calculates relative luminance with D65 as reference white point.
 	//
-	inline real calcLuminance(EQuantity valueType = EQuantity::RAW) const;
+	real calcLuminance(EQuantity valueType = EQuantity::RAW) const;
 
-	inline math::Vector3R genSrgb(EQuantity valueType = EQuantity::RAW) const;
-	inline math::Vector3R genLinearSrgb(EQuantity valueType = EQuantity::RAW) const;
+	math::Vector3R genSrgb(EQuantity valueType = EQuantity::RAW) const;
+	math::Vector3R genLinearSrgb(EQuantity valueType = EQuantity::RAW) const;
 
-	inline DerivedType& setSrgb(const math::Vector3R& srgb, EQuantity valueType = EQuantity::RAW);
-	inline DerivedType& setLinearSrgb(const math::Vector3R& linearSrgb, EQuantity valueType = EQuantity::RAW);
-	inline DerivedType& setSampled(const SampledSpectrum& sampled, EQuantity valueType = EQuantity::RAW);
+	DerivedType& setSrgb(const math::Vector3R& srgb, EQuantity valueType = EQuantity::RAW);
+	DerivedType& setLinearSrgb(const math::Vector3R& linearSrgb, EQuantity valueType = EQuantity::RAW);
+	DerivedType& setSampled(const SampledSpectrum& sampled, EQuantity valueType = EQuantity::RAW);
 
-	inline DerivedType add(const DerivedType& rhs) const;
-	inline DerivedType add(real rhs) const;
-	inline DerivedType sub(const DerivedType& rhs) const;
-	inline DerivedType sub(real rhs) const;
-	inline DerivedType mul(const DerivedType& rhs) const;
-	inline DerivedType mul(real rhs) const;
-	inline DerivedType div(const DerivedType& rhs) const;
-	inline DerivedType div(real rhs) const;
+	DerivedType add(const DerivedType& rhs) const;
+	DerivedType add(real rhs) const;
+	DerivedType sub(const DerivedType& rhs) const;
+	DerivedType sub(real rhs) const;
+	DerivedType mul(const DerivedType& rhs) const;
+	DerivedType mul(real rhs) const;
+	DerivedType div(const DerivedType& rhs) const;
+	DerivedType div(real rhs) const;
 
-	inline DerivedType& addLocal(const DerivedType& rhs);
-	inline DerivedType& addLocal(real rhs);
-	inline DerivedType& subLocal(const DerivedType& rhs);
-	inline DerivedType& subLocal(real rhs);
-	inline DerivedType& mulLocal(const DerivedType& rhs);
-	inline DerivedType& mulLocal(real rhs);
-	inline DerivedType& divLocal(const DerivedType& rhs);
-	inline DerivedType& divLocal(real rhs);
+	DerivedType& addLocal(const DerivedType& rhs);
+	DerivedType& addLocal(real rhs);
+	DerivedType& subLocal(const DerivedType& rhs);
+	DerivedType& subLocal(real rhs);
+	DerivedType& mulLocal(const DerivedType& rhs);
+	DerivedType& mulLocal(real rhs);
+	DerivedType& divLocal(const DerivedType& rhs);
+	DerivedType& divLocal(real rhs);
 
-	inline real dot(const DerivedType& rhs) const;
-	inline DerivedType pow(integer exponent) const;
-	inline DerivedType& sqrtLocal();
-	inline DerivedType complement() const;
-	inline DerivedType& complementLocal();
+	real dot(const DerivedType& rhs) const;
+	DerivedType pow(integer exponent) const;
+	DerivedType& sqrtLocal();
+	DerivedType complement() const;
+	DerivedType& complementLocal();
 
 	// Inputs must not contain any NaN. 
 	// (NaNs are clamped to lower bound)
 	//
-	inline DerivedType& clampLocal(real lowerBound, real upperBound);
+	DerivedType& clampLocal(real lowerBound, real upperBound);
 
-	inline DerivedType& setValues(real value);
-	inline DerivedType& setValues(const std::array<real, N>& values);
-	inline DerivedType& setValues(const math::TArithmeticArray<real, N>& values);
-	inline DerivedType& setValues(const DerivedType& values);
+	DerivedType& setValues(real value);
+	DerivedType& setValues(const std::array<real, N>& values);
+	DerivedType& setValues(const math::TArithmeticArray<real, N>& values);
+	DerivedType& setValues(const DerivedType& values);
 
-	inline bool isZero() const;
-	inline bool isNonNegative() const;
-	inline bool isFinite() const;
-	inline real sum() const;
-	inline real avg() const;
-	inline real max() const;
+	bool isZero() const;
+	bool isNonNegative() const;
+	bool isFinite() const;
+	real sum() const;
+	real avg() const;
+	real max() const;
 
-	inline real operator [] (std::size_t index) const;
-	inline real& operator [] (std::size_t index);
+	real operator [] (std::size_t index) const;
+	real& operator [] (std::size_t index);
 
-	inline DerivedType operator + (const DerivedType& rhs) const;
-	inline DerivedType operator + (real rhs) const;
-	inline DerivedType operator - (const DerivedType& rhs) const;
-	inline DerivedType operator - (real rhs) const;
-	inline DerivedType operator * (const DerivedType& rhs) const;
-	inline DerivedType operator * (real rhs) const;
-	inline DerivedType operator / (const DerivedType& rhs) const;
-	inline DerivedType operator / (real rhs) const;
+	DerivedType operator + (const DerivedType& rhs) const;
+	DerivedType operator + (real rhs) const;
+	DerivedType operator - (const DerivedType& rhs) const;
+	DerivedType operator - (real rhs) const;
+	DerivedType operator * (const DerivedType& rhs) const;
+	DerivedType operator * (real rhs) const;
+	DerivedType operator / (const DerivedType& rhs) const;
+	DerivedType operator / (real rhs) const;
 
-	inline std::string toString() const;
+	std::string toString() const;
 
 protected:
 	math::TArithmeticArray<real, N> m_values;

@@ -7,19 +7,20 @@
 namespace ph
 {
 
-/*
-	A texture that is able to represent two inner textures alternately, 
-	producing pattern similar to a chessboard. We name the cells in the
-	checkerboard in following manners:
+/*! @brief Texture representing checker patterns.
 
-	v
-	+-----+-----+-----+
-	| even|  odd| even|
-	+-----+-----+-----+
-	|  odd| even|  odd|
-	+-----+-----+-----+
-	| even|  odd| even|
-	+-----+-----+-----+ u
+A texture that is able to represent two inner textures alternately, 
+producing pattern similar to a chessboard. We name the cells in the
+checkerboard in following manners:
+
+v
++-----+-----+-----+
+| even|  odd| even|
++-----+-----+-----+
+|  odd| even|  odd|
++-----+-----+-----+
+| even|  odd| even|
++-----+-----+-----+ u
 
 */
 template<typename OutputType>
@@ -38,10 +39,12 @@ public:
 
 	void sample(const SampleLocation& sampleLocation, OutputType* out_value) const override;
 
-	// Sets the texture that is going to be used in odd cells.
+	/*! @brief Sets the texture that is going to be used in odd cells.
+	*/
 	void setOddTexture(const std::shared_ptr<TTexture<OutputType>>& oddTexture);
 
-	// Sets the texture that is going to be used in even cells.
+	/*! @brief Sets the texture that is going to be used in even cells.
+	*/
 	void setEvenTexture(const std::shared_ptr<TTexture<OutputType>>& evenTexture);
 
 	// Sets the scale factors of cell texture. Larger u-, v- and w-scale 
