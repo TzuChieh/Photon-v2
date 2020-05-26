@@ -29,6 +29,9 @@ public:
 	template<typename T>
 	inline void setFunc(const LoadFuncType& func)
 	{
+		// TODO: potentially eliminate wrapper when func already matches the signature
+		// (or, do we even need the wrapper? always implicit cast and check types here?)
+
 		m_func = [func](const InputPacket& pac)
 			-> std::unique_ptr<ISdlResource>
 		{

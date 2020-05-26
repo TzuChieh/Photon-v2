@@ -14,7 +14,7 @@ public:
 	ATransformedInstance();
 	ATransformedInstance(const ATransformedInstance& other);
 
-	CookedUnit cook(CookingContext& context) const override;
+	CookedUnit cook(CookingContext& context) override;
 
 	ATransformedInstance& operator = (ATransformedInstance rhs);
 

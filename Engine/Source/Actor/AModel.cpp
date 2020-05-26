@@ -48,7 +48,7 @@ AModel& AModel::operator = (AModel rhs)
 	return *this;
 }
 
-CookedUnit AModel::cook(CookingContext& context) const
+CookedUnit AModel::cook(CookingContext& context)
 {
 	if(!m_geometry || !m_material)
 	{
@@ -122,10 +122,10 @@ const Material* AModel::getMaterial() const
 
 void swap(AModel& first, AModel& second)
 {
-	// enable ADL
+	// Enable ADL
 	using std::swap;
 
-	// by swapping the members of two objects, the two objects are effectively swapped
+	// By swapping the members of two objects, the two objects are effectively swapped
 	swap(static_cast<PhysicalActor&>(first), static_cast<PhysicalActor&>(second));
 	swap(first.m_geometry,                   second.m_geometry);
 	swap(first.m_material,                   second.m_material);

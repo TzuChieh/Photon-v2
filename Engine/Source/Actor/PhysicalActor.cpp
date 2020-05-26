@@ -75,7 +75,7 @@ void PhysicalActor::setBaseTransform(const math::TDecomposedTransform<hiReal>& b
 
 PhysicalActor& PhysicalActor::operator = (const PhysicalActor& rhs)
 {
-	// FIXME: base?
+	Actor::operator = (rhs);
 
 	m_localToWorld = rhs.m_localToWorld;
 
@@ -84,10 +84,10 @@ PhysicalActor& PhysicalActor::operator = (const PhysicalActor& rhs)
 
 void swap(PhysicalActor& first, PhysicalActor& second)
 {
-	// enable ADL
+	// Enable ADL
 	using std::swap;
 
-	// by swapping the members of two objects, the two objects are effectively swapped
+	// By swapping the members of two objects, the two objects are effectively swapped
 	swap(static_cast<Actor&>(first), static_cast<Actor&>(second));
 	swap(first.m_localToWorld,       second.m_localToWorld);
 }

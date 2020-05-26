@@ -41,7 +41,7 @@ void Renderer::update(const SdlResourcePack& data)
 
 	// TODO: render region is the intersection of crop window and resolution
 	// Nothing is cropped if no suitable window is present
-	if(m_cropWindowPx.isValid() && m_cropWindowPx.getArea() == 0)
+	if(!m_cropWindowPx.isValid() || m_cropWindowPx.getArea() == 0)
 	{
 		m_cropWindowPx = TAABB2D<int64>(
 			{0, 0}, 

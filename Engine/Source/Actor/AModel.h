@@ -23,7 +23,7 @@ public:
 	       const std::shared_ptr<Material>& material);
 	AModel(const AModel& other);
 
-	CookedUnit cook(CookingContext& context) const override;
+	CookedUnit cook(CookingContext& context) override;
 
 	AModel& operator = (AModel rhs);
 

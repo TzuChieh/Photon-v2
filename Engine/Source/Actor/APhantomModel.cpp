@@ -44,7 +44,7 @@ APhantomModel& APhantomModel::operator = (APhantomModel rhs)
 	return *this;
 }
 
-CookedUnit APhantomModel::cook(CookingContext& context) const
+CookedUnit APhantomModel::cook(CookingContext& context)
 {
 	CookedUnit cooked = AModel::cook(context);
 

@@ -37,7 +37,7 @@ void PMRenderer::doUpdate(const SdlResourcePack& data)
 
 	m_statistics.zero();
 	m_photonsPerSecond = 0;
-	m_isFilmUpdated = false;
+	m_isFilmUpdated.store(false);
 }
 
 void PMRenderer::doRender()
@@ -387,10 +387,10 @@ ERegionStatus PMRenderer::asyncPollUpdatedRegion(Region* const out_region)
 {
 	PH_ASSERT(out_region);
 
-	if(m_isFilmUpdated.load(std::memory_order_relaxed))
+	if(m_isFilmUpdated.load())
 	{
 		*out_region = getCropWindowPx();
-		m_isFilmUpdated.store(false, std::memory_order_relaxed);
+		m_isFilmUpdated.store(false);
 
 		return ERegionStatus::UPDATING;
 	}
@@ -458,7 +458,7 @@ void PMRenderer::asyncMergeFilm(const HdrRgbFilm& srcFilm)
 		m_film->mergeWith(srcFilm);
 	}
 	
-	m_isFilmUpdated.store(true, std::memory_order_relaxed);
+	m_isFilmUpdated.store(true);
 }
 
 void PMRenderer::asyncReplaceFilm(const HdrRgbFilm& srcFilm)
@@ -470,7 +470,7 @@ void PMRenderer::asyncReplaceFilm(const HdrRgbFilm& srcFilm)
 		m_film->mergeWith(srcFilm);
 	}
 
-	m_isFilmUpdated.store(true, std::memory_order_relaxed);
+	m_isFilmUpdated.store(true);
 }
 
 // command interface

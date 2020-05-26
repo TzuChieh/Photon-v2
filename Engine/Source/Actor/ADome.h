@@ -5,6 +5,7 @@
 #include "DataIO/FileSystem/Path.h"
 #include "Core/Texture/TTexture.h"
 #include "Core/Quantity/Spectrum.h"
+#include "Math/TVector2.h"
 
 #include <memory>
 
@@ -20,23 +21,19 @@ class ADome : public PhysicalActor, public TCommandInterface<ADome>
 {
 public:
 	ADome();
-	explicit ADome(const Path& envMap);
 	ADome(const ADome& other);
 
-	CookedUnit cook(CookingContext& context) const override;
+	virtual std::shared_ptr<TTexture<Spectrum>> loadRadianceFunction(CookingContext& context) = 0;
+	virtual math::Vector2S getResolution() const = 0;
+
+	CookedUnit cook(CookingContext& context) override;
 	CookOrder getCookOrder() const override;
 
-	ADome& operator = (ADome rhs);
+	bool isAnalytical() const;
+
+	ADome& operator = (const ADome& rhs);
 
 	friend void swap(ADome& first, ADome& second);
-
-private:
-	Path m_sphericalEnvMap;
-
-	static std::shared_ptr<TTexture<Spectrum>> loadRadianceTexture(
-		const Path&     filePath, 
-		CookingContext& context, 
-		math::Vector2S* out_resolution = nullptr);
 
 // command interface
 public:
@@ -50,6 +47,12 @@ public:
 inline CookOrder ADome::getCookOrder() const
 {
 	return CookOrder(ECookPriority::LOW, ECookLevel::LAST);
+}
+
+inline bool ADome::isAnalytical() const
+{
+	const auto resolution = getResolution();
+	return resolution.x == 0 && resolution.y == 0;
 }
 
 }// end namespace ph
@@ -67,11 +70,19 @@ inline CookOrder ADome::getCookOrder() const
 	</description>
 
 	<command type="creator">
-		<input name="env-map" type="string">
+
+		<input name="type" type="string">
 			<description>
-				Resource identifier for a HDRI describing the energy distribution.
+				Type of the dome. Possible values are: "image".
 			</description>
 		</input>
+
+		<input name="image" type="string">
+			<description>
+				(type: image) Resource identifier for an image describing the energy distribution.
+			</description>
+		</input>
+
 	</command>
 
 	</SDL_interface>

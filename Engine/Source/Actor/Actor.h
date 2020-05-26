@@ -17,7 +17,7 @@ public:
 	Actor(const Actor& other);
 	virtual ~Actor() = default;
 
-	virtual CookedUnit cook(CookingContext& context) const = 0;
+	virtual CookedUnit cook(CookingContext& context) = 0;
 	virtual CookOrder getCookOrder() const;
 
 	Actor& operator = (const Actor& rhs);

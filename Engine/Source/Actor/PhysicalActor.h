@@ -15,7 +15,7 @@ public:
 	PhysicalActor();
 	PhysicalActor(const PhysicalActor& other);
 
-	CookedUnit cook(CookingContext& context) const override = 0;
+	CookedUnit cook(CookingContext& context) override = 0;
 
 	// FIXME: precision loss using real
 	void translate(const math::Vector3R& translation);

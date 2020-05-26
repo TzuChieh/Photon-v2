@@ -45,7 +45,7 @@ ALight& ALight::operator = (ALight rhs)
 	return *this;
 }
 
-CookedUnit ALight::cook(CookingContext& context) const
+CookedUnit ALight::cook(CookingContext& context)
 {
 	if(!m_lightSource)
 	{

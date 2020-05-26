@@ -30,7 +30,7 @@ public:
 	ALight(const std::shared_ptr<LightSource>& lightSource);
 	ALight(const ALight& other);
 
-	CookedUnit cook(CookingContext& context) const override;
+	CookedUnit cook(CookingContext& context) override;
 
 	const LightSource* getLightSource() const;
 	void setLightSource(const std::shared_ptr<LightSource>& lightSource);

@@ -9,6 +9,7 @@
 #include "Core/Emitter/LatLongEnvEmitter.h"
 #include "DataIO/PictureLoader.h"
 #include "Actor/Image/HdrPictureImage.h"
+#include "Actor/Dome/AImageDome.h"
 
 #include <algorithm>
 
@@ -20,20 +21,14 @@ namespace
 }
 
 ADome::ADome() : 
-	ADome(Path())
-{}
-
-ADome::ADome(const Path& sphericalEnvMap) :
-	PhysicalActor(),
-	m_sphericalEnvMap(sphericalEnvMap)
+	PhysicalActor()
 {}
 
 ADome::ADome(const ADome& other) : 
-	PhysicalActor(other),
-	m_sphericalEnvMap(other.m_sphericalEnvMap)
+	PhysicalActor(other)
 {}
 
-CookedUnit ADome::cook(CookingContext& context) const
+CookedUnit ADome::cook(CookingContext& context)
 {
 	// Ensure reasonable transformation for the dome
 	math::TDecomposedTransform<hiReal> sanifiedLocalToWorld = m_localToWorld;
@@ -85,12 +80,12 @@ CookedUnit ADome::cook(CookingContext& context) const
 		localToWorld.get(),
 		worldToLocal.get());
 	
-	math::Vector2S resolution;
-	auto radianceTexture = loadRadianceTexture(m_sphericalEnvMap, context, &resolution);
+	auto radianceFunction = loadRadianceFunction(context);
+	auto resolution       = getResolution();
 
 	auto domeEmitter = std::make_unique<LatLongEnvEmitter>(
 		domePrimitive.get(),
-		radianceTexture,
+		radianceFunction,
 		resolution);
 	metadata->getSurface().setEmitter(domeEmitter.get());
 	
@@ -107,53 +102,26 @@ CookedUnit ADome::cook(CookingContext& context) const
 	return cookedActor;
 }
 
-ADome& ADome::operator = (ADome rhs)
+ADome& ADome::operator = (const ADome& rhs)
 {
-	swap(*this, rhs);
+	PhysicalActor::operator = (rhs);
 
 	return *this;
 }
 
 void swap(ADome& first, ADome& second)
 {
-	// enable ADL
+	// Enable ADL
 	using std::swap;
 
 	swap(static_cast<PhysicalActor&>(first), static_cast<PhysicalActor&>(second));
-	swap(first.m_sphericalEnvMap,            second.m_sphericalEnvMap);
-}
-
-std::shared_ptr<TTexture<Spectrum>> ADome::loadRadianceTexture(
-	const Path&           filePath,
-	CookingContext&       context,
-	math::Vector2S* const out_resolution)
-{
-	auto frame = PictureLoader::loadHdr(filePath);
-
-	// Since we are viewing it from inside a sphere
-	frame.flipHorizontally();
-
-	if(out_resolution)
-	{
-		*out_resolution = math::Vector2S(frame.getSizePx());
-	}
-
-	auto image = std::make_shared<HdrPictureImage>(std::move(frame));
-	image->setSampleMode(EImgSampleMode::BILINEAR);
-	image->setWrapMode(EImgWrapMode::REPEAT);
-
-	return image->genTextureSpectral(context);
 }
 
 // command interface
 
 ADome::ADome(const InputPacket& packet) : 
-	PhysicalActor(packet),
-	m_sphericalEnvMap()
-{
-	m_sphericalEnvMap = packet.getStringAsPath("env-map", 
-		Path(), DataTreatment::REQUIRED());
-}
+	PhysicalActor(packet)
+{}
 
 SdlTypeInfo ADome::ciTypeInfo()
 {
@@ -162,10 +130,24 @@ SdlTypeInfo ADome::ciTypeInfo()
 
 void ADome::ciRegister(CommandRegister& cmdRegister)
 {
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		return std::make_unique<ADome>(packet);
-	}));
+	cmdRegister.setLoader(SdlLoader(
+		[](const InputPacket& packet) -> std::unique_ptr<ISdlResource>
+		{
+			const auto type = packet.getString("type", 
+				"", DataTreatment::REQUIRED());
+
+			if(type == "image")
+			{
+				return std::make_unique<AImageDome>(packet);
+			}
+			else
+			{
+				logger.log(ELogLevel::WARNING_MED,
+					"unsupported dome type <" + type + ">");
+
+				return nullptr;
+			}
+		}));
 
 	SdlExecutor translateSE;
 	translateSE.setName("translate");
