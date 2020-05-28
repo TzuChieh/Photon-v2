@@ -23,8 +23,9 @@ APreethamDome::APreethamDome(const APreethamDome& other) :
 std::shared_ptr<TTexture<Spectrum>> APreethamDome::loadRadianceFunction(CookingContext& context)
 {
 	return std::make_shared<PreethamTexture>(
+		math::to_radians(180.0_r),
 		math::to_radians(45.0_r),
-		2.0_r);
+		1.1_r);
 }
 
 APreethamDome& APreethamDome::operator = (APreethamDome rhs)

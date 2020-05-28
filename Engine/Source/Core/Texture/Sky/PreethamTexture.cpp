@@ -11,11 +11,13 @@ namespace ph
 {
 
 PreethamTexture::PreethamTexture(
+	const real phiSun,
 	const real thetaSun,
 	const real turbidity) :
 
 	TTexture(),
 
+	m_phiSun  (phiSun),
 	m_thetaSun(thetaSun)
 {
 	const auto T = turbidity;
@@ -77,10 +79,10 @@ void PreethamTexture::sample(const SampleLocation& sampleLocation, Spectrum* con
 	PH_ASSERT(out_value);
 
 	// Phi & theta for viewing direction
-	const auto phiTheta = math::TSphere<real>::makeUnit().latLong01ToPhiTheta(sampleLocation.uv());
+	const auto viewPhiTheta = math::TSphere<real>::makeUnit().latLong01ToPhiTheta(sampleLocation.uv());
 
 	// Model is defined for top hemisphere only
-	auto theta = phiTheta.y;
+	auto theta = viewPhiTheta.y;
 	if(theta >= 0.5_r *  math::constant::pi<real> || theta < 0.0_r)
 	{
 		out_value->setValues(0);
@@ -90,14 +92,14 @@ void PreethamTexture::sample(const SampleLocation& sampleLocation, Spectrum* con
 	// Avoid division by zero later
 	theta = std::min(theta, 0.499_r * math::constant::pi<real>);
 
-	const auto viewDir = math::TSphere<real>::makeUnit().phiThetaToSurface(phiTheta);
-	const auto sunDir  = math::TSphere<real>::makeUnit().phiThetaToSurface({0, m_thetaSun});
+	const auto viewDir = math::TSphere<real>::makeUnit().phiThetaToSurface(viewPhiTheta);
+	const auto sunDir  = math::TSphere<real>::makeUnit().phiThetaToSurface({m_phiSun, m_thetaSun});
 
 	// Gamma is the angle between direction to sun and view vector
 	const auto cosGamma = sunDir.dot(viewDir);
 
 	const math::Vector3R F_view   = F(theta, cosGamma);
-	const math::Vector3R F_zenith = F(0.0_r, m_thetaSun);
+	const math::Vector3R F_zenith = F(0.0_r, std::cos(m_thetaSun));
 
 	const auto Y_xyY = m_Yabs_xyY.mul(F_view.div(F_zenith));
 
@@ -105,7 +107,8 @@ void PreethamTexture::sample(const SampleLocation& sampleLocation, Spectrum* con
 	//const math::Vector3R radiance_xyY = {Y_xyY.x, Y_xyY.y, Y_xyY.z * 683.0_r * 1000.0_r};
 
 	// HACK: exposure
-	const math::Vector3R radiance_xyY = {Y_xyY.x, Y_xyY.y, Y_xyY.z / 20.0_r};
+	math::Vector3R radiance_xyY = {Y_xyY.x, Y_xyY.y, Y_xyY.z * 683.0_r * 1000.0_r};
+	radiance_xyY.z /= 10000000;
 
 
 

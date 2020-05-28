@@ -15,12 +15,14 @@ class PreethamTexture : public TTexture<Spectrum>
 {
 public:
 	PreethamTexture(
+		real phiSun,
 		real thetaSun,
 		real turbidity);
 
 	void sample(const SampleLocation& sampleLocation, Spectrum* out_value) const override;
 
 private:
+	real           m_phiSun;
 	real           m_thetaSun;
 	math::Vector3R m_A_xyY;
 	math::Vector3R m_B_xyY;
