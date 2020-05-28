@@ -10,6 +10,7 @@
 #include "DataIO/PictureLoader.h"
 #include "Actor/Image/HdrPictureImage.h"
 #include "Actor/Dome/AImageDome.h"
+#include "Actor/Dome/APreethamDome.h"
 
 #include <algorithm>
 
@@ -81,12 +82,26 @@ CookedUnit ADome::cook(CookingContext& context)
 		worldToLocal.get());
 	
 	auto radianceFunction = loadRadianceFunction(context);
-	auto resolution       = getResolution();
 
-	auto domeEmitter = std::make_unique<LatLongEnvEmitter>(
-		domePrimitive.get(),
-		radianceFunction,
-		resolution);
+	// HACK:
+	std::unique_ptr<Emitter> domeEmitter;
+	if(!isAnalytical())
+	{
+		auto resolution = getResolution();
+
+		domeEmitter = std::make_unique<LatLongEnvEmitter>(
+			domePrimitive.get(),
+			radianceFunction,
+			resolution);
+	}
+	else
+	{
+		domeEmitter = std::make_unique<LatLongEnvEmitter>(
+			domePrimitive.get(),
+			radianceFunction,
+			math::Vector2S(512, 256));
+	}
+
 	metadata->getSurface().setEmitter(domeEmitter.get());
 	
 	// Store cooked data
@@ -139,6 +154,10 @@ void ADome::ciRegister(CommandRegister& cmdRegister)
 			if(type == "image")
 			{
 				return std::make_unique<AImageDome>(packet);
+			}
+			else if(type == "preetham")
+			{
+				return std::make_unique<APreethamDome>(packet);
 			}
 			else
 			{

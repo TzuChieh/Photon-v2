@@ -163,14 +163,20 @@ inline TVector2<T> TSphere<T>::surfaceToLatLong01(const TVector3<T>& surface) co
 }
 
 template<typename T>
-inline TVector3<T> TSphere<T>::latLong01ToSurface(const TVector2<T>& latLong01) const
+inline TVector2<T> TSphere<T>::latLong01ToPhiTheta(const TVector2<T>& latLong01) const
 {
 	using namespace math::constant;
 
 	const T phi   = latLong01.x * two_pi<T>;
 	const T theta = (static_cast<T>(1) - latLong01.y) * pi<T>;
 
-	return phiThetaToSurface({phi, theta});
+	return {phi, theta};
+}
+
+template<typename T>
+inline TVector3<T> TSphere<T>::latLong01ToSurface(const TVector2<T>& latLong01) const
+{
+	return phiThetaToSurface(latLong01ToPhiTheta(latLong01));
 }
 
 template<typename T>

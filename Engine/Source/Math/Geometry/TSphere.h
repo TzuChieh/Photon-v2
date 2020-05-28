@@ -39,6 +39,7 @@ public:
 	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& sample, T* out_pdfA) const;
 
 	TVector2<T> surfaceToLatLong01(const TVector3<T>& surface) const;
+	TVector2<T> latLong01ToPhiTheta(const TVector2<T>& latLong01) const;
 	TVector3<T> latLong01ToSurface(const TVector2<T>& latLong01) const;
 
 	/*! @brief Map Cartesian to spherical coordinates on the surface of the sphere.

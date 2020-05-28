@@ -123,6 +123,33 @@ public:
 		return cieXyzE.y;
 	}
 
+	static inline math::Vector3R XYZ_to_xyY(const math::Vector3R& XYZ)
+	{
+		const auto sumXYZ = XYZ.x + XYZ.y + XYZ.z;
+		if(sumXYZ != 0.0_r)
+		{
+			const auto rcpSumXYZ = 1.0_r / sumXYZ;
+			return {XYZ.x * rcpSumXYZ, XYZ.y * rcpSumXYZ, XYZ.z * rcpSumXYZ};
+		}
+		else
+		{
+			return {0, 0, 0};
+		}
+	}
+
+	static inline math::Vector3R xyY_to_XYZ(const math::Vector3R& xyY)
+	{
+		if(xyY.y != 0.0_r)
+		{
+			const auto rcp_y = 1.0_r / xyY.y;
+			return {xyY.z * rcp_y * xyY.x, xyY.z, xyY.z * rcp_y * (1.0_r - xyY.x - xyY.y)};
+		}
+		else
+		{
+			return {0, 0, 0};
+		}
+	}
+
 	template<ESourceHint HINT = ESourceHint::RAW_DATA>
 	static math::Vector3R SPD_to_CIE_XYZ_D65(const SampledSpectrum& spd);
 
