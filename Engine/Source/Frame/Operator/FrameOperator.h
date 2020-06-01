@@ -8,9 +8,9 @@ namespace ph
 class FrameOperator
 {
 public:
-	virtual ~FrameOperator();
+	virtual inline ~FrameOperator() = default;
 
-	virtual void operate(HdrRgbFrame& frame) const = 0;
+	virtual void operate(const HdrRgbFrame& srcFrame, HdrRgbFrame* out_dstFrame) = 0;
 };
 
 }// end namespace ph

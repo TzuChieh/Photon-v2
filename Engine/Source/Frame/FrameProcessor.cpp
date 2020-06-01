@@ -6,15 +6,18 @@
 namespace ph
 {
 
-void FrameProcessor::process(HdrRgbFrame& frame, const PipelineId pipeline) const
+void FrameProcessor::process(
+	const PipelineId   pipeline,
+	const HdrRgbFrame& srcFrame,
+	HdrRgbFrame* const out_dstFrame)
 {
-	const FrameProcessingPipeline* const targetPipeline = getPipeline(pipeline);
+	FrameProcessingPipeline* const targetPipeline = getPipeline(pipeline);
 	if(!targetPipeline)
 	{
 		return;
 	}
 
-	targetPipeline->process(frame);
+	targetPipeline->process(srcFrame, out_dstFrame);
 }
 
 FrameProcessor::PipelineId FrameProcessor::addPipeline()

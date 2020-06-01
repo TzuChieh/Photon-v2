@@ -12,9 +12,12 @@ JRToneMapping::JRToneMapping() :
 	m_exposure(1.0_r)
 {}
 
-void JRToneMapping::operate(HdrRgbFrame& frame) const
+void JRToneMapping::operate(const HdrRgbFrame& srcFrame, HdrRgbFrame* const out_dstFrame)
 {
-	operateLocal(frame, {{0, 0}, frame.getSizePx()});
+	PH_ASSERT(out_dstFrame);
+
+	*out_dstFrame = srcFrame;
+	operateLocal(*out_dstFrame, {{0, 0}, out_dstFrame->getSizePx()});
 }
 
 void JRToneMapping::operateLocal(HdrRgbFrame& frame, const TAABB2D<uint32>& region) const

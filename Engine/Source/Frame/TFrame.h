@@ -31,7 +31,7 @@ public:
 	TFrame(uint32 wPx, uint32 hPx);
 	TFrame(const TFrame& other);
 	TFrame(TFrame&& other);
-	~TFrame() = default;
+	inline ~TFrame() = default;
 
 	void fill(T value);
 	void fill(T value, const math::TAABB2D<uint32>& region);

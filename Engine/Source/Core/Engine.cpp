@@ -98,7 +98,7 @@ void Engine::retrieveFrame(
 	{
 		//m_frameProcessor.process(out_frame, m_id);
 		// HACK
-		JRToneMapping().operate(out_frame);
+		JRToneMapping().operateLocal(out_frame, {{0, 0}, {m_renderer->getRenderWidthPx(), m_renderer->getRenderHeightPx()}});
 	}
 }
 

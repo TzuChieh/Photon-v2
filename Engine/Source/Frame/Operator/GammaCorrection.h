@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Frame/Operator/FrameOperator.h"
+#include "Common/assertion.h"
 #include "Common/primitive_type.h"
 #include "Core/Quantity/ColorSpace.h"
+#include "Math/TVector3.h"
 
 #include <cmath>
 
@@ -14,7 +16,7 @@ class GammaCorrection : public FrameOperator
 public:
 	explicit GammaCorrection(real gamma);
 
-	void operate(HdrRgbFrame& frame) const override;
+	void operate(const HdrRgbFrame& srcFrame, HdrRgbFrame* out_dstFrame) override;
 
 	void useSrgbStandard(bool value);
 
@@ -29,29 +31,37 @@ inline GammaCorrection::GammaCorrection(const real gamma) :
 	m_reciGamma(1.0_r / gamma), m_useSrgbStandard(true)
 {}
 
-inline void GammaCorrection::operate(HdrRgbFrame& frame) const
+inline void GammaCorrection::operate(const HdrRgbFrame& srcFrame, HdrRgbFrame* const out_dstFrame)
 {
+	PH_ASSERT(out_dstFrame);
+
+	out_dstFrame->setSize(srcFrame.getSizePx());
+
 	if(m_useSrgbStandard)
 	{
-		frame.forEachPixel([this](const HdrRgbFrame::Pixel& pixel)
-		{
-			const Vector3R linearSrgb(pixel[0], pixel[1], pixel[2]);
-			const Vector3R srgb = ColorSpace::linear_sRGB_to_sRGB(linearSrgb);
+		srcFrame.forEachPixel(
+			[this, out_dstFrame]
+			(const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& srcPixel)
+			{
+				const math::Vector3R linearSrgb(srcPixel[0], srcPixel[1], srcPixel[2]);
+				const math::Vector3R srgb = ColorSpace::linear_sRGB_to_sRGB(linearSrgb);
 
-			return HdrRgbFrame::Pixel({srgb.x, srgb.y, srgb.z});
-		});
+				out_dstFrame->setPixel(x, y, HdrRgbFrame::Pixel({srgb.x, srgb.y, srgb.z}));
+			});
 	}
 	else
 	{
-		frame.forEachPixel([this](const HdrRgbFrame::Pixel& pixel)
-		{
-			const Vector3R rgb(
-				std::pow(pixel[0], m_reciGamma),
-				std::pow(pixel[1], m_reciGamma),
-				std::pow(pixel[2], m_reciGamma));
+		srcFrame.forEachPixel(
+			[this, out_dstFrame]
+			(const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& pixel)
+			{
+				const math::Vector3R rgb(
+					std::pow(pixel[0], m_reciGamma),
+					std::pow(pixel[1], m_reciGamma),
+					std::pow(pixel[2], m_reciGamma));
 
-			return HdrRgbFrame::Pixel({rgb.x, rgb.y, rgb.z});
-		});
+				out_dstFrame->setPixel(x, y, HdrRgbFrame::Pixel({rgb.x, rgb.y, rgb.z}));
+			});
 	}
 }
 

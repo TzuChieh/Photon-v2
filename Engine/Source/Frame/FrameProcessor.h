@@ -1,23 +1,27 @@
 #pragma once
 
 #include "Frame/FrameProcessingPipeline.h"
+#include "Utility/INoncopyable.h"
 
 #include <vector>
-#include <memory>
 
 namespace ph
 {
 
-// FIXME: if frame processor is used concurrently, things may break
-// if some frame operators used cached data internally, need to solve
-// this issue
+/*! @brief Manages and executes frame processing pipelines.
 
-class FrameProcessor final 
+Care must be taken when using an instance concurrently as things may break
+if some frame operators used cached data internally (race condition).
+*/
+class FrameProcessor final : public INoncopyable
 {
 public:
 	using PipelineId = std::size_t;
 
-	void process(HdrRgbFrame& frame, PipelineId pipeline) const;
+	void process(
+		PipelineId         pipeline, 
+		const HdrRgbFrame& srcFrame, 
+		HdrRgbFrame*       out_dstFrame);
 
 	PipelineId addPipeline();
 	FrameProcessingPipeline* getPipeline(PipelineId pipeline);
