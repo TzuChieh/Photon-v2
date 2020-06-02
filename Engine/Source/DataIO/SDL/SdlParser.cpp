@@ -14,7 +14,7 @@ namespace ph
 
 namespace
 {
-	const Logger logger(LogSender("SDL Parser"));
+	Logger logger(LogSender("SDL Parser"));
 }
 
 std::string SdlParser::CORE_DATA_NAME()
@@ -99,18 +99,11 @@ void SdlParser::parseCommand(const std::string& command, SdlResourcePack& out_da
 		return;
 	}
 
-	// DEBUG
-	//std::cerr << "parsing (length = " << command.length() << ")" << std::endl;
-
 	const ECommandType commandType = getCommandType(command);
 
-	if(commandType == ECommandType::WORLD)
+	if(commandType == ECommandType::WORLD || commandType == ECommandType::CORE)
 	{
-		parseWorldCommand(command, out_data);
-	}
-	else if(commandType == ECommandType::CORE)
-	{
-		parseCoreCommand(command, out_data);
+		parseRegularCommand(commandType, command, out_data);
 	}
 	else if(commandType == ECommandType::COMMENT)
 	{
@@ -118,134 +111,148 @@ void SdlParser::parseCommand(const std::string& command, SdlResourcePack& out_da
 	}
 	else
 	{
-		std::cerr << "warning: at DescriptionParser::parseCachedCommand(), "
-		          << "unsupported command type detected" << std::endl;
+		logger.log(ELogLevel::WARNING_MED, 
+			"unsupported command type detected");
 	}
 }
 
-void SdlParser::parseCoreCommand(const std::string& command, SdlResourcePack& out_data)
-{
-	auto& resources = out_data.resources;
-
-	std::vector<std::string> tokens;
-	m_coreCommandTokenizer.tokenize(command, tokens);
-
-	// skip command-prefix-only command
-	if(tokens.size() == 1)
-	{
-		return;
-	}
-
-	if(tokens.size() < 3)
-	{
-		std::cerr << "warning: at DescriptionParser::parseCoreCommand(), "
-		          << "bad formatted command <" + command + ">" << std::endl;
-		return;
-	}
-
-	const std::string&             categoryName = tokens[1];
-	const std::string&             typeName     = tokens[2];
-	const SdlTypeInfo              typeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
-	const std::vector<std::string> clauseStrings(tokens.begin() + 3, tokens.end());
-	const InputPacket              inputPacket(getValueClauses(clauseStrings), &out_data.resources, m_workingDirectory);
-	const SdlLoader&               loader = getCommandEntry(typeInfo).getLoader();
-
-	auto loadedResource = loader.load(inputPacket);
-	out_data.resources.addResource(typeInfo, CORE_DATA_NAME(), std::move(loadedResource));
-}
-
-void SdlParser::parseWorldCommand(const std::string& command, SdlResourcePack& out_data)
+bool SdlParser::parseRegularCommand(
+	const ECommandType type,
+	const std::string& command,
+	SdlResourcePack&   out_data)
 {
 	std::vector<std::string> tokens;
 	m_worldCommandTokenizer.tokenize(command, tokens);
 
-	// skip command-prefix-only command
-	if(tokens.size() == 1)
+	// Skip command-prefix-only or empty command
+	if(tokens.size() <= 1)
 	{
-		return;
+		return true;
 	}
 
+	bool isParsed = false;
 	if(isLoadCommand(tokens))
 	{
-		const std::string&             categoryName = tokens[1];
-		const std::string&             typeName     = tokens[2];
-		const std::string&             resourceName = getName(tokens[3]);
-		const SdlTypeInfo              typeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
-		const std::vector<std::string> clauseStrings(tokens.begin() + 4, tokens.end());
-		const InputPacket              inputPacket(getValueClauses(clauseStrings), &out_data.resources, m_workingDirectory);
-		const SdlLoader&               loader = getCommandEntry(typeInfo).getLoader();
-
-		auto loadedResource = loader.load(inputPacket);
-		out_data.resources.addResource(typeInfo, resourceName, std::move(loadedResource));
+		isParsed = parseLoadCommand(type, tokens, out_data);
 	}
 	else if(isExecuteCommand(tokens))
 	{
-		const std::string&             categoryName = tokens[1];
-		const std::string&             typeName     = tokens[2];
-		const std::string&             executorName = tokens[3];
-		const std::string&             targetResourceName = getName(tokens[4]);
-		const SdlTypeInfo              ownerTypeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
-		const std::vector<std::string> clauseStrings(tokens.begin() + 5, tokens.end());
-		const InputPacket              inputPacket(getValueClauses(clauseStrings), &out_data.resources, m_workingDirectory);
-		
-		const auto& commandEntry   = getCommandEntry(ownerTypeInfo);
-		const auto& executor       = commandEntry.getExecutor(executorName);
-		const auto& targetTypeInfo = executor.getTargetTypeInfo();
-
-		const DataTreatment targetResourceDT = targetResourceName.empty() ?
-			DataTreatment::OPTIONAL() :
-			DataTreatment::REQUIRED("cannot find specified target resource");
-
-		const auto& targetResource = out_data.resources.getResource(targetTypeInfo, 
-		                                                            targetResourceName, 
-		                                                            targetResourceDT);
-		
-		//ExitStatus status = commandEntry.execute(targetResource, executorName, inputPacket);
-		const ExitStatus& status = executor.execute(targetResource, inputPacket);
-
-		const std::string& funcInfo = "type <" + ownerTypeInfo.toString() + ">'s executor: " +
-			executor.toString();
-
-		switch(status.state)
-		{
-		case ExitStatus::State::SUCCESS:
-			if(!status.message.empty())
-			{
-				std::cout << funcInfo << " successfully executed" << std::endl;
-				std::cout << status.message << std::endl;
-			}
-			break;
-
-		case ExitStatus::State::WARNING:
-			std::cerr << funcInfo << " executed, but with warning" << std::endl;
-			std::cerr << status.message << std::endl;
-			break;
-
-		case ExitStatus::State::FAILURE:
-			std::cerr << funcInfo << " executed and failed" << std::endl;
-			std::cerr << status.message << std::endl;
-			break;
-
-		case ExitStatus::State::BAD_INPUT:
-			std::cerr << funcInfo << " ignored because of bad input" << std::endl;
-			std::cerr << status.message << std::endl;
-			break;
-
-		case ExitStatus::State::UNSUPPORTED:
-			std::cerr << "calling unsupported function: " << funcInfo << std::endl;
-			if(!status.message.empty())
-			{
-				std::cerr << status.message << std::endl;
-			}
-			break;
-		}
+		isParsed = parseExecuteCommand(type, tokens, out_data);
 	}
 	else
 	{
-		std::cerr << "warning: at DescriptionParser::parseWorldCommand(), "
-		          << "unknown command <" + command + ">" << std::endl;
-		return;
+		logger.log(ELogLevel::WARNING_MED,
+			"unknown command detected");
+		
+		isParsed = false;
 	}
+
+	if(!isParsed)
+	{
+		logger.log(ELogLevel::WARNING_MED,
+			"command not parsed due to error: <" + command + ">");
+	}
+
+	return isParsed;
+}
+
+bool SdlParser::parseLoadCommand(
+	const ECommandType              type,
+	const std::vector<std::string>& tokens,
+	SdlResourcePack&                out_data)
+{
+	// Sanity check
+	if(tokens.size() < 4)
+	{
+		logger.log(ELogLevel::WARNING_MED,
+			"badly formatted command detected");
+
+		return false;
+	}
+
+	const std::string& categoryName  = tokens[1];
+	const std::string& typeName      = tokens[2];
+	const auto&        typeInfo      = SdlTypeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
+	const std::string& resourceName  = getName(tokens[3]);
+	const auto&        clauseStrings = std::vector<std::string>(tokens.begin() + 4, tokens.end());
+	const auto&        inputPacket   = InputPacket(getValueClauses(clauseStrings), &out_data.resources, m_workingDirectory);
+	const SdlLoader&   loader        = getCommandEntry(typeInfo).getLoader();
+
+	auto loadedResource = loader.load(inputPacket);
+	const bool isResourceValid = loadedResource != nullptr;
+
+	out_data.resources.addResource(typeInfo, resourceName, std::move(loadedResource));
+
+	return isResourceValid;
+}
+
+bool SdlParser::parseExecuteCommand(
+	const ECommandType              type,
+	const std::vector<std::string>& tokens,
+	SdlResourcePack&                out_data)
+{
+	const std::string& categoryName       = tokens[1];
+	const std::string& typeName           = tokens[2];
+	const std::string& executorName       = tokens[3];
+	const std::string& targetResourceName = getName(tokens[4]);
+	const auto&        ownerTypeInfo      = SdlTypeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
+	const auto&        clauseStrings      = std::vector<std::string>(tokens.begin() + 5, tokens.end());
+	const auto&        inputPacket        = InputPacket(getValueClauses(clauseStrings), &out_data.resources, m_workingDirectory);
+		
+	const auto& commandEntry   = getCommandEntry(ownerTypeInfo);
+	const auto& executor       = commandEntry.getExecutor(executorName);
+	const auto& targetTypeInfo = executor.getTargetTypeInfo();
+
+	const DataTreatment targetResourceDT = targetResourceName.empty() ?
+		DataTreatment::OPTIONAL() :
+		DataTreatment::REQUIRED("cannot find specified target resource");
+
+	const auto& targetResource = out_data.resources.getResource(targetTypeInfo, 
+		                                                        targetResourceName, 
+		                                                        targetResourceDT);
+	
+	// TODO: check null res?
+	//ExitStatus status = commandEntry.execute(targetResource, executorName, inputPacket);
+	const ExitStatus& status = executor.execute(targetResource, inputPacket);
+
+	const std::string& funcInfo = "type <" + ownerTypeInfo.toString() + ">'s executor: " +
+		executor.toString();
+
+	switch(status.state)
+	{
+	case ExitStatus::State::SUCCESS:
+		if(!status.message.empty())
+		{
+			std::cout << funcInfo << " successfully executed" << std::endl;
+			std::cout << status.message << std::endl;
+		}
+		return true;
+
+	case ExitStatus::State::WARNING:
+		std::cerr << funcInfo << " executed, but with warning" << std::endl;
+		std::cerr << status.message << std::endl;
+		return true;
+
+	case ExitStatus::State::FAILURE:
+		std::cerr << funcInfo << " executed and failed" << std::endl;
+		std::cerr << status.message << std::endl;
+		return false;
+
+	case ExitStatus::State::BAD_INPUT:
+		std::cerr << funcInfo << " ignored because of bad input" << std::endl;
+		std::cerr << status.message << std::endl;
+		return false;
+
+	case ExitStatus::State::UNSUPPORTED:
+		std::cerr << "calling unsupported function: " << funcInfo << std::endl;
+		if(!status.message.empty())
+		{
+			std::cerr << status.message << std::endl;
+		}
+		return false;
+	}
+
+	return false;
 }
 
 std::string SdlParser::genName()
@@ -263,7 +270,7 @@ std::string SdlParser::getName(const std::string& nameToken) const
 	}
 	else if(tokens[0].front() != '@' || tokens[0].length() == 1)
 	{
-		// possibly using genName() if anonymous declaration is supported
+		// Possibly using genName() if anonymous declaration is supported
 		return "";
 	}
 	else

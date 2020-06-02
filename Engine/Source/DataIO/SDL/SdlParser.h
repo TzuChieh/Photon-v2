@@ -46,8 +46,21 @@ private:
 	std::size_t m_generatedNameCounter;
 
 	void parseCommand(const std::string& command, SdlResourcePack& out_data);
-	void parseCoreCommand(const std::string& command, SdlResourcePack& out_data);
-	void parseWorldCommand(const std::string& command, SdlResourcePack& out_data);
+
+	bool parseRegularCommand(
+		ECommandType       type,
+		const std::string& command, 
+		SdlResourcePack&   out_data);
+
+	bool parseLoadCommand(
+		ECommandType                    type,     
+		const std::vector<std::string>& tokens, 
+		SdlResourcePack&                out_data);
+
+	bool parseExecuteCommand(
+		ECommandType                    type,
+		const std::vector<std::string>& tokens, 
+		SdlResourcePack&                out_data);
 
 	std::string genName();
 	std::string getName(const std::string& nameToken) const;
