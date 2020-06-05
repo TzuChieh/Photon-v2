@@ -17,11 +17,6 @@ namespace
 	Logger logger(LogSender("SDL Parser"));
 }
 
-std::string SdlParser::CORE_DATA_NAME()
-{
-	return "@__sdl_core_name";
-}
-
 bool SdlParser::addCommandEntry(const CommandEntry& entry)
 {
 	if(!entry.typeInfo().isValid())
@@ -72,10 +67,16 @@ std::unordered_map<std::string, CommandEntry>& SdlParser::NAMED_INTERFACE_MAP()
 }
 
 SdlParser::SdlParser() :
-	m_commandCache(), 
-	m_coreCommandTokenizer ({' ', '\t', '\n', '\r'}, {{'(',  ')'}, {'[', ']'}}),
-	m_worldCommandTokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}, {'[', ']'}, {'(', ')'}}), 
-	m_nameTokenizer        ({},                      {{'\"', '\"'}}),// TODO: there may be a need to skip spaces, e.g., fun(    "@ some name")
+	m_commandCache(),
+
+	m_regularCommandTokenizer(
+		{' ', '\t', '\n', '\r'}, 
+		{{'\"', '\"'}, {'[', ']'}, {'(', ')'}}),
+
+	m_nameTokenizer(
+		{},
+		{{'\"', '\"'}}),// TODO: there may be a need to skip spaces, e.g., fun(    "@ some name")
+
 	m_generatedNameCounter(0),
 	m_workingDirectory()
 {}
@@ -101,7 +102,7 @@ void SdlParser::parseCommand(const std::string& command, SdlResourcePack& out_pa
 
 	const ECommandType commandType = getCommandType(command);
 
-	if(commandType == ECommandType::WORLD || commandType == ECommandType::CORE)
+	if(commandType == ECommandType::REGULAR)
 	{
 		parseRegularCommand(commandType, command, out_pack);
 	}
@@ -122,7 +123,7 @@ bool SdlParser::parseRegularCommand(
 	SdlResourcePack&   out_pack)
 {
 	std::vector<std::string> tokens;
-	m_worldCommandTokenizer.tokenize(command, tokens);
+	m_regularCommandTokenizer.tokenize(command, tokens);
 
 	// Skip command-prefix-only or empty command
 	if(tokens.size() <= 1)
@@ -299,11 +300,7 @@ ECommandType SdlParser::getCommandType(const std::string& command)
 {
 	if(command.compare(0, 2, "->") == 0)
 	{
-		return ECommandType::WORLD;
-	}
-	else if(command.compare(0, 2, "##") == 0)
-	{
-		return ECommandType::CORE;
+		return ECommandType::REGULAR;
 	}
 	else if(command.compare(0, 2, "//") == 0)
 	{

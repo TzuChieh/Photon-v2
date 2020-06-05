@@ -197,11 +197,6 @@ void InputPacket::reportDataNotFound(const std::string_view typeName, const std:
 	}
 }
 
-std::string InputPacket::getCoreDataName()
-{
-	return SdlParser::CORE_DATA_NAME();
-}
-
 Path InputPacket::sdlResourceIdentifierToPath(const std::string& sdlResourceIdentifier) const
 {
 	return m_workingDirectory.append(Path(sdlResourceIdentifier));

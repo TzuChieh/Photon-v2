@@ -101,9 +101,6 @@ public:
 	template<typename RefType>
 	bool hasReference(const std::string& name) const;
 
-	template<typename RefType>
-	std::shared_ptr<RefType> getCore(const DataTreatment& treatment = DataTreatment()) const;
-
 	bool isPrototypeMatched(const InputPrototype& prototype) const;
 
 	template<typename ValType>
@@ -154,7 +151,6 @@ private:
 	Path sdlResourceIdentifierToPath(const std::string& sdlResourceIdentifier) const;
 
 	static void reportDataNotFound(std::string_view typeName, const std::string& name, const DataTreatment& treatment);
-	static std::string getCoreDataName();
 };
 
 // template implementations:
@@ -171,15 +167,6 @@ inline auto InputPacket::getReference(
 	std::string resourceName;
 	return findStringValue(typeInfo.getCategoryName(), referenceName, treatment, &resourceName) ?
 	                       m_storage->getResource<RefType>(resourceName, treatment) : nullptr;
-}
-
-template<typename RefType>
-inline auto InputPacket::getCore(const DataTreatment& treatment) const
--> std::shared_ptr<RefType>
-{
-	PH_ASSERT(isReference<RefType>());
-
-	return getReference<RefType>(getCoreDataName(), treatment);
 }
 
 template<typename RefType>

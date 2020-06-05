@@ -18,16 +18,14 @@ class SdlTypeInfo;
 
 enum class ECommandType
 {
-	UNKNOWN, 
-	CORE, 
-	WORLD, 
+	UNKNOWN,
+	REGULAR,
 	COMMENT
 };
 
 class SdlParser final
 {
 public:
-	static std::string CORE_DATA_NAME();
 	static bool addCommandEntry(const CommandEntry& entry);
 	static CommandEntry getCommandEntry(const SdlTypeInfo& typeInfo);
 
@@ -40,8 +38,7 @@ public:
 private:
 	Path        m_workingDirectory;
 	std::string m_commandCache;
-	Tokenizer   m_coreCommandTokenizer;
-	Tokenizer   m_worldCommandTokenizer;
+	Tokenizer   m_regularCommandTokenizer;
 	Tokenizer   m_nameTokenizer;
 	std::size_t m_generatedNameCounter;
 

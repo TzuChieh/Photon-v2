@@ -52,3 +52,39 @@ inline std::string EngineOption::getCookSettingsName() const
 }
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  option </category>
+	<type_name> engine </type_name>
+
+	<name> Engine Option </name>
+	<description>
+		Settings related to the render engine.
+	</description>
+
+	<command type="creator">
+
+		<input name="renderer" type="string">
+			<description>
+				Name of the renderer resource to use.
+			</description>
+		</input>
+
+		<input name="receiver" type="string">
+			<description>
+				Name of the receiver resource to use.
+			</description>
+		</input>
+
+		<input name="sample-generator" type="string">
+			<description>
+				Name of the sample generator resource to use.
+			</description>
+		</input>
+
+	</command>
+
+	</SDL_interface>
+*/
