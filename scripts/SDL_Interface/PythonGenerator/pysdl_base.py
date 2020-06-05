@@ -240,24 +240,3 @@ class SDLExecutorCommand(SDLCommand):
 
     def set_target_name(self, data_name):
         self.__target_name = data_name
-
-
-class SDLCoreCommand(SDLCommand):
-    def __init__(self):
-        super().__init__()
-
-    @abstractmethod
-    def get_full_type(self):
-        pass
-
-    def get_prefix(self):
-        return "##"
-
-    def generate(self):
-        fragments = [
-            self.get_prefix(), " ",
-            self.get_full_type(), " "]
-        self._generate_input_fragments(fragments)
-        fragments.append("\n")
-
-        return "".join(fragments)

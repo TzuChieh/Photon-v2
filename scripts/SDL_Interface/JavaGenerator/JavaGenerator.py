@@ -20,7 +20,7 @@ class JavaGenerator(InterfaceGenerator):
 		package_directory = pathlib.Path(output_directory + package_name + "/")
 		package_directory.mkdir(parents=True, exist_ok=True)
 
-		# copy base source files to package folder
+		# Copy base source files to package folder
 
 		this_folder = os.path.dirname(os.path.abspath(__file__))
 		jsdl_base_folder = os.path.join(this_folder, "jsdl_base/")
@@ -28,7 +28,7 @@ class JavaGenerator(InterfaceGenerator):
 			full_filename = os.path.join(jsdl_base_folder, filename)
 			shutil.copy(str(full_filename), str(package_directory))
 
-		# gather generated classes
+		# Gather generated classes
 
 		clazzes = []
 
@@ -39,7 +39,7 @@ class JavaGenerator(InterfaceGenerator):
 		for interface in self.interfaces:
 			clazzes.extend(JavaGenerator.gen_interface_classes(interface))
 
-		# export classes as java source files
+		# Export classes as java source files
 
 		for clazz in clazzes:
 			clazz.package = package_name
@@ -84,12 +84,9 @@ class JavaGenerator(InterfaceGenerator):
 		if sdl_interface.has_creator() and not sdl_interface.creator.is_blueprint:
 			class_name = class_base_name + "Creator"
 			clazz = JavaClass(class_name)
-			if sdl_interface.is_world():
-				clazz.set_inherited_class_name("SDLCreatorCommand")
-			else:
-				clazz.set_inherited_class_name("SDLCoreCommand")
+			clazz.set_inherited_class_name("SDLCreatorCommand")
 
-			# overriding getFullType()
+			# Override getFullType()
 			full_type_method = JavaMethod("getFullType")
 			full_type_method.annotation = "@Override"
 			full_type_method.return_type = "String"
@@ -113,7 +110,7 @@ class JavaGenerator(InterfaceGenerator):
 
 			clazzes.append(clazz)
 
-		# generating executor code
+		# Generate executor code
 
 		for sdl_executor in sdl_interface.executors:
 			name_norm = capwords(sdl_executor.name, "-").replace("-", "")
@@ -121,7 +118,7 @@ class JavaGenerator(InterfaceGenerator):
 			clazz = JavaClass(class_name)
 			clazz.set_inherited_class_name("SDLExecutorCommand")
 
-			# overriding getFullType()
+			# Override getFullType()
 			full_type_method = JavaMethod("getFullType")
 			full_type_method.annotation = "@Override"
 			full_type_method.return_type = "String"
@@ -129,7 +126,7 @@ class JavaGenerator(InterfaceGenerator):
 			full_type_method.add_content_line("return \"%s\";" % sdl_interface.get_full_type_name())
 			clazz.add_method(full_type_method)
 
-			# overriding getName()
+			# Override getName()
 			get_name_method = JavaMethod("getName")
 			get_name_method.annotation = "@Override"
 			get_name_method.return_type = "String"

@@ -58,18 +58,14 @@ class PythonGenerator(InterfaceGenerator):
 
 		code = ""
 
-		# generating creator code
+		# Generate creator code
 
 		if sdl_interface.has_creator() and not sdl_interface.creator.is_blueprint:
 			clazz = PythonClass(class_base_name + "Creator")
-			if sdl_interface.is_world():
-				clazz.set_inherited_class_name("SDLCreatorCommand")
-			else:
-				clazz.set_inherited_class_name("SDLCoreCommand")
-
+			clazz.set_inherited_class_name("SDLCreatorCommand")
 			clazz.add_default_init()
 
-			# overriding get_full_type
+			# Override get_full_type()
 			full_type_method = PythonMethod("get_full_type")
 			full_type_method.add_content_line("return \"%s\"" % sdl_interface.get_full_type_name())
 			clazz.add_method(full_type_method)
@@ -90,19 +86,19 @@ class PythonGenerator(InterfaceGenerator):
 
 			code += clazz.gen_code()
 
-		# generating executor code
+		# Generate executor code
 
 		for sdl_executor in sdl_interface.executors:
 			name_norm = capwords(sdl_executor.name, "-").replace("-", "")
 			clazz = PythonClass(class_base_name + name_norm)
 			clazz.set_inherited_class_name("SDLExecutorCommand")
 
-			# overriding get_full_type
+			# Override get_full_type()
 			full_type_method = PythonMethod("get_full_type")
 			full_type_method.add_content_line("return \"%s\"" % sdl_interface.get_full_type_name())
 			clazz.add_method(full_type_method)
 
-			# overriding get_name
+			# Override get_name()
 			get_name_method = PythonMethod("get_name")
 			get_name_method.add_content_line("return \"%s\"" % sdl_executor.name)
 			clazz.add_method(get_name_method)

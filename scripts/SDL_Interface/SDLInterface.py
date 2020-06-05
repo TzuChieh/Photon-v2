@@ -52,12 +52,6 @@ class SDLInterface:
 	def has_executor(self):
 		return self.executors
 
-	def is_core(self):
-		return sdl_types.is_core_category(self.category_name)
-
-	def is_world(self):
-		return sdl_types.is_world_category(self.category_name)
-
 	def is_soft_extending(self):
 		return self.soft_extended_target
 

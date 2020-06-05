@@ -1,22 +1,3 @@
-CORE_CATEGORIES = {
-    "camera",
-    "film",
-    "estimator",
-    "sample-generator",
-    "renderer",
-    "option"
-}
-
-WORLD_CATEGORIES = {
-    "geometry",
-    "material",
-    "motion",
-    "light-source",
-    "actor",
-    "image",
-    "frame-processor"
-}
-
 VALUE_TYPES = {
     "string",
     "integer",
@@ -27,16 +8,21 @@ VALUE_TYPES = {
     "vector3-array"
 }
 
-CATEGORIES = CORE_CATEGORIES | WORLD_CATEGORIES
-REFERENCE_TYPES = CATEGORIES
-
-
-def is_core_category(category_name):
-    return category_name in CORE_CATEGORIES
-
-
-def is_world_category(category_name):
-    return category_name in WORLD_CATEGORIES
+REFERENCE_TYPES = {
+    "camera",
+    "film",
+    "estimator",
+    "sample-generator",
+    "renderer",
+    "option",
+    "geometry",
+    "material",
+    "motion",
+    "light-source",
+    "actor",
+    "image",
+    "frame-processor"
+}
 
 
 def is_value(type_name):
