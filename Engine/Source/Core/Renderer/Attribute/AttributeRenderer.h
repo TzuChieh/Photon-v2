@@ -25,7 +25,7 @@ class SampleGenerator;
 class AttributeRenderer : public Renderer, public TCommandInterface<AttributeRenderer>
 {
 public:
-	void doUpdate(const SdlResourcePack& data) override;
+	void doUpdate(const CoreDataGroup& data) override;
 	void doRender() override;
 	void retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame) override;
 

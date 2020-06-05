@@ -3,7 +3,7 @@
 #include "DataIO/SDL/InputPacket.h"
 #include "Core/Ray.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "DataIO/SDL/SdlResourcePack.h"
+#include "Core/CoreDataGroup.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/RenderWork.h"
 #include "Core/Renderer/RenderWorker.h"
@@ -29,7 +29,7 @@
 namespace ph
 {
 
-void AdaptiveSamplingRenderer::doUpdate(const SdlResourcePack& data)
+void AdaptiveSamplingRenderer::doUpdate(const CoreDataGroup& data)
 {
 	m_updatedRegions.clear();
 	m_totalPaths            = 0;
@@ -37,9 +37,9 @@ void AdaptiveSamplingRenderer::doUpdate(const SdlResourcePack& data)
 	m_submittedFractionBits = 0;
 	m_numNoisyRegions       = 0;
 
-	m_scene           = &data.visualWorld.getScene();
-	m_receiver        = data.getReceiver().get();
-	m_sampleGenerator = data.getSampleGenerator().get();
+	m_scene           = data.getScene();
+	m_receiver        = data.getReceiver();
+	m_sampleGenerator = data.getSampleGenerator();
 
 	const Integrand integrand(m_scene, m_receiver);
 

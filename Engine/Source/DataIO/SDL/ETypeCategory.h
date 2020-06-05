@@ -5,7 +5,7 @@ namespace ph
 
 enum class ETypeCategory
 {
-	// world command related types
+	// World command related types
 	REF_GEOMETRY, 
 	REF_MATERIAL,
 	REF_MOTION,
@@ -14,13 +14,13 @@ enum class ETypeCategory
 	REF_IMAGE,
 	REF_FRAME_PROCESSOR,
 
-	// core command related types
+	// Core command related types
 	REF_RECEIVER,
 	REF_SAMPLE_GENERATOR,
 	REF_RENDERER,
 	REF_OPTION,
 	
-	// special values
+	// Special values
 	MIN         = REF_GEOMETRY,
 	MAX         = REF_OPTION,
 	UNSPECIFIED = MAX + 1

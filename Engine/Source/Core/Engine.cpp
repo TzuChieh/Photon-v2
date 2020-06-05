@@ -6,6 +6,8 @@
 #include "Common/Logger.h"
 #include "Math/Geometry/TAABB2D.h"
 #include "Utility/Timer.h"
+#include "Core/EngineOption.h"
+#include "World/CookSettings.h"
 
 #include <fstream>
 #include <string>
@@ -19,14 +21,15 @@ namespace
 }
 
 Engine::Engine() : 
-	m_renderer(nullptr)
+	m_coreData(),
+	m_visualWorld()
 {
 	setNumRenderThreads(1);
 }
 
 void Engine::enterCommand(const std::string& commandFragment)
 {
-	m_parser.enter(commandFragment, m_data);
+	m_parser.enter(commandFragment, m_pack);
 }
 
 bool Engine::loadCommands(const Path& filePath)
@@ -67,24 +70,38 @@ bool Engine::loadCommands(const Path& filePath)
 
 void Engine::update()
 {
-	// HACK
-	m_data.update(0.0_r);
+	if(!m_coreData.gatherFromRaw(m_pack))
+	{
+		logger.log(ELogLevel::FATAL_ERROR,
+			"core raw data may be missing; engine failed to update");
+		return;
+	}
 
-	// HACK
-	//m_id = m_frameProcessor.addPipeline();
-	//m_frameProcessor.getPipeline(m_id)->appendOperator(std::make_unique<JRToneMapping>());
-	/*m_filmSet.setProcessor(EAttribute::LIGHT_ENERGY, processor);
-	m_filmSet.setProcessor(EAttribute::NORMAL, processor);*/
+	m_visualWorld.setReceiverPosition(m_coreData.getReceiver()->getPosition());
+	m_visualWorld.setCookSettings(*(m_coreData.getCookSettings()));
 
-	m_renderer = m_data.getRenderer();
-	m_renderer->setNumWorkers(m_numRenderThreads);
-	m_renderer->update(m_data);
+	const auto& actors = m_pack.data.getActors();
+	for(const auto& actor : actors)
+	{
+		m_visualWorld.addActor(actor);
+	}
+
+	m_visualWorld.cook();
+
+	if(!m_coreData.gatherFromCooked(m_visualWorld))
+	{
+		logger.log(ELogLevel::FATAL_ERROR,
+			"core cooked data may be missing; engine failed to update");
+		return;
+	}
+
+	m_coreData.getRenderer()->setNumWorkers(m_numRenderThreads);
+	m_coreData.getRenderer()->update(m_coreData);
 }
 
 void Engine::render()
 {
-	// HACK
-	m_renderer->render();
+	m_coreData.getRenderer()->render();
 }
 
 void Engine::retrieveFrame(
@@ -92,19 +109,25 @@ void Engine::retrieveFrame(
 	HdrRgbFrame&      out_frame,
 	const bool        applyPostProcessing)
 {
-	m_renderer->retrieveFrame(layerIndex, out_frame);
+	Renderer* const renderer = m_coreData.getRenderer();
+	PH_ASSERT(renderer);
+
+	renderer->retrieveFrame(layerIndex, out_frame);
 
 	if(applyPostProcessing)
 	{
 		//m_frameProcessor.process(out_frame, m_id);
 		// HACK
-		JRToneMapping().operateLocal(out_frame, {{0, 0}, {m_renderer->getRenderWidthPx(), m_renderer->getRenderHeightPx()}});
+		JRToneMapping().operateLocal(out_frame, {{0, 0}, {renderer->getRenderWidthPx(), renderer->getRenderHeightPx()}});
 	}
 }
 
 math::TVector2<int64> Engine::getFilmDimensionPx() const
 {
-	return {m_renderer->getRenderWidthPx(), m_renderer->getRenderHeightPx()};
+	Renderer* const renderer = m_coreData.getRenderer();
+	PH_ASSERT(renderer);
+
+	return {renderer->getRenderWidthPx(), renderer->getRenderHeightPx()};
 }
 
 void Engine::setNumRenderThreads(const uint32 numThreads)
@@ -121,7 +144,7 @@ void Engine::setNumRenderThreads(const uint32 numThreads)
 
 ERegionStatus Engine::asyncPollUpdatedRegion(Region* const out_region) const
 {
-	return m_renderer->asyncPollUpdatedRegion(out_region);
+	return m_coreData.getRenderer()->asyncPollUpdatedRegion(out_region);
 }
 
 void Engine::asyncPeekFrame(
@@ -130,7 +153,7 @@ void Engine::asyncPeekFrame(
 	HdrRgbFrame&      out_frame,
 	const bool        applyPostProcessing) const
 {
-	m_renderer->asyncPeekFrame(layerIndex, region, out_frame);
+	m_coreData.getRenderer()->asyncPeekFrame(layerIndex, region, out_frame);
 
 	if(applyPostProcessing)
 	{
@@ -144,9 +167,11 @@ void Engine::asyncQueryStatistics(
 	float32* const out_percentageProgress,
 	float32* const out_samplesPerSecond) const
 {
-	// HACK
-	RenderProgress progress = m_renderer->asyncQueryRenderProgress();
-	RenderState state = m_renderer->asyncQueryRenderState();
+	Renderer* const renderer = m_coreData.getRenderer();
+	PH_ASSERT(renderer);
+
+	RenderProgress progress = renderer->asyncQueryRenderProgress();
+	RenderState state = renderer->asyncQueryRenderState();
 	*out_percentageProgress = progress.getPercentageProgress();
 	*out_samplesPerSecond = state.getRealState(0);
 }

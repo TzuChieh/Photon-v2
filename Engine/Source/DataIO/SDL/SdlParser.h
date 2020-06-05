@@ -34,7 +34,7 @@ public:
 public:
 	SdlParser();
 
-	void enter(const std::string& commandFragment, SdlResourcePack& out_data);
+	void enter(const std::string& commandFragment, SdlResourcePack& out_pack);
 	void setWorkingDirectory(const Path& path);
 
 private:
@@ -45,22 +45,22 @@ private:
 	Tokenizer   m_nameTokenizer;
 	std::size_t m_generatedNameCounter;
 
-	void parseCommand(const std::string& command, SdlResourcePack& out_data);
+	void parseCommand(const std::string& command, SdlResourcePack& out_pack);
 
 	bool parseRegularCommand(
 		ECommandType       type,
 		const std::string& command, 
-		SdlResourcePack&   out_data);
+		SdlResourcePack&   out_pack);
 
 	bool parseLoadCommand(
 		ECommandType                    type,     
 		const std::vector<std::string>& tokens, 
-		SdlResourcePack&                out_data);
+		SdlResourcePack&                out_pack);
 
 	bool parseExecuteCommand(
 		ECommandType                    type,
 		const std::vector<std::string>& tokens, 
-		SdlResourcePack&                out_data);
+		SdlResourcePack&                out_pack);
 
 	std::string genName();
 	std::string getName(const std::string& nameToken) const;

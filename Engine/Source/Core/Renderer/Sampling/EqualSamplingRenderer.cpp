@@ -4,7 +4,7 @@
 #include "Core/Ray.h"
 #include "Math/constant.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "DataIO/SDL/SdlResourcePack.h"
+#include "Core/CoreDataGroup.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/RenderWork.h"
 #include "Core/Renderer/RenderWorker.h"
@@ -21,6 +21,7 @@
 #include "Core/Renderer/Region/TileScheduler.h"
 #include "Common/Logger.h"
 #include "Core/Renderer/Region/WorkUnit.h"
+#include "DataIO/SDL/InputPacket.h"
 
 #include <cmath>
 #include <iostream>
@@ -38,7 +39,7 @@ namespace
 	const Logger logger(LogSender("Equal Sampling Renderer"));
 }
 
-void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
+void EqualSamplingRenderer::doUpdate(const CoreDataGroup& data)
 {
 	logger.log("rendering core: " + m_estimator->toString());
 
@@ -47,9 +48,9 @@ void EqualSamplingRenderer::doUpdate(const SdlResourcePack& data)
 	m_suppliedFractionBits  = 0;
 	m_submittedFractionBits = 0;
 	
-	m_scene           = &data.visualWorld.getScene();
-	m_receiver        = data.getReceiver().get();
-	m_sampleGenerator = data.getSampleGenerator().get();
+	m_scene           = data.getScene();
+	m_receiver        = data.getReceiver();
+	m_sampleGenerator = data.getSampleGenerator();
 
 	const Integrand integrand(m_scene, m_receiver);
 	

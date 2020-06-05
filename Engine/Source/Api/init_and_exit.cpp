@@ -80,6 +80,7 @@
 
 // options
 #include "World/CookSettings.h"
+#include "Core/EngineOption.h"
 
 #include <iostream>
 
@@ -190,6 +191,7 @@ bool init_command_parser()
 
 	// options
 	register_command_interface<CookSettings>();
+	register_command_interface<EngineOption>();
 
 	return true;
 }

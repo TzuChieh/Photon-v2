@@ -1,6 +1,6 @@
 #include "Core/Renderer/PM/PMRenderer.h"
 #include "Core/Filmic/SampleFilters.h"
-#include "DataIO/SDL/SdlResourcePack.h"
+#include "Core/CoreDataGroup.h"
 #include "Core/Renderer/PM/TViewPathTracingWork.h"
 #include "Core/Renderer/PM/TPhotonMappingWork.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
@@ -27,13 +27,13 @@ namespace
 	const Logger logger(LogSender("PM Renderer"));
 }
 
-void PMRenderer::doUpdate(const SdlResourcePack& data)
+void PMRenderer::doUpdate(const CoreDataGroup& data)
 {
 	m_film = std::make_unique<HdrRgbFilm>(getRenderWidthPx(), getRenderHeightPx(), getCropWindowPx(), m_filter);
 
-	m_scene = &(data.visualWorld.getScene());
-	m_receiver = data.getReceiver().get();
-	m_sg = data.getSampleGenerator().get();
+	m_scene    = data.getScene();
+	m_receiver = data.getReceiver();
+	m_sg       = data.getSampleGenerator();
 
 	m_statistics.zero();
 	m_photonsPerSecond = 0;

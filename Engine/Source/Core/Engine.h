@@ -1,20 +1,18 @@
 #pragma once
 
 #include "World/VisualWorld.h"
-#include "Core/Renderer/Renderer.h"
 #include "DataIO/SDL/SdlParser.h"
 #include "DataIO/SDL/SdlResourcePack.h"
 #include "Math/TVector2.h"
-#include "Core/Renderer/Renderer.h"
 #include "Core/Renderer/ERegionStatus.h"
 #include "Frame/frame_fwd.h"
 #include "Frame/FrameProcessor.h"
 #include "Core/Renderer/EAttribute.h"
 #include "Core/Renderer/Region/Region.h"
 #include "DataIO/FileSystem/Path.h"
+#include "Core/CoreDataGroup.h"
 
 #include <string>
-#include <memory>
 
 namespace ph
 {
@@ -54,9 +52,10 @@ public:
 
 private:
 	SdlParser       m_parser;
-	SdlResourcePack m_data;
-	std::shared_ptr<Renderer> m_renderer;
-	uint32 m_numRenderThreads;
+	SdlResourcePack m_pack;
+	VisualWorld     m_visualWorld;
+	CoreDataGroup   m_coreData;
+	uint32          m_numRenderThreads;
 
 	//FrameProcessor m_frameProcessor;
 	// TODO: associate each attribute with a pipeline
@@ -67,9 +66,7 @@ private:
 
 inline Renderer* Engine::getRenderer() const
 {
-	PH_ASSERT(m_renderer);
-
-	return m_renderer.get();
+	return m_coreData.getRenderer();
 }
 
 }// end namespace ph

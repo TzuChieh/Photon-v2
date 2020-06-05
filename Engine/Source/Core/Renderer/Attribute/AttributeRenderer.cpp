@@ -4,7 +4,7 @@
 #include "Core/Ray.h"
 #include "Math/constant.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "DataIO/SDL/SdlResourcePack.h"
+#include "Core/CoreDataGroup.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/RenderWork.h"
 #include "Core/Renderer/RenderWorker.h"
@@ -24,6 +24,7 @@
 #include "Core/Estimator/SurfaceAttributeEstimator.h"
 #include "Math/Random/sample.h"
 #include "Core/Receiver/Receiver.h"
+#include "DataIO/SDL/InputPacket.h"
 
 #include <cmath>
 #include <iostream>
@@ -41,13 +42,13 @@ namespace
 	const Logger logger(LogSender("Attribute Renderer"));
 }
 
-void AttributeRenderer::doUpdate(const SdlResourcePack& data)
+void AttributeRenderer::doUpdate(const CoreDataGroup& data)
 {
 	logger.log("target attribute: " + m_attributeName);
 
-	m_scene           = &data.visualWorld.getScene();
-	m_receiver        = data.getReceiver().get();
-	m_sampleGenerator = data.getSampleGenerator().get();
+	m_scene           = data.getScene();
+	m_receiver        = data.getReceiver();
+	m_sampleGenerator = data.getSampleGenerator();
 
 	PH_ASSERT(m_scene);
 	PH_ASSERT(m_receiver);

@@ -34,9 +34,11 @@ public:
 	// HACK
 	void setReceiverPosition(const math::Vector3R& receiverPos);
 
-	void setCookSettings(const std::shared_ptr<CookSettings>& settings);
+	void setCookSettings(const CookSettings& settings);
 
-	const Scene& getScene() const;
+	std::shared_ptr<Intersector> getIntersector() const;
+	std::shared_ptr<EmitterSampler> getEmitterSampler() const;
+	std::shared_ptr<Scene> getScene() const;
 
 private:
 	std::vector<std::shared_ptr<Actor>> m_actors;
@@ -44,12 +46,12 @@ private:
 	CookedDataStorage m_cookedBackendStorage;
 	CookedDataStorage m_phantomStorage;
 	math::Vector3R m_receiverPos;
+	CookSettings m_cookSettings;
 
-	std::unique_ptr<Intersector>    m_intersector;
-	std::unique_ptr<EmitterSampler> m_emitterSampler;
-	Scene                           m_scene;
-	std::shared_ptr<CookSettings>   m_cookSettings;
-	std::unique_ptr<Primitive> m_backgroundPrimitive;
+	std::shared_ptr<Intersector>    m_intersector;
+	std::shared_ptr<EmitterSampler> m_emitterSampler;
+	std::shared_ptr<Scene>          m_scene;
+	std::shared_ptr<Primitive>      m_backgroundPrimitive;
 
 	void cookActors(
 		std::shared_ptr<Actor>* actors, 
@@ -70,11 +72,24 @@ inline void VisualWorld::setReceiverPosition(const math::Vector3R& receiverPos)
 	m_receiverPos = receiverPos;
 }
 
-inline void VisualWorld::setCookSettings(const std::shared_ptr<CookSettings>& settings)
+inline void VisualWorld::setCookSettings(const CookSettings& settings)
 {
-	PH_ASSERT(settings);
-
 	m_cookSettings = settings;
+}
+
+inline std::shared_ptr<Intersector> VisualWorld::getIntersector() const
+{
+	return m_intersector;
+}
+
+inline std::shared_ptr<EmitterSampler> VisualWorld::getEmitterSampler() const
+{
+	return m_emitterSampler;
+}
+
+inline std::shared_ptr<Scene> VisualWorld::getScene() const
+{
+	return m_scene;
 }
 
 }// end namespace ph

@@ -26,15 +26,24 @@ public:
 		const std::string& resourceName,
 		std::unique_ptr<ISdlResource> resource);
 
+	/*! @brief Given type info @p typeInfo, get a resource named @p resourceName.
+	*/
 	std::shared_ptr<ISdlResource> getResource(
 		const SdlTypeInfo& typeInfo,
 		const std::string& resourceName,
 		const DataTreatment& treatment = DataTreatment()) const;
 
+	/*! @brief Get a resource of type @p T with name @p resourceName.
+	*/
 	template<typename T>
 	std::shared_ptr<T> getResource(
 		const std::string& resourceName, 
 		const DataTreatment& treatment = DataTreatment()) const;
+
+	/*! @brief Get all resources of type @p T.
+	*/
+	template<typename T>
+	std::vector<std::shared_ptr<T>> getResources() const;
 
 	template<typename T>
 	bool hasResource(const std::string& resourceName) const;
@@ -53,13 +62,15 @@ private:
 	static void reportResourceNotFound(const std::string& categoryName, const std::string& name, const DataTreatment& treatment);
 };
 
-// template implementations:
+// In-header Implementations:
 
 template<typename T>
-std::shared_ptr<T> NamedResourceStorage::getResource(
+inline std::shared_ptr<T> NamedResourceStorage::getResource(
 	const std::string& resourceName, 
 	const DataTreatment& treatment) const
 {
+	// TODO: check T::ciTypeInfo() exists
+
 	const SdlTypeInfo& typeInfo = T::ciTypeInfo();
 	const std::shared_ptr<ISdlResource>& rawResource = getResource(typeInfo, resourceName, treatment);
 	if(rawResource == nullptr)
@@ -80,7 +91,29 @@ std::shared_ptr<T> NamedResourceStorage::getResource(
 }
 
 template<typename T>
-bool NamedResourceStorage::hasResource(const std::string& resourceName) const
+inline std::vector<std::shared_ptr<T>> NamedResourceStorage::getResources() const
+{
+	// TODO: check T::ciTypeInfo() exists
+
+	const SdlTypeInfo& typeInfo         = T::ciTypeInfo();
+	const std::size_t  categoryIndex    = toCategoryIndex(typeInfo.typeCategory);
+	const auto&        resourcesNameMap = m_resources[categoryIndex];
+
+	std::vector<std::shared_ptr<T>> resources;
+	for(const auto& [name, resource] : resourcesNameMap)
+	{
+		const std::shared_ptr<T> castedResource = std::dynamic_pointer_cast<T>(resource);
+		if(castedResource)
+		{
+			resources.push_back(std::move(castedResource));
+		}
+	}
+
+	return resources;
+}
+
+template<typename T>
+inline bool NamedResourceStorage::hasResource(const std::string& resourceName) const
 {
 	const SdlTypeInfo& typeInfo         = T::ciTypeInfo();
 	const std::size_t  categoryIndex    = toCategoryIndex(typeInfo.typeCategory);

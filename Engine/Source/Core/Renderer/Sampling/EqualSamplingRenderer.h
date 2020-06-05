@@ -24,7 +24,7 @@ class SampleGenerator;
 class EqualSamplingRenderer : public SamplingRenderer, public TCommandInterface<EqualSamplingRenderer>
 {
 public:
-	void doUpdate(const SdlResourcePack& data) override;
+	void doUpdate(const CoreDataGroup& data) override;
 	void doRender() override;
 	void retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame) override;
 

@@ -1,10 +1,16 @@
 #include "World/CookSettings.h"
 #include "DataIO/SDL/InputPacket.h"
+#include "Common/Logger.h"
 
 #include <iostream>
 
 namespace ph
 {
+
+namespace
+{
+	Logger logger(LogSender("Cook Settings"));
+}
 
 CookSettings::CookSettings() : 
 	CookSettings(EAccelerator::BVH)
@@ -17,38 +23,33 @@ CookSettings::CookSettings(const EAccelerator topLevelAccelerator)
 
 // command interface
 
-namespace
+CookSettings::CookSettings(const InputPacket& packet) : 
+
+	Option(packet),
+
+	m_topLevelAccelerator(EAccelerator::BVH)
 {
-	CookSettings load_cook_settings(const InputPacket& packet)
+	const auto& topLevelAccelerator = packet.getString("top-level-accelerator", "bvh");
+	if(topLevelAccelerator == "brute-force")
 	{
-		CookSettings settings;
-
-		const auto& topLevelAccelerator = packet.getString("top-level-accelerator", "");
-		if(!topLevelAccelerator.empty())
-		{
-			if(topLevelAccelerator == "brute-force")
-			{
-				settings.setTopLevelAccelerator(EAccelerator::BRUTE_FORCE);
-			}
-			else if(topLevelAccelerator == "bvh")
-			{
-				settings.setTopLevelAccelerator(EAccelerator::BVH);
-			}
-			else if(topLevelAccelerator == "kd-tree")
-			{
-				settings.setTopLevelAccelerator(EAccelerator::KDTREE);
-			}
-			else if(topLevelAccelerator == "indexed-kd-tree")
-			{
-				settings.setTopLevelAccelerator(EAccelerator::INDEXED_KDTREE);
-			}
-			else
-			{
-				std::cerr << "warning: unknown accelerator <" + topLevelAccelerator + "> specified" << std::endl;
-			}
-		}
-
-		return settings;
+		setTopLevelAccelerator(EAccelerator::BRUTE_FORCE);
+	}
+	else if(topLevelAccelerator == "bvh")
+	{
+		setTopLevelAccelerator(EAccelerator::BVH);
+	}
+	else if(topLevelAccelerator == "kd-tree")
+	{
+		setTopLevelAccelerator(EAccelerator::KDTREE);
+	}
+	else if(topLevelAccelerator == "indexed-kd-tree")
+	{
+		setTopLevelAccelerator(EAccelerator::INDEXED_KDTREE);
+	}
+	else
+	{
+		logger.log(ELogLevel::NOTE_MED,
+			"unknown accelerator <" + topLevelAccelerator + "> specified");
 	}
 }
 
@@ -59,10 +60,11 @@ SdlTypeInfo CookSettings::ciTypeInfo()
 
 void CookSettings::ciRegister(CommandRegister& cmdRegister)
 {
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		return std::make_unique<CookSettings>(load_cook_settings(packet));
-	}));
+	cmdRegister.setLoader(
+		SdlLoader([](const InputPacket& packet)
+		{
+			return std::make_unique<CookSettings>(packet);
+		}));
 }
 
 }// end namespace ph

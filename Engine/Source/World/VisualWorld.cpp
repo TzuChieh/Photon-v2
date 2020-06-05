@@ -24,16 +24,14 @@ namespace ph
 const Logger VisualWorld::logger(LogSender("Visual World"));
 
 VisualWorld::VisualWorld() :
-
 	m_intersector(),
-	//m_emitterSampler(std::make_unique<ESUniformRandom>()),
-	m_emitterSampler(std::make_unique<ESPowerFavoring>()),
+	//m_emitterSampler(std::make_shared<ESUniformRandom>()),
+	m_emitterSampler(std::make_shared<ESPowerFavoring>()),
 	m_scene(),
 	m_receiverPos(0),
-	m_cookSettings(),
 	m_backgroundPrimitive(nullptr)
 {
-	setCookSettings(std::make_shared<CookSettings>());
+	setCookSettings(CookSettings());
 }
 
 VisualWorld::VisualWorld(VisualWorld&& other) :
@@ -43,7 +41,6 @@ VisualWorld::VisualWorld(VisualWorld&& other) :
 	m_emitterSampler     (std::move(other.m_emitterSampler)),
 	m_scene              (std::move(other.m_scene)),
 	m_receiverPos        (std::move(other.m_receiverPos)),
-	m_cookSettings       (std::move(other.m_cookSettings)),
 	m_backgroundPrimitive(std::move(other.m_backgroundPrimitive))
 {}
 
@@ -153,8 +150,8 @@ void VisualWorld::cook()
 	logger.log(ELogLevel::NOTE_MED, "updating light sampler...");
 	m_emitterSampler->update(m_cookedActorStorage);
 
-	m_scene = Scene(m_intersector.get(), m_emitterSampler.get());
-	m_scene.setBackgroundPrimitive(m_backgroundPrimitive.get());
+	m_scene = std::make_shared<Scene>(m_intersector.get(), m_emitterSampler.get());
+	m_scene->setBackgroundPrimitive(m_backgroundPrimitive.get());
 }
 
 void VisualWorld::cookActors(
@@ -174,46 +171,39 @@ void VisualWorld::cookActors(
 
 void VisualWorld::createTopLevelAccelerator()
 {
-	PH_ASSERT(m_cookSettings);
-
-	const EAccelerator type = m_cookSettings->getTopLevelAccelerator();
+	const EAccelerator type = m_cookSettings.getTopLevelAccelerator();
 
 	std::string name;
 	switch(type)
 	{
 	case EAccelerator::BRUTE_FORCE:
-		m_intersector = std::make_unique<BruteForceIntersector>();
+		m_intersector = std::make_shared<BruteForceIntersector>();
 		name = "Brute-Force";
 		break;
 
 	case EAccelerator::BVH:
-		m_intersector = std::make_unique<ClassicBvhIntersector>();
+		m_intersector = std::make_shared<ClassicBvhIntersector>();
 		name = "BVH";
 		break;
 
 	case EAccelerator::KDTREE:
-		m_intersector = std::make_unique<KdtreeIntersector>();
+		m_intersector = std::make_shared<KdtreeIntersector>();
 		name = "kD-Tree";
 		break;
 
 	// FIXME: need to ensure sufficient max value
 	case EAccelerator::INDEXED_KDTREE:
-		m_intersector = std::make_unique<TIndexedKdtreeIntersector<int>>();
+		m_intersector = std::make_shared<TIndexedKdtreeIntersector<int>>();
 		name = "Indexed kD-Tree";
 		break;
 
 	default:
-		m_intersector = std::make_unique<ClassicBvhIntersector>();
+		m_intersector = std::make_shared<ClassicBvhIntersector>();
 		name = "BVH";
 		break;
 	}
 
 	logger.log("top level accelerator type: " + name);
-}
-
-const Scene& VisualWorld::getScene() const
-{
-	return m_scene;
 }
 
 math::AABB3D VisualWorld::calcIntersectableBound(const CookedDataStorage& storage)

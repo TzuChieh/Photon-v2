@@ -42,6 +42,8 @@ private:
 template<typename DerivedType>
 inline void TCommandInterface<DerivedType>::registerInterface()
 {
+	// TODO: check for method signature
+
 	TypeInfoFuncType typeInfoFunc = DerivedType::ciTypeInfo;
 	RegisterFuncType registerFunc = DerivedType::ciRegister;
 

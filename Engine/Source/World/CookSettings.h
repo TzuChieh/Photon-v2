@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DataIO/SDL/TCommandInterface.h"
+#include "DataIO/Option.h"
 
 namespace ph
 {
@@ -13,7 +14,7 @@ enum class EAccelerator
 	INDEXED_KDTREE
 };
 
-class CookSettings : public TCommandInterface<CookSettings>
+class CookSettings final : public Option, public TCommandInterface<CookSettings>
 {
 public:
 	CookSettings();
@@ -27,6 +28,7 @@ private:
 
 // command interface
 public:
+	explicit CookSettings(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };

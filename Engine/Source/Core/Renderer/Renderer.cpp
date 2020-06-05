@@ -12,7 +12,7 @@
 #include "Common/Logger.h"
 #include "DataIO/SDL/InputPacket.h"
 #include "DataIO/SDL/DataTreatment.h"
-#include "DataIO/SDL/SdlResourcePack.h"
+#include "Core/CoreDataGroup.h"
 
 #include <iostream>
 #include <vector>
@@ -30,7 +30,7 @@ namespace
 
 Renderer::~Renderer() = default;
 
-void Renderer::update(const SdlResourcePack& data)
+void Renderer::update(const CoreDataGroup& data)
 {
 	logger.log("# render workers = " + std::to_string(numWorkers()));
 

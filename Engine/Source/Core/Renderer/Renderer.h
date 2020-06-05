@@ -26,7 +26,7 @@
 namespace ph
 {
 
-class SdlResourcePack;
+class CoreDataGroup;
 class InputPacket;
 class RenderWorker;
 
@@ -40,7 +40,7 @@ public:
 
 	// Perform necessary updates for rendering. 
 	// No asynchronous operation is allowed during update.
-	virtual void doUpdate(const SdlResourcePack& data) = 0;
+	virtual void doUpdate(const CoreDataGroup& data) = 0;
 
 	// Start rendering.
 	virtual void doRender() = 0;
@@ -70,7 +70,7 @@ public:
 	// async<X>() methods.
 	virtual ObservableRenderData getObservableData() const = 0;
 
-	void update(const SdlResourcePack& data);
+	void update(const CoreDataGroup& data);
 	void render();
 	void setNumWorkers(uint32 numWorkers);
 
