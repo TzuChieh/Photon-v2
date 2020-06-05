@@ -2,7 +2,7 @@
 # NOTE: THIS FILE CONTAINS GENERATED CODE 
 #       DO NOT MODIFY                     
 # ========================================
-# last generated: 2020-05-20 19:13:03.784315 
+# last generated: 2020-06-05 15:05:04.510692 
 
 from abc import ABC, abstractmethod
 
@@ -248,25 +248,14 @@ class SDLExecutorCommand(SDLCommand):
         self.__target_name = data_name
 
 
-class SDLCoreCommand(SDLCommand):
-    def __init__(self):
-        super().__init__()
+class SDLLightSource(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("light-source", ref_name)
 
-    @abstractmethod
-    def get_full_type(self):
-        pass
 
-    def get_prefix(self):
-        return "##"
-
-    def generate(self):
-        fragments = [
-            self.get_prefix(), " ",
-            self.get_full_type(), " "]
-        self._generate_input_fragments(fragments)
-        fragments.append("\n")
-
-        return "".join(fragments)
+class SDLMaterial(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("material", ref_name)
 
 
 class SDLGeometry(SDLReference):
@@ -274,29 +263,9 @@ class SDLGeometry(SDLReference):
         super().__init__("geometry", ref_name)
 
 
-class SDLLightSource(SDLReference):
+class SDLEstimator(SDLReference):
     def __init__(self, ref_name = ""):
-        super().__init__("light-source", ref_name)
-
-
-class SDLRenderer(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("renderer", ref_name)
-
-
-class SDLMotion(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("motion", ref_name)
-
-
-class SDLOption(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("option", ref_name)
-
-
-class SDLFrameProcessor(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("frame-processor", ref_name)
+        super().__init__("estimator", ref_name)
 
 
 class SDLImage(SDLReference):
@@ -309,14 +278,9 @@ class SDLSampleGenerator(SDLReference):
         super().__init__("sample-generator", ref_name)
 
 
-class SDLMaterial(SDLReference):
+class SDLFrameProcessor(SDLReference):
     def __init__(self, ref_name = ""):
-        super().__init__("material", ref_name)
-
-
-class SDLEstimator(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("estimator", ref_name)
+        super().__init__("frame-processor", ref_name)
 
 
 class SDLFilm(SDLReference):
@@ -324,14 +288,29 @@ class SDLFilm(SDLReference):
         super().__init__("film", ref_name)
 
 
-class SDLActor(SDLReference):
+class SDLRenderer(SDLReference):
     def __init__(self, ref_name = ""):
-        super().__init__("actor", ref_name)
+        super().__init__("renderer", ref_name)
 
 
 class SDLCamera(SDLReference):
     def __init__(self, ref_name = ""):
         super().__init__("camera", ref_name)
+
+
+class SDLOption(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("option", ref_name)
+
+
+class SDLActor(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("actor", ref_name)
+
+
+class SDLMotion(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("motion", ref_name)
 
 
 
@@ -343,8 +322,11 @@ class DomeActorCreator(SDLCreatorCommand):
     def get_full_type(self):
         return "actor(dome)"
 
-    def set_env_map(self, env_map: SDLData):
-        self.set_input("env-map", env_map)
+    def set_type(self, type: SDLData):
+        self.set_input("type", type)
+
+    def set_image(self, image: SDLData):
+        self.set_input("image", image)
 
 
 class DomeActorTranslate(SDLExecutorCommand):
@@ -1072,7 +1054,27 @@ class MatteOpaqueMaterialCreator(SDLCreatorCommand):
         self.set_input("sigma-degrees", sigma_degrees)
 
 
-class EnvironmentReceiverCreator(SDLCoreCommand):
+class EngineOptionCreator(SDLCreatorCommand):
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "option(engine)"
+
+    def set_renderer(self, renderer: SDLData):
+        self.set_input("renderer", renderer)
+
+    def set_receiver(self, receiver: SDLData):
+        self.set_input("receiver", receiver)
+
+    def set_sample_generator(self, sample_generator: SDLData):
+        self.set_input("sample-generator", sample_generator)
+
+    def set_cook_settings(self, cook_settings: SDLData):
+        self.set_input("cook-settings", cook_settings)
+
+
+class EnvironmentReceiverCreator(SDLCreatorCommand):
     def __init__(self):
         super().__init__()
 
@@ -1104,7 +1106,7 @@ class EnvironmentReceiverCreator(SDLCoreCommand):
         self.set_input("pitch-degrees", pitch_degrees)
 
 
-class PinholeReceiverCreator(SDLCoreCommand):
+class PinholeReceiverCreator(SDLCreatorCommand):
     def __init__(self):
         super().__init__()
 
@@ -1145,7 +1147,7 @@ class PinholeReceiverCreator(SDLCoreCommand):
         self.set_input("pitch-degrees", pitch_degrees)
 
 
-class ThinLensReceiverCreator(SDLCoreCommand):
+class ThinLensReceiverCreator(SDLCreatorCommand):
     def __init__(self):
         super().__init__()
 
@@ -1192,7 +1194,7 @@ class ThinLensReceiverCreator(SDLCoreCommand):
         self.set_input("pitch-degrees", pitch_degrees)
 
 
-class AttributeRendererCreator(SDLCoreCommand):
+class AttributeRendererCreator(SDLCreatorCommand):
     def __init__(self):
         super().__init__()
 
@@ -1215,7 +1217,7 @@ class AttributeRendererCreator(SDLCoreCommand):
         self.set_input("rect-h", rect_h)
 
 
-class PmRendererCreator(SDLCoreCommand):
+class PmRendererCreator(SDLCreatorCommand):
     def __init__(self):
         super().__init__()
 
@@ -1250,7 +1252,7 @@ class PmRendererCreator(SDLCoreCommand):
         self.set_input("rect-h", rect_h)
 
 
-class AdaptiveSamplingRendererCreator(SDLCoreCommand):
+class AdaptiveSamplingRendererCreator(SDLCreatorCommand):
     def __init__(self):
         super().__init__()
 
@@ -1276,7 +1278,7 @@ class AdaptiveSamplingRendererCreator(SDLCoreCommand):
         self.set_input("rect-h", rect_h)
 
 
-class EqualSamplingRendererCreator(SDLCoreCommand):
+class EqualSamplingRendererCreator(SDLCreatorCommand):
     def __init__(self):
         super().__init__()
 
@@ -1311,7 +1313,7 @@ class EqualSamplingRendererCreator(SDLCoreCommand):
         self.set_input("rect-h", rect_h)
 
 
-class HaltonSampleGeneratorCreator(SDLCoreCommand):
+class HaltonSampleGeneratorCreator(SDLCreatorCommand):
     def __init__(self):
         super().__init__()
 
@@ -1322,7 +1324,7 @@ class HaltonSampleGeneratorCreator(SDLCoreCommand):
         self.set_input("sample-amount", sample_amount)
 
 
-class StratifiedSampleGeneratorCreator(SDLCoreCommand):
+class StratifiedSampleGeneratorCreator(SDLCreatorCommand):
     def __init__(self):
         super().__init__()
 
@@ -1333,7 +1335,7 @@ class StratifiedSampleGeneratorCreator(SDLCoreCommand):
         self.set_input("sample-amount", sample_amount)
 
 
-class UniformRandomSampleGeneratorCreator(SDLCoreCommand):
+class UniformRandomSampleGeneratorCreator(SDLCreatorCommand):
     def __init__(self):
         super().__init__()
 
@@ -1344,7 +1346,7 @@ class UniformRandomSampleGeneratorCreator(SDLCoreCommand):
         self.set_input("sample-amount", sample_amount)
 
 
-class CookSettingsOptionCreator(SDLCoreCommand):
+class CookSettingsOptionCreator(SDLCreatorCommand):
     def __init__(self):
         super().__init__()
 

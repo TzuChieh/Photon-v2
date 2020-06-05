@@ -149,7 +149,7 @@ void ADome::ciRegister(CommandRegister& cmdRegister)
 		[](const InputPacket& packet) -> std::unique_ptr<ISdlResource>
 		{
 			const auto type = packet.getString("type", 
-				"", DataTreatment::REQUIRED());
+				"image");
 
 			if(type == "image")
 			{

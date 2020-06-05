@@ -75,6 +75,7 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
         exporter.begin(scene_name)
         exporter.export_core_commands(b_scene)
         exporter.export(b_depsgraph)
+        exporter.export_options(b_scene)
         exporter.end()
 
     def get_evaluated_depsgraph(self, b_context):

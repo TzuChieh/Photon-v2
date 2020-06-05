@@ -37,7 +37,8 @@ from ...psdl.pysdl import (
     EqualSamplingRendererCreator,
     PmRendererCreator,
     AttributeRendererCreator,
-    CookSettingsOptionCreator)
+    CookSettingsOptionCreator,
+    EngineOptionCreator)
 from ...psdl.sdlconsole import SdlConsole
 from ...utility import meta, blender
 from . import cycles_material
@@ -344,6 +345,7 @@ class Exporter:
                 camera.set_focal_distance_mm(SDLReal(b_camera.ph_focal_meters * 1000))
 
         if camera is not None:
+            camera.set_data_name("receiver")
             camera.set_resolution_x(SDLInteger(resolution_x))
             camera.set_resolution_y(SDLInteger(resolution_y))
             self.__sdlconsole.queue_command(camera)
@@ -363,7 +365,7 @@ class Exporter:
         envmap_sdlri = sdlresource.SdlResourceIdentifier()
         envmap_sdlri.append_folder(b_world.name + "_data")
         envmap_sdlri.set_file(utility.get_filename(envmap_path))
-        creator.set_env_map(SDLString(envmap_sdlri.get_identifier()))
+        creator.set_image(SDLString(envmap_sdlri.get_identifier()))
 
         # copy the envmap to scene folder
         self.get_sdlconsole().create_resource_folder(envmap_sdlri)
@@ -395,19 +397,10 @@ class Exporter:
             sample_generator.set_sample_amount(SDLInteger(meta_info.spp()))
 
         if sample_generator is not None:
+            sample_generator.set_data_name("sample-generator")
             self.get_sdlconsole().queue_command(sample_generator)
         else:
             print("warning: no sample generator present")
-
-        cook_settings = CookSettingsOptionCreator()
-        if b_scene.ph_top_level_accelerator == 'BF':
-            cook_settings.set_top_level_accelerator(SDLString("brute-force"))
-        elif b_scene.ph_top_level_accelerator == 'BVH':
-            cook_settings.set_top_level_accelerator(SDLString("bvh"))
-        elif b_scene.ph_top_level_accelerator == 'IKD':
-            cook_settings.set_top_level_accelerator(SDLString("indexed-kd-tree"))
-        self.get_sdlconsole().queue_command(cook_settings)
-
 
         render_method = meta_info.render_method()
 
@@ -443,6 +436,9 @@ class Exporter:
             print("warning: render method %s is not supported" % render_method)
 
         if renderer is not None:
+
+            renderer.set_data_name("renderer")
+
             if b_scene.ph_use_crop_window:
                 renderer.set_rect_x(SDLInteger(b_scene.ph_crop_min_x))
                 renderer.set_rect_y(SDLInteger(b_scene.ph_crop_min_y))
@@ -450,6 +446,25 @@ class Exporter:
                 renderer.set_rect_h(SDLInteger(b_scene.ph_crop_height))
 
             self.get_sdlconsole().queue_command(renderer)
+
+    def export_options(self, b_scene):
+        cook_settings = CookSettingsOptionCreator()
+        cook_settings.set_data_name("cook-settings")
+        if b_scene.ph_top_level_accelerator == 'BF':
+            cook_settings.set_top_level_accelerator(SDLString("brute-force"))
+        elif b_scene.ph_top_level_accelerator == 'BVH':
+            cook_settings.set_top_level_accelerator(SDLString("bvh"))
+        elif b_scene.ph_top_level_accelerator == 'IKD':
+            cook_settings.set_top_level_accelerator(SDLString("indexed-kd-tree"))
+        self.get_sdlconsole().queue_command(cook_settings)
+
+        engine_option = EngineOptionCreator()
+        engine_option.set_data_name("engine-option")
+        engine_option.set_renderer(SDLString("@renderer"))# HACK
+        engine_option.set_receiver(SDLString("@receiver"))# HACK
+        engine_option.set_sample_generator(SDLString("@sample-generator"))# HACK
+        engine_option.set_cook_settings(SDLString("@cook-settings"))# HACK
+        self.get_sdlconsole().queue_command(engine_option)
 
     # TODO: write/flush commands to disk once a while (reducing memory usage)
     def export(self, b_depsgraph: bpy.types.Depsgraph):

@@ -84,6 +84,12 @@ inline std::string EngineOption::getCookSettingsName() const
 			</description>
 		</input>
 
+		<input name="cook-settings" type="string">
+			<description>
+				Name of the cook settings resource to use.
+			</description>
+		</input>
+
 	</command>
 
 	</SDL_interface>
