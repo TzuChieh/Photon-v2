@@ -34,7 +34,7 @@ public:
 		real* const out_pdfW) const override = 0;
 
 protected:
-	std::shared_ptr<math::Transform>    m_receiverToWorld;
+	std::shared_ptr<math::Transform>    m_receiverToWorld;// FIXME: should be rigid
 	std::shared_ptr<math::Transform>    m_rasterToReceiver;
 	math::TDecomposedTransform<float64> m_rasterToReceiverDecomposed;
 	

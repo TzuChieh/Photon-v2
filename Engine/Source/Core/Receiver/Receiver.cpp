@@ -150,9 +150,18 @@ math::QuaternionR Receiver::makeRotationFromYawPitch(real yawDegrees, real pitch
 	return yawRot.mul(pitchRot).normalize();
 }
 
-// command interface
+// Command Interface
 
 Receiver::Receiver(const InputPacket& packet) :
+	Receiver(packet, {960, 540})
+{
+	m_resolution.x = packet.getInteger("resolution-x",
+		static_cast<integer>(m_resolution.x), DataTreatment::REQUIRED("using default: " + std::to_string(m_resolution.x)));
+	m_resolution.y = packet.getInteger("resolution-y",
+		static_cast<integer>(m_resolution.y), DataTreatment::REQUIRED("using default: " + std::to_string(m_resolution.y)));
+}
+
+Receiver::Receiver(const InputPacket& packet, const math::Vector2S& resolution) : 
 	Receiver()
 {
 	m_position = packet.getVector3("position", 
@@ -180,12 +189,8 @@ Receiver::Receiver(const InputPacket& packet) :
 	}
 	m_direction = makeDirectionFromRotation(rotation);
 
-	m_resolution.x = packet.getInteger("resolution-x",
-		static_cast<integer>(m_resolution.x), DataTreatment::REQUIRED("using default: " + std::to_string(m_resolution.x)));
-	m_resolution.y = packet.getInteger("resolution-y",
-		static_cast<integer>(m_resolution.y), DataTreatment::REQUIRED("using default: " + std::to_string(m_resolution.y)));
-
 	m_receiverToWorldDecomposed = makeDecomposedReceiverPose(m_position, rotation);
+	m_resolution = resolution;
 }
 
 SdlTypeInfo Receiver::ciTypeInfo()

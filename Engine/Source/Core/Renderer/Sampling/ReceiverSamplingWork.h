@@ -46,7 +46,7 @@ private:
 	std::vector<IReceivedRayProcessor*> m_processors;
 	std::unique_ptr<SampleGenerator>    m_sampleGenerator;
 	math::Vector2D                      m_filmResPx;
-	math::TAABB2D<float64>              m_filmWindowPx;
+	math::TAABB2D<float64>              m_filmWindowPx;// FIXME: confusing; rename; this is sample window
 	math::Vector2S                      m_sampleResPx;
 
 	std::atomic_uint32_t  m_numSamplesTaken;

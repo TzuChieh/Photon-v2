@@ -63,6 +63,7 @@
 #include "Core/Receiver/PinholeCamera.h"
 #include "Core/Receiver/ThinLensCamera.h"
 #include "Core/Receiver/EnvironmentCamera.h"
+#include "Core/Receiver/RadiantFluxPanel.h"
 
 // sample generators
 #include "Core/SampleGenerator/SampleGenerator.h"
@@ -174,6 +175,7 @@ bool init_command_parser()
 	register_command_interface<PinholeCamera>();
 	register_command_interface<ThinLensCamera>();
 	register_command_interface<EnvironmentCamera>();
+	register_command_interface<RadiantFluxPanel>();
 	
 	// sample generators
 	register_command_interface<SampleGenerator>();

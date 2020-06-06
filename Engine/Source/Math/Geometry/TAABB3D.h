@@ -121,6 +121,8 @@ public:
 	*/
 	bool isFiniteVolume() const;
 
+	bool isValid() const;
+
 	/*! @brief Get corner vertices on the minimum (---) and maximum (+++) octants.
 
 	@return A pair of vertices in the form <min-vertex, max-vertex>.

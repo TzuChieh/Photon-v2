@@ -199,9 +199,16 @@ inline TVector2<T> TAABB2D<T>::sampleToSurface(const std::array<T, 2>& sample) c
 {
 	PH_ASSERT_IN_RANGE_INCLUSIVE(sample[0], static_cast<T>(0), static_cast<T>(1));
 	PH_ASSERT_IN_RANGE_INCLUSIVE(sample[1], static_cast<T>(0), static_cast<T>(1));
+
+	return xy01ToSurface({sample[0], sample[1]});
+}
+
+template<typename T>
+inline TVector2<T> TAABB2D<T>::xy01ToSurface(const TVector2<T>& xy01) const
+{
 	PH_ASSERT(isValid());
 
-	return TVector2<T>(sample).mul(getExtents()).add(m_minVertex);
+	return xy01.mul(getExtents()).add(m_minVertex);
 }
 
 template<typename T>

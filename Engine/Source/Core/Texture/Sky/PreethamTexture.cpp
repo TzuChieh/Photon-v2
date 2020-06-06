@@ -70,7 +70,7 @@ PreethamTexture::PreethamTexture(
 	const auto xz = vecT.dot(vecSx);
 	const auto yz = vecT.dot(vecSy);
 
-	// The value of <xz>, <yz> and <Yz> are in luminance in K*cd/m^2
+	// <Yz> is in luminance in K*cd/m^2
 	m_Yabs_xyY = {xz, yz, Yz};
 }
 

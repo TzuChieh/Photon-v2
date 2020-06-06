@@ -73,9 +73,16 @@ private:
 		const math::Vector3R&    position, 
 		const math::QuaternionR& rotation);
 
-// command interface
+// Command Interface
 public:
+	/*! @brief Load all data from @p packet.
+	*/
 	explicit Receiver(const InputPacket& packet);
+
+	/*! @brief Load all data from @p packet except for resolution.
+	*/
+	Receiver(const InputPacket& packet, const math::Vector2S& resolution);
+
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
