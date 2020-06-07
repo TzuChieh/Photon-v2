@@ -91,7 +91,7 @@ namespace ph
 
 namespace
 {
-	const Logger logger(LogSender("Init & Exit"));
+	Logger logger(LogSender("Init & Exit"));
 }
 
 bool init_core_infrastructure()

@@ -6,7 +6,7 @@
 #include "Math/TVector3.h"
 #include "Math/Geometry/TAABB2D.h"
 #include "Core/Ray.h"
-#include "Math/Transform/StaticAffineTransform.h"
+#include "Math/Transform/StaticRigidTransform.h"
 #include "Math/Geometry/THemisphere.h"
 #include "Math/Random.h"
 #include "Common/Logger.h"
@@ -54,7 +54,7 @@ Spectrum RadiantFluxPanelArray::receiveRay(const math::Vector2D& rasterCoord, Ra
 
 	m_localToWorld->transform(localRay, out_ray);
 
-	return localWeight / rasterPickPdf;
+	return localWeight / static_cast<real>(rasterPickPdf);
 }
 
 void RadiantFluxPanelArray::evalEmittedImportanceAndPdfW(const math::Vector3R& targetPos, math::Vector2R* const out_filmCoord, math::Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const
@@ -75,6 +75,9 @@ RadiantFluxPanelArray::RadiantFluxPanelArray(const InputPacket& packet) :
 
 	m_rasterCoordToPanelIndex.resize(rasterRes.product(), rasterRes.product());
 
+	m_localToWorld = std::make_shared<math::StaticRigidTransform>(
+		math::StaticRigidTransform::makeForward(m_receiverToWorldDecomposed));
+
 	const auto panelWidths = packet.getRealArray("panel-widths", 
 		std::vector<real>(), DataTreatment::REQUIRED());
 
@@ -91,11 +94,11 @@ RadiantFluxPanelArray::RadiantFluxPanelArray(const InputPacket& packet) :
 		std::vector<math::Vector3R>(), DataTreatment::REQUIRED());
 
 	// FIXME: int array
-	const auto rasterIndicesX = packet.getRealArray("rasater-indices-x",
+	const auto rasterIndicesX = packet.getRealArray("raster-indices-x",
 		std::vector<real>(), DataTreatment::REQUIRED());
 
 	// FIXME: int array
-	const auto rasterIndicesY = packet.getRealArray("rasater-indices-y",
+	const auto rasterIndicesY = packet.getRealArray("raster-indices-y",
 		std::vector<real>(), DataTreatment::REQUIRED());
 
 	if(panelWidths.size() != panelHeights.size()   ||
@@ -133,9 +136,6 @@ RadiantFluxPanelArray::RadiantFluxPanelArray(const InputPacket& packet) :
 
 		m_rasterCoordToPanelIndex[rasterIndex.y * rasterRes.x + rasterIndex.x] = i;
 	}
-
-	m_localToWorld = std::make_shared<math::StaticAffineTransform>(
-		math::StaticAffineTransform::makeForward(m_receiverToWorldDecomposed));
 }
 
 SdlTypeInfo RadiantFluxPanelArray::ciTypeInfo()

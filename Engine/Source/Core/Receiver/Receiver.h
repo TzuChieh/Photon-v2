@@ -67,7 +67,6 @@ protected:
 	math::Vector2S                      m_resolution;
 	math::TDecomposedTransform<float64> m_receiverToWorldDecomposed;
 
-private:
 	static math::Vector3R makeDirectionFromRotation(const math::QuaternionR& rotation);
 	static math::QuaternionR makeRotationFromYawPitch(real yawDegrees, real pitchDegrees);
 

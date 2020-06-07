@@ -6,7 +6,7 @@
 #include "Math/TVector3.h"
 #include "Math/Geometry/TAABB2D.h"
 #include "Core/Ray.h"
-#include "Math/Transform/StaticAffineTransform.h"
+#include "Math/Transform/StaticRigidTransform.h"
 #include "Math/Geometry/THemisphere.h"
 #include "Math/Random.h"
 
@@ -28,15 +28,12 @@ RadiantFluxPanel::RadiantFluxPanel(
 		upAxis,
 		{1, 1}),
 
-	m_width (widthHeight.x),
-	m_height(widthHeight.y)
+	m_widthHeight(widthHeight)
 {
-	PH_ASSERT_GT(m_width, 0);
-	PH_ASSERT_GT(m_height, 0);
+	PH_ASSERT_GT(m_widthHeight.product(), 0);
 
-	// FIXME: rigid
-	m_receiverToWorld = std::make_shared<math::StaticAffineTransform>(
-		math::StaticAffineTransform::makeForward(m_receiverToWorldDecomposed));
+	m_receiverToWorld = std::make_shared<math::StaticRigidTransform>(
+		math::StaticRigidTransform::makeForward(m_receiverToWorldDecomposed));
 }
 
 Spectrum RadiantFluxPanel::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
@@ -46,10 +43,9 @@ Spectrum RadiantFluxPanel::receiveRay(const math::Vector2D& rasterCoord, Ray* co
 	PH_ASSERT_EQ(getRasterResolution().y, 1);
 	PH_ASSERT(m_receiverToWorld);
 
-	const auto halfWidth      = m_width * 0.5;
-	const auto halfHeight     = m_height * 0.5;
-	const auto localRectangle = math::TAABB2D<float64>({-halfWidth, -halfHeight}, {halfWidth, halfHeight});
-	const auto localSurface   = localRectangle.xy01ToSurface({rasterCoord.x, rasterCoord.y});
+	const auto halfWidthHeight = math::Vector2D(m_widthHeight).mul(0.5);
+	const auto localRectangle  = math::TAABB2D<float64>(halfWidthHeight.mul(-1), halfWidthHeight);
+	const auto localSurface    = localRectangle.xy01ToSurface({rasterCoord.x, rasterCoord.y});
 	
 	// Receivers face -z locally
 	math::Vector3R surface;
@@ -73,7 +69,7 @@ Spectrum RadiantFluxPanel::receiveRay(const math::Vector2D& rasterCoord, Ray* co
 		unitHemiDir.z,
 		-unitHemiDir.y);
 
-	const float64 pdfA = 1.0 / (m_width * m_height);
+	const float64 pdfA = 1.0 / math::Vector2D(m_widthHeight).product();
 	if(pdfA == 0)
 	{
 		return Spectrum(0);
@@ -111,15 +107,14 @@ RadiantFluxPanel::RadiantFluxPanel(const InputPacket& packet) :
 	// A radiant flux panel output single measured value, hence the 1x1 resolution
 	Receiver(packet, {1, 1}),
 
-	m_width (packet.getReal("width",  1.0_r, DataTreatment::REQUIRED())),
-	m_height(packet.getReal("height", 1.0_r, DataTreatment::REQUIRED()))
+	m_widthHeight(
+		packet.getReal("width", 1.0_r, DataTreatment::REQUIRED()),
+		packet.getReal("height", 1.0_r, DataTreatment::REQUIRED()))
 {
-	PH_ASSERT_GT(m_width, 0);
-	PH_ASSERT_GT(m_height, 0);
+	PH_ASSERT_GT(m_widthHeight.product(), 0);
 
-	// FIXME: rigid
-	m_receiverToWorld = std::make_shared<math::StaticAffineTransform>(
-		math::StaticAffineTransform::makeForward(m_receiverToWorldDecomposed));
+	m_receiverToWorld = std::make_shared<math::StaticRigidTransform>(
+		math::StaticRigidTransform::makeForward(m_receiverToWorldDecomposed));
 }
 
 SdlTypeInfo RadiantFluxPanel::ciTypeInfo()

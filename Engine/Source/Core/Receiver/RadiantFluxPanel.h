@@ -2,11 +2,11 @@
 
 #include "Core/Receiver/Receiver.h"
 #include "Common/primitive_type.h"
-#include "Math/math_fwd.h"
+#include "Math/TVector2.h"
 
 #include <memory>
 
-namespace ph::math { class Transform; }
+namespace ph::math { class RigidTransform; }
 
 namespace ph
 {
@@ -24,9 +24,8 @@ public:
 	void evalEmittedImportanceAndPdfW(const math::Vector3R& targetPos, math::Vector2R* const out_filmCoord, math::Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const override;
 
 private:
-	float64                          m_width;
-	float64                          m_height;
-	std::shared_ptr<math::Transform> m_receiverToWorld;// FIXME: should be rigid
+	math::Vector2R                        m_widthHeight;
+	std::shared_ptr<math::RigidTransform> m_receiverToWorld;
 
 // Command Interface
 public:
