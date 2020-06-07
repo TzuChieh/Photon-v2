@@ -9,66 +9,52 @@
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Math/Geometry/THemisphere.h"
 #include "Math/Random.h"
+#include "Common/Logger.h"
+#include "Math/math.h"
 
 #include <limits>
 
 namespace ph
 {
 
+namespace
+{
+	Logger logger(LogSender("Radiant Flux Panel Array"));
+}
+
 Spectrum RadiantFluxPanelArray::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
 {
-	//PH_ASSERT(out_ray);
-	//PH_ASSERT_EQ(getRasterResolution().x, 1);
-	//PH_ASSERT_EQ(getRasterResolution().y, 1);
-	//PH_ASSERT(m_receiverToWorld);
+	PH_ASSERT(out_ray);
+	PH_ASSERT(m_localToWorld);
+	PH_ASSERT_GT(getRasterResolution().product(), 0);
 
-	//const auto halfWidth      = m_width * 0.5;
-	//const auto halfHeight     = m_height * 0.5;
-	//const auto localRectangle = math::TAABB2D<float64>({-halfWidth, -halfHeight}, {halfWidth, halfHeight});
-	//const auto localSurface   = localRectangle.xy01ToSurface({rasterCoord.x, rasterCoord.y});
-	//
-	//math::Vector3R surface;
-	//m_receiverToWorld->transformP({static_cast<real>(localSurface.y), 0, static_cast<real>(localSurface.x)}, &surface);
+	const auto    rasterRes     = getRasterResolution();
+	const auto    iRasterCoord  = math::Vector2S(rasterCoord);
+	const float64 rasterPickPdf = 1.0 / rasterRes.product();
 
-	//const auto localHemisphere = math::THemisphere<float64>::makeUnit();
+	// Out-of-bound raster coordinates imply invalid panel surface position
+	if(iRasterCoord.x < 0 || iRasterCoord.x >= rasterRes.x ||
+	   iRasterCoord.y < 0 || iRasterCoord.y >= rasterRes.y)
+	{
+		return Spectrum(0);
+	}
+	
+	const auto mapIndex = iRasterCoord.y * rasterRes.x + iRasterCoord.x;
+	PH_ASSERT_LT(mapIndex, m_rasterCoordToPanelIndex.size());
+	const auto panelIndex = m_rasterCoordToPanelIndex[mapIndex];
 
-	//float64 pdfW;
-	//const auto localDirection = localHemisphere.sampleToSurfaceCosThetaWeighted(
-	//	{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()},
-	//	&pdfW);
-	//if(pdfW == 0)
-	//{
-	//	return Spectrum(0);
-	//}
+	const RadiantFluxPanel& panel = m_panels[panelIndex];
 
-	//const float64 pdfA = 1.0 / (m_width * m_height);
-	//if(pdfA == 0)
-	//{
-	//	return Spectrum(0);
-	//}
+	const auto panelRasterCoord = math::Vector2D(
+		math::fractional_part(rasterCoord.x),
+		math::fractional_part(rasterCoord.y));
 
-	//const float64 cosTheta = localDirection.y;
+	Ray localRay;
+	const Spectrum localWeight = panel.receiveRay(panelRasterCoord, &localRay);
 
-	//math::Vector3R direction;
-	//m_receiverToWorld->transformV(math::Vector3R(localDirection), &direction);
+	m_localToWorld->transform(localRay, out_ray);
 
-	//out_ray->setDirection(direction.negate());
-	//out_ray->setOrigin(surface);
-	//out_ray->setMinT(0.0001_r);// HACK: hard-coded number
-	//out_ray->setMaxT(std::numeric_limits<real>::max());
-
-	//// HACK
-	//Time time;
-	//time.relativeT = math::Random::genUniformReal_i0_e1();
-	//out_ray->setTime(time);
-
-	//PH_ASSERT_MSG(out_ray->getOrigin().isFinite() && out_ray->getDirection().isFinite(), "\n"
-	//	"origin    = " + out_ray->getOrigin().toString() + "\n"
-	//	"direction = " + out_ray->getDirection().toString() + "\n");
-
-	//return Spectrum(static_cast<real>(cosTheta / (pdfA * pdfW)));
-
-	return Spectrum(0);
+	return localWeight / rasterPickPdf;
 }
 
 void RadiantFluxPanelArray::evalEmittedImportanceAndPdfW(const math::Vector3R& targetPos, math::Vector2R* const out_filmCoord, math::Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const
@@ -80,21 +66,75 @@ void RadiantFluxPanelArray::evalEmittedImportanceAndPdfW(const math::Vector3R& t
 
 RadiantFluxPanelArray::RadiantFluxPanelArray(const InputPacket& packet) :
 
-	// A radiant flux panel output single measured value, hence the 1x1 resolution
-	Receiver(packet, {1, 1}),
+	Receiver(packet),
 
-	m_panels       (),
-	m_rasterIndices()
+	m_panels(),
+	m_rasterCoordToPanelIndex()
 {
-	/*const auto panelWidths = packet.getRealArray("panel-widths", 
+	const auto rasterRes = getRasterResolution();
+
+	m_rasterCoordToPanelIndex.resize(rasterRes.product(), rasterRes.product());
+
+	const auto panelWidths = packet.getRealArray("panel-widths", 
 		std::vector<real>(), DataTreatment::REQUIRED());
 
 	const auto panelHeights = packet.getRealArray("panel-heights",
-		std::vector<real>(), DataTreatment::REQUIRED());*/
+		std::vector<real>(), DataTreatment::REQUIRED());
 
+	const auto positions = packet.getVector3Array("positions",
+		std::vector<math::Vector3R>(), DataTreatment::REQUIRED());
 
+	const auto directions = packet.getVector3Array("directions",
+		std::vector<math::Vector3R>(), DataTreatment::REQUIRED());
 
-	m_receiverToWorld = std::make_shared<math::StaticAffineTransform>(
+	const auto upAxes = packet.getVector3Array("up-axes",
+		std::vector<math::Vector3R>(), DataTreatment::REQUIRED());
+
+	// FIXME: int array
+	const auto rasterIndicesX = packet.getRealArray("rasater-indices-x",
+		std::vector<real>(), DataTreatment::REQUIRED());
+
+	// FIXME: int array
+	const auto rasterIndicesY = packet.getRealArray("rasater-indices-y",
+		std::vector<real>(), DataTreatment::REQUIRED());
+
+	if(panelWidths.size() != panelHeights.size()   ||
+	   panelWidths.size() != positions.size()      ||
+	   panelWidths.size() != directions.size()     ||
+	   panelWidths.size() != upAxes.size()         ||
+	   panelWidths.size() != rasterIndicesX.size() ||
+	   panelWidths.size() != rasterIndicesY.size())
+	{
+		logger.log(ELogLevel::FATAL_ERROR,
+			"array size mismatch");
+		return;
+	}
+
+	for(std::size_t i = 0; i < panelWidths.size(); ++i)
+	{
+		m_panels.push_back(RadiantFluxPanel(
+			{panelWidths[i], panelHeights[i]},
+			positions[i],
+			directions[i],
+			upAxes[i]));
+
+		const auto rasterIndex = math::Vector2S(
+			static_cast<std::size_t>(rasterIndicesX[i]),
+			static_cast<std::size_t>(rasterIndicesY[i]));
+
+		if(rasterIndex.x < 0 || rasterIndex.x >= rasterRes.x ||
+		   rasterIndex.y < 0 || rasterIndex.y >= rasterRes.y)
+		{
+			logger.log(ELogLevel::FATAL_ERROR,
+				"raster index out of bound; bound = " + rasterRes.toString() + ", "
+				"index = " + rasterIndex.toString());
+			return;
+		}
+
+		m_rasterCoordToPanelIndex[rasterIndex.y * rasterRes.x + rasterIndex.x] = i;
+	}
+
+	m_localToWorld = std::make_shared<math::StaticAffineTransform>(
 		math::StaticAffineTransform::makeForward(m_receiverToWorldDecomposed));
 }
 

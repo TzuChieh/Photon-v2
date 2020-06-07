@@ -22,8 +22,8 @@ public:
 
 private:
 	std::vector<RadiantFluxPanel>    m_panels;
-	std::vector<math::Vector2S>      m_rasterIndices;
-	std::shared_ptr<math::Transform> m_receiverToWorld;// FIXME: should be rigid
+	std::vector<std::size_t>         m_rasterCoordToPanelIndex;
+	std::shared_ptr<math::Transform> m_localToWorld;// FIXME: should be rigid
 
 // Command Interface
 public:

@@ -15,6 +15,30 @@
 namespace ph
 {
 
+RadiantFluxPanel::RadiantFluxPanel(
+	const math::Vector2R& widthHeight,
+	const math::Vector3R& position,
+	const math::Vector3R& direction,
+	const math::Vector3R& upAxis) : 
+
+	// A radiant flux panel output single measured value, hence the 1x1 resolution
+	Receiver(
+		position,
+		direction,
+		upAxis,
+		{1, 1}),
+
+	m_width (widthHeight.x),
+	m_height(widthHeight.y)
+{
+	PH_ASSERT_GT(m_width, 0);
+	PH_ASSERT_GT(m_height, 0);
+
+	// FIXME: rigid
+	m_receiverToWorld = std::make_shared<math::StaticAffineTransform>(
+		math::StaticAffineTransform::makeForward(m_receiverToWorldDecomposed));
+}
+
 Spectrum RadiantFluxPanel::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
 {
 	PH_ASSERT(out_ray);
@@ -90,6 +114,10 @@ RadiantFluxPanel::RadiantFluxPanel(const InputPacket& packet) :
 	m_width (packet.getReal("width",  1.0_r, DataTreatment::REQUIRED())),
 	m_height(packet.getReal("height", 1.0_r, DataTreatment::REQUIRED()))
 {
+	PH_ASSERT_GT(m_width, 0);
+	PH_ASSERT_GT(m_height, 0);
+
+	// FIXME: rigid
 	m_receiverToWorld = std::make_shared<math::StaticAffineTransform>(
 		math::StaticAffineTransform::makeForward(m_receiverToWorldDecomposed));
 }
