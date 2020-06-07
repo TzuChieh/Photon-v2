@@ -24,6 +24,18 @@ Receiver::Receiver() :
 {}
 
 Receiver::Receiver(
+	const math::Vector3R& position,
+	const math::Vector3R& direction,
+	const math::Vector3R& upAxis,
+	const math::Vector2S& resolution) : 
+
+	Receiver(
+		position,
+		makeRotationFromVectors(direction, upAxis),
+		resolution)
+{}
+
+Receiver::Receiver(
 	const math::Vector3R&    position, 
 	const math::QuaternionR& rotation,
 	const math::Vector2S&    resolution) :

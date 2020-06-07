@@ -27,27 +27,33 @@ Spectrum RadiantFluxPanel::receiveRay(const math::Vector2D& rasterCoord, Ray* co
 	const auto localRectangle = math::TAABB2D<float64>({-halfWidth, -halfHeight}, {halfWidth, halfHeight});
 	const auto localSurface   = localRectangle.xy01ToSurface({rasterCoord.x, rasterCoord.y});
 	
+	// Receivers face -z locally
 	math::Vector3R surface;
-	m_receiverToWorld->transformP({static_cast<real>(localSurface.y), 0, static_cast<real>(localSurface.x)}, &surface);
+	m_receiverToWorld->transformP({static_cast<real>(localSurface.x), static_cast<real>(localSurface.y), 0}, &surface);
 
 	const auto localHemisphere = math::THemisphere<float64>::makeUnit();
 
 	float64 pdfW;
-	const auto localDirection = localHemisphere.sampleToSurfaceCosThetaWeighted(
+	const auto unitHemiDir = localHemisphere.sampleToSurfaceCosThetaWeighted(
 		{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()},
 		&pdfW);
 	if(pdfW == 0)
 	{
 		return Spectrum(0);
 	}
+	const float64 cosTheta = unitHemiDir.y;
+
+	// Receivers face -z locally
+	const auto localDirection = math::TVector3<float64>(
+		unitHemiDir.x,
+		unitHemiDir.z,
+		-unitHemiDir.y);
 
 	const float64 pdfA = 1.0 / (m_width * m_height);
 	if(pdfA == 0)
 	{
 		return Spectrum(0);
 	}
-
-	const float64 cosTheta = localDirection.y;
 
 	math::Vector3R direction;
 	m_receiverToWorld->transformV(math::Vector3R(localDirection), &direction);
