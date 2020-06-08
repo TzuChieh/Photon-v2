@@ -136,6 +136,9 @@ RadiantFluxPanelArray::RadiantFluxPanelArray(const InputPacket& packet) :
 
 		m_rasterCoordToPanelIndex[rasterIndex.y * rasterRes.x + rasterIndex.x] = i;
 	}
+
+	logger.log(
+		std::to_string(m_panels.size()) + " radiant flux panels initialized");
 }
 
 SdlTypeInfo RadiantFluxPanelArray::ciTypeInfo()
