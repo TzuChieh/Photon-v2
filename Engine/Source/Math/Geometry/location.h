@@ -41,7 +41,7 @@ inline TVector2<T> sun_sky_phi_theta(
 	const T cosAngleTerm = std::cos(angleTerm);
 
 	const T sunPhiPreetham = std::atan((-cosDelta * sinAngleTerm) / (cosLatitude * sinDelta - sinLatitude * cosDelta * cosAngleTerm));
-	const T sunTheta       = pi<T> / static_cast<T>(2) - std::asin(sinLatitude * sinDelta - cosLatitude * cosDelta * cosAngleTerm;
+	const T sunTheta       = pi<T> / static_cast<T>(2) - std::asin(sinLatitude * sinDelta - cosLatitude * cosDelta * cosAngleTerm);
 
 	// Note that <sunPhiPreetham> here has (CW order)
 	// 0 = south, pi/2 = west, pi = north and -pi/2 = east; 

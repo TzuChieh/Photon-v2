@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Actor/ADome.h"
+#include "Common/primitive_type.h"
 #include "DataIO/FileSystem/Path.h"
 #include "Core/Texture/TTexture.h"
 #include "Core/Quantity/Spectrum.h"
@@ -18,6 +19,12 @@ class APreethamDome : public ADome, public TCommandInterface<APreethamDome>
 {
 public:
 	APreethamDome();
+
+	APreethamDome(
+		real sunPhiDegrees,
+		real sunThetaDegrees,
+		real turbidity);
+
 	APreethamDome(const APreethamDome& other);
 
 	std::shared_ptr<TTexture<Spectrum>> loadRadianceFunction(CookingContext& context) override;
@@ -28,6 +35,11 @@ public:
 	friend void swap(APreethamDome& first, APreethamDome& second);
 
 private:
+	real m_sunPhi;
+	real m_sunTheta;
+	real m_turbidity;
+
+	static void checkTurbidity(real turbidity);
 
 // command interface
 public:

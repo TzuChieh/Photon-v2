@@ -4,11 +4,17 @@
 #include "Math/Geometry/TSphere.h"
 #include "Core/Texture/SampleLocation.h"
 #include "Core/Quantity/ColorSpace.h"
+#include "Common/Logger.h"
 
 #include <algorithm>
 
 namespace ph
 {
+
+namespace
+{
+	Logger logger(LogSender("Preetham Texture"));
+}
 
 PreethamTexture::PreethamTexture(
 	const real phiSun,
@@ -72,6 +78,15 @@ PreethamTexture::PreethamTexture(
 
 	// <Yz> is in luminance in K*cd/m^2
 	m_Yabs_xyY = {xz, yz, Yz};
+
+	if(m_Yabs_xyY.z <= 0)
+	{
+		logger.log(ELogLevel::WARNING_MAX,
+			"turbidity = " + std::to_string(turbidity) + " causes absolute "
+			"zenith luminance to be negative/zero (currently = " + 
+			std::to_string(m_Yabs_xyY.z) + " K*cd/m^2); consider using values "
+			"in [2, 10]");
+	}
 }
 
 void PreethamTexture::sample(const SampleLocation& sampleLocation, Spectrum* const out_value) const
@@ -104,13 +119,8 @@ void PreethamTexture::sample(const SampleLocation& sampleLocation, Spectrum* con
 	const auto Y_xyY = m_Yabs_xyY.mul(F_view.div(F_zenith));
 
 	// Convert from K*cd/m^2 to radiance
-	//const math::Vector3R radiance_xyY = {Y_xyY.x, Y_xyY.y, Y_xyY.z * 683.0_r * 1000.0_r};
-
-	// HACK: exposure
-	math::Vector3R radiance_xyY = {Y_xyY.x, Y_xyY.y, Y_xyY.z * 683.0_r * 1000.0_r};
-	radiance_xyY.z /= 10000000;
-
-
+	//const math::Vector3R radiance_xyY = {Y_xyY.x, Y_xyY.y, Y_xyY.z * 1000.0_r / 683.0_r};
+	const math::Vector3R radiance_xyY = {Y_xyY.x, Y_xyY.y, Y_xyY.z / 10};
 
 	out_value->setLinearSrgb(ColorSpace::CIE_XYZ_D65_to_linear_sRGB(ColorSpace::xyY_to_XYZ(radiance_xyY)));
 }
