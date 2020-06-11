@@ -353,34 +353,46 @@ class Exporter:
             print("warning: camera (%s) type (%s) is unsupported, not exporting" % (b_camera.name, b_camera.type))
 
     def export_world(self, b_world):
-        if b_world.ph_envmap_file_path == "":
-            return
-
         actor_name = "ph_" + b_world.name
 
-        creator = DomeActorCreator()
-        creator.set_data_name(actor_name)
+        creator = None
+        if b_world.ph_background_type == 'IMAGE' and b_world.ph_image_file_path != "":
+            creator = DomeActorCreator()
+            creator.set_data_name(actor_name)
+            creator.set_type(SDLString("image"))
 
-        envmap_path = bpy.path.abspath(b_world.ph_envmap_file_path)
-        envmap_sdlri = sdlresource.SdlResourceIdentifier()
-        envmap_sdlri.append_folder(b_world.name + "_data")
-        envmap_sdlri.set_file(utility.get_filename(envmap_path))
-        creator.set_image(SDLString(envmap_sdlri.get_identifier()))
+            image_path = bpy.path.abspath(b_world.ph_image_file_path)
+            image_sdlri = sdlresource.SdlResourceIdentifier()
+            image_sdlri.append_folder(b_world.name + "_data")
+            image_sdlri.set_file(utility.get_filename(image_path))
+            creator.set_image(SDLString(image_sdlri.get_identifier()))
 
-        # copy the envmap to scene folder
-        self.get_sdlconsole().create_resource_folder(envmap_sdlri)
-        dst_path = utility.get_appended_path(
-            self.get_sdlconsole().get_working_directory(),
-            envmap_sdlri.get_path())
-        shutil.copyfile(envmap_path, dst_path)
+            # copy the envmap to scene folder
+            self.get_sdlconsole().create_resource_folder(image_sdlri)
+            dst_path = utility.get_appended_path(
+                self.get_sdlconsole().get_working_directory(),
+                image_sdlri.get_path())
+            shutil.copyfile(image_path, dst_path)
+        elif b_world.ph_background_type == 'PREETHAM':
+            creator = DomeActorCreator()
+            creator.set_data_name(actor_name)
+            creator.set_type(SDLString("preetham"))
 
-        self.get_sdlconsole().queue_command(creator)
+            creator.set_turbidity(SDLReal(b_world.ph_preetham_turbidity))
+            creator.set_standard_time_24h(SDLReal(b_world.ph_standard_time))
+            creator.set_standard_meridian_degrees(SDLReal(b_world.ph_standard_meridian))
+            creator.set_site_latitude_decimal(SDLReal(b_world.ph_latitude))
+            creator.set_site_longitude_decimal(SDLReal(b_world.ph_longitude))
+            creator.set_julian_date(SDLReal(b_world.ph_julian_date))
 
-        rotation = DomeActorRotate()
-        rotation.set_target_name(actor_name)
-        rotation.set_axis(SDLVector3((0, 1, 0)))
-        rotation.set_degree(SDLReal(b_world.ph_envmap_degrees))
-        self.get_sdlconsole().queue_command(rotation)
+        if creator is not None:
+            self.get_sdlconsole().queue_command(creator)
+
+            rotation = DomeActorRotate()
+            rotation.set_target_name(actor_name)
+            rotation.set_axis(SDLVector3((0, 1, 0)))
+            rotation.set_degree(SDLReal(b_world.ph_up_rotation))
+            self.get_sdlconsole().queue_command(rotation)
 
     def export_core_commands(self, b_scene):
         meta_info = meta.MetaGetter(b_scene)

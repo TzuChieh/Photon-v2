@@ -15,7 +15,7 @@ The equation is from Appendix A.6 of the paper "A Practical Analytic Model
 for Daylight" by Preetham et al., 
 
 @param solarTime24H Local solar time in decimal hours.
-@param julianDate The day of the year as an integer in the range [1, 365].
+@param julianDate The day of the year as an integer in the range [1, 366].
 @param siteLatitudeRadians Latitude of the site of interest, in radians.
 @return Spherical coordinates of the sun in sky.
 */

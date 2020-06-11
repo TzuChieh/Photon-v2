@@ -92,7 +92,7 @@ APreethamDome::APreethamDome(const InputPacket& packet) :
 	else
 	{
 		const auto standardTime24H = packet.getReal("standard-time-24h", 
-			0, DataTreatment::REQUIRED());
+			12, DataTreatment::REQUIRED());
 
 		const auto standardMeridianDegrees = packet.getReal("standard-meridian-degrees", 
 			0, DataTreatment::REQUIRED());
@@ -103,7 +103,7 @@ APreethamDome::APreethamDome(const InputPacket& packet) :
 		const auto siteLongitudeDegrees = packet.getReal("site-longitude-decimal",
 			0, DataTreatment::REQUIRED());
 
-		const auto julianDate = packet.getReal("julian-date",
+		const auto julianDate = packet.getInteger("julian-date",
 			1, DataTreatment::REQUIRED());
 
 		const auto siteLatitude     = math::to_radians(siteLatitudeDegrees);
@@ -114,11 +114,11 @@ APreethamDome::APreethamDome(const InputPacket& packet) :
 			standardTime24H,
 			standardMeridian,
 			siteLongitude,
-			julianDate);
+			static_cast<real>(julianDate));
 
 		const auto phiTheta = math::sun_sky_phi_theta(
 			solarTime24H,
-			julianDate,
+			static_cast<real>(julianDate),
 			siteLatitude);
 
 		m_sunPhi   = phiTheta.x;

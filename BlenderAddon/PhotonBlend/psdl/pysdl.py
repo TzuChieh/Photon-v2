@@ -2,7 +2,7 @@
 # NOTE: THIS FILE CONTAINS GENERATED CODE 
 #       DO NOT MODIFY                     
 # ========================================
-# last generated: 2020-06-05 15:05:04.510692 
+# last generated: 2020-06-11 04:27:04.237621 
 
 from abc import ABC, abstractmethod
 
@@ -248,34 +248,9 @@ class SDLExecutorCommand(SDLCommand):
         self.__target_name = data_name
 
 
-class SDLLightSource(SDLReference):
+class SDLFilm(SDLReference):
     def __init__(self, ref_name = ""):
-        super().__init__("light-source", ref_name)
-
-
-class SDLMaterial(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("material", ref_name)
-
-
-class SDLGeometry(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("geometry", ref_name)
-
-
-class SDLEstimator(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("estimator", ref_name)
-
-
-class SDLImage(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("image", ref_name)
-
-
-class SDLSampleGenerator(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("sample-generator", ref_name)
+        super().__init__("film", ref_name)
 
 
 class SDLFrameProcessor(SDLReference):
@@ -283,9 +258,24 @@ class SDLFrameProcessor(SDLReference):
         super().__init__("frame-processor", ref_name)
 
 
-class SDLFilm(SDLReference):
+class SDLImage(SDLReference):
     def __init__(self, ref_name = ""):
-        super().__init__("film", ref_name)
+        super().__init__("image", ref_name)
+
+
+class SDLMotion(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("motion", ref_name)
+
+
+class SDLEstimator(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("estimator", ref_name)
+
+
+class SDLSampleGenerator(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("sample-generator", ref_name)
 
 
 class SDLRenderer(SDLReference):
@@ -293,14 +283,24 @@ class SDLRenderer(SDLReference):
         super().__init__("renderer", ref_name)
 
 
-class SDLCamera(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("camera", ref_name)
-
-
 class SDLOption(SDLReference):
     def __init__(self, ref_name = ""):
         super().__init__("option", ref_name)
+
+
+class SDLMaterial(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("material", ref_name)
+
+
+class SDLLightSource(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("light-source", ref_name)
+
+
+class SDLCamera(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("camera", ref_name)
 
 
 class SDLActor(SDLReference):
@@ -308,9 +308,9 @@ class SDLActor(SDLReference):
         super().__init__("actor", ref_name)
 
 
-class SDLMotion(SDLReference):
+class SDLGeometry(SDLReference):
     def __init__(self, ref_name = ""):
-        super().__init__("motion", ref_name)
+        super().__init__("geometry", ref_name)
 
 
 
@@ -327,6 +327,24 @@ class DomeActorCreator(SDLCreatorCommand):
 
     def set_image(self, image: SDLData):
         self.set_input("image", image)
+
+    def set_turbidity(self, turbidity: SDLData):
+        self.set_input("turbidity", turbidity)
+
+    def set_standard_time_24h(self, standard_time_24h: SDLData):
+        self.set_input("standard-time-24h", standard_time_24h)
+
+    def set_standard_meridian_degrees(self, standard_meridian_degrees: SDLData):
+        self.set_input("standard-meridian-degrees", standard_meridian_degrees)
+
+    def set_site_latitude_decimal(self, site_latitude_decimal: SDLData):
+        self.set_input("site-latitude-decimal", site_latitude_decimal)
+
+    def set_site_longitude_decimal(self, site_longitude_decimal: SDLData):
+        self.set_input("site-longitude-decimal", site_longitude_decimal)
+
+    def set_julian_date(self, julian_date: SDLData):
+        self.set_input("julian-date", julian_date)
 
 
 class DomeActorTranslate(SDLExecutorCommand):

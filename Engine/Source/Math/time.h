@@ -15,7 +15,7 @@ for Daylight" by Preetham et al.,
 @param standardTime24H Local standard time in decimal hours.
 @param standardMeridianRadians Standard meridian used for local standard time, in radians.
 @param siteLongitudeRadians Longitude of the site of interest, in radians.
-@param julianDate The day of the year as an integer in the range [1, 365].
+@param julianDate The day of the year as an integer in the range [1, 366].
 @return Solar time in decimal hours.
 */
 template<typename T>
