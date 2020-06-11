@@ -19,7 +19,7 @@ public:
 
 	bool read(std::size_t numBytes, std::byte* out_bytes) override;
 	void seekGet(std::size_t pos) override;
-	std::size_t tellGet() const override;
+	std::size_t tellGet() override;
 	operator bool () const override;
 
 	BinaryFileInputStream& operator = (BinaryFileInputStream&& rhs);

@@ -40,7 +40,7 @@ void BinaryFileInputStream::seekGet(const std::size_t pos)
 	m_istream->seekg(pos);
 }
 
-std::size_t BinaryFileInputStream::tellGet() const
+std::size_t BinaryFileInputStream::tellGet()
 {
 	return m_istream->tellg();
 }

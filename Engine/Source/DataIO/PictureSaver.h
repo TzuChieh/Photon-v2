@@ -30,6 +30,7 @@ public:
 	static bool saveHdr(const HdrRgbFrame& frame, const Path& filePath);
 	static bool saveExr(const HdrRgbFrame& frame, const Path& filePath);
 	static bool saveExrHighPrecision(const HdrRgbFrame& frame, const Path& filePath);
+	static bool savePfm(const HdrRgbFrame& frame, const Path& filePath);
 
 	// HACK
 	static bool saveExr(const HdrRgbFrame& frame, std::string& byteBuffer);

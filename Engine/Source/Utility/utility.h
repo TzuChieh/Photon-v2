@@ -51,4 +51,13 @@ inline Target bitwise_cast(const Source source)
 	return target;
 }
 
+// TODO: replace this with C++20 std::endian
+inline bool is_big_endian()
+{
+	static_assert(sizeof(int) > sizeof(char));
+
+	const int i = 0x07;
+	return reinterpret_cast<const char*>(&i)[0] != '\x07';
+}
+
 }// end namespace ph

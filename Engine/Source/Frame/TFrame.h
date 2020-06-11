@@ -18,6 +18,8 @@ template<typename T, std::size_t N>
 class TFrame
 {
 public:
+	using Element = T;
+
 	template<typename U>
 	using TPixel = math::TArithmeticArray<U, N>;
 

@@ -60,7 +60,7 @@ void FormattedTextInputStream::seekGet(const std::size_t pos)
 	m_istream->seekg(pos);
 }
 
-std::size_t FormattedTextInputStream::tellGet() const
+std::size_t FormattedTextInputStream::tellGet()
 {
 	return m_istream->tellg();
 }

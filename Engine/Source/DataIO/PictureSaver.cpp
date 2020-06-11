@@ -4,6 +4,7 @@
 #include "Common/Logger.h"
 #include "Frame/frame_utils.h"
 #include "DataIO/ExrFileWriter.h"
+#include "DataIO/PfmFileWriter.h"
 
 #include "Common/ThirdParty/lib_stb.h"
 
@@ -50,7 +51,8 @@ bool PictureSaver::save(const LdrRgbFrame& frame, const Path& filePath)
 	}
 	else if(
 		ext == ".exr" || ext == ".EXR" ||
-		ext == ".hdr" || ext == ".HDR")
+		ext == ".hdr" || ext == ".HDR" ||
+		ext == ".pfm" || ext == ".PFM")
 	{
 		HdrRgbFrame HdrFrame;
 		frame_utils::to_HDR(frame, &HdrFrame);
@@ -76,6 +78,10 @@ bool PictureSaver::save(const HdrRgbFrame& frame, const Path& filePath)
 	else if(ext == ".hdr" || ext == ".HDR")
 	{
 		return saveHdr(frame, filePath);
+	}
+	else if(ext == ".pfm" || ext == ".PFM")
+	{
+		return savePfm(frame, filePath);
 	}
 	else if(
 		ext == ".png" || ext == ".PNG" ||
@@ -184,6 +190,12 @@ bool PictureSaver::saveExrHighPrecision(const HdrRgbFrame& frame, const Path& fi
 {
 	ExrFileWriter writer(filePath);
 	return writer.saveHighPrecision(frame);
+}
+
+bool PictureSaver::savePfm(const HdrRgbFrame& frame, const Path& filePath)
+{
+	PfmFileWriter writer(filePath);
+	return writer.save(frame);
 }
 
 bool PictureSaver::saveExr(const HdrRgbFrame& frame, std::string& byteBuffer)

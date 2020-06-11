@@ -17,7 +17,7 @@ public:
 
 	bool read(std::size_t numBytes, std::byte* out_bytes) override = 0;
 	void seekGet(std::size_t pos) override = 0;
-	std::size_t tellGet() const override = 0;
+	std::size_t tellGet() override = 0;
 
 protected:
 	IInputStream* getSrcStream() const;
