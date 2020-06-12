@@ -2,7 +2,7 @@
 # NOTE: THIS FILE CONTAINS GENERATED CODE 
 #       DO NOT MODIFY                     
 # ========================================
-# last generated: 2020-06-11 04:27:04.237621 
+# last generated: 2020-06-12 03:29:08.348331 
 
 from abc import ABC, abstractmethod
 
@@ -248,19 +248,14 @@ class SDLExecutorCommand(SDLCommand):
         self.__target_name = data_name
 
 
-class SDLFilm(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("film", ref_name)
-
-
-class SDLFrameProcessor(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("frame-processor", ref_name)
-
-
 class SDLImage(SDLReference):
     def __init__(self, ref_name = ""):
         super().__init__("image", ref_name)
+
+
+class SDLFilm(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("film", ref_name)
 
 
 class SDLMotion(SDLReference):
@@ -273,34 +268,9 @@ class SDLEstimator(SDLReference):
         super().__init__("estimator", ref_name)
 
 
-class SDLSampleGenerator(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("sample-generator", ref_name)
-
-
-class SDLRenderer(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("renderer", ref_name)
-
-
-class SDLOption(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("option", ref_name)
-
-
-class SDLMaterial(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("material", ref_name)
-
-
 class SDLLightSource(SDLReference):
     def __init__(self, ref_name = ""):
         super().__init__("light-source", ref_name)
-
-
-class SDLCamera(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("camera", ref_name)
 
 
 class SDLActor(SDLReference):
@@ -308,9 +278,39 @@ class SDLActor(SDLReference):
         super().__init__("actor", ref_name)
 
 
+class SDLOption(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("option", ref_name)
+
+
 class SDLGeometry(SDLReference):
     def __init__(self, ref_name = ""):
         super().__init__("geometry", ref_name)
+
+
+class SDLFrameProcessor(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("frame-processor", ref_name)
+
+
+class SDLCamera(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("camera", ref_name)
+
+
+class SDLSampleGenerator(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("sample-generator", ref_name)
+
+
+class SDLMaterial(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("material", ref_name)
+
+
+class SDLRenderer(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("renderer", ref_name)
 
 
 
@@ -784,6 +784,12 @@ class LdrPictureImageCreator(SDLCreatorCommand):
 
     def set_image(self, image: SDLData):
         self.set_input("image", image)
+
+    def set_sample_mode(self, sample_mode: SDLData):
+        self.set_input("sample-mode", sample_mode)
+
+    def set_wrap_mode(self, wrap_mode: SDLData):
+        self.set_input("wrap-mode", wrap_mode)
 
 
 class RealMathImageCreator(SDLCreatorCommand):

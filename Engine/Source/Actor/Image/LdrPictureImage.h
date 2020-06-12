@@ -37,9 +37,9 @@ public:
 /*
 	<SDL_interface>
 
-	<category>  image       </category>
-	<type_name> ldr-picture </type_name>
-	<extend>    image.image </extend>
+	<category>  image         </category>
+	<type_name> ldr-picture   </type_name>
+	<extend>    image.picture </extend>
 
 	<name> LDR Picture Image </name>
 	<description>

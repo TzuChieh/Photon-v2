@@ -38,6 +38,7 @@ class PhPictureNode(PhMaterialNode):
             image_sdlri.append_folder(PhPictureNode.bl_idname + "_pictures")
             image_sdlri.set_file(utility.get_filename(image_path))
             creator.set_image(SDLString(image_sdlri.get_identifier()))
+            creator.set_sample_mode(SDLString("bilinear"))
 
             # copy the file to scene folder
             sdlconsole.create_resource_folder(image_sdlri)

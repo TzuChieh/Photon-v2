@@ -383,7 +383,7 @@ class Exporter:
             creator.set_standard_meridian_degrees(SDLReal(b_world.ph_standard_meridian))
             creator.set_site_latitude_decimal(SDLReal(b_world.ph_latitude))
             creator.set_site_longitude_decimal(SDLReal(b_world.ph_longitude))
-            creator.set_julian_date(SDLReal(b_world.ph_julian_date))
+            creator.set_julian_date(SDLInteger(b_world.ph_julian_date))
 
         if creator is not None:
             self.get_sdlconsole().queue_command(creator)
