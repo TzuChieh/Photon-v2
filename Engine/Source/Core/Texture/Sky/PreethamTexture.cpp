@@ -123,6 +123,11 @@ void PreethamTexture::sample(const SampleLocation& sampleLocation, Spectrum* con
 	const math::Vector3R radiance_xyY = {Y_xyY.x, Y_xyY.y, Y_xyY.z / 10};
 
 	out_value->setLinearSrgb(ColorSpace::CIE_XYZ_D65_to_linear_sRGB(ColorSpace::xyY_to_XYZ(radiance_xyY)));
+
+	if(!out_value->isFinite())
+	{
+		out_value->setValues(0);
+	}
 }
 
 }// end namespace ph
