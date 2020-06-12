@@ -30,7 +30,8 @@ Spectrum RadiantFluxPanelArray::receiveRay(const math::Vector2D& rasterCoord, Ra
 
 	const auto    rasterRes     = getRasterResolution();
 	const auto    iRasterCoord  = math::Vector2S(rasterCoord);
-	const float64 rasterPickPdf = 1.0 / rasterRes.product();
+	//const float64 rasterPickPdf = 1.0 / rasterRes.product();
+	const float64 rasterPickPdf = 1.0;
 
 	// Out-of-bound raster coordinates imply invalid panel surface position
 	if(iRasterCoord.x < 0 || iRasterCoord.x >= rasterRes.x ||
