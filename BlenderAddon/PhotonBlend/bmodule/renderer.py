@@ -72,6 +72,7 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
         exporter.begin(scene_file_name)
         exporter.export_core_commands(b_scene)
         exporter.export(b_depsgraph)
+        exporter.export_options(b_scene)
         exporter.end()
 
         scene_file_path = renderer_data_path / (scene_file_name + ".p2")

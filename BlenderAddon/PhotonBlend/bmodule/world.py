@@ -63,16 +63,16 @@ class PH_WORLD_PT_background(bpy.types.Panel):
 		name="Latitude",
 		description="Site latitude.",
 		default=0,
-		min=-180,
-		max=180
+		min=-90,
+		max=90
 	)
 
 	bpy.types.World.ph_longitude = bpy.props.FloatProperty(
 		name="Longitude",
 		description="Site longitude.",
 		default=0,
-		min=-90,
-		max=90
+		min=-180,
+		max=180
 	)
 
 	bpy.types.World.ph_julian_date = bpy.props.IntProperty(
