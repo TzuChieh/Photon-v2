@@ -55,8 +55,8 @@ class PH_WORLD_PT_background(bpy.types.Panel):
 		name="Standard Meridian",
 		description="Standard meridian in degrees.",
 		default=0,
-		min=0,
-		max=360
+		min=-180,
+		max=180
 	)
 
 	bpy.types.World.ph_latitude = bpy.props.FloatProperty(
