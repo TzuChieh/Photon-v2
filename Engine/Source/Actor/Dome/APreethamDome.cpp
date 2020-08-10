@@ -28,7 +28,7 @@ APreethamDome::APreethamDome(
 
 	ADome(),
 
-	m_sunPhi   (math::to_radians(sunPhiDegrees)),
+	m_sunPhi  (math::to_radians(sunPhiDegrees)),
 	m_sunTheta (math::to_radians(sunThetaDegrees)),
 	m_turbidity(turbidity)
 {}
@@ -70,6 +70,10 @@ void swap(APreethamDome& first, APreethamDome& second)
 	using std::swap;
 
 	swap(static_cast<ADome&>(first), static_cast<ADome&>(second));
+
+	swap(first.m_sunPhi,    second.m_sunPhi);
+	swap(first.m_sunTheta,  second.m_sunTheta);
+	swap(first.m_turbidity, second.m_turbidity);
 }
 
 // command interface
@@ -82,8 +86,8 @@ APreethamDome::APreethamDome(const InputPacket& packet) :
 	m_sunTheta (math::to_radians(45.0_r)),
 	m_turbidity(3.0_r)
 {
-	m_turbidity = packet.getReal("turbidity", m_turbidity);
-
+	m_turbidity   = packet.getReal("turbidity", m_turbidity);
+	
 	if(packet.hasReal("sun-phi-degrees") && packet.hasReal("sun-theta-degrees"))
 	{
 		m_sunPhi   = math::to_radians(packet.getReal("sun-phi-degrees"));
@@ -132,6 +136,21 @@ APreethamDome::APreethamDome(const InputPacket& packet) :
 			std::to_string(siteLongitudeDegrees) + "d) has local sun phi-theta = " + 
 			phiTheta.toString());
 	}
+}
+
+SdlTypeInfo APreethamDome::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "preetham-dome");
+}
+
+void APreethamDome::ciRegister(CommandRegister& cmdRegister)
+{
+	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
+	{
+		return std::make_unique<APreethamDome>(packet);
+	}));
+
+	registerTransformFuncs<APreethamDome>(cmdRegister);
 }
 
 }// end namespace ph

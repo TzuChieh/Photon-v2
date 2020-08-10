@@ -5,6 +5,8 @@
 #include "Math/Transform/TDecomposedTransform.h"
 #include "Math/math_fwd.h"
 #include "DataIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/SdlExecutor.h"
+#include "DataIO/SDL/CommandRegister.h"
 
 namespace ph
 {
@@ -57,7 +59,31 @@ public:
 	static ExitStatus ciScale(
 		const std::shared_ptr<PhysicalActor>& targetResource,
 		const InputPacket& packet);
+
+	template<typename Derived>
+	static void registerTransformFuncs(CommandRegister& cmdRegister);
 };
+
+// In-header Implementations:
+
+template<typename PhysicalActorType>
+void PhysicalActor::registerTransformFuncs(CommandRegister& cmdRegister)
+{
+	SdlExecutor translateSE;
+	translateSE.setName("translate");
+	translateSE.setFunc<PhysicalActorType>(ciTranslate);
+	cmdRegister.addExecutor(translateSE);
+
+	SdlExecutor rotateSE;
+	rotateSE.setName("rotate");
+	rotateSE.setFunc<PhysicalActorType>(ciRotate);
+	cmdRegister.addExecutor(rotateSE);
+
+	SdlExecutor scaleSE;
+	scaleSE.setName("scale");
+	scaleSE.setFunc<PhysicalActorType>(ciScale);
+	cmdRegister.addExecutor(scaleSE);
+}
 
 }// end namespace ph
 

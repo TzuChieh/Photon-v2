@@ -19,12 +19,14 @@ namespace
 PreethamTexture::PreethamTexture(
 	const real phiSun,
 	const real thetaSun,
-	const real turbidity) :
+	const real turbidity,
+	const real energyScale) :
 
 	TTexture(),
 
-	m_phiSun  (phiSun),
-	m_thetaSun(thetaSun)
+	m_phiSun     (phiSun),
+	m_thetaSun   (thetaSun),
+	m_energyScale(energyScale)
 {
 	const auto T = turbidity;
 
@@ -119,9 +121,10 @@ void PreethamTexture::sample(const SampleLocation& sampleLocation, Spectrum* con
 	const auto Y_xyY = m_Yabs_xyY.mul(F_view.div(F_zenith));
 
 	// Convert from K*cd/m^2 to radiance
-	//const math::Vector3R radiance_xyY = {Y_xyY.x, Y_xyY.y, Y_xyY.z * 1000.0_r / 683.0_r};
-	const math::Vector3R radiance_xyY = {Y_xyY.x, Y_xyY.y, Y_xyY.z * 1000.0_r * 0.0079_r};
-	//const math::Vector3R radiance_xyY = {Y_xyY.x, Y_xyY.y, Y_xyY.z / 10};
+	math::Vector3R radiance_xyY = {Y_xyY.x, Y_xyY.y, Y_xyY.z * 1000.0_r * 0.0079_r};
+
+	// Apply non-physical scale factor
+	radiance_xyY.z *= m_energyScale;
 
 	out_value->setLinearSrgb(ColorSpace::CIE_XYZ_D65_to_linear_sRGB(ColorSpace::xyY_to_XYZ(radiance_xyY)));
 

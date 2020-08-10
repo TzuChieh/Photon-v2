@@ -35,6 +35,9 @@ public:
 
 	friend void swap(ADome& first, ADome& second);
 
+private:
+	real m_energyScale;
+
 // command interface
 public:
 	explicit ADome(const InputPacket& packet);
@@ -70,55 +73,11 @@ inline bool ADome::isAnalytical() const
 	</description>
 
 	<command type="creator">
-
-		<input name="type" type="string">
+		<input name="energy-scale" type="real">
 			<description>
-				Type of the dome. Possible values are: "image".
+				A non-physical scale factor for artistic purpose.
 			</description>
 		</input>
-
-		<input name="image" type="string">
-			<description>
-				(type: image) Resource identifier for an image describing the energy distribution.
-			</description>
-		</input>
-
-		<input name="turbidity" type="real">
-			<description>
-				(type: preetham) Turbidity of the atmosphere.
-			</description>
-		</input>
-
-		<input name="standard-time-24h" type="real">
-			<description>
-				(type: preetham) Standard time in 24H.
-			</description>
-		</input>
-
-		<input name="standard-meridian-degrees" type="real">
-			<description>
-				(type: preetham) Standard meridian in degrees.
-			</description>
-		</input>
-
-		<input name="site-latitude-decimal" type="real">
-			<description>
-				(type: preetham) Site latitude in decimal.
-			</description>
-		</input>
-
-		<input name="site-longitude-decimal" type="real">
-			<description>
-				(type: preetham) Site longitude in decimal.
-			</description>
-		</input>
-
-		<input name="julian-date" type="integer">
-			<description>
-				(type: preetham) The day of the year as an integer in the range [1, 366].
-			</description>
-		</input>
-
 	</command>
 
 	</SDL_interface>

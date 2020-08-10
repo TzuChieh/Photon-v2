@@ -27,7 +27,8 @@ from ...psdl.pysdl import (
     ModelLightSourceCreator,
     SDLImage,
     ThinLensReceiverCreator,
-    DomeActorCreator,
+    ImageDomeActorCreator,
+    PreethamDomeActorCreator,
     SDLString,
     DomeActorRotate,
     UniformRandomSampleGeneratorCreator,
@@ -357,9 +358,8 @@ class Exporter:
 
         creator = None
         if b_world.ph_background_type == 'IMAGE' and b_world.ph_image_file_path != "":
-            creator = DomeActorCreator()
+            creator = ImageDomeActorCreator()
             creator.set_data_name(actor_name)
-            creator.set_type(SDLString("image"))
 
             image_path = bpy.path.abspath(b_world.ph_image_file_path)
             image_sdlri = sdlresource.SdlResourceIdentifier()
@@ -374,9 +374,8 @@ class Exporter:
                 image_sdlri.get_path())
             shutil.copyfile(image_path, dst_path)
         elif b_world.ph_background_type == 'PREETHAM':
-            creator = DomeActorCreator()
+            creator = PreethamDomeActorCreator()
             creator.set_data_name(actor_name)
-            creator.set_type(SDLString("preetham"))
 
             creator.set_turbidity(SDLReal(b_world.ph_preetham_turbidity))
             creator.set_standard_time_24h(SDLReal(b_world.ph_standard_time))
@@ -386,6 +385,8 @@ class Exporter:
             creator.set_julian_date(SDLInteger(b_world.ph_julian_date))
 
         if creator is not None:
+            creator.set_energy_scale(SDLReal(b_world.ph_energy_scale))
+
             self.get_sdlconsole().queue_command(creator)
 
             rotation = DomeActorRotate()

@@ -35,6 +35,31 @@ private:
 // command interface
 public:
 	explicit AImageDome(const InputPacket& packet);
+	static SdlTypeInfo ciTypeInfo();
+	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph
+
+/*
+	<SDL_interface>
+
+	<category>  actor      </category>
+	<type_name> image-dome </type_name>
+	<extend>    actor.dome </extend>
+
+	<name> Image Dome Actor </name>
+	<description>
+		Using a background image to represent the energy emitted from far away.
+	</description>
+
+	<command type="creator">
+		<input name="image" type="string">
+			<description>
+				Resource identifier for an image describing the energy distribution.
+			</description>
+		</input>
+	</command>
+
+	</SDL_interface>
+*/

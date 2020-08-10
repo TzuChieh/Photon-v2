@@ -17,7 +17,8 @@ public:
 	PreethamTexture(
 		real phiSun,
 		real thetaSun,
-		real turbidity);
+		real turbidity,
+		real energyScale = 1.0_r);
 
 	void sample(const SampleLocation& sampleLocation, Spectrum* out_value) const override;
 
@@ -30,6 +31,7 @@ private:
 	math::Vector3R m_D_xyY;
 	math::Vector3R m_E_xyY;
 	math::Vector3R m_Yabs_xyY;
+	real           m_energyScale;
 
 	math::Vector3R F(real theta, real cosGamma) const;
 };

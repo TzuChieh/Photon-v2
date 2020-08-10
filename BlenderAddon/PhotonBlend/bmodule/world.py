@@ -83,6 +83,12 @@ class PH_WORLD_PT_background(bpy.types.Panel):
 		max=366
 	)
 
+	bpy.types.World.ph_energy_scale = bpy.props.FloatProperty(
+		name="Energy Scale",
+		description="A non-physical scale factor for artistic purpose.",
+		default=1.0
+	)
+
 	@classmethod
 	def poll(cls, b_context):
 		render_settings = b_context.scene.render
@@ -104,6 +110,8 @@ class PH_WORLD_PT_background(bpy.types.Panel):
 			b_layout.prop(b_world, "ph_latitude")
 			b_layout.prop(b_world, "ph_longitude")
 			b_layout.prop(b_world, "ph_julian_date")
+
+		b_layout.prop(b_world, "ph_energy_scale")
 
 
 WORLD_PANEL_CLASSES = [

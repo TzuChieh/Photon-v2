@@ -47,6 +47,8 @@
 #include "Actor/ADome.h"
 #include "Actor/APhantomModel.h"
 #include "Actor/ATransformedInstance.h"
+#include "Actor/Dome/AImageDome.h"
+#include "Actor/Dome/APreethamDome.h"
 
 // images
 #include "Actor/Image/Image.h"
@@ -160,6 +162,8 @@ bool init_command_parser()
 	register_command_interface<ADome>();
 	register_command_interface<APhantomModel>();
 	register_command_interface<ATransformedInstance>();
+	register_command_interface<AImageDome>();
+	register_command_interface<APreethamDome>();
 
 	// images
 	register_command_interface<Image>();

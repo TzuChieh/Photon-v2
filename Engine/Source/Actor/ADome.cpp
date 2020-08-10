@@ -11,6 +11,7 @@
 #include "Actor/Image/HdrPictureImage.h"
 #include "Actor/Dome/AImageDome.h"
 #include "Actor/Dome/APreethamDome.h"
+#include "Core/Texture/Function/TConstantMultiplyTexture.h"
 
 #include <algorithm>
 
@@ -22,7 +23,10 @@ namespace
 }
 
 ADome::ADome() : 
-	PhysicalActor()
+
+	PhysicalActor(),
+
+	m_energyScale(1.0_r)
 {}
 
 ADome::ADome(const ADome& other) : 
@@ -82,6 +86,13 @@ CookedUnit ADome::cook(CookingContext& context)
 		worldToLocal.get());
 	
 	auto radianceFunction = loadRadianceFunction(context);
+	if(m_energyScale != 1.0_r)
+	{
+		auto scaledRadianceFunction = std::make_shared<TConstantMultiplyTexture<Spectrum, real, Spectrum>>(
+			radianceFunction, m_energyScale);
+
+		radianceFunction = scaledRadianceFunction;
+	}
 
 	// HACK:
 	std::unique_ptr<Emitter> domeEmitter;
@@ -135,8 +146,13 @@ void swap(ADome& first, ADome& second)
 // command interface
 
 ADome::ADome(const InputPacket& packet) : 
-	PhysicalActor(packet)
-{}
+
+	PhysicalActor(packet),
+
+	m_energyScale(1.0_r)
+{
+	m_energyScale = packet.getReal("energy-scale", m_energyScale);
+}
 
 SdlTypeInfo ADome::ciTypeInfo()
 {
@@ -145,43 +161,7 @@ SdlTypeInfo ADome::ciTypeInfo()
 
 void ADome::ciRegister(CommandRegister& cmdRegister)
 {
-	cmdRegister.setLoader(SdlLoader(
-		[](const InputPacket& packet) -> std::unique_ptr<ISdlResource>
-		{
-			const auto type = packet.getString("type", 
-				"image");
-
-			if(type == "image")
-			{
-				return std::make_unique<AImageDome>(packet);
-			}
-			else if(type == "preetham")
-			{
-				return std::make_unique<APreethamDome>(packet);
-			}
-			else
-			{
-				logger.log(ELogLevel::WARNING_MED,
-					"unsupported dome type <" + type + ">");
-
-				return nullptr;
-			}
-		}));
-
-	SdlExecutor translateSE;
-	translateSE.setName("translate");
-	translateSE.setFunc<ADome>(ciTranslate);
-	cmdRegister.addExecutor(translateSE);
-
-	SdlExecutor rotateSE;
-	rotateSE.setName("rotate");
-	rotateSE.setFunc<ADome>(ciRotate);
-	cmdRegister.addExecutor(rotateSE);
-
-	SdlExecutor scaleSE;
-	scaleSE.setName("scale");
-	scaleSE.setFunc<ADome>(ciScale);
-	cmdRegister.addExecutor(scaleSE);
+	registerTransformFuncs<ADome>(cmdRegister);
 }
 
 }// end namespace ph

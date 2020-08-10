@@ -2,7 +2,7 @@
 # NOTE: THIS FILE CONTAINS GENERATED CODE 
 #       DO NOT MODIFY                     
 # ========================================
-# last generated: 2020-06-12 03:29:08.348331 
+# last generated: 2020-08-10 18:36:48.958239 
 
 from abc import ABC, abstractmethod
 
@@ -248,14 +248,9 @@ class SDLExecutorCommand(SDLCommand):
         self.__target_name = data_name
 
 
-class SDLImage(SDLReference):
+class SDLActor(SDLReference):
     def __init__(self, ref_name = ""):
-        super().__init__("image", ref_name)
-
-
-class SDLFilm(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("film", ref_name)
+        super().__init__("actor", ref_name)
 
 
 class SDLMotion(SDLReference):
@@ -263,9 +258,9 @@ class SDLMotion(SDLReference):
         super().__init__("motion", ref_name)
 
 
-class SDLEstimator(SDLReference):
+class SDLOption(SDLReference):
     def __init__(self, ref_name = ""):
-        super().__init__("estimator", ref_name)
+        super().__init__("option", ref_name)
 
 
 class SDLLightSource(SDLReference):
@@ -273,19 +268,24 @@ class SDLLightSource(SDLReference):
         super().__init__("light-source", ref_name)
 
 
-class SDLActor(SDLReference):
+class SDLImage(SDLReference):
     def __init__(self, ref_name = ""):
-        super().__init__("actor", ref_name)
+        super().__init__("image", ref_name)
 
 
-class SDLOption(SDLReference):
+class SDLRenderer(SDLReference):
     def __init__(self, ref_name = ""):
-        super().__init__("option", ref_name)
+        super().__init__("renderer", ref_name)
 
 
-class SDLGeometry(SDLReference):
+class SDLSampleGenerator(SDLReference):
     def __init__(self, ref_name = ""):
-        super().__init__("geometry", ref_name)
+        super().__init__("sample-generator", ref_name)
+
+
+class SDLFilm(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("film", ref_name)
 
 
 class SDLFrameProcessor(SDLReference):
@@ -298,19 +298,19 @@ class SDLCamera(SDLReference):
         super().__init__("camera", ref_name)
 
 
-class SDLSampleGenerator(SDLReference):
+class SDLEstimator(SDLReference):
     def __init__(self, ref_name = ""):
-        super().__init__("sample-generator", ref_name)
+        super().__init__("estimator", ref_name)
+
+
+class SDLGeometry(SDLReference):
+    def __init__(self, ref_name = ""):
+        super().__init__("geometry", ref_name)
 
 
 class SDLMaterial(SDLReference):
     def __init__(self, ref_name = ""):
         super().__init__("material", ref_name)
-
-
-class SDLRenderer(SDLReference):
-    def __init__(self, ref_name = ""):
-        super().__init__("renderer", ref_name)
 
 
 
@@ -322,29 +322,8 @@ class DomeActorCreator(SDLCreatorCommand):
     def get_full_type(self):
         return "actor(dome)"
 
-    def set_type(self, type: SDLData):
-        self.set_input("type", type)
-
-    def set_image(self, image: SDLData):
-        self.set_input("image", image)
-
-    def set_turbidity(self, turbidity: SDLData):
-        self.set_input("turbidity", turbidity)
-
-    def set_standard_time_24h(self, standard_time_24h: SDLData):
-        self.set_input("standard-time-24h", standard_time_24h)
-
-    def set_standard_meridian_degrees(self, standard_meridian_degrees: SDLData):
-        self.set_input("standard-meridian-degrees", standard_meridian_degrees)
-
-    def set_site_latitude_decimal(self, site_latitude_decimal: SDLData):
-        self.set_input("site-latitude-decimal", site_latitude_decimal)
-
-    def set_site_longitude_decimal(self, site_longitude_decimal: SDLData):
-        self.set_input("site-longitude-decimal", site_longitude_decimal)
-
-    def set_julian_date(self, julian_date: SDLData):
-        self.set_input("julian-date", julian_date)
+    def set_energy_scale(self, energy_scale: SDLData):
+        self.set_input("energy-scale", energy_scale)
 
 
 class DomeActorTranslate(SDLExecutorCommand):
@@ -626,6 +605,127 @@ class PhysicalActorRotate(SDLExecutorCommand):
 class PhysicalActorScale(SDLExecutorCommand):
     def get_full_type(self):
         return "actor(physical)"
+
+    def get_name(self):
+        return "scale"
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class ImageDomeActorCreator(SDLCreatorCommand):
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(image-dome)"
+
+    def set_image(self, image: SDLData):
+        self.set_input("image", image)
+
+    def set_energy_scale(self, energy_scale: SDLData):
+        self.set_input("energy-scale", energy_scale)
+
+
+class ImageDomeActorTranslate(SDLExecutorCommand):
+    def get_full_type(self):
+        return "actor(image-dome)"
+
+    def get_name(self):
+        return "translate"
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class ImageDomeActorRotate(SDLExecutorCommand):
+    def get_full_type(self):
+        return "actor(image-dome)"
+
+    def get_name(self):
+        return "rotate"
+
+    def set_axis(self, axis: SDLData):
+        self.set_input("axis", axis)
+
+    def set_degree(self, degree: SDLData):
+        self.set_input("degree", degree)
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class ImageDomeActorScale(SDLExecutorCommand):
+    def get_full_type(self):
+        return "actor(image-dome)"
+
+    def get_name(self):
+        return "scale"
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class PreethamDomeActorCreator(SDLCreatorCommand):
+    def __init__(self):
+        super().__init__()
+
+    def get_full_type(self):
+        return "actor(preetham-dome)"
+
+    def set_turbidity(self, turbidity: SDLData):
+        self.set_input("turbidity", turbidity)
+
+    def set_standard_time_24h(self, standard_time_24h: SDLData):
+        self.set_input("standard-time-24h", standard_time_24h)
+
+    def set_standard_meridian_degrees(self, standard_meridian_degrees: SDLData):
+        self.set_input("standard-meridian-degrees", standard_meridian_degrees)
+
+    def set_site_latitude_decimal(self, site_latitude_decimal: SDLData):
+        self.set_input("site-latitude-decimal", site_latitude_decimal)
+
+    def set_site_longitude_decimal(self, site_longitude_decimal: SDLData):
+        self.set_input("site-longitude-decimal", site_longitude_decimal)
+
+    def set_julian_date(self, julian_date: SDLData):
+        self.set_input("julian-date", julian_date)
+
+    def set_energy_scale(self, energy_scale: SDLData):
+        self.set_input("energy-scale", energy_scale)
+
+
+class PreethamDomeActorTranslate(SDLExecutorCommand):
+    def get_full_type(self):
+        return "actor(preetham-dome)"
+
+    def get_name(self):
+        return "translate"
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class PreethamDomeActorRotate(SDLExecutorCommand):
+    def get_full_type(self):
+        return "actor(preetham-dome)"
+
+    def get_name(self):
+        return "rotate"
+
+    def set_axis(self, axis: SDLData):
+        self.set_input("axis", axis)
+
+    def set_degree(self, degree: SDLData):
+        self.set_input("degree", degree)
+
+    def set_factor(self, factor: SDLData):
+        self.set_input("factor", factor)
+
+
+class PreethamDomeActorScale(SDLExecutorCommand):
+    def get_full_type(self):
+        return "actor(preetham-dome)"
 
     def get_name(self):
         return "scale"

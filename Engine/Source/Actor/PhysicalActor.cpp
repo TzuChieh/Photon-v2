@@ -106,20 +106,7 @@ SdlTypeInfo PhysicalActor::ciTypeInfo()
 
 void PhysicalActor::ciRegister(CommandRegister& cmdRegister)
 {
-	SdlExecutor translateSE;
-	translateSE.setName("translate");
-	translateSE.setFunc<PhysicalActor>(ciTranslate);
-	cmdRegister.addExecutor(translateSE);
-
-	SdlExecutor rotateSE;
-	rotateSE.setName("rotate");
-	rotateSE.setFunc<PhysicalActor>(ciRotate);
-	cmdRegister.addExecutor(rotateSE);
-
-	SdlExecutor scaleSE;
-	scaleSE.setName("scale");
-	scaleSE.setFunc<PhysicalActor>(ciScale);
-	cmdRegister.addExecutor(scaleSE);
+	registerTransformFuncs<PhysicalActor>(cmdRegister);
 }
 
 ExitStatus PhysicalActor::ciTranslate(

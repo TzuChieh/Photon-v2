@@ -82,4 +82,19 @@ AImageDome::AImageDome(const InputPacket& packet) :
 		Path(), DataTreatment::REQUIRED());
 }
 
+SdlTypeInfo AImageDome::ciTypeInfo()
+{
+	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "image-dome");
+}
+
+void AImageDome::ciRegister(CommandRegister& cmdRegister)
+{
+	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
+	{
+		return std::make_unique<AImageDome>(packet);
+	}));
+
+	registerTransformFuncs<AImageDome>(cmdRegister);
+}
+
 }// end namespace ph
