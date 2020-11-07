@@ -56,7 +56,11 @@ void PLatLongEnvSphere::calcIntersectionDetail(
 	const auto unitSphere = math::TSphere<real>::makeUnit();
 
 	// UV is mapped from incident direction for the purpose of environment lighting
-	const math::Vector2R& hitUv = unitSphere.surfaceToLatLong01(unitRayDir);
+	// (no need to renormalize after transform due to rigidity)
+	PH_ASSERT(m_worldToLocal);
+	math::Vector3R localUnitRayDir;
+	m_worldToLocal->transformV(unitRayDir, &localUnitRayDir);
+	const math::Vector2R& hitUv = unitSphere.surfaceToLatLong01(localUnitRayDir);
 
 	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(
 		hitPosition, 
@@ -78,10 +82,7 @@ bool PLatLongEnvSphere::latLong01ToSurface(
 	PH_ASSERT(m_worldToLocal);
 	PH_ASSERT(out_surface);
 
-	const math::Vector3R& dir = math::TSphere<real>::makeUnit().latLong01ToSurface(latLong01);
-
-	math::Vector3R localDir;
-	m_worldToLocal->transformV(dir, &localDir);
+	const math::Vector3R& localDir = math::TSphere<real>::makeUnit().latLong01ToSurface(latLong01);
 
 	math::Vector3R localObservationPos;
 	m_worldToLocal->transformP(observationPos, &localObservationPos);
@@ -92,7 +93,7 @@ bool PLatLongEnvSphere::latLong01ToSurface(
 	real hitT;
 	if(!localSphere.isIntersecting(localLine, &hitT))
 	{
-		// This means the observation point is outside the environment sphere
+		// This means the observer cannot see the environment sphere
 		return false;
 	}
 	const math::Vector3R localHitPos = localLine.getPoint(hitT);

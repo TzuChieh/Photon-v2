@@ -40,13 +40,13 @@ If you use Photon in your research project, you are hightly encouraged to cite i
 ```latex.bib
 @misc{Photon,
 	Author = {Tzu-Chieh Chang},
-	Year   = {2016--2019},
+	Year   = {2016--2020},
 	Title  = {Photon renderer},
 	Note   = {https://github.com/TzuChieh/Photon-v2}
 } 
 ```
 
-Feel free to send me an e-mail (r05922176@ntu.edu.tw) for any questions or ideas about my project (= <br />
+Feel free to send me an e-mail (tokzin3d `<at>` gmail `<dot>` com) for any questions or ideas about my project (= <br />
 
 Support the Project:
 

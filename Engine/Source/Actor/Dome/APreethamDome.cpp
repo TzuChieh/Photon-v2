@@ -86,7 +86,7 @@ APreethamDome::APreethamDome(const InputPacket& packet) :
 	m_sunTheta (math::to_radians(45.0_r)),
 	m_turbidity(3.0_r)
 {
-	m_turbidity   = packet.getReal("turbidity", m_turbidity);
+	m_turbidity = packet.getReal("turbidity", m_turbidity);
 	
 	if(packet.hasReal("sun-phi-degrees") && packet.hasReal("sun-theta-degrees"))
 	{

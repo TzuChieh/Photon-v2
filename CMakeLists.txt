@@ -125,6 +125,7 @@ endif()
 ###############################################################################
 
 include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_load_thirdparty_lib.cmake")
+include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_load_library_via_config.cmake")
 
 #------------------------------------------------------------------------------
 # googletest
@@ -150,19 +151,17 @@ endif()
 # stb
 #------------------------------------------------------------------------------
 set(STB_LIB_NAME "stb")
-load_thirdparty_lib(${STB_LIB_NAME}
-    TARGETS         "stb"
-    CONFIG_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${STB_LIB_NAME}/share/"
-    MANUAL_INC_DIRS "${THIRDPARTY_PREBUILT_DIR}/${STB_LIB_NAME}/include/")
+load_library_via_config(${STB_LIB_NAME}
+    TARGETS    "stb"
+    CONFIG_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${STB_LIB_NAME}/share/")
 
 #------------------------------------------------------------------------------
 # Asio
 #------------------------------------------------------------------------------
 set(ASIO_LIB_NAME "Asio")
-load_thirdparty_lib(${ASIO_LIB_NAME}
-    TARGETS         "Asio"
-    CONFIG_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ASIO_LIB_NAME}/share/"
-    MANUAL_INC_DIRS "${THIRDPARTY_PREBUILT_DIR}/${ASIO_LIB_NAME}/include/")
+load_library_via_config(${ASIO_LIB_NAME}
+    TARGETS    "Asio"
+    CONFIG_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ASIO_LIB_NAME}/share/")
 
 #------------------------------------------------------------------------------
 # StackWalker

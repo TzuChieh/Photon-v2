@@ -103,7 +103,7 @@ void LatLongEnvEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSampl
 	TSampler<Spectrum> sampler(EQuantity::EMR);
 	sample.radianceLe = sampler.sample(*m_radiance, uvSample);
 	
-	// FIXME: assuming spherical uv mapping us used
+	// FIXME: assuming spherical uv mapping is used
 	const real sinTheta = std::sin((1.0_r - uvSample.y) * math::constant::pi<real>);
 	if(sinTheta <= 0.0_r)
 	{
