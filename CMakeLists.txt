@@ -53,9 +53,6 @@ endif()
 option(BUILD_SHARED_LIBS
     "Build as shared libraries (if applicable)."
     OFF)
-option(SHARED_THIRDPARTY_LIBS
-    "Are third-party libraries built as shared libraries (if applicable)."
-    ON)
 
 set(BUILD_PHOTON_CLI_DEFAULT ON)
 
@@ -73,8 +70,11 @@ option(BUILD_EDITOR_JNI  "Build JNI for GUI."                ${BUILD_EDITOR_JNI_
 
 set(THIRD_PARTY_LIBS_INSTALL_DIR 
     "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty/build/ThirdParty/" 
-    CACHE STRING 
+    CACHE PATH 
     "Path to third-party library install directory.")
+
+message(STATUS 
+    "Third-party library install directory set to \"${THIRD_PARTY_LIBS_INSTALL_DIR}\"; Modify by setting \"THIRD_PARTY_LIBS_INSTALL_DIR\".")
 
 ###############################################################################
 # Compiler Settings                                                           #
@@ -124,8 +124,9 @@ endif()
 # Gather Third-party Libraries Required by Photon-v2                          #
 ###############################################################################
 
-include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_load_thirdparty_lib.cmake")
 include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_load_library_via_config.cmake")
+include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_load_library_via_pkgconfig.cmake")
+include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_load_library_manually.cmake")
 
 #------------------------------------------------------------------------------
 # googletest
@@ -133,18 +134,24 @@ include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_load_library_via_config.cmake")
 if(BUILD_ENGINE_TEST)
     set(GOOGLETEST_LIB_NAME "googletest")
 
-    load_thirdparty_lib(${GOOGLETEST_LIB_NAME} OPTIONAL
-        TARGETS          "gmock"
-        RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/bin/"
-        PACKAGE_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/lib/pkgconfig/"
-        MANUAL_INC_DIRS  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/include/"
-        MANUAL_LIB_DIRS  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/lib/"
-        MANUAL_LIB_NAMES "gmock")
+    # Bringing in the target "gtest" is unnecessary as "gmock" depends on
+    # "gtest" which should be handled by their build system. However, adding
+    # "gtest" will result in runtime error due to not calling
+    # testing::InitGoogleTest(), which I think is a bug in googletest. See
+    # "Photon-v2/EngineTest/Source/main.cpp"
+    # for more info.
+    
+    load_library_via_pkgconfig(${GOOGLETEST_LIB_NAME} OPTIONAL
+        TARGETS     "gmock"
+        PACKAGE_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/lib/pkgconfig/"
+        RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/bin/")
 
-    load_thirdparty_lib(${GOOGLETEST_LIB_NAME}
-        MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${GOOGLETEST_LIB_NAME}/include/"
-        MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${GOOGLETEST_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
-        MANUAL_LIB_NAMES "gtest" "gmock")
+    # Fallback to manual loading
+    load_library_manually(${GOOGLETEST_LIB_NAME}
+        LIB_NAMES   "gmock"
+        LIB_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/lib/"
+        INC_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/include/"
+        RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/bin/")
 endif()
 
 #------------------------------------------------------------------------------
@@ -167,18 +174,16 @@ load_library_via_config(${ASIO_LIB_NAME}
 # StackWalker
 #------------------------------------------------------------------------------
 # TODO: debug build?
+# TODO: make this optional
+
+# StackWalker works on Windows only
 if(WIN32)
     set(STACKWALKER_LIB_NAME "StackWalker")
 
-    load_thirdparty_lib(${STACKWALKER_LIB_NAME} OPTIONAL
-        MANUAL_INC_DIRS  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${STACKWALKER_LIB_NAME}/include/"
-        MANUAL_LIB_DIRS  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${STACKWALKER_LIB_NAME}/lib/"
-        MANUAL_LIB_NAMES "StackWalker")
-
-    load_thirdparty_lib(${STACKWALKER_LIB_NAME}
-        MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${STACKWALKER_LIB_NAME}/include/"
-        MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${STACKWALKER_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
-        MANUAL_LIB_NAMES "StackWalker")
+    load_library_manually(${STACKWALKER_LIB_NAME}
+        LIB_NAMES "StackWalker"
+        LIB_DIRS  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${STACKWALKER_LIB_NAME}/lib/"
+        INC_DIRS  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${STACKWALKER_LIB_NAME}/include/")
 endif()
 
 #------------------------------------------------------------------------------
@@ -187,35 +192,24 @@ endif()
 
 # Note that zlib's .pc file is not suitable for use on Windows (commenting
 # out the "prefix" entry and replace the "-lz" link flag with "-lzlib" will
-# work, but we disable package mode on Windows nevertheless).
+# work, but we avoid the use of package mode on Windows nevertheless).
 
 set(ZLIB_LIB_NAME "zlib")
-if(SHARED_THIRDPARTY_LIBS)
 
-    # FIXME: openexr links to ZLIB::ZLIB not zlib::zlib
-
-    load_thirdparty_lib(${ZLIB_LIB_NAME} NO_PACKAGE_MODE_ON_WINDOWS
-        TARGETS          "zlib"
-        RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/"
-        MODULE_NAME      "ZLIB"
-        MODULE_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/"
-        MODULE_TARGETS   "ZLIB::ZLIB"
-        PACKAGE_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/pkgconfig/"
-        MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/include/"
-        MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
-        MANUAL_LIB_NAMES "zlib z")
+set(ZLIB_ROOT "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/")
+find_package(${ZLIB_LIB_NAME} MODULE)
+if(ZLIB_FOUND)
+    load_library_manually(${ZLIB_LIB_NAME}
+        TARGETS     "ZLIB::ZLIB"
+        RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/")
+# Fallback to manual loading
 else()
-
-    # TODO: can we use find module with static zlib (zlibstatic)?
-    # TODO: how to link this to openexr
-
-    load_thirdparty_lib(${ZLIB_LIB_NAME} NO_PACKAGE_MODE_ON_WINDOWS
-        TARGETS          "zlibstatic"
-        PACKAGE_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/pkgconfig/"
-        CONFIG_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/share/"
-        MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/include/"
-        MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/${ZLIB_LIB_NAME}/lib/${THIRD_PARTY_PLATFORM}/"
-        MANUAL_LIB_NAMES "zlibstatic z")
+    # FIXME: openexr links to ZLIB::ZLIB, manual loading does not specify that
+    load_library_manually(${ZLIB_LIB_NAME}
+        INC_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/include/"
+        LIB_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/lib/"
+        LIB_NAMES   "zlib z"
+        RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/")
 endif()
 
 #------------------------------------------------------------------------------
@@ -226,7 +220,7 @@ if(NOT TARGET Threads::Threads)
     set(THREADS_PREFER_PTHREAD_FLAG TRUE)
     find_package(Threads)
     if(NOT Threads_FOUND)
-        message(FATAL_ERROR 
+        message(SEND_ERROR 
             "Unable to find a threading library which is required for IlmThread")
     endif()
 endif()
@@ -234,25 +228,41 @@ endif()
 set(ILMBASE_LIB_NAME "IlmBase")
 set(OPENEXR_LIB_NAME "OpenEXR")
 
-load_thirdparty_lib(${ILMBASE_LIB_NAME} NO_PACKAGE_MODE_ON_WINDOWS
-    TARGETS          "Half" "Iex" "IexMath" "IlmThread" "Imath"
-    RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/"
-    PACKAGE_TARGETS  "IlmBase"
-    PACKAGE_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/pkgconfig/"
-    CONFIG_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${ILMBASE_LIB_NAME}/"
-    MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/OpenEXR/include/"
-    MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/OpenEXR/lib/${THIRD_PARTY_PLATFORM}/"
-    MANUAL_LIB_NAMES "Half-2_3_s" "Iex-2_3_s" "IexMath-2_3_s" "IlmThread-2_3_s" "Imath-2_3_s")
+if(WIN32)
+    load_library_via_config(${ILMBASE_LIB_NAME} OPTIONAL
+        TARGETS     "Half" "Iex" "IexMath" "IlmThread" "Imath"
+        CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${ILMBASE_LIB_NAME}/"
+        RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
 
-load_thirdparty_lib(${OPENEXR_LIB_NAME} NO_PACKAGE_MODE_ON_WINDOWS
-    TARGETS          "IlmImf" "IlmImfUtil"
-    RUNTIME_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/"
-    PACKAGE_TARGETS  "OpenEXR"
-    PACKAGE_DIR      "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/pkgconfig/"
-    CONFIG_DIR       "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${OPENEXR_LIB_NAME}/"
-    MANUAL_INC_DIRS  "${THIRDPARTY_PREBUILT_DIR}/OpenEXR/include/"
-    MANUAL_LIB_DIRS  "${THIRDPARTY_PREBUILT_DIR}/OpenEXR/lib/${THIRD_PARTY_PLATFORM}/"
-    MANUAL_LIB_NAMES "IlmImf-2_3_s" "IlmImfUtil-2_3_s")
+    load_library_via_config(${OPENEXR_LIB_NAME} OPTIONAL
+        TARGETS     "IlmImf" "IlmImfUtil"
+        CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${OPENEXR_LIB_NAME}/"
+        RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
+else()
+    load_library_via_pkgconfig(${ILMBASE_LIB_NAME} OPTIONAL
+        TARGETS     "IlmBase"
+        CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/pkgconfig/"
+        RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
+
+    load_library_via_pkgconfig(${OPENEXR_LIB_NAME} OPTIONAL
+        TARGETS     "OpenEXR"
+        CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/pkgconfig/"
+        RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
+endif()
+
+# Fallback to manual loading
+
+load_library_manually(${ILMBASE_LIB_NAME}
+    LIB_NAMES   "Half-2_3_s" "Iex-2_3_s" "IexMath-2_3_s" "IlmThread-2_3_s" "Imath-2_3_s"
+    LIB_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/OpenEXR/lib/"
+    INC_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/OpenEXR/include/"
+    RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
+
+load_library_manually(${OPENEXR_LIB_NAME}
+    LIB_NAMES   "IlmImf-2_3_s" "IlmImfUtil-2_3_s"
+    LIB_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/OpenEXR/lib/"
+    INC_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/OpenEXR/include/"
+    RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
 
 ###############################################################################
 # Add CMake Subdirectories                                                    #

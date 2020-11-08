@@ -30,7 +30,8 @@ function(link_thirdparty_lib targetName libName)
             "Cannot link ${targetName} against ${libName}, unknown load mode <${${libName}_LOAD_MODE}> detected.")
     endif()
 
-    if(SHARED_THIRDPARTY_LIBS AND ${libName}_RUNTIME_DIR)
+    # TODO: no copy if no change, and option to force copy
+    if(${libName}_RUNTIME_DIR)
         file(COPY
             "${${libName}_RUNTIME_DIR}/"
             DESTINATION ${BUILD_OUTPUT_DIR})

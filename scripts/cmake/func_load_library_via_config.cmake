@@ -6,12 +6,13 @@ function(load_library_via_config libName)
     # TODO: make config path a multivalueArg
     # TODO: no default path flags
     # TODO: possible targets ignore case? or ignore case as an option
+    # TODO: possible to pass a list of directories
 
     cmake_policy(SET CMP0074 NEW)
 
     if(${libName}_LOADED)
         message(VERBOSE 
-            "load_library_via_config(): Library ${libName} already loaded, skipping")
+            "load_library_via_config(): ${libName} already loaded, skipping")
         return()
     endif()
 
@@ -51,24 +52,22 @@ function(load_library_via_config libName)
         
         # TODO: check target exists
 
-        set(${libName}_LOAD_MODE   "CONFIG")
-        set(${libName}_LOADED      TRUE)
-        set(${libName}_RUNTIME_DIR ${ARG_CFG_RUNTIME_DIR})
+        set(${libName}_LOADED TRUE)
     else()
         message(VERBOSE 
             "load_library_via_config(): Config file of ${libName} not found")
     endif()
 
-    # Expose information about how the library is loaded
+    # Expose general information about how the library is loaded
     if(${libName}_LOADED)
-        message(STATUS
-            "load_library_via_config(): Library ${libName} loaded")
+        set(${libName}_LOAD_MODE   "CONFIG"               PARENT_SCOPE)
+        set(${libName}_LOADED      ${${libName}_LOADED}   PARENT_SCOPE)
+        set(${libName}_RUNTIME_DIR ${ARG_CFG_RUNTIME_DIR} PARENT_SCOPE)
 
-        set(${libName}_LOAD_MODE   ${${libName}_LOAD_MODE}   PARENT_SCOPE)
-        set(${libName}_LOADED      ${${libName}_LOADED}      PARENT_SCOPE)
-        set(${libName}_RUNTIME_DIR ${${libName}_RUNTIME_DIR} PARENT_SCOPE)
+        message(STATUS
+            "load_library_via_config(): ${libName} loaded")
     elseif(NOT ARG_CFG_OPTIONAL)
-        message(FATAL_ERROR
-            "load_library_via_config(): Unable to load library ${libName}")
+        message(SEND_ERROR
+            "load_library_via_config(): Unable to load ${libName}")
     endif()
 endfunction()
