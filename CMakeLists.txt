@@ -10,8 +10,22 @@ project(Photon-v2)
 
 cmake_policy(SET CMP0054 NEW)
 
-set(BUILD_OUTPUT_DIR        "${PROJECT_BINARY_DIR}/bin/")
-set(THIRDPARTY_PREBUILT_DIR "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty-Prebuilt-master/")
+message(STATUS
+    "Operating System: ${CMAKE_SYSTEM_NAME}")
+if(WIN32)
+    set(THIRD_PARTY_PLATFORM "windows")
+elseif(UNIX AND NOT APPLE)
+    set(THIRD_PARTY_PLATFORM "linux")
+elseif(APPLE)
+    set(THIRD_PARTY_PLATFORM "osx")
+else()
+    message(WARNING
+        "Possibly unsupported operating system detected, assumed to be Linux.")
+    set(THIRD_PARTY_PLATFORM "linux")
+endif()
+
+set(BUILD_OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/")
+set(THIRDPARTY_DIR   "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty-master/")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${BUILD_OUTPUT_DIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BUILD_OUTPUT_DIR}")
@@ -34,7 +48,7 @@ set(PKG_CONFIG_USE_CMAKE_PREFIX_PATH ON)
 if(WIN32)
     find_program(PKG_CONFIG_EXECUTABLE
         NAMES "pkg-config"
-        PATHS "${THIRDPARTY_PREBUILT_DIR}/pkg-config-lite/bin/"
+        PATHS "${THIRDPARTY_DIR}/pkg-config-lite/bin/"
         NO_DEFAULT_PATH)
 
     if(PKG_CONFIG_EXECUTABLE)
@@ -69,7 +83,7 @@ option(BUILD_ENGINE_TEST "Build unit tests for core engine." ${BUILD_ENGINE_TEST
 option(BUILD_EDITOR_JNI  "Build JNI for GUI."                ${BUILD_EDITOR_JNI_DEFAULT})
 
 set(THIRD_PARTY_LIBS_INSTALL_DIR 
-    "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty/build/ThirdParty/" 
+    "${THIRDPARTY_DIR}/Prebuilt/${THIRD_PARTY_PLATFORM}/release/ThirdParty/" 
     CACHE PATH 
     "Path to third-party library install directory.")
 
@@ -80,14 +94,14 @@ message(STATUS
 # Compiler Settings                                                           #
 ###############################################################################
 
-# compile with C++17 standard enabled
+# Compile with C++17 standard enabled
 set(CMAKE_CXX_STANDARD          17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# using Visual Studio C++
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+# Set compiler-dependent settings
 
-    set(THIRD_PARTY_PLATFORM "windows")
+# Using Visual Studio C++
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
     # use C++17 (VS usually do not pick up previous requests)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
@@ -101,21 +115,20 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
     # set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
-# using GCC
+# Using GCC
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-
-    set(THIRD_PARTY_PLATFORM "linux")
 
     # as a fallback when CMake version < 3.8.0 or whatever reasons
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
-# using regular Clang or AppleClang
+# Using regular Clang or AppleClang
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    
-    set(THIRD_PARTY_PLATFORM "osx")
 
     # TODO: enforce C++17 if previous requests have no use
 
+else()
+    message(WARNING
+        "Unknown compiler ID <${CMAKE_CXX_COMPILER_ID}>, unable to set proper flags.")
 endif()
 
 # TODO: add g++ MT MD equivalent flags?
@@ -143,7 +156,7 @@ if(BUILD_ENGINE_TEST)
     
     load_library_via_pkgconfig(${GOOGLETEST_LIB_NAME} OPTIONAL
         TARGETS     "gmock"
-        PACKAGE_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/lib/pkgconfig/"
+        CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/lib/pkgconfig/"
         RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/bin/")
 
     # Fallback to manual loading
@@ -197,7 +210,7 @@ endif()
 set(ZLIB_LIB_NAME "zlib")
 
 set(ZLIB_ROOT "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/")
-find_package(${ZLIB_LIB_NAME} MODULE)
+find_package(ZLIB MODULE)
 if(ZLIB_FOUND)
     load_library_manually(${ZLIB_LIB_NAME}
         TARGETS     "ZLIB::ZLIB"
