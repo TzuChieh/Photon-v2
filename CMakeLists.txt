@@ -266,13 +266,13 @@ endif()
 # Fallback to manual loading
 
 load_library_manually(${ILMBASE_LIB_NAME}
-    LIB_NAMES   "Half-2_3_s" "Iex-2_3_s" "IexMath-2_3_s" "IlmThread-2_3_s" "Imath-2_3_s"
+    LIB_NAMES   "Half" "Iex" "IexMath" "IlmThread" "Imath"
     LIB_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/OpenEXR/lib/"
     INC_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/OpenEXR/include/"
     RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
 
 load_library_manually(${OPENEXR_LIB_NAME}
-    LIB_NAMES   "IlmImf-2_3_s" "IlmImfUtil-2_3_s"
+    LIB_NAMES   "IlmImf" "IlmImfUtil"
     LIB_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/OpenEXR/lib/"
     INC_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/OpenEXR/include/"
     RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
