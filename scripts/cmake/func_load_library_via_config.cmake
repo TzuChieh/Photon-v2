@@ -29,10 +29,16 @@ function(load_library_via_config libName)
         TARGETS)
     
     cmake_parse_arguments(ARG_CFG "${OPTIONS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
+
+    if(ARG_CFG_OPTIONAL)
+    	set(REQUIREMENT QUIET)
+    else()
+        set(REQUIREMENT REQUIRED)
+    endif()
     
     # Try to find library targets with find_package() in config mode 
     # (without CMake default paths)
-    find_package(${libName} CONFIG QUIET
+    find_package(${libName} CONFIG ${REQUIREMENT}
         PATHS "${ARG_CFG_CONFIG_DIR}/"
         NO_DEFAULT_PATH)
 
