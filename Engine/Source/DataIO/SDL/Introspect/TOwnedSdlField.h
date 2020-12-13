@@ -32,7 +32,7 @@ public:
 		std::string* out_sdl,
 		std::string& out_message) const;
 
-	TOwnedSdlField& withImportance(EFieldImportance importance);
+	TOwnedSdlField& setImportance(EFieldImportance importance);
 
 private:
 	virtual bool loadFromSdl(
@@ -110,7 +110,7 @@ inline void TOwnedSdlField<Owner>::toSdl(
 }
 
 template<typename Owner>
-inline TOwnedSdlField<Owner>& TOwnedSdlField<Owner>::withImportance(const EFieldImportance importance)
+inline TOwnedSdlField<Owner>& TOwnedSdlField<Owner>::setImportance(const EFieldImportance importance)
 {
 	m_importance = importance;
 
