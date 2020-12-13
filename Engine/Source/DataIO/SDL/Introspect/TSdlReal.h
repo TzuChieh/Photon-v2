@@ -7,6 +7,7 @@
 #include <type_traits>
 #include <string>
 #include <utility>
+#include <exception>
 
 namespace ph
 {
@@ -20,8 +21,15 @@ class TSdlReal : public TSdlValue<RealType, Owner>
 public:
 	TSdlReal(std::string valueName, RealType Owner::* valuePtr);
 
-	bool fromSdl(Owner& owner, const std::string& sdl) override;
-	void toSdl(Owner& owner, std::string* out_sdl) const override;
+	bool loadFromSdl(
+		Owner&             owner,
+		const std::string& sdl,
+		std::string&       out_loaderMessage) override;
+
+	void convertToSdl(
+		Owner&       owner,
+		std::string* out_sdl,
+		std::string& out_converterMessage) const override;
 };
 
 // In-header Implementations:
@@ -32,13 +40,41 @@ inline TSdlReal<Owner, RealType>::TSdlReal(std::string valueName, RealType Owner
 {}
 
 template<typename Owner, typename RealType>
-inline bool TSdlReal<Owner, RealType>::fromSdl(Owner& owner, const std::string& sdl)
+inline bool TSdlReal<Owner, RealType>::loadFromSdl(
+	Owner&             owner,
+	const std::string& sdl,
+	std::string&       out_loaderMessage)
 {
-	owner.*m_valuePtr = static_cast<real>(std::stold(sdl));
+	try
+	{
+		setValue(owner, static_cast<real>(std::stold(sdl)));
+		return true;
+	}
+	catch(const std::exception& e)
+	{
+		out_loaderMessage += "exception on parsing real (" + e.what() + ")";
+		out_loaderMessage += ", default to " + std::to_string(this->m_defaultValue);
+
+		setValueToDefault(owner);
+
+		return false;
+	}
+	catch(...)
+	{
+		out_loaderMessage += "unknown exception occurred on parsing real";
+		out_loaderMessage += ", default to " + std::to_string(this->m_defaultValue);
+
+		setValueToDefault(owner);
+
+		return false;
+	}
 }
 
 template<typename Owner, typename RealType>
-inline void TSdlReal<Owner, RealType>::toSdl(Owner& owner, std::string* const out_sdl) const
+inline void TSdlReal<Owner, RealType>::convertToSdl(
+	Owner&       owner,
+	std::string* out_sdl,
+	std::string& out_converterMessage) const
 {
 	PH_ASSERT(out_sdl);
 

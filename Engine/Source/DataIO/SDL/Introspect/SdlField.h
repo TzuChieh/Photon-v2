@@ -14,6 +14,8 @@ public:
 	SdlField(std::string typeName, std::string fieldName);
 	virtual ~SdlField() = default;
 
+	std::string genFieldDescription() const;
+
 	const std::string& getTypeName() const;
 	const std::string& getFieldName() const;
 
@@ -29,6 +31,11 @@ inline SdlField::SdlField(std::string typeName, std::string fieldName) :
 {
 	PH_ASSERT(!m_typeName.empty());
 	PH_ASSERT(!m_fieldName.empty());
+}
+
+inline std::string SdlField::genFieldDescription() const
+{
+	return "type: " + m_typeName + ", name: " + m_fieldName;
 }
 
 inline const std::string& SdlField::getTypeName() const

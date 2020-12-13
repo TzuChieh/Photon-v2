@@ -17,12 +17,23 @@ public:
 		std::string valueName, 
 		T Owner::*  valuePtr);
 
-	bool fromSdl(Owner& owner, const std::string& sdl) override = 0;
-	void toSdl(Owner& owner, std::string* out_sdl) const override = 0;
+	bool loadFromSdl(
+		Owner&             owner,
+		const std::string& sdl,
+		std::string&       out_loaderMessage) override = 0;
+
+	void convertToSdl(
+		Owner&       owner,
+		std::string* out_sdl,
+		std::string& out_converterMessage) const override = 0;
 
 	TSdlValue& defaultTo(T defaultValue);
+	TSdlValue& withImportance(EFieldImportance importance);
 
-protected:
+	void setValue(Owner& owner, T value);
+	void setValueToDefault(Owner& owner);
+
+private:
 	T Owner::* m_valuePtr;
 	T          m_defaultValue;
 };
@@ -41,6 +52,32 @@ inline TSdlValue<T, Owner>::TSdlValue(
 	m_defaultValue(0)
 {
 	PH_ASSERT(m_valuePtr);
+}
+
+template<typename T, typename Owner>
+inline TSdlValue<T, Owner>& TSdlValue<T, Owner>::defaultTo(T defaultValue)
+{
+	m_defaultValue = std::move(defaultValue);
+}
+
+template<typename T, typename Owner>
+inline TSdlValue<T, Owner>& TSdlValue<T, Owner>::withImportance(const EFieldImportance importance)
+{
+	withImportance(importance);
+
+	return *this;
+}
+
+template<typename T, typename Owner>
+inline void TSdlValue<T, Owner>::setValue(Owner& owner, T value)
+{
+	owner.*m_valuePtr = std::move(value);
+}
+
+template<typename T, typename Owner>
+inline void TSdlValue<T, Owner>::setValueToDefault(Owner& owner)
+{
+	owner.*m_valuePtr = m_defaultValue;
 }
 
 }// end namespace ph
