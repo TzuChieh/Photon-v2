@@ -21,6 +21,16 @@ public:
 	std::size_t numFields() const override;
 	const SdlField* getField(std::size_t index) const override;
 
+	void fromSdl(
+		Owner&             owner, 
+		const std::string& sdl,
+		std::string&       out_message);
+
+	void toSdl(
+		Owner&       owner,
+		std::string* out_sdl,
+		std::string& out_message) const;
+
 	const TOwnedSdlField<Owner>* getOwnedField(std::size_t index) const;
 
 	TSdlClass& addField(std::unique_ptr<TOwnedSdlField<Owner>> field);
@@ -62,6 +72,25 @@ inline TSdlClass<Owner>& TSdlClass<Owner>::addField(std::unique_ptr<TOwnedSdlFie
 	m_fields.push_back(std::move(field));
 
 	return *this;
+}
+
+template<typename Owner>
+inline void TSdlClass<Owner>::fromSdl(
+	Owner&             owner,
+	const std::string& sdl,
+	std::string&       out_message)
+{
+
+}
+
+template<typename Owner>
+inline void TSdlClass<Owner>::toSdl(
+	Owner&             owner,
+	std::string* const out_sdl,
+	std::string&       out_message) const
+{
+	// TODO
+	PH_ASSERT_UNREACHABLE_SECTION();
 }
 
 }// end namespace ph
