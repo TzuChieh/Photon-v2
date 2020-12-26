@@ -23,12 +23,12 @@ public:
 
 	bool loadFromSdl(
 		Owner&             owner,
-		const std::string& sdl,
+		const std::string& sdlValue,
 		std::string&       out_loaderMessage) override;
 
 	void convertToSdl(
 		Owner&       owner,
-		std::string* out_sdl,
+		std::string* out_sdlValue,
 		std::string& out_converterMessage) const override;
 };
 
@@ -42,12 +42,12 @@ inline TSdlReal<Owner, RealType>::TSdlReal(std::string valueName, RealType Owner
 template<typename Owner, typename RealType>
 inline bool TSdlReal<Owner, RealType>::loadFromSdl(
 	Owner&             owner,
-	const std::string& sdl,
+	const std::string& sdlValue,
 	std::string&       out_loaderMessage)
 {
 	try
 	{
-		setValue(owner, static_cast<real>(std::stold(sdl)));
+		setValue(owner, static_cast<real>(std::stold(sdlValue)));
 		return true;
 	}
 	catch(const std::exception& e)

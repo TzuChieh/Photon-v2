@@ -12,7 +12,7 @@
 		extern void on_assertion_failed();
 	}
 
-	#define PH_ASSERT_MSG(condition, message)\
+	#define PH_ASSERT_MSG(condition, failMessage)\
 		do\
 		{\
 			if(!(condition))\
@@ -20,9 +20,9 @@
 				std::cerr << "assertion failed at <" << __FILE__ << ">: "\
 						  << "line " << __LINE__\
 						  << ", condition: <" << #condition << ">";\
-				if(!std::string((message)).empty())\
+				if(!std::string((failMessage)).empty())\
 				{\
-					std::cerr << "; message: <" << (message) << ">";\
+					std::cerr << "; message: <" << (failMessage) << ">";\
 				}\
 				std::cerr << std::endl;\
 				\

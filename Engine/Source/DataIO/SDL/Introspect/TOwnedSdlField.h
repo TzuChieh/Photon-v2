@@ -24,12 +24,12 @@ public:
 
 	bool fromSdl(
 		Owner&             owner, 
-		const std::string& sdl,
+		const std::string& sdlValue,
 		std::string&       out_message);
 
 	void toSdl(
 		Owner&       owner, 
-		std::string* out_sdl,
+		std::string* out_sdlValue,
 		std::string& out_message) const;
 
 	TOwnedSdlField& setImportance(EFieldImportance importance);
@@ -37,12 +37,12 @@ public:
 private:
 	virtual bool loadFromSdl(
 		Owner&             owner, 
-		const std::string& sdl,
+		const std::string& sdlValue,
 		std::string&       out_loaderMessage) = 0;
 
 	virtual void convertToSdl(
 		Owner&       owner, 
-		std::string* out_sdl,
+		std::string* out_sdlValue,
 		std::string& out_converterMessage) const = 0;
 
 	EFieldImportance m_importance;
@@ -61,17 +61,17 @@ inline TOwnedSdlField<Owner>::TOwnedSdlField(std::string typeName, std::string v
 template<typename Owner>
 inline bool TOwnedSdlField<Owner>::fromSdl(
 	Owner&             owner,
-	const std::string& sdl,
+	const std::string& sdlValue,
 	std::string&       out_message)
 {
 	std::string loaderMessage;
-	if(loadFromSdl(owner, sdl, loaderMessage))
+	if(loadFromSdl(owner, sdlValue, loaderMessage))
 	{
 		// Even if it is a successful load, record loader's message if there is
 		// any. This is done for non-optional field only.
 		if(!loaderMessage.empty() && m_importance != EFieldImportance::OPTIONAL)
 		{
-			out_message += "field <" + genFieldDescription() + "> note: " + loaderMessage;
+			out_message += "field value <" + genPrettyName() + "> note: " + loaderMessage;
 		}
 
 		return true;
@@ -82,7 +82,7 @@ inline bool TOwnedSdlField<Owner>::fromSdl(
 		// loading attempt.
 		if(m_importance == EFieldImportance::REQUIRED)
 		{
-			out_message += "failed to load field <" + genFieldDescription() + ">";
+			out_message += "failed to load value for field <" + genPrettyName() + ">";
 			if(!loaderMessage.empty())
 			{
 				out_message += ", " + loaderMessage;
@@ -92,7 +92,7 @@ inline bool TOwnedSdlField<Owner>::fromSdl(
 		// non-optional and the loader has something to say.
 		else if(!loaderMessage.empty() && m_importance == EFieldImportance::NICE_TO_HAVE)
 		{
-			out_message += "unable to load field <" + genFieldDescription() + ">: " + loaderMessage;
+			out_message += "unable to load value for field <" + genPrettyName() + ">: " + loaderMessage;
 		}
 
 		return false;
@@ -102,7 +102,7 @@ inline bool TOwnedSdlField<Owner>::fromSdl(
 template<typename Owner>
 inline void TOwnedSdlField<Owner>::toSdl(
 	Owner&             owner,
-	std::string* const out_sdl,
+	std::string* const out_sdlValue,
 	std::string&       out_message) const
 {
 	// TODO

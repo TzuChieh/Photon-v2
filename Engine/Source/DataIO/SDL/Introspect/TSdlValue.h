@@ -19,12 +19,12 @@ public:
 
 	bool loadFromSdl(
 		Owner&             owner,
-		const std::string& sdl,
+		const std::string& sdlValue,
 		std::string&       out_loaderMessage) override = 0;
 
 	void convertToSdl(
 		Owner&       owner,
-		std::string* out_sdl,
+		std::string* out_sdlValue,
 		std::string& out_converterMessage) const override = 0;
 
 	TSdlValue& defaultTo(T defaultValue);
