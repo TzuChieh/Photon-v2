@@ -4,6 +4,7 @@
 #include "Common/assertion.h"
 
 #include <utility>
+#include <string_view>
 
 namespace ph
 {
@@ -16,6 +17,9 @@ public:
 		std::string typeName, 
 		std::string valueName, 
 		T Owner::*  valuePtr);
+
+	void setValueToDefault(Owner& owner) override;
+	std::string valueToString(Owner& owner) const override;
 
 	bool loadFromSdl(
 		Owner&             owner,
@@ -32,7 +36,12 @@ public:
 	TSdlValue& description(std::string description);
 
 	void setValue(Owner& owner, T value);
-	void setValueToDefault(Owner& owner);
+
+protected:
+	bool standardFailedLoadHandling(
+		Owner&           owner,
+		std::string_view reason,
+		std::string&     out_message);
 
 private:
 	T Owner::* m_valuePtr;
@@ -86,7 +95,34 @@ inline void TSdlValue<T, Owner>::setValue(Owner& owner, T value)
 template<typename T, typename Owner>
 inline void TSdlValue<T, Owner>::setValueToDefault(Owner& owner)
 {
-	owner.*m_valuePtr = m_defaultValue;
+	setValue(owner, m_defaultValue);
+}
+
+template<typename T, typename Owner>
+inline std::string TSdlValue<T, Owner>::valueToString(Owner& owner) const
+{
+	return std::to_string(owner.*m_valuePtr);
+}
+
+template<typename T, typename Owner>
+inline bool TSdlValue<T, Owner>::standardFailedLoadHandling(
+	Owner&                 owner,
+	const std::string_view reason,
+	std::string&           out_message)
+{
+	out_message += reason;
+
+	if(getImportance() != EFieldImportance::REQUIRED)
+	{
+		setValueToDefault(owner);
+		out_message += ", default to " + valueToString(owner);
+		return true;
+	}
+	else
+	{
+		// For required field, no default is set
+		return false;
+	}
 }
 
 }// end namespace ph

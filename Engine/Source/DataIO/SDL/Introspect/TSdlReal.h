@@ -52,21 +52,17 @@ inline bool TSdlReal<Owner, RealType>::loadFromSdl(
 	}
 	catch(const std::exception& e)
 	{
-		out_loaderMessage += "exception on parsing real (" + e.what() + ")";
-		out_loaderMessage += ", default to " + std::to_string(this->m_defaultValue);
-
-		setValueToDefault(owner);
-
-		return false;
+		return standardFailedLoadHandling(
+			owner,
+			"exception on parsing real (" + std::string(e.what()) + ")",
+			out_loaderMessage);
 	}
 	catch(...)
 	{
-		out_loaderMessage += "unknown exception occurred on parsing real";
-		out_loaderMessage += ", default to " + std::to_string(this->m_defaultValue);
-
-		setValueToDefault(owner);
-
-		return false;
+		return standardFailedLoadHandling(
+			owner,
+			"unknown exception occurred on parsing real",
+			out_loaderMessage);
 	}
 }
 

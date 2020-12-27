@@ -22,6 +22,9 @@ class TOwnedSdlField : public SdlField
 public:
 	TOwnedSdlField(std::string typeName, std::string valueName);
 
+	virtual void setValueToDefault(Owner& owner) = 0;
+	virtual std::string valueToString(Owner& owner) const = 0;
+
 	bool fromSdl(
 		Owner&             owner, 
 		const std::string& sdlValue,
@@ -33,6 +36,7 @@ public:
 		std::string& out_message) const;
 
 	TOwnedSdlField& setImportance(EFieldImportance importance);
+	EFieldImportance getImportance() const;
 
 private:
 	virtual bool loadFromSdl(
@@ -115,6 +119,12 @@ inline TOwnedSdlField<Owner>& TOwnedSdlField<Owner>::setImportance(const EFieldI
 	m_importance = importance;
 
 	return *this;
+}
+
+template<typename Owner>
+inline EFieldImportance TOwnedSdlField<Owner>::getImportance() const
+{
+	return m_importance;
 }
 
 }// end namespace ph

@@ -16,7 +16,7 @@
 namespace ph
 {
 
-#define PH_SDLCALSS_USE_TRIE false
+#define PH_SDLCLASS_USE_TRIE false
 
 template<typename Owner>
 class TSdlClass : public SdlClass
@@ -27,7 +27,7 @@ public:
 	std::size_t numFields() const override;
 	const SdlField* getField(std::size_t index) const override;
 
-	void fromSdl(
+	bool fromSdl(
 		Owner&             owner,
 		const ValueClause* clauses,
 		std::size_t        numClauses,
@@ -89,7 +89,7 @@ inline TSdlClass<Owner>& TSdlClass<Owner>::addField(std::unique_ptr<TOwnedSdlFie
 }
 
 template<typename Owner>
-inline void TSdlClass<Owner>::fromSdl(
+inline bool TSdlClass<Owner>::fromSdl(
 	Owner&                   owner,
 	const ValueClause* const clauses,
 	const std::size_t        numClauses,
@@ -100,7 +100,7 @@ inline void TSdlClass<Owner>::fromSdl(
 	// Zero initialization performed on array elements
 	std::array<bool, MAX_FIELDS> isFieldTouched{};
 
-	std::string fieldMessages;
+	// For each clause, load them into matching field
 	for(std::size_t i = 0; i < numClauses; ++i)
 	{
 		const auto* const clause = clauses[i];
@@ -113,17 +113,56 @@ inline void TSdlClass<Owner>::fromSdl(
 			isFieldTouched[fieldIndex.value()] = true;
 
 			std::string message;
-			if(!field->fromSdl(owner, clause->value, message))
+			const bool isLoaded = field->fromSdl(owner, clause->value, message);
+
+			if(!isLoaded || !message.empty())
 			{
-				out_message += "Note: SDL class <" + genPrettyName() + ">";
+				out_message += "[while loading clause <" + clause->genPrettyName() + ">, " + message + "]";
+			}
+
+			if(!isLoaded && field->getImportance() == EFieldImportance::REQUIRED)
+			{
+				out_message += "\n load terminated on failing a required field";
+				return false;
 			}
 		}
 		else
 		{
-			out_message += "[Note: SDL class <" + genPrettyName() + "> has no matching field "
-				"for clause <" + clause->genPrettyName() + ">, ignoring]";
+			out_message += "[no matching field for clause <" + clause->genPrettyName() + ">, ignoring]";
 		}
 	}
+
+	// Check and process uninitialized fields
+	for(std::size_t i = 0; i < m_fields.size(); ++i)
+	{
+		if(!isFieldTouched[i])
+		{
+			auto& field = m_fields[i];
+			const auto importance = field->getImportance();
+
+			if(importance != EFieldImportance::REQUIRED)
+			{
+				field->setValueToDefault(owner);
+
+				if(importance == EFieldImportance::NICE_TO_HAVE)
+				{
+					out_message += 
+						"[no clause for field <" + field->genPrettyName() + ">, "
+						"initialized to <" + field->valueToString(owner) + ">]";
+				}
+			}
+			else
+			{
+				out_message += 
+					"[no clause for field <" + field->genPrettyName() + ">]\n"
+					"load terminated on failing a required field";
+
+				return false;
+			}
+		}
+	}
+
+	return true;
 }
 
 template<typename Owner>
@@ -144,7 +183,7 @@ inline std::optional<std::size_t> TSdlClass<Owner>::findOwnedSdlFieldIndex(
 	PH_ASSERT(!typeName.empty());
 	PH_ASSERT(!fieldName.empty());
 
-#if PH_SDLCALSS_USE_TRIE
+#if PH_SDLCLASS_USE_TRIE
 	PH_ASSERT_UNREACHABLE_SECTION();
 	return std::nullopt;
 #else
