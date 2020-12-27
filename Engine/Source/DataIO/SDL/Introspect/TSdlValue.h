@@ -68,6 +68,8 @@ template<typename T, typename Owner>
 inline TSdlValue<T, Owner>& TSdlValue<T, Owner>::defaultTo(T defaultValue)
 {
 	m_defaultValue = std::move(defaultValue);
+
+	return *this;
 }
 
 template<typename T, typename Owner>
