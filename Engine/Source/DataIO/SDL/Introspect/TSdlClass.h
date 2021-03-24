@@ -97,7 +97,7 @@ inline bool TSdlClass<Owner>::fromSdl(
 {
 	PH_ASSERT(clauses);
 
-	// Zero initialization performed on array elements
+	// Zero initialization performed on array elements (defaulted to false)
 	std::array<bool, MAX_FIELDS> isFieldTouched{};
 
 	// For each clause, load them into matching field

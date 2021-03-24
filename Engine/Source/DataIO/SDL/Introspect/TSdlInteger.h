@@ -12,14 +12,14 @@
 namespace ph
 {
 
-template<typename Owner, typename RealType = real>
-class TSdlReal : public TSdlValue<RealType, Owner>
+template<typename Owner, typename IntType = integer>
+class TSdlInteger : public TSdlValue<IntType, Owner>
 {
-	static_assert(std::is_same_v<RealType, real>, 
-		"Currently supports only ph::real");
+	static_assert(std::is_same_v<IntType, integer>,
+		"Currently supports only ph::integer");
 
 public:
-	TSdlReal(std::string valueName, RealType Owner::* valuePtr);
+	TSdlInteger(std::string valueName, IntType Owner::* valuePtr);
 
 	bool loadFromSdl(
 		Owner&             owner,
@@ -34,40 +34,40 @@ public:
 
 // In-header Implementations:
 
-template<typename Owner, typename RealType>
-inline TSdlReal<Owner, RealType>::TSdlReal(std::string valueName, RealType Owner::* const valuePtr) : 
-	TSdlValue<RealType, Owner>("real", std::move(valueName), valuePtr)
+template<typename Owner, typename IntType>
+inline TSdlInteger<Owner, IntType>::TSdlInteger(std::string valueName, IntType Owner::* const valuePtr) :
+	TSdlInteger<IntType, Owner>("integer", std::move(valueName), valuePtr)
 {}
 
-template<typename Owner, typename RealType>
-inline bool TSdlReal<Owner, RealType>::loadFromSdl(
+template<typename Owner, typename IntType>
+inline bool TSdlInteger<Owner, IntType>::loadFromSdl(
 	Owner&             owner,
 	const std::string& sdlValue,
 	std::string&       out_loaderMessage)
 {
 	try
 	{
-		setValue(owner, static_cast<real>(std::stold(sdlValue)));
+		setValue(owner, static_cast<real>(std::stoll(sdlValue)));
 		return true;
 	}
 	catch(const std::exception& e)
 	{
 		return standardFailedLoadHandling(
 			owner,
-			"exception on parsing real (" + std::string(e.what()) + ")",
+			"exception on parsing integer (" + std::string(e.what()) + ")",
 			out_loaderMessage);
 	}
 	catch(...)
 	{
 		return standardFailedLoadHandling(
 			owner,
-			"unknown exception occurred on parsing real",
+			"unknown exception occurred on parsing integer",
 			out_loaderMessage);
 	}
 }
 
-template<typename Owner, typename RealType>
-inline void TSdlReal<Owner, RealType>::convertToSdl(
+template<typename Owner, typename IntType>
+inline void TSdlInteger<Owner, IntType>::convertToSdl(
 	Owner&       owner,
 	std::string* out_sdl,
 	std::string& out_converterMessage) const

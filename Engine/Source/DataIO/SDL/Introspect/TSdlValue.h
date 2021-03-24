@@ -37,6 +37,8 @@ public:
 
 	void setValue(Owner& owner, T value);
 
+	const T& getDefaultValue() const;
+
 protected:
 	bool standardFailedLoadHandling(
 		Owner&           owner,
@@ -59,7 +61,7 @@ inline TSdlValue<T, Owner>::TSdlValue(
 	TOwnedSdlField<Owner>(std::move(typeName), std::move(valueName)),
 
 	m_valuePtr    (valuePtr),
-	m_defaultValue(0)
+	m_defaultValue()
 {
 	PH_ASSERT(m_valuePtr);
 }
@@ -98,6 +100,12 @@ template<typename T, typename Owner>
 inline void TSdlValue<T, Owner>::setValueToDefault(Owner& owner)
 {
 	setValue(owner, m_defaultValue);
+}
+
+template<typename T, typename Owner>
+inline const T& TSdlValue<T, Owner>::getDefaultValue() const
+{
+	return m_defaultValue;
 }
 
 template<typename T, typename Owner>
