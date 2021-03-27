@@ -36,7 +36,7 @@ public:
 
 template<typename Owner, typename IntType>
 inline TSdlInteger<Owner, IntType>::TSdlInteger(std::string valueName, IntType Owner::* const valuePtr) :
-	TSdlInteger<IntType, Owner>("integer", std::move(valueName), valuePtr)
+	TSdlValue<IntType, Owner>("integer", std::move(valueName), valuePtr)
 {}
 
 template<typename Owner, typename IntType>
