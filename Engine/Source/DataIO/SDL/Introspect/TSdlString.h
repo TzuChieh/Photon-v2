@@ -40,7 +40,7 @@ inline bool TSdlString<Owner>::loadFromSdl(
 	const std::string& sdlValue,
 	std::string&       out_loaderMessage)
 {
-	// Save SDL value directly as it is already what we want
+	// Save <sdlValue> directly as it is already a string
 	setValue(owner, sdlValue);
 	return true;
 }

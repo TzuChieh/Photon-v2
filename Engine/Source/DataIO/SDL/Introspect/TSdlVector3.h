@@ -4,6 +4,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
+#include "DataIO/SDL/Introspect/SdlIOUtils.h"
 
 #include <type_traits>
 #include <string>
@@ -34,6 +35,34 @@ public:
 
 // In-header Implementations:
 
+template<typename Owner, typename Element>
+inline bool TSdlVector3<Owner, Element>::loadFromSdl(
+	Owner&             owner,
+	const std::string& sdlValue,
+	std::string&       out_loaderMessage)
+{
+	std::string parserMsg;
+	auto optionalVector3 = SdlIOUtils::loadVector3R(sdlValue, &parserMsg);
 
+	if(optionalVector3)
+	{
+		setValue(owner, std::move(*optionalVector3));
+		return true;
+	}
+
+	return standardFailedLoadHandling(owner, parserMsg, out_loaderMessage);
+}
+
+template<typename Owner, typename Element>
+void TSdlVector3<Owner, Element>::convertToSdl(
+	Owner&       owner,
+	std::string* out_sdlValue,
+	std::string& out_converterMessage) const
+{
+	PH_ASSERT(out_sdl);
+
+	// TODO
+	PH_ASSERT_UNREACHABLE_SECTION();
+}
 
 }// end namespace ph

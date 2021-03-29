@@ -7,7 +7,8 @@
 namespace ph
 {
 
-std::optional<real> SdlIOUtils::loadReal(const std::string& sdlReal, std::string* const out_loaderMsg)
+std::optional<real> SdlIOUtils::loadReal(
+	const std::string& sdlReal, std::string* const out_loaderMsg)
 {
 	// TODO: check for overflow?
 
@@ -35,7 +36,8 @@ std::optional<real> SdlIOUtils::loadReal(const std::string& sdlReal, std::string
 	}
 }
 
-std::optional<integer> SdlIOUtils::loadInteger(const std::string& sdlInteger, std::string* const out_loaderMsg)
+std::optional<integer> SdlIOUtils::loadInteger(
+	const std::string& sdlInteger, std::string* const out_loaderMsg)
 {
 	// TODO: check for overflow?
 
@@ -63,7 +65,8 @@ std::optional<integer> SdlIOUtils::loadInteger(const std::string& sdlInteger, st
 	}
 }
 
-std::optional<math::Vector3R> SdlIOUtils::loadVector3R(const std::string& sdlVector3R, std::string* const out_loaderMsg)
+std::optional<math::Vector3R> SdlIOUtils::loadVector3R(
+	const std::string& sdlVector3R, std::string* const out_loaderMsg)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
@@ -76,7 +79,7 @@ std::optional<math::Vector3R> SdlIOUtils::loadVector3R(const std::string& sdlVec
 		{
 			if(out_loaderMsg)
 			{
-				*out_loaderMsg += "bad string representation <" + sdlVector3R + ">";
+				*out_loaderMsg += "bad Vector3R representation <" + sdlVector3R + ">";
 			}
 
 			return std::nullopt;
@@ -101,6 +104,52 @@ std::optional<math::Vector3R> SdlIOUtils::loadVector3R(const std::string& sdlVec
 		if(out_loaderMsg)
 		{
 			*out_loaderMsg += "unknown exception occurred on parsing Vector3R";
+		}
+
+		return std::nullopt;
+	}
+}
+
+std::optional<math::QuaternionR> SdlIOUtils::loadQuaternionR(
+	const std::string& sdlQuaternionR, std::string* const out_loaderMsg)
+{
+	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
+
+	try
+	{
+		std::vector<std::string> tokens;
+		tokenizer.tokenize(sdlQuaternionR, tokens);
+
+		if(tokens.size() != 3)
+		{
+			if(out_loaderMsg)
+			{
+				*out_loaderMsg += "bad QuaternionR representation <" + sdlQuaternionR + ">";
+			}
+
+			return std::nullopt;
+		}
+
+		return math::QuaternionR(
+			static_cast<real>(std::stold(tokens[0])),
+			static_cast<real>(std::stold(tokens[1])),
+			static_cast<real>(std::stold(tokens[2])), 
+			static_cast<real>(std::stold(tokens[3])));
+	}
+	catch(const std::exception& e)
+	{
+		if(out_loaderMsg)
+		{
+			*out_loaderMsg += "exception on parsing QuaternionR (" + std::string(e.what()) + ")";
+		}
+
+		return std::nullopt;
+	}
+	catch(...)
+	{
+		if(out_loaderMsg)
+		{
+			*out_loaderMsg += "unknown exception occurred on parsing QuaternionR";
 		}
 
 		return std::nullopt;
