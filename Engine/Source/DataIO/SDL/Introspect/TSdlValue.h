@@ -42,7 +42,7 @@ public:
 protected:
 	bool standardFailedLoadHandling(
 		Owner&           owner,
-		std::string_view reason,
+		std::string_view failReason,
 		std::string&     out_message);
 
 private:
@@ -117,15 +117,15 @@ inline std::string TSdlValue<T, Owner>::valueToString(Owner& owner) const
 template<typename T, typename Owner>
 inline bool TSdlValue<T, Owner>::standardFailedLoadHandling(
 	Owner&                 owner,
-	const std::string_view reason,
+	const std::string_view failReason,
 	std::string&           out_message)
 {
-	out_message += reason;
+	out_message += failReason;
 
 	if(getImportance() != EFieldImportance::REQUIRED)
 	{
 		setValueToDefault(owner);
-		out_message += ", default to " + valueToString(owner);
+		out_message += " (default to " + valueToString(owner) + ")";
 		return true;
 	}
 	else

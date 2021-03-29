@@ -32,4 +32,8 @@ public:
 		std::string& out_converterMessage) const override;
 };
 
+// In-header Implementations:
+
+
+
 }// end namespace ph

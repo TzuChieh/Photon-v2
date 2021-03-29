@@ -3,6 +3,7 @@
 #include "DataIO/SDL/Introspect/TSdlValue.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
+#include "DataIO/SDL/Introspect/SdlIOUtils.h"
 
 #include <type_traits>
 #include <string>
@@ -45,25 +46,16 @@ inline bool TSdlInteger<Owner, IntType>::loadFromSdl(
 	const std::string& sdlValue,
 	std::string&       out_loaderMessage)
 {
-	try
+	std::string parserMsg;
+	auto optionalInteger = SdlIOUtils::loadReal(sdlValue, &parserMsg);
+
+	if(optionalInteger)
 	{
-		setValue(owner, static_cast<real>(std::stoll(sdlValue)));
+		setValue(owner, std::move(*optionalInteger));
 		return true;
 	}
-	catch(const std::exception& e)
-	{
-		return standardFailedLoadHandling(
-			owner,
-			"exception on parsing integer (" + std::string(e.what()) + ")",
-			out_loaderMessage);
-	}
-	catch(...)
-	{
-		return standardFailedLoadHandling(
-			owner,
-			"unknown exception occurred on parsing integer",
-			out_loaderMessage);
-	}
+
+	return standardFailedLoadHandling(owner, parserMsg, out_loaderMessage);
 }
 
 template<typename Owner, typename IntType>

@@ -3,6 +3,7 @@
 #include "DataIO/SDL/Introspect/TSdlValue.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
+#include "DataIO/SDL/Introspect/SdlIOUtils.h"
 
 #include <type_traits>
 #include <string>
@@ -45,25 +46,16 @@ inline bool TSdlReal<Owner, RealType>::loadFromSdl(
 	const std::string& sdlValue,
 	std::string&       out_loaderMessage)
 {
-	try
+	std::string parserMsg;
+	auto optionalReal = SdlIOUtils::loadReal(sdlValue, &parserMsg);
+
+	if(optionalReal)
 	{
-		setValue(owner, static_cast<real>(std::stold(sdlValue)));
+		setValue(owner, std::move(*optionalReal));
 		return true;
 	}
-	catch(const std::exception& e)
-	{
-		return standardFailedLoadHandling(
-			owner,
-			"exception on parsing real (" + std::string(e.what()) + ")",
-			out_loaderMessage);
-	}
-	catch(...)
-	{
-		return standardFailedLoadHandling(
-			owner,
-			"unknown exception occurred on parsing real",
-			out_loaderMessage);
-	}
+
+	return standardFailedLoadHandling(owner, parserMsg, out_loaderMessage);
 }
 
 template<typename Owner, typename RealType>
