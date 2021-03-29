@@ -9,6 +9,7 @@
 namespace ph
 {
 
+// TODO: test
 template<typename Owner>
 class TSdlString : public TSdlValue<std::string, Owner>
 {
