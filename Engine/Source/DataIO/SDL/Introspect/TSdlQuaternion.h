@@ -2,7 +2,7 @@
 
 #include "DataIO/SDL/Introspect/TSdlValue.h"
 #include "Common/primitive_type.h"
-#include "Math/TVector3.h"
+#include "Math/TQuaternion.h"
 #include "Common/assertion.h"
 #include "DataIO/SDL/Introspect/SdlIOUtils.h"
 
@@ -14,13 +14,13 @@ namespace ph
 {
 
 template<typename Owner, typename Element>
-class TSdlVector3 : public TSdlValue<math::TVector3<Element>, Owner>
+class TSdlQuaternion : public TSdlValue<math::TQuaternion<Element>, Owner>
 {
 	static_assert(std::is_same_v<Element, real>,
 		"Currently supports only ph::real");
 
 public:
-	TSdlVector3(std::string valueName, math::TVector3<Element> Owner::* valuePtr);
+	TSdlQuaternion(std::string valueName, math::TQuaternion<Element> Owner::* valuePtr);
 
 	bool loadFromSdl(
 		Owner&             owner,
@@ -36,22 +36,22 @@ public:
 // In-header Implementations:
 
 template<typename Owner, typename Element>
-inline TSdlVector3<Owner, Element>::TSdlVector3(std::string valueName, math::TVector3<Element> Owner::* const valuePtr) :
-	TSdlValue<math::TVector3<Element>, Owner>("vector3", std::move(valueName), valuePtr)
+inline TSdlQuaternion<Owner, Element>::TSdlQuaternion(std::string valueName, math::TQuaternion<Element> Owner::* const valuePtr) :
+	TSdlValue<math::TQuaternion<Element>, Owner>("quaternion", std::move(valueName), valuePtr)
 {}
 
 template<typename Owner, typename Element>
-inline bool TSdlVector3<Owner, Element>::loadFromSdl(
+inline bool TSdlQuaternion<Owner, Element>::loadFromSdl(
 	Owner&             owner,
 	const std::string& sdlValue,
 	std::string&       out_loaderMessage)
 {
 	std::string parserMsg;
-	auto optionalVec3 = SdlIOUtils::loadVector3R(sdlValue, &parserMsg);
+	auto optionalQuat = SdlIOUtils::loadQuaternionR(sdlValue, &parserMsg);
 
-	if(optionalVec3)
+	if(optionalQuat)
 	{
-		setValue(owner, std::move(*optionalVec3));
+		setValue(owner, std::move(*optionalQuat));
 		return true;
 	}
 
@@ -59,7 +59,7 @@ inline bool TSdlVector3<Owner, Element>::loadFromSdl(
 }
 
 template<typename Owner, typename Element>
-void TSdlVector3<Owner, Element>::convertToSdl(
+void TSdlQuaternion<Owner, Element>::convertToSdl(
 	Owner&       owner,
 	std::string* out_sdlValue,
 	std::string& out_converterMessage) const

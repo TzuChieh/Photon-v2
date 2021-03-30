@@ -79,7 +79,7 @@ std::vector<real> ValueParser::parseRealArray(const std::string& realArrayString
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
 	// Tries to tokenize and see if the tokens are valid array or in fact
-	// an identifier. If its an identifier, load the actual tokens.
+	// an identifier. If it is an identifier, load the actual tokens.
 	//
 	std::vector<std::string> realTokens;
 	tokenizer.tokenize(realArrayString, realTokens);
