@@ -6,6 +6,7 @@
 #include "Math/TQuaternion.h"
 
 #include <optional>
+#include <vector>
 
 namespace ph
 {
@@ -14,16 +15,19 @@ class SdlIOUtils final
 {
 public:
 	static std::optional<real> loadReal(
-		const std::string& sdlReal, std::string* out_loaderMsg = nullptr);
+		const std::string& sdlRealStr, std::string* out_loaderMsg = nullptr);
 
 	static std::optional<integer> loadInteger(
-		const std::string& sdlInteger, std::string* out_loaderMsg = nullptr);
+		const std::string& sdlIntegerStr, std::string* out_loaderMsg = nullptr);
 
 	static std::optional<math::Vector3R> loadVector3R(
-		const std::string& sdlVector3R, std::string* out_loaderMsg = nullptr);
+		const std::string& sdlVector3Str, std::string* out_loaderMsg = nullptr);
 
 	static std::optional<math::QuaternionR> loadQuaternionR(
-		const std::string& sdlQuaternionR, std::string* out_loaderMsg = nullptr);
+		const std::string& sdlQuaternionStr, std::string* out_loaderMsg = nullptr);
+
+	static std::optional<std::vector<real>> loadRealArray(
+		const std::string& sdlRealArrayStr, std::string* out_loaderMsg = nullptr);
 };
 
 // Implementations:
