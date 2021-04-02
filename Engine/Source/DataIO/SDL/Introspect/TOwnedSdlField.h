@@ -2,6 +2,7 @@
 
 #include "DataIO/SDL/Introspect/SdlField.h"
 #include "Common/assertion.h"
+#include "DataIO/SDL/Introspect/SdlInputContext.h"
 
 #include <utility>
 #include <string>
@@ -25,10 +26,10 @@ public:
 	virtual void setValueToDefault(Owner& owner) = 0;
 	virtual std::string valueToString(Owner& owner) const = 0;
 
-	bool fromSdl(
+	void fromSdl(
 		Owner&             owner, 
 		const std::string& sdlValue,
-		std::string&       out_message);
+		SdlInputContext&   ctx);
 
 	void toSdl(
 		Owner&       owner, 
@@ -39,10 +40,10 @@ public:
 	EFieldImportance getImportance() const;
 
 private:
-	virtual bool loadFromSdl(
+	virtual void loadFromSdl(
 		Owner&             owner, 
 		const std::string& sdlValue,
-		std::string&       out_loaderMessage) = 0;
+		SdlInputContext&   ctx) = 0;
 
 	virtual void convertToSdl(
 		Owner&       owner, 
@@ -63,10 +64,10 @@ inline TOwnedSdlField<Owner>::TOwnedSdlField(std::string typeName, std::string v
 {}
 
 template<typename Owner>
-inline bool TOwnedSdlField<Owner>::fromSdl(
+inline void TOwnedSdlField<Owner>::fromSdl(
 	Owner&             owner,
 	const std::string& sdlValue,
-	std::string&       out_message)
+	SdlInputContext&   ctx)
 {
 	std::string loaderMessage;
 	if(loadFromSdl(owner, sdlValue, loaderMessage))

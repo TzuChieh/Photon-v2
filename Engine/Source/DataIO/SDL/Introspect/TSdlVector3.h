@@ -22,10 +22,10 @@ class TSdlVector3 : public TSdlValue<math::TVector3<Element>, Owner>
 public:
 	TSdlVector3(std::string valueName, math::TVector3<Element> Owner::* valuePtr);
 
-	bool loadFromSdl(
+	void loadFromSdl(
 		Owner&             owner,
 		const std::string& sdlValue,
-		std::string&       out_loaderMessage) override;
+		SdlInputContext&   ctx) override;
 
 	void convertToSdl(
 		Owner&       owner,
@@ -41,21 +41,12 @@ inline TSdlVector3<Owner, Element>::TSdlVector3(std::string valueName, math::TVe
 {}
 
 template<typename Owner, typename Element>
-inline bool TSdlVector3<Owner, Element>::loadFromSdl(
+inline void TSdlVector3<Owner, Element>::loadFromSdl(
 	Owner&             owner,
 	const std::string& sdlValue,
-	std::string&       out_loaderMessage)
+	SdlInputContext&   ctx)
 {
-	std::string parserMsg;
-	auto optionalVec3 = SdlIOUtils::loadVector3R(sdlValue, &parserMsg);
-
-	if(optionalVec3)
-	{
-		setValue(owner, std::move(*optionalVec3));
-		return true;
-	}
-
-	return standardFailedLoadHandling(owner, parserMsg, out_loaderMessage);
+	setValue(owner, SdlIOUtils::loadVector3R(sdlValue));
 }
 
 template<typename Owner, typename Element>

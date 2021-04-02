@@ -1,72 +1,20 @@
 #include "DataIO/SDL/Introspect/SdlIOUtils.h"
 #include "DataIO/SDL/Tokenizer.h"
 
-#include <string>
-#include <exception>
-
 namespace ph
 {
 
-std::optional<real> SdlIOUtils::loadReal(
-	const std::string& sdlRealStr, std::string* const out_loaderMsg)
+real SdlIOUtils::loadReal(const std::string& sdlRealStr)
 {
-	// TODO: check for overflow?
-
-	try
-	{
-		return static_cast<real>(std::stold(sdlRealStr));
-	}
-	catch(const std::exception& e)
-	{
-		if(out_loaderMsg)
-		{
-			*out_loaderMsg += "exception on parsing real (" + std::string(e.what()) + ")";
-		}
-
-		return std::nullopt;
-	}
-	catch(...)
-	{
-		if(out_loaderMsg)
-		{
-			*out_loaderMsg += "unknown exception occurred on parsing real";
-		}
-
-		return std::nullopt;
-	}
+	return parseReal(sdlRealStr);
 }
 
-std::optional<integer> SdlIOUtils::loadInteger(
-	const std::string& sdlIntegerStr, std::string* const out_loaderMsg)
+integer SdlIOUtils::loadInteger(const std::string& sdlIntegerStr)
 {
-	// TODO: check for overflow?
-
-	try
-	{
-		return static_cast<integer>(std::stoll(sdlIntegerStr));
-	}
-	catch(const std::exception& e)
-	{
-		if(out_loaderMsg)
-		{
-			*out_loaderMsg += "exception on parsing integer (" + std::string(e.what()) + ")";
-		}
-
-		return std::nullopt;
-	}
-	catch(...)
-	{
-		if(out_loaderMsg)
-		{
-			*out_loaderMsg += "unknown exception occurred on parsing integer";
-		}
-
-		return std::nullopt;
-	}
+	return parseInteger(sdlIntegerStr);
 }
 
-std::optional<math::Vector3R> SdlIOUtils::loadVector3R(
-	const std::string& sdlVector3Str, std::string* const out_loaderMsg)
+math::Vector3R SdlIOUtils::loadVector3R(const std::string& sdlVector3Str)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
@@ -77,41 +25,21 @@ std::optional<math::Vector3R> SdlIOUtils::loadVector3R(
 
 		if(tokens.size() != 3)
 		{
-			if(out_loaderMsg)
-			{
-				*out_loaderMsg += "bad Vector3R representation <" + sdlVector3R + ">";
-			}
-
-			return std::nullopt;
+			throw SdlLoadError("invalid representation");
 		}
 
 		return math::Vector3R(
-			static_cast<real>(std::stold(tokens[0])),
-			static_cast<real>(std::stold(tokens[1])),
-			static_cast<real>(std::stold(tokens[2])));
+			parseReal(tokens[0]),
+			parseReal(tokens[1]),
+			parseReal(tokens[2]));
 	}
-	catch(const std::exception& e)
+	catch(const SdlLoadError& e)
 	{
-		if(out_loaderMsg)
-		{
-			*out_loaderMsg += "exception on parsing Vector3R (" + std::string(e.what()) + ")";
-		}
-
-		return std::nullopt;
-	}
-	catch(...)
-	{
-		if(out_loaderMsg)
-		{
-			*out_loaderMsg += "unknown exception occurred on parsing Vector3R";
-		}
-
-		return std::nullopt;
+		throw SdlLoadError("on parsing Vector3R -> " + e.what());
 	}
 }
 
-std::optional<math::QuaternionR> SdlIOUtils::loadQuaternionR(
-	const std::string& sdlQuaternionStr, std::string* const out_loaderMsg)
+math::QuaternionR SdlIOUtils::loadQuaternionR(const std::string& sdlQuaternionStr)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
@@ -120,14 +48,9 @@ std::optional<math::QuaternionR> SdlIOUtils::loadQuaternionR(
 		std::vector<std::string> tokens;
 		tokenizer.tokenize(sdlQuaternionStr, tokens);
 
-		if(tokens.size() != 3)
+		if(tokens.size() != 4)
 		{
-			if(out_loaderMsg)
-			{
-				*out_loaderMsg += "bad QuaternionR representation <" + sdlQuaternionStr + ">";
-			}
-
-			return std::nullopt;
+			throw SdlLoadError("invalid representation");
 		}
 
 		return math::QuaternionR(
@@ -136,28 +59,13 @@ std::optional<math::QuaternionR> SdlIOUtils::loadQuaternionR(
 			static_cast<real>(std::stold(tokens[2])), 
 			static_cast<real>(std::stold(tokens[3])));
 	}
-	catch(const std::exception& e)
+	catch(const SdlLoadError& e)
 	{
-		if(out_loaderMsg)
-		{
-			*out_loaderMsg += "exception on parsing QuaternionR (" + std::string(e.what()) + ")";
-		}
-
-		return std::nullopt;
-	}
-	catch(...)
-	{
-		if(out_loaderMsg)
-		{
-			*out_loaderMsg += "unknown exception occurred on parsing QuaternionR";
-		}
-
-		return std::nullopt;
+		throw SdlLoadError("on parsing QuaternionR -> " + e.what());
 	}
 }
 
-std::optional<std::vector<real>> SdlIOUtils::loadRealArray(
-	const std::string& sdlRealArrayStr, std::string* const out_loaderMsg)
+std::vector<real> SdlIOUtils::loadRealArray(const std::string& sdlRealArrayStr)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
@@ -186,23 +94,9 @@ std::optional<std::vector<real>> SdlIOUtils::loadRealArray(
 
 		return std::move(realArray);
 	}
-	catch(const std::exception& e)
+	catch(const SdlLoadError& e)
 	{
-		if(out_loaderMsg)
-		{
-			*out_loaderMsg += "exception on parsing real array (" + std::string(e.what()) + ")";
-		}
-
-		return std::nullopt;
-	}
-	catch(...)
-	{
-		if(out_loaderMsg)
-		{
-			*out_loaderMsg += "unknown exception occurred on parsing real array";
-		}
-
-		return std::nullopt;
+		throw SdlLoadError("on parsing real array -> " + e.what());
 	}
 }
 

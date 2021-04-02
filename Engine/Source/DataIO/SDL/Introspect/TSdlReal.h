@@ -22,10 +22,10 @@ class TSdlReal : public TSdlValue<RealType, Owner>
 public:
 	TSdlReal(std::string valueName, RealType Owner::* valuePtr);
 
-	bool loadFromSdl(
+	void loadFromSdl(
 		Owner&             owner,
 		const std::string& sdlValue,
-		std::string&       out_loaderMessage) override;
+		SdlInputContext&   ctx) override;
 
 	void convertToSdl(
 		Owner&       owner,
@@ -41,21 +41,12 @@ inline TSdlReal<Owner, RealType>::TSdlReal(std::string valueName, RealType Owner
 {}
 
 template<typename Owner, typename RealType>
-inline bool TSdlReal<Owner, RealType>::loadFromSdl(
+inline void TSdlReal<Owner, RealType>::loadFromSdl(
 	Owner&             owner,
 	const std::string& sdlValue,
-	std::string&       out_loaderMessage)
+	SdlInputContext&   ctx)
 {
-	std::string parserMsg;
-	auto optionalReal = SdlIOUtils::loadReal(sdlValue, &parserMsg);
-
-	if(optionalReal)
-	{
-		setValue(owner, std::move(*optionalReal));
-		return true;
-	}
-
-	return standardFailedLoadHandling(owner, parserMsg, out_loaderMessage);
+	setValue(owner, SdlIOUtils::loadReal(sdlValue));
 }
 
 template<typename Owner, typename RealType>

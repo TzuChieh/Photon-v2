@@ -21,10 +21,10 @@ public:
 	void setValueToDefault(Owner& owner) override;
 	std::string valueToString(Owner& owner) const override;
 
-	bool loadFromSdl(
+	void loadFromSdl(
 		Owner&             owner,
 		const std::string& sdlValue,
-		std::string&       out_loaderMessage) override = 0;
+		SdlInputContext&   ctx) override = 0;
 
 	void convertToSdl(
 		Owner&       owner,

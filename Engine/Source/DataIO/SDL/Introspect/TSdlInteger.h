@@ -22,10 +22,10 @@ class TSdlInteger : public TSdlValue<IntType, Owner>
 public:
 	TSdlInteger(std::string valueName, IntType Owner::* valuePtr);
 
-	bool loadFromSdl(
+	void loadFromSdl(
 		Owner&             owner,
 		const std::string& sdlValue,
-		std::string&       out_loaderMessage) override;
+		SdlInputContext&   ctx) override;
 
 	void convertToSdl(
 		Owner&       owner,
@@ -41,21 +41,12 @@ inline TSdlInteger<Owner, IntType>::TSdlInteger(std::string valueName, IntType O
 {}
 
 template<typename Owner, typename IntType>
-inline bool TSdlInteger<Owner, IntType>::loadFromSdl(
+inline void TSdlInteger<Owner, IntType>::loadFromSdl(
 	Owner&             owner,
 	const std::string& sdlValue,
-	std::string&       out_loaderMessage)
+	SdlInputContext&   ctx)
 {
-	std::string parserMsg;
-	auto optionalInteger = SdlIOUtils::loadReal(sdlValue, &parserMsg);
-
-	if(optionalInteger)
-	{
-		setValue(owner, std::move(*optionalInteger));
-		return true;
-	}
-
-	return standardFailedLoadHandling(owner, parserMsg, out_loaderMessage);
+	setValue(owner, SdlIOUtils::loadInteger(sdlValue));
 }
 
 template<typename Owner, typename IntType>

@@ -16,10 +16,10 @@ class TSdlString : public TSdlValue<std::string, Owner>
 public:
 	TSdlString(std::string valueName, std::string Owner::* valuePtr);
 
-	bool loadFromSdl(
+	void loadFromSdl(
 		Owner&             owner,
 		const std::string& sdlValue,
-		std::string&       out_loaderMessage) override;
+		SdlInputContext&   ctx) override;
 
 	void convertToSdl(
 		Owner&       owner,
@@ -35,14 +35,13 @@ inline TSdlString<Owner>::TSdlString(std::string valueName, std::string Owner::*
 {}
 
 template<typename Owner>
-inline bool TSdlString<Owner>::loadFromSdl(
+inline void TSdlString<Owner>::loadFromSdl(
 	Owner&             owner,
 	const std::string& sdlValue,
-	std::string&       out_loaderMessage)
+	SdlInputContext&   ctx)
 {
 	// Save <sdlValue> directly as it is already a string
 	setValue(owner, sdlValue);
-	return true;
 }
 
 template<typename Owner>

@@ -22,10 +22,10 @@ class TSdlRealArray : public TSdlValue<math::TQuaternion<std::vector<RealType>>,
 public:
 	TSdlRealArray(std::string valueName, math::TQuaternion<Element> Owner::* valuePtr);
 
-	bool loadFromSdl(
+	void loadFromSdl(
 		Owner&             owner,
 		const std::string& sdlValue,
-		std::string&       out_loaderMessage) override;
+		SdlInputContext&   ctx) override;
 
 	void convertToSdl(
 		Owner&       owner,
@@ -41,21 +41,12 @@ inline TSdlRealArray<Owner, RealType>::TSdlRealArray(std::string valueName, std:
 {}
 
 template<typename Owner, typename RealType>
-inline bool TSdlRealArray<Owner, RealType>::loadFromSdl(
+inline void TSdlRealArray<Owner, RealType>::loadFromSdl(
 	Owner&             owner,
 	const std::string& sdlValue,
-	std::string&       out_loaderMessage)
+	SdlInputContext&   ctx)
 {
-	std::string parserMsg;
-	auto optionalRealArray = SdlIOUtils::loadRealArray(sdlValue, &parserMsg);
-
-	if(optionalRealArray)
-	{
-		setValue(owner, std::move(*optionalRealArray));
-		return true;
-	}
-
-	return standardFailedLoadHandling(owner, parserMsg, out_loaderMessage);
+	setValue(owner, SdlIOUtils::loadRealArray(sdlValue));
 }
 
 template<typename Owner, typename RealType>

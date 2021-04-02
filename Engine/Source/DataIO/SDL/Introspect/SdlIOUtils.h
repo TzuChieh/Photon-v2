@@ -4,9 +4,11 @@
 #include "Common/assertion.h"
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
+#include "DataIO/SDL/sdl_exceptions.h"
 
-#include <optional>
 #include <vector>
+#include <string>
+#include <exception>
 
 namespace ph
 {
@@ -14,22 +16,51 @@ namespace ph
 class SdlIOUtils final
 {
 public:
-	static std::optional<real> loadReal(
-		const std::string& sdlRealStr, std::string* out_loaderMsg = nullptr);
+	static real loadReal(const std::string& sdlRealStr);
+	static integer loadInteger(const std::string& sdlIntegerStr);
+	static math::Vector3R loadVector3R(const std::string& sdlVector3Str);
+	static math::QuaternionR loadQuaternionR(const std::string& sdlQuaternionStr);
+	static std::vector<real> loadRealArray(const std::string& sdlRealArrayStr);
 
-	static std::optional<integer> loadInteger(
-		const std::string& sdlIntegerStr, std::string* out_loaderMsg = nullptr);
-
-	static std::optional<math::Vector3R> loadVector3R(
-		const std::string& sdlVector3Str, std::string* out_loaderMsg = nullptr);
-
-	static std::optional<math::QuaternionR> loadQuaternionR(
-		const std::string& sdlQuaternionStr, std::string* out_loaderMsg = nullptr);
-
-	static std::optional<std::vector<real>> loadRealArray(
-		const std::string& sdlRealArrayStr, std::string* out_loaderMsg = nullptr);
+private:
+	static real parseReal(const std::string& sdlRealStr);
+	static real parseInteger(const std::string& sdlRealStr);
 };
 
-// Implementations:
+// In-header Implementations:
+
+inline real SdlIOUtils::parseReal(const std::string& sdlRealStr)
+{
+	try
+	{
+		// TODO: check for overflow after cast?
+		return static_cast<real>(std::stold(sdlRealStr));
+	}
+	catch(const std::invalid_argument& e)
+	{
+		throw SdlLoadError("invalid real representation -> " + e.what());
+	}
+	catch(const std::out_of_range& e)
+	{
+		throw SdlLoadError("parsed real overflow -> " + e.what());
+	}
+}
+
+inline integer SdlIOUtils::parseInteger(const std::string& sdlIntegerStr)
+{
+	try
+	{
+		// TODO: check for overflow after cast?
+		return static_cast<integer>(std::stoll(sdlIntegerStr));
+	}
+	catch(const std::invalid_argument& e)
+	{
+		throw SdlLoadError("invalid integer representation -> " + e.what());
+	}
+	catch(const std::out_of_range& e)
+	{
+		throw SdlLoadError("parsed integer overflow -> " + e.what());
+	}
+}
 
 }// end namespace ph

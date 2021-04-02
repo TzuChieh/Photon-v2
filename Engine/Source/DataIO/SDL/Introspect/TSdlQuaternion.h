@@ -22,10 +22,10 @@ class TSdlQuaternion : public TSdlValue<math::TQuaternion<Element>, Owner>
 public:
 	TSdlQuaternion(std::string valueName, math::TQuaternion<Element> Owner::* valuePtr);
 	
-	bool loadFromSdl(
+	void loadFromSdl(
 		Owner&             owner,
 		const std::string& sdlValue,
-		std::string&       out_loaderMessage) override;
+		SdlInputContext&   ctx) override;
 
 	void convertToSdl(
 		Owner&       owner,
@@ -41,21 +41,12 @@ inline TSdlQuaternion<Owner, Element>::TSdlQuaternion(std::string valueName, mat
 {}
 
 template<typename Owner, typename Element>
-inline bool TSdlQuaternion<Owner, Element>::loadFromSdl(
+inline void TSdlQuaternion<Owner, Element>::loadFromSdl(
 	Owner&             owner,
 	const std::string& sdlValue,
-	std::string&       out_loaderMessage)
+	SdlInputContext&   ctx)
 {
-	std::string parserMsg;
-	auto optionalQuat = SdlIOUtils::loadQuaternionR(sdlValue, &parserMsg);
-
-	if(optionalQuat)
-	{
-		setValue(owner, std::move(*optionalQuat));
-		return true;
-	}
-
-	return standardFailedLoadHandling(owner, parserMsg, out_loaderMessage);
+	setValue(owner, SdlIOUtils::loadQuaternionR(sdlValue));
 }
 
 template<typename Owner, typename Element>
