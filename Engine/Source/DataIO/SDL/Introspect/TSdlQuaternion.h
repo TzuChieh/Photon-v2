@@ -22,13 +22,15 @@ class TSdlQuaternion : public TSdlValue<math::TQuaternion<Element>, Owner>
 public:
 	TSdlQuaternion(std::string valueName, math::TQuaternion<Element> Owner::* valuePtr);
 	
+	std::string valueToString(const Owner& owner) const override;
+
 	void loadFromSdl(
 		Owner&             owner,
 		const std::string& sdlValue,
 		SdlInputContext&   ctx) override;
 
 	void convertToSdl(
-		Owner&       owner,
+		const Owner& owner,
 		std::string* out_sdlValue,
 		std::string& out_converterMessage) const override;
 };
@@ -39,6 +41,12 @@ template<typename Owner, typename Element>
 inline TSdlQuaternion<Owner, Element>::TSdlQuaternion(std::string valueName, math::TQuaternion<Element> Owner::* const valuePtr) :
 	TSdlValue<math::TQuaternion<Element>, Owner>("quaternion", std::move(valueName), valuePtr)
 {}
+
+template<typename Owner, typename Element>
+inline std::string TSdlQuaternion<Owner, Element>::valueToString(const Owner& owner) const
+{
+	return getValue(owner).toString();
+}
 
 template<typename Owner, typename Element>
 inline void TSdlQuaternion<Owner, Element>::loadFromSdl(

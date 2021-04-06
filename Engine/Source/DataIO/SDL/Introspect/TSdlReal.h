@@ -22,13 +22,15 @@ class TSdlReal : public TSdlValue<RealType, Owner>
 public:
 	TSdlReal(std::string valueName, RealType Owner::* valuePtr);
 
+	std::string valueToString(const Owner& owner) const override;
+
 	void loadFromSdl(
 		Owner&             owner,
 		const std::string& sdlValue,
 		SdlInputContext&   ctx) override;
 
 	void convertToSdl(
-		Owner&       owner,
+		const Owner& owner,
 		std::string* out_sdlValue,
 		std::string& out_converterMessage) const override;
 };
@@ -39,6 +41,12 @@ template<typename Owner, typename RealType>
 inline TSdlReal<Owner, RealType>::TSdlReal(std::string valueName, RealType Owner::* const valuePtr) : 
 	TSdlValue<RealType, Owner>("real", std::move(valueName), valuePtr)
 {}
+
+template<typename Owner, typename RealType>
+inline std::string TSdlReal<Owner, RealType>::valueToString(const Owner& owner) const
+{
+	return std::to_string(getValue(owner));
+}
 
 template<typename Owner, typename RealType>
 inline void TSdlReal<Owner, RealType>::loadFromSdl(

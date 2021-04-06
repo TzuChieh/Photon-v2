@@ -30,6 +30,9 @@ public:
 
 	SdlClass& setDescription(std::string description);
 
+protected:
+	static const Logger logger;
+
 private:
 	std::string m_category;
 	std::string m_displayName;

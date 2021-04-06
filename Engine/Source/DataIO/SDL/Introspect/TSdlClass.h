@@ -5,6 +5,7 @@
 #include "Common/assertion.h"
 #include "DataIO/SDL/ValueClause.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
+#include "DataIO/SDL/sdl_exceptions.h"
 
 #include <string>
 #include <vector>
@@ -28,7 +29,7 @@ public:
 	std::size_t numFields() const override;
 	const SdlField* getField(std::size_t index) const override;
 
-	bool fromSdl(
+	void fromSdl(
 		Owner&             owner,
 		const ValueClause* clauses,
 		std::size_t        numClauses,
@@ -91,15 +92,15 @@ inline TSdlClass<Owner>& TSdlClass<Owner>::addField(std::unique_ptr<TOwnedSdlFie
 }
 
 template<typename Owner>
-inline bool TSdlClass<Owner>::fromSdl(
+inline void TSdlClass<Owner>::fromSdl(
 	Owner&                   owner,
 	const ValueClause* const clauses,
 	const std::size_t        numClauses,
-	std::string&             out_message)
+	SdlInputContext&         ctx)
 {
 	PH_ASSERT(clauses);
 
-	// Zero initialization performed on array elements (defaulted to false)
+	// Zero initialization performed on array elements (defaults to false)
 	std::array<bool, MAX_FIELDS> isFieldTouched{};
 
 	// For each clause, load them into matching field
@@ -111,28 +112,20 @@ inline bool TSdlClass<Owner>::fromSdl(
 		const auto& fieldIndex = findOwnedSdlFieldIndex(clause->type, clause->name);
 		if(fieldIndex)
 		{
-			const auto& field = m_fields[fieldIndex.value()];
+			auto& field = m_fields[fieldIndex.value()];
 			isFieldTouched[fieldIndex.value()] = true;
 
-			std::string message;
-			const bool isLoaded = field->fromSdl(owner, clause->value, message);
-
-			if(!isLoaded || !message.empty())
-			{
-				out_message += "[while loading clause <" + clause->genPrettyName() + ">, " + message + "]";
-			}
-
-			if(!isLoaded && field->getImportance() == EFieldImportance::REQUIRED)
-			{
-				out_message += "\n load terminated on failing a required field";
-				return false;
-			}
+			field->fromSdl(owner, clause->value, ctx);
 		}
 		else
 		{
-			out_message += "[no matching field for clause <" + clause->genPrettyName() + ">, ignoring]";
+			logger.log(ELogLevel::NOTE_MED,
+				"type <" + genPrettyName() + "> has no matching field for "
+				"clause <" + clause->genPrettyName() + ">, ignoring");
 		}
 	}
+
+	// TODO
 
 	// Check and process uninitialized fields
 	for(std::size_t i = 0; i < m_fields.size(); ++i)

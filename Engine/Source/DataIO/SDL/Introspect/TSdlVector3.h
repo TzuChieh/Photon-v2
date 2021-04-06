@@ -22,13 +22,15 @@ class TSdlVector3 : public TSdlValue<math::TVector3<Element>, Owner>
 public:
 	TSdlVector3(std::string valueName, math::TVector3<Element> Owner::* valuePtr);
 
+	std::string valueToString(const Owner& owner) const override;
+
 	void loadFromSdl(
 		Owner&             owner,
 		const std::string& sdlValue,
 		SdlInputContext&   ctx) override;
 
 	void convertToSdl(
-		Owner&       owner,
+		const Owner& owner,
 		std::string* out_sdlValue,
 		std::string& out_converterMessage) const override;
 };
@@ -39,6 +41,12 @@ template<typename Owner, typename Element>
 inline TSdlVector3<Owner, Element>::TSdlVector3(std::string valueName, math::TVector3<Element> Owner::* const valuePtr) :
 	TSdlValue<math::TVector3<Element>, Owner>("vector3", std::move(valueName), valuePtr)
 {}
+
+template<typename Owner, typename Element>
+inline std::string TSdlVector3<Owner, Element>::valueToString(const Owner& owner) const
+{
+	return getValue(owner).toString();
+}
 
 template<typename Owner, typename Element>
 inline void TSdlVector3<Owner, Element>::loadFromSdl(

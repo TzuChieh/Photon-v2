@@ -22,13 +22,15 @@ class TSdlInteger : public TSdlValue<IntType, Owner>
 public:
 	TSdlInteger(std::string valueName, IntType Owner::* valuePtr);
 
+	std::string valueToString(const Owner& owner) const override;
+
 	void loadFromSdl(
 		Owner&             owner,
 		const std::string& sdlValue,
 		SdlInputContext&   ctx) override;
 
 	void convertToSdl(
-		Owner&       owner,
+		const Owner& owner,
 		std::string* out_sdlValue,
 		std::string& out_converterMessage) const override;
 };
@@ -39,6 +41,12 @@ template<typename Owner, typename IntType>
 inline TSdlInteger<Owner, IntType>::TSdlInteger(std::string valueName, IntType Owner::* const valuePtr) :
 	TSdlValue<IntType, Owner>("integer", std::move(valueName), valuePtr)
 {}
+
+template<typename Owner, typename IntType>
+inline std::string TSdlInteger<Owner, IntType>::valueToString(const Owner& owner) const
+{
+	return std::to_string(getValue(owner));
+}
 
 template<typename Owner, typename IntType>
 inline void TSdlInteger<Owner, IntType>::loadFromSdl(

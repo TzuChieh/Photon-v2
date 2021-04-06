@@ -18,8 +18,9 @@ public:
 		std::string valueName, 
 		T Owner::*  valuePtr);
 
+	std::string valueToString(const Owner& owner) const = 0;
+
 	void setValueToDefault(Owner& owner) override;
-	std::string valueToString(Owner& owner) const override;
 
 	void loadFromSdl(
 		Owner&             owner,
@@ -27,7 +28,7 @@ public:
 		SdlInputContext&   ctx) override = 0;
 
 	void convertToSdl(
-		Owner&       owner,
+		const Owner& owner,
 		std::string* out_sdlValue,
 		std::string& out_converterMessage) const override = 0;
 
@@ -37,13 +38,8 @@ public:
 
 	void setValue(Owner& owner, T value);
 
+	const T& getValue(const Owner& owner) const;
 	const T& getDefaultValue() const;
-
-protected:
-	bool standardFailedLoadHandling(
-		Owner&           owner,
-		std::string_view failReason,
-		std::string&     out_message);
 
 private:
 	T Owner::* m_valuePtr;
@@ -103,36 +99,15 @@ inline void TSdlValue<T, Owner>::setValueToDefault(Owner& owner)
 }
 
 template<typename T, typename Owner>
+inline const T& TSdlValue<T, Owner>::getValue(const Owner& owner) const
+{
+	return owner.*m_valuePtr;
+}
+
+template<typename T, typename Owner>
 inline const T& TSdlValue<T, Owner>::getDefaultValue() const
 {
 	return m_defaultValue;
-}
-
-template<typename T, typename Owner>
-inline std::string TSdlValue<T, Owner>::valueToString(Owner& owner) const
-{
-	return std::to_string(owner.*m_valuePtr);
-}
-
-template<typename T, typename Owner>
-inline bool TSdlValue<T, Owner>::standardFailedLoadHandling(
-	Owner&                 owner,
-	const std::string_view failReason,
-	std::string&           out_message)
-{
-	out_message += failReason;
-
-	if(getImportance() != EFieldImportance::REQUIRED)
-	{
-		setValueToDefault(owner);
-		out_message += " (default to " + valueToString(owner) + ")";
-		return true;
-	}
-	else
-	{
-		// For required field, no default is set
-		return false;
-	}
 }
 
 }// end namespace ph
