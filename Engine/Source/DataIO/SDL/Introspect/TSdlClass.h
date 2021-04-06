@@ -4,6 +4,7 @@
 #include "DataIO/SDL/Introspect/TOwnedSdlField.h"
 #include "Common/assertion.h"
 #include "DataIO/SDL/ValueClause.h"
+#include "DataIO/SDL/Introspect/SdlInputContext.h"
 
 #include <string>
 #include <vector>
@@ -13,10 +14,10 @@
 #include <array>
 #include <optional>
 
+#define PH_SDLCLASS_USE_TRIE false
+
 namespace ph
 {
-
-#define PH_SDLCLASS_USE_TRIE false
 
 template<typename Owner>
 class TSdlClass : public SdlClass
@@ -31,7 +32,7 @@ public:
 		Owner&             owner,
 		const ValueClause* clauses,
 		std::size_t        numClauses,
-		std::string&       out_message);
+		SdlInputContext&   ctx);
 
 	void toSdl(
 		Owner&       owner,
@@ -45,6 +46,7 @@ public:
 private:
 	std::optional<std::size_t> findOwnedSdlFieldIndex(std::string_view typeName, std::string_view fieldName) const;
 
+	// TODO: change to fixed size array
 	std::vector<std::unique_ptr<TOwnedSdlField<Owner>>> m_fields;
 
 	static constexpr int MAX_FIELDS = 64;

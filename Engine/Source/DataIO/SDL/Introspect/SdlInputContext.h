@@ -2,23 +2,33 @@
 
 #include "DataIO/FileSystem/Path.h"
 
-#include <utiltiy>
+#include <utility>
 
 namespace ph
 {
 
+class SdlClass;
+
 class SdlInputContext final
 {
 public:
-	explicit SdlInputContext(Path workingDirectory);
+	SdlInputContext(
+		Path            workingDirectory,
+		const SdlClass* srcClass);
 
-	Path workingDirectory;
+public:
+	Path            workingDirectory;
+	const SdlClass* srcClass;
 };
 
 // In-header Implementation:
 
-inline SdlInputContext::SdlInputContext(Path workingDirectory) : 
-	workingDirectory(workingDirectory)
+inline SdlInputContext::SdlInputContext(
+	Path                  workingDirectory,
+	const SdlClass* const srcClass) :
+
+	workingDirectory(std::move(workingDirectory)),
+	srcClass        (srcClass)
 {}
 
 }// end namespace ph

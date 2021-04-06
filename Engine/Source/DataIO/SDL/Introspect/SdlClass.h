@@ -12,6 +12,7 @@ namespace ph
 {
 
 class SdlField;
+class SdlInputContext;
 
 class SdlClass
 {

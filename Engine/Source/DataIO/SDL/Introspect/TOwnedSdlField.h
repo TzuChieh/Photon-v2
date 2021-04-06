@@ -2,13 +2,14 @@
 
 #include "DataIO/SDL/Introspect/SdlField.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/Introspect/SdlInputContext.h"
 
 #include <utility>
 #include <string>
 
 namespace ph
 {
+
+class SdlInputContext;
 
 enum class EFieldImportance
 {
