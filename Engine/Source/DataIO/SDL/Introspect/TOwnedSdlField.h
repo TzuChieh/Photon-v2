@@ -93,7 +93,7 @@ inline void TOwnedSdlField<Owner>::fromSdl(
 		// (as the user provided a SDL value string for the field, 
 		// a successful parse was expected)
 		logger.log(ELogLevel::WARNING_MED,
-			"Load error from type <" + ctx.srcClass->genPrettyName() + ">, "
+			"load error from type <" + ctx.srcClass->genPrettyName() + ">, "
 			"value <" + genPrettyName() + "> -> " + e.what() + "; "
 			"value defaults to " + valueToString(owner));
 	}

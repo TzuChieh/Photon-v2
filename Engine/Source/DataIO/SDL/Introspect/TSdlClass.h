@@ -125,8 +125,6 @@ inline void TSdlClass<Owner>::fromSdl(
 		}
 	}
 
-	// TODO
-
 	// Check and process uninitialized fields
 	for(std::size_t i = 0; i < m_fields.size(); ++i)
 	{
@@ -135,27 +133,25 @@ inline void TSdlClass<Owner>::fromSdl(
 			auto& field = m_fields[i];
 			field->setValueToDefault(owner);
 
-			if(field->getImportance() != EFieldImportance::OPTIONAL)
-			{
-				if(importance == EFieldImportance::NICE_TO_HAVE)
-				{
-					out_message += 
-						"[no clause for field <" + field->genPrettyName() + ">, "
-						"initialized to <" + field->valueToString(owner) + ">]";
-				}
-			}
-			else
-			{
-				out_message += 
-					"[no clause for field <" + field->genPrettyName() + ">]\n"
-					"load terminated on failing a required field";
+			// TODO: util for generating class + field info string
 
-				return false;
+			const auto importance = field->getImportance();
+			if(importance == EFieldImportance::NICE_TO_HAVE)
+			{
+				logger.log(ELogLevel::NOTE_MED,
+					"no clause for type <" + genPrettyName() + ">'s "
+					"field <" + field->genPrettyName() + ">, "
+					"defaults to <" + field->valueToString(owner) + ">");
+			}
+			else if(importance == EFieldImportance::REQUIRED)
+			{
+				logger.log(ELogLevel::WARNING_MED,
+					"no clause for type <" + genPrettyName() + ">'s "
+					"field <" + field->genPrettyName() + ">, "
+					"defaults to <" + field->valueToString(owner) + ">");
 			}
 		}
 	}
-
-	return true;
 }
 
 template<typename Owner>
