@@ -133,12 +133,10 @@ inline void TSdlClass<Owner>::fromSdl(
 		if(!isFieldTouched[i])
 		{
 			auto& field = m_fields[i];
-			const auto importance = field->getImportance();
+			field->setValueToDefault(owner);
 
-			if(importance != EFieldImportance::REQUIRED)
+			if(field->getImportance() != EFieldImportance::OPTIONAL)
 			{
-				field->setValueToDefault(owner);
-
 				if(importance == EFieldImportance::NICE_TO_HAVE)
 				{
 					out_message += 
