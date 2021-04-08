@@ -2,7 +2,6 @@
 
 #include <stdexcept>
 #include <string>
-#include <stdexcept>
 
 namespace ph
 {

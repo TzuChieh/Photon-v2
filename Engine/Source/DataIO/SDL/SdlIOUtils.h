@@ -8,10 +8,13 @@
 
 #include <vector>
 #include <string>
+#include <string_view>
 #include <exception>
 
 namespace ph
 {
+
+class Path;
 
 class SdlIOUtils final
 {
@@ -21,6 +24,14 @@ public:
 	static math::Vector3R loadVector3R(const std::string& sdlVector3Str);
 	static math::QuaternionR loadQuaternionR(const std::string& sdlQuaternionStr);
 	static std::vector<real> loadRealArray(const std::string& sdlRealArrayStr);
+	static std::vector<real> loadRealArray(const Path& path);
+
+	/*! @brief Check whether the string represents a SDL resource identifier.
+
+	Checks the format of the string only. Does not test whether the identifier
+	actually points to a valid resource or not.
+	*/
+	static bool isResourceIdentifier(std::string_view sdlValueStr);
 
 private:
 	static real parseReal(const std::string& sdlRealStr);

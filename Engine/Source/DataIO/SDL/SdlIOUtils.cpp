@@ -1,5 +1,6 @@
-#include "DataIO/SDL/Introspect/SdlIOUtils.h"
+#include "DataIO/SDL/SdlIOUtils.h"
 #include "DataIO/SDL/Tokenizer.h"
+#include "DataIO/FileSystem/Path.h"
 
 namespace ph
 {
@@ -54,10 +55,10 @@ math::QuaternionR SdlIOUtils::loadQuaternionR(const std::string& sdlQuaternionSt
 		}
 
 		return math::QuaternionR(
-			static_cast<real>(std::stold(tokens[0])),
-			static_cast<real>(std::stold(tokens[1])),
-			static_cast<real>(std::stold(tokens[2])), 
-			static_cast<real>(std::stold(tokens[3])));
+			parseReal(tokens[0]),
+			parseReal(tokens[1]),
+			parseReal(tokens[2]),
+			parseReal(tokens[3]));
 	}
 	catch(const SdlLoadError& e)
 	{
@@ -73,6 +74,7 @@ std::vector<real> SdlIOUtils::loadRealArray(const std::string& sdlRealArrayStr)
 	{
 		// Tries to tokenize and see if the tokens are valid array or in fact
 		// an identifier. If it is an identifier, load the actual tokens.
+		//
 		std::vector<std::string> realTokens;
 		tokenizer.tokenize(sdlRealArrayStr, realTokens);
 		if(!realTokens.empty())
@@ -88,8 +90,7 @@ std::vector<real> SdlIOUtils::loadRealArray(const std::string& sdlRealArrayStr)
 		std::vector<real> realArray;
 		for(const auto& realToken : realTokens)
 		{
-			const auto realValue = std::stold(realToken);
-			realArray.push_back(static_cast<real>(realValue));
+			realArray.push_back(parseReal(realToken));
 		}
 
 		return std::move(realArray);
@@ -98,6 +99,48 @@ std::vector<real> SdlIOUtils::loadRealArray(const std::string& sdlRealArrayStr)
 	{
 		throw SdlLoadError("on parsing real array -> " + e.what());
 	}
+}
+
+std::vector<real> SdlIOUtils::loadRealArray(const Path& path)
+{
+	try
+	{
+		// Tries to tokenize and see if the tokens are valid array or in fact
+		// an identifier. If it is an identifier, load the actual tokens.
+		//
+		std::vector<std::string> realTokens;
+		tokenizer.tokenize(sdlRealArrayStr, realTokens);
+		if(!realTokens.empty())
+		{
+			if(!startsWithNumber(realTokens[0]))
+			{
+				const std::string& identifier = sdlRealArrayStr;
+				realTokens.clear();
+				tokenizer.tokenize(loadResource(identifier), realTokens);
+			}
+		}
+
+		std::vector<real> realArray;
+		for(const auto& realToken : realTokens)
+		{
+			realArray.push_back(parseReal(realToken));
+		}
+
+		return std::move(realArray);
+	}
+	catch(const SdlLoadError& e)
+	{
+		throw SdlLoadError("on parsing real array -> " + e.what());
+	}
+}
+
+bool SdlIOUtils::isResourceIdentifier(const std::string_view sdlValueStr)
+{
+	// Find index to the first non-blank character
+	const auto pos = sdlValueStr.find_first_not_of(" \t\r\n");
+
+	// Valid SDL resource identifier starts with a forward slash
+	return pos != std::string::npos && sdlValueStr[pos] == '/';
 }
 
 }// end namespace ph

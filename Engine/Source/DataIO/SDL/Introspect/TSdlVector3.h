@@ -4,7 +4,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/Introspect/SdlIOUtils.h"
+#include "DataIO/SDL/SdlIOUtils.h"
 
 #include <type_traits>
 #include <string>
