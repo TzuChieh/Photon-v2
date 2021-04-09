@@ -1,6 +1,8 @@
 #include "DataIO/SDL/SdlIOUtils.h"
 #include "DataIO/SDL/Tokenizer.h"
 #include "DataIO/FileSystem/Path.h"
+#include "DataIO/IOUtils.h"
+#include "DataIO/io_exceptions.h"
 
 namespace ph
 {
@@ -72,20 +74,8 @@ std::vector<real> SdlIOUtils::loadRealArray(const std::string& sdlRealArrayStr)
 
 	try
 	{
-		// Tries to tokenize and see if the tokens are valid array or in fact
-		// an identifier. If it is an identifier, load the actual tokens.
-		//
 		std::vector<std::string> realTokens;
 		tokenizer.tokenize(sdlRealArrayStr, realTokens);
-		if(!realTokens.empty())
-		{
-			if(!startsWithNumber(realTokens[0]))
-			{
-				const std::string& identifier = sdlRealArrayStr;
-				realTokens.clear();
-				tokenizer.tokenize(loadResource(identifier), realTokens);
-			}
-		}
 
 		std::vector<real> realArray;
 		for(const auto& realToken : realTokens)
@@ -101,36 +91,15 @@ std::vector<real> SdlIOUtils::loadRealArray(const std::string& sdlRealArrayStr)
 	}
 }
 
-std::vector<real> SdlIOUtils::loadRealArray(const Path& path)
+std::vector<real> SdlIOUtils::loadRealArray(const Path& filePath)
 {
 	try
 	{
-		// Tries to tokenize and see if the tokens are valid array or in fact
-		// an identifier. If it is an identifier, load the actual tokens.
-		//
-		std::vector<std::string> realTokens;
-		tokenizer.tokenize(sdlRealArrayStr, realTokens);
-		if(!realTokens.empty())
-		{
-			if(!startsWithNumber(realTokens[0]))
-			{
-				const std::string& identifier = sdlRealArrayStr;
-				realTokens.clear();
-				tokenizer.tokenize(loadResource(identifier), realTokens);
-			}
-		}
-
-		std::vector<real> realArray;
-		for(const auto& realToken : realTokens)
-		{
-			realArray.push_back(parseReal(realToken));
-		}
-
-		return std::move(realArray);
+		return loadRealArray(IOUtils::loadText(filePath));
 	}
-	catch(const SdlLoadError& e)
+	catch(const FileIOError& e)
 	{
-		throw SdlLoadError("on parsing real array -> " + e.what());
+		throw SdlLoadError("on loading real array -> " + e.what());
 	}
 }
 

@@ -9,10 +9,8 @@
 namespace ph
 {
 
-void IOUtils::loadText(const Path& filePath, std::string* const out_text)
+std::string IOUtils::loadText(const Path& filePath)
 {
-	PH_ASSERT(out_text);
-
 	std::ifstream textFile;
 	textFile.open(filePath.toAbsoluteString());
 	if(!textFile.is_open())
@@ -23,7 +21,7 @@ void IOUtils::loadText(const Path& filePath, std::string* const out_text)
 	// OPTIMIZATION: a redundant copy here
 	std::stringstream buffer;
 	buffer << textFile.rdbuf();
-	*out_text = buffer.str();
+	return buffer.str();
 }
 
 }// end namespace ph

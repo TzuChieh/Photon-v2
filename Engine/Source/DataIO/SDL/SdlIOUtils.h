@@ -24,7 +24,7 @@ public:
 	static math::Vector3R loadVector3R(const std::string& sdlVector3Str);
 	static math::QuaternionR loadQuaternionR(const std::string& sdlQuaternionStr);
 	static std::vector<real> loadRealArray(const std::string& sdlRealArrayStr);
-	static std::vector<real> loadRealArray(const Path& path);
+	static std::vector<real> loadRealArray(const Path& filePath);
 
 	/*! @brief Check whether the string represents a SDL resource identifier.
 

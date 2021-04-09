@@ -10,7 +10,7 @@ namespace ph
 class IOUtils final
 {
 public:
-	static void loadText(const Path& filePath, std::string* out_text);
+	static std::string loadText(const Path& filePath);
 
 	// TODO: loadBytes()
 };
