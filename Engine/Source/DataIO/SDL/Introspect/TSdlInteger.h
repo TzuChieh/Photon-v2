@@ -59,7 +59,7 @@ inline void TSdlInteger<Owner, IntType>::loadFromSdl(
 
 template<typename Owner, typename IntType>
 inline void TSdlInteger<Owner, IntType>::convertToSdl(
-	Owner&       owner,
+	const Owner& owner,
 	std::string* out_sdl,
 	std::string& out_converterMessage) const
 {

@@ -3,6 +3,6 @@
 namespace ph
 {
 
-const SdlClass::logger(LogSender("SDL Class"));
+const Logger SdlClass::logger(LogSender("SDL Class"));
 
 }// end namespace ph

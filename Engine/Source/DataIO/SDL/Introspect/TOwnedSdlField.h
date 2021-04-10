@@ -42,7 +42,7 @@ public:
 		SdlInputContext&   ctx);
 
 	void toSdl(
-		Owner&       owner, 
+		const Owner& owner,
 		std::string* out_sdlValue,
 		std::string& out_message) const;
 
@@ -101,7 +101,7 @@ inline void TOwnedSdlField<Owner>::fromSdl(
 
 template<typename Owner>
 inline void TOwnedSdlField<Owner>::toSdl(
-	Owner&             owner,
+	const Owner&       owner,
 	std::string* const out_sdlValue,
 	std::string&       out_message) const
 {

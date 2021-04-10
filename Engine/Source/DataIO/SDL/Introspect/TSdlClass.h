@@ -36,7 +36,7 @@ public:
 		SdlInputContext&   ctx);
 
 	void toSdl(
-		Owner&       owner,
+		const Owner& owner,
 		std::string* out_sdl,
 		std::string& out_message) const;
 
@@ -156,7 +156,7 @@ inline void TSdlClass<Owner>::fromSdl(
 
 template<typename Owner>
 inline void TSdlClass<Owner>::toSdl(
-	Owner&             owner,
+	const Owner&       owner,
 	std::string* const out_sdl,
 	std::string&       out_message) const
 {

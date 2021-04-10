@@ -59,7 +59,7 @@ inline void TSdlVector3<Owner, Element>::loadFromSdl(
 
 template<typename Owner, typename Element>
 void TSdlVector3<Owner, Element>::convertToSdl(
-	Owner&       owner,
+	const Owner& owner,
 	std::string* out_sdlValue,
 	std::string& out_converterMessage) const
 {

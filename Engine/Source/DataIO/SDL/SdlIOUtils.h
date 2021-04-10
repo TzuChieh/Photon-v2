@@ -35,7 +35,7 @@ public:
 
 private:
 	static real parseReal(const std::string& sdlRealStr);
-	static real parseInteger(const std::string& sdlRealStr);
+	static integer parseInteger(const std::string& sdlIntegerStr);
 };
 
 // In-header Implementations:
@@ -49,11 +49,11 @@ inline real SdlIOUtils::parseReal(const std::string& sdlRealStr)
 	}
 	catch(const std::invalid_argument& e)
 	{
-		throw SdlLoadError("invalid real representation -> " + e.what());
+		throw SdlLoadError("invalid real representation -> " + std::string(e.what()));
 	}
 	catch(const std::out_of_range& e)
 	{
-		throw SdlLoadError("parsed real overflow -> " + e.what());
+		throw SdlLoadError("parsed real overflow -> " + std::string(e.what()));
 	}
 }
 
@@ -66,11 +66,11 @@ inline integer SdlIOUtils::parseInteger(const std::string& sdlIntegerStr)
 	}
 	catch(const std::invalid_argument& e)
 	{
-		throw SdlLoadError("invalid integer representation -> " + e.what());
+		throw SdlLoadError("invalid integer representation -> " + std::string(e.what()));
 	}
 	catch(const std::out_of_range& e)
 	{
-		throw SdlLoadError("parsed integer overflow -> " + e.what());
+		throw SdlLoadError("parsed integer overflow -> " + std::string(e.what()));
 	}
 }
 

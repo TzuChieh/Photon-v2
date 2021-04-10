@@ -59,7 +59,7 @@ inline void TSdlQuaternion<Owner, Element>::loadFromSdl(
 
 template<typename Owner, typename Element>
 void TSdlQuaternion<Owner, Element>::convertToSdl(
-	Owner&       owner,
+	const Owner& owner,
 	std::string* out_sdlValue,
 	std::string& out_converterMessage) const
 {

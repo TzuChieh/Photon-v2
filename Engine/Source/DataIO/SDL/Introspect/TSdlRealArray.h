@@ -4,6 +4,8 @@
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 #include "DataIO/SDL/SdlIOUtils.h"
+#include "DataIO/SDL/SdlResourceIdentifier.h"
+#include "DataIO/SDL/Introspect/SdlInputContext.h"
 
 #include <type_traits>
 #include <string>
@@ -54,12 +56,20 @@ inline void TSdlRealArray<Owner, RealType>::loadFromSdl(
 	const std::string& sdlValue,
 	SdlInputContext&   ctx)
 {
-	setValue(owner, SdlIOUtils::loadRealArray(sdlValue));
+	if(SdlIOUtils::isResourceIdentifier(sdlValue))
+	{
+		const SdlResourceIdentifier sdlResId(sdlValue, ctx.workingDirectory);
+		setValue(owner, SdlIOUtils::loadRealArray(sdlValue, sdlResId.getPathToResource()));
+	}
+	else
+	{
+		setValue(owner, SdlIOUtils::loadRealArray(sdlValue));
+	}
 }
 
 template<typename Owner, typename RealType>
 void TSdlRealArray<Owner, RealType>::convertToSdl(
-	Owner&       owner,
+	const Owner& owner,
 	std::string* out_sdlValue,
 	std::string& out_converterMessage) const
 {

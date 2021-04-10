@@ -28,7 +28,7 @@ math::Vector3R SdlIOUtils::loadVector3R(const std::string& sdlVector3Str)
 
 		if(tokens.size() != 3)
 		{
-			throw SdlLoadError("invalid representation");
+			throw SdlLoadError("invalid Vector3R representation");
 		}
 
 		return math::Vector3R(
@@ -38,7 +38,7 @@ math::Vector3R SdlIOUtils::loadVector3R(const std::string& sdlVector3Str)
 	}
 	catch(const SdlLoadError& e)
 	{
-		throw SdlLoadError("on parsing Vector3R -> " + e.what());
+		throw SdlLoadError("on parsing Vector3R -> " + e.whatStr());
 	}
 }
 
@@ -53,7 +53,7 @@ math::QuaternionR SdlIOUtils::loadQuaternionR(const std::string& sdlQuaternionSt
 
 		if(tokens.size() != 4)
 		{
-			throw SdlLoadError("invalid representation");
+			throw SdlLoadError("invalid QuaternionR representation");
 		}
 
 		return math::QuaternionR(
@@ -64,7 +64,7 @@ math::QuaternionR SdlIOUtils::loadQuaternionR(const std::string& sdlQuaternionSt
 	}
 	catch(const SdlLoadError& e)
 	{
-		throw SdlLoadError("on parsing QuaternionR -> " + e.what());
+		throw SdlLoadError("on parsing QuaternionR -> " + e.whatStr());
 	}
 }
 
@@ -87,7 +87,7 @@ std::vector<real> SdlIOUtils::loadRealArray(const std::string& sdlRealArrayStr)
 	}
 	catch(const SdlLoadError& e)
 	{
-		throw SdlLoadError("on parsing real array -> " + e.what());
+		throw SdlLoadError("on parsing real array -> " + e.whatStr());
 	}
 }
 
@@ -99,7 +99,7 @@ std::vector<real> SdlIOUtils::loadRealArray(const Path& filePath)
 	}
 	catch(const FileIOError& e)
 	{
-		throw SdlLoadError("on loading real array -> " + e.what());
+		throw SdlLoadError("on loading real array -> " + e.whatStr());
 	}
 }
 

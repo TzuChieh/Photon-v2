@@ -54,7 +54,7 @@ inline void TSdlString<Owner>::loadFromSdl(
 
 template<typename Owner>
 inline void TSdlString<Owner>::convertToSdl(
-	Owner&       owner,
+	const Owner& owner,
 	std::string* out_sdl,
 	std::string& out_converterMessage) const
 {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/assertion.h"
+#include "Common/Logger.h"
 
 #include <vector>
 #include <memory>

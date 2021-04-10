@@ -59,7 +59,7 @@ inline void TSdlReal<Owner, RealType>::loadFromSdl(
 
 template<typename Owner, typename RealType>
 inline void TSdlReal<Owner, RealType>::convertToSdl(
-	Owner&       owner,
+	const Owner& owner,
 	std::string* out_sdl,
 	std::string& out_converterMessage) const
 {

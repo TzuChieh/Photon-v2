@@ -11,6 +11,8 @@ class IOException : public std::runtime_error
 public:
 	explicit IOException(const std::string& message);
 	explicit IOException(const char* message);
+
+	std::string whatStr() const;
 };
 
 class FileIOError : public IOException
@@ -28,5 +30,10 @@ inline IOException::IOException(const std::string& message) :
 inline IOException::IOException(const char* const message) :
 	std::runtime_error(message)
 {}
+
+inline std::string IOException::whatStr() const
+{
+	return std::string(what());
+}
 
 }// end namespace ph
