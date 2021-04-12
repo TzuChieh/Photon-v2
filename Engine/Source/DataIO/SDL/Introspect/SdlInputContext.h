@@ -3,6 +3,7 @@
 #include "DataIO/FileSystem/Path.h"
 
 #include <utility>
+#include <string>
 
 namespace ph
 {
@@ -17,6 +18,8 @@ public:
 	SdlInputContext(
 		Path            workingDirectory,
 		const SdlClass* srcClass);
+
+	std::string genPrettySrcClassName() const;
 
 public:
 	Path            workingDirectory;

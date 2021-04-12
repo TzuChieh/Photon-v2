@@ -135,6 +135,7 @@ inline void TSdlClass<Owner>::fromSdl(
 			{
 				field->setValueToDefault(owner);
 
+				// Only optional field will be silently set to default
 				const auto importance = field->getImportance();
 				if(importance == EFieldImportance::NICE_TO_HAVE)
 				{

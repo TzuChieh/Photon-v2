@@ -37,18 +37,27 @@ TEST(SdlIntrospectValueTest, RealFromSdl)
 
 		sdlReal.defaultTo(777.0f);
 		sdlReal.withImportance(EFieldImportance::OPTIONAL);
-		ASSERT_TRUE(sdlReal.fromSdl(owner, "yoyoyo", std::string()));
+		EXPECT_NO_THROW(sdlReal.fromSdl(owner, "yoyoyo", ctx));
 		EXPECT_FLOAT_EQ(owner.value, 777.0f);
 
 		sdlReal.defaultTo(888.0f);
 		sdlReal.withImportance(EFieldImportance::NICE_TO_HAVE);
-		ASSERT_TRUE(sdlReal.fromSdl(owner, "test", std::string()));
+		EXPECT_NO_THROW(sdlReal.fromSdl(owner, "test", ctx));
 		EXPECT_FLOAT_EQ(owner.value, 888.0f);
+	}
 
-		// Default value fallback is not applicable for required fields
-		sdlReal.withImportance(EFieldImportance::REQUIRED);
+	// Disable fallback for fields
+	{
+		TSdlReal<SimpleRealOwner, real> sdlReal("number", &SimpleRealOwner::value);
+		sdlReal.enableFallback(false);
 		sdlReal.defaultTo(123.0f);
-		ASSERT_FALSE(sdlReal.fromSdl(owner, "hello", std::string()));
+
+		SimpleRealOwner owner;
+		owner.value = 6.8f;
+
+		SdlInputContext ctx;
+
+		EXPECT_THROW(sdlReal.fromSdl(owner, "fltflt", ctx), SdlLoadError);
 		EXPECT_NE(owner.value, 123.0f);// owner value not updated
 	}
 }
@@ -66,28 +75,44 @@ TEST(SdlIntrospectValueTest, IntegerFromSdl)
 		SimpleIntOwner owner;
 		owner.value = 666;
 
-		ASSERT_TRUE(sdlInt.fromSdl(owner, "123", std::string()));
+		SdlInputContext ctx;
+
+		EXPECT_NO_THROW(sdlInt.fromSdl(owner, "123", ctx));
 		EXPECT_EQ(owner.value, 123);
 
-		ASSERT_TRUE(sdlInt.fromSdl(owner, "-7", std::string()));
+		EXPECT_NO_THROW(sdlInt.fromSdl(owner, "-7", ctx));
 		EXPECT_EQ(owner.value, -7);
 
-		// Fallback to default for optional & nice-to-have fields
+		// Fallback to default for fields with different importance
 
 		sdlInt.defaultTo(12);
 		sdlInt.withImportance(EFieldImportance::OPTIONAL);
-		ASSERT_TRUE(sdlInt.fromSdl(owner, "what", std::string()));
+		EXPECT_NO_THROW(sdlInt.fromSdl(owner, "what", ctx));
 		EXPECT_EQ(owner.value, 12);
 
 		sdlInt.defaultTo(333);
 		sdlInt.withImportance(EFieldImportance::NICE_TO_HAVE);
-		ASSERT_TRUE(sdlInt.fromSdl(owner, "not an int", std::string()));
+		EXPECT_NO_THROW(sdlInt.fromSdl(owner, "not an int", ctx));
 		EXPECT_EQ(owner.value, 333);
 
-		// Default value fallback is not applicable for required fields
+		sdlInt.defaultTo(444);
 		sdlInt.withImportance(EFieldImportance::REQUIRED);
+		EXPECT_NO_THROW(sdlInt.fromSdl(owner, "testing", ctx));
+		EXPECT_EQ(owner.value, 444);
+	}
+
+	// Disable fallback for fields
+	{
+		TSdlInteger<SimpleIntOwner, integer> sdlInt("number", &SimpleIntOwner::value);
+		sdlInt.enableFallback(false);
 		sdlInt.defaultTo(22);
-		ASSERT_FALSE(sdlInt.fromSdl(owner, "?121??", std::string()));
+
+		SimpleIntOwner owner;
+		owner.value = 1;
+
+		SdlInputContext ctx;
+
+		EXPECT_THROW(sdlInt.fromSdl(owner, "hello", ctx), SdlLoadError);
 		EXPECT_NE(owner.value, 22);// owner value not updated
 	}
 }

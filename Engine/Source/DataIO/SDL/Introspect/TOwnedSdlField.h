@@ -85,8 +85,6 @@ inline void TOwnedSdlField<Owner>::fromSdl(
 	}
 	catch(const SdlLoadError& e)
 	{
-		const std::string errTypeName = ctx.srcClass ? ctx.srcClass->genPrettyName() : "unavailable";
-
 		if(isFallbackEnabled())
 		{
 			setValueToDefault(owner);
@@ -96,7 +94,7 @@ inline void TOwnedSdlField<Owner>::fromSdl(
 			// a successful parse was expected)
 			//
 			logger.log(ELogLevel::WARNING_MED,
-				"load error from type <" + errTypeName + ">, "
+				"load error from type <" + ctx.genPrettySrcClassName() + ">, "
 				"value <" + genPrettyName() + "> -> " + e.what() + "; " +
 				"value defaults to " + valueToString(owner));
 		}
@@ -105,7 +103,7 @@ inline void TOwnedSdlField<Owner>::fromSdl(
 			// Let caller handle the error if fallback is disabled
 			//
 			throw SdlLoadError(
-				"load error from type <" + errTypeName + ">, "
+				"load error from type <" + ctx.genPrettySrcClassName() + ">, "
 				"value <" + genPrettyName() + "> -> " + e.what() + "; " +
 				"value left uninitialized");
 		}

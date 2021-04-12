@@ -24,7 +24,7 @@ public:
 	virtual std::size_t numFields() const = 0;
 	virtual const SdlField* getField(std::size_t index) const = 0;
 
-	std::string genPrettyName();
+	std::string genPrettyName() const;
 	const std::string& getCategory() const;
 	const std::string& getDisplayName() const;
 	const std::string& getDescription() const;
@@ -51,7 +51,7 @@ inline SdlClass::SdlClass(std::string category, std::string displayName) :
 	PH_ASSERT(!displayName.empty());
 }
 
-inline std::string SdlClass::genPrettyName()
+inline std::string SdlClass::genPrettyName() const
 {
 	return "category: " + m_category + ", name: " + m_displayName;
 }
