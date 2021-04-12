@@ -131,25 +131,33 @@ inline void TSdlClass<Owner>::fromSdl(
 		if(!isFieldTouched[i])
 		{
 			auto& field = m_fields[i];
-			field->setValueToDefault(owner);
+			if(field->isFallbackEnabled())
+			{
+				field->setValueToDefault(owner);
+
+				const auto importance = field->getImportance();
+				if(importance == EFieldImportance::NICE_TO_HAVE)
+				{
+					logger.log(ELogLevel::NOTE_MED,
+						"no clause for type <" + genPrettyName() + ">'s "
+						"field <" + field->genPrettyName() + ">, "
+						"defaults to <" + field->valueToString(owner) + ">");
+				}
+				else if(importance == EFieldImportance::REQUIRED)
+				{
+					logger.log(ELogLevel::WARNING_MED,
+						"no clause for type <" + genPrettyName() + ">'s "
+						"field <" + field->genPrettyName() + ">, "
+						"defaults to <" + field->valueToString(owner) + ">");
+				}
+			}
+			else
+			{
+				throw SdlLoadError(
+					"a clause for value <" + field->genPrettyName() + "> is required");
+			}
 
 			// TODO: util for generating class + field info string
-
-			const auto importance = field->getImportance();
-			if(importance == EFieldImportance::NICE_TO_HAVE)
-			{
-				logger.log(ELogLevel::NOTE_MED,
-					"no clause for type <" + genPrettyName() + ">'s "
-					"field <" + field->genPrettyName() + ">, "
-					"defaults to <" + field->valueToString(owner) + ">");
-			}
-			else if(importance == EFieldImportance::REQUIRED)
-			{
-				logger.log(ELogLevel::WARNING_MED,
-					"no clause for type <" + genPrettyName() + ">'s "
-					"field <" + field->genPrettyName() + ">, "
-					"defaults to <" + field->valueToString(owner) + ">");
-			}
 		}
 	}
 }

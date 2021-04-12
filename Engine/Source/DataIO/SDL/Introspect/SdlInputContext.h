@@ -12,6 +12,8 @@ class SdlClass;
 class SdlInputContext final
 {
 public:
+	SdlInputContext();
+
 	SdlInputContext(
 		Path            workingDirectory,
 		const SdlClass* srcClass);
@@ -23,12 +25,17 @@ public:
 
 // In-header Implementation:
 
+inline SdlInputContext::SdlInputContext() :
+	workingDirectory(),
+	srcClass        (nullptr)
+{}
+
 inline SdlInputContext::SdlInputContext(
 	Path                  workingDirectory,
 	const SdlClass* const srcClass) :
 
-	workingDirectory(std::move(workingDirectory)),
-	srcClass        (srcClass)
+	workingDirectory (std::move(workingDirectory)),
+	srcClass         (srcClass)
 {}
 
 }// end namespace ph

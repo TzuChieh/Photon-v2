@@ -28,7 +28,9 @@ TEST(SdlIntrospectValueTest, RealFromSdl)
 		SimpleRealOwner owner;
 		owner.value = 3;
 
-		ASSERT_TRUE(sdlReal.fromSdl(owner, "123.456", std::string()));
+		SdlInputContext ctx;
+
+		EXPECT_NO_THROW(sdlReal.fromSdl(owner, "123.456", ctx));
 		EXPECT_FLOAT_EQ(owner.value, 123.456f);
 
 		// Fallback to default for optional & nice-to-have fields

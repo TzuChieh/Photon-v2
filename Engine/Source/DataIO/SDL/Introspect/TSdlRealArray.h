@@ -16,13 +16,13 @@ namespace ph
 {
 
 template<typename Owner, typename RealType>
-class TSdlRealArray : public TSdlValue<math::TQuaternion<std::vector<RealType>>, Owner>
+class TSdlRealArray : public TSdlValue<std::vector<RealType>, Owner>
 {
 	static_assert(std::is_same_v<Element, real>,
 		"Currently supports only ph::real");
 
 public:
-	TSdlRealArray(std::string valueName, math::TQuaternion<Element> Owner::* valuePtr);
+	TSdlRealArray(std::string valueName, std::vector<RealType> Owner::* valuePtr);
 
 	std::string valueToString(const Owner& owner) const override;
 
