@@ -3,6 +3,8 @@
 #include "DataIO/FileSystem/Path.h"
 #include "DataIO/IOUtils.h"
 #include "DataIO/io_exceptions.h"
+#include "DataIO/SDL/Introspect/SdlClass.h"
+#include "DataIO/SDL/Introspect/SdlField.h"
 
 namespace ph
 {
@@ -110,6 +112,25 @@ bool SdlIOUtils::isResourceIdentifier(const std::string_view sdlValueStr)
 
 	// Valid SDL resource identifier starts with a forward slash
 	return pos != std::string::npos && sdlValueStr[pos] == '/';
+}
+
+std::string SdlIOUtils::genPrettyName(const SdlClass* const clazz)
+{
+	return clazz ? 
+		"category: " + clazz->getCategory() + ", name: " + clazz->getDisplayName() : 
+		"unavailable";
+}
+
+std::string SdlIOUtils::genPrettyName(const SdlField* const field)
+{
+	return field ?
+		"type: " + field->getTypeName() + ", name: " + field->getFieldName() : 
+		"unavailable";
+}
+
+std::string SdlIOUtils::genPrettyName(const SdlClass* const clazz, const SdlField* const field)
+{
+	return "type <" + genPrettyName(clazz) + ">, value <" + genPrettyName(field) + ">";
 }
 
 }// end namespace ph

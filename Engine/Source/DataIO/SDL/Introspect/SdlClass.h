@@ -51,11 +51,6 @@ inline SdlClass::SdlClass(std::string category, std::string displayName) :
 	PH_ASSERT(!displayName.empty());
 }
 
-inline std::string SdlClass::genPrettyName() const
-{
-	return "category: " + m_category + ", name: " + m_displayName;
-}
-
 inline const std::string& SdlClass::getCategory() const
 {
 	return m_category;

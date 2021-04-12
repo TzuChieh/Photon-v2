@@ -15,6 +15,8 @@ namespace ph
 {
 
 class Path;
+class SdlClass;
+class SdlField;
 
 class SdlIOUtils final
 {
@@ -32,6 +34,10 @@ public:
 	actually points to a valid resource or not.
 	*/
 	static bool isResourceIdentifier(std::string_view sdlValueStr);
+
+	static std::string genPrettyName(const SdlClass* clazz);
+	static std::string genPrettyName(const SdlField* field);
+	static std::string genPrettyName(const SdlClass* clazz, const SdlField* field);
 
 private:
 	static real parseReal(const std::string& sdlRealStr);

@@ -6,6 +6,7 @@
 #include "DataIO/SDL/ValueClause.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
 #include "DataIO/SDL/sdl_exceptions.h"
+#include "DataIO/SDL/SdlIOUtils.h"
 
 #include <string>
 #include <vector>
@@ -140,16 +141,14 @@ inline void TSdlClass<Owner>::fromSdl(
 				if(importance == EFieldImportance::NICE_TO_HAVE)
 				{
 					logger.log(ELogLevel::NOTE_MED,
-						"no clause for type <" + genPrettyName() + ">'s "
-						"field <" + field->genPrettyName() + ">, "
-						"defaults to <" + field->valueToString(owner) + ">");
+						"no clause for " + SdlIOUtils::genPrettyName(this, &field) +
+						", defaults to <" + field->valueToString(owner) + ">");
 				}
 				else if(importance == EFieldImportance::REQUIRED)
 				{
 					logger.log(ELogLevel::WARNING_MED,
-						"no clause for type <" + genPrettyName() + ">'s "
-						"field <" + field->genPrettyName() + ">, "
-						"defaults to <" + field->valueToString(owner) + ">");
+						"no clause for " + SdlIOUtils::genPrettyName(this, &field) +
+						", defaults to <" + field->valueToString(owner) + ">");
 				}
 			}
 			else
