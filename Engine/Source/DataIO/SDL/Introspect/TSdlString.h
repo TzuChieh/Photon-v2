@@ -18,6 +18,7 @@ public:
 
 	std::string valueToString(const Owner& owner) const override;
 
+private:
 	void loadFromSdl(
 		Owner&             owner,
 		const std::string& sdlValue,
@@ -55,10 +56,10 @@ inline void TSdlString<Owner>::loadFromSdl(
 template<typename Owner>
 inline void TSdlString<Owner>::convertToSdl(
 	const Owner& owner,
-	std::string* out_sdl,
+	std::string* out_sdlValue,
 	std::string& out_converterMessage) const
 {
-	PH_ASSERT(out_sdl);
+	PH_ASSERT(out_sdlValue);
 
 	// TODO
 	PH_ASSERT_UNREACHABLE_SECTION();

@@ -110,8 +110,17 @@ bool SdlIOUtils::isResourceIdentifier(const std::string_view sdlValueStr)
 	// Find index to the first non-blank character
 	const auto pos = sdlValueStr.find_first_not_of(" \t\r\n");
 
-	// Valid SDL resource identifier starts with a forward slash
+	// Valid SDL resource identifier starts with "/"
 	return pos != std::string::npos && sdlValueStr[pos] == '/';
+}
+
+bool SdlIOUtils::isReference(const std::string_view sdlValueStr)
+{
+	// Find index to the first non-blank character
+	const auto pos = sdlValueStr.find_first_not_of(" \t\r\n");
+
+	// Valid SDL reference starts with "@"
+	return pos != std::string::npos && sdlValueStr[pos] == '@';
 }
 
 std::string SdlIOUtils::genPrettyName(const SdlClass* const clazz)

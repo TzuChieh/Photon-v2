@@ -42,6 +42,16 @@ public:
 	const T& getDefaultValue() const;
 
 private:
+	void loadFromSdl(
+		Owner&             owner,
+		const std::string& sdlValue,
+		SdlInputContext&   ctx) override = 0;
+
+	void convertToSdl(
+		const Owner& owner,
+		std::string* out_sdlValue,
+		std::string& out_converterMessage) const override = 0;
+
 	T Owner::* m_valuePtr;
 	T          m_defaultValue;
 };

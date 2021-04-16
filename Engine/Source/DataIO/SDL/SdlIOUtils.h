@@ -35,6 +35,13 @@ public:
 	*/
 	static bool isResourceIdentifier(std::string_view sdlValueStr);
 
+	/*! @brief Check whether the string represents a SDL reference.
+
+	Checks the format of the string only. Does not test whether the reference
+	actually points to a valid resource or not.
+	*/
+	static bool isReference(std::string_view sdlValueStr);
+
 	static std::string genPrettyName(const SdlClass* clazz);
 	static std::string genPrettyName(const SdlField* field);
 	static std::string genPrettyName(const SdlClass* clazz, const SdlField* field);
