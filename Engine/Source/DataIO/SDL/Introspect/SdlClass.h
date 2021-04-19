@@ -14,12 +14,22 @@ namespace ph
 
 class SdlField;
 class SdlInputContext;
+class ISdlResource;
+class ValueClause;
 
 class SdlClass
 {
 public:
 	SdlClass(std::string category, std::string displayName);
 	virtual ~SdlClass() = default;
+
+	virtual void initFromSdl(
+		ISdlResource& resource,
+		const ValueClause* clauses,
+		std::size_t        numClauses,
+		SdlInputContext&   ctx) const = 0;
+
+	// TODO: saveToSdl()
 
 	virtual std::size_t numFields() const = 0;
 	virtual const SdlField* getField(std::size_t index) const = 0;

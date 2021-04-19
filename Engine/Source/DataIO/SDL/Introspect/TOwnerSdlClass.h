@@ -15,6 +15,7 @@
 #include <string_view>
 #include <array>
 #include <optional>
+#include <type_traits>
 
 #define PH_SDLCLASS_USE_TRIE false
 
@@ -22,10 +23,13 @@ namespace ph
 {
 
 template<typename Owner>
-class TSdlClass : public SdlClass
+class TOwnerSdlClass : public SdlClass
 {
+	static_assert(std::is_default_constructible_v<Owner>,
+		"The owner class must have a default constructor and be non-abstract.");
+
 public:
-	TSdlClass(std::string category, std::string displayName);
+	TOwnerSdlClass(std::string category, std::string displayName);
 
 	std::size_t numFields() const override;
 	const SdlField* getField(std::size_t index) const override;
@@ -43,7 +47,7 @@ public:
 
 	const TOwnedSdlField<Owner>* getOwnedField(std::size_t index) const;
 
-	TSdlClass& addField(std::unique_ptr<TOwnedSdlField<Owner>> field);
+	TOwnerSdlClass& addField(std::unique_ptr<TOwnedSdlField<Owner>> field);
 
 private:
 	std::optional<std::size_t> findOwnedSdlFieldIndex(std::string_view typeName, std::string_view fieldName) const;
@@ -57,30 +61,30 @@ private:
 // In-header Implementations:
 
 template<typename Owner>
-inline TSdlClass<Owner>::TSdlClass(std::string category, std::string displayName) :
+inline TOwnerSdlClass<Owner>::TOwnerSdlClass(std::string category, std::string displayName) :
 	SdlClass(std::move(category), std::move(displayName))
 {}
 
 template<typename Owner>
-inline std::size_t TSdlClass<Owner>::numFields() const
+inline std::size_t TOwnerSdlClass<Owner>::numFields() const
 {
 	return m_fields.size();
 }
 
 template<typename Owner>
-inline const SdlField* TSdlClass<Owner>::getField(const std::size_t index) const
+inline const SdlField* TOwnerSdlClass<Owner>::getField(const std::size_t index) const
 {
 	return getOwnedField(index);
 }
 
 template<typename Owner>
-inline const TOwnedSdlField<Owner>* TSdlClass<Owner>::getOwnedField(const std::size_t index) const
+inline const TOwnedSdlField<Owner>* TOwnerSdlClass<Owner>::getOwnedField(const std::size_t index) const
 {
 	return index < m_fields.size() ? m_fields[index].get() : nullptr;
 }
 
 template<typename Owner>
-inline TSdlClass<Owner>& TSdlClass<Owner>::addField(std::unique_ptr<TOwnedSdlField<Owner>> field)
+inline TOwnerSdlClass<Owner>& TOwnerSdlClass<Owner>::addField(std::unique_ptr<TOwnedSdlField<Owner>> field)
 {
 	PH_ASSERT(field);
 	PH_ASSERT_LT(m_fields.size(), MAX_FIELDS);
@@ -93,7 +97,7 @@ inline TSdlClass<Owner>& TSdlClass<Owner>::addField(std::unique_ptr<TOwnedSdlFie
 }
 
 template<typename Owner>
-inline void TSdlClass<Owner>::fromSdl(
+inline void TOwnerSdlClass<Owner>::fromSdl(
 	Owner&                   owner,
 	const ValueClause* const clauses,
 	const std::size_t        numClauses,
@@ -163,7 +167,7 @@ inline void TSdlClass<Owner>::fromSdl(
 }
 
 template<typename Owner>
-inline void TSdlClass<Owner>::toSdl(
+inline void TOwnerSdlClass<Owner>::toSdl(
 	const Owner&       owner,
 	std::string* const out_sdl,
 	std::string&       out_message) const
@@ -173,7 +177,7 @@ inline void TSdlClass<Owner>::toSdl(
 }
 
 template<typename Owner>
-inline std::optional<std::size_t> TSdlClass<Owner>::findOwnedSdlFieldIndex(
+inline std::optional<std::size_t> TOwnerSdlClass<Owner>::findOwnedSdlFieldIndex(
 	const std::string_view typeName,
 	const std::string_view fieldName) const
 {

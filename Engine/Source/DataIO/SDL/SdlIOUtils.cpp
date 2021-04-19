@@ -105,6 +105,29 @@ std::vector<real> SdlIOUtils::loadRealArray(const Path& filePath)
 	}
 }
 
+std::vector<math::Vector3R> SdlIOUtils::loadVector3RArray(const std::string& sdlVector3ArrayStr)
+{
+	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}});
+
+	try
+	{
+		std::vector<std::string> vec3Tokens;
+		tokenizer.tokenize(sdlVector3ArrayStr, vec3Tokens);
+
+		std::vector<math::Vector3R> vec3Array;
+		for(const auto& vec3Token : vec3Tokens)
+		{
+			vec3Array.push_back(loadVector3R(vec3Token));
+		}
+
+		return std::move(vec3Array);
+	}
+	catch(const SdlLoadError& e)
+	{
+		throw SdlLoadError("on parsing Vector3R array -> " + e.whatStr());
+	}
+}
+
 bool SdlIOUtils::isResourceIdentifier(const std::string_view sdlValueStr)
 {
 	// Find index to the first non-blank character

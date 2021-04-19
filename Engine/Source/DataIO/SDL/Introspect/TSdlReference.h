@@ -2,10 +2,12 @@
 
 #include "DataIO/SDL/Introspect/TOwnedSdlField.h"
 #include "Common/assertion.h"
+#include "DataIO/SDL/Introspect/SdlInputContext.h"
 #include "DataIO/SDL/NamedResourceStorage.h"
 #include "DataIO/SDL/ETypeCategory.h"
 #include "DataIO/SDL/SdlTypeInfo.h"
 #include "Utility/string_utils.h"
+#include "DataIO/SDL/sdl_exceptions.h"
 
 #include <string>
 #include <memory>
@@ -54,9 +56,14 @@ private:
 		const std::string& sdlValue,
 		SdlInputContext&   ctx) override
 	{
-		const auto refName = string_utils::cut_head(sdlValue, "@");
+		const auto resourceName = string_utils::cut_head(sdlValue, "@");
+		// TODO: get res should throw and accept str view
+		owner.*m_valuePtr = ctx.resources->getResource<T>(resourceName, DataTreatment());
 
-		// TODO
+		if(!(owner.*m_valuePtr))
+		{
+			throw SdlLoadError("on parsing reference -> unable to load " + valueToString(owner));
+		}
 	}
 
 	inline void convertToSdl(
