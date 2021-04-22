@@ -28,7 +28,7 @@ private:
 	void loadFromSdl(
 		Owner&             owner,
 		const std::string& sdlValue,
-		SdlInputContext&   ctx) override;
+		SdlInputContext&   ctx) const override;
 
 	void convertToSdl(
 		const Owner& owner,
@@ -53,7 +53,7 @@ template<typename Owner, typename Element>
 inline void TSdlVector3<Owner, Element>::loadFromSdl(
 	Owner&             owner,
 	const std::string& sdlValue,
-	SdlInputContext&   ctx)
+	SdlInputContext&   ctx) const
 {
 	setValue(owner, SdlIOUtils::loadVector3R(sdlValue));
 }

@@ -40,7 +40,7 @@ public:
 	void fromSdl(
 		Owner&             owner, 
 		const std::string& sdlValue,
-		SdlInputContext&   ctx);
+		SdlInputContext&   ctx) const;
 
 	void toSdl(
 		const Owner& owner,
@@ -54,7 +54,7 @@ private:
 	virtual void loadFromSdl(
 		Owner&             owner, 
 		const std::string& sdlValue,
-		SdlInputContext&   ctx) = 0;
+		SdlInputContext&   ctx) const = 0;
 
 	virtual void convertToSdl(
 		const Owner& owner,
@@ -78,7 +78,7 @@ template<typename Owner>
 inline void TOwnedSdlField<Owner>::fromSdl(
 	Owner&             owner,
 	const std::string& sdlValue,
-	SdlInputContext&   ctx)
+	SdlInputContext&   ctx) const
 {
 	try
 	{

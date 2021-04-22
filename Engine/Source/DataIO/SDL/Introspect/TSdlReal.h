@@ -28,7 +28,7 @@ private:
 	void loadFromSdl(
 		Owner&             owner,
 		const std::string& sdlValue,
-		SdlInputContext&   ctx) override;
+		SdlInputContext&   ctx) const override;
 
 	void convertToSdl(
 		const Owner& owner,
@@ -53,7 +53,7 @@ template<typename Owner, typename RealType>
 inline void TSdlReal<Owner, RealType>::loadFromSdl(
 	Owner&             owner,
 	const std::string& sdlValue,
-	SdlInputContext&   ctx)
+	SdlInputContext&   ctx) const
 {
 	setValue(owner, SdlIOUtils::loadReal(sdlValue));
 }

@@ -22,7 +22,7 @@ private:
 	void loadFromSdl(
 		Owner&             owner,
 		const std::string& sdlValue,
-		SdlInputContext&   ctx) override;
+		SdlInputContext&   ctx) const override;
 
 	void convertToSdl(
 		const Owner& owner,
@@ -47,7 +47,7 @@ template<typename Owner>
 inline void TSdlString<Owner>::loadFromSdl(
 	Owner&             owner,
 	const std::string& sdlValue,
-	SdlInputContext&   ctx)
+	SdlInputContext&   ctx) const
 {
 	// Save <sdlValue> directly as it is already a string
 	setValue(owner, sdlValue);

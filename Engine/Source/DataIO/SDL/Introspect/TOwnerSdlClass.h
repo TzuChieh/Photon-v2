@@ -25,11 +25,22 @@ namespace ph
 template<typename Owner>
 class TOwnerSdlClass : public SdlClass
 {
-	static_assert(std::is_default_constructible_v<Owner>,
-		"The owner class must have a default constructor and be non-abstract.");
+	static_assert(std::is_base_of_v<ISdlResource, Owner>,
+		"Owner class must derive from ISdlResource.");
+
+	static_assert(!std::is_abstract_v<Owner> && std::is_default_constructible_v<Owner>,
+		"A non-abstract owner class must have a default constructor.");
 
 public:
 	TOwnerSdlClass(std::string category, std::string displayName);
+
+	std::shared_ptr<ISdlResource> createResource() const override;
+
+	void initResource(
+		ISdlResource&      resource,
+		const ValueClause* clauses,
+		std::size_t        numClauses,
+		SdlInputContext&   ctx) const override;
 
 	std::size_t numFields() const override;
 	const SdlField* getField(std::size_t index) const override;
@@ -52,10 +63,11 @@ public:
 private:
 	std::optional<std::size_t> findOwnedSdlFieldIndex(std::string_view typeName, std::string_view fieldName) const;
 
+private:
+	static constexpr int MAX_FIELDS = 64;
+
 	// TODO: change to fixed size array
 	std::vector<std::unique_ptr<TOwnedSdlField<Owner>>> m_fields;
-
-	static constexpr int MAX_FIELDS = 64;
 };
 
 // In-header Implementations:
@@ -64,6 +76,44 @@ template<typename Owner>
 inline TOwnerSdlClass<Owner>::TOwnerSdlClass(std::string category, std::string displayName) :
 	SdlClass(std::move(category), std::move(displayName))
 {}
+
+template<typename Owner>
+inline std::shared_ptr<ISdlResource> TOwnerSdlClass<Owner>::createResource() const
+{
+	if constexpr(!std::is_abstract_v<Owner>)
+	{
+		return std::make_shared<Owner>();
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+template<typename Owner>
+inline void TOwnerSdlClass<Owner>::initResource(
+	ISdlResource&            resource,
+	const ValueClause* const clauses,
+	const std::size_t        numClauses,
+	SdlInputContext&         ctx) const
+{
+	// Init base first just like C++ does
+	if(isDerived())
+	{
+		getBase()->initResource(resource, clauses, numClauses, ctx);
+	}
+
+	Owner* const owner = dynamic_cast<Owner*>(&resource);
+	if(!owner)
+	{
+		throw SdlLoadError(
+			"type cast error: target resource is not owned by "
+			"SDL class <" + genPrettyName() + ">");
+	}
+
+	PH_ASSERT(owner);
+	fromSdl(*owner, clauses, numClauses, ctx);
+}
 
 template<typename Owner>
 inline std::size_t TOwnerSdlClass<Owner>::numFields() const

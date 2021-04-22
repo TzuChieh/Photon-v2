@@ -25,7 +25,7 @@ public:
 	void loadFromSdl(
 		Owner&             owner,
 		const std::string& sdlValue,
-		SdlInputContext&   ctx) override = 0;
+		SdlInputContext&   ctx) override const = 0;
 
 	void convertToSdl(
 		const Owner& owner,
