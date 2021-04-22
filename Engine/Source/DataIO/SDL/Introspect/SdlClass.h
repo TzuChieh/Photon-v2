@@ -54,7 +54,7 @@ private:
 	std::string m_displayName;
 	std::string m_description;
 
-	SdlClass* m_base;
+	const SdlClass* m_base;
 };
 
 // In-header Implementation:

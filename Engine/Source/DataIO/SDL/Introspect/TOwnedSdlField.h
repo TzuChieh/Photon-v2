@@ -34,7 +34,7 @@ class TOwnedSdlField : public SdlField
 public:
 	TOwnedSdlField(std::string typeName, std::string valueName);
 
-	virtual void setValueToDefault(Owner& owner) = 0;
+	virtual void setValueToDefault(Owner& owner) const = 0;
 	virtual std::string valueToString(const Owner& owner) const = 0;
 
 	void fromSdl(

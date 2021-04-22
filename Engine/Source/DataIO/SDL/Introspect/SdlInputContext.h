@@ -18,8 +18,9 @@ public:
 	SdlInputContext();
 
 	SdlInputContext(
-		Path            workingDirectory,
-		const SdlClass* srcClass);
+		const NamedResourceStorage* resources,
+		Path                        workingDirectory,
+		const SdlClass*             srcClass);
 
 	std::string genPrettySrcClassName() const;
 

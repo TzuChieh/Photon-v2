@@ -7,22 +7,18 @@
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
 #include "DataIO/SDL/sdl_exceptions.h"
 #include "DataIO/SDL/SdlIOUtils.h"
+#include "DataIO/SDL/Introspect/TBasicSdlFieldSet.h"
 
 #include <string>
-#include <vector>
-#include <memory>
 #include <utility>
 #include <string_view>
 #include <array>
-#include <optional>
 #include <type_traits>
-
-#define PH_SDLCLASS_USE_TRIE false
 
 namespace ph
 {
 
-template<typename Owner>
+template<typename Owner, typename FieldSet = TBasicSdlFieldSet<TOwnedSdlField<Owner>>>
 class TOwnerSdlClass : public SdlClass
 {
 	static_assert(std::is_base_of_v<ISdlResource, Owner>,
@@ -61,20 +57,17 @@ public:
 	TOwnerSdlClass& addField(std::unique_ptr<TOwnedSdlField<Owner>> field);
 
 private:
-	std::optional<std::size_t> findOwnedSdlFieldIndex(std::string_view typeName, std::string_view fieldName) const;
-
-private:
-	static constexpr int MAX_FIELDS = 64;
-
-	// TODO: change to fixed size array
-	std::vector<std::unique_ptr<TOwnedSdlField<Owner>>> m_fields;
+	FieldSet m_fields;
 };
 
 // In-header Implementations:
 
 template<typename Owner>
 inline TOwnerSdlClass<Owner>::TOwnerSdlClass(std::string category, std::string displayName) :
-	SdlClass(std::move(category), std::move(displayName))
+
+	SdlClass(std::move(category), std::move(displayName)),
+
+	m_fields()
 {}
 
 template<typename Owner>
@@ -118,7 +111,7 @@ inline void TOwnerSdlClass<Owner>::initResource(
 template<typename Owner>
 inline std::size_t TOwnerSdlClass<Owner>::numFields() const
 {
-	return m_fields.size();
+	return m_fields.numFields();
 }
 
 template<typename Owner>
@@ -130,18 +123,13 @@ inline const SdlField* TOwnerSdlClass<Owner>::getField(const std::size_t index) 
 template<typename Owner>
 inline const TOwnedSdlField<Owner>* TOwnerSdlClass<Owner>::getOwnedField(const std::size_t index) const
 {
-	return index < m_fields.size() ? m_fields[index].get() : nullptr;
+	return m_fields.getField(index);
 }
 
 template<typename Owner>
 inline TOwnerSdlClass<Owner>& TOwnerSdlClass<Owner>::addField(std::unique_ptr<TOwnedSdlField<Owner>> field)
 {
-	PH_ASSERT(field);
-	PH_ASSERT_LT(m_fields.size(), MAX_FIELDS);
-	PH_ASSERT_MSG(findOwnedSdlField(field->getTypeName(), field->getFieldName()) == nullptr,
-		"SDL class <" + genPrettyName() + "> already contains field <" field->genPrettyName() + ">");
-
-	m_fields.push_back(std::move(field));
+	m_fields.addField(std::move(field));
 
 	return *this;
 }
@@ -155,8 +143,12 @@ inline void TOwnerSdlClass<Owner>::fromSdl(
 {
 	PH_ASSERT(clauses);
 
+	// Consider to increase the number if not enough
+	constexpr std::size_t MAX_FIELD_FLAGS = 64;
+	PH_ASSERT_GE(MAX_FIELD_FLAGS, m_fields.numFields());
+
 	// Zero initialization performed on array elements (defaults to false)
-	std::array<bool, MAX_FIELDS> isFieldTouched{};
+	std::array<bool, MAX_FIELD_FLAGS> isFieldTouched{};
 
 	// For each clause, load them into matching field
 	for(std::size_t i = 0; i < numClauses; ++i)
@@ -164,7 +156,7 @@ inline void TOwnerSdlClass<Owner>::fromSdl(
 		const auto* const clause = clauses[i];
 
 		PH_ASSERT(clause);
-		const auto& fieldIndex = findOwnedSdlFieldIndex(clause->type, clause->name);
+		const auto& fieldIndex = m_fields.findFieldIndex(clause->type, clause->name);
 		if(fieldIndex)
 		{
 			auto& field = m_fields[fieldIndex.value()];
@@ -224,30 +216,6 @@ inline void TOwnerSdlClass<Owner>::toSdl(
 {
 	// TODO
 	PH_ASSERT_UNREACHABLE_SECTION();
-}
-
-template<typename Owner>
-inline std::optional<std::size_t> TOwnerSdlClass<Owner>::findOwnedSdlFieldIndex(
-	const std::string_view typeName,
-	const std::string_view fieldName) const
-{
-	PH_ASSERT(!typeName.empty());
-	PH_ASSERT(!fieldName.empty());
-
-#if PH_SDLCLASS_USE_TRIE
-	PH_ASSERT_UNREACHABLE_SECTION();
-	return std::nullopt;
-#else
-	for(std::size_t i = 0; i < m_fields.size(); ++i)
-	{
-		const auto& field = m_fields[i];
-		if(typeName == field->getTypeName() && fieldName == field->getFieldName())
-		{
-			return i;
-		}
-	}
-	return std::nullopt;
-#endif
 }
 
 }// end namespace ph

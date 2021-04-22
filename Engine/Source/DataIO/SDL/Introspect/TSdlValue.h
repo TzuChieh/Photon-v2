@@ -20,23 +20,13 @@ public:
 
 	std::string valueToString(const Owner& owner) const = 0;
 
-	void setValueToDefault(Owner& owner) override;
-
-	void loadFromSdl(
-		Owner&             owner,
-		const std::string& sdlValue,
-		SdlInputContext&   ctx) override const = 0;
-
-	void convertToSdl(
-		const Owner& owner,
-		std::string* out_sdlValue,
-		std::string& out_converterMessage) const override = 0;
+	void setValueToDefault(Owner& owner) const override;
 
 	TSdlValue& defaultTo(T defaultValue);
 	TSdlValue& withImportance(EFieldImportance importance);
 	TSdlValue& description(std::string description);
 
-	void setValue(Owner& owner, T value);
+	void setValue(Owner& owner, T value) const;
 
 	const T& getValue(const Owner& owner) const;
 	const T& getDefaultValue() const;
@@ -45,7 +35,7 @@ private:
 	void loadFromSdl(
 		Owner&             owner,
 		const std::string& sdlValue,
-		SdlInputContext&   ctx) override = 0;
+		SdlInputContext&   ctx) const override = 0;
 
 	void convertToSdl(
 		const Owner& owner,
@@ -97,13 +87,13 @@ inline TSdlValue<T, Owner>& TSdlValue<T, Owner>::description(std::string descrip
 }
 
 template<typename T, typename Owner>
-inline void TSdlValue<T, Owner>::setValue(Owner& owner, T value)
+inline void TSdlValue<T, Owner>::setValue(Owner& owner, T value) const
 {
 	owner.*m_valuePtr = std::move(value);
 }
 
 template<typename T, typename Owner>
-inline void TSdlValue<T, Owner>::setValueToDefault(Owner& owner)
+inline void TSdlValue<T, Owner>::setValueToDefault(Owner& owner) const
 {
 	setValue(owner, m_defaultValue);
 }
