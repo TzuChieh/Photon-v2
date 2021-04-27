@@ -1,6 +1,11 @@
 #pragma once
 
-namespace ph::sdl::introspect_utils
+#include "DataIO/SDL/Introspect/field_set_utils.h"
+#include "DataIO/SDL/ValueClause.h"
+#include "DataIO/SDL/Introspect/SdlInputContext.h"
+#include "Common/assertion.h"
+
+namespace ph::field_set_utils
 {
 
 template<typename Owner, typename FieldSet>
@@ -14,4 +19,4 @@ inline void load_field_from_sdl(
 
 }
 
-}// end namespace ph
+}// end namespace ph::field_set_utils
