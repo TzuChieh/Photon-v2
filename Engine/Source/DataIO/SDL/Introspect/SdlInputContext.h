@@ -12,6 +12,12 @@ namespace ph
 class SdlClass;
 class NamedResourceStorage;
 
+/*! @brief Data that SDL input process can rely on.
+
+All data in the input context may be accessed concurrently.
+
+@note Modifications to this class must be ready for concurrent access.
+*/
 class SdlInputContext final
 {
 public:
