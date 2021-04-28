@@ -28,9 +28,9 @@ public:
 
 private:
 	void loadFromSdl(
-		Owner&             owner,
-		const std::string& sdlValue,
-		SdlInputContext&   ctx) const override;
+		Owner&                 owner,
+		const std::string&     sdlValue,
+		const SdlInputContext& ctx) const override;
 
 	void convertToSdl(
 		const Owner& owner,
@@ -53,9 +53,9 @@ inline std::string TSdlRealArray<Owner, RealType>::valueToString(const Owner& ow
 
 template<typename Owner, typename RealType>
 inline void TSdlRealArray<Owner, RealType>::loadFromSdl(
-	Owner&             owner,
-	const std::string& sdlValue,
-	SdlInputContext&   ctx) const
+	Owner&                 owner,
+	const std::string&     sdlValue,
+	const SdlInputContext& ctx) const
 {
 	if(SdlIOUtils::isResourceIdentifier(sdlValue))
 	{

@@ -20,9 +20,9 @@ public:
 
 private:
 	void loadFromSdl(
-		Owner&             owner,
-		const std::string& sdlValue,
-		SdlInputContext&   ctx) const override;
+		Owner&                 owner,
+		const std::string&     sdlValue,
+		const SdlInputContext& ctx) const override;
 
 	void convertToSdl(
 		const Owner& owner,

@@ -38,9 +38,9 @@ public:
 	virtual std::string valueToString(const Owner& owner) const = 0;
 
 	void fromSdl(
-		Owner&             owner, 
-		const std::string& sdlValue,
-		SdlInputContext&   ctx) const;
+		Owner&                 owner, 
+		const std::string&     sdlValue,
+		const SdlInputContext& ctx) const;
 
 	void toSdl(
 		const Owner& owner,
@@ -76,9 +76,9 @@ inline TOwnedSdlField<Owner>::TOwnedSdlField(std::string typeName, std::string v
 
 template<typename Owner>
 inline void TOwnedSdlField<Owner>::fromSdl(
-	Owner&             owner,
-	const std::string& sdlValue,
-	SdlInputContext&   ctx) const
+	Owner&                 owner,
+	const std::string&     sdlValue,
+	const SdlInputContext& ctx) const
 {
 	try
 	{

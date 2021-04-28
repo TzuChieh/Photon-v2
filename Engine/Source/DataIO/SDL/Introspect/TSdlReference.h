@@ -52,9 +52,9 @@ public:
 
 private:
 	inline void loadFromSdl(
-		Owner&             owner,
-		const std::string& sdlValue,
-		SdlInputContext&   ctx) const override
+		Owner&                 owner,
+		const std::string&     sdlValue,
+		const SdlInputContext& ctx) const override
 	{
 		const auto resourceName = string_utils::cut_head(sdlValue, "@");
 		// TODO: get res should throw and accept str view

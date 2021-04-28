@@ -33,9 +33,9 @@ public:
 
 private:
 	void loadFromSdl(
-		Owner&             owner,
-		const std::string& sdlValue,
-		SdlInputContext&   ctx) const override = 0;
+		Owner&                 owner,
+		const std::string&     sdlValue,
+		const SdlInputContext& ctx) const override = 0;
 
 	void convertToSdl(
 		const Owner& owner,

@@ -33,19 +33,19 @@ public:
 	std::shared_ptr<ISdlResource> createResource() const override;
 
 	void initResource(
-		ISdlResource&      resource,
-		const ValueClause* clauses,
-		std::size_t        numClauses,
-		SdlInputContext&   ctx) const override;
+		ISdlResource&          resource,
+		const ValueClause*     clauses,
+		std::size_t            numClauses,
+		const SdlInputContext& ctx) const override;
 
 	std::size_t numFields() const override;
 	const SdlField* getField(std::size_t index) const override;
 
 	void fromSdl(
-		Owner&             owner,
-		const ValueClause* clauses,
-		std::size_t        numClauses,
-		SdlInputContext&   ctx);
+		Owner&                 owner,
+		const ValueClause*     clauses,
+		std::size_t            numClauses,
+		const SdlInputContext& ctx);
 
 	void toSdl(
 		const Owner& owner,
@@ -88,7 +88,7 @@ inline void TOwnerSdlClass<Owner>::initResource(
 	ISdlResource&            resource,
 	const ValueClause* const clauses,
 	const std::size_t        numClauses,
-	SdlInputContext&         ctx) const
+	const SdlInputContext&   ctx) const
 {
 	// Init base first just like C++ does
 	if(isDerived())
@@ -139,7 +139,7 @@ inline void TOwnerSdlClass<Owner>::fromSdl(
 	Owner&                   owner,
 	const ValueClause* const clauses,
 	const std::size_t        numClauses,
-	SdlInputContext&         ctx)
+	const SdlInputContext&   ctx)
 {
 	PH_ASSERT(clauses);
 

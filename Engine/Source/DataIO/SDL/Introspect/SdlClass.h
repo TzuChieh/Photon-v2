@@ -26,10 +26,10 @@ public:
 	virtual std::shared_ptr<ISdlResource> createResource() const = 0;
 
 	virtual void initResource(
-		ISdlResource&      resource,
-		const ValueClause* clauses,
-		std::size_t        numClauses,
-		SdlInputContext&   ctx) const = 0;
+		ISdlResource&          resource,
+		const ValueClause*     clauses,
+		std::size_t            numClauses,
+		const SdlInputContext& ctx) const = 0;
 
 	// TODO: saveToSdl()
 

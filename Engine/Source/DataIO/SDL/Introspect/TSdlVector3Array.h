@@ -29,9 +29,9 @@ public:
 
 private:
 	void loadFromSdl(
-		Owner&             owner,
-		const std::string& sdlValue,
-		SdlInputContext&   ctx) const override;
+		Owner&                 owner,
+		const std::string&     sdlValue,
+		const SdlInputContext& ctx) const override;
 
 	void convertToSdl(
 		const Owner& owner,
@@ -57,9 +57,9 @@ inline std::string TSdlVector3Array<Owner, RealType>::valueToString(const Owner&
 
 template<typename Owner, typename RealType>
 inline void TSdlVector3Array<Owner, RealType>::loadFromSdl(
-	Owner&             owner,
-	const std::string& sdlValue,
-	SdlInputContext&   ctx) const
+	Owner&                 owner,
+	const std::string&     sdlValue,
+	const SdlInputContext& ctx) const
 {
 	setValue(owner, SdlIOUtils::loadVector3RArray(sdlValue));
 }
