@@ -19,11 +19,6 @@ public:
 	explicit SdlStruct(std::string name);
 	virtual ~SdlStruct() = default;
 
-	virtual void initFields(
-		const ValueClause*     clauses,
-		std::size_t            numClauses,
-		const SdlInputContext& ctx) const = 0;
-
 	virtual std::size_t numFields() const = 0;
 	virtual const SdlField* getField(std::size_t index) const = 0;
 
