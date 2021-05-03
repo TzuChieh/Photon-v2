@@ -1,5 +1,7 @@
 #pragma once
 
+#include "DataIO/SDL/Introspect/EFieldImportance.h"
+
 #include <cstddef>
 #include <string>
 
@@ -16,7 +18,7 @@ namespace ph::field_set_op
 
 struct NoOpNoticeReceiver final
 {
-	inline void operator (std::string noticeMsg, EFieldImportance importance) const
+	inline void operator () (std::string noticeMsg, EFieldImportance importance) const
 	{}
 };
 

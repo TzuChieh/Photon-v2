@@ -149,7 +149,7 @@ bool SdlIOUtils::isReference(const std::string_view sdlValueStr)
 std::string SdlIOUtils::genPrettyName(const SdlClass* const clazz)
 {
 	return clazz ? 
-		"category: " + clazz->getCategory() + ", name: " + clazz->getDisplayName() : 
+		"category: " + clazz->getCategory() + ", name: " + clazz->getTypeName() : 
 		"unavailable";
 }
 

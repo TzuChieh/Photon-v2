@@ -24,7 +24,7 @@ inline void load_fields_from_sdl(
 
 	// Consider to increase the number if not enough
 	constexpr std::size_t MAX_FIELD_FLAGS = 64;
-	PH_ASSERT_GE(MAX_FIELD_FLAGS, m_fields.numFields());
+	PH_ASSERT_GE(MAX_FIELD_FLAGS, fieldSet.numFields());
 
 	// Zero initialization performed on array elements (defaults to false)
 	std::array<bool, MAX_FIELD_FLAGS> isFieldTouched{};
@@ -35,10 +35,10 @@ inline void load_fields_from_sdl(
 		const auto* const clause = clauses[i];
 
 		PH_ASSERT(clause);
-		const auto& fieldIndex = m_fields.findFieldIndex(clause->type, clause->name);
+		const auto& fieldIndex = fieldSet.findFieldIndex(clause->type, clause->name);
 		if(fieldIndex)
 		{
-			auto& field = m_fields[fieldIndex.value()];
+			auto& field = fieldSet[fieldIndex.value()];
 			isFieldTouched[fieldIndex.value()] = true;
 
 			field->fromSdl(owner, clause->value, ctx);
@@ -54,11 +54,11 @@ inline void load_fields_from_sdl(
 	}
 
 	// Check and process uninitialized fields
-	for(std::size_t i = 0; i < m_fields.size(); ++i)
+	for(std::size_t i = 0; i < fieldSet.size(); ++i)
 	{
 		if(!isFieldTouched[i])
 		{
-			auto& field = m_fields[i];
+			auto& field = fieldSet[i];
 			if(field->isFallbackEnabled())
 			{
 				field->setValueToDefault(owner);

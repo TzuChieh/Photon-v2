@@ -20,7 +20,7 @@ class ValueClause;
 class SdlClass
 {
 public:
-	SdlClass(std::string category, std::string displayName);
+	SdlClass(std::string category, std::string typeName);
 	virtual ~SdlClass() = default;
 
 	virtual std::shared_ptr<ISdlResource> createResource() const = 0;
@@ -38,7 +38,7 @@ public:
 
 	std::string genPrettyName() const;
 	const std::string& getCategory() const;
-	const std::string& getDisplayName() const;
+	const std::string& getTypeName() const;
 	const std::string& getDescription() const;
 	const SdlClass* getBase() const;
 	bool isDerived() const;
@@ -51,7 +51,7 @@ protected:
 
 private:
 	std::string m_category;
-	std::string m_displayName;
+	std::string m_typeName;
 	std::string m_description;
 
 	const SdlClass* m_base;
@@ -59,14 +59,14 @@ private:
 
 // In-header Implementation:
 
-inline SdlClass::SdlClass(std::string category, std::string displayName) : 
+inline SdlClass::SdlClass(std::string category, std::string typeName) :
 	m_category   (std::move(category)), 
-	m_displayName(std::move(displayName)),
+	m_typeName   (std::move(typeName)),
 	m_description(),
 	m_base       (nullptr)
 {
-	PH_ASSERT(!category.empty());
-	PH_ASSERT(!displayName.empty());
+	PH_ASSERT(!m_category.empty());
+	PH_ASSERT(!m_typeName.empty());
 }
 
 inline const std::string& SdlClass::getCategory() const
@@ -74,9 +74,9 @@ inline const std::string& SdlClass::getCategory() const
 	return m_category;
 }
 
-inline const std::string& SdlClass::getDisplayName() const
+inline const std::string& SdlClass::getTypeName() const
 {
-	return m_displayName;
+	return m_typeName;
 }
 
 inline const std::string& SdlClass::getDescription() const

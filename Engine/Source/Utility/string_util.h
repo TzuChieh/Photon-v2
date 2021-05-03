@@ -1,11 +1,13 @@
 #pragma once
 
 #include "Common/assertion.h"
+#include "Utility/string_util_table.h"
 
-#include <string_view>
+#include <string>
 #include <algorithm>
+#include <string_view>
 
-namespace ph::string_utils
+namespace ph::string_util
 {
 
 inline std::string_view cut_head(const std::string_view srcStr, const char* const candidates)
@@ -57,6 +59,26 @@ inline std::string_view trim_tail(const std::string_view srcStr)
 inline std::string_view trim(const std::string_view srcStr)
 {
 	return trim_head(trim_tail(srcStr));
+}
+
+inline void az_to_AZ(std::string* const str)
+{
+	PH_ASSERT(str);
+
+	for(char& ch : *str)
+	{
+		ch = table::ASCII_TO_UPPER[static_cast<unsigned char>(ch)];
+	}
+}
+
+inline void AZ_to_az(std::string* const str)
+{
+	PH_ASSERT(str);
+
+	for(char& ch : *str)
+	{
+		ch = table::ASCII_TO_LOWER[static_cast<unsigned char>(ch)];
+	}
 }
 
 }// end namespace ph::string_utils
