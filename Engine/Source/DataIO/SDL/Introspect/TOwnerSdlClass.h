@@ -34,8 +34,7 @@ public:
 
 	void initResource(
 		ISdlResource&          resource,
-		const ValueClause*     clauses,
-		std::size_t            numClauses,
+		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const override;
 
 	std::size_t numFields() const override;
@@ -54,7 +53,8 @@ public:
 
 	const TOwnedSdlField<Owner>* getOwnedField(std::size_t index) const;
 
-	TOwnerSdlClass& addField(std::unique_ptr<TOwnedSdlField<Owner>> field);
+	template<typename T>
+	TOwnerSdlClass& addField(T field);
 
 private:
 	FieldSet m_fields;

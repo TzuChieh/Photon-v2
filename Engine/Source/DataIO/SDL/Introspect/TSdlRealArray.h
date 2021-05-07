@@ -15,7 +15,7 @@
 namespace ph
 {
 
-template<typename Owner, typename RealType>
+template<typename Owner, typename RealType = real>
 class TSdlRealArray : public TSdlValue<std::vector<RealType>, Owner>
 {
 	static_assert(std::is_same_v<Element, real>,

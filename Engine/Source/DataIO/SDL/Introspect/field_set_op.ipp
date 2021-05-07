@@ -1,9 +1,10 @@
 #pragma once
 
 #include "DataIO/SDL/Introspect/field_set_op.h"
-#include "DataIO/SDL/ValueClause.h"
+#include "DataIO/SDL/ValueClauses.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
 #include "Common/assertion.h"
+#include "DataIO/SDL/SdlIOUtils.h"
 
 #include <array>
 #include <utility>
@@ -11,14 +12,17 @@
 namespace ph::field_set_op
 {
 
-template<typename Owner, typename FieldSet, typename NoticeReceiver>
+template<
+	typename Owner,
+	typename FieldSet,
+	typename NoticeReceiver,
+	bool     SHOULD_NOTIFY_REDUNDANT_CLAUSE>
 inline void load_fields_from_sdl(
-	Owner&                   owner,
-	FieldSet&                fieldSet,
-	const ValueClause* const clauses,
-	const std::size_t        numClauses,
-	SdlInputContext&         ctx,
-	NoticeReceiver&&         noticeReceiver)
+	Owner&                 owner,
+	FieldSet&              fieldSet,
+	ValueClauses&          clauses,
+	const SdlInputContext& ctx,
+	NoticeReceiver&&       noticeReceiver)
 {
 	PH_ASSERT(clauses);
 
@@ -30,59 +34,86 @@ inline void load_fields_from_sdl(
 	std::array<bool, MAX_FIELD_FLAGS> isFieldTouched{};
 
 	// For each clause, load them into matching field
-	for(std::size_t i = 0; i < numClauses; ++i)
+	for(std::size_t clauseIdx = 0; clauseIdx < clauses.size();)
 	{
-		const auto* const clause = clauses[i];
-
-		PH_ASSERT(clause);
-		const auto& fieldIndex = fieldSet.findFieldIndex(clause->type, clause->name);
-		if(fieldIndex)
+		const auto& clause   = clauses[clauseIdx];
+		const auto& fieldIdx = fieldSet.findFieldIndex(clause.type, clause.name);
+		if(fieldIdx)
 		{
-			auto& field = fieldSet[fieldIndex.value()];
-			isFieldTouched[fieldIndex.value()] = true;
+			const auto& field = fieldSet[fieldIdx.value()];
+			field.fromSdl(owner, clause.value, ctx);
 
-			field->fromSdl(owner, clause->value, ctx);
+			isFieldTouched[fieldIdx.value()] = true;
+
+			// Remove the clause once a match is found; no need to increment
+			// <clauseIdx> since a new one will fill the empty slot
+			clauses.removeBySwapPop(clauseIdx);
 		}
 		else
 		{
-			// Treat a redundant clause input as an optional field
-			std::forward<NoticeReceiver>(noticeReceiver)(
-				"type <" + genPrettyName() + "> has no matching field for "
-				"clause <" + clause->genPrettyName() + ">, ignoring",
-				EFieldImportance::OPTIONAL);
+			if constexpr(SHOULD_NOTIFY_REDUNDANT_CLAUSE)
+			{
+				// Treat a redundant clause input as an optional field
+				std::forward<NoticeReceiver>(noticeReceiver)(
+					"type <" + ctx.genPrettySrcClassName() + "> has no matching field for "
+					"clause <" + clause.genPrettyName() + ">, ignoring",
+					EFieldImportance::OPTIONAL);
+			}
+
+			// No match is found, skip to next clause
+			++clauseIdx;
 		}
 	}
 
 	// Check and process uninitialized fields
-	for(std::size_t i = 0; i < fieldSet.size(); ++i)
+	for(std::size_t fieldIdx = 0; fieldIdx < fieldSet.size(); ++fieldIdx)
 	{
-		if(!isFieldTouched[i])
+		if(!isFieldTouched[fieldIdx])
 		{
-			auto& field = fieldSet[i];
-			if(field->isFallbackEnabled())
+			const auto& field = fieldSet[fieldIdx];
+			if(field.isFallbackEnabled())
 			{
-				field->setValueToDefault(owner);
+				field.setValueToDefault(owner);
 
 				// Only optional field will be silently set to default
 				// (emit notice for other importance levels)
-				const auto importance = field->getImportance();
+				const auto importance = field.getImportance();
 				if(importance != EFieldImportance::OPTIONAL)
 				{
 					std::forward<NoticeReceiver>(noticeReceiver)(
 						"no clause for " + SdlIOUtils::genPrettyName(this, &field) +
-						", defaults to <" + field->valueToString(owner) + ">",
+						", defaults to <" + field.valueToString(owner) + ">",
 						importance);
 				}
 			}
 			else
 			{
 				throw SdlLoadError(
-					"a clause for value <" + field->genPrettyName() + "> is required");
+					"a clause for value <" + field.genPrettyName() + "> is required");
 			}
 
 			// TODO: util for generating class + field info string
 		}
 	}
+}
+
+template<
+	typename Owner,
+	typename FieldSet,
+	typename NoticeReceiver>
+inline void load_fields_from_sdl_with_redundant_clauses(
+	Owner&                 owner,
+	FieldSet&              fieldSet,
+	ValueClauses&          clauses,
+	const SdlInputContext& ctx,
+	NoticeReceiver&&       noticeReceiver = NoOpNoticeReceiver())
+{
+	load_fields_from_sdl<Owner, FieldSet, NoticeReceiver, false>(
+		owner,
+		fieldSet,
+		clauses,
+		ctx,
+		std::forward<NoticeReceiver>(noticeReceiver));
 }
 
 }// end namespace ph::field_set_op

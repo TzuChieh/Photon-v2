@@ -13,7 +13,7 @@
 namespace ph
 {
 
-template<typename Owner, typename Element>
+template<typename Owner, typename Element = real>
 class TSdlQuaternion : public TSdlValue<math::TQuaternion<Element>, Owner>
 {
 	static_assert(std::is_same_v<Element, real>,

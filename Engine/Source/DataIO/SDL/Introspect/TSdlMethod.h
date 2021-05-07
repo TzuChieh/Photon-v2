@@ -5,6 +5,7 @@
 #include "DataIO/SDL/ValueClause.h"
 #include "DataIO/SDL/Introspect/TBasicSdlFieldSet.h"
 #include "DataIO/SDL/Introspect/TOwnedSdlField.h"
+#include "DataIO/SDL/Introspect/field_set_op.h"
 
 #include <cstddef>
 #include <utility>
@@ -75,7 +76,23 @@ inline void TSdlMethod<MethodStruct, TargetType>::loadParameters(
 	const std::size_t        numClauses,
 	const SdlInputContext&   ctx) const
 {
-	// TODO
+	field_set_op::load_fields_from_sdl(
+		owner,
+		m_fields,
+		clauses,
+		numClauses,
+		ctx,
+		[](std::string noticeMsg, EFieldImportance importance)
+		{
+			if(importance == EFieldImportance::OPTIONAL || importance == EFieldImportance::NICE_TO_HAVE)
+			{
+				logger.log(ELogLevel::NOTE_MED, noticeMsg);
+			}
+			else
+			{
+				logger.log(ELogLevel::WARNING_MED, noticeMsg);
+			}
+		});
 }
 
 template<typename MethodStruct, typename TargetType>

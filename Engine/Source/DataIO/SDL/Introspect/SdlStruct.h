@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/assertion.h"
+#include "Common/Logger.h"
 
 #include <cstddef>
 #include <string>
@@ -26,6 +27,9 @@ public:
 	const std::string& getDescription() const;
 
 	SdlStruct& setDescription(std::string description);
+
+protected:
+	static const Logger logger;
 
 private:
 	std::string m_name;

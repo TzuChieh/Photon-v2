@@ -3,6 +3,8 @@
 #include "DataIO/SDL/Introspect/TOwnerSdlClass.h"
 #include "DataIO/SDL/Introspect/field_set_op.h"
 
+#include <type_traits>
+
 namespace ph
 {
 
@@ -29,15 +31,14 @@ inline std::shared_ptr<ISdlResource> TOwnerSdlClass<Owner, FieldSet>::createReso
 
 template<typename Owner, typename FieldSet>
 inline void TOwnerSdlClass<Owner, FieldSet>::initResource(
-	ISdlResource&            resource,
-	const ValueClause* const clauses,
-	const std::size_t        numClauses,
-	const SdlInputContext&   ctx) const
+	ISdlResource&          resource,
+	ValueClauses&          clauses,
+	const SdlInputContext& ctx) const
 {
 	// Init base first just like C++ does
 	if(isDerived())
 	{
-		getBase()->initResource(resource, clauses, numClauses, ctx);
+		getBase()->initResource(resource, clauses, ctx);
 	}
 
 	Owner* const owner = dynamic_cast<Owner*>(&resource);
@@ -49,7 +50,7 @@ inline void TOwnerSdlClass<Owner, FieldSet>::initResource(
 	}
 
 	PH_ASSERT(owner);
-	fromSdl(*owner, clauses, numClauses, ctx);
+	fromSdl(*owner, clauses, ctx);
 }
 
 template<typename Owner, typename FieldSet>
@@ -71,8 +72,13 @@ inline const TOwnedSdlField<Owner>* TOwnerSdlClass<Owner, FieldSet>::getOwnedFie
 }
 
 template<typename Owner, typename FieldSet>
-inline TOwnerSdlClass<Owner, FieldSet>& TOwnerSdlClass<Owner, FieldSet>::addField(std::unique_ptr<TOwnedSdlField<Owner>> field)
+template<typename T>
+inline TOwnerSdlClass<Owner, FieldSet>& TOwnerSdlClass<Owner, FieldSet>::addField(T field)
 {
+	// More restrictions on the type of T may be imposed by FieldSet
+	static_assert(std::is_base_of_v<SdlField, T>,
+		"T is not a SdlField thus cannot be added.");
+
 	m_fields.addField(std::move(field));
 
 	return *this;
@@ -89,7 +95,6 @@ inline void TOwnerSdlClass<Owner, FieldSet>::fromSdl(
 		owner,
 		m_fields,
 		clauses,
-		numClauses,
 		ctx,
 		[](std::string noticeMsg, EFieldImportance importance)
 		{

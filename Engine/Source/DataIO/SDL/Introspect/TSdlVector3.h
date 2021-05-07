@@ -13,7 +13,7 @@
 namespace ph
 {
 
-template<typename Owner, typename Element>
+template<typename Owner, typename Element = real>
 class TSdlVector3 : public TSdlValue<math::TVector3<Element>, Owner>
 {
 	static_assert(std::is_same_v<Element, real>,

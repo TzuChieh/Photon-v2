@@ -2,6 +2,7 @@
 
 #include "Common/assertion.h"
 #include "Common/Logger.h"
+#include "DataIO/SDL/ValueClauses.h"
 
 #include <vector>
 #include <memory>
@@ -15,7 +16,6 @@ namespace ph
 class SdlField;
 class SdlInputContext;
 class ISdlResource;
-class ValueClause;
 
 class SdlClass
 {
@@ -27,8 +27,7 @@ public:
 
 	virtual void initResource(
 		ISdlResource&          resource,
-		const ValueClause*     clauses,
-		std::size_t            numClauses,
+		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const = 0;
 
 	// TODO: saveToSdl()

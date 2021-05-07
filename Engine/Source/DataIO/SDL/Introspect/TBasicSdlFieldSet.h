@@ -19,13 +19,17 @@ namespace ph
 
 /*! @brief A set of fields, with basic functionalities.
 
-Finding a field using brute-force method.
+This class accepts polymorphic field types. 
+This class finds a field using brute-force method.
 */
-template<typename FieldType, std::size_t MAX_FIELDS = 64>
+template<typename BaseFieldType, std::size_t MAX_FIELDS = 64>
 class TBasicSdlFieldSet final
 {
-	static_assert(std::is_base_of_v<SdlField, FieldType>,
-		"FieldType must derive from SdlField.");
+	static_assert(std::is_base_of_v<SdlField, BaseFieldType>,
+		"Field type must derive from SdlField.");
+
+public:
+	using FieldType = BaseFieldType;
 
 public:
 	inline TBasicSdlFieldSet() :
@@ -37,20 +41,26 @@ public:
 		return m_numFields;
 	}
 
-	inline const FieldType* getField(const std::size_t index) const
+	inline const BaseFieldType* getField(const std::size_t index) const
 	{
 		return index < m_numFields ? m_fields[index].get() : nullptr;
 	}
 
-	inline void addField(std::unique_ptr<FieldType> field)
+	template<typename T>
+	inline TBasicSdlFieldSet& addField(T field)
 	{
-		PH_ASSERT(field);
-		PH_ASSERT_LT(m_numFields, m_fields.size());
-		PH_ASSERT_MSG(!findFieldIndex(field->getTypeName(), field->getFieldName()),
-			"field set already contains field <" field->genPrettyName() + ">");
+		static_assert(std::is_base_of_v<BaseFieldType, T>,
+			"Cannot add a field that is not derived from the field type of the set.");
 
-		m_fields.push_back(std::move(field));
-		++m_numFields;
+		PH_ASSERT_LT(m_numFields, m_fields.size());
+		PH_ASSERT_MSG(!findFieldIndex(field.getTypeName(), field.getFieldName()),
+			"field set already contains field <" field.genPrettyName() + ">");
+
+		if(m_numFields < m_fields.size())
+		{
+			m_fields.push_back(std::make_unique<T>(std::move(field)));
+			++m_numFields;
+		}
 
 		return *this;
 	}
@@ -65,7 +75,7 @@ public:
 		for(std::size_t i = 0; i < m_fields.size(); ++i)
 		{
 			const auto& field = m_fields[i];
-			if(typeName == field->getTypeName() && fieldName == field->getFieldName())
+			if(typeName == field.getTypeName() && fieldName == field.getFieldName())
 			{
 				return i;
 			}
@@ -73,15 +83,15 @@ public:
 		return std::nullopt;
 	}
 
-	inline const FieldType* operator [] (const std::size_t index) const
+	inline const BaseFieldType& operator [] (const std::size_t index) const
 	{
 		PH_ASSERT_LT(index, m_numFields);
 
-		return m_fields[index].get();
+		return *(m_fields[index]);
 	}
 
 private:
-	std::array<std::unique_ptr<FieldType>, MAX_FIELDS> m_fields;
+	std::array<std::unique_ptr<BaseFieldType>, MAX_FIELDS> m_fields;
 	std::size_t m_numFields;
 };
 
