@@ -18,33 +18,6 @@ inline TOwnerSdlStruct<StructType, FieldSet>::TOwnerSdlStruct(std::string name) 
 {}
 
 template<typename StructType, typename FieldSet>
-inline void TOwnerSdlStruct<StructType, FieldSet>::fromSdl(
-	StructType&            structObj,
-	ValueClauses&          clauses,
-	const SdlInputContext& ctx) const
-{
-	// Tolerate unused clauses since structs are often embeded in resource 
-	// classes and an excess amount of clauses can be expected
-	//
-	field_set_op::load_fields_from_sdl_with_redundant_clauses(
-		structObj,
-		m_fields,
-		clauses,
-		ctx,
-		[](std::string noticeMsg, EFieldImportance importance)
-		{
-			if(importance == EFieldImportance::OPTIONAL || importance == EFieldImportance::NICE_TO_HAVE)
-			{
-				logger.log(ELogLevel::NOTE_MED, noticeMsg);
-			}
-			else
-			{
-				logger.log(ELogLevel::WARNING_MED, noticeMsg);
-			}
-		});
-}
-
-template<typename StructType, typename FieldSet>
 template<typename T>
 inline auto TOwnerSdlStruct<StructType, FieldSet>::addField(T field)
 	-> TOwnerSdlStruct&

@@ -25,7 +25,7 @@ class SdlClass;
 	\
 	inline static decltype(auto) sdl_class_impl_##OwnerType()
 
-#define PH_DEFINE_SDL_STRUCT(StructType) // TODO
+#define PH_DEFINE_SDL_STRUCT(StructType)\
 	inline static decltype(auto) getSdlStruct()\
 	{\
 		using SdlStructType = decltype(sdl_class_impl_##StructType());\

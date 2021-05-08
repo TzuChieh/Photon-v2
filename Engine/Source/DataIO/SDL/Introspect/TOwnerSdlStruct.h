@@ -18,11 +18,6 @@ class TOwnerSdlStruct : public SdlStruct
 public:
 	explicit TOwnerSdlStruct(std::string name);
 
-	void fromSdl(
-		StructType&            structObj,
-		ValueClauses&          clauses,
-		const SdlInputContext& ctx) const;
-
 	std::size_t numFields() const override;
 	const SdlField* getField(std::size_t index) const override;
 
