@@ -17,13 +17,13 @@ class SdlInputContext;
 class SdlStruct
 {
 public:
-	explicit SdlStruct(std::string name);
+	explicit SdlStruct(std::string typeName);
 	virtual ~SdlStruct() = default;
 
 	virtual std::size_t numFields() const = 0;
 	virtual const SdlField* getField(std::size_t index) const = 0;
 
-	const std::string& getName() const;
+	const std::string& getTypeName() const;
 	const std::string& getDescription() const;
 
 	SdlStruct& setDescription(std::string description);
@@ -32,22 +32,22 @@ protected:
 	static const Logger logger;
 
 private:
-	std::string m_name;
+	std::string m_typeName;
 	std::string m_description;
 };
 
 // In-header Implementations:
 
-inline SdlStruct::SdlStruct(std::string name) : 
-	m_name       (std::move(name)),
+inline SdlStruct::SdlStruct(std::string typeName) :
+	m_typeName   (std::move(typeName)),
 	m_description()
 {
-	PH_ASSERT(!m_name.empty());
+	PH_ASSERT(!m_typeName.empty());
 }
 
-inline const std::string& SdlStruct::getName() const
+inline const std::string& SdlStruct::getTypeName() const
 {
-	return m_name;
+	return m_typeName;
 }
 
 inline const std::string& SdlStruct::getDescription() const

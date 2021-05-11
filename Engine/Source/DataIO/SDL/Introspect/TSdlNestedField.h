@@ -42,7 +42,7 @@ private:
 // In-header Implementations:
 
 template<typename OuterType, typename InnerType>
-inline TSdlNestedField<OuterType, InnerType>::TSdlStructField(
+inline TSdlNestedField<OuterType, InnerType>::TSdlNestedField(
 	InnerType OuterType::* const     innerObjPtr,
 	const TOwnedSdlField<InnerType>& innerField) :
 
@@ -59,14 +59,14 @@ inline TSdlNestedField<OuterType, InnerType>::TSdlStructField(
 }
 
 template<typename OuterType, typename InnerType>
-inline std::string TSdlNestedField<OuterType, InnerType>::valueToString(const Owner& owner) const
+inline std::string TSdlNestedField<OuterType, InnerType>::valueToString(const OuterType& outerObj) const
 {
 	return "[" + std::to_string(getValue(owner).size()) + " vector3 values...]";
 }
 
 template<typename OuterType, typename InnerType>
 inline void TSdlNestedField<OuterType, InnerType>::loadFromSdl(
-	Owner&                 outerObj,
+	OuterType&             outerObj,
 	const std::string&     sdlValue,
 	const SdlInputContext& ctx) const
 {
@@ -75,7 +75,7 @@ inline void TSdlNestedField<OuterType, InnerType>::loadFromSdl(
 
 template<typename OuterType, typename InnerType>
 void TSdlNestedField<OuterType, InnerType>::convertToSdl(
-	const Owner&       outerObj,
+	const OuterType&   outerObj,
 	std::string* const out_sdlValue,
 	std::string&       out_converterMessage) const
 {

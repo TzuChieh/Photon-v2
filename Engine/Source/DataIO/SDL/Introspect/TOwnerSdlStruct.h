@@ -10,8 +10,6 @@
 namespace ph
 {
 
-class SdlInputContext;
-
 template<typename StructType, typename FieldSet = TBasicSdlFieldSet<TOwnedSdlField<StructType>>>
 class TOwnerSdlStruct : public SdlStruct
 {
