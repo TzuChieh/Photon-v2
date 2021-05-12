@@ -6,6 +6,8 @@
 namespace ph
 {
 
+// TODO: dtor call policy? currently no dtor call on element remove, rely on life-time of vector
+
 template<typename T, std::size_t N>
 class TFixedSizeStack final
 {

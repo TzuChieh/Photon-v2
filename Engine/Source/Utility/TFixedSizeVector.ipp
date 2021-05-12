@@ -1,75 +1,70 @@
 #pragma once
 
 #include "Utility/TFixedSizeVector.h"
+#include "Common/config.h"
 #include "Common/assertion.h"
+
+#include <utility>
 
 namespace ph
 {
 
 template<typename T, std::size_t N>
 inline TFixedSizeVector<T, N>::TFixedSizeVector() :
-	m_data{}, m_currentIndex(-1)
+
+#ifdef PH_DEBUG
+	// Request value-initialization: set to zeros for primitive types
+	m_data{},
+#else
+	// Intentionally left empty: default-initialize array members
+#endif
+
+	m_size(0)
 {}
 
 template<typename T, std::size_t N>
-inline TFixedSizeStack<T, N>::TFixedSizeStack(const TFixedSizeStack& other) : 
-	m_data(other.m_data), m_currentIndex(other.m_currentIndex)
+inline TFixedSizeVector<T, N>::TFixedSizeVector(const TFixedSizeVector& other) :
+	m_data(other.m_data), m_size(other.m_size)
 {}
 
 template<typename T, std::size_t N>
-inline void TFixedSizeStack<T, N>::push(const T& item)
+inline void TFixedSizeVector<T, N>::pushBack(T&& item)
 {
-	PH_ASSERT_IN_RANGE(m_currentIndex + 1, Index(0), Index(N));
+	PH_ASSERT_LT(m_size, m_data.size());
 
-	m_data[++m_currentIndex] = item;
+	// FIXME: what if assignment throw? need increment m_size later only if assignment succeeded; 
+	// perhaps check if op is no-throw?
+	m_data[++m_size] = std::forward<T>(item);
 }
 
 template<typename T, std::size_t N>
-inline void TFixedSizeStack<T, N>::pop()
+inline void TFixedSizeVector<T, N>::popBack()
 {
-	PH_ASSERT_IN_RANGE(m_currentIndex - 1, Index(-1), Index(N - 1));
+	PH_ASSERT_GT(m_size, 0);
 	
-	--m_currentIndex;
+	--m_size;
 }
 
 template<typename T, std::size_t N>
-inline T& TFixedSizeStack<T, N>::top()
+inline std::size_t TFixedSizeVector<T, N>::size() const
 {
-	PH_ASSERT_IN_RANGE(m_currentIndex, Index(0), Index(N));
-
-	return m_data[m_currentIndex];
+	return m_size;
 }
 
 template<typename T, std::size_t N>
-inline const T& TFixedSizeStack<T, N>::top() const
+inline void TFixedSizeVector<T, N>::clear()
 {
-	PH_ASSERT_IN_RANGE(m_currentIndex, Index(0), Index(N));
-
-	return m_data[m_currentIndex];
+	m_size = 0;
 }
 
 template<typename T, std::size_t N>
-inline std::size_t TFixedSizeStack<T, N>::height() const
+inline bool TFixedSizeVector<T, N>::isEmpty() const
 {
-	PH_ASSERT_GE(m_currentIndex + 1, Index(0));
-
-	return static_cast<std::size_t>(m_currentIndex + 1);
+	return m_size == 0;
 }
 
 template<typename T, std::size_t N>
-inline void TFixedSizeStack<T, N>::clear()
-{
-	m_currentIndex = -1;
-}
-
-template<typename T, std::size_t N>
-inline bool TFixedSizeStack<T, N>::isEmpty() const
-{
-	return m_currentIndex == -1;
-}
-
-template<typename T, std::size_t N>
-inline TFixedSizeStack<T, N>& TFixedSizeStack<T, N>::operator = (const TFixedSizeStack& rhs)
+inline TFixedSizeVector<T, N>& TFixedSizeVector<T, N>::operator = (const TFixedSizeVector& rhs)
 {
 	m_data         = rhs.m_data;
 	m_currentIndex = rhs.m_currentIndex;
@@ -78,9 +73,9 @@ inline TFixedSizeStack<T, N>& TFixedSizeStack<T, N>::operator = (const TFixedSiz
 }
 
 template<typename T, std::size_t N>
-inline T& TFixedSizeStack<T, N>::operator [] (const std::size_t index)
+inline T& TFixedSizeVector<T, N>::operator [] (const std::size_t index)
 {
-	PH_ASSERT_IN_RANGE(index, 0, m_data.size());
+	PH_ASSERT_LT(index, m_size);
 
 	return m_data[index];
 }
@@ -88,9 +83,41 @@ inline T& TFixedSizeStack<T, N>::operator [] (const std::size_t index)
 template<typename T, std::size_t N>
 inline const T& TFixedSizeStack<T, N>::operator [] (const std::size_t index) const
 {
-	PH_ASSERT_IN_RANGE(index, 0, m_data.size());
+	PH_ASSERT_LT(index, m_size);
 
 	return m_data[index];
+}
+
+template<typename T, std::size_t N>
+inline T& TFixedSizeStack<T, N>::front()
+{
+	PH_ASSERT_GT(m_size, 0);
+
+	return (*this)[0];
+}
+
+template<typename T, std::size_t N>
+inline const T& TFixedSizeStack<T, N>::front() const
+{
+	PH_ASSERT_GT(m_size, 0);
+
+	return (*this)[0];
+}
+
+template<typename T, std::size_t N>
+inline T& TFixedSizeStack<T, N>::back()
+{
+	PH_ASSERT_GT(m_size, 0);
+
+	return (*this)[m_size - 1];
+}
+
+template<typename T, std::size_t N>
+inline const T& TFixedSizeStack<T, N>::back() const
+{
+	PH_ASSERT_GT(m_size, 0);
+
+	return (*this)[m_size - 1];
 }
 
 }// end namespace ph

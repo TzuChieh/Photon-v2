@@ -6,6 +6,8 @@
 namespace ph
 {
 
+// TODO: dtor call policy? currently no dtor call on element remove, rely on life-time of vector
+
 template<typename T, std::size_t N>
 class TFixedSizeVector final
 {
@@ -14,8 +16,12 @@ public:
 	TFixedSizeVector(const TFixedSizeVector& other);
 	~TFixedSizeVector() = default;
 
-	void push(T item);
-	void pop();
+	void pushBack(T&& item);
+	void popBack();
+	T& front();
+	const T& front() const;
+	T& back();
+	const T& back() const;
 	std::size_t size() const;
 	void clear();
 	bool isEmpty() const;
