@@ -46,25 +46,25 @@ TEST(TFixedSizeVectorTest, PushAndPop)
 		EXPECT_EQ(vec.size(), 1);
 		EXPECT_FALSE(vec.isEmpty());
 
-		vec.push(0);
+		vec.pushBack(0);
 		// vec state: [-7, 0]
 		EXPECT_EQ(vec.back(), 0);
 		EXPECT_EQ(vec.size(), 2);
 		EXPECT_FALSE(vec.isEmpty());
 
-		vec.pop();
+		vec.popBack();
 		// vec state: [-7]
 		EXPECT_EQ(vec.back(), -7);
 		EXPECT_EQ(vec.size(), 1);
 		EXPECT_FALSE(vec.isEmpty());
 
-		vec.push(10);
+		vec.pushBack(10);
 		// vec state: [-7, 10]
 		EXPECT_EQ(vec.back(), 10);
 		EXPECT_EQ(vec.size(), 2);
 		EXPECT_FALSE(vec.isEmpty());
 
-		vec.push(-10);
+		vec.pushBack(-10);
 		// vec state: [-7, 10, -10]
 		EXPECT_EQ(vec.back(), -10);
 		EXPECT_EQ(vec.size(), 3);

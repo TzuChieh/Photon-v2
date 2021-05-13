@@ -66,8 +66,8 @@ inline bool TFixedSizeVector<T, N>::isEmpty() const
 template<typename T, std::size_t N>
 inline TFixedSizeVector<T, N>& TFixedSizeVector<T, N>::operator = (const TFixedSizeVector& rhs)
 {
-	m_data         = rhs.m_data;
-	m_currentIndex = rhs.m_currentIndex;
+	m_data = rhs.m_data;
+	m_size = rhs.m_size;
 
 	return *this;
 }
@@ -81,7 +81,7 @@ inline T& TFixedSizeVector<T, N>::operator [] (const std::size_t index)
 }
 
 template<typename T, std::size_t N>
-inline const T& TFixedSizeStack<T, N>::operator [] (const std::size_t index) const
+inline const T& TFixedSizeVector<T, N>::operator [] (const std::size_t index) const
 {
 	PH_ASSERT_LT(index, m_size);
 
@@ -89,7 +89,7 @@ inline const T& TFixedSizeStack<T, N>::operator [] (const std::size_t index) con
 }
 
 template<typename T, std::size_t N>
-inline T& TFixedSizeStack<T, N>::front()
+inline T& TFixedSizeVector<T, N>::front()
 {
 	PH_ASSERT_GT(m_size, 0);
 
@@ -97,7 +97,7 @@ inline T& TFixedSizeStack<T, N>::front()
 }
 
 template<typename T, std::size_t N>
-inline const T& TFixedSizeStack<T, N>::front() const
+inline const T& TFixedSizeVector<T, N>::front() const
 {
 	PH_ASSERT_GT(m_size, 0);
 
@@ -105,7 +105,7 @@ inline const T& TFixedSizeStack<T, N>::front() const
 }
 
 template<typename T, std::size_t N>
-inline T& TFixedSizeStack<T, N>::back()
+inline T& TFixedSizeVector<T, N>::back()
 {
 	PH_ASSERT_GT(m_size, 0);
 
@@ -113,7 +113,7 @@ inline T& TFixedSizeStack<T, N>::back()
 }
 
 template<typename T, std::size_t N>
-inline const T& TFixedSizeStack<T, N>::back() const
+inline const T& TFixedSizeVector<T, N>::back() const
 {
 	PH_ASSERT_GT(m_size, 0);
 

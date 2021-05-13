@@ -2,6 +2,7 @@
 
 #include "DataIO/SDL/Introspect/SdlField.h"
 #include "Common/assertion.h"
+#include "Utility/TFixedSizeVector.h"
 
 #include <cstddef>
 #include <type_traits>
