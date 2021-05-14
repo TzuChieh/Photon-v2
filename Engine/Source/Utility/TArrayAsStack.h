@@ -9,12 +9,12 @@ namespace ph
 // TODO: dtor call policy? currently no dtor call on element remove, rely on life-time of vector
 
 template<typename T, std::size_t N>
-class TFixedSizeStack final
+class TArrayAsStack final
 {
 public:
-	TFixedSizeStack();
-	TFixedSizeStack(const TFixedSizeStack& other);
-	~TFixedSizeStack() = default;
+	TArrayAsStack();
+	TArrayAsStack(const TArrayAsStack& other);
+	~TArrayAsStack() = default;
 
 	void push(const T& item);
 	void pop();
@@ -24,7 +24,7 @@ public:
 	void clear();
 	bool isEmpty() const;
 
-	TFixedSizeStack& operator = (const TFixedSizeStack& rhs);
+	TArrayAsStack& operator = (const TArrayAsStack& rhs);
 	T& operator [] (std::size_t index);
 	const T& operator [] (std::size_t index) const;
 
@@ -38,4 +38,4 @@ private:
 
 }// end namespace ph
 
-#include "Utility/TFixedSizeStack.ipp"
+#include "Utility/TArrayAsStack.ipp"

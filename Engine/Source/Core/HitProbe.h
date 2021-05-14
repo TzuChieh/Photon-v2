@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Common/config.h"
-#include "Utility/TFixedSizeStack.h"
+#include "Utility/TArrayAsStack.h"
 #include "Common/assertion.h"
 #include "Math/TVector3.h"
 
@@ -90,7 +90,7 @@ public:
 	void getCached(T* out_data);
 
 private:
-	using Stack = TFixedSizeStack<const Intersectable*, PH_HIT_PROBE_DEPTH>;
+	using Stack = TArrayAsStack<const Intersectable*, PH_HIT_PROBE_DEPTH>;
 
 	Stack       m_hitStack;
 	real        m_hitRayT;

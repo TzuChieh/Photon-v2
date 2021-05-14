@@ -1,26 +1,28 @@
-#include <Utility/TFixedSizeStack.h>
+#include <Utility/TArrayAsStack.h>
 
 #include <gtest/gtest.h>
 
-TEST(TFixedSizeStackTest, InitIntStackToZero)
+using namespace ph;
+
+TEST(TArrayAsStackTest, InitIntStackToZero)
 {
-	ph::TFixedSizeStack<int, 3> stack;
+	TArrayAsStack<int, 3> stack;
 	EXPECT_TRUE(stack[0] == 0);
 	EXPECT_TRUE(stack[1] == 0);
 	EXPECT_TRUE(stack[2] == 0);
 }
 
-TEST(TFixedSizeStackTest, InitPtrStackToNullptr)
+TEST(TArrayAsStackTest, InitPtrStackToNullptr)
 {
-	ph::TFixedSizeStack<int*, 3> stack;
+	TArrayAsStack<int*, 3> stack;
 	EXPECT_TRUE(stack[0] == nullptr);
 	EXPECT_TRUE(stack[1] == nullptr);
 	EXPECT_TRUE(stack[2] == nullptr);
 }
 
-TEST(TFixedSizeStackTest, PushAndPop)
+TEST(TArrayAsStackTest, PushAndPop)
 {
-	ph::TFixedSizeStack<int, 3> stack;
+	TArrayAsStack<int, 3> stack;
 	EXPECT_TRUE(stack.height() == 0);
 
 	stack.push(-1);

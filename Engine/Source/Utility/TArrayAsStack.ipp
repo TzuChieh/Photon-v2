@@ -1,23 +1,23 @@
 #pragma once
 
-#include "Utility/TFixedSizeStack.h"
+#include "Utility/TArrayAsStack.h"
 #include "Common/assertion.h"
 
 namespace ph
 {
 
 template<typename T, std::size_t N>
-inline TFixedSizeStack<T, N>::TFixedSizeStack() :
+inline TArrayAsStack<T, N>::TArrayAsStack() :
 	m_data{}, m_currentIndex(-1)
 {}
 
 template<typename T, std::size_t N>
-inline TFixedSizeStack<T, N>::TFixedSizeStack(const TFixedSizeStack& other) : 
+inline TArrayAsStack<T, N>::TArrayAsStack(const TArrayAsStack& other) :
 	m_data(other.m_data), m_currentIndex(other.m_currentIndex)
 {}
 
 template<typename T, std::size_t N>
-inline void TFixedSizeStack<T, N>::push(const T& item)
+inline void TArrayAsStack<T, N>::push(const T& item)
 {
 	PH_ASSERT_IN_RANGE(m_currentIndex + 1, Index(0), Index(N));
 
@@ -25,7 +25,7 @@ inline void TFixedSizeStack<T, N>::push(const T& item)
 }
 
 template<typename T, std::size_t N>
-inline void TFixedSizeStack<T, N>::pop()
+inline void TArrayAsStack<T, N>::pop()
 {
 	PH_ASSERT_IN_RANGE(m_currentIndex - 1, Index(-1), Index(N - 1));
 	
@@ -33,7 +33,7 @@ inline void TFixedSizeStack<T, N>::pop()
 }
 
 template<typename T, std::size_t N>
-inline T& TFixedSizeStack<T, N>::top()
+inline T& TArrayAsStack<T, N>::top()
 {
 	PH_ASSERT_IN_RANGE(m_currentIndex, Index(0), Index(N));
 
@@ -41,7 +41,7 @@ inline T& TFixedSizeStack<T, N>::top()
 }
 
 template<typename T, std::size_t N>
-inline const T& TFixedSizeStack<T, N>::top() const
+inline const T& TArrayAsStack<T, N>::top() const
 {
 	PH_ASSERT_IN_RANGE(m_currentIndex, Index(0), Index(N));
 
@@ -49,7 +49,7 @@ inline const T& TFixedSizeStack<T, N>::top() const
 }
 
 template<typename T, std::size_t N>
-inline std::size_t TFixedSizeStack<T, N>::height() const
+inline std::size_t TArrayAsStack<T, N>::height() const
 {
 	PH_ASSERT_GE(m_currentIndex + 1, Index(0));
 
@@ -57,19 +57,19 @@ inline std::size_t TFixedSizeStack<T, N>::height() const
 }
 
 template<typename T, std::size_t N>
-inline void TFixedSizeStack<T, N>::clear()
+inline void TArrayAsStack<T, N>::clear()
 {
 	m_currentIndex = -1;
 }
 
 template<typename T, std::size_t N>
-inline bool TFixedSizeStack<T, N>::isEmpty() const
+inline bool TArrayAsStack<T, N>::isEmpty() const
 {
 	return m_currentIndex == -1;
 }
 
 template<typename T, std::size_t N>
-inline TFixedSizeStack<T, N>& TFixedSizeStack<T, N>::operator = (const TFixedSizeStack& rhs)
+inline TArrayAsStack<T, N>& TArrayAsStack<T, N>::operator = (const TArrayAsStack& rhs)
 {
 	m_data         = rhs.m_data;
 	m_currentIndex = rhs.m_currentIndex;
@@ -78,7 +78,7 @@ inline TFixedSizeStack<T, N>& TFixedSizeStack<T, N>::operator = (const TFixedSiz
 }
 
 template<typename T, std::size_t N>
-inline T& TFixedSizeStack<T, N>::operator [] (const std::size_t index)
+inline T& TArrayAsStack<T, N>::operator [] (const std::size_t index)
 {
 	PH_ASSERT_IN_RANGE(index, 0, m_data.size());
 
@@ -86,7 +86,7 @@ inline T& TFixedSizeStack<T, N>::operator [] (const std::size_t index)
 }
 
 template<typename T, std::size_t N>
-inline const T& TFixedSizeStack<T, N>::operator [] (const std::size_t index) const
+inline const T& TArrayAsStack<T, N>::operator [] (const std::size_t index) const
 {
 	PH_ASSERT_IN_RANGE(index, 0, m_data.size());
 

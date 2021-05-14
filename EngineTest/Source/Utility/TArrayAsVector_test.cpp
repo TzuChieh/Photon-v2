@@ -1,28 +1,28 @@
-#include <Utility/TFixedSizeVector.h>
+#include <Utility/TArrayAsVector.h>
 
 #include <gtest/gtest.h>
 
 using namespace ph;
 
-TEST(TFixedSizeVectorTest, BasicConstruction)
+TEST(TArrayAsVectorTest, BasicConstruction)
 {
 	{
-		TFixedSizeVector<int, 3> vec;
+		TArrayAsVector<int, 3> vec;
 		EXPECT_TRUE(vec.isEmpty());
 	}
 	
 	{
-		TFixedSizeVector<float, 1> vec;
+		TArrayAsVector<float, 1> vec;
 		EXPECT_TRUE(vec.isEmpty());
 	}
 
 	{
-		TFixedSizeVector<double*, 10> vec;
+		TArrayAsVector<double*, 10> vec;
 		EXPECT_TRUE(vec.isEmpty());
 	}
 
 	{
-		TFixedSizeVector<int, 2> vecA;
+		TArrayAsVector<int, 2> vecA;
 		vecA[0] = 1;
 		vecA[1] = 2;
 
@@ -33,10 +33,10 @@ TEST(TFixedSizeVectorTest, BasicConstruction)
 	}
 }
 
-TEST(TFixedSizeVectorTest, PushAndPop)
+TEST(TArrayAsVectorTest, PushAndPop)
 {
 	{
-		ph::TFixedSizeVector<int, 3> vec;
+		ph::TArrayAsVector<int, 3> vec;
 		EXPECT_EQ(vec.size(), 0);
 		EXPECT_TRUE(vec.isEmpty());
 
