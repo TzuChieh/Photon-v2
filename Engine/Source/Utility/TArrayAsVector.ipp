@@ -23,11 +23,6 @@ inline TArrayAsVector<T, N>::TArrayAsVector() :
 {}
 
 template<typename T, std::size_t N>
-inline TArrayAsVector<T, N>::TArrayAsVector(const TArrayAsVector& other) :
-	m_data(other.m_data), m_size(other.m_size)
-{}
-
-template<typename T, std::size_t N>
 inline void TArrayAsVector<T, N>::pushBack(T&& item)
 {
 	PH_ASSERT_LT(m_size, m_data.size());
@@ -48,6 +43,8 @@ inline void TArrayAsVector<T, N>::popBack()
 template<typename T, std::size_t N>
 inline std::size_t TArrayAsVector<T, N>::size() const
 {
+	PH_ASSERT_LE(m_size, N);
+
 	return m_size;
 }
 
@@ -64,12 +61,21 @@ inline bool TArrayAsVector<T, N>::isEmpty() const
 }
 
 template<typename T, std::size_t N>
-inline TArrayAsVector<T, N>& TArrayAsVector<T, N>::operator = (const TArrayAsVector& rhs)
+inline bool TArrayAsVector<T, N>::isFull() const
 {
-	m_data = rhs.m_data;
-	m_size = rhs.m_size;
+	return m_size == N;
+}
 
-	return *this;
+template<typename T, std::size_t N>
+inline T* get(const std::size_t index)
+{
+	return index < m_size ? m_data[index] : nullptr;
+}
+
+template<typename T, std::size_t N>
+inline const T* get(const std::size_t index) const
+{
+	return index < m_size ? m_data[index] : nullptr;
 }
 
 template<typename T, std::size_t N>

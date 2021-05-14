@@ -2,6 +2,9 @@
 
 #include <gtest/gtest.h>
 
+#include <memory>
+#include <type_traits>
+
 using namespace ph;
 
 TEST(TArrayAsVectorTest, BasicConstruction)
@@ -30,6 +33,28 @@ TEST(TArrayAsVectorTest, BasicConstruction)
 
 		EXPECT_EQ(vecA[0], vecB[0]);
 		EXPECT_EQ(vecA[1], vecB[1]);
+	}
+}
+
+TEST(TArrayAsVectorTest, SafeOutOfBoundAccessor)
+{
+	{
+		TArrayAsVector<int, 2> vec;
+		vec.pushBack(4);
+		vec.pushBack(5);
+
+		EXPECT_TRUE(vec.get(0));
+		EXPECT_EQ(*(vec.get(0)), 4);
+
+		EXPECT_TRUE(vec.get(1));
+		EXPECT_EQ(*(vec.get(1)), 5);
+	}
+
+	{
+		TArrayAsVector<int, 2> vec;
+		EXPECT_FALSE(vec.get(0));
+		EXPECT_FALSE(vec.get(1));
+		EXPECT_FALSE(vec.get(100));
 	}
 }
 
@@ -80,5 +105,23 @@ TEST(TArrayAsVectorTest, PushAndPop)
 		// vec state: []
 		EXPECT_EQ(vec.size(), 0);
 		EXPECT_TRUE(vec.isEmpty());
+	}
+}
+
+TEST(TArrayAsVectorTest, RequiredProperties)
+{
+	{
+		using Vec = TArrayAsVector<char, 10>;
+		EXPECT_TRUE(std::is_nothrow_move_constructible_v<Vec>);
+	}
+
+	{
+		using Vec = TArrayAsVector<double, 10>;
+		EXPECT_TRUE(std::is_nothrow_move_constructible_v<Vec>);
+	}
+	
+	{
+		using Vec = TArrayAsVector<std::unique_ptr<float>, 10>;
+		EXPECT_TRUE(std::is_nothrow_move_constructible_v<Vec>);
 	}
 }

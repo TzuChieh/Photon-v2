@@ -60,9 +60,6 @@ private:
 	FieldSet m_fields;
 };
 
-// In-header Implementations:
-
-
 }// end namespace ph
 
 #include "DataIO/SDL/Introspect/TOwnerSdlClass.ipp"

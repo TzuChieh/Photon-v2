@@ -13,8 +13,6 @@ class TArrayAsVector final
 {
 public:
 	TArrayAsVector();
-	TArrayAsVector(const TArrayAsVector& other);
-	~TArrayAsVector() = default;
 
 	void pushBack(T&& item);
 	void popBack();
@@ -25,8 +23,11 @@ public:
 	std::size_t size() const;
 	void clear();
 	bool isEmpty() const;
+	bool isFull() const;
 
-	TArrayAsVector& operator = (const TArrayAsVector& rhs);
+	T* get(std::size_t index);
+	const T* get(std::size_t index) const;
+
 	T& operator [] (std::size_t index);
 	const T& operator [] (std::size_t index) const;
 

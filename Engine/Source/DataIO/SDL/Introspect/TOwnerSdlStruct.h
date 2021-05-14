@@ -20,7 +20,10 @@ public:
 	const SdlField* getField(std::size_t index) const override;
 
 	template<typename T>
-	TOwnerSdlStruct& addField(T field);
+	TOwnerSdlStruct& addField(T sdlField);
+
+	template<typename T>
+	TOwnerSdlStruct& addStruct(const T& sdlStruct);
 
 	const FieldSet& getFields() const;
 

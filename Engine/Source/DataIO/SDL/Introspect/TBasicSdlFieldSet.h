@@ -2,7 +2,7 @@
 
 #include "DataIO/SDL/Introspect/SdlField.h"
 #include "Common/assertion.h"
-#include "Utility/TFixedSizeVector.h"
+#include "Utility/TArrayAsVector.h"
 
 #include <cstddef>
 #include <type_traits>
@@ -34,17 +34,17 @@ public:
 
 public:
 	inline TBasicSdlFieldSet() :
-		m_fields(), m_numFields(0)
+		m_fields()
 	{}
 
 	inline std::size_t numFields() const
 	{
-		return m_numFields;
+		return m_fields.size();
 	}
 
 	inline const BaseFieldType* getField(const std::size_t index) const
 	{
-		return index < m_numFields ? m_fields[index].get() : nullptr;
+		return m_fields.get(index);
 	}
 
 	template<typename T>
@@ -53,15 +53,14 @@ public:
 		static_assert(std::is_base_of_v<BaseFieldType, T>,
 			"Cannot add a field that is not derived from the field type of the set.");
 
-		PH_ASSERT_LT(m_numFields, m_fields.size());
 		PH_ASSERT_MSG(!findFieldIndex(field.getTypeName(), field.getFieldName()),
 			"field set already contains field <" field.genPrettyName() + ">");
 
-		if(m_numFields < m_fields.size())
+		if(!m_fields.isFull())
 		{
-			m_fields.push_back(std::make_unique<T>(std::move(field)));
-			++m_numFields;
+			m_fields.pushBack(std::make_unique<T>(std::move(field)));
 		}
+		// TODO: log and fail on too many fields
 
 		return *this;
 	}
@@ -86,14 +85,11 @@ public:
 
 	inline const BaseFieldType& operator [] (const std::size_t index) const
 	{
-		PH_ASSERT_LT(index, m_numFields);
-
 		return *(m_fields[index]);
 	}
 
 private:
-	std::array<std::unique_ptr<BaseFieldType>, MAX_FIELDS> m_fields;
-	std::size_t m_numFields;
+	TArrayAsVector<std::unique_ptr<BaseFieldType>, MAX_FIELDS> m_fields;
 };
 
 }// end namespace ph

@@ -19,14 +19,29 @@ inline TOwnerSdlStruct<StructType, FieldSet>::TOwnerSdlStruct(std::string name) 
 
 template<typename StructType, typename FieldSet>
 template<typename T>
-inline auto TOwnerSdlStruct<StructType, FieldSet>::addField(T field)
+inline auto TOwnerSdlStruct<StructType, FieldSet>::addField(T sdlField)
 	-> TOwnerSdlStruct&
 {
 	// More restrictions on the type of T may be imposed by FieldSet
 	static_assert(std::is_base_of_v<SdlField, T>,
 		"T is not a SdlField thus cannot be added.");
 
-	m_fields.addField(std::move(field));
+	m_fields.addField(std::move(sdlField));
+
+	return *this;
+}
+
+template<typename StructType, typename FieldSet>
+template<typename T>
+inline auto TOwnerSdlStruct<StructType, FieldSet>::addStruct(const T& sdlStruct)
+	-> TOwnerSdlStruct&
+{
+	static_assert(std::is_base_of_v<SdlStruct, T>,
+		"T is not a SdlStruct thus its fields cannot be added.");
+
+
+
+	m_fields.addField(std::move(sdlField));
 
 	return *this;
 }
