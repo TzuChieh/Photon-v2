@@ -67,15 +67,15 @@ inline bool TArrayAsVector<T, N>::isFull() const
 }
 
 template<typename T, std::size_t N>
-inline T* get(const std::size_t index)
+inline T* TArrayAsVector<T, N>::get(const std::size_t index)
 {
-	return index < m_size ? m_data[index] : nullptr;
+	return index < m_size ? &(m_data[index]) : nullptr;
 }
 
 template<typename T, std::size_t N>
-inline const T* get(const std::size_t index) const
+inline const T* TArrayAsVector<T, N>::get(const std::size_t index) const
 {
-	return index < m_size ? m_data[index] : nullptr;
+	return index < m_size ? &(m_data[index]) : nullptr;
 }
 
 template<typename T, std::size_t N>

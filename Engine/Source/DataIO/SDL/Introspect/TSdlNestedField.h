@@ -3,7 +3,6 @@
 #include "DataIO/SDL/Introspect/TOwnedSdlField.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/SdlIOUtils.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
 
 #include <type_traits>
@@ -14,13 +13,14 @@
 namespace ph
 {
 
+// A field that its owner is an object field.
 template<typename OuterType, typename InnerType>
 class TSdlNestedField : public TOwnedSdlField<OuterType>
 {
 public:
 	TSdlNestedField(
 		InnerType OuterType::*           innerObjPtr, 
-		const TOwnedSdlField<InnerType>& innerField);
+		const TOwnedSdlField<InnerType>* innerObjField);
 
 	std::string valueToString(const OuterType& outerObj) const override;
 
@@ -36,26 +36,27 @@ private:
 		std::string&     out_converterMessage) const override;
 
 	InnerType OuterType::*           m_innerObjPtr;
-	const TOwnedSdlField<InnerType>& m_innerField;
+	const TOwnedSdlField<InnerType>* m_innerObjField;
 };
 
 // In-header Implementations:
 
 template<typename OuterType, typename InnerType>
 inline TSdlNestedField<OuterType, InnerType>::TSdlNestedField(
-	InnerType OuterType::* const     innerObjPtr,
-	const TOwnedSdlField<InnerType>& innerField) :
+	InnerType OuterType::* const           innerObjPtr,
+	const TOwnedSdlField<InnerType>* const innerObjField) :
 
 	TOwnedSdlField<OuterType>(
-		innerField.getTypeName(),
-		innerField.getFieldName()),
+		innerObjField->getTypeName(),
+		innerObjField->getFieldName()),
 
-	m_innerObjPtr(innerObjPtr),
-	m_innerField (innerField)
+	m_innerObjPtr  (innerObjPtr),
+	m_innerObjField(innerObjField)
 {
 	PH_ASSERT(m_innerObjPtr);
+	PH_ASSERT(m_innerObjField);
 
-
+	// TODO
 }
 
 template<typename OuterType, typename InnerType>

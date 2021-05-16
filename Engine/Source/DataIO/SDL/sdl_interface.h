@@ -12,6 +12,8 @@ class SdlClass;
 
 }// end namespace ph
 
+// TODO: need traits helper to verify a sdl class/struct also contains the required macro
+
 #define PH_DEFINE_SDL_CLASS(OwnerType)\
 	inline static decltype(auto) getSdlClass()\
 	{\

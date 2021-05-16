@@ -73,7 +73,7 @@ inline std::string ValueClauses::toString() const
 	return std::to_string(m_clauses.size()) + " value clauses";
 }
 
-inline const ValueClause& operator [] (const std::size_t index) const
+inline const ValueClauses::ValueClause& ValueClauses::operator [] (const std::size_t index) const
 {
 	PH_ASSERT_LT(index, m_clauses.size());
 

@@ -2,6 +2,10 @@
 
 #include "DataIO/SDL/Introspect/TOwnerSdlClass.h"
 #include "DataIO/SDL/Introspect/field_set_op.h"
+#include "DataIO/SDL/Introspect/SdlStruct.h"
+#include "DataIO/SDL/Introspect/SdlStructFieldStump.h"
+#include "Common/assertion.h"
+#include "DataIO/SDL/sdl_exceptions.h"
 
 #include <type_traits>
 
@@ -73,23 +77,58 @@ inline const TOwnedSdlField<Owner>* TOwnerSdlClass<Owner, FieldSet>::getOwnedFie
 
 template<typename Owner, typename FieldSet>
 template<typename T>
-inline TOwnerSdlClass<Owner, FieldSet>& TOwnerSdlClass<Owner, FieldSet>::addField(T field)
+inline auto TOwnerSdlClass<Owner, FieldSet>::addField(T sdlField)
+	-> TOwnerSdlClass&
 {
 	// More restrictions on the type of T may be imposed by FieldSet
 	static_assert(std::is_base_of_v<SdlField, T>,
 		"T is not a SdlField thus cannot be added.");
 
-	m_fields.addField(std::move(field));
+	m_fields.addField(std::move(sdlField));
+
+	return *this;
+}
+
+template<typename Owner, typename FieldSet>
+template<typename T>
+inline auto TOwnerSdlClass<Owner, FieldSet>::addStruct(T Owner::* const structObjPtr)
+	-> TOwnerSdlClass&
+{
+	// More restrictions on the type of T may be imposed by FieldSet
+	static_assert(std::is_base_of_v<SdlStruct, T>,
+		"T is not a SdlStruct thus cannot be added.");
+
+	PH_ASSERT(structObjPtr);
+
+	m_fields.addFields(SdlStructFieldStump().genFieldSet(structObjPtr));
+
+	return *this;
+}
+
+template<typename Owner, typename FieldSet>
+template<typename T>
+inline auto TOwnerSdlClass<Owner, FieldSet>::addStruct(
+	T Owner::* const           structObjPtr,
+	const SdlStructFieldStump& structFieldStump)
+
+	-> TOwnerSdlClass&
+{
+	// More restrictions on the type of T may be imposed by FieldSet
+	static_assert(std::is_base_of_v<SdlStruct, T>,
+		"T is not a SdlStruct thus cannot be added.");
+
+	PH_ASSERT(structObjPtr);
+
+	m_fields.addFields(structFieldStump.genFieldSet(structObjPtr));
 
 	return *this;
 }
 
 template<typename Owner, typename FieldSet>
 inline void TOwnerSdlClass<Owner, FieldSet>::fromSdl(
-	Owner&                   owner,
-	const ValueClause* const clauses,
-	const std::size_t        numClauses,
-	const SdlInputContext&   ctx)
+	Owner&                  owner, 
+	ValueClauses&           clauses,
+	const SdlInputContext&  ctx)
 {
 	field_set_op::load_fields_from_sdl(
 		owner,

@@ -11,6 +11,7 @@
 #include <string_view>
 #include <optional>
 #include <utility>
+#include <string>
 
 namespace ph
 {
@@ -50,17 +51,23 @@ public:
 	template<typename T>
 	inline TBasicSdlFieldSet& addField(T field)
 	{
-		static_assert(std::is_base_of_v<BaseFieldType, T>,
-			"Cannot add a field that is not derived from the field type of the set.");
-
-		PH_ASSERT_MSG(!findFieldIndex(field.getTypeName(), field.getFieldName()),
-			"field set already contains field <" field.genPrettyName() + ">");
-
-		if(!m_fields.isFull())
+		if(canAddField(field))
 		{
 			m_fields.pushBack(std::make_unique<T>(std::move(field)));
 		}
-		// TODO: log and fail on too many fields
+
+		return *this;
+	}
+
+	inline TBasicSdlFieldSet& addFields(TBasicSdlFieldSet fields)
+	{
+		for(std::size_t i = 0; i < fields.numFields(); ++i)
+		{
+			if(canAddField(fields[i]))
+			{
+				m_fields.pushBack(std::move(fields.m_fields[i]));
+			}
+		}
 
 		return *this;
 	}
@@ -90,6 +97,25 @@ public:
 
 private:
 	TArrayAsVector<std::unique_ptr<BaseFieldType>, MAX_FIELDS> m_fields;
+
+	template<typename T>
+	inline bool canAddField(const T& field)
+	{
+		static_assert(std::is_base_of_v<BaseFieldType, T>,
+			"Cannot add a field that is not derived from the field type of the set.");
+
+		const bool isFieldUnique = !findFieldIndex(field.getTypeName(), field.getFieldName());
+		const bool hasMoreSpace  = !m_fields.isFull();
+
+		PH_ASSERT_MSG(isFieldUnique,
+			"field set already contains field <" field.genPrettyName() + ">");
+
+		PH_ASSERT_MSG(hasMoreSpace,
+			"field set is full, consider increase its size "
+			"(> " + std::to_string(m_fields.size()) + ")");
+
+		return isFieldUnique && hasMoreSpace;
+	}
 };
 
 }// end namespace ph

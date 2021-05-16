@@ -38,9 +38,9 @@ public:
 
 private:
 	virtual void loadFromSdl(
-		Owner&             owner, 
-		const std::string& sdlValue,
-		SdlInputContext&   ctx) const = 0;
+		Owner&                 owner, 
+		const std::string&     sdlValue,
+		const SdlInputContext& ctx) const = 0;
 
 	virtual void convertToSdl(
 		const Owner& owner,

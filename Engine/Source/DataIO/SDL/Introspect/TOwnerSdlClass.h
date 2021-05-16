@@ -2,11 +2,6 @@
 
 #include "DataIO/SDL/Introspect/SdlClass.h"
 #include "DataIO/SDL/Introspect/TOwnedSdlField.h"
-#include "Common/assertion.h"
-#include "DataIO/SDL/ValueClause.h"
-#include "DataIO/SDL/Introspect/SdlInputContext.h"
-#include "DataIO/SDL/sdl_exceptions.h"
-#include "DataIO/SDL/SdlIOUtils.h"
 #include "DataIO/SDL/Introspect/TBasicSdlFieldSet.h"
 
 #include <string>
@@ -17,6 +12,10 @@
 
 namespace ph
 {
+
+class ValueClauses;
+class SdlInputContext;
+class SdlStructFieldStump;
 
 template<typename Owner, typename FieldSet = TBasicSdlFieldSet<TOwnedSdlField<Owner>>>
 class TOwnerSdlClass : public SdlClass
@@ -42,8 +41,7 @@ public:
 
 	void fromSdl(
 		Owner&                 owner,
-		const ValueClause*     clauses,
-		std::size_t            numClauses,
+		ValueClauses&          clauses,
 		const SdlInputContext& ctx);
 
 	void toSdl(
@@ -54,7 +52,15 @@ public:
 	const TOwnedSdlField<Owner>* getOwnedField(std::size_t index) const;
 
 	template<typename T>
-	TOwnerSdlClass& addField(T field);
+	TOwnerSdlClass& addField(T sdlField);
+
+	template<typename T>
+	TOwnerSdlClass& addStruct(T Owner::* structObjPtr);
+
+	template<typename T>
+	TOwnerSdlClass& addStruct(
+		T Owner::*                 structObjPtr,
+		const SdlStructFieldStump& structFieldStump);
 
 private:
 	FieldSet m_fields;

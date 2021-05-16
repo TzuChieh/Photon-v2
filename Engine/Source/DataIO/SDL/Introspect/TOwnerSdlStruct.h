@@ -1,7 +1,6 @@
 #pragma once
 
 #include "DataIO/SDL/Introspect/SdlStruct.h"
-#include "DataIO/SDL/ValueClauses.h"
 #include "DataIO/SDL/Introspect/TBasicSdlFieldSet.h"
 #include "DataIO/SDL/Introspect/TOwnedSdlField.h"
 
@@ -10,7 +9,9 @@
 namespace ph
 {
 
-template<typename StructType, typename FieldSet = TBasicSdlFieldSet<TOwnedSdlField<StructType>>>
+class SdlStructFieldStump;
+
+template<typename StructType>
 class TOwnerSdlStruct : public SdlStruct
 {
 public:
@@ -22,13 +23,18 @@ public:
 	template<typename T>
 	TOwnerSdlStruct& addField(T sdlField);
 
-	template<typename T>
-	TOwnerSdlStruct& addStruct(const T& sdlStruct);
+	template<typename StructObjType>
+	TOwnerSdlStruct& addStruct(StructObjType StructType::* structObjPtr);
 
-	const FieldSet& getFields() const;
+	template<typename StructObjType>
+	TOwnerSdlStruct& addStruct(
+		StructObjType StructType::* structObjPtr,
+		const SdlStructFieldStump&  structFieldStump);
+
+	auto getFields() const -> const TBasicSdlFieldSet<TOwnedSdlField<StructType>>&;
 
 private:
-	FieldSet m_fields;
+	TBasicSdlFieldSet<TOwnedSdlField<StructType>> m_fields;
 };
 
 }// end namespace ph
