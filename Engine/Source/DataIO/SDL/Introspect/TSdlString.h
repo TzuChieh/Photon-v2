@@ -45,9 +45,9 @@ inline std::string TSdlString<Owner>::valueToString(const Owner& owner) const
 
 template<typename Owner>
 inline void TSdlString<Owner>::loadFromSdl(
-	Owner&             owner,
-	const std::string& sdlValue,
-	SdlInputContext&   ctx) const
+	Owner&                 owner,
+	const std::string&     sdlValue,
+	const SdlInputContext& ctx) const
 {
 	// Save <sdlValue> directly as it is already a string
 	setValue(owner, sdlValue);

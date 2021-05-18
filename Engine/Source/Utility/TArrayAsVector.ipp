@@ -29,7 +29,7 @@ inline void TArrayAsVector<T, N>::pushBack(T&& item)
 
 	// FIXME: what if assignment throw? need increment m_size later only if assignment succeeded; 
 	// perhaps check if op is no-throw?
-	m_data[++m_size] = std::forward<T>(item);
+	m_data[m_size++] = std::forward<T>(item);
 }
 
 template<typename T, std::size_t N>

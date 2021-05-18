@@ -26,8 +26,8 @@ TEST(TArrayAsVectorTest, BasicConstruction)
 
 	{
 		TArrayAsVector<int, 2> vecA;
-		vecA[0] = 1;
-		vecA[1] = 2;
+		vecA.pushBack(1);
+		vecA.pushBack(2);
 
 		auto vecB = vecA;
 
