@@ -41,7 +41,9 @@ private:
 template<typename Owner, typename Element>
 inline TSdlVector3<Owner, Element>::TSdlVector3(std::string valueName, math::TVector3<Element> Owner::* const valuePtr) :
 	TSdlValue<math::TVector3<Element>, Owner>("vector3", std::move(valueName), valuePtr)
-{}
+{
+	defaultTo(math::TVector3<Element>(0, 0, 0));
+}
 
 template<typename Owner, typename Element>
 inline std::string TSdlVector3<Owner, Element>::valueToString(const Owner& owner) const
