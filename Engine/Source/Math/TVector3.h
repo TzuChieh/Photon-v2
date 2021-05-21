@@ -126,8 +126,8 @@ public:
 	void set(TVector3* const out_value) const;
 	TVector3& set(constant::AxisIndexType axisIndex, T value);
 
-	bool equals(const TVector3& other) const;
-	bool equals(const TVector3& other, T margin) const;
+	bool equals(const TVector3& other) const;// TODO: rename to isEqual
+	bool equals(const TVector3& other, T margin) const;// TODO: rename to isNear
 	bool isZero() const;
 	bool isNotZero() const;
 	bool hasNegativeComponent() const;

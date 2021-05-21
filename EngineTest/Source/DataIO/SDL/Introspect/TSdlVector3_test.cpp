@@ -34,6 +34,7 @@ TEST(TSdlVector3Test, ReadFromSdl)
 		SdlInputContext ctx;
 
 		EXPECT_NO_THROW(sdlVec.fromSdl(owner, "1 2 3", ctx));
+
 		EXPECT_EQ(owner.v, Vector3R(1, 2, 3));
 
 		// Spaces in SDL string are skipped

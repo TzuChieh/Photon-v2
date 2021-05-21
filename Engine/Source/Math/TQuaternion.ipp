@@ -284,4 +284,25 @@ inline std::string TQuaternion<T>::toString() const
 	           + std::to_string(w) + ')';
 }
 
+template<typename T>
+inline bool TQuaternion<T>::isEqual(const TQuaternion& other) const
+{
+	return x == other.x &&
+	       y == other.y &&
+	       z == other.z &&
+	       w == other.w;
+}
+
+template<typename T>
+inline bool TQuaternion<T>::operator == (const TQuaternion& rhs) const
+{
+	return this->isEqual(rhs);
+}
+
+template<typename T>
+inline bool TQuaternion<T>::operator != (const TQuaternion& rhs) const
+{
+	return !(this->isEqual(rhs));
+}
+
 }// end namespace ph::math

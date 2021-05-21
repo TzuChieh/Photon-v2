@@ -17,7 +17,7 @@ TEST(HaltonImplDetailTest, RadicalInverse)
 		const uint64 reversedBits =
 			0b00000000'00000001'11000000'00000000'11000001'00000000'01010101'10000000;
 
-		UTIL_EXPECT_REAL_EQ(
+		PH_EXPECT_REAL_EQ(
 			radical_inverse<2>(bits),
 			reversedBits / 0x1p64_r);
 	}
@@ -40,7 +40,7 @@ TEST(HaltonImplDetailTest, RadicalInverse)
 			currentValue = remainingValue;
 		}
 
-		UTIL_EXPECT_REAL_EQ(
+		PH_EXPECT_REAL_EQ(
 			radical_inverse<BASE>(VALUE),
 			nonScaledRadicalInverse * scaler);
 	}

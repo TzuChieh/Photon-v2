@@ -30,6 +30,9 @@ class TBasicSdlFieldSet final
 	static_assert(std::is_base_of_v<SdlField, BaseFieldType>,
 		"Field type must derive from SdlField.");
 
+	template<typename OtherBaseFieldType, std::size_t OTHER_MAX_FIELDS>
+	friend class TBasicSdlFieldSet;
+
 public:
 	using FieldType = BaseFieldType;
 
@@ -59,7 +62,8 @@ public:
 		return *this;
 	}
 
-	inline TBasicSdlFieldSet& addFields(TBasicSdlFieldSet fields)
+	template<typename OtherBaseFieldType, std::size_t OTHER_MAX_FIELDS>
+	inline TBasicSdlFieldSet& addFields(TBasicSdlFieldSet<OtherBaseFieldType, OTHER_MAX_FIELDS> fields)
 	{
 		for(std::size_t i = 0; i < fields.numFields(); ++i)
 		{
@@ -82,7 +86,7 @@ public:
 		for(std::size_t i = 0; i < m_fields.size(); ++i)
 		{
 			const auto& field = m_fields[i];
-			if(typeName == field.getTypeName() && fieldName == field.getFieldName())
+			if(typeName == field->getTypeName() && fieldName == field->getFieldName())
 			{
 				return i;
 			}
@@ -108,7 +112,7 @@ private:
 		const bool hasMoreSpace  = !m_fields.isFull();
 
 		PH_ASSERT_MSG(isFieldUnique,
-			"field set already contains field <" field.genPrettyName() + ">");
+			"field set already contains field <" + field.genPrettyName() + ">");
 
 		PH_ASSERT_MSG(hasMoreSpace,
 			"field set is full, consider increase its size "

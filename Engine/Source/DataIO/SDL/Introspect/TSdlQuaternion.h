@@ -41,7 +41,9 @@ private:
 template<typename Owner, typename Element>
 inline TSdlQuaternion<Owner, Element>::TSdlQuaternion(std::string valueName, math::TQuaternion<Element> Owner::* const valuePtr) :
 	TSdlValue<math::TQuaternion<Element>, Owner>("quaternion", std::move(valueName), valuePtr)
-{}
+{
+	defaultTo(math::TQuaternion<Element>::makeNoRotation());
+}
 
 template<typename Owner, typename Element>
 inline std::string TSdlQuaternion<Owner, Element>::valueToString(const Owner& owner) const

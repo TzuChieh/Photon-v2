@@ -60,6 +60,11 @@ public:
 	void toRotationMatrix(TMatrix4<T>* out_result) const;
 
 	std::string toString() const;
+
+	bool isEqual(const TQuaternion& other) const;
+
+	bool operator == (const TQuaternion& rhs) const;
+	bool operator != (const TQuaternion& rhs) const;
 };
 
 }// end namespace ph::math

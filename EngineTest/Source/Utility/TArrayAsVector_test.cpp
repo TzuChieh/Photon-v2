@@ -125,3 +125,22 @@ TEST(TArrayAsVectorTest, RequiredProperties)
 		EXPECT_TRUE(std::is_nothrow_move_constructible_v<Vec>);
 	}
 }
+
+TEST(TArrayAsVectorTest, PushNonCopyable)
+{
+	{
+		ph::TArrayAsVector<std::unique_ptr<int>, 3> vec;
+		EXPECT_EQ(vec.size(), 0);
+		EXPECT_TRUE(vec.isEmpty());
+
+		vec.pushBack(std::make_unique<int>(100));
+		EXPECT_EQ(*(vec.front()), 100);
+		EXPECT_EQ(vec.size(), 1);
+		EXPECT_FALSE(vec.isEmpty());
+
+		vec.pushBack(std::make_unique<int>(10));
+		EXPECT_EQ(*(vec.back()), 10);
+		EXPECT_EQ(vec.size(), 2);
+		EXPECT_FALSE(vec.isEmpty());
+	}
+}
