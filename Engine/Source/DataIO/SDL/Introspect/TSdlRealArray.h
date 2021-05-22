@@ -6,19 +6,23 @@
 #include "DataIO/SDL/SdlIOUtils.h"
 #include "DataIO/SDL/SdlResourceIdentifier.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
+#include "DataIO/io_utils.h"
+#include "DataIO/io_exceptions.h"
 
 #include <type_traits>
 #include <string>
 #include <exception>
 #include <vector>
+#include <utility>
 
 namespace ph
 {
 
+// TODO: change to TSdlFloatArray and add TSdlRealArray alias
 template<typename Owner, typename RealType = real>
 class TSdlRealArray : public TSdlValue<std::vector<RealType>, Owner>
 {
-	static_assert(std::is_same_v<Element, real>,
+	static_assert(std::is_same_v<RealType, real>,
 		"Currently supports only ph::real");
 
 public:
@@ -60,7 +64,19 @@ inline void TSdlRealArray<Owner, RealType>::loadFromSdl(
 	if(SdlIOUtils::isResourceIdentifier(sdlValue))
 	{
 		const SdlResourceIdentifier sdlResId(sdlValue, ctx.workingDirectory);
-		setValue(owner, SdlIOUtils::loadRealArray(sdlValue, sdlResId.getPathToResource()));
+
+		try
+		{
+			std::string loadedSdlValue = io_utils::load_text(sdlResId.getPathToResource());
+
+			setValue(
+				owner, 
+				SdlIOUtils::loadRealArray(std::move(loadedSdlValue)));
+		}
+		catch(const FileIOError& e)
+		{
+			throw SdlLoadError("on loading real array -> " + e.whatStr());
+		}
 	}
 	else
 	{

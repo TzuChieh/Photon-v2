@@ -75,7 +75,7 @@ void FormattedTextInputStream::readAllTightly(std::string* const out_allText)
 		std::istream_iterator<char>());
 }
 
-bool FormattedTextInputStream::readLineTightly(std::string* const out_lineText)
+bool FormattedTextInputStream::readTrimmedLine(std::string* const out_lineText)
 {
 	PH_ASSERT(out_lineText);
 

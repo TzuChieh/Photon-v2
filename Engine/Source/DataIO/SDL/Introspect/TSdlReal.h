@@ -13,6 +13,7 @@
 namespace ph
 {
 
+// TODO: change to TSdlFloat and add TSdlReal alias
 template<typename Owner, typename RealType = real>
 class TSdlReal : public TSdlValue<RealType, Owner>
 {

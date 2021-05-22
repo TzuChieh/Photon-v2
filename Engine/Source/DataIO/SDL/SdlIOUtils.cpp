@@ -1,7 +1,6 @@
 #include "DataIO/SDL/SdlIOUtils.h"
 #include "DataIO/SDL/Tokenizer.h"
 #include "DataIO/FileSystem/Path.h"
-#include "DataIO/IOUtils.h"
 #include "DataIO/io_exceptions.h"
 #include "DataIO/SDL/Introspect/SdlClass.h"
 #include "DataIO/SDL/Introspect/SdlField.h"
@@ -90,18 +89,6 @@ std::vector<real> SdlIOUtils::loadRealArray(const std::string& sdlRealArrayStr)
 	catch(const SdlLoadError& e)
 	{
 		throw SdlLoadError("on parsing real array -> " + e.whatStr());
-	}
-}
-
-std::vector<real> SdlIOUtils::loadRealArray(const Path& filePath)
-{
-	try
-	{
-		return loadRealArray(IOUtils::loadText(filePath));
-	}
-	catch(const FileIOError& e)
-	{
-		throw SdlLoadError("on loading real array -> " + e.whatStr());
 	}
 }
 

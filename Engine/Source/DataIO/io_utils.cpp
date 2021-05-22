@@ -1,4 +1,4 @@
-#include "DataIO/IOUtils.h"
+#include "DataIO/io_utils.h"
 #include "DataIO/io_exceptions.h"
 #include "Common/assertion.h"
 
@@ -6,10 +6,10 @@
 #include <iostream>
 #include <sstream>
 
-namespace ph
+namespace ph::io_utils
 {
 
-std::string IOUtils::loadText(const Path& filePath)
+std::string load_text(const Path& filePath)
 {
 	std::ifstream textFile;
 	textFile.open(filePath.toAbsoluteString());
@@ -24,4 +24,4 @@ std::string IOUtils::loadText(const Path& filePath)
 	return buffer.str();
 }
 
-}// end namespace ph
+}// end namespace ph::io_utils

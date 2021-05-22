@@ -14,8 +14,15 @@ class FormattedTextInputStream : public IInputStream
 {
 public:
 	FormattedTextInputStream() = default;
+
+	/*! @brief Take a file as stream.
+	*/
 	explicit FormattedTextInputStream(const Path& textFilePath);
+
+	/*! @brief Take a string as stream.
+	*/
 	explicit FormattedTextInputStream(const std::string& textString);
+
 	FormattedTextInputStream(FormattedTextInputStream&& other);
 
 	bool read(std::size_t numBytes, std::byte* out_bytes) override;
@@ -23,8 +30,15 @@ public:
 	std::size_t tellGet() override;
 	operator bool () const override;
 
+	/*! @brief Read all text without any whitespaces.
+	*/
 	void readAllTightly(std::string* out_allText);
-	bool readLineTightly(std::string* out_lineText);
+
+	/*! @brief Read a line without leading and trailing whitespaces.
+	*/
+	bool readTrimmedLine(std::string* out_lineText);
+
+	// TODO: readLineTightly()?
 
 	FormattedTextInputStream& operator = (FormattedTextInputStream&& rhs);
 
