@@ -4,7 +4,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/SdlIOUtils.h"
+#include "DataIO/SDL/sdl_helpers.h"
 
 #include <type_traits>
 #include <string>
@@ -57,7 +57,7 @@ inline void TSdlVector3<Owner, Element>::loadFromSdl(
 	const std::string&     sdlValue,
 	const SdlInputContext& ctx) const
 {
-	setValue(owner, SdlIOUtils::loadVector3R(sdlValue));
+	setValue(owner, sdl::load_vector3(sdlValue));
 }
 
 template<typename Owner, typename Element>

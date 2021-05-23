@@ -5,7 +5,7 @@
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
 #include "Common/Logger.h"
 #include "DataIO/SDL/sdl_exceptions.h"
-#include "DataIO/SDL/SdlIOUtils.h"
+#include "DataIO/SDL/sdl_helpers.h"
 #include "DataIO/SDL/Introspect/EFieldImportance.h"
 
 #include <utility>
@@ -81,7 +81,7 @@ inline void TOwnedSdlField<Owner>::fromSdl(
 			// a successful parse was expected)
 			//
 			logger.log(ELogLevel::WARNING_MED,
-				"load error from " + SdlIOUtils::genPrettyName(ctx.srcClass, this) + 
+				"load error from " + sdl::gen_pretty_name(ctx.srcClass, this) + 
 				" -> " + e.what() + "; " +
 				"value defaults to " + valueToString(owner));
 		}
@@ -90,7 +90,7 @@ inline void TOwnedSdlField<Owner>::fromSdl(
 			// Let caller handle the error if fallback is disabled
 			//
 			throw SdlLoadError(
-				"load error from " + SdlIOUtils::genPrettyName(ctx.srcClass, this) +
+				"load error from " + sdl::gen_pretty_name(ctx.srcClass, this) +
 				" -> " + e.what() + "; " +
 				"value left uninitialized");
 		}

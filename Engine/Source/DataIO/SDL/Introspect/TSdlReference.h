@@ -6,7 +6,7 @@
 #include "DataIO/SDL/NamedResourceStorage.h"
 #include "DataIO/SDL/ETypeCategory.h"
 #include "DataIO/SDL/SdlTypeInfo.h"
-#include "Utility/string_util.h"
+#include "Utility/string_utils.h"
 #include "DataIO/SDL/sdl_exceptions.h"
 
 #include <string>
@@ -56,7 +56,7 @@ private:
 		const std::string&     sdlValue,
 		const SdlInputContext& ctx) const override
 	{
-		const auto resourceName = string_util::cut_head(sdlValue, "@");
+		const auto resourceName = string_utils::cut_head(sdlValue, "@");
 		// TODO: get res should throw and accept str view
 		owner.*m_valuePtr = ctx.resources->getResource<T>(resourceName, DataTreatment());
 

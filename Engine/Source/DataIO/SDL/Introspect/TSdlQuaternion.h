@@ -4,7 +4,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TQuaternion.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/SdlIOUtils.h"
+#include "DataIO/SDL/sdl_helpers.h"
 
 #include <type_traits>
 #include <string>
@@ -57,7 +57,7 @@ inline void TSdlQuaternion<Owner, Element>::loadFromSdl(
 	const std::string&     sdlValue,
 	const SdlInputContext& ctx) const
 {
-	setValue(owner, SdlIOUtils::loadQuaternionR(sdlValue));
+	setValue(owner, sdl::load_quaternion(sdlValue));
 }
 
 template<typename Owner, typename Element>

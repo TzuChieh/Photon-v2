@@ -1,24 +1,14 @@
-#include "DataIO/SDL/SdlIOUtils.h"
+#include "DataIO/SDL/sdl_helpers.h"
 #include "DataIO/SDL/Tokenizer.h"
 #include "DataIO/FileSystem/Path.h"
 #include "DataIO/io_exceptions.h"
 #include "DataIO/SDL/Introspect/SdlClass.h"
 #include "DataIO/SDL/Introspect/SdlField.h"
 
-namespace ph
+namespace ph::sdl
 {
 
-real SdlIOUtils::loadReal(const std::string& sdlRealStr)
-{
-	return parseReal(sdlRealStr);
-}
-
-integer SdlIOUtils::loadInteger(const std::string& sdlIntegerStr)
-{
-	return parseInteger(sdlIntegerStr);
-}
-
-math::Vector3R SdlIOUtils::loadVector3R(const std::string& sdlVector3Str)
+math::Vector3R load_vector3(const std::string& sdlVector3Str)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
@@ -33,9 +23,9 @@ math::Vector3R SdlIOUtils::loadVector3R(const std::string& sdlVector3Str)
 		}
 
 		return math::Vector3R(
-			parseReal(tokens[0]),
-			parseReal(tokens[1]),
-			parseReal(tokens[2]));
+			detail::parse_real(tokens[0]),
+			detail::parse_real(tokens[1]),
+			detail::parse_real(tokens[2]));
 	}
 	catch(const SdlLoadError& e)
 	{
@@ -43,7 +33,7 @@ math::Vector3R SdlIOUtils::loadVector3R(const std::string& sdlVector3Str)
 	}
 }
 
-math::QuaternionR SdlIOUtils::loadQuaternionR(const std::string& sdlQuaternionStr)
+math::QuaternionR load_quaternion(const std::string& sdlQuaternionStr)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
@@ -58,10 +48,10 @@ math::QuaternionR SdlIOUtils::loadQuaternionR(const std::string& sdlQuaternionSt
 		}
 
 		return math::QuaternionR(
-			parseReal(tokens[0]),
-			parseReal(tokens[1]),
-			parseReal(tokens[2]),
-			parseReal(tokens[3]));
+			detail::parse_real(tokens[0]),
+			detail::parse_real(tokens[1]),
+			detail::parse_real(tokens[2]),
+			detail::parse_real(tokens[3]));
 	}
 	catch(const SdlLoadError& e)
 	{
@@ -69,7 +59,7 @@ math::QuaternionR SdlIOUtils::loadQuaternionR(const std::string& sdlQuaternionSt
 	}
 }
 
-std::vector<real> SdlIOUtils::loadRealArray(const std::string& sdlRealArrayStr)
+std::vector<real> load_real_array(const std::string& sdlRealArrayStr)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
@@ -81,7 +71,7 @@ std::vector<real> SdlIOUtils::loadRealArray(const std::string& sdlRealArrayStr)
 		std::vector<real> realArray;
 		for(const auto& realToken : realTokens)
 		{
-			realArray.push_back(parseReal(realToken));
+			realArray.push_back(detail::parse_real(realToken));
 		}
 
 		return std::move(realArray);
@@ -92,7 +82,7 @@ std::vector<real> SdlIOUtils::loadRealArray(const std::string& sdlRealArrayStr)
 	}
 }
 
-std::vector<math::Vector3R> SdlIOUtils::loadVector3RArray(const std::string& sdlVector3ArrayStr)
+std::vector<math::Vector3R> load_vector3_array(const std::string& sdlVector3ArrayStr)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}});
 
@@ -104,7 +94,7 @@ std::vector<math::Vector3R> SdlIOUtils::loadVector3RArray(const std::string& sdl
 		std::vector<math::Vector3R> vec3Array;
 		for(const auto& vec3Token : vec3Tokens)
 		{
-			vec3Array.push_back(loadVector3R(vec3Token));
+			vec3Array.push_back(load_vector3(vec3Token));
 		}
 
 		return std::move(vec3Array);
@@ -115,7 +105,7 @@ std::vector<math::Vector3R> SdlIOUtils::loadVector3RArray(const std::string& sdl
 	}
 }
 
-bool SdlIOUtils::isResourceIdentifier(const std::string_view sdlValueStr)
+bool is_resource_identifier(const std::string_view sdlValueStr)
 {
 	// Find index to the first non-blank character
 	const auto pos = sdlValueStr.find_first_not_of(" \t\r\n");
@@ -124,7 +114,7 @@ bool SdlIOUtils::isResourceIdentifier(const std::string_view sdlValueStr)
 	return pos != std::string::npos && sdlValueStr[pos] == '/';
 }
 
-bool SdlIOUtils::isReference(const std::string_view sdlValueStr)
+bool is_reference(const std::string_view sdlValueStr)
 {
 	// Find index to the first non-blank character
 	const auto pos = sdlValueStr.find_first_not_of(" \t\r\n");
@@ -133,23 +123,23 @@ bool SdlIOUtils::isReference(const std::string_view sdlValueStr)
 	return pos != std::string::npos && sdlValueStr[pos] == '@';
 }
 
-std::string SdlIOUtils::genPrettyName(const SdlClass* const clazz)
+std::string gen_pretty_name(const SdlClass* const clazz)
 {
 	return clazz ? 
 		"category: " + clazz->getCategory() + ", name: " + clazz->getTypeName() : 
 		"unavailable";
 }
 
-std::string SdlIOUtils::genPrettyName(const SdlField* const field)
+std::string gen_pretty_name(const SdlField* const field)
 {
 	return field ?
 		"type: " + field->getTypeName() + ", name: " + field->getFieldName() : 
 		"unavailable";
 }
 
-std::string SdlIOUtils::genPrettyName(const SdlClass* const clazz, const SdlField* const field)
+std::string gen_pretty_name(const SdlClass* const clazz, const SdlField* const field)
 {
-	return "type <" + genPrettyName(clazz) + ">, value <" + genPrettyName(field) + ">";
+	return "type <" + gen_pretty_name(clazz) + ">, value <" + gen_pretty_name(field) + ">";
 }
 
-}// end namespace ph
+}// end namespace ph::sdl

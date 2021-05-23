@@ -3,7 +3,7 @@
 #include "DataIO/SDL/Introspect/TSdlValue.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/SdlIOUtils.h"
+#include "DataIO/SDL/sdl_helpers.h"
 
 #include <type_traits>
 #include <string>
@@ -56,7 +56,7 @@ inline void TSdlReal<Owner, RealType>::loadFromSdl(
 	const std::string&     sdlValue,
 	const SdlInputContext& ctx) const
 {
-	setValue(owner, SdlIOUtils::loadReal(sdlValue));
+	setValue(owner, sdl::load_real(sdlValue));
 }
 
 template<typename Owner, typename RealType>

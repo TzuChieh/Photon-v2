@@ -3,7 +3,7 @@
 #include "DataIO/SDL/Introspect/TSdlValue.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/SdlIOUtils.h"
+#include "DataIO/SDL/sdl_helpers.h"
 
 #include <type_traits>
 #include <string>
@@ -55,7 +55,7 @@ inline void TSdlInteger<Owner, IntType>::loadFromSdl(
 	const std::string&     sdlValue,
 	const SdlInputContext& ctx) const
 {
-	setValue(owner, SdlIOUtils::loadInteger(sdlValue));
+	setValue(owner, sdl::load_integer(sdlValue));
 }
 
 template<typename Owner, typename IntType>

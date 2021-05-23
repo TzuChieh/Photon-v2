@@ -3,7 +3,7 @@
 #include "DataIO/SDL/Introspect/TSdlValue.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/SdlIOUtils.h"
+#include "DataIO/SDL/sdl_helpers.h"
 #include "DataIO/SDL/SdlResourceIdentifier.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
 #include "Math/TVector3.h"
@@ -61,7 +61,7 @@ inline void TSdlVector3Array<Owner, RealType>::loadFromSdl(
 	const std::string&     sdlValue,
 	const SdlInputContext& ctx) const
 {
-	setValue(owner, SdlIOUtils::loadVector3RArray(sdlValue));
+	setValue(owner, sdl::load_vector3_array(sdlValue));
 }
 
 template<typename Owner, typename RealType>

@@ -3,7 +3,7 @@
 #include "DataIO/SDL/Introspect/TSdlValue.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/SdlIOUtils.h"
+#include "DataIO/SDL/sdl_helpers.h"
 #include "DataIO/SDL/SdlResourceIdentifier.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
 #include "DataIO/io_utils.h"
@@ -61,7 +61,7 @@ inline void TSdlRealArray<Owner, RealType>::loadFromSdl(
 	const std::string&     sdlValue,
 	const SdlInputContext& ctx) const
 {
-	if(SdlIOUtils::isResourceIdentifier(sdlValue))
+	if(sdl::is_resource_identifier(sdlValue))
 	{
 		const SdlResourceIdentifier sdlResId(sdlValue, ctx.workingDirectory);
 
@@ -71,7 +71,7 @@ inline void TSdlRealArray<Owner, RealType>::loadFromSdl(
 
 			setValue(
 				owner, 
-				SdlIOUtils::loadRealArray(std::move(loadedSdlValue)));
+				sdl::load_real_array(std::move(loadedSdlValue)));
 		}
 		catch(const FileIOError& e)
 		{
@@ -80,7 +80,7 @@ inline void TSdlRealArray<Owner, RealType>::loadFromSdl(
 	}
 	else
 	{
-		setValue(owner, SdlIOUtils::loadRealArray(sdlValue));
+		setValue(owner, sdl::load_real_array(sdlValue));
 	}
 }
 

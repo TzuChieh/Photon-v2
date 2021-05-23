@@ -2,7 +2,7 @@
 
 #include <array>
 
-namespace ph::string_util::table
+namespace ph::string_utils::table
 {
 
 // Table for mapping standard ASCII character codes to upper case, i.e.,
@@ -83,4 +83,4 @@ inline constexpr std::array<char, 256> ASCII_TO_LOWER =
 	0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF // 255
 }};
 
-}// end namespace ph::string_util::table
+}// end namespace ph::string_utils::table

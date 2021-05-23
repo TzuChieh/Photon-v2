@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Common/assertion.h"
-#include "Utility/string_util_table.h"
+#include "Utility/string_utils_table.h"
 
 #include <string>
 #include <algorithm>
 #include <string_view>
 
-namespace ph::string_util
+namespace ph::string_utils
 {
 
 inline std::string_view cut_head(const std::string_view srcStr, const char* const candidates)
@@ -18,7 +18,8 @@ inline std::string_view cut_head(const std::string_view srcStr, const char* cons
 
 	auto cutStr = srcStr;
 
-	// remove_prefix(): behavior is undefined for input > size()
+	// remove_prefix(): behavior is undefined for input > size(), avoid that
+	// with the ternary operator
 	cutStr.remove_prefix(
 		nonCutPos != std::string_view::npos ? nonCutPos : srcStr.size());
 
@@ -33,7 +34,8 @@ inline std::string_view cut_tail(const std::string_view srcStr, const char* cons
 
 	auto cutStr = srcStr;
 
-	// remove_suffix(): behavior is undefined for input > size();
+	// remove_suffix(): behavior is undefined for input > size(), avoid that
+	// with the ternary operator;
 	// also, if <nonCutPos> is not npos, <srcStr> will not be empty
 	cutStr.remove_suffix(
 		nonCutPos != std::string_view::npos ? srcStr.size() - 1 - nonCutPos : srcStr.size());
