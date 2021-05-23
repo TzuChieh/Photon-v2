@@ -48,7 +48,7 @@ public:
 
 	inline const BaseFieldType* getField(const std::size_t index) const
 	{
-		return m_fields.get(index);
+		return index < m_fields.size() ? &(*this)[index] : nullptr;
 	}
 
 	template<typename T>

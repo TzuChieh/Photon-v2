@@ -39,6 +39,22 @@ TEST(TBasicSdlFieldSetTest, AddFields)
 			EXPECT_STREQ(fieldSetA[1].getFieldName().c_str(), "nameB");
 			EXPECT_STREQ(fieldSetA[2].getTypeName().c_str(), "string");
 			EXPECT_STREQ(fieldSetA[2].getFieldName().c_str(), "nameC");
+
+			ASSERT_TRUE(fieldSetA.getField(0) != nullptr);
+			EXPECT_STREQ(fieldSetA.getField(0)->getTypeName().c_str(), "string");
+			EXPECT_STREQ(fieldSetA.getField(0)->getFieldName().c_str(), "nameA");
+			ASSERT_TRUE(fieldSetA.getField(1) != nullptr);
+			EXPECT_STREQ(fieldSetA.getField(1)->getTypeName().c_str(), "string");
+			EXPECT_STREQ(fieldSetA.getField(1)->getFieldName().c_str(), "nameB");
+			ASSERT_TRUE(fieldSetA.getField(2) != nullptr);
+			EXPECT_STREQ(fieldSetA.getField(2)->getTypeName().c_str(), "string");
+			EXPECT_STREQ(fieldSetA.getField(2)->getFieldName().c_str(), "nameC");
+
+			// Getting non-existent fields is allowed and the result will be nullptr
+			for(std::size_t fieldIdx = 3; fieldIdx < 1024; ++fieldIdx)
+			{
+				EXPECT_TRUE(fieldSetA.getField(fieldIdx) == nullptr);
+			}
 		}
 
 		TBasicSdlFieldSet<TSdlString<TestOwner>> fieldSetB;
@@ -50,6 +66,10 @@ TEST(TBasicSdlFieldSetTest, AddFields)
 			EXPECT_STREQ(fieldSetB[0].getTypeName().c_str(), "string");
 			EXPECT_STREQ(fieldSetB[0].getFieldName().c_str(), "str-in-b");
 
+			ASSERT_FALSE(fieldSetB.getField(0) == nullptr);
+			EXPECT_STREQ(fieldSetB.getField(0)->getTypeName().c_str(), "string");
+			EXPECT_STREQ(fieldSetB.getField(0)->getFieldName().c_str(), "str-in-b");
+
 			fieldSetB.addFields(std::move(fieldSetA));
 			EXPECT_EQ(fieldSetB.numFields(), 4);
 			EXPECT_STREQ(fieldSetB[1].getTypeName().c_str(), "string");
@@ -59,10 +79,30 @@ TEST(TBasicSdlFieldSetTest, AddFields)
 			EXPECT_STREQ(fieldSetB[3].getTypeName().c_str(), "string");
 			EXPECT_STREQ(fieldSetB[3].getFieldName().c_str(), "nameC");
 
+			ASSERT_TRUE(fieldSetB.getField(1) != nullptr);
+			EXPECT_STREQ(fieldSetB.getField(1)->getTypeName().c_str(), "string");
+			EXPECT_STREQ(fieldSetB.getField(1)->getFieldName().c_str(), "nameA");
+			ASSERT_TRUE(fieldSetB.getField(2) != nullptr);
+			EXPECT_STREQ(fieldSetB.getField(2)->getTypeName().c_str(), "string");
+			EXPECT_STREQ(fieldSetB.getField(2)->getFieldName().c_str(), "nameB");
+			ASSERT_TRUE(fieldSetB.getField(3) != nullptr);
+			EXPECT_STREQ(fieldSetB.getField(3)->getTypeName().c_str(), "string");
+			EXPECT_STREQ(fieldSetB.getField(3)->getFieldName().c_str(), "nameC");
+
 			fieldSetB.addField(TSdlString<TestOwner>("str-in-b-2", &TestOwner::s));
 			EXPECT_EQ(fieldSetB.numFields(), 5);
 			EXPECT_STREQ(fieldSetB[4].getTypeName().c_str(), "string");
 			EXPECT_STREQ(fieldSetB[4].getFieldName().c_str(), "str-in-b-2");
+
+			ASSERT_TRUE(fieldSetB.getField(4) != nullptr);
+			EXPECT_STREQ(fieldSetB.getField(4)->getTypeName().c_str(), "string");
+			EXPECT_STREQ(fieldSetB.getField(4)->getFieldName().c_str(), "str-in-b-2");
+
+			// Getting non-existent fields is allowed and the result will be nullptr
+			for(std::size_t fieldIdx = 5; fieldIdx < 1024; ++fieldIdx)
+			{
+				EXPECT_TRUE(fieldSetB.getField(fieldIdx) == nullptr);
+			}
 		}
 		// Note: <fieldSetA> has been moved from
 	}
