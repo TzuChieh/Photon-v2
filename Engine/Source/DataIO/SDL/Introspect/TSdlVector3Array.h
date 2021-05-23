@@ -16,14 +16,14 @@
 namespace ph
 {
 
-template<typename Owner, typename RealType = real>
-class TSdlVector3Array : public TSdlValue<std::vector<math::TVector3<RealType>>, Owner>
+template<typename Owner, typename Element = real>
+class TSdlVector3Array : public TSdlValue<std::vector<math::TVector3<Element>>, Owner>
 {
 	static_assert(std::is_same_v<Element, real>,
 		"Currently supports only ph::real");
 
 public:
-	TSdlVector3Array(std::string valueName, std::vector<math::TVector3<RealType>> Owner::* valuePtr);
+	TSdlVector3Array(std::string valueName, std::vector<math::TVector3<Element>> Owner::* valuePtr);
 
 	std::string valueToString(const Owner& owner) const override;
 
@@ -41,22 +41,25 @@ private:
 
 // In-header Implementations:
 
-template<typename Owner, typename RealType>
-inline TSdlVector3Array<Owner, RealType>::TSdlVector3Array(
+template<typename Owner, typename Element>
+inline TSdlVector3Array<Owner, Element>::TSdlVector3Array(
 	std::string valueName, 
-	std::vector<math::TVector3<RealType>> Owner::* const valuePtr) :
+	std::vector<math::TVector3<Element>> Owner::* const valuePtr) :
 
-	TSdlValue<std::vector<RealType>, Owner>("real-array", std::move(valueName), valuePtr)
+	TSdlValue<std::vector<math::TVector3<Element>>, Owner>(
+		"vector3-array", 
+		std::move(valueName), 
+		valuePtr)
 {}
 
-template<typename Owner, typename RealType>
-inline std::string TSdlVector3Array<Owner, RealType>::valueToString(const Owner& owner) const
+template<typename Owner, typename Element>
+inline std::string TSdlVector3Array<Owner, Element>::valueToString(const Owner& owner) const
 {
 	return "[" + std::to_string(getValue(owner).size()) + " vector3 values...]";
 }
 
-template<typename Owner, typename RealType>
-inline void TSdlVector3Array<Owner, RealType>::loadFromSdl(
+template<typename Owner, typename Element>
+inline void TSdlVector3Array<Owner, Element>::loadFromSdl(
 	Owner&                 owner,
 	const std::string&     sdlValue,
 	const SdlInputContext& ctx) const
@@ -64,8 +67,8 @@ inline void TSdlVector3Array<Owner, RealType>::loadFromSdl(
 	setValue(owner, sdl::load_vector3_array(sdlValue));
 }
 
-template<typename Owner, typename RealType>
-void TSdlVector3Array<Owner, RealType>::convertToSdl(
+template<typename Owner, typename Element>
+void TSdlVector3Array<Owner, Element>::convertToSdl(
 	const Owner& owner,
 	std::string* out_sdlValue,
 	std::string& out_converterMessage) const

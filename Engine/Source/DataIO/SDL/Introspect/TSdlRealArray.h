@@ -19,14 +19,14 @@ namespace ph
 {
 
 // TODO: change to TSdlFloatArray and add TSdlRealArray alias
-template<typename Owner, typename RealType = real>
-class TSdlRealArray : public TSdlValue<std::vector<RealType>, Owner>
+template<typename Owner, typename Element = real>
+class TSdlRealArray : public TSdlValue<std::vector<Element>, Owner>
 {
-	static_assert(std::is_same_v<RealType, real>,
+	static_assert(std::is_same_v<Element, real>,
 		"Currently supports only ph::real");
 
 public:
-	TSdlRealArray(std::string valueName, std::vector<RealType> Owner::* valuePtr);
+	TSdlRealArray(std::string valueName, std::vector<Element> Owner::* valuePtr);
 
 	std::string valueToString(const Owner& owner) const override;
 
@@ -44,19 +44,25 @@ private:
 
 // In-header Implementations:
 
-template<typename Owner, typename RealType>
-inline TSdlRealArray<Owner, RealType>::TSdlRealArray(std::string valueName, std::vector<RealType> Owner::* const valuePtr) :
-	TSdlValue<std::vector<RealType>, Owner>("real-array", std::move(valueName), valuePtr)
+template<typename Owner, typename Element>
+inline TSdlRealArray<Owner, Element>::TSdlRealArray(
+	std::string valueName, 
+	std::vector<Element> Owner::* const valuePtr) :
+
+	TSdlValue<std::vector<Element>, Owner>(
+		"real-array", 
+		std::move(valueName), 
+		valuePtr)
 {}
 
-template<typename Owner, typename RealType>
-inline std::string TSdlRealArray<Owner, RealType>::valueToString(const Owner& owner) const
+template<typename Owner, typename Element>
+inline std::string TSdlRealArray<Owner, Element>::valueToString(const Owner& owner) const
 {
 	return "[" + std::to_string(getValue(owner).size()) + " real values...]";
 }
 
-template<typename Owner, typename RealType>
-inline void TSdlRealArray<Owner, RealType>::loadFromSdl(
+template<typename Owner, typename Element>
+inline void TSdlRealArray<Owner, Element>::loadFromSdl(
 	Owner&                 owner,
 	const std::string&     sdlValue,
 	const SdlInputContext& ctx) const
@@ -84,8 +90,8 @@ inline void TSdlRealArray<Owner, RealType>::loadFromSdl(
 	}
 }
 
-template<typename Owner, typename RealType>
-void TSdlRealArray<Owner, RealType>::convertToSdl(
+template<typename Owner, typename Element>
+void TSdlRealArray<Owner, Element>::convertToSdl(
 	const Owner& owner,
 	std::string* out_sdlValue,
 	std::string& out_converterMessage) const

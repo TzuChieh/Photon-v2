@@ -48,6 +48,7 @@ TEST(TSdlRealArrayTest, ReadFromSdl)
 		sdlRealArr.defaultTo({-2.0_r, -1.0_r});
 		sdlRealArr.withImportance(EFieldImportance::NICE_TO_HAVE);
 		EXPECT_NO_THROW(sdlRealArr.fromSdl(owner, "testing", ctx));
+		ASSERT_TRUE(owner.arr.size() == 2);
 		PH_EXPECT_REAL_EQ(owner.arr[0], -2.0_r);
 		PH_EXPECT_REAL_EQ(owner.arr[1], -1.0_r);
 	}
