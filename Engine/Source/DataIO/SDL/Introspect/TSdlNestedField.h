@@ -13,7 +13,10 @@
 namespace ph
 {
 
-// A field that its owner is an object field.
+/*! @brief A field that lives within an inner object.
+*/
+// TODO: policy for changing field attributes on nested field--
+// corresponding inner field attributes will not change, what to do?
 template<typename OuterType, typename InnerType>
 class TSdlNestedField : public TOwnedSdlField<OuterType>
 {
@@ -22,6 +25,7 @@ public:
 		InnerType OuterType::*           innerObjPtr, 
 		const TOwnedSdlField<InnerType>* innerObjField);
 
+	void setValueToDefault(OuterType& outerObj) const override;
 	std::string valueToString(const OuterType& outerObj) const override;
 
 private:
@@ -47,8 +51,8 @@ inline TSdlNestedField<OuterType, InnerType>::TSdlNestedField(
 	const TOwnedSdlField<InnerType>* const innerObjField) :
 
 	TOwnedSdlField<OuterType>(
-		innerObjField->getTypeName(),
-		innerObjField->getFieldName()),
+		innerObjField ? innerObjField->getTypeName()  : "unavailable",
+		innerObjField ? innerObjField->getFieldName() : "unavailable"),
 
 	m_innerObjPtr  (innerObjPtr),
 	m_innerObjField(innerObjField)
@@ -56,13 +60,24 @@ inline TSdlNestedField<OuterType, InnerType>::TSdlNestedField(
 	PH_ASSERT(m_innerObjPtr);
 	PH_ASSERT(m_innerObjField);
 
-	// TODO
+	PH_ASSERT_MSG(static_cast<const SdlField*>(m_innerObjField) != this, 
+		"setting self as inner field is forbidden (will result in infinite recursive calls)");
+
+	setDescription(m_innerObjField->getDescription());
+	enableFallback(m_innerObjField->isFallbackEnabled());
+	setImportance(m_innerObjField->getImportance());
+}
+
+template<typename OuterType, typename InnerType>
+inline void TSdlNestedField<OuterType, InnerType>::setValueToDefault(OuterType& outerObj) const
+{
+	m_innerObjField->setValueToDefault(outerObj.*m_innerObjPtr);
 }
 
 template<typename OuterType, typename InnerType>
 inline std::string TSdlNestedField<OuterType, InnerType>::valueToString(const OuterType& outerObj) const
 {
-	return "[" + std::to_string(getValue(owner).size()) + " vector3 values...]";
+	return m_innerObjField->valueToString(outerObj.*m_innerObjPtr);
 }
 
 template<typename OuterType, typename InnerType>
@@ -71,7 +86,10 @@ inline void TSdlNestedField<OuterType, InnerType>::loadFromSdl(
 	const std::string&     sdlValue,
 	const SdlInputContext& ctx) const
 {
-	setValue(owner, SdlIOUtils::loadVector3RArray(sdlValue));
+	m_innerObjField->loadFromSdl(
+		outerObj.*m_innerObjPtr,
+		sdlValue,
+		ctx);
 }
 
 template<typename OuterType, typename InnerType>
@@ -80,12 +98,6 @@ void TSdlNestedField<OuterType, InnerType>::convertToSdl(
 	std::string* const out_sdlValue,
 	std::string&       out_converterMessage) const
 {
-	m_innerField.convertToSdl(
-		owner
-		)
-
-	PH_ASSERT(out_sdlValue);
-
 	// TODO
 	PH_ASSERT_UNREACHABLE_SECTION();
 }

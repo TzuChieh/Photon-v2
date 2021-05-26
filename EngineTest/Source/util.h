@@ -16,3 +16,5 @@
 #else
 	#define PH_EXPECT_REAL_EQ(a, b) EXPECT_DOUBLE_EQ(a, b)
 #endif
+
+#define PH_EXPECT_STRING_EQ(a, b) EXPECT_STREQ((a).c_str(), (b).c_str())

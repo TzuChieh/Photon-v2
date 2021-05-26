@@ -10,12 +10,22 @@ namespace ph
 {
 
 class SdlField;
+class SdlInputContext;
+class ValueClauses;
+class ISdlResource;
 
 class SdlFunction
 {
 public:
 	explicit SdlFunction(std::string name);
 	virtual ~SdlFunction() = default;
+
+	virtual void call(
+		ISdlResource*          resource,
+		ValueClauses&          clauses,
+		const SdlInputContext& ctx) const = 0;
+
+	// TODO: saveCall() & asyncCall() ?
 
 	virtual std::size_t numParams() const = 0;
 	virtual const SdlField* getParam(std::size_t index) const = 0;

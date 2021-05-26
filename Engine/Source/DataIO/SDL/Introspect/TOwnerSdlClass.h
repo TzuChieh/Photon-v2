@@ -3,6 +3,7 @@
 #include "DataIO/SDL/Introspect/SdlClass.h"
 #include "DataIO/SDL/Introspect/TOwnedSdlField.h"
 #include "DataIO/SDL/Introspect/TBasicSdlFieldSet.h"
+#include "Utility/TArrayAsVector.h"
 
 #include <string>
 #include <utility>
@@ -36,8 +37,16 @@ public:
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const override;
 
+	void call(
+		std::string_view       funcName,
+		ISdlResource*          resource,
+		ValueClauses&          clauses,
+		const SdlInputContext& ctx) const override;
+
 	std::size_t numFields() const override;
 	const SdlField* getField(std::size_t index) const override;
+	std::size_t numFunctions() const override;
+	const SdlFunction* getFunction(std::size_t index) const override;
 
 	void fromSdl(
 		Owner&                 owner,
@@ -62,8 +71,12 @@ public:
 		T Owner::*                 structObjPtr,
 		const SdlStructFieldStump& structFieldStump);
 
+	template<typename T>
+	TOwnerSdlClass& addFunction(const T* sdlFunction);
+
 private:
 	FieldSet m_fields;
+	TArrayAsVector<const SdlFunction*> m_functions;
 };
 
 }// end namespace ph

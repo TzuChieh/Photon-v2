@@ -9,11 +9,13 @@
 #include <cstddef>
 #include <string>
 #include <utility>
+#include <string_view>
 
 namespace ph
 {
 
 class SdlField;
+class SdlFunction;
 class SdlInputContext;
 class ISdlResource;
 
@@ -26,7 +28,14 @@ public:
 	virtual std::shared_ptr<ISdlResource> createResource() const = 0;
 
 	virtual void initResource(
+
 		ISdlResource&          resource,
+		ValueClauses&          clauses,
+		const SdlInputContext& ctx) const = 0;
+
+	virtual void call(
+		std::string_view       funcName,
+		ISdlResource*          resource,
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const = 0;
 
@@ -34,6 +43,8 @@ public:
 
 	virtual std::size_t numFields() const = 0;
 	virtual const SdlField* getField(std::size_t index) const = 0;
+	virtual std::size_t numFunctions() const = 0;
+	virtual const SdlFunction* getFunction(std::size_t index) const = 0;
 
 	std::string genPrettyName() const;
 	const std::string& getCategory() const;

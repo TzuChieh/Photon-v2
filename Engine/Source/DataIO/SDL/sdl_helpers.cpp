@@ -4,6 +4,7 @@
 #include "DataIO/io_exceptions.h"
 #include "DataIO/SDL/Introspect/SdlClass.h"
 #include "DataIO/SDL/Introspect/SdlField.h"
+#include "DataIO/SDL/Introspect/SdlFunction.h"
 
 namespace ph::sdl
 {
@@ -127,6 +128,13 @@ std::string gen_pretty_name(const SdlClass* const clazz)
 {
 	return clazz ? 
 		"category: " + clazz->getCategory() + ", name: " + clazz->getTypeName() : 
+		"unavailable";
+}
+
+std::string gen_pretty_name(const SdlFunction* const func)
+{
+	return func ?
+		"name: " + func->getName() :
 		"unavailable";
 }
 

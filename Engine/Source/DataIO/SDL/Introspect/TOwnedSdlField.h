@@ -48,6 +48,20 @@ private:
 		std::string& out_converterMessage) const = 0;
 
 	EFieldImportance m_importance;
+
+	// Nested field need the ability to wrap calls including private ones
+	// Note that friend with partial specializations is not supported
+	// in C++17. We resort to making more friend classes than needed.
+	// 
+	// The following friend statement is not yet supported:
+	//
+	// template<typename InnerType>
+	// friend class TSdlNestedField<Owner, InnerType>;
+	//
+	// See https://stackoverflow.com/questions/44213761/partial-template-specialization-for-friend-classes
+	//
+	template<typename OuterType, typename InnerType>
+	friend class TSdlNestedField;
 };
 
 // In-header Implementations:

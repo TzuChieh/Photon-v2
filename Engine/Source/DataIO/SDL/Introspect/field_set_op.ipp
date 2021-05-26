@@ -4,7 +4,7 @@
 #include "DataIO/SDL/ValueClauses.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/SdlIOUtils.h"
+#include "DataIO/SDL/sdl_helpers.h"
 
 #include <array>
 #include <utility>
@@ -81,7 +81,7 @@ inline void load_fields_from_sdl(
 				if(importance != EFieldImportance::OPTIONAL)
 				{
 					std::forward<NoticeReceiver>(noticeReceiver)(
-						"no clause for " + SdlIOUtils::genPrettyName(this, &field) +
+						"no clause for " + sdl::gen_pretty_name(this, &field) +
 						", defaults to <" + field.valueToString(owner) + ">",
 						importance);
 				}
