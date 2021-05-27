@@ -28,6 +28,9 @@ public:
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const override;
 
+	std::size_t numParams() const override;
+	const SdlField* getParam(std::size_t index) const override;
+
 	void callMethod(
 		TargetType&            targetType,
 		ValueClauses&          clauses,
@@ -38,8 +41,10 @@ public:
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const;
 
-	std::size_t numParams() const override;
-	const SdlField* getParam(std::size_t index) const override;
+	template<typename T>
+	TSdlMethod& addParam(T sdlField);
+
+	// TODO: support structs?
 
 private:
 	TBasicSdlFieldSet<TOwnedSdlField<MethodStruct>> m_fields;

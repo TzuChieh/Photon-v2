@@ -2,6 +2,8 @@
 
 #include <DataIO/SDL/Introspect/TSdlMethod.h>
 #include <DataIO/SDL/ISdlResource.h>
+#include <DataIO/SDL/Introspect/TSdlString.h>
+#include <DataIO/SDL/ValueClauses.h>
 
 #include <gtest/gtest.h>
 
@@ -15,7 +17,7 @@ namespace
 	class TestResource : public ISdlResource
 	{
 	public:
-		int testInt;
+		std::string str;
 	};
 
 	struct TestMethodStruct
@@ -24,7 +26,7 @@ namespace
 
 		void operator () (TestResource& res)
 		{
-			str = "hello";
+			res.str = str;
 		}
 	};
 }
@@ -43,5 +45,45 @@ TEST(TSdlMethodTest, DefaultStates)
 		{
 			EXPECT_TRUE(method.getParam(i) == nullptr);
 		}
+	}
+}
+
+TEST(TSdlMethodTest, SupplyParameters)
+{
+	{
+		TSdlMethod<TestMethodStruct, TestResource> method("ttt");
+		method.addParam(
+			TSdlString<TestMethodStruct>("someValue", &TestMethodStruct::str));
+		EXPECT_EQ(method.numParams(), 1);
+
+		ASSERT_TRUE(method.getParam(0) != nullptr);
+		PH_EXPECT_STRING_EQ(method.getParam(0)->getTypeName(), "string");
+		PH_EXPECT_STRING_EQ(method.getParam(0)->getFieldName(), "someValue");
+
+		// Getting out-of-bound parameters is allowed
+		for(std::size_t i = 1; i < 1000; ++i)
+		{
+			EXPECT_TRUE(method.getParam(i) == nullptr);
+		}
+	}
+}
+
+TEST(TSdlMethodTest, CallMethod)
+{
+	{
+		TSdlMethod<TestMethodStruct, TestResource> method("setToHello");
+		method.addParam(
+			TSdlString<TestMethodStruct>("someParam", &TestMethodStruct::str));
+
+		TestResource res;
+		res.str = "today is a nice day";
+
+		ValueClauses clauses;
+		clauses.add("string", "someParam", "hello");
+
+		// The method should set the <str> field in the resource to "hello"
+		method.call(&res, clauses, SdlInputContext());
+
+		PH_EXPECT_STRING_EQ(res.str, "hello");
 	}
 }

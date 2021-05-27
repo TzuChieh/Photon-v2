@@ -9,6 +9,7 @@
 #include "DataIO/SDL/sdl_exceptions.h"
 
 #include <utility>
+#include <type_traits>
 
 namespace ph
 {
@@ -92,6 +93,20 @@ template<typename MethodStruct, typename TargetType>
 inline const SdlField* TSdlMethod<MethodStruct, TargetType>::getParam(const std::size_t index) const
 {
 	return m_fields.getField(index);
+}
+
+template<typename MethodStruct, typename TargetType>
+template<typename T>
+inline auto TSdlMethod<MethodStruct, TargetType>::addParam(T sdlField)
+	-> TSdlMethod&
+{
+	// More restrictions on the type of T may be imposed by FieldSet
+	static_assert(std::is_base_of_v<SdlField, T>,
+		"T is not a SdlField thus cannot be added.");
+
+	m_fields.addField(std::move(sdlField));
+
+	return *this;
 }
 
 }// end namespace ph
