@@ -59,7 +59,8 @@ inline void TOwnerSdlClass<Owner, FieldSet>::initResource(
 	fromSdl(*owner, clauses, ctx);
 }
 
-void TOwnerSdlClass<Owner, FieldSet>::call(
+template<typename Owner, typename FieldSet>
+inline void TOwnerSdlClass<Owner, FieldSet>::call(
 	const std::string_view funcName,
 	ISdlResource*          resource,
 	ValueClauses&          clauses,
@@ -67,7 +68,7 @@ void TOwnerSdlClass<Owner, FieldSet>::call(
 {
 	// Find SDL function by name
 	const SdlFunction* func = nullptr;
-	for(std::size_t funcIdx = 0; funcIdx < m_functions; ++funcIdx)
+	for(std::size_t funcIdx = 0; funcIdx < m_functions.size(); ++funcIdx)
 	{
 		PH_ASSERT(m_functions[funcIdx]);
 		const SdlFunction& funcI = *(m_functions[funcIdx]);
@@ -85,7 +86,7 @@ void TOwnerSdlClass<Owner, FieldSet>::call(
 	else
 	{
 		throw SdlLoadError(
-			"cannot find SDL function named <" + funcName + "> in"
+			"cannot find SDL function named <" + std::string(funcName) + "> in"
 			"SDL class <" + genPrettyName() + ">");
 	}
 }
@@ -191,7 +192,7 @@ template<typename Owner, typename FieldSet>
 inline void TOwnerSdlClass<Owner, FieldSet>::fromSdl(
 	Owner&                  owner, 
 	ValueClauses&           clauses,
-	const SdlInputContext&  ctx)
+	const SdlInputContext&  ctx) const
 {
 	field_set_op::load_fields_from_sdl(
 		owner,

@@ -24,8 +24,6 @@ inline void load_fields_from_sdl(
 	const SdlInputContext& ctx,
 	NoticeReceiver&&       noticeReceiver)
 {
-	PH_ASSERT(clauses);
-
 	// Consider to increase the number if not enough
 	constexpr std::size_t MAX_FIELD_FLAGS = 64;
 	PH_ASSERT_GE(MAX_FIELD_FLAGS, fieldSet.numFields());
@@ -66,7 +64,7 @@ inline void load_fields_from_sdl(
 	}
 
 	// Check and process uninitialized fields
-	for(std::size_t fieldIdx = 0; fieldIdx < fieldSet.size(); ++fieldIdx)
+	for(std::size_t fieldIdx = 0; fieldIdx < fieldSet.numFields(); ++fieldIdx)
 	{
 		if(!isFieldTouched[fieldIdx])
 		{
@@ -81,7 +79,7 @@ inline void load_fields_from_sdl(
 				if(importance != EFieldImportance::OPTIONAL)
 				{
 					std::forward<NoticeReceiver>(noticeReceiver)(
-						"no clause for " + sdl::gen_pretty_name(this, &field) +
+						"no clause for " + sdl::gen_pretty_name(ctx.srcClass, &field) +
 						", defaults to <" + field.valueToString(owner) + ">",
 						importance);
 				}
@@ -106,7 +104,7 @@ inline void load_fields_from_sdl_with_redundant_clauses(
 	FieldSet&              fieldSet,
 	ValueClauses&          clauses,
 	const SdlInputContext& ctx,
-	NoticeReceiver&&       noticeReceiver = NoOpNoticeReceiver())
+	NoticeReceiver&&       noticeReceiver)
 {
 	load_fields_from_sdl<Owner, FieldSet, NoticeReceiver, false>(
 		owner,

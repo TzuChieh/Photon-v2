@@ -39,6 +39,9 @@
 #define PH_SPECTRUM_SAMPLED_NUM_SAMPLES       100
 #define PH_HIT_PROBE_DEPTH                    8
 
+#define PH_SDL_MAX_FIELDS    64
+#define PH_SDL_MAX_FUNCTIONS 64
+
 // Number of available bytes for a probe's cache. Note that a byte is not 
 // necessarily 8-bit.
 #define PH_HIT_PROBE_CACHE_BYTES 12

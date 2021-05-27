@@ -3,6 +3,7 @@
 #include "DataIO/SDL/Introspect/SdlField.h"
 #include "Common/assertion.h"
 #include "Utility/TArrayAsVector.h"
+#include "Common/config.h"
 
 #include <cstddef>
 #include <type_traits>
@@ -24,7 +25,7 @@ namespace ph
 This class accepts polymorphic field types. 
 This class finds a field using brute-force method.
 */
-template<typename BaseFieldType, std::size_t MAX_FIELDS = 64>
+template<typename BaseFieldType, std::size_t MAX_FIELDS = PH_SDL_MAX_FIELDS>
 class TBasicSdlFieldSet final
 {
 	static_assert(std::is_base_of_v<SdlField, BaseFieldType>,
@@ -78,7 +79,7 @@ public:
 
 	inline std::optional<std::size_t> findFieldIndex(
 		const std::string_view typeName,
-		const std::string_view fieldName)
+		const std::string_view fieldName) const
 	{
 		PH_ASSERT(!typeName.empty());
 		PH_ASSERT(!fieldName.empty());

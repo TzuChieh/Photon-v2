@@ -4,6 +4,7 @@
 #include "DataIO/SDL/Introspect/TOwnedSdlField.h"
 #include "DataIO/SDL/Introspect/TBasicSdlFieldSet.h"
 #include "Utility/TArrayAsVector.h"
+#include "Common/config.h"
 
 #include <string>
 #include <utility>
@@ -51,7 +52,7 @@ public:
 	void fromSdl(
 		Owner&                 owner,
 		ValueClauses&          clauses,
-		const SdlInputContext& ctx);
+		const SdlInputContext& ctx) const;
 
 	void toSdl(
 		const Owner& owner,
@@ -75,8 +76,10 @@ public:
 	TOwnerSdlClass& addFunction(const T* sdlFunction);
 
 private:
-	FieldSet m_fields;
-	TArrayAsVector<const SdlFunction*> m_functions;
+	using FunctionSet = TArrayAsVector<const SdlFunction*, PH_SDL_MAX_FUNCTIONS>;
+
+	FieldSet    m_fields;
+	FunctionSet m_functions;
 };
 
 }// end namespace ph
