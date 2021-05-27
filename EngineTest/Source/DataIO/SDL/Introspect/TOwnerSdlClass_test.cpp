@@ -44,3 +44,5 @@ TEST(TOwnerSdlClassTest, DefaultStates)
 		}
 	}
 }
+
+// TODO: add/load/call fields & functions

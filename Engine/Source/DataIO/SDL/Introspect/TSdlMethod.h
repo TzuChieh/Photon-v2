@@ -39,7 +39,7 @@ public:
 		const SdlInputContext& ctx) const;
 
 	std::size_t numParams() const override;
-	const SdlField* getField(std::size_t index) const override;
+	const SdlField* getParam(std::size_t index) const override;
 
 private:
 	TBasicSdlFieldSet<TOwnedSdlField<MethodStruct>> m_fields;

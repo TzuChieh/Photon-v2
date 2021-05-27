@@ -7,6 +7,7 @@
 #include <gtest/gtest.h>
 
 #include <type_traits>
+#include <string>
 
 #ifndef PH_USE_DOUBLE_REAL
 	static_assert(std::is_same_v<::ph::real, float>,
@@ -17,4 +18,4 @@
 	#define PH_EXPECT_REAL_EQ(a, b) EXPECT_DOUBLE_EQ(a, b)
 #endif
 
-#define PH_EXPECT_STRING_EQ(a, b) EXPECT_STREQ((a).c_str(), (b).c_str())
+#define PH_EXPECT_STRING_EQ(a, b) EXPECT_STREQ(std::string(a).c_str(), std::string(b).c_str())
