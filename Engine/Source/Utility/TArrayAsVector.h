@@ -14,7 +14,9 @@ class TArrayAsVector final
 public:
 	TArrayAsVector();
 
-	void pushBack(T&& item);
+	template<typename U>
+	void pushBack(U&& item);
+
 	void popBack();
 	T& front();
 	const T& front() const;

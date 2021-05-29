@@ -5,6 +5,7 @@
 #include "Common/assertion.h"
 
 #include <utility>
+#include <type_traits>
 
 namespace ph
 {
@@ -23,13 +24,16 @@ inline TArrayAsVector<T, N>::TArrayAsVector() :
 {}
 
 template<typename T, std::size_t N>
-inline void TArrayAsVector<T, N>::pushBack(T&& item)
+template<typename U>
+inline void TArrayAsVector<T, N>::pushBack(U&& item)
 {
+	// TODO: static assert for U == T, amy require ref and ptr removal
+
 	PH_ASSERT_LT(m_size, m_data.size());
 
 	// FIXME: what if assignment throw? need increment m_size later only if assignment succeeded; 
 	// perhaps check if op is no-throw?
-	m_data[m_size++] = std::forward<T>(item);
+	m_data[m_size++] = std::forward<U>(item);
 }
 
 template<typename T, std::size_t N>
