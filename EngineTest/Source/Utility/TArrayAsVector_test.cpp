@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <type_traits>
+#include <cstddef>
 
 using namespace ph;
 
@@ -55,13 +56,18 @@ TEST(TArrayAsVectorTest, SafeOutOfBoundAccessor)
 		EXPECT_FALSE(vec.get(0));
 		EXPECT_FALSE(vec.get(1));
 		EXPECT_FALSE(vec.get(100));
+
+		for(std::size_t i = 0; i < 1000; ++i)
+		{
+			EXPECT_FALSE(vec.get(i));
+		}
 	}
 }
 
 TEST(TArrayAsVectorTest, PushAndPop)
 {
 	{
-		ph::TArrayAsVector<int, 3> vec;
+		TArrayAsVector<int, 3> vec;
 		EXPECT_EQ(vec.size(), 0);
 		EXPECT_TRUE(vec.isEmpty());
 
@@ -106,6 +112,27 @@ TEST(TArrayAsVectorTest, PushAndPop)
 		EXPECT_EQ(vec.size(), 0);
 		EXPECT_TRUE(vec.isEmpty());
 	}
+
+	// Push lvalue
+	{
+
+		TArrayAsVector<float, 3> vec;
+
+		float val = -3.0f;
+		vec.pushBack(val);
+		// vec state: [-3.0f]
+		EXPECT_EQ(vec[0], -3.0f);
+
+		val = 6.3f;
+		vec.pushBack(val);
+		// vec state: [-3.0f, 6.3f]
+		EXPECT_EQ(vec[1], 6.3f);
+
+		val = 0.111111f;
+		vec.pushBack(val);
+		// vec state: [-3.0f, 6.3f, 0.111111f]
+		EXPECT_EQ(vec[2], 0.111111f);
+	}
 }
 
 TEST(TArrayAsVectorTest, RequiredProperties)
@@ -129,7 +156,7 @@ TEST(TArrayAsVectorTest, RequiredProperties)
 TEST(TArrayAsVectorTest, PushNonCopyable)
 {
 	{
-		ph::TArrayAsVector<std::unique_ptr<int>, 3> vec;
+		TArrayAsVector<std::unique_ptr<int>, 3> vec;
 		EXPECT_EQ(vec.size(), 0);
 		EXPECT_TRUE(vec.isEmpty());
 
