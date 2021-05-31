@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Texture/Function/TTextureFunction.h"
-#include "Utility/has_member.h"
+#include "Utility/traits.h"
 
 #include <utility>
 #include <memory>
@@ -15,7 +15,7 @@ namespace detail::texture
 template<typename InputType, typename ConstantType, typename OutputType>
 class TConstantMultiplier final
 {
-	static_assert(has_multiply_operator<InputType, ConstantType, OutputType>::value,
+	static_assert(CanMultiply<InputType, ConstantType, OutputType>::value,
 		"Must have multiply operator for <OutputType> = <InputType> * <ConstantType>");
 
 public:

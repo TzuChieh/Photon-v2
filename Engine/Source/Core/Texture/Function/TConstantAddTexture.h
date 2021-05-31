@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Texture/Function/TTextureFunction.h"
-#include "Utility/has_member.h"
+#include "Utility/traits.h"
 
 #include <utility>
 
@@ -14,7 +14,7 @@ namespace detail::texture
 template<typename InputType, typename ConstantType, typename OutputType>
 class TConstantAdder final
 {
-	static_assert(has_add_operator<InputType, ConstantType, OutputType>::value,
+	static_assert(CanAdd<InputType, ConstantType, OutputType>::value,
 		"Must have add operator for <OutputType> = <InputType> + <ConstantType>");
 
 public:

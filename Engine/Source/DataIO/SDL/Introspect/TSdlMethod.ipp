@@ -9,7 +9,6 @@
 #include "DataIO/SDL/sdl_exceptions.h"
 
 #include <utility>
-#include <type_traits>
 
 namespace ph
 {

@@ -5,7 +5,6 @@
 #include "DataIO/SDL/Introspect/TOwnedSdlField.h"
 
 #include <cstddef>
-
 #include <type_traits>
 
 namespace ph
@@ -15,10 +14,10 @@ template<typename MethodStruct, typename TargetType>
 class TSdlMethod : public SdlFunction
 {
 	static_assert(std::is_default_constructible_v<MethodStruct> && !std::is_abstract_v<MethodStruct>,
-		"A MethodStruct must be default constructible.");
+		"MethodStruct must be default constructible.");
 
 	static_assert(std::is_invocable_v<MethodStruct, TargetType>,
-		"A MethodStruct must contain operator() that takes a TargetType.");
+		"MethodStruct must contain operator() that takes a TargetType.");
 
 public:
 	explicit TSdlMethod(std::string name);
