@@ -1,4 +1,4 @@
-#include "DataIO/SDL/NamedResourceStorage.h"
+#include "DataIO/SDL/SceneDescription.h"
 #include "DataIO/SDL/Keyword.h"
 #include "Common/assertion.h"
 
@@ -7,11 +7,18 @@
 namespace ph
 {
 
-NamedResourceStorage::NamedResourceStorage() : 
+namespace
+{
+
+Logger logger(LogSender("Scene Description"));
+
+}
+
+SceneDescription::SceneDescription() :
 	m_resources()
 {}
 
-void NamedResourceStorage::addResource(
+void SceneDescription::addResource(
 	const SdlTypeInfo& typeInfo,
 	const std::string& resourceName, 
 	std::unique_ptr<ISdlResource> resource)
@@ -19,7 +26,7 @@ void NamedResourceStorage::addResource(
 	if(resource == nullptr || resourceName.empty())
 	{
 		// TODO: also print type
-		std::cerr << "warning: at NamedResourceStorage::addResource(), name <" << resourceName << "> or resource is null, ignoring" << std::endl;
+		std::cerr << "warning: at SceneDescription::addResource(), name <" << resourceName << "> or resource is null, ignoring" << std::endl;
 		return;
 	}
 
@@ -28,7 +35,7 @@ void NamedResourceStorage::addResource(
 	const auto& iter = resourcesNameMap.find(resourceName);
 	if(iter != resourcesNameMap.end())
 	{
-		std::cerr << "warning: at NamedResourceStorage::addResource(), "
+		std::cerr << "warning: at SceneDescription::addResource(), "
 		          << "name <" << resourceName << "> " 
 		          << "type <" << typeInfo.toString() << "> duplicated, overwriting" << std::endl;
 	}
@@ -36,7 +43,7 @@ void NamedResourceStorage::addResource(
 	resourcesNameMap[resourceName] = std::move(resource);
 }
 
-std::shared_ptr<ISdlResource> NamedResourceStorage::getResource(
+std::shared_ptr<ISdlResource> SceneDescription::getResource(
 	const SdlTypeInfo& typeInfo,
 	const std::string& resourceName,
 	const DataTreatment& treatment) const
@@ -53,7 +60,7 @@ std::shared_ptr<ISdlResource> NamedResourceStorage::getResource(
 	return iter->second;
 }
 
-std::vector<std::shared_ptr<Actor>> NamedResourceStorage::getActors() const
+std::vector<std::shared_ptr<Actor>> SceneDescription::getActors() const
 {
 	std::vector<std::shared_ptr<Actor>> actors;
 
@@ -67,14 +74,14 @@ std::vector<std::shared_ptr<Actor>> NamedResourceStorage::getActors() const
 		}
 		else
 		{
-			std::cerr << "warning: at NamedResourceStorage::getActors(), non-Actor detected" << std::endl;
+			std::cerr << "warning: at SceneDescription::getActors(), non-Actor detected" << std::endl;
 		}
 	}
 
 	return actors;
 }
 
-void NamedResourceStorage::reportResourceNotFound(const std::string& categoryName, const std::string& name, const DataTreatment& treatment)
+void SceneDescription::reportResourceNotFound(const std::string& categoryName, const std::string& name, const DataTreatment& treatment)
 {
 	const std::string& message = treatment.notFoundInfo;
 
@@ -98,7 +105,7 @@ void NamedResourceStorage::reportResourceNotFound(const std::string& categoryNam
 	}
 }
 
-std::size_t NamedResourceStorage::toCategoryIndex(const ETypeCategory category) const
+std::size_t SceneDescription::toCategoryIndex(const ETypeCategory category) const
 {
 	const std::size_t index = static_cast<std::size_t>(category);
 	PH_ASSERT(index < m_resources.size());

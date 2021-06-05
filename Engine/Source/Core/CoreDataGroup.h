@@ -9,7 +9,7 @@ class Renderer;
 class Receiver;
 class SampleGenerator;
 class CookSettings;
-class SdlResourcePack;
+class SceneDescription;
 class VisualWorld;
 class Intersector;
 class EmitterSampler;
@@ -20,7 +20,7 @@ class CoreDataGroup final
 public:
 	CoreDataGroup();
 
-	bool gatherFromRaw(const SdlResourcePack& pack);
+	bool gatherFromRaw(const SceneDescription& scene);
 	bool gatherFromCooked(const VisualWorld& world);
 
 	Renderer* getRenderer() const;

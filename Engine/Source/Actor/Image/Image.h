@@ -20,7 +20,6 @@ class Image : public TCommandInterface<Image>
 {
 public:
 	Image();
-	virtual ~Image() = default;
 
 	virtual std::shared_ptr<TTexture<real>> genTextureReal(
 		CookingContext& context) const;
@@ -30,6 +29,8 @@ public:
 
 	virtual std::shared_ptr<TTexture<Spectrum>> genTextureSpectral(
 		CookingContext& context) const;
+
+	ETypeCategory getCategory() const;
 
 private:
 	template<typename OutputType>
@@ -48,6 +49,13 @@ public:
 	static void ciRegister(CommandRegister& cmdRegister);
 	static void registerMathFunctions(CommandRegister& cmdRegister);
 };
+
+// In-header Implementations:
+
+inline ETypeCategory Image::getCategory() const
+{
+	return ETypeCategory::REF_IMAGE;
+}
 
 }// end namespace ph
 

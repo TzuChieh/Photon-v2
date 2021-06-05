@@ -1,5 +1,5 @@
 #include "DataIO/SDL/InputPacket.h"
-#include "DataIO/SDL/NamedResourceStorage.h"
+#include "DataIO/SDL/SceneDescription.h"
 #include "DataIO/SDL/ValueParser.h"
 #include "DataIO/SDL/Keyword.h"
 #include "DataIO/SDL/InputPrototype.h"
@@ -12,18 +12,18 @@ namespace ph
 {
 
 InputPacket::InputPacket(
-	const std::vector<ValueClause>&   vClauses,
-	const NamedResourceStorage* const storage,
-	const Path&                       workingDirectory) :
+	const std::vector<ValueClause>& vClauses,
+	const SceneDescription* const   scene,
+	const Path&                     workingDirectory) :
 	m_vClauses(vClauses), 
-	m_storage(storage),
+	m_scene(scene),
 	m_workingDirectory(workingDirectory),
 	m_valueParser(workingDirectory)
 {}
 
 InputPacket::InputPacket(InputPacket&& other) : 
 	m_vClauses(std::move(other.m_vClauses)), 
-	m_storage(std::move(other.m_storage)),
+	m_scene(std::move(other.m_scene)),
 	m_workingDirectory(std::move(other.m_workingDirectory)),
 	m_valueParser(std::move(other.m_valueParser))
 {}

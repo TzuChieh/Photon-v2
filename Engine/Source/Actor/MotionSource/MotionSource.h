@@ -16,16 +16,24 @@ class MotionSource : public TCommandInterface<MotionSource>
 {
 public:
 	MotionSource() = default;
-	virtual ~MotionSource() = default;
 	
 	virtual std::unique_ptr<math::Transform> genLocalToWorld(
 		const Time& start, 
 		const Time& end) const = 0;
+
+	ETypeCategory getCategory() const override;
 
 // command interface
 public:
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
+
+// In-header Implementations:
+
+inline ETypeCategory MotionSource::getCategory() const
+{
+	return ETypeCategory::REF_MOTION;
+}
 
 }// end namespace ph

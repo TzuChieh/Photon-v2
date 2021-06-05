@@ -34,6 +34,8 @@ public:
 	explicit SampleGenerator(std::size_t numSampleBatches);
 	virtual ~SampleGenerator() = default;
 
+	ETypeCategory getCategory() const override;
+
 	void genSplitted(std::size_t numSplits,
 	                 std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) const;
 	std::unique_ptr<SampleGenerator> genCopied(std::size_t numSampleBatches) const;
@@ -96,6 +98,11 @@ public:
 };
 
 // In-header Implementations:
+
+inline ETypeCategory SampleGenerator::getCategory() const
+{
+	return ETypeCategory::REF_SAMPLE_GENERATOR;
+}
 
 inline std::size_t SampleGenerator::numSampleBatches() const
 {

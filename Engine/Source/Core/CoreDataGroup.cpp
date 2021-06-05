@@ -1,16 +1,21 @@
 #include "Core/CoreDataGroup.h"
-#include "DataIO/SDL/SdlResourcePack.h"
+#include "DataIO/SDL/SceneDescription.h"
 #include "World/CookSettings.h"
 #include "Common/Logger.h"
 #include "Core/EngineOption.h"
 #include "World/VisualWorld.h"
+#include "Core/Renderer/Renderer.h"
+#include "Core/Receiver/Receiver.h"
+#include "Core/SampleGenerator/SampleGenerator.h"
 
 namespace ph
 {
 
 namespace
 {
-	Logger logger(LogSender("Core Data"));
+
+Logger logger(LogSender("Core Data"));
+
 }
 
 CoreDataGroup::CoreDataGroup() : 
@@ -20,11 +25,11 @@ CoreDataGroup::CoreDataGroup() :
 	m_cookSettings   (nullptr)
 {}
 
-bool CoreDataGroup::gatherFromRaw(const SdlResourcePack& pack)
+bool CoreDataGroup::gatherFromRaw(const SceneDescription& scene)
 {
 	// Get settings for engine
 
-	const auto engineOptions = pack.data.getResources<EngineOption>();
+	const auto engineOptions = scene.getResources<EngineOption>();
 	if(engineOptions.empty())
 	{
 		logger.log(ELogLevel::FATAL_ERROR,
@@ -41,13 +46,13 @@ bool CoreDataGroup::gatherFromRaw(const SdlResourcePack& pack)
 
 	// Get core resources specified by engine option
 
-	m_renderer = pack.data.getResource<Renderer>(engineOption->getRendererName(),
+	m_renderer = scene.getResource<Renderer>(engineOption->getRendererName(),
 		DataTreatment::REQUIRED());
 
-	m_receiver = pack.data.getResource<Receiver>(engineOption->getReceiverName(),
+	m_receiver = scene.getResource<Receiver>(engineOption->getReceiverName(),
 		DataTreatment::REQUIRED());
 
-	m_sampleGenerator = pack.data.getResource<SampleGenerator>(engineOption->getSampleGeneratorName(),
+	m_sampleGenerator = scene.getResource<SampleGenerator>(engineOption->getSampleGeneratorName(),
 		DataTreatment::REQUIRED());
 
 	if(!m_renderer || !m_receiver || !m_sampleGenerator)
@@ -57,7 +62,7 @@ bool CoreDataGroup::gatherFromRaw(const SdlResourcePack& pack)
 		return false;
 	}
 
-	m_cookSettings = pack.data.getResource<CookSettings>(engineOption->getCookSettingsName());
+	m_cookSettings = scene.getResource<CookSettings>(engineOption->getCookSettingsName());
 	if(!m_cookSettings)
 	{
 		logger.log(

@@ -15,10 +15,11 @@ class Actor : public TCommandInterface<Actor>
 public:
 	Actor();
 	Actor(const Actor& other);
-	virtual ~Actor() = default;
 
 	virtual CookedUnit cook(CookingContext& context) = 0;
 	virtual CookOrder getCookOrder() const;
+
+	ETypeCategory getCategory() const override;
 
 	Actor& operator = (const Actor& rhs);
 
@@ -36,6 +37,11 @@ public:
 inline CookOrder Actor::getCookOrder() const
 {
 	return CookOrder();
+}
+
+inline ETypeCategory Actor::getCategory() const
+{
+	return ETypeCategory::REF_ACTOR;
 }
 
 }// end namespace ph

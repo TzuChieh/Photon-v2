@@ -21,7 +21,6 @@ class Geometry : public TCommandInterface<Geometry>
 {
 public:
 	Geometry();
-	virtual ~Geometry() = default;
 
 	virtual void genPrimitive(
 		const PrimitiveBuildingMaterial&         data, 
@@ -31,6 +30,8 @@ public:
 		const math::StaticAffineTransform& transform) const;
 
 	virtual std::shared_ptr<Geometry> genTriangulated() const;
+
+	ETypeCategory getCategory() const override;
 
 	const UvwMapper* getUvwMapper() const;
 	void setUvwMapper(const std::shared_ptr<UvwMapper>& uvwMapper);
@@ -61,6 +62,11 @@ inline std::shared_ptr<Geometry> Geometry::genTransformed(
 inline std::shared_ptr<Geometry> Geometry::genTriangulated() const
 {
 	return nullptr;
+}
+
+inline ETypeCategory Geometry::getCategory() const
+{
+	return ETypeCategory::REF_GEOMETRY;
 }
 
 }// end namespace ph

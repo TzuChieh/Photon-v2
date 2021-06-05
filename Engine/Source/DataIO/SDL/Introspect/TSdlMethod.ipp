@@ -5,7 +5,7 @@
 #include "DataIO/SDL/ValueClauses.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
 #include "DataIO/SDL/Introspect/field_set_op.h"
-#include "DataIO/SDL/NamedResourceStorage.h"
+#include "DataIO/SDL/SceneDescription.h"
 #include "DataIO/SDL/sdl_exceptions.h"
 
 #include <utility>

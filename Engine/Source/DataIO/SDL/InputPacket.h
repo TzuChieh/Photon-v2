@@ -7,7 +7,7 @@
 #include "Math/TQuaternion.h"
 #include "DataIO/SDL/DataTreatment.h"
 #include "DataIO/SDL/SdlTypeInfo.h"
-#include "DataIO/SDL/NamedResourceStorage.h"
+#include "DataIO/SDL/SceneDescription.h"
 #include "DataIO/FileSystem/Path.h"
 #include "DataIO/SDL/ValueParser.h"
 #include "Utility/INoncopyable.h"
@@ -22,7 +22,6 @@
 namespace ph
 {
 
-class NamedResourceStorage;
 class InputPrototype;
 
 class InputPacket final : public INoncopyable
@@ -37,7 +36,7 @@ private:
 public:
 	InputPacket(
 		const std::vector<ValueClause>& vClauses, 
-		const NamedResourceStorage*     storage,
+		const SceneDescription*         scene,
 		const Path&                     workingDirectory);
 
 	InputPacket(InputPacket&& other);
@@ -141,10 +140,10 @@ public:
 	}
 
 private:
-	const std::vector<ValueClause>    m_vClauses;
-	const NamedResourceStorage* const m_storage;
-	const Path                        m_workingDirectory;
-	const ValueParser                 m_valueParser;
+	const std::vector<ValueClause> m_vClauses;
+	const SceneDescription* const  m_scene;
+	const Path                     m_workingDirectory;
+	const ValueParser              m_valueParser;
 
 	bool findStringValue(std::string_view typeName, const std::string& dataName, const DataTreatment& treatment,
 	                     std::string* const out_value) const;
@@ -166,7 +165,7 @@ inline auto InputPacket::getReference(
 	const SdlTypeInfo& typeInfo = RefType::ciTypeInfo();
 	std::string resourceName;
 	return findStringValue(typeInfo.getCategoryName(), referenceName, treatment, &resourceName) ?
-	                       m_storage->getResource<RefType>(resourceName, treatment) : nullptr;
+	                       m_scene->getResource<RefType>(resourceName, treatment) : nullptr;
 }
 
 template<typename RefType>

@@ -56,6 +56,8 @@ public:
 
 	virtual void evalEmittedImportanceAndPdfW(const math::Vector3R& targetPos, math::Vector2R* const out_filmCoord, math::Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const = 0;
 
+	ETypeCategory getCategory() const override;
+
 	const math::Vector3R& getPosition() const;
 	const math::Vector3R& getDirection() const;
 	const math::Vector2S& getRasterResolution() const;
@@ -93,6 +95,11 @@ public:
 };
 
 // In-header Implementations:
+
+inline ETypeCategory Receiver::getCategory() const
+{
+	return ETypeCategory::REF_RECEIVER;
+}
 
 inline const math::Vector3R& Receiver::getPosition() const
 {

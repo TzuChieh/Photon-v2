@@ -10,6 +10,12 @@
 namespace ph::string_utils
 {
 
+/*! @brief Remove characters from the beginning.
+
+@param srcStr String that is going to be cut.
+@param candidates Characters in @p srcStr will be removed until any of @p candidates are met.
+@return The cut string.
+*/
 inline std::string_view cut_head(const std::string_view srcStr, const char* const candidates)
 {
 	PH_ASSERT(candidates);
@@ -26,6 +32,12 @@ inline std::string_view cut_head(const std::string_view srcStr, const char* cons
 	return cutStr;
 }
 
+/*! @brief Remove characters from the end.
+
+@param srcStr String that is going to be cut.
+@param candidates Characters in @p srcStr will be removed until any of @p candidates are met.
+@return The cut string.
+*/
 inline std::string_view cut_tail(const std::string_view srcStr, const char* const candidates)
 {
 	PH_ASSERT(candidates);
@@ -43,26 +55,53 @@ inline std::string_view cut_tail(const std::string_view srcStr, const char* cons
 	return cutStr;
 }
 
+/*! @brief Remove characters from both ends.
+
+@param srcStr String that is going to be cut.
+@param candidates Characters in @p srcStr will be removed until any of @p candidates are met.
+@return The cut string.
+*/
 inline std::string_view cut_ends(const std::string_view srcStr, const char* const candidates)
 {
 	return cut_head(cut_tail(srcStr, candidates), candidates);
 }
 
+/*! @brief Remove white spaces from the beginning.
+
+@param srcStr String that is going to be trimmed.
+@return The trimmed string.
+*/
 inline std::string_view trim_head(const std::string_view srcStr)
 {
 	return cut_head(srcStr, " \n\r\t");
 }
 
+/*! @brief Remove white spaces from the end.
+
+@param srcStr String that is going to be trimmed.
+@return The trimmed string.
+*/
 inline std::string_view trim_tail(const std::string_view srcStr)
 {
 	return cut_tail(srcStr, " \n\r\t");
 }
 
+/*! @brief Remove white spaces from both ends.
+
+@param srcStr String that is going to be trimmed.
+@return The trimmed string.
+*/
 inline std::string_view trim(const std::string_view srcStr)
 {
 	return trim_head(trim_tail(srcStr));
 }
 
+/*! @brief Convert lower-case characters to upper-case.
+
+Characters that are not English alphabets will be preserved.
+
+@param str String that is going to be converted in-place.
+*/
 inline void az_to_AZ(std::string* const str)
 {
 	PH_ASSERT(str);
@@ -73,6 +112,12 @@ inline void az_to_AZ(std::string* const str)
 	}
 }
 
+/*! @brief Convert upper-case characters to lower-case.
+
+Characters that are not English alphabets will be preserved.
+
+@param str String that is going to be converted in-place.
+*/
 inline void AZ_to_az(std::string* const str)
 {
 	PH_ASSERT(str);

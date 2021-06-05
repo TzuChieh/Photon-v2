@@ -19,7 +19,6 @@ class LightSource : public TCommandInterface<LightSource>
 {
 public:
 	LightSource() = default;
-	virtual ~LightSource() = default;
 
 	// Generates the core emission part of the light source.
 	//
@@ -38,12 +37,21 @@ public:
 	//
 	virtual std::shared_ptr<Material> genMaterial(CookingContext& context) const;
 
+	ETypeCategory getCategory() const override;
+
 // command interface
 public:
 	explicit LightSource(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
+
+// In-header Implementations:
+
+inline ETypeCategory LightSource::getCategory() const
+{
+	return ETypeCategory::REF_LIGHT_SOURCE;
+}
 
 }// end namespace ph
 

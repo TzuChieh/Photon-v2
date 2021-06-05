@@ -10,7 +10,7 @@ namespace ph
 {
 
 class SdlClass;
-class NamedResourceStorage;
+class SceneDescription;
 
 /*! @brief Data that SDL input process can rely on.
 
@@ -24,36 +24,36 @@ public:
 	SdlInputContext();
 
 	SdlInputContext(
-		const NamedResourceStorage* resources,
-		Path                        workingDirectory,
-		const SdlClass*             srcClass);
+		const SceneDescription* scene,
+		Path                    workingDirectory,
+		const SdlClass*         srcClass);
 
 	std::string genPrettySrcClassName() const;
 
 public:
-	Path                        workingDirectory;
-	const SdlClass*             srcClass;
-	const NamedResourceStorage* resources;
+	Path                    workingDirectory;
+	const SdlClass*         srcClass;
+	const SceneDescription* scene;
 };
 
 // In-header Implementation:
 
 inline SdlInputContext::SdlInputContext() :
-	resources       (nullptr),
+	scene           (nullptr),
 	workingDirectory(),
 	srcClass        (nullptr)
 {}
 
 inline SdlInputContext::SdlInputContext(
-	const NamedResourceStorage* resources,
-	Path                        workingDirectory,
-	const SdlClass* const       srcClass) :
+	const SceneDescription* scene,
+	Path                    workingDirectory,
+	const SdlClass* const   srcClass) :
 
-	resources        (nullptr),
-	workingDirectory (std::move(workingDirectory)),
-	srcClass         (srcClass)
+	scene           (nullptr),
+	workingDirectory(std::move(workingDirectory)),
+	srcClass        (srcClass)
 {
-	PH_ASSERT(resources);
+	PH_ASSERT(scene);
 }
 
 }// end namespace ph

@@ -8,6 +8,8 @@
 #include "Utility/Timer.h"
 #include "Core/EngineOption.h"
 #include "World/CookSettings.h"
+#include "Core/Receiver/Receiver.h"
+#include "Core/Renderer/Renderer.h"
 
 #include <fstream>
 #include <string>
@@ -29,7 +31,7 @@ Engine::Engine() :
 
 void Engine::enterCommand(const std::string& commandFragment)
 {
-	m_parser.enter(commandFragment, m_pack);
+	m_parser.enter(commandFragment, m_scene);
 }
 
 bool Engine::loadCommands(const Path& filePath)
@@ -70,7 +72,7 @@ bool Engine::loadCommands(const Path& filePath)
 
 void Engine::update()
 {
-	if(!m_coreData.gatherFromRaw(m_pack))
+	if(!m_coreData.gatherFromRaw(m_scene))
 	{
 		logger.log(ELogLevel::FATAL_ERROR,
 			"core raw data may be missing; engine failed to update");
@@ -80,7 +82,7 @@ void Engine::update()
 	m_visualWorld.setReceiverPosition(m_coreData.getReceiver()->getPosition());
 	m_visualWorld.setCookSettings(*(m_coreData.getCookSettings()));
 
-	const auto& actors = m_pack.data.getActors();
+	const auto& actors = m_scene.getActors();
 	for(const auto& actor : actors)
 	{
 		m_visualWorld.addActor(actor);

@@ -16,10 +16,10 @@
 namespace ph
 {
 
-class NamedResourceStorage final
+class SceneDescription final
 {
 public:
-	NamedResourceStorage();
+	SceneDescription();
 
 	void addResource(
 		const SdlTypeInfo& typeInfo,
@@ -65,7 +65,7 @@ private:
 // In-header Implementations:
 
 template<typename T>
-inline std::shared_ptr<T> NamedResourceStorage::getResource(
+inline std::shared_ptr<T> SceneDescription::getResource(
 	const std::string& resourceName, 
 	const DataTreatment& treatment) const
 {
@@ -82,7 +82,7 @@ inline std::shared_ptr<T> NamedResourceStorage::getResource(
 	if(castedResource == nullptr)
 	{
 		reportResourceNotFound(SdlTypeInfo::categoryToName(typeInfo.typeCategory), resourceName, treatment);
-		std::cerr << "warning: at NamedResourceStorage::getResource(), " 
+		std::cerr << "warning: at SceneDescription::getResource(), " 
 		          << "resource not found detail: requested type mismatch" << std::endl;
 		return nullptr;
 	}
@@ -91,7 +91,7 @@ inline std::shared_ptr<T> NamedResourceStorage::getResource(
 }
 
 template<typename T>
-inline std::vector<std::shared_ptr<T>> NamedResourceStorage::getResources() const
+inline std::vector<std::shared_ptr<T>> SceneDescription::getResources() const
 {
 	// TODO: check T::ciTypeInfo() exists
 
@@ -113,7 +113,7 @@ inline std::vector<std::shared_ptr<T>> NamedResourceStorage::getResources() cons
 }
 
 template<typename T>
-inline bool NamedResourceStorage::hasResource(const std::string& resourceName) const
+inline bool SceneDescription::hasResource(const std::string& resourceName) const
 {
 	const SdlTypeInfo& typeInfo         = T::ciTypeInfo();
 	const std::size_t  categoryIndex    = toCategoryIndex(typeInfo.typeCategory);

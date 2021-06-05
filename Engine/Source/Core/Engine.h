@@ -2,7 +2,7 @@
 
 #include "World/VisualWorld.h"
 #include "DataIO/SDL/SdlParser.h"
-#include "DataIO/SDL/SdlResourcePack.h"
+#include "DataIO/SDL/SceneDescription.h"
 #include "Math/TVector2.h"
 #include "Core/Renderer/ERegionStatus.h"
 #include "Frame/frame_fwd.h"
@@ -51,11 +51,11 @@ public:
 	Renderer* getRenderer() const;
 
 private:
-	SdlParser       m_parser;
-	SdlResourcePack m_pack;
-	VisualWorld     m_visualWorld;
-	CoreDataGroup   m_coreData;
-	uint32          m_numRenderThreads;
+	SdlParser        m_parser;
+	SceneDescription m_scene;
+	VisualWorld      m_visualWorld;
+	CoreDataGroup    m_coreData;
+	uint32           m_numRenderThreads;
 
 	//FrameProcessor m_frameProcessor;
 	// TODO: associate each attribute with a pipeline

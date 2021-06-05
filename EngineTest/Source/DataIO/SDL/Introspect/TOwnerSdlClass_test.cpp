@@ -16,24 +16,31 @@ using namespace ph;
 
 namespace
 {
-	class TestResource : public ISdlResource
-	{
-	public:
-		real r;
-		std::string str;
-	};
 
-	struct TestMethodStruct
-	{
-		void operator () (TestResource& res)
-		{}
-	};
+class TestResource : public ISdlResource
+{
+public:
+	real r;
+	std::string str;
 
-	struct TestMethodStruct2
+	ETypeCategory getCategory() const override
 	{
-		void operator () (const TestResource& res) const
-		{}
-	};
+		return ETypeCategory::REF_GEOMETRY;
+	}
+};
+
+struct TestMethodStruct
+{
+	void operator () (TestResource& res)
+	{}
+};
+
+struct TestMethodStruct2
+{
+	void operator () (const TestResource& res) const
+	{}
+};
+
 }
 
 TEST(TOwnerSdlClassTest, DefaultStates)

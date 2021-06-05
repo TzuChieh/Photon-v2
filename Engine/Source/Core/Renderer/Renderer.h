@@ -70,6 +70,8 @@ public:
 	// async<X>() methods.
 	virtual ObservableRenderData getObservableData() const = 0;
 
+	ETypeCategory getCategory() const override;
+
 	void update(const CoreDataGroup& data);
 	void render();
 	void setNumWorkers(uint32 numWorkers);
@@ -101,6 +103,11 @@ public:
 };
 
 // In-header Implementations:
+
+inline ETypeCategory Renderer::getCategory() const
+{
+	return ETypeCategory::REF_RENDERER;
+}
 
 inline uint32 Renderer::numWorkers() const
 {

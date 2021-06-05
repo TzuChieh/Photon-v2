@@ -1,5 +1,5 @@
 #include "DataIO/SDL/SdlParser.h"
-#include "DataIO/SDL/SdlResourcePack.h"
+#include "DataIO/SDL/SceneDescription.h"
 #include "DataIO/SDL/TCommandInterface.h"
 #include "DataIO/SDL/CommandEntry.h"
 #include "DataIO/SDL/SdlTypeInfo.h"
@@ -81,11 +81,11 @@ SdlParser::SdlParser() :
 	m_workingDirectory()
 {}
 
-void SdlParser::enter(const std::string& commandFragment, SdlResourcePack& out_pack)
+void SdlParser::enter(const std::string& commandFragment, SceneDescription& out_scene)
 {
 	if(getCommandType(commandFragment) != ECommandType::UNKNOWN)
 	{
-		parseCommand(m_commandCache, out_pack);
+		parseCommand(m_commandCache, out_scene);
 		m_commandCache.clear();
 		m_commandCache.shrink_to_fit();
 	}
@@ -93,7 +93,7 @@ void SdlParser::enter(const std::string& commandFragment, SdlResourcePack& out_p
 	m_commandCache += commandFragment;
 }
 
-void SdlParser::parseCommand(const std::string& command, SdlResourcePack& out_pack)
+void SdlParser::parseCommand(const std::string& command, SceneDescription& out_scene)
 {
 	if(command.empty())
 	{
@@ -104,7 +104,7 @@ void SdlParser::parseCommand(const std::string& command, SdlResourcePack& out_pa
 
 	if(commandType == ECommandType::REGULAR)
 	{
-		parseRegularCommand(commandType, command, out_pack);
+		parseRegularCommand(commandType, command, out_scene);
 	}
 	else if(commandType == ECommandType::COMMENT)
 	{
@@ -120,7 +120,7 @@ void SdlParser::parseCommand(const std::string& command, SdlResourcePack& out_pa
 bool SdlParser::parseRegularCommand(
 	const ECommandType type,
 	const std::string& command,
-	SdlResourcePack&   out_pack)
+	SceneDescription&  out_scene)
 {
 	std::vector<std::string> tokens;
 	m_regularCommandTokenizer.tokenize(command, tokens);
@@ -134,11 +134,11 @@ bool SdlParser::parseRegularCommand(
 	bool isParsed = false;
 	if(isLoadCommand(tokens))
 	{
-		isParsed = parseLoadCommand(type, tokens, out_pack);
+		isParsed = parseLoadCommand(type, tokens, out_scene);
 	}
 	else if(isExecuteCommand(tokens))
 	{
-		isParsed = parseExecuteCommand(type, tokens, out_pack);
+		isParsed = parseExecuteCommand(type, tokens, out_scene);
 	}
 	else
 	{
@@ -160,7 +160,7 @@ bool SdlParser::parseRegularCommand(
 bool SdlParser::parseLoadCommand(
 	const ECommandType              type,
 	const std::vector<std::string>& tokens,
-	SdlResourcePack&                out_pack)
+	SceneDescription&               out_scene)
 {
 	// Sanity check
 	if(tokens.size() < 4)
@@ -176,13 +176,13 @@ bool SdlParser::parseLoadCommand(
 	const auto&        typeInfo      = SdlTypeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
 	const std::string& resourceName  = getName(tokens[3]);
 	const auto&        clauseStrings = std::vector<std::string>(tokens.begin() + 4, tokens.end());
-	const auto&        inputPacket   = InputPacket(getValueClauses(clauseStrings), &out_pack.data, m_workingDirectory);
+	const auto&        inputPacket   = InputPacket(getValueClauses(clauseStrings), &out_scene, m_workingDirectory);
 	const SdlLoader&   loader        = getCommandEntry(typeInfo).getLoader();
 
 	auto loadedResource = loader.load(inputPacket);
 	const bool isResourceValid = loadedResource != nullptr;
 
-	out_pack.data.addResource(typeInfo, resourceName, std::move(loadedResource));
+	out_scene.addResource(typeInfo, resourceName, std::move(loadedResource));
 
 	return isResourceValid;
 }
@@ -190,7 +190,7 @@ bool SdlParser::parseLoadCommand(
 bool SdlParser::parseExecuteCommand(
 	const ECommandType              type,
 	const std::vector<std::string>& tokens,
-	SdlResourcePack&                out_pack)
+	SceneDescription&               out_scene)
 {
 	const std::string& categoryName       = tokens[1];
 	const std::string& typeName           = tokens[2];
@@ -198,7 +198,7 @@ bool SdlParser::parseExecuteCommand(
 	const std::string& targetResourceName = getName(tokens[4]);
 	const auto&        ownerTypeInfo      = SdlTypeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
 	const auto&        clauseStrings      = std::vector<std::string>(tokens.begin() + 5, tokens.end());
-	const auto&        inputPacket        = InputPacket(getValueClauses(clauseStrings), &out_pack.data, m_workingDirectory);
+	const auto&        inputPacket        = InputPacket(getValueClauses(clauseStrings), &out_scene, m_workingDirectory);
 		
 	const auto& commandEntry   = getCommandEntry(ownerTypeInfo);
 	const auto& executor       = commandEntry.getExecutor(executorName);
@@ -208,7 +208,7 @@ bool SdlParser::parseExecuteCommand(
 		DataTreatment::OPTIONAL() :
 		DataTreatment::REQUIRED("cannot find specified target resource");
 
-	const auto& targetResource = out_pack.data.getResource(
+	const auto& targetResource = out_scene.getResource(
 		targetTypeInfo,
 		targetResourceName,
 		targetResourceDT);

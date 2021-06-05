@@ -3,6 +3,6 @@
 namespace ph
 {
 
-ISdlResource::~ISdlResource() = default;
+//ISdlResource::~ISdlResource() = default;
 
 }// end namespace ph

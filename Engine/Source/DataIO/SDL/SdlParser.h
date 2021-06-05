@@ -12,7 +12,7 @@
 namespace ph
 {
 
-class SdlResourcePack;
+class SceneDescription;
 class CommandEntry;
 class SdlTypeInfo;
 
@@ -32,7 +32,7 @@ public:
 public:
 	SdlParser();
 
-	void enter(const std::string& commandFragment, SdlResourcePack& out_pack);
+	void enter(const std::string& commandFragment, SceneDescription& out_scene);
 	void setWorkingDirectory(const Path& path);
 
 private:
@@ -42,22 +42,22 @@ private:
 	Tokenizer   m_nameTokenizer;
 	std::size_t m_generatedNameCounter;
 
-	void parseCommand(const std::string& command, SdlResourcePack& out_pack);
+	void parseCommand(const std::string& command, SceneDescription& out_scene);
 
 	bool parseRegularCommand(
 		ECommandType       type,
 		const std::string& command, 
-		SdlResourcePack&   out_pack);
+		SceneDescription&  out_scene);
 
 	bool parseLoadCommand(
 		ECommandType                    type,     
 		const std::vector<std::string>& tokens, 
-		SdlResourcePack&                out_pack);
+		SceneDescription&               out_scene);
 
 	bool parseExecuteCommand(
 		ECommandType                    type,
 		const std::vector<std::string>& tokens, 
-		SdlResourcePack&                out_pack);
+		SceneDescription&               out_scene);
 
 	std::string genName();
 	std::string getName(const std::string& nameToken) const;

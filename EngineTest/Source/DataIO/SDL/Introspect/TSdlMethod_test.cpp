@@ -14,21 +14,28 @@ using namespace ph;
 
 namespace
 {
-	class TestResource : public ISdlResource
-	{
-	public:
-		std::string str;
-	};
 
-	struct TestMethodStruct
-	{
-		std::string str;
+class TestResource : public ISdlResource
+{
+public:
+	std::string str;
 
-		void operator () (TestResource& res)
-		{
-			res.str = str;
-		}
-	};
+	ETypeCategory getCategory() const override
+	{
+		return ETypeCategory::REF_OPTION;
+	}
+};
+
+struct TestMethodStruct
+{
+	std::string str;
+
+	void operator () (TestResource& res)
+	{
+		res.str = str;
+	}
+};
+
 }
 
 TEST(TSdlMethodTest, DefaultStates)

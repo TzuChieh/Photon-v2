@@ -14,9 +14,10 @@ class Material : public TCommandInterface<Material>
 {
 public:
 	Material() = default;
-	virtual ~Material() = default;
 
 	virtual void genBehaviors(CookingContext& context, PrimitiveMetadata& metadata) const = 0;
+
+	ETypeCategory getCategory() const override; 
 
 // command interface
 public:
@@ -24,6 +25,13 @@ public:
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
 };
+
+// In-header Implementations:
+
+inline ETypeCategory Material::getCategory() const
+{
+	return ETypeCategory::REF_MATERIAL;
+}
 
 }// end namespace ph
 
