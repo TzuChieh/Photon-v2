@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/INoncopyable.h"
+#include "Utility/IMoveOnly.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Transform/Transform.h"
@@ -13,7 +13,7 @@ namespace ph
 
 class CookingContext;
 
-class ModelBuilder final : private INoncopyable
+class ModelBuilder final : private IMoveOnly
 {
 public:
 	ModelBuilder(CookingContext& context);

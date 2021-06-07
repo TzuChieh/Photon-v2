@@ -108,7 +108,7 @@ inline void az_to_AZ(std::string* const str)
 
 	for(char& ch : *str)
 	{
-		ch = table::ASCII_TO_UPPER[static_cast<unsigned char>(ch)];
+		ch = static_cast<char>(table::ASCII_TO_UPPER[ch]);
 	}
 }
 
@@ -124,7 +124,7 @@ inline void AZ_to_az(std::string* const str)
 
 	for(char& ch : *str)
 	{
-		ch = table::ASCII_TO_LOWER[static_cast<unsigned char>(ch)];
+		ch = static_cast<char>(table::ASCII_TO_LOWER[ch]);
 	}
 }
 

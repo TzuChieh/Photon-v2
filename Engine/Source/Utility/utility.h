@@ -8,6 +8,7 @@ namespace ph
 {
 
 // TODO: make rvalue input possible? (beware of dangling reference after return!)
+// TODO: consider using overloads: https://stackoverflow.com/questions/14466620/c-template-specialization-calling-methods-on-types-that-could-be-pointers-or
 
 template<typename T>
 inline decltype(auto) pointer_access(T& t)
@@ -27,6 +28,7 @@ inline decltype(auto) regular_access(T& t)
 {
 	if constexpr(!std::is_pointer_v<T>)
 	{
+		// TODO: surround by parentheses to make it an expression for returning lvalue reference?
 		return t;
 	}
 	else

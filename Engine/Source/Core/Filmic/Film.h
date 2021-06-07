@@ -5,12 +5,12 @@
 #include "Math/TVector2.h"
 #include "Frame/frame_fwd.h"
 #include "Common/assertion.h"
-#include "Utility/INoncopyable.h"
+#include "Utility/IMoveOnly.h"
 
 namespace ph
 {
 
-class Film : public INoncopyable
+class Film : public IMoveOnly
 {
 public:
 	Film() = default;

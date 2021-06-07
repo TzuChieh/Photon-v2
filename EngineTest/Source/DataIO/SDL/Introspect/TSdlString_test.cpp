@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 #include <string>
+#include <type_traits>
 
 using namespace ph;
 
@@ -13,6 +14,15 @@ namespace
 	public:
 		std::string s;
 	};
+}
+
+TEST(TSdlStringTest, RequiredProperties)
+{
+	{
+		using FieldType = TSdlString<StrOwner>;
+		EXPECT_TRUE(std::is_copy_constructible_v<FieldType>);
+		EXPECT_TRUE(std::is_move_constructible_v<FieldType>);
+	}
 }
 
 TEST(TSdlStringTest, ReadFromSdl)

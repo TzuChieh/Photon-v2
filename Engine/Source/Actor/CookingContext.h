@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Actor/Actor.h"
-#include "Utility/INoncopyable.h"
+#include "Utility/IMoveOnly.h"
 #include "Actor/CookedUnit.h"
 #include "Common/assertion.h"
 #include "Core/Intersectable/Primitive.h"
@@ -17,7 +17,7 @@ namespace ph
 
 class VisualWorldInfo;
 
-class CookingContext final : public INoncopyable
+class CookingContext final : public IMoveOnly
 {
 	friend class VisualWorld;
 

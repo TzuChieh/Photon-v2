@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/INoncopyable.h"
+#include "Utility/IMoveOnly.h"
 #include "Frame/TFrame.h"
 #include "Utility/FixedSizeThreadPool.h"
 #include "Math/Function/TConstant2D.h"
@@ -15,7 +15,7 @@
 namespace ph
 {
 
-class mipmapgen final : public INoncopyable
+class mipmapgen final : public IMoveOnly
 {
 public:
 	mipmapgen(const std::size_t numThreads);

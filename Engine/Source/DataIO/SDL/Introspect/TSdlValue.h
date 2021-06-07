@@ -24,7 +24,7 @@ public:
 
 	TSdlValue& defaultTo(T defaultValue);
 	TSdlValue& withImportance(EFieldImportance importance);
-	TSdlValue& description(std::string description);
+	TSdlValue& description(std::string descriptionStr);
 
 	void setValue(Owner& owner, T value) const;
 
@@ -79,9 +79,9 @@ inline TSdlValue<T, Owner>& TSdlValue<T, Owner>::withImportance(const EFieldImpo
 }
 
 template<typename T, typename Owner>
-inline TSdlValue<T, Owner>& TSdlValue<T, Owner>::description(std::string description)
+inline TSdlValue<T, Owner>& TSdlValue<T, Owner>::description(std::string descriptionStr)
 {
-	setDescription(std::move(description));
+	setDescription(std::move(descriptionStr));
 
 	return *this;
 }

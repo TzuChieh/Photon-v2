@@ -12,7 +12,7 @@
 #include "Math/TVector3.h"
 #include "World/CookSettings.h"
 #include "Common/assertion.h"
-#include "Utility/INoncopyable.h"
+#include "Utility/IMoveOnly.h"
 
 #include <vector>
 #include <memory>
@@ -22,7 +22,8 @@ namespace ph
 
 class CookingContext;
 
-class VisualWorld final : public INoncopyable
+// TODO: allow copy?
+class VisualWorld final : public IMoveOnly
 {
 public:
 	VisualWorld();

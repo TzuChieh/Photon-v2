@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/INoncopyable.h"
+#include "Utility/INoCopyAndMove.h"
 
 #include <type_traits>
 #include <utility>
@@ -11,15 +11,15 @@
 namespace ph
 {
 
-/*
-	A resource wrapper that facilitates Multiple-Readers Single-Writer (MRSW)
-	usages. Concurrent access is allowed for read-only operations, while 
-	write operations are performed only when exclusive access is aquired.
+/*! @brief A resource wrapper that facilitates Multiple-Readers Single-Writer (MRSW) usages.
 
-	// TODO: convenient getter and setter
+Concurrent access is allowed for read-only operations, while write operations
+are performed only when exclusive access is acquired.
 */
+// TODO: convenient getter and setter
+// TODO: perfect forward readers, writers, and operations?
 template<typename Resource>
-class TMRSWResource final : public INoncopyable
+class TMRSWResource final : public INoCopyAndMove
 {
 public:
 	template<typename Res>
@@ -50,15 +50,22 @@ public:
 	template<typename Operation>
 	void directCall(Operation operation);
 
+	// Note that the type contains mutex and should be non-copyable and
+	// non-movable already, but the template constructor for stored resources
+	// seems to fool some type_traits functionalities (the INoCopyAndMove base
+	// cannot help with the case of std::is_move_constructible_v, it returns
+	// true always in VS 15.9.34);
+	// made the copy and move requirements explicit by marking them as
+	// deleted here, which will solve the issue (as these are better match
+	// than templates).
+	TMRSWResource(const TMRSWResource& other) = delete;
+	TMRSWResource& operator = (const TMRSWResource& rhs) = delete;
+	TMRSWResource(TMRSWResource&& other) = delete;
+	TMRSWResource& operator = (TMRSWResource&& rhs) = delete;
+
 private:
 	mutable std::shared_mutex m_mutex;
 	Resource                  m_resource;
-
-	template<typename Res>
-	explicit TMRSWResource(Res&& resource, std::true_type isReference);
-
-	template<typename Res>
-	explicit TMRSWResource(Res&& resource, std::false_type isReference);
 };
 
 // In-header Implementations:
@@ -66,19 +73,7 @@ private:
 template<typename Resource>
 template<typename Res>
 inline TMRSWResource<Resource>::TMRSWResource(Res&& resource) :
-	TMRSWResource(resource, typename std::is_reference<Res>::type{})
-{}
-
-template<typename Resource>
-template<typename Res>
-inline TMRSWResource<Resource>::TMRSWResource(Res&& resource, std::true_type isReference) :
-	m_mutex(), m_resource(resource)
-{}
-
-template<typename Resource>
-template<typename Res>
-inline TMRSWResource<Resource>::TMRSWResource(Res&& resource, std::false_type isReference) :
-	m_mutex(), m_resource(std::move(resource))
+	m_mutex(), m_resource(std::forward<Res>(resource))
 {}
 
 template<typename Resource>

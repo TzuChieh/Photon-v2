@@ -8,7 +8,7 @@ namespace ph::string_utils::table
 // Table for mapping standard ASCII character codes to upper case, i.e.,
 // a~z are mapped to A~Z (A~Z are also mapped to A~Z itself, so a case
 // check can be eliminated). Any other codes will be left unchanged.
-inline constexpr std::array<char, 256> ASCII_TO_UPPER = 
+inline constexpr std::array<unsigned char, 256> ASCII_TO_UPPER = 
 {{
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
@@ -47,7 +47,7 @@ inline constexpr std::array<char, 256> ASCII_TO_UPPER =
 // Table for mapping standard ASCII character codes to lower case, i.e.,
 // A~Z are mapped to a~z (a~z are also mapped to a~z itself, so a case
 // check can be eliminated). Any other codes will be left unchanged.
-inline constexpr std::array<char, 256> ASCII_TO_LOWER = 
+inline constexpr std::array<unsigned char, 256> ASCII_TO_LOWER =
 {{
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/INoncopyable.h"
+#include "Utility/IMoveOnly.h"
 #include "Common/assertion.h"
 #include "World/Scene.h"
 #include "Core/HitProbe.h"
@@ -23,7 +23,7 @@ namespace ph
 
 class SampleFlow;
 
-class SurfaceTracer final : public INoncopyable
+class SurfaceTracer final : public IMoveOnly
 {
 public:
 	explicit SurfaceTracer(const Scene* scene);

@@ -4,6 +4,19 @@
 
 #include <random>
 #include <atomic>
+#include <type_traits>
+
+using namespace ph;
+
+TEST(FixedSizeThreadPoolTest, RequiredProperties)
+{
+	{
+		EXPECT_FALSE(std::is_copy_constructible_v<FixedSizeThreadPool>);
+		EXPECT_FALSE(std::is_copy_assignable_v<FixedSizeThreadPool>);
+		EXPECT_FALSE(std::is_move_constructible_v<FixedSizeThreadPool>);
+		EXPECT_FALSE(std::is_move_assignable_v<FixedSizeThreadPool>);
+	}
+}
 
 TEST(FixedSizeThreadPoolTest, CalculateNumberSum)
 {
@@ -27,7 +40,7 @@ TEST(FixedSizeThreadPoolTest, CalculateNumberSum)
 		actualSum += numbers[i];
 	}
 
-	ph::FixedSizeThreadPool threadPool(NUM_WORKERS);
+	FixedSizeThreadPool threadPool(NUM_WORKERS);
 	std::atomic_int testSum = 0;
 	for(int i = 0; i < NUM_WORKERS; i++)
 	{
@@ -48,6 +61,6 @@ TEST(FixedSizeThreadPoolTest, CalculateNumberSum)
 
 TEST(FixedSizeThreadPoolTest, GetAttributes)
 {
-	ph::FixedSizeThreadPool threadPool(2);
+	FixedSizeThreadPool threadPool(2);
 	EXPECT_EQ(threadPool.numWorkers(), 2);
 }

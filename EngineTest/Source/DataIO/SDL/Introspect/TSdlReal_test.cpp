@@ -4,6 +4,8 @@
 
 #include <gtest/gtest.h>
 
+#include <type_traits>
+
 using namespace ph;
 
 namespace
@@ -13,6 +15,15 @@ namespace
 	public:
 		real value;
 	};
+}
+
+TEST(TSdlReadTest, RequiredProperties)
+{
+	{
+		using FieldType = TSdlReal<RealOwner, real>;
+		EXPECT_TRUE(std::is_copy_constructible_v<FieldType>);
+		EXPECT_TRUE(std::is_move_constructible_v<FieldType>);
+	}
 }
 
 TEST(TSdlReadTest, ReadFromSdl)

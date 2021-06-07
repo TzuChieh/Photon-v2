@@ -21,7 +21,7 @@ public:
 	const std::string& getDescription() const;
 	bool isFallbackEnabled() const;
 
-	SdlField& setDescription(std::string description);
+	SdlField& setDescription(std::string descriptionStr);
 	SdlField& enableFallback(bool isFallbackEnabled);
 
 protected:
@@ -66,9 +66,9 @@ inline bool SdlField::isFallbackEnabled() const
 	return m_isFallbackEnabled;
 }
 
-inline SdlField& SdlField::setDescription(std::string description)
+inline SdlField& SdlField::setDescription(std::string descriptionStr)
 {
-	m_description = std::move(description);
+	m_description = std::move(descriptionStr);
 
 	return *this;
 }

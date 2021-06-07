@@ -10,7 +10,7 @@
 #include "DataIO/SDL/SceneDescription.h"
 #include "DataIO/FileSystem/Path.h"
 #include "DataIO/SDL/ValueParser.h"
-#include "Utility/INoncopyable.h"
+#include "Utility/IMoveOnly.h"
 
 #include <vector>
 #include <string>
@@ -24,7 +24,7 @@ namespace ph
 
 class InputPrototype;
 
-class InputPacket final : public INoncopyable
+class InputPacket final : public IMoveOnly
 {
 private:
 	template<typename ValueType>

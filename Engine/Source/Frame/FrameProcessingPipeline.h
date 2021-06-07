@@ -2,7 +2,7 @@
 
 #include "Frame/Operator/FrameOperator.h"
 #include "Frame/TFrame.h"
-#include "Utility/INoncopyable.h"
+#include "Utility/IMoveOnly.h"
 
 #include <vector>
 #include <memory>
@@ -12,7 +12,7 @@ namespace ph
 
 /*! @brief Process frames with a series of operations.
 */
-class FrameProcessingPipeline final : public INoncopyable
+class FrameProcessingPipeline final : public IMoveOnly
 {
 public:
 	inline FrameProcessingPipeline() = default;

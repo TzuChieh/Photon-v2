@@ -11,6 +11,7 @@
 
 #include <string>
 #include <cstddef>
+#include <type_traits>
 
 using namespace ph;
 
@@ -41,16 +42,31 @@ struct TestMethodStruct2
 	{}
 };
 
+}// end namespace
+
+TEST(TOwnerSdlClassTest, RequiredProperties)
+{
+	{
+		using SdlClassType = TOwnerSdlClass<TestResource>;
+
+		// Non-copyable as it is not needed--just access via reference.
+		EXPECT_FALSE(std::is_copy_constructible_v<SdlClassType>);
+		EXPECT_FALSE(std::is_copy_assignable_v<SdlClassType>);
+
+		// Move is allowed for SDL class construction phase.
+		EXPECT_TRUE(std::is_move_constructible_v<SdlClassType>);
+		EXPECT_TRUE(std::is_move_assignable_v<SdlClassType>);
+	}
 }
 
 TEST(TOwnerSdlClassTest, DefaultStates)
 {
 	{
-		TOwnerSdlClass<TestResource> sdlClass("testCat", "testName");
+		TOwnerSdlClass<TestResource> sdlClass(ETypeCategory::REF_GEOMETRY, "testName");
 
 		EXPECT_EQ(sdlClass.numFields(), 0);
 		EXPECT_EQ(sdlClass.numFunctions(), 0);
-		EXPECT_STREQ(sdlClass.getCategory().c_str(), "testCat");
+		EXPECT_STREQ(sdlClass.genCategoryName().c_str(), "geometry");
 		EXPECT_STREQ(sdlClass.getTypeName().c_str(), "testName");
 		EXPECT_STREQ(sdlClass.getDescription().c_str(), "");
 
@@ -70,7 +86,7 @@ TEST(TOwnerSdlClassTest, DefaultStates)
 TEST(TOwnerSdlClassTest, AddAndGetFields)
 {
 	{
-		TOwnerSdlClass<TestResource> sdlClass("testRes", "testName");
+		TOwnerSdlClass<TestResource> sdlClass(ETypeCategory::REF_GEOMETRY, "testName");
 		sdlClass.addField(TSdlReal<TestResource>("testReal", &TestResource::r));
 		EXPECT_EQ(sdlClass.numFields(), 1);
 
@@ -103,7 +119,7 @@ TEST(TOwnerSdlClassTest, AddAndGetFields)
 TEST(TOwnerSdlClassTest, AddAndGetFunctions)
 {
 	{
-		TOwnerSdlClass<TestResource> sdlClass("testRes", "testName");
+		TOwnerSdlClass<TestResource> sdlClass(ETypeCategory::REF_GEOMETRY, "testName");
 		TSdlMethod<TestMethodStruct, TestResource> method("testMethod");
 		sdlClass.addFunction(&method);
 		EXPECT_EQ(sdlClass.numFunctions(), 1);

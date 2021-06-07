@@ -7,6 +7,7 @@
 
 #include <string>
 #include <utility>
+#include <type_traits>
 
 using namespace ph;
 
@@ -18,6 +19,19 @@ namespace
 		integer i;
 		real r;
 	};
+}
+
+TEST(TBasicSdlFieldSetTest, RequiredProperties)
+{
+	// SDL string is the most trivial field as it simply copies the input
+
+	{
+		using FieldSet = TBasicSdlFieldSet<TSdlString<TestOwner>>;
+		EXPECT_FALSE(std::is_copy_constructible_v<FieldSet>);
+		EXPECT_TRUE(std::is_move_constructible_v<FieldSet>);
+		EXPECT_FALSE(std::is_copy_assignable_v<FieldSet>);
+		EXPECT_TRUE(std::is_move_assignable_v<FieldSet>);
+	}
 }
 
 TEST(TBasicSdlFieldSetTest, AddFields)

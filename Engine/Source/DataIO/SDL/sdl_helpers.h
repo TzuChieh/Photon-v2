@@ -5,6 +5,7 @@
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
 #include "DataIO/SDL/sdl_exceptions.h"
+#include "DataIO/SDL/ETypeCategory.h"
 
 #include <vector>
 #include <string>
@@ -50,6 +51,9 @@ std::string gen_pretty_name(const SdlClass* clazz);
 std::string gen_pretty_name(const SdlField* field);
 std::string gen_pretty_name(const SdlFunction* func);
 std::string gen_pretty_name(const SdlClass* clazz, const SdlField* field);
+
+std::string category_to_string(ETypeCategory category);
+ETypeCategory string_to_category(const std::string& categoryStr);
 
 namespace detail
 {

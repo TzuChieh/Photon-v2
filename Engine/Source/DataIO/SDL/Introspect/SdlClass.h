@@ -3,6 +3,7 @@
 #include "Common/assertion.h"
 #include "Common/Logger.h"
 #include "DataIO/SDL/ValueClauses.h"
+#include "DataIO/SDL/ETypeCategory.h"
 
 #include <vector>
 #include <memory>
@@ -22,13 +23,12 @@ class ISdlResource;
 class SdlClass
 {
 public:
-	SdlClass(std::string category, std::string typeName);
+	SdlClass(ETypeCategory category, std::string typeName);
 	virtual ~SdlClass() = default;
 
 	virtual std::shared_ptr<ISdlResource> createResource() const = 0;
 
 	virtual void initResource(
-
 		ISdlResource&          resource,
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const = 0;
@@ -47,7 +47,8 @@ public:
 	virtual const SdlFunction* getFunction(std::size_t index) const = 0;
 
 	std::string genPrettyName() const;
-	const std::string& getCategory() const;
+	std::string genCategoryName() const;
+	ETypeCategory getCategory() const;
 	const std::string& getTypeName() const;
 	const std::string& getDescription() const;
 	const SdlClass* getBase() const;
@@ -60,26 +61,25 @@ protected:
 	static const Logger logger;
 
 private:
-	std::string m_category;
-	std::string m_typeName;
-	std::string m_description;
+	ETypeCategory m_category;
+	std::string   m_typeName;
+	std::string   m_description;
 
 	const SdlClass* m_base;
 };
 
 // In-header Implementation:
 
-inline SdlClass::SdlClass(std::string category, std::string typeName) :
-	m_category   (std::move(category)), 
+inline SdlClass::SdlClass(const ETypeCategory category, std::string typeName) :
+	m_category   (category), 
 	m_typeName   (std::move(typeName)),
 	m_description(),
 	m_base       (nullptr)
 {
-	PH_ASSERT(!m_category.empty());
 	PH_ASSERT(!m_typeName.empty());
 }
 
-inline const std::string& SdlClass::getCategory() const
+inline ETypeCategory SdlClass::getCategory() const
 {
 	return m_category;
 }

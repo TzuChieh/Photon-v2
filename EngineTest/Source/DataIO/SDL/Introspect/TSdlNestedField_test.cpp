@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 
 #include <string>
+#include <type_traits>
 
 using namespace ph;
 
@@ -23,6 +24,15 @@ namespace
 }
 
 // SDL string is the most trivial field as it simply copies the input
+
+TEST(TSdlNestedFieldTest, RequiredProperties)
+{
+	{
+		using FieldType = TSdlNestedField<TestOuter, TestInner>;
+		EXPECT_TRUE(std::is_copy_constructible_v<FieldType>);
+		EXPECT_TRUE(std::is_move_constructible_v<FieldType>);
+	}
+}
 
 TEST(TSdlNestedFieldTest, KeepsFieldSettings)
 {

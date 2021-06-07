@@ -4,6 +4,7 @@
 #include "Math/math_fwd.h"
 #include "DataIO/SDL/TCommandInterface.h"
 #include "Actor/Image/Image.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 #include <memory>
 
@@ -26,8 +27,16 @@ private:
 	std::shared_ptr<Image> m_albedo;
 	std::shared_ptr<Image> m_sigmaDegrees;
 
-// command interface
 public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<MatteOpaque>)
+	{
+		SdlClassType clazz(ETypeCategory::REF_MATERIAL, "matte-opaque");
+
+
+
+		return std::move(clazz);
+	}
+
 	explicit MatteOpaque(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);

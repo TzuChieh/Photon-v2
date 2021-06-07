@@ -4,6 +4,7 @@
 #include "Common/assertion.h"
 #include "Utility/TArrayAsVector.h"
 #include "Common/config.h"
+#include "Utility/IMoveOnly.h"
 
 #include <cstddef>
 #include <type_traits>
@@ -26,7 +27,7 @@ This class accepts polymorphic field types.
 This class finds a field using brute-force method.
 */
 template<typename BaseFieldType, std::size_t MAX_FIELDS = PH_SDL_MAX_FIELDS>
-class TBasicSdlFieldSet final
+class TBasicSdlFieldSet final : public IMoveOnly
 {
 	static_assert(std::is_base_of_v<SdlField, BaseFieldType>,
 		"Field type must derive from SdlField.");
@@ -38,10 +39,6 @@ public:
 	using FieldType = BaseFieldType;
 
 public:
-	inline TBasicSdlFieldSet() :
-		m_fields()
-	{}
-
 	inline std::size_t numFields() const
 	{
 		return m_fields.size();
@@ -66,12 +63,17 @@ public:
 	template<typename OtherBaseFieldType, std::size_t OTHER_MAX_FIELDS>
 	inline TBasicSdlFieldSet& addFields(TBasicSdlFieldSet<OtherBaseFieldType, OTHER_MAX_FIELDS> fields)
 	{
+		static_assert(std::is_base_of_v<BaseFieldType, OtherBaseFieldType>,
+			"Incoming field type must derive from the field type that this set stores.");
+
 		for(std::size_t i = 0; i < fields.numFields(); ++i)
 		{
-			if(canAddField(fields[i]))
+			if(!canAddField(fields[i]))
 			{
-				m_fields.pushBack(std::move(fields.m_fields[i]));
+				break;
 			}
+
+			m_fields.pushBack(std::move(fields.m_fields[i]));
 		}
 
 		return *this;

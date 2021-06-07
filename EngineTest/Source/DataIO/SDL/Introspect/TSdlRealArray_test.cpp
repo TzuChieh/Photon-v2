@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 
 #include <vector>
+#include <type_traits>
 
 using namespace ph;
 
@@ -15,6 +16,15 @@ namespace
 	public:
 		std::vector<real> arr;
 	};
+}
+
+TEST(TSdlRealArrayTest, RequiredProperties)
+{
+	{
+		using FieldType = TSdlRealArray<RealArrOwner>;
+		EXPECT_TRUE(std::is_copy_constructible_v<FieldType>);
+		EXPECT_TRUE(std::is_move_constructible_v<FieldType>);
+	}
 }
 
 TEST(TSdlRealArrayTest, ReadFromSdl)

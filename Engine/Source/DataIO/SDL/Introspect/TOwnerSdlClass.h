@@ -29,7 +29,7 @@ class TOwnerSdlClass : public SdlClass
 		"A non-abstract owner class must have a default constructor.");
 
 public:
-	TOwnerSdlClass(std::string category, std::string displayName);
+	TOwnerSdlClass(ETypeCategory category, std::string displayName);
 
 	std::shared_ptr<ISdlResource> createResource() const override;
 

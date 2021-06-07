@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+#include <type_traits>
+
 using namespace ph;
 
 namespace
@@ -11,6 +13,15 @@ namespace
 	public:
 		integer value;
 	};
+}
+
+TEST(TSdlIntegerTest, RequiredProperties)
+{
+	{
+		using FieldType = TSdlInteger<IntegerOwner, integer>;
+		EXPECT_TRUE(std::is_copy_constructible_v<FieldType>);
+		EXPECT_TRUE(std::is_move_constructible_v<FieldType>);
+	}
 }
 
 TEST(TSdlIntegerTest, ReadFromSdl)

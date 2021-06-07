@@ -5,9 +5,9 @@
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
 #include "DataIO/SDL/SceneDescription.h"
 #include "DataIO/SDL/ETypeCategory.h"
-#include "DataIO/SDL/SdlTypeInfo.h"
 #include "Utility/string_utils.h"
 #include "DataIO/SDL/sdl_exceptions.h"
+#include "DataIO/SDL/sdl_helpers.h"
 
 #include <string>
 #include <memory>
@@ -19,7 +19,7 @@ namespace ph
 
 class ISdlResource;
 
-template<ETypeCategory CATEGORY, typename T, typename Owner>
+template<typename T, typename Owner>
 class TSdlReference : TOwnedSdlField<Owner>
 {
 	static_assert(std::is_base_of_v<ISdlResource, T>,
@@ -27,11 +27,13 @@ class TSdlReference : TOwnedSdlField<Owner>
 
 public:
 	inline TSdlReference(
+		const ETypeCategory               category,
 		std::string                       valueName,
 		std::shared_ptr<T> Owner::* const valuePtr) :
 
-		TOwnedSdlField<Owner>(SdlTypeInfo::categoryToName(CATEGORY), std::move(valueName)),
+		TOwnedSdlField<Owner>(sdl::category_to_string(category), std::move(valueName)),
 
+		m_category(category),
 		m_valuePtr(valuePtr)
 	{
 		PH_ASSERT(m_valuePtr);
@@ -45,7 +47,7 @@ public:
 	inline std::string valueToString(const Owner& owner) const override
 	{
 		return 
-			"[" + SdlTypeInfo::categoryToName(CATEGORY) + " ref: " + 
+			"[" + sdl::category_to_string(category) + " ref: " +
 			getValuePtr(owner) ? "valid" : "empty" +
 			"]";
 	}
@@ -88,6 +90,7 @@ private:
 		PH_ASSERT_UNREACHABLE_SECTION();
 	}
 
+	ETypeCategory               m_category;
 	std::shared_ptr<T> Owner::* m_valuePtr;
 };
 

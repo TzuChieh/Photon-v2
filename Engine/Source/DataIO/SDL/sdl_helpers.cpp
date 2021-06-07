@@ -6,6 +6,8 @@
 #include "DataIO/SDL/Introspect/SdlField.h"
 #include "DataIO/SDL/Introspect/SdlFunction.h"
 
+#include <unordered_map>
+
 namespace ph::sdl
 {
 
@@ -127,7 +129,7 @@ bool is_reference(const std::string_view sdlValueStr)
 std::string gen_pretty_name(const SdlClass* const clazz)
 {
 	return clazz ? 
-		"category: " + clazz->getCategory() + ", name: " + clazz->getTypeName() : 
+		"category: " + clazz->genCategoryName() + ", name: " + clazz->getTypeName() : 
 		"unavailable";
 }
 
@@ -148,6 +150,64 @@ std::string gen_pretty_name(const SdlField* const field)
 std::string gen_pretty_name(const SdlClass* const clazz, const SdlField* const field)
 {
 	return "type <" + gen_pretty_name(clazz) + ">, value <" + gen_pretty_name(field) + ">";
+}
+
+std::string category_to_string(const ETypeCategory category)
+{
+	std::string categoryName;
+	switch(category)
+	{
+	case ETypeCategory::REF_GEOMETRY:         categoryName = "geometry";         break;
+	case ETypeCategory::REF_MOTION:           categoryName = "motion";           break;
+	case ETypeCategory::REF_MATERIAL:         categoryName = "material";         break;
+	case ETypeCategory::REF_LIGHT_SOURCE:     categoryName = "light-source";     break;
+	case ETypeCategory::REF_ACTOR:            categoryName = "actor";            break;
+	case ETypeCategory::REF_FRAME_PROCESSOR:  categoryName = "frame-processor";  break;
+	case ETypeCategory::REF_IMAGE:            categoryName = "image";            break;
+
+	case ETypeCategory::REF_RECEIVER:         categoryName = "receiver";         break;
+	case ETypeCategory::REF_SAMPLE_GENERATOR: categoryName = "sample-generator"; break;
+	case ETypeCategory::REF_RENDERER:         categoryName = "renderer";         break;
+	case ETypeCategory::REF_OPTION:           categoryName = "option";           break;
+
+	default:
+		std::cerr << "warning: at SdlTypeInfo::categoryToName() " 
+		          << "unspecified category detected, "
+		          << "converting category to name failed" << std::endl;
+		break;
+	}
+
+	return categoryName;
+}
+
+ETypeCategory string_to_category(const std::string& categoryStr)
+{
+	const static std::unordered_map<std::string, ETypeCategory> map = 
+	{ 
+		{category_to_string(ETypeCategory::REF_GEOMETRY),         ETypeCategory::REF_GEOMETRY},
+		{category_to_string(ETypeCategory::REF_MATERIAL),         ETypeCategory::REF_MATERIAL},
+		{category_to_string(ETypeCategory::REF_MOTION),           ETypeCategory::REF_MOTION},
+		{category_to_string(ETypeCategory::REF_LIGHT_SOURCE),     ETypeCategory::REF_LIGHT_SOURCE},
+		{category_to_string(ETypeCategory::REF_ACTOR),            ETypeCategory::REF_ACTOR},
+		{category_to_string(ETypeCategory::REF_RECEIVER),         ETypeCategory::REF_RECEIVER},
+		{category_to_string(ETypeCategory::REF_IMAGE),            ETypeCategory::REF_IMAGE},
+
+		{category_to_string(ETypeCategory::REF_SAMPLE_GENERATOR), ETypeCategory::REF_SAMPLE_GENERATOR},
+		{category_to_string(ETypeCategory::REF_FRAME_PROCESSOR),  ETypeCategory::REF_FRAME_PROCESSOR},
+		{category_to_string(ETypeCategory::REF_RENDERER),         ETypeCategory::REF_RENDERER},
+		{category_to_string(ETypeCategory::REF_OPTION),           ETypeCategory::REF_OPTION}
+	};
+
+	const auto& iter = map.find(categoryStr);
+	if(iter == map.end())
+	{
+		std::cerr << "warning: at SdlTypeInfo::nameToCategory(), "
+		          << "converting name <" << categoryStr << "> to category failed, "
+		          << "returning unspecified category" << std::endl;
+		return ETypeCategory::UNSPECIFIED;
+	}
+
+	return iter->second;
 }
 
 }// end namespace ph::sdl

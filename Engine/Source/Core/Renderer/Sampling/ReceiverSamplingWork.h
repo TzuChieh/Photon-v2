@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Renderer/RenderWork.h"
-#include "Utility/INoncopyable.h"
+#include "Utility/IMoveOnly.h"
 #include "Core/Renderer/Sampling/SamplingStatistics.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Renderer/Sampling/IReceivedRayProcessor.h"
@@ -17,7 +17,7 @@ namespace ph
 
 class Receiver;
 
-class ReceiverSamplingWork : public RenderWork, public INoncopyable
+class ReceiverSamplingWork : public RenderWork, public IMoveOnly
 {
 public:
 	ReceiverSamplingWork();

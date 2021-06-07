@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 
 #include <vector>
+#include <type_traits>
 
 using namespace ph;
 
@@ -16,6 +17,15 @@ namespace
 	public:
 		std::vector<math::Vector3R> arr;
 	};
+}
+
+TEST(TSdlVector3ArrayTest, RequiredProperties)
+{
+	{
+		using FieldType = TSdlVector3Array<Vec3ArrOwner>;
+		EXPECT_TRUE(std::is_copy_constructible_v<FieldType>);
+		EXPECT_TRUE(std::is_move_constructible_v<FieldType>);
+	}
 }
 
 TEST(TSdlVector3ArrayTest, ReadFromSdl)

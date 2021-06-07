@@ -139,17 +139,26 @@ TEST(TArrayAsVectorTest, RequiredProperties)
 {
 	{
 		using Vec = TArrayAsVector<char, 10>;
-		EXPECT_TRUE(std::is_nothrow_move_constructible_v<Vec>);
+		EXPECT_TRUE(std::is_copy_constructible_v<Vec>);
+		EXPECT_TRUE(std::is_move_constructible_v<Vec>);
+		EXPECT_TRUE(std::is_copy_assignable_v<Vec>);
+		EXPECT_TRUE(std::is_move_assignable_v<Vec>);
 	}
 
 	{
 		using Vec = TArrayAsVector<double, 10>;
-		EXPECT_TRUE(std::is_nothrow_move_constructible_v<Vec>);
+		EXPECT_TRUE(std::is_copy_constructible_v<Vec>);
+		EXPECT_TRUE(std::is_move_constructible_v<Vec>);
+		EXPECT_TRUE(std::is_copy_assignable_v<Vec>);
+		EXPECT_TRUE(std::is_move_assignable_v<Vec>);
 	}
 	
 	{
 		using Vec = TArrayAsVector<std::unique_ptr<float>, 10>;
-		EXPECT_TRUE(std::is_nothrow_move_constructible_v<Vec>);
+		EXPECT_FALSE(std::is_copy_constructible_v<Vec>);
+		EXPECT_TRUE(std::is_move_constructible_v<Vec>);
+		EXPECT_FALSE(std::is_copy_assignable_v<Vec>);
+		EXPECT_TRUE(std::is_move_assignable_v<Vec>);
 	}
 }
 

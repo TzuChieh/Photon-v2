@@ -4,7 +4,7 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Emitter/Emitter.h"
 #include "Math/Transform/Transform.h"
-#include "Utility/INoncopyable.h"
+#include "Utility/IMoveOnly.h"
 
 #include <vector>
 #include <memory>
@@ -15,7 +15,7 @@ namespace ph
 class CookedDataStorage;
 class Primitive;
 
-class CookedUnit final : public INoncopyable
+class CookedUnit final : public IMoveOnly
 {
 public:
 	CookedUnit();

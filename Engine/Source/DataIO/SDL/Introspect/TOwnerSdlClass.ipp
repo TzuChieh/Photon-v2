@@ -14,9 +14,9 @@ namespace ph
 {
 
 template<typename Owner, typename FieldSet>
-inline TOwnerSdlClass<Owner, FieldSet>::TOwnerSdlClass(std::string category, std::string displayName) :
+inline TOwnerSdlClass<Owner, FieldSet>::TOwnerSdlClass(const ETypeCategory category, std::string displayName) :
 
-	SdlClass(std::move(category), std::move(displayName)),
+	SdlClass(category, std::move(displayName)),
 
 	m_fields(),
 	m_functions()

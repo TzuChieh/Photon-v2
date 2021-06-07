@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/INoncopyable.h"
+#include "Utility/IMoveOnly.h"
 #include "Common/primitive_type.h"
 
 #include <vector>
@@ -17,7 +17,7 @@ namespace ph
 	A thread pool that contains fixed number of threads for work processing.
 	The pool can be used concurrently, namely, it is thread-safe.
 */
-class FixedSizeThreadPool final : public INoncopyable
+class FixedSizeThreadPool final : public IMoveOnly
 {
 public:
 	using Work = std::function<void()>;

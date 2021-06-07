@@ -1,11 +1,9 @@
 #pragma once
 
-#include "Utility/INoncopyable.h"
-
 namespace ph
 {
 
-class IDataStream : public INoncopyable
+class IDataStream
 {
 public:
 	virtual ~IDataStream() = default;

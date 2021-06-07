@@ -6,29 +6,48 @@
 #include <utility>
 #include <thread>
 #include <cstddef>
+#include <type_traits>
+
+using namespace ph;
+
+namespace
+{
+
+struct TestStruct
+{};
+
+}
+
+TEST(TMRSWResourceTest, RequiredProperties)
+{
+	{
+		using ResType = TMRSWResource<TestStruct>;
+		EXPECT_FALSE(std::is_copy_constructible_v<ResType>);
+		EXPECT_FALSE(std::is_copy_assignable_v<ResType>);
+		EXPECT_FALSE(std::is_move_constructible_v<ResType>);
+		EXPECT_FALSE(std::is_move_assignable_v<ResType>);
+	}
+}
 
 TEST(TMRSWResourceTest, ResourceCopyAndMoveInit)
 {
-	struct Test
-	{};
+	TestStruct testObj;
+	TMRSWResource<TestStruct> copiedResource1(testObj);
+	TMRSWResource<TestStruct> movedResource1(std::move(testObj));
 
-	Test testObj;
-	ph::TMRSWResource<Test> copiedResource1(testObj);
-	ph::TMRSWResource<Test> movedResource1(std::move(testObj));
-
-	auto testUniquePtr = std::make_unique<Test>();
-	ph::TMRSWResource<std::unique_ptr<Test>> movedResource2(std::move(testUniquePtr));
+	auto testUniquePtr = std::make_unique<TestStruct>();
+	TMRSWResource<std::unique_ptr<TestStruct>> movedResource2(std::move(testUniquePtr));
 	EXPECT_FALSE(testUniquePtr);
 
-	auto testSharedPtr = std::make_shared<Test>();
-	ph::TMRSWResource<std::shared_ptr<Test>> copiedResource2(testSharedPtr);
+	auto testSharedPtr = std::make_shared<TestStruct>();
+	TMRSWResource<std::shared_ptr<TestStruct>> copiedResource2(testSharedPtr);
 	EXPECT_TRUE(testSharedPtr);
 }
 
 TEST(TMRSWResourceTest, ExclusivelyUseResource)
 {
 	std::size_t sum = 0;
-	ph::TMRSWResource<std::size_t*> sumResource(&sum);
+	TMRSWResource<std::size_t*> sumResource(&sum);
 	
 	constexpr std::size_t NUM_THREADS               = 4;
 	constexpr std::size_t NUM_INCREMENTS_PER_THREAD = 100;
@@ -60,7 +79,7 @@ TEST(TMRSWResourceTest, ExclusivelyUseResource)
 TEST(TMRSWResourceTest, DirectlyUseResource)
 {
 	int number1 = 3;	
-	ph::TMRSWResource<int*> resource1(&number1);
+	TMRSWResource<int*> resource1(&number1);
 	resource1.directCall([](int* number)
 	{
 		*number = 7;
@@ -68,7 +87,7 @@ TEST(TMRSWResourceTest, DirectlyUseResource)
 	EXPECT_EQ(number1, 7);
 
 	auto number2 = std::make_shared<float>(-9.0f);
-	ph::TMRSWResource<std::shared_ptr<float>> resource2(number2);
+	TMRSWResource<std::shared_ptr<float>> resource2(number2);
 	resource2.directCall([](std::shared_ptr<float>& number)
 	{
 		(*number) += 10.0f;

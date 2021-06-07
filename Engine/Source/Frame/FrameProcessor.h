@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Frame/FrameProcessingPipeline.h"
-#include "Utility/INoncopyable.h"
+#include "Utility/IMoveOnly.h"
 
 #include <vector>
 
@@ -13,7 +13,7 @@ namespace ph
 Care must be taken when using an instance concurrently as things may break
 if some frame operators used cached data internally (race condition).
 */
-class FrameProcessor final : public INoncopyable
+class FrameProcessor final : public IMoveOnly
 {
 public:
 	using PipelineId = std::size_t;
