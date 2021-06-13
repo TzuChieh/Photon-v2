@@ -20,6 +20,9 @@ class RayDifferential;
 class Receiver : public TCommandInterface<Receiver>
 {
 public:
+	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_RECEIVER;
+
+public:
 	Receiver();
 
 	Receiver(

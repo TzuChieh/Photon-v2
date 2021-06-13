@@ -33,6 +33,9 @@ class RenderWorker;
 class Renderer: public TCommandInterface<Renderer>
 {
 public:
+	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_RENDERER;
+
+public:
 	template<typename T>
 	using TAABB2D = math::TAABB2D<T>;
 
@@ -106,7 +109,7 @@ public:
 
 inline ETypeCategory Renderer::getCategory() const
 {
-	return ETypeCategory::REF_RENDERER;
+	return CATEGORY;
 }
 
 inline uint32 Renderer::numWorkers() const

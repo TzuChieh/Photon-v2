@@ -15,6 +15,9 @@ class Time;
 class MotionSource : public TCommandInterface<MotionSource>
 {
 public:
+	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_MOTION;
+
+public:
 	MotionSource() = default;
 	
 	virtual std::unique_ptr<math::Transform> genLocalToWorld(
@@ -33,7 +36,7 @@ public:
 
 inline ETypeCategory MotionSource::getCategory() const
 {
-	return ETypeCategory::REF_MOTION;
+	return CATEGORY;
 }
 
 }// end namespace ph

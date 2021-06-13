@@ -22,14 +22,11 @@ class SdlStructFieldStump;
 template<typename Owner, typename FieldSet = TBasicSdlFieldSet<TOwnedSdlField<Owner>>>
 class TOwnerSdlClass : public SdlClass
 {
-	static_assert(std::is_base_of_v<ISdlResource, Owner>,
-		"Owner class must derive from ISdlResource.");
-
-	static_assert(!std::is_abstract_v<Owner> && std::is_default_constructible_v<Owner>,
-		"A non-abstract owner class must have a default constructor.");
+public:
+	using OwnerType = Owner;
 
 public:
-	TOwnerSdlClass(ETypeCategory category, std::string displayName);
+	explicit TOwnerSdlClass(std::string displayName);
 
 	std::shared_ptr<ISdlResource> createResource() const override;
 

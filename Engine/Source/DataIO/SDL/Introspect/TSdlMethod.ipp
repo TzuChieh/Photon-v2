@@ -49,6 +49,12 @@ inline void TSdlMethod<MethodStruct, TargetType>::callMethod(
 	ValueClauses&          clauses,
 	const SdlInputContext& ctx) const
 {
+	static_assert(!std::is_abstract_v<MethodStruct> && std::is_default_constructible_v<MethodStruct>,
+		"MethodStruct must be non-abstract and default-constructible.");
+
+	static_assert(std::is_invocable_v<MethodStruct, TargetType>,
+		"MethodStruct must contain an operator() that takes a TargetType.");
+
 	MethodStruct methodStructObj;
 	loadParameters(
 		methodStructObj,

@@ -30,6 +30,9 @@ class SampleContext;
 class SampleGenerator : public TCommandInterface<SampleGenerator>
 {
 public:
+	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_SAMPLE_GENERATOR;
+
+public:
 	SampleGenerator(std::size_t numSampleBatches, std::size_t maxCachedBatches);
 	explicit SampleGenerator(std::size_t numSampleBatches);
 	virtual ~SampleGenerator() = default;
@@ -101,7 +104,7 @@ public:
 
 inline ETypeCategory SampleGenerator::getCategory() const
 {
-	return ETypeCategory::REF_SAMPLE_GENERATOR;
+	return CATEGORY;
 }
 
 inline std::size_t SampleGenerator::numSampleBatches() const

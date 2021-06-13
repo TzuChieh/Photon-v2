@@ -11,11 +11,13 @@ using namespace ph::math;
 
 namespace
 {
-	class QuatOwner
-	{
-	public:
-		QuaternionR q;
-	};
+
+class QuatOwner
+{
+public:
+	QuaternionR q;
+};
+
 }
 
 TEST(TSdlQuaternionTest, RequiredProperties)

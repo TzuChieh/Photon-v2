@@ -18,6 +18,9 @@ class InputPacket;
 class LightSource : public TCommandInterface<LightSource>
 {
 public:
+	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_LIGHT_SOURCE;
+
+public:
 	LightSource() = default;
 
 	// Generates the core emission part of the light source.
@@ -50,7 +53,7 @@ public:
 
 inline ETypeCategory LightSource::getCategory() const
 {
-	return ETypeCategory::REF_LIGHT_SOURCE;
+	return CATEGORY;
 }
 
 }// end namespace ph

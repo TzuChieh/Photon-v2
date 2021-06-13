@@ -75,6 +75,7 @@ inline void load_fields_from_sdl(
 
 				// Only optional field will be silently set to default
 				// (emit notice for other importance levels)
+				//
 				const auto importance = field.getImportance();
 				if(importance != EFieldImportance::OPTIONAL)
 				{

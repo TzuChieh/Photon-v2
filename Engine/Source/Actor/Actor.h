@@ -13,6 +13,9 @@ class InputPacket;
 class Actor : public TCommandInterface<Actor>
 {
 public:
+	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_ACTOR;
+
+public:
 	Actor();
 	Actor(const Actor& other);
 
@@ -41,7 +44,7 @@ inline CookOrder Actor::getCookOrder() const
 
 inline ETypeCategory Actor::getCategory() const
 {
-	return ETypeCategory::REF_ACTOR;
+	return CATEGORY;
 }
 
 }// end namespace ph

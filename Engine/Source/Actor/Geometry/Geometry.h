@@ -20,6 +20,9 @@ class PrimitiveBuildingMaterial;
 class Geometry : public TCommandInterface<Geometry>
 {
 public:
+	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_GEOMETRY;
+
+public:
 	Geometry();
 
 	virtual void genPrimitive(
@@ -66,7 +69,7 @@ inline std::shared_ptr<Geometry> Geometry::genTriangulated() const
 
 inline ETypeCategory Geometry::getCategory() const
 {
-	return ETypeCategory::REF_GEOMETRY;
+	return CATEGORY;
 }
 
 }// end namespace ph

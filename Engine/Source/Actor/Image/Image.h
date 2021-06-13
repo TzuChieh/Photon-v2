@@ -19,6 +19,9 @@ class InputPacket;
 class Image : public TCommandInterface<Image>
 {
 public:
+	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_IMAGE;
+
+public:
 	Image();
 
 	virtual std::shared_ptr<TTexture<real>> genTextureReal(
@@ -54,7 +57,7 @@ public:
 
 inline ETypeCategory Image::getCategory() const
 {
-	return ETypeCategory::REF_IMAGE;
+	return CATEGORY;
 }
 
 }// end namespace ph

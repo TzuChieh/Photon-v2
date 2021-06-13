@@ -13,12 +13,6 @@ namespace ph
 template<typename MethodStruct, typename TargetType>
 class TSdlMethod : public SdlFunction
 {
-	static_assert(std::is_default_constructible_v<MethodStruct> && !std::is_abstract_v<MethodStruct>,
-		"MethodStruct must be default constructible.");
-
-	static_assert(std::is_invocable_v<MethodStruct, TargetType>,
-		"MethodStruct must contain operator() that takes a TargetType.");
-
 public:
 	explicit TSdlMethod(std::string name);
 

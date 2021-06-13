@@ -14,15 +14,27 @@
 namespace ph
 {
 
+/*! @brief Abstraction for a value that is owned by a resource.
+*/
 template<typename Owner>
 class TOwnedSdlField : public SdlField
 {
 public:
 	TOwnedSdlField(std::string typeName, std::string valueName);
 
+	/*! @brief Set the value of the field to a default one.
+	*/
 	virtual void setValueToDefault(Owner& owner) const = 0;
+
+	/*! @brief Convert the value of the field to human-readable string.
+	*/
 	virtual std::string valueToString(const Owner& owner) const = 0;
 
+	/*! @brief Acquire value and store in the owner's field.
+
+	The loading process will follow a series of preset policy. In addition,
+	failed loading attempt may be recovered if needed.
+	*/
 	void fromSdl(
 		Owner&                 owner, 
 		const std::string&     sdlValue,
@@ -33,10 +45,20 @@ public:
 		std::string* out_sdlValue,
 		std::string& out_message) const;
 
+	/*! @brief Sets the importance of the field.
+
+	Different importance affect the underlying policy used during the import
+	and export of the field, e.g., whether warnings are emitted.
+	*/
 	TOwnedSdlField& setImportance(EFieldImportance importance);
+
 	EFieldImportance getImportance() const;
 
-private:
+protected:
+	/*! @brief Load SDL value to actual value and store it in the owner's field.
+
+	@param sdlValue The SDL representation to be loaded into actual value.
+	*/
 	virtual void loadFromSdl(
 		Owner&                 owner, 
 		const std::string&     sdlValue,
@@ -47,9 +69,10 @@ private:
 		std::string* out_sdlValue,
 		std::string& out_converterMessage) const = 0;
 
+private:
 	EFieldImportance m_importance;
 
-	// Nested field need the ability to wrap calls including private ones
+	// Nested field need the ability to wrap calls including non-public ones
 	// Note that friend with partial specializations is not supported
 	// in C++17. We resort to making more friend classes than needed.
 	// 

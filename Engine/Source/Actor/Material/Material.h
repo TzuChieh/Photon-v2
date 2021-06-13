@@ -13,6 +13,9 @@ class PrimitiveMetadata;
 class Material : public TCommandInterface<Material>
 {
 public:
+	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_MATERIAL;
+
+public:
 	Material() = default;
 
 	virtual void genBehaviors(CookingContext& context, PrimitiveMetadata& metadata) const = 0;
@@ -30,7 +33,7 @@ public:
 
 inline ETypeCategory Material::getCategory() const
 {
-	return ETypeCategory::REF_MATERIAL;
+	return CATEGORY;
 }
 
 }// end namespace ph

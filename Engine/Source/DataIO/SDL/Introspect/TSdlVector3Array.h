@@ -27,7 +27,7 @@ public:
 
 	std::string valueToString(const Owner& owner) const override;
 
-private:
+protected:
 	void loadFromSdl(
 		Owner&                 owner,
 		const std::string&     sdlValue,

@@ -7,6 +7,7 @@
 #include "Common/assertion.h"
 #include "DataIO/SDL/sdl_exceptions.h"
 #include "DataIO/SDL/Introspect/SdlFunction.h"
+#include "DataIO/SDL/sdl_helpers.h"
 
 #include <type_traits>
 
@@ -14,9 +15,9 @@ namespace ph
 {
 
 template<typename Owner, typename FieldSet>
-inline TOwnerSdlClass<Owner, FieldSet>::TOwnerSdlClass(const ETypeCategory category, std::string displayName) :
+inline TOwnerSdlClass<Owner, FieldSet>::TOwnerSdlClass(std::string displayName) :
 
-	SdlClass(category, std::move(displayName)),
+	SdlClass(sdl::category_of<Owner>(), std::move(displayName)),
 
 	m_fields(),
 	m_functions()
@@ -27,6 +28,9 @@ inline std::shared_ptr<ISdlResource> TOwnerSdlClass<Owner, FieldSet>::createReso
 {
 	if constexpr(!std::is_abstract_v<Owner>)
 	{
+		static_assert(std::is_default_constructible_v<Owner>,
+			"A non-abstract owner class must have a default constructor.");
+
 		return std::make_shared<Owner>();
 	}
 	else
@@ -41,6 +45,9 @@ inline void TOwnerSdlClass<Owner, FieldSet>::initResource(
 	ValueClauses&          clauses,
 	const SdlInputContext& ctx) const
 {
+	static_assert(std::is_base_of_v<ISdlResource, Owner>,
+		"Owner class must derive from ISdlResource.");
+
 	// Init base first just like C++ does
 	if(isDerived())
 	{

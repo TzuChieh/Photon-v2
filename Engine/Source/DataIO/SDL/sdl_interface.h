@@ -28,18 +28,19 @@
 
 #define PH_DEFINE_SDL_CLASS(SDL_CLASS)\
 	\
-	using SdlClassType = SDL_CLASS;\
+	using ClassType = SDL_CLASS;\
+	using OwnerType = SDL_CLASS::OwnerType;\
 	\
-	inline static const SdlClassType& getSdlClass()\
+	inline static const ClassType& getSdlClass()\
 	{\
-		static_assert(std::is_base_of_v<::ph::SdlClass, SdlClassType>,\
+		static_assert(std::is_base_of_v<::ph::SdlClass, ClassType>,\
 			"PH_DEFINE_SDL_CLASS() must return a class derived from SdlClass.");\
 		\
-		static const SdlClassType sdlClass = internal_sdl_class_impl();\
+		static const ClassType sdlClass = internal_sdl_class_impl();\
 		return sdlClass;\
 	}\
 	\
-	inline static SdlClassType internal_sdl_class_impl()
+	inline static ClassType internal_sdl_class_impl()
 
 #define PH_DEFINE_SDL_STRUCT()\
 	inline static decltype(auto) getSdlStruct()\

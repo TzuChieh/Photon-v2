@@ -47,6 +47,12 @@ using Vector3F = TVector3<float32>;
 using Vector3D = TVector3<float64>;
 using Vector3S = TVector3<std::size_t>;
 
+// TODO: use actual vector4 type
+using Vector4R = TQuaternion<real>;
+using Vector4F = TQuaternion<float32>;
+using Vector4D = TQuaternion<float64>;
+using Vector4S = TQuaternion<std::size_t>;
+
 using QuaternionR = TQuaternion<real>;
 using QuaternionF = TQuaternion<float32>;
 using QuaternionD = TQuaternion<float64>;

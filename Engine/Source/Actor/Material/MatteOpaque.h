@@ -4,7 +4,7 @@
 #include "Math/math_fwd.h"
 #include "DataIO/SDL/TCommandInterface.h"
 #include "Actor/Image/Image.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "Actor/SDLExtension/sdl_interface_extended.h"
 
 #include <memory>
 
@@ -30,11 +30,22 @@ private:
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<MatteOpaque>)
 	{
-		SdlClassType clazz(ETypeCategory::REF_MATERIAL, "matte-opaque");
+		ClassType clazz("matte-opaque");
+		clazz.setDescription("A material model for surfaces with matte look, such as chalk and moon.");
 
+		// TODO: set base
 
+		TSdlGenericColor<OwnerType> albedo("albedo", &OwnerType::m_albedo);
+		albedo.description("An image or constant color that will be used for describing albedo.");
+		albedo.defaultToLinearSrgb(0.5_r);
+		clazz.addField(albedo);
 
-		return std::move(clazz);
+		TSdlGenericColor<OwnerType> sigmaDegrees("sigma-degrees", &OwnerType::m_sigmaDegrees);
+		sigmaDegrees.description("Roughness in standard deviation of surface orientation (unit: degrees).");
+		sigmaDegrees.optional();
+		clazz.addField(sigmaDegrees);
+
+		return clazz;
 	}
 
 	explicit MatteOpaque(const InputPacket& packet);

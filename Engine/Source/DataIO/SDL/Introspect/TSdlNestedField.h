@@ -28,7 +28,7 @@ public:
 	void setValueToDefault(OuterType& outerObj) const override;
 	std::string valueToString(const OuterType& outerObj) const override;
 
-private:
+protected:
 	void loadFromSdl(
 		OuterType&             outerObj,
 		const std::string&     sdlValue,
@@ -39,6 +39,7 @@ private:
 		std::string*     out_sdlValue,
 		std::string&     out_converterMessage) const override;
 
+private:
 	InnerType OuterType::*           m_innerObjPtr;
 	const TOwnedSdlField<InnerType>* m_innerObjField;
 };

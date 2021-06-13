@@ -12,16 +12,18 @@ using namespace ph;
 
 namespace
 {
-	struct TestInner
-	{
-		std::string str;
-	};
 
-	struct TestOuter
-	{
-		TestInner innerObj;
-	};
-}
+struct TestInner
+{
+	std::string str;
+};
+
+struct TestOuter
+{
+	TestInner innerObj;
+};
+
+}// end namespace
 
 // SDL string is the most trivial field as it simply copies the input
 

@@ -21,12 +21,14 @@ namespace
 class TestResource : public ISdlResource
 {
 public:
+	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_GEOMETRY;
+
 	real r;
 	std::string str;
 
 	ETypeCategory getCategory() const override
 	{
-		return ETypeCategory::REF_GEOMETRY;
+		return CATEGORY;
 	}
 };
 
@@ -62,7 +64,7 @@ TEST(TOwnerSdlClassTest, RequiredProperties)
 TEST(TOwnerSdlClassTest, DefaultStates)
 {
 	{
-		TOwnerSdlClass<TestResource> sdlClass(ETypeCategory::REF_GEOMETRY, "testName");
+		TOwnerSdlClass<TestResource> sdlClass("testName");
 
 		EXPECT_EQ(sdlClass.numFields(), 0);
 		EXPECT_EQ(sdlClass.numFunctions(), 0);
@@ -86,7 +88,7 @@ TEST(TOwnerSdlClassTest, DefaultStates)
 TEST(TOwnerSdlClassTest, AddAndGetFields)
 {
 	{
-		TOwnerSdlClass<TestResource> sdlClass(ETypeCategory::REF_GEOMETRY, "testName");
+		TOwnerSdlClass<TestResource> sdlClass("testName");
 		sdlClass.addField(TSdlReal<TestResource>("testReal", &TestResource::r));
 		EXPECT_EQ(sdlClass.numFields(), 1);
 
@@ -119,7 +121,7 @@ TEST(TOwnerSdlClassTest, AddAndGetFields)
 TEST(TOwnerSdlClassTest, AddAndGetFunctions)
 {
 	{
-		TOwnerSdlClass<TestResource> sdlClass(ETypeCategory::REF_GEOMETRY, "testName");
+		TOwnerSdlClass<TestResource> sdlClass("testName");
 		TSdlMethod<TestMethodStruct, TestResource> method("testMethod");
 		sdlClass.addFunction(&method);
 		EXPECT_EQ(sdlClass.numFunctions(), 1);
