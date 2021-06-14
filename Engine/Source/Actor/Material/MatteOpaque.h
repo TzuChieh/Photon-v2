@@ -32,8 +32,7 @@ public:
 	{
 		ClassType clazz("matte-opaque");
 		clazz.setDescription("A material model for surfaces with matte look, such as chalk and moon.");
-
-		// TODO: set base
+		clazz.setBase(&SurfaceMaterial::getSdlClass());
 
 		TSdlGenericColor<OwnerType> albedo("albedo", &OwnerType::m_albedo);
 		albedo.description("An image or constant color that will be used for describing albedo.");

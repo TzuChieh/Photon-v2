@@ -2,6 +2,7 @@
 
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "DataIO/SDL/TCommandInterface.h"
+#include "Actor/SDLExtension/sdl_interface_extended.h"
 
 namespace ph
 {
@@ -16,14 +17,20 @@ public:
 	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_MATERIAL;
 
 public:
-	Material() = default;
+	inline Material() = default;
 
 	virtual void genBehaviors(CookingContext& context, PrimitiveMetadata& metadata) const = 0;
 
 	ETypeCategory getCategory() const override; 
 
-// command interface
 public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Material>)
+	{
+		ClassType clazz("material");
+		clazz.setDescription("Defines and models the appearance of scene elements.");
+		return clazz;
+	}
+
 	explicit Material(const InputPacket& packet);
 	static SdlTypeInfo ciTypeInfo();
 	static void ciRegister(CommandRegister& cmdRegister);
