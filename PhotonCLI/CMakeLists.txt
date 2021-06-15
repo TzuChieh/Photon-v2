@@ -6,8 +6,8 @@ file(GLOB_RECURSE PHOTON_CLI_HEADER_FILES
 	"./*.tpp")
 file(GLOB_RECURSE PHOTON_CLI_SOURCE_FILES "./*.cpp")
 
-# explicitly mark them as headers
-set_source_files_properties(${PHOTON_CLI_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
+# Explicitly mark them as headers
+set_source_files_properties(${PHOTON_CLI_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)
 
 add_executable(PhotonCLI ${PHOTON_CLI_HEADER_FILES} ${PHOTON_CLI_SOURCE_FILES})
 add_dependencies(PhotonCLI Engine)

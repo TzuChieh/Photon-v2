@@ -296,6 +296,8 @@ load_library_manually(${OPENEXR_LIB_NAME}
 ###############################################################################
 
 add_subdirectory("./Engine/")
+add_subdirectory("./SDLGen/")
+add_subdirectory("./PhotonEditor/")
 
 if(BUILD_ENGINE_TEST)
     add_subdirectory("./EngineTest/")

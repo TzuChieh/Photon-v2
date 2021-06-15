@@ -13,8 +13,8 @@ file(GLOB_RECURSE ENGINE_HEADER_FILES
 )
 file(GLOB_RECURSE ENGINE_SOURCE_FILES "./Source/*.cpp")
 
-# explicitly mark them as engine headers
-set_source_files_properties(${ENGINE_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
+# Explicitly mark them as engine headers
+set_source_files_properties(${ENGINE_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)
 
 add_library(Engine ${ENGINE_HEADER_FILES} ${ENGINE_SOURCE_FILES})
 
