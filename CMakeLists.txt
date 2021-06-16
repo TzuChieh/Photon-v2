@@ -304,6 +304,31 @@ load_library_via_pkgconfig(${GLFW_LIB_NAME}
     CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GLFW_LIB_NAME}/lib/pkgconfig/"
     RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GLFW_LIB_NAME}/bin/")
 
+#------------------------------------------------------------------------------
+# glad
+#------------------------------------------------------------------------------
+set(GLAD_LIB_NAME "glad")
+load_library_via_config(${GLAD_LIB_NAME}
+    TARGETS    "glad"
+    CONFIG_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GLAD_LIB_NAME}/share/")
+
+#------------------------------------------------------------------------------
+# imgui
+#------------------------------------------------------------------------------
+# We do not use imgui the standard way here, as its design is to include the
+# library source into your project directly. Several variables are set here
+# to facilitate the integration process.
+
+set(IMGUI_LIB_INCLUDE_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/imgui/")
+set(IMGUI_LIB_SOURCE_FILES
+    "${IMGUI_LIB_INCLUDE_DIR}/imgui.cpp"
+    "${IMGUI_LIB_INCLUDE_DIR}/imgui_demo.cpp"
+    "${IMGUI_LIB_INCLUDE_DIR}/imgui_draw.cpp"
+    "${IMGUI_LIB_INCLUDE_DIR}/imgui_tables.cpp"
+    "${IMGUI_LIB_INCLUDE_DIR}/imgui_widgets.cpp")
+set(IMGUI_LIB_GLFW_IMPL_FILE    "${IMGUI_LIB_INCLUDE_DIR}/backends/imgui_impl_glfw.cpp")
+set(IMGUI_LIB_OPENGL3_IMPL_FILE "${IMGUI_LIB_INCLUDE_DIR}/backends/imgui_impl_opengl3.cpp")
+
 ###############################################################################
 # Add CMake Subdirectories                                                    #
 ###############################################################################
