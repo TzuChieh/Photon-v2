@@ -70,6 +70,6 @@ add_library(EngineStatic STATIC $<TARGET_OBJECTS:EngineObjLib>)
 
 ]]
 
-# make these directories accessible for other sub-projects
+# Make these directories accessible for other sub-projects
 set(ENGINE_INCLUDE_DIR         "${ENGINE_INCLUDE_DIR}"         PARENT_SCOPE)
 set(ENGINE_PRIVATE_INCLUDE_DIR "${ENGINE_PRIVATE_INCLUDE_DIR}" PARENT_SCOPE)

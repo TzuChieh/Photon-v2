@@ -30,7 +30,12 @@ function(load_library_via_pkgconfig libName)
     
     cmake_parse_arguments(ARG_PKG "${OPTIONS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
 
-    find_package(PkgConfig QUIET)
+    if(ARG_PKG_OPTIONAL)
+        find_package(PkgConfig QUIET)
+    else()
+        find_package(PkgConfig)
+    endif()
+
     if(NOT PkgConfig_FOUND)
         if(ARG_PKG_OPTIONAL)
             message(VERBOSE 

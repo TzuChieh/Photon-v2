@@ -78,23 +78,26 @@ endif()
 # Build Options                                                               #
 ###############################################################################
 
+# This is a global flag that affects CMake internal workings
 option(BUILD_SHARED_LIBS
     "Build as shared libraries (if applicable)."
     OFF)
 
-set(BUILD_PHOTON_CLI_DEFAULT ON)
+set(BUILD_SDL_GEN_DEFAULT       ON)
+set(BUILD_PHOTON_CLI_DEFAULT    ON)
+set(BUILD_PHOTON_EDITOR_DEFAULT ON)
+set(BUILD_ENGINE_TEST_DEFAULT   ON)
+set(BUILD_EDITOR_JNI_DEFAULT    OFF)
 
 if(WIN32)
-    set(BUILD_ENGINE_TEST_DEFAULT ON)
-    set(BUILD_EDITOR_JNI_DEFAULT  ON)
-else()
-    set(BUILD_ENGINE_TEST_DEFAULT OFF)
-    set(BUILD_EDITOR_JNI_DEFAULT  OFF)
+    set(BUILD_EDITOR_JNI_DEFAULT ON)
 endif()
 
-option(BUILD_PHOTON_CLI  "Build command-line application."   ${BUILD_PHOTON_CLI_DEFAULT})
-option(BUILD_ENGINE_TEST "Build unit tests for core engine." ${BUILD_ENGINE_TEST_DEFAULT})
-option(BUILD_EDITOR_JNI  "Build JNI for GUI."                ${BUILD_EDITOR_JNI_DEFAULT})
+option(BUILD_SDL_GEN       "Build SDL automation tool."        ${BUILD_SDL_GEN_DEFAULT})
+option(BUILD_PHOTON_CLI    "Build command-line application."   ${BUILD_PHOTON_CLI_DEFAULT})
+option(BUILD_PHOTON_EDITOR "Build editor application."         ${BUILD_PHOTON_EDITOR_DEFAULT})
+option(BUILD_ENGINE_TEST   "Build unit tests for core engine." ${BUILD_ENGINE_TEST_DEFAULT})
+option(BUILD_EDITOR_JNI    "Build JNI for GUI."                ${BUILD_EDITOR_JNI_DEFAULT})
 
 set(THIRD_PARTY_LIBS_INSTALL_DIR 
     "${THIRDPARTY_DIR}/Prebuilt/${THIRD_PARTY_PLATFORM}/release/ThirdParty/" 
@@ -291,13 +294,29 @@ load_library_manually(${OPENEXR_LIB_NAME}
     INC_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/OpenEXR/include/"
     RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
 
+#------------------------------------------------------------------------------
+# glfw
+#------------------------------------------------------------------------------
+set(GLFW_LIB_NAME "glfw")
+
+load_library_via_pkgconfig(${GLFW_LIB_NAME}
+    TARGETS     "glfw3"
+    CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GLFW_LIB_NAME}/lib/pkgconfig/"
+    RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GLFW_LIB_NAME}/bin/")
+
 ###############################################################################
 # Add CMake Subdirectories                                                    #
 ###############################################################################
 
 add_subdirectory("./Engine/")
-add_subdirectory("./SDLGen/")
-add_subdirectory("./PhotonEditor/")
+
+if(BUILD_SDL_GEN)
+    add_subdirectory("./SDLGen/")
+endif()
+
+if(BUILD_PHOTON_EDITOR)
+    add_subdirectory("./PhotonEditor/")
+endif()
 
 if(BUILD_ENGINE_TEST)
     add_subdirectory("./EngineTest/")

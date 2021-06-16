@@ -33,7 +33,7 @@ function(load_library_via_config libName)
     if(ARG_CFG_OPTIONAL)
     	set(REQUIREMENT QUIET)
     else()
-        set(REQUIREMENT REQUIRED)
+        set(REQUIREMENT)
     endif()
     
     # Try to find library targets with find_package() in config mode 
