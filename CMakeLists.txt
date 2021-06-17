@@ -305,18 +305,14 @@ load_library_via_config(${GLFW_LIB_NAME}
     CONFIG_NAMES "glfw3"
     RUNTIME_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/glfw/bin/")
 
-# load_library_via_pkgconfig(${GLFW_LIB_NAME}
-#     TARGETS     "glfw3"
-#     CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GLFW_LIB_NAME}/lib/pkgconfig/"
-#     RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GLFW_LIB_NAME}/bin/")
-
 #------------------------------------------------------------------------------
 # glad
 #------------------------------------------------------------------------------
 set(GLAD_LIB_NAME "glad")
 load_library_via_config(${GLAD_LIB_NAME}
-    TARGETS    "glad"
-    CONFIG_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GLAD_LIB_NAME}/share/")
+    TARGETS     "glad"
+    CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GLAD_LIB_NAME}/share/"
+    RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/glad/bin/")
 
 #------------------------------------------------------------------------------
 # imgui
