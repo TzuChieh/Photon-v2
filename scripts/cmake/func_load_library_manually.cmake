@@ -28,7 +28,7 @@ function(load_library_manually libName)
         LIB_NAMES)
     
     cmake_parse_arguments(ARG_MANUAL "${OPTIONS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
-    
+
     # Expose cache variables that can be manually set by the user
     set(MANUAL_${libName}_INC_DIRS    "" CACHE PATH 
         "${libName} library's include directories.")
@@ -38,6 +38,14 @@ function(load_library_manually libName)
         "${libName} library's static lib names.")
     set(MANUAL_${libName}_RUNTIME_DIR "" CACHE PATH 
         "${libName} library's runtime directory.")
+
+    # Default to empty lists for manual library searching
+    if(NOT DEFINED ARG_MANUAL_LIB_NAMES)
+        set(ARG_MANUAL_LIB_NAMES "")
+    endif()
+    if(NOT DEFINED ARG_MANUAL_LIB_DIRS)
+        set(ARG_MANUAL_LIB_DIRS "")
+    endif()
 
     set(LIBS_LIST)
     set(ALL_LIBS_FOUND TRUE)
@@ -65,13 +73,13 @@ function(load_library_manually libName)
     endforeach()
 
     # If targets are specified, library information should be complete
-    if(ARG_MANUAL_TARGETS)
+    if(DEFINED ARG_MANUAL_TARGETS)
         set(MANUAL_${libName}_TARGETS ${ARG_MANUAL_TARGETS} PARENT_SCOPE)
 
         set(${libName}_LOADED TRUE)
     # Otherwise, all libraries must be found and requires at least an
     # include directory specified
-    elseif(ALL_LIBS_FOUND AND ARG_MANUAL_INC_DIRS)
+    elseif(ALL_LIBS_FOUND AND DEFINED ARG_MANUAL_INC_DIRS)
         # TODO: check include dir and runtime dir exists
 
         set(MANUAL_${libName}_INCLUDES  ${ARG_MANUAL_INC_DIRS} PARENT_SCOPE)
@@ -82,6 +90,11 @@ function(load_library_manually libName)
 
     # Expose general information about how the library is loaded
     if(${libName}_LOADED)
+    
+        if(NOT DEFINED ARG_MANUAL_RUNTIME_DIR)
+            set(ARG_MANUAL_RUNTIME_DIR "")
+        endif()
+
         set(${libName}_LOAD_MODE   "MANUAL"                  PARENT_SCOPE)
         set(${libName}_LOADED      ${${libName}_LOADED}      PARENT_SCOPE)
         set(${libName}_RUNTIME_DIR ${ARG_MANUAL_RUNTIME_DIR} PARENT_SCOPE)

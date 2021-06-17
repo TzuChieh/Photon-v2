@@ -299,10 +299,16 @@ load_library_manually(${OPENEXR_LIB_NAME}
 #------------------------------------------------------------------------------
 set(GLFW_LIB_NAME "glfw")
 
-load_library_via_pkgconfig(${GLFW_LIB_NAME}
-    TARGETS     "glfw3"
-    CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GLFW_LIB_NAME}/lib/pkgconfig/"
-    RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GLFW_LIB_NAME}/bin/")
+load_library_via_config(${GLFW_LIB_NAME}
+    TARGETS      "glfw" NO_PREFIX_ON_TARGETS
+    CONFIG_DIR   "${THIRD_PARTY_LIBS_INSTALL_DIR}/glfw/lib/cmake/glfw3/"
+    CONFIG_NAMES "glfw3"
+    RUNTIME_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/glfw/bin/")
+
+# load_library_via_pkgconfig(${GLFW_LIB_NAME}
+#     TARGETS     "glfw3"
+#     CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GLFW_LIB_NAME}/lib/pkgconfig/"
+#     RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GLFW_LIB_NAME}/bin/")
 
 #------------------------------------------------------------------------------
 # glad
@@ -319,15 +325,19 @@ load_library_via_config(${GLAD_LIB_NAME}
 # library source into your project directly. Several variables are set here
 # to facilitate the integration process.
 
-set(IMGUI_LIB_INCLUDE_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/imgui/")
+set(IMGUI_LIB_NAME        "imgui")
+set(IMGUI_LIB_INSTALL_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${IMGUI_LIB_NAME}/")
+set(IMGUI_LIB_INCLUDE_DIRS
+    "${IMGUI_LIB_INSTALL_DIR}/"
+    "${IMGUI_LIB_INSTALL_DIR}/backends/")
 set(IMGUI_LIB_SOURCE_FILES
-    "${IMGUI_LIB_INCLUDE_DIR}/imgui.cpp"
-    "${IMGUI_LIB_INCLUDE_DIR}/imgui_demo.cpp"
-    "${IMGUI_LIB_INCLUDE_DIR}/imgui_draw.cpp"
-    "${IMGUI_LIB_INCLUDE_DIR}/imgui_tables.cpp"
-    "${IMGUI_LIB_INCLUDE_DIR}/imgui_widgets.cpp")
-set(IMGUI_LIB_GLFW_IMPL_FILE    "${IMGUI_LIB_INCLUDE_DIR}/backends/imgui_impl_glfw.cpp")
-set(IMGUI_LIB_OPENGL3_IMPL_FILE "${IMGUI_LIB_INCLUDE_DIR}/backends/imgui_impl_opengl3.cpp")
+    "${IMGUI_LIB_INSTALL_DIR}/imgui.cpp"
+    "${IMGUI_LIB_INSTALL_DIR}/imgui_demo.cpp"
+    "${IMGUI_LIB_INSTALL_DIR}/imgui_draw.cpp"
+    "${IMGUI_LIB_INSTALL_DIR}/imgui_tables.cpp"
+    "${IMGUI_LIB_INSTALL_DIR}/imgui_widgets.cpp")
+set(IMGUI_LIB_GLFW_IMPL_FILES    "${IMGUI_LIB_INSTALL_DIR}/backends/imgui_impl_glfw.cpp")
+set(IMGUI_LIB_OPENGL3_IMPL_FILES "${IMGUI_LIB_INSTALL_DIR}/backends/imgui_impl_opengl3.cpp")
 
 ###############################################################################
 # Add CMake Subdirectories                                                    #
