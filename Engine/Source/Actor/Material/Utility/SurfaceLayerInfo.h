@@ -4,6 +4,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
+#include "Actor/SDLExtension/sdl_interface_extended.h"
 
 #include <vector>
 
@@ -38,6 +39,20 @@ private:
 
 	static Spectrum loadIorN(const InputPacket& packet, const Spectrum& defaultIorN);
 	static Spectrum loadIorK(const InputPacket& packet, const Spectrum& defaultIorK);
+
+public:
+	/*PH_DEFINE_SDL_STRUCT(TOwnerSdlStruct<SurfaceLayerInfo>)
+	{
+		StructType ztruct("surface-layer-info");
+		ztruct.setDescription("Information for layered material construction.");
+
+		TSdlReal<StructType> roughness("roughness", &StructType::m_roughness);
+		roughness.description("Roughness of the layer.");
+		roughness.defaultTo(0);
+		ztruct.addField(roughness);
+
+		return ztruct;
+	}*/
 };
 
 // In-header Implementations:

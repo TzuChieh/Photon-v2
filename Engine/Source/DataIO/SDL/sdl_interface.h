@@ -26,10 +26,10 @@
 
 // TODO: need traits helper to verify a sdl class/struct also contains the required macro
 
-#define PH_DEFINE_SDL_CLASS(SDL_CLASS)\
+#define PH_DEFINE_SDL_CLASS(SDL_CLASS_TYPE)\
 	\
-	using ClassType = SDL_CLASS;\
-	using OwnerType = SDL_CLASS::OwnerType;\
+	using ClassType = SDL_CLASS_TYPE;\
+	using OwnerType = SDL_CLASS_TYPE::OwnerType;\
 	\
 	inline static const ClassType& getSdlClass()\
 	{\
@@ -42,18 +42,21 @@
 	\
 	inline static ClassType internal_sdl_class_impl()
 
-#define PH_DEFINE_SDL_STRUCT()\
-	inline static decltype(auto) getSdlStruct()\
+#define PH_DEFINE_SDL_STRUCT(SDL_STRUCT_TYPE)\
+	\
+	using StructType = SDL_STRUCT_TYPE;\
+	using OwnerType  = SDL_STRUCT_TYPE::OwnerType;\
+	\
+	inline static const StructType& getSdlStruct()\
 	{\
-		using SdlStructType = decltype(sdl_struct_impl_internal());\
-		static_assert(std::is_base_of_v<::ph::SdlStruct, SdlStructType>,\
+		static_assert(std::is_base_of_v<::ph::SdlStruct, StructType>,\
 			"PH_DEFINE_SDL_STRUCT() must return a struct derived from SdlStruct.");\
 		\
-		static const auto sdlStruct = internal_sdl_struct_impl();\
+		static const StructType sdlStruct = internal_sdl_struct_impl();\
 		return sdlStruct;\
 	}\
 	\
-	inline static decltype(auto) internal_sdl_struct_impl()
+	inline static StructType internal_sdl_struct_impl()
 
 #define PH_DEFINE_SDL_FUNCTION()\
 	inline static decltype(auto) getSdlFunction()\

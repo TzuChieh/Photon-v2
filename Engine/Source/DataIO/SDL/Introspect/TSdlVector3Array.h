@@ -25,7 +25,10 @@ class TSdlVector3Array : public TSdlValue<std::vector<math::TVector3<Element>>, 
 public:
 	TSdlVector3Array(std::string valueName, std::vector<math::TVector3<Element>> Owner::* valuePtr);
 
-	std::string valueToString(const Owner& owner) const override;
+	inline std::string valueAsString(const std::vector<math::TVector3<Element>>& vec3Array) const override
+	{
+		return "[" + std::to_string(vec3Array.size()) + " vector3 values...]";
+	}
 
 protected:
 	void loadFromSdl(
@@ -51,12 +54,6 @@ inline TSdlVector3Array<Owner, Element>::TSdlVector3Array(
 		std::move(valueName), 
 		valuePtr)
 {}
-
-template<typename Owner, typename Element>
-inline std::string TSdlVector3Array<Owner, Element>::valueToString(const Owner& owner) const
-{
-	return "[" + std::to_string(getValue(owner).size()) + " vector3 values...]";
-}
 
 template<typename Owner, typename Element>
 inline void TSdlVector3Array<Owner, Element>::loadFromSdl(

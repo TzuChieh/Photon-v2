@@ -33,10 +33,10 @@ TEST(TSdlVector3Test, ReadFromSdl)
 		TSdlVector3<VecOwner> sdlVec("dir", &VecOwner::v);
 
 		// By default the default value is zero vector
-		EXPECT_EQ(sdlVec.getDefaultValue(), Vector3R(0, 0, 0));
+		EXPECT_EQ(sdlVec.defaultValue(), Vector3R(0, 0, 0));
 
 		sdlVec.defaultTo(Vector3R(0, 1, 0));
-		EXPECT_EQ(sdlVec.getDefaultValue(), Vector3R(0, 1, 0));
+		EXPECT_EQ(sdlVec.defaultValue(), Vector3R(0, 1, 0));
 
 		VecOwner owner;
 		owner.v = Vector3R(0);

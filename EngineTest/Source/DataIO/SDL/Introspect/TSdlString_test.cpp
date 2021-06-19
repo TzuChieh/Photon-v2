@@ -34,10 +34,10 @@ TEST(TSdlStringTest, ReadFromSdl)
 		TSdlString<StrOwner> sdlStr("dog-name", &StrOwner::s);
 
 		// By default the default value is empty string
-		EXPECT_EQ(sdlStr.getDefaultValue(), "");
+		EXPECT_EQ(sdlStr.defaultValue(), "");
 
 		sdlStr.defaultTo("Lucy");
-		EXPECT_EQ(sdlStr.getDefaultValue(), "Lucy");
+		EXPECT_EQ(sdlStr.defaultValue(), "Lucy");
 
 		StrOwner owner;
 		owner.s = "this is some random string";

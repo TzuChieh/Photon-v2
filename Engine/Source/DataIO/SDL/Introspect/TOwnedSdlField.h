@@ -15,6 +15,8 @@ namespace ph
 {
 
 /*! @brief Abstraction for a value that is owned by a resource.
+
+Governs how a field should be initialized on the policy level.
 */
 template<typename Owner>
 class TOwnedSdlField : public SdlField
@@ -45,13 +47,6 @@ public:
 		std::string* out_sdlValue,
 		std::string& out_message) const;
 
-	/*! @brief Sets the importance of the field.
-
-	Different importance affect the underlying policy used during the import
-	and export of the field, e.g., whether warnings are emitted.
-	*/
-	TOwnedSdlField& setImportance(EFieldImportance importance);
-
 	EFieldImportance getImportance() const;
 
 protected:
@@ -68,6 +63,13 @@ protected:
 		const Owner& owner,
 		std::string* out_sdlValue,
 		std::string& out_converterMessage) const = 0;
+
+	/*! @brief Sets the importance of the field.
+
+	Different importance affect the underlying policy used during the import
+	and export of the field, e.g., whether warnings are emitted.
+	*/
+	TOwnedSdlField& setImportance(EFieldImportance importance);
 
 private:
 	EFieldImportance m_importance;

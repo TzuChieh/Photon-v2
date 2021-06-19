@@ -14,9 +14,11 @@ namespace ph
 {
 
 /*! @brief A field that lives within an inner object.
+
+Field properties (importance, fall back, etc.) are initialized to the same
+values as inner field, and can be overridden by manually setting the properties
+later.
 */
-// TODO: policy for changing field attributes on nested field--
-// corresponding inner field attributes will not change, what to do?
 template<typename OuterType, typename InnerType>
 class TSdlNestedField : public TOwnedSdlField<OuterType>
 {
@@ -65,7 +67,7 @@ inline TSdlNestedField<OuterType, InnerType>::TSdlNestedField(
 		"setting self as inner field is forbidden (will result in infinite recursive calls)");
 
 	setDescription(m_innerObjField->getDescription());
-	enableFallback(m_innerObjField->isFallbackEnabled());
+	setEnableFallback(m_innerObjField->isFallbackEnabled());
 	setImportance(m_innerObjField->getImportance());
 }
 

@@ -35,10 +35,10 @@ TEST(TSdlQuaternionTest, ReadFromSdl)
 		TSdlQuaternion<QuatOwner> sdlQuat("rrr", &QuatOwner::q);
 
 		// By default the default value is a no-rotation one
-		EXPECT_EQ(sdlQuat.getDefaultValue(), QuaternionR::makeNoRotation());
+		EXPECT_EQ(sdlQuat.defaultValue(), QuaternionR::makeNoRotation());
 
 		sdlQuat.defaultTo(QuaternionR(0, 1, 0, 1));
-		EXPECT_EQ(sdlQuat.getDefaultValue(), QuaternionR(0, 1, 0, 1));
+		EXPECT_EQ(sdlQuat.defaultValue(), QuaternionR(0, 1, 0, 1));
 
 		QuatOwner owner;
 		owner.q = QuaternionR::makeNoRotation();

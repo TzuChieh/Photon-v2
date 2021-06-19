@@ -33,7 +33,7 @@ TEST(TSdlRealArrayTest, ReadFromSdl)
 		TSdlRealArray<RealArrOwner> sdlRealArr("array", &RealArrOwner::arr);
 
 		// Default initialization performed on default value by default
-		EXPECT_TRUE(sdlRealArr.getDefaultValue().empty());
+		EXPECT_TRUE(sdlRealArr.defaultValue().empty());
 
 		RealArrOwner owner;
 		SdlInputContext ctx;

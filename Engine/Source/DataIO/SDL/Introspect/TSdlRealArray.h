@@ -28,7 +28,10 @@ class TSdlRealArray : public TSdlValue<std::vector<Element>, Owner>
 public:
 	TSdlRealArray(std::string valueName, std::vector<Element> Owner::* valuePtr);
 
-	std::string valueToString(const Owner& owner) const override;
+	inline std::string valueAsString(const std::vector<Element>& realArray) const override
+	{
+		return "[" + std::to_string(realArray.size()) + " real values...]";
+	}
 
 protected:
 	void loadFromSdl(
@@ -54,12 +57,6 @@ inline TSdlRealArray<Owner, Element>::TSdlRealArray(
 		std::move(valueName), 
 		valuePtr)
 {}
-
-template<typename Owner, typename Element>
-inline std::string TSdlRealArray<Owner, Element>::valueToString(const Owner& owner) const
-{
-	return "[" + std::to_string(getValue(owner).size()) + " real values...]";
-}
 
 template<typename Owner, typename Element>
 inline void TSdlRealArray<Owner, Element>::loadFromSdl(

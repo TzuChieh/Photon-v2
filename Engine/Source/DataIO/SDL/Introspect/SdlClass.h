@@ -4,6 +4,7 @@
 #include "Common/Logger.h"
 #include "DataIO/SDL/ValueClauses.h"
 #include "DataIO/SDL/ETypeCategory.h"
+#include "Utility/IMoveOnly.h"
 
 #include <vector>
 #include <memory>

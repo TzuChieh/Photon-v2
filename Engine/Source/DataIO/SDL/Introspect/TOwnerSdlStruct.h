@@ -15,6 +15,9 @@ template<typename StructType>
 class TOwnerSdlStruct : public SdlStruct
 {
 public:
+	using OwnerType = StructType;
+
+public:
 	explicit TOwnerSdlStruct(std::string name);
 
 	std::size_t numFields() const override;

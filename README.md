@@ -40,7 +40,7 @@ If you use Photon in your research project, you are hightly encouraged to cite i
 ```latex.bib
 @misc{Photon,
 	Author = {Tzu-Chieh Chang},
-	Year   = {2016--2020},
+	Year   = {2016--2021},
 	Title  = {Photon renderer},
 	Note   = {https://github.com/TzuChieh/Photon-v2}
 } 

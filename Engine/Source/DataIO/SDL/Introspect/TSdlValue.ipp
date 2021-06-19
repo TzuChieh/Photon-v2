@@ -2,6 +2,8 @@
 
 #include "DataIO/SDL/Introspect/TSdlValue.h"
 
+#include <utility>
+
 namespace ph
 {
 
@@ -11,7 +13,7 @@ inline TSdlValue<T, Owner>::TSdlValue(
 	std::string      valueName, 
 	T Owner::* const valuePtr) : 
 
-	TOwnedSdlField<Owner>(std::move(typeName), std::move(valueName)),
+	TAbstractSdlValue<T, Owner>(std::move(typeName), std::move(valueName)),
 
 	m_valuePtr    (valuePtr),
 	m_defaultValue()
@@ -20,11 +22,35 @@ inline TSdlValue<T, Owner>::TSdlValue(
 }
 
 template<typename T, typename Owner>
+inline void TSdlValue<T, Owner>::setValue(Owner& owner, T value) const
+{
+	owner.*m_valuePtr = std::move(value);
+}
+
+template<typename T, typename Owner>
+inline const T* TSdlValue<T, Owner>::getValue(const Owner& owner) const
+{
+	return &(owner.*m_valuePtr);
+}
+
+template<typename T, typename Owner>
+inline void TSdlValue<T, Owner>::setValueToDefault(Owner& owner) const
+{
+	setValue(owner, m_defaultValue);
+}
+
+template<typename T, typename Owner>
 inline auto TSdlValue<T, Owner>::defaultTo(T defaultValue)
 -> TSdlValue&
 {
 	m_defaultValue = std::move(defaultValue);
 	return *this;
+}
+
+template<typename T, typename Owner>
+inline const T& TSdlValue<T, Owner>::defaultValue() const
+{
+	return m_defaultValue;
 }
 
 template<typename T, typename Owner>
@@ -41,30 +67,6 @@ inline auto TSdlValue<T, Owner>::description(std::string descriptionStr)
 {
 	setDescription(std::move(descriptionStr));
 	return *this;
-}
-
-template<typename T, typename Owner>
-inline void TSdlValue<T, Owner>::setValue(Owner& owner, T value) const
-{
-	owner.*m_valuePtr = std::move(value);
-}
-
-template<typename T, typename Owner>
-inline void TSdlValue<T, Owner>::setValueToDefault(Owner& owner) const
-{
-	setValue(owner, m_defaultValue);
-}
-
-template<typename T, typename Owner>
-inline const T& TSdlValue<T, Owner>::getValue(const Owner& owner) const
-{
-	return owner.*m_valuePtr;
-}
-
-template<typename T, typename Owner>
-inline const T& TSdlValue<T, Owner>::getDefaultValue() const
-{
-	return m_defaultValue;
 }
 
 template<typename T, typename Owner>
@@ -86,6 +88,14 @@ inline auto TSdlValue<T, Owner>::required()
 -> TSdlValue&
 {
 	return withImportance(EFieldImportance::REQUIRED);
+}
+
+template<typename T, typename Owner>
+inline auto TSdlValue<T, Owner>::enableFallback(const bool isFallbackEnabled)
+-> TSdlValue&
+{
+	setEnableFallback(isFallbackEnabled);
+	return *this;
 }
 
 }// end namespace ph

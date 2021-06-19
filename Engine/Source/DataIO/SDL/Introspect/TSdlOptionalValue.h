@@ -4,20 +4,25 @@
 #include "Common/assertion.h"
 
 #include <string_view>
+#include <optional>
 
 namespace ph
 {
 
-/*! @brief Abstractions for a SDL value type.
+/*! @brief Abstractions for a SDL value type that can be empty.
+
+An optional SDL value defaults to empty (no value) and has optional importance
+(@p EFieldImportance::OPTIONAL) always. If the above properties are undesired,
+consider using @p TSdlValue.
 */
 template<typename T, typename Owner>
-class TSdlValue : public TAbstractSdlValue<T, Owner>
+class TSdlOptionalValue : public TAbstractSdlValue<T, Owner>
 {
 public:
-	TSdlValue(
-		std::string typeName, 
-		std::string valueName, 
-		T Owner::*  valuePtr);
+	TSdlOptionalValue(
+		std::string               typeName, 
+		std::string               valueName, 
+		std::optional<T> Owner::* valuePtr);
 
 	std::string valueAsString(const T& value) const override = 0;
 
@@ -25,14 +30,7 @@ public:
 	const T* getValue(const Owner& owner) const override;
 	void setValueToDefault(Owner& owner) const override;
 
-	TSdlValue& defaultTo(T defaultValue);
-	const T& defaultValue() const;
-	TSdlValue& withImportance(EFieldImportance importance);
-	TSdlValue& description(std::string descriptionStr);
-	TSdlValue& optional();
-	TSdlValue& niceToHave();
-	TSdlValue& required();
-	TSdlValue& enableFallback(bool isFallbackEnabled);
+	TSdlOptionalValue& description(std::string descriptionStr);
 
 protected:
 	void loadFromSdl(
@@ -46,10 +44,9 @@ protected:
 		std::string& out_converterMessage) const override = 0;
 
 private:
-	T Owner::* m_valuePtr;
-	T          m_defaultValue;
+	std::optional<T> Owner::* m_valuePtr;
 };
 
 }// end namespace ph
 
-#include "DataIO/SDL/Introspect/TSdlValue.ipp"
+#include "DataIO/SDL/Introspect/TSdlOptionalValue.ipp"

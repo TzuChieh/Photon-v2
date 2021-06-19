@@ -22,7 +22,10 @@ class TSdlQuaternion : public TSdlValue<math::TQuaternion<Element>, Owner>
 public:
 	TSdlQuaternion(std::string valueName, math::TQuaternion<Element> Owner::* valuePtr);
 	
-	std::string valueToString(const Owner& owner) const override;
+	inline std::string valueAsString(const math::TQuaternion<Element>& quat) const override
+	{
+		return quat.toString();
+	}
 
 protected:
 	void loadFromSdl(
@@ -43,12 +46,6 @@ inline TSdlQuaternion<Owner, Element>::TSdlQuaternion(std::string valueName, mat
 	TSdlValue<math::TQuaternion<Element>, Owner>("quaternion", std::move(valueName), valuePtr)
 {
 	defaultTo(math::TQuaternion<Element>::makeNoRotation());
-}
-
-template<typename Owner, typename Element>
-inline std::string TSdlQuaternion<Owner, Element>::valueToString(const Owner& owner) const
-{
-	return getValue(owner).toString();
 }
 
 template<typename Owner, typename Element>

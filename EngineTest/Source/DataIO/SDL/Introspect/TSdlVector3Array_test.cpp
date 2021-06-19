@@ -34,7 +34,7 @@ TEST(TSdlVector3ArrayTest, ReadFromSdl)
 		TSdlVector3Array<Vec3ArrOwner> sdlVec3Arr("array", &Vec3ArrOwner::arr);
 
 		// Default initialization performed on default value by default
-		EXPECT_TRUE(sdlVec3Arr.getDefaultValue().empty());
+		EXPECT_TRUE(sdlVec3Arr.defaultValue().empty());
 
 		Vec3ArrOwner owner;
 		SdlInputContext ctx;
